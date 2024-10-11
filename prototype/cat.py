@@ -39,6 +39,31 @@ class CAT_shader:
         self.frag_id = frag_id;
         self.prog_id = prog_id;
 
+class CAT_texture:
+    def __init__(self, width, height):
+        self.width = width;
+        self.height = height;
+        self.data = np.zeros((height * height * 3), dtype=np.uint8);
+
+    def read(self, x, y):
+        idx = y * self.width * 3 + x * 3;
+        return self.data[idx:idx+3];
+
+    def write(self, x, y, r, g, b):
+        idx = y * self.width * 3 + x * 3;
+        self.data[idx + 0] = r;
+        self.data[idx + 1] = g;
+        self.data[idx + 2] = b;
+    
+    def from_image(path):
+        img = iio.imread(path);
+        tex = CAT_texture(img.shape[1], img.shape[0]);
+        for y in range(tex.height):
+            for x in range(tex.width):
+                c = img[tex.height-y-1][x];
+                tex.write(x, y, c[0], c[1], c[2]);
+        return tex;
+
 class CAT_display:
     def __init__(self):
         if not glfw.init():
@@ -49,6 +74,7 @@ class CAT_display:
         glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 3);
         glfw.window_hint(glfw.OPENGL_PROFILE, glfw.OPENGL_CORE_PROFILE);
         glfw.window_hint(glfw.OPENGL_FORWARD_COMPAT, GL_TRUE);
+        glfw.window_hint(glfw.RESIZABLE, GL_FALSE)
         handle = glfw.create_window(240, 320, "Ledger", None, None);
         if not handle:
             print("Failed to create window. Exiting");
@@ -60,9 +86,9 @@ class CAT_display:
         print("GL Version:", glGetString(GL_VERSION));
         print("SL Version:", glGetString(GL_SHADING_LANGUAGE_VERSION));
         
-        with open("standard.vert", "r") as file:
+        with open("shaders/cat.vert", "r") as file:
             vert_src = file.read();
-        with open("standard.frag", "r") as file:
+        with open("shaders/cat.frag", "r") as file:
             frag_src = file.read();
         shader = CAT_shader(vert_src, frag_src);
         uniforms = {
@@ -85,14 +111,15 @@ class CAT_display:
         glBufferData(GL_ARRAY_BUFFER, coords, GL_STATIC_DRAW); 
         glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 8, ctypes.c_void_p(0));
 
-        pixels = np.array([0 for i in range(240*320*3)], dtype=np.float32);
+        framebuffer = CAT_texture(240, 320);
+        framebuffer = CAT_texture.from_image("sprites/atlas.png");
         tex_id = glGenTextures(1);
         glBindTexture(GL_TEXTURE_2D, tex_id);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 240, 320, 0, GL_RGB, GL_FLOAT, pixels);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 240, 320, 0, GL_RGB, GL_UNSIGNED_BYTE, framebuffer.data);
         glGenerateMipmap(GL_TEXTURE_2D);
 
         imgui.create_context();
@@ -106,7 +133,7 @@ class CAT_display:
         self.uniforms = uniforms;
         self.vao_id = vao_id;
         self.vbo_id = vbo_id;
-        self.pixels = pixels;
+        self.framebuffer = framebuffer;
         self.tex_id = tex_id;
         
         self.time = 0;
@@ -117,15 +144,9 @@ class CAT_display:
 
         self.capture_requests = [];
 
-    def write(self, x, y, c):
-        idx = y * 240 * 3 + x * 3;
-        self.pixels[idx + 0] = c[0];
-        self.pixels[idx + 1] = c[1];
-        self.pixels[idx + 2] = c[2];
-
     def refresh(self):
         glBindTexture(GL_TEXTURE_2D, self.tex_id);
-        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 240, 320, GL_RGB, GL_FLOAT, self.pixels);
+        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 240, 320, GL_RGB, GL_UNSIGNED_BYTE, self.framebuffer.data);
 
     def capture(path):
         self.capture_requests.append(path);
@@ -135,6 +156,8 @@ class CAT_display:
         self.logic_callback = logic_callback;
         self.render_callback = render_callback;
         
+        glClearColor(0, 0, 0, 1);
+
         while not glfw.window_should_close(self.handle):
             time = glfw.get_time();
             self.delta_time = time - self.time;
@@ -146,13 +169,12 @@ class CAT_display:
             self.input_callback(self);
             self.logic_callback(self);
 
-            glClearColor(0, 0, 0, 1);
             glClear(GL_COLOR_BUFFER_BIT);
             self.imgui.new_frame();
 
             self.render_callback(self);
             self.refresh();
-
+    
             glUseProgram(self.shader.prog_id);
             glBindVertexArray(self.vao_id);
             glActiveTexture(GL_TEXTURE0);
@@ -174,6 +196,20 @@ class CAT_display:
 
             glfw.swap_buffers(self.handle);
 
+class CAT_spriter:
+    def __init__(self, atlas, screen):
+        self.atlas = atlas;
+        self.screen = screen;
+
+def input_callback(display):
+    return;
+
+def logic_callback(display):
+    return;
+
+def render_callback(display):
+    return;
+
 display = CAT_display();
-display.loop();
+display.loop(input_callback, logic_callback, render_callback);
 
