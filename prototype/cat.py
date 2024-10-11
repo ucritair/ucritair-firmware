@@ -60,7 +60,7 @@ class CAT_texture:
         tex = CAT_texture(img.shape[1], img.shape[0]);
         for y in range(tex.height):
             for x in range(tex.width):
-                c = img[tex.height-y-1][x];
+                c = img[y][x];
                 tex.write(x, y, c[0], c[1], c[2]);
         return tex;
 
@@ -75,7 +75,7 @@ class CAT_display:
         glfw.window_hint(glfw.OPENGL_PROFILE, glfw.OPENGL_CORE_PROFILE);
         glfw.window_hint(glfw.OPENGL_FORWARD_COMPAT, GL_TRUE);
         glfw.window_hint(glfw.RESIZABLE, GL_FALSE)
-        handle = glfw.create_window(240, 320, "Ledger", None, None);
+        handle = glfw.create_window(240, 320, "CAT", None, None);
         if not handle:
             print("Failed to create window. Exiting");
             glfw.terminate();
@@ -112,13 +112,12 @@ class CAT_display:
         glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 8, ctypes.c_void_p(0));
 
         framebuffer = CAT_texture(240, 320);
-        framebuffer = CAT_texture.from_image("sprites/atlas.png");
         tex_id = glGenTextures(1);
         glBindTexture(GL_TEXTURE_2D, tex_id);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 240, 320, 0, GL_RGB, GL_UNSIGNED_BYTE, framebuffer.data);
         glGenerateMipmap(GL_TEXTURE_2D);
 
@@ -196,10 +195,39 @@ class CAT_display:
 
             glfw.swap_buffers(self.handle);
 
+class CAT_atlas:
+    def __init__(self, texture):
+        self.texture = texture;
+        self.sprites = {};
+
+    def register(self, name, x, y, w, h):
+        self.sprites[name] = (x, y, w, h);
+
 class CAT_spriter:
     def __init__(self, atlas, screen):
         self.atlas = atlas;
         self.screen = screen;
+
+    def draw(self, name, x_w, y_w):
+        sprite = self.atlas.sprites[name];
+        x_r = sprite[0];
+        y_r = sprite[1];
+        w = sprite[2];
+        h = sprite[3];
+
+        for dy in range(h):
+            for dx in range(w):
+                c = self.atlas.texture.read(x_r+dx, y_r+dy);
+                self.screen.write(x_w+dx, y_w+dy, c[0], c[1], c[2]);
+
+display = CAT_display();
+
+atlas_tex = CAT_texture.from_image("sprites/atlas.png");
+atlas = CAT_atlas(atlas_tex);
+atlas.register("floor", 0, 0, 16, 16);
+atlas.register("wall", 16, 0, 16, 16);
+
+spriter = CAT_spriter(atlas, display.framebuffer);
 
 def input_callback(display):
     return;
@@ -208,8 +236,13 @@ def logic_callback(display):
     return;
 
 def render_callback(display):
+    for y_t in range(6):
+        for x_t in range(15):
+            spriter.draw("wall", x_t*16, y_t*16);
+    for y_t in range(6, 20):
+        for x_t in range(15):
+            spriter.draw("floor", x_t*16, y_t*16);
     return;
 
-display = CAT_display();
 display.loop(input_callback, logic_callback, render_callback);
 

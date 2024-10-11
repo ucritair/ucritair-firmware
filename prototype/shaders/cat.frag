@@ -7,5 +7,7 @@ out vec4 col;
 
 void main()
 {
-	col = texture(tex, uv);
+	vec2 flipped = uv;
+	flipped.y = 1.0-uv.y;
+	col = texture(tex, flipped);
 }
