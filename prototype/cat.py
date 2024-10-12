@@ -43,25 +43,25 @@ class CAT_texture:
     def __init__(self, width, height):
         self.width = width;
         self.height = height;
-        self.data = np.zeros((height * height * 3), dtype=np.uint8);
+        self.data = np.zeros((height * height * 4), dtype=np.float32);
 
     def read(self, x, y):
-        idx = y * self.width * 3 + x * 3;
-        return self.data[idx:idx+3];
+        idx = y * self.width * 4 + x * 4;
+        return self.data[idx:idx+4];
 
-    def write(self, x, y, r, g, b):
-        idx = y * self.width * 3 + x * 3;
-        self.data[idx + 0] = r;
-        self.data[idx + 1] = g;
-        self.data[idx + 2] = b;
-    
+    def write(self, x, y, c):
+        idx = y * self.width * 4 + x * 4;
+        base = self.data[idx:idx+4];
+        blend = base * (1-c[3]) + c * c[3];
+        self.data[idx:idx+4] = blend;
+
     def from_image(path):
         img = iio.imread(path);
         tex = CAT_texture(img.shape[1], img.shape[0]);
-        for y in range(tex.height):
-            for x in range(tex.width):
-                c = img[y][x];
-                tex.write(x, y, c[0], c[1], c[2]);
+        buf = img.flatten();
+        buf = (buf - np.min(buf))/(np.max(buf)-np.min(buf));
+        tex.data = buf;
+
         return tex;
 
 class CAT_display:
@@ -118,7 +118,7 @@ class CAT_display:
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 240, 320, 0, GL_RGB, GL_UNSIGNED_BYTE, framebuffer.data);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 240, 320, 0, GL_RGBA, GL_FLOAT, framebuffer.data);
         glGenerateMipmap(GL_TEXTURE_2D);
 
         imgui.create_context();
@@ -145,7 +145,7 @@ class CAT_display:
 
     def refresh(self):
         glBindTexture(GL_TEXTURE_2D, self.tex_id);
-        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 240, 320, GL_RGB, GL_UNSIGNED_BYTE, self.framebuffer.data);
+        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 240, 320, GL_RGBA, GL_FLOAT, self.framebuffer.data);
 
     def capture(path):
         self.capture_requests.append(path);
@@ -218,7 +218,7 @@ class CAT_spriter:
         for dy in range(h):
             for dx in range(w):
                 c = self.atlas.texture.read(x_r+dx, y_r+dy);
-                self.screen.write(x_w+dx, y_w+dy, c[0], c[1], c[2]);
+                self.screen.write(x_w+dx, y_w+dy, c);
 
 display = CAT_display();
 
@@ -226,6 +226,9 @@ atlas_tex = CAT_texture.from_image("sprites/atlas.png");
 atlas = CAT_atlas(atlas_tex);
 atlas.register("floor", 0, 0, 16, 16);
 atlas.register("wall", 16, 0, 16, 16);
+atlas.register("vending machine", 32, 0, 16, 32);
+atlas.register("tile_yes", 48, 0, 16, 16);
+atlas.register("tile_no", 64, 0, 16, 16);
 
 spriter = CAT_spriter(atlas, display.framebuffer);
 
@@ -236,12 +239,27 @@ def logic_callback(display):
     return;
 
 def render_callback(display):
-    for y_t in range(6):
-        for x_t in range(15):
-            spriter.draw("wall", x_t*16, y_t*16);
-    for y_t in range(6, 20):
-        for x_t in range(15):
-            spriter.draw("floor", x_t*16, y_t*16);
+    #top_border = 8;
+    top_border = 0;
+    #tile_size = 24;
+    tile_size = 16;
+    
+    width_t = 240 // tile_size;
+    height_t = (320-top_border) // tile_size;
+
+    wall_rows = 4;
+    
+    for y_t in range(wall_rows):
+        for x_t in range(width_t):
+            x_p = x_t * tile_size;
+            y_p = y_t * tile_size;
+            spriter.draw("wall", x_p, y_p);
+            spriter.draw("tile_yes", x_p, y_p);
+    for y_t in range(wall_rows, height_t):
+        for x_t in range(width_t):
+            x_p = x_t * tile_size;
+            y_p = y_t * tile_size;
+            spriter.draw("floor", x_p, y_p);
     return;
 
 display.loop(input_callback, logic_callback, render_callback);
