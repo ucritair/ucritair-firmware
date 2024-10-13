@@ -53,6 +53,5 @@ dkms.conf
 
 # Tomas' Stuff
 **/.DS_Store
-**/cat_venv/
-**/__pycache__/
 **/archive/
+**/imgui/
