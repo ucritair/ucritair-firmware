@@ -39,6 +39,15 @@ void CAT_texture_init(CAT_texture* texture, int width, int height)
 
 CAT_colour CAT_texture_read(CAT_texture* texture, int x, int y)
 {
+	if
+	(
+		x < 0 || x >= texture->width ||
+		y < 0 || y >= texture->height
+	)
+	{
+		return {0, 0, 0, 0};
+	}
+
 	int idx = (y * texture->width + x) * 4;
 	CAT_colour c;
 	c.r = texture->data[idx+0];
@@ -50,9 +59,18 @@ CAT_colour CAT_texture_read(CAT_texture* texture, int x, int y)
 
 void CAT_texture_write(CAT_texture* texture, int x, int y, CAT_colour c)
 {
+	if
+	(
+		x < 0 || x >= texture->width ||
+		y < 0 || y >= texture->height
+	)
+	{
+		return;
+	}
+
+	int idx = (y * texture->width + x) * 4;
 	CAT_colour base = CAT_texture_read(texture, x, y);
 	CAT_colour blend = CAT_colour_lerp(base, c, c.a);
-	int idx = (y * texture->width + x) * 4;
 	texture->data[idx+0] = blend.r;
 	texture->data[idx+1] = blend.g;
 	texture->data[idx+2] = blend.b;
@@ -123,6 +141,32 @@ void CAT_atlas_register(CAT_atlas* atlas, int key, CAT_sprite sprite)
 	atlas->map[key] = sprite;
 }
 
+void CAT_draw_sprite(CAT_texture* frame, int x, int y, CAT_atlas* atlas, int key, int mode)
+{
+	CAT_sprite sprite = atlas->map[key];
+	
+	int x_shift = 0;
+	int y_shift = 0;
+	if(mode == 1)
+	{
+		x_shift = -sprite.width/2;
+		y_shift = -sprite.height;
+	}
+
+	for(int dy = 0; dy < sprite.height; dy++)
+	{
+		for(int dx = 0; dx < sprite.width; dx++)
+		{
+			int x_r = sprite.x+dx;
+			int y_r = sprite.y+dy;
+			CAT_colour c = CAT_texture_read(atlas->texture, x_r, y_r);
+			int x_w = x+dx+x_shift;
+			int y_w = y+dy+y_shift;
+			CAT_texture_write(frame, x_w, y_w, c);
+		}
+	}
+}
+
 typedef struct CAT_animation
 {
 	int frame_count;
@@ -158,30 +202,76 @@ int CAT_animation_frame(CAT_animation* anim)
 	return anim->keys[anim->idx];
 }
 
-void CAT_draw_sprite(CAT_texture* frame, int x, int y, CAT_atlas* atlas, int key, int mode)
+
+typedef struct CAT_render_command
 {
-	CAT_sprite sprite = atlas->map[key];
-	
-	int x_shift = 0;
-	int y_shift = 0;
-	if(mode == 1)
+	CAT_animation* animation;
+	int layer;
+	int x;
+	int y;
+	int mode;
+} CAT_render_command;
+
+void CAT_render_command_init(CAT_render_command* command, CAT_animation* anim, int layer, int x, int y, int mode)
+{
+	command->animation = anim;
+	command->layer = layer;
+	command->x = x;
+	command->y = y;
+	command->mode = mode;
+}
+
+typedef struct CAT_render_queue
+{
+	CAT_render_command* items[1024];
+	int length;
+} CAT_draw_queue;
+
+void CAT_render_queue_init(CAT_draw_queue* queue)
+{
+	queue->length = 0;
+}
+
+void CAT_render_queue_add(CAT_render_queue* queue, CAT_render_command* cmd)
+{
+	if(queue->length == 1024)
 	{
-		x_shift = -sprite.width/2;
-		y_shift = -sprite.height;
+		return;
 	}
 
-	for(int dy = 0; dy < sprite.height; dy++)
+	int insert_idx = queue->length;
+	for(int i = 0; i < queue->length; i++)
 	{
-		for(int dx = 0; dx < sprite.width; dx++)
+		CAT_render_command* other = queue->items[i];
+		if(cmd->layer < other->layer || cmd->y < other->y)
 		{
-			int x_r = sprite.x+dx;
-			int y_r = sprite.y+dy;
-			CAT_colour c = CAT_texture_read(atlas->texture, x_r, y_r);
-			int x_w = x+dx+x_shift;
-			int y_w = y+dy+y_shift;
-			CAT_texture_write(frame, x_w, y_w, c);
+			insert_idx = i;
+			break;
 		}
 	}
+
+	for(int i = queue->length; i > insert_idx; i--)
+	{
+		queue->items[i] = queue->items[i-1];
+	}
+	queue->items[insert_idx] = cmd;
+	queue->length += 1;
+}
+
+void CAT_render_queue_submit(CAT_render_queue* queue, CAT_texture* frame, CAT_atlas* atlas)
+{
+	for(int i = 0; i < queue->length; i++)
+	{
+		CAT_render_command* cmd = queue->items[i];
+		CAT_animation* anim = cmd->animation;
+		CAT_draw_sprite
+		(
+			frame, cmd->x, cmd->y,
+			atlas, CAT_animation_frame(anim),
+			cmd->mode
+		);
+	}
+	queue->length = 0;
 }
 
 #endif

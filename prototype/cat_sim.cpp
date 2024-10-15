@@ -76,6 +76,9 @@ int main(int argc, char** argv)
 	CAT_animation_init(&coffee_anim);
 	CAT_animation_register(&coffee_anim, 14);
 
+	CAT_render_queue renderer;
+	CAT_render_queue_init(&renderer);
+
 	CAT_context context;
 	context.time = glfwGetTime();
 	float anim_timer = 0.0f;
@@ -93,7 +96,7 @@ int main(int argc, char** argv)
 
 		glClearColor(0, 0, 0, 1);
 		glClear(GL_COLOR_BUFFER_BIT);
-
+		
 		if(anim_timer >= 0.2f)
 		{
 			CAT_animation_tick(&bg_anim);
@@ -104,36 +107,27 @@ int main(int argc, char** argv)
 			anim_timer = 0.0f;
 		}
 		
-		CAT_draw_sprite
-		(
-			&display.frame, 0, 0,
-			&atlas, CAT_animation_frame(&bg_anim),
-			0
-		);
-		CAT_draw_sprite
-		(
-			&display.frame, 208, 292,
-			&atlas, CAT_animation_frame(&num_anim),
-			0
-		);
-		CAT_draw_sprite
-		(
-			&display.frame, 120, 160,
-			&atlas, CAT_animation_frame(&guy_anim),
-			0
-		);
-		CAT_draw_sprite
-		(
-			&display.frame, 80, 148,
-			&atlas, CAT_animation_frame(&chair_anim),
-			1
-		);
-		CAT_draw_sprite
-		(
-			&display.frame, 80, 132,
-			&atlas, CAT_animation_frame(&coffee_anim),
-			1
-		);
+		CAT_render_command bg_render;
+		CAT_render_command_init(&bg_render, &bg_anim, 0, 0, 0, 0);
+		CAT_render_queue_add(&renderer, &bg_render);
+		
+		CAT_render_command num_render;
+		CAT_render_command_init(&num_render, &num_anim, 2, 208, 292, 0);
+		CAT_render_queue_add(&renderer, &num_render);
+		
+		CAT_render_command guy_render;
+		CAT_render_command_init(&guy_render, &guy_anim, 1, 120, 160, 1);
+		CAT_render_queue_add(&renderer, &guy_render);
+		
+		CAT_render_command chair_render;
+		CAT_render_command_init(&chair_render, &chair_anim, 1, 80, 148, 1);
+		CAT_render_queue_add(&renderer, &chair_render);
+		
+		CAT_render_command coffee_render;
+		CAT_render_command_init(&coffee_render, &coffee_anim, 1, 80, 132, 1);
+		CAT_render_queue_add(&renderer, &coffee_render);
+
+		CAT_render_queue_submit(&renderer, &display.frame, &atlas);
 
 		CAT_display_refresh(&display);
 		glUseProgram(display.shader.prog_id);
