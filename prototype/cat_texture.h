@@ -166,14 +166,13 @@ void CAT_draw_sprite(CAT_texture* frame, int x, int y, CAT_atlas* atlas, int key
 		for(int dx = 0; dx < sprite.width; dx++)
 		{
 			int x_r = sprite.x+dx;
+			if((mode & CAT_DRAW_MODE_REFLECT_X) > 0)
+				x_r = sprite.x+sprite.width-1-dx;
 			int y_r = sprite.y+dy;
 			CAT_colour c = CAT_texture_read(atlas->texture, x_r, y_r);
 			int x_w = x+dx+x_shift;
 			int y_w = y+dy+y_shift;
-			if((mode & CAT_DRAW_MODE_REFLECT_X) > 0)
-				CAT_texture_write(frame, frame->width-x_w-1, y_w, c);
-			else
-				CAT_texture_write(frame, x_w, y_w, c);
+			CAT_texture_write(frame, x_w, y_w, c);
 		}
 	}
 }

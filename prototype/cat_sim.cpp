@@ -77,7 +77,7 @@ void CAT_logic(CAT_display* display, CAT_context* context)
 	if(dist > 8.0f)
 	{
 		CAT_vec2 dir = CAT_vec2_mul(beeline, 1.0f/dist);
-		context->pet_pos = CAT_vec2_add(context->pet_pos, CAT_vec2_mul(dir, 16*context->delta_time));
+		context->pet_pos = CAT_vec2_add(context->pet_pos, CAT_vec2_mul(dir, 32*context->delta_time));
 	}
 	else
 	{
@@ -170,6 +170,7 @@ int main(int argc, char** argv)
 		
 		int widget_mode = CAT_DRAW_MODE_CENTER_X | CAT_DRAW_MODE_CENTER_Y;
 		int world_mode = CAT_DRAW_MODE_BOTTOM | CAT_DRAW_MODE_CENTER_X;
+		int guy_mode = world_mode | (context.pet_pos.x < context.pet_target.x ? CAT_DRAW_MODE_REFLECT_X : 0);
 
 		CAT_anim_command bg_cmd;
 		CAT_anim_command_init(&bg_cmd, &bg_anim, 0, 0, 0, CAT_DRAW_MODE_DEFAULT);
@@ -180,7 +181,7 @@ int main(int argc, char** argv)
 		CAT_anim_queue_add(&renderer, &num_cmd);
 		
 		CAT_anim_command guy_cmd;
-		CAT_anim_command_init(&guy_cmd, &walk_anim, 1, context.pet_pos.x, context.pet_pos.y, world_mode);
+		CAT_anim_command_init(&guy_cmd, context.pet_timer > 0 ? &idle_anim : &walk_anim, 1, context.pet_pos.x, context.pet_pos.y, guy_mode);
 		CAT_anim_queue_add(&renderer, &guy_cmd);
 		
 		CAT_anim_command chair_cmd;
