@@ -3,7 +3,7 @@
 
 #include "png.h"
 
-#include "cowtools.h"
+#include "cat_math.h"
 
 typedef struct CAT_colour
 {
@@ -120,8 +120,6 @@ void CAT_load_PNG(CAT_texture* texture, const char* path)
 	png_destroy_read_struct(&png, &info, NULL);
 }
 
-//TODO handle alignment and positioning modes
-
 typedef struct CAT_sprite
 {
 	int x;
@@ -141,17 +139,33 @@ void CAT_atlas_register(CAT_atlas* atlas, int key, CAT_sprite sprite)
 	atlas->map[key] = sprite;
 }
 
-void CAT_draw_sprite(CAT_texture* frame, int x, int y, CAT_atlas* atlas, int key, int mode)
+typedef enum CAT_draw_mode
+{
+	CAT_DRAW_MODE_BOTTOM = 1,
+	CAT_DRAW_MODE_LEFT = 2,
+	CAT_DRAW_MODE_CENTER_X = 4,
+	CAT_DRAW_MODE_CENTER_Y = 8,
+	CAT_DRAW_MODE_REFLECT_X = 16
+} CAT_draw_mode;
+
+void CAT_draw_sprite(CAT_texture* frame, int x, int y, CAT_atlas* atlas, int key, CAT_draw_mode mode)
 {
 	CAT_sprite sprite = atlas->map[key];
 	
 	int x_shift = 0;
 	int y_shift = 0;
-	if(mode == 1)
-	{
-		x_shift = -sprite.width/2;
+	int reflect_x = 0;
+
+	if((mode & CAT_DRAW_MODE_BOTTOM) > 0)
 		y_shift = -sprite.height;
-	}
+	if((mode & CAT_DRAW_MODE_LEFT) > 0)
+		x_shift = 0;
+	if((mode & CAT_DRAW_MODE_CENTER_X) > 0)
+		x_shift = -sprite.width/2;
+	if((mode & CAT_DRAW_MODE_CENTER_Y) > 0)
+		y_shift = -sprite.height/2;
+	if((mode & CAT_DRAW_MODE_REFLECT_X) > 0)
+		reflect_x = 1;
 
 	for(int dy = 0; dy < sprite.height; dy++)
 	{
@@ -162,33 +176,36 @@ void CAT_draw_sprite(CAT_texture* frame, int x, int y, CAT_atlas* atlas, int key
 			CAT_colour c = CAT_texture_read(atlas->texture, x_r, y_r);
 			int x_w = x+dx+x_shift;
 			int y_w = y+dy+y_shift;
-			CAT_texture_write(frame, x_w, y_w, c);
+			if(!reflect_x)
+				CAT_texture_write(frame, x_w, y_w, c);
+			else
+				CAT_texture_write(frame, frame->width-x_w-1, y_w, c);
 		}
 	}
 }
 
-typedef struct CAT_animation
+typedef struct CAT_anim
 {
 	int frame_count;
 	int keys[24];
 	int idx;
 	int looping;
-} CAT_animation;
+} CAT_anim;
 
-void CAT_animation_init(CAT_animation* anim)
+void CAT_anim_init(CAT_anim* anim)
 {
 	anim->frame_count = 0;
 	anim->idx = 0;
 	anim->looping = 1;
 }
 
-void CAT_animation_register(CAT_animation* anim, int key)
+void CAT_anim_register(CAT_anim* anim, int key)
 {
 	anim->keys[anim->frame_count] = key;
 	anim->frame_count += 1;
 }
 
-void CAT_animation_tick(CAT_animation* anim)
+void CAT_anim_tick(CAT_anim* anim)
 {
 	anim->idx += 1;
 	if(anim->looping && anim->idx >= anim->frame_count)
@@ -197,42 +214,41 @@ void CAT_animation_tick(CAT_animation* anim)
 	}
 }
 
-int CAT_animation_frame(CAT_animation* anim)
+int CAT_anim_frame(CAT_anim* anim)
 {
 	return anim->keys[anim->idx];
 }
 
-
-typedef struct CAT_render_command
+typedef struct CAT_anim_command
 {
-	CAT_animation* animation;
+	CAT_anim* anim;
 	int layer;
 	int x;
 	int y;
-	int mode;
-} CAT_render_command;
+	CAT_draw_mode mode;
+} CAT_anim_command;
 
-void CAT_render_command_init(CAT_render_command* command, CAT_animation* anim, int layer, int x, int y, int mode)
+void CAT_anim_command_init(CAT_anim_command* command, CAT_anim* anim, int layer, int x, int y, CAT_draw_mode mode)
 {
-	command->animation = anim;
+	command->anim = anim;
 	command->layer = layer;
 	command->x = x;
 	command->y = y;
 	command->mode = mode;
 }
 
-typedef struct CAT_render_queue
+typedef struct CAT_anim_queue
 {
-	CAT_render_command* items[1024];
+	CAT_anim_command* items[1024];
 	int length;
 } CAT_draw_queue;
 
-void CAT_render_queue_init(CAT_draw_queue* queue)
+void CAT_anim_queue_init(CAT_draw_queue* queue)
 {
 	queue->length = 0;
 }
 
-void CAT_render_queue_add(CAT_render_queue* queue, CAT_render_command* cmd)
+void CAT_anim_queue_add(CAT_anim_queue* queue, CAT_anim_command* cmd)
 {
 	if(queue->length == 1024)
 	{
@@ -242,7 +258,7 @@ void CAT_render_queue_add(CAT_render_queue* queue, CAT_render_command* cmd)
 	int insert_idx = queue->length;
 	for(int i = 0; i < queue->length; i++)
 	{
-		CAT_render_command* other = queue->items[i];
+		CAT_anim_command* other = queue->items[i];
 		if(cmd->layer < other->layer || cmd->y < other->y)
 		{
 			insert_idx = i;
@@ -258,16 +274,26 @@ void CAT_render_queue_add(CAT_render_queue* queue, CAT_render_command* cmd)
 	queue->length += 1;
 }
 
-void CAT_render_queue_submit(CAT_render_queue* queue, CAT_texture* frame, CAT_atlas* atlas)
+void CAT_anim_queue_tick(CAT_anim_queue* queue)
 {
 	for(int i = 0; i < queue->length; i++)
 	{
-		CAT_render_command* cmd = queue->items[i];
-		CAT_animation* anim = cmd->animation;
+		CAT_anim_command* cmd = queue->items[i];
+		CAT_anim* anim = cmd->anim;
+		CAT_anim_tick(anim);
+	}
+}
+
+void CAT_anim_queue_submit(CAT_anim_queue* queue, CAT_texture* frame, CAT_atlas* atlas)
+{
+	for(int i = 0; i < queue->length; i++)
+	{
+		CAT_anim_command* cmd = queue->items[i];
+		CAT_anim* anim = cmd->anim;
 		CAT_draw_sprite
 		(
 			frame, cmd->x, cmd->y,
-			atlas, CAT_animation_frame(anim),
+			atlas, CAT_anim_frame(anim),
 			cmd->mode
 		);
 	}
