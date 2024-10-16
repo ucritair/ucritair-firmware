@@ -141,31 +141,25 @@ void CAT_atlas_register(CAT_atlas* atlas, int key, CAT_sprite sprite)
 
 typedef enum CAT_draw_mode
 {
+	CAT_DRAW_MODE_DEFAULT = 0,
 	CAT_DRAW_MODE_BOTTOM = 1,
-	CAT_DRAW_MODE_LEFT = 2,
-	CAT_DRAW_MODE_CENTER_X = 4,
-	CAT_DRAW_MODE_CENTER_Y = 8,
-	CAT_DRAW_MODE_REFLECT_X = 16
+	CAT_DRAW_MODE_CENTER_X = 2,
+	CAT_DRAW_MODE_CENTER_Y = 4,
+	CAT_DRAW_MODE_REFLECT_X = 8
 } CAT_draw_mode;
 
-void CAT_draw_sprite(CAT_texture* frame, int x, int y, CAT_atlas* atlas, int key, CAT_draw_mode mode)
+void CAT_draw_sprite(CAT_texture* frame, int x, int y, CAT_atlas* atlas, int key, int mode)
 {
 	CAT_sprite sprite = atlas->map[key];
 	
 	int x_shift = 0;
 	int y_shift = 0;
-	int reflect_x = 0;
-
 	if((mode & CAT_DRAW_MODE_BOTTOM) > 0)
 		y_shift = -sprite.height;
-	if((mode & CAT_DRAW_MODE_LEFT) > 0)
-		x_shift = 0;
 	if((mode & CAT_DRAW_MODE_CENTER_X) > 0)
 		x_shift = -sprite.width/2;
 	if((mode & CAT_DRAW_MODE_CENTER_Y) > 0)
 		y_shift = -sprite.height/2;
-	if((mode & CAT_DRAW_MODE_REFLECT_X) > 0)
-		reflect_x = 1;
 
 	for(int dy = 0; dy < sprite.height; dy++)
 	{
@@ -176,10 +170,10 @@ void CAT_draw_sprite(CAT_texture* frame, int x, int y, CAT_atlas* atlas, int key
 			CAT_colour c = CAT_texture_read(atlas->texture, x_r, y_r);
 			int x_w = x+dx+x_shift;
 			int y_w = y+dy+y_shift;
-			if(!reflect_x)
-				CAT_texture_write(frame, x_w, y_w, c);
-			else
+			if((mode & CAT_DRAW_MODE_REFLECT_X) > 0)
 				CAT_texture_write(frame, frame->width-x_w-1, y_w, c);
+			else
+				CAT_texture_write(frame, x_w, y_w, c);
 		}
 	}
 }
@@ -225,10 +219,10 @@ typedef struct CAT_anim_command
 	int layer;
 	int x;
 	int y;
-	CAT_draw_mode mode;
+	int mode;
 } CAT_anim_command;
 
-void CAT_anim_command_init(CAT_anim_command* command, CAT_anim* anim, int layer, int x, int y, CAT_draw_mode mode)
+void CAT_anim_command_init(CAT_anim_command* command, CAT_anim* anim, int layer, int x, int y, int mode)
 {
 	command->anim = anim;
 	command->layer = layer;
@@ -259,7 +253,7 @@ void CAT_anim_queue_add(CAT_anim_queue* queue, CAT_anim_command* cmd)
 	for(int i = 0; i < queue->length; i++)
 	{
 		CAT_anim_command* other = queue->items[i];
-		if(cmd->layer < other->layer || cmd->y < other->y)
+		if(cmd->layer <= other->layer && cmd->y < other->y)
 		{
 			insert_idx = i;
 			break;

@@ -168,20 +168,19 @@ int main(int argc, char** argv)
 		glClearColor(0, 0, 0, 1);
 		glClear(GL_COLOR_BUFFER_BIT);
 		
-		CAT_draw_mode bg_mode = CAT_DRAW_MODE_LEFT;
-		CAT_draw_mode fx_mode = (CAT_draw_mode) (CAT_DRAW_MODE_CENTER_X | CAT_DRAW_MODE_CENTER_Y);
-		CAT_draw_mode world_mode = (CAT_draw_mode) (CAT_DRAW_MODE_BOTTOM | CAT_DRAW_MODE_CENTER_X);
+		int widget_mode = CAT_DRAW_MODE_CENTER_X | CAT_DRAW_MODE_CENTER_Y;
+		int world_mode = CAT_DRAW_MODE_BOTTOM | CAT_DRAW_MODE_CENTER_X;
 
 		CAT_anim_command bg_cmd;
-		CAT_anim_command_init(&bg_cmd, &bg_anim, 0, 0, 0, bg_mode);
+		CAT_anim_command_init(&bg_cmd, &bg_anim, 0, 0, 0, CAT_DRAW_MODE_DEFAULT);
 		CAT_anim_queue_add(&renderer, &bg_cmd);
 		
 		CAT_anim_command num_cmd;
-		CAT_anim_command_init(&num_cmd, &num_anim, 2, 208, 292, fx_mode);
+		CAT_anim_command_init(&num_cmd, &num_anim, 2, 208, 292, widget_mode);
 		CAT_anim_queue_add(&renderer, &num_cmd);
 		
 		CAT_anim_command guy_cmd;
-		CAT_anim_command_init(&guy_cmd, &walk_anim, 1, (int) context.pet_pos.x, (int) context.pet_pos.y, world_mode);
+		CAT_anim_command_init(&guy_cmd, &walk_anim, 1, context.pet_pos.x, context.pet_pos.y, world_mode);
 		CAT_anim_queue_add(&renderer, &guy_cmd);
 		
 		CAT_anim_command chair_cmd;
