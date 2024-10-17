@@ -67,6 +67,12 @@ float CAT_vec2_dist(CAT_vec2 a, CAT_vec2 b)
 	return CAT_vec2_mag(CAT_vec2_sub(b, a));
 }
 
+typedef struct CAT_ivec2
+{
+	int x;
+	int y;
+} CAT_ivec2;
+
 float lerp(float a, float b, float t)
 {
 	return a * (1-t) + b * t;

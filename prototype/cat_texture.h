@@ -192,7 +192,7 @@ void CAT_anim_init(CAT_anim* anim)
 	anim->looping = 1;
 }
 
-void CAT_anim_register(CAT_anim* anim, int key)
+void CAT_anim_add(CAT_anim* anim, int key)
 {
 	anim->keys[anim->frame_count] = key;
 	anim->frame_count += 1;
@@ -205,11 +205,6 @@ void CAT_anim_tick(CAT_anim* anim)
 	{
 		anim->idx = 0;
 	}
-}
-
-int CAT_anim_frame(CAT_anim* anim)
-{
-	return anim->keys[anim->idx];
 }
 
 typedef struct CAT_anim_command
@@ -232,7 +227,7 @@ void CAT_anim_command_init(CAT_anim_command* command, CAT_anim* anim, int layer,
 
 typedef struct CAT_anim_queue
 {
-	CAT_anim_command* items[1024];
+	CAT_anim_command items[1024];
 	int length;
 } CAT_draw_queue;
 
@@ -241,7 +236,7 @@ void CAT_anim_queue_init(CAT_draw_queue* queue)
 	queue->length = 0;
 }
 
-void CAT_anim_queue_add(CAT_anim_queue* queue, CAT_anim_command* cmd)
+void CAT_anim_queue_add(CAT_anim_queue* queue, CAT_anim_command cmd)
 {
 	if(queue->length == 1024)
 	{
@@ -251,8 +246,8 @@ void CAT_anim_queue_add(CAT_anim_queue* queue, CAT_anim_command* cmd)
 	int insert_idx = queue->length;
 	for(int i = 0; i < queue->length; i++)
 	{
-		CAT_anim_command* other = queue->items[i];
-		if(cmd->layer <= other->layer && cmd->y < other->y)
+		CAT_anim_command other = queue->items[i];
+		if(cmd.layer <= other.layer && cmd.y < other.y)
 		{
 			insert_idx = i;
 			break;
@@ -271,8 +266,8 @@ void CAT_anim_queue_tick(CAT_anim_queue* queue)
 {
 	for(int i = 0; i < queue->length; i++)
 	{
-		CAT_anim_command* cmd = queue->items[i];
-		CAT_anim* anim = cmd->anim;
+		CAT_anim_command cmd = queue->items[i];
+		CAT_anim* anim = cmd.anim;
 		CAT_anim_tick(anim);
 	}
 }
@@ -281,13 +276,13 @@ void CAT_anim_queue_submit(CAT_anim_queue* queue, CAT_texture* frame, CAT_atlas*
 {
 	for(int i = 0; i < queue->length; i++)
 	{
-		CAT_anim_command* cmd = queue->items[i];
-		CAT_anim* anim = cmd->anim;
+		CAT_anim_command cmd = queue->items[i];
+		CAT_anim* anim = cmd.anim;
 		CAT_draw_sprite
 		(
-			frame, cmd->x, cmd->y,
-			atlas, CAT_anim_frame(anim),
-			cmd->mode
+			frame, cmd.x, cmd.y,
+			atlas, anim->keys[anim->idx],
+			cmd.mode
 		);
 	}
 	queue->length = 0;
