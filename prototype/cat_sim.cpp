@@ -8,6 +8,7 @@
 #include "cat_debug.h"
 #include "cat_math.h"
 #include "cat_item.h"
+#include "cat_gui.h"
 
 typedef struct CAT_pet
 {
@@ -45,31 +46,51 @@ void CAT_place_prop(CAT_room* room, CAT_item* prop, CAT_ivec2 place)
 typedef enum CAT_game_mode
 {
 	CAT_GAME_MODE_ROOM,
+	CAT_GAME_MODE_MENU,
 	CAT_GAME_MODE_INVENTORY
 } CAT_game_mode;
 
 typedef struct CAT_context
 {
+	CAT_game_mode mode;
+
 	float time;
 	float delta_time;
+
 	CAT_vec2 pet_pos;
 	CAT_vec2 pet_target;
 	float pet_timer;
+
 	CAT_room room;
 	CAT_ivec2 cursor;
-	CAT_game_mode mode;
+
+	const char* menu_items[2] =
+	{
+		"INVENTORY",
+		"BACK"
+	};
+	CAT_menu menu;
+	
+	const char* items[13] = {"Red Seed", "Gourd Seed", "Sesame Seed", "Fourth Seed", "Greenberry Seed", "Odd Seed", "Good Seed", "Bad Seed", "Okay Seed", "Rust Seed", "Fire Seed", "Evil Seed", "Apathetic Seed"};
+	CAT_menu inventory;
 } CAT_context;
 
 void CAT_context_init(CAT_context* context)
 {
+	context->mode = CAT_GAME_MODE_ROOM;
+
 	context->time = glfwGetTime();
 	context->delta_time = 0;
+
 	context->pet_pos = {120, 200};
 	context->pet_target = {120, 200};
 	context->pet_timer = 0;
+
 	context->room.prop_count = 0;
 	context->cursor = {0, 96};
-	context->mode = CAT_GAME_MODE_ROOM;
+
+	CAT_menu_init(&context->menu, 2, 9);
+	CAT_menu_init(&context->inventory, 13, 9);
 }
 
 typedef enum CAT_button
@@ -118,17 +139,9 @@ int input_mask[CAT_BUTTON_LAST] =
 
 int CAT_button_pressed(int button)
 {
-	return (input_mask[button] & CAT_BUTTON_STATE_PRESSED) > 0;
-}
-
-int CAT_button_released(int button)
-{
-	return (input_mask[button] & CAT_BUTTON_STATE_RELEASED) > 0;
-}
-
-int CAT_button_edge(int button)
-{
-	return (input_mask[button] & CAT_BUTTON_STATE_EDGE) > 0;
+	return 
+		(input_mask[button] & CAT_BUTTON_STATE_PRESSED) > 0 &&
+		(input_mask[button] & CAT_BUTTON_STATE_EDGE) > 0;
 }
 
 void CAT_input(CAT_display* display, CAT_context* context)
@@ -171,31 +184,67 @@ void CAT_logic(CAT_display* display, CAT_context* context, CAT_item* dummy)
 				}
 			}
 
-			if(CAT_button_pressed(CAT_BUTTON_UP) && CAT_button_edge(CAT_BUTTON_UP))
+			if(CAT_button_pressed(CAT_BUTTON_UP))
 				context->cursor.y -= 16;
-			if(CAT_button_pressed(CAT_BUTTON_RIGHT) && CAT_button_edge(CAT_BUTTON_RIGHT))
+			if(CAT_button_pressed(CAT_BUTTON_RIGHT))
 				context->cursor.x += 16;
-			if(CAT_button_pressed(CAT_BUTTON_DOWN) && CAT_button_edge(CAT_BUTTON_DOWN))
+			if(CAT_button_pressed(CAT_BUTTON_DOWN))
 				context->cursor.y += 16;
-			if(CAT_button_pressed(CAT_BUTTON_LEFT) && CAT_button_edge(CAT_BUTTON_LEFT))
+			if(CAT_button_pressed(CAT_BUTTON_LEFT))
 				context->cursor.x -= 16;
-			if(CAT_button_pressed(CAT_BUTTON_A) && CAT_button_edge(CAT_BUTTON_A))
+			if(CAT_button_pressed(CAT_BUTTON_A))
 			{
 				CAT_place_prop(&context->room, dummy, context->cursor);
 			}
 
-			if(CAT_button_pressed(CAT_BUTTON_B) && CAT_button_edge(CAT_BUTTON_B))
+			if(CAT_button_pressed(CAT_BUTTON_B))
 			{
-				context->mode = CAT_GAME_MODE_INVENTORY;
+				context->mode = CAT_GAME_MODE_MENU;
+			}
+
+			break;
+		}
+		case CAT_GAME_MODE_MENU:
+		{
+			if(CAT_button_pressed(CAT_BUTTON_UP))
+				CAT_menu_shift(&context->menu, -1);
+			if(CAT_button_pressed(CAT_BUTTON_DOWN))
+				CAT_menu_shift(&context->menu, 1);
+
+			if(CAT_button_pressed(CAT_BUTTON_A))
+			{
+				const char* selection = context->menu_items[context->menu.idx];
+				if(strcmp(selection, "INVENTORY") == 0)
+				{
+					context->mode = CAT_GAME_MODE_INVENTORY;
+					break;
+				}
+				if(strcmp(selection, "BACK") == 0)
+				{
+					context->mode = CAT_GAME_MODE_ROOM;
+					break;
+				}
+			}
+
+			if(CAT_button_pressed(CAT_BUTTON_B))
+			{
+				context->mode = CAT_GAME_MODE_ROOM;
+				break;
 			}
 
 			break;
 		}
 		case CAT_GAME_MODE_INVENTORY:
 		{
-			if(CAT_button_pressed(CAT_BUTTON_B) && CAT_button_edge(CAT_BUTTON_B))
+			if(CAT_button_pressed(CAT_BUTTON_UP))
+				CAT_menu_shift(&context->inventory, -1);
+			if(CAT_button_pressed(CAT_BUTTON_DOWN))
+				CAT_menu_shift(&context->inventory, 1);
+
+			if(CAT_button_pressed(CAT_BUTTON_B))
 			{
-				context->mode = CAT_GAME_MODE_ROOM;
+				context->mode = CAT_GAME_MODE_MENU;
+				break;
 			}
 
 			break;
@@ -242,8 +291,10 @@ int main(int argc, char** argv)
 		ui_sprite[i] = {80+i*16, 0, 16, 16};
 		CAT_atlas_add(&atlas, 108+i, ui_sprite[i]);
 	}
-	CAT_sprite seed_sprite = {192, 16, 24, 24};
+	CAT_sprite seed_sprite = {160, 16, 24, 24};
 	CAT_atlas_add(&atlas, 117, seed_sprite);
+	CAT_sprite select_sprite = {192, 16, 16, 16};
+	CAT_atlas_add(&atlas, 118, select_sprite);
 
 	CAT_anim bg_anim;
 	CAT_anim_init(&bg_anim);
@@ -316,7 +367,6 @@ int main(int argc, char** argv)
 				CAT_anim_command_init(&bg_cmd, &bg_anim, 0, 0, 0, CAT_DRAW_MODE_DEFAULT);
 				CAT_anim_queue_add(&anim_queue, bg_cmd);
 				
-
 				for(int i = 0; i < context.room.prop_count; i++)
 				{
 					CAT_item* prop = context.room.props[i];
@@ -345,16 +395,44 @@ int main(int argc, char** argv)
 				
 				break;
 			}
+			case CAT_GAME_MODE_MENU:
+			{
+				CAT_gui_panel(&gui, &atlas, &display.frame, {0, 0}, {15, 2});  
+				CAT_gui_text(&gui, &atlas, &display.frame, "MENU");
+				CAT_gui_panel(&gui, &atlas, &display.frame, {0, 32}, {15, 18});  
+
+				for(int i = 0; i < context.menu.length; i++)
+				{
+					CAT_gui_text(&gui, &atlas, &display.frame, context.menu_items[i]);
+					if(i == context.menu.idx)
+					{
+						CAT_gui_same_line(&gui);
+						CAT_gui_image(&gui, &atlas, &display.frame, 118);
+					}
+				}
+				
+				break;
+			}
 			case CAT_GAME_MODE_INVENTORY:
 			{
-				CAT_gui_panel(&gui, &atlas, &display.frame, {0, 0}, {15, 20});  
 				CAT_gui_panel(&gui, &atlas, &display.frame, {0, 0}, {15, 2});  
 				CAT_gui_text(&gui, &atlas, &display.frame, "INVENTORY");
-				char* items[3] = {"Red Seed", "Gourd Seed", "Sesame Seed"};
-				for(int i = 0; i < 3; i++)
+				CAT_gui_panel(&gui, &atlas, &display.frame, {0, 32}, {15, 18});  
+
+				for(int i = 0; i < context.inventory.window; i++)
 				{
+					int slot = i + context.inventory.base;
+
 					CAT_gui_panel(&gui, &atlas, &display.frame, {0, 32+i*32}, {15, 2});
-					CAT_gui_text(&gui, &atlas, &display.frame, items[i]);
+					CAT_gui_image(&gui, &atlas, &display.frame, 117); 
+					CAT_gui_same_line(&gui);
+					CAT_gui_text(&gui, &atlas, &display.frame, context.items[slot]);
+
+					if(slot == context.inventory.idx)
+					{
+						CAT_gui_same_line(&gui);
+						CAT_gui_image(&gui, &atlas, &display.frame, 118);
+					}
 				}
 
 				break;

@@ -99,4 +99,19 @@ int rand_chance(int n)
 	return rand() < (RAND_MAX + 1u) / n;
 }
 
+int min(int a, int b)
+{
+	return b < a ? b : a;
+}
+
+int max(int a, int b)
+{
+	return b > a ? b : a;
+}
+
+int clamp(int v, int a, int b)
+{
+	return min(max(v, a), b);
+}
+
 #endif
