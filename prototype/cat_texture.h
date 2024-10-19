@@ -30,54 +30,54 @@ typedef struct CAT_texture
 	float* data;
 } CAT_texture;
 
-void CAT_texture_init(CAT_texture* texture, int width, int height)
+void CAT_texture_init(CAT_texture* tex, int width, int height)
 {
-	texture->width = width;
-	texture->height = height;
-	texture->data = (float*) malloc(width * height * 4 * sizeof(float));
+	tex->width = width;
+	tex->height = height;
+	tex->data = (float*) malloc(width * height * 4 * sizeof(float));
 }
 
-CAT_colour CAT_texture_read(CAT_texture* texture, int x, int y)
+CAT_colour CAT_texture_read(CAT_texture* tex, int x, int y)
 {
 	if
 	(
-		x < 0 || x >= texture->width ||
-		y < 0 || y >= texture->height
+		x < 0 || x >= tex->width ||
+		y < 0 || y >= tex->height
 	)
 	{
 		return {0, 0, 0, 0};
 	}
 
-	int idx = (y * texture->width + x) * 4;
+	int idx = (y * tex->width + x) * 4;
 	CAT_colour c;
-	c.r = texture->data[idx+0];
-	c.g = texture->data[idx+1];
-	c.b = texture->data[idx+2];
-	c.a = texture->data[idx+3];
+	c.r = tex->data[idx+0];
+	c.g = tex->data[idx+1];
+	c.b = tex->data[idx+2];
+	c.a = tex->data[idx+3];
 	return c;
 }
 
-void CAT_texture_write(CAT_texture* texture, int x, int y, CAT_colour c)
+void CAT_texture_write(CAT_texture* tex, int x, int y, CAT_colour c)
 {
 	if
 	(
-		x < 0 || x >= texture->width ||
-		y < 0 || y >= texture->height
+		x < 0 || x >= tex->width ||
+		y < 0 || y >= tex->height
 	)
 	{
 		return;
 	}
 
-	int idx = (y * texture->width + x) * 4;
-	CAT_colour base = CAT_texture_read(texture, x, y);
+	int idx = (y * tex->width + x) * 4;
+	CAT_colour base = CAT_texture_read(tex, x, y);
 	CAT_colour blend = CAT_colour_lerp(base, c, c.a);
-	texture->data[idx+0] = blend.r;
-	texture->data[idx+1] = blend.g;
-	texture->data[idx+2] = blend.b;
-	texture->data[idx+3] = blend.a;
+	tex->data[idx+0] = blend.r;
+	tex->data[idx+1] = blend.g;
+	tex->data[idx+2] = blend.b;
+	tex->data[idx+3] = blend.a;
 }
 
-void CAT_load_PNG(CAT_texture* texture, const char* path)
+void CAT_load_PNG(CAT_texture* tex, const char* path)
 {
 	FILE* file = fopen(path, "rb");
 
@@ -105,7 +105,7 @@ void CAT_load_PNG(CAT_texture* texture, const char* path)
 		memcpy(bytes + row_size * i, rows[i], row_size);
 	}
 
-	CAT_texture_init(texture, width, height);
+	CAT_texture_init(tex, width, height);
 	for(int y = 0; y < height*4; y++)
 	{
 		for(int x = 0; x < width*4; x++)
@@ -113,7 +113,7 @@ void CAT_load_PNG(CAT_texture* texture, const char* path)
 			int idx = y * width + x;
 			uint8_t c_b = bytes[idx];
 			float c_f = c_b / 255.0f;
-			texture->data[idx] = c_f;
+			tex->data[idx] = c_f;
 		}
 	}
 
@@ -130,11 +130,20 @@ typedef struct CAT_sprite
 
 typedef struct CAT_atlas
 {
-	CAT_texture* texture;
+	CAT_texture* tex;
 	CAT_sprite map[256];
 } CAT_atlas;
 
-void CAT_atlas_register(CAT_atlas* atlas, int key, CAT_sprite sprite)
+void CAT_atlas_init(CAT_atlas* atlas, CAT_texture* tex)
+{
+	atlas->tex = tex;
+	for(int i = 0; i < 256; i++)
+	{
+		atlas->map[i] = {0, 0, 0, 0};
+	}
+}
+
+void CAT_atlas_add(CAT_atlas* atlas, int key, CAT_sprite sprite)
 {
 	atlas->map[key] = sprite;
 }
@@ -169,7 +178,7 @@ void CAT_draw_sprite(CAT_texture* frame, int x, int y, CAT_atlas* atlas, int key
 			if((mode & CAT_DRAW_MODE_REFLECT_X) > 0)
 				x_r = sprite.x+sprite.width-1-dx;
 			int y_r = sprite.y+dy;
-			CAT_colour c = CAT_texture_read(atlas->texture, x_r, y_r);
+			CAT_colour c = CAT_texture_read(atlas->tex, x_r, y_r);
 			int x_w = x+dx+x_shift;
 			int y_w = y+dy+y_shift;
 			CAT_texture_write(frame, x_w, y_w, c);
@@ -180,7 +189,7 @@ void CAT_draw_sprite(CAT_texture* frame, int x, int y, CAT_atlas* atlas, int key
 typedef struct CAT_anim
 {
 	int frame_count;
-	int keys[24];
+	int frames[24];
 	int idx;
 	int looping;
 } CAT_anim;
@@ -194,7 +203,7 @@ void CAT_anim_init(CAT_anim* anim)
 
 void CAT_anim_add(CAT_anim* anim, int key)
 {
-	anim->keys[anim->frame_count] = key;
+	anim->frames[anim->frame_count] = key;
 	anim->frame_count += 1;
 }
 
@@ -272,7 +281,7 @@ void CAT_anim_queue_tick(CAT_anim_queue* queue)
 	}
 }
 
-void CAT_anim_queue_submit(CAT_anim_queue* queue, CAT_texture* frame, CAT_atlas* atlas)
+void CAT_anim_queue_draw(CAT_anim_queue* queue, CAT_atlas* atlas, CAT_texture* frame)
 {
 	for(int i = 0; i < queue->length; i++)
 	{
@@ -281,11 +290,88 @@ void CAT_anim_queue_submit(CAT_anim_queue* queue, CAT_texture* frame, CAT_atlas*
 		CAT_draw_sprite
 		(
 			frame, cmd.x, cmd.y,
-			atlas, anim->keys[anim->idx],
+			atlas, anim->frames[anim->idx],
 			cmd.mode
 		);
 	}
 	queue->length = 0;
+}
+
+typedef struct CAT_gui
+{
+	int tiles[9];
+	int glyphs[91];
+
+	CAT_ivec2 start;
+	CAT_ivec2 shape;
+	int margin;
+
+	CAT_ivec2 cursor;
+	CAT_ivec2 cursor_last;
+} CAT_gui;
+
+void CAT_gui_row(CAT_gui* gui, CAT_atlas* atlas, CAT_texture* frame, int stage)
+{
+	CAT_draw_sprite(frame, gui->cursor.x, gui->cursor.y, atlas, gui->tiles[stage*3+0], CAT_DRAW_MODE_DEFAULT);
+	gui->cursor.x += 16;
+	for(int col = 1; col < gui->shape.x-1; col++)
+	{
+		CAT_draw_sprite(frame, gui->cursor.x, gui->cursor.y, atlas, gui->tiles[stage*3+1], CAT_DRAW_MODE_DEFAULT);
+		gui->cursor.x += 16;
+	}
+	CAT_draw_sprite(frame, gui->cursor.x, gui->cursor.y, atlas, gui->tiles[stage*3+2], CAT_DRAW_MODE_DEFAULT);
+	gui->cursor.x += 16;
+
+	gui->cursor.y += 16;
+	gui->cursor.x = gui->start.x;
+}
+
+void CAT_gui_panel(CAT_gui* gui, CAT_atlas* atlas, CAT_texture* frame, CAT_ivec2 start, CAT_ivec2 shape)
+{
+	gui->start = start;
+	gui->shape = shape;
+	gui->cursor = start;
+
+	CAT_gui_row(gui, atlas, frame, 0);
+	for(int row = 1; row < gui->shape.y-1; row++)
+	{
+		CAT_gui_row(gui, atlas, frame, 1);
+	}
+	CAT_gui_row(gui, atlas, frame, 2);
+
+	gui->cursor = gui->start;
+	gui->cursor.y += gui->margin;
+	gui->cursor.x += gui->margin;
+}
+
+void CAT_gui_line_break(CAT_gui* gui)
+{
+	gui->cursor_last = gui->cursor;
+	gui->cursor.y += 16;
+	gui->cursor.x = gui->start.x + gui->margin;
+}
+
+void CAT_gui_same_line(CAT_gui* gui)
+{
+	gui->cursor = gui->cursor_last;
+	gui->cursor.x += gui->margin;
+}
+
+void CAT_gui_text(CAT_gui* gui, CAT_atlas* atlas, CAT_texture* frame, char* text)
+{
+	for(char* c = text; *c != '\0'; c++)
+	{
+		if(*c == '\n')
+		{
+			CAT_gui_line_break(gui);
+			continue;
+		}
+
+		CAT_draw_sprite(frame, gui->cursor.x, gui->cursor.y, atlas, gui->glyphs[(*c)-' '], CAT_DRAW_MODE_DEFAULT);
+		gui->cursor.x += gui->margin;
+	}
+	
+	CAT_gui_line_break(gui);
 }
 
 #endif
