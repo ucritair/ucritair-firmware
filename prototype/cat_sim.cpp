@@ -64,15 +64,16 @@ typedef struct CAT_context
 	CAT_room room;
 	CAT_ivec2 cursor;
 
+	CAT_bag bag;
+
 	const char* menu_items[2] =
 	{
 		"INVENTORY",
 		"BACK"
 	};
-	CAT_menu menu;
+	CAT_menu main_menu;
 	
-	const char* items[13] = {"Red Seed", "Gourd Seed", "Sesame Seed", "Fourth Seed", "Greenberry Seed", "Odd Seed", "Good Seed", "Bad Seed", "Okay Seed", "Rust Seed", "Fire Seed", "Evil Seed", "Apathetic Seed"};
-	CAT_menu inventory;
+	CAT_menu bag_menu;
 } CAT_context;
 
 void CAT_context_init(CAT_context* context)
@@ -89,8 +90,10 @@ void CAT_context_init(CAT_context* context)
 	context->room.prop_count = 0;
 	context->cursor = {0, 96};
 
-	CAT_menu_init(&context->menu, 2, 9);
-	CAT_menu_init(&context->inventory, 13, 9);
+	CAT_bag_init(&context->bag);
+
+	CAT_menu_init(&context->main_menu, 2, 9);
+	CAT_menu_init(&context->bag_menu, 13, 9);
 }
 
 typedef enum CAT_button
@@ -139,7 +142,7 @@ int input_mask[CAT_BUTTON_LAST] =
 
 int CAT_button_pressed(int button)
 {
-	return 
+	return
 		(input_mask[button] & CAT_BUTTON_STATE_PRESSED) > 0 &&
 		(input_mask[button] & CAT_BUTTON_STATE_EDGE) > 0;
 }
@@ -207,13 +210,13 @@ void CAT_logic(CAT_display* display, CAT_context* context, CAT_item* dummy)
 		case CAT_GAME_MODE_MENU:
 		{
 			if(CAT_button_pressed(CAT_BUTTON_UP))
-				CAT_menu_shift(&context->menu, -1);
+				CAT_menu_shift(&context->main_menu, -1);
 			if(CAT_button_pressed(CAT_BUTTON_DOWN))
-				CAT_menu_shift(&context->menu, 1);
+				CAT_menu_shift(&context->main_menu, 1);
 
 			if(CAT_button_pressed(CAT_BUTTON_A))
 			{
-				const char* selection = context->menu_items[context->menu.idx];
+				const char* selection = context->menu_items[context->main_menu.idx];
 				if(strcmp(selection, "INVENTORY") == 0)
 				{
 					context->mode = CAT_GAME_MODE_INVENTORY;
@@ -237,9 +240,9 @@ void CAT_logic(CAT_display* display, CAT_context* context, CAT_item* dummy)
 		case CAT_GAME_MODE_INVENTORY:
 		{
 			if(CAT_button_pressed(CAT_BUTTON_UP))
-				CAT_menu_shift(&context->inventory, -1);
+				CAT_menu_shift(&context->bag_menu, -1);
 			if(CAT_button_pressed(CAT_BUTTON_DOWN))
-				CAT_menu_shift(&context->inventory, 1);
+				CAT_menu_shift(&context->bag_menu, 1);
 
 			if(CAT_button_pressed(CAT_BUTTON_B))
 			{
@@ -295,6 +298,14 @@ int main(int argc, char** argv)
 	CAT_atlas_add(&atlas, 117, seed_sprite);
 	CAT_sprite select_sprite = {192, 16, 16, 16};
 	CAT_atlas_add(&atlas, 118, select_sprite);
+	CAT_sprite exit_sprite = {224, 0, 12, 16};
+	CAT_atlas_add(&atlas, 119, exit_sprite);
+	CAT_sprite a_sprite = {240, 0, 16, 16};
+	CAT_atlas_add(&atlas, 120, a_sprite);
+	CAT_sprite b_sprite = {256, 0, 16, 16};
+	CAT_atlas_add(&atlas, 121, b_sprite);
+	CAT_sprite enter_sprite = {208, 16, 12, 16};
+	CAT_atlas_add(&atlas, 122, enter_sprite);
 
 	CAT_anim bg_anim;
 	CAT_anim_init(&bg_anim);
@@ -399,12 +410,24 @@ int main(int argc, char** argv)
 			{
 				CAT_gui_panel(&gui, &atlas, &display.frame, {0, 0}, {15, 2});  
 				CAT_gui_text(&gui, &atlas, &display.frame, "MENU");
+				CAT_gui_same_line(&gui);
+				CAT_gui_image(&gui, &atlas, &display.frame, 120);
+				CAT_gui_same_line(&gui);
+				CAT_gui_image(&gui, &atlas, &display.frame, 122);
+				CAT_gui_same_line(&gui);
+				CAT_gui_image(&gui, &atlas, &display.frame, 121);
+				CAT_gui_same_line(&gui);
+				CAT_gui_image(&gui, &atlas, &display.frame, 119);
+
 				CAT_gui_panel(&gui, &atlas, &display.frame, {0, 32}, {15, 18});  
 
-				for(int i = 0; i < context.menu.length; i++)
+				for(int i = 0; i < context.main_menu.length; i++)
 				{
+					CAT_gui_text(&gui, &atlas, &display.frame, "#");
+					CAT_gui_same_line(&gui);
 					CAT_gui_text(&gui, &atlas, &display.frame, context.menu_items[i]);
-					if(i == context.menu.idx)
+
+					if(i == context.main_menu.idx)
 					{
 						CAT_gui_same_line(&gui);
 						CAT_gui_image(&gui, &atlas, &display.frame, 118);
@@ -419,16 +442,16 @@ int main(int argc, char** argv)
 				CAT_gui_text(&gui, &atlas, &display.frame, "INVENTORY");
 				CAT_gui_panel(&gui, &atlas, &display.frame, {0, 32}, {15, 18});  
 
-				for(int i = 0; i < context.inventory.window; i++)
+				for(int i = 0; i < context.bag_menu.window; i++)
 				{
-					int slot = i + context.inventory.base;
+					int slot = context.bag_menu.base + i;
 
 					CAT_gui_panel(&gui, &atlas, &display.frame, {0, 32+i*32}, {15, 2});
 					CAT_gui_image(&gui, &atlas, &display.frame, 117); 
 					CAT_gui_same_line(&gui);
 					CAT_gui_text(&gui, &atlas, &display.frame, context.items[slot]);
 
-					if(slot == context.inventory.idx)
+					if(slot == context.bag_menu.idx)
 					{
 						CAT_gui_same_line(&gui);
 						CAT_gui_image(&gui, &atlas, &display.frame, 118);

@@ -143,9 +143,9 @@ void CAT_atlas_init(CAT_atlas* atlas, CAT_texture* tex)
 	}
 }
 
-void CAT_atlas_add(CAT_atlas* atlas, int key, CAT_sprite sprite)
+void CAT_atlas_add(CAT_atlas* atlas, int key, CAT_sprite value)
 {
-	atlas->map[key] = sprite;
+	atlas->map[key] = value;
 }
 
 typedef enum CAT_draw_mode

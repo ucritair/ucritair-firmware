@@ -115,14 +115,14 @@ void CAT_menu_shift(CAT_menu* menu, int shift)
 	menu->idx += shift;	
 	menu->idx = clamp(menu->idx, 0, menu->length-1);
 
-	int overshoot = menu->idx - menu->base - menu->length + 1;
+	int overshoot = menu->idx - menu->base - menu->window + 1;
 	if(overshoot > 0)
 	{
-		menu->base += overshoot;
+		menu->base++;
 	}
-	else if(overshoot <= -menu->length)
+	else if(overshoot <= -menu->window)
 	{
-		menu->base -= overshoot;
+		menu->base--;
 	}
 }
 
