@@ -1,0 +1,89 @@
+// Copyright (c) 2024 Nordic Semiconductor ASA
+// SPDX-License-Identifier: Apache-2.0
+
+/dts-v1/;
+#include <nordic/nrf5340_cpuappns_qkaa.dtsi>
+
+/ {
+	model = "entropic_cat";
+	compatible = "entropic-engineering,entropic-cat";
+
+	chosen {
+		zephyr,sram = &sram0;
+		zephyr,flash = &flash0;
+		zephyr,code-partition = &slot0_ns_partition;
+	};
+
+	rgb_leds: ws2812 {
+		compatible = "worldsemi,ws2812-gpio";
+		chain-length = <8>;
+		color-mapping = <LED_COLOR_ID_GREEN
+		                 LED_COLOR_ID_RED
+						 LED_COLOR_ID_BLUE>;
+		gpios = <&gpio1 1 0>;
+	};
+};
+
+&flash0 {
+	partitions {
+		compatible = "fixed-partitions";
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		boot_partition: partition@0 {
+			label = "mcuboot";
+			reg = <0x0 0x10000>;
+		};
+		slot0_partition: partition@10000 {
+			label = "image-0";
+			reg = <0x10000 0x40000>;
+		};
+		slot0_ns_partition: partition@50000 {
+			label = "image-0-nonsecure";
+			reg = <0x50000 0x30000>;
+		};
+		slot1_partition: partition@80000 {
+			label = "image-1";
+			reg = <0x80000 0x40000>;
+		};
+		slot1_ns_partition: partition@c0000 {
+			label = "image-1-nonsecure";
+			reg = <0xc0000 0x30000>;
+		};
+		scratch_partition: partition@f0000 {
+			label = "image-scratch";
+			reg = <0xf0000 0xa000>;
+		};
+		storage_partition: partition@fa000 {
+			label = "storage";
+			reg = <0xfa000 0x6000>;
+		};
+	};
+};
+
+
+
+/* Default shared SRAM planning when building for nRF5340.
+* This file is included by both nRF5340 CPUAPP (Application MCU)
+* and nRF5340 CPUNET (Network MCU).
+* - 64 kB SRAM allocated as Shared memory (sram0_shared)
+* - Region defined after the image SRAM of Application MCU
+*/
+
+/ {
+    chosen {
+        /* shared memory reserved for the inter-processor communication */
+        zephyr,ipc_shm = &sram0_shared;
+    };
+
+    reserved-memory {
+        #address-cells = <1>;
+        #size-cells = <1>;
+        ranges;
+
+        sram0_shared: memory@20070000 {
+            /* SRAM allocated to shared memory */
+            reg = <0x20070000 0x10000>;
+        };
+    };
+};
