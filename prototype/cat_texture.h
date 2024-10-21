@@ -30,54 +30,54 @@ typedef struct CAT_texture
 	float* data;
 } CAT_texture;
 
-void CAT_texture_init(CAT_texture* texture, int width, int height)
+void CAT_texture_init(CAT_texture* tex, int width, int height)
 {
-	texture->width = width;
-	texture->height = height;
-	texture->data = (float*) malloc(width * height * 4 * sizeof(float));
+	tex->width = width;
+	tex->height = height;
+	tex->data = (float*) malloc(width * height * 4 * sizeof(float));
 }
 
-CAT_colour CAT_texture_read(CAT_texture* texture, int x, int y)
+CAT_colour CAT_texture_read(CAT_texture* tex, int x, int y)
 {
 	if
 	(
-		x < 0 || x >= texture->width ||
-		y < 0 || y >= texture->height
+		x < 0 || x >= tex->width ||
+		y < 0 || y >= tex->height
 	)
 	{
 		return {0, 0, 0, 0};
 	}
 
-	int idx = (y * texture->width + x) * 4;
+	int idx = (y * tex->width + x) * 4;
 	CAT_colour c;
-	c.r = texture->data[idx+0];
-	c.g = texture->data[idx+1];
-	c.b = texture->data[idx+2];
-	c.a = texture->data[idx+3];
+	c.r = tex->data[idx+0];
+	c.g = tex->data[idx+1];
+	c.b = tex->data[idx+2];
+	c.a = tex->data[idx+3];
 	return c;
 }
 
-void CAT_texture_write(CAT_texture* texture, int x, int y, CAT_colour c)
+void CAT_texture_write(CAT_texture* tex, int x, int y, CAT_colour c)
 {
 	if
 	(
-		x < 0 || x >= texture->width ||
-		y < 0 || y >= texture->height
+		x < 0 || x >= tex->width ||
+		y < 0 || y >= tex->height
 	)
 	{
 		return;
 	}
 
-	int idx = (y * texture->width + x) * 4;
-	CAT_colour base = CAT_texture_read(texture, x, y);
+	int idx = (y * tex->width + x) * 4;
+	CAT_colour base = CAT_texture_read(tex, x, y);
 	CAT_colour blend = CAT_colour_lerp(base, c, c.a);
-	texture->data[idx+0] = blend.r;
-	texture->data[idx+1] = blend.g;
-	texture->data[idx+2] = blend.b;
-	texture->data[idx+3] = blend.a;
+	tex->data[idx+0] = blend.r;
+	tex->data[idx+1] = blend.g;
+	tex->data[idx+2] = blend.b;
+	tex->data[idx+3] = blend.a;
 }
 
-void CAT_load_PNG(CAT_texture* texture, const char* path)
+void CAT_load_PNG(CAT_texture* tex, const char* path)
 {
 	FILE* file = fopen(path, "rb");
 
@@ -105,7 +105,7 @@ void CAT_load_PNG(CAT_texture* texture, const char* path)
 		memcpy(bytes + row_size * i, rows[i], row_size);
 	}
 
-	CAT_texture_init(texture, width, height);
+	CAT_texture_init(tex, width, height);
 	for(int y = 0; y < height*4; y++)
 	{
 		for(int x = 0; x < width*4; x++)
@@ -113,7 +113,7 @@ void CAT_load_PNG(CAT_texture* texture, const char* path)
 			int idx = y * width + x;
 			uint8_t c_b = bytes[idx];
 			float c_f = c_b / 255.0f;
-			texture->data[idx] = c_f;
+			tex->data[idx] = c_f;
 		}
 	}
 
@@ -130,56 +130,58 @@ typedef struct CAT_sprite
 
 typedef struct CAT_atlas
 {
-	CAT_texture* texture;
+	CAT_texture* tex;
 	CAT_sprite map[256];
 } CAT_atlas;
 
-void CAT_atlas_register(CAT_atlas* atlas, int key, CAT_sprite sprite)
+void CAT_atlas_init(CAT_atlas* atlas, CAT_texture* tex)
 {
-	atlas->map[key] = sprite;
+	atlas->tex = tex;
+	for(int i = 0; i < 256; i++)
+	{
+		atlas->map[i] = {0, 0, 0, 0};
+	}
+}
+
+void CAT_atlas_add(CAT_atlas* atlas, int key, CAT_sprite value)
+{
+	atlas->map[key] = value;
 }
 
 typedef enum CAT_draw_mode
 {
+	CAT_DRAW_MODE_DEFAULT = 0,
 	CAT_DRAW_MODE_BOTTOM = 1,
-	CAT_DRAW_MODE_LEFT = 2,
-	CAT_DRAW_MODE_CENTER_X = 4,
-	CAT_DRAW_MODE_CENTER_Y = 8,
-	CAT_DRAW_MODE_REFLECT_X = 16
+	CAT_DRAW_MODE_CENTER_X = 2,
+	CAT_DRAW_MODE_CENTER_Y = 4,
+	CAT_DRAW_MODE_REFLECT_X = 8
 } CAT_draw_mode;
 
-void CAT_draw_sprite(CAT_texture* frame, int x, int y, CAT_atlas* atlas, int key, CAT_draw_mode mode)
+void CAT_draw_sprite(CAT_texture* frame, int x, int y, CAT_atlas* atlas, int key, int mode)
 {
 	CAT_sprite sprite = atlas->map[key];
 	
 	int x_shift = 0;
 	int y_shift = 0;
-	int reflect_x = 0;
-
 	if((mode & CAT_DRAW_MODE_BOTTOM) > 0)
 		y_shift = -sprite.height;
-	if((mode & CAT_DRAW_MODE_LEFT) > 0)
-		x_shift = 0;
 	if((mode & CAT_DRAW_MODE_CENTER_X) > 0)
 		x_shift = -sprite.width/2;
 	if((mode & CAT_DRAW_MODE_CENTER_Y) > 0)
 		y_shift = -sprite.height/2;
-	if((mode & CAT_DRAW_MODE_REFLECT_X) > 0)
-		reflect_x = 1;
 
 	for(int dy = 0; dy < sprite.height; dy++)
 	{
 		for(int dx = 0; dx < sprite.width; dx++)
 		{
 			int x_r = sprite.x+dx;
+			if((mode & CAT_DRAW_MODE_REFLECT_X) > 0)
+				x_r = sprite.x+sprite.width-1-dx;
 			int y_r = sprite.y+dy;
-			CAT_colour c = CAT_texture_read(atlas->texture, x_r, y_r);
+			CAT_colour c = CAT_texture_read(atlas->tex, x_r, y_r);
 			int x_w = x+dx+x_shift;
 			int y_w = y+dy+y_shift;
-			if(!reflect_x)
-				CAT_texture_write(frame, x_w, y_w, c);
-			else
-				CAT_texture_write(frame, frame->width-x_w-1, y_w, c);
+			CAT_texture_write(frame, x_w, y_w, c);
 		}
 	}
 }
@@ -187,7 +189,7 @@ void CAT_draw_sprite(CAT_texture* frame, int x, int y, CAT_atlas* atlas, int key
 typedef struct CAT_anim
 {
 	int frame_count;
-	int keys[24];
+	int frames[24];
 	int idx;
 	int looping;
 } CAT_anim;
@@ -199,9 +201,9 @@ void CAT_anim_init(CAT_anim* anim)
 	anim->looping = 1;
 }
 
-void CAT_anim_register(CAT_anim* anim, int key)
+void CAT_anim_add(CAT_anim* anim, int key)
 {
-	anim->keys[anim->frame_count] = key;
+	anim->frames[anim->frame_count] = key;
 	anim->frame_count += 1;
 }
 
@@ -214,21 +216,16 @@ void CAT_anim_tick(CAT_anim* anim)
 	}
 }
 
-int CAT_anim_frame(CAT_anim* anim)
-{
-	return anim->keys[anim->idx];
-}
-
 typedef struct CAT_anim_command
 {
 	CAT_anim* anim;
 	int layer;
 	int x;
 	int y;
-	CAT_draw_mode mode;
+	int mode;
 } CAT_anim_command;
 
-void CAT_anim_command_init(CAT_anim_command* command, CAT_anim* anim, int layer, int x, int y, CAT_draw_mode mode)
+void CAT_anim_command_init(CAT_anim_command* command, CAT_anim* anim, int layer, int x, int y, int mode)
 {
 	command->anim = anim;
 	command->layer = layer;
@@ -239,7 +236,7 @@ void CAT_anim_command_init(CAT_anim_command* command, CAT_anim* anim, int layer,
 
 typedef struct CAT_anim_queue
 {
-	CAT_anim_command* items[1024];
+	CAT_anim_command items[1024];
 	int length;
 } CAT_draw_queue;
 
@@ -248,7 +245,7 @@ void CAT_anim_queue_init(CAT_draw_queue* queue)
 	queue->length = 0;
 }
 
-void CAT_anim_queue_add(CAT_anim_queue* queue, CAT_anim_command* cmd)
+void CAT_anim_queue_add(CAT_anim_queue* queue, CAT_anim_command cmd)
 {
 	if(queue->length == 1024)
 	{
@@ -258,8 +255,8 @@ void CAT_anim_queue_add(CAT_anim_queue* queue, CAT_anim_command* cmd)
 	int insert_idx = queue->length;
 	for(int i = 0; i < queue->length; i++)
 	{
-		CAT_anim_command* other = queue->items[i];
-		if(cmd->layer < other->layer || cmd->y < other->y)
+		CAT_anim_command other = queue->items[i];
+		if(cmd.layer <= other.layer && cmd.y < other.y)
 		{
 			insert_idx = i;
 			break;
@@ -278,26 +275,27 @@ void CAT_anim_queue_tick(CAT_anim_queue* queue)
 {
 	for(int i = 0; i < queue->length; i++)
 	{
-		CAT_anim_command* cmd = queue->items[i];
-		CAT_anim* anim = cmd->anim;
+		CAT_anim_command cmd = queue->items[i];
+		CAT_anim* anim = cmd.anim;
 		CAT_anim_tick(anim);
 	}
 }
 
-void CAT_anim_queue_submit(CAT_anim_queue* queue, CAT_texture* frame, CAT_atlas* atlas)
+void CAT_anim_queue_draw(CAT_anim_queue* queue, CAT_atlas* atlas, CAT_texture* frame)
 {
 	for(int i = 0; i < queue->length; i++)
 	{
-		CAT_anim_command* cmd = queue->items[i];
-		CAT_anim* anim = cmd->anim;
+		CAT_anim_command cmd = queue->items[i];
+		CAT_anim* anim = cmd.anim;
 		CAT_draw_sprite
 		(
-			frame, cmd->x, cmd->y,
-			atlas, CAT_anim_frame(anim),
-			cmd->mode
+			frame, cmd.x, cmd.y,
+			atlas, anim->frames[anim->idx],
+			cmd.mode
 		);
 	}
 	queue->length = 0;
 }
+
 
 #endif
