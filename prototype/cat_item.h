@@ -1,6 +1,8 @@
 #ifndef CAT_ITEM_H
 #define CAT_ITEM_H
 
+#include "cat_sprite.h"
+
 typedef enum CAT_item_type
 {
 	CAT_ITEM_TYPE_PROP,
@@ -12,6 +14,7 @@ typedef struct CAT_item
 	CAT_item_type type;
 
 	const char* name;
+	int icon;
 	CAT_anim* anim;
 	int price;
 
@@ -32,66 +35,27 @@ typedef struct CAT_item
 	} data;
 } CAT_item;
 
-void CAT_item_init(CAT_item* item, CAT_item_type type, const char* name, CAT_anim* anim)
-{
-	item->type = type;
-	item->name = name;
-	item->anim = anim;
-}
+void CAT_item_init(CAT_item* item, CAT_item_type type, const char* name, int icon, CAT_anim* anim);
 
 typedef struct CAT_store
 {
-	CAT_item* map[256];
+	CAT_item* table[256];
+	int length;
 } CAT_store;
+extern CAT_store store;
 
-void CAT_store_add(CAT_store* store, int key, CAT_item* value)
-{
-	store->map[key] = value;
-}
+void CAT_store_init();
+int CAT_store_add(CAT_item* value);
 
 typedef struct CAT_bag
 {
-	int keys[256];
-	int length;	
+	int quantities[256];
 } CAT_bag;
+extern CAT_bag bag;
 
-void CAT_bag_init(CAT_bag* bag)
-{
-	bag->length = 0;
-}
-
-void CAT_bag_add(CAT_bag* bag, int key)
-{
-	if(bag->length >= 256)
-		return;
-
-	bag->keys[bag->length] = key;
-	bag->length += 1;
-}
-
-int CAT_bag_find(CAT_bag* bag, int key)
-{
-	for(int i = 0; i < bag->length; i++)
-	{
-		if(bag->keys[i] == key)
-		{
-			return i;
-		}
-	}
-	return -1;
-}
-
-void CAT_bag_remove(CAT_bag* bag, int key)
-{
-	int idx = CAT_bag_find(bag, key);
-	if(idx == -1)
-		return;
-
-	for(int i = bag->length-1; i > idx; i--)
-	{
-		bag->keys[i-1] = bag->keys[i];
-	}
-	bag->length -= 1;
-}
+void CAT_bag_init();
+void CAT_bag_add(int key);
+void CAT_bag_remove(int key);
+int CAT_bag_count(int key);
 
 #endif
