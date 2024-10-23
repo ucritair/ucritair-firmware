@@ -7,6 +7,8 @@ LOG_MODULE_REGISTER(epaper, LOG_LEVEL_DBG);
 
 #include <hal/nrf_gpio.h>
 
+#include "misc.h"
+
 
 static const struct gpio_dt_spec pin_sclk =
 	GPIO_DT_SPEC_GET(DT_NODELABEL(epaper_display), sclk_gpios);
@@ -20,10 +22,7 @@ static const struct gpio_dt_spec pin_rst =
 	GPIO_DT_SPEC_GET(DT_NODELABEL(epaper_display), rst_gpios);
 static const struct gpio_dt_spec pin_busy =
 	GPIO_DT_SPEC_GET(DT_NODELABEL(epaper_display), busy_gpios);
-static const struct gpio_dt_spec pin_buck_enable =
-	GPIO_DT_SPEC_GET(DT_NODELABEL(epaper_display), buck_enable_gpios);
-static const struct gpio_dt_spec pin_lcd_backlight =
-	GPIO_DT_SPEC_GET(DT_NODELABEL(epaper_display), lcd_backlight_gpios);
+
 
 // static const struct gpio_dt_spec pin_led0 =
 // 	GPIO_DT_SPEC_GET(DT_NODELABEL(led0), gpios);
@@ -374,22 +373,6 @@ void write_str(uint8_t* image, int x, int y, char* str)
 	}
 }
 
-void init_pin(const struct gpio_dt_spec* pin, char* name, gpio_flags_t flags)
-{
-	if (!gpio_is_ready_dt(pin))
-	{
-		LOG_ERR("%s not ready when init", name);
-		while (1) {}
-	}
-
-	if (gpio_pin_configure_dt(pin, flags) < 0)
-	{
-		LOG_ERR("%s failed to configure", name);
-		while (1) {}
-	}
-	nrf_gpio_pin_control_select(NRF_GPIO_PIN_MAP(1, pin->pin), NRF_GPIO_PIN_SEL_APP);
-}
-
 #define PIN_FOREACH_X(X)\
 	X(pin_sclk, true)\
 	X(pin_data, true)\
@@ -398,25 +381,10 @@ void init_pin(const struct gpio_dt_spec* pin, char* name, gpio_flags_t flags)
 	X(pin_rst, true)\
 	X(pin_busy, false)
 
-void turn_on_backlight()
-{
-	init_pin(&pin_lcd_backlight, "pin_lcd_backlight", GPIO_OUTPUT_INACTIVE);
-	// nrf_gpio_pin_control_select(NRF_GPIO_PIN_MAP(1, pin_lcd_backlight.pin), NRF_GPIO_PIN_SEL_APP);
-	pin_write(&pin_lcd_backlight, true);
-}
-
-void turn_on_3v3()
-{
-	init_pin(&pin_buck_enable, "pin_buck_enable", GPIO_OUTPUT_INACTIVE);
-	// nrf_gpio_pin_control_select(NRF_GPIO_PIN_MAP(1, pin_buck_enable.pin), NRF_GPIO_PIN_SEL_APP);
-	pin_write(&pin_buck_enable, true);
-}
 
 
 void test_epaper()
 {
-
-	turn_on_3v3();
 
 	// init_pin(&pin_led0, "led0", GPIO_OUTPUT_ACTIVE);
 	// for (int i = 0; i < 40; i++)
@@ -444,7 +412,6 @@ void test_epaper()
 	pin_write(&pin_csn, true);
 	pin_write(&pin_rst, true);
 	pin_write(&pin_dc, true);
-	pin_write(&pin_buck_enable, true);
 
 	// while (1)
 	// {

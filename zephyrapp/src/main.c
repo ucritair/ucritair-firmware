@@ -238,6 +238,12 @@ int main(void)
 	LOG_INF("Turn on backlight");
 	turn_on_backlight();
 
+	LOG_INF("Test speakeR");
+	test_speaker();
+
+	LOG_INF("init matrix");
+	init_matrix();
+
 	// test_epaper();
 
 	LOG_INF("Running LCD test");
@@ -408,7 +414,10 @@ int main(void)
 		display_write(display_dev, x, y, &buf_desc, buf);
 		++grey_count;
 		
-		LOG_INF("Cycling...");
+		char str[]={'0', '0', '0', '0', '0', '0', '0', '0', 0};
+		int s = scan_matrix();
+		for (int i = 0; i < 8; i++) str[i] += (s>>i)&1;
+		LOG_INF("Cycling... matrix=%02x %s", s, str);
 		k_msleep(grey_scale_sleep);
 	}
 

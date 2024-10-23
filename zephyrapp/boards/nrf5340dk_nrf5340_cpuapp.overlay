@@ -57,8 +57,16 @@
 		dc-gpios = <&gpio0 12 GPIO_ACTIVE_HIGH>;
 		rst-gpios = <&gpio1 5 GPIO_ACTIVE_HIGH>;
 		busy-gpios = <&gpio1 6 (GPIO_ACTIVE_HIGH|GPIO_PULL_UP)>;
+	};
+
+	cat_misc: cat-misc {
+		compatible = "cat-misc";
+
 		buck-enable-gpios = <&gpio0 5 GPIO_ACTIVE_HIGH>;
 		lcd-backlight-gpios = <&gpio1 0 GPIO_ACTIVE_HIGH>;
+		speaker-gpios = <&gpio1 8 GPIO_ACTIVE_HIGH>;
+		btn-row-gpios = <&gpio1 9 GPIO_ACTIVE_HIGH>, <&gpio1 10 GPIO_ACTIVE_HIGH>, <&gpio1 11 GPIO_ACTIVE_HIGH>, <&gpio1 12 GPIO_ACTIVE_HIGH> ;
+		btn-col-gpios = <&gpio1 13 GPIO_ACTIVE_HIGH>, <&gpio1 14 GPIO_ACTIVE_HIGH>;
 	};
 };
 
