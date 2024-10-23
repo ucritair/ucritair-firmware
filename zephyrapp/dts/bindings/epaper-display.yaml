@@ -27,3 +27,6 @@ properties:
   buck-enable-gpios:
     type: phandle-array
     required: true
+  lcd-backlight-gpios:
+    type: phandle-array
+    required: true

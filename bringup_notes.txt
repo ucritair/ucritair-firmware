@@ -8,3 +8,4 @@ nrfjprog --reset
 BLE OK
 
 Uncommenting the arduino_spi stuff and wlan0 stuff was resulting in all bits getting wiggled on wifi spi
+  ^--- NEED TO SET CS and SPI stuff to right pin!!!

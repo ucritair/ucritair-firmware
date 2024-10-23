@@ -1,24 +1,24 @@
 #include <zephyr/dt-bindings/mipi_dbi/mipi_dbi.h>
 
 / {
-	/*
+	
 	chosen {
 		zephyr,display = &st7789v_st7789v_waveshare_240x240;
 	};
 
 
 	mipi_dbi_st7789v_waveshare_240x240 {
-		status = "disabled";
+		status = "okay";
 		compatible = "zephyr,mipi-dbi-spi";
 		spi-dev = <&arduino_spi>;
-		dc-gpios = <&gpio0 26 GPIO_ACTIVE_HIGH>; // TODO: NOT CONNECTED
-		reset-gpios = <&gpio0 26 GPIO_ACTIVE_LOW>; // TODO: NOT CONNECTED
+		dc-gpios = <&gpio0 12 GPIO_ACTIVE_HIGH>;
+		reset-gpios = <&gpio0 25 GPIO_ACTIVE_LOW>;
 		write-only;
 		#address-cells = <1>;
 		#size-cells = <0>;
 
 		st7789v_st7789v_waveshare_240x240: st7789v@0 {
-			status = "disabled";
+			status = "okay";
 			compatible = "sitronix,st7789v";
 			mipi-max-frequency = <200000>;
 			reg = <0>;
@@ -45,7 +45,8 @@
 			inversion-off;
 		};
 	};
-	*/
+	
+
 
 	epaper_display: epaper-display {
 		compatible = "epaper-display";
@@ -57,6 +58,7 @@
 		rst-gpios = <&gpio1 5 GPIO_ACTIVE_HIGH>;
 		busy-gpios = <&gpio1 6 (GPIO_ACTIVE_HIGH|GPIO_PULL_UP)>;
 		buck-enable-gpios = <&gpio0 5 GPIO_ACTIVE_HIGH>;
+		lcd-backlight-gpios = <&gpio1 0 GPIO_ACTIVE_HIGH>;
 	};
 };
 
