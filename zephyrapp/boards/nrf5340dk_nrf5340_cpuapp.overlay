@@ -1,20 +1,24 @@
 #include <zephyr/dt-bindings/mipi_dbi/mipi_dbi.h>
 
 / {
+	/*
 	chosen {
 		zephyr,display = &st7789v_st7789v_waveshare_240x240;
 	};
 
+
 	mipi_dbi_st7789v_waveshare_240x240 {
+		status = "disabled";
 		compatible = "zephyr,mipi-dbi-spi";
 		spi-dev = <&arduino_spi>;
-		dc-gpios = <&arduino_header 15 GPIO_ACTIVE_HIGH>;	/* D9 */
-		reset-gpios = <&arduino_header 14 GPIO_ACTIVE_LOW>;	/* D8 */
+		dc-gpios = <&gpio0 26 GPIO_ACTIVE_HIGH>; // TODO: NOT CONNECTED
+		reset-gpios = <&gpio0 26 GPIO_ACTIVE_LOW>; // TODO: NOT CONNECTED
 		write-only;
 		#address-cells = <1>;
 		#size-cells = <0>;
 
 		st7789v_st7789v_waveshare_240x240: st7789v@0 {
+			status = "disabled";
 			compatible = "sitronix,st7789v";
 			mipi-max-frequency = <200000>;
 			reg = <0>;
@@ -41,29 +45,91 @@
 			inversion-off;
 		};
 	};
+	*/
 
 	epaper_display: epaper-display {
 		compatible = "epaper-display";
-		
-		/*
-		sclk-gpios = <&gpio1 0 GPIO_ACTIVE_HIGH>;
-		data-gpios = <&gpio1 1 GPIO_ACTIVE_HIGH>;
-		csn-gpios = <&gpio1 4 GPIO_ACTIVE_HIGH>;
-		dc-gpios = <&gpio1 5 GPIO_ACTIVE_HIGH>;
-		rst-gpios = <&gpio1 7 GPIO_ACTIVE_HIGH>;
-		busy-gpios = <&gpio1 6 GPIO_ACTIVE_HIGH>;
-		*/
 
-		sclk-gpios = <&arduino_header 6 GPIO_ACTIVE_HIGH>;
-		data-gpios = <&arduino_header 7 GPIO_ACTIVE_HIGH>;
-		csn-gpios = <&arduino_header 8 GPIO_ACTIVE_HIGH>;
-		dc-gpios = <&arduino_header 9 GPIO_ACTIVE_HIGH>;
-		rst-gpios = <&arduino_header 11 GPIO_ACTIVE_HIGH>;
-		busy-gpios = <&arduino_header 10 GPIO_ACTIVE_HIGH>;
+		sclk-gpios = <&gpio0 8 GPIO_ACTIVE_HIGH>;
+		data-gpios = <&gpio0 9 GPIO_ACTIVE_HIGH>;
+		csn-gpios = <&gpio0 15 GPIO_ACTIVE_HIGH>;
+		dc-gpios = <&gpio0 12 GPIO_ACTIVE_HIGH>;
+		rst-gpios = <&gpio1 5 GPIO_ACTIVE_HIGH>;
+		busy-gpios = <&gpio1 6 (GPIO_ACTIVE_HIGH|GPIO_PULL_UP)>;
+		buck-enable-gpios = <&gpio0 5 GPIO_ACTIVE_HIGH>;
 	};
 };
 
+
+/ {
+	chosen {
+		zephyr,console = &cdc_acm_uart0;
+	};
+};
+
+/ {
+	chosen {
+		zephyr,shell-uart = &cdc_acm_uart0;
+	};
+};
+
+&zephyr_udc0 {
+	cdc_acm_uart0: cdc_acm_uart0 {
+		compatible = "zephyr,cdc-acm-uart";
+	};
+};
+
+/ {
+	chosen {
+		//zephyr,wifi = &wlan0;
+	};
+};
+
+&gpio_fwd {
+	status = "disabled";
+};
+
+/*
 &arduino_spi {
 	status = "okay";
-	cs-gpios = <&arduino_header 16 GPIO_ACTIVE_LOW>;	/* D10 */
+
+	nrf70: nrf7002-spi@0 {
+		compatible = "nordic,nrf7002-spi";
+		status = "okay";
+		reg = <0>;
+		spi-max-frequency = <DT_FREQ_M(1)>; // originally 8
+
+		iovdd-ctrl-gpios = <&gpio0 26 GPIO_ACTIVE_HIGH>; // NOT CONNECTED TO ANYTHING!!
+		bucken-gpios = <&gpio0 21 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>;
+		host-irq-gpios = <&gpio0 20 GPIO_ACTIVE_HIGH>;
+		status0-gpios = <&gpio0 30 GPIO_ACTIVE_HIGH>;
+		req-gpios = <&gpio0 28 GPIO_ACTIVE_HIGH>;
+		grant-gpios = <&gpio0 24 (GPIO_PULL_DOWN | GPIO_ACTIVE_LOW)>;
+		// swctrl1-gpios = <0>;
+		// srrf-switch-gpios = <0>;
+
+		wifi-max-tx-pwr-2g-dsss = <21>;
+		wifi-max-tx-pwr-2g-mcs0 = <16>;
+		wifi-max-tx-pwr-2g-mcs7 = <16>;
+
+		wlan0: wlan0 {
+			compatible = "nordic,wlan";
+		};
+
+		wifi-max-tx-pwr-5g-low-mcs0 = <13>;
+		wifi-max-tx-pwr-5g-low-mcs7 = <13>;
+		wifi-max-tx-pwr-5g-mid-mcs0 = <13>;
+		wifi-max-tx-pwr-5g-mid-mcs7 = <13>;
+		wifi-max-tx-pwr-5g-high-mcs0 = <12>;
+		wifi-max-tx-pwr-5g-high-mcs7 = <12>;
+	};
+};
+*/
+
+&uart0 {
+	status = "disabled";
+};
+
+&pwm0 {
+	status = "disabled";
 };

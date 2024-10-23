@@ -1,0 +1,20 @@
+identifier: cat5340/nrf5340/cpuapp/ns
+name: CAT5340-NRF5340-application-MCU-Non-Secure
+type: mcu
+arch: arm
+toolchain:
+  - gnuarmemb
+  - xtools
+  - zephyr
+ram: 192
+flash: 192
+supported:
+  - i2c
+  - pwm
+  - watchdog
+  - usb_device
+  - usbd
+  - netif:openthread
+  - gpio
+  - spi
+vendor: nordic

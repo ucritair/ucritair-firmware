@@ -20,6 +20,11 @@ static const struct gpio_dt_spec pin_rst =
 	GPIO_DT_SPEC_GET(DT_NODELABEL(epaper_display), rst_gpios);
 static const struct gpio_dt_spec pin_busy =
 	GPIO_DT_SPEC_GET(DT_NODELABEL(epaper_display), busy_gpios);
+static const struct gpio_dt_spec pin_buck_enable =
+	GPIO_DT_SPEC_GET(DT_NODELABEL(epaper_display), buck_enable_gpios);
+
+// static const struct gpio_dt_spec pin_led0 =
+// 	GPIO_DT_SPEC_GET(DT_NODELABEL(led0), gpios);
 
 void pin_write(const struct gpio_dt_spec* pin, bool v)
 {
@@ -233,7 +238,7 @@ void cmd_read_psr_data()
 		{
 			while (1) {
 				LOG_ERR("Failed to find Bank0");
-				k_msleep(1000);
+				k_msleep(10000);
 			}
 		}
 	}
@@ -389,16 +394,20 @@ void init_pin(const struct gpio_dt_spec* pin, char* name, gpio_flags_t flags)
 	X(pin_csn, true)\
 	X(pin_dc, true)\
 	X(pin_rst, true)\
-	X(pin_busy, false)
+	X(pin_busy, false)\
+	X(pin_buck_enable, true)
 
 
 void test_epaper()
 {
-	for (int i = 0; i < 4; i++)
-	{
-		LOG_INF("Wait %ds...", i);
-		k_msleep(1000);
-	}
+
+	// init_pin(&pin_led0, "led0", GPIO_OUTPUT_ACTIVE);
+	// for (int i = 0; i < 40; i++)
+	// {
+	// 	LOG_INF("Wait %ds...", i);
+	// 	k_msleep(100);
+	// 	gpio_pin_toggle_dt(&pin_led0);
+	// }
 
 	#define X_INIT_PIN(p, output) \
 		init_pin(&p, #p, output?GPIO_OUTPUT_INACTIVE:(GPIO_INPUT|GPIO_PULL_UP));\
@@ -418,6 +427,7 @@ void test_epaper()
 	pin_write(&pin_csn, true);
 	pin_write(&pin_rst, true);
 	pin_write(&pin_dc, true);
+	pin_write(&pin_buck_enable, true);
 
 	// while (1)
 	// {

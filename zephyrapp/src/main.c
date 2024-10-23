@@ -14,6 +14,12 @@ LOG_MODULE_REGISTER(sample, LOG_LEVEL_INF);
 #include <zephyr/device.h>
 #include <zephyr/drivers/display.h>
 
+#include <zephyr/kernel.h>
+#include <zephyr/sys/printk.h>
+#include <zephyr/usb/usb_device.h>
+#include <zephyr/usb/usbd.h>
+#include <zephyr/drivers/uart.h>
+
 #include "epaper.h"
 
 #ifdef CONFIG_ARCH_POSIX
@@ -180,8 +186,29 @@ static inline void fill_buffer_mono10(enum corner corner, uint8_t grey,
 	fill_buffer_mono(corner, grey, 0xFFu, 0x00u, buf, buf_size);
 }
 
+// static const struct spi_dt_spec spi_spec =
+// 	SPI_DT_SPEC_GET(NRF7002_NODE, SPI_WORD_SET(8) | SPI_TRANSFER_MSB, 0);
+
 int main(void)
 {
+	const struct device *dev;
+
+	dev = DEVICE_DT_GET(DT_CHOSEN(zephyr_shell_uart));
+	if (!device_is_ready(dev) || usb_enable(NULL)) {
+		return 0;
+	}
+
+	// uint32_t dtr = 0;
+	// while (!dtr) {
+	// 	uart_line_ctrl_get(dev, UART_LINE_CTRL_DTR, &dtr);
+	// 	LOG_INF("Waiting for DTR...");
+	// 	k_sleep(K_MSEC(1000));
+	// }
+
+	LOG_INF("CAT Application Started");
+
+	
+
 	size_t x;
 	size_t y;
 	size_t rect_w;
@@ -198,13 +225,21 @@ int main(void)
 	size_t buf_size = 0;
 	fill_buffer fill_buffer_fnc = NULL;
 
+	k_msleep(500);
+
 	LOG_INF("Running epaper test");
 
 	test_epaper();
 
 	LOG_INF("Running LCD test");
 
-	display_dev = DEVICE_DT_GET(DT_CHOSEN(zephyr_display));
+	while (1)
+	{
+		// LOG_INF("Mainloop running...");
+		k_msleep(10000);
+	}
+
+	display_dev = DEVICE_DT_GET_OR_NULL(DT_CHOSEN(zephyr_display));
 	if (!device_is_ready(display_dev)) {
 		LOG_ERR("Device %s not found. Aborting sample.",
 			display_dev->name);
@@ -368,3 +403,7 @@ int main(void)
 #endif
 	return 0;
 }
+
+#ifdef CONFIG_NRF70_ON_QSPI
+#error NRF70 is on SPI not QSPI
+#endif

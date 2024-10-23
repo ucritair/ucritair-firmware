@@ -1,0 +1,10 @@
+
+# Set UICR.VREGHVOUT to 3v3
+nrfjprog --memwr 0x00FF8010 --val 5
+nrfjprog --reset
+
+# Measure 3.3V_nRF at TP1
+
+BLE OK
+
+Uncommenting the arduino_spi stuff and wlan0 stuff was resulting in all bits getting wiggled on wifi spi

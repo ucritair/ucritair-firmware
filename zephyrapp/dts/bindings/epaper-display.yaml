@@ -24,3 +24,6 @@ properties:
   busy-gpios:
     type: phandle-array
     required: true
+  buck-enable-gpios:
+    type: phandle-array
+    required: true
