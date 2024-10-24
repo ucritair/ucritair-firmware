@@ -88,15 +88,17 @@
 	status = "okay";
 };
 
-/*
+
 &i2c1 {
 	compatible = "nordic,nrf-twim";
-	status = "disabled"; //disabled!!
+	status = "okay";
+	clock-frequency = <I2C_BITRATE_STANDARD>;
 	pinctrl-0 = <&i2c1_default>;
 	pinctrl-1 = <&i2c1_sleep>;
 	pinctrl-names = "default", "sleep";
 };
 
+/*
 &uart0 {
 	status = "disabled"; //disabled!!
 	current-speed = <115200>;
@@ -150,10 +152,11 @@ arduino_serial: &uart1 {
 	pinctrl-1 = <&uart1_sleep>;
 	pinctrl-names = "default", "sleep";
 };
+*/
 
 arduino_i2c: &i2c1 {};
 
-*/
+
 
 
 

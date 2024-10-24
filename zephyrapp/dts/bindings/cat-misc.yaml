@@ -9,6 +9,9 @@ properties:
   buck-enable-gpios:
     type: phandle-array
     required: true
+  sen55-boost-enable-gpios:
+    type: phandle-array
+    required: true
   lcd-backlight-gpios:
     type: phandle-array
     required: true
@@ -19,5 +22,8 @@ properties:
     type: phandle-array
     required: true
   btn-col-gpios:
+    type: phandle-array
+    required: true
+  led-enable-gpios:
     type: phandle-array
     required: true

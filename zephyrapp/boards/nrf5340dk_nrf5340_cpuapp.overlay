@@ -63,7 +63,9 @@
 		compatible = "cat-misc";
 
 		buck-enable-gpios = <&gpio0 5 GPIO_ACTIVE_HIGH>;
+		sen55-boost-enable-gpios = <&gpio1 4 GPIO_ACTIVE_HIGH>;
 		lcd-backlight-gpios = <&gpio1 0 GPIO_ACTIVE_HIGH>;
+		led-enable-gpios = <&gpio0 6 GPIO_ACTIVE_HIGH>;
 		speaker-gpios = <&gpio1 8 GPIO_ACTIVE_HIGH>;
 		btn-row-gpios = <&gpio1 9 GPIO_ACTIVE_HIGH>, <&gpio1 10 GPIO_ACTIVE_HIGH>, <&gpio1 11 GPIO_ACTIVE_HIGH>, <&gpio1 12 GPIO_ACTIVE_HIGH> ;
 		btn-col-gpios = <&gpio1 13 GPIO_ACTIVE_HIGH>, <&gpio1 14 GPIO_ACTIVE_HIGH>;
@@ -142,4 +144,55 @@
 
 &pwm0 {
 	status = "disabled";
+};
+
+#include <zephyr/dt-bindings/led/led.h>
+
+/*
+&pinctrl {
+	i2s0_default_alt: i2s0_default_alt {
+		group1 {
+			// Default I2S config for the nRF5340, P1.13 is the output
+			psels = <NRF_PSEL_DISCONNECTED(I2S_SCK_M)>,
+				<NRF_PSEL_DISCONNECTED(I2S_LRCK_M)>,
+				<NRF_PSEL(I2S_SDOUT, 1, 1)>,
+				<NRF_PSEL_DISCONNECTED(I2S_SDIN)>;
+		};
+	};
+};
+
+i2s_led: &i2s0 {
+	status = "okay";
+	pinctrl-0 = <&i2s0_default_alt>;
+	pinctrl-names = "default";
+
+	led_strip: ws2812 {
+		status = "okay";
+		compatible = "worldsemi,ws2812-i2s";
+
+		i2s-dev = <&i2s_led>;
+		chain-length = <8>; // arbitrary; change at will
+		color-mapping = <LED_COLOR_ID_GREEN
+					LED_COLOR_ID_RED
+					LED_COLOR_ID_BLUE>;
+		reset-delay = <500>;
+	};
+};
+*/
+
+/ {
+	led_strip: ws2812 {
+		compatible = "worldsemi,ws2812-gpio";
+
+		chain-length = <8>; /* arbitrary */
+		color-mapping = <LED_COLOR_ID_GREEN
+				 LED_COLOR_ID_RED
+				 LED_COLOR_ID_BLUE>;
+
+		gpios = <&gpio1 1 0>;
+	};
+
+	aliases {
+		led-strip = &led_strip;
+	};
 };

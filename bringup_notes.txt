@@ -8,7 +8,24 @@ nrfjprog --reset
 BLE OK
 eink OK
 LCD OK
-
+speaker OK
+buttons OK
+i2c OK
+ws2812 OK
 
 Uncommenting the arduino_spi stuff and wlan0 stuff was resulting in all bits getting wiggled on wifi spi
   ^--- NEED TO SET CS and SPI stuff to right pin!!!
+
+diff --git a/drivers/led_strip/ws2812_gpio.c b/drivers/led_strip/ws2812_gpio.c
+index 5b3d472a21d..b6c6671bfd1 100644
+--- a/drivers/led_strip/ws2812_gpio.c
++++ b/drivers/led_strip/ws2812_gpio.c
+@@ -76,7 +76,7 @@ struct ws2812_gpio_cfg {
+ static int send_buf(const struct device *dev, uint8_t *buf, size_t len)
+ {
+  const struct ws2812_gpio_cfg *config = dev->config;
+- volatile uint32_t *base = (uint32_t *)&NRF_GPIO->OUTSET;
++ volatile uint32_t *base = (uint32_t *)&NRF_P1_S->OUTSET;
+  const uint32_t val = BIT(config->gpio.pin);
+  struct onoff_manager *mgr =
+    z_nrf_clock_control_get_onoff(CLOCK_CONTROL_NRF_SUBSYS_HF);

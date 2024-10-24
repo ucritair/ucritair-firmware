@@ -21,6 +21,7 @@ LOG_MODULE_REGISTER(sample, LOG_LEVEL_INF);
 #include <zephyr/drivers/uart.h>
 
 #include "epaper.h"
+#include "misc.h"
 
 #include <zephyr/logging/log_ctrl.h>
 
@@ -232,8 +233,10 @@ int main(void)
 
 	// LOG_INF("Running epaper test");
 
-	LOG_INF("Wake up 3v3");
+	LOG_INF("Wake up regulators");
 	turn_on_3v3();
+	turn_on_5v0();
+	turn_on_leds();
 
 	LOG_INF("Turn on backlight");
 	turn_on_backlight();
@@ -241,8 +244,14 @@ int main(void)
 	LOG_INF("Test speakeR");
 	test_speaker();
 
+	LOG_INF("Test leds");
+	test_leds();
+
 	LOG_INF("init matrix");
 	init_matrix();
+
+	LOG_INF("test i2c");
+	test_i2c();
 
 	// test_epaper();
 
