@@ -177,7 +177,9 @@ static inline void fill_buffer_mono10(enum corner corner, uint8_t grey,
 
 // static const struct spi_dt_spec spi_spec =
 // 	SPI_DT_SPEC_GET(NRF7002_NODE, SPI_WORD_SET(8) | SPI_TRANSFER_MSB, 0);
-
+#include <zephyr/net/net_if.h>
+#include <zephyr/net/ethernet_mgmt.h>
+#include <zephyr/net/ethernet.h>
 int main(void)
 {
 	const struct device *dev;
@@ -197,7 +199,51 @@ int main(void)
 	LOG_INF("CAT Application Started");
 	LOG_PANIC();
 
-	
+	LOG_INF("About to change MAC");
+
+
+
+	struct net_if *iface = net_if_get_default();
+	char mac_addr_change[]={0x12, 0x34, 0x56, 0x78, 0x90, 0x12};
+	struct ethernet_req_params params;
+	int ret;
+
+	if (!net_if_is_up(iface))
+	{
+		while (1)
+		{
+			LOG_ERR("iface not up");
+			k_msleep(1000);
+		}
+	}
+
+	memcpy(params.mac_address.addr, mac_addr_change, 6);
+	net_if_down(iface);
+
+	ret = net_mgmt(NET_REQUEST_ETHERNET_SET_MAC_ADDRESS, iface,
+			&params, sizeof(struct ethernet_req_params));
+	if(ret != 0) {
+		while (1)
+		{
+			LOG_ERR("unable to change mac address");
+			k_msleep(1000);
+		}
+	}
+	ret = memcmp(net_if_get_link_addr(iface)->addr, mac_addr_change,
+			sizeof(mac_addr_change));
+	if(ret != 0) {
+		while (1)
+		{
+			LOG_ERR("mac address change failed");
+			k_msleep(1000);
+		}
+	}
+	LOG_DBG("MAC changed to %x:%x:%x:%x:%x:%x\n", \
+	mac_addr_change[0], mac_addr_change[1], mac_addr_change[2], \
+	mac_addr_change[3], mac_addr_change[4], mac_addr_change[5]);
+	net_if_up(iface);
+
+	LOG_INF("Done changing MAC");
 
 	size_t x;
 	size_t y;
@@ -230,26 +276,26 @@ int main(void)
 	LOG_INF("Test speakeR");
 	test_speaker();
 
-	LOG_INF("Test leds");
-	test_leds();
+	// LOG_INF("Test leds");
+	// test_leds();
 
 	LOG_INF("init matrix");
 	init_matrix();
 
-	LOG_INF("test i2c");
-	test_i2c();
+	// LOG_INF("test i2c");
+	// test_i2c();
 
 	// test_epaper();
 
-	LOG_INF("Running LCD test");
+	// LOG_INF("Running LCD test");
 
 	k_msleep(1000);
 
-	// while (1)
-	// {
-	// 	// LOG_INF("Mainloop running...");
-	// 	k_msleep(10000);
-	// }
+	while (1)
+	{
+		// LOG_INF("Mainloop running...");
+		k_msleep(10000);
+	}
 
 	display_dev = DEVICE_DT_GET_OR_NULL(DT_CHOSEN(zephyr_display));
 	if (!device_is_ready(display_dev)) {

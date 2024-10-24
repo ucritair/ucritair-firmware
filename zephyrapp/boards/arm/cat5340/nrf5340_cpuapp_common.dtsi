@@ -163,7 +163,7 @@ arduino_i2c: &i2c1 {};
 arduino_spi: &spi4 {
 	compatible = "nordic,nrf-spim";
 	status = "okay";
-	cs-gpios = <&gpio0 16 GPIO_ACTIVE_LOW>; // changed
+	cs-gpios = <&gpio0 18 GPIO_ACTIVE_LOW>; // changed
 	pinctrl-0 = <&spi4_default>;
 	pinctrl-1 = <&spi4_sleep>;
 	pinctrl-names = "default", "sleep";
