@@ -47,7 +47,7 @@ static const struct gpio_dt_spec btn_cols[N_COLS] =
 #error Unable to determine length of LED strip
 #endif
 
-#define DELAY_TIME K_MSEC(1000)
+#define DELAY_TIME K_MSEC(100)
 
 #define RGB(_r, _g, _b) { .r = (_r), .g = (_g), .b = (_b) }
 
@@ -209,7 +209,7 @@ void test_leds()
 	k_msleep(10);
 
 	LOG_INF("Displaying pattern on strip");
-	for (int loop = 0; loop < 10; loop++) {
+	for (int loop = 0; loop < 6; loop++) {
 		for (int i = 0; i < STRIP_NUM_PIXELS; i++)
 		{
 			pixels[i] = colors[loop%3];

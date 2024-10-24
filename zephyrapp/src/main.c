@@ -40,20 +40,6 @@ typedef void (*fill_buffer)(enum corner corner, uint8_t grey, uint8_t *buf,
 			    size_t buf_size);
 
 
-#ifdef CONFIG_ARCH_POSIX
-static void posix_exit_main(int exit_code)
-{
-#if CONFIG_TEST
-	if (exit_code == 0) {
-		LOG_INF("PROJECT EXECUTION SUCCESSFUL");
-	} else {
-		LOG_INF("PROJECT EXECUTION FAILED");
-	}
-#endif
-	posix_exit(exit_code);
-}
-#endif
-
 static void fill_buffer_argb8888(enum corner corner, uint8_t grey, uint8_t *buf,
 				 size_t buf_size)
 {
