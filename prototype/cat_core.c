@@ -9,14 +9,51 @@
 
 CAT_simulator simulator;
 
-void glfw_error_callback(int error, const char* msg)
+void GLFW_error_callback(int error, const char* msg)
 {
 	printf("GLFW error %d: %s\n", error, msg);
 }
 
+void CAT_shader_init(char* vert_src, char* frag_src)
+{
+	int status;
+	char log[512];
+
+	simulator.vert_id = glCreateShader(GL_VERTEX_SHADER);
+	glShaderSource(simulator.vert_id, 1, &vert_src, NULL);
+	glCompileShader(simulator.vert_id);
+	glGetShaderiv(simulator.vert_id, GL_COMPILE_STATUS, &status);
+	if(status != GL_TRUE)
+	{
+		glGetShaderInfoLog(simulator.vert_id, 512, NULL, log);
+		printf("While compiling vertex shader:\n%s\n", log);
+	}
+	
+	simulator.frag_id = glCreateShader(GL_FRAGMENT_SHADER);
+	glShaderSource(simulator.frag_id, 1, &frag_src, NULL);
+	glCompileShader(simulator.frag_id);
+	glGetShaderiv(simulator.frag_id, GL_COMPILE_STATUS, &status);
+	if(status != GL_TRUE)
+	{
+		glGetShaderInfoLog(simulator.frag_id, 512, NULL, log);
+		printf("While compiling fragment shader:\n%s\n", log);
+	}
+
+	simulator.prog_id = glCreateProgram();
+	glAttachShader(simulator.prog_id, simulator.vert_id);
+	glAttachShader(simulator.prog_id, simulator.frag_id);
+	glLinkProgram(simulator.prog_id);
+	glGetProgramiv(simulator.prog_id, GL_LINK_STATUS, &status);
+	if(status != GL_TRUE)
+	{
+		glGetShaderInfoLog(simulator.prog_id, 512, NULL, log);
+		printf("While linking shader program:\n%s\n", log);
+	}
+}
+
 void CAT_simulator_init()
 {
-	glfwSetErrorCallback(glfw_error_callback);
+	glfwSetErrorCallback(GLFW_error_callback);
 	
 	if(!glfwInit())
 	{
@@ -28,7 +65,7 @@ void CAT_simulator_init()
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
-    simulator.lcd = glfwCreateWindow(LCD_SCREEN_W, LCD_SCREEN_H, "CAT", NULL, NULL);
+	simulator.lcd = glfwCreateWindow(LCD_SCREEN_W, LCD_SCREEN_H, "CAT", NULL, NULL);
 	if(simulator.lcd == NULL)
 	{
 		printf("Failed to create lcd\n");
@@ -55,22 +92,22 @@ void CAT_simulator_init()
 		-1.0f, 1.0f,
 		-1.0f, -1.0f
 	};
-    glGenVertexArrays(1, &simulator.vao_id);
-    glBindVertexArray(simulator.vao_id);
-    glEnableVertexAttribArray(0);
-    glGenBuffers(1, &simulator.vbo_id);
-    glBindBuffer(GL_ARRAY_BUFFER, simulator.vbo_id);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(geometry), geometry, GL_STATIC_DRAW); 
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2*sizeof(float), 0);
+	glGenVertexArrays(1, &simulator.vao_id);
+	glBindVertexArray(simulator.vao_id);
+	glEnableVertexAttribArray(0);
+	glGenBuffers(1, &simulator.vbo_id);
+	glBindBuffer(GL_ARRAY_BUFFER, simulator.vbo_id);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(geometry), geometry, GL_STATIC_DRAW); 
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2*sizeof(float), 0);
 
-    glGenTextures(1, &simulator.tex_id);
-    glBindTexture(GL_TEXTURE_2D, simulator.tex_id);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, LCD_SCREEN_W, LCD_SCREEN_H, 0, GL_RGB, GL_UNSIGNED_SHORT_5_6_5, NULL);
-    glGenerateMipmap(GL_TEXTURE_2D);
+	glGenTextures(1, &simulator.tex_id);
+	glBindTexture(GL_TEXTURE_2D, simulator.tex_id);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, LCD_SCREEN_W, LCD_SCREEN_H, 0, GL_RGB, GL_UNSIGNED_SHORT_5_6_5, NULL);
+	glGenerateMipmap(GL_TEXTURE_2D);
 
 	FILE* vert_file = fopen("shaders/cat.vert", "r");
 	fseek(vert_file, SEEK_SET, SEEK_END);
@@ -88,9 +125,9 @@ void CAT_simulator_init()
 	frag_src[frag_len] = '\0';
 	fread(frag_src, 1, frag_len, frag_file);
 	fclose(frag_file);
-	CAT_shader_init(&simulator.shader, vert_src, frag_src);
+	CAT_shader_init(vert_src, frag_src);
 
-	simulator.tex_loc = glGetUniformLocation(simulator.shader.prog_id, "tex");
+	simulator.tex_loc = glGetUniformLocation(simulator.prog_id, "tex");
 }
 
 void CAT_simulator_tick()
@@ -107,16 +144,16 @@ void CAT_simulator_tick()
 
 void CAT_LCD_post(uint16_t* buffer)
 {
-    glBindTexture(GL_TEXTURE_2D, simulator.tex_id);
-    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, LCD_SCREEN_W, LCD_SCREEN_H, GL_RGB, GL_UNSIGNED_SHORT_5_6_5, buffer);
+	glBindTexture(GL_TEXTURE_2D, simulator.tex_id);
+	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, LCD_SCREEN_W, LCD_SCREEN_H, GL_RGB, GL_UNSIGNED_SHORT_5_6_5, buffer);
 
 	glClearColor(0, 0, 0, 1);
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	glUseProgram(simulator.shader.prog_id);
+	glUseProgram(simulator.prog_id);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, simulator.tex_id);
-	glProgramUniform1i(simulator.shader.prog_id, simulator.tex_loc, 0);
+	glProgramUniform1i(simulator.prog_id, simulator.tex_loc, 0);
 
 	glBindVertexArray(simulator.vao_id);
 	glDrawArrays(GL_TRIANGLES, 0, 6);	

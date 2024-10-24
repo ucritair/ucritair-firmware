@@ -6,8 +6,6 @@
 #include <GL/glew.h> 
 #include <GLFW/glfw3.h>
 
-#include "cat_shader.h"
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // DEV MODE
 
@@ -20,7 +18,9 @@ typedef struct CAT_simulator
 
 	GLuint tex_id;
 	
-	CAT_shader shader;
+	int vert_id;
+	int frag_id;
+	int prog_id;
 	int tex_loc;	
 
 	float time;
