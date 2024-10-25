@@ -285,6 +285,9 @@ int main(void)
 	LOG_INF("CAT Application Started");
 	LOG_PANIC();
 
+	// LOG_INF("Going to adc test");
+	// test_adc();
+
 	LOG_INF("Testing flash");
 
 	const struct device *flash_dev = DEVICE_DT_GET_ONE(jedec_spi_nor);
@@ -404,28 +407,29 @@ int main(void)
 
 	LOG_INF("Wake up regulators");
 	turn_on_3v3();
+	k_msleep(100);
 	turn_on_5v0();
 	turn_on_leds();
 
-	// LOG_INF("Turn on backlight");
-	// turn_on_backlight();
+	LOG_INF("Turn on backlight");
+	turn_on_backlight();
 
 	test_speaker();
 
-	// LOG_INF("Test leds");
-	// test_leds();
+	LOG_INF("Test leds");
+	test_leds();
 
-	// LOG_INF("init matrix");
-	// init_matrix();
+	LOG_INF("init matrix");
+	init_matrix();
 
-	// LOG_INF("test i2c");
-	// test_i2c();
+	LOG_INF("test i2c");
+	test_i2c();
 
-	// while (1)
-	// {
-	// 	k_msleep(100);
-	// 	report_ns2009();
-	// }
+	while (1)
+	{
+		k_msleep(1000);
+		report_ns2009();
+	}
 
 	// test_epaper();
 

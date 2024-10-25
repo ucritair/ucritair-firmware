@@ -55,6 +55,7 @@ static const struct led_rgb colors[] = {
 	RGB(0xff, 0x00, 0x00), /* red */
 	RGB(0x00, 0xff, 0x00), /* green */
 	RGB(0x00, 0x00, 0xff), /* blue */
+	RGB(0, 0, 0)
 };
 
 static struct led_rgb pixels[STRIP_NUM_PIXELS];
@@ -179,6 +180,11 @@ void test_i2c()
         k_msleep(100);
     }
 
+    k_msleep(1000);
+
+    uint8_t dummy;
+    i2c_read(dev_i2c, &dummy, 1, 0x68); // wake
+
     printf("i2c bus scan:\n");
     printf("    0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f\n");
     for (uint8_t y = 0; y <= 7; y++) {
@@ -196,15 +202,176 @@ void test_i2c()
         }
         printf("\n");
     }
+
+    uint8_t lps22_addr = 0x0F;
+    uint8_t lps22_whoami = 0x00;
+
+    if (i2c_write_read(dev_i2c, 0x5D, &lps22_addr, 1, &lps22_whoami, 1))
+    {
+    	LOG_ERR("LPS22 whoami failed");
+    }
+    else
+    {
+    	LOG_ERR("LPS22 whoami = %02x (b3 expected)", lps22_whoami);
+    }
+
+    uint8_t lis3_addr = 0x0F;
+    uint8_t lis3_whoami = 0x00;
+
+    if (i2c_write_read(dev_i2c, 0x19, &lis3_addr, 1, &lis3_whoami, 1))
+    {
+    	LOG_ERR("LIS3DH whoami failed");
+    }
+    else
+    {
+    	LOG_ERR("LIS3DH whoami = %02x (33 expected)", lis3_whoami);
+    }
+
+    uint8_t sen55_cmd[] = {0xD0, 0x14};
+    uint8_t sen55_response[48] = {0};
+    char sen55_model[33] = {0};
+
+    if (i2c_write(dev_i2c, sen55_cmd, 2, 0x69))
+    {
+    	LOG_ERR("SEN55 cmd write failed");
+    }
+    else
+    {
+    	k_msleep(20);
+	    if (i2c_read(dev_i2c, sen55_response, 48, 0x69))
+	    {
+	    	LOG_ERR("SEN55 whoami failed");
+	    }
+	    else
+	    {
+	    	int p = 0;
+	    	for (int i = 0; i < 16; i++)
+	    	{
+	    		sen55_model[p++] = sen55_response[(i*3)];
+	    		sen55_model[p++] = sen55_response[(i*3)+1];
+	    	}
+	    	LOG_HEXDUMP_DBG(sen55_response, 48, "sen55_response");
+	    	LOG_ERR("SEN55 whoami = %s", sen55_model);
+	    }
+	}
+
+	// pin_write(&pin_buck_enable, false);
+	// pin_write(&pin_sen55_boost_enable, false);
+	// k_msleep(1000);
+	// pin_write(&pin_sen55_boost_enable, true);
+	// k_msleep(100);
+	// pin_write(&pin_buck_enable, true);
+	// k_msleep(1000);
+
+	if (i2c_write(dev_i2c, &dummy, 0, 0x68))
+	{
+		LOG_ERR("sunrise wake 1 errored");
+	} // wake
+	// if (i2c_write(dev_i2c, &dummy, 0, 0x68))
+	// {
+	// 	LOG_ERR("sunrise wake 1-1 errored");
+	// } // wake
+
+	k_msleep(1);
+
+	uint8_t reset[2] = {0xa3, 0xff};
+	if (i2c_write(dev_i2c, reset, 2, 0x68))
+	{
+		LOG_ERR("Sunrise reset failed");
+	}
+
+	k_msleep(15);
+
+	if (i2c_write(dev_i2c, &dummy, 0, 0x68))
+	{
+		LOG_ERR("sunrise wake 1-2 errored");
+	} // wake
+
+	k_msleep(1);
+
+	uint8_t sunrise_fwversion_cmd = 0x38;
+	uint8_t sunrise_fwversion[2] = {0};
+
+	if (i2c_write_read(dev_i2c, 0x68, &sunrise_fwversion_cmd, 1, sunrise_fwversion, 2))
+    {
+    	LOG_ERR("Sunrise fwver failed");
+    }
+    else
+    {
+    	LOG_HEXDUMP_DBG(sunrise_fwversion, 2, "sunrise_fwversion");
+    	LOG_INF("sunrise fw=%d.%d", sunrise_fwversion[0], sunrise_fwversion[1]);
+    }
+
+    k_msleep(1);
+
+    if (i2c_write(dev_i2c, &dummy, 0, 0x68))
+	{
+		LOG_ERR("sunrise wake 2 errored");
+	} // wake
+
+	uint8_t sunrise_temp_cmd = 0x08; // i2c addr
+	uint8_t sunrise_tmp[2] = {0};
+
+	k_msleep(1);
+
+	if (i2c_write_read(dev_i2c, 0x68, &sunrise_temp_cmd, 1, sunrise_tmp, 2))
+    {
+    	LOG_ERR("Sunrise tmp failed");
+    }
+    else
+    {
+    	LOG_HEXDUMP_DBG(sunrise_tmp, 2, "sunrise_tmp");
+    }
+
+    k_msleep(1);
+
+
+	if (i2c_write(dev_i2c, &dummy, 0, 0x68))
+	{
+		LOG_ERR("sunrise wake 3 errored");
+	} // wake
+
+    uint8_t sunrise_cmd = 0x70;
+    uint8_t sunrise_response[17] = {0};
+
+    k_msleep(1);
+
+    if (i2c_write_read(dev_i2c, 0x68, &sunrise_cmd, 1, sunrise_response, 16))
+    {
+    	LOG_ERR("Sunrise whoami failed");
+    }
+    else
+    {
+    	sunrise_response[16] = 0;
+    	LOG_HEXDUMP_DBG(sunrise_response, 16, "sunrise_repsponse");
+    	LOG_ERR("Sunrise whoami = %s", sunrise_response);
+    }
+
+
 }
 
 void report_ns2009()
 {
+	return;
 	int x = read_ns2009(ns2009_reg_X);
 	int y = read_ns2009(ns2009_reg_Y);
 	int z = read_ns2009(ns2009_reg_Z1);
 
 	LOG_INF("NS2009: x=%5d y=%5d z=%d", x, y, z);
+
+	uint8_t sunrise_temp_cmd = 0x08; // i2c addr
+	uint8_t sunrise_tmp[2] = {0};
+
+	k_msleep(1);
+
+	if (i2c_write_read(dev_i2c, 0x68, &sunrise_temp_cmd, 1, sunrise_tmp, 2))
+    {
+    	LOG_ERR("Sunrise tmp failed");
+    }
+    else
+    {
+    	LOG_HEXDUMP_DBG(sunrise_tmp, 2, "sunrise_tmp");
+    }
 }
 
 #if STRIP_NUM_PIXELS != 8
@@ -236,10 +403,10 @@ void test_leds()
 	k_msleep(10);
 
 	LOG_INF("Displaying pattern on strip");
-	for (int loop = 0; loop < 6; loop++) {
+	for (int loop = 0; loop < 8; loop++) {
 		for (int i = 0; i < STRIP_NUM_PIXELS; i++)
 		{
-			pixels[i] = colors[loop%3];
+			pixels[i] = colors[loop%4];
 			// pixels[i].r = 0xAA;
 			// pixels[i].g = 0xAA;
 			// pixels[i].b = 0xAA;
@@ -253,5 +420,125 @@ void test_leds()
 		}
 
 		k_sleep(DELAY_TIME);
+	}
+}
+
+#include <stdio.h>
+#include <string.h>
+#include <zephyr/drivers/adc.h>
+
+const struct device *adc_dev = DEVICE_DT_GET(DT_NODELABEL(adc));
+
+#include <hal/nrf_saadc.h>
+#define ADC_DEVICE_NAME DT_ADC_0_NAME
+#define ADC_RESOLUTION 10
+#define ADC_GAIN ADC_GAIN_1_4
+#define ADC_REFERENCE ADC_REF_INTERNAL
+#define ADC_ACQUISITION_TIME ADC_ACQ_TIME(ADC_ACQ_TIME_MICROSECONDS, 10)
+#define ADC_1ST_CHANNEL_ID 0
+#define ADC_1ST_CHANNEL_INPUT NRF_SAADC_INPUT_AIN0
+#define ADC_2ND_CHANNEL_ID 2
+#define ADC_2ND_CHANNEL_INPUT NRF_SAADC_INPUT_AIN2
+
+static const struct adc_channel_cfg m_1st_channel_cfg = {
+	.gain = ADC_GAIN,
+	.reference = ADC_REFERENCE,
+	.acquisition_time = ADC_ACQUISITION_TIME,
+	.channel_id = ADC_1ST_CHANNEL_ID,
+#if defined(CONFIG_ADC_CONFIGURABLE_INPUTS)
+	.input_positive = ADC_1ST_CHANNEL_INPUT,
+#endif
+};
+
+#define BUFFER_SIZE 8
+static int16_t m_sample_buffer[BUFFER_SIZE];
+
+const struct adc_sequence_options sequence_opts = {
+	.interval_us = 0,
+	.callback = NULL,
+	.user_data = NULL,
+	.extra_samplings = 7,
+};
+
+static int adc_sample(void)
+{
+	int ret;
+
+	const struct adc_sequence sequence = {
+		.options = &sequence_opts,
+		.channels = BIT(ADC_1ST_CHANNEL_ID),
+		.buffer = m_sample_buffer,
+		.buffer_size = sizeof(m_sample_buffer),
+		.resolution = ADC_RESOLUTION,
+	};
+
+	if (!adc_dev) {
+		return -1;
+	}
+
+	ret = adc_read(adc_dev, &sequence);
+	if (ret)
+	{
+		printk("ADC read err: %d\n", ret);
+	}
+
+	printk("Sample: %d\n", m_sample_buffer[0]);
+
+	// /* Print the AIN0 values */
+	// printk("ADC raw value: ");
+	// for (int i = 0; i < BUFFER_SIZE; i++) {
+	// 	printk("%03x ", m_sample_buffer[i]);
+	// }
+
+	// printf("\n");
+	
+	// printf("\n Measured voltage: ");
+	// for (int i = 0; i < BUFFER_SIZE; i++) {
+	// 	float adc_voltage = 0;
+	// 	adc_voltage = (float)(((float)m_sample_buffer[i] / 1023.0f) *
+	// 			      3600.0f);
+	// 	printk("%f ",adc_voltage);
+	// }
+	// printk("\n");
+
+
+	return ret;
+}
+
+int test_adc(void)
+{
+	int err;
+
+	printk("nRF53 SAADC sampling AIN0 (P0.13)\n");
+
+	// adc_dev = device_get_binding("ADC_0");
+	if (!device_is_ready(adc_dev)) {
+		while (1)
+		{
+			printk("device_get_binding ADC_0 failed\n");
+			k_msleep(1000);
+		}
+	}
+	err = adc_channel_setup(adc_dev, &m_1st_channel_cfg);
+	if (err) {
+		while (1)
+		{
+			k_msleep(1000);
+			printk("Error in adc setup: %d\n", err);
+		}
+		
+	}
+
+	/* Trigger offset calibration
+	 * As this generates a _DONE and _RESULT event
+	 * the first result will be incorrect.
+	 */
+	NRF_SAADC_S->TASKS_CALIBRATEOFFSET = 1;
+	while (1) {
+		err = adc_sample();
+		if (err) {
+			printk("Error in adc sampling: %d\n", err);
+		}
+		k_sleep(K_MSEC(500));
 	}
 }
