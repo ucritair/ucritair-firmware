@@ -10,7 +10,7 @@
 //////////////////////////////////////////////////////////////////////////
 // CONSTANTS
 
-#define ITEM_TABLE_SIZE 64
+#define CAT_ITEM_TABLE_MAX_LENGTH 64
 
 //////////////////////////////////////////////////////////////////////////
 // TABLE AND BAG
@@ -52,7 +52,7 @@ typedef struct CAT_item
 
 typedef struct CAT_item_table
 {
-	CAT_item data[ITEM_TABLE_SIZE];
+	CAT_item data[CAT_ITEM_TABLE_MAX_LENGTH];
 	int length;
 } CAT_item_table;
 extern CAT_item_table item_table;

@@ -12,7 +12,7 @@ void CAT_item_table_init()
 
 int CAT_item_init(CAT_item_type type, const char* name, int sprite, int price)
 {
-	if(item_table.length >= ITEM_TABLE_SIZE)
+	if(item_table.length >= CAT_ITEM_TABLE_MAX_LENGTH)
 		return -1;
 
 	int item_id = item_table.length;
@@ -30,7 +30,7 @@ int CAT_item_init(CAT_item_type type, const char* name, int sprite, int price)
 
 CAT_item* CAT_item_get(int item_id)
 {
-	if(item_id < 0 || item_id >= ITEM_TABLE_SIZE)
+	if(item_id < 0 || item_id >= CAT_ITEM_TABLE_MAX_LENGTH)
 		return NULL;
 	return &item_table.data[item_id];
 }

@@ -309,12 +309,17 @@ int wall_sprite_id[3];
 int floor_sprite_id[3];
 int pet_sprite_id[13];
 int vending_sprite_id[13];
+int pot_sprite_id[7];
 int chair_sprite_id[4];
 int table_sprite_id;
 int coffee_sprite_id[2];
 int device_sprite_id;
 
 int cursor_sprite_id[4];
+int vigor_sprite_id;
+int focus_sprite_id;
+int soul_sprite_id;
+int ring_hl_sprite_id;
 
 int panel_sprite_id[9];
 int glyph_sprite_id[91];
@@ -330,6 +335,7 @@ int idle_anim_id;
 int walk_anim_id;
 int mood_anim_id;
 int vending_anim_id;
+int pot_anim_id;
 int chair_anim_id;
 int coffee_anim_id;
 
@@ -350,6 +356,10 @@ void CAT_sprite_mass_define()
 	{
 		vending_sprite_id[i] = CAT_atlas_add(64*i, 448, 64, 96);
 	}
+	for(int i = 0; i < 7; i++)
+	{
+		pot_sprite_id[i] = CAT_atlas_add(32*i, 240, 32, 64);
+	}
 	for(int i = 0; i < 4; i++)
 	{
 		chair_sprite_id[i] = CAT_atlas_add(32*i, 48, 32, 48);
@@ -365,6 +375,10 @@ void CAT_sprite_mass_define()
 	{
 		cursor_sprite_id[i] = CAT_atlas_add(16*i, 336, 16, 16);
 	}
+	vigor_sprite_id = CAT_atlas_add(128, 0, 32, 32);
+	focus_sprite_id = CAT_atlas_add(160, 0, 32, 32);
+	soul_sprite_id = CAT_atlas_add(192, 0, 32, 32);
+	ring_hl_sprite_id = CAT_atlas_add(224, 0, 32, 32);
 
 	for(int i = 0; i < 3; i++)
 	{
@@ -403,6 +417,11 @@ void CAT_sprite_mass_define()
 	for(int i = 0; i < 13; i++)
 	{
 		CAT_anim_add(vending_anim_id, vending_sprite_id[i]); 
+	}
+	pot_anim_id = CAT_anim_init();
+	for(int i = 0; i < 7; i++)
+	{
+		CAT_anim_add(pot_anim_id, pot_sprite_id[i]);
 	}
 	chair_anim_id = CAT_anim_init();
 	for(int i = 0; i < 4; i++)

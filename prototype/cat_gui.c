@@ -1,7 +1,9 @@
 #include "cat_gui.h"
 
 #include "cat_sprite.h"
-#include "cat_math.h"
+
+//////////////////////////////////////////////////////////////////////////
+// RENDERING
 
 void CAT_gui_init(CAT_gui* gui, int* tiles, int* glyphs)
 {
@@ -106,28 +108,4 @@ void CAT_gui_image(CAT_gui* gui, int key)
 	gui->channel_height = sprite.height;
 	
 	CAT_gui_line_break(gui);
-}
-
-void CAT_menu_init(CAT_menu* menu, int length, int window)
-{
-	menu->length = length;
-	menu->window = window;
-	menu->idx = 0;
-	menu->base = 0;
-}
-
-void CAT_menu_shift(CAT_menu* menu, int shift)
-{
-	menu->idx += shift;	
-	menu->idx = clamp(menu->idx, 0, menu->length-1);
-
-	int overshoot = menu->idx - menu->base - menu->window + 1;
-	if(overshoot > 0)
-	{
-		menu->base++;
-	}
-	else if(overshoot <= -menu->window)
-	{
-		menu->base--;
-	}
 }

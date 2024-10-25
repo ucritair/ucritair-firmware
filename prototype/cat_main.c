@@ -12,6 +12,15 @@
 
 #define CAT_MAX_PROP_COUNT 210
 
+typedef enum CAT_game_mode
+{
+	CAT_GAME_MODE_ROOM,
+	CAT_GAME_MODE_MENU,
+	CAT_GAME_MODE_STATS,
+	CAT_GAME_MODE_BAG
+} CAT_game_mode;
+CAT_game_mode game_mode;
+
 typedef struct CAT_pet
 {
 	int age;
@@ -53,52 +62,184 @@ typedef struct CAT_room
 	int props[CAT_MAX_PROP_COUNT];
 	CAT_ivec2 places[CAT_MAX_PROP_COUNT];
 	int prop_count;
-	CAT_ivec2 cursor;
-	int prop_id;
 } CAT_room;
 CAT_room room;
 
 void CAT_room_init()
 {
-	room.min = (CAT_ivec2) {0, 6};
-	room.max = (CAT_ivec2) {14, 19};
+	room.min = (CAT_ivec2) {0, 7};
+	room.max = (CAT_ivec2) {14, 16};
 	room.prop_count = 0;
-	room.cursor = (CAT_ivec2) {0, 6};
-	room.prop_id = CAT_bag_seek(0, CAT_ITEM_TYPE_PROP);
 }
 
-bool CAT_place_prop(CAT_ivec2 place)
+bool CAT_place_prop(int prop_id, CAT_ivec2 place)
 {
 	if(room.prop_count >= CAT_MAX_PROP_COUNT)
 		return false;
 
-	CAT_item* prop = CAT_item_get(room.prop_id);
-	if(!CAT_test_contain(room.min, room.max, room.cursor, CAT_ivec2_add(room.cursor, prop->data.prop_data.shape)))
+	CAT_item* prop = CAT_item_get(prop_id);
+	if(!CAT_test_contain(room.min, room.max, place, CAT_ivec2_add(place, prop->data.prop_data.shape)))
 		return false;
 
-	room.props[room.prop_count] = room.prop_id;
+	room.props[room.prop_count] = prop_id;
 	room.places[room.prop_count] = place;
 	room.prop_count += 1;
 	return true;
 }
 
-typedef enum CAT_game_mode
+typedef struct CAT_room_gui
 {
-	CAT_GAME_MODE_ROOM,
-	CAT_GAME_MODE_MENU,
-	CAT_GAME_MODE_STATS,
-	CAT_GAME_MODE_BAG
-} CAT_game_mode;
-CAT_game_mode game_mode;
-
-const char* menu_items[3] =
+	int mode;
+	CAT_ivec2 cursor;
+	int selection;
+} CAT_room_gui;
+CAT_room_gui room_gui =
 {
-	"STATS",
-	"BAG",
-	"BACK"
+	0, (CAT_ivec2) {0, 7}, 0
 };
-CAT_menu main_menu;
-CAT_menu bag_menu;
+
+void CAT_room_gui_logic()
+{
+	if(room_gui.mode == 0)
+	{
+		if(CAT_input_pressed(CAT_BUTTON_UP))
+			room_gui.cursor.y -= 1;
+		if(CAT_input_pressed(CAT_BUTTON_RIGHT))
+			room_gui.cursor.x += 1;
+		if(CAT_input_pressed(CAT_BUTTON_DOWN))
+			room_gui.cursor.y += 1;
+		if(CAT_input_pressed(CAT_BUTTON_LEFT))
+			room_gui.cursor.x -= 1;
+		room_gui.cursor.x = clamp(room_gui.cursor.x, room.min.x, room.max.x);
+		if(room_gui.cursor.y > room.max.y)
+		{
+			room_gui.selection = 0;
+			room_gui.mode = 1;
+		}
+		else if(room_gui.cursor.y < room.min.y)
+		{
+			room_gui.selection = 3;
+			room_gui.mode = 1;
+		}
+	}
+	else if(room_gui.mode == 1)
+	{
+		if(room_gui.selection < 3)
+		{
+			if(CAT_input_pressed(CAT_BUTTON_RIGHT))
+				room_gui.selection += 1;
+			if(CAT_input_pressed(CAT_BUTTON_LEFT))
+				room_gui.selection -= 1;
+			room_gui.selection = clamp(room_gui.selection, 0, 2);
+			if(CAT_input_pressed(CAT_BUTTON_UP))
+			{
+				room_gui.cursor.y -= 1;
+				room_gui.mode = 0;
+			}
+		}
+		else if(room_gui.selection >= 3)
+		{
+			if(CAT_input_pressed(CAT_BUTTON_RIGHT))
+				room_gui.selection += 1;
+			if(CAT_input_pressed(CAT_BUTTON_LEFT))
+				room_gui.selection -= 1;
+			room_gui.selection = clamp(room_gui.selection, 3, 5);
+			if(CAT_input_pressed(CAT_BUTTON_DOWN))
+			{
+				room_gui.cursor.y += 1;
+				room_gui.mode = 0;
+			}
+		}
+	}
+
+	if(CAT_input_pressed(CAT_BUTTON_START))
+	{
+		game_mode = CAT_GAME_MODE_MENU;
+	}
+}
+
+typedef struct CAT_menu_gui
+{
+	const char* items[3];
+	int idx;
+} CAT_menu_gui;
+CAT_menu_gui menu_gui =
+{
+	{"STATS", "BAG", "BACK"},
+	0
+};
+
+void CAT_menu_gui_logic()
+{
+	if(CAT_input_pressed(CAT_BUTTON_UP))
+		menu_gui.idx -= 1;
+	if(CAT_input_pressed(CAT_BUTTON_DOWN))
+		menu_gui.idx += 1;
+	menu_gui.idx = clamp(menu_gui.idx, 0, 2);
+
+	if(CAT_input_pressed(CAT_BUTTON_A))
+	{
+		const char* selection = menu_gui.items[menu_gui.idx];
+		if(strcmp(selection, "STATS") == 0)
+			game_mode = CAT_GAME_MODE_STATS;
+		if(strcmp(selection, "BAG") == 0)
+			game_mode = CAT_GAME_MODE_BAG;
+		if(strcmp(selection, "BACK") == 0)
+			game_mode = CAT_GAME_MODE_ROOM;
+	}
+
+	if(CAT_input_pressed(CAT_BUTTON_B) || CAT_input_pressed(CAT_BUTTON_START))
+		game_mode = CAT_GAME_MODE_ROOM;
+}
+
+void CAT_stats_gui_logic()
+{
+	if(CAT_input_pressed(CAT_BUTTON_B))
+		game_mode = CAT_GAME_MODE_MENU;
+	if(CAT_input_pressed(CAT_BUTTON_START))
+		game_mode = CAT_GAME_MODE_ROOM;
+}
+
+typedef struct CAT_bag_gui
+{
+	int window;
+	int base;
+	int idx;
+} CAT_bag_gui;
+CAT_bag_gui bag_gui =
+{
+	9, 0, 0
+};
+
+void CAT_bag_gui_logic()
+{
+	int dir = 0;
+	int limit = bag_gui.idx;
+	if(CAT_input_pressed(CAT_BUTTON_UP))
+	{
+		dir = -1;
+		limit = -1;
+	}
+	if(CAT_input_pressed(CAT_BUTTON_DOWN))
+	{
+		dir = 1;
+		limit = CAT_ITEM_TABLE_MAX_LENGTH;
+	}
+	for(int i = bag_gui.idx+dir; i != limit; i += dir)
+	{
+		if(CAT_bag_count(i) > 0)
+		{
+			bag_gui.idx = i;
+			break;
+		}
+	}
+
+	if(CAT_input_pressed(CAT_BUTTON_B))
+		game_mode = CAT_GAME_MODE_MENU;
+	if(CAT_input_pressed(CAT_BUTTON_START))
+		game_mode = CAT_GAME_MODE_ROOM;
+}
+
 
 void CAT_logic()
 {
@@ -123,97 +264,18 @@ void CAT_logic()
 				}
 			}
 
-			if(CAT_input_pressed(CAT_BUTTON_UP))
-				room.cursor.y -= 1;
-			if(CAT_input_pressed(CAT_BUTTON_RIGHT))
-				room.cursor.x += 1;
-			if(CAT_input_pressed(CAT_BUTTON_DOWN))
-				room.cursor.y += 1;
-			if(CAT_input_pressed(CAT_BUTTON_LEFT))
-				room.cursor.x -= 1;
-			room.cursor.x = clamp(room.cursor.x, room.min.x, room.max.x);
-			room.cursor.y = clamp(room.cursor.y, room.min.y, room.max.y);
-
-			if(CAT_input_pressed(CAT_BUTTON_A))
-			{
-				if(room.prop_id != -1)
-				{
-					CAT_place_prop(room.cursor);
-					CAT_bag_remove(room.prop_id);
-					if(CAT_bag_count(room.prop_id) <= 0)
-						room.prop_id = CAT_bag_seek(room.prop_id+1, CAT_ITEM_TYPE_PROP);
-				}
-			}
-
-			if(CAT_input_pressed(CAT_BUTTON_START))
-			{
-				game_mode = CAT_GAME_MODE_MENU;
-			}
+			CAT_room_gui_logic();
 			break;
 		}
 		case CAT_GAME_MODE_MENU:
-		{
-			if(CAT_input_pressed(CAT_BUTTON_UP))
-			{
-				CAT_menu_shift(&main_menu, -1);
-			}	
-			if(CAT_input_pressed(CAT_BUTTON_DOWN))
-			{
-				CAT_menu_shift(&main_menu, 1);
-			}
-
-			if(CAT_input_pressed(CAT_BUTTON_A))
-			{
-				const char* selection = menu_items[main_menu.idx];
-				if(strcmp(selection, "STATS") == 0)
-				{
-					game_mode = CAT_GAME_MODE_STATS;
-				}
-				if(strcmp(selection, "BAG") == 0)
-				{
-					game_mode = CAT_GAME_MODE_BAG;
-				}
-				if(strcmp(selection, "BACK") == 0)
-				{
-					game_mode = CAT_GAME_MODE_ROOM;
-				}
-			}
-
-			if(CAT_input_pressed(CAT_BUTTON_B) || CAT_input_pressed(CAT_BUTTON_START))
-			{
-				game_mode = CAT_GAME_MODE_ROOM;
-			}
+			CAT_menu_gui_logic();
 			break;
-		}
 		case CAT_GAME_MODE_STATS:
-		{
-			if(CAT_input_pressed(CAT_BUTTON_B))
-			{
-				game_mode = CAT_GAME_MODE_MENU;
-			}
-			if(CAT_input_pressed(CAT_BUTTON_START))
-			{
-				game_mode = CAT_GAME_MODE_ROOM;
-			}
+			CAT_stats_gui_logic();	
 			break;
-		}
 		case CAT_GAME_MODE_BAG:
-		{
-			if(CAT_input_pressed(CAT_BUTTON_UP))
-				CAT_menu_shift(&bag_menu, -1);
-			if(CAT_input_pressed(CAT_BUTTON_DOWN))
-				CAT_menu_shift(&bag_menu, 1);
-
-			if(CAT_input_pressed(CAT_BUTTON_B))
-			{
-				game_mode = CAT_GAME_MODE_MENU;
-			}
-			if(CAT_input_pressed(CAT_BUTTON_START))
-			{
-				game_mode = CAT_GAME_MODE_ROOM;
-			}
+			CAT_bag_gui_logic();
 			break;
-		}
 	}
 }
 
@@ -239,8 +301,6 @@ int main(int argc, char** argv)
 	game_mode = CAT_GAME_MODE_ROOM;
 	CAT_room_init();
 	CAT_pet_init();
-	CAT_menu_init(&main_menu, sizeof(menu_items)/sizeof(char*), 9);
-	CAT_menu_init(&bag_menu, 256, 9);
 
 	while(CAT_get_battery_pct() > 0)
 	{
@@ -261,7 +321,9 @@ int main(int argc, char** argv)
 				CAT_draw_tiles(7, 10, floor_sprite_id[0]);
 				CAT_draw_tiles(17, 3, floor_sprite_id[1]);
 
-				CAT_animator_add(vending_anim_id, 2, 0, 112, CAT_DRAW_MODE_BOTTOM);
+				CAT_animator_add(vending_anim_id, 2, 6, 112, CAT_DRAW_MODE_BOTTOM);
+				CAT_animator_add(pot_anim_id, 2, 120, 112, CAT_DRAW_MODE_BOTTOM | CAT_DRAW_MODE_CENTER_X);
+				CAT_draw_queue_add(device_sprite_id, 2, 192, 112, CAT_DRAW_MODE_BOTTOM);
 				
 				for(int i = 0; i < room.prop_count; i++)
 				{
@@ -284,11 +346,21 @@ int main(int argc, char** argv)
 				int pet_anim_id = pet.move_timer > 0 ? idle_anim_id : walk_anim_id;
 				CAT_animator_add(pet_anim_id, 2, pet.position.x, pet.position.y, pet_mode);
 				
-				CAT_animator_add(cursor_anim_id, 1, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
+				if(room_gui.mode == 0)
+					CAT_animator_add(cursor_anim_id, 3, room_gui.cursor.x * 16, room_gui.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
+				CAT_draw_queue_add(vigor_sprite_id, 3, 40, 294, CAT_DRAW_MODE_CENTER_X | CAT_DRAW_MODE_CENTER_Y); 
+				CAT_draw_queue_add(focus_sprite_id, 3, 120, 294, CAT_DRAW_MODE_CENTER_X | CAT_DRAW_MODE_CENTER_Y); 
+				CAT_draw_queue_add(soul_sprite_id, 3, 200, 294, CAT_DRAW_MODE_CENTER_X | CAT_DRAW_MODE_CENTER_Y); 
+				if(room_gui.mode == 1)
+				{
+					if(room_gui.selection == 0)
+						CAT_draw_queue_add(ring_hl_sprite_id, 4, 40, 294, CAT_DRAW_MODE_CENTER_X | CAT_DRAW_MODE_CENTER_Y);
+					if(room_gui.selection == 1)
+						CAT_draw_queue_add(ring_hl_sprite_id, 4, 120, 294, CAT_DRAW_MODE_CENTER_X | CAT_DRAW_MODE_CENTER_Y);
+					if(room_gui.selection == 2)
+						CAT_draw_queue_add(ring_hl_sprite_id, 4, 200, 294, CAT_DRAW_MODE_CENTER_X | CAT_DRAW_MODE_CENTER_Y);
+				}
 
-				if(room.prop_id != -1)
-					CAT_draw_queue_add(CAT_item_get(room.prop_id)->sprite, 3, 0, 0, CAT_DRAW_MODE_DEFAULT);
-					
 				CAT_animator_submit();
 				CAT_draw_queue_submit();
 				
@@ -308,13 +380,13 @@ int main(int argc, char** argv)
 				CAT_gui_image(&gui, exit_sprite_id);
 
 				CAT_gui_panel(&gui, (CAT_ivec2) {0, 32}, (CAT_ivec2) {15, 18});  
-				for(int i = 0; i < main_menu.length; i++)
+				for(int i = 0; i < 3; i++)
 				{
 					CAT_gui_text(&gui, "#");
 					CAT_gui_same_line(&gui);
-					CAT_gui_text(&gui, menu_items[i]);
+					CAT_gui_text(&gui, menu_gui.items[i]);
 
-					if(i == main_menu.idx)
+					if(i == menu_gui.idx)
 					{
 						CAT_gui_same_line(&gui);
 						CAT_gui_image(&gui, select_sprite_id);
@@ -364,9 +436,9 @@ int main(int argc, char** argv)
 				CAT_gui_image(&gui, exit_sprite_id);
 
 				CAT_gui_panel(&gui, (CAT_ivec2) {0, 32}, (CAT_ivec2) {15, 18});
-				for(int i = 0; i < bag_menu.window; i++)
+				for(int i = 0; i < bag_gui.window; i++)
 				{
-					int item_id = bag_menu.base + i;
+					int item_id = bag_gui.base + i;
 					if(item_id >= item_table.length)
 						continue;
 					CAT_item* item = CAT_item_get(item_id);
@@ -380,7 +452,7 @@ int main(int argc, char** argv)
 					sprintf(text, "%s *%d", item->name, item->count);
 					CAT_gui_text(&gui, text);
 
-					if(item_id == bag_menu.idx)
+					if(item_id == bag_gui.idx)
 					{
 						CAT_gui_same_line(&gui);
 						CAT_gui_image(&gui, select_sprite_id);

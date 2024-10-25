@@ -140,12 +140,17 @@ extern int wall_sprite_id[3];
 extern int floor_sprite_id[3];
 extern int pet_sprite_id[13];
 extern int vending_sprite_id[13];
+extern int pot_sprite_id[7];
 extern int chair_sprite_id[4];
 extern int table_sprite_id;
 extern int coffee_sprite_id[2];
 extern int device_sprite_id;
 
 extern int cursor_sprite_id[4];
+extern int vigor_sprite_id;
+extern int focus_sprite_id;
+extern int soul_sprite_id;
+extern int ring_hl_sprite_id;
 
 extern int panel_sprite_id[9];
 extern int glyph_sprite_id[91];
@@ -161,6 +166,7 @@ extern int idle_anim_id;
 extern int walk_anim_id;
 extern int mood_anim_id;
 extern int vending_anim_id;
+extern int pot_anim_id;
 extern int chair_anim_id;
 extern int coffee_anim_id;
 

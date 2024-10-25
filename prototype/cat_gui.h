@@ -3,6 +3,9 @@
 
 #include "cat_math.h"
 
+//////////////////////////////////////////////////////////////////////////
+// RENDERING
+
 typedef struct CAT_gui
 {
 	int tiles[9];
@@ -24,17 +27,5 @@ void CAT_gui_line_break(CAT_gui* gui);
 void CAT_gui_same_line(CAT_gui* gui);
 void CAT_gui_text(CAT_gui* gui, const char* text);
 void CAT_gui_image(CAT_gui* gui, int key);
-
-typedef struct CAT_menu
-{
-	int length;
-	int window;
-
-	int idx;
-	int base;
-} CAT_menu;
-
-void CAT_menu_init(CAT_menu* menu, int length, int window);
-void CAT_menu_shift(CAT_menu* menu, int shift);
 
 #endif
