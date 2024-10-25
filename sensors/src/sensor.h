@@ -34,4 +34,7 @@ SENSOR_DECL(sen5x);
 SENSOR_DECL(sunrise);
 SENSOR_DECL(lps22hh);
 
+/* Update pressure value (hPa) for the sunrise co2 sensor */
+int sunrise_update_pressure(float pressure_hpa);
+
 //eof
