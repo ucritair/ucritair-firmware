@@ -2,8 +2,17 @@
 #define CAT_ITEM_H
 
 #include <stdbool.h>
+#include <stdlib.h>
 
 #include "cat_sprite.h"
+
+//////////////////////////////////////////////////////////////////////////
+// CONSTANTS
+
+#define ITEM_TABLE_SIZE 64
+
+//////////////////////////////////////////////////////////////////////////
+// TABLE AND BAG
 
 typedef enum CAT_item_type
 {
@@ -18,12 +27,13 @@ typedef struct CAT_item
 	const char* name;
 	int sprite; 
 	int price;
+	int count;
 
 	union
 	{
 		struct
 		{
-			CAT_anim* anim;
+			int anim_id;
 			int width;
 			int height;
 		} prop_data;
@@ -40,30 +50,32 @@ typedef struct CAT_item
 	} data;
 } CAT_item;
 
-void CAT_item_init(CAT_item* item, CAT_item_type type, const char* name, int sprite, int price);
-void CAT_prop_init(CAT_item* item, CAT_anim* anim, int width, int height);
-void CAT_food_init(CAT_item* item, float d_v, float d_f, float d_s, float dd_v, float dd_f, float dd_s);
-
-typedef struct CAT_store
+typedef struct CAT_item_table
 {
-	CAT_item* table[256];
+	CAT_item data[ITEM_TABLE_SIZE];
 	int length;
-} CAT_store;
-extern CAT_store store;
+} CAT_item_table;
+extern CAT_item_table item_table;
 
-void CAT_store_init();
-int CAT_store_add(CAT_item* value);
+void CAT_item_table_init();
+int CAT_item_init(CAT_item_type type, const char* name, int sprite, int price);
+CAT_item* CAT_item_get(int item_id);
+void CAT_prop_init(int item_id, int anim_id, int width, int height);
+void CAT_food_init(int item_id, float d_v, float d_f, float d_s, float dd_v, float dd_f, float dd_s);
 
-typedef struct CAT_bag
-{
-	int quantities[256];
-} CAT_bag;
-extern CAT_bag bag;
-
-void CAT_bag_init();
-void CAT_bag_add(int key);
-void CAT_bag_remove(int key);
-int CAT_bag_count(int key);
+void CAT_bag_add(int item_id);
+bool CAT_bag_remove(int item_id);
+int CAT_bag_count(int item_id);
 int CAT_bag_seek(int whence, CAT_item_type type);
+
+//////////////////////////////////////////////////////////////////////////
+// ID DECLARATIONS
+
+extern int chair_item_id;
+extern int table_item_id;
+extern int coffee_item_id;
+extern int device_item_id;
+
+void CAT_item_mass_define();
 
 #endif

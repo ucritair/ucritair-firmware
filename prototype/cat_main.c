@@ -215,144 +215,15 @@ int main(int argc, char** argv)
 	CAT_atlas_init("sprites/atlas.png");
 	CAT_spriter_init();
 	CAT_draw_queue_init();
+	CAT_anim_table_init();
 	CAT_animator_init();
+	CAT_sprite_mass_define();
 	
-	int wall_sprite[3];
-	int floor_sprite[3];
-	for(int i = 0; i < 3; i++)
-	{
-		wall_sprite[i] = CAT_atlas_add(16*i, 0, 16, 16);
-		floor_sprite[i] = CAT_atlas_add(16*i, 16, 16, 16);
-	}
-	int pet_sprite[13];
-	for(int i = 0; i < 13; i++)
-	{
-		pet_sprite[i] = CAT_atlas_add(64*i, 544, 64, 48);
-	}
-	int chair_sprite[4];
-	for(int i = 0; i < 4; i++)
-	{
-		chair_sprite[i] = CAT_atlas_add(32*i, 48, 32, 48);
-	}
-	int table_sprite = CAT_atlas_add(128, 48, 64, 48);
-	int coffee_sprite[2];
-	for(int i = 0; i < 2; i++)
-	{
-		coffee_sprite[i] = CAT_atlas_add(192+32*i, 48, 32, 48);
-	}
-	int device_sprite = CAT_atlas_add(256, 48, 48, 48);
-	int vending_sprite[13];
-	for(int i = 0; i < 13; i++)
-	{
-		vending_sprite[i] = CAT_atlas_add(64*i, 448, 64, 96);
-	}
-
-	int cursor_sprite[4];
-	for(int i = 0; i < 4; i++)
-	{
-		cursor_sprite[i] = CAT_atlas_add(16*i, 336, 16, 16);
-	}
-	int glyph_sprite[91];
-	for(int i = 0; i < 91; i++)
-	{
-		glyph_sprite[i] = CAT_atlas_add(8*i, 592, 8, 12);
-	}
-	int panel_sprite[9];
-	for(int i = 0; i < 3; i++)
-	{
-		panel_sprite[0+i] = CAT_atlas_add(48+16*i, 0, 16, 16);
-		panel_sprite[3+i] = CAT_atlas_add(48+16*i, 16, 16, 16);
-		panel_sprite[6+i] = CAT_atlas_add(48+16*i, 32, 16, 16);
-	}
-	int a_sprite = CAT_atlas_add(96, 0, 16, 16);
-	int b_sprite = CAT_atlas_add(112, 0, 16, 16);
-	int enter_sprite = CAT_atlas_add(96, 16, 16, 16);
-	int exit_sprite = CAT_atlas_add(112, 16, 16, 16);
-	int select_sprite = CAT_atlas_add(96, 32, 16, 16);
-	int arrow_sprite = CAT_atlas_add(112, 32, 16, 16);
-	int atlas_sprite = CAT_atlas_add(0, 0, 240, 320);
-
-	int item_icon = CAT_atlas_add(192, 304, 16, 16);
-
-	CAT_anim idle_anim;
-	CAT_anim_init(&idle_anim);
-	for(int i = 0; i < 2; i++)
-	{
-		CAT_anim_add(&idle_anim, pet_sprite[i]); 
-	}
-
-	CAT_anim walk_anim;
-	CAT_anim_init(&walk_anim);
-	for(int i = 0; i < 2; i++)
-	{
-		CAT_anim_add(&walk_anim, pet_sprite[2+i]); 
-	}
-
-	CAT_anim mood_anim;
-	CAT_anim_init(&mood_anim);
-	for(int i = 0; i < 9; i++)
-	{
-		CAT_anim_add(&mood_anim, pet_sprite[4+i]); 
-	}
-
-	CAT_anim chair_anim;
-	CAT_anim_init(&chair_anim);
-	for(int i = 0; i < 4; i++)
-	{
-		CAT_anim_add(&chair_anim, chair_sprite[i]); 
-	}
-	
-	CAT_anim coffee_anim;
-	CAT_anim_init(&coffee_anim);
-	for(int i = 0; i < 2; i++)
-	{
-		CAT_anim_add(&coffee_anim, coffee_sprite[i]); 
-	}
-	
-	CAT_anim vending_anim;
-	CAT_anim_init(&vending_anim);
-	for(int i = 0; i < 13; i++)
-	{
-		CAT_anim_add(&vending_anim, vending_sprite[i]); 
-	}
-
-	CAT_anim cursor_anim;
-	CAT_anim_init(&cursor_anim);
-	for(int i = 0; i < 4; i++)
-	{
-		CAT_anim_add(&cursor_anim, cursor_sprite[i]); 
-	}
+	CAT_item_table_init();
+	CAT_item_mass_define();
 	
 	CAT_gui gui;
-	CAT_gui_init(&gui, panel_sprite, glyph_sprite);
-	
-	
-	CAT_store_init();
-	CAT_bag_init();
-
-	CAT_item chair_item;
-	CAT_item_init(&chair_item, CAT_ITEM_TYPE_PROP, "Chair", chair_sprite[0], 1);
-	CAT_prop_init(&chair_item, &chair_anim, 2, 2);
-	int chair_id = CAT_store_add(&chair_item);
-	CAT_bag_add(chair_id);
-
-	CAT_item table_item;
-	CAT_item_init(&table_item, CAT_ITEM_TYPE_PROP, "Table", table_sprite, 1);
-	CAT_prop_init(&table_item, NULL, 4, 2);
-	int table_id = CAT_store_add(&table_item);
-	CAT_bag_add(table_id);
-	
-	CAT_item coffee_item;
-	CAT_item_init(&coffee_item, CAT_ITEM_TYPE_PROP, "Coffee", coffee_sprite[0], 1);
-	CAT_prop_init(&coffee_item, &coffee_anim, 4, 2);
-	int coffee_id = CAT_store_add(&coffee_item);
-	CAT_bag_add(coffee_id);
-	
-	CAT_item device_item;
-	CAT_item_init(&device_item, CAT_ITEM_TYPE_PROP, "Device", device_sprite, 1);
-	CAT_prop_init(&device_item, NULL, 4, 2);
-	int device_id = CAT_store_add(&device_item);
-	CAT_bag_add(device_id);
+	CAT_gui_init(&gui, panel_sprite_id, glyph_sprite_id);
 
 	game_mode = CAT_GAME_MODE_ROOM;
 	CAT_room_init();
@@ -372,28 +243,25 @@ int main(int argc, char** argv)
 		{
 			case CAT_GAME_MODE_ROOM:
 			{
-				CAT_draw_tiles(0, 4, wall_sprite[0]);
-				CAT_draw_tiles(4, 1, wall_sprite[1]);
-				CAT_draw_tiles(5, 1, wall_sprite[2]);
-				CAT_draw_tiles(6, 1, floor_sprite[2]);
-				CAT_draw_tiles(7, 10, floor_sprite[0]);
-				CAT_draw_tiles(17, 3, floor_sprite[1]);
+				CAT_draw_tiles(0, 4, wall_sprite_id[0]);
+				CAT_draw_tiles(4, 1, wall_sprite_id[1]);
+				CAT_draw_tiles(5, 1, wall_sprite_id[2]);
+				CAT_draw_tiles(6, 1, floor_sprite_id[2]);
+				CAT_draw_tiles(7, 10, floor_sprite_id[0]);
+				CAT_draw_tiles(17, 3, floor_sprite_id[1]);
 
-				CAT_animator_add(&vending_anim);
-				CAT_draw_queue_add(CAT_anim_frame(&vending_anim), 2, 0, 112, CAT_DRAW_MODE_BOTTOM);
-				CAT_draw_queue_add(vending_sprite[0], 3, 0, 112, CAT_DRAW_MODE_BOTTOM | CAT_DRAW_MODE_WIREFRAME);
+				CAT_animator_add(vending_anim_id, 2, 0, 112, CAT_DRAW_MODE_BOTTOM);
 				
 				for(int i = 0; i < room.prop_count; i++)
 				{
 					int prop_id = room.props[i];
 					CAT_ivec2 place = room.places[i];
-					CAT_item* prop = store.table[prop_id];
+					CAT_item* prop = CAT_item_get(prop_id);
 
-					CAT_anim* anim = prop->data.prop_data.anim;
-					if(anim != NULL)
+					int anim_id = prop->data.prop_data.anim_id;
+					if(anim_id != -1)
 					{
-						CAT_animator_add(anim);
-						CAT_draw_queue_add(CAT_anim_frame(anim), 2, place.x, place.y, CAT_DRAW_MODE_BOTTOM);
+						CAT_animator_add(anim_id, 2, place.x, place.y, CAT_DRAW_MODE_BOTTOM);
 					}
 					else
 					{
@@ -402,17 +270,15 @@ int main(int argc, char** argv)
 				}
 
 				int pet_mode = CAT_DRAW_MODE_BOTTOM | CAT_DRAW_MODE_CENTER_X | (pet.position.x < pet.target.x ? CAT_DRAW_MODE_REFLECT_X : 0);
-				CAT_anim* pet_anim = pet.move_timer > 0 ? &idle_anim : &walk_anim;
-				CAT_animator_add(pet_anim);
-				CAT_draw_queue_add(CAT_anim_frame(pet_anim), 2, pet.position.x, pet.position.y, pet_mode);
+				int pet_anim_id = pet.move_timer > 0 ? idle_anim_id : walk_anim_id;
+				CAT_animator_add(pet_anim_id, 2, pet.position.x, pet.position.y, pet_mode);
 				
-				CAT_animator_add(&cursor_anim);
-				CAT_draw_queue_add(CAT_anim_frame(&cursor_anim), 1, room.cursor.x, room.cursor.y, CAT_DRAW_MODE_DEFAULT);
+				CAT_animator_add(cursor_anim_id, 1, room.cursor.x, room.cursor.y, CAT_DRAW_MODE_DEFAULT);
 
 				if(room.prop_id != -1)
-					CAT_draw_queue_add(store.table[room.prop_id]->sprite, 3, 0, 0, CAT_DRAW_MODE_DEFAULT);
+					CAT_draw_queue_add(CAT_item_get(room.prop_id)->sprite, 3, 0, 0, CAT_DRAW_MODE_DEFAULT);
 					
-				CAT_animator_tick(simulator.delta_time);
+				CAT_animator_submit();
 				CAT_draw_queue_submit();
 				
 				break;
@@ -422,13 +288,13 @@ int main(int argc, char** argv)
 				CAT_gui_panel(&gui, (CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});  
 				CAT_gui_text(&gui, "MENU");
 				CAT_gui_same_line(&gui);
-				CAT_gui_image(&gui, a_sprite);
+				CAT_gui_image(&gui, a_sprite_id);
 				CAT_gui_same_line(&gui);
-				CAT_gui_image(&gui, enter_sprite);
+				CAT_gui_image(&gui, enter_sprite_id);
 				CAT_gui_same_line(&gui);
-				CAT_gui_image(&gui, b_sprite);
+				CAT_gui_image(&gui, b_sprite_id);
 				CAT_gui_same_line(&gui);
-				CAT_gui_image(&gui, exit_sprite);
+				CAT_gui_image(&gui, exit_sprite_id);
 
 				CAT_gui_panel(&gui, (CAT_ivec2) {0, 32}, (CAT_ivec2) {15, 18});  
 				for(int i = 0; i < main_menu.length; i++)
@@ -440,7 +306,7 @@ int main(int argc, char** argv)
 					if(i == main_menu.idx)
 					{
 						CAT_gui_same_line(&gui);
-						CAT_gui_image(&gui, select_sprite);
+						CAT_gui_image(&gui, select_sprite_id);
 					}
 				}
 				
@@ -451,12 +317,12 @@ int main(int argc, char** argv)
 				CAT_gui_panel(&gui, (CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});  
 				CAT_gui_text(&gui, "STATS");
 				CAT_gui_same_line(&gui);
-				CAT_gui_image(&gui, b_sprite);
+				CAT_gui_image(&gui, b_sprite_id);
 				CAT_gui_same_line(&gui);
-				CAT_gui_image(&gui, exit_sprite);
+				CAT_gui_image(&gui, exit_sprite_id);
 
 				CAT_gui_panel(&gui, (CAT_ivec2) {0, 32}, (CAT_ivec2) {15, 18});  
-				CAT_gui_image(&gui, pet_sprite[0]); 
+				CAT_gui_image(&gui, pet_sprite_id[0]); 
 				char text[64];
 				sprintf(text, "Age: %d", pet.age);
 				CAT_gui_text(&gui, text);
@@ -482,29 +348,31 @@ int main(int argc, char** argv)
 				CAT_gui_panel(&gui, (CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});  
 				CAT_gui_text(&gui, "BAG");
 				CAT_gui_same_line(&gui);
-				CAT_gui_image(&gui, b_sprite);
+				CAT_gui_image(&gui, b_sprite_id);
 				CAT_gui_same_line(&gui);
-				CAT_gui_image(&gui, exit_sprite);
+				CAT_gui_image(&gui, exit_sprite_id);
 
 				CAT_gui_panel(&gui, (CAT_ivec2) {0, 32}, (CAT_ivec2) {15, 18});
 				for(int i = 0; i < bag_menu.window; i++)
 				{
-					int slot = bag_menu.base + i;
-					if(slot >= 256 || bag.quantities[slot] <= 0)
+					int item_id = bag_menu.base + i;
+					if(item_id >= item_table.length)
 						continue;
-					CAT_item* item = store.table[i];
+					CAT_item* item = CAT_item_get(item_id);
+					if(item->count <= 0)
+						continue;
 
 					CAT_gui_panel(&gui, (CAT_ivec2) {0, 32+i*32}, (CAT_ivec2) {15, 2});
-					CAT_gui_image(&gui, item_icon); 
+					CAT_gui_image(&gui, item_sprite_id); 
 					CAT_gui_same_line(&gui);
 					char text[64];
-					sprintf(text, "%s *%d", item->name, bag.quantities[slot]);
+					sprintf(text, "%s *%d", item->name, item->count);
 					CAT_gui_text(&gui, text);
 
-					if(slot == bag_menu.idx)
+					if(item_id == bag_menu.idx)
 					{
 						CAT_gui_same_line(&gui);
-						CAT_gui_image(&gui, select_sprite);
+						CAT_gui_image(&gui, select_sprite_id);
 					}
 				}
 

@@ -9,7 +9,7 @@ LIBS += `pkg-config --static --libs glfw3`
 LIBS += `pkg-config --static --libs libpng`
 LIBS += -framework OpenGL
 
-MAIN_SRCS = cat_sim.c
+MAIN_SRCS = cat_main.c
 MODULE_SRCS = $(filter-out $(MAIN_SRCS), $(wildcard *.c));
 
 OBJS = $(addsuffix .o, $(basename $(notdir $(MODULE_SRCS))))
@@ -18,8 +18,8 @@ OBJS = $(addsuffix .o, $(basename $(notdir $(MODULE_SRCS))))
 	cc -c $(CFLAGS) $(INCS) $(LIBS) $< -o $@
 
 cat_sim: $(MAIN_SRCS) $(OBJS)
-	cc $(CFLAGS) $(INCS) $(LIBS) $(MAIN_SRCS) $(OBJS) -o cat_sim
+	cc $(CFLAGS) $(INCS) $(LIBS) $(MAIN_SRCS) $(OBJS) -o cat_main
 
 clean:
 	trash *.o
-	trash cat_sim
+	trash cat_main

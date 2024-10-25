@@ -7,6 +7,9 @@
 
 #include "cat_core.h"
 
+//////////////////////////////////////////////////////////////////////////
+// ATLAS AND SPRITER
+
 CAT_atlas atlas;
 
 void CAT_atlas_init(const char* path)
@@ -59,16 +62,12 @@ void CAT_atlas_init(const char* path)
 
 	png_destroy_read_struct(&png, &info, NULL);
 
-	for(int i = 0; i < 512; i++)
-	{
-		atlas.table[i] = (CAT_sprite) {0, 0, 0, 0};
-	}
 	atlas.length = 0;
 }
 
 int CAT_atlas_add(int x, int y, int w, int h)
 {
-	if(atlas.length >= 512)
+	if(atlas.length >= CAT_ATLAS_MAX_LENGTH)
 	{
 		return -1;
 	}
@@ -87,9 +86,9 @@ void CAT_spriter_init()
 	spriter.mode = CAT_DRAW_MODE_DEFAULT;
 }
 
-void CAT_draw_sprite(int x, int y, int key)
+void CAT_draw_sprite(int x, int y, int sprite_id)
 {
-	CAT_sprite sprite = atlas.table[key];
+	CAT_sprite sprite = atlas.table[sprite_id];
 	int w = sprite.width;
 	int h = sprite.height;
 	
@@ -102,26 +101,6 @@ void CAT_draw_sprite(int x, int y, int key)
 	if((spriter.mode & CAT_DRAW_MODE_CENTER_Y) > 0)
 		y_shift = -h/2;
 	
-	if((spriter.mode & CAT_DRAW_MODE_WIREFRAME) > 0)
-	{
-		int top = y + y_shift;
-		int bottom = y + h-1 + y_shift;
-		int left = x + x_shift;
-		int right = x + w-1 + x_shift;
-		for(int i = 0; i < 5; i++)
-		{
-			spriter.frame[top * LCD_SCREEN_W + left + i] = 0xF800;
-			spriter.frame[top * LCD_SCREEN_W + right - i] = 0xF800;
-			spriter.frame[bottom * LCD_SCREEN_W + left + i] = 0xF800;
-			spriter.frame[bottom * LCD_SCREEN_W + right - i] = 0xF800;
-			spriter.frame[(top + i) * LCD_SCREEN_W + x + left] = 0xF800;
-			spriter.frame[(top + i) * LCD_SCREEN_W + x + right] = 0xF800;
-			spriter.frame[(bottom - i) * LCD_SCREEN_W + left] = 0xF800;
-			spriter.frame[(bottom - i) * LCD_SCREEN_W + right] = 0xF800;
-		}
-		return;
-	}
-
 	for(int dy = 0; dy < h; dy++)
 	{
 		for(int dx = 0; dx < w; dx++)
@@ -145,9 +124,9 @@ void CAT_draw_sprite(int x, int y, int key)
 	}
 }
 
-void CAT_draw_tiles(int y_t, int h_t, int key)
+void CAT_draw_tiles(int y_t, int h_t, int sprite_id)
 {
-	CAT_sprite tile = atlas.table[key];
+	CAT_sprite tile = atlas.table[sprite_id];
 
 	int start = y_t * 16;
 	int end = start + h_t * 16;
@@ -175,6 +154,9 @@ void CAT_draw_tiles(int y_t, int h_t, int key)
 	}
 }
 
+//////////////////////////////////////////////////////////////////////////
+// DRAW QUEUE
+
 CAT_draw_queue draw_queue;
 
 void CAT_draw_queue_init()
@@ -182,9 +164,9 @@ void CAT_draw_queue_init()
 	draw_queue.length = 0;
 }
 
-void CAT_draw_queue_add(int key, int layer, int x, int y, int mode)
+void CAT_draw_queue_add(int sprite_id, int layer, int x, int y, int mode)
 {
-	if(draw_queue.length >= 1024)
+	if(draw_queue.length >= CAT_DRAW_QUEUE_MAX_LENGTH)
 	{
 		return;
 	}
@@ -204,7 +186,7 @@ void CAT_draw_queue_add(int key, int layer, int x, int y, int mode)
 	{
 		draw_queue.jobs[i] = draw_queue.jobs[i-1];
 	}
-	draw_queue.jobs[insert_idx] = (CAT_draw_job) {key, layer, x, y, mode};
+	draw_queue.jobs[insert_idx] = (CAT_draw_job) {sprite_id, layer, x, y, mode};
 	draw_queue.length += 1;
 }
 
@@ -214,26 +196,56 @@ void CAT_draw_queue_submit()
 	{
 		CAT_draw_job job = draw_queue.jobs[i];
 		spriter.mode = job.mode;
-		CAT_draw_sprite(job.x, job.y, job.key);
+		CAT_draw_sprite(job.x, job.y, job.sprite_id);
 	}
 	draw_queue.length = 0;
 }
 
-void CAT_anim_init(CAT_anim* anim)
+//////////////////////////////////////////////////////////////////////////
+// ANIMATIONS
+
+CAT_anim_table anim_table;
+
+void CAT_anim_table_init()
 {
+	anim_table.length = 0;
+}
+
+int CAT_anim_init()
+{
+	if(anim_table.length >= CAT_ANIM_TABLE_MAX_LENGTH)
+		return -1;
+
+	int anim_id = anim_table.length;
+	anim_table.length += 1;
+
+	CAT_anim* anim = &anim_table.data[anim_id];
 	anim->length = 0;
 	anim->idx = 0;
 	anim->looping = 1;
+
+	return anim_id;
 }
 
-void CAT_anim_add(CAT_anim* anim, int key)
+CAT_anim* CAT_anim_get(int anim_id)
 {
-	anim->frames[anim->length] = key;
+	if(anim_id < 0 || anim_id >= CAT_ANIM_TABLE_MAX_LENGTH)
+		return NULL;
+	return &anim_table.data[anim_id];
+}
+
+void CAT_anim_add(int anim_id, int sprite_id)
+{
+	CAT_anim* anim = CAT_anim_get(anim_id);
+	if(anim->length >= CAT_ANIM_MAX_LENGTH)
+		return;
+	anim->frames[anim->length] = sprite_id;
 	anim->length += 1;
 }
 
-void CAT_anim_tick(CAT_anim* anim)
+void CAT_anim_tick(int anim_id)
 {
+	CAT_anim* anim = CAT_anim_get(anim_id);
 	anim->idx += 1;
 	if(anim->looping && anim->idx >= anim->length)
 	{
@@ -241,10 +253,14 @@ void CAT_anim_tick(CAT_anim* anim)
 	}
 }
 
-int CAT_anim_frame(CAT_anim* anim)
+int CAT_anim_frame(int anim_id)
 {
+	CAT_anim* anim = CAT_anim_get(anim_id);
 	return anim->frames[anim->idx];
 }
+
+//////////////////////////////////////////////////////////////////////////
+// ANIMATOR
 
 CAT_animator animator;
 
@@ -255,27 +271,146 @@ void CAT_animator_init()
 	animator.timer = 0.0f;
 }
 
-void CAT_animator_add(CAT_anim* anim)
+void CAT_animator_add(int anim_id, int layer, int x, int y, int mode)
 {
-	if(animator.length >= 256)
+	if(animator.length >= CAT_ANIMATOR_MAX_LENGTH)
 	{
 		return;
 	}
 
-	animator.anims[animator.length] = anim;
+	animator.jobs[animator.length] = (CAT_anim_job) {anim_id, layer, x, y, mode};
 	animator.length += 1;
 }
 
-void CAT_animator_tick(float dt)
+void CAT_animator_submit()
 {
-	animator.timer += dt;
+	animator.timer += simulator.delta_time;
 	if(animator.timer >= animator.period)
 	{
 		for(int i = 0; i < animator.length; i++)
 		{
-			CAT_anim_tick(animator.anims[i]);
+			CAT_anim_tick(animator.jobs[i].anim_id);
 		}
 		animator.timer = 0.0f;
 	}
+	for(int i = 0; i < animator.length; i++)
+	{
+		CAT_anim_job job = animator.jobs[i];
+		int sprite_id = CAT_anim_frame(job.anim_id);
+		CAT_draw_queue_add(sprite_id, job.layer, job.x, job.y, job.mode);
+	}
 	animator.length = 0;
+}
+
+//////////////////////////////////////////////////////////////////////////
+// ID DECLARATIONS
+
+int wall_sprite_id[3];
+int floor_sprite_id[3];
+int pet_sprite_id[13];
+int vending_sprite_id[13];
+int chair_sprite_id[4];
+int table_sprite_id;
+int coffee_sprite_id[2];
+int device_sprite_id;
+
+int cursor_sprite_id[4];
+
+int panel_sprite_id[9];
+int glyph_sprite_id[91];
+int a_sprite_id;
+int b_sprite_id;
+int enter_sprite_id;
+int exit_sprite_id;
+int select_sprite_id;
+int arrow_sprite_id;
+int item_sprite_id;
+
+int idle_anim_id;
+int walk_anim_id;
+int mood_anim_id;
+int vending_anim_id;
+int chair_anim_id;
+int coffee_anim_id;
+
+int cursor_anim_id;
+
+void CAT_sprite_mass_define()
+{
+	for(int i = 0; i < 3; i++)
+	{
+		wall_sprite_id[i] = CAT_atlas_add(16*i, 0, 16, 16);
+		floor_sprite_id[i] = CAT_atlas_add(16*i, 16, 16, 16);
+	}
+	for(int i = 0; i < 13; i++)
+	{
+		pet_sprite_id[i] = CAT_atlas_add(64*i, 544, 64, 48);
+	}
+	for(int i = 0; i < 13; i++)
+	{
+		vending_sprite_id[i] = CAT_atlas_add(64*i, 448, 64, 96);
+	}
+	for(int i = 0; i < 4; i++)
+	{
+		chair_sprite_id[i] = CAT_atlas_add(32*i, 48, 32, 48);
+	}
+	table_sprite_id = CAT_atlas_add(128, 48, 64, 48);
+	for(int i = 0; i < 2; i++)
+	{
+		coffee_sprite_id[i] = CAT_atlas_add(192+32*i, 48, 32, 48);
+	}
+	device_sprite_id = CAT_atlas_add(256, 48, 48, 48);
+
+	for(int i = 0; i < 4; i++)
+	{
+		cursor_sprite_id[i] = CAT_atlas_add(16*i, 336, 16, 16);
+	}
+
+	for(int i = 0; i < 3; i++)
+	{
+		panel_sprite_id[0+i] = CAT_atlas_add(48+16*i, 0, 16, 16);
+		panel_sprite_id[3+i] = CAT_atlas_add(48+16*i, 16, 16, 16);
+		panel_sprite_id[6+i] = CAT_atlas_add(48+16*i, 32, 16, 16);
+	}
+	for(int i = 0; i < 91; i++)
+	{
+		glyph_sprite_id[i] = CAT_atlas_add(8*i, 592, 8, 12);
+	}
+	a_sprite_id = CAT_atlas_add(96, 0, 16, 16);
+	b_sprite_id = CAT_atlas_add(112, 0, 16, 16);
+	enter_sprite_id = CAT_atlas_add(96, 16, 16, 16);
+	exit_sprite_id = CAT_atlas_add(112, 16, 16, 16);
+	select_sprite_id = CAT_atlas_add(96, 32, 16, 16);
+	arrow_sprite_id = CAT_atlas_add(112, 32, 16, 16);
+	item_sprite_id = CAT_atlas_add(192, 304, 16, 16);
+	
+	for(int i = 0; i < 2; i++)
+	{
+		CAT_anim_add(idle_anim_id, pet_sprite_id[i]); 
+	}
+	for(int i = 0; i < 2; i++)
+	{
+		CAT_anim_add(walk_anim_id, pet_sprite_id[2+i]); 
+	}
+	for(int i = 0; i < 9; i++)
+	{
+		CAT_anim_add(mood_anim_id, pet_sprite_id[4+i]); 
+	}
+	for(int i = 0; i < 13; i++)
+	{
+		CAT_anim_add(vending_anim_id, vending_sprite_id[i]); 
+	}
+	for(int i = 0; i < 4; i++)
+	{
+		CAT_anim_add(chair_anim_id, chair_sprite_id[i]); 
+	}
+	for(int i = 0; i < 2; i++)
+	{
+		CAT_anim_add(coffee_anim_id, coffee_sprite_id[i]); 
+	}
+
+	for(int i = 0; i < 4; i++)
+	{
+		CAT_anim_add(cursor_anim_id, cursor_sprite_id[i]); 
+	}
 }
