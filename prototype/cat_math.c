@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <math.h>
 
+//////////////////////////////////////////////////////////////////////////
 // BASICS
 
 int min(int a, int b)
@@ -21,6 +22,7 @@ int clamp(int v, int a, int b)
 	return min(max(v, a), b);
 }
 
+//////////////////////////////////////////////////////////////////////////
 // RANDOM
 
 void rand_init()
@@ -39,6 +41,7 @@ float rand_float(float a, float b)
 	return a + scale * (b-a);
 }
 
+//////////////////////////////////////////////////////////////////////////
 // VEC2
 
 CAT_vec2 CAT_vec2_add(CAT_vec2 a, CAT_vec2 b)
@@ -96,3 +99,33 @@ float CAT_vec2_dist(CAT_vec2 a, CAT_vec2 b)
 {
 	return CAT_vec2_mag(CAT_vec2_sub(b, a));
 }
+
+//////////////////////////////////////////////////////////////////////////
+// IVEC2
+
+CAT_ivec2 CAT_ivec2_add(CAT_ivec2 a, CAT_ivec2 b)
+{
+	return (CAT_ivec2) {a.x + b.x, a.y + b.y};
+}
+
+//////////////////////////////////////////////////////////////////////////
+// COLLISION
+
+bool CAT_test_overlap(CAT_ivec2 a_min, CAT_ivec2 a_max, CAT_ivec2 b_min, CAT_ivec2 b_max)
+{
+	if(a_min.x > b_max.x || a_max.x < b_min.x)
+		return true;
+	if(a_min.y > b_max.y || a_max.y < b_min.y)
+		return true;
+	return false;
+}
+
+bool CAT_test_contain(CAT_ivec2 a_min, CAT_ivec2 a_max, CAT_ivec2 b_min, CAT_ivec2 b_max)
+{
+	if(b_min.x < a_min.x || b_max.x > a_max.x)
+		return false;
+	if(b_min.y < a_min.y || b_max.y > a_max.y)
+		return false;
+	return true;
+}
+

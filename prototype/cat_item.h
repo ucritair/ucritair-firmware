@@ -5,6 +5,7 @@
 #include <stdlib.h>
 
 #include "cat_sprite.h"
+#include "cat_math.h"
 
 //////////////////////////////////////////////////////////////////////////
 // CONSTANTS
@@ -34,8 +35,7 @@ typedef struct CAT_item
 		struct
 		{
 			int anim_id;
-			int width;
-			int height;
+			CAT_ivec2 shape;
 		} prop_data;
 
 		struct

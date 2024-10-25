@@ -10,6 +10,8 @@
 #include "cat_gui.h"
 #include "cat_input.h"
 
+#define CAT_MAX_PROP_COUNT 210
+
 typedef struct CAT_pet
 {
 	int age;
@@ -46,8 +48,10 @@ void CAT_pet_init()
 
 typedef struct CAT_room
 {
-	int props[210];
-	CAT_ivec2 places[210];
+	CAT_ivec2 min;
+	CAT_ivec2 max;
+	int props[CAT_MAX_PROP_COUNT];
+	CAT_ivec2 places[CAT_MAX_PROP_COUNT];
 	int prop_count;
 	CAT_ivec2 cursor;
 	int prop_id;
@@ -56,21 +60,26 @@ CAT_room room;
 
 void CAT_room_init()
 {
+	room.min = (CAT_ivec2) {0, 6};
+	room.max = (CAT_ivec2) {14, 19};
 	room.prop_count = 0;
-	room.cursor = (CAT_ivec2) {0, 96};
+	room.cursor = (CAT_ivec2) {0, 6};
 	room.prop_id = CAT_bag_seek(0, CAT_ITEM_TYPE_PROP);
 }
 
-void CAT_place_prop(int prop, CAT_ivec2 place)
+bool CAT_place_prop(CAT_ivec2 place)
 {
-	if(room.prop_count >= 210)
-	{
-		return;
-	}
+	if(room.prop_count >= CAT_MAX_PROP_COUNT)
+		return false;
 
-	room.props[room.prop_count] = prop;
+	CAT_item* prop = CAT_item_get(room.prop_id);
+	if(!CAT_test_contain(room.min, room.max, room.cursor, CAT_ivec2_add(room.cursor, prop->data.prop_data.shape)))
+		return false;
+
+	room.props[room.prop_count] = room.prop_id;
 	room.places[room.prop_count] = place;
 	room.prop_count += 1;
+	return true;
 }
 
 typedef enum CAT_game_mode
@@ -115,19 +124,21 @@ void CAT_logic()
 			}
 
 			if(CAT_input_pressed(CAT_BUTTON_UP))
-				room.cursor.y -= 16;
+				room.cursor.y -= 1;
 			if(CAT_input_pressed(CAT_BUTTON_RIGHT))
-				room.cursor.x += 16;
+				room.cursor.x += 1;
 			if(CAT_input_pressed(CAT_BUTTON_DOWN))
-				room.cursor.y += 16;
+				room.cursor.y += 1;
 			if(CAT_input_pressed(CAT_BUTTON_LEFT))
-				room.cursor.x -= 16;
+				room.cursor.x -= 1;
+			room.cursor.x = clamp(room.cursor.x, room.min.x, room.max.x);
+			room.cursor.y = clamp(room.cursor.y, room.min.y, room.max.y);
 
 			if(CAT_input_pressed(CAT_BUTTON_A))
 			{
 				if(room.prop_id != -1)
 				{
-					CAT_place_prop(room.prop_id, room.cursor);
+					CAT_place_prop(room.cursor);
 					CAT_bag_remove(room.prop_id);
 					if(CAT_bag_count(room.prop_id) <= 0)
 						room.prop_id = CAT_bag_seek(room.prop_id+1, CAT_ITEM_TYPE_PROP);
@@ -255,17 +266,17 @@ int main(int argc, char** argv)
 				for(int i = 0; i < room.prop_count; i++)
 				{
 					int prop_id = room.props[i];
-					CAT_ivec2 place = room.places[i];
 					CAT_item* prop = CAT_item_get(prop_id);
+					CAT_ivec2 place = room.places[i];
 
 					int anim_id = prop->data.prop_data.anim_id;
 					if(anim_id != -1)
 					{
-						CAT_animator_add(anim_id, 2, place.x, place.y, CAT_DRAW_MODE_BOTTOM);
+						CAT_animator_add(anim_id, 2, place.x * 16, place.y * 16, CAT_DRAW_MODE_BOTTOM);
 					}
 					else
 					{
-						CAT_draw_queue_add(prop->sprite, 2, place.x, place.y, CAT_DRAW_MODE_BOTTOM);
+						CAT_draw_queue_add(prop->sprite, 2, place.x * 16, place.y * 16, CAT_DRAW_MODE_BOTTOM);
 					}
 				}
 
@@ -273,7 +284,7 @@ int main(int argc, char** argv)
 				int pet_anim_id = pet.move_timer > 0 ? idle_anim_id : walk_anim_id;
 				CAT_animator_add(pet_anim_id, 2, pet.position.x, pet.position.y, pet_mode);
 				
-				CAT_animator_add(cursor_anim_id, 1, room.cursor.x, room.cursor.y, CAT_DRAW_MODE_DEFAULT);
+				CAT_animator_add(cursor_anim_id, 1, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
 
 				if(room.prop_id != -1)
 					CAT_draw_queue_add(CAT_item_get(room.prop_id)->sprite, 3, 0, 0, CAT_DRAW_MODE_DEFAULT);

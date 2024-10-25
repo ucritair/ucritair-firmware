@@ -22,4 +22,5 @@ cat_sim: $(MAIN_SRCS) $(OBJS)
 
 clean:
 	trash *.o
+	trash *.dSYM
 	trash cat_main

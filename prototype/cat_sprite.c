@@ -384,31 +384,38 @@ void CAT_sprite_mass_define()
 	arrow_sprite_id = CAT_atlas_add(112, 32, 16, 16);
 	item_sprite_id = CAT_atlas_add(192, 304, 16, 16);
 	
+	idle_anim_id = CAT_anim_init();
 	for(int i = 0; i < 2; i++)
 	{
 		CAT_anim_add(idle_anim_id, pet_sprite_id[i]); 
 	}
+	walk_anim_id = CAT_anim_init();
 	for(int i = 0; i < 2; i++)
 	{
 		CAT_anim_add(walk_anim_id, pet_sprite_id[2+i]); 
 	}
+	mood_anim_id = CAT_anim_init();
 	for(int i = 0; i < 9; i++)
 	{
 		CAT_anim_add(mood_anim_id, pet_sprite_id[4+i]); 
 	}
+	vending_anim_id = CAT_anim_init();
 	for(int i = 0; i < 13; i++)
 	{
 		CAT_anim_add(vending_anim_id, vending_sprite_id[i]); 
 	}
+	chair_anim_id = CAT_anim_init();
 	for(int i = 0; i < 4; i++)
 	{
 		CAT_anim_add(chair_anim_id, chair_sprite_id[i]); 
 	}
+	coffee_anim_id = CAT_anim_init();
 	for(int i = 0; i < 2; i++)
 	{
 		CAT_anim_add(coffee_anim_id, coffee_sprite_id[i]); 
 	}
 
+	cursor_anim_id = CAT_anim_init();
 	for(int i = 0; i < 4; i++)
 	{
 		CAT_anim_add(cursor_anim_id, cursor_sprite_id[i]); 

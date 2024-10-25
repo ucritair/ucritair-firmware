@@ -39,8 +39,7 @@ void CAT_prop_init(int item_id, int anim_id, int width, int height)
 {
 	CAT_item* item = CAT_item_get(item_id);
 	item->data.prop_data.anim_id = anim_id;
-	item->data.prop_data.width = width;
-	item->data.prop_data.height = width;
+	item->data.prop_data.shape = (CAT_ivec2) {width, height};
 }
 
 void CAT_food_init(int item_id, float d_v, float d_f, float d_s, float dd_v, float dd_f, float dd_s)
