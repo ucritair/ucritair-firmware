@@ -29,6 +29,7 @@ struct sunrise_state_t {
     uint8_t count;
     //todo: timestamp for device needing wake-up?
     //todo: timestamp for device reading ready?
+    int16_t pressure_0p1_hpa;
     bool is_faulted;
 };
 static struct sunrise_state_t state = {0,};
@@ -142,7 +143,7 @@ enum scr_t {
 
 static inline void msleep_for_sure(int32_t ms) {
     while (ms > 0) {
-        ms -= k_msleep(ms);
+        ms = k_msleep(ms);
     }
 }
 
@@ -369,6 +370,12 @@ int sunrise_init()
     printf("                 reserved_6: %d\n", meter_ctrl.reserved_6);
     printf("                 reserved_7: %d\n", meter_ctrl.reserved_7);
 
+    if (meter_ctrl.pressure_compensation_dis) {
+        LOG_INF("Enabling pressure compensation");
+        meter_ctrl.pressure_compensation_dis = 0;
+        CHK(Write_MeterControl(meter_ctrl));
+    }
+
     return 0;
 }
 
@@ -399,6 +406,18 @@ int sunrise_read()
 bool sunrise_is_faulted()
 {
     return false;
+}
+
+int sunrise_update_pressure(const float pressure_hpa)
+{
+    const int16_t pressure_0p1_hpa = pressure_hpa * 10;
+    if (state.pressure_0p1_hpa == pressure_0p1_hpa) {
+        return 0;
+    }
+    CHK(Write_BarometricAirPressure(pressure_0p1_hpa));
+    state.pressure_0p1_hpa = pressure_0p1_hpa;
+    LOG_INF("pressure update: %d e-1 hPa", pressure_0p1_hpa);
+    return 0;
 }
 
 SENSOR_DEFINE(sunrise);

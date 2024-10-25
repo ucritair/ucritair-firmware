@@ -14,6 +14,7 @@ static int32_t io_deinit() { return 0; }
 static int32_t io_get_tick() {
     LOG_ERR("%s not implemented", __PRETTY_FUNCTION__);
     k_panic();
+    return 0;
 }
 static void io_delay(uint32_t) {
     LOG_ERR("%s not implemented", __PRETTY_FUNCTION__);
@@ -76,6 +77,7 @@ int lps22hh_read()
     CHK(LPS22HH_TEMP_GetTemperature(&obj, &temp));
     CHK(LPS22HH_PRESS_GetPressure(&obj, &pressure));
     LOG_INF("temp=%.2f  pressure=%.2f", temp, pressure);
+    sunrise_update_pressure(pressure);
     return 0;
 }
 
