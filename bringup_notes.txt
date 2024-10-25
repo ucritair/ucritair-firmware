@@ -29,3 +29,42 @@ index 5b3d472a21d..b6c6671bfd1 100644
   const uint32_t val = BIT(config->gpio.pin);
   struct onoff_manager *mgr =
     z_nrf_clock_control_get_onoff(CLOCK_CONTROL_NRF_SUBSYS_HF);
+
+diff --git a/drivers/wifi/nrfwifi/src/qspi/src/rpu_hw_if.c b/drivers/wifi/nrfwifi/src/qspi/src/rpu_hw_if.c
+index c5f909b4c3a..160be297c55 100644
+--- a/drivers/wifi/nrfwifi/src/qspi/src/rpu_hw_if.c
++++ b/drivers/wifi/nrfwifi/src/qspi/src/rpu_hw_if.c
+@@ -183,13 +183,13 @@ static int rpu_gpio_config(void)
+    return -ENODEV;
+  }
+ 
+- ret = gpio_pin_configure_dt(&bucken_spec, (GPIO_OUTPUT | NRF_GPIO_DRIVE_H0H1));
++ ret = gpio_pin_configure_dt(&bucken_spec, (GPIO_OUTPUT | NRF_GPIO_DRIVE_H0H1 | GPIO_OUTPUT_INACTIVE));
+  if (ret) {
+    LOG_ERR("BUCKEN GPIO configuration failed...");
+    return ret;
+  }
+ 
+- ret = gpio_pin_configure_dt(&iovdd_ctrl_spec, GPIO_OUTPUT);
++ ret = gpio_pin_configure_dt(&iovdd_ctrl_spec, GPIO_OUTPUT | GPIO_OUTPUT_INACTIVE);
+  if (ret) {
+    LOG_ERR("IOVDD GPIO configuration failed...");
+    gpio_pin_configure_dt(&bucken_spec, GPIO_DISCONNECTED);
+@@ -231,7 +231,7 @@ static int rpu_pwron(void)
+    return ret;
+  }
+  /* Settling time is 50us (H0) or 100us (L0) */
+- k_msleep(1);
++ k_msleep(5);
+ 
+  ret = gpio_pin_set_dt(&iovdd_ctrl_spec, 1);
+  if (ret) {
+@@ -240,7 +240,7 @@ static int rpu_pwron(void)
+    return ret;
+  }
+  /* Settling time for iovdd nRF7002 DK/EK - switch (TCK106AG): ~600us */
+- k_msleep(1);
++ k_msleep(5);
+ 
+  if ((bucken_spec.port == iovdd_ctrl_spec.port) &&
+      (bucken_spec.pin == iovdd_ctrl_spec.pin)) {
