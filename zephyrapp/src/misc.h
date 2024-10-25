@@ -10,3 +10,4 @@ void test_i2c();
 void turn_on_5v0();
 void turn_on_leds();
 void test_leds();
+void report_ns2009();
