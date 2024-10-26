@@ -22,6 +22,7 @@ LOG_MODULE_REGISTER(sample, LOG_LEVEL_INF);
 
 #include "epaper.h"
 #include "misc.h"
+#include "ble.h"
 
 #include <zephyr/logging/log_ctrl.h>
 
@@ -288,6 +289,12 @@ int main(void)
 	// LOG_INF("Going to adc test");
 	// test_adc();
 
+	// const struct device* sdcard_dev = DEVICE_DT_GET_ONE(zephyr_sdmmc_disk);
+
+	LOG_INF("Testing SDcard");
+
+	test_sdcard();
+
 	LOG_INF("Testing flash");
 
 	const struct device *flash_dev = DEVICE_DT_GET_ONE(jedec_spi_nor);
@@ -424,6 +431,9 @@ int main(void)
 
 	LOG_INF("test i2c");
 	test_i2c();
+
+	LOG_INF("Going to BLE test");
+	ble_main();
 
 	while (1)
 	{

@@ -12,3 +12,4 @@ void turn_on_leds();
 void test_leds();
 void report_ns2009();
 void test_adc();
+void test_sdcard();
