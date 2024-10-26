@@ -432,26 +432,27 @@ int main(void)
 	LOG_INF("test i2c");
 	test_i2c();
 
-	LOG_INF("Going to BLE test");
-	ble_main();
+	// LOG_INF("Going to BLE test");
+	// ble_main();
 
-	while (1)
-	{
-		k_msleep(1000);
-		report_ns2009();
-	}
+	// while (1)
+	// {
+	// 	k_msleep(1000);
+	// 	report_ns2009();
+	// }
 
+	// LOG_INF("Testing epaper");
 	// test_epaper();
 
 	// LOG_INF("Running LCD test");
 
-	k_msleep(1000);
+	// k_msleep(1000);
 
-	while (1)
-	{
-		// LOG_INF("Mainloop running...");
-		k_msleep(10000);
-	}
+	// while (1)
+	// {
+	// 	LOG_INF("Mainloop running...");
+	// 	k_msleep(10000);
+	// }
 
 	display_dev = DEVICE_DT_GET_OR_NULL(DT_CHOSEN(zephyr_display));
 	if (!device_is_ready(display_dev)) {

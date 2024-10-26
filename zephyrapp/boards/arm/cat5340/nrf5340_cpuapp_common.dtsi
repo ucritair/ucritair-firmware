@@ -170,6 +170,15 @@ arduino_spi: &spi4 {
 	pinctrl-names = "default", "sleep";
 };
 
+display_spi: &spi2 {
+	compatible = "nordic,nrf-spim";
+	status = "okay";
+	cs-gpios = <&gpio0 16 GPIO_ACTIVE_LOW>; // LCD CSn only
+	pinctrl-0 = <&spi2_default>;
+	pinctrl-1 = <&spi2_sleep>;
+	pinctrl-names = "default", "sleep";
+};
+
 
 
 &ieee802154 {

@@ -8,9 +8,9 @@
 
 
 	mipi_dbi_st7789v_waveshare_240x240 {
-		status = "disabled";
+		status = "okay";
 		compatible = "zephyr,mipi-dbi-spi";
-		spi-dev = <&arduino_spi>;
+		spi-dev = <&display_spi>;
 		dc-gpios = <&gpio0 12 GPIO_ACTIVE_HIGH>;
 		reset-gpios = <&gpio0 25 GPIO_ACTIVE_LOW>;
 		write-only;
@@ -18,7 +18,7 @@
 		#size-cells = <0>;
 
 		st7789v_st7789v_waveshare_240x240: st7789v@0 {
-			status = "disabled";
+			status = "okay";
 			compatible = "sitronix,st7789v";
 			mipi-max-frequency = <200000>;
 			reg = <0>;
@@ -149,14 +149,14 @@
     };
 
     sdhc0: sdhc@2 {
-            compatible = "zephyr,sdhc-spi-slot";
-            reg = <2>;
+        compatible = "zephyr,sdhc-spi-slot";
+        reg = <2>;
+        status = "okay";
+        mmc {
+            compatible = "zephyr,sdmmc-disk";
             status = "okay";
-            mmc {
-                compatible = "zephyr,sdmmc-disk";
-                status = "okay";
-            };
-            spi-max-frequency = <24000000>;
+        };
+        spi-max-frequency = <24000000>;
     };
 };
 
