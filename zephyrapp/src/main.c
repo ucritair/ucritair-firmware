@@ -442,6 +442,176 @@ int main(void)
 	// 	report_ns2009();
 	// }
 
+	display_dev = DEVICE_DT_GET_OR_NULL(DT_CHOSEN(zephyr_display));
+	if (!device_is_ready(display_dev)) {
+		LOG_ERR("Device %s not found. Aborting sample.",
+			display_dev->name);
+		LOG_PANIC();
+		while (1)
+		{
+			LOG_ERR("dev not found");
+			k_msleep(1000);
+		}
+#ifdef CONFIG_ARCH_POSIX
+		posix_exit_main(1);
+#else
+		return 0;
+#endif
+	}
+
+	LOG_INF("Display sample for %s", display_dev->name);
+	display_get_capabilities(display_dev, &capabilities);
+	LOG_INF("Xres: %d, Yres: %d", capabilities.x_resolution, capabilities.y_resolution);
+
+	if (capabilities.screen_info & SCREEN_INFO_MONO_VTILED) {
+		rect_w = 16;
+		rect_h = 8;
+	} else {
+		rect_w = 2;
+		rect_h = 1;
+	}
+
+	if ((capabilities.x_resolution < 3 * rect_w) ||
+	    (capabilities.y_resolution < 3 * rect_h) ||
+	    (capabilities.x_resolution < 8 * rect_h)) {
+		rect_w = capabilities.x_resolution * 40 / 100;
+		rect_h = capabilities.y_resolution * 40 / 100;
+		h_step = capabilities.y_resolution * 20 / 100;
+		scale = 1;
+	} else {
+		h_step = rect_h;
+		scale = (capabilities.x_resolution / 8) / rect_h;
+	}
+
+	rect_w *= scale;
+	rect_h *= scale;
+
+	if (capabilities.screen_info & SCREEN_INFO_EPD) {
+		grey_scale_sleep = 10000;
+	} else {
+		grey_scale_sleep = 100;
+	}
+
+	buf_size = rect_w * rect_h;
+
+	if (buf_size < (capabilities.x_resolution * h_step)) {
+		buf_size = capabilities.x_resolution * h_step;
+	}
+
+	switch (capabilities.current_pixel_format) {
+	case PIXEL_FORMAT_ARGB_8888:
+		LOG_INF("Selected format PIXEL_FORMAT_ARGB_8888");
+		bg_color = 0xFFu;
+		fill_buffer_fnc = fill_buffer_argb8888;
+		buf_size *= 4;
+		break;
+	case PIXEL_FORMAT_RGB_888:
+		LOG_INF("Selected format PIXEL_FORMAT_RGB_888");
+		bg_color = 0xFFu;
+		fill_buffer_fnc = fill_buffer_rgb888;
+		buf_size *= 3;
+		break;
+	case PIXEL_FORMAT_RGB_565:
+		LOG_INF("Selected format PIXEL_FORMAT_RGB_565");
+		bg_color = 0xFFu;
+		fill_buffer_fnc = fill_buffer_rgb565;
+		buf_size *= 2;
+		break;
+	case PIXEL_FORMAT_BGR_565:
+		LOG_INF("Selected format PIXEL_FORMAT_BGR_565");
+		bg_color = 0xFFu;
+		fill_buffer_fnc = fill_buffer_bgr565;
+		buf_size *= 2;
+		break;
+	case PIXEL_FORMAT_MONO01:
+		LOG_INF("Selected format PIXEL_FORMAT_MONO01");
+		bg_color = 0xFFu;
+		fill_buffer_fnc = fill_buffer_mono01;
+		buf_size = DIV_ROUND_UP(DIV_ROUND_UP(
+			buf_size, NUM_BITS(uint8_t)), sizeof(uint8_t));
+		break;
+	case PIXEL_FORMAT_MONO10:
+		LOG_INF("Selected format PIXEL_FORMAT_MONO10");
+		bg_color = 0x00u;
+		fill_buffer_fnc = fill_buffer_mono10;
+		buf_size = DIV_ROUND_UP(DIV_ROUND_UP(
+			buf_size, NUM_BITS(uint8_t)), sizeof(uint8_t));
+		break;
+	default:
+		LOG_ERR("Unsupported pixel format. Aborting sample.");
+		while (1)
+		{
+			LOG_ERR("Unsupp pxformat");
+			k_msleep(1000);
+		}
+	}
+
+	LOG_INF("Alloc");
+
+	buf = k_malloc(buf_size);
+
+	if (buf == NULL) {
+		LOG_ERR("Could not allocate memory. Aborting sample.");
+		while (1)
+		{
+			LOG_ERR("Couldn't allocate");
+			k_msleep(1000);
+		}
+	}
+
+	LOG_INF("memset");
+
+	(void)memset(buf, bg_color, buf_size);
+
+	buf_desc.buf_size = buf_size;
+	buf_desc.pitch = capabilities.x_resolution;
+	buf_desc.width = capabilities.x_resolution;
+	buf_desc.height = h_step;
+
+	LOG_INF("yres cap write");
+
+	for (int idx = 0; idx < capabilities.y_resolution; idx += h_step) {
+		/*
+		 * Tweaking the height value not to draw outside of the display.
+		 * It is required when using a monochrome display whose vertical
+		 * resolution can not be divided by 8.
+		 */
+		if ((capabilities.y_resolution - idx) < h_step) {
+			buf_desc.height = (capabilities.y_resolution - idx);
+		}
+		display_write(display_dev, 0, idx, &buf_desc, buf);
+	}
+
+	buf_desc.pitch = rect_w;
+	buf_desc.width = rect_w;
+	buf_desc.height = rect_h;
+
+
+	LOG_INF("topleft");
+
+	fill_buffer_fnc(TOP_LEFT, 0, buf, buf_size);
+	x = 0;
+	y = 0;
+	display_write(display_dev, x, y, &buf_desc, buf);
+
+	LOG_INF("topright");
+
+	fill_buffer_fnc(TOP_RIGHT, 0, buf, buf_size);
+	x = capabilities.x_resolution - rect_w;
+	y = 0;
+	display_write(display_dev, x, y, &buf_desc, buf);
+
+	LOG_INF("bottomright");
+
+	fill_buffer_fnc(BOTTOM_RIGHT, 0, buf, buf_size);
+	x = capabilities.x_resolution - rect_w;
+	y = capabilities.y_resolution - rect_h;
+	display_write(display_dev, x, y, &buf_desc, buf);
+
+	LOG_INF("blanking off");
+
+	display_blanking_off(display_dev);
+
 	while (1)
 	{
 		pc_set_mode(false);
@@ -458,162 +628,13 @@ int main(void)
 		// {
 		// 	LOG_INF("Mainloop running...");
 		// 	k_msleep(10000);
-		// }
-
-		display_dev = DEVICE_DT_GET_OR_NULL(DT_CHOSEN(zephyr_display));
-		if (!device_is_ready(display_dev)) {
-			LOG_ERR("Device %s not found. Aborting sample.",
-				display_dev->name);
-			LOG_PANIC();
-			while (1)
-			{
-				LOG_ERR("dev not found");
-				k_msleep(1000);
-			}
-	#ifdef CONFIG_ARCH_POSIX
-			posix_exit_main(1);
-	#else
-			return 0;
-	#endif
-		}
-
-		LOG_INF("Display sample for %s", display_dev->name);
-		display_get_capabilities(display_dev, &capabilities);
-		LOG_INF("Xres: %d, Yres: %d", capabilities.x_resolution, capabilities.y_resolution);
-
-		if (capabilities.screen_info & SCREEN_INFO_MONO_VTILED) {
-			rect_w = 16;
-			rect_h = 8;
-		} else {
-			rect_w = 2;
-			rect_h = 1;
-		}
-
-		if ((capabilities.x_resolution < 3 * rect_w) ||
-		    (capabilities.y_resolution < 3 * rect_h) ||
-		    (capabilities.x_resolution < 8 * rect_h)) {
-			rect_w = capabilities.x_resolution * 40 / 100;
-			rect_h = capabilities.y_resolution * 40 / 100;
-			h_step = capabilities.y_resolution * 20 / 100;
-			scale = 1;
-		} else {
-			h_step = rect_h;
-			scale = (capabilities.x_resolution / 8) / rect_h;
-		}
-
-		rect_w *= scale;
-		rect_h *= scale;
-
-		if (capabilities.screen_info & SCREEN_INFO_EPD) {
-			grey_scale_sleep = 10000;
-		} else {
-			grey_scale_sleep = 100;
-		}
-
-		buf_size = rect_w * rect_h;
-
-		if (buf_size < (capabilities.x_resolution * h_step)) {
-			buf_size = capabilities.x_resolution * h_step;
-		}
-
-		switch (capabilities.current_pixel_format) {
-		case PIXEL_FORMAT_ARGB_8888:
-			bg_color = 0xFFu;
-			fill_buffer_fnc = fill_buffer_argb8888;
-			buf_size *= 4;
-			break;
-		case PIXEL_FORMAT_RGB_888:
-			bg_color = 0xFFu;
-			fill_buffer_fnc = fill_buffer_rgb888;
-			buf_size *= 3;
-			break;
-		case PIXEL_FORMAT_RGB_565:
-			bg_color = 0xFFu;
-			fill_buffer_fnc = fill_buffer_rgb565;
-			buf_size *= 2;
-			break;
-		case PIXEL_FORMAT_BGR_565:
-			bg_color = 0xFFu;
-			fill_buffer_fnc = fill_buffer_bgr565;
-			buf_size *= 2;
-			break;
-		case PIXEL_FORMAT_MONO01:
-			bg_color = 0xFFu;
-			fill_buffer_fnc = fill_buffer_mono01;
-			buf_size = DIV_ROUND_UP(DIV_ROUND_UP(
-				buf_size, NUM_BITS(uint8_t)), sizeof(uint8_t));
-			break;
-		case PIXEL_FORMAT_MONO10:
-			bg_color = 0x00u;
-			fill_buffer_fnc = fill_buffer_mono10;
-			buf_size = DIV_ROUND_UP(DIV_ROUND_UP(
-				buf_size, NUM_BITS(uint8_t)), sizeof(uint8_t));
-			break;
-		default:
-			LOG_ERR("Unsupported pixel format. Aborting sample.");
-			while (1)
-			{
-				LOG_ERR("Unsupp pxformat");
-				k_msleep(1000);
-			}
-		}
-
-		buf = k_malloc(buf_size);
-
-		if (buf == NULL) {
-			LOG_ERR("Could not allocate memory. Aborting sample.");
-			while (1)
-			{
-				LOG_ERR("Couldn't allocate");
-				k_msleep(1000);
-			}
-		}
-
-		(void)memset(buf, bg_color, buf_size);
-
-		buf_desc.buf_size = buf_size;
-		buf_desc.pitch = capabilities.x_resolution;
-		buf_desc.width = capabilities.x_resolution;
-		buf_desc.height = h_step;
-
-		for (int idx = 0; idx < capabilities.y_resolution; idx += h_step) {
-			/*
-			 * Tweaking the height value not to draw outside of the display.
-			 * It is required when using a monochrome display whose vertical
-			 * resolution can not be divided by 8.
-			 */
-			if ((capabilities.y_resolution - idx) < h_step) {
-				buf_desc.height = (capabilities.y_resolution - idx);
-			}
-			display_write(display_dev, 0, idx, &buf_desc, buf);
-		}
-
-		buf_desc.pitch = rect_w;
-		buf_desc.width = rect_w;
-		buf_desc.height = rect_h;
-
-		fill_buffer_fnc(TOP_LEFT, 0, buf, buf_size);
-		x = 0;
-		y = 0;
-		display_write(display_dev, x, y, &buf_desc, buf);
-
-		fill_buffer_fnc(TOP_RIGHT, 0, buf, buf_size);
-		x = capabilities.x_resolution - rect_w;
-		y = 0;
-		display_write(display_dev, x, y, &buf_desc, buf);
-
-		fill_buffer_fnc(BOTTOM_RIGHT, 0, buf, buf_size);
-		x = capabilities.x_resolution - rect_w;
-		y = capabilities.y_resolution - rect_h;
-		display_write(display_dev, x, y, &buf_desc, buf);
-
-		display_blanking_off(display_dev);
+		// }		
 
 		grey_count = 0;
 		x = 0;
 		y = capabilities.y_resolution - rect_h;
 
-		for (int cnt = 0; cnt < 10; cnt++)
+		for (int cnt = 0; cnt < 20; cnt++)
 		{
 			fill_buffer_fnc(BOTTOM_LEFT, grey_count, buf, buf_size);
 			display_write(display_dev, x, y, &buf_desc, buf);
@@ -623,10 +644,8 @@ int main(void)
 			int s = scan_matrix();
 			for (int i = 0; i < 8; i++) str[i] += (s>>i)&1;
 			LOG_INF("Cycling... matrix=%02x %s, cnt=%d", s, str, cnt);
-			k_msleep(grey_scale_sleep);
+			// k_msleep(1);
 		}
-
-		k_free(buf);
 	}
 
 	return 0;
