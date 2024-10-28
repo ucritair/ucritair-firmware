@@ -14,7 +14,16 @@ LOG_MODULE_REGISTER(sample, LOG_LEVEL_INF);
 #include <zephyr/device.h>
 #include <zephyr/drivers/display.h>
 
+#include <zephyr/kernel.h>
+#include <zephyr/sys/printk.h>
+#include <zephyr/usb/usb_device.h>
+#include <zephyr/usb/usbd.h>
+#include <zephyr/drivers/uart.h>
+
 #include "epaper.h"
+#include "misc.h"
+
+#include <zephyr/logging/log_ctrl.h>
 
 #ifdef CONFIG_ARCH_POSIX
 #include "posix_board_if.h"
@@ -180,8 +189,30 @@ static inline void fill_buffer_mono10(enum corner corner, uint8_t grey,
 	fill_buffer_mono(corner, grey, 0xFFu, 0x00u, buf, buf_size);
 }
 
+// static const struct spi_dt_spec spi_spec =
+// 	SPI_DT_SPEC_GET(NRF7002_NODE, SPI_WORD_SET(8) | SPI_TRANSFER_MSB, 0);
+
 int main(void)
 {
+	const struct device *dev;
+
+	dev = DEVICE_DT_GET(DT_CHOSEN(zephyr_shell_uart));
+	if (!device_is_ready(dev) || usb_enable(NULL)) {
+		return 0;
+	}
+
+	uint32_t dtr = 0;
+	while (!dtr) {
+		uart_line_ctrl_get(dev, UART_LINE_CTRL_DTR, &dtr);
+		LOG_INF("Waiting for DTR...");
+		k_sleep(K_MSEC(1000));
+	}
+
+	LOG_INF("CAT Application Started");
+	LOG_PANIC();
+
+	
+
 	size_t x;
 	size_t y;
 	size_t rect_w;
@@ -198,16 +229,52 @@ int main(void)
 	size_t buf_size = 0;
 	fill_buffer fill_buffer_fnc = NULL;
 
-	LOG_INF("Running epaper test");
+	k_msleep(500);
 
-	test_epaper();
+	// LOG_INF("Running epaper test");
+
+	LOG_INF("Wake up regulators");
+	turn_on_3v3();
+	turn_on_5v0();
+	turn_on_leds();
+
+	LOG_INF("Turn on backlight");
+	turn_on_backlight();
+
+	LOG_INF("Test speakeR");
+	test_speaker();
+
+	LOG_INF("Test leds");
+	test_leds();
+
+	LOG_INF("init matrix");
+	init_matrix();
+
+	LOG_INF("test i2c");
+	test_i2c();
+
+	// test_epaper();
 
 	LOG_INF("Running LCD test");
 
-	display_dev = DEVICE_DT_GET(DT_CHOSEN(zephyr_display));
+	k_msleep(1000);
+
+	// while (1)
+	// {
+	// 	// LOG_INF("Mainloop running...");
+	// 	k_msleep(10000);
+	// }
+
+	display_dev = DEVICE_DT_GET_OR_NULL(DT_CHOSEN(zephyr_display));
 	if (!device_is_ready(display_dev)) {
 		LOG_ERR("Device %s not found. Aborting sample.",
 			display_dev->name);
+		LOG_PANIC();
+		while (1)
+		{
+			LOG_ERR("dev not found");
+			k_msleep(1000);
+		}
 #ifdef CONFIG_ARCH_POSIX
 		posix_exit_main(1);
 #else
@@ -289,22 +356,22 @@ int main(void)
 		break;
 	default:
 		LOG_ERR("Unsupported pixel format. Aborting sample.");
-#ifdef CONFIG_ARCH_POSIX
-		posix_exit_main(1);
-#else
-		return 0;
-#endif
+		while (1)
+		{
+			LOG_ERR("Unsupp pxformat");
+			k_msleep(1000);
+		}
 	}
 
 	buf = k_malloc(buf_size);
 
 	if (buf == NULL) {
 		LOG_ERR("Could not allocate memory. Aborting sample.");
-#ifdef CONFIG_ARCH_POSIX
-		posix_exit_main(1);
-#else
-		return 0;
-#endif
+		while (1)
+		{
+			LOG_ERR("Couldn't allocate");
+			k_msleep(1000);
+		}
 	}
 
 	(void)memset(buf, bg_color, buf_size);
@@ -355,16 +422,17 @@ int main(void)
 		fill_buffer_fnc(BOTTOM_LEFT, grey_count, buf, buf_size);
 		display_write(display_dev, x, y, &buf_desc, buf);
 		++grey_count;
+		
+		char str[]={'0', '0', '0', '0', '0', '0', '0', '0', 0};
+		int s = scan_matrix();
+		for (int i = 0; i < 8; i++) str[i] += (s>>i)&1;
+		LOG_INF("Cycling... matrix=%02x %s", s, str);
 		k_msleep(grey_scale_sleep);
-#if CONFIG_TEST
-		if (grey_count >= 1024) {
-			break;
-		}
-#endif
 	}
 
-#ifdef CONFIG_ARCH_POSIX
-	posix_exit_main(0);
-#endif
 	return 0;
 }
+
+#ifdef CONFIG_NRF70_ON_QSPI
+#error NRF70 is on SPI not QSPI
+#endif

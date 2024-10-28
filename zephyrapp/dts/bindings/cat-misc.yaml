@@ -1,26 +1,29 @@
 # Copyright (c) 2023 Libre Solar Technologies GmbH
 # SPDX-License-Identifier: Apache-2.0
 
-description: Epaper
+description: Misc
 
-compatible: "epaper-display"
+compatible: "cat-misc"
 
 properties:
-  sclk-gpios:
+  buck-enable-gpios:
     type: phandle-array
     required: true
-  data-gpios:
+  sen55-boost-enable-gpios:
     type: phandle-array
     required: true
-  csn-gpios:
+  lcd-backlight-gpios:
     type: phandle-array
     required: true
-  dc-gpios:
+  speaker-gpios:
     type: phandle-array
     required: true
-  rst-gpios:
+  btn-row-gpios:
     type: phandle-array
     required: true
-  busy-gpios:
+  btn-col-gpios:
+    type: phandle-array
+    required: true
+  led-enable-gpios:
     type: phandle-array
     required: true
