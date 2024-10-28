@@ -1,18 +1,26 @@
-CFLAGS = -g -Wall -std=c++11
+CFLAGS = -g -Wall
 
 INCS = `pkg-config --cflags glew`
 INCS += `pkg-config --cflags glfw3`
 INCS += `pkg-config --cflags libpng`
-INCS += -Iimgui
 
 LIBS = `pkg-config --static --libs glew`
 LIBS += `pkg-config --static --libs glfw3`
 LIBS += `pkg-config --static --libs libpng`
 LIBS += -framework OpenGL
 
-OBJS = $(wildcard imgui/bin/*.o)
+MAIN_SRCS = cat_main.c
+MODULE_SRCS = $(filter-out $(MAIN_SRCS), $(wildcard *.c));
 
-SRCS = cat_sim.cpp
+OBJS = $(addsuffix .o, $(basename $(notdir $(MODULE_SRCS))))
 
-cat_sim: $(SRCS)
-	c++ $(CFLAGS) $(INCS) $(LIBS) $(OBJS) $(SRCS) -o cat_sim
+%.o: %.c
+	cc -c $(CFLAGS) $(INCS) $(LIBS) $< -o $@
+
+cat_sim: $(MAIN_SRCS) $(OBJS)
+	cc $(CFLAGS) $(INCS) $(LIBS) $(MAIN_SRCS) $(OBJS) -o cat_main
+
+clean:
+	trash *.o
+	trash *.dSYM
+	trash cat_main
