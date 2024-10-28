@@ -263,6 +263,8 @@ void single_sector_test(const struct device *flash_dev)
 	}
 }
 
+uint16_t screen_buffer[320*240];
+
 int main(void)
 {
 	const struct device *dev;
@@ -546,9 +548,9 @@ int main(void)
 		}
 	}
 
-	LOG_INF("Alloc");
+	LOG_INF("Alloc %d bytes", buf_size);;
 
-	buf = k_malloc(buf_size);
+	buf = screen_buffer; //k_malloc(buf_size);
 
 	if (buf == NULL) {
 		LOG_ERR("Could not allocate memory. Aborting sample.");
