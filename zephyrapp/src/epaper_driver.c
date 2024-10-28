@@ -8,6 +8,7 @@ LOG_MODULE_REGISTER(epaper, LOG_LEVEL_DBG);
 #include <hal/nrf_gpio.h>
 
 #include "misc.h"
+#include "epaper_driver.h"
 
 
 static const struct gpio_dt_spec pin_sclk =
@@ -265,23 +266,18 @@ void cmd_initialize()
 	send_write_command(0x00, 2, psr_data);
 }
 
-#define IMAGE_W 128
-#define IMAGE_H 248
-#define IMAGE_PX (IMAGE_W * IMAGE_H)
-#define IMAGE_BYTES (IMAGE_PX / 8)
-
 void cmd_write_image(uint8_t* image_data)
 {
 	LOG_DBG("Issue 0x10 write image");
 	// Global update mode
 	// DTM1 = New image
-	send_write_command(0x10, IMAGE_BYTES, image_data);
+	send_write_command(0x10, EPD_IMAGE_BYTES, image_data);
 
 	LOG_DBG("Issue 0x13 write dummy");
 
 	// DTM2 = Dummy image
 	send_write_command(0x13, 0, NULL);
-	for (int i = 0; i < IMAGE_BYTES; i++)
+	for (int i = 0; i < EPD_IMAGE_BYTES; i++)
 	{
 		write_byte(0x00);
 	}
@@ -311,68 +307,6 @@ void cmd_turn_off_dcdc()
 	// TODO: Turn off power
 }
 
-void cmd_turn_on_and_write(uint8_t* image)
-{
-	cmd_poweron();
-	cmd_read_psr_data();
-	cmd_initialize();
-	cmd_write_image(image);
-	cmd_update();
-	cmd_turn_off_dcdc();
-}
-
-uint8_t test_image[IMAGE_BYTES] = {0};
-
-void write_px(uint8_t* image, int x, int y, bool val)
-{
-	if (x > IMAGE_W || y > IMAGE_H) return;
-
-	int pxcount = (y * IMAGE_W) + x;
-	int bytecount = pxcount >> 3;
-	int bitcount = pxcount & 0b111;
-
-	if (val)
-	{
-		image[bytecount] |= 1<<(7-bitcount);
-	}
-	else
-	{
-		image[bytecount] &= ~(1<<(7-bitcount));
-	}
-}
-
-#include "font8x8_basic.h"
-
-void write_char(uint8_t* image, int x, int y, char c)
-{
-	for (int bx = 0; bx < 8; bx++)
-	{
-		for (int by = 0; by < 8; by++)
-		{
-			if (font8x8_basic[(int)c][by] & (1<<bx))
-			{
-				write_px(image, x+bx, y+by, 1);
-			}
-		}
-	}
-}
-
-void write_str(uint8_t* image, int x, int y, char* str)
-{
-	int ox = x;
-	while (*str)
-	{
-		write_char(image, x, y, *str);
-		x += 8;
-		if ((*str) == '\n')
-		{
-			x = ox;
-			y += 8;
-		}
-		str++;
-	}
-}
-
 #define PIN_FOREACH_X(X)\
 	X(pin_sclk, true)\
 	X(pin_data, true)\
@@ -381,125 +315,23 @@ void write_str(uint8_t* image, int x, int y, char* str)
 	X(pin_rst, true)\
 	X(pin_busy, false)
 
-
-
-void test_epaper()
+void cmd_turn_on_and_write(uint8_t* image)
 {
-
-	// init_pin(&pin_led0, "led0", GPIO_OUTPUT_ACTIVE);
-	// for (int i = 0; i < 40; i++)
-	// {
-	// 	LOG_INF("Wait %ds...", i);
-	// 	k_msleep(100);
-	// 	gpio_pin_toggle_dt(&pin_led0);
-	// }
-
+	// TODO: Is the nrf_gpio_... required?
 	#define X_INIT_PIN(p, output) \
 		init_pin(&p, #p, output?GPIO_OUTPUT_INACTIVE:(GPIO_INPUT|GPIO_PULL_UP));\
 		nrf_gpio_pin_control_select(NRF_GPIO_PIN_MAP(1, p.pin), NRF_GPIO_PIN_SEL_APP);
-		// if (!output) nrf_gpio_cfg_input(NRF_GPIO_PIN_MAP(1, p.pin), NRF_GPIO_PIN_PULLUP);
-		// nrf_gpio_cfg_output(NRF_GPIO_PIN_MAP(1, p.pin));
 	PIN_FOREACH_X(X_INIT_PIN);
-
-	// pin_set_mode(&pin_dc, true);
-
-	#define X_DISPLAY_PIN(p, output) \
-		LOG_DBG(#p ".port->name = '%s' (output=%d)", p.port->name, output); \
-		LOG_DBG(#p ".pin = %d", p.pin); \
-		LOG_DBG(#p ".flags = %d", p.dt_flags);
-	PIN_FOREACH_X(X_DISPLAY_PIN)
 
 	pin_write(&pin_csn, true);
 	pin_write(&pin_rst, true);
 	pin_write(&pin_dc, true);
 
-	// while (1)
-	// {
-	// 	#define X_TOGGLE_PIN(p, output) if (output) gpio_pin_toggle_dt(&p);
-	// 	PIN_FOREACH_X(X_TOGGLE_PIN)
-
-	// 	k_msleep(50);
-
-	// 	LOG_DBG("Toggling... busy=%d", gpio_pin_get_dt(&pin_busy));
-	// }
-
-	for (int y = IMAGE_H/2; y < IMAGE_H; y += 5)
-	{
-		for (int x = 0; x < IMAGE_W; x++)
-		{
-			write_px(test_image, x, y, true);
-		}
-	}
-
-	write_str(test_image, 0, 0, "Hello, World!\nEINK ON ZEPHYR\nNo arduino crap\n:3 :3 :3 :3");
-
-	cmd_turn_on_and_write(test_image);
+	cmd_poweron();
+	cmd_read_psr_data();
+	cmd_initialize();
+	cmd_write_image(image);
+	cmd_update();
+	cmd_turn_off_dcdc();
 }
 
-#include <zephyr/init.h>
-#include <zephyr/drivers/gpio.h>
-#include <zephyr/drivers/pinctrl.h>
-
-PINCTRL_DT_DEV_CONFIG_DECLARE(DT_NODELABEL(spi2));
-
-// PINCTRL_DT_STATE_PINS_DEFINE(DT_NODELABEL(pinctrl), pc_alt_lcd);
-
-// static const struct pinctrl_state pc_alt_lcd[] = {
-// 	PINCTRL_DT_STATE_INIT(pc_alt_lcd, PINCTRL_STATE_DEFAULT),
-// };
-
-// PINCTRL_DT_STATE_PINS_DEFINE(DT_NODELABEL(pinctrl), pc_alt_epd);
-
-// static const struct pinctrl_state pc_alt_epd[] = {
-// 	PINCTRL_DT_STATE_INIT(pc_alt_epd, PINCTRL_STATE_DEFAULT),
-// };
-
-static const pinctrl_soc_pin_t pc_alt_lcd_pins[] = {
-	NRF_PSEL(SPIM_SCK, 0, 8),
-	NRF_PSEL_DISCONNECTED(SPIM_MISO),
-	NRF_PSEL(SPIM_MOSI, 0, 9)
-};
-
-// static const struct pinctrl_state pc_alt_lcd = {
-// 	.pins = pc_alt_lcd_pins,
-// 	.pin_cnt = sizeof(pc_alt_lcd_pins)/sizeof(pc_alt_lcd_pins[0]),
-// 	.id = 2
-// };
-
-static const pinctrl_soc_pin_t pc_alt_epd_pins[] = {
-	NRF_PSEL_DISCONNECTED(SPIM_SCK),
-	NRF_PSEL_DISCONNECTED(SPIM_MISO),
-	NRF_PSEL_DISCONNECTED(SPIM_MOSI)
-};
-
-// static const struct pinctrl_state pc_alt_epd = {
-// 	.pins = pc_alt_epd_pins,
-// 	.pin_cnt = sizeof(pc_alt_epd_pins)/sizeof(pc_alt_epd_pins[0]),
-// 	.id = 3
-// };
-
-void pc_set_mode(bool lcd)
-{
-	LOG_INF("pc_set_mode to %s", lcd?"lcd":"epd");
-	void* dev_cfg = NRF_SPIM2;
-
-	int e;
-
-	if (lcd)
-	{
-		e = pinctrl_configure_pins(pc_alt_lcd_pins, 3, (uintptr_t)dev_cfg);
-	}
-	else
-	{
-		e = pinctrl_configure_pins(pc_alt_epd_pins, 3, (uintptr_t)dev_cfg);
-	}
-
-	if (e)
-	{
-		while (1)
-		{
-			LOG_ERR("Pincontrol reconfigure for %s failed: %d", lcd?"lcd":"epd", e);
-			k_msleep(1000);
-		}
-	}
-}
