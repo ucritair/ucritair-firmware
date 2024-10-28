@@ -20,7 +20,7 @@ void CAT_shader_init(char* vert_src, char* frag_src)
 	char log[512];
 
 	simulator.vert_id = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(simulator.vert_id, 1, &vert_src, NULL);
+	glShaderSource(simulator.vert_id, 1, (const char* const*)&vert_src, NULL);
 	glCompileShader(simulator.vert_id);
 	glGetShaderiv(simulator.vert_id, GL_COMPILE_STATUS, &status);
 	if(status != GL_TRUE)
@@ -30,7 +30,7 @@ void CAT_shader_init(char* vert_src, char* frag_src)
 	}
 	
 	simulator.frag_id = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(simulator.frag_id, 1, &frag_src, NULL);
+	glShaderSource(simulator.frag_id, 1, (const char* const*)&frag_src, NULL);
 	glCompileShader(simulator.frag_id);
 	glGetShaderiv(simulator.frag_id, GL_COMPILE_STATUS, &status);
 	if(status != GL_TRUE)
