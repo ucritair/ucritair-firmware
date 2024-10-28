@@ -11,20 +11,11 @@ void CAT_input_init()
 		input.mask[i] = false;
 		input.last[i] = false;
 		input.time[i] = 0;
+		input.pulse[i] = 0;	
 	}
 }
 
-bool CAT_input_pressed(int button)
-{
-	return input.mask[button] && !input.last[button];
-}
-
-bool CAT_input_held(int button, float t)
-{
-	return input.mask[button] && input.time[button] >= t;
-}
-
-void CAT_input_tick(float dt)
+void CAT_input_tick()
 {
 	uint16_t mask = CAT_get_buttons();
 
@@ -37,6 +28,48 @@ void CAT_input_tick(float dt)
 		if(old_state != input.mask[i])
 			input.time[i] = 0;
 		else
-			input.time[i] += dt;
+			input.time[i] += simulator.delta_time;
 	}
+
+	CAT_get_touch(&input.touch);
+}
+
+bool CAT_input_pressed(int button)
+{
+	return input.mask[button] && !input.last[button];
+}
+
+bool CAT_input_held(int button, float t)
+{
+	return input.mask[button] && input.time[button] >= t;
+}
+
+bool CAT_input_pulse(int button)
+{
+	if(input.mask[button] && input.time[button] < 0.5f)
+		return !input.last[button];
+
+	bool pulse = false;
+	if(input.mask[button])
+	{
+		if(input.pulse[button] == 0)
+			pulse = true;
+		input.pulse[button] += simulator.delta_time;
+		if(input.pulse[button] >= 0.1f)
+			input.pulse[button] = 0;
+	}
+	return pulse;
+}
+
+bool CAT_input_touch(int x, int y, float r)
+{
+	if(input.touch.pressure > 0)
+	{
+		int x_t = input.touch.x;
+		int y_t = input.touch.y;
+		int x_d = x - x_t;
+		int y_d = y - y_t;
+		return x_d*x_d + y_d*y_d <= r*r;
+	}
+	return false;
 }

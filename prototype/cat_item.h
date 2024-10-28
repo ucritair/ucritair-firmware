@@ -75,6 +75,7 @@ extern int chair_item_id;
 extern int table_item_id;
 extern int coffee_item_id;
 extern int device_item_id;
+extern int seed_item_id;
 
 void CAT_item_mass_define();
 

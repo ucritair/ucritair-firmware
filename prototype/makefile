@@ -3,10 +3,12 @@ CFLAGS = -g -Wall
 INCS = `pkg-config --cflags glew`
 INCS += `pkg-config --cflags glfw3`
 INCS += `pkg-config --cflags libpng`
+INCS += `pkg-config --cflags openal`
 
 LIBS = `pkg-config --static --libs glew`
 LIBS += `pkg-config --static --libs glfw3`
 LIBS += `pkg-config --static --libs libpng`
+LIBS += `pkg-config --static --libs openal`
 LIBS += -framework OpenGL
 
 MAIN_SRCS = cat_main.c

@@ -11,7 +11,10 @@
 #define CAT_DRAW_QUEUE_MAX_LENGTH 128
 #define CAT_ANIM_MAX_LENGTH 16
 #define CAT_ANIM_TABLE_MAX_LENGTH 128
-#define CAT_ANIMATOR_MAX_LENGTH 128
+#define CAT_ANIM_QUEUE_MAX_LENGTH 128
+
+#define CAT_TILE_SIZE 16
+
 
 //////////////////////////////////////////////////////////////////////////
 // ATLAS AND SPRITER
@@ -38,6 +41,7 @@ extern CAT_atlas atlas;
 
 void CAT_atlas_init(const char* path);
 int CAT_atlas_add(int x, int y, int w, int h);
+void CAT_atlas_cleanup();
 
 typedef enum CAT_draw_mode
 {
@@ -58,6 +62,7 @@ extern CAT_spriter spriter;
 void CAT_spriter_init();
 void CAT_draw_sprite(int x, int y, int sprite_id);
 void CAT_draw_tiles(int y_t, int h_t, int sprite_id);
+void CAT_spriter_cleanup();
 
 //////////////////////////////////////////////////////////////////////////
 // DRAW QUEUE
@@ -101,14 +106,15 @@ typedef struct CAT_anim_table
 extern CAT_anim_table anim_table;
 
 void CAT_anim_table_init();
-int CAT_anim_init();
+int CAT_anim_init(bool looping);
 CAT_anim* CAT_anim_get(int anim_id);
 void CAT_anim_add(int anim_id, int sprite_id);
+void CAT_anim_import(int anim_id, int* sprite_id, int start, int count);
 void CAT_anim_tick(int anim_id);
 int CAT_anim_frame(int anim_id);
 
 //////////////////////////////////////////////////////////////////////////
-// ANIMATOR
+// ANIM QUEUE
 
 typedef struct CAT_anim_job
 {
@@ -119,19 +125,19 @@ typedef struct CAT_anim_job
 	int mode;
 } CAT_anim_job;
 
-typedef struct CAT_animator
+typedef struct CAT_anim_queue
 {
-	CAT_anim_job jobs[CAT_ANIMATOR_MAX_LENGTH];
+	CAT_anim_job jobs[CAT_ANIM_QUEUE_MAX_LENGTH];
 	int length;
 	
 	float period;
 	float timer;
- } CAT_animator;
-extern CAT_animator animator;
+ } CAT_anim_queue;
+extern CAT_anim_queue anim_queue;
 
-void CAT_animator_init();
-void CAT_animator_add(int anim_id, int layer, int x, int y, int mode);
-void CAT_animator_submit();
+void CAT_anim_queue_init();
+void CAT_anim_queue_add(int anim_id, int layer, int x, int y, int mode);
+void CAT_anim_queue_submit();
 
 //////////////////////////////////////////////////////////////////////////
 // ID DECLARATIONS
@@ -139,12 +145,16 @@ void CAT_animator_submit();
 extern int wall_sprite_id[3];
 extern int floor_sprite_id[3];
 extern int pet_sprite_id[13];
+extern int feed_sprite_id[10];
+extern int study_sprite_id[10];
+extern int play_sprite_id[10];
 extern int vending_sprite_id[13];
 extern int pot_sprite_id[7];
 extern int chair_sprite_id[4];
 extern int table_sprite_id;
 extern int coffee_sprite_id[2];
 extern int device_sprite_id;
+extern int seed_sprite_id[6];
 
 extern int cursor_sprite_id[4];
 extern int vigor_sprite_id;
@@ -161,10 +171,14 @@ extern int exit_sprite_id;
 extern int select_sprite_id;
 extern int arrow_sprite_id;
 extern int item_sprite_id;
+extern int cell_sprite_id[4];
 	
 extern int idle_anim_id;
 extern int walk_anim_id;
-extern int mood_anim_id;
+extern int death_anim_id;
+extern int feed_anim_id;
+extern int study_anim_id;
+extern int play_anim_id;
 extern int vending_anim_id;
 extern int pot_anim_id;
 extern int chair_anim_id;

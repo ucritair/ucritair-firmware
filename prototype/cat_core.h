@@ -3,8 +3,12 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+
 #include <GL/glew.h> 
 #include <GLFW/glfw3.h>
+#include <AL/al.h>
+#include <AL/alc.h>
+#include <pthread.h>
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // DEV MODE
@@ -12,16 +16,13 @@
 typedef struct CAT_simulator
 {
     GLFWwindow* lcd;
-    
     GLuint vao_id;
     GLuint vbo_id;
-
     GLuint tex_id;
-    
-    int vert_id;
-    int frag_id;
-    int prog_id;
-    int tex_loc;    
+    GLuint prog_id;
+    GLuint tex_loc;    
+
+	ALuint al_src_id;
 
     float time;
     float delta_time;
@@ -30,6 +31,7 @@ extern CAT_simulator simulator;
 
 void CAT_simulator_init();
 void CAT_simulator_tick();
+void CAT_simulator_cleanup();
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -52,6 +54,11 @@ void CAT_LCD_set_backlight(int percent);
 void CAT_eink_post(uint8_t* buffer);
 bool CAT_eink_is_posted();
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// SPEAKER
+
+void CAT_play_tone(float pitch_hz, float time_s);
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // INPUT
@@ -70,6 +77,15 @@ typedef enum CAT_button
 } CAT_button;
 
 uint16_t CAT_get_buttons();
+
+typedef struct CAT_touch
+{
+	uint16_t x;
+	uint16_t y;
+	uint16_t pressure;
+} CAT_touch;
+
+void CAT_get_touch(CAT_touch* touch);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // TIME

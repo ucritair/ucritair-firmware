@@ -3,6 +3,8 @@
 #include <time.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <pthread.h>
+#include <math.h>
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // DEV MODE
@@ -19,29 +21,29 @@ void CAT_shader_init(char* vert_src, char* frag_src)
 	int status;
 	char log[512];
 
-	simulator.vert_id = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(simulator.vert_id, 1, &vert_src, NULL);
-	glCompileShader(simulator.vert_id);
-	glGetShaderiv(simulator.vert_id, GL_COMPILE_STATUS, &status);
+	int vert_id = glCreateShader(GL_VERTEX_SHADER);
+	glShaderSource(vert_id, 1, &vert_src, NULL);
+	glCompileShader(vert_id);
+	glGetShaderiv(vert_id, GL_COMPILE_STATUS, &status);
 	if(status != GL_TRUE)
 	{
-		glGetShaderInfoLog(simulator.vert_id, 512, NULL, log);
+		glGetShaderInfoLog(vert_id, 512, NULL, log);
 		printf("While compiling vertex shader:\n%s\n", log);
 	}
 	
-	simulator.frag_id = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(simulator.frag_id, 1, &frag_src, NULL);
-	glCompileShader(simulator.frag_id);
-	glGetShaderiv(simulator.frag_id, GL_COMPILE_STATUS, &status);
+	int frag_id = glCreateShader(GL_FRAGMENT_SHADER);
+	glShaderSource(frag_id, 1, &frag_src, NULL);
+	glCompileShader(frag_id);
+	glGetShaderiv(frag_id, GL_COMPILE_STATUS, &status);
 	if(status != GL_TRUE)
 	{
-		glGetShaderInfoLog(simulator.frag_id, 512, NULL, log);
+		glGetShaderInfoLog(frag_id, 512, NULL, log);
 		printf("While compiling fragment shader:\n%s\n", log);
 	}
 
 	simulator.prog_id = glCreateProgram();
-	glAttachShader(simulator.prog_id, simulator.vert_id);
-	glAttachShader(simulator.prog_id, simulator.frag_id);
+	glAttachShader(simulator.prog_id, vert_id);
+	glAttachShader(simulator.prog_id, frag_id);
 	glLinkProgram(simulator.prog_id);
 	glGetProgramiv(simulator.prog_id, GL_LINK_STATUS, &status);
 	if(status != GL_TRUE)
@@ -49,6 +51,8 @@ void CAT_shader_init(char* vert_src, char* frag_src)
 		glGetShaderInfoLog(simulator.prog_id, 512, NULL, log);
 		printf("While linking shader program:\n%s\n", log);
 	}
+	glDeleteShader(vert_id);
+	glDeleteShader(frag_id);
 }
 
 void CAT_simulator_init()
@@ -68,7 +72,7 @@ void CAT_simulator_init()
 	simulator.lcd = glfwCreateWindow(LCD_SCREEN_W, LCD_SCREEN_H, "CAT", NULL, NULL);
 	if(simulator.lcd == NULL)
 	{
-		printf("Failed to create lcd\n");
+		printf("Failed to create window\n");
 	}
 
 	glfwMakeContextCurrent(simulator.lcd);
@@ -128,6 +132,28 @@ void CAT_simulator_init()
 	CAT_shader_init(vert_src, frag_src);
 
 	simulator.tex_loc = glGetUniformLocation(simulator.prog_id, "tex");
+
+	ALCdevice* al_device = alcOpenDevice(NULL);
+	if(al_device == NULL)
+	{
+		printf("Failed to open audio device\n");
+	}
+
+	ALCcontext* al_context = alcCreateContext(al_device, NULL);
+	if(!alcMakeContextCurrent(al_context))
+	{
+		printf("Failed to activate OpenAL context\n");
+	}
+
+	alGenSources(1, &simulator.al_src_id);
+	alSourcef(simulator.al_src_id, AL_PITCH, 1);
+	alSourcef(simulator.al_src_id, AL_GAIN, 1);
+	alSource3f(simulator.al_src_id, AL_POSITION, 0, 0, 0);
+	alSource3f(simulator.al_src_id, AL_VELOCITY, 0, 0, 0);
+	alSourcei(simulator.al_src_id, AL_LOOPING, AL_FALSE);
+
+	simulator.time = glfwGetTime();
+	simulator.delta_time = 0;
 }
 
 void CAT_simulator_tick()
@@ -137,6 +163,16 @@ void CAT_simulator_tick()
 	simulator.time = time;
 
 	glfwPollEvents();
+}
+
+void CAT_simulator_cleanup()
+{
+	alDeleteSources(1, &simulator.al_src_id);
+
+	glDeleteShader(simulator.prog_id);
+	glDeleteTextures(1, &simulator.tex_id);
+	glDeleteBuffers(1, &simulator.vbo_id);
+	glDeleteVertexArrays(1, &simulator.vao_id);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -185,6 +221,32 @@ bool CAT_ink_is_posted()
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// SPEAKER
+
+void CAT_play_tone(float pitch_hz, float time_s)
+{
+	ALsizei rate = 22050;
+	ALsizei count = rate * time_s;
+	ALsizei size = sizeof(int16_t) * count;
+	int16_t* samples = malloc(size);
+	for(int i = 0; i < count; i++)
+	{
+		float p = 2 * M_PI * pitch_hz;
+		float t = (float) i / (float) rate;
+		samples[i] = 32767 * sin(p * t);
+	}
+
+	ALuint buf;
+	alGenBuffers(1, &buf);
+	alBufferData(buf, AL_FORMAT_MONO16, samples, size, rate);
+	alSourcei(simulator.al_src_id, AL_BUFFER, buf);
+	alSourcePlay(simulator.al_src_id);
+	alDeleteBuffers(1, &buf);
+	free(samples);
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // INPUT
 
 int input_map[CAT_BUTTON_LAST] =
@@ -211,6 +273,15 @@ uint16_t CAT_get_buttons()
 		}
 	}
 	return mask;
+}
+
+void CAT_get_touch(CAT_touch* touch)
+{
+	double x, y;
+	glfwGetCursorPos(simulator.lcd, &x, &y);
+	touch->x = x;
+	touch->y = y;
+	touch->pressure = glfwGetMouseButton(simulator.lcd, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS;
 }
 
 
