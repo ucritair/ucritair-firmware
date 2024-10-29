@@ -125,8 +125,8 @@ bool CAT_place_prop(int prop_id, CAT_ivec2 place)
 	return true;
 }
 
-CAT_vec2 treat_pos = (CAT_vec2) {-1.0f, -1.0f}; 
-CAT_vec2 treat_targ = (CAT_vec2) {-1.0f, -1.0f};
+CAT_vec2 bauble_pos = (CAT_vec2) {-1.0f, -1.0f}; 
+CAT_vec2 bauble_targ = (CAT_vec2) {-1.0f, -1.0f};
 
 typedef struct CAT_room_gui
 {
@@ -185,15 +185,13 @@ void CAT_room_gui_logic()
 				{
 					case 0:
 						CAT_pet_feed(seed_item_id);
-						CAT_play_tone(440.0f, 1.0f);
+						bauble_targ = (CAT_vec2) {rand_float(room.min.x, room.max.x), rand_float(room.min.y, room.max.y)};
 						break;
 					case 1:
 						pet.status = CAT_PET_STATUS_STUDY;
-						CAT_play_tone(440.0f, 1.0f);
 						break;
 					case 2:
 						pet.status = CAT_PET_STATUS_PLAY;
-						CAT_play_tone(440.0f, 1.0f);
 						break;
 				}
 			}
@@ -400,8 +398,7 @@ int main(int argc, char** argv)
 	CAT_item_table_init();
 	CAT_item_mass_define();
 	
-	CAT_gui gui;
-	CAT_gui_init(&gui, panel_sprite_id, glyph_sprite_id);
+	CAT_gui_init(panel_sprite_id, glyph_sprite_id);
 
 	game_mode = CAT_GAME_MODE_ROOM;
 	CAT_room_init();
@@ -462,37 +459,37 @@ int main(int argc, char** argv)
 					{
 						int x_off = (pet_mode & CAT_DRAW_MODE_REFLECT_X) > 0 ? 16 : -16;
 						CAT_anim_queue_add(idle_anim_id, 2, pet.pos.x, pet.pos.y, pet_mode);
-						CAT_anim_queue_add(feed_anim_id, 3, pet.pos.x + x_off, pet.pos.y - 48, pet_mode);
+						CAT_anim_queue_add(fed_anim_id, 3, pet.pos.x + x_off, pet.pos.y - 48, pet_mode);
 						break;
 					}
 					case CAT_PET_STATUS_STUDY:
 					{
 						int x_off = (pet_mode & CAT_DRAW_MODE_REFLECT_X) > 0 ? 16 : -16;
 						CAT_anim_queue_add(idle_anim_id, 2, pet.pos.x, pet.pos.y, pet_mode);
-						CAT_anim_queue_add(study_anim_id, 3, pet.pos.x + x_off, pet.pos.y - 48, pet_mode);
+						CAT_anim_queue_add(studied_anim_id, 3, pet.pos.x + x_off, pet.pos.y - 48, pet_mode);
 						break;
 					}
 					case CAT_PET_STATUS_PLAY:
 					{
 						int x_off = (pet_mode & CAT_DRAW_MODE_REFLECT_X) > 0 ? 16 : -16;
 						CAT_anim_queue_add(idle_anim_id, 2, pet.pos.x, pet.pos.y, pet_mode);
-						CAT_anim_queue_add(play_anim_id, 3, pet.pos.x + x_off, pet.pos.y - 48, pet_mode);
+						CAT_anim_queue_add(played_anim_id, 3, pet.pos.x + x_off, pet.pos.y - 48, pet_mode);
 						break;
 					}
 					case CAT_PET_STATUS_PET:
 					{
 						int x_off = (pet_mode & CAT_DRAW_MODE_REFLECT_X) > 0 ? 16 : -16;
 						CAT_anim_queue_add(idle_anim_id, 2, pet.pos.x, pet.pos.y, pet_mode);
-						CAT_anim_queue_add(feed_anim_id, 3, pet.pos.x + x_off, pet.pos.y - 48, pet_mode);
+						CAT_anim_queue_add(fed_anim_id, 3, pet.pos.x + x_off, pet.pos.y - 48, pet_mode);
 						break;
 					}
 				}
 				
 				if(room_gui.mode == 0)
 					CAT_draw_queue_add(cursor_sprite_id[0], 3, room_gui.cursor.x * 16, room_gui.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
-				CAT_draw_queue_add(vigor_sprite_id, 3, 40, 294, CAT_DRAW_MODE_CENTER_X | CAT_DRAW_MODE_CENTER_Y); 
-				CAT_draw_queue_add(focus_sprite_id, 3, 120, 294, CAT_DRAW_MODE_CENTER_X | CAT_DRAW_MODE_CENTER_Y); 
-				CAT_draw_queue_add(soul_sprite_id, 3, 200, 294, CAT_DRAW_MODE_CENTER_X | CAT_DRAW_MODE_CENTER_Y); 
+				CAT_draw_queue_add(feed_button_sprite_id, 3, 40, 294, CAT_DRAW_MODE_CENTER_X | CAT_DRAW_MODE_CENTER_Y); 
+				CAT_draw_queue_add(study_button_sprite_id, 3, 120, 294, CAT_DRAW_MODE_CENTER_X | CAT_DRAW_MODE_CENTER_Y); 
+				CAT_draw_queue_add(play_button_sprite_id, 3, 200, 294, CAT_DRAW_MODE_CENTER_X | CAT_DRAW_MODE_CENTER_Y); 
 				if(room_gui.mode == 1)
 				{
 					if(room_gui.selection == 0)
@@ -510,84 +507,80 @@ int main(int argc, char** argv)
 			}
 			case CAT_GAME_MODE_MENU:
 			{
-				CAT_gui_panel(&gui, (CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});  
-				CAT_gui_text(&gui, "MENU");
-				CAT_gui_same_line(&gui);
-				CAT_gui_image(&gui, a_sprite_id);
-				CAT_gui_same_line(&gui);
-				CAT_gui_image(&gui, enter_sprite_id);
-				CAT_gui_same_line(&gui);
-				CAT_gui_image(&gui, b_sprite_id);
-				CAT_gui_same_line(&gui);
-				CAT_gui_image(&gui, exit_sprite_id);
+				CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});  
+				CAT_gui_text("MENU");
+				CAT_gui_image(a_sprite_id);
+				CAT_gui_image(enter_sprite_id);
+				CAT_gui_image(b_sprite_id);
+				CAT_gui_image(exit_sprite_id);
 
-				CAT_gui_panel(&gui, (CAT_ivec2) {0, 32}, (CAT_ivec2) {15, 18});  
+				CAT_gui_panel((CAT_ivec2) {0, 32}, (CAT_ivec2) {15, 18});  
 				for(int i = 0; i < 3; i++)
 				{
-					CAT_gui_text(&gui, "#");
-					CAT_gui_same_line(&gui);
-					CAT_gui_text(&gui, menu_gui.items[i]);
+					CAT_gui_text("#");
+					CAT_gui_text(menu_gui.items[i]);
 
 					if(i == menu_gui.idx)
-					{
-						CAT_gui_same_line(&gui);
-						CAT_gui_image(&gui, select_sprite_id);
-					}
+						CAT_gui_image(select_sprite_id);
+
+					CAT_gui_line_break();
 				}
 				
 				break;
 			}
 			case CAT_GAME_MODE_STATS:
 			{
-				CAT_gui_panel(&gui, (CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});  
-				CAT_gui_text(&gui, "STATS");
-				CAT_gui_same_line(&gui);
-				CAT_gui_image(&gui, b_sprite_id);
-				CAT_gui_same_line(&gui);
-				CAT_gui_image(&gui, exit_sprite_id);
+				CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});  
+				CAT_gui_text("STATS");
+				CAT_gui_image(b_sprite_id);
+				CAT_gui_image(exit_sprite_id);
 
-				CAT_gui_panel(&gui, (CAT_ivec2) {0, 32}, (CAT_ivec2) {15, 18});  
-				CAT_gui_image(&gui, pet_sprite_id[0]); 
-				CAT_gui_text(&gui, "Vigour:");
+				CAT_gui_panel((CAT_ivec2) {0, 32}, (CAT_ivec2) {15, 18});  
+				CAT_gui_image(pet_sprite_id[0]); 
+				CAT_gui_line_break();
+
+				CAT_gui_image(vigour_sprite_id);
+				CAT_gui_text("VIG");
 				for(int i = 1; i <= 12; i++)
 				{
-					CAT_gui_same_line(&gui);
 					if(i <= pet.vigour)
-						CAT_gui_image(&gui, cell_sprite_id[0]);
+						CAT_gui_image(cell_sprite_id[0]);
 					else
-						CAT_gui_image(&gui, cell_sprite_id[3]);
+						CAT_gui_image(cell_sprite_id[3]);
 				}
-				CAT_gui_text(&gui, "Focus:");
+				CAT_gui_line_break();
+
+				CAT_gui_image(focus_sprite_id);
+				CAT_gui_text("FOC");
 				for(int i = 1; i <= 12; i++)
 				{
-					CAT_gui_same_line(&gui);
 					if(i <= pet.focus)
-						CAT_gui_image(&gui, cell_sprite_id[1]);
+						CAT_gui_image(cell_sprite_id[1]);
 					else
-						CAT_gui_image(&gui, cell_sprite_id[3]);
+						CAT_gui_image(cell_sprite_id[3]);
 				}
-				CAT_gui_text(&gui, "Spirit:");
+				CAT_gui_line_break();
+
+				CAT_gui_image(spirit_sprite_id);
+				CAT_gui_text("SPI");
 				for(int i = 1; i <= 12; i++)
 				{
-					CAT_gui_same_line(&gui);
 					if(i <= pet.spirit)
-						CAT_gui_image(&gui, cell_sprite_id[2]);
+						CAT_gui_image(cell_sprite_id[2]);
 					else
-						CAT_gui_image(&gui, cell_sprite_id[3]);
+						CAT_gui_image(cell_sprite_id[3]);
 				}
 
 				break;
 			}
 			case CAT_GAME_MODE_BAG:
 			{
-				CAT_gui_panel(&gui, (CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});  
-				CAT_gui_text(&gui, "BAG");
-				CAT_gui_same_line(&gui);
-				CAT_gui_image(&gui, b_sprite_id);
-				CAT_gui_same_line(&gui);
-				CAT_gui_image(&gui, exit_sprite_id);
+				CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});  
+				CAT_gui_text("BAG");
+				CAT_gui_image(b_sprite_id);
+				CAT_gui_image(exit_sprite_id);
 
-				CAT_gui_panel(&gui, (CAT_ivec2) {0, 32}, (CAT_ivec2) {15, 18});
+				CAT_gui_panel((CAT_ivec2) {0, 32}, (CAT_ivec2) {15, 18});
 				for(int i = 0; i < bag_gui.window; i++)
 				{
 					int item_id = bag_gui.base + i;
@@ -597,17 +590,15 @@ int main(int argc, char** argv)
 					if(item->count <= 0)
 						continue;
 
-					CAT_gui_panel(&gui, (CAT_ivec2) {0, 32+i*32}, (CAT_ivec2) {15, 2});
-					CAT_gui_image(&gui, item_sprite_id); 
-					CAT_gui_same_line(&gui);
+					CAT_gui_panel((CAT_ivec2) {0, 32+i*32}, (CAT_ivec2) {15, 2});
+					CAT_gui_image(item_sprite_id); 
 					char text[64];
 					sprintf(text, "%s *%d", item->name, item->count);
-					CAT_gui_text(&gui, text);
+					CAT_gui_text(text);
 
 					if(item_id == bag_gui.idx)
 					{
-						CAT_gui_same_line(&gui);
-						CAT_gui_image(&gui, select_sprite_id);
+						CAT_gui_image(select_sprite_id);
 					}
 				}
 

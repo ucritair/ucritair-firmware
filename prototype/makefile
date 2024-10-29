@@ -11,18 +11,16 @@ LIBS += `pkg-config --static --libs libpng`
 LIBS += `pkg-config --static --libs openal`
 LIBS += -framework OpenGL
 
-MAIN_SRCS = cat_main.c
-MODULE_SRCS = $(filter-out $(MAIN_SRCS), $(wildcard *.c));
+MAIN_SRCS = src/cat_main.c
+MODULE_SRCS = $(filter-out $(MAIN_SRCS), $(wildcard src/*.c));
 
-OBJS = $(addsuffix .o, $(basename $(notdir $(MODULE_SRCS))))
+OBJS = $(addprefix bin/, $(addsuffix .o, $(basename $(notdir $(MODULE_SRCS)))))
 
-%.o: %.c
+bin/%.o: src/%.c
 	cc -c $(CFLAGS) $(INCS) $(LIBS) $< -o $@
 
-cat_sim: $(MAIN_SRCS) $(OBJS)
-	cc $(CFLAGS) $(INCS) $(LIBS) $(MAIN_SRCS) $(OBJS) -o cat_main
+bin/cat_main: $(MAIN_SRCS) $(OBJS)
+	cc $(CFLAGS) $(INCS) $(LIBS) $(MAIN_SRCS) $(OBJS) -o $@
 
 clean:
-	trash *.o
-	trash *.dSYM
-	trash cat_main
+	trash bin/*

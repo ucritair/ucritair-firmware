@@ -26,16 +26,17 @@ typedef struct CAT_gui
 	int margin;
 
 	CAT_ivec2 cursor;
-	CAT_ivec2 cursor_last;
 	int channel_height;
 } CAT_gui;
+extern CAT_gui gui;
 
-void CAT_gui_init(CAT_gui* gui, int* tiles, int* glyphs);
-void CAT_gui_row(CAT_gui* gui, int stage);
-void CAT_gui_panel(CAT_gui* gui, CAT_ivec2 start, CAT_ivec2 shape);
-void CAT_gui_line_break(CAT_gui* gui);
-void CAT_gui_same_line(CAT_gui* gui);
-void CAT_gui_text(CAT_gui* gui, const char* text);
-void CAT_gui_image(CAT_gui* gui, int sprite_id);
+void CAT_gui_init(int* tiles, int* glyphs);
+void CAT_gui_row(int stage);
+void CAT_gui_panel(CAT_ivec2 start, CAT_ivec2 shape);
+void CAT_gui_open_channel(int height);
+void CAT_gui_line_break();
+void CAT_gui_same_line();
+void CAT_gui_text(const char* text);
+void CAT_gui_image(int sprite_id);
 
 #endif

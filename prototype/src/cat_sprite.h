@@ -106,10 +106,8 @@ typedef struct CAT_anim_table
 extern CAT_anim_table anim_table;
 
 void CAT_anim_table_init();
-int CAT_anim_init(bool looping);
+int CAT_anim_init(int* sprite_id, int length, bool looping);
 CAT_anim* CAT_anim_get(int anim_id);
-void CAT_anim_add(int anim_id, int sprite_id);
-void CAT_anim_import(int anim_id, int* sprite_id, int start, int count);
 void CAT_anim_tick(int anim_id);
 int CAT_anim_frame(int anim_id);
 
@@ -145,9 +143,12 @@ void CAT_anim_queue_submit();
 extern int wall_sprite_id[3];
 extern int floor_sprite_id[3];
 extern int pet_sprite_id[13];
-extern int feed_sprite_id[10];
-extern int study_sprite_id[10];
-extern int play_sprite_id[10];
+extern int fed_sprite_id[10];
+extern int studied_sprite_id[10];
+extern int played_sprite_id[10];
+extern int low_vigour_sprite_id[3];
+extern int low_spirit_sprite_id[3];
+extern int anger_sprite_id[3];
 extern int vending_sprite_id[13];
 extern int pot_sprite_id[7];
 extern int chair_sprite_id[4];
@@ -157,9 +158,9 @@ extern int device_sprite_id;
 extern int seed_sprite_id[6];
 
 extern int cursor_sprite_id[4];
-extern int vigor_sprite_id;
-extern int focus_sprite_id;
-extern int soul_sprite_id;
+extern int feed_button_sprite_id;
+extern int study_button_sprite_id;
+extern int play_button_sprite_id;
 extern int ring_hl_sprite_id;
 
 extern int panel_sprite_id[9];
@@ -172,13 +173,16 @@ extern int select_sprite_id;
 extern int arrow_sprite_id;
 extern int item_sprite_id;
 extern int cell_sprite_id[4];
+extern int vigour_sprite_id;
+extern int focus_sprite_id;
+extern int spirit_sprite_id;
 	
 extern int idle_anim_id;
 extern int walk_anim_id;
 extern int death_anim_id;
-extern int feed_anim_id;
-extern int study_anim_id;
-extern int play_anim_id;
+extern int fed_anim_id;
+extern int studied_anim_id;
+extern int played_anim_id;
 extern int vending_anim_id;
 extern int pot_anim_id;
 extern int chair_anim_id;

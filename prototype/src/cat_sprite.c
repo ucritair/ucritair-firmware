@@ -45,7 +45,7 @@ void CAT_atlas_init(const char* path)
 	atlas.alpha = CAT_malloc(sizeof(bool) * width * height);
 	for(int i = 0; i < width*height; i++)
 	{
-		uint8_t r_8 = bytes[i*4+0];
+		uint8_t r_8 = bytes[i*4];
 		uint8_t g_8 = bytes[i*4+1];
 		uint8_t b_8 = bytes[i*4+2];
 		uint8_t a_8 = bytes[i*4+3];
@@ -223,7 +223,7 @@ void CAT_anim_table_init()
 	anim_table.length = 0;
 }
 
-int CAT_anim_init(bool looping)
+int CAT_anim_init(int* sprite_id, int length, bool looping)
 {
 	if(anim_table.length >= CAT_ANIM_TABLE_MAX_LENGTH)
 		return -1;
@@ -232,7 +232,11 @@ int CAT_anim_init(bool looping)
 	anim_table.length += 1;
 
 	CAT_anim* anim = &anim_table.data[anim_id];
-	anim->length = 0;
+	for(int i = 0; i < length; i++)
+	{
+		anim->frames[i] = sprite_id[i];
+	}
+	anim->length = length;
 	anim->idx = 0;
 	anim->looping = looping;
 
@@ -244,28 +248,6 @@ CAT_anim* CAT_anim_get(int anim_id)
 	if(anim_id < 0 || anim_id >= CAT_ANIM_TABLE_MAX_LENGTH)
 		return NULL;
 	return &anim_table.data[anim_id];
-}
-
-void CAT_anim_add(int anim_id, int sprite_id)
-{
-	CAT_anim* anim = CAT_anim_get(anim_id);
-	if(anim->length >= CAT_ANIM_MAX_LENGTH)
-		return;
-	anim->frames[anim->length] = sprite_id;
-	anim->length += 1;
-}
-
-void CAT_anim_import(int anim_id, int* sprite_id, int start, int count)
-{
-	CAT_anim* anim = CAT_anim_get(anim_id);
-	anim->length = 0;
-
-	int end = start+count;
-	for(int i = start; i < end && anim->length < CAT_ANIM_MAX_LENGTH; i++)
-	{
-		anim->frames[anim->length] = sprite_id[i];
-		anim->length += 1;
-	}
 }
 
 void CAT_anim_tick(int anim_id)
@@ -338,9 +320,12 @@ void CAT_anim_queue_submit()
 int wall_sprite_id[3];
 int floor_sprite_id[3];
 int pet_sprite_id[13];
-int feed_sprite_id[10];
-int study_sprite_id[10];
-int play_sprite_id[10];
+int fed_sprite_id[10];
+int studied_sprite_id[10];
+int played_sprite_id[10];
+int low_vigour_sprite_id[3];
+int low_spirit_sprite_id[3];
+int anger_sprite_id[3];
 int vending_sprite_id[13];
 int pot_sprite_id[7];
 int chair_sprite_id[4];
@@ -350,9 +335,9 @@ int device_sprite_id;
 int seed_sprite_id[6];
 
 int cursor_sprite_id[4];
-int vigor_sprite_id;
-int focus_sprite_id;
-int soul_sprite_id;
+int feed_button_sprite_id;
+int study_button_sprite_id;
+int play_button_sprite_id;
 int ring_hl_sprite_id;
 
 int panel_sprite_id[9];
@@ -365,13 +350,19 @@ int select_sprite_id;
 int arrow_sprite_id;
 int item_sprite_id;
 int cell_sprite_id[4];
+int vigour_sprite_id;
+int focus_sprite_id;
+int spirit_sprite_id;
 
 int idle_anim_id;
 int walk_anim_id;
 int death_anim_id;
-int feed_anim_id;
-int study_anim_id;
-int play_anim_id;
+int fed_anim_id;
+int studied_anim_id;
+int played_anim_id;
+int low_vigour_anim_id;
+int low_spirit_anim_id;
+int anger_anim_id;
 int vending_anim_id;
 int pot_anim_id;
 int chair_anim_id;
@@ -392,15 +383,15 @@ void CAT_sprite_mass_define()
 	}
 	for(int i = 0; i < 10; i++)
 	{
-		feed_sprite_id[i] = CAT_atlas_add(256+21*i, 0, 21, 16);
+		fed_sprite_id[i] = CAT_atlas_add(256+21*i, 0, 21, 16);
+		studied_sprite_id[i] = CAT_atlas_add(256+21*i, 16, 21, 16);
+		played_sprite_id[i] = CAT_atlas_add(256+21*i, 32, 21, 16);
 	}
-	for(int i = 0; i < 10; i++)
+	for(int i = 0; i < 3; i++)
 	{
-		study_sprite_id[i] = CAT_atlas_add(256+21*i, 16, 21, 16);
-	}
-	for(int i = 0; i < 10; i++)
-	{
-		play_sprite_id[i] = CAT_atlas_add(256+21*i, 32, 21, 16);
+		low_vigour_sprite_id[i] = CAT_atlas_add(466+21*i, 0, 21, 21);
+		low_spirit_sprite_id[i] = CAT_atlas_add(466+21*i, 21, 21, 21);
+		anger_sprite_id[i] = CAT_atlas_add(299+21*i, 64, 21, 16);
 	}
 	for(int i = 0; i < 13; i++)
 	{
@@ -419,7 +410,7 @@ void CAT_sprite_mass_define()
 	{
 		coffee_sprite_id[i] = CAT_atlas_add(192+32*i, 48, 32, 48);
 	}
-	device_sprite_id = CAT_atlas_add(256, 48, 48, 48);
+	device_sprite_id = CAT_atlas_add(256, 48, 43, 48);
 	for(int i = 0; i < 3; i++)
 	{
 		seed_sprite_id[0+i] = CAT_atlas_add(192+16*i, 304, 16, 16);
@@ -430,9 +421,9 @@ void CAT_sprite_mass_define()
 	{
 		cursor_sprite_id[i] = CAT_atlas_add(288+16*i, 336, 16, 16);
 	}
-	vigor_sprite_id = CAT_atlas_add(128, 0, 32, 32);
-	focus_sprite_id = CAT_atlas_add(160, 0, 32, 32);
-	soul_sprite_id = CAT_atlas_add(192, 0, 32, 32);
+	feed_button_sprite_id = CAT_atlas_add(128, 0, 32, 32);
+	study_button_sprite_id = CAT_atlas_add(160, 0, 32, 32);
+	play_button_sprite_id = CAT_atlas_add(192, 0, 32, 32);
 	ring_hl_sprite_id = CAT_atlas_add(224, 0, 32, 32);
 
 	for(int i = 0; i < 3; i++)
@@ -456,29 +447,24 @@ void CAT_sprite_mass_define()
 	{
 		cell_sprite_id[i] = CAT_atlas_add(144+8*i, 32, 8, 16);
 	}
+	vigour_sprite_id = CAT_atlas_add(160, 160, 22, 24);
+	focus_sprite_id = CAT_atlas_add(206, 160, 22, 22);
+	spirit_sprite_id = CAT_atlas_add(182, 160, 24, 22);
 	
-	idle_anim_id = CAT_anim_init(true);
-	CAT_anim_import(idle_anim_id, pet_sprite_id, 0, 2);
-	walk_anim_id = CAT_anim_init(true);
-	CAT_anim_import(walk_anim_id, pet_sprite_id, 2, 2); 
-	death_anim_id = CAT_anim_init(false);
-	CAT_anim_import(death_anim_id, pet_sprite_id, 2, 9); 
-	feed_anim_id = CAT_anim_init(true);
-	CAT_anim_import(feed_anim_id, feed_sprite_id, 0, 10);
-	study_anim_id = CAT_anim_init(true);
-	CAT_anim_import(study_anim_id, study_sprite_id, 0, 10);
-	play_anim_id = CAT_anim_init(true);
-	CAT_anim_import(play_anim_id, play_sprite_id, 0, 10);
+	idle_anim_id = CAT_anim_init(pet_sprite_id, 2, true);
+	walk_anim_id = CAT_anim_init(pet_sprite_id+2, 2, true); 
+	death_anim_id = CAT_anim_init(pet_sprite_id+4, 9, false); 
+	fed_anim_id = CAT_anim_init(fed_sprite_id, 10, true);
+	studied_anim_id = CAT_anim_init(studied_sprite_id, 10, true);
+	played_anim_id = CAT_anim_init(played_sprite_id, 10, true);
+	low_vigour_anim_id = CAT_anim_init(low_vigour_sprite_id, 3, true);
+	low_spirit_anim_id = CAT_anim_init(low_spirit_sprite_id, 3, true);
+	anger_anim_id = CAT_anim_init(anger_sprite_id, 3, true);
 
-	vending_anim_id = CAT_anim_init(true);
-	CAT_anim_import(vending_anim_id, vending_sprite_id, 0, 13);
-	pot_anim_id = CAT_anim_init(true);
-	CAT_anim_import(pot_anim_id, pot_sprite_id, 0, 7);
-	chair_anim_id = CAT_anim_init(true);
-	CAT_anim_import(chair_anim_id, chair_sprite_id, 0, 4);
-	coffee_anim_id = CAT_anim_init(true);
-	CAT_anim_import(coffee_anim_id, coffee_sprite_id, 0, 2);
+	vending_anim_id = CAT_anim_init(vending_sprite_id, 13, true);
+	pot_anim_id = CAT_anim_init(pot_sprite_id, 7, true);
+	chair_anim_id = CAT_anim_init(chair_sprite_id, 4, true);
+	coffee_anim_id = CAT_anim_init(coffee_sprite_id, 2, true);
 
-	cursor_anim_id = CAT_anim_init(true);
-	CAT_anim_import(cursor_anim_id, cursor_sprite_id, 0, 4);
+	cursor_anim_id = CAT_anim_init(cursor_sprite_id, 4, true);
 }

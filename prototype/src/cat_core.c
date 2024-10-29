@@ -5,6 +5,9 @@
 #include <stdio.h>
 #include <pthread.h>
 #include <math.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/stat.h>
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // DEV MODE
@@ -321,6 +324,29 @@ void* CAT_malloc(int bytes)
 void CAT_free(void* ptr)
 {
 	free(ptr);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// STORAGE
+
+void CAT_write_save(uint8_t* in)
+{
+	int fd = open("cat.dat", O_WRONLY | O_CREAT | O_TRUNC);
+	write(fd, in, PERSISTENCE_PAGE_SIZE);
+	close(fd);
+}
+
+bool CAT_check_save()
+{
+	struct stat buf;
+	return stat("cat.dat", &buf) == 0;
+}
+
+void CAT_read_save(uint8_t* out)
+{
+	int fd = open("cat.dat", O_RDONLY);
+	read(fd, out, PERSISTENCE_PAGE_SIZE);
+	close(fd);
 }
 
 

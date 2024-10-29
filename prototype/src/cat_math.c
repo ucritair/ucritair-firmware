@@ -5,43 +5,6 @@
 #include <math.h>
 
 //////////////////////////////////////////////////////////////////////////
-// BASICS
-
-int min(int a, int b)
-{
-	return b < a ? b : a;
-}
-
-int max(int a, int b)
-{
-	return b > a ? b : a;
-}
-
-int clamp(int v, int a, int b)
-{
-	return min(max(v, a), b);
-}
-
-//////////////////////////////////////////////////////////////////////////
-// RANDOM
-
-void rand_init()
-{
-	srand(time(NULL));
-}
-
-int rand_int(int a, int b)
-{
-	return a + rand() / (RAND_MAX / (b - a + 1) + 1);
-}
-
-float rand_float(float a, float b)
-{
-	float scale = rand() / (float) RAND_MAX;
-	return a + scale * (b-a);
-}
-
-//////////////////////////////////////////////////////////////////////////
 // VEC2
 
 CAT_vec2 CAT_vec2_add(CAT_vec2 a, CAT_vec2 b)
@@ -106,6 +69,53 @@ float CAT_vec2_dist(CAT_vec2 a, CAT_vec2 b)
 CAT_ivec2 CAT_ivec2_add(CAT_ivec2 a, CAT_ivec2 b)
 {
 	return (CAT_ivec2) {a.x + b.x, a.y + b.y};
+}
+
+//////////////////////////////////////////////////////////////////////////
+// BASICS
+
+int min(int a, int b)
+{
+	return b < a ? b : a;
+}
+
+int max(int a, int b)
+{
+	return b > a ? b : a;
+}
+
+int clamp(int v, int a, int b)
+{
+	return min(max(v, a), b);
+}
+
+//////////////////////////////////////////////////////////////////////////
+// RANDOM
+
+void rand_init()
+{
+	srand(time(NULL));
+}
+
+int rand_int(int a, int b)
+{
+	return a + rand() / (RAND_MAX / (b - a + 1) + 1);
+}
+
+float rand_float(float a, float b)
+{
+	float scale = rand() / (float) RAND_MAX;
+	return a + scale * (b-a);
+}
+
+CAT_vec2 rand_vec2(CAT_vec2 min, CAT_vec2 max)
+{
+	return (CAT_vec2) {rand_float(min.x, max.x), rand_float(min.y, max.y)};
+}
+
+CAT_ivec2 rand_ivec2(CAT_ivec2 min, CAT_ivec2 max)
+{
+	return (CAT_ivec2) {rand_int(min.x, max.x), rand_int(min.y, max.y)};
 }
 
 //////////////////////////////////////////////////////////////////////////
