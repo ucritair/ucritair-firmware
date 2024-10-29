@@ -17,17 +17,21 @@ void sensor_read_once(void) {
     printf("Reading sensors...\n");
     ARRAY_FOR_EACH(sensors, i) {
         const struct sensor_t* const s = sensors[i];
-        if (s->is_faulted()) {
-            printf("[sensor:%s] Faulted\n", s->name);
-            continue;
-        } else if (s->is_ready(&is_ready) != 0) {
-            printf("[sensor:%s] Ready check failed\n", s->name);
-        } else if (!is_ready) {
-            /* not ready, take no action */
-        } else if (s->read() != 0) {
-            printf("[sensor:%s] Read failed\n", s->name);
-        } else {
-            printf("[sensor:%s] success!\n", s->name);
+        for (int retry = 0; retry < 2; retry++)
+        {
+            if (s->is_faulted()) {
+                printf("[sensor:%s] Faulted\n", s->name);
+                s->init();
+                continue;
+            } else if (s->is_ready(&is_ready) != 0) {
+                printf("[sensor:%s] Ready check failed\n", s->name);
+            } else if (!is_ready) {
+                /* not ready, take no action */
+            } else if (s->read() != 0) {
+                printf("[sensor:%s] Read failed\n", s->name);
+            } else {
+                printf("[sensor:%s] success!\n", s->name);
+            }
         }
     }
 }

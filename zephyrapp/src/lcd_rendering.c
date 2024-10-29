@@ -99,7 +99,7 @@ void lcd_render_diag()
 			"LPS22HH @ %lldms\nTemp: %.1fC\nPressure: %.1f?\n\n",
 			current_readings.lps22hh.uptime_last_updated, (double)current_readings.lps22hh.temp, (double)current_readings.lps22hh.pressure);
 		written += snprintf(buf+written, sizeof(buf)-written-1,
-			"Sunrise @ %lldms\nCO2: %dppm\n\n",
+			"Sunrise @ %lldms\nCO2: %.0fppm\n\n",
 			current_readings.sunrise.uptime_last_updated, current_readings.sunrise.ppm_filtered_compensated);
 		written += snprintf(buf+written, sizeof(buf)-written-1,
 			"SEN5x @ %lldms\nPM1.0: %.1f; PM2.5: %.1f\nPM4.0: %.1f; PM10.0: %.1f\nHumidity: %.1f%%RH; Temp: %.1fC\nVOC: %.1f; NOX: %.1f\n\n",

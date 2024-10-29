@@ -56,6 +56,7 @@ static struct lps22hh_state_t state = {0,};
 
 int lps22hh_init()
 {
+    memset(&obj, 0, sizeof(obj));
     CHK(LPS22HH_RegisterBusIO(&obj, &io));
     CHK(LPS22HH_Init(&obj));
     CHK(LPS22HH_TEMP_Enable(&obj));

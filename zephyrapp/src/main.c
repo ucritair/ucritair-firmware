@@ -25,6 +25,10 @@ int main(void)
 {
 	init_power_control();
 
+	set_5v0(false);
+	set_3v3(false);
+	k_msleep(100);
+
 	LOG_INF("~Test speaker~");
 	set_3v3(true);
 	test_speaker();
