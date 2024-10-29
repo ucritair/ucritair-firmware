@@ -28,18 +28,10 @@
 
 #include "airquality.h"
 
+#define VND_UUID_PFX(x) BT_UUID_128_ENCODE(0xfc7d4395, 0x1019, 0x49c4, 0xa91b, (0x7491ecc4ull<<16) | (unsigned long long)x)
+
 /* Custom Service Variables */
-#define BT_UUID_CUSTOM_SERVICE_VAL \
-	BT_UUID_128_ENCODE(0x12345678, 0x1234, 0x5678, 0x1234, 0x56789abcdef0)
-
-static const struct bt_uuid_128 vnd_uuid = BT_UUID_INIT_128(
-	BT_UUID_CUSTOM_SERVICE_VAL);
-
-static const struct bt_uuid_128 vnd_enc_uuid = BT_UUID_INIT_128(
-	BT_UUID_128_ENCODE(0x12345678, 0x1234, 0x5678, 0x1234, 0x56789abcdef1));
-
-static const struct bt_uuid_16 ess_uuid = BT_UUID_INIT_16(
-	BT_UUID_ESS_VAL);
+#define BT_UUID_CUSTOM_SERVICE_VAL VND_UUID_PFX(0x0000)
 
 #define VND_MAX_LEN 20
 
@@ -70,6 +62,15 @@ static ssize_t write_vnd(struct bt_conn *conn, const struct bt_gatt_attr *attr,
 	return len;
 }
 
+
+/* Vendor Primary Service Declaration */
+BT_GATT_SERVICE_DEFINE(vnd_svc,
+	BT_GATT_PRIMARY_SERVICE(BT_UUID_DECLARE_128(BT_UUID_CUSTOM_SERVICE_VAL)),
+	BT_GATT_CHARACTERISTIC(
+		BT_UUID_DECLARE_128(VND_UUID_PFX(0x0001)),
+		BT_GATT_CHRC_READ, BT_GATT_PERM_READ,
+		read_vnd, write_vnd, vnd_value),
+);
 
 static ssize_t ess_read_float_u16_x100(
     struct bt_conn *conn,
@@ -107,19 +108,8 @@ static ssize_t ess_read_float_pm(
     return bt_gatt_attr_read(conn, attr, buf, len, offset, &value, sizeof(value));
 }
 
-
-/* Vendor Primary Service Declaration */
-BT_GATT_SERVICE_DEFINE(vnd_svc,
-	BT_GATT_PRIMARY_SERVICE(&vnd_uuid),
-	BT_GATT_CHARACTERISTIC(&vnd_enc_uuid.uuid,
-			       BT_GATT_CHRC_READ,
-			       BT_GATT_PERM_READ |
-			       BT_GATT_PERM_WRITE,
-			       read_vnd, write_vnd, vnd_value),
-);
-
 BT_GATT_SERVICE_DEFINE(ess_svc,
-	BT_GATT_PRIMARY_SERVICE(&ess_uuid),
+	BT_GATT_PRIMARY_SERVICE(BT_UUID_ESS),
 	BT_GATT_CHARACTERISTIC(BT_UUID_TEMPERATURE,
         BT_GATT_CHRC_READ, BT_GATT_PERM_READ,
         ess_read_float_u16_x100, NULL, &current_readings.lps22hh.temp),
@@ -239,6 +229,7 @@ static void bas_notify(void)
 
 	bt_bas_set_battery_level(battery_level);
 }
+
 int ble_main(void)
 {
 	int err;
@@ -253,5 +244,5 @@ int ble_main(void)
 	bt_gatt_cb_register(&gatt_callbacks);
 	bt_conn_auth_cb_register(&auth_cb_display);
 
-	return;
+	return 0;
 }
