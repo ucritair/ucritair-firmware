@@ -18,7 +18,7 @@ static const struct gpio_dt_spec btn_cols[N_COLS] =
 	GPIO_DT_SPEC_GET_BY_IDX(DT_NODELABEL(cat_misc), btn_col_gpios, 1),
 };
 
-void init_matrix()
+void init_buttons()
 {
 	for (int i = 0; i < N_ROWS; i++)
 	{
@@ -32,9 +32,9 @@ void init_matrix()
 	}
 }
 
-uint16_t scan_matrix()
+uint8_t get_buttons()
 {
-	uint16_t bits = 0;
+	uint8_t bits = 0;
 
 	for (int col = 0; col < N_COLS; col++)
 	{
@@ -49,5 +49,5 @@ uint16_t scan_matrix()
 		k_usleep(25);
 	}
 
-	return bits;
+	return ~bits;
 }

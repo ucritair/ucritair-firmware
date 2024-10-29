@@ -22,6 +22,8 @@ int main(void)
 {
 	const struct device *dev;
 
+	init_power_control();
+
 	LOG_INF("~Test speaker~");
 	set_3v3(true);
 	test_speaker();
@@ -31,15 +33,17 @@ int main(void)
 		return 0;
 	}
 
-	uint32_t dtr = 0;
-	while (!dtr) {
-		uart_line_ctrl_get(dev, UART_LINE_CTRL_DTR, &dtr);
-		LOG_INF("Waiting for DTR...");
-		k_sleep(K_MSEC(1000));
-	}
+	// uint32_t dtr = 0;
+	// while (!dtr) {
+	// 	uart_line_ctrl_get(dev, UART_LINE_CTRL_DTR, &dtr);
+	// 	LOG_INF("Waiting for DTR...");
+	// 	k_sleep(K_MSEC(1000));
+	// }
 
 	LOG_INF("CAT Application Started");
 	LOG_PANIC();
+
+	init_buttons();
 
 	lcd_init();
 

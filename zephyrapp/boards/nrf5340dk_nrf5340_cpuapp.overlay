@@ -20,7 +20,7 @@
 		st7789v_st7789v_waveshare_240x240: st7789v@0 {
 			status = "okay";
 			compatible = "sitronix,st7789v";
-			mipi-max-frequency = <200000>;
+			mipi-max-frequency = <DT_FREQ_M(8)>;
 			reg = <0>;
 			width = <240>;
 			height = <320>;
