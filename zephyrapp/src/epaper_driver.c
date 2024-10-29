@@ -63,7 +63,7 @@ void std_sleep()
 {
 	uint32_t start = k_cycle_get_32();
 
-	while ((k_cycle_get_32() - start) < ((sys_clock_hw_cycles_per_sec() / 1e9) * 500))
+	while ((k_cycle_get_32() - start) < ((sys_clock_hw_cycles_per_sec() / 1e9) * EPD_RATE_NS_PER_CLOCK_PHASE))
 	{
 		;
 	}
@@ -192,12 +192,15 @@ void cmd_poweron()
 }
 
 uint8_t psr_data[2];
+bool psr_data_ok = false;
 
 // Read out OTP data required later
 // See: PDLS_EXT3_Basic_Fast/src/Screen_EPD_EXT3.cpp:COG_SmallKP_getDataOTP
 // See: https://www.pervasivedisplays.com/wp-content/uploads/2023/02/ApplicationNote_Small_Size_wide-Temperature_EPD_v03_20231031_B.pdf sec 4
 void cmd_read_psr_data()
 {
+	if (psr_data_ok) return;
+
 	LOG_DBG("Issue 0xA2 read OTP");
 
 	uint8_t bank_check[2];
@@ -252,6 +255,7 @@ void cmd_read_psr_data()
 
 	psr_data[0] = read_byte();
 	psr_data[1] = read_byte();
+	psr_data_ok = true;
 }
 
 void cmd_initialize()

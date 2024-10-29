@@ -437,6 +437,8 @@ int ble_main(void)
 	bt_uuid_to_str(&vnd_enc_uuid.uuid, str, sizeof(str));
 	printk("Indicate VND attr %p (UUID %s)\n", vnd_ind_attr, str);
 
+	return;
+
 	/* Implement notification. At the moment there is no suitable way
 	 * of starting delayed work so we do it here
 	 */

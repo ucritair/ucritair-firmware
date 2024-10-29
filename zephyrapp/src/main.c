@@ -17,21 +17,19 @@ LOG_MODULE_REGISTER(sample, LOG_LEVEL_INF);
 #include <zephyr/logging/log_ctrl.h>
 
 #include "lcd_driver.h"
+#include "lcd_rendering.h"
+#include "ble.h"
+#include "wlan.h"
 
 int main(void)
 {
-	const struct device *dev;
-
 	init_power_control();
 
 	LOG_INF("~Test speaker~");
 	set_3v3(true);
 	test_speaker();
 
-	dev = DEVICE_DT_GET(DT_CHOSEN(zephyr_shell_uart));
-	if (!device_is_ready(dev) || usb_enable(NULL)) {
-		return 0;
-	}
+	usb_enable(NULL);
 
 	// uint32_t dtr = 0;
 	// while (!dtr) {
@@ -45,10 +43,14 @@ int main(void)
 
 	init_buttons();
 
-	lcd_init();
+	ble_main();
+	set_mac();
 
-	while (1)
-	{
-		k_msleep(1000);
-	}
+	set_5v0(true);
+	k_msleep(50);
+
+	sensor_init();
+
+	lcd_init();
+	lcd_render_diag();
 }
