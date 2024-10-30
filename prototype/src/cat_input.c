@@ -39,6 +39,11 @@ bool CAT_input_pressed(int button)
 	return input.mask[button] && !input.last[button];
 }
 
+bool CAT_input_released(int button)
+{
+	return !input.mask[button] && input.last[button];
+}
+
 bool CAT_input_held(int button, float t)
 {
 	return input.mask[button] && input.time[button] >= t;

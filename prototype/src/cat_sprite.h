@@ -155,6 +155,7 @@ extern int chair_sprite_id[4];
 extern int table_sprite_id;
 extern int coffee_sprite_id[2];
 extern int device_sprite_id;
+extern int window_sprite_id; 
 extern int seed_sprite_id[6];
 
 extern int cursor_sprite_id[4];

@@ -332,6 +332,7 @@ int chair_sprite_id[4];
 int table_sprite_id;
 int coffee_sprite_id[2];
 int device_sprite_id;
+int window_sprite_id; 
 int seed_sprite_id[6];
 
 int cursor_sprite_id[4];
@@ -411,6 +412,7 @@ void CAT_sprite_mass_define()
 		coffee_sprite_id[i] = CAT_atlas_add(192+32*i, 48, 32, 48);
 	}
 	device_sprite_id = CAT_atlas_add(256, 48, 43, 48);
+	window_sprite_id = CAT_atlas_add(0, 96, 112, 61);
 	for(int i = 0; i < 3; i++)
 	{
 		seed_sprite_id[0+i] = CAT_atlas_add(192+16*i, 304, 16, 16);
