@@ -23,6 +23,7 @@ extern CAT_timetable timetable;
 void CAT_timetable_init();
 int CAT_timer_init(float duration);
 bool CAT_timer_tick(int timer_id);
+void CAT_timer_reset(int timer_id);
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -36,9 +37,8 @@ typedef enum CAT_machine_signal
 } CAT_machine_signal;
 
 typedef void (*CAT_machine_state)(CAT_machine_signal);
-extern CAT_machine_state machine;
 
-void CAT_machine_transition(CAT_machine_state state);
-void CAT_machine_tick();
+void CAT_machine_transition(CAT_machine_state* machine, CAT_machine_state state);
+void CAT_machine_tick(CAT_machine_state* machine);
 
 #endif

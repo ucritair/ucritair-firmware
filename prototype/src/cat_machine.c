@@ -35,23 +35,26 @@ bool CAT_timer_tick(int timer_id)
 	return false;
 }
 
+void CAT_timer_reset(int timer_id)
+{
+	timetable.timers[timer_id] = 0;
+}
+
 
 //////////////////////////////////////////////////////////////////////////
 // MACHINE
 
-CAT_machine_state machine;
-
-void CAT_machine_transition(CAT_machine_state state)
+void CAT_machine_transition(CAT_machine_state* machine, CAT_machine_state state)
 {
-	if(machine != NULL)
-		machine(CAT_MACHINE_SIGNAL_EXIT);
+	if(*machine != NULL)
+		(*machine)(CAT_MACHINE_SIGNAL_EXIT);
 	machine = state;
-	if(machine != NULL)
-		machine(CAT_MACHINE_SIGNAL_ENTER);
+	if(*machine != NULL)
+		(*machine)(CAT_MACHINE_SIGNAL_ENTER);
 }
 
-void CAT_machine_tick()
+void CAT_machine_tick(CAT_machine_state* machine)
 {
-	if(machine != NULL)
-		machine(CAT_MACHINE_SIGNAL_TICK);
+	if(*machine != NULL)
+		(*machine)(CAT_MACHINE_SIGNAL_TICK);
 }

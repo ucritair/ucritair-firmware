@@ -39,6 +39,8 @@ typedef enum CAT_mode
 } CAT_mode;
 CAT_mode mode;
 
+CAT_machine_state game_machine;
+
 
 //////////////////////////////////////////////////////////////////////////
 // PET
@@ -282,6 +284,63 @@ void CAT_deco_state_init()
 //////////////////////////////////////////////////////////////////////////
 // ROOM LOGIC
 
+/*void CAT_room_machine_state_default(CAT_machine_signal signal)
+{
+	switch(signal)
+	{
+		case CAT_MACHINE_SIGNAL_ENTER:
+		{
+			CAT_timer_reset(pet.walk_timer_id);
+			pet.status = CAT_PET_STATUS_IDLE;
+			break;
+		}
+		case CAT_MACHINE_SIGNAL_TICK:
+		{
+			if(CAT_input_pressed(CAT_BUTTON_RIGHT))
+				room.selector += 1;
+			if(CAT_input_pressed(CAT_BUTTON_LEFT))
+				room.selector -= 1;
+			room.selector = clamp(room.selector, 0, 4);
+
+			if(CAT_input_pressed(CAT_BUTTON_A))
+			{
+				room.buttons[room.selector]();
+			}
+
+			if(CAT_input_touch(pet.pos.x, pet.pos.y - 16, 8))
+			{
+				pet.mood = CAT_PET_MOOD_PET;	
+			}
+			
+			switch(pet.status)
+			{
+				case CAT_PET_STATUS_IDLE:
+					if(CAT_timer_tick(pet.walk_timer_id))
+					{
+						pet.targ = (CAT_vec2)
+						{
+							rand_float(room.min.x * 16, room.max.x * 16),
+							rand_float(room.min.y * 16, room.max.y * 16)
+						};
+						pet.status = CAT_PET_STATUS_WALK;
+					}
+					break;
+				case CAT_PET_STATUS_WALK:
+					if(CAT_pet_seek())
+					{
+						pet.status = CAT_PET_STATUS_IDLE;
+					}
+					break;
+			}
+			break;
+		}
+		case CAT_MACHINE_SIGNAL_EXIT:
+		{
+			break;
+		}
+	}
+}*/
+
 void CAT_room_logic()
 {
 	switch(mode)
@@ -349,8 +408,9 @@ void CAT_room_logic()
 		{
 			CAT_room_move_cursor();
 
-			if(CAT_input_pressed(CAT_BUTTON_A))
+			if(CAT_input_pressed(CAT_BUTTON_B))
 			{
+				mode = CAT_MODE_DEFAULT;
 			}
 			break;
 		}
@@ -358,8 +418,9 @@ void CAT_room_logic()
 		{
 			CAT_room_move_cursor();
 
-			if(CAT_input_pressed(CAT_BUTTON_A))
+			if(CAT_input_pressed(CAT_BUTTON_B))
 			{
+				mode = CAT_MODE_DEFAULT;
 			}
 			break;
 		}
@@ -367,10 +428,6 @@ void CAT_room_logic()
 		{
 			CAT_room_move_cursor();
 
-			if(CAT_input_pressed(CAT_BUTTON_A))
-			{
-			}
-				
 			if(CAT_input_pressed(CAT_BUTTON_B))
 			{
 				mode = CAT_MODE_DEFAULT;
