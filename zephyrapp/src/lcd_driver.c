@@ -16,6 +16,8 @@ static const struct gpio_dt_spec pin_lcd_backlight =
 
 const struct device *display_dev = DEVICE_DT_GET(DT_CHOSEN(zephyr_display));
 
+extern uint32_t hack_cyc_before_data_write, hack_cyc_after_data_write, hack_before_blit, hack_after_blit;
+
 void lcd_blit(int x, int y, int w, int h, uint16_t* buffer)
 {
 	struct display_buffer_descriptor desc = {
@@ -25,12 +27,12 @@ void lcd_blit(int x, int y, int w, int h, uint16_t* buffer)
 		.pitch = w
 	};
 
+	hack_before_blit = k_cycle_get_32();
 	display_write(display_dev, x, y, &desc, buffer);
+	hack_after_blit = k_cycle_get_32();
 }
 
 uint16_t lcd_framebuffer[LCD_IMAGE_PIXELS] = {0x0};
-
-uint16_t lcd_tile[32*32];
 
 void lcd_flip()
 {

@@ -160,7 +160,7 @@ arduino_i2c: &i2c1 {};
 
 
 
-arduino_spi: &spi4 {
+arduino_spi: &spi2 {
 	compatible = "nordic,nrf-spim";
 	status = "okay";
 	cs-gpios = <&gpio0 18 GPIO_ACTIVE_LOW>, <&gpio0 10 GPIO_ACTIVE_LOW>, <&gpio0 19 GPIO_ACTIVE_LOW>; // changed
@@ -170,7 +170,7 @@ arduino_spi: &spi4 {
 	pinctrl-names = "default", "sleep";
 };
 
-display_spi: &spi2 {
+display_spi: &spi4 {
 	compatible = "nordic,nrf-spim";
 	status = "okay";
 	cs-gpios = <&gpio0 16 GPIO_ACTIVE_LOW>; // LCD CSn only

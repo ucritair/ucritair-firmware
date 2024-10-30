@@ -54,7 +54,7 @@ static const pinctrl_soc_pin_t pc_alt_epd_pins[] = {
 void pc_set_mode(bool lcd)
 {
 	LOG_INF("pc_set_mode to %s", lcd?"lcd":"epd");
-	void* dev_cfg = NRF_SPIM2;
+	void* dev_cfg = NRF_SPIM4;
 
 	int e;
 

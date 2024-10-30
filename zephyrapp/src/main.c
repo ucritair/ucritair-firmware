@@ -45,6 +45,8 @@ int main(void)
 	LOG_INF("CAT Application Started");
 	LOG_PANIC();
 
+	NRF_CLOCK_S->HFCLKCTRL = (CLOCK_HFCLKCTRL_HCLK_Div1 << CLOCK_HFCLKCTRL_HCLK_Pos); // 128MHz
+
 	init_buttons();
 
 	ble_main();

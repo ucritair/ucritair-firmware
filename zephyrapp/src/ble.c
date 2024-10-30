@@ -99,12 +99,12 @@ static ssize_t ess_read_float_u16_x1(
     return bt_gatt_attr_read(conn, attr, buf, len, offset, &value, sizeof(value));
 }
 
-static ssize_t ess_read_float_pm(
+static ssize_t ess_read_float_fp16_x1(
     struct bt_conn *conn,
     const struct bt_gatt_attr *attr,
     void *buf, uint16_t len, uint16_t offset)
 {
-    __fp16 value = (double)(*(float*)attr->user_data);
+    __fp16 value = (*(float*)attr->user_data) * 1;
     return bt_gatt_attr_read(conn, attr, buf, len, offset, &value, sizeof(value));
 }
 
@@ -124,13 +124,13 @@ BT_GATT_SERVICE_DEFINE(ess_svc,
         ess_read_float_u16_x1, NULL, &current_readings.sunrise.ppm_filtered_compensated),
 	BT_GATT_CHARACTERISTIC(BT_UUID_GATT_PM1CONC,
         BT_GATT_CHRC_READ, BT_GATT_PERM_READ,
-        ess_read_float_pm, NULL, &current_readings.sen5x.pm1_0),
+        ess_read_float_fp16_x1, NULL, &current_readings.sen5x.pm1_0),
 	BT_GATT_CHARACTERISTIC(BT_UUID_GATT_PM25CONC,
         BT_GATT_CHRC_READ, BT_GATT_PERM_READ,
-        ess_read_float_pm, NULL, &current_readings.sen5x.pm2_5),
+        ess_read_float_fp16_x1, NULL, &current_readings.sen5x.pm2_5),
 	BT_GATT_CHARACTERISTIC(BT_UUID_GATT_PM10CONC,
         BT_GATT_CHRC_READ, BT_GATT_PERM_READ,
-        ess_read_float_pm, NULL, &current_readings.sen5x.pm10_0),
+        ess_read_float_fp16_x1, NULL, &current_readings.sen5x.pm10_0),
 );
 
 static const struct bt_data ad[] = {
