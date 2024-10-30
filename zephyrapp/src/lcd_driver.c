@@ -18,8 +18,30 @@ const struct device *display_dev = DEVICE_DT_GET(DT_CHOSEN(zephyr_display));
 
 extern uint32_t hack_cyc_before_data_write, hack_cyc_after_data_write, hack_before_blit, hack_after_blit;
 
+volatile bool write_done = true;
+
+struct mipi_dbi_spi_data {
+	struct k_mutex lock;
+	/* Used for 3 wire mode */
+	uint16_t spi_byte;
+};
+
+void mipi_dbi_write_done_callback(const struct device *dev, int result, void *unused)
+{
+	struct mipi_dbi_spi_data *data = dev->data;
+	k_mutex_unlock(&data->lock);
+	write_done=true;
+
+	if (result)
+	{
+		LOG_ERR("mipi_dbi_write_done_callback: result=%d", result);
+	}
+}
+
 void lcd_blit(int x, int y, int w, int h, uint16_t* buffer)
 {
+	while (!write_done) {}
+
 	struct display_buffer_descriptor desc = {
 		.buf_size = w*h,
 		.width = w,
@@ -28,6 +50,7 @@ void lcd_blit(int x, int y, int w, int h, uint16_t* buffer)
 	};
 
 	hack_before_blit = k_cycle_get_32();
+	
 	display_write(display_dev, x, y, &desc, buffer);
 	hack_after_blit = k_cycle_get_32();
 }
@@ -36,6 +59,8 @@ uint16_t lcd_framebuffer[LCD_IMAGE_PIXELS] = {0x0};
 
 void lcd_flip()
 {
+	
+
 	const int subwrites = 1;
 	const int section_y = LCD_IMAGE_H/subwrites;
 	const int section_px = LCD_IMAGE_W*section_y;
@@ -64,6 +89,8 @@ void lcd_init()
 {
 	LOG_DBG("Init lcd...");
 
+	LOG_INF("lcd_framebuffer=%p", lcd_framebuffer);
+
 	turn_on_backlight();
 	pc_set_mode(true);
 
@@ -84,6 +111,6 @@ void lcd_init()
 	display_blanking_off(display_dev);
 
 	LOG_INF("Reached lcd_init done");
-
+	
 }
 

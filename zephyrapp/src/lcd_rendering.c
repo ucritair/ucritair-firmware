@@ -54,9 +54,10 @@ extern const int image_w, image_h;
 
 #define get_image_px(x, y) image_data[(y * image_w) + x]
 
-extern struct k_poll_signal mipi_dbi_spi_write_done;
 
 uint32_t hack_cyc_before_data_write, hack_cyc_after_data_write, hack_before_blit, hack_after_blit;
+
+extern volatile bool write_done;
 
 void lcd_render_diag()
 {
@@ -138,18 +139,13 @@ void lcd_render_diag()
 			test_speaker();
 		}
 
-		// struct k_poll_event events[1] = {
-	    //     K_POLL_EVENT_INITIALIZER(K_POLL_TYPE_SIGNAL,
-	    //                              K_POLL_MODE_NOTIFY_ONLY,
-	    //                              &mipi_dbi_spi_write_done),
-	    // };
-
-		// k_poll(events, 1, K_FOREVER);
-		// k_poll_signal_reset(&mipi_dbi_spi_write_done);
+		
 
 		uint32_t after_text = k_cycle_get_32();
 
 		lcd_flip();
+
+		while (!write_done) {k_msleep(1);} // TODO: Move things around to fit game logic before this
 
 		uint32_t after_flip = k_cycle_get_32();
 
