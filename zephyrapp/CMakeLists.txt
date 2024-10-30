@@ -7,6 +7,7 @@ find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 project(display)
 
 add_subdirectory(vendor)
+add_subdirectory(game)
 
 target_sources(app PRIVATE
 	src/airquality.c

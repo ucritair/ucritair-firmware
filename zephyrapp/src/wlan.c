@@ -10,6 +10,8 @@ LOG_MODULE_REGISTER(wlan, LOG_LEVEL_INF);
 
 void set_mac()
 {
+
+#ifdef CONFIG_WIFI
 	struct net_if *iface = net_if_get_default();
 
 	// k_msleep(100);
@@ -75,4 +77,7 @@ void set_mac()
 	// }
 
 	LOG_INF("Done changing MAC");
+#else
+	LOG_WRN("CONFIG_WIFI disabled");
+#endif
 }

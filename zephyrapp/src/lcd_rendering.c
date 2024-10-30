@@ -49,15 +49,12 @@ void lcd_write_str(int x, int y, char* str)
 	}
 }
 
-extern const uint16_t image_data[];
-extern const int image_w, image_h;
-
-#define get_image_px(x, y) image_data[(y * image_w) + x]
-
 
 uint32_t hack_cyc_before_data_write, hack_cyc_after_data_write, hack_before_blit, hack_after_blit;
 
 extern volatile bool write_done;
+
+#include "cat_main.h"
 
 void lcd_render_diag()
 {
@@ -67,6 +64,9 @@ void lcd_render_diag()
 	int step = 3;
 
 	int last_sensor_update = 0;
+
+	LOG_INF("About to CAT_init");
+	CAT_init();
 
 	NRF_SPIM4->FREQUENCY = SPIM_FREQUENCY_FREQUENCY_M32;
 
@@ -83,18 +83,7 @@ void lcd_render_diag()
 
 		uint32_t after_memset = k_cycle_get_32();
 
-		const uint16_t* readptr = &image_data[0];
-		uint16_t* writeptr = &lcd_framebuffer[(y*LCD_IMAGE_W) + x];
-
-		for (int row = 0; row < image_h; row++)
-		{
-			for (int col = 0; col < image_w; col++)
-			{
-				*(writeptr++) = *(readptr++);
-			}
-
-			writeptr += LCD_IMAGE_W-image_w;
-		}
+		CAT_tick();
 
 		uint32_t after_blit = k_cycle_get_32();
 
@@ -121,7 +110,7 @@ void lcd_render_diag()
 
 		uint32_t after_printf = k_cycle_get_32();
 		// LOG_DBG("write '%s'", buf);
-		lcd_write_str(0, 0, buf);
+		// lcd_write_str(0, 0, buf);
 
 		
 
