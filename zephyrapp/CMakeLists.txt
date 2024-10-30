@@ -37,8 +37,11 @@ target_sources(app PRIVATE
 
 add_custom_command(
 	OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/images.c
-	COMMAND python3 ${CMAKE_CURRENT_LIST_DIR}/script/pack_images.py ${CMAKE_CURRENT_BINARY_DIR}
+	COMMAND ${CMAKE_CURRENT_LIST_DIR}/script/pack_images.py ${CMAKE_CURRENT_BINARY_DIR}
 	DEPENDS ${CMAKE_CURRENT_LIST_DIR}/script/pack_images.py
+	DEPENDS ${CMAKE_CURRENT_LIST_DIR}/script/atlasdata.txt
 	DEPENDS ${CMAKE_CURRENT_LIST_DIR}/assets
 	DEPENDS ${CMAKE_CURRENT_LIST_DIR}/assets/*
+	DEPENDS ${CMAKE_CURRENT_LIST_DIR}/game/sprites
+	DEPENDS ${CMAKE_CURRENT_LIST_DIR}/game/sprites/* 
 )

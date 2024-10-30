@@ -572,7 +572,7 @@ void CAT_render()
 			CAT_draw_tiles(6, 1, floor_sprite_id[2]);
 			CAT_draw_tiles(7, 10, floor_sprite_id[0]);
 			CAT_draw_tiles(17, 3, floor_sprite_id[1]);
-
+			
 			CAT_draw_queue_add(window_sprite_id, 2, 16, 8, CAT_DRAW_MODE_DEFAULT);
 			CAT_anim_queue_add(vending_anim_id, 2, 164, 112, CAT_DRAW_MODE_BOTTOM);
 			

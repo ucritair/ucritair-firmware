@@ -1,6 +1,8 @@
 #ifndef CAT_SPRITE_H
 #define CAT_SPRITE_H
 
+#include "cat_core.h"
+
 #include <stdint.h>
 #include <stdbool.h>
 
@@ -21,7 +23,7 @@
 
 typedef struct CAT_sprite
 {
-#ifdef CAT_DESKTOP
+#ifndef CAT_BAKED_ASSETS
 	int x;
 	int y;
 #endif
@@ -31,7 +33,7 @@ typedef struct CAT_sprite
 
 typedef struct CAT_atlas
 {
-#ifdef CAT_DESKTOP
+#ifndef CAT_BAKED_ASSETS
 	int width;
 	int height;
 	uint16_t* rgb;

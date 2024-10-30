@@ -10,7 +10,7 @@
 
 CAT_atlas atlas;
 
-#ifdef CAT_DESKTOP
+#ifndef CAT_BAKED_ASSETS
 
 #include "png.h"
 
@@ -67,7 +67,12 @@ void CAT_atlas_init(const char* path)
 
 #else
 
+#ifndef CAT_DESKTOP
 extern uint16_t* image_data_table[];
+#else
+#include "../../script/images.c"
+#endif
+
 extern uint16_t lcd_framebuffer[];
 
 void CAT_atlas_init(const char* path)
@@ -86,7 +91,7 @@ int CAT_atlas_add(int x, int y, int w, int h)
 
 	int idx = atlas.length;
 	atlas.table[idx] = (CAT_sprite) {
-#ifdef CAT_DESKTOP
+#ifndef CAT_BAKED_ASSETS
 		x, y,
 #endif
 		w, h
@@ -97,7 +102,7 @@ int CAT_atlas_add(int x, int y, int w, int h)
 
 void CAT_atlas_cleanup()
 {
-#ifdef CAT_DESKTOP
+#ifndef CAT_BAKED_ASSETS
 	atlas.width = 0;
 	atlas.height = 0;
 	CAT_free(atlas.rgb);
@@ -139,20 +144,22 @@ void CAT_draw_sprite(int x, int y, int sprite_id)
 		for(int dx = 0; dx < w; dx++)
 		{
 
-#ifdef CAT_DESKTOP
+#ifndef CAT_BAKED_ASSETS
 			int x_r = sprite.x+dx;
 			if((spriter.mode & CAT_DRAW_MODE_REFLECT_X) > 0)
 				x_r = sprite.x+w-1-dx;
 			int y_r = sprite.y+dy;
 			int r_idx = y_r * atlas.width + x_r;
-			uint16_t* src = atls.rgb + r_idx;
+			uint16_t px = *(atlas.rgb + r_idx);
 			if(!atlas.alpha[r_idx])
 				continue;
 #else
 			int x_r = dx;
 			if (spriter.mode & CAT_DRAW_MODE_REFLECT_X)
 				x_r = w-1-dx;
-			uint16_t* src = image_data_table[sprite_id] + (h * dy) + x_r;
+			uint16_t px = *(image_data_table[sprite_id] + (w * dy) + x_r);
+			if (px == 0xdead)
+				continue;
 #endif
 
 			int x_w = x+dx+x_shift;
@@ -161,7 +168,7 @@ void CAT_draw_sprite(int x, int y, int sprite_id)
 				continue;
 			int w_idx = y_w * LCD_SCREEN_W + x_w;
 
-			spriter.frame[w_idx] = *src;
+			spriter.frame[w_idx] = px;
 		}
 	}
 }
@@ -177,7 +184,7 @@ void CAT_draw_tiles(int y_t, int h_t, int sprite_id)
 
 	while(y_w < end)
 	{
-#ifdef CAT_DESKTOP
+#ifndef CAT_BAKED_ASSETS
 		uint16_t* row_r = &atlas.rgb[(tile.y + y_r) * atlas.width + tile.x];
 #else
 		uint16_t* row_r = image_data_table[sprite_id] + (y_r*tile.width);
@@ -410,7 +417,11 @@ int coffee_anim_id;
 
 int cursor_anim_id;
 
-#ifdef CAT_EMBEDDED
+#ifdef CAT_DESKTOP
+#include <stdio.h>
+#endif
+
+#ifndef CAT_DESKTOP
 #define PRINT_ON_DESKTOP(...)
 #else
 #define PRINT_ON_DESKTOP printf
@@ -516,4 +527,15 @@ void CAT_sprite_mass_define()
 	coffee_anim_id = CAT_anim_init(coffee_sprite_id, 2, true);
 
 	cursor_anim_id = CAT_anim_init(cursor_sprite_id, 4, true);
+
+#ifdef CAT_DESKTOP
+#ifdef CAT_BAKED_ASSETS
+#define DIAG_PRINT(i) printf(#i " = @%x=[", image_data_table[i]);\
+	for (int p = 0; p < 32; p++) printf("%04x ", image_data_table[i][p]);\
+		printf("]\n");
+
+	DIAG_PRINT(vigour_sprite_id);
+	DIAG_PRINT(focus_sprite_id);	
+#endif
+#endif
 }

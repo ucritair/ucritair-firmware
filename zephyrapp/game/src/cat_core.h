@@ -41,19 +41,6 @@ void CAT_play_tone(float pitch_hz, float time_s);
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // INPUT
 
-typedef enum CAT_button
-{
-    CAT_BUTTON_SELECT,
-    CAT_BUTTON_START,
-    CAT_BUTTON_A,
-    CAT_BUTTON_B,
-    CAT_BUTTON_DOWN,
-    CAT_BUTTON_RIGHT,
-    CAT_BUTTON_LEFT,
-    CAT_BUTTON_UP,
-    CAT_BUTTON_LAST
-} CAT_button;
-
 uint16_t CAT_get_buttons();
 
 typedef struct CAT_touch
@@ -100,6 +87,14 @@ void CAT_read_save(uint8_t* out);
 // POWER
 
 int CAT_get_battery_pct();
+
+#ifdef CAT_DESKTOP
+#include "cat_desktop.h"
+#define CAT_BAKED_ASSETS
+#else
+#include "cat_embedded.h"
+#define CAT_BAKED_ASSETS
+#endif
 
 
 #endif
