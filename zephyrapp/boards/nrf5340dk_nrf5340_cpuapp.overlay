@@ -1,0 +1,241 @@
+#include <zephyr/dt-bindings/mipi_dbi/mipi_dbi.h>
+
+/ {
+	
+	chosen {
+		zephyr,display = &st7789v_st7789v_waveshare_240x240;
+	};
+
+
+	mipi_dbi_st7789v_waveshare_240x240 {
+		status = "okay";
+		compatible = "zephyr,mipi-dbi-spi";
+		spi-dev = <&display_spi>;
+		dc-gpios = <&gpio0 12 GPIO_ACTIVE_HIGH>;
+		reset-gpios = <&gpio0 25 GPIO_ACTIVE_LOW>;
+		write-only;
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		st7789v_st7789v_waveshare_240x240: st7789v@0 {
+			status = "okay";
+			compatible = "sitronix,st7789v";
+			mipi-max-frequency = <DT_FREQ_M(64)>;
+			reg = <0>;
+			width = <240>;
+			height = <320>;
+			x-offset = <0>;
+			y-offset = <0>;
+			vcom = <0x19>;
+			gctrl = <0x35>;
+			vrhs = <0x12>;
+			vdvs = <0x20>;
+			mdac = <0x00>;
+			gamma = <0x01>;
+			colmod = <0x05>;
+			lcm = <0x2c>;
+			porch-param = [0c 0c 00 33 33];
+			cmd2en-param = [5a 69 02 01];
+			pwctrl1-param = [a4 a1];
+			pvgam-param = [D0 04 0D 11 13 2B 3F 54 4C 18 0D 0B 1F 23];
+			nvgam-param = [D0 04 0C 11 13 2C 3F 44 51 2F 1F 1F 20 23];
+			ram-param = [00 F0];
+			rgb-param = [CD 08 14];
+			mipi-mode = <MIPI_DBI_MODE_SPI_4WIRE>;
+			inversion-off;
+		};
+	};
+	
+
+
+	epaper_display: epaper-display {
+		compatible = "epaper-display";
+
+		sclk-gpios = <&gpio0 8 GPIO_ACTIVE_HIGH>;
+		data-gpios = <&gpio0 9 GPIO_ACTIVE_HIGH>;
+		csn-gpios = <&gpio0 15 GPIO_ACTIVE_HIGH>;
+		dc-gpios = <&gpio0 12 GPIO_ACTIVE_HIGH>;
+		rst-gpios = <&gpio1 5 GPIO_ACTIVE_HIGH>;
+		busy-gpios = <&gpio1 6 (GPIO_ACTIVE_HIGH|GPIO_PULL_UP)>;
+	};
+
+	cat_misc: cat-misc {
+		compatible = "cat-misc";
+
+		buck-enable-gpios = <&gpio0 5 GPIO_ACTIVE_HIGH>;
+		sen55-boost-enable-gpios = <&gpio1 4 GPIO_ACTIVE_HIGH>;
+		lcd-backlight-gpios = <&gpio1 0 GPIO_ACTIVE_HIGH>;
+		led-enable-gpios = <&gpio0 6 GPIO_ACTIVE_HIGH>;
+		speaker-gpios = <&gpio1 8 GPIO_ACTIVE_HIGH>;
+		btn-row-gpios = <&gpio1 9 GPIO_ACTIVE_HIGH>, <&gpio1 10 GPIO_ACTIVE_HIGH>, <&gpio1 11 GPIO_ACTIVE_HIGH>, <&gpio1 12 GPIO_ACTIVE_HIGH> ;
+		btn-col-gpios = <&gpio1 13 GPIO_ACTIVE_HIGH>, <&gpio1 14 GPIO_ACTIVE_HIGH>;
+	};
+};
+
+
+/ {
+	chosen {
+		zephyr,console = &cdc_acm_uart0;
+	};
+};
+
+/ {
+	chosen {
+		zephyr,shell-uart = &cdc_acm_uart0;
+	};
+};
+
+&zephyr_udc0 {
+	cdc_acm_uart0: cdc_acm_uart0 {
+		compatible = "zephyr,cdc-acm-uart";
+	};
+};
+
+/ {
+	chosen {
+		zephyr,wifi = &wlan0;
+	};
+};
+
+&gpio_fwd {
+	status = "disabled";
+};
+
+#include <zephyr/dt-bindings/gpio/nordic-nrf-gpio.h>
+#include <zephyr/dt-bindings/gpio/gpio.h>
+
+&arduino_spi {
+	status = "okay";
+
+	nrf70: nrf7002-spi@0 {
+		compatible = "nordic,nrf7002-spi";
+		status = "okay";
+		reg = <0>;
+		spi-max-frequency = <DT_FREQ_M(8)>; // originally 8
+
+		iovdd-ctrl-gpios = <&gpio0 11 (GPIO_ACTIVE_LOW)>; // TODO: This is new bodge
+		bucken-gpios = <&gpio0 21 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>;
+		host-irq-gpios = <&gpio0 20 GPIO_ACTIVE_HIGH>;
+		status0-gpios = <&gpio0 30 GPIO_ACTIVE_HIGH>;
+		req-gpios = <&gpio0 28 GPIO_ACTIVE_HIGH>;
+		grant-gpios = <&gpio0 24 (GPIO_PULL_DOWN | GPIO_ACTIVE_LOW)>;
+		// swctrl1-gpios = <0>;
+		// srrf-switch-gpios = <0>;
+
+		wifi-max-tx-pwr-2g-dsss = <21>;
+		wifi-max-tx-pwr-2g-mcs0 = <16>;
+		wifi-max-tx-pwr-2g-mcs7 = <16>;
+
+		wlan0: wlan0 {
+			compatible = "nordic,wlan";
+		};
+
+		wifi-max-tx-pwr-5g-low-mcs0 = <13>;
+		wifi-max-tx-pwr-5g-low-mcs7 = <13>;
+		wifi-max-tx-pwr-5g-mid-mcs0 = <13>;
+		wifi-max-tx-pwr-5g-mid-mcs7 = <13>;
+		wifi-max-tx-pwr-5g-high-mcs0 = <12>;
+		wifi-max-tx-pwr-5g-high-mcs7 = <12>;
+	};
+
+	w25q128: w25q128@1 {
+        compatible = "winbond,w25q128", "jedec,spi-nor";
+        zephyr,deferred-init;
+        status = "okay";
+        reg = <1>;
+        spi-max-frequency = <DT_FREQ_M(1)>;
+        size = <0x1000000>;  /* 16MB (128Mbit) */
+        jedec-id = [ef 70 18]; // W25Q128JVPIM TODO: Will need to modify if switching to qspi [capable]
+    };
+
+    sdhc0: sdhc@2 {
+        compatible = "zephyr,sdhc-spi-slot";
+        reg = <2>;
+        status = "okay";
+        mmc {
+            compatible = "zephyr,sdmmc-disk";
+            status = "okay";
+        };
+        spi-max-frequency = <24000000>;
+    };
+};
+
+
+&uart0 {
+	status = "disabled";
+};
+
+&pwm0 {
+	status = "disabled";
+};
+
+#include <zephyr/dt-bindings/led/led.h>
+
+/*
+&pinctrl {
+	i2s0_default_alt: i2s0_default_alt {
+		group1 {
+			// Default I2S config for the nRF5340, P1.13 is the output
+			psels = <NRF_PSEL_DISCONNECTED(I2S_SCK_M)>,
+				<NRF_PSEL_DISCONNECTED(I2S_LRCK_M)>,
+				<NRF_PSEL(I2S_SDOUT, 1, 1)>,
+				<NRF_PSEL_DISCONNECTED(I2S_SDIN)>;
+		};
+	};
+};
+
+i2s_led: &i2s0 {
+	status = "okay";
+	pinctrl-0 = <&i2s0_default_alt>;
+	pinctrl-names = "default";
+
+	led_strip: ws2812 {
+		status = "okay";
+		compatible = "worldsemi,ws2812-i2s";
+
+		i2s-dev = <&i2s_led>;
+		chain-length = <8>; // arbitrary; change at will
+		color-mapping = <LED_COLOR_ID_GREEN
+					LED_COLOR_ID_RED
+					LED_COLOR_ID_BLUE>;
+		reset-delay = <500>;
+	};
+};
+*/
+
+/ {
+	led_strip: ws2812 {
+		compatible = "worldsemi,ws2812-gpio";
+
+		chain-length = <8>; /* arbitrary */
+		color-mapping = <LED_COLOR_ID_GREEN
+				 LED_COLOR_ID_RED
+				 LED_COLOR_ID_BLUE>;
+
+		gpios = <&gpio1 1 0>;
+	};
+
+	aliases {
+		led-strip = &led_strip;
+	};
+};
+
+
+&pinctrl {
+	/* Alternative pin configuration for UART0 */
+	pc_alt_lcd: pc_alt_lcd {
+		group1 {
+			psels = <NRF_PSEL(SPIM_SCK, 0, 8)>,
+				<NRF_PSEL_DISCONNECTED(SPIM_MISO)>,
+				<NRF_PSEL(SPIM_MOSI, 0, 9)>;
+		};
+	};
+
+	pc_alt_epd: pc_alt_epd {
+		group1 {
+			psels = <NRF_PSEL_DISCONNECTED(SPIM_SCK)>,
+				<NRF_PSEL_DISCONNECTED(SPIM_MISO)>,
+				<NRF_PSEL_DISCONNECTED(SPIM_MOSI)>;
+		};
+	};
+};
