@@ -44,17 +44,38 @@ void CAT_timer_reset(int timer_id)
 //////////////////////////////////////////////////////////////////////////
 // MACHINE
 
+/* PROTOTYPE
+void CAT_MS_example(CAT_machine_signal signal)
+{
+	switch(signal)
+	{
+		case CAT_MACHINE_SIGNAL_ENTER:
+		{
+			break;
+		}
+		case CAT_MACHINE_SIGNAL_TICK:
+		{
+			break;
+		}
+		case CAT_MACHINE_SIGNAL_EXIT:
+		{
+			break;
+		}
+	}
+}
+*/
+
 void CAT_machine_transition(CAT_machine_state* machine, CAT_machine_state state)
 {
 	if(*machine != NULL)
 		(*machine)(CAT_MACHINE_SIGNAL_EXIT);
-	machine = state;
+	*machine = state;
 	if(*machine != NULL)
-		(*machine)(CAT_MACHINE_SIGNAL_ENTER);
+		(**machine)(CAT_MACHINE_SIGNAL_ENTER);
 }
 
 void CAT_machine_tick(CAT_machine_state* machine)
 {
 	if(*machine != NULL)
-		(*machine)(CAT_MACHINE_SIGNAL_TICK);
+		(**machine)(CAT_MACHINE_SIGNAL_TICK);
 }
