@@ -124,6 +124,7 @@ void CAT_spriter_init()
 	spriter.mode = CAT_DRAW_MODE_DEFAULT;
 }
 
+#include <stdio.h>
 void CAT_draw_sprite(int x, int y, int sprite_id)
 {
 	CAT_sprite sprite = atlas.table[sprite_id];
@@ -187,7 +188,7 @@ void CAT_draw_tiles(int y_t, int h_t, int sprite_id)
 #ifndef CAT_BAKED_ASSETS
 		uint16_t* row_r = &atlas.rgb[(tile.y + y_r) * atlas.width + tile.x];
 #else
-		uint16_t* row_r = image_data_table[sprite_id] + (y_r*tile.width);
+		const uint16_t* row_r = image_data_table[sprite_id] + (y_r*tile.width);
 #endif
 		uint16_t* row_w = &spriter.frame[y_w * LCD_SCREEN_W];
 
@@ -379,12 +380,14 @@ int table_sprite_id;
 int coffee_sprite_id[2];
 int device_sprite_id;
 int window_sprite_id; 
-int seed_sprite_id[6];
+int seed_sprite_id;
 
-int cursor_sprite_id[4];
+int cursor_sprite_id[21];
 int feed_button_sprite_id;
 int study_button_sprite_id;
 int play_button_sprite_id;
+int deco_button_sprite_id;
+int menu_button_sprite_id;
 int ring_hl_sprite_id;
 
 int panel_sprite_id[9];
@@ -471,19 +474,17 @@ void CAT_sprite_mass_define()
 	}
 	ATLAS_ADD(device_sprite_id, 256, 48, 43, 48);
 	ATLAS_ADD(window_sprite_id, 0, 96, 112, 61);
-	for(int i = 0; i < 3; i++)
-	{
-		ATLAS_ADD(seed_sprite_id[0+i], 192+16*i, 304, 16, 16);
-		ATLAS_ADD(seed_sprite_id[3+i], 192+16*i, 320, 16, 16);
-	}
+	ATLAS_ADD(seed_sprite_id, 128, 304, 32, 32);
 
-	for(int i = 0; i < 4; i++)
+	for(int i = 0; i < 21; i++)
 	{
-		ATLAS_ADD(cursor_sprite_id[i], 288+16*i, 336, 16, 16);
+		ATLAS_ADD(cursor_sprite_id[i], 16*i, 336, 16, 16);
 	}
 	ATLAS_ADD(feed_button_sprite_id, 128, 0, 32, 32);
 	ATLAS_ADD(study_button_sprite_id, 160, 0, 32, 32);
 	ATLAS_ADD(play_button_sprite_id, 192, 0, 32, 32);
+	ATLAS_ADD(deco_button_sprite_id, 529, 0, 32, 32);
+	ATLAS_ADD(menu_button_sprite_id, 561, 0, 32, 32);
 	ATLAS_ADD(ring_hl_sprite_id, 224, 0, 32, 32);
 
 	for(int i = 0; i < 3; i++)
@@ -527,15 +528,4 @@ void CAT_sprite_mass_define()
 	coffee_anim_id = CAT_anim_init(coffee_sprite_id, 2, true);
 
 	cursor_anim_id = CAT_anim_init(cursor_sprite_id, 4, true);
-
-#ifdef CAT_DESKTOP
-#ifdef CAT_BAKED_ASSETS
-#define DIAG_PRINT(i) printf(#i " = @%x=[", image_data_table[i]);\
-	for (int p = 0; p < 32; p++) printf("%04x ", image_data_table[i][p]);\
-		printf("]\n");
-
-	DIAG_PRINT(vigour_sprite_id);
-	DIAG_PRINT(focus_sprite_id);	
-#endif
-#endif
 }

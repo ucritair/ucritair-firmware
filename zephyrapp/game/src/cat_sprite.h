@@ -1,10 +1,10 @@
 #ifndef CAT_SPRITE_H
 #define CAT_SPRITE_H
 
-#include "cat_core.h"
-
 #include <stdint.h>
 #include <stdbool.h>
+
+#include "cat_core.h"
 
 //////////////////////////////////////////////////////////////////////////
 // CONSTANTS
@@ -27,6 +27,7 @@ typedef struct CAT_sprite
 	int x;
 	int y;
 #endif
+
 	int width;
 	int height;
 } CAT_sprite;
@@ -70,6 +71,7 @@ void CAT_draw_sprite(int x, int y, int sprite_id);
 void CAT_draw_tiles(int y_t, int h_t, int sprite_id);
 void CAT_spriter_cleanup();
 
+
 //////////////////////////////////////////////////////////////////////////
 // DRAW QUEUE
 
@@ -92,6 +94,7 @@ extern CAT_draw_queue draw_queue;
 void CAT_draw_queue_init();
 void CAT_draw_queue_add(int sprite_id, int layer, int x, int y, int mode);
 void CAT_draw_queue_submit();
+
 
 //////////////////////////////////////////////////////////////////////////
 // ANIMATIONS
@@ -116,6 +119,7 @@ int CAT_anim_init(int* sprite_id, int length, bool looping);
 CAT_anim* CAT_anim_get(int anim_id);
 void CAT_anim_tick(int anim_id);
 int CAT_anim_frame(int anim_id);
+
 
 //////////////////////////////////////////////////////////////////////////
 // ANIM QUEUE
@@ -143,6 +147,7 @@ void CAT_anim_queue_init();
 void CAT_anim_queue_add(int anim_id, int layer, int x, int y, int mode);
 void CAT_anim_queue_submit();
 
+
 //////////////////////////////////////////////////////////////////////////
 // ID DECLARATIONS
 
@@ -162,12 +167,14 @@ extern int table_sprite_id;
 extern int coffee_sprite_id[2];
 extern int device_sprite_id;
 extern int window_sprite_id; 
-extern int seed_sprite_id[6];
+extern int seed_sprite_id;
 
-extern int cursor_sprite_id[4];
+extern int cursor_sprite_id[21];
 extern int feed_button_sprite_id;
 extern int study_button_sprite_id;
 extern int play_button_sprite_id;
+extern int deco_button_sprite_id;
+extern int menu_button_sprite_id;
 extern int ring_hl_sprite_id;
 
 extern int panel_sprite_id[9];

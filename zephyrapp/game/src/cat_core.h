@@ -45,9 +45,9 @@ uint16_t CAT_get_buttons();
 
 typedef struct CAT_touch
 {
-	uint16_t x;
-	uint16_t y;
-	uint16_t pressure;
+    uint16_t x;
+    uint16_t y;
+    uint16_t pressure;
 } CAT_touch;
 
 void CAT_get_touch(CAT_touch* touch);
