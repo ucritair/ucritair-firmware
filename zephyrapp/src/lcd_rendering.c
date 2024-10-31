@@ -8,10 +8,11 @@ LOG_MODULE_REGISTER(lcd_rendering, LOG_LEVEL_DBG);
 #include "airquality.h"
 
 #include "buttons.h"
+#include "touch.h"
 
 extern char font8x8_basic[128][8];
 
-void lcd_write_char(int x, int y, char c)
+void lcd_write_char(uint16_t color, int x, int y, char c)
 {
 	for (int bx = 0; bx < 8; bx++)
 	{
@@ -25,7 +26,9 @@ void lcd_write_char(int x, int y, char c)
 				{
 					for (int sy = 0; sy < scale; sy++)
 					{
-						lcd_framebuffer[((x+bx)*scale)+sx + ((((y+by)*scale)+sy)*LCD_IMAGE_W)] = 0xffff;
+						int p = ((x+bx)*scale)+sx + ((((y+by)*scale)+sy)*LCD_IMAGE_W);
+						if (p > (sizeof(lcd_framebuffer)/sizeof(lcd_framebuffer[0]))) continue;
+						lcd_framebuffer[p] = color;
 					}
 				}
 			}
@@ -33,12 +36,12 @@ void lcd_write_char(int x, int y, char c)
 	}
 }
 
-void lcd_write_str(int x, int y, char* str)
+void lcd_write_str(uint16_t color, int x, int y, char* str)
 {
 	int ox = x;
 	while (*str)
 	{
-		lcd_write_char(x, y, *str);
+		lcd_write_char(color, x, y, *str);
 		x += 8;
 		if ((*str) == '\n')
 		{
@@ -56,12 +59,11 @@ extern volatile bool write_done;
 
 #include "cat_main.h"
 
+bool in_debug_menu = false;
+bool show_fps = true;
+
 void lcd_render_diag()
 {
-	int x = 75;
-	int y = 100;
-	int dx = 0;
-	int step = 3;
 
 	int last_sensor_update = 0;
 
@@ -69,6 +71,8 @@ void lcd_render_diag()
 	CAT_init();
 
 	NRF_SPIM4->FREQUENCY = SPIM_FREQUENCY_FREQUENCY_M32;
+
+	int last_ms = 1;
 
 	while (1)
 	{
@@ -83,51 +87,38 @@ void lcd_render_diag()
 
 		uint32_t after_memset = k_cycle_get_32();
 
-		CAT_tick();
+		if (in_debug_menu)
+		{
+			draw_debug_menu();
+		}
+		else
+		{
+			CAT_tick();
+		}
 
 		uint32_t after_blit = k_cycle_get_32();
 
 		uint8_t buttons = get_buttons();
 		// LOG_DBG("Buttons: %02x", buttons);
+		touch_update();
 
-		char buf[512] = {0};
-		int written = 0;
-		written += snprintf(buf+written, sizeof(buf)-written-1, 
-			"CAT Test\nButtons: %02x\nUptime: %lldms\n\n",
-			buttons, k_uptime_get());
-		written += snprintf(buf+written, sizeof(buf)-written-1,
-			"LPS22HH @ %lldms\nTemp: %.1fC\nPressure: %.1f?\n\n",
-			current_readings.lps22hh.uptime_last_updated, (double)current_readings.lps22hh.temp, (double)current_readings.lps22hh.pressure);
-		written += snprintf(buf+written, sizeof(buf)-written-1,
-			"Sunrise @ %lldms\nCO2: %.0fppm\n\n",
-			current_readings.sunrise.uptime_last_updated, (double)current_readings.sunrise.ppm_filtered_compensated);
-		written += snprintf(buf+written, sizeof(buf)-written-1,
-			"SEN5x @ %lldms\nPM1.0: %.1f; PM2.5: %.1f\nPM4.0: %.1f; PM10.0: %.1f\nHumidity: %.1f%%RH; Temp: %.1fC\nVOC: %.1f; NOX: %.1f\n\n",
-			current_readings.sen5x.uptime_last_updated, (double)current_readings.sen5x.pm1_0, (double)current_readings.sen5x.pm2_5,
-			(double)current_readings.sen5x.pm4_0, (double)current_readings.sen5x.pm10_0, (double)current_readings.sen5x.humidity_rhpct,
-			(double)current_readings.sen5x.temp_degC, (double)current_readings.sen5x.voc_index, (double)current_readings.sen5x.nox_index);
-		written += snprintf(buf+written, sizeof(buf)-written-1, "Meow :3");
+		if (show_fps)
+		{
+			char buf[32] = {0};
+			snprintf(buf, sizeof(buf)-1, "%d FPS", 1000/last_ms);
+			lcd_write_str(0x0ee0, 240-(strlen("XX FPS")*8), 0, buf);
+		}
+
+		
 
 		uint32_t after_printf = k_cycle_get_32();
 		// LOG_DBG("write '%s'", buf);
 		// lcd_write_str(0, 0, buf);
 
-		
-
-		if (buttons & CAT_BTN_MASK_UP) y -= step;
-		if (buttons & CAT_BTN_MASK_DOWN) y += step;
-		if (buttons & CAT_BTN_MASK_LEFT) x -= step;
-		if (buttons & CAT_BTN_MASK_RIGHT) x += step;
-		if (buttons & CAT_BTN_MASK_START)
+		if ((buttons & CAT_BTN_MASK_SELECT) && (buttons & CAT_BTN_MASK_START))
 		{
-			epaper_render_test();
-			pc_set_mode(true);
+			in_debug_menu = true;
 		}
-		if (buttons & CAT_BTN_MASK_SELECT)
-		{
-			test_speaker();
-		}
-
 		
 
 		uint32_t after_text = k_cycle_get_32();
@@ -139,6 +130,8 @@ void lcd_render_diag()
 		uint32_t after_flip = k_cycle_get_32();
 
 		int end_ms = k_uptime_get();
+
+		last_ms = end_ms-start_ms;
 
 		if ((k_uptime_get() - last_sensor_update) > 5000)
 		{

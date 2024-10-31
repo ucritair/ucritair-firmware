@@ -115,5 +115,6 @@ void epaper_render_test()
 
 	pc_set_mode(false);
 	cmd_turn_on_and_write(test_image);
+	pc_set_mode(true);
 }
 

@@ -76,3 +76,20 @@ void test_leds()
 		k_sleep(DELAY_TIME);
 	}
 }
+
+void set_all_same_color(struct led_rgb color)
+{
+	for (int i = 0; i < STRIP_NUM_PIXELS; i++)
+	{
+		pixels[i] = color;
+	}
+
+	set_leds(true);
+
+	LOG_INF("set_all_same_color r=%d, g=%d, b=%d", color.r, color.g, color.b);
+	int rc = led_strip_update_rgb(strip, pixels, STRIP_NUM_PIXELS);
+	if (rc)
+	{
+		LOG_ERR("couldn't update strip: %d", rc);
+	}
+}

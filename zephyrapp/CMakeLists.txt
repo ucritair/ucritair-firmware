@@ -14,6 +14,7 @@ target_sources(app PRIVATE
 	src/batt.c
 	src/ble.c
 	src/buttons.c
+	src/debugmenu.c
 	src/display_pinctrl.c
 	src/epaper_driver.c
 	src/epaper_rendering.c
@@ -30,10 +31,13 @@ target_sources(app PRIVATE
 	src/sensor_sen5x.c
 	src/sensor_sunrise.c
 	src/sound.c
+	src/touch.c
 	src/wlan.c
 
 	${CMAKE_CURRENT_BINARY_DIR}/images.c
 )
+
+target_include_directories(app PRIVATE src/)
 
 add_custom_command(
 	OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/images.c

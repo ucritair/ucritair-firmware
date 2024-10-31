@@ -1,10 +1,16 @@
 #include "cat_embedded.h"
 #include "cat_core.h"
 
+#include <zephyr/kernel.h>
+
+#include "touch.h"
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // DEV MODE
+
+float delta_t = 0.1;
+uint64_t last_uptime = 0;
 
 void CAT_platform_init()
 {
@@ -13,7 +19,9 @@ void CAT_platform_init()
 
 void CAT_platform_tick()
 {
-	
+	uint64_t now = k_uptime_get();
+	delta_t = ((float)(now - last_uptime))/1000.;
+	last_uptime = now;
 }
 
 void CAT_platform_cleanup()
@@ -77,7 +85,9 @@ uint16_t CAT_get_buttons()
 
 void CAT_get_touch(CAT_touch* touch)
 {
-	
+	touch->x = touch_mapped_x;
+	touch->y = touch_mapped_y;
+	touch->pressure = touch_pressure;
 }
 
 
@@ -86,12 +96,12 @@ void CAT_get_touch(CAT_touch* touch)
 
 uint64_t CAT_get_time_ms()
 {
-	return 1;
+	return k_uptime_get();
 }
 
 float CAT_get_delta_time()
 {
-	return 0.1;
+	return delta_t;
 }
 
 void CAT_get_datetime(CAT_datetime* datetime)

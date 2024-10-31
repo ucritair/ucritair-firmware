@@ -34,24 +34,6 @@ void init_pin(const struct gpio_dt_spec* pin, char* name, gpio_flags_t flags)
 
 static const struct device* dev_i2c = DEVICE_DT_GET(DT_NODELABEL(arduino_i2c));
 
-const int addr_ns2009 = 0x48;
-
-uint16_t read_ns2009(uint8_t addr)
-{
-	uint8_t buf[2];
-	if (i2c_write_read(dev_i2c, addr_ns2009, &addr, 1, buf, 2))
-	{
-		LOG_ERR("ns2009 read failed");
-		return 0xffff;
-	}
-
-	return (buf[0] << 4) | (buf[1] >> 4);
-}
-
-const int ns2009_reg_X = 0x90;
-const int ns2009_reg_Y = 0x80;
-const int ns2009_reg_Z1 = 0xe0;
-
 void test_i2c()
 {
 	while (!device_is_ready(dev_i2c)) {
@@ -227,28 +209,4 @@ void test_i2c()
     }
 
 
-}
-
-void report_ns2009()
-{
-	return;
-	int x = read_ns2009(ns2009_reg_X);
-	int y = read_ns2009(ns2009_reg_Y);
-	int z = read_ns2009(ns2009_reg_Z1);
-
-	LOG_INF("NS2009: x=%5d y=%5d z=%d", x, y, z);
-
-	uint8_t sunrise_temp_cmd = 0x08; // i2c addr
-	uint8_t sunrise_tmp[2] = {0};
-
-	k_msleep(1);
-
-	if (i2c_write_read(dev_i2c, 0x68, &sunrise_temp_cmd, 1, sunrise_tmp, 2))
-    {
-    	LOG_ERR("Sunrise tmp failed");
-    }
-    else
-    {
-    	LOG_HEXDUMP_DBG(sunrise_tmp, 2, "sunrise_tmp");
-    }
 }

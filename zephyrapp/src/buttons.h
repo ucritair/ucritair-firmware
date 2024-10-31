@@ -1,3 +1,4 @@
+#include <stdint.h>
 
 #define CAT_BTN_MASK_SELECT 0x01
 #define CAT_BTN_MASK_START 0x02
