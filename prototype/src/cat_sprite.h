@@ -162,10 +162,12 @@ extern int device_sprite_id;
 extern int window_sprite_id; 
 extern int seed_sprite_id;
 
-extern int cursor_sprite_id[4];
+extern int cursor_sprite_id[21];
 extern int feed_button_sprite_id;
 extern int study_button_sprite_id;
 extern int play_button_sprite_id;
+extern int deco_button_sprite_id;
+extern int menu_button_sprite_id;
 extern int ring_hl_sprite_id;
 
 extern int panel_sprite_id[9];

@@ -3,6 +3,7 @@
 #include <time.h>
 #include <stdlib.h>
 #include <math.h>
+#include <stdio.h>
 
 //////////////////////////////////////////////////////////////////////////
 // VEC2
@@ -123,11 +124,11 @@ CAT_ivec2 rand_ivec2(CAT_ivec2 min, CAT_ivec2 max)
 
 bool CAT_test_overlap(CAT_ivec2 a_min, CAT_ivec2 a_max, CAT_ivec2 b_min, CAT_ivec2 b_max)
 {
-	if(a_min.x > b_max.x || a_max.x < b_min.x)
-		return true;
-	if(a_min.y > b_max.y || a_max.y < b_min.y)
-		return true;
-	return false;
+	if(a_min.x >= b_max.x || a_max.x <= b_min.x)
+		return false;
+	if(a_min.y >= b_max.y || a_max.y <= b_min.y)
+		return false;
+	return true;
 }
 
 bool CAT_test_contain(CAT_ivec2 a_min, CAT_ivec2 a_max, CAT_ivec2 b_min, CAT_ivec2 b_max)

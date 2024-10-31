@@ -66,6 +66,7 @@ typedef struct CAT_pet
 	
 	int walk_timer_id;
 	int mood_timer_id;
+	int stat_timer_id;
 } CAT_pet;
 CAT_pet pet;
 
@@ -154,6 +155,7 @@ void CAT_pet_init()
 	
 	pet.walk_timer_id = CAT_timer_init(3.0f);
 	pet.mood_timer_id = CAT_timer_init(2.0f);
+	pet.stat_timer_id = CAT_timer_init(3.0f);
 }
 
 #pragma endregion
@@ -180,8 +182,22 @@ bool CAT_room_emplace(int prop_id, CAT_ivec2 place)
 		return false;
 
 	CAT_item* prop = CAT_item_get(prop_id);
-	if(!CAT_test_contain(room.min, room.max, place, CAT_ivec2_add(place, prop->data.prop_data.shape)))
+	CAT_ivec2 shape = prop->data.prop_data.shape;
+	CAT_ivec2 prop_min = (CAT_ivec2) {place.x, place.y - shape.y};
+	CAT_ivec2 prop_max = (CAT_ivec2) {place.x + shape.x, place.y};
+
+	if(!CAT_test_contain(room.min, room.max, prop_min, prop_max))
 		return false;
+	for(int i = 0; i < room.prop_count; i++)
+	{
+		CAT_ivec2 other_place = room.places[i];
+		CAT_item* other = CAT_item_get(room.props[i]);
+		CAT_ivec2 other_shape = other->data.prop_data.shape;
+		CAT_ivec2 other_min = (CAT_ivec2) {other_place.x, other_place.y - other_shape.y};
+		CAT_ivec2 other_max = (CAT_ivec2) {other_place.x + other_shape.x, other_place.y};
+		if(CAT_test_overlap(prop_min, prop_max, other_min, other_max))
+			return false;
+	}
 
 	int idx = room.prop_count;
 	room.prop_count += 1;
@@ -198,6 +214,7 @@ void CAT_MS_default(CAT_machine_signal signal)
 	{
 		case CAT_MACHINE_SIGNAL_ENTER:
 		{
+			mode = CAT_MODE_DEFAULT;
 			pet.status = CAT_PET_STATUS_IDLE;
 			CAT_timer_reset(pet.walk_timer_id);
 			CAT_timer_reset(pet.mood_timer_id);
@@ -218,6 +235,11 @@ void CAT_MS_default(CAT_machine_signal signal)
 			if(CAT_input_touch(pet.pos.x, pet.pos.y - 16, 8))
 			{
 				pet.status = CAT_PET_STATUS_PET;	
+			}
+
+			if(CAT_timer_tick(pet.stat_timer_id))
+			{
+				CAT_pet_stat();
 			}
 
 			switch(pet.status)
@@ -246,6 +268,8 @@ void CAT_MS_default(CAT_machine_signal signal)
 					}
 					break;
 			}
+
+			
 			break;
 		}
 		case CAT_MACHINE_SIGNAL_EXIT:
@@ -263,6 +287,7 @@ void CAT_MS_feed(CAT_machine_signal signal)
 	{
 		case CAT_MACHINE_SIGNAL_ENTER:
 		{
+			mode = CAT_MODE_FEED;
 			pet.status = CAT_PET_STATUS_IDLE;
 			committed = false;
 			break;
@@ -314,10 +339,67 @@ void CAT_MS_feed(CAT_machine_signal signal)
 	}
 }
 
+void CAT_MS_deco(CAT_machine_signal signal)
+{
+	static int prop_id = 0;
+
+	switch(signal)
+	{
+		case CAT_MACHINE_SIGNAL_ENTER:
+		{
+			mode = CAT_MODE_DECO;
+			pet.status = CAT_PET_STATUS_IDLE;
+			break;
+		}
+		case CAT_MACHINE_SIGNAL_TICK:
+		{
+			CAT_room_move_cursor();
+
+			if(CAT_input_held(CAT_BUTTON_A, 0.25))
+			{
+				CAT_item* prop = CAT_item_get(prop_id);
+				CAT_ivec2 shape = prop->data.prop_data.shape;
+				CAT_ivec2 prop_min = (CAT_ivec2) {room.cursor.x, room.cursor.y - shape.y};
+				CAT_ivec2 prop_max = (CAT_ivec2) {room.cursor.x + shape.x, room.cursor.y};
+				for(int y = prop_min.y; y < prop_max.y; y++)
+				{
+					for(int x = prop_min.x; x < prop_max.x; x++)
+					{
+						CAT_draw_queue_add(cursor_sprite_id[9], 3, x * 16, y * 16, CAT_DRAW_MODE_DEFAULT);
+					}
+				}
+			}
+			else if(CAT_input_released(CAT_BUTTON_A))
+			{
+				if(CAT_room_emplace(prop_id, room.cursor))
+					prop_id = CAT_bag_seek(prop_id+1, CAT_ITEM_TYPE_PROP);
+			}
+			else
+			{
+				CAT_draw_queue_add(cursor_sprite_id[18], 3, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
+			}
+
+			if(CAT_input_pressed(CAT_BUTTON_B))
+			{
+				mode = CAT_MODE_DEFAULT;
+				CAT_machine_transition(&machine, CAT_MS_default);
+			}
+			break;
+		}
+		case CAT_MACHINE_SIGNAL_EXIT:
+		{
+			break;
+		}
+	}
+}
+
 void CAT_room_feed_button()
 {
-	mode = CAT_MODE_FEED;
 	CAT_machine_transition(&machine, CAT_MS_feed);
+}
+void CAT_room_deco_button()
+{
+	CAT_machine_transition(&machine, CAT_MS_deco);
 }
 void CAT_room_menu_button()
 {
@@ -327,14 +409,14 @@ void CAT_room_menu_button()
 void CAT_room_init()
 {
 	room.min = (CAT_ivec2) {0, 7};
-	room.max = (CAT_ivec2) {14, 16};
+	room.max = (CAT_ivec2) {15, 17};
 	room.prop_count = 0;
 	room.cursor = room.min;
 
 	room.buttons[0] = CAT_room_feed_button;
 	room.buttons[1] = CAT_room_feed_button;
 	room.buttons[2] = CAT_room_feed_button;
-	room.buttons[3] = CAT_room_feed_button;
+	room.buttons[3] = CAT_room_deco_button;
 	room.buttons[4] = CAT_room_menu_button;
 	room.selector = 0;
 }
@@ -513,8 +595,8 @@ void CAT_render()
 			CAT_draw_queue_add(feed_button_sprite_id, 3, 8, 280, CAT_DRAW_MODE_DEFAULT); 
 			CAT_draw_queue_add(study_button_sprite_id, 3, 56, 280, CAT_DRAW_MODE_DEFAULT); 
 			CAT_draw_queue_add(play_button_sprite_id, 3, 104, 280, CAT_DRAW_MODE_DEFAULT);
-			CAT_draw_queue_add(study_button_sprite_id, 3, 152, 280, CAT_DRAW_MODE_DEFAULT);
-			CAT_draw_queue_add(study_button_sprite_id, 3, 200, 280, CAT_DRAW_MODE_DEFAULT);
+			CAT_draw_queue_add(deco_button_sprite_id, 3, 152, 280, CAT_DRAW_MODE_DEFAULT);
+			CAT_draw_queue_add(menu_button_sprite_id, 3, 200, 280, CAT_DRAW_MODE_DEFAULT);
 
 			switch(mode)
 			{
@@ -525,7 +607,10 @@ void CAT_render()
 					if(pet.status == CAT_PET_STATUS_WALK)
 						CAT_draw_queue_add(seed_sprite_id, 2, pet.targ.x, pet.targ.y, CAT_DRAW_MODE_CENTER_X | CAT_DRAW_MODE_CENTER_Y);
 					else if(pet.status == CAT_PET_STATUS_IDLE)
-						CAT_draw_queue_add(cursor_sprite_id[0], 3, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
+						CAT_draw_queue_add(cursor_sprite_id[18], 3, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_BOTTOM);
+					break;
+				case CAT_MODE_DECO:
+					break;
 			}
 			
 			CAT_anim_queue_submit();

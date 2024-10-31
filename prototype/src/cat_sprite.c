@@ -335,10 +335,12 @@ int device_sprite_id;
 int window_sprite_id; 
 int seed_sprite_id;
 
-int cursor_sprite_id[4];
+int cursor_sprite_id[21];
 int feed_button_sprite_id;
 int study_button_sprite_id;
 int play_button_sprite_id;
+int deco_button_sprite_id;
+int menu_button_sprite_id;
 int ring_hl_sprite_id;
 
 int panel_sprite_id[9];
@@ -415,13 +417,15 @@ void CAT_sprite_mass_define()
 	window_sprite_id = CAT_atlas_add(0, 96, 112, 61);
 	seed_sprite_id = CAT_atlas_add(128, 304, 32, 32);
 
-	for(int i = 0; i < 4; i++)
+	for(int i = 0; i < 21; i++)
 	{
-		cursor_sprite_id[i] = CAT_atlas_add(288+16*i, 336, 16, 16);
+		cursor_sprite_id[i] = CAT_atlas_add(16*i, 336, 16, 16);
 	}
 	feed_button_sprite_id = CAT_atlas_add(128, 0, 32, 32);
 	study_button_sprite_id = CAT_atlas_add(160, 0, 32, 32);
 	play_button_sprite_id = CAT_atlas_add(192, 0, 32, 32);
+	deco_button_sprite_id = CAT_atlas_add(529, 0, 32, 32);
+	menu_button_sprite_id = CAT_atlas_add(561, 0, 32, 32);
 	ring_hl_sprite_id = CAT_atlas_add(224, 0, 32, 32);
 
 	for(int i = 0; i < 3; i++)

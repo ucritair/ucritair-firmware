@@ -1,4 +1,5 @@
 #include "cat_item.h"
+#include <stdio.h>
 
 //////////////////////////////////////////////////////////////////////////
 // TABLE AND BAG
@@ -104,8 +105,8 @@ int seed_item_id;
 
 void CAT_item_mass_define()
 {
-	chair_item_id = CAT_item_init(CAT_ITEM_TYPE_PROP, "Chair", chair_sprite_id[0], 0);
-	CAT_prop_init(chair_item_id, chair_anim_id, 2, 2);
+	chair_item_id = CAT_item_init(CAT_ITEM_TYPE_PROP, "Chair", chair_sprite_id[3], 0);
+	CAT_prop_init(chair_item_id, -1, 2, 2);
 	CAT_bag_add(chair_item_id);
 
 	table_item_id = CAT_item_init(CAT_ITEM_TYPE_PROP, "Table", table_sprite_id, 0);
@@ -113,14 +114,14 @@ void CAT_item_mass_define()
 	CAT_bag_add(table_item_id);
 	
 	coffee_item_id = CAT_item_init(CAT_ITEM_TYPE_PROP, "Coffee", coffee_sprite_id[0], 0);
-	CAT_prop_init(coffee_item_id, coffee_anim_id, 4, 2);
+	CAT_prop_init(coffee_item_id, coffee_anim_id, 2, 2);
 	CAT_bag_add(coffee_item_id);
 	
 	device_item_id = CAT_item_init(CAT_ITEM_TYPE_PROP, "Device", device_sprite_id, 0);
-	CAT_prop_init(device_item_id, -1, 4, 2);
+	CAT_prop_init(device_item_id, -1, 3, 2);
 	CAT_bag_add(device_item_id);
 
-	seed_item_id = CAT_item_init(CAT_ITEM_TYPE_FOOD, "Seed", seed_sprite_id[0], 0);
+	seed_item_id = CAT_item_init(CAT_ITEM_TYPE_FOOD, "Seed", seed_sprite_id, 0);
 	CAT_food_init(seed_item_id, 0, 0, 0, 0, 0, 0);
 	CAT_bag_add(seed_item_id);
 }
