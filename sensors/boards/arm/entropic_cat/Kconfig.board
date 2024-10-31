@@ -1,6 +1,0 @@
-# Copyright (c) 2024 Nordic Semiconductor ASA
-# SPDX-License-Identifier: Apache-2.0
-
-config BOARD_ENTROPIC_CAT
-	bool "Entropic CAT"
-	depends on SOC_NRF5340_CPUAPP_QKAA

@@ -1,9 +1,0 @@
-board:
-  name: cat5340
-  full_name: nRF5340 DK
-  vendor: nordic
-  socs:
-  - name: 'nrf5340'
-    variants:
-    - name: 'ns'
-      cpucluster: 'cpuapp'

@@ -1,6 +1,0 @@
-{
-    "files.associations": {
-        "*.j2": "jinja",
-        "uuid.h": "c"
-    }
-}
