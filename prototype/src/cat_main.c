@@ -239,7 +239,7 @@ void CAT_MS_default(CAT_machine_signal signal)
 						pet.status = CAT_PET_STATUS_IDLE;
 					}
 					break;
-				case CAT_PET_STATUS_FEED:
+				case CAT_PET_STATUS_PET:
 					if(CAT_timer_tick(pet.mood_timer_id))
 					{
 						pet.status = CAT_PET_STATUS_IDLE;
@@ -326,7 +326,7 @@ void CAT_room_menu_button()
 
 void CAT_room_init()
 {
-	room.min = (CAT_ivec2) {0, 6};
+	room.min = (CAT_ivec2) {0, 7};
 	room.max = (CAT_ivec2) {14, 16};
 	room.prop_count = 0;
 	room.cursor = room.min;
@@ -361,20 +361,17 @@ void CAT_menu_screen_logic()
 
 	if(CAT_input_pressed(CAT_BUTTON_A))
 	{
-		const char* selector = menu_screen.items[menu_screen.idx];
-		if(strcmp(selector, "STATS") == 0)
+		if(menu_screen.idx == 0)
 			screen = CAT_SCREEN_STATS;
-		if(strcmp(selector, "BAG") == 0)
+		if(menu_screen.idx == 1)
 			screen = CAT_SCREEN_BAG;
-		if(strcmp(selector, "BACK") == 0)
+		if(menu_screen.idx == 2)
 			screen = CAT_SCREEN_ROOM;
 	}
 
 	if(CAT_input_pressed(CAT_BUTTON_B) || CAT_input_pressed(CAT_BUTTON_START))
 		screen = CAT_SCREEN_ROOM;
 }
-
-
 
 #pragma endregion
 
@@ -503,6 +500,7 @@ void CAT_render()
 				}
 				case CAT_PET_STATUS_PET:
 				{
+					CAT_anim_queue_add(idle_anim_id, 2, pet.pos.x, pet.pos.y, pet_mode);
 					int x_off = (pet_mode & CAT_DRAW_MODE_REFLECT_X) > 0 ? 16 : -16;
 					CAT_anim_queue_add(fed_anim_id, 3, pet.pos.x + x_off, pet.pos.y - 48, pet_mode);
 					break;
@@ -524,10 +522,10 @@ void CAT_render()
 					CAT_draw_queue_add(ring_hl_sprite_id, 4, 8+48*room.selector, 280, CAT_DRAW_MODE_DEFAULT);
 					break;
 				case CAT_MODE_FEED:
-				case CAT_MODE_STUDY:
-				case CAT_MODE_PLAY:
-				case CAT_MODE_DECO:
-					CAT_draw_queue_add(cursor_sprite_id[0], 3, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
+					if(pet.status == CAT_PET_STATUS_WALK)
+						CAT_draw_queue_add(seed_sprite_id, 2, pet.targ.x, pet.targ.y, CAT_DRAW_MODE_CENTER_X | CAT_DRAW_MODE_CENTER_Y);
+					else if(pet.status == CAT_PET_STATUS_IDLE)
+						CAT_draw_queue_add(cursor_sprite_id[0], 3, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
 			}
 			
 			CAT_anim_queue_submit();
