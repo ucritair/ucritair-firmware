@@ -3,6 +3,7 @@
 
 #include <zephyr/kernel.h>
 
+#include "buttons.h"
 #include "touch.h"
 
 
@@ -75,8 +76,6 @@ void CAT_play_tone(float pitch_hz, float time_s)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // INPUT
-
-uint16_t get_buttons();
 
 uint16_t CAT_get_buttons()
 {

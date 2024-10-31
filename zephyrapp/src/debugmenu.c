@@ -11,6 +11,7 @@
 #include "rgb_leds.h"
 #include "epaper_rendering.h"
 #include "touch.h"
+#include "imu.h"
 
 typedef void (*menu_t)();
 typedef void (*menu_op_t)(void*);
@@ -141,6 +142,19 @@ void menu_touch()
 	selectable("Back", goto_menu, menu_root);
 }
 
+void menu_imu()
+{
+	text("~~IMU MENU~~");
+	textf("X: %01.2f Y: %01.2f Z: %01.2f", (double)imu_x, (double)imu_y, (double)imu_z);
+
+	lcd_write_char(0xff00, 100, 150+(80*imu_x), 'X');
+	lcd_write_char(0x0ff0, 120, 150+(80*imu_y), 'Y');
+	lcd_write_char(0x00ff, 140, 150+(80*imu_z), 'Z');
+
+	text("");
+	selectable("Back", goto_menu, menu_root);
+}
+
 void menu_toggle_fps(void* arg)
 {
 	show_fps = !show_fps;
@@ -154,6 +168,7 @@ void menu_root()
 	selectable("Test Buzzer", menu_test_buzzer, NULL);
 	selectable("Update eInk", menu_test_eink, NULL);
 	selectable("Touch Diagnostics", goto_menu, menu_touch);
+	selectable("IMU Diagnostics", goto_menu, menu_imu);
 	selectable("Toggle show FPS", menu_toggle_fps, NULL);
 
 	text("");

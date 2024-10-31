@@ -19,6 +19,7 @@ target_sources(app PRIVATE
 	src/epaper_driver.c
 	src/epaper_rendering.c
 	src/flash.c
+	src/imu.c
 	src/lcd_driver.c
 	src/lcd_rendering.c
 	src/main.c

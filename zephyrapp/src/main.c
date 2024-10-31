@@ -35,12 +35,13 @@ int main(void)
 
 	usb_enable(NULL);
 
-	// uint32_t dtr = 0;
-	// while (!dtr) {
-	// 	uart_line_ctrl_get(dev, UART_LINE_CTRL_DTR, &dtr);
-	// 	LOG_INF("Waiting for DTR...");
-	// 	k_sleep(K_MSEC(1000));
-	// }
+	const struct device* dev = DEVICE_DT_GET(DT_CHOSEN(zephyr_shell_uart));
+	uint32_t dtr = 0;
+	while ((!dtr) && (k_uptime_get() < 1500)) {
+		uart_line_ctrl_get(dev, UART_LINE_CTRL_DTR, &dtr);
+		LOG_INF("Waiting for DTR...");
+		k_sleep(K_MSEC(1000));
+	}
 
 	LOG_INF("CAT Application Started");
 	LOG_PANIC();

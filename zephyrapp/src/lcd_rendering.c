@@ -70,6 +70,8 @@ void lcd_render_diag()
 	LOG_INF("About to CAT_init");
 	CAT_init();
 
+	imu_init();
+
 	NRF_SPIM4->FREQUENCY = SPIM_FREQUENCY_FREQUENCY_M32;
 
 	int last_ms = 1;
@@ -101,6 +103,7 @@ void lcd_render_diag()
 		uint8_t buttons = get_buttons();
 		// LOG_DBG("Buttons: %02x", buttons);
 		touch_update();
+		imu_update();
 
 		if (show_fps)
 		{

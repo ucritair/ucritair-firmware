@@ -7,7 +7,7 @@
 
 #include "airquality.h"
 
-LOG_MODULE_REGISTER(sunrise);
+LOG_MODULE_REGISTER(sunrise, LOG_LEVEL_ERR);
 
 /* Sensor goes to sleep after this many milliseconds of SDA inactivity.
  * After this, needs another wake-up.
@@ -298,7 +298,7 @@ static inline int _wakeup() {
 #define CHK(_ACT) do { \
     const int result = _ACT; \
     if (result != 0) { \
-        LOG_ERR("Action %s failed with %d (%s)\n", #_ACT, result, strerror(result)); \
+        LOG_ERR("Action %s failed with %d (%s)", #_ACT, result, strerror(result)); \
         state.is_faulted = true; \
         return result; \
     } \
@@ -330,46 +330,46 @@ int sunrise_init()
     //TODO: ensure product code contains a null terminator and only printable ascii,
     // else print the hexdump of it instead
 
-    printf("FW Type: %u  Rev: %u.%u\n", fw_type, fw_rev.main, fw_rev.sub);
-    printf("Sensor ID: %08x\n", sensor_id);
-    printf("Product Code: %s\n", product_code.code);
-    printf("Elapsed Time: %u hours\n", elapsed_time_hrs);
-    printf("Measurement Mode: %02x\n", measurement_mode);
+    LOG_DBG("FW Type: %u  Rev: %u.%u", fw_type, fw_rev.main, fw_rev.sub);
+    LOG_DBG("Sensor ID: %08x", sensor_id);
+    LOG_DBG("Product Code: %s", product_code.code);
+    LOG_DBG("Elapsed Time: %u hours", elapsed_time_hrs);
+    LOG_DBG("Measurement Mode: %02x", measurement_mode);
 
-    printf("Error Status: %04x\n", *(uint16_t*)&error_status);
-    printf("                     fatal_error: %d\n", error_status.fatal_error);
-    printf("                       i2c_error: %d\n", error_status.i2c_error);
-    printf("                 algorithm_error: %d\n", error_status.algorithm_error);
-    printf("               calibration_error: %d\n", error_status.calibration_error);
-    printf("                 self_diag_error: %d\n", error_status.self_diag_error);
-    printf("                    out_of_range: %d\n", error_status.out_of_range);
-    printf("                    memory_error: %d\n", error_status.memory_error);
-    printf("        no_measurement_completed: %d\n", error_status.no_measurement_completed);
-    printf("  low_internal_regulator_voltage: %d\n", error_status.low_internal_regulator_voltage);
-    printf("             measurement_timeout: %d\n", error_status.measurement_timeout);
-    printf("           abnormal_signal_level: %d\n", error_status.abnormal_signal_level);
-    printf("                        reserved: %d\n", error_status.reserved);
-    printf("              scale_factor_error: %d\n", error_status.scale_factor_error);
+    LOG_DBG("Error Status: %04x", *(uint16_t*)&error_status);
+    LOG_DBG("                     fatal_error: %d", error_status.fatal_error);
+    LOG_DBG("                       i2c_error: %d", error_status.i2c_error);
+    LOG_DBG("                 algorithm_error: %d", error_status.algorithm_error);
+    LOG_DBG("               calibration_error: %d", error_status.calibration_error);
+    LOG_DBG("                 self_diag_error: %d", error_status.self_diag_error);
+    LOG_DBG("                    out_of_range: %d", error_status.out_of_range);
+    LOG_DBG("                    memory_error: %d", error_status.memory_error);
+    LOG_DBG("        no_measurement_completed: %d", error_status.no_measurement_completed);
+    LOG_DBG("  low_internal_regulator_voltage: %d", error_status.low_internal_regulator_voltage);
+    LOG_DBG("             measurement_timeout: %d", error_status.measurement_timeout);
+    LOG_DBG("           abnormal_signal_level: %d", error_status.abnormal_signal_level);
+    LOG_DBG("                        reserved: %d", error_status.reserved);
+    LOG_DBG("              scale_factor_error: %d", error_status.scale_factor_error);
 
-    printf("Calibration Status: %02x\n", *(uint8_t*)&calibration_status);
-    printf("                   _reserved_0: %d\n", calibration_status._reserved_0);
-    printf("                   _reserved_1: %d\n", calibration_status._reserved_1);
-    printf("  factory_calibration_restored: %d\n", calibration_status.factory_calibration_restored);
-    printf("               abc_calibration: %d\n", calibration_status.abc_calibration);
-    printf("            target_calibration: %d\n", calibration_status.target_calibration);
-    printf("        background_calibration: %d\n", calibration_status.background_calibration);
-    printf("              zero_calibration: %d\n", calibration_status.zero_calibration);
-    printf("                   _reserved_7: %d\n", calibration_status._reserved_7);
+    LOG_DBG("Calibration Status: %02x", *(uint8_t*)&calibration_status);
+    LOG_DBG("                   _reserved_0: %d", calibration_status._reserved_0);
+    LOG_DBG("                   _reserved_1: %d", calibration_status._reserved_1);
+    LOG_DBG("  factory_calibration_restored: %d", calibration_status.factory_calibration_restored);
+    LOG_DBG("               abc_calibration: %d", calibration_status.abc_calibration);
+    LOG_DBG("            target_calibration: %d", calibration_status.target_calibration);
+    LOG_DBG("        background_calibration: %d", calibration_status.background_calibration);
+    LOG_DBG("              zero_calibration: %d", calibration_status.zero_calibration);
+    LOG_DBG("                   _reserved_7: %d", calibration_status._reserved_7);
 
-    printf("Meter Control: %02x\n", *(uint8_t*)&meter_ctrl);
-    printf("               nrdy_disable: %d\n", meter_ctrl.nrdy_disable);
-    printf("               abc_disabled: %d\n", meter_ctrl.abc_disabled);
-    printf("      static_iir_filter_dis: %d\n", meter_ctrl.static_iir_filter_dis);
-    printf("     dynamic_iir_filter_dis: %d\n", meter_ctrl.dynamic_iir_filter_dis);
-    printf("  pressure_compensation_dis: %d\n", meter_ctrl.pressure_compensation_dis);
-    printf("       nrdy_invert_disabled: %d\n", meter_ctrl.nrdy_invert_disabled);
-    printf("                 reserved_6: %d\n", meter_ctrl.reserved_6);
-    printf("                 reserved_7: %d\n", meter_ctrl.reserved_7);
+    LOG_DBG("Meter Control: %02x", *(uint8_t*)&meter_ctrl);
+    LOG_DBG("               nrdy_disable: %d", meter_ctrl.nrdy_disable);
+    LOG_DBG("               abc_disabled: %d", meter_ctrl.abc_disabled);
+    LOG_DBG("      static_iir_filter_dis: %d", meter_ctrl.static_iir_filter_dis);
+    LOG_DBG("     dynamic_iir_filter_dis: %d", meter_ctrl.dynamic_iir_filter_dis);
+    LOG_DBG("  pressure_compensation_dis: %d", meter_ctrl.pressure_compensation_dis);
+    LOG_DBG("       nrdy_invert_disabled: %d", meter_ctrl.nrdy_invert_disabled);
+    LOG_DBG("                 reserved_6: %d", meter_ctrl.reserved_6);
+    LOG_DBG("                 reserved_7: %d", meter_ctrl.reserved_7);
 
     return 0;
 }

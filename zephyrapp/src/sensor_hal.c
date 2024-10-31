@@ -1,6 +1,11 @@
 #include <zephyr/kernel.h>
 #include <zephyr/drivers/i2c.h>
 
+
+#include <zephyr/logging/log.h>
+LOG_MODULE_REGISTER(sensor_hal, LOG_LEVEL_ERR);
+
+
 #include "sensor_hal.h"
 
 static const struct device* dev_i2c = DEVICE_DT_GET(DT_NODELABEL(arduino_i2c));
@@ -14,23 +19,23 @@ static const struct sensor_t* sensors[] = {
 
 void sensor_read_once(void) {
     bool is_ready = false;
-    printf("Reading sensors...\n");
+    LOG_DBG("Reading sensors...");
     ARRAY_FOR_EACH(sensors, i) {
         const struct sensor_t* const s = sensors[i];
         for (int retry = 0; retry < 2; retry++)
         {
             if (s->is_faulted()) {
-                printf("[sensor:%s] Faulted\n", s->name);
+                LOG_ERR("[sensor:%s] Faulted", s->name);
                 s->init();
                 continue;
             } else if (s->is_ready(&is_ready) != 0) {
-                printf("[sensor:%s] Ready check failed\n", s->name);
+                LOG_WRN("[sensor:%s] Ready check failed", s->name);
             } else if (!is_ready) {
                 /* not ready, take no action */
             } else if (s->read() != 0) {
-                printf("[sensor:%s] Read failed\n", s->name);
+                LOG_ERR("[sensor:%s] Read failed", s->name);
             } else {
-                printf("[sensor:%s] success!\n", s->name);
+                LOG_DBG("[sensor:%s] success!", s->name);
             }
         }
     }
@@ -39,10 +44,10 @@ void sensor_read_once(void) {
 
 int sensor_init(void)
 {
-    printf("henlo, friendo!\n");
+    LOG_DBG("henlo, friendo!");
 
     while (!device_is_ready(dev_i2c)) {
-        printf("waiting for i2c to be ready...\n");
+        LOG_DBG("waiting for i2c to be ready...");
         k_msleep(100);
     }
 
@@ -64,11 +69,11 @@ int sensor_init(void)
         printf("\n");
     }
 
-    printf("Initializing sensors...\n");
+    LOG_INF("Initializing sensors...");
     ARRAY_FOR_EACH(sensors, i) {
         const struct sensor_t* const s = sensors[i];
         if (s->init() != 0) {
-            printf("[sensor:%s] Init failed :<\n", s->name);
+            LOG_ERR("[sensor:%s] Init failed :<", s->name);
         }
     }
 

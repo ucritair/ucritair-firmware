@@ -7,7 +7,7 @@
 #include "sensor_hal.h"
 #include "airquality.h"
 
-LOG_MODULE_REGISTER(sen5x);
+LOG_MODULE_REGISTER(sen5x, LOG_LEVEL_ERR);
 
 static const struct device* dev_i2c = DEVICE_DT_GET(DT_NODELABEL(arduino_i2c));
 
@@ -29,7 +29,7 @@ static struct sen5x_state_t state = {0,};
 #define CHK(_ACT) do { \
     const int result = _ACT; \
     if (result != 0) { \
-        LOG_ERR("Action %s failed with %d (%s)\n", #_ACT, result, strerror(result)); \
+        LOG_ERR("Action %s failed with %d (%s)", #_ACT, result, strerror(result)); \
         state.is_faulted = true; \
         return result; \
     } \
