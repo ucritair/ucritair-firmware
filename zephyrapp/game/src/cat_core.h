@@ -15,8 +15,16 @@ void CAT_platform_cleanup();
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // LCD SCREEN
 
+#ifdef CAT_DESKTOP
 #define LCD_SCREEN_W 240
 #define LCD_SCREEN_H 320
+#define LCD_FRAMEBUFFER_W LCD_SCREEN_W
+#define LCD_FRAMEBUFFER_H LCD_SCREEN_H
+#else
+#include <lcd_driver.h>
+#define LCD_SCREEN_W LCD_IMAGE_W
+#define LCD_SCREEN_H LCD_IMAGE_H
+#endif
 
 void CAT_LCD_post(uint16_t* buffer);
 bool CAT_LCD_is_posted();
@@ -90,7 +98,7 @@ int CAT_get_battery_pct();
 
 #ifdef CAT_DESKTOP
 #include "cat_desktop.h"
-//#define CAT_BAKED_ASSETS
+#define CAT_BAKED_ASSETS
 #else
 #include "cat_embedded.h"
 #define CAT_BAKED_ASSETS

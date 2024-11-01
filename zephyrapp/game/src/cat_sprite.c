@@ -73,6 +73,8 @@ extern uint16_t* image_data_table[];
 #include "../../script/images.c"
 #endif
 
+extern uint16_t rle_work_region[];
+
 extern uint16_t lcd_framebuffer[];
 
 void CAT_atlas_init(const char* path)
@@ -129,6 +131,58 @@ void CAT_spriter_init()
 #endif
 
 #include <stdio.h>
+
+#ifdef CAT_BAKED_ASSETS
+
+struct {
+	const uint16_t* ptr;
+	int width;
+	int rle_count;
+	uint16_t rle_word;
+} rle_decode_state;
+
+void init_rle_decode(const uint16_t* data, int width)
+{
+	rle_decode_state.ptr = data;
+	rle_decode_state.width = width;
+	rle_decode_state.rle_count = 0;
+}
+
+void unpack_rle_row()
+{
+#define RLE_NEXT() *(rle_decode_state.ptr++)
+	// printf("Unpack %d, width=%d\n", sprite_id, width);
+	int unpacked = 0;
+	while (unpacked < rle_decode_state.width)
+	{
+		if (rle_decode_state.rle_count)
+		{
+			rle_work_region[unpacked++] = rle_decode_state.rle_word;
+			rle_decode_state.rle_count--;
+			continue;
+		}
+
+		uint16_t word = RLE_NEXT();
+		// printf("word %04x ->", word);
+
+		if (word == 0xbeef)
+		{
+			rle_decode_state.rle_word = RLE_NEXT();
+			rle_decode_state.rle_count = RLE_NEXT();
+
+			// printf("rep %04x cnt %04x\n", repeated, repeat_count);
+		}
+		else
+		{
+			rle_work_region[unpacked++] = word;
+			// printf("direct\n");
+		}
+	}
+}
+
+#endif
+
+
 void CAT_draw_sprite(int x, int y, int sprite_id)
 {
 	CAT_sprite sprite = atlas.table[sprite_id];
@@ -147,9 +201,18 @@ void CAT_draw_sprite(int x, int y, int sprite_id)
 		x_shift = -w/2;
 	if((spriter.mode & CAT_DRAW_MODE_CENTER_Y) > 0)
 		y_shift = -h/2;
+
+#ifdef CAT_BAKED_ASSETS
+	init_rle_decode(image_data_table[sprite_id], w);
+#endif
 	
 	for(int dy = 0; dy < h; dy++)
 	{
+
+#ifdef CAT_BAKED_ASSETS
+		unpack_rle_row();
+#endif
+
 		for(int dx = 0; dx < w; dx++)
 		{
 
@@ -166,7 +229,7 @@ void CAT_draw_sprite(int x, int y, int sprite_id)
 			int x_r = dx;
 			if (spriter.mode & CAT_DRAW_MODE_REFLECT_X)
 				x_r = w-1-dx;
-			uint16_t px = *(image_data_table[sprite_id] + (w * dy) + x_r);
+			uint16_t px = *(rle_work_region + x_r);
 			if (px == 0xdead)
 				continue;
 #endif
@@ -205,6 +268,10 @@ void CAT_draw_tiles(int y_t, int h_t, int sprite_id)
 	int y_w = start;
 	int y_r = 0;
 
+#ifdef CAT_BAKED_ASSETS
+	init_rle_decode(image_data_table[sprite_id], CAT_TILE_SIZE);
+#endif
+
 	while(y_w < end)
 	{
 #ifdef CAT_EMBEDDED
@@ -222,7 +289,8 @@ void CAT_draw_tiles(int y_t, int h_t, int sprite_id)
 #ifndef CAT_BAKED_ASSETS
 		uint16_t* row_r = &atlas.rgb[(tile.y + y_r) * atlas.width + tile.x];
 #else
-		const uint16_t* row_r = image_data_table[sprite_id] + (y_r*tile.width);
+		unpack_rle_row();
+		const uint16_t* row_r = rle_work_region;
 #endif
 		uint16_t* row_w = &spriter.frame[y_w * LCD_SCREEN_W];
 
@@ -237,7 +305,12 @@ void CAT_draw_tiles(int y_t, int h_t, int sprite_id)
 		}
 		
 		if(++y_r >= CAT_TILE_SIZE)
+		{
 			y_r = 0;
+#ifdef CAT_BAKED_ASSETS
+			init_rle_decode(image_data_table[sprite_id], CAT_TILE_SIZE);
+#endif
+		}
 		y_w += 1;
 	}
 }

@@ -1,7 +1,8 @@
 
 #include <zephyr/kernel.h>
 #include <zephyr/drivers/gpio.h>
-
+#include <zephyr/sys/reboot.h>
+#include <zephyr/sys/poweroff.h>
 
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(power_control, LOG_LEVEL_DBG);
@@ -54,4 +55,25 @@ void set_leds(bool on)
 	pin_write(&pin_led_enable, on);
 	k_msleep(10);
 	is_leds_on = on;
+}
+
+void power_off()
+{
+	set_5v0(false);
+	set_leds(false);
+
+	// Drop IOVDD_EN
+	if (gpio_pin_configure(DEVICE_DT_GET(DT_CHOSEN(gpio0)), 11, GPIO_OUTPUT_HIGH)) LOG_ERR("Init 0.11 failed");
+	gpio_pin_set(DEVICE_DT_GET(DT_CHOSEN(gpio0)), 11, true);
+
+	set_3v3(false);
+
+	sys_poweroff();
+
+	while (1)
+	{
+		k_msleep(1000);
+		if (get_buttons()) break;
+	}
+	sys_reboot(SYS_REBOOT_COLD);
 }

@@ -91,7 +91,7 @@ int main(void)
 	if (gpio_pin_configure(DEVICE_DT_GET(DT_CHOSEN(gpio0)), 15, GPIO_OUTPUT_HIGH)) LOG_ERR("Init 0.15 failed");
 	gpio_pin_set(DEVICE_DT_GET(DT_CHOSEN(gpio0)), 15, true);
 	if (gpio_pin_configure(DEVICE_DT_GET(DT_CHOSEN(gpio0)), 16, GPIO_OUTPUT_HIGH)) LOG_ERR("Init 0.16 failed");
-	gpio_pin_set(DEVICE_DT_GET(DT_CHOSEN(gpio0)), 15, true);
+	gpio_pin_set(DEVICE_DT_GET(DT_CHOSEN(gpio0)), 16, true);
 
 	const struct device *flash_dev = DEVICE_DT_GET_ONE(jedec_spi_nor);
 

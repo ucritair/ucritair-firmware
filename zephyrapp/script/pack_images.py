@@ -59,20 +59,89 @@ def get_px(x, y):
 
 	return word
 
+def rledecode(data, width):
+	out = []
+
+	while data:
+		word = data.pop(0)
+		# print(hex4(word))
+		if word == 0xbeef:
+			repeated = data.pop(0)
+			count = data.pop(0)
+			while count:
+				out.append(repeated)
+				count -= 1
+		else:
+			out.append(word)
+
+	return out
+
+def rleencode(data, width):
+	output = []
+	rleword = 0xbeef
+
+	last = None
+	run = 0
+
+	in_len = len(data)
+	in_bak = data[:]
+
+	data.append(None)
+
+	while data:
+		item = data.pop(0)
+
+		# print(item, last, run)
+
+		if item == rleword:
+			item = 0xbeee
+			print("!!")
+
+		if item == last:
+			run += 1
+		else:
+			if run < 4:
+				output.extend([last]*run)
+			else:
+				output.extend([rleword, last, run])
+
+			last = item
+			run = 1
+
+	assert rledecode(output[:], w) == in_bak
+
+	return output
+
+sizes = []
+rlesizes = []
+widths = []
+
 with open(f"{output}/images.c", 'w') as fd:
 	fd.write('#include <stdint.h>\n')
 	for name, x, y, w, h, idx in atlas:
-		print(name)
+		
+		sizes.append(w*h*2)
+		widths.append(w)
+
+		seq_data = []
+		for row in range(h):
+			for col in range(w):
+				seq_data.append(get_px(x + col, y + row))
+
+		rle_data = rleencode(seq_data, w)
+
+		print(name, w*h*2, len(rle_data)*2)
+
+		rlesizes.append(len(rle_data)*2)
 		fd.write("const uint16_t image_data_"+str(idx)+"[] = { //"+name+"\n\t")
 
 		written = 0
-		for row in range(h):
-			for col in range(w):
-				fd.write(hex4(get_px(x + col, y + row)) + ", ")
-				written += 1
+		for v in rle_data:
+			fd.write(hex4(v) + ", ")
+			written += 1
 
-				if (written%16) == 15:
-					fd.write('\n\t')
+			if (written%16) == 15:
+				fd.write('\n\t')
 
 		# for i in range(len(data)//2):
 		# 	fd.write(hex4((data[(i*2)+0] << 8) | (data[(i*2)+1] << 0)) + ',')
@@ -84,3 +153,10 @@ with open(f"{output}/images.c", 'w') as fd:
 	for name, x, y, w, h, idx in atlas:
 		fd.write('\timage_data_'+str(idx)+',\n')
 	fd.write('};\n')
+
+	fd.write('\nuint16_t rle_work_region['+str(max(widths))+"];\n")
+
+print("Total:", sum(sizes))
+print("Total w/ RLE:", sum(rlesizes))
+print("Savings:", (sum(rlesizes)/sum(sizes))*100)
+print("Max width:", max(widths))

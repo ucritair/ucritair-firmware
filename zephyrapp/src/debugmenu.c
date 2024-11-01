@@ -160,6 +160,11 @@ void menu_toggle_fps(void* arg)
 	show_fps = !show_fps;
 }
 
+void menu_power_off(void* arg)
+{
+	power_off();
+}
+
 void menu_root()
 {
 	text("~~DEBUG MENU~~");
@@ -170,6 +175,7 @@ void menu_root()
 	selectable("Touch Diagnostics", goto_menu, menu_touch);
 	selectable("IMU Diagnostics", goto_menu, menu_imu);
 	selectable("Toggle show FPS", menu_toggle_fps, NULL);
+	selectable("Power Off", menu_power_off, NULL);
 
 	text("");
 	selectable("Back to game", exit_debug_menu, NULL);
