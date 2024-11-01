@@ -4,13 +4,10 @@
 #include <time.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <pthread.h>
 #include <math.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/stat.h>
-
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // DEV MODE
