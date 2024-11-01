@@ -68,7 +68,10 @@ void lcd_render_diag()
 	int last_sensor_update = 0;
 
 	LOG_INF("About to CAT_init");
+
+#ifndef MINIMIZE_GAME_FOOTPRINT
 	CAT_init();
+#endif
 
 	imu_init();
 
@@ -95,7 +98,9 @@ void lcd_render_diag()
 		}
 		else
 		{
+#ifndef MINIMIZE_GAME_FOOTPRINT
 			CAT_tick();
+#endif
 		}
 
 		uint32_t after_blit = k_cycle_get_32();

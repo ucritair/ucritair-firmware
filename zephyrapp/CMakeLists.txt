@@ -50,3 +50,8 @@ add_custom_command(
 	DEPENDS ${CMAKE_CURRENT_LIST_DIR}/game/sprites
 	DEPENDS ${CMAKE_CURRENT_LIST_DIR}/game/sprites/* 
 )
+
+if(MINIMIZE_GAME_FOOTPRINT)
+	message(WARNING "Not building in the actual game")
+	target_compile_definitions(app PRIVATE MINIMIZE_GAME_FOOTPRINT=1)
+endif()
