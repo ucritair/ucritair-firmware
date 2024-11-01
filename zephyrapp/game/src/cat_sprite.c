@@ -234,7 +234,7 @@ void CAT_draw_queue_add(int sprite_id, int layer, int x, int y, int mode)
 	for(int i = 0; i < insert_idx; i++)
 	{
 		CAT_draw_job other = draw_queue.jobs[i];
-		if(layer < other.layer || y < other.y)
+		if(layer < other.layer || (layer == other.layer && y < other.y))
 		{
 			insert_idx = i;
 			break;

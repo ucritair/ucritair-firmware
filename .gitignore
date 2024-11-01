@@ -56,4 +56,4 @@ dkms.conf
 **/archive/
 **/imgui/
 **/.vscode/
-prototype/build
+prototype/
