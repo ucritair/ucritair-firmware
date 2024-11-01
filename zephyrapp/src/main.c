@@ -17,10 +17,44 @@ LOG_MODULE_REGISTER(sample, LOG_LEVEL_INF);
 #include <zephyr/logging/log_ctrl.h>
 #include <zephyr/drivers/gpio.h>
 
+#include <zephyr/shell/shell.h>
+
 #include "lcd_driver.h"
 #include "lcd_rendering.h"
 #include "ble.h"
 #include "wlan.h"
+
+
+static int cmd_start_wifi(const struct shell *sh, size_t argc,
+				   char **argv)
+{
+#ifdef CONFIG_WIFI
+	const struct device *wifi_dev = DEVICE_DT_GET(DT_CHOSEN(zephyr_wifi));
+
+	if (device_init(wifi_dev))
+	{
+		printk("failed to init wlan");
+	}
+
+	set_mac();
+#else
+	LOG_ERR("Wifi compiled out");
+#endif
+
+	return 0;
+}
+
+
+SHELL_STATIC_SUBCMD_SET_CREATE(sub_x,
+	SHELL_CMD_ARG(wifi_start, NULL,
+		  "Start wifi",
+		  cmd_start_wifi, 1, 0),
+	SHELL_SUBCMD_SET_END /* Array terminated. */
+);
+
+SHELL_CMD_REGISTER(x, &sub_x, "Log test", NULL);
+
+	
 
 int main(void)
 {
@@ -66,14 +100,7 @@ int main(void)
 		printk("failed to init flash_dev");
 	}
 
-#ifdef CONFIG_WIFI
-	const struct device *wifi_dev = DEVICE_DT_GET(DT_CHOSEN(zephyr_wifi));
 
-	if (device_init(wifi_dev))
-	{
-		printk("failed to init wlan");
-	}
-#endif
 
 	const struct device *sdhc_dev = DEVICE_DT_GET(DT_CHOSEN(xxx_sdhcd0));
 
@@ -89,7 +116,7 @@ int main(void)
 		printk("failed to init mmc");
 	}
 
-	set_mac();
+	
 
 	set_5v0(true);
 	k_msleep(50);

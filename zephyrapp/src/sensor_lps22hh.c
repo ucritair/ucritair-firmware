@@ -6,7 +6,7 @@
 #include "sensor_hal.h"
 #include "airquality.h"
 
-LOG_MODULE_REGISTER(lps22hh, LOG_LEVEL_ERR);
+LOG_MODULE_REGISTER(lps22hh, SENSOR_LOG_LEVEL);
 
 static const struct device* dev_i2c = DEVICE_DT_GET(DT_NODELABEL(arduino_i2c));
 

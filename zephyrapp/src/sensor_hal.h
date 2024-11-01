@@ -2,6 +2,8 @@
 
 #include <zephyr/kernel.h>
 
+#define SENSOR_LOG_LEVEL LOG_LEVEL_NONE
+
 /* Sensor definition.
  * 
  * For simplicity, state is private to each driver and 

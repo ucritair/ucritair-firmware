@@ -7,7 +7,7 @@
 
 #include "airquality.h"
 
-LOG_MODULE_REGISTER(sunrise, LOG_LEVEL_ERR);
+LOG_MODULE_REGISTER(sunrise, SENSOR_LOG_LEVEL);
 
 /* Sensor goes to sleep after this many milliseconds of SDA inactivity.
  * After this, needs another wake-up.

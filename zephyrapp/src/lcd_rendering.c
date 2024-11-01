@@ -152,9 +152,9 @@ void lcd_render_diag()
 			int cyc_printf = after_printf - after_blit;
 			int cyc_text = after_text - after_printf;
 			int cyc_flip = after_flip - after_text;
-			LOG_DBG("cyc_memset=%d, cyc_blit=%d, cyc_printf=%d, cyc_text=%d, cyc_flip=%d (blit=%d, spi=%d), total=%dms",
-				cyc_memset, cyc_blit, cyc_printf, cyc_text, cyc_flip,
-				hack_after_blit-hack_before_blit, hack_cyc_after_data_write-hack_cyc_before_data_write, end_ms-start_ms);
+			// LOG_DBG("cyc_memset=%d, cyc_blit=%d, cyc_printf=%d, cyc_text=%d, cyc_flip=%d (blit=%d, spi=%d), total=%dms",
+			// 	cyc_memset, cyc_blit, cyc_printf, cyc_text, cyc_flip,
+			// 	hack_after_blit-hack_before_blit, hack_cyc_after_data_write-hack_cyc_before_data_write, end_ms-start_ms);
 		}
 	}
 }

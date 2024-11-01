@@ -7,7 +7,7 @@
 #include "sensor_hal.h"
 #include "airquality.h"
 
-LOG_MODULE_REGISTER(sen5x, LOG_LEVEL_ERR);
+LOG_MODULE_REGISTER(sen5x, SENSOR_LOG_LEVEL);
 
 static const struct device* dev_i2c = DEVICE_DT_GET(DT_NODELABEL(arduino_i2c));
 

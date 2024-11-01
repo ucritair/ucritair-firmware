@@ -1,12 +1,10 @@
 #include <zephyr/kernel.h>
 #include <zephyr/drivers/i2c.h>
 
+#include "sensor_hal.h"
 
 #include <zephyr/logging/log.h>
-LOG_MODULE_REGISTER(sensor_hal, LOG_LEVEL_ERR);
-
-
-#include "sensor_hal.h"
+LOG_MODULE_REGISTER(sensor_hal, SENSOR_LOG_LEVEL);
 
 static const struct device* dev_i2c = DEVICE_DT_GET(DT_NODELABEL(arduino_i2c));
 
