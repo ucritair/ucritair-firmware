@@ -55,20 +55,12 @@ void lcd_blit(int x, int y, int w, int h, uint16_t* buffer)
 	hack_after_blit = k_cycle_get_32();
 }
 
-uint16_t lcd_framebuffer[LCD_IMAGE_PIXELS] = {0x0};
+uint16_t lcd_framebuffer[LCD_FRAMEBUFFER_PIXELS] = {0x0};
+int framebuffer_offset_h = 0;
 
 void lcd_flip()
 {
-	
-
-	const int subwrites = 1;
-	const int section_y = LCD_IMAGE_H/subwrites;
-	const int section_px = LCD_IMAGE_W*section_y;
-
-	for (int i = 0; i < subwrites; i++)
-	{
-		lcd_blit(0, i*section_y, LCD_IMAGE_W, section_y, &lcd_framebuffer[i*section_px]);
-	}
+	lcd_blit(0, framebuffer_offset_h, LCD_IMAGE_W, LCD_FRAMEBUFFER_H, lcd_framebuffer);
 }
 
 void turn_on_backlight()

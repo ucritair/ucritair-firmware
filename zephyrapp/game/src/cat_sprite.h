@@ -145,7 +145,7 @@ extern CAT_anim_queue anim_queue;
 
 void CAT_anim_queue_init();
 void CAT_anim_queue_add(int anim_id, int layer, int x, int y, int mode);
-void CAT_anim_queue_submit();
+void CAT_anim_queue_submit(int step);
 
 
 //////////////////////////////////////////////////////////////////////////

@@ -124,12 +124,20 @@ void CAT_spriter_init()
 	spriter.mode = CAT_DRAW_MODE_DEFAULT;
 }
 
+#ifdef CAT_EMBEDDED
+#include "lcd_driver.h"
+#endif
+
 #include <stdio.h>
 void CAT_draw_sprite(int x, int y, int sprite_id)
 {
 	CAT_sprite sprite = atlas.table[sprite_id];
 	int w = sprite.width;
 	int h = sprite.height;
+
+#ifdef CAT_EMBEDDED
+	y -= framebuffer_offset_h;
+#endif
 	
 	int x_shift = 0;
 	int y_shift = 0;
@@ -167,6 +175,14 @@ void CAT_draw_sprite(int x, int y, int sprite_id)
 			int y_w = y+dy+y_shift;
 			if(x_w < 0 || x_w >= LCD_SCREEN_W)
 				continue;
+
+#ifdef CAT_EMBEDDED
+			if (y_w < 0)
+				continue;
+			else if (y_w >= LCD_FRAMEBUFFER_H)
+				return;
+#endif
+
 			int w_idx = y_w * LCD_SCREEN_W + x_w;
 
 			spriter.frame[w_idx] = px;
@@ -180,11 +196,29 @@ void CAT_draw_tiles(int y_t, int h_t, int sprite_id)
 
 	int start = y_t * CAT_TILE_SIZE;
 	int end = start + h_t * CAT_TILE_SIZE;
+
+#ifdef CAT_EMBEDDED
+	start -= framebuffer_offset_h;
+	end -= framebuffer_offset_h;
+#endif
+	
 	int y_w = start;
 	int y_r = 0;
 
 	while(y_w < end)
 	{
+#ifdef CAT_EMBEDDED
+		if (y_w < 0)
+		{
+			y_w += 1;
+			continue;
+		}
+		else if (y_w >= LCD_FRAMEBUFFER_H)
+		{
+			break;
+		}
+#endif
+
 #ifndef CAT_BAKED_ASSETS
 		uint16_t* row_r = &atlas.rgb[(tile.y + y_r) * atlas.width + tile.x];
 #else
@@ -341,10 +375,10 @@ void CAT_anim_queue_add(int anim_id, int layer, int x, int y, int mode)
 	anim_queue.length += 1;
 }
 
-void CAT_anim_queue_submit()
+void CAT_anim_queue_submit(int step)
 {
 	anim_queue.timer += CAT_get_delta_time();
-	if(anim_queue.timer >= anim_queue.period)
+	if(anim_queue.timer >= anim_queue.period && step==0)
 	{
 		for(int i = 0; i < anim_queue.length; i++)
 		{

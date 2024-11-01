@@ -7,9 +7,14 @@
 #define LCD_IMAGE_W 240
 #endif
 
-#define LCD_IMAGE_PIXELS (LCD_IMAGE_W * LCD_IMAGE_H)
+#define LCD_FRAMEBUFFER_W LCD_IMAGE_W
+#define LCD_FRAMEBUFFER_H (LCD_IMAGE_H/2)
 
-extern uint16_t lcd_framebuffer[LCD_IMAGE_PIXELS];
+#define LCD_IMAGE_PIXELS (LCD_IMAGE_W * LCD_IMAGE_H)
+#define LCD_FRAMEBUFFER_PIXELS (LCD_FRAMEBUFFER_W * LCD_FRAMEBUFFER_H)
+
+extern uint16_t lcd_framebuffer[LCD_FRAMEBUFFER_PIXELS];
+extern int framebuffer_offset_h;
 
 void lcd_flip();
 void lcd_init();

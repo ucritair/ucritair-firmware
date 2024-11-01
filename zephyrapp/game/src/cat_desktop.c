@@ -182,7 +182,7 @@ void CAT_platform_cleanup()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // LCD SCREEN
 
-void CAT_LCD_post(uint16_t* buffer)
+void CAT_LCD_post(uint16_t* buffer, int step)
 {
 	glBindTexture(GL_TEXTURE_2D, simulator.tex_id);
 	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, LCD_SCREEN_W, LCD_SCREEN_H, GL_RGB, GL_UNSIGNED_SHORT_5_6_5, buffer);

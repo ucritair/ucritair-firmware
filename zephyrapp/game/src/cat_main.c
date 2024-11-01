@@ -529,7 +529,7 @@ void CAT_logic()
 	}
 }
 
-void CAT_render()
+void CAT_render(int step)
 {
 	switch(screen)
 	{
@@ -613,7 +613,7 @@ void CAT_render()
 					break;
 			}
 			
-			CAT_anim_queue_submit();
+			CAT_anim_queue_submit(step);
 			CAT_draw_queue_submit();
 			
 			break;
@@ -751,13 +751,17 @@ void CAT_init()
 	CAT_machine_transition(&machine, CAT_MS_default);
 }
 
-void CAT_tick()
+void CAT_tick_logic()
 {
 	CAT_platform_tick();
 	CAT_input_tick();
 
 	CAT_logic();
-	CAT_render();
+}
+
+void CAT_tick_render(int step)
+{
+	CAT_render(step);
 
 	CAT_LCD_post(spriter.frame);
 }
@@ -769,7 +773,9 @@ int main()
 
 	while (CAT_get_battery_pct() > 0)
 	{
-		CAT_tick();
+		CAT_tick_logic();
+		CAT_tick_render(0);
+		CAT_tick_render(1);
 	}
 
 	CAT_spriter_cleanup();

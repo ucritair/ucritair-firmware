@@ -1,3 +1,4 @@
 
 void CAT_init();
-void CAT_tick();
+void CAT_tick_logic();
+void CAT_tick_render(int step);
