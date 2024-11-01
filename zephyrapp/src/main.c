@@ -15,6 +15,7 @@ LOG_MODULE_REGISTER(sample, LOG_LEVEL_INF);
 #include <zephyr/drivers/uart.h>
 
 #include <zephyr/logging/log_ctrl.h>
+#include <zephyr/drivers/gpio.h>
 
 #include "lcd_driver.h"
 #include "lcd_rendering.h"
@@ -51,6 +52,43 @@ int main(void)
 	init_buttons();
 
 	ble_main();
+
+	LOG_INF("Config Q2/Q3");
+	if (gpio_pin_configure(DEVICE_DT_GET(DT_CHOSEN(gpio0)), 15, GPIO_OUTPUT_HIGH)) LOG_ERR("Init 0.15 failed");
+	gpio_pin_set(DEVICE_DT_GET(DT_CHOSEN(gpio0)), 15, true);
+	if (gpio_pin_configure(DEVICE_DT_GET(DT_CHOSEN(gpio0)), 16, GPIO_OUTPUT_HIGH)) LOG_ERR("Init 0.16 failed");
+	gpio_pin_set(DEVICE_DT_GET(DT_CHOSEN(gpio0)), 15, true);
+
+	const struct device *flash_dev = DEVICE_DT_GET_ONE(jedec_spi_nor);
+
+	if (device_init(flash_dev))
+	{
+		printk("failed to init flash_dev");
+	}
+
+#ifdef CONFIG_WIFI
+	const struct device *wifi_dev = DEVICE_DT_GET(DT_CHOSEN(zephyr_wifi));
+
+	if (device_init(wifi_dev))
+	{
+		printk("failed to init wlan");
+	}
+#endif
+
+	const struct device *sdhc_dev = DEVICE_DT_GET(DT_CHOSEN(xxx_sdhcd0));
+
+	if (device_init(sdhc_dev))
+	{
+		printk("failed to init sdhc");
+	}
+
+	const struct device *mmc_dev = DEVICE_DT_GET(DT_CHOSEN(xxx_mmc));
+
+	if (device_init(mmc_dev))
+	{
+		printk("failed to init mmc");
+	}
+
 	set_mac();
 
 	set_5v0(true);
