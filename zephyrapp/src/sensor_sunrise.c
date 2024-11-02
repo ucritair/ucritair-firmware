@@ -396,6 +396,10 @@ int sunrise_read()
     LOG_INF("co2: %d ppm (filtered)", ppm_filtered);
     LOG_INF("co2: %d ppm (filtered, pressure compensated)", ppm_filtered_compensated);
 
+    int16_t temp;
+    CHK(Read_Temperature(&temp));
+
+    current_readings.sunrise.temp = (float)temp / 100.;
     current_readings.sunrise.ppm_filtered_compensated = ppm_filtered_compensated;
     current_readings.sunrise.uptime_last_updated = k_uptime_get();
 

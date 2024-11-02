@@ -88,11 +88,12 @@ void menu_sensors()
 	text("");
 	textf("Sunrise @ %lldms", current_readings.sunrise.uptime_last_updated);
 	textf("CO2: %.0fppm", (double)current_readings.sunrise.ppm_filtered_compensated);
+	textf("Temp: %.1fC", (double)current_readings.sunrise.temp);
 
 	text("");
 	textf("SEN5x @ %lldms", current_readings.sen5x.uptime_last_updated);
-	textf("PM1.0: %.1f; PM2.5: %.1f", (double)current_readings.sen5x.pm1_0, (double)current_readings.sen5x.pm2_5);
-	textf("PM4.0: %.1f; PM10.0: %.1f", (double)current_readings.sen5x.pm4_0, (double)current_readings.sen5x.pm10_0);
+	textf("PM1.0: %.1f | PM2.5: %.1f", (double)current_readings.sen5x.pm1_0, (double)current_readings.sen5x.pm2_5);
+	textf("PM4.0: %.1f | PM10.0: %.1f", (double)current_readings.sen5x.pm4_0, (double)current_readings.sen5x.pm10_0);
 	textf("Humidity: %.1f%%RH; Temp: %.1fC", (double)current_readings.sen5x.humidity_rhpct, (double)current_readings.sen5x.temp_degC);
 	textf("VOC: %.1f; NOX: %.1f", (double)current_readings.sen5x.voc_index, (double)current_readings.sen5x.nox_index);
 

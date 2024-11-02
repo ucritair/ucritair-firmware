@@ -99,11 +99,17 @@ void epaper_render_test()
 	int row = 0;
 #define fwrite_str(str, ...) snprintf(buf, sizeof(buf), str, __VA_ARGS__); write_str(test_image, 10, 45 + ((row++)*8), 1, buf);
 
-	fwrite_str("Temp %.1fC, Pressure %.1fhPa", (double)current_readings.lps22hh.temp, (double)current_readings.lps22hh.pressure);
-	fwrite_str("PM 1.0: %.1f/ 2.5: %.1f", (double)current_readings.sen5x.pm1_0, (double)current_readings.sen5x.pm2_5)
-	fwrite_str("   4.0: %.1f/10.0: %.1f", (double)current_readings.sen5x.pm4_0, (double)current_readings.sen5x.pm10_0)
-	fwrite_str("%.1f%%RH VOC: %.1f NOX: %.1f", (double)current_readings.sen5x.humidity_rhpct, (double)current_readings.sen5x.voc_index, (double)current_readings.sen5x.nox_index)
-	fwrite_str("    meow    %s", "");
+	fwrite_str("LPS22HH: Temp %.1fC", (double)current_readings.lps22hh.temp);
+	fwrite_str("         Pressure %.1fhPa", (double)current_readings.lps22hh.pressure);
+
+	fwrite_str("SEN55: Temp: %.1fC", (double)current_readings.sen5x.temp_degC);
+	fwrite_str("       PM 1.0: %.1f |  2.5: %.1f", (double)current_readings.sen5x.pm1_0, (double)current_readings.sen5x.pm2_5)
+	fwrite_str("          4.0: %.1f | 10.0: %.1f", (double)current_readings.sen5x.pm4_0, (double)current_readings.sen5x.pm10_0)
+	fwrite_str("       %.1f%%RH VOC: %.1f", (double)current_readings.sen5x.humidity_rhpct, (double)current_readings.sen5x.voc_index)
+	fwrite_str("       NOX: %.1f", (double)current_readings.sen5x.nox_index)
+
+	fwrite_str("Sunrise: Temp: %.1fC", (double)current_readings.sunrise.temp);
+	// fwrite_str("    meow    %s", "");
 
 	pc_set_mode(false);
 	cmd_turn_on_and_write(test_image);
