@@ -74,6 +74,7 @@ void menu_test_eink(void* arg)
 
 char textf_buf[256];
 #define textf(...) snprintf(textf_buf, sizeof(textf_buf)-1, __VA_ARGS__); text(textf_buf);
+#define selectablef(x, y, ...) snprintf(textf_buf, sizeof(textf_buf)-1, __VA_ARGS__); selectable(textf_buf, x, y);
 
 void menu_sensors()
 {
@@ -155,6 +156,39 @@ void menu_imu()
 	selectable("Back", goto_menu, menu_root);
 }
 
+extern int epaper_update_rate;
+
+void menu_set_rate(void* arg)
+{
+	epaper_update_rate = *(int*)arg;
+}
+
+void menu_set_eink()
+{
+	text("~~Set eInk Update Rate~~");
+	textf("Currently: %dms", epaper_update_rate);
+
+	struct {
+		char* name;
+		int rate;
+	} rates[] = {
+		{"Off", -1},
+		{"30s", 30000},
+		{"1min", 60000},
+		{"2min", 60000*2},
+		{"5min", 60000*5},
+		{"10min", 60000*10},
+	};
+
+	for (int i = 0; i < (sizeof(rates)/sizeof(rates[0])); i++)
+	{
+		selectablef(menu_set_rate, &rates[i].rate, "%s %s", rates[i].name, epaper_update_rate==rates[i].rate?"(selected)":"")
+	}
+
+	text("");
+	selectable("Back", goto_menu, menu_root);
+}
+
 void menu_toggle_fps(void* arg)
 {
 	show_fps = !show_fps;
@@ -172,6 +206,7 @@ void menu_root()
 	selectable("Set RGB LEDs", goto_menu, menu_leds);
 	selectable("Test Buzzer", menu_test_buzzer, NULL);
 	selectable("Update eInk", menu_test_eink, NULL);
+	selectable("Set eInk update freq", goto_menu, menu_set_eink);
 	selectable("Touch Diagnostics", goto_menu, menu_touch);
 	selectable("IMU Diagnostics", goto_menu, menu_imu);
 	selectable("Toggle show FPS", menu_toggle_fps, NULL);

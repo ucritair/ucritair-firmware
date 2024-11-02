@@ -63,6 +63,8 @@ uint32_t hack_cyc_before_data_write, hack_cyc_after_data_write, hack_before_blit
 
 extern volatile bool write_done;
 
+int epaper_update_rate = -1;
+
 #include "cat_main.h"
 
 bool in_debug_menu = false;
@@ -72,6 +74,7 @@ void lcd_render_diag()
 {
 
 	int last_sensor_update = 0;
+	int last_eink_update = 0;
 
 	LOG_INF("About to CAT_init");
 
@@ -147,6 +150,12 @@ void lcd_render_diag()
 			// LOG_DBG("cyc_memset=%d, cyc_blit=%d, cyc_printf=%d, cyc_text=%d, cyc_flip=%d (blit=%d, spi=%d), total=%dms",
 			// 	cyc_memset, cyc_blit, cyc_printf, cyc_text, cyc_flip,
 			// 	hack_after_blit-hack_before_blit, hack_cyc_after_data_write-hack_cyc_before_data_write, end_ms-start_ms);
+		}
+
+		if ((k_uptime_get() - last_eink_update) > epaper_update_rate && epaper_update_rate != -1)
+		{
+			epaper_render_test();
+			last_eink_update = k_uptime_get();
 		}
 	}
 }

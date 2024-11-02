@@ -3,6 +3,7 @@
 #include <stdio.h>
 
 #include "epaper_driver.h"
+#include "airquality.h"
 
 
 #include <zephyr/logging/log.h>
@@ -19,6 +20,8 @@ void write_px(uint8_t* image, int o_x, int o_y, bool val)
 	int pxcount = (y * EPD_IMAGE_W) + x;
 	int bytecount = pxcount >> 3;
 	int bitcount = pxcount & 0b111;
+
+	if (bytecount >= EPD_IMAGE_BYTES) return;
 
 	if (val)
 	{
@@ -87,31 +90,20 @@ void epaper_render_test()
 {
 	memset(test_image, 0, sizeof(test_image));
 
-	// for (int y = EPD_IMAGE_H/2; y < EPD_IMAGE_H; y += 5)
-	// {
-	// 	for (int x = 0; x < EPD_IMAGE_W; x++)
-	// 	{
-	// 		write_px(test_image, x, y, true);
-	// 	}
-	// }
-
-	step++;
-
-	if (step == (sizeof(steps)/sizeof(steps[0]))) step=0;
-
 	char buf[256] = {0};
 	snprintf(buf, 256, 
-		"%dppm", (int)make_bs_number(627, 15));
+		"%.0fppm", (double)current_readings.sunrise.ppm_filtered_compensated);
 
 	write_str(test_image, 10, 10, 4, buf);
 
-	snprintf(buf, 256, 
-		"%.1fug/m^3 pm2.5\n%dF; %d%%RH; %dmBar\n%d VOC; %d NOX\n%.1fACH;%.1feACH",
-		(double)make_bs_number(3, 1), (int)make_bs_number(75, 3),
-		(int)make_bs_number(50, 3), (int)make_bs_number(960, 5), (int)make_bs_number(230, 10), (int)make_bs_number(2, 2),
-		(double)make_bs_number(0.35, 0.1), (double)make_bs_number(6.5, 1));
+	int row = 0;
+#define fwrite_str(str, ...) snprintf(buf, sizeof(buf), str, __VA_ARGS__); write_str(test_image, 10, 45 + ((row++)*8), 1, buf);
 
-	write_str(test_image, 10, 45, 1, buf);
+	fwrite_str("Temp %.1fC, Pressure %.1fhPa", (double)current_readings.lps22hh.temp, (double)current_readings.lps22hh.pressure);
+	fwrite_str("PM 1.0: %.1f/ 2.5: %.1f", (double)current_readings.sen5x.pm1_0, (double)current_readings.sen5x.pm2_5)
+	fwrite_str("   4.0: %.1f/10.0: %.1f", (double)current_readings.sen5x.pm4_0, (double)current_readings.sen5x.pm10_0)
+	fwrite_str("%.1f%%RH VOC: %.1f NOX: %.1f", (double)current_readings.sen5x.humidity_rhpct, (double)current_readings.sen5x.voc_index, (double)current_readings.sen5x.nox_index)
+	fwrite_str("    meow    %s", "");
 
 	pc_set_mode(false);
 	cmd_turn_on_and_write(test_image);
