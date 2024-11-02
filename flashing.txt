@@ -1,0 +1,5 @@
+nrfjprog --memwr 0x00FF8010 --val 5
+nrfjprog --reset
+
+flash samples/bluetooth/hci_ipc sample onto the board
+flash main application onto the board
