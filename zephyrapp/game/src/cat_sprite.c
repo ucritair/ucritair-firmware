@@ -13,14 +13,14 @@ CAT_atlas atlas;
 #ifdef CAT_DESKTOP
 #include "../../script/images.c"
 #else
-extern const uint16_t** image_data_table[];
+extern const CAT_baked_sprite image_data_table[];
 extern uint16_t rle_work_region[];
 #include "lcd_driver.h"
 #endif
 #endif
 
 #ifndef CAT_EMBEDDED
-#define LCD_FRAMEBUFFER_H LCD_IMAGE_H
+#define LCD_FRAMEBUFFER_H LCD_SCREEN_H
 #endif
 
 void CAT_atlas_init()
@@ -124,15 +124,17 @@ void CAT_spriter_init()
 #ifdef CAT_BAKED_ASSETS
 
 struct {
-	const uint16_t* ptr;
+	const uint8_t* ptr;
+	const uint16_t* colortab;
 	int width;
 	int rle_count;
 	uint16_t rle_word;
 } rle_decode_state;
 
-void init_rle_decode(const uint16_t* data, int width)
+void init_rle_decode(const CAT_baked_sprite* sprite, int frame_idx, int width)
 {
-	rle_decode_state.ptr = data;
+	rle_decode_state.ptr = sprite->frames[frame_idx];
+	rle_decode_state.colortab = sprite->color_table;
 	rle_decode_state.width = width;
 	rle_decode_state.rle_count = 0;
 }
@@ -154,16 +156,16 @@ void unpack_rle_row()
 		uint16_t word = RLE_NEXT();
 		// printf("word %04x ->", word);
 
-		if (word == 0xbeef)
+		if (word == 0xff)
 		{
-			rle_decode_state.rle_word = RLE_NEXT();
+			rle_decode_state.rle_word = rle_decode_state.colortab[RLE_NEXT()];
 			rle_decode_state.rle_count = RLE_NEXT();
 
 			// printf("rep %04x cnt %04x\n", repeated, repeat_count);
 		}
 		else
 		{
-			rle_work_region[unpacked++] = word;
+			rle_work_region[unpacked++] = rle_decode_state.colortab[word];
 			// printf("direct\n");
 		}
 	}
@@ -179,7 +181,7 @@ void CAT_draw_sprite(int sprite_id, int frame_idx, int x, int y)
 	int h = sprite.height;
 
 #ifdef CAT_BAKED_ASSETS
-	init_rle_decode(image_data_table[sprite_id][frame_idx], sprite.width);
+	init_rle_decode(&image_data_table[sprite_id], frame_idx, sprite.width);
 #else
 	const uint16_t* frame = &sprite.pixels[frame_idx * h * w];
 #endif
@@ -193,6 +195,9 @@ void CAT_draw_sprite(int sprite_id, int frame_idx, int x, int y)
 
 #ifdef CAT_EMBEDDED
 	y -= framebuffer_offset_h;
+
+	if (y >= LCD_FRAMEBUFFER_H) return;
+	if ((y + h) < 0) return;
 #endif
 	
 	for(int dy = 0; dy < h; dy++)
@@ -247,6 +252,9 @@ void CAT_draw_tiles(int sprite_id, int frame_idx, int y_t, int h_t)
 #ifdef CAT_EMBEDDED
 	y_start -= framebuffer_offset_h;
 	y_end -= framebuffer_offset_h;
+
+	if (y_start >= LCD_FRAMEBUFFER_H) return;
+	if (y_end < 0) return;
 #endif
 
 	for(int y_w = y_start; y_w < y_end; y_w += CAT_TILE_SIZE)
@@ -258,7 +266,7 @@ void CAT_draw_tiles(int sprite_id, int frame_idx, int y_t, int h_t)
 		{
 
 #ifdef CAT_BAKED_ASSETS
-			init_rle_decode(image_data_table[sprite_id][frame_idx], sprite.width);
+			init_rle_decode(&image_data_table[sprite_id], frame_idx, sprite.width);
 #endif
 
 			for(int dy = 0; dy < CAT_TILE_SIZE; dy++)
