@@ -24,30 +24,27 @@
 typedef struct CAT_sprite
 {
 #ifndef CAT_BAKED_ASSETS
-	int x;
-	int y;
+	uint16_t* pixels;
 #endif
 
 	int width;
 	int height;
+	int frame_count;
+
+	int frame_idx;
+	bool loop;
+	bool needs_update;
 } CAT_sprite;
 
 typedef struct CAT_atlas
 {
-#ifndef CAT_BAKED_ASSETS
-	int width;
-	int height;
-	uint16_t* rgb;
-	bool* alpha;
-#endif
-
 	CAT_sprite table[CAT_ATLAS_MAX_LENGTH];
 	int length;
 } CAT_atlas;
 extern CAT_atlas atlas;
 
-void CAT_atlas_init(const char* path);
-int CAT_atlas_add(int x, int y, int w, int h);
+void CAT_atlas_init();
+int CAT_sprite_init(const char* path, int frame_count);
 void CAT_atlas_cleanup();
 
 typedef enum CAT_draw_mode
@@ -61,14 +58,14 @@ typedef enum CAT_draw_mode
 
 typedef struct CAT_spriter
 {
-	uint16_t* frame;
+	uint16_t* framebuffer;
 	int mode;
 } CAT_spriter;
 extern CAT_spriter spriter;
 
 void CAT_spriter_init();
-void CAT_draw_sprite(int x, int y, int sprite_id);
-void CAT_draw_tiles(int y_t, int h_t, int sprite_id);
+void CAT_draw_sprite(int sprite_id, int frame_idx, int x, int y);
+void CAT_draw_tiles(int sprite_id, int frame_idx, int y_t, int h_t);
 void CAT_spriter_cleanup();
 
 
@@ -78,6 +75,7 @@ void CAT_spriter_cleanup();
 typedef struct CAT_draw_job
 {
 	int sprite_id;
+	int frame_idx;
 	int layer;
 	int x;
 	int y;
@@ -88,121 +86,146 @@ typedef struct CAT_draw_queue
 {
 	CAT_draw_job jobs[CAT_DRAW_QUEUE_MAX_LENGTH];
 	int length;
+
+	float anim_period;
+	float anim_timer;
 } CAT_draw_queue;
 extern CAT_draw_queue draw_queue;
 
 void CAT_draw_queue_init();
-void CAT_draw_queue_add(int sprite_id, int layer, int x, int y, int mode);
-void CAT_draw_queue_submit();
-
-
-//////////////////////////////////////////////////////////////////////////
-// ANIMATIONS
-
-typedef struct CAT_anim
-{
-	int frames[CAT_ANIM_MAX_LENGTH];
-	int length;
-	int idx;
-	int looping;
-} CAT_anim;
-
-typedef struct CAT_anim_table
-{
-	CAT_anim data[CAT_ANIM_TABLE_MAX_LENGTH];
-	int length;
-} CAT_anim_table;
-extern CAT_anim_table anim_table;
-
-void CAT_anim_table_init();
-int CAT_anim_init(int* sprite_id, int length, bool looping);
-CAT_anim* CAT_anim_get(int anim_id);
-void CAT_anim_tick(int anim_id);
-int CAT_anim_frame(int anim_id);
-
-
-//////////////////////////////////////////////////////////////////////////
-// ANIM QUEUE
-
-typedef struct CAT_anim_job
-{
-	int anim_id;
-	int layer;
-	int x;
-	int y;
-	int mode;
-} CAT_anim_job;
-
-typedef struct CAT_anim_queue
-{
-	CAT_anim_job jobs[CAT_ANIM_QUEUE_MAX_LENGTH];
-	int length;
-	
-	float period;
-	float timer;
- } CAT_anim_queue;
-extern CAT_anim_queue anim_queue;
-
-void CAT_anim_queue_init();
-void CAT_anim_queue_add(int anim_id, int layer, int x, int y, int mode);
-void CAT_anim_queue_submit(int step);
+void CAT_draw_queue_add(int sprite_id, int frame_idx, int layer, int x, int y, int mode);
+void CAT_draw_queue_add_anim(int sprite_id, int layer, int x, int y, int mode);
+bool CAT_anim_finished(int sprite_id);
+void CAT_anim_reset(int sprite_id);
+void CAT_draw_queue_submit(int cycle);
 
 
 //////////////////////////////////////////////////////////////////////////
 // ID DECLARATIONS
 
-extern int wall_sprite_id[3];
-extern int floor_sprite_id[3];
-extern int pet_sprite_id[13];
-extern int fed_sprite_id[10];
-extern int studied_sprite_id[10];
-extern int played_sprite_id[10];
-extern int low_vigour_sprite_id[3];
-extern int low_spirit_sprite_id[3];
-extern int anger_sprite_id[3];
-extern int vending_sprite_id[13];
-extern int pot_sprite_id[7];
-extern int chair_sprite_id[4];
-extern int table_sprite_id;
-extern int coffee_sprite_id[2];
-extern int device_sprite_id;
-extern int window_sprite_id; 
-extern int seed_sprite_id;
+// TILESETS
+extern int base_wall_sprite;
+extern int base_floor_sprite;
+extern int sky_wall_sprite;
+extern int grass_floor_sprite;
 
-extern int cursor_sprite_id[21];
-extern int feed_button_sprite_id;
-extern int study_button_sprite_id;
-extern int play_button_sprite_id;
-extern int deco_button_sprite_id;
-extern int menu_button_sprite_id;
-extern int ring_hl_sprite_id;
+// PET
+extern int pet_idle_sprite;
+extern int pet_walk_sprite;
+extern int pet_eat_sprite;
+extern int pet_chew_sprite;
+extern int pet_happy_sprite;
+extern int pet_tired_sprite;
 
-extern int panel_sprite_id[9];
-extern int glyph_sprite_id[91];
-extern int a_sprite_id;
-extern int b_sprite_id;
-extern int enter_sprite_id;
-extern int exit_sprite_id;
-extern int select_sprite_id;
-extern int arrow_sprite_id;
-extern int item_sprite_id;
-extern int cell_sprite_id[4];
-extern int vigour_sprite_id;
-extern int focus_sprite_id;
-extern int spirit_sprite_id;
-	
-extern int idle_anim_id;
-extern int walk_anim_id;
-extern int death_anim_id;
-extern int fed_anim_id;
-extern int studied_anim_id;
-extern int played_anim_id;
-extern int vending_anim_id;
-extern int pot_anim_id;
-extern int chair_anim_id;
-extern int coffee_anim_id;
+extern int pet_block_sprite;
+extern int pet_block_walk_sprite;
+extern int pet_block_blink_sprite;
 
-extern int cursor_anim_id;
+extern int pet_vig_up_sprite;
+extern int pet_foc_up_sprite;
+extern int pet_spi_up_sprite;
+
+
+// PROPS
+extern int window_dawn_sprite;
+extern int window_day_sprite;
+extern int window_night_sprite;
+extern int vending_sprite;
+extern int solderpaste_sprite;
+extern int flower_empty_sprite;
+extern int flower_vig_sprite;
+extern int flower_foc_sprite;
+extern int flower_spi_sprite;
+extern int table_sm_sprite;
+extern int table_lg_sprite;
+extern int chair_wood_sprite;
+extern int stool_wood_sprite;
+extern int stool_stone_sprite;
+extern int stool_gold_sprite;
+extern int coffee_sprite;
+extern int fan_sprite;
+extern int lantern_lit_sprite;
+extern int lantern_unlit_sprite;
+extern int bowl_stone_sprite;
+extern int bowl_gold_sprite;
+extern int vase_stone_sprite;
+extern int vase_gold_sprite;
+extern int bush_plain_sprite;
+extern int bush_daisy_sprite;
+extern int bush_lilac_sprite;
+extern int plant_green_sprite;
+extern int plant_maroon_sprite;
+extern int plant_purple_sprite;
+extern int plant_yellow_sprite;
+extern int succulent_sprite;
+extern int crystal_blue_sm_sprite;
+extern int crystal_green_sm_sprite;
+extern int crystal_purple_sm_sprite;
+extern int crystal_blue_hrt_sprite;
+extern int crystal_green_hrt_sprite;
+extern int crystal_purple_hrt_sprite;
+extern int crystal_blue_md_sprite;
+extern int crystal_green_md_sprite;
+extern int crystal_purple_md_sprite;
+extern int crystal_blue_lg_sprite;
+extern int crystal_green_lg_sprite;
+extern int crystal_purple_lg_sprite;
+
+// FOOD
+extern int seed_vig_sprite;
+extern int seed_foc_sprite;
+extern int seed_spi_sprite;
+extern int coffee_sprite;
+extern int padkrapow_sprite;
+extern int sausage_sprite;
+extern int cigarette_sprite;
+
+// WORLD UI
+extern int sbut_feed_sprite;
+extern int sbut_study_sprite;
+extern int sbut_play_sprite;
+extern int sbut_deco_sprite;
+extern int sbut_menu_sprite;
+extern int sbut_hl_sprite;
+extern int cursor_sprite;
+extern int cursor_deco_sprite;
+extern int tile_hl_neg;
+extern int tile_hl_inner;
+
+// SCREEN UI
+extern int panel_sprite;
+extern int glyph_sprite;
+
+extern int fbut_a_sprite;
+extern int fbut_b_sprite;
+extern int fbut_n_sprite;
+extern int fbut_e_sprite;
+extern int fbut_s_sprite;
+extern int fbut_w_sprite;
+extern int fbut_start_sprite;
+extern int fbut_select_sprite;
+
+extern int icon_pointer_sprite;
+extern int icon_enter_sprite;
+extern int icon_exit_sprite;
+
+extern int icon_vig_sprite;
+extern int icon_foc_sprite;
+extern int icon_spi_sprite;
+extern int icon_food_sprite;
+extern int icon_prop_sprite;
+extern int icon_key_sprite;
+
+extern int cell_vig_sprite;
+extern int cell_foc_sprite;
+extern int cell_spi_sprite;
+extern int cell_empty_sprite;
+
+extern int crisis_co2_sprite;
+extern int crisis_nox_sprite;
+extern int crisis_vol_sprite;
+extern int crisis_hot_sprite;
+extern int crisis_cold_sprite;
 
 void CAT_sprite_mass_define();
 

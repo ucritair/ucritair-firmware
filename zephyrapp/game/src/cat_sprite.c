@@ -2,21 +2,44 @@
 
 #include <stdint.h>
 #include <string.h>
-
 #include "cat_core.h"
 
 //////////////////////////////////////////////////////////////////////////
 // ATLAS AND SPRITER
 
+#ifndef CAT_BAKED_ASSETS
 CAT_atlas atlas;
+#else
+#ifdef CAT_DESKTOP
+#include "../../script/images.c"
+#else
+extern const uint16_t** image_data_table[];
+extern uint16_t rle_work_region[];
+#include "lcd_driver.h"
+#endif
+#endif
+
+#ifndef CAT_EMBEDDED
+#define LCD_FRAMEBUFFER_H LCD_IMAGE_H
+#endif
+
+void CAT_atlas_init()
+{
+	atlas.length = 0;
+}
 
 #ifndef CAT_BAKED_ASSETS
 
 #include "png.h"
 
-void CAT_atlas_init(const char* path)
+int CAT_sprite_init(const char* path, int frame_count)
 {
 	FILE* file = fopen(path, "rb");
+	if(file == NULL)
+	{
+		printf("Sprite %s not found! Loading null sprite\n", path);
+		file = fopen("sprites/none_32x32.png", "rb");
+	}
 
 	png_structp png = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
 	png_infop info = png_create_info_struct(png);
@@ -30,107 +53,73 @@ void CAT_atlas_init(const char* path)
 
 	png_uint_32 width;
 	png_uint_32 height;
-	png_get_IHDR(png, info, &width, &height, NULL, NULL, NULL, NULL, NULL);\
-	atlas.width = width;
-	atlas.height = height;
-	
+	png_get_IHDR(png, info, &width, &height, NULL, NULL, NULL, NULL, NULL);
+
 	size_t row_size = png_get_rowbytes(png, info);
-	size_t size = row_size * height;
-	uint8_t bytes[size];
 	png_bytepp rows = png_get_rows(png, info);
-	for(int i = 0; i < height; i++)
+	uint16_t* pixels = CAT_malloc(sizeof(uint16_t) * width * height);
+	for(int y = 0; y < height; y++)
 	{
-		memcpy(bytes + row_size * i, rows[i], row_size);
+		uint8_t* r_row = rows[y];
+		uint16_t* w_row = &pixels[y * width];
+		for(int x = 0; x < width; x++)
+		{
+			uint8_t r_8 = r_row[x*4+0];
+			uint8_t g_8 = r_row[x*4+1];
+			uint8_t b_8 = r_row[x*4+2];
+			uint8_t a_8 = r_row[x*4+3];
+			float r_n = (float) r_8 / 255.0f;
+			float g_n = (float) g_8 / 255.0f;
+			float b_n = (float) b_8 / 255.0f;
+			uint8_t r_5 = r_n * 31;
+			uint8_t g_6 = g_n * 63;
+			uint8_t b_5 = b_n * 31;
+			uint16_t rgb_565 = (r_5 << 11) | (g_6 << 5) | b_5;
+			w_row[x] = a_8 >= 255 ? rgb_565 : 0xdead;
+		}
 	}
 	png_destroy_read_struct(&png, &info, NULL);
+	
+	CAT_sprite sprite;
+	sprite.pixels = pixels;
+	sprite.width = width;
+	sprite.height = height / frame_count;
+	sprite.frame_count = frame_count;
+	sprite.frame_idx = 0;
+	sprite.loop = true;
+	sprite.needs_update = false;
 
-	atlas.rgb = CAT_malloc(sizeof(uint16_t) * width * height);
-	atlas.alpha = CAT_malloc(sizeof(bool) * width * height);
-	for(int i = 0; i < width*height; i++)
-	{
-		uint8_t r_8 = bytes[i*4];
-		uint8_t g_8 = bytes[i*4+1];
-		uint8_t b_8 = bytes[i*4+2];
-		uint8_t a_8 = bytes[i*4+3];
-		float r_n = (float) r_8 / 255.0f;
-		float g_n = (float) g_8 / 255.0f;
-		float b_n = (float) b_8 / 255.0f;
-		uint8_t r_5 = r_n * 31;
-		uint8_t g_6 = g_n * 63;
-		uint8_t b_5 = b_n * 31;
-		uint16_t rgb_565 = (r_5 << 11) | (g_6 << 5) | b_5;
-		atlas.rgb[i] = rgb_565;
-		atlas.alpha[i] = a_8 >= 255;
-	}
-	atlas.length = 0;
-}
-
-#else
-
-#ifndef CAT_DESKTOP
-extern uint16_t* image_data_table[];
-#else
-#include "../../script/images.c"
-#endif
-
-extern uint16_t rle_work_region[];
-
-extern uint16_t lcd_framebuffer[];
-
-void CAT_atlas_init(const char* path)
-{
-	atlas.length = 0;
-}
-
-#endif
-
-int CAT_atlas_add(int x, int y, int w, int h)
-{
-	if(atlas.length >= CAT_ATLAS_MAX_LENGTH)
-	{
-		return -1;
-	}
-
-	int idx = atlas.length;
-	atlas.table[idx] = (CAT_sprite) {
-#ifndef CAT_BAKED_ASSETS
-		x, y,
-#endif
-		w, h
-	};
+	int sprite_id = atlas.length;
+	atlas.table[sprite_id] = sprite;
 	atlas.length += 1;
-	return idx;
+	return sprite_id;
 }
 
 void CAT_atlas_cleanup()
 {
-#ifndef CAT_BAKED_ASSETS
-	atlas.width = 0;
-	atlas.height = 0;
-	CAT_free(atlas.rgb);
-	CAT_free(atlas.alpha);
-	atlas.rgb = NULL;
-	atlas.alpha = NULL;
-#endif
+	for(int i = 0; i < atlas.length; i++)
+	{
+		CAT_free(atlas.table[i].pixels);
+	}
 }
+
+#endif
+
+#ifndef CAT_DESKTOP
+extern uint16_t lcd_framebuffer[];
+#endif
 
 CAT_spriter spriter;
 
 void CAT_spriter_init()
 {
 #ifdef CAT_DESKTOP
-	spriter.frame = CAT_malloc(sizeof(uint16_t) * LCD_SCREEN_W * LCD_SCREEN_H);
+	spriter.framebuffer = CAT_malloc(sizeof(uint16_t) * LCD_SCREEN_W * LCD_SCREEN_H);
 #else
-	spriter.frame = lcd_framebuffer;
+	spriter.framebuffer = lcd_framebuffer;
 #endif
 	spriter.mode = CAT_DRAW_MODE_DEFAULT;
 }
-
-#ifdef CAT_EMBEDDED
-#include "lcd_driver.h"
-#endif
-
-#include <stdio.h>
 
 #ifdef CAT_BAKED_ASSETS
 
@@ -183,141 +172,123 @@ void unpack_rle_row()
 #endif
 
 
-void CAT_draw_sprite(int x, int y, int sprite_id)
+void CAT_draw_sprite(int sprite_id, int frame_idx, int x, int y)
 {
 	CAT_sprite sprite = atlas.table[sprite_id];
 	int w = sprite.width;
 	int h = sprite.height;
 
+#ifdef CAT_BAKED_ASSETS
+	init_rle_decode(image_data_table[sprite_id][frame_idx], sprite.width);
+#else
+	const uint16_t* frame = &sprite.pixels[frame_idx * h * w];
+#endif
+	
+	if((spriter.mode & CAT_DRAW_MODE_CENTER_X) > 0)
+		x -= w/2;
+	if((spriter.mode & CAT_DRAW_MODE_CENTER_Y) > 0)
+		y -= h/2;
+	else if((spriter.mode & CAT_DRAW_MODE_BOTTOM) > 0)
+		y -= h;
+
 #ifdef CAT_EMBEDDED
 	y -= framebuffer_offset_h;
 #endif
 	
-	int x_shift = 0;
-	int y_shift = 0;
-	if((spriter.mode & CAT_DRAW_MODE_BOTTOM) > 0)
-		y_shift = -h;
-	if((spriter.mode & CAT_DRAW_MODE_CENTER_X) > 0)
-		x_shift = -w/2;
-	if((spriter.mode & CAT_DRAW_MODE_CENTER_Y) > 0)
-		y_shift = -h/2;
-
-#ifdef CAT_BAKED_ASSETS
-	init_rle_decode(image_data_table[sprite_id], w);
-#endif
-	
 	for(int dy = 0; dy < h; dy++)
 	{
+		int y_w = y+dy;
 
 #ifdef CAT_BAKED_ASSETS
 		unpack_rle_row();
 #endif
+		
+		if(y_w < 0 || y_w >= LCD_FRAMEBUFFER_H)
+			continue;
 
 		for(int dx = 0; dx < w; dx++)
 		{
-
-#ifndef CAT_BAKED_ASSETS
-			int x_r = sprite.x+dx;
-			if((spriter.mode & CAT_DRAW_MODE_REFLECT_X) > 0)
-				x_r = sprite.x+w-1-dx;
-			int y_r = sprite.y+dy;
-			int r_idx = y_r * atlas.width + x_r;
-			uint16_t px = *(atlas.rgb + r_idx);
-			if(!atlas.alpha[r_idx])
-				continue;
-#else
-			int x_r = dx;
-			if (spriter.mode & CAT_DRAW_MODE_REFLECT_X)
-				x_r = w-1-dx;
-			uint16_t px = *(rle_work_region + x_r);
-			if (px == 0xdead)
-				continue;
-#endif
-
-			int x_w = x+dx+x_shift;
-			int y_w = y+dy+y_shift;
+			int x_w = x+dx;
 			if(x_w < 0 || x_w >= LCD_SCREEN_W)
 				continue;
+			
+			int row_offset = dy * w;
 
-#ifdef CAT_EMBEDDED
-			if (y_w < 0)
-				continue;
-			else if (y_w >= LCD_FRAMEBUFFER_H)
-				return;
-#endif
+			int col_offset;
+			if ((spriter.mode & CAT_DRAW_MODE_REFLECT_X) > 0)
+				col_offset = w - dx - 1;
+			else
+				col_offset = dx;
 
 			int w_idx = y_w * LCD_SCREEN_W + x_w;
+#ifdef CAT_BAKED_ASSETS
+			uint16_t px = rle_work_region[col_offset];
+#else
+			uint16_t px = frame[row_offset + col_offset];
+#endif
 
-			spriter.frame[w_idx] = px;
+			if(px != 0xdead)
+				spriter.framebuffer[w_idx] = px;
 		}
 	}
 }
 
-void CAT_draw_tiles(int y_t, int h_t, int sprite_id)
+void CAT_draw_tiles(int sprite_id, int frame_idx, int y_t, int h_t)
 {
-	CAT_sprite tile = atlas.table[sprite_id];
-
-	int start = y_t * CAT_TILE_SIZE;
-	int end = start + h_t * CAT_TILE_SIZE;
-
-#ifdef CAT_EMBEDDED
-	start -= framebuffer_offset_h;
-	end -= framebuffer_offset_h;
-#endif
-	
-	int y_w = start;
-	int y_r = 0;
-
-#ifdef CAT_BAKED_ASSETS
-	init_rle_decode(image_data_table[sprite_id], CAT_TILE_SIZE);
-#endif
-
-	while(y_w < end)
-	{
-#ifdef CAT_EMBEDDED
-		if (y_w < 0)
-		{
-			y_w += 1;
-			continue;
-		}
-		else if (y_w >= LCD_FRAMEBUFFER_H)
-		{
-			break;
-		}
-#endif
+	CAT_sprite sprite = atlas.table[sprite_id];
 
 #ifndef CAT_BAKED_ASSETS
-		uint16_t* row_r = &atlas.rgb[(tile.y + y_r) * atlas.width + tile.x];
-#else
-		unpack_rle_row();
-		const uint16_t* row_r = rle_work_region;
+	const uint16_t* frame = &sprite.pixels[frame_idx * CAT_TILE_SIZE * CAT_TILE_SIZE];
 #endif
-		uint16_t* row_w = &spriter.frame[y_w * LCD_SCREEN_W];
 
-		int x_w = 0;
-		int x_r = 0;
-		while(x_w < LCD_SCREEN_W)
-		{
-			row_w[x_w] = row_r[x_r];
-			if(++x_r >= CAT_TILE_SIZE)
-				x_r = 0;
-			x_w += 1;
-		}
-		
-		if(++y_r >= CAT_TILE_SIZE)
-		{
-			y_r = 0;
-#ifdef CAT_BAKED_ASSETS
-			init_rle_decode(image_data_table[sprite_id], CAT_TILE_SIZE);
+	int y_start = y_t * CAT_TILE_SIZE;
+	int y_end = (y_t+h_t) * CAT_TILE_SIZE;
+
+#ifdef CAT_EMBEDDED
+	y_start -= framebuffer_offset_h;
+	y_end -= framebuffer_offset_h;
 #endif
+
+	for(int y_w = y_start; y_w < y_end; y_w += CAT_TILE_SIZE)
+	{
+		if(y_w < 0 || y_w >= LCD_FRAMEBUFFER_H)
+			continue;
+
+		for(int x_w = 0; x_w < LCD_SCREEN_W; x_w += CAT_TILE_SIZE)
+		{
+
+#ifdef CAT_BAKED_ASSETS
+			init_rle_decode(image_data_table[sprite_id][frame_idx], sprite.width);
+#endif
+
+			for(int dy = 0; dy < CAT_TILE_SIZE; dy++)
+			{
+
+#ifdef CAT_BAKED_ASSETS
+				unpack_rle_row();
+#endif
+
+				for(int dx = 0; dx < CAT_TILE_SIZE; dx++)
+				{
+					int w_idx = (y_w+dy) * LCD_SCREEN_W + (x_w+dx);
+					int row_offset = dy * CAT_TILE_SIZE;
+					
+#ifndef CAT_BAKED_ASSETS
+					uint16_t px = frame[row_offset + dx];
+#else
+					uint16_t px = rle_work_region[dx];
+#endif
+
+					spriter.framebuffer[w_idx] = px;
+				}
+			}
 		}
-		y_w += 1;
 	}
 }
 
 void CAT_spriter_cleanup()
 {
-	CAT_free(spriter.frame);
+	CAT_free(spriter.framebuffer);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -328,15 +299,12 @@ CAT_draw_queue draw_queue;
 void CAT_draw_queue_init()
 {
 	draw_queue.length = 0;
+	draw_queue.anim_period = 0.15f;
+	draw_queue.anim_timer = 0.0f;
 }
 
-void CAT_draw_queue_add(int sprite_id, int layer, int x, int y, int mode)
+void CAT_draw_queue_add(int sprite_id, int frame_idx, int layer, int x, int y, int mode)
 {
-	if(draw_queue.length >= CAT_DRAW_QUEUE_MAX_LENGTH)
-	{
-		return;
-	}
-
 	int insert_idx = draw_queue.length;
 	for(int i = 0; i < insert_idx; i++)
 	{
@@ -352,287 +320,309 @@ void CAT_draw_queue_add(int sprite_id, int layer, int x, int y, int mode)
 	{
 		draw_queue.jobs[i] = draw_queue.jobs[i-1];
 	}
-	draw_queue.jobs[insert_idx] = (CAT_draw_job) {sprite_id, layer, x, y, mode};
+	draw_queue.jobs[insert_idx] = (CAT_draw_job) {sprite_id, frame_idx, layer, x, y, mode};
 	draw_queue.length += 1;
 }
 
-void CAT_draw_queue_submit()
+void CAT_draw_queue_add_anim(int sprite_id, int layer, int x, int y, int mode)
 {
+	CAT_draw_queue_add(sprite_id, -1, layer, x, y, mode);
+}
+
+bool CAT_anim_finished(int sprite_id)
+{
+	return atlas.table[sprite_id].frame_idx == atlas.table[sprite_id].frame_count-1;
+}
+
+void CAT_anim_reset(int sprite_id)
+{
+	atlas.table[sprite_id].frame_idx = 0;
+}
+
+void CAT_draw_queue_submit(int cycle)
+{
+	if (cycle==0)
+	{
+		draw_queue.anim_timer += CAT_get_delta_time();
+		if(draw_queue.anim_timer >= draw_queue.anim_period)
+		{
+			for(int i = 0; i < draw_queue.length; i++)
+			{
+				CAT_draw_job* job = &draw_queue.jobs[i];
+				if(job->frame_idx != -1)
+					continue;
+
+				CAT_sprite* sprite = &atlas.table[job->sprite_id];
+				if(!sprite->needs_update)
+					continue;
+				
+				if(sprite->frame_idx < sprite->frame_count-1)
+				{
+					sprite->frame_idx += 1;
+				}
+				else if(sprite->loop)
+				{
+					sprite->frame_idx = 0;
+				}
+				sprite->needs_update = false;
+			}
+			draw_queue.anim_timer = 0.0f;
+		}
+	}
+
 	for(int i = 0; i < draw_queue.length; i++)
 	{
-		CAT_draw_job job = draw_queue.jobs[i];
-		spriter.mode = job.mode;
-		CAT_draw_sprite(job.x, job.y, job.sprite_id);
+		CAT_draw_job* job = &draw_queue.jobs[i];
+		CAT_sprite* sprite = &atlas.table[job->sprite_id];
+		if(job->frame_idx == -1)
+			job->frame_idx = sprite->frame_idx;
+			
+		spriter.mode = job->mode;
+		CAT_draw_sprite(job->sprite_id, job->frame_idx, job->x, job->y);
+
+		if (cycle==0)
+		{
+			sprite->needs_update = true;
+		}
 	}
 	draw_queue.length = 0;
 }
 
-//////////////////////////////////////////////////////////////////////////
-// ANIMATIONS
-
-CAT_anim_table anim_table;
-
-void CAT_anim_table_init()
-{
-	anim_table.length = 0;
-}
-
-int CAT_anim_init(int* sprite_id, int length, bool looping)
-{
-	if(anim_table.length >= CAT_ANIM_TABLE_MAX_LENGTH)
-		return -1;
-
-	int anim_id = anim_table.length;
-	anim_table.length += 1;
-
-	CAT_anim* anim = &anim_table.data[anim_id];
-	for(int i = 0; i < length; i++)
-	{
-		anim->frames[i] = sprite_id[i];
-	}
-	anim->length = length;
-	anim->idx = 0;
-	anim->looping = looping;
-
-	return anim_id;
-}
-
-CAT_anim* CAT_anim_get(int anim_id)
-{
-	if(anim_id < 0 || anim_id >= CAT_ANIM_TABLE_MAX_LENGTH)
-		return NULL;
-	return &anim_table.data[anim_id];
-}
-
-void CAT_anim_tick(int anim_id)
-{
-	CAT_anim* anim = CAT_anim_get(anim_id);
-	if(anim->idx < anim->length-1)
-	{
-		anim->idx += 1;
-	}
-	else
-	{
-		if(anim->looping)
-			anim->idx = 0;
-	}
-}
-
-int CAT_anim_frame(int anim_id)
-{
-	CAT_anim* anim = CAT_anim_get(anim_id);
-	int sprite_id = anim->frames[anim->idx];
-	return sprite_id;
-}
-
-//////////////////////////////////////////////////////////////////////////
-// ANIM QUEUE
-
-CAT_anim_queue anim_queue;
-
-void CAT_anim_queue_init()
-{
-	anim_queue.length = 0;
-	anim_queue.period = 0.2f;
-	anim_queue.timer = 0.0f;
-}
-
-void CAT_anim_queue_add(int anim_id, int layer, int x, int y, int mode)
-{
-	if(anim_queue.length >= CAT_ANIM_QUEUE_MAX_LENGTH)
-	{
-		return;
-	}
-
-	anim_queue.jobs[anim_queue.length] = (CAT_anim_job) {anim_id, layer, x, y, mode};
-	anim_queue.length += 1;
-}
-
-void CAT_anim_queue_submit(int step)
-{
-	anim_queue.timer += CAT_get_delta_time();
-	if(anim_queue.timer >= anim_queue.period && step==0)
-	{
-		for(int i = 0; i < anim_queue.length; i++)
-		{
-			CAT_anim_tick(anim_queue.jobs[i].anim_id);
-		}
-		anim_queue.timer = 0.0f;
-	}
-	for(int i = 0; i < anim_queue.length; i++)
-	{
-		CAT_anim_job job = anim_queue.jobs[i];
-		int sprite_id = CAT_anim_frame(job.anim_id);
-		CAT_draw_queue_add(sprite_id, job.layer, job.x, job.y, job.mode);
-	}
-	anim_queue.length = 0;
-}
 
 //////////////////////////////////////////////////////////////////////////
 // ID DECLARATIONS
 
-int wall_sprite_id[3];
-int floor_sprite_id[3];
-int pet_sprite_id[13];
-int fed_sprite_id[10];
-int studied_sprite_id[10];
-int played_sprite_id[10];
-int low_vigour_sprite_id[3];
-int low_spirit_sprite_id[3];
-int anger_sprite_id[3];
-int vending_sprite_id[13];
-int pot_sprite_id[7];
-int chair_sprite_id[4];
-int table_sprite_id;
-int coffee_sprite_id[2];
-int device_sprite_id;
-int window_sprite_id; 
-int seed_sprite_id;
+// TILESETS
+int base_wall_sprite;
+int base_floor_sprite;
+int sky_wall_sprite;
+int grass_floor_sprite;
 
-int cursor_sprite_id[21];
-int feed_button_sprite_id;
-int study_button_sprite_id;
-int play_button_sprite_id;
-int deco_button_sprite_id;
-int menu_button_sprite_id;
-int ring_hl_sprite_id;
+// PET
+int pet_idle_sprite;
+int pet_walk_sprite;
+int pet_eat_sprite;
+int pet_chew_sprite;
+int pet_happy_sprite;
+int pet_tired_sprite;
+int pet_vig_up_sprite;
+int pet_foc_up_sprite;
+int pet_spi_up_sprite;
+int pet_block_sprite;
+int pet_block_blink_sprite;
 
-int panel_sprite_id[9];
-int glyph_sprite_id[91];
-int a_sprite_id;
-int b_sprite_id;
-int enter_sprite_id;
-int exit_sprite_id;
-int select_sprite_id;
-int arrow_sprite_id;
-int item_sprite_id;
-int cell_sprite_id[4];
-int vigour_sprite_id;
-int focus_sprite_id;
-int spirit_sprite_id;
+// PROPS
+int window_dawn_sprite;
+int window_day_sprite;
+int window_night_sprite;
+int vending_sprite;
+int solderpaste_sprite;
+int flower_empty_sprite;
+int flower_vig_sprite;
+int flower_foc_sprite;
+int flower_spi_sprite;
+int table_sm_sprite;
+int table_lg_sprite;
+int chair_wood_sprite;
+int stool_wood_sprite;
+int stool_stone_sprite;
+int stool_gold_sprite;
+int coffee_sprite;
+int fan_sprite;
+int lantern_lit_sprite;
+int lantern_unlit_sprite;
+int bowl_stone_sprite;
+int bowl_gold_sprite;
+int vase_stone_sprite;
+int vase_gold_sprite;
+int bush_plain_sprite;
+int bush_daisy_sprite;
+int bush_lilac_sprite;
+int plant_green_sprite;
+int plant_maroon_sprite;
+int plant_purple_sprite;
+int plant_yellow_sprite;
+int succulent_sprite;
+int crystal_blue_sm_sprite;
+int crystal_green_sm_sprite;
+int crystal_purple_sm_sprite;
+int crystal_blue_hrt_sprite;
+int crystal_green_hrt_sprite;
+int crystal_purple_hrt_sprite;
+int crystal_blue_md_sprite;
+int crystal_green_md_sprite;
+int crystal_purple_md_sprite;
+int crystal_blue_lg_sprite;
+int crystal_green_lg_sprite;
+int crystal_purple_lg_sprite;
 
-int idle_anim_id;
-int walk_anim_id;
-int death_anim_id;
-int fed_anim_id;
-int studied_anim_id;
-int played_anim_id;
-int low_vigour_anim_id;
-int low_spirit_anim_id;
-int anger_anim_id;
-int vending_anim_id;
-int pot_anim_id;
-int chair_anim_id;
-int coffee_anim_id;
+// GRIMBA
+int seed_vig_sprite;
+int seed_foc_sprite;
+int seed_spi_sprite;
+int cigarette_sprite;
 
-int cursor_anim_id;
+// WORLD UI
+int cursor_sprite;
+int cursor_deco_sprite;
+int tile_hl_neg;
+int tile_hl_inner;
 
-#ifdef CAT_DESKTOP
-#include <stdio.h>
-#endif
+// SCREEN UI
+int fbut_a_sprite;
+int fbut_b_sprite;
+int fbut_n_sprite;
+int fbut_e_sprite;
+int fbut_s_sprite;
+int fbut_w_sprite;
+int fbut_start_sprite;
+int fbut_select_sprite;
+int sbut_feed_sprite;
+int sbut_study_sprite;
+int sbut_play_sprite;
+int sbut_deco_sprite;
+int sbut_menu_sprite;
+int sbut_hl_sprite;
+int icon_vig_sprite;
+int icon_foc_sprite;
+int icon_spi_sprite;
+int icon_food_sprite;
+int icon_prop_sprite;
+int icon_key_sprite;
+int panel_sprite;
+int glyph_sprite;
+int icon_pointer_sprite;
+int icon_enter_sprite;
+int icon_exit_sprite;
+int cell_vig_sprite;
+int cell_foc_sprite;
+int cell_spi_sprite;
+int cell_empty_sprite;
+int crisis_co2_sprite;
+int crisis_nox_sprite;
+int crisis_vol_sprite;
+int crisis_hot_sprite;
+int crisis_cold_sprite;
 
-#ifndef CAT_DESKTOP
-#define PRINT_ON_DESKTOP(...)
+#ifndef CAT_BAKED_ASSETS
+#define INIT_SPRITE(name, path, frames) name = CAT_sprite_init(path, frames);\
+										printf("BAKE: (%d, \"%s\", \"%s\", %d, %d, %d)\n", name, #name, path, frames, atlas.table[name].width, atlas.table[name].height);
 #else
-#define PRINT_ON_DESKTOP printf
+int sprite_count = 0;
+#define INIT_SPRITE(name, path, frames) name = sprite_count++;
 #endif
-
-#define ATLAS_ADD(lhs, x, y, w, h) lhs = CAT_atlas_add(x, y, w, h); PRINT_ON_DESKTOP("ATLAS_ADD, " #lhs ", %d, %d, %d, %d, %d\n", x, y, w, h, lhs);
 
 void CAT_sprite_mass_define()
 {
-	for(int i = 0; i < 3; i++)
-	{
-		ATLAS_ADD(wall_sprite_id[i], 16*i, 0, 16, 16);
-		ATLAS_ADD(floor_sprite_id[i], 16*i, 16, 16, 16);
-	}
-	for(int i = 0; i < 13; i++)
-	{
-		ATLAS_ADD(pet_sprite_id[i], 64*i, 544, 64, 48);
-	}
-	for(int i = 0; i < 10; i++)
-	{
-		ATLAS_ADD(fed_sprite_id[i], 256+21*i, 0, 21, 16);
-		ATLAS_ADD(studied_sprite_id[i], 256+21*i, 16, 21, 16);
-		ATLAS_ADD(played_sprite_id[i], 256+21*i, 32, 21, 16);
-	}
-	for(int i = 0; i < 3; i++)
-	{
-		ATLAS_ADD(low_vigour_sprite_id[i], 466+21*i, 0, 21, 21);
-		ATLAS_ADD(low_spirit_sprite_id[i], 466+21*i, 21, 21, 21);
-		ATLAS_ADD(anger_sprite_id[i], 299+21*i, 64, 21, 16);
-	}
-	for(int i = 0; i < 13; i++)
-	{
-		ATLAS_ADD(vending_sprite_id[i], 64*i, 448, 64, 96);
-	}
-	for(int i = 0; i < 7; i++)
-	{
-		ATLAS_ADD(pot_sprite_id[i], 32*i, 240, 32, 64);
-	}
-	for(int i = 0; i < 4; i++)
-	{
-		ATLAS_ADD(chair_sprite_id[i], 32*i, 48, 32, 48);
-	}
-	ATLAS_ADD(table_sprite_id, 128, 48, 64, 48);
-	for(int i = 0; i < 2; i++)
-	{
-		ATLAS_ADD(coffee_sprite_id[i], 192+32*i, 48, 32, 48);
-	}
-	ATLAS_ADD(device_sprite_id, 256, 48, 43, 48);
-	ATLAS_ADD(window_sprite_id, 0, 96, 112, 61);
-	ATLAS_ADD(seed_sprite_id, 128, 304, 32, 32);
+	// TILESETS
+	INIT_SPRITE(base_wall_sprite, "sprites/wall_basic.png", 3);
+	INIT_SPRITE(base_floor_sprite, "sprites/tile_basic.png", 3);
+	INIT_SPRITE(sky_wall_sprite, "sprites/wall_sky.png", 8);
+	INIT_SPRITE(grass_floor_sprite, "sprites/tile_grass.png", 9);
 
-	for(int i = 0; i < 21; i++)
-	{
-		ATLAS_ADD(cursor_sprite_id[i], 16*i, 336, 16, 16);
-	}
-	ATLAS_ADD(feed_button_sprite_id, 128, 0, 32, 32);
-	ATLAS_ADD(study_button_sprite_id, 160, 0, 32, 32);
-	ATLAS_ADD(play_button_sprite_id, 192, 0, 32, 32);
-	ATLAS_ADD(deco_button_sprite_id, 529, 0, 32, 32);
-	ATLAS_ADD(menu_button_sprite_id, 561, 0, 32, 32);
-	ATLAS_ADD(ring_hl_sprite_id, 224, 0, 32, 32);
+	// PET
+	INIT_SPRITE(pet_idle_sprite, "sprites/pet_unicorn_idle_complex_a.png", 4);
+	INIT_SPRITE(pet_walk_sprite, "sprites/pet_unicorn_default_walk_complex_a.png", 4);
+	INIT_SPRITE(pet_eat_sprite, "sprites/pet_unicorn_eat_lower_a.png", 7);
+	INIT_SPRITE(pet_chew_sprite, "sprites/pet_unicorn_eat_chew_a.png", 2);
+	INIT_SPRITE(pet_happy_sprite, "sprites/pet_unicorn_happy_complex_a.png", 4);
+	INIT_SPRITE(pet_tired_sprite, "sprites/pet_unicorn_tired_a.png", 4);
+	INIT_SPRITE(pet_vig_up_sprite, "sprites/pet_unicorn_stat_vigor_up_a.png", 13);
+	INIT_SPRITE(pet_foc_up_sprite, "sprites/pet_unicorn_stat_focus_up_a.png", 13);
+	INIT_SPRITE(pet_spi_up_sprite, "sprites/pet_unicorn_stat_spirit_up_a.png", 13);
+	INIT_SPRITE(pet_block_sprite, "sprites/pet_unicorn_block_a.png", 15);
+	INIT_SPRITE(pet_block_blink_sprite, "sprites/pet_unicorn_block_blink_a.png", 2);
 
-	for(int i = 0; i < 3; i++)
-	{
-		ATLAS_ADD(panel_sprite_id[0+i], 48+16*i, 0, 16, 16);
-		ATLAS_ADD(panel_sprite_id[3+i], 48+16*i, 16, 16, 16);
-		ATLAS_ADD(panel_sprite_id[6+i], 48+16*i, 32, 16, 16);
-	}
-	for(int i = 0; i < 91; i++)
-	{
-		ATLAS_ADD(glyph_sprite_id[i], 8*i, 592, 8, 12);
-	}
-	ATLAS_ADD(a_sprite_id, 96, 0, 16, 16);
-	ATLAS_ADD(b_sprite_id, 112, 0, 16, 16);
-	ATLAS_ADD(enter_sprite_id, 96, 16, 16, 16);
-	ATLAS_ADD(exit_sprite_id, 112, 16, 16, 16);
-	ATLAS_ADD(select_sprite_id, 96, 32, 16, 16);
-	ATLAS_ADD(arrow_sprite_id, 112, 32, 16, 16);
-	ATLAS_ADD(item_sprite_id, 128, 32, 16, 16);
-	for(int i = 0; i < 4; i++)
-	{
-		ATLAS_ADD(cell_sprite_id[i], 144+8*i, 32, 8, 16);
-	}
-	ATLAS_ADD(vigour_sprite_id, 160, 160, 22, 24);
-	ATLAS_ADD(focus_sprite_id, 206, 160, 22, 22);
-	ATLAS_ADD(spirit_sprite_id, 182, 160, 24, 22);
-	
-	idle_anim_id = CAT_anim_init(pet_sprite_id, 2, true);
-	walk_anim_id = CAT_anim_init(pet_sprite_id+2, 2, true); 
-	death_anim_id = CAT_anim_init(pet_sprite_id+4, 9, false); 
-	fed_anim_id = CAT_anim_init(fed_sprite_id, 10, true);
-	studied_anim_id = CAT_anim_init(studied_sprite_id, 10, true);
-	played_anim_id = CAT_anim_init(played_sprite_id, 10, true);
-	low_vigour_anim_id = CAT_anim_init(low_vigour_sprite_id, 3, true);
-	low_spirit_anim_id = CAT_anim_init(low_spirit_sprite_id, 3, true);
-	anger_anim_id = CAT_anim_init(anger_sprite_id, 3, true);
+	// PROPS
+	INIT_SPRITE(window_dawn_sprite, "sprites/prop_wall_window_dawn.png", 1);
+	INIT_SPRITE(window_day_sprite, "sprites/prop_wall_window_day.png", 1);
+	INIT_SPRITE(window_night_sprite, "sprites/prop_wall_window_dark.png", 1);
+	INIT_SPRITE(vending_sprite, "sprites/interact_vending_items_a.png", 12);
+	INIT_SPRITE(solderpaste_sprite, "sprites/prop_solderpaste.png", 1);
+	INIT_SPRITE(flower_empty_sprite, "sprites/interact_stat_plant_empty.png", 1);
+	INIT_SPRITE(flower_vig_sprite, "sprites/interact_stat_plant_vigor.png", 6);
+	INIT_SPRITE(flower_foc_sprite, "sprites/interact_stat_plant_focus.png", 6);
+	INIT_SPRITE(flower_spi_sprite, "sprites/interact_stat_plant_spirit.png", 6);
+	INIT_SPRITE(table_sm_sprite, "sprites/prop_table_md.png", 1);
+	INIT_SPRITE(table_lg_sprite, "sprites/prop_table_xl_wood.png", 1);
+	INIT_SPRITE(chair_wood_sprite, "sprites/prop_chair_wood.png", 4);
+	INIT_SPRITE(stool_wood_sprite, "sprites/prop_stool_wood.png", 1);
+	INIT_SPRITE(stool_stone_sprite, "sprites/prop_stool_stone.png", 1);
+	INIT_SPRITE(stool_gold_sprite, "sprites/prop_stool_gold.png", 1);
+	INIT_SPRITE(coffee_sprite, "sprites/prop_coffee_empty_a.png", 14);
+	INIT_SPRITE(fan_sprite, "sprites/prop_fan_a.png", 3);
+	INIT_SPRITE(lantern_lit_sprite, "sprites/prop_lantern_lit_a.png", 2);
+	INIT_SPRITE(lantern_unlit_sprite, "sprites/prop_lantern_unlit.png", 1);
+	INIT_SPRITE(bowl_stone_sprite, "sprites/prop_bowl_stone_2.png", 1);
+	INIT_SPRITE(bowl_gold_sprite, "sprites/prop_bowl_gold.png", 1);
+	INIT_SPRITE(vase_stone_sprite, "sprites/prop_vase_sm_stone.png", 1);
+	INIT_SPRITE(vase_gold_sprite, "sprites/prop_vase_sm_gold.png", 1);
+	INIT_SPRITE(bush_plain_sprite, "sprites/prop_bush_lg_empty.png", 1);
+	INIT_SPRITE(bush_daisy_sprite, "sprites/prop_bush_lg_daisy.png", 1);
+	INIT_SPRITE(bush_lilac_sprite, "sprites/prop_bush_lg_lilac.png", 1);
+	INIT_SPRITE(plant_green_sprite, "sprites/prop_plant_sapling_green.png", 1);
+	INIT_SPRITE(plant_maroon_sprite, "sprites/prop_plant_sapling_maroon.png", 1);
+	INIT_SPRITE(plant_purple_sprite, "sprites/prop_plant_sapling_purple.png", 1);
+	INIT_SPRITE(plant_yellow_sprite, "sprites/prop_plant_sapling_yellow.png", 1);
+	INIT_SPRITE(succulent_sprite, "sprites/prop_plant_md_stem.png", 1);
+	INIT_SPRITE(crystal_blue_sm_sprite, "sprites/prop_crystal_sm_shard_blue.png", 1);
+	INIT_SPRITE(crystal_green_sm_sprite, "sprites/prop_crystal_sm_shard_green.png", 1);
+	INIT_SPRITE(crystal_purple_sm_sprite, "sprites/prop_crystal_sm_shard_purple.png", 1);
+	INIT_SPRITE(crystal_blue_hrt_sprite, "sprites/prop_crystal_sm_heart_blue.png", 1);
+	INIT_SPRITE(crystal_green_hrt_sprite, "sprites/prop_crystal_sm_heart_green.png", 1);
+	INIT_SPRITE(crystal_purple_hrt_sprite, "sprites/prop_crystal_sm_heart_purple.png", 1);
+	INIT_SPRITE(crystal_blue_md_sprite, "sprites/prop_crystal_md_shard_blue.png", 1);
+	INIT_SPRITE(crystal_green_md_sprite, "sprites/prop_crystal_md_shard_green.png", 1);
+	INIT_SPRITE(crystal_purple_md_sprite, "sprites/prop_crystal_md_shard_purple.png", 1);
+	INIT_SPRITE(crystal_blue_lg_sprite, "sprites/prop_crystal_lg_shard_blue.png", 1);
+	INIT_SPRITE(crystal_green_lg_sprite, "sprites/prop_crystal_lg_shard_green.png", 1);
+	INIT_SPRITE(crystal_purple_lg_sprite, "sprites/prop_crystal_lg_shard_purple.png", 1);
 
-	vending_anim_id = CAT_anim_init(vending_sprite_id, 13, true);
-	pot_anim_id = CAT_anim_init(pot_sprite_id, 7, true);
-	chair_anim_id = CAT_anim_init(chair_sprite_id, 4, true);
-	coffee_anim_id = CAT_anim_init(coffee_sprite_id, 2, true);
+	// GRIMBA
+	INIT_SPRITE(seed_vig_sprite, "sprites/seed_vigor_md.png", 1);
+	INIT_SPRITE(seed_foc_sprite, "sprites/seed_focus_md.png", 1);
+	INIT_SPRITE(seed_spi_sprite, "sprites/seed_spirit_md.png", 1);
+	INIT_SPRITE(cigarette_sprite, "sprites/prop_cigarette.png", 1);
 
-	cursor_anim_id = CAT_anim_init(cursor_sprite_id, 4, true);
+	// WORLD UI
+	INIT_SPRITE(cursor_sprite, "sprites/cursor_room_ornate.png", 1);
+	INIT_SPRITE(cursor_deco_sprite, "sprites/cursor_prop_plus_bordered_a.png", 4);
+	INIT_SPRITE(tile_hl_neg, "sprites/tile_hl_neg.png", 1);
+	INIT_SPRITE(tile_hl_inner, "sprites/tile_hl_inner.png", 1);
+
+	// SCREEN UI
+	INIT_SPRITE(fbut_a_sprite, "sprites/A Button_Both.png", 2);
+	INIT_SPRITE(fbut_b_sprite, "sprites/B Button_Both.png", 2);
+	INIT_SPRITE(fbut_n_sprite, "sprites/Up_Arrow_Both.png", 2);
+	INIT_SPRITE(fbut_e_sprite, "sprites/Right Arrow_Both.png", 2);
+	INIT_SPRITE(fbut_s_sprite, "sprites/Down Arrow_Both.png", 2);
+	INIT_SPRITE(fbut_w_sprite, "sprites/Left Arrow_Both.png", 2);
+	INIT_SPRITE(fbut_start_sprite, "sprites/Start Button_Both.png", 2);
+	INIT_SPRITE(fbut_select_sprite, "sprites/Select Button_Both.png", 2);
+	INIT_SPRITE(sbut_feed_sprite, "sprites/Stat_Refill_Vigor_Button.png", 2);
+	INIT_SPRITE(sbut_study_sprite, "sprites/Stat_Refill_Focus_Button.png", 2);
+	INIT_SPRITE(sbut_play_sprite, "sprites/Stat_Refill_Spirit_Button.png", 2);
+	INIT_SPRITE(sbut_deco_sprite, "sprites/Deco_Button.png", 1);
+	INIT_SPRITE(sbut_menu_sprite, "sprites/Menu_Button.png", 1);
+	INIT_SPRITE(sbut_hl_sprite, "sprites/sbut_hl_sprite.png", 1);
+	INIT_SPRITE(icon_vig_sprite, "sprites/STAT_VIGOR2424.png", 1);
+	INIT_SPRITE(icon_foc_sprite, "sprites/STAT_FOCUS2424.png", 1);
+	INIT_SPRITE(icon_spi_sprite, "sprites/STAT_SPIRIT2424.png", 1);
+	INIT_SPRITE(icon_food_sprite, "sprites/icon_food.png", 1);
+	INIT_SPRITE(icon_prop_sprite, "sprites/icon_prop.png", 1);
+	INIT_SPRITE(icon_key_sprite, "sprites/icon_key.png", 1);
+	INIT_SPRITE(panel_sprite, "sprites/panel_tiles.png", 9);
+	INIT_SPRITE(glyph_sprite, "sprites/glyphs.png", 91);
+	INIT_SPRITE(icon_pointer_sprite, "sprites/icon_pointer.png", 1);
+	INIT_SPRITE(icon_enter_sprite, "sprites/icon_enter.png", 1);
+	INIT_SPRITE(icon_exit_sprite, "sprites/icon_exit.png", 1);
+	INIT_SPRITE(cell_vig_sprite, "sprites/cell_vig.png", 1);
+	INIT_SPRITE(cell_foc_sprite, "sprites/cell_foc.png", 1);
+	INIT_SPRITE(cell_spi_sprite, "sprites/cell_spi.png", 1);
+	INIT_SPRITE(cell_empty_sprite, "sprites/cell_empty.png", 1);
+	INIT_SPRITE(crisis_co2_sprite, "sprites/crisis_test_1.png", 1);
+	INIT_SPRITE(crisis_nox_sprite, "sprites/crisis_test_2.png", 1);
+	INIT_SPRITE(crisis_vol_sprite, "sprites/crisis_test_3.png", 1);
+	INIT_SPRITE(crisis_hot_sprite, "sprites/crisis_test_temp_high.png", 1);
+	INIT_SPRITE(crisis_cold_sprite, "sprites/crisis_test_temp_low.png", 1);
 }

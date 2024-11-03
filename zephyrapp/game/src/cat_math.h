@@ -34,6 +34,8 @@ typedef struct CAT_ivec2
 } CAT_ivec2;
 
 CAT_ivec2 CAT_ivec2_add(CAT_ivec2 a, CAT_ivec2 b);
+CAT_ivec2 CAT_ivec2_sub(CAT_ivec2 a, CAT_ivec2 b);
+CAT_ivec2 CAT_ivec2_mul(CAT_ivec2 a, int b);
 
 //////////////////////////////////////////////////////////////////////////
 // BASICS
@@ -45,14 +47,32 @@ int clamp(int v, int a, int b);
 //////////////////////////////////////////////////////////////////////////
 // RANDOM
 
-void rand_init();
-int rand_int(int a, int b);
-float rand_float(float a, float b);
+void CAT_rand_init();
+int CAT_rand_int(int a, int b);
+float CAT_rand_float(float a, float b);
+CAT_vec2 CAT_rand_vec2(CAT_vec2 min, CAT_vec2 max);
+CAT_ivec2 CAT_rand_ivec2(CAT_ivec2 min, CAT_ivec2 max);
+bool CAT_rand_chance(float n);
 
 //////////////////////////////////////////////////////////////////////////
 // COLLISION
 
-bool CAT_test_overlap(CAT_ivec2 a_min, CAT_ivec2 a_max, CAT_ivec2 b_min, CAT_ivec2 b_max);
-bool CAT_test_contain(CAT_ivec2 a_min, CAT_ivec2 a_max, CAT_ivec2 b_min, CAT_ivec2 b_max);
+typedef struct CAT_rect
+{
+	CAT_ivec2 min;
+	CAT_ivec2 max;
+} CAT_rect;
+
+CAT_rect CAT_rect_place(CAT_ivec2 start, CAT_ivec2 shape);
+bool CAT_test_overlaps(CAT_rect a, CAT_rect b);
+bool CAT_test_contains(CAT_rect a, CAT_rect b);
+bool CAT_test_pt_rect(CAT_ivec2 v, CAT_rect r);
+CAT_ivec2 CAT_clamp_pt_rect(CAT_ivec2 v, CAT_rect r);
+
+//////////////////////////////////////////////////////////////////////////
+// CONVERSION
+
+CAT_vec2 CAT_iv2v(CAT_ivec2 iv);
+CAT_ivec2 CAT_v2iv(CAT_vec2 v);
 
 #endif

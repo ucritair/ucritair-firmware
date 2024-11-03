@@ -7,16 +7,10 @@
 
 CAT_gui gui;
 
-void CAT_gui_init(int* tiles, int* glyphs)
+void CAT_gui_init(int panel_id, int glyph_id)
 {
-	for(int i = 0; i < 9; i++)
-	{
-		gui.tiles[i] = tiles[i];
-	}
-	for(int i = 0; i < 91; i++)
-	{
-		gui.glyphs[i] = glyphs[i];
-	}
+	gui.panel_id = panel_id;
+	gui.glyph_id = glyph_id;
 
 	gui.start = (CAT_ivec2) {0, 0};
 	gui.shape = (CAT_ivec2) {15, 20};
@@ -27,14 +21,14 @@ void CAT_gui_init(int* tiles, int* glyphs)
 
 void CAT_gui_row(int stage)
 {
-	CAT_draw_sprite(gui.cursor.x, gui.cursor.y, gui.tiles[stage*3+0]);
+	CAT_draw_sprite(gui.panel_id, stage*3+0, gui.cursor.x, gui.cursor.y);
 	gui.cursor.x += CAT_TILE_SIZE;
 	for(int col = 1; col < gui.shape.x-1; col++)
 	{
-		CAT_draw_sprite(gui.cursor.x, gui.cursor.y, gui.tiles[stage*3+1]);
+		CAT_draw_sprite(gui.panel_id, stage*3+1, gui.cursor.x, gui.cursor.y);
 		gui.cursor.x += CAT_TILE_SIZE;
 	}
-	CAT_draw_sprite(gui.cursor.x, gui.cursor.y, gui.tiles[stage*3+2]);
+	CAT_draw_sprite(gui.panel_id, stage*3+2, gui.cursor.x, gui.cursor.y);
 	gui.cursor.x += CAT_TILE_SIZE;
 
 	gui.cursor.y += CAT_TILE_SIZE;
@@ -91,19 +85,19 @@ void CAT_gui_text(const char* text)
 			continue;
 		}
 
-		CAT_draw_sprite(gui.cursor.x, gui.cursor.y, gui.glyphs[(*c)-' ']);
+		CAT_draw_sprite(gui.glyph_id, *c-' ', gui.cursor.x, gui.cursor.y);
 		gui.cursor.x += CAT_GLYPH_WIDTH;
 	}
 
 	gui.cursor.x += CAT_GUI_PAD_X;
 }
 
-void CAT_gui_image(int sprite_id)
+void CAT_gui_image(int sprite_id, int frame_idx)
 {
 	CAT_sprite sprite = atlas.table[sprite_id];
 	CAT_gui_open_channel(sprite.height);
 
-	CAT_draw_sprite(gui.cursor.x, gui.cursor.y, sprite_id);
+	CAT_draw_sprite(sprite_id, frame_idx, gui.cursor.x, gui.cursor.y);
 	gui.cursor.x += sprite.width;
 
 	gui.cursor.x += CAT_GUI_PAD_X;

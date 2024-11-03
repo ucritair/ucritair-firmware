@@ -72,6 +72,16 @@ CAT_ivec2 CAT_ivec2_add(CAT_ivec2 a, CAT_ivec2 b)
 	return (CAT_ivec2) {a.x + b.x, a.y + b.y};
 }
 
+CAT_ivec2 CAT_ivec2_sub(CAT_ivec2 a, CAT_ivec2 b)
+{
+	return (CAT_ivec2) {a.x - b.x, a.y - b.y};
+}
+
+CAT_ivec2 CAT_ivec2_mul(CAT_ivec2 a, int b)
+{
+	return (CAT_ivec2) {a.x * b, a.y * b};
+}
+
 //////////////////////////////////////////////////////////////////////////
 // BASICS
 
@@ -93,52 +103,92 @@ int clamp(int v, int a, int b)
 //////////////////////////////////////////////////////////////////////////
 // RANDOM
 
-void rand_init()
+void CAT_rand_init()
 {
 #ifdef CAT_DESKTOP
 	srand(time(NULL));
 #endif
 }
 
-int rand_int(int a, int b)
+int CAT_rand_int(int a, int b)
 {
 	return a + rand() / (RAND_MAX / (b - a + 1) + 1);
 }
 
-float rand_float(float a, float b)
+float CAT_rand_float(float a, float b)
 {
 	float scale = rand() / (float) RAND_MAX;
 	return a + scale * (b-a);
 }
 
-CAT_vec2 rand_vec2(CAT_vec2 min, CAT_vec2 max)
+CAT_vec2 CAT_rand_vec2(CAT_vec2 min, CAT_vec2 max)
 {
-	return (CAT_vec2) {rand_float(min.x, max.x), rand_float(min.y, max.y)};
+	return (CAT_vec2) {CAT_rand_float(min.x, max.x), CAT_rand_float(min.y, max.y)};
 }
 
-CAT_ivec2 rand_ivec2(CAT_ivec2 min, CAT_ivec2 max)
+CAT_ivec2 CAT_rand_ivec2(CAT_ivec2 min, CAT_ivec2 max)
 {
-	return (CAT_ivec2) {rand_int(min.x, max.x), rand_int(min.y, max.y)};
+	return (CAT_ivec2) {CAT_rand_int(min.x, max.x), CAT_rand_int(min.y, max.y)};
+}
+
+bool CAT_rand_chance(float n)
+{
+	float thresh = 1.0f/n;
+	return CAT_rand_float(0, 1) < thresh;
 }
 
 //////////////////////////////////////////////////////////////////////////
 // COLLISION
 
-bool CAT_test_overlap(CAT_ivec2 a_min, CAT_ivec2 a_max, CAT_ivec2 b_min, CAT_ivec2 b_max)
+CAT_rect CAT_rect_place(CAT_ivec2 start, CAT_ivec2 shape)
 {
-	if(a_min.x >= b_max.x || a_max.x <= b_min.x)
+	return (CAT_rect) {start, CAT_ivec2_add(start, shape)};
+}
+
+bool CAT_test_overlaps(CAT_rect a, CAT_rect b)
+{
+	if(a.min.x >= b.max.x || a.max.x <= b.min.x)
 		return false;
-	if(a_min.y >= b_max.y || a_max.y <= b_min.y)
+	if(a.min.y >= b.max.y || a.max.y <= b.min.y)
 		return false;
 	return true;
 }
 
-bool CAT_test_contain(CAT_ivec2 a_min, CAT_ivec2 a_max, CAT_ivec2 b_min, CAT_ivec2 b_max)
+bool CAT_test_contains(CAT_rect a, CAT_rect b)
 {
-	if(b_min.x < a_min.x || b_max.x > a_max.x)
+	if(b.min.x < a.min.x || b.max.x > a.max.x)
 		return false;
-	if(b_min.y < a_min.y || b_max.y > a_max.y)
+	if(b.min.y < a.min.y || b.max.y > a.max.y)
 		return false;
 	return true;
 }
+
+bool CAT_test_pt_rect(CAT_ivec2 v, CAT_rect r)
+{
+	if(v.x < r.min.x || v.x > r.max.x)
+		return false;
+	if(v.y < r.min.y || v.y > r.max.y)
+		return false;
+	return true;
+}
+
+CAT_ivec2 CAT_clamp_pt_rect(CAT_ivec2 v, CAT_rect r)
+{
+	v.x = clamp(v.x, r.min.x, r.max.x);
+	v.y = clamp(v.y, r.min.y, r.max.y);
+	return v;
+}
+
+//////////////////////////////////////////////////////////////////////////
+// CONVERSION
+
+CAT_vec2 CAT_iv2v(CAT_ivec2 iv)
+{
+	return (CAT_vec2) {(float) iv.x, (float) iv.y };
+}
+CAT_ivec2 CAT_v2iv(CAT_vec2 v)
+{
+	return (CAT_ivec2) {(int) v.x, (int) v.y };
+}
+
 

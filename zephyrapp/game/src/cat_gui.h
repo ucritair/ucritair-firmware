@@ -18,8 +18,8 @@
 
 typedef struct CAT_gui
 {
-	int tiles[9];
-	int glyphs[91];
+	int panel_id;
+	int glyph_id;
 
 	CAT_ivec2 start;
 	CAT_ivec2 shape;
@@ -30,13 +30,13 @@ typedef struct CAT_gui
 } CAT_gui;
 extern CAT_gui gui;
 
-void CAT_gui_init(int* tiles, int* glyphs);
+void CAT_gui_init(int panel_id, int glyph_id);
 void CAT_gui_row(int stage);
 void CAT_gui_panel(CAT_ivec2 start, CAT_ivec2 shape);
 void CAT_gui_open_channel(int height);
 void CAT_gui_line_break();
 void CAT_gui_same_line();
 void CAT_gui_text(const char* text);
-void CAT_gui_image(int sprite_id);
+void CAT_gui_image(int sprite_id, int frame_idx);
 
 #endif

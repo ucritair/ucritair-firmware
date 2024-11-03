@@ -2,7 +2,7 @@
 #include <stdio.h>
 
 //////////////////////////////////////////////////////////////////////////
-// TABLE AND BAG
+// ITEM TABLE
 
 CAT_item_table item_table;
 
@@ -11,18 +11,15 @@ void CAT_item_table_init()
 	item_table.length = 0;
 }
 
-int CAT_item_init(CAT_item_type type, const char* name, int sprite, int price)
+int CAT_item_init(CAT_item_type type, const char* name, int sprite_id, int price)
 {
-	if(item_table.length >= CAT_ITEM_TABLE_MAX_LENGTH)
-		return -1;
-
 	int item_id = item_table.length;
 	item_table.length += 1;
 
 	CAT_item* item = &item_table.data[item_id];
 	item->type = type;
 	item->name = name;
-	item->sprite = sprite;
+	item->sprite_id = sprite_id;
 	item->price = price;
 	item->count = 0;
 
@@ -31,15 +28,12 @@ int CAT_item_init(CAT_item_type type, const char* name, int sprite, int price)
 
 CAT_item* CAT_item_get(int item_id)
 {
-	if(item_id < 0 || item_id >= CAT_ITEM_TABLE_MAX_LENGTH)
-		return NULL;
 	return &item_table.data[item_id];
 }
 
-void CAT_prop_init(int item_id, int anim_id, int width, int height)
+void CAT_prop_init(int item_id, int width, int height)
 {
 	CAT_item* item = CAT_item_get(item_id);
-	item->data.prop_data.anim_id = anim_id;
 	item->data.prop_data.shape = (CAT_ivec2) {width, height};
 }
 
@@ -53,6 +47,10 @@ void CAT_food_init(int item_id, float d_v, float d_f, float d_s, float dd_v, flo
 	item->data.food_data.dd_f = dd_f;
 	item->data.food_data.dd_s = dd_s;
 }
+
+
+//////////////////////////////////////////////////////////////////////////
+// BAG
 
 void CAT_bag_add(int item_id)
 {
@@ -75,53 +73,125 @@ int CAT_bag_count(int item_id)
 	return item->count;
 }
 
-int CAT_bag_seek(int whence, CAT_item_type type)
+int CAT_bag_first()
 {
-	int idx = whence;
-	for(int steps = 0; steps < item_table.length; steps++)
+	for(int i = 0; i < item_table.length; i++)
 	{
-		CAT_item* item = CAT_item_get(idx);
-		if(item == NULL || item->count <= 0)
-			continue;
-
-		if(item->type == type)
-			return idx;
-
-		idx += 1;
-		if(idx >= item_table.length)
-			idx = 0;
+		if(item_table.data[i].count > 0)
+			return i;
 	}
 	return -1;
 }
 
+int CAT_bag_next(int idx)
+{
+	int start = idx+1;
+	for(int i = start; i < item_table.length; i++)
+	{
+		if(item_table.data[i].count > 0)
+			return i;
+	}
+	return -1;
+}
+
+int CAT_bag_prev(int idx)
+{
+	int start = idx-1;
+	for(int i = start; i >= 0; i--)
+	{
+		if(item_table.data[i].count > 0)
+			return i;
+	}
+	return -1;
+}
+
+
 //////////////////////////////////////////////////////////////////////////
 // ID DECLARATIONS
 
-int chair_item_id;
-int table_item_id;
-int coffee_item_id;
-int device_item_id;
-int seed_item_id;
+int chair_wood_item;
+int table_sm_item;
+int table_lg_item;
+int stool_wood_item;
+int stool_stone_item;
+int stool_gold_item;
+int coffee_item;
+int fan_item;
+int lantern_lit_item;
+int lantern_unlit_item;
+int bowl_stone_item;
+int bowl_gold_item;
+int vase_stone_item;
+int vase_gold_item;
+int flower_empty_item;
+int flower_vig_item;
+int flower_foc_item;
+int flower_spi_item;
+int plant_green_item;
+int plant_maroon_item;
+int plant_purple_item;
+int plant_yellow_item;
+int bush_plain_item;
+int bush_daisy_item;
+int bush_lilac_item;
+int succulent_item;
+int crystal_blue_sm_item;
+int crystal_green_sm_item;
+int crystal_purple_sm_item;
+int crystal_blue_hrt_item;
+int crystal_green_hrt_item;
+int crystal_purple_hrt_item;
+int crystal_blue_md_item;
+int crystal_green_md_item;
+int crystal_purple_md_item;
+int crystal_blue_lg_item;
+int crystal_green_lg_item;
+int crystal_purple_lg_item;
+int solderpaste_item;
 
 void CAT_item_mass_define()
 {
-	chair_item_id = CAT_item_init(CAT_ITEM_TYPE_PROP, "Chair", chair_sprite_id[3], 0);
-	CAT_prop_init(chair_item_id, -1, 2, 2);
-	CAT_bag_add(chair_item_id);
+	chair_wood_item = CAT_item_init(CAT_ITEM_TYPE_PROP, "Wood Chair", chair_wood_sprite, 0);
+	CAT_prop_init(chair_wood_item, 2, 2);
+	CAT_bag_add(chair_wood_item);
 
-	table_item_id = CAT_item_init(CAT_ITEM_TYPE_PROP, "Table", table_sprite_id, 0);
-	CAT_prop_init(table_item_id, -1, 4, 2);
-	CAT_bag_add(table_item_id);
-	
-	coffee_item_id = CAT_item_init(CAT_ITEM_TYPE_PROP, "Coffee", coffee_sprite_id[0], 0);
-	CAT_prop_init(coffee_item_id, coffee_anim_id, 2, 2);
-	CAT_bag_add(coffee_item_id);
-	
-	device_item_id = CAT_item_init(CAT_ITEM_TYPE_PROP, "Device", device_sprite_id, 0);
-	CAT_prop_init(device_item_id, -1, 3, 2);
-	CAT_bag_add(device_item_id);
+	table_sm_item = CAT_item_init(CAT_ITEM_TYPE_PROP, "Small Table", table_sm_sprite, 0);
+	CAT_prop_init(table_sm_item, 2, 2);
+	CAT_bag_add(table_sm_item);
 
-	seed_item_id = CAT_item_init(CAT_ITEM_TYPE_FOOD, "Seed", seed_sprite_id, 0);
-	CAT_food_init(seed_item_id, 0, 0, 0, 0, 0, 0);
-	CAT_bag_add(seed_item_id);
+	table_lg_item = CAT_item_init(CAT_ITEM_TYPE_PROP, "Large Table", table_lg_sprite, 0);
+	CAT_prop_init(table_lg_item, 4, 2);
+	CAT_bag_add(table_lg_item);
+
+	coffee_item = CAT_item_init(CAT_ITEM_TYPE_PROP, "Coffee Pot", coffee_sprite, 0);
+	CAT_prop_init(coffee_item, 2, 2);
+	CAT_bag_add(coffee_item);
+
+	fan_item = CAT_item_init(CAT_ITEM_TYPE_PROP, "Fan", fan_sprite, 0);
+	CAT_prop_init(fan_item, 2, 1);
+	CAT_bag_add(fan_item);
+
+	lantern_lit_item = CAT_item_init(CAT_ITEM_TYPE_PROP, "Lantern (Lit)", lantern_lit_sprite, 0);
+	CAT_prop_init(lantern_lit_item, 1, 1);
+	CAT_bag_add(lantern_lit_item);
+
+	lantern_unlit_item = CAT_item_init(CAT_ITEM_TYPE_PROP, "Lantern (Unlit)", lantern_unlit_sprite, 0);
+	CAT_prop_init(lantern_unlit_item, 1, 1);
+	CAT_bag_add(lantern_unlit_item);
+
+	bowl_stone_item = CAT_item_init(CAT_ITEM_TYPE_PROP, "Stone Bowl", bowl_stone_sprite, 0);
+	CAT_prop_init(bowl_stone_item, 1, 1);
+	CAT_bag_add(bowl_stone_item);
+
+	bowl_gold_item = CAT_item_init(CAT_ITEM_TYPE_PROP, "Gold Bowl", bowl_gold_sprite, 0);
+	CAT_prop_init(bowl_gold_item, 1, 1);
+	CAT_bag_add(bowl_gold_item);
+
+	vase_stone_item = CAT_item_init(CAT_ITEM_TYPE_PROP, "Stone Vase", vase_stone_sprite, 0);
+	CAT_prop_init(vase_stone_item, 1, 1);
+	CAT_bag_add(vase_stone_item);
+
+	vase_gold_item = CAT_item_init(CAT_ITEM_TYPE_PROP, "Gold Vase", vase_gold_sprite, 0);
+	CAT_prop_init(vase_gold_item, 1, 1);
+	CAT_bag_add(vase_gold_item);
 }

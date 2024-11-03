@@ -1,6 +1,7 @@
 #include <stddef.h>
 #include "cat_machine.h"
 #include "cat_core.h"
+#include "cat_math.h"
 
 //////////////////////////////////////////////////////////////////////////
 // TIMETABLE
@@ -80,3 +81,4 @@ void CAT_machine_tick(CAT_machine_state* machine)
 	if(*machine != NULL)
 		(**machine)(CAT_MACHINE_SIGNAL_TICK);
 }
+

@@ -12,8 +12,9 @@
 
 #define CAT_ITEM_TABLE_MAX_LENGTH 64
 
+
 //////////////////////////////////////////////////////////////////////////
-// TABLE AND BAG
+// ITEM TABLE
 
 typedef enum CAT_item_type
 {
@@ -26,7 +27,7 @@ typedef struct CAT_item
 {
 	CAT_item_type type;
 	const char* name;
-	int sprite; 
+	int sprite_id;
 	int price;
 	int count;
 
@@ -34,7 +35,6 @@ typedef struct CAT_item
 	{
 		struct
 		{
-			int anim_id;
 			CAT_ivec2 shape;
 		} prop_data;
 
@@ -58,24 +58,66 @@ typedef struct CAT_item_table
 extern CAT_item_table item_table;
 
 void CAT_item_table_init();
-int CAT_item_init(CAT_item_type type, const char* name, int sprite, int price);
+int CAT_item_init(CAT_item_type type, const char* name, int sprite_id, int price);
 CAT_item* CAT_item_get(int item_id);
-void CAT_prop_init(int item_id, int anim_id, int width, int height);
+void CAT_prop_init(int item_id, int width, int height);
 void CAT_food_init(int item_id, float d_v, float d_f, float d_s, float dd_v, float dd_f, float dd_s);
+
+
+//////////////////////////////////////////////////////////////////////////
+// BAG
 
 void CAT_bag_add(int item_id);
 bool CAT_bag_remove(int item_id);
 int CAT_bag_count(int item_id);
-int CAT_bag_seek(int whence, CAT_item_type type);
+int CAT_bag_first();
+int CAT_bag_next(int idx);
+int CAT_bag_prev(int idx);
+int CAT_bag_seek(int idx, CAT_item_type type);
+
 
 //////////////////////////////////////////////////////////////////////////
 // ID DECLARATIONS
 
-extern int chair_item_id;
-extern int table_item_id;
-extern int coffee_item_id;
-extern int device_item_id;
-extern int seed_item_id;
+extern int chair_wood_item;
+extern int table_sm_item;
+extern int table_lg_item;
+extern int stool_wood_item;
+extern int stool_stone_item;
+extern int stool_gold_item;
+extern int coffee_item;
+extern int fan_item;
+extern int lantern_lit_item;
+extern int lantern_unlit_item;
+extern int bowl_stone_item;
+extern int bowl_gold_item;
+extern int vase_stone_item;
+extern int vase_gold_item;
+extern int flower_empty_item;
+extern int flower_vig_item;
+extern int flower_foc_item;
+extern int flower_spi_item;
+extern int plant_green_item;
+extern int plant_maroon_item;
+extern int plant_purple_item;
+extern int plant_yellow_item;
+extern int bush_plain_item;
+extern int bush_daisy_item;
+extern int bush_lilac_item;
+extern int succulent_item;
+extern int crystal_blue_sm_item;
+extern int crystal_green_sm_item;
+extern int crystal_purple_sm_item;
+extern int crystal_blue_hrt_item;
+extern int crystal_green_hrt_item;
+extern int crystal_purple_hrt_item;
+extern int crystal_blue_md_item;
+extern int crystal_green_md_item;
+extern int crystal_purple_md_item;
+extern int crystal_blue_lg_item;
+extern int crystal_green_lg_item;
+extern int crystal_purple_lg_item;
+extern int solderpaste_item;
 
 void CAT_item_mass_define();
 
