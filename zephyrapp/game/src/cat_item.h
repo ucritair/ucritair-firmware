@@ -120,6 +120,10 @@ extern int crystal_purple_lg_item;
 extern int solderpaste_item;
 
 extern int cigarettes_item;
+extern int cigarettes_item;
+extern int sausage_item;
+extern int padkrapow_item;
+extern int coffee_item;
 
 void CAT_item_mass_define();
 

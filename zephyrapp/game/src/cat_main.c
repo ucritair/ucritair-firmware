@@ -72,6 +72,8 @@ typedef struct CAT_deco_state
 	CAT_ivec2 places[CAT_MAX_PROP_COUNT];
 	int prop_count;
 
+	enum mode {ADD, REMOVE} mode;
+
 	int add_id;
 	CAT_rect add_rect;
 	bool valid_add;
@@ -268,8 +270,11 @@ void CAT_MS_feed(CAT_machine_signal signal)
 		{
 			if(feed_state.food_id == -1)
 			{
-				bag_state.destination = CAT_MS_feed;
-				CAT_machine_transition(&machine, CAT_MS_bag);
+				if(CAT_input_pressed(CAT_BUTTON_A))
+				{
+					bag_state.destination = CAT_MS_feed;
+					CAT_machine_transition(&machine, CAT_MS_bag);
+				}
 			}
 				
 			if(!feed_state.confirmed)
@@ -330,6 +335,7 @@ void CAT_MS_feed(CAT_machine_signal signal)
 void CAT_deco_state_init()
 {
 	deco_state.prop_count = 0;
+	deco_state.mode = ADD;
 	deco_state.add_id = -1;
 	deco_state.remove_id = -1;
 }
@@ -348,84 +354,112 @@ void CAT_MS_deco(CAT_machine_signal signal)
 		{
 			CAT_room_move_cursor();
 
-			if(deco_state.add_id != -1)
+			if(CAT_input_pressed(CAT_BUTTON_SELECT))
 			{
-				CAT_item* prop = &item_table.data[deco_state.add_id];
-				CAT_ivec2 shape = prop->data.prop_data.shape;
-				CAT_rect bounds = CAT_rect_place(room.cursor, shape);
+				if(deco_state.mode == ADD)
+					deco_state.mode = REMOVE;
+				else
+					deco_state.mode = ADD;
+			}
 
-				if(!CAT_test_contains(room.bounds, bounds))
+			switch(deco_state.mode)
+			{
+				case ADD:
 				{
-					if(bounds.max.x > room.bounds.max.x)
-						room.cursor.x -= bounds.max.x - room.bounds.max.x;
-					if(bounds.max.y > room.bounds.max.y)
-						room.cursor.y -= bounds.max.y - room.bounds.max.y;
-				}
-				bounds = CAT_rect_place(room.cursor, shape);
-				deco_state.add_rect = bounds;
-
-				deco_state.valid_add = true;
-				if(!CAT_test_contains(room.bounds, bounds))
-					deco_state.valid_add = false;
-				for(int i = 0; i < deco_state.prop_count && deco_state.valid_add; i++)
-				{
-					CAT_item* other = CAT_item_get(deco_state.props[i]);
-					CAT_ivec2 other_shape = other->data.prop_data.shape;
-					CAT_rect other_bounds = CAT_rect_place(deco_state.places[i], other_shape);
-
-					if(CAT_test_overlaps(bounds, other_bounds))
+					if(deco_state.add_id != -1)
 					{
-						deco_state.valid_add = false;
-						break;
+						CAT_item* prop = &item_table.data[deco_state.add_id];
+						CAT_ivec2 shape = prop->data.prop_data.shape;
+						CAT_rect bounds = CAT_rect_place(room.cursor, shape);
+
+						if(!CAT_test_contains(room.bounds, bounds))
+						{
+							if(bounds.max.x > room.bounds.max.x)
+								room.cursor.x -= bounds.max.x - room.bounds.max.x;
+							if(bounds.max.y > room.bounds.max.y)
+								room.cursor.y -= bounds.max.y - room.bounds.max.y;
+						}
+						bounds = CAT_rect_place(room.cursor, shape);
+						deco_state.add_rect = bounds;
+
+						deco_state.valid_add = true;
+						if(!CAT_test_contains(room.bounds, bounds))
+							deco_state.valid_add = false;
+						for(int i = 0; i < deco_state.prop_count && deco_state.valid_add; i++)
+						{
+							CAT_item* other = CAT_item_get(deco_state.props[i]);
+							CAT_ivec2 other_shape = other->data.prop_data.shape;
+							CAT_rect other_bounds = CAT_rect_place(deco_state.places[i], other_shape);
+
+							if(CAT_test_overlaps(bounds, other_bounds))
+							{
+								deco_state.valid_add = false;
+								break;
+							}
+						}
+						
+						if(CAT_input_pressed(CAT_BUTTON_A) && deco_state.valid_add)
+						{
+							int idx = deco_state.prop_count;
+							deco_state.prop_count += 1;
+							deco_state.props[idx] = deco_state.add_id;
+							deco_state.places[idx] = room.cursor;
+							CAT_bag_remove(deco_state.add_id);
+							deco_state.add_id = -1;
+						}
 					}
-				}
+					else
+					{
+						if(CAT_input_pressed(CAT_BUTTON_A))
+						{
+							bag_state.destination = CAT_MS_deco;
+							CAT_machine_transition(&machine, CAT_MS_bag);
+						}
+					}
 				
-				if(CAT_input_pressed(CAT_BUTTON_A) && deco_state.valid_add)
-				{
-					int idx = deco_state.prop_count;
-					deco_state.prop_count += 1;
-					deco_state.props[idx] = deco_state.add_id;
-					deco_state.places[idx] = room.cursor;
-					CAT_bag_remove(deco_state.add_id);
-					CAT_machine_transition(&machine, CAT_MS_default);
+					break;
 				}
-			}
-			else if(deco_state.remove_id != -1)
-			{
-				if(!CAT_test_pt_rect(room.cursor, deco_state.remove_rect))
+				case REMOVE:
 				{
-					deco_state.remove_id = -1;
-				}
-				else if(CAT_input_pressed(CAT_BUTTON_A))
-				{
-					CAT_bag_add(deco_state.props[deco_state.remove_id]);
-					for(int i = deco_state.remove_id; i < deco_state.prop_count-1; i++)
+					if(deco_state.remove_id != -1)
 					{
-						deco_state.props[i] = deco_state.props[i+1];
-						deco_state.places[i] = deco_state.places[i+1];
+						if(!CAT_test_pt_rect(room.cursor, deco_state.remove_rect))
+						{
+							deco_state.remove_id = -1;
+						}
+						else if(CAT_input_pressed(CAT_BUTTON_A))
+						{
+							CAT_bag_add(deco_state.props[deco_state.remove_id]);
+							for(int i = deco_state.remove_id; i < deco_state.prop_count-1; i++)
+							{
+								deco_state.props[i] = deco_state.props[i+1];
+								deco_state.places[i] = deco_state.places[i+1];
+							}
+							deco_state.prop_count -= 1;
+							deco_state.remove_id = -1;
+						}
 					}
-					deco_state.prop_count -= 1;
-					deco_state.remove_id = -1;
-				}
-			}
-			else
-			{
-				for(int i = 0; i < deco_state.prop_count; i++)
-				{	
-					CAT_item* prop = &item_table.data[deco_state.props[i]];
-					CAT_ivec2 shape = prop->data.prop_data.shape;
-					CAT_rect bounds = CAT_rect_place(deco_state.places[i], shape);
-					bounds.max.x -= 1;
-					bounds.max.y -= 1;
-
-					if(CAT_test_pt_rect(room.cursor, bounds))
+					else
 					{
-						deco_state.remove_id = i;
-						deco_state.remove_rect = bounds;
+						for(int i = 0; i < deco_state.prop_count; i++)
+						{	
+							CAT_item* prop = &item_table.data[deco_state.props[i]];
+							CAT_ivec2 shape = prop->data.prop_data.shape;
+							CAT_rect bounds = CAT_rect_place(deco_state.places[i], shape);
+							bounds.max.x -= 1;
+							bounds.max.y -= 1;
+
+							if(CAT_test_pt_rect(room.cursor, bounds))
+							{
+								deco_state.remove_id = i;
+								deco_state.remove_rect = bounds;
+							}
+						}
 					}
+					break;
 				}
 			}
-
+		
 			if(CAT_input_pressed(CAT_BUTTON_B))
 				CAT_machine_transition(&machine, CAT_MS_default);
 			break;
@@ -515,7 +549,7 @@ void CAT_bag_state_init()
 	bag_state.base = 0;
 	bag_state.seen = 0;
 	bag_state.selector = 0;
-	bag_state.destination = NULL;
+	bag_state.destination = CAT_MS_default;
 }
 
 void CAT_bag_state_refresh()
@@ -523,7 +557,16 @@ void CAT_bag_state_refresh()
 	bag_state.seen = 0;
 	for(int i = bag_state.base; bag_state.seen < 9 && i < item_table.length; i++)
 	{
-		if(CAT_bag_count(i) > 0)
+		CAT_item* item = &item_table.data[i];
+		if
+		(
+			item->count > 0 &&
+			(
+				bag_state.destination == CAT_MS_default ||
+				(bag_state.destination == CAT_MS_feed && item->type == CAT_ITEM_TYPE_FOOD) ||
+				(bag_state.destination == CAT_MS_deco && item->type == CAT_ITEM_TYPE_PROP)
+			)
+		)
 		{
 			bag_state.visible[bag_state.seen] = i;
 			bag_state.seen += 1;
@@ -581,12 +624,12 @@ void CAT_MS_bag(CAT_machine_signal signal)
 				int item_id = bag_state.visible[bag_state.selector];
 				CAT_item* item = &item_table.data[item_id];
 
-				if(item->type == CAT_ITEM_TYPE_FOOD && (bag_state.destination == NULL || bag_state.destination == CAT_MS_feed))
+				if(item->type == CAT_ITEM_TYPE_FOOD && (bag_state.destination == CAT_MS_default || bag_state.destination == CAT_MS_feed))
 				{
 					feed_state.food_id = item_id;
 					CAT_machine_transition(&machine, CAT_MS_feed);
 				}
-				else if(item->type == CAT_ITEM_TYPE_PROP && (bag_state.destination == NULL || bag_state.destination == CAT_MS_deco))
+				else if(item->type == CAT_ITEM_TYPE_PROP && (bag_state.destination == CAT_MS_default || bag_state.destination == CAT_MS_deco))
 				{
 					deco_state.add_id = item_id;
 					CAT_machine_transition(&machine, CAT_MS_deco);
@@ -594,13 +637,13 @@ void CAT_MS_bag(CAT_machine_signal signal)
 			}
 				
 			if(CAT_input_pressed(CAT_BUTTON_B))
-				CAT_machine_transition(&machine, CAT_MS_menu);
+				CAT_machine_transition(&machine, bag_state.destination);
 			if(CAT_input_pressed(CAT_BUTTON_START))
 				CAT_machine_transition(&machine, CAT_MS_default);
 			break;
 		}
 		case CAT_MACHINE_SIGNAL_EXIT:
-			bag_state.destination = NULL;
+			bag_state.destination = CAT_MS_default;
 			break;
 	}
 }
@@ -643,36 +686,62 @@ void CAT_render(int cycle)
 
 		if(machine == CAT_MS_feed)
 		{
-			CAT_draw_queue_add(cigarette_sprite, 0, 2, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
-		}
-		else if(machine == CAT_MS_deco)
-		{
-			if(deco_state.add_id != -1)
+			if(feed_state.food_id != -1)
 			{
-				int cursor_mode = deco_state.valid_add ? 1 : 3;
-				for(int y = deco_state.add_rect.min.y; y < deco_state.add_rect.max.y; y++)
-				{
-					for(int x = deco_state.add_rect.min.x; x < deco_state.add_rect.max.x; x++)
-					{
-						CAT_draw_queue_add(cursor_deco_sprite, cursor_mode, 3, x * 16, y * 16, CAT_DRAW_MODE_DEFAULT);
-					}
-				}
-			}
-			else if(deco_state.remove_id != -1)
-			{
-				for(int y = deco_state.remove_rect.min.y; y <= deco_state.remove_rect.max.y; y++)
-				{
-					for(int x = deco_state.remove_rect.min.x; x <= deco_state.remove_rect.max.x; x++)
-					{
-						CAT_draw_queue_add(tile_hl_neg, 0, 3, x * 16, y * 16, CAT_DRAW_MODE_DEFAULT);
-					}
-				}
-				CAT_draw_queue_add(tile_hl_inner, 0, 3, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
+				CAT_item* food = &item_table.data[feed_state.food_id];
+				CAT_draw_queue_add(food->sprite_id, 0, 2, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
+				if(!feed_state.confirmed)
+					CAT_draw_queue_add(tile_hl_sprite, 0, 2, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
 			}
 			else
 			{
-				CAT_draw_queue_add(cursor_sprite, 0, 3, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
+				CAT_draw_queue_add(cursor_sprite, 0, 2, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
 			}
+		}
+		else if(machine == CAT_MS_deco)
+		{
+			switch(deco_state.mode)
+			{
+				case ADD:
+				{
+					if(deco_state.add_id != -1)
+					{
+						for(int y = deco_state.add_rect.min.y; y < deco_state.add_rect.max.y; y++)
+						{
+							for(int x = deco_state.add_rect.min.x; x < deco_state.add_rect.max.x; x++)
+							{
+								CAT_draw_queue_add(tile_hl_add_sprite, 0, 3, x * 16, y * 16, CAT_DRAW_MODE_DEFAULT);
+							}
+						}
+					}
+					else
+					{
+						CAT_draw_queue_add(cursor_add_sprite, 0, 3, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
+					}
+					break;
+				}
+				case REMOVE:
+				{
+					if(deco_state.remove_id != -1)
+					{
+						for(int y = deco_state.remove_rect.min.y; y <= deco_state.remove_rect.max.y; y++)
+						{
+							for(int x = deco_state.remove_rect.min.x; x <= deco_state.remove_rect.max.x; x++)
+							{
+								CAT_draw_queue_add(tile_hl_rm_outer_sprite, 0, 3, x * 16, y * 16, CAT_DRAW_MODE_DEFAULT);
+							}
+						}
+						CAT_draw_queue_add(tile_hl_rm_inner_sprite, 0, 3, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
+					}
+					else
+					{
+						CAT_draw_queue_add(cursor_remove_sprite, 0, 3, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
+					}
+					break;
+				}
+			}
+			
+			
 		}
 
 		CAT_draw_queue_add(sbut_feed_sprite, 0, 3, 8, 280, CAT_DRAW_MODE_DEFAULT); 

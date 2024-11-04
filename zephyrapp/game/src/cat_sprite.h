@@ -159,7 +159,7 @@ extern int chair_wood_sprite;
 extern int stool_wood_sprite;
 extern int stool_stone_sprite;
 extern int stool_gold_sprite;
-extern int coffee_sprite;
+extern int coffeemaker_sprite;
 extern int fan_sprite;
 extern int lantern_lit_sprite;
 extern int lantern_unlit_sprite;
@@ -190,6 +190,9 @@ extern int crystal_purple_lg_sprite;
 
 // FOOD
 extern int cigarette_sprite;
+extern int sausage_sprite;
+extern int padkrapow_sprite;
+extern int coffee_sprite;
 
 // WORLD UI
 extern int sbut_feed_sprite;
@@ -198,10 +201,14 @@ extern int sbut_play_sprite;
 extern int sbut_deco_sprite;
 extern int sbut_menu_sprite;
 extern int sbut_hl_sprite;
+
 extern int cursor_sprite;
-extern int cursor_deco_sprite;
-extern int tile_hl_neg;
-extern int tile_hl_inner;
+extern int cursor_add_sprite;
+extern int cursor_remove_sprite;
+extern int tile_hl_add_sprite;
+extern int tile_hl_rm_outer_sprite;
+extern int tile_hl_rm_inner_sprite;
+extern int tile_hl_sprite;
 
 // SCREEN UI
 extern int panel_sprite;

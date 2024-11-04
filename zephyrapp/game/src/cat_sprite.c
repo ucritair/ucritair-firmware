@@ -452,7 +452,7 @@ int chair_wood_sprite;
 int stool_wood_sprite;
 int stool_stone_sprite;
 int stool_gold_sprite;
-int coffee_sprite;
+int coffeemaker_sprite;
 int fan_sprite;
 int lantern_lit_sprite;
 int lantern_unlit_sprite;
@@ -482,16 +482,19 @@ int crystal_green_lg_sprite;
 int crystal_purple_lg_sprite;
 
 // GRIMBA
-int seed_vig_sprite;
-int seed_foc_sprite;
-int seed_spi_sprite;
 int cigarette_sprite;
+int sausage_sprite;
+int padkrapow_sprite;
+int coffee_sprite;
 
 // WORLD UI
 int cursor_sprite;
-int cursor_deco_sprite;
-int tile_hl_neg;
-int tile_hl_inner;
+int cursor_add_sprite;
+int cursor_remove_sprite;
+int tile_hl_add_sprite;
+int tile_hl_rm_outer_sprite;
+int tile_hl_rm_inner_sprite;
+int tile_hl_sprite;
 
 // SCREEN UI
 int fbut_a_sprite;
@@ -586,7 +589,7 @@ void CAT_sprite_mass_define()
 	INIT_SPRITE(stool_wood_sprite, "sprites/prop_stool_wood.png", 1);
 	INIT_SPRITE(stool_stone_sprite, "sprites/prop_stool_stone.png", 1);
 	INIT_SPRITE(stool_gold_sprite, "sprites/prop_stool_gold.png", 1);
-	INIT_SPRITE(coffee_sprite, "sprites/prop_coffee_empty_a.png", 14);
+	INIT_SPRITE(coffeemaker_sprite, "sprites/prop_coffee_empty_a.png", 14);
 	INIT_SPRITE(fan_sprite, "sprites/prop_fan_a.png", 3);
 	INIT_SPRITE(lantern_lit_sprite, "sprites/prop_lantern_lit_a.png", 2);
 	INIT_SPRITE(lantern_unlit_sprite, "sprites/prop_lantern_unlit.png", 1);
@@ -617,12 +620,18 @@ void CAT_sprite_mass_define()
 
 	// GRIMBA
 	INIT_SPRITE(cigarette_sprite, "sprites/prop_cigarette.png", 1);
+	INIT_SPRITE(sausage_sprite, "sprites/food_sausage_sm.png", 1);
+	INIT_SPRITE(padkrapow_sprite, "sprites/food_padkrakow_sm.png", 1);
+	INIT_SPRITE(coffee_sprite, "sprites/food_coffee_sm.png", 1);
 
 	// WORLD UI
 	INIT_SPRITE(cursor_sprite, "sprites/cursor_room_ornate.png", 1);
-	INIT_SPRITE(cursor_deco_sprite, "sprites/cursor_prop_plus_bordered_a.png", 4);
-	INIT_SPRITE(tile_hl_neg, "sprites/tile_hl_neg.png", 1);
-	INIT_SPRITE(tile_hl_inner, "sprites/tile_hl_inner.png", 1);
+	INIT_SPRITE(cursor_add_sprite, "sprites/cursor_add.png", 1);
+	INIT_SPRITE(cursor_remove_sprite, "sprites/cursor_remove.png", 1);
+	INIT_SPRITE(tile_hl_add_sprite, "sprites/tile_hl_add.png", 1);
+	INIT_SPRITE(tile_hl_rm_outer_sprite, "sprites/tile_hl_rm_outer.png", 1);
+	INIT_SPRITE(tile_hl_rm_inner_sprite, "sprites/tile_hl_rm_inner.png", 1);
+	INIT_SPRITE(tile_hl_sprite, "sprites/tile_hl.png", 1);
 
 	// SCREEN UI
 	INIT_SPRITE(fbut_a_sprite, "sprites/A Button_Both.png", 2);
