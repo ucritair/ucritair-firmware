@@ -19,25 +19,6 @@
 
 #pragma region DATA
 
-typedef enum CAT_screen
-{
-	CAT_SCREEN_ROOM,
-	CAT_SCREEN_MENU,
-	CAT_SCREEN_STATS,
-	CAT_SCREEN_BAG
-} CAT_screen;
-CAT_screen screen;
-
-typedef enum CAT_mode
-{
-	CAT_MODE_DEFAULT,
-	CAT_MODE_FEED,
-	CAT_MODE_STUDY,
-	CAT_MODE_PLAY,
-	CAT_MODE_DECO
-} CAT_mode;
-CAT_mode mode;
-
 CAT_machine_state machine;
 void CAT_MS_default(CAT_machine_signal);
 void CAT_MS_feed(CAT_machine_signal);
@@ -72,6 +53,21 @@ typedef struct CAT_room
 	CAT_rect bounds;
 	CAT_ivec2 cursor;
 
+	CAT_machine_state buttons[5];
+	int selector;
+} CAT_room;
+CAT_room room;
+
+typedef struct CAT_feed_state
+{
+	bool confirmed;
+	bool found;
+	int food_id;
+} CAT_feed_state;
+CAT_feed_state feed_state;
+
+typedef struct CAT_deco_state
+{
 	int props[CAT_MAX_PROP_COUNT];
 	CAT_ivec2 places[CAT_MAX_PROP_COUNT];
 	int prop_count;
@@ -82,27 +78,25 @@ typedef struct CAT_room
 
 	int remove_id;
 	CAT_rect remove_rect;
+} CAT_deco_state;
+CAT_deco_state deco_state;
 
-	CAT_machine_state buttons[5];
-	int selector;
-} CAT_room;
-CAT_room room;
-
-typedef struct CAT_menu_screen
+typedef struct CAT_menu_state
 {
 	const char* items[3];
 	int selector;
-} CAT_menu_screen;
-CAT_menu_screen menu_screen;
+} CAT_menu_state;
+CAT_menu_state menu_state;
 
-typedef struct CAT_bag_screen
+typedef struct CAT_bag_state
 {
 	int base;
 	int visible[9];
 	int seen;
 	int selector;
-} CAT_bag_screen;
-CAT_bag_screen bag_screen;
+	CAT_machine_state destination;
+} CAT_bag_state;
+CAT_bag_state bag_state;
 
 #pragma endregion
 
@@ -191,10 +185,6 @@ void CAT_room_init()
 	room.bounds = (CAT_rect){{0, 7}, {15, 17}};
 	room.cursor = room.bounds.min;
 
-	room.prop_count = 0;
-	room.add_id = -1;
-	room.remove_id = -1;
-
 	room.buttons[0] = CAT_MS_feed;
 	room.buttons[1] = CAT_MS_feed;
 	room.buttons[2] = CAT_MS_feed;
@@ -211,8 +201,6 @@ void CAT_MS_default(CAT_machine_signal signal)
 	{
 		case CAT_MACHINE_SIGNAL_ENTER:
 		{
-			screen = CAT_SCREEN_ROOM;
-			mode = CAT_MODE_DEFAULT;
 			CAT_pet_transition(pet_idle_sprite);
 			CAT_timer_reset(pet.walk_timer_id);
 			CAT_timer_reset(pet.mood_timer_id);
@@ -258,25 +246,33 @@ void CAT_MS_default(CAT_machine_signal signal)
 
 #pragma region FEED
 
+void CAT_feed_state_init()
+{
+	feed_state.confirmed = false;
+	feed_state.found = false;
+	feed_state.food_id = -1;
+}
+
 void CAT_MS_feed(CAT_machine_signal signal)
 {
-	static bool committed;
-	static bool found;
-
 	switch(signal)
 	{
 		case CAT_MACHINE_SIGNAL_ENTER:
 		{
-			screen = CAT_SCREEN_ROOM;
-			mode = CAT_MODE_FEED;
 			CAT_pet_transition(pet_idle_sprite);
-			committed = false;
-			found = false;
+			feed_state.confirmed = false;
+			feed_state.found = false;
 			break;
 		}
 		case CAT_MACHINE_SIGNAL_TICK:
 		{
-			if(!committed)
+			if(feed_state.food_id == -1)
+			{
+				bag_state.destination = CAT_MS_feed;
+				CAT_machine_transition(&machine, CAT_MS_bag);
+			}
+				
+			if(!feed_state.confirmed)
 			{
 				CAT_room_move_cursor();
 
@@ -285,31 +281,34 @@ void CAT_MS_feed(CAT_machine_signal signal)
 					int cx_real = room.cursor.x * 16;
 					int x_off = cx_real >= pet.pos.x ? -8 : 32;
 					pet.targ = (CAT_vec2) {cx_real + x_off, room.cursor.y * 16 + 24};
-					committed = true;
+					feed_state.confirmed = true;
 					CAT_pet_transition(pet_walk_sprite);
 				}
 			}
-			else if(!found)
+			else if(!feed_state.found)
 			{
 				if(CAT_pet_seek())
 				{
-					CAT_pet_transition(pet_eat_sprite);
-					found = true;
+					feed_state.found = true;
+					CAT_pet_transition(pet_eat_sprite);	
 				}
 			}
 
 			if(pet.sprite_id == pet_eat_sprite)
 			{
-				if(CAT_anim_finished(pet.sprite_id))
+				if(CAT_anim_finished(pet_eat_sprite))
 				{
 					CAT_timer_reset(pet.mood_timer_id);
 					CAT_pet_transition(pet_chew_sprite);
-				}		
+				}
 			}
 			else if(pet.sprite_id == pet_chew_sprite)
 			{
 				if(CAT_timer_tick(pet.mood_timer_id))
+				{
+					CAT_pet_eat(feed_state.food_id);
 					CAT_machine_transition(&machine, CAT_MS_default);
+				}
 			}
 			
 			if(CAT_input_pressed(CAT_BUTTON_B))
@@ -318,6 +317,7 @@ void CAT_MS_feed(CAT_machine_signal signal)
 		}
 		case CAT_MACHINE_SIGNAL_EXIT:
 		{
+			feed_state.food_id = -1;
 			break;
 		}
 	}
@@ -327,24 +327,30 @@ void CAT_MS_feed(CAT_machine_signal signal)
 
 #pragma region DECO
 
+void CAT_deco_state_init()
+{
+	deco_state.prop_count = 0;
+	deco_state.add_id = -1;
+	deco_state.remove_id = -1;
+}
+
 void CAT_MS_deco(CAT_machine_signal signal)
 {
 	switch(signal)
 	{
 		case CAT_MACHINE_SIGNAL_ENTER:
 		{
-			screen = CAT_SCREEN_ROOM;
-			mode = CAT_MODE_DECO;
-			pet.sprite_id = pet_idle_sprite;
+			CAT_pet_transition(pet_idle_sprite);
+			deco_state.remove_id = -1;
 			break;
 		}
 		case CAT_MACHINE_SIGNAL_TICK:
 		{
 			CAT_room_move_cursor();
 
-			if(room.add_id != -1)
+			if(deco_state.add_id != -1)
 			{
-				CAT_item* prop = &item_table.data[room.add_id];
+				CAT_item* prop = &item_table.data[deco_state.add_id];
 				CAT_ivec2 shape = prop->data.prop_data.shape;
 				CAT_rect bounds = CAT_rect_place(room.cursor, shape);
 
@@ -356,68 +362,66 @@ void CAT_MS_deco(CAT_machine_signal signal)
 						room.cursor.y -= bounds.max.y - room.bounds.max.y;
 				}
 				bounds = CAT_rect_place(room.cursor, shape);
-				room.add_rect = bounds;
+				deco_state.add_rect = bounds;
 
-				room.valid_add = true;
+				deco_state.valid_add = true;
 				if(!CAT_test_contains(room.bounds, bounds))
-					room.valid_add = false;
-				for(int i = 0; i < room.prop_count && room.valid_add; i++)
+					deco_state.valid_add = false;
+				for(int i = 0; i < deco_state.prop_count && deco_state.valid_add; i++)
 				{
-					CAT_item* other = CAT_item_get(room.props[i]);
+					CAT_item* other = CAT_item_get(deco_state.props[i]);
 					CAT_ivec2 other_shape = other->data.prop_data.shape;
-					CAT_rect other_bounds = CAT_rect_place(room.places[i], other_shape);
+					CAT_rect other_bounds = CAT_rect_place(deco_state.places[i], other_shape);
 
 					if(CAT_test_overlaps(bounds, other_bounds))
 					{
-						room.valid_add = false;
+						deco_state.valid_add = false;
 						break;
 					}
 				}
 				
-				if(CAT_input_pressed(CAT_BUTTON_A) && room.valid_add)
+				if(CAT_input_pressed(CAT_BUTTON_A) && deco_state.valid_add)
 				{
-					int idx = room.prop_count;
-					room.prop_count += 1;
-					room.props[idx] = room.add_id;
-					room.places[idx] = room.cursor;
-					CAT_bag_remove(room.add_id);
-					room.add_id = -1;
-
+					int idx = deco_state.prop_count;
+					deco_state.prop_count += 1;
+					deco_state.props[idx] = deco_state.add_id;
+					deco_state.places[idx] = room.cursor;
+					CAT_bag_remove(deco_state.add_id);
 					CAT_machine_transition(&machine, CAT_MS_default);
 				}
 			}
-			else if(room.remove_id != -1)
+			else if(deco_state.remove_id != -1)
 			{
-				if(!CAT_test_pt_rect(room.cursor, room.remove_rect))
+				if(!CAT_test_pt_rect(room.cursor, deco_state.remove_rect))
 				{
-					room.remove_id = -1;
+					deco_state.remove_id = -1;
 				}
 				else if(CAT_input_pressed(CAT_BUTTON_A))
 				{
-					CAT_bag_add(room.props[room.remove_id]);
-					for(int i = room.remove_id; i < room.prop_count-1; i++)
+					CAT_bag_add(deco_state.props[deco_state.remove_id]);
+					for(int i = deco_state.remove_id; i < deco_state.prop_count-1; i++)
 					{
-						room.props[i] = room.props[i+1];
-						room.places[i] = room.places[i+1];
+						deco_state.props[i] = deco_state.props[i+1];
+						deco_state.places[i] = deco_state.places[i+1];
 					}
-					room.prop_count -= 1;
-					room.remove_id = -1;
+					deco_state.prop_count -= 1;
+					deco_state.remove_id = -1;
 				}
 			}
 			else
 			{
-				for(int i = 0; i < room.prop_count; i++)
+				for(int i = 0; i < deco_state.prop_count; i++)
 				{	
-					CAT_item* prop = &item_table.data[room.props[i]];
+					CAT_item* prop = &item_table.data[deco_state.props[i]];
 					CAT_ivec2 shape = prop->data.prop_data.shape;
-					CAT_rect bounds = CAT_rect_place(room.places[i], shape);
+					CAT_rect bounds = CAT_rect_place(deco_state.places[i], shape);
 					bounds.max.x -= 1;
 					bounds.max.y -= 1;
 
 					if(CAT_test_pt_rect(room.cursor, bounds))
 					{
-						room.remove_id = i;
-						room.remove_rect = bounds;
+						deco_state.remove_id = i;
+						deco_state.remove_rect = bounds;
 					}
 				}
 			}
@@ -428,6 +432,7 @@ void CAT_MS_deco(CAT_machine_signal signal)
 		}
 		case CAT_MACHINE_SIGNAL_EXIT:
 		{
+			deco_state.add_id = -1;
 			break;
 		}
 	}
@@ -437,12 +442,12 @@ void CAT_MS_deco(CAT_machine_signal signal)
 
 #pragma region MENU
 
-void CAT_menu_screen_init()
+void CAT_menu_state_init()
 {
-	menu_screen.items[0] = "STATS";
-	menu_screen.items[1] = "BAG";
-	menu_screen.items[2] = "BACK";
-	menu_screen.selector = 0;
+	menu_state.items[0] = "STATS";
+	menu_state.items[1] = "BAG";
+	menu_state.items[2] = "BACK";
+	menu_state.selector = 0;
 }
 
 void CAT_MS_menu(CAT_machine_signal signal)
@@ -450,23 +455,22 @@ void CAT_MS_menu(CAT_machine_signal signal)
 	switch(signal)
 	{
 		case CAT_MACHINE_SIGNAL_ENTER:
-			screen = CAT_SCREEN_MENU;
-		break;
+			break;
 		case CAT_MACHINE_SIGNAL_TICK:
 		{
 			if(CAT_input_pulse(CAT_BUTTON_UP))
-				menu_screen.selector -= 1;
+				menu_state.selector -= 1;
 			if(CAT_input_pulse(CAT_BUTTON_DOWN))
-				menu_screen.selector += 1;
-			menu_screen.selector = clamp(menu_screen.selector, 0, 2);
+				menu_state.selector += 1;
+			menu_state.selector = clamp(menu_state.selector, 0, 2);
 
 			if(CAT_input_pressed(CAT_BUTTON_A))
 			{
-				if(menu_screen.selector == 0)
+				if(menu_state.selector == 0)
 					CAT_machine_transition(&machine, CAT_MS_stats);
-				if(menu_screen.selector == 1)
+				if(menu_state.selector == 1)
 					CAT_machine_transition(&machine, CAT_MS_bag);
-				if(menu_screen.selector == 2)
+				if(menu_state.selector == 2)
 					CAT_machine_transition(&machine, CAT_MS_default);
 			}
 
@@ -475,7 +479,7 @@ void CAT_MS_menu(CAT_machine_signal signal)
 			break;
 		}
 		case CAT_MACHINE_SIGNAL_EXIT:
-		break;
+			break;
 	}
 }
 
@@ -488,8 +492,7 @@ void CAT_MS_stats(CAT_machine_signal signal)
 	switch(signal)
 	{
 		case CAT_MACHINE_SIGNAL_ENTER:
-			screen = CAT_SCREEN_STATS;
-		break;
+			break;
 		case CAT_MACHINE_SIGNAL_TICK:
 		{
 			if(CAT_input_pressed(CAT_BUTTON_B))
@@ -499,7 +502,7 @@ void CAT_MS_stats(CAT_machine_signal signal)
 			break;
 		}
 		case CAT_MACHINE_SIGNAL_EXIT:
-		break;
+			break;
 	}
 }
 
@@ -507,25 +510,26 @@ void CAT_MS_stats(CAT_machine_signal signal)
 
 #pragma region BAG
 
-void CAT_bag_screen_init()
+void CAT_bag_state_init()
 {
-	bag_screen.base = 0;
-	bag_screen.seen = 0;
-	bag_screen.selector = 0;
+	bag_state.base = 0;
+	bag_state.seen = 0;
+	bag_state.selector = 0;
+	bag_state.destination = NULL;
 }
 
-void CAT_bag_screen_refresh()
+void CAT_bag_state_refresh()
 {
-	bag_screen.seen = 0;
-	for(int i = bag_screen.base; bag_screen.seen < 9 && i < item_table.length; i++)
+	bag_state.seen = 0;
+	for(int i = bag_state.base; bag_state.seen < 9 && i < item_table.length; i++)
 	{
 		if(CAT_bag_count(i) > 0)
 		{
-			bag_screen.visible[bag_screen.seen] = i;
-			bag_screen.seen += 1;
+			bag_state.visible[bag_state.seen] = i;
+			bag_state.seen += 1;
 		}
 	}
-	bag_screen.selector = clamp(bag_screen.selector, 0, bag_screen.seen);
+	bag_state.selector = clamp(bag_state.selector, 0, bag_state.seen-1);
 }
 
 void CAT_MS_bag(CAT_machine_signal signal)
@@ -533,53 +537,59 @@ void CAT_MS_bag(CAT_machine_signal signal)
 	switch(signal)
 	{
 		case CAT_MACHINE_SIGNAL_ENTER:
-			screen = CAT_SCREEN_BAG;
-			CAT_bag_screen_init();
-			CAT_bag_screen_refresh();
-		break;
+		{
+			bag_state.base = 0;
+			bag_state.seen = 0;
+			bag_state.selector = 0;
+			CAT_bag_state_refresh();
+			break;
+		}
 		case CAT_MACHINE_SIGNAL_TICK:
 		{
 			if(CAT_input_pulse(CAT_BUTTON_UP))
 			{
-				bag_screen.selector -= 1;
-				if(bag_screen.selector < 0)
+				bag_state.selector -= 1;
+				if(bag_state.selector < 0)
 				{
-					int prev = CAT_bag_prev(bag_screen.base);
+					int prev = CAT_bag_prev(bag_state.base);
 					if(prev != -1)
 					{
-						bag_screen.base = prev;
-						CAT_bag_screen_refresh();
+						bag_state.base = prev;
+						CAT_bag_state_refresh();
 					}
-					bag_screen.selector = 0;
+					bag_state.selector = 0;
 				}
 			}
 				
 			if(CAT_input_pulse(CAT_BUTTON_DOWN))
 			{
-				bag_screen.selector += 1;
-				if(bag_screen.selector >= 9)
+				bag_state.selector += 1;
+				if(bag_state.selector >= 9)
 				{
-					int next = CAT_bag_next(bag_screen.visible[bag_screen.seen-1]);
+					int next = CAT_bag_next(bag_state.visible[bag_state.seen-1]);
 					if(next != -1)
 					{
-						bag_screen.base = CAT_bag_next(bag_screen.base);
-						CAT_bag_screen_refresh();
+						bag_state.base = CAT_bag_next(bag_state.base);
 					}
-					bag_screen.selector = 8;
+					bag_state.selector = 8;
 				}
+				CAT_bag_state_refresh();
 			}
 
 			if(CAT_input_pressed(CAT_BUTTON_A))
 			{
-				int item_id = bag_screen.visible[bag_screen.selector];
-				if(item_id != -1)
+				int item_id = bag_state.visible[bag_state.selector];
+				CAT_item* item = &item_table.data[item_id];
+
+				if(item->type == CAT_ITEM_TYPE_FOOD && (bag_state.destination == NULL || bag_state.destination == CAT_MS_feed))
 				{
-					CAT_item* selected = &item_table.data[item_id];
-					if(selected->type == CAT_ITEM_TYPE_PROP)
-					{
-						room.add_id = item_id;
-						CAT_machine_transition(&machine, CAT_MS_deco);
-					}
+					feed_state.food_id = item_id;
+					CAT_machine_transition(&machine, CAT_MS_feed);
+				}
+				else if(item->type == CAT_ITEM_TYPE_PROP && (bag_state.destination == NULL || bag_state.destination == CAT_MS_deco))
+				{
+					deco_state.add_id = item_id;
+					CAT_machine_transition(&machine, CAT_MS_deco);
 				}
 			}
 				
@@ -590,7 +600,8 @@ void CAT_MS_bag(CAT_machine_signal signal)
 			break;
 		}
 		case CAT_MACHINE_SIGNAL_EXIT:
-		break;
+			bag_state.destination = NULL;
+			break;
 	}
 }
 
@@ -600,181 +611,179 @@ void CAT_MS_bag(CAT_machine_signal signal)
 
 void CAT_render(int cycle)
 {
-	switch(screen)
+	if
+	(
+		machine == CAT_MS_default ||
+		machine == CAT_MS_feed ||
+		machine == CAT_MS_deco
+	)
 	{
-		case CAT_SCREEN_ROOM:
+		CAT_draw_tiles(base_wall_sprite, 0, 0, 4);
+		CAT_draw_tiles(base_wall_sprite, 1, 4, 1);
+		CAT_draw_tiles(base_wall_sprite, 2, 5, 1);
+		CAT_draw_tiles(base_floor_sprite, 0, 6, 1);
+		CAT_draw_tiles(base_floor_sprite, 1, 7, 10);
+		CAT_draw_tiles(base_floor_sprite, 2, 17, 3);
+
+		CAT_draw_queue_add(window_day_sprite, 0, 2, 16, 8, CAT_DRAW_MODE_DEFAULT);
+		CAT_draw_queue_add_anim(vending_sprite, 2, 164, 112, CAT_DRAW_MODE_BOTTOM);
+		
+		for(int i = 0; i < deco_state.prop_count; i++)
 		{
-			CAT_draw_tiles(base_wall_sprite, 0, 0, 4);
-			CAT_draw_tiles(base_wall_sprite, 1, 4, 1);
-			CAT_draw_tiles(base_wall_sprite, 2, 5, 1);
-			CAT_draw_tiles(base_floor_sprite, 0, 6, 1);
-			CAT_draw_tiles(base_floor_sprite, 1, 7, 10);
-			CAT_draw_tiles(base_floor_sprite, 2, 17, 3);
+			int prop_id = deco_state.props[i];
+			CAT_item* prop = CAT_item_get(prop_id);
+			CAT_ivec2 shape = prop->data.prop_data.shape;
+			CAT_ivec2 place = deco_state.places[i];
+			CAT_draw_queue_add_anim(prop->sprite_id, 2, place.x * 16, (place.y+shape.y) * 16, CAT_DRAW_MODE_BOTTOM);
+		}
 
-			CAT_draw_queue_add(window_day_sprite, 0, 2, 16, 8, CAT_DRAW_MODE_DEFAULT);
-			CAT_draw_queue_add_anim(vending_sprite, 2, 164, 112, CAT_DRAW_MODE_BOTTOM);
-			
-			for(int i = 0; i < room.prop_count; i++)
+		int pet_mode = CAT_DRAW_MODE_BOTTOM | CAT_DRAW_MODE_CENTER_X;
+		pet_mode |= (pet.pos.x < pet.targ.x ? CAT_DRAW_MODE_REFLECT_X : 0);
+		CAT_draw_queue_add_anim(pet.sprite_id, 2, pet.pos.x, pet.pos.y, pet_mode);	
+
+		if(machine == CAT_MS_feed)
+		{
+			CAT_draw_queue_add(cigarette_sprite, 0, 2, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
+		}
+		else if(machine == CAT_MS_deco)
+		{
+			if(deco_state.add_id != -1)
 			{
-				int prop_id = room.props[i];
-				CAT_item* prop = CAT_item_get(prop_id);
-				CAT_ivec2 shape = prop->data.prop_data.shape;
-				CAT_ivec2 place = room.places[i];
-				CAT_draw_queue_add_anim(prop->sprite_id, 2, place.x * 16, (place.y+shape.y) * 16, CAT_DRAW_MODE_BOTTOM);
-			}
-
-			int pet_mode = CAT_DRAW_MODE_BOTTOM | CAT_DRAW_MODE_CENTER_X;
-			pet_mode |= (pet.pos.x < pet.targ.x ? CAT_DRAW_MODE_REFLECT_X : 0);
-			CAT_draw_queue_add_anim(pet.sprite_id, 2, pet.pos.x, pet.pos.y, pet_mode);	
-
-			if(machine == CAT_MS_feed)
-				CAT_draw_queue_add(cigarette_sprite, 0, 2, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
-			else if(machine == CAT_MS_deco)
-			{
-				if(room.add_id != -1)
+				int cursor_mode = deco_state.valid_add ? 1 : 3;
+				for(int y = deco_state.add_rect.min.y; y < deco_state.add_rect.max.y; y++)
 				{
-					int cursor_mode = room.valid_add ? 1 : 3;
-					for(int y = room.add_rect.min.y; y < room.add_rect.max.y; y++)
+					for(int x = deco_state.add_rect.min.x; x < deco_state.add_rect.max.x; x++)
 					{
-						for(int x = room.add_rect.min.x; x < room.add_rect.max.x; x++)
-						{
-							CAT_draw_queue_add(cursor_deco_sprite, cursor_mode, 3, x * 16, y * 16, CAT_DRAW_MODE_DEFAULT);
-						}
+						CAT_draw_queue_add(cursor_deco_sprite, cursor_mode, 3, x * 16, y * 16, CAT_DRAW_MODE_DEFAULT);
 					}
 				}
-				else if(room.remove_id != -1)
+			}
+			else if(deco_state.remove_id != -1)
+			{
+				for(int y = deco_state.remove_rect.min.y; y <= deco_state.remove_rect.max.y; y++)
 				{
-					for(int y = room.remove_rect.min.y; y <= room.remove_rect.max.y; y++)
+					for(int x = deco_state.remove_rect.min.x; x <= deco_state.remove_rect.max.x; x++)
 					{
-						for(int x = room.remove_rect.min.x; x <= room.remove_rect.max.x; x++)
-						{
-							CAT_draw_queue_add(tile_hl_neg, 0, 3, x * 16, y * 16, CAT_DRAW_MODE_DEFAULT);
-						}
+						CAT_draw_queue_add(tile_hl_neg, 0, 3, x * 16, y * 16, CAT_DRAW_MODE_DEFAULT);
 					}
-					CAT_draw_queue_add(tile_hl_inner, 0, 3, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
 				}
-				else
-				{
-					CAT_draw_queue_add(cursor_sprite, 0, 3, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
-				}
+				CAT_draw_queue_add(tile_hl_inner, 0, 3, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
 			}
-
-			CAT_draw_queue_add(sbut_feed_sprite, 0, 3, 8, 280, CAT_DRAW_MODE_DEFAULT); 
-			CAT_draw_queue_add(sbut_study_sprite, 0, 3, 56, 280, CAT_DRAW_MODE_DEFAULT); 
-			CAT_draw_queue_add(sbut_play_sprite, 0, 3, 104, 280, CAT_DRAW_MODE_DEFAULT);
-			CAT_draw_queue_add(sbut_deco_sprite, 0, 3, 152, 280, CAT_DRAW_MODE_DEFAULT);
-			CAT_draw_queue_add(sbut_menu_sprite, 0, 3, 200, 280, CAT_DRAW_MODE_DEFAULT);
-			if(machine == CAT_MS_default)
-				CAT_draw_queue_add(sbut_hl_sprite, 0, 4, 8+48*room.selector, 280, CAT_DRAW_MODE_DEFAULT);
-
-			if(input.touch.pressure)
-				CAT_draw_queue_add(sbut_hl_sprite, 0, 4, input.touch.x, input.touch.y, CAT_DRAW_MODE_CENTER_X | CAT_DRAW_MODE_CENTER_Y);
-			
-			CAT_draw_queue_submit(cycle);
-			
-			break;
+			else
+			{
+				CAT_draw_queue_add(cursor_sprite, 0, 3, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
+			}
 		}
-		case CAT_SCREEN_MENU:
+
+		CAT_draw_queue_add(sbut_feed_sprite, 0, 3, 8, 280, CAT_DRAW_MODE_DEFAULT); 
+		CAT_draw_queue_add(sbut_study_sprite, 0, 3, 56, 280, CAT_DRAW_MODE_DEFAULT); 
+		CAT_draw_queue_add(sbut_play_sprite, 0, 3, 104, 280, CAT_DRAW_MODE_DEFAULT);
+		CAT_draw_queue_add(sbut_deco_sprite, 0, 3, 152, 280, CAT_DRAW_MODE_DEFAULT);
+		CAT_draw_queue_add(sbut_menu_sprite, 0, 3, 200, 280, CAT_DRAW_MODE_DEFAULT);
+		if(machine == CAT_MS_default)
+			CAT_draw_queue_add(sbut_hl_sprite, 0, 4, 8+48*room.selector, 280, CAT_DRAW_MODE_DEFAULT);
+
+		if(input.touch.pressure)
+			CAT_draw_queue_add(sbut_hl_sprite, 0, 4, input.touch.x, input.touch.y, CAT_DRAW_MODE_CENTER_X | CAT_DRAW_MODE_CENTER_Y);
+		
+		CAT_draw_queue_submit(cycle);
+	}
+	else if(machine == CAT_MS_menu)
+	{
+		CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});  
+		CAT_gui_text("MENU");
+		CAT_gui_image(fbut_a_sprite, 0);
+		CAT_gui_image(icon_enter_sprite, 0);
+		CAT_gui_image(fbut_b_sprite, 0);
+		CAT_gui_image(icon_exit_sprite, 0);
+
+		CAT_gui_panel((CAT_ivec2) {0, 32}, (CAT_ivec2) {15, 18});  
+		for(int i = 0; i < 3; i++)
 		{
-			CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});  
-			CAT_gui_text("MENU");
-			CAT_gui_image(fbut_a_sprite, 0);
-			CAT_gui_image(icon_enter_sprite, 0);
-			CAT_gui_image(fbut_b_sprite, 0);
-			CAT_gui_image(icon_exit_sprite, 0);
+			CAT_gui_text("#");
+			CAT_gui_text(menu_state.items[i]);
 
-			CAT_gui_panel((CAT_ivec2) {0, 32}, (CAT_ivec2) {15, 18});  
-			for(int i = 0; i < 3; i++)
-			{
-				CAT_gui_text("#");
-				CAT_gui_text(menu_screen.items[i]);
+			if(i == menu_state.selector)
+				CAT_gui_image(icon_pointer_sprite, 0);
 
-				if(i == menu_screen.selector)
-					CAT_gui_image(icon_pointer_sprite, 0);
-
-				CAT_gui_line_break();
-			}
-			
-			break;
+			CAT_gui_line_break();
 		}
-		case CAT_SCREEN_STATS:
+	}
+	else if(machine == CAT_MS_stats)
+	{
+		CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});  
+		CAT_gui_text("STATS");
+		CAT_gui_image(fbut_b_sprite, 0);
+		CAT_gui_image(icon_exit_sprite, 0);
+
+		CAT_gui_panel((CAT_ivec2) {0, 32}, (CAT_ivec2) {15, 18});  
+		CAT_gui_image(pet_idle_sprite, 0); 
+		CAT_gui_line_break();
+
+		CAT_gui_image(icon_vig_sprite, 0);
+		CAT_gui_text("VIG");
+		for(int i = 1; i <= 12; i++)
 		{
-			CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});  
-			CAT_gui_text("STATS");
-			CAT_gui_image(fbut_b_sprite, 0);
-			CAT_gui_image(icon_exit_sprite, 0);
-
-			CAT_gui_panel((CAT_ivec2) {0, 32}, (CAT_ivec2) {15, 18});  
-			CAT_gui_image(pet_idle_sprite, 0); 
-			CAT_gui_line_break();
-
-			CAT_gui_image(icon_vig_sprite, 0);
-			CAT_gui_text("VIG");
-			for(int i = 1; i <= 12; i++)
-			{
-				if(i <= pet.vigour)
-					CAT_gui_image(cell_vig_sprite, 0);
-				else
-					CAT_gui_image(cell_empty_sprite, 0);
-			}
-			CAT_gui_line_break();
-
-			CAT_gui_image(icon_foc_sprite, 0);
-			CAT_gui_text("FOC");
-			for(int i = 1; i <= 12; i++)
-			{
-				if(i <= pet.focus)
-					CAT_gui_image(cell_foc_sprite, 0);
-				else
-					CAT_gui_image(cell_empty_sprite, 0);
-			}
-			CAT_gui_line_break();
-
-			CAT_gui_image(icon_spi_sprite, 0);
-			CAT_gui_text("SPI");
-			for(int i = 1; i <= 12; i++)
-			{
-				if(i <= pet.spirit)
-					CAT_gui_image(cell_spi_sprite, 0);
-				else
-					CAT_gui_image(cell_empty_sprite, 0);
-			}
-			CAT_gui_line_break();
-
-			CAT_gui_image(crisis_co2_sprite, 0);
-			CAT_gui_image(crisis_nox_sprite, 0);
-			CAT_gui_image(crisis_vol_sprite, 0);
-			CAT_gui_line_break();
-			CAT_gui_image(crisis_hot_sprite, 0);
-			CAT_gui_image(crisis_cold_sprite, 0);
-
-			break;
+			if(i <= pet.vigour)
+				CAT_gui_image(cell_vig_sprite, 0);
+			else
+				CAT_gui_image(cell_empty_sprite, 0);
 		}
-		case CAT_SCREEN_BAG:
+		CAT_gui_line_break();
+
+		CAT_gui_image(icon_foc_sprite, 0);
+		CAT_gui_text("FOC");
+		for(int i = 1; i <= 12; i++)
 		{
-			CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});  
-			CAT_gui_text("BAG");
-			CAT_gui_image(fbut_b_sprite, 0);
-			CAT_gui_image(icon_exit_sprite, 0);
+			if(i <= pet.focus)
+				CAT_gui_image(cell_foc_sprite, 0);
+			else
+				CAT_gui_image(cell_empty_sprite, 0);
+		}
+		CAT_gui_line_break();
 
-			for(int i = 0; i < bag_screen.seen; i++)
+		CAT_gui_image(icon_spi_sprite, 0);
+		CAT_gui_text("SPI");
+		for(int i = 1; i <= 12; i++)
+		{
+			if(i <= pet.spirit)
+				CAT_gui_image(cell_spi_sprite, 0);
+			else
+				CAT_gui_image(cell_empty_sprite, 0);
+		}
+		CAT_gui_line_break();
+
+		CAT_gui_image(crisis_co2_sprite, 0);
+		CAT_gui_image(crisis_nox_sprite, 0);
+		CAT_gui_image(crisis_vol_sprite, 0);
+		CAT_gui_line_break();
+		CAT_gui_image(crisis_hot_sprite, 0);
+		CAT_gui_image(crisis_cold_sprite, 0);
+
+	}
+	else if(machine == CAT_MS_bag)
+	{
+		CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});  
+		CAT_gui_text("BAG");
+		CAT_gui_image(fbut_b_sprite, 0);
+		CAT_gui_image(icon_exit_sprite, 0);
+
+		CAT_gui_panel((CAT_ivec2) {0, 32}, (CAT_ivec2) {15, 18});  
+		for(int i = 0; i < bag_state.seen; i++)
+		{
+			int item_id = bag_state.visible[i];
+			CAT_item* item = CAT_item_get(item_id);
+
+			CAT_gui_panel((CAT_ivec2) {0, 32+i*32}, (CAT_ivec2) {15, 2});
+			CAT_gui_image(icon_food_sprite, 0); 
+			char text[64];
+			sprintf(text, "%s *%d", item->name, item->count);
+			CAT_gui_text(text);
+
+			if(i == bag_state.selector)
 			{
-				int item_id = bag_screen.visible[i];
-				CAT_item* item = CAT_item_get(item_id);
-
-				CAT_gui_panel((CAT_ivec2) {0, 32+i*32}, (CAT_ivec2) {15, 2});
-				CAT_gui_image(icon_food_sprite, 0); 
-				char text[64];
-				sprintf(text, "%s *%d", item->name, item->count);
-				CAT_gui_text(text);
-
-				if(i == bag_screen.selector)
-				{
-					CAT_gui_image(icon_pointer_sprite, 0);
-				}
+				CAT_gui_image(icon_pointer_sprite, 0);
 			}
-
-			break;
 		}
 	}
 }
@@ -804,11 +813,11 @@ void CAT_init()
 
 	CAT_pet_init();
 	CAT_room_init();
-	CAT_menu_screen_init();
-	CAT_bag_screen_init();
+	CAT_feed_state_init();
+	CAT_deco_state_init();
+	CAT_menu_state_init();
+	CAT_bag_state_init();
 	
-	screen = CAT_SCREEN_ROOM;
-	mode = CAT_MODE_DEFAULT;
 	machine = NULL;
 	CAT_machine_transition(&machine, CAT_MS_default);
 }

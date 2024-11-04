@@ -119,6 +119,8 @@ extern int crystal_green_lg_item;
 extern int crystal_purple_lg_item;
 extern int solderpaste_item;
 
+extern int cigarettes_item;
+
 void CAT_item_mass_define();
 
 #endif

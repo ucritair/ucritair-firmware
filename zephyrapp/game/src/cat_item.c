@@ -149,6 +149,8 @@ int crystal_green_lg_item;
 int crystal_purple_lg_item;
 int solderpaste_item;
 
+int cigarettes_item;
+
 void CAT_item_mass_define()
 {
 	chair_wood_item = CAT_item_init(CAT_ITEM_TYPE_PROP, "Wood Chair", chair_wood_sprite, 0);
@@ -194,4 +196,8 @@ void CAT_item_mass_define()
 	vase_gold_item = CAT_item_init(CAT_ITEM_TYPE_PROP, "Gold Vase", vase_gold_sprite, 0);
 	CAT_prop_init(vase_gold_item, 1, 1);
 	CAT_bag_add(vase_gold_item);
+
+	cigarettes_item = CAT_item_init(CAT_ITEM_TYPE_FOOD, "Cigarettes", cigarette_sprite, 0);
+	CAT_food_init(cigarettes_item, 1, 2, 1, 0, 0, 0);
+	CAT_bag_add(cigarettes_item);
 }
