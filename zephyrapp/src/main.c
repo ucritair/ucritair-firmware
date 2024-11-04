@@ -23,7 +23,9 @@ LOG_MODULE_REGISTER(sample, LOG_LEVEL_INF);
 #include "lcd_rendering.h"
 #include "ble.h"
 #include "wlan.h"
-
+#include "sdcard.h"
+#include "flash.h"
+#include "rgb_leds.h"
 
 static int cmd_start_wifi(const struct shell *sh, size_t argc,
 				   char **argv)
@@ -100,7 +102,11 @@ int main(void)
 		printk("failed to init flash_dev");
 	}
 
+	test_flash();
+	
+	imu_init();
 
+	set_all_same_color((struct led_rgb){0x0f, 0x0f, 0x0f});
 
 	const struct device *sdhc_dev = DEVICE_DT_GET(DT_CHOSEN(xxx_sdhcd0));
 
@@ -116,7 +122,9 @@ int main(void)
 		printk("failed to init mmc");
 	}
 
-	
+	test_sdcard();
+
+	cmd_start_wifi(NULL, 0, NULL);
 
 	set_5v0(true);
 	k_msleep(50);

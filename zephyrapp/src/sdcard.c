@@ -32,6 +32,7 @@ static struct fs_mount_t mp = {
 
 static const char *disk_mount_pt = DISK_MOUNT_PT;
 
+bool did_post_sdcard = false;
 
 static int lsdir(const char *path)
 {
@@ -61,6 +62,10 @@ static int lsdir(const char *path)
 
 		if (entry.type == FS_DIR_ENTRY_DIR) {
 			printk("[DIR ] %s\n", entry.name);
+			if (strcmp(entry.name, "XYZ") == 0)
+			{
+				did_post_sdcard = true;
+			}
 		} else {
 			printk("[FILE] %s (size = %zu)\n",
 				entry.name, entry.size);

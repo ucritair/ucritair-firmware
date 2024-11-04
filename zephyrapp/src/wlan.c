@@ -6,7 +6,35 @@
 #include <zephyr/net/wifi_utils.h>
 
 #include <zephyr/logging/log.h>
-LOG_MODULE_REGISTER(wlan, LOG_LEVEL_INF);
+LOG_MODULE_REGISTER(wlan, LOG_LEVEL_DBG);
+
+bool did_post_wifi = false;
+
+static struct net_mgmt_event_callback wifi_shell_mgmt_cb;
+
+static void handle_wifi_scan_result(struct net_mgmt_event_callback *cb)
+{
+	const struct wifi_scan_result *entry =
+		(const struct wifi_scan_result *)cb->info;
+
+	if (strstr(entry->ssid, "Entropic") != NULL)
+	{
+		did_post_wifi = true;
+	}
+}
+
+static void wifi_mgmt_event_handler(struct net_mgmt_event_callback *cb,
+				    uint32_t mgmt_event, struct net_if *iface)
+{
+	switch (mgmt_event) {
+	case NET_EVENT_WIFI_SCAN_RESULT:
+		handle_wifi_scan_result(cb);
+		break;
+	default:
+		break;
+	}
+}
+
 
 void set_mac()
 {
@@ -77,7 +105,31 @@ void set_mac()
 	// }
 
 	LOG_INF("Done changing MAC");
+
+	net_mgmt_init_event_callback(&wifi_shell_mgmt_cb,
+	     wifi_mgmt_event_handler,
+	     (NET_EVENT_WIFI_SCAN_DONE   |
+				NET_EVENT_WIFI_CONNECT_RESULT     |
+				NET_EVENT_WIFI_DISCONNECT_RESULT  |
+				NET_EVENT_WIFI_TWT                |
+				NET_EVENT_WIFI_RAW_SCAN_RESULT    |
+				NET_EVENT_WIFI_AP_ENABLE_RESULT   |
+				NET_EVENT_WIFI_AP_DISABLE_RESULT  |
+				NET_EVENT_WIFI_AP_STA_CONNECTED   |
+				NET_EVENT_WIFI_AP_STA_DISCONNECTED|
+				NET_EVENT_WIFI_SCAN_RESULT));
+
+	net_mgmt_add_event_callback(&wifi_shell_mgmt_cb);
+
+	struct wifi_scan_params scanparams = { 0 };
+
+	if (net_mgmt(NET_REQUEST_WIFI_SCAN, iface, &scanparams, sizeof(scanparams))) {
+		LOG_WRN("Scan request failed\n");
+		return -ENOEXEC;
+	}
+
 #else
 	LOG_WRN("CONFIG_WIFI disabled");
 #endif
 }
+

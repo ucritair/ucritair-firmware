@@ -13,6 +13,8 @@ const uint8_t erased[] = { 0xff, 0xff, 0xff, 0xff };
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(cat_flash, LOG_LEVEL_INF);
 
+bool did_post_flash = false;
+
 void single_sector_test(const struct device *flash_dev)
 {
 	const uint8_t expected[] = { 0x55, 0xaa, 0x66, 0x99 };
@@ -81,7 +83,10 @@ void single_sector_test(const struct device *flash_dev)
 			++rp;
 			++wp;
 		}
+		return;
 	}
+
+	did_post_flash = true;
 }
 
 void test_flash()
