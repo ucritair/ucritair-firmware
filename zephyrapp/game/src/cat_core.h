@@ -90,7 +90,6 @@ int CAT_get_battery_pct();
 
 #ifdef CAT_DESKTOP
 #include "cat_desktop.h"
-#define CAT_BAKED_ASSETS
 #else
 #include "cat_embedded.h"
 #define CAT_BAKED_ASSETS

@@ -20,7 +20,7 @@ extern uint16_t rle_work_region[];
 #endif
 
 #ifndef CAT_EMBEDDED
-#define LCD_FRAMEBUFFER_H LCD_IMAGE_H
+#define LCD_FRAMEBUFFER_H LCD_SCREEN_H
 #endif
 
 void CAT_atlas_init()
@@ -401,15 +401,32 @@ int grass_floor_sprite;
 // PET
 int pet_idle_sprite;
 int pet_walk_sprite;
-int pet_eat_sprite;
-int pet_chew_sprite;
-int pet_happy_sprite;
-int pet_tired_sprite;
+
+int pet_idle_high_vig_sprite;
+int pet_walk_high_vig_sprite;
+int pet_idle_high_foc_sprite;
+int pet_walk_high_foc_sprite;
+int pet_idle_high_spi_sprite;
+int pet_walk_high_spi_sprite;
+
+int pet_idle_low_vig_sprite;
+int pet_walk_low_vig_sprite;
+int pet_idle_low_foc_sprite;
+int pet_walk_low_foc_sprite;
+int pet_idle_low_spi_sprite;
+int pet_walk_low_spi_sprite;
+
+int pet_crit_vig_sprite;
+int pet_crit_foc_sprite;
+int pet_crit_spi_sprite;
+
 int pet_vig_up_sprite;
 int pet_foc_up_sprite;
 int pet_spi_up_sprite;
-int pet_block_sprite;
-int pet_block_blink_sprite;
+
+int pet_eat_sprite;
+int pet_chew_sprite;
+int pet_die_sprite;
 
 // PROPS
 int window_dawn_sprite;
@@ -523,15 +540,27 @@ void CAT_sprite_mass_define()
 	// PET
 	INIT_SPRITE(pet_idle_sprite, "sprites/pet_unicorn_idle_complex_a.png", 4);
 	INIT_SPRITE(pet_walk_sprite, "sprites/pet_unicorn_default_walk_complex_a.png", 4);
-	INIT_SPRITE(pet_eat_sprite, "sprites/pet_unicorn_eat_lower_a.png", 7);
-	INIT_SPRITE(pet_chew_sprite, "sprites/pet_unicorn_eat_chew_a.png", 2);
-	INIT_SPRITE(pet_happy_sprite, "sprites/pet_unicorn_happy_complex_a.png", 4);
-	INIT_SPRITE(pet_tired_sprite, "sprites/pet_unicorn_tired_a.png", 4);
+
+	INIT_SPRITE(pet_idle_high_vig_sprite, "sprites/pet_unicorn_idle_complex_a.png", 4);
+	INIT_SPRITE(pet_walk_high_vig_sprite, "sprites/pet_unicorn_default_walk_complex_a.png", 4);
+	INIT_SPRITE(pet_idle_high_foc_sprite, "sprites/pet_unicorn_idle_complex_a.png", 4);
+	INIT_SPRITE(pet_walk_high_foc_sprite, "sprites/pet_unicorn_default_walk_complex_a.png", 4);
+	INIT_SPRITE(pet_idle_high_spi_sprite, "sprites/pet_unicorn_idle_complex_a.png", 4);
+	INIT_SPRITE(pet_walk_high_spi_sprite, "sprites/pet_unicorn_default_walk_complex_a.png", 4);
+
+	INIT_SPRITE(pet_idle_low_vig_sprite, "sprites/pet_unicorn_idle_complex_a.png", 4);
+	INIT_SPRITE(pet_walk_low_vig_sprite, "sprites/pet_unicorn_default_walk_complex_a.png", 4);
+	INIT_SPRITE(pet_idle_low_foc_sprite, "sprites/pet_unicorn_idle_complex_a.png", 4);
+	INIT_SPRITE(pet_walk_low_foc_sprite, "sprites/pet_unicorn_default_walk_complex_a.png", 4);
+	INIT_SPRITE(pet_idle_low_spi_sprite, "sprites/pet_unicorn_idle_complex_a.png", 4);
+	INIT_SPRITE(pet_walk_low_spi_sprite, "sprites/pet_unicorn_default_walk_complex_a.png", 4);
+
 	INIT_SPRITE(pet_vig_up_sprite, "sprites/pet_unicorn_stat_vigor_up_a.png", 13);
 	INIT_SPRITE(pet_foc_up_sprite, "sprites/pet_unicorn_stat_focus_up_a.png", 13);
 	INIT_SPRITE(pet_spi_up_sprite, "sprites/pet_unicorn_stat_spirit_up_a.png", 13);
-	INIT_SPRITE(pet_block_sprite, "sprites/pet_unicorn_block_a.png", 15);
-	INIT_SPRITE(pet_block_blink_sprite, "sprites/pet_unicorn_block_blink_a.png", 2);
+
+	INIT_SPRITE(pet_eat_sprite, "sprites/pet_unicorn_eat_lower_a.png", 7);
+	INIT_SPRITE(pet_chew_sprite, "sprites/pet_unicorn_eat_chew_a.png", 2);
 
 	// PROPS
 	INIT_SPRITE(window_dawn_sprite, "sprites/prop_wall_window_dawn.png", 1);
@@ -579,9 +608,6 @@ void CAT_sprite_mass_define()
 	INIT_SPRITE(crystal_purple_lg_sprite, "sprites/prop_crystal_lg_shard_purple.png", 1);
 
 	// GRIMBA
-	INIT_SPRITE(seed_vig_sprite, "sprites/seed_vigor_md.png", 1);
-	INIT_SPRITE(seed_foc_sprite, "sprites/seed_focus_md.png", 1);
-	INIT_SPRITE(seed_spi_sprite, "sprites/seed_spirit_md.png", 1);
 	INIT_SPRITE(cigarette_sprite, "sprites/prop_cigarette.png", 1);
 
 	// WORLD UI
