@@ -393,7 +393,6 @@ void CAT_draw_queue_submit(int cycle)
 			sprite->needs_update = true;
 		}
 	}
-	draw_queue.length = 0;
 }
 
 

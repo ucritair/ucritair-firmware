@@ -117,6 +117,9 @@ uint8_t seen_buttons = 0;
 void menu_post()
 {
 	text("~~POST~~");
+	text("CAT hw0.2 sw??? ~ entropic :3")
+	textf("Uptime: %lldms", k_uptime_get());
+
 	text("");
 	uint16_t c = current_readings.lps22hh.uptime_last_updated==0?POST_RED:POST_GRN;
 	textfc(c, "LPS22HH @ %lldms", current_readings.lps22hh.uptime_last_updated);
@@ -133,11 +136,11 @@ void menu_post()
 	textfc(c, "PM1.0: %.1f | PM2.5: %.1f", (double)current_readings.sen5x.pm1_0, (double)current_readings.sen5x.pm2_5);
 
 	text("");
-	textfc(did_post_sdcard?POST_GRN:POST_RED, "SD   %s", did_post_sdcard?"OK":"FAIL");
+	textfc(did_post_sdcard?POST_GRN:POST_RED, "SD   %s", did_post_sdcard?"OK":"FAIL/NOTPRESENT");
 	textfc(did_post_imu?POST_GRN:POST_RED,    "IMU  %s", did_post_imu?"OK":"FAIL");
 	textfc(did_post_flash?POST_GRN:POST_RED,  "W25Q %s", did_post_flash?"OK":"FAIL");
-	textfc(did_post_wifi?POST_GRN:POST_RED,   "WIFI %s", did_post_wifi?"OK":"FAIL");
-	textfc(seen_buttons==0xff?POST_GRN:POST_RED,   "BTN  %s (seen %02x)", seen_buttons==0xff?"OK":"FAIL", seen_buttons);
+	textfc(did_post_wifi?POST_GRN:POST_RED,   "WIFI %s", did_post_wifi?"OK":"NOTYET");
+	textfc(seen_buttons==0xff?POST_GRN:POST_RED,   "BTN  %s (seen %02x)", seen_buttons==0xff?"OK":"NOTYET", seen_buttons);
 
 
 	for (int off_x = -8; off_x <= 8; off_x += 8)
@@ -154,6 +157,14 @@ void menu_post()
 	selectable("Do nothing (test A)", NULL, NULL);
 
 	seen_buttons |= get_buttons();
+
+	text("");
+	text("");
+	text("");
+	text("TNX MP Carbide Louis Matt")
+	text("Tomas Matt George Lain")
+	text("Aleksa Mini Rebecca")
+	text("&whoever i forgot")
 }
 
 void menu_set_leds(void* arg)
