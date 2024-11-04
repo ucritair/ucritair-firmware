@@ -116,21 +116,31 @@ extern int base_floor_sprite;
 extern int sky_wall_sprite;
 extern int grass_floor_sprite;
 
+
 // PET
 extern int pet_idle_sprite;
 extern int pet_walk_sprite;
-extern int pet_eat_sprite;
-extern int pet_chew_sprite;
-extern int pet_happy_sprite;
-extern int pet_tired_sprite;
 
-extern int pet_block_sprite;
-extern int pet_block_walk_sprite;
-extern int pet_block_blink_sprite;
+extern int pet_idle_high_vig_sprite;
+extern int pet_walk_high_vig_sprite;
+extern int pet_idle_high_foc_sprite;
+extern int pet_walk_high_foc_sprite;
+extern int pet_idle_high_spi_sprite;
+extern int pet_walk_high_spi_sprite;
+
+extern int pet_idle_low_vig_sprite;
+extern int pet_walk_low_vig_sprite;
+extern int pet_idle_low_foc_sprite;
+extern int pet_walk_low_foc_sprite;
+extern int pet_idle_low_spi_sprite;
+extern int pet_walk_low_spi_sprite;
 
 extern int pet_vig_up_sprite;
 extern int pet_foc_up_sprite;
 extern int pet_spi_up_sprite;
+
+extern int pet_eat_sprite;
+extern int pet_chew_sprite;
 
 
 // PROPS
@@ -179,12 +189,6 @@ extern int crystal_green_lg_sprite;
 extern int crystal_purple_lg_sprite;
 
 // FOOD
-extern int seed_vig_sprite;
-extern int seed_foc_sprite;
-extern int seed_spi_sprite;
-extern int coffee_sprite;
-extern int padkrapow_sprite;
-extern int sausage_sprite;
 extern int cigarette_sprite;
 
 // WORLD UI
