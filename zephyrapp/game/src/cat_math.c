@@ -100,6 +100,11 @@ int clamp(int v, int a, int b)
 	return min(max(v, a), b);
 }
 
+float inv_lerp(float t, float a, float b)
+{
+	return (t-a) / (b-a);
+}
+
 //////////////////////////////////////////////////////////////////////////
 // RANDOM
 

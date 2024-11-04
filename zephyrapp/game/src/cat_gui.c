@@ -58,6 +58,12 @@ void CAT_gui_panel(CAT_ivec2 start, CAT_ivec2 shape)
 	spriter.mode = CAT_DRAW_MODE_CENTER_Y;
 }
 
+void CAT_gui_panel_tight(CAT_ivec2 start, CAT_ivec2 shape)
+{
+	CAT_gui_panel(start, shape);
+	gui.cursor.y -= CAT_GUI_MARGIN / 2;
+}
+
 void CAT_gui_open_channel(int height)
 {
 	if(gui.channel_height == 0)
@@ -94,7 +100,7 @@ void CAT_gui_text(const char* text)
 
 void CAT_gui_image(int sprite_id, int frame_idx)
 {
-	CAT_sprite sprite = atlas.table[sprite_id];
+	CAT_sprite sprite = atlas.data[sprite_id];
 	CAT_gui_open_channel(sprite.height);
 
 	CAT_draw_sprite(sprite_id, frame_idx, gui.cursor.x, gui.cursor.y);

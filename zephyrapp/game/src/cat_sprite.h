@@ -45,7 +45,7 @@ typedef struct CAT_sprite
 
 typedef struct CAT_atlas
 {
-	CAT_sprite table[CAT_ATLAS_MAX_LENGTH];
+	CAT_sprite data[CAT_ATLAS_MAX_LENGTH];
 	int length;
 } CAT_atlas;
 extern CAT_atlas atlas;
@@ -204,11 +204,15 @@ extern int sbut_hl_sprite;
 
 extern int cursor_sprite;
 extern int cursor_add_sprite;
+extern int cursor_flip_sprite;
 extern int cursor_remove_sprite;
-extern int tile_hl_add_sprite;
-extern int tile_hl_rm_outer_sprite;
-extern int tile_hl_rm_inner_sprite;
 extern int tile_hl_sprite;
+extern int tile_hl_add_sprite;
+extern int tile_hl_flip_sprite;
+extern int tile_mark_flip_sprite;
+extern int tile_hl_rm_sprite;
+extern int tile_mark_rm_sprite;
+
 
 // SCREEN UI
 extern int panel_sprite;
@@ -230,6 +234,7 @@ extern int icon_exit_sprite;
 extern int icon_vig_sprite;
 extern int icon_foc_sprite;
 extern int icon_spi_sprite;
+
 extern int icon_food_sprite;
 extern int icon_prop_sprite;
 extern int icon_key_sprite;

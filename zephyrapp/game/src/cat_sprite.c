@@ -90,7 +90,7 @@ int CAT_sprite_init(const char* path, int frame_count)
 	sprite.needs_update = false;
 
 	int sprite_id = atlas.length;
-	atlas.table[sprite_id] = sprite;
+	atlas.data[sprite_id] = sprite;
 	atlas.length += 1;
 	return sprite_id;
 }
@@ -99,7 +99,7 @@ void CAT_atlas_cleanup()
 {
 	for(int i = 0; i < atlas.length; i++)
 	{
-		CAT_free(atlas.table[i].pixels);
+		CAT_free(atlas.data[i].pixels);
 	}
 }
 
@@ -176,7 +176,7 @@ void unpack_rle_row()
 
 void CAT_draw_sprite(int sprite_id, int frame_idx, int x, int y)
 {
-	CAT_sprite sprite = atlas.table[sprite_id];
+	CAT_sprite sprite = atlas.data[sprite_id];
 	int w = sprite.width;
 	int h = sprite.height;
 
@@ -240,7 +240,7 @@ void CAT_draw_sprite(int sprite_id, int frame_idx, int x, int y)
 
 void CAT_draw_tiles(int sprite_id, int frame_idx, int y_t, int h_t)
 {
-	CAT_sprite sprite = atlas.table[sprite_id];
+	CAT_sprite sprite = atlas.data[sprite_id];
 
 #ifndef CAT_BAKED_ASSETS
 	const uint16_t* frame = &sprite.pixels[frame_idx * CAT_TILE_SIZE * CAT_TILE_SIZE];
@@ -339,12 +339,12 @@ void CAT_draw_queue_add_anim(int sprite_id, int layer, int x, int y, int mode)
 
 bool CAT_anim_finished(int sprite_id)
 {
-	return atlas.table[sprite_id].frame_idx == atlas.table[sprite_id].frame_count-1;
+	return atlas.data[sprite_id].frame_idx == atlas.data[sprite_id].frame_count-1;
 }
 
 void CAT_anim_reset(int sprite_id)
 {
-	atlas.table[sprite_id].frame_idx = 0;
+	atlas.data[sprite_id].frame_idx = 0;
 }
 
 void CAT_draw_queue_submit(int cycle)
@@ -360,7 +360,7 @@ void CAT_draw_queue_submit(int cycle)
 				if(job->frame_idx != -1)
 					continue;
 
-				CAT_sprite* sprite = &atlas.table[job->sprite_id];
+				CAT_sprite* sprite = &atlas.data[job->sprite_id];
 				if(!sprite->needs_update)
 					continue;
 				
@@ -381,7 +381,7 @@ void CAT_draw_queue_submit(int cycle)
 	for(int i = 0; i < draw_queue.length; i++)
 	{
 		CAT_draw_job* job = &draw_queue.jobs[i];
-		CAT_sprite* sprite = &atlas.table[job->sprite_id];
+		CAT_sprite* sprite = &atlas.data[job->sprite_id];
 		if(job->frame_idx == -1)
 			job->frame_idx = sprite->frame_idx;
 			
@@ -490,11 +490,14 @@ int coffee_sprite;
 // WORLD UI
 int cursor_sprite;
 int cursor_add_sprite;
+int cursor_flip_sprite;
 int cursor_remove_sprite;
-int tile_hl_add_sprite;
-int tile_hl_rm_outer_sprite;
-int tile_hl_rm_inner_sprite;
 int tile_hl_sprite;
+int tile_hl_add_sprite;
+int tile_hl_flip_sprite;
+int tile_mark_flip_sprite;
+int tile_hl_rm_sprite;
+int tile_mark_rm_sprite;
 
 // SCREEN UI
 int fbut_a_sprite;
@@ -533,7 +536,7 @@ int crisis_hot_sprite;
 int crisis_cold_sprite;
 
 #ifndef CAT_BAKED_ASSETS
-#define INIT_SPRITE(name, path, frames) name = CAT_sprite_init(path, frames);\
+#define INIT_SPRITE(name, path, frames) name = CAT_sprite_init(path, frames);//\
 										printf("BAKE: (%d, \"%s\", \"%s\", %d, %d, %d)\n", name, #name, path, frames, atlas.table[name].width, atlas.table[name].height);
 #else
 int sprite_count = 0;
@@ -627,11 +630,15 @@ void CAT_sprite_mass_define()
 	// WORLD UI
 	INIT_SPRITE(cursor_sprite, "sprites/cursor_room_ornate.png", 1);
 	INIT_SPRITE(cursor_add_sprite, "sprites/cursor_add.png", 1);
+	INIT_SPRITE(cursor_flip_sprite, "sprites/cursor_flip.png", 1);
 	INIT_SPRITE(cursor_remove_sprite, "sprites/cursor_remove.png", 1);
-	INIT_SPRITE(tile_hl_add_sprite, "sprites/tile_hl_add.png", 1);
-	INIT_SPRITE(tile_hl_rm_outer_sprite, "sprites/tile_hl_rm_outer.png", 1);
-	INIT_SPRITE(tile_hl_rm_inner_sprite, "sprites/tile_hl_rm_inner.png", 1);
 	INIT_SPRITE(tile_hl_sprite, "sprites/tile_hl.png", 1);
+	INIT_SPRITE(tile_hl_add_sprite, "sprites/tile_hl_add.png", 1);
+	INIT_SPRITE(tile_hl_flip_sprite, "sprites/tile_hl_flip.png", 1);
+	INIT_SPRITE(tile_mark_flip_sprite, "sprites/tile_mark_flip.png", 1);
+	INIT_SPRITE(tile_hl_rm_sprite, "sprites/tile_hl_rm.png", 1);
+	INIT_SPRITE(tile_mark_rm_sprite, "sprites/tile_mark_rm.png", 1);
+	
 
 	// SCREEN UI
 	INIT_SPRITE(fbut_a_sprite, "sprites/A Button_Both.png", 2);
@@ -645,15 +652,15 @@ void CAT_sprite_mass_define()
 	INIT_SPRITE(sbut_feed_sprite, "sprites/Stat_Refill_Vigor_Button.png", 2);
 	INIT_SPRITE(sbut_study_sprite, "sprites/Stat_Refill_Focus_Button.png", 2);
 	INIT_SPRITE(sbut_play_sprite, "sprites/Stat_Refill_Spirit_Button.png", 2);
-	INIT_SPRITE(sbut_deco_sprite, "sprites/Deco_Button.png", 1);
-	INIT_SPRITE(sbut_menu_sprite, "sprites/Menu_Button.png", 1);
+	INIT_SPRITE(sbut_deco_sprite, "sprites/sbut_deco.png", 2);
+	INIT_SPRITE(sbut_menu_sprite, "sprites/sbut_menu.png", 2);
 	INIT_SPRITE(sbut_hl_sprite, "sprites/sbut_hl_sprite.png", 1);
 	INIT_SPRITE(icon_vig_sprite, "sprites/STAT_VIGOR2424.png", 1);
 	INIT_SPRITE(icon_foc_sprite, "sprites/STAT_FOCUS2424.png", 1);
 	INIT_SPRITE(icon_spi_sprite, "sprites/STAT_SPIRIT2424.png", 1);
-	INIT_SPRITE(icon_food_sprite, "sprites/icon_food.png", 1);
-	INIT_SPRITE(icon_prop_sprite, "sprites/icon_prop.png", 1);
-	INIT_SPRITE(icon_key_sprite, "sprites/icon_key.png", 1);
+	INIT_SPRITE(icon_food_sprite, "sprites/icon_item_food.png", 1);
+	INIT_SPRITE(icon_prop_sprite, "sprites/icon_item_prop.png", 1);
+	INIT_SPRITE(icon_key_sprite, "sprites/icon_item_key.png", 1);
 	INIT_SPRITE(panel_sprite, "sprites/panel_tiles.png", 9);
 	INIT_SPRITE(glyph_sprite, "sprites/glyphs.png", 91);
 	INIT_SPRITE(icon_pointer_sprite, "sprites/icon_pointer.png", 1);

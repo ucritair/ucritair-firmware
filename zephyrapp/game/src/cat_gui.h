@@ -33,6 +33,7 @@ extern CAT_gui gui;
 void CAT_gui_init(int panel_id, int glyph_id);
 void CAT_gui_row(int stage);
 void CAT_gui_panel(CAT_ivec2 start, CAT_ivec2 shape);
+void CAT_gui_panel_tight(CAT_ivec2 start, CAT_ivec2 shape);
 void CAT_gui_open_channel(int height);
 void CAT_gui_line_break();
 void CAT_gui_same_line();

@@ -4,7 +4,6 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include "cat_sprite.h"
 #include "cat_math.h"
 
 //////////////////////////////////////////////////////////////////////////
@@ -36,6 +35,8 @@ typedef struct CAT_item
 		struct
 		{
 			CAT_ivec2 shape;
+			bool animate;
+			int frame_idx;
 		} prop_data;
 
 		struct
@@ -60,7 +61,8 @@ extern CAT_item_table item_table;
 void CAT_item_table_init();
 int CAT_item_init(CAT_item_type type, const char* name, int sprite_id, int price);
 CAT_item* CAT_item_get(int item_id);
-void CAT_prop_init(int item_id, int width, int height);
+void CAT_prop_init(int item_id, int width, int height, bool animate);
+void CAT_prop_flip(int item_id);
 void CAT_food_init(int item_id, float d_v, float d_f, float d_s, float dd_v, float dd_f, float dd_s);
 
 
