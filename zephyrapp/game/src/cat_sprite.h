@@ -21,6 +21,13 @@
 //////////////////////////////////////////////////////////////////////////
 // ATLAS AND SPRITER
 
+#ifdef CAT_BAKED_ASSETS
+typedef struct {
+	const uint16_t* color_table;
+	const uint8_t** frames;
+} CAT_baked_sprite;
+#endif
+
 typedef struct CAT_sprite
 {
 #ifndef CAT_BAKED_ASSETS

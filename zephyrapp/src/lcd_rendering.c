@@ -111,13 +111,17 @@ void lcd_render_diag()
 		last_frame_time = now - last_ms;
 		last_ms = now;
 
-		for (int step = 0; step < 2; step++)
+		for (int step = 0; step < LCD_FRAMEBUFFER_SEGMENTS; step++)
 		{
-			framebuffer_offset_h = step?LCD_FRAMEBUFFER_H:0;
+			framebuffer_offset_h = step*LCD_FRAMEBUFFER_H;
 
 			if (in_debug_menu)
 			{
-				memset(lcd_framebuffer, step?0xa0:0, sizeof(lcd_framebuffer));
+				const uint16_t colors[] = {0, 7 << (5+6), 7 << 5, 7};
+				for (int p = 0; p < LCD_FRAMEBUFFER_PIXELS; p++)
+				{
+					lcd_framebuffer[p] = colors[step];
+				}
 				draw_debug_menu();
 			}
 			else
@@ -136,7 +140,7 @@ void lcd_render_diag()
 
 			lcd_flip();
 
-			if (step == 0)
+			if (step != (LCD_FRAMEBUFFER_SEGMENTS-1))
 			{
 				while (!write_done) {k_msleep(1);}
 			}
