@@ -81,7 +81,7 @@ static int adc_sample(void)
 	return ret;
 }
 
-int test_adc(void)
+int init_adc(void)
 {
 	int err;
 
@@ -110,11 +110,5 @@ int test_adc(void)
 	 * the first result will be incorrect.
 	 */
 	NRF_SAADC_S->TASKS_CALIBRATEOFFSET = 1;
-	while (1) {
-		err = adc_sample();
-		if (err) {
-			printk("Error in adc sampling: %d\n", err);
-		}
-		k_sleep(K_MSEC(500));
-	}
+	adc_sample();
 }

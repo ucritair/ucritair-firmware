@@ -668,17 +668,9 @@ void CAT_render(int cycle)
 		CAT_draw_tiles(base_floor_sprite, 1, 7, 10);
 		CAT_draw_tiles(base_floor_sprite, 2, 17, 3);
 
-		CAT_draw_queue_add(window_day_sprite, 0, 2, 16, 8, CAT_DRAW_MODE_DEFAULT);
-		CAT_draw_queue_add_anim(vending_sprite, 2, 164, 112, CAT_DRAW_MODE_BOTTOM);
-		
-		for(int i = 0; i < deco_state.prop_count; i++)
+		if (cycle == 0)
 		{
-			int prop_id = deco_state.props[i];
-			CAT_item* prop = CAT_item_get(prop_id);
-			CAT_ivec2 shape = prop->data.prop_data.shape;
-			CAT_ivec2 place = deco_state.places[i];
-			CAT_draw_queue_add_anim(prop->sprite_id, 2, place.x * 16, (place.y+shape.y) * 16, CAT_DRAW_MODE_BOTTOM);
-		}
+			draw_queue.length = 0;
 
 		int pet_mode = CAT_DRAW_MODE_BOTTOM | CAT_DRAW_MODE_CENTER_X;
 		pet_mode |= (pet.pos.x < pet.targ.x ? CAT_DRAW_MODE_REFLECT_X : 0);
@@ -697,6 +689,17 @@ void CAT_render(int cycle)
 			{
 				CAT_draw_queue_add(cursor_sprite, 0, 2, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
 			}
+
+			CAT_draw_queue_add(sbut_feed_sprite, 0, 3, 8, 280, CAT_DRAW_MODE_DEFAULT); 
+			CAT_draw_queue_add(sbut_study_sprite, 0, 3, 56, 280, CAT_DRAW_MODE_DEFAULT); 
+			CAT_draw_queue_add(sbut_play_sprite, 0, 3, 104, 280, CAT_DRAW_MODE_DEFAULT);
+			CAT_draw_queue_add(sbut_deco_sprite, 0, 3, 152, 280, CAT_DRAW_MODE_DEFAULT);
+			CAT_draw_queue_add(sbut_menu_sprite, 0, 3, 200, 280, CAT_DRAW_MODE_DEFAULT);
+			if(machine == CAT_MS_default)
+				CAT_draw_queue_add(sbut_hl_sprite, 0, 4, 8+48*room.selector, 280, CAT_DRAW_MODE_DEFAULT);
+
+			if(input.touch.pressure)
+				CAT_draw_queue_add(sbut_hl_sprite, 0, 4, input.touch.x, input.touch.y, CAT_DRAW_MODE_CENTER_X | CAT_DRAW_MODE_CENTER_Y);
 		}
 		else if(machine == CAT_MS_deco)
 		{

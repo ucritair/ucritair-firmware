@@ -12,13 +12,18 @@
 #include "epaper_rendering.h"
 #include "touch.h"
 #include "imu.h"
+#include "flash.h"
+#include "sdcard.h"
+#include "imu.h"
+#include "wlan.h"
 
 typedef void (*menu_t)();
 typedef void (*menu_op_t)(void*);
 
 void menu_root();
+void menu_post();
 
-menu_t current_menu = &menu_root;
+menu_t current_menu = &menu_post;
 int draw_y = 0;
 int curr_idx = 0;
 int selected_idx = -1;
@@ -29,11 +34,13 @@ uint8_t last_buttons = 0;
 
 extern bool in_debug_menu, show_fps;
 
-static void text(char* text)
+static void textc(char* text, uint16_t color)
 {
-	lcd_write_str(0xffff, 0, draw_y, text);
+	lcd_write_str(color, 0, draw_y, text);
 	draw_y += 8;
 }
+
+#define text(x) textc(x, 0xffff);
 
 static void selectable(char* text, menu_op_t op, void* arg)
 {
@@ -73,7 +80,8 @@ void menu_test_eink(void* arg)
 }
 
 char textf_buf[256];
-#define textf(...) snprintf(textf_buf, sizeof(textf_buf)-1, __VA_ARGS__); text(textf_buf);
+#define textfc(c, ...) snprintf(textf_buf, sizeof(textf_buf)-1, __VA_ARGS__); textc(textf_buf, c);
+#define textf(...) textfc(0xffff, __VA_ARGS__)
 #define selectablef(x, y, ...) snprintf(textf_buf, sizeof(textf_buf)-1, __VA_ARGS__); selectable(textf_buf, x, y);
 
 void menu_sensors()
@@ -99,6 +107,63 @@ void menu_sensors()
 
 	text("");
 	selectable("Back", goto_menu, menu_root);
+}
+
+#define POST_GRN 0xf00f
+#define POST_RED 0x01e0
+
+uint8_t seen_buttons = 0;
+
+void menu_post()
+{
+	text("~~POST~~");
+	text("CAT hw0.2 sw??? ~ entropic :3")
+	textf("Uptime: %lldms", k_uptime_get());
+
+	text("");
+	uint16_t c = current_readings.lps22hh.uptime_last_updated==0?POST_RED:POST_GRN;
+	textfc(c, "LPS22HH @ %lldms", current_readings.lps22hh.uptime_last_updated);
+	textfc(c, "Temp: %.1fC; Pressure: %.1f?", (double)current_readings.lps22hh.temp, (double)current_readings.lps22hh.pressure);
+
+	text("");
+	c = current_readings.sunrise.uptime_last_updated==0?POST_RED:POST_GRN;
+	textfc(c, "Sunrise @ %lldms", current_readings.sunrise.uptime_last_updated);
+	textfc(c, "CO2: %.0fppm", (double)current_readings.sunrise.ppm_filtered_compensated);
+
+	text("");
+	c = current_readings.sen5x.uptime_last_updated==0?POST_RED:POST_GRN;
+	textfc(c, "SEN5x @ %lldms", current_readings.sen5x.uptime_last_updated);
+	textfc(c, "PM1.0: %.1f | PM2.5: %.1f", (double)current_readings.sen5x.pm1_0, (double)current_readings.sen5x.pm2_5);
+
+	text("");
+	textfc(did_post_sdcard?POST_GRN:POST_RED,      "SD   %s", did_post_sdcard?"OK":"FAIL/NOTPRESENT");
+	textfc(did_post_imu?POST_GRN:POST_RED,         "IMU  %s", did_post_imu?"OK":"FAIL");
+	textfc(did_post_flash?POST_GRN:POST_RED,       "W25Q %s", did_post_flash?"OK":"FAIL");
+	textfc(did_post_wifi?POST_GRN:POST_RED,        "WIFI %s", did_post_wifi?"OK":"NOTYET");
+	textfc(seen_buttons==0xff?POST_GRN:POST_RED,   "BTN  %s (seen %02x)", seen_buttons==0xff?"OK":"NOTYET", seen_buttons);
+
+	text("");
+	selectable("Test eInk", menu_test_eink, NULL);
+	selectable("Main Menu", goto_menu, menu_root);
+	selectable("Do nothing (test A)", NULL, NULL);
+
+	seen_buttons |= get_buttons();
+
+	text("");
+	text("");
+	text("");
+	text("TNX MP Carbide Louis Matt")
+	text("Tomas Matt George Lain")
+	text("Aleksa Mini Rebecca")
+	text("&whoever i forgot")
+
+	for (int off_x = -8; off_x <= 8; off_x += 8)
+	{
+		for (int off_y = -8; off_y <= 8; off_y += 8)
+		{
+			lcd_write_char(0xff00, touch_mapped_x+off_x-16, touch_mapped_y+off_y-16, 'X');
+		}
+	}
 }
 
 void menu_set_leds(void* arg)
@@ -204,6 +269,7 @@ void menu_root()
 {
 	text("~~DEBUG MENU~~");
 	selectable("Sensors", goto_menu, menu_sensors);
+	selectable("POST Menu", goto_menu, menu_post);
 	selectable("Set RGB LEDs", goto_menu, menu_leds);
 	selectable("Test Buzzer", menu_test_buzzer, NULL);
 	selectable("Update eInk", menu_test_eink, NULL);

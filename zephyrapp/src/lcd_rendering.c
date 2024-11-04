@@ -82,8 +82,6 @@ void lcd_render_diag()
 	CAT_init();
 #endif
 
-	imu_init();
-
 	NRF_SPIM4->FREQUENCY = SPIM_FREQUENCY_FREQUENCY_M32;
 
 	int last_frame_time = 1;
@@ -117,11 +115,12 @@ void lcd_render_diag()
 
 			if (in_debug_menu)
 			{
-				const uint16_t colors[] = {0, 7 << (5+6), 7 << 5, 7};
-				for (int p = 0; p < LCD_FRAMEBUFFER_PIXELS; p++)
-				{
-					lcd_framebuffer[p] = colors[step];
-				}
+				// const uint16_t colors[] = {0, 7 << (5+6), 7 << 5, 7};
+				// for (int p = 0; p < LCD_FRAMEBUFFER_PIXELS; p++)
+				// {
+				// 	lcd_framebuffer[p] = colors[step];
+				// }
+				memset(lcd_framebuffer, 0, sizeof(lcd_framebuffer));
 				draw_debug_menu();
 			}
 			else

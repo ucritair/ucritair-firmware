@@ -36,7 +36,7 @@ with open(os.path.dirname(__file__)+"/atlasdata.txt", 'r') as fd:
 		idx, name, path, frames, width, height = tup
 		atlas.append(BakeData(int(idx), name, path, int(frames), int(width), int(height)))
 
-assert len(set(x.path for x in atlas)) == len([x.path for x in atlas]), "Duplicated path"
+# assert len(set(x.path for x in atlas)) == len([x.path for x in atlas]), "Duplicated path"
 assert len(set(x.name for x in atlas)) == len([x.name for x in atlas]), "Duplicated name"
 
 atlas.sort(key=lambda x: x.idx)

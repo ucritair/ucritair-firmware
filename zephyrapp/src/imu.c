@@ -68,6 +68,8 @@ bool ok = true;
 #define IMU_REG_CTRL_REG_5 0x24
 #define IMU_REG_TEMP_CFG_REG 0x1f
 
+bool did_post_imu = false;
+
 void imu_init()
 {
 	uint8_t whoami = read_lis3dh(0x0F);
@@ -87,6 +89,13 @@ void imu_init()
     write_lis3dh(IMU_REG_CTRL_REG_4,   0b10000000);
     write_lis3dh(IMU_REG_TEMP_CFG_REG, 0b10000000); // 0b10000000 enable ADC; 0b11000000 enable ADC + wire ADC3 to temp
 
+    k_msleep(10);
+
+    imu_update();
+
+    float sum_accel = sqrt(imu_x*imu_x + imu_y*imu_y + imu_z*imu_z);
+
+    did_post_imu = (sum_accel > 0.8) && (sum_accel < 1.2);
 }
 
 void imu_update()
