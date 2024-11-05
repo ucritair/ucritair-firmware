@@ -82,24 +82,26 @@ void CAT_bag_remove(int item_id);
 //////////////////////////////////////////////////////////////////////////
 // ID DECLARATIONS
 
+extern int solderpaste_item;
+extern int coffee_item;
+extern int fan_item;
+extern int purifier_item;
+
 extern int chair_wood_item;
 extern int table_sm_item;
 extern int table_lg_item;
 extern int stool_wood_item;
 extern int stool_stone_item;
 extern int stool_gold_item;
-extern int coffee_item;
-extern int fan_item;
 extern int lantern_lit_item;
 extern int lantern_unlit_item;
 extern int bowl_stone_item;
 extern int bowl_gold_item;
 extern int vase_stone_item;
 extern int vase_gold_item;
-extern int flower_empty_item;
+
 extern int flower_vig_item;
 extern int flower_foc_item;
-extern int flower_spi_item;
 extern int plant_green_item;
 extern int plant_maroon_item;
 extern int plant_purple_item;
@@ -108,6 +110,7 @@ extern int bush_plain_item;
 extern int bush_daisy_item;
 extern int bush_lilac_item;
 extern int succulent_item;
+
 extern int crystal_blue_sm_item;
 extern int crystal_green_sm_item;
 extern int crystal_purple_sm_item;
@@ -120,9 +123,7 @@ extern int crystal_purple_md_item;
 extern int crystal_blue_lg_item;
 extern int crystal_green_lg_item;
 extern int crystal_purple_lg_item;
-extern int solderpaste_item;
 
-extern int cigarettes_item;
 extern int cigarettes_item;
 extern int sausage_item;
 extern int padkrapow_item;

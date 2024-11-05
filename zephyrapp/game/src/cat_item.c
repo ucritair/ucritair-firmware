@@ -119,14 +119,18 @@ void CAT_bag_remove(int item_id)
 //////////////////////////////////////////////////////////////////////////
 // ID DECLARATIONS
 
+int solderpaste_item;
+int coffeemaker_item;
+int fan_item;
+int purifier_item;
+
 int chair_wood_item;
 int table_sm_item;
 int table_lg_item;
 int stool_wood_item;
 int stool_stone_item;
 int stool_gold_item;
-int coffeemaker_item;
-int fan_item;
+
 int lantern_lit_item;
 int lantern_unlit_item;
 int bowl_stone_item;
@@ -145,6 +149,7 @@ int bush_plain_item;
 int bush_daisy_item;
 int bush_lilac_item;
 int succulent_item;
+
 int crystal_blue_sm_item;
 int crystal_green_sm_item;
 int crystal_purple_sm_item;
@@ -157,7 +162,6 @@ int crystal_purple_md_item;
 int crystal_blue_lg_item;
 int crystal_green_lg_item;
 int crystal_purple_lg_item;
-int solderpaste_item;
 
 int cigarettes_item;
 int sausage_item;
@@ -166,6 +170,10 @@ int coffee_item;
 
 void CAT_item_mass_define()
 {
+	purifier_item = CAT_item_init(CAT_ITEM_TYPE_PROP, "Air Purifier", purifier_sprite);
+	CAT_prop_init(purifier_item, 2, 1, true);
+	CAT_bag_add(purifier_item);
+
 	chair_wood_item = CAT_item_init(CAT_ITEM_TYPE_PROP, "Wood Chair", chair_wood_sprite);
 	CAT_prop_init(chair_wood_item, 2, 2, false);
 	CAT_bag_add(chair_wood_item);

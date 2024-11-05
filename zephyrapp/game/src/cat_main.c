@@ -318,6 +318,7 @@ void CAT_MS_feed(CAT_machine_signal signal)
 				if(CAT_timer_tick(pet.mood_timer_id))
 				{
 					CAT_pet_eat(feed_state.food_id);
+					CAT_bag_remove(feed_state.food_id);
 					CAT_machine_transition(&machine, CAT_MS_default);
 				}
 			}

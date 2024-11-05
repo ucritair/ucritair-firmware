@@ -148,25 +148,27 @@ extern int window_dawn_sprite;
 extern int window_day_sprite;
 extern int window_night_sprite;
 extern int vending_sprite;
-extern int solderpaste_sprite;
-extern int flower_empty_sprite;
-extern int flower_vig_sprite;
-extern int flower_foc_sprite;
-extern int flower_spi_sprite;
+
 extern int table_sm_sprite;
 extern int table_lg_sprite;
 extern int chair_wood_sprite;
 extern int stool_wood_sprite;
 extern int stool_stone_sprite;
 extern int stool_gold_sprite;
+
 extern int coffeemaker_sprite;
 extern int fan_sprite;
+extern int solderpaste_sprite;
+extern int purifier_sprite;
+
 extern int lantern_lit_sprite;
 extern int lantern_unlit_sprite;
 extern int bowl_stone_sprite;
 extern int bowl_gold_sprite;
 extern int vase_stone_sprite;
 extern int vase_gold_sprite;
+
+extern int succulent_sprite;
 extern int bush_plain_sprite;
 extern int bush_daisy_sprite;
 extern int bush_lilac_sprite;
@@ -174,7 +176,9 @@ extern int plant_green_sprite;
 extern int plant_maroon_sprite;
 extern int plant_purple_sprite;
 extern int plant_yellow_sprite;
-extern int succulent_sprite;
+extern int flower_vig_sprite;
+extern int flower_foc_sprite;
+
 extern int crystal_blue_sm_sprite;
 extern int crystal_green_sm_sprite;
 extern int crystal_purple_sm_sprite;
@@ -195,13 +199,6 @@ extern int padkrapow_sprite;
 extern int coffee_sprite;
 
 // WORLD UI
-extern int sbut_feed_sprite;
-extern int sbut_study_sprite;
-extern int sbut_play_sprite;
-extern int sbut_deco_sprite;
-extern int sbut_menu_sprite;
-extern int sbut_hl_sprite;
-
 extern int cursor_sprite;
 extern int cursor_add_sprite;
 extern int cursor_flip_sprite;
@@ -213,8 +210,14 @@ extern int tile_mark_flip_sprite;
 extern int tile_hl_rm_sprite;
 extern int tile_mark_rm_sprite;
 
-
 // SCREEN UI
+extern int sbut_feed_sprite;
+extern int sbut_study_sprite;
+extern int sbut_play_sprite;
+extern int sbut_deco_sprite;
+extern int sbut_menu_sprite;
+extern int sbut_hl_sprite;
+
 extern int panel_sprite;
 extern int glyph_sprite;
 extern int strikethrough_sprite;

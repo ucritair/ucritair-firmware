@@ -441,19 +441,20 @@ int window_dawn_sprite;
 int window_day_sprite;
 int window_night_sprite;
 int vending_sprite;
+
 int solderpaste_sprite;
-int flower_empty_sprite;
+int coffeemaker_sprite;
+int fan_sprite;
+int purifier_sprite;
+
 int flower_vig_sprite;
 int flower_foc_sprite;
-int flower_spi_sprite;
 int table_sm_sprite;
 int table_lg_sprite;
 int chair_wood_sprite;
 int stool_wood_sprite;
 int stool_stone_sprite;
 int stool_gold_sprite;
-int coffeemaker_sprite;
-int fan_sprite;
 int lantern_lit_sprite;
 int lantern_unlit_sprite;
 int bowl_stone_sprite;
@@ -500,6 +501,13 @@ int tile_hl_rm_sprite;
 int tile_mark_rm_sprite;
 
 // SCREEN UI
+int sbut_feed_sprite;
+int sbut_study_sprite;
+int sbut_play_sprite;
+int sbut_deco_sprite;
+int sbut_menu_sprite;
+int sbut_hl_sprite;
+
 int panel_sprite;
 int glyph_sprite;
 int strikethrough_sprite;
@@ -512,13 +520,6 @@ int fbut_s_sprite;
 int fbut_w_sprite;
 int fbut_start_sprite;
 int fbut_select_sprite;
-
-int sbut_feed_sprite;
-int sbut_study_sprite;
-int sbut_play_sprite;
-int sbut_deco_sprite;
-int sbut_menu_sprite;
-int sbut_hl_sprite;
 
 int icon_vig_sprite;
 int icon_foc_sprite;
@@ -587,25 +588,25 @@ void CAT_sprite_mass_define()
 	INIT_SPRITE(window_day_sprite, "sprites/prop_wall_window_day.png", 1);
 	INIT_SPRITE(window_night_sprite, "sprites/prop_wall_window_dark.png", 1);
 	INIT_SPRITE(vending_sprite, "sprites/interact_vending_items_a.png", 12);
+
 	INIT_SPRITE(solderpaste_sprite, "sprites/prop_solderpaste.png", 1);
-	INIT_SPRITE(flower_empty_sprite, "sprites/interact_stat_plant_empty.png", 1);
-	INIT_SPRITE(flower_vig_sprite, "sprites/interact_stat_plant_vigor.png", 6);
-	INIT_SPRITE(flower_foc_sprite, "sprites/interact_stat_plant_focus.png", 6);
-	INIT_SPRITE(flower_spi_sprite, "sprites/interact_stat_plant_spirit.png", 6);
+	INIT_SPRITE(coffeemaker_sprite, "sprites/prop_coffee_empty_a.png", 14);
+	INIT_SPRITE(fan_sprite, "sprites/prop_fan_a.png", 3);
+	INIT_SPRITE(purifier_sprite, "sprites/prop_purifier_a.png", 6);
+	
 	INIT_SPRITE(table_sm_sprite, "sprites/prop_table_md.png", 1);
 	INIT_SPRITE(table_lg_sprite, "sprites/prop_table_xl_wood.png", 1);
 	INIT_SPRITE(chair_wood_sprite, "sprites/prop_chair_wood.png", 4);
 	INIT_SPRITE(stool_wood_sprite, "sprites/prop_stool_wood.png", 1);
 	INIT_SPRITE(stool_stone_sprite, "sprites/prop_stool_stone.png", 1);
 	INIT_SPRITE(stool_gold_sprite, "sprites/prop_stool_gold.png", 1);
-	INIT_SPRITE(coffeemaker_sprite, "sprites/prop_coffee_empty_a.png", 14);
-	INIT_SPRITE(fan_sprite, "sprites/prop_fan_a.png", 3);
 	INIT_SPRITE(lantern_lit_sprite, "sprites/prop_lantern_lit_a.png", 2);
 	INIT_SPRITE(lantern_unlit_sprite, "sprites/prop_lantern_unlit.png", 1);
 	INIT_SPRITE(bowl_stone_sprite, "sprites/prop_bowl_stone_2.png", 1);
 	INIT_SPRITE(bowl_gold_sprite, "sprites/prop_bowl_gold.png", 1);
 	INIT_SPRITE(vase_stone_sprite, "sprites/prop_vase_sm_stone.png", 1);
 	INIT_SPRITE(vase_gold_sprite, "sprites/prop_vase_sm_gold.png", 1);
+
 	INIT_SPRITE(bush_plain_sprite, "sprites/prop_bush_lg_empty.png", 1);
 	INIT_SPRITE(bush_daisy_sprite, "sprites/prop_bush_lg_daisy.png", 1);
 	INIT_SPRITE(bush_lilac_sprite, "sprites/prop_bush_lg_lilac.png", 1);
@@ -614,6 +615,9 @@ void CAT_sprite_mass_define()
 	INIT_SPRITE(plant_purple_sprite, "sprites/prop_plant_sapling_purple.png", 1);
 	INIT_SPRITE(plant_yellow_sprite, "sprites/prop_plant_sapling_yellow.png", 1);
 	INIT_SPRITE(succulent_sprite, "sprites/prop_plant_md_stem.png", 1);
+	INIT_SPRITE(flower_vig_sprite, "sprites/interact_stat_plant_vigor.png", 6);
+	INIT_SPRITE(flower_foc_sprite, "sprites/interact_stat_plant_focus.png", 6);
+
 	INIT_SPRITE(crystal_blue_sm_sprite, "sprites/prop_crystal_sm_shard_blue.png", 1);
 	INIT_SPRITE(crystal_green_sm_sprite, "sprites/prop_crystal_sm_shard_green.png", 1);
 	INIT_SPRITE(crystal_purple_sm_sprite, "sprites/prop_crystal_sm_shard_purple.png", 1);
