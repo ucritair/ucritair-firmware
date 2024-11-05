@@ -1,0 +1,22 @@
+Build the mcuboot image, it should look something like this:
+> west build -p always -b cat5340/nrf5340/cpuapp ../../bootloader/mcuboot/boot/zephyr -- \
+>    -DBOARD_ROOT=../../../../cat_software/zephyrapp \
+>    -DEXTRA_CONF_FILE=../../../../cat_software/mcuboot/mcuboot.conf \
+>    -DEXTRA_DTC_OVERLAY_FILE=../../../../cat_software/mcuboot/mcuboot.overlay
+
+Flash it:
+> west flash
+
+After building your app, run:
+> west sign --tool imgtool
+Alternatively, run imgtool directly (change version value however you like):
+> imgtool create --header-size 0x200 --align 8 --version 0.1 --slot-size 0xF0000 --pad build/zephyr/zephyr.bin build/zephyr/zephyr.signed.bin
+
+Signing is disabled in the mcuboot config, this just does sha256 hash for
+integrity check and adds image metadata.
+
+Now you can flash zephyr.signed.bin with dfu-util:
+> dfu-util --reset --download build/zephyr/zephyr.signed.bin
+
+Board should reboot (thanks to --reset) after flashing and boot the app image.
+
