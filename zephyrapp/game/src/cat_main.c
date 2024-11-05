@@ -94,9 +94,7 @@ CAT_menu_state menu_state;
 typedef struct CAT_bag_state
 {
 	int base;
-	int visible[9];
-	int seen;
-	int selector;
+	int idx;
 	CAT_machine_state destination;
 } CAT_bag_state;
 CAT_bag_state bag_state;
@@ -135,9 +133,6 @@ void CAT_pet_eat(int item_id)
 	pet.vigour += item->data.food_data.d_v;
 	pet.focus += item->data.food_data.d_f;
 	pet.spirit += item->data.food_data.d_s;
-	pet.delta_vigour += item->data.food_data.dd_v;
-	pet.delta_focus += item->data.food_data.dd_f;
-	pet.delta_spirit += item->data.food_data.dd_s;
 }
 
 void CAT_pet_transition(int sprite_id)
@@ -576,32 +571,8 @@ void CAT_MS_stats(CAT_machine_signal signal)
 void CAT_bag_state_init()
 {
 	bag_state.base = 0;
-	bag_state.seen = 0;
-	bag_state.selector = 0;
+	bag_state.idx = 0;
 	bag_state.destination = CAT_MS_menu;
-}
-
-void CAT_bag_state_refresh()
-{
-	bag_state.seen = 0;
-	for(int i = bag_state.base; bag_state.seen < 9 && i < item_table.length; i++)
-	{
-		CAT_item* item = &item_table.data[i];
-		if
-		(
-			item->count > 0 &&
-			(
-				bag_state.destination == CAT_MS_menu ||
-				(bag_state.destination == CAT_MS_feed && item->type == CAT_ITEM_TYPE_FOOD) ||
-				(bag_state.destination == CAT_MS_deco && item->type == CAT_ITEM_TYPE_PROP)
-			)
-		)
-		{
-			bag_state.visible[bag_state.seen] = i;
-			bag_state.seen += 1;
-		}
-	}
-	bag_state.selector = clamp(bag_state.selector, 0, bag_state.seen-1);
 }
 
 void CAT_MS_bag(CAT_machine_signal signal)
@@ -611,46 +582,29 @@ void CAT_MS_bag(CAT_machine_signal signal)
 		case CAT_MACHINE_SIGNAL_ENTER:
 		{
 			bag_state.base = 0;
-			bag_state.seen = 0;
-			bag_state.selector = 0;
-			CAT_bag_state_refresh();
+			bag_state.idx = 0;
 			break;
 		}
 		case CAT_MACHINE_SIGNAL_TICK:
 		{
+			if(bag.length <= 0)
+				break;
+
 			if(CAT_input_pulse(CAT_BUTTON_UP))
-			{
-				bag_state.selector -= 1;
-				if(bag_state.selector < 0)
-				{
-					int prev = CAT_bag_prev(bag_state.base);
-					if(prev != -1)
-					{
-						bag_state.base = prev;
-						CAT_bag_state_refresh();
-					}
-					bag_state.selector = 0;
-				}
-			}
-				
+				bag_state.idx -= 1;
 			if(CAT_input_pulse(CAT_BUTTON_DOWN))
-			{
-				bag_state.selector += 1;
-				if(bag_state.selector >= 9)
-				{
-					int next = CAT_bag_next(bag_state.visible[bag_state.seen-1]);
-					if(next != -1)
-					{
-						bag_state.base = CAT_bag_next(bag_state.base);
-					}
-					bag_state.selector = 8;
-				}
-				CAT_bag_state_refresh();
-			}
+				bag_state.idx += 1;
+			bag_state.idx = clamp(bag_state.idx, 0, bag.length-1);
+
+			int overshoot = bag_state.idx - bag_state.base;
+			if(overshoot < 0)
+				bag_state.base -= 1;
+			else if(overshoot >= 9)
+				bag_state.base += 1;
 
 			if(CAT_input_pressed(CAT_BUTTON_A))
 			{
-				int item_id = bag_state.visible[bag_state.selector];
+				int item_id = bag.item_id[bag_state.idx];
 				CAT_item* item = &item_table.data[item_id];
 
 				if(item->type == CAT_ITEM_TYPE_FOOD && (bag_state.destination == CAT_MS_menu || bag_state.destination == CAT_MS_feed))
@@ -915,9 +869,13 @@ void CAT_render(int cycle)
 		CAT_gui_image(icon_exit_sprite, 0);
 
 		CAT_gui_panel((CAT_ivec2) {0, 32}, (CAT_ivec2) {15, 18});  
-		for(int i = 0; i < bag_state.seen; i++)
+		for(int i = 0; i < 9; i++)
 		{
-			int item_id = bag_state.visible[i];
+			int idx = bag_state.base + i;
+			if(idx >= bag.length)
+				return;
+
+			int item_id = bag.item_id[idx];
 			CAT_item* item = CAT_item_get(item_id);
 
 			CAT_gui_panel_tight((CAT_ivec2) {0, 32+i*32}, (CAT_ivec2) {15, 2});
@@ -933,11 +891,21 @@ void CAT_render(int cycle)
 					CAT_gui_image(icon_prop_sprite, 0); 
 					break;
 			}
-			char text[64];
-			sprintf(text, " %s *%d", item->name, item->count);
-			CAT_gui_text(text);
 
-			if(i == bag_state.selector)
+			char text[64];
+			sprintf(text, " %s *%d", item->name, bag.count[idx]);
+			if
+			(
+				(bag_state.destination == CAT_MS_deco && item->type != CAT_ITEM_TYPE_PROP) ||
+				(bag_state.destination == CAT_MS_feed && item->type != CAT_ITEM_TYPE_FOOD)
+			)
+			{
+				gui.text_mode = CAT_TEXT_MODE_STRIKETHROUGH;
+			}	
+			CAT_gui_text(text);
+			gui.text_mode = CAT_TEXT_MODE_NORMAL;
+
+			if(idx == bag_state.idx)
 			{
 				CAT_gui_image(icon_pointer_sprite, 0);
 			}
@@ -992,8 +960,7 @@ void CAT_init()
 
 	CAT_spriter_init();
 	CAT_draw_queue_init();
-	
-	CAT_gui_init(panel_sprite, glyph_sprite);
+	CAT_gui_init();
 	
 	CAT_item_table_init();
 	CAT_item_mass_define();

@@ -10,6 +10,7 @@
 // CONSTANTS
 
 #define CAT_ITEM_TABLE_MAX_LENGTH 64
+#define CAT_BAG_MAX_LENGTH CAT_ITEM_TABLE_MAX_LENGTH
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -27,8 +28,6 @@ typedef struct CAT_item
 	CAT_item_type type;
 	const char* name;
 	int sprite_id;
-	int price;
-	int count;
 
 	union
 	{
@@ -44,9 +43,6 @@ typedef struct CAT_item
 			float d_v;
 			float d_f;
 			float d_s;
-			float dd_v;
-			float dd_f;
-			float dd_s;
 		} food_data;
 	} data;
 } CAT_item;
@@ -59,23 +55,28 @@ typedef struct CAT_item_table
 extern CAT_item_table item_table;
 
 void CAT_item_table_init();
-int CAT_item_init(CAT_item_type type, const char* name, int sprite_id, int price);
+int CAT_item_init(CAT_item_type type, const char* name, int sprite_id);
 CAT_item* CAT_item_get(int item_id);
 void CAT_prop_init(int item_id, int width, int height, bool animate);
 void CAT_prop_flip(int item_id);
-void CAT_food_init(int item_id, float d_v, float d_f, float d_s, float dd_v, float dd_f, float dd_s);
+void CAT_food_init(int item_id, float d_v, float d_f, float d_s);
 
 
 //////////////////////////////////////////////////////////////////////////
 // BAG
 
+typedef struct CAT_bag
+{
+	int item_id[CAT_BAG_MAX_LENGTH];
+	int count[CAT_BAG_MAX_LENGTH];
+	int length;
+} CAT_bag;
+extern CAT_bag bag;
+
+void CAT_bag_init();
+int CAT_bag_find(int item_id);
 void CAT_bag_add(int item_id);
-bool CAT_bag_remove(int item_id);
-int CAT_bag_count(int item_id);
-int CAT_bag_first();
-int CAT_bag_next(int idx);
-int CAT_bag_prev(int idx);
-int CAT_bag_seek(int idx, CAT_item_type type);
+void CAT_bag_remove(int item_id);
 
 
 //////////////////////////////////////////////////////////////////////////

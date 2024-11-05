@@ -500,6 +500,10 @@ int tile_hl_rm_sprite;
 int tile_mark_rm_sprite;
 
 // SCREEN UI
+int panel_sprite;
+int glyph_sprite;
+int strikethrough_sprite;
+
 int fbut_a_sprite;
 int fbut_b_sprite;
 int fbut_n_sprite;
@@ -508,27 +512,29 @@ int fbut_s_sprite;
 int fbut_w_sprite;
 int fbut_start_sprite;
 int fbut_select_sprite;
+
 int sbut_feed_sprite;
 int sbut_study_sprite;
 int sbut_play_sprite;
 int sbut_deco_sprite;
 int sbut_menu_sprite;
 int sbut_hl_sprite;
+
 int icon_vig_sprite;
 int icon_foc_sprite;
 int icon_spi_sprite;
 int icon_food_sprite;
 int icon_prop_sprite;
 int icon_key_sprite;
-int panel_sprite;
-int glyph_sprite;
 int icon_pointer_sprite;
 int icon_enter_sprite;
 int icon_exit_sprite;
+
 int cell_vig_sprite;
 int cell_foc_sprite;
 int cell_spi_sprite;
 int cell_empty_sprite;
+
 int crisis_co2_sprite;
 int crisis_nox_sprite;
 int crisis_vol_sprite;
@@ -641,6 +647,9 @@ void CAT_sprite_mass_define()
 	
 
 	// SCREEN UI
+	INIT_SPRITE(panel_sprite, "sprites/panel_tiles.png", 9);
+	INIT_SPRITE(glyph_sprite, "sprites/glyphs.png", 91);
+	INIT_SPRITE(strikethrough_sprite, "sprites/strikethrough.png", 1);
 	INIT_SPRITE(fbut_a_sprite, "sprites/A Button_Both.png", 2);
 	INIT_SPRITE(fbut_b_sprite, "sprites/B Button_Both.png", 2);
 	INIT_SPRITE(fbut_n_sprite, "sprites/Up_Arrow_Both.png", 2);
@@ -661,8 +670,6 @@ void CAT_sprite_mass_define()
 	INIT_SPRITE(icon_food_sprite, "sprites/icon_item_food.png", 1);
 	INIT_SPRITE(icon_prop_sprite, "sprites/icon_item_prop.png", 1);
 	INIT_SPRITE(icon_key_sprite, "sprites/icon_item_key.png", 1);
-	INIT_SPRITE(panel_sprite, "sprites/panel_tiles.png", 9);
-	INIT_SPRITE(glyph_sprite, "sprites/glyphs.png", 91);
 	INIT_SPRITE(icon_pointer_sprite, "sprites/icon_pointer.png", 1);
 	INIT_SPRITE(icon_enter_sprite, "sprites/icon_enter.png", 1);
 	INIT_SPRITE(icon_exit_sprite, "sprites/icon_exit.png", 1);

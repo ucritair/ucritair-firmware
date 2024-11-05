@@ -217,6 +217,7 @@ extern int tile_mark_rm_sprite;
 // SCREEN UI
 extern int panel_sprite;
 extern int glyph_sprite;
+extern int strikethrough_sprite;
 
 extern int fbut_a_sprite;
 extern int fbut_b_sprite;

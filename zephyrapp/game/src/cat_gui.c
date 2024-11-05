@@ -1,5 +1,4 @@
 #include "cat_gui.h"
-
 #include "cat_sprite.h"
 
 //////////////////////////////////////////////////////////////////////////
@@ -7,28 +6,27 @@
 
 CAT_gui gui;
 
-void CAT_gui_init(int panel_id, int glyph_id)
+void CAT_gui_init()
 {
-	gui.panel_id = panel_id;
-	gui.glyph_id = glyph_id;
-
 	gui.start = (CAT_ivec2) {0, 0};
 	gui.shape = (CAT_ivec2) {15, 20};
 
 	gui.cursor = (CAT_ivec2) {0, 0};
-	gui.channel_height = 0; 
+	gui.channel_height = 0;
+
+	gui.text_mode = CAT_TEXT_MODE_NORMAL;
 }
 
 void CAT_gui_row(int stage)
 {
-	CAT_draw_sprite(gui.panel_id, stage*3+0, gui.cursor.x, gui.cursor.y);
+	CAT_draw_sprite(panel_sprite, stage*3+0, gui.cursor.x, gui.cursor.y);
 	gui.cursor.x += CAT_TILE_SIZE;
 	for(int col = 1; col < gui.shape.x-1; col++)
 	{
-		CAT_draw_sprite(gui.panel_id, stage*3+1, gui.cursor.x, gui.cursor.y);
+		CAT_draw_sprite(panel_sprite, stage*3+1, gui.cursor.x, gui.cursor.y);
 		gui.cursor.x += CAT_TILE_SIZE;
 	}
-	CAT_draw_sprite(gui.panel_id, stage*3+2, gui.cursor.x, gui.cursor.y);
+	CAT_draw_sprite(panel_sprite, stage*3+2, gui.cursor.x, gui.cursor.y);
 	gui.cursor.x += CAT_TILE_SIZE;
 
 	gui.cursor.y += CAT_TILE_SIZE;
@@ -91,7 +89,9 @@ void CAT_gui_text(const char* text)
 			continue;
 		}
 
-		CAT_draw_sprite(gui.glyph_id, *c-' ', gui.cursor.x, gui.cursor.y);
+		CAT_draw_sprite(glyph_sprite, *c-' ', gui.cursor.x, gui.cursor.y);
+		if(gui.text_mode == CAT_TEXT_MODE_STRIKETHROUGH)
+			CAT_draw_sprite(strikethrough_sprite, 0, gui.cursor.x, gui.cursor.y);
 		gui.cursor.x += CAT_GLYPH_WIDTH;
 	}
 
