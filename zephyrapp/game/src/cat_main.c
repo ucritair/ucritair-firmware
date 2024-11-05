@@ -214,7 +214,7 @@ void CAT_MS_default(CAT_machine_signal signal)
 			if(CAT_input_pressed(CAT_BUTTON_A))
 				CAT_machine_transition(&machine, room.buttons[room.selector]);
 
-			if(CAT_input_touch(pet.pos.x, pet.pos.y+16, 16))
+			if(CAT_input_touch(pet.pos.x, pet.pos.y-16, 16))
 			{
 				CAT_pet_transition(pet_spi_up_sprite);
 			}
