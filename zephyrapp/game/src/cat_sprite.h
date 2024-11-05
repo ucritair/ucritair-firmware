@@ -135,12 +135,22 @@ extern int pet_walk_low_foc_sprite;
 extern int pet_idle_low_spi_sprite;
 extern int pet_walk_low_spi_sprite;
 
+extern int pet_crit_vig_sprite;
+extern int pet_crit_foc_sprite;
+extern int pet_crit_spi_sprite;
+
 extern int pet_vig_up_sprite;
 extern int pet_foc_up_sprite;
 extern int pet_spi_up_sprite;
 
 extern int pet_eat_sprite;
 extern int pet_chew_sprite;
+
+extern int bubl_low_vig_sprite;
+extern int bubl_low_foc_sprite;
+extern int bubl_low_spi_sprite;
+extern int bubl_react_good_sprite;
+extern int bubl_react_bad_sprite;
 
 
 // PROPS
@@ -160,6 +170,7 @@ extern int coffeemaker_sprite;
 extern int fan_sprite;
 extern int solderpaste_sprite;
 extern int purifier_sprite;
+extern int uv_lamp_sprite;
 
 extern int lantern_lit_sprite;
 extern int lantern_unlit_sprite;
@@ -192,11 +203,13 @@ extern int crystal_blue_lg_sprite;
 extern int crystal_green_lg_sprite;
 extern int crystal_purple_lg_sprite;
 
+
 // FOOD
 extern int cigarette_sprite;
 extern int sausage_sprite;
 extern int padkrapow_sprite;
 extern int coffee_sprite;
+
 
 // WORLD UI
 extern int cursor_sprite;
@@ -210,7 +223,7 @@ extern int tile_mark_flip_sprite;
 extern int tile_hl_rm_sprite;
 extern int tile_mark_rm_sprite;
 
-// SCREEN UI
+// CORE UI
 extern int sbut_feed_sprite;
 extern int sbut_study_sprite;
 extern int sbut_play_sprite;
@@ -221,6 +234,9 @@ extern int sbut_hl_sprite;
 extern int panel_sprite;
 extern int glyph_sprite;
 extern int strikethrough_sprite;
+extern int icon_pointer_sprite;
+extern int icon_enter_sprite;
+extern int icon_exit_sprite;
 
 extern int fbut_a_sprite;
 extern int fbut_b_sprite;
@@ -231,28 +247,39 @@ extern int fbut_w_sprite;
 extern int fbut_start_sprite;
 extern int fbut_select_sprite;
 
-extern int icon_pointer_sprite;
-extern int icon_enter_sprite;
-extern int icon_exit_sprite;
-
-extern int icon_vig_sprite;
-extern int icon_foc_sprite;
-extern int icon_spi_sprite;
-
+// MENU ICONS 
 extern int icon_food_sprite;
 extern int icon_prop_sprite;
 extern int icon_key_sprite;
 
+extern int icon_vig_sprite;
+extern int icon_foc_sprite;
+extern int icon_spi_sprite;
 extern int cell_vig_sprite;
 extern int cell_foc_sprite;
 extern int cell_spi_sprite;
 extern int cell_empty_sprite;
 
-extern int crisis_co2_sprite;
-extern int crisis_nox_sprite;
-extern int crisis_vol_sprite;
-extern int crisis_hot_sprite;
-extern int crisis_cold_sprite;
+// AQ ICONS
+extern int icon_temp_low_sprite;
+extern int icon_temp_okay_sprite;
+extern int icon_temp_high_sprite;
+
+extern int icon_ppm_low_sprite;
+extern int icon_ppm_okay_sprite;
+extern int icon_ppm_high_sprite;
+
+extern int icon_pm_low_sprite;
+extern int icon_pm_okay_sprite;
+extern int icon_pm_high_sprite;
+
+extern int icon_voc_low_sprite;
+extern int icon_voc_okay_sprite;
+extern int icon_voc_high_sprite;
+
+extern int icon_nox_low_sprite;
+extern int icon_nox_okay_sprite;
+extern int icon_nox_high_sprite;
 
 void CAT_sprite_mass_define();
 

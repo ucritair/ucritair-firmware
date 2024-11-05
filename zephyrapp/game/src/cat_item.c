@@ -108,7 +108,7 @@ void CAT_bag_remove(int item_id)
 			for(int i = idx; i < bag.length-1; i++)
 			{
 				bag.item_id[i] = bag.item_id[i+1];
-				bag.count[i] = bag.item_id[i+1];
+				bag.count[i] = bag.count[i+1];
 			}
 			bag.length -= 1;
 		}
