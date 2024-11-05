@@ -43,6 +43,7 @@ CAT_ivec2 CAT_ivec2_mul(CAT_ivec2 a, int b);
 int min(int a, int b);
 int max(int a, int b);
 int clamp(int v, int a, int b);
+float inv_lerp(float t, float a, float b);
 
 //////////////////////////////////////////////////////////////////////////
 // RANDOM

@@ -32,6 +32,7 @@ void CAT_LCD_set_backlight(int percent);
 void CAT_eink_post(uint8_t* buffer);
 bool CAT_eink_is_posted();
 
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // SPEAKER
 
@@ -51,6 +52,7 @@ typedef struct CAT_touch
 } CAT_touch;
 
 void CAT_get_touch(CAT_touch* touch);
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // TIME
@@ -73,6 +75,7 @@ void CAT_set_datetime(CAT_datetime* datetime);
 void* CAT_malloc(int bytes);
 void CAT_free(void* ptr);
 
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // STORAGE
 
@@ -88,12 +91,45 @@ void CAT_read_save(uint8_t* out);
 
 int CAT_get_battery_pct();
 
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// AIR QUALITY
+
+typedef struct CAT_AQI {
+	struct {
+		uint64_t uptime_last_updated;
+		float temp, pressure;
+	} lps22hh;
+	
+	struct {
+		uint64_t uptime_last_updated;
+		float ppm_filtered_compensated;
+		float temp;
+	} sunrise;
+	
+	struct {
+		uint64_t uptime_last_updated;
+		float pm1_0, pm2_5, pm4_0, pm10_0;
+		float humidity_rhpct, temp_degC, voc_index, nox_index;
+	} sen5x;
+} CAT_AQI;
+extern CAT_AQI aqi;
+
+void CAT_AQI_read();
+float CAT_temp_score();
+float CAT_pressure_score();
+float CAT_PPM_score();
+float CAT_PM_score();
+float CAT_RH_score();
+float CAT_VOC_score();
+float CAT_NOX_score();
+
+
 #ifdef CAT_DESKTOP
 #include "cat_desktop.h"
 #else
 #include "cat_embedded.h"
 #define CAT_BAKED_ASSETS
 #endif
-
 
 #endif

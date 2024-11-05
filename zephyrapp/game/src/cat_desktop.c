@@ -1,5 +1,4 @@
 #include "cat_desktop.h"
-#include "cat_core.h"
 
 #include <time.h>
 #include <stdlib.h>
@@ -8,6 +7,8 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/stat.h>
+#include "cat_core.h"
+#include "cat_math.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // DEV MODE
@@ -332,6 +333,7 @@ void CAT_free(void* ptr)
 	free(ptr);
 }
 
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // STORAGE
 
@@ -366,4 +368,69 @@ int CAT_get_battery_pct()
 		return 0;
 	}
 	return 100;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// AIR QUALITY
+
+CAT_AQI aqi;
+
+void CAT_AQI_read()
+{
+	aqi.lps22hh.uptime_last_updated = 0;
+	aqi.lps22hh.temp = 20;
+	aqi.lps22hh.pressure = 1013;
+
+	aqi.sunrise.uptime_last_updated = 0;
+	aqi.sunrise.ppm_filtered_compensated = 400;
+	aqi.sunrise.temp = 20;
+
+	aqi.sen5x.uptime_last_updated = 0;
+	aqi.sen5x.pm2_5 = 9;
+	aqi.sen5x.pm10_0 = 15;
+	aqi.sen5x.humidity_rhpct = 40;
+	aqi.sen5x.temp_degC = 20;
+	aqi.sen5x.voc_index = 100;
+	aqi.sen5x.nox_index = 1;
+}
+
+float CAT_temp_score()
+{
+	float mean_temp = (aqi.lps22hh.temp + aqi.sunrise.temp + aqi.sen5x.temp_degC) / 3.0f;
+	return inv_lerp(mean_temp, 15, 24);
+}
+
+float CAT_pressure_score()
+{
+	return inv_lerp(aqi.lps22hh.pressure, 1002, 1022);
+}
+
+float CAT_PPM_score()
+{
+	return inv_lerp(aqi.sunrise.ppm_filtered_compensated, 250, 1000);
+}
+
+float CAT_PM_score()
+{
+	float pm_sm = aqi.sen5x.pm2_5;
+	float pm_lg = aqi.sen5x.pm10_0 - pm_sm;
+	float sm_score = inv_lerp(pm_sm, 0, 15);
+	float lg_score = inv_lerp(pm_lg, 0, 12);
+	return (lg_score + 2 * sm_score) / 3;
+}
+
+float CAT_RH_score()
+{
+	return inv_lerp(aqi.sen5x.humidity_rhpct, 30, 50);
+}
+
+float CAT_VOC_score()
+{
+	return inv_lerp(aqi.sen5x.voc_index, 0.9, 100);
+}
+
+float CAT_NOX_score()
+{
+	return inv_lerp(aqi.sen5x.nox_index, 90, 400);
 }

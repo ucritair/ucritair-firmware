@@ -16,23 +16,29 @@
 //////////////////////////////////////////////////////////////////////////
 // RENDERING
 
+typedef enum CAT_text_mode
+{
+	CAT_TEXT_MODE_NORMAL,
+	CAT_TEXT_MODE_STRIKETHROUGH
+} CAT_text_mode;
+
 typedef struct CAT_gui
 {
-	int panel_id;
-	int glyph_id;
-
 	CAT_ivec2 start;
 	CAT_ivec2 shape;
 	int margin;
 
 	CAT_ivec2 cursor;
 	int channel_height;
+
+	CAT_text_mode text_mode;
 } CAT_gui;
 extern CAT_gui gui;
 
-void CAT_gui_init(int panel_id, int glyph_id);
+void CAT_gui_init();
 void CAT_gui_row(int stage);
 void CAT_gui_panel(CAT_ivec2 start, CAT_ivec2 shape);
+void CAT_gui_panel_tight(CAT_ivec2 start, CAT_ivec2 shape);
 void CAT_gui_open_channel(int height);
 void CAT_gui_line_break();
 void CAT_gui_same_line();

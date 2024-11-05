@@ -4,13 +4,13 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include "cat_sprite.h"
 #include "cat_math.h"
 
 //////////////////////////////////////////////////////////////////////////
 // CONSTANTS
 
 #define CAT_ITEM_TABLE_MAX_LENGTH 64
+#define CAT_BAG_MAX_LENGTH CAT_ITEM_TABLE_MAX_LENGTH
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -28,14 +28,14 @@ typedef struct CAT_item
 	CAT_item_type type;
 	const char* name;
 	int sprite_id;
-	int price;
-	int count;
 
 	union
 	{
 		struct
 		{
 			CAT_ivec2 shape;
+			bool animate;
+			int frame_idx;
 		} prop_data;
 
 		struct
@@ -43,9 +43,6 @@ typedef struct CAT_item
 			float d_v;
 			float d_f;
 			float d_s;
-			float dd_v;
-			float dd_f;
-			float dd_s;
 		} food_data;
 	} data;
 } CAT_item;
@@ -58,26 +55,37 @@ typedef struct CAT_item_table
 extern CAT_item_table item_table;
 
 void CAT_item_table_init();
-int CAT_item_init(CAT_item_type type, const char* name, int sprite_id, int price);
+int CAT_item_init(CAT_item_type type, const char* name, int sprite_id);
 CAT_item* CAT_item_get(int item_id);
-void CAT_prop_init(int item_id, int width, int height);
-void CAT_food_init(int item_id, float d_v, float d_f, float d_s, float dd_v, float dd_f, float dd_s);
+void CAT_prop_init(int item_id, int width, int height, bool animate);
+void CAT_prop_flip(int item_id);
+void CAT_food_init(int item_id, float d_v, float d_f, float d_s);
 
 
 //////////////////////////////////////////////////////////////////////////
 // BAG
 
+typedef struct CAT_bag
+{
+	int item_id[CAT_BAG_MAX_LENGTH];
+	int count[CAT_BAG_MAX_LENGTH];
+	int length;
+} CAT_bag;
+extern CAT_bag bag;
+
+void CAT_bag_init();
+int CAT_bag_find(int item_id);
 void CAT_bag_add(int item_id);
-bool CAT_bag_remove(int item_id);
-int CAT_bag_count(int item_id);
-int CAT_bag_first();
-int CAT_bag_next(int idx);
-int CAT_bag_prev(int idx);
-int CAT_bag_seek(int idx, CAT_item_type type);
+void CAT_bag_remove(int item_id);
 
 
 //////////////////////////////////////////////////////////////////////////
 // ID DECLARATIONS
+
+extern int solderpaste_item;
+extern int coffee_item;
+extern int fan_item;
+extern int purifier_item;
 
 extern int chair_wood_item;
 extern int table_sm_item;
@@ -85,18 +93,15 @@ extern int table_lg_item;
 extern int stool_wood_item;
 extern int stool_stone_item;
 extern int stool_gold_item;
-extern int coffee_item;
-extern int fan_item;
 extern int lantern_lit_item;
 extern int lantern_unlit_item;
 extern int bowl_stone_item;
 extern int bowl_gold_item;
 extern int vase_stone_item;
 extern int vase_gold_item;
-extern int flower_empty_item;
+
 extern int flower_vig_item;
 extern int flower_foc_item;
-extern int flower_spi_item;
 extern int plant_green_item;
 extern int plant_maroon_item;
 extern int plant_purple_item;
@@ -105,6 +110,7 @@ extern int bush_plain_item;
 extern int bush_daisy_item;
 extern int bush_lilac_item;
 extern int succulent_item;
+
 extern int crystal_blue_sm_item;
 extern int crystal_green_sm_item;
 extern int crystal_purple_sm_item;
@@ -117,9 +123,7 @@ extern int crystal_purple_md_item;
 extern int crystal_blue_lg_item;
 extern int crystal_green_lg_item;
 extern int crystal_purple_lg_item;
-extern int solderpaste_item;
 
-extern int cigarettes_item;
 extern int cigarettes_item;
 extern int sausage_item;
 extern int padkrapow_item;
