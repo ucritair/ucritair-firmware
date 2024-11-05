@@ -106,8 +106,6 @@ int main(void)
 	
 	imu_init();
 
-	set_all_same_color((struct led_rgb){0x0f, 0x0f, 0x0f});
-
 	const struct device *sdhc_dev = DEVICE_DT_GET(DT_CHOSEN(xxx_sdhcd0));
 
 	if (device_init(sdhc_dev))

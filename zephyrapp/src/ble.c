@@ -35,6 +35,8 @@
 
 #define VND_MAX_LEN 20
 
+bool ble_ok = false;
+
 static uint8_t vnd_value[VND_MAX_LEN + 1] = { 'V', 'e', 'n', 'd', 'o', 'r'};
 
 static ssize_t read_vnd(struct bt_conn *conn, const struct bt_gatt_attr *attr,
@@ -243,6 +245,8 @@ int ble_main(void)
 	bt_ready();
 	bt_gatt_cb_register(&gatt_callbacks);
 	bt_conn_auth_cb_register(&auth_cb_display);
+
+	ble_ok = true;
 
 	return 0;
 }

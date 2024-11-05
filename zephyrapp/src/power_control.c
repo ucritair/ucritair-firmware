@@ -78,32 +78,3 @@ void power_off()
 	sys_reboot(SYS_REBOOT_COLD);
 }
 
-#include <zephyr/init.h>
-#include <hal/nrf_power.h>
-
-static int board_cat_uicr_init(void)
-{
-	if (NRF_UICR->VREGHVOUT != 0x5) {
-
-		NRF_NVMC->CONFIG = NVMC_CONFIG_WEN_Wen << NVMC_CONFIG_WEN_Pos;
-		while (NRF_NVMC->READY == NVMC_READY_READY_Busy) {
-			;
-		}
-
-		NRF_UICR->VREGHVOUT = 0x5;
-
-		NRF_NVMC->CONFIG = NVMC_CONFIG_WEN_Ren << NVMC_CONFIG_WEN_Pos;
-		while (NRF_NVMC->READY == NVMC_READY_READY_Busy) {
-			;
-		}
-
-		/* a reset is required for changes to take effect */
-		NVIC_SystemReset();
-	}
-
-	return 0;
-}
-
-SYS_INIT(board_cat_uicr_init, PRE_KERNEL_1,
-	 CONFIG_KERNEL_INIT_PRIORITY_DEFAULT);
-
