@@ -45,7 +45,7 @@ typedef struct CAT_sprite
 
 typedef struct CAT_atlas
 {
-	CAT_sprite data[CAT_ATLAS_MAX_LENGTH];
+	CAT_sprite table[CAT_ATLAS_MAX_LENGTH];
 	int length;
 } CAT_atlas;
 extern CAT_atlas atlas;

@@ -90,7 +90,7 @@ int CAT_sprite_init(const char* path, int frame_count)
 	sprite.needs_update = false;
 
 	int sprite_id = atlas.length;
-	atlas.data[sprite_id] = sprite;
+	atlas.table[sprite_id] = sprite;
 	atlas.length += 1;
 	return sprite_id;
 }
@@ -99,7 +99,7 @@ void CAT_atlas_cleanup()
 {
 	for(int i = 0; i < atlas.length; i++)
 	{
-		CAT_free(atlas.data[i].pixels);
+		CAT_free(atlas.table[i].pixels);
 	}
 }
 
@@ -176,7 +176,7 @@ void unpack_rle_row()
 
 void CAT_draw_sprite(int sprite_id, int frame_idx, int x, int y)
 {
-	CAT_sprite sprite = atlas.data[sprite_id];
+	CAT_sprite sprite = atlas.table[sprite_id];
 	int w = sprite.width;
 	int h = sprite.height;
 
@@ -240,7 +240,7 @@ void CAT_draw_sprite(int sprite_id, int frame_idx, int x, int y)
 
 void CAT_draw_tiles(int sprite_id, int frame_idx, int y_t, int h_t)
 {
-	CAT_sprite sprite = atlas.data[sprite_id];
+	CAT_sprite sprite = atlas.table[sprite_id];
 
 #ifndef CAT_BAKED_ASSETS
 	const uint16_t* frame = &sprite.pixels[frame_idx * CAT_TILE_SIZE * CAT_TILE_SIZE];
@@ -339,12 +339,12 @@ void CAT_draw_queue_add_anim(int sprite_id, int layer, int x, int y, int mode)
 
 bool CAT_anim_finished(int sprite_id)
 {
-	return atlas.data[sprite_id].frame_idx == atlas.data[sprite_id].frame_count-1;
+	return atlas.table[sprite_id].frame_idx == atlas.table[sprite_id].frame_count-1;
 }
 
 void CAT_anim_reset(int sprite_id)
 {
-	atlas.data[sprite_id].frame_idx = 0;
+	atlas.table[sprite_id].frame_idx = 0;
 }
 
 void CAT_draw_queue_submit(int cycle)
@@ -360,7 +360,7 @@ void CAT_draw_queue_submit(int cycle)
 				if(job->frame_idx != -1)
 					continue;
 
-				CAT_sprite* sprite = &atlas.data[job->sprite_id];
+				CAT_sprite* sprite = &atlas.table[job->sprite_id];
 				if(!sprite->needs_update)
 					continue;
 				
@@ -381,7 +381,7 @@ void CAT_draw_queue_submit(int cycle)
 	for(int i = 0; i < draw_queue.length; i++)
 	{
 		CAT_draw_job* job = &draw_queue.jobs[i];
-		CAT_sprite* sprite = &atlas.data[job->sprite_id];
+		CAT_sprite* sprite = &atlas.table[job->sprite_id];
 		if(job->frame_idx == -1)
 			job->frame_idx = sprite->frame_idx;
 			

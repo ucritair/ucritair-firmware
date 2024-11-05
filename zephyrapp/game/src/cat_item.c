@@ -46,7 +46,7 @@ void CAT_prop_flip(int item_id)
 	int* frame_idx = &item->data.prop_data.frame_idx;
 	*frame_idx += 1;
 	int sprite_id = item->sprite_id;
-	CAT_sprite* sprite = &atlas.data[sprite_id];
+	CAT_sprite* sprite = &atlas.table[sprite_id];
 	if(*frame_idx >= sprite->frame_count)
 		*frame_idx = 0;
 }
