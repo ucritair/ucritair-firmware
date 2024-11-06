@@ -24,21 +24,21 @@ static const struct gpio_dt_spec pin_led_enable =
 void init_power_control()
 {
 	LOG_DBG("Init");
-	init_pin(&pin_buck_enable, "pin_buck_enable", GPIO_OUTPUT_INACTIVE);
+	// init_pin(&pin_buck_enable, "pin_buck_enable", GPIO_OUTPUT_INACTIVE);
 	init_pin(&pin_sen55_boost_enable, "pin_sen55_boost_enable", GPIO_OUTPUT_INACTIVE);
 	init_pin(&pin_led_enable, "pin_led_enable", GPIO_OUTPUT_INACTIVE);
 
-	is_3v3_on = false;
+	// is_3v3_on = false;
 	is_5v0_on = false;
 	is_leds_on = false;
 }
 
 void set_3v3(bool on)
 {
-	LOG_DBG("set_3v3(%d)", on);
-	pin_write(&pin_buck_enable, on);
-	k_msleep(10);
-	is_3v3_on = on;
+	// LOG_DBG("set_3v3(%d)", on);
+	// pin_write(&pin_buck_enable, on);
+	// k_msleep(10);
+	// is_3v3_on = on;
 }
 
 void set_5v0(bool on)
@@ -59,51 +59,59 @@ void set_leds(bool on)
 
 void power_off()
 {
-	set_5v0(false);
-	set_leds(false);
+	// set_5v0(false);
+	// set_leds(false);
 
-	// Drop IOVDD_EN
-	if (gpio_pin_configure(DEVICE_DT_GET(DT_CHOSEN(gpio0)), 11, GPIO_OUTPUT_HIGH)) LOG_ERR("Init 0.11 failed");
-	gpio_pin_set(DEVICE_DT_GET(DT_CHOSEN(gpio0)), 11, true);
+	// // Drop IOVDD_EN
+	// if (gpio_pin_configure(DEVICE_DT_GET(DT_CHOSEN(gpio0)), 11, GPIO_OUTPUT_HIGH)) LOG_ERR("Init 0.11 failed");
+	// gpio_pin_set(DEVICE_DT_GET(DT_CHOSEN(gpio0)), 11, true);
 
-	set_3v3(false);
+	// set_3v3(false);
 
-	sys_poweroff();
+	// sys_poweroff();
 
-	while (1)
-	{
-		k_msleep(1000);
-		if (get_buttons()) break;
-	}
-	sys_reboot(SYS_REBOOT_COLD);
+	// while (1)
+	// {
+	// 	k_msleep(1000);
+	// 	if (get_buttons()) break;
+	// }
+	// sys_reboot(SYS_REBOOT_COLD);
 }
 
 #include <zephyr/init.h>
 #include <hal/nrf_power.h>
+#include <hal/nrf_gpio.h>
+#include <soc/nrfx_coredep.h>
 
 static int board_cat_uicr_init(void)
 {
-	if (NRF_UICR->VREGHVOUT != 0x5) {
+    if (NRF_UICR->VREGHVOUT != 0x5) {
 
-		NRF_NVMC->CONFIG = NVMC_CONFIG_WEN_Wen << NVMC_CONFIG_WEN_Pos;
-		while (NRF_NVMC->READY == NVMC_READY_READY_Busy) {
-			;
-		}
+        NRF_NVMC->CONFIG = NVMC_CONFIG_WEN_Wen << NVMC_CONFIG_WEN_Pos;
+        while (NRF_NVMC->READY == NVMC_READY_READY_Busy) {
+            ;
+        }
 
-		NRF_UICR->VREGHVOUT = 0x5;
+        NRF_UICR->VREGHVOUT = 0x5;
 
-		NRF_NVMC->CONFIG = NVMC_CONFIG_WEN_Ren << NVMC_CONFIG_WEN_Pos;
-		while (NRF_NVMC->READY == NVMC_READY_READY_Busy) {
-			;
-		}
+        NRF_NVMC->CONFIG = NVMC_CONFIG_WEN_Ren << NVMC_CONFIG_WEN_Pos;
+        while (NRF_NVMC->READY == NVMC_READY_READY_Busy) {
+            ;
+        }
 
-		/* a reset is required for changes to take effect */
-		NVIC_SystemReset();
-	}
+        /* a reset is required for changes to take effect */
+        NVIC_SystemReset();
+    }
 
-	return 0;
+     nrf_gpio_cfg_output(NRF_GPIO_PIN_MAP(1, 4)); // SEN55_BOOST
+     nrf_gpio_pin_clear(NRF_GPIO_PIN_MAP(1, 4)); // SEN55_BOOST
+     nrf_gpio_cfg_output(NRF_GPIO_PIN_MAP(0, 5)); // BUCK_ENABLE
+     nrf_gpio_pin_set(NRF_GPIO_PIN_MAP(0, 5)); // BUCK_ENABLE
+     nrfx_coredep_delay_us(1000*10);
+
+    return 0;
 }
 
 SYS_INIT(board_cat_uicr_init, PRE_KERNEL_1,
-	 CONFIG_KERNEL_INIT_PRIORITY_DEFAULT);
+     CONFIG_KERNEL_INIT_PRIORITY_DEFAULT);
 

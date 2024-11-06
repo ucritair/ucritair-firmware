@@ -8,11 +8,11 @@
 		#size-cells = < 0x1 >;
 		boot_partition: partition@0 {
 			label = "catboot";
-			reg = < 0x0 0x10000 >;
+			reg = < 0x00000 0x0E000 >;
 		};
-		slot0_partition: partition@10000 {
+		slot0_partition: partition@E000 {
 			label = "image-0";
-			reg = < 0x10000 0xF0000 >;
+			reg = < 0x0E000 0xF2000 >;
 		};
 	};
 };

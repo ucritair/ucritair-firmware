@@ -10,7 +10,6 @@ LOG_MODULE_REGISTER(epaper, LOG_LEVEL_DBG);
 #include "misc.h"
 #include "epaper_driver.h"
 
-
 static const struct gpio_dt_spec pin_sclk =
 	GPIO_DT_SPEC_GET(DT_NODELABEL(epaper_display), sclk_gpios);
 static const struct gpio_dt_spec pin_data =

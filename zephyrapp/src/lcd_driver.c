@@ -65,11 +65,11 @@ void lcd_flip()
 
 void turn_on_backlight()
 {
-	if (!is_3v3_on)
-	{
-		LOG_ERR("Backlight w/o 3v3 is meaningless!!");
-		k_panic();
-	}
+	// if (!is_3v3_on)
+	// {
+	// 	LOG_ERR("Backlight w/o 3v3 is meaningless!!");
+	// 	k_panic();
+	// }
 
 	init_pin(&pin_lcd_backlight, "pin_lcd_backlight", GPIO_OUTPUT_INACTIVE);
 	// nrf_gpio_pin_control_select(NRF_GPIO_PIN_MAP(1, pin_lcd_backlight.pin), NRF_GPIO_PIN_SEL_APP);

@@ -16,6 +16,7 @@
 #include "sdcard.h"
 #include "imu.h"
 #include "wlan.h"
+#include "ble.h"
 
 typedef void (*menu_t)();
 typedef void (*menu_op_t)(void*);
@@ -29,6 +30,8 @@ int curr_idx = 0;
 int selected_idx = -1;
 
 bool selected = false;
+
+bool been_to_post = false;
 
 uint8_t last_buttons = 0;
 
@@ -136,11 +139,12 @@ void menu_post()
 	textfc(c, "PM1.0: %.1f | PM2.5: %.1f", (double)current_readings.sen5x.pm1_0, (double)current_readings.sen5x.pm2_5);
 
 	text("");
-	textfc(did_post_sdcard?POST_GRN:POST_RED,      "SD   %s", did_post_sdcard?"OK":"FAIL/NOTPRESENT");
 	textfc(did_post_imu?POST_GRN:POST_RED,         "IMU  %s", did_post_imu?"OK":"FAIL");
 	textfc(did_post_flash?POST_GRN:POST_RED,       "W25Q %s", did_post_flash?"OK":"FAIL");
+	textfc(ble_ok?POST_GRN:POST_RED,               "BLE  %s", ble_ok?"OK":"FAIL");
 	textfc(did_post_wifi?POST_GRN:POST_RED,        "WIFI %s", did_post_wifi?"OK":"NOTYET");
 	textfc(seen_buttons==0xff?POST_GRN:POST_RED,   "BTN  %s (seen %02x)", seen_buttons==0xff?"OK":"NOTYET", seen_buttons);
+	textfc(did_post_sdcard?POST_GRN:POST_RED,      "SD   %s", did_post_sdcard?"OK":"FAIL/NOTPRESENT");
 
 	text("");
 	selectable("Test eInk", menu_test_eink, NULL);
@@ -157,12 +161,21 @@ void menu_post()
 	text("Aleksa Mini Rebecca")
 	text("&whoever i forgot")
 
+	text("");
+	text("XYZ:)");
+
 	for (int off_x = -8; off_x <= 8; off_x += 8)
 	{
 		for (int off_y = -8; off_y <= 8; off_y += 8)
 		{
 			lcd_write_char(0xff00, touch_mapped_x+off_x-16, touch_mapped_y+off_y-16, 'X');
 		}
+	}
+
+	if (!been_to_post)
+	{
+		been_to_post = true;
+		set_all_same_color((struct led_rgb){0x0f, 0x0f, 0x0f});
 	}
 }
 
@@ -265,6 +278,11 @@ void menu_power_off(void* arg)
 	power_off();
 }
 
+void menu_toggle_epaper_flip_y(void* arg)
+{
+	epaper_flip_y = !epaper_flip_y;
+}
+
 void menu_root()
 {
 	text("~~DEBUG MENU~~");
@@ -277,6 +295,7 @@ void menu_root()
 	selectable("Touch Diagnostics", goto_menu, menu_touch);
 	selectable("IMU Diagnostics", goto_menu, menu_imu);
 	selectable("Toggle show FPS", menu_toggle_fps, NULL);
+	selectablef(menu_toggle_epaper_flip_y, NULL, "Toggle epaper flip (%s)", epaper_flip_y?"ON":"OFF");
 	selectable("Power Off", menu_power_off, NULL);
 
 	text("");

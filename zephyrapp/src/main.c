@@ -60,11 +60,11 @@ SHELL_CMD_REGISTER(x, &sub_x, "Log test", NULL);
 
 int main(void)
 {
-	init_power_control();
+	// while (1) {
+	// 	k_msleep(1000);
+	// }
 
-	set_5v0(false);
-	set_3v3(false);
-	k_msleep(100);
+	init_power_control();
 
 	LOG_INF("~Test speaker~");
 	set_3v3(true);
@@ -105,8 +105,6 @@ int main(void)
 	test_flash();
 	
 	imu_init();
-
-	set_all_same_color((struct led_rgb){0x0f, 0x0f, 0x0f});
 
 	const struct device *sdhc_dev = DEVICE_DT_GET(DT_CHOSEN(xxx_sdhcd0));
 

@@ -593,7 +593,7 @@ int icon_voc_sprite[3];
 int icon_nox_sprite[3];
 
 #ifndef CAT_BAKED_ASSETS
-#define INIT_SPRITE(name, path, frames) name = CAT_sprite_init(path, frames);//\
+#define INIT_SPRITE(name, path, frames) name = CAT_sprite_init(path, frames);\
 										printf("BAKE: (%d, \"%s\", \"%s\", %d, %d, %d)\n", name, #name, path, frames, atlas.table[name].width, atlas.table[name].height);
 #else
 int sprite_count = 0;

@@ -22,7 +22,7 @@ void init_buttons()
 {
 	for (int i = 0; i < N_ROWS; i++)
 	{
-		init_pin(&btn_rows[i], "row_x", GPIO_INPUT);
+		init_pin(&btn_rows[i], "row_x", GPIO_INPUT|GPIO_PULL_UP);
 	}
 
 	for (int i = 0; i < N_COLS; i++)
