@@ -105,6 +105,11 @@ float inv_lerp(float t, float a, float b)
 	return (t-a) / (b-a);
 }
 
+int quantize(float t, float range, int steps)
+{
+	return round((t / range) * (float) (steps - 1));
+}
+
 //////////////////////////////////////////////////////////////////////////
 // RANDOM
 

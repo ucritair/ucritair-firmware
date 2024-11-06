@@ -115,12 +115,10 @@ typedef struct CAT_AQI {
 } CAT_AQI;
 extern CAT_AQI aqi;
 
-void CAT_AQI_read();
+void CAT_AQI_tick();
 float CAT_temp_score();
-float CAT_pressure_score();
-float CAT_PPM_score();
+float CAT_CO2_score();
 float CAT_PM_score();
-float CAT_RH_score();
 float CAT_VOC_score();
 float CAT_NOX_score();
 

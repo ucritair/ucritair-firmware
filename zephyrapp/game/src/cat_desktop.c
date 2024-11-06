@@ -376,7 +376,7 @@ int CAT_get_battery_pct()
 
 CAT_AQI aqi;
 
-void CAT_AQI_read()
+void CAT_AQI_tick()
 {
 	aqi.lps22hh.uptime_last_updated = 0;
 	aqi.lps22hh.temp = 20;
@@ -391,8 +391,8 @@ void CAT_AQI_read()
 	aqi.sen5x.pm10_0 = 15;
 	aqi.sen5x.humidity_rhpct = 40;
 	aqi.sen5x.temp_degC = 20;
-	aqi.sen5x.voc_index = 100;
-	aqi.sen5x.nox_index = 1;
+	aqi.sen5x.voc_index = 1;
+	aqi.sen5x.nox_index = 100;
 }
 
 float CAT_temp_score()
@@ -401,12 +401,7 @@ float CAT_temp_score()
 	return inv_lerp(mean_temp, 15, 24);
 }
 
-float CAT_pressure_score()
-{
-	return inv_lerp(aqi.lps22hh.pressure, 1002, 1022);
-}
-
-float CAT_PPM_score()
+float CAT_CO2_score()
 {
 	return inv_lerp(aqi.sunrise.ppm_filtered_compensated, 250, 1000);
 }
@@ -418,11 +413,6 @@ float CAT_PM_score()
 	float sm_score = inv_lerp(pm_sm, 0, 15);
 	float lg_score = inv_lerp(pm_lg, 0, 12);
 	return (lg_score + 2 * sm_score) / 3;
-}
-
-float CAT_RH_score()
-{
-	return inv_lerp(aqi.sen5x.humidity_rhpct, 30, 50);
 }
 
 float CAT_VOC_score()
