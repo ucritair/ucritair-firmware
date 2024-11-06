@@ -149,6 +149,7 @@ def rleencode(data, width):
 with open(f"{output}/images.c", 'w') as fd:
 	fd.write('#include <stdint.h>\n')
 	fd.write('#include "cat_sprite.h"\n')
+	fd.write('#include "epaper_rendering.h"\n')
 	fd.write('\n\n')
 	for sprite in atlas:
 		print(sprite.name)
@@ -232,7 +233,51 @@ with open(f"{output}/images.c", 'w') as fd:
 		fd.write('\t},\n')
 	fd.write('}, .length = '+str(len(atlas))+'};\n\n')
 
-	fd.write('\n\nuint16_t rle_work_region['+str(max(x.width for x in atlas))+'];')
+	fd.write('\n\nuint16_t rle_work_region['+str(max(x.width for x in atlas))+'];\n\n\n\n')
+
+	einksize = 0
+
+	eink_folder = os.path.dirname(__file__)+"/../assets/"
+	for path in os.listdir(eink_folder):
+		print('eink', path)
+		texture = pygame.image.load(eink_folder+path)
+		width, height = texture.get_size()
+		e_width = width + (width % 8)
+		fd.write('struct epaper_image_asset epaper_image_'+path.split('.')[0]+" = {\n");
+		fd.write(f'\t.w = {width}, .h = {height}, .stride = {e_width},\n')
+		fd.write(f'\t.bytes = {{\n\t\t')
+
+		pixels = []
+		for y in range(height):
+			for x in range(e_width):
+				try:
+					px = texture.get_at((x, y))
+				except IndexError:
+					px = (255, 255, 255, 0)
+				# assert px[:3] in ((0, 0, 0), (255, 255, 255)), str(px)
+				px = int(px[:3] == (0, 0, 0) and px[3] != 0)
+				pixels.append(px)
+
+		words = []
+		while pixels:
+			w = 0
+			for i in range(8):
+				w |= pixels.pop(0) << (7-i)
+			words.append(w)
+
+		assert len(words) == (e_width*height)//8
+
+		einksize += len(words)+2
+
+		for i, w in enumerate(words):
+			fd.write(f'{hex2(w)}, ')
+			if (i%16 == 0) and (i != 0):
+				fd.write('\n\t\t')
+
+		fd.write('\n\t}\n};\n\n');
+
+print('eink size', einksize)
+
 
 # print(len(colors), "colors")
 
