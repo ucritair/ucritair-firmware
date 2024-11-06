@@ -1,8 +1,8 @@
 diff --git a/boot/zephyr/io.c b/boot/zephyr/io.c
-index 309f1ab9..46aca51c 100644
+index 309f1ab9..f420eae4 100644
 --- a/boot/zephyr/io.c
 +++ b/boot/zephyr/io.c
-@@ -101,76 +101,233 @@ void io_led_set(int value)
+@@ -101,76 +101,246 @@ void io_led_set(int value)
  #if defined(CONFIG_BOOT_SERIAL_ENTRANCE_GPIO) || defined(CONFIG_BOOT_USB_DFU_GPIO) || \
      defined(CONFIG_BOOT_FIRMWARE_LOADER_ENTRANCE_GPIO)
  
@@ -58,20 +58,24 @@ index 309f1ab9..46aca51c 100644
 +    gpio_pin_configure_dt(&reg_5v, GPIO_OUTPUT_LOW);
 +    // gpio_pin_configure_dt(&epd_reset, GPIO_OUTPUT_LOW);
 +
-+    gpio_pin_configure_dt(&reg_3v3_dt, GPIO_OUTPUT_HIGH);
++    // gpio_pin_configure_dt(&reg_3v3_dt, GPIO_OUTPUT_HIGH);
 +
 +    for (int i = 0; i < N_ROWS; i++)
 +    {
-+        gpio_pin_configure_dt(&btn_rows[i], GPIO_INPUT);
-+    }
-+
++        gpio_pin_configure_dt(&btn_rows[i], GPIO_INPUT|GPIO_PULL_UP);
+     }
+ 
+-    rc = gpio_pin_configure_dt(&button0, GPIO_INPUT);
+-    __ASSERT(rc == 0, "Failed to initialize boot detect pin.\n");
 +    for (int i = 0; i < N_COLS; i++)
 +    {
 +        gpio_pin_configure_dt(&btn_cols[i], GPIO_OUTPUT_ACTIVE);
 +        gpio_pin_set_dt(&btn_cols[i], true);
 +    }
 +}
-+
+ 
+-    rc = gpio_pin_get_dt(&button0);
+-    pin_active = rc;
 +uint8_t get_buttons()
 +{
 +    uint8_t bits = 0;
@@ -87,15 +91,19 @@ index 309f1ab9..46aca51c 100644
 +        }
 +        gpio_pin_set_dt(&btn_cols[col], true);
 +        k_usleep(25);
-     }
++    }
  
--    rc = gpio_pin_configure_dt(&button0, GPIO_INPUT);
--    __ASSERT(rc == 0, "Failed to initialize boot detect pin.\n");
+-    __ASSERT(rc >= 0, "Failed to read boot detect pin.\n");
 +    return ~bits;
 +}
  
--    rc = gpio_pin_get_dt(&button0);
--    pin_active = rc;
+-    if (pin_active) {
+-        if (BUTTON_0_DETECT_DELAY > 0) {
+-#ifdef CONFIG_MULTITHREADING
+-            k_sleep(K_MSEC(50));
+-#else
+-            k_busy_wait(50000);
+-#endif
 +#define CAT_BTN_MASK_SELECT 0x01
 +#define CAT_BTN_MASK_START 0x02
 +#define CAT_BTN_MASK_A 0x04
@@ -105,38 +113,26 @@ index 309f1ab9..46aca51c 100644
 +#define CAT_BTN_MASK_LEFT 0x40
 +#define CAT_BTN_MASK_UP 0x80
  
--    __ASSERT(rc >= 0, "Failed to read boot detect pin.\n");
-+const struct device *display_dev = DEVICE_DT_GET(DT_CHOSEN(zephyr_display));
- 
--    if (pin_active) {
--        if (BUTTON_0_DETECT_DELAY > 0) {
--#ifdef CONFIG_MULTITHREADING
--            k_sleep(K_MSEC(50));
--#else
--            k_busy_wait(50000);
--#endif
-+static const struct gpio_dt_spec lcd_bl = {.port = DEVICE_DT_GET(DT_NODELABEL(gpio1)), .pin=0, .dt_flags=GPIO_ACTIVE_HIGH};
- 
 -            /* Get the uptime for debounce purposes. */
 -            int64_t timestamp = k_uptime_get();
-+#define LCD_IMAGE_H 320
-+#define LCD_IMAGE_W 240
++const struct device *display_dev = DEVICE_DT_GET(DT_CHOSEN(zephyr_display));
  
 -            for(;;) {
 -                rc = gpio_pin_get_dt(&button0);
 -                pin_active = rc;
 -                __ASSERT(rc >= 0, "Failed to read boot detect pin.\n");
-+#include <zephyr/drivers/display.h>
++static const struct gpio_dt_spec lcd_bl = {.port = DEVICE_DT_GET(DT_NODELABEL(gpio1)), .pin=0, .dt_flags=GPIO_ACTIVE_HIGH};
  
 -                /* Get delta from when this started */
 -                uint32_t delta = k_uptime_get() -  timestamp;
-+uint16_t lcd_framebuffer[LCD_IMAGE_H*LCD_IMAGE_W] = {0};
++#define LCD_IMAGE_H 320
++#define LCD_IMAGE_W 240
  
 -                /* If not pressed OR if pressed > debounce period, stop. */
 -                if (delta >= BUTTON_0_DETECT_DELAY || !pin_active) {
 -                    break;
 -                }
-+#include "font_8x8_basic.cpp"
++#include <zephyr/drivers/display.h>
  
 -                /* Delay 1 ms */
 -#ifdef CONFIG_MULTITHREADING
@@ -144,6 +140,10 @@ index 309f1ab9..46aca51c 100644
 -#else
 -                k_busy_wait(1000);
 -#endif
++uint16_t lcd_framebuffer[LCD_IMAGE_H*LCD_IMAGE_W] = {0};
++
++#include "font_8x8_basic.cpp"
++
 +void lcd_write_char(uint16_t color, int x, int y, char c)
 +{
 +    for (int bx = 0; bx < 8; bx++)
@@ -232,7 +232,7 @@ index 309f1ab9..46aca51c 100644
 +    y+=8;
 +
 +    lcd_write_str(0xffff, 0, (y+=8), "This is hw rev 0.2.");
-+    lcd_write_str(0xffff, 0, (y+=8), "This is bl rev 1.");
++    lcd_write_str(0xffff, 0, (y+=8), "This is bl rev 3 (einit).");
 +
 +    y+=128+32+32-8;
 +
@@ -253,6 +253,8 @@ index 309f1ab9..46aca51c 100644
 +
 +#include <zephyr/init.h>
 +#include <hal/nrf_power.h>
++#include <hal/nrf_gpio.h>
++#include <soc/nrfx_coredep.h>
 +
 +static int board_cat_uicr_init(void)
 +{
@@ -273,6 +275,17 @@ index 309f1ab9..46aca51c 100644
 +        /* a reset is required for changes to take effect */
 +        NVIC_SystemReset();
 +    }
++
++    // while (1) {}
++
++    nrf_gpio_cfg_output(NRF_GPIO_PIN_MAP(1, 4)); // SEN55_BOOST
++    nrf_gpio_pin_clear(NRF_GPIO_PIN_MAP(1, 4)); // SEN55_BOOST
++
++    nrf_gpio_cfg_output(NRF_GPIO_PIN_MAP(0, 5)); // BUCK_ENABLE
++    nrf_gpio_pin_set(NRF_GPIO_PIN_MAP(0, 5)); // BUCK_ENABLE
++    nrfx_coredep_delay_us(1000*10);
++
++    // while (1) {}
  
 -    return (bool)pin_active;
 +    return 0;

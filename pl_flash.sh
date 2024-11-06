@@ -11,3 +11,5 @@ sleep 4
 
 cd /home/louis/Documents/ee/cat/cat_software/zephyrapp/build
 sudo dfu-util --reset --download zephyr/zephyr.signed.bin
+
+nrfjprog --reset
