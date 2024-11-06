@@ -5,19 +5,25 @@
 #include "epaper_driver.h"
 #include "airquality.h"
 
+bool epaper_flip_y = false;
 
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(epaper_rendering, LOG_LEVEL_DBG);
 
 void write_px(uint8_t* image, int o_x, int o_y, bool val)
 {
+	if (epaper_flip_y)
+	{
+		o_y = EPD_IMAGE_H - o_y;
+		o_x = EPD_IMAGE_W - o_x;
+	}
 
-	int y = EPD_IMAGE_H - o_x;
+	int y = EPD_IMAGE_W - o_x;
 	int x = o_y;
 
-	if (x > EPD_IMAGE_W || y > EPD_IMAGE_H) return;
+	if (x > EPD_IMAGE_H || y > EPD_IMAGE_W) return;
 
-	int pxcount = (y * EPD_IMAGE_W) + x;
+	int pxcount = (y * EPD_IMAGE_H) + x;
 	int bytecount = pxcount >> 3;
 	int bitcount = pxcount & 0b111;
 

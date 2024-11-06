@@ -278,6 +278,11 @@ void menu_power_off(void* arg)
 	power_off();
 }
 
+void menu_toggle_epaper_flip_y(void* arg)
+{
+	epaper_flip_y = !epaper_flip_y;
+}
+
 void menu_root()
 {
 	text("~~DEBUG MENU~~");
@@ -290,6 +295,7 @@ void menu_root()
 	selectable("Touch Diagnostics", goto_menu, menu_touch);
 	selectable("IMU Diagnostics", goto_menu, menu_imu);
 	selectable("Toggle show FPS", menu_toggle_fps, NULL);
+	selectablef(menu_toggle_epaper_flip_y, NULL, "Toggle epaper flip (%s)", epaper_flip_y?"ON":"OFF");
 	selectable("Power Off", menu_power_off, NULL);
 
 	text("");
