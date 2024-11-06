@@ -38,7 +38,7 @@ int CAT_sprite_init(const char* path, int frame_count)
 	if(file == NULL)
 	{
 		printf("Sprite %s not found! Loading null sprite\n", path);
-		file = fopen("sprites/none_32x32.png", "rb");
+		file = fopen("sprites/none_24x24.png", "rb");
 	}
 
 	png_structp png = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
@@ -87,12 +87,26 @@ int CAT_sprite_init(const char* path, int frame_count)
 	sprite.frame_count = frame_count;
 	sprite.frame_idx = 0;
 	sprite.loop = true;
+	sprite.reverse = false;
 	sprite.needs_update = false;
 
 	int sprite_id = atlas.length;
 	atlas.table[sprite_id] = sprite;
 	atlas.length += 1;
 	return sprite_id;
+}
+
+int CAT_sprite_copy(int sprite_id, bool loop, bool reverse)
+{
+	CAT_sprite copy = atlas.table[sprite_id];
+	copy.frame_idx = reverse ? copy.frame_count-1 : 0;
+	copy.loop = loop;
+	copy.reverse = reverse;
+	copy.needs_update = true;
+	int copy_id = atlas.length;
+	atlas.table[copy_id] = copy;
+	atlas.length += 1;
+	return copy_id;
 }
 
 void CAT_atlas_cleanup()
@@ -304,6 +318,36 @@ void CAT_spriter_cleanup()
 
 CAT_draw_queue draw_queue;
 
+void CAT_anim_toggle_loop(int sprite_id, bool toggle)
+{
+	CAT_sprite* sprite = &atlas.table[sprite_id];
+	sprite->loop = toggle;
+}
+
+void CAT_anim_toggle_reverse(int sprite_id, bool toggle)
+{
+	CAT_sprite* sprite = &atlas.table[sprite_id];
+	sprite->reverse = toggle;
+}
+
+bool CAT_anim_finished(int sprite_id)
+{
+	CAT_sprite* sprite = &atlas.table[sprite_id];
+	if(sprite->reverse)
+		return sprite->frame_idx == 0;
+	else
+		return sprite->frame_idx == sprite->frame_count-1;
+}
+
+void CAT_anim_reset(int sprite_id)
+{
+	CAT_sprite* sprite = &atlas.table[sprite_id];
+	if(sprite->reverse)
+		sprite->frame_idx = sprite->frame_count-1;
+	else
+		sprite->frame_idx = 0;
+}
+
 void CAT_draw_queue_init()
 {
 	draw_queue.length = 0;
@@ -332,19 +376,9 @@ void CAT_draw_queue_add(int sprite_id, int frame_idx, int layer, int x, int y, i
 	draw_queue.length += 1;
 }
 
-void CAT_draw_queue_add_anim(int sprite_id, int layer, int x, int y, int mode)
+void CAT_draw_queue_animate(int sprite_id, int layer, int x, int y, int mode)
 {
 	CAT_draw_queue_add(sprite_id, -1, layer, x, y, mode);
-}
-
-bool CAT_anim_finished(int sprite_id)
-{
-	return atlas.table[sprite_id].frame_idx == atlas.table[sprite_id].frame_count-1;
-}
-
-void CAT_anim_reset(int sprite_id)
-{
-	atlas.table[sprite_id].frame_idx = 0;
 }
 
 void CAT_draw_queue_submit(int cycle)
@@ -364,14 +398,14 @@ void CAT_draw_queue_submit(int cycle)
 				if(!sprite->needs_update)
 					continue;
 				
-				if(sprite->frame_idx < sprite->frame_count-1)
-				{
-					sprite->frame_idx += 1;
-				}
+				int frame_start = sprite->reverse ? sprite->frame_count-1 : 0;
+				int frame_end = sprite->reverse ? 0 : sprite->frame_count-1;
+				int frame_dir = sprite->reverse ? -1 : 1;
+				if(sprite->frame_idx != frame_end)
+					sprite->frame_idx += frame_dir;
 				else if(sprite->loop)
-				{
-					sprite->frame_idx = 0;
-				}
+					sprite->frame_idx = frame_start;
+
 				sprite->needs_update = false;
 			}
 			draw_queue.anim_timer = 0.0f;
@@ -433,7 +467,8 @@ int pet_vig_up_sprite;
 int pet_foc_up_sprite;
 int pet_spi_up_sprite;
 
-int pet_eat_sprite;
+int pet_eat_down_sprite;
+int pet_eat_up_sprite;
 int pet_chew_sprite;
 
 int bubl_low_vig_sprite;
@@ -551,25 +586,11 @@ int cell_spi_sprite;
 int cell_empty_sprite;
 
 // AQ ICONS
-int icon_temp_low_sprite;
-int icon_temp_okay_sprite;
-int icon_temp_high_sprite;
-
-int icon_ppm_low_sprite;
-int icon_ppm_okay_sprite;
-int icon_ppm_high_sprite;
-
-int icon_pm_low_sprite;
-int icon_pm_okay_sprite;
-int icon_pm_high_sprite;
-
-int icon_voc_low_sprite;
-int icon_voc_okay_sprite;
-int icon_voc_high_sprite;
-
-int icon_nox_low_sprite;
-int icon_nox_okay_sprite;
-int icon_nox_high_sprite;
+int icon_temp_sprite[3];
+int icon_co2_sprite[3];
+int icon_pm_sprite[3];
+int icon_voc_sprite[3];
+int icon_nox_sprite[3];
 
 #ifndef CAT_BAKED_ASSETS
 #define INIT_SPRITE(name, path, frames) name = CAT_sprite_init(path, frames);\
@@ -591,12 +612,12 @@ void CAT_sprite_mass_define()
 	INIT_SPRITE(pet_idle_sprite, "sprites/pet_unicorn_idle_complex_a.png", 4);
 	INIT_SPRITE(pet_walk_sprite, "sprites/pet_unicorn_default_walk_complex_a.png", 4);
 
-	INIT_SPRITE(pet_idle_high_vig_sprite, "sprites/pet_unicorn_idle_complex_a.png", 4);
-	INIT_SPRITE(pet_walk_high_vig_sprite, "sprites/pet_unicorn_default_walk_complex_a.png", 4);
-	INIT_SPRITE(pet_idle_high_foc_sprite, "sprites/pet_unicorn_idle_complex_a.png", 4);
-	INIT_SPRITE(pet_walk_high_foc_sprite, "sprites/pet_unicorn_default_walk_complex_a.png", 4);
-	INIT_SPRITE(pet_idle_high_spi_sprite, "sprites/pet_unicorn_idle_complex_a.png", 4);
-	INIT_SPRITE(pet_walk_high_spi_sprite, "sprites/pet_unicorn_default_walk_complex_a.png", 4);
+	INIT_SPRITE(pet_idle_high_vig_sprite, "sprites/pet_unicorn_wing_idle_a.png", 4);
+	INIT_SPRITE(pet_walk_high_vig_sprite, "sprites/pet_unicorn_wing_walk_a.png", 4);
+	INIT_SPRITE(pet_idle_high_foc_sprite, "sprites/pet_unicorn_glow_idle_a.png", 4);
+	INIT_SPRITE(pet_walk_high_foc_sprite, "sprites/pet_unicorn_glow_walk_a.png", 4);
+	INIT_SPRITE(pet_idle_high_spi_sprite, "sprites/pet_unicorn_shimmer_idle_a.png", 4);
+	INIT_SPRITE(pet_walk_high_spi_sprite, "sprites/pet_unicorn_shimmer_walk_a.png", 4);
 
 	INIT_SPRITE(pet_idle_low_vig_sprite, "sprites/pet_unicorn_idle_complex_a.png", 4);
 	INIT_SPRITE(pet_walk_low_vig_sprite, "sprites/pet_unicorn_default_walk_complex_a.png", 4);
@@ -613,7 +634,8 @@ void CAT_sprite_mass_define()
 	INIT_SPRITE(pet_crit_foc_sprite, "sprites/pet_unicorn_melt_a.png", 8);
 	INIT_SPRITE(pet_crit_spi_sprite, "sprites/pet_unicorn_melt_a.png", 8);
 
-	INIT_SPRITE(pet_eat_sprite, "sprites/pet_unicorn_eat_lower_a.png", 7);
+	INIT_SPRITE(pet_eat_down_sprite, "sprites/pet_unicorn_eat_lower_a.png", 7);
+	pet_eat_up_sprite = CAT_sprite_copy(pet_eat_down_sprite, false, true);
 	INIT_SPRITE(pet_chew_sprite, "sprites/pet_unicorn_eat_chew_a.png", 2);
 
 	INIT_SPRITE(bubl_low_vig_sprite, "sprites/bubl_low_vig.png", 3);
@@ -725,23 +747,23 @@ void CAT_sprite_mass_define()
 	INIT_SPRITE(cell_spi_sprite, "sprites/cell_spi.png", 1);
 	INIT_SPRITE(cell_empty_sprite, "sprites/cell_empty.png", 1);
 
-	/*int icon_temp_low_sprite;
-	int icon_temp_okay_sprite;
-	int icon_temp_high_sprite;
+	INIT_SPRITE(icon_temp_sprite[0], "sprites/icon_temp_low.png", 1);
+	INIT_SPRITE(icon_temp_sprite[1], "sprites/icon_temp_okay.png", 1);
+	INIT_SPRITE(icon_temp_sprite[2], "sprites/icon_temp_high.png", 1);
 
-	int icon_ppm_low_sprite;
-	int icon_ppm_okay_sprite;
-	int icon_ppm_high_sprite;
+	INIT_SPRITE(icon_co2_sprite[0], "sprites/icon_co2_low.png", 1);
+	INIT_SPRITE(icon_co2_sprite[1], "sprites/icon_co2_okay.png", 1);
+	INIT_SPRITE(icon_co2_sprite[2], "sprites/icon_co2_high.png", 1);
 
-	int icon_pm_low_sprite;
-	int icon_pm_okay_sprite;
-	int icon_pm_high_sprite;
+	INIT_SPRITE(icon_pm_sprite[0], "sprites/icon_pm_low.png", 1);
+	INIT_SPRITE(icon_pm_sprite[1], "sprites/icon_pm_okay.png", 1);
+	INIT_SPRITE(icon_pm_sprite[2], "sprites/icon_pm_high.png", 1);
 
-	int icon_voc_low_sprite;
-	int icon_voc_okay_sprite;
-	int icon_voc_high_sprite;
+	INIT_SPRITE(icon_voc_sprite[0], "sprites/icon_voc_low.png", 1);
+	INIT_SPRITE(icon_voc_sprite[1], "sprites/icon_voc_okay.png", 1);
+	INIT_SPRITE(icon_voc_sprite[2], "sprites/icon_voc_high.png", 1);
 
-	int icon_nox_low_sprite;
-	int icon_nox_okay_sprite;
-	int icon_nox_high_sprite;*/
+	INIT_SPRITE(icon_nox_sprite[0], "sprites/icon_nox_low.png", 1);
+	INIT_SPRITE(icon_nox_sprite[1], "sprites/icon_nox_okay.png", 1);
+	INIT_SPRITE(icon_nox_sprite[2], "sprites/icon_nox_high.png", 1);
 }

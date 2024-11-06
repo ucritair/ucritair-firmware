@@ -40,6 +40,7 @@ typedef struct CAT_sprite
 
 	int frame_idx;
 	bool loop;
+	bool reverse;
 	bool needs_update;
 } CAT_sprite;
 
@@ -52,6 +53,7 @@ extern CAT_atlas atlas;
 
 void CAT_atlas_init();
 int CAT_sprite_init(const char* path, int frame_count);
+int CAT_sprite_copy(int sprite_id, bool loop, bool reverse);
 void CAT_atlas_cleanup();
 
 typedef enum CAT_draw_mode
@@ -99,11 +101,14 @@ typedef struct CAT_draw_queue
 } CAT_draw_queue;
 extern CAT_draw_queue draw_queue;
 
-void CAT_draw_queue_init();
-void CAT_draw_queue_add(int sprite_id, int frame_idx, int layer, int x, int y, int mode);
-void CAT_draw_queue_add_anim(int sprite_id, int layer, int x, int y, int mode);
+void CAT_anim_toggle_loop(int sprite_id, bool toggle);
+void CAT_anim_toggle_reverse(int sprite_id, bool toggle);
 bool CAT_anim_finished(int sprite_id);
 void CAT_anim_reset(int sprite_id);
+
+void CAT_draw_queue_init();
+void CAT_draw_queue_add(int sprite_id, int frame_idx, int layer, int x, int y, int mode);
+void CAT_draw_queue_animate(int sprite_id, int layer, int x, int y, int mode);
 void CAT_draw_queue_submit(int cycle);
 
 
@@ -143,7 +148,8 @@ extern int pet_vig_up_sprite;
 extern int pet_foc_up_sprite;
 extern int pet_spi_up_sprite;
 
-extern int pet_eat_sprite;
+extern int pet_eat_down_sprite;
+extern int pet_eat_up_sprite;
 extern int pet_chew_sprite;
 
 extern int bubl_low_vig_sprite;
@@ -261,25 +267,11 @@ extern int cell_spi_sprite;
 extern int cell_empty_sprite;
 
 // AQ ICONS
-extern int icon_temp_low_sprite;
-extern int icon_temp_okay_sprite;
-extern int icon_temp_high_sprite;
-
-extern int icon_ppm_low_sprite;
-extern int icon_ppm_okay_sprite;
-extern int icon_ppm_high_sprite;
-
-extern int icon_pm_low_sprite;
-extern int icon_pm_okay_sprite;
-extern int icon_pm_high_sprite;
-
-extern int icon_voc_low_sprite;
-extern int icon_voc_okay_sprite;
-extern int icon_voc_high_sprite;
-
-extern int icon_nox_low_sprite;
-extern int icon_nox_okay_sprite;
-extern int icon_nox_high_sprite;
+extern int icon_temp_sprite[3];
+extern int icon_co2_sprite[3];
+extern int icon_pm_sprite[3];
+extern int icon_voc_sprite[3];
+extern int icon_nox_sprite[3];
 
 void CAT_sprite_mass_define();
 

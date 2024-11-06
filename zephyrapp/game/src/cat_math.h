@@ -44,6 +44,7 @@ int min(int a, int b);
 int max(int a, int b);
 int clamp(int v, int a, int b);
 float inv_lerp(float t, float a, float b);
+int quantize(float t, float range, int steps);
 
 //////////////////////////////////////////////////////////////////////////
 // RANDOM
