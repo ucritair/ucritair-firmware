@@ -125,7 +125,7 @@ void epaper_render_test()
 // 	write_str(test_image, 10, 10, 4, buf);
 
 // 	int row = 0;
-#define fwrite_str(x, y, s, str, ...) snprintf(buf, sizeof(buf), str, __VA_ARGS__); write_str(test_image, x, y, s, buf);
+#define fwrite_str(x, y, s, str, ...) snprintf(buf, sizeof(buf), str, ##__VA_ARGS__); write_str(test_image, x, y, s, buf);
 
 // 	fwrite_str("LPS22HH: Temp %.1fC", (double)current_readings.lps22hh.temp);
 // 	fwrite_str("         Pressure %.1fhPa", (double)current_readings.lps22hh.pressure);
@@ -137,19 +137,19 @@ void epaper_render_test()
 // 	fwrite_str("       NOX: %.1f", (double)current_readings.sen5x.nox_index)
 
 // 	fwrite_str("Sunrise: Temp: %.1fC", (double)current_readings.sunrise.temp);
-	// fwrite_str("    meow    %s", "");
+// fwrite_str("    meow   ");
 
 	blit_image(test_image, &epaper_image_unicorn_default, 0, 0);
 	blit_image(test_image, &epaper_image_cloud_smoke, 0, epaper_image_unicorn_default.h);
 
 	fwrite_str(128, 20, 2, "%.0f", (double)current_readings.sunrise.ppm_filtered_compensated);
-	fwrite_str(EPD_IMAGE_W-(8*3), 20, 1, "ppm\nCO2 %s", "");
+	fwrite_str(EPD_IMAGE_W-(8*3), 20, 1, "ppm\nCO2");
 	fwrite_str(128, 40, 2, "%.1f", (double)current_readings.sen5x.pm1_0);
-	fwrite_str(EPD_IMAGE_W-(8*5), 40, 1, "ug/m3\nPM2.5 %s", "");
+	fwrite_str(EPD_IMAGE_W-(8*5), 40, 1, "ug/m3\nPM2.5");
 	fwrite_str(128, 60, 1, "%.0f NOX / %.0f VOC", (double)current_readings.sen5x.nox_index, (double)current_readings.sen5x.voc_index);
 	fwrite_str(128, 70, 1, "%.0f C / %.0f%% RH", (double)current_readings.sen5x.temp_degC/1000., (double)current_readings.sen5x.humidity_rhpct);
-	fwrite_str(128, 90, 1, "1 uCov/hr %s", "");
-	fwrite_str(128, 100, 1, "75%% AQI %s", "");
+	fwrite_str(128, 90, 1, "1 uCov/hr");
+	fwrite_str(128, 100, 1, "75%% AQI");
 	// fwrite_str(128, 108, 1, "15:35 - ")
 
 	pc_set_mode(false);
