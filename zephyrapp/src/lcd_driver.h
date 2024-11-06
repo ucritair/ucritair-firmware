@@ -19,3 +19,4 @@ extern int framebuffer_offset_h;
 
 void lcd_flip();
 void lcd_init();
+void set_backlight(int pct);
