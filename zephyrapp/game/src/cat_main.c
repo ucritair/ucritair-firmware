@@ -163,11 +163,6 @@ bool CAT_pet_seek(CAT_vec2 targ)
 	}
 }
 
-void CAT_pet_transition(int sprite_id)
-{
-	return;
-}
-
 void CAT_pet_stat()
 {
 	float dv = -1;
@@ -767,7 +762,6 @@ void CAT_MS_bag(CAT_machine_signal signal)
 				if(bag_state.idx == bag.length)
 					bag_state.idx = 0;
 			}
-				
 			bag_state.idx = clamp(bag_state.idx, 0, bag.length-1);
 
 			int overshoot = bag_state.idx - bag_state.base;
@@ -818,14 +812,48 @@ void CAT_MS_bag(CAT_machine_signal signal)
 
 #pragma region VENDING
 
+typedef struct CAT_vending_state
+{
+	int base;
+	int idx;
+} CAT_vending_state;
+CAT_vending_state vending_state;
+
 void CAT_MS_vending(CAT_machine_signal signal)
 {
 	switch(signal)
 	{
 		case CAT_MACHINE_SIGNAL_ENTER:
+			vending_state.base = 0;
+			vending_state.idx = 0;
 			break;
 		case CAT_MACHINE_SIGNAL_TICK:
 		{
+			if(CAT_input_pulse(CAT_BUTTON_UP))
+			{
+				vending_state.idx -= 1;
+				if(vending_state.idx == -1)
+					vending_state.idx = item_table.length-1;
+			}
+			if(CAT_input_pulse(CAT_BUTTON_DOWN))
+			{
+				vending_state.idx += 1;
+				if(vending_state.idx == item_table.length)
+					vending_state.idx = 0;
+			}
+			vending_state.idx = clamp(vending_state.idx, 0, item_table.length-1);
+
+			if(CAT_input_pressed(CAT_BUTTON_A))
+			{
+				CAT_bag_add(vending_state.idx);
+			}
+
+			int overshoot = vending_state.idx - vending_state.base;
+			if(overshoot < 0)
+				vending_state.base += overshoot;
+			else if(overshoot >= 9)
+				vending_state.base += (overshoot - 8);
+
 			if(CAT_input_pressed(CAT_BUTTON_B))
 				CAT_machine_transition(&machine, CAT_MS_menu);
 			if(CAT_input_pressed(CAT_BUTTON_START))
@@ -1171,7 +1199,7 @@ void CAT_render(int cycle)
 	}
 	else if(machine == CAT_MS_vending)
 	{
-#pragma region STATS RENDER
+#pragma region VENDING RENDER
 		CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});  
 		CAT_gui_text("VENDING MACHINE ");
 		CAT_gui_image(fbut_a_sprite, 1);
@@ -1182,43 +1210,21 @@ void CAT_render(int cycle)
 		CAT_gui_panel((CAT_ivec2) {0, 32}, (CAT_ivec2) {15, 18});  
 		for(int i = 0; i < 9; i++)
 		{
-			int idx = bag_state.base + i;
-			if(idx >= bag.length)
+			int item_id = vending_state.base + i;
+			if(item_id >= item_table.length)
 				return;
-
-			int item_id = bag.item_id[idx];
+			
 			CAT_item* item = CAT_item_get(item_id);
 
 			CAT_gui_panel_tight((CAT_ivec2) {0, 32+i*32}, (CAT_ivec2) {15, 2});
 			CAT_gui_image(icon_item_sprite, item->type);
 
 			char text[64];
-			if(item->type == CAT_ITEM_TYPE_PROP)
-				sprintf(text, " %s *%d ", item->name, bag.count[idx]);
-			else
-				sprintf(text, " %s ", item->name);
-
-			if
-			(
-				(bag_state.destination == CAT_MS_feed && item->type != CAT_ITEM_TYPE_FOOD) ||
-				(bag_state.destination == CAT_MS_study && item_id != book_item) ||
-				(bag_state.destination == CAT_MS_play && item_id != toy_item) ||
-				(bag_state.destination == CAT_MS_deco && item->type != CAT_ITEM_TYPE_PROP)
-			)
-			{
-				gui.text_mode = CAT_TEXT_MODE_STRIKETHROUGH;
-			}	
+			sprintf(text, " %s %d ", item->name, item->price);
 			CAT_gui_text(text);
 			gui.text_mode = CAT_TEXT_MODE_NORMAL;
 
-			if(item->type == CAT_ITEM_TYPE_GEAR)
-			{
-				int idx = CAT_gear_status(item_id) ? 1 : 0;
-				CAT_gui_image(icon_equip_sprite, idx);
-				CAT_gui_text(" ");
-			}
-
-			if(idx == bag_state.idx)
+			if(item_id == vending_state.idx)
 				CAT_gui_image(icon_pointer_sprite, 0);
 		}
 #pragma endregion
