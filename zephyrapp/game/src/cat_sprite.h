@@ -32,6 +32,7 @@ typedef struct CAT_sprite
 {
 #ifndef CAT_BAKED_ASSETS
 	uint16_t* pixels;
+	bool duplicate;
 #endif
 
 	int width;
@@ -249,6 +250,7 @@ extern int icon_pointer_sprite;
 extern int icon_enter_sprite;
 extern int icon_exit_sprite;
 extern int icon_equip_sprite;
+extern int icon_item_sprite;
 
 extern int fbut_a_sprite;
 extern int fbut_b_sprite;
@@ -259,11 +261,7 @@ extern int fbut_w_sprite;
 extern int fbut_start_sprite;
 extern int fbut_select_sprite;
 
-// MENU ICONS 
-extern int icon_food_sprite;
-extern int icon_prop_sprite;
-extern int icon_key_sprite;
-
+//STAT ICONS
 extern int icon_vig_sprite;
 extern int icon_foc_sprite;
 extern int icon_spi_sprite;

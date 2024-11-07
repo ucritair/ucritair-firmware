@@ -104,7 +104,8 @@ void CAT_room_move_cursor()
 		room.cursor.y += 1;
 	if(CAT_input_pulse(CAT_BUTTON_LEFT))
 		room.cursor.x -= 1;
-	room.cursor = CAT_clamp_pt_rect(room.cursor, room.bounds);
+	room.cursor.x = min(max(room.cursor.x, room.bounds.min.x), room.bounds.max.x-1);
+	room.cursor.y = min(max(room.cursor.y, room.bounds.min.y), room.bounds.max.y-1);
 }
 
 void CAT_room_init()
@@ -297,20 +298,90 @@ void CAT_MS_default(CAT_machine_signal signal)
 
 #pragma endregion
 
-#pragma region FEED
+#pragma region ACTIONS
 
-typedef struct CAT_feed_state
+typedef struct CAT_action_state
 {
+
+	CAT_machine_state action_MS;
+	void (*action_proc)();
+	CAT_ASM_state* action_AS;
+	CAT_ASM_state* stat_up_AS;
+
+	int item_id;
 	CAT_vec2 location;
 	bool confirmed;
-	int food_id;
-} CAT_feed_state;
-CAT_feed_state feed_state;
+} CAT_action_state;
+CAT_action_state action_state;
 
-void CAT_feed_state_init()
+void CAT_action_state_init()
 {
-	feed_state.food_id = -1;
-	feed_state.confirmed = false;
+	action_state.item_id = -1;
+	action_state.confirmed = false;
+}
+
+void CAT_action_target()
+{
+	if(!action_state.confirmed)
+	{
+		if(action_state.item_id == -1)
+		{
+			CAT_room_move_cursor();
+			if(CAT_input_pressed(CAT_BUTTON_A))
+			{
+				bag_state.destination = action_state.action_MS;
+				CAT_machine_transition(&machine, CAT_MS_bag);
+			}
+		}
+		else
+		{
+			CAT_room_move_cursor();
+			if(CAT_input_pressed(CAT_BUTTON_A))
+			{
+				CAT_ivec2 c_world = CAT_ivec2_mul(room.cursor, 16);
+				int x_off = c_world.x > pet.pos.x ? -16 : 32;
+				action_state.location = (CAT_vec2) {c_world.x + x_off, c_world.y + 16};
+				action_state.confirmed = true;
+				CAT_ASM_transition(&pet_asm, &AS_adjust_in);
+			}
+		}
+
+		if(CAT_input_pressed(CAT_BUTTON_B))
+			CAT_machine_transition(&machine, CAT_MS_default);
+	}
+}
+
+void CAT_action_perform()
+{
+	if(CAT_ASM_is_in(&pet_asm, &AS_adjust_in))
+		CAT_ASM_transition(&pet_asm, &AS_walk_action);
+	if(CAT_ASM_is_in(&pet_asm, &AS_walk_action) && CAT_ASM_is_ticking(&pet_asm))
+	{
+		if(CAT_pet_seek(action_state.location))
+		{
+			pet.left = (room.cursor.x * 16) > pet.pos.x;
+			CAT_ASM_transition(&pet_asm, action_state.action_AS);
+		}
+	}
+	if(CAT_ASM_is_in(&pet_asm, action_state.action_AS))
+	{
+		if(CAT_timer_tick(pet.action_timer_id))
+		{
+			action_state.action_proc();
+			CAT_ASM_kill(&pet_asm);
+			CAT_ASM_transition(&pet_asm, action_state.stat_up_AS);
+			CAT_timer_reset(pet.action_timer_id);
+		}
+	}
+	if(CAT_ASM_is_in(&pet_asm, action_state.stat_up_AS))
+		CAT_ASM_transition(&pet_asm, &AS_adjust_out);
+	if(CAT_ASM_is_in(&pet_asm, &AS_adjust_out))
+		CAT_machine_transition(&machine, CAT_MS_default);
+}
+
+void CAT_feed_proc()
+{
+	pet.vigour += 3;
 }
 
 void CAT_MS_feed(CAT_machine_signal signal)
@@ -319,96 +390,30 @@ void CAT_MS_feed(CAT_machine_signal signal)
 	{
 		case CAT_MACHINE_SIGNAL_ENTER:
 		{
+			action_state.action_MS = CAT_MS_feed;
+			action_state.action_proc = CAT_feed_proc;
+			action_state.action_AS = &AS_eat;
+			action_state.stat_up_AS = &AS_vig_up;
 			CAT_ASM_transition(&pet_asm, &AS_idle);
 			break;
 		}
 		case CAT_MACHINE_SIGNAL_TICK:
 		{
-			if(!feed_state.confirmed)
-			{
-				if(feed_state.food_id == -1)
-				{
-					CAT_room_move_cursor();
-					if(CAT_input_pressed(CAT_BUTTON_A))
-					{
-						bag_state.destination = CAT_MS_feed;
-						CAT_machine_transition(&machine, CAT_MS_bag);
-					}
-				}
-				else
-				{
-					CAT_room_move_cursor();
-					if(CAT_input_pressed(CAT_BUTTON_A))
-					{
-						CAT_ivec2 c_world = CAT_ivec2_mul(room.cursor, 16);
-						int x_off = c_world.x > pet.pos.x ? -16 : 32;
-						feed_state.location = (CAT_vec2) {c_world.x + x_off, c_world.y + 16};
-						feed_state.confirmed = true;
-						CAT_ASM_transition(&pet_asm, &AS_adjust_in);
-					}
-				}
-
-				if(CAT_input_pressed(CAT_BUTTON_B))
-					CAT_machine_transition(&machine, CAT_MS_default);
-			}
-			
-			
-			if(CAT_ASM_is_in(&pet_asm, &AS_adjust_in))
-				CAT_ASM_transition(&pet_asm, &AS_walk_action);
-			if(CAT_ASM_is_in(&pet_asm, &AS_walk_action) && CAT_ASM_is_ticking(&pet_asm))
-			{
-				if(CAT_pet_seek(feed_state.location))
-				{
-					pet.left = (room.cursor.x * 16) > pet.pos.x;
-					CAT_ASM_transition(&pet_asm, &AS_eat);
-				}
-			}
-			if(CAT_ASM_is_in(&pet_asm, &AS_eat))
-			{
-				if(CAT_timer_tick(pet.action_timer_id))
-				{
-					CAT_item* item = CAT_item_get(feed_state.food_id);
-					pet.vigour += item->data.food_data.d_v;
-					pet.focus += item->data.food_data.d_f;
-					pet.spirit += item->data.food_data.d_s;
-
-					CAT_ASM_kill(&pet_asm);
-					CAT_ASM_transition(&pet_asm, &AS_vig_up);
-					CAT_timer_reset(pet.action_timer_id);
-				}
-			}
-			if(CAT_ASM_is_in(&pet_asm, &AS_vig_up))
-				CAT_ASM_transition(&pet_asm, &AS_adjust_out);
-			if(CAT_ASM_is_in(&pet_asm, &AS_adjust_out))
-				CAT_machine_transition(&machine, CAT_MS_default);
-
+			CAT_action_target();
+			CAT_action_perform();
 			break;	
 		}
 		case CAT_MACHINE_SIGNAL_EXIT:
 		{
-			feed_state.food_id = -1;
-			feed_state.confirmed = false;
+			CAT_action_state_init();
 			break;
 		}
 	}
 }
 
-#pragma endregion
-
-#pragma region STUDY
-
-typedef struct CAT_study_state
+void CAT_study_proc()
 {
-	CAT_vec2 location;
-	bool confirmed;
-	int book_id;
-} CAT_study_state;
-CAT_study_state study_state;
-
-void CAT_study_state_init()
-{
-	study_state.book_id = -1;
-	study_state.confirmed = false;
+	pet.focus += 3;
 }
 
 void CAT_MS_study(CAT_machine_signal signal)
@@ -417,92 +422,30 @@ void CAT_MS_study(CAT_machine_signal signal)
 	{
 		case CAT_MACHINE_SIGNAL_ENTER:
 		{
+			action_state.action_MS = CAT_MS_study;
+			action_state.action_proc = CAT_study_proc;
+			action_state.action_AS = &AS_study;
+			action_state.stat_up_AS = &AS_foc_up;
 			CAT_ASM_transition(&pet_asm, &AS_idle);
 			break;
 		}
 		case CAT_MACHINE_SIGNAL_TICK:
 		{
-			if(!study_state.confirmed)
-			{
-				if(study_state.book_id == -1)
-				{
-					CAT_room_move_cursor();
-					if(CAT_input_pressed(CAT_BUTTON_A))
-					{
-						bag_state.destination = CAT_MS_study;
-						CAT_machine_transition(&machine, CAT_MS_bag);
-					}
-				}
-				else
-				{
-					CAT_room_move_cursor();
-					if(CAT_input_pressed(CAT_BUTTON_A))
-					{
-						CAT_ivec2 c_world = CAT_ivec2_mul(room.cursor, 16);
-						int x_off = c_world.x > pet.pos.x ? -16 : 32;
-						study_state.location = (CAT_vec2) {c_world.x + x_off, c_world.y + 16};
-						study_state.confirmed = true;
-						CAT_ASM_transition(&pet_asm, &AS_adjust_in);
-					}
-				}
-
-				if(CAT_input_pressed(CAT_BUTTON_B))
-					CAT_machine_transition(&machine, CAT_MS_default);
-			}
-			
-			if(CAT_ASM_is_in(&pet_asm, &AS_adjust_in))
-				CAT_ASM_transition(&pet_asm, &AS_walk_action);
-			if(CAT_ASM_is_in(&pet_asm, &AS_walk_action) && CAT_ASM_is_ticking(&pet_asm))
-			{
-				if(CAT_pet_seek(study_state.location))
-				{
-					pet.left = (room.cursor.x * 16) > pet.pos.x;
-					CAT_ASM_transition(&pet_asm, &AS_study);
-				}
-			}
-			if(CAT_ASM_is_in(&pet_asm, &AS_study))
-			{
-				if(CAT_timer_tick(pet.action_timer_id))
-				{
-					pet.focus += 3;
-
-					CAT_ASM_kill(&pet_asm);
-					CAT_ASM_transition(&pet_asm, &AS_foc_up);
-					CAT_timer_reset(pet.action_timer_id);
-				}
-			}
-			if(CAT_ASM_is_in(&pet_asm, &AS_vig_up))
-				CAT_ASM_transition(&pet_asm, &AS_adjust_out);
-			if(CAT_ASM_is_in(&pet_asm, &AS_adjust_out))
-				CAT_machine_transition(&machine, CAT_MS_default);
-
+			CAT_action_target();
+			CAT_action_perform();
 			break;	
 		}
 		case CAT_MACHINE_SIGNAL_EXIT:
 		{
-			study_state.book_id = -1;
-			study_state.confirmed = false;
+			CAT_action_state_init();
 			break;
 		}
 	}
 }
 
-#pragma endregion
-
-#pragma region PLAY
-
-typedef struct CAT_play_state
+void CAT_play_proc()
 {
-	CAT_vec2 location;
-	bool confirmed;
-	int toy_id;
-} CAT_play_state;
-CAT_play_state play_state;
-
-void CAT_play_state_init()
-{
-	play_state.toy_id = -1;
-	play_state.confirmed = false;
+	pet.spirit += 3;
 }
 
 void CAT_MS_play(CAT_machine_signal signal)
@@ -511,76 +454,28 @@ void CAT_MS_play(CAT_machine_signal signal)
 	{
 		case CAT_MACHINE_SIGNAL_ENTER:
 		{
+			action_state.action_MS = CAT_MS_play;
+			action_state.action_proc = CAT_play_proc;
+			action_state.action_AS = &AS_play;
+			action_state.stat_up_AS = &AS_spi_up;
 			CAT_ASM_transition(&pet_asm, &AS_idle);
 			break;
 		}
 		case CAT_MACHINE_SIGNAL_TICK:
 		{
-			if(!play_state.confirmed)
-			{
-				if(play_state.toy_id == -1)
-				{
-					CAT_room_move_cursor();
-					if(CAT_input_pressed(CAT_BUTTON_A))
-					{
-						bag_state.destination = CAT_MS_play;
-						CAT_machine_transition(&machine, CAT_MS_bag);
-					}
-				}
-				else
-				{
-					CAT_room_move_cursor();
-					if(CAT_input_pressed(CAT_BUTTON_A))
-					{
-						CAT_ivec2 c_world = CAT_ivec2_mul(room.cursor, 16);
-						int x_off = c_world.x > pet.pos.x ? -16 : 32;
-						play_state.location = (CAT_vec2) {c_world.x + x_off, c_world.y + 16};
-						play_state.confirmed = true;
-						CAT_ASM_transition(&pet_asm, &AS_adjust_in);
-					}
-				}
-
-				if(CAT_input_pressed(CAT_BUTTON_B))
-					CAT_machine_transition(&machine, CAT_MS_default);
-			}
-			
-			
-			if(CAT_ASM_is_in(&pet_asm, &AS_adjust_in))
-				CAT_ASM_transition(&pet_asm, &AS_walk_action);
-			if(CAT_ASM_is_in(&pet_asm, &AS_walk_action) && CAT_ASM_is_ticking(&pet_asm))
-			{
-				if(CAT_pet_seek(play_state.location))
-				{
-					pet.left = (room.cursor.x * 16) > pet.pos.x;
-					CAT_ASM_transition(&pet_asm, &AS_play);
-				}
-			}
-			if(CAT_ASM_is_in(&pet_asm, &AS_play))
-			{
-				if(CAT_timer_tick(pet.action_timer_id))
-				{
-					pet.spirit += 3;
-
-					CAT_ASM_kill(&pet_asm);
-					CAT_ASM_transition(&pet_asm, &AS_spi_up);
-					CAT_timer_reset(pet.action_timer_id);
-				}
-			}
-			if(CAT_ASM_is_in(&pet_asm, &AS_vig_up))
-				CAT_ASM_transition(&pet_asm, &AS_adjust_out);
-			if(CAT_ASM_is_in(&pet_asm, &AS_adjust_out))
-				CAT_machine_transition(&machine, CAT_MS_default);
-
+			CAT_action_target();
+			CAT_action_perform();
 			break;	
 		}
 		case CAT_MACHINE_SIGNAL_EXIT:
 		{
-			play_state.toy_id = -1;
-			play_state.confirmed = false;
+			CAT_action_state_init();
 			break;
 		}
 	}
 }
+
+#pragma endregion
 
 #pragma endregion
 
@@ -881,17 +776,17 @@ void CAT_MS_bag(CAT_machine_signal signal)
 
 				if(item_id == book_item && (bag_state.destination == CAT_MS_menu || bag_state.destination == CAT_MS_study))
 				{
-					study_state.book_id = item_id;
+					action_state.item_id = item_id;
 					CAT_machine_transition(&machine, CAT_MS_study);
 				}
 				else if(item_id == toy_item && (bag_state.destination == CAT_MS_menu || bag_state.destination == CAT_MS_play))
 				{
-					play_state.toy_id = item_id;
+					action_state.item_id = item_id;
 					CAT_machine_transition(&machine, CAT_MS_play);
 				}
 				else if(item->type == CAT_ITEM_TYPE_FOOD && (bag_state.destination == CAT_MS_menu || bag_state.destination == CAT_MS_feed))
 				{
-					feed_state.food_id = item_id;
+					action_state.item_id = item_id;
 					CAT_machine_transition(&machine, CAT_MS_feed);
 				}
 				else if(item->type == CAT_ITEM_TYPE_PROP && (bag_state.destination == CAT_MS_menu || bag_state.destination == CAT_MS_deco))
@@ -987,11 +882,11 @@ void CAT_render(int cycle)
 
 		if(machine == CAT_MS_feed)
 		{
-			if(feed_state.food_id != -1)
+			if(action_state.item_id != -1)
 			{
-				CAT_item* food = &item_table.data[feed_state.food_id];
+				CAT_item* food = &item_table.data[action_state.item_id];
 				CAT_draw_queue_add(food->sprite_id, 0, 2, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
-				if(!feed_state.confirmed)
+				if(!action_state.confirmed)
 					CAT_draw_queue_add(tile_hl_sprite, 0, 2, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
 			}
 			else
@@ -1001,11 +896,11 @@ void CAT_render(int cycle)
 		}
 		if(machine == CAT_MS_study)
 		{
-			if(study_state.book_id != -1)
+			if(action_state.item_id != -1)
 			{
-				CAT_item* book = &item_table.data[study_state.book_id];
+				CAT_item* book = &item_table.data[action_state.item_id];
 				CAT_draw_queue_add(book->sprite_id, 0, 2, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
-				if(!study_state.confirmed)
+				if(!action_state.confirmed)
 					CAT_draw_queue_add(tile_hl_sprite, 0, 2, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
 			}
 			else
@@ -1015,11 +910,11 @@ void CAT_render(int cycle)
 		}
 		if(machine == CAT_MS_play)
 		{
-			if(play_state.toy_id != -1)
+			if(action_state.item_id != -1)
 			{
-				CAT_item* toy = &item_table.data[play_state.toy_id];
+				CAT_item* toy = &item_table.data[action_state.item_id];
 				CAT_draw_queue_add(toy->sprite_id, 0, 2, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
-				if(!play_state.confirmed)
+				if(!action_state.confirmed)
 					CAT_draw_queue_add(tile_hl_sprite, 0, 2, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
 			}
 			else
@@ -1209,19 +1104,7 @@ void CAT_render(int cycle)
 			CAT_item* item = CAT_item_get(item_id);
 
 			CAT_gui_panel_tight((CAT_ivec2) {0, 32+i*32}, (CAT_ivec2) {15, 2});
-			switch(item->type)
-			{
-				case CAT_ITEM_TYPE_KEY:
-				case CAT_ITEM_TYPE_GEAR:
-					CAT_gui_image(icon_key_sprite, 0);
-					break;
-				case CAT_ITEM_TYPE_FOOD:
-					CAT_gui_image(icon_food_sprite, 0); 
-					break;
-				case CAT_ITEM_TYPE_PROP:
-					CAT_gui_image(icon_prop_sprite, 0); 
-					break;
-			}
+			CAT_gui_image(icon_item_sprite, item->type);
 
 			char text[64];
 			if(item->type == CAT_ITEM_TYPE_PROP)
@@ -1311,9 +1194,7 @@ void CAT_init()
 
 	CAT_pet_init();
 	CAT_room_init();
-	CAT_feed_state_init();
-	CAT_study_state_init();
-	CAT_play_state_init();
+	CAT_action_state_init();
 	CAT_deco_state_init();
 	CAT_menu_state_init();
 	CAT_bag_state_init();

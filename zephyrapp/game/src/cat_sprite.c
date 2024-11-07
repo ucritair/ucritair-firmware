@@ -82,6 +82,7 @@ int CAT_sprite_init(const char* path, int frame_count)
 	
 	CAT_sprite sprite;
 	sprite.pixels = pixels;
+	sprite.duplicate = false;
 	sprite.width = width;
 	sprite.height = height / frame_count;
 	sprite.frame_count = frame_count;
@@ -102,6 +103,7 @@ int CAT_sprite_copy(int sprite_id, bool loop, bool reverse)
 		return -1;
 
 	CAT_sprite copy = atlas.table[sprite_id];
+	copy.duplicate = true;
 	copy.frame_idx = reverse ? copy.frame_count-1 : 0;
 	copy.loop = loop;
 	copy.reverse = reverse;
@@ -116,7 +118,9 @@ void CAT_atlas_cleanup()
 {
 	for(int i = 0; i < atlas.length; i++)
 	{
-		CAT_free(atlas.table[i].pixels);
+		CAT_sprite* sprite = &atlas.table[i];
+		if(!sprite->duplicate)
+			CAT_free(sprite->pixels);
 	}
 }
 
@@ -586,6 +590,7 @@ int icon_pointer_sprite;
 int icon_enter_sprite;
 int icon_exit_sprite;
 int icon_equip_sprite;
+int icon_item_sprite;
 
 int fbut_a_sprite;
 int fbut_b_sprite;
@@ -596,11 +601,7 @@ int fbut_w_sprite;
 int fbut_start_sprite;
 int fbut_select_sprite;
 
-// MENU ICONS 
-int icon_food_sprite;
-int icon_prop_sprite;
-int icon_key_sprite;
-
+// STAT ICONS
 int icon_vig_sprite;
 int icon_foc_sprite;
 int icon_spi_sprite;
@@ -779,6 +780,7 @@ void CAT_sprite_mass_define()
 	INIT_SPRITE(icon_enter_sprite, "sprites/icon_enter.png", 1);
 	INIT_SPRITE(icon_exit_sprite, "sprites/icon_exit.png", 1);
 	INIT_SPRITE(icon_equip_sprite, "sprites/icon_equip.png", 2);
+	INIT_SPRITE(icon_item_sprite, "sprites/icon_item.png", 4);
 
 	INIT_SPRITE(fbut_a_sprite, "sprites/A Button_Both.png", 2);
 	INIT_SPRITE(fbut_b_sprite, "sprites/B Button_Both.png", 2);
@@ -788,10 +790,6 @@ void CAT_sprite_mass_define()
 	INIT_SPRITE(fbut_w_sprite, "sprites/Left Arrow_Both.png", 2);
 	INIT_SPRITE(fbut_start_sprite, "sprites/Start Button_Both.png", 2);
 	INIT_SPRITE(fbut_select_sprite, "sprites/Select Button_Both.png", 2);
-
-	INIT_SPRITE(icon_food_sprite, "sprites/icon_item_food.png", 1);
-	INIT_SPRITE(icon_prop_sprite, "sprites/icon_item_prop.png", 1);
-	INIT_SPRITE(icon_key_sprite, "sprites/icon_item_key.png", 1);
 	
 	INIT_SPRITE(icon_vig_sprite, "sprites/STAT_VIGOR2424.png", 1);
 	INIT_SPRITE(icon_foc_sprite, "sprites/STAT_FOCUS2424.png", 1);
