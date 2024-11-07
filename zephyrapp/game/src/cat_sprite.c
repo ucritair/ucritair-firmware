@@ -405,6 +405,11 @@ void CAT_draw_queue_add(int sprite_id, int frame_idx, int layer, int x, int y, i
 	draw_queue.length += 1;
 }
 
+void CAT_draw_queue_animate(int sprite_id, int layer, int x, int y, int mode)
+{
+	CAT_draw_queue_add(sprite_id, -1, layer, x, y, mode);
+}
+
 void CAT_draw_queue_submit(int cycle)
 {
 	if (cycle==0)

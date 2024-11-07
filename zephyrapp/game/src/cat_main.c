@@ -900,7 +900,7 @@ void CAT_render(int cycle)
 		CAT_draw_tiles(base_floor_sprite, 2, 17, 3);
 
 		CAT_draw_queue_add(window_day_sprite, 0, 2, 8, 8, CAT_DRAW_MODE_DEFAULT);
-		CAT_draw_queue_animate(vending_sprite, 2, 164, 112, CAT_DRAW_MODE_BOTTOM);
+		CAT_draw_queue_add(vending_sprite, -1, 2, 164, 112, CAT_DRAW_MODE_BOTTOM);
 		
 		for(int i = 0; i < deco_state.prop_count; i++)
 		{
@@ -1310,20 +1310,11 @@ int main()
 {
 	CAT_init();
 
-	float frame_timer = 0;
-	float last_frame_time = glfwGetTime();
 	while (CAT_get_battery_pct() > 0)
 	{
-		float frame_time = glfwGetTime();
-		float delta_time = frame_time - last_frame_time;
-		frame_timer += delta_time;
-		if(frame_timer >= 1.0f/15.0f)
-		{
-			CAT_tick_logic();
-			CAT_tick_render(0);
-			CAT_LCD_post(spriter.framebuffer);
-			frame_timer = 0;
-		}
+		CAT_tick_logic();
+		CAT_tick_render(0);
+		CAT_LCD_post(spriter.framebuffer);
 	}
 
 	CAT_spriter_cleanup();
