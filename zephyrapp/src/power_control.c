@@ -77,9 +77,55 @@ static const struct device* gpio1 = DEVICE_DT_GET(DT_NODELABEL(gpio1));
 #include <hal/nrf_clock.h>
 #include <hal/nrf_egu.h>
 #include <hal/nrf_oscillators.h>
+#include <hal/nrf_wdt.h>
 
 void power_off()
 {
+	nrf_wdt_task_stop_enable_set(NRF_WDT0, true);
+	nrf_wdt_task_trigger(NRF_WDT0, NRF_WDT_TASK_STOP);
+	nrf_wdt_nmi_int_disable(NRF_WDT0, NRF_WDT_INT_TIMEOUT_MASK|NRF_WDT_INT_STOPPED_MASK);
+	nrf_wdt_publish_clear(NRF_WDT0, NRF_WDT_EVENT_TIMEOUT|NRF_WDT_EVENT_STOPPED);
+
+	if (nrf_wdt_started_check(NRF_WDT0))
+	{
+		while (1)
+		{
+			LOG_ERR("Watchdog still running");
+			k_msleep(1000);
+		}
+	}
+
+	int load_value = 32768*10;
+	nrf_wdt_behaviour_set(NRF_WDT0, NRF_WDT_BEHAVIOUR_RUN_SLEEP_MASK|NRF_WDT_BEHAVIOUR_RUN_HALT_MASK);
+	nrf_wdt_reload_value_set(NRF_WDT0, load_value);
+	if (nrf_wdt_reload_value_get(NRF_WDT0) != load_value)
+	{
+		while (1)
+		{
+			LOG_ERR("Failed to configure wdt reload");
+			k_msleep(1000);
+		}
+	}
+
+	nrf_wdt_task_trigger(NRF_WDT0, NRF_WDT_TASK_START);
+
+	if (!nrf_wdt_started_check(NRF_WDT0))
+	{
+		while (1)
+		{
+			LOG_ERR("Failed to start watchdog");
+			k_msleep(1000);
+		}
+	}
+
+	LOG_INF("Watchdog configured; going down for stupidsleep NOW");
+
+	k_msleep(250);
+
+	// fails if active
+	// struct net_if *iface = net_if_get_default();
+	// net_if_down(iface);
+
 	bt_le_adv_stop();
 	bt_disable();
 
@@ -164,6 +210,7 @@ void power_off()
 	NRF_CLOCK_S->HFCLKCTRL = (CLOCK_HFCLKCTRL_HCLK_Div2 << CLOCK_HFCLKCTRL_HCLK_Pos); // 128MHz
 
 	*(volatile uint32_t*)(0x50005000 + 0x614) = 1; // Force network core off
+
 
 	while (1)
 	{
