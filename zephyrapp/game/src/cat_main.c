@@ -250,8 +250,8 @@ void CAT_MS_default(CAT_machine_signal signal)
 			{
 				if(CAT_timer_tick(pet.react_timer_id))
 				{
-					CAT_timer_reset(pet.react_timer_id);
 					CAT_ASM_transition(&bubl_asm, NULL);
+					CAT_timer_reset(pet.react_timer_id);
 				}
 			}
 
@@ -522,7 +522,7 @@ void CAT_MS_deco(CAT_machine_signal signal)
 	{
 		case CAT_MACHINE_SIGNAL_ENTER:
 		{
-			CAT_pet_transition(pet_idle_sprite);
+			CAT_ASM_transition(&pet_asm, &AS_idle);
 			deco_state.mode = ADD;
 			deco_state.mod_idx = -1;
 			break;

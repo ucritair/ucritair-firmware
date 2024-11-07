@@ -92,6 +92,12 @@ void CAT_ASM_init(CAT_ASM_state* state, int enai, int tiai, int exai)
 
 void CAT_ASM_transition(CAT_ASM_state** spp, CAT_ASM_state* next)
 {
+	if(next == NULL)
+	{
+		*spp = NULL;
+		return;
+	}
+
 	CAT_ASM_state* sp = *spp;
 	if(sp != NULL)
 	{
@@ -99,17 +105,13 @@ void CAT_ASM_transition(CAT_ASM_state** spp, CAT_ASM_state* next)
 			sp->signal = EXIT;
 		sp->next = next;
 	}
-	else if(next != NULL)
+	else
 	{
 		next->signal = ENTER;
 		CAT_anim_reset(next->enter_anim_id);
 		CAT_anim_reset(next->tick_anim_id);
 		CAT_anim_reset(next->exit_anim_id);
 		*spp = next;
-	}
-	else
-	{
-		*spp = NULL;
 	}
 }
 
