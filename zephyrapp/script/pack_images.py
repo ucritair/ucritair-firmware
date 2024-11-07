@@ -17,7 +17,7 @@ class BakeData:
 	frames: str
 	width: str
 	height: str
-	loop: bool = False
+	loop: bool = True
 	reverse: bool = False
 	rlesize: int = 0
 	colors: set = None
@@ -43,7 +43,7 @@ with open(os.path.dirname(__file__)+"/atlasdata.txt", 'r') as fd:
 			idx, name, from_, loop, reverse = tup
 			name = name.replace('[','').replace(']','')
 			from_ = atlas[from_]
-			atlas.append(BakeData(int(idx), name, from_.path, from_.frames, from_.width, loop, reverse))
+			atlas.append(BakeData(int(idx), name, from_.path, from_.frames, from_.width, from_.height, loop, reverse))
 
 # assert len(set(x.path for x in atlas)) == len([x.path for x in atlas]), "Duplicated path"
 assert len(set(x.name for x in atlas)) == len([x.name for x in atlas]), "Duplicated name"
@@ -68,7 +68,7 @@ for x in atlas:
 		textures[x.path] = pygame.image.load(os.path.dirname(__file__)+"/../game/"+x.path)
 	except FileNotFoundError:
 		print("Falling back for ", x.path)
-		textures[x.path] = pygame.image.load(os.path.dirname(__file__)+"/../game/sprites/none_32x32.png")
+		textures[x.path] = pygame.image.load(os.path.dirname(__file__)+"/../game/sprites/none_24x24.png")
 
 def get_px(image, x, y):
 	r, g, b, a = image.get_at((x, y))
@@ -243,8 +243,9 @@ with open(f"{output}/images.c", 'w') as fd:
 		fd.write('\t\t.frame_count = '+str(sprite.frames)+",\n")
 		fd.write('\t\t.frame_idx = '+str(sprite.frames-1 if sprite.reverse else 0)+',\n')
 		fd.write('\t\t.loop = '+str(int(sprite.loop))+',\n');
-		fd.write('\t\t.needs_update = '+str(int(sprite.reverse))+',\n')
+		fd.write('\t\t.reverse = '+str(int(sprite.reverse))+',\n')
 		fd.write('\t},\n')
+		
 	fd.write('}, .length = '+str(len(atlas))+'};\n\n')
 
 	fd.write('\n\nuint16_t rle_work_region['+str(max(x.width for x in atlas))+'];\n\n\n\n')

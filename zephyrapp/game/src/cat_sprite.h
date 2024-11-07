@@ -109,7 +109,6 @@ void CAT_anim_reset(int sprite_id);
 
 void CAT_draw_queue_init();
 void CAT_draw_queue_add(int sprite_id, int frame_idx, int layer, int x, int y, int mode);
-void CAT_draw_queue_animate(int sprite_id, int layer, int x, int y, int mode);
 void CAT_draw_queue_submit(int cycle);
 
 

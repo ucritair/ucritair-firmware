@@ -25,7 +25,9 @@ extern uint16_t rle_work_region[];
 
 void CAT_atlas_init()
 {
+#ifndef CAT_BAKED_ASSETS
 	atlas.length = 0;
+#endif
 }
 
 #ifndef CAT_BAKED_ASSETS
@@ -196,7 +198,10 @@ void unpack_rle_row()
 void CAT_draw_sprite(int sprite_id, int frame_idx, int x, int y)
 {
 	if(sprite_id < 0 || sprite_id >= atlas.length)
+	{
+		printf("CAT: E: Tried to draw invalid sprite %d", sprite_id);
 		return;
+	}
 	CAT_sprite sprite = atlas.table[sprite_id];
 	int w = sprite.width;
 	int h = sprite.height;
@@ -262,7 +267,10 @@ void CAT_draw_sprite(int sprite_id, int frame_idx, int x, int y)
 void CAT_draw_tiles(int sprite_id, int frame_idx, int y_t, int h_t)
 {
 	if(sprite_id < 0 || sprite_id >= atlas.length)
+	{
+		printf("CAT: E: Tried to draw invalid tile %d", sprite_id);
 		return;
+	}
 	CAT_sprite sprite = atlas.table[sprite_id];
 
 #ifndef CAT_BAKED_ASSETS
@@ -397,11 +405,6 @@ void CAT_draw_queue_add(int sprite_id, int frame_idx, int layer, int x, int y, i
 	draw_queue.length += 1;
 }
 
-void CAT_draw_queue_animate(int sprite_id, int layer, int x, int y, int mode)
-{
-	CAT_draw_queue_add(sprite_id, -1, layer, x, y, mode);
-}
-
 void CAT_draw_queue_submit(int cycle)
 {
 	if (cycle==0)
@@ -431,6 +434,11 @@ void CAT_draw_queue_submit(int cycle)
 			}
 			draw_queue.anim_timer = 0.0f;
 		}
+
+		for (int i = 0; i < draw_queue.length; i++)
+		{
+			atlas.table[draw_queue.jobs[i].sprite_id].needs_update = true;
+		}
 	}
 
 	for(int i = 0; i < draw_queue.length; i++)
@@ -442,13 +450,7 @@ void CAT_draw_queue_submit(int cycle)
 			
 		spriter.mode = job->mode;
 		CAT_draw_sprite(job->sprite_id, job->frame_idx, job->x, job->y);
-
-		if(cycle==0)
-		{
-			sprite->needs_update = true;
-		}
 	}
-	draw_queue.length = 0;
 }
 
 
@@ -659,7 +661,7 @@ void CAT_sprite_mass_define()
 	INIT_SPRITE(pet_idle_high_spi_sprite, "sprites/pet_unicorn_shimmer_idle_a.png", 4);
 	INIT_SPRITE(pet_walk_high_spi_sprite, "sprites/pet_unicorn_shimmer_walk_a.png", 4);
 	INIT_SPRITE(pet_wings_out_sprite, "sprites/pet_unicorn_wing_a.png", 13);
-	pet_wings_in_sprite = CAT_sprite_copy(pet_wings_out_sprite, false, true);
+	COPY_SPRITE(pet_wings_in_sprite, pet_wings_out_sprite, false, true);
 
 	INIT_SPRITE(pet_idle_low_vig_sprite, "sprites/pet_unicorn_tired_a.png", 4);
 	INIT_SPRITE(pet_walk_low_vig_sprite, "sprites/pet_unicorn_tired_walk_a.png", 4);
@@ -674,13 +676,13 @@ void CAT_sprite_mass_define()
 
 	INIT_SPRITE(pet_crit_vig_sprite, "sprites/pet_unicorn_melt_a.png", 8);
 	CAT_anim_toggle_loop(pet_crit_vig_sprite, false);
-	pet_uncrit_vig_sprite = CAT_sprite_copy(pet_crit_vig_sprite, false, true);
+	COPY_SPRITE(pet_uncrit_vig_sprite, pet_crit_vig_sprite, false, true);
 	INIT_SPRITE(pet_crit_foc_sprite, "sprites/pet_unicorn_tipped_a.png", 8);
 	CAT_anim_toggle_loop(pet_crit_foc_sprite, false);
-	pet_uncrit_foc_sprite = CAT_sprite_copy(pet_crit_foc_sprite, false, true);
+	COPY_SPRITE(pet_uncrit_foc_sprite, pet_crit_foc_sprite, false, true);
 	INIT_SPRITE(pet_crit_spi_sprite, "sprites/pet_unicorn_block_a.png", 8);
 	CAT_anim_toggle_loop(pet_crit_spi_sprite, false);
-	pet_uncrit_spi_sprite = CAT_sprite_copy(pet_crit_spi_sprite, false, true);
+	COPY_SPRITE(pet_uncrit_spi_sprite, pet_crit_spi_sprite, false, true);
 
 	INIT_SPRITE(pet_eat_down_sprite, "sprites/pet_unicorn_eat_lower_a.png", 7);
 	COPY_SPRITE(pet_eat_up_sprite, pet_eat_down_sprite, false, true);

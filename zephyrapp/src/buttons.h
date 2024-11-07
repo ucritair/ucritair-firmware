@@ -10,4 +10,5 @@
 #define CAT_BTN_MASK_UP 0x80
 
 void init_buttons();
+void deinit_buttons();
 uint8_t get_buttons();
