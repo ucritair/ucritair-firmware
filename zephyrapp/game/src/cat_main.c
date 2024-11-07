@@ -1082,7 +1082,7 @@ void CAT_render(int cycle)
 		int nox_idx =  quantize(CAT_NOX_score(), 1, 3);
 		CAT_gui_image(icon_nox_sprite, nox_idx);
 		
-		CAT_gui_div("EA HORSESHIT");
+		CAT_gui_div("INTERVENTIONS");
 		if(CAT_gear_status(mask_item))
 			CAT_gui_image(icon_mask_sprite, 0);
 		if(CAT_deco_find(purifier_item) != -1)

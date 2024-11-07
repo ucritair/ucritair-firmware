@@ -200,7 +200,10 @@ void unpack_rle_row()
 void CAT_draw_sprite(int sprite_id, int frame_idx, int x, int y)
 {
 	if(sprite_id < 0 || sprite_id >= atlas.length)
+	{
+		printf("CAT: E: Tried to draw invalid sprite %d", sprite_id);
 		return;
+	}
 	CAT_sprite sprite = atlas.table[sprite_id];
 	int w = sprite.width;
 	int h = sprite.height;
@@ -266,7 +269,10 @@ void CAT_draw_sprite(int sprite_id, int frame_idx, int x, int y)
 void CAT_draw_tiles(int sprite_id, int frame_idx, int y_t, int h_t)
 {
 	if(sprite_id < 0 || sprite_id >= atlas.length)
+	{
+		printf("CAT: E: Tried to draw invalid tile %d", sprite_id);
 		return;
+	}
 	CAT_sprite sprite = atlas.table[sprite_id];
 
 #ifndef CAT_BAKED_ASSETS
@@ -435,6 +441,11 @@ void CAT_draw_queue_submit(int cycle)
 			}
 			draw_queue.anim_timer = 0.0f;
 		}
+
+		for (int i = 0; i < draw_queue.length; i++)
+		{
+			atlas.table[draw_queue.jobs[i].sprite_id].needs_update = true;
+		}
 	}
 
 	for(int i = 0; i < draw_queue.length; i++)
@@ -446,11 +457,6 @@ void CAT_draw_queue_submit(int cycle)
 			
 		spriter.mode = job->mode;
 		CAT_draw_sprite(job->sprite_id, job->frame_idx, job->x, job->y);
-
-		if (cycle==0)
-		{
-			sprite->needs_update = true;
-		}
 	}
 }
 
