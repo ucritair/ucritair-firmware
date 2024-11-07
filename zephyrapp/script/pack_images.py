@@ -68,7 +68,7 @@ for x in atlas:
 		textures[x.path] = pygame.image.load(os.path.dirname(__file__)+"/../game/"+x.path)
 	except FileNotFoundError:
 		print("Falling back for ", x.path)
-		textures[x.path] = pygame.image.load(os.path.dirname(__file__)+"/../game/sprites/none_32x32.png")
+		textures[x.path] = pygame.image.load(os.path.dirname(__file__)+"/../game/sprites/none_24x24.png")
 
 def get_px(image, x, y):
 	r, g, b, a = image.get_at((x, y))
