@@ -11,6 +11,11 @@
 #include "cat_input.h"
 #include "cat_machine.h"
 
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunknown-pragmas"
+#endif
+
 #pragma region CONSTANTS
 
 #define CAT_MAX_PROP_COUNT 210
