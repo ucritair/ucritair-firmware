@@ -199,7 +199,7 @@ void CAT_draw_sprite(int sprite_id, int frame_idx, int x, int y)
 {
 	if(sprite_id < 0 || sprite_id >= atlas.length)
 	{
-		printf("CAT: E: Tried to draw invalid sprite %d", sprite_id);
+		printf("CAT: E: Tried to draw invalid sprite %d\n", sprite_id);
 		return;
 	}
 	CAT_sprite sprite = atlas.table[sprite_id];
@@ -268,7 +268,7 @@ void CAT_draw_tiles(int sprite_id, int frame_idx, int y_t, int h_t)
 {
 	if(sprite_id < 0 || sprite_id >= atlas.length)
 	{
-		printf("CAT: E: Tried to draw invalid tile %d", sprite_id);
+		printf("CAT: E: Tried to draw invalid tile %d\n", sprite_id);
 		return;
 	}
 	CAT_sprite sprite = atlas.table[sprite_id];

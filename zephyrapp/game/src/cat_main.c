@@ -899,141 +899,146 @@ void CAT_render(int cycle)
 		CAT_draw_tiles(base_floor_sprite, 1, 7, 10);
 		CAT_draw_tiles(base_floor_sprite, 2, 17, 3);
 
-		CAT_draw_queue_add(window_day_sprite, 0, 2, 8, 8, CAT_DRAW_MODE_DEFAULT);
-		CAT_draw_queue_add(vending_sprite, -1, 2, 164, 112, CAT_DRAW_MODE_BOTTOM);
-		
-		for(int i = 0; i < deco_state.prop_count; i++)
+		if (cycle==0)
 		{
-			int prop_id = deco_state.props[i];
-			CAT_item* prop = CAT_item_get(prop_id);
-			CAT_ivec2 shape = prop->data.prop_data.shape;
-			CAT_ivec2 place = deco_state.places[i];
-			if(prop->data.prop_data.animate)
-				CAT_draw_queue_animate(prop->sprite_id, 2, place.x * 16, (place.y+shape.y) * 16, CAT_DRAW_MODE_BOTTOM);
-			else
+			draw_queue.length=0;
+			CAT_draw_queue_add(window_day_sprite, 0, 2, 8, 8, CAT_DRAW_MODE_DEFAULT);
+			CAT_draw_queue_add(vending_sprite, -1, 2, 164, 112, CAT_DRAW_MODE_BOTTOM);
+			
+			for(int i = 0; i < deco_state.prop_count; i++)
 			{
-				int frame_idx = prop->data.prop_data.frame_idx;
-				CAT_draw_queue_add(prop->sprite_id, frame_idx, 2, place.x * 16, (place.y+shape.y) * 16, CAT_DRAW_MODE_BOTTOM);
-			}
-		}
-
-		int pet_mode = CAT_DRAW_MODE_BOTTOM | CAT_DRAW_MODE_CENTER_X;
-		if(pet.left)
-			pet_mode |= CAT_DRAW_MODE_REFLECT_X;
-		CAT_draw_queue_animate(CAT_ASM_tick(&pet_asm), 2, pet.pos.x, pet.pos.y, pet_mode);	
-		if(bubl_asm != NULL)
-		{
-			int x_off = pet.left ? 16 : -16;
-			CAT_draw_queue_animate(CAT_ASM_tick(&bubl_asm), 3, pet.pos.x + x_off, pet.pos.y - 48, pet_mode);	
-		}
-
-		CAT_draw_queue_add(sbut_feed_sprite, 0, 3, 8, 280, CAT_DRAW_MODE_DEFAULT); 
-		CAT_draw_queue_add(sbut_study_sprite, 0, 3, 56, 280, CAT_DRAW_MODE_DEFAULT); 
-		CAT_draw_queue_add(sbut_play_sprite, 0, 3, 104, 280, CAT_DRAW_MODE_DEFAULT);
-		CAT_draw_queue_add(sbut_deco_sprite, 0, 3, 152, 280, CAT_DRAW_MODE_DEFAULT);
-		CAT_draw_queue_add(sbut_menu_sprite, 0, 3, 200, 280, CAT_DRAW_MODE_DEFAULT);
-		CAT_draw_queue_add(sbut_hl_sprite, 0, 4, 8+48*room.selector, 280, CAT_DRAW_MODE_DEFAULT);
-
-		if(input.touch.pressure)
-			CAT_draw_queue_add(sbut_hl_sprite, 0, 4, input.touch.x, input.touch.y, CAT_DRAW_MODE_CENTER_X | CAT_DRAW_MODE_CENTER_Y);
-#pragma endregion
-#pragma region FEED RENDER
-		if(machine == CAT_MS_feed)
-		{
-			if(action_state.item_id != -1)
-			{
-				CAT_item* food = &item_table.data[action_state.item_id];
-				CAT_draw_queue_add(food->sprite_id, 0, 2, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
-				if(!action_state.confirmed)
-					CAT_draw_queue_add(tile_hl_sprite, 0, 2, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
-			}
-			else
-			{
-				CAT_draw_queue_add(cursor_sprite, 0, 2, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
-			}
-		}
-#pragma endregion
-#pragma region STUDY RENDER
-		if(machine == CAT_MS_study)
-		{
-			if(action_state.item_id != -1)
-			{
-				CAT_item* book = &item_table.data[action_state.item_id];
-				CAT_draw_queue_add(book->sprite_id, 0, 2, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
-				if(!action_state.confirmed)
-					CAT_draw_queue_add(tile_hl_sprite, 0, 2, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
-			}
-			else
-			{
-				CAT_draw_queue_add(cursor_sprite, 0, 2, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
-			}
-		}
-#pragma endregion
-#pragma region PLAY RENDER
-		if(machine == CAT_MS_play)
-		{
-			if(action_state.item_id != -1)
-			{
-				CAT_item* toy = &item_table.data[action_state.item_id];
-				CAT_draw_queue_add(toy->sprite_id, 0, 2, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
-				if(!action_state.confirmed)
-					CAT_draw_queue_add(tile_hl_sprite, 0, 2, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
-			}
-			else
-			{
-				CAT_draw_queue_add(cursor_sprite, 0, 2, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
-			}
-		}
-#pragma endregion
-#pragma region DECO RENDER
-		if(machine == CAT_MS_deco)
-		{
-			if(deco_state.mode == ADD)
-			{
-				if(deco_state.add_id != -1)
+				int prop_id = deco_state.props[i];
+				CAT_item* prop = CAT_item_get(prop_id);
+				CAT_ivec2 shape = prop->data.prop_data.shape;
+				CAT_ivec2 place = deco_state.places[i];
+				if(prop->data.prop_data.animate)
+					CAT_draw_queue_animate(prop->sprite_id, 2, place.x * 16, (place.y+shape.y) * 16, CAT_DRAW_MODE_BOTTOM);
+				else
 				{
-					int tile_sprite = deco_state.valid_add ? tile_hl_add_sprite : tile_hl_rm_sprite;
-					for(int y = deco_state.add_rect.min.y; y < deco_state.add_rect.max.y; y++)
+					int frame_idx = prop->data.prop_data.frame_idx;
+					CAT_draw_queue_add(prop->sprite_id, frame_idx, 2, place.x * 16, (place.y+shape.y) * 16, CAT_DRAW_MODE_BOTTOM);
+				}
+			}
+
+			int pet_mode = CAT_DRAW_MODE_BOTTOM | CAT_DRAW_MODE_CENTER_X;
+			if(pet.left)
+				pet_mode |= CAT_DRAW_MODE_REFLECT_X;
+			CAT_draw_queue_animate(CAT_ASM_tick(&pet_asm), 2, pet.pos.x, pet.pos.y, pet_mode);	
+			if(bubl_asm != NULL)
+			{
+				int x_off = pet.left ? 16 : -16;
+				CAT_draw_queue_animate(CAT_ASM_tick(&bubl_asm), 3, pet.pos.x + x_off, pet.pos.y - 48, pet_mode);	
+			}
+
+			CAT_draw_queue_add(sbut_feed_sprite, 0, 3, 8, 280, CAT_DRAW_MODE_DEFAULT); 
+			CAT_draw_queue_add(sbut_study_sprite, 0, 3, 56, 280, CAT_DRAW_MODE_DEFAULT); 
+			CAT_draw_queue_add(sbut_play_sprite, 0, 3, 104, 280, CAT_DRAW_MODE_DEFAULT);
+			CAT_draw_queue_add(sbut_deco_sprite, 0, 3, 152, 280, CAT_DRAW_MODE_DEFAULT);
+			CAT_draw_queue_add(sbut_menu_sprite, 0, 3, 200, 280, CAT_DRAW_MODE_DEFAULT);
+			CAT_draw_queue_add(sbut_hl_sprite, 0, 4, 8+48*room.selector, 280, CAT_DRAW_MODE_DEFAULT);
+
+			if(input.touch.pressure)
+				CAT_draw_queue_add(sbut_hl_sprite, 0, 4, input.touch.x, input.touch.y, CAT_DRAW_MODE_CENTER_X | CAT_DRAW_MODE_CENTER_Y);
+	#pragma endregion
+	#pragma region FEED RENDER
+			if(machine == CAT_MS_feed)
+			{
+				if(action_state.item_id != -1)
+				{
+					CAT_item* food = &item_table.data[action_state.item_id];
+					CAT_draw_queue_add(food->sprite_id, 0, 2, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
+					if(!action_state.confirmed)
+						CAT_draw_queue_add(tile_hl_sprite, 0, 2, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
+				}
+				else
+				{
+					CAT_draw_queue_add(cursor_sprite, 0, 2, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
+				}
+			}
+	#pragma endregion
+	#pragma region STUDY RENDER
+			if(machine == CAT_MS_study)
+			{
+				if(action_state.item_id != -1)
+				{
+					CAT_item* book = &item_table.data[action_state.item_id];
+					CAT_draw_queue_add(book->sprite_id, 0, 2, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
+					if(!action_state.confirmed)
+						CAT_draw_queue_add(tile_hl_sprite, 0, 2, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
+				}
+				else
+				{
+					CAT_draw_queue_add(cursor_sprite, 0, 2, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
+				}
+			}
+	#pragma endregion
+	#pragma region PLAY RENDER
+			if(machine == CAT_MS_play)
+			{
+				if(action_state.item_id != -1)
+				{
+					CAT_item* toy = &item_table.data[action_state.item_id];
+					CAT_draw_queue_add(toy->sprite_id, 0, 2, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
+					if(!action_state.confirmed)
+						CAT_draw_queue_add(tile_hl_sprite, 0, 2, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
+				}
+				else
+				{
+					CAT_draw_queue_add(cursor_sprite, 0, 2, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
+				}
+			}
+	#pragma endregion
+	#pragma region DECO RENDER
+			if(machine == CAT_MS_deco)
+			{
+				if(deco_state.mode == ADD)
+				{
+					if(deco_state.add_id != -1)
 					{
-						for(int x = deco_state.add_rect.min.x; x < deco_state.add_rect.max.x; x++)
+						int tile_sprite = deco_state.valid_add ? tile_hl_add_sprite : tile_hl_rm_sprite;
+						for(int y = deco_state.add_rect.min.y; y < deco_state.add_rect.max.y; y++)
 						{
-							CAT_draw_queue_add(tile_sprite, 0, 3, x * 16, y * 16, CAT_DRAW_MODE_DEFAULT);
+							for(int x = deco_state.add_rect.min.x; x < deco_state.add_rect.max.x; x++)
+							{
+								CAT_draw_queue_add(tile_sprite, 0, 3, x * 16, y * 16, CAT_DRAW_MODE_DEFAULT);
+							}
 						}
+					}
+					else
+					{
+						CAT_draw_queue_add(cursor_add_sprite, 0, 3, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
 					}
 				}
 				else
 				{
-					CAT_draw_queue_add(cursor_add_sprite, 0, 3, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
-				}
-			}
-			else
-			{
-				int tile_hl = deco_state.mode == FLIP ? tile_hl_flip_sprite : tile_hl_rm_sprite;
-				int tile_mark = deco_state.mode == FLIP ? tile_mark_flip_sprite : tile_mark_rm_sprite;
-				int cursor = deco_state.mode == FLIP ? cursor_flip_sprite : cursor_remove_sprite;
-				if(deco_state.mod_idx != -1)
-				{
-					for(int y = deco_state.mod_rect.min.y; y <= deco_state.mod_rect.max.y; y++)
+					int tile_hl = deco_state.mode == FLIP ? tile_hl_flip_sprite : tile_hl_rm_sprite;
+					int tile_mark = deco_state.mode == FLIP ? tile_mark_flip_sprite : tile_mark_rm_sprite;
+					int cursor = deco_state.mode == FLIP ? cursor_flip_sprite : cursor_remove_sprite;
+					if(deco_state.mod_idx != -1)
 					{
-						for(int x = deco_state.mod_rect.min.x; x <= deco_state.mod_rect.max.x; x++)
+						for(int y = deco_state.mod_rect.min.y; y <= deco_state.mod_rect.max.y; y++)
 						{
-							CAT_draw_queue_add(tile_hl, 0, 3, x * 16, y * 16, CAT_DRAW_MODE_DEFAULT);
+							for(int x = deco_state.mod_rect.min.x; x <= deco_state.mod_rect.max.x; x++)
+							{
+								CAT_draw_queue_add(tile_hl, 0, 3, x * 16, y * 16, CAT_DRAW_MODE_DEFAULT);
+							}
 						}
+						CAT_draw_queue_add(tile_mark, 0, 3, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
 					}
-					CAT_draw_queue_add(tile_mark, 0, 3, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
-				}
-				else
-				{
-					CAT_draw_queue_add(cursor, 0, 3, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
+					else
+					{
+						CAT_draw_queue_add(cursor, 0, 3, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
+					}
 				}
 			}
 		}
+
 #pragma endregion
 		CAT_draw_queue_submit(cycle);
 	}
-#pragma region MENU RENDER
 	else if(machine == CAT_MS_menu)
 	{
+#pragma region MENU RENDER
 		CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});  
 		CAT_gui_text("MENU ");
 		CAT_gui_image(fbut_a_sprite, 1);
@@ -1052,11 +1057,11 @@ void CAT_render(int cycle)
 
 			CAT_gui_line_break();
 		}
-	}
 #pragma endregion
-#pragma region STATS RENDER
+	}
 	else if(machine == CAT_MS_stats)
 	{
+#pragma region STATS RENDER
 		CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});  
 		CAT_gui_text("INSIGHTS ");
 		CAT_gui_image(fbut_b_sprite, 1);
@@ -1103,11 +1108,11 @@ void CAT_render(int cycle)
 			CAT_gui_image(icon_pure_sprite, 0);
 		if(CAT_deco_find(uv_item) != -1)
 			CAT_gui_image(icon_uv_sprite, 0);
-	}
 #pragma endregion
-#pragma region BAG RENDER
+	}
 	else if(machine == CAT_MS_bag)
 	{
+#pragma region BAG RENDER
 		CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});  
 		CAT_gui_text("BAG ");
 		CAT_gui_image(fbut_a_sprite, 1);
@@ -1157,11 +1162,11 @@ void CAT_render(int cycle)
 			if(idx == bag_state.idx)
 				CAT_gui_image(icon_pointer_sprite, 0);
 		}
-	}
 #pragma endregion
-#pragma region VENDING RENDER
+	}
 	else if(machine == CAT_MS_vending)
 	{
+#pragma region STATS RENDER
 		CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});  
 		CAT_gui_text("VENDING MACHINE ");
 		CAT_gui_image(fbut_a_sprite, 1);
@@ -1211,22 +1216,22 @@ void CAT_render(int cycle)
 			if(idx == bag_state.idx)
 				CAT_gui_image(icon_pointer_sprite, 0);
 		}
-	}
 #pragma endregion
-#pragma region ARCADE RENDER
+	}
 	else if(machine == CAT_MS_arcade)
 	{
+#pragma region ARCADE RENDER
 		CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});  
 		CAT_gui_text("ARCADE ");
 		CAT_gui_image(fbut_b_sprite, 1);
 		CAT_gui_image(icon_exit_sprite, 0);
 
 		CAT_gui_panel((CAT_ivec2) {0, 32}, (CAT_ivec2) {15, 18}); 
-	}
 #pragma endregion
-#pragma region MANUAL RENDER
+	}
 	else if(machine == CAT_MS_manual)
 	{
+#pragma region MANUAL RENDER
 		CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});  
 		CAT_gui_text("CONTROLS ");
 		CAT_gui_image(fbut_b_sprite, 1);
