@@ -29,6 +29,7 @@ typedef struct CAT_item
 	CAT_item_type type;
 	const char* name;
 	int sprite_id;
+	int price;
 
 	union
 	{
@@ -61,7 +62,7 @@ typedef struct CAT_item_table
 extern CAT_item_table item_table;
 
 void CAT_item_table_init();
-int CAT_item_init(CAT_item_type type, const char* name, int sprite_id);
+int CAT_item_init(CAT_item_type type, const char* name, int sprite_id, int price);
 CAT_item* CAT_item_get(int item_id);
 void CAT_prop_init(int item_id, int width, int height, bool animate);
 void CAT_prop_flip(int item_id);

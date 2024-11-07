@@ -89,7 +89,7 @@ int CAT_sprite_init(const char* path, int frame_count)
 	sprite.frame_idx = 0;
 	sprite.loop = true;
 	sprite.reverse = false;
-	sprite.needs_update = false;
+	sprite.needs_update = true;
 
 	int sprite_id = atlas.length;
 	atlas.table[sprite_id] = sprite;
@@ -108,6 +108,7 @@ int CAT_sprite_copy(int sprite_id, bool loop, bool reverse)
 	copy.loop = loop;
 	copy.reverse = reverse;
 	copy.needs_update = true;
+	
 	int copy_id = atlas.length;
 	atlas.table[copy_id] = copy;
 	atlas.length += 1;
@@ -143,7 +144,6 @@ void CAT_spriter_init()
 }
 
 #ifdef CAT_BAKED_ASSETS
-
 struct {
 	const uint8_t* ptr;
 	const uint16_t* colortab;
@@ -191,9 +191,7 @@ void unpack_rle_row()
 		}
 	}
 }
-
 #endif
-
 
 void CAT_draw_sprite(int sprite_id, int frame_idx, int x, int y)
 {
@@ -445,7 +443,7 @@ void CAT_draw_queue_submit(int cycle)
 		spriter.mode = job->mode;
 		CAT_draw_sprite(job->sprite_id, job->frame_idx, job->x, job->y);
 
-		if (cycle==0)
+		if(cycle==0)
 		{
 			sprite->needs_update = true;
 		}
