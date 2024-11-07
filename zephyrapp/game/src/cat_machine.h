@@ -47,12 +47,13 @@ void CAT_machine_tick(CAT_machine_state* machine);
 
 typedef struct CAT_ASM_state
 {
+	enum {ENTER, TICK, EXIT, DONE} signal;
+
 	int enter_anim_id;
 	int tick_anim_id;
 	int exit_anim_id;
 
-	enum {ENTER, TICK, EXIT, DONE} signal;
-	//struct CAT_ASM_state* next;
+	struct CAT_ASM_state* next;
 } CAT_ASM_state;
 
 void CAT_ASM_init(CAT_ASM_state* state, int enai, int tiai, int exai);

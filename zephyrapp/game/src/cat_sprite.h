@@ -132,6 +132,8 @@ extern int pet_idle_high_foc_sprite;
 extern int pet_walk_high_foc_sprite;
 extern int pet_idle_high_spi_sprite;
 extern int pet_walk_high_spi_sprite;
+extern int pet_wings_out_sprite;
+extern int pet_wings_in_sprite;
 
 extern int pet_idle_low_vig_sprite;
 extern int pet_walk_low_vig_sprite;

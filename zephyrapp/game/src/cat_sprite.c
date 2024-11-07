@@ -451,6 +451,8 @@ int pet_idle_high_foc_sprite;
 int pet_walk_high_foc_sprite;
 int pet_idle_high_spi_sprite;
 int pet_walk_high_spi_sprite;
+int pet_wings_out_sprite;
+int pet_wings_in_sprite;
 
 int pet_idle_low_vig_sprite;
 int pet_walk_low_vig_sprite;
@@ -593,8 +595,12 @@ int icon_voc_sprite[3];
 int icon_nox_sprite[3];
 
 #ifndef CAT_BAKED_ASSETS
+#ifdef LOUIS
 #define INIT_SPRITE(name, path, frames) name = CAT_sprite_init(path, frames);\
 										printf("BAKE: (%d, \"%s\", \"%s\", %d, %d, %d)\n", name, #name, path, frames, atlas.table[name].width, atlas.table[name].height);
+#else
+#define INIT_SPRITE(name, path, frames) name = CAT_sprite_init(path, frames);
+#endif
 #else
 int sprite_count = 0;
 #define INIT_SPRITE(name, path, frames) name = sprite_count++;
@@ -618,6 +624,8 @@ void CAT_sprite_mass_define()
 	INIT_SPRITE(pet_walk_high_foc_sprite, "sprites/pet_unicorn_glow_walk_a.png", 4);
 	INIT_SPRITE(pet_idle_high_spi_sprite, "sprites/pet_unicorn_shimmer_idle_a.png", 4);
 	INIT_SPRITE(pet_walk_high_spi_sprite, "sprites/pet_unicorn_shimmer_walk_a.png", 4);
+	INIT_SPRITE(pet_wings_out_sprite, "sprites/pet_unicorn_wing_a.png", 13);
+	pet_wings_in_sprite = CAT_sprite_copy(pet_wings_out_sprite, false, true);
 
 	INIT_SPRITE(pet_idle_low_vig_sprite, "sprites/pet_unicorn_idle_complex_a.png", 4);
 	INIT_SPRITE(pet_walk_low_vig_sprite, "sprites/pet_unicorn_default_walk_complex_a.png", 4);

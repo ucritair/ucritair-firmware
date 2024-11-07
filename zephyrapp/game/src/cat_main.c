@@ -129,9 +129,6 @@ typedef struct CAT_pet
 	int idle_id;
 	int walk_id;
 	int react_id;
-
-	int anim_id;
-	int bubl_id;
 	
 	int stat_timer_id;
 	int walk_timer_id;
@@ -162,8 +159,7 @@ bool CAT_pet_seek(CAT_vec2 targ)
 
 void CAT_pet_transition(int sprite_id)
 {
-	CAT_anim_reset(pet.anim_id);
-	pet.anim_id = sprite_id;
+	return;
 }
 
 void CAT_pet_stat()
@@ -234,10 +230,13 @@ void CAT_pet_refresh()
 		pet.idle_id = pet_crit_vig_sprite;
 }
 
-CAT_ASM_state* animachine;
+CAT_ASM_state* pet_asm = NULL;
 CAT_ASM_state AS_idle;
 CAT_ASM_state AS_walk;
 CAT_ASM_state AS_eat;
+
+CAT_ASM_state* bubl_asm = NULL;
+CAT_ASM_state AS_react;
 
 void CAT_pet_init()
 {
@@ -248,17 +247,17 @@ void CAT_pet_init()
 	pet.pos = (CAT_vec2) {120, 200};
 	pet.dir = (CAT_vec2) {0, 0};
 	pet.left = false;
-
-	pet.bubl_id = -1;
 	
 	pet.stat_timer_id = CAT_timer_init(5.0f);
 	pet.walk_timer_id = CAT_timer_init(4.0f);
 	pet.react_timer_id = CAT_timer_init(2.0f);
 	pet.action_timer_id = CAT_timer_init(2.0f);
 
-	CAT_ASM_init(&AS_idle, -1, pet_idle_high_vig_sprite, -1);
-	CAT_ASM_init(&AS_walk, -1, pet_walk_high_vig_sprite, -1);
+	CAT_ASM_init(&AS_idle, -1, pet_idle_sprite, -1);
+	CAT_ASM_init(&AS_walk, -1, pet_walk_sprite, -1);
 	CAT_ASM_init(&AS_eat, pet_eat_down_sprite, pet_chew_sprite, pet_eat_up_sprite);
+
+	CAT_ASM_init(&AS_react, -1, bubl_react_good_sprite, -1);
 }
 
 #pragma endregion
@@ -271,7 +270,8 @@ void CAT_MS_default(CAT_machine_signal signal)
 	{
 		case CAT_MACHINE_SIGNAL_ENTER:
 		{
-			CAT_ASM_transition(&animachine, &AS_idle);
+			CAT_ASM_transition(&pet_asm, &AS_idle);
+			CAT_ASM_transition(&bubl_asm, NULL);
 			break;
 		}
 		case CAT_MACHINE_SIGNAL_TICK:
@@ -286,18 +286,18 @@ void CAT_MS_default(CAT_machine_signal signal)
 
 			if(CAT_input_touch(pet.pos.x, pet.pos.y-16, 16))
 			{
-				pet.bubl_id = pet.react_id;
+				CAT_ASM_transition(&bubl_asm, &AS_react);
 			}
-			if(pet.bubl_id == pet.react_id)
+			if(CAT_ASM_is_in(&bubl_asm, &AS_react))
 			{
 				if(CAT_timer_tick(pet.react_timer_id))
 				{
 					CAT_timer_reset(pet.react_timer_id);
-					pet.bubl_id = -1;
+					CAT_ASM_transition(&bubl_asm, NULL);
 				}
 			}
 
-			if(CAT_ASM_is_in(&animachine, &AS_idle))
+			if(CAT_ASM_is_in(&pet_asm, &AS_idle) && CAT_ASM_is_ticking(&pet_asm))
 			{
 				if(CAT_timer_tick(pet.walk_timer_id))
 				{
@@ -307,15 +307,17 @@ void CAT_MS_default(CAT_machine_signal signal)
 					CAT_vec2 world_max = CAT_iv2v(CAT_ivec2_mul(grid_max, 16));
 					room.poi = CAT_rand_vec2(world_min, world_max);
 
-					CAT_ASM_transition(&animachine, &AS_walk);
+					CAT_ASM_transition(&pet_asm, &AS_walk);
 					CAT_timer_reset(pet.walk_timer_id);
 				}
 			}
 
-			if(CAT_ASM_is_in(&animachine, &AS_walk) && CAT_ASM_is_ticking(&animachine))
+			if(CAT_ASM_is_in(&pet_asm, &AS_walk) && CAT_ASM_is_ticking(&pet_asm))
 			{
 				if(CAT_pet_seek(room.poi))
-					CAT_ASM_transition(&animachine, &AS_idle);
+				{
+					CAT_ASM_transition(&pet_asm, &AS_idle);
+				}
 			}
 
 			if(CAT_timer_tick(pet.stat_timer_id))
@@ -348,7 +350,7 @@ void CAT_MS_feed(CAT_machine_signal signal)
 	{
 		case CAT_MACHINE_SIGNAL_ENTER:
 		{
-			CAT_ASM_transition(&animachine, &AS_idle);
+			CAT_ASM_transition(&pet_asm, &AS_idle);
 			feed_state.confirmed = false;
 			feed_state.found = false;
 			break;
@@ -373,7 +375,7 @@ void CAT_MS_feed(CAT_machine_signal signal)
 					int x_off = c_world.x > pet.pos.x ? -16 : 32;
 					feed_state.location = (CAT_vec2) {c_world.x + x_off, c_world.y + 16};
 					feed_state.confirmed = true;
-					CAT_ASM_transition(&animachine, &AS_walk);
+					CAT_ASM_transition(&pet_asm, &AS_walk);
 				}
 			}
 			else if(!feed_state.found)
@@ -382,11 +384,11 @@ void CAT_MS_feed(CAT_machine_signal signal)
 				{
 					feed_state.found = true;
 					pet.left = (room.cursor.x * 16) > pet.pos.x;
-					CAT_ASM_transition(&animachine, &AS_eat);
+					CAT_ASM_transition(&pet_asm, &AS_eat);
 				}
 			}
 
-			if(CAT_ASM_is_in(&animachine, &AS_eat))
+			if(CAT_ASM_is_in(&pet_asm, &AS_eat))
 			{
 				if(CAT_timer_tick(pet.action_timer_id))
 				{
@@ -396,8 +398,8 @@ void CAT_MS_feed(CAT_machine_signal signal)
 					pet.spirit += item->data.food_data.d_s;
 					CAT_bag_remove(feed_state.food_id);
 
-					CAT_ASM_kill(&animachine);
-					if(CAT_ASM_is_done(&animachine))
+					CAT_ASM_kill(&pet_asm);
+					if(CAT_ASM_is_done(&pet_asm))
 					{
 						CAT_timer_reset(pet.action_timer_id);
 						CAT_machine_transition(&machine, CAT_MS_default);
@@ -782,12 +784,11 @@ void CAT_render(int cycle)
 		int pet_mode = CAT_DRAW_MODE_BOTTOM | CAT_DRAW_MODE_CENTER_X;
 		if(pet.left)
 			pet_mode |= CAT_DRAW_MODE_REFLECT_X;
-		pet.anim_id = CAT_ASM_tick(&animachine);
-		CAT_draw_queue_animate(pet.anim_id, 2, pet.pos.x, pet.pos.y, pet_mode);	
-		if(pet.bubl_id != -1)
+		CAT_draw_queue_animate(CAT_ASM_tick(&pet_asm), 2, pet.pos.x, pet.pos.y, pet_mode);	
+		if(bubl_asm != NULL)
 		{
 			int x_off = pet.left ? 16 : -16;
-			CAT_draw_queue_animate(pet.bubl_id, 3, pet.pos.x + x_off, pet.pos.y - 48, pet_mode);	
+			CAT_draw_queue_animate(CAT_ASM_tick(&bubl_asm), 3, pet.pos.x + x_off, pet.pos.y - 48, pet_mode);	
 		}
 
 		if(machine == CAT_MS_feed)
