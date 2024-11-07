@@ -121,7 +121,6 @@ extern int base_floor_sprite;
 extern int sky_wall_sprite;
 extern int grass_floor_sprite;
 
-
 // PET
 extern int pet_idle_sprite;
 extern int pet_walk_sprite;
@@ -143,8 +142,11 @@ extern int pet_idle_low_spi_sprite;
 extern int pet_walk_low_spi_sprite;
 
 extern int pet_crit_vig_sprite;
+extern int pet_uncrit_vig_sprite;
 extern int pet_crit_foc_sprite;
+extern int pet_uncrit_foc_sprite;
 extern int pet_crit_spi_sprite;
+extern int pet_uncrit_spi_sprite;
 
 extern int pet_vig_up_sprite;
 extern int pet_foc_up_sprite;
@@ -159,7 +161,6 @@ extern int bubl_low_foc_sprite;
 extern int bubl_low_spi_sprite;
 extern int bubl_react_good_sprite;
 extern int bubl_react_bad_sprite;
-
 
 // PROPS
 extern int window_dawn_sprite;
@@ -211,13 +212,13 @@ extern int crystal_blue_lg_sprite;
 extern int crystal_green_lg_sprite;
 extern int crystal_purple_lg_sprite;
 
-
-// FOOD
+// GRIMBA
 extern int cigarette_sprite;
 extern int sausage_sprite;
 extern int padkrapow_sprite;
 extern int coffee_sprite;
-
+extern int toy_sprite;
+extern int book_sprite;
 
 // WORLD UI
 extern int cursor_sprite;

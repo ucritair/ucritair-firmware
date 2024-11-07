@@ -98,6 +98,9 @@ int CAT_sprite_init(const char* path, int frame_count)
 
 int CAT_sprite_copy(int sprite_id, bool loop, bool reverse)
 {
+	if(sprite_id < 0 || sprite_id >= atlas.length)
+		return -1;
+
 	CAT_sprite copy = atlas.table[sprite_id];
 	copy.frame_idx = reverse ? copy.frame_count-1 : 0;
 	copy.loop = loop;
@@ -190,6 +193,8 @@ void unpack_rle_row()
 
 void CAT_draw_sprite(int sprite_id, int frame_idx, int x, int y)
 {
+	if(sprite_id < 0 || sprite_id >= atlas.length)
+		return;
 	CAT_sprite sprite = atlas.table[sprite_id];
 	int w = sprite.width;
 	int h = sprite.height;
@@ -254,6 +259,8 @@ void CAT_draw_sprite(int sprite_id, int frame_idx, int x, int y)
 
 void CAT_draw_tiles(int sprite_id, int frame_idx, int y_t, int h_t)
 {
+	if(sprite_id < 0 || sprite_id >= atlas.length)
+		return;
 	CAT_sprite sprite = atlas.table[sprite_id];
 
 #ifndef CAT_BAKED_ASSETS
@@ -320,18 +327,28 @@ CAT_draw_queue draw_queue;
 
 void CAT_anim_toggle_loop(int sprite_id, bool toggle)
 {
+	if(sprite_id < 0 || sprite_id >= atlas.length)
+		return;
 	CAT_sprite* sprite = &atlas.table[sprite_id];
 	sprite->loop = toggle;
 }
 
 void CAT_anim_toggle_reverse(int sprite_id, bool toggle)
 {
+	if(sprite_id < 0 || sprite_id >= atlas.length)
+		return;
 	CAT_sprite* sprite = &atlas.table[sprite_id];
 	sprite->reverse = toggle;
+	if(sprite->reverse)
+		sprite->frame_idx = sprite->frame_count-1;
+	else
+		sprite->frame_idx = 0;
 }
 
 bool CAT_anim_finished(int sprite_id)
 {
+	if(sprite_id < 0 || sprite_id >= atlas.length)
+		return true;
 	CAT_sprite* sprite = &atlas.table[sprite_id];
 	if(sprite->reverse)
 		return sprite->frame_idx == 0;
@@ -341,6 +358,8 @@ bool CAT_anim_finished(int sprite_id)
 
 void CAT_anim_reset(int sprite_id)
 {
+	if(sprite_id < 0 || sprite_id >= atlas.length)
+		return;
 	CAT_sprite* sprite = &atlas.table[sprite_id];
 	if(sprite->reverse)
 		sprite->frame_idx = sprite->frame_count-1;
@@ -440,7 +459,6 @@ int base_floor_sprite;
 int sky_wall_sprite;
 int grass_floor_sprite;
 
-
 // PET
 int pet_idle_sprite;
 int pet_walk_sprite;
@@ -462,8 +480,11 @@ int pet_idle_low_spi_sprite;
 int pet_walk_low_spi_sprite;
 
 int pet_crit_vig_sprite;
+int pet_uncrit_vig_sprite;
 int pet_crit_foc_sprite;
+int pet_uncrit_foc_sprite;
 int pet_crit_spi_sprite;
+int pet_uncrit_spi_sprite;
 
 int pet_vig_up_sprite;
 int pet_foc_up_sprite;
@@ -478,7 +499,6 @@ int bubl_low_foc_sprite;
 int bubl_low_spi_sprite;
 int bubl_react_good_sprite;
 int bubl_react_bad_sprite;
-
 
 // PROPS
 int window_dawn_sprite;
@@ -530,13 +550,13 @@ int crystal_blue_lg_sprite;
 int crystal_green_lg_sprite;
 int crystal_purple_lg_sprite;
 
-
 // FOOD
 int cigarette_sprite;
 int sausage_sprite;
 int padkrapow_sprite;
 int coffee_sprite;
-
+int toy_sprite;
+int book_sprite;
 
 // WORLD UI
 int cursor_sprite;
@@ -602,6 +622,7 @@ int icon_nox_sprite[3];
 										printf("BAKE-COPY: (%d, \"%s\", %d, %d, %d)\n", name, #name, from, loop, reverse);
 #else
 #define INIT_SPRITE(name, path, frames) name = CAT_sprite_init(path, frames);
+#define COPY_SPRITE(name, from, loop, reverse) name = CAT_sprite_copy(from, loop, reverse);
 #endif
 #else
 int sprite_count = 0;
@@ -634,20 +655,26 @@ void CAT_sprite_mass_define()
 	INIT_SPRITE(pet_wings_out_sprite, "sprites/pet_unicorn_wing_a.png", 13);
 	pet_wings_in_sprite = CAT_sprite_copy(pet_wings_out_sprite, false, true);
 
-	INIT_SPRITE(pet_idle_low_vig_sprite, "sprites/pet_unicorn_idle_complex_a.png", 4);
-	INIT_SPRITE(pet_walk_low_vig_sprite, "sprites/pet_unicorn_default_walk_complex_a.png", 4);
-	INIT_SPRITE(pet_idle_low_foc_sprite, "sprites/pet_unicorn_idle_complex_a.png", 4);
-	INIT_SPRITE(pet_walk_low_foc_sprite, "sprites/pet_unicorn_default_walk_complex_a.png", 4);
-	INIT_SPRITE(pet_idle_low_spi_sprite, "sprites/pet_unicorn_idle_complex_a.png", 4);
-	INIT_SPRITE(pet_walk_low_spi_sprite, "sprites/pet_unicorn_default_walk_complex_a.png", 4);
+	INIT_SPRITE(pet_idle_low_vig_sprite, "sprites/pet_unicorn_tired_a.png", 4);
+	INIT_SPRITE(pet_walk_low_vig_sprite, "sprites/pet_unicorn_tired_walk_a.png", 4);
+	INIT_SPRITE(pet_idle_low_foc_sprite, "sprites/pet_unicorn_messy_a.png", 4);
+	INIT_SPRITE(pet_walk_low_foc_sprite, "sprites/pet_unicorn_messy_walk_a.png", 4);
+	INIT_SPRITE(pet_idle_low_spi_sprite, "sprites/pet_unicorn_sad_idle_a.png", 4);
+	INIT_SPRITE(pet_walk_low_spi_sprite, "sprites/pet_unicorn_sad_walk_a.png", 4);
 
 	INIT_SPRITE(pet_vig_up_sprite, "sprites/pet_unicorn_stat_vigor_up_a.png", 13);
 	INIT_SPRITE(pet_foc_up_sprite, "sprites/pet_unicorn_stat_focus_up_a.png", 13);
 	INIT_SPRITE(pet_spi_up_sprite, "sprites/pet_unicorn_stat_spirit_up_a.png", 13);
 
 	INIT_SPRITE(pet_crit_vig_sprite, "sprites/pet_unicorn_melt_a.png", 8);
-	INIT_SPRITE(pet_crit_foc_sprite, "sprites/pet_unicorn_melt_a.png", 8);
-	INIT_SPRITE(pet_crit_spi_sprite, "sprites/pet_unicorn_melt_a.png", 8);
+	CAT_anim_toggle_loop(pet_crit_vig_sprite, false);
+	pet_uncrit_vig_sprite = CAT_sprite_copy(pet_crit_vig_sprite, false, true);
+	INIT_SPRITE(pet_crit_foc_sprite, "sprites/pet_unicorn_tipped_a.png", 8);
+	CAT_anim_toggle_loop(pet_crit_foc_sprite, false);
+	pet_uncrit_foc_sprite = CAT_sprite_copy(pet_crit_foc_sprite, false, true);
+	INIT_SPRITE(pet_crit_spi_sprite, "sprites/pet_unicorn_block_a.png", 8);
+	CAT_anim_toggle_loop(pet_crit_spi_sprite, false);
+	pet_uncrit_spi_sprite = CAT_sprite_copy(pet_crit_spi_sprite, false, true);
 
 	INIT_SPRITE(pet_eat_down_sprite, "sprites/pet_unicorn_eat_lower_a.png", 7);
 	COPY_SPRITE(pet_eat_up_sprite, pet_eat_down_sprite, false, true);
@@ -713,6 +740,8 @@ void CAT_sprite_mass_define()
 	INIT_SPRITE(sausage_sprite, "sprites/food_sausage_sm.png", 1);
 	INIT_SPRITE(padkrapow_sprite, "sprites/food_padkrakow_sm.png", 1);
 	INIT_SPRITE(coffee_sprite, "sprites/food_coffee_sm.png", 1);
+	INIT_SPRITE(toy_sprite, "sprites/toy.png", 1);
+	INIT_SPRITE(book_sprite, "sprites/book.png", 1);
 
 	// WORLD UI
 	INIT_SPRITE(cursor_sprite, "sprites/cursor_room_ornate.png", 1);

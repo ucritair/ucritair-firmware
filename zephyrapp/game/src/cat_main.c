@@ -19,23 +19,32 @@
 
 #pragma region DATA
 
-CAT_machine_state machine;
+CAT_machine_state machine = NULL;
 void CAT_MS_default(CAT_machine_signal);
 void CAT_MS_feed(CAT_machine_signal);
+void CAT_MS_study(CAT_machine_signal);
+void CAT_MS_play(CAT_machine_signal);
 void CAT_MS_deco(CAT_machine_signal);
 void CAT_MS_menu(CAT_machine_signal);
 void CAT_MS_stats(CAT_machine_signal);
 void CAT_MS_bag(CAT_machine_signal);
 void CAT_MS_manual(CAT_machine_signal);
 
-typedef struct CAT_feed_state
-{
-	CAT_vec2 location;
-	bool confirmed;
-	bool found;
-	int food_id;
-} CAT_feed_state;
-CAT_feed_state feed_state;
+CAT_ASM_state* pet_asm = NULL;
+CAT_ASM_state AS_idle;
+CAT_ASM_state AS_walk;
+CAT_ASM_state AS_adjust_in;
+CAT_ASM_state AS_walk_action;
+CAT_ASM_state AS_eat;
+CAT_ASM_state AS_study;
+CAT_ASM_state AS_play;
+CAT_ASM_state AS_adjust_out;
+CAT_ASM_state AS_vig_up;
+CAT_ASM_state AS_foc_up;
+CAT_ASM_state AS_spi_up;
+
+CAT_ASM_state* bubl_asm = NULL;
+CAT_ASM_state AS_react;
 
 typedef struct CAT_deco_state
 {
@@ -104,8 +113,8 @@ void CAT_room_init()
 	room.cursor = room.bounds.min;
 
 	room.buttons[0] = CAT_MS_feed;
-	room.buttons[1] = CAT_MS_feed;
-	room.buttons[2] = CAT_MS_feed;
+	room.buttons[1] = CAT_MS_study;
+	room.buttons[2] = CAT_MS_play;
 	room.buttons[3] = CAT_MS_deco;
 	room.buttons[4] = CAT_MS_menu;
 	room.selector = 0;
@@ -125,10 +134,6 @@ typedef struct CAT_pet
 	CAT_vec2 pos;
 	CAT_vec2 dir;
 	bool left;
-
-	int idle_id;
-	int walk_id;
-	int react_id;
 	
 	int stat_timer_id;
 	int walk_timer_id;
@@ -174,69 +179,22 @@ void CAT_pet_stat()
 	pet.critical = (pet.vigour >= 1 && pet.focus >= 1 && pet.spirit >= 1);
 }
 
-void CAT_pet_refresh()
+void CAT_pet_anim_init()
 {
-	pet.idle_id = pet_idle_sprite;
-	pet.walk_id = pet_walk_sprite;
-	pet.react_id = bubl_react_good_sprite;
-	
-	if(pet.focus > 9)
-	{
-		pet.idle_id = pet_idle_high_foc_sprite;
-		pet.walk_id = pet_walk_high_foc_sprite;
-	}
-	if(pet.spirit > 9)
-	{
-		pet.idle_id = pet_idle_high_spi_sprite;
-		pet.walk_id = pet_walk_high_spi_sprite;
-	}
-	if(pet.vigour > 9)
-	{
-		pet.idle_id = pet_idle_high_vig_sprite;
-		pet.walk_id = pet_walk_high_vig_sprite;
-	}
+	CAT_ASM_init(&AS_idle, -1, pet_idle_high_vig_sprite, -1);
+	CAT_ASM_init(&AS_walk, -1, pet_walk_high_vig_sprite, -1);
+	CAT_ASM_init(&AS_adjust_in, -1, -1, pet_wings_in_sprite);
+	CAT_ASM_init(&AS_walk_action, -1, pet_walk_sprite, -1);
+	CAT_ASM_init(&AS_eat, pet_eat_down_sprite, pet_chew_sprite, pet_eat_up_sprite);
+	CAT_ASM_init(&AS_study, pet_eat_down_sprite, pet_chew_sprite, pet_eat_up_sprite);
+	CAT_ASM_init(&AS_play, pet_eat_down_sprite, pet_chew_sprite, pet_eat_up_sprite);
+	CAT_ASM_init(&AS_adjust_out, -1, -1, pet_wings_out_sprite);
+	CAT_ASM_init(&AS_vig_up, -1, -1, pet_vig_up_sprite);
+	CAT_ASM_init(&AS_foc_up, -1, -1, pet_foc_up_sprite);
+	CAT_ASM_init(&AS_spi_up, -1, -1, pet_spi_up_sprite);
 
-	if(pet.focus <= 6)
-		pet.react_id = bubl_low_foc_sprite;
-	if(pet.spirit <= 6)
-		pet.react_id = bubl_low_spi_sprite;
-	if(pet.vigour <= 6)
-		pet.react_id = bubl_low_vig_sprite;
-
-	if(pet.focus <= 3)
-	{
-		pet.idle_id = pet_idle_low_foc_sprite;
-		pet.walk_id = pet_walk_low_foc_sprite;
-		pet.react_id = bubl_react_bad_sprite;
-	}
-	if(pet.spirit <= 3)
-	{
-		pet.idle_id = pet_idle_low_spi_sprite;
-		pet.walk_id = pet_walk_low_spi_sprite;
-		pet.react_id = bubl_react_bad_sprite;
-	}
-	if(pet.vigour <= 3)
-	{
-		pet.idle_id = pet_idle_low_vig_sprite;
-		pet.walk_id = pet_walk_low_vig_sprite;
-		pet.react_id = bubl_react_bad_sprite;
-	}
-
-	if(pet.focus <= 0)
-		pet.idle_id = pet_crit_foc_sprite;
-	if(pet.spirit <= 0)
-		pet.idle_id = pet_crit_spi_sprite;
-	if(pet.vigour <= 0)
-		pet.idle_id = pet_crit_vig_sprite;
+	CAT_ASM_init(&AS_react, -1, bubl_react_good_sprite, -1);
 }
-
-CAT_ASM_state* pet_asm = NULL;
-CAT_ASM_state AS_idle;
-CAT_ASM_state AS_walk;
-CAT_ASM_state AS_eat;
-
-CAT_ASM_state* bubl_asm = NULL;
-CAT_ASM_state AS_react;
 
 void CAT_pet_init()
 {
@@ -253,11 +211,7 @@ void CAT_pet_init()
 	pet.react_timer_id = CAT_timer_init(2.0f);
 	pet.action_timer_id = CAT_timer_init(2.0f);
 
-	CAT_ASM_init(&AS_idle, -1, pet_idle_sprite, -1);
-	CAT_ASM_init(&AS_walk, -1, pet_walk_sprite, -1);
-	CAT_ASM_init(&AS_eat, pet_eat_down_sprite, pet_chew_sprite, pet_eat_up_sprite);
-
-	CAT_ASM_init(&AS_react, -1, bubl_react_good_sprite, -1);
+	CAT_pet_anim_init();
 }
 
 #pragma endregion
@@ -337,11 +291,18 @@ void CAT_MS_default(CAT_machine_signal signal)
 
 #pragma region FEED
 
+typedef struct CAT_feed_state
+{
+	CAT_vec2 location;
+	bool confirmed;
+	int food_id;
+} CAT_feed_state;
+CAT_feed_state feed_state;
+
 void CAT_feed_state_init()
 {
-	feed_state.confirmed = false;
-	feed_state.found = false;
 	feed_state.food_id = -1;
+	feed_state.confirmed = false;
 }
 
 void CAT_MS_feed(CAT_machine_signal signal)
@@ -350,44 +311,49 @@ void CAT_MS_feed(CAT_machine_signal signal)
 	{
 		case CAT_MACHINE_SIGNAL_ENTER:
 		{
-			CAT_ASM_transition(&pet_asm, &AS_idle);
-			feed_state.confirmed = false;
-			feed_state.found = false;
 			break;
 		}
 		case CAT_MACHINE_SIGNAL_TICK:
 		{
-			if(feed_state.food_id == -1)
+			if(!feed_state.confirmed)
 			{
-				CAT_room_move_cursor();
-				if(CAT_input_pressed(CAT_BUTTON_A))
+				if(feed_state.food_id == -1)
 				{
-					bag_state.destination = CAT_MS_feed;
-					CAT_machine_transition(&machine, CAT_MS_bag);
+					CAT_room_move_cursor();
+					if(CAT_input_pressed(CAT_BUTTON_A))
+					{
+						bag_state.destination = CAT_MS_feed;
+						CAT_machine_transition(&machine, CAT_MS_bag);
+					}
 				}
-			}
-			else if(!feed_state.confirmed)
-			{
-				CAT_room_move_cursor();
-				if(CAT_input_pressed(CAT_BUTTON_A))
+				else
 				{
-					CAT_ivec2 c_world = CAT_ivec2_mul(room.cursor, 16);
-					int x_off = c_world.x > pet.pos.x ? -16 : 32;
-					feed_state.location = (CAT_vec2) {c_world.x + x_off, c_world.y + 16};
-					feed_state.confirmed = true;
-					CAT_ASM_transition(&pet_asm, &AS_walk);
+					CAT_room_move_cursor();
+					if(CAT_input_pressed(CAT_BUTTON_A))
+					{
+						CAT_ivec2 c_world = CAT_ivec2_mul(room.cursor, 16);
+						int x_off = c_world.x > pet.pos.x ? -16 : 32;
+						feed_state.location = (CAT_vec2) {c_world.x + x_off, c_world.y + 16};
+						feed_state.confirmed = true;
+						CAT_ASM_transition(&pet_asm, &AS_adjust_in);
+					}
 				}
+
+				if(CAT_input_pressed(CAT_BUTTON_B))
+					CAT_machine_transition(&machine, CAT_MS_default);
 			}
-			else if(!feed_state.found)
+			
+			
+			if(CAT_ASM_is_in(&pet_asm, &AS_adjust_in))
+				CAT_ASM_transition(&pet_asm, &AS_walk_action);
+			if(CAT_ASM_is_in(&pet_asm, &AS_walk_action) && CAT_ASM_is_ticking(&pet_asm))
 			{
 				if(CAT_pet_seek(feed_state.location))
 				{
-					feed_state.found = true;
 					pet.left = (room.cursor.x * 16) > pet.pos.x;
 					CAT_ASM_transition(&pet_asm, &AS_eat);
 				}
 			}
-
 			if(CAT_ASM_is_in(&pet_asm, &AS_eat))
 			{
 				if(CAT_timer_tick(pet.action_timer_id))
@@ -396,24 +362,210 @@ void CAT_MS_feed(CAT_machine_signal signal)
 					pet.vigour += item->data.food_data.d_v;
 					pet.focus += item->data.food_data.d_f;
 					pet.spirit += item->data.food_data.d_s;
-					CAT_bag_remove(feed_state.food_id);
 
 					CAT_ASM_kill(&pet_asm);
-					if(CAT_ASM_is_done(&pet_asm))
-					{
-						CAT_timer_reset(pet.action_timer_id);
-						CAT_machine_transition(&machine, CAT_MS_default);
-					}
+					CAT_ASM_transition(&pet_asm, &AS_vig_up);
+					CAT_timer_reset(pet.action_timer_id);
 				}
 			}
-			
-			if(CAT_input_pressed(CAT_BUTTON_B))
+			if(CAT_ASM_is_in(&pet_asm, &AS_vig_up))
+				CAT_ASM_transition(&pet_asm, &AS_adjust_out);
+			if(CAT_ASM_is_in(&pet_asm, &AS_adjust_out))
 				CAT_machine_transition(&machine, CAT_MS_default);
-			break;
+
+			break;	
 		}
 		case CAT_MACHINE_SIGNAL_EXIT:
 		{
 			feed_state.food_id = -1;
+			feed_state.confirmed = false;
+			break;
+		}
+	}
+}
+
+#pragma endregion
+
+#pragma region STUDY
+
+typedef struct CAT_study_state
+{
+	CAT_vec2 location;
+	bool confirmed;
+	int book_id;
+} CAT_study_state;
+CAT_study_state study_state;
+
+void CAT_study_state_init()
+{
+	study_state.book_id = -1;
+	study_state.confirmed = false;
+}
+
+void CAT_MS_study(CAT_machine_signal signal)
+{
+	switch(signal)
+	{
+		case CAT_MACHINE_SIGNAL_ENTER:
+		{
+			break;
+		}
+		case CAT_MACHINE_SIGNAL_TICK:
+		{
+			if(!study_state.confirmed)
+			{
+				if(study_state.book_id == -1)
+				{
+					CAT_room_move_cursor();
+					if(CAT_input_pressed(CAT_BUTTON_A))
+					{
+						bag_state.destination = CAT_MS_study;
+						CAT_machine_transition(&machine, CAT_MS_bag);
+					}
+				}
+				else
+				{
+					CAT_room_move_cursor();
+					if(CAT_input_pressed(CAT_BUTTON_A))
+					{
+						CAT_ivec2 c_world = CAT_ivec2_mul(room.cursor, 16);
+						int x_off = c_world.x > pet.pos.x ? -16 : 32;
+						study_state.location = (CAT_vec2) {c_world.x + x_off, c_world.y + 16};
+						study_state.confirmed = true;
+						CAT_ASM_transition(&pet_asm, &AS_adjust_in);
+					}
+				}
+
+				if(CAT_input_pressed(CAT_BUTTON_B))
+					CAT_machine_transition(&machine, CAT_MS_default);
+			}
+			
+			if(CAT_ASM_is_in(&pet_asm, &AS_adjust_in))
+				CAT_ASM_transition(&pet_asm, &AS_walk_action);
+			if(CAT_ASM_is_in(&pet_asm, &AS_walk_action) && CAT_ASM_is_ticking(&pet_asm))
+			{
+				if(CAT_pet_seek(study_state.location))
+				{
+					pet.left = (room.cursor.x * 16) > pet.pos.x;
+					CAT_ASM_transition(&pet_asm, &AS_study);
+				}
+			}
+			if(CAT_ASM_is_in(&pet_asm, &AS_study))
+			{
+				if(CAT_timer_tick(pet.action_timer_id))
+				{
+					pet.focus += 3;
+
+					CAT_ASM_kill(&pet_asm);
+					CAT_ASM_transition(&pet_asm, &AS_vig_up);
+					CAT_timer_reset(pet.action_timer_id);
+				}
+			}
+			if(CAT_ASM_is_in(&pet_asm, &AS_vig_up))
+				CAT_ASM_transition(&pet_asm, &AS_adjust_out);
+			if(CAT_ASM_is_in(&pet_asm, &AS_adjust_out))
+				CAT_machine_transition(&machine, CAT_MS_default);
+
+			break;	
+		}
+		case CAT_MACHINE_SIGNAL_EXIT:
+		{
+			study_state.book_id = -1;
+			study_state.confirmed = false;
+			break;
+		}
+	}
+}
+
+#pragma endregion
+
+#pragma region PLAY
+
+typedef struct CAT_play_state
+{
+	CAT_vec2 location;
+	bool confirmed;
+	int toy_id;
+} CAT_play_state;
+CAT_play_state play_state;
+
+void CAT_play_state_init()
+{
+	play_state.toy_id = -1;
+	play_state.confirmed = false;
+}
+
+void CAT_MS_play(CAT_machine_signal signal)
+{
+	switch(signal)
+	{
+		case CAT_MACHINE_SIGNAL_ENTER:
+		{
+			break;
+		}
+		case CAT_MACHINE_SIGNAL_TICK:
+		{
+			if(!play_state.confirmed)
+			{
+				if(play_state.toy_id == -1)
+				{
+					CAT_room_move_cursor();
+					if(CAT_input_pressed(CAT_BUTTON_A))
+					{
+						bag_state.destination = CAT_MS_play;
+						CAT_machine_transition(&machine, CAT_MS_bag);
+					}
+				}
+				else
+				{
+					CAT_room_move_cursor();
+					if(CAT_input_pressed(CAT_BUTTON_A))
+					{
+						CAT_ivec2 c_world = CAT_ivec2_mul(room.cursor, 16);
+						int x_off = c_world.x > pet.pos.x ? -16 : 32;
+						play_state.location = (CAT_vec2) {c_world.x + x_off, c_world.y + 16};
+						play_state.confirmed = true;
+						CAT_ASM_transition(&pet_asm, &AS_adjust_in);
+					}
+				}
+
+				if(CAT_input_pressed(CAT_BUTTON_B))
+					CAT_machine_transition(&machine, CAT_MS_default);
+			}
+			
+			
+			if(CAT_ASM_is_in(&pet_asm, &AS_adjust_in))
+				CAT_ASM_transition(&pet_asm, &AS_walk_action);
+			if(CAT_ASM_is_in(&pet_asm, &AS_walk_action) && CAT_ASM_is_ticking(&pet_asm))
+			{
+				if(CAT_pet_seek(play_state.location))
+				{
+					pet.left = (room.cursor.x * 16) > pet.pos.x;
+					CAT_ASM_transition(&pet_asm, &AS_play);
+				}
+			}
+			if(CAT_ASM_is_in(&pet_asm, &AS_play))
+			{
+				if(CAT_timer_tick(pet.action_timer_id))
+				{
+					pet.focus += 3;
+
+					CAT_ASM_kill(&pet_asm);
+					CAT_ASM_transition(&pet_asm, &AS_vig_up);
+					CAT_timer_reset(pet.action_timer_id);
+				}
+			}
+			if(CAT_ASM_is_in(&pet_asm, &AS_vig_up))
+				CAT_ASM_transition(&pet_asm, &AS_adjust_out);
+			if(CAT_ASM_is_in(&pet_asm, &AS_adjust_out))
+				CAT_machine_transition(&machine, CAT_MS_default);
+
+			break;	
+		}
+		case CAT_MACHINE_SIGNAL_EXIT:
+		{
+			play_state.toy_id = -1;
+			play_state.confirmed = false;
 			break;
 		}
 	}
@@ -681,13 +833,18 @@ void CAT_MS_bag(CAT_machine_signal signal)
 				break;
 
 			if(CAT_input_pulse(CAT_BUTTON_UP))
+			{
 				bag_state.idx -= 1;
 				if(bag_state.idx == -1)
 					bag_state.idx = bag.length-1;
+			}
 			if(CAT_input_pulse(CAT_BUTTON_DOWN))
+			{
 				bag_state.idx += 1;
 				if(bag_state.idx == bag.length)
 					bag_state.idx = 0;
+			}
+				
 			bag_state.idx = clamp(bag_state.idx, 0, bag.length-1);
 
 			int overshoot = bag_state.idx - bag_state.base;
@@ -753,6 +910,8 @@ void CAT_render(int cycle)
 	(
 		machine == CAT_MS_default ||
 		machine == CAT_MS_feed ||
+		machine == CAT_MS_study ||
+		machine == CAT_MS_play ||
 		machine == CAT_MS_deco
 	)
 	{
@@ -798,6 +957,34 @@ void CAT_render(int cycle)
 				CAT_item* food = &item_table.data[feed_state.food_id];
 				CAT_draw_queue_add(food->sprite_id, 0, 2, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
 				if(!feed_state.confirmed)
+					CAT_draw_queue_add(tile_hl_sprite, 0, 2, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
+			}
+			else
+			{
+				CAT_draw_queue_add(cursor_sprite, 0, 2, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
+			}
+		}
+		if(machine == CAT_MS_study)
+		{
+			if(study_state.book_id != -1)
+			{
+				CAT_item* book = &item_table.data[study_state.book_id];
+				CAT_draw_queue_add(book->sprite_id, 0, 2, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
+				if(!study_state.confirmed)
+					CAT_draw_queue_add(tile_hl_sprite, 0, 2, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
+			}
+			else
+			{
+				CAT_draw_queue_add(cursor_sprite, 0, 2, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
+			}
+		}
+		if(machine == CAT_MS_play)
+		{
+			if(play_state.toy_id != -1)
+			{
+				CAT_item* toy = &item_table.data[play_state.toy_id];
+				CAT_draw_queue_add(toy->sprite_id, 0, 2, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
+				if(!play_state.confirmed)
 					CAT_draw_queue_add(tile_hl_sprite, 0, 2, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
 			}
 			else
@@ -992,7 +1179,10 @@ void CAT_render(int cycle)
 			}
 
 			char text[64];
-			sprintf(text, " %s *%d", item->name, bag.count[idx]);
+			if(item->type == CAT_ITEM_TYPE_PROP)
+				sprintf(text, " %s *%d", item->name, bag.count[idx]);
+			else
+				sprintf(text, " %s", item->name);
 			if
 			(
 				(bag_state.destination == CAT_MS_deco && item->type != CAT_ITEM_TYPE_PROP) ||
@@ -1069,6 +1259,8 @@ void CAT_init()
 	CAT_pet_init();
 	CAT_room_init();
 	CAT_feed_state_init();
+	CAT_study_state_init();
+	CAT_play_state_init();
 	CAT_deco_state_init();
 	CAT_menu_state_init();
 	CAT_bag_state_init();

@@ -77,6 +77,7 @@ void CAT_machine_tick(CAT_machine_state* machine)
 		(**machine)(CAT_MACHINE_SIGNAL_TICK);
 }
 
+
 //////////////////////////////////////////////////////////////////////////
 // ANIMACHINE
 
@@ -92,14 +93,18 @@ void CAT_ASM_init(CAT_ASM_state* state, int enai, int tiai, int exai)
 void CAT_ASM_transition(CAT_ASM_state** spp, CAT_ASM_state* next)
 {
 	CAT_ASM_state* sp = *spp;
-	if(sp != NULL && sp->signal != DONE)
+	if(sp != NULL)
 	{
-		sp->signal = EXIT;
+		if(sp->signal != DONE)
+			sp->signal = EXIT;
 		sp->next = next;
 	}
 	else if(next != NULL)
 	{
 		next->signal = ENTER;
+		CAT_anim_reset(next->enter_anim_id);
+		CAT_anim_reset(next->tick_anim_id);
+		CAT_anim_reset(next->exit_anim_id);
 		*spp = next;
 	}
 	else
@@ -159,26 +164,21 @@ int CAT_ASM_tick(CAT_ASM_state** spp)
 	CAT_ASM_state* sp = *spp;
 	if(sp->signal == ENTER)
 	{
-		if(sp->enter_anim_id != -1)
-		{
-			if(CAT_anim_finished(sp->enter_anim_id))
-				CAT_anim_reset(sp->enter_anim_id);
-			else
-				return sp->enter_anim_id;
-		}
+		if(!CAT_anim_finished(sp->enter_anim_id))
+			return sp->enter_anim_id;
 		sp->signal = TICK;
-		return sp->tick_anim_id;
 	}
-	else if(sp->signal == TICK)
+	if(sp->signal == TICK)
 	{
-		return sp->tick_anim_id;
+		if(sp->tick_anim_id != -1)
+			return sp->tick_anim_id;
+		sp->signal = EXIT;
 	}
-	if(sp->signal == EXIT && sp->exit_anim_id != -1)
+	if(sp->signal == EXIT)
 	{
-		if(CAT_anim_finished(sp->exit_anim_id))
-			CAT_anim_reset(sp->exit_anim_id);
-		else
-			return sp->exit_anim_id;	
+		if(!CAT_anim_finished(sp->exit_anim_id))
+			return sp->exit_anim_id;
+		sp->signal = DONE;
 	}
 
 	if(sp->next != NULL)
@@ -187,9 +187,11 @@ int CAT_ASM_tick(CAT_ASM_state** spp)
 		sp->next = NULL;
 
 		next->signal = ENTER;
+		CAT_anim_reset(next->enter_anim_id);
+		CAT_anim_reset(next->tick_anim_id);
+		CAT_anim_reset(next->exit_anim_id);
 		*spp = next;
 	}
 
-	sp->signal = DONE;
 	return sp->exit_anim_id != -1 ? sp->exit_anim_id : sp->tick_anim_id;
 }

@@ -129,6 +129,30 @@ app/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/app.dir/build.make CMakeFiles/app.dir/build
 .PHONY : app/fast
 
+src/cat_aqi.o: src/cat_aqi.c.o
+.PHONY : src/cat_aqi.o
+
+# target to build an object file
+src/cat_aqi.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/app.dir/build.make CMakeFiles/app.dir/src/cat_aqi.c.o
+.PHONY : src/cat_aqi.c.o
+
+src/cat_aqi.i: src/cat_aqi.c.i
+.PHONY : src/cat_aqi.i
+
+# target to preprocess a source file
+src/cat_aqi.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/app.dir/build.make CMakeFiles/app.dir/src/cat_aqi.c.i
+.PHONY : src/cat_aqi.c.i
+
+src/cat_aqi.s: src/cat_aqi.c.s
+.PHONY : src/cat_aqi.s
+
+# target to generate assembly for a file
+src/cat_aqi.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/app.dir/build.make CMakeFiles/app.dir/src/cat_aqi.c.s
+.PHONY : src/cat_aqi.c.s
+
 src/cat_desktop.o: src/cat_desktop.c.o
 .PHONY : src/cat_desktop.o
 
@@ -330,6 +354,9 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... app"
+	@echo "... src/cat_aqi.o"
+	@echo "... src/cat_aqi.i"
+	@echo "... src/cat_aqi.s"
 	@echo "... src/cat_desktop.o"
 	@echo "... src/cat_desktop.i"
 	@echo "... src/cat_desktop.s"
