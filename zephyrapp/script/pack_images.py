@@ -17,6 +17,8 @@ class BakeData:
 	frames: str
 	width: str
 	height: str
+	loop: bool = False
+	reverse: bool = False
 	rlesize: int = 0
 	colors: set = None
 
@@ -29,12 +31,19 @@ atlas = []
 with open(os.path.dirname(__file__)+"/atlasdata.txt", 'r') as fd:
 	for line in fd.readlines():
 		line = line.strip()
-		if not line.startswith("BAKE:"): continue
+		if line.startswith("BAKE-INIT:"):
+			tup = eval(line.replace('BAKE-INIT: ', '', 1))
 
-		tup = eval(line.replace('BAKE: ', '', 1))
+			idx, name, path, frames, width, height = tup
+			name = name.replace('[','').replace(']','')
+			atlas.append(BakeData(int(idx), name, path, int(frames), int(width), int(height)))
+		elif line.startswith("BAKE-COPY:"):
+			tup = eval(line.replace('BAKE-COPY: ', '', 1))
 
-		idx, name, path, frames, width, height = tup
-		atlas.append(BakeData(int(idx), name, path, int(frames), int(width), int(height)))
+			idx, name, from_, loop, reverse = tup
+			name = name.replace('[','').replace(']','')
+			from_ = atlas[from_]
+			atlas.append(BakeData(int(idx), name, from_.path, from_.frames, from_.width, loop, reverse))
 
 # assert len(set(x.path for x in atlas)) == len([x.path for x in atlas]), "Duplicated path"
 assert len(set(x.name for x in atlas)) == len([x.name for x in atlas]), "Duplicated name"
@@ -146,6 +155,8 @@ def rleencode(data, width):
 
 	return output
 
+texture_use_cache = {}
+
 with open(f"{output}/images.c", 'w') as fd:
 	fd.write('#include <stdint.h>\n')
 	fd.write('#include "cat_sprite.h"\n')
@@ -154,70 +165,73 @@ with open(f"{output}/images.c", 'w') as fd:
 	for sprite in atlas:
 		print(sprite.name)
 
-		image = textures[sprite.path]
+		if sprite.path not in texture_use_cache:
+			texture_use_cache[sprite.path] = sprite.name
+			image = textures[sprite.path]
 
-		colors = {}
-		# go through the whole 'image'
-		for row in range(sprite.height * sprite.frames):
-			for col in range(sprite.width):
-				px = get_px(image, col, row)
-				colors[px] = colors.get(px, 0) + 1
-
-		color_freq = list(colors.items())
-		color_freq.sort(key=lambda i: i[1], reverse=True)
-		while len(color_freq) > 255:
-			print("Dropped color")
-			color = color_freq.pop(-1)
-
-		key = list(x[0] for x in color_freq)
-
-		fd.write("const uint16_t image_data_"+sprite.name+"_colorkey[] = {\n\t")
-		for idx, data in enumerate(key):
-			fd.write(hex4(data) + ", ")
-
-			if (idx%16) == 0 and idx != 0:
-				fd.write('\n\t')
-		fd.write("\n};\n")
-
-		for frame in range(sprite.frames):
-			fd.write("const uint8_t image_data_"+sprite.name+"_frame"+str(frame)+"[] = {\n\t")
-
-			lin_data = []
-			for row in range(sprite.height):
+			colors = {}
+			# go through the whole 'image'
+			for row in range(sprite.height * sprite.frames):
 				for col in range(sprite.width):
-					px = get_px(image, col, (frame * sprite.height) + row)
-					lin_data.append(px)
+					px = get_px(image, col, row)
+					colors[px] = colors.get(px, 0) + 1
 
-			sprite.colors = set(lin_data)
-			keyed_data = []
-			for word in lin_data:
-				try:
-					pos = key.index(word)
-				except ValueError:
-					pos = 0
-				keyed_data.append(pos)
+			color_freq = list(colors.items())
+			color_freq.sort(key=lambda i: i[1], reverse=True)
+			while len(color_freq) > 255:
+				print("Dropped color")
+				color = color_freq.pop(-1)
 
-			data = rleencode(keyed_data, sprite.width)
-			# sprite.rlesize = len(lin_data)
+			key = list(x[0] for x in color_freq)
 
-			for idx, data in enumerate(data):
-				fd.write(hex2(data) + ", ")
+			fd.write("const uint16_t image_data_"+sprite.name+"_colorkey[] = {\n\t")
+			for idx, data in enumerate(key):
+				fd.write(hex4(data) + ", ")
 
 				if (idx%16) == 0 and idx != 0:
 					fd.write('\n\t')
+			fd.write("\n};\n")
 
-			fd.write('\n};\n')
+			for frame in range(sprite.frames):
+				fd.write("const uint8_t image_data_"+sprite.name+"_frame"+str(frame)+"[] = {\n\t")
 
-		fd.write("const uint8_t* image_data_"+sprite.name+"[] = {\n")
-		for frame in range(sprite.frames):
-			fd.write("\timage_data_"+sprite.name+"_frame"+str(frame)+",\n")
-		fd.write("};\n\n");
+				lin_data = []
+				for row in range(sprite.height):
+					for col in range(sprite.width):
+						px = get_px(image, col, (frame * sprite.height) + row)
+						lin_data.append(px)
+
+				sprite.colors = set(lin_data)
+				keyed_data = []
+				for word in lin_data:
+					try:
+						pos = key.index(word)
+					except ValueError:
+						pos = 0
+					keyed_data.append(pos)
+
+				data = rleencode(keyed_data, sprite.width)
+				# sprite.rlesize = len(lin_data)
+
+				for idx, data in enumerate(data):
+					fd.write(hex2(data) + ", ")
+
+					if (idx%16) == 0 and idx != 0:
+						fd.write('\n\t')
+
+				fd.write('\n};\n')
+
+			fd.write("const uint8_t* image_data_"+sprite.name+"[] = {\n")
+			for frame in range(sprite.frames):
+				fd.write("\timage_data_"+sprite.name+"_frame"+str(frame)+",\n")
+			fd.write("};\n\n");
 
 	fd.write('\n\n\nconst CAT_baked_sprite image_data_table[] = {\n')
 	for sprite in atlas:
+		name = texture_use_cache[sprite.path]
 		fd.write('\t['+str(sprite.idx)+'] = {\n')
-		fd.write('\t\t.color_table=image_data_'+sprite.name+'_colorkey,\n')
-		fd.write('\t\t.frames=image_data_'+sprite.name+',\n')
+		fd.write('\t\t.color_table=image_data_'+name+'_colorkey,\n')
+		fd.write('\t\t.frames=image_data_'+name+',\n')
 		fd.write('\t},\n')
 	fd.write('};\n')
 
@@ -227,9 +241,9 @@ with open(f"{output}/images.c", 'w') as fd:
 		fd.write('\t\t.width = '+str(sprite.width)+",\n")
 		fd.write('\t\t.height = '+str(sprite.height)+",\n")
 		fd.write('\t\t.frame_count = '+str(sprite.frames)+",\n")
-		fd.write('\t\t.frame_idx = 0,\n')
-		fd.write('\t\t.loop = true,\n');
-		fd.write('\t\t.needs_update = false,\n')
+		fd.write('\t\t.frame_idx = '+str(sprite.frames-1 if sprite.reverse else 0)+',\n')
+		fd.write('\t\t.loop = '+str(int(sprite.loop))+',\n');
+		fd.write('\t\t.needs_update = '+str(int(sprite.reverse))+',\n')
 		fd.write('\t},\n')
 	fd.write('}, .length = '+str(len(atlas))+'};\n\n')
 

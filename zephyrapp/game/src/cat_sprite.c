@@ -597,17 +597,24 @@ int icon_nox_sprite[3];
 #ifndef CAT_BAKED_ASSETS
 #ifdef LOUIS
 #define INIT_SPRITE(name, path, frames) name = CAT_sprite_init(path, frames);\
-										printf("BAKE: (%d, \"%s\", \"%s\", %d, %d, %d)\n", name, #name, path, frames, atlas.table[name].width, atlas.table[name].height);
+										printf("BAKE-INIT: (%d, \"%s\", \"%s\", %d, %d, %d)\n", name, #name, path, frames, atlas.table[name].width, atlas.table[name].height);
+#define COPY_SPRITE(name, from, loop, reverse) name = CAT_sprite_copy(from, loop, reverse);\
+										printf("BAKE-COPY: (%d, \"%s\", %d, %d, %d)\n", name, #name, from, loop, reverse);
 #else
 #define INIT_SPRITE(name, path, frames) name = CAT_sprite_init(path, frames);
 #endif
 #else
 int sprite_count = 0;
 #define INIT_SPRITE(name, path, frames) name = sprite_count++;
+#define COPY_SPRITE(name, from, loop, reverse) name = sprite_count++;
 #endif
 
 void CAT_sprite_mass_define()
 {
+#ifdef CAT_DESKTOP
+	setvbuf(stdout, NULL, _IONBF, 0);
+#endif
+	
 	// TILESETS
 	INIT_SPRITE(base_wall_sprite, "sprites/wall_basic.png", 3);
 	INIT_SPRITE(base_floor_sprite, "sprites/tile_basic.png", 3);
@@ -643,7 +650,7 @@ void CAT_sprite_mass_define()
 	INIT_SPRITE(pet_crit_spi_sprite, "sprites/pet_unicorn_melt_a.png", 8);
 
 	INIT_SPRITE(pet_eat_down_sprite, "sprites/pet_unicorn_eat_lower_a.png", 7);
-	pet_eat_up_sprite = CAT_sprite_copy(pet_eat_down_sprite, false, true);
+	COPY_SPRITE(pet_eat_up_sprite, pet_eat_down_sprite, false, true);
 	INIT_SPRITE(pet_chew_sprite, "sprites/pet_unicorn_eat_chew_a.png", 2);
 
 	INIT_SPRITE(bubl_low_vig_sprite, "sprites/bubl_low_vig.png", 3);

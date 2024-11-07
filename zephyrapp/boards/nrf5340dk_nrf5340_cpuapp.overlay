@@ -22,6 +22,7 @@
 	chosen {
 		zephyr,display = &st7789v_st7789v_waveshare_240x240;
 		gpio0 = &gpio0;
+		pwm = &pwm0;
 	};
 
 
@@ -82,14 +83,34 @@
 
 		buck-enable-gpios = <&gpio0 5 GPIO_ACTIVE_HIGH>;
 		sen55-boost-enable-gpios = <&gpio1 4 GPIO_ACTIVE_HIGH>;
-		lcd-backlight-gpios = <&gpio1 0 GPIO_ACTIVE_HIGH>;
 		led-enable-gpios = <&gpio0 6 GPIO_ACTIVE_HIGH>;
 		speaker-gpios = <&gpio1 8 GPIO_ACTIVE_HIGH>;
 		btn-row-gpios = <&gpio1 9 GPIO_ACTIVE_HIGH>, <&gpio1 10 GPIO_ACTIVE_HIGH>, <&gpio1 11 GPIO_ACTIVE_HIGH>, <&gpio1 12 GPIO_ACTIVE_HIGH> ;
 		btn-col-gpios = <&gpio1 13 GPIO_ACTIVE_HIGH>, <&gpio1 14 GPIO_ACTIVE_HIGH>;
 	};
+
+	pwmleds {
+		compatible = "pwm-leds";
+		status = "okay";
+		pwm_led0: pwm_led_0 {
+			status = "okay";
+			pwms = <&pwm0 0 PWM_MSEC(20) PWM_POLARITY_NORMAL>;
+		};
+	};
+
+	aliases {
+		pwm-led0 = &pwm_led0;
+		pwm0 = &pwm0;
+	};
 };
 
+&pwm0 {
+	status = "okay";
+	pinctrl-0 = <&pwm0_default>;
+	pinctrl-1 = <&pwm0_sleep>;
+	pinctrl-names = "default", "sleep";
+	#lcd-backlight-pwm-cells = <0>;
+};
 
 / {
 	chosen {
@@ -185,10 +206,6 @@
 
 
 &uart0 {
-	status = "disabled";
-};
-
-&pwm0 {
 	status = "disabled";
 };
 

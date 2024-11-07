@@ -1,6 +1,7 @@
 
 #include <zephyr/kernel.h>
 #include <zephyr/drivers/gpio.h>
+#include <zephyr/drivers/pwm.h>
 #include <zephyr/drivers/display.h>
 
 #include "lcd_driver.h"
@@ -11,8 +12,10 @@
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(lcd_driver, LOG_LEVEL_DBG);
 
-static const struct gpio_dt_spec pin_lcd_backlight =
-	GPIO_DT_SPEC_GET(DT_NODELABEL(cat_misc), lcd_backlight_gpios);
+// static const struct gpio_dt_spec pin_lcd_backlight =
+// 	GPIO_DT_SPEC_GET(DT_NODELABEL(cat_misc), lcd_backlight_gpios);
+
+static const struct pwm_dt_spec pwm_led0 = PWM_DT_SPEC_GET(DT_ALIAS(pwm_led0));
 
 const struct device *display_dev = DEVICE_DT_GET(DT_CHOSEN(zephyr_display));
 
@@ -63,7 +66,7 @@ void lcd_flip()
 	lcd_blit(0, framebuffer_offset_h, LCD_IMAGE_W, LCD_FRAMEBUFFER_H, lcd_framebuffer);
 }
 
-void turn_on_backlight()
+void set_backlight(int pct)
 {
 	// if (!is_3v3_on)
 	// {
@@ -71,10 +74,12 @@ void turn_on_backlight()
 	// 	k_panic();
 	// }
 
-	init_pin(&pin_lcd_backlight, "pin_lcd_backlight", GPIO_OUTPUT_INACTIVE);
-	// nrf_gpio_pin_control_select(NRF_GPIO_PIN_MAP(1, pin_lcd_backlight.pin), NRF_GPIO_PIN_SEL_APP);
-	LOG_DBG("backlight turn on");
-	pin_write(&pin_lcd_backlight, true);
+	// init_pin(&pin_lcd_backlight, "pin_lcd_backlight", GPIO_OUTPUT_INACTIVE);
+	// // nrf_gpio_pin_control_select(NRF_GPIO_PIN_MAP(1, pin_lcd_backlight.pin), NRF_GPIO_PIN_SEL_APP);
+	// LOG_DBG("backlight turn on");
+	// pin_write(&pin_lcd_backlight, true);
+
+	pwm_set_dt(&pwm_led0, 1e+6, pct*1e+4);
 }
 
 void lcd_init()
@@ -83,7 +88,7 @@ void lcd_init()
 
 	LOG_INF("lcd_framebuffer=%p", lcd_framebuffer);
 
-	turn_on_backlight();
+	set_backlight(75);
 	pc_set_mode(true);
 
 	if (!device_is_ready(display_dev)) {

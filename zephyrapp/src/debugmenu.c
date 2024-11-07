@@ -268,6 +268,25 @@ void menu_set_eink()
 	selectable("Back", goto_menu, menu_root);
 }
 
+void menu_do_set_backlight(void* arg)
+{
+	set_backlight((int)arg);
+}
+
+void menu_set_backlight()
+{
+	text("~~SET BACKLIGHT~~");
+	text("");
+
+	for (int i = 0; i <= 100; i+= 10)
+	{
+		selectablef(menu_do_set_backlight, (void*)i, "%d%%", i);
+	}
+
+	text("");
+	selectable("Back", goto_menu, menu_root);
+}
+
 void menu_toggle_fps(void* arg)
 {
 	show_fps = !show_fps;
@@ -296,6 +315,7 @@ void menu_root()
 	selectable("IMU Diagnostics", goto_menu, menu_imu);
 	selectable("Toggle show FPS", menu_toggle_fps, NULL);
 	selectablef(menu_toggle_epaper_flip_y, NULL, "Toggle epaper flip (%s)", epaper_flip_y?"ON":"OFF");
+	selectable("Set Backlight", goto_menu, menu_set_backlight);
 	selectable("Power Off", menu_power_off, NULL);
 
 	text("");

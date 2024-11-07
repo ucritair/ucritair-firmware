@@ -1,5 +1,5 @@
 diff --git a/drivers/led_strip/ws2812_gpio.c b/drivers/led_strip/ws2812_gpio.c
-index 5b3d472a21d..b6c6671bfd1 100644
+index 5b3d472a21d..33f8e24b381 100644
 --- a/drivers/led_strip/ws2812_gpio.c
 +++ b/drivers/led_strip/ws2812_gpio.c
 @@ -76,7 +76,7 @@ struct ws2812_gpio_cfg {
@@ -11,8 +11,29 @@ index 5b3d472a21d..b6c6671bfd1 100644
  	const uint32_t val = BIT(config->gpio.pin);
  	struct onoff_manager *mgr =
  		z_nrf_clock_control_get_onoff(CLOCK_CONTROL_NRF_SUBSYS_HF);
+@@ -96,6 +96,11 @@ static int send_buf(const struct device *dev, uint8_t *buf, size_t len)
+ 
+ 	key = irq_lock();
+ 
++	// Disable CACHE.ENABLE to ensure clean timing including for first pulse
++	volatile uint32_t* icachecnf = (uint32_t*)(0x50001000 + 0x500);
++	uint32_t old = *icachecnf;
++	*icachecnf = 0;
++
+ 	while (len--) {
+ 		uint32_t b = *buf++;
+ 		int32_t i;
+@@ -120,6 +125,8 @@ static int send_buf(const struct device *dev, uint8_t *buf, size_t len)
+ 		}
+ 	}
+ 
++	*icachecnf = old;
++
+ 	irq_unlock(key);
+ 
+ 	rc = onoff_release(mgr);
 diff --git a/drivers/mipi_dbi/mipi_dbi_spi.c b/drivers/mipi_dbi/mipi_dbi_spi.c
-index abbb02977fa..77cb1b42fda 100644
+index abbb02977fa..ed67784eb58 100644
 --- a/drivers/mipi_dbi/mipi_dbi_spi.c
 +++ b/drivers/mipi_dbi/mipi_dbi_spi.c
 @@ -46,6 +46,19 @@ uint32_t var = MIPI_DBI_SPI_READ_REQUIRED;
@@ -74,7 +95,7 @@ index abbb02977fa..77cb1b42fda 100644
  			if (ret < 0) {
  				goto out;
  			}
-@@ -100,27 +108,47 @@ static int mipi_dbi_spi_write_helper(const struct device *dev,
+@@ -100,27 +108,53 @@ static int mipi_dbi_spi_write_helper(const struct device *dev,
  		 * command/data GPIO to indicate if we are sending
  		 * a command or data
  		 */
@@ -104,16 +125,22 @@ index abbb02977fa..77cb1b42fda 100644
  			gpio_pin_set_dt(&config->cmd_data, 1);
 -			ret = spi_write(config->spi_dev, &dbi_config->config,
 -					&buf_set);
-+			hack_cyc_before_data_write = k_cycle_get_32();
++			// hack_cyc_before_data_write = k_cycle_get_32();
 +
 +			if (((uint16_t*)data_buf == lcd_framebuffer) && true)
 +			{
 +				// LOG_ERR("Started async &wrbuf=%p, &wrbuf.buffers[0]=%p, wrbuf.buffers[0].buf=%p",
 +				// 	&spi_wrbuf_set, &spi_wrbuf_set.buffers[0], spi_wrbuf_set.buffers[0].buf);
++				
++#ifdef CONFIG_SPI_ASYNC
 +				write_done = false;
 +				ret = spi_transceive_cb(config->spi_dev, &dbi_config->config,
 +						&spi_wrbuf_set, NULL, mipi_dbi_write_done_callback, NULL);
 +				return 0; // short-circuit unlocking, unlocks in callback
++#else
++				ret = spi_write(config->spi_dev, &dbi_config->config, &spi_wrbuf_set);
++#endif
++				
 +			}
 +			else
 +			{
@@ -125,7 +152,7 @@ index abbb02977fa..77cb1b42fda 100644
 +
 +			
 +
-+			hack_cyc_after_data_write = k_cycle_get_32();
++			// hack_cyc_after_data_write = k_cycle_get_32();
  			if (ret < 0) {
  				goto out;
  			}
@@ -168,15 +195,35 @@ index c5f909b4c3a..160be297c55 100644
  	if ((bucken_spec.port == iovdd_ctrl_spec.port) &&
  	    (bucken_spec.pin == iovdd_ctrl_spec.pin)) {
 diff --git a/soc/nordic/nrf53/soc.c b/soc/nordic/nrf53/soc.c
-index cbdb8e04fe0..71abf7462e9 100644
+index cbdb8e04fe0..6da9bd82dbe 100644
 --- a/soc/nordic/nrf53/soc.c
 +++ b/soc/nordic/nrf53/soc.c
 @@ -573,6 +573,8 @@ static int nordicsemi_nrf53_init(void)
  
  #endif
  
-+	nrfx_coredep_delay_us(1000*500);
++	nrfx_coredep_delay_us(1000*15);
 +
  	return 0;
  }
  
+diff --git a/subsys/usb/device/class/dfu/usb_dfu.c b/subsys/usb/device/class/dfu/usb_dfu.c
+index 0847e9b2454..e0ef4547f9c 100644
+--- a/subsys/usb/device/class/dfu/usb_dfu.c
++++ b/subsys/usb/device/class/dfu/usb_dfu.c
+@@ -945,10 +945,15 @@ static bool is_dfu_started(void)
+  *
+  * @return  N/A
+  */
++
++void indicate_waiting();
++
+ void wait_for_usb_dfu(k_timeout_t delay)
+ {
+ 	k_timepoint_t end = sys_timepoint_calc(delay);
+ 
++	indicate_waiting();
++
+ 	/* Wait for a prescribed duration of time. If DFU hasn't started within
+ 	 * that time, stop waiting and proceed further.
+ 	 */
