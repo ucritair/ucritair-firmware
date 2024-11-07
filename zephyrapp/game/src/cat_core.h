@@ -95,6 +95,7 @@ int CAT_get_battery_pct();
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // AIR QUALITY
 
+#ifdef CAT_DESKTOP
 typedef struct CAT_AQI {
 	struct {
 		uint64_t uptime_last_updated;
@@ -114,6 +115,11 @@ typedef struct CAT_AQI {
 	} sen5x;
 } CAT_AQI;
 extern CAT_AQI aqi;
+#else
+#include "airquality.h"
+#define CAT_AQI struct current_readings
+#define aqi current_readings
+#endif
 
 void CAT_AQI_tick();
 float CAT_temp_score();

@@ -25,6 +25,11 @@ void CAT_platform_tick()
 	last_uptime = now;
 }
 
+void CAT_AQI_tick()
+{
+	
+}
+
 void CAT_platform_cleanup()
 {
 	
