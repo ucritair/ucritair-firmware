@@ -59,6 +59,24 @@ void CAT_food_init(int item_id, float d_v, float d_f, float d_s)
 	item->data.food_data.d_s = d_s;
 }
 
+void CAT_gear_init(int item_id)
+{
+	CAT_item* item = CAT_item_get(item_id);
+	item->data.gear_data.equipped = false;
+}
+
+void CAT_gear_toggle(int item_id, bool equipped)
+{
+	CAT_item* item = CAT_item_get(item_id);
+	item->data.gear_data.equipped = equipped;
+}
+
+bool CAT_gear_status(int item_id)
+{
+	CAT_item* item = CAT_item_get(item_id);
+	return item->data.gear_data.equipped;
+}
+
 
 //////////////////////////////////////////////////////////////////////////
 // BAG
@@ -119,10 +137,19 @@ void CAT_bag_remove(int item_id)
 //////////////////////////////////////////////////////////////////////////
 // ID DECLARATIONS
 
+int book_item;
+int toy_item;
+int cigarettes_item;
+int sausage_item;
+int padkrapow_item;
+int coffee_item;
+int mask_item;
+
 int solderpaste_item;
 int coffeemaker_item;
 int fan_item;
 int purifier_item;
+int uv_item;
 
 int chair_wood_item;
 int table_sm_item;
@@ -163,16 +190,33 @@ int crystal_blue_lg_item;
 int crystal_green_lg_item;
 int crystal_purple_lg_item;
 
-int cigarettes_item;
-int sausage_item;
-int padkrapow_item;
-int coffee_item;
-
 void CAT_item_mass_define()
 {
-	purifier_item = CAT_item_init(CAT_ITEM_TYPE_PROP, "Air Purifier", purifier_sprite);
-	CAT_prop_init(purifier_item, 2, 1, true);
-	CAT_bag_add(purifier_item);
+	book_item = CAT_item_init(CAT_ITEM_TYPE_KEY, "The Disposessed", book_sprite);
+	CAT_bag_add(book_item);
+
+	toy_item = CAT_item_init(CAT_ITEM_TYPE_KEY, "Tamagotchi", toy_sprite);
+	CAT_bag_add(toy_item);
+
+	cigarettes_item = CAT_item_init(CAT_ITEM_TYPE_FOOD, "Cigarettes", cigarette_sprite);
+	CAT_food_init(cigarettes_item, 0, 0, 1);
+	CAT_bag_add(cigarettes_item);
+
+	sausage_item = CAT_item_init(CAT_ITEM_TYPE_FOOD, "Sausage", sausage_sprite);
+	CAT_food_init(sausage_item, 1, 0, 0);
+	CAT_bag_add(sausage_item);
+
+	padkrapow_item = CAT_item_init(CAT_ITEM_TYPE_FOOD, "Pad Kra Pow", padkrapow_sprite);
+	CAT_food_init(padkrapow_item, 1, 0, 0);
+	CAT_bag_add(padkrapow_item);
+
+	coffee_item = CAT_item_init(CAT_ITEM_TYPE_FOOD, "Coffee", coffee_sprite);
+	CAT_food_init(coffee_item, 0, 1, 0);
+	CAT_bag_add(coffee_item);
+
+	mask_item = CAT_item_init(CAT_ITEM_TYPE_GEAR, "Mask", mask_sprite);
+	CAT_gear_init(mask_item);
+	CAT_bag_add(mask_item);
 
 	chair_wood_item = CAT_item_init(CAT_ITEM_TYPE_PROP, "Wood Chair", chair_wood_sprite);
 	CAT_prop_init(chair_wood_item, 2, 2, false);
@@ -193,6 +237,14 @@ void CAT_item_mass_define()
 	fan_item = CAT_item_init(CAT_ITEM_TYPE_PROP, "Fan", fan_sprite);
 	CAT_prop_init(fan_item, 2, 1, true);
 	CAT_bag_add(fan_item);
+
+	purifier_item = CAT_item_init(CAT_ITEM_TYPE_PROP, "Air Purifier", purifier_sprite);
+	CAT_prop_init(purifier_item, 2, 1, true);
+	CAT_bag_add(purifier_item);
+
+	uv_item = CAT_item_init(CAT_ITEM_TYPE_PROP, "UV Lamp", uv_lamp_sprite);
+	CAT_prop_init(uv_item, 1, 1, true);
+	CAT_bag_add(uv_item);
 
 	lantern_lit_item = CAT_item_init(CAT_ITEM_TYPE_PROP, "Lantern (Lit)", lantern_lit_sprite);
 	CAT_prop_init(lantern_lit_item, 1, 1, true);
@@ -216,21 +268,5 @@ void CAT_item_mass_define()
 
 	vase_gold_item = CAT_item_init(CAT_ITEM_TYPE_PROP, "Gold Vase", vase_gold_sprite);
 	CAT_prop_init(vase_gold_item, 1, 1, false);
-	CAT_bag_add(vase_gold_item);
-
-	cigarettes_item = CAT_item_init(CAT_ITEM_TYPE_FOOD, "Cigarettes", cigarette_sprite);
-	CAT_food_init(cigarettes_item, 0, 0, 1);
-	CAT_bag_add(cigarettes_item);
-
-	sausage_item = CAT_item_init(CAT_ITEM_TYPE_FOOD, "Sausage", sausage_sprite);
-	CAT_food_init(sausage_item, 1, 0, 0);
-	CAT_bag_add(sausage_item);
-
-	padkrapow_item = CAT_item_init(CAT_ITEM_TYPE_FOOD, "Pad Kra Pow", padkrapow_sprite);
-	CAT_food_init(padkrapow_item, 1, 0, 0);
-	CAT_bag_add(padkrapow_item);
-
-	coffee_item = CAT_item_init(CAT_ITEM_TYPE_FOOD, "Coffee", coffee_sprite);
-	CAT_food_init(coffee_item, 0, 1, 0);
-	CAT_bag_add(coffee_item);
+	CAT_bag_add(vase_gold_item);	
 }

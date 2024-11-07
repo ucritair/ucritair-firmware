@@ -550,13 +550,14 @@ int crystal_blue_lg_sprite;
 int crystal_green_lg_sprite;
 int crystal_purple_lg_sprite;
 
-// FOOD
+// GRIMBA
+int book_sprite;
+int toy_sprite;
 int cigarette_sprite;
 int sausage_sprite;
 int padkrapow_sprite;
 int coffee_sprite;
-int toy_sprite;
-int book_sprite;
+int mask_sprite;
 
 // WORLD UI
 int cursor_sprite;
@@ -584,6 +585,7 @@ int strikethrough_sprite;
 int icon_pointer_sprite;
 int icon_enter_sprite;
 int icon_exit_sprite;
+int icon_equip_sprite;
 
 int fbut_a_sprite;
 int fbut_b_sprite;
@@ -608,11 +610,16 @@ int cell_spi_sprite;
 int cell_empty_sprite;
 
 // AQ ICONS
-int icon_temp_sprite[3];
-int icon_co2_sprite[3];
-int icon_pm_sprite[3];
-int icon_voc_sprite[3];
-int icon_nox_sprite[3];
+int icon_temp_sprite;
+int icon_co2_sprite;
+int icon_pm_sprite;
+int icon_voc_sprite;
+int icon_nox_sprite;
+
+// EFFECTIVE ALTRUISM
+int icon_mask_sprite;
+int icon_pure_sprite;
+int icon_uv_sprite;
 
 #ifndef CAT_BAKED_ASSETS
 #ifdef LOUIS
@@ -696,6 +703,7 @@ void CAT_sprite_mass_define()
 	INIT_SPRITE(coffeemaker_sprite, "sprites/prop_coffee_empty_a.png", 14);
 	INIT_SPRITE(fan_sprite, "sprites/prop_fan_a.png", 3);
 	INIT_SPRITE(purifier_sprite, "sprites/prop_purifier_a.png", 6);
+	INIT_SPRITE(uv_lamp_sprite, "sprites/prop_uv_a.png", 2);
 	
 	INIT_SPRITE(table_sm_sprite, "sprites/prop_table_md.png", 1);
 	INIT_SPRITE(table_lg_sprite, "sprites/prop_table_xl_wood.png", 1);
@@ -740,8 +748,9 @@ void CAT_sprite_mass_define()
 	INIT_SPRITE(sausage_sprite, "sprites/food_sausage_sm.png", 1);
 	INIT_SPRITE(padkrapow_sprite, "sprites/food_padkrakow_sm.png", 1);
 	INIT_SPRITE(coffee_sprite, "sprites/food_coffee_sm.png", 1);
-	INIT_SPRITE(toy_sprite, "sprites/toy.png", 1);
 	INIT_SPRITE(book_sprite, "sprites/book.png", 1);
+	INIT_SPRITE(toy_sprite, "sprites/toy.png", 1);
+	INIT_SPRITE(mask_sprite, "sprites/mask.png", 1);
 
 	// WORLD UI
 	INIT_SPRITE(cursor_sprite, "sprites/cursor_room_ornate.png", 1);
@@ -763,12 +772,13 @@ void CAT_sprite_mass_define()
 	INIT_SPRITE(sbut_menu_sprite, "sprites/sbut_menu.png", 2);
 	INIT_SPRITE(sbut_hl_sprite, "sprites/sbut_hl_sprite.png", 1);
 	
-	INIT_SPRITE(panel_sprite, "sprites/panel_tiles.png", 9);
+	INIT_SPRITE(panel_sprite, "sprites/panel_tiles.png", 10);
 	INIT_SPRITE(glyph_sprite, "sprites/glyphs.png", 91);
 	INIT_SPRITE(strikethrough_sprite, "sprites/strikethrough.png", 1);
 	INIT_SPRITE(icon_pointer_sprite, "sprites/icon_pointer.png", 1);
 	INIT_SPRITE(icon_enter_sprite, "sprites/icon_enter.png", 1);
 	INIT_SPRITE(icon_exit_sprite, "sprites/icon_exit.png", 1);
+	INIT_SPRITE(icon_equip_sprite, "sprites/icon_equip.png", 2);
 
 	INIT_SPRITE(fbut_a_sprite, "sprites/A Button_Both.png", 2);
 	INIT_SPRITE(fbut_b_sprite, "sprites/B Button_Both.png", 2);
@@ -791,23 +801,13 @@ void CAT_sprite_mass_define()
 	INIT_SPRITE(cell_spi_sprite, "sprites/cell_spi.png", 1);
 	INIT_SPRITE(cell_empty_sprite, "sprites/cell_empty.png", 1);
 
-	INIT_SPRITE(icon_temp_sprite[0], "sprites/icon_temp_low.png", 1);
-	INIT_SPRITE(icon_temp_sprite[1], "sprites/icon_temp_okay.png", 1);
-	INIT_SPRITE(icon_temp_sprite[2], "sprites/icon_temp_high.png", 1);
+	INIT_SPRITE(icon_temp_sprite, "sprites/icon_temp.png", 3);
+	INIT_SPRITE(icon_co2_sprite, "sprites/icon_co2.png", 3);
+	INIT_SPRITE(icon_pm_sprite, "sprites/icon_pm.png", 3);
+	INIT_SPRITE(icon_voc_sprite, "sprites/icon_voc.png", 3);
+	INIT_SPRITE(icon_nox_sprite, "sprites/icon_nox.png", 3);
 
-	INIT_SPRITE(icon_co2_sprite[0], "sprites/icon_co2_low.png", 1);
-	INIT_SPRITE(icon_co2_sprite[1], "sprites/icon_co2_okay.png", 1);
-	INIT_SPRITE(icon_co2_sprite[2], "sprites/icon_co2_high.png", 1);
-
-	INIT_SPRITE(icon_pm_sprite[0], "sprites/icon_pm_low.png", 1);
-	INIT_SPRITE(icon_pm_sprite[1], "sprites/icon_pm_okay.png", 1);
-	INIT_SPRITE(icon_pm_sprite[2], "sprites/icon_pm_high.png", 1);
-
-	INIT_SPRITE(icon_voc_sprite[0], "sprites/icon_voc_low.png", 1);
-	INIT_SPRITE(icon_voc_sprite[1], "sprites/icon_voc_okay.png", 1);
-	INIT_SPRITE(icon_voc_sprite[2], "sprites/icon_voc_high.png", 1);
-
-	INIT_SPRITE(icon_nox_sprite[0], "sprites/icon_nox_low.png", 1);
-	INIT_SPRITE(icon_nox_sprite[1], "sprites/icon_nox_okay.png", 1);
-	INIT_SPRITE(icon_nox_sprite[2], "sprites/icon_nox_high.png", 1);
+	INIT_SPRITE(icon_mask_sprite, "sprites/icon_mask.png", 1);
+	INIT_SPRITE(icon_pure_sprite, "sprites/icon_pure.png", 1);
+	INIT_SPRITE(icon_uv_sprite, "sprites/icon_uv.png", 1);
 }

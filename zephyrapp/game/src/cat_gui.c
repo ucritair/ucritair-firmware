@@ -1,5 +1,6 @@
 #include "cat_gui.h"
 #include "cat_sprite.h"
+#include <string.h>
 
 //////////////////////////////////////////////////////////////////////////
 // RENDERING
@@ -107,4 +108,22 @@ void CAT_gui_image(int sprite_id, int frame_idx)
 	gui.cursor.x += sprite.width;
 
 	gui.cursor.x += CAT_GUI_PAD_X;
+}
+
+void CAT_gui_div(const char* text)
+{
+	CAT_gui_line_break();
+	gui.cursor.y += CAT_GUI_PAD_Y;
+
+	CAT_gui_text(text);
+	CAT_gui_open_channel(CAT_TILE_SIZE);
+	int n = (14 * CAT_TILE_SIZE - strlen(text) * CAT_GLYPH_WIDTH) / CAT_TILE_SIZE;
+	for(int i = 0; i < n; i++)
+	{
+		CAT_draw_sprite(panel_sprite, 9, gui.cursor.x, gui.cursor.y);
+		gui.cursor.x += CAT_TILE_SIZE;
+	}
+
+	CAT_gui_line_break();
+	gui.cursor.y += CAT_GUI_PAD_Y;
 }

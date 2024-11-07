@@ -217,8 +217,10 @@ extern int cigarette_sprite;
 extern int sausage_sprite;
 extern int padkrapow_sprite;
 extern int coffee_sprite;
-extern int toy_sprite;
 extern int book_sprite;
+extern int toy_sprite;
+extern int mask_sprite;
+
 
 // WORLD UI
 extern int cursor_sprite;
@@ -246,6 +248,7 @@ extern int strikethrough_sprite;
 extern int icon_pointer_sprite;
 extern int icon_enter_sprite;
 extern int icon_exit_sprite;
+extern int icon_equip_sprite;
 
 extern int fbut_a_sprite;
 extern int fbut_b_sprite;
@@ -270,11 +273,16 @@ extern int cell_spi_sprite;
 extern int cell_empty_sprite;
 
 // AQ ICONS
-extern int icon_temp_sprite[3];
-extern int icon_co2_sprite[3];
-extern int icon_pm_sprite[3];
-extern int icon_voc_sprite[3];
-extern int icon_nox_sprite[3];
+extern int icon_temp_sprite;
+extern int icon_co2_sprite;;
+extern int icon_pm_sprite;
+extern int icon_voc_sprite;
+extern int icon_nox_sprite;
+
+// EFFECTIVE ALTRUISM
+extern int icon_mask_sprite;
+extern int icon_pure_sprite;
+extern int icon_uv_sprite;
 
 void CAT_sprite_mass_define();
 

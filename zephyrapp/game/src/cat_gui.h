@@ -44,5 +44,6 @@ void CAT_gui_line_break();
 void CAT_gui_same_line();
 void CAT_gui_text(const char* text);
 void CAT_gui_image(int sprite_id, int frame_idx);
+void CAT_gui_div(const char* text);
 
 #endif

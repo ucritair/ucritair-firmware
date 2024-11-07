@@ -20,7 +20,8 @@ typedef enum CAT_item_type
 {
 	CAT_ITEM_TYPE_KEY,
 	CAT_ITEM_TYPE_PROP,
-	CAT_ITEM_TYPE_FOOD
+	CAT_ITEM_TYPE_FOOD,
+	CAT_ITEM_TYPE_GEAR
 } CAT_item_type;
 
 typedef struct CAT_item
@@ -44,6 +45,11 @@ typedef struct CAT_item
 			float d_f;
 			float d_s;
 		} food_data;
+
+		struct
+		{
+			bool equipped;
+		} gear_data;
 	} data;
 } CAT_item;
 
@@ -60,6 +66,9 @@ CAT_item* CAT_item_get(int item_id);
 void CAT_prop_init(int item_id, int width, int height, bool animate);
 void CAT_prop_flip(int item_id);
 void CAT_food_init(int item_id, float d_v, float d_f, float d_s);
+void CAT_gear_init(int item_id);
+void CAT_gear_toggle(int item_id, bool equipped);
+bool CAT_gear_status(int item_id);
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -82,10 +91,18 @@ void CAT_bag_remove(int item_id);
 //////////////////////////////////////////////////////////////////////////
 // ID DECLARATIONS
 
+extern int book_item;
+extern int toy_item;
+extern int cigarettes_item;
+extern int sausage_item;
+extern int padkrapow_item;
+extern int mask_item;
+
 extern int solderpaste_item;
 extern int coffee_item;
 extern int fan_item;
 extern int purifier_item;
+extern int uv_item;
 
 extern int chair_wood_item;
 extern int table_sm_item;
@@ -123,11 +140,6 @@ extern int crystal_purple_md_item;
 extern int crystal_blue_lg_item;
 extern int crystal_green_lg_item;
 extern int crystal_purple_lg_item;
-
-extern int cigarettes_item;
-extern int sausage_item;
-extern int padkrapow_item;
-extern int coffee_item;
 
 void CAT_item_mass_define();
 

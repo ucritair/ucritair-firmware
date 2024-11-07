@@ -230,11 +230,19 @@ void CAT_MS_default(CAT_machine_signal signal)
 		}
 		case CAT_MACHINE_SIGNAL_TICK:
 		{
-			if(CAT_input_pressed(CAT_BUTTON_RIGHT))
+			if(CAT_input_pulse(CAT_BUTTON_RIGHT))
+			{
 				room.selector += 1;
-			if(CAT_input_pressed(CAT_BUTTON_LEFT))
+				if(room.selector > 4)
+					room.selector = 0;
+			}
+			if(CAT_input_pulse(CAT_BUTTON_LEFT))
+			{
 				room.selector -= 1;
-			room.selector = clamp(room.selector, 0, 4);
+				if(room.selector < 0)
+					room.selector = 4;
+			}
+				
 			if(CAT_input_pressed(CAT_BUTTON_A))
 				CAT_machine_transition(&machine, room.buttons[room.selector]);
 
@@ -311,6 +319,7 @@ void CAT_MS_feed(CAT_machine_signal signal)
 	{
 		case CAT_MACHINE_SIGNAL_ENTER:
 		{
+			CAT_ASM_transition(&pet_asm, &AS_idle);
 			break;
 		}
 		case CAT_MACHINE_SIGNAL_TICK:
@@ -408,6 +417,7 @@ void CAT_MS_study(CAT_machine_signal signal)
 	{
 		case CAT_MACHINE_SIGNAL_ENTER:
 		{
+			CAT_ASM_transition(&pet_asm, &AS_idle);
 			break;
 		}
 		case CAT_MACHINE_SIGNAL_TICK:
@@ -457,7 +467,7 @@ void CAT_MS_study(CAT_machine_signal signal)
 					pet.focus += 3;
 
 					CAT_ASM_kill(&pet_asm);
-					CAT_ASM_transition(&pet_asm, &AS_vig_up);
+					CAT_ASM_transition(&pet_asm, &AS_foc_up);
 					CAT_timer_reset(pet.action_timer_id);
 				}
 			}
@@ -501,6 +511,7 @@ void CAT_MS_play(CAT_machine_signal signal)
 	{
 		case CAT_MACHINE_SIGNAL_ENTER:
 		{
+			CAT_ASM_transition(&pet_asm, &AS_idle);
 			break;
 		}
 		case CAT_MACHINE_SIGNAL_TICK:
@@ -548,10 +559,10 @@ void CAT_MS_play(CAT_machine_signal signal)
 			{
 				if(CAT_timer_tick(pet.action_timer_id))
 				{
-					pet.focus += 3;
+					pet.spirit += 3;
 
 					CAT_ASM_kill(&pet_asm);
-					CAT_ASM_transition(&pet_asm, &AS_vig_up);
+					CAT_ASM_transition(&pet_asm, &AS_spi_up);
 					CAT_timer_reset(pet.action_timer_id);
 				}
 			}
@@ -603,6 +614,16 @@ void CAT_deco_select()
 
 	deco_state.mod_idx = -1;
 	deco_state.mod_rect = (CAT_rect) {{0, 0}, {0, 0}};
+}
+
+int CAT_deco_find(int item_id)
+{
+	for(int i = 0; i < deco_state.prop_count; i++)
+	{
+		if(deco_state.props[i] == item_id)
+			return i;
+	}
+	return -1;
 }
 
 void CAT_MS_deco(CAT_machine_signal signal)
@@ -858,7 +879,17 @@ void CAT_MS_bag(CAT_machine_signal signal)
 				int item_id = bag.item_id[bag_state.idx];
 				CAT_item* item = &item_table.data[item_id];
 
-				if(item->type == CAT_ITEM_TYPE_FOOD && (bag_state.destination == CAT_MS_menu || bag_state.destination == CAT_MS_feed))
+				if(item_id == book_item && (bag_state.destination == CAT_MS_menu || bag_state.destination == CAT_MS_study))
+				{
+					study_state.book_id = item_id;
+					CAT_machine_transition(&machine, CAT_MS_study);
+				}
+				else if(item_id == toy_item && (bag_state.destination == CAT_MS_menu || bag_state.destination == CAT_MS_play))
+				{
+					play_state.toy_id = item_id;
+					CAT_machine_transition(&machine, CAT_MS_play);
+				}
+				else if(item->type == CAT_ITEM_TYPE_FOOD && (bag_state.destination == CAT_MS_menu || bag_state.destination == CAT_MS_feed))
 				{
 					feed_state.food_id = item_id;
 					CAT_machine_transition(&machine, CAT_MS_feed);
@@ -867,6 +898,10 @@ void CAT_MS_bag(CAT_machine_signal signal)
 				{
 					deco_state.add_id = item_id;
 					CAT_machine_transition(&machine, CAT_MS_deco);
+				}
+				else if(item->type == CAT_ITEM_TYPE_GEAR && bag_state.destination == CAT_MS_menu)
+				{
+					CAT_gear_toggle(item_id, !CAT_gear_status(item_id));
 				}
 			}
 			break;
@@ -1099,7 +1134,8 @@ void CAT_render(int cycle)
 
 		CAT_gui_panel((CAT_ivec2) {0, 32}, (CAT_ivec2) {15, 18});  
 		CAT_gui_image(pet_idle_sprite, 0); 
-		CAT_gui_line_break();
+		
+		CAT_gui_div("CORE STATS");
 
 		CAT_gui_image(icon_vig_sprite, 0);
 		CAT_gui_text("VIG ");
@@ -1132,18 +1168,26 @@ void CAT_render(int cycle)
 			else
 				CAT_gui_image(cell_empty_sprite, 0);
 		}
-		CAT_gui_line_break();
 
+		CAT_gui_div("AIR QUALITY");
 		int temp_idx = quantize(CAT_temp_score(), 1, 3);
-		CAT_gui_image(icon_temp_sprite[temp_idx], 0);
+		CAT_gui_image(icon_temp_sprite, temp_idx);
 		int co2_idx =  quantize(CAT_CO2_score(), 1, 3);
-		CAT_gui_image(icon_co2_sprite[co2_idx], 0);
+		CAT_gui_image(icon_co2_sprite, co2_idx);
 		int pm_idx =  quantize(CAT_PM_score(), 1, 3);
-		CAT_gui_image(icon_pm_sprite[pm_idx], 0);
+		CAT_gui_image(icon_pm_sprite, pm_idx);
 		int voc_idx =  quantize(CAT_VOC_score(), 1, 3);
-		CAT_gui_image(icon_voc_sprite[voc_idx], 0);
+		CAT_gui_image(icon_voc_sprite, voc_idx);
 		int nox_idx =  quantize(CAT_NOX_score(), 1, 3);
-		CAT_gui_image(icon_nox_sprite[nox_idx], 0);
+		CAT_gui_image(icon_nox_sprite, nox_idx);
+		
+		CAT_gui_div("EA HORSESHIT");
+		if(CAT_gear_status(mask_item))
+			CAT_gui_image(icon_mask_sprite, 0);
+		if(CAT_deco_find(purifier_item) != -1)
+			CAT_gui_image(icon_pure_sprite, 0);
+		if(CAT_deco_find(uv_item) != -1)
+			CAT_gui_image(icon_uv_sprite, 0);
 	}
 	else if(machine == CAT_MS_bag)
 	{
@@ -1168,7 +1212,8 @@ void CAT_render(int cycle)
 			switch(item->type)
 			{
 				case CAT_ITEM_TYPE_KEY:
-					CAT_gui_image(icon_key_sprite, 0); 
+				case CAT_ITEM_TYPE_GEAR:
+					CAT_gui_image(icon_key_sprite, 0);
 					break;
 				case CAT_ITEM_TYPE_FOOD:
 					CAT_gui_image(icon_food_sprite, 0); 
@@ -1180,13 +1225,16 @@ void CAT_render(int cycle)
 
 			char text[64];
 			if(item->type == CAT_ITEM_TYPE_PROP)
-				sprintf(text, " %s *%d", item->name, bag.count[idx]);
+				sprintf(text, " %s *%d ", item->name, bag.count[idx]);
 			else
-				sprintf(text, " %s", item->name);
+				sprintf(text, " %s ", item->name);
+
 			if
 			(
-				(bag_state.destination == CAT_MS_deco && item->type != CAT_ITEM_TYPE_PROP) ||
-				(bag_state.destination == CAT_MS_feed && item->type != CAT_ITEM_TYPE_FOOD)
+				(bag_state.destination == CAT_MS_feed && item->type != CAT_ITEM_TYPE_FOOD) ||
+				(bag_state.destination == CAT_MS_study && item_id != book_item) ||
+				(bag_state.destination == CAT_MS_play && item_id != toy_item) ||
+				(bag_state.destination == CAT_MS_deco && item->type != CAT_ITEM_TYPE_PROP)
 			)
 			{
 				gui.text_mode = CAT_TEXT_MODE_STRIKETHROUGH;
@@ -1194,10 +1242,15 @@ void CAT_render(int cycle)
 			CAT_gui_text(text);
 			gui.text_mode = CAT_TEXT_MODE_NORMAL;
 
-			if(idx == bag_state.idx)
+			if(item->type == CAT_ITEM_TYPE_GEAR)
 			{
-				CAT_gui_image(icon_pointer_sprite, 0);
+				int idx = CAT_gear_status(item_id) ? 1 : 0;
+				CAT_gui_image(icon_equip_sprite, idx);
+				CAT_gui_text(" ");
 			}
+
+			if(idx == bag_state.idx)
+				CAT_gui_image(icon_pointer_sprite, 0);
 		}
 	}
 	else if(machine == CAT_MS_manual)
