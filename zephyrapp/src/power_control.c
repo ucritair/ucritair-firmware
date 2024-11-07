@@ -24,7 +24,7 @@ static const struct gpio_dt_spec pin_led_enable =
 void init_power_control()
 {
 	LOG_DBG("Init");
-	// init_pin(&pin_buck_enable, "pin_buck_enable", GPIO_OUTPUT_INACTIVE);
+	init_pin(&pin_buck_enable, "pin_buck_enable", GPIO_OUTPUT_ACTIVE);
 	init_pin(&pin_sen55_boost_enable, "pin_sen55_boost_enable", GPIO_OUTPUT_INACTIVE);
 	init_pin(&pin_led_enable, "pin_led_enable", GPIO_OUTPUT_INACTIVE);
 
@@ -57,25 +57,118 @@ void set_leds(bool on)
 	is_leds_on = on;
 }
 
+static struct gpio_callback button_cb_data;
+void button_pressed(const struct device *dev, struct gpio_callback *cb,
+		    uint32_t pins)
+{
+	// LOG_INF("button_pressed %d", pins);
+	sys_reboot(SYS_REBOOT_COLD);
+}
+
+static const struct device* gpio0 = DEVICE_DT_GET(DT_NODELABEL(gpio0));
+static const struct device* gpio1 = DEVICE_DT_GET(DT_NODELABEL(gpio1));
+
+#include <hal/nrf_twim.h>
+#include <hal/nrf_spim.h>
+#include <hal/nrf_saadc.h>
+#include <hal/nrf_timer.h>
+#include <hal/nrf_usbd.h>
+#include <hal/nrf_pwm.h>
+#include <hal/nrf_clock.h>
+#include <hal/nrf_egu.h>
+#include <hal/nrf_oscillators.h>
+
 void power_off()
 {
-	// set_5v0(false);
-	// set_leds(false);
+	bt_le_adv_stop();
+	bt_disable();
 
-	// // Drop IOVDD_EN
-	// if (gpio_pin_configure(DEVICE_DT_GET(DT_CHOSEN(gpio0)), 11, GPIO_OUTPUT_HIGH)) LOG_ERR("Init 0.11 failed");
-	// gpio_pin_set(DEVICE_DT_GET(DT_CHOSEN(gpio0)), 11, true);
+	set_5v0(false);
+	set_leds(false);
 
-	// set_3v3(false);
+	// Drop IOVDD_EN
+	if (gpio_pin_configure(gpio0, 11, GPIO_OUTPUT_HIGH)) LOG_ERR("Init 0.11 failed");
+	gpio_pin_set(gpio0, 11, true);
 
-	// sys_poweroff();
+	// Drop BUCKEN
+	if (gpio_pin_configure(gpio0, 21, GPIO_OUTPUT_LOW)) LOG_ERR("Init 0.21 failed");
+	gpio_pin_set(gpio0, 21, false);
 
-	// while (1)
-	// {
-	// 	k_msleep(1000);
-	// 	if (get_buttons()) break;
-	// }
-	// sys_reboot(SYS_REBOOT_COLD);
+	
+	nrf_spim_disable(NRF_SPIM0);
+	nrf_spim_disable(NRF_SPIM1);
+	nrf_spim_disable(NRF_SPIM2);
+	nrf_spim_disable(NRF_SPIM3);
+	nrf_spim_disable(NRF_SPIM4);
+
+	nrf_twim_disable(NRF_TWIM0);
+	nrf_twim_disable(NRF_TWIM1);
+	nrf_twim_disable(NRF_TWIM2);
+	nrf_twim_disable(NRF_TWIM3);
+
+	nrf_saadc_disable(NRF_SAADC);
+
+	nrf_timer_mode_set(NRF_TIMER0, NRF_TIMER_MODE_LOW_POWER_COUNTER);
+	nrf_timer_mode_set(NRF_TIMER1, NRF_TIMER_MODE_LOW_POWER_COUNTER);
+	nrf_timer_mode_set(NRF_TIMER2, NRF_TIMER_MODE_LOW_POWER_COUNTER);
+
+	uint32_t mask = NRF_TIMER_INT_COMPARE0_MASK|NRF_TIMER_INT_COMPARE1_MASK|
+					NRF_TIMER_INT_COMPARE2_MASK|NRF_TIMER_INT_COMPARE3_MASK|
+					NRF_TIMER_INT_COMPARE4_MASK|NRF_TIMER_INT_COMPARE5_MASK;
+	nrf_timer_int_disable(NRF_TIMER0, mask);
+	nrf_timer_int_disable(NRF_TIMER1, mask);
+	nrf_timer_int_disable(NRF_TIMER2, mask);
+
+	nrf_pwm_disable(NRF_PWM0);
+	nrf_pwm_disable(NRF_PWM1);
+	nrf_pwm_disable(NRF_PWM2);
+	nrf_pwm_disable(NRF_PWM3);
+
+	nrf_usbd_disable(NRF_USBD);
+
+	nrf_clock_alwaysrun_set(NRF_CLOCK, NRF_CLOCK_DOMAIN_HFCLK, false);
+	nrf_clock_alwaysrun_set(NRF_CLOCK, NRF_CLOCK_DOMAIN_HFCLK192M, false);
+	nrf_clock_alwaysrun_set(NRF_CLOCK, NRF_CLOCK_DOMAIN_HFCLKAUDIO, false);
+
+	nrf_egu_int_disable(NRF_EGU0, NRF_EGU_INT_ALL);
+	nrf_egu_int_disable(NRF_EGU1, NRF_EGU_INT_ALL);
+	nrf_egu_int_disable(NRF_EGU2, NRF_EGU_INT_ALL);
+	nrf_egu_int_disable(NRF_EGU3, NRF_EGU_INT_ALL);
+	nrf_egu_int_disable(NRF_EGU4, NRF_EGU_INT_ALL);
+	nrf_egu_int_disable(NRF_EGU5, NRF_EGU_INT_ALL);
+
+	pin_write(&pin_buck_enable, false);
+
+
+	for (int i = 2; i < 32; i++)
+	{
+		gpio_pin_configure(gpio0, i, GPIO_DISCONNECTED);
+	}
+
+	for (int i = 0; i < 16; i++)
+	{
+		gpio_pin_configure(gpio1, i, GPIO_DISCONNECTED);
+	}
+
+	k_msleep(100);
+
+	for (int i = 9; i <= 12; i++)
+	{
+		gpio_pin_configure(gpio1, i, GPIO_INPUT | GPIO_PULL_UP);
+		gpio_pin_interrupt_configure(gpio1, i, GPIO_INT_EDGE_FALLING);
+	}
+
+	gpio_init_callback(&button_cb_data, button_pressed, BIT(9)|BIT(10)|BIT(11)|BIT(12));
+	gpio_add_callback(gpio1, &button_cb_data);
+
+	NRF_CLOCK_S->HFCLKCTRL = (CLOCK_HFCLKCTRL_HCLK_Div2 << CLOCK_HFCLKCTRL_HCLK_Pos); // 128MHz
+
+	*(volatile uint32_t*)(0x50005000 + 0x614) = 1; // Force network core off
+
+	while (1)
+	{
+		__asm("wfi");
+	}
 }
 
 #include <zephyr/init.h>

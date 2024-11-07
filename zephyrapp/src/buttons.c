@@ -32,6 +32,15 @@ void init_buttons()
 	}
 }
 
+void deinit_buttons()
+{
+	for (int i = 0; i < N_COLS; i++)
+	{
+		// init_pin(&btn_cols[i], "col_x", GPIO_DISCONNECTED);
+		gpio_pin_set_dt(&btn_cols[i], false);
+	}
+}
+
 uint8_t get_buttons()
 {
 	uint8_t bits = 0;
