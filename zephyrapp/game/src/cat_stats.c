@@ -1,8 +1,10 @@
+#include "cat_stats.h"
 #include "cat_room.h"
 #include "cat_item.h"
 #include "cat_gui.h"
 #include "cat_input.h"
 #include "cat_pet.h"
+#include "cat_sprite.h"
 
 void CAT_MS_stats(CAT_machine_signal signal)
 {

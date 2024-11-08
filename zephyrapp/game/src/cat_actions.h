@@ -3,13 +3,14 @@
 
 #include "cat_machine.h"
 #include "cat_math.h"
+#include "cat_sprite.h"
 
 typedef struct CAT_action_state
 {
 	CAT_machine_state action_MS;
 	void (*action_proc)();
-	CAT_ASM_state* action_AS;
-	CAT_ASM_state* stat_up_AS;
+	CAT_AM_state* action_AS;
+	CAT_AM_state* stat_up_AS;
 
 	int item_id;
 	CAT_vec2 location;
@@ -20,5 +21,6 @@ extern CAT_action_state action_state;
 
 void CAT_action_state_init();
 void CAT_action_tick();
+extern void CAT_render_action();
 
 #endif

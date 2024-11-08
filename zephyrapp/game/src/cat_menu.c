@@ -3,6 +3,7 @@
 #include "cat_gui.h"
 #include "cat_input.h"
 #include "cat_machine.h"
+#include "cat_sprite.h"
 
 #ifdef CAT_EMBEDDED
 #include "menu_time.h"

@@ -114,7 +114,32 @@ void CAT_draw_queue_submit(int cycle);
 
 
 //////////////////////////////////////////////////////////////////////////
-// ID DECLARATIONS
+// ANIMATION MACHINE
+
+typedef struct CAT_AM_state
+{
+	enum {ENTER, TICK, EXIT, DONE} signal;
+
+	int enter_anim_id;
+	int tick_anim_id;
+	int exit_anim_id;
+
+	struct CAT_AM_state* next;
+} CAT_AM_state;
+
+void CAT_AM_init(CAT_AM_state* state, int enai, int tiai, int exai);
+void CAT_AM_transition(CAT_AM_state** spp, CAT_AM_state* next);
+void CAT_AM_kill(CAT_AM_state** spp);
+bool CAT_AM_is_in(CAT_AM_state** spp, CAT_AM_state* state);
+bool CAT_AM_is_entering(CAT_AM_state** spp);
+bool CAT_AM_is_ticking(CAT_AM_state** spp);
+bool CAT_AM_is_exiting(CAT_AM_state** spp);
+bool CAT_AM_is_done(CAT_AM_state** spp);
+int CAT_AM_tick(CAT_AM_state** pp);
+
+
+//////////////////////////////////////////////////////////////////////////
+// DECLARATIONS
 
 // TILESETS
 extern int base_wall_sprite;
@@ -282,6 +307,23 @@ extern int icon_nox_sprite;
 extern int icon_mask_sprite;
 extern int icon_pure_sprite;
 extern int icon_uv_sprite;
+
+// MACHINES
+extern CAT_AM_state* pet_asm;
+extern CAT_AM_state AS_idle;
+extern CAT_AM_state AS_walk;
+extern CAT_AM_state AS_adjust_in;
+extern CAT_AM_state AS_walk_action;
+extern CAT_AM_state AS_eat;
+extern CAT_AM_state AS_study;
+extern CAT_AM_state AS_play;
+extern CAT_AM_state AS_adjust_out;
+extern CAT_AM_state AS_vig_up;
+extern CAT_AM_state AS_foc_up;
+extern CAT_AM_state AS_spi_up;
+
+extern CAT_AM_state* bubble_asm;
+extern CAT_AM_state AS_react;
 
 void CAT_sprite_mass_define();
 

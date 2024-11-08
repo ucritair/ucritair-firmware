@@ -5,6 +5,7 @@
 #include "cat_bag.h"
 #include "cat_input.h"
 #include "cat_pet.h"
+#include "cat_sprite.h"
 
 CAT_deco_state deco_state;
 
@@ -44,7 +45,7 @@ void CAT_MS_deco(CAT_machine_signal signal)
 	{
 		case CAT_MACHINE_SIGNAL_ENTER:
 		{
-			CAT_ASM_transition(&pet_asm, &AS_idle);
+			CAT_AM_transition(&pet_asm, &AS_idle);
 			deco_state.mode = ADD;
 			deco_state.mod_idx = -1;
 			break;

@@ -4,6 +4,7 @@
 #include "cat_gui.h"
 #include "cat_room.h"
 #include "cat_input.h"
+#include "cat_sprite.h"
 
 void CAT_MS_arcade(CAT_machine_signal signal)
 {

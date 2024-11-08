@@ -19,5 +19,6 @@ typedef struct CAT_deco_state
 extern CAT_deco_state deco_state;
 
 void CAT_deco_state_init();
+extern void CAT_render_deco();
 
 #endif

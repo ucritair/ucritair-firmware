@@ -7,6 +7,7 @@
 #include "cat_deco.h"
 #include "cat_actions.h"
 #include <string.h>
+#include "cat_sprite.h"
 
 CAT_bag bag;
 

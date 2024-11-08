@@ -8,4 +8,6 @@ typedef struct CAT_vending_state
 } CAT_vending_state;
 extern CAT_vending_state vending_state;
 
+extern void CAT_render_vending();
+
 #endif

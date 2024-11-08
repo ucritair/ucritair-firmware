@@ -6,6 +6,7 @@
 #include "cat_item.h"
 #include "cat_bag.h"
 #include <stdio.h>
+#include "cat_sprite.h"
 
 #define VENDING_MAX_SLOTS 8
 

@@ -1,7 +1,8 @@
-#include <stddef.h>
 #include "cat_machine.h"
+#include <stddef.h>
 #include "cat_core.h"
 #include "cat_math.h"
+#include "cat_sprite.h"
 
 //////////////////////////////////////////////////////////////////////////
 // TIMETABLE
@@ -81,7 +82,7 @@ void CAT_machine_tick(CAT_machine_state* machine)
 //////////////////////////////////////////////////////////////////////////
 // ANIMACHINE
 
-void CAT_ASM_init(CAT_ASM_state* state, int enai, int tiai, int exai)
+void CAT_AM_init(CAT_AM_state* state, int enai, int tiai, int exai)
 {
 	state->signal = ENTER;
 	state->enter_anim_id = enai;
@@ -90,7 +91,7 @@ void CAT_ASM_init(CAT_ASM_state* state, int enai, int tiai, int exai)
 	state->next = NULL;
 }
 
-void CAT_ASM_transition(CAT_ASM_state** spp, CAT_ASM_state* next)
+void CAT_AM_transition(CAT_AM_state** spp, CAT_AM_state* next)
 {
 	if(next == NULL)
 	{
@@ -98,7 +99,7 @@ void CAT_ASM_transition(CAT_ASM_state** spp, CAT_ASM_state* next)
 		return;
 	}
 
-	CAT_ASM_state* sp = *spp;
+	CAT_AM_state* sp = *spp;
 	if(sp != NULL)
 	{
 		if(sp->signal != DONE)
@@ -115,7 +116,7 @@ void CAT_ASM_transition(CAT_ASM_state** spp, CAT_ASM_state* next)
 	}
 }
 
-void CAT_ASM_kill(CAT_ASM_state** spp)
+void CAT_AM_kill(CAT_AM_state** spp)
 {
 	if(*spp == NULL)
 		return;
@@ -123,47 +124,47 @@ void CAT_ASM_kill(CAT_ASM_state** spp)
 		(*spp)->signal = EXIT;
 }
 
-bool CAT_ASM_is_in(CAT_ASM_state** spp, CAT_ASM_state* state)
+bool CAT_AM_is_in(CAT_AM_state** spp, CAT_AM_state* state)
 {
 	if(*spp == NULL)
 		return false;
 	return (*spp) == state;
 }
 
-bool CAT_ASM_is_entering(CAT_ASM_state** spp)
+bool CAT_AM_is_entering(CAT_AM_state** spp)
 {
 	if(*spp == NULL)
 		return false;
 	return (*spp)->signal == ENTER;
 }
 
-bool CAT_ASM_is_ticking(CAT_ASM_state** spp)
+bool CAT_AM_is_ticking(CAT_AM_state** spp)
 {
 	if(*spp == NULL)
 		return false;
 	return (*spp)->signal == TICK;
 }
 
-bool CAT_ASM_is_exiting(CAT_ASM_state** spp)
+bool CAT_AM_is_exiting(CAT_AM_state** spp)
 {
 	if(*spp == NULL)
 		return false;
 	return (*spp)->signal == EXIT;
 }
 
-bool CAT_ASM_is_done(CAT_ASM_state** spp)
+bool CAT_AM_is_done(CAT_AM_state** spp)
 {
 	if(*spp == NULL)
 		return false;
 	return (*spp)->signal == DONE;
 }
 
-int CAT_ASM_tick(CAT_ASM_state** spp)
+int CAT_AM_tick(CAT_AM_state** spp)
 {
 	if(*spp == NULL)
 		return -1;
 
-	CAT_ASM_state* sp = *spp;
+	CAT_AM_state* sp = *spp;
 	if(sp->signal == ENTER)
 	{
 		if(!CAT_anim_finished(sp->enter_anim_id))
@@ -185,7 +186,7 @@ int CAT_ASM_tick(CAT_ASM_state** spp)
 
 	if(sp->next != NULL)
 	{
-		CAT_ASM_state* next = sp->next;
+		CAT_AM_state* next = sp->next;
 		sp->next = NULL;
 
 		next->signal = ENTER;

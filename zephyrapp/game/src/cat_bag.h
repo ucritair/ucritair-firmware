@@ -29,5 +29,6 @@ typedef struct CAT_bag_state
 extern CAT_bag_state bag_state;
 
 void CAT_bag_state_init();
+extern void CAT_render_bag();
 
 #endif

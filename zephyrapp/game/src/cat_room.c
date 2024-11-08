@@ -3,6 +3,7 @@
 #include "cat_item.h"
 #include <stdio.h>
 #include "cat_pet.h"
+#include "cat_sprite.h"
 
 CAT_room room;
 CAT_machine_state machine;
@@ -107,8 +108,8 @@ void CAT_MS_room(CAT_machine_signal signal)
 	{
 		case CAT_MACHINE_SIGNAL_ENTER:
 		{
-			CAT_ASM_transition(&pet_asm, &AS_idle);
-			CAT_ASM_transition(&bubble_asm, NULL);
+			CAT_AM_transition(&pet_asm, &AS_idle);
+			CAT_AM_transition(&bubble_asm, NULL);
 			break;
 		}
 		case CAT_MACHINE_SIGNAL_TICK:
@@ -133,13 +134,13 @@ void CAT_MS_room(CAT_machine_signal signal)
 
 			if(CAT_input_touch(pet.pos.x, pet.pos.y-16, 16))
 			{
-				CAT_ASM_transition(&bubble_asm, &AS_react);
+				CAT_AM_transition(&bubble_asm, &AS_react);
 			}
-			if(CAT_ASM_is_in(&bubble_asm, &AS_react))
+			if(CAT_AM_is_in(&bubble_asm, &AS_react))
 			{
 				if(CAT_timer_tick(pet.react_timer_id))
 				{
-					CAT_ASM_transition(&bubble_asm, NULL);
+					CAT_AM_transition(&bubble_asm, NULL);
 					CAT_timer_reset(pet.react_timer_id);
 				}
 			}
@@ -150,7 +151,7 @@ void CAT_MS_room(CAT_machine_signal signal)
 				CAT_timer_reset(pet.stat_timer_id);
 			}
 
-			if(CAT_ASM_is_in(&pet_asm, &AS_idle) && CAT_ASM_is_ticking(&pet_asm))
+			if(CAT_AM_is_in(&pet_asm, &AS_idle) && CAT_AM_is_ticking(&pet_asm))
 			{
 				if(CAT_timer_tick(pet.walk_timer_id))
 				{
@@ -160,15 +161,15 @@ void CAT_MS_room(CAT_machine_signal signal)
 					CAT_vec2 world_max = CAT_iv2v(CAT_ivec2_mul(grid_max, 16));
 					poi = CAT_rand_vec2(world_min, world_max);
 
-					CAT_ASM_transition(&pet_asm, &AS_walk);
+					CAT_AM_transition(&pet_asm, &AS_walk);
 					CAT_timer_reset(pet.walk_timer_id);
 				}
 			}
-			if(CAT_ASM_is_in(&pet_asm, &AS_walk) && CAT_ASM_is_ticking(&pet_asm))
+			if(CAT_AM_is_in(&pet_asm, &AS_walk) && CAT_AM_is_ticking(&pet_asm))
 			{
 				if(CAT_pet_seek(poi))
 				{
-					CAT_ASM_transition(&pet_asm, &AS_idle);
+					CAT_AM_transition(&pet_asm, &AS_idle);
 				}
 			}
 			break;
@@ -224,11 +225,11 @@ void CAT_render_room(int cycle)
 		int pet_mode = CAT_DRAW_MODE_BOTTOM | CAT_DRAW_MODE_CENTER_X;
 		if(pet.left)
 			pet_mode |= CAT_DRAW_MODE_REFLECT_X;
-		CAT_draw_queue_animate(CAT_ASM_tick(&pet_asm), 2, pet.pos.x, pet.pos.y, pet_mode);	
+		CAT_draw_queue_animate(CAT_AM_tick(&pet_asm), 2, pet.pos.x, pet.pos.y, pet_mode);	
 		if(bubble_asm != NULL)
 		{
 			int x_off = pet.left ? 16 : -16;
-			CAT_draw_queue_animate(CAT_ASM_tick(&bubble_asm), 3, pet.pos.x + x_off, pet.pos.y - 48, pet_mode);	
+			CAT_draw_queue_animate(CAT_AM_tick(&bubble_asm), 3, pet.pos.x + x_off, pet.pos.y - 48, pet_mode);	
 		}
 
 		CAT_draw_queue_add(sbut_feed_sprite, 0, 3, 8, 280, CAT_DRAW_MODE_DEFAULT); 
