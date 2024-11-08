@@ -127,7 +127,7 @@ float clampf(float v, float a, float b)
 
 int quantize(float t, float range, int steps)
 {
-	return clamp(round((t / range) * (float) (steps - 1)), 0, steps);
+	return clamp(round((t / range) * (float) (steps - 1)), 0, steps - 1);
 }
 
 //////////////////////////////////////////////////////////////////////////
