@@ -7,6 +7,22 @@
 #include "cat_deco.h"
 #include "cat_actions.h"
 #include "cat_bag.h"
+#include "rtc.h"
+
+struct tm local;
+
+const struct {const int len; const int pad; int* edit;} edits[] = {
+	{3, 1, &local.tm_mon},
+	{2, 1, &local.tm_mday},
+	{4, 2, &local.tm_year},
+	{2, 1, &local.tm_hour},
+	{2, 1, &local.tm_min},
+	{2, 0, &local.tm_sec}
+};
+
+#define NUM_EDITS (sizeof(edits)/sizeof(edits[0]))
+
+int time_selector = 0;
 
 void CAT_MS_time(CAT_machine_signal signal)
 {
@@ -22,6 +38,25 @@ void CAT_MS_time(CAT_machine_signal signal)
 		{
 			if(CAT_input_pressed(CAT_BUTTON_B))
 				CAT_machine_transition(&machine, CAT_MS_menu);
+
+			if (CAT_input_pulse(CAT_BUTTON_LEFT))
+				time_selector--;
+			if (CAT_input_pulse(CAT_BUTTON_RIGHT))
+				time_selector++;
+			time_selector = clamp(time_selector, 0, NUM_EDITS-1);
+
+			int up = CAT_input_pulse(CAT_BUTTON_UP);
+			int dn = CAT_input_pulse(CAT_BUTTON_DOWN);
+			if (up)
+				(*edits[time_selector].edit)++;
+			if (dn)
+				(*edits[time_selector].edit)--;
+
+			if (up||dn)
+			{
+				set_rtc_counter(&local);
+			}
+
 			break;
 		}
 		case CAT_MACHINE_SIGNAL_EXIT:
@@ -38,7 +73,29 @@ void CAT_render_time()
 	CAT_gui_image(icon_exit_sprite, 0);
 
 	CAT_gui_line_break();
-	CAT_gui_text("some stuff");
+
+	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
+	
+	time_t now = get_current_rtc_time();
+	gmtime_r(&now, &local);
+
+	char buf[64];
+#define textf(...) snprintf(buf, sizeof(buf), __VA_ARGS__); CAT_gui_text(buf)
+	
+	textf("%s ", month_names[local.tm_mon]);
+	textf("%2d ", local.tm_mday);
+	textf("%4d, ", local.tm_year);
+	textf("%2d:", local.tm_hour);
+	textf("%2d:", local.tm_min);
+	textf("%2d", local.tm_sec);
+
+	CAT_gui_line_break();
+
+	for (int i = 0; i < NUM_EDITS; i++)
+	{
+		bool editing = i == time_selector;
+		textf("%.*s%*s", edits[i].len, editing?"^^^^":"    ", edits[i].pad, "");
+	}
 
 	// CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});  
 	// for(int i = 0; i < 9; i++)

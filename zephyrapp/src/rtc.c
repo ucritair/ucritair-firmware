@@ -4,6 +4,8 @@
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(rtc, LOG_LEVEL_DBG);
 
+#include <zephyr/sys/timeutil.h>
+
 #include "rtc.h"
 
 static int board_cat_init_rtc(void)
@@ -19,7 +21,7 @@ SYS_INIT(board_cat_init_rtc, PRE_KERNEL_1,
 
 
 // epoch time seconds of RTC=0
-PERSIST_RAM uint32_t rtc_offset;
+PERSIST_RAM uint64_t rtc_offset;
 
 // 0xdeadbeef if retained ram is valid
 PERSIST_RAM uint16_t rtc_init_check;
@@ -28,20 +30,36 @@ PERSIST_RAM uint16_t rtc_init_check;
 
 bool is_first_init = false;
 
+_Static_assert(sizeof(time_t) == sizeof(uint64_t));
+
 time_t get_current_rtc_time()
 {
-	return (nrf_rtc_counter_get(NRF_RTC0) + rtc_offset) / 8;
+	return ((uint64_t)nrf_rtc_counter_get(NRF_RTC0) + rtc_offset) / 8;
 }
 
 void zero_rtc_counter()
 {
 	LOG_DBG("zero_rtc_counter");
-	rtc_offset = -nrf_rtc_counter_get(NRF_RTC0);
+	struct tm t = {
+		.tm_year = 2024 - TIME_UTILS_BASE_YEAR + (2024 - 124),
+		// WHAT THE FUCK is going on here. I don't care.
+		.tm_mon = 11-1,
+		.tm_mday = 7
+	};
+	set_rtc_counter(&t);
+}
+
+void set_rtc_counter(struct tm* t)
+{
+	LOG_DBG("set_rtc_counter");
+	rtc_offset = timeutil_timegm64(t);
+	rtc_offset *= 8;
+	rtc_offset -= nrf_rtc_counter_get(NRF_RTC0);
 }
 
 void snapshot_rtc_for_reboot()
 {
-	rtc_offset = rtc_offset + nrf_rtc_counter_get(NRF_RTC0) + 1;
+	rtc_offset = rtc_offset + (uint64_t)nrf_rtc_counter_get(NRF_RTC0) + 1;
 }
 
 void check_rtc_init()
@@ -49,8 +67,8 @@ void check_rtc_init()
 	if (rtc_init_check != RTC_INIT_CHECK_MAGIC)
 	{
 		is_first_init = true;
-		rtc_offset = 0;
 		rtc_init_check = RTC_INIT_CHECK_MAGIC;
+		zero_rtc_counter();
 	}
 }
 
