@@ -3,6 +3,7 @@
 #include "cat_item.h"
 #include "cat_input.h"
 #include "cat_bag.h"
+#include "cat_pet.h"
 
 CAT_action_state action_state;
 

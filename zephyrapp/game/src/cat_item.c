@@ -81,6 +81,7 @@ int coffeemaker_item;
 int fan_item;
 int purifier_item;
 int uv_item;
+int crypto_item;
 
 int chair_wood_item;
 int table_sm_item;
@@ -162,6 +163,9 @@ void CAT_item_mass_define()
 
 	uv_item = CAT_item_init(CAT_ITEM_TYPE_PROP, "UV Lamp", uv_lamp_sprite, 1);
 	CAT_prop_init(uv_item, 1, 1, true);
+
+	crypto_item = CAT_item_init(CAT_ITEM_TYPE_PROP, "Ethereum Farm", solderpaste_sprite, 1);
+	CAT_prop_init(crypto_item, 3, 1, true);
 
 	lantern_lit_item = CAT_item_init(CAT_ITEM_TYPE_PROP, "Lantern (Lit)", lantern_lit_sprite, 1);
 	CAT_prop_init(lantern_lit_item, 1, 1, true);

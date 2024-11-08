@@ -4,6 +4,7 @@
 #include "cat_machine.h"
 #include "cat_bag.h"
 #include "cat_input.h"
+#include "cat_pet.h"
 
 CAT_deco_state deco_state;
 

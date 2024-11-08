@@ -1,3 +1,6 @@
+#ifndef CAT_ACTION_H
+#define CAT_ACTION_H
+
 #include "cat_machine.h"
 #include "cat_math.h"
 
@@ -17,3 +20,5 @@ extern CAT_action_state action_state;
 
 void CAT_action_state_init();
 void CAT_action_tick();
+
+#endif

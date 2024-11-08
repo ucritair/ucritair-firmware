@@ -465,6 +465,30 @@ src/cat_menu.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/app.dir/build.make CMakeFiles/app.dir/src/cat_menu.c.s
 .PHONY : src/cat_menu.c.s
 
+src/cat_pet.o: src/cat_pet.c.o
+.PHONY : src/cat_pet.o
+
+# target to build an object file
+src/cat_pet.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/app.dir/build.make CMakeFiles/app.dir/src/cat_pet.c.o
+.PHONY : src/cat_pet.c.o
+
+src/cat_pet.i: src/cat_pet.c.i
+.PHONY : src/cat_pet.i
+
+# target to preprocess a source file
+src/cat_pet.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/app.dir/build.make CMakeFiles/app.dir/src/cat_pet.c.i
+.PHONY : src/cat_pet.c.i
+
+src/cat_pet.s: src/cat_pet.c.s
+.PHONY : src/cat_pet.s
+
+# target to generate assembly for a file
+src/cat_pet.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/app.dir/build.make CMakeFiles/app.dir/src/cat_pet.c.s
+.PHONY : src/cat_pet.c.s
+
 src/cat_room.o: src/cat_room.c.o
 .PHONY : src/cat_room.o
 
@@ -612,6 +636,9 @@ help:
 	@echo "... src/cat_menu.o"
 	@echo "... src/cat_menu.i"
 	@echo "... src/cat_menu.s"
+	@echo "... src/cat_pet.o"
+	@echo "... src/cat_pet.i"
+	@echo "... src/cat_pet.s"
 	@echo "... src/cat_room.o"
 	@echo "... src/cat_room.i"
 	@echo "... src/cat_room.s"
