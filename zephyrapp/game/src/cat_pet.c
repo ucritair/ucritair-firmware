@@ -1,3 +1,4 @@
+#include <stddef.h>
 #include "cat_pet.h"
 #include "cat_core.h"
 #include "cat_sprite.h"
