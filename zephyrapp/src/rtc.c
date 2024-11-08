@@ -56,7 +56,8 @@ void check_rtc_init()
 
 void update_rtc()
 {
-	if (nrf_rtc_counter_get(NRF_RTC0) >= (1<<10))
+	int c = nrf_rtc_counter_get(NRF_RTC0);
+	if (c >= (1<<10))
 	{
 		// Theory: wait until counter ticks, then reset it and add the
 		// value we just cleared to the offset

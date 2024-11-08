@@ -317,7 +317,7 @@ void CAT_MS_room(CAT_machine_signal signal)
 	}
 }
 
-void CAT_render_room()
+void CAT_render_room(int cycle)
 {
 	CAT_draw_tiles(base_wall_sprite, 0, 0, 4);
 	CAT_draw_tiles(base_wall_sprite, 1, 4, 1);
@@ -326,47 +326,50 @@ void CAT_render_room()
 	CAT_draw_tiles(base_floor_sprite, 1, 7, 10);
 	CAT_draw_tiles(base_floor_sprite, 2, 17, 3);
 
-	CAT_draw_queue_add(window_day_sprite, 0, 2, 8, 8, CAT_DRAW_MODE_DEFAULT);
-	CAT_draw_queue_add(vending_sprite, -1, 2, 164, 112, CAT_DRAW_MODE_BOTTOM);
-
-	for(int i = 0; i < room.prop_count; i++)
+	if (cycle == 0)
 	{
-		int prop_id = room.props[i];
-		CAT_item* prop = CAT_item_get(prop_id);
-		CAT_ivec2 shape = prop->data.prop_data.shape;
-		CAT_ivec2 place = room.places[i];
+		CAT_draw_queue_add(window_day_sprite, 0, 2, 8, 8, CAT_DRAW_MODE_DEFAULT);
+		CAT_draw_queue_add(vending_sprite, -1, 2, 164, 112, CAT_DRAW_MODE_BOTTOM);
 
-		int prop_mode = CAT_DRAW_MODE_BOTTOM;
-		if(prop->data.prop_data.animate)
-		{	
-			if(room.overrides[i])
-				prop_mode |= CAT_DRAW_MODE_REFLECT_X;
-			CAT_draw_queue_animate(prop->sprite_id, 2, place.x * 16, (place.y+shape.y) * 16, prop_mode);
-		}
-		else
+		for(int i = 0; i < room.prop_count; i++)
 		{
-			int frame_idx = room.overrides[i];
-			CAT_draw_queue_add(prop->sprite_id, frame_idx, 2, place.x * 16, (place.y+shape.y) * 16, prop_mode);
+			int prop_id = room.props[i];
+			CAT_item* prop = CAT_item_get(prop_id);
+			CAT_ivec2 shape = prop->data.prop_data.shape;
+			CAT_ivec2 place = room.places[i];
+
+			int prop_mode = CAT_DRAW_MODE_BOTTOM;
+			if(prop->data.prop_data.animate)
+			{	
+				if(room.overrides[i])
+					prop_mode |= CAT_DRAW_MODE_REFLECT_X;
+				CAT_draw_queue_animate(prop->sprite_id, 2, place.x * 16, (place.y+shape.y) * 16, prop_mode);
+			}
+			else
+			{
+				int frame_idx = room.overrides[i];
+				CAT_draw_queue_add(prop->sprite_id, frame_idx, 2, place.x * 16, (place.y+shape.y) * 16, prop_mode);
+			}
 		}
+
+		int pet_mode = CAT_DRAW_MODE_BOTTOM | CAT_DRAW_MODE_CENTER_X;
+		if(pet.left)
+			pet_mode |= CAT_DRAW_MODE_REFLECT_X;
+		CAT_draw_queue_animate(CAT_ASM_tick(&pet_asm), 2, pet.pos.x, pet.pos.y, pet_mode);	
+		if(bubl_asm != NULL)
+		{
+			int x_off = pet.left ? 16 : -16;
+			CAT_draw_queue_animate(CAT_ASM_tick(&bubl_asm), 3, pet.pos.x + x_off, pet.pos.y - 48, pet_mode);	
+		}
+
+		CAT_draw_queue_add(sbut_feed_sprite, 0, 3, 8, 280, CAT_DRAW_MODE_DEFAULT); 
+		CAT_draw_queue_add(sbut_study_sprite, 0, 3, 56, 280, CAT_DRAW_MODE_DEFAULT); 
+		CAT_draw_queue_add(sbut_play_sprite, 0, 3, 104, 280, CAT_DRAW_MODE_DEFAULT);
+		CAT_draw_queue_add(sbut_deco_sprite, 0, 3, 152, 280, CAT_DRAW_MODE_DEFAULT);
+		CAT_draw_queue_add(sbut_menu_sprite, 0, 3, 200, 280, CAT_DRAW_MODE_DEFAULT);
+		CAT_draw_queue_add(sbut_hl_sprite, 0, 4, 8+48*room.selector, 280, CAT_DRAW_MODE_DEFAULT);
+
+		if(input.touch.pressure)
+			CAT_draw_queue_add(sbut_hl_sprite, 0, 4, input.touch.x, input.touch.y, CAT_DRAW_MODE_CENTER_X | CAT_DRAW_MODE_CENTER_Y);
 	}
-
-	int pet_mode = CAT_DRAW_MODE_BOTTOM | CAT_DRAW_MODE_CENTER_X;
-	if(pet.left)
-		pet_mode |= CAT_DRAW_MODE_REFLECT_X;
-	CAT_draw_queue_animate(CAT_ASM_tick(&pet_asm), 2, pet.pos.x, pet.pos.y, pet_mode);	
-	if(bubl_asm != NULL)
-	{
-		int x_off = pet.left ? 16 : -16;
-		CAT_draw_queue_animate(CAT_ASM_tick(&bubl_asm), 3, pet.pos.x + x_off, pet.pos.y - 48, pet_mode);	
-	}
-
-	CAT_draw_queue_add(sbut_feed_sprite, 0, 3, 8, 280, CAT_DRAW_MODE_DEFAULT); 
-	CAT_draw_queue_add(sbut_study_sprite, 0, 3, 56, 280, CAT_DRAW_MODE_DEFAULT); 
-	CAT_draw_queue_add(sbut_play_sprite, 0, 3, 104, 280, CAT_DRAW_MODE_DEFAULT);
-	CAT_draw_queue_add(sbut_deco_sprite, 0, 3, 152, 280, CAT_DRAW_MODE_DEFAULT);
-	CAT_draw_queue_add(sbut_menu_sprite, 0, 3, 200, 280, CAT_DRAW_MODE_DEFAULT);
-	CAT_draw_queue_add(sbut_hl_sprite, 0, 4, 8+48*room.selector, 280, CAT_DRAW_MODE_DEFAULT);
-
-	if(input.touch.pressure)
-		CAT_draw_queue_add(sbut_hl_sprite, 0, 4, input.touch.x, input.touch.y, CAT_DRAW_MODE_CENTER_X | CAT_DRAW_MODE_CENTER_Y);
 }

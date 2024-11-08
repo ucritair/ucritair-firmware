@@ -36,7 +36,7 @@ target_sources(app PRIVATE
 	src/touch.c
 	src/wlan.c
 
-	src/menu/time.c
+	src/menu/menu_time.c
 
 	${CMAKE_CURRENT_BINARY_DIR}/images.c
 )
