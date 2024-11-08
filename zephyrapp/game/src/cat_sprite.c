@@ -596,6 +596,7 @@ int icon_enter_sprite;
 int icon_exit_sprite;
 int icon_equip_sprite;
 int icon_item_sprite;
+int icon_coin_sprite;
 
 int fbut_a_sprite;
 int fbut_b_sprite;
@@ -786,6 +787,7 @@ void CAT_sprite_mass_define()
 	INIT_SPRITE(icon_exit_sprite, "sprites/icon_exit.png", 1);
 	INIT_SPRITE(icon_equip_sprite, "sprites/icon_equip.png", 2);
 	INIT_SPRITE(icon_item_sprite, "sprites/icon_item.png", 4);
+	INIT_SPRITE(icon_coin_sprite, "sprites/icon_coin.png", 1);
 
 	INIT_SPRITE(fbut_a_sprite, "sprites/A Button_Both.png", 2);
 	INIT_SPRITE(fbut_b_sprite, "sprites/B Button_Both.png", 2);

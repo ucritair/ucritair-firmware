@@ -36,6 +36,8 @@ void CAT_gui_row(int stage)
 
 void CAT_gui_panel(CAT_ivec2 start, CAT_ivec2 shape)
 {
+	start.x *= 16;
+	start.y *= 16;
 	gui.start = start;
 	gui.shape = shape;
 	gui.cursor = start;

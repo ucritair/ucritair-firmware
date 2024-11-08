@@ -36,20 +36,6 @@ void CAT_prop_init(int item_id, int width, int height, bool animate)
 	CAT_item* item = CAT_item_get(item_id);
 	item->data.prop_data.shape = (CAT_ivec2) {width, height};
 	item->data.prop_data.animate = animate;
-	item->data.prop_data.frame_idx = 0;
-}
-
-void CAT_prop_flip(int item_id)
-{
-	CAT_item* item = CAT_item_get(item_id);
-	if(item->data.prop_data.animate)
-		return;
-	int* frame_idx = &item->data.prop_data.frame_idx;
-	*frame_idx += 1;
-	int sprite_id = item->sprite_id;
-	CAT_sprite* sprite = &atlas.table[sprite_id];
-	if(*frame_idx >= sprite->frame_count)
-		*frame_idx = 0;
 }
 
 void CAT_food_init(int item_id, float d_v, float d_f, float d_s)
@@ -76,62 +62,6 @@ bool CAT_gear_status(int item_id)
 {
 	CAT_item* item = CAT_item_get(item_id);
 	return item->data.gear_data.equipped;
-}
-
-
-//////////////////////////////////////////////////////////////////////////
-// BAG
-
-CAT_bag bag;
-
-void CAT_bag_init()
-{
-	bag.length = 0;
-}
-
-int CAT_bag_find(int item_id)
-{
-	for(int i = 0; i < bag.length; i++)
-	{
-		if(bag.item_id[i] == item_id)
-		{
-			return i;
-		}
-	}
-	return -1;
-}
-
-void CAT_bag_add(int item_id)
-{
-	int idx = CAT_bag_find(item_id);
-	if(idx >= 0)
-	{
-		bag.count[idx] += 1;
-	}
-	else
-	{
-		bag.item_id[bag.length] = item_id;
-		bag.count[bag.length] = 1;
-		bag.length += 1;
-	}
-}
-
-void CAT_bag_remove(int item_id)
-{
-	int idx = CAT_bag_find(item_id);
-	if(idx >= 0)
-	{
-		bag.count[idx] -= 1;
-		if(bag.count[idx] <= 0)
-		{
-			for(int i = idx; i < bag.length-1; i++)
-			{
-				bag.item_id[i] = bag.item_id[i+1];
-				bag.count[i] = bag.count[i+1];
-			}
-			bag.length -= 1;
-		}
-	}
 }
 
 

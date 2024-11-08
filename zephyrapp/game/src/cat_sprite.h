@@ -251,6 +251,7 @@ extern int icon_enter_sprite;
 extern int icon_exit_sprite;
 extern int icon_equip_sprite;
 extern int icon_item_sprite;
+extern int icon_coin_sprite;
 
 extern int fbut_a_sprite;
 extern int fbut_b_sprite;

@@ -37,7 +37,6 @@ typedef struct CAT_item
 		{
 			CAT_ivec2 shape;
 			bool animate;
-			int frame_idx;
 		} prop_data;
 
 		struct
@@ -65,28 +64,10 @@ void CAT_item_table_init();
 int CAT_item_init(CAT_item_type type, const char* name, int sprite_id, int price);
 CAT_item* CAT_item_get(int item_id);
 void CAT_prop_init(int item_id, int width, int height, bool animate);
-void CAT_prop_flip(int item_id);
 void CAT_food_init(int item_id, float d_v, float d_f, float d_s);
 void CAT_gear_init(int item_id);
 void CAT_gear_toggle(int item_id, bool equipped);
 bool CAT_gear_status(int item_id);
-
-
-//////////////////////////////////////////////////////////////////////////
-// BAG
-
-typedef struct CAT_bag
-{
-	int item_id[CAT_BAG_MAX_LENGTH];
-	int count[CAT_BAG_MAX_LENGTH];
-	int length;
-} CAT_bag;
-extern CAT_bag bag;
-
-void CAT_bag_init();
-int CAT_bag_find(int item_id);
-void CAT_bag_add(int item_id);
-void CAT_bag_remove(int item_id);
 
 
 //////////////////////////////////////////////////////////////////////////

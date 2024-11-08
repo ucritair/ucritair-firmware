@@ -31,6 +31,15 @@ target_sources(app PRIVATE
 	src/cat_machine.c
 	src/cat_main.c
 	src/cat_math.c
+	src/cat_arcade.c
+	src/cat_bag.c
+	src/cat_deco.c
+	src/cat_manual.c
+	src/cat_menu.c
+	src/cat_room.c
+	src/cat_stats.c
+	src/cat_vending.c
+	src/cat_actions.c
 	src/cat_sprite.c)
 
 target_include_directories(app PRIVATE

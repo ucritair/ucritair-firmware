@@ -155,7 +155,7 @@ CAT_rect CAT_rect_place(CAT_ivec2 start, CAT_ivec2 shape)
 	return (CAT_rect) {start, CAT_ivec2_add(start, shape)};
 }
 
-bool CAT_test_overlaps(CAT_rect a, CAT_rect b)
+bool CAT_rect_overlaps(CAT_rect a, CAT_rect b)
 {
 	if(a.min.x >= b.max.x || a.max.x <= b.min.x)
 		return false;
@@ -164,7 +164,7 @@ bool CAT_test_overlaps(CAT_rect a, CAT_rect b)
 	return true;
 }
 
-bool CAT_test_contains(CAT_rect a, CAT_rect b)
+bool CAT_rect_contains(CAT_rect a, CAT_rect b)
 {
 	if(b.min.x < a.min.x || b.max.x > a.max.x)
 		return false;
@@ -173,7 +173,7 @@ bool CAT_test_contains(CAT_rect a, CAT_rect b)
 	return true;
 }
 
-bool CAT_test_pt_rect(CAT_ivec2 v, CAT_rect r)
+bool CAT_rect_pt(CAT_ivec2 v, CAT_rect r)
 {
 	if(v.x < r.min.x || v.x > r.max.x)
 		return false;

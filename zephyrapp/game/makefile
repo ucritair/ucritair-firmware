@@ -129,6 +129,30 @@ app/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/app.dir/build.make CMakeFiles/app.dir/build
 .PHONY : app/fast
 
+src/cat_actions.o: src/cat_actions.c.o
+.PHONY : src/cat_actions.o
+
+# target to build an object file
+src/cat_actions.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/app.dir/build.make CMakeFiles/app.dir/src/cat_actions.c.o
+.PHONY : src/cat_actions.c.o
+
+src/cat_actions.i: src/cat_actions.c.i
+.PHONY : src/cat_actions.i
+
+# target to preprocess a source file
+src/cat_actions.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/app.dir/build.make CMakeFiles/app.dir/src/cat_actions.c.i
+.PHONY : src/cat_actions.c.i
+
+src/cat_actions.s: src/cat_actions.c.s
+.PHONY : src/cat_actions.s
+
+# target to generate assembly for a file
+src/cat_actions.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/app.dir/build.make CMakeFiles/app.dir/src/cat_actions.c.s
+.PHONY : src/cat_actions.c.s
+
 src/cat_aqi.o: src/cat_aqi.c.o
 .PHONY : src/cat_aqi.o
 
@@ -152,6 +176,78 @@ src/cat_aqi.s: src/cat_aqi.c.s
 src/cat_aqi.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/app.dir/build.make CMakeFiles/app.dir/src/cat_aqi.c.s
 .PHONY : src/cat_aqi.c.s
+
+src/cat_arcade.o: src/cat_arcade.c.o
+.PHONY : src/cat_arcade.o
+
+# target to build an object file
+src/cat_arcade.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/app.dir/build.make CMakeFiles/app.dir/src/cat_arcade.c.o
+.PHONY : src/cat_arcade.c.o
+
+src/cat_arcade.i: src/cat_arcade.c.i
+.PHONY : src/cat_arcade.i
+
+# target to preprocess a source file
+src/cat_arcade.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/app.dir/build.make CMakeFiles/app.dir/src/cat_arcade.c.i
+.PHONY : src/cat_arcade.c.i
+
+src/cat_arcade.s: src/cat_arcade.c.s
+.PHONY : src/cat_arcade.s
+
+# target to generate assembly for a file
+src/cat_arcade.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/app.dir/build.make CMakeFiles/app.dir/src/cat_arcade.c.s
+.PHONY : src/cat_arcade.c.s
+
+src/cat_bag.o: src/cat_bag.c.o
+.PHONY : src/cat_bag.o
+
+# target to build an object file
+src/cat_bag.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/app.dir/build.make CMakeFiles/app.dir/src/cat_bag.c.o
+.PHONY : src/cat_bag.c.o
+
+src/cat_bag.i: src/cat_bag.c.i
+.PHONY : src/cat_bag.i
+
+# target to preprocess a source file
+src/cat_bag.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/app.dir/build.make CMakeFiles/app.dir/src/cat_bag.c.i
+.PHONY : src/cat_bag.c.i
+
+src/cat_bag.s: src/cat_bag.c.s
+.PHONY : src/cat_bag.s
+
+# target to generate assembly for a file
+src/cat_bag.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/app.dir/build.make CMakeFiles/app.dir/src/cat_bag.c.s
+.PHONY : src/cat_bag.c.s
+
+src/cat_deco.o: src/cat_deco.c.o
+.PHONY : src/cat_deco.o
+
+# target to build an object file
+src/cat_deco.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/app.dir/build.make CMakeFiles/app.dir/src/cat_deco.c.o
+.PHONY : src/cat_deco.c.o
+
+src/cat_deco.i: src/cat_deco.c.i
+.PHONY : src/cat_deco.i
+
+# target to preprocess a source file
+src/cat_deco.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/app.dir/build.make CMakeFiles/app.dir/src/cat_deco.c.i
+.PHONY : src/cat_deco.c.i
+
+src/cat_deco.s: src/cat_deco.c.s
+.PHONY : src/cat_deco.s
+
+# target to generate assembly for a file
+src/cat_deco.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/app.dir/build.make CMakeFiles/app.dir/src/cat_deco.c.s
+.PHONY : src/cat_deco.c.s
 
 src/cat_desktop.o: src/cat_desktop.c.o
 .PHONY : src/cat_desktop.o
@@ -297,6 +393,30 @@ src/cat_main.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/app.dir/build.make CMakeFiles/app.dir/src/cat_main.c.s
 .PHONY : src/cat_main.c.s
 
+src/cat_manual.o: src/cat_manual.c.o
+.PHONY : src/cat_manual.o
+
+# target to build an object file
+src/cat_manual.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/app.dir/build.make CMakeFiles/app.dir/src/cat_manual.c.o
+.PHONY : src/cat_manual.c.o
+
+src/cat_manual.i: src/cat_manual.c.i
+.PHONY : src/cat_manual.i
+
+# target to preprocess a source file
+src/cat_manual.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/app.dir/build.make CMakeFiles/app.dir/src/cat_manual.c.i
+.PHONY : src/cat_manual.c.i
+
+src/cat_manual.s: src/cat_manual.c.s
+.PHONY : src/cat_manual.s
+
+# target to generate assembly for a file
+src/cat_manual.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/app.dir/build.make CMakeFiles/app.dir/src/cat_manual.c.s
+.PHONY : src/cat_manual.c.s
+
 src/cat_math.o: src/cat_math.c.o
 .PHONY : src/cat_math.o
 
@@ -320,6 +440,54 @@ src/cat_math.s: src/cat_math.c.s
 src/cat_math.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/app.dir/build.make CMakeFiles/app.dir/src/cat_math.c.s
 .PHONY : src/cat_math.c.s
+
+src/cat_menu.o: src/cat_menu.c.o
+.PHONY : src/cat_menu.o
+
+# target to build an object file
+src/cat_menu.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/app.dir/build.make CMakeFiles/app.dir/src/cat_menu.c.o
+.PHONY : src/cat_menu.c.o
+
+src/cat_menu.i: src/cat_menu.c.i
+.PHONY : src/cat_menu.i
+
+# target to preprocess a source file
+src/cat_menu.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/app.dir/build.make CMakeFiles/app.dir/src/cat_menu.c.i
+.PHONY : src/cat_menu.c.i
+
+src/cat_menu.s: src/cat_menu.c.s
+.PHONY : src/cat_menu.s
+
+# target to generate assembly for a file
+src/cat_menu.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/app.dir/build.make CMakeFiles/app.dir/src/cat_menu.c.s
+.PHONY : src/cat_menu.c.s
+
+src/cat_room.o: src/cat_room.c.o
+.PHONY : src/cat_room.o
+
+# target to build an object file
+src/cat_room.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/app.dir/build.make CMakeFiles/app.dir/src/cat_room.c.o
+.PHONY : src/cat_room.c.o
+
+src/cat_room.i: src/cat_room.c.i
+.PHONY : src/cat_room.i
+
+# target to preprocess a source file
+src/cat_room.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/app.dir/build.make CMakeFiles/app.dir/src/cat_room.c.i
+.PHONY : src/cat_room.c.i
+
+src/cat_room.s: src/cat_room.c.s
+.PHONY : src/cat_room.s
+
+# target to generate assembly for a file
+src/cat_room.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/app.dir/build.make CMakeFiles/app.dir/src/cat_room.c.s
+.PHONY : src/cat_room.c.s
 
 src/cat_sprite.o: src/cat_sprite.c.o
 .PHONY : src/cat_sprite.o
@@ -345,6 +513,54 @@ src/cat_sprite.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/app.dir/build.make CMakeFiles/app.dir/src/cat_sprite.c.s
 .PHONY : src/cat_sprite.c.s
 
+src/cat_stats.o: src/cat_stats.c.o
+.PHONY : src/cat_stats.o
+
+# target to build an object file
+src/cat_stats.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/app.dir/build.make CMakeFiles/app.dir/src/cat_stats.c.o
+.PHONY : src/cat_stats.c.o
+
+src/cat_stats.i: src/cat_stats.c.i
+.PHONY : src/cat_stats.i
+
+# target to preprocess a source file
+src/cat_stats.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/app.dir/build.make CMakeFiles/app.dir/src/cat_stats.c.i
+.PHONY : src/cat_stats.c.i
+
+src/cat_stats.s: src/cat_stats.c.s
+.PHONY : src/cat_stats.s
+
+# target to generate assembly for a file
+src/cat_stats.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/app.dir/build.make CMakeFiles/app.dir/src/cat_stats.c.s
+.PHONY : src/cat_stats.c.s
+
+src/cat_vending.o: src/cat_vending.c.o
+.PHONY : src/cat_vending.o
+
+# target to build an object file
+src/cat_vending.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/app.dir/build.make CMakeFiles/app.dir/src/cat_vending.c.o
+.PHONY : src/cat_vending.c.o
+
+src/cat_vending.i: src/cat_vending.c.i
+.PHONY : src/cat_vending.i
+
+# target to preprocess a source file
+src/cat_vending.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/app.dir/build.make CMakeFiles/app.dir/src/cat_vending.c.i
+.PHONY : src/cat_vending.c.i
+
+src/cat_vending.s: src/cat_vending.c.s
+.PHONY : src/cat_vending.s
+
+# target to generate assembly for a file
+src/cat_vending.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/app.dir/build.make CMakeFiles/app.dir/src/cat_vending.c.s
+.PHONY : src/cat_vending.c.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -354,9 +570,21 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... app"
+	@echo "... src/cat_actions.o"
+	@echo "... src/cat_actions.i"
+	@echo "... src/cat_actions.s"
 	@echo "... src/cat_aqi.o"
 	@echo "... src/cat_aqi.i"
 	@echo "... src/cat_aqi.s"
+	@echo "... src/cat_arcade.o"
+	@echo "... src/cat_arcade.i"
+	@echo "... src/cat_arcade.s"
+	@echo "... src/cat_bag.o"
+	@echo "... src/cat_bag.i"
+	@echo "... src/cat_bag.s"
+	@echo "... src/cat_deco.o"
+	@echo "... src/cat_deco.i"
+	@echo "... src/cat_deco.s"
 	@echo "... src/cat_desktop.o"
 	@echo "... src/cat_desktop.i"
 	@echo "... src/cat_desktop.s"
@@ -375,12 +603,27 @@ help:
 	@echo "... src/cat_main.o"
 	@echo "... src/cat_main.i"
 	@echo "... src/cat_main.s"
+	@echo "... src/cat_manual.o"
+	@echo "... src/cat_manual.i"
+	@echo "... src/cat_manual.s"
 	@echo "... src/cat_math.o"
 	@echo "... src/cat_math.i"
 	@echo "... src/cat_math.s"
+	@echo "... src/cat_menu.o"
+	@echo "... src/cat_menu.i"
+	@echo "... src/cat_menu.s"
+	@echo "... src/cat_room.o"
+	@echo "... src/cat_room.i"
+	@echo "... src/cat_room.s"
 	@echo "... src/cat_sprite.o"
 	@echo "... src/cat_sprite.i"
 	@echo "... src/cat_sprite.s"
+	@echo "... src/cat_stats.o"
+	@echo "... src/cat_stats.i"
+	@echo "... src/cat_stats.s"
+	@echo "... src/cat_vending.o"
+	@echo "... src/cat_vending.i"
+	@echo "... src/cat_vending.s"
 .PHONY : help
 
 
