@@ -17,6 +17,7 @@
 #include "imu.h"
 #include "wlan.h"
 #include "ble.h"
+#include "rtc.h"
 
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(debugmenu, LOG_LEVEL_DBG);
@@ -305,14 +306,9 @@ void menu_toggle_epaper_flip_y(void* arg)
 	epaper_flip_y = !epaper_flip_y;
 }
 
-#include <hal/nrf_rtc.h>
-extern uint8_t __kernel_ram_end;
-uint32_t* rtc_offset = &__kernel_ram_end - 0x20;
-
 void menu_zero_rtc(void* arg)
 {
-	LOG_DBG("rtc_offset = %p", (void*)rtc_offset);
-	*rtc_offset = -nrf_rtc_counter_get(NRF_RTC0);
+	zero_rtc_counter();
 }
 
 void menu_root()
@@ -333,7 +329,7 @@ void menu_root()
 	selectable("Power Off", menu_power_off, (void*)0);
 
 	text("")
-	textf("RTC: %d (%d) o=%d", *rtc_offset+nrf_rtc_counter_get(NRF_RTC0), nrf_rtc_prescaler_get(NRF_RTC0), *rtc_offset);
+	textf("RTC: %d o=%d", (int)get_current_rtc_time(), (int)rtc_offset);
 	selectable("Zero RTC", menu_zero_rtc, NULL);
 
 	text("");

@@ -65,7 +65,7 @@ void button_pressed(const struct device *dev, struct gpio_callback *cb,
 		    uint32_t pins)
 {
 	// LOG_INF("button_pressed %d", pins);
-	*rtc_offset = *rtc_offset + nrf_rtc_counter_get(NRF_RTC0) + 1;
+	snapshot_rtc_for_reboot();
 	sys_reboot(SYS_REBOOT_WARM);
 }
 
@@ -88,7 +88,7 @@ static void timer_handler(nrf_timer_event_t event_type, void * p_context)
 {
     if(event_type == NRF_TIMER_EVENT_COMPARE0)
     {
-        *rtc_offset = *rtc_offset + nrf_rtc_counter_get(NRF_RTC0) + 1;
+        snapshot_rtc_for_reboot();
 		sys_reboot(SYS_REBOOT_WARM);
     }
 }
@@ -181,7 +181,7 @@ void power_off(int for_ms)
 	gpio_init_callback(&button_cb_data, button_pressed, BIT(9)|BIT(10)|BIT(11)|BIT(12));
 	gpio_add_callback(gpio1, &button_cb_data);
 
-	NRF_CLOCK_S->HFCLKCTRL = (CLOCK_HFCLKCTRL_HCLK_Div2 << CLOCK_HFCLKCTRL_HCLK_Pos); // 128MHz
+	NRF_CLOCK_S->HFCLKCTRL = (CLOCK_HFCLKCTRL_HCLK_Div2 << CLOCK_HFCLKCTRL_HCLK_Pos); // 64MHz
 
 	*(volatile uint32_t*)(0x50005000 + 0x614) = 1; // Force network core off
 

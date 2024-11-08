@@ -26,6 +26,7 @@ LOG_MODULE_REGISTER(sample, LOG_LEVEL_INF);
 #include "sdcard.h"
 #include "flash.h"
 #include "rgb_leds.h"
+#include "rtc.h"
 
 static int cmd_start_wifi(const struct shell *sh, size_t argc,
 				   char **argv)
@@ -56,20 +57,11 @@ SHELL_STATIC_SUBCMD_SET_CREATE(sub_x,
 
 SHELL_CMD_REGISTER(x, &sub_x, "Log test", NULL);
 
-#include <hal/nrf_rtc.h>
-
-extern uint32_t* rtc_offset;
-
 int main(void)
 {
 	// while (1) {
 	// 	k_msleep(1000);
 	// }
-
-	nrf_rtc_prescaler_set(NRF_RTC0, 8191); // 250ms/tick
-	nrf_rtc_task_trigger(NRF_RTC0, NRF_RTC_TASK_START);
-
-	uint32_t initial_rtc_offset = *rtc_offset;
 
 	init_power_control();
 
@@ -136,7 +128,7 @@ int main(void)
 
 	sensor_init();
 
-	LOG_INF("initial_rtc_offset = %d\n", initial_rtc_offset);
+	check_rtc_init();
 
 	lcd_init();
 	lcd_render_diag();
