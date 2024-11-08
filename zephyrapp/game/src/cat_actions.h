@@ -11,6 +11,7 @@ typedef struct CAT_action_state
 	int item_id;
 	CAT_vec2 location;
 	bool confirmed;
+	bool complete;
 } CAT_action_state;
 extern CAT_action_state action_state;
 

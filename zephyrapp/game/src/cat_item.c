@@ -133,7 +133,7 @@ void CAT_item_mass_define()
 	sausage_item = CAT_item_init(CAT_ITEM_TYPE_FOOD, "Sausage", sausage_sprite, 1);
 	CAT_food_init(sausage_item, 1, 0, 0);
 
-	padkrapow_item = CAT_item_init(CAT_ITEM_TYPE_FOOD, "Pad Kra Pow", padkrapow_sprite, 1);
+	padkrapow_item = CAT_item_init(CAT_ITEM_TYPE_FOOD, "Pad Ka Prow", padkrapow_sprite, 1);
 	CAT_food_init(padkrapow_item, 1, 0, 0);
 
 	coffee_item = CAT_item_init(CAT_ITEM_TYPE_FOOD, "Coffee", coffee_sprite, 1);

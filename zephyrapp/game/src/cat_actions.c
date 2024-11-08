@@ -10,6 +10,7 @@ void CAT_action_state_init()
 {
 	action_state.item_id = -1;
 	action_state.confirmed = false;
+	action_state.complete = false;
 }
 
 void CAT_action_tick()
@@ -50,11 +51,12 @@ void CAT_action_tick()
 				CAT_ASM_transition(&pet_asm, action_state.action_AS);
 			}
 		}
-		if(CAT_ASM_is_in(&pet_asm, action_state.action_AS))
+		if(CAT_ASM_is_in(&pet_asm, action_state.action_AS) && CAT_ASM_is_ticking(&pet_asm))
 		{
 			if(CAT_timer_tick(pet.action_timer_id))
 			{
 				action_state.action_proc();
+				action_state.complete = true;
 				CAT_ASM_kill(&pet_asm);
 				CAT_ASM_transition(&pet_asm, action_state.stat_up_AS);
 				CAT_timer_reset(pet.action_timer_id);
@@ -164,10 +166,13 @@ void CAT_render_action()
 {
 	if(action_state.item_id != -1)
 	{
-		CAT_item* item = &item_table.data[action_state.item_id];
-		CAT_draw_queue_add(item->sprite_id, 0, 2, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
 		if(!action_state.confirmed)
 			CAT_draw_queue_add(tile_hl_sprite, 0, 2, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
+		if(!action_state.complete)
+		{
+			CAT_item* item = &item_table.data[action_state.item_id];
+			CAT_draw_queue_add(item->sprite_id, 0, 2, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
+		}
 	}
 	else
 	{
