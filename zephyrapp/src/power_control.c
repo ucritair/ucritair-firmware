@@ -57,12 +57,16 @@ void set_leds(bool on)
 	is_leds_on = on;
 }
 
+#include <hal/nrf_rtc.h>
+extern uint32_t* rtc_offset;
+
 static struct gpio_callback button_cb_data;
 void button_pressed(const struct device *dev, struct gpio_callback *cb,
 		    uint32_t pins)
 {
 	// LOG_INF("button_pressed %d", pins);
-	sys_reboot(SYS_REBOOT_COLD);
+	snapshot_rtc_for_reboot();
+	sys_reboot(SYS_REBOOT_WARM);
 }
 
 static const struct device* gpio0 = DEVICE_DT_GET(DT_NODELABEL(gpio0));
@@ -78,49 +82,19 @@ static const struct device* gpio1 = DEVICE_DT_GET(DT_NODELABEL(gpio1));
 #include <hal/nrf_egu.h>
 #include <hal/nrf_oscillators.h>
 #include <hal/nrf_wdt.h>
+#include <nrfx_timer.h>
 
-void power_off()
+static void timer_handler(nrf_timer_event_t event_type, void * p_context)
 {
-	nrf_wdt_task_stop_enable_set(NRF_WDT0, true);
-	nrf_wdt_task_trigger(NRF_WDT0, NRF_WDT_TASK_STOP);
-	nrf_wdt_nmi_int_disable(NRF_WDT0, NRF_WDT_INT_TIMEOUT_MASK|NRF_WDT_INT_STOPPED_MASK);
-	nrf_wdt_publish_clear(NRF_WDT0, NRF_WDT_EVENT_TIMEOUT|NRF_WDT_EVENT_STOPPED);
+    if(event_type == NRF_TIMER_EVENT_COMPARE0)
+    {
+        snapshot_rtc_for_reboot();
+		sys_reboot(SYS_REBOOT_WARM);
+    }
+}
 
-	if (nrf_wdt_started_check(NRF_WDT0))
-	{
-		while (1)
-		{
-			LOG_ERR("Watchdog still running");
-			k_msleep(1000);
-		}
-	}
-
-	int load_value = 32768*10;
-	nrf_wdt_behaviour_set(NRF_WDT0, NRF_WDT_BEHAVIOUR_RUN_SLEEP_MASK|NRF_WDT_BEHAVIOUR_RUN_HALT_MASK);
-	nrf_wdt_reload_value_set(NRF_WDT0, load_value);
-	if (nrf_wdt_reload_value_get(NRF_WDT0) != load_value)
-	{
-		while (1)
-		{
-			LOG_ERR("Failed to configure wdt reload");
-			k_msleep(1000);
-		}
-	}
-
-	nrf_wdt_task_trigger(NRF_WDT0, NRF_WDT_TASK_START);
-
-	if (!nrf_wdt_started_check(NRF_WDT0))
-	{
-		while (1)
-		{
-			LOG_ERR("Failed to start watchdog");
-			k_msleep(1000);
-		}
-	}
-
-	LOG_INF("Watchdog configured; going down for stupidsleep NOW");
-
-	k_msleep(250);
+void power_off(int for_ms)
+{
 
 	// fails if active
 	// struct net_if *iface = net_if_get_default();
@@ -207,10 +181,38 @@ void power_off()
 	gpio_init_callback(&button_cb_data, button_pressed, BIT(9)|BIT(10)|BIT(11)|BIT(12));
 	gpio_add_callback(gpio1, &button_cb_data);
 
-	NRF_CLOCK_S->HFCLKCTRL = (CLOCK_HFCLKCTRL_HCLK_Div2 << CLOCK_HFCLKCTRL_HCLK_Pos); // 128MHz
+	NRF_CLOCK_S->HFCLKCTRL = (CLOCK_HFCLKCTRL_HCLK_Div2 << CLOCK_HFCLKCTRL_HCLK_Pos); // 64MHz
 
 	*(volatile uint32_t*)(0x50005000 + 0x614) = 1; // Force network core off
 
+#define TIMER_INST_IDX 0
+	IRQ_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_TIMER_INST_GET(TIMER_INST_IDX)), IRQ_PRIO_LOWEST,
+                NRFX_TIMER_INST_HANDLER_GET(TIMER_INST_IDX), 0, 0);
+
+	if (for_ms)
+	{
+		nrfx_timer_t timer_inst = NRFX_TIMER_INSTANCE(TIMER_INST_IDX);
+	    uint32_t base_frequency = NRF_TIMER_BASE_FREQUENCY_GET(timer_inst.p_reg);
+	    nrfx_timer_config_t config = NRFX_TIMER_DEFAULT_CONFIG(base_frequency);
+	    config.bit_width = NRF_TIMER_BIT_WIDTH_32;
+
+	    int status = nrfx_timer_init(&timer_inst, &config, timer_handler);
+	    NRFX_ASSERT(status == NRFX_SUCCESS);
+
+	    nrfx_timer_clear(&timer_inst);
+
+	    /* Creating variable desired_ticks to store the output of nrfx_timer_ms_to_ticks function */
+	    uint32_t desired_ticks = nrfx_timer_ms_to_ticks(&timer_inst, for_ms);
+
+	    /*
+	     * Setting the timer channel NRF_TIMER_CC_CHANNEL0 in the extended compare mode to stop the timer and
+	     * trigger an interrupt if internal counter register is equal to desired_ticks.
+	     */
+	    nrfx_timer_extended_compare(&timer_inst, NRF_TIMER_CC_CHANNEL0, desired_ticks,
+	                                NRF_TIMER_SHORT_COMPARE0_STOP_MASK, true);
+
+	    nrfx_timer_enable(&timer_inst);
+	}
 
 	while (1)
 	{

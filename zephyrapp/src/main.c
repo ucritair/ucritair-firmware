@@ -26,6 +26,7 @@ LOG_MODULE_REGISTER(sample, LOG_LEVEL_INF);
 #include "sdcard.h"
 #include "flash.h"
 #include "rgb_leds.h"
+#include "rtc.h"
 
 static int cmd_start_wifi(const struct shell *sh, size_t argc,
 				   char **argv)
@@ -55,8 +56,6 @@ SHELL_STATIC_SUBCMD_SET_CREATE(sub_x,
 );
 
 SHELL_CMD_REGISTER(x, &sub_x, "Log test", NULL);
-
-	
 
 int main(void)
 {
@@ -128,6 +127,8 @@ int main(void)
 	k_msleep(50);
 
 	sensor_init();
+
+	check_rtc_init();
 
 	lcd_init();
 	lcd_render_diag();

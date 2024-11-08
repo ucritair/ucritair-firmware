@@ -26,6 +26,7 @@ target_sources(app PRIVATE
 	src/misc.c
 	src/power_control.c
 	src/rgb_leds.c
+	src/rtc.c
 	src/sdcard.c
 	src/sensor_hal.c
 	src/sensor_lps22hh.c
@@ -55,3 +56,5 @@ if(MINIMIZE_GAME_FOOTPRINT)
 	message(WARNING "Not building in the actual game")
 	target_compile_definitions(app PRIVATE MINIMIZE_GAME_FOOTPRINT=1)
 endif()
+
+zephyr_linker_sources(SECTIONS persistant.ld)

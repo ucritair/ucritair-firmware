@@ -17,6 +17,10 @@
 #include "imu.h"
 #include "wlan.h"
 #include "ble.h"
+#include "rtc.h"
+
+#include <zephyr/logging/log.h>
+LOG_MODULE_REGISTER(debugmenu, LOG_LEVEL_DBG);
 
 typedef void (*menu_t)();
 typedef void (*menu_op_t)(void*);
@@ -294,12 +298,17 @@ void menu_toggle_fps(void* arg)
 
 void menu_power_off(void* arg)
 {
-	power_off();
+	power_off((bool)arg);
 }
 
 void menu_toggle_epaper_flip_y(void* arg)
 {
 	epaper_flip_y = !epaper_flip_y;
+}
+
+void menu_zero_rtc(void* arg)
+{
+	zero_rtc_counter();
 }
 
 void menu_root()
@@ -316,7 +325,12 @@ void menu_root()
 	selectable("Toggle show FPS", menu_toggle_fps, NULL);
 	selectablef(menu_toggle_epaper_flip_y, NULL, "Toggle epaper flip (%s)", epaper_flip_y?"ON":"OFF");
 	selectable("Set Backlight", goto_menu, menu_set_backlight);
-	selectable("Power Off", menu_power_off, NULL);
+	selectable("Power Off (for 30s)", menu_power_off, (void*)30000);
+	selectable("Power Off", menu_power_off, (void*)0);
+
+	text("")
+	textf("RTC: %d o=%d", (int)get_current_rtc_time(), (int)rtc_offset);
+	selectable("Zero RTC", menu_zero_rtc, NULL);
 
 	text("");
 	selectable("Back to game", exit_debug_menu, NULL);

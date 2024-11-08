@@ -9,6 +9,7 @@ LOG_MODULE_REGISTER(lcd_rendering, LOG_LEVEL_DBG);
 
 #include "buttons.h"
 #include "touch.h"
+#include "rtc.h"
 
 extern char font8x8_basic[128][8];
 
@@ -95,6 +96,7 @@ void lcd_render_diag()
 
 		touch_update();
 		imu_update();
+		update_rtc();
 
 		uint8_t buttons = get_buttons();
 
