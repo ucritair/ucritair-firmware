@@ -2,13 +2,13 @@
 #include "cat_room.h"
 #include "cat_gui.h"
 #include "cat_input.h"
+#include "cat_machine.h"
 
 #ifdef CAT_EMBEDDED
 #include "menu_time.h"
 #endif
 
 #include <stddef.h>
-
 
 int selector;
 
@@ -30,11 +30,6 @@ struct entry {
 };
 
 #define NUM_MENU_ITEMS (sizeof(entries)/sizeof(entries[0]))
-
-void CAT_menu_state_init()
-{
-	// It's easy and fun to pre-init!
-}
 
 void CAT_MS_menu(CAT_machine_signal signal)
 {
@@ -65,7 +60,7 @@ void CAT_MS_menu(CAT_machine_signal signal)
 void CAT_render_menu()
 {
 	CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});  
-	CAT_gui_text("MENU ");
+	CAT_gui_text("MENU");
 	CAT_gui_image(fbut_a_sprite, 1);
 	CAT_gui_image(icon_enter_sprite, 0);
 	CAT_gui_image(fbut_b_sprite, 1);

@@ -102,7 +102,6 @@ void CAT_init()
 	CAT_room_init();
 	CAT_action_state_init();
 	CAT_deco_state_init();
-	CAT_menu_state_init();
 	CAT_bag_state_init();
 	
 	machine = NULL;

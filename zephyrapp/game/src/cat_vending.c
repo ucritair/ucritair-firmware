@@ -68,7 +68,7 @@ void CAT_render_vending()
 	CAT_gui_div("");
 	CAT_gui_image(icon_coin_sprite, 0);
 	char text[64];
-	sprintf(text, " %d", 256);
+	sprintf(text, " $%d", 256);
 	CAT_gui_text(text);
 
 	CAT_gui_panel((CAT_ivec2) {0, 4}, (CAT_ivec2) {15, 16});  
@@ -83,7 +83,7 @@ void CAT_render_vending()
 		CAT_gui_panel_tight((CAT_ivec2) {0, 4+i*2}, (CAT_ivec2) {15, 2});
 		CAT_gui_image(icon_item_sprite, item->type);
 
-		sprintf(text, " %s %d ", item->name, item->price);
+		sprintf(text, " %s  $%d ", item->name, item->price);
 		CAT_gui_text(text);
 		gui.text_mode = CAT_TEXT_MODE_NORMAL;
 
