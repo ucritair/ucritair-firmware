@@ -38,6 +38,12 @@ void CAT_timer_reset(int timer_id)
 	timetable.timers[timer_id] = 0;
 }
 
+float CAT_timer_progress(int timer_id)
+{
+	float t = timetable.timers[timer_id] / timetable.durations[timer_id];
+	return clampf(t, 0.0f, 1.0f);
+}
+
 
 //////////////////////////////////////////////////////////////////////////
 // MACHINE

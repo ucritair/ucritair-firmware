@@ -5,6 +5,7 @@
 #include "cat_math.h"
 
 #define CAT_MAX_PROP_COUNT 210
+#define CAT_MAX_COIN_COUNT 9
 
 typedef struct CAT_room
 {
@@ -12,9 +13,15 @@ typedef struct CAT_room
 	CAT_ivec2 cursor;
 
 	int props[CAT_MAX_PROP_COUNT];
-	CAT_ivec2 places[CAT_MAX_PROP_COUNT];
-	int overrides[CAT_MAX_PROP_COUNT];
+	CAT_ivec2 prop_places[CAT_MAX_PROP_COUNT];
+	int prop_overrides[CAT_MAX_PROP_COUNT];
 	int prop_count;
+
+	CAT_ivec2 coin_origins[CAT_MAX_COIN_COUNT];
+	CAT_ivec2 coin_places[CAT_MAX_COIN_COUNT];
+	int coin_timers[CAT_MAX_COIN_COUNT];
+	int coin_count;
+	int crypto_timer_id;
 
 	CAT_machine_state buttons[5];
 	int selector;
@@ -24,9 +31,11 @@ extern CAT_room room;
 void CAT_room_init();
 int CAT_room_find(int item_id);
 bool CAT_room_fits(CAT_rect rect);
-void CAT_room_place(int item_id, CAT_ivec2 place);
-void CAT_room_remove(int idx);
-void CAT_room_flip(int idx);
+void CAT_room_add_prop(int item_id, CAT_ivec2 place);
+void CAT_room_remove_prop(int idx);
+void CAT_room_flip_prop(int idx);
+void CAT_room_add_coin(CAT_ivec2 origin, CAT_ivec2 place);
+void CAT_room_remove_coin(int idx);
 void CAT_room_move_cursor();
 void CAT_render_room(int cycle);
 

@@ -43,7 +43,11 @@ CAT_ivec2 CAT_ivec2_mul(CAT_ivec2 a, int b);
 int min(int a, int b);
 int max(int a, int b);
 int clamp(int v, int a, int b);
+float lerp(float a, float b, float t);
 float inv_lerp(float t, float a, float b);
+float minf(float a, float b);
+float maxf(float a, float b);
+float clampf(float v, float a, float b);
 int quantize(float t, float range, int steps);
 
 //////////////////////////////////////////////////////////////////////////

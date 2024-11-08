@@ -69,7 +69,7 @@ void CAT_render_vending()
 	CAT_gui_div("");
 	CAT_gui_image(icon_coin_sprite, 0);
 	char text[64];
-	sprintf(text, " $%d", 256);
+	sprintf(text, " $%d", bag.coins);
 	CAT_gui_text(text);
 
 	CAT_gui_panel((CAT_ivec2) {0, 4}, (CAT_ivec2) {15, 16});  

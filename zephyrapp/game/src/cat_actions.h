@@ -21,6 +21,6 @@ extern CAT_action_state action_state;
 
 void CAT_action_state_init();
 void CAT_action_tick();
-extern void CAT_render_action();
+extern void CAT_render_action(int cycle);
 
 #endif

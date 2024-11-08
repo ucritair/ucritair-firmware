@@ -1,5 +1,6 @@
 #include "cat_pet.h"
 #include "cat_core.h"
+#include "cat_sprite.h"
 
 CAT_pet pet;
 
@@ -49,4 +50,20 @@ void CAT_pet_init()
 	pet.walk_timer_id = CAT_timer_init(4.0f);
 	pet.react_timer_id = CAT_timer_init(2.0f);
 	pet.action_timer_id = CAT_timer_init(2.0f);
+}
+
+void CAT_render_pet(int cycle)
+{
+	if(cycle == 0)
+	{
+		int pet_mode = CAT_DRAW_MODE_BOTTOM | CAT_DRAW_MODE_CENTER_X;
+		if(pet.left)
+			pet_mode |= CAT_DRAW_MODE_REFLECT_X;
+		CAT_draw_queue_animate(CAT_AM_tick(&pet_asm), 2, pet.pos.x, pet.pos.y, pet_mode);	
+		if(bubble_asm != NULL)
+		{
+			int x_off = pet.left ? 16 : -16;
+			CAT_draw_queue_animate(CAT_AM_tick(&bubble_asm), 3, pet.pos.x + x_off, pet.pos.y - 48, pet_mode);	
+		}
+	}
 }

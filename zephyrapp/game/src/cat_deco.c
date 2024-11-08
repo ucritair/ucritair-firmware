@@ -24,7 +24,7 @@ void CAT_deco_target(CAT_ivec2 place)
 		int item_id = room.props[i];
 		CAT_item* prop = &item_table.data[item_id];
 		CAT_ivec2 shape = prop->data.prop_data.shape;
-		CAT_rect bounds = CAT_rect_place(room.places[i], shape);
+		CAT_rect bounds = CAT_rect_place(room.prop_places[i], shape);
 		bounds.max = CAT_ivec2_add(bounds.max, (CAT_ivec2) {-1, -1});
 
 		if(CAT_rect_pt(place, bounds))
@@ -78,7 +78,7 @@ void CAT_MS_deco(CAT_machine_signal signal)
 						{
 							if(CAT_input_pressed(CAT_BUTTON_A))
 							{
-								CAT_room_place(deco_state.add_id, room.cursor);
+								CAT_room_add_prop(deco_state.add_id, room.cursor);
 								CAT_bag_remove(deco_state.add_id);
 								deco_state.add_id = -1;
 							}
@@ -101,7 +101,7 @@ void CAT_MS_deco(CAT_machine_signal signal)
 					{
 						if(CAT_input_pressed(CAT_BUTTON_A))
 						{
-							CAT_room_flip(deco_state.mod_idx);
+							CAT_room_flip_prop(deco_state.mod_idx);
 						}
 					}
 					break;
@@ -115,7 +115,7 @@ void CAT_MS_deco(CAT_machine_signal signal)
 						{
 							int item_id = room.props[deco_state.mod_idx];
 							CAT_bag_add(item_id);
-							CAT_room_remove(deco_state.mod_idx);
+							CAT_room_remove_prop(deco_state.mod_idx);
 							deco_state.mod_idx = -1;
 						}
 					}
@@ -135,45 +135,48 @@ void CAT_MS_deco(CAT_machine_signal signal)
 	}
 }
 
-void CAT_render_deco()
+void CAT_render_deco(int cycle)
 {
-	if(deco_state.mode == ADD)
+	if(cycle == 0)
 	{
-		if(deco_state.add_id != -1)
+		if(deco_state.mode == ADD)
 		{
-			int tile_sprite = deco_state.valid_add ? tile_hl_add_sprite : tile_hl_rm_sprite;
-			for(int y = deco_state.add_rect.min.y; y < deco_state.add_rect.max.y; y++)
+			if(deco_state.add_id != -1)
 			{
-				for(int x = deco_state.add_rect.min.x; x < deco_state.add_rect.max.x; x++)
+				int tile_sprite = deco_state.valid_add ? tile_hl_add_sprite : tile_hl_rm_sprite;
+				for(int y = deco_state.add_rect.min.y; y < deco_state.add_rect.max.y; y++)
 				{
-					CAT_draw_queue_add(tile_sprite, 0, 3, x * 16, y * 16, CAT_DRAW_MODE_DEFAULT);
+					for(int x = deco_state.add_rect.min.x; x < deco_state.add_rect.max.x; x++)
+					{
+						CAT_draw_queue_add(tile_sprite, 0, 3, x * 16, y * 16, CAT_DRAW_MODE_DEFAULT);
+					}
 				}
+			}
+			else
+			{
+				CAT_draw_queue_add(cursor_add_sprite, 0, 3, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
 			}
 		}
 		else
 		{
-			CAT_draw_queue_add(cursor_add_sprite, 0, 3, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
-		}
-	}
-	else
-	{
-		int tile_hl = deco_state.mode == FLIP ? tile_hl_flip_sprite : tile_hl_rm_sprite;
-		int tile_mark = deco_state.mode == FLIP ? tile_mark_flip_sprite : tile_mark_rm_sprite;
-		int cursor = deco_state.mode == FLIP ? cursor_flip_sprite : cursor_remove_sprite;
-		if(deco_state.mod_idx != -1)
-		{
-			for(int y = deco_state.mod_rect.min.y; y <= deco_state.mod_rect.max.y; y++)
+			int tile_hl = deco_state.mode == FLIP ? tile_hl_flip_sprite : tile_hl_rm_sprite;
+			int tile_mark = deco_state.mode == FLIP ? tile_mark_flip_sprite : tile_mark_rm_sprite;
+			int cursor = deco_state.mode == FLIP ? cursor_flip_sprite : cursor_remove_sprite;
+			if(deco_state.mod_idx != -1)
 			{
-				for(int x = deco_state.mod_rect.min.x; x <= deco_state.mod_rect.max.x; x++)
+				for(int y = deco_state.mod_rect.min.y; y <= deco_state.mod_rect.max.y; y++)
 				{
-					CAT_draw_queue_add(tile_hl, 0, 3, x * 16, y * 16, CAT_DRAW_MODE_DEFAULT);
+					for(int x = deco_state.mod_rect.min.x; x <= deco_state.mod_rect.max.x; x++)
+					{
+						CAT_draw_queue_add(tile_hl, 0, 3, x * 16, y * 16, CAT_DRAW_MODE_DEFAULT);
+					}
 				}
+				CAT_draw_queue_add(tile_mark, 0, 3, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
 			}
-			CAT_draw_queue_add(tile_mark, 0, 3, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
-		}
-		else
-		{
-			CAT_draw_queue_add(cursor, 0, 3, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
+			else
+			{
+				CAT_draw_queue_add(cursor, 0, 3, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
+			}
 		}
 	}
 }

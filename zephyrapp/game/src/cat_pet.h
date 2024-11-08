@@ -25,5 +25,6 @@ extern CAT_pet pet;
 void CAT_pet_stat();
 bool CAT_pet_seek(CAT_vec2 targ);
 void CAT_pet_init();
+void CAT_render_pet(int cycle);
 
 #endif

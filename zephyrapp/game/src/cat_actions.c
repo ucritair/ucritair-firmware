@@ -164,20 +164,23 @@ void CAT_MS_play(CAT_machine_signal signal)
 	}
 }
 
-void CAT_render_action()
+void CAT_render_action(int cycle)
 {
-	if(action_state.item_id != -1)
+	if(cycle == 0)
 	{
-		if(!action_state.confirmed)
-			CAT_draw_queue_add(tile_hl_sprite, 0, 2, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
-		if(!action_state.complete)
+		if(action_state.item_id != -1)
 		{
-			CAT_item* item = &item_table.data[action_state.item_id];
-			CAT_draw_queue_add(item->sprite_id, 0, 2, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
+			if(!action_state.confirmed)
+				CAT_draw_queue_add(tile_hl_sprite, 0, 2, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
+			if(!action_state.complete)
+			{
+				CAT_item* item = &item_table.data[action_state.item_id];
+				CAT_draw_queue_add(item->sprite_id, 0, 2, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
+			}
 		}
-	}
-	else
-	{
-		CAT_draw_queue_add(cursor_sprite, 0, 2, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
+		else
+		{
+			CAT_draw_queue_add(cursor_sprite, 0, 2, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
+		}
 	}
 }

@@ -31,7 +31,7 @@
 #pragma GCC diagnostic ignored "-Wunknown-pragmas"
 #endif
 
-void CAT_render(int cycle)
+void CAT_tick_render(int cycle)
 {
 	if (cycle == 0)
 	{
@@ -41,6 +41,7 @@ void CAT_render(int cycle)
 	if(machine == CAT_MS_room)
 	{
 		CAT_render_room(cycle);
+		CAT_render_pet(cycle);
 		CAT_draw_queue_submit(cycle);
 	}
 	else if
@@ -51,13 +52,15 @@ void CAT_render(int cycle)
 	)
 	{
 		CAT_render_room(cycle);
-		CAT_render_action();
+		CAT_render_pet(cycle);
+		CAT_render_action(cycle);
 		CAT_draw_queue_submit(cycle);
 	}
 	else if(machine == CAT_MS_deco)
 	{
 		CAT_render_room(cycle);
-		CAT_render_deco();
+		CAT_render_pet(cycle);
+		CAT_render_deco(cycle);
 		CAT_draw_queue_submit(cycle);
 	}
 	else if(machine == CAT_MS_menu)
@@ -116,11 +119,6 @@ void CAT_tick_logic()
 	CAT_input_tick();
 
 	CAT_machine_tick(&machine);
-}
-
-void CAT_tick_render(int cycle)
-{
-	CAT_render(cycle);
 }
 
 #ifdef CAT_DESKTOP

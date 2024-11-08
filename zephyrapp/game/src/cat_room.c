@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include "cat_pet.h"
 #include "cat_sprite.h"
+#include "cat_gui.h"
+#include "cat_bag.h"
 
 CAT_room room;
 CAT_machine_state machine;
@@ -12,6 +14,9 @@ void CAT_room_init()
 {
 	room.bounds = (CAT_rect){{0, 7}, {15, 17}};
 	room.cursor = room.bounds.min;
+
+
+	room.crypto_timer_id = CAT_timer_init(5.0f);
 
 	room.buttons[0] = CAT_MS_feed;
 	room.buttons[1] = CAT_MS_study;
@@ -40,7 +45,7 @@ bool CAT_room_fits(CAT_rect rect)
 	{
 		CAT_item* prop = CAT_item_get(room.props[i]);
 		CAT_ivec2 shape = prop->data.prop_data.shape;
-		CAT_rect bounds = CAT_rect_place(room.places[i], shape);
+		CAT_rect bounds = CAT_rect_place(room.prop_places[i], shape);
 		
 		if(CAT_rect_overlaps(rect, bounds))
 			return false;
@@ -49,26 +54,26 @@ bool CAT_room_fits(CAT_rect rect)
 	return true;
 }
 
-void CAT_room_place(int item_id, CAT_ivec2 place)
+void CAT_room_add_prop(int item_id, CAT_ivec2 place)
 {
 	int idx = room.prop_count;
 	room.prop_count += 1;
 	room.props[idx] = item_id;
-	room.places[idx] = place;
-	room.overrides[idx] = 0;
+	room.prop_places[idx] = place;
+	room.prop_overrides[idx] = 0;
 }
 
-void CAT_room_remove(int idx)
+void CAT_room_remove_prop(int idx)
 {
 	for(int i = idx; i < room.prop_count-1; i++)
 	{
 		room.props[i] = room.props[i+1];
-		room.places[i] = room.places[i+1];
+		room.prop_places[i] = room.prop_places[i+1];
 	}
 	room.prop_count -= 1;
 }
 
-void CAT_room_flip(int idx)
+void CAT_room_flip_prop(int idx)
 {
 	int item_id = room.props[idx];
 	CAT_item* item = CAT_item_get(item_id);
@@ -76,14 +81,33 @@ void CAT_room_flip(int idx)
 
 	if(item->data.prop_data.animate || sprite->frame_count == 1)
 	{
-		room.overrides[idx] = !room.overrides[idx];
+		room.prop_overrides[idx] = !room.prop_overrides[idx];
 	}
 	else
 	{
-		room.overrides[idx] += 1;
-		if(room.overrides[idx] >= sprite->frame_count)
-			room.overrides[idx] = 0;
+		room.prop_overrides[idx] += 1;
+		if(room.prop_overrides[idx] >= sprite->frame_count)
+			room.prop_overrides[idx] = 0;
 	}
+}
+
+void CAT_room_add_coin(CAT_ivec2 origin, CAT_ivec2 place)
+{
+	int idx = room.coin_count;
+	room.coin_origins[idx] = origin;
+	room.coin_places[idx] = place;
+	room.coin_timers[idx] = CAT_timer_init(1.0f);
+	room.coin_count += 1;
+}
+
+void CAT_room_remove_coin(int idx)
+{
+	for(int i = idx; i < room.coin_count-1; i++)
+	{
+		room.coin_places[i] = room.coin_places[i+1];
+		room.coin_timers[i] = room.coin_timers[i+1];
+	}
+	room.coin_count -= 1;
 }
 
 void CAT_room_move_cursor()
@@ -172,6 +196,34 @@ void CAT_MS_room(CAT_machine_signal signal)
 					CAT_AM_transition(&pet_asm, &AS_idle);
 				}
 			}
+
+			if(CAT_timer_tick(room.crypto_timer_id) && room.coin_count < CAT_MAX_COIN_COUNT)
+			{
+				for(int i = 0; i < room.prop_count; i++)
+				{
+					if(room.props[i] == crypto_item)
+					{
+						CAT_ivec2 origin = room.prop_places[i];
+						CAT_ivec2 place = CAT_rand_ivec2(room.bounds.min, room.bounds.max);
+						CAT_room_add_coin(origin, place);
+					}
+				}
+				CAT_timer_reset(room.crypto_timer_id);
+			}
+			for(int i = 0; i < room.coin_count; i++)
+			{
+				if(CAT_timer_tick(room.coin_timers[i]))
+				{
+					CAT_ivec2 place = room.coin_places[i];
+					if(CAT_input_touch(place.x * 16, (place.y-1) * 16, 16))
+					{
+						bag.coins += 1;
+						CAT_room_remove_coin(i);
+						i -= 1;
+					}
+				}	
+			}
+		
 			break;
 		}
 		case CAT_MACHINE_SIGNAL_EXIT:
@@ -200,36 +252,36 @@ void CAT_render_room(int cycle)
 			int prop_id = room.props[i];
 			CAT_item* prop = CAT_item_get(prop_id);
 			CAT_ivec2 shape = prop->data.prop_data.shape;
-			CAT_ivec2 place = room.places[i];
+			CAT_ivec2 place = room.prop_places[i];
 
 			int prop_mode = CAT_DRAW_MODE_BOTTOM;
 			if(prop->data.prop_data.animate)
 			{	
-				if(room.overrides[i])
+				if(room.prop_overrides[i])
 					prop_mode |= CAT_DRAW_MODE_REFLECT_X;
 				CAT_draw_queue_animate(prop->sprite_id, 2, place.x * 16, (place.y+shape.y) * 16, prop_mode);
 			}
 			else if(atlas.table[prop->sprite_id].frame_count == 0)
 			{
-				if(room.overrides[i])
+				if(room.prop_overrides[i])
 					prop_mode |= CAT_DRAW_MODE_REFLECT_X;
 				CAT_draw_queue_add(prop->sprite_id, 0, 2, place.x * 16, (place.y+shape.y) * 16, prop_mode);
 			}
 			else
 			{
-				int frame_idx = room.overrides[i];
+				int frame_idx = room.prop_overrides[i];
 				CAT_draw_queue_add(prop->sprite_id, frame_idx, 2, place.x * 16, (place.y+shape.y) * 16, prop_mode);
 			}
 		}
 
-		int pet_mode = CAT_DRAW_MODE_BOTTOM | CAT_DRAW_MODE_CENTER_X;
-		if(pet.left)
-			pet_mode |= CAT_DRAW_MODE_REFLECT_X;
-		CAT_draw_queue_animate(CAT_AM_tick(&pet_asm), 2, pet.pos.x, pet.pos.y, pet_mode);	
-		if(bubble_asm != NULL)
+		for(int i = 0; i < room.coin_count; i++)
 		{
-			int x_off = pet.left ? 16 : -16;
-			CAT_draw_queue_animate(CAT_AM_tick(&bubble_asm), 3, pet.pos.x + x_off, pet.pos.y - 48, pet_mode);	
+			CAT_ivec2 origin = room.coin_origins[i];
+			CAT_ivec2 place = room.coin_places[i];
+			float t = CAT_timer_progress(room.coin_timers[i]);
+			float x = lerp(origin.x * 16, place.x * 16, t);
+			float y = lerp(origin.y * 16, place.y * 16, t*t);
+			CAT_draw_queue_add(icon_coin_sprite, 0, 2, x, y, CAT_DRAW_MODE_CENTER_X | CAT_DRAW_MODE_BOTTOM);
 		}
 
 		CAT_draw_queue_add(sbut_feed_sprite, 0, 3, 8, 280, CAT_DRAW_MODE_DEFAULT); 

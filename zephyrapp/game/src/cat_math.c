@@ -100,14 +100,34 @@ int clamp(int v, int a, int b)
 	return min(max(v, a), b);
 }
 
+float lerp(float a, float b, float t)
+{
+	return (1.0f-t) * a + t * b;
+}
+
 float inv_lerp(float t, float a, float b)
 {
 	return (t-a) / (b-a);
 }
 
+float minf(float a, float b)
+{
+	return a < b ? a : b;
+}
+
+float maxf(float a, float b)
+{
+	return a > b ? a : b;
+}
+
+float clampf(float v, float a, float b)
+{
+	return minf(maxf(v, a), b);
+}
+
 int quantize(float t, float range, int steps)
 {
-	return round((t / range) * (float) (steps - 1));
+	return clamp(round((t / range) * (float) (steps - 1)), 0, steps);
 }
 
 //////////////////////////////////////////////////////////////////////////
