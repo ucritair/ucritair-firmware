@@ -156,6 +156,83 @@ index abbb02977fa..ed67784eb58 100644
  			if (ret < 0) {
  				goto out;
  			}
+diff --git a/drivers/wifi/nrfwifi/src/fw_load.c b/drivers/wifi/nrfwifi/src/fw_load.c
+index 6bf4c85193f..5f2adbd23cd 100644
+--- a/drivers/wifi/nrfwifi/src/fw_load.c
++++ b/drivers/wifi/nrfwifi/src/fw_load.c
+@@ -14,10 +14,12 @@
+ #include <zephyr/device.h>
+ 
+ #include <zephyr/logging/log.h>
+-LOG_MODULE_DECLARE(wifi_nrf, CONFIG_WIFI_NRF70_LOG_LEVEL);
++LOG_MODULE_DECLARE(wifi_nrf, LOG_LEVEL_INF);
+ 
+ #include <fmac_main.h>
+ 
++#if 0
++
+ /* INCBIN macro Taken from https://gist.github.com/mmozeiko/ed9655cf50341553d282 */
+ #define STR2(x) #x
+ #define STR(x) STR2(x)
+@@ -56,20 +58,48 @@ LOG_MODULE_DECLARE(wifi_nrf, CONFIG_WIFI_NRF70_LOG_LEVEL);
+ 
+ INCBIN(_bin, nrf70_fw, STR(CONFIG_NRF_WIFI_FW_BIN));
+ 
++#endif
++
++int flash_get_nrf70_fw_size(int* size);
++int flash_load_nrf70_fw(uint8_t* target, uint8_t** fw_start, uint8_t** fw_end);
++
+ enum nrf_wifi_status nrf_wifi_fw_load(void *rpu_ctx)
+ {
++	int alloc_size;
++	if (flash_get_nrf70_fw_size(&alloc_size))
++	{
++		LOG_ERR("%s: flash_get_nrf70_fw_size failed", __func__);
++		return 1;
++	}
++
++	void* p = k_malloc(alloc_size);
++	
++	if (p == NULL)
++	{
++		LOG_ERR("%s: alloc %d bytes for fw failed", __func__, alloc_size);
++		return 1;
++	}
++
+ 	enum nrf_wifi_status status = NRF_WIFI_STATUS_FAIL;
+ 	struct nrf_wifi_fmac_fw_info fw_info = { 0 };
+ 	uint8_t *fw_start;
+ 	uint8_t *fw_end;
+ 
+-	fw_start = (uint8_t *)_bin_nrf70_fw_start;
+-	fw_end = (uint8_t *)_bin_nrf70_fw_end;
++	// fw_start = (uint8_t *)_bin_nrf70_fw_start;
++	// fw_end = (uint8_t *)_bin_nrf70_fw_end;
++
++	if (flash_load_nrf70_fw(p, &fw_start, &fw_end))
++	{
++		LOG_ERR("%s: flash_load_nrf70_fw failed", __func__);
++		k_free(p);
++		return 1;
++	}
+ 
+ 	status = nrf_wifi_fmac_fw_parse(rpu_ctx, fw_start, fw_end - fw_start,
+ 					&fw_info);
+ 	if (status != NRF_WIFI_STATUS_SUCCESS) {
+ 		LOG_ERR("%s: nrf_wifi_fmac_fw_parse failed", __func__);
++		k_free(p);
+ 		return status;
+ 	}
+ 	/* Load the FW patches to the RPU */
+@@ -79,5 +109,7 @@ enum nrf_wifi_status nrf_wifi_fw_load(void *rpu_ctx)
+ 		LOG_ERR("%s: nrf_wifi_fmac_fw_load failed", __func__);
+ 	}
+ 
++	k_free(p);
++
+ 	return status;
+ }
 diff --git a/drivers/wifi/nrfwifi/src/qspi/src/rpu_hw_if.c b/drivers/wifi/nrfwifi/src/qspi/src/rpu_hw_if.c
 index c5f909b4c3a..160be297c55 100644
 --- a/drivers/wifi/nrfwifi/src/qspi/src/rpu_hw_if.c
