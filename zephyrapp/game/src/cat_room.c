@@ -4,6 +4,7 @@
 #include <stdio.h>
 
 CAT_room room;
+CAT_machine_state machine;
 
 void CAT_room_init()
 {

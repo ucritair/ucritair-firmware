@@ -4,7 +4,7 @@
 #define CAT_MAX_PROP_COUNT 210
 #define CAT_BAG_MAX_LENGTH 256
 
-CAT_machine_state machine;
+extern CAT_machine_state machine;
 extern void CAT_MS_room(CAT_machine_signal);
 extern void CAT_MS_feed(CAT_machine_signal);
 extern void CAT_MS_study(CAT_machine_signal);

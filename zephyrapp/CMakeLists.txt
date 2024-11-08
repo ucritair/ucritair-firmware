@@ -36,10 +36,12 @@ target_sources(app PRIVATE
 	src/touch.c
 	src/wlan.c
 
+	src/menu/time.c
+
 	${CMAKE_CURRENT_BINARY_DIR}/images.c
 )
 
-target_include_directories(app PRIVATE src/)
+target_include_directories(app PRIVATE src/ src/menu/)
 
 add_custom_command(
 	OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/images.c
