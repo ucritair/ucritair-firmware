@@ -44,7 +44,7 @@ void CAT_MS_menu(CAT_machine_signal signal)
 				selector -= 1;
 			if(CAT_input_pulse(CAT_BUTTON_DOWN))
 				selector += 1;
-			selector = clamp(selector, 0, NUM_MENU_ITEMS);
+			selector = clamp(selector, 0, NUM_MENU_ITEMS-1);
 
 			if(CAT_input_pressed(CAT_BUTTON_A))
 				CAT_machine_transition(&machine, entries[selector].state);

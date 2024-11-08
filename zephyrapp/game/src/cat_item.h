@@ -10,7 +10,6 @@
 // CONSTANTS
 
 #define CAT_ITEM_TABLE_MAX_LENGTH 64
-#define CAT_BAG_MAX_LENGTH CAT_ITEM_TABLE_MAX_LENGTH
 
 
 //////////////////////////////////////////////////////////////////////////
