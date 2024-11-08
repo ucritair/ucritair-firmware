@@ -2,7 +2,6 @@
 #include "cat_math.h"
 
 #define CAT_MAX_PROP_COUNT 210
-#define CAT_BAG_MAX_LENGTH 256
 
 extern CAT_machine_state machine;
 extern void CAT_MS_room(CAT_machine_signal);
@@ -88,16 +87,3 @@ void CAT_pet_anim_init();
 void CAT_pet_stat();
 bool CAT_pet_seek(CAT_vec2 targ);
 void CAT_pet_init();
-
-typedef struct CAT_bag
-{
-	int item_id[CAT_BAG_MAX_LENGTH];
-	int count[CAT_BAG_MAX_LENGTH];
-	int length;
-} CAT_bag;
-extern CAT_bag bag;
-
-void CAT_bag_init();
-int CAT_bag_find(int item_id);
-void CAT_bag_add(int item_id);
-void CAT_bag_remove(int item_id);

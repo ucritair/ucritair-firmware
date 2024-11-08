@@ -6,6 +6,73 @@
 #include <stdio.h>
 #include "cat_deco.h"
 #include "cat_actions.h"
+#include <string.h>
+
+CAT_bag bag;
+
+void CAT_bag_init()
+{
+	bag.length = 0;
+}
+
+int CAT_bag_find(int item_id)
+{
+	for(int i = 0; i < bag.length; i++)
+	{
+		if(bag.item_id[i] == item_id)
+		{
+			return i;
+		}
+	}
+	return -1;
+}
+
+void CAT_bag_add(int item_id)
+{
+	int idx = CAT_bag_find(item_id);
+	if(idx >= 0)
+	{
+		bag.count[idx] += 1;
+	}
+	else
+	{
+		const char* a = item_table.data[item_id].name;
+		int insert_idx = 0;
+		while(insert_idx < bag.length)
+		{
+			const char* b = item_table.data[bag.item_id[insert_idx]].name;
+			if(strcmp(a, b) < 0)
+				break;
+			insert_idx += 1;
+		}
+		for(int i = bag.length; i > insert_idx; i--)
+		{
+			bag.item_id[i] = bag.item_id[i-1];
+			bag.count[i] = bag.count[i-1];
+		}
+		bag.item_id[insert_idx] = item_id;
+		bag.count[insert_idx] = 1;
+		bag.length += 1;
+	}
+}
+
+void CAT_bag_remove(int item_id)
+{
+	int idx = CAT_bag_find(item_id);
+	if(idx >= 0)
+	{
+		bag.count[idx] -= 1;
+		if(bag.count[idx] <= 0)
+		{
+			for(int i = idx; i < bag.length-1; i++)
+			{
+				bag.item_id[i] = bag.item_id[i+1];
+				bag.count[i] = bag.count[i+1];
+			}
+			bag.length -= 1;
+		}
+	}
+}
 
 CAT_bag_state bag_state;
 

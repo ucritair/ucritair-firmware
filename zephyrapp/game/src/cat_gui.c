@@ -82,6 +82,9 @@ void CAT_gui_line_break()
 
 void CAT_gui_text(const char* text)
 {
+	if(strlen(text) <= 0)
+		return;
+
 	CAT_gui_open_channel(CAT_GLYPH_HEIGHT);
 
 	for(const char* c = text; *c != '\0'; c++)
@@ -114,11 +117,14 @@ void CAT_gui_image(int sprite_id, int frame_idx)
 
 void CAT_gui_div(const char* text)
 {
+	int height = strlen(text) > 0 ? CAT_TILE_SIZE : 4;
+	int ypad = strlen(text) > 0 ? CAT_GUI_PAD_Y : 0;
+
 	CAT_gui_line_break();
-	gui.cursor.y += CAT_GUI_PAD_Y;
+	gui.cursor.y += ypad;
 
 	CAT_gui_text(text);
-	CAT_gui_open_channel(CAT_TILE_SIZE);
+	CAT_gui_open_channel(height);
 	int n = (14 * CAT_TILE_SIZE - strlen(text) * CAT_GLYPH_WIDTH) / CAT_TILE_SIZE;
 	for(int i = 0; i < n; i++)
 	{
@@ -127,5 +133,5 @@ void CAT_gui_div(const char* text)
 	}
 
 	CAT_gui_line_break();
-	gui.cursor.y += CAT_GUI_PAD_Y;
+	gui.cursor.y += ypad;
 }

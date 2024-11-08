@@ -4,6 +4,7 @@
 #include "cat_input.h"
 #include "cat_gui.h"
 #include "cat_item.h"
+#include "cat_bag.h"
 #include <stdio.h>
 
 #define VENDING_MAX_SLOTS 8
@@ -64,7 +65,7 @@ void CAT_render_vending()
 	CAT_gui_image(icon_enter_sprite, 0);
 	CAT_gui_image(fbut_b_sprite, 1);
 	CAT_gui_image(icon_exit_sprite, 0);
-	CAT_gui_line_break();
+	CAT_gui_div("");
 	CAT_gui_image(icon_coin_sprite, 0);
 	char text[64];
 	sprintf(text, " %d", 256);
