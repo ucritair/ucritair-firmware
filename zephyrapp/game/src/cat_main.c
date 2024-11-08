@@ -21,6 +21,10 @@
 #include "cat_manual.h"
 #include "cat_deco.h"
 
+#ifdef CAT_EMBEDDED
+#include "menu_time.h"
+#endif
+
 #ifdef __GNUC__
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunknown-pragmas"
@@ -28,13 +32,14 @@
 
 void CAT_render(int cycle)
 {
+	if (cycle == 0)
+	{
+		draw_queue.length = 0;
+	}
+
 	if(machine == CAT_MS_room)
 	{
-		if(cycle == 0)
-		{
-			draw_queue.length = 0;
-			CAT_render_room();
-		}
+		CAT_render_room(cycle);
 		CAT_draw_queue_submit(cycle);
 	}
 	else if
@@ -44,22 +49,14 @@ void CAT_render(int cycle)
 		machine == CAT_MS_play
 	)
 	{
-		if(cycle == 0)
-		{
-			draw_queue.length = 0;
-			CAT_render_room();
-			CAT_render_action();
-		}
+		CAT_render_room(cycle);
+		CAT_render_action();
 		CAT_draw_queue_submit(cycle);
 	}
 	else if(machine == CAT_MS_deco)
 	{
-		if(cycle == 0)
-		{
-			draw_queue.length = 0;
-			CAT_render_room();
-			CAT_render_deco();
-		}
+		CAT_render_room(cycle);
+		CAT_render_deco();
 		CAT_draw_queue_submit(cycle);
 	}
 	else if(machine == CAT_MS_menu)
@@ -74,6 +71,10 @@ void CAT_render(int cycle)
 		CAT_render_vending();
 	else if(machine == CAT_MS_manual)
 		CAT_render_manual();
+#ifdef CAT_EMBEDDED
+	else if(machine == CAT_MS_time)
+		CAT_render_time();
+#endif
 }
 
 

@@ -16,7 +16,7 @@ extern void CAT_MS_vending(CAT_machine_signal);
 extern void CAT_MS_arcade(CAT_machine_signal);
 extern void CAT_MS_manual(CAT_machine_signal);
 
-extern void CAT_render_room();
+extern void CAT_render_room(int cycle);
 extern void CAT_render_action();
 extern void CAT_render_deco();
 extern void CAT_render_menu();
