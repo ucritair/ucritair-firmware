@@ -7,12 +7,14 @@
 #include "cat_deco.h"
 #include "cat_actions.h"
 #include <string.h>
+#include "cat_sprite.h"
 
 CAT_bag bag;
 
 void CAT_bag_init()
 {
 	bag.length = 0;
+	bag.coins = 0;
 }
 
 int CAT_bag_find(int item_id)

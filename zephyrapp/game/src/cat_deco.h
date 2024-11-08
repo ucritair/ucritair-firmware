@@ -1,3 +1,6 @@
+#ifndef CAT_DECO_H
+#define CAT_DECO_H
+
 #include "cat_math.h"
 
 #define CAT_MAX_PROP_COUNT 210
@@ -16,3 +19,6 @@ typedef struct CAT_deco_state
 extern CAT_deco_state deco_state;
 
 void CAT_deco_state_init();
+extern void CAT_render_deco();
+
+#endif

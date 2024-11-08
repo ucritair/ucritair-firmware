@@ -3,6 +3,7 @@
 #include "cat_gui.h"
 #include "cat_input.h"
 #include "cat_machine.h"
+#include "cat_sprite.h"
 
 #ifdef CAT_EMBEDDED
 #include "menu_time.h"
@@ -43,7 +44,7 @@ void CAT_MS_menu(CAT_machine_signal signal)
 				selector -= 1;
 			if(CAT_input_pulse(CAT_BUTTON_DOWN))
 				selector += 1;
-			selector = clamp(selector, 0, NUM_MENU_ITEMS);
+			selector = clamp(selector, 0, NUM_MENU_ITEMS-1);
 
 			if(CAT_input_pressed(CAT_BUTTON_A))
 				CAT_machine_transition(&machine, entries[selector].state);
@@ -60,7 +61,7 @@ void CAT_MS_menu(CAT_machine_signal signal)
 void CAT_render_menu()
 {
 	CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});  
-	CAT_gui_text("MENU");
+	CAT_gui_text("[MENU] ");
 	CAT_gui_image(fbut_a_sprite, 1);
 	CAT_gui_image(icon_enter_sprite, 0);
 	CAT_gui_image(fbut_b_sprite, 1);

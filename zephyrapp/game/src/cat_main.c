@@ -12,6 +12,7 @@
 #include "cat_machine.h"
 
 #include "cat_room.h"
+#include "cat_pet.h"
 #include "cat_actions.h"
 #include "cat_menu.h"
 #include "cat_stats.h"

@@ -10,7 +10,6 @@
 // CONSTANTS
 
 #define CAT_ITEM_TABLE_MAX_LENGTH 64
-#define CAT_BAG_MAX_LENGTH CAT_ITEM_TABLE_MAX_LENGTH
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -85,6 +84,7 @@ extern int coffee_item;
 extern int fan_item;
 extern int purifier_item;
 extern int uv_item;
+extern int crypto_item;
 
 extern int chair_wood_item;
 extern int table_sm_item;

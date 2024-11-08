@@ -3,6 +3,8 @@
 #include "cat_item.h"
 #include "cat_input.h"
 #include "cat_bag.h"
+#include "cat_pet.h"
+#include "cat_sprite.h"
 
 CAT_action_state action_state;
 
@@ -10,6 +12,7 @@ void CAT_action_state_init()
 {
 	action_state.item_id = -1;
 	action_state.confirmed = false;
+	action_state.complete = false;
 }
 
 void CAT_action_tick()
@@ -35,34 +38,35 @@ void CAT_action_tick()
 			int x_off = c_world.x > pet.pos.x ? -16 : 32;
 			action_state.location = (CAT_vec2) {c_world.x + x_off, c_world.y + 16};
 			action_state.confirmed = true;
-			CAT_ASM_transition(&pet_asm, &AS_adjust_in);
+			CAT_AM_transition(&pet_asm, &AS_adjust_in);
 		}
 	}
 	else
 	{
-		if(CAT_ASM_is_in(&pet_asm, &AS_adjust_in))
-			CAT_ASM_transition(&pet_asm, &AS_walk_action);
-		if(CAT_ASM_is_in(&pet_asm, &AS_walk_action) && CAT_ASM_is_ticking(&pet_asm))
+		if(CAT_AM_is_in(&pet_asm, &AS_adjust_in))
+			CAT_AM_transition(&pet_asm, &AS_walk_action);
+		if(CAT_AM_is_in(&pet_asm, &AS_walk_action) && CAT_AM_is_ticking(&pet_asm))
 		{
 			if(CAT_pet_seek(action_state.location))
 			{
 				pet.left = (room.cursor.x * 16) > pet.pos.x;
-				CAT_ASM_transition(&pet_asm, action_state.action_AS);
+				CAT_AM_transition(&pet_asm, action_state.action_AS);
 			}
 		}
-		if(CAT_ASM_is_in(&pet_asm, action_state.action_AS))
+		if(CAT_AM_is_in(&pet_asm, action_state.action_AS) && CAT_AM_is_ticking(&pet_asm))
 		{
 			if(CAT_timer_tick(pet.action_timer_id))
 			{
 				action_state.action_proc();
-				CAT_ASM_kill(&pet_asm);
-				CAT_ASM_transition(&pet_asm, action_state.stat_up_AS);
+				action_state.complete = true;
+				CAT_AM_kill(&pet_asm);
+				CAT_AM_transition(&pet_asm, action_state.stat_up_AS);
 				CAT_timer_reset(pet.action_timer_id);
 			}
 		}
-		if(CAT_ASM_is_in(&pet_asm, action_state.stat_up_AS))
-			CAT_ASM_transition(&pet_asm, &AS_adjust_out);
-		if(CAT_ASM_is_in(&pet_asm, &AS_adjust_out))
+		if(CAT_AM_is_in(&pet_asm, action_state.stat_up_AS))
+			CAT_AM_transition(&pet_asm, &AS_adjust_out);
+		if(CAT_AM_is_in(&pet_asm, &AS_adjust_out))
 			CAT_machine_transition(&machine, CAT_MS_room);
 	}
 }
@@ -82,7 +86,7 @@ void CAT_MS_feed(CAT_machine_signal signal)
 			action_state.action_proc = CAT_feed_proc;
 			action_state.action_AS = &AS_eat;
 			action_state.stat_up_AS = &AS_vig_up;
-			CAT_ASM_transition(&pet_asm, &AS_idle);
+			CAT_AM_transition(&pet_asm, &AS_idle);
 			break;
 		}
 		case CAT_MACHINE_SIGNAL_TICK:
@@ -113,7 +117,7 @@ void CAT_MS_study(CAT_machine_signal signal)
 			action_state.action_proc = CAT_study_proc;
 			action_state.action_AS = &AS_study;
 			action_state.stat_up_AS = &AS_foc_up;
-			CAT_ASM_transition(&pet_asm, &AS_idle);
+			CAT_AM_transition(&pet_asm, &AS_idle);
 			break;
 		}
 		case CAT_MACHINE_SIGNAL_TICK:
@@ -144,7 +148,7 @@ void CAT_MS_play(CAT_machine_signal signal)
 			action_state.action_proc = CAT_play_proc;
 			action_state.action_AS = &AS_play;
 			action_state.stat_up_AS = &AS_spi_up;
-			CAT_ASM_transition(&pet_asm, &AS_idle);
+			CAT_AM_transition(&pet_asm, &AS_idle);
 			break;
 		}
 		case CAT_MACHINE_SIGNAL_TICK:
@@ -164,10 +168,13 @@ void CAT_render_action()
 {
 	if(action_state.item_id != -1)
 	{
-		CAT_item* item = &item_table.data[action_state.item_id];
-		CAT_draw_queue_add(item->sprite_id, 0, 2, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
 		if(!action_state.confirmed)
 			CAT_draw_queue_add(tile_hl_sprite, 0, 2, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
+		if(!action_state.complete)
+		{
+			CAT_item* item = &item_table.data[action_state.item_id];
+			CAT_draw_queue_add(item->sprite_id, 0, 2, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
+		}
 	}
 	else
 	{

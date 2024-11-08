@@ -40,6 +40,7 @@ target_sources(app PRIVATE
 	src/cat_stats.c
 	src/cat_vending.c
 	src/cat_actions.c
+	src/cat_pet.c
 	src/cat_sprite.c)
 
 target_include_directories(app PRIVATE

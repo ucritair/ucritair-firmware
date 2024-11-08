@@ -2,7 +2,6 @@
 #define CAT_MACHINE_H
 
 #include <stdbool.h>
-#include "cat_sprite.h"
 
 //////////////////////////////////////////////////////////////////////////
 // CONSTANTS
@@ -42,28 +41,21 @@ typedef void (*CAT_machine_state)(CAT_machine_signal);
 void CAT_machine_transition(CAT_machine_state* machine, CAT_machine_state state);
 void CAT_machine_tick(CAT_machine_state* machine);
 
+
 //////////////////////////////////////////////////////////////////////////
-// ANIMACHINE
+// MACHINE AND STATE DECLARATIONS
 
-typedef struct CAT_ASM_state
-{
-	enum {ENTER, TICK, EXIT, DONE} signal;
-
-	int enter_anim_id;
-	int tick_anim_id;
-	int exit_anim_id;
-
-	struct CAT_ASM_state* next;
-} CAT_ASM_state;
-
-void CAT_ASM_init(CAT_ASM_state* state, int enai, int tiai, int exai);
-void CAT_ASM_transition(CAT_ASM_state** spp, CAT_ASM_state* next);
-void CAT_ASM_kill(CAT_ASM_state** spp);
-bool CAT_ASM_is_in(CAT_ASM_state** spp, CAT_ASM_state* state);
-bool CAT_ASM_is_entering(CAT_ASM_state** spp);
-bool CAT_ASM_is_ticking(CAT_ASM_state** spp);
-bool CAT_ASM_is_exiting(CAT_ASM_state** spp);
-bool CAT_ASM_is_done(CAT_ASM_state** spp);
-int CAT_ASM_tick(CAT_ASM_state** pp);
+extern CAT_machine_state machine;
+extern void CAT_MS_room(CAT_machine_signal);
+extern void CAT_MS_feed(CAT_machine_signal);
+extern void CAT_MS_study(CAT_machine_signal);
+extern void CAT_MS_play(CAT_machine_signal);
+extern void CAT_MS_deco(CAT_machine_signal);
+extern void CAT_MS_menu(CAT_machine_signal);
+extern void CAT_MS_stats(CAT_machine_signal);
+extern void CAT_MS_bag(CAT_machine_signal);
+extern void CAT_MS_vending(CAT_machine_signal);
+extern void CAT_MS_arcade(CAT_machine_signal);
+extern void CAT_MS_manual(CAT_machine_signal);
 
 #endif

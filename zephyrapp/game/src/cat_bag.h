@@ -1,3 +1,6 @@
+#ifndef CAT_BAG_H
+#define CAT_BAG_H
+
 #include "cat_machine.h"
 
 #define CAT_BAG_MAX_LENGTH 256
@@ -7,6 +10,8 @@ typedef struct CAT_bag
 	int item_id[CAT_BAG_MAX_LENGTH];
 	int count[CAT_BAG_MAX_LENGTH];
 	int length;
+
+	int coins;
 } CAT_bag;
 extern CAT_bag bag;
 
@@ -24,3 +29,6 @@ typedef struct CAT_bag_state
 extern CAT_bag_state bag_state;
 
 void CAT_bag_state_init();
+extern void CAT_render_bag();
+
+#endif

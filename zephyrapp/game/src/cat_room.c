@@ -2,6 +2,8 @@
 #include "cat_input.h"
 #include "cat_item.h"
 #include <stdio.h>
+#include "cat_pet.h"
+#include "cat_sprite.h"
 
 CAT_room room;
 CAT_machine_state machine;
@@ -70,16 +72,15 @@ void CAT_room_flip(int idx)
 {
 	int item_id = room.props[idx];
 	CAT_item* item = CAT_item_get(item_id);
+	CAT_sprite* sprite = &atlas.table[item->sprite_id];
 
-	if(item->data.prop_data.animate)
+	if(item->data.prop_data.animate || sprite->frame_count == 1)
 	{
 		room.overrides[idx] = !room.overrides[idx];
 	}
 	else
 	{
 		room.overrides[idx] += 1;
-		int sprite_id = item->sprite_id;
-		CAT_sprite* sprite = &atlas.table[sprite_id];
 		if(room.overrides[idx] >= sprite->frame_count)
 			room.overrides[idx] = 0;
 	}
@@ -99,91 +100,6 @@ void CAT_room_move_cursor()
 	room.cursor.y = min(max(room.cursor.y, room.bounds.min.y), room.bounds.max.y-1);
 }
 
-CAT_pet pet;
-
-CAT_ASM_state* pet_asm;
-CAT_ASM_state AS_idle;
-CAT_ASM_state AS_walk;
-CAT_ASM_state AS_adjust_in;
-CAT_ASM_state AS_walk_action;
-CAT_ASM_state AS_eat;
-CAT_ASM_state AS_study;
-CAT_ASM_state AS_play;
-CAT_ASM_state AS_adjust_out;
-CAT_ASM_state AS_vig_up;
-CAT_ASM_state AS_foc_up;
-CAT_ASM_state AS_spi_up;
-
-CAT_ASM_state* bubl_asm;
-CAT_ASM_state AS_react;
-
-void CAT_pet_anim_init()
-{
-	CAT_ASM_init(&AS_idle, -1, pet_idle_high_vig_sprite, -1);
-	CAT_ASM_init(&AS_walk, -1, pet_walk_high_vig_sprite, -1);
-	CAT_ASM_init(&AS_adjust_in, -1, -1, pet_wings_in_sprite);
-	CAT_ASM_init(&AS_walk_action, -1, pet_walk_sprite, -1);
-	CAT_ASM_init(&AS_eat, pet_eat_down_sprite, pet_chew_sprite, pet_eat_up_sprite);
-	CAT_ASM_init(&AS_study, pet_eat_down_sprite, pet_chew_sprite, pet_eat_up_sprite);
-	CAT_ASM_init(&AS_play, pet_eat_down_sprite, pet_chew_sprite, pet_eat_up_sprite);
-	CAT_ASM_init(&AS_adjust_out, -1, -1, pet_wings_out_sprite);
-	CAT_ASM_init(&AS_vig_up, -1, -1, pet_vig_up_sprite);
-	CAT_ASM_init(&AS_foc_up, -1, -1, pet_foc_up_sprite);
-	CAT_ASM_init(&AS_spi_up, -1, -1, pet_spi_up_sprite);
-
-	CAT_ASM_init(&AS_react, -1, bubl_react_good_sprite, -1);
-}
-
-void CAT_pet_stat()
-{
-	float dv = -1;
-	float df = -1;
-	float ds = -1;
-
-	pet.vigour += dv;
-	pet.focus += df;
-	pet.spirit += ds;
-	pet.critical = (pet.vigour >= 1 && pet.focus >= 1 && pet.spirit >= 1);
-}
-
-bool CAT_pet_seek(CAT_vec2 targ)
-{
-	CAT_vec2 line = CAT_vec2_sub(targ, pet.pos);
-	float dist = CAT_vec2_mag(line);
-	float step = 48.0f * CAT_get_delta_time();
-	if(dist < step)
-	{
-		pet.pos = targ;
-		pet.dir = (CAT_vec2) {0, 0};
-		return true;
-	}
-	else
-	{
-		pet.dir = CAT_vec2_div(line, dist);
-		pet.pos = CAT_vec2_add(pet.pos, CAT_vec2_mul(pet.dir, step));
-		pet.left = pet.pos.x < targ.x;
-		return false;
-	}
-}
-
-void CAT_pet_init()
-{
-	pet.vigour = 12;
-	pet.focus = 12;
-	pet.spirit = 12;
-
-	pet.pos = (CAT_vec2) {120, 200};
-	pet.dir = (CAT_vec2) {0, 0};
-	pet.left = false;
-	
-	pet.stat_timer_id = CAT_timer_init(5.0f);
-	pet.walk_timer_id = CAT_timer_init(4.0f);
-	pet.react_timer_id = CAT_timer_init(2.0f);
-	pet.action_timer_id = CAT_timer_init(2.0f);
-
-	CAT_pet_anim_init();
-}
-
 void CAT_MS_room(CAT_machine_signal signal)
 {
 	static CAT_vec2 poi;
@@ -192,8 +108,8 @@ void CAT_MS_room(CAT_machine_signal signal)
 	{
 		case CAT_MACHINE_SIGNAL_ENTER:
 		{
-			CAT_ASM_transition(&pet_asm, &AS_idle);
-			CAT_ASM_transition(&bubl_asm, NULL);
+			CAT_AM_transition(&pet_asm, &AS_idle);
+			CAT_AM_transition(&bubble_asm, NULL);
 			break;
 		}
 		case CAT_MACHINE_SIGNAL_TICK:
@@ -218,13 +134,13 @@ void CAT_MS_room(CAT_machine_signal signal)
 
 			if(CAT_input_touch(pet.pos.x, pet.pos.y-16, 16))
 			{
-				CAT_ASM_transition(&bubl_asm, &AS_react);
+				CAT_AM_transition(&bubble_asm, &AS_react);
 			}
-			if(CAT_ASM_is_in(&bubl_asm, &AS_react))
+			if(CAT_AM_is_in(&bubble_asm, &AS_react))
 			{
 				if(CAT_timer_tick(pet.react_timer_id))
 				{
-					CAT_ASM_transition(&bubl_asm, NULL);
+					CAT_AM_transition(&bubble_asm, NULL);
 					CAT_timer_reset(pet.react_timer_id);
 				}
 			}
@@ -235,7 +151,7 @@ void CAT_MS_room(CAT_machine_signal signal)
 				CAT_timer_reset(pet.stat_timer_id);
 			}
 
-			if(CAT_ASM_is_in(&pet_asm, &AS_idle) && CAT_ASM_is_ticking(&pet_asm))
+			if(CAT_AM_is_in(&pet_asm, &AS_idle) && CAT_AM_is_ticking(&pet_asm))
 			{
 				if(CAT_timer_tick(pet.walk_timer_id))
 				{
@@ -245,15 +161,15 @@ void CAT_MS_room(CAT_machine_signal signal)
 					CAT_vec2 world_max = CAT_iv2v(CAT_ivec2_mul(grid_max, 16));
 					poi = CAT_rand_vec2(world_min, world_max);
 
-					CAT_ASM_transition(&pet_asm, &AS_walk);
+					CAT_AM_transition(&pet_asm, &AS_walk);
 					CAT_timer_reset(pet.walk_timer_id);
 				}
 			}
-			if(CAT_ASM_is_in(&pet_asm, &AS_walk) && CAT_ASM_is_ticking(&pet_asm))
+			if(CAT_AM_is_in(&pet_asm, &AS_walk) && CAT_AM_is_ticking(&pet_asm))
 			{
 				if(CAT_pet_seek(poi))
 				{
-					CAT_ASM_transition(&pet_asm, &AS_idle);
+					CAT_AM_transition(&pet_asm, &AS_idle);
 				}
 			}
 			break;
@@ -293,6 +209,12 @@ void CAT_render_room(int cycle)
 					prop_mode |= CAT_DRAW_MODE_REFLECT_X;
 				CAT_draw_queue_animate(prop->sprite_id, 2, place.x * 16, (place.y+shape.y) * 16, prop_mode);
 			}
+			else if(atlas.table[prop->sprite_id].frame_count == 0)
+			{
+				if(room.overrides[i])
+					prop_mode |= CAT_DRAW_MODE_REFLECT_X;
+				CAT_draw_queue_add(prop->sprite_id, 0, 2, place.x * 16, (place.y+shape.y) * 16, prop_mode);
+			}
 			else
 			{
 				int frame_idx = room.overrides[i];
@@ -303,11 +225,11 @@ void CAT_render_room(int cycle)
 		int pet_mode = CAT_DRAW_MODE_BOTTOM | CAT_DRAW_MODE_CENTER_X;
 		if(pet.left)
 			pet_mode |= CAT_DRAW_MODE_REFLECT_X;
-		CAT_draw_queue_animate(CAT_ASM_tick(&pet_asm), 2, pet.pos.x, pet.pos.y, pet_mode);	
-		if(bubl_asm != NULL)
+		CAT_draw_queue_animate(CAT_AM_tick(&pet_asm), 2, pet.pos.x, pet.pos.y, pet_mode);	
+		if(bubble_asm != NULL)
 		{
 			int x_off = pet.left ? 16 : -16;
-			CAT_draw_queue_animate(CAT_ASM_tick(&bubl_asm), 3, pet.pos.x + x_off, pet.pos.y - 48, pet_mode);	
+			CAT_draw_queue_animate(CAT_AM_tick(&bubble_asm), 3, pet.pos.x + x_off, pet.pos.y - 48, pet_mode);	
 		}
 
 		CAT_draw_queue_add(sbut_feed_sprite, 0, 3, 8, 280, CAT_DRAW_MODE_DEFAULT); 

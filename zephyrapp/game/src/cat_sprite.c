@@ -628,6 +628,23 @@ int icon_mask_sprite;
 int icon_pure_sprite;
 int icon_uv_sprite;
 
+// MACHINES
+CAT_AM_state* pet_asm;
+CAT_AM_state AS_idle;
+CAT_AM_state AS_walk;
+CAT_AM_state AS_adjust_in;
+CAT_AM_state AS_walk_action;
+CAT_AM_state AS_eat;
+CAT_AM_state AS_study;
+CAT_AM_state AS_play;
+CAT_AM_state AS_adjust_out;
+CAT_AM_state AS_vig_up;
+CAT_AM_state AS_foc_up;
+CAT_AM_state AS_spi_up;
+
+CAT_AM_state* bubble_asm;
+CAT_AM_state AS_react;
+
 #ifndef CAT_BAKED_ASSETS
 #ifdef LOUIS
 #define INIT_SPRITE(name, path, frames) name = CAT_sprite_init(path, frames);\
@@ -815,4 +832,19 @@ void CAT_sprite_mass_define()
 	INIT_SPRITE(icon_mask_sprite, "sprites/icon_mask.png", 1);
 	INIT_SPRITE(icon_pure_sprite, "sprites/icon_pure.png", 1);
 	INIT_SPRITE(icon_uv_sprite, "sprites/icon_uv.png", 1);
+
+	// MACHINES
+	CAT_AM_init(&AS_idle, -1, pet_idle_high_vig_sprite, -1);
+	CAT_AM_init(&AS_walk, -1, pet_walk_high_vig_sprite, -1);
+	CAT_AM_init(&AS_adjust_in, -1, -1, pet_wings_in_sprite);
+	CAT_AM_init(&AS_walk_action, -1, pet_walk_sprite, -1);
+	CAT_AM_init(&AS_eat, pet_eat_down_sprite, pet_chew_sprite, pet_eat_up_sprite);
+	CAT_AM_init(&AS_study, pet_eat_down_sprite, pet_chew_sprite, pet_eat_up_sprite);
+	CAT_AM_init(&AS_play, pet_eat_down_sprite, pet_chew_sprite, pet_eat_up_sprite);
+	CAT_AM_init(&AS_adjust_out, -1, -1, pet_wings_out_sprite);
+	CAT_AM_init(&AS_vig_up, -1, -1, pet_vig_up_sprite);
+	CAT_AM_init(&AS_foc_up, -1, -1, pet_foc_up_sprite);
+	CAT_AM_init(&AS_spi_up, -1, -1, pet_spi_up_sprite);
+
+	CAT_AM_init(&AS_react, -1, bubl_react_good_sprite, -1);
 }
