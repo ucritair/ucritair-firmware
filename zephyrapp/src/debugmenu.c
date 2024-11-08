@@ -18,6 +18,9 @@
 #include "wlan.h"
 #include "ble.h"
 
+#include <zephyr/logging/log.h>
+LOG_MODULE_REGISTER(debugmenu, LOG_LEVEL_DBG);
+
 typedef void (*menu_t)();
 typedef void (*menu_op_t)(void*);
 
@@ -294,12 +297,22 @@ void menu_toggle_fps(void* arg)
 
 void menu_power_off(void* arg)
 {
-	power_off();
+	power_off((bool)arg);
 }
 
 void menu_toggle_epaper_flip_y(void* arg)
 {
 	epaper_flip_y = !epaper_flip_y;
+}
+
+#include <hal/nrf_rtc.h>
+extern uint8_t __kernel_ram_end;
+uint32_t* rtc_offset = &__kernel_ram_end - 0x20;
+
+void menu_zero_rtc(void* arg)
+{
+	LOG_DBG("rtc_offset = %p", (void*)rtc_offset);
+	*rtc_offset = -nrf_rtc_counter_get(NRF_RTC0);
 }
 
 void menu_root()
@@ -316,7 +329,12 @@ void menu_root()
 	selectable("Toggle show FPS", menu_toggle_fps, NULL);
 	selectablef(menu_toggle_epaper_flip_y, NULL, "Toggle epaper flip (%s)", epaper_flip_y?"ON":"OFF");
 	selectable("Set Backlight", goto_menu, menu_set_backlight);
-	selectable("Power Off", menu_power_off, NULL);
+	selectable("Power Off (WDT)", menu_power_off, (void*)1);
+	selectable("Power Off", menu_power_off, (void*)0);
+
+	text("")
+	textf("RTC: %d (%d) o=%d", *rtc_offset+nrf_rtc_counter_get(NRF_RTC0), nrf_rtc_prescaler_get(NRF_RTC0), *rtc_offset);
+	selectable("Zero RTC", menu_zero_rtc, NULL);
 
 	text("");
 	selectable("Back to game", exit_debug_menu, NULL);

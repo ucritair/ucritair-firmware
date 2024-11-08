@@ -55,3 +55,5 @@ if(MINIMIZE_GAME_FOOTPRINT)
 	message(WARNING "Not building in the actual game")
 	target_compile_definitions(app PRIVATE MINIMIZE_GAME_FOOTPRINT=1)
 endif()
+
+#zephyr_linker_sources(DATA_SECTIONS persistant.ld)
