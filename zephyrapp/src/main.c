@@ -66,6 +66,9 @@ int main(void)
 	// 	k_msleep(1000);
 	// }
 
+	nrf_rtc_prescaler_set(NRF_RTC0, 8191); // 250ms/tick
+	nrf_rtc_task_trigger(NRF_RTC0, NRF_RTC_TASK_START);
+
 	uint32_t initial_rtc_offset = *rtc_offset;
 
 	init_power_control();
@@ -132,9 +135,6 @@ int main(void)
 	k_msleep(50);
 
 	sensor_init();
-
-	nrf_rtc_prescaler_set(NRF_RTC0, 8191); // 250ms/tick
-	nrf_rtc_task_trigger(NRF_RTC0, NRF_RTC_TASK_START);
 
 	LOG_INF("initial_rtc_offset = %d\n", initial_rtc_offset);
 
