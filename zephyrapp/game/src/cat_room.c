@@ -266,7 +266,7 @@ void CAT_render_room(int cycle)
 					prop_mode |= CAT_DRAW_MODE_REFLECT_X;
 				CAT_draw_queue_animate(prop->sprite_id, 2, place.x * 16, (place.y+shape.y) * 16, prop_mode);
 			}
-			else if(atlas.table[prop->sprite_id].frame_count == 0)
+			else if(atlas.table[prop->sprite_id].frame_count == 1)
 			{
 				if(room.prop_overrides[i])
 					prop_mode |= CAT_DRAW_MODE_REFLECT_X;

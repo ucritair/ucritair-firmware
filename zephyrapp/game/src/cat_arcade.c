@@ -21,8 +21,8 @@ bool dead = false;
 
 void CAT_arcade_init()
 {
-	move_timer_id = CAT_timer_init(0.5f);
-	grow_timer_id = CAT_timer_init(5.0f);
+	move_timer_id = CAT_timer_init(0.25f);
+	grow_timer_id = CAT_timer_init(3.0f);
 	body_x[0] = 0;
 	body_y[0] = 0;
 }
@@ -70,6 +70,11 @@ void CAT_arcade_tick()
 			body_x[last] += x_shift;
 			body_y[last] += y_shift;
 			CAT_timer_reset(move_timer_id);
+		}
+
+		if(CAT_timer_tick(grow_timer_id))
+		{
+			body_length += 1;
 		}
 	}
 }
