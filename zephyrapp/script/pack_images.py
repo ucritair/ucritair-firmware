@@ -26,6 +26,11 @@ class BakeData:
 	def size(self):
 		return self.width * self.height * 2
 
+	@property
+	def do_compress(self):
+		return True
+		return not (self.name.startswith('base_wall') or self.name.startswith('base_floor'))
+
 atlas = []
 
 with open(os.path.dirname(__file__)+"/atlasdata.txt", 'r') as fd:
@@ -160,7 +165,6 @@ texture_use_cache = {}
 with open(f"{output}/images.c", 'w') as fd:
 	fd.write('#include <stdint.h>\n')
 	fd.write('#include "cat_sprite.h"\n')
-	fd.write('#include "epaper_rendering.h"\n')
 	fd.write('\n\n')
 	for sprite in atlas:
 		print(sprite.name)
@@ -184,13 +188,14 @@ with open(f"{output}/images.c", 'w') as fd:
 
 			key = list(x[0] for x in color_freq)
 
-			fd.write("const uint16_t image_data_"+sprite.name+"_colorkey[] = {\n\t")
-			for idx, data in enumerate(key):
-				fd.write(hex4(data) + ", ")
+			if sprite.do_compress:
+				fd.write("const uint16_t image_data_"+sprite.name+"_colorkey[] = {\n\t")
+				for idx, data in enumerate(key):
+					fd.write(hex4(data) + ", ")
 
-				if (idx%16) == 0 and idx != 0:
-					fd.write('\n\t')
-			fd.write("\n};\n")
+					if (idx%16) == 0 and idx != 0:
+						fd.write('\n\t')
+				fd.write("\n};\n")
 
 			for frame in range(sprite.frames):
 				fd.write("const uint8_t image_data_"+sprite.name+"_frame"+str(frame)+"[] = {\n\t")
@@ -201,23 +206,30 @@ with open(f"{output}/images.c", 'w') as fd:
 						px = get_px(image, col, (frame * sprite.height) + row)
 						lin_data.append(px)
 
-				sprite.colors = set(lin_data)
-				keyed_data = []
-				for word in lin_data:
-					try:
-						pos = key.index(word)
-					except ValueError:
-						pos = 0
-					keyed_data.append(pos)
+				if sprite.do_compress:
+					sprite.colors = set(lin_data)
+					keyed_data = []
+					for word in lin_data:
+						try:
+							pos = key.index(word)
+						except ValueError:
+							pos = 0
+						keyed_data.append(pos)
 
-				data = rleencode(keyed_data, sprite.width)
-				# sprite.rlesize = len(lin_data)
+					data = rleencode(keyed_data, sprite.width)
+					# sprite.rlesize = len(lin_data)
 
-				for idx, data in enumerate(data):
-					fd.write(hex2(data) + ", ")
+					for idx, data in enumerate(data):
+						fd.write(hex2(data) + ", ")
 
-					if (idx%16) == 0 and idx != 0:
-						fd.write('\n\t')
+						if (idx%16) == 0 and idx != 0:
+							fd.write('\n\t')
+				else:
+					for idx, data in enumerate(lin_data):
+						fd.write(hex2(data&0xff) + ", " + hex2(data>>8) + ", ")
+
+						if (idx%16) == 0 and idx != 0:
+							fd.write('\n\t')
 
 				fd.write('\n};\n')
 
@@ -230,7 +242,8 @@ with open(f"{output}/images.c", 'w') as fd:
 	for sprite in atlas:
 		name = texture_use_cache[sprite.path]
 		fd.write('\t['+str(sprite.idx)+'] = {\n')
-		fd.write('\t\t.color_table=image_data_'+name+'_colorkey,\n')
+		if sprite.do_compress:
+			fd.write('\t\t.color_table=image_data_'+name+'_colorkey,\n')
 		fd.write('\t\t.frames=image_data_'+name+',\n')
 		fd.write('\t},\n')
 	fd.write('};\n')
@@ -252,44 +265,46 @@ with open(f"{output}/images.c", 'w') as fd:
 
 	einksize = 0
 
-	eink_folder = os.path.dirname(__file__)+"/../assets/"
-	for path in os.listdir(eink_folder):
-		print('eink', path)
-		texture = pygame.image.load(eink_folder+path)
-		width, height = texture.get_size()
-		e_width = width + (width % 8)
-		fd.write('struct epaper_image_asset epaper_image_'+path.split('.')[0]+" = {\n");
-		fd.write(f'\t.w = {width}, .h = {height}, .stride = {e_width},\n')
-		fd.write(f'\t.bytes = {{\n\t\t')
+	if '--noswap' not in sys.argv:
+		fd.write('#include "epaper_rendering.h"\n')
+		eink_folder = os.path.dirname(__file__)+"/../assets/"
+		for path in os.listdir(eink_folder):
+			print('eink', path)
+			texture = pygame.image.load(eink_folder+path)
+			width, height = texture.get_size()
+			e_width = width + (width % 8)
+			fd.write('struct epaper_image_asset epaper_image_'+path.split('.')[0]+" = {\n");
+			fd.write(f'\t.w = {width}, .h = {height}, .stride = {e_width},\n')
+			fd.write(f'\t.bytes = {{\n\t\t')
 
-		pixels = []
-		for y in range(height):
-			for x in range(e_width):
-				try:
-					px = texture.get_at((x, y))
-				except IndexError:
-					px = (255, 255, 255, 0)
-				# assert px[:3] in ((0, 0, 0), (255, 255, 255)), str(px)
-				px = int(px[:3] == (0, 0, 0) and px[3] != 0)
-				pixels.append(px)
+			pixels = []
+			for y in range(height):
+				for x in range(e_width):
+					try:
+						px = texture.get_at((x, y))
+					except IndexError:
+						px = (255, 255, 255, 0)
+					# assert px[:3] in ((0, 0, 0), (255, 255, 255)), str(px)
+					px = int(px[:3] == (0, 0, 0) and px[3] != 0)
+					pixels.append(px)
 
-		words = []
-		while pixels:
-			w = 0
-			for i in range(8):
-				w |= pixels.pop(0) << (7-i)
-			words.append(w)
+			words = []
+			while pixels:
+				w = 0
+				for i in range(8):
+					w |= pixels.pop(0) << (7-i)
+				words.append(w)
 
-		assert len(words) == (e_width*height)//8
+			assert len(words) == (e_width*height)//8
 
-		einksize += len(words)+2
+			einksize += len(words)+2
 
-		for i, w in enumerate(words):
-			fd.write(f'{hex2(w)}, ')
-			if (i%16 == 0) and (i != 0):
-				fd.write('\n\t\t')
+			for i, w in enumerate(words):
+				fd.write(f'{hex2(w)}, ')
+				if (i%16 == 0) and (i != 0):
+					fd.write('\n\t\t')
 
-		fd.write('\n\t}\n};\n\n');
+			fd.write('\n\t}\n};\n\n');
 
 print('eink size', einksize)
 

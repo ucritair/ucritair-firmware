@@ -142,6 +142,7 @@ float CAT_NOX_score();
 
 
 #ifdef CAT_DESKTOP
+#define CAT_BAKED_ASSETS
 #include "cat_desktop.h"
 #else
 #include "cat_embedded.h"

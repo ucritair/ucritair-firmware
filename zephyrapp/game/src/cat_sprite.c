@@ -12,6 +12,7 @@ CAT_atlas atlas;
 #else
 #ifdef CAT_DESKTOP
 #include "../../script/images.c"
+#include <stdio.h>
 #else
 extern const CAT_baked_sprite image_data_table[];
 extern uint16_t rle_work_region[];
@@ -231,14 +232,18 @@ void CAT_draw_sprite(int sprite_id, int frame_idx, int x, int y)
 		unpack_rle_row();
 #endif
 		
-		if(y_w < 0 || y_w >= LCD_FRAMEBUFFER_H)
+		if(y_w < 0)
 			continue;
+		if (y_w >= LCD_FRAMEBUFFER_H)
+			return;
 
 		for(int dx = 0; dx < w; dx++)
 		{
 			int x_w = x+dx;
-			if(x_w < 0 || x_w >= LCD_SCREEN_W)
+			if(x_w < 0)
 				continue;
+			if (x_w >= LCD_SCREEN_W)
+				break;
 			
 			int row_offset = dy * w;
 
@@ -297,7 +302,7 @@ void CAT_draw_tiles(int sprite_id, int frame_idx, int y_t, int h_t)
 #endif
 
 #ifdef CAT_BAKED_ASSETS
-#define RESETPTR from = (uint32_t*)&rle_work_region;
+#define RESETPTR from = (uint32_t*)rle_work_region;
 #else
 #define RESETPTR from = (uint32_t*)&frame[dy * CAT_TILE_SIZE];
 #endif
@@ -307,7 +312,7 @@ void CAT_draw_tiles(int sprite_id, int frame_idx, int y_t, int h_t)
 #endif
 
 #ifdef CAT_EMBEDDED
-#if LCD_FRAMEBUFFER_SEGMENTS != 20
+#if LCD_FRAMEBUFFER_SEGMENTS != 10
 #error adjust tiler (start pos)
 #endif
 #endif
@@ -325,6 +330,7 @@ void CAT_draw_tiles(int sprite_id, int frame_idx, int y_t, int h_t)
 	{
 #ifdef CAT_BAKED_ASSETS
 		unpack_rle_row();
+		// uint32_t* row_start = (uint32_t*)&image_data_table[sprite_id].frames[frame_idx][0];
 #endif
 
 		uint32_t* from;
