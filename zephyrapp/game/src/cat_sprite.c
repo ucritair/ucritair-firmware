@@ -129,18 +129,15 @@ void CAT_atlas_cleanup()
 
 #endif
 
-#ifndef CAT_DESKTOP
-extern uint16_t lcd_framebuffer[];
-#endif
-
 CAT_spriter spriter;
 
 void CAT_spriter_init()
 {
 #ifdef CAT_DESKTOP
 	spriter.framebuffer = CAT_malloc(sizeof(uint16_t) * LCD_SCREEN_W * LCD_SCREEN_H);
+#define FRAMEBUFFER spriter.framebuffer
 #else
-	spriter.framebuffer = lcd_framebuffer;
+#define FRAMEBUFFER lcd_framebuffer
 #endif
 	spriter.mode = CAT_DRAW_MODE_DEFAULT;
 }
@@ -259,7 +256,7 @@ void CAT_draw_sprite(int sprite_id, int frame_idx, int x, int y)
 #endif
 
 			if(px != 0xdead)
-				spriter.framebuffer[w_idx] = px;
+				FRAMEBUFFER[w_idx] = px;
 		}
 	}
 }
@@ -286,48 +283,66 @@ void CAT_draw_tiles(int sprite_id, int frame_idx, int y_t, int h_t)
 
 	if (y_start >= LCD_FRAMEBUFFER_H) return;
 	if (y_end < 0) return;
+
+	if (y_start < 0) y_start = 0;
+	if (y_end > LCD_FRAMEBUFFER_H) y_end = LCD_FRAMEBUFFER_H;
 #endif
-
-	for(int y_w = y_start; y_w < y_end; y_w += CAT_TILE_SIZE)
-	{
-		if(y_w < 0 || y_w >= LCD_FRAMEBUFFER_H)
-			continue;
-
-		for(int x_w = 0; x_w < LCD_SCREEN_W; x_w += CAT_TILE_SIZE)
-		{
 
 #ifdef CAT_BAKED_ASSETS
-			init_rle_decode(&image_data_table[sprite_id], frame_idx, sprite.width);
+	init_rle_decode(&image_data_table[sprite_id], frame_idx, sprite.width);
 #endif
 
-			for(int dy = 0; dy < CAT_TILE_SIZE; dy++)
-			{
+#if CAT_TILE_SIZE != 16
+#error adjust tiler (rep count)
+#endif
 
 #ifdef CAT_BAKED_ASSETS
-				unpack_rle_row();
-#endif
-
-				for(int dx = 0; dx < CAT_TILE_SIZE; dx++)
-				{
-					int w_idx = (y_w+dy) * LCD_SCREEN_W + (x_w+dx);
-					int row_offset = dy * CAT_TILE_SIZE;
-					
-#ifndef CAT_BAKED_ASSETS
-					uint16_t px = frame[row_offset + dx];
+#define RESETPTR from = (uint32_t*)&rle_work_region;
 #else
-					uint16_t px = rle_work_region[dx];
+#define RESETPTR from = (uint32_t*)&frame[dy * CAT_TILE_SIZE];
 #endif
 
-					spriter.framebuffer[w_idx] = px;
-				}
-			}
+#if (LCD_SCREEN_W/CAT_TILE_SIZE) != 15
+#error adjust tiler (rep count)
+#endif
+
+#ifdef CAT_EMBEDDED
+#if LCD_FRAMEBUFFER_SEGMENTS != 20
+#error adjust tiler (start pos)
+#endif
+#endif
+
+#define UNROLL2PX *(to++) = *(from++);
+#define UNROLL4PX UNROLL2PX UNROLL2PX
+#define UNROLL8PX UNROLL4PX UNROLL4PX
+#define UNROLL1TI RESETPTR UNROLL8PX UNROLL8PX
+#define UNROLL2TI UNROLL1TI UNROLL1TI
+#define UNROLL4TI UNROLL2TI UNROLL2TI
+#define UNROLL8TI UNROLL4TI UNROLL4TI
+#define UNROLL1LI UNROLL8TI UNROLL4TI UNROLL2TI UNROLL1TI
+
+	for (int dy = 0; dy < CAT_TILE_SIZE; dy++)
+	{
+#ifdef CAT_BAKED_ASSETS
+		unpack_rle_row();
+#endif
+
+		uint32_t* from;
+
+		for(int y_w = y_start; y_w < y_end; y_w += CAT_TILE_SIZE)
+		{
+			uint32_t* to = (uint32_t*)&FRAMEBUFFER[(y_w + dy) * LCD_SCREEN_W];
+
+			UNROLL1LI;
 		}
 	}
 }
 
 void CAT_spriter_cleanup()
 {
+#ifdef CAT_DESKTOP
 	CAT_free(spriter.framebuffer);
+#endif
 }
 
 //////////////////////////////////////////////////////////////////////////

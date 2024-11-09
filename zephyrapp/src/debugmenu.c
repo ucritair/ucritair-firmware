@@ -298,7 +298,7 @@ void menu_toggle_fps(void* arg)
 
 void menu_power_off(void* arg)
 {
-	power_off((bool)arg);
+	power_off((int)arg);
 }
 
 void menu_toggle_epaper_flip_y(void* arg)
@@ -325,7 +325,7 @@ void menu_root()
 	selectable("Toggle show FPS", menu_toggle_fps, NULL);
 	selectablef(menu_toggle_epaper_flip_y, NULL, "Toggle epaper flip (%s)", epaper_flip_y?"ON":"OFF");
 	selectable("Set Backlight", goto_menu, menu_set_backlight);
-	selectable("Power Off (for 30s)", menu_power_off, (void*)30000);
+	selectable("Power Off (for 10s)", menu_power_off, (void*)10000);
 	selectable("Power Off", menu_power_off, (void*)0);
 
 	text("")

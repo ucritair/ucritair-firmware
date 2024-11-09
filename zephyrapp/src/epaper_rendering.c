@@ -5,6 +5,7 @@
 #include "epaper_driver.h"
 #include "epaper_rendering.h"
 #include "airquality.h"
+#include "rtc.h"
 
 bool epaper_flip_y = false;
 
@@ -139,6 +140,10 @@ void epaper_render_test()
 // 	fwrite_str("Sunrise: Temp: %.1fC", (double)current_readings.sunrise.temp);
 // fwrite_str("    meow   ");
 
+	struct tm t;
+	time_t now = get_current_rtc_time();
+	gmtime_r(&now, &t);
+
 	blit_image(test_image, &epaper_image_unicorn_default, 0, 0);
 	blit_image(test_image, &epaper_image_cloud_smoke, 0, epaper_image_unicorn_default.h);
 
@@ -147,10 +152,10 @@ void epaper_render_test()
 	fwrite_str(128, 40, 2, "%.1f", (double)current_readings.sen5x.pm1_0);
 	fwrite_str(EPD_IMAGE_W-(8*5), 40, 1, "ug/m3\nPM2.5");
 	fwrite_str(128, 60, 1, "%.0f NOX / %.0f VOC", (double)current_readings.sen5x.nox_index, (double)current_readings.sen5x.voc_index);
-	fwrite_str(128, 70, 1, "%.0f C / %.0f%% RH", (double)current_readings.sen5x.temp_degC., (double)current_readings.sen5x.humidity_rhpct);
+	fwrite_str(128, 70, 1, "%.0f C / %.0f%% RH", (double)current_readings.sen5x.temp_degC, (double)current_readings.sen5x.humidity_rhpct);
 	// fwrite_str(128, 90, 1, "1 uCov/hr");
 	fwrite_str(128, 100, 1, "75%% AQI");
-	// fwrite_str(128, 108, 1, "15:35 - ")
+	fwrite_str(128, 108, 1, "as-of %2d:%02d:%02d", t.tm_hour, t.tm_min, t.tm_sec);
 
 	pc_set_mode(false);
 	cmd_turn_on_and_write(test_image);

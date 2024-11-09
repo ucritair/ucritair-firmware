@@ -88,10 +88,15 @@ void lcd_render_diag()
 	int last_frame_time = 1;
 	int last_ms = 1;
 
+	int last_lockmask = 0;
+
 	while (1)
 	{
 #ifndef MINIMIZE_GAME_FOOTPRINT
-		CAT_tick_logic();
+		if (!in_debug_menu)
+		{
+			CAT_tick_logic();
+		}
 #endif
 
 		touch_update();
@@ -105,15 +110,31 @@ void lcd_render_diag()
 			in_debug_menu = true;
 		}
 
-		while (!write_done) {k_msleep(1);} // TODO: Move things around to fit game logic before this
-
 		int now = k_uptime_get();
 		last_frame_time = now - last_ms;
 		last_ms = now;
 
+		int lockmask = 0;
+
+		while (!write_done) {
+			lockmask |= 1<<(LCD_FRAMEBUFFER_SEGMENTS-1);
+			k_usleep(250);
+		} // TODO: Move things around to fit game logic before this
+
 		for (int step = 0; step < LCD_FRAMEBUFFER_SEGMENTS; step++)
 		{
+#ifdef LCD_FRAMEBUFFER_A_B
+			int post_buf_num = (step+1)%2;
+			int post_offset = LCD_FRAMEBUFFER_H*((step+(LCD_FRAMEBUFFER_SEGMENTS-1))%LCD_FRAMEBUFFER_SEGMENTS);
+			lcd_flip(lcd_framebuffer_pair[post_buf_num], post_offset);
+
+			int work_buf_num = step%2;
+			lcd_framebuffer = lcd_framebuffer_pair[work_buf_num];
+#endif
+
 			framebuffer_offset_h = step*LCD_FRAMEBUFFER_H;
+
+			// LOG_INF("post %d/%d work %d/%d", post_buf_num, post_offset, work_buf_num, framebuffer_offset_h);
 
 			if (in_debug_menu)
 			{
@@ -122,7 +143,7 @@ void lcd_render_diag()
 				// {
 				// 	lcd_framebuffer[p] = colors[step];
 				// }
-				memset(lcd_framebuffer, 0, sizeof(lcd_framebuffer));
+				memset(lcd_framebuffer, 0, LCD_FRAMEBUFFER_PIXELS*2);
 				draw_debug_menu();
 			}
 			else
@@ -132,20 +153,28 @@ void lcd_render_diag()
 #endif
 			}
 
-			if (show_fps)
+			if (show_fps && step==0)
 			{
 				char buf[32] = {0};
-				snprintf(buf, sizeof(buf)-1, "%d FPS", 1000/last_frame_time);
-				lcd_write_str(0x0ee0, 240-(strlen("XX FPS")*8), 0, buf);
+				snprintf(buf, sizeof(buf)-1, "%02x %2d FPS", last_lockmask, 1000/last_frame_time);
+				lcd_write_str(0x0ee0, 240-(strlen("XX XX FPS")*8), 0, buf);
 			}
 
-			lcd_flip();
+#ifndef LCD_FRAMEBUFFER_A_B
+			lcd_flip(lcd_framebuffer, framebuffer_offset_h);
+#endif
 
 			if (step != (LCD_FRAMEBUFFER_SEGMENTS-1))
 			{
-				while (!write_done) {k_msleep(1);}
+				while (!write_done) {
+					lockmask |= (1<<step);
+					k_usleep(250);
+				}
 			}
 		}
+
+		last_lockmask = lockmask;
+
 
 		if ((k_uptime_get() - last_sensor_update) > 5000)
 		{

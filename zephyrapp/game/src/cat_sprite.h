@@ -68,7 +68,9 @@ typedef enum CAT_draw_mode
 
 typedef struct CAT_spriter
 {
+#ifdef CAT_DESKTOP
 	uint16_t* framebuffer;
+#endif
 	int mode;
 } CAT_spriter;
 extern CAT_spriter spriter;

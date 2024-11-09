@@ -26,6 +26,12 @@ PERSIST_RAM uint64_t rtc_offset;
 // 0xdeadbeef if retained ram is valid
 PERSIST_RAM uint16_t rtc_init_check;
 
+// seconds between sample
+PERSIST_RAM uint16_t sensor_wakeup_rate;
+
+// true if we woke to sample
+PERSIST_RAM uint8_t wakeup_is_from_timer;
+
 #define RTC_INIT_CHECK_MAGIC 0xb887
 
 bool is_first_init = false;
@@ -68,6 +74,8 @@ void check_rtc_init()
 	{
 		is_first_init = true;
 		rtc_init_check = RTC_INIT_CHECK_MAGIC;
+		sensor_wakeup_rate = 10;
+		wakeup_is_from_timer = false;
 		zero_rtc_counter();
 	}
 }
