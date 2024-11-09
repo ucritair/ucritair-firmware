@@ -283,57 +283,57 @@ void CAT_draw_tiles(int sprite_id, int frame_idx, int y_t, int h_t)
 
 	if (y_start >= LCD_FRAMEBUFFER_H) return;
 	if (y_end < 0) return;
+
+	if (y_start < 0) y_start = 0;
+	if (y_end > LCD_FRAMEBUFFER_H) y_end = LCD_FRAMEBUFFER_H;
 #endif
-
-	for(int y_w = y_start; y_w < y_end; y_w += CAT_TILE_SIZE)
-	{
-
-		for(int x_w = 0; x_w < LCD_SCREEN_W; x_w += CAT_TILE_SIZE)
-		{
 
 #ifdef CAT_BAKED_ASSETS
-			init_rle_decode(&image_data_table[sprite_id], frame_idx, sprite.width);
+	init_rle_decode(&image_data_table[sprite_id], frame_idx, sprite.width);
 #endif
-
-			for(int dy = 0; dy < CAT_TILE_SIZE; dy++)
-			{
-#ifdef CAT_BAKED_ASSETS
-				unpack_rle_row();
-#endif
-				
-				if((y_w+dy) < 0 || (y_w+dy) >= LCD_FRAMEBUFFER_H)
-					continue;
-
-#ifndef CAT_BAKED_ASSETS
-				uint32_t* from = (uint8_t*)&frame[dy * CAT_TILE_SIZE];
-#else
-				uint32_t* from = (uint8_t*)&rle_work_region;
-#endif
-
-				uint32_t* to = (uint8_t*)&FRAMEBUFFER[(y_w+dy) * LCD_SCREEN_W + x_w];
 
 #if CAT_TILE_SIZE != 16
-#error adjust tiler
+#error adjust tiler (rep count)
 #endif
-				*(to++) = *(from++);
-				*(to++) = *(from++);
-				*(to++) = *(from++);
-				*(to++) = *(from++);
-				*(to++) = *(from++);
-				*(to++) = *(from++);
-				*(to++) = *(from++);
-				*(to++) = *(from++);
-				*(to++) = *(from++);
-				*(to++) = *(from++);
-				*(to++) = *(from++);
-				*(to++) = *(from++);
-				*(to++) = *(from++);
-				*(to++) = *(from++);
-				*(to++) = *(from++);
-				*(to++) = *(from++);
 
-				// memcpy(to, from, CAT_TILE_SIZE*2);
-			}
+#ifdef CAT_BAKED_ASSETS
+#define RESETPTR from = (uint32_t*)&rle_work_region;
+#else
+#define RESETPTR from = (uint32_t*)&frame[dy * CAT_TILE_SIZE];
+#endif
+
+#if (LCD_SCREEN_W/CAT_TILE_SIZE) != 15
+#error adjust tiler (rep count)
+#endif
+
+#ifdef CAT_EMBEDDED
+#if LCD_FRAMEBUFFER_SEGMENTS != 20
+#error adjust tiler (start pos)
+#endif
+#endif
+
+#define UNROLL2PX *(to++) = *(from++);
+#define UNROLL4PX UNROLL2PX UNROLL2PX
+#define UNROLL8PX UNROLL4PX UNROLL4PX
+#define UNROLL1TI RESETPTR UNROLL8PX UNROLL8PX
+#define UNROLL2TI UNROLL1TI UNROLL1TI
+#define UNROLL4TI UNROLL2TI UNROLL2TI
+#define UNROLL8TI UNROLL4TI UNROLL4TI
+#define UNROLL1LI UNROLL8TI UNROLL4TI UNROLL2TI UNROLL1TI
+
+	for (int dy = 0; dy < CAT_TILE_SIZE; dy++)
+	{
+#ifdef CAT_BAKED_ASSETS
+		unpack_rle_row();
+#endif
+
+		uint32_t* from;
+
+		for(int y_w = y_start; y_w < y_end; y_w += CAT_TILE_SIZE)
+		{
+			uint32_t* to = (uint32_t*)&FRAMEBUFFER[(y_w + dy) * LCD_SCREEN_W];
+
+			UNROLL1LI;
 		}
 	}
 }
