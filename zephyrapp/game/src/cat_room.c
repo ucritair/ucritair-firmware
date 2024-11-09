@@ -8,14 +8,16 @@
 #include "cat_bag.h"
 
 CAT_room room;
-CAT_machine_state machine;
+CAT_vec2 poi;
 
 void CAT_room_init()
 {
 	room.bounds = (CAT_rect){{0, 7}, {15, 17}};
 	room.cursor = room.bounds.min;
 
+	room.prop_count = 0;
 
+	room.coin_count = 0;
 	room.crypto_timer_id = CAT_timer_init(5.0f);
 
 	room.buttons[0] = CAT_MS_feed;
@@ -91,13 +93,13 @@ void CAT_room_flip_prop(int idx)
 	}
 }
 
-void CAT_room_add_coin(CAT_ivec2 origin, CAT_ivec2 place)
+void CAT_room_add_coin(CAT_vec2 origin, CAT_vec2 place)
 {
 	int idx = room.coin_count;
+	room.coin_count += 1;
 	room.coin_origins[idx] = origin;
 	room.coin_places[idx] = place;
-	room.coin_timers[idx] = CAT_timer_init(1.0f);
-	room.coin_count += 1;
+	room.coin_timers[idx] = CAT_timer_init(0.75f);
 }
 
 void CAT_room_remove_coin(int idx)
@@ -126,7 +128,7 @@ void CAT_room_move_cursor()
 
 void CAT_MS_room(CAT_machine_signal signal)
 {
-	static CAT_vec2 poi;
+	
 
 	switch(signal)
 	{
@@ -203,9 +205,12 @@ void CAT_MS_room(CAT_machine_signal signal)
 				{
 					if(room.props[i] == crypto_item)
 					{
-						CAT_ivec2 origin = room.prop_places[i];
-						CAT_ivec2 place = CAT_rand_ivec2(room.bounds.min, room.bounds.max);
-						CAT_room_add_coin(origin, place);
+						float xi = room.prop_places[i].x * 16 + 24;
+						float yi = room.prop_places[i].y * 16 - 24.0f;
+						float xf = CAT_rand_float((room.bounds.min.x+1) * 16, (room.bounds.max.x-1) * 16);
+						float yf = CAT_rand_float((room.bounds.min.y+1) * 16, (room.bounds.max.y-1) * 16);
+						printf("%f %f %f %f\n", xi, yi, xf, yf);
+						CAT_room_add_coin((CAT_vec2) {xi, yi}, (CAT_vec2) {xf, yf});
 					}
 				}
 				CAT_timer_reset(room.crypto_timer_id);
@@ -214,8 +219,8 @@ void CAT_MS_room(CAT_machine_signal signal)
 			{
 				if(CAT_timer_tick(room.coin_timers[i]))
 				{
-					CAT_ivec2 place = room.coin_places[i];
-					if(CAT_input_touch(place.x * 16, (place.y-1) * 16, 16))
+					CAT_vec2 place = room.coin_places[i];
+					if(CAT_input_touch(place.x, place.y - 16, 16))
 					{
 						bag.coins += 1;
 						CAT_room_remove_coin(i);
@@ -276,11 +281,13 @@ void CAT_render_room(int cycle)
 
 		for(int i = 0; i < room.coin_count; i++)
 		{
-			CAT_ivec2 origin = room.coin_origins[i];
-			CAT_ivec2 place = room.coin_places[i];
+			CAT_vec2 origin = room.coin_origins[i];
+			CAT_vec2 place = room.coin_places[i];
+
 			float t = CAT_timer_progress(room.coin_timers[i]);
-			float x = lerp(origin.x * 16, place.x * 16, t);
-			float y = lerp(origin.y * 16, place.y * 16, t*t);
+			float x = lerp(origin.x, place.x, t);
+			float y = lerp(origin.y, place.y, t);
+
 			CAT_draw_queue_add(icon_coin_sprite, 0, 2, x, y, CAT_DRAW_MODE_CENTER_X | CAT_DRAW_MODE_BOTTOM);
 		}
 

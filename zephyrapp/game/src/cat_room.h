@@ -17,8 +17,8 @@ typedef struct CAT_room
 	int prop_overrides[CAT_MAX_PROP_COUNT];
 	int prop_count;
 
-	CAT_ivec2 coin_origins[CAT_MAX_COIN_COUNT];
-	CAT_ivec2 coin_places[CAT_MAX_COIN_COUNT];
+	CAT_vec2 coin_origins[CAT_MAX_COIN_COUNT];
+	CAT_vec2 coin_places[CAT_MAX_COIN_COUNT];
 	int coin_timers[CAT_MAX_COIN_COUNT];
 	int coin_count;
 	int crypto_timer_id;
@@ -34,7 +34,7 @@ bool CAT_room_fits(CAT_rect rect);
 void CAT_room_add_prop(int item_id, CAT_ivec2 place);
 void CAT_room_remove_prop(int idx);
 void CAT_room_flip_prop(int idx);
-void CAT_room_add_coin(CAT_ivec2 origin, CAT_ivec2 place);
+void CAT_room_add_coin(CAT_vec2 origin, CAT_vec2 place);
 void CAT_room_remove_coin(int idx);
 void CAT_room_move_cursor();
 void CAT_render_room(int cycle);

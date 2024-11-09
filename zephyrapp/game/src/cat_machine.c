@@ -204,3 +204,8 @@ int CAT_AM_tick(CAT_AM_state** spp)
 
 	return sp->exit_anim_id != -1 ? sp->exit_anim_id : sp->tick_anim_id;
 }
+
+//////////////////////////////////////////////////////////////////////////
+// MACHINE AND STATE DECLARATIONS
+
+CAT_machine_state machine;

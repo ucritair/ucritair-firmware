@@ -107,6 +107,8 @@ void CAT_init()
 	CAT_action_state_init();
 	CAT_deco_state_init();
 	CAT_bag_state_init();
+
+	CAT_room_add_prop(crypto_item, (CAT_ivec2) {0, 10});
 	
 	machine = NULL;
 	CAT_machine_transition(&machine, CAT_MS_room);

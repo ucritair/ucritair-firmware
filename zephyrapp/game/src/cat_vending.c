@@ -38,7 +38,12 @@ void CAT_MS_vending(CAT_machine_signal signal)
 
 			if(CAT_input_pressed(CAT_BUTTON_A))
 			{
-				CAT_bag_add(vending_state.idx);
+				int price = item_table.data[vending_state.idx].price;
+				if(bag.coins >= price)
+				{
+					CAT_bag_add(vending_state.idx);
+					bag.coins -= price;
+				}
 			}
 
 			int overshoot = vending_state.idx - vending_state.base;

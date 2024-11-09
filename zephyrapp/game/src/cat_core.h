@@ -81,9 +81,21 @@ void CAT_free(void* ptr);
 
 #define PERSISTENCE_PAGE_SIZE 4096
 
-void CAT_write_save(uint8_t* in);
+typedef struct CAT_save
+{
+	struct
+	{
+		int major;
+		int minor;
+		int patch;
+		int push;
+	} version;
+} CAT_save;
+extern CAT_save save;
+
+void CAT_write_save();
 bool CAT_check_save();
-void CAT_read_save(uint8_t* out);
+void CAT_read_save();
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

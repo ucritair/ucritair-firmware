@@ -9,6 +9,7 @@
 #include <sys/stat.h>
 #include "cat_core.h"
 #include "cat_math.h"
+#include <string.h>
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // DEV MODE
@@ -337,23 +338,27 @@ void CAT_free(void* ptr)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // STORAGE
 
-void CAT_write_save(uint8_t* in)
+CAT_save save;
+
+void CAT_write_save()
 {
-	int fd = open("cat.dat", O_WRONLY | O_CREAT | O_TRUNC);
-	write(fd, in, PERSISTENCE_PAGE_SIZE);
+	int fd = open("save.dat", O_WRONLY | O_CREAT | O_TRUNC);
+	size_t write_size = min(sizeof(save), PERSISTENCE_PAGE_SIZE);
+	write(fd, &save, write_size);
 	close(fd);
 }
 
 bool CAT_check_save()
 {
 	struct stat buf;
-	return stat("cat.dat", &buf) == 0;
+	return stat("save.dat", &buf) == 0;
 }
 
-void CAT_read_save(uint8_t* out)
+void CAT_read_save()
 {
-	int fd = open("cat.dat", O_RDONLY);
-	read(fd, out, PERSISTENCE_PAGE_SIZE);
+	int fd = open("save.dat", O_RDONLY);
+	size_t read_size = min(sizeof(save), PERSISTENCE_PAGE_SIZE);
+	read(fd, &save, read_size);
 	close(fd);
 }
 

@@ -4,6 +4,7 @@
 #include "cat_input.h"
 #include "cat_machine.h"
 #include "cat_sprite.h"
+#include "cat_version.h"
 
 #ifdef CAT_EMBEDDED
 #include "menu_time.h"
@@ -79,4 +80,7 @@ void CAT_render_menu()
 
 		CAT_gui_line_break();
 	}
+
+	CAT_gui_line_break();
+	CAT_gui_textf("v%d.%d.%d.%d", CAT_VERSION_MAJOR, CAT_VERSION_MINOR, CAT_VERSION_PATCH, CAT_VERSION_PUSH);
 }

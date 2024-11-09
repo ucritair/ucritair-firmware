@@ -1,6 +1,8 @@
 #include "cat_gui.h"
 #include "cat_sprite.h"
 #include <string.h>
+#include <stdarg.h>
+#include <stdio.h>
 
 //////////////////////////////////////////////////////////////////////////
 // RENDERING
@@ -134,4 +136,14 @@ void CAT_gui_div(const char* text)
 
 	CAT_gui_line_break();
 	gui.cursor.y += ypad;
+}
+
+void CAT_gui_textf(const char* fmt, ...)
+{
+	va_list args;
+	va_start(args, fmt);
+	char text[256];
+	vsprintf(text, fmt, args);
+	va_end(args);
+	CAT_gui_text(text);
 }
