@@ -126,7 +126,7 @@ void CAT_item_mass_define()
 {
 	book_item = CAT_item_init(CAT_ITEM_TYPE_KEY, "The Disposessed", book_sprite, 1);
 
-	toy_item = CAT_item_init(CAT_ITEM_TYPE_KEY, "Tamagotchi", toy_sprite, 1);
+	toy_item = CAT_item_init(CAT_ITEM_TYPE_KEY, "Tamagotchi", toy_baseball_sprite, 1);
 
 	cigarettes_item = CAT_item_init(CAT_ITEM_TYPE_FOOD, "Cigarettes", cigarette_sprite, 1);
 	CAT_food_init(cigarettes_item, 0, 0, 1);

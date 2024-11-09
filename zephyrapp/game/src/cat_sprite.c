@@ -597,7 +597,7 @@ int crystal_purple_lg_sprite;
 
 // GRIMBA
 int book_sprite;
-int toy_sprite;
+int toy_baseball_sprite;
 int cigarette_sprite;
 int sausage_sprite;
 int padkrapow_sprite;
@@ -809,7 +809,7 @@ void CAT_sprite_mass_define()
 	INIT_SPRITE(padkrapow_sprite, "sprites/food_padkrakow_sm.png", 1);
 	INIT_SPRITE(coffee_sprite, "sprites/food_coffee_sm.png", 1);
 	INIT_SPRITE(book_sprite, "sprites/book.png", 1);
-	INIT_SPRITE(toy_sprite, "sprites/toy.png", 1);
+	INIT_SPRITE(toy_baseball_sprite, "sprites/toy_baseball.png", 1);
 	INIT_SPRITE(mask_sprite, "sprites/mask.png", 1);
 
 	// WORLD UI

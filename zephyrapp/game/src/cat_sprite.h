@@ -246,7 +246,7 @@ extern int sausage_sprite;
 extern int padkrapow_sprite;
 extern int coffee_sprite;
 extern int book_sprite;
-extern int toy_sprite;
+extern int toy_baseball_sprite;
 extern int mask_sprite;
 
 
