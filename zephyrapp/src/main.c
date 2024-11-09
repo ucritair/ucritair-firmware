@@ -121,9 +121,10 @@ int main(void)
 
 			if (current_readings.lps22hh.uptime_last_updated &&
 				current_readings.sunrise.uptime_last_updated &&
-				current_readings.sen5x.uptime_last_updated &&
-				current_readings.sen5x.voc_index &&
-				current_readings.sen5x.nox_index)
+				current_readings.sen5x.uptime_last_updated //&&
+				// current_readings.sen5x.voc_index &&
+				// current_readings.sen5x.nox_index
+				)
 			{
 				LOG_INF("readings ready");
 				epaper_render_test();

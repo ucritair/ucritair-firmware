@@ -311,6 +311,8 @@ void menu_zero_rtc(void* arg)
 	zero_rtc_counter();
 }
 
+#include <hal/nrf_rtc.h>
+
 void menu_root()
 {
 	text("~~DEBUG MENU~~");
@@ -329,7 +331,8 @@ void menu_root()
 	selectable("Power Off", menu_power_off, (void*)0);
 
 	text("")
-	textf("RTC: %d o=%d", (int)get_current_rtc_time(), (int)rtc_offset);
+	textf("Clock: %d o=%d", (int)get_current_rtc_time(), (int)rtc_offset);
+	textf("RTC: %d", nrf_rtc_counter_get(HW_RTC_CHOSEN));
 	selectable("Zero RTC", menu_zero_rtc, NULL);
 
 	text("");
