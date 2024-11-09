@@ -12,6 +12,7 @@ CAT_atlas atlas;
 #else
 #ifdef CAT_DESKTOP
 #include "../../script/images.c"
+#include <stdio.h>
 #else
 extern const CAT_baked_sprite image_data_table[];
 extern uint16_t rle_work_region[];
@@ -301,7 +302,7 @@ void CAT_draw_tiles(int sprite_id, int frame_idx, int y_t, int h_t)
 #endif
 
 #ifdef CAT_BAKED_ASSETS
-#define RESETPTR from = (uint32_t*)&rle_work_region;
+#define RESETPTR from = (uint32_t*)rle_work_region;
 #else
 #define RESETPTR from = (uint32_t*)&frame[dy * CAT_TILE_SIZE];
 #endif
@@ -329,6 +330,7 @@ void CAT_draw_tiles(int sprite_id, int frame_idx, int y_t, int h_t)
 	{
 #ifdef CAT_BAKED_ASSETS
 		unpack_rle_row();
+		// uint32_t* row_start = (uint32_t*)&image_data_table[sprite_id].frames[frame_idx][0];
 #endif
 
 		uint32_t* from;
