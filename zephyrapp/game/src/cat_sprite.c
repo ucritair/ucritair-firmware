@@ -223,46 +223,61 @@ void CAT_draw_sprite(int sprite_id, int frame_idx, int x, int y)
 	if (y >= LCD_FRAMEBUFFER_H) return;
 	if ((y + h) < 0) return;
 #endif
-	
-	for(int dy = 0; dy < h; dy++)
-	{
-		int y_w = y+dy;
 
+	int y_end = y + h;
+
+	if (y_end >= LCD_FRAMEBUFFER_H) y_end = LCD_FRAMEBUFFER_H;
+	
+	int dy = 0; // only on PC
+	int inc_dir = (spriter.mode & CAT_DRAW_MODE_REFLECT_X)?-1:1;
+	int initial_offset = inc_dir==1?0:w-1;
+
+	while (y < y_end)
+	{
 #ifdef CAT_BAKED_ASSETS
 		unpack_rle_row();
 #endif
 		
-		if(y_w < 0)
+		if(y < 0)
+		{
+			y++;
+			dy++;
 			continue;
-		if (y_w >= LCD_FRAMEBUFFER_H)
-			return;
+		}
+
+#ifdef CAT_BAKED_ASSETS
+		const uint16_t* read_ptr = &rle_work_region[initial_offset];
+#else
+		const uint16_t* read_ptr = &frame[dy * w + initial_offset];
+#endif
+
+		uint16_t* write_ptr = &FRAMEBUFFER[y * LCD_SCREEN_W + x];
 
 		for(int dx = 0; dx < w; dx++)
 		{
 			int x_w = x+dx;
-			if(x_w < 0)
-				continue;
+
 			if (x_w >= LCD_SCREEN_W)
 				break;
-			
-			int row_offset = dy * w;
 
-			int col_offset;
-			if ((spriter.mode & CAT_DRAW_MODE_REFLECT_X) > 0)
-				col_offset = w - dx - 1;
+			if(x_w < 0)
+			{
+				
+			}
 			else
-				col_offset = dx;
+			{
+				uint16_t px = *read_ptr;
 
-			int w_idx = y_w * LCD_SCREEN_W + x_w;
-#ifdef CAT_BAKED_ASSETS
-			uint16_t px = rle_work_region[col_offset];
-#else
-			uint16_t px = frame[row_offset + col_offset];
-#endif
+				if(px != 0xdead)
+					*write_ptr = px;
+			}
 
-			if(px != 0xdead)
-				FRAMEBUFFER[w_idx] = px;
+			read_ptr += inc_dir;
+			write_ptr += 1;
 		}
+
+		y++;
+		dy++;
 	}
 }
 
