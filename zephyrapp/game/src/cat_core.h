@@ -141,8 +141,10 @@ float CAT_VOC_score();
 float CAT_NOX_score();
 
 
-#ifdef CAT_DESKTOP
+#ifdef CAT_DESKTOP 
+#ifdef LOUIS 
 #define CAT_BAKED_ASSETS
+#endif
 #include "cat_desktop.h"
 #else
 #include "cat_embedded.h"

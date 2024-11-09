@@ -8,7 +8,7 @@
 
 CAT_action_state action_state;
 
-void CAT_action_state_init()
+void CAT_action_init()
 {
 	action_state.item_id = -1;
 	action_state.confirmed = false;
@@ -96,7 +96,7 @@ void CAT_MS_feed(CAT_machine_signal signal)
 		}
 		case CAT_MACHINE_SIGNAL_EXIT:
 		{
-			CAT_action_state_init();
+			CAT_action_init();
 			break;
 		}
 	}
@@ -127,7 +127,7 @@ void CAT_MS_study(CAT_machine_signal signal)
 		}
 		case CAT_MACHINE_SIGNAL_EXIT:
 		{
-			CAT_action_state_init();
+			CAT_action_init();
 			break;
 		}
 	}
@@ -158,7 +158,7 @@ void CAT_MS_play(CAT_machine_signal signal)
 		}
 		case CAT_MACHINE_SIGNAL_EXIT:
 		{
-			CAT_action_state_init();
+			CAT_action_init();
 			break;
 		}
 	}

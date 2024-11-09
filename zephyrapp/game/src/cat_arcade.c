@@ -8,12 +8,13 @@
 
 #define MAX_SNAKE_LENGTH 3
 
-int width = 0;
-int height = 0;
-int x[MAX_SNAKE_LENGTH];
-int y[MAX_SNAKE_LENGTH];
-int length = 1;
-int dir = 0;
+int width = 20;
+int height = 10;
+int body_x[MAX_SNAKE_LENGTH];
+int body_y[MAX_SNAKE_LENGTH];
+int body_length = 1;
+int x_shift = 0;
+int y_shift = 0;
 int move_timer_id = -1;
 int grow_timer_id = -1;
 bool dead = false;
@@ -22,36 +23,53 @@ void CAT_arcade_init()
 {
 	move_timer_id = CAT_timer_init(0.5f);
 	grow_timer_id = CAT_timer_init(5.0f);
-	x[0] = 0;
-	y[0] = 0;
+	body_x[0] = 0;
+	body_y[0] = 0;
 }
 
 void CAT_arcade_tick()
 {
-	for(int i = 0; i < length && !dead; i++)
+	for(int i = 0; i < body_length && !dead; i++)
 	{
 		dead =
-		x[i] < 0 || x[i] >= width ||
-		y[i] < 0 || y[i] >= height;
+		body_x[i] < 0 || body_x[i] >= width ||
+		body_y[i] < 0 || body_y[i] >= height;
 	}
 
 	if(!dead)
 	{
 		if(CAT_input_pressed(CAT_BUTTON_UP))
-			dir = 0;
+		{
+			x_shift = 0;
+			y_shift = -1;
+		}	
 		if(CAT_input_pressed(CAT_BUTTON_RIGHT))
-			dir = 1;
+		{
+			x_shift = 1;
+			y_shift = 0;
+		}
 		if(CAT_input_pressed(CAT_BUTTON_DOWN))
-			dir = 2;
+		{
+			x_shift = 0;
+			y_shift = 1;
+		}
 		if(CAT_input_pressed(CAT_BUTTON_LEFT))
-			dir = 3;
+		{
+			x_shift = -1;
+			y_shift = 0;
+		}
 		
 		if(CAT_timer_tick(move_timer_id))
 		{
-			for(int i = length-1; i > 0; i--)
+			int last = body_length-1;
+			for(int i = last; i > 0; i--)
 			{
-				
+				body_x[i-1] = body_x[i];
+				body_y[i-1] = body_y[i];
 			}
+			body_x[last] += x_shift;
+			body_y[last] += y_shift;
+			CAT_timer_reset(move_timer_id);
 		}
 	}
 }
@@ -61,6 +79,7 @@ void CAT_MS_arcade(CAT_machine_signal signal)
 	switch(signal)
 	{
 		case CAT_MACHINE_SIGNAL_ENTER:
+			CAT_arcade_init();
 			break;
 		case CAT_MACHINE_SIGNAL_TICK:
 		{
@@ -68,6 +87,8 @@ void CAT_MS_arcade(CAT_machine_signal signal)
 				CAT_machine_transition(&machine, CAT_MS_menu);
 			if(CAT_input_pressed(CAT_BUTTON_START))
 				CAT_machine_transition(&machine, CAT_MS_room);
+			
+			CAT_arcade_tick();
 			break;
 		}
 		case CAT_MACHINE_SIGNAL_EXIT:
@@ -82,4 +103,22 @@ void CAT_render_arcade()
 	CAT_gui_image(fbut_b_sprite, 1);
 	CAT_gui_image(icon_exit_sprite, 0);
 	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
+
+	int mode_cache = spriter.mode;
+	spriter.mode = CAT_DRAW_MODE_DEFAULT;
+	if(!dead)
+	{
+		for(int y = 0; y < height; y++)
+		{
+			for(int x = 0; x < width; x++)
+			{
+				CAT_draw_sprite(base_floor_sprite, 2, x * 16, y * 16);
+			}
+		}
+		for(int i = 0; i < body_length; i++)
+		{
+			CAT_draw_sprite(base_wall_sprite, 0, body_x[i] * 16, body_y[i] * 16);
+		}
+	}
+	spriter.mode = mode_cache;
 }
