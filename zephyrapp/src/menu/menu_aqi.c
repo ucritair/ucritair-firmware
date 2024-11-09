@@ -8,6 +8,7 @@
 #include "cat_actions.h"
 #include "cat_bag.h"
 #include "rtc.h"
+#include "airquality.h"
 
 void CAT_MS_aqi(CAT_machine_signal signal)
 {
@@ -46,5 +47,39 @@ void CAT_render_aqi()
 	char buf[64];
 #define textf(...) snprintf(buf, sizeof(buf), __VA_ARGS__); CAT_gui_text(buf)
 	
-	textf("ABC");
+	if (current_readings.sunrise.uptime_last_updated)
+	{
+		textf("CO2: %4dppm", (int)current_readings.sunrise.ppm_filtered_compensated);
+	}
+	else
+	{
+		textf("CO2 sensor starting...");
+	}
+	CAT_gui_line_break();
+	if (current_readings.sunrise.uptime_last_updated)
+	{
+		textf("PM2.5: %2.1f  |  PM10: %2.1f", (double)current_readings.sen5x.pm2_5, (double)current_readings.sen5x.pm10_0);
+	}
+	else
+	{
+		textf("PM2.5/PM10 sensor starting...");
+	}
+	CAT_gui_line_break();
+	if (current_readings.sen5x.voc_index && current_readings.sen5x.nox_index)
+	{
+		textf("VOC %3.0f  |  NOX %3.0f", (double)current_readings.sen5x.voc_index, (double)current_readings.sen5x.nox_index);
+	}
+	else
+	{
+		textf("VOC/NOX sensor starting...");
+	}
+	CAT_gui_line_break();
+	if (current_readings.sen5x.temp_degC)
+	{
+		textf("%2.1fC  |  %2.0f%%RH", (double)current_readings.sen5x.temp_degC, (double)current_readings.sen5x.humidity_rhpct);
+	}
+	else
+	{
+		textf("Temp/RH sensor starting...");
+	}
 }

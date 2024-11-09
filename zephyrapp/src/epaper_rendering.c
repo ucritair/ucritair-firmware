@@ -149,7 +149,7 @@ void epaper_render_test()
 
 	fwrite_str(128, 20, 2, "%.0f", (double)current_readings.sunrise.ppm_filtered_compensated);
 	fwrite_str(EPD_IMAGE_W-(8*3), 20, 1, "ppm\nCO2");
-	fwrite_str(128, 40, 2, "%.1f", (double)current_readings.sen5x.pm1_0);
+	fwrite_str(128, 40, 2, "%.1f", (double)current_readings.sen5x.pm2_5);
 	fwrite_str(EPD_IMAGE_W-(8*5), 40, 1, "ug/m3\nPM2.5");
 	fwrite_str(128, 60, 1, "%.0f NOX / %.0f VOC", (double)current_readings.sen5x.nox_index, (double)current_readings.sen5x.voc_index);
 	fwrite_str(128, 70, 1, "%.0f C / %.0f%% RH", (double)current_readings.sen5x.temp_degC, (double)current_readings.sen5x.humidity_rhpct);
