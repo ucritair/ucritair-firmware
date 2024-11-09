@@ -129,18 +129,15 @@ void CAT_atlas_cleanup()
 
 #endif
 
-#ifndef CAT_DESKTOP
-extern uint16_t lcd_framebuffer[];
-#endif
-
 CAT_spriter spriter;
 
 void CAT_spriter_init()
 {
 #ifdef CAT_DESKTOP
 	spriter.framebuffer = CAT_malloc(sizeof(uint16_t) * LCD_SCREEN_W * LCD_SCREEN_H);
+#define FRAMEBUFFER spriter.framebuffer
 #else
-	spriter.framebuffer = lcd_framebuffer;
+#define FRAMEBUFFER lcd_framebuffer
 #endif
 	spriter.mode = CAT_DRAW_MODE_DEFAULT;
 }
@@ -259,7 +256,7 @@ void CAT_draw_sprite(int sprite_id, int frame_idx, int x, int y)
 #endif
 
 			if(px != 0xdead)
-				spriter.framebuffer[w_idx] = px;
+				FRAMEBUFFER[w_idx] = px;
 		}
 	}
 }
@@ -290,8 +287,6 @@ void CAT_draw_tiles(int sprite_id, int frame_idx, int y_t, int h_t)
 
 	for(int y_w = y_start; y_w < y_end; y_w += CAT_TILE_SIZE)
 	{
-		if(y_w < 0 || y_w >= LCD_FRAMEBUFFER_H)
-			continue;
 
 		for(int x_w = 0; x_w < LCD_SCREEN_W; x_w += CAT_TILE_SIZE)
 		{
@@ -302,24 +297,42 @@ void CAT_draw_tiles(int sprite_id, int frame_idx, int y_t, int h_t)
 
 			for(int dy = 0; dy < CAT_TILE_SIZE; dy++)
 			{
-
 #ifdef CAT_BAKED_ASSETS
 				unpack_rle_row();
 #endif
+				
+				if((y_w+dy) < 0 || (y_w+dy) >= LCD_FRAMEBUFFER_H)
+					continue;
 
-				for(int dx = 0; dx < CAT_TILE_SIZE; dx++)
-				{
-					int w_idx = (y_w+dy) * LCD_SCREEN_W + (x_w+dx);
-					int row_offset = dy * CAT_TILE_SIZE;
-					
 #ifndef CAT_BAKED_ASSETS
-					uint16_t px = frame[row_offset + dx];
+				uint32_t* from = (uint8_t*)&frame[dy * CAT_TILE_SIZE];
 #else
-					uint16_t px = rle_work_region[dx];
+				uint32_t* from = (uint8_t*)&rle_work_region;
 #endif
 
-					spriter.framebuffer[w_idx] = px;
-				}
+				uint32_t* to = (uint8_t*)&FRAMEBUFFER[(y_w+dy) * LCD_SCREEN_W + x_w];
+
+#if CAT_TILE_SIZE != 16
+#error adjust tiler
+#endif
+				*(to++) = *(from++);
+				*(to++) = *(from++);
+				*(to++) = *(from++);
+				*(to++) = *(from++);
+				*(to++) = *(from++);
+				*(to++) = *(from++);
+				*(to++) = *(from++);
+				*(to++) = *(from++);
+				*(to++) = *(from++);
+				*(to++) = *(from++);
+				*(to++) = *(from++);
+				*(to++) = *(from++);
+				*(to++) = *(from++);
+				*(to++) = *(from++);
+				*(to++) = *(from++);
+				*(to++) = *(from++);
+
+				// memcpy(to, from, CAT_TILE_SIZE*2);
 			}
 		}
 	}
@@ -327,7 +340,9 @@ void CAT_draw_tiles(int sprite_id, int frame_idx, int y_t, int h_t)
 
 void CAT_spriter_cleanup()
 {
+#ifdef CAT_DESKTOP
 	CAT_free(spriter.framebuffer);
+#endif
 }
 
 //////////////////////////////////////////////////////////////////////////

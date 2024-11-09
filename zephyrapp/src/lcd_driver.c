@@ -58,12 +58,20 @@ void lcd_blit(int x, int y, int w, int h, uint16_t* buffer)
 	hack_after_blit = k_cycle_get_32();
 }
 
-uint16_t lcd_framebuffer[LCD_FRAMEBUFFER_PIXELS] = {0x0};
+#ifdef LCD_FRAMEBUFFER_A_B
+uint16_t lcd_framebuffer_pair[LCD_FRAMEBUFFER_PIXELS][2];
+uint16_t* lcd_framebuffer = lcd_framebuffer_pair[0];
+#else
+uint16_t lcd_framebuffer_backing[LCD_FRAMEBUFFER_PIXELS];
+uint16_t* lcd_framebuffer = lcd_framebuffer_backing;
+#endif
+
+
 int framebuffer_offset_h = 0;
 
-void lcd_flip()
+void lcd_flip(uint16_t* buffer, int offset)
 {
-	lcd_blit(0, framebuffer_offset_h, LCD_IMAGE_W, LCD_FRAMEBUFFER_H, lcd_framebuffer);
+	lcd_blit(0, offset, LCD_IMAGE_W, LCD_FRAMEBUFFER_H, buffer);
 }
 
 void set_backlight(int pct)
@@ -101,7 +109,7 @@ void lcd_init()
 		}
 		return;
 	}
-	lcd_flip();
+	// lcd_flip();
 
 	LOG_DBG("Disable blanking...");
 

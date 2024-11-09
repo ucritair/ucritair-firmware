@@ -7,16 +7,24 @@
 #define LCD_IMAGE_W 240
 #endif
 
-#define LCD_FRAMEBUFFER_SEGMENTS 4
+#define LCD_FRAMEBUFFER_SEGMENTS 16
 #define LCD_FRAMEBUFFER_W LCD_IMAGE_W
 #define LCD_FRAMEBUFFER_H (LCD_IMAGE_H/LCD_FRAMEBUFFER_SEGMENTS)
 
 #define LCD_IMAGE_PIXELS (LCD_IMAGE_W * LCD_IMAGE_H)
 #define LCD_FRAMEBUFFER_PIXELS (LCD_FRAMEBUFFER_W * LCD_FRAMEBUFFER_H)
 
-extern uint16_t lcd_framebuffer[LCD_FRAMEBUFFER_PIXELS];
+extern uint16_t* lcd_framebuffer;
+
+#define LCD_FRAMEBUFFER_A_B 1
+#ifdef LCD_FRAMEBUFFER_A_B
+extern uint16_t lcd_framebuffer_pair[LCD_FRAMEBUFFER_PIXELS][2];
+#else
+extern uint16_t lcd_framebuffer_backing[LCD_FRAMEBUFFER_PIXELS];
+#endif
+
 extern int framebuffer_offset_h;
 
-void lcd_flip();
+void lcd_flip(uint16_t* buffer, int offset);
 void lcd_init();
 void set_backlight(int pct);

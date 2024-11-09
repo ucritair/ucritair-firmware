@@ -19,6 +19,9 @@ LOG_MODULE_REGISTER(sample, LOG_LEVEL_INF);
 
 #include <zephyr/shell/shell.h>
 
+#include <zephyr/sys/reboot.h>
+#include <zephyr/sys/poweroff.h>
+
 #include "lcd_driver.h"
 #include "lcd_rendering.h"
 #include "ble.h"
@@ -27,6 +30,7 @@ LOG_MODULE_REGISTER(sample, LOG_LEVEL_INF);
 #include "flash.h"
 #include "rgb_leds.h"
 #include "rtc.h"
+#include "airquality.h"
 
 static int cmd_start_wifi(const struct shell *sh, size_t argc,
 				   char **argv)
@@ -64,10 +68,11 @@ int main(void)
 	// }
 
 	init_power_control();
+	check_rtc_init();
 
 	LOG_INF("~Test speaker~");
 	set_3v3(true);
-	test_speaker();
+	
 
 	usb_enable(NULL);
 
@@ -83,8 +88,52 @@ int main(void)
 	LOG_PANIC();
 
 	NRF_CLOCK_S->HFCLKCTRL = (CLOCK_HFCLKCTRL_HCLK_Div1 << CLOCK_HFCLKCTRL_HCLK_Pos); // 128MHz
+	// Annoyingly need to do this even in low power because the LED timing depends on it
 
 	init_buttons();
+
+	if (wakeup_is_from_timer)
+	{
+		LOG_DBG("Booted from timer");
+		set_5v0(true);
+		set_leds(true);
+
+		set_first_led((struct led_rgb){0, 100, 0});
+
+		sensor_init();
+
+		int cycle = 1;
+		while (cycle++)
+		{
+			set_first_led((struct led_rgb){0, ((cycle%20)>10)?50:100, 0});
+			k_msleep(20);
+
+			sensor_read_once();
+			if (get_buttons())
+			{
+				snapshot_rtc_for_reboot();
+				wakeup_is_from_timer = false;
+				sys_reboot(SYS_REBOOT_WARM);
+			}
+
+			// ~15s for PM
+			// ~65s for NOC+VOX!?!?!
+
+			if (current_readings.lps22hh.uptime_last_updated &&
+				current_readings.sunrise.uptime_last_updated &&
+				current_readings.sen5x.uptime_last_updated &&
+				current_readings.sen5x.voc_index &&
+				current_readings.sen5x.nox_index)
+			{
+				LOG_INF("readings ready");
+				epaper_render_test();
+				k_msleep(20);
+				power_off(sensor_wakeup_rate*1000);
+			}
+		}
+	}
+
+	test_speaker();
 
 	ble_main();
 
@@ -127,8 +176,6 @@ int main(void)
 	k_msleep(50);
 
 	sensor_init();
-
-	check_rtc_init();
 
 	lcd_init();
 	lcd_render_diag();

@@ -1,6 +1,6 @@
 import serial, sys, time, struct
 
-fw_path = '/home/louis/Documents/ee/cat/zephyrproject/modules/hal/nordic/zephyr/blobs/wifi_fw_bins/default/nrf70.bin'
+fw_path = sys.argv[1]
 
 with open(fw_path, 'rb') as fd:
 	fw_blob = fd.read()
@@ -31,15 +31,16 @@ def wait_for(s):
 
 while True:
 	try:
-		port = serial.Serial(sys.argv[1], baudrate=115200)
+		port = serial.Serial(sys.argv[2], baudrate=115200)
 		break
 	except:
 		pass
 
-print("Connected, flush...")
+if '--skip-flush' not in sys.argv:
+	print("Connected, flush...")
 
-wait_for(b"CAT_init")
-wait_for(b'uart:~$')
+	wait_for(b"CAT_init")
+	wait_for(b'uart:~$')
 
 print("Erase 0 ", hex(len(write_blob)))
 port.write(b"flash erase w25q128@1 0 "+hex(len(write_blob)).encode('ascii')+b"\n")
@@ -62,7 +63,7 @@ while write_blob:
 	if b'buffer full' in r:
 		raise ValueError("fuck")
 	print(hex(len(write_blob)), 'b left')
-	time.sleep(0.01)
+	time.sleep(0.02)
 
 time.sleep(1)
 print('>', port.read(port.in_waiting))

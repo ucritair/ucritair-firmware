@@ -2,6 +2,9 @@
 
 extern bool is_first_init;
 extern uint64_t rtc_offset;
+extern uint16_t sensor_wakeup_rate;
+extern uint8_t wakeup_is_from_timer;
+
 void zero_rtc_counter();
 void check_rtc_init();
 void snapshot_rtc_for_reboot();

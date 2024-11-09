@@ -50,6 +50,7 @@ int sen5x_init()
     LOG_INF("Firmware v%d.%d (debug=%s)", state.fw_maj, state.fw_min, (state.fw_debug ? "y":"n"));
     LOG_INF("Hardware v%d.%d", state.hw_maj, state.hw_min);
     LOG_INF("Protocol v%d.%d", state.proto_maj, state.proto_min);
+    CHK(sen5x_set_rht_acceleration_mode(2));
     CHK(sen5x_start_measurement());
     return 0;
 }

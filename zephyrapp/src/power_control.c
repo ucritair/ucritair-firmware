@@ -9,6 +9,7 @@ LOG_MODULE_REGISTER(power_control, LOG_LEVEL_DBG);
 
 #include "misc.h"
 #include "power_control.h"
+#include "rtc.h"
 
 bool is_3v3_on, is_5v0_on, is_leds_on;
 
@@ -58,7 +59,6 @@ void set_leds(bool on)
 }
 
 #include <hal/nrf_rtc.h>
-extern uint32_t* rtc_offset;
 
 static struct gpio_callback button_cb_data;
 void button_pressed(const struct device *dev, struct gpio_callback *cb,
@@ -66,6 +66,7 @@ void button_pressed(const struct device *dev, struct gpio_callback *cb,
 {
 	// LOG_INF("button_pressed %d", pins);
 	snapshot_rtc_for_reboot();
+	wakeup_is_from_timer = false;
 	sys_reboot(SYS_REBOOT_WARM);
 }
 
@@ -89,19 +90,23 @@ static void timer_handler(nrf_timer_event_t event_type, void * p_context)
     if(event_type == NRF_TIMER_EVENT_COMPARE0)
     {
         snapshot_rtc_for_reboot();
+        wakeup_is_from_timer = true;
 		sys_reboot(SYS_REBOOT_WARM);
     }
 }
 
 void power_off(int for_ms)
 {
-
+	LOG_INF("power_off(%d)", for_ms);
 	// fails if active
 	// struct net_if *iface = net_if_get_default();
 	// net_if_down(iface);
 
-	bt_le_adv_stop();
-	bt_disable();
+	if (bt_is_ready())
+	{
+		bt_le_adv_stop();
+		bt_disable();
+	}
 
 	set_5v0(false);
 	set_leds(false);
