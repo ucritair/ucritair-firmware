@@ -8,6 +8,7 @@
 
 #ifdef CAT_EMBEDDED
 #include "menu_time.h"
+#include "menu_aqi.h"
 #endif
 
 #include <stddef.h>
@@ -22,10 +23,11 @@ struct entry {
 	{"BAG", CAT_MS_bag},
 	{"ARCADE CABINET", CAT_MS_arcade},
 	{"VENDING MACHINE", CAT_MS_vending},
-	{"CONTROLS", CAT_MS_manual},
+	{"GAME CONTROLS", CAT_MS_manual},
 
 #ifdef CAT_EMBEDDED
-	{"SET TIME", CAT_MS_time},
+	{"AIR QUALITY", CAT_MS_aqi},
+	{"SETUP TIME/SAMPLING", CAT_MS_time},
 #endif
 
 	{"BACK", CAT_MS_room}
@@ -48,7 +50,9 @@ void CAT_MS_menu(CAT_machine_signal signal)
 			selector = clamp(selector, 0, NUM_MENU_ITEMS-1);
 
 			if(CAT_input_pressed(CAT_BUTTON_A))
+			{
 				CAT_machine_transition(&machine, entries[selector].state);
+			}
 
 			if(CAT_input_pressed(CAT_BUTTON_B) || CAT_input_pressed(CAT_BUTTON_START))
 				CAT_machine_transition(&machine, CAT_MS_room);
@@ -82,6 +86,7 @@ void CAT_render_menu()
 	}
 
 #ifdef CAT_VERSION_H
+	CAT_gui_line_break();
 	CAT_gui_line_break();
 	CAT_gui_textf("v%d.%d.%d.%d", CAT_VERSION_MAJOR, CAT_VERSION_MINOR, CAT_VERSION_PATCH, CAT_VERSION_PUSH);
 #endif

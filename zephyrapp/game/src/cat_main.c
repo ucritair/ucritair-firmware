@@ -24,6 +24,7 @@
 
 #ifdef CAT_EMBEDDED
 #include "menu_time.h"
+#include "menu_aqi.h"
 #endif
 
 #ifdef __GNUC__
@@ -78,6 +79,8 @@ void CAT_tick_render(int cycle)
 #ifdef CAT_EMBEDDED
 	else if(machine == CAT_MS_time)
 		CAT_render_time();
+	else if(machine == CAT_MS_aqi)
+		CAT_render_aqi();
 #endif
 }
 
