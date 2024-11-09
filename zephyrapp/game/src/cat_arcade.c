@@ -7,15 +7,14 @@
 #include "cat_sprite.h"
 
 #define MAX_SNAKE_LENGTH 256
-
-int width = 20;
-int height = 10;
+#define WIDTH 15
+#define HEIGHT 20
 
 int body_x[MAX_SNAKE_LENGTH];
 int body_y[MAX_SNAKE_LENGTH];
 int body_length = 1;
 
-int x_shift = 0;
+int x_shift = 1;
 int y_shift = 0;
 
 int move_timer_id = -1;
@@ -25,7 +24,7 @@ bool dead = false;
 
 void CAT_arcade_init()
 {
-	move_timer_id = CAT_timer_init(0.25f);
+	move_timer_id = CAT_timer_init(0.1f);
 	body_x[0] = 0;
 	body_y[0] = 0;
 }
@@ -35,8 +34,8 @@ void CAT_arcade_tick()
 	for(int i = 0; i < body_length && !dead; i++)
 	{
 		dead =
-		body_x[i] < 0 || body_x[i] >= width ||
-		body_y[i] < 0 || body_y[i] >= height;
+		body_x[i] < 0 || body_x[i] >= WIDTH ||
+		body_y[i] < 0 || body_y[i] >= HEIGHT;
 	}
 
 	if(!dead)
@@ -82,6 +81,17 @@ void CAT_arcade_tick()
 			CAT_timer_reset(move_timer_id);
 		}
 	}
+	else
+	{
+		body_x[0] = 0;
+		body_y[0] = 0;
+		body_length = 1;
+		x_shift = 1;
+		y_shift = 0;
+		moves = 0;
+		CAT_timer_reset(move_timer_id);
+		dead = false;
+	}
 }
 
 void CAT_MS_arcade(CAT_machine_signal signal)
@@ -118,9 +128,9 @@ void CAT_render_arcade()
 	spriter.mode = CAT_DRAW_MODE_DEFAULT;
 	if(!dead)
 	{
-		for(int y = 0; y < height; y++)
+		for(int y = 0; y < HEIGHT; y++)
 		{
-			for(int x = 0; x < width; x++)
+			for(int x = 0; x < WIDTH; x++)
 			{
 				CAT_draw_sprite(base_floor_sprite, 2, x * 16, y * 16);
 			}
