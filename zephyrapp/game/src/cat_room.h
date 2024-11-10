@@ -4,7 +4,7 @@
 #include "cat_machine.h"
 #include "cat_math.h"
 
-#define CAT_MAX_PROP_COUNT 210
+#define CAT_MAX_PROP_COUNT 150
 #define CAT_MAX_COIN_COUNT 9
 
 typedef struct CAT_room
@@ -12,7 +12,7 @@ typedef struct CAT_room
 	CAT_rect bounds;
 	CAT_ivec2 cursor;
 
-	int props[CAT_MAX_PROP_COUNT];
+	int prop_ids[CAT_MAX_PROP_COUNT];
 	CAT_ivec2 prop_places[CAT_MAX_PROP_COUNT];
 	int prop_overrides[CAT_MAX_PROP_COUNT];
 	int prop_count;

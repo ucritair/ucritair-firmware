@@ -3,8 +3,6 @@
 
 #include "cat_math.h"
 
-#define CAT_MAX_PROP_COUNT 210
-
 typedef struct CAT_deco_state
 {
 	enum mode {ADD, FLIP, REMOVE} mode;

@@ -20,5 +20,7 @@ bool CAT_input_released(int button);
 bool CAT_input_held(int button, float t);
 bool CAT_input_pulse(int button);
 bool CAT_input_touch(int x, int y, float r);
+float CAT_input_progress(int button, float t);
+void CAT_input_clear(int button);
 
 #endif

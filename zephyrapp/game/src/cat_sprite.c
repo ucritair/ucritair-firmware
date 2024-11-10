@@ -1,8 +1,51 @@
 #include "cat_sprite.h"
-
 #include <stdint.h>
 #include <string.h>
 #include "cat_core.h"
+#include <stdint.h>
+#include "cat_math.h"
+#include <stdio.h>
+
+//////////////////////////////////////////////////////////////////////////
+// DIRECT FX
+
+uint16_t rgb8882rgb565(uint8_t r, uint8_t g, uint8_t b)
+{
+	return ((r & 0b11111000) << 8) | ((g & 0b11111100) << 3) | (b >> 3);
+}
+
+uint8_t luminance(uint16_t rgb)
+{
+	uint8_t r = (rgb & 0b1111100000000000) >> 11;
+	uint8_t g = (rgb & 0b0000011111100000) >> 5;
+	uint8_t b = rgb & 0b0000000000011111;
+	uint8_t l = ((r << 1) + r  + (g << 2) + b) >> 1;
+	return l;
+}
+
+// CATs when they eat a
+void CAT_greenberry(int xi, int w, int yi, int h, float t)
+{
+	int xf = xi + w * t;
+	int yf = yi + h;
+	for(int y = yi; y < yf; y++)
+	{
+		for(int x = xi; x < xf; x++)
+		{
+			int idx = y * LCD_SCREEN_W + x;
+			uint16_t c = spriter.framebuffer[idx];
+			if(c == 0xdead)
+				continue;
+			uint8_t l = luminance(c);
+			uint8_t g = clamp(l+8, 0, 255);
+			uint8_t b = clamp(l-128, 0, 255);
+			uint8_t r = clamp(l+48, 0, 255);
+			spriter.framebuffer[idx] = rgb8882rgb565(r, g, b);
+		}
+	}
+}
+// Okay, it's more of an orangeberry. [Goldberry?](https://tolkiengateway.net/wiki/Goldberry)
+
 
 //////////////////////////////////////////////////////////////////////////
 // ATLAS AND SPRITER
@@ -67,18 +110,12 @@ int CAT_sprite_init(const char* path, int frame_count)
 		uint16_t* w_row = &pixels[y * width];
 		for(int x = 0; x < width; x++)
 		{
-			uint8_t r_8 = r_row[x*4+0];
-			uint8_t g_8 = r_row[x*4+1];
-			uint8_t b_8 = r_row[x*4+2];
-			uint8_t a_8 = r_row[x*4+3];
-			float r_n = (float) r_8 / 255.0f;
-			float g_n = (float) g_8 / 255.0f;
-			float b_n = (float) b_8 / 255.0f;
-			uint8_t r_5 = r_n * 31;
-			uint8_t g_6 = g_n * 63;
-			uint8_t b_5 = b_n * 31;
-			uint16_t rgb_565 = (r_5 << 11) | (g_6 << 5) | b_5;
-			w_row[x] = a_8 >= 255 ? rgb_565 : 0xdead;
+			uint8_t r = r_row[x*4+0];
+			uint8_t g = r_row[x*4+1];
+			uint8_t b = r_row[x*4+2];
+			uint8_t a = r_row[x*4+3];
+			uint16_t rgb_565 = rgb8882rgb565(r, g, b);
+			w_row[x] = a >= 255 ? rgb_565 : 0xdead;
 		}
 	}
 	png_destroy_read_struct(&png, &info, NULL);
@@ -702,6 +739,18 @@ int mood_low_spi_sprite;
 int mood_good_sprite;
 int mood_bad_sprite;
 
+// SNAKE
+int snake_head_sprite;
+int snake_eat_sprite;
+int snake_happy_sprite;
+int snake_body_sprite;
+int snake_corner_sprite;
+int snake_death_up_sprite;
+int snake_death_right_sprite;
+int snake_death_down_sprite;
+int snake_death_left_sprite;
+int snake_tail_sprite;
+
 // MACHINES
 CAT_AM_state* pet_asm;
 CAT_AM_state AS_idle;
@@ -936,6 +985,19 @@ void CAT_sprite_mass_define()
 	INIT_SPRITE(mood_low_spi_sprite, "sprites/bubl_low_spi.png", 3);
 	INIT_SPRITE(mood_good_sprite, "sprites/bubl_react_good.png", 5);
 	INIT_SPRITE(mood_bad_sprite, "sprites/bubl_react_bad.png", 3);
+
+	// SNAKE
+	INIT_SPRITE(snake_head_sprite, "sprites/snake_cat_head_default.png", 4);
+	INIT_SPRITE(snake_eat_sprite, "sprites/snake_cat_head_eat.png", 4);
+	INIT_SPRITE(snake_happy_sprite, "sprites/snake_cat_head_happy.png", 4);
+	INIT_SPRITE(snake_body_sprite, "sprites/snake_cat_body.png", 4);
+	INIT_SPRITE(snake_corner_sprite, "sprites/snake_cat_corner.png", 4);
+	INIT_SPRITE(snake_death_up_sprite, "sprites/snake_cat_death_up.png", 5);
+	INIT_SPRITE(snake_death_right_sprite, "sprites/snake_cat_death_right.png", 5);
+	INIT_SPRITE(snake_death_down_sprite, "sprites/snake_cat_death_down.png", 5);
+	INIT_SPRITE(snake_death_left_sprite, "sprites/snake_cat_death_left.png", 5);
+	INIT_SPRITE(snake_tail_sprite, "sprites/snake_tail.png", 4);
+
 
 	// MACHINES
 	CAT_AM_init(&AS_idle, -1, pet_idle_sprite, -1);

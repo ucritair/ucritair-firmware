@@ -10,6 +10,7 @@
 #include "cat_core.h"
 #include "cat_math.h"
 #include <string.h>
+#include "cat_version.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // DEV MODE
@@ -62,6 +63,8 @@ void CAT_shader_init(char* vert_src, char* frag_src)
 
 void CAT_platform_init()
 {
+	printf("Starting CAT v%d.%d.%d.%d...\n", CAT_VERSION_MAJOR, CAT_VERSION_MINOR, CAT_VERSION_PATCH, CAT_VERSION_PUSH);
+
 	glfwSetErrorCallback(GLFW_error_callback);
 	
 	if(!glfwInit())
@@ -342,12 +345,15 @@ CAT_save the_save;
 
 CAT_save* CAT_start_save()
 {
+	printf("Saving...\n");
 	
 	return &the_save;
 }
 
 void CAT_finish_save(CAT_save* save)
 {
+	printf("Save done!\n");
+
 	save->magic_number = CAT_SAVE_MAGIC;
 	int fd = open("save.dat", O_WRONLY | O_CREAT | O_TRUNC);
 	write(fd, &save, sizeof(the_save));
@@ -356,15 +362,34 @@ void CAT_finish_save(CAT_save* save)
 
 CAT_save* CAT_start_load()
 {
+	printf("Loading...\n");
+
 	int fd = open("save.dat", O_RDONLY);
 	read(fd, &the_save, sizeof(the_save));
 	close(fd);
+
+	if(the_save.magic_number != CAT_SAVE_MAGIC)
+	{
+		printf("Invalid save file! Clearing save...\n");
+		the_save.magic_number = CAT_SAVE_MAGIC;
+		the_save.version.major = CAT_VERSION_MAJOR;
+		the_save.version.minor = CAT_VERSION_MINOR;
+		the_save.version.patch = CAT_VERSION_PATCH;
+		the_save.version.push = CAT_VERSION_PUSH;
+		the_save.vigour = 12;
+		the_save.focus = 12;
+		the_save.spirit = 12;
+		the_save.prop_count = 0;
+		the_save.bag_length = 0;
+		the_save.coins = 5;
+	}
+		
 	return &the_save;
 }
 
 void CAT_finish_load()
 {
-
+	printf("Load done!\n");
 }
 
 

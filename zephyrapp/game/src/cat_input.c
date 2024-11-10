@@ -1,6 +1,6 @@
 #include "cat_input.h"
-
 #include "cat_core.h"
+#include "cat_math.h"
 
 CAT_input input;
 
@@ -77,4 +77,20 @@ bool CAT_input_touch(int x, int y, float r)
 		return x_d*x_d + y_d*y_d <= r*r;
 	}
 	return false;
+}
+
+float CAT_input_progress(int button, float t)
+{
+	if(!input.mask[button])
+		return 0;
+	float progress = input.time[button] / t;
+	return clampf(progress, 0, 1);
+}
+
+void CAT_input_clear(int button)
+{
+	input.mask[button] = false;
+	input.last[button] = false;
+	input.time[button] = 0;
+	input.pulse[button] = 0;	
 }

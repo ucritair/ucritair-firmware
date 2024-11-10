@@ -22,6 +22,8 @@
 #include "cat_manual.h"
 #include "cat_deco.h"
 
+#include "cat_version.h"
+
 #ifdef CAT_EMBEDDED
 #include "menu_time.h"
 #include "menu_aqi.h"
@@ -31,6 +33,42 @@
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunknown-pragmas"
 #endif
+
+void CAT_init(bool is_first_boot, int sceonds_slept)
+{
+	CAT_rand_init();
+	CAT_platform_init();
+	CAT_input_init();
+
+	CAT_atlas_init();
+	CAT_sprite_mass_define();
+
+	CAT_spriter_init();
+	CAT_draw_queue_init();
+	CAT_gui_init();
+	
+	CAT_item_table_init();
+	CAT_item_mass_define();
+
+	CAT_timetable_init();
+
+	CAT_pet_init();
+	CAT_room_init();
+	CAT_bag_init();
+	CAT_deco_state_init();
+	
+	machine = NULL;
+	CAT_machine_transition(&machine, CAT_MS_room);
+}
+
+void CAT_tick_logic()
+{
+	CAT_platform_tick();
+	CAT_AQI_tick();
+	CAT_input_tick();
+
+	CAT_machine_tick(&machine);
+}
 
 void CAT_tick_render(int cycle)
 {
@@ -84,44 +122,63 @@ void CAT_tick_render(int cycle)
 #endif
 }
 
-
-#pragma region MAIN
-
-void CAT_init(bool is_first_boot, int sceonds_slept)
+void CAT_force_load()
 {
-	CAT_rand_init();
-	CAT_platform_init();
-	CAT_input_init();
+	CAT_save* save = CAT_start_load();
 
-	CAT_atlas_init();
-	CAT_sprite_mass_define();
+	pet.vigour = save->vigour;
+	pet.focus = save->focus;
+	pet.spirit = save->spirit;
 
-	CAT_spriter_init();
-	CAT_draw_queue_init();
-	CAT_gui_init();
-	
-	CAT_item_table_init();
-	CAT_item_mass_define();
+	for(int i = 0; i < save->prop_count; i++)
+	{
+		room.prop_ids[i] = save->prop_ids[i];
+		room.prop_places[i] = save->prop_places[i];
+		room.prop_overrides[i] = save->prop_overrides[i];
+	}
+	room.prop_count = save->prop_count;
 
-	CAT_timetable_init();
+	for(int i = 0; i < bag.length; i++)
+	{
+		bag.item_ids[i] = save->bag_ids[i];
+		bag.counts[i] = save->bag_counts[i];
+		bag.coins = save->coins;
+	}
+	room.prop_count = save->prop_count;
 
-	CAT_pet_init();
-	CAT_room_init();
-	CAT_bag_init();
-	CAT_deco_state_init();
-	CAT_bag_state_init();
-	
-	machine = NULL;
-	CAT_machine_transition(&machine, CAT_MS_room);
+	CAT_finish_load();
 }
 
-void CAT_tick_logic()
+void CAT_force_save()
 {
-	CAT_platform_tick();
-	CAT_AQI_tick();
-	CAT_input_tick();
+	CAT_save* save = CAT_start_save();
 
-	CAT_machine_tick(&machine);
+	save->version.major = CAT_VERSION_MAJOR;
+	save->version.minor = CAT_VERSION_MINOR;
+	save->version.patch = CAT_VERSION_PATCH;
+	save->version.push = CAT_VERSION_PUSH;
+
+	save->vigour = pet.vigour;
+	save->focus = pet.focus;
+	save->spirit = pet.spirit;
+
+	for(int i = 0; i < room.prop_count; i++)
+	{
+		save->prop_ids[i] = room.prop_ids[i];
+		save->prop_places[i] = room.prop_places[i];
+		save->prop_overrides[i] = room.prop_overrides[i];
+	}
+	save->prop_count = room.prop_count;
+
+	for(int i = 0; i < bag.length; i++)
+	{
+		save->bag_ids[i] = bag.item_ids[i];
+		save->bag_counts[i] = bag.counts[i];
+		save->coins = bag.coins;
+	}
+	save->prop_count = room.prop_count;
+
+	CAT_finish_save(save);
 }
 
 #ifdef CAT_DESKTOP
@@ -133,6 +190,7 @@ int main()
 	bool first_boot = stat("save.dat", &buf) == 0;
 
 	CAT_init(first_boot, 12);
+	CAT_force_load();
 
 	while (CAT_get_battery_pct() > 0)
 	{
@@ -141,6 +199,7 @@ int main()
 		CAT_LCD_post(spriter.framebuffer);
 	}
 
+	CAT_force_save();
 	CAT_spriter_cleanup();
 #ifndef CAT_BAKED_ASSETS
 	CAT_atlas_cleanup();
@@ -149,5 +208,3 @@ int main()
 	return 0;
 }
 #endif
-
-#pragma endregion

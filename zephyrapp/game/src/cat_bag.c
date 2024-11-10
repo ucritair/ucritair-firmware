@@ -15,14 +15,14 @@ CAT_bag bag;
 void CAT_bag_init()
 {
 	bag.length = 0;
-	bag.coins = 5;
+	bag.coins = 0;
 }
 
 int CAT_bag_find(int item_id)
 {
 	for(int i = 0; i < bag.length; i++)
 	{
-		if(bag.item_id[i] == item_id)
+		if(bag.item_ids[i] == item_id)
 		{
 			return i;
 		}
@@ -35,7 +35,7 @@ void CAT_bag_add(int item_id)
 	int idx = CAT_bag_find(item_id);
 	if(idx >= 0)
 	{
-		bag.count[idx] += 1;
+		bag.counts[idx] += 1;
 	}
 	else
 	{
@@ -43,18 +43,18 @@ void CAT_bag_add(int item_id)
 		int insert_idx = 0;
 		while(insert_idx < bag.length)
 		{
-			const char* b = item_table.data[bag.item_id[insert_idx]].name;
+			const char* b = item_table.data[bag.item_ids[insert_idx]].name;
 			if(strcmp(a, b) < 0)
 				break;
 			insert_idx += 1;
 		}
 		for(int i = bag.length; i > insert_idx; i--)
 		{
-			bag.item_id[i] = bag.item_id[i-1];
-			bag.count[i] = bag.count[i-1];
+			bag.item_ids[i] = bag.item_ids[i-1];
+			bag.counts[i] = bag.counts[i-1];
 		}
-		bag.item_id[insert_idx] = item_id;
-		bag.count[insert_idx] = 1;
+		bag.item_ids[insert_idx] = item_id;
+		bag.counts[insert_idx] = 1;
 		bag.length += 1;
 	}
 }
@@ -64,20 +64,22 @@ void CAT_bag_remove(int item_id)
 	int idx = CAT_bag_find(item_id);
 	if(idx >= 0)
 	{
-		bag.count[idx] -= 1;
-		if(bag.count[idx] <= 0)
+		bag.counts[idx] -= 1;
+		if(bag.counts[idx] <= 0)
 		{
 			for(int i = idx; i < bag.length-1; i++)
 			{
-				bag.item_id[i] = bag.item_id[i+1];
-				bag.count[i] = bag.count[i+1];
+				bag.item_ids[i] = bag.item_ids[i+1];
+				bag.counts[i] = bag.counts[i+1];
 			}
 			bag.length -= 1;
 		}
 	}
 }
 
-CAT_bag_state bag_state;
+CAT_machine_state bag_anchor = NULL;
+int bag_base = 0;
+int bag_selector = 0;
 
 struct bag_relation
 {
@@ -93,27 +95,26 @@ struct bag_relation
 };
 #define NUM_BAG_RELATIONS (sizeof(bag_relations)/sizeof(bag_relations[0]))
 
-void CAT_bag_state_init()
-{
-	bag_state.base = 0;
-	bag_state.idx = 0;
-	bag_state.objective = NULL;
-}
-
 void CAT_MS_bag(CAT_machine_signal signal)
 {
 	switch(signal)
 	{
 		case CAT_MACHINE_SIGNAL_ENTER:
 		{
-			bag_state.base = 0;
-			bag_state.idx = 0;
+			bag_base = 0;
+			bag_selector = 0;
 			break;
 		}
 		case CAT_MACHINE_SIGNAL_TICK:
 		{
 			if(CAT_input_pressed(CAT_BUTTON_B))
-				CAT_machine_transition(&machine, CAT_MS_menu);
+			{
+				if(bag_anchor != NULL)
+					CAT_machine_transition(&machine, CAT_MS_room);
+				else
+					CAT_machine_transition(&machine, CAT_MS_menu);
+			}
+				
 			if(CAT_input_pressed(CAT_BUTTON_START))
 				CAT_machine_transition(&machine, CAT_MS_room);
 
@@ -122,33 +123,33 @@ void CAT_MS_bag(CAT_machine_signal signal)
 
 			if(CAT_input_pulse(CAT_BUTTON_UP))
 			{
-				bag_state.idx -= 1;
-				if(bag_state.idx == -1)
-					bag_state.idx = bag.length-1;
+				bag_selector -= 1;
+				if(bag_selector == -1)
+					bag_selector = bag.length-1;
 			}
 			if(CAT_input_pulse(CAT_BUTTON_DOWN))
 			{
-				bag_state.idx += 1;
-				if(bag_state.idx == bag.length)
-					bag_state.idx = 0;
+				bag_selector += 1;
+				if(bag_selector == bag.length)
+					bag_selector = 0;
 			}
-			bag_state.idx = clamp(bag_state.idx, 0, bag.length-1);
+			bag_selector = clamp(bag_selector, 0, bag.length-1);
 
-			int overshoot = bag_state.idx - bag_state.base;
+			int overshoot = bag_selector - bag_base;
 			if(overshoot < 0)
-				bag_state.base += overshoot;
+				bag_base += overshoot;
 			else if(overshoot >= 9)
-				bag_state.base += (overshoot - 8);
+				bag_base += (overshoot - 8);
 
 			if(CAT_input_pressed(CAT_BUTTON_A))
 			{
-				int item_id = bag.item_id[bag_state.idx];
+				int item_id = bag.item_ids[bag_selector];
 				CAT_item* item = &item_table.data[item_id];
 
 				for(int i = 0; i < NUM_BAG_RELATIONS; i++)
 				{
 					struct bag_relation relation = bag_relations[i];
-					if((bag_state.objective == NULL || relation.state == bag_state.objective) && item->type == relation.type)
+					if((bag_anchor == NULL || relation.state == bag_anchor) && item->type == relation.type)
 					{
 						*relation.ptr = item_id;
 						CAT_machine_transition(&machine, relation.state);
@@ -163,7 +164,7 @@ void CAT_MS_bag(CAT_machine_signal signal)
 			break;
 		}
 		case CAT_MACHINE_SIGNAL_EXIT:
-			bag_state.objective = NULL;
+			bag_anchor = NULL;
 			break;
 	}
 }
@@ -193,21 +194,21 @@ void CAT_render_bag()
 			return;
 		}
 
-		int idx = bag_state.base + i;
+		int idx = bag_base + i;
 		if(idx >= bag.length)
 			return;
 
-		int item_id = bag.item_id[idx];
+		int item_id = bag.item_ids[idx];
 		CAT_item* item = CAT_item_get(item_id);
 
 		CAT_gui_panel_tight((CAT_ivec2) {0, 2+i*2}, (CAT_ivec2) {15, 2});
 		CAT_gui_image(icon_item_sprite, item->type);
 		
-		bool fits_relation = bag_state.objective == NULL;
+		bool fits_relation = bag_anchor == NULL;
 		for(int i = 0; i < NUM_BAG_RELATIONS; i++)
 		{
 			struct bag_relation relation = bag_relations[i];
-			if(relation.state == bag_state.objective && relation.type == item->type)
+			if(relation.state == bag_anchor && relation.type == item->type)
 			{
 				fits_relation = true;
 				break;
@@ -217,7 +218,7 @@ void CAT_render_bag()
 		{
 			gui.text_mode = CAT_TEXT_MODE_STRIKETHROUGH;
 		}
-		CAT_gui_textf(" %s *%d", item->name, bag.count[idx]);
+		CAT_gui_textf(" %s *%d", item->name, bag.counts[idx]);
 		gui.text_mode = CAT_TEXT_MODE_NORMAL;
 
 		if(item->type == CAT_ITEM_TYPE_GEAR)
@@ -227,7 +228,7 @@ void CAT_render_bag()
 			CAT_gui_text(" ");
 		}
 
-		if(idx == bag_state.idx)
+		if(idx == bag_selector)
 			CAT_gui_image(icon_pointer_sprite, 0);
 	}
 }

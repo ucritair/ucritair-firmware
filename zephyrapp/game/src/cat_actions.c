@@ -29,7 +29,7 @@ void CAT_action_tick()
 {
 	if(action_state.item_id == -1)
 	{
-		bag_state.objective = action_state.action_MS;
+		bag_anchor = action_state.action_MS;
 		CAT_machine_transition(&machine, CAT_MS_bag);
 	}
 	else if(!action_state.confirmed)

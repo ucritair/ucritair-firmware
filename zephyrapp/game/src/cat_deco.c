@@ -21,7 +21,7 @@ void CAT_deco_target(CAT_ivec2 place)
 {
 	for(int i = 0; i < room.prop_count; i++)
 	{
-		int item_id = room.props[i];
+		int item_id = room.prop_ids[i];
 		CAT_item* prop = &item_table.data[item_id];
 		CAT_ivec2 shape = prop->data.prop_data.shape;
 		CAT_rect bounds = CAT_rect_place(room.prop_places[i], shape);
@@ -88,7 +88,7 @@ void CAT_MS_deco(CAT_machine_signal signal)
 					{
 						if(CAT_input_pressed(CAT_BUTTON_A))
 						{
-							bag_state.objective = CAT_MS_deco;
+							bag_anchor = CAT_MS_deco;
 							CAT_machine_transition(&machine, CAT_MS_bag);
 						}
 					}
@@ -113,7 +113,7 @@ void CAT_MS_deco(CAT_machine_signal signal)
 					{
 						if(CAT_input_pressed(CAT_BUTTON_A))
 						{
-							int item_id = room.props[deco_state.mod_idx];
+							int item_id = room.prop_ids[deco_state.mod_idx];
 							CAT_bag_add(item_id);
 							CAT_room_remove_prop(deco_state.mod_idx);
 							deco_state.mod_idx = -1;

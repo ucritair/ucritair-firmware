@@ -2,13 +2,14 @@
 #define CAT_BAG_H
 
 #include "cat_machine.h"
+#include "cat_item.h"
 
-#define CAT_BAG_MAX_LENGTH 256
+#define CAT_BAG_MAX_LENGTH CAT_ITEM_TABLE_MAX_LENGTH
 
 typedef struct CAT_bag
 {
-	int item_id[CAT_BAG_MAX_LENGTH];
-	int count[CAT_BAG_MAX_LENGTH];
+	int item_ids[CAT_BAG_MAX_LENGTH];
+	int counts[CAT_BAG_MAX_LENGTH];
 	int length;
 
 	int coins;
@@ -20,15 +21,7 @@ int CAT_bag_find(int item_id);
 void CAT_bag_add(int item_id);
 void CAT_bag_remove(int item_id);
 
-typedef struct CAT_bag_state
-{
-	int base;
-	int idx;
-	CAT_machine_state objective;
-} CAT_bag_state;
-extern CAT_bag_state bag_state;
-
-void CAT_bag_state_init();
-extern void CAT_render_bag();
+extern CAT_machine_state bag_anchor;
+void CAT_render_bag();
 
 #endif

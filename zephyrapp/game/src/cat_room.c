@@ -32,7 +32,7 @@ int CAT_room_find(int item_id)
 {
 	for(int i = 0; i < room.prop_count; i++)
 	{
-		if(room.props[i] == item_id)
+		if(room.prop_ids[i] == item_id)
 			return i;
 	}
 	return -1;
@@ -45,7 +45,7 @@ bool CAT_room_fits(CAT_rect rect)
 
 	for(int i = 0; i < room.prop_count; i++)
 	{
-		CAT_item* prop = CAT_item_get(room.props[i]);
+		CAT_item* prop = CAT_item_get(room.prop_ids[i]);
 		CAT_ivec2 shape = prop->data.prop_data.shape;
 		CAT_rect bounds = CAT_rect_place(room.prop_places[i], shape);
 		
@@ -60,7 +60,7 @@ void CAT_room_add_prop(int item_id, CAT_ivec2 place)
 {
 	int idx = room.prop_count;
 	room.prop_count += 1;
-	room.props[idx] = item_id;
+	room.prop_ids[idx] = item_id;
 	room.prop_places[idx] = place;
 	room.prop_overrides[idx] = 0;
 }
@@ -69,7 +69,7 @@ void CAT_room_remove_prop(int idx)
 {
 	for(int i = idx; i < room.prop_count-1; i++)
 	{
-		room.props[i] = room.props[i+1];
+		room.prop_ids[i] = room.prop_ids[i+1];
 		room.prop_places[i] = room.prop_places[i+1];
 	}
 	room.prop_count -= 1;
@@ -77,7 +77,7 @@ void CAT_room_remove_prop(int idx)
 
 void CAT_room_flip_prop(int idx)
 {
-	int item_id = room.props[idx];
+	int item_id = room.prop_ids[idx];
 	CAT_item* item = CAT_item_get(item_id);
 	CAT_sprite* sprite = &atlas.table[item->sprite_id];
 
@@ -210,7 +210,7 @@ void CAT_MS_room(CAT_machine_signal signal)
 			{
 				for(int i = 0; i < room.prop_count; i++)
 				{
-					if(room.props[i] == gpu_item)
+					if(room.prop_ids[i] == gpu_item)
 					{
 						float xi = room.prop_places[i].x * 16 + 24;
 						float yi = room.prop_places[i].y * 16 - 24.0f;
@@ -261,7 +261,7 @@ void CAT_render_room(int cycle)
 
 		for(int i = 0; i < room.prop_count; i++)
 		{
-			int prop_id = room.props[i];
+			int prop_id = room.prop_ids[i];
 			CAT_item* prop = CAT_item_get(prop_id);
 			CAT_ivec2 shape = prop->data.prop_data.shape;
 			CAT_ivec2 place = room.prop_places[i];

@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include "cat_math.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // PLATFORM
@@ -93,7 +94,19 @@ typedef struct __attribute__((__packed__)) CAT_save
 		int8_t push;
 	} version;
 
-	
+	int vigour;
+	int focus;
+	int spirit;
+
+	int prop_ids[150];
+	CAT_ivec2 prop_places[150];
+	int prop_overrides[150];
+	int prop_count;
+
+	int bag_ids[70];
+	int bag_counts[70];
+	int bag_length;
+	int coins;
 } CAT_save;
 
 // Call to start saving, then populate the returned CAT_save*

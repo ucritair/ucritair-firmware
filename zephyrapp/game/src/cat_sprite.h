@@ -17,6 +17,11 @@
 
 #define CAT_TILE_SIZE 16
 
+//////////////////////////////////////////////////////////////////////////
+// DIRECT FX
+
+void CAT_greenberry(int xi, int w, int yi, int h, float t);
+
 
 //////////////////////////////////////////////////////////////////////////
 // ATLAS AND SPRITER
@@ -343,6 +348,19 @@ extern int mood_low_foc_sprite;
 extern int mood_low_spi_sprite;
 extern int mood_good_sprite;
 extern int mood_bad_sprite;
+
+// SNAKE
+extern int snake_head_sprite;
+extern int snake_eat_sprite;
+extern int snake_happy_sprite;
+extern int snake_death_up_sprite;
+extern int snake_death_right_sprite;
+extern int snake_death_down_sprite;
+extern int snake_death_left_sprite;
+extern int snake_body_sprite;
+extern int snake_corner_sprite;
+extern int snake_tail_sprite;
+
 
 // MACHINES
 extern CAT_AM_state* pet_asm;
