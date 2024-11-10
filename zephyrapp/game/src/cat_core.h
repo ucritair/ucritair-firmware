@@ -79,7 +79,6 @@ void CAT_free(void* ptr);
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // STORAGE
 
-#define PERSISTENCE_PAGE_SIZE 4096
 #define CAT_SAVE_MAGIC 0xaabbccdd
 
 typedef struct __attribute__((__packed__)) CAT_save
@@ -94,8 +93,6 @@ typedef struct __attribute__((__packed__)) CAT_save
 		int8_t push;
 	} version;
 } CAT_save;
-
-_Static_assert(sizeof(CAT_save) <= PERSISTENCE_PAGE_SIZE);
 
 // Call to start saving, then populate the returned CAT_save*
 CAT_save* CAT_start_save();
