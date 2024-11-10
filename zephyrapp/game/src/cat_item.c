@@ -31,19 +31,25 @@ CAT_item* CAT_item_get(int item_id)
 	return &item_table.data[item_id];
 }
 
-void CAT_prop_init(int item_id, int width, int height, bool animate)
-{
-	CAT_item* item = CAT_item_get(item_id);
-	item->data.prop_data.shape = (CAT_ivec2) {width, height};
-	item->data.prop_data.animate = animate;
-}
-
 void CAT_food_init(int item_id, float d_v, float d_f, float d_s)
 {
 	CAT_item* item = CAT_item_get(item_id);
 	item->data.food_data.d_v = d_v;
 	item->data.food_data.d_f = d_f;
 	item->data.food_data.d_s = d_s;
+}
+
+void CAT_book_init(int item_id, int icon_sprite_id)
+{
+	CAT_item* item = CAT_item_get(item_id);
+	item->data.book_data.icon_sprite_id = icon_sprite_id;
+}
+
+void CAT_prop_init(int item_id, int width, int height, bool animate)
+{
+	CAT_item* item = CAT_item_get(item_id);
+	item->data.prop_data.shape = (CAT_ivec2) {width, height};
+	item->data.prop_data.animate = animate;
 }
 
 void CAT_gear_init(int item_id)
@@ -68,12 +74,16 @@ bool CAT_gear_status(int item_id)
 //////////////////////////////////////////////////////////////////////////
 // ID DECLARATIONS
 
-int book_item;
-int toy_item;
 int cigarettes_item;
 int sausage_item;
 int padkrapow_item;
 int coffee_item;
+int book_a_item;
+int book_b_item;
+int book_c_item;
+int toy_a_item;
+int toy_b_item;
+int toy_c_item;
 int mask_item;
 
 int solderpaste_item;
@@ -86,47 +96,16 @@ int crypto_item;
 int chair_wood_item;
 int table_sm_item;
 int table_lg_item;
-int stool_wood_item;
-int stool_stone_item;
-int stool_gold_item;
 
 int lantern_lit_item;
-int lantern_unlit_item;
 int bowl_stone_item;
 int bowl_gold_item;
-int vase_stone_item;
-int vase_gold_item;
-int flower_empty_item;
-int flower_vig_item;
-int flower_foc_item;
-int flower_spi_item;
-int plant_green_item;
-int plant_maroon_item;
-int plant_purple_item;
-int plant_yellow_item;
-int bush_plain_item;
-int bush_daisy_item;
-int bush_lilac_item;
-int succulent_item;
 
-int crystal_blue_sm_item;
-int crystal_green_sm_item;
-int crystal_purple_sm_item;
-int crystal_blue_hrt_item;
-int crystal_green_hrt_item;
-int crystal_purple_hrt_item;
-int crystal_blue_md_item;
-int crystal_green_md_item;
-int crystal_purple_md_item;
-int crystal_blue_lg_item;
-int crystal_green_lg_item;
-int crystal_purple_lg_item;
+int pixel_item;
 
 void CAT_item_mass_define()
 {
-	book_item = CAT_item_init(CAT_ITEM_TYPE_KEY, "The Disposessed", book_sprite, 1);
-
-	toy_item = CAT_item_init(CAT_ITEM_TYPE_KEY, "Tamagotchi", toy_baseball_sprite, 1);
+	// GRIMBA
 
 	cigarettes_item = CAT_item_init(CAT_ITEM_TYPE_FOOD, "Cigarettes", cigarette_sprite, 1);
 	CAT_food_init(cigarettes_item, 0, 0, 1);
@@ -140,8 +119,22 @@ void CAT_item_mass_define()
 	coffee_item = CAT_item_init(CAT_ITEM_TYPE_FOOD, "Coffee", coffee_sprite, 1);
 	CAT_food_init(coffee_item, 0, 1, 0);
 
+	book_a_item = CAT_item_init(CAT_ITEM_TYPE_BOOK, "\"Clean Air Handbook\"", book_study_sprite, 1);
+	CAT_book_init(book_a_item, book_static_sprite);
+
+	book_b_item = CAT_item_init(CAT_ITEM_TYPE_BOOK, "\"Zero-Knowledge Proofs\"", book_study_sprite, 1);
+	CAT_book_init(book_b_item, book_static_sprite);
+
+	book_c_item = CAT_item_init(CAT_ITEM_TYPE_BOOK, "\"The Disposessed\"", book_study_sprite, 1);
+	CAT_book_init(book_c_item, book_static_sprite);
+
+	toy_a_item = CAT_item_init(CAT_ITEM_TYPE_TOY, "Ducky", toy_duck_sprite, 1);
+	toy_b_item = CAT_item_init(CAT_ITEM_TYPE_TOY, "Baseball", toy_baseball_sprite, 1);
+	toy_c_item = CAT_item_init(CAT_ITEM_TYPE_TOY, "Basketball", toy_basketball_sprite, 1);
+
 	mask_item = CAT_item_init(CAT_ITEM_TYPE_GEAR, "Mask", mask_sprite, 1);
 	CAT_gear_init(mask_item);
+
 
 	chair_wood_item = CAT_item_init(CAT_ITEM_TYPE_PROP, "Wood Chair", chair_wood_sprite, 1);
 	CAT_prop_init(chair_wood_item, 2, 2, false);
@@ -151,6 +144,7 @@ void CAT_item_mass_define()
 
 	table_lg_item = CAT_item_init(CAT_ITEM_TYPE_PROP, "Large Table", table_lg_sprite, 1);
 	CAT_prop_init(table_lg_item, 4, 2, false);
+
 
 	coffeemaker_item = CAT_item_init(CAT_ITEM_TYPE_PROP, "Coffee Machine", coffeemaker_sprite, 1);
 	CAT_prop_init(coffeemaker_item, 2, 2, true);
@@ -167,11 +161,9 @@ void CAT_item_mass_define()
 	crypto_item = CAT_item_init(CAT_ITEM_TYPE_PROP, "Ethereum Farm", solderpaste_sprite, 1);
 	CAT_prop_init(crypto_item, 3, 1, true);
 
+
 	lantern_lit_item = CAT_item_init(CAT_ITEM_TYPE_PROP, "Lantern (Lit)", lantern_lit_sprite, 1);
 	CAT_prop_init(lantern_lit_item, 1, 1, true);
-
-	lantern_unlit_item = CAT_item_init(CAT_ITEM_TYPE_PROP, "Lantern (Unlit)", lantern_unlit_sprite, 1);
-	CAT_prop_init(lantern_unlit_item, 1, 1, false);
 
 	bowl_stone_item = CAT_item_init(CAT_ITEM_TYPE_PROP, "Stone Bowl", bowl_stone_sprite, 1);
 	CAT_prop_init(bowl_stone_item, 1, 1, false);
@@ -179,9 +171,6 @@ void CAT_item_mass_define()
 	bowl_gold_item = CAT_item_init(CAT_ITEM_TYPE_PROP, "Gold Bowl", bowl_gold_sprite, 1);
 	CAT_prop_init(bowl_gold_item, 1, 1, false);
 
-	vase_stone_item = CAT_item_init(CAT_ITEM_TYPE_PROP, "Stone Vase", vase_stone_sprite, 1);
-	CAT_prop_init(vase_stone_item, 1, 1, false);
-
-	vase_gold_item = CAT_item_init(CAT_ITEM_TYPE_PROP, "Gold Vase", vase_gold_sprite, 1);
-	CAT_prop_init(vase_gold_item, 1, 1, false);
+	pixel_item = CAT_item_init(CAT_ITEM_TYPE_PROP, "Pixel", pixel_sprite, 1);
+	CAT_prop_init(pixel_item, 1, 1, false);
 }

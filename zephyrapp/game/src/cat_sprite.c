@@ -118,6 +118,11 @@ int CAT_sprite_copy(int sprite_id, bool loop, bool reverse)
 	return copy_id;
 }
 
+CAT_sprite* CAT_sprite_get(int sprite_id)
+{
+	return &atlas.table[sprite_id];
+}
+
 void CAT_atlas_cleanup()
 {
 	for(int i = 0; i < atlas.length; i++)
@@ -563,6 +568,7 @@ int fan_sprite;
 int solderpaste_sprite;
 int purifier_sprite;
 int uv_lamp_sprite;
+int eth_purif_sprite;
 
 int lantern_lit_sprite;
 int lantern_unlit_sprite;
@@ -570,6 +576,15 @@ int bowl_stone_sprite;
 int bowl_gold_sprite;
 int vase_stone_sprite;
 int vase_gold_sprite;
+
+int poster_panda_sprite;
+int poster_panda_zk_sprite;
+int banner_sprite;
+int pixel_sprite;
+
+int effigy_blue_sprite;
+int effigy_purple_sprite;
+int effigy_sea_sprite;
 
 int succulent_sprite;
 int bush_plain_sprite;
@@ -596,13 +611,17 @@ int crystal_green_lg_sprite;
 int crystal_purple_lg_sprite;
 
 // GRIMBA
-int book_sprite;
-int toy_baseball_sprite;
 int cigarette_sprite;
 int sausage_sprite;
 int padkrapow_sprite;
 int coffee_sprite;
+int book_static_sprite;
+int book_study_sprite;
+int toy_baseball_sprite;
+int toy_duck_sprite;
+int toy_basketball_sprite;
 int mask_sprite;
+int coin_sprite;
 
 // WORLD UI
 int cursor_sprite;
@@ -615,6 +634,7 @@ int tile_hl_flip_sprite;
 int tile_mark_flip_sprite;
 int tile_hl_rm_sprite;
 int tile_mark_rm_sprite;
+int touch_ring_sprite;
 
 // CORE UI
 int sbut_feed_sprite;
@@ -736,7 +756,7 @@ void CAT_sprite_mass_define()
 	INIT_SPRITE(pet_crit_vig_sprite, "sprites/pet_unicorn_melt_a.png", 8);
 	CAT_anim_toggle_loop(pet_crit_vig_sprite, false);
 	COPY_SPRITE(pet_uncrit_vig_sprite, pet_crit_vig_sprite, false, true);
-	INIT_SPRITE(pet_crit_foc_sprite, "sprites/pet_unicorn_tipped_a.png", 8);
+	INIT_SPRITE(pet_crit_foc_sprite, "sprites/pet_unicorn_tipped_a.png", 6);
 	CAT_anim_toggle_loop(pet_crit_foc_sprite, false);
 	COPY_SPRITE(pet_uncrit_foc_sprite, pet_crit_foc_sprite, false, true);
 	INIT_SPRITE(pet_crit_spi_sprite, "sprites/pet_unicorn_block_a.png", 8);
@@ -759,12 +779,6 @@ void CAT_sprite_mass_define()
 	INIT_SPRITE(window_night_sprite, "sprites/prop_wall_window_dark.png", 1);
 	INIT_SPRITE(vending_sprite, "sprites/interact_vending_items_a.png", 12);
 
-	INIT_SPRITE(solderpaste_sprite, "sprites/prop_solderpaste.png", 1);
-	INIT_SPRITE(coffeemaker_sprite, "sprites/prop_coffee_empty_a.png", 14);
-	INIT_SPRITE(fan_sprite, "sprites/prop_fan_a.png", 3);
-	INIT_SPRITE(purifier_sprite, "sprites/prop_purifier_a.png", 6);
-	INIT_SPRITE(uv_lamp_sprite, "sprites/prop_uv_a.png", 2);
-	
 	INIT_SPRITE(table_sm_sprite, "sprites/prop_table_md.png", 1);
 	INIT_SPRITE(table_lg_sprite, "sprites/prop_table_xl_wood.png", 1);
 	INIT_SPRITE(chair_wood_sprite, "sprites/prop_chair_wood.png", 4);
@@ -772,12 +786,28 @@ void CAT_sprite_mass_define()
 	INIT_SPRITE(stool_stone_sprite, "sprites/prop_stool_stone.png", 1);
 	INIT_SPRITE(stool_gold_sprite, "sprites/prop_stool_gold.png", 1);
 
+	INIT_SPRITE(solderpaste_sprite, "sprites/prop_solderpaste.png", 1);
+	INIT_SPRITE(coffeemaker_sprite, "sprites/prop_coffee_empty_a.png", 14);
+	INIT_SPRITE(fan_sprite, "sprites/prop_fan_a.png", 3);
+	INIT_SPRITE(purifier_sprite, "sprites/prop_purifier_a.png", 6);
+	INIT_SPRITE(uv_lamp_sprite, "sprites/prop_uv_alt_a.png", 2);
+	INIT_SPRITE(eth_purif_sprite, "sprites/prop_purifier_eth_a.png", 8);
+	
 	INIT_SPRITE(lantern_lit_sprite, "sprites/prop_lantern_lit_a.png", 2);
 	INIT_SPRITE(lantern_unlit_sprite, "sprites/prop_lantern_unlit.png", 1);
 	INIT_SPRITE(bowl_stone_sprite, "sprites/prop_bowl_stone_2.png", 1);
 	INIT_SPRITE(bowl_gold_sprite, "sprites/prop_bowl_gold.png", 1);
 	INIT_SPRITE(vase_stone_sprite, "sprites/prop_vase_sm_stone.png", 1);
 	INIT_SPRITE(vase_gold_sprite, "sprites/prop_vase_sm_gold.png", 1);
+
+	INIT_SPRITE(poster_panda_sprite, "sprites/prop_poster_md_panda.png", 1);
+	INIT_SPRITE(poster_panda_zk_sprite, "sprites/prop_poster_md_zk.png", 1);
+	INIT_SPRITE(banner_sprite, "sprites/prop_banner.png", 1);
+	INIT_SPRITE(pixel_sprite, "sprites/prop_pixel.png", 1);
+
+	INIT_SPRITE(effigy_blue_sprite, "sprites/prop_effigy_blue_a.png", 4);
+	INIT_SPRITE(effigy_purple_sprite, "sprites/prop_effigy_purple_a.png", 4);
+	INIT_SPRITE(effigy_sea_sprite, "sprites/prop_effigy_sea_a.png", 4);
 
 	INIT_SPRITE(succulent_sprite, "sprites/prop_plant_md_stem.png", 1);
 	INIT_SPRITE(bush_plain_sprite, "sprites/prop_bush_lg_empty.png", 1);
@@ -808,9 +838,13 @@ void CAT_sprite_mass_define()
 	INIT_SPRITE(sausage_sprite, "sprites/food_sausage_sm.png", 1);
 	INIT_SPRITE(padkrapow_sprite, "sprites/food_padkrakow_sm.png", 1);
 	INIT_SPRITE(coffee_sprite, "sprites/food_coffee_sm.png", 1);
-	INIT_SPRITE(book_sprite, "sprites/book.png", 1);
+	INIT_SPRITE(book_static_sprite, "sprites/read_book_upright.png", 1);
+	INIT_SPRITE(book_study_sprite, "sprites/read_book_turn_a.png", 8);
 	INIT_SPRITE(toy_baseball_sprite, "sprites/toy_baseball.png", 1);
+	INIT_SPRITE(toy_duck_sprite, "sprites/toy_sm_duck.png", 1);
+	INIT_SPRITE(toy_basketball_sprite, "sprites/toy_sm_basketball.png", 1);
 	INIT_SPRITE(mask_sprite, "sprites/mask.png", 1);
+	INIT_SPRITE(coin_sprite, "sprites/coin_a.png", 4);
 
 	// WORLD UI
 	INIT_SPRITE(cursor_sprite, "sprites/cursor_room_ornate.png", 1);
@@ -823,6 +857,7 @@ void CAT_sprite_mass_define()
 	INIT_SPRITE(tile_mark_flip_sprite, "sprites/tile_mark_flip.png", 1);
 	INIT_SPRITE(tile_hl_rm_sprite, "sprites/tile_hl_rm.png", 1);
 	INIT_SPRITE(tile_mark_rm_sprite, "sprites/tile_mark_rm.png", 1);
+	INIT_SPRITE(touch_ring_sprite, "sprites/touch_ring_sprite.png", 1);
 
 	// CORE UI
 	INIT_SPRITE(sbut_feed_sprite, "sprites/Stat_Refill_Vigor_Button.png", 2);
@@ -870,14 +905,14 @@ void CAT_sprite_mass_define()
 	INIT_SPRITE(icon_uv_sprite, "sprites/icon_uv.png", 1);
 
 	// MACHINES
-	CAT_AM_init(&AS_idle, -1, pet_idle_high_vig_sprite, -1);
-	CAT_AM_init(&AS_walk, -1, pet_walk_high_vig_sprite, -1);
-	CAT_AM_init(&AS_adjust_in, -1, -1, pet_wings_in_sprite);
+	CAT_AM_init(&AS_idle, -1, pet_idle_sprite, -1);
+	CAT_AM_init(&AS_walk, -1, pet_walk_sprite, -1);
+	CAT_AM_init(&AS_adjust_in, -1, -1, pet_idle_sprite);
 	CAT_AM_init(&AS_walk_action, -1, pet_walk_sprite, -1);
 	CAT_AM_init(&AS_eat, pet_eat_down_sprite, pet_chew_sprite, pet_eat_up_sprite);
 	CAT_AM_init(&AS_study, pet_eat_down_sprite, pet_chew_sprite, pet_eat_up_sprite);
 	CAT_AM_init(&AS_play, pet_eat_down_sprite, pet_chew_sprite, pet_eat_up_sprite);
-	CAT_AM_init(&AS_adjust_out, -1, -1, pet_wings_out_sprite);
+	CAT_AM_init(&AS_adjust_out, -1, -1, pet_idle_sprite);
 	CAT_AM_init(&AS_vig_up, -1, -1, pet_vig_up_sprite);
 	CAT_AM_init(&AS_foc_up, -1, -1, pet_foc_up_sprite);
 	CAT_AM_init(&AS_spi_up, -1, -1, pet_spi_up_sprite);

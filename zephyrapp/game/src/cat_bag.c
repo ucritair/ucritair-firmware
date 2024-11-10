@@ -8,13 +8,14 @@
 #include "cat_actions.h"
 #include <string.h>
 #include "cat_sprite.h"
+#include <stddef.h>
 
 CAT_bag bag;
 
 void CAT_bag_init()
 {
 	bag.length = 0;
-	bag.coins = 0;
+	bag.coins = 5;
 }
 
 int CAT_bag_find(int item_id)
@@ -78,11 +79,25 @@ void CAT_bag_remove(int item_id)
 
 CAT_bag_state bag_state;
 
+struct bag_relation
+{
+	CAT_machine_state state;
+	CAT_item_type type;
+	int* ptr;
+} bag_relations[] =
+{
+	{CAT_MS_feed, CAT_ITEM_TYPE_FOOD, &action_state.item_id},
+	{CAT_MS_study, CAT_ITEM_TYPE_BOOK, &action_state.item_id},
+	{CAT_MS_play, CAT_ITEM_TYPE_TOY, &action_state.item_id},
+	{CAT_MS_deco, CAT_ITEM_TYPE_PROP, &deco_state.add_id}
+};
+#define NUM_BAG_RELATIONS (sizeof(bag_relations)/sizeof(bag_relations[0]))
+
 void CAT_bag_state_init()
 {
 	bag_state.base = 0;
 	bag_state.idx = 0;
-	bag_state.destination = CAT_MS_menu;
+	bag_state.objective = NULL;
 }
 
 void CAT_MS_bag(CAT_machine_signal signal)
@@ -98,7 +113,7 @@ void CAT_MS_bag(CAT_machine_signal signal)
 		case CAT_MACHINE_SIGNAL_TICK:
 		{
 			if(CAT_input_pressed(CAT_BUTTON_B))
-				CAT_machine_transition(&machine, bag_state.destination);
+				CAT_machine_transition(&machine, CAT_MS_menu);
 			if(CAT_input_pressed(CAT_BUTTON_START))
 				CAT_machine_transition(&machine, CAT_MS_room);
 
@@ -130,27 +145,17 @@ void CAT_MS_bag(CAT_machine_signal signal)
 				int item_id = bag.item_id[bag_state.idx];
 				CAT_item* item = &item_table.data[item_id];
 
-				if(item_id == book_item && (bag_state.destination == CAT_MS_menu || bag_state.destination == CAT_MS_study))
+				for(int i = 0; i < NUM_BAG_RELATIONS; i++)
 				{
-					action_state.item_id = item_id;
-					CAT_machine_transition(&machine, CAT_MS_study);
+					struct bag_relation relation = bag_relations[i];
+					if((bag_state.objective == NULL || relation.state == bag_state.objective) && item->type == relation.type)
+					{
+						*relation.ptr = item_id;
+						CAT_machine_transition(&machine, relation.state);
+					}
 				}
-				else if(item_id == toy_item && (bag_state.destination == CAT_MS_menu || bag_state.destination == CAT_MS_play))
-				{
-					action_state.item_id = item_id;
-					CAT_machine_transition(&machine, CAT_MS_play);
-				}
-				else if(item->type == CAT_ITEM_TYPE_FOOD && (bag_state.destination == CAT_MS_menu || bag_state.destination == CAT_MS_feed))
-				{
-					action_state.item_id = item_id;
-					CAT_machine_transition(&machine, CAT_MS_feed);
-				}
-				else if(item->type == CAT_ITEM_TYPE_PROP && (bag_state.destination == CAT_MS_menu || bag_state.destination == CAT_MS_deco))
-				{
-					deco_state.add_id = item_id;
-					CAT_machine_transition(&machine, CAT_MS_deco);
-				}
-				else if(item->type == CAT_ITEM_TYPE_GEAR && bag_state.destination == CAT_MS_menu)
+
+				if(item->type == CAT_ITEM_TYPE_GEAR)
 				{
 					CAT_gear_toggle(item_id, !CAT_gear_status(item_id));
 				}
@@ -158,7 +163,7 @@ void CAT_MS_bag(CAT_machine_signal signal)
 			break;
 		}
 		case CAT_MACHINE_SIGNAL_EXIT:
-			bag_state.destination = CAT_MS_menu;
+			bag_state.objective = NULL;
 			break;
 	}
 }
@@ -190,17 +195,21 @@ void CAT_render_bag()
 			sprintf(text, " %s *%d ", item->name, bag.count[idx]);
 		else
 			sprintf(text, " %s ", item->name);
-
-		if
-		(
-			(bag_state.destination == CAT_MS_feed && item->type != CAT_ITEM_TYPE_FOOD) ||
-			(bag_state.destination == CAT_MS_study && item_id != book_item) ||
-			(bag_state.destination == CAT_MS_play && item_id != toy_item) ||
-			(bag_state.destination == CAT_MS_deco && item->type != CAT_ITEM_TYPE_PROP)
-		)
+		
+		bool fits_relation = bag_state.objective == NULL;
+		for(int i = 0; i < NUM_BAG_RELATIONS; i++)
+		{
+			struct bag_relation relation = bag_relations[i];
+			if(relation.state == bag_state.objective && relation.type == item->type)
+			{
+				fits_relation = true;
+				break;
+			}
+		}
+		if(!fits_relation)
 		{
 			gui.text_mode = CAT_TEXT_MODE_STRIKETHROUGH;
-		}	
+		}
 		CAT_gui_text(text);
 		gui.text_mode = CAT_TEXT_MODE_NORMAL;
 

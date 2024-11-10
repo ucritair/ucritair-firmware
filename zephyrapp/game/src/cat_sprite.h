@@ -55,6 +55,7 @@ extern CAT_atlas atlas;
 void CAT_atlas_init();
 int CAT_sprite_init(const char* path, int frame_count);
 int CAT_sprite_copy(int sprite_id, bool loop, bool reverse);
+CAT_sprite* CAT_sprite_get(int sprite_id);
 void CAT_atlas_cleanup();
 
 typedef enum CAT_draw_mode
@@ -208,6 +209,7 @@ extern int fan_sprite;
 extern int solderpaste_sprite;
 extern int purifier_sprite;
 extern int uv_lamp_sprite;
+extern int eth_purif_sprite;
 
 extern int lantern_lit_sprite;
 extern int lantern_unlit_sprite;
@@ -215,6 +217,15 @@ extern int bowl_stone_sprite;
 extern int bowl_gold_sprite;
 extern int vase_stone_sprite;
 extern int vase_gold_sprite;
+
+extern int poster_panda_sprite;
+extern int poster_panda_zk_sprite;
+extern int banner_sprite;
+extern int pixel_sprite;
+
+extern int effigy_blue_sprite;
+extern int effigy_purple_sprite;
+extern int effigy_sea_sprite;
 
 extern int succulent_sprite;
 extern int bush_plain_sprite;
@@ -245,10 +256,13 @@ extern int cigarette_sprite;
 extern int sausage_sprite;
 extern int padkrapow_sprite;
 extern int coffee_sprite;
-extern int book_sprite;
+extern int book_static_sprite;
+extern int book_study_sprite;
 extern int toy_baseball_sprite;
+extern int toy_duck_sprite;
+extern int toy_basketball_sprite;
 extern int mask_sprite;
-
+extern int coin_sprite;
 
 // WORLD UI
 extern int cursor_sprite;
@@ -261,6 +275,7 @@ extern int tile_hl_flip_sprite;
 extern int tile_mark_flip_sprite;
 extern int tile_hl_rm_sprite;
 extern int tile_mark_rm_sprite;
+extern int touch_ring_sprite;
 
 // CORE UI
 extern int sbut_feed_sprite;

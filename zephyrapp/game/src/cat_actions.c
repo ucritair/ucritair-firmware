@@ -5,6 +5,7 @@
 #include "cat_bag.h"
 #include "cat_pet.h"
 #include "cat_sprite.h"
+#include <stdio.h>
 
 CAT_action_state action_state;
 
@@ -13,6 +14,12 @@ void CAT_action_init()
 	action_state.item_id = -1;
 	action_state.confirmed = false;
 	action_state.complete = false;
+}
+
+void CAT_action_select()
+{
+	bag_state.objective = action_state.action_MS;
+	CAT_machine_transition(&machine, CAT_MS_bag);
 }
 
 void CAT_action_tick()
@@ -26,8 +33,8 @@ void CAT_action_tick()
 	{
 		if(CAT_input_pressed(CAT_BUTTON_A))
 		{
-			bag_state.destination = action_state.action_MS;
-			CAT_machine_transition(&machine, CAT_MS_bag);
+			bag_state.objective = action_state.action_MS;
+			
 		}
 	}
 	else if(!action_state.confirmed)
@@ -170,12 +177,14 @@ void CAT_render_action(int cycle)
 	{
 		if(action_state.item_id != -1)
 		{
+			CAT_item* item = &item_table.data[action_state.item_id];
 			if(!action_state.confirmed)
-				CAT_draw_queue_add(tile_hl_sprite, 0, 2, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
-			if(!action_state.complete)
 			{
-				CAT_item* item = &item_table.data[action_state.item_id];
 				CAT_draw_queue_add(item->sprite_id, 0, 2, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
+			}			
+			else if(!action_state.complete)
+			{
+				CAT_draw_queue_animate(item->sprite_id, 2, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
 			}
 		}
 		else

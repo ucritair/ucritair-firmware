@@ -10,12 +10,12 @@
 #define WIDTH 15
 #define HEIGHT 20
 
-int body_x[MAX_SNAKE_LENGTH];
-int body_y[MAX_SNAKE_LENGTH];
-int body_length = 1;
+uint8_t body_x[MAX_SNAKE_LENGTH];
+uint8_t body_y[MAX_SNAKE_LENGTH];
+uint8_t body_length = 1;
 
-int x_shift = 1;
-int y_shift = 0;
+uint8_t x_shift = 1;
+uint8_t y_shift = 0;
 
 int move_timer_id = -1;
 int moves = 0;
@@ -64,7 +64,7 @@ void CAT_arcade_tick()
 		if(CAT_timer_tick(move_timer_id))
 		{
 			moves += 1;
-			if(moves >= 12 && body_length < MAX_SNAKE_LENGTH)
+			if(moves >= 12)
 			{
 				body_length += 1;
 				moves = 0;
@@ -88,6 +88,7 @@ void CAT_arcade_tick()
 		body_length = 1;
 		x_shift = 1;
 		y_shift = 0;
+		
 		moves = 0;
 		CAT_timer_reset(move_timer_id);
 		dead = false;

@@ -88,7 +88,7 @@ void CAT_MS_deco(CAT_machine_signal signal)
 					{
 						if(CAT_input_pressed(CAT_BUTTON_A))
 						{
-							bag_state.destination = CAT_MS_deco;
+							bag_state.objective = CAT_MS_deco;
 							CAT_machine_transition(&machine, CAT_MS_bag);
 						}
 					}

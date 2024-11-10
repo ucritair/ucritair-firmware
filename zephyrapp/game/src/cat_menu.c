@@ -14,10 +14,12 @@
 
 int selector;
 
-struct entry {
+struct entry
+{
 	const char* title;
 	CAT_machine_state state;
-} entries[] = {
+} entries[] =
+{
 	{"INSIGHTS", CAT_MS_stats},
 	{"BAG", CAT_MS_bag},
 	{"ARCADE CABINET", CAT_MS_arcade},
@@ -30,7 +32,6 @@ struct entry {
 
 	{"BACK", CAT_MS_room}
 };
-
 #define NUM_MENU_ITEMS (sizeof(entries)/sizeof(entries[0]))
 
 void CAT_MS_menu(CAT_machine_signal signal)
