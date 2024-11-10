@@ -245,6 +245,7 @@ extern int window_dawn_sprite;
 extern int window_day_sprite;
 extern int window_night_sprite;
 extern int vending_sprite;
+extern int arcade_sprite;
 
 // GAMEPLAY PROPS
 extern int gpu_sprite;

@@ -94,3 +94,16 @@ void CAT_input_clear(int button)
 	input.time[button] = 0;
 	input.pulse[button] = 0;	
 }
+
+bool CAT_input_touch_rect(int x, int y, int w, int h)
+{
+	CAT_rect rect;
+	rect.min.x = x;
+	rect.min.y = y;
+	rect.max.x = x + w;
+	rect.max.y = y + h;
+	CAT_ivec2 pt;
+	pt.x = input.touch.x;
+	pt.y = input.touch.y;
+	return input.touch.pressure > 0 && CAT_rect_pt(pt, rect);
+}

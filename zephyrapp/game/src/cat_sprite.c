@@ -34,10 +34,7 @@ void CAT_greenberry(int xi, int w, int yi, int h, float t)
 		{
 			int idx = y * LCD_SCREEN_W + x;
 			uint16_t c = spriter.framebuffer[idx];
-			if(c == 0xdead)
-				continue;
 			uint8_t l = luminance(c);
-			float lf = (float) l / 255.0f;
 			uint8_t g = clamp(l+8, 0, 255);
 			uint8_t b = clamp(l-128, 0, 255);
 			uint8_t r = clamp(l+48, 0, 255);
@@ -639,6 +636,7 @@ int window_dawn_sprite;
 int window_day_sprite;
 int window_night_sprite;
 int vending_sprite;
+int arcade_sprite;
 
 // GAMEPLAY PROPS
 int gpu_sprite;
@@ -893,6 +891,7 @@ void CAT_sprite_mass_define()
 	INIT_SPRITE(window_day_sprite, "sprites/prop_wall_window_day.png", 1);
 	INIT_SPRITE(window_night_sprite, "sprites/prop_wall_window_dark.png", 1);
 	INIT_SPRITE(vending_sprite, "sprites/interact_vending_items_a.png", 12);
+	INIT_SPRITE(arcade_sprite, "sprites/arcade_a.png", 2);
 
 	// GAMEPLAY PROPS
 	INIT_SPRITE(gpu_sprite, "sprites/prop_solderpaste.png", 1);

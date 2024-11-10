@@ -164,6 +164,10 @@ void CAT_MS_room(CAT_machine_signal signal)
 					room.selector = i;
 				}	
 			}
+			if(CAT_input_touch_rect(176, 16, 56, 96))
+				CAT_machine_transition(&machine, CAT_MS_vending);
+			if(CAT_input_touch_rect(128, 48, 32, 64))
+				CAT_machine_transition(&machine, CAT_MS_arcade);
 
 			if(CAT_input_touch(pet.pos.x, pet.pos.y-16, 16))
 			{
@@ -265,7 +269,8 @@ void CAT_render_room(int cycle)
 	if (cycle == 0)
 	{
 		CAT_draw_queue_add(window_day_sprite, 0, 2, 8, 8, CAT_DRAW_MODE_DEFAULT);
-		CAT_draw_queue_add(vending_sprite, -1, 2, 164, 112, CAT_DRAW_MODE_BOTTOM);
+		CAT_draw_queue_add(vending_sprite, -1, 2, 172, 16, CAT_DRAW_MODE_DEFAULT);
+		CAT_draw_queue_add(arcade_sprite, -1, 2, 124, 48, CAT_DRAW_MODE_DEFAULT);
 
 		for(int i = 0; i < room.prop_count; i++)
 		{

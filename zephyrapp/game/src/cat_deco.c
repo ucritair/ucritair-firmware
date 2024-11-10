@@ -25,7 +25,7 @@ void CAT_deco_target(CAT_ivec2 place)
 		CAT_item* prop = &item_table.data[item_id];
 		CAT_ivec2 shape = prop->data.prop_data.shape;
 		CAT_rect bounds = CAT_rect_place(room.prop_places[i], shape);
-		bounds.max = CAT_ivec2_add(bounds.max, (CAT_ivec2) {-1, -1});
+		//bounds.max = CAT_ivec2_add(bounds.max, (CAT_ivec2) {-1, -1});
 
 		if(CAT_rect_pt(place, bounds))
 		{
