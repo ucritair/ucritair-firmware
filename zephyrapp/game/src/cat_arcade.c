@@ -153,23 +153,22 @@ void CAT_render_arcade()
 	{
 		CAT_draw_tiles(grass_floor_sprite, 20, 0, 20);
 
-		for(int i = 0; i < body_length; i++)
+		int dx = body_x[0] - body_x[1];
+		int dy = body_y[0] - body_y[1];
+		if(dx == 1)
+			CAT_draw_sprite(snake_head_sprite, 0, body_x[0] * 16, body_y[0] * 16);
+		else if(dy == 1)
+			CAT_draw_sprite(snake_head_sprite, 1, body_x[0] * 16, body_y[0] * 16);
+		else if(dx == -1)
+			CAT_draw_sprite(snake_head_sprite, 2, body_x[0] * 16, body_y[0] * 16);
+		else if(dy == -1)
+			CAT_draw_sprite(snake_head_sprite, 3, body_x[0] * 16, body_y[0] * 16);
+	
+		for(int i = 1; i < body_length; i++)
 		{
 			int dbx = body_x[i-1] - body_x[i];
 			int dby = body_y[i-1] - body_y[i];
 
-			if(i == 0)
-			{
-				if(dbx == 1)
-					CAT_draw_sprite(snake_head_sprite, 0, body_x[0] * 16, body_y[0] * 16);
-				else if(dby == 1)
-					CAT_draw_sprite(snake_head_sprite, 1, body_x[0] * 16, body_y[0] * 16);
-				else if(dbx == -1)
-					CAT_draw_sprite(snake_head_sprite, 2, body_x[0] * 16, body_y[0] * 16);
-				else if(dby == -1)
-					CAT_draw_sprite(snake_head_sprite, 3, body_x[0] * 16, body_y[0] * 16);
-				break;
-			}
 			if(i == body_length-1)
 			{
 				if(dbx == 1)
