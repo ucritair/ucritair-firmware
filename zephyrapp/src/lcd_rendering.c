@@ -90,6 +90,8 @@ void lcd_render_diag()
 
 	int last_lockmask = 0;
 
+	int last_button_pressed = 0;
+
 	while (1)
 	{
 #ifndef MINIMIZE_GAME_FOOTPRINT
@@ -102,10 +104,9 @@ void lcd_render_diag()
 		touch_update();
 		imu_update();
 		update_rtc();
+		update_buttons();
 
-		uint8_t buttons = get_buttons();
-
-		if ((buttons & CAT_BTN_MASK_SELECT) && (buttons & CAT_BTN_MASK_START))
+		if ((current_buttons & CAT_BTN_MASK_SELECT) && (current_buttons & CAT_BTN_MASK_START))
 		{
 			in_debug_menu = true;
 		}
@@ -113,6 +114,25 @@ void lcd_render_diag()
 		int now = k_uptime_get();
 		last_frame_time = now - last_ms;
 		last_ms = now;
+
+		if (current_buttons)
+		{
+			last_button_pressed = now;
+			set_backlight(BACKLIGHT_FULL);
+		}
+
+		int time_since_buttons = now - last_button_pressed;
+
+		if (time_since_buttons > 30000)
+		{
+			set_backlight(BACKLIGHT_DIM);
+		}
+
+		if (time_since_buttons > 60000)
+		{
+			// TODO: Save game
+			power_off(sensor_wakeup_rate*1000, false);
+		}
 
 		int lockmask = 0;
 

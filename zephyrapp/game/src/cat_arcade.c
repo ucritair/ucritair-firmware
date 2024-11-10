@@ -22,7 +22,7 @@ int8_t food_y = -1;
 int food_timer_id = -1;
 
 bool dead = false;
-bool pause = true;
+bool arcade_pause = true;
 
 void CAT_arcade_init()
 {
@@ -67,10 +67,10 @@ void CAT_arcade_tick()
 			y_shift = 0;
 		}
 		if(CAT_input_pressed(CAT_BUTTON_SELECT))
-			pause = !pause;
+			arcade_pause = !arcade_pause;
 
 		CAT_timer_tick(food_timer_id);
-		if(!pause && CAT_timer_tick(move_timer_id))
+		if(!arcade_pause && CAT_timer_tick(move_timer_id))
 		{
 			int x = body_x[0] + x_shift;
 			int y = body_y[0] + y_shift;

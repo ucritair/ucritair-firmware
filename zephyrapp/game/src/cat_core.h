@@ -170,7 +170,7 @@ float CAT_NOX_score();
 
 #ifdef CAT_DESKTOP 
 #ifdef LOUIS 
-#define CAT_BAKED_ASSETS
+// #define CAT_BAKED_ASSETS
 #endif
 #include "cat_desktop.h"
 #else

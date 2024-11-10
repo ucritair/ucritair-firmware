@@ -62,7 +62,19 @@ void std_sleep()
 {
 	uint32_t start = k_cycle_get_32();
 
-	while ((k_cycle_get_32() - start) < ((sys_clock_hw_cycles_per_sec() / 1e9) * EPD_RATE_NS_PER_CLOCK_PHASE))
+	while ((k_cycle_get_32() - start) < ((sys_clock_hw_cycles_per_sec() / 1e9) * EPD_STD_SLEEP))
+	{
+		;
+	}
+}
+
+void clk_sleep()
+{
+	return;
+
+	uint32_t start = k_cycle_get_32();
+
+	while ((k_cycle_get_32() - start) < (EPD_RATE_NS_PER_CLOCK_PHASE/8))
 	{
 		;
 	}
@@ -79,12 +91,12 @@ void write_byte(uint8_t b)
 	{
 		pin_write(&pin_sclk, false);
 		pin_write(&pin_data, b & (1<<i));
-		std_sleep();
+		clk_sleep();
 		pin_write(&pin_sclk, true);
-		std_sleep();
+		clk_sleep();
 	}
 
-	std_sleep();
+	clk_sleep();
 
 	pin_write(&pin_csn, true);
 	std_sleep();
@@ -102,13 +114,13 @@ uint8_t read_byte()
 	for (int i = 7; i >= 0; i--)
 	{
 		pin_write(&pin_sclk, false);
-		std_sleep();
+		clk_sleep();
 		pin_write(&pin_sclk, true);
-		std_sleep();
+		clk_sleep();
 		data |= pin_read(&pin_data) << i;
 	}
 
-	std_sleep();
+	clk_sleep();
 
 	pin_write(&pin_sclk, false);
 
@@ -135,6 +147,7 @@ void send_command_opcode(uint8_t opcode)
 
 void send_write_command(uint8_t opcode, int len, uint8_t* data)
 {
+
 	send_command_opcode(opcode);	
 
 	for (int i = 0; i < len; i++)
@@ -280,6 +293,7 @@ void cmd_write_image(uint8_t* image_data)
 
 	// DTM2 = Dummy image
 	send_write_command(0x13, 0, NULL);
+
 	for (int i = 0; i < EPD_IMAGE_BYTES; i++)
 	{
 		write_byte(0x00);
@@ -318,7 +332,7 @@ void cmd_turn_off_dcdc()
 	X(pin_rst, true)\
 	X(pin_busy, false)
 
-void cmd_turn_on_and_write(uint8_t* image)
+void init_pins()
 {
 	// TODO: Is the nrf_gpio_... required?
 	#define X_INIT_PIN(p, output) \
@@ -329,6 +343,11 @@ void cmd_turn_on_and_write(uint8_t* image)
 	pin_write(&pin_csn, true);
 	pin_write(&pin_rst, true);
 	pin_write(&pin_dc, true);
+}
+
+void cmd_turn_on_and_write(uint8_t* image)
+{
+	init_pins();
 
 	cmd_poweron();
 	cmd_read_psr_data();
@@ -338,3 +357,11 @@ void cmd_turn_on_and_write(uint8_t* image)
 	cmd_turn_off_dcdc();
 }
 
+void init_epaper_enough_for_it_to_calm_the_fuck_down()
+{
+	init_pins();
+	cmd_poweron();
+	// cmd_read_psr_data();
+	// cmd_initialize();
+	cmd_turn_off_dcdc();
+}

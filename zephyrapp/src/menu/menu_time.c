@@ -39,8 +39,6 @@ void CAT_MS_time(CAT_machine_signal signal)
 	{
 		case CAT_MACHINE_SIGNAL_ENTER:
 		{
-			bag_state.base = 0;
-			bag_state.idx = 0;
 			break;
 		}
 		case CAT_MACHINE_SIGNAL_TICK:
@@ -71,7 +69,6 @@ void CAT_MS_time(CAT_machine_signal signal)
 			break;
 		}
 		case CAT_MACHINE_SIGNAL_EXIT:
-			bag_state.destination = CAT_MS_menu;
 			break;
 	}
 }
@@ -80,7 +77,7 @@ void CAT_render_time()
 {
 	CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});  
 	CAT_gui_text("SET TIME ");
-	CAT_gui_image(fbut_b_sprite, 1);
+	CAT_gui_image(icon_b_sprite, 1);
 	CAT_gui_image(icon_exit_sprite, 0);
 
 	CAT_gui_line_break();

@@ -120,25 +120,8 @@ void epaper_render_test()
 	memset(test_image, 0, sizeof(test_image));
 
 	char buf[256] = {0};
-	// snprintf(buf, 256, 
-	// 	"%.0fppm", (double)current_readings.sunrise.ppm_filtered_compensated);
 
-// 	write_str(test_image, 10, 10, 4, buf);
-
-// 	int row = 0;
 #define fwrite_str(x, y, s, str, ...) snprintf(buf, sizeof(buf), str, ##__VA_ARGS__); write_str(test_image, x, y, s, buf);
-
-// 	fwrite_str("LPS22HH: Temp %.1fC", (double)current_readings.lps22hh.temp);
-// 	fwrite_str("         Pressure %.1fhPa", (double)current_readings.lps22hh.pressure);
-
-// 	fwrite_str("SEN55: Temp: %.1fC", (double)current_readings.sen5x.temp_degC);
-// 	fwrite_str("       PM 1.0: %.1f |  2.5: %.1f", (double)current_readings.sen5x.pm1_0, (double)current_readings.sen5x.pm2_5)
-// 	fwrite_str("          4.0: %.1f | 10.0: %.1f", (double)current_readings.sen5x.pm4_0, (double)current_readings.sen5x.pm10_0)
-// 	fwrite_str("       %.1f%%RH VOC: %.1f", (double)current_readings.sen5x.humidity_rhpct, (double)current_readings.sen5x.voc_index)
-// 	fwrite_str("       NOX: %.1f", (double)current_readings.sen5x.nox_index)
-
-// 	fwrite_str("Sunrise: Temp: %.1fC", (double)current_readings.sunrise.temp);
-// fwrite_str("    meow   ");
 
 	struct tm t;
 	time_t now = get_current_rtc_time();
@@ -151,7 +134,12 @@ void epaper_render_test()
 	fwrite_str(EPD_IMAGE_W-(8*3), 20, 1, "ppm\nCO2");
 	fwrite_str(128, 40, 2, "%.1f", (double)current_readings.sen5x.pm2_5);
 	fwrite_str(EPD_IMAGE_W-(8*5), 40, 1, "ug/m3\nPM2.5");
-	fwrite_str(128, 60, 1, "%.0f NOX / %.0f VOC", (double)current_readings.sen5x.nox_index, (double)current_readings.sen5x.voc_index);
+
+	if (current_readings.sen5x.nox_index && current_readings.sen5x.voc_index)
+	{
+		fwrite_str(128, 60, 1, "%.0f NOX / %.0f VOC", (double)current_readings.sen5x.nox_index, (double)current_readings.sen5x.voc_index);
+	}
+	
 	fwrite_str(128, 70, 1, "%.0f C / %.0f%% RH", (double)current_readings.sen5x.temp_degC, (double)current_readings.sen5x.humidity_rhpct);
 	// fwrite_str(128, 90, 1, "1 uCov/hr");
 	fwrite_str(128, 100, 1, "75%% AQI");
@@ -162,3 +150,15 @@ void epaper_render_test()
 	pc_set_mode(true);
 }
 
+void epaper_render_protected_off()
+{
+	memset(test_image, 0, sizeof(test_image));
+
+	write_str(test_image, 10, 10, 2, "Device is");
+	write_str(test_image, 10, 26, 2, "protected-off");
+	write_str(test_image, 10, 56, 1, "Press RESET to power on");
+
+	pc_set_mode(false);
+	cmd_turn_on_and_write(test_image);
+	pc_set_mode(true);
+}

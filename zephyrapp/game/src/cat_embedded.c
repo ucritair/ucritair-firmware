@@ -84,7 +84,7 @@ void CAT_play_tone(float pitch_hz, float time_s)
 
 uint16_t CAT_get_buttons()
 {
-	return get_buttons();
+	return current_buttons;
 }
 
 void CAT_get_touch(CAT_touch* touch)

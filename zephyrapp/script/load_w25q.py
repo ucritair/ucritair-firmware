@@ -8,7 +8,11 @@ with open(fw_path, 'rb') as fd:
 persist_offset = 0x1000 + len(fw_blob)
 persist_offset += 0x1000 - (persist_offset%0x1000)
 
-header = struct.pack('<IIII', 0xeebeefee, 0x1000, len(fw_blob), persist_offset + 0x10000)
+persist_offset += 0x10000
+
+header = struct.pack('<IIII', 0xeebeefee, 0x1000, len(fw_blob), persist_offset)
+
+print('persist_offset=', hex(persist_offset))
 
 header += b'\0' * (0x1000-len(header))
 

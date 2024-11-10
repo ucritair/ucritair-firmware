@@ -11,4 +11,6 @@
 
 void init_buttons();
 void deinit_buttons();
-uint8_t get_buttons();
+
+extern uint8_t current_buttons;
+void update_buttons();

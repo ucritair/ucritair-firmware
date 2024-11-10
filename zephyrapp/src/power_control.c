@@ -10,6 +10,7 @@ LOG_MODULE_REGISTER(power_control, LOG_LEVEL_DBG);
 #include "misc.h"
 #include "power_control.h"
 #include "rtc.h"
+#include "buttons.h"
 
 bool is_3v3_on, is_5v0_on, is_leds_on;
 
@@ -59,20 +60,6 @@ void set_leds(bool on)
 }
 
 #include <hal/nrf_rtc.h>
-
-static struct gpio_callback button_cb_data;
-void button_pressed(const struct device *dev, struct gpio_callback *cb,
-		    uint32_t pins)
-{
-	// LOG_INF("button_pressed %d", pins);
-	snapshot_rtc_for_reboot();
-	wakeup_is_from_timer = false;
-	sys_reboot(SYS_REBOOT_WARM);
-}
-
-static const struct device* gpio0 = DEVICE_DT_GET(DT_NODELABEL(gpio0));
-static const struct device* gpio1 = DEVICE_DT_GET(DT_NODELABEL(gpio1));
-
 #include <hal/nrf_twim.h>
 #include <hal/nrf_spim.h>
 #include <hal/nrf_saadc.h>
@@ -84,18 +71,45 @@ static const struct device* gpio1 = DEVICE_DT_GET(DT_NODELABEL(gpio1));
 #include <hal/nrf_oscillators.h>
 #include <hal/nrf_wdt.h>
 #include <nrfx_timer.h>
+#include <soc/nrfx_coredep.h>
+
+static struct gpio_callback button_cb_data;
+static const struct device* gpio0 = DEVICE_DT_GET(DT_NODELABEL(gpio0));
+static const struct device* gpio1 = DEVICE_DT_GET(DT_NODELABEL(gpio1));
+
+enum {
+	WAKE_CAUSE_NONE,
+	WAKE_CAUSE_TIMER,
+	WAKE_CAUSE_BUTTON
+} wake_cause;
+
+void configure_buttons_for_sleep()
+{
+	for (int i = 9; i <= 12; i++)
+	{
+		gpio_pin_configure(gpio1, i, GPIO_INPUT | GPIO_PULL_UP);
+		gpio_pin_interrupt_configure(gpio1, i, GPIO_INT_EDGE_FALLING);
+	}
+
+	gpio_pin_configure(gpio1, 12, GPIO_DISCONNECTED);
+	gpio_pin_configure(gpio1, 13, GPIO_DISCONNECTED);
+}
+
+void button_pressed(const struct device *dev, struct gpio_callback *cb,
+		    uint32_t pins)
+{
+	wake_cause = WAKE_CAUSE_BUTTON;
+}
 
 static void timer_handler(nrf_timer_event_t event_type, void * p_context)
 {
     if(event_type == NRF_TIMER_EVENT_COMPARE0)
     {
-        snapshot_rtc_for_reboot();
-        wakeup_is_from_timer = true;
-		sys_reboot(SYS_REBOOT_WARM);
+        wake_cause = WAKE_CAUSE_TIMER;
     }
 }
 
-void power_off(int for_ms)
+void power_off(int for_ms, bool protected_sleeping)
 {
 	LOG_INF("power_off(%d)", for_ms);
 	// fails if active
@@ -175,16 +189,15 @@ void power_off(int for_ms)
 		gpio_pin_configure(gpio1, i, GPIO_DISCONNECTED);
 	}
 
-	k_msleep(100);
+	nrfx_coredep_delay_us(1000*100);
 
-	for (int i = 9; i <= 12; i++)
+	if (!protected_sleeping)
 	{
-		gpio_pin_configure(gpio1, i, GPIO_INPUT | GPIO_PULL_UP);
-		gpio_pin_interrupt_configure(gpio1, i, GPIO_INT_EDGE_FALLING);
-	}
+		configure_buttons_for_sleep();
 
-	gpio_init_callback(&button_cb_data, button_pressed, BIT(9)|BIT(10)|BIT(11)|BIT(12));
-	gpio_add_callback(gpio1, &button_cb_data);
+		gpio_init_callback(&button_cb_data, button_pressed, BIT(9)|BIT(10)|BIT(11)|BIT(12));
+		gpio_add_callback(gpio1, &button_cb_data);
+	}
 
 	NRF_CLOCK_S->HFCLKCTRL = (CLOCK_HFCLKCTRL_HCLK_Div2 << CLOCK_HFCLKCTRL_HCLK_Pos); // 64MHz
 
@@ -222,13 +235,52 @@ void power_off(int for_ms)
 	while (1)
 	{
 		__asm("wfi");
+
+		if (wake_cause == WAKE_CAUSE_NONE)
+			continue;
+
+		if (wake_cause == WAKE_CAUSE_TIMER)
+		{
+			wakeup_is_from_timer = true;
+		}
+		else
+		{
+			// WAKE_CAUSE_BUTTON
+
+			nrfx_coredep_delay_us(1000*10);
+
+			init_buttons();
+
+			bool decided_to_wake = true;
+
+			for (int cycle = 0; cycle < (protected_sleeping?1000:10); cycle++)
+			{
+				nrfx_coredep_delay_us(1000*1);
+				update_buttons();
+
+				if (!current_buttons || (protected_sleeping && current_buttons != CAT_BTN_MASK_START))
+				{
+					// Wake debounced
+					decided_to_wake = false;
+					break;
+				}
+			}
+
+			if (!decided_to_wake)
+			{
+				configure_buttons_for_sleep();
+				continue;
+			}
+		}
+
+		snapshot_rtc_for_reboot();
+		sys_reboot(SYS_REBOOT_WARM);
 	}
 }
 
 #include <zephyr/init.h>
 #include <hal/nrf_power.h>
 #include <hal/nrf_gpio.h>
-#include <soc/nrfx_coredep.h>
 
 static int board_cat_uicr_init(void)
 {
