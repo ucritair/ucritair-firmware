@@ -11,18 +11,27 @@
 
 struct tm local;
 
+struct {
+	int hours, mins, secs;
+} local_wakeup;
+
 const struct {const int len; const int pad; int* edit;} edits[] = {
 	{3, 1, &local.tm_mon},
 	{2, 1, &local.tm_mday},
 	{4, 2, &local.tm_year},
 	{2, 1, &local.tm_hour},
 	{2, 1, &local.tm_min},
-	{2, 0, &local.tm_sec}
+	{2, 0, &local.tm_sec},
+	{2, 2, &local_wakeup.hours},
+	{2, 2, &local_wakeup.mins},
+	{2, 0, &local_wakeup.secs}
 };
 
+#define NUM_CLOCK_EDITS 6
+#define NUM_RATE_EDITS 3
 #define NUM_EDITS (sizeof(edits)/sizeof(edits[0]))
 
-int time_selector = 0;
+int time_edit_time_selector = 0;
 
 void CAT_MS_time(CAT_machine_signal signal)
 {
@@ -40,21 +49,23 @@ void CAT_MS_time(CAT_machine_signal signal)
 				CAT_machine_transition(&machine, CAT_MS_menu);
 
 			if (CAT_input_pulse(CAT_BUTTON_LEFT))
-				time_selector--;
+				time_edit_time_selector--;
 			if (CAT_input_pulse(CAT_BUTTON_RIGHT))
-				time_selector++;
-			time_selector = clamp(time_selector, 0, NUM_EDITS-1);
+				time_edit_time_selector++;
+			time_edit_time_selector = clamp(time_edit_time_selector, 0, NUM_EDITS-1);
 
 			int up = CAT_input_pulse(CAT_BUTTON_UP);
 			int dn = CAT_input_pulse(CAT_BUTTON_DOWN);
 			if (up)
-				(*edits[time_selector].edit)++;
+				(*edits[time_edit_time_selector].edit)++;
 			if (dn)
-				(*edits[time_selector].edit)--;
+				(*edits[time_edit_time_selector].edit)--;
 
 			if (up||dn)
 			{
 				set_rtc_counter(&local);
+				sensor_wakeup_rate = local_wakeup.hours*60*60 + local_wakeup.mins*60 + local_wakeup.secs;
+				sensor_wakeup_rate = clamp(sensor_wakeup_rate, 1, 60*60*16);
 			}
 
 			break;
@@ -91,52 +102,52 @@ void CAT_render_time()
 
 	CAT_gui_line_break();
 
-	for (int i = 0; i < NUM_EDITS; i++)
+	for (int i = 0; i < NUM_CLOCK_EDITS; i++)
 	{
-		bool editing = i == time_selector;
+		bool editing = i == time_edit_time_selector;
 		textf("%.*s%*s", edits[i].len, editing?"^^^^":"    ", edits[i].pad, "");
 	}
 
-	// CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});  
-	// for(int i = 0; i < 9; i++)
-	// {
-	// 	int idx = bag_state.base + i;
-	// 	if(idx >= bag.length)
-	// 		return;
+	CAT_gui_line_break();
+	CAT_gui_line_break();
 
-	// 	int item_id = bag.item_id[idx];
-	// 	CAT_item* item = CAT_item_get(item_id);
+	local_wakeup.hours = 0;
+	local_wakeup.mins = 0;
+	local_wakeup.secs = sensor_wakeup_rate;
 
-	// 	CAT_gui_panel_tight((CAT_ivec2) {0, 2+i*2}, (CAT_ivec2) {15, 2});
-	// 	CAT_gui_image(icon_item_sprite, item->type);
+	while (local_wakeup.secs >= (60*60))
+	{
+		local_wakeup.hours++;
+		local_wakeup.secs -= 60*60;
+	}
 
-	// 	char text[64];
-	// 	if(item->type == CAT_ITEM_TYPE_PROP)
-	// 		sprintf(text, " %s *%d ", item->name, bag.count[idx]);
-	// 	else
-	// 		sprintf(text, " %s ", item->name);
+	while (local_wakeup.secs >= 60)
+	{
+		local_wakeup.mins++;
+		local_wakeup.secs -= 60;
+	}
 
-	// 	if
-	// 	(
-	// 		(bag_state.destination == CAT_MS_feed && item->type != CAT_ITEM_TYPE_FOOD) ||
-	// 		(bag_state.destination == CAT_MS_study && item_id != book_item) ||
-	// 		(bag_state.destination == CAT_MS_play && item_id != toy_item) ||
-	// 		(bag_state.destination == CAT_MS_deco && item->type != CAT_ITEM_TYPE_PROP)
-	// 	)
-	// 	{
-	// 		gui.text_mode = CAT_TEXT_MODE_STRIKETHROUGH;
-	// 	}	
-	// 	CAT_gui_text(text);
-	// 	gui.text_mode = CAT_TEXT_MODE_NORMAL;
+	textf("Sample Rate: ");
+	CAT_gui_line_break();
 
-	// 	if(item->type == CAT_ITEM_TYPE_GEAR)
-	// 	{
-	// 		int idx = CAT_gear_status(item_id) ? 1 : 0;
-	// 		CAT_gui_image(icon_equip_sprite, idx);
-	// 		CAT_gui_text(" ");
-	// 	}
+	textf("%2dh ", local_wakeup.hours);
+	textf("%2dm ", local_wakeup.mins);
+	textf("%2ds", local_wakeup.secs);
 
-	// 	if(idx == bag_state.idx)
-	// 		CAT_gui_image(icon_pointer_sprite, 0);
-	// }
+	CAT_gui_line_break();
+
+	for (int i = NUM_CLOCK_EDITS; i < NUM_CLOCK_EDITS+NUM_RATE_EDITS; i++)
+	{
+		bool editing = i == time_edit_time_selector;
+		textf("%.*s%*s", edits[i].len, editing?"^^^^":"    ", edits[i].pad, "");
+	}
+
+	CAT_gui_line_break();
+	CAT_gui_line_break();
+
+	if (sensor_wakeup_rate < MIN_WAKEUP_RATE_TO_DEEP_SLEEP)
+	{
+		textf("NOTE: too fast to ever sleep");
+		CAT_gui_line_break();
+	}
 }

@@ -10,8 +10,8 @@ LOG_MODULE_REGISTER(rtc, LOG_LEVEL_DBG);
 
 static int board_cat_init_rtc(void)
 {
-    nrf_rtc_prescaler_set(NRF_RTC0, 4095); // 125ms/tick
-	nrf_rtc_task_trigger(NRF_RTC0, NRF_RTC_TASK_START);
+    nrf_rtc_prescaler_set(HW_RTC_CHOSEN, 4095); // 125ms/tick
+	nrf_rtc_task_trigger(HW_RTC_CHOSEN, NRF_RTC_TASK_START);
 
     return 0;
 }
@@ -40,7 +40,7 @@ _Static_assert(sizeof(time_t) == sizeof(uint64_t));
 
 time_t get_current_rtc_time()
 {
-	return ((uint64_t)nrf_rtc_counter_get(NRF_RTC0) + rtc_offset) / 8;
+	return ((uint64_t)nrf_rtc_counter_get(HW_RTC_CHOSEN) + rtc_offset) / 8;
 }
 
 void zero_rtc_counter()
@@ -60,12 +60,12 @@ void set_rtc_counter(struct tm* t)
 	LOG_DBG("set_rtc_counter");
 	rtc_offset = timeutil_timegm64(t);
 	rtc_offset *= 8;
-	rtc_offset -= nrf_rtc_counter_get(NRF_RTC0);
+	rtc_offset -= nrf_rtc_counter_get(HW_RTC_CHOSEN);
 }
 
 void snapshot_rtc_for_reboot()
 {
-	rtc_offset = rtc_offset + (uint64_t)nrf_rtc_counter_get(NRF_RTC0) + 1;
+	rtc_offset = rtc_offset + (uint64_t)nrf_rtc_counter_get(HW_RTC_CHOSEN) + 1;
 }
 
 void check_rtc_init()
@@ -82,16 +82,16 @@ void check_rtc_init()
 
 void update_rtc()
 {
-	int c = nrf_rtc_counter_get(NRF_RTC0);
+	int c = nrf_rtc_counter_get(HW_RTC_CHOSEN);
 	if (c >= (1<<10))
 	{
 		// Theory: wait until counter ticks, then reset it and add the
 		// value we just cleared to the offset
 
 		int new;
-		while ((new = nrf_rtc_counter_get(NRF_RTC0)) == c) {}
+		while ((new = nrf_rtc_counter_get(HW_RTC_CHOSEN)) == c) {}
 
-		nrf_rtc_task_trigger(NRF_RTC0, NRF_RTC_TASK_CLEAR);
+		nrf_rtc_task_trigger(HW_RTC_CHOSEN, NRF_RTC_TASK_CLEAR);
 		rtc_offset += new;
 
 		LOG_DBG("rtc prevent wrap");

@@ -24,6 +24,7 @@
 
 #ifdef CAT_EMBEDDED
 #include "menu_time.h"
+#include "menu_aqi.h"
 #endif
 
 #ifdef __GNUC__
@@ -78,13 +79,15 @@ void CAT_tick_render(int cycle)
 #ifdef CAT_EMBEDDED
 	else if(machine == CAT_MS_time)
 		CAT_render_time();
+	else if(machine == CAT_MS_aqi)
+		CAT_render_aqi();
 #endif
 }
 
 
 #pragma region MAIN
 
-void CAT_init()
+void CAT_init(bool is_first_boot, int sceonds_slept)
 {
 	CAT_rand_init();
 	CAT_platform_init();
@@ -122,9 +125,14 @@ void CAT_tick_logic()
 }
 
 #ifdef CAT_DESKTOP
+#include <sys/stat.h>
+
 int main()
 {
-	CAT_init();
+	struct stat buf;
+	bool first_boot = stat("save.dat", &buf) == 0;
+
+	CAT_init(first_boot, 12);
 
 	while (CAT_get_battery_pct() > 0)
 	{

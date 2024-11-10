@@ -135,20 +135,28 @@ void CAT_free(void* ptr)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // STORAGE
 
-void CAT_write_save(uint8_t* in)
+// Call to start saving, then populate the returned CAT_save*
+CAT_save* CAT_start_save()
 {
-	
+	return NULL;
+}
+// then call with the CAT_save* to finish saving
+void CAT_finish_save(CAT_save*)
+{
+
 }
 
-bool CAT_check_save()
+// Call to start loading, then load from the returned CAT_save*
+CAT_save* CAT_start_load()
 {
-	return false;
+	return NULL;
+}
+// then call once done loading
+void CAT_finish_load()
+{
+
 }
 
-void CAT_read_save(uint8_t* out)
-{
-	
-}
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
