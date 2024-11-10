@@ -1,5 +1,4 @@
-#ifndef CAT_DESKTOP_H
-#define CAT_DESKTOP_H
+#pragma once
 
 #include <GL/glew.h> 
 #include <GLFW/glfw3.h>
@@ -38,4 +37,3 @@ typedef enum CAT_button
     CAT_BUTTON_LAST
 } CAT_button;
 
-#endif

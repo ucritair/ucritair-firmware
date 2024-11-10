@@ -132,8 +132,8 @@ void CAT_MS_room(CAT_machine_signal signal)
 	{
 		case CAT_MACHINE_SIGNAL_ENTER:
 		{
-			CAT_AM_transition(&pet_asm, &AS_idle);
-			CAT_AM_transition(&mood_asm, NULL);
+			if(!pet.critical)
+				CAT_AM_transition(&pet_asm, &AS_idle);
 			break;
 		}
 		case CAT_MACHINE_SIGNAL_TICK:
@@ -167,13 +167,13 @@ void CAT_MS_room(CAT_machine_signal signal)
 
 			if(CAT_input_touch(pet.pos.x, pet.pos.y-16, 16))
 			{
-				CAT_AM_transition(&mood_asm, &AS_react);
+				CAT_AM_transition(&react_asm, &AS_react);
 			}
-			if(CAT_AM_is_in(&mood_asm, &AS_react))
+			if(CAT_AM_is_in(&react_asm, &AS_react))
 			{
 				if(CAT_timer_tick(pet.react_timer_id))
 				{
-					CAT_AM_transition(&mood_asm, NULL);
+					CAT_AM_transition(&react_asm, NULL);
 					CAT_timer_reset(pet.react_timer_id);
 				}
 			}
@@ -183,27 +183,35 @@ void CAT_MS_room(CAT_machine_signal signal)
 				CAT_pet_stat();
 				CAT_timer_reset(pet.stat_timer_id);
 			}
-
-			if(!pet.critical && CAT_AM_is_in(&pet_asm, &AS_idle) && CAT_AM_is_ticking(&pet_asm))
+			
+			if(!pet.critical)
 			{
-				if(CAT_timer_tick(pet.walk_timer_id))
+				if(CAT_AM_is_in(&pet_asm, &AS_idle) && CAT_AM_is_ticking(&pet_asm))
 				{
-					CAT_ivec2 grid_min = CAT_ivec2_add(room.bounds.min, (CAT_ivec2){1, 1});
-					CAT_ivec2 grid_max = CAT_ivec2_add(room.bounds.max, (CAT_ivec2){-1, -1});
-					CAT_vec2 world_min = CAT_iv2v(CAT_ivec2_mul(grid_min, 16));
-					CAT_vec2 world_max = CAT_iv2v(CAT_ivec2_mul(grid_max, 16));
-					poi = CAT_rand_vec2(world_min, world_max);
+					if(CAT_timer_tick(pet.walk_timer_id))
+					{
+						CAT_ivec2 grid_min = CAT_ivec2_add(room.bounds.min, (CAT_ivec2){1, 1});
+						CAT_ivec2 grid_max = CAT_ivec2_add(room.bounds.max, (CAT_ivec2){-1, -1});
+						CAT_vec2 world_min = CAT_iv2v(CAT_ivec2_mul(grid_min, 16));
+						CAT_vec2 world_max = CAT_iv2v(CAT_ivec2_mul(grid_max, 16));
+						poi = CAT_rand_vec2(world_min, world_max);
 
-					CAT_AM_transition(&pet_asm, &AS_walk);
-					CAT_timer_reset(pet.walk_timer_id);
+						CAT_AM_transition(&pet_asm, &AS_walk);
+						CAT_timer_reset(pet.walk_timer_id);
+					}
+				}
+				if(CAT_AM_is_in(&pet_asm, &AS_walk) && CAT_AM_is_ticking(&pet_asm))
+				{
+					if(CAT_pet_seek(poi))
+					{
+						CAT_AM_transition(&pet_asm, &AS_idle);
+					}
 				}
 			}
-			if(CAT_AM_is_in(&pet_asm, &AS_walk) && CAT_AM_is_ticking(&pet_asm))
+			else
 			{
-				if(CAT_pet_seek(poi))
-				{
-					CAT_AM_transition(&pet_asm, &AS_idle);
-				}
+				if(!CAT_AM_is_in(&pet_asm, &AS_crit))
+					CAT_AM_transition(&pet_asm, &AS_crit);
 			}
 
 			if(CAT_timer_tick(room.crypto_timer_id) && room.coin_count < CAT_MAX_COIN_COUNT)

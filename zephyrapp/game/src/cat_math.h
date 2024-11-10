@@ -1,5 +1,4 @@
-#ifndef CAT_MATH_H
-#define CAT_MATH_H
+#pragma once
 
 #include <stdbool.h>
 
@@ -81,4 +80,3 @@ CAT_ivec2 CAT_clamp_pt_rect(CAT_ivec2 v, CAT_rect r);
 CAT_vec2 CAT_iv2v(CAT_ivec2 iv);
 CAT_ivec2 CAT_v2iv(CAT_vec2 v);
 
-#endif

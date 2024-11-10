@@ -1,5 +1,4 @@
-#ifndef CAT_GUI_H
-#define CAT_GUI_H
+#pragma once
 
 #include "cat_math.h"
 
@@ -46,4 +45,3 @@ void CAT_gui_image(int sprite_id, int frame_idx);
 void CAT_gui_div(const char* text);
 void CAT_gui_textf(const char* fmt, ...);
 
-#endif

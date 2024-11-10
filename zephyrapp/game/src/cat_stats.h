@@ -1,6 +1,3 @@
-#ifndef CAT_STATS_H
-#define CAT_STATS_H
+#pragma once
 
 extern void CAT_render_stats();
-
-#endif

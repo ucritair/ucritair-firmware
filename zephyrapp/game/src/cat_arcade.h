@@ -1,6 +1,3 @@
-#ifndef CAT_ARCADE_H
-#define CAT_ARCADE_H
+#pragma once
 
 void CAT_render_arcade();
-
-#endif

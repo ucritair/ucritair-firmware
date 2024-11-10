@@ -1,5 +1,4 @@
-#ifndef CAT_CORE_H
-#define CAT_CORE_H
+#pragma once
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -88,29 +87,31 @@ typedef struct __attribute__((__packed__)) CAT_save
 
 	struct
 	{
-		int8_t major;
-		int8_t minor;
-		int8_t patch;
-		int8_t push;
+		uint8_t major;
+		uint8_t minor;
+		uint8_t patch;
+		uint8_t push;
 	} version;
 
-	int vigour;
-	int focus;
-	int spirit;
+	uint8_t vigour;
+	uint8_t focus;
+	uint8_t spirit;
 
-	int prop_ids[150];
+	uint8_t prop_ids[150];
 	CAT_ivec2 prop_places[150];
-	int prop_overrides[150];
-	int prop_count;
+	uint8_t prop_overrides[150];
+	uint8_t prop_count;
 
-	int bag_ids[70];
-	int bag_counts[70];
-	int bag_length;
-	int coins;
+	uint8_t bag_ids[70];
+	uint8_t bag_counts[70];
+	uint8_t bag_length;
+	uint32_t coins;
 } CAT_save;
 
 // Call to start saving, then populate the returned CAT_save*
 CAT_save* CAT_start_save();
+// This one will create a game-ready save
+void CAT_fresh_save(CAT_save* save);
 // then call with the CAT_save* to finish saving
 void CAT_finish_save(CAT_save*);
 
@@ -175,6 +176,4 @@ float CAT_NOX_score();
 #else
 #include "cat_embedded.h"
 #define CAT_BAKED_ASSETS
-#endif
-
 #endif

@@ -1,5 +1,4 @@
-#ifndef CAT_MACHINE_H
-#define CAT_MACHINE_H
+#pragma once
 
 #include <stdbool.h>
 
@@ -58,5 +57,3 @@ extern void CAT_MS_bag(CAT_machine_signal);
 extern void CAT_MS_vending(CAT_machine_signal);
 extern void CAT_MS_arcade(CAT_machine_signal);
 extern void CAT_MS_manual(CAT_machine_signal);
-
-#endif

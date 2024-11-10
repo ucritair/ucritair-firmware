@@ -1,5 +1,4 @@
-#ifndef CAT_INPUT_H
-#define CAT_INPUT_H
+#pragma once
 
 #include "cat_core.h"
 
@@ -22,5 +21,3 @@ bool CAT_input_pulse(int button);
 bool CAT_input_touch(int x, int y, float r);
 float CAT_input_progress(int button, float t);
 void CAT_input_clear(int button);
-
-#endif

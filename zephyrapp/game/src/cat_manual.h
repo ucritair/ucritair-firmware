@@ -1,6 +1,3 @@
-#ifndef CAT_MANUAL_H
-#define CAT_MANUAL_H
+#pragma once
 
 extern void CAT_render_manual();
-
-#endif

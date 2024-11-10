@@ -1,5 +1,4 @@
-#ifndef CAT_ACTION_H
-#define CAT_ACTION_H
+#pragma once
 
 #include "cat_machine.h"
 #include "cat_math.h"
@@ -19,5 +18,3 @@ typedef struct CAT_action_state
 extern CAT_action_state action_state;
 
 extern void CAT_render_action(int cycle);
-
-#endif

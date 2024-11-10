@@ -1,6 +1,3 @@
-#ifndef CAT_MENU_H
-#define CAT_MENU_H
+#pragma once
 
 extern void CAT_render_menu();
-
-#endif

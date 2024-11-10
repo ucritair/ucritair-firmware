@@ -1,5 +1,4 @@
-#ifndef CAT_BAG_H
-#define CAT_BAG_H
+#pragma once
 
 #include "cat_machine.h"
 #include "cat_item.h"
@@ -23,5 +22,3 @@ void CAT_bag_remove(int item_id);
 
 extern CAT_machine_state bag_anchor;
 void CAT_render_bag();
-
-#endif

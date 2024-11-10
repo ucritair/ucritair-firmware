@@ -62,9 +62,9 @@ void CAT_action_tick()
 			if(CAT_timer_tick(pet.action_timer_id))
 			{
 				CAT_item* item = CAT_item_get(action_state.item_id);
-				pet.vigour += item->data.tool_data.dv;
-				pet.focus += item->data.tool_data.df;
-				pet.spirit += item->data.tool_data.ds;
+				pet.vigour = clamp(pet.vigour + item->data.tool_data.dv, 0, 12);
+				pet.focus = clamp(pet.focus + item->data.tool_data.df, 0, 12);
+				pet.spirit = clamp(pet.spirit + item->data.tool_data.ds, 0, 12);
 				CAT_bag_remove(action_state.item_id);
 				action_state.complete = true;
 				CAT_AM_kill(&pet_asm);

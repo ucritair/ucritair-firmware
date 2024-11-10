@@ -276,13 +276,13 @@ void CAT_item_mass_define()
 	CAT_prop_init(crystal_purple_lg_item, 2, 1, true);
 
 	effigy_blue_item = CAT_item_init(CAT_ITEM_TYPE_PROP, "Blue Effigy", effigy_blue_sprite, 1);
-	CAT_prop_init(effigy_blue_item, 2, 1, true);
+	CAT_prop_init(effigy_blue_item, 1, 1, true);
 	
 	effigy_purple_item = CAT_item_init(CAT_ITEM_TYPE_PROP, "Purple Effigy", effigy_purple_sprite, 1);
-	CAT_prop_init(effigy_purple_item, 2, 1, true);
+	CAT_prop_init(effigy_purple_item, 1, 1, true);
 	
 	effigy_sea_item = CAT_item_init(CAT_ITEM_TYPE_PROP, "Sea Effigy", effigy_sea_sprite, 1);
-	CAT_prop_init(effigy_sea_item, 2, 1, true);
+	CAT_prop_init(effigy_sea_item, 1, 1, true);
 
 	pixel_item = CAT_item_init(CAT_ITEM_TYPE_PROP, "Pixel", pixel_sprite, 1);
 	CAT_prop_init(pixel_item, 1, 1, true);

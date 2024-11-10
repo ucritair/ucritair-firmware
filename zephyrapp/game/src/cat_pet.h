@@ -1,5 +1,4 @@
-#ifndef CAT_PET_H
-#define CAT_PET_H
+#pragma once
 
 #include "cat_machine.h"
 #include "cat_math.h"
@@ -26,5 +25,3 @@ void CAT_pet_stat();
 bool CAT_pet_seek(CAT_vec2 targ);
 void CAT_pet_init();
 void CAT_render_pet(int cycle);
-
-#endif

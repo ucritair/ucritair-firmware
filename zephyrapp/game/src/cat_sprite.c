@@ -37,9 +37,12 @@ void CAT_greenberry(int xi, int w, int yi, int h, float t)
 			if(c == 0xdead)
 				continue;
 			uint8_t l = luminance(c);
+			float lf = (float) l / 255.0f;
 			uint8_t g = clamp(l+8, 0, 255);
 			uint8_t b = clamp(l-128, 0, 255);
 			uint8_t r = clamp(l+48, 0, 255);
+			if(t >= 1)
+				r = clamp(r + 128, 0, 255);
 			spriter.framebuffer[idx] = rgb8882rgb565(r, g, b);
 		}
 	}
@@ -753,19 +756,24 @@ int snake_tail_sprite;
 
 // MACHINES
 CAT_AM_state* pet_asm;
+
 CAT_AM_state AS_idle;
 CAT_AM_state AS_walk;
+CAT_AM_state AS_crit;
+
 CAT_AM_state AS_adjust_in;
 CAT_AM_state AS_walk_action;
+CAT_AM_state AS_adjust_out;
+
 CAT_AM_state AS_eat;
 CAT_AM_state AS_study;
 CAT_AM_state AS_play;
-CAT_AM_state AS_adjust_out;
+
 CAT_AM_state AS_vig_up;
 CAT_AM_state AS_foc_up;
 CAT_AM_state AS_spi_up;
 
-CAT_AM_state* mood_asm;
+CAT_AM_state* react_asm;
 CAT_AM_state AS_react;
 
 #ifndef CAT_BAKED_ASSETS
@@ -951,14 +959,14 @@ void CAT_sprite_mass_define()
 	INIT_SPRITE(pet_walk_low_spi_sprite, "sprites/pet_unicorn_sad_walk_a.png", 4);
 
 	INIT_SPRITE(pet_crit_vig_in_sprite, "sprites/pet_unicorn_melt_a.png", 8);
-	INIT_SPRITE(pet_crit_vig_sprite, "sprites/pet_unicorn_melt.png", 8);
+	INIT_SPRITE(pet_crit_vig_sprite, "sprites/pet_unicorn_melt.png", 1);
 	COPY_SPRITE(pet_crit_vig_out_sprite, pet_crit_vig_in_sprite, false, true);
 
 	INIT_SPRITE(pet_crit_foc_in_sprite, "sprites/pet_unicorn_tipped_a.png", 6);
-	INIT_SPRITE(pet_crit_foc_sprite, "sprites/pet_unicorn_tipped.png", 6);
+	INIT_SPRITE(pet_crit_foc_sprite, "sprites/pet_unicorn_tipped.png", 1);
 	COPY_SPRITE(pet_crit_foc_out_sprite, pet_crit_foc_in_sprite, false, true);
 
-	INIT_SPRITE(pet_crit_spi_in_sprite, "sprites/pet_unicorn_block_a.png", 8);
+	INIT_SPRITE(pet_crit_spi_in_sprite, "sprites/pet_unicorn_block_a.png", 15);
 	INIT_SPRITE(pet_crit_spi_sprite, "sprites/pet_unicorn_block_blink.png", 2);
 	COPY_SPRITE(pet_crit_spi_out_sprite, pet_crit_spi_in_sprite, false, true);
 
@@ -1002,6 +1010,7 @@ void CAT_sprite_mass_define()
 	// MACHINES
 	CAT_AM_init(&AS_idle, -1, pet_idle_sprite, -1);
 	CAT_AM_init(&AS_walk, -1, pet_walk_sprite, -1);
+	CAT_AM_init(&AS_crit, pet_crit_vig_in_sprite, pet_crit_vig_sprite, pet_crit_vig_out_sprite);
 
 	CAT_AM_init(&AS_adjust_in, -1, -1, pet_idle_sprite);
 	CAT_AM_init(&AS_walk_action, -1, pet_walk_sprite, -1);

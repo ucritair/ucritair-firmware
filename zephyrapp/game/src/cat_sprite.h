@@ -1,5 +1,4 @@
-#ifndef CAT_SPRITE_H
-#define CAT_SPRITE_H
+#pragma once
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -364,22 +363,25 @@ extern int snake_tail_sprite;
 
 // MACHINES
 extern CAT_AM_state* pet_asm;
+
 extern CAT_AM_state AS_idle;
 extern CAT_AM_state AS_walk;
+extern CAT_AM_state AS_crit;
+
 extern CAT_AM_state AS_adjust_in;
 extern CAT_AM_state AS_walk_action;
+extern CAT_AM_state AS_adjust_out;
+
 extern CAT_AM_state AS_eat;
 extern CAT_AM_state AS_study;
 extern CAT_AM_state AS_play;
-extern CAT_AM_state AS_adjust_out;
+
 extern CAT_AM_state AS_vig_up;
 extern CAT_AM_state AS_foc_up;
 extern CAT_AM_state AS_spi_up;
 
-extern CAT_AM_state* mood_asm;
-extern CAT_AM_state AS_mood;
+extern CAT_AM_state* react_asm;
 extern CAT_AM_state AS_react;
 
 void CAT_sprite_mass_define();
 
-#endif

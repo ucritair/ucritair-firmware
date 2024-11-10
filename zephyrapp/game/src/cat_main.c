@@ -138,13 +138,13 @@ void CAT_force_load()
 	}
 	room.prop_count = save->prop_count;
 
-	for(int i = 0; i < bag.length; i++)
+	for(int i = 0; i < save->bag_length; i++)
 	{
 		bag.item_ids[i] = save->bag_ids[i];
 		bag.counts[i] = save->bag_counts[i];
-		bag.coins = save->coins;
 	}
-	room.prop_count = save->prop_count;
+	bag.length = save->bag_length;
+	bag.coins = save->coins;
 
 	CAT_finish_load();
 }
@@ -174,9 +174,9 @@ void CAT_force_save()
 	{
 		save->bag_ids[i] = bag.item_ids[i];
 		save->bag_counts[i] = bag.counts[i];
-		save->coins = bag.coins;
 	}
-	save->prop_count = room.prop_count;
+	save->bag_length = bag.length;
+	save->coins = bag.coins;
 
 	CAT_finish_save(save);
 }

@@ -1,5 +1,4 @@
-#ifndef CAT_ITEM_H
-#define CAT_ITEM_H
+#pragma once
 
 #include <stdbool.h>
 #include <stdlib.h>
@@ -144,4 +143,3 @@ extern int pixel_item;
 
 void CAT_item_mass_define();
 
-#endif

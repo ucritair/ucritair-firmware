@@ -1,5 +1,4 @@
-#ifndef CAT_ROOM_H
-#define CAT_ROOM_H
+#pragma once
 
 #include "cat_machine.h"
 #include "cat_math.h"
@@ -38,5 +37,3 @@ void CAT_room_add_coin(CAT_vec2 origin, CAT_vec2 place);
 void CAT_room_remove_coin(int idx);
 void CAT_room_move_cursor();
 void CAT_render_room(int cycle);
-
-#endif
