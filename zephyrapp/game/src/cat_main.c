@@ -87,7 +87,7 @@ void CAT_tick_render(int cycle)
 
 #pragma region MAIN
 
-void CAT_init()
+void CAT_init(bool is_first_boot, int sceonds_slept)
 {
 	CAT_rand_init();
 	CAT_platform_init();
@@ -126,9 +126,14 @@ void CAT_tick_logic()
 }
 
 #ifdef CAT_DESKTOP
+#include <sys/stat.h>
+
 int main()
 {
-	CAT_init();
+	struct stat buf;
+	bool first_boot = stat("save.dat", &buf) == 0;
+
+	CAT_init(first_boot, 12);
 
 	while (CAT_get_battery_pct() > 0)
 	{

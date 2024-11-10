@@ -80,23 +80,37 @@ void CAT_free(void* ptr);
 // STORAGE
 
 #define PERSISTENCE_PAGE_SIZE 4096
+#define CAT_SAVE_MAGIC 0xaabbccdd
 
-typedef struct CAT_save
+typedef struct __attribute__((__packed__)) CAT_save
 {
+	uint32_t magic_number;
+
 	struct
 	{
-		int major;
-		int minor;
-		int patch;
-		int push;
+		int8_t major;
+		int8_t minor;
+		int8_t patch;
+		int8_t push;
 	} version;
 } CAT_save;
-extern CAT_save save;
 
-void CAT_write_save();
-bool CAT_check_save();
-void CAT_read_save();
+_Static_assert(sizeof(CAT_save) <= PERSISTENCE_PAGE_SIZE);
 
+// Call to start saving, then populate the returned CAT_save*
+CAT_save* CAT_start_save();
+// then call with the CAT_save* to finish saving
+void CAT_finish_save(CAT_save*);
+
+// Call to start loading, then load from the returned CAT_save*
+CAT_save* CAT_start_load();
+// then call once done loading
+void CAT_finish_load();
+
+static inline bool CAT_check_save(CAT_save* save)
+{
+	return save->magic_number == CAT_SAVE_MAGIC;
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // POWER

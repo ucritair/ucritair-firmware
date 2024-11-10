@@ -338,28 +338,35 @@ void CAT_free(void* ptr)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // STORAGE
 
-CAT_save save;
+CAT_save the_save;
 
-void CAT_write_save()
+CAT_save* CAT_start_save()
 {
+	return &the_save;
+}
+
+void CAT_finish_save(CAT_save* save)
+{
+	save->magic_number = CAT_SAVE_MAGIC;
 	int fd = open("save.dat", O_WRONLY | O_CREAT | O_TRUNC);
-	size_t write_size = min(sizeof(save), PERSISTENCE_PAGE_SIZE);
+	size_t write_size = sizeof(CAT_save);
 	write(fd, &save, write_size);
 	close(fd);
 }
 
-bool CAT_check_save()
-{
-	struct stat buf;
-	return stat("save.dat", &buf) == 0;
-}
-
-void CAT_read_save()
+CAT_save* CAT_start_load()
 {
 	int fd = open("save.dat", O_RDONLY);
-	size_t read_size = min(sizeof(save), PERSISTENCE_PAGE_SIZE);
-	read(fd, &save, read_size);
+	size_t read_size = min(sizeof(CAT_save), PERSISTENCE_PAGE_SIZE);
+	read(fd, &the_save, read_size);
 	close(fd);
+
+	return &the_save;
+}
+
+void CAT_finish_load()
+{
+
 }
 
 

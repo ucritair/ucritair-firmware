@@ -7,7 +7,7 @@ extern uint8_t wakeup_is_from_timer;
 
 #define MIN_WAKEUP_RATE_TO_DEEP_SLEEP 120
 
-#define HW_RTC_CHOSEN NRF_RTC1
+#define HW_RTC_CHOSEN NRF_RTC0
 
 void zero_rtc_counter();
 void check_rtc_init();
