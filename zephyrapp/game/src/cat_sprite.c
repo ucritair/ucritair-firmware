@@ -37,6 +37,11 @@ void CAT_atlas_init()
 
 #include "png.h"
 
+uint16_t rgb8882rgb565(uint8_t r, uint8_t g, uint8_t b)
+{
+	return ((r & 0b11111000) << 8) | ((g & 0b11111100) << 3) | (b >> 3);
+}
+
 int CAT_sprite_init(const char* path, int frame_count)
 {
 	FILE* file = fopen(path, "rb");
@@ -370,10 +375,6 @@ void CAT_spriter_cleanup()
 //////////////////////////////////////////////////////////////////////////
 // DIRECT FX
 
-uint16_t rgb8882rgb565(uint8_t r, uint8_t g, uint8_t b)
-{
-	return ((r & 0b11111000) << 8) | ((g & 0b11111100) << 3) | (b >> 3);
-}
 
 uint8_t luminance(uint16_t rgb)
 {

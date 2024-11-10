@@ -12,24 +12,27 @@
 
 uint8_t body_x[MAX_SNAKE_LENGTH];
 uint8_t body_y[MAX_SNAKE_LENGTH];
-uint8_t body_length = 1;
+uint8_t body_length = 2;
 int8_t x_shift = 1;
 int8_t y_shift = 0;
 int move_timer_id = -1;
 
+int food_sprite_id = -1;
 int8_t food_x = -1;
 int8_t food_y = -1;
 int food_timer_id = -1;
 
 bool dead = false;
-bool arcade_pause = true;
 
 void CAT_arcade_init()
 {
-	body_x[0] = 0;
+	body_x[0] = 1;
 	body_y[0] = 0;
-	move_timer_id = CAT_timer_init(0.1f);
+	body_x[1] = 0;
+	body_y[1] = 0;
+	move_timer_id = CAT_timer_init(0.15f);
 
+	food_sprite_id = padkaprow_sprite;
 	food_x = CAT_rand_int(0, WIDTH);
 	food_y = CAT_rand_int(0, HEIGHT);
 	food_timer_id = CAT_timer_init(2.0f);
@@ -66,11 +69,9 @@ void CAT_arcade_tick()
 			x_shift = -1;
 			y_shift = 0;
 		}
-		if(CAT_input_pressed(CAT_BUTTON_SELECT))
-			arcade_pause = !arcade_pause;
 
 		CAT_timer_tick(food_timer_id);
-		if(!arcade_pause && CAT_timer_tick(move_timer_id))
+		if(CAT_timer_tick(move_timer_id))
 		{
 			int x = body_x[0] + x_shift;
 			int y = body_y[0] + y_shift;
@@ -83,6 +84,15 @@ void CAT_arcade_tick()
 					food_x = CAT_rand_int(0, WIDTH-1);
 					food_y = CAT_rand_int(0, HEIGHT-1);
 					CAT_timer_reset(food_timer_id);
+
+					int food_options[] = 
+					{
+						cigarette_sprite,
+						padkaprow_sprite,
+						sausage_sprite,
+						coffee_sprite	
+					};
+					food_sprite_id = food_options[CAT_rand_int(0, 3)];
 				}
 			}
 
@@ -101,9 +111,11 @@ void CAT_arcade_tick()
 	}
 	else
 	{
-		body_x[0] = 0;
+		body_length = 2;
+		body_x[0] = 1;
 		body_y[0] = 0;
-		body_length = 1;
+		body_x[1] = 0;
+		body_y[1] = 0;
 		x_shift = 1;
 		y_shift = 0;
 		
@@ -139,63 +151,62 @@ void CAT_render_arcade()
 
 	if(!dead)
 	{
-		for(int y = 0; y < HEIGHT; y++)
-		{
-			for(int x = 0; x < WIDTH; x++)
-			{
-				CAT_draw_sprite(base_floor_sprite, 2, x * 16, y * 16);
-			}
-		}
+		CAT_draw_tiles(grass_floor_sprite, 20, 0, 20);
 
-		if(x_shift == 1)
-			CAT_draw_sprite(snake_head_sprite, 0, body_x[0] * 16, body_y[0] * 16);
-		else if(y_shift == 1)
-			CAT_draw_sprite(snake_head_sprite, 1, body_x[0] * 16, body_y[0] * 16);
-		else if(x_shift == -1)
-			CAT_draw_sprite(snake_head_sprite, 2, body_x[0] * 16, body_y[0] * 16);
-		else if(y_shift == -1)
-			CAT_draw_sprite(snake_head_sprite, 3, body_x[0] * 16, body_y[0] * 16);
-	
-		for(int i = 1; i < body_length-1; i++)
+		for(int i = 0; i < body_length; i++)
 		{
-			int dbx = body_x[i] - body_x[i-1];
-			int dby = body_y[i] - body_y[i-1];
-			int dfx = body_x[i+1] - body_x[i];
-			int dfy = body_y[i+1] - body_y[i];
+			int dbx = body_x[i-1] - body_x[i];
+			int dby = body_y[i-1] - body_y[i];
 
-			if(dfx != dbx || dfy != dby)
+			if(i == 0)
 			{
-				if(dfx + dby == 0 || dfy + dbx == 0)
-				{
-					if(dfx != dby)
-						CAT_draw_sprite(snake_corner_sprite, 0, body_x[i] * 16, body_y[i] * 16);
-					else
-						CAT_draw_sprite(snake_corner_sprite, 2, body_x[i] * 16, body_y[i] * 16);
-				}	
-				else
-				{
-					if(dfx == dby)
-						CAT_draw_sprite(snake_corner_sprite, 1, body_x[i] * 16, body_y[i] * 16);
-					else
-						CAT_draw_sprite(snake_corner_sprite, 3, body_x[i] * 16, body_y[i] * 16);
-				}
+				if(dbx == 1)
+					CAT_draw_sprite(snake_head_sprite, 0, body_x[0] * 16, body_y[0] * 16);
+				else if(dby == 1)
+					CAT_draw_sprite(snake_head_sprite, 1, body_x[0] * 16, body_y[0] * 16);
+				else if(dbx == -1)
+					CAT_draw_sprite(snake_head_sprite, 2, body_x[0] * 16, body_y[0] * 16);
+				else if(dby == -1)
+					CAT_draw_sprite(snake_head_sprite, 3, body_x[0] * 16, body_y[0] * 16);
+				break;
 			}
-			else
+			if(i == body_length-1)
 			{
-				if(dfx == 1)
-					CAT_draw_sprite(snake_body_sprite, 0, body_x[i] * 16, body_y[i] * 16);
-				if(dfy == 1)
-					CAT_draw_sprite(snake_body_sprite, 1, body_x[i] * 16, body_y[i] * 16);
-				if(dfx == -1)
-					CAT_draw_sprite(snake_body_sprite, 2, body_x[i] * 16, body_y[i] * 16);
-				if(dfy == -1)
-					CAT_draw_sprite(snake_body_sprite, 3, body_x[i] * 16, body_y[i] * 16);
-			}	
+				if(dbx == 1)
+					CAT_draw_sprite(snake_tail_sprite, 0, body_x[i] * 16, body_y[i] * 16);
+				else if(dby == 1)
+					CAT_draw_sprite(snake_tail_sprite, 1, body_x[i] * 16, body_y[i] * 16);
+				else if(dbx == -1)
+					CAT_draw_sprite(snake_tail_sprite, 2, body_x[i] * 16, body_y[i] * 16);
+				else if(dby == -1)
+					CAT_draw_sprite(snake_tail_sprite, 3, body_x[i] * 16, body_y[i] * 16);
+				break;
+			}
+
+			int dfx = body_x[i] - body_x[i+1];
+			int dfy = body_y[i] - body_y[i+1];
+
+			if(dfx == 1 && dbx == 1)
+				CAT_draw_sprite(snake_body_sprite, 0, body_x[i] * 16, body_y[i] * 16);
+			else if(dfy == 1 && dby == 1)
+				CAT_draw_sprite(snake_body_sprite, 1, body_x[i] * 16, body_y[i] * 16);
+			else if(dfx == -1 && dbx == -1)
+				CAT_draw_sprite(snake_body_sprite, 2, body_x[i] * 16, body_y[i] * 16);
+			else if(dfy == -1 && dby == -1)
+				CAT_draw_sprite(snake_body_sprite, 3, body_x[i] * 16, body_y[i] * 16);
+			else if(dfx == -1 && dby == 1 || dfy == -1 && dbx == 1)
+				CAT_draw_sprite(snake_corner_sprite, 0, body_x[i] * 16, body_y[i] * 16);
+			else if(dfx == 1 && dby == 1 || dfy == -1 && dbx == -1)
+				CAT_draw_sprite(snake_corner_sprite, 1, body_x[i] * 16, body_y[i] * 16);
+			else if(dfx == 1 && dby == -1 || dfy == 1 && dbx == -1)
+				CAT_draw_sprite(snake_corner_sprite, 2, body_x[i] * 16, body_y[i] * 16);
+			else if(dfx == -1 && dby == -1 || dfy == 1 && dbx == 1)
+				CAT_draw_sprite(snake_corner_sprite, 3, body_x[i] * 16, body_y[i] * 16);
 		}
 	}
 
 	if(CAT_timer_progress(food_timer_id) >= 1)
 	{
-		CAT_draw_sprite(cigarette_sprite, 0, food_x * 16, food_y * 16);
+		CAT_draw_sprite(food_sprite_id, 0, food_x * 16, food_y * 16);
 	}
 }

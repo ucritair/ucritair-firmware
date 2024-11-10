@@ -198,7 +198,7 @@ void CAT_item_mass_define()
 	CAT_prop_init(purifier_item, 2, 1, true);
 
 	coffeemaker_item = CAT_item_init(CAT_ITEM_TYPE_PROP, "Coffee Machine", coffeemaker_sprite, 1);
-	CAT_prop_init(coffeemaker_item, 2, 2, true);
+	CAT_prop_init(coffeemaker_item, 2, 1, true);
 
 	fan_a_item = CAT_item_init(CAT_ITEM_TYPE_PROP, "Classic Fan", fan_a_sprite, 1);
 	CAT_prop_init(fan_a_item, 2, 1, true);
@@ -246,16 +246,16 @@ void CAT_item_mass_define()
 	CAT_prop_init(bush_lilac_item, 2, 1, true);
 
 	plant_green_item = CAT_item_init(CAT_ITEM_TYPE_PROP, "Green Plant", plant_green_sprite, 1);
-	CAT_prop_init(plant_green_item, 2, 2, true);
+	CAT_prop_init(plant_green_item, 2, 1, true);
 
 	plant_maroon_item = CAT_item_init(CAT_ITEM_TYPE_PROP, "Maroon Plant", plant_maroon_sprite, 1);
-	CAT_prop_init(plant_maroon_item, 2, 2, true);
+	CAT_prop_init(plant_maroon_item, 2, 1, true);
 
 	plant_purple_item = CAT_item_init(CAT_ITEM_TYPE_PROP, "Purple Plant", plant_purple_sprite, 1);
-	CAT_prop_init(plant_purple_item, 2, 2, true);
+	CAT_prop_init(plant_purple_item, 2, 1, true);
 
 	plant_yellow_item = CAT_item_init(CAT_ITEM_TYPE_PROP, "Yellow Plant", plant_yellow_sprite, 1);
-	CAT_prop_init(plant_yellow_item, 2, 2, true);
+	CAT_prop_init(plant_yellow_item, 2, 1, true);
 
 	flower_vig_item = CAT_item_init(CAT_ITEM_TYPE_PROP, "Vigour Flower", flower_vig_sprite, 1);
 	CAT_prop_init(flower_vig_item, 2, 2, true);
@@ -276,13 +276,13 @@ void CAT_item_mass_define()
 	CAT_prop_init(crystal_purple_lg_item, 2, 1, true);
 
 	effigy_blue_item = CAT_item_init(CAT_ITEM_TYPE_PROP, "Blue Effigy", effigy_blue_sprite, 1);
-	CAT_prop_init(effigy_blue_item, 1, 1, true);
+	CAT_prop_init(effigy_blue_item, 3, 1, true);
 	
 	effigy_purple_item = CAT_item_init(CAT_ITEM_TYPE_PROP, "Purple Effigy", effigy_purple_sprite, 1);
-	CAT_prop_init(effigy_purple_item, 1, 1, true);
+	CAT_prop_init(effigy_purple_item, 3, 1, true);
 	
 	effigy_sea_item = CAT_item_init(CAT_ITEM_TYPE_PROP, "Sea Effigy", effigy_sea_sprite, 1);
-	CAT_prop_init(effigy_sea_item, 1, 1, true);
+	CAT_prop_init(effigy_sea_item, 3, 1, true);
 
 	pixel_item = CAT_item_init(CAT_ITEM_TYPE_PROP, "Pixel", pixel_sprite, 1);
 	CAT_prop_init(pixel_item, 1, 1, true);

@@ -1,4 +1,5 @@
 #include "cat_deco.h"
+
 #include "cat_item.h"
 #include "cat_room.h"
 #include "cat_machine.h"
@@ -6,6 +7,7 @@
 #include "cat_input.h"
 #include "cat_pet.h"
 #include "cat_sprite.h"
+#include <stdio.h>
 
 CAT_deco_state deco_state;
 
@@ -17,6 +19,10 @@ void CAT_deco_state_init()
 	deco_state.mod_idx = -1;
 }
 
+void printiv2(CAT_ivec2 v)
+{
+	printf("%d %d\n", v.x, v.y);
+}
 void CAT_deco_target(CAT_ivec2 place)
 {
 	for(int i = 0; i < room.prop_count; i++)
@@ -25,7 +31,8 @@ void CAT_deco_target(CAT_ivec2 place)
 		CAT_item* prop = &item_table.data[item_id];
 		CAT_ivec2 shape = prop->data.prop_data.shape;
 		CAT_rect bounds = CAT_rect_place(room.prop_places[i], shape);
-		//bounds.max = CAT_ivec2_add(bounds.max, (CAT_ivec2) {-1, -1});
+		bounds.max.x -= 1;
+		bounds.max.y -= 1;
 
 		if(CAT_rect_pt(place, bounds))
 		{
