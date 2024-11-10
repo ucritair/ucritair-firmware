@@ -80,7 +80,7 @@ void lcd_render_diag()
 	LOG_INF("About to CAT_init");
 
 #ifndef MINIMIZE_GAME_FOOTPRINT
-	CAT_init();
+	CAT_init(true, 0);
 #endif
 
 	NRF_SPIM4->FREQUENCY = SPIM_FREQUENCY_FREQUENCY_M32;
