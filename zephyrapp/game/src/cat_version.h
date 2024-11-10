@@ -1,6 +1,7 @@
-#pragma once
+#ifndef CAT_VERSION_H
 #define CAT_VERSION_H
 #define CAT_VERSION_MAJOR 0
 #define CAT_VERSION_MINOR 0
 #define CAT_VERSION_PATCH 0
-#define CAT_VERSION_PUSH 1
+#define CAT_VERSION_PUSH 2
+#endif
