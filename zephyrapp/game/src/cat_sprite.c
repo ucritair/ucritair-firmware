@@ -387,16 +387,30 @@ uint8_t luminance(uint16_t rgb)
 // CATs when they eat a
 void CAT_greenberry(int xi, int w, int yi, int h, float t)
 {
+#ifdef CAT_EMBEDDED
+	yi -= framebuffer_offset_h;
+#endif
+
 	int xf = xi + w * t;
 	int yf = yi + h;
+
+#ifdef CAT_EMBEDDED
+	if (yi > LCD_FRAMEBUFFER_H || yf < 0)
+		return;
+
+	if (yf >= LCD_FRAMEBUFFER_H)
+		yf = LCD_FRAMEBUFFER_H-1;
+
+	if (yi < 0)
+		yi = 0;
+#endif
+
 	for(int y = yi; y < yf; y++)
 	{
 		for(int x = xi; x < xf; x++)
 		{
 			int idx = y * LCD_SCREEN_W + x;
 			uint16_t c = FRAMEBUFFER[idx];
-			if(c == 0xdead)
-				continue;
 			uint8_t l = luminance(c);
 			float lf = (float) l / 255.0f;
 			uint8_t g = clamp(l+8, 0, 255);

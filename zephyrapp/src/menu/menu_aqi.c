@@ -55,7 +55,8 @@ void CAT_render_aqi()
 	CAT_gui_line_break();
 	if (current_readings.sunrise.uptime_last_updated)
 	{
-		textf("PM2.5: %2.1f  |  PM10: %2.1f", (double)current_readings.sen5x.pm2_5, (double)current_readings.sen5x.pm10_0);
+		textf("PM2.5: %2.1f ~g/m3", (double)current_readings.sen5x.pm2_5);
+		textf("PM10:  %2.1f ~g/m3", (double)current_readings.sen5x.pm10_0);
 	}
 	else
 	{
@@ -64,7 +65,8 @@ void CAT_render_aqi()
 	CAT_gui_line_break();
 	if (current_readings.sen5x.voc_index && current_readings.sen5x.nox_index)
 	{
-		textf("VOC %3.0f  |  NOX %3.0f", (double)current_readings.sen5x.voc_index, (double)current_readings.sen5x.nox_index);
+		textf("VOC %3.0f", (double)current_readings.sen5x.voc_index);
+		textf("NOX %3.0f", (double)current_readings.sen5x.nox_index);
 	}
 	else
 	{
