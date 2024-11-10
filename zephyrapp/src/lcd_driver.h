@@ -28,3 +28,6 @@ extern int framebuffer_offset_h;
 void lcd_flip(uint16_t* buffer, int offset);
 void lcd_init();
 void set_backlight(int pct);
+
+#define BACKLIGHT_FULL 60
+#define BACKLIGHT_DIM 5

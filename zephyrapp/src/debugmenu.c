@@ -155,7 +155,7 @@ void menu_post()
 	selectable("Main Menu", goto_menu, menu_root);
 	selectable("Do nothing (test A)", NULL, NULL);
 
-	seen_buttons |= get_buttons();
+	seen_buttons |= current_buttons;
 
 	text("");
 	text("");
@@ -298,7 +298,13 @@ void menu_toggle_fps(void* arg)
 
 void menu_power_off(void* arg)
 {
-	power_off((int)arg);
+	power_off((int)arg, false);
+}
+
+void menu_power_off_protected(void* arg)
+{
+	epaper_render_protected_off();
+	power_off(0, true);
 }
 
 void menu_toggle_epaper_flip_y(void* arg)
@@ -309,6 +315,11 @@ void menu_toggle_epaper_flip_y(void* arg)
 void menu_zero_rtc(void* arg)
 {
 	zero_rtc_counter();
+}
+
+void do_populate_next(void* arg)
+{
+	populate_next_log_cell();
 }
 
 #include <hal/nrf_rtc.h>
@@ -329,11 +340,16 @@ void menu_root()
 	selectable("Set Backlight", goto_menu, menu_set_backlight);
 	selectable("Power Off (for 10s)", menu_power_off, (void*)10000);
 	selectable("Power Off", menu_power_off, (void*)0);
+	selectable("Protected Power Off", menu_power_off_protected, NULL);
 
 	text("")
 	textf("Clock: %d o=%d", (int)get_current_rtc_time(), (int)rtc_offset);
 	textf("RTC: %d", nrf_rtc_counter_get(HW_RTC_CHOSEN));
 	selectable("Zero RTC", menu_zero_rtc, NULL);
+
+	text("");
+	textf("Next log cell: %d", next_log_cell_nr);
+	selectable("populate_next_log_cell", do_populate_next, NULL);
 
 	text("");
 	selectable("Back to game", exit_debug_menu, NULL);
@@ -347,7 +363,7 @@ void draw_debug_menu()
 	curr_idx = 0;
 	selected = false;
 
-	uint8_t new_buttons = get_buttons();
+	uint8_t new_buttons = current_buttons;
 
 	if (NEWLY_PRESSED(CAT_BTN_MASK_A))
 	{

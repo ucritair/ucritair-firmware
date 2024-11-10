@@ -7,50 +7,6 @@
 #include <stdio.h>
 
 //////////////////////////////////////////////////////////////////////////
-// DIRECT FX
-
-uint16_t rgb8882rgb565(uint8_t r, uint8_t g, uint8_t b)
-{
-	return ((r & 0b11111000) << 8) | ((g & 0b11111100) << 3) | (b >> 3);
-}
-
-uint8_t luminance(uint16_t rgb)
-{
-	uint8_t r = (rgb & 0b1111100000000000) >> 11;
-	uint8_t g = (rgb & 0b0000011111100000) >> 5;
-	uint8_t b = rgb & 0b0000000000011111;
-	uint8_t l = ((r << 1) + r  + (g << 2) + b) >> 1;
-	return l;
-}
-
-// CATs when they eat a
-void CAT_greenberry(int xi, int w, int yi, int h, float t)
-{
-	int xf = xi + w * t;
-	int yf = yi + h;
-	for(int y = yi; y < yf; y++)
-	{
-		for(int x = xi; x < xf; x++)
-		{
-			int idx = y * LCD_SCREEN_W + x;
-			uint16_t c = spriter.framebuffer[idx];
-			if(c == 0xdead)
-				continue;
-			uint8_t l = luminance(c);
-			float lf = (float) l / 255.0f;
-			uint8_t g = clamp(l+8, 0, 255);
-			uint8_t b = clamp(l-128, 0, 255);
-			uint8_t r = clamp(l+48, 0, 255);
-			if(t >= 1)
-				r = clamp(r + 128, 0, 255);
-			spriter.framebuffer[idx] = rgb8882rgb565(r, g, b);
-		}
-	}
-}
-// Okay, it's more of an orangeberry. [Goldberry?](https://tolkiengateway.net/wiki/Goldberry)
-
-
-//////////////////////////////////////////////////////////////////////////
 // ATLAS AND SPRITER
 
 #ifndef CAT_BAKED_ASSETS
@@ -60,8 +16,8 @@ CAT_atlas atlas;
 #include "../../script/images.c"
 #include <stdio.h>
 #else
-const CAT_baked_sprite image_data_table[];
-uint16_t rle_work_region[];
+extern const CAT_baked_sprite image_data_table[];
+extern uint16_t rle_work_region[];
 #include "lcd_driver.h"
 #endif
 #endif
@@ -410,6 +366,50 @@ void CAT_spriter_cleanup()
 	CAT_free(spriter.framebuffer);
 #endif
 }
+
+//////////////////////////////////////////////////////////////////////////
+// DIRECT FX
+
+uint16_t rgb8882rgb565(uint8_t r, uint8_t g, uint8_t b)
+{
+	return ((r & 0b11111000) << 8) | ((g & 0b11111100) << 3) | (b >> 3);
+}
+
+uint8_t luminance(uint16_t rgb)
+{
+	uint8_t r = (rgb & 0b1111100000000000) >> 11;
+	uint8_t g = (rgb & 0b0000011111100000) >> 5;
+	uint8_t b = rgb & 0b0000000000011111;
+	uint8_t l = ((r << 1) + r  + (g << 2) + b) >> 1;
+	return l;
+}
+
+// CATs when they eat a
+void CAT_greenberry(int xi, int w, int yi, int h, float t)
+{
+	int xf = xi + w * t;
+	int yf = yi + h;
+	for(int y = yi; y < yf; y++)
+	{
+		for(int x = xi; x < xf; x++)
+		{
+			int idx = y * LCD_SCREEN_W + x;
+			uint16_t c = FRAMEBUFFER[idx];
+			if(c == 0xdead)
+				continue;
+			uint8_t l = luminance(c);
+			float lf = (float) l / 255.0f;
+			uint8_t g = clamp(l+8, 0, 255);
+			uint8_t b = clamp(l-128, 0, 255);
+			uint8_t r = clamp(l+48, 0, 255);
+			if(t >= 1)
+				r = clamp(r + 128, 0, 255);
+			FRAMEBUFFER[idx] = rgb8882rgb565(r, g, b);
+		}
+	}
+}
+// Okay, it's more of an orangeberry. [Goldberry?](https://tolkiengateway.net/wiki/Goldberry)
+
 
 //////////////////////////////////////////////////////////////////////////
 // DRAW QUEUE

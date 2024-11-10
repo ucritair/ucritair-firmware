@@ -31,6 +31,7 @@ LOG_MODULE_REGISTER(sample, LOG_LEVEL_INF);
 #include "rgb_leds.h"
 #include "rtc.h"
 #include "airquality.h"
+#include "buttons.h"
 
 static int cmd_start_wifi(const struct shell *sh, size_t argc,
 				   char **argv)
@@ -72,7 +73,6 @@ int main(void)
 
 	LOG_INF("~Test speaker~");
 	set_3v3(true);
-	
 
 	usb_enable(NULL);
 
@@ -86,6 +86,8 @@ int main(void)
 
 	LOG_INF("CAT Application Started");
 	LOG_PANIC();
+
+	init_epaper_enough_for_it_to_calm_the_fuck_down();
 
 	NRF_CLOCK_S->HFCLKCTRL = (CLOCK_HFCLKCTRL_HCLK_Div1 << CLOCK_HFCLKCTRL_HCLK_Pos); // 128MHz
 	// Annoyingly need to do this even in low power because the LED timing depends on it
@@ -105,11 +107,13 @@ int main(void)
 		int cycle = 1;
 		while (cycle++)
 		{
-			set_first_led((struct led_rgb){0, ((cycle%20)>10)?50:100, 0});
+			set_first_led((struct led_rgb){0, ((cycle%20)>10)?10:30, 0});
 			k_msleep(20);
 
 			sensor_read_once();
-			if (get_buttons())
+			update_buttons();
+
+			if (current_buttons)
 			{
 				snapshot_rtc_for_reboot();
 				wakeup_is_from_timer = false;
@@ -128,8 +132,9 @@ int main(void)
 			{
 				LOG_INF("readings ready");
 				epaper_render_test();
+				populate_next_log_cell();
 				k_msleep(20);
-				power_off(sensor_wakeup_rate*1000);
+				power_off(sensor_wakeup_rate*1000, false);
 			}
 		}
 	}
@@ -174,7 +179,7 @@ int main(void)
 	cmd_start_wifi(NULL, 0, NULL);
 
 	set_5v0(true);
-	k_msleep(50);
+	k_msleep(15);
 
 	sensor_init();
 

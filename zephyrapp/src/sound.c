@@ -11,7 +11,7 @@ void test_speaker()
 {
 	init_pin(&pin_speaker, "pin_speaker", GPIO_OUTPUT_INACTIVE);
 
-	for (int i = 0; i < 200; i++)
+	for (int i = 0; i < 50; i++)
 	{
 		gpio_pin_toggle_dt(&pin_speaker);
 		k_msleep(1);

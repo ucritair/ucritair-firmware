@@ -96,12 +96,12 @@ void set_all_same_color(struct led_rgb color)
 
 void set_first_led(struct led_rgb color)
 {
-	pixels[0] = color;
-
 	for (int i = 1; i < STRIP_NUM_PIXELS; i++)
 	{
 		pixels[i] = (struct led_rgb){0, 0, 0};
 	}
+
+	pixels[2] = color;
 
 	set_leds(true);
 

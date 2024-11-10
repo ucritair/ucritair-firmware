@@ -16,8 +16,6 @@ void CAT_MS_aqi(CAT_machine_signal signal)
 	{
 		case CAT_MACHINE_SIGNAL_ENTER:
 		{
-			bag_state.base = 0;
-			bag_state.idx = 0;
 			break;
 		}
 		case CAT_MACHINE_SIGNAL_TICK:
@@ -28,7 +26,6 @@ void CAT_MS_aqi(CAT_machine_signal signal)
 			break;
 		}
 		case CAT_MACHINE_SIGNAL_EXIT:
-			bag_state.destination = CAT_MS_menu;
 			break;
 	}
 }
@@ -37,7 +34,7 @@ void CAT_render_aqi()
 {
 	CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});  
 	CAT_gui_text("AIR QUALITY ");
-	CAT_gui_image(fbut_b_sprite, 1);
+	CAT_gui_image(icon_b_sprite, 1);
 	CAT_gui_image(icon_exit_sprite, 0);
 
 	CAT_gui_line_break();
@@ -49,7 +46,7 @@ void CAT_render_aqi()
 	
 	if (current_readings.sunrise.uptime_last_updated)
 	{
-		textf("CO2: %4dppm", (int)current_readings.sunrise.ppm_filtered_compensated);
+		textf("CO2: %dppm", (int)current_readings.sunrise.ppm_filtered_compensated);
 	}
 	else
 	{
@@ -76,7 +73,7 @@ void CAT_render_aqi()
 	CAT_gui_line_break();
 	if (current_readings.sen5x.temp_degC)
 	{
-		textf("%2.1fC  |  %2.0f%%RH", (double)current_readings.sen5x.temp_degC, (double)current_readings.sen5x.humidity_rhpct);
+		textf("%2.1f`C  |  %2.0f%%RH", (double)current_readings.sen5x.temp_degC, (double)current_readings.sen5x.humidity_rhpct);
 	}
 	else
 	{

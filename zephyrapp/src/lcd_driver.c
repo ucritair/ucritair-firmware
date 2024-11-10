@@ -96,7 +96,7 @@ void lcd_init()
 
 	LOG_INF("lcd_framebuffer=%p", lcd_framebuffer);
 
-	set_backlight(75);
+	set_backlight(BACKLIGHT_FULL);
 	pc_set_mode(true);
 
 	if (!device_is_ready(display_dev)) {

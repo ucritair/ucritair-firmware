@@ -41,7 +41,9 @@ void deinit_buttons()
 	}
 }
 
-uint8_t get_buttons()
+uint8_t current_buttons = 0;
+
+void update_buttons()
 {
 	uint8_t bits = 0;
 
@@ -58,5 +60,5 @@ uint8_t get_buttons()
 		k_usleep(25);
 	}
 
-	return ~bits;
+	current_buttons = ~bits;
 }

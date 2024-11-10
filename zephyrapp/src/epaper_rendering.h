@@ -1,5 +1,6 @@
 
 void epaper_render_test();
+void epaper_render_protected_off();
 extern bool epaper_flip_y;
 
 struct epaper_image_asset {
