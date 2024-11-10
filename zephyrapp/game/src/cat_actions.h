@@ -8,7 +8,6 @@
 typedef struct CAT_action_state
 {
 	CAT_machine_state action_MS;
-	void (*action_proc)();
 	CAT_AM_state* action_AS;
 	CAT_AM_state* stat_up_AS;
 

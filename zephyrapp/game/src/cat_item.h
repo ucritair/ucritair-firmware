@@ -36,15 +36,11 @@ typedef struct CAT_item
 	{
 		struct
 		{
-			float d_v;
-			float d_f;
-			float d_s;
-		} food_data;
-
-		struct
-		{
-			int icon_sprite_id;
-		} book_data;
+			int cursor_sprite_id;
+			int dv;
+			int df;
+			int ds;
+		} tool_data;
 
 		struct
 		{
@@ -70,8 +66,7 @@ void CAT_item_table_init();
 int CAT_item_init(CAT_item_type type, const char* name, int sprite_id, int price);
 CAT_item* CAT_item_get(int item_id);
 
-void CAT_food_init(int item_id, float d_v, float d_f, float d_s);
-void CAT_book_init(int item_id, int icon_sprite_id);
+void CAT_tool_init(int item_id, int cursor_sprite_id, int dv, int df, int ds);
 void CAT_prop_init(int item_id, int width, int height, bool animate);
 void CAT_gear_init(int item_id);
 void CAT_gear_toggle(int item_id, bool equipped);
@@ -81,32 +76,69 @@ bool CAT_gear_status(int item_id);
 //////////////////////////////////////////////////////////////////////////
 // ID DECLARATIONS
 
-extern int cigarettes_item;
+// TOOLS
+extern int padkaprow_item;
 extern int sausage_item;
-extern int padkrapow_item;
+extern int coffee_item;
+extern int pill_vig_item;
+extern int pill_foc_item;
+extern int pill_spi_item;
+extern int cigarette_item;
+
 extern int book_a_item;
 extern int book_b_item;
 extern int book_c_item;
-extern int toy_a_item;
-extern int toy_b_item;
-extern int toy_c_item;
+
+extern int toy_duck_item;
+extern int toy_baseball_item;
+extern int toy_basketball_item;
+extern int toy_golf_item;
+extern int toy_puzzle_item;
+
+// KEYS AND GEAR
 extern int mask_item;
 
-extern int solderpaste_item;
-extern int coffee_item;
-extern int fan_item;
-extern int purifier_item;
+// PROPS
+extern int gpu_item;
 extern int uv_item;
-extern int crypto_item;
+extern int purifier_item;
 
-extern int chair_wood_item;
-extern int table_sm_item;
+extern int coffeemaker_item;
+extern int fan_a_item;
+extern int fan_b_item;
+extern int lantern_item;
+
 extern int table_lg_item;
+extern int table_sm_item;
+extern int chair_wood_item;
+extern int stool_wood_item;
+extern int stool_stone_item;
+extern int stool_gold_item;
 
-extern int lantern_lit_item;
-extern int lantern_unlit_item;
 extern int bowl_stone_item;
 extern int bowl_gold_item;
+extern int vase_stone_item;
+extern int vase_gold_item;
+
+extern int succulent_item;
+extern int bush_plain_item;
+extern int bush_daisy_item;
+extern int bush_lilac_item;
+extern int plant_green_item;
+extern int plant_maroon_item;
+extern int plant_purple_item;
+extern int plant_yellow_item;
+extern int flower_vig_item;
+extern int flower_foc_item;
+extern int flower_spi_item;
+
+extern int crystal_blue_lg_item;
+extern int crystal_green_lg_item;
+extern int crystal_purple_lg_item;
+
+extern int effigy_blue_item;
+extern int effigy_purple_item;
+extern int effigy_sea_item;
 
 extern int pixel_item;
 

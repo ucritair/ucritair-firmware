@@ -99,7 +99,7 @@ void CAT_gui_text(const char* text)
 
 		CAT_draw_sprite(glyph_sprite, *c-' ', gui.cursor.x, gui.cursor.y);
 		if(gui.text_mode == CAT_TEXT_MODE_STRIKETHROUGH)
-			CAT_draw_sprite(strikethrough_sprite, 0, gui.cursor.x, gui.cursor.y);
+			CAT_draw_sprite(strike_sprite, 0, gui.cursor.x, gui.cursor.y);
 		gui.cursor.x += CAT_GLYPH_WIDTH;
 	}
 

@@ -6,9 +6,9 @@
 
 typedef struct CAT_pet
 {
-	float vigour;
-	float focus;
-	float spirit;
+	int vigour;
+	int focus;
+	int spirit;
 	bool critical;
 
 	CAT_vec2 pos;

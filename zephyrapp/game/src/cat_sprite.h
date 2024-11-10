@@ -150,7 +150,145 @@ extern int base_floor_sprite;
 extern int sky_wall_sprite;
 extern int grass_floor_sprite;
 
-// PET
+extern int panel_sprite;
+extern int glyph_sprite;
+extern int strike_sprite;
+
+// ICONS
+extern int icon_pointer_sprite;
+extern int icon_a_sprite;
+extern int icon_b_sprite;
+extern int icon_n_sprite;
+extern int icon_e_sprite;
+extern int icon_s_sprite;
+extern int icon_w_sprite;
+extern int icon_start_sprite;
+extern int icon_select_sprite;
+extern int icon_enter_sprite;
+extern int icon_exit_sprite;
+extern int icon_equip_sprite;
+
+extern int icon_item_sprite;
+extern int icon_coin_sprite;
+
+extern int icon_vig_sprite;
+extern int icon_foc_sprite;
+extern int icon_spi_sprite;
+extern int cell_vig_sprite;
+extern int cell_foc_sprite;
+extern int cell_spi_sprite;
+extern int cell_empty_sprite;
+
+extern int icon_temp_sprite;
+extern int icon_co2_sprite;
+extern int icon_pm_sprite;
+extern int icon_voc_sprite;
+extern int icon_nox_sprite;
+
+extern int icon_mask_sprite;
+extern int icon_pure_sprite;
+extern int icon_uv_sprite;
+
+extern int icon_feed_sprite;
+extern int icon_study_sprite;
+extern int icon_play_sprite;
+extern int icon_deco_sprite;
+extern int icon_menu_sprite;
+
+// CURSORS
+extern int cursor_sprite;
+extern int tile_hl_sprite;
+
+extern int cursor_add_sprite;
+extern int tile_hl_add_sprite;
+
+extern int cursor_flip_sprite;
+extern int tile_hl_flip_sprite;
+extern int tile_mark_flip_sprite;
+
+extern int cursor_remove_sprite;
+extern int tile_hl_rm_sprite;
+extern int tile_mark_rm_sprite;
+
+extern int button_hl_sprite;
+extern int touch_hl_sprite;
+
+// TOOLS
+extern int padkaprow_sprite;
+extern int sausage_sprite;
+extern int coffee_sprite;
+extern int pill_vig_sprite;
+extern int pill_foc_sprite;
+extern int pill_spi_sprite;
+extern int cigarette_sprite;
+
+extern int book_static_sprite;
+extern int book_study_sprite;
+
+extern int toy_duck_sprite;
+extern int toy_baseball_sprite;
+extern int toy_basketball_sprite;
+extern int toy_golf_sprite;
+extern int toy_puzzle_sprite;
+
+// KEYS AND GEAR
+extern int mask_sprite;
+extern int coin_static_sprite;
+extern int coin_world_sprite;
+
+// FIXED PROPS
+extern int window_dawn_sprite;
+extern int window_day_sprite;
+extern int window_night_sprite;
+extern int vending_sprite;
+
+// GAMEPLAY PROPS
+extern int gpu_sprite;
+extern int uv_sprite;
+extern int purifier_sprite;
+
+// DECO PROPS
+extern int coffeemaker_sprite;
+extern int fan_a_sprite;
+extern int fan_b_sprite;
+extern int lantern_sprite;
+
+extern int table_lg_sprite;
+extern int table_sm_sprite;
+extern int chair_wood_sprite;
+extern int stool_wood_sprite;
+extern int stool_stone_sprite;
+extern int stool_gold_sprite;
+
+extern int bowl_stone_sprite;
+extern int bowl_gold_sprite;
+extern int vase_stone_sprite;
+extern int vase_gold_sprite;
+
+extern int succulent_sprite;
+extern int bush_plain_sprite;
+extern int bush_daisy_sprite;
+extern int bush_lilac_sprite;
+extern int plant_green_sprite;
+extern int plant_maroon_sprite;
+extern int plant_purple_sprite;
+extern int plant_yellow_sprite;
+extern int flower_vig_sprite;
+extern int flower_foc_sprite;
+extern int flower_spi_sprite;
+
+extern int crystal_blue_lg_sprite;
+extern int crystal_green_lg_sprite;
+extern int crystal_purple_lg_sprite;
+
+extern int effigy_blue_sprite;
+extern int effigy_purple_sprite;
+extern int effigy_sea_sprite;
+
+extern int poster_zk_sprite;
+extern int pixel_sprite;
+
+// PET STATES
 extern int pet_idle_sprite;
 extern int pet_walk_sprite;
 
@@ -170,160 +308,41 @@ extern int pet_walk_low_foc_sprite;
 extern int pet_idle_low_spi_sprite;
 extern int pet_walk_low_spi_sprite;
 
+extern int pet_crit_vig_in_sprite;
 extern int pet_crit_vig_sprite;
-extern int pet_uncrit_vig_sprite;
+extern int pet_crit_vig_out_sprite;
+
+extern int pet_crit_foc_in_sprite;
 extern int pet_crit_foc_sprite;
-extern int pet_uncrit_foc_sprite;
+extern int pet_crit_foc_out_sprite;
+
+extern int pet_crit_spi_in_sprite;
 extern int pet_crit_spi_sprite;
-extern int pet_uncrit_spi_sprite;
+extern int pet_crit_spi_out_sprite;
+
+// PET ACTIONS
+extern int pet_eat_in_sprite;
+extern int pet_eat_sprite;
+extern int pet_eat_out_sprite;
+
+extern int pet_read_in_sprite;
+extern int pet_read_sprite;
+extern int pet_read_out_sprite;
+
+extern int pet_play_a_sprite;
+extern int pet_play_b_sprite;
+extern int pet_play_c_sprite;
 
 extern int pet_vig_up_sprite;
 extern int pet_foc_up_sprite;
 extern int pet_spi_up_sprite;
 
-extern int pet_eat_down_sprite;
-extern int pet_eat_up_sprite;
-extern int pet_chew_sprite;
-
-extern int bubl_low_vig_sprite;
-extern int bubl_low_foc_sprite;
-extern int bubl_low_spi_sprite;
-extern int bubl_react_good_sprite;
-extern int bubl_react_bad_sprite;
-
-// PROPS
-extern int window_dawn_sprite;
-extern int window_day_sprite;
-extern int window_night_sprite;
-extern int vending_sprite;
-
-extern int table_sm_sprite;
-extern int table_lg_sprite;
-extern int chair_wood_sprite;
-extern int stool_wood_sprite;
-extern int stool_stone_sprite;
-extern int stool_gold_sprite;
-
-extern int coffeemaker_sprite;
-extern int fan_sprite;
-extern int solderpaste_sprite;
-extern int purifier_sprite;
-extern int uv_lamp_sprite;
-extern int eth_purif_sprite;
-
-extern int lantern_lit_sprite;
-extern int lantern_unlit_sprite;
-extern int bowl_stone_sprite;
-extern int bowl_gold_sprite;
-extern int vase_stone_sprite;
-extern int vase_gold_sprite;
-
-extern int poster_panda_sprite;
-extern int poster_panda_zk_sprite;
-extern int banner_sprite;
-extern int pixel_sprite;
-
-extern int effigy_blue_sprite;
-extern int effigy_purple_sprite;
-extern int effigy_sea_sprite;
-
-extern int succulent_sprite;
-extern int bush_plain_sprite;
-extern int bush_daisy_sprite;
-extern int bush_lilac_sprite;
-extern int plant_green_sprite;
-extern int plant_maroon_sprite;
-extern int plant_purple_sprite;
-extern int plant_yellow_sprite;
-extern int flower_vig_sprite;
-extern int flower_foc_sprite;
-
-extern int crystal_blue_sm_sprite;
-extern int crystal_green_sm_sprite;
-extern int crystal_purple_sm_sprite;
-extern int crystal_blue_hrt_sprite;
-extern int crystal_green_hrt_sprite;
-extern int crystal_purple_hrt_sprite;
-extern int crystal_blue_md_sprite;
-extern int crystal_green_md_sprite;
-extern int crystal_purple_md_sprite;
-extern int crystal_blue_lg_sprite;
-extern int crystal_green_lg_sprite;
-extern int crystal_purple_lg_sprite;
-
-// GRIMBA
-extern int cigarette_sprite;
-extern int sausage_sprite;
-extern int padkrapow_sprite;
-extern int coffee_sprite;
-extern int book_static_sprite;
-extern int book_study_sprite;
-extern int toy_baseball_sprite;
-extern int toy_duck_sprite;
-extern int toy_basketball_sprite;
-extern int mask_sprite;
-extern int coin_sprite;
-
-// WORLD UI
-extern int cursor_sprite;
-extern int cursor_add_sprite;
-extern int cursor_flip_sprite;
-extern int cursor_remove_sprite;
-extern int tile_hl_sprite;
-extern int tile_hl_add_sprite;
-extern int tile_hl_flip_sprite;
-extern int tile_mark_flip_sprite;
-extern int tile_hl_rm_sprite;
-extern int tile_mark_rm_sprite;
-extern int touch_ring_sprite;
-
-// CORE UI
-extern int sbut_feed_sprite;
-extern int sbut_study_sprite;
-extern int sbut_play_sprite;
-extern int sbut_deco_sprite;
-extern int sbut_menu_sprite;
-extern int sbut_hl_sprite;
-
-extern int panel_sprite;
-extern int glyph_sprite;
-extern int strikethrough_sprite;
-extern int icon_pointer_sprite;
-extern int icon_enter_sprite;
-extern int icon_exit_sprite;
-extern int icon_equip_sprite;
-extern int icon_item_sprite;
-extern int icon_coin_sprite;
-
-extern int fbut_a_sprite;
-extern int fbut_b_sprite;
-extern int fbut_n_sprite;
-extern int fbut_e_sprite;
-extern int fbut_s_sprite;
-extern int fbut_w_sprite;
-extern int fbut_start_sprite;
-extern int fbut_select_sprite;
-
-//STAT ICONS
-extern int icon_vig_sprite;
-extern int icon_foc_sprite;
-extern int icon_spi_sprite;
-extern int cell_vig_sprite;
-extern int cell_foc_sprite;
-extern int cell_spi_sprite;
-extern int cell_empty_sprite;
-
-// AQ ICONS
-extern int icon_temp_sprite;
-extern int icon_co2_sprite;;
-extern int icon_pm_sprite;
-extern int icon_voc_sprite;
-extern int icon_nox_sprite;
-
-// EFFECTIVE ALTRUISM
-extern int icon_mask_sprite;
-extern int icon_pure_sprite;
-extern int icon_uv_sprite;
+// PET MOODS
+extern int mood_low_vig_sprite;
+extern int mood_low_foc_sprite;
+extern int mood_low_spi_sprite;
+extern int mood_good_sprite;
+extern int mood_bad_sprite;
 
 // MACHINES
 extern CAT_AM_state* pet_asm;
@@ -339,7 +358,8 @@ extern CAT_AM_state AS_vig_up;
 extern CAT_AM_state AS_foc_up;
 extern CAT_AM_state AS_spi_up;
 
-extern CAT_AM_state* bubble_asm;
+extern CAT_AM_state* mood_asm;
+extern CAT_AM_state AS_mood;
 extern CAT_AM_state AS_react;
 
 void CAT_sprite_mass_define();

@@ -64,7 +64,10 @@ void CAT_action_tick()
 		{
 			if(CAT_timer_tick(pet.action_timer_id))
 			{
-				action_state.action_proc();
+				CAT_item* item = CAT_item_get(action_state.item_id);
+				pet.vigour += item->data.tool_data.dv;
+				pet.focus += item->data.tool_data.df;
+				pet.spirit += item->data.tool_data.ds;
 				action_state.complete = true;
 				CAT_AM_kill(&pet_asm);
 				CAT_AM_transition(&pet_asm, action_state.stat_up_AS);
@@ -78,11 +81,6 @@ void CAT_action_tick()
 	}
 }
 
-void CAT_feed_proc()
-{
-	pet.vigour += 3;
-}
-
 void CAT_MS_feed(CAT_machine_signal signal)
 {
 	switch(signal)
@@ -90,7 +88,6 @@ void CAT_MS_feed(CAT_machine_signal signal)
 		case CAT_MACHINE_SIGNAL_ENTER:
 		{
 			action_state.action_MS = CAT_MS_feed;
-			action_state.action_proc = CAT_feed_proc;
 			action_state.action_AS = &AS_eat;
 			action_state.stat_up_AS = &AS_vig_up;
 			CAT_AM_transition(&pet_asm, &AS_idle);
@@ -109,11 +106,6 @@ void CAT_MS_feed(CAT_machine_signal signal)
 	}
 }
 
-void CAT_study_proc()
-{
-	pet.focus += 3;
-}
-
 void CAT_MS_study(CAT_machine_signal signal)
 {
 	switch(signal)
@@ -121,7 +113,6 @@ void CAT_MS_study(CAT_machine_signal signal)
 		case CAT_MACHINE_SIGNAL_ENTER:
 		{
 			action_state.action_MS = CAT_MS_study;
-			action_state.action_proc = CAT_study_proc;
 			action_state.action_AS = &AS_study;
 			action_state.stat_up_AS = &AS_foc_up;
 			CAT_AM_transition(&pet_asm, &AS_idle);
@@ -140,11 +131,6 @@ void CAT_MS_study(CAT_machine_signal signal)
 	}
 }
 
-void CAT_play_proc()
-{
-	pet.spirit += 3;
-}
-
 void CAT_MS_play(CAT_machine_signal signal)
 {
 	switch(signal)
@@ -152,7 +138,6 @@ void CAT_MS_play(CAT_machine_signal signal)
 		case CAT_MACHINE_SIGNAL_ENTER:
 		{
 			action_state.action_MS = CAT_MS_play;
-			action_state.action_proc = CAT_play_proc;
 			action_state.action_AS = &AS_play;
 			action_state.stat_up_AS = &AS_spi_up;
 			CAT_AM_transition(&pet_asm, &AS_idle);
@@ -177,10 +162,10 @@ void CAT_render_action(int cycle)
 	{
 		if(action_state.item_id != -1)
 		{
-			CAT_item* item = &item_table.data[action_state.item_id];
+			CAT_item* item = CAT_item_get(action_state.item_id);
 			if(!action_state.confirmed)
 			{
-				CAT_draw_queue_add(item->sprite_id, 0, 2, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
+				CAT_draw_queue_add(item->data.tool_data.cursor_sprite_id, 0, 2, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
 			}			
 			else if(!action_state.complete)
 			{

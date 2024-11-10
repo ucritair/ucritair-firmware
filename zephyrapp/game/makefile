@@ -153,30 +153,6 @@ src/cat_actions.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/app.dir/build.make CMakeFiles/app.dir/src/cat_actions.c.s
 .PHONY : src/cat_actions.c.s
 
-src/cat_aqi.o: src/cat_aqi.c.o
-.PHONY : src/cat_aqi.o
-
-# target to build an object file
-src/cat_aqi.c.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/app.dir/build.make CMakeFiles/app.dir/src/cat_aqi.c.o
-.PHONY : src/cat_aqi.c.o
-
-src/cat_aqi.i: src/cat_aqi.c.i
-.PHONY : src/cat_aqi.i
-
-# target to preprocess a source file
-src/cat_aqi.c.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/app.dir/build.make CMakeFiles/app.dir/src/cat_aqi.c.i
-.PHONY : src/cat_aqi.c.i
-
-src/cat_aqi.s: src/cat_aqi.c.s
-.PHONY : src/cat_aqi.s
-
-# target to generate assembly for a file
-src/cat_aqi.c.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/app.dir/build.make CMakeFiles/app.dir/src/cat_aqi.c.s
-.PHONY : src/cat_aqi.c.s
-
 src/cat_arcade.o: src/cat_arcade.c.o
 .PHONY : src/cat_arcade.o
 
@@ -597,9 +573,6 @@ help:
 	@echo "... src/cat_actions.o"
 	@echo "... src/cat_actions.i"
 	@echo "... src/cat_actions.s"
-	@echo "... src/cat_aqi.o"
-	@echo "... src/cat_aqi.i"
-	@echo "... src/cat_aqi.s"
 	@echo "... src/cat_arcade.o"
 	@echo "... src/cat_arcade.i"
 	@echo "... src/cat_arcade.s"

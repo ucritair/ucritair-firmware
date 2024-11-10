@@ -24,7 +24,6 @@ else()
 endif()
 
 target_sources(app PRIVATE
-	src/cat_aqi.c
 	src/cat_gui.c
 	src/cat_input.c
 	src/cat_item.c

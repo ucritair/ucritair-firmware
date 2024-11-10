@@ -14,8 +14,8 @@ CAT_atlas atlas;
 #include "../../script/images.c"
 #include <stdio.h>
 #else
-extern const CAT_baked_sprite image_data_table[];
-extern uint16_t rle_work_region[];
+const CAT_baked_sprite image_data_table[];
+uint16_t rle_work_region[];
 #include "lcd_driver.h"
 #endif
 #endif
@@ -501,7 +501,7 @@ void CAT_draw_queue_submit(int cycle)
 
 
 //////////////////////////////////////////////////////////////////////////
-// ID DECLARATIONS
+// DECLARATIONS
 
 // TILESETS
 int base_wall_sprite;
@@ -509,7 +509,144 @@ int base_floor_sprite;
 int sky_wall_sprite;
 int grass_floor_sprite;
 
-// PET
+int panel_sprite;
+int glyph_sprite;
+int strike_sprite;
+
+// ICONS
+int icon_pointer_sprite;
+int icon_a_sprite;
+int icon_b_sprite;
+int icon_n_sprite;
+int icon_e_sprite;
+int icon_s_sprite;
+int icon_w_sprite;
+int icon_start_sprite;
+int icon_select_sprite;
+int icon_enter_sprite;
+int icon_exit_sprite;
+int icon_equip_sprite;
+
+int icon_item_sprite;
+int icon_coin_sprite;
+
+int icon_vig_sprite;
+int icon_foc_sprite;
+int icon_spi_sprite;
+int cell_vig_sprite;
+int cell_foc_sprite;
+int cell_spi_sprite;
+int cell_empty_sprite;
+
+int icon_temp_sprite;
+int icon_co2_sprite;
+int icon_pm_sprite;
+int icon_voc_sprite;
+int icon_nox_sprite;
+
+int icon_mask_sprite;
+int icon_pure_sprite;
+int icon_uv_sprite;
+
+int icon_feed_sprite;
+int icon_study_sprite;
+int icon_play_sprite;
+int icon_deco_sprite;
+int icon_menu_sprite;
+
+// CURSORS
+int cursor_sprite;
+int tile_hl_sprite;
+
+int cursor_add_sprite;
+int tile_hl_add_sprite;
+
+int cursor_flip_sprite;
+int tile_hl_flip_sprite;
+int tile_mark_flip_sprite;
+
+int cursor_remove_sprite;
+int tile_hl_rm_sprite;
+int tile_mark_rm_sprite;
+
+int button_hl_sprite;
+int touch_hl_sprite;
+
+// TOOLS
+int padkaprow_sprite;
+int sausage_sprite;
+int coffee_sprite;
+int pill_vig_sprite;
+int pill_foc_sprite;
+int pill_spi_sprite;
+int cigarette_sprite;
+
+int book_static_sprite;
+int book_study_sprite;
+
+int toy_duck_sprite;
+int toy_baseball_sprite;
+int toy_basketball_sprite;
+int toy_golf_sprite;
+int toy_puzzle_sprite;
+
+int mask_sprite;
+int coin_static_sprite;
+int coin_world_sprite;
+
+// FIXED PROPS
+int window_dawn_sprite;
+int window_day_sprite;
+int window_night_sprite;
+int vending_sprite;
+
+// GAMEPLAY PROPS
+int gpu_sprite;
+int uv_sprite;
+int purifier_sprite;
+
+// DECO PROPS
+int coffeemaker_sprite;
+int fan_a_sprite;
+int fan_b_sprite;
+int lantern_sprite;
+
+int table_lg_sprite;
+int table_sm_sprite;
+int chair_wood_sprite;
+int stool_wood_sprite;
+int stool_stone_sprite;
+int stool_gold_sprite;
+
+int bowl_stone_sprite;
+int bowl_gold_sprite;
+int vase_stone_sprite;
+int vase_gold_sprite;
+
+int succulent_sprite;
+int bush_plain_sprite;
+int bush_daisy_sprite;
+int bush_lilac_sprite;
+int plant_green_sprite;
+int plant_maroon_sprite;
+int plant_purple_sprite;
+int plant_yellow_sprite;
+int flower_vig_sprite;
+int flower_foc_sprite;
+int flower_spi_sprite;
+
+int crystal_blue_lg_sprite;
+int crystal_green_lg_sprite;
+int crystal_purple_lg_sprite;
+
+int effigy_blue_sprite;
+int effigy_purple_sprite;
+int effigy_sea_sprite;
+
+int poster_zk_sprite;
+int pixel_sprite;
+
+// PET STATES
 int pet_idle_sprite;
 int pet_walk_sprite;
 
@@ -529,160 +666,41 @@ int pet_walk_low_foc_sprite;
 int pet_idle_low_spi_sprite;
 int pet_walk_low_spi_sprite;
 
+int pet_crit_vig_in_sprite;
 int pet_crit_vig_sprite;
-int pet_uncrit_vig_sprite;
+int pet_crit_vig_out_sprite;
+
+int pet_crit_foc_in_sprite;
 int pet_crit_foc_sprite;
-int pet_uncrit_foc_sprite;
+int pet_crit_foc_out_sprite;
+
+int pet_crit_spi_in_sprite;
 int pet_crit_spi_sprite;
-int pet_uncrit_spi_sprite;
+int pet_crit_spi_out_sprite;
 
 int pet_vig_up_sprite;
 int pet_foc_up_sprite;
 int pet_spi_up_sprite;
 
-int pet_eat_down_sprite;
-int pet_eat_up_sprite;
-int pet_chew_sprite;
+// PET ACTIONS
+int pet_eat_in_sprite;
+int pet_eat_sprite;
+int pet_eat_out_sprite;
 
-int bubl_low_vig_sprite;
-int bubl_low_foc_sprite;
-int bubl_low_spi_sprite;
-int bubl_react_good_sprite;
-int bubl_react_bad_sprite;
+int pet_read_in_sprite;
+int pet_read_sprite;
+int pet_read_out_sprite;
 
-// PROPS
-int window_dawn_sprite;
-int window_day_sprite;
-int window_night_sprite;
-int vending_sprite;
+int pet_play_a_sprite;
+int pet_play_b_sprite;
+int pet_play_c_sprite;
 
-int table_sm_sprite;
-int table_lg_sprite;
-int chair_wood_sprite;
-int stool_wood_sprite;
-int stool_stone_sprite;
-int stool_gold_sprite;
-
-int coffeemaker_sprite;
-int fan_sprite;
-int solderpaste_sprite;
-int purifier_sprite;
-int uv_lamp_sprite;
-int eth_purif_sprite;
-
-int lantern_lit_sprite;
-int lantern_unlit_sprite;
-int bowl_stone_sprite;
-int bowl_gold_sprite;
-int vase_stone_sprite;
-int vase_gold_sprite;
-
-int poster_panda_sprite;
-int poster_panda_zk_sprite;
-int banner_sprite;
-int pixel_sprite;
-
-int effigy_blue_sprite;
-int effigy_purple_sprite;
-int effigy_sea_sprite;
-
-int succulent_sprite;
-int bush_plain_sprite;
-int bush_daisy_sprite;
-int bush_lilac_sprite;
-int plant_green_sprite;
-int plant_maroon_sprite;
-int plant_purple_sprite;
-int plant_yellow_sprite;
-int flower_vig_sprite;
-int flower_foc_sprite;
-
-int crystal_blue_sm_sprite;
-int crystal_green_sm_sprite;
-int crystal_purple_sm_sprite;
-int crystal_blue_hrt_sprite;
-int crystal_green_hrt_sprite;
-int crystal_purple_hrt_sprite;
-int crystal_blue_md_sprite;
-int crystal_green_md_sprite;
-int crystal_purple_md_sprite;
-int crystal_blue_lg_sprite;
-int crystal_green_lg_sprite;
-int crystal_purple_lg_sprite;
-
-// GRIMBA
-int cigarette_sprite;
-int sausage_sprite;
-int padkrapow_sprite;
-int coffee_sprite;
-int book_static_sprite;
-int book_study_sprite;
-int toy_baseball_sprite;
-int toy_duck_sprite;
-int toy_basketball_sprite;
-int mask_sprite;
-int coin_sprite;
-
-// WORLD UI
-int cursor_sprite;
-int cursor_add_sprite;
-int cursor_flip_sprite;
-int cursor_remove_sprite;
-int tile_hl_sprite;
-int tile_hl_add_sprite;
-int tile_hl_flip_sprite;
-int tile_mark_flip_sprite;
-int tile_hl_rm_sprite;
-int tile_mark_rm_sprite;
-int touch_ring_sprite;
-
-// CORE UI
-int sbut_feed_sprite;
-int sbut_study_sprite;
-int sbut_play_sprite;
-int sbut_deco_sprite;
-int sbut_menu_sprite;
-int sbut_hl_sprite;
-
-int panel_sprite;
-int glyph_sprite;
-int strikethrough_sprite;
-int icon_pointer_sprite;
-int icon_enter_sprite;
-int icon_exit_sprite;
-int icon_equip_sprite;
-int icon_item_sprite;
-int icon_coin_sprite;
-
-int fbut_a_sprite;
-int fbut_b_sprite;
-int fbut_n_sprite;
-int fbut_e_sprite;
-int fbut_s_sprite;
-int fbut_w_sprite;
-int fbut_start_sprite;
-int fbut_select_sprite;
-
-// STAT ICONS
-int icon_vig_sprite;
-int icon_foc_sprite;
-int icon_spi_sprite;
-int cell_vig_sprite;
-int cell_foc_sprite;
-int cell_spi_sprite;
-int cell_empty_sprite;
-
-// AQ ICONS
-int icon_temp_sprite;
-int icon_co2_sprite;
-int icon_pm_sprite;
-int icon_voc_sprite;
-int icon_nox_sprite;
-
-// EFFECTIVE ALTRUISM
-int icon_mask_sprite;
-int icon_pure_sprite;
-int icon_uv_sprite;
+// PET MOODS
+int mood_low_vig_sprite;
+int mood_low_foc_sprite;
+int mood_low_spi_sprite;
+int mood_good_sprite;
+int mood_bad_sprite;
 
 // MACHINES
 CAT_AM_state* pet_asm;
@@ -698,7 +716,7 @@ CAT_AM_state AS_vig_up;
 CAT_AM_state AS_foc_up;
 CAT_AM_state AS_spi_up;
 
-CAT_AM_state* bubble_asm;
+CAT_AM_state* mood_asm;
 CAT_AM_state AS_react;
 
 #ifndef CAT_BAKED_ASSETS
@@ -722,14 +740,148 @@ void CAT_sprite_mass_define()
 #ifdef CAT_DESKTOP
 	setvbuf(stdout, NULL, _IONBF, 0);
 #endif
-	
 	// TILESETS
 	INIT_SPRITE(base_wall_sprite, "sprites/wall_basic.png", 3);
 	INIT_SPRITE(base_floor_sprite, "sprites/tile_basic.png", 3);
 	INIT_SPRITE(sky_wall_sprite, "sprites/wall_sky.png", 8);
 	INIT_SPRITE(grass_floor_sprite, "sprites/tile_grass.png", 9);
 
-	// PET
+	INIT_SPRITE(panel_sprite, "sprites/panel_tiles.png", 10);
+	INIT_SPRITE(glyph_sprite, "sprites/glyphs.png", 95);
+	INIT_SPRITE(strike_sprite, "sprites/strikethrough.png", 1);
+
+	// ICONS
+	INIT_SPRITE(icon_pointer_sprite, "sprites/icon_pointer.png", 1);
+	INIT_SPRITE(icon_a_sprite, "sprites/A Button_Both.png", 2);
+	INIT_SPRITE(icon_b_sprite, "sprites/B Button_Both.png", 2);
+	INIT_SPRITE(icon_n_sprite, "sprites/Up_Arrow_Both.png", 2);
+	INIT_SPRITE(icon_e_sprite, "sprites/Right Arrow_Both.png", 2);
+	INIT_SPRITE(icon_s_sprite, "sprites/Down Arrow_Both.png", 2);
+	INIT_SPRITE(icon_w_sprite, "sprites/Left Arrow_Both.png", 2);
+	INIT_SPRITE(icon_start_sprite, "sprites/Start Button_Both.png", 2);
+	INIT_SPRITE(icon_select_sprite, "sprites/Select Button_Both.png", 2);
+	INIT_SPRITE(icon_enter_sprite, "sprites/icon_enter.png", 1);
+	INIT_SPRITE(icon_exit_sprite, "sprites/icon_exit.png", 1);
+	INIT_SPRITE(icon_equip_sprite, "sprites/icon_equip.png", 2);
+
+	INIT_SPRITE(icon_item_sprite, "sprites/icon_item.png", 6);
+	INIT_SPRITE(icon_coin_sprite, "sprites/icon_coin.png", 1);
+
+	INIT_SPRITE(icon_vig_sprite, "sprites/STAT_VIGOR2424.png", 1);
+	INIT_SPRITE(icon_foc_sprite, "sprites/STAT_FOCUS2424.png", 1);
+	INIT_SPRITE(icon_spi_sprite, "sprites/STAT_SPIRIT2424.png", 1);
+	INIT_SPRITE(cell_vig_sprite, "sprites/cell_vig.png", 1);
+	INIT_SPRITE(cell_foc_sprite, "sprites/cell_foc.png", 1);
+	INIT_SPRITE(cell_spi_sprite, "sprites/cell_spi.png", 1);
+	INIT_SPRITE(cell_empty_sprite, "sprites/cell_empty.png", 1);
+
+	INIT_SPRITE(icon_temp_sprite, "sprites/icon_temp.png", 3);
+	INIT_SPRITE(icon_co2_sprite, "sprites/icon_co2.png", 3);
+	INIT_SPRITE(icon_pm_sprite, "sprites/icon_pm.png", 3);
+	INIT_SPRITE(icon_voc_sprite, "sprites/icon_voc.png", 3);
+	INIT_SPRITE(icon_nox_sprite, "sprites/icon_nox.png", 3);
+
+	INIT_SPRITE(icon_mask_sprite, "sprites/icon_mask.png", 1);
+	INIT_SPRITE(icon_pure_sprite, "sprites/icon_pure.png", 1);
+	INIT_SPRITE(icon_uv_sprite, "sprites/icon_uv.png", 1);
+
+	INIT_SPRITE(icon_feed_sprite, "sprites/Stat_Refill_Vigor_Button.png", 2);
+	INIT_SPRITE(icon_study_sprite, "sprites/Stat_Refill_Focus_Button.png", 2);
+	INIT_SPRITE(icon_play_sprite, "sprites/Stat_Refill_Spirit_Button.png", 2);
+	INIT_SPRITE(icon_deco_sprite, "sprites/sbut_deco.png", 2);
+	INIT_SPRITE(icon_menu_sprite, "sprites/sbut_menu.png", 2);
+
+	// CURSORS
+	INIT_SPRITE(cursor_sprite, "sprites/cursor_room_ornate.png", 1);
+	INIT_SPRITE(tile_hl_sprite, "sprites/tile_hl.png", 1);
+
+	INIT_SPRITE(cursor_add_sprite, "sprites/cursor_add.png", 1);
+	INIT_SPRITE(tile_hl_add_sprite, "sprites/tile_hl_add.png", 1);
+
+	INIT_SPRITE(cursor_flip_sprite, "sprites/cursor_flip.png", 1);
+	INIT_SPRITE(tile_hl_flip_sprite, "sprites/tile_hl_flip.png", 1);
+	INIT_SPRITE(tile_mark_flip_sprite, "sprites/tile_mark_flip.png", 1);
+
+	INIT_SPRITE(cursor_remove_sprite, "sprites/cursor_remove.png", 1);
+	INIT_SPRITE(tile_hl_rm_sprite, "sprites/tile_hl_rm.png", 1);
+	INIT_SPRITE(tile_mark_rm_sprite, "sprites/tile_mark_rm.png", 1);
+	
+	INIT_SPRITE(button_hl_sprite, "sprites/sbut_hl_sprite.png", 1);
+	INIT_SPRITE(touch_hl_sprite, "sprites/touch_ring_sprite.png", 1);
+	
+	// TOOLS
+	INIT_SPRITE(padkaprow_sprite, "sprites/food_padkrakow_sm.png", 1);
+	INIT_SPRITE(sausage_sprite, "sprites/food_sausage_sm.png", 1);
+	INIT_SPRITE(coffee_sprite, "sprites/food_coffee_sm.png", 1);
+	INIT_SPRITE(pill_vig_sprite, "sprites/seed_vigor_small.png", 1);
+	INIT_SPRITE(pill_foc_sprite, "sprites/seed_focus_small.png", 1);
+	INIT_SPRITE(pill_spi_sprite, "sprites/seed_spirit_small.png", 1);
+	INIT_SPRITE(cigarette_sprite, "sprites/prop_cigarette.png", 1);
+
+	INIT_SPRITE(book_static_sprite, "sprites/read_book_upright.png", 1);
+	INIT_SPRITE(book_study_sprite, "sprites/read_book_turn_a.png", 8);
+
+	INIT_SPRITE(toy_duck_sprite, "sprites/toy_sm_duck.png", 1);
+	INIT_SPRITE(toy_baseball_sprite, "sprites/toy_baseball.png", 1);
+	INIT_SPRITE(toy_basketball_sprite, "sprites/toy_sm_basketball.png", 1);
+	INIT_SPRITE(toy_golf_sprite, "sprites/toy_sm_golf.png", 1);
+	INIT_SPRITE(toy_puzzle_sprite, "sprites/toy_sm_puzzle.png", 1);
+
+	INIT_SPRITE(mask_sprite, "sprites/mask.png", 1);
+	INIT_SPRITE(coin_static_sprite, "sprites/coin.png", 1);
+	INIT_SPRITE(coin_world_sprite, "sprites/coin_a.png", 4);
+
+	// FIXED PROPS
+	INIT_SPRITE(window_dawn_sprite, "sprites/prop_wall_window_dawn.png", 1);
+	INIT_SPRITE(window_day_sprite, "sprites/prop_wall_window_day.png", 1);
+	INIT_SPRITE(window_night_sprite, "sprites/prop_wall_window_dark.png", 1);
+	INIT_SPRITE(vending_sprite, "sprites/interact_vending_items_a.png", 12);
+
+	// GAMEPLAY PROPS
+	INIT_SPRITE(gpu_sprite, "sprites/prop_solderpaste.png", 1);
+	INIT_SPRITE(uv_sprite, "sprites/prop_uv_alt_a.png", 2);
+	INIT_SPRITE(purifier_sprite, "sprites/prop_purifier_eth_a.png", 8);
+
+	// DECO PROPS
+	INIT_SPRITE(coffeemaker_sprite, "sprites/prop_coffee_empty_a.png", 14);
+	INIT_SPRITE(fan_a_sprite, "sprites/prop_fan_a.png", 3);
+	INIT_SPRITE(fan_b_sprite, "sprites/prop_purifier_a.png", 6);
+	INIT_SPRITE(lantern_sprite, "sprites/prop_lantern_lit_a.png", 2);
+
+	INIT_SPRITE(table_lg_sprite, "sprites/prop_table_xl_wood.png", 1);
+	INIT_SPRITE(table_sm_sprite, "sprites/prop_table_md.png", 1);
+	INIT_SPRITE(chair_wood_sprite, "sprites/prop_chair_wood.png", 4);
+	INIT_SPRITE(stool_wood_sprite, "sprites/prop_stool_wood.png", 1);
+	INIT_SPRITE(stool_stone_sprite, "sprites/prop_stool_stone.png", 1);
+	INIT_SPRITE(stool_gold_sprite, "sprites/prop_stool_gold.png", 1);
+
+	INIT_SPRITE(bowl_stone_sprite, "sprites/prop_bowl_stone_2.png", 1);
+	INIT_SPRITE(bowl_gold_sprite, "sprites/prop_bowl_gold.png", 1);
+
+	INIT_SPRITE(succulent_sprite, "sprites/prop_plant_md_stem.png", 1);
+	INIT_SPRITE(bush_plain_sprite, "sprites/prop_bush_lg_empty.png", 1);
+	INIT_SPRITE(bush_daisy_sprite, "sprites/prop_bush_lg_daisy.png", 1);
+	INIT_SPRITE(bush_lilac_sprite, "sprites/prop_bush_lg_lilac.png", 1);
+	INIT_SPRITE(plant_green_sprite, "sprites/prop_plant_sapling_green.png", 1);
+	INIT_SPRITE(plant_maroon_sprite, "sprites/prop_plant_sapling_maroon.png", 1);
+	INIT_SPRITE(plant_purple_sprite, "sprites/prop_plant_sapling_purple.png", 1);
+	INIT_SPRITE(plant_yellow_sprite, "sprites/prop_plant_sapling_yellow.png", 1);
+	INIT_SPRITE(flower_vig_sprite, "sprites/interact_stat_plant_vigor.png", 6);
+	INIT_SPRITE(flower_foc_sprite, "sprites/interact_stat_plant_focus.png", 6);
+	INIT_SPRITE(flower_spi_sprite, "sprites/interact_stat_plant_spirit.png", 6);
+
+	INIT_SPRITE(crystal_blue_lg_sprite, "sprites/prop_crystal_lg_shard_blue.png", 1);
+	INIT_SPRITE(crystal_green_lg_sprite, "sprites/prop_crystal_lg_shard_green.png", 1);
+	INIT_SPRITE(crystal_purple_lg_sprite, "sprites/prop_crystal_lg_shard_purple.png", 1);
+
+	INIT_SPRITE(effigy_blue_sprite, "sprites/prop_effigy_blue_a.png", 4);
+	INIT_SPRITE(effigy_purple_sprite, "sprites/prop_effigy_purple_a.png", 4);
+	INIT_SPRITE(effigy_sea_sprite, "sprites/prop_effigy_sea_a.png", 4);
+
+	INIT_SPRITE(poster_zk_sprite, "sprites/prop_poster_md_zk.png", 1);
+	INIT_SPRITE(pixel_sprite, "sprites/prop_pixel.png", 1);
+
+	// PET STATES
 	INIT_SPRITE(pet_idle_sprite, "sprites/pet_unicorn_idle_complex_a.png", 4);
 	INIT_SPRITE(pet_walk_sprite, "sprites/pet_unicorn_default_walk_complex_a.png", 4);
 
@@ -749,173 +901,54 @@ void CAT_sprite_mass_define()
 	INIT_SPRITE(pet_idle_low_spi_sprite, "sprites/pet_unicorn_sad_idle_a.png", 4);
 	INIT_SPRITE(pet_walk_low_spi_sprite, "sprites/pet_unicorn_sad_walk_a.png", 4);
 
+	INIT_SPRITE(pet_crit_vig_in_sprite, "sprites/pet_unicorn_melt_a.png", 8);
+	INIT_SPRITE(pet_crit_vig_sprite, "sprites/pet_unicorn_melt.png", 8);
+	COPY_SPRITE(pet_crit_vig_out_sprite, pet_crit_vig_in_sprite, false, true);
+
+	INIT_SPRITE(pet_crit_foc_in_sprite, "sprites/pet_unicorn_tipped_a.png", 6);
+	INIT_SPRITE(pet_crit_foc_sprite, "sprites/pet_unicorn_tipped.png", 6);
+	COPY_SPRITE(pet_crit_foc_out_sprite, pet_crit_foc_in_sprite, false, true);
+
+	INIT_SPRITE(pet_crit_spi_in_sprite, "sprites/pet_unicorn_block_a.png", 8);
+	INIT_SPRITE(pet_crit_spi_sprite, "sprites/pet_unicorn_block_blink.png", 2);
+	COPY_SPRITE(pet_crit_spi_out_sprite, pet_crit_spi_in_sprite, false, true);
+
+	// PET ACTIONS
+	INIT_SPRITE(pet_eat_in_sprite, "sprites/pet_unicorn_eat_lower_a.png", 7);
+	INIT_SPRITE(pet_eat_sprite, "sprites/pet_unicorn_eat_chew_a.png", 2);
+	COPY_SPRITE(pet_eat_out_sprite, pet_eat_in_sprite, false, true);
+
+	INIT_SPRITE(pet_read_in_sprite, "sprites/pet_unicorn_read_sit_a.png", 6);
+	INIT_SPRITE(pet_read_sprite, "sprites/pet_unicorn_read_sit.png", 1);
+	COPY_SPRITE(pet_read_out_sprite, pet_read_in_sprite, false, true);
+
+	INIT_SPRITE(pet_play_a_sprite, "sprites/pet_unicorn_play_knead_a.png", 6);
+	INIT_SPRITE(pet_play_b_sprite, "sprites/pet_unicorn_play_b_a.png", 6);
+	INIT_SPRITE(pet_play_c_sprite, "sprites/pet_unicorn_play_c_a.png", 6);
+
 	INIT_SPRITE(pet_vig_up_sprite, "sprites/pet_unicorn_stat_vigor_up_a.png", 13);
 	INIT_SPRITE(pet_foc_up_sprite, "sprites/pet_unicorn_stat_focus_up_a.png", 13);
 	INIT_SPRITE(pet_spi_up_sprite, "sprites/pet_unicorn_stat_spirit_up_a.png", 13);
 
-	INIT_SPRITE(pet_crit_vig_sprite, "sprites/pet_unicorn_melt_a.png", 8);
-	CAT_anim_toggle_loop(pet_crit_vig_sprite, false);
-	COPY_SPRITE(pet_uncrit_vig_sprite, pet_crit_vig_sprite, false, true);
-	INIT_SPRITE(pet_crit_foc_sprite, "sprites/pet_unicorn_tipped_a.png", 6);
-	CAT_anim_toggle_loop(pet_crit_foc_sprite, false);
-	COPY_SPRITE(pet_uncrit_foc_sprite, pet_crit_foc_sprite, false, true);
-	INIT_SPRITE(pet_crit_spi_sprite, "sprites/pet_unicorn_block_a.png", 8);
-	CAT_anim_toggle_loop(pet_crit_spi_sprite, false);
-	COPY_SPRITE(pet_uncrit_spi_sprite, pet_crit_spi_sprite, false, true);
-
-	INIT_SPRITE(pet_eat_down_sprite, "sprites/pet_unicorn_eat_lower_a.png", 7);
-	COPY_SPRITE(pet_eat_up_sprite, pet_eat_down_sprite, false, true);
-	INIT_SPRITE(pet_chew_sprite, "sprites/pet_unicorn_eat_chew_a.png", 2);
-
-	INIT_SPRITE(bubl_low_vig_sprite, "sprites/bubl_low_vig.png", 3);
-	INIT_SPRITE(bubl_low_foc_sprite, "sprites/bubl_low_foc.png", 3);
-	INIT_SPRITE(bubl_low_spi_sprite, "sprites/bubl_low_spi.png", 3);
-	INIT_SPRITE(bubl_react_good_sprite, "sprites/bubl_react_good.png", 5);
-	INIT_SPRITE(bubl_react_bad_sprite, "sprites/bubl_react_bad.png", 3);
-
-	// PROPS
-	INIT_SPRITE(window_dawn_sprite, "sprites/prop_wall_window_dawn.png", 1);
-	INIT_SPRITE(window_day_sprite, "sprites/prop_wall_window_day.png", 1);
-	INIT_SPRITE(window_night_sprite, "sprites/prop_wall_window_dark.png", 1);
-	INIT_SPRITE(vending_sprite, "sprites/interact_vending_items_a.png", 12);
-
-	INIT_SPRITE(table_sm_sprite, "sprites/prop_table_md.png", 1);
-	INIT_SPRITE(table_lg_sprite, "sprites/prop_table_xl_wood.png", 1);
-	INIT_SPRITE(chair_wood_sprite, "sprites/prop_chair_wood.png", 4);
-	INIT_SPRITE(stool_wood_sprite, "sprites/prop_stool_wood.png", 1);
-	INIT_SPRITE(stool_stone_sprite, "sprites/prop_stool_stone.png", 1);
-	INIT_SPRITE(stool_gold_sprite, "sprites/prop_stool_gold.png", 1);
-
-	INIT_SPRITE(solderpaste_sprite, "sprites/prop_solderpaste.png", 1);
-	INIT_SPRITE(coffeemaker_sprite, "sprites/prop_coffee_empty_a.png", 14);
-	INIT_SPRITE(fan_sprite, "sprites/prop_fan_a.png", 3);
-	INIT_SPRITE(purifier_sprite, "sprites/prop_purifier_a.png", 6);
-	INIT_SPRITE(uv_lamp_sprite, "sprites/prop_uv_alt_a.png", 2);
-	INIT_SPRITE(eth_purif_sprite, "sprites/prop_purifier_eth_a.png", 8);
-	
-	INIT_SPRITE(lantern_lit_sprite, "sprites/prop_lantern_lit_a.png", 2);
-	INIT_SPRITE(lantern_unlit_sprite, "sprites/prop_lantern_unlit.png", 1);
-	INIT_SPRITE(bowl_stone_sprite, "sprites/prop_bowl_stone_2.png", 1);
-	INIT_SPRITE(bowl_gold_sprite, "sprites/prop_bowl_gold.png", 1);
-	INIT_SPRITE(vase_stone_sprite, "sprites/prop_vase_sm_stone.png", 1);
-	INIT_SPRITE(vase_gold_sprite, "sprites/prop_vase_sm_gold.png", 1);
-
-	INIT_SPRITE(poster_panda_sprite, "sprites/prop_poster_md_panda.png", 1);
-	INIT_SPRITE(poster_panda_zk_sprite, "sprites/prop_poster_md_zk.png", 1);
-	INIT_SPRITE(banner_sprite, "sprites/prop_banner.png", 1);
-	INIT_SPRITE(pixel_sprite, "sprites/prop_pixel.png", 1);
-
-	INIT_SPRITE(effigy_blue_sprite, "sprites/prop_effigy_blue_a.png", 4);
-	INIT_SPRITE(effigy_purple_sprite, "sprites/prop_effigy_purple_a.png", 4);
-	INIT_SPRITE(effigy_sea_sprite, "sprites/prop_effigy_sea_a.png", 4);
-
-	INIT_SPRITE(succulent_sprite, "sprites/prop_plant_md_stem.png", 1);
-	INIT_SPRITE(bush_plain_sprite, "sprites/prop_bush_lg_empty.png", 1);
-	INIT_SPRITE(bush_daisy_sprite, "sprites/prop_bush_lg_daisy.png", 1);
-	INIT_SPRITE(bush_lilac_sprite, "sprites/prop_bush_lg_lilac.png", 1);
-	INIT_SPRITE(plant_green_sprite, "sprites/prop_plant_sapling_green.png", 1);
-	INIT_SPRITE(plant_maroon_sprite, "sprites/prop_plant_sapling_maroon.png", 1);
-	INIT_SPRITE(plant_purple_sprite, "sprites/prop_plant_sapling_purple.png", 1);
-	INIT_SPRITE(plant_yellow_sprite, "sprites/prop_plant_sapling_yellow.png", 1);
-	INIT_SPRITE(flower_vig_sprite, "sprites/interact_stat_plant_vigor.png", 6);
-	INIT_SPRITE(flower_foc_sprite, "sprites/interact_stat_plant_focus.png", 6);
-
-	INIT_SPRITE(crystal_blue_sm_sprite, "sprites/prop_crystal_sm_shard_blue.png", 1);
-	INIT_SPRITE(crystal_green_sm_sprite, "sprites/prop_crystal_sm_shard_green.png", 1);
-	INIT_SPRITE(crystal_purple_sm_sprite, "sprites/prop_crystal_sm_shard_purple.png", 1);
-	INIT_SPRITE(crystal_blue_hrt_sprite, "sprites/prop_crystal_sm_heart_blue.png", 1);
-	INIT_SPRITE(crystal_green_hrt_sprite, "sprites/prop_crystal_sm_heart_green.png", 1);
-	INIT_SPRITE(crystal_purple_hrt_sprite, "sprites/prop_crystal_sm_heart_purple.png", 1);
-	INIT_SPRITE(crystal_blue_md_sprite, "sprites/prop_crystal_md_shard_blue.png", 1);
-	INIT_SPRITE(crystal_green_md_sprite, "sprites/prop_crystal_md_shard_green.png", 1);
-	INIT_SPRITE(crystal_purple_md_sprite, "sprites/prop_crystal_md_shard_purple.png", 1);
-	INIT_SPRITE(crystal_blue_lg_sprite, "sprites/prop_crystal_lg_shard_blue.png", 1);
-	INIT_SPRITE(crystal_green_lg_sprite, "sprites/prop_crystal_lg_shard_green.png", 1);
-	INIT_SPRITE(crystal_purple_lg_sprite, "sprites/prop_crystal_lg_shard_purple.png", 1);
-
-	// GRIMBA
-	INIT_SPRITE(cigarette_sprite, "sprites/prop_cigarette.png", 1);
-	INIT_SPRITE(sausage_sprite, "sprites/food_sausage_sm.png", 1);
-	INIT_SPRITE(padkrapow_sprite, "sprites/food_padkrakow_sm.png", 1);
-	INIT_SPRITE(coffee_sprite, "sprites/food_coffee_sm.png", 1);
-	INIT_SPRITE(book_static_sprite, "sprites/read_book_upright.png", 1);
-	INIT_SPRITE(book_study_sprite, "sprites/read_book_turn_a.png", 8);
-	INIT_SPRITE(toy_baseball_sprite, "sprites/toy_baseball.png", 1);
-	INIT_SPRITE(toy_duck_sprite, "sprites/toy_sm_duck.png", 1);
-	INIT_SPRITE(toy_basketball_sprite, "sprites/toy_sm_basketball.png", 1);
-	INIT_SPRITE(mask_sprite, "sprites/mask.png", 1);
-	INIT_SPRITE(coin_sprite, "sprites/coin_a.png", 4);
-
-	// WORLD UI
-	INIT_SPRITE(cursor_sprite, "sprites/cursor_room_ornate.png", 1);
-	INIT_SPRITE(cursor_add_sprite, "sprites/cursor_add.png", 1);
-	INIT_SPRITE(cursor_flip_sprite, "sprites/cursor_flip.png", 1);
-	INIT_SPRITE(cursor_remove_sprite, "sprites/cursor_remove.png", 1);
-	INIT_SPRITE(tile_hl_sprite, "sprites/tile_hl.png", 1);
-	INIT_SPRITE(tile_hl_add_sprite, "sprites/tile_hl_add.png", 1);
-	INIT_SPRITE(tile_hl_flip_sprite, "sprites/tile_hl_flip.png", 1);
-	INIT_SPRITE(tile_mark_flip_sprite, "sprites/tile_mark_flip.png", 1);
-	INIT_SPRITE(tile_hl_rm_sprite, "sprites/tile_hl_rm.png", 1);
-	INIT_SPRITE(tile_mark_rm_sprite, "sprites/tile_mark_rm.png", 1);
-	INIT_SPRITE(touch_ring_sprite, "sprites/touch_ring_sprite.png", 1);
-
-	// CORE UI
-	INIT_SPRITE(sbut_feed_sprite, "sprites/Stat_Refill_Vigor_Button.png", 2);
-	INIT_SPRITE(sbut_study_sprite, "sprites/Stat_Refill_Focus_Button.png", 2);
-	INIT_SPRITE(sbut_play_sprite, "sprites/Stat_Refill_Spirit_Button.png", 2);
-	INIT_SPRITE(sbut_deco_sprite, "sprites/sbut_deco.png", 2);
-	INIT_SPRITE(sbut_menu_sprite, "sprites/sbut_menu.png", 2);
-	INIT_SPRITE(sbut_hl_sprite, "sprites/sbut_hl_sprite.png", 1);
-	
-	INIT_SPRITE(panel_sprite, "sprites/panel_tiles.png", 10);
-	INIT_SPRITE(glyph_sprite, "sprites/glyphs.png", 91);
-	INIT_SPRITE(strikethrough_sprite, "sprites/strikethrough.png", 1);
-	INIT_SPRITE(icon_pointer_sprite, "sprites/icon_pointer.png", 1);
-	INIT_SPRITE(icon_enter_sprite, "sprites/icon_enter.png", 1);
-	INIT_SPRITE(icon_exit_sprite, "sprites/icon_exit.png", 1);
-	INIT_SPRITE(icon_equip_sprite, "sprites/icon_equip.png", 2);
-	INIT_SPRITE(icon_item_sprite, "sprites/icon_item.png", 4);
-	INIT_SPRITE(icon_coin_sprite, "sprites/icon_coin.png", 1);
-
-	INIT_SPRITE(fbut_a_sprite, "sprites/A Button_Both.png", 2);
-	INIT_SPRITE(fbut_b_sprite, "sprites/B Button_Both.png", 2);
-	INIT_SPRITE(fbut_n_sprite, "sprites/Up_Arrow_Both.png", 2);
-	INIT_SPRITE(fbut_e_sprite, "sprites/Right Arrow_Both.png", 2);
-	INIT_SPRITE(fbut_s_sprite, "sprites/Down Arrow_Both.png", 2);
-	INIT_SPRITE(fbut_w_sprite, "sprites/Left Arrow_Both.png", 2);
-	INIT_SPRITE(fbut_start_sprite, "sprites/Start Button_Both.png", 2);
-	INIT_SPRITE(fbut_select_sprite, "sprites/Select Button_Both.png", 2);
-	
-	INIT_SPRITE(icon_vig_sprite, "sprites/STAT_VIGOR2424.png", 1);
-	INIT_SPRITE(icon_foc_sprite, "sprites/STAT_FOCUS2424.png", 1);
-	INIT_SPRITE(icon_spi_sprite, "sprites/STAT_SPIRIT2424.png", 1);
-	INIT_SPRITE(cell_vig_sprite, "sprites/cell_vig.png", 1);
-	INIT_SPRITE(cell_foc_sprite, "sprites/cell_foc.png", 1);
-	INIT_SPRITE(cell_spi_sprite, "sprites/cell_spi.png", 1);
-	INIT_SPRITE(cell_empty_sprite, "sprites/cell_empty.png", 1);
-
-	INIT_SPRITE(icon_temp_sprite, "sprites/icon_temp.png", 3);
-	INIT_SPRITE(icon_co2_sprite, "sprites/icon_co2.png", 3);
-	INIT_SPRITE(icon_pm_sprite, "sprites/icon_pm.png", 3);
-	INIT_SPRITE(icon_voc_sprite, "sprites/icon_voc.png", 3);
-	INIT_SPRITE(icon_nox_sprite, "sprites/icon_nox.png", 3);
-
-	INIT_SPRITE(icon_mask_sprite, "sprites/icon_mask.png", 1);
-	INIT_SPRITE(icon_pure_sprite, "sprites/icon_pure.png", 1);
-	INIT_SPRITE(icon_uv_sprite, "sprites/icon_uv.png", 1);
+	// PET MOODS
+	INIT_SPRITE(mood_low_vig_sprite, "sprites/bubl_low_vig.png", 3);
+	INIT_SPRITE(mood_low_foc_sprite, "sprites/bubl_low_foc.png", 3);
+	INIT_SPRITE(mood_low_spi_sprite, "sprites/bubl_low_spi.png", 3);
+	INIT_SPRITE(mood_good_sprite, "sprites/bubl_react_good.png", 5);
+	INIT_SPRITE(mood_bad_sprite, "sprites/bubl_react_bad.png", 3);
 
 	// MACHINES
 	CAT_AM_init(&AS_idle, -1, pet_idle_sprite, -1);
 	CAT_AM_init(&AS_walk, -1, pet_walk_sprite, -1);
 	CAT_AM_init(&AS_adjust_in, -1, -1, pet_idle_sprite);
 	CAT_AM_init(&AS_walk_action, -1, pet_walk_sprite, -1);
-	CAT_AM_init(&AS_eat, pet_eat_down_sprite, pet_chew_sprite, pet_eat_up_sprite);
-	CAT_AM_init(&AS_study, pet_eat_down_sprite, pet_chew_sprite, pet_eat_up_sprite);
-	CAT_AM_init(&AS_play, pet_eat_down_sprite, pet_chew_sprite, pet_eat_up_sprite);
+	CAT_AM_init(&AS_eat, pet_eat_in_sprite, pet_eat_sprite, pet_eat_out_sprite);
+	CAT_AM_init(&AS_study, pet_eat_in_sprite, pet_eat_sprite, pet_eat_out_sprite);
+	CAT_AM_init(&AS_play, pet_eat_in_sprite, pet_eat_sprite, pet_eat_out_sprite);
 	CAT_AM_init(&AS_adjust_out, -1, -1, pet_idle_sprite);
 	CAT_AM_init(&AS_vig_up, -1, -1, pet_vig_up_sprite);
 	CAT_AM_init(&AS_foc_up, -1, -1, pet_foc_up_sprite);
 	CAT_AM_init(&AS_spi_up, -1, -1, pet_spi_up_sprite);
 
-	CAT_AM_init(&AS_react, -1, bubl_react_good_sprite, -1);
+	CAT_AM_init(&AS_react, -1, mood_good_sprite, -1);
 }

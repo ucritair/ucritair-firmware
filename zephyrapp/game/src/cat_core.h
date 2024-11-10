@@ -92,6 +92,8 @@ typedef struct __attribute__((__packed__)) CAT_save
 		int8_t patch;
 		int8_t push;
 	} version;
+
+	
 } CAT_save;
 
 // Call to start saving, then populate the returned CAT_save*

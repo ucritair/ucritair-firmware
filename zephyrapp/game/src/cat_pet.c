@@ -7,13 +7,9 @@ CAT_pet pet;
 
 void CAT_pet_stat()
 {
-	float dv = -1;
-	float df = -1;
-	float ds = -1;
-
-	pet.vigour += dv;
-	pet.focus += df;
-	pet.spirit += ds;
+	pet.vigour -= 1;
+	pet.focus -= 1;
+	pet.spirit -= 1;
 	pet.critical = !(pet.vigour > 0 && pet.focus > 0 && pet.spirit > 0);
 
 	AS_idle.enter_anim_id = -1;
@@ -24,21 +20,21 @@ void CAT_pet_stat()
 	AS_walk.exit_anim_id = -1;
 	AS_adjust_in.exit_anim_id = pet_idle_sprite;
 	AS_adjust_out.exit_anim_id = pet_idle_sprite;
-	AS_react.tick_anim_id = bubl_react_good_sprite;
+	AS_react.tick_anim_id = mood_good_sprite;
 
 	if(pet.critical)
 	{
 		if(pet.vigour == 0)
 		{
-			AS_idle.tick_anim_id = pet_crit_vig_sprite;
+			AS_idle.tick_anim_id = pet_crit_vig_in_sprite;
 		}
 		else if(pet.spirit == 0)
 		{
-			AS_idle.tick_anim_id = pet_crit_spi_sprite;
+			AS_idle.tick_anim_id = pet_crit_spi_in_sprite;
 		}
 		else
 		{
-			AS_idle.tick_anim_id = pet_crit_foc_sprite;
+			AS_idle.tick_anim_id = pet_crit_foc_in_sprite;
 		}
 	}
 	else if(pet.vigour <= 3 || pet.focus <= 3 || pet.spirit <= 3)
@@ -123,10 +119,10 @@ void CAT_render_pet(int cycle)
 		if(pet.left)
 			pet_mode |= CAT_DRAW_MODE_REFLECT_X;
 		CAT_draw_queue_animate(CAT_AM_tick(&pet_asm), 2, pet.pos.x, pet.pos.y, pet_mode);	
-		if(bubble_asm != NULL)
+		if(mood_asm != NULL)
 		{
 			int x_off = pet.left ? 16 : -16;
-			CAT_draw_queue_animate(CAT_AM_tick(&bubble_asm), 3, pet.pos.x + x_off, pet.pos.y - 48, pet_mode);	
+			CAT_draw_queue_animate(CAT_AM_tick(&mood_asm), 3, pet.pos.x + x_off, pet.pos.y - 48, pet_mode);	
 		}
 	}
 }

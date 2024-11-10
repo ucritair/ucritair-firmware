@@ -172,9 +172,9 @@ void CAT_render_bag()
 {
 	CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});  
 	CAT_gui_text("BAG ");
-	CAT_gui_image(fbut_a_sprite, 1);
+	CAT_gui_image(icon_a_sprite, 1);
 	CAT_gui_image(icon_enter_sprite, 0);
-	CAT_gui_image(fbut_b_sprite, 1);
+	CAT_gui_image(icon_b_sprite, 1);
 	CAT_gui_image(icon_exit_sprite, 0);
 
 	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});  
