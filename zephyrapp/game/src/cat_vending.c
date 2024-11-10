@@ -89,7 +89,7 @@ void CAT_render_vending()
 		CAT_gui_panel_tight((CAT_ivec2) {0, 4+i*2}, (CAT_ivec2) {15, 2});
 		CAT_gui_image(icon_item_sprite, item->type);
 
-		sprintf(text, " %s  $%d ", item->name, item->price);
+		sprintf(text, " %s  $%d", item->name, item->price);
 		CAT_gui_text(text);
 		gui.text_mode = CAT_TEXT_MODE_NORMAL;
 

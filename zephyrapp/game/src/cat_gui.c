@@ -94,6 +94,7 @@ void CAT_gui_text(const char* text)
 		if(*c == '\n')
 		{
 			CAT_gui_line_break();
+			CAT_gui_open_channel(CAT_GLYPH_HEIGHT);
 			continue;
 		}
 

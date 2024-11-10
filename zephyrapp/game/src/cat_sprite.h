@@ -325,9 +325,9 @@ extern int pet_eat_in_sprite;
 extern int pet_eat_sprite;
 extern int pet_eat_out_sprite;
 
-extern int pet_read_in_sprite;
-extern int pet_read_sprite;
-extern int pet_read_out_sprite;
+extern int pet_study_in_sprite;
+extern int pet_study_sprite;
+extern int pet_study_out_sprite;
 
 extern int pet_play_a_sprite;
 extern int pet_play_b_sprite;

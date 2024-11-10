@@ -6,39 +6,36 @@
 #include "cat_pet.h"
 #include "cat_sprite.h"
 #include <stdio.h>
+#include <stddef.h>
 
-CAT_action_state action_state;
+CAT_action_state action_state = 
+{
+	.action_MS = NULL,
+	.action_AS = NULL,
+	.stat_up_AS = NULL,
+	.item_id = -1,
+	.confirmed = false,
+	.complete = false
+};
 
-void CAT_action_init()
+void CAT_action_state_clear()
 {
 	action_state.item_id = -1;
 	action_state.confirmed = false;
 	action_state.complete = false;
 }
 
-void CAT_action_select()
-{
-	bag_state.objective = action_state.action_MS;
-	CAT_machine_transition(&machine, CAT_MS_bag);
-}
-
 void CAT_action_tick()
 {
-	CAT_room_move_cursor();
-
-	if(CAT_input_pressed(CAT_BUTTON_B))
-		CAT_machine_transition(&machine, CAT_MS_room);
-
 	if(action_state.item_id == -1)
 	{
-		if(CAT_input_pressed(CAT_BUTTON_A))
-		{
-			bag_state.objective = action_state.action_MS;
-			
-		}
+		bag_state.objective = action_state.action_MS;
+		CAT_machine_transition(&machine, CAT_MS_bag);
 	}
 	else if(!action_state.confirmed)
 	{
+		CAT_room_move_cursor();
+
 		if(CAT_input_pressed(CAT_BUTTON_A))
 		{
 			CAT_ivec2 c_world = CAT_ivec2_mul(room.cursor, 16);
@@ -68,6 +65,7 @@ void CAT_action_tick()
 				pet.vigour += item->data.tool_data.dv;
 				pet.focus += item->data.tool_data.df;
 				pet.spirit += item->data.tool_data.ds;
+				CAT_bag_remove(action_state.item_id);
 				action_state.complete = true;
 				CAT_AM_kill(&pet_asm);
 				CAT_AM_transition(&pet_asm, action_state.stat_up_AS);
@@ -79,6 +77,9 @@ void CAT_action_tick()
 		if(CAT_AM_is_in(&pet_asm, &AS_adjust_out))
 			CAT_machine_transition(&machine, CAT_MS_room);
 	}
+
+	if(CAT_input_pressed(CAT_BUTTON_B))
+		CAT_machine_transition(&machine, CAT_MS_room);
 }
 
 void CAT_MS_feed(CAT_machine_signal signal)
@@ -100,7 +101,7 @@ void CAT_MS_feed(CAT_machine_signal signal)
 		}
 		case CAT_MACHINE_SIGNAL_EXIT:
 		{
-			CAT_action_init();
+			CAT_action_state_clear();
 			break;
 		}
 	}
@@ -125,7 +126,7 @@ void CAT_MS_study(CAT_machine_signal signal)
 		}
 		case CAT_MACHINE_SIGNAL_EXIT:
 		{
-			CAT_action_init();
+			CAT_action_state_clear();
 			break;
 		}
 	}
@@ -150,7 +151,7 @@ void CAT_MS_play(CAT_machine_signal signal)
 		}
 		case CAT_MACHINE_SIGNAL_EXIT:
 		{
-			CAT_action_init();
+			CAT_action_state_clear();
 			break;
 		}
 	}
@@ -160,21 +161,22 @@ void CAT_render_action(int cycle)
 {
 	if(cycle == 0)
 	{
+		CAT_ivec2 spot = CAT_ivec2_mul(room.cursor, 16);
 		if(action_state.item_id != -1)
 		{
-			CAT_item* item = CAT_item_get(action_state.item_id);
+			CAT_item* item = CAT_item_get(action_state.item_id);	
 			if(!action_state.confirmed)
 			{
-				CAT_draw_queue_add(item->data.tool_data.cursor_sprite_id, 0, 2, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
+				CAT_draw_queue_add(item->data.tool_data.cursor_sprite_id, 0, 2, spot.x, spot.y, CAT_DRAW_MODE_DEFAULT);
 			}			
 			else if(!action_state.complete)
 			{
-				CAT_draw_queue_animate(item->sprite_id, 2, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
+				CAT_draw_queue_animate(item->sprite_id, 2, spot.x, spot.y, CAT_DRAW_MODE_DEFAULT);
 			}
 		}
 		else
 		{
-			CAT_draw_queue_add(cursor_sprite, 0, 2, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
+			CAT_draw_queue_add(cursor_sprite, 0, 2, spot.x, spot.y, CAT_DRAW_MODE_DEFAULT);
 		}
 	}
 }

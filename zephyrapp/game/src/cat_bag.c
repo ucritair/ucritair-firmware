@@ -180,6 +180,19 @@ void CAT_render_bag()
 	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});  
 	for(int i = 0; i < 9; i++)
 	{
+		if(bag.length == 0)
+		{
+			CAT_gui_text
+			(
+				"Your bag is currently empty.\n\n"
+				"To feed, teach, or entertain\n"
+				"your pet, you must purchase\n"
+				"food, books, and toys from\n"
+				"the vending machine."
+			);
+			return;
+		}
+
 		int idx = bag_state.base + i;
 		if(idx >= bag.length)
 			return;
@@ -189,12 +202,6 @@ void CAT_render_bag()
 
 		CAT_gui_panel_tight((CAT_ivec2) {0, 2+i*2}, (CAT_ivec2) {15, 2});
 		CAT_gui_image(icon_item_sprite, item->type);
-
-		char text[64];
-		if(item->type == CAT_ITEM_TYPE_PROP)
-			sprintf(text, " %s *%d ", item->name, bag.count[idx]);
-		else
-			sprintf(text, " %s ", item->name);
 		
 		bool fits_relation = bag_state.objective == NULL;
 		for(int i = 0; i < NUM_BAG_RELATIONS; i++)
@@ -210,7 +217,7 @@ void CAT_render_bag()
 		{
 			gui.text_mode = CAT_TEXT_MODE_STRIKETHROUGH;
 		}
-		CAT_gui_text(text);
+		CAT_gui_textf(" %s *%d", item->name, bag.count[idx]);
 		gui.text_mode = CAT_TEXT_MODE_NORMAL;
 
 		if(item->type == CAT_ITEM_TYPE_GEAR)

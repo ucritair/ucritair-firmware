@@ -159,13 +159,13 @@ void CAT_item_mass_define()
 	cigarette_item = CAT_item_init(CAT_ITEM_TYPE_FOOD, "Cigarettes", cigarette_sprite, 1);
 	CAT_tool_init(cigarette_item, cigarette_sprite, 3, 0, 0);
 
-	book_a_item = CAT_item_init(CAT_ITEM_TYPE_BOOK, "\"Clean Air Book\"", book_study_sprite, 1);
+	book_a_item = CAT_item_init(CAT_ITEM_TYPE_BOOK, "The Forever War", book_study_sprite, 1);
 	CAT_tool_init(book_a_item, book_static_sprite, 0, 3, 0);
 
-	book_b_item = CAT_item_init(CAT_ITEM_TYPE_BOOK, "\"ZK Book\"", book_study_sprite, 1);
+	book_b_item = CAT_item_init(CAT_ITEM_TYPE_BOOK, "Ringworld", book_study_sprite, 1);
 	CAT_tool_init(book_b_item, book_static_sprite, 0, 3, 0);
 
-	book_c_item = CAT_item_init(CAT_ITEM_TYPE_BOOK, "\"The Disposessed\"", book_study_sprite, 1);
+	book_c_item = CAT_item_init(CAT_ITEM_TYPE_BOOK, "Metal Fever", book_study_sprite, 1);
 	CAT_tool_init(book_c_item, book_static_sprite, 0, 3, 0);
 
 	toy_duck_item = CAT_item_init(CAT_ITEM_TYPE_TOY, "Ducky", toy_duck_sprite, 1);

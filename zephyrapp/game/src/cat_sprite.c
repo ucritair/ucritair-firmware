@@ -687,9 +687,9 @@ int pet_eat_in_sprite;
 int pet_eat_sprite;
 int pet_eat_out_sprite;
 
-int pet_read_in_sprite;
-int pet_read_sprite;
-int pet_read_out_sprite;
+int pet_study_in_sprite;
+int pet_study_sprite;
+int pet_study_out_sprite;
 
 int pet_play_a_sprite;
 int pet_play_b_sprite;
@@ -918,9 +918,9 @@ void CAT_sprite_mass_define()
 	INIT_SPRITE(pet_eat_sprite, "sprites/pet_unicorn_eat_chew_a.png", 2);
 	COPY_SPRITE(pet_eat_out_sprite, pet_eat_in_sprite, false, true);
 
-	INIT_SPRITE(pet_read_in_sprite, "sprites/pet_unicorn_read_sit_a.png", 6);
-	INIT_SPRITE(pet_read_sprite, "sprites/pet_unicorn_read_sit.png", 1);
-	COPY_SPRITE(pet_read_out_sprite, pet_read_in_sprite, false, true);
+	INIT_SPRITE(pet_study_in_sprite, "sprites/pet_unicorn_read_sit_a.png", 6);
+	INIT_SPRITE(pet_study_sprite, "sprites/pet_unicorn_read_sit.png", 1);
+	COPY_SPRITE(pet_study_out_sprite, pet_study_in_sprite, false, true);
 
 	INIT_SPRITE(pet_play_a_sprite, "sprites/pet_unicorn_play_knead_a.png", 6);
 	INIT_SPRITE(pet_play_b_sprite, "sprites/pet_unicorn_play_b_a.png", 6);
@@ -940,12 +940,15 @@ void CAT_sprite_mass_define()
 	// MACHINES
 	CAT_AM_init(&AS_idle, -1, pet_idle_sprite, -1);
 	CAT_AM_init(&AS_walk, -1, pet_walk_sprite, -1);
+
 	CAT_AM_init(&AS_adjust_in, -1, -1, pet_idle_sprite);
 	CAT_AM_init(&AS_walk_action, -1, pet_walk_sprite, -1);
-	CAT_AM_init(&AS_eat, pet_eat_in_sprite, pet_eat_sprite, pet_eat_out_sprite);
-	CAT_AM_init(&AS_study, pet_eat_in_sprite, pet_eat_sprite, pet_eat_out_sprite);
-	CAT_AM_init(&AS_play, pet_eat_in_sprite, pet_eat_sprite, pet_eat_out_sprite);
 	CAT_AM_init(&AS_adjust_out, -1, -1, pet_idle_sprite);
+
+	CAT_AM_init(&AS_eat, pet_eat_in_sprite, pet_eat_sprite, pet_eat_out_sprite);
+	CAT_AM_init(&AS_study, pet_study_in_sprite, pet_study_sprite, pet_study_out_sprite);
+	CAT_AM_init(&AS_play, -1, pet_play_a_sprite, -1);
+
 	CAT_AM_init(&AS_vig_up, -1, -1, pet_vig_up_sprite);
 	CAT_AM_init(&AS_foc_up, -1, -1, pet_foc_up_sprite);
 	CAT_AM_init(&AS_spi_up, -1, -1, pet_spi_up_sprite);
