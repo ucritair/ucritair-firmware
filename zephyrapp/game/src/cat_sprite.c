@@ -410,6 +410,8 @@ void CAT_greenberry(int xi, int w, int yi, int h, float t)
 		for(int x = xi; x < xf; x++)
 		{
 			int idx = y * LCD_SCREEN_W + x;
+
+#ifdef CAT_DESKTOP
 			uint16_t c = FRAMEBUFFER[idx];
 			uint8_t l = luminance(c);
 			float lf = (float) l / 255.0f;
@@ -419,6 +421,17 @@ void CAT_greenberry(int xi, int w, int yi, int h, float t)
 			if(t >= 1)
 				r = clamp(r + 128, 0, 255);
 			FRAMEBUFFER[idx] = rgb8882rgb565(r, g, b);
+
+			// r4 r3 r2 r1 r0 g5 g4 g3     g2 g1 g0 b4 b3 b2 b1 b0
+			// g2 g1 g0 b4 b3 b2 b1 b0     r4 r3 r2 r1 r0 g5 g4 g3
+#else
+			uint16_t px = FRAMEBUFFER[idx];
+
+			px |= 0b011;
+			px &= (0b00010000<<8) | 0b10001111;
+
+			FRAMEBUFFER[idx] = px;
+#endif
 		}
 	}
 }
