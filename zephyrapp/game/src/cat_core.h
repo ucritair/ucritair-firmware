@@ -112,8 +112,6 @@ typedef struct __attribute__((__packed__)) CAT_save
 
 // Call to start saving, then populate the returned CAT_save*
 CAT_save* CAT_start_save();
-// This one will create a game-ready save
-void CAT_fresh_save(CAT_save* save);
 // then call with the CAT_save* to finish saving
 void CAT_finish_save(CAT_save*);
 

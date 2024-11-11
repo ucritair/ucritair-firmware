@@ -11,13 +11,11 @@
 #include "cat_sprite.h"
 #include <stddef.h>
 
-CAT_bag bag;
-
-void CAT_bag_init()
+CAT_bag bag =
 {
-	bag.length = 0;
-	bag.coins = 5;
-}
+	.length = 0,
+	.coins = 0
+};
 
 int CAT_bag_find(int item_id)
 {

@@ -37,19 +37,10 @@
 #pragma GCC diagnostic ignored "-Wunknown-pragmas"
 #endif
 
-void CAT_fresh_save(CAT_save* save)
+void CAT_fresh_gamestate()
 {
-	save->magic_number = CAT_SAVE_MAGIC;
-	save->version.major = CAT_VERSION_MAJOR;
-	save->version.minor = CAT_VERSION_MINOR;
-	save->version.patch = CAT_VERSION_PATCH;
-	save->version.push = CAT_VERSION_PUSH;
-	save->vigour = 12;
-	save->focus = 12;
-	save->spirit = 12;
-	save->prop_count = 0;
-	save->bag_length = 0;
-	save->coins = 5;
+	CAT_bag_add(gpu_item);
+	bag.coins = 5;
 }
 
 void CAT_force_save()
@@ -89,12 +80,12 @@ void CAT_force_save()
 void CAT_force_load()
 {
 	CAT_save* save = CAT_start_load();
-	CAT_save fresh_save;
 
 	if(!CAT_check_save(save) || save==NULL)
 	{
-		CAT_fresh_save(&fresh_save);
-		save = &fresh_save;
+		//CAT_fresh_gamestate();
+		CAT_finish_load();
+		return;
 	}
 
 	pet.vigour = save->vigour;
@@ -155,13 +146,9 @@ void CAT_init(int seconds_slept)
 
 	CAT_pet_init();
 	CAT_room_init();
-	CAT_bag_init();
-	CAT_deco_state_init();
 
 	CAT_force_load();
-
 	CAT_apply_sleep(seconds_slept);
-
 	CAT_pet_reanimate();
 	
 	machine = NULL;
@@ -174,7 +161,17 @@ void CAT_tick_logic()
 	CAT_AQI_tick();
 	CAT_input_tick();
 
-	CAT_room_background();
+	if
+	(
+		machine == CAT_MS_room ||
+		machine == CAT_MS_feed ||
+		machine == CAT_MS_study ||
+		machine == CAT_MS_play ||
+		machine == CAT_MS_deco
+	)
+	{
+		CAT_room_ambient_tick();
+	}
 	CAT_machine_tick(&machine);
 }
 

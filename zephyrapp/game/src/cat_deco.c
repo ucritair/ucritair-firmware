@@ -9,15 +9,17 @@
 #include "cat_sprite.h"
 #include <stdio.h>
 
-CAT_deco_state deco_state;
-
-void CAT_deco_state_init()
+CAT_deco_state deco_state =
 {
-	room.prop_count = 0;
-	deco_state.mode = ADD;
-	deco_state.add_id = -1;
-	deco_state.mod_idx = -1;
-}
+	.mode = ADD,
+
+	.add_id = -1,
+	.add_rect = (CAT_rect){(CAT_ivec2){0, 0}, (CAT_ivec2){0, 0}},
+	.valid_add = false,
+
+	.mod_idx = -1,
+	.mod_rect = (CAT_rect){(CAT_ivec2){0, 0}, (CAT_ivec2){0, 0}}
+};
 
 void CAT_deco_target(CAT_ivec2 place)
 {

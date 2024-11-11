@@ -143,4 +143,5 @@ bool CAT_input_drag(int x, int y, float r)
 		int y_d = y - y_t;
 		return x_d*x_d + y_d*y_d <= r*r;
 	}
+	return false;
 }

@@ -18,7 +18,6 @@ typedef struct CAT_pet
 	int stat_timer_id;
 	int walk_timer_id;
 	int react_timer_id;
-	int action_timer_id;
 } CAT_pet;
 extern CAT_pet pet;
 

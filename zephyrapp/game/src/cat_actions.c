@@ -13,9 +13,12 @@ CAT_action_state action_state =
 	.action_MS = NULL,
 	.action_AS = NULL,
 	.stat_up_AS = NULL,
+
 	.item_id = -1,
 	.confirmed = false,
-	.complete = false
+	.complete = false,
+
+	.timer_id = -1
 };
 
 void CAT_action_state_clear()
@@ -23,6 +26,7 @@ void CAT_action_state_clear()
 	action_state.item_id = -1;
 	action_state.confirmed = false;
 	action_state.complete = false;
+	CAT_timer_reset(action_state.timer_id);
 }
 
 void CAT_action_tick()
@@ -59,7 +63,7 @@ void CAT_action_tick()
 		}
 		if(CAT_AM_is_in(&pet_asm, action_state.action_AS) && CAT_AM_is_ticking(&pet_asm))
 		{
-			if(CAT_timer_tick(pet.action_timer_id))
+			if(CAT_timer_tick(action_state.timer_id))
 			{
 				CAT_item* item = CAT_item_get(action_state.item_id);
 				pet.vigour = clamp(pet.vigour + item->data.tool_data.dv, 0, 12);
@@ -69,7 +73,7 @@ void CAT_action_tick()
 				action_state.complete = true;
 				CAT_AM_kill(&pet_asm);
 				CAT_AM_transition(&pet_asm, action_state.stat_up_AS);
-				CAT_timer_reset(pet.action_timer_id);
+				CAT_timer_reset(action_state.timer_id);
 			}
 		}
 		if(CAT_AM_is_in(&pet_asm, action_state.stat_up_AS))

@@ -148,7 +148,7 @@ void CAT_room_move_cursor()
 	room.cursor.y = min(max(room.cursor.y, room.bounds.min.y), room.bounds.max.y-1);
 }
 
-void CAT_room_background()
+void CAT_room_ambient_tick()
 {
 	for(int i = 0; i < 5; i++)
 	{

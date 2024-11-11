@@ -87,8 +87,6 @@ void snake_tick()
 {
 	if(mode == LOSE)
 		return;
-
-	// TODO: right now, if you rapidly switch, you can jump the fence and crash into yourself
 	
 	if(CAT_input_pressed(CAT_BUTTON_UP) && ldy != 1)
 	{

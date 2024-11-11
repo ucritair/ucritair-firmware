@@ -15,7 +15,6 @@ typedef struct CAT_bag
 } CAT_bag;
 extern CAT_bag bag;
 
-void CAT_bag_init();
 int CAT_bag_find(int item_id);
 void CAT_bag_add(int item_id);
 void CAT_bag_remove(int item_id);
