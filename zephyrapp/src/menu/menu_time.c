@@ -9,6 +9,10 @@
 #include "cat_bag.h"
 #include "rtc.h"
 
+
+#include <zephyr/logging/log.h>
+LOG_MODULE_REGISTER(menu_time, LOG_LEVEL_DBG);
+
 struct tm local;
 
 struct {
@@ -85,10 +89,13 @@ void CAT_render_time()
 	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
 	
 	time_t now = get_current_rtc_time();
+
 	gmtime_r(&now, &local);
 
 	char buf[64];
 #define textf(...) snprintf(buf, sizeof(buf), __VA_ARGS__); CAT_gui_text(buf)
+
+	// LOG_DBG("at gmtime_r now=%lld; year=%d", now, local.tm_year);
 	
 	textf("%s ", month_names[local.tm_mon]);
 	textf("%2d ", local.tm_mday);
@@ -144,7 +151,7 @@ void CAT_render_time()
 
 	if (sensor_wakeup_rate < MIN_WAKEUP_RATE_TO_DEEP_SLEEP)
 	{
-		textf("NOTE: too fast to ever sleep");
+		textf("NOTE: high power drain");
 		CAT_gui_line_break();
 	}
 }

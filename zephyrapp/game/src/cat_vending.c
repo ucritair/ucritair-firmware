@@ -26,6 +26,9 @@ void CAT_MS_vending(CAT_machine_signal signal)
 			break;
 		case CAT_MACHINE_SIGNAL_TICK:
 		{
+			if(CAT_input_pressed(CAT_BUTTON_B) || CAT_input_pressed(CAT_BUTTON_START))
+				CAT_machine_transition(&machine, CAT_MS_room);
+				
 			if(CAT_input_pulse(CAT_BUTTON_UP))
 			{
 				vending_selector -= 1;
@@ -65,11 +68,6 @@ void CAT_MS_vending(CAT_machine_signal signal)
 				vending_base += overshoot;
 			else if(overshoot >= VENDING_MAX_SLOTS)
 				vending_base += (overshoot - VENDING_MAX_SLOTS + 1);
-
-			if(CAT_input_pressed(CAT_BUTTON_B))
-				CAT_machine_transition(&machine, CAT_MS_menu);
-			if(CAT_input_pressed(CAT_BUTTON_START))
-				CAT_machine_transition(&machine, CAT_MS_room);
 			break;
 		}
 		case CAT_MACHINE_SIGNAL_EXIT:

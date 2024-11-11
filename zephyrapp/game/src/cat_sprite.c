@@ -37,6 +37,11 @@ void CAT_atlas_init()
 
 #include "png.h"
 
+uint16_t rgb8882rgb565(uint8_t r, uint8_t g, uint8_t b)
+{
+	return ((r & 0b11111000) << 8) | ((g & 0b11111100) << 3) | (b >> 3);
+}
+
 int CAT_sprite_init(const char* path, int frame_count)
 {
 	FILE* file = fopen(path, "rb");
@@ -370,10 +375,6 @@ void CAT_spriter_cleanup()
 //////////////////////////////////////////////////////////////////////////
 // DIRECT FX
 
-uint16_t rgb8882rgb565(uint8_t r, uint8_t g, uint8_t b)
-{
-	return ((r & 0b11111000) << 8) | ((g & 0b11111100) << 3) | (b >> 3);
-}
 
 uint8_t luminance(uint16_t rgb)
 {
@@ -387,24 +388,50 @@ uint8_t luminance(uint16_t rgb)
 // CATs when they eat a
 void CAT_greenberry(int xi, int w, int yi, int h, float t)
 {
+#ifdef CAT_EMBEDDED
+	yi -= framebuffer_offset_h;
+#endif
+
 	int xf = xi + w * t;
 	int yf = yi + h;
+
+#ifdef CAT_EMBEDDED
+	if (yi > LCD_FRAMEBUFFER_H || yf < 0)
+		return;
+
+	if (yf >= LCD_FRAMEBUFFER_H)
+		yf = LCD_FRAMEBUFFER_H-1;
+
+	if (yi < 0)
+		yi = 0;
+#endif
+
 	for(int y = yi; y < yf; y++)
 	{
 		for(int x = xi; x < xf; x++)
 		{
 			int idx = y * LCD_SCREEN_W + x;
+
+#ifdef CAT_DESKTOP
 			uint16_t c = FRAMEBUFFER[idx];
-			if(c == 0xdead)
-				continue;
 			uint8_t l = luminance(c);
-			float lf = (float) l / 255.0f;
 			uint8_t g = clamp(l+8, 0, 255);
 			uint8_t b = clamp(l-128, 0, 255);
 			uint8_t r = clamp(l+48, 0, 255);
 			if(t >= 1)
 				r = clamp(r + 128, 0, 255);
 			FRAMEBUFFER[idx] = rgb8882rgb565(r, g, b);
+
+			// r4 r3 r2 r1 r0 g5 g4 g3     g2 g1 g0 b4 b3 b2 b1 b0
+			// g2 g1 g0 b4 b3 b2 b1 b0     r4 r3 r2 r1 r0 g5 g4 g3
+#else
+			uint16_t px = FRAMEBUFFER[idx];
+
+			px |= 0b011;
+			px &= (0b00010000<<8) | 0b10001111;
+
+			FRAMEBUFFER[idx] = px;
+#endif
 		}
 	}
 }
@@ -639,6 +666,7 @@ int window_dawn_sprite;
 int window_day_sprite;
 int window_night_sprite;
 int vending_sprite;
+int arcade_sprite;
 
 // GAMEPLAY PROPS
 int gpu_sprite;
@@ -893,6 +921,7 @@ void CAT_sprite_mass_define()
 	INIT_SPRITE(window_day_sprite, "sprites/prop_wall_window_day.png", 1);
 	INIT_SPRITE(window_night_sprite, "sprites/prop_wall_window_dark.png", 1);
 	INIT_SPRITE(vending_sprite, "sprites/interact_vending_items_a.png", 12);
+	INIT_SPRITE(arcade_sprite, "sprites/arcade_a.png", 2);
 
 	// GAMEPLAY PROPS
 	INIT_SPRITE(gpu_sprite, "sprites/prop_solderpaste.png", 1);

@@ -15,7 +15,7 @@ CAT_bag bag;
 void CAT_bag_init()
 {
 	bag.length = 0;
-	bag.coins = 0;
+	bag.coins = 5;
 }
 
 int CAT_bag_find(int item_id)
@@ -113,8 +113,7 @@ void CAT_MS_bag(CAT_machine_signal signal)
 					CAT_machine_transition(&machine, CAT_MS_room);
 				else
 					CAT_machine_transition(&machine, CAT_MS_menu);
-			}
-				
+			}			
 			if(CAT_input_pressed(CAT_BUTTON_START))
 				CAT_machine_transition(&machine, CAT_MS_room);
 
