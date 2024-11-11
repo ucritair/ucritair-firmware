@@ -170,13 +170,21 @@ void send_read_command(uint8_t opcode, int len, uint8_t* data)
 
 void wait_for_ready(char* tag)
 {
+	int cycles = 0;
+
 	k_msleep(10);
 	while (1) {
 		int val = pin_read(&pin_busy);
 		if (val == 1) break;
 
 		LOG_DBG("Spin waiting for busy '%s' (%d)", tag, val);
-		k_msleep(1000);
+		k_msleep(100);
+
+		if (cycles++ > 30)
+		{
+			// give up
+			return;
+		}
 	}
 }
 
