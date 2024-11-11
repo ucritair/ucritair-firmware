@@ -20,6 +20,30 @@
 #endif
 #define ANIM_PERIOD 4
 
+uint8_t map[20][15] =
+{
+	{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+	{0,1,1,0,0,0,0,0,0,0,0,0,0,0,0},
+	{0,1,1,0,0,0,0,0,0,0,0,0,0,0,0},
+	{0,0,0,0,0,0,0,0,1,1,1,1,0,0,0},
+	{0,0,0,0,0,0,0,0,1,1,1,1,0,0,0},
+	{0,0,0,0,0,0,0,0,1,1,1,1,0,0,0},
+	{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+	{0,0,1,1,1,0,0,0,0,0,0,0,0,0,0},
+	{0,1,1,1,1,1,0,0,0,0,0,0,0,0,0},
+	{0,0,1,1,1,0,0,0,0,0,0,0,0,0,0},
+	{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+	{0,0,0,0,0,0,0,1,1,1,1,1,0,0,0},
+	{0,0,0,0,0,0,0,0,1,1,1,1,1,0,0},
+	{0,0,0,0,0,0,0,0,0,0,1,1,0,0,0},
+	{0,0,0,0,1,1,0,0,0,0,0,0,0,0,0},
+	{0,0,0,1,1,1,1,0,0,0,0,0,0,0,0},
+	{0,0,1,1,1,1,1,1,0,0,0,0,0,0,0},
+	{0,0,0,1,1,1,1,0,0,0,0,0,0,0,0},
+	{0,0,0,0,1,1,0,0,0,0,0,0,1,0,0},
+	{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
+};
+
 uint8_t snake_x[MAX_SNAKE_LENGTH];
 uint8_t snake_y[MAX_SNAKE_LENGTH];
 uint8_t snake_length = 2;
@@ -84,9 +108,7 @@ void snake_init()
 	dy = 0;
 	tick_count = 0;
 
-	food_x = CAT_rand_int(1, WIDTH-2);
-	food_y = CAT_rand_int(1, HEIGHT-2);
-	food_sprite_id = padkaprow_sprite;
+	spawn_food();
 
 	score = 0;
 }
@@ -208,6 +230,90 @@ void CAT_MS_arcade(CAT_machine_signal signal)
 	}
 }
 
+void draw_map()
+{
+	for(int y = 0; y < 20; y++)
+	{
+		for(int x = 0; x < 15; x++)
+		{
+			if(y == 0)
+				CAT_draw_sprite(grass_floor_sprite, 18, x*16, y*16);
+			else
+			{
+				uint8_t spot = map[y][x];
+				if(spot == 0)
+				{
+					uint8_t grass_id = ((x & 1) == 0) ? 17 : 20;
+					CAT_draw_sprite(grass_floor_sprite, grass_id, x*16, y*16);
+				}
+				else
+				{
+					CAT_draw_sprite(grass_floor_sprite, 4, x*16, y*16);
+				}
+			}	
+		}
+	}
+}
+
+void draw_body()
+{
+	int dx = snake_x[0] - snake_x[1];
+	int dy = snake_y[0] - snake_y[1];
+
+	int head_x = snake_x[0] * 16;
+	int head_y = snake_y[0] * 16;
+	if(dx == 1)
+		CAT_draw_sprite(snake_head_sprite, 0, head_x, head_y);
+	else if(dy == 1)
+		CAT_draw_sprite(snake_head_sprite, 1, head_x, head_y);
+	else if(dx == -1)
+		CAT_draw_sprite(snake_head_sprite, 2, head_x, head_y);
+	else if(dy == -1)
+		CAT_draw_sprite(snake_head_sprite, 3, head_x, head_y);
+
+	for(int i = 1; i < snake_length; i++)
+	{
+		int dbx = snake_x[i-1] - snake_x[i];
+		int dby = snake_y[i-1] - snake_y[i];
+
+		int body_x = snake_x[i] * 16;
+		int body_y = snake_y[i] * 16;
+		
+		if(i == snake_length-1)
+		{
+			if(dbx == 1)
+				CAT_draw_sprite(snake_tail_sprite, 0, body_x, body_y);
+			else if(dby == 1)
+				CAT_draw_sprite(snake_tail_sprite, 1, body_x, body_y);
+			else if(dbx == -1)
+				CAT_draw_sprite(snake_tail_sprite, 2, body_x, body_y);
+			else if(dby == -1)
+				CAT_draw_sprite(snake_tail_sprite, 3, body_x, body_y);
+			break;
+		}
+
+		int dfx = snake_x[i] - snake_x[i+1];
+		int dfy = snake_y[i] - snake_y[i+1];
+
+		if(dfx == 1 && dbx == 1)
+			CAT_draw_sprite(snake_body_sprite, 0, body_x, body_y);
+		else if(dfy == 1 && dby == 1)
+			CAT_draw_sprite(snake_body_sprite, 1, body_x, body_y);
+		else if(dfx == -1 && dbx == -1)
+			CAT_draw_sprite(snake_body_sprite, 2, body_x, body_y);
+		else if(dfy == -1 && dby == -1)
+			CAT_draw_sprite(snake_body_sprite, 3, body_x, body_y);
+		else if((dfx == -1 && dby == 1) || (dfy == -1 && dbx == 1))
+			CAT_draw_sprite(snake_corner_sprite, 0, body_x, body_y);
+		else if((dfx == 1 && dby == 1) || (dfy == -1 && dbx == -1))
+			CAT_draw_sprite(snake_corner_sprite, 1, body_x, body_y);
+		else if((dfx == 1 && dby == -1) || (dfy == 1 && dbx == -1))
+			CAT_draw_sprite(snake_corner_sprite, 2, body_x, body_y);
+		else if((dfx == -1 && dby == -1) || (dfy == 1 && dbx == 1))
+			CAT_draw_sprite(snake_corner_sprite, 3, body_x, body_y);
+	}
+}
+
 void CAT_render_arcade()
 {
 	if(mode == SELECT)
@@ -226,64 +332,10 @@ void CAT_render_arcade()
 	}
 	else if(mode == PLAY)
 	{
-		CAT_clear_frame(0xf75b);
 		spriter.mode = CAT_DRAW_MODE_DEFAULT;
 
-		int dx = snake_x[0] - snake_x[1];
-		int dy = snake_y[0] - snake_y[1];
-
-		int head_x = snake_x[0] * 16;
-		int head_y = snake_y[0] * 16;
-		if(dx == 1)
-			CAT_draw_sprite(snake_head_sprite, 0, head_x, head_y);
-		else if(dy == 1)
-			CAT_draw_sprite(snake_head_sprite, 1, head_x, head_y);
-		else if(dx == -1)
-			CAT_draw_sprite(snake_head_sprite, 2, head_x, head_y);
-		else if(dy == -1)
-			CAT_draw_sprite(snake_head_sprite, 3, head_x, head_y);
-	
-		for(int i = 1; i < snake_length; i++)
-		{
-			int dbx = snake_x[i-1] - snake_x[i];
-			int dby = snake_y[i-1] - snake_y[i];
-
-			int body_x = snake_x[i] * 16;
-			int body_y = snake_y[i] * 16;
-			
-			if(i == snake_length-1)
-			{
-				if(dbx == 1)
-					CAT_draw_sprite(snake_tail_sprite, 0, body_x, body_y);
-				else if(dby == 1)
-					CAT_draw_sprite(snake_tail_sprite, 1, body_x, body_y);
-				else if(dbx == -1)
-					CAT_draw_sprite(snake_tail_sprite, 2, body_x, body_y);
-				else if(dby == -1)
-					CAT_draw_sprite(snake_tail_sprite, 3, body_x, body_y);
-				break;
-			}
-
-			int dfx = snake_x[i] - snake_x[i+1];
-			int dfy = snake_y[i] - snake_y[i+1];
-
-			if(dfx == 1 && dbx == 1)
-				CAT_draw_sprite(snake_body_sprite, 0, body_x, body_y);
-			else if(dfy == 1 && dby == 1)
-				CAT_draw_sprite(snake_body_sprite, 1, body_x, body_y);
-			else if(dfx == -1 && dbx == -1)
-				CAT_draw_sprite(snake_body_sprite, 2, body_x, body_y);
-			else if(dfy == -1 && dby == -1)
-				CAT_draw_sprite(snake_body_sprite, 3, body_x, body_y);
-			else if((dfx == -1 && dby == 1) || (dfy == -1 && dbx == 1))
-				CAT_draw_sprite(snake_corner_sprite, 0, body_x, body_y);
-			else if((dfx == 1 && dby == 1) || (dfy == -1 && dbx == -1))
-				CAT_draw_sprite(snake_corner_sprite, 1, body_x, body_y);
-			else if((dfx == 1 && dby == -1) || (dfy == 1 && dbx == -1))
-				CAT_draw_sprite(snake_corner_sprite, 2, body_x, body_y);
-			else if((dfx == -1 && dby == -1) || (dfy == 1 && dbx == 1))
-				CAT_draw_sprite(snake_corner_sprite, 3, body_x, body_y);
-		}
+		draw_map();
+		draw_body();
 
 		CAT_sprite* sprite = CAT_sprite_get(food_sprite_id);
 		int frame_idx = clamp(anim_frame, 0, sprite->frame_count-1);

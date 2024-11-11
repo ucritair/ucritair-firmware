@@ -848,7 +848,7 @@ void CAT_sprite_mass_define()
 	INIT_SPRITE(base_wall_sprite, "sprites/wall_basic.png", 3);
 	INIT_SPRITE(base_floor_sprite, "sprites/tile_basic.png", 3);
 	INIT_SPRITE(sky_wall_sprite, "sprites/wall_sky.png", 8);
-	INIT_SPRITE(grass_floor_sprite, "sprites/tile_grass.png", 9);
+	INIT_SPRITE(grass_floor_sprite, "sprites/tile_grass.png", 21);
 
 	INIT_SPRITE(panel_sprite, "sprites/panel_tiles.png", 10);
 	INIT_SPRITE(glyph_sprite, "sprites/glyphs.png", 95);
