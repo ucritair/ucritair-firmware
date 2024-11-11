@@ -95,7 +95,28 @@ struct bag_relation
 
 CAT_machine_state bag_anchor = NULL;
 int bag_base = 0;
+int bag_indices[9];
+int bag_seen = 0;
 int bag_selector = 0;
+
+/*bool audit_item(int idx)
+{
+	if(bag_anchor == NULL)
+		return false;
+	CAT_item* item = CAT_item_get(bag.item_ids[idx]);
+	for(int i = 0; i < NUM_BAG_RELATIONS; i++)
+	{
+		struct bag_relation rel = bag_relations[i];
+		if(rel.state == bag_anchor && item->type = )
+	}
+	
+}	
+
+void view_from_base()
+{
+	bag_seen = 0;
+	for(int i = 0; i < )
+}*/
 
 void CAT_MS_bag(CAT_machine_signal signal)
 {

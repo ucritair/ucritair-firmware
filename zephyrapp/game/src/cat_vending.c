@@ -47,7 +47,7 @@ void CAT_MS_vending(CAT_machine_signal signal)
 
 			if(!purchase_lock)
 			{
-				purchase_progress = CAT_input_progress(CAT_BUTTON_A, 1.5f);
+				purchase_progress = CAT_input_progress(CAT_BUTTON_A, 0.75f);
 				if(purchase_progress >= 1)
 				{
 					int price = item_table.data[vending_selector].price;
@@ -107,7 +107,6 @@ void CAT_render_vending()
 
 	if(purchase_progress >= 0.01)
 	{
-		float greenberry_t = lerp(0.15, 1, purchase_progress);
-		CAT_greenberry(3, 15*16-6, 4 * 16 + 32 * (vending_selector-vending_base) + 3, 32-6, greenberry_t);
+		CAT_greenberry(3, 15*16-6, 4 * 16 + 32 * (vending_selector-vending_base) + 3, 32-6, purchase_progress);
 	}
 }

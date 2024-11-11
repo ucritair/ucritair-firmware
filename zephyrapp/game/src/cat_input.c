@@ -94,7 +94,7 @@ float CAT_input_progress(int button, float t)
 	if(!input.mask[button])
 		return 0;
 
-	float progress = input.time[button] / t;
+	float progress = (input.time[button] / t) + 0.15f;
 	return clampf(progress, 0, 1);
 }
 
