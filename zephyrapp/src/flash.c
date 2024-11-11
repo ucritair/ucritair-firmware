@@ -221,7 +221,8 @@ void flash_erase_all_cells()
 
 bool is_ready_for_aqi_logging()
 {
-	return current_readings.lps22hh.uptime_last_updated &&
+	return 
+			// current_readings.lps22hh.uptime_last_updated &&
 		   current_readings.sunrise.uptime_last_updated &&
 		   current_readings.sen5x.uptime_last_updated;
 }

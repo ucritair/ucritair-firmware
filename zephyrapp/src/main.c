@@ -66,18 +66,22 @@ int main(void)
 
 	init_buttons();
 
+	set_5v0(true);
+	set_leds(true);
+
+	sensor_init();
+	imu_init();
+
 	if (wakeup_is_from_timer)
 	{
 		LOG_DBG("Booted from timer");
-		set_5v0(true);
-		set_leds(true);
+		
 
 		set_first_led((struct led_rgb){0, 100, 0});
 
 		k_msleep(50);
 
-		sensor_init();
-		imu_init();
+		
 
 		int cycle = 1;
 		while (cycle++)
@@ -90,9 +94,10 @@ int main(void)
 
 			if (current_buttons)
 			{
-				snapshot_rtc_for_reboot();
-				wakeup_is_from_timer = false;
-				sys_reboot(SYS_REBOOT_WARM);
+				// snapshot_rtc_for_reboot();
+				// wakeup_is_from_timer = false;
+				// sys_reboot(SYS_REBOOT_WARM);
+				break;
 			}
 
 			LOG_DBG("Waiting for sensors ready..., cycle=%d", cycle);
@@ -138,8 +143,6 @@ int main(void)
 	}
 
 	test_flash();
-	
-	imu_init();
 
 	const struct device *sdhc_dev = DEVICE_DT_GET(DT_CHOSEN(xxx_sdhcd0));
 
@@ -170,11 +173,6 @@ int main(void)
 	LOG_ERR("Wifi compiled out");
 #endif
 
-
-	set_5v0(true);
-	k_msleep(50);
-
-	sensor_init();
 
 	lcd_init();
 	lcd_render_diag();
