@@ -14,12 +14,20 @@
 #include "rtc.h"
 #include "epaper_rendering.h"
 #include "sdcard.h"
+#include "flash.h"
+#include "lcd_rendering.h"
 
 #include <stddef.h>
 
 int system_menu_selector = 0;
 
 char* system_menu_note = "";
+
+bool co2_calibrating = false;
+bool did_co2_cal = false;
+
+#define CO2_CAL_TIME 10
+int co2_calibration_start_time = 0;
 
 typedef void (*menu_t)();
 
@@ -31,6 +39,13 @@ void menu_t_back()
 void menu_t_go_time()
 {
 	CAT_machine_transition(&machine, CAT_MS_time);
+}
+
+void menu_t_go_co2()
+{
+	co2_calibrating = true;
+	did_co2_cal = false;
+	co2_calibration_start_time = k_uptime_get_32();
 }
 
 void menu_t_sleep()
@@ -78,6 +93,13 @@ void menu_t_update_eink()
 	system_menu_note = "Done :)";
 }
 
+void menu_t_reset()
+{
+	cat_game_running = 0;
+	flash_nuke_tomas_save();
+	power_off(1, false);
+}
+
 struct entry
 {
 	const char* title;
@@ -85,10 +107,12 @@ struct entry
 } system_entries[] =
 {
 	{"SET CLOCK + LOG RATE", menu_t_go_time},
-	{"POWER DOWN FOR TRAVEL", menu_t_power_off},
 	{"ERASE ON-DEVICE LOGS", menu_t_erase_logs},
 	{"WRITE LOGS TO SDCARD", menu_t_write_logs},
+	{"CALIBRATE CO2 SENSOR", menu_t_go_co2},
 	{"UPDATE EINK", menu_t_update_eink},
+	{"RESET GAME", menu_t_reset},
+	{"POWER OFF", menu_t_power_off},
 	{"SLEEP", menu_t_sleep},
 
 	{"BACK", menu_t_back}
@@ -120,6 +144,10 @@ void CAT_MS_system_menu(CAT_machine_signal signal)
 			break;
 		}
 		case CAT_MACHINE_SIGNAL_EXIT:
+			if (co2_calibrating)
+			{
+				co2_calibrating = false;
+			}
 			break;
 	}
 }
@@ -127,7 +155,7 @@ void CAT_MS_system_menu(CAT_machine_signal signal)
 void CAT_render_system_menu()
 {
 	CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});  
-	CAT_gui_text("SYSTEM MENU ");
+	CAT_gui_text(co2_calibrating?"CO2 CALIBRATION ":"SYSTEM MENU ");
 	CAT_gui_image(icon_a_sprite, 1);
 	CAT_gui_image(icon_enter_sprite, 0);
 	CAT_gui_image(icon_b_sprite, 1);
@@ -135,23 +163,61 @@ void CAT_render_system_menu()
 
 	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
 
-	for (int i = 0; i < NUM_MENU_ITEMS; i++)
+	if (!co2_calibrating)
 	{
-		CAT_gui_text("#");
-		CAT_gui_text(system_entries[i].title);
+		for (int i = 0; i < NUM_MENU_ITEMS; i++)
+		{
+			CAT_gui_text("#");
+			CAT_gui_text(system_entries[i].title);
 
-		if(i == system_menu_selector)
-			CAT_gui_image(icon_pointer_sprite, 0);
+			if(i == system_menu_selector)
+				CAT_gui_image(icon_pointer_sprite, 0);
+
+			CAT_gui_line_break();
+		}
 
 		CAT_gui_line_break();
+		CAT_gui_text(system_menu_note);
+
+		CAT_gui_line_break();
+		CAT_gui_text(" ");
+
+		CAT_gui_line_break();
+		CAT_gui_textf("SYS v." SYS_FW_VERSION);
 	}
+	else
+	{
+		int remaining = CO2_CAL_TIME - ((k_uptime_get_32() - co2_calibration_start_time) / 1000);
 
-	CAT_gui_line_break();
-	CAT_gui_text(system_menu_note);
+		CAT_gui_text("Please go outside and wait");
+		CAT_gui_line_break();
+		CAT_gui_text("while CO2 sensor reading");
+		CAT_gui_line_break();
+		CAT_gui_text("settles before calibration...");
+		CAT_gui_line_break();
+		CAT_gui_text(" ");
+		CAT_gui_line_break();
 
-	CAT_gui_line_break();
-	CAT_gui_text(" ");
-
-	CAT_gui_line_break();
-	CAT_gui_textf("SYS v." SYS_FW_VERSION);
+		if (remaining > 0)
+		{
+			CAT_gui_textf("%2d:%02d remaining...", remaining/60, remaining%60);
+		}
+		else if (remaining > -1)
+		{
+			CAT_gui_textf("Calibrating...");
+		}
+		else if (remaining > -2)
+		{
+			CAT_gui_textf("Calibrating...");
+			if (!did_co2_cal)
+			{
+				did_co2_cal = true;
+				force_abc_sunrise();
+			}
+		}
+		else
+		{
+			CAT_gui_textf("Done :)");
+		}
+	}
 }

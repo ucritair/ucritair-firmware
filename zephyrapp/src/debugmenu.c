@@ -18,6 +18,7 @@
 #include "wlan.h"
 #include "ble.h"
 #include "rtc.h"
+#include "batt.h"
 
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(debugmenu, LOG_LEVEL_DBG);
@@ -347,6 +348,9 @@ void menu_root()
 	text("");
 	textf("Next log cell: %d", next_log_cell_nr);
 	selectable("populate_next_log_cell", do_populate_next, NULL);
+
+	text("");
+	textf("ADC: %d", adc_sample());
 
 	text("");
 	selectable("Back to game", exit_debug_menu, NULL);
