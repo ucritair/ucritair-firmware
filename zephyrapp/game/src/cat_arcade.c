@@ -232,27 +232,7 @@ void CAT_MS_arcade(CAT_machine_signal signal)
 
 void draw_map()
 {
-	for(int y = 0; y < 20; y++)
-	{
-		for(int x = 0; x < 15; x++)
-		{
-			if(y == 0)
-				CAT_draw_sprite(grass_floor_sprite, 18, x*16, y*16);
-			else
-			{
-				uint8_t spot = map[y][x];
-				if(spot == 0)
-				{
-					uint8_t grass_id = ((x & 1) == 0) ? 17 : 20;
-					CAT_draw_sprite(grass_floor_sprite, grass_id, x*16, y*16);
-				}
-				else
-				{
-					CAT_draw_sprite(grass_floor_sprite, 4, x*16, y*16);
-				}
-			}	
-		}
-	}
+	CAT_draw_tiles(grass_floor_sprite, 17, 0, 20);
 }
 
 void draw_body()
