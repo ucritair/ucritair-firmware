@@ -130,8 +130,7 @@ void snake_tick()
 			y < 0 || y >= HEIGHT
 		)
 		{
-			snake_init();
-			//mode = LOSE;
+			mode = LOSE;
 		}
 
 		if(x == food_x && y == food_y)

@@ -71,7 +71,6 @@ void CAT_gear_init(int item_id);
 void CAT_gear_toggle(int item_id, bool equipped);
 bool CAT_gear_status(int item_id);
 
-
 //////////////////////////////////////////////////////////////////////////
 // ID DECLARATIONS
 
