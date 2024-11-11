@@ -150,7 +150,7 @@ void CAT_pet_init()
 	pet.dir = (CAT_vec2) {0, 0};
 	pet.left = false;
 	
-	pet.stat_timer_id = CAT_timer_init(2.0f);
+	pet.stat_timer_id = CAT_timer_init(7200.0f);
 	pet.walk_timer_id = CAT_timer_init(4.0f);
 	pet.react_timer_id = CAT_timer_init(2.0f);
 	pet.action_timer_id = CAT_timer_init(2.0f);
