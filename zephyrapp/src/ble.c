@@ -171,6 +171,24 @@ static void disconnected(struct bt_conn *conn, uint8_t reason)
 	printk("Disconnected, reason 0x%02x %s\n", reason, bt_hci_err_to_str(reason));
 }
 
+static void scan_cb(const bt_addr_le_t *addr, int8_t rssi, uint8_t adv_type, struct net_buf_simple *buf)
+{
+	printk("Scan: type=%02x addr=%02x:%02x:%02x:%02x:%02x:%02x adv_type=%02x rssi=%d data len=%u\n",
+		addr->type,
+		addr->a.val[0],
+		addr->a.val[1],
+		addr->a.val[2],
+		addr->a.val[3],
+		addr->a.val[4],
+		addr->a.val[5],
+		adv_type, rssi, buf->len);
+	// printk("      data");
+	// for (uint16_t i = 0; i < buf->len; i++) {
+	// 	printk(" %02x", buf->data[i]);
+	// }
+	// printk("\n");
+}
+
 BT_CONN_CB_DEFINE(conn_callbacks) = {
 	.connected = connected,
 	.disconnected = disconnected,
@@ -178,6 +196,12 @@ BT_CONN_CB_DEFINE(conn_callbacks) = {
 
 static void bt_ready(void)
 {
+	struct bt_le_scan_param scan_param = {
+		.type     = BT_LE_SCAN_TYPE_PASSIVE,
+		.options  = BT_LE_SCAN_OPT_FILTER_DUPLICATE,
+		.interval = 0x0300,
+		.window   = 0x0300,
+	};
 	int err;
 
 	printk("Bluetooth initialized\n");
@@ -193,6 +217,14 @@ static void bt_ready(void)
 	}
 
 	printk("Advertising successfully started\n");
+
+	err = bt_le_scan_start(&scan_param, scan_cb);
+	if (err) {
+		printk("Scanning failed to start (err %d)\n", err);
+		return;
+	}
+
+	printk("Scanning successfully started\n");
 }
 
 static void auth_passkey_display(struct bt_conn *conn, unsigned int passkey)
