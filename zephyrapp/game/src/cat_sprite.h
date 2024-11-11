@@ -239,7 +239,6 @@ extern int toy_golf_sprite;
 extern int toy_puzzle_sprite;
 
 // KEYS AND GEAR
-extern int mask_sprite;
 extern int coin_static_sprite;
 extern int coin_world_sprite;
 

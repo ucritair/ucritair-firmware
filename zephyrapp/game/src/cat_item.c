@@ -188,7 +188,7 @@ void CAT_item_mass_define()
 	CAT_tool_init(toy_puzzle_item, toy_puzzle_sprite, 0, 0, 3);
 
 	// KEYS AND GEAR
-	mask_item = CAT_item_init(CAT_ITEM_TYPE_GEAR, "Mask", mask_sprite, 1);
+	mask_item = CAT_item_init(CAT_ITEM_TYPE_GEAR, "Mask", icon_mask_sprite, 1);
 	CAT_gear_init(mask_item);
 
 	// PROPS
@@ -262,13 +262,13 @@ void CAT_item_mass_define()
 	CAT_prop_init(plant_yellow_item, 2, 1, true);
 
 	flower_vig_item = CAT_item_init(CAT_ITEM_TYPE_PROP, "Vigour Flower", flower_vig_sprite, 1);
-	CAT_prop_init(flower_vig_item, 2, 2, true);
+	CAT_prop_init(flower_vig_item, 2, 1, false);
 
 	flower_foc_item = CAT_item_init(CAT_ITEM_TYPE_PROP, "Focus Flower", flower_foc_sprite, 1);
-	CAT_prop_init(flower_foc_item, 2, 2, true);
+	CAT_prop_init(flower_foc_item, 2, 1, false);
 
 	flower_spi_item = CAT_item_init(CAT_ITEM_TYPE_PROP, "Spirit Flower", flower_spi_sprite, 1);
-	CAT_prop_init(flower_spi_item, 2, 2, true);
+	CAT_prop_init(flower_spi_item, 2, 1, false);
 
 	crystal_blue_lg_item = CAT_item_init(CAT_ITEM_TYPE_PROP, "Blue Crystal", crystal_blue_lg_sprite, 1);
 	CAT_prop_init(crystal_blue_lg_item, 2, 1, true);

@@ -159,7 +159,7 @@ void CAT_MS_bag(CAT_machine_signal signal)
 					}
 				}
 
-				if(item->type == CAT_ITEM_TYPE_GEAR)
+				if(item->type == CAT_ITEM_TYPE_GEAR && bag_anchor == NULL)
 				{
 					CAT_gear_toggle(item_id, !CAT_gear_status(item_id));
 				}
@@ -224,7 +224,7 @@ void CAT_render_bag()
 		CAT_gui_textf(" %s *%d", item->name, bag.counts[idx]);
 		gui.text_mode = CAT_TEXT_MODE_NORMAL;
 
-		if(item->type == CAT_ITEM_TYPE_GEAR)
+		if(item->type == CAT_ITEM_TYPE_GEAR && bag_anchor == NULL)
 		{
 			int idx = CAT_gear_status(item_id) ? 1 : 0;
 			CAT_gui_image(icon_equip_sprite, idx);

@@ -678,7 +678,6 @@ int toy_basketball_sprite;
 int toy_golf_sprite;
 int toy_puzzle_sprite;
 
-int mask_sprite;
 int coin_static_sprite;
 int coin_world_sprite;
 
@@ -920,9 +919,9 @@ void CAT_sprite_mass_define()
 	INIT_SPRITE(sausage_sprite, "sprites/food_sausage_sm.png", 1);
 	INIT_SPRITE(coffee_sprite, "sprites/food_coffee_sm.png", 1);
 	INIT_SPRITE(salad_sprite, "sprites/food_salad_sm.png", 1);
-	INIT_SPRITE(pill_vig_sprite, "sprites/seed_vigor_small.png", 1);
-	INIT_SPRITE(pill_foc_sprite, "sprites/seed_focus_small.png", 1);
-	INIT_SPRITE(pill_spi_sprite, "sprites/seed_spirit_small.png", 1);
+	INIT_SPRITE(pill_vig_sprite, "sprites/seed_vigor_sm.png", 1);
+	INIT_SPRITE(pill_foc_sprite, "sprites/seed_focus_sm.png", 1);
+	INIT_SPRITE(pill_spi_sprite, "sprites/seed_spirit_sm.png", 1);
 	INIT_SPRITE(cigarette_sprite, "sprites/prop_cigarette.png", 1);
 
 	INIT_SPRITE(book_static_sprite, "sprites/read_book_upright.png", 1);
@@ -934,7 +933,6 @@ void CAT_sprite_mass_define()
 	INIT_SPRITE(toy_golf_sprite, "sprites/toy_sm_golf.png", 1);
 	INIT_SPRITE(toy_puzzle_sprite, "sprites/toy_sm_puzzle.png", 1);
 
-	INIT_SPRITE(mask_sprite, "sprites/mask.png", 1);
 	INIT_SPRITE(coin_static_sprite, "sprites/coin.png", 1);
 	INIT_SPRITE(coin_world_sprite, "sprites/coin_a.png", 4);
 
@@ -1018,7 +1016,7 @@ void CAT_sprite_mass_define()
 	COPY_SPRITE(pet_crit_foc_out_sprite, pet_crit_foc_in_sprite, false, true);
 
 	INIT_SPRITE(pet_crit_spi_in_sprite, "sprites/pet_unicorn_block_a.png", 15);
-	INIT_SPRITE(pet_crit_spi_sprite, "sprites/pet_unicorn_block_blink.png", 2);
+	INIT_SPRITE(pet_crit_spi_sprite, "sprites/pet_unicorn_block_blink_a.png", 2);
 	COPY_SPRITE(pet_crit_spi_out_sprite, pet_crit_spi_in_sprite, false, true);
 
 	// PET ACTIONS
@@ -1047,8 +1045,8 @@ void CAT_sprite_mass_define()
 
 	// SNAKE
 	INIT_SPRITE(snake_head_sprite, "sprites/snake_cat_head_default.png", 4);
-	INIT_SPRITE(snake_eat_sprite, "sprites/snake_cat_head_eat_a.png", 4);
-	INIT_SPRITE(snake_happy_sprite, "sprites/snake_cat_head_happy_a.png", 4);
+	INIT_SPRITE(snake_eat_sprite, "sprites/snake_cat_head_eat.png", 4);
+	INIT_SPRITE(snake_happy_sprite, "sprites/snake_cat_head_happy.png", 4);
 	INIT_SPRITE(snake_body_sprite, "sprites/snake_cat_body.png", 4);
 	INIT_SPRITE(snake_corner_sprite, "sprites/snake_cat_corner.png", 4);
 	INIT_SPRITE(snake_death_up_sprite, "sprites/snake_cat_death_up_a.png", 5);
