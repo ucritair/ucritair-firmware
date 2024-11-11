@@ -165,13 +165,13 @@ enum sdcard_result write_log_to_sdcard()
 	if (err == FS_RET_OK) {
 		// OK
 	}
-	else if (err == FR_DISK_ERR || err == FR_NOT_READY)
+	else if (err == -FR_DISK_ERR || err == -FR_NOT_READY)
 	{
 		LOG_ERR("Failed to mount, disk err");
 		ret = FAIL_INIT;
 		goto out;
 	}
-	else if (err == FR_NO_FILESYSTEM)
+	else if (err == -FR_NO_FILESYSTEM)
 	{
 		LOG_ERR("Failed to mount, no FS");
 		ret = FAIL_MOUNT;
@@ -180,7 +180,7 @@ enum sdcard_result write_log_to_sdcard()
 	else
 	{
 		LOG_ERR("Unknown mount error: %d", err);
-		ret = FAIL_UNKNOWN;
+		ret = FAIL_MOUNT;
 		goto out;
 	}
 

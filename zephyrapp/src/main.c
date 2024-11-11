@@ -84,10 +84,11 @@ int main(void)
 		
 
 		int cycle = 1;
+#define CYCLE_TIME 20
 		while (cycle++)
 		{
 			set_first_led((struct led_rgb){0, ((cycle%20)>10)?10:30, 0});
-			k_msleep(20);
+			k_msleep(CYCLE_TIME);
 
 			sensor_read_once();
 			update_buttons();
@@ -122,6 +123,12 @@ int main(void)
 				epaper_render_test();
 				LOG_INF("power off");
 				k_msleep(20);
+				power_off(sensor_wakeup_rate*1000, false);
+			}
+
+			if (cycle > (60000/CYCLE_TIME))
+			{
+				// give up and try again later
 				power_off(sensor_wakeup_rate*1000, false);
 			}
 		}

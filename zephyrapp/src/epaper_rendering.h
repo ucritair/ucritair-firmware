@@ -1,4 +1,6 @@
 
+#include "epaper_driver.h"
+
 void epaper_render_test();
 void epaper_render_protected_off();
 extern bool epaper_flip_y;
@@ -7,6 +9,8 @@ struct epaper_image_asset {
 	uint8_t w, h, stride;
 	uint8_t bytes[];
 };
+
+extern uint8_t epaper_framebuffer[EPD_IMAGE_BYTES];
 
 extern struct epaper_image_asset epaper_image_cloud_default;
 extern struct epaper_image_asset epaper_image_cloud_happy;

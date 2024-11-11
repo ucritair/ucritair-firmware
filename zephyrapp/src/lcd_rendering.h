@@ -1,4 +1,7 @@
 #include <stdint.h>
+#include <stdbool.h>
+
+extern bool cat_game_running;
 
 void lcd_render_diag();
 

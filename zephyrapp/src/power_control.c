@@ -11,6 +11,7 @@ LOG_MODULE_REGISTER(power_control, LOG_LEVEL_DBG);
 #include "power_control.h"
 #include "rtc.h"
 #include "buttons.h"
+#include "lcd_rendering.h"
 
 bool is_3v3_on, is_5v0_on, is_leds_on;
 
@@ -112,6 +113,12 @@ static void timer_handler(nrf_timer_event_t event_type, void * p_context)
 void power_off(int for_ms, bool protected_sleeping)
 {
 	LOG_INF("power_off(%d)", for_ms);
+
+	if (cat_game_running)
+	{
+		LOG_INF("Saving game...");
+		CAT_force_save();
+	}
 	// fails if active
 	// struct net_if *iface = net_if_get_default();
 	// net_if_down(iface);

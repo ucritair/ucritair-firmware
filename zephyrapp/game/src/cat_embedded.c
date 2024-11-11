@@ -5,7 +5,9 @@
 
 #include "buttons.h"
 #include "touch.h"
-
+#include "epaper_driver.h"
+#include "epaper_rendering.h"
+#include "flash.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // DEV MODE
@@ -135,26 +137,33 @@ void CAT_free(void* ptr)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // STORAGE
 
+
+// DONT even talk to me I know this is ugly as shit
+// I just didn't want tomas to have to worry about the sizes of the saves
+_Static_assert(sizeof(CAT_save) < sizeof(epaper_framebuffer));
+_Static_assert(sizeof(CAT_save) < ROOM_FOR_TOMAS);
+
 // Call to start saving, then populate the returned CAT_save*
 CAT_save* CAT_start_save()
 {
-	return NULL;
+	return (CAT_save*)epaper_framebuffer;
 }
 // then call with the CAT_save* to finish saving
 void CAT_finish_save(CAT_save*)
 {
-
+	flash_save_tomas_save((uint8_t*)epaper_framebuffer, sizeof(CAT_save));
 }
 
 // Call to start loading, then load from the returned CAT_save*
 CAT_save* CAT_start_load()
 {
-	return NULL;
+	flash_load_tomas_save((uint8_t*)epaper_framebuffer, sizeof(CAT_save));
+	return (CAT_save*)epaper_framebuffer;
 }
 // then call once done loading
 void CAT_finish_load()
 {
-
+	// no-op
 }
 
 
