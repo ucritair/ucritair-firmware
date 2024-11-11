@@ -12,6 +12,7 @@
 #define WIDTH 15
 #define HEIGHT 20
 #define MAX_SNAKE_LENGTH (WIDTH * HEIGHT)
+#define MAX_SPAWN_ITS 10000
 
 uint8_t snake_x[MAX_SNAKE_LENGTH];
 uint8_t snake_y[MAX_SNAKE_LENGTH];
@@ -32,19 +33,21 @@ enum {SELECT, PLAY, LOSE} mode;
 void spawn_food()
 {
 	bool valid = false;
-	while(!valid)
+	int its = 0;
+	while(!valid && its < MAX_SPAWN_ITS)
 	{
 		food_x = CAT_rand_int(1, WIDTH-2);
 		food_y = CAT_rand_int(1, HEIGHT-2);
 		valid = true;
 		for(int i = 0; i < snake_length; i++)
 		{
-			if(food_x == snake_x[i] || food_y == snake_y[i])
+			if(food_x == snake_x[i] && food_y == snake_y[i])
 			{
 				valid = false;
 				break;
 			}
 		}
+		its += 1;
 	}
 
 	int food_options[] = 
