@@ -16,9 +16,9 @@ void CAT_pet_stat(int ticks)
 	int pure = CAT_room_find(purifier_item) != -1;
 	int uv = CAT_room_find(uv_item) != -1;
 
-	float dv_aq = (CAT_VOC_score() + CAT_PM_score()) * 0.75f;
-	float df_aq = (CAT_CO2_score() + CAT_NOX_score()) * 0.5f;
-	float ds_aq = (CAT_CO2_score() + CAT_temp_score()) * 0.5f;
+	float dv_aq = (CAT_voc_score(aqi.sen5x.voc_index) + CAT_pm25_score(aqi.sen5x.pm2_5)) * 0.33f;
+	float df_aq = (CAT_co2_score(aqi.sunrise.ppm_filtered_compensated) + CAT_nox_score(aqi.sen5x.nox_index)) * 0.33f;
+	float ds_aq = (CAT_co2_score(aqi.sunrise.ppm_filtered_compensated) + CAT_temperature_score(CAT_mean_temp())) * 0.33f;
 	if(dv_aq >= 1)
 		dv_aq -= pure;
 	if(df_aq >= 1)

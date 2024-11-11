@@ -57,7 +57,7 @@ void CAT_render_stats()
 	CAT_gui_div("AIR QUALITY");
 	
 	int temp_idx, co2_idx, pm_idx, voc_idx, nox_idx;
-	CAT_calc_quantized_aqi_scores(&temp_idx, &co2_idx, &pm_idx, &voc_idx, &nox_idx);
+	CAT_AQI_quantize(&temp_idx, &co2_idx, &pm_idx, &voc_idx, &nox_idx);
 	CAT_gui_image(icon_temp_sprite, temp_idx);
 	CAT_gui_image(icon_co2_sprite, co2_idx);
 	CAT_gui_image(icon_pm_sprite, pm_idx);
