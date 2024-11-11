@@ -102,15 +102,15 @@ void blit_image(uint8_t* target, struct epaper_image_asset* src, int x, int y)
 }
 
 
-uint8_t test_image[EPD_IMAGE_BYTES] = {0};
+uint8_t epaper_framebuffer[EPD_IMAGE_BYTES] = {0};
 
 void epaper_render_test()
 {
-	memset(test_image, 0, sizeof(test_image));
+	memset(epaper_framebuffer, 0, sizeof(epaper_framebuffer));
 
 	char buf[256] = {0};
 
-#define fwrite_str(x, y, s, str, ...) snprintf(buf, sizeof(buf), str, ##__VA_ARGS__); write_str(test_image, x, y, s, buf);
+#define fwrite_str(x, y, s, str, ...) snprintf(buf, sizeof(buf), str, ##__VA_ARGS__); write_str(epaper_framebuffer, x, y, s, buf);
 
 	struct tm t;
 	time_t now = get_current_rtc_time();
@@ -153,8 +153,8 @@ void epaper_render_test()
 		selected_cloud = &epaper_image_cloud_happy;
 	}
 
-	blit_image(test_image, selected_unicorn, 0, 0);
-	blit_image(test_image, selected_cloud, 0, selected_unicorn->h);
+	blit_image(epaper_framebuffer, selected_unicorn, 0, 0);
+	blit_image(epaper_framebuffer, selected_cloud, 0, selected_unicorn->h);
 
 	fwrite_str(128, 20, 2, "%.0f", (double)current_readings.sunrise.ppm_filtered_compensated);
 	fwrite_str(EPD_IMAGE_W-(8*3), 20, 1, "ppm\nCO2");
@@ -168,25 +168,25 @@ void epaper_render_test()
 	
 	fwrite_str(128, 70, 1, "%.0f C / %.0f%% RH", (double)current_readings.sen5x.temp_degC, (double)current_readings.sen5x.humidity_rhpct);
 	// fwrite_str(128, 90, 1, "1 uCov/hr");
-	fwrite_str(128, 100, 1, "75%% AQI");
+	// fwrite_str(128, 100, 1, "75%% AQI");
 	fwrite_str(128, 108, 1, "as-of %2d:%02d:%02d", t.tm_hour, t.tm_min, t.tm_sec);
 
 	imu_update();
 
 	pc_set_mode(false);
-	cmd_turn_on_and_write(test_image);
+	cmd_turn_on_and_write(epaper_framebuffer);
 	pc_set_mode(true);
 }
 
 void epaper_render_protected_off()
 {
-	memset(test_image, 0, sizeof(test_image));
+	memset(epaper_framebuffer, 0, sizeof(epaper_framebuffer));
 
-	write_str(test_image, 10, 10, 2, "Device is");
-	write_str(test_image, 10, 26, 2, "protected-off");
-	write_str(test_image, 10, 56, 1, "Press RESET to power on");
+	write_str(epaper_framebuffer, 10, 10, 2, "Device is");
+	write_str(epaper_framebuffer, 10, 26, 2, "protected-off");
+	write_str(epaper_framebuffer, 10, 56, 1, "Press RESET to power on");
 
 	pc_set_mode(false);
-	cmd_turn_on_and_write(test_image);
+	cmd_turn_on_and_write(epaper_framebuffer);
 	pc_set_mode(true);
 }

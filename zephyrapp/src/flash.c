@@ -20,15 +20,15 @@ struct __attribute__((__packed__)) flash_header {
 	uint32_t persistance_offset;
 } flash_header_read = {0};
 
-#define ROOM_FOR_TOMAS 0x10000
-
 static inline bool cell_is_valid(struct flash_log_cell* cell)
 {
 	return cell->timestamp != 0 && cell->timestamp != UINT64_MAX;
 }
 
 #define FLASH_SIZE 0x1000000
-#define PERSISTANCE_OFFSET (flash_header_read.persistance_offset + ROOM_FOR_TOMAS)
+#define PERSISTANCE_OFFSET (flash_header_read.persistance_offset + TOTAL_SAVE_ROOM)
+#define SYSTEM_OFFSET (flash_header_read.persistance_offset)
+#define TOMAS_OFFSET (flash_header_read.persistance_offset+ROOM_FOR_SYSTEM)
 #define MAX_LOG_CELL_COUNT (((FLASH_SIZE - PERSISTANCE_OFFSET) / sizeof(struct flash_log_cell)) & ~1)
 
 #define LOG_CELL_NR_FULL -1
@@ -81,6 +81,31 @@ int flash_load_nrf70_fw(uint8_t* target, uint8_t** fw_start, uint8_t** fw_end)
 
 	return 0;
 }
+
+void flash_save_tomas_save(uint8_t* buf, size_t size)
+{
+	size += 0x1000 - (size % 0x1000);
+
+	if (size > ROOM_FOR_TOMAS)
+	{
+		LOG_ERR("uhhhhhh, too big?");
+		return;
+	}
+
+	flash_erase(flash_dev, TOMAS_OFFSET, size);
+	flash_write(flash_dev, TOMAS_OFFSET, buf, size);
+}
+
+void flash_load_tomas_save(uint8_t* buf, size_t size)
+{
+	flash_read(flash_dev, TOMAS_OFFSET, buf, size);
+}
+
+void flash_nuke_tomas_save()
+{
+	flash_erase(flash_dev, TOMAS_OFFSET, 0x1000);
+}
+
 
 #define OFFSET_OF_CELL(nr) (PERSISTANCE_OFFSET + (sizeof(struct flash_log_cell) * nr))
 
@@ -282,6 +307,13 @@ static int sh_write_out(const struct shell *sh, size_t argc,
 	return 0;
 }
 
+static int sh_erasegame(const struct shell *sh, size_t argc,
+				   char **argv)
+{
+	flash_nuke_tomas_save();
+	return 0;
+}
+
 
 SHELL_STATIC_SUBCMD_SET_CREATE(sub_log,
 	SHELL_CMD_ARG(retrieve, NULL,
@@ -299,6 +331,9 @@ SHELL_STATIC_SUBCMD_SET_CREATE(sub_log,
 	SHELL_CMD_ARG(writeout, NULL,
 		"Write log to SD card",
 		sh_write_out, 1, 0),
+	SHELL_CMD_ARG(erasegame, NULL,
+		"Erase game state",
+		sh_erasegame, 1, 0),
 	SHELL_SUBCMD_SET_END /* Array terminated. */
 );
 

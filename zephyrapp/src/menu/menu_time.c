@@ -9,6 +9,7 @@
 #include "cat_bag.h"
 #include "rtc.h"
 
+#include "menu_system.h"
 
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(menu_time, LOG_LEVEL_DBG);
@@ -48,7 +49,7 @@ void CAT_MS_time(CAT_machine_signal signal)
 		case CAT_MACHINE_SIGNAL_TICK:
 		{
 			if(CAT_input_pressed(CAT_BUTTON_B))
-				CAT_machine_transition(&machine, CAT_MS_menu);
+				CAT_machine_transition(&machine, CAT_MS_system_menu);
 
 			if (CAT_input_pulse(CAT_BUTTON_LEFT))
 				time_edit_time_selector--;

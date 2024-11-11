@@ -70,6 +70,7 @@ int epaper_update_rate = -1;
 
 bool in_debug_menu = false;
 bool show_fps = true;
+bool cat_game_running = false;
 
 void lcd_render_diag()
 {
@@ -82,6 +83,7 @@ void lcd_render_diag()
 
 #ifndef MINIMIZE_GAME_FOOTPRINT
 	CAT_init(0);
+	cat_game_running = true;
 #endif
 
 	NRF_SPIM4->FREQUENCY = SPIM_FREQUENCY_FREQUENCY_M32;

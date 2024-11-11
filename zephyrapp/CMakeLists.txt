@@ -38,6 +38,7 @@ target_sources(app PRIVATE
 
 	src/menu/menu_time.c
 	src/menu/menu_aqi.c
+	src/menu/menu_system.c
 
 	${CMAKE_CURRENT_BINARY_DIR}/images.c
 )

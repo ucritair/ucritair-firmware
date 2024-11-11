@@ -14,11 +14,11 @@ CAT_deco_state deco_state =
 	.mode = ADD,
 
 	.add_id = -1,
-	.add_rect = (CAT_rect){(CAT_ivec2){0, 0}, (CAT_ivec2){0, 0}},
+	.add_rect = {0},
 	.valid_add = false,
 
 	.mod_idx = -1,
-	.mod_rect = (CAT_rect){(CAT_ivec2){0, 0}, (CAT_ivec2){0, 0}}
+	.mod_rect = {0}
 };
 
 void CAT_deco_target(CAT_ivec2 place)

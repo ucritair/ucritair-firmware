@@ -8,7 +8,7 @@
 #include "cat_version.h"
 
 #ifdef CAT_EMBEDDED
-#include "menu_time.h"
+#include "menu_system.h"
 #include "menu_aqi.h"
 #endif
 
@@ -30,7 +30,7 @@ struct entry
 
 #ifdef CAT_EMBEDDED
 	{"AIR QUALITY", CAT_MS_aqi},
-	{"SETUP TIME/SAMPLING", CAT_MS_time},
+	{"SYSTEM MENU", CAT_MS_system_menu},
 #endif
 
 	{"BACK", CAT_MS_room}
@@ -88,5 +88,5 @@ void CAT_render_menu()
 	}
 
 	CAT_gui_line_break();
-	CAT_gui_textf("v%d.%d.%d.%d", CAT_VERSION_MAJOR, CAT_VERSION_MINOR, CAT_VERSION_PATCH, CAT_VERSION_PUSH);
+	CAT_gui_textf("GAME v.%d.%d.%d.%d", CAT_VERSION_MAJOR, CAT_VERSION_MINOR, CAT_VERSION_PATCH, CAT_VERSION_PUSH);
 }

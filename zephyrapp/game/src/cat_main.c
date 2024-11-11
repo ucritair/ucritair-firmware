@@ -30,6 +30,7 @@
 #ifdef CAT_EMBEDDED
 #include "menu_time.h"
 #include "menu_aqi.h"
+#include "menu_system.h"
 #endif
 
 #ifdef __GNUC__
@@ -74,6 +75,8 @@ void CAT_force_save()
 
 	save->masked = CAT_gear_status(mask_item);
 
+	save->magic_number = CAT_SAVE_MAGIC;
+
 	CAT_finish_save(save);
 }
 
@@ -83,7 +86,7 @@ void CAT_force_load()
 
 	if(!CAT_check_save(save) || save==NULL)
 	{
-		//CAT_fresh_gamestate();
+		CAT_fresh_gamestate();
 		CAT_finish_load();
 		return;
 	}
@@ -224,6 +227,8 @@ void CAT_tick_render(int cycle)
 		CAT_render_time();
 	else if(machine == CAT_MS_aqi)
 		CAT_render_aqi();
+	else if(machine == CAT_MS_system_menu)
+		CAT_render_system_menu();
 #endif
 }
 
