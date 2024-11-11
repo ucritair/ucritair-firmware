@@ -86,7 +86,7 @@ void set_all_same_color(struct led_rgb color)
 
 	set_leds(true);
 
-	LOG_INF("set_all_same_color r=%d, g=%d, b=%d", color.r, color.g, color.b);
+	// LOG_INF("set_all_same_color r=%d, g=%d, b=%d", color.r, color.g, color.b);
 	int rc = led_strip_update_rgb(strip, pixels, STRIP_NUM_PIXELS);
 	if (rc)
 	{
@@ -105,7 +105,7 @@ void set_first_led(struct led_rgb color)
 
 	set_leds(true);
 
-	LOG_INF("set_all_same_color r=%d, g=%d, b=%d", color.r, color.g, color.b);
+	// LOG_INF("set_all_same_color r=%d, g=%d, b=%d", color.r, color.g, color.b);
 	int rc = led_strip_update_rgb(strip, pixels, STRIP_NUM_PIXELS);
 	if (rc)
 	{

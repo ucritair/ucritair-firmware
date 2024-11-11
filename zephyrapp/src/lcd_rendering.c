@@ -116,7 +116,7 @@ void lcd_render_diag()
 		last_frame_time = now - last_ms;
 		last_ms = now;
 
-		if (current_buttons)
+		if (current_buttons || touch_pressure)
 		{
 			last_button_pressed = now;
 			set_backlight(BACKLIGHT_FULL);
@@ -132,6 +132,7 @@ void lcd_render_diag()
 		if (time_since_buttons > 60000)
 		{
 			// TODO: Save game
+			epaper_render_test();
 			power_off(sensor_wakeup_rate*1000, false);
 		}
 

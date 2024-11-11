@@ -43,5 +43,5 @@ void touch_update()
 
 	touch_mapped_x = (x - xmin) / (xmax / LCD_IMAGE_W);
 	touch_mapped_y = LCD_IMAGE_H - ((y - ymin) / (ymax / LCD_IMAGE_H));
-	touch_pressure = z>50?z:0;
+	touch_pressure = ((z>400) && (z < 4000))?z:0;
 }

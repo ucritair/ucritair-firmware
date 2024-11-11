@@ -34,7 +34,7 @@ static inline bool cell_is_valid(struct flash_log_cell* cell)
 #define LOG_CELL_NR_FULL -1
 #define LOG_CELL_NR_UNKOWN -2
 
-PERSIST_RAM int next_log_cell_nr = LOG_CELL_NR_UNKOWN;
+int next_log_cell_nr = LOG_CELL_NR_UNKOWN;
 int flash_get_next_log_cell_nr();
 
 _Static_assert(sizeof(struct flash_log_cell) == 32);

@@ -437,7 +437,7 @@ void CAT_greenberry(int xi, int w, int yi, int h, float t)
 void CAT_clear_frame(uint16_t c)
 {
 	uint16_t* px = FRAMEBUFFER;
-	uint16_t* end = FRAMEBUFFER + LCD_SCREEN_W * LCD_SCREEN_H;
+	uint16_t* end = FRAMEBUFFER + LCD_SCREEN_W * LCD_FRAMEBUFFER_H;
 	while(px != end)
 	{
 		*(px++) = c;

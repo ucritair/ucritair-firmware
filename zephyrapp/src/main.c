@@ -42,8 +42,9 @@ int main(void)
 	init_power_control();
 	check_rtc_init();
 
-	LOG_INF("~Test speaker~");
+	// LOG_INF("~Test speaker~");
 	set_3v3(true);
+	test_speaker();
 
 	usb_enable(NULL);
 
@@ -73,7 +74,10 @@ int main(void)
 
 		set_first_led((struct led_rgb){0, 100, 0});
 
+		k_msleep(50);
+
 		sensor_init();
+		imu_init();
 
 		int cycle = 1;
 		while (cycle++)
@@ -91,21 +95,32 @@ int main(void)
 				sys_reboot(SYS_REBOOT_WARM);
 			}
 
+			LOG_DBG("Waiting for sensors ready..., cycle=%d", cycle);
+
 			// ~15s for PM
 			// ~65s for NOC+VOX!?!?!
 
 			if (is_ready_for_aqi_logging())
 			{
 				LOG_INF("readings ready");
+				k_msleep(20);
+				const struct device *flash_dev = DEVICE_DT_GET_ONE(jedec_spi_nor);
+
+				if (device_init(flash_dev))
+				{
+					printk("failed to init flash_dev");
+				}
+
 				populate_next_log_cell();
+				LOG_INF("update eink");
+				k_msleep(20);
 				epaper_render_test();
+				LOG_INF("power off");
 				k_msleep(20);
 				power_off(sensor_wakeup_rate*1000, false);
 			}
 		}
 	}
-
-	test_speaker();
 
 	ble_main();
 
@@ -157,7 +172,7 @@ int main(void)
 
 
 	set_5v0(true);
-	k_msleep(15);
+	k_msleep(50);
 
 	sensor_init();
 
