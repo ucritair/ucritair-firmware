@@ -13,6 +13,11 @@
 #define HEIGHT 20
 #define MAX_SNAKE_LENGTH (WIDTH * HEIGHT)
 #define MAX_SPAWN_ITS 10000
+#ifdef CAT_EMBEDDED
+#define MOVE_PERIOD 3
+#else
+#define MOVE_PERIOD 9
+#endif
 
 uint8_t snake_x[MAX_SNAKE_LENGTH];
 uint8_t snake_y[MAX_SNAKE_LENGTH];
@@ -22,7 +27,7 @@ int8_t ldx = 0;
 int8_t ldy = 0;
 int8_t dx = 1;
 int8_t dy = 0;
-int move_timer_id = -1;
+int move_frame = 0;
 
 int8_t food_x = -1;
 int8_t food_y = -1;
@@ -74,7 +79,7 @@ void snake_init()
 	ldy = 0;
 	dx = 1;
 	dy = 0;
-	move_timer_id = CAT_timer_init(0.15f);
+	move_frame = 0;
 
 	food_x = CAT_rand_int(1, WIDTH-2);
 	food_y = CAT_rand_int(1, HEIGHT-2);
@@ -109,7 +114,7 @@ void snake_tick()
 		dy = 0;
 	}
 
-	if(CAT_timer_tick(move_timer_id))
+	if(move_frame >= MOVE_PERIOD)
 	{
 		ldx = dx;
 		ldy = dy;
@@ -149,8 +154,9 @@ void snake_tick()
 		snake_x[0] = x;
 		snake_y[0] = y;
 
-		CAT_timer_reset(move_timer_id);
+		move_frame = 0;
 	}
+	move_frame += 1;
 }
 
 void CAT_MS_arcade(CAT_machine_signal signal)

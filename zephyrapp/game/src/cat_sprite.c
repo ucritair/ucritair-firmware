@@ -65,7 +65,6 @@ int CAT_sprite_init(const char* path, int frame_count)
 	png_uint_32 height;
 	png_get_IHDR(png, info, &width, &height, NULL, NULL, NULL, NULL, NULL);
 
-	size_t row_size = png_get_rowbytes(png, info);
 	png_bytepp rows = png_get_rows(png, info);
 	uint16_t* pixels = CAT_malloc(sizeof(uint16_t) * width * height);
 	for(int y = 0; y < height; y++)
