@@ -1,7 +1,10 @@
+#include "cat_main.h"
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
+#include <math.h>
 
 #include "cat_core.h"
 #include "cat_sprite.h"
@@ -63,6 +66,8 @@ void CAT_force_save()
 	save->bag_length = bag.length;
 	save->coins = bag.coins;
 
+	save->masked = CAT_gear_status(mask_item);
+
 	CAT_finish_save(save);
 }
 
@@ -90,10 +95,12 @@ void CAT_force_load()
 	bag.length = save->bag_length;
 	bag.coins = save->coins;
 
+	CAT_gear_toggle(mask_item, save->masked);
+
 	CAT_finish_load();
 }
 
-void CAT_init(bool is_first_boot, int sceonds_slept)
+void CAT_init(int seconds_slept)
 {
 	CAT_rand_init();
 	CAT_platform_init();
@@ -115,9 +122,18 @@ void CAT_init(bool is_first_boot, int sceonds_slept)
 	CAT_bag_init();
 	CAT_deco_state_init();
 
-#ifdef CAT_DESKTOP
 	CAT_force_load();
-#endif
+
+	int stat_ticks = round((float) seconds_slept / (float) CAT_STAT_TICK_SECS);
+	CAT_pet_stat(stat_ticks);
+
+	int coin_ticks = round((float) seconds_slept / (float) CAT_COIN_TICK_SECS);
+	for(int i = 0; i < coin_ticks; i++)
+	{
+		CAT_vec2 origin = (CAT_vec2){120, 200};
+		CAT_vec2 place = CAT_iv2v(CAT_rand_ivec2(room.bounds.min, room.bounds.max));
+		CAT_room_add_coin(origin, place);
+	}
 	
 	machine = NULL;
 	CAT_machine_transition(&machine, CAT_MS_room);
@@ -129,6 +145,7 @@ void CAT_tick_logic()
 	CAT_AQI_tick();
 	CAT_input_tick();
 
+	CAT_room_background();
 	CAT_machine_tick(&machine);
 }
 
@@ -185,14 +202,9 @@ void CAT_tick_render(int cycle)
 }
 
 #ifdef CAT_DESKTOP
-#include <sys/stat.h>
-
 int main()
 {
-	struct stat buf;
-	bool first_boot = stat("save.dat", &buf) == 0;
-
-	CAT_init(first_boot, 12);
+	CAT_init(12);
 
 	while (CAT_get_battery_pct() > 0)
 	{
@@ -201,9 +213,7 @@ int main()
 		CAT_LCD_post(spriter.framebuffer);
 	}
 
-#ifdef CAT_DESKTOP
 	CAT_force_save();
-#endif
 
 	CAT_spriter_cleanup();
 #ifndef CAT_BAKED_ASSETS

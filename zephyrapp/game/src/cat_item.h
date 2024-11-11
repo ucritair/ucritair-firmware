@@ -88,6 +88,7 @@ extern int cigarette_item;
 extern int book_a_item;
 extern int book_b_item;
 extern int book_c_item;
+extern int book_d_item;
 
 extern int toy_duck_item;
 extern int toy_baseball_item;

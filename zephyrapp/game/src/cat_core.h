@@ -106,6 +106,8 @@ typedef struct __attribute__((__packed__)) CAT_save
 	uint8_t bag_counts[70];
 	uint8_t bag_length;
 	uint32_t coins;
+
+	bool masked;
 } CAT_save;
 
 // Call to start saving, then populate the returned CAT_save*
@@ -124,6 +126,7 @@ static inline bool CAT_check_save(CAT_save* save)
 {
 	return save->magic_number == CAT_SAVE_MAGIC;
 }
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // POWER

@@ -3,6 +3,8 @@
 #include "cat_machine.h"
 #include "cat_math.h"
 
+#define CAT_STAT_TICK_SECS 7200
+
 typedef struct CAT_pet
 {
 	int vigour;
@@ -21,7 +23,8 @@ typedef struct CAT_pet
 } CAT_pet;
 extern CAT_pet pet;
 
-void CAT_pet_stat();
+void CAT_pet_stat(int ticks);
+void CAT_pet_reanimate();
 bool CAT_pet_seek(CAT_vec2 targ);
 void CAT_pet_init();
 void CAT_render_pet(int cycle);

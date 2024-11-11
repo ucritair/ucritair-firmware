@@ -75,13 +75,13 @@ void CAT_machine_transition(CAT_machine_state* machine, CAT_machine_state state)
 		(*machine)(CAT_MACHINE_SIGNAL_EXIT);
 	*machine = state;
 	if(*machine != NULL)
-		(**machine)(CAT_MACHINE_SIGNAL_ENTER);
+		(*machine)(CAT_MACHINE_SIGNAL_ENTER);
 }
 
 void CAT_machine_tick(CAT_machine_state* machine)
 {
 	if(*machine != NULL)
-		(**machine)(CAT_MACHINE_SIGNAL_TICK);
+		(*machine)(CAT_MACHINE_SIGNAL_TICK);
 }
 
 

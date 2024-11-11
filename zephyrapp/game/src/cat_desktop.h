@@ -2,8 +2,6 @@
 
 #include <GL/glew.h> 
 #include <GLFW/glfw3.h>
-#include "al.h"
-#include "alc.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // DEV MODE
@@ -16,8 +14,6 @@ typedef struct CAT_simulator
     GLuint tex_id;
     GLuint prog_id;
     GLuint tex_loc;    
-
-	ALuint al_src_id;
 
     float time;
     float delta_time;

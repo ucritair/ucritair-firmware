@@ -8,7 +8,10 @@ typedef struct CAT_input
 	bool last[CAT_BUTTON_LAST];
 	float time[CAT_BUTTON_LAST];
 	float pulse[CAT_BUTTON_LAST];
-	CAT_touch touch; 
+
+	CAT_touch touch;
+	bool touch_last;
+	float touch_time;
 } CAT_input;
 extern CAT_input input;
 
@@ -23,3 +26,4 @@ float CAT_input_progress(int button, float t);
 void CAT_input_clear(int button);
 bool CAT_input_touch_rect(int x, int y, int w, int h);
 bool CAT_input_any();
+bool CAT_input_drag(int x, int y, float r);

@@ -141,25 +141,6 @@ void CAT_platform_init()
 
 	simulator.tex_loc = glGetUniformLocation(simulator.prog_id, "tex");
 
-	ALCdevice* al_device = alcOpenDevice(NULL);
-	if(al_device == NULL)
-	{
-		printf("Failed to open audio device\n");
-	}
-
-	ALCcontext* al_context = alcCreateContext(al_device, NULL);
-	if(!alcMakeContextCurrent(al_context))
-	{
-		printf("Failed to activate OpenAL context\n");
-	}
-
-	alGenSources(1, &simulator.al_src_id);
-	alSourcef(simulator.al_src_id, AL_PITCH, 1);
-	alSourcef(simulator.al_src_id, AL_GAIN, 1);
-	alSource3f(simulator.al_src_id, AL_POSITION, 0, 0, 0);
-	alSource3f(simulator.al_src_id, AL_VELOCITY, 0, 0, 0);
-	alSourcei(simulator.al_src_id, AL_LOOPING, AL_FALSE);
-
 	simulator.time = glfwGetTime();
 	simulator.delta_time = 0;
 }
@@ -175,8 +156,6 @@ void CAT_platform_tick()
 
 void CAT_platform_cleanup()
 {
-	alDeleteSources(1, &simulator.al_src_id);
-
 	glDeleteShader(simulator.prog_id);
 	glDeleteTextures(1, &simulator.tex_id);
 	glDeleteBuffers(1, &simulator.vbo_id);
@@ -234,24 +213,7 @@ bool CAT_ink_is_posted()
 
 void CAT_play_tone(float pitch_hz, float time_s)
 {
-	ALsizei rate = 22050;
-	ALsizei count = rate * time_s;
-	ALsizei size = sizeof(int16_t) * count;
-	int16_t* samples = malloc(size);
-	for(int i = 0; i < count; i++)
-	{
-		float p = 2 * M_PI * pitch_hz;
-		float t = (float) i / (float) rate;
-		samples[i] = 32767 * sin(p * t);
-	}
-
-	ALuint buf;
-	alGenBuffers(1, &buf);
-	alBufferData(buf, AL_FORMAT_MONO16, samples, size, rate);
-	alSourcei(simulator.al_src_id, AL_BUFFER, buf);
-	alSourcePlay(simulator.al_src_id);
-	alDeleteBuffers(1, &buf);
-	free(samples);
+	return;
 }
 
 

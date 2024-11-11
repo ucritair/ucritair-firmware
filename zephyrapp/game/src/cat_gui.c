@@ -21,46 +21,6 @@ CAT_gui gui =
 	.text_mode = CAT_TEXT_MODE_NORMAL
 };
 
-/*void CAT_gui_edges(CAT_ivec2 start, CAT_ivec2 shape)
-{
-	CAT_draw_sprite(panel_sprite, 0, start.x * CAT_TILE_SIZE, start.y * CAT_TILE_SIZE);
-	CAT_draw_sprite(panel_sprite, 2, (start.x + shape.x - 1) * CAT_TILE_SIZE, start.y * CAT_TILE_SIZE);
-	CAT_draw_sprite(panel_sprite, 6, start.x * CAT_TILE_SIZE, (start.y + shape.y - 1) * CAT_TILE_SIZE);
-	CAT_draw_sprite(panel_sprite, 8, (start.x + shape.x - 1) * CAT_TILE_SIZE, (start.y + shape.y - 1) * CAT_TILE_SIZE);
-
-	int xi = start.x + CAT_TILE_SIZE;
-	int xf = (start.x + shape.x - 1) * CAT_TILE_SIZE;
-	int yi = start.y + CAT_TILE_SIZE;
-	int yf = (start.y + shape.y - 1) * CAT_TILE_SIZE;
-	for(int x = xi; x < xf; x += CAT_TILE_SIZE)
-	{
-		CAT_draw_sprite(panel_sprite, 1, x, 0);
-		CAT_draw_sprite(panel_sprite, 7, x, yf);
-	}
-	for(int y = xi; y < yf; y += CAT_TILE_SIZE)
-	{
-		CAT_draw_sprite(panel_sprite, 3, 0, y);
-		CAT_draw_sprite(panel_sprite, 5, xf, y);
-	}
-}
-
-void CAT_gui_panel(CAT_ivec2 start, CAT_ivec2 shape)
-{
-	gui.start = start;
-	gui.shape = shape;
-	
-	CAT_clear_rect(start.x * CAT_TILE_SIZE, start.y * CAT_TILE_SIZE, shape.x * CAT_TILE_SIZE, shape.y * CAT_TILE_SIZE, 0xf75b);
-	spriter.mode = CAT_DRAW_MODE_DEFAULT;
-	CAT_gui_edges(start, shape);
-
-	gui.cursor = (CAT_ivec2) {gui.start.x * 16, gui.start.y * 16};
-	gui.cursor.y += gui.margin;
-	gui.cursor.x += gui.margin;
-	gui.channel_height = 0;
-
-	spriter.mode = CAT_DRAW_MODE_CENTER_Y;
-}*/
-
 void CAT_gui_row(int stage)
 {
 	CAT_draw_sprite(panel_sprite, stage*3+0, gui.cursor.x, gui.cursor.y);
@@ -184,7 +144,7 @@ void CAT_gui_textf(const char* fmt, ...)
 {
 	va_list args;
 	va_start(args, fmt);
-	char text[256];
+	char text[128];
 	vsprintf(text, fmt, args);
 	va_end(args);
 	CAT_gui_text(text);
