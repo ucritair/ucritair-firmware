@@ -113,11 +113,6 @@ int CAT_sprite_copy(int sprite_id, bool loop, bool reverse)
 	return copy_id;
 }
 
-CAT_sprite* CAT_sprite_get(int sprite_id)
-{
-	return &atlas.table[sprite_id];
-}
-
 void CAT_atlas_cleanup()
 {
 	for(int i = 0; i < atlas.length; i++)
@@ -129,6 +124,11 @@ void CAT_atlas_cleanup()
 }
 
 #endif
+
+CAT_sprite* CAT_sprite_get(int sprite_id)
+{
+	return &atlas.table[sprite_id];
+}
 
 CAT_spriter spriter;
 

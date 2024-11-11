@@ -32,6 +32,7 @@ LOG_MODULE_REGISTER(sample, LOG_LEVEL_INF);
 #include "rtc.h"
 #include "airquality.h"
 #include "buttons.h"
+#include "batt.h"
 
 int main(void)
 {
@@ -42,9 +43,10 @@ int main(void)
 	init_power_control();
 	check_rtc_init();
 
+	init_adc();
+
 	// LOG_INF("~Test speaker~");
 	set_3v3(true);
-	test_speaker();
 
 	usb_enable(NULL);
 
@@ -71,6 +73,21 @@ int main(void)
 
 	sensor_init();
 	imu_init();
+
+	LOG_INF("Config Q2/Q3");
+	if (gpio_pin_configure(DEVICE_DT_GET(DT_CHOSEN(gpio0)), 15, GPIO_OUTPUT_HIGH)) LOG_ERR("Init 0.15 failed");
+	gpio_pin_set(DEVICE_DT_GET(DT_CHOSEN(gpio0)), 15, true);
+	if (gpio_pin_configure(DEVICE_DT_GET(DT_CHOSEN(gpio0)), 16, GPIO_OUTPUT_HIGH)) LOG_ERR("Init 0.16 failed");
+	gpio_pin_set(DEVICE_DT_GET(DT_CHOSEN(gpio0)), 16, true);
+
+	const struct device *flash_dev = DEVICE_DT_GET_ONE(jedec_spi_nor);
+
+	if (device_init(flash_dev))
+	{
+		printk("failed to init flash_dev");
+	}
+
+	test_flash();
 
 	if (wakeup_is_from_timer)
 	{
@@ -110,13 +127,6 @@ int main(void)
 			{
 				LOG_INF("readings ready");
 				k_msleep(20);
-				const struct device *flash_dev = DEVICE_DT_GET_ONE(jedec_spi_nor);
-
-				if (device_init(flash_dev))
-				{
-					printk("failed to init flash_dev");
-				}
-
 				populate_next_log_cell();
 				LOG_INF("update eink");
 				k_msleep(20);
@@ -134,22 +144,9 @@ int main(void)
 		}
 	}
 
+	test_speaker();
+
 	ble_main();
-
-	LOG_INF("Config Q2/Q3");
-	if (gpio_pin_configure(DEVICE_DT_GET(DT_CHOSEN(gpio0)), 15, GPIO_OUTPUT_HIGH)) LOG_ERR("Init 0.15 failed");
-	gpio_pin_set(DEVICE_DT_GET(DT_CHOSEN(gpio0)), 15, true);
-	if (gpio_pin_configure(DEVICE_DT_GET(DT_CHOSEN(gpio0)), 16, GPIO_OUTPUT_HIGH)) LOG_ERR("Init 0.16 failed");
-	gpio_pin_set(DEVICE_DT_GET(DT_CHOSEN(gpio0)), 16, true);
-
-	const struct device *flash_dev = DEVICE_DT_GET_ONE(jedec_spi_nor);
-
-	if (device_init(flash_dev))
-	{
-		printk("failed to init flash_dev");
-	}
-
-	test_flash();
 
 	const struct device *sdhc_dev = DEVICE_DT_GET(DT_CHOSEN(xxx_sdhcd0));
 

@@ -146,10 +146,10 @@ void CAT_render_aqi()
 	
 	if (view_cell.pm_ugmx100[0])
 	{
-		textfnl("PM1.0: %2.1f ~g/m3", ((double)view_cell.pm_ugmx100[0])/100.);
-		textfnl("PM2.5: %2.1f ~g/m3", ((double)view_cell.pm_ugmx100[1])/100.);
-		textfnl("PM4.0: %2.1f ~g/m3", ((double)view_cell.pm_ugmx100[2])/100.);
-		textfnl("PM10 : %2.1f ~g/m3", ((double)view_cell.pm_ugmx100[3])/100.);
+		textfnl("PM1.0: %2.1f ~g/m\x127", ((double)view_cell.pm_ugmx100[0])/100.);
+		textfnl("PM2.5: %2.1f ~g/m\x127", ((double)view_cell.pm_ugmx100[1])/100.);
+		textfnl("PM4.0: %2.1f ~g/m\x127", ((double)view_cell.pm_ugmx100[2])/100.);
+		textfnl("PM10 : %2.1f ~g/m\x127", ((double)view_cell.pm_ugmx100[3])/100.);
 	}
 	else
 	{

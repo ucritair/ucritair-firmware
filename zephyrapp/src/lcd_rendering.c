@@ -10,6 +10,7 @@ LOG_MODULE_REGISTER(lcd_rendering, LOG_LEVEL_DBG);
 #include "buttons.h"
 #include "touch.h"
 #include "rtc.h"
+#include "batt.h"
 
 extern char font8x8_basic[128][8];
 
@@ -109,7 +110,7 @@ void lcd_render_diag()
 		update_rtc();
 		update_buttons();
 
-		if ((current_buttons & CAT_BTN_MASK_SELECT) && (current_buttons & CAT_BTN_MASK_START))
+		if (current_buttons == (CAT_BTN_MASK_SELECT|CAT_BTN_MASK_START))
 		{
 			in_debug_menu = true;
 		}

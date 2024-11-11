@@ -1,3 +1,3 @@
 
 void init_adc();
-void adc_sample();
+int adc_sample();

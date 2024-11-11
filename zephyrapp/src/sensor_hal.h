@@ -39,4 +39,7 @@ SENSOR_DECL(lps22hh);
 int sensor_init();
 void sensor_read_once();
 
+int force_abc_sunrise();
+void force_fanclean_sen55();
+
 //eof

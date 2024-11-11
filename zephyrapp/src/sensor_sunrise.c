@@ -7,7 +7,7 @@
 
 #include "airquality.h"
 
-LOG_MODULE_REGISTER(sunrise, SENSOR_LOG_LEVEL);
+LOG_MODULE_REGISTER(sunrise, LOG_LEVEL_DBG);
 
 /* Sensor goes to sleep after this many milliseconds of SDA inactivity.
  * After this, needs another wake-up.
@@ -173,7 +173,7 @@ static inline void msleep_for_sure(int32_t ms) {
         return result; \
     }
 
-REG_RO(0x00, ErrorStatus, struct error_status_t,)
+REG_RW(0x00, ErrorStatus, struct error_status_t,)
 /* Measured concentration (ppm). Filtered. Pressure compensated. */
 REG_RO(0x06, MeasuredConcentration_Filtered_PressureCompensated, int16_t, sys_be16_to_cpu)
 /* Device temperature (°C * 100)
@@ -335,6 +335,7 @@ int sunrise_init()
     LOG_DBG("Product Code: %s", product_code.code);
     LOG_DBG("Elapsed Time: %u hours", elapsed_time_hrs);
     LOG_DBG("Measurement Mode: %02x", measurement_mode);
+    k_msleep(10);
 
     LOG_DBG("Error Status: %04x", *(uint16_t*)&error_status);
     LOG_DBG("                     fatal_error: %d", error_status.fatal_error);
@@ -350,6 +351,7 @@ int sunrise_init()
     LOG_DBG("           abnormal_signal_level: %d", error_status.abnormal_signal_level);
     LOG_DBG("                        reserved: %d", error_status.reserved);
     LOG_DBG("              scale_factor_error: %d", error_status.scale_factor_error);
+    k_msleep(10);
 
     LOG_DBG("Calibration Status: %02x", *(uint8_t*)&calibration_status);
     LOG_DBG("                   _reserved_0: %d", calibration_status._reserved_0);
@@ -360,6 +362,7 @@ int sunrise_init()
     LOG_DBG("        background_calibration: %d", calibration_status.background_calibration);
     LOG_DBG("              zero_calibration: %d", calibration_status.zero_calibration);
     LOG_DBG("                   _reserved_7: %d", calibration_status._reserved_7);
+    k_msleep(10);
 
     LOG_DBG("Meter Control: %02x", *(uint8_t*)&meter_ctrl);
     LOG_DBG("               nrdy_disable: %d", meter_ctrl.nrdy_disable);
@@ -370,6 +373,7 @@ int sunrise_init()
     LOG_DBG("       nrdy_invert_disabled: %d", meter_ctrl.nrdy_invert_disabled);
     LOG_DBG("                 reserved_6: %d", meter_ctrl.reserved_6);
     LOG_DBG("                 reserved_7: %d", meter_ctrl.reserved_7);
+    k_msleep(10);
 
     return 0;
 }
@@ -412,5 +416,48 @@ bool sunrise_is_faulted()
 }
 
 SENSOR_DEFINE(sunrise);
+
+int force_abc_sunrise()
+{
+    struct calibration_status_t status = {0};
+    CHK(Read_CalibrationStatus(&status));
+    uint16_t abc_period;
+    CHK(Read_AbcPeriod(&abc_period));
+    LOG_WRN("Before cal, status=%02x, abc_period=%d", *(uint8_t*)&status, abc_period);
+    CHK(Write_CalibrationStatus(status));
+
+    struct error_status_t error_status = {0};
+    CHK(Write_ErrorStatus(error_status));
+    k_msleep(50);
+
+    CHK(Write_CalibrationTarget(420));
+    CHK(Write_CalibrationCommand(CAL_TargetCalibration));
+    k_msleep(50);
+
+    while (true)
+    {
+        bool ready = false;
+        int err = sunrise_is_ready(&ready);
+
+        if (err)
+        {
+            LOG_WRN("sunrise_is_ready errored");
+        }
+
+        if (ready)
+        {
+            break;
+        }
+
+        k_msleep(100);
+        LOG_WRN("Waiting for sunrise reading...");
+    }
+
+    CHK(Read_CalibrationStatus(&status));
+    CHK(Read_ErrorStatus(&error_status));
+    LOG_WRN("After cal, status=%02x, error_status=%04x", *(uint8_t*)&status, *(uint16_t*)&error_status);
+
+    return 0;
+}
 
 //eof

@@ -36,7 +36,7 @@ const struct adc_sequence_options sequence_opts = {
 	.extra_samplings = 7,
 };
 
-static int adc_sample(void)
+int adc_sample(void)
 {
 	int ret;
 
@@ -58,7 +58,7 @@ static int adc_sample(void)
 		printk("ADC read err: %d\n", ret);
 	}
 
-	printk("Sample: %d\n", m_sample_buffer[0]);
+	// printk("Sample: %d\n", m_sample_buffer[0]);
 
 	// /* Print the AIN0 values */
 	// printk("ADC raw value: ");
@@ -78,7 +78,7 @@ static int adc_sample(void)
 	// printk("\n");
 
 
-	return ret;
+	return m_sample_buffer[0];
 }
 
 int init_adc(void)
@@ -110,5 +110,4 @@ int init_adc(void)
 	 * the first result will be incorrect.
 	 */
 	NRF_SAADC_S->TASKS_CALIBRATEOFFSET = 1;
-	adc_sample();
 }
