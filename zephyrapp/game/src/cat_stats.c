@@ -55,15 +55,13 @@ void CAT_render_stats()
 		CAT_gui_image(i <= pet.spirit ? cell_spi_sprite : cell_empty_sprite, 0);
 
 	CAT_gui_div("AIR QUALITY");
-	int temp_idx = quantize(CAT_temp_score(), 1, 3);
+	
+	int temp_idx, co2_idx, pm_idx, voc_idx, nox_idx;
+	CAT_calc_quantized_aqi_scores(&temp_idx, &co2_idx, &pm_idx, &voc_idx, &nox_idx);
 	CAT_gui_image(icon_temp_sprite, temp_idx);
-	int co2_idx =  quantize(CAT_CO2_score(), 1, 3);
 	CAT_gui_image(icon_co2_sprite, co2_idx);
-	int pm_idx =  quantize(CAT_PM_score(), 1, 3);
 	CAT_gui_image(icon_pm_sprite, pm_idx);
-	int voc_idx =  quantize(CAT_VOC_score(), 1, 3);
 	CAT_gui_image(icon_voc_sprite, voc_idx);
-	int nox_idx =  quantize(CAT_NOX_score(), 1, 3);
 	CAT_gui_image(icon_nox_sprite, nox_idx);
 	
 	CAT_gui_div("INTERVENTIONS");

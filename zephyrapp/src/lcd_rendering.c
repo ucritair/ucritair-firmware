@@ -75,6 +75,7 @@ void lcd_render_diag()
 {
 
 	int last_sensor_update = 0;
+	int last_flash_log = 0;
 	int last_eink_update = 0;
 
 	LOG_INF("About to CAT_init");
@@ -210,6 +211,12 @@ void lcd_render_diag()
 		{
 			epaper_render_test();
 			last_eink_update = k_uptime_get();
+		}
+
+		if ((k_uptime_get() - last_flash_log) > (sensor_wakeup_rate*1000) && is_ready_for_aqi_logging())
+		{
+			populate_next_log_cell();
+			last_flash_log = k_uptime_get();
 		}
 	}
 }

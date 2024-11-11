@@ -6,7 +6,11 @@
 #include <zephyr/fs/fs.h>
 
 #include <zephyr/logging/log.h>
-LOG_MODULE_REGISTER(sdcard, LOG_LEVEL_INF);
+LOG_MODULE_REGISTER(sdcard, LOG_LEVEL_DBG);
+
+#include "sdcard.h"
+#include "rtc.h"
+#include "flash.h"
 
 /*
  *  Note the fatfs library is able to mount only strings inside _VOLUME_STRS
@@ -149,4 +153,141 @@ void test_sdcard()
 	}
 
 	fs_unmount(&mp);
+}
+
+enum sdcard_result write_log_to_sdcard()
+{
+	mp.mnt_point = disk_mount_pt;
+
+	int ret = OK;
+	int err = fs_mount(&mp);
+
+	if (err == FS_RET_OK) {
+		// OK
+	}
+	else if (err == FR_DISK_ERR || err == FR_NOT_READY)
+	{
+		LOG_ERR("Failed to mount, disk err");
+		ret = FAIL_INIT;
+		goto out;
+	}
+	else if (err == FR_NO_FILESYSTEM)
+	{
+		LOG_ERR("Failed to mount, no FS");
+		ret = FAIL_MOUNT;
+		goto out;
+	}
+	else
+	{
+		LOG_ERR("Unknown mount error: %d", err);
+		ret = FAIL_UNKNOWN;
+		goto out;
+	}
+
+	err = fs_mkdir(DISK_MOUNT_PT "/CAT_LOG");
+
+	if (err == 0 || err == -EEXIST)
+	{
+		// OK
+	}
+	else
+	{
+		LOG_ERR("Failed to mkdir");
+		ret = FAIL_MKDIR;
+		goto out;
+	}
+
+	char buf[256];
+
+	int count = 0;
+	while (true)
+	{
+		snprintf(buf, sizeof(buf), DISK_MOUNT_PT "/CAT_LOG/LOG_%d.CSV", count);
+		struct fs_dirent ent;
+		err = fs_stat(buf, &ent);
+
+		if (err == 0)
+		{
+			count++;
+			continue;
+		}
+		else if (err == -ENOENT)
+		{
+			break;
+		}
+		else
+		{
+			LOG_DBG("Unknown error stat: %d", err);
+			goto out;
+		}
+	}
+
+	LOG_DBG("Identified path '%s'", buf);
+
+	struct fs_file_t file;
+	fs_file_t_init(&file);
+	err = fs_open(&file, buf, FS_O_WRITE|FS_O_CREATE|FS_O_TRUNC);
+
+	if (err != 0)
+	{
+		LOG_ERR("Failed to open '%s': %d", buf, err);
+		ret = FAIL_CREATE;
+		goto out;
+	}
+
+	int len = snprintf(buf, sizeof(buf), "Timestamp,CO2,PM1.0,PM2.5,PM4.0,PM10,TempC,RH,VOC,NOX\n");
+
+	err = fs_write(&file, buf, len);
+	if (err != len)
+	{
+		LOG_ERR("Failed to write header: %d");
+		ret = FAIL_WRITE;
+		goto out_f;
+	}
+
+	for (int nr = 0; nr < next_log_cell_nr; nr++)
+	{
+		LOG_DBG("Write cell %d", nr);
+
+		struct flash_log_cell cell;
+		flash_get_cell_by_nr(nr, &cell);
+
+#define UG(x) (((double)x)/100.)
+
+		len = snprintf(buf, sizeof(buf), "%lld,%d,%.1f,%.1f,%.1f,%.1f,%.2f,%.1f,%d,%d\n",
+			RTC_TIME_TO_EPOCH_TIME(cell.timestamp),
+			cell.co2_ppmx1,
+			UG(cell.pm_ugmx100[0]),
+			UG(cell.pm_ugmx100[1]),
+			UG(cell.pm_ugmx100[2]),
+			UG(cell.pm_ugmx100[3]),
+			(((double)cell.temp_Cx1000)/1000.),
+			(((double)cell.rh_pctx100)/100.),
+			cell.voc_index,
+			cell.nox_index
+		);
+		err = fs_write(&file, buf, len);
+
+		if (err != len)
+		{
+			LOG_ERR("Failed to write row: %d", len);
+			ret = FAIL_WRITE;
+			goto out_f;
+		}
+	}
+
+	out_f:
+	if (fs_close(&file))
+	{
+		LOG_ERR("Failed closing file");
+
+		if (ret == OK)
+		{
+			ret = FAIL_CLOSE;
+		}
+	}
+
+	out:
+	fs_unmount(&mp);
+	return ret;
 }

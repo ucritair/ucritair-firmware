@@ -33,35 +33,6 @@ LOG_MODULE_REGISTER(sample, LOG_LEVEL_INF);
 #include "airquality.h"
 #include "buttons.h"
 
-static int cmd_start_wifi(const struct shell *sh, size_t argc,
-				   char **argv)
-{
-#ifdef CONFIG_WIFI
-	const struct device *wifi_dev = DEVICE_DT_GET(DT_CHOSEN(zephyr_wifi));
-
-	if (device_init(wifi_dev))
-	{
-		printk("failed to init wlan");
-	}
-
-	set_mac();
-#else
-	LOG_ERR("Wifi compiled out");
-#endif
-
-	return 0;
-}
-
-
-SHELL_STATIC_SUBCMD_SET_CREATE(sub_x,
-	SHELL_CMD_ARG(wifi_start, NULL,
-		  "Start wifi",
-		  cmd_start_wifi, 1, 0),
-	SHELL_SUBCMD_SET_END /* Array terminated. */
-);
-
-SHELL_CMD_REGISTER(x, &sub_x, "Log test", NULL);
-
 int main(void)
 {
 	// while (1) {
@@ -123,16 +94,11 @@ int main(void)
 			// ~15s for PM
 			// ~65s for NOC+VOX!?!?!
 
-			if (current_readings.lps22hh.uptime_last_updated &&
-				current_readings.sunrise.uptime_last_updated &&
-				current_readings.sen5x.uptime_last_updated //&&
-				// current_readings.sen5x.voc_index &&
-				// current_readings.sen5x.nox_index
-				)
+			if (is_ready_for_aqi_logging())
 			{
 				LOG_INF("readings ready");
-				epaper_render_test();
 				populate_next_log_cell();
+				epaper_render_test();
 				k_msleep(20);
 				power_off(sensor_wakeup_rate*1000, false);
 			}
@@ -176,7 +142,19 @@ int main(void)
 
 	test_sdcard();
 
-	cmd_start_wifi(NULL, 0, NULL);
+#ifdef CONFIG_WIFI
+	const struct device *wifi_dev = DEVICE_DT_GET(DT_CHOSEN(zephyr_wifi));
+
+	if (device_init(wifi_dev))
+	{
+		printk("failed to init wlan");
+	}
+
+	set_mac();
+#else
+	LOG_ERR("Wifi compiled out");
+#endif
+
 
 	set_5v0(true);
 	k_msleep(15);
