@@ -91,9 +91,8 @@ void CAT_force_load()
 	CAT_save* save = CAT_start_load();
 	CAT_save fresh_save;
 
-	if(!CAT_check_save(save))
+	if(!CAT_check_save(save) || save==NULL)
 	{
-		// printf("Invalid save file! Creating fresh save...\n");
 		CAT_fresh_save(&fresh_save);
 		save = &fresh_save;
 	}
@@ -123,6 +122,20 @@ void CAT_force_load()
 	CAT_finish_load();
 }
 
+void CAT_apply_sleep(int seconds)
+{
+	int stat_ticks = round((float) seconds / (float) CAT_STAT_TICK_SECS);
+	CAT_pet_stat(stat_ticks);
+
+	int coin_ticks = round((float) seconds / (float) CAT_COIN_TICK_SECS);
+	for(int i = 0; i < coin_ticks; i++)
+	{
+		CAT_vec2 origin = (CAT_vec2){120, 200};
+		CAT_vec2 place = CAT_iv2v(CAT_rand_ivec2(room.bounds.min, room.bounds.max));
+		CAT_room_add_coin(origin, place);
+	}
+}
+
 void CAT_init(int seconds_slept)
 {
 	CAT_rand_init();
@@ -147,16 +160,9 @@ void CAT_init(int seconds_slept)
 
 	CAT_force_load();
 
-	int stat_ticks = round((float) seconds_slept / (float) CAT_STAT_TICK_SECS);
-	CAT_pet_stat(stat_ticks);
+	CAT_apply_sleep(seconds_slept);
 
-	int coin_ticks = round((float) seconds_slept / (float) CAT_COIN_TICK_SECS);
-	for(int i = 0; i < coin_ticks; i++)
-	{
-		CAT_vec2 origin = (CAT_vec2){120, 200};
-		CAT_vec2 place = CAT_iv2v(CAT_rand_ivec2(room.bounds.min, room.bounds.max));
-		CAT_room_add_coin(origin, place);
-	}
+	CAT_pet_reanimate();
 	
 	machine = NULL;
 	CAT_machine_transition(&machine, CAT_MS_room);

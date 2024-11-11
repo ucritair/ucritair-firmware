@@ -10,7 +10,6 @@ typedef struct CAT_pet
 	int vigour;
 	int focus;
 	int spirit;
-	bool critical;
 
 	CAT_vec2 pos;
 	CAT_vec2 dir;
@@ -24,7 +23,9 @@ typedef struct CAT_pet
 extern CAT_pet pet;
 
 void CAT_pet_stat(int ticks);
+bool CAT_pet_is_critical();
 void CAT_pet_reanimate();
+void CAT_pet_settle();
 bool CAT_pet_seek(CAT_vec2 targ);
 void CAT_pet_init();
 void CAT_render_pet(int cycle);

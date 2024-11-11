@@ -29,7 +29,8 @@ int CAT_timer_init(float duration)
 bool CAT_timer_tick(int timer_id)
 {
 	float* timer = &timetable.timers[timer_id];
-	*timer += CAT_get_delta_time();
+	if(*timer < timetable.durations[timer_id])
+		*timer += CAT_get_delta_time();
 	return *timer >= timetable.durations[timer_id];
 }
 

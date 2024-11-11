@@ -18,6 +18,8 @@ uint8_t snake_x[MAX_SNAKE_LENGTH];
 uint8_t snake_y[MAX_SNAKE_LENGTH];
 uint8_t snake_length = 2;
 
+int8_t ldx = 0;
+int8_t ldy = 0;
 int8_t dx = 1;
 int8_t dy = 0;
 int move_timer_id = -1;
@@ -68,6 +70,8 @@ void snake_init()
 	snake_y[1] = 1;
 	snake_length = 2;
 
+	ldx = 0;
+	ldy = 0;
 	dx = 1;
 	dy = 0;
 	move_timer_id = CAT_timer_init(0.15f);
@@ -85,22 +89,23 @@ void snake_tick()
 		return;
 
 	// TODO: right now, if you rapidly switch, you can jump the fence and crash into yourself
-	if(CAT_input_pressed(CAT_BUTTON_UP))
+	
+	if(CAT_input_pressed(CAT_BUTTON_UP) && ldy != 1)
 	{
 		dx = 0;
 		dy = -1;
 	}	
-	if(CAT_input_pressed(CAT_BUTTON_RIGHT))
+	if(CAT_input_pressed(CAT_BUTTON_RIGHT) && ldx != -1)
 	{
 		dx = 1;
 		dy = 0;
 	}
-	if(CAT_input_pressed(CAT_BUTTON_DOWN))
+	if(CAT_input_pressed(CAT_BUTTON_DOWN) && ldy != -1)
 	{
 		dx = 0;
 		dy = 1;
 	}
-	if(CAT_input_pressed(CAT_BUTTON_LEFT))
+	if(CAT_input_pressed(CAT_BUTTON_LEFT) && ldx != 1)
 	{
 		dx = -1;
 		dy = 0;
@@ -108,6 +113,8 @@ void snake_tick()
 
 	if(CAT_timer_tick(move_timer_id))
 	{
+		ldx = dx;
+		ldy = dy;
 		int x = snake_x[0] + dx;
 		int y = snake_y[0] + dy;
 
@@ -213,30 +220,36 @@ void CAT_render_arcade()
 
 		int dx = snake_x[0] - snake_x[1];
 		int dy = snake_y[0] - snake_y[1];
+
+		int head_x = snake_x[0] * 16;
+		int head_y = snake_y[0] * 16;
 		if(dx == 1)
-			CAT_draw_sprite(snake_head_sprite, 0, snake_x[0] * 16, snake_y[0] * 16);
+			CAT_draw_sprite(snake_head_sprite, 0, head_x, head_y);
 		else if(dy == 1)
-			CAT_draw_sprite(snake_head_sprite, 1, snake_x[0] * 16, snake_y[0] * 16);
+			CAT_draw_sprite(snake_head_sprite, 1, head_x, head_y);
 		else if(dx == -1)
-			CAT_draw_sprite(snake_head_sprite, 2, snake_x[0] * 16, snake_y[0] * 16);
+			CAT_draw_sprite(snake_head_sprite, 2, head_x, head_y);
 		else if(dy == -1)
-			CAT_draw_sprite(snake_head_sprite, 3, snake_x[0] * 16, snake_y[0] * 16);
+			CAT_draw_sprite(snake_head_sprite, 3, head_x, head_y);
 	
 		for(int i = 1; i < snake_length; i++)
 		{
 			int dbx = snake_x[i-1] - snake_x[i];
 			int dby = snake_y[i-1] - snake_y[i];
 
+			int body_x = snake_x[i] * 16;
+			int body_y = snake_y[i] * 16;
+			
 			if(i == snake_length-1)
 			{
 				if(dbx == 1)
-					CAT_draw_sprite(snake_tail_sprite, 0, snake_x[i] * 16, snake_y[i] * 16);
+					CAT_draw_sprite(snake_tail_sprite, 0, body_x, body_y);
 				else if(dby == 1)
-					CAT_draw_sprite(snake_tail_sprite, 1, snake_x[i] * 16, snake_y[i] * 16);
+					CAT_draw_sprite(snake_tail_sprite, 1, body_x, body_y);
 				else if(dbx == -1)
-					CAT_draw_sprite(snake_tail_sprite, 2, snake_x[i] * 16, snake_y[i] * 16);
+					CAT_draw_sprite(snake_tail_sprite, 2, body_x, body_y);
 				else if(dby == -1)
-					CAT_draw_sprite(snake_tail_sprite, 3, snake_x[i] * 16, snake_y[i] * 16);
+					CAT_draw_sprite(snake_tail_sprite, 3, body_x, body_y);
 				break;
 			}
 
@@ -244,21 +257,21 @@ void CAT_render_arcade()
 			int dfy = snake_y[i] - snake_y[i+1];
 
 			if(dfx == 1 && dbx == 1)
-				CAT_draw_sprite(snake_body_sprite, 0, snake_x[i] * 16, snake_y[i] * 16);
+				CAT_draw_sprite(snake_body_sprite, 0, body_x, body_y);
 			else if(dfy == 1 && dby == 1)
-				CAT_draw_sprite(snake_body_sprite, 1, snake_x[i] * 16, snake_y[i] * 16);
+				CAT_draw_sprite(snake_body_sprite, 1, body_x, body_y);
 			else if(dfx == -1 && dbx == -1)
-				CAT_draw_sprite(snake_body_sprite, 2, snake_x[i] * 16, snake_y[i] * 16);
+				CAT_draw_sprite(snake_body_sprite, 2, body_x, body_y);
 			else if(dfy == -1 && dby == -1)
-				CAT_draw_sprite(snake_body_sprite, 3, snake_x[i] * 16, snake_y[i] * 16);
+				CAT_draw_sprite(snake_body_sprite, 3, body_x, body_y);
 			else if((dfx == -1 && dby == 1) || (dfy == -1 && dbx == 1))
-				CAT_draw_sprite(snake_corner_sprite, 0, snake_x[i] * 16, snake_y[i] * 16);
+				CAT_draw_sprite(snake_corner_sprite, 0, body_x, body_y);
 			else if((dfx == 1 && dby == 1) || (dfy == -1 && dbx == -1))
-				CAT_draw_sprite(snake_corner_sprite, 1, snake_x[i] * 16, snake_y[i] * 16);
+				CAT_draw_sprite(snake_corner_sprite, 1, body_x, body_y);
 			else if((dfx == 1 && dby == -1) || (dfy == 1 && dbx == -1))
-				CAT_draw_sprite(snake_corner_sprite, 2, snake_x[i] * 16, snake_y[i] * 16);
+				CAT_draw_sprite(snake_corner_sprite, 2, body_x, body_y);
 			else if((dfx == -1 && dby == -1) || (dfy == 1 && dbx == 1))
-				CAT_draw_sprite(snake_corner_sprite, 3, snake_x[i] * 16, snake_y[i] * 16);
+				CAT_draw_sprite(snake_corner_sprite, 3, body_x, body_y);
 		}
 
 		CAT_draw_sprite(food_sprite_id, 0, food_x * 16, food_y * 16);

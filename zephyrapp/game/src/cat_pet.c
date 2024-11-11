@@ -33,8 +33,11 @@ void CAT_pet_stat(int ticks)
 	pet.vigour = clamp(pet.vigour - dv * ticks, 0, 12);
 	pet.focus = clamp(pet.focus - df * ticks, 0, 12);
 	pet.spirit = clamp(pet.spirit - ds * ticks, 0, 12);
+}
 
-	pet.critical = !(pet.vigour > 0 && pet.focus > 0 && pet.spirit > 0);
+bool CAT_pet_is_critical()
+{
+	return !(pet.vigour > 0 && pet.focus > 0 && pet.spirit > 0);
 }
 
 void CAT_pet_reanimate()
@@ -96,7 +99,7 @@ void CAT_pet_reanimate()
 		}
 		
 	}
-	if(pet.critical)
+	if(CAT_pet_is_critical())
 	{
 		if(pet.vigour <= 0)
 		{
@@ -117,6 +120,14 @@ void CAT_pet_reanimate()
 			AS_crit.exit_anim_id = pet_crit_foc_out_sprite;
 		}
 		AS_react.tick_anim_id = mood_bad_sprite;
+	}
+}
+
+void CAT_pet_settle()
+{
+	if(!CAT_pet_is_critical())
+	{
+		CAT_AM_transition(&pet_asm, &AS_idle);
 	}
 }
 
@@ -150,9 +161,9 @@ void CAT_pet_init()
 	pet.dir = (CAT_vec2) {0, 0};
 	pet.left = false;
 	
-	pet.stat_timer_id = CAT_timer_init(7200.0f);
+	pet.stat_timer_id = CAT_timer_init(CAT_STAT_TICK_SECS);
 	pet.walk_timer_id = CAT_timer_init(4.0f);
-	pet.react_timer_id = CAT_timer_init(2.0f);
+	pet.react_timer_id = CAT_timer_init(1.0f);
 	pet.action_timer_id = CAT_timer_init(2.0f);
 }
 
