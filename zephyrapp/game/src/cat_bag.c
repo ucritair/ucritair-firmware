@@ -81,10 +81,6 @@ void CAT_bag_remove(int item_id)
 	}
 }
 
-CAT_machine_state bag_anchor = NULL;
-int bag_base = 0;
-int bag_selector = 0;
-
 struct bag_relation
 {
 	CAT_machine_state state;
@@ -98,6 +94,10 @@ struct bag_relation
 	{CAT_MS_deco, CAT_ITEM_TYPE_PROP, &deco_state.add_id}
 };
 #define NUM_BAG_RELATIONS (sizeof(bag_relations)/sizeof(bag_relations[0]))
+
+CAT_machine_state bag_anchor = NULL;
+int bag_base = 0;
+int bag_selector = 0;
 
 void CAT_MS_bag(CAT_machine_signal signal)
 {
@@ -128,7 +128,7 @@ void CAT_MS_bag(CAT_machine_signal signal)
 			{
 				bag_selector -= 1;
 				if(bag_selector == -1)
-					bag_selector = bag.length-1;
+					bag_selector = bag.length-1;				
 			}
 			if(CAT_input_pulse(CAT_BUTTON_DOWN))
 			{
@@ -136,7 +136,7 @@ void CAT_MS_bag(CAT_machine_signal signal)
 				if(bag_selector == bag.length)
 					bag_selector = 0;
 			}
-			bag_selector = clamp(bag_selector, 0, bag.length-1);
+			bag_selector = clamp(bag_selector, 0, bag.length-1);	
 
 			int overshoot = bag_selector - bag_base;
 			if(overshoot < 0)

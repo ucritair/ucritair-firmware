@@ -19,9 +19,9 @@ typedef struct CAT_room
 
 	CAT_vec2 coin_origins[CAT_MAX_COIN_COUNT];
 	CAT_vec2 coin_places[CAT_MAX_COIN_COUNT];
-	int coin_timers[CAT_MAX_COIN_COUNT];
+	int coin_move_timers[CAT_MAX_COIN_COUNT];
 	int coin_count;
-	int crypto_timer_id;
+	int coin_spawn_timer_id;
 
 	CAT_machine_state buttons[5];
 	int selector;

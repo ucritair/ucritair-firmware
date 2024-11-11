@@ -16,9 +16,9 @@ void CAT_pet_stat(int ticks)
 	int pure = CAT_room_find(purifier_item) != -1;
 	int uv = CAT_room_find(uv_item) != -1;
 
-	float dv_aq = (CAT_VOC_score() + CAT_PM_score()) * 0.75f;
-	float df_aq = (CAT_CO2_score() + CAT_NOX_score()) * 0.5f;
-	float ds_aq = (CAT_CO2_score() + CAT_temp_score()) * 0.5f;
+	float dv_aq = (CAT_voc_score(aqi.sen5x.voc_index) + CAT_pm25_score(aqi.sen5x.pm2_5)) * 0.33f;
+	float df_aq = (CAT_co2_score(aqi.sunrise.ppm_filtered_compensated) + CAT_nox_score(aqi.sen5x.nox_index)) * 0.33f;
+	float ds_aq = (CAT_co2_score(aqi.sunrise.ppm_filtered_compensated) + CAT_temperature_score(CAT_mean_temp())) * 0.33f;
 	if(dv_aq >= 1)
 		dv_aq -= pure;
 	if(df_aq >= 1)
@@ -33,8 +33,11 @@ void CAT_pet_stat(int ticks)
 	pet.vigour = clamp(pet.vigour - dv * ticks, 0, 12);
 	pet.focus = clamp(pet.focus - df * ticks, 0, 12);
 	pet.spirit = clamp(pet.spirit - ds * ticks, 0, 12);
+}
 
-	pet.critical = !(pet.vigour > 0 && pet.focus > 0 && pet.spirit > 0);
+bool CAT_pet_is_critical()
+{
+	return !(pet.vigour > 0 && pet.focus > 0 && pet.spirit > 0);
 }
 
 void CAT_pet_reanimate()
@@ -96,7 +99,7 @@ void CAT_pet_reanimate()
 		}
 		
 	}
-	if(pet.critical)
+	if(CAT_pet_is_critical())
 	{
 		if(pet.vigour <= 0)
 		{
@@ -117,6 +120,14 @@ void CAT_pet_reanimate()
 			AS_crit.exit_anim_id = pet_crit_foc_out_sprite;
 		}
 		AS_react.tick_anim_id = mood_bad_sprite;
+	}
+}
+
+void CAT_pet_settle()
+{
+	if(!CAT_pet_is_critical())
+	{
+		CAT_AM_transition(&pet_asm, &AS_idle);
 	}
 }
 
@@ -150,9 +161,9 @@ void CAT_pet_init()
 	pet.dir = (CAT_vec2) {0, 0};
 	pet.left = false;
 	
-	pet.stat_timer_id = CAT_timer_init(7200.0f);
+	pet.stat_timer_id = CAT_timer_init(CAT_STAT_TICK_SECS);
 	pet.walk_timer_id = CAT_timer_init(4.0f);
-	pet.react_timer_id = CAT_timer_init(2.0f);
+	pet.react_timer_id = CAT_timer_init(1.0f);
 	pet.action_timer_id = CAT_timer_init(2.0f);
 }
 

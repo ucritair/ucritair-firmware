@@ -91,7 +91,7 @@ void CAT_MS_feed(CAT_machine_signal signal)
 			action_state.action_MS = CAT_MS_feed;
 			action_state.action_AS = &AS_eat;
 			action_state.stat_up_AS = &AS_vig_up;
-			CAT_AM_transition(&pet_asm, &AS_idle);
+			CAT_pet_settle();
 			break;
 		}
 		case CAT_MACHINE_SIGNAL_TICK:
@@ -116,7 +116,7 @@ void CAT_MS_study(CAT_machine_signal signal)
 			action_state.action_MS = CAT_MS_study;
 			action_state.action_AS = &AS_study;
 			action_state.stat_up_AS = &AS_foc_up;
-			CAT_AM_transition(&pet_asm, &AS_idle);
+			CAT_pet_settle();
 			break;
 		}
 		case CAT_MACHINE_SIGNAL_TICK:
@@ -141,7 +141,7 @@ void CAT_MS_play(CAT_machine_signal signal)
 			action_state.action_MS = CAT_MS_play;
 			action_state.action_AS = &AS_play;
 			action_state.stat_up_AS = &AS_spi_up;
-			CAT_AM_transition(&pet_asm, &AS_idle);
+			CAT_pet_settle();
 			break;
 		}
 		case CAT_MACHINE_SIGNAL_TICK:
