@@ -186,7 +186,7 @@
         status = "okay";
         reg = <1>;
         spi-max-frequency = <DT_FREQ_M(1)>;
-        size = <0x1000000>;  /* 16MB (128Mbit) */
+        size = <0x8000000>;  /* 16MB (128Mbit) */
         jedec-id = [ef 70 18]; // W25Q128JVPIM TODO: Will need to modify if switching to qspi [capable]
     };
 
