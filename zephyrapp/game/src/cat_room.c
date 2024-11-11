@@ -10,8 +10,8 @@
 
 CAT_room room =
 {
-	.bounds = (CAT_rect){{0, 7}, {15, 17}},
-	.cursor = (CAT_ivec2){7, 12},
+	.bounds = {{0, 7}, {15, 17}},
+	.cursor = {7, 12},
 
 	.prop_count = 0,
 

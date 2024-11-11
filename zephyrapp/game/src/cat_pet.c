@@ -14,8 +14,8 @@ CAT_pet pet =
 	.focus = 12,
 	.spirit = 12,
 
-	.pos = (CAT_vec2) {120, 200},
-	.dir = (CAT_vec2) {0, 0},
+	.pos = {120, 200},
+	.dir = {0, 0},
 	.left = false,
 
 	.stat_timer_id = -1,
