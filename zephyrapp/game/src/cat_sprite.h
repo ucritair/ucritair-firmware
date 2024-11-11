@@ -6,7 +6,7 @@
 #include "cat_core.h"
 
 //////////////////////////////////////////////////////////////////////////
-// CONSTANTS
+// CONSTANTS AND MACROS
 
 #define CAT_ATLAS_MAX_LENGTH 512
 #define CAT_DRAW_QUEUE_MAX_LENGTH 128
@@ -15,6 +15,8 @@
 #define CAT_ANIM_QUEUE_MAX_LENGTH 128
 
 #define CAT_TILE_SIZE 16
+
+#define RGB8882565(r, g, b) ((r & 0b11111000) << 8) | ((g & 0b11111100) << 3) | (b >> 3)
 
 
 //////////////////////////////////////////////////////////////////////////

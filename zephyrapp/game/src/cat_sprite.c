@@ -37,11 +37,6 @@ void CAT_atlas_init()
 
 #include "png.h"
 
-uint16_t rgb8882rgb565(uint8_t r, uint8_t g, uint8_t b)
-{
-	return ((r & 0b11111000) << 8) | ((g & 0b11111100) << 3) | (b >> 3);
-}
-
 int CAT_sprite_init(const char* path, int frame_count)
 {
 	FILE* file = fopen(path, "rb");
@@ -77,7 +72,7 @@ int CAT_sprite_init(const char* path, int frame_count)
 			uint8_t g = r_row[x*4+1];
 			uint8_t b = r_row[x*4+2];
 			uint8_t a = r_row[x*4+3];
-			uint16_t rgb_565 = rgb8882rgb565(r, g, b);
+			uint16_t rgb_565 = RGB8882565(r, g, b);
 			w_row[x] = a >= 255 ? rgb_565 : 0xdead;
 		}
 	}
@@ -413,10 +408,7 @@ void CAT_greenberry(int xi, int w, int yi, int h, float t)
 #ifdef CAT_DESKTOP
 			uint16_t c = FRAMEBUFFER[idx];
 			uint8_t l = luminance(c);
-			uint8_t g = clamp(l+8, 0, 255);
-			uint8_t b = clamp(l-128, 0, 255);
-			uint8_t r = clamp(l+48 + 128 * (t >= 1), 0, 255);
-			FRAMEBUFFER[idx] = rgb8882rgb565(r, g, b);
+			FRAMEBUFFER[idx] = 0b1101100000000111 | (((l & 0b11111100) >> 2) << 5);
 
 			// r4 r3 r2 r1 r0 g5 g4 g3     g2 g1 g0 b4 b3 b2 b1 b0
 			// g2 g1 g0 b4 b3 b2 b1 b0     r4 r3 r2 r1 r0 g5 g4 g3
