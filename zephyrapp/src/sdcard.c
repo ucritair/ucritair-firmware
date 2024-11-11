@@ -240,7 +240,7 @@ enum sdcard_result write_log_to_sdcard()
 	err = fs_write(&file, buf, len);
 	if (err != len)
 	{
-		LOG_ERR("Failed to write header: %d");
+		LOG_ERR("Failed to write header: %d", err);
 		ret = FAIL_WRITE;
 		goto out_f;
 	}

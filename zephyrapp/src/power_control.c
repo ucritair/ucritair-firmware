@@ -91,8 +91,8 @@ void configure_buttons_for_sleep()
 		gpio_pin_interrupt_configure(gpio1, i, GPIO_INT_EDGE_FALLING);
 	}
 
-	gpio_pin_configure(gpio1, 12, GPIO_DISCONNECTED);
-	gpio_pin_configure(gpio1, 13, GPIO_DISCONNECTED);
+	gpio_pin_configure(gpio1, 12, GPIO_OUTPUT_LOW);
+	gpio_pin_configure(gpio1, 13, GPIO_OUTPUT_LOW);
 }
 
 void button_pressed(const struct device *dev, struct gpio_callback *cb,
@@ -121,9 +121,6 @@ void power_off(int for_ms, bool protected_sleeping)
 		bt_le_adv_stop();
 		bt_disable();
 	}
-
-	set_5v0(false);
-	set_leds(false);
 
 	// Drop IOVDD_EN
 	if (gpio_pin_configure(gpio0, 11, GPIO_OUTPUT_HIGH)) LOG_ERR("Init 0.11 failed");
@@ -163,7 +160,7 @@ void power_off(int for_ms, bool protected_sleeping)
 	nrf_pwm_disable(NRF_PWM2);
 	nrf_pwm_disable(NRF_PWM3);
 
-	nrf_usbd_disable(NRF_USBD);
+	// nrf_usbd_disable(NRF_USBD);
 
 	nrf_clock_alwaysrun_set(NRF_CLOCK, NRF_CLOCK_DOMAIN_HFCLK, false);
 	nrf_clock_alwaysrun_set(NRF_CLOCK, NRF_CLOCK_DOMAIN_HFCLK192M, false);
@@ -189,7 +186,10 @@ void power_off(int for_ms, bool protected_sleeping)
 		gpio_pin_configure(gpio1, i, GPIO_DISCONNECTED);
 	}
 
-	nrfx_coredep_delay_us(1000*100);
+	set_5v0(false);
+	set_leds(false);
+
+	nrfx_coredep_delay_us(1000*10);
 
 	if (!protected_sleeping)
 	{
@@ -203,12 +203,12 @@ void power_off(int for_ms, bool protected_sleeping)
 
 	*(volatile uint32_t*)(0x50005000 + 0x614) = 1; // Force network core off
 
-#define TIMER_INST_IDX 0
-	IRQ_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_TIMER_INST_GET(TIMER_INST_IDX)), IRQ_PRIO_LOWEST,
-                NRFX_TIMER_INST_HANDLER_GET(TIMER_INST_IDX), 0, 0);
-
 	if (for_ms)
 	{
+#define TIMER_INST_IDX 0
+		IRQ_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_TIMER_INST_GET(TIMER_INST_IDX)), IRQ_PRIO_LOWEST,
+                NRFX_TIMER_INST_HANDLER_GET(TIMER_INST_IDX), 0, 0);
+
 		nrfx_timer_t timer_inst = NRFX_TIMER_INSTANCE(TIMER_INST_IDX);
 	    uint32_t base_frequency = NRF_TIMER_BASE_FREQUENCY_GET(timer_inst.p_reg);
 	    nrfx_timer_config_t config = NRFX_TIMER_DEFAULT_CONFIG(base_frequency);
@@ -245,6 +245,8 @@ void power_off(int for_ms, bool protected_sleeping)
 		}
 		else
 		{
+			LOG_INF("WAKE_CAUSE_BUTTON");
+			wakeup_is_from_timer = false;
 			// WAKE_CAUSE_BUTTON
 
 			nrfx_coredep_delay_us(1000*5);
@@ -253,30 +255,41 @@ void power_off(int for_ms, bool protected_sleeping)
 
 			bool decided_to_wake = true;
 
-			// for (int cycle = 0; cycle < (protected_sleeping?1000:10); cycle++)
-			// {
-			// 	nrfx_coredep_delay_us(1000*1);
-			// 	update_buttons();
+			for (int cycle = 0; cycle < 10; cycle++)
+			{
+				nrfx_coredep_delay_us(1000*1);
+				// update_buttons();
 
-			// 	if (!current_buttons || (protected_sleeping && current_buttons != CAT_BTN_MASK_START))
-			// 	{
-			// 		// Wake debounced
-			// 		decided_to_wake = false;
-			// 		break;
-			// 	}
-			// }
+				uint32_t bits;
+				int err = (gpio_port_get_raw(gpio1, &bits)) & 0b1111;
 
-			// if (!(gpio_pin_get(gpio1, 9) && gpio_pin_get(gpio1, 10) && gpio_pin_get(gpio1, 11) && gpio_pin_get(gpio1, 12)))
-			// {
-			// 	decided_to_wake = false;
-			// }
+				bits >>= 9;
+
+				if (err)
+				{
+					LOG_ERR("Failed to gpio_port_get_raw");
+				}
+
+				if (bits == 0b1111)
+				{
+					LOG_INF("Button wake debounce failed, bits=%x", bits);
+					decided_to_wake = false;
+					break;
+				}
+			}
 
 			if (!decided_to_wake)
 			{
+				LOG_INF("Decided to go back to sleep");
+				k_msleep(100);
+
 				configure_buttons_for_sleep();
 				continue;
 			}
 		}
+
+		LOG_INF("Waking...");
+		k_msleep(100);
 
 		snapshot_rtc_for_reboot();
 		sys_reboot(SYS_REBOOT_WARM);

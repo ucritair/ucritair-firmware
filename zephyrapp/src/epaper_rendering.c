@@ -120,7 +120,7 @@ void epaper_render_test()
 	struct epaper_image_asset* selected_cloud = &epaper_image_cloud_default;
 
 	int temp_idx, co2_idx, pm_idx, voc_idx, nox_idx;
-	CAT_calc_quantized_aqi_scores(&temp_idx, &co2_idx, &pm_idx, &voc_idx, &nox_idx);
+	// CAT_calc_quantized_aqi_scores(&temp_idx, &co2_idx, &pm_idx, &voc_idx, &nox_idx);
 
 	int sum = temp_idx + co2_idx + pm_idx + voc_idx + nox_idx;
 
