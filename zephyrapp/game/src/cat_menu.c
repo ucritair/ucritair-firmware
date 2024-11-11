@@ -68,7 +68,7 @@ void CAT_MS_menu(CAT_machine_signal signal)
 void CAT_render_menu()
 {
 	CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});  
-	CAT_gui_text("[MENU] ");
+	CAT_gui_text("MENU ");
 	CAT_gui_image(icon_a_sprite, 1);
 	CAT_gui_image(icon_enter_sprite, 0);
 	CAT_gui_image(icon_b_sprite, 1);
@@ -87,7 +87,6 @@ void CAT_render_menu()
 		CAT_gui_line_break();
 	}
 
-	CAT_gui_line_break();
 	CAT_gui_line_break();
 	CAT_gui_textf("v%d.%d.%d.%d", CAT_VERSION_MAJOR, CAT_VERSION_MINOR, CAT_VERSION_PATCH, CAT_VERSION_PUSH);
 }

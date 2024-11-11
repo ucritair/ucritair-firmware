@@ -79,6 +79,7 @@ bool CAT_gear_status(int item_id);
 extern int padkaprow_item;
 extern int sausage_item;
 extern int coffee_item;
+extern int salad_item;
 extern int pill_vig_item;
 extern int pill_foc_item;
 extern int pill_spi_item;

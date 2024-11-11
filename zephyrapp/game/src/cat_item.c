@@ -73,6 +73,7 @@ bool CAT_gear_status(int item_id)
 int padkaprow_item;
 int sausage_item;
 int coffee_item;
+int salad_item;
 int pill_vig_item;
 int pill_foc_item;
 int pill_spi_item;
@@ -146,6 +147,9 @@ void CAT_item_mass_define()
 
 	coffee_item = CAT_item_init(CAT_ITEM_TYPE_FOOD, "Coffee", coffee_sprite, 1);
 	CAT_tool_init(coffee_item, coffee_sprite, 3, 0, 0);
+
+	salad_item = CAT_item_init(CAT_ITEM_TYPE_FOOD, "Salad", salad_item, 1);
+	CAT_tool_init(salad_item, salad_sprite, 3, 0, 0);
 
 	pill_vig_item = CAT_item_init(CAT_ITEM_TYPE_FOOD, "Vigour Pill", pill_vig_sprite, 1);
 	CAT_tool_init(pill_vig_item, pill_vig_sprite, 1, 0, 0);

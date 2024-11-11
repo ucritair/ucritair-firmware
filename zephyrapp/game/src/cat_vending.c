@@ -105,5 +105,9 @@ void CAT_render_vending()
 			CAT_gui_image(icon_pointer_sprite, 0);
 	}
 
-	CAT_greenberry(3, 15*16-6, 4 * 16 + 32 * (vending_selector-vending_base) + 3, 32-6, purchase_progress);
+	if(purchase_progress >= 0.01)
+	{
+		float greenberry_t = lerp(0.15, 1, purchase_progress);
+		CAT_greenberry(3, 15*16-6, 4 * 16 + 32 * (vending_selector-vending_base) + 3, 32-6, greenberry_t);
+	}
 }

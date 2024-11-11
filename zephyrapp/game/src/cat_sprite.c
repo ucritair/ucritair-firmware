@@ -375,7 +375,6 @@ void CAT_spriter_cleanup()
 //////////////////////////////////////////////////////////////////////////
 // DIRECT FX
 
-
 uint8_t luminance(uint16_t rgb)
 {
 	uint8_t r = (rgb & 0b1111100000000000) >> 11;
@@ -417,9 +416,7 @@ void CAT_greenberry(int xi, int w, int yi, int h, float t)
 			uint8_t l = luminance(c);
 			uint8_t g = clamp(l+8, 0, 255);
 			uint8_t b = clamp(l-128, 0, 255);
-			uint8_t r = clamp(l+48, 0, 255);
-			if(t >= 1)
-				r = clamp(r + 128, 0, 255);
+			uint8_t r = clamp(l+48 + 128 * (t >= 1), 0, 255);
 			FRAMEBUFFER[idx] = rgb8882rgb565(r, g, b);
 
 			// r4 r3 r2 r1 r0 g5 g4 g3     g2 g1 g0 b4 b3 b2 b1 b0
@@ -436,6 +433,29 @@ void CAT_greenberry(int xi, int w, int yi, int h, float t)
 	}
 }
 // Okay, it's more of an orangeberry. [Goldberry?](https://tolkiengateway.net/wiki/Goldberry)
+
+void CAT_clear_frame(uint16_t c)
+{
+	uint16_t* px = FRAMEBUFFER;
+	uint16_t* end = FRAMEBUFFER + LCD_SCREEN_W * LCD_SCREEN_H;
+	while(px != end)
+	{
+		*(px++) = c;
+	}
+}
+
+void CAT_clear_rect(int xi, int yi, int w, int h, uint16_t c)
+{
+	int xf = xi + w;
+	int yf = yi + h;
+	for(int y = yi; y < yf; y++)
+	{
+		for(int x = xi; x < xf; x++)
+		{
+			FRAMEBUFFER[y * LCD_SCREEN_W + x] = c;
+		}
+	}
+}
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -643,6 +663,7 @@ int touch_hl_sprite;
 int padkaprow_sprite;
 int sausage_sprite;
 int coffee_sprite;
+int salad_sprite;
 int pill_vig_sprite;
 int pill_foc_sprite;
 int pill_spi_sprite;
@@ -866,9 +887,9 @@ void CAT_sprite_mass_define()
 	INIT_SPRITE(icon_voc_sprite, "sprites/icon_voc.png", 3);
 	INIT_SPRITE(icon_nox_sprite, "sprites/icon_nox.png", 3);
 
-	INIT_SPRITE(icon_mask_sprite, "sprites/icon_mask.png", 1);
-	INIT_SPRITE(icon_pure_sprite, "sprites/icon_pure.png", 1);
-	INIT_SPRITE(icon_uv_sprite, "sprites/icon_uv.png", 1);
+	INIT_SPRITE(icon_mask_sprite, "sprites/aq-protection-mask.png", 1);
+	INIT_SPRITE(icon_pure_sprite, "sprites/aq-protection-purifier.png", 1);
+	INIT_SPRITE(icon_uv_sprite, "sprites/aq-protection-uv.png", 1);
 
 	INIT_SPRITE(icon_feed_sprite, "sprites/Stat_Refill_Vigor_Button.png", 2);
 	INIT_SPRITE(icon_study_sprite, "sprites/Stat_Refill_Focus_Button.png", 2);
@@ -898,6 +919,7 @@ void CAT_sprite_mass_define()
 	INIT_SPRITE(padkaprow_sprite, "sprites/food_padkrakow_sm.png", 1);
 	INIT_SPRITE(sausage_sprite, "sprites/food_sausage_sm.png", 1);
 	INIT_SPRITE(coffee_sprite, "sprites/food_coffee_sm.png", 1);
+	INIT_SPRITE(salad_sprite, "sprites/food_salad_sm.png", 1);
 	INIT_SPRITE(pill_vig_sprite, "sprites/seed_vigor_small.png", 1);
 	INIT_SPRITE(pill_foc_sprite, "sprites/seed_focus_small.png", 1);
 	INIT_SPRITE(pill_spi_sprite, "sprites/seed_spirit_small.png", 1);
@@ -944,7 +966,7 @@ void CAT_sprite_mass_define()
 	INIT_SPRITE(bowl_stone_sprite, "sprites/prop_bowl_stone_2.png", 1);
 	INIT_SPRITE(bowl_gold_sprite, "sprites/prop_bowl_gold.png", 1);
 
-	INIT_SPRITE(succulent_sprite, "sprites/prop_plant_md_stem.png", 1);
+	INIT_SPRITE(succulent_sprite, "sprites/prop_plant_md_stem.png", 2);
 	INIT_SPRITE(bush_plain_sprite, "sprites/prop_bush_lg_empty.png", 1);
 	INIT_SPRITE(bush_daisy_sprite, "sprites/prop_bush_lg_daisy.png", 1);
 	INIT_SPRITE(bush_lilac_sprite, "sprites/prop_bush_lg_lilac.png", 1);
@@ -1025,14 +1047,14 @@ void CAT_sprite_mass_define()
 
 	// SNAKE
 	INIT_SPRITE(snake_head_sprite, "sprites/snake_cat_head_default.png", 4);
-	INIT_SPRITE(snake_eat_sprite, "sprites/snake_cat_head_eat.png", 4);
-	INIT_SPRITE(snake_happy_sprite, "sprites/snake_cat_head_happy.png", 4);
+	INIT_SPRITE(snake_eat_sprite, "sprites/snake_cat_head_eat_a.png", 4);
+	INIT_SPRITE(snake_happy_sprite, "sprites/snake_cat_head_happy_a.png", 4);
 	INIT_SPRITE(snake_body_sprite, "sprites/snake_cat_body.png", 4);
 	INIT_SPRITE(snake_corner_sprite, "sprites/snake_cat_corner.png", 4);
-	INIT_SPRITE(snake_death_up_sprite, "sprites/snake_cat_death_up.png", 5);
-	INIT_SPRITE(snake_death_right_sprite, "sprites/snake_cat_death_right.png", 5);
-	INIT_SPRITE(snake_death_down_sprite, "sprites/snake_cat_death_down.png", 5);
-	INIT_SPRITE(snake_death_left_sprite, "sprites/snake_cat_death_left.png", 5);
+	INIT_SPRITE(snake_death_up_sprite, "sprites/snake_cat_death_up_a.png", 5);
+	INIT_SPRITE(snake_death_right_sprite, "sprites/snake_cat_death_right_a.png", 5);
+	INIT_SPRITE(snake_death_down_sprite, "sprites/snake_cat_death_down_a.png", 5);
+	INIT_SPRITE(snake_death_left_sprite, "sprites/snake_cat_death_left_a.png", 5);
 	INIT_SPRITE(snake_tail_sprite, "sprites/snake_tail.png", 4);
 
 

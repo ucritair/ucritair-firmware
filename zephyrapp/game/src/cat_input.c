@@ -107,3 +107,13 @@ bool CAT_input_touch_rect(int x, int y, int w, int h)
 	pt.y = input.touch.y;
 	return input.touch.pressure > 0 && CAT_rect_pt(pt, rect);
 }
+
+bool CAT_input_any()
+{
+	for(int i = 0; i < CAT_BUTTON_LAST; i++)
+	{
+		if(CAT_input_pressed(i))
+			return true;
+	}
+	return false;
+}

@@ -16,11 +16,6 @@
 
 #define CAT_TILE_SIZE 16
 
-//////////////////////////////////////////////////////////////////////////
-// DIRECT FX
-
-void CAT_greenberry(int xi, int w, int yi, int h, float t);
-
 
 //////////////////////////////////////////////////////////////////////////
 // ATLAS AND SPRITER
@@ -84,6 +79,13 @@ void CAT_spriter_init();
 void CAT_draw_sprite(int sprite_id, int frame_idx, int x, int y);
 void CAT_draw_tiles(int sprite_id, int frame_idx, int y_t, int h_t);
 void CAT_spriter_cleanup();
+
+//////////////////////////////////////////////////////////////////////////
+// DIRECT FX
+
+void CAT_greenberry(int xi, int w, int yi, int h, float t);
+void CAT_clear_frame(uint16_t c);
+void CAT_clear_rect(int xi, int yi, int w, int h, uint16_t c);
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -221,6 +223,7 @@ extern int touch_hl_sprite;
 extern int padkaprow_sprite;
 extern int sausage_sprite;
 extern int coffee_sprite;
+extern int salad_sprite;
 extern int pill_vig_sprite;
 extern int pill_foc_sprite;
 extern int pill_spi_sprite;
