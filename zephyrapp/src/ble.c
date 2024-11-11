@@ -173,15 +173,16 @@ static void disconnected(struct bt_conn *conn, uint8_t reason)
 
 static void scan_cb(const bt_addr_le_t *addr, int8_t rssi, uint8_t adv_type, struct net_buf_simple *buf)
 {
-	printk("Scan: type=%02x addr=%02x:%02x:%02x:%02x:%02x:%02x adv_type=%02x rssi=%d data len=%u\n",
-		addr->type,
-		addr->a.val[0],
-		addr->a.val[1],
-		addr->a.val[2],
-		addr->a.val[3],
-		addr->a.val[4],
-		addr->a.val[5],
-		adv_type, rssi, buf->len);
+	//TODO
+	// printk("Scan: type=%02x addr=%02x:%02x:%02x:%02x:%02x:%02x adv_type=%02x rssi=%d data len=%u\n",
+	// 	addr->type,
+	// 	addr->a.val[0],
+	// 	addr->a.val[1],
+	// 	addr->a.val[2],
+	// 	addr->a.val[3],
+	// 	addr->a.val[4],
+	// 	addr->a.val[5],
+	// 	adv_type, rssi, buf->len);
 	// printk("      data");
 	// for (uint16_t i = 0; i < buf->len; i++) {
 	// 	printk(" %02x", buf->data[i]);
