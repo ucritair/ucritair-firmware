@@ -14,10 +14,11 @@
 #define MAX_SNAKE_LENGTH (WIDTH * HEIGHT)
 #define MAX_SPAWN_ITS 10000
 #ifdef CAT_EMBEDDED
-#define MOVE_PERIOD 3
+#define TICK_PERIOD 3
 #else
-#define MOVE_PERIOD 9
+#define TICK_PERIOD 9
 #endif
+#define ANIM_PERIOD 4
 
 uint8_t snake_x[MAX_SNAKE_LENGTH];
 uint8_t snake_y[MAX_SNAKE_LENGTH];
@@ -27,11 +28,13 @@ int8_t ldx = 0;
 int8_t ldy = 0;
 int8_t dx = 1;
 int8_t dy = 0;
-int move_frame = 0;
 
 int8_t food_x = -1;
 int8_t food_y = -1;
 int food_sprite_id = -1;
+
+int tick_count = 0;
+int anim_frame = 0;
 
 int score = 0;
 
@@ -64,7 +67,7 @@ void spawn_food()
 		sausage_sprite,
 		coffee_sprite
 	};
-	food_sprite_id = score < 4 ? food_options[CAT_rand_int(0, 3)] : coin_static_sprite;
+	food_sprite_id = score < 4 ? food_options[CAT_rand_int(0, 3)] : coin_world_sprite;
 }
 
 void snake_init()
@@ -79,7 +82,7 @@ void snake_init()
 	ldy = 0;
 	dx = 1;
 	dy = 0;
-	move_frame = 0;
+	tick_count = 0;
 
 	food_x = CAT_rand_int(1, WIDTH-2);
 	food_y = CAT_rand_int(1, HEIGHT-2);
@@ -114,7 +117,7 @@ void snake_tick()
 		dy = 0;
 	}
 
-	if(move_frame >= MOVE_PERIOD)
+	if(tick_count >= TICK_PERIOD)
 	{
 		ldx = dx;
 		ldy = dy;
@@ -154,9 +157,13 @@ void snake_tick()
 		snake_x[0] = x;
 		snake_y[0] = y;
 
-		move_frame = 0;
+		tick_count = 0;
+
+		anim_frame += 1;
+		if(anim_frame >= ANIM_PERIOD)
+			anim_frame = 0;
 	}
-	move_frame += 1;
+	tick_count += 1;
 }
 
 void CAT_MS_arcade(CAT_machine_signal signal)
@@ -278,7 +285,9 @@ void CAT_render_arcade()
 				CAT_draw_sprite(snake_corner_sprite, 3, body_x, body_y);
 		}
 
-		CAT_draw_sprite(food_sprite_id, 0, food_x * 16, food_y * 16);
+		CAT_sprite* sprite = CAT_sprite_get(food_sprite_id);
+		int frame_idx = clamp(anim_frame, 0, sprite->frame_count-1);
+		CAT_draw_sprite(food_sprite_id, frame_idx, food_x * 16, food_y * 16);
 	}
 	else if(mode == LOSE)
 	{
