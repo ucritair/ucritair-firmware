@@ -5,6 +5,7 @@
 LOG_MODULE_REGISTER(imu, LOG_LEVEL_ERR);
 
 float imu_x, imu_y, imu_z;
+bool imu_recognized_upside_down;
 
 static const struct device* dev_i2c = DEVICE_DT_GET(DT_NODELABEL(arduino_i2c));
 
@@ -105,4 +106,6 @@ void imu_update()
 	lis3dh_read_data(0x28, &imu_x, true);
     lis3dh_read_data(0x2A, &imu_y, true);
     lis3dh_read_data(0x2C, &imu_z, true);
+
+    imu_recognized_upside_down = (imu_y > 0.8) && (fabs(imu_x) < 0.2) && (fabs(imu_z) < 0.2);
 }

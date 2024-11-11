@@ -166,6 +166,12 @@ float CAT_CO2_score();
 float CAT_PM_score();
 float CAT_VOC_score();
 float CAT_NOX_score();
+void CAT_calc_quantized_aqi_scores(
+	int* temp_idx,
+	int* co2_idx,
+	int* pm_idx,
+	int* voc_idx,
+	int* nox_idx);
 
 
 #ifdef CAT_DESKTOP 

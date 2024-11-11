@@ -121,6 +121,13 @@ void menu_sensors()
 
 uint8_t seen_buttons = 0;
 
+
+void menu_power_off_protected(void* arg)
+{
+	epaper_render_protected_off();
+	power_off(0, true);
+}
+
 void menu_post()
 {
 	text("~~POST~~");
@@ -154,6 +161,7 @@ void menu_post()
 	selectable("Test eInk", menu_test_eink, NULL);
 	selectable("Main Menu", goto_menu, menu_root);
 	selectable("Do nothing (test A)", NULL, NULL);
+	selectable("Protected Power Off", menu_power_off_protected, NULL);
 
 	seen_buttons |= current_buttons;
 
@@ -230,6 +238,7 @@ void menu_imu()
 {
 	text("~~IMU MENU~~");
 	textf("X: %01.2f Y: %01.2f Z: %01.2f", (double)imu_x, (double)imu_y, (double)imu_z);
+	textf("Upside down: %s", imu_recognized_upside_down?"YES":"no");
 
 	lcd_write_char(0xff00, 100, 150+(80*imu_x), 'X');
 	lcd_write_char(0x0ff0, 120, 150+(80*imu_y), 'Y');
@@ -301,17 +310,6 @@ void menu_power_off(void* arg)
 	power_off((int)arg, false);
 }
 
-void menu_power_off_protected(void* arg)
-{
-	epaper_render_protected_off();
-	power_off(0, true);
-}
-
-void menu_toggle_epaper_flip_y(void* arg)
-{
-	epaper_flip_y = !epaper_flip_y;
-}
-
 void menu_zero_rtc(void* arg)
 {
 	zero_rtc_counter();
@@ -336,7 +334,6 @@ void menu_root()
 	selectable("Touch Diagnostics", goto_menu, menu_touch);
 	selectable("IMU Diagnostics", goto_menu, menu_imu);
 	selectable("Toggle show FPS", menu_toggle_fps, NULL);
-	selectablef(menu_toggle_epaper_flip_y, NULL, "Toggle epaper flip (%s)", epaper_flip_y?"ON":"OFF");
 	selectable("Set Backlight", goto_menu, menu_set_backlight);
 	selectable("Power Off (for 10s)", menu_power_off, (void*)10000);
 	selectable("Power Off", menu_power_off, (void*)0);

@@ -6,15 +6,16 @@
 #include "epaper_rendering.h"
 #include "airquality.h"
 #include "rtc.h"
+#include "imu.h"
 
-bool epaper_flip_y = false;
+#include "cat_item.h"
 
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(epaper_rendering, LOG_LEVEL_DBG);
 
 void write_px(uint8_t* image, int o_x, int o_y, bool val)
 {
-	if (epaper_flip_y)
+	if (imu_recognized_upside_down)
 	{
 		o_y = EPD_IMAGE_H - o_y;
 		o_x = EPD_IMAGE_W - o_x;
@@ -103,18 +104,6 @@ void blit_image(uint8_t* target, struct epaper_image_asset* src, int x, int y)
 
 uint8_t test_image[EPD_IMAGE_BYTES] = {0};
 
-int step = 0;
-int steps[] = {64, 30, 75, 71, 13, 81, 49, 3, 79, 95, 78, 27, 22, 65, 67, 19, 94, 34, 92, 38, 3, 19, 68, 2, 38, 84, 35, 11, 78, 100, 53, 51, 63, 44, 28, 14, 55, 64, 46, 44, 41, 47, 58, 8, 16, 18, 13, 38, 30, 77, 91, 82, 25, 66, 51, 70, 53, 46, 4, 55, 50, 80, 39, 36, 21, 60, 50, 12, 40, 13, 97, 81, 65, 28, 68, 60, 72, 66, 34, 0, 10, 56, 65, 14, 3, 21, 70, 12, 54, 46, 92, 1, 96, 74, 54, 58, 21, 47, 87, 56};
-
-float make_bs_number(float base, float range)
-{
-	float s = steps[step];
-	s /= 100;
-	s *= range;
-	base += s;
-	return base;
-}
-
 void epaper_render_test()
 {
 	memset(test_image, 0, sizeof(test_image));
@@ -127,8 +116,45 @@ void epaper_render_test()
 	time_t now = get_current_rtc_time();
 	gmtime_r(&now, &t);
 
-	blit_image(test_image, &epaper_image_unicorn_default, 0, 0);
-	blit_image(test_image, &epaper_image_cloud_smoke, 0, epaper_image_unicorn_default.h);
+	struct epaper_image_asset* selected_unicorn = &epaper_image_unicorn_default;
+	struct epaper_image_asset* selected_cloud = &epaper_image_cloud_default;
+
+	int temp_idx, co2_idx, pm_idx, voc_idx, nox_idx;
+	CAT_calc_quantized_aqi_scores(&temp_idx, &co2_idx, &pm_idx, &voc_idx, &nox_idx);
+
+	int sum = temp_idx + co2_idx + pm_idx + voc_idx + nox_idx;
+
+	if (CAT_gear_status(mask_item))
+	{
+		selected_unicorn = &epaper_image_unicorn_mask;
+	}
+	else
+	{
+		if (sum < 3 || (CAT_room_find(purifier_item) != -1 && CAT_room_find(uv_item) != -1) )
+		{
+			selected_unicorn = &epaper_image_unicorn_happy;
+		}
+		else if (sum > 7)
+		{
+			selected_unicorn = &epaper_image_unicorn_sad;
+		}
+	}
+
+	if (sum > 8)
+	{
+		selected_cloud = &epaper_image_cloud_smoke;
+	}
+	else if (sum > 5)
+	{
+		selected_cloud = &epaper_image_cloud_sad;
+	}
+	else if (sum < 3)
+	{
+		selected_cloud = &epaper_image_cloud_happy;
+	}
+
+	blit_image(test_image, selected_unicorn, 0, 0);
+	blit_image(test_image, selected_cloud, 0, selected_unicorn->h);
 
 	fwrite_str(128, 20, 2, "%.0f", (double)current_readings.sunrise.ppm_filtered_compensated);
 	fwrite_str(EPD_IMAGE_W-(8*3), 20, 1, "ppm\nCO2");
@@ -144,6 +170,8 @@ void epaper_render_test()
 	// fwrite_str(128, 90, 1, "1 uCov/hr");
 	fwrite_str(128, 100, 1, "75%% AQI");
 	fwrite_str(128, 108, 1, "as-of %2d:%02d:%02d", t.tm_hour, t.tm_min, t.tm_sec);
+
+	imu_update();
 
 	pc_set_mode(false);
 	cmd_turn_on_and_write(test_image);
