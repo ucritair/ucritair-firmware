@@ -4,7 +4,7 @@
 #include "cat_math.h"
 
 #define CAT_MAX_PROP_COUNT 150
-#define CAT_MAX_COIN_COUNT 9
+#define CAT_MAX_COIN_COUNT 24
 
 typedef struct CAT_room
 {

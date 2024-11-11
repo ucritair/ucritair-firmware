@@ -19,10 +19,6 @@ void CAT_deco_state_init()
 	deco_state.mod_idx = -1;
 }
 
-void printiv2(CAT_ivec2 v)
-{
-	printf("%d %d\n", v.x, v.y);
-}
 void CAT_deco_target(CAT_ivec2 place)
 {
 	for(int i = 0; i < room.prop_count; i++)

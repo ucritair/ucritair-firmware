@@ -1,4 +1,5 @@
 #include "cat_bag.h"
+
 #include "cat_room.h"
 #include "cat_item.h"
 #include "cat_gui.h"
@@ -32,6 +33,9 @@ int CAT_bag_find(int item_id)
 
 void CAT_bag_add(int item_id)
 {
+	if(bag.length >= CAT_BAG_MAX_LENGTH)
+		return;
+		
 	int idx = CAT_bag_find(item_id);
 	if(idx >= 0)
 	{

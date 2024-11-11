@@ -7,18 +7,59 @@
 //////////////////////////////////////////////////////////////////////////
 // RENDERING
 
-CAT_gui gui;
-
-void CAT_gui_init()
+CAT_gui gui =
 {
-	gui.start = (CAT_ivec2) {0, 0};
-	gui.shape = (CAT_ivec2) {15, 20};
+	.start = (CAT_ivec2) {0, 0},
+	.shape = (CAT_ivec2) {0, 0},
+	.margin = 8,
+	.pad_x = 4,
+	.pad_y = 4,
 
-	gui.cursor = (CAT_ivec2) {0, 0};
+	.cursor = (CAT_ivec2) {0, 0},
+	.channel_height = 0,
+
+	.text_mode = CAT_TEXT_MODE_NORMAL
+};
+
+/*void CAT_gui_edges(CAT_ivec2 start, CAT_ivec2 shape)
+{
+	CAT_draw_sprite(panel_sprite, 0, start.x * CAT_TILE_SIZE, start.y * CAT_TILE_SIZE);
+	CAT_draw_sprite(panel_sprite, 2, (start.x + shape.x - 1) * CAT_TILE_SIZE, start.y * CAT_TILE_SIZE);
+	CAT_draw_sprite(panel_sprite, 6, start.x * CAT_TILE_SIZE, (start.y + shape.y - 1) * CAT_TILE_SIZE);
+	CAT_draw_sprite(panel_sprite, 8, (start.x + shape.x - 1) * CAT_TILE_SIZE, (start.y + shape.y - 1) * CAT_TILE_SIZE);
+
+	int xi = start.x + CAT_TILE_SIZE;
+	int xf = (start.x + shape.x - 1) * CAT_TILE_SIZE;
+	int yi = start.y + CAT_TILE_SIZE;
+	int yf = (start.y + shape.y - 1) * CAT_TILE_SIZE;
+	for(int x = xi; x < xf; x += CAT_TILE_SIZE)
+	{
+		CAT_draw_sprite(panel_sprite, 1, x, 0);
+		CAT_draw_sprite(panel_sprite, 7, x, yf);
+	}
+	for(int y = xi; y < yf; y += CAT_TILE_SIZE)
+	{
+		CAT_draw_sprite(panel_sprite, 3, 0, y);
+		CAT_draw_sprite(panel_sprite, 5, xf, y);
+	}
+}
+
+void CAT_gui_panel(CAT_ivec2 start, CAT_ivec2 shape)
+{
+	gui.start = start;
+	gui.shape = shape;
+	
+	CAT_clear_rect(start.x * CAT_TILE_SIZE, start.y * CAT_TILE_SIZE, shape.x * CAT_TILE_SIZE, shape.y * CAT_TILE_SIZE, 0xf75b);
+	spriter.mode = CAT_DRAW_MODE_DEFAULT;
+	CAT_gui_edges(start, shape);
+
+	gui.cursor = (CAT_ivec2) {gui.start.x * 16, gui.start.y * 16};
+	gui.cursor.y += gui.margin;
+	gui.cursor.x += gui.margin;
 	gui.channel_height = 0;
 
-	gui.text_mode = CAT_TEXT_MODE_NORMAL;
-}
+	spriter.mode = CAT_DRAW_MODE_CENTER_Y;
+}*/
 
 void CAT_gui_row(int stage)
 {
@@ -54,8 +95,8 @@ void CAT_gui_panel(CAT_ivec2 start, CAT_ivec2 shape)
 	CAT_gui_row(2);
 
 	gui.cursor = gui.start;
-	gui.cursor.y += CAT_GUI_MARGIN;
-	gui.cursor.x += CAT_GUI_MARGIN;
+	gui.cursor.y += gui.margin;
+	gui.cursor.x += gui.margin;
 	gui.channel_height = 0;
 
 	spriter.mode = CAT_DRAW_MODE_CENTER_Y;
@@ -64,7 +105,7 @@ void CAT_gui_panel(CAT_ivec2 start, CAT_ivec2 shape)
 void CAT_gui_panel_tight(CAT_ivec2 start, CAT_ivec2 shape)
 {
 	CAT_gui_panel(start, shape);
-	gui.cursor.y -= CAT_GUI_MARGIN / 2;
+	gui.cursor.y -= gui.margin / 2;
 }
 
 void CAT_gui_open_channel(int height)
@@ -77,8 +118,8 @@ void CAT_gui_open_channel(int height)
 
 void CAT_gui_line_break()
 {
-	gui.cursor.y += gui.channel_height / 2 + CAT_GUI_PAD_Y;
-	gui.cursor.x = gui.start.x + CAT_GUI_MARGIN;
+	gui.cursor.y += gui.channel_height / 2 + gui.pad_y;
+	gui.cursor.x = gui.start.x + gui.margin;
 	gui.channel_height = 0;
 }
 
@@ -104,7 +145,7 @@ void CAT_gui_text(const char* text)
 		gui.cursor.x += CAT_GLYPH_WIDTH;
 	}
 
-	gui.cursor.x += CAT_GUI_PAD_X;
+	gui.cursor.x += gui.pad_x;
 }
 
 void CAT_gui_image(int sprite_id, int frame_idx)
@@ -115,13 +156,13 @@ void CAT_gui_image(int sprite_id, int frame_idx)
 	CAT_draw_sprite(sprite_id, frame_idx, gui.cursor.x, gui.cursor.y);
 	gui.cursor.x += sprite.width;
 
-	gui.cursor.x += CAT_GUI_PAD_X;
+	gui.cursor.x += gui.pad_x;
 }
 
 void CAT_gui_div(const char* text)
 {
 	int height = strlen(text) > 0 ? CAT_TILE_SIZE : 4;
-	int ypad = strlen(text) > 0 ? CAT_GUI_PAD_Y : 0;
+	int ypad = strlen(text) > 0 ? gui.pad_y : 0;
 
 	CAT_gui_line_break();
 	gui.cursor.y += ypad;

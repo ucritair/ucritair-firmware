@@ -1,4 +1,5 @@
 #include "cat_room.h"
+
 #include "cat_input.h"
 #include "cat_item.h"
 #include <stdio.h>
@@ -7,17 +8,23 @@
 #include "cat_gui.h"
 #include "cat_bag.h"
 
-CAT_room room;
-CAT_vec2 poi;
+CAT_room room =
+{
+	.bounds = (CAT_rect){{0, 7}, {15, 17}},
+	.cursor = (CAT_ivec2){7, 12},
+
+	.prop_count = 0,
+
+	.coin_count = 0,
+	.crypto_timer_id = -1,
+
+	.selector = 0
+};
+
+CAT_vec2 poi = (CAT_vec2){120, 200};
 
 void CAT_room_init()
 {
-	room.bounds = (CAT_rect){{0, 7}, {15, 17}};
-	room.cursor = room.bounds.min;
-
-	room.prop_count = 0;
-
-	room.coin_count = 0;
 	room.crypto_timer_id = CAT_timer_init(5.0f);
 
 	room.buttons[0] = CAT_MS_feed;
@@ -58,6 +65,9 @@ bool CAT_room_fits(CAT_rect rect)
 
 void CAT_room_add_prop(int item_id, CAT_ivec2 place)
 {
+	if(room.prop_count >= CAT_MAX_PROP_COUNT)
+		return;
+
 	int idx = room.prop_count;
 	room.prop_count += 1;
 	room.prop_ids[idx] = item_id;
@@ -67,6 +77,9 @@ void CAT_room_add_prop(int item_id, CAT_ivec2 place)
 
 void CAT_room_remove_prop(int idx)
 {
+	if(idx < 0 || idx >= room.prop_count)
+		return;
+
 	for(int i = idx; i < room.prop_count-1; i++)
 	{
 		room.prop_ids[i] = room.prop_ids[i+1];
@@ -77,6 +90,9 @@ void CAT_room_remove_prop(int idx)
 
 void CAT_room_flip_prop(int idx)
 {
+	if(idx < 0 || idx >= room.prop_count)
+		return;
+
 	int item_id = room.prop_ids[idx];
 	CAT_item* item = CAT_item_get(item_id);
 	CAT_sprite* sprite = &atlas.table[item->sprite_id];
@@ -95,6 +111,9 @@ void CAT_room_flip_prop(int idx)
 
 void CAT_room_add_coin(CAT_vec2 origin, CAT_vec2 place)
 {
+	if(room.coin_count >= CAT_MAX_COIN_COUNT)
+		return;
+
 	int idx = room.coin_count;
 	room.coin_count += 1;
 	room.coin_origins[idx] = origin;
@@ -104,6 +123,9 @@ void CAT_room_add_coin(CAT_vec2 origin, CAT_vec2 place)
 
 void CAT_room_remove_coin(int idx)
 {
+	if(idx < 0 || idx >= room.coin_count)
+		return;
+		
 	for(int i = idx; i < room.coin_count-1; i++)
 	{
 		room.coin_places[i] = room.coin_places[i+1];
@@ -228,7 +250,6 @@ void CAT_MS_room(CAT_machine_signal signal)
 						float yi = room.prop_places[i].y * 16 - 24.0f;
 						float xf = CAT_rand_float((room.bounds.min.x+1) * 16, (room.bounds.max.x-1) * 16);
 						float yf = CAT_rand_float((room.bounds.min.y+1) * 16, (room.bounds.max.y-1) * 16);
-						printf("%f %f %f %f\n", xi, yi, xf, yf);
 						CAT_room_add_coin((CAT_vec2) {xi, yi}, (CAT_vec2) {xf, yf});
 					}
 				}
