@@ -197,6 +197,8 @@ extern int icon_mask_sprite;
 extern int icon_pure_sprite;
 extern int icon_uv_sprite;
 
+extern int icon_nosmoke_sprite;
+
 extern int icon_feed_sprite;
 extern int icon_study_sprite;
 extern int icon_play_sprite;

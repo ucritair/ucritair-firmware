@@ -626,6 +626,8 @@ int icon_mask_sprite;
 int icon_pure_sprite;
 int icon_uv_sprite;
 
+int icon_nosmoke_sprite;
+
 int icon_feed_sprite;
 int icon_study_sprite;
 int icon_play_sprite;
@@ -880,6 +882,8 @@ void CAT_sprite_mass_define()
 	INIT_SPRITE(icon_mask_sprite, "sprites/aq-protection-mask.png", 1);
 	INIT_SPRITE(icon_pure_sprite, "sprites/aq-protection-purifier.png", 1);
 	INIT_SPRITE(icon_uv_sprite, "sprites/aq-protection-uv.png", 1);
+
+	INIT_SPRITE(icon_nosmoke_sprite, "sprites/nosmoke.png", 1);
 
 	INIT_SPRITE(icon_feed_sprite, "sprites/Stat_Refill_Vigor_Button.png", 2);
 	INIT_SPRITE(icon_study_sprite, "sprites/Stat_Refill_Focus_Button.png", 2);
