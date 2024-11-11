@@ -94,16 +94,11 @@ int main(void)
 			// ~15s for PM
 			// ~65s for NOC+VOX!?!?!
 
-			if (current_readings.lps22hh.uptime_last_updated &&
-				current_readings.sunrise.uptime_last_updated &&
-				current_readings.sen5x.uptime_last_updated //&&
-				// current_readings.sen5x.voc_index &&
-				// current_readings.sen5x.nox_index
-				)
+			if (is_ready_for_aqi_logging())
 			{
 				LOG_INF("readings ready");
-				epaper_render_test();
 				populate_next_log_cell();
+				epaper_render_test();
 				k_msleep(20);
 				power_off(sensor_wakeup_rate*1000, false);
 			}

@@ -343,7 +343,7 @@ void menu_root()
 	selectable("Protected Power Off", menu_power_off_protected, NULL);
 
 	text("")
-	textf("Clock: %d o=%d", (int)get_current_rtc_time(), (int)rtc_offset);
+	textf("Clock: %lld o=%lld", get_current_rtc_time(), rtc_offset);
 	textf("RTC: %d", nrf_rtc_counter_get(HW_RTC_CHOSEN));
 	selectable("Zero RTC", menu_zero_rtc, NULL);
 

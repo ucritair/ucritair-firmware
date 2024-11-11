@@ -26,3 +26,5 @@ extern int next_log_cell_nr;
 void populate_next_log_cell();
 void flash_get_cell_by_nr(int nr, struct flash_log_cell* out);
 void populate_log_cell(struct flash_log_cell* cell);
+bool is_ready_for_aqi_logging();
+void do_aqi_log();

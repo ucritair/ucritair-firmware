@@ -9,6 +9,8 @@ extern uint8_t wakeup_is_from_timer;
 
 #define HW_RTC_CHOSEN NRF_RTC0
 
+#define RTC_TIME_TO_EPOCH_TIME(x) (x - 59958144000)
+
 void zero_rtc_counter();
 void check_rtc_init();
 void snapshot_rtc_for_reboot();

@@ -67,7 +67,7 @@ void CAT_MS_time(CAT_machine_signal signal)
 			{
 				set_rtc_counter(&local);
 				sensor_wakeup_rate = local_wakeup.hours*60*60 + local_wakeup.mins*60 + local_wakeup.secs;
-				sensor_wakeup_rate = clamp(sensor_wakeup_rate, 1, 60*60*16);
+				sensor_wakeup_rate = clamp(sensor_wakeup_rate, 15, 60*60*16);
 			}
 
 			break;

@@ -7,6 +7,7 @@ LOG_MODULE_REGISTER(cat_flash, LOG_LEVEL_DBG);
 #include "airquality.h"
 #include "rtc.h"
 #include "flash.h"
+#include "sdcard.h"
 
 #define SECTOR_SIZE 4096
 
@@ -218,6 +219,13 @@ void flash_erase_all_cells()
 	next_log_cell_nr = 0;
 }
 
+bool is_ready_for_aqi_logging()
+{
+	return current_readings.lps22hh.uptime_last_updated &&
+		   current_readings.sunrise.uptime_last_updated &&
+		   current_readings.sen5x.uptime_last_updated;
+}
+
 
 #include <zephyr/shell/shell.h>
 
@@ -261,7 +269,15 @@ static int sh_fetch_next(const struct shell *sh, size_t argc,
 static int sh_get_time(const struct shell *sh, size_t argc,
 				   char **argv)
 {
-	printf("get_current_rtc_time() = %d", (int)get_current_rtc_time());
+	printf("get_current_rtc_time() = %lld\n", get_current_rtc_time());
+	printf(" -> epoch = %lld\n", RTC_TIME_TO_EPOCH_TIME(get_current_rtc_time()));
+	return 0;
+}
+
+static int sh_write_out(const struct shell *sh, size_t argc,
+				   char **argv)
+{
+	write_log_to_sdcard();
 	return 0;
 }
 
@@ -279,6 +295,9 @@ SHELL_STATIC_SUBCMD_SET_CREATE(sub_log,
 	SHELL_CMD_ARG(gettime, NULL,
 		"Get time",
 		sh_get_time, 1, 0),
+	SHELL_CMD_ARG(writeout, NULL,
+		"Write log to SD card",
+		sh_write_out, 1, 0),
 	SHELL_SUBCMD_SET_END /* Array terminated. */
 );
 
