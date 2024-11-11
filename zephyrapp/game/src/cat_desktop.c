@@ -312,21 +312,6 @@ CAT_save* CAT_start_save()
 	return &the_save;
 }
 
-void CAT_fresh_save(CAT_save* save)
-{
-	save->magic_number = CAT_SAVE_MAGIC;
-	save->version.major = CAT_VERSION_MAJOR;
-	save->version.minor = CAT_VERSION_MINOR;
-	save->version.patch = CAT_VERSION_PATCH;
-	save->version.push = CAT_VERSION_PUSH;
-	save->vigour = 12;
-	save->focus = 12;
-	save->spirit = 12;
-	save->prop_count = 0;
-	save->bag_length = 0;
-	save->coins = 5;
-}
-
 void CAT_finish_save(CAT_save* save)
 {
 	printf("Save done!\n");
@@ -349,12 +334,6 @@ CAT_save* CAT_start_load()
 	close(fd);
 
 	printf("Loaded save from version v%d.%d.%d.%d\n", the_save.version.major, the_save.version.minor, the_save.version.patch, the_save.version.push);
-
-	if(!CAT_check_save(&the_save))
-	{
-		printf("Invalid save file! Creating fresh save...\n");
-		CAT_fresh_save(&the_save);
-	}
 		
 	return &the_save;
 }

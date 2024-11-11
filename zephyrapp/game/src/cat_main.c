@@ -37,6 +37,21 @@
 #pragma GCC diagnostic ignored "-Wunknown-pragmas"
 #endif
 
+void CAT_fresh_save(CAT_save* save)
+{
+	save->magic_number = CAT_SAVE_MAGIC;
+	save->version.major = CAT_VERSION_MAJOR;
+	save->version.minor = CAT_VERSION_MINOR;
+	save->version.patch = CAT_VERSION_PATCH;
+	save->version.push = CAT_VERSION_PUSH;
+	save->vigour = 12;
+	save->focus = 12;
+	save->spirit = 12;
+	save->prop_count = 0;
+	save->bag_length = 0;
+	save->coins = 5;
+}
+
 void CAT_force_save()
 {
 	CAT_save* save = CAT_start_save();
@@ -74,6 +89,14 @@ void CAT_force_save()
 void CAT_force_load()
 {
 	CAT_save* save = CAT_start_load();
+	CAT_save fresh_save;
+
+	if(!CAT_check_save(save))
+	{
+		// printf("Invalid save file! Creating fresh save...\n");
+		CAT_fresh_save(&fresh_save);
+		save = &fresh_save;
+	}
 
 	pet.vigour = save->vigour;
 	pet.focus = save->focus;

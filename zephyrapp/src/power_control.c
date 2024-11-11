@@ -247,24 +247,29 @@ void power_off(int for_ms, bool protected_sleeping)
 		{
 			// WAKE_CAUSE_BUTTON
 
-			nrfx_coredep_delay_us(1000*10);
+			nrfx_coredep_delay_us(1000*5);
 
-			init_buttons();
+			// init_buttons();
 
 			bool decided_to_wake = true;
 
-			for (int cycle = 0; cycle < (protected_sleeping?1000:10); cycle++)
-			{
-				nrfx_coredep_delay_us(1000*1);
-				update_buttons();
+			// for (int cycle = 0; cycle < (protected_sleeping?1000:10); cycle++)
+			// {
+			// 	nrfx_coredep_delay_us(1000*1);
+			// 	update_buttons();
 
-				if (!current_buttons || (protected_sleeping && current_buttons != CAT_BTN_MASK_START))
-				{
-					// Wake debounced
-					decided_to_wake = false;
-					break;
-				}
-			}
+			// 	if (!current_buttons || (protected_sleeping && current_buttons != CAT_BTN_MASK_START))
+			// 	{
+			// 		// Wake debounced
+			// 		decided_to_wake = false;
+			// 		break;
+			// 	}
+			// }
+
+			// if (!(gpio_pin_get(gpio1, 9) && gpio_pin_get(gpio1, 10) && gpio_pin_get(gpio1, 11) && gpio_pin_get(gpio1, 12)))
+			// {
+			// 	decided_to_wake = false;
+			// }
 
 			if (!decided_to_wake)
 			{
