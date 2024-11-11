@@ -45,7 +45,7 @@ void set_3v3(bool on)
 
 void set_5v0(bool on)
 {
-	LOG_DBG("set_5v0(%d)", on);
+	// LOG_DBG("set_5v0(%d)", on);
 	pin_write(&pin_sen55_boost_enable, on);
 	k_msleep(10);
 	is_5v0_on = on;
@@ -53,7 +53,7 @@ void set_5v0(bool on)
 
 void set_leds(bool on)
 {
-	LOG_DBG("set_leds(%d)", on);
+	// LOG_DBG("set_leds(%d)", on);
 	pin_write(&pin_led_enable, on);
 	k_msleep(10);
 	is_leds_on = on;
