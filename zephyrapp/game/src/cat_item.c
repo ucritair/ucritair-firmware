@@ -171,7 +171,7 @@ void CAT_item_mass_define()
 	book_f_item = CAT_item_init(CAT_ITEM_TYPE_BOOK, "The Disposessed", book_study_sprite, 5);
 	CAT_tool_init(book_f_item, book_static_sprite, 0, 1, 0, false);
 
-	book_a_item = CAT_item_init(CAT_ITEM_TYPE_BOOK, "Rendezvous with Rama", book_study_sprite, 20);
+	book_a_item = CAT_item_init(CAT_ITEM_TYPE_BOOK, "We Are Legion", book_study_sprite, 20);
 	CAT_tool_init(book_a_item, book_static_sprite, 0, 3, 0, false);
 
 	book_b_item = CAT_item_init(CAT_ITEM_TYPE_BOOK, "The Forever War", book_study_sprite, 20);

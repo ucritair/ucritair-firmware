@@ -19,9 +19,6 @@ void CAT_MS_manual(CAT_machine_signal signal)
 				CAT_machine_transition(CAT_MS_menu);
 			if(CAT_input_pressed(CAT_BUTTON_START))
 				CAT_machine_transition(CAT_MS_room);
-
-			if(CAT_input_pressed(CAT_BUTTON_B))
-				bag.coins += 1000;
 			break;
 		}
 		case CAT_MACHINE_SIGNAL_EXIT:
@@ -60,6 +57,4 @@ void CAT_render_manual()
 	CAT_gui_line_break();
 	CAT_gui_image(icon_w_sprite, 0);
 	CAT_gui_text("Navigate left");
-	CAT_gui_line_break();
-	CAT_gui_text("Press A to receive 1000 coins -_-");
 }

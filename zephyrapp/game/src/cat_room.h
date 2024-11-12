@@ -4,7 +4,7 @@
 #include "cat_math.h"
 
 #define CAT_MAX_PROP_COUNT 150
-#define CAT_MAX_COIN_COUNT 24
+#define CAT_MAX_COIN_COUNT 12
 #define CAT_COIN_TICK_SECS 1800
 
 typedef struct CAT_room
@@ -21,7 +21,7 @@ typedef struct CAT_room
 	CAT_vec2 coin_places[CAT_MAX_COIN_COUNT];
 	int coin_move_timers[CAT_MAX_COIN_COUNT];
 	int coin_count;
-	int coin_spawn_timer_id;
+	int coin_earn_timer_id;
 
 	CAT_machine_state buttons[5];
 	int selector;
@@ -36,6 +36,7 @@ void CAT_room_remove_prop(int idx);
 void CAT_room_flip_prop(int idx);
 void CAT_room_add_coin(CAT_vec2 origin, CAT_vec2 place);
 void CAT_room_remove_coin(int idx);
+void CAT_room_earn(int ticks);
 void CAT_room_move_cursor();
 void CAT_room_ambient_tick();
 void CAT_render_room(int cycle);

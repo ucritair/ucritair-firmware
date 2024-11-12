@@ -122,12 +122,7 @@ void CAT_apply_sleep(int seconds)
 	CAT_pet_stat(stat_ticks);
 
 	int coin_ticks = round((float) seconds / (float) CAT_COIN_TICK_SECS);
-	for(int i = 0; i < coin_ticks; i++)
-	{
-		CAT_vec2 origin = (CAT_vec2){120, 200};
-		CAT_vec2 place = CAT_iv2v(CAT_rand_ivec2(room.bounds.min, room.bounds.max));
-		CAT_room_add_coin(origin, place);
-	}
+	CAT_room_earn(coin_ticks);
 }
 
 void CAT_init(int seconds_slept)
@@ -135,6 +130,7 @@ void CAT_init(int seconds_slept)
 	CAT_rand_init();
 	CAT_platform_init();
 	CAT_input_init();
+	CAT_timetable_init();
 
 	CAT_atlas_init();
 	CAT_sprite_mass_define();
@@ -144,8 +140,6 @@ void CAT_init(int seconds_slept)
 	
 	CAT_item_table_init();
 	CAT_item_mass_define();
-
-	CAT_timetable_init();
 
 	CAT_pet_init();
 	CAT_room_init();

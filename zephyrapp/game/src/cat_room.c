@@ -16,7 +16,7 @@ CAT_room room =
 	.prop_count = 0,
 
 	.coin_count = 0,
-	.coin_spawn_timer_id = -1,
+	.coin_earn_timer_id = -1,
 
 	.selector = 0
 };
@@ -25,7 +25,7 @@ CAT_vec2 poi = (CAT_vec2){120, 200};
 
 void CAT_room_init()
 {
-	room.coin_spawn_timer_id = CAT_timer_init(5.0f);
+	room.coin_earn_timer_id = CAT_timer_init(5.0f);
 
 	room.buttons[0] = CAT_MS_feed;
 	room.buttons[1] = CAT_MS_study;
@@ -129,9 +129,28 @@ void CAT_room_remove_coin(int idx)
 	for(int i = idx; i < room.coin_count-1; i++)
 	{
 		room.coin_places[i] = room.coin_places[i+1];
+		room.coin_origins[i] = room.coin_origins[i+1];
 		room.coin_move_timers[i] = room.coin_move_timers[i+1];
 	}
 	room.coin_count -= 1;
+}
+
+void CAT_room_earn(int ticks)
+{
+	for(int i = 0; i < room.prop_count; i++)
+	{
+		if(room.prop_ids[i] == gpu_item)
+		{
+			for(int t = 0; t < ticks; t++)
+			{
+				float xi = room.prop_places[i].x * 16 + 24;
+				float yi = room.prop_places[i].y * 16 - 24.0f;
+				float xf = CAT_rand_float((room.bounds.min.x+1) * 16, (room.bounds.max.x-1) * 16);
+				float yf = CAT_rand_float((room.bounds.min.y+1) * 16, (room.bounds.max.y-1) * 16);
+				CAT_room_add_coin((CAT_vec2) {xi, yi}, (CAT_vec2) {xf, yf});
+			}
+		}
+	}
 }
 
 void CAT_room_move_cursor()
@@ -182,7 +201,7 @@ void CAT_room_ambient_tick()
 		if(CAT_timer_tick(room.coin_move_timers[i]))
 		{
 			CAT_vec2 place = room.coin_places[i];
-			if(CAT_input_drag(place.x, place.y - 16, 16))
+			if(CAT_input_drag(place.x + 8, place.y - 8, 16))
 			{
 				bag.coins += 1;
 				CAT_room_remove_coin(i);
@@ -259,20 +278,10 @@ void CAT_MS_room(CAT_machine_signal signal)
 					CAT_AM_transition(&pet_asm, &AS_crit);
 			}		
 
-			if(CAT_timer_tick(room.coin_spawn_timer_id) && room.coin_count < CAT_MAX_COIN_COUNT)
+			if(CAT_timer_tick(room.coin_earn_timer_id))
 			{
-				for(int i = 0; i < room.prop_count; i++)
-				{
-					if(room.prop_ids[i] == gpu_item)
-					{
-						float xi = room.prop_places[i].x * 16 + 24;
-						float yi = room.prop_places[i].y * 16 - 24.0f;
-						float xf = CAT_rand_float((room.bounds.min.x+1) * 16, (room.bounds.max.x-1) * 16);
-						float yf = CAT_rand_float((room.bounds.min.y+1) * 16, (room.bounds.max.y-1) * 16);
-						CAT_room_add_coin((CAT_vec2) {xi, yi}, (CAT_vec2) {xf, yf});
-					}
-				}
-				CAT_timer_reset(room.coin_spawn_timer_id);
+				CAT_room_earn(1);
+				CAT_timer_reset(room.coin_earn_timer_id);
 			}
 			break;
 		}
