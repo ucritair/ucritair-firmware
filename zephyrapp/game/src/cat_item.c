@@ -139,6 +139,7 @@ int effigy_purple_item;
 int effigy_sea_item;
 
 int pixel_item;
+int padkaprop_item;
 
 void CAT_item_mass_define()
 {
@@ -169,7 +170,7 @@ void CAT_item_mass_define()
 
 
 	book_f_item = CAT_item_init(CAT_ITEM_TYPE_BOOK, "The Disposessed", book_study_sprite, 5);
-	CAT_tool_init(book_f_item, book_static_sprite, 0, 1, 0, false);
+	CAT_tool_init(book_f_item, book_static_sprite, 0, 3, 0, false);
 
 	book_a_item = CAT_item_init(CAT_ITEM_TYPE_BOOK, "We Are Legion", book_study_sprite, 20);
 	CAT_tool_init(book_a_item, book_static_sprite, 0, 3, 0, false);
@@ -308,6 +309,9 @@ void CAT_item_mass_define()
 	
 	effigy_sea_item = CAT_item_init(CAT_ITEM_TYPE_PROP, "Sea Effigy", effigy_sea_sprite, 60);
 	CAT_prop_init(effigy_sea_item, 3, 1, true);
+
+	padkaprop_item = CAT_item_init(CAT_ITEM_TYPE_PROP, "Pad Ka Prop", padkaprop_sprite, 30);
+	CAT_prop_init(padkaprop_item, 2, 2, true);
 
 	pixel_item = CAT_item_init(CAT_ITEM_TYPE_PROP, "Pixel", pixel_sprite, 30);
 	CAT_prop_init(pixel_item, 1, 1, true);

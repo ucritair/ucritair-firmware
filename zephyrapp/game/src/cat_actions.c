@@ -184,14 +184,17 @@ void CAT_render_action(int cycle)
 		CAT_ivec2 spot = CAT_ivec2_mul(room.cursor, 16);
 		if(action_state.item_id != -1)
 		{
-			CAT_item* item = CAT_item_get(action_state.item_id);	
+			CAT_item* item = CAT_item_get(action_state.item_id);
+			int tool_mode = CAT_DRAW_MODE_BOTTOM;
+			if(spot.x > pet.pos.x)
+				tool_mode |= CAT_DRAW_MODE_REFLECT_X;
 			if(!action_state.confirmed)
 			{
-				CAT_draw_queue_add(item->data.tool_data.cursor_sprite_id, 0, 2, spot.x, spot.y, CAT_DRAW_MODE_DEFAULT);
+				CAT_draw_queue_add(item->data.tool_data.cursor_sprite_id, 0, 2, spot.x, spot.y+16, tool_mode);
 			}			
 			else if(!action_state.complete)
 			{
-				CAT_draw_queue_animate(item->sprite_id, 2, spot.x, spot.y, CAT_DRAW_MODE_DEFAULT);
+				CAT_draw_queue_animate(item->sprite_id, 2, spot.x, spot.y+16, tool_mode);
 			}
 		}
 		else

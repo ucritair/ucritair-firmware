@@ -11,8 +11,8 @@
 
 #define WIDTH 15
 #define HEIGHT 20
-#define MAX_SNAKE_LENGTH (WIDTH * HEIGHT)
-#define MAX_SPAWN_ITS 10000
+#define SNAKE_MAX_LENGTH (WIDTH * HEIGHT)
+#define SNAKE_MAX_ITS SNAKE_MAX_LENGTH * 2
 #ifdef CAT_EMBEDDED
 #define TICK_PERIOD 3
 #else
@@ -22,8 +22,8 @@
 
 int grasses[10] = {8, 2, 4, 10, 0, 11, 11, 7, 7, 12};
 
-uint8_t snake_x[MAX_SNAKE_LENGTH];
-uint8_t snake_y[MAX_SNAKE_LENGTH];
+uint8_t snake_x[SNAKE_MAX_LENGTH];
+uint8_t snake_y[SNAKE_MAX_LENGTH];
 uint8_t snake_length = 2;
 
 int8_t ldx = 0;
@@ -46,7 +46,7 @@ void spawn_food()
 {
 	bool valid = false;
 	int its = 0;
-	while(!valid && its < MAX_SPAWN_ITS)
+	while(!valid && its < SNAKE_MAX_ITS)
 	{
 		food_x = CAT_rand_int(1, WIDTH-2);
 		food_y = CAT_rand_int(1, HEIGHT-2);

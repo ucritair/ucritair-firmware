@@ -144,6 +144,7 @@ extern int effigy_purple_item;
 extern int effigy_sea_item;
 
 extern int pixel_item;
+extern int padkaprop_item;
 
 void CAT_item_mass_define();
 

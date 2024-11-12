@@ -778,6 +778,7 @@ int effigy_sea_sprite;
 
 int poster_zk_sprite;
 int pixel_sprite;
+int padkaprop_sprite;
 
 // PET STATES
 int pet_idle_sprite;
@@ -1035,6 +1036,7 @@ void CAT_sprite_mass_define()
 
 	INIT_SPRITE(poster_zk_sprite, "sprites/prop_poster_md_zk.png", 1);
 	INIT_SPRITE(pixel_sprite, "sprites/prop_pixel.png", 1);
+	INIT_SPRITE(padkaprop_sprite, "sprites/food_padkrakow_md.png", 1);
 
 	// PET STATES
 	INIT_SPRITE(pet_idle_sprite, "sprites/pet_unicorn_idle_complex_a.png", 4);

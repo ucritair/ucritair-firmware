@@ -301,6 +301,7 @@ extern int effigy_sea_sprite;
 
 extern int poster_zk_sprite;
 extern int pixel_sprite;
+extern int padkaprop_sprite;
 
 // PET STATES
 extern int pet_idle_sprite;

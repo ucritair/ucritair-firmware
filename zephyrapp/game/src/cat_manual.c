@@ -7,6 +7,20 @@
 #include "cat_input.h"
 #include "cat_bag.h"
 
+enum
+{
+	CONTROLS,
+	STATS,
+	ACTIONS,
+	DECO,
+	AIR,
+	SHOPPING,
+	CRYPTO,
+	ARCADE,
+	ABOUT,
+	LAST
+} page = CONTROLS;
+
 void CAT_MS_manual(CAT_machine_signal signal)
 {
 	switch(signal)
@@ -19,6 +33,20 @@ void CAT_MS_manual(CAT_machine_signal signal)
 				CAT_machine_transition(CAT_MS_menu);
 			if(CAT_input_pressed(CAT_BUTTON_START))
 				CAT_machine_transition(CAT_MS_room);
+
+			if(CAT_input_pulse(CAT_BUTTON_LEFT))
+			{
+				if(page == 0)
+					page = LAST-1;
+				else
+					page -= 1;
+			}
+			if(CAT_input_pulse(CAT_BUTTON_RIGHT))
+			{
+				page += 1;
+				if(page >= LAST)
+					page = 0;
+			}	
 			break;
 		}
 		case CAT_MACHINE_SIGNAL_EXIT:
@@ -26,14 +54,14 @@ void CAT_MS_manual(CAT_machine_signal signal)
 	}
 }
 
-void CAT_render_manual()
+void CAT_draw_controls()
 {
 	CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});
-	CAT_gui_text("CONTROLS ");
+	CAT_gui_text("< CONTROLS > ");
 	CAT_gui_image(icon_b_sprite, 1);
 	CAT_gui_image(icon_exit_sprite, 0);
-
 	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
+
 	CAT_gui_image(icon_start_sprite, 0);
 	CAT_gui_text("Open/close menu");
 	CAT_gui_line_break();
@@ -57,4 +85,232 @@ void CAT_render_manual()
 	CAT_gui_line_break();
 	CAT_gui_image(icon_w_sprite, 0);
 	CAT_gui_text("Navigate left");
+}
+
+void CAT_draw_stats()
+{
+	CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});
+	CAT_gui_text("< STATS > ");
+	CAT_gui_image(icon_b_sprite, 1);
+	CAT_gui_image(icon_exit_sprite, 0);
+	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
+
+	CAT_gui_image(icon_vig_sprite, 0);
+	CAT_gui_image(icon_foc_sprite, 0);
+	CAT_gui_image(icon_spi_sprite, 0);
+	CAT_gui_line_break();
+
+	CAT_gui_text("# VIGOUR");
+	CAT_gui_line_break();
+	CAT_gui_text
+	(
+		"is your pet's physical stat.\n"
+		"A pet with high vigour is\n"
+		"healthy. Vigour is restored\n"
+		"by eating good food."
+	);
+	CAT_gui_line_break();
+
+	CAT_gui_text("# FOCUS");
+	CAT_gui_line_break();
+	CAT_gui_text
+	(
+		"is your pet's mental stat.\n"
+		"A pet with high focus is\n"
+		"attentive. Focus is restored\n"
+		"by reading good books."
+	);
+	CAT_gui_line_break();
+
+	CAT_gui_text("# SPIRIT");
+	CAT_gui_line_break();
+	CAT_gui_text
+	(
+		"is your pet's emotional stat.\n"
+		"A pet with high spirit is\n"
+		"happy. Spirit is restored by\n"
+		"playing with good toys."
+	);
+}
+
+void CAT_draw_actions()
+{
+	CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});
+	CAT_gui_text("< CARETAKING > ");
+	CAT_gui_image(icon_b_sprite, 1);
+	CAT_gui_image(icon_exit_sprite, 0);
+	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
+
+	CAT_gui_image(icon_feed_sprite, 0);
+	CAT_gui_image(padkaprow_sprite, 0);
+	CAT_gui_image(icon_study_sprite, 0);
+	CAT_gui_image(book_static_sprite, 0);
+	CAT_gui_image(icon_play_sprite, 0);
+	CAT_gui_image(toy_duck_sprite, 0);
+	CAT_gui_line_break();
+
+	CAT_gui_text("# FEEDING");
+	CAT_gui_line_break();
+	CAT_gui_text
+	(
+		"restores your pet's vigour.\n"
+		"Select food from your bag\n"
+		"and place it in the room\n"
+		"for your pet to eat."
+	);
+	CAT_gui_line_break();
+	
+	CAT_gui_text("# STUDYING");
+	CAT_gui_line_break();
+	CAT_gui_text
+	(
+		"restores your pet's focus.\n"
+		"Select a book from your bag\n"
+		"and place it in the room for\n"
+		"your pet to read."
+	);
+	CAT_gui_line_break();
+
+	CAT_gui_text("# PLAYING");
+	CAT_gui_line_break();
+	CAT_gui_text
+	(
+		"restores your pet's spirit.\n"
+		"Select a toy from your bag\n"
+		"and place it in the room for\n"
+		"your pet to play with."
+	);
+}
+
+void CAT_draw_deco()
+{
+	CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});
+	CAT_gui_text("< DECORATION >");
+	CAT_gui_image(icon_b_sprite, 1);
+	CAT_gui_image(icon_exit_sprite, 0);
+	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
+
+	CAT_gui_image(icon_deco_sprite, 0);
+	CAT_gui_image(padkaprop_sprite, 0);
+	CAT_gui_image(lantern_sprite, 0);
+	CAT_gui_image(bush_daisy_sprite, 0);
+	CAT_gui_image(crystal_purple_lg_sprite, 0);
+	CAT_gui_image(succulent_sprite, 0);
+	CAT_gui_line_break();
+
+	CAT_gui_text
+	(
+		"restores your pet's spirit.\n"
+		"Select a toy from your bag\n"
+		"and place it in the room for\n"
+		"your pet to play with."
+	);
+	
+}
+
+void CAT_draw_air()
+{
+	CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});
+	CAT_gui_text("< AIR QUALITY >");
+	CAT_gui_image(icon_b_sprite, 1);
+	CAT_gui_image(icon_exit_sprite, 0);
+	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
+}
+
+void CAT_draw_shopping()
+{
+	CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});
+	CAT_gui_text("< SHOPPING > ");
+	CAT_gui_image(icon_b_sprite, 1);
+	CAT_gui_image(icon_exit_sprite, 0);
+	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
+}
+
+void CAT_draw_crypto()
+{
+	CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});
+	CAT_gui_text("< MINING > ");
+	CAT_gui_image(icon_b_sprite, 1);
+	CAT_gui_image(icon_exit_sprite, 0);
+	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
+}
+
+void CAT_draw_arcade()
+{
+	CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});
+	CAT_gui_text("< ARCADE > ");
+	CAT_gui_image(icon_b_sprite, 1);
+	CAT_gui_image(icon_exit_sprite, 0);
+	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
+}
+
+void CAT_draw_about()
+{
+	CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});
+	CAT_gui_text("< ABOUT > ");
+	CAT_gui_image(icon_b_sprite, 1);
+	CAT_gui_image(icon_exit_sprite, 0);
+	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
+}
+
+void CAT_render_manual()
+{
+	switch(page)
+	{
+		case CONTROLS:
+		{
+			CAT_draw_controls();
+			break;
+		}
+		case STATS:
+		{
+			CAT_draw_stats();
+			break;
+		}
+		case ACTIONS:
+		{
+			CAT_draw_actions();
+			break;
+		}
+		case DECO:
+		{
+			CAT_draw_deco();
+			break;
+		}
+		case AIR:
+		{
+			CAT_draw_air();
+			break;
+		}
+		case SHOPPING:
+		{
+			CAT_draw_shopping();
+			break;
+		}
+		case CRYPTO:
+		{
+			CAT_draw_crypto();
+			break;
+		}
+		case ARCADE:
+		{
+			CAT_draw_arcade();
+			break;
+		}
+		case ABOUT:
+		{
+			CAT_draw_arcade();
+			break;
+		}
+		default:
+		{
+			CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});
+			CAT_gui_text("WHAT THE HELL...");
+			CAT_gui_image(icon_b_sprite, 1);
+			CAT_gui_image(icon_exit_sprite, 0);
+			CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
+			CAT_gui_text("How the did you even\nget here man? Try < or >\nor something I guess");
+			break;
+		}
+	}
 }
