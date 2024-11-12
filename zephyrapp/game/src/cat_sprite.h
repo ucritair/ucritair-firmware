@@ -362,12 +362,6 @@ extern int mood_bad_sprite;
 
 // SNAKE
 extern int snake_head_sprite;
-extern int snake_eat_sprite;
-extern int snake_happy_sprite;
-extern int snake_death_up_sprite;
-extern int snake_death_right_sprite;
-extern int snake_death_down_sprite;
-extern int snake_death_left_sprite;
 extern int snake_body_sprite;
 extern int snake_corner_sprite;
 extern int snake_tail_sprite;

@@ -846,14 +846,8 @@ int mood_bad_sprite;
 
 // SNAKE
 int snake_head_sprite;
-int snake_eat_sprite;
-int snake_happy_sprite;
 int snake_body_sprite;
 int snake_corner_sprite;
-int snake_death_up_sprite;
-int snake_death_right_sprite;
-int snake_death_down_sprite;
-int snake_death_left_sprite;
 int snake_tail_sprite;
 
 // MACHINES
@@ -1105,14 +1099,8 @@ void CAT_sprite_mass_define()
 
 	// SNAKE
 	INIT_SPRITE(snake_head_sprite, "sprites/snake_cat_head_default.png", 4);
-	INIT_SPRITE(snake_eat_sprite, "sprites/snake_cat_head_eat.png", 4);
-	INIT_SPRITE(snake_happy_sprite, "sprites/snake_cat_head_happy.png", 4);
 	INIT_SPRITE(snake_body_sprite, "sprites/snake_cat_body.png", 4);
 	INIT_SPRITE(snake_corner_sprite, "sprites/snake_cat_corner.png", 4);
-	INIT_SPRITE(snake_death_up_sprite, "sprites/snake_cat_death_up_a.png", 5);
-	INIT_SPRITE(snake_death_right_sprite, "sprites/snake_cat_death_right_a.png", 5);
-	INIT_SPRITE(snake_death_down_sprite, "sprites/snake_cat_death_down_a.png", 5);
-	INIT_SPRITE(snake_death_left_sprite, "sprites/snake_cat_death_left_a.png", 5);
 	INIT_SPRITE(snake_tail_sprite, "sprites/snake_tail.png", 4);
 
 

@@ -308,13 +308,13 @@ void CAT_render_arcade()
 		CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 20});
 		for(int i = 1; i < 14; i++)
 		{
-			CAT_draw_sprite(snake_death_up_sprite, 1, i * 16, 16);
-			CAT_draw_sprite(snake_death_up_sprite, 1, i * 16, 19*16);
+			CAT_draw_sprite(snake_head_sprite, 1, i * 16, 16);
+			CAT_draw_sprite(snake_head_sprite, 1, i * 16, 19*16);
 		}
 		for(int i = 1; i < 20; i++)
 		{
-			CAT_draw_sprite(snake_death_up_sprite, 1, 16, i * 16);
-			CAT_draw_sprite(snake_death_up_sprite, 1, 13*16, i * 16);
+			CAT_draw_sprite(snake_head_sprite, 1, 16, i * 16);
+			CAT_draw_sprite(snake_head_sprite, 1, 13*16, i * 16);
 		}
 
 		gui.cursor.x += 28;
