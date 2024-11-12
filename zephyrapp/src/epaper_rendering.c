@@ -10,6 +10,7 @@
 #include "misc.h"
 
 #include "cat_item.h"
+#include "cat_version.h"
 
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(epaper_rendering, LOG_LEVEL_DBG);
@@ -121,21 +122,21 @@ void epaper_render_test()
 	struct epaper_image_asset* selected_cloud = &epaper_image_cloud_default;
 
 	int temp_idx, co2_idx, pm_idx, voc_idx, nox_idx;
-	// CAT_calc_quantized_aqi_scores(&temp_idx, &co2_idx, &pm_idx, &voc_idx, &nox_idx);
+	CAT_AQI_quantize(&temp_idx, &co2_idx, &pm_idx, &voc_idx, &nox_idx);
 
 	int sum = temp_idx + co2_idx + pm_idx + voc_idx + nox_idx;
 
-	if (CAT_gear_status(mask_item))
+	if (guy_is_wearing_mask)
 	{
 		selected_unicorn = &epaper_image_unicorn_mask;
 	}
 	else
 	{
-		if (sum < 3 || (CAT_room_find(purifier_item) != -1 && CAT_room_find(uv_item) != -1) )
+		if (guy_happiness == 2)
 		{
 			selected_unicorn = &epaper_image_unicorn_happy;
 		}
-		else if (sum > 7)
+		else if (guy_happiness == 0)
 		{
 			selected_unicorn = &epaper_image_unicorn_sad;
 		}
@@ -183,10 +184,13 @@ void epaper_render_protected_off()
 {
 	memset(epaper_framebuffer, 0, sizeof(epaper_framebuffer));
 
+#define S(x) #x
+
 	write_str(epaper_framebuffer, 10, 10, 2, "Device is");
 	write_str(epaper_framebuffer, 10, 26, 2, "protected-off");
 	write_str(epaper_framebuffer, 10, 56, 1, "Press RESET to power on");
-	write_str(epaper_framebuffer, 10, 68, 1, "SYS v." SYS_FW_VERSION);
+	write_str(epaper_framebuffer, 10, 76, 1, "SYS  v." SYS_FW_VERSION);
+	write_str(epaper_framebuffer, 10, 84, 1, "GAME v." S(CAT_VERSION_MAJOR) "." S(CAT_VERSION_MINOR) "." S(CAT_VERSION_PATCH) "." S(CAT_VERSION_PUSH));
 
 	pc_set_mode(false);
 	cmd_turn_on_and_write(epaper_framebuffer);

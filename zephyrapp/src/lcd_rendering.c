@@ -12,6 +12,9 @@ LOG_MODULE_REGISTER(lcd_rendering, LOG_LEVEL_DBG);
 #include "rtc.h"
 #include "batt.h"
 
+#include "cat_pet.h"
+#include "cat_item.h"
+
 extern char font8x8_basic[128][8];
 
 void lcd_write_char(uint16_t color, int x, int y, char c)
@@ -107,6 +110,20 @@ void lcd_render_diag()
 		}
 #endif
 
+		guy_is_wearing_mask = CAT_gear_status(mask_item);
+		if (CAT_room_find(purifier_item) != -1 && CAT_room_find(uv_item) != -1)
+		{
+			guy_happiness = 2;
+		}
+		else if ((pet.vigour + pet.focus + pet.spirit) < (6 * 3))
+		{
+			guy_happiness = 0;
+		}
+		else
+		{
+			guy_happiness = 1;
+		}
+
 		touch_update();
 		imu_update();
 		update_rtc();
@@ -117,7 +134,7 @@ void lcd_render_diag()
 			power_off(0, true);
 		}
 
-		if (current_buttons == (CAT_BTN_MASK_SELECT|CAT_BTN_MASK_START))
+		if (current_buttons == (CAT_BTN_MASK_SELECT|CAT_BTN_MASK_START|CAT_BTN_MASK_UP))
 		{
 			in_debug_menu = true;
 		}
