@@ -62,6 +62,19 @@ void CAT_pet_stat(int ticks)
 	pet.spirit = clamp(pet.spirit - ds * ticks, 0, 12);
 }
 
+void CAT_pet_use(int item_id)
+{
+	CAT_item* item = CAT_item_get(item_id);
+	if(item == NULL)
+		return;
+	
+	pet.vigour = clamp(pet.vigour + item->data.tool_data.dv, 0, 12);
+	pet.focus = clamp(pet.focus + item->data.tool_data.df, 0, 12);
+	pet.spirit = clamp(pet.spirit + item->data.tool_data.ds, 0, 12);
+
+	
+}
+
 bool CAT_pet_is_critical()
 {
 	return !(pet.vigour > 0 && pet.focus > 0 && pet.spirit > 0);

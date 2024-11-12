@@ -72,18 +72,20 @@ void CAT_action_tick()
 		{
 			if(CAT_timer_tick(action_state.timer_id))
 			{
+				CAT_pet_use(action_state.item_id);
+				CAT_pet_reanimate();
+			
 				CAT_item* item = CAT_item_get(action_state.item_id);
-				pet.vigour = clamp(pet.vigour + item->data.tool_data.dv, 0, 12);
-				pet.focus = clamp(pet.focus + item->data.tool_data.df, 0, 12);
-				pet.spirit = clamp(pet.spirit + item->data.tool_data.ds, 0, 12);
 				if(item->data.tool_data.consumable)
 				{
 					CAT_bag_remove(action_state.item_id);
 				}
+				
 				action_state.complete = true;
-				CAT_AM_kill(&pet_asm);
-				CAT_AM_transition(&pet_asm, action_state.stat_up_AS);
 				CAT_timer_reset(action_state.timer_id);
+
+				CAT_AM_kill(&pet_asm);
+				CAT_AM_transition(&pet_asm, action_state.stat_up_AS);		
 			}
 		}
 		if(CAT_AM_is_in(&pet_asm, action_state.stat_up_AS))

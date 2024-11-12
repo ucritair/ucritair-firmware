@@ -26,6 +26,7 @@ typedef struct CAT_pet
 extern CAT_pet pet;
 
 void CAT_pet_stat(int ticks);
+void CAT_pet_use(int item_id);
 bool CAT_pet_is_critical();
 void CAT_pet_reanimate();
 void CAT_pet_settle();

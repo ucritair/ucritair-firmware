@@ -169,7 +169,7 @@ void CAT_item_mass_define()
 	CAT_tool_init(cigarette_item, cigarette_sprite, -1, 3, 1, true);
 
 
-	book_f_item = CAT_item_init(CAT_ITEM_TYPE_BOOK, "The Disposessed", book_study_sprite, 5);
+	book_f_item = CAT_item_init(CAT_ITEM_TYPE_BOOK, "The Disposessed", book_study_sprite, 20);
 	CAT_tool_init(book_f_item, book_static_sprite, 0, 3, 0, false);
 
 	book_a_item = CAT_item_init(CAT_ITEM_TYPE_BOOK, "We Are Legion", book_study_sprite, 20);
@@ -301,13 +301,13 @@ void CAT_item_mass_define()
 	crystal_purple_lg_item = CAT_item_init(CAT_ITEM_TYPE_PROP, "Purple Crystal", crystal_purple_lg_sprite, 30);
 	CAT_prop_init(crystal_purple_lg_item, 2, 1, true);
 
-	effigy_blue_item = CAT_item_init(CAT_ITEM_TYPE_PROP, "Blue Effigy", effigy_blue_sprite, 40);
+	effigy_blue_item = CAT_item_init(CAT_ITEM_TYPE_PROP, "Blue Hedron", effigy_blue_sprite, 40);
 	CAT_prop_init(effigy_blue_item, 3, 1, true);
 	
-	effigy_purple_item = CAT_item_init(CAT_ITEM_TYPE_PROP, "Purple Effigy", effigy_purple_sprite, 40);
+	effigy_purple_item = CAT_item_init(CAT_ITEM_TYPE_PROP, "Purple Hedron", effigy_purple_sprite, 40);
 	CAT_prop_init(effigy_purple_item, 3, 1, true);
 	
-	effigy_sea_item = CAT_item_init(CAT_ITEM_TYPE_PROP, "Sea Effigy", effigy_sea_sprite, 60);
+	effigy_sea_item = CAT_item_init(CAT_ITEM_TYPE_PROP, "Sea Hedron", effigy_sea_sprite, 60);
 	CAT_prop_init(effigy_sea_item, 3, 1, true);
 
 	padkaprop_item = CAT_item_init(CAT_ITEM_TYPE_PROP, "Pad Ka Prop", padkaprop_sprite, 30);

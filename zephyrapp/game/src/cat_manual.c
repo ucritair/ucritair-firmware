@@ -325,6 +325,33 @@ void CAT_draw_crypto()
 	CAT_gui_image(icon_b_sprite, 1);
 	CAT_gui_image(icon_exit_sprite, 0);
 	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
+
+	CAT_gui_text
+	(
+		"While coins can be earned\n"
+		"from a variety of sources\n"
+		"the surest and steadiest way\n"
+		"to generate income is mining."
+	);
+	CAT_gui_line_break();
+
+	CAT_gui_image(icon_hedron_sprite, 0);
+	CAT_gui_image(gpu_sprite, 0);
+	CAT_gui_image(icon_hedron_sprite, 0);
+	CAT_gui_image(gpu_sprite, 0);
+	CAT_gui_image(icon_hedron_sprite, 0);
+	CAT_gui_line_break();
+
+	CAT_gui_text
+	(
+		"Mining devices can be placed\n"
+		"in the room, and will emit\n"
+		"earned coins at a fixed rate.\n"
+		"There is a cap on the number\n"
+		"of coins present at one time,\n"
+		"so make sure to pick them up\n"
+		"by touching them."
+	);
 }
 
 void CAT_draw_arcade()
@@ -397,7 +424,7 @@ void CAT_render_manual()
 		default:
 		{
 			CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});
-			CAT_gui_text("WHAT THE HELL...");
+			CAT_gui_text("ERM, WHAT THE SPRUCE?");
 			CAT_gui_image(icon_b_sprite, 1);
 			CAT_gui_image(icon_exit_sprite, 0);
 			CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});

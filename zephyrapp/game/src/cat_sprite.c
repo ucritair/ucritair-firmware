@@ -679,7 +679,6 @@ int icon_co2_sprite;
 int icon_pm_sprite;
 int icon_voc_sprite;
 int icon_nox_sprite;
-int icon_aq_ccode_sprite;
 
 int icon_mask_sprite;
 int icon_pure_sprite;
@@ -687,6 +686,8 @@ int icon_uv_sprite;
 
 int icon_nosmoke_sprite;
 int icon_ee_sprite;
+int icon_aq_ccode_sprite;
+int icon_hedron_sprite;
 
 int icon_feed_sprite;
 int icon_study_sprite;
@@ -934,7 +935,6 @@ void CAT_sprite_mass_define()
 	INIT_SPRITE(icon_pm_sprite, "sprites/icon_pm.png", 3);
 	INIT_SPRITE(icon_voc_sprite, "sprites/icon_voc.png", 3);
 	INIT_SPRITE(icon_nox_sprite, "sprites/icon_nox.png", 3);
-	INIT_SPRITE(icon_aq_ccode_sprite, "sprites/icon_aq_ccode.png", 3);
 
 	INIT_SPRITE(icon_mask_sprite, "sprites/aq-protection-mask.png", 1);
 	INIT_SPRITE(icon_pure_sprite, "sprites/aq-protection-purifier.png", 1);
@@ -942,6 +942,8 @@ void CAT_sprite_mass_define()
 
 	INIT_SPRITE(icon_nosmoke_sprite, "sprites/nosmoke.png", 1);
 	INIT_SPRITE(icon_ee_sprite, "sprites/ee_logo.png", 1);
+	INIT_SPRITE(icon_aq_ccode_sprite, "sprites/icon_aq_ccode.png", 3);
+	INIT_SPRITE(icon_hedron_sprite, "sprites/none_32x32.png", 1);
 
 	INIT_SPRITE(icon_feed_sprite, "sprites/Stat_Refill_Vigor_Button.png", 2);
 	INIT_SPRITE(icon_study_sprite, "sprites/Stat_Refill_Focus_Button.png", 2);
