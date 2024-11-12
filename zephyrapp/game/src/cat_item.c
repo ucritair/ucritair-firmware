@@ -161,7 +161,7 @@ void CAT_item_mass_define()
 	coffee_item = CAT_item_init(CAT_ITEM_TYPE_FOOD, "Coffee", coffee_sprite, 2);
 	CAT_tool_init(coffee_item, coffee_sprite, 1, 1, 0, true);
 
-	salad_item = CAT_item_init(CAT_ITEM_TYPE_FOOD, "Salad", salad_item, 5);
+	salad_item = CAT_item_init(CAT_ITEM_TYPE_FOOD, "Salad", salad_sprite, 5);
 	CAT_tool_init(salad_item, salad_sprite, 3, 0, 0, true);
 
 	cigarette_item = CAT_item_init(CAT_ITEM_TYPE_FOOD, "Cigarettes", cigarette_sprite, 10);

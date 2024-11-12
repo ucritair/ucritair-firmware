@@ -77,9 +77,9 @@ void CAT_action_tick()
 				pet.focus = clamp(pet.focus + item->data.tool_data.df, 0, 12);
 				pet.spirit = clamp(pet.spirit + item->data.tool_data.ds, 0, 12);
 				if(item->data.tool_data.consumable)
-				{	
+				{
 					CAT_bag_remove(action_state.item_id);
-				}	
+				}
 				action_state.complete = true;
 				CAT_AM_kill(&pet_asm);
 				CAT_AM_transition(&pet_asm, action_state.stat_up_AS);
