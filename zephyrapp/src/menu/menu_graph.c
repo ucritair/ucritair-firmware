@@ -11,6 +11,8 @@
 #include "airquality.h"
 #include "flash.h"
 
+#include "menu_aqi.h"
+
 #define M_E         2.7182818284590452354
 
 
@@ -100,7 +102,7 @@ void CAT_MS_graph(CAT_machine_signal signal)
 		case CAT_MACHINE_SIGNAL_TICK:
 		{
 			if(CAT_input_pressed(CAT_BUTTON_B))
-				CAT_machine_transition(CAT_MS_menu);
+				CAT_machine_transition(CAT_MS_aqi);
 
 			if(CAT_input_pressed(CAT_BUTTON_A))
 			{

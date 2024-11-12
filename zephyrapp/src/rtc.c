@@ -11,6 +11,7 @@ LOG_MODULE_REGISTER(rtc, LOG_LEVEL_DBG);
 #include "flash.h"
 
 #include <hal/nrf_gpio.h>
+#include <soc/nrfx_coredep.h>
 
 static int board_cat_init_rtc(void)
 {
@@ -18,6 +19,7 @@ static int board_cat_init_rtc(void)
 
     nrf_rtc_prescaler_set(HW_RTC_CHOSEN, 4095); // 125ms/tick
 
+    nrfx_coredep_delay_us(1000*9);
     nrf_rtc_task_trigger(HW_RTC_CHOSEN, NRF_RTC_TASK_CLEAR);
     nrf_gpio_pin_set(NRF_GPIO_PIN_MAP(0, 2));
 	nrf_rtc_task_trigger(HW_RTC_CHOSEN, NRF_RTC_TASK_START);
@@ -84,7 +86,7 @@ void set_rtc_counter(struct tm* t)
 
 void snapshot_rtc_for_reboot()
 {
-	rtc_offset = rtc_offset + (uint64_t)nrf_rtc_counter_get(HW_RTC_CHOSEN) + 1;
+	rtc_offset = rtc_offset + (uint64_t)nrf_rtc_counter_get(HW_RTC_CHOSEN) + 15;
 }
 
 void check_rtc_init()

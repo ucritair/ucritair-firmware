@@ -71,6 +71,8 @@ void CAT_render_aqi()
 {
 	CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});  
 	CAT_gui_text("AIR QUALITY ");
+	CAT_gui_image(icon_a_sprite, 1);
+	CAT_gui_image(icon_plot_sprite, 0);
 	CAT_gui_image(icon_b_sprite, 1);
 	CAT_gui_image(icon_exit_sprite, 0);
 
@@ -141,10 +143,12 @@ void CAT_render_aqi()
 	if (view_cell.co2_ppmx1)
 	{
 		textfnl("CO2: %dppm", (int)view_cell.co2_ppmx1);
+		textfnl("    (%3.0f%% rebreathed)", ((((double)view_cell.co2_ppmx1)-420.)/38000.)*100.);
 	}
 	else
 	{
 		textfnl(viewing_latest?"CO2 sensor starting...":"CO2 not recorded");
+		textfnl("");
 	}
 
 	textfnl(" ");

@@ -207,15 +207,23 @@ void CAT_AQI_quantize(int* temp_idx, int* co2_idx, int* pm_idx, int* voc_idx, in
 	*nox_idx = quantize(noxs, 5, 3);
 
     if (aqi.sen5x.voc_index == 0)
+    {
         *voc_idx = 1;
+    }
 
     if (aqi.sen5x.nox_index == 0)
+    {
         *nox_idx = 1;
+    }
 
 	float ts = CAT_temperature_score(CAT_mean_temp());
 	if(CAT_mean_temp() < 20 && ts >= 3)
+    {
 		*temp_idx = 0;
+    }
 	else if(ts >= 3)
+    {
 		*temp_idx = 2;
+    }
 	*temp_idx = 1;
 }

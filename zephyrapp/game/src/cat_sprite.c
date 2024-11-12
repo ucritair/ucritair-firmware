@@ -484,19 +484,19 @@ void CAT_greyberry(int xi, int w, int yi, int h)
 	}
 }
 
-void CAT_starberry()
-{
-#ifdef CAT_EMBEDDED
-	c = (c >> 8) | ((c & 0xff) << 8);
-#endif
-	for(int y = 0; y < LCD_SCREEN_H; y++)
-	{
-		for(int x = 0; x < LCD_SCREEN_W; x++)
-		{
-			FRAMEBUFFER[y * LCD_SCREEN_W + x] = x ^ y;
-		}
-	}
-}
+// void CAT_starberry()
+// {
+// #ifdef CAT_EMBEDDED
+// 	c = (c >> 8) | ((c & 0xff) << 8);
+// #endif
+// 	for(int y = 0; y < LCD_SCREEN_H; y++)
+// 	{
+// 		for(int x = 0; x < LCD_SCREEN_W; x++)
+// 		{
+// 			FRAMEBUFFER[y * LCD_SCREEN_W + x] = x ^ y;
+// 		}
+// 	}
+// }
 
 
 /////////////////////awhhhhhhehhhhh

@@ -169,7 +169,7 @@ void epaper_render_test()
 	}
 	
 	fwrite_str(128, 70, 1, "%.0f C / %.0f%% RH", (double)current_readings.sen5x.temp_degC, (double)current_readings.sen5x.humidity_rhpct);
-	// fwrite_str(128, 90, 1, "1 uCov/hr");
+	fwrite_str(128, 90, 1, "%3.0f%% rebreathed", ((((double)current_readings.sunrise.ppm_filtered_compensated)-420.)/38000.)*100.);
 	// fwrite_str(128, 100, 1, "75%% AQI");
 	fwrite_str(128, 108, 1, "as-of %2d:%02d:%02d", t.tm_hour, t.tm_min, t.tm_sec);
 
@@ -186,11 +186,13 @@ void epaper_render_protected_off()
 
 #define S(x) #x
 
+	char buf[256] = {0};
+
 	write_str(epaper_framebuffer, 10, 10, 2, "Device is");
 	write_str(epaper_framebuffer, 10, 26, 2, "protected-off");
 	write_str(epaper_framebuffer, 10, 56, 1, "Press RESET to power on");
-	write_str(epaper_framebuffer, 10, 76, 1, "SYS  v." SYS_FW_VERSION);
-	write_str(epaper_framebuffer, 10, 84, 1, "GAME v." S(CAT_VERSION_MAJOR) "." S(CAT_VERSION_MINOR) "." S(CAT_VERSION_PATCH) "." S(CAT_VERSION_PUSH));
+	write_str(epaper_framebuffer, 10, 76, 1,  "SYS  v." SYS_FW_VERSION);
+	fwrite_str(10, 84, 1, "GAME v.%d.%d.%d.%d", CAT_VERSION_MAJOR, CAT_VERSION_MINOR, CAT_VERSION_PATCH, CAT_VERSION_PUSH);
 
 	pc_set_mode(false);
 	cmd_turn_on_and_write(epaper_framebuffer);
