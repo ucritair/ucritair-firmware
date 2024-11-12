@@ -45,6 +45,11 @@ int main(void)
 
 	init_adc();
 
+	if (adc_get_voltage() < 3.6)
+	{
+		power_off(0, true);
+	}
+
 	// LOG_INF("~Test speaker~");
 	set_3v3(true);
 

@@ -427,6 +427,9 @@ void CAT_greenberry(int xi, int w, int yi, int h, float t)
 
 void CAT_clear_frame(uint16_t c)
 {
+#ifdef CAT_EMBEDDED
+	c = (c >> 8) | ((c & 0xff) << 8);
+#endif
 	uint16_t* px = FRAMEBUFFER;
 	uint16_t* end = FRAMEBUFFER + LCD_SCREEN_W * LCD_FRAMEBUFFER_H;
 	while(px != end)

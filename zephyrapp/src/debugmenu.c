@@ -321,6 +321,13 @@ void do_populate_next(void* arg)
 	populate_next_log_cell();
 }
 
+
+#include "cat_bag.h"
+void menu_coins(void* arg)
+{
+	bag.coins += 1000;
+}
+
 #include <hal/nrf_rtc.h>
 
 void menu_root()
@@ -339,6 +346,7 @@ void menu_root()
 	selectable("Power Off (for 10s)", menu_power_off, (void*)10000);
 	selectable("Power Off", menu_power_off, (void*)0);
 	selectable("Protected Power Off", menu_power_off_protected, NULL);
+	selectable("+1000 coins", menu_coins, NULL);
 
 	text("")
 	textf("Clock: %lld o=%lld", get_current_rtc_time(), rtc_offset);
@@ -350,7 +358,7 @@ void menu_root()
 	selectable("populate_next_log_cell", do_populate_next, NULL);
 
 	text("");
-	textf("ADC: %d", adc_sample());
+	textf("ADC: %d / %.2fV", adc_sample(), adc_get_voltage());
 
 	text("");
 	selectable("Back to game", exit_debug_menu, NULL);

@@ -81,6 +81,11 @@ int adc_sample(void)
 	return m_sample_buffer[0];
 }
 
+float adc_get_voltage()
+{
+	return 3. + (((float)(adc_sample() - 610))/210.);
+}
+
 int init_adc(void)
 {
 	int err;
@@ -110,4 +115,7 @@ int init_adc(void)
 	 * the first result will be incorrect.
 	 */
 	NRF_SAADC_S->TASKS_CALIBRATEOFFSET = 1;
+	adc_get_voltage();
+	adc_get_voltage();
+	adc_get_voltage();
 }

@@ -147,7 +147,10 @@ static inline void msleep_for_sure(int32_t ms) {
         ms -= k_msleep(ms);
     }
 }
-
+        // uint8_t buf[1+sizeof(value)];\
+        // buf[0] = REGADDR;\
+        // memcpy(&buf[1], value, sizeof(value));\
+        // int result = i2c_write(dev_i2c, buf, 1+sizeof(value), ADDR);\
 
 #define REG_RO(REGADDR,NAME,CTYPE,XFRM) \
     static inline int Read_##NAME(CTYPE* out) { \
@@ -417,6 +420,17 @@ bool sunrise_is_faulted()
 
 SENSOR_DEFINE(sunrise);
 
+int check_sunrise_error()
+{
+    struct error_status_t e;
+    CHK(Read_ErrorStatus(&e));
+
+    if (*(uint16_t*)&e != 0)
+    {
+        LOG_ERR("Error: %04x", *(uint16_t*)&e);
+    }
+}
+
 int force_abc_sunrise()
 {
     struct calibration_status_t status = {0};
@@ -430,9 +444,29 @@ int force_abc_sunrise()
     CHK(Write_ErrorStatus(error_status));
     k_msleep(50);
 
-    CHK(Write_CalibrationTarget(420));
+    check_sunrise_error();
+
+    // the below just blows up. something is horribly wrong with the way
+    // it's compiling the bitfield writes
+    return 0;
+
+    struct meter_control_t settings = {0};
+    settings.abc_disabled = 1;
+    settings.pressure_compensation_dis = 1;
+    settings.nrdy_invert_disabled = 1;
+    CHK(Write_MeterControl(settings));
+    k_msleep(50);
+
+    check_sunrise_error();
+
+    CHK(Write_CalibrationTarget(421));
+    uint16_t caltarget = 0;
+    CHK(Read_CalibrationTarget(&caltarget));
+    LOG_WRN("caltarget=%d", caltarget);
     CHK(Write_CalibrationCommand(CAL_TargetCalibration));
     k_msleep(50);
+
+    check_sunrise_error();
 
     while (true)
     {
@@ -452,6 +486,8 @@ int force_abc_sunrise()
         k_msleep(100);
         LOG_WRN("Waiting for sunrise reading...");
     }
+
+    check_sunrise_error();
 
     CHK(Read_CalibrationStatus(&status));
     CHK(Read_ErrorStatus(&error_status));
