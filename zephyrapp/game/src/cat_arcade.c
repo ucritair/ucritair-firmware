@@ -210,7 +210,7 @@ void CAT_MS_arcade(CAT_machine_signal signal)
 
 void draw_map()
 {
-	CAT_clear_frame(RGB8882565(122, 146, 57));
+	CAT_clearberry(RGB8882565(122, 146, 57));
 	for(int y = 0; y < 20; y += 2)
 	{
 		CAT_draw_sprite(grass_floor_sprite, 17, grasses[y/2]*16, y*16);

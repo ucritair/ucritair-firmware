@@ -97,16 +97,6 @@ CAT_machine_state bag_anchor = NULL;
 int bag_base = 0;
 int bag_selector = 0;
 
-bool mask[CAT_BAG_MAX_LENGTH];
-
-/*void maskify()
-{
-	for(int i = 0; i < bag.length; i++)
-	{
-		if()
-	}
-}*/
-
 void CAT_MS_bag(CAT_machine_signal signal)
 {
 	switch(signal)

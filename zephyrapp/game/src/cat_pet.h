@@ -3,7 +3,11 @@
 #include "cat_machine.h"
 #include "cat_math.h"
 
+#ifdef CAT_DESKTOP
+#define CAT_STAT_TICK_SECS 10
+#else 
 #define CAT_STAT_TICK_SECS 7200
+#endif
 
 typedef struct CAT_pet
 {

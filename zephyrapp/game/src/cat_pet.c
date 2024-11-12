@@ -123,7 +123,6 @@ void CAT_pet_reanimate()
 			AS_walk.tick_anim_id = pet_walk_low_foc_sprite;
 			AS_react.tick_anim_id = mood_low_foc_sprite;
 		}
-		
 	}
 	if(CAT_pet_is_critical())
 	{

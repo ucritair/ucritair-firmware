@@ -425,7 +425,7 @@ void CAT_greenberry(int xi, int w, int yi, int h, float t)
 }
 // Okay, it's more of an orangeberry. [Goldberry?](https://tolkiengateway.net/wiki/Goldberry)
 
-void CAT_clear_frame(uint16_t c)
+void CAT_clearberry(uint16_t c)
 {
 #ifdef CAT_EMBEDDED
 	c = (c >> 8) | ((c & 0xff) << 8);
@@ -480,6 +480,20 @@ void CAT_greyberry(int xi, int w, int yi, int h)
 
 			FRAMEBUFFER[idx] = px;
 #endif
+		}
+	}
+}
+
+void CAT_starberry()
+{
+#ifdef CAT_EMBEDDED
+	c = (c >> 8) | ((c & 0xff) << 8);
+#endif
+	for(int y = 0; y < LCD_SCREEN_H; y++)
+	{
+		for(int x = 0; x < LCD_SCREEN_W; x++)
+		{
+			FRAMEBUFFER[y * LCD_SCREEN_W + x] = x ^ y;
 		}
 	}
 }
@@ -663,6 +677,7 @@ int icon_pure_sprite;
 int icon_uv_sprite;
 
 int icon_nosmoke_sprite;
+int icon_ee_sprite;
 
 int icon_feed_sprite;
 int icon_study_sprite;
@@ -920,6 +935,7 @@ void CAT_sprite_mass_define()
 	INIT_SPRITE(icon_uv_sprite, "sprites/aq-protection-uv.png", 1);
 
 	INIT_SPRITE(icon_nosmoke_sprite, "sprites/nosmoke.png", 1);
+	INIT_SPRITE(icon_ee_sprite, "sprites/ee_logo.png", 1);
 
 	INIT_SPRITE(icon_feed_sprite, "sprites/Stat_Refill_Vigor_Button.png", 2);
 	INIT_SPRITE(icon_study_sprite, "sprites/Stat_Refill_Focus_Button.png", 2);

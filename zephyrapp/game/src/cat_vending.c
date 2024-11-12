@@ -36,7 +36,7 @@ void CAT_MS_vending(CAT_machine_signal signal)
 				if(vending_selector == -1)
 					vending_selector = item_table.length-1;
 				purchase_progress = 0;
-				CAT_input_clear(CAT_BUTTON_A);
+				CAT_input_reset(CAT_BUTTON_A);
 			}
 			if(CAT_input_pulse(CAT_BUTTON_DOWN))
 			{
@@ -44,7 +44,7 @@ void CAT_MS_vending(CAT_machine_signal signal)
 				if(vending_selector == item_table.length)
 					vending_selector = 0;
 				purchase_progress = 0;
-				CAT_input_clear(CAT_BUTTON_A);
+				CAT_input_reset(CAT_BUTTON_A);
 			}
 			vending_selector = clamp(vending_selector, 0, item_table.length-1);
 
@@ -57,13 +57,13 @@ void CAT_MS_vending(CAT_machine_signal signal)
 					CAT_bag_add(vending_selector);
 					bag.coins -= item->price;
 					purchase_progress = 0;
+					CAT_input_reset(CAT_BUTTON_A);
 				}
 			}
 			if(CAT_input_released(CAT_BUTTON_A))
 			{
 				purchase_progress = 0;
-			}
-				
+			}		
 
 			int overshoot = vending_selector - vending_base;
 			if(overshoot < 0)

@@ -56,6 +56,7 @@ void CAT_force_save()
 	save->vigour = pet.vigour;
 	save->focus = pet.focus;
 	save->spirit = pet.spirit;
+	save->stat_timer = CAT_timer_get(pet.stat_timer_id);
 
 	for(int i = 0; i < room.prop_count; i++)
 	{
@@ -64,6 +65,8 @@ void CAT_force_save()
 		save->prop_overrides[i] = room.prop_overrides[i];
 	}
 	save->prop_count = room.prop_count;
+
+	save->earn_timer = CAT_timer_get(room.earn_timer_id);
 
 	for(int i = 0; i < bag.length; i++)
 	{
@@ -102,6 +105,8 @@ void CAT_force_load()
 		room.prop_overrides[i] = save->prop_overrides[i];
 	}
 	room.prop_count = save->prop_count;
+
+	CAT_timer_set(room.earn_timer_id, save->earn_timer);
 
 	for(int i = 0; i < save->bag_length; i++)
 	{
@@ -229,7 +234,7 @@ void CAT_tick_render(int cycle)
 #ifdef CAT_DESKTOP
 int main()
 {
-	CAT_init(12);
+	CAT_init(0);
 
 	while (CAT_get_battery_pct() > 0)
 	{

@@ -86,8 +86,9 @@ void CAT_spriter_cleanup();
 // DIRECT FX
 
 void CAT_greenberry(int xi, int w, int yi, int h, float t);
-void CAT_clear_frame(uint16_t c);
+void CAT_clearberry(uint16_t c);
 void CAT_greyberry(int xi, int w, int yi, int h);
+void CAT_starberry();
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -198,6 +199,7 @@ extern int icon_pure_sprite;
 extern int icon_uv_sprite;
 
 extern int icon_nosmoke_sprite;
+extern int icon_ee_sprite;
 
 extern int icon_feed_sprite;
 extern int icon_study_sprite;

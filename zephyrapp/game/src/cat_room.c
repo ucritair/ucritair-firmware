@@ -16,7 +16,7 @@ CAT_room room =
 	.prop_count = 0,
 
 	.coin_count = 0,
-	.coin_earn_timer_id = -1,
+	.earn_timer_id = -1,
 
 	.selector = 0
 };
@@ -25,7 +25,11 @@ CAT_vec2 poi = (CAT_vec2){120, 200};
 
 void CAT_room_init()
 {
-	room.coin_earn_timer_id = CAT_timer_init(5.0f);
+	for(int i = 0; i < CAT_MAX_COIN_COUNT; i++)
+	{
+		room.coin_move_timers[i] = CAT_timer_init(0.75f);
+	}
+	room.earn_timer_id = CAT_timer_init(5.0f);
 
 	room.buttons[0] = CAT_MS_feed;
 	room.buttons[1] = CAT_MS_study;
@@ -118,14 +122,15 @@ void CAT_room_add_coin(CAT_vec2 origin, CAT_vec2 place)
 	room.coin_count += 1;
 	room.coin_origins[idx] = origin;
 	room.coin_places[idx] = place;
-	room.coin_move_timers[idx] = CAT_timer_init(0.75f);
+	CAT_timer_reset(room.coin_move_timers[idx]);
 }
 
 void CAT_room_remove_coin(int idx)
 {
 	if(idx < 0 || idx >= room.coin_count)
 		return;
-		
+	
+	int old_timer = room.coin_move_timers[idx];
 	for(int i = idx; i < room.coin_count-1; i++)
 	{
 		room.coin_places[i] = room.coin_places[i+1];
@@ -133,6 +138,7 @@ void CAT_room_remove_coin(int idx)
 		room.coin_move_timers[i] = room.coin_move_timers[i+1];
 	}
 	room.coin_count -= 1;
+	room.coin_move_timers[room.coin_count] = old_timer;
 }
 
 void CAT_room_earn(int ticks)
@@ -278,10 +284,10 @@ void CAT_MS_room(CAT_machine_signal signal)
 					CAT_AM_transition(&pet_asm, &AS_crit);
 			}		
 
-			if(CAT_timer_tick(room.coin_earn_timer_id))
+			if(CAT_timer_tick(room.earn_timer_id))
 			{
 				CAT_room_earn(1);
-				CAT_timer_reset(room.coin_earn_timer_id);
+				CAT_timer_reset(room.earn_timer_id);
 			}
 			break;
 		}

@@ -96,11 +96,14 @@ typedef struct __attribute__((__packed__)) CAT_save
 	uint8_t vigour;
 	uint8_t focus;
 	uint8_t spirit;
+	float stat_timer;
 
 	uint8_t prop_ids[150];
 	CAT_ivec2 prop_places[150];
 	uint8_t prop_overrides[150];
 	uint8_t prop_count;
+
+	float earn_timer;
 
 	uint8_t bag_ids[70];
 	uint8_t bag_counts[70];
