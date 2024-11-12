@@ -78,7 +78,11 @@ void CAT_gui_open_channel(int height)
 
 void CAT_gui_line_break()
 {
-	gui.cursor.y += gui.channel_height / 2 + gui.pad_y;
+	gui.cursor.y +=
+	(gui.channel_height >= 0 ?
+	gui.channel_height / 2 :
+	CAT_GLYPH_HEIGHT) +
+	gui.pad_y;
 	gui.cursor.x = gui.start.x + gui.margin;
 	gui.channel_height = 0;
 }
@@ -99,8 +103,6 @@ void CAT_gui_text(const char* text)
 			CAT_draw_sprite(strike_sprite, 0, gui.cursor.x, gui.cursor.y);
 		gui.cursor.x += CAT_GLYPH_WIDTH;
 	}
-
-	gui.cursor.x += gui.pad_x;
 }
 
 void CAT_gui_image(int sprite_id, int frame_idx)

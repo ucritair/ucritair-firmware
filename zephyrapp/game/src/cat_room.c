@@ -163,7 +163,7 @@ void CAT_room_init()
 	{
 		room.coin_move_timers[i] = CAT_timer_init(0.75f);
 	}
-	room.earn_timer_id = CAT_timer_init(5.0f);
+	room.earn_timer_id = CAT_timer_init(CAT_COIN_TICK_SECS);
 
 	room.buttons[0] = CAT_MS_feed;
 	room.buttons[1] = CAT_MS_study;

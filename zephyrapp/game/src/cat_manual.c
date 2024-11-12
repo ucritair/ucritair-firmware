@@ -233,37 +233,49 @@ void CAT_draw_air()
 	CAT_gui_image(icon_exit_sprite, 0);
 	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
 
+	CAT_gui_image(icon_co2_sprite, 0);
+	CAT_gui_image(icon_mask_sprite, 0);
+	CAT_gui_image(icon_pm_sprite, 2);
+	CAT_gui_image(icon_pure_sprite, 0);
+	CAT_gui_image(icon_nox_sprite, 0);
+	CAT_gui_image(icon_uv_sprite, 0);
+	CAT_gui_image(icon_voc_sprite, 2);
+	CAT_gui_line_break();
+
 	CAT_gui_text
 	(
 		"Real-life air quality\n"
 		"affects the rate at which\n"
 		"your pet's stats degrade.\n"
-		"Air quality factors are given\n"
-		"a score of:\n"
+		"Air quality factors are\n"
+		"given a score of\n"
 	);
 	CAT_gui_text("GOOD");
 	CAT_gui_image(icon_aq_ccode_sprite, 0);
 	CAT_gui_text(", NORMAL");
 	CAT_gui_image(icon_aq_ccode_sprite, 1);
-	CAT_gui_text(", and BAD");
+	CAT_gui_text(", or BAD");
 	CAT_gui_image(icon_aq_ccode_sprite, 2);
 	CAT_gui_line_break();
-	CAT_gui_text("for each of\n");
+	CAT_gui_text("where the scored factors are\n");
 	CAT_gui_image(icon_co2_sprite, 1);
 	CAT_gui_text("CO2, ");
 	CAT_gui_image(icon_nox_sprite, 1);
 	CAT_gui_text("NOx, ");
 	CAT_gui_image(icon_voc_sprite, 1);
-	CAT_gui_text("VOCs, ");
+	CAT_gui_text("VOCs,\n");
+	CAT_gui_text("and ");
 	CAT_gui_image(icon_pm_sprite, 1);
-	CAT_gui_text("PM2.5\n");
-
-	CAT_gui_image(icon_mask_sprite, 0);
-	CAT_gui_image(icon_pure_sprite, 0);
-	CAT_gui_image(icon_uv_sprite, 0);
-	CAT_gui_text("INTERVENTIONS");
+	CAT_gui_text("PM2.5.");
 	CAT_gui_line_break();
-
+	
+	CAT_gui_text
+	(
+		"Some items have effects\n"
+		"which protect the pet's\n"
+		"stats from low air quality\n"
+		"if placed or equipped.\n"
+	);
 }
 
 void CAT_draw_shopping()
@@ -273,6 +285,37 @@ void CAT_draw_shopping()
 	CAT_gui_image(icon_b_sprite, 1);
 	CAT_gui_image(icon_exit_sprite, 0);
 	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
+
+	gui.cursor.x += 6;
+	for(int i = 0; i < 11; i++)
+	{
+		CAT_gui_image(coin_world_sprite, i % 4);
+	}
+	CAT_gui_line_break();
+	CAT_gui_text
+	(
+		"Feeding, studying, playing,\n"
+		"decoration, and air quality\n"
+		"protection all rely on the\n"
+		"use of items.\n"
+		"\n"
+		"Items of all kinds can be\n"
+		"purchased at the vending\n"
+		"machine using coins. Click\n"
+		"on the vending machine or\n"
+		"navigate to it from the\n"
+		"menu to purchase items.\n"
+		"\n"
+		"To earn coins, place ETH\n"
+		"mining devices in the room\n"
+		"or play games at the arcade.\n"
+		"\n\n"
+	);
+	gui.cursor.x += 2;
+	for(int i = 2; i < 13; i++)
+	{
+		CAT_gui_image(coin_world_sprite, i % 4);
+	}
 }
 
 void CAT_draw_crypto()
@@ -348,7 +391,7 @@ void CAT_render_manual()
 		}
 		case ABOUT:
 		{
-			CAT_draw_arcade();
+			CAT_draw_about();
 			break;
 		}
 		default:
