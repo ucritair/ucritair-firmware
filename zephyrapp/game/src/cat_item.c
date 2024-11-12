@@ -31,13 +31,14 @@ CAT_item* CAT_item_get(int item_id)
 	return &item_table.data[item_id];
 }
 
-void CAT_tool_init(int item_id, int cursor_sprite_id, int dv, int df, int ds)
+void CAT_tool_init(int item_id, int cursor_sprite_id, int dv, int df, int ds, bool consumable)
 {
 	CAT_item* item = CAT_item_get(item_id);
 	item->data.tool_data.cursor_sprite_id = cursor_sprite_id;
 	item->data.tool_data.dv = dv;
 	item->data.tool_data.df = df;
 	item->data.tool_data.ds = ds;
+	item->data.tool_data.consumable = consumable;
 }
 
 void CAT_prop_init(int item_id, int width, int height, bool animate)
@@ -143,63 +144,63 @@ void CAT_item_mass_define()
 {
 	// TOOLS
 	pill_vig_item = CAT_item_init(CAT_ITEM_TYPE_FOOD, "Vigour Pill", pill_vig_sprite, 2);
-	CAT_tool_init(pill_vig_item, pill_vig_sprite, 1, 0, 0);
+	CAT_tool_init(pill_vig_item, pill_vig_sprite, 1, 0, 0, true);
 
 	pill_foc_item = CAT_item_init(CAT_ITEM_TYPE_FOOD, "Focus Pill", pill_foc_sprite, 2);
-	CAT_tool_init(pill_foc_item, pill_foc_sprite, 0, 1, 0);
+	CAT_tool_init(pill_foc_item, pill_foc_sprite, 0, 1, 0, true);
 
 	pill_spi_item = CAT_item_init(CAT_ITEM_TYPE_FOOD, "Spirit Pill", pill_spi_sprite, 2);
-	CAT_tool_init(pill_spi_item, pill_spi_sprite, 0, 0, 1);
+	CAT_tool_init(pill_spi_item, pill_spi_sprite, 0, 0, 1, true);
 
 	padkaprow_item = CAT_item_init(CAT_ITEM_TYPE_FOOD, "Pad Ka Prow", padkaprow_sprite, 10);
-	CAT_tool_init(padkaprow_item, padkaprow_sprite, 5, 0, 0);
+	CAT_tool_init(padkaprow_item, padkaprow_sprite, 5, 0, 0, true);
 
 	sausage_item = CAT_item_init(CAT_ITEM_TYPE_FOOD, "Sausage", sausage_sprite, 5);
-	CAT_tool_init(sausage_item, sausage_sprite, 3, 0, 0);
+	CAT_tool_init(sausage_item, sausage_sprite, 3, 0, 0, true);
 
 	coffee_item = CAT_item_init(CAT_ITEM_TYPE_FOOD, "Coffee", coffee_sprite, 2);
-	CAT_tool_init(coffee_item, coffee_sprite, 1, 1, 0);
+	CAT_tool_init(coffee_item, coffee_sprite, 1, 1, 0, true);
 
 	salad_item = CAT_item_init(CAT_ITEM_TYPE_FOOD, "Salad", salad_item, 5);
-	CAT_tool_init(salad_item, salad_sprite, 3, 0, 0);
+	CAT_tool_init(salad_item, salad_sprite, 3, 0, 0, true);
 
 	cigarette_item = CAT_item_init(CAT_ITEM_TYPE_FOOD, "Cigarettes", cigarette_sprite, 10);
-	CAT_tool_init(cigarette_item, cigarette_sprite, -1, 3, 1);
+	CAT_tool_init(cigarette_item, cigarette_sprite, -1, 3, 1, true);
 
 
 	book_f_item = CAT_item_init(CAT_ITEM_TYPE_BOOK, "The Disposessed", book_study_sprite, 5);
-	CAT_tool_init(book_f_item, book_static_sprite, 0, 1, 0);
+	CAT_tool_init(book_f_item, book_static_sprite, 0, 1, 0, false);
 
 	book_a_item = CAT_item_init(CAT_ITEM_TYPE_BOOK, "Rendezvous with Rama", book_study_sprite, 20);
-	CAT_tool_init(book_a_item, book_static_sprite, 0, 3, 0);
+	CAT_tool_init(book_a_item, book_static_sprite, 0, 3, 0, false);
 
 	book_b_item = CAT_item_init(CAT_ITEM_TYPE_BOOK, "The Forever War", book_study_sprite, 20);
-	CAT_tool_init(book_b_item, book_static_sprite, 0, 3, 0);
+	CAT_tool_init(book_b_item, book_static_sprite, 0, 3, 0, false);
 
 	book_c_item = CAT_item_init(CAT_ITEM_TYPE_BOOK, "Ringworld", book_study_sprite, 20);
-	CAT_tool_init(book_c_item, book_static_sprite, 0, 3, 0);
+	CAT_tool_init(book_c_item, book_static_sprite, 0, 3, 0, false);
 
 	book_d_item = CAT_item_init(CAT_ITEM_TYPE_BOOK, "The Machine Stops", book_study_sprite, 20);
-	CAT_tool_init(book_d_item, book_static_sprite, 0, 3, 0);
+	CAT_tool_init(book_d_item, book_static_sprite, 0, 3, 0, false);
 
 	book_e_item = CAT_item_init(CAT_ITEM_TYPE_BOOK, "Metal Fever", book_study_sprite, 20);
-	CAT_tool_init(book_e_item, book_static_sprite, 0, 3, 0);
+	CAT_tool_init(book_e_item, book_static_sprite, 0, 3, 0, false);
 
 
 	toy_golf_item = CAT_item_init(CAT_ITEM_TYPE_TOY, "Golf Ball", toy_golf_sprite, 5);
-	CAT_tool_init(toy_golf_item, toy_golf_sprite, 0, 0, 1);
+	CAT_tool_init(toy_golf_item, toy_golf_sprite, 0, 0, 1, false);
 
 	toy_baseball_item = CAT_item_init(CAT_ITEM_TYPE_TOY, "Baseball", toy_baseball_sprite, 20);
-	CAT_tool_init(toy_baseball_item, toy_baseball_sprite, 0, 0, 3);
+	CAT_tool_init(toy_baseball_item, toy_baseball_sprite, 0, 0, 3, false);
 
 	toy_basketball_item = CAT_item_init(CAT_ITEM_TYPE_TOY, "Basketball", toy_basketball_sprite, 20);
-	CAT_tool_init(toy_basketball_item, toy_basketball_sprite, 0, 0, 3);
+	CAT_tool_init(toy_basketball_item, toy_basketball_sprite, 0, 0, 3, false);
 
 	toy_puzzle_item = CAT_item_init(CAT_ITEM_TYPE_TOY, "Puzzle", toy_puzzle_sprite, 20);
-	CAT_tool_init(toy_puzzle_item, toy_puzzle_sprite, 0, 0, 3);
+	CAT_tool_init(toy_puzzle_item, toy_puzzle_sprite, 0, 0, 3, false);
 
 	toy_duck_item = CAT_item_init(CAT_ITEM_TYPE_TOY, "Ducky", toy_duck_sprite, 30);
-	CAT_tool_init(toy_duck_item, toy_duck_sprite, 0, 0, 5);
+	CAT_tool_init(toy_duck_item, toy_duck_sprite, 0, 0, 5, false);
 	
 
 	// KEYS AND GEAR

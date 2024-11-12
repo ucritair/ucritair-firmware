@@ -95,27 +95,16 @@ struct bag_relation
 
 CAT_machine_state bag_anchor = NULL;
 int bag_base = 0;
-int bag_indices[9];
-int bag_seen = 0;
 int bag_selector = 0;
 
-/*bool audit_item(int idx)
-{
-	if(bag_anchor == NULL)
-		return false;
-	CAT_item* item = CAT_item_get(bag.item_ids[idx]);
-	for(int i = 0; i < NUM_BAG_RELATIONS; i++)
-	{
-		struct bag_relation rel = bag_relations[i];
-		if(rel.state == bag_anchor && item->type = )
-	}
-	
-}	
+bool mask[CAT_BAG_MAX_LENGTH];
 
-void view_from_base()
+/*void maskify()
 {
-	bag_seen = 0;
-	for(int i = 0; i < )
+	for(int i = 0; i < bag.length; i++)
+	{
+		if()
+	}
 }*/
 
 void CAT_MS_bag(CAT_machine_signal signal)
@@ -133,12 +122,12 @@ void CAT_MS_bag(CAT_machine_signal signal)
 			if(CAT_input_pressed(CAT_BUTTON_B))
 			{
 				if(bag_anchor != NULL)
-					CAT_machine_transition(&machine, CAT_MS_room);
+					CAT_machine_transition(CAT_MS_room);
 				else
-					CAT_machine_transition(&machine, CAT_MS_menu);
+					CAT_machine_transition(CAT_MS_menu);
 			}			
 			if(CAT_input_pressed(CAT_BUTTON_START))
-				CAT_machine_transition(&machine, CAT_MS_room);
+				CAT_machine_transition(CAT_MS_room);
 
 			if(bag.length <= 0)
 				break;
@@ -174,7 +163,7 @@ void CAT_MS_bag(CAT_machine_signal signal)
 					if((bag_anchor == NULL || relation.state == bag_anchor) && item->type == relation.type)
 					{
 						*relation.ptr = item_id;
-						CAT_machine_transition(&machine, relation.state);
+						CAT_machine_transition(relation.state);
 					}
 				}
 

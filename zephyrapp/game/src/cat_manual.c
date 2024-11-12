@@ -14,9 +14,9 @@ void CAT_MS_manual(CAT_machine_signal signal)
 		case CAT_MACHINE_SIGNAL_TICK:
 		{
 			if(CAT_input_pressed(CAT_BUTTON_B))
-				CAT_machine_transition(&machine, CAT_MS_menu);
+				CAT_machine_transition(CAT_MS_menu);
 			if(CAT_input_pressed(CAT_BUTTON_START))
-				CAT_machine_transition(&machine, CAT_MS_room);
+				CAT_machine_transition(CAT_MS_room);
 			break;
 		}
 		case CAT_MACHINE_SIGNAL_EXIT:

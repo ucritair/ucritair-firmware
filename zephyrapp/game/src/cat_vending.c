@@ -27,8 +27,10 @@ void CAT_MS_vending(CAT_machine_signal signal)
 		case CAT_MACHINE_SIGNAL_TICK:
 		{
 			if(CAT_input_pressed(CAT_BUTTON_B) || CAT_input_pressed(CAT_BUTTON_START))
-				CAT_machine_transition(&machine, CAT_MS_room);
-				
+			{
+				CAT_machine_transition(CAT_MS_room);
+			}
+					
 			if(CAT_input_pulse(CAT_BUTTON_UP))
 			{
 				vending_selector -= 1;
@@ -56,8 +58,8 @@ void CAT_MS_vending(CAT_machine_signal signal)
 						CAT_bag_add(vending_selector);
 						bag.coins -= price;
 						purchase_lock = true;
-						purchase_progress = 0;
 					}
+					purchase_progress = 0;
 				}
 			}
 			if(CAT_input_released(CAT_BUTTON_A))
@@ -107,6 +109,7 @@ void CAT_render_vending()
 
 	if(purchase_progress >= 0.01)
 	{
-		CAT_greenberry(3, 15*16-6, 4 * 16 + 32 * (vending_selector-vending_base) + 3, 32-6, purchase_progress);
+		float greenberry_t = lerp(0.15, 1, purchase_progress);
+		CAT_greenberry(3, 15*16-6, 4 * 16 + 32 * (vending_selector-vending_base) + 3, 32-6, greenberry_t);
 	}
 }

@@ -70,19 +70,23 @@ void CAT_MS_example(CAT_machine_signal signal)
 }
 */
 
-void CAT_machine_transition(CAT_machine_state* machine, CAT_machine_state state)
+CAT_machine_state machine = NULL;
+
+void CAT_machine_transition(CAT_machine_state state)
 {
-	if(*machine != NULL)
-		(*machine)(CAT_MACHINE_SIGNAL_EXIT);
-	*machine = state;
-	if(*machine != NULL)
-		(*machine)(CAT_MACHINE_SIGNAL_ENTER);
+	if(state == NULL)
+		return;
+	if(machine != NULL)
+		(machine)(CAT_MACHINE_SIGNAL_EXIT);
+	machine = state;
+	if(machine != NULL)
+		(machine)(CAT_MACHINE_SIGNAL_ENTER);
 }
 
-void CAT_machine_tick(CAT_machine_state* machine)
+void CAT_machine_tick()
 {
-	if(*machine != NULL)
-		(*machine)(CAT_MACHINE_SIGNAL_TICK);
+	if(machine != NULL)
+		(machine)(CAT_MACHINE_SIGNAL_TICK);
 }
 
 
@@ -205,8 +209,3 @@ int CAT_AM_tick(CAT_AM_state** spp)
 
 	return sp->exit_anim_id != -1 ? sp->exit_anim_id : sp->tick_anim_id;
 }
-
-//////////////////////////////////////////////////////////////////////////
-// MACHINE AND STATE DECLARATIONS
-
-CAT_machine_state machine;

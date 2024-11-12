@@ -31,10 +31,15 @@ void CAT_action_state_clear()
 
 void CAT_action_tick()
 {
+	if(action_state.timer_id == -1)
+	{
+		action_state.timer_id = CAT_timer_init(2.0f);
+	}
+	
 	if(action_state.item_id == -1)
 	{
 		bag_anchor = action_state.action_MS;
-		CAT_machine_transition(&machine, CAT_MS_bag);
+		CAT_machine_transition(CAT_MS_bag);
 	}
 	else if(!action_state.confirmed)
 	{
@@ -52,7 +57,9 @@ void CAT_action_tick()
 	else
 	{
 		if(CAT_AM_is_in(&pet_asm, &AS_adjust_in))
+		{
 			CAT_AM_transition(&pet_asm, &AS_walk_action);
+		}
 		if(CAT_AM_is_in(&pet_asm, &AS_walk_action) && CAT_AM_is_ticking(&pet_asm))
 		{
 			if(CAT_pet_seek(action_state.location))
@@ -69,7 +76,10 @@ void CAT_action_tick()
 				pet.vigour = clamp(pet.vigour + item->data.tool_data.dv, 0, 12);
 				pet.focus = clamp(pet.focus + item->data.tool_data.df, 0, 12);
 				pet.spirit = clamp(pet.spirit + item->data.tool_data.ds, 0, 12);
-				CAT_bag_remove(action_state.item_id);
+				if(item->data.tool_data.consumable)
+				{	
+					CAT_bag_remove(action_state.item_id);
+				}	
 				action_state.complete = true;
 				CAT_AM_kill(&pet_asm);
 				CAT_AM_transition(&pet_asm, action_state.stat_up_AS);
@@ -77,13 +87,19 @@ void CAT_action_tick()
 			}
 		}
 		if(CAT_AM_is_in(&pet_asm, action_state.stat_up_AS))
+		{
 			CAT_AM_transition(&pet_asm, &AS_adjust_out);
+		}	
 		if(CAT_AM_is_in(&pet_asm, &AS_adjust_out))
-			CAT_machine_transition(&machine, CAT_MS_room);
+		{
+			CAT_machine_transition(CAT_MS_room);
+		}
 	}
 
 	if(CAT_input_pressed(CAT_BUTTON_B))
-		CAT_machine_transition(&machine, CAT_MS_room);
+	{
+		CAT_machine_transition(CAT_MS_room);
+	}	
 }
 
 void CAT_MS_feed(CAT_machine_signal signal)

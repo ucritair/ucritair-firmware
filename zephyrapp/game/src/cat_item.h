@@ -39,6 +39,7 @@ typedef struct CAT_item
 			int dv;
 			int df;
 			int ds;
+			bool consumable;
 		} tool_data;
 
 		struct
@@ -65,7 +66,7 @@ void CAT_item_table_init();
 int CAT_item_init(CAT_item_type type, const char* name, int sprite_id, int price);
 CAT_item* CAT_item_get(int item_id);
 
-void CAT_tool_init(int item_id, int cursor_sprite_id, int dv, int df, int ds);
+void CAT_tool_init(int item_id, int cursor_sprite_id, int dv, int df, int ds, bool consumable);
 void CAT_prop_init(int item_id, int width, int height, bool animate);
 void CAT_gear_init(int item_id);
 void CAT_gear_toggle(int item_id, bool equipped);

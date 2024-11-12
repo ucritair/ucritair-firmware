@@ -178,7 +178,7 @@ void CAT_MS_arcade(CAT_machine_signal signal)
 			if(mode == SELECT)
 			{
 				if(CAT_input_pressed(CAT_BUTTON_B) || CAT_input_pressed(CAT_BUTTON_START))
-					CAT_machine_transition(&machine, CAT_MS_room);
+					CAT_machine_transition(CAT_MS_room);
 				if(CAT_input_pressed(CAT_BUTTON_A))
 				{
 					snake_init();
@@ -190,14 +190,14 @@ void CAT_MS_arcade(CAT_machine_signal signal)
 				if(CAT_input_pressed(CAT_BUTTON_B))
 					mode = SELECT;
 				if(CAT_input_pressed(CAT_BUTTON_START))
-					CAT_machine_transition(&machine, CAT_MS_room);
+					CAT_machine_transition(CAT_MS_room);
 
 				snake_tick();
 			}
 			else if(mode == LOSE)
 			{
 				if(CAT_input_pressed(CAT_BUTTON_START))
-					CAT_machine_transition(&machine, CAT_MS_room);
+					CAT_machine_transition(CAT_MS_room);
 				else if(CAT_input_any())
 					mode = SELECT;
 			}

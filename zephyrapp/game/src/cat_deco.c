@@ -94,7 +94,7 @@ void CAT_MS_deco(CAT_machine_signal signal)
 						if(CAT_input_pressed(CAT_BUTTON_A))
 						{
 							bag_anchor = CAT_MS_deco;
-							CAT_machine_transition(&machine, CAT_MS_bag);
+							CAT_machine_transition(CAT_MS_bag);
 						}
 					}
 					break;
@@ -129,7 +129,7 @@ void CAT_MS_deco(CAT_machine_signal signal)
 			}
 		
 			if(CAT_input_pressed(CAT_BUTTON_B))
-				CAT_machine_transition(&machine, CAT_MS_room);
+				CAT_machine_transition(CAT_MS_room);
 			break;
 		}
 		case CAT_MACHINE_SIGNAL_EXIT:

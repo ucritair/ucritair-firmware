@@ -38,14 +38,15 @@ typedef enum CAT_machine_signal
 
 typedef void (*CAT_machine_state)(CAT_machine_signal);
 
-void CAT_machine_transition(CAT_machine_state* machine, CAT_machine_state state);
-void CAT_machine_tick(CAT_machine_state* machine);
+extern CAT_machine_state machine;
+
+void CAT_machine_transition(CAT_machine_state state);
+void CAT_machine_tick();
 
 
 //////////////////////////////////////////////////////////////////////////
 // MACHINE AND STATE DECLARATIONS
 
-extern CAT_machine_state machine;
 extern void CAT_MS_room(CAT_machine_signal);
 extern void CAT_MS_feed(CAT_machine_signal);
 extern void CAT_MS_study(CAT_machine_signal);

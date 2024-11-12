@@ -154,15 +154,15 @@ void CAT_room_ambient_tick()
 	{
 		if(CAT_input_touch(8+16+48*i, 280+16, 8))
 		{
-			CAT_machine_transition(&machine, room.buttons[i]);
+			CAT_machine_transition(room.buttons[i]);
 			room.selector = i;
 		}
 	}
 
 	if(CAT_input_touch_rect(176, 16, 56, 96))
-		CAT_machine_transition(&machine, CAT_MS_vending);
+		CAT_machine_transition(CAT_MS_vending);
 	if(CAT_input_touch_rect(128, 48, 32, 64))
-		CAT_machine_transition(&machine, CAT_MS_arcade);
+		CAT_machine_transition(CAT_MS_arcade);
 
 	if(!CAT_AM_is_in(&react_asm, &AS_react) && CAT_input_drag(pet.pos.x, pet.pos.y-16, 16))
 	{
@@ -205,7 +205,7 @@ void CAT_MS_room(CAT_machine_signal signal)
 		case CAT_MACHINE_SIGNAL_TICK:
 		{
 			if(CAT_input_pressed(CAT_BUTTON_START))
-				CAT_machine_transition(&machine, CAT_MS_menu);
+				CAT_machine_transition(CAT_MS_menu);
 
 			if(CAT_input_pulse(CAT_BUTTON_RIGHT))
 			{
@@ -220,7 +220,7 @@ void CAT_MS_room(CAT_machine_signal signal)
 					room.selector = 4;
 			}
 			if(CAT_input_pressed(CAT_BUTTON_A))
-				CAT_machine_transition(&machine, room.buttons[room.selector]);	
+				CAT_machine_transition(room.buttons[room.selector]);	
 
 
 			if(CAT_timer_tick(pet.stat_timer_id))
