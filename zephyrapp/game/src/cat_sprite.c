@@ -679,6 +679,7 @@ int icon_co2_sprite;
 int icon_pm_sprite;
 int icon_voc_sprite;
 int icon_nox_sprite;
+int icon_aq_ccode_sprite;
 
 int icon_mask_sprite;
 int icon_pure_sprite;
@@ -939,6 +940,7 @@ void CAT_sprite_mass_define()
 	INIT_SPRITE(icon_pm_sprite, "sprites/icon_pm.png", 3);
 	INIT_SPRITE(icon_voc_sprite, "sprites/icon_voc.png", 3);
 	INIT_SPRITE(icon_nox_sprite, "sprites/icon_nox.png", 3);
+	INIT_SPRITE(icon_aq_ccode_sprite, "sprites/icon_aq_ccode.png", 3);
 
 	INIT_SPRITE(icon_mask_sprite, "sprites/aq-protection-mask.png", 1);
 	INIT_SPRITE(icon_pure_sprite, "sprites/aq-protection-purifier.png", 1);

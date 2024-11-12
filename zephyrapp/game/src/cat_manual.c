@@ -185,7 +185,7 @@ void CAT_draw_actions()
 void CAT_draw_deco()
 {
 	CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});
-	CAT_gui_text("< DECORATION >");
+	CAT_gui_text("< DECORATION > ");
 	CAT_gui_image(icon_b_sprite, 1);
 	CAT_gui_image(icon_exit_sprite, 0);
 	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
@@ -197,24 +197,73 @@ void CAT_draw_deco()
 	CAT_gui_image(crystal_purple_lg_sprite, 0);
 	CAT_gui_image(succulent_sprite, 0);
 	CAT_gui_line_break();
-
 	CAT_gui_text
 	(
-		"restores your pet's spirit.\n"
-		"Select a toy from your bag\n"
-		"and place it in the room for\n"
-		"your pet to play with."
+		"Furniture can be selected\n"
+		"from your bag and placed in\n"
+		"the room.\n"
+		"Most furniture exists for\n"
+		"decoration alone, but some\n"
+		"pieces have special effects\n"
+		"on your pet or the room"
 	);
-	
+
+	CAT_gui_line_break();
+	CAT_gui_line_break();
+
+	CAT_gui_image(cursor_add_sprite, 0);
+	CAT_gui_image(cursor_flip_sprite, 0);
+	CAT_gui_image(cursor_remove_sprite, 0);
+	CAT_gui_line_break();
+	CAT_gui_text
+	(
+		"There are three modes of\n"
+		"decoration: ADD, FLIP, and\n"
+		"REMOVE. Some furnishings\n"
+		"have special forms that can\n"
+		"be flipped through."
+	);
 }
 
 void CAT_draw_air()
 {
 	CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});
-	CAT_gui_text("< AIR QUALITY >");
+	CAT_gui_text("< AIR QUALITY > ");
 	CAT_gui_image(icon_b_sprite, 1);
 	CAT_gui_image(icon_exit_sprite, 0);
 	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
+
+	CAT_gui_text
+	(
+		"Real-life air quality\n"
+		"affects the rate at which\n"
+		"your pet's stats degrade.\n"
+		"Air quality factors are given\n"
+		"a score of:\n"
+	);
+	CAT_gui_text("GOOD");
+	CAT_gui_image(icon_aq_ccode_sprite, 0);
+	CAT_gui_text(", NORMAL");
+	CAT_gui_image(icon_aq_ccode_sprite, 1);
+	CAT_gui_text(", and BAD");
+	CAT_gui_image(icon_aq_ccode_sprite, 2);
+	CAT_gui_line_break();
+	CAT_gui_text("for each of\n");
+	CAT_gui_image(icon_co2_sprite, 1);
+	CAT_gui_text("CO2, ");
+	CAT_gui_image(icon_nox_sprite, 1);
+	CAT_gui_text("NOx, ");
+	CAT_gui_image(icon_voc_sprite, 1);
+	CAT_gui_text("VOCs, ");
+	CAT_gui_image(icon_pm_sprite, 1);
+	CAT_gui_text("PM2.5\n");
+
+	CAT_gui_image(icon_mask_sprite, 0);
+	CAT_gui_image(icon_pure_sprite, 0);
+	CAT_gui_image(icon_uv_sprite, 0);
+	CAT_gui_text("INTERVENTIONS");
+	CAT_gui_line_break();
+
 }
 
 void CAT_draw_shopping()
