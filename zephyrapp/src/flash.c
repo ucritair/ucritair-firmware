@@ -128,7 +128,7 @@ void flash_write_cell_by_nr(int nr, struct flash_log_cell* out)
 
 int flash_get_next_log_cell_nr()
 {
-	if (!did_post_flash) return;
+	if (!did_post_flash) return LOG_CELL_NR_FULL;
 	struct flash_log_cell cell;
 
 	LOG_DBG("flash_get_next_log_cell_nr: MAX_LOG_CELL_COUNT=%d", MAX_LOG_CELL_COUNT);
@@ -168,7 +168,7 @@ int flash_get_next_log_cell_nr()
 
 int flash_get_first_cell_before_time(int check, uint64_t t, struct flash_log_cell* cell)
 {
-	if (!did_post_flash) return;
+	if (!did_post_flash) return 0;
 	if (check == -1) check = next_log_cell_nr-1;
 
 	while (check >= 0)
