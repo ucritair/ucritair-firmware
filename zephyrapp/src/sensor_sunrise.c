@@ -144,13 +144,9 @@ enum scr_t {
 
 static inline void msleep_for_sure(int32_t ms) {
     while (ms > 0) {
-        ms -= k_msleep(ms);
+        ms = k_msleep(ms);
     }
 }
-        // uint8_t buf[1+sizeof(value)];\
-        // buf[0] = REGADDR;\
-        // memcpy(&buf[1], value, sizeof(value));\
-        // int result = i2c_write(dev_i2c, buf, 1+sizeof(value), ADDR);\
 
 #define REG_RO(REGADDR,NAME,CTYPE,XFRM) \
     static inline int Read_##NAME(CTYPE* out) { \
@@ -448,11 +444,9 @@ int force_abc_sunrise()
 
     check_sunrise_error();
 
-    // the below just blows up. something is horribly wrong with the way
-    // it's compiling the bitfield writes
-    return 0;
-
     struct meter_control_t settings = {0};
+    // Not sure if read is necessary, sunrise i2c manual always reads before writing it
+    CHK(Read_MeterControl(&settings));
     settings.abc_disabled = 1;
     settings.pressure_compensation_dis = 1;
     settings.nrdy_invert_disabled = 1;
