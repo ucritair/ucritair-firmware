@@ -144,13 +144,9 @@ enum scr_t {
 
 static inline void msleep_for_sure(int32_t ms) {
     while (ms > 0) {
-        ms -= k_msleep(ms);
+        ms = k_msleep(ms);
     }
 }
-        // uint8_t buf[1+sizeof(value)];\
-        // buf[0] = REGADDR;\
-        // memcpy(&buf[1], value, sizeof(value));\
-        // int result = i2c_write(dev_i2c, buf, 1+sizeof(value), ADDR);\
 
 #define REG_RO(REGADDR,NAME,CTYPE,XFRM) \
     static inline int Read_##NAME(CTYPE* out) { \
@@ -429,6 +425,8 @@ int check_sunrise_error()
     {
         LOG_ERR("Error: %04x", *(uint16_t*)&e);
     }
+
+    return 0;
 }
 
 int force_abc_sunrise()
@@ -446,13 +444,11 @@ int force_abc_sunrise()
 
     check_sunrise_error();
 
-    // the below just blows up. something is horribly wrong with the way
-    // it's compiling the bitfield writes
-    return 0;
-
     struct meter_control_t settings = {0};
+    // Not sure if read is necessary, sunrise i2c manual always reads before writing it
+    CHK(Read_MeterControl(&settings));
     settings.abc_disabled = 1;
-    settings.pressure_compensation_dis = 1;
+    settings.pressure_compensation_dis = 0;
     settings.nrdy_invert_disabled = 1;
     CHK(Write_MeterControl(settings));
     k_msleep(50);
@@ -494,6 +490,18 @@ int force_abc_sunrise()
     LOG_WRN("After cal, status=%02x, error_status=%04x", *(uint8_t*)&status, *(uint16_t*)&error_status);
 
     return 0;
+}
+
+int update_pressure_sunrise(float pressure_hPa)
+{
+    int16_t pressure_0p1_hPa = pressure_hPa * 10;
+    int result = Write_BarometricAirPressure(pressure_0p1_hPa);
+    if (result == 0) {
+        LOG_INF("sunrise pressure updated to %.1f hPa", pressure_hPa);
+    } else {
+        LOG_WRN("sunrise pressure update failed: %d", result);
+    }
+    return result;
 }
 
 //eof

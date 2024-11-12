@@ -438,6 +438,7 @@ void CAT_clearberry(uint16_t c)
 	}
 }
 
+
 // Cats would probably never eat this one
 void CAT_greyberry(int xi, int w, int yi, int h)
 {
@@ -475,8 +476,7 @@ void CAT_greyberry(int xi, int w, int yi, int h)
 #else
 			uint16_t px = FRAMEBUFFER[idx];
 
-			px |= 0b011;
-			px &= (0b00010000<<8) | 0b10001111;
+			px &= (0b00010000<<8) | 0b10000100;
 
 			FRAMEBUFFER[idx] = px;
 #endif
@@ -484,19 +484,26 @@ void CAT_greyberry(int xi, int w, int yi, int h)
 	}
 }
 
-void CAT_starberry()
-{
+// void CAT_starberry()
+// {
+// #ifdef CAT_EMBEDDED
+// 	c = (c >> 8) | ((c & 0xff) << 8);
+// #endif
+// 	for(int y = 0; y < LCD_SCREEN_H; y++)
+// 	{
+// 		for(int x = 0; x < LCD_SCREEN_W; x++)
+// 		{
+// 			FRAMEBUFFER[y * LCD_SCREEN_W + x] = x ^ y;
+// 		}
+// 	}
+// }
+
+
+/////////////////////awhhhhhhehhhhh
+
 #ifdef CAT_EMBEDDED
-	c = (c >> 8) | ((c & 0xff) << 8);
+#include "menu_graph_rendering.c"
 #endif
-	for(int y = 0; y < LCD_SCREEN_H; y++)
-	{
-		for(int x = 0; x < LCD_SCREEN_W; x++)
-		{
-			FRAMEBUFFER[y * LCD_SCREEN_W + x] = x ^ y;
-		}
-	}
-}
 
 
 //////////////////////////////////////////////////////////////////////////

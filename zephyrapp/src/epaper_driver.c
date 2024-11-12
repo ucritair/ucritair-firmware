@@ -183,6 +183,7 @@ void wait_for_ready(char* tag)
 		if (cycles++ > 30)
 		{
 			// give up
+			LOG_WRN("Gave up waiting");
 			return;
 		}
 	}
@@ -217,7 +218,7 @@ bool psr_data_ok = false;
 // Read out OTP data required later
 // See: PDLS_EXT3_Basic_Fast/src/Screen_EPD_EXT3.cpp:COG_SmallKP_getDataOTP
 // See: https://www.pervasivedisplays.com/wp-content/uploads/2023/02/ApplicationNote_Small_Size_wide-Temperature_EPD_v03_20231031_B.pdf sec 4
-void cmd_read_psr_data()
+int cmd_read_psr_data()
 {
 	if (psr_data_ok) return;
 
@@ -263,7 +264,8 @@ void cmd_read_psr_data()
 		{
 			while (1) {
 				LOG_ERR("Failed to find Bank0");
-				k_msleep(10000);
+				// k_msleep(10000);
+				return 1;
 			}
 		}
 	}
@@ -276,6 +278,8 @@ void cmd_read_psr_data()
 	psr_data[0] = read_byte();
 	psr_data[1] = read_byte();
 	psr_data_ok = true;
+
+	return 0;
 }
 
 void cmd_initialize()
@@ -358,7 +362,7 @@ void cmd_turn_on_and_write(uint8_t* image)
 	init_pins();
 
 	cmd_poweron();
-	cmd_read_psr_data();
+	if (cmd_read_psr_data()) return;
 	cmd_initialize();
 	cmd_write_image(image);
 	cmd_update();

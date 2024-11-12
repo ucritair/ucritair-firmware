@@ -1,3 +1,4 @@
+#include <stdint.h>
 
 #ifdef MINIMIZE_GAME_FOOTPRINT
 #define LCD_IMAGE_H 128

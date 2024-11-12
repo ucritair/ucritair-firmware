@@ -18,6 +18,8 @@ struct sen5x_state_t {
     bool fw_debug;
 
     double mc_pm1p0, mc_pm2p5, mc_pm4p0, mc_pm10p0;
+    double nc_pm0p5, nc_pm1p0, nc_pm2p5, nc_pm4p0, nc_pm10p0;
+    double typical_particle_size_um;
     double humidity, temp_c;
     double voc_index, nox_index;
     uint32_t status;
@@ -65,12 +67,32 @@ int sen5x_read()
 {
     uint32_t status;
     uint16_t mc_pm1p0, mc_pm2p5, mc_pm4p0, mc_pm10p0;
+    uint16_t nc_pm0p5, nc_pm1p0, nc_pm2p5, nc_pm4p0, nc_pm10p0, typical_particle_size;
     int16_t humidity, temp;
     int16_t voc_index, nox_index;
 
     CHK(sen5x_read_and_clear_device_status(&status));
     //TODO: parse the status!!
     LOG_INF("status=%08x", status);
+
+    CHK(sen5x_read_measured_pm_values(
+        &mc_pm1p0, &mc_pm2p5, &mc_pm4p0, &mc_pm10p0,
+        &nc_pm0p5, &nc_pm1p0, &nc_pm2p5, &nc_pm4p0, &nc_pm10p0,
+        &typical_particle_size));
+    if (mc_pm1p0  == 0xFFFF ||
+        mc_pm2p5  == 0xFFFF ||
+        mc_pm4p0  == 0xFFFF ||
+        mc_pm10p0 == 0xFFFF ||
+        nc_pm0p5  == 0xFFFF ||
+        nc_pm1p0  == 0xFFFF ||
+        nc_pm2p5  == 0xFFFF ||
+        nc_pm4p0  == 0xFFFF ||
+        nc_pm10p0 == 0xFFFF ||
+        typical_particle_size == 0xFFFF)
+    {
+        LOG_WRN("not ready yet");
+        return -EBUSY;
+    }
 
     CHK(sen5x_read_measured_values(
         &mc_pm1p0, &mc_pm2p5, &mc_pm4p0, &mc_pm10p0,
@@ -93,6 +115,12 @@ int sen5x_read()
     state.mc_pm2p5 = mc_pm2p5 / 10.0;
     state.mc_pm4p0 = mc_pm4p0 / 10.0;
     state.mc_pm10p0 = mc_pm10p0 / 10.0;
+    state.nc_pm0p5 = nc_pm0p5 / 10.0;
+    state.nc_pm1p0 = nc_pm1p0 / 10.0;
+    state.nc_pm2p5 = nc_pm2p5 / 10.0;
+    state.nc_pm4p0 = nc_pm4p0 / 10.0;
+    state.nc_pm10p0 = nc_pm10p0 / 10.0;
+    state.typical_particle_size_um = typical_particle_size / 1000.0;
     state.humidity = humidity / 100.0;
     state.temp_c = temp / 200.0;
     state.temp_c -= 2.5; // per MP 10/11/24 21:38:43
@@ -101,6 +129,9 @@ int sen5x_read()
 
     LOG_INF("PM(ug/m3): 1.0=%.1f  2.5=%.1f  4.0=%.1f  10.0=%.1f",
         state.mc_pm1p0, state.mc_pm2p5, state.mc_pm4p0, state.mc_pm10p0);
+    LOG_INF("PM(#/m3): 0.5=%.1f  1.0=%.1f  2.5=%.1f  4.0=%.1f  10.0=%.1f",
+        state.nc_pm0p5, state.nc_pm1p0, state.nc_pm2p5, state.nc_pm4p0, state.nc_pm10p0);
+    LOG_INF("typical_particle_size=%.3f um", state.typical_particle_size_um);
     LOG_INF("humidity=%.2f %%RH", state.humidity);
     LOG_INF("temp=%.3f C", state.temp_c);
     LOG_INF("voc_index=%.1f", state.voc_index);
@@ -110,6 +141,12 @@ int sen5x_read()
     current_readings.sen5x.pm2_5 = state.mc_pm2p5;
     current_readings.sen5x.pm4_0 = state.mc_pm4p0;
     current_readings.sen5x.pm10_0 = state.mc_pm10p0;
+    current_readings.sen5x.nc0_5 = state.nc_pm0p5;
+    current_readings.sen5x.nc1_0 = state.nc_pm1p0;
+    current_readings.sen5x.nc2_5 = state.nc_pm2p5;
+    current_readings.sen5x.nc4_0 = state.nc_pm4p0;
+    current_readings.sen5x.nc10_0 = state.nc_pm10p0;
+    current_readings.sen5x.typ_particle_sz_um = state.typical_particle_size_um;
     current_readings.sen5x.humidity_rhpct = state.humidity;
     current_readings.sen5x.temp_degC = state.temp_c;
     current_readings.sen5x.voc_index = state.voc_index;

@@ -39,6 +39,7 @@ SENSOR_DECL(lps22hh);
 int sensor_init();
 void sensor_read_once();
 
+int update_pressure_sunrise(float pressure_hPa);
 int force_abc_sunrise();
 void force_fanclean_sen55();
 

@@ -83,6 +83,11 @@ int lps22hh_read()
     current_readings.lps22hh.temp = temp;
     current_readings.lps22hh.pressure = pressure;
     current_readings.lps22hh.uptime_last_updated = k_uptime_get();
+
+    //TODO: is this the right place for this?
+    if (update_pressure_sunrise(pressure) != 0) {
+        LOG_WRN("Failed to write updated pressure to sunrise");
+    }
     
     return 0;
 }

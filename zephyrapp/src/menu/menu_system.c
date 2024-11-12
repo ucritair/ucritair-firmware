@@ -192,6 +192,7 @@ void CAT_render_system_menu()
 
 		int pct = ((adc_get_voltage()-3.6)/(4.2-3.6))*100.;
 		pct -= pct % 5;
+		if (pct>100) pct=100;
 		CAT_gui_textf("Battery: %3d%%", pct);
 	}
 	else

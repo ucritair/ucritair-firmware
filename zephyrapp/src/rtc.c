@@ -8,7 +8,10 @@ LOG_MODULE_REGISTER(rtc, LOG_LEVEL_DBG);
 
 #include "rtc.h"
 
+#include "flash.h"
+
 #include <hal/nrf_gpio.h>
+#include <soc/nrfx_coredep.h>
 
 static int board_cat_init_rtc(void)
 {
@@ -16,6 +19,7 @@ static int board_cat_init_rtc(void)
 
     nrf_rtc_prescaler_set(HW_RTC_CHOSEN, 4095); // 125ms/tick
 
+    nrfx_coredep_delay_us(1000*9);
     nrf_rtc_task_trigger(HW_RTC_CHOSEN, NRF_RTC_TASK_CLEAR);
     nrf_gpio_pin_set(NRF_GPIO_PIN_MAP(0, 2));
 	nrf_rtc_task_trigger(HW_RTC_CHOSEN, NRF_RTC_TASK_START);
@@ -56,6 +60,13 @@ time_t get_current_rtc_time()
 	return ((uint64_t)nrf_rtc_counter_get(HW_RTC_CHOSEN) + rtc_offset) / 8;
 }
 
+void set_rtc_counter_raw(uint64_t t)
+{
+	rtc_offset = t;
+	rtc_offset *= 8;
+	rtc_offset -= nrf_rtc_counter_get(HW_RTC_CHOSEN);
+}
+
 void zero_rtc_counter()
 {
 	LOG_DBG("zero_rtc_counter");
@@ -70,15 +81,12 @@ void zero_rtc_counter()
 
 void set_rtc_counter(struct tm* t)
 {
-	LOG_DBG("set_rtc_counter");
-	rtc_offset = timeutil_timegm64(t);
-	rtc_offset *= 8;
-	rtc_offset -= nrf_rtc_counter_get(HW_RTC_CHOSEN);
+	set_rtc_counter_raw(timeutil_timegm64(t));
 }
 
 void snapshot_rtc_for_reboot()
 {
-	rtc_offset = rtc_offset + (uint64_t)nrf_rtc_counter_get(HW_RTC_CHOSEN) + 1;
+	rtc_offset = rtc_offset + (uint64_t)nrf_rtc_counter_get(HW_RTC_CHOSEN) + 15;
 }
 
 void check_rtc_init()
@@ -87,7 +95,7 @@ void check_rtc_init()
 	{
 		is_first_init = true;
 		rtc_init_check = RTC_INIT_CHECK_MAGIC;
-		sensor_wakeup_rate = 10;
+		sensor_wakeup_rate = 3*60;
 		wakeup_is_from_timer = false;
 		zero_rtc_counter();
 		went_to_sleep_at = get_current_rtc_time();
@@ -112,6 +120,16 @@ void update_rtc()
 
 		LOG_DBG("rtc prevent wrap");
 	}
+}
+
+void continue_rtc_from_log()
+{
+	if (!is_first_init) return;
+	if (next_log_cell_nr == 0) return;
+
+	struct flash_log_cell cell;
+	flash_get_cell_by_nr(next_log_cell_nr-1, &cell);
+	set_rtc_counter_raw(cell.timestamp);
 }
 
 char* month_names[12] = {

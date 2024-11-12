@@ -87,6 +87,11 @@ void menu_test_eink(void* arg)
 	epaper_render_test();
 }
 
+void menu_force_sunrise_abc(void* arg)
+{
+	force_abc_sunrise();
+}
+
 char textf_buf[256];
 #define textfc(c, ...) snprintf(textf_buf, sizeof(textf_buf)-1, __VA_ARGS__); textc(textf_buf, c);
 #define textf(...) textfc(0xffff, __VA_ARGS__)
@@ -114,6 +119,7 @@ void menu_sensors()
 	textf("VOC: %.1f; NOX: %.1f", (double)current_readings.sen5x.voc_index, (double)current_readings.sen5x.nox_index);
 
 	text("");
+	selectable("Force Sunrise ABC", menu_force_sunrise_abc, NULL);
 	selectable("Back", goto_menu, menu_root);
 }
 

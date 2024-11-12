@@ -33,6 +33,7 @@ int flash_load_nrf70_fw(uint8_t* target, uint8_t** fw_start, uint8_t** fw_end);
 extern int next_log_cell_nr;
 void populate_next_log_cell();
 void flash_get_cell_by_nr(int nr, struct flash_log_cell* out);
+int flash_get_first_cell_before_time(int memo_start_before, uint64_t t, struct flash_log_cell* cell);
 void populate_log_cell(struct flash_log_cell* cell);
 void flash_erase_all_cells();
 bool is_ready_for_aqi_logging();

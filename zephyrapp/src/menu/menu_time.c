@@ -102,8 +102,8 @@ void CAT_render_time()
 	textf("%2d ", local.tm_mday);
 	textf("%4d, ", local.tm_year);
 	textf("%2d:", local.tm_hour);
-	textf("%2d:", local.tm_min);
-	textf("%2d", local.tm_sec);
+	textf("%02d:", local.tm_min);
+	textf("%02d", local.tm_sec);
 
 	CAT_gui_line_break();
 
@@ -136,8 +136,8 @@ void CAT_render_time()
 	CAT_gui_line_break();
 
 	textf("%2dh ", local_wakeup.hours);
-	textf("%2dm ", local_wakeup.mins);
-	textf("%2ds", local_wakeup.secs);
+	textf("%02dm ", local_wakeup.mins);
+	textf("%02ds", local_wakeup.secs);
 
 	CAT_gui_line_break();
 
