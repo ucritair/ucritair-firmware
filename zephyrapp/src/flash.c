@@ -165,15 +165,15 @@ void populate_log_cell(struct flash_log_cell* cell)
 	cell->flags = 0xff;
 
 	int now = k_uptime_get();
-	int ago[3] = {
-		current_readings.lps22hh.uptime_last_updated,
+	int ago[2] = {
+		// current_readings.lps22hh.uptime_last_updated,
 		current_readings.sunrise.uptime_last_updated,
 		current_readings.sen5x.uptime_last_updated
 	};
 
 	int longest_ago = 0;
 
-	for (int i = 0; i < 3; i++)
+	for (int i = 0; i < 2; i++)
 	{
 		int past = now - ago[i];
 

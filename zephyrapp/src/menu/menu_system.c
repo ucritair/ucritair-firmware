@@ -98,7 +98,7 @@ void menu_t_reset()
 {
 	cat_game_running = 0;
 	flash_nuke_tomas_save();
-	power_off(1, false);
+	power_off(0, false);
 }
 
 struct entry
@@ -189,7 +189,10 @@ void CAT_render_system_menu()
 		CAT_gui_line_break();
 		CAT_gui_text("");
 		CAT_gui_line_break();
-		CAT_gui_textf("Battery: %3.0f", ((adc_get_voltage()-3.6)/(4.2-3.6))*100.);
+
+		int pct = ((adc_get_voltage()-3.6)/(4.2-3.6))*100.;
+		pct -= pct % 5;
+		CAT_gui_textf("Battery: %3d%%", pct);
 	}
 	else
 	{

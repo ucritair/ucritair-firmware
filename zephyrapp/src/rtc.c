@@ -41,6 +41,10 @@ PERSIST_RAM uint8_t wakeup_is_from_timer;
 
 PERSIST_RAM uint64_t went_to_sleep_at;
 
+PERSIST_RAM uint8_t guy_happiness;
+
+PERSIST_RAM bool guy_is_wearing_mask;
+
 #define RTC_INIT_CHECK_MAGIC 0xb887
 
 bool is_first_init = false;
@@ -87,6 +91,8 @@ void check_rtc_init()
 		wakeup_is_from_timer = false;
 		zero_rtc_counter();
 		went_to_sleep_at = get_current_rtc_time();
+		guy_happiness = 1;
+		guy_is_wearing_mask = false;
 	}
 }
 
