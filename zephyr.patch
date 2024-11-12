@@ -1,306 +1,306 @@
-[1mdiff --git a/drivers/led_strip/ws2812_gpio.c b/drivers/led_strip/ws2812_gpio.c[m
-[1mindex 5b3d472a21d..33f8e24b381 100644[m
-[1m--- a/drivers/led_strip/ws2812_gpio.c[m
-[1m+++ b/drivers/led_strip/ws2812_gpio.c[m
-[36m@@ -76,7 +76,7 @@[m [mstruct ws2812_gpio_cfg {[m
- static int send_buf(const struct device *dev, uint8_t *buf, size_t len)[m
- {[m
- 	const struct ws2812_gpio_cfg *config = dev->config;[m
-[31m-	volatile uint32_t *base = (uint32_t *)&NRF_GPIO->OUTSET;[m
-[32m+[m	[32mvolatile uint32_t *base = (uint32_t *)&NRF_P1_S->OUTSET;[m
- 	const uint32_t val = BIT(config->gpio.pin);[m
- 	struct onoff_manager *mgr =[m
- 		z_nrf_clock_control_get_onoff(CLOCK_CONTROL_NRF_SUBSYS_HF);[m
-[36m@@ -96,6 +96,11 @@[m [mstatic int send_buf(const struct device *dev, uint8_t *buf, size_t len)[m
- [m
- 	key = irq_lock();[m
- [m
-[32m+[m	[32m// Disable CACHE.ENABLE to ensure clean timing including for first pulse[m
-[32m+[m	[32mvolatile uint32_t* icachecnf = (uint32_t*)(0x50001000 + 0x500);[m
-[32m+[m	[32muint32_t old = *icachecnf;[m
-[32m+[m	[32m*icachecnf = 0;[m
-[32m+[m
- 	while (len--) {[m
- 		uint32_t b = *buf++;[m
- 		int32_t i;[m
-[36m@@ -120,6 +125,8 @@[m [mstatic int send_buf(const struct device *dev, uint8_t *buf, size_t len)[m
- 		}[m
- 	}[m
- [m
-[32m+[m	[32m*icachecnf = old;[m
-[32m+[m
- 	irq_unlock(key);[m
- [m
- 	rc = onoff_release(mgr);[m
-[1mdiff --git a/drivers/mipi_dbi/mipi_dbi_spi.c b/drivers/mipi_dbi/mipi_dbi_spi.c[m
-[1mindex abbb02977fa..ed67784eb58 100644[m
-[1m--- a/drivers/mipi_dbi/mipi_dbi_spi.c[m
-[1m+++ b/drivers/mipi_dbi/mipi_dbi_spi.c[m
-[36m@@ -46,6 +46,19 @@[m [muint32_t var = MIPI_DBI_SPI_READ_REQUIRED;[m
-  */[m
- #define MIPI_DBI_DC_BIT BIT(8)[m
- [m
-[32m+[m[32mvoid mipi_dbi_write_done_callback(const struct device *dev, int result, void *data);[m
-[32m+[m
-[32m+[m[32mstruct spi_buf spi_wrbuffer;[m
-[32m+[m[32mstruct spi_buf_set spi_wrbuf_set = {[m
-[32m+[m	[32m.buffers = &spi_wrbuffer,[m
-[32m+[m	[32m.count = 1,[m
-[32m+[m[32m};[m
-[32m+[m
-[32m+[m[32mextern uint32_t hack_cyc_before_data_write, hack_cyc_after_data_write;[m
-[32m+[m
-[32m+[m[32mextern uint16_t lcd_framebuffer[];[m
-[32m+[m[32mextern volatile bool write_done;[m
-[32m+[m
- static int mipi_dbi_spi_write_helper(const struct device *dev,[m
- 				     const struct mipi_dbi_config *dbi_config,[m
- 				     bool cmd_present, uint8_t cmd,[m
-[36m@@ -53,11 +66,6 @@[m [mstatic int mipi_dbi_spi_write_helper(const struct device *dev,[m
- {[m
- 	const struct mipi_dbi_spi_config *config = dev->config;[m
- 	struct mipi_dbi_spi_data *data = dev->data;[m
-[31m-	struct spi_buf buffer;[m
-[31m-	struct spi_buf_set buf_set = {[m
-[31m-		.buffers = &buffer,[m
-[31m-		.count = 1,[m
-[31m-	};[m
- 	int ret = 0;[m
- [m
- 	ret = k_mutex_lock(&data->lock, K_FOREVER);[m
-[36m@@ -74,14 +82,14 @@[m [mstatic int mipi_dbi_spi_write_helper(const struct device *dev,[m
- 		    != SPI_WORD_SET(9)) {[m
- 			return -ENOTSUP;[m
- 		}[m
-[31m-		buffer.buf = &data->spi_byte;[m
-[31m-		buffer.len = 2;[m
-[32m+[m		[32mspi_wrbuffer.buf = &data->spi_byte;[m
-[32m+[m		[32mspi_wrbuffer.len = 2;[m
- [m
- 		/* Send command */[m
- 		if (cmd_present) {[m
- 			data->spi_byte = cmd;[m
- 			ret = spi_write(config->spi_dev, &dbi_config->config,[m
-[31m-					&buf_set);[m
-[32m+[m					[32m&spi_wrbuf_set);[m
- 			if (ret < 0) {[m
- 				goto out;[m
- 			}[m
-[36m@@ -90,7 +98,7 @@[m [mstatic int mipi_dbi_spi_write_helper(const struct device *dev,[m
- 		for (size_t i = 0; i < len; i++) {[m
- 			data->spi_byte = MIPI_DBI_DC_BIT | data_buf[i];[m
- 			ret = spi_write(config->spi_dev, &dbi_config->config,[m
-[31m-					&buf_set);[m
-[32m+[m					[32m&spi_wrbuf_set);[m
- 			if (ret < 0) {[m
- 				goto out;[m
- 			}[m
-[36m@@ -100,27 +108,53 @@[m [mstatic int mipi_dbi_spi_write_helper(const struct device *dev,[m
- 		 * command/data GPIO to indicate if we are sending[m
- 		 * a command or data[m
- 		 */[m
-[31m-		buffer.buf = &cmd;[m
-[31m-		buffer.len = sizeof(cmd);[m
-[32m+[m		[32mspi_wrbuffer.buf = &cmd;[m
-[32m+[m		[32mspi_wrbuffer.len = sizeof(cmd);[m
- [m
- 		if (cmd_present) {[m
- 			/* Set CD pin low for command */[m
- 			gpio_pin_set_dt(&config->cmd_data, 0);[m
- 			ret = spi_write(config->spi_dev, &dbi_config->config,[m
-[31m-					&buf_set);[m
-[32m+[m					[32m&spi_wrbuf_set);[m
- 			if (ret < 0) {[m
- 				goto out;[m
- 			}[m
- 		}[m
- [m
- 		if (len > 0) {[m
-[31m-			buffer.buf = (void *)data_buf;[m
-[31m-			buffer.len = len;[m
-[32m+[m			[32mspi_wrbuffer.buf = (void *)data_buf;[m
-[32m+[m			[32mspi_wrbuffer.len = len;[m
- [m
- 			/* Set CD pin high for data */[m
- 			gpio_pin_set_dt(&config->cmd_data, 1);[m
-[31m-			ret = spi_write(config->spi_dev, &dbi_config->config,[m
-[31m-					&buf_set);[m
-[32m+[m			[32m// hack_cyc_before_data_write = k_cycle_get_32();[m
-[32m+[m
-[32m+[m			[32mif (((uint16_t*)data_buf == lcd_framebuffer) && true)[m
-[32m+[m			[32m{[m
-[32m+[m				[32m// LOG_ERR("Started async &wrbuf=%p, &wrbuf.buffers[0]=%p, wrbuf.buffers[0].buf=%p",[m
-[32m+[m				[32m// 	&spi_wrbuf_set, &spi_wrbuf_set.buffers[0], spi_wrbuf_set.buffers[0].buf);[m
-[32m+[m[41m				[m
-[32m+[m[32m#ifdef CONFIG_SPI_ASYNC[m
-[32m+[m				[32mwrite_done = false;[m
-[32m+[m				[32mret = spi_transceive_cb(config->spi_dev, &dbi_config->config,[m
-[32m+[m						[32m&spi_wrbuf_set, NULL, mipi_dbi_write_done_callback, NULL);[m
-[32m+[m				[32mreturn 0; // short-circuit unlocking, unlocks in callback[m
-[32m+[m[32m#else[m
-[32m+[m				[32mret = spi_write(config->spi_dev, &dbi_config->config, &spi_wrbuf_set);[m
-[32m+[m[32m#endif[m
-[32m+[m[41m				[m
-[32m+[m			[32m}[m
-[32m+[m			[32melse[m
-[32m+[m			[32m{[m
-[32m+[m				[32m// LOG_ERR("Execute sync &wrbuf=%p, &wrbuf.buffers[0]=%p, wrbuf.buffers[0].buf=%p",[m
-[32m+[m				[32m// 	&spi_wrbuf_set, &spi_wrbuf_set.buffers[0], spi_wrbuf_set.buffers[0].buf);[m
-[32m+[m				[32mret = spi_write(config->spi_dev, &dbi_config->config,[m
-[32m+[m					[32m&spi_wrbuf_set);[m
-[32m+[m			[32m}[m
-[32m+[m
-[32m+[m[41m			[m
-[32m+[m
-[32m+[m			[32m// hack_cyc_after_data_write = k_cycle_get_32();[m
- 			if (ret < 0) {[m
- 				goto out;[m
- 			}[m
-[1mdiff --git a/drivers/wifi/nrfwifi/src/fw_load.c b/drivers/wifi/nrfwifi/src/fw_load.c[m
-[1mindex 6bf4c85193f..5f2adbd23cd 100644[m
-[1m--- a/drivers/wifi/nrfwifi/src/fw_load.c[m
-[1m+++ b/drivers/wifi/nrfwifi/src/fw_load.c[m
-[36m@@ -14,10 +14,12 @@[m
- #include <zephyr/device.h>[m
- [m
- #include <zephyr/logging/log.h>[m
-[31m-LOG_MODULE_DECLARE(wifi_nrf, CONFIG_WIFI_NRF70_LOG_LEVEL);[m
-[32m+[m[32mLOG_MODULE_DECLARE(wifi_nrf, LOG_LEVEL_INF);[m
- [m
- #include <fmac_main.h>[m
- [m
-[32m+[m[32m#if 0[m
-[32m+[m
- /* INCBIN macro Taken from https://gist.github.com/mmozeiko/ed9655cf50341553d282 */[m
- #define STR2(x) #x[m
- #define STR(x) STR2(x)[m
-[36m@@ -56,20 +58,48 @@[m [mLOG_MODULE_DECLARE(wifi_nrf, CONFIG_WIFI_NRF70_LOG_LEVEL);[m
- [m
- INCBIN(_bin, nrf70_fw, STR(CONFIG_NRF_WIFI_FW_BIN));[m
- [m
-[32m+[m[32m#endif[m
-[32m+[m
-[32m+[m[32mint flash_get_nrf70_fw_size(int* size);[m
-[32m+[m[32mint flash_load_nrf70_fw(uint8_t* target, uint8_t** fw_start, uint8_t** fw_end);[m
-[32m+[m
- enum nrf_wifi_status nrf_wifi_fw_load(void *rpu_ctx)[m
- {[m
-[32m+[m	[32mint alloc_size;[m
-[32m+[m	[32mif (flash_get_nrf70_fw_size(&alloc_size))[m
-[32m+[m	[32m{[m
-[32m+[m		[32mLOG_ERR("%s: flash_get_nrf70_fw_size failed", __func__);[m
-[32m+[m		[32mreturn 1;[m
-[32m+[m	[32m}[m
-[32m+[m
-[32m+[m	[32mvoid* p = k_malloc(alloc_size);[m
-[32m+[m[41m	[m
-[32m+[m	[32mif (p == NULL)[m
-[32m+[m	[32m{[m
-[32m+[m		[32mLOG_ERR("%s: alloc %d bytes for fw failed", __func__, alloc_size);[m
-[32m+[m		[32mreturn 1;[m
-[32m+[m	[32m}[m
-[32m+[m
- 	enum nrf_wifi_status status = NRF_WIFI_STATUS_FAIL;[m
- 	struct nrf_wifi_fmac_fw_info fw_info = { 0 };[m
- 	uint8_t *fw_start;[m
- 	uint8_t *fw_end;[m
- [m
-[31m-	fw_start = (uint8_t *)_bin_nrf70_fw_start;[m
-[31m-	fw_end = (uint8_t *)_bin_nrf70_fw_end;[m
-[32m+[m	[32m// fw_start = (uint8_t *)_bin_nrf70_fw_start;[m
-[32m+[m	[32m// fw_end = (uint8_t *)_bin_nrf70_fw_end;[m
-[32m+[m
-[32m+[m	[32mif (flash_load_nrf70_fw(p, &fw_start, &fw_end))[m
-[32m+[m	[32m{[m
-[32m+[m		[32mLOG_ERR("%s: flash_load_nrf70_fw failed", __func__);[m
-[32m+[m		[32mk_free(p);[m
-[32m+[m		[32mreturn 1;[m
-[32m+[m	[32m}[m
- [m
- 	status = nrf_wifi_fmac_fw_parse(rpu_ctx, fw_start, fw_end - fw_start,[m
- 					&fw_info);[m
- 	if (status != NRF_WIFI_STATUS_SUCCESS) {[m
- 		LOG_ERR("%s: nrf_wifi_fmac_fw_parse failed", __func__);[m
-[32m+[m		[32mk_free(p);[m
- 		return status;[m
- 	}[m
- 	/* Load the FW patches to the RPU */[m
-[36m@@ -79,5 +109,7 @@[m [menum nrf_wifi_status nrf_wifi_fw_load(void *rpu_ctx)[m
- 		LOG_ERR("%s: nrf_wifi_fmac_fw_load failed", __func__);[m
- 	}[m
- [m
-[32m+[m	[32mk_free(p);[m
-[32m+[m
- 	return status;[m
- }[m
-[1mdiff --git a/drivers/wifi/nrfwifi/src/qspi/src/rpu_hw_if.c b/drivers/wifi/nrfwifi/src/qspi/src/rpu_hw_if.c[m
-[1mindex c5f909b4c3a..160be297c55 100644[m
-[1m--- a/drivers/wifi/nrfwifi/src/qspi/src/rpu_hw_if.c[m
-[1m+++ b/drivers/wifi/nrfwifi/src/qspi/src/rpu_hw_if.c[m
-[36m@@ -183,13 +183,13 @@[m [mstatic int rpu_gpio_config(void)[m
- 		return -ENODEV;[m
- 	}[m
- [m
-[31m-	ret = gpio_pin_configure_dt(&bucken_spec, (GPIO_OUTPUT | NRF_GPIO_DRIVE_H0H1));[m
-[32m+[m	[32mret = gpio_pin_configure_dt(&bucken_spec, (GPIO_OUTPUT | NRF_GPIO_DRIVE_H0H1 | GPIO_OUTPUT_INACTIVE));[m
- 	if (ret) {[m
- 		LOG_ERR("BUCKEN GPIO configuration failed...");[m
- 		return ret;[m
- 	}[m
- [m
-[31m-	ret = gpio_pin_configure_dt(&iovdd_ctrl_spec, GPIO_OUTPUT);[m
-[32m+[m	[32mret = gpio_pin_configure_dt(&iovdd_ctrl_spec, GPIO_OUTPUT | GPIO_OUTPUT_INACTIVE);[m
- 	if (ret) {[m
- 		LOG_ERR("IOVDD GPIO configuration failed...");[m
- 		gpio_pin_configure_dt(&bucken_spec, GPIO_DISCONNECTED);[m
-[36m@@ -231,7 +231,7 @@[m [mstatic int rpu_pwron(void)[m
- 		return ret;[m
- 	}[m
- 	/* Settling time is 50us (H0) or 100us (L0) */[m
-[31m-	k_msleep(1);[m
-[32m+[m	[32mk_msleep(5);[m
- [m
- 	ret = gpio_pin_set_dt(&iovdd_ctrl_spec, 1);[m
- 	if (ret) {[m
-[36m@@ -240,7 +240,7 @@[m [mstatic int rpu_pwron(void)[m
- 		return ret;[m
- 	}[m
- 	/* Settling time for iovdd nRF7002 DK/EK - switch (TCK106AG): ~600us */[m
-[31m-	k_msleep(1);[m
-[32m+[m	[32mk_msleep(5);[m
- [m
- 	if ((bucken_spec.port == iovdd_ctrl_spec.port) &&[m
- 	    (bucken_spec.pin == iovdd_ctrl_spec.pin)) {[m
-[1mdiff --git a/soc/nordic/nrf53/soc.c b/soc/nordic/nrf53/soc.c[m
-[1mindex cbdb8e04fe0..6da9bd82dbe 100644[m
-[1m--- a/soc/nordic/nrf53/soc.c[m
-[1m+++ b/soc/nordic/nrf53/soc.c[m
-[36m@@ -573,6 +573,8 @@[m [mstatic int nordicsemi_nrf53_init(void)[m
- [m
- #endif[m
- [m
-[32m+[m	[32mnrfx_coredep_delay_us(1000*15);[m
-[32m+[m
- 	return 0;[m
- }[m
- [m
-[1mdiff --git a/subsys/usb/device/class/dfu/usb_dfu.c b/subsys/usb/device/class/dfu/usb_dfu.c[m
-[1mindex 0847e9b2454..e0ef4547f9c 100644[m
-[1m--- a/subsys/usb/device/class/dfu/usb_dfu.c[m
-[1m+++ b/subsys/usb/device/class/dfu/usb_dfu.c[m
-[36m@@ -945,10 +945,15 @@[m [mstatic bool is_dfu_started(void)[m
-  *[m
-  * @return  N/A[m
-  */[m
-[32m+[m
-[32m+[m[32mvoid indicate_waiting();[m
-[32m+[m
- void wait_for_usb_dfu(k_timeout_t delay)[m
- {[m
- 	k_timepoint_t end = sys_timepoint_calc(delay);[m
- [m
-[32m+[m	[32mindicate_waiting();[m
-[32m+[m
- 	/* Wait for a prescribed duration of time. If DFU hasn't started within[m
- 	 * that time, stop waiting and proceed further.[m
- 	 */[m
+diff --git a/drivers/led_strip/ws2812_gpio.c b/drivers/led_strip/ws2812_gpio.c
+index 5b3d472a21d..33f8e24b381 100644
+--- a/drivers/led_strip/ws2812_gpio.c
++++ b/drivers/led_strip/ws2812_gpio.c
+@@ -76,7 +76,7 @@ struct ws2812_gpio_cfg {
+ static int send_buf(const struct device *dev, uint8_t *buf, size_t len)
+ {
+ 	const struct ws2812_gpio_cfg *config = dev->config;
+-	volatile uint32_t *base = (uint32_t *)&NRF_GPIO->OUTSET;
++	volatile uint32_t *base = (uint32_t *)&NRF_P1_S->OUTSET;
+ 	const uint32_t val = BIT(config->gpio.pin);
+ 	struct onoff_manager *mgr =
+ 		z_nrf_clock_control_get_onoff(CLOCK_CONTROL_NRF_SUBSYS_HF);
+@@ -96,6 +96,11 @@ static int send_buf(const struct device *dev, uint8_t *buf, size_t len)
+ 
+ 	key = irq_lock();
+ 
++	// Disable CACHE.ENABLE to ensure clean timing including for first pulse
++	volatile uint32_t* icachecnf = (uint32_t*)(0x50001000 + 0x500);
++	uint32_t old = *icachecnf;
++	*icachecnf = 0;
++
+ 	while (len--) {
+ 		uint32_t b = *buf++;
+ 		int32_t i;
+@@ -120,6 +125,8 @@ static int send_buf(const struct device *dev, uint8_t *buf, size_t len)
+ 		}
+ 	}
+ 
++	*icachecnf = old;
++
+ 	irq_unlock(key);
+ 
+ 	rc = onoff_release(mgr);
+diff --git a/drivers/mipi_dbi/mipi_dbi_spi.c b/drivers/mipi_dbi/mipi_dbi_spi.c
+index abbb02977fa..ed67784eb58 100644
+--- a/drivers/mipi_dbi/mipi_dbi_spi.c
++++ b/drivers/mipi_dbi/mipi_dbi_spi.c
+@@ -46,6 +46,19 @@ uint32_t var = MIPI_DBI_SPI_READ_REQUIRED;
+  */
+ #define MIPI_DBI_DC_BIT BIT(8)
+ 
++void mipi_dbi_write_done_callback(const struct device *dev, int result, void *data);
++
++struct spi_buf spi_wrbuffer;
++struct spi_buf_set spi_wrbuf_set = {
++	.buffers = &spi_wrbuffer,
++	.count = 1,
++};
++
++extern uint32_t hack_cyc_before_data_write, hack_cyc_after_data_write;
++
++extern uint16_t lcd_framebuffer[];
++extern volatile bool write_done;
++
+ static int mipi_dbi_spi_write_helper(const struct device *dev,
+ 				     const struct mipi_dbi_config *dbi_config,
+ 				     bool cmd_present, uint8_t cmd,
+@@ -53,11 +66,6 @@ static int mipi_dbi_spi_write_helper(const struct device *dev,
+ {
+ 	const struct mipi_dbi_spi_config *config = dev->config;
+ 	struct mipi_dbi_spi_data *data = dev->data;
+-	struct spi_buf buffer;
+-	struct spi_buf_set buf_set = {
+-		.buffers = &buffer,
+-		.count = 1,
+-	};
+ 	int ret = 0;
+ 
+ 	ret = k_mutex_lock(&data->lock, K_FOREVER);
+@@ -74,14 +82,14 @@ static int mipi_dbi_spi_write_helper(const struct device *dev,
+ 		    != SPI_WORD_SET(9)) {
+ 			return -ENOTSUP;
+ 		}
+-		buffer.buf = &data->spi_byte;
+-		buffer.len = 2;
++		spi_wrbuffer.buf = &data->spi_byte;
++		spi_wrbuffer.len = 2;
+ 
+ 		/* Send command */
+ 		if (cmd_present) {
+ 			data->spi_byte = cmd;
+ 			ret = spi_write(config->spi_dev, &dbi_config->config,
+-					&buf_set);
++					&spi_wrbuf_set);
+ 			if (ret < 0) {
+ 				goto out;
+ 			}
+@@ -90,7 +98,7 @@ static int mipi_dbi_spi_write_helper(const struct device *dev,
+ 		for (size_t i = 0; i < len; i++) {
+ 			data->spi_byte = MIPI_DBI_DC_BIT | data_buf[i];
+ 			ret = spi_write(config->spi_dev, &dbi_config->config,
+-					&buf_set);
++					&spi_wrbuf_set);
+ 			if (ret < 0) {
+ 				goto out;
+ 			}
+@@ -100,27 +108,53 @@ static int mipi_dbi_spi_write_helper(const struct device *dev,
+ 		 * command/data GPIO to indicate if we are sending
+ 		 * a command or data
+ 		 */
+-		buffer.buf = &cmd;
+-		buffer.len = sizeof(cmd);
++		spi_wrbuffer.buf = &cmd;
++		spi_wrbuffer.len = sizeof(cmd);
+ 
+ 		if (cmd_present) {
+ 			/* Set CD pin low for command */
+ 			gpio_pin_set_dt(&config->cmd_data, 0);
+ 			ret = spi_write(config->spi_dev, &dbi_config->config,
+-					&buf_set);
++					&spi_wrbuf_set);
+ 			if (ret < 0) {
+ 				goto out;
+ 			}
+ 		}
+ 
+ 		if (len > 0) {
+-			buffer.buf = (void *)data_buf;
+-			buffer.len = len;
++			spi_wrbuffer.buf = (void *)data_buf;
++			spi_wrbuffer.len = len;
+ 
+ 			/* Set CD pin high for data */
+ 			gpio_pin_set_dt(&config->cmd_data, 1);
+-			ret = spi_write(config->spi_dev, &dbi_config->config,
+-					&buf_set);
++			// hack_cyc_before_data_write = k_cycle_get_32();
++
++			if (((uint16_t*)data_buf == lcd_framebuffer) && true)
++			{
++				// LOG_ERR("Started async &wrbuf=%p, &wrbuf.buffers[0]=%p, wrbuf.buffers[0].buf=%p",
++				// 	&spi_wrbuf_set, &spi_wrbuf_set.buffers[0], spi_wrbuf_set.buffers[0].buf);
++				
++#ifdef CONFIG_SPI_ASYNC
++				write_done = false;
++				ret = spi_transceive_cb(config->spi_dev, &dbi_config->config,
++						&spi_wrbuf_set, NULL, mipi_dbi_write_done_callback, NULL);
++				return 0; // short-circuit unlocking, unlocks in callback
++#else
++				ret = spi_write(config->spi_dev, &dbi_config->config, &spi_wrbuf_set);
++#endif
++				
++			}
++			else
++			{
++				// LOG_ERR("Execute sync &wrbuf=%p, &wrbuf.buffers[0]=%p, wrbuf.buffers[0].buf=%p",
++				// 	&spi_wrbuf_set, &spi_wrbuf_set.buffers[0], spi_wrbuf_set.buffers[0].buf);
++				ret = spi_write(config->spi_dev, &dbi_config->config,
++					&spi_wrbuf_set);
++			}
++
++			
++
++			// hack_cyc_after_data_write = k_cycle_get_32();
+ 			if (ret < 0) {
+ 				goto out;
+ 			}
+diff --git a/drivers/wifi/nrfwifi/src/fw_load.c b/drivers/wifi/nrfwifi/src/fw_load.c
+index 6bf4c85193f..5f2adbd23cd 100644
+--- a/drivers/wifi/nrfwifi/src/fw_load.c
++++ b/drivers/wifi/nrfwifi/src/fw_load.c
+@@ -14,10 +14,12 @@
+ #include <zephyr/device.h>
+ 
+ #include <zephyr/logging/log.h>
+-LOG_MODULE_DECLARE(wifi_nrf, CONFIG_WIFI_NRF70_LOG_LEVEL);
++LOG_MODULE_DECLARE(wifi_nrf, LOG_LEVEL_INF);
+ 
+ #include <fmac_main.h>
+ 
++#if 0
++
+ /* INCBIN macro Taken from https://gist.github.com/mmozeiko/ed9655cf50341553d282 */
+ #define STR2(x) #x
+ #define STR(x) STR2(x)
+@@ -56,20 +58,48 @@ LOG_MODULE_DECLARE(wifi_nrf, CONFIG_WIFI_NRF70_LOG_LEVEL);
+ 
+ INCBIN(_bin, nrf70_fw, STR(CONFIG_NRF_WIFI_FW_BIN));
+ 
++#endif
++
++int flash_get_nrf70_fw_size(int* size);
++int flash_load_nrf70_fw(uint8_t* target, uint8_t** fw_start, uint8_t** fw_end);
++
+ enum nrf_wifi_status nrf_wifi_fw_load(void *rpu_ctx)
+ {
++	int alloc_size;
++	if (flash_get_nrf70_fw_size(&alloc_size))
++	{
++		LOG_ERR("%s: flash_get_nrf70_fw_size failed", __func__);
++		return 1;
++	}
++
++	void* p = k_malloc(alloc_size);
++	
++	if (p == NULL)
++	{
++		LOG_ERR("%s: alloc %d bytes for fw failed", __func__, alloc_size);
++		return 1;
++	}
++
+ 	enum nrf_wifi_status status = NRF_WIFI_STATUS_FAIL;
+ 	struct nrf_wifi_fmac_fw_info fw_info = { 0 };
+ 	uint8_t *fw_start;
+ 	uint8_t *fw_end;
+ 
+-	fw_start = (uint8_t *)_bin_nrf70_fw_start;
+-	fw_end = (uint8_t *)_bin_nrf70_fw_end;
++	// fw_start = (uint8_t *)_bin_nrf70_fw_start;
++	// fw_end = (uint8_t *)_bin_nrf70_fw_end;
++
++	if (flash_load_nrf70_fw(p, &fw_start, &fw_end))
++	{
++		LOG_ERR("%s: flash_load_nrf70_fw failed", __func__);
++		k_free(p);
++		return 1;
++	}
+ 
+ 	status = nrf_wifi_fmac_fw_parse(rpu_ctx, fw_start, fw_end - fw_start,
+ 					&fw_info);
+ 	if (status != NRF_WIFI_STATUS_SUCCESS) {
+ 		LOG_ERR("%s: nrf_wifi_fmac_fw_parse failed", __func__);
++		k_free(p);
+ 		return status;
+ 	}
+ 	/* Load the FW patches to the RPU */
+@@ -79,5 +109,7 @@ enum nrf_wifi_status nrf_wifi_fw_load(void *rpu_ctx)
+ 		LOG_ERR("%s: nrf_wifi_fmac_fw_load failed", __func__);
+ 	}
+ 
++	k_free(p);
++
+ 	return status;
+ }
+diff --git a/drivers/wifi/nrfwifi/src/qspi/src/rpu_hw_if.c b/drivers/wifi/nrfwifi/src/qspi/src/rpu_hw_if.c
+index c5f909b4c3a..160be297c55 100644
+--- a/drivers/wifi/nrfwifi/src/qspi/src/rpu_hw_if.c
++++ b/drivers/wifi/nrfwifi/src/qspi/src/rpu_hw_if.c
+@@ -183,13 +183,13 @@ static int rpu_gpio_config(void)
+ 		return -ENODEV;
+ 	}
+ 
+-	ret = gpio_pin_configure_dt(&bucken_spec, (GPIO_OUTPUT | NRF_GPIO_DRIVE_H0H1));
++	ret = gpio_pin_configure_dt(&bucken_spec, (GPIO_OUTPUT | NRF_GPIO_DRIVE_H0H1 | GPIO_OUTPUT_INACTIVE));
+ 	if (ret) {
+ 		LOG_ERR("BUCKEN GPIO configuration failed...");
+ 		return ret;
+ 	}
+ 
+-	ret = gpio_pin_configure_dt(&iovdd_ctrl_spec, GPIO_OUTPUT);
++	ret = gpio_pin_configure_dt(&iovdd_ctrl_spec, GPIO_OUTPUT | GPIO_OUTPUT_INACTIVE);
+ 	if (ret) {
+ 		LOG_ERR("IOVDD GPIO configuration failed...");
+ 		gpio_pin_configure_dt(&bucken_spec, GPIO_DISCONNECTED);
+@@ -231,7 +231,7 @@ static int rpu_pwron(void)
+ 		return ret;
+ 	}
+ 	/* Settling time is 50us (H0) or 100us (L0) */
+-	k_msleep(1);
++	k_msleep(5);
+ 
+ 	ret = gpio_pin_set_dt(&iovdd_ctrl_spec, 1);
+ 	if (ret) {
+@@ -240,7 +240,7 @@ static int rpu_pwron(void)
+ 		return ret;
+ 	}
+ 	/* Settling time for iovdd nRF7002 DK/EK - switch (TCK106AG): ~600us */
+-	k_msleep(1);
++	k_msleep(5);
+ 
+ 	if ((bucken_spec.port == iovdd_ctrl_spec.port) &&
+ 	    (bucken_spec.pin == iovdd_ctrl_spec.pin)) {
+diff --git a/soc/nordic/nrf53/soc.c b/soc/nordic/nrf53/soc.c
+index cbdb8e04fe0..6da9bd82dbe 100644
+--- a/soc/nordic/nrf53/soc.c
++++ b/soc/nordic/nrf53/soc.c
+@@ -573,6 +573,8 @@ static int nordicsemi_nrf53_init(void)
+ 
+ #endif
+ 
++	nrfx_coredep_delay_us(1000*15);
++
+ 	return 0;
+ }
+ 
+diff --git a/subsys/usb/device/class/dfu/usb_dfu.c b/subsys/usb/device/class/dfu/usb_dfu.c
+index 0847e9b2454..e0ef4547f9c 100644
+--- a/subsys/usb/device/class/dfu/usb_dfu.c
++++ b/subsys/usb/device/class/dfu/usb_dfu.c
+@@ -945,10 +945,15 @@ static bool is_dfu_started(void)
+  *
+  * @return  N/A
+  */
++
++void indicate_waiting();
++
+ void wait_for_usb_dfu(k_timeout_t delay)
+ {
+ 	k_timepoint_t end = sys_timepoint_calc(delay);
+ 
++	indicate_waiting();
++
+ 	/* Wait for a prescribed duration of time. If DFU hasn't started within
+ 	 * that time, stop waiting and proceed further.
+ 	 */
