@@ -86,6 +86,9 @@ enum sel_state {
 
 void calc_ach();
 
+int step_times[] = {3*60, 2*60, 1*60, 30, 15, 10, 5, 10*60, 5*60,};
+int step_time_index = 0;
+
 void CAT_MS_graph(CAT_machine_signal signal)
 {
 	switch(signal)
@@ -93,7 +96,8 @@ void CAT_MS_graph(CAT_machine_signal signal)
 		case CAT_MACHINE_SIGNAL_ENTER:
 		{
 			graph_end_time = get_current_rtc_time();
-			graph_step_time = 30;
+			graph_step_time = 3*60;
+			step_time_index = 0;
 			cursor_state = SEL_START;
 			cursor_end = GRAPH_W-1;
 			update_graph();
@@ -121,6 +125,17 @@ void CAT_MS_graph(CAT_machine_signal signal)
 					cursor_state = SEL_START;
 					cursor_end = GRAPH_W-1;
 				}
+			}
+
+			if (CAT_input_pressed(CAT_BUTTON_SELECT) && cursor_state == SEL_START)
+			{
+				step_time_index++;
+				if (step_time_index==((sizeof(step_times)/sizeof(step_times[0]))))
+				{
+					step_time_index=0;
+				}
+				graph_step_time=step_times[step_time_index];
+				update_graph();
 			}
 
 			if (cursor_state!=SEL_DONE)
@@ -285,5 +300,14 @@ void CAT_render_graph()
 		CAT_gui_line_break();
 		CAT_gui_image(icon_a_sprite, 1);
 		CAT_gui_text("to start over");
+	}
+
+	if (cursor_state == SEL_START)
+	{
+		CAT_gui_line_break();
+		CAT_gui_image(icon_select_sprite, 1);
+		CAT_gui_text("to change scale");
+		CAT_gui_line_break();
+		CAT_gui_textf("(Currently %.1fh wide)", (double)(GRAPH_W*graph_step_time)/3600.);
 	}
 }

@@ -143,7 +143,7 @@ void CAT_render_aqi()
 	if (view_cell.co2_ppmx1)
 	{
 		textfnl("CO2: %dppm", (int)view_cell.co2_ppmx1);
-		textfnl("    (%3.0f%% rebreathed)", ((((double)view_cell.co2_ppmx1)-420.)/38000.)*100.);
+		textfnl("    (%.0f%% rebreathed air)", ((((double)view_cell.co2_ppmx1)-420.)/38000.)*100.);
 	}
 	else
 	{

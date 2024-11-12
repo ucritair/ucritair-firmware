@@ -95,7 +95,7 @@ void check_rtc_init()
 	{
 		is_first_init = true;
 		rtc_init_check = RTC_INIT_CHECK_MAGIC;
-		sensor_wakeup_rate = 10;
+		sensor_wakeup_rate = 3*60;
 		wakeup_is_from_timer = false;
 		zero_rtc_counter();
 		went_to_sleep_at = get_current_rtc_time();

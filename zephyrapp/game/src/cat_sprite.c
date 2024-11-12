@@ -438,6 +438,7 @@ void CAT_clearberry(uint16_t c)
 	}
 }
 
+
 // Cats would probably never eat this one
 void CAT_greyberry(int xi, int w, int yi, int h)
 {

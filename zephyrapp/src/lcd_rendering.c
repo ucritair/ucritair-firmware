@@ -151,12 +151,12 @@ void lcd_render_diag()
 
 		int time_since_buttons = now - last_button_pressed;
 
-		if (time_since_buttons > 30000)
+		if (time_since_buttons > 45*1000)
 		{
 			set_backlight(BACKLIGHT_DIM);
 		}
 
-		if (time_since_buttons > 60000)
+		if (time_since_buttons > 120*1000)
 		{
 			// TODO: Save game
 			epaper_render_test();
