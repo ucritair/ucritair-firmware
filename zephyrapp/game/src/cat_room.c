@@ -152,7 +152,7 @@ void CAT_room_ambient_tick()
 {
 	for(int i = 0; i < 5; i++)
 	{
-		if(CAT_input_touch(8+16+48*i, 280+16, 8))
+		if(CAT_input_touch(8+16+48*i, 280+16, 16))
 		{
 			CAT_machine_transition(room.buttons[i]);
 			room.selector = i;
