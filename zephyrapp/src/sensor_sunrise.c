@@ -448,7 +448,7 @@ int force_abc_sunrise()
     // Not sure if read is necessary, sunrise i2c manual always reads before writing it
     CHK(Read_MeterControl(&settings));
     settings.abc_disabled = 1;
-    settings.pressure_compensation_dis = 1;
+    settings.pressure_compensation_dis = 0;
     settings.nrdy_invert_disabled = 1;
     CHK(Write_MeterControl(settings));
     k_msleep(50);
@@ -490,6 +490,18 @@ int force_abc_sunrise()
     LOG_WRN("After cal, status=%02x, error_status=%04x", *(uint8_t*)&status, *(uint16_t*)&error_status);
 
     return 0;
+}
+
+int update_pressure_sunrise(float pressure_hPa)
+{
+    int16_t pressure_0p1_hPa = pressure_hPa * 10;
+    int result = Write_BarometricAirPressure(pressure_0p1_hPa);
+    if (result == 0) {
+        LOG_INF("sunrise pressure updated to %.1f hPa", pressure_hPa);
+    } else {
+        LOG_WRN("sunrise pressure update failed: %d", result);
+    }
+    return result;
 }
 
 //eof
