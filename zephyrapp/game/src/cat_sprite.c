@@ -452,6 +452,13 @@ void CAT_clear_rect(int xi, int yi, int w, int h, uint16_t c)
 }
 
 
+/////////////////////awhhhhhhehhhhh
+
+#ifdef CAT_EMBEDDED
+#include "menu_graph_rendering.c"
+#endif
+
+
 //////////////////////////////////////////////////////////////////////////
 // DRAW QUEUE
 

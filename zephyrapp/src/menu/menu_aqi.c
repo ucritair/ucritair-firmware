@@ -11,6 +11,8 @@
 #include "airquality.h"
 #include "flash.h"
 
+#include "menu_graph.h"
+
 
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(menu_aqi, LOG_LEVEL_DBG);
@@ -33,6 +35,9 @@ void CAT_MS_aqi(CAT_machine_signal signal)
 		{
 			if(CAT_input_pressed(CAT_BUTTON_B))
 				CAT_machine_transition(CAT_MS_menu);
+
+			if(CAT_input_pressed(CAT_BUTTON_A))
+				CAT_machine_transition(CAT_MS_graph);
 
 			if (CAT_input_pulse(CAT_BUTTON_LEFT))
 			{

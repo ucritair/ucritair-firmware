@@ -94,6 +94,8 @@ int main(void)
 
 	test_flash();
 
+	continue_rtc_from_log();
+
 	if (wakeup_is_from_timer)
 	{
 		LOG_DBG("Booted from timer");

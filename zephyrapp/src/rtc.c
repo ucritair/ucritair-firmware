@@ -8,6 +8,8 @@ LOG_MODULE_REGISTER(rtc, LOG_LEVEL_DBG);
 
 #include "rtc.h"
 
+#include "flash.h"
+
 #include <hal/nrf_gpio.h>
 
 static int board_cat_init_rtc(void)
@@ -56,6 +58,13 @@ time_t get_current_rtc_time()
 	return ((uint64_t)nrf_rtc_counter_get(HW_RTC_CHOSEN) + rtc_offset) / 8;
 }
 
+void set_rtc_counter_raw(uint64_t t)
+{
+	rtc_offset = t;
+	rtc_offset *= 8;
+	rtc_offset -= nrf_rtc_counter_get(HW_RTC_CHOSEN);
+}
+
 void zero_rtc_counter()
 {
 	LOG_DBG("zero_rtc_counter");
@@ -70,10 +79,7 @@ void zero_rtc_counter()
 
 void set_rtc_counter(struct tm* t)
 {
-	LOG_DBG("set_rtc_counter");
-	rtc_offset = timeutil_timegm64(t);
-	rtc_offset *= 8;
-	rtc_offset -= nrf_rtc_counter_get(HW_RTC_CHOSEN);
+	set_rtc_counter_raw(timeutil_timegm64(t));
 }
 
 void snapshot_rtc_for_reboot()
@@ -112,6 +118,16 @@ void update_rtc()
 
 		LOG_DBG("rtc prevent wrap");
 	}
+}
+
+void continue_rtc_from_log()
+{
+	if (!is_first_init) return;
+	if (next_log_cell_nr == 0) return;
+
+	struct flash_log_cell cell;
+	flash_get_cell_by_nr(next_log_cell_nr-1, &cell);
+	set_rtc_counter_raw(cell.timestamp);
 }
 
 char* month_names[12] = {

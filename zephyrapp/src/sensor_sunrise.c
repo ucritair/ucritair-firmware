@@ -429,6 +429,8 @@ int check_sunrise_error()
     {
         LOG_ERR("Error: %04x", *(uint16_t*)&e);
     }
+
+    return 0;
 }
 
 int force_abc_sunrise()

@@ -31,6 +31,7 @@
 #include "menu_time.h"
 #include "menu_aqi.h"
 #include "menu_system.h"
+#include "menu_graph.h"
 #endif
 
 #ifdef __GNUC__
@@ -223,6 +224,8 @@ void CAT_tick_render(int cycle)
 		CAT_render_aqi();
 	else if(machine == CAT_MS_system_menu)
 		CAT_render_system_menu();
+	else if(machine == CAT_MS_graph)
+		CAT_render_graph();
 #endif
 }
 

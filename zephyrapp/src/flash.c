@@ -84,6 +84,7 @@ int flash_load_nrf70_fw(uint8_t* target, uint8_t** fw_start, uint8_t** fw_end)
 
 void flash_save_tomas_save(uint8_t* buf, size_t size)
 {
+	if (!did_post_flash) return;
 	size += 0x1000 - (size % 0x1000);
 
 	if (size > ROOM_FOR_TOMAS)
@@ -98,11 +99,13 @@ void flash_save_tomas_save(uint8_t* buf, size_t size)
 
 void flash_load_tomas_save(uint8_t* buf, size_t size)
 {
+	if (!did_post_flash) return;
 	flash_read(flash_dev, TOMAS_OFFSET, buf, size);
 }
 
 void flash_nuke_tomas_save()
 {
+	if (!did_post_flash) return;
 	flash_erase(flash_dev, TOMAS_OFFSET, 0x1000);
 }
 
@@ -111,18 +114,21 @@ void flash_nuke_tomas_save()
 
 void flash_get_cell_by_nr(int nr, struct flash_log_cell* out)
 {
+	if (!did_post_flash) return;
 	LOG_DBG("%s(%d) (@%x)", __func__, nr, OFFSET_OF_CELL(nr));
 	flash_read(flash_dev, OFFSET_OF_CELL(nr), out, sizeof(struct flash_log_cell));
 }
 
 void flash_write_cell_by_nr(int nr, struct flash_log_cell* out)
 {
+	if (!did_post_flash) return;
 	LOG_DBG("%s(%d) (@%x)", __func__, nr, OFFSET_OF_CELL(nr));
 	flash_write(flash_dev, OFFSET_OF_CELL(nr), out, sizeof(struct flash_log_cell));
 }
 
 int flash_get_next_log_cell_nr()
 {
+	if (!did_post_flash) return;
 	struct flash_log_cell cell;
 
 	LOG_DBG("flash_get_next_log_cell_nr: MAX_LOG_CELL_COUNT=%d", MAX_LOG_CELL_COUNT);
@@ -160,8 +166,29 @@ int flash_get_next_log_cell_nr()
 	return LOG_CELL_NR_FULL;
 }
 
+int flash_get_first_cell_before_time(int check, uint64_t t, struct flash_log_cell* cell)
+{
+	if (!did_post_flash) return;
+	if (check == -1) check = next_log_cell_nr-1;
+
+	while (check >= 0)
+	{
+		flash_get_cell_by_nr(check, cell);
+
+		if (cell->timestamp < t)
+		{
+			return check;
+		}
+
+		check--;
+	}
+
+	return 0;
+}
+
 void populate_log_cell(struct flash_log_cell* cell)
 {
+	if (!did_post_flash) return;
 	cell->flags = 0xff;
 
 	int now = k_uptime_get();
@@ -211,6 +238,7 @@ void populate_log_cell(struct flash_log_cell* cell)
 
 void populate_next_log_cell()
 {
+	if (!did_post_flash) return;
 	if (next_log_cell_nr == LOG_CELL_NR_UNKOWN)
 	{
 		next_log_cell_nr = flash_get_next_log_cell_nr();
@@ -230,6 +258,7 @@ void populate_next_log_cell()
 
 void flash_erase_all_cells()
 {
+	if (!did_post_flash) return;
 	int next = flash_get_next_log_cell_nr();
 	int end = OFFSET_OF_CELL(next);
 	end += 0x1000 - (end % 0x1000);
