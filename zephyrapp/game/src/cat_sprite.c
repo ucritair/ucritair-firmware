@@ -653,6 +653,7 @@ int icon_start_sprite;
 int icon_select_sprite;
 int icon_enter_sprite;
 int icon_exit_sprite;
+int icon_plot_sprite;
 int icon_equip_sprite;
 
 int icon_item_sprite;
@@ -854,7 +855,7 @@ CAT_AM_state AS_walk;
 CAT_AM_state AS_crit;
 
 CAT_AM_state AS_adjust_in;
-CAT_AM_state AS_walk_action;
+CAT_AM_state AS_approach;
 CAT_AM_state AS_adjust_out;
 
 CAT_AM_state AS_eat;
@@ -911,6 +912,7 @@ void CAT_sprite_mass_define()
 	INIT_SPRITE(icon_select_sprite, "sprites/Select Button_Both.png", 2);
 	INIT_SPRITE(icon_enter_sprite, "sprites/icon_enter.png", 1);
 	INIT_SPRITE(icon_exit_sprite, "sprites/icon_exit.png", 1);
+	INIT_SPRITE(icon_plot_sprite, "sprites/icon_plot.png", 1);
 	INIT_SPRITE(icon_equip_sprite, "sprites/icon_equip.png", 2);
 
 	INIT_SPRITE(icon_item_sprite, "sprites/icon_item.png", 6);
@@ -1109,7 +1111,7 @@ void CAT_sprite_mass_define()
 	CAT_AM_init(&AS_crit, pet_crit_vig_in_sprite, pet_crit_vig_sprite, pet_crit_vig_out_sprite);
 
 	CAT_AM_init(&AS_adjust_in, -1, -1, pet_idle_sprite);
-	CAT_AM_init(&AS_walk_action, -1, pet_walk_sprite, -1);
+	CAT_AM_init(&AS_approach, -1, pet_walk_sprite, -1);
 	CAT_AM_init(&AS_adjust_out, -1, -1, pet_idle_sprite);
 
 	CAT_AM_init(&AS_eat, pet_eat_in_sprite, pet_eat_sprite, pet_eat_out_sprite);

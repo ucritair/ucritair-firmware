@@ -163,17 +163,16 @@ void CAT_tick_logic()
 	CAT_AQI_tick();
 	CAT_input_tick();
 
-	if
-	(
-		machine == CAT_MS_room ||
-		machine == CAT_MS_feed ||
-		machine == CAT_MS_study ||
-		machine == CAT_MS_play ||
-		machine == CAT_MS_deco
-	)
-	{
-		CAT_room_ambient_tick();
-	}
+	bool in_world =
+	machine == CAT_MS_room ||
+	machine == CAT_MS_feed ||
+	machine == CAT_MS_study ||
+	machine == CAT_MS_play ||
+	machine == CAT_MS_deco;
+
+	CAT_room_background_tick(in_world);
+	CAT_pet_background_tick(in_world);
+
 	CAT_machine_tick();
 }
 

@@ -23,22 +23,6 @@ CAT_room room =
 
 CAT_vec2 poi = (CAT_vec2){120, 200};
 
-void CAT_room_init()
-{
-	for(int i = 0; i < CAT_MAX_COIN_COUNT; i++)
-	{
-		room.coin_move_timers[i] = CAT_timer_init(0.75f);
-	}
-	room.earn_timer_id = CAT_timer_init(5.0f);
-
-	room.buttons[0] = CAT_MS_feed;
-	room.buttons[1] = CAT_MS_study;
-	room.buttons[2] = CAT_MS_play;
-	room.buttons[3] = CAT_MS_deco;
-	room.buttons[4] = CAT_MS_menu;
-	room.selector = 0;
-}
-
 int CAT_room_find(int item_id)
 {
 	for(int i = 0; i < room.prop_count; i++)
@@ -173,8 +157,33 @@ void CAT_room_move_cursor()
 	room.cursor.y = min(max(room.cursor.y, room.bounds.min.y), room.bounds.max.y-1);
 }
 
-void CAT_room_ambient_tick()
+void CAT_room_init()
 {
+	for(int i = 0; i < CAT_MAX_COIN_COUNT; i++)
+	{
+		room.coin_move_timers[i] = CAT_timer_init(0.75f);
+	}
+	room.earn_timer_id = CAT_timer_init(5.0f);
+
+	room.buttons[0] = CAT_MS_feed;
+	room.buttons[1] = CAT_MS_study;
+	room.buttons[2] = CAT_MS_play;
+	room.buttons[3] = CAT_MS_deco;
+	room.buttons[4] = CAT_MS_menu;
+	room.selector = 0;
+}
+
+void CAT_room_background_tick(bool capture_input)
+{
+	if(CAT_timer_tick(room.earn_timer_id))
+	{
+		CAT_room_earn(1);
+		CAT_timer_reset(room.earn_timer_id);
+	}
+
+	if(!capture_input)
+		return;
+
 	for(int i = 0; i < 5; i++)
 	{
 		if(CAT_input_touch(8+16+48*i, 280+16, 16))
@@ -189,19 +198,6 @@ void CAT_room_ambient_tick()
 	if(CAT_input_touch_rect(128, 48, 32, 64))
 		CAT_machine_transition(CAT_MS_arcade);
 
-	if(!CAT_AM_is_in(&react_asm, &AS_react) && CAT_input_drag(pet.pos.x, pet.pos.y-16, 16))
-	{
-		CAT_AM_transition(&react_asm, &AS_react);
-	}
-	if(CAT_AM_is_in(&react_asm, &AS_react))
-	{
-		if(CAT_timer_tick(pet.react_timer_id))
-		{
-			CAT_AM_transition(&react_asm, NULL);
-			CAT_timer_reset(pet.react_timer_id);
-		}
-	}
-
 	for(int i = 0; i < room.coin_count; i++)
 	{
 		if(CAT_timer_tick(room.coin_move_timers[i]))
@@ -213,7 +209,7 @@ void CAT_room_ambient_tick()
 				CAT_room_remove_coin(i);
 				i -= 1;
 			}
-		}	
+		}
 	}
 }
 
@@ -223,7 +219,6 @@ void CAT_MS_room(CAT_machine_signal signal)
 	{
 		case CAT_MACHINE_SIGNAL_ENTER:
 		{
-			CAT_pet_reanimate();
 			CAT_pet_settle();
 			break;
 		}
@@ -246,13 +241,6 @@ void CAT_MS_room(CAT_machine_signal signal)
 			}
 			if(CAT_input_pressed(CAT_BUTTON_A))
 				CAT_machine_transition(room.buttons[room.selector]);	
-
-
-			if(CAT_timer_tick(pet.stat_timer_id))
-			{
-				CAT_pet_stat(1);
-				CAT_timer_reset(pet.stat_timer_id);
-			}
 			
 			if(!CAT_pet_is_critical())
 			{
@@ -284,11 +272,6 @@ void CAT_MS_room(CAT_machine_signal signal)
 					CAT_AM_transition(&pet_asm, &AS_crit);
 			}		
 
-			if(CAT_timer_tick(room.earn_timer_id))
-			{
-				CAT_room_earn(1);
-				CAT_timer_reset(room.earn_timer_id);
-			}
 			break;
 		}
 		case CAT_MACHINE_SIGNAL_EXIT:

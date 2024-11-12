@@ -33,7 +33,6 @@ typedef struct CAT_room
 } CAT_room;
 extern CAT_room room;
 
-void CAT_room_init();
 int CAT_room_find(int item_id);
 bool CAT_room_fits(CAT_rect rect);
 void CAT_room_add_prop(int item_id, CAT_ivec2 place);
@@ -43,5 +42,7 @@ void CAT_room_add_coin(CAT_vec2 origin, CAT_vec2 place);
 void CAT_room_remove_coin(int idx);
 void CAT_room_earn(int ticks);
 void CAT_room_move_cursor();
-void CAT_room_ambient_tick();
+void CAT_room_init();
+
+void CAT_room_background_tick(bool capture_input);
 void CAT_render_room(int cycle);

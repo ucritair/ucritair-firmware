@@ -28,7 +28,7 @@ void CAT_MS_manual(CAT_machine_signal signal)
 
 void CAT_render_manual()
 {
-	CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});  
+	CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});
 	CAT_gui_text("CONTROLS ");
 	CAT_gui_image(icon_b_sprite, 1);
 	CAT_gui_image(icon_exit_sprite, 0);

@@ -58,9 +58,9 @@ void CAT_action_tick()
 	{
 		if(CAT_AM_is_in(&pet_asm, &AS_adjust_in))
 		{
-			CAT_AM_transition(&pet_asm, &AS_walk_action);
+			CAT_AM_transition(&pet_asm, &AS_approach);
 		}
-		if(CAT_AM_is_in(&pet_asm, &AS_walk_action) && CAT_AM_is_ticking(&pet_asm))
+		if(CAT_AM_is_in(&pet_asm, &AS_approach) && CAT_AM_is_ticking(&pet_asm))
 		{
 			if(CAT_pet_seek(action_state.location))
 			{
