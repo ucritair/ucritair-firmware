@@ -225,12 +225,8 @@ void CAT_render_bag()
 				break;
 			}
 		}
-		if(!fits_relation)
-		{
-			gui.text_mode = CAT_TEXT_MODE_STRIKETHROUGH;
-		}
+		
 		CAT_gui_textf(" %s *%d", item->name, bag.counts[idx]);
-		gui.text_mode = CAT_TEXT_MODE_NORMAL;
 
 		if(item->type == CAT_ITEM_TYPE_GEAR && bag_anchor == NULL)
 		{
@@ -241,5 +237,10 @@ void CAT_render_bag()
 
 		if(idx == bag_selector)
 			CAT_gui_image(icon_pointer_sprite, 0);
+
+		if(!fits_relation)
+		{
+			CAT_greyberry(3, 234, 32 + 32 * i, 32);
+		}
 	}
 }

@@ -87,7 +87,7 @@ void CAT_spriter_cleanup();
 
 void CAT_greenberry(int xi, int w, int yi, int h, float t);
 void CAT_clear_frame(uint16_t c);
-void CAT_clear_rect(int xi, int yi, int w, int h, uint16_t c);
+void CAT_greyberry(int xi, int w, int yi, int h);
 
 
 //////////////////////////////////////////////////////////////////////////

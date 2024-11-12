@@ -371,7 +371,7 @@ void CAT_spriter_cleanup()
 
 uint8_t luminance(uint16_t rgb)
 {
-	uint8_t r = (rgb & 0b1111100000000000) >> 11;
+	uint8_t r = ((rgb & 0b1111100000000000) >> 11);
 	uint8_t g = (rgb & 0b0000011111100000) >> 5;
 	uint8_t b = rgb & 0b0000000000011111;
 	uint8_t l = ((r << 1) + r  + (g << 2) + b) >> 1;
@@ -408,7 +408,7 @@ void CAT_greenberry(int xi, int w, int yi, int h, float t)
 #ifdef CAT_DESKTOP
 			uint16_t c = FRAMEBUFFER[idx];
 			uint8_t l = luminance(c);
-			FRAMEBUFFER[idx] = 0b1101100000000111 | (((l & 0b11111100) >> 2) << 5);
+			FRAMEBUFFER[idx] = RGB8882565(l >> 1, l, l >> 1);
 
 			// r4 r3 r2 r1 r0 g5 g4 g3     g2 g1 g0 b4 b3 b2 b1 b0
 			// g2 g1 g0 b4 b3 b2 b1 b0     r4 r3 r2 r1 r0 g5 g4 g3
@@ -438,15 +438,48 @@ void CAT_clear_frame(uint16_t c)
 	}
 }
 
-void CAT_clear_rect(int xi, int yi, int w, int h, uint16_t c)
+// Cats would probably never eat this one
+void CAT_greyberry(int xi, int w, int yi, int h)
 {
+#ifdef CAT_EMBEDDED
+	yi -= framebuffer_offset_h;
+#endif
+
 	int xf = xi + w;
 	int yf = yi + h;
+
+#ifdef CAT_EMBEDDED
+	if (yi > LCD_FRAMEBUFFER_H || yf < 0)
+		return;
+
+	if (yf >= LCD_FRAMEBUFFER_H)
+		yf = LCD_FRAMEBUFFER_H-1;
+
+	if (yi < 0)
+		yi = 0;
+#endif
+
 	for(int y = yi; y < yf; y++)
 	{
 		for(int x = xi; x < xf; x++)
 		{
-			FRAMEBUFFER[y * LCD_SCREEN_W + x] = c;
+			int idx = y * LCD_SCREEN_W + x;
+
+#ifdef CAT_DESKTOP
+			uint16_t c = FRAMEBUFFER[idx];
+			uint8_t l = luminance(c);
+			FRAMEBUFFER[idx] = RGB8882565(l, l, l);
+
+			// r4 r3 r2 r1 r0 g5 g4 g3     g2 g1 g0 b4 b3 b2 b1 b0
+			// g2 g1 g0 b4 b3 b2 b1 b0     r4 r3 r2 r1 r0 g5 g4 g3
+#else
+			uint16_t px = FRAMEBUFFER[idx];
+
+			px |= 0b011;
+			px &= (0b00010000<<8) | 0b10001111;
+
+			FRAMEBUFFER[idx] = px;
+#endif
 		}
 	}
 }
