@@ -92,8 +92,8 @@ void configure_buttons_for_sleep()
 		gpio_pin_interrupt_configure(gpio1, i, GPIO_INT_EDGE_FALLING);
 	}
 
-	gpio_pin_configure(gpio1, 12, GPIO_OUTPUT_LOW);
 	gpio_pin_configure(gpio1, 13, GPIO_OUTPUT_LOW);
+	gpio_pin_configure(gpio1, 14, GPIO_OUTPUT_LOW);
 }
 
 void button_pressed(const struct device *dev, struct gpio_callback *cb,
@@ -228,7 +228,10 @@ void power_off(int for_ms, bool protected_sleeping)
 		nrfx_timer_t timer_inst = NRFX_TIMER_INSTANCE(TIMER_INST_IDX);
 	    uint32_t base_frequency = NRF_TIMER_BASE_FREQUENCY_GET(timer_inst.p_reg);
 	    nrfx_timer_config_t config = NRFX_TIMER_DEFAULT_CONFIG(base_frequency);
+	    config.frequency = 31250;
 	    config.bit_width = NRF_TIMER_BIT_WIDTH_32;
+
+	    // nrf_timer_prescaler_set(TIMER_INST_IDX, NRF_TIMER_PRESCALER_MAX)
 
 	    int status = nrfx_timer_init(&timer_inst, &config, timer_handler);
 	    NRFX_ASSERT(status == NRFX_SUCCESS);
@@ -283,7 +286,7 @@ void power_off(int for_ms, bool protected_sleeping)
 				bits >>= 9;
 				bits &= 0b1111;
 
-				LOG_DBG("wakeup deboune = %x", bits);
+				LOG_DBG("wakeup debounce = %x", bits);
 
 				if (err)
 				{

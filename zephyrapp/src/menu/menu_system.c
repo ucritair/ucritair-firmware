@@ -19,6 +19,8 @@
 #include "lcd_rendering.h"
 #include "batt.h"
 
+#include <zephyr/kernel.h>
+
 #include <stddef.h>
 
 int system_menu_selector = 0;

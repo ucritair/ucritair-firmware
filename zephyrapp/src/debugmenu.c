@@ -160,7 +160,11 @@ void menu_post()
 	textfc(did_post_imu?POST_GRN:POST_RED,         "IMU  %s", did_post_imu?"OK":"FAIL");
 	textfc(did_post_flash?POST_GRN:POST_RED,       "W25Q %s", did_post_flash?"OK":"FAIL");
 	textfc(ble_ok?POST_GRN:POST_RED,               "BLE  %s", ble_ok?"OK":"FAIL");
+#ifdef CONFIG_WIFI
 	textfc(did_post_wifi?POST_GRN:POST_RED,        "WIFI %s", did_post_wifi?"OK":"NOTYET");
+#else
+	text("WIFI DISABLED");
+#endif
 	textfc(seen_buttons==0xff?POST_GRN:POST_RED,   "BTN  %s (seen %02x)", seen_buttons==0xff?"OK":"NOTYET", seen_buttons);
 	textfc(did_post_sdcard?POST_GRN:POST_RED,      "SD   %s", did_post_sdcard?"OK":"FAIL/NOTPRESENT");
 
