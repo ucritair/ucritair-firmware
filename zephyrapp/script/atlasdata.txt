@@ -168,7 +168,7 @@ BAKE-INIT: (161, "snake_death_down_sprite", "sprites/snake_cat_death_down_a.png"
 BAKE-INIT: (162, "snake_death_left_sprite", "sprites/snake_cat_death_left_a.png", 5, 16, 16)
 BAKE-INIT: (163, "snake_tail_sprite", "sprites/snake_tail.png", 4, 16, 16)
 Loading...
-Loaded save from version v0.0.0.9
+Loaded save from version v0.0.0.16
 Load done!
 Saving...
 Save done!

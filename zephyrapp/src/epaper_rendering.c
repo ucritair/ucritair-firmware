@@ -169,7 +169,7 @@ void epaper_render_test()
 	}
 	
 	fwrite_str(128, 70, 1, "%.0f C / %.0f%% RH", (double)current_readings.sen5x.temp_degC, (double)current_readings.sen5x.humidity_rhpct);
-	fwrite_str(128, 90, 1, "%3.0f%% rebreathed", ((((double)current_readings.sunrise.ppm_filtered_compensated)-420.)/38000.)*100.);
+	fwrite_str(128, 90, 1, "%.0f%% rebreathed", ((((double)current_readings.sunrise.ppm_filtered_compensated)-420.)/38000.)*100.);
 	// fwrite_str(128, 100, 1, "75%% AQI");
 	fwrite_str(128, 108, 1, "as-of %2d:%02d:%02d", t.tm_hour, t.tm_min, t.tm_sec);
 

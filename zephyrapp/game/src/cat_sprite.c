@@ -475,8 +475,7 @@ void CAT_greyberry(int xi, int w, int yi, int h)
 #else
 			uint16_t px = FRAMEBUFFER[idx];
 
-			px |= 0b011;
-			px &= (0b00010000<<8) | 0b10001111;
+			px &= (0b00010000<<8) | 0b10000100;
 
 			FRAMEBUFFER[idx] = px;
 #endif
