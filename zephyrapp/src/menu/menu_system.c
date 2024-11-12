@@ -7,6 +7,7 @@
 #include "cat_sprite.h"
 #include "cat_version.h"
 #include "cat_menu.h"
+#include "cat_item.h"
 
 #include "misc.h"
 #include "menu_time.h"
@@ -110,7 +111,7 @@ struct entry
 	{"SET CLOCK + LOG RATE", menu_t_go_time},
 	{"ERASE ON-DEVICE LOGS", menu_t_erase_logs},
 	{"WRITE LOGS TO SDCARD", menu_t_write_logs},
-	// {"CALIBRATE CO2 SENSOR", menu_t_go_co2},
+	{"CALIBRATE CO2 SENSOR", menu_t_go_co2},
 	{"UPDATE EINK", menu_t_update_eink},
 	{"RESET GAME", menu_t_reset},
 	{"POWER OFF", menu_t_power_off},
@@ -210,24 +211,33 @@ void CAT_render_system_menu()
 
 		if (remaining > 0)
 		{
+			CAT_gui_image(icon_nosmoke_sprite, 0);
 			CAT_gui_textf("%2d:%02d remaining...", remaining/60, remaining%60);
 		}
 		else if (remaining > -1)
 		{
+			CAT_gui_image(icon_nosmoke_sprite, 0);
 			CAT_gui_textf("Calibrating...");
 		}
 		else if (remaining > -2)
 		{
+			CAT_gui_image(icon_nosmoke_sprite, 0);
 			CAT_gui_textf("Calibrating...");
 			if (!did_co2_cal)
 			{
 				did_co2_cal = true;
 				force_abc_sunrise();
+				CAT_bag_add(cigarette_item);
 			}
 		}
 		else
 		{
-			CAT_gui_textf("Done :)");
+			CAT_gui_text("Done. Thanks for waiting...");
+			CAT_gui_line_break();
+			CAT_gui_text("Have some cigarettes as a");
+			CAT_gui_line_break();
+			CAT_gui_text("reward: ");
+			CAT_gui_image(cigarette_sprite, 0);
 		}
 	}
 }

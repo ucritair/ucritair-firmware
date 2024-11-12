@@ -78,11 +78,11 @@ static struct gpio_callback button_cb_data;
 static const struct device* gpio0 = DEVICE_DT_GET(DT_NODELABEL(gpio0));
 static const struct device* gpio1 = DEVICE_DT_GET(DT_NODELABEL(gpio1));
 
-enum {
+volatile enum {
 	WAKE_CAUSE_NONE,
 	WAKE_CAUSE_TIMER,
 	WAKE_CAUSE_BUTTON
-} wake_cause;
+} wake_cause = WAKE_CAUSE_NONE;
 
 void configure_buttons_for_sleep()
 {
@@ -107,6 +107,11 @@ static void timer_handler(nrf_timer_event_t event_type, void * p_context)
     if(event_type == NRF_TIMER_EVENT_COMPARE0)
     {
         wake_cause = WAKE_CAUSE_TIMER;
+    }
+    else
+    {
+    	LOG_WRN("Spurious timer IRQ?");
+    	wake_cause = WAKE_CAUSE_NONE;
     }
 }
 
@@ -245,6 +250,7 @@ void power_off(int for_ms, bool protected_sleeping)
 
 	while (1)
 	{
+		wake_cause = WAKE_CAUSE_NONE;
 		__asm("wfi");
 
 		if (wake_cause == WAKE_CAUSE_NONE)
@@ -272,9 +278,12 @@ void power_off(int for_ms, bool protected_sleeping)
 				// update_buttons();
 
 				uint32_t bits;
-				int err = (gpio_port_get_raw(gpio1, &bits)) & 0b1111;
+				int err = (gpio_port_get_raw(gpio1, &bits));
 
 				bits >>= 9;
+				bits &= 0b1111;
+
+				LOG_DBG("wakeup deboune = %x", bits);
 
 				if (err)
 				{
@@ -292,7 +301,7 @@ void power_off(int for_ms, bool protected_sleeping)
 			if (!decided_to_wake)
 			{
 				LOG_INF("Decided to go back to sleep");
-				k_msleep(100);
+				// k_msleep(100);
 
 				configure_buttons_for_sleep();
 				continue;
@@ -300,7 +309,7 @@ void power_off(int for_ms, bool protected_sleeping)
 		}
 
 		LOG_INF("Waking...");
-		k_msleep(100);
+		// k_msleep(100);
 
 		nrf_gpio_pin_clear(NRF_GPIO_PIN_MAP(0, 2));
 		snapshot_rtc_for_reboot();
