@@ -7,6 +7,7 @@
 #include <math.h>
 #include "cat_item.h"
 #include "cat_room.h"
+#include "cat_input.h"
 
 CAT_pet pet =
 {
@@ -123,7 +124,6 @@ void CAT_pet_reanimate()
 			AS_walk.tick_anim_id = pet_walk_low_foc_sprite;
 			AS_react.tick_anim_id = mood_low_foc_sprite;
 		}
-		
 	}
 	if(CAT_pet_is_critical())
 	{
@@ -182,6 +182,32 @@ void CAT_pet_init()
 	pet.stat_timer_id = CAT_timer_init(CAT_STAT_TICK_SECS);
 	pet.walk_timer_id = CAT_timer_init(4.0f);
 	pet.react_timer_id = CAT_timer_init(1.0f);
+}
+
+void CAT_pet_background_tick(bool capture_input)
+{
+	if(CAT_timer_tick(pet.stat_timer_id))
+	{
+		CAT_pet_stat(1);
+		CAT_pet_reanimate();
+		CAT_timer_reset(pet.stat_timer_id);
+	}
+
+	if(!capture_input)
+		return;
+
+	if(!CAT_AM_is_in(&react_asm, &AS_react) && CAT_input_drag(pet.pos.x, pet.pos.y-16, 16))
+	{
+		CAT_AM_transition(&react_asm, &AS_react);
+	}
+	if(CAT_AM_is_in(&react_asm, &AS_react))
+	{
+		if(CAT_timer_tick(pet.react_timer_id))
+		{
+			CAT_AM_transition(&react_asm, NULL);
+			CAT_timer_reset(pet.react_timer_id);
+		}
+	}
 }
 
 void CAT_render_pet(int cycle)

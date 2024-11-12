@@ -45,6 +45,16 @@ float CAT_timer_progress(int timer_id)
 	return clampf(t, 0.0f, 1.0f);
 }
 
+float CAT_timer_get(int timer_id)
+{
+	return timetable.timers[timer_id];
+}
+
+void CAT_timer_set(int timer_id, float t)
+{
+	timetable.timers[timer_id] = t;
+}
+
 
 //////////////////////////////////////////////////////////////////////////
 // MACHINE

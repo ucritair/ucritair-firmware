@@ -371,7 +371,7 @@ void CAT_spriter_cleanup()
 
 uint8_t luminance(uint16_t rgb)
 {
-	uint8_t r = (rgb & 0b1111100000000000) >> 11;
+	uint8_t r = ((rgb & 0b1111100000000000) >> 11);
 	uint8_t g = (rgb & 0b0000011111100000) >> 5;
 	uint8_t b = rgb & 0b0000000000011111;
 	uint8_t l = ((r << 1) + r  + (g << 2) + b) >> 1;
@@ -408,7 +408,7 @@ void CAT_greenberry(int xi, int w, int yi, int h, float t)
 #ifdef CAT_DESKTOP
 			uint16_t c = FRAMEBUFFER[idx];
 			uint8_t l = luminance(c);
-			FRAMEBUFFER[idx] = 0b1101100000000111 | (((l & 0b11111100) >> 2) << 5);
+			FRAMEBUFFER[idx] = RGB8882565(l >> 1, l, l >> 1);
 
 			// r4 r3 r2 r1 r0 g5 g4 g3     g2 g1 g0 b4 b3 b2 b1 b0
 			// g2 g1 g0 b4 b3 b2 b1 b0     r4 r3 r2 r1 r0 g5 g4 g3
@@ -425,7 +425,7 @@ void CAT_greenberry(int xi, int w, int yi, int h, float t)
 }
 // Okay, it's more of an orangeberry. [Goldberry?](https://tolkiengateway.net/wiki/Goldberry)
 
-void CAT_clear_frame(uint16_t c)
+void CAT_clearberry(uint16_t c)
 {
 #ifdef CAT_EMBEDDED
 	c = (c >> 8) | ((c & 0xff) << 8);
@@ -438,15 +438,62 @@ void CAT_clear_frame(uint16_t c)
 	}
 }
 
-void CAT_clear_rect(int xi, int yi, int w, int h, uint16_t c)
+// Cats would probably never eat this one
+void CAT_greyberry(int xi, int w, int yi, int h)
 {
+#ifdef CAT_EMBEDDED
+	yi -= framebuffer_offset_h;
+#endif
+
 	int xf = xi + w;
 	int yf = yi + h;
+
+#ifdef CAT_EMBEDDED
+	if (yi > LCD_FRAMEBUFFER_H || yf < 0)
+		return;
+
+	if (yf >= LCD_FRAMEBUFFER_H)
+		yf = LCD_FRAMEBUFFER_H-1;
+
+	if (yi < 0)
+		yi = 0;
+#endif
+
 	for(int y = yi; y < yf; y++)
 	{
 		for(int x = xi; x < xf; x++)
 		{
-			FRAMEBUFFER[y * LCD_SCREEN_W + x] = c;
+			int idx = y * LCD_SCREEN_W + x;
+
+#ifdef CAT_DESKTOP
+			uint16_t c = FRAMEBUFFER[idx];
+			uint8_t l = luminance(c);
+			FRAMEBUFFER[idx] = RGB8882565(l, l, l);
+
+			// r4 r3 r2 r1 r0 g5 g4 g3     g2 g1 g0 b4 b3 b2 b1 b0
+			// g2 g1 g0 b4 b3 b2 b1 b0     r4 r3 r2 r1 r0 g5 g4 g3
+#else
+			uint16_t px = FRAMEBUFFER[idx];
+
+			px |= 0b011;
+			px &= (0b00010000<<8) | 0b10001111;
+
+			FRAMEBUFFER[idx] = px;
+#endif
+		}
+	}
+}
+
+void CAT_starberry()
+{
+#ifdef CAT_EMBEDDED
+	c = (c >> 8) | ((c & 0xff) << 8);
+#endif
+	for(int y = 0; y < LCD_SCREEN_H; y++)
+	{
+		for(int x = 0; x < LCD_SCREEN_W; x++)
+		{
+			FRAMEBUFFER[y * LCD_SCREEN_W + x] = x ^ y;
 		}
 	}
 }
@@ -613,6 +660,7 @@ int icon_start_sprite;
 int icon_select_sprite;
 int icon_enter_sprite;
 int icon_exit_sprite;
+int icon_plot_sprite;
 int icon_equip_sprite;
 
 int icon_item_sprite;
@@ -637,6 +685,7 @@ int icon_pure_sprite;
 int icon_uv_sprite;
 
 int icon_nosmoke_sprite;
+int icon_ee_sprite;
 
 int icon_feed_sprite;
 int icon_study_sprite;
@@ -813,7 +862,7 @@ CAT_AM_state AS_walk;
 CAT_AM_state AS_crit;
 
 CAT_AM_state AS_adjust_in;
-CAT_AM_state AS_walk_action;
+CAT_AM_state AS_approach;
 CAT_AM_state AS_adjust_out;
 
 CAT_AM_state AS_eat;
@@ -870,6 +919,7 @@ void CAT_sprite_mass_define()
 	INIT_SPRITE(icon_select_sprite, "sprites/Select Button_Both.png", 2);
 	INIT_SPRITE(icon_enter_sprite, "sprites/icon_enter.png", 1);
 	INIT_SPRITE(icon_exit_sprite, "sprites/icon_exit.png", 1);
+	INIT_SPRITE(icon_plot_sprite, "sprites/icon_plot.png", 1);
 	INIT_SPRITE(icon_equip_sprite, "sprites/icon_equip.png", 2);
 
 	INIT_SPRITE(icon_item_sprite, "sprites/icon_item.png", 6);
@@ -894,6 +944,7 @@ void CAT_sprite_mass_define()
 	INIT_SPRITE(icon_uv_sprite, "sprites/aq-protection-uv.png", 1);
 
 	INIT_SPRITE(icon_nosmoke_sprite, "sprites/nosmoke.png", 1);
+	INIT_SPRITE(icon_ee_sprite, "sprites/ee_logo.png", 1);
 
 	INIT_SPRITE(icon_feed_sprite, "sprites/Stat_Refill_Vigor_Button.png", 2);
 	INIT_SPRITE(icon_study_sprite, "sprites/Stat_Refill_Focus_Button.png", 2);
@@ -1067,7 +1118,7 @@ void CAT_sprite_mass_define()
 	CAT_AM_init(&AS_crit, pet_crit_vig_in_sprite, pet_crit_vig_sprite, pet_crit_vig_out_sprite);
 
 	CAT_AM_init(&AS_adjust_in, -1, -1, pet_idle_sprite);
-	CAT_AM_init(&AS_walk_action, -1, pet_walk_sprite, -1);
+	CAT_AM_init(&AS_approach, -1, pet_walk_sprite, -1);
 	CAT_AM_init(&AS_adjust_out, -1, -1, pet_idle_sprite);
 
 	CAT_AM_init(&AS_eat, pet_eat_in_sprite, pet_eat_sprite, pet_eat_out_sprite);

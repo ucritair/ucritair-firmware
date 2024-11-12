@@ -13,7 +13,6 @@
 
 int vending_base = 0;
 int vending_selector = 0;
-bool purchase_lock = false;
 float purchase_progress = 0;
 
 void CAT_MS_vending(CAT_machine_signal signal)
@@ -36,34 +35,35 @@ void CAT_MS_vending(CAT_machine_signal signal)
 				vending_selector -= 1;
 				if(vending_selector == -1)
 					vending_selector = item_table.length-1;
-				CAT_input_clear(CAT_BUTTON_A);
+				purchase_progress = 0;
+				CAT_input_reset(CAT_BUTTON_A);
 			}
 			if(CAT_input_pulse(CAT_BUTTON_DOWN))
 			{
 				vending_selector += 1;
 				if(vending_selector == item_table.length)
 					vending_selector = 0;
-				CAT_input_clear(CAT_BUTTON_A);
+				purchase_progress = 0;
+				CAT_input_reset(CAT_BUTTON_A);
 			}
 			vending_selector = clamp(vending_selector, 0, item_table.length-1);
 
-			if(!purchase_lock)
+			CAT_item* item = CAT_item_get(vending_selector);
+			if(item->price <= bag.coins)
 			{
 				purchase_progress = CAT_input_progress(CAT_BUTTON_A, 0.75f);
 				if(purchase_progress >= 1)
 				{
-					int price = item_table.data[vending_selector].price;
-					if(bag.coins >= price)
-					{
-						CAT_bag_add(vending_selector);
-						bag.coins -= price;
-						purchase_lock = true;
-					}
+					CAT_bag_add(vending_selector);
+					bag.coins -= item->price;
 					purchase_progress = 0;
+					CAT_input_reset(CAT_BUTTON_A);
 				}
 			}
 			if(CAT_input_released(CAT_BUTTON_A))
-				purchase_lock = false;
+			{
+				purchase_progress = 0;
+			}		
 
 			int overshoot = vending_selector - vending_base;
 			if(overshoot < 0)
@@ -104,12 +104,16 @@ void CAT_render_vending()
 		CAT_gui_textf(" %s  $%d", item->name, item->price);
 
 		if(item_id == vending_selector)
+		{
 			CAT_gui_image(icon_pointer_sprite, 0);
-	}
-
-	if(purchase_progress >= 0.01)
-	{
-		float greenberry_t = lerp(0.15, 1, purchase_progress);
-		CAT_greenberry(3, 15*16-6, 4 * 16 + 32 * (vending_selector-vending_base) + 3, 32-6, greenberry_t);
+			if(purchase_progress >= 0.01)
+			{
+				CAT_greenberry(3, 234, 64 + 32 * i, 32, purchase_progress);
+			}
+			else if(item->price > bag.coins)
+			{
+				CAT_greyberry(3, 234, 64 + 32 * i, 32);
+			}
+		}
 	}
 }

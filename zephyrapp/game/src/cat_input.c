@@ -98,7 +98,7 @@ float CAT_input_progress(int button, float t)
 	return clampf(progress, 0, 1);
 }
 
-void CAT_input_clear(int button)
+void CAT_input_reset(int button)
 {
 	input.mask[button] = false;
 	input.last[button] = false;

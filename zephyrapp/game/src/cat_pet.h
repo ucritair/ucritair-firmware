@@ -3,7 +3,11 @@
 #include "cat_machine.h"
 #include "cat_math.h"
 
+#ifdef CAT_DESKTOP
+#define CAT_STAT_TICK_SECS 10
+#else 
 #define CAT_STAT_TICK_SECS 7200
+#endif
 
 typedef struct CAT_pet
 {
@@ -27,4 +31,6 @@ void CAT_pet_reanimate();
 void CAT_pet_settle();
 bool CAT_pet_seek(CAT_vec2 targ);
 void CAT_pet_init();
+
+void CAT_pet_background_tick(bool capture_input);
 void CAT_render_pet(int cycle);
