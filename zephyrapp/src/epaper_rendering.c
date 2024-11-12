@@ -7,6 +7,7 @@
 #include "airquality.h"
 #include "rtc.h"
 #include "imu.h"
+#include "misc.h"
 
 #include "cat_item.h"
 
@@ -185,6 +186,7 @@ void epaper_render_protected_off()
 	write_str(epaper_framebuffer, 10, 10, 2, "Device is");
 	write_str(epaper_framebuffer, 10, 26, 2, "protected-off");
 	write_str(epaper_framebuffer, 10, 56, 1, "Press RESET to power on");
+	write_str(epaper_framebuffer, 10, 68, 1, "SYS v." SYS_FW_VERSION);
 
 	pc_set_mode(false);
 	cmd_turn_on_and_write(epaper_framebuffer);

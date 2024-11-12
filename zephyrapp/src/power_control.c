@@ -110,9 +110,13 @@ static void timer_handler(nrf_timer_event_t event_type, void * p_context)
     }
 }
 
+#include <hal/nrf_gpio.h>
+
 void power_off(int for_ms, bool protected_sleeping)
 {
 	LOG_INF("power_off(%d)", for_ms);
+
+	went_to_sleep_at = get_current_rtc_time();
 
 	if (cat_game_running)
 	{
@@ -298,6 +302,7 @@ void power_off(int for_ms, bool protected_sleeping)
 		LOG_INF("Waking...");
 		k_msleep(100);
 
+		nrf_gpio_pin_clear(NRF_GPIO_PIN_MAP(0, 2));
 		snapshot_rtc_for_reboot();
 		sys_reboot(SYS_REBOOT_WARM);
 	}
@@ -305,7 +310,6 @@ void power_off(int for_ms, bool protected_sleeping)
 
 #include <zephyr/init.h>
 #include <hal/nrf_power.h>
-#include <hal/nrf_gpio.h>
 
 static int board_cat_uicr_init(void)
 {

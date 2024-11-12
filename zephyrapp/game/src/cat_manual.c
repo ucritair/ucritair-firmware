@@ -19,9 +19,6 @@ void CAT_MS_manual(CAT_machine_signal signal)
 				CAT_machine_transition(CAT_MS_menu);
 			if(CAT_input_pressed(CAT_BUTTON_START))
 				CAT_machine_transition(CAT_MS_room);
-
-			if(CAT_input_pressed(CAT_BUTTON_B))
-				bag.coins += 1000;
 			break;
 		}
 		case CAT_MACHINE_SIGNAL_EXIT:

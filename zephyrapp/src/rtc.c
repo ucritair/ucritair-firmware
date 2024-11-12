@@ -8,9 +8,16 @@ LOG_MODULE_REGISTER(rtc, LOG_LEVEL_DBG);
 
 #include "rtc.h"
 
+#include <hal/nrf_gpio.h>
+
 static int board_cat_init_rtc(void)
 {
+	nrf_gpio_cfg_output(NRF_GPIO_PIN_MAP(0, 2));
+
     nrf_rtc_prescaler_set(HW_RTC_CHOSEN, 4095); // 125ms/tick
+
+    nrf_rtc_task_trigger(HW_RTC_CHOSEN, NRF_RTC_TASK_CLEAR);
+    nrf_gpio_pin_set(NRF_GPIO_PIN_MAP(0, 2));
 	nrf_rtc_task_trigger(HW_RTC_CHOSEN, NRF_RTC_TASK_START);
 
     return 0;
@@ -31,6 +38,8 @@ PERSIST_RAM uint16_t sensor_wakeup_rate;
 
 // true if we woke to sample
 PERSIST_RAM uint8_t wakeup_is_from_timer;
+
+PERSIST_RAM uint64_t went_to_sleep_at;
 
 #define RTC_INIT_CHECK_MAGIC 0xb887
 
@@ -77,6 +86,7 @@ void check_rtc_init()
 		sensor_wakeup_rate = 10;
 		wakeup_is_from_timer = false;
 		zero_rtc_counter();
+		went_to_sleep_at = get_current_rtc_time();
 	}
 }
 

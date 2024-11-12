@@ -32,7 +32,7 @@ void CAT_MS_aqi(CAT_machine_signal signal)
 		case CAT_MACHINE_SIGNAL_TICK:
 		{
 			if(CAT_input_pressed(CAT_BUTTON_B))
-				CAT_machine_transition(&machine, CAT_MS_menu);
+				CAT_machine_transition(CAT_MS_menu);
 
 			if (CAT_input_pulse(CAT_BUTTON_LEFT))
 			{
@@ -146,10 +146,10 @@ void CAT_render_aqi()
 	
 	if (view_cell.pm_ugmx100[0])
 	{
-		textfnl("PM1.0: %2.1f ~g/m\x127", ((double)view_cell.pm_ugmx100[0])/100.);
-		textfnl("PM2.5: %2.1f ~g/m\x127", ((double)view_cell.pm_ugmx100[1])/100.);
-		textfnl("PM4.0: %2.1f ~g/m\x127", ((double)view_cell.pm_ugmx100[2])/100.);
-		textfnl("PM10 : %2.1f ~g/m\x127", ((double)view_cell.pm_ugmx100[3])/100.);
+		textfnl("PM1.0: %2.1f ~g/m\x7f", ((double)view_cell.pm_ugmx100[0])/100.);
+		textfnl("PM2.5: %2.1f ~g/m\x7f", ((double)view_cell.pm_ugmx100[1])/100.);
+		textfnl("PM4.0: %2.1f ~g/m\x7f", ((double)view_cell.pm_ugmx100[2])/100.);
+		textfnl("PM10 : %2.1f ~g/m\x7f", ((double)view_cell.pm_ugmx100[3])/100.);
 	}
 	else
 	{

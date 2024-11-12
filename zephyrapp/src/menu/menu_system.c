@@ -16,6 +16,7 @@
 #include "sdcard.h"
 #include "flash.h"
 #include "lcd_rendering.h"
+#include "batt.h"
 
 #include <stddef.h>
 
@@ -33,12 +34,12 @@ typedef void (*menu_t)();
 
 void menu_t_back()
 {
-	CAT_machine_transition(&machine, CAT_MS_menu);
+	CAT_machine_transition(CAT_MS_menu);
 }
 
 void menu_t_go_time()
 {
-	CAT_machine_transition(&machine, CAT_MS_time);
+	CAT_machine_transition(CAT_MS_time);
 }
 
 void menu_t_go_co2()
@@ -109,7 +110,7 @@ struct entry
 	{"SET CLOCK + LOG RATE", menu_t_go_time},
 	{"ERASE ON-DEVICE LOGS", menu_t_erase_logs},
 	{"WRITE LOGS TO SDCARD", menu_t_write_logs},
-	{"CALIBRATE CO2 SENSOR", menu_t_go_co2},
+	// {"CALIBRATE CO2 SENSOR", menu_t_go_co2},
 	{"UPDATE EINK", menu_t_update_eink},
 	{"RESET GAME", menu_t_reset},
 	{"POWER OFF", menu_t_power_off},
@@ -140,7 +141,7 @@ void CAT_MS_system_menu(CAT_machine_signal signal)
 			}
 
 			if(CAT_input_pressed(CAT_BUTTON_B))
-				CAT_machine_transition(&machine, CAT_MS_menu);
+				CAT_machine_transition(CAT_MS_menu);
 			break;
 		}
 		case CAT_MACHINE_SIGNAL_EXIT:
@@ -184,6 +185,11 @@ void CAT_render_system_menu()
 
 		CAT_gui_line_break();
 		CAT_gui_textf("SYS v." SYS_FW_VERSION);
+
+		CAT_gui_line_break();
+		CAT_gui_text("");
+		CAT_gui_line_break();
+		CAT_gui_textf("Battery: %3.0f", ((adc_get_voltage()-3.6)/(4.2-3.6))*100.);
 	}
 	else
 	{

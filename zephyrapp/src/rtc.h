@@ -4,6 +4,7 @@ extern bool is_first_init;
 extern volatile uint64_t rtc_offset;
 extern volatile uint16_t sensor_wakeup_rate;
 extern volatile uint8_t wakeup_is_from_timer;
+extern volatile uint64_t went_to_sleep_at;
 
 #define MIN_WAKEUP_RATE_TO_DEEP_SLEEP 120
 

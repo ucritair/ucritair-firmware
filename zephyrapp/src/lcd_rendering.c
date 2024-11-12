@@ -75,15 +75,17 @@ bool cat_game_running = false;
 
 void lcd_render_diag()
 {
-
 	int last_sensor_update = 0;
 	int last_flash_log = 0;
 	int last_eink_update = 0;
 
-	LOG_INF("About to CAT_init");
-
 #ifndef MINIMIZE_GAME_FOOTPRINT
-	CAT_init(0);
+	int slept = get_current_rtc_time() - went_to_sleep_at;
+	if (slept < 0) slept = 0;
+
+	LOG_INF("about to CAT_init(slept=%d)", slept);
+
+	CAT_init(slept);
 	cat_game_running = true;
 #endif
 
@@ -109,6 +111,11 @@ void lcd_render_diag()
 		imu_update();
 		update_rtc();
 		update_buttons();
+
+		if (adc_get_voltage() < 3.6)
+		{
+			power_off(0, true);
+		}
 
 		if (current_buttons == (CAT_BTN_MASK_SELECT|CAT_BTN_MASK_START))
 		{
