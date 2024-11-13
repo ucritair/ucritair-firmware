@@ -11,6 +11,8 @@
 
 #include "menu_system.h"
 
+#include "flash.h"
+
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(menu_time, LOG_LEVEL_DBG);
 

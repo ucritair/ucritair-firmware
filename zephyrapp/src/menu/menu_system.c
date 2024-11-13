@@ -172,7 +172,7 @@ void CAT_render_system_menu()
 	{
 		for (int i = 0; i < NUM_MENU_ITEMS; i++)
 		{
-			CAT_gui_text("#");
+			CAT_gui_text("&");
 			CAT_gui_text(system_entries[i].title);
 
 			if(i == system_menu_selector)

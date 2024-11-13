@@ -78,7 +78,7 @@ void CAT_render_menu()
 
 	for (int i = 0; i < NUM_MENU_ITEMS; i++)
 	{
-		CAT_gui_textf("# %s", entries[i].title);
+		CAT_gui_textf("& %s", entries[i].title);
 
 		if(i == menu_selector)
 			CAT_gui_image(icon_pointer_sprite, 0);

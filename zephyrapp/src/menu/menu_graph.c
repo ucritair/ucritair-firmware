@@ -390,8 +390,7 @@ void CAT_render_graph()
 	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
 
 	CAT_gui_text(get_name());
-	CAT_gui_image(icon_start_sprite, 1);
-	CAT_gui_text("Graph");
+	CAT_gui_text(" Graph");
 	CAT_gui_line_break();
 
 	CAT_do_render_graph(graph_data, graph_max, GRAPH_PAD, gui.cursor.y, cursor_start, cursor_state>SEL_START?cursor_end:-1);
@@ -423,7 +422,7 @@ void CAT_render_graph()
 	{
 		if (get_ach_mode() == NONE)
 		{
-			CAT_gui_text(" ");
+			// does not produce an [e]ACH
 		}
 		else
 		{
@@ -439,6 +438,9 @@ void CAT_render_graph()
 		CAT_gui_line_break();
 		CAT_gui_image(icon_a_sprite, 1);
 		CAT_gui_text("to start over");
+		CAT_gui_line_break();
+		CAT_gui_image(icon_start_sprite, 1);
+		CAT_gui_text("to change parameter");
 	}
 
 	if (cursor_state == SEL_START)
