@@ -79,7 +79,7 @@ void CAT_gui_open_channel(int height)
 void CAT_gui_line_break()
 {
 	gui.cursor.y +=
-	(gui.channel_height >= 0 ?
+	(gui.channel_height > 0 ?
 	gui.channel_height / 2 :
 	CAT_GLYPH_HEIGHT) +
 	gui.pad_y;
@@ -94,6 +94,11 @@ void CAT_gui_text(const char* text)
 		if(*c == '\n')
 		{
 			CAT_gui_line_break();
+			continue;
+		}
+		else if(*c == '\t')
+		{
+			gui.cursor.x += CAT_GLYPH_WIDTH * 4;
 			continue;
 		}
 
@@ -141,7 +146,7 @@ void CAT_gui_textf(const char* fmt, ...)
 {
 	va_list args;
 	va_start(args, fmt);
-	char text[128];
+	char text[256];
 	vsprintf(text, fmt, args);
 	va_end(args);
 	CAT_gui_text(text);

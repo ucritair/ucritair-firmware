@@ -12,7 +12,7 @@
 #define WIDTH 15
 #define HEIGHT 20
 #define SNAKE_MAX_LENGTH (WIDTH * HEIGHT)
-#define SNAKE_MAX_ITS SNAKE_MAX_LENGTH * 2
+#define SNAKE_MAX_ITERATIONS SNAKE_MAX_LENGTH * 2
 #ifdef CAT_EMBEDDED
 #define TICK_PERIOD 3
 #else
@@ -20,40 +20,48 @@
 #endif
 #define ANIM_PERIOD 4
 
-int grasses[10] = {8, 2, 4, 10, 0, 11, 11, 7, 7, 12};
+const int grasses[10] = {8, 2, 4, 10, 0, 11, 11, 7, 7, 12};
 
-uint8_t snake_x[SNAKE_MAX_LENGTH];
-uint8_t snake_y[SNAKE_MAX_LENGTH];
-uint8_t snake_length = 2;
+int snake_x[SNAKE_MAX_LENGTH];
+int snake_y[SNAKE_MAX_LENGTH];
+int snake_length = 2;
 
-int8_t ldx = 0;
-int8_t ldy = 0;
-int8_t dx = 1;
-int8_t dy = 0;
+int ldx = 0;
+int ldy = 0;
+int dx = 1;
+int dy = 0;
 
-int8_t food_x = -1;
-int8_t food_y = -1;
+int food_x = -1;
+int food_y = -1;
 int food_sprite_id = -1;
 
+int score = 0;
+int snake_high_score = 0;
+bool new_high_score = false;
+
+enum {SELECT, PLAY, LOSE} mode;
 int tick_count = 0;
 int anim_frame = 0;
 
-int score = 0;
-
-enum {SELECT, PLAY, LOSE} mode;
-
 void spawn_food()
 {
+	int lfx = food_x;
+	int lfy = food_y;
+
 	bool valid = false;
 	int its = 0;
-	while(!valid && its < SNAKE_MAX_ITS)
+	while(!valid && its < SNAKE_MAX_ITERATIONS)
 	{
 		food_x = CAT_rand_int(1, WIDTH-2);
 		food_y = CAT_rand_int(1, HEIGHT-2);
 		valid = true;
 		for(int i = 0; i < snake_length; i++)
 		{
-			if(food_x == snake_x[i] && food_y == snake_y[i])
+			if
+			(
+				(food_x == snake_x[i] && food_y == snake_y[i]) ||
+				(food_x == lfx && food_y == lfy)
+			)
 			{
 				valid = false;
 				break;
@@ -94,7 +102,14 @@ void snake_init()
 void snake_tick()
 {
 	if(mode == LOSE)
+	{
+		if(score > snake_high_score)
+		{
+			snake_high_score = score;
+			new_high_score = true;
+		}
 		return;
+	}
 	
 	if(CAT_input_pressed(CAT_BUTTON_UP) && ldy != 1)
 	{
@@ -331,8 +346,12 @@ void CAT_render_arcade()
 			"you came.\n"
 			"\n"
 			"Your high score is\n"
-			"%d",
-			1024
+			"%d\n",
+			snake_high_score
 		);
+		if(new_high_score)
+		{
+			CAT_gui_text("New high score!");
+		}
 	}
 }

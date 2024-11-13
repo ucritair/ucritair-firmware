@@ -202,7 +202,6 @@ extern int icon_uv_sprite;
 extern int icon_nosmoke_sprite;
 extern int icon_ee_sprite;
 extern int icon_aq_ccode_sprite;
-extern int icon_hedron_sprite;
 
 extern int icon_feed_sprite;
 extern int icon_study_sprite;

@@ -6,6 +6,7 @@
 #include "cat_room.h"
 #include "cat_input.h"
 #include "cat_bag.h"
+#include "cat_version.h"
 
 enum
 {
@@ -18,6 +19,7 @@ enum
 	CRYPTO,
 	ARCADE,
 	ABOUT,
+	CREDITS,
 	LAST
 } page = CONTROLS;
 
@@ -268,6 +270,7 @@ void CAT_draw_air()
 	CAT_gui_image(icon_pm_sprite, 1);
 	CAT_gui_text("PM2.5.");
 	CAT_gui_line_break();
+	CAT_gui_line_break();
 	
 	CAT_gui_text
 	(
@@ -298,19 +301,19 @@ void CAT_draw_shopping()
 		"decoration, and air quality\n"
 		"protection all rely on the\n"
 		"use of items.\n"
-		"\n"
 		"Items of all kinds can be\n"
 		"purchased at the vending\n"
 		"machine using coins. Click\n"
 		"on the vending machine or\n"
 		"navigate to it from the\n"
 		"menu to purchase items.\n"
-		"\n"
+		"Some items disappear upon\n"
+		"use, but others persist.\n"
 		"To earn coins, place ETH\n"
 		"mining devices in the room\n"
-		"or play games at the arcade.\n"
-		"\n\n"
+		"or play games at the arcade."
 	);
+	CAT_gui_line_break();
 	gui.cursor.x += 2;
 	for(int i = 2; i < 13; i++)
 	{
@@ -335,11 +338,12 @@ void CAT_draw_crypto()
 	);
 	CAT_gui_line_break();
 
-	CAT_gui_image(icon_hedron_sprite, 0);
 	CAT_gui_image(gpu_sprite, 0);
-	CAT_gui_image(icon_hedron_sprite, 0);
+	CAT_gui_image(coin_world_sprite, 2);
 	CAT_gui_image(gpu_sprite, 0);
-	CAT_gui_image(icon_hedron_sprite, 0);
+	CAT_gui_image(coin_world_sprite, 1);
+	CAT_gui_image(gpu_sprite, 0);
+	CAT_gui_image(coin_world_sprite, 0);
 	CAT_gui_line_break();
 
 	CAT_gui_text
@@ -352,6 +356,15 @@ void CAT_draw_crypto()
 		"so make sure to pick them up\n"
 		"by touching them."
 	);
+	CAT_gui_line_break();
+
+	gui.cursor.y += 16;
+	CAT_gui_image(coin_world_sprite, 0);
+	CAT_gui_image(gpu_sprite, 0);
+	CAT_gui_image(coin_world_sprite, 1);
+	CAT_gui_image(gpu_sprite, 0);
+	CAT_gui_image(coin_world_sprite, 2);
+	CAT_gui_image(gpu_sprite, 0);
 }
 
 void CAT_draw_arcade()
@@ -361,6 +374,61 @@ void CAT_draw_arcade()
 	CAT_gui_image(icon_b_sprite, 1);
 	CAT_gui_image(icon_exit_sprite, 0);
 	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
+
+	CAT_gui_image(snake_tail_sprite, 0);
+	gui.cursor.x -= gui.pad_x;
+	for(int i = 0; i < 10; i++)
+	{
+		CAT_gui_image(snake_body_sprite, 0);
+		gui.cursor.x -= gui.pad_x;
+	}
+	CAT_gui_image(snake_head_sprite, 0);
+	CAT_gui_image(padkaprow_sprite, 0);
+	CAT_gui_line_break();
+
+	CAT_gui_text
+	(
+		"One way to actively earn\n"
+		"money and have some fun\n"
+		"along the way is to play\n"
+		"games on the arcade cabinet.\n"
+		"The popular game Snat is\n"
+		"currently available there."
+	);
+	CAT_gui_line_break();
+
+	CAT_gui_image(coffee_sprite, 0);
+	CAT_gui_image(snake_head_sprite, 2);
+	gui.cursor.x -= gui.pad_x;
+	for(int i = 0; i < 10; i++)
+	{
+		CAT_gui_image(snake_body_sprite, 2);
+		gui.cursor.x -= gui.pad_x;
+	}
+	CAT_gui_image(snake_tail_sprite, 2);
+	CAT_gui_line_break();
+
+	CAT_gui_text
+	(
+		"The Snat primarily grows by\n"
+		"gobbling up food, but every\n"
+		"few bites it'll encounter a\n"
+		"shiny golden coin. Snap up\n"
+		"the coin to spend it at the\n"
+		"shop, and remember not to\n"
+		"smack into any walls or your\n"
+		"own body."
+	);
+
+	CAT_gui_image(snake_tail_sprite, 0);
+	gui.cursor.x -= gui.pad_x;
+	for(int i = 0; i < 6; i++)
+	{
+		CAT_gui_image(snake_body_sprite, 0);
+		gui.cursor.x -= gui.pad_x;
+	}
+	CAT_gui_image(snake_head_sprite, 0);
+	CAT_gui_image(coin_static_sprite, 0);
 }
 
 void CAT_draw_about()
@@ -370,6 +438,61 @@ void CAT_draw_about()
 	CAT_gui_image(icon_b_sprite, 1);
 	CAT_gui_image(icon_exit_sprite, 0);
 	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
+
+	gui.cursor.x += 24;
+	CAT_gui_image(icon_ee_sprite, 0);
+	CAT_gui_line_break();
+	
+	CAT_gui_textf
+	(
+		"Welcome to CAT v%d.%d.%d.%d\n"
+		"by Entropic Engineering.\n"
+		,CAT_VERSION_MAJOR,
+		CAT_VERSION_MINOR,
+		CAT_VERSION_PATCH,
+		CAT_VERSION_PUSH
+	);
+	CAT_gui_text
+	(
+		"This virtual pet responds to\n"
+		"air quality in its lifetime.\n"
+		"When you breathe good air,\n"
+		"or when air quality suffers,\n"
+		"your pet experiences it all.\n"
+		"Take care of your pet and\n"
+		"take care of yourself by\n"
+		"creating an environment\n"
+		"where you two can thrive,\n"
+		"within the game and without."
+	);
+}
+
+void CAT_draw_credits()
+{
+	CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});
+	CAT_gui_text("< CREDITS > ");
+	CAT_gui_image(icon_b_sprite, 1);
+	CAT_gui_image(icon_exit_sprite, 0);
+	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
+
+	CAT_gui_text
+	(
+		"Aurora Aldrich\n"
+		"Carter TBD\n"
+		"Dmitry Grinberg\n"
+		"George Rudolf"
+		"Ivy Fae\n"
+		"Kristina\n"
+		"Lain TBD\n"
+		"Louis Goessling\n"
+		"M Pang\n"
+		"Matthew Scherfenberg\n"
+		"Minnerva Zou\n"
+		"Rachel TBD\n"
+		"Rebecca Rehm\n"
+		"Tasha Schneider\n"
+		"Tomas Stegemann"		
+	);
 }
 
 void CAT_render_manual()
@@ -419,6 +542,11 @@ void CAT_render_manual()
 		case ABOUT:
 		{
 			CAT_draw_about();
+			break;
+		}
+		case CREDITS:
+		{
+			CAT_draw_credits();
 			break;
 		}
 		default:

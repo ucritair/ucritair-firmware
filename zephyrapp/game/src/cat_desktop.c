@@ -317,7 +317,33 @@ void CAT_free(void* ptr)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // STORAGE
 
-CAT_save the_save;
+CAT_save the_save =
+{
+	.magic_number = CAT_SAVE_MAGIC,
+
+	.version =
+	{
+		.major = CAT_VERSION_MAJOR,
+		.minor = CAT_VERSION_MINOR,
+		.patch = CAT_VERSION_PATCH,
+		.push = CAT_VERSION_PUSH
+	},
+
+	.vigour = 9,
+	.focus = 9,
+	.spirit = 9,
+	.stat_timer = 0,
+
+	.prop_count = 0,
+
+	.earn_timer = 0,
+
+	.bag_length = 0,
+	.coins = 0,
+	.masked = false,
+
+	.snake_high_score = 0
+};
 
 CAT_save* CAT_start_save()
 {

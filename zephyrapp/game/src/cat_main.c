@@ -79,6 +79,8 @@ void CAT_force_save()
 
 	save->masked = CAT_gear_status(mask_item);
 
+	save->snake_high_score = snake_high_score;
+
 	save->magic_number = CAT_SAVE_MAGIC;
 
 	CAT_finish_save(save);
@@ -118,6 +120,8 @@ void CAT_force_load()
 	bag.coins = save->coins;
 
 	CAT_gear_toggle(mask_item, save->masked);
+
+	snake_high_score = save->snake_high_score;
 
 	CAT_finish_load();
 }
