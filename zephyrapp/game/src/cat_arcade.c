@@ -56,7 +56,7 @@ void spawn_food()
 	int lfx = food_x;
 	int lfy = food_y;
 
-	bool valid = false;
+	/*bool valid = false;
 	int its = 0;
 	while(!valid && its < SNAKE_MAX_ITERATIONS)
 	{
@@ -76,7 +76,43 @@ void spawn_food()
 			}
 		}
 		its += 1;
+	}*/
+
+	int guess_y = CAT_rand_int(1, HEIGHT-2);
+	int steps_y = 0;
+	int guess_x = CAT_rand_int(1, WIDTH-2);
+	int steps_x = 0;
+
+food_spawn_fail:
+	guess_y = CAT_rand_int(1, HEIGHT-2);
+	guess_x = CAT_rand_int(1, WIDTH-2);
+	for(int y = guess_y; steps_y < HEIGHT; y++)
+	{
+		if(y >= HEIGHT)
+			y = 0;
+
+		for(int x = guess_x; steps_x < WIDTH; x++)
+		{
+			if(x >= WIDTH)
+				x = 0;
+
+			for(int i = 0; i < snake_length; i++)
+			{
+				if
+				(
+					(x == snake_x[i] && y == snake_y[i]) ||
+					(x == lfx && y == lfy)
+				)
+				{
+					goto food_spawn_fail;
+				}
+			}
+			goto food_spawn_success;
+		}
 	}
+food_spawn_success:
+	food_x = guess_x;
+	food_y = guess_y;
 
 	int food_options[] = 
 	{
@@ -104,6 +140,7 @@ void snake_init()
 	spawn_food();
 
 	score = 0;
+	new_high_score = false;
 
 	tick_count = 0;
 	anim_frame = 0;
@@ -310,7 +347,7 @@ void CAT_MS_arcade(CAT_machine_signal signal)
 			{
 				if(CAT_input_pressed(CAT_BUTTON_START))
 					CAT_machine_transition(CAT_MS_room);
-				else if(CAT_input_any())
+				else if(CAT_input_pressed(CAT_BUTTON_A) || CAT_input_pressed(CAT_BUTTON_B))
 					mode = SELECT;
 			}
 			break;
@@ -384,7 +421,7 @@ void CAT_render_arcade()
 			"Your long journey has\n"
 			"come to a tragic end.\n"
 			"\n"
-			"Press any button to\n"
+			"Press A or B to\n"
 			"return from whence\n"
 			"you came.\n"
 			"\n"

@@ -63,6 +63,8 @@ void CAT_room_add_prop(int item_id, CAT_ivec2 place)
 {
 	if(room.prop_count >= CAT_MAX_PROP_COUNT)
 		return;
+	if(item_id < 0)
+		return;
 
 	int idx = room.prop_count;
 	room.prop_count += 1;

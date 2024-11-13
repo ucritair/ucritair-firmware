@@ -1,8 +1,10 @@
 #include "cat_machine.h"
+
 #include <stddef.h>
 #include "cat_core.h"
 #include "cat_math.h"
 #include "cat_sprite.h"
+#include "cat_input.h"
 
 //////////////////////////////////////////////////////////////////////////
 // TIMETABLE
@@ -101,6 +103,8 @@ void CAT_machine_transition(CAT_machine_state state)
 	machine = state;
 	if(machine != NULL)
 		(machine)(CAT_MACHINE_SIGNAL_ENTER);
+
+	//CAT_input_nuke();
 }
 
 void CAT_machine_tick()

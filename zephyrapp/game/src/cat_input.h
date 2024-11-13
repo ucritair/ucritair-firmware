@@ -25,5 +25,4 @@ bool CAT_input_touch(int x, int y, float r);
 float CAT_input_progress(int button, float t);
 void CAT_input_reset(int button);
 bool CAT_input_touch_rect(int x, int y, int w, int h);
-bool CAT_input_any();
 bool CAT_input_drag(int x, int y, float r);

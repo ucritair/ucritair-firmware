@@ -33,6 +33,8 @@ void CAT_bag_add(int item_id)
 {
 	if(bag.length >= CAT_BAG_MAX_LENGTH)
 		return;
+	if(item_id == -1)
+		return;
 		
 	int idx = CAT_bag_find(item_id);
 	if(idx >= 0)
