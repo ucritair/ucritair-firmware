@@ -11,8 +11,8 @@
 
 #define VENDING_MAX_SLOTS 8
 
-int vending_base = 0;
-int vending_selector = 0;
+static int base = 0;
+static int selector = 0;
 float purchase_progress = 0;
 
 void CAT_MS_vending(CAT_machine_signal signal)
@@ -20,8 +20,8 @@ void CAT_MS_vending(CAT_machine_signal signal)
 	switch(signal)
 	{
 		case CAT_MACHINE_SIGNAL_ENTER:
-			vending_base = 0;
-			vending_selector = 0;
+			base = 0;
+			selector = 0;
 			break;
 		case CAT_MACHINE_SIGNAL_TICK:
 		{
@@ -32,29 +32,29 @@ void CAT_MS_vending(CAT_machine_signal signal)
 					
 			if(CAT_input_pulse(CAT_BUTTON_UP))
 			{
-				vending_selector -= 1;
-				if(vending_selector == -1)
-					vending_selector = item_table.length-1;
+				selector -= 1;
+				if(selector == -1)
+					selector = item_table.length-1;
 				purchase_progress = 0;
 				CAT_input_reset(CAT_BUTTON_A);
 			}
 			if(CAT_input_pulse(CAT_BUTTON_DOWN))
 			{
-				vending_selector += 1;
-				if(vending_selector == item_table.length)
-					vending_selector = 0;
+				selector += 1;
+				if(selector == item_table.length)
+					selector = 0;
 				purchase_progress = 0;
 				CAT_input_reset(CAT_BUTTON_A);
 			}
-			vending_selector = clamp(vending_selector, 0, item_table.length-1);
+			selector = clamp(selector, 0, item_table.length-1);
 
-			CAT_item* item = CAT_item_get(vending_selector);
+			CAT_item* item = CAT_item_get(selector);
 			if(item->price <= bag.coins)
 			{
 				purchase_progress = CAT_input_progress(CAT_BUTTON_A, 0.75f);
 				if(purchase_progress >= 1)
 				{
-					CAT_bag_add(vending_selector);
+					CAT_bag_add(selector);
 					bag.coins -= item->price;
 					purchase_progress = 0;
 					CAT_input_reset(CAT_BUTTON_A);
@@ -65,11 +65,11 @@ void CAT_MS_vending(CAT_machine_signal signal)
 				purchase_progress = 0;
 			}		
 
-			int overshoot = vending_selector - vending_base;
+			int overshoot = selector - base;
 			if(overshoot < 0)
-				vending_base += overshoot;
+				base += overshoot;
 			else if(overshoot >= VENDING_MAX_SLOTS)
-				vending_base += (overshoot - VENDING_MAX_SLOTS + 1);
+				base += (overshoot - VENDING_MAX_SLOTS + 1);
 			break;
 		}
 		case CAT_MACHINE_SIGNAL_EXIT:
@@ -92,7 +92,7 @@ void CAT_render_vending()
 	CAT_gui_panel((CAT_ivec2) {0, 4}, (CAT_ivec2) {15, 16});  
 	for(int i = 0; i < VENDING_MAX_SLOTS; i++)
 	{
-		int item_id = vending_base + i;
+		int item_id = base + i;
 		if(item_id >= item_table.length)
 			return;
 		
@@ -103,7 +103,7 @@ void CAT_render_vending()
 
 		CAT_gui_textf(" %s  $%d ", item->name, item->price);
 
-		if(item_id == vending_selector)
+		if(item_id == selector)
 		{
 			CAT_gui_image(icon_pointer_sprite, 0);
 			if(purchase_progress >= 0.01)

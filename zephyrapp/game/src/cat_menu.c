@@ -14,7 +14,7 @@
 
 #include <stddef.h>
 
-int menu_selector = 0;
+static int selector = 0;
 
 struct entry
 {
@@ -24,15 +24,13 @@ struct entry
 {
 	{"INSIGHTS", CAT_MS_stats},
 	{"BAG", CAT_MS_bag},
-	{"ARCADE CABINET", CAT_MS_arcade},
 	{"VENDING MACHINE", CAT_MS_vending},
-	{"GAME CONTROLS", CAT_MS_manual},
-
+	{"ARCADE CABINET", CAT_MS_arcade},
 #ifdef CAT_EMBEDDED
 	{"AIR QUALITY", CAT_MS_aqi},
 	{"SYSTEM MENU", CAT_MS_system_menu},
 #endif
-
+	{"MANUAL", CAT_MS_manual},
 	{"BACK", CAT_MS_room}
 };
 #define NUM_MENU_ITEMS (sizeof(entries)/sizeof(entries[0]))
@@ -46,14 +44,14 @@ void CAT_MS_menu(CAT_machine_signal signal)
 		case CAT_MACHINE_SIGNAL_TICK:
 		{
 			if(CAT_input_pulse(CAT_BUTTON_UP))
-				menu_selector -= 1;
+				selector -= 1;
 			if(CAT_input_pulse(CAT_BUTTON_DOWN))
-				menu_selector += 1;
-			menu_selector = clamp(menu_selector, 0, NUM_MENU_ITEMS-1);
+				selector += 1;
+			selector = clamp(selector, 0, NUM_MENU_ITEMS-1);
 
 			if(CAT_input_pressed(CAT_BUTTON_A))
 			{
-				CAT_machine_transition(entries[menu_selector].state);
+				CAT_machine_transition(entries[selector].state);
 			}
 
 			if(CAT_input_pressed(CAT_BUTTON_B) || CAT_input_pressed(CAT_BUTTON_START))
@@ -80,7 +78,7 @@ void CAT_render_menu()
 	{
 		CAT_gui_textf("& %s ", entries[i].title);
 
-		if(i == menu_selector)
+		if(i == selector)
 			CAT_gui_image(icon_pointer_sprite, 0);
 
 		CAT_gui_line_break();

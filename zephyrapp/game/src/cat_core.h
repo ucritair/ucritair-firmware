@@ -185,6 +185,7 @@ float CAT_temperature_score(float temp);
 float CAT_humidity_score(float rh);
 float CAT_iaq_score(float co2, float voc, float nox, float pm25, float temp, float rh);
 void CAT_AQI_quantize(int* temp_idx, int* co2_idx, int* pm_idx, int* voc_idx, int* nox_idx);
+float CAT_AQI_aggregate();
 
 #ifdef CAT_DESKTOP 
 #ifdef LOUIS 

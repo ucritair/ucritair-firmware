@@ -9,6 +9,11 @@
 #include "cat_bag.h"
 #include <stdio.h>
 
+#ifdef CAT_EMBEDDED
+#include "menu_system.h"
+#include "menu_aqi.h"
+#endif
+
 #define WIDTH 15
 #define HEIGHT 20
 #define SNAKE_MAX_LENGTH (WIDTH * HEIGHT)
@@ -20,7 +25,16 @@
 #endif
 #define ANIM_PERIOD 4
 
-const int grasses[10] = {8, 2, 4, 10, 0, 11, 11, 7, 7, 12};
+enum {SELECT, PLAY, LOSE} mode;
+static const char* entries[] = 
+{
+	"SNAKE",
+	"AIR QUALITY"
+};
+#define NUM_ENTRIES (sizeof(entries)/sizeof(entries[0]))
+static int selector = 0;
+
+int grasses[10] = {8, 2, 4, 10, 0, 11, 11, 7, 7, 12};
 
 int snake_x[SNAKE_MAX_LENGTH];
 int snake_y[SNAKE_MAX_LENGTH];
@@ -39,9 +53,9 @@ int score = 0;
 int snake_high_score = 0;
 bool new_high_score = false;
 
-enum {SELECT, PLAY, LOSE} mode;
 int tick_count = 0;
 int anim_frame = 0;
+int eat_count = 0;
 
 void spawn_food()
 {
@@ -77,7 +91,7 @@ void spawn_food()
 		sausage_sprite,
 		coffee_sprite
 	};
-	food_sprite_id = score < 4 ? food_options[CAT_rand_int(0, 3)] : coin_world_sprite;
+	food_sprite_id = eat_count == 4 ? coin_world_sprite : food_options[CAT_rand_int(0, 3)];
 }
 
 void snake_init()
@@ -92,25 +106,18 @@ void snake_init()
 	ldy = 0;
 	dx = 1;
 	dy = 0;
-	tick_count = 0;
 
 	spawn_food();
 
 	score = 0;
+
+	tick_count = 0;
+	anim_frame = 0;
+	eat_count = 0;
 }
 
 void snake_tick()
-{
-	if(mode == LOSE)
-	{
-		if(score > snake_high_score)
-		{
-			snake_high_score = score;
-			new_high_score = true;
-		}
-		return;
-	}
-	
+{	
 	if(CAT_input_pressed(CAT_BUTTON_UP) && ldy != 1)
 	{
 		dx = 0;
@@ -149,14 +156,22 @@ void snake_tick()
 		}
 
 		if(x == food_x && y == food_y)
-		{
-			snake_length += 1;
-			score += 1;
-			if(score >= 5)
+		{	
+			eat_count += 1;
+			if(eat_count == 5)
 			{
 				bag.coins += 1;
-				score = 0;
+				eat_count = 0;
 			}
+
+			score += 1;
+			if(score > snake_high_score)
+			{
+				snake_high_score = score;
+				new_high_score = true;
+			}
+
+			snake_length += 1;
 			spawn_food();
 		}
 
@@ -181,49 +196,7 @@ void snake_tick()
 	tick_count += 1;
 }
 
-void CAT_MS_arcade(CAT_machine_signal signal)
-{
-	switch(signal)
-	{
-		case CAT_MACHINE_SIGNAL_ENTER:
-			mode = SELECT;
-			break;
-		case CAT_MACHINE_SIGNAL_TICK:
-		{
-			if(mode == SELECT)
-			{
-				if(CAT_input_pressed(CAT_BUTTON_B) || CAT_input_pressed(CAT_BUTTON_START))
-					CAT_machine_transition(CAT_MS_room);
-				if(CAT_input_pressed(CAT_BUTTON_A))
-				{
-					snake_init();
-					mode = PLAY;
-				}
-			}
-			else if(mode == PLAY)
-			{
-				if(CAT_input_pressed(CAT_BUTTON_B))
-					mode = SELECT;
-				if(CAT_input_pressed(CAT_BUTTON_START))
-					CAT_machine_transition(CAT_MS_room);
-
-				snake_tick();
-			}
-			else if(mode == LOSE)
-			{
-				if(CAT_input_pressed(CAT_BUTTON_START))
-					CAT_machine_transition(CAT_MS_room);
-				else if(CAT_input_any())
-					mode = SELECT;
-			}
-			break;
-		}
-		case CAT_MACHINE_SIGNAL_EXIT:
-			break;
-	}
-}
-
-void draw_map()
+void snake_render_map()
 {
 	CAT_frameberry(RGB8882565(122, 146, 57));
 	for(int y = 0; y < 20; y += 2)
@@ -232,7 +205,7 @@ void draw_map()
 	}
 }
 
-void draw_body()
+void snake_render_character()
 {
 	int dx = snake_x[0] - snake_x[1];
 	int dy = snake_y[0] - snake_y[1];
@@ -291,6 +264,64 @@ void draw_body()
 	}
 }
 
+void CAT_MS_arcade(CAT_machine_signal signal)
+{
+	switch(signal)
+	{
+		case CAT_MACHINE_SIGNAL_ENTER:
+			mode = SELECT;
+			break;
+		case CAT_MACHINE_SIGNAL_TICK:
+		{
+			if(mode == SELECT)
+			{
+				if(CAT_input_pressed(CAT_BUTTON_B) || CAT_input_pressed(CAT_BUTTON_START))
+					CAT_machine_transition(CAT_MS_room);
+
+				if(CAT_input_pulse(CAT_BUTTON_UP))
+					selector -= 1;
+				if(CAT_input_pulse(CAT_BUTTON_DOWN))
+					selector += 1;
+				selector = clamp(selector, 0, NUM_ENTRIES-1);
+				
+				if(CAT_input_pressed(CAT_BUTTON_A))
+				{
+					if(selector == 0)
+					{
+						snake_init();
+						mode = PLAY;
+					}
+					else
+					{
+#ifdef CAT_EMBEDDED
+						CAT_machine_transition(CAT_MS_aqi);
+#endif
+					}
+				}
+			}
+			else if(mode == PLAY)
+			{
+				if(CAT_input_pressed(CAT_BUTTON_B))
+					mode = SELECT;
+				if(CAT_input_pressed(CAT_BUTTON_START))
+					CAT_machine_transition(CAT_MS_room);
+
+				snake_tick();
+			}
+			else if(mode == LOSE)
+			{
+				if(CAT_input_pressed(CAT_BUTTON_START))
+					CAT_machine_transition(CAT_MS_room);
+				else if(CAT_input_any())
+					mode = SELECT;
+			}
+			break;
+		}
+		case CAT_MACHINE_SIGNAL_EXIT:
+			break;
+	}
+}
+
 void CAT_render_arcade()
 {
 	if(mode == SELECT)
@@ -304,15 +335,25 @@ void CAT_render_arcade()
 
 		CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
 
-		CAT_gui_text("& SNAKE ");
-		CAT_gui_image(icon_pointer_sprite, 0);
+		for(int i = 0; i < NUM_ENTRIES; i++)
+		{
+			CAT_gui_textf("& %s ", entries[i]);
+			if(i == selector)
+			{
+				CAT_gui_image(icon_pointer_sprite, 0);
+			}
+			CAT_gui_line_break();
+		}
+		CAT_gui_line_break();
+
+		CAT_gui_textf("Your AQ score is %%%0.1f", CAT_AQI_aggregate());
 	}
 	else if(mode == PLAY)
 	{
 		spriter.mode = CAT_DRAW_MODE_DEFAULT;
 
-		draw_map();
-		draw_body();
+		snake_render_map();
+		snake_render_character();
 
 		CAT_sprite* sprite = CAT_sprite_get(food_sprite_id);
 		int frame_idx = clamp(anim_frame, 0, sprite->frame_count-1);
@@ -345,8 +386,9 @@ void CAT_render_arcade()
 			"return from whence\n"
 			"you came.\n"
 			"\n"
-			"Your high score is\n"
-			"%d\n",
+			"SCORE: %d\n"
+			"HIGH SCORE: %d\n"
+			,score,
 			snake_high_score
 		);
 		if(new_high_score)

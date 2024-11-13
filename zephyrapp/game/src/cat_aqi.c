@@ -227,3 +227,15 @@ void CAT_AQI_quantize(int* temp_idx, int* co2_idx, int* pm_idx, int* voc_idx, in
     }
 	*temp_idx = 1;
 }
+
+float CAT_AQI_aggregate()
+{
+    float temp = CAT_mean_temp();
+    float rh = aqi.sen5x.humidity_rhpct;
+    float co2 = aqi.sunrise.ppm_filtered_compensated;
+    float pm = aqi.sen5x.pm2_5;
+    float nox = aqi.sen5x.nox_index;
+    float voc = aqi.sen5x.voc_index;
+    float score = CAT_iaq_score(temp, rh, co2, pm, nox, voc);
+    return ((5.0f - score) / 5.0f) * 100.0f;
+}

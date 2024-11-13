@@ -94,8 +94,8 @@ struct bag_relation
 #define NUM_BAG_RELATIONS (sizeof(bag_relations)/sizeof(bag_relations[0]))
 
 CAT_machine_state bag_anchor = NULL;
-int bag_base = 0;
-int bag_selector = 0;
+static int base = 0;
+static int selector = 0;
 
 void CAT_MS_bag(CAT_machine_signal signal)
 {
@@ -103,8 +103,8 @@ void CAT_MS_bag(CAT_machine_signal signal)
 	{
 		case CAT_MACHINE_SIGNAL_ENTER:
 		{
-			bag_base = 0;
-			bag_selector = 0;
+			base = 0;
+			selector = 0;
 			break;
 		}
 		case CAT_MACHINE_SIGNAL_TICK:
@@ -124,27 +124,27 @@ void CAT_MS_bag(CAT_machine_signal signal)
 
 			if(CAT_input_pulse(CAT_BUTTON_UP))
 			{
-				bag_selector -= 1;
-				if(bag_selector == -1)
-					bag_selector = bag.length-1;				
+				selector -= 1;
+				if(selector == -1)
+					selector = bag.length-1;				
 			}
 			if(CAT_input_pulse(CAT_BUTTON_DOWN))
 			{
-				bag_selector += 1;
-				if(bag_selector == bag.length)
-					bag_selector = 0;
+				selector += 1;
+				if(selector == bag.length)
+					selector = 0;
 			}
-			bag_selector = clamp(bag_selector, 0, bag.length-1);	
+			selector = clamp(selector, 0, bag.length-1);	
 
-			int overshoot = bag_selector - bag_base;
+			int overshoot = selector - base;
 			if(overshoot < 0)
-				bag_base += overshoot;
+				base += overshoot;
 			else if(overshoot >= 9)
-				bag_base += (overshoot - 8);
+				base += (overshoot - 8);
 
 			if(CAT_input_pressed(CAT_BUTTON_A))
 			{
-				int item_id = bag.item_ids[bag_selector];
+				int item_id = bag.item_ids[selector];
 				CAT_item* item = &item_table.data[item_id];
 
 				for(int i = 0; i < NUM_BAG_RELATIONS; i++)
@@ -195,7 +195,7 @@ void CAT_render_bag()
 			return;
 		}
 
-		int idx = bag_base + i;
+		int idx = base + i;
 		if(idx >= bag.length)
 			return;
 
@@ -225,7 +225,7 @@ void CAT_render_bag()
 			CAT_gui_text(" ");
 		}
 
-		if(idx == bag_selector)
+		if(idx == selector)
 			CAT_gui_image(icon_pointer_sprite, 0);
 
 		if(!fits_relation)

@@ -23,12 +23,47 @@ enum
 	LAST
 } page = CONTROLS;
 
+const char* credits[] =
+{
+	"Aurora Aldrich",
+	"Campbell",
+	"DmitryGR",
+	"George Rudolf",
+	"Ivy Fae",
+	"Kristina",
+	"Lain",
+	"Louis Goessling",
+	"M Pang",
+	"Minnerva Zou",
+	"Neutron",
+	"Rachel",
+	"Rebecca Rehm",
+	"Tasha Schneider",
+	"Tomas Stegemann",
+	"M, IS ANYBODY MISSING?!"
+};
+#define NUM_CREDITS (sizeof(credits) / sizeof(credits[0]))
+
+int credit_indices[NUM_CREDITS] =
+{
+	0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
+};
+
 void CAT_MS_manual(CAT_machine_signal signal)
 {
 	switch(signal)
 	{
 		case CAT_MACHINE_SIGNAL_ENTER:
+		{
+			for(int i = 0; i < NUM_CREDITS; i++)
+			{
+				int j = CAT_rand_int(0, NUM_CREDITS-1);
+				int temp = credit_indices[i];
+				credit_indices[i] = credit_indices[j];
+				credit_indices[j] = temp;
+			}
 			break;
+		}
 		case CAT_MACHINE_SIGNAL_TICK:
 		{
 			if(CAT_input_pressed(CAT_BUTTON_B))
@@ -442,11 +477,13 @@ void CAT_draw_about()
 	gui.cursor.x += 24;
 	CAT_gui_image(icon_ee_sprite, 0);
 	CAT_gui_line_break();
+	CAT_gui_line_break();
 	
 	CAT_gui_textf
 	(
-		"Welcome to CAT v%d.%d.%d.%d\n"
+		"CAT v%d.%d.%d.%d\n"
 		"by Entropic Engineering.\n"
+		"\n"
 		,CAT_VERSION_MAJOR,
 		CAT_VERSION_MINOR,
 		CAT_VERSION_PATCH,
@@ -454,16 +491,11 @@ void CAT_draw_about()
 	);
 	CAT_gui_text
 	(
-		"This virtual pet responds to\n"
-		"air quality in its lifetime.\n"
-		"When you breathe good air,\n"
-		"or when air quality suffers,\n"
-		"your pet experiences it all.\n"
-		"Take care of your pet and\n"
-		"take care of yourself by\n"
-		"creating an environment\n"
-		"where you two can thrive,\n"
-		"within the game and without."
+		"Powered by grants from\n"
+		"Balvi and Kanro.\n"
+		"\n"
+		"Visit uCritter.com/air\n"
+		"for more information."
 	);
 }
 
@@ -475,24 +507,13 @@ void CAT_draw_credits()
 	CAT_gui_image(icon_exit_sprite, 0);
 	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
 
-	CAT_gui_text
-	(
-		"Aurora Aldrich\n"
-		"Carter TBD\n"
-		"Dmitry Grinberg\n"
-		"George Rudolf"
-		"Ivy Fae\n"
-		"Kristina\n"
-		"Lain TBD\n"
-		"Louis Goessling\n"
-		"M Pang\n"
-		"Matthew Scherfenberg\n"
-		"Minnerva Zou\n"
-		"Rachel TBD\n"
-		"Rebecca Rehm\n"
-		"Tasha Schneider\n"
-		"Tomas Stegemann"		
-	);
+	for(int i = 0; i < NUM_CREDITS; i++)
+	{
+		if((i&1)==1)
+			CAT_gui_text("\t");
+		CAT_gui_text(credits[credit_indices[i]]);
+		CAT_gui_line_break();
+	}
 }
 
 void CAT_render_manual()
