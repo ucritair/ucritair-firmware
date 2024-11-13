@@ -23,6 +23,8 @@ int aqi_view_cell = AQI_VIEW_CELL_LATEST;
 int last_fetched_aqi_view_cell = AQI_VIEW_CELL_LATEST;
 struct flash_log_cell view_cell;
 
+bool view_pn = false;
+
 void CAT_MS_aqi(CAT_machine_signal signal)
 {
 	switch(signal)
@@ -38,6 +40,9 @@ void CAT_MS_aqi(CAT_machine_signal signal)
 
 			if(CAT_input_pressed(CAT_BUTTON_A))
 				CAT_machine_transition(CAT_MS_graph);
+
+			if (CAT_input_pressed(CAT_BUTTON_SELECT))
+				view_pn = !view_pn;
 
 			if (CAT_input_pulse(CAT_BUTTON_LEFT))
 			{
@@ -55,7 +60,6 @@ void CAT_MS_aqi(CAT_machine_signal signal)
 					aqi_view_cell = AQI_VIEW_CELL_LATEST;
 				else
 					aqi_view_cell++;
-
 			}
 
 			break;
@@ -155,11 +159,25 @@ void CAT_render_aqi()
 	
 	if (view_cell.flags & FLAG_HAS_TEMP_RH_PARTICLES)
 	{
-		textfnl("PM0.5:            % 2.1f #/m\x7f", ((double)view_cell.pn_ugmx100[0])/100.);
-		textfnl("PM1.0: % 2.1f ~g/m\x7f % 2.1f #/m\x7f", ((double)view_cell.pm_ugmx100[0])/100., ((double)view_cell.pn_ugmx100[1])/100.);
-		textfnl("PM2.5: % 2.1f ~g/m\x7f % 2.1f #/m\x7f", ((double)view_cell.pm_ugmx100[1])/100., ((double)view_cell.pn_ugmx100[2])/100.);
-		textfnl("PM4.0: % 2.1f ~g/m\x7f % 2.1f #/m\x7f", ((double)view_cell.pm_ugmx100[2])/100., ((double)view_cell.pn_ugmx100[3])/100.);
-		textfnl("PM10 : % 2.1f ~g/m\x7f % 2.1f #/m\x7f", ((double)view_cell.pm_ugmx100[3])/100., ((double)view_cell.pn_ugmx100[4])/100.);
+		if (view_pn)
+		{
+			textfnl("PN0.5: % 2.03f #/cm\x7f", ((double)view_cell.pn_ugmx100[0])/100.);
+			textfnl("PN1.0: % 2.03f #/cm\x7f", ((double)view_cell.pn_ugmx100[1])/100.);
+			textfnl("PN2.5: % 2.03f #/cm\x7f", ((double)view_cell.pn_ugmx100[2])/100.);
+			textfnl("PN4.0: % 2.03f #/cm\x7f", ((double)view_cell.pn_ugmx100[3])/100.);
+			textfnl("PN10 : % 2.03f #/cm\x7f", ((double)view_cell.pn_ugmx100[4])/100.);
+		}
+		else
+		{
+			textfnl("PM1.0: % 2.02f ~g/m\x7f", ((double)view_cell.pm_ugmx100[0])/100.);
+			textfnl("PM2.5: % 2.02f ~g/m\x7f", ((double)view_cell.pm_ugmx100[1])/100.);
+			textfnl("PM4.0: % 2.02f ~g/m\x7f", ((double)view_cell.pm_ugmx100[2])/100.);
+			textfnl("PM10 : % 2.02f ~g/m\x7f", ((double)view_cell.pm_ugmx100[3])/100.);
+			textfnl(" ");
+		}
+
+		CAT_gui_image(icon_select_sprite, 1);
+		textfnl("to view %s", view_pn?"PM":"PN");
 	}
 	else
 	{

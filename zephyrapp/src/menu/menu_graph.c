@@ -97,7 +97,7 @@ char* get_string(int16_t graph_data)
 			snprintf(buf, sizeof(buf), "%.1f~g/m\x7f", ((double)graph_data)/100.);
 			break;
 		case PN10_0:
-			snprintf(buf, sizeof(buf), "%.1f#g/m\x7f", ((double)graph_data)/100.);
+			snprintf(buf, sizeof(buf), "%.1f#/cm\x7f", ((double)graph_data)/100.);
 			break;
 		case TEMP:
 			snprintf(buf, sizeof(buf), "%.1f`C", ((double)graph_data)/100.);
