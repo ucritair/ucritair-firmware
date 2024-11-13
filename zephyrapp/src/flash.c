@@ -245,11 +245,11 @@ void populate_log_cell(struct flash_log_cell* cell)
 	cell->pm_ugmx100[2] = current_readings.sen5x.pm4_0 * 100;
 	cell->pm_ugmx100[3] = current_readings.sen5x.pm10_0 * 100;
 
-	cell->pn_ugmx100[0] = current_readings.sen5x.nc1_0 * 100; 
-	cell->pn_ugmx100[0] = current_readings.sen5x.nc1_0 * 100; //1.0, 2.5, 4.0, 10.0 x100
-	cell->pn_ugmx100[1] = current_readings.sen5x.nc2_5 * 100;
-	cell->pn_ugmx100[2] = current_readings.sen5x.nc4_0 * 100;
-	cell->pn_ugmx100[3] = current_readings.sen5x.nc10_0 * 100;
+	cell->pn_ugmx100[0] = current_readings.sen5x.nc0_5 * 100; 
+	cell->pn_ugmx100[1] = current_readings.sen5x.nc1_0 * 100; //1.0, 2.5, 4.0, 10.0 x100
+	cell->pn_ugmx100[2] = current_readings.sen5x.nc2_5 * 100;
+	cell->pn_ugmx100[3] = current_readings.sen5x.nc4_0 * 100;
+	cell->pn_ugmx100[4] = current_readings.sen5x.nc10_0 * 100;
 
 	if (current_readings.sen5x.uptime_last_updated)
 	{
