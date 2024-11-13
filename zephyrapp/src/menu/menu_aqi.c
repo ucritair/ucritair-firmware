@@ -102,7 +102,7 @@ void CAT_render_aqi()
 
 	if ((viewing_latest && next_log_cell_nr != 0) || (!viewing_latest && aqi_view_cell != 0))
 	{
-		textf("<- ");
+		textf("<  ");
 	}
 	else
 	{
@@ -115,7 +115,7 @@ void CAT_render_aqi()
 	}
 	else
 	{
-		textfnl("Logged Air Quality ->");
+		textfnl("Logged Air Quality  >");
 	}
 
 	struct tm t;
