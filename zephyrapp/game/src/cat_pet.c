@@ -62,6 +62,11 @@ void CAT_pet_stat(int ticks)
 	pet.spirit = clamp(pet.spirit - ds * ticks, 0, 12);
 }
 
+void CAT_pet_life(int ticks)
+{
+	pet.lifetime += 1;
+}
+
 void CAT_pet_use(int item_id)
 {
 	CAT_item* item = CAT_item_get(item_id);
@@ -204,6 +209,12 @@ void CAT_pet_background_tick(bool capture_input)
 		CAT_pet_stat(1);
 		CAT_pet_reanimate();
 		CAT_timer_reset(pet.stat_timer_id);
+	}
+
+	if(CAT_timer_tick(pet.life_timer_id))
+	{
+		CAT_pet_life(1);
+		CAT_timer_reset(pet.life_timer_id);
 	}
 
 	if(!capture_input)

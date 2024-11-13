@@ -34,6 +34,7 @@ void CAT_render_stats()
 
 	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});  
 	CAT_gui_image(AS_idle.tick_anim_id, 0); 
+	CAT_gui_textf("%d DAYS OLD", pet.lifetime);
 	
 	CAT_gui_div("CORE STATS");
 

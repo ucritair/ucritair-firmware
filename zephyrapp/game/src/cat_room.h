@@ -8,8 +8,10 @@
 
 #ifdef CAT_DESKTOP
 #define CAT_COIN_TICK_SECS 10
+#define CAT_PLANT_TICK_SECS 5
 #else 
 #define CAT_COIN_TICK_SECS 1800
+#define CAT_PLANT_TICK_SECS 3600
 #endif
 
 typedef struct CAT_room

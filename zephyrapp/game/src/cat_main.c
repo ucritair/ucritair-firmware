@@ -48,6 +48,7 @@ void CAT_fresh_gamestate()
 	pet.vigour = 9;
 	pet.focus = 9;
 	pet.spirit = 9;
+	pet.lifetime = 0;
 
 	room.prop_count = 0;
 
@@ -72,7 +73,9 @@ void CAT_force_save()
 	save->vigour = pet.vigour;
 	save->focus = pet.focus;
 	save->spirit = pet.spirit;
+	save->lifetime = pet.lifetime;
 	save->stat_timer = CAT_timer_get(pet.stat_timer_id);
+	save->life_timer = CAT_timer_get(pet.life_timer_id);
 
 	for(int i = 0; i < room.prop_count; i++)
 	{
@@ -115,6 +118,9 @@ void CAT_force_load()
 	pet.vigour = save->vigour;
 	pet.focus = save->focus;
 	pet.spirit = save->spirit;
+	pet.lifetime = save->lifetime;
+	CAT_timer_set(pet.stat_timer_id, save->stat_timer);
+	CAT_timer_set(pet.life_timer_id, save->life_timer);
 
 	for(int i = 0; i < save->prop_count; i++)
 	{
@@ -123,7 +129,6 @@ void CAT_force_load()
 		room.prop_overrides[i] = save->prop_overrides[i];
 	}
 	room.prop_count = save->prop_count;
-
 	CAT_timer_set(room.earn_timer_id, save->earn_timer);
 
 	for(int i = 0; i < save->bag_length; i++)
@@ -145,6 +150,9 @@ void CAT_apply_sleep(int seconds)
 {
 	int stat_ticks = round((float) seconds / (float) CAT_STAT_TICK_SECS);
 	CAT_pet_stat(stat_ticks);
+
+	int life_ticks = round((float) seconds / (float) CAT_LIFE_TICK_SECS);
+	CAT_pet_life(life_ticks);
 
 	int coin_ticks = round((float) seconds / (float) CAT_COIN_TICK_SECS);
 	CAT_room_earn(coin_ticks);

@@ -28,6 +28,8 @@ int CAT_timer_init(float duration)
 
 bool CAT_timer_tick(int timer_id)
 {
+	if(timer_id < 0 || timer_id >= timetable.length)
+		return false;
 	float* timer = &timetable.timers[timer_id];
 	if(*timer < timetable.durations[timer_id])
 		*timer += CAT_get_delta_time();
@@ -36,22 +38,30 @@ bool CAT_timer_tick(int timer_id)
 
 void CAT_timer_reset(int timer_id)
 {
+	if(timer_id < 0 || timer_id >= timetable.length)
+		return;
 	timetable.timers[timer_id] = 0;
 }
 
 float CAT_timer_progress(int timer_id)
 {
+	if(timer_id < 0 || timer_id >= timetable.length)
+		return 0;
 	float t = timetable.timers[timer_id] / timetable.durations[timer_id];
 	return clampf(t, 0.0f, 1.0f);
 }
 
 float CAT_timer_get(int timer_id)
 {
+	if(timer_id < 0 || timer_id >= timetable.length)
+		return 0;
 	return timetable.timers[timer_id];
 }
 
 void CAT_timer_set(int timer_id, float t)
 {
+	if(timer_id < 0 || timer_id >= timetable.length)
+		return;
 	timetable.timers[timer_id] = t;
 }
 
