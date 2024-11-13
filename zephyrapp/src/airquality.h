@@ -10,6 +10,7 @@ struct current_readings {
 	struct {
 		uint64_t uptime_last_updated;
 		float ppm_filtered_compensated;
+		float ppm_filtered_uncompensated;
 		float temp;
 	} sunrise;
 	

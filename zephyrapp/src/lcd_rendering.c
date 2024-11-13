@@ -73,7 +73,7 @@ int epaper_update_rate = -1;
 #include "cat_main.h"
 
 bool in_debug_menu = false;
-bool show_fps = true;
+bool show_fps = false;
 bool cat_game_running = false;
 
 void lcd_render_diag()

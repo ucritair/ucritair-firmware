@@ -175,3 +175,10 @@ int CAT_get_battery_pct()
 {
 	return 100;
 }
+
+#include "rgb_leds.h"
+void CAT_set_LEDs(uint8_t r, uint8_t g, uint8_t b)
+{
+#define SCALE 4
+	set_all_same_color((struct led_rgb){.r=r>>SCALE, .g=g>>SCALE, .b=b>>SCALE});
+}

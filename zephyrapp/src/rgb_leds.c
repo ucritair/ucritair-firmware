@@ -84,6 +84,9 @@ void set_all_same_color(struct led_rgb color)
 		pixels[i] = color;
 	}
 
+	pixels[0] = (struct led_rgb){0};
+	pixels[1] = (struct led_rgb){0};
+
 	set_leds(true);
 
 	// LOG_INF("set_all_same_color r=%d, g=%d, b=%d", color.r, color.g, color.b);
