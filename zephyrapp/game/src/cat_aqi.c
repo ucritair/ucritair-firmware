@@ -38,7 +38,7 @@ float interpolate(float value, const float *breakpoints, const float *scores, in
 
 float CAT_mean_temp()
 {
-	return (aqi.lps22hh.temp + aqi.sunrise.temp + aqi.sen5x.temp_degC) / 3.0f;
+	return (aqi.sen5x.temp_degC - 2.75) ;
 }
 
 /**

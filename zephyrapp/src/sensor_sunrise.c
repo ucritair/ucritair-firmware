@@ -404,6 +404,7 @@ int sunrise_read()
 
     current_readings.sunrise.temp = (float)temp / 100.;
     current_readings.sunrise.ppm_filtered_compensated = ppm_filtered_compensated;
+    current_readings.sunrise.ppm_filtered_uncompensated = ppm_filtered;
     current_readings.sunrise.uptime_last_updated = k_uptime_get();
 
     return 0;

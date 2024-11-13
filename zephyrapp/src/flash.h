@@ -18,7 +18,9 @@ struct __attribute__((__packed__)) flash_log_cell {
 
 	uint8_t voc_index, nox_index; //x1
 
-	uint8_t pad[22];
+	uint16_t co2_uncomp_ppmx1;
+
+	uint8_t pad[20];
 };
 
 #define FLAG_HAS_TEMP_RH_PARTICLES 1

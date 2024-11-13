@@ -234,6 +234,7 @@ void populate_log_cell(struct flash_log_cell* cell)
 	cell->rh_pctx100 = current_readings.sen5x.humidity_rhpct * 100; // % * 100
 
 	cell->co2_ppmx1 = current_readings.sunrise.ppm_filtered_compensated * 1; // ppm * 1
+	cell->co2_uncomp_ppmx1 = current_readings.sunrise.ppm_filtered_uncompensated * 1; // ppm * 1
 
 	if (current_readings.sunrise.uptime_last_updated)
 	{

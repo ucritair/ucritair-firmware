@@ -101,7 +101,7 @@ int main(void)
 		LOG_DBG("Booted from timer");
 		
 
-		set_first_led((struct led_rgb){.g=10});
+		set_first_led((struct led_rgb){.g=1});
 
 		k_msleep(50);
 
@@ -111,7 +111,7 @@ int main(void)
 #define CYCLE_TIME 20
 		while (cycle++)
 		{
-			set_first_led((struct led_rgb){.g=((cycle%20)>10)?2:10, 0});
+			set_first_led((struct led_rgb){.g=((cycle%20)>10)?1:3, 0});
 			k_msleep(CYCLE_TIME);
 
 			sensor_read_once();

@@ -104,7 +104,9 @@ void blit_image(uint8_t* target, struct epaper_image_asset* src, int x, int y)
 }
 
 
-uint8_t epaper_framebuffer[EPD_IMAGE_BYTES] = {0};
+PERSIST_RAM uint8_t epaper_framebuffer[EPD_IMAGE_BYTES];
+PERSIST_RAM uint8_t old_epaper_framebuffer[EPD_IMAGE_BYTES];
+PERSIST_RAM uint8_t framebuffer_fast_update_count;
 
 void epaper_render_test()
 {
@@ -176,8 +178,22 @@ void epaper_render_test()
 	imu_update();
 
 	pc_set_mode(false);
-	cmd_turn_on_and_write(epaper_framebuffer);
+	if (is_first_init || framebuffer_fast_update_count>50)
+	{
+		LOG_DBG("Opted to global update, is_first_init=%d, framebuffer_fast_update_count=%d", is_first_init, framebuffer_fast_update_count);
+		is_first_init = false;
+		cmd_turn_on_and_write(epaper_framebuffer);
+		framebuffer_fast_update_count = 0;
+	}
+	else
+	{
+		LOG_DBG("Opted to fast update, framebuffer_fast_update_count=%d", framebuffer_fast_update_count);
+		cmd_turn_on_and_write_fast(old_epaper_framebuffer, epaper_framebuffer);
+		framebuffer_fast_update_count++;
+	}
 	pc_set_mode(true);
+
+	memcpy(old_epaper_framebuffer, epaper_framebuffer, sizeof(epaper_framebuffer));
 }
 
 void epaper_render_protected_off()

@@ -423,12 +423,13 @@ void CAT_render_graph()
 		if (get_ach_mode() == NONE)
 		{
 			// does not produce an [e]ACH
+			CAT_gui_text("(This does not produce [e]ACH)");
 		}
 		else
 		{
 			if (ach != -1)
 			{
-				CAT_gui_textf("%s: %.1f", (get_ach_mode()==EACH)?"eACH":"ACH", (double)ACH);
+				CAT_gui_textf("%s: %.1f", (get_ach_mode()==EACH)?"eACH":"ACH", (double)ach);
 			}
 			else
 			{
@@ -438,9 +439,6 @@ void CAT_render_graph()
 		CAT_gui_line_break();
 		CAT_gui_image(icon_a_sprite, 1);
 		CAT_gui_text("to start over");
-		CAT_gui_line_break();
-		CAT_gui_image(icon_start_sprite, 1);
-		CAT_gui_text("to change parameter");
 	}
 
 	if (cursor_state == SEL_START)
@@ -450,6 +448,9 @@ void CAT_render_graph()
 		CAT_gui_text("to change scale");
 		CAT_gui_line_break();
 		CAT_gui_textf("(Currently %.1fh wide)", (double)(GRAPH_W*graph_step_time)/3600.);
+		CAT_gui_line_break();
+		CAT_gui_image(icon_start_sprite, 1);
+		CAT_gui_text("to change parameter");
 	}
 
 	if (viewing == PRESS || viewing == NOX || viewing == VOC)

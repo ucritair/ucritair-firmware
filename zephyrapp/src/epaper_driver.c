@@ -294,6 +294,20 @@ void cmd_initialize()
 	send_write_command(0x00, 2, psr_data);
 }
 
+void cmd_initialize_fast()
+{
+	// Set temperature
+	send_write_command(0xE5, 1, (uint8_t[]){0x19+0x40}); // = 25C. TODO: Make come from temp sensor
+
+	// Activate (?) temperature
+	send_write_command(0xE0, 1, (uint8_t[]){0x02});
+
+	// Input panel settings data
+	send_write_command(0x00, 2, (uint8_t[]){psr_data[0]|0x10, psr_data[1]|0x02});
+
+	send_write_command(0x50, 1, (uint8_t[]){0x07});
+}
+
 void cmd_write_image(uint8_t* image_data)
 {
 	LOG_DBG("Issue 0x10 write image");
@@ -312,16 +326,36 @@ void cmd_write_image(uint8_t* image_data)
 	}
 }
 
+void cmd_write_image_fast(uint8_t* old_image, uint8_t* image_data)
+{
+	send_write_command(0x50, 1, (uint8_t[]){0x27});
+	send_write_command(0x50, 1, (uint8_t[]){0x27});
+
+	LOG_DBG("Issue 0x10 write old");
+	// Global update mode
+	// DTM1 = New image
+	send_write_command(0x10, EPD_IMAGE_BYTES, old_image);
+
+	LOG_DBG("Issue 0x13 write new");
+
+	send_write_command(0x13, EPD_IMAGE_BYTES, image_data);
+
+	send_write_command(0x50, 1, (uint8_t[]){0x07});
+	send_write_command(0x50, 1, (uint8_t[]){0x07});
+}
+
 void cmd_update()
 {
 	LOG_DBG("Issue 0x04 (cmd_update/1)");
 
+	send_write_command(0x04, 0, NULL);
 	send_write_command(0x04, 0, NULL);
 
 	wait_for_ready("cmd_update/0x04");
 
 	LOG_DBG("Issue 0x12 (cmd_update/2");
 
+	send_write_command(0x12, 0, NULL);
 	send_write_command(0x12, 0, NULL);
 
 	wait_for_ready("cmd_update/0x12");
@@ -365,6 +399,18 @@ void cmd_turn_on_and_write(uint8_t* image)
 	if (cmd_read_psr_data()) return;
 	cmd_initialize();
 	cmd_write_image(image);
+	cmd_update();
+	cmd_turn_off_dcdc();
+}
+
+void cmd_turn_on_and_write_fast(uint8_t* old, uint8_t* image)
+{
+	init_pins();
+
+	cmd_poweron();
+	if (cmd_read_psr_data()) return;
+	cmd_initialize_fast();
+	cmd_write_image_fast(old, image);
 	cmd_update();
 	cmd_turn_off_dcdc();
 }
