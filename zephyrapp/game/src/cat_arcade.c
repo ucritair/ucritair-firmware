@@ -26,12 +26,6 @@
 #define ANIM_PERIOD 4
 
 enum {SELECT, PLAY, LOSE} mode;
-static const char* entries[] = 
-{
-	"SNAKE",
-	"AIR QUALITY"
-};
-#define NUM_ENTRIES (sizeof(entries)/sizeof(entries[0]))
 static int selector = 0;
 
 int grasses[10] = {8, 2, 4, 10, 0, 11, 11, 7, 7, 12};
@@ -282,20 +276,24 @@ void CAT_MS_arcade(CAT_machine_signal signal)
 					selector -= 1;
 				if(CAT_input_pulse(CAT_BUTTON_DOWN))
 					selector += 1;
-				selector = clamp(selector, 0, NUM_ENTRIES-1);
+				selector = clamp(selector, 0, 2);
 				
 				if(CAT_input_pressed(CAT_BUTTON_A))
 				{
+#ifdef CAT_EMBDEDDED
 					if(selector == 0)
+					{
+						CAT_machine_transition(CAT_MS_aqi);
+					}
+					if(selector == 1)
+					{
+						CAT_machine_transition(CAT_MS_graph);
+					}
+#endif
+					if(selector == 2)
 					{
 						snake_init();
 						mode = PLAY;
-					}
-					else
-					{
-#ifdef CAT_EMBEDDED
-						CAT_machine_transition(CAT_MS_aqi);
-#endif
 					}
 				}
 			}
@@ -335,18 +333,22 @@ void CAT_render_arcade()
 
 		CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
 
-		for(int i = 0; i < NUM_ENTRIES; i++)
-		{
-			CAT_gui_textf("& %s ", entries[i]);
-			if(i == selector)
-			{
-				CAT_gui_image(icon_pointer_sprite, 0);
-			}
-			CAT_gui_line_break();
-		}
+		// This part is hideous. Ask M about it
+		CAT_gui_textf("uCritAir Score %%%0.1f\n", CAT_AQI_aggregate());
+		CAT_gui_div("AIR");
+		CAT_gui_text("  & Air Quality Log ");
+		if(selector == 0)
+			CAT_gui_image(icon_pointer_sprite, 0);
 		CAT_gui_line_break();
-
-		CAT_gui_textf("Your AQ score is %%%0.1f", CAT_AQI_aggregate());
+		CAT_gui_text("  & Air Quality Graph ");
+		if(selector == 1)
+			CAT_gui_image(icon_pointer_sprite, 0);
+		CAT_gui_line_break();
+		CAT_gui_div("PLAY");
+		CAT_gui_text("  & Snake ");
+		if(selector == 2)
+			CAT_gui_image(icon_pointer_sprite, 0);
+		CAT_gui_line_break();		
 	}
 	else if(mode == PLAY)
 	{

@@ -41,8 +41,23 @@
 
 void CAT_fresh_gamestate()
 {
-	CAT_bag_add(gpu_item);
+#ifdef CAT_DESKTOP
+	printf("Creating fresh game state\n");
+#endif
+
+	pet.vigour = 9;
+	pet.focus = 9;
+	pet.spirit = 9;
+
+	room.prop_count = 0;
+
+	bag.length = 0;
 	bag.coins = 5;
+	CAT_bag_add(gpu_item);
+
+	CAT_gear_toggle(mask_item, false);
+
+	snake_high_score = 0;
 }
 
 void CAT_force_save()

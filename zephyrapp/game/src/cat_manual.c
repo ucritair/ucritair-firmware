@@ -40,13 +40,12 @@ const char* credits[] =
 	"Rebecca Rehm",
 	"Tasha Schneider",
 	"Tomas Stegemann",
-	"M, IS ANYBODY MISSING?!"
 };
 #define NUM_CREDITS (sizeof(credits) / sizeof(credits[0]))
 
 int credit_indices[NUM_CREDITS] =
 {
-	0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
+	0,1,2,3,4,5,6,7,8,9,10,11,12,13,14
 };
 
 void CAT_MS_manual(CAT_machine_signal signal)
@@ -98,6 +97,14 @@ void CAT_draw_controls()
 	CAT_gui_image(icon_b_sprite, 1);
 	CAT_gui_image(icon_exit_sprite, 0);
 	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
+
+	CAT_gui_text("PRESS ");
+	CAT_gui_image(icon_w_sprite, 0);
+	CAT_gui_text(" OR ");
+	CAT_gui_image(icon_e_sprite, 0);
+	CAT_gui_text(" TO TRAVERSE\nTHE MANUAL SCREENS");
+	CAT_gui_div("");
+	CAT_gui_line_break();
 
 	CAT_gui_image(icon_start_sprite, 0);
 	CAT_gui_text("Open/close menu");

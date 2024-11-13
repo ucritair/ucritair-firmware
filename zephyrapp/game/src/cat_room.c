@@ -18,6 +18,14 @@ CAT_room room =
 	.coin_count = 0,
 	.earn_timer_id = -1,
 
+	.buttons =
+	{
+		CAT_MS_feed,
+		CAT_MS_study,
+		CAT_MS_play,
+		CAT_MS_deco,
+		CAT_MS_menu
+	},
 	.selector = 0
 };
 
@@ -164,13 +172,6 @@ void CAT_room_init()
 		room.coin_move_timers[i] = CAT_timer_init(0.75f);
 	}
 	room.earn_timer_id = CAT_timer_init(CAT_COIN_TICK_SECS);
-
-	room.buttons[0] = CAT_MS_feed;
-	room.buttons[1] = CAT_MS_study;
-	room.buttons[2] = CAT_MS_play;
-	room.buttons[3] = CAT_MS_deco;
-	room.buttons[4] = CAT_MS_menu;
-	room.selector = 0;
 }
 
 void CAT_room_background_tick(bool capture_input)
