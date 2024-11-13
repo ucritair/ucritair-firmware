@@ -10,7 +10,8 @@ struct epaper_image_asset {
 	uint8_t bytes[];
 };
 
-extern uint8_t epaper_framebuffer[EPD_IMAGE_BYTES];
+extern volatile uint8_t framebuffer_fast_update_count;
+extern volatile uint8_t epaper_framebuffer[EPD_IMAGE_BYTES];
 
 extern struct epaper_image_asset epaper_image_cloud_default;
 extern struct epaper_image_asset epaper_image_cloud_happy;
