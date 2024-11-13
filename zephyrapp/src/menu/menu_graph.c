@@ -28,6 +28,112 @@ int16_t graph_data[GRAPH_W];
 int graph_indicies[GRAPH_W];
 int graph_max;
 
+enum view_opt {
+	CO2 = 0,
+	PN10_0,
+	PM2_5,
+	TEMP,
+	RH,
+	PRESS,
+	VOC,
+	NOX,
+	VIEW_OPT_END
+} viewing = CO2;
+
+int16_t get_graph_data(struct flash_log_cell* cell)
+{
+	switch (viewing)
+	{
+#define NEG1_IF_NOT_FLAG(x, flag) ((cell->flags&flag)?x:-1)
+		case CO2:
+			return NEG1_IF_NOT_FLAG(cell->co2_ppmx1, FLAG_HAS_CO2);
+		case PM2_5:
+			return NEG1_IF_NOT_FLAG(cell->pm_ugmx100[1], FLAG_HAS_TEMP_RH_PARTICLES);
+		case PN10_0:
+			return NEG1_IF_NOT_FLAG(cell->pn_ugmx100[4], FLAG_HAS_TEMP_RH_PARTICLES);
+		case TEMP:
+			return NEG1_IF_NOT_FLAG(cell->temp_Cx1000/10, FLAG_HAS_TEMP_RH_PARTICLES);
+		case RH:
+			return NEG1_IF_NOT_FLAG(cell->rh_pctx100, FLAG_HAS_TEMP_RH_PARTICLES);
+#define NEG1_IF_0(x) (x==0?-1:x)
+		case PRESS:
+			return NEG1_IF_0(cell->pressure_hPax10);
+		case VOC:
+			return NEG1_IF_0(cell->voc_index);
+		case NOX:
+			return NEG1_IF_0(cell->nox_index);
+		default:
+			return 0;
+	}
+}
+
+enum ach_mode {
+	NONE,
+	ACH,
+	EACH
+} get_ach_mode()
+{
+	switch (viewing)
+	{
+	case CO2:
+		return ACH;
+	case PN10_0:
+		return EACH;
+	default:
+		return NONE;
+	}
+}
+
+char* get_string(int16_t graph_data)
+{
+	static char buf[32];
+
+	switch (viewing)
+	{
+		case CO2:
+			snprintf(buf, sizeof(buf), "%dppm", graph_data);
+			break;
+		case PM2_5:
+			snprintf(buf, sizeof(buf), "%.1f~g/m\x7f", ((double)graph_data)/100.);
+			break;
+		case PN10_0:
+			snprintf(buf, sizeof(buf), "%.1f#g/m\x7f", ((double)graph_data)/100.);
+			break;
+		case TEMP:
+			snprintf(buf, sizeof(buf), "%.1f`C", ((double)graph_data)/100.);
+			break;
+		case RH:
+			snprintf(buf, sizeof(buf), "%.1f%%RH", ((double)graph_data)/100.);
+			break;
+		case PRESS:
+			snprintf(buf, sizeof(buf), "%.1fhPa", ((double)graph_data)/10.);
+			break;
+		case VOC:
+		case NOX:
+			snprintf(buf, sizeof(buf), "%d", graph_data);
+			break;
+		default:
+			snprintf(buf, sizeof(buf), "???");
+	}
+
+	return buf;
+}
+
+char* get_name()
+{
+	switch (viewing)
+	{
+	case CO2: return "CO2";
+	case PM2_5: return "PM2.5";
+	case PN10_0: return "PN10.0";
+	case TEMP: return "TEMPERATURE";
+	case RH: return "HUMIDITY";
+	case PRESS: return "PRESSURE";
+	case VOC: return "VOC INDEX";
+	case NOX: return "NOX INDEX";
+	}
+}
+
 void update_graph()
 {
 	uint64_t time = graph_end_time;
@@ -41,8 +147,9 @@ void update_graph()
 		memo = flash_get_first_cell_before_time(memo, time, &cell);
 		if (memo > 0)
 		{
-			graph_data[x] = cell.co2_ppmx1;
-			graph_indicies[x] = memo;
+			graph_data[x] = get_graph_data(&cell);
+			if (graph_data[x] != -1)
+				graph_indicies[x] = memo;
 		}
 		else
 		{
@@ -64,13 +171,16 @@ void update_graph()
 			max = graph_data[x];
 	}
 
+	if (max<2) max = 2;
+
 	float scale = ((float)GRAPH_H)/((float)max);
 
 	LOG_DBG("Scale graph");
 
 	for (int x = 0; x < GRAPH_W; x++)
 	{
-		graph_data[x] = ((float)graph_data[x])*scale;
+		if (graph_data[x] != -1)
+			graph_data[x] = ((float)graph_data[x])*scale;
 	}
 
 	graph_max = max;
@@ -99,6 +209,7 @@ void CAT_MS_graph(CAT_machine_signal signal)
 			graph_step_time = 3*60;
 			step_time_index = 0;
 			cursor_state = SEL_START;
+			viewing = 0;
 			cursor_end = GRAPH_W-1;
 			update_graph();
 			break;
@@ -118,7 +229,11 @@ void CAT_MS_graph(CAT_machine_signal signal)
 				else if (cursor_state == SEL_END)
 				{
 					cursor_state = SEL_DONE;
-					calc_ach();
+
+					if (get_ach_mode() != NONE)
+					{
+						calc_ach();
+					}
 				}
 				else
 				{
@@ -135,6 +250,14 @@ void CAT_MS_graph(CAT_machine_signal signal)
 					step_time_index=0;
 				}
 				graph_step_time=step_times[step_time_index];
+				update_graph();
+			}
+
+			if (CAT_input_pressed(CAT_BUTTON_START && cursor_state == SEL_START))
+			{
+				viewing++;
+				if (viewing == VIEW_OPT_END)
+					viewing = 0;
 				update_graph();
 			}
 
@@ -159,7 +282,7 @@ void CAT_MS_graph(CAT_machine_signal signal)
 }
 
 
-void CAT_do_render_graph(uint16_t* data, int max, int x, int y, int cursor_start, int cursor_end);
+void CAT_do_render_graph(int16_t* data, int max, int x, int y, int cursor_start, int cursor_end);
 
 struct dp {
 	uint64_t time;
@@ -183,7 +306,7 @@ void calc_ach()
 		else
 			continue;
 
-		struct dp here = {.time = cell.timestamp, .ppm = cell.co2_ppmx1};
+		struct dp here = {.time = cell.timestamp, .ppm = get_graph_data(&cell)};
 
 		if (here.ppm > max.ppm)
 		{
@@ -217,7 +340,7 @@ void calc_ach()
 		else
 			continue;
 
-		if (cell.co2_ppmx1 < decay_concentration)
+		if (get_graph_data(&cell) < decay_concentration)
 		{
 			decay_time = cell.timestamp;
 			break;
@@ -252,7 +375,7 @@ void text_cursor(char* name, int index)
 	uint64_t ts = cell.timestamp;
 	gmtime_r(&ts, &t); 
 
-	CAT_gui_textf("%dppm @ %2d:%02d:%02d", cell.co2_ppmx1, t.tm_hour, t.tm_min, t.tm_sec);
+	CAT_gui_textf("%s @ %2d:%02d:%02d", get_string(get_graph_data(&cell)), t.tm_hour, t.tm_min, t.tm_sec);
 }
 
 void CAT_render_graph()
@@ -266,7 +389,9 @@ void CAT_render_graph()
 
 	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
 
-	CAT_gui_text("CO2 Graph");
+	CAT_gui_text(get_name());
+	CAT_gui_image(icon_start_sprite, 1);
+	CAT_gui_text("Graph");
 	CAT_gui_line_break();
 
 	CAT_do_render_graph(graph_data, graph_max, GRAPH_PAD, gui.cursor.y, cursor_start, cursor_state>SEL_START?cursor_end:-1);
@@ -296,7 +421,14 @@ void CAT_render_graph()
 
 	if (cursor_state == SEL_DONE)
 	{
-		CAT_gui_textf("ACH: %.1f", (double)ach);
+		if (get_ach_mode() == NONE)
+		{
+			CAT_gui_text(" ");
+		}
+		else
+		{
+			CAT_gui_textf("%s: %.1f", (double)ach, (get_ach_mode()==EACH)?"eACH":"ACH");
+		}
 		CAT_gui_line_break();
 		CAT_gui_image(icon_a_sprite, 1);
 		CAT_gui_text("to start over");
@@ -309,5 +441,13 @@ void CAT_render_graph()
 		CAT_gui_text("to change scale");
 		CAT_gui_line_break();
 		CAT_gui_textf("(Currently %.1fh wide)", (double)(GRAPH_W*graph_step_time)/3600.);
+	}
+
+	if (viewing == PRESS || viewing == NOX || viewing == VOC)
+	{
+		CAT_gui_line_break();
+		CAT_gui_text("(This data is not always");
+		CAT_gui_line_break();
+		CAT_gui_text(" logged.)");
 	}
 }

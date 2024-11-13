@@ -197,7 +197,7 @@ enum sdcard_result write_log_to_sdcard()
 		goto out;
 	}
 
-	char buf[256];
+	char buf[512];
 
 	int count = 0;
 	while (true)
@@ -235,7 +235,7 @@ enum sdcard_result write_log_to_sdcard()
 		goto out;
 	}
 
-	int len = snprintf(buf, sizeof(buf), "Timestamp,CO2,PM1.0,PM2.5,PM4.0,PM10,TempC,RH,VOC,NOX\n");
+	int len = snprintf(buf, sizeof(buf), "Timestamp,FLAGS,CO2,PM1.0,PM2.5,PM4.0,PM10,PN0.5,PN1.0,PN2.5,PN4.0,PN10.0,TempC,RH,VOC,NOX\n");
 
 	err = fs_write(&file, buf, len);
 	if (err != len)
@@ -254,13 +254,19 @@ enum sdcard_result write_log_to_sdcard()
 
 #define UG(x) (((double)x)/100.)
 
-		len = snprintf(buf, sizeof(buf), "%lld,%d,%.1f,%.1f,%.1f,%.1f,%.2f,%.1f,%d,%d\n",
+		len = snprintf(buf, sizeof(buf), "%lld,%d,%d,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.2f,%.1f,%d,%d\n",
 			RTC_TIME_TO_EPOCH_TIME(cell.timestamp),
+			cell.flags,
 			cell.co2_ppmx1,
 			UG(cell.pm_ugmx100[0]),
 			UG(cell.pm_ugmx100[1]),
 			UG(cell.pm_ugmx100[2]),
 			UG(cell.pm_ugmx100[3]),
+			UG(cell.pn_ugmx100[0]),
+			UG(cell.pn_ugmx100[1]),
+			UG(cell.pn_ugmx100[2]),
+			UG(cell.pn_ugmx100[3]),
+			UG(cell.pn_ugmx100[4]),
 			(((double)cell.temp_Cx1000)/1000.),
 			(((double)cell.rh_pctx100)/100.),
 			cell.voc_index,

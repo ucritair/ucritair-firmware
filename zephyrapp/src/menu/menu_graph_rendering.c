@@ -18,7 +18,7 @@ void fill_rect(int x0, int y0, int w, int h, uint16_t color)
 	}
 }
 
-void CAT_do_render_graph(uint16_t* data, int max, int xoff, int yoff, int cursor_start, int cursor_end)
+void CAT_do_render_graph(int16_t* data, int max, int xoff, int yoff, int cursor_start, int cursor_end)
 {
 	yoff -= framebuffer_offset_h;
 
@@ -37,16 +37,7 @@ void CAT_do_render_graph(uint16_t* data, int max, int xoff, int yoff, int cursor
 	for (int x = 0; x < GRAPH_W; x++)
 	{
 		int h = data[x];
-		if (h == -1)
-		{
-			continue;
-		}
-
-		while (h--)
-		{
-			plot_px(xoff+x, yoff + GRAPH_H - h, 0xf000);
-		}
-
+		
 		if (x==cursor_start)
 		{
 			for (int i = 0; i < GRAPH_H; i++)
@@ -61,6 +52,16 @@ void CAT_do_render_graph(uint16_t* data, int max, int xoff, int yoff, int cursor
 			{
 				plot_px(xoff+x, yoff+i, 0x00f0);
 			}
+		}
+
+		if (h == -1)
+		{
+			continue;
+		}
+
+		while (h--)
+		{
+			plot_px(xoff+x, yoff + GRAPH_H - h, 0xf000);
 		}
 	}
 }

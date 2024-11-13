@@ -150,9 +150,11 @@ void CAT_render_time()
 	CAT_gui_line_break();
 	CAT_gui_line_break();
 
-	if (sensor_wakeup_rate < MIN_WAKEUP_RATE_TO_DEEP_SLEEP)
-	{
-		textf("NOTE: high power drain");
-		CAT_gui_line_break();
-	}
+	// +15 is approximate time to get a fix and log
+	int hrs = get_hours_of_logging_at_rate(sensor_wakeup_rate+15);
+	int days = hrs/24;
+	hrs %= 24;
+	textf("Space for %dd %dh", days, hrs);
+	CAT_gui_line_break();
+	textf("logging left at this rate");
 }
