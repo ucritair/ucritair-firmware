@@ -140,10 +140,10 @@ void CAT_render_aqi()
 	
 	textfnl(" ");
 	
-	if (view_cell.co2_ppmx1)
+	if (view_cell.flags & FLAG_HAS_CO2)
 	{
 		textfnl("CO2: %dppm", (int)view_cell.co2_ppmx1);
-		textfnl("    (%.0f%% rebreathed air)", ((((double)view_cell.co2_ppmx1)-420.)/38000.)*100.);
+		textfnl("    (%.1f%% rebreathed air)", ((((double)view_cell.co2_ppmx1)-420.)/38000.)*100.);
 	}
 	else
 	{
@@ -153,12 +153,13 @@ void CAT_render_aqi()
 
 	textfnl(" ");
 	
-	if (view_cell.pm_ugmx100[0])
+	if (view_cell.flags & FLAG_HAS_TEMP_RH_PARTICLES)
 	{
-		textfnl("PM1.0: %2.1f ~g/m\x7f", ((double)view_cell.pm_ugmx100[0])/100.);
-		textfnl("PM2.5: %2.1f ~g/m\x7f", ((double)view_cell.pm_ugmx100[1])/100.);
-		textfnl("PM4.0: %2.1f ~g/m\x7f", ((double)view_cell.pm_ugmx100[2])/100.);
-		textfnl("PM10 : %2.1f ~g/m\x7f", ((double)view_cell.pm_ugmx100[3])/100.);
+		textfnl("PM0.5:            % 2.1f #/m\x7f", ((double)view_cell.pn_ugmx100[0])/100.);
+		textfnl("PM1.0: % 2.1f ~g/m\x7f % 2.1f #/m\x7f", ((double)view_cell.pm_ugmx100[0])/100., ((double)view_cell.pn_ugmx100[1])/100.);
+		textfnl("PM2.5: % 2.1f ~g/m\x7f % 2.1f #/m\x7f", ((double)view_cell.pm_ugmx100[1])/100., ((double)view_cell.pn_ugmx100[2])/100.);
+		textfnl("PM4.0: % 2.1f ~g/m\x7f % 2.1f #/m\x7f", ((double)view_cell.pm_ugmx100[2])/100., ((double)view_cell.pn_ugmx100[3])/100.);
+		textfnl("PM10 : % 2.1f ~g/m\x7f % 2.1f #/m\x7f", ((double)view_cell.pm_ugmx100[3])/100., ((double)view_cell.pn_ugmx100[4])/100.);
 	}
 	else
 	{
@@ -166,15 +167,26 @@ void CAT_render_aqi()
 		textfnl(" ");
 		textfnl(" ");
 		textfnl(" ");
+		textfnl(" ");
 	}
 
 	textfnl(" ");
 	
-	if (view_cell.temp_Cx1000)
+	if (view_cell.flags & FLAG_HAS_TEMP_RH_PARTICLES)
 	{
-		textfnl("%2.1f`C  |  %2.0f%%RH", 
-			((double)view_cell.temp_Cx1000)/1000.,
-			((double)view_cell.rh_pctx100)/100.);
+		if (view_cell.pressure_hPax10 != 0)
+		{
+			textfnl("%2.1f`C    %2.0f%%RH    %.0fhPa", 
+				((double)view_cell.temp_Cx1000)/1000.,
+				((double)view_cell.rh_pctx100)/100.,
+				((double)view_cell.pressure_hPax10)/10.);
+		}
+		else
+		{
+			textfnl("%2.1f`C    %2.0f%%RH", 
+				((double)view_cell.temp_Cx1000)/1000.,
+				((double)view_cell.rh_pctx100)/100.);
+		}
 	}
 	else
 	{
@@ -185,8 +197,7 @@ void CAT_render_aqi()
 	
 	if (view_cell.nox_index && view_cell.voc_index)
 	{
-		textfnl("VOC %3.0f", (double)view_cell.voc_index);
-		textfnl("NOX %3.0f", (double)view_cell.nox_index);
+		textfnl("VOC %3.0f    NOX %3.0f", (double)view_cell.voc_index, (double)view_cell.nox_index);
 	}
 	else
 	{

@@ -115,6 +115,9 @@ void menu_sensors()
 	textf("SEN5x @ %lldms", current_readings.sen5x.uptime_last_updated);
 	textf("PM1.0: %.1f | PM2.5: %.1f", (double)current_readings.sen5x.pm1_0, (double)current_readings.sen5x.pm2_5);
 	textf("PM4.0: %.1f | PM10.0: %.1f", (double)current_readings.sen5x.pm4_0, (double)current_readings.sen5x.pm10_0);
+	textf("PN0.5: %.1f", (double)current_readings.sen5x.nc0_5);
+	textf("PN1.0: %.1f | PN2.5: %.1f", (double)current_readings.sen5x.nc1_0, (double)current_readings.sen5x.nc2_5);
+	textf("PN4.0: %.1f | PN10.0: %.1f", (double)current_readings.sen5x.nc4_0, (double)current_readings.sen5x.nc10_0);
 	textf("Humidity: %.1f%%RH; Temp: %.1fC", (double)current_readings.sen5x.humidity_rhpct, (double)current_readings.sen5x.temp_degC);
 	textf("VOC: %.1f; NOX: %.1f", (double)current_readings.sen5x.voc_index, (double)current_readings.sen5x.nox_index);
 
@@ -160,7 +163,11 @@ void menu_post()
 	textfc(did_post_imu?POST_GRN:POST_RED,         "IMU  %s", did_post_imu?"OK":"FAIL");
 	textfc(did_post_flash?POST_GRN:POST_RED,       "W25Q %s", did_post_flash?"OK":"FAIL");
 	textfc(ble_ok?POST_GRN:POST_RED,               "BLE  %s", ble_ok?"OK":"FAIL");
+#ifdef CONFIG_WIFI
 	textfc(did_post_wifi?POST_GRN:POST_RED,        "WIFI %s", did_post_wifi?"OK":"NOTYET");
+#else
+	text("WIFI DISABLED");
+#endif
 	textfc(seen_buttons==0xff?POST_GRN:POST_RED,   "BTN  %s (seen %02x)", seen_buttons==0xff?"OK":"NOTYET", seen_buttons);
 	textfc(did_post_sdcard?POST_GRN:POST_RED,      "SD   %s", did_post_sdcard?"OK":"FAIL/NOTPRESENT");
 

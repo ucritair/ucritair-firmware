@@ -19,6 +19,8 @@
 #include "lcd_rendering.h"
 #include "batt.h"
 
+#include <zephyr/kernel.h>
+
 #include <stddef.h>
 
 int system_menu_selector = 0;
@@ -28,7 +30,8 @@ char* system_menu_note = "";
 bool co2_calibrating = false;
 bool did_co2_cal = false;
 
-#define CO2_CAL_TIME 10
+#define CO2_CAL_TIME (5*60)
+// set to 5 min
 int co2_calibration_start_time = 0;
 
 typedef void (*menu_t)();

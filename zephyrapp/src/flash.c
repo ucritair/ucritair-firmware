@@ -37,7 +37,7 @@ static inline bool cell_is_valid(struct flash_log_cell* cell)
 int next_log_cell_nr = LOG_CELL_NR_UNKOWN;
 int flash_get_next_log_cell_nr();
 
-_Static_assert(sizeof(struct flash_log_cell) == 32);
+_Static_assert(sizeof(struct flash_log_cell) == 64);
 
 bool did_post_flash = false;
 
@@ -186,10 +186,16 @@ int flash_get_first_cell_before_time(int check, uint64_t t, struct flash_log_cel
 	return 0;
 }
 
+float get_hours_of_logging_at_rate(int rate)
+{
+	int left = MAX_LOG_CELL_COUNT - next_log_cell_nr;
+	return ((double)(rate*left))/3600.;
+}
+
 void populate_log_cell(struct flash_log_cell* cell)
 {
 	if (!did_post_flash) return;
-	cell->flags = 0xff;
+	cell->flags = 0;
 
 	int now = k_uptime_get();
 	int ago[2] = {
@@ -222,15 +228,33 @@ void populate_log_cell(struct flash_log_cell* cell)
 
 	// LOG_DBG("cell->timestamp = %d", cell->timestamp);
 
+	cell->pressure_hPax10 = current_readings.lps22hh.pressure * 10;
+
 	cell->temp_Cx1000 = current_readings.sen5x.temp_degC * 1000; // C * 1000
 	cell->rh_pctx100 = current_readings.sen5x.humidity_rhpct * 100; // % * 100
 
 	cell->co2_ppmx1 = current_readings.sunrise.ppm_filtered_compensated * 1; // ppm * 1
 
+	if (current_readings.sunrise.uptime_last_updated)
+	{
+		cell->flags |= FLAG_HAS_CO2;
+	}
+
 	cell->pm_ugmx100[0] = current_readings.sen5x.pm1_0 * 100; //1.0, 2.5, 4.0, 10.0 x100
 	cell->pm_ugmx100[1] = current_readings.sen5x.pm2_5 * 100;
 	cell->pm_ugmx100[2] = current_readings.sen5x.pm4_0 * 100;
 	cell->pm_ugmx100[3] = current_readings.sen5x.pm10_0 * 100;
+
+	cell->pn_ugmx100[0] = current_readings.sen5x.nc1_0 * 100; 
+	cell->pn_ugmx100[0] = current_readings.sen5x.nc1_0 * 100; //1.0, 2.5, 4.0, 10.0 x100
+	cell->pn_ugmx100[1] = current_readings.sen5x.nc2_5 * 100;
+	cell->pn_ugmx100[2] = current_readings.sen5x.nc4_0 * 100;
+	cell->pn_ugmx100[3] = current_readings.sen5x.nc10_0 * 100;
+
+	if (current_readings.sen5x.uptime_last_updated)
+	{
+		cell->flags |= FLAG_HAS_TEMP_RH_PARTICLES;
+	}
 
 	cell->voc_index = current_readings.sen5x.voc_index * 1; //x1
 	cell->nox_index = current_readings.sen5x.nox_index * 1; //x1
