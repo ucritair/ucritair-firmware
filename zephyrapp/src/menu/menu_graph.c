@@ -349,7 +349,7 @@ void calc_ach()
 
 	LOG_DBG("deacy_time = %lld", decay_time);
 
-	if (decay_time == 0 || decay_time==max.time || max.ppm == min.ppm || max.ppm = 0 || min.ppm == 99999)
+	if (decay_time == 0 || decay_time==max.time || max.ppm == min.ppm || max.ppm == 0 || min.ppm == 99999)
 	{
 		LOG_WRN("ACH->-1");
 		ach = -1;
