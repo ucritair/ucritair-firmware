@@ -425,7 +425,7 @@ void CAT_greenberry(int xi, int w, int yi, int h, float t)
 }
 // Okay, it's more of an orangeberry. [Goldberry?](https://tolkiengateway.net/wiki/Goldberry)
 
-void CAT_clearberry(uint16_t c)
+void CAT_frameberry(uint16_t c)
 {
 #ifdef CAT_EMBEDDED
 	c = (c >> 8) | ((c & 0xff) << 8);
@@ -484,19 +484,27 @@ void CAT_greyberry(int xi, int w, int yi, int h)
 	}
 }
 
-// void CAT_starberry()
-// {
-// #ifdef CAT_EMBEDDED
-// 	c = (c >> 8) | ((c & 0xff) << 8);
-// #endif
-// 	for(int y = 0; y < LCD_SCREEN_H; y++)
-// 	{
-// 		for(int x = 0; x < LCD_SCREEN_W; x++)
-// 		{
-// 			FRAMEBUFFER[y * LCD_SCREEN_W + x] = x ^ y;
-// 		}
-// 	}
-// }
+
+void CAT_circberry(int xi, int yi, int r, uint16_t c)
+{
+	int xc = xi + r;
+	int yc = yi + r;
+	int xf = xc + r;
+	int yf = yc + r;
+	for(int y = yi; y < yf; y++)
+	{
+		for(int x = xi; x < xf; x++)
+		{
+			int dx = x - xc;
+			int dy = y - yc;
+			if((dx * dx + dy * dy) < r*r)
+			{
+				int idx = y * LCD_SCREEN_W + x;
+				FRAMEBUFFER[idx] = c;
+			}
+		}
+	}
+}
 
 
 /////////////////////awhhhhhhehhhhh

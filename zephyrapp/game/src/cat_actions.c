@@ -90,10 +90,12 @@ void CAT_action_tick()
 		}
 		if(CAT_AM_is_in(&pet_asm, action_state.stat_up_AS))
 		{
+			CAT_set_LEDs(255, 255, 255);
 			CAT_AM_transition(&pet_asm, &AS_adjust_out);
 		}	
 		if(CAT_AM_is_in(&pet_asm, &AS_adjust_out))
 		{
+			CAT_set_LEDs(0, 0, 0);
 			CAT_machine_transition(CAT_MS_room);
 		}
 	}
@@ -187,16 +189,18 @@ void CAT_render_action(int cycle)
 		if(action_state.item_id != -1)
 		{
 			CAT_item* item = CAT_item_get(action_state.item_id);
+			int tool_layer = item->data.tool_data.consumable ? 1 : 2;
 			int tool_mode = CAT_DRAW_MODE_BOTTOM;
-			if(spot.x > pet.pos.x)
-				tool_mode |= CAT_DRAW_MODE_REFLECT_X;
+
 			if(!action_state.confirmed)
 			{
-				CAT_draw_queue_add(item->data.tool_data.cursor_sprite_id, 0, 2, spot.x, spot.y+16, tool_mode);
+				CAT_draw_queue_add(item->data.tool_data.cursor_sprite_id, 0, tool_layer, spot.x, spot.y+16, tool_mode);
 			}			
 			else if(!action_state.complete)
 			{
-				CAT_draw_queue_animate(item->sprite_id, 2, spot.x, spot.y+16, tool_mode);
+				if(spot.x > pet.pos.x)
+					tool_mode |= CAT_DRAW_MODE_REFLECT_X;
+				CAT_draw_queue_animate(item->sprite_id, tool_layer, spot.x, spot.y+16, tool_mode);
 			}
 		}
 		else

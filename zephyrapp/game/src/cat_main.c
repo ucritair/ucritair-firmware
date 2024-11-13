@@ -231,6 +231,18 @@ void CAT_tick_render(int cycle)
 	else if(machine == CAT_MS_graph)
 		CAT_render_graph();
 #endif
+
+#ifdef CAT_DESKTOP
+	if(LED_rgb != 0)
+	{
+		CAT_circberry(0, 108, 8, LED_rgb);
+		CAT_circberry(224, 108, 8, LED_rgb);
+		CAT_circberry(0, 108+64, 8, LED_rgb);
+		CAT_circberry(224, 108+64, 8, LED_rgb);
+		CAT_circberry(0, 108+64+64, 8, LED_rgb);
+		CAT_circberry(224, 108+64+64, 8, LED_rgb);
+	}
+#endif
 }
 
 #ifdef CAT_DESKTOP

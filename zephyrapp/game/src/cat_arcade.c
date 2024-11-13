@@ -210,7 +210,7 @@ void CAT_MS_arcade(CAT_machine_signal signal)
 
 void draw_map()
 {
-	CAT_clearberry(RGB8882565(122, 146, 57));
+	CAT_frameberry(RGB8882565(122, 146, 57));
 	for(int y = 0; y < 20; y += 2)
 	{
 		CAT_draw_sprite(grass_floor_sprite, 17, grasses[y/2]*16, y*16);
@@ -289,7 +289,7 @@ void CAT_render_arcade()
 
 		CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
 
-		CAT_gui_text("& SNAKE");
+		CAT_gui_text("& SNAKE ");
 		CAT_gui_image(icon_pointer_sprite, 0);
 	}
 	else if(mode == PLAY)
@@ -321,14 +321,18 @@ void CAT_render_arcade()
 		gui.cursor.y += 24;
 		gui.start.x += 28;
 		gui.start.y += 24;
-		CAT_gui_text
+		CAT_gui_textf
 		(
 			"Your long journey has\n"
 			"come to a tragic end.\n"
 			"\n"
 			"Press any button to\n"
 			"return from whence\n"
-			"you came."
+			"you came.\n"
+			"\n"
+			"Your high score is\n"
+			"%d",
+			1024
 		);
 	}
 }
