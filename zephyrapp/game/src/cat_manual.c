@@ -100,7 +100,7 @@ void CAT_draw_stats()
 	CAT_gui_image(icon_spi_sprite, 0);
 	CAT_gui_line_break();
 
-	CAT_gui_text("# VIGOUR");
+	CAT_gui_text("& VIGOUR");
 	CAT_gui_line_break();
 	CAT_gui_text
 	(
@@ -111,7 +111,7 @@ void CAT_draw_stats()
 	);
 	CAT_gui_line_break();
 
-	CAT_gui_text("# FOCUS");
+	CAT_gui_text("& FOCUS");
 	CAT_gui_line_break();
 	CAT_gui_text
 	(
@@ -122,7 +122,7 @@ void CAT_draw_stats()
 	);
 	CAT_gui_line_break();
 
-	CAT_gui_text("# SPIRIT");
+	CAT_gui_text("& SPIRIT");
 	CAT_gui_line_break();
 	CAT_gui_text
 	(
@@ -149,7 +149,7 @@ void CAT_draw_actions()
 	CAT_gui_image(toy_duck_sprite, 0);
 	CAT_gui_line_break();
 
-	CAT_gui_text("# FEEDING");
+	CAT_gui_text("& FEEDING");
 	CAT_gui_line_break();
 	CAT_gui_text
 	(
@@ -160,7 +160,7 @@ void CAT_draw_actions()
 	);
 	CAT_gui_line_break();
 	
-	CAT_gui_text("# STUDYING");
+	CAT_gui_text("& STUDYING");
 	CAT_gui_line_break();
 	CAT_gui_text
 	(
@@ -171,7 +171,7 @@ void CAT_draw_actions()
 	);
 	CAT_gui_line_break();
 
-	CAT_gui_text("# PLAYING");
+	CAT_gui_text("& PLAYING");
 	CAT_gui_line_break();
 	CAT_gui_text
 	(

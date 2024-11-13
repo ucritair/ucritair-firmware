@@ -327,7 +327,7 @@ void CAT_draw_tiles(int sprite_id, int frame_idx, int y_t, int h_t)
 #endif
 
 #ifdef CAT_EMBEDDED
-#if LCD_FRAMEBUFFER_SEGMENTS != 10
+#if ((LCD_SCREEN_H/LCD_FRAMEBUFFER_SEGMENTS)%16) != 0
 #error adjust tiler (start pos)
 #endif
 #endif

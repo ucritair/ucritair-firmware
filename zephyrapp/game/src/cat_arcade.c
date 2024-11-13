@@ -289,7 +289,7 @@ void CAT_render_arcade()
 
 		CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
 
-		CAT_gui_text("# SNAKE");
+		CAT_gui_text("& SNAKE");
 		CAT_gui_image(icon_pointer_sprite, 0);
 	}
 	else if(mode == PLAY)
