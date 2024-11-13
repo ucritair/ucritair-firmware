@@ -53,9 +53,6 @@ int eat_count = 0;
 
 void spawn_food()
 {
-	int lfx = food_x;
-	int lfy = food_y;
-
 	/*bool valid = false;
 	int its = 0;
 	while(!valid && its < SNAKE_MAX_ITERATIONS)
@@ -101,7 +98,7 @@ food_spawn_fail:
 				if
 				(
 					(x == snake_x[i] && y == snake_y[i]) ||
-					(x == lfx && y == lfy)
+					(x == food_x && y == food_y)
 				)
 				{
 					goto food_spawn_fail;
@@ -110,6 +107,7 @@ food_spawn_fail:
 			goto food_spawn_success;
 		}
 	}
+
 food_spawn_success:
 	food_x = guess_x;
 	food_y = guess_y;
