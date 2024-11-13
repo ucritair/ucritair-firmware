@@ -14,7 +14,9 @@ CAT_action_state action_state =
 	.action_AS = NULL,
 	.stat_up_AS = NULL,
 
-	.item_id = -1,
+	.LED_colour = {0, 0, 0},
+
+	.tool_id = -1,
 	.confirmed = false,
 	.complete = false,
 
@@ -23,7 +25,7 @@ CAT_action_state action_state =
 
 void CAT_action_state_clear()
 {
-	action_state.item_id = -1;
+	action_state.tool_id = -1;
 	action_state.confirmed = false;
 	action_state.complete = false;
 	CAT_timer_reset(action_state.timer_id);
@@ -36,7 +38,7 @@ void CAT_action_tick()
 		action_state.timer_id = CAT_timer_init(3.0f);
 	}
 	
-	if(action_state.item_id == -1)
+	if(action_state.tool_id == -1)
 	{
 		bag_anchor = action_state.action_MS;
 		CAT_machine_transition(CAT_MS_bag);
@@ -72,13 +74,13 @@ void CAT_action_tick()
 		{
 			if(CAT_timer_tick(action_state.timer_id))
 			{
-				CAT_pet_use(action_state.item_id);
+				CAT_pet_use(action_state.tool_id);
 				CAT_pet_reanimate();
 			
-				CAT_item* item = CAT_item_get(action_state.item_id);
+				CAT_item* item = CAT_item_get(action_state.tool_id);
 				if(item->data.tool_data.consumable)
 				{
-					CAT_bag_remove(action_state.item_id);
+					CAT_bag_remove(action_state.tool_id);
 				}
 				
 				action_state.complete = true;
@@ -90,7 +92,7 @@ void CAT_action_tick()
 		}
 		if(CAT_AM_is_in(&pet_asm, action_state.stat_up_AS))
 		{
-			CAT_set_LEDs(255, 255, 255);
+			CAT_set_LEDs(action_state.LED_colour[0], action_state.LED_colour[1], action_state.LED_colour[2]);
 			CAT_AM_transition(&pet_asm, &AS_adjust_out);
 		}	
 		if(CAT_AM_is_in(&pet_asm, &AS_adjust_out))
@@ -115,6 +117,11 @@ void CAT_MS_feed(CAT_machine_signal signal)
 			action_state.action_MS = CAT_MS_feed;
 			action_state.action_AS = &AS_eat;
 			action_state.stat_up_AS = &AS_vig_up;
+
+			action_state.LED_colour[0] = 255;
+			action_state.LED_colour[1] = 106;
+			action_state.LED_colour[2] = 171;
+
 			CAT_pet_settle();
 			break;
 		}
@@ -140,6 +147,11 @@ void CAT_MS_study(CAT_machine_signal signal)
 			action_state.action_MS = CAT_MS_study;
 			action_state.action_AS = &AS_study;
 			action_state.stat_up_AS = &AS_foc_up;
+
+			action_state.LED_colour[0] = 74;
+			action_state.LED_colour[1] = 206;
+			action_state.LED_colour[2] = 220;
+
 			CAT_pet_settle();
 			break;
 		}
@@ -165,6 +177,11 @@ void CAT_MS_play(CAT_machine_signal signal)
 			action_state.action_MS = CAT_MS_play;
 			action_state.action_AS = &AS_play;
 			action_state.stat_up_AS = &AS_spi_up;
+
+			action_state.LED_colour[0] = 76;
+			action_state.LED_colour[1] = 71;
+			action_state.LED_colour[2] = 255;
+
 			CAT_pet_settle();
 			break;
 		}
@@ -186,9 +203,9 @@ void CAT_render_action(int cycle)
 	if(cycle == 0)
 	{
 		CAT_ivec2 spot = CAT_ivec2_mul(room.cursor, 16);
-		if(action_state.item_id != -1)
+		if(action_state.tool_id != -1)
 		{
-			CAT_item* item = CAT_item_get(action_state.item_id);
+			CAT_item* item = CAT_item_get(action_state.tool_id);
 			int tool_layer = item->data.tool_data.consumable ? 1 : 2;
 			int tool_mode = CAT_DRAW_MODE_BOTTOM;
 

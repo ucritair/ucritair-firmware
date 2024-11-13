@@ -86,9 +86,9 @@ struct bag_relation
 	int* ptr;
 } bag_relations[] =
 {
-	{CAT_MS_feed, CAT_ITEM_TYPE_FOOD, &action_state.item_id},
-	{CAT_MS_study, CAT_ITEM_TYPE_BOOK, &action_state.item_id},
-	{CAT_MS_play, CAT_ITEM_TYPE_TOY, &action_state.item_id},
+	{CAT_MS_feed, CAT_ITEM_TYPE_FOOD, &action_state.tool_id},
+	{CAT_MS_study, CAT_ITEM_TYPE_BOOK, &action_state.tool_id},
+	{CAT_MS_play, CAT_ITEM_TYPE_TOY, &action_state.tool_id},
 	{CAT_MS_deco, CAT_ITEM_TYPE_PROP, &deco_state.add_id}
 };
 #define NUM_BAG_RELATIONS (sizeof(bag_relations)/sizeof(bag_relations[0]))

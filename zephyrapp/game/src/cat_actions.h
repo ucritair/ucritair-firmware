@@ -10,7 +10,9 @@ typedef struct CAT_action_state
 	CAT_AM_state* action_AS;
 	CAT_AM_state* stat_up_AS;
 
-	int item_id;
+	uint8_t LED_colour[3];
+
+	int tool_id;
 	CAT_vec2 location;
 	bool confirmed;
 	bool complete;
