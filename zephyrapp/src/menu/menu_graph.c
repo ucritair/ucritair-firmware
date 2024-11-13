@@ -423,6 +423,7 @@ void CAT_render_graph()
 		if (get_ach_mode() == NONE)
 		{
 			// does not produce an [e]ACH
+			CAT_gui_text("(This does not produce [e]ACH)");
 		}
 		else
 		{

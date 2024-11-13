@@ -161,18 +161,18 @@ void CAT_render_aqi()
 	{
 		if (view_pn)
 		{
-			textfnl("PN0.5: % 2.03f #/cm\x7f", ((double)view_cell.pn_ugmx100[0])/100.);
-			textfnl("PN1.0: % 2.03f #/cm\x7f", ((double)view_cell.pn_ugmx100[1])/100.);
-			textfnl("PN2.5: % 2.03f #/cm\x7f", ((double)view_cell.pn_ugmx100[2])/100.);
-			textfnl("PN4.0: % 2.03f #/cm\x7f", ((double)view_cell.pn_ugmx100[3])/100.);
-			textfnl("PN10 : % 2.03f #/cm\x7f", ((double)view_cell.pn_ugmx100[4])/100.);
+			textfnl("PN0.5: % 2.01f #/cm\x7f", ((double)view_cell.pn_ugmx100[0])/100.);
+			textfnl("PN1.0: % 2.01f #/cm\x7f", ((double)view_cell.pn_ugmx100[1])/100.);
+			textfnl("PN2.5: % 2.01f #/cm\x7f", ((double)view_cell.pn_ugmx100[2])/100.);
+			textfnl("PN4.0: % 2.01f #/cm\x7f", ((double)view_cell.pn_ugmx100[3])/100.);
+			textfnl("PN10 : % 2.01f #/cm\x7f", ((double)view_cell.pn_ugmx100[4])/100.);
 		}
 		else
 		{
-			textfnl("PM1.0: % 2.02f ~g/m\x7f", ((double)view_cell.pm_ugmx100[0])/100.);
-			textfnl("PM2.5: % 2.02f ~g/m\x7f", ((double)view_cell.pm_ugmx100[1])/100.);
-			textfnl("PM4.0: % 2.02f ~g/m\x7f", ((double)view_cell.pm_ugmx100[2])/100.);
-			textfnl("PM10 : % 2.02f ~g/m\x7f", ((double)view_cell.pm_ugmx100[3])/100.);
+			textfnl("PM1.0: % 2.01f ~g/m\x7f", ((double)view_cell.pm_ugmx100[0])/100.);
+			textfnl("PM2.5: % 2.01f ~g/m\x7f", ((double)view_cell.pm_ugmx100[1])/100.);
+			textfnl("PM4.0: % 2.01f ~g/m\x7f", ((double)view_cell.pm_ugmx100[2])/100.);
+			textfnl("PM10 : % 2.01f ~g/m\x7f", ((double)view_cell.pm_ugmx100[3])/100.);
 			textfnl(" ");
 		}
 
