@@ -77,8 +77,8 @@ float CAT_humidity_score(float humidity) {
  */
 float CAT_co2_score(float co2) {
     // CO₂ (ppm) breakpoints and scores
-    const float co2Breakpoints[] = { 0.0f, 600.0f, 800.0f, 1400.0f, 4500.0f };
-    const float co2Scores[]      = { 0.0f,   1.0f,    2.0f,    4.0f,    5.0f };
+    const float co2Breakpoints[] = { 0.0f, 800.0f, 1000.0f, 1400.0f, 4500.0f };
+    const float co2Scores[]      = { 0.0f,   1.0f,    2.0f,    3.0f,    5.0f };
     const int co2Size = sizeof(co2Breakpoints) / sizeof(co2Breakpoints[0]);
     return interpolate(co2, co2Breakpoints, co2Scores, co2Size);
 }
