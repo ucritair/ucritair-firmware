@@ -349,7 +349,7 @@ void calc_ach()
 
 	LOG_DBG("deacy_time = %lld", decay_time);
 
-	if (decay_time == 0)
+	if (decay_time == 0 || decay_time==max.time || max.ppm == min.ppm || max.ppm = 0 || min.ppm == 99999)
 	{
 		LOG_WRN("ACH->-1");
 		ach = -1;
@@ -427,7 +427,14 @@ void CAT_render_graph()
 		}
 		else
 		{
-			CAT_gui_textf("%s: %.1f", (double)ach, (get_ach_mode()==EACH)?"eACH":"ACH");
+			if (ach != -1)
+			{
+				CAT_gui_textf("%s: %.1f", (get_ach_mode()==EACH)?"eACH":"ACH", (double)ACH);
+			}
+			else
+			{
+				CAT_gui_text("Calculation failed");
+			}
 		}
 		CAT_gui_line_break();
 		CAT_gui_image(icon_a_sprite, 1);
