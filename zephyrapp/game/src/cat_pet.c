@@ -11,9 +11,10 @@
 
 CAT_pet pet =
 {
-	.vigour = 12,
-	.focus = 12,
-	.spirit = 12,
+	.vigour = 9,
+	.focus = 9,
+	.spirit = 9,
+	.lifetime = 0,
 
 	.pos = {120, 200},
 	.dir = {0, 0},
@@ -64,7 +65,7 @@ void CAT_pet_stat(int ticks)
 
 void CAT_pet_life(int ticks)
 {
-	pet.lifetime += 1;
+	pet.lifetime += ticks;
 }
 
 void CAT_pet_use(int item_id)
@@ -76,8 +77,6 @@ void CAT_pet_use(int item_id)
 	pet.vigour = clamp(pet.vigour + item->data.tool_data.dv, 0, 12);
 	pet.focus = clamp(pet.focus + item->data.tool_data.df, 0, 12);
 	pet.spirit = clamp(pet.spirit + item->data.tool_data.ds, 0, 12);
-
-	
 }
 
 bool CAT_pet_is_critical()
