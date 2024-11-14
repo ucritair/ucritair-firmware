@@ -419,7 +419,7 @@ void CAT_draw_arcade()
 
 	CAT_gui_image(snake_tail_sprite, 0);
 	gui.cursor.x -= gui.pad_x;
-	for(int i = 0; i < 10; i++)
+	for(int i = 0; i < 11; i++)
 	{
 		CAT_gui_image(snake_body_sprite, 0);
 		gui.cursor.x -= gui.pad_x;
@@ -434,7 +434,7 @@ void CAT_draw_arcade()
 		"money and have some fun\n"
 		"along the way is to play\n"
 		"games on the arcade cabinet.\n"
-		"The popular game Snat is\n"
+		"The popular game Snack is\n"
 		"currently available there."
 	);
 	CAT_gui_line_break();
@@ -442,7 +442,7 @@ void CAT_draw_arcade()
 	CAT_gui_image(coffee_sprite, 0);
 	CAT_gui_image(snake_head_sprite, 2);
 	gui.cursor.x -= gui.pad_x;
-	for(int i = 0; i < 10; i++)
+	for(int i = 0; i < 11; i++)
 	{
 		CAT_gui_image(snake_body_sprite, 2);
 		gui.cursor.x -= gui.pad_x;
@@ -452,19 +452,19 @@ void CAT_draw_arcade()
 
 	CAT_gui_text
 	(
-		"The Snat primarily grows by\n"
-		"gobbling up food, but every\n"
-		"few bites it'll encounter a\n"
+		"Snack Cat primarily grows by\n"
+		"gobbling up snacks, but every\n"
+		"few bites he'll encounter a\n"
 		"shiny golden coin. Snap up\n"
 		"the coin to spend it at the\n"
 		"shop, and remember not to\n"
-		"smack into any walls or your\n"
-		"own body."
+		"smack into anything."
 	);
+	CAT_gui_line_break();
 
 	CAT_gui_image(snake_tail_sprite, 0);
 	gui.cursor.x -= gui.pad_x;
-	for(int i = 0; i < 6; i++)
+	for(int i = 0; i < 11; i++)
 	{
 		CAT_gui_image(snake_body_sprite, 0);
 		gui.cursor.x -= gui.pad_x;

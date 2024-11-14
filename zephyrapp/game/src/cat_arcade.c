@@ -381,7 +381,7 @@ void CAT_render_arcade()
 			CAT_gui_image(icon_pointer_sprite, 0);
 		CAT_gui_line_break();
 		CAT_gui_div("PLAY");
-		CAT_gui_text("  & Snake ");
+		CAT_gui_text("  & Snack ");
 		if(selector == 2)
 			CAT_gui_image(icon_pointer_sprite, 0);
 		CAT_gui_line_break();		
@@ -417,6 +417,8 @@ void CAT_render_arcade()
 		gui.start.y += 24;
 		CAT_gui_textf
 		(
+			"Rest in peace,\nSnack Cat.\n"
+			"\n"
 			"Your long journey has\n"
 			"come to a tragic end.\n"
 			"\n"
