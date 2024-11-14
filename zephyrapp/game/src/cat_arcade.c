@@ -315,7 +315,7 @@ void CAT_MS_arcade(CAT_machine_signal signal)
 				
 				if(CAT_input_pressed(CAT_BUTTON_A))
 				{
-#ifdef CAT_EMBDEDDED
+#ifdef CAT_EMBEDDED
 					if(selector == 0)
 					{
 						CAT_machine_transition(CAT_MS_aqi);
