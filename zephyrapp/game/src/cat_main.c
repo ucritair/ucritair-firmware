@@ -53,7 +53,7 @@ void CAT_fresh_gamestate()
 	room.prop_count = 0;
 
 	bag.length = 0;
-	bag.coins = 5;
+	bag.coins = 5000;
 	CAT_bag_add(gpu_item);
 
 	CAT_gear_toggle(mask_item, false);

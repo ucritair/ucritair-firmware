@@ -184,6 +184,29 @@ void CAT_room_background_tick(bool capture_input)
 		CAT_timer_reset(room.earn_timer_id);
 	}
 
+	for(int i = 0; i < room.prop_count; i++)
+	{
+		if
+		(
+			room.prop_ids[i] == flower_vig_item ||
+			room.prop_ids[i] == flower_foc_item ||
+			room.prop_ids[i] == flower_spi_item
+		)
+		{
+			float aqi_score = CAT_AQI_aggregate() / 100.0f;
+			int aqi_idx = 0;
+			if(aqi_score < 0.25f)
+			{
+				aqi_idx = 5;
+			}
+			else
+			{
+				aqi_idx += aqi_score * 4;
+			}
+			room.prop_overrides[i] = aqi_idx;
+		}
+	}
+
 	if(!capture_input)
 		return;
 
