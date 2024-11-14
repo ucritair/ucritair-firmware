@@ -50,10 +50,15 @@ void CAT_action_tick()
 		if(CAT_input_pressed(CAT_BUTTON_A))
 		{
 			CAT_ivec2 c_world = CAT_ivec2_mul(room.cursor, 16);
-			int x_off = c_world.x > pet.pos.x ? -16 : 32;
-			action_state.location = (CAT_vec2) {c_world.x + x_off, c_world.y + 16};
-			action_state.confirmed = true;
-			CAT_AM_transition(&pet_asm, &AS_adjust_in);
+			CAT_rect action_rect = {room.cursor, CAT_ivec2_add(room.cursor, (CAT_ivec2) {1, 1})};
+			if(CAT_room_fits(action_rect))
+			{
+				int x_off = c_world.x > pet.pos.x ? -16 : 32;
+				action_state.location = (CAT_vec2) {c_world.x + x_off, c_world.y + 16};
+
+				action_state.confirmed = true;
+				CAT_AM_transition(&pet_asm, &AS_adjust_in);
+			}
 		}
 	}
 	else
