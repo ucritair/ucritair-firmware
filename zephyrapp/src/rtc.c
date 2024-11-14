@@ -35,7 +35,7 @@ SYS_INIT(board_cat_init_rtc, PRE_KERNEL_1,
 PERSIST_RAM uint64_t rtc_offset;
 
 // 0xdeadbeef if retained ram is valid
-PERSIST_RAM uint16_t rtc_init_check;
+PERSIST_RAM uint32_t rtc_init_check;
 
 // seconds between sample
 PERSIST_RAM uint16_t sensor_wakeup_rate;
@@ -49,7 +49,7 @@ PERSIST_RAM uint8_t guy_happiness;
 
 PERSIST_RAM bool guy_is_wearing_mask;
 
-#define RTC_INIT_CHECK_MAGIC 0xb887
+#define RTC_INIT_CHECK_MAGIC 0x0001b887
 
 bool is_first_init = false;
 

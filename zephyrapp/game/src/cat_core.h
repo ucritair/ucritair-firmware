@@ -89,7 +89,7 @@ void CAT_free(void* ptr);
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // STORAGE
 
-#define CAT_SAVE_MAGIC 0xaabbccdd
+#define CAT_SAVE_MAGIC 0xaabbccde
 
 typedef struct __attribute__((__packed__)) CAT_save
 {
