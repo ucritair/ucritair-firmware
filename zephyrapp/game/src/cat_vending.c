@@ -14,6 +14,7 @@
 static int base = 0;
 static int selector = 0;
 float purchase_progress = 0;
+bool purchase_lock = false;
 
 void CAT_MS_vending(CAT_machine_signal signal)
 {
@@ -49,7 +50,7 @@ void CAT_MS_vending(CAT_machine_signal signal)
 			selector = clamp(selector, 0, item_table.length-1);
 
 			CAT_item* item = CAT_item_get(selector);
-			if(item->price <= bag.coins)
+			if(item->price <= bag.coins && !purchase_lock)
 			{
 				purchase_progress = CAT_input_progress(CAT_BUTTON_A, 0.75f);
 				if(purchase_progress >= 1)
@@ -57,12 +58,14 @@ void CAT_MS_vending(CAT_machine_signal signal)
 					CAT_bag_add(selector);
 					bag.coins -= item->price;
 					purchase_progress = 0;
+					purchase_lock = true;
 					CAT_input_reset(CAT_BUTTON_A);
 				}
 			}
 			if(CAT_input_released(CAT_BUTTON_A))
 			{
 				purchase_progress = 0;
+				purchase_lock = false;
 			}		
 
 			int overshoot = selector - base;
