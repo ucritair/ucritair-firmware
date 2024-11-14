@@ -12,6 +12,7 @@
 #ifdef CAT_EMBEDDED
 #include "menu_system.h"
 #include "menu_aqi.h"
+#include "menu_graph.h"
 #endif
 
 #define WIDTH 15
