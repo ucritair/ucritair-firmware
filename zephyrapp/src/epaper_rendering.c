@@ -126,8 +126,6 @@ void epaper_render_test()
 	int temp_idx, co2_idx, pm_idx, voc_idx, nox_idx;
 	CAT_AQI_quantize(&temp_idx, &co2_idx, &pm_idx, &voc_idx, &nox_idx);
 
-	int sum = temp_idx + co2_idx + pm_idx + voc_idx + nox_idx;
-
 	if (guy_is_wearing_mask)
 	{
 		selected_unicorn = &epaper_image_unicorn_mask;
@@ -144,15 +142,17 @@ void epaper_render_test()
 		}
 	}
 
-	if (sum > 8)
+	float score = CAT_AQI_aggregate();
+
+	if (score < 25)
 	{
 		selected_cloud = &epaper_image_cloud_smoke;
 	}
-	else if (sum > 5)
+	else if (score < 50)
 	{
 		selected_cloud = &epaper_image_cloud_sad;
 	}
-	else if (sum < 3)
+	else if (sum > 75)
 	{
 		selected_cloud = &epaper_image_cloud_happy;
 	}

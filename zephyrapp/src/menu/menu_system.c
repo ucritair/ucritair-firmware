@@ -145,7 +145,16 @@ void CAT_MS_system_menu(CAT_machine_signal signal)
 			}
 
 			if(CAT_input_pressed(CAT_BUTTON_B))
-				CAT_machine_transition(CAT_MS_menu);
+			{
+				if (!co2_calibrating)
+				{
+					CAT_machine_transition(CAT_MS_menu);
+				}
+				else
+				{
+					co2_calibrating = false;
+				}
+			}
 			break;
 		}
 		case CAT_MACHINE_SIGNAL_EXIT:

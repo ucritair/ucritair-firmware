@@ -15,6 +15,8 @@ LOG_MODULE_REGISTER(lcd_rendering, LOG_LEVEL_DBG);
 #include "cat_pet.h"
 #include "cat_item.h"
 
+#include "menu_system.h"
+
 extern char font8x8_basic[128][8];
 
 void lcd_write_char(uint16_t color, int x, int y, char c)
@@ -143,7 +145,7 @@ void lcd_render_diag()
 		last_frame_time = now - last_ms;
 		last_ms = now;
 
-		if (current_buttons || touch_pressure)
+		if (current_buttons || touch_pressure || co2_calibrating)
 		{
 			last_button_pressed = now;
 			set_backlight(BACKLIGHT_FULL);
