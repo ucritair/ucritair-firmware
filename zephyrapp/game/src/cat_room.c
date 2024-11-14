@@ -195,16 +195,16 @@ void CAT_room_background_tick(bool capture_input)
 		)
 		{
 			float aqi_score = CAT_AQI_aggregate() / 100.0f;
-			int aqi_idx = 0;
-			if(aqi_score < 0.25f)
+			if(aqi_score < 0.15f)
 			{
-				aqi_idx = 5;
+				room.prop_overrides[i] = 5;
 			}
 			else
 			{
-				aqi_idx += round(aqi_score * 4.0f);
+				int aqi_idx = round(aqi_score * 4.0f);
+				aqi_idx = clamp(aqi_idx, 0, 4);
+				room.prop_overrides[i] = aqi_idx;
 			}
-			room.prop_overrides[i] = aqi_idx;
 		}
 	}
 
