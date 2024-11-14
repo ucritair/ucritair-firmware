@@ -152,7 +152,7 @@ void epaper_render_test()
 	{
 		selected_cloud = &epaper_image_cloud_sad;
 	}
-	else if (sum > 75)
+	else if (score > 75)
 	{
 		selected_cloud = &epaper_image_cloud_happy;
 	}
