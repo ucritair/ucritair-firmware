@@ -7,6 +7,7 @@
 #include "cat_sprite.h"
 #include "cat_gui.h"
 #include "cat_bag.h"
+#include <math.h>
 
 CAT_room room =
 {
@@ -201,7 +202,7 @@ void CAT_room_background_tick(bool capture_input)
 			}
 			else
 			{
-				aqi_idx += aqi_score * 4;
+				aqi_idx += round(aqi_score * 4.0f);
 			}
 			room.prop_overrides[i] = aqi_idx;
 		}
