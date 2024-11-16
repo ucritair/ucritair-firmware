@@ -77,8 +77,8 @@ float CAT_humidity_score(float humidity) {
  */
 float CAT_co2_score(float co2) {
     // CO₂ (ppm) breakpoints and scores
-    const float co2Breakpoints[] = { 0.0f, 800.0f, 1000.0f, 1400.0f, 4500.0f };
-    const float co2Scores[]      = { 0.0f,   1.0f,    2.0f,    3.0f,    5.0f };
+    const float co2Breakpoints[] = { 0.0f, 420.0f, 800.0f, 1000.0f, 1400.0f, 4500.0f };
+    const float co2Scores[]      = { 0.0f, 0.0f,   1.0f,    2.0f,    3.0f,    5.0f };
     const int co2Size = sizeof(co2Breakpoints) / sizeof(co2Breakpoints[0]);
     return interpolate(co2, co2Breakpoints, co2Scores, co2Size);
 }
@@ -91,8 +91,8 @@ float CAT_co2_score(float co2) {
  */
 float CAT_pm25_score(float pm25) {
     // PM2.5 (μg/m³) breakpoints and scores
-    const float pm25Breakpoints[] = { 0.0f, 9.0f, 25.0f, 55.0f, 150.0f };
-    const float pm25Scores[]      = { 0.0f, 2.0f,  3.0f,  4.0f,  5.0f };
+    const float pm25Breakpoints[] = { 0.0f, 5.0f, 12.0f, 35.0f, 55.0f, 150.0f };
+    const float pm25Scores[]      = { 0.0f, 1.0f, 2.0f,  3.0f,  4.0f,  5.0f };
     const int pm25Size = sizeof(pm25Breakpoints) / sizeof(pm25Breakpoints[0]);
     return interpolate(pm25, pm25Breakpoints, pm25Scores, pm25Size);
 }
@@ -105,8 +105,8 @@ float CAT_pm25_score(float pm25) {
  */
 float CAT_nox_score(float nox) {
     // NOx Index breakpoints and scores
-    const float noxBreakpoints[] = { 0.0f, 20.0f, 90.0f, 150.0f, 300.0f, 310.0f };
-    const float noxScores[]      = { 0.0f, 1.0f,   2.0f,   3.0f,   4.0f,   5.0f };
+    const float noxBreakpoints[] = { 0.0f, 1.0f, 90.0f, 150.0f, 300.0f, 310.0f };
+    const float noxScores[]      = { 0.0f, 0.5f,   2.0f,   3.0f,   4.0f,   5.0f };
     const int noxSize = sizeof(noxBreakpoints) / sizeof(noxBreakpoints[0]);
     return interpolate(nox, noxBreakpoints, noxScores, noxSize);
 }
@@ -119,8 +119,8 @@ float CAT_nox_score(float nox) {
  */
 float CAT_voc_score(float voc) {
     // VOC Index breakpoints and scores
-    const float vocBreakpoints[] = { 0.0f, 75.0f, 150.0f, 250.0f, 400.0f, 410.0f };
-    const float vocScores[]      = { 0.0f, 1.0f,    2.0f,   3.0f,   4.0f,   5.0f };
+    const float vocBreakpoints[] = { 0.0f, 100.0f, 150.0f, 250.0f, 400.0f, 410.0f };
+    const float vocScores[]      = { 0.0f, 0.5f,    2.0f,   3.0f,   4.0f,   5.0f };
     const int vocSize = sizeof(vocBreakpoints) / sizeof(vocBreakpoints[0]);
     return interpolate(voc, vocBreakpoints, vocScores, vocSize);
 }
