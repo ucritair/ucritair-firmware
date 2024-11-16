@@ -12,9 +12,26 @@
 #include "menu_aqi.h"
 #endif
 
+#ifdef CAT_DESKTOP
+#include "cat_main.h"
+#endif
+
 #include <stddef.h>
 
-static int selector = 0;
+void CAT_MS_reset(CAT_machine_signal signal)
+{
+	switch (signal)
+	{
+		case CAT_MACHINE_SIGNAL_ENTER:
+			CAT_machine_transition(CAT_MS_menu);
+			break;
+		case CAT_MACHINE_SIGNAL_TICK:
+			break;
+		case CAT_MACHINE_SIGNAL_EXIT:
+			CAT_fresh_gamestate();
+			break;
+	}
+}
 
 struct entry
 {
@@ -31,9 +48,15 @@ struct entry
 	{"SYSTEM MENU", CAT_MS_system_menu},
 #endif
 	{"MANUAL", CAT_MS_manual},
+#ifdef CAT_DESKTOP
+	{"RESET", CAT_MS_reset},
+#endif
 	{"BACK", CAT_MS_room}
+
 };
 #define NUM_MENU_ITEMS (sizeof(entries)/sizeof(entries[0]))
+
+static int selector = 0;
 
 void CAT_MS_menu(CAT_machine_signal signal)
 {

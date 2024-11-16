@@ -41,10 +41,6 @@
 
 void CAT_fresh_gamestate()
 {
-#ifdef CAT_DESKTOP
-	printf("Creating fresh game state\n");
-#endif
-
 	pet.vigour = 9;
 	pet.focus = 9;
 	pet.spirit = 9;
