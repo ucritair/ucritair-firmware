@@ -6,7 +6,7 @@ import multiprocessing as mp;
 
 github_dir = os.path.join(pl.Path.home(), "Documents/GitHub");
 zproj_dir = os.path.join(github_dir, "zephyrproject");
-zapp_dir = os.path.join(github_dir, "cat_software_embd/zephyrapp");
+zapp_dir = os.path.join(github_dir, "cat_software/zephyrapp");
 game_dir = os.path.join(zapp_dir, "game");
 build_dir = os.path.join(zapp_dir, "build");
 
