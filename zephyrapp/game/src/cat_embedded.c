@@ -8,6 +8,7 @@
 #include "epaper_driver.h"
 #include "epaper_rendering.h"
 #include "flash.h"
+#include "rtc.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // DEV MODE
@@ -112,7 +113,15 @@ float CAT_get_delta_time()
 
 void CAT_get_datetime(CAT_datetime* datetime)
 {
+	time_t now = get_current_rtc_time();
+	struct tm local;
+	gmtime_r(&now, &local);
 	
+	datetime->year = local.tm_year;
+	datetime->month = local.tm_mon;
+	datetime->day = local.tm_mday;
+	datetime->minute = local.tm_min;
+	datetime->second = local.tm_sec;	
 }
 
 void CAT_set_datetime(CAT_datetime* datetime)

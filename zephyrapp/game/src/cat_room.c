@@ -180,7 +180,7 @@ void CAT_room_init()
 	room.earn_timer_id = CAT_timer_init(CAT_COIN_TICK_SECS);
 }
 
-void CAT_room_background_tick(bool capture_input)
+void CAT_room_tick(bool capture_input)
 {
 	if(CAT_timer_tick(room.earn_timer_id))
 	{
@@ -295,7 +295,7 @@ void CAT_render_room(int cycle)
 		CAT_get_datetime(&time);
 		if(time.hour >= 4 && time.hour < 9)
 			CAT_draw_queue_add(window_dawn_sprite, 0, 2, 8, 8, CAT_DRAW_MODE_DEFAULT);
-		else if(time.hour >= 9 && time.hour <= 19)
+		else if(time.hour >= 9 && time.hour <= 18)
 			CAT_draw_queue_add(window_day_sprite, 0, 2, 8, 8, CAT_DRAW_MODE_DEFAULT);
 		else
 			CAT_draw_queue_add(window_day_sprite, 0, 2, 8, 8, CAT_DRAW_MODE_DEFAULT);

@@ -195,8 +195,8 @@ void CAT_tick_logic()
 	machine == CAT_MS_play ||
 	machine == CAT_MS_deco;
 
-	CAT_room_background_tick(in_world);
-	CAT_pet_background_tick(in_world);
+	CAT_room_tick(in_world);
+	CAT_pet_tick(in_world);
 
 	CAT_machine_tick();
 }

@@ -49,7 +49,7 @@ void CAT_room_earn(int ticks);
 void CAT_room_move_cursor();
 
 void CAT_room_init();
-void CAT_room_background_tick(bool capture_input);
+void CAT_room_tick(bool capture_input);
 
 void CAT_MS_room(CAT_machine_signal signal);
 void CAT_render_room(int cycle);

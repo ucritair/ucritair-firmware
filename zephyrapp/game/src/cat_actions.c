@@ -38,7 +38,7 @@ void CAT_action_tick()
 {
 	if(action_state.timer_id == -1)
 	{
-		action_state.timer_id = CAT_timer_init(3.0f);
+		action_state.timer_id = CAT_timer_init(2.0f);
 	}
 	
 	if(action_state.tool_id == -1)
@@ -80,7 +80,7 @@ void CAT_action_tick()
 		}
 		if(CAT_AM_is_in(&pet_asm, action_state.action_AS) && CAT_AM_is_ticking(&pet_asm))
 		{
-			if(CAT_timer_tick(action_state.timer_id))
+			if(CAT_timer_tick(action_state.timer_id) || CAT_input_pressed(CAT_BUTTON_A))
 			{
 				CAT_pet_use(action_state.tool_id);
 				CAT_pet_reanimate();
