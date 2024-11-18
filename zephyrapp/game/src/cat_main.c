@@ -24,6 +24,7 @@
 #include "cat_vending.h"
 #include "cat_manual.h"
 #include "cat_deco.h"
+#include "cat_item_dialog.h"
 
 #include "cat_version.h"
 
@@ -49,8 +50,8 @@ void CAT_fresh_gamestate()
 	room.prop_count = 0;
 
 	bag.length = 0;
-	bag.coins = 10;
-	CAT_bag_add(gpu_item);
+	coins = 10;
+	CAT_item_list_add(&bag, gpu_item);
 
 	CAT_gear_toggle(mask_item, false);
 
@@ -89,7 +90,7 @@ void CAT_force_save()
 		save->bag_counts[i] = bag.counts[i];
 	}
 	save->bag_length = bag.length;
-	save->coins = bag.coins;
+	save->coins = coins;
 
 	save->masked = CAT_gear_status(mask_item);
 
@@ -133,7 +134,7 @@ void CAT_force_load()
 		bag.counts[i] = save->bag_counts[i];
 	}
 	bag.length = save->bag_length;
-	bag.coins = save->coins;
+	coins = save->coins;
 
 	CAT_gear_toggle(mask_item, save->masked);
 
@@ -244,6 +245,8 @@ void CAT_tick_render(int cycle)
 		CAT_render_vending();
 	else if(machine == CAT_MS_manual)
 		CAT_render_manual();
+	else if(machine == CAT_MS_item_dialog)
+		CAT_render_item_dialog();
 #ifdef CAT_EMBEDDED
 	else if(machine == CAT_MS_time)
 		CAT_render_time();
@@ -254,6 +257,11 @@ void CAT_tick_render(int cycle)
 	else if(machine == CAT_MS_graph)
 		CAT_render_graph();
 #endif
+	else
+	{
+		CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 20});
+		CAT_gui_text("This machine state\nhas no render routine!");
+	}
 
 #ifdef CAT_DESKTOP
 	if(LED_rgb != 0)

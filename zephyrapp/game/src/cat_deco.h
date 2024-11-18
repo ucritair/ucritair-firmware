@@ -1,6 +1,7 @@
 #pragma once
 
 #include "cat_math.h"
+#include "cat_machine.h"
 
 typedef struct CAT_deco_state
 {
@@ -15,4 +16,5 @@ typedef struct CAT_deco_state
 } CAT_deco_state;
 extern CAT_deco_state deco_state;
 
-extern void CAT_render_deco(int cycle);
+void CAT_MS_deco(CAT_machine_signal signal);
+void CAT_render_deco(int cycle);

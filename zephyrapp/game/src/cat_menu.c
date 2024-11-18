@@ -6,6 +6,11 @@
 #include "cat_machine.h"
 #include "cat_sprite.h"
 #include "cat_version.h"
+#include "cat_manual.h"
+#include "cat_vending.h"
+#include "cat_stats.h"
+#include "cat_arcade.h"
+#include "cat_bag.h"
 
 #ifdef CAT_EMBEDDED
 #include "menu_system.h"

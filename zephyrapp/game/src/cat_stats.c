@@ -5,6 +5,7 @@
 #include "cat_input.h"
 #include "cat_pet.h"
 #include "cat_sprite.h"
+#include "cat_menu.h"
 
 void CAT_MS_stats(CAT_machine_signal signal)
 {

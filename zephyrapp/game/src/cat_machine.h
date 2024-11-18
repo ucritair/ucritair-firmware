@@ -49,14 +49,3 @@ void CAT_machine_tick();
 //////////////////////////////////////////////////////////////////////////
 // MACHINE AND STATE DECLARATIONS
 
-extern void CAT_MS_room(CAT_machine_signal);
-extern void CAT_MS_feed(CAT_machine_signal);
-extern void CAT_MS_study(CAT_machine_signal);
-extern void CAT_MS_play(CAT_machine_signal);
-extern void CAT_MS_deco(CAT_machine_signal);
-extern void CAT_MS_menu(CAT_machine_signal);
-extern void CAT_MS_stats(CAT_machine_signal);
-extern void CAT_MS_bag(CAT_machine_signal);
-extern void CAT_MS_vending(CAT_machine_signal);
-extern void CAT_MS_arcade(CAT_machine_signal);
-extern void CAT_MS_manual(CAT_machine_signal);

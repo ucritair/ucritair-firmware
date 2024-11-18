@@ -1,6 +1,8 @@
 #include "cat_item.h"
+
 #include <stdio.h>
 #include "cat_sprite.h"
+#include <string.h>
 
 //////////////////////////////////////////////////////////////////////////
 // ITEM TABLE
@@ -64,6 +66,73 @@ bool CAT_gear_status(int item_id)
 {
 	CAT_item* item = CAT_item_get(item_id);
 	return item->data.gear_data.equipped;
+}
+
+//////////////////////////////////////////////////////////////////////////
+// ITEM LIST
+
+int CAT_item_list_find(CAT_item_list* item_list, int item_id)
+{
+	for(int i = 0; i < item_list->length; i++)
+	{
+		if(item_list->item_ids[i] == item_id)
+		{
+			return i;
+		}
+	}
+	return -1;
+}
+
+void CAT_item_list_add(CAT_item_list* item_list, int item_id)
+{
+	if(item_list->length >= CAT_ITEM_LIST_MAX_LENGTH)
+		return;
+	if(item_id == -1)
+		return;
+		
+	int idx = CAT_item_list_find(item_list, item_id);
+	if(idx >= 0)
+	{
+		item_list->counts[idx] += 1;
+	}
+	else
+	{
+		const char* a = item_table.data[item_id].name;
+		int insert_idx = 0;
+		while(insert_idx < item_list->length)
+		{
+			const char* b = item_table.data[item_list->item_ids[insert_idx]].name;
+			if(strcmp(a, b) < 0)
+				break;
+			insert_idx += 1;
+		}
+		for(int i = item_list->length; i > insert_idx; i--)
+		{
+			item_list->item_ids[i] = item_list->item_ids[i-1];
+			item_list->counts[i] = item_list->counts[i-1];
+		}
+		item_list->item_ids[insert_idx] = item_id;
+		item_list->counts[insert_idx] = 1;
+		item_list->length += 1;
+	}
+}
+
+void CAT_item_list_remove(CAT_item_list* item_list, int item_id)
+{
+	int idx = CAT_item_list_find(item_list, item_id);
+	if(idx >= 0)
+	{
+		item_list->counts[idx] -= 1;
+		if(item_list->counts[idx] <= 0)
+		{
+			for(int i = idx; i < item_list->length-1; i++)
+			{
+				item_list->item_ids[i] = item_list->item_ids[i+1];
+				item_list->counts[i] = item_list->counts[i+1];
+			}
+			item_list->length -= 1;
+		}
+	}
 }
 
 

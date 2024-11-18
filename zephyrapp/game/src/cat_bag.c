@@ -10,92 +10,14 @@
 #include <string.h>
 #include "cat_sprite.h"
 #include <stddef.h>
+#include "cat_menu.h"
 
-CAT_bag bag =
+CAT_item_list bag =
 {
 	.length = 0,
-	.coins = 0
 };
+int coins = 0;
 
-int CAT_bag_find(int item_id)
-{
-	for(int i = 0; i < bag.length; i++)
-	{
-		if(bag.item_ids[i] == item_id)
-		{
-			return i;
-		}
-	}
-	return -1;
-}
-
-void CAT_bag_add(int item_id)
-{
-	if(bag.length >= CAT_BAG_MAX_LENGTH)
-		return;
-	if(item_id == -1)
-		return;
-		
-	int idx = CAT_bag_find(item_id);
-	if(idx >= 0)
-	{
-		bag.counts[idx] += 1;
-	}
-	else
-	{
-		const char* a = item_table.data[item_id].name;
-		int insert_idx = 0;
-		while(insert_idx < bag.length)
-		{
-			const char* b = item_table.data[bag.item_ids[insert_idx]].name;
-			if(strcmp(a, b) < 0)
-				break;
-			insert_idx += 1;
-		}
-		for(int i = bag.length; i > insert_idx; i--)
-		{
-			bag.item_ids[i] = bag.item_ids[i-1];
-			bag.counts[i] = bag.counts[i-1];
-		}
-		bag.item_ids[insert_idx] = item_id;
-		bag.counts[insert_idx] = 1;
-		bag.length += 1;
-	}
-}
-
-void CAT_bag_remove(int item_id)
-{
-	int idx = CAT_bag_find(item_id);
-	if(idx >= 0)
-	{
-		bag.counts[idx] -= 1;
-		if(bag.counts[idx] <= 0)
-		{
-			for(int i = idx; i < bag.length-1; i++)
-			{
-				bag.item_ids[i] = bag.item_ids[i+1];
-				bag.counts[i] = bag.counts[i+1];
-			}
-			bag.length -= 1;
-		}
-	}
-}
-
-struct bag_relation
-{
-	CAT_machine_state state;
-	CAT_item_type type;
-	int* ptr;
-} bag_relations[] =
-{
-	{CAT_MS_feed, CAT_ITEM_TYPE_FOOD, &action_state.tool_id},
-	{CAT_MS_study, CAT_ITEM_TYPE_BOOK, &action_state.tool_id},
-	{CAT_MS_play, CAT_ITEM_TYPE_TOY, &action_state.tool_id},
-	{CAT_MS_deco, CAT_ITEM_TYPE_PROP, &deco_state.add_id}
-};
-#define NUM_BAG_RELATIONS (sizeof(bag_relations)/sizeof(bag_relations[0]))
-
-CAT_machine_state bag_anchor = NULL;
 static int base = 0;
 static int selector = 0;
 
@@ -112,12 +34,7 @@ void CAT_MS_bag(CAT_machine_signal signal)
 		case CAT_MACHINE_SIGNAL_TICK:
 		{
 			if(CAT_input_pressed(CAT_BUTTON_B))
-			{
-				if(bag_anchor != NULL)
-					CAT_machine_transition(CAT_MS_room);
-				else
-					CAT_machine_transition(CAT_MS_menu);
-			}			
+				CAT_machine_transition(CAT_MS_menu);	
 			if(CAT_input_pressed(CAT_BUTTON_START))
 				CAT_machine_transition(CAT_MS_room);
 
@@ -147,19 +64,9 @@ void CAT_MS_bag(CAT_machine_signal signal)
 			if(CAT_input_pressed(CAT_BUTTON_A))
 			{
 				int item_id = bag.item_ids[selector];
-				CAT_item* item = &item_table.data[item_id];
+				CAT_item* item = CAT_item_get(item_id);
 
-				for(int i = 0; i < NUM_BAG_RELATIONS; i++)
-				{
-					struct bag_relation relation = bag_relations[i];
-					if((bag_anchor == NULL || relation.state == bag_anchor) && item->type == relation.type)
-					{
-						*relation.ptr = item_id;
-						CAT_machine_transition(relation.state);
-					}
-				}
-
-				if(item->type == CAT_ITEM_TYPE_GEAR && bag_anchor == NULL)
+				if(item->type == CAT_ITEM_TYPE_GEAR)
 				{
 					CAT_gear_toggle(item_id, !CAT_gear_status(item_id));
 				}
@@ -167,7 +74,6 @@ void CAT_MS_bag(CAT_machine_signal signal)
 			break;
 		}
 		case CAT_MACHINE_SIGNAL_EXIT:
-			bag_anchor = NULL;
 			break;
 	}
 }
@@ -188,11 +94,10 @@ void CAT_render_bag()
 		{
 			CAT_gui_text
 			(
-				"Your bag is currently empty.\n\n"
-				"To feed, teach, or entertain\n"
-				"your pet, you must purchase\n"
-				"food, books, and toys from\n"
-				"the vending machine."
+				"Your bag is currently empty.\n"
+				"\n"
+				"Items can be purchased from\n"
+				"the vending machine"
 			);
 			return;
 		}
@@ -207,20 +112,9 @@ void CAT_render_bag()
 		CAT_gui_panel_tight((CAT_ivec2) {0, 2+i*2}, (CAT_ivec2) {15, 2});
 		CAT_gui_image(icon_item_sprite, item->type);
 		
-		bool fits_relation = bag_anchor == NULL;
-		for(int i = 0; i < NUM_BAG_RELATIONS; i++)
-		{
-			struct bag_relation relation = bag_relations[i];
-			if(relation.state == bag_anchor && relation.type == item->type)
-			{
-				fits_relation = true;
-				break;
-			}
-		}
-		
 		CAT_gui_textf(" %s *%d", item->name, bag.counts[idx]);
 
-		if(item->type == CAT_ITEM_TYPE_GEAR && bag_anchor == NULL)
+		if(item->type == CAT_ITEM_TYPE_GEAR)
 		{
 			int idx = CAT_gear_status(item_id) ? 1 : 0;
 			CAT_gui_image(icon_equip_sprite, idx);
@@ -229,10 +123,5 @@ void CAT_render_bag()
 
 		if(idx == selector)
 			CAT_gui_image(icon_pointer_sprite, 0);
-
-		if(!fits_relation)
-		{
-			CAT_greyberry(3, 234, 32 + 32 * i, 32);
-		}
 	}
 }

@@ -1,12 +1,13 @@
 #include "cat_actions.h"
+
 #include "cat_room.h"
-#include "cat_item.h"
 #include "cat_input.h"
 #include "cat_bag.h"
 #include "cat_pet.h"
 #include "cat_sprite.h"
 #include <stdio.h>
 #include <stddef.h>
+#include "cat_item_dialog.h"
 
 CAT_action_state action_state = 
 {
@@ -15,7 +16,8 @@ CAT_action_state action_state =
 	.stat_up_AS = NULL,
 
 	.LED_colour = {0, 0, 0},
-
+	
+	.tool_type = CAT_ITEM_TYPE_KEY,
 	.tool_id = -1,
 	.confirmed = false,
 	.complete = false,
@@ -25,6 +27,7 @@ CAT_action_state action_state =
 
 void CAT_action_state_clear()
 {
+	action_state.tool_type = CAT_ITEM_TYPE_KEY;
 	action_state.tool_id = -1;
 	action_state.confirmed = false;
 	action_state.complete = false;
@@ -40,8 +43,8 @@ void CAT_action_tick()
 	
 	if(action_state.tool_id == -1)
 	{
-		bag_anchor = action_state.action_MS;
-		CAT_machine_transition(CAT_MS_bag);
+		CAT_anchor_item_dialog(action_state.action_MS, action_state.tool_type, &action_state.tool_id);
+		CAT_machine_transition(CAT_MS_item_dialog);
 	}
 	else if(!action_state.confirmed)
 	{
@@ -85,7 +88,7 @@ void CAT_action_tick()
 				CAT_item* item = CAT_item_get(action_state.tool_id);
 				if(item->data.tool_data.consumable)
 				{
-					CAT_bag_remove(action_state.tool_id);
+					CAT_item_list_remove(&bag, action_state.tool_id);
 				}
 				
 				action_state.complete = true;
@@ -127,6 +130,8 @@ void CAT_MS_feed(CAT_machine_signal signal)
 			action_state.LED_colour[1] = 106;
 			action_state.LED_colour[2] = 171;
 
+			action_state.tool_type = CAT_ITEM_TYPE_FOOD;
+
 			CAT_pet_settle();
 			break;
 		}
@@ -157,6 +162,8 @@ void CAT_MS_study(CAT_machine_signal signal)
 			action_state.LED_colour[1] = 206;
 			action_state.LED_colour[2] = 220;
 
+			action_state.tool_type = CAT_ITEM_TYPE_BOOK;
+
 			CAT_pet_settle();
 			break;
 		}
@@ -186,6 +193,8 @@ void CAT_MS_play(CAT_machine_signal signal)
 			action_state.LED_colour[0] = 76;
 			action_state.LED_colour[1] = 71;
 			action_state.LED_colour[2] = 255;
+
+			action_state.tool_type = CAT_ITEM_TYPE_TOY;
 
 			CAT_pet_settle();
 			break;

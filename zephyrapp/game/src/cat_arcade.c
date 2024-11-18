@@ -190,7 +190,7 @@ void snake_tick()
 			eat_count += 1;
 			if(eat_count == 5)
 			{
-				bag.coins += 1;
+				coins += 1;
 				eat_count = 0;
 			}
 

@@ -8,6 +8,11 @@
 #include "cat_gui.h"
 #include "cat_bag.h"
 #include <math.h>
+#include "cat_menu.h"
+#include "cat_actions.h"
+#include "cat_deco.h"
+#include "cat_vending.h"
+#include "cat_arcade.h"
 
 CAT_room room =
 {
@@ -29,8 +34,6 @@ CAT_room room =
 	},
 	.selector = 0
 };
-
-CAT_vec2 poi = (CAT_vec2){120, 200};
 
 int CAT_room_find(int item_id)
 {
@@ -232,7 +235,7 @@ void CAT_room_background_tick(bool capture_input)
 			CAT_vec2 place = room.coin_places[i];
 			if(CAT_input_drag(place.x + 8, place.y - 8, 16))
 			{
-				bag.coins += 1;
+				coins += 1;
 				CAT_room_remove_coin(i);
 				i -= 1;
 			}
@@ -267,38 +270,7 @@ void CAT_MS_room(CAT_machine_signal signal)
 					room.selector = 4;
 			}
 			if(CAT_input_pressed(CAT_BUTTON_A))
-				CAT_machine_transition(room.buttons[room.selector]);	
-			
-			if(!CAT_pet_is_critical())
-			{
-				if(CAT_AM_is_in(&pet_asm, &AS_idle) && CAT_AM_is_ticking(&pet_asm))
-				{
-					if(CAT_timer_tick(pet.walk_timer_id))
-					{
-						CAT_ivec2 grid_min = CAT_ivec2_add(room.bounds.min, (CAT_ivec2){1, 1});
-						CAT_ivec2 grid_max = CAT_ivec2_add(room.bounds.max, (CAT_ivec2){-1, -1});
-						CAT_vec2 world_min = CAT_iv2v(CAT_ivec2_mul(grid_min, 16));
-						CAT_vec2 world_max = CAT_iv2v(CAT_ivec2_mul(grid_max, 16));
-						poi = CAT_rand_vec2(world_min, world_max);
-
-						CAT_AM_transition(&pet_asm, &AS_walk);
-						CAT_timer_reset(pet.walk_timer_id);
-					}
-				}
-				if(CAT_AM_is_in(&pet_asm, &AS_walk) && CAT_AM_is_ticking(&pet_asm))
-				{
-					if(CAT_pet_seek(poi))
-					{
-						CAT_AM_transition(&pet_asm, &AS_idle);
-					}
-				}
-			}
-			else
-			{
-				if(!CAT_AM_is_in(&pet_asm, &AS_crit))
-					CAT_AM_transition(&pet_asm, &AS_crit);
-			}		
-
+				CAT_machine_transition(room.buttons[room.selector]);
 			break;
 		}
 		case CAT_MACHINE_SIGNAL_EXIT:
@@ -319,7 +291,15 @@ void CAT_render_room(int cycle)
 
 	if (cycle == 0)
 	{
-		CAT_draw_queue_add(window_day_sprite, 0, 2, 8, 8, CAT_DRAW_MODE_DEFAULT);
+		CAT_datetime time;
+		CAT_get_datetime(&time);
+		if(time.hour >= 4 && time.hour < 9)
+			CAT_draw_queue_add(window_dawn_sprite, 0, 2, 8, 8, CAT_DRAW_MODE_DEFAULT);
+		else if(time.hour >= 9 && time.hour <= 19)
+			CAT_draw_queue_add(window_day_sprite, 0, 2, 8, 8, CAT_DRAW_MODE_DEFAULT);
+		else
+			CAT_draw_queue_add(window_day_sprite, 0, 2, 8, 8, CAT_DRAW_MODE_DEFAULT);
+		
 		CAT_draw_queue_add(vending_sprite, -1, 2, 172, 16, CAT_DRAW_MODE_DEFAULT);
 		CAT_draw_queue_add(arcade_sprite, -1, 2, 124, 48, CAT_DRAW_MODE_DEFAULT);
 

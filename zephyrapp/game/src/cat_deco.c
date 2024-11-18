@@ -3,11 +3,12 @@
 #include "cat_item.h"
 #include "cat_room.h"
 #include "cat_machine.h"
-#include "cat_bag.h"
 #include "cat_input.h"
 #include "cat_pet.h"
 #include "cat_sprite.h"
 #include <stdio.h>
+#include "cat_item_dialog.h"
+#include "cat_bag.h"
 
 CAT_deco_state deco_state =
 {
@@ -84,7 +85,7 @@ void CAT_MS_deco(CAT_machine_signal signal)
 							if(CAT_input_pressed(CAT_BUTTON_A))
 							{
 								CAT_room_add_prop(deco_state.add_id, room.cursor);
-								CAT_bag_remove(deco_state.add_id);
+								CAT_item_list_remove(&bag, deco_state.add_id);
 								deco_state.add_id = -1;
 							}
 						}
@@ -93,8 +94,8 @@ void CAT_MS_deco(CAT_machine_signal signal)
 					{
 						if(CAT_input_pressed(CAT_BUTTON_A))
 						{
-							bag_anchor = CAT_MS_deco;
-							CAT_machine_transition(CAT_MS_bag);
+							CAT_anchor_item_dialog(CAT_MS_deco, CAT_ITEM_TYPE_PROP, &deco_state.add_id);
+							CAT_machine_transition(CAT_MS_item_dialog);
 						}
 					}
 					break;
@@ -119,7 +120,7 @@ void CAT_MS_deco(CAT_machine_signal signal)
 						if(CAT_input_pressed(CAT_BUTTON_A))
 						{
 							int item_id = room.prop_ids[deco_state.mod_idx];
-							CAT_bag_add(item_id);
+							CAT_item_list_add(&bag, item_id);
 							CAT_room_remove_prop(deco_state.mod_idx);
 							deco_state.mod_idx = -1;
 						}

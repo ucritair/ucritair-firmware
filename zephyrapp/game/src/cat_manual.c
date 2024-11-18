@@ -7,6 +7,7 @@
 #include "cat_input.h"
 #include "cat_bag.h"
 #include "cat_version.h"
+#include "cat_menu.h"
 
 enum
 {

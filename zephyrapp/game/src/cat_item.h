@@ -9,6 +9,7 @@
 // CONSTANTS
 
 #define CAT_ITEM_TABLE_MAX_LENGTH 256
+#define CAT_ITEM_LIST_MAX_LENGTH 256
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -71,6 +72,20 @@ void CAT_prop_init(int item_id, int width, int height, bool animate);
 void CAT_gear_init(int item_id);
 void CAT_gear_toggle(int item_id, bool equipped);
 bool CAT_gear_status(int item_id);
+
+//////////////////////////////////////////////////////////////////////////
+// ITEM LIST
+
+typedef struct CAT_item_list
+{
+	int item_ids[CAT_ITEM_LIST_MAX_LENGTH];
+	int counts[CAT_ITEM_LIST_MAX_LENGTH];
+	int length;
+} CAT_item_list;
+
+int CAT_item_list_find(CAT_item_list* item_list, int item_id);
+void CAT_item_list_add(CAT_item_list* item_list, int item_id);
+void CAT_item_list_remove(CAT_item_list* item_list, int item_id);
 
 //////////////////////////////////////////////////////////////////////////
 // ID DECLARATIONS

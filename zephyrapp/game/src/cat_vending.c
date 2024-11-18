@@ -50,13 +50,13 @@ void CAT_MS_vending(CAT_machine_signal signal)
 			selector = clamp(selector, 0, item_table.length-1);
 
 			CAT_item* item = CAT_item_get(selector);
-			if(item->price <= bag.coins && !purchase_lock)
+			if(item->price <= coins && !purchase_lock)
 			{
 				purchase_progress = CAT_input_progress(CAT_BUTTON_A, 0.75f);
 				if(purchase_progress >= 1)
 				{
-					CAT_bag_add(selector);
-					bag.coins -= item->price;
+					CAT_item_list_add(&bag, selector);
+					coins -= item->price;
 					purchase_progress = 0;
 					purchase_lock = true;
 					CAT_input_reset(CAT_BUTTON_A);
@@ -90,7 +90,7 @@ void CAT_render_vending()
 	CAT_gui_image(icon_exit_sprite, 0);
 	CAT_gui_div("");
 	CAT_gui_image(icon_coin_sprite, 0);
-	CAT_gui_textf(" $%d", bag.coins);
+	CAT_gui_textf(" $%d", coins);
 
 	CAT_gui_panel((CAT_ivec2) {0, 4}, (CAT_ivec2) {15, 16});  
 	for(int i = 0; i < VENDING_MAX_SLOTS; i++)
@@ -113,7 +113,7 @@ void CAT_render_vending()
 			{
 				CAT_greenberry(3, 234, 64 + 32 * i, 32, purchase_progress);
 			}
-			else if(item->price > bag.coins)
+			else if(item->price > coins)
 			{
 				CAT_greyberry(3, 234, 64 + 32 * i, 32);
 			}

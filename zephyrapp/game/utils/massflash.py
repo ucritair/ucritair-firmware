@@ -3,7 +3,6 @@ import os;
 import pathlib as pl;
 import multiprocessing as mp;
 
-
 github_dir = os.path.join(pl.Path.home(), "Documents/GitHub");
 zproj_dir = os.path.join(github_dir, "zephyrproject");
 zapp_dir = os.path.join(github_dir, "cat_software/zephyrapp");

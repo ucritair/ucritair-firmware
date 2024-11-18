@@ -5,21 +5,23 @@ project(app)
 if(NOT TARGET app)
 	message(WARNING "Building for desktop!")
 	add_executable(app)
+
+	set(CMAKE_BUILD_TYPE Debug)
+	target_compile_definitions(app PRIVATE CAT_DESKTOP=1)
+	if(DEFINED BAKE)
+		target_compile_definitions(app PRIVATE CAT_ASSET_REBUILD=1)
+	endif()
+
 	find_package(GLEW REQUIRED)
 	find_package(glfw3 3.3 REQUIRED)
 	find_package(PNG REQUIRED)
 	find_package(OpenGL REQUIRED)
-	set(CMAKE_BUILD_TYPE Debug)
-	target_compile_definitions(app PRIVATE CAT_DESKTOP=1)
-	target_compile_options(app PRIVATE -Wall)
 	target_link_libraries(app m glfw PNG::PNG GLEW::GLEW)
-	if(DEFINED LOUIS)
+	if(NOT DEFINED MACOS)
 		target_link_libraries(app OpenGL)
-		target_compile_definitions(app PRIVATE LOUIS=1)
 	endif()
-		if(DEFINED  M)
-		target_compile_definitions(app PRIVATE LOUIS=1)
-	endif()
+	
+	target_compile_options(app PRIVATE -Wall)
 	target_sources(app PRIVATE src/cat_desktop.c)
 else()
 	message(WARNING "Building for embedded")
@@ -33,7 +35,7 @@ target_sources(app PRIVATE
 	src/cat_input.c
 	src/cat_item.c
 	src/cat_machine.c
-	src/cat_main.c
+	src/cat_sprite.c
 	src/cat_math.c
 	src/cat_arcade.c
 	src/cat_bag.c
@@ -45,7 +47,7 @@ target_sources(app PRIVATE
 	src/cat_vending.c
 	src/cat_actions.c
 	src/cat_pet.c
-	src/cat_sprite.c)
+	src/cat_item_dialog.c
+	src/cat_main.c)
 
-target_include_directories(app PRIVATE
-	src/)
+target_include_directories(app PRIVATE src/)

@@ -55,9 +55,7 @@ int quantize(float t, float range, int steps);
 void CAT_rand_init();
 int CAT_rand_int(int a, int b);
 float CAT_rand_float(float a, float b);
-CAT_vec2 CAT_rand_vec2(CAT_vec2 min, CAT_vec2 max);
-CAT_ivec2 CAT_rand_ivec2(CAT_ivec2 min, CAT_ivec2 max);
-bool CAT_rand_chance(float n);
+
 
 //////////////////////////////////////////////////////////////////////////
 // COLLISION

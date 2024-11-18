@@ -885,7 +885,7 @@ CAT_AM_state* react_asm;
 CAT_AM_state AS_react;
 
 #ifndef CAT_BAKED_ASSETS
-#ifdef LOUIS
+#ifdef CAT_ASSET_REBUILD
 #define INIT_SPRITE(name, path, frames) name = CAT_sprite_init(path, frames);\
 										printf("BAKE-INIT: (%d, \"%s\", \"%s\", %d, %d, %d)\n", name, #name, path, frames, atlas.table[name].width, atlas.table[name].height);
 #define COPY_SPRITE(name, from, loop, reverse) name = CAT_sprite_copy(from, loop, reverse);\

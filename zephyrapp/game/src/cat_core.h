@@ -190,9 +190,6 @@ void CAT_AQI_quantize(int* temp_idx, int* co2_idx, int* pm_idx, int* voc_idx, in
 float CAT_AQI_aggregate();
 
 #ifdef CAT_DESKTOP 
-#ifdef LOUIS 
-// #define CAT_BAKED_ASSETS
-#endif
 #include "cat_desktop.h"
 #else
 #include "cat_embedded.h"

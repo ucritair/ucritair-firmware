@@ -1,0 +1,1 @@
+cmake -DMACOS=ON -DBAKE=OFF .

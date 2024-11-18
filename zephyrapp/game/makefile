@@ -345,6 +345,30 @@ src/cat_item.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/app.dir/build.make CMakeFiles/app.dir/src/cat_item.c.s
 .PHONY : src/cat_item.c.s
 
+src/cat_item_dialog.o: src/cat_item_dialog.c.o
+.PHONY : src/cat_item_dialog.o
+
+# target to build an object file
+src/cat_item_dialog.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/app.dir/build.make CMakeFiles/app.dir/src/cat_item_dialog.c.o
+.PHONY : src/cat_item_dialog.c.o
+
+src/cat_item_dialog.i: src/cat_item_dialog.c.i
+.PHONY : src/cat_item_dialog.i
+
+# target to preprocess a source file
+src/cat_item_dialog.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/app.dir/build.make CMakeFiles/app.dir/src/cat_item_dialog.c.i
+.PHONY : src/cat_item_dialog.c.i
+
+src/cat_item_dialog.s: src/cat_item_dialog.c.s
+.PHONY : src/cat_item_dialog.s
+
+# target to generate assembly for a file
+src/cat_item_dialog.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/app.dir/build.make CMakeFiles/app.dir/src/cat_item_dialog.c.s
+.PHONY : src/cat_item_dialog.c.s
+
 src/cat_machine.o: src/cat_machine.c.o
 .PHONY : src/cat_machine.o
 
@@ -621,6 +645,9 @@ help:
 	@echo "... src/cat_item.o"
 	@echo "... src/cat_item.i"
 	@echo "... src/cat_item.s"
+	@echo "... src/cat_item_dialog.o"
+	@echo "... src/cat_item_dialog.i"
+	@echo "... src/cat_item_dialog.s"
 	@echo "... src/cat_machine.o"
 	@echo "... src/cat_machine.i"
 	@echo "... src/cat_machine.s"

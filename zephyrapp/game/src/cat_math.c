@@ -151,21 +151,6 @@ float CAT_rand_float(float a, float b)
 	return a + scale * (b-a);
 }
 
-CAT_vec2 CAT_rand_vec2(CAT_vec2 min, CAT_vec2 max)
-{
-	return (CAT_vec2) {CAT_rand_float(min.x, max.x), CAT_rand_float(min.y, max.y)};
-}
-
-CAT_ivec2 CAT_rand_ivec2(CAT_ivec2 min, CAT_ivec2 max)
-{
-	return (CAT_ivec2) {CAT_rand_int(min.x, max.x), CAT_rand_int(min.y, max.y)};
-}
-
-bool CAT_rand_chance(float n)
-{
-	float thresh = 1.0f/n;
-	return CAT_rand_float(0, 1) < thresh;
-}
 
 //////////////////////////////////////////////////////////////////////////
 // COLLISION

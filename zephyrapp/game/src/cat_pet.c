@@ -24,6 +24,7 @@ CAT_pet pet =
 	.walk_timer_id = -1,
 	.react_timer_id = -1
 };
+CAT_vec2 destination = {120, 200};
 
 void CAT_pet_stat(int ticks)
 {
@@ -215,6 +216,40 @@ void CAT_pet_background_tick(bool capture_input)
 		CAT_pet_life(1);
 		CAT_timer_reset(pet.life_timer_id);
 	}
+
+	if(!CAT_pet_is_critical())
+	{
+		if(CAT_AM_is_in(&pet_asm, &AS_idle) && CAT_AM_is_ticking(&pet_asm))
+		{
+			if(CAT_timer_tick(pet.walk_timer_id))
+			{
+				CAT_ivec2 grid_min = CAT_ivec2_add(room.bounds.min, (CAT_ivec2){1, 1});
+				CAT_ivec2 grid_max = CAT_ivec2_add(room.bounds.max, (CAT_ivec2){-1, -1});
+				CAT_vec2 world_min = CAT_iv2v(CAT_ivec2_mul(grid_min, 16));
+				CAT_vec2 world_max = CAT_iv2v(CAT_ivec2_mul(grid_max, 16));
+				destination =
+				(CAT_vec2) {
+					CAT_rand_float(world_min.x, world_max.x),
+					CAT_rand_float(world_min.y, world_max.y)
+				};
+
+				CAT_AM_transition(&pet_asm, &AS_walk);
+				CAT_timer_reset(pet.walk_timer_id);
+			}
+		}
+		if(CAT_AM_is_in(&pet_asm, &AS_walk) && CAT_AM_is_ticking(&pet_asm))
+		{
+			if(CAT_pet_seek(destination))
+			{
+				CAT_AM_transition(&pet_asm, &AS_idle);
+			}
+		}
+	}
+	else
+	{
+		if(!CAT_AM_is_in(&pet_asm, &AS_crit))
+			CAT_AM_transition(&pet_asm, &AS_crit);
+	}		
 
 	if(!capture_input)
 		return;
