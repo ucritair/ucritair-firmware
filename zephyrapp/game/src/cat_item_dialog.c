@@ -38,6 +38,7 @@ void CAT_MS_item_dialog(CAT_machine_signal signal)
 	{
 		case CAT_MACHINE_SIGNAL_ENTER:
 		{
+			roster.length = 0;
 			for(int i = 0; i < bag.length; i++)
 			{
 				int item_id = bag.item_ids[i];
