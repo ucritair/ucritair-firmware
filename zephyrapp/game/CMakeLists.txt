@@ -8,7 +8,7 @@ if(NOT TARGET app)
 
 	set(CMAKE_BUILD_TYPE Debug)
 	target_compile_definitions(app PRIVATE CAT_DESKTOP=1)
-	if(DEFINED BAKE)
+	if(BAKE)
 		target_compile_definitions(app PRIVATE CAT_ASSET_REBUILD=1)
 	endif()
 
@@ -17,7 +17,7 @@ if(NOT TARGET app)
 	find_package(PNG REQUIRED)
 	find_package(OpenGL REQUIRED)
 	target_link_libraries(app m glfw PNG::PNG GLEW::GLEW)
-	if(NOT DEFINED MACOS)
+	if(NOT MACOS)
 		target_link_libraries(app OpenGL)
 	endif()
 	

@@ -10,6 +10,7 @@
 #include "rtc.h"
 #include "airquality.h"
 #include "flash.h"
+#include "cat_menu.h"
 
 #include "menu_graph.h"
 

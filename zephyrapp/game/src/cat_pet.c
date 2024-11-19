@@ -198,6 +198,7 @@ bool CAT_pet_seek(CAT_vec2 targ)
 void CAT_pet_init()
 {	
 	pet.stat_timer_id = CAT_timer_init(CAT_STAT_TICK_SECS);
+	pet.life_timer_id = CAT_timer_init(CAT_LIFE_TICK_SECS);
 	pet.walk_timer_id = CAT_timer_init(4.0f);
 	pet.react_timer_id = CAT_timer_init(1.0f);
 }

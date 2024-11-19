@@ -5,7 +5,7 @@
 //////////////////////////////////////////////////////////////////////////
 // CONSTANTS
 
-#define CAT_TIMETABLE_MAX_LENGTH 64
+#define CAT_TIMETABLE_MAX_LENGTH 128
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -26,6 +26,7 @@ void CAT_timer_reset(int timer_id);
 float CAT_timer_progress(int timer_id);
 float CAT_timer_get(int timer_id);
 void CAT_timer_set(int timer_id, float t);
+void CAT_timer_add(int timer_id, float t);
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -44,8 +45,3 @@ extern CAT_machine_state machine;
 
 void CAT_machine_transition(CAT_machine_state state);
 void CAT_machine_tick();
-
-
-//////////////////////////////////////////////////////////////////////////
-// MACHINE AND STATE DECLARATIONS
-

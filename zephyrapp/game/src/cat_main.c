@@ -5,6 +5,9 @@
 #include <stdint.h>
 #include <string.h>
 #include <math.h>
+#include <time.h>
+#include <unistd.h>
+#include <sys/fcntl.h>
 
 #include "cat_core.h"
 #include "cat_sprite.h"
@@ -57,6 +60,35 @@ void CAT_fresh_gamestate()
 
 	snake_high_score = 0;
 }
+
+#ifdef CAT_DESKTOP
+void CAT_load_sleep(int* seconds)
+{
+	time_t sleep_time;
+	int fd = open("sleep.dat", O_RDONLY);
+	if(fd != -1)
+	{
+		read(fd, &sleep_time, sizeof(sleep_time));
+		close(fd);
+		time_t now;
+		time(&now);
+		*seconds = difftime(now, sleep_time);
+	}
+	else
+	{
+		*seconds = 0;
+	}
+}
+
+void CAT_save_sleep()
+{
+	time_t now;
+	time(&now);
+	int fd = open("sleep.dat", O_WRONLY | O_CREAT | O_TRUNC);
+	write(fd, &now, sizeof(now));
+	close(fd);
+}
+#endif
 
 void CAT_force_save()
 {
@@ -145,18 +177,26 @@ void CAT_force_load()
 
 void CAT_apply_sleep(int seconds)
 {
-	int stat_ticks = round((float) seconds / (float) CAT_STAT_TICK_SECS);
+	int stat_ticks = seconds / CAT_STAT_TICK_SECS;
+	int stat_remainder = seconds % CAT_STAT_TICK_SECS;
 	CAT_pet_stat(stat_ticks);
+	CAT_timer_add(pet.stat_timer_id, stat_remainder);
 
-	int life_ticks = round((float) seconds / (float) CAT_LIFE_TICK_SECS);
+	int life_ticks = seconds / CAT_LIFE_TICK_SECS;
+	int life_remainder = seconds % CAT_LIFE_TICK_SECS;
 	CAT_pet_life(life_ticks);
+	CAT_timer_add(pet.life_timer_id, life_remainder);
 
-	int coin_ticks = round((float) seconds / (float) CAT_COIN_TICK_SECS);
-	CAT_room_earn(coin_ticks);
+	int earn_ticks = seconds / CAT_EARN_TICK_SECS;
+	int earn_remainder = seconds % CAT_EARN_TICK_SECS;
+	CAT_room_earn(earn_ticks);
+	CAT_timer_add(room.earn_timer_id, earn_remainder);
 }
 
 void CAT_init(int seconds_slept)
 {
+	slept_seconds = seconds_slept;
+
 	CAT_rand_init();
 	CAT_platform_init();
 	CAT_input_init();
@@ -279,7 +319,9 @@ void CAT_tick_render(int cycle)
 #ifdef CAT_DESKTOP
 int main()
 {
-	CAT_init(0);
+	int seconds_slept;
+	CAT_load_sleep(&seconds_slept);
+	CAT_init(seconds_slept);
 
 	while (CAT_get_battery_pct() > 0)
 	{
@@ -289,6 +331,7 @@ int main()
 	}
 
 	CAT_force_save();
+	CAT_save_sleep();
 
 	CAT_spriter_cleanup();
 #ifndef CAT_BAKED_ASSETS

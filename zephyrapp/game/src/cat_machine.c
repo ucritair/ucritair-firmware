@@ -67,6 +67,13 @@ void CAT_timer_set(int timer_id, float t)
 	timetable.timers[timer_id] = t;
 }
 
+void CAT_timer_add(int timer_id, float t)
+{
+	if(timer_id < 0 || timer_id >= timetable.length)
+		return;
+	timetable.timers[timer_id] += t;
+}
+
 
 //////////////////////////////////////////////////////////////////////////
 // MACHINE

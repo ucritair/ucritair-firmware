@@ -338,7 +338,7 @@ void do_populate_next(void* arg)
 #include "cat_bag.h"
 void menu_coins(void* arg)
 {
-	bag.coins += 1000;
+	coins += 1000;
 }
 
 #include <hal/nrf_rtc.h>

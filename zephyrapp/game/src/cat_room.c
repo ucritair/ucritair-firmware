@@ -177,7 +177,7 @@ void CAT_room_init()
 	{
 		room.coin_move_timers[i] = CAT_timer_init(0.75f);
 	}
-	room.earn_timer_id = CAT_timer_init(CAT_COIN_TICK_SECS);
+	room.earn_timer_id = CAT_timer_init(CAT_EARN_TICK_SECS);
 }
 
 void CAT_room_tick(bool capture_input)

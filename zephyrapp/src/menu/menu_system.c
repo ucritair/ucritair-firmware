@@ -8,6 +8,7 @@
 #include "cat_version.h"
 #include "cat_menu.h"
 #include "cat_item.h"
+#include "cat_bag.h"
 
 #include "misc.h"
 #include "menu_time.h"
@@ -239,7 +240,7 @@ void CAT_render_system_menu()
 			{
 				did_co2_cal = true;
 				force_abc_sunrise();
-				CAT_bag_add(cigarette_item);
+				CAT_item_list_add(&bag, cigarette_item);
 			}
 		}
 		else
