@@ -30,15 +30,17 @@ void CAT_deco_target(CAT_ivec2 place)
 		CAT_item* prop = &item_table.data[item_id];
 		CAT_ivec2 shape = prop->data.prop_data.shape;
 		CAT_rect bounds = CAT_rect_place(room.prop_places[i], shape);
-		bounds.max.x -= 1;
-		bounds.max.y -= 1;
 
-		if(CAT_rect_pt(place, bounds))
-		{
-			deco_state.mod_idx = i;
-			deco_state.mod_rect = bounds;
-			return;
-		}
+		if(place.x < bounds.min.x || place.x >= bounds.max.x)
+			continue;
+		if(place.y < bounds.max.x || place.y >= bounds.max.y)
+			continue;
+
+		deco_state.mod_idx = i;
+		deco_state.mod_rect.min = bounds.min;
+		deco_state.mod_rect.max.x = bounds.max.x - 1;
+		deco_state.mod_rect.max.y = bounds.max.y - 1;
+		return;
 	}
 
 	deco_state.mod_idx = -1;

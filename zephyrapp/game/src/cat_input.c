@@ -76,6 +76,20 @@ bool CAT_input_pulse(int button)
 	return pulse;
 }
 
+bool CAT_input_drag(int x, int y, float r)
+{
+	if(input.touch.pressure > 0)
+	{
+		int x_t = input.touch.x;
+		int y_t = input.touch.y;
+		int x_d = x - x_t;
+		int y_d = y - y_t;
+		return x_d*x_d + y_d*y_d <= r*r;
+	}
+
+	return false;
+}
+
 bool CAT_input_touch(int x, int y, float r)
 {
 	if(input.touch.pressure > 0 && !input.touch_last)
@@ -89,50 +103,13 @@ bool CAT_input_touch(int x, int y, float r)
 	return false;
 }
 
-float CAT_input_progress(int button, float t)
-{
-	if(!input.mask[button])
-		return 0;
-
-	float progress = (input.time[button] / t) + 0.15f;
-	return clampf(progress, 0, 1);
-}
-
-void CAT_input_reset(int button)
-{
-	input.mask[button] = false;
-	input.last[button] = false;
-	input.time[button] = 0;
-	input.pulse[button] = 0;	
-}
-
 bool CAT_input_touch_rect(int x, int y, int w, int h)
 {
 	if(input.touch.pressure <= 0 || input.touch_last)
 		return false;
-
-	CAT_rect rect;
-	rect.min.x = x;
-	rect.min.y = y;
-	rect.max.x = x + w;
-	rect.max.y = y + h;
-	CAT_ivec2 pt;
-	pt.x = input.touch.x;
-	pt.y = input.touch.y;
-
-	return input.touch.pressure > 0 && CAT_rect_pt(pt, rect);
-}
-
-bool CAT_input_drag(int x, int y, float r)
-{
-	if(input.touch.pressure > 0)
-	{
-		int x_t = input.touch.x;
-		int y_t = input.touch.y;
-		int x_d = x - x_t;
-		int y_d = y - y_t;
-		return x_d*x_d + y_d*y_d <= r*r;
-	}
-
-	return false;
+	if(input.touch.x < x || input.touch.y > (x + w))
+		return false;
+	if(input.touch.y < y || input.touch.y > (y+h))
+		return false;
+	return true;
 }

@@ -23,6 +23,7 @@ void CAT_MS_vending(CAT_machine_signal signal)
 		case CAT_MACHINE_SIGNAL_ENTER:
 			base = 0;
 			selector = 0;
+			purchase_lock = false;
 			break;
 		case CAT_MACHINE_SIGNAL_TICK:
 		{
@@ -37,7 +38,6 @@ void CAT_MS_vending(CAT_machine_signal signal)
 				if(selector == -1)
 					selector = item_table.length-1;
 				purchase_progress = 0;
-				CAT_input_reset(CAT_BUTTON_A);
 			}
 			if(CAT_input_pulse(CAT_BUTTON_DOWN))
 			{
@@ -45,28 +45,8 @@ void CAT_MS_vending(CAT_machine_signal signal)
 				if(selector == item_table.length)
 					selector = 0;
 				purchase_progress = 0;
-				CAT_input_reset(CAT_BUTTON_A);
 			}
 			selector = clamp(selector, 0, item_table.length-1);
-
-			CAT_item* item = CAT_item_get(selector);
-			if(item->price <= coins && !purchase_lock)
-			{
-				purchase_progress = CAT_input_progress(CAT_BUTTON_A, 0.75f);
-				if(purchase_progress >= 1)
-				{
-					CAT_item_list_add(&bag, selector);
-					coins -= item->price;
-					purchase_progress = 0;
-					purchase_lock = true;
-					CAT_input_reset(CAT_BUTTON_A);
-				}
-			}
-			if(CAT_input_released(CAT_BUTTON_A))
-			{
-				purchase_progress = 0;
-				purchase_lock = false;
-			}		
 
 			int overshoot = selector - base;
 			if(overshoot < 0)
@@ -74,6 +54,28 @@ void CAT_MS_vending(CAT_machine_signal signal)
 			else if(overshoot >= VENDING_MAX_SLOTS)
 				base += (overshoot - VENDING_MAX_SLOTS + 1);
 			break;
+
+			CAT_item* item = CAT_item_get(selector);
+			if(item->price <= coins && !purchase_lock)
+			{
+				if(CAT_input_pressed(CAT_BUTTON_A))
+					purchase_progress = 0.15f;
+				else if(CAT_input_held(CAT_BUTTON_A, 0.0f))
+					purchase_progress += CAT_get_delta_time();
+				
+				if(purchase_progress >= 1)
+				{
+					CAT_item_list_add(&bag, selector);
+					coins -= item->price;
+					purchase_progress = 0;
+					purchase_lock = true;
+				}
+			}
+			if(CAT_input_released(CAT_BUTTON_A))
+			{
+				purchase_progress = 0;
+				purchase_lock = false;
+			}
 		}
 		case CAT_MACHINE_SIGNAL_EXIT:
 			break;
