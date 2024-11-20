@@ -27,7 +27,3 @@ bool CAT_input_pulse(int button);
 bool CAT_input_drag(int x, int y, float r);
 bool CAT_input_touch(int x, int y, float r);
 bool CAT_input_touch_rect(int x, int y, int w, int h);
-<<<<<<< HEAD
-
-=======
->>>>>>> quadtree
