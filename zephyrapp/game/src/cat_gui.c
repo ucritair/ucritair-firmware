@@ -1,8 +1,10 @@
 #include "cat_gui.h"
+
 #include "cat_sprite.h"
 #include <string.h>
 #include <stdarg.h>
 #include <stdio.h>
+#include "cat_machine.h"
 
 //////////////////////////////////////////////////////////////////////////
 // RENDERING
@@ -149,5 +151,29 @@ void CAT_gui_textf(const char* fmt, ...)
 	char text[256];
 	vsprintf(text, fmt, args);
 	va_end(args);
+	CAT_gui_text(text);
+}
+
+void CAT_gui_popup(const char* text)
+{
+	int lines = 0;
+	int max_length = 0;
+	int length = 0;
+	for(const char* c = text; *c != '\0'; c++)
+	{
+		max_length = max(max_length, ++length);
+		if(*c == '\n')
+		{
+			lines += 1;
+			length = 0;
+		}
+	}
+	
+	int dialog_width = max_length * CAT_GLYPH_WIDTH + (CAT_TILE_SIZE + gui.margin * 2);
+	dialog_width /= CAT_TILE_SIZE;
+	int dialog_height = lines * (CAT_GLYPH_HEIGHT + gui.pad_y) + (CAT_TILE_SIZE + gui.margin * 2);
+	dialog_height /= CAT_TILE_SIZE;
+
+	CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {dialog_width, dialog_height});
 	CAT_gui_text(text);
 }

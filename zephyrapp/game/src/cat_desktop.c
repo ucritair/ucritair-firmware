@@ -11,6 +11,7 @@
 #include "cat_math.h"
 #include <string.h>
 #include "cat_version.h"
+#include <stdarg.h>
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // DEV MODE
@@ -19,7 +20,7 @@ CAT_simulator simulator;
 
 void GLFW_error_callback(int error, const char* msg)
 {
-	printf("GLFW error %d: %s\n", error, msg);
+	CAT_printf("GLFW error %d: %s\n", error, msg);
 }
 
 void CAT_shader_init(char* vert_src, char* frag_src)
@@ -34,7 +35,7 @@ void CAT_shader_init(char* vert_src, char* frag_src)
 	if(status != GL_TRUE)
 	{
 		glGetShaderInfoLog(vert_id, 512, NULL, log);
-		printf("While compiling vertex shader:\n%s\n", log);
+		CAT_printf("While compiling vertex shader:\n%s\n", log);
 	}
 	
 	int frag_id = glCreateShader(GL_FRAGMENT_SHADER);
@@ -44,7 +45,7 @@ void CAT_shader_init(char* vert_src, char* frag_src)
 	if(status != GL_TRUE)
 	{
 		glGetShaderInfoLog(frag_id, 512, NULL, log);
-		printf("While compiling fragment shader:\n%s\n", log);
+		CAT_printf("While compiling fragment shader:\n%s\n", log);
 	}
 
 	simulator.prog_id = glCreateProgram();
@@ -55,7 +56,7 @@ void CAT_shader_init(char* vert_src, char* frag_src)
 	if(status != GL_TRUE)
 	{
 		glGetShaderInfoLog(simulator.prog_id, 512, NULL, log);
-		printf("While linking shader program:\n%s\n", log);
+		CAT_printf("While linking shader program:\n%s\n", log);
 	}
 	glDeleteShader(vert_id);
 	glDeleteShader(frag_id);
@@ -63,13 +64,13 @@ void CAT_shader_init(char* vert_src, char* frag_src)
 
 void CAT_platform_init()
 {
-	printf("Starting CAT v%d.%d.%d.%d...\n", CAT_VERSION_MAJOR, CAT_VERSION_MINOR, CAT_VERSION_PATCH, CAT_VERSION_PUSH);
+	CAT_printf("Starting CAT v%d.%d.%d.%d...\n", CAT_VERSION_MAJOR, CAT_VERSION_MINOR, CAT_VERSION_PATCH, CAT_VERSION_PUSH);
 
 	glfwSetErrorCallback(GLFW_error_callback);
 	
 	if(!glfwInit())
 	{
-		printf("Failed to initialize GLFW\n");
+		CAT_printf("Failed to initialize GLFW\n");
 	}
 	
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -80,19 +81,18 @@ void CAT_platform_init()
 	simulator.lcd = glfwCreateWindow(LCD_SCREEN_W, LCD_SCREEN_H, "CAT", NULL, NULL);
 	if(simulator.lcd == NULL)
 	{
-		printf("Failed to create window\n");
+		CAT_printf("Failed to create window\n");
 	}
 
 	glfwMakeContextCurrent(simulator.lcd);
-	printf("Renderer: %s\n", glGetString(GL_RENDERER));
-	printf("GL version: %s\n", glGetString(GL_VERSION));
-	printf("SL version: %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
-	
-	printf("Initializing GLEW\n");
+	CAT_printf("Renderer: %s\n", glGetString(GL_RENDERER));
+	CAT_printf("GL version: %s\n", glGetString(GL_VERSION));
+	CAT_printf("SL version: %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
+	CAT_printf("Initializing GLEW\n");
 	glewExperimental = GL_TRUE;
 	if(glewInit() != GLEW_OK)
 	{
-		printf("Failed to initialize GLEW\n");
+		CAT_printf("Failed to initialize GLEW\n");
 	}
 
 	float geometry[12] =
@@ -321,14 +321,14 @@ CAT_save the_save;
 
 CAT_save* CAT_start_save()
 {
-	printf("Saving...\n");
+	CAT_printf("Saving...\n");
 
 	return &the_save;
 }
 
 void CAT_finish_save(CAT_save* save)
 {
-	printf("Save done!\n");
+	CAT_printf("Save done!\n");
 
 	save->magic_number = CAT_SAVE_MAGIC;
 	int fd = open("save.dat", O_WRONLY | O_CREAT | O_TRUNC, S_IRWXU);
@@ -341,20 +341,20 @@ void CAT_finish_save(CAT_save* save)
 
 CAT_save* CAT_start_load()
 {
-	printf("Loading...\n");
+	CAT_printf("Loading...\n");
 
 	int fd = open("save.dat", O_RDONLY);
 	read(fd, &the_save, sizeof(the_save));
 	close(fd);
 
-	printf("Loaded save from version v%d.%d.%d.%d\n", the_save.version.major, the_save.version.minor, the_save.version.patch, the_save.version.push);
+	CAT_printf("Loaded save from version v%d.%d.%d.%d\n", the_save.version.major, the_save.version.minor, the_save.version.patch, the_save.version.push);
 		
 	return &the_save;
 }
 
 void CAT_finish_load()
 {
-	printf("Load done!\n");
+	CAT_printf("Load done!\n");
 }
 
 
@@ -393,4 +393,16 @@ void CAT_AQI_tick()
 	aqi.sen5x.temp_degC = 20;
 	aqi.sen5x.voc_index = 1;
 	aqi.sen5x.nox_index = 100;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// DEBUG
+
+void CAT_printf(const char* fmt, ...)
+{
+	va_list args;
+	va_start(args, fmt);
+	vprintf(fmt, args);
+	va_end(args);
 }

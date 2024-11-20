@@ -143,9 +143,9 @@ void CAT_free(void* ptr)
 	
 }
 
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // STORAGE
-
 
 // DONT even talk to me I know this is ugly as shit
 // I just didn't want tomas to have to worry about the sizes of the saves
@@ -176,7 +176,6 @@ void CAT_finish_load()
 }
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // POWER
 
@@ -190,4 +189,12 @@ void CAT_set_LEDs(uint8_t r, uint8_t g, uint8_t b)
 {
 #define SCALE 4
 	set_all_same_color((struct led_rgb){.r=r>>SCALE, .g=g>>SCALE, .b=b>>SCALE});
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// DEBUG
+
+void CAT_printf(const char* fmt, ...)
+{
+	
 }

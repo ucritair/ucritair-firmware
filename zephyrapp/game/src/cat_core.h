@@ -195,3 +195,10 @@ float CAT_AQI_aggregate();
 #include "cat_embedded.h"
 #define CAT_BAKED_ASSETS
 #endif
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// DEBUG
+
+void CAT_printf(const char* fmt, ...);
+
