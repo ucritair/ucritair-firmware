@@ -77,5 +77,3 @@ typedef struct CAT_quadtree
 {
 	
 } CAT_quadtree;
-
-

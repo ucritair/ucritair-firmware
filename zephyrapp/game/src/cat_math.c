@@ -180,4 +180,7 @@ bool CAT_rect_contains(CAT_rect a, CAT_rect b)
 		return false;
 	return true;
 }
+<<<<<<< HEAD
 
+=======
+>>>>>>> quadtree
