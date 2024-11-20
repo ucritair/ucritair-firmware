@@ -228,8 +228,8 @@ void CAT_pet_tick(bool capture_input)
 				{
 					CAT_ivec2 grid_min = CAT_ivec2_add(room.bounds.min, (CAT_ivec2){1, 1});
 					CAT_ivec2 grid_max = CAT_ivec2_add(room.bounds.max, (CAT_ivec2){-1, -1});
-					CAT_vec2 world_min = CAT_iv2v(CAT_ivec2_mul(grid_min, 16));
-					CAT_vec2 world_max = CAT_iv2v(CAT_ivec2_mul(grid_max, 16));
+					CAT_ivec2 world_min = CAT_ivec2_mul(grid_min, 16);
+					CAT_ivec2 world_max = CAT_ivec2_mul(grid_max, 16);
 					destination =
 					(CAT_vec2) {
 						CAT_rand_float(world_min.x, world_max.x),
