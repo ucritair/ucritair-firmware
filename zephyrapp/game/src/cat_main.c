@@ -84,7 +84,7 @@ void CAT_save_sleep()
 {
 	time_t now;
 	time(&now);
-	int fd = open("sleep.dat", O_WRONLY | O_CREAT | O_TRUNC);
+	int fd = open("sleep.dat", O_WRONLY | O_CREAT | O_TRUNC,  S_IRUSR | S_IWUSR);
 	write(fd, &now, sizeof(now));
 	close(fd);
 }

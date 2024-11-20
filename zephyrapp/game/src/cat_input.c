@@ -46,6 +46,8 @@ void CAT_input_tick()
 
 bool CAT_input_pressed(int button)
 {
+	if(button == CAT_BUTTON_A && input.mask[button])
+		CAT_printf("A is down\n");
 	return input.mask[button] && !input.last[button];
 }
 
@@ -107,9 +109,9 @@ bool CAT_input_touch_rect(int x, int y, int w, int h)
 {
 	if(input.touch.pressure <= 0 || input.touch_last)
 		return false;
-	if(input.touch.x < x || input.touch.y > (x + w))
+	if(input.touch.x < x || input.touch.x > (x + w))
 		return false;
-	if(input.touch.y < y || input.touch.y > (y+h))
+	if(input.touch.y < y || input.touch.y > (y + h))
 		return false;
 	return true;
 }

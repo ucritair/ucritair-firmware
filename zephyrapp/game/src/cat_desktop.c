@@ -331,7 +331,7 @@ void CAT_finish_save(CAT_save* save)
 	CAT_printf("Save done!\n");
 
 	save->magic_number = CAT_SAVE_MAGIC;
-	int fd = open("save.dat", O_WRONLY | O_CREAT | O_TRUNC, S_IRWXU);
+	int fd = open("save.dat", O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
 	uint8_t* buffer = CAT_malloc(sizeof(the_save));
 	memcpy(buffer, &the_save, sizeof(the_save));
 	write(fd, buffer, sizeof(the_save));

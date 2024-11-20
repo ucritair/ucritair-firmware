@@ -53,7 +53,6 @@ void CAT_MS_vending(CAT_machine_signal signal)
 				base += overshoot;
 			else if(overshoot >= VENDING_MAX_SLOTS)
 				base += (overshoot - VENDING_MAX_SLOTS + 1);
-			break;
 
 			CAT_item* item = CAT_item_get(selector);
 			if(item->price <= coins && !purchase_lock)
@@ -76,6 +75,7 @@ void CAT_MS_vending(CAT_machine_signal signal)
 				purchase_progress = 0;
 				purchase_lock = false;
 			}
+			break;
 		}
 		case CAT_MACHINE_SIGNAL_EXIT:
 			break;
