@@ -52,12 +52,12 @@ void CAT_action_tick()
 
 		if(CAT_input_pressed(CAT_BUTTON_A))
 		{
-			CAT_ivec2 c_world = CAT_ivec2_mul(room.grid_cursor, 16);
-			CAT_rect action_rect = {room.grid_cursor, CAT_ivec2_add(room.grid_cursor, (CAT_ivec2) {1, 1})};
+			CAT_ivec2 world_cursor = CAT_grid2world(room.grid_cursor);
+			CAT_rect action_rect = CAT_rect_place(room.grid_cursor, (CAT_ivec2) {1, 1});
 			if(CAT_block_free(action_rect))
 			{
-				int x_off = c_world.x > pet.pos.x ? -16 : 32;
-				action_state.location = (CAT_vec2) {c_world.x + x_off, c_world.y + 16};
+				int x_off = world_cursor.x > pet.pos.x ? -16 : 32;
+				action_state.location = (CAT_vec2) {world_cursor.x + x_off, world_cursor.y + 16};
 
 				action_state.confirmed = true;
 				CAT_AM_transition(&pet_asm, &AS_adjust_in);
@@ -105,7 +105,6 @@ void CAT_action_tick()
 		}	
 		if(CAT_AM_is_in(&pet_asm, &AS_adjust_out))
 		{
-			CAT_set_LEDs(0, 0, 0);
 			CAT_machine_transition(CAT_MS_room);
 		}
 	}
@@ -143,6 +142,7 @@ void CAT_MS_feed(CAT_machine_signal signal)
 		case CAT_MACHINE_SIGNAL_EXIT:
 		{
 			CAT_action_state_clear();
+			CAT_set_LEDs(0, 0, 0);
 			break;
 		}
 	}
@@ -175,6 +175,7 @@ void CAT_MS_study(CAT_machine_signal signal)
 		case CAT_MACHINE_SIGNAL_EXIT:
 		{
 			CAT_action_state_clear();
+			CAT_set_LEDs(0, 0, 0);
 			break;
 		}
 	}
@@ -207,6 +208,7 @@ void CAT_MS_play(CAT_machine_signal signal)
 		case CAT_MACHINE_SIGNAL_EXIT:
 		{
 			CAT_action_state_clear();
+			CAT_set_LEDs(0, 0, 0);
 			break;
 		}
 	}

@@ -228,7 +228,8 @@ void CAT_pet_tick(bool capture_input)
 				if(CAT_timer_tick(pet.walk_timer_id))
 				{
 					destination =
-					(CAT_vec2) {
+					(CAT_vec2)
+					{
 						CAT_rand_float(space.world_rect.min.x, space.world_rect.max.x),
 						CAT_rand_float(space.world_rect.min.y, space.world_rect.max.y),
 					};
