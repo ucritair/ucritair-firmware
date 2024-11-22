@@ -227,12 +227,10 @@ void CAT_pet_tick(bool capture_input)
 			{
 				if(CAT_timer_tick(pet.walk_timer_id))
 				{
-					destination =
-					(CAT_vec2)
-					{
-						CAT_rand_float(space.world_rect.min.x, space.world_rect.max.x),
-						CAT_rand_float(space.world_rect.min.y, space.world_rect.max.y),
-					};
+					CAT_build_freespace();
+					CAT_ivec2 grid_dest = CAT_pick_freespace();
+					CAT_ivec2 world_dest = CAT_grid2world(grid_dest);
+					destination = (CAT_vec2) {world_dest.x + 8, world_dest.y + 8};
 
 					CAT_AM_transition(&pet_asm, &AS_walk);
 					CAT_timer_reset(pet.walk_timer_id);

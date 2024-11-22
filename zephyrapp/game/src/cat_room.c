@@ -260,7 +260,6 @@ void CAT_room_remove_coin(int idx)
 void CAT_room_earn(int ticks)
 {
 	CAT_build_freespace();
-
 	for(int i = 0; i < room.prop_count; i++)
 	{
 		if(room.prop_ids[i] == gpu_item)
