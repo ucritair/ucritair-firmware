@@ -112,7 +112,7 @@ void CAT_render_bag()
 		CAT_gui_panel_tight((CAT_ivec2) {0, 2+i*2}, (CAT_ivec2) {15, 2});
 		CAT_gui_image(icon_item_sprite, item->type);
 		
-		CAT_gui_textf(" %s *%d", item->name, bag.counts[idx]);
+		CAT_gui_textf(" %s *%d ", item->name, bag.counts[idx]);
 
 		if(item->type == CAT_ITEM_TYPE_GEAR)
 		{

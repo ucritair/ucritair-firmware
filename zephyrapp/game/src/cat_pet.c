@@ -64,11 +64,6 @@ void CAT_pet_stat(int ticks)
 	pet.spirit = clamp(pet.spirit - ds * ticks, 0, 12);
 }
 
-void CAT_pet_life(int ticks)
-{
-	pet.lifetime += ticks;
-}
-
 void CAT_pet_use(int item_id)
 {
 	CAT_item* item = CAT_item_get(item_id);
@@ -79,6 +74,12 @@ void CAT_pet_use(int item_id)
 	pet.focus = clamp(pet.focus + item->data.tool_data.df, 0, 12);
 	pet.spirit = clamp(pet.spirit + item->data.tool_data.ds, 0, 12);
 }
+
+void CAT_pet_life(int ticks)
+{
+	pet.lifetime += ticks;
+}
+
 
 bool CAT_pet_is_critical()
 {
@@ -178,7 +179,7 @@ void CAT_pet_settle()
 bool CAT_pet_seek(CAT_vec2 targ)
 {
 	CAT_vec2 line = CAT_vec2_sub(targ, pet.pos);
-	float dist = CAT_vec2_mag(line);
+	float dist = sqrt(CAT_vec2_mag2(line));
 	float step = 48.0f * CAT_get_delta_time();
 	if(dist < step)
 	{
@@ -188,7 +189,7 @@ bool CAT_pet_seek(CAT_vec2 targ)
 	}
 	else
 	{
-		pet.dir = CAT_vec2_div(line, dist);
+		pet.dir = CAT_vec2_mul(line, 1.0f/dist);
 		pet.pos = CAT_vec2_add(pet.pos, CAT_vec2_mul(pet.dir, step));
 		pet.left = pet.pos.x < targ.x;
 		return false;
@@ -226,14 +227,10 @@ void CAT_pet_tick(bool capture_input)
 			{
 				if(CAT_timer_tick(pet.walk_timer_id))
 				{
-					CAT_ivec2 grid_min = CAT_ivec2_add(room.bounds.min, (CAT_ivec2){1, 1});
-					CAT_ivec2 grid_max = CAT_ivec2_add(room.bounds.max, (CAT_ivec2){-1, -1});
-					CAT_ivec2 world_min = CAT_ivec2_mul(grid_min, 16);
-					CAT_ivec2 world_max = CAT_ivec2_mul(grid_max, 16);
 					destination =
 					(CAT_vec2) {
-						CAT_rand_float(world_min.x, world_max.x),
-						CAT_rand_float(world_min.y, world_max.y)
+						CAT_rand_float(space.world_rect.min.x, space.world_rect.max.x),
+						CAT_rand_float(space.world_rect.min.y, space.world_rect.max.y),
 					};
 
 					CAT_AM_transition(&pet_asm, &AS_walk);

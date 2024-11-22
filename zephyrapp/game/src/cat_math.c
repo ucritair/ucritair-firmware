@@ -94,16 +94,6 @@ CAT_vec2 CAT_vec2_mul(CAT_vec2 a, float b)
 	return (CAT_vec2) {a.x*b, a.y*b};
 }
 
-CAT_vec2 CAT_vec2_div(CAT_vec2 a, float b)
-{
-	return (CAT_vec2) {a.x/b, a.y/b};
-}
-
-CAT_vec2 CAT_vec2_neg(CAT_vec2 a)
-{
-	return (CAT_vec2) {-a.x, -a.y};
-}
-
 float CAT_vec2_dot(CAT_vec2 a, CAT_vec2 b)
 {
 	return a.x*b.x + a.y*b.y;
@@ -112,11 +102,6 @@ float CAT_vec2_dot(CAT_vec2 a, CAT_vec2 b)
 float CAT_vec2_mag2(CAT_vec2 a)
 {
 	return a.x*a.x + a.y*a.y;
-}
-
-float CAT_vec2_mag(CAT_vec2 a)
-{
-	return sqrt(a.x*a.x + a.y*a.y);
 }
 
 CAT_vec2 CAT_vec2_unit(CAT_vec2 a)
@@ -128,11 +113,6 @@ CAT_vec2 CAT_vec2_unit(CAT_vec2 a)
 float CAT_vec2_dist2(CAT_vec2 a, CAT_vec2 b)
 {
 	return CAT_vec2_mag2(CAT_vec2_sub(b, a));
-}
-
-float CAT_vec2_dist(CAT_vec2 a, CAT_vec2 b)
-{
-	return CAT_vec2_mag(CAT_vec2_sub(b, a));
 }
 
 

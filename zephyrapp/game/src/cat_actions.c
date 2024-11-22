@@ -48,13 +48,13 @@ void CAT_action_tick()
 	}
 	else if(!action_state.confirmed)
 	{
-		CAT_room_move_cursor();
+		CAT_room_cursor();
 
 		if(CAT_input_pressed(CAT_BUTTON_A))
 		{
-			CAT_ivec2 c_world = CAT_ivec2_mul(room.cursor, 16);
-			CAT_rect action_rect = {room.cursor, CAT_ivec2_add(room.cursor, (CAT_ivec2) {1, 1})};
-			if(CAT_room_fits(action_rect))
+			CAT_ivec2 c_world = CAT_ivec2_mul(room.grid_cursor, 16);
+			CAT_rect action_rect = {room.grid_cursor, CAT_ivec2_add(room.grid_cursor, (CAT_ivec2) {1, 1})};
+			if(CAT_block_free(action_rect))
 			{
 				int x_off = c_world.x > pet.pos.x ? -16 : 32;
 				action_state.location = (CAT_vec2) {c_world.x + x_off, c_world.y + 16};
@@ -74,7 +74,7 @@ void CAT_action_tick()
 		{
 			if(CAT_pet_seek(action_state.location))
 			{
-				pet.left = (room.cursor.x * 16) > pet.pos.x;
+				pet.left = (room.grid_cursor.x * 16) > pet.pos.x;
 				CAT_AM_transition(&pet_asm, action_state.action_AS);
 			}
 		}
@@ -216,7 +216,8 @@ void CAT_render_action(int cycle)
 {
 	if(cycle == 0)
 	{
-		CAT_ivec2 spot = CAT_ivec2_mul(room.cursor, 16);
+		CAT_ivec2 place = CAT_grid2world(room.grid_cursor);
+		
 		if(action_state.tool_id != -1)
 		{
 			CAT_item* item = CAT_item_get(action_state.tool_id);
@@ -225,18 +226,18 @@ void CAT_render_action(int cycle)
 
 			if(!action_state.confirmed)
 			{
-				CAT_draw_queue_add(item->data.tool_data.cursor_sprite_id, 0, tool_layer, spot.x, spot.y+16, tool_mode);
+				CAT_draw_queue_add(item->data.tool_data.cursor_sprite_id, 0, tool_layer, place.x, place.y+16, tool_mode);
 			}			
 			else if(!action_state.complete)
 			{
-				if(spot.x > pet.pos.x)
+				if(place.x > pet.pos.x)
 					tool_mode |= CAT_DRAW_MODE_REFLECT_X;
-				CAT_draw_queue_animate(item->sprite_id, tool_layer, spot.x, spot.y+16, tool_mode);
+				CAT_draw_queue_animate(item->sprite_id, tool_layer, place.x, place.y+16, tool_mode);
 			}
 		}
 		else
 		{
-			CAT_draw_queue_add(cursor_sprite, 0, 2, spot.x, spot.y, CAT_DRAW_MODE_DEFAULT);
+			CAT_draw_queue_add(cursor_sprite, 0, 2, place.x, place.y, CAT_DRAW_MODE_DEFAULT);
 		}
 	}
 }

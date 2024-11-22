@@ -46,8 +46,6 @@ void CAT_input_tick()
 
 bool CAT_input_pressed(int button)
 {
-	if(button == CAT_BUTTON_A && input.mask[button])
-		CAT_printf("A is down\n");
 	return input.mask[button] && !input.last[button];
 }
 

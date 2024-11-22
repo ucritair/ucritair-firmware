@@ -27,19 +27,17 @@ void CAT_deco_target(CAT_ivec2 place)
 	for(int i = 0; i < room.prop_count; i++)
 	{
 		int item_id = room.prop_ids[i];
-		CAT_item* prop = &item_table.data[item_id];
-		CAT_ivec2 shape = prop->data.prop_data.shape;
-		CAT_rect bounds = CAT_rect_place(room.prop_places[i], shape);
+		CAT_item* item = &item_table.data[item_id];
+		CAT_ivec2 shape = item->data.prop_data.shape;
+		CAT_rect block = CAT_rect_place(room.prop_places[i], shape);
 
-		if(place.x < bounds.min.x || place.x >= bounds.max.x)
+		if(place.x < block.min.x || place.x >= block.max.x)
 			continue;
-		if(place.y < bounds.max.x || place.y >= bounds.max.y)
+		if(place.y < block.min.y || place.y >= block.max.y)
 			continue;
-
+		
 		deco_state.mod_idx = i;
-		deco_state.mod_rect.min = bounds.min;
-		deco_state.mod_rect.max.x = bounds.max.x - 1;
-		deco_state.mod_rect.max.y = bounds.max.y - 1;
+		deco_state.mod_rect = block;
 		return;
 	}
 
@@ -60,7 +58,7 @@ void CAT_MS_deco(CAT_machine_signal signal)
 		}
 		case CAT_MACHINE_SIGNAL_TICK:
 		{
-			CAT_room_move_cursor();
+			CAT_room_cursor();
 
 			if(CAT_input_pressed(CAT_BUTTON_SELECT))
 			{
@@ -77,16 +75,16 @@ void CAT_MS_deco(CAT_machine_signal signal)
 					{
 						CAT_item* prop = &item_table.data[deco_state.add_id];
 						CAT_ivec2 shape = prop->data.prop_data.shape;
-						CAT_rect bounds = CAT_rect_place(room.cursor, shape);
+						CAT_rect block = CAT_rect_place(room.grid_cursor, shape);
 
-						deco_state.add_rect = bounds;
-						deco_state.valid_add = CAT_room_fits(bounds);
+						deco_state.add_rect = block;
+						deco_state.valid_add = CAT_block_free(block);
 
 						if(deco_state.valid_add)
 						{
 							if(CAT_input_pressed(CAT_BUTTON_A))
 							{
-								CAT_room_add_prop(deco_state.add_id, room.cursor);
+								CAT_room_add_prop(deco_state.add_id, room.grid_cursor);
 								CAT_item_list_remove(&bag, deco_state.add_id);
 								deco_state.add_id = -1;
 							}
@@ -104,7 +102,7 @@ void CAT_MS_deco(CAT_machine_signal signal)
 				}
 				case FLIP:
 				{
-					CAT_deco_target(room.cursor);
+					CAT_deco_target(room.grid_cursor);
 					if(deco_state.mod_idx != -1)
 					{
 						if(CAT_input_pressed(CAT_BUTTON_A))
@@ -116,7 +114,7 @@ void CAT_MS_deco(CAT_machine_signal signal)
 				}
 				case REMOVE:
 				{
-					CAT_deco_target(room.cursor);
+					CAT_deco_target(room.grid_cursor);
 					if(deco_state.mod_idx != -1)
 					{
 						if(CAT_input_pressed(CAT_BUTTON_A))
@@ -156,13 +154,15 @@ void CAT_render_deco(int cycle)
 				{
 					for(int x = deco_state.add_rect.min.x; x < deco_state.add_rect.max.x; x++)
 					{
-						CAT_draw_queue_add(tile_sprite, 0, 3, x * 16, y * 16, CAT_DRAW_MODE_DEFAULT);
+						CAT_ivec2 place = CAT_grid2world((CAT_ivec2) {x, y});
+						CAT_draw_queue_add(tile_sprite, 0, 3, place.x, place.y, CAT_DRAW_MODE_DEFAULT);
 					}
 				}
 			}
 			else
 			{
-				CAT_draw_queue_add(cursor_add_sprite, 0, 3, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
+				CAT_ivec2 place = CAT_grid2world(room.grid_cursor);
+				CAT_draw_queue_add(cursor_add_sprite, 0, 3, place.x, place.y, CAT_DRAW_MODE_DEFAULT);
 			}
 		}
 		else
@@ -172,18 +172,21 @@ void CAT_render_deco(int cycle)
 			int cursor = deco_state.mode == FLIP ? cursor_flip_sprite : cursor_remove_sprite;
 			if(deco_state.mod_idx != -1)
 			{
-				for(int y = deco_state.mod_rect.min.y; y <= deco_state.mod_rect.max.y; y++)
+				for(int y = deco_state.mod_rect.min.y; y < deco_state.mod_rect.max.y; y++)
 				{
-					for(int x = deco_state.mod_rect.min.x; x <= deco_state.mod_rect.max.x; x++)
+					for(int x = deco_state.mod_rect.min.x; x < deco_state.mod_rect.max.x; x++)
 					{
-						CAT_draw_queue_add(tile_hl, 0, 3, x * 16, y * 16, CAT_DRAW_MODE_DEFAULT);
+						CAT_ivec2 place = CAT_grid2world((CAT_ivec2) {x, y});
+						CAT_draw_queue_add(tile_hl, 0, 3, place.x, place.y, CAT_DRAW_MODE_DEFAULT);
 					}
 				}
-				CAT_draw_queue_add(tile_mark, 0, 3, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
+				CAT_ivec2 place = CAT_grid2world(room.grid_cursor);
+				CAT_draw_queue_add(tile_mark, 0, 3, place.x, place.y, CAT_DRAW_MODE_DEFAULT);
 			}
 			else
 			{
-				CAT_draw_queue_add(cursor, 0, 3, room.cursor.x * 16, room.cursor.y * 16, CAT_DRAW_MODE_DEFAULT);
+				CAT_ivec2 place = CAT_grid2world(room.grid_cursor);
+				CAT_draw_queue_add(cursor, 0, 3, place.x, place.y, CAT_DRAW_MODE_DEFAULT);
 			}
 		}
 	}

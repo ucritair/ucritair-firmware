@@ -212,6 +212,7 @@ void CAT_init(int seconds_slept)
 	CAT_item_mass_define();
 
 	CAT_pet_init();
+	CAT_space_init();
 	CAT_room_init();
 
 	CAT_force_load();

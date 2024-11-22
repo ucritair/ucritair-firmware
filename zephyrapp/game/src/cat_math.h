@@ -36,14 +36,12 @@ typedef struct CAT_vec2
 CAT_vec2 CAT_vec2_add(CAT_vec2 a, CAT_vec2 b);
 CAT_vec2 CAT_vec2_sub(CAT_vec2 a, CAT_vec2 b);
 CAT_vec2 CAT_vec2_mul(CAT_vec2 a, float b);
-CAT_vec2 CAT_vec2_div(CAT_vec2 a, float b);
-CAT_vec2 CAT_vec2_neg(CAT_vec2 a);
+
 float CAT_vec2_dot(CAT_vec2 a, CAT_vec2 b);
 float CAT_vec2_mag2(CAT_vec2 a);
-float CAT_vec2_mag(CAT_vec2 a);
+
 CAT_vec2 CAT_vec2_unit(CAT_vec2 a);
 float CAT_vec2_dist2(CAT_vec2 a, CAT_vec2 b);
-float CAT_vec2_dist(CAT_vec2 a, CAT_vec2 b);
 
 
 //////////////////////////////////////////////////////////////////////////

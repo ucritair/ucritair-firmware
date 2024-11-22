@@ -60,7 +60,6 @@ struct entry
 	{"RESET", CAT_MS_reset},
 #endif
 	{"BACK", CAT_MS_room}
-
 };
 #define NUM_MENU_ITEMS (sizeof(entries)/sizeof(entries[0]))
 
