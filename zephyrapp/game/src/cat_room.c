@@ -273,8 +273,8 @@ void CAT_room_earn(int ticks)
 				CAT_ivec2 end_grid = CAT_pick_freespace();
 				CAT_ivec2 end_world = CAT_grid2world(end_grid);
 
-				float xi = room.prop_places[i].x * 16 + 24;
-				float yi = room.prop_places[i].y * 16 - 24.0f;
+				float xi = start.x;
+				float yi = start.y;
 				float xf = end_world.x;
 				float yf = end_world.y;
 				CAT_room_add_coin((CAT_vec2) {xi, yi}, (CAT_vec2) {xf, yf});

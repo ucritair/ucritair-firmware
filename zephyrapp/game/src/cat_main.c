@@ -153,11 +153,9 @@ void CAT_force_load()
 
 	for(int i = 0; i < save->prop_count; i++)
 	{
-		room.prop_ids[i] = save->prop_ids[i];
-		room.prop_places[i] = save->prop_places[i];
+		CAT_room_add_prop(save->prop_ids[i], save->prop_places[i]);
 		room.prop_overrides[i] = save->prop_overrides[i];
 	}
-	room.prop_count = save->prop_count;
 	CAT_timer_set(room.earn_timer_id, save->earn_timer);
 
 	for(int i = 0; i < save->bag_length; i++)
