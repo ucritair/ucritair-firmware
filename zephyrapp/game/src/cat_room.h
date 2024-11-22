@@ -37,6 +37,9 @@ void CAT_set_cell(CAT_ivec2 cell, int colour);
 bool CAT_block_free(CAT_rect block);
 void CAT_set_block(CAT_rect block, int colour);
 
+void CAT_build_freespace();
+CAT_ivec2 CAT_pick_freespace();
+
 typedef struct CAT_room
 {
 	CAT_ivec2 grid_cursor;
