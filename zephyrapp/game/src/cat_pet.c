@@ -227,8 +227,7 @@ void CAT_pet_tick(bool capture_input)
 			{
 				if(CAT_timer_tick(pet.walk_timer_id))
 				{
-					CAT_build_freespace();
-					CAT_ivec2 grid_dest = CAT_pick_freespace();
+					CAT_ivec2 grid_dest = CAT_rand_freespace();
 					CAT_ivec2 world_dest = CAT_grid2world(grid_dest);
 					destination = (CAT_vec2) {world_dest.x + 8, world_dest.y + 8};
 

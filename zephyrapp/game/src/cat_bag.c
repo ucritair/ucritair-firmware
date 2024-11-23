@@ -21,14 +21,31 @@ int coins = 0;
 static int base = 0;
 static int selector = 0;
 
+void CAT_MS_inspect(CAT_machine_signal signal)
+{
+	switch(signal)
+	{
+		case CAT_MACHINE_SIGNAL_ENTER:
+		{
+			break;
+		}
+		case CAT_MACHINE_SIGNAL_TICK:
+		{
+			break;
+		}
+		case CAT_MACHINE_SIGNAL_EXIT:
+		{
+			break;
+		}
+	}
+}
+
 void CAT_MS_bag(CAT_machine_signal signal)
 {
 	switch(signal)
 	{
 		case CAT_MACHINE_SIGNAL_ENTER:
 		{
-			base = 0;
-			selector = 0;
 			break;
 		}
 		case CAT_MACHINE_SIGNAL_TICK:

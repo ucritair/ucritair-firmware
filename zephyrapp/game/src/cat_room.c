@@ -121,7 +121,14 @@ void CAT_build_freespace()
 	}
 }
 
-CAT_ivec2 CAT_pick_freespace()
+CAT_ivec2 CAT_first_freespace()
+{
+	if(freespace.length >= 1)
+		return freespace.data[0];
+	return (CAT_ivec2) {-1, -1};
+}
+
+CAT_ivec2 CAT_rand_freespace()
 {
 	int idx = CAT_rand_int(0, freespace.length - 1);
 	return freespace.data[idx];
@@ -180,6 +187,7 @@ int CAT_room_add_prop(int item_id, CAT_ivec2 place)
 	CAT_ivec2 shape = item->data.prop_data.shape;
 	CAT_rect block = CAT_rect_place(place, shape);
 	CAT_set_block(block, 1);
+	CAT_build_freespace();
 
 	int idx = room.prop_count;
 	room.prop_count += 1;
@@ -198,6 +206,7 @@ void CAT_room_remove_prop(int idx)
 	CAT_ivec2 shape = item->data.prop_data.shape;
 	CAT_rect block = CAT_rect_place(room.prop_places[idx], shape);
 	CAT_set_block(block, 0);
+	CAT_build_freespace();
 
 	room.prop_count -= 1;
 	for(int i = idx; i < room.prop_count; i++)
@@ -259,7 +268,6 @@ void CAT_room_remove_coin(int idx)
 
 void CAT_room_earn(int ticks)
 {
-	CAT_build_freespace();
 	for(int i = 0; i < room.prop_count; i++)
 	{
 		if(room.prop_ids[i] == gpu_item)
@@ -270,7 +278,7 @@ void CAT_room_earn(int ticks)
 				start.x += 24;
 				start.y -= 24;
 
-				CAT_ivec2 end_grid = CAT_pick_freespace();
+				CAT_ivec2 end_grid = CAT_rand_freespace();
 				CAT_ivec2 end_world = CAT_grid2world(end_grid);
 
 				float xi = start.x;

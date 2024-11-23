@@ -121,6 +121,9 @@ void CAT_MS_feed(CAT_machine_signal signal)
 	{
 		case CAT_MACHINE_SIGNAL_ENTER:
 		{
+			CAT_pet_settle();
+			room.grid_cursor = CAT_first_freespace();
+
 			action_state.action_MS = CAT_MS_feed;
 			action_state.action_AS = &AS_eat;
 			action_state.stat_up_AS = &AS_vig_up;
@@ -129,9 +132,7 @@ void CAT_MS_feed(CAT_machine_signal signal)
 			action_state.LED_colour[1] = 106;
 			action_state.LED_colour[2] = 171;
 
-			action_state.tool_type = CAT_ITEM_TYPE_FOOD;
-
-			CAT_pet_settle();
+			action_state.tool_type = CAT_ITEM_TYPE_FOOD;		
 			break;
 		}
 		case CAT_MACHINE_SIGNAL_TICK:
@@ -154,6 +155,9 @@ void CAT_MS_study(CAT_machine_signal signal)
 	{
 		case CAT_MACHINE_SIGNAL_ENTER:
 		{
+			room.grid_cursor = CAT_first_freespace();
+			CAT_pet_settle();	
+
 			action_state.action_MS = CAT_MS_study;
 			action_state.action_AS = &AS_study;
 			action_state.stat_up_AS = &AS_foc_up;
@@ -163,8 +167,6 @@ void CAT_MS_study(CAT_machine_signal signal)
 			action_state.LED_colour[2] = 220;
 
 			action_state.tool_type = CAT_ITEM_TYPE_BOOK;
-
-			CAT_pet_settle();
 			break;
 		}
 		case CAT_MACHINE_SIGNAL_TICK:
@@ -187,6 +189,9 @@ void CAT_MS_play(CAT_machine_signal signal)
 	{
 		case CAT_MACHINE_SIGNAL_ENTER:
 		{
+			room.grid_cursor = CAT_first_freespace();
+			CAT_pet_settle();
+			
 			action_state.action_MS = CAT_MS_play;
 			action_state.action_AS = &AS_play;
 			action_state.stat_up_AS = &AS_spi_up;
@@ -196,8 +201,6 @@ void CAT_MS_play(CAT_machine_signal signal)
 			action_state.LED_colour[2] = 255;
 
 			action_state.tool_type = CAT_ITEM_TYPE_TOY;
-
-			CAT_pet_settle();
 			break;
 		}
 		case CAT_MACHINE_SIGNAL_TICK:

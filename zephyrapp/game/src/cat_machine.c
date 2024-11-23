@@ -78,27 +78,6 @@ void CAT_timer_add(int timer_id, float t)
 //////////////////////////////////////////////////////////////////////////
 // MACHINE
 
-/* PROTOTYPE
-void CAT_MS_example(CAT_machine_signal signal)
-{
-	switch(signal)
-	{
-		case CAT_MACHINE_SIGNAL_ENTER:
-		{
-			break;
-		}
-		case CAT_MACHINE_SIGNAL_TICK:
-		{
-			break;
-		}
-		case CAT_MACHINE_SIGNAL_EXIT:
-		{
-			break;
-		}
-	}
-}
-*/
-
 CAT_machine_state machine = NULL;
 
 void CAT_machine_transition(CAT_machine_state state)

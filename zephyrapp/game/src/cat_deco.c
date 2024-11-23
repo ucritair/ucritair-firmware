@@ -51,7 +51,9 @@ void CAT_MS_deco(CAT_machine_signal signal)
 	{
 		case CAT_MACHINE_SIGNAL_ENTER:
 		{
-			CAT_pet_settle();
+			room.grid_cursor = CAT_first_freespace();
+			CAT_pet_settle();	
+
 			deco_state.mode = ADD;
 			deco_state.mod_idx = -1;
 			break;
