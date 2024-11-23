@@ -116,6 +116,4 @@ void CAT_render_menu()
 
 	CAT_gui_line_break();
 	CAT_gui_textf("GAME v.%d.%d.%d.%d", CAT_VERSION_MAJOR, CAT_VERSION_MINOR, CAT_VERSION_PATCH, CAT_VERSION_PUSH);
-
-	CAT_gui_line_break();
 }
