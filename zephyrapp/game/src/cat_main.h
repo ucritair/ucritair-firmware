@@ -1,10 +1,13 @@
 #pragma once
 
-void CAT_fresh_gamestate();
+extern int logged_sleep;
+
 #ifdef CAT_DESKTOP
-void CAT_load_sleep(int* seconds);
+int CAT_load_sleep();
 void CAT_save_sleep();
 #endif
+
+void CAT_fresh_gamestate();
 void CAT_force_load();
 void CAT_force_save();
 

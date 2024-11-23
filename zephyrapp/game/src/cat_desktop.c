@@ -347,7 +347,11 @@ CAT_save* CAT_start_load()
 	read(fd, &the_save, sizeof(the_save));
 	close(fd);
 
-	CAT_printf("Loaded save from version v%d.%d.%d.%d\n", the_save.version.major, the_save.version.minor, the_save.version.patch, the_save.version.push);
+	CAT_printf
+	(
+		"Loaded save from version v%d.%d.%d.%d\n",
+		the_save.version_major, the_save.version_minor,
+		the_save.version_patch, the_save.version_push);
 		
 	return &the_save;
 }

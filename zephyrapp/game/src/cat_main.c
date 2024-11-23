@@ -43,6 +43,34 @@
 #pragma GCC diagnostic ignored "-Wunknown-pragmas"
 #endif
 
+int logged_sleep;
+
+#ifdef CAT_DESKTOP
+int CAT_load_sleep()
+{
+	time_t sleep_time;
+	int fd = open("sleep.dat", O_RDONLY);
+	if(fd != -1)
+	{
+		read(fd, &sleep_time, sizeof(sleep_time));
+		close(fd);
+		time_t now;
+		time(&now);
+		return difftime(now, sleep_time);
+	}
+	return 0;
+}
+
+void CAT_save_sleep()
+{
+	time_t now;
+	time(&now);
+	int fd = open("sleep.dat", O_WRONLY | O_CREAT | O_TRUNC,  S_IRUSR | S_IWUSR);
+	write(fd, &now, sizeof(now));
+	close(fd);
+}
+#endif
+
 void CAT_fresh_gamestate()
 {
 	pet.vigour = 9;
@@ -61,43 +89,14 @@ void CAT_fresh_gamestate()
 	snake_high_score = 0;
 }
 
-#ifdef CAT_DESKTOP
-void CAT_load_sleep(int* seconds)
-{
-	time_t sleep_time;
-	int fd = open("sleep.dat", O_RDONLY);
-	if(fd != -1)
-	{
-		read(fd, &sleep_time, sizeof(sleep_time));
-		close(fd);
-		time_t now;
-		time(&now);
-		*seconds = difftime(now, sleep_time);
-	}
-	else
-	{
-		*seconds = 0;
-	}
-}
-
-void CAT_save_sleep()
-{
-	time_t now;
-	time(&now);
-	int fd = open("sleep.dat", O_WRONLY | O_CREAT | O_TRUNC,  S_IRUSR | S_IWUSR);
-	write(fd, &now, sizeof(now));
-	close(fd);
-}
-#endif
-
 void CAT_force_save()
 {
 	CAT_save* save = CAT_start_save();
 
-	save->version.major = CAT_VERSION_MAJOR;
-	save->version.minor = CAT_VERSION_MINOR;
-	save->version.patch = CAT_VERSION_PATCH;
-	save->version.push = CAT_VERSION_PUSH;
+	save->version_major = CAT_VERSION_MAJOR;
+	save->version_minor = CAT_VERSION_MINOR;
+	save->version_patch = CAT_VERSION_PATCH;
+	save->version_push = CAT_VERSION_PUSH;
 
 	save->vigour = pet.vigour;
 	save->focus = pet.focus;
@@ -193,7 +192,7 @@ void CAT_apply_sleep(int seconds)
 
 void CAT_init(int seconds_slept)
 {
-	slept_seconds = seconds_slept;
+	logged_sleep = seconds_slept;
 
 	CAT_rand_init();
 	CAT_platform_init();
@@ -318,9 +317,7 @@ void CAT_tick_render(int cycle)
 #ifdef CAT_DESKTOP
 int main()
 {
-	int seconds_slept;
-	CAT_load_sleep(&seconds_slept);
-	CAT_init(seconds_slept);
+	CAT_init(CAT_load_sleep());
 
 	while (CAT_get_battery_pct() > 0)
 	{

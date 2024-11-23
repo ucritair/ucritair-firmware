@@ -95,13 +95,10 @@ typedef struct __attribute__((__packed__)) CAT_save
 {
 	uint32_t magic_number;
 
-	struct
-	{
-		uint8_t major;
-		uint8_t minor;
-		uint8_t patch;
-		uint8_t push;
-	} version;
+	uint8_t version_major;
+	uint8_t version_minor;
+	uint8_t version_patch;
+	uint8_t version_push;
 
 	uint8_t vigour;
 	uint8_t focus;

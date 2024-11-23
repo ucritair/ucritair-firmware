@@ -9,6 +9,7 @@
 #include "cat_version.h"
 #include "cat_menu.h"
 #include "cat_pet.h"
+#include "cat_main.h"
 
 enum
 {
@@ -534,7 +535,7 @@ void CAT_draw_debug()
 	CAT_gui_image(icon_exit_sprite, 0);
 	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
 
-	CAT_gui_textf("Last sleep: %ds\n", slept_seconds);
+	CAT_gui_textf("Last sleep: %ds\n", logged_sleep);
 	CAT_gui_textf("Life timer: %0.2fs\n", CAT_timer_get(pet.life_timer_id));
 	CAT_gui_textf("Stat timer: %0.2fs\n", CAT_timer_get(pet.stat_timer_id));
 	CAT_gui_textf("Earn timer: %0.2fs\n", CAT_timer_get(room.earn_timer_id));

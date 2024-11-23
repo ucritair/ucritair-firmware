@@ -24,8 +24,6 @@
 
 #include <stddef.h>
 
-int slept_seconds;
-
 void CAT_MS_reset(CAT_machine_signal signal)
 {
 	switch (signal)
