@@ -118,9 +118,4 @@ void CAT_render_menu()
 	CAT_gui_textf("GAME v.%d.%d.%d.%d", CAT_VERSION_MAJOR, CAT_VERSION_MINOR, CAT_VERSION_PATCH, CAT_VERSION_PUSH);
 
 	CAT_gui_line_break();
-
-	CAT_gui_textf("Woke from %d second sleep\n", slept_seconds);
-	CAT_gui_textf("Stat timer: %0.2f\n", CAT_timer_get(pet.stat_timer_id));
-	CAT_gui_textf("Life timer: %0.2f\n", CAT_timer_get(pet.life_timer_id));
-	CAT_gui_textf("Earn timer: %0.2f\n", CAT_timer_get(room.earn_timer_id));
 }
