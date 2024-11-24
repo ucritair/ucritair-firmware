@@ -305,7 +305,9 @@ void CAT_MS_arcade(CAT_machine_signal signal)
 		{
 			if(mode == SELECT)
 			{
-				if(CAT_input_pressed(CAT_BUTTON_B) || CAT_input_pressed(CAT_BUTTON_START))
+				if(CAT_input_pressed(CAT_BUTTON_B))
+					CAT_machine_back();
+				if(CAT_input_pressed(CAT_BUTTON_START))
 					CAT_machine_transition(CAT_MS_room);
 
 				if(CAT_input_pulse(CAT_BUTTON_UP))

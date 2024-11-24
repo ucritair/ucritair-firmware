@@ -24,6 +24,7 @@ int CAT_item_init(CAT_item_type type, const char* name, int sprite_id, int price
 	item->name = name;
 	item->sprite_id = sprite_id;
 	item->price = price;
+	item->text = "";
 
 	return item_id;
 }

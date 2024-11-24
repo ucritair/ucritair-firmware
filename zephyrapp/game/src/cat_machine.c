@@ -79,24 +79,36 @@ void CAT_timer_add(int timer_id, float t)
 // MACHINE
 
 CAT_machine_state machine = NULL;
+CAT_machine_state machine_last = NULL;
 
 void CAT_machine_transition(CAT_machine_state state)
 {
 	if(state == NULL)
 		return;
-	if(machine != NULL)
-		(machine)(CAT_MACHINE_SIGNAL_EXIT);
-	machine = state;
-	if(machine != NULL)
-		(machine)(CAT_MACHINE_SIGNAL_ENTER);
 
-	//CAT_input_nuke();
+	if(machine != NULL)
+	{
+		(machine)(CAT_MACHINE_SIGNAL_EXIT);
+		machine_last = machine;
+	}
+
+	if(state != NULL)
+	{
+		machine = state;
+		(machine)(CAT_MACHINE_SIGNAL_ENTER);
+	}		
 }
 
 void CAT_machine_tick()
 {
 	if(machine != NULL)
 		(machine)(CAT_MACHINE_SIGNAL_TICK);
+}
+
+void CAT_machine_back()
+{
+	if(machine_last != NULL)
+		CAT_machine_transition(machine_last);
 }
 
 

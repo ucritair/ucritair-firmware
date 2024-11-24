@@ -31,6 +31,7 @@ typedef struct CAT_item
 	const char* name;
 	int sprite_id;
 	int price;
+	const char* text;
 
 	union
 	{

@@ -148,10 +148,25 @@ void CAT_render_inspector()
 	CAT_gui_image(icon_b_sprite, 1);
 	CAT_gui_image(icon_exit_sprite, 0);
 
-	CAT_item* item = CAT_item_get(bag.item_ids[selector]);
+	int item_id = bag.item_ids[selector];
+	CAT_item* item = CAT_item_get(item_id);
 	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
 	CAT_gui_image(item->sprite_id, 0);
 	CAT_gui_text(item->name);
-	CAT_gui_div("DESCRIPTION");
-	CAT_gui_text("Here is some flavour text.\nIt's multi-line!");
+	CAT_gui_div("");
+
+	if(strlen(item->text) > 0)
+	{
+		CAT_gui_text(item->text);
+		CAT_gui_div("");
+	}
+
+	if(item->type == CAT_ITEM_TYPE_GEAR)
+	{
+		CAT_gui_text("EQUIP: ");
+		int idx = CAT_gear_status(item_id) ? 1 : 0;
+		CAT_gui_image(icon_equip_sprite, idx);
+		CAT_gui_text(" ");
+		CAT_gui_image(icon_pointer_sprite, 0);
+	}
 }

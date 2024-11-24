@@ -27,10 +27,10 @@ void CAT_MS_vending(CAT_machine_signal signal)
 			break;
 		case CAT_MACHINE_SIGNAL_TICK:
 		{
-			if(CAT_input_pressed(CAT_BUTTON_B) || CAT_input_pressed(CAT_BUTTON_START))
-			{
+			if(CAT_input_pressed(CAT_BUTTON_B))
+				CAT_machine_back();
+			if(CAT_input_pressed(CAT_BUTTON_START))
 				CAT_machine_transition(CAT_MS_room);
-			}
 					
 			if(CAT_input_pulse(CAT_BUTTON_UP))
 			{

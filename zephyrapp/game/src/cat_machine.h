@@ -66,3 +66,4 @@ extern CAT_machine_state machine;
 
 void CAT_machine_transition(CAT_machine_state state);
 void CAT_machine_tick();
+void CAT_machine_back();
