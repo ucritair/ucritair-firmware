@@ -71,6 +71,11 @@ bool CAT_gear_status(int item_id)
 //////////////////////////////////////////////////////////////////////////
 // ITEM LIST
 
+void CAT_item_list_init(CAT_item_list* item_list)
+{
+	item_list->length = 0;
+}
+
 int CAT_item_list_find(CAT_item_list* item_list, int item_id)
 {
 	for(int i = 0; i < item_list->length; i++)

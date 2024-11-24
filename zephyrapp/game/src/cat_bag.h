@@ -8,3 +8,6 @@ extern int coins;
 
 void CAT_MS_bag(CAT_machine_signal signal);
 void CAT_render_bag();
+
+void CAT_MS_inspector(CAT_machine_signal signal);
+void CAT_render_inspector();

@@ -83,6 +83,7 @@ typedef struct CAT_item_list
 	int length;
 } CAT_item_list;
 
+void CAT_item_list_init(CAT_item_list* item_list);
 int CAT_item_list_find(CAT_item_list* item_list, int item_id);
 void CAT_item_list_add(CAT_item_list* item_list, int item_id);
 void CAT_item_list_remove(CAT_item_list* item_list, int item_id);

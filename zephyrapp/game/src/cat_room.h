@@ -24,6 +24,10 @@ typedef struct CAT_space
 	CAT_rect world_rect;
 
 	int cells[CAT_GRID_SIZE];
+
+	CAT_ivec2 free_list[CAT_GRID_SIZE];
+	int free_list_length;
+
 } CAT_space;
 extern CAT_space space;
 
@@ -37,9 +41,10 @@ void CAT_set_cell(CAT_ivec2 cell, int colour);
 bool CAT_block_free(CAT_rect block);
 void CAT_set_block(CAT_rect block, int colour);
 
-void CAT_build_freespace();
-CAT_ivec2 CAT_first_freespace();
-CAT_ivec2 CAT_rand_freespace();
+void CAT_build_free_list();
+bool CAT_has_free_space();
+CAT_ivec2 CAT_first_free_space();
+CAT_ivec2 CAT_rand_free_space();
 
 typedef struct CAT_room
 {

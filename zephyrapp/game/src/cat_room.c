@@ -31,8 +31,10 @@ void CAT_space_init()
 		{
 			int idx = y * space.grid_shape.x + x;
 			space.cells[idx] = 0;
+			space.free_list[idx] = (CAT_ivec2) {x, y};
 		}
 	}
+	space.free_list_length = CAT_GRID_SIZE;
 }
 
 CAT_ivec2 CAT_grid2world(CAT_ivec2 grid)
@@ -96,16 +98,7 @@ void CAT_set_block(CAT_rect block, int colour)
 	}
 }
 
-struct
-{
-	CAT_ivec2 data[CAT_GRID_SIZE];
-	int length;
-} freespace =
-{
-	.length = 0
-};
-
-void CAT_build_freespace()
+void CAT_build_free_list()
 {
 	for(int y = 0; y < space.grid_shape.y; y++)
 	{
@@ -114,24 +107,31 @@ void CAT_build_freespace()
 			int idx = y * space.grid_shape.x + x;
 			if(space.cells[idx] == 0)
 			{
-				freespace.data[freespace.length] = (CAT_ivec2) {x, y};
-				freespace.length += 1;
+				space.free_list[space.free_list_length] = (CAT_ivec2) {x, y};
+				space.free_list_length += 1;
 			}
 		}
 	}
 }
 
-CAT_ivec2 CAT_first_freespace()
+bool CAT_has_free_space()
 {
-	if(freespace.length >= 1)
-		return freespace.data[0];
-	return (CAT_ivec2) {-1, -1};
+	return space.free_list_length > 0;
 }
 
-CAT_ivec2 CAT_rand_freespace()
+CAT_ivec2 CAT_first_free_space()
 {
-	int idx = CAT_rand_int(0, freespace.length - 1);
-	return freespace.data[idx];
+	if(space.free_list_length <= 0)
+		return (CAT_ivec2) {-1, -1};
+	return space.free_list[0];
+}
+
+CAT_ivec2 CAT_rand_free_space()
+{
+	if(space.free_list_length <= 0)
+		return (CAT_ivec2) {-1, -1};
+	int idx = CAT_rand_int(0, space.free_list_length - 1);
+	return space.free_list[idx];
 }
 
 CAT_room room =
@@ -187,7 +187,7 @@ int CAT_room_add_prop(int item_id, CAT_ivec2 place)
 	CAT_ivec2 shape = item->data.prop_data.shape;
 	CAT_rect block = CAT_rect_place(place, shape);
 	CAT_set_block(block, 1);
-	CAT_build_freespace();
+	CAT_build_free_list();
 
 	int idx = room.prop_count;
 	room.prop_count += 1;
@@ -206,7 +206,7 @@ void CAT_room_remove_prop(int idx)
 	CAT_ivec2 shape = item->data.prop_data.shape;
 	CAT_rect block = CAT_rect_place(room.prop_places[idx], shape);
 	CAT_set_block(block, 0);
-	CAT_build_freespace();
+	CAT_build_free_list();
 
 	room.prop_count -= 1;
 	for(int i = idx; i < room.prop_count; i++)
@@ -278,7 +278,7 @@ void CAT_room_earn(int ticks)
 				start.x += 24;
 				start.y -= 24;
 
-				CAT_ivec2 end_grid = CAT_rand_freespace();
+				CAT_ivec2 end_grid = CAT_rand_free_space();
 				CAT_ivec2 end_world = CAT_grid2world(end_grid);
 
 				float xi = start.x;

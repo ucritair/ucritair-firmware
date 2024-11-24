@@ -126,10 +126,8 @@ void CAT_gui_image(int sprite_id, int frame_idx)
 void CAT_gui_div(const char* text)
 {
 	int height = strlen(text) > 0 ? CAT_TILE_SIZE : 4;
-	int ypad = strlen(text) > 0 ? gui.pad_y : 0;
 
 	CAT_gui_line_break();
-	gui.cursor.y += ypad;
 
 	CAT_gui_text(text);
 	CAT_gui_open_channel(height);
@@ -141,7 +139,6 @@ void CAT_gui_div(const char* text)
 	}
 
 	CAT_gui_line_break();
-	gui.cursor.y += ypad;
 }
 
 void CAT_gui_textf(const char* fmt, ...)

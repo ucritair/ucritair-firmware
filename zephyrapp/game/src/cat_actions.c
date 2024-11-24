@@ -122,7 +122,7 @@ void CAT_MS_feed(CAT_machine_signal signal)
 		case CAT_MACHINE_SIGNAL_ENTER:
 		{
 			CAT_pet_settle();
-			room.grid_cursor = CAT_first_freespace();
+			room.grid_cursor = CAT_first_free_space();
 
 			action_state.action_MS = CAT_MS_feed;
 			action_state.action_AS = &AS_eat;
@@ -155,7 +155,7 @@ void CAT_MS_study(CAT_machine_signal signal)
 	{
 		case CAT_MACHINE_SIGNAL_ENTER:
 		{
-			room.grid_cursor = CAT_first_freespace();
+			room.grid_cursor = CAT_first_free_space();
 			CAT_pet_settle();	
 
 			action_state.action_MS = CAT_MS_study;
@@ -189,7 +189,7 @@ void CAT_MS_play(CAT_machine_signal signal)
 	{
 		case CAT_MACHINE_SIGNAL_ENTER:
 		{
-			room.grid_cursor = CAT_first_freespace();
+			room.grid_cursor = CAT_first_free_space();
 			CAT_pet_settle();
 			
 			action_state.action_MS = CAT_MS_play;

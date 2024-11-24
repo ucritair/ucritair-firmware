@@ -76,16 +76,16 @@ void CAT_fresh_gamestate()
 	pet.vigour = 9;
 	pet.focus = 9;
 	pet.spirit = 9;
-	pet.lifetime = 0;
+	pet.lifetime = 9;
+	CAT_timer_set(pet.stat_timer_id, 0);
+	CAT_timer_set(pet.life_timer_id, 0);
 
-	room.prop_count = 0;
-
-	bag.length = 0;
-	coins = 10;
+	CAT_item_list_init(&bag);
 	CAT_item_list_add(&bag, gpu_item);
+	coins = 10;
+	CAT_timer_set(room.earn_timer_id, 0);
 
 	CAT_gear_toggle(mask_item, false);
-
 	snake_high_score = 0;
 }
 
@@ -136,7 +136,7 @@ void CAT_force_load()
 {
 	CAT_save* save = CAT_start_load();
 
-	if(!CAT_check_save(save) || save==NULL)
+	if(!CAT_check_save(save) || save == NULL)
 	{
 		CAT_fresh_gamestate();
 		CAT_finish_load();
@@ -158,15 +158,15 @@ void CAT_force_load()
 	CAT_timer_set(room.earn_timer_id, save->earn_timer);
 
 	for(int i = 0; i < save->bag_length; i++)
-	{
-		bag.item_ids[i] = save->bag_ids[i];
-		bag.counts[i] = save->bag_counts[i];
+	{	
+		for(int j = 0; j < save->bag_counts[i]; j++)
+		{
+			CAT_item_list_add(&bag, save->bag_ids[i]);
+		}
 	}
-	bag.length = save->bag_length;
 	coins = save->coins;
 
 	CAT_gear_toggle(mask_item, save->masked);
-
 	snake_high_score = save->snake_high_score;
 
 	CAT_finish_load();
@@ -285,6 +285,8 @@ void CAT_tick_render(int cycle)
 		CAT_render_manual();
 	else if(machine == CAT_MS_item_dialog)
 		CAT_render_item_dialog();
+	else if(machine == CAT_MS_inspector)
+		CAT_render_inspector();
 #ifdef CAT_EMBEDDED
 	else if(machine == CAT_MS_time)
 		CAT_render_time();

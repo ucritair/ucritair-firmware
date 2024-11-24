@@ -21,25 +21,6 @@ int coins = 0;
 static int base = 0;
 static int selector = 0;
 
-void CAT_MS_inspect(CAT_machine_signal signal)
-{
-	switch(signal)
-	{
-		case CAT_MACHINE_SIGNAL_ENTER:
-		{
-			break;
-		}
-		case CAT_MACHINE_SIGNAL_TICK:
-		{
-			break;
-		}
-		case CAT_MACHINE_SIGNAL_EXIT:
-		{
-			break;
-		}
-	}
-}
-
 void CAT_MS_bag(CAT_machine_signal signal)
 {
 	switch(signal)
@@ -70,7 +51,7 @@ void CAT_MS_bag(CAT_machine_signal signal)
 				if(selector == bag.length)
 					selector = 0;
 			}
-			selector = clamp(selector, 0, bag.length-1);	
+			selector = clamp(selector, 0, bag.length-1);
 
 			int overshoot = selector - base;
 			if(overshoot < 0)
@@ -80,13 +61,7 @@ void CAT_MS_bag(CAT_machine_signal signal)
 
 			if(CAT_input_pressed(CAT_BUTTON_A))
 			{
-				int item_id = bag.item_ids[selector];
-				CAT_item* item = CAT_item_get(item_id);
-
-				if(item->type == CAT_ITEM_TYPE_GEAR)
-				{
-					CAT_gear_toggle(item_id, !CAT_gear_status(item_id));
-				}
+				CAT_machine_transition(CAT_MS_inspector);
 			}
 			break;
 		}
@@ -141,4 +116,42 @@ void CAT_render_bag()
 		if(idx == selector)
 			CAT_gui_image(icon_pointer_sprite, 0);
 	}
+}
+
+void CAT_MS_inspector(CAT_machine_signal signal)
+{
+	switch(signal)
+	{
+		case CAT_MACHINE_SIGNAL_ENTER:
+		{
+			break;
+		}
+		case CAT_MACHINE_SIGNAL_TICK:
+		{
+			if(CAT_input_pressed(CAT_BUTTON_B))
+				CAT_machine_transition(CAT_MS_bag);	
+			if(CAT_input_pressed(CAT_BUTTON_START))
+				CAT_machine_transition(CAT_MS_room);
+			break;
+		}
+		case CAT_MACHINE_SIGNAL_EXIT:
+		{
+			break;
+		}
+	}
+}
+
+void CAT_render_inspector()
+{
+	CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});  
+	CAT_gui_text("ITEM INSPECTOR ");
+	CAT_gui_image(icon_b_sprite, 1);
+	CAT_gui_image(icon_exit_sprite, 0);
+
+	CAT_item* item = CAT_item_get(bag.item_ids[selector]);
+	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
+	CAT_gui_image(item->sprite_id, 0);
+	CAT_gui_text(item->name);
+	CAT_gui_div("DESCRIPTION");
+	CAT_gui_text("Here is some flavour text.\nIt's multi-line!");
 }
