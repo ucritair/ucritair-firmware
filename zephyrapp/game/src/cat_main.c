@@ -73,17 +73,9 @@ void CAT_save_sleep()
 
 void CAT_fresh_gamestate()
 {
-	pet.vigour = 9;
-	pet.focus = 9;
-	pet.spirit = 9;
-	pet.lifetime = 9;
-	CAT_timer_set(pet.stat_timer_id, 0);
-	CAT_timer_set(pet.life_timer_id, 0);
-
 	CAT_item_list_init(&bag);
 	CAT_item_list_add(&bag, gpu_item);
 	coins = 10;
-	CAT_timer_set(room.earn_timer_id, 0);
 
 	CAT_gear_toggle(mask_item, false);
 	snake_high_score = 0;
