@@ -1,4 +1,5 @@
 #include "menu_graph.h"
+#include "cat_sprite.h"
 
 void plot_px(int x, int y, uint16_t color)
 {
@@ -32,7 +33,17 @@ void CAT_do_render_graph(int16_t* data, int max, int xoff, int yoff, int cursor_
 	xoff += GRAPH_MARGIN;
 	yoff += GRAPH_MARGIN;
 
-	int last_rendered_h = -1;
+	for(int x = 0; x < GRAPH_W-1; x++)
+	{
+		CAT_bresenham(x+xoff, data[x]+yoff, x+1+xoff, data[x+1]+yoff, 0xF000);
+
+		if(x == cursor_start)
+			CAT_bresenham(x+xoff, yoff, x+xoff, GRAPH_H-1+yoff, 0x000F);
+		if(x == cursor_end)
+			CAT_bresenham(x+xoff, yoff, x+xoff, GRAPH_H-1+yoff, 0x00F0);	
+	}
+
+	/*int last_rendered_h = -1;
 
 	for (int x = 0; x < GRAPH_W; x++)
 	{
@@ -63,5 +74,5 @@ void CAT_do_render_graph(int16_t* data, int max, int xoff, int yoff, int cursor_
 		{
 			plot_px(xoff+x, yoff + GRAPH_H - h, 0xf000);
 		}
-	}
+	}*/
 }

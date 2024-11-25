@@ -39,7 +39,7 @@ typedef void (*menu_t)();
 
 void menu_t_back()
 {
-	CAT_machine_transition(CAT_MS_menu);
+	CAT_machine_back();
 }
 
 void menu_t_go_time()
@@ -149,7 +149,7 @@ void CAT_MS_system_menu(CAT_machine_signal signal)
 			{
 				if (!co2_calibrating)
 				{
-					CAT_machine_transition(CAT_MS_menu);
+					CAT_machine_back();
 				}
 				else
 				{

@@ -7,6 +7,7 @@
 #include "cat_math.h"
 #include <stdio.h>
 #include <stdbool.h>
+#include <stdlib.h>
 
 //////////////////////////////////////////////////////////////////////////
 // ATLAS AND SPRITER
@@ -497,7 +498,6 @@ void CAT_greyberry(int xi, int w, int yi, int h)
 	}
 }
 
-
 void CAT_circberry(int xi, int yi, int r, uint16_t c)
 {
 	int xc = xi + r;
@@ -514,6 +514,80 @@ void CAT_circberry(int xi, int yi, int r, uint16_t c)
 			{
 				int idx = y * LCD_SCREEN_W + x;
 				FRAMEBUFFER[idx] = c;
+			}
+		}
+	}
+}
+
+// implementation based on Dmitri Sokolov's
+void CAT_bresenham(int xi, int yi, int xf, int yf, uint16_t c)
+{
+	// if the line is steep, transpose its start and end points
+	bool steep = abs(yf-yi) > abs(xf-xi);
+	if(steep)
+	{
+		int temp = xi;
+		xi = yi;
+		yi = temp;
+
+		temp = xf;
+		xf = yf;
+		yf = temp;
+	}
+
+	// if the line heads left, swap its start and end points
+	bool leftward = xi > xf;
+	if(leftward)
+	{
+		int temp = xi;
+		xi = xf;
+		xf = temp;
+
+		temp = yi;
+		yi = yf;
+		yf = temp;
+	}
+	
+	int dx = xf - xi;
+	int dy = yf - yi;
+
+	// account for line heading up or down
+	int y_step = (yf > yi) ? 1 : -1;
+	int y = yi;
+	
+	// approximate d_err as abs(dy) / (dx ~= 0.5)
+	int d_err = abs(dy) * 2;
+	int err = 0;
+
+	// if line is steep, we swap x,y in the draw call to undo our earlier transposition
+	// we employ a branch between two for loops to avoid branching within one loop
+	if(steep)
+	{
+		for(int x = xi; x < xf; x++)
+		{
+			if(y >= 0 && y < LCD_SCREEN_W && x >= 0 && x < LCD_SCREEN_H)
+				FRAMEBUFFER[x * LCD_SCREEN_W + y] = c;
+
+			err += d_err;
+			if(err > dx)
+			{
+				y += y_step;
+				err -= dx*2;
+			}
+		}
+	}
+	else
+	{
+		for(int x = xi; x < xf; x++)
+		{
+			if(x >= 0 && x < LCD_SCREEN_W && y >= 0 && y < LCD_SCREEN_H)
+				FRAMEBUFFER[y * LCD_SCREEN_W + x] = c;
+
+			err += d_err;
+			if(err > dx)
+			{
+				y += y_step;
+				err -= dx*2;
 			}
 		}
 	}

@@ -32,6 +32,7 @@ if __name__ == '__main__':
             token = token.replace("\"", "");
             return token;
         dfu_serials = [strip_serial(t) for t in dfu_tokens];
+        dfu_serials = [t for t in dfu_tokens if t != "UNKNOWN"];
         for serial in dfu_serials:
             if not serial in serial_list:
                 print(f"Discovered {serial}");

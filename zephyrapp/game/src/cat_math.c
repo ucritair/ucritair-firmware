@@ -153,3 +153,18 @@ bool CAT_rect_contains(CAT_rect a, CAT_rect b)
 		return false;
 	return true;
 }
+
+
+//////////////////////////////////////////////////////////////////////////
+// RENDERING
+
+CAT_vec4 CAT_mvmul(CAT_mat4 M, CAT_vec4 v)
+{
+	return (CAT_vec4)
+	{
+		M.data[0] * v.x + M.data[1] * v.y + M.data[2] * v.z + M.data[3] * v.w,
+		M.data[4] * v.x + M.data[5] * v.y + M.data[6] * v.z + M.data[7] * v.w,
+		M.data[8] * v.x + M.data[9] * v.y + M.data[10] * v.z + M.data[11] * v.w,
+		M.data[12] * v.x + M.data[13] * v.y + M.data[14] * v.z + M.data[15] * v.w
+	};
+}

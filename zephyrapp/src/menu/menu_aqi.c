@@ -37,7 +37,7 @@ void CAT_MS_aqi(CAT_machine_signal signal)
 		case CAT_MACHINE_SIGNAL_TICK:
 		{
 			if(CAT_input_pressed(CAT_BUTTON_B))
-				CAT_machine_transition(CAT_MS_menu);
+				CAT_machine_back();
 
 			if(CAT_input_pressed(CAT_BUTTON_A))
 				CAT_machine_transition(CAT_MS_graph);

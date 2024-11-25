@@ -88,6 +88,7 @@ void CAT_greenberry(int xi, int w, int yi, int h, float t);
 void CAT_frameberry(uint16_t c);
 void CAT_greyberry(int xi, int w, int yi, int h);
 void CAT_circberry(int xi, int yi, int r, uint16_t c);
+void CAT_bresenham(int xi, int yi, int xf, int yf, uint16_t c);
 
 
 //////////////////////////////////////////////////////////////////////////

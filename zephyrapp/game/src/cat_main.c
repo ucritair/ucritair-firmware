@@ -193,11 +193,11 @@ void CAT_init(int seconds_slept)
 	CAT_atlas_init();
 	CAT_sprite_mass_define();
 
-	CAT_spriter_init();
-	CAT_draw_queue_init();
-	
 	CAT_item_table_init();
 	CAT_item_mass_define();
+
+	CAT_spriter_init();
+	CAT_draw_queue_init();
 
 	CAT_space_init();
 	CAT_room_init();

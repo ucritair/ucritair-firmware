@@ -70,7 +70,22 @@ CAT_rect CAT_rect_place(CAT_ivec2 start, CAT_ivec2 shape);
 bool CAT_rect_overlaps(CAT_rect a, CAT_rect b);
 bool CAT_rect_contains(CAT_rect a, CAT_rect b);
 
-typedef struct CAT_quadtree
+
+//////////////////////////////////////////////////////////////////////////
+// RENDERING
+
+typedef struct CAT_mat4
 {
-	
-} CAT_quadtree;
+	float data[16];
+	int n;
+} CAT_mat4;
+
+typedef struct CAT_vec4
+{
+	float x;
+	float y;
+	float z;
+	float w;
+} CAT_vec4;
+
+CAT_vec4 CAT_mvmul(CAT_mat4 M, CAT_vec4 v);
