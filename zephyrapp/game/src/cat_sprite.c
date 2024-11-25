@@ -1,10 +1,12 @@
 #include "cat_sprite.h"
+
 #include <stdint.h>
 #include <string.h>
 #include "cat_core.h"
 #include <stdint.h>
 #include "cat_math.h"
 #include <stdio.h>
+#include <stdbool.h>
 
 //////////////////////////////////////////////////////////////////////////
 // ATLAS AND SPRITER
@@ -95,21 +97,13 @@ int CAT_sprite_init(const char* path, int frame_count)
 	return sprite_id;
 }
 
-bool CAT_sprite_validate(int sprite_id, bool report)
+int CAT_sprite_copy(int sprite_id, bool loop, bool reverse)
 {
 	if(sprite_id < 0 || sprite_id >= atlas.length)
 	{
-		if(report)
-			CAT_printf("[ERROR] reference to invalid sprite_id: %d\n", sprite_id);
-		return false;
-	}
-	return true;
-}
-
-int CAT_sprite_copy(int sprite_id, bool loop, bool reverse)
-{
-	if(!CAT_sprite_validate(sprite_id, true))
+		CAT_printf("[ERROR] reference to invalid sprite_id: %d\n", sprite_id);
 		return -1;
+	}
 
 	CAT_sprite copy = atlas.table[sprite_id];
 	copy.duplicate = true;
@@ -138,8 +132,12 @@ void CAT_atlas_cleanup()
 
 CAT_sprite* CAT_sprite_get(int sprite_id)
 {
-	if(!CAT_sprite_validate(sprite_id, true))
+	if(sprite_id < 0 || sprite_id >= atlas.length)
+	{
+		CAT_printf("[ERROR] reference to invalid sprite_id: %d\n", sprite_id);
 		return NULL;
+	}
+
 	return &atlas.table[sprite_id];
 }
 
@@ -208,8 +206,11 @@ void unpack_rle_row()
 
 void CAT_draw_sprite(int sprite_id, int frame_idx, int x, int y)
 {
-	if(!CAT_sprite_validate(sprite_id, true))
+	if(sprite_id < 0 || sprite_id >= atlas.length)
+	{
+		CAT_printf("[ERROR] reference to invalid sprite_id: %d\n", sprite_id);
 		return;
+	}
 
 	CAT_sprite sprite = atlas.table[sprite_id];
 	int w = sprite.width;
@@ -294,8 +295,11 @@ void CAT_draw_sprite(int sprite_id, int frame_idx, int x, int y)
 
 void CAT_draw_tiles(int sprite_id, int frame_idx, int y_t, int h_t)
 {
-	if(!CAT_sprite_validate(sprite_id, true))
+	if(sprite_id < 0 || sprite_id >= atlas.length)
+	{
+		CAT_printf("[ERROR] reference to invalid sprite_id: %d\n", sprite_id);
 		return;
+	}
 
 	CAT_sprite sprite = atlas.table[sprite_id];
 
@@ -530,8 +534,11 @@ CAT_draw_queue draw_queue;
 
 void CAT_anim_toggle_loop(int sprite_id, bool toggle)
 {
-	if(!CAT_sprite_validate(sprite_id, true))
+	if(sprite_id < 0 || sprite_id >= atlas.length)
+	{
+		CAT_printf("[ERROR] reference to invalid sprite_id: %d\n", sprite_id);
 		return;
+	}
 
 	CAT_sprite* sprite = &atlas.table[sprite_id];
 	sprite->loop = toggle;
@@ -539,8 +546,11 @@ void CAT_anim_toggle_loop(int sprite_id, bool toggle)
 
 void CAT_anim_toggle_reverse(int sprite_id, bool toggle)
 {
-	if(!CAT_sprite_validate(sprite_id, true))
+	if(sprite_id < 0 || sprite_id >= atlas.length)
+	{
+		CAT_printf("[ERROR] reference to invalid sprite_id: %d\n", sprite_id);
 		return;
+	}
 
 	CAT_sprite* sprite = &atlas.table[sprite_id];
 	sprite->reverse = toggle;
@@ -552,8 +562,10 @@ void CAT_anim_toggle_reverse(int sprite_id, bool toggle)
 
 bool CAT_anim_finished(int sprite_id)
 {
-	if(!CAT_sprite_validate(sprite_id, false))
+	if(sprite_id < 0 || sprite_id >= atlas.length)
+	{
 		return true;
+	}
 
 	CAT_sprite* sprite = &atlas.table[sprite_id];
 	if(sprite->reverse)
@@ -564,8 +576,10 @@ bool CAT_anim_finished(int sprite_id)
 
 void CAT_anim_reset(int sprite_id)
 {
-	if(!CAT_sprite_validate(sprite_id, false))
+	if(sprite_id < 0 || sprite_id >= atlas.length)
+	{
 		return;
+	}
 
 	CAT_sprite* sprite = &atlas.table[sprite_id];
 	if(sprite->reverse)
@@ -583,8 +597,11 @@ void CAT_draw_queue_init()
 
 void CAT_draw_queue_add(int sprite_id, int frame_idx, int layer, int x, int y, int mode)
 {
-	if(!CAT_sprite_validate(sprite_id, true))
+	if(sprite_id < 0 || sprite_id >= atlas.length)
+	{
+		CAT_printf("[ERROR] reference to invalid sprite_id: %d\n", sprite_id);
 		return;
+	}
 	if(draw_queue.length >= CAT_DRAW_QUEUE_MAX_LENGTH)
 		return;
 
@@ -609,8 +626,11 @@ void CAT_draw_queue_add(int sprite_id, int frame_idx, int layer, int x, int y, i
 
 void CAT_draw_queue_animate(int sprite_id, int layer, int x, int y, int mode)
 {
-	if(!CAT_sprite_validate(sprite_id, true))
+	if(sprite_id < 0 || sprite_id >= atlas.length)
+	{
+		CAT_printf("[ERROR] reference to invalid sprite_id: %d\n", sprite_id);
 		return;
+	}
 
 	CAT_draw_queue_add(sprite_id, -1, layer, x, y, mode);
 }
@@ -771,7 +791,7 @@ int CAT_AM_tick(CAT_AM_state** spp)
 			break;
 		}
 	}
-	
+
 	return sp->exit_anim_id != -1 ? sp->exit_anim_id : sp->tick_anim_id;
 }
 
@@ -1015,7 +1035,7 @@ CAT_AM_state* react_asm;
 CAT_AM_state AS_react;
 
 #ifndef CAT_BAKED_ASSETS
-#ifdef CAT_ASSET_REBUILD
+#ifdef CAT_REBUILD_ATLAS
 #define INIT_SPRITE(name, path, frames) name = CAT_sprite_init(path, frames);\
 										printf("BAKE-INIT: (%d, \"%s\", \"%s\", %d, %d, %d)\n", name, #name, path, frames, atlas.table[name].width, atlas.table[name].height);
 #define COPY_SPRITE(name, from, loop, reverse) name = CAT_sprite_copy(from, loop, reverse);\
@@ -1035,6 +1055,7 @@ void CAT_sprite_mass_define()
 #ifdef CAT_DESKTOP
 	setvbuf(stdout, NULL, _IONBF, 0);
 #endif
+
 	// TILESETS
 	INIT_SPRITE(base_wall_sprite, "sprites/wall_basic.png", 3);
 	INIT_SPRITE(base_floor_sprite, "sprites/tile_basic.png", 3);

@@ -8,6 +8,7 @@
 #include "cat_item.h"
 #include "cat_room.h"
 #include "cat_input.h"
+#include "cat_gui.h"
 
 CAT_pet pet =
 {
@@ -276,7 +277,7 @@ void CAT_render_pet(int cycle)
 		if(pet.left)
 			pet_mode |= CAT_DRAW_MODE_REFLECT_X;
 		CAT_draw_queue_animate(CAT_AM_tick(&pet_asm), 2, pet.pos.x, pet.pos.y, pet_mode);	
-		if(react_asm != NULL)
+		if(CAT_AM_is_in(&react_asm, &AS_react))
 		{
 			int x_off = pet.left ? 16 : -16;
 			CAT_draw_queue_animate(CAT_AM_tick(&react_asm), 3, pet.pos.x + x_off, pet.pos.y - 48, pet_mode);	

@@ -28,8 +28,6 @@ typedef struct CAT_gui
 
 	CAT_ivec2 cursor;
 	int channel_height;
-
-	CAT_text_mode text_mode;
 } CAT_gui;
 extern CAT_gui gui;
 

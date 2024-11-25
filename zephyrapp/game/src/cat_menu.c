@@ -12,6 +12,7 @@
 #include "cat_arcade.h"
 #include "cat_bag.h"
 #include "cat_pet.h"
+#include "cat_main.h"
 
 #ifdef CAT_EMBEDDED
 #include "menu_system.h"
@@ -111,7 +112,4 @@ void CAT_render_menu()
 
 		CAT_gui_line_break();
 	}
-
-	CAT_gui_line_break();
-	CAT_gui_textf("GAME v.%d.%d.%d.%d", CAT_VERSION_MAJOR, CAT_VERSION_MINOR, CAT_VERSION_PATCH, CAT_VERSION_PUSH);
 }

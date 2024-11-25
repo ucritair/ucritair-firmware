@@ -535,11 +535,29 @@ void CAT_draw_debug()
 	CAT_gui_image(icon_exit_sprite, 0);
 	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
 
+#ifdef CAT_DESKTOP
+	CAT_gui_text("Desktop\n");
+#endif
+#ifdef CAT_MACOS
+	CAT_gui_text("MacOS\n");
+#endif
+#ifdef CAT_EMBEDDED
+	CAT_gui_text("Embedded\n");
+#endif
+#ifdef CAT_BAKED_ASSETS
+	CAT_gui_text("Baked Assets\n");
+#endif
+#ifdef CAT_ASSET_REBUILD
+	CAT_gui_text("Asset Rebuild Pass\n");
+#endif
+	CAT_gui_line_break();
+
 	CAT_gui_textf("Last sleep: %ds\n", logged_sleep);
 	CAT_gui_textf("Life timer: %0.2fs\n", CAT_timer_get(pet.life_timer_id));
 	CAT_gui_textf("Stat timer: %0.2fs\n", CAT_timer_get(pet.stat_timer_id));
 	CAT_gui_textf("Earn timer: %0.2fs\n", CAT_timer_get(room.earn_timer_id));
 	CAT_gui_line_break();
+
 	for(int y = 0; y < space.grid_shape.y; y++)
 	{
 		for(int x = 0; x < space.grid_shape.x; x++)
@@ -550,7 +568,6 @@ void CAT_draw_debug()
 		}
 		CAT_gui_line_break();
 	}
-
 }
 
 void CAT_render_manual()

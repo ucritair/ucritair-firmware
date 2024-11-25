@@ -11,18 +11,40 @@
 
 #define VENDING_MAX_SLOTS 8
 
+// ALL | FOOD | BOOKS | TOYS | GEAR | PROPS
+static int tab = 0;
+static CAT_item_list roster;
+
 static int base = 0;
 static int selector = 0;
+
 float purchase_progress = 0;
 bool purchase_lock = false;
+
+/*void fill_roster()
+{
+	CAT_item_list_init(&roster);
+	for(int item_id = 0; item_id < item_table.length; item_id++)
+	{
+		CAT_item* item = CAT_item_get(item_id);
+		if
+		(
+			tab == 0 ||
+			(tab == 1 && item->type == FOOD)
+		)
+	}
+}*/
 
 void CAT_MS_vending(CAT_machine_signal signal)
 {
 	switch(signal)
 	{
 		case CAT_MACHINE_SIGNAL_ENTER:
+			tab = 0;
+			
 			base = 0;
 			selector = 0;
+
 			purchase_lock = false;
 			break;
 		case CAT_MACHINE_SIGNAL_TICK:
@@ -31,6 +53,12 @@ void CAT_MS_vending(CAT_machine_signal signal)
 				CAT_machine_back();
 			if(CAT_input_pressed(CAT_BUTTON_START))
 				CAT_machine_transition(CAT_MS_room);
+
+			if(CAT_input_pressed(CAT_BUTTON_LEFT))
+				tab -= 1;
+			if(CAT_input_pressed(CAT_BUTTON_RIGHT))
+				tab += 1;
+			tab = clamp(tab, 0, 6);
 					
 			if(CAT_input_pulse(CAT_BUTTON_UP))
 			{

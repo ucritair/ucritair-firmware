@@ -18,15 +18,6 @@ def flash_proc(serial, serial_list):
 
 if __name__ == '__main__':
     mp.freeze_support();
-    
-    print("Building game...");
-    os.chdir(game_dir);
-    os.popen("(cd build; make -j8) && build/app | tee ../script/atlasdata.txt").read();
-    print("Done!");
-    print("Building as zephyr app...");
-    os.chdir(build_dir);
-    os.popen("make").read();
-    print("Done!");
 
     serial_list = [];
     proc_list = [];

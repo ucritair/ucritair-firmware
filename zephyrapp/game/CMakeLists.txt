@@ -8,8 +8,8 @@ if(NOT TARGET app)
 
 	set(CMAKE_BUILD_TYPE Debug)
 	target_compile_definitions(app PRIVATE CAT_DESKTOP=1)
-	if(BAKE)
-		target_compile_definitions(app PRIVATE CAT_ASSET_REBUILD=1)
+	if(REBUILD_ATLAS)
+		target_compile_definitions(app PRIVATE CAT_REBUILD_ATLAS=1)
 	endif()
 
 	find_package(GLEW REQUIRED)
