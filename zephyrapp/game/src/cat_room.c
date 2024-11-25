@@ -153,6 +153,15 @@ CAT_room room =
 	.mode_selector = 0
 };
 
+void CAT_room_init()
+{
+	for(int i = 0; i < CAT_MAX_COIN_COUNT; i++)
+	{
+		room.coin_move_timers[i] = CAT_timer_init(0.75f);
+	}
+	room.earn_timer_id = CAT_timer_init(CAT_EARN_TICK_SECS);
+}
+
 int CAT_room_find(int item_id)
 {
 	for(int i = 0; i < room.prop_count; i++)
@@ -289,15 +298,6 @@ void CAT_room_earn(int ticks)
 			}
 		}
 	}
-}
-
-void CAT_room_init()
-{
-	for(int i = 0; i < CAT_MAX_COIN_COUNT; i++)
-	{
-		room.coin_move_timers[i] = CAT_timer_init(0.75f);
-	}
-	room.earn_timer_id = CAT_timer_init(CAT_EARN_TICK_SECS);
 }
 
 void CAT_room_cursor()

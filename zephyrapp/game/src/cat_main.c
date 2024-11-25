@@ -186,7 +186,6 @@ void CAT_init(int seconds_slept)
 {
 	logged_sleep = seconds_slept;
 
-	CAT_rand_init();
 	CAT_platform_init();
 	CAT_input_init();
 	CAT_timetable_init();

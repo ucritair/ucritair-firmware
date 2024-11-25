@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include "cat_sprite.h"
 #include <string.h>
+#include <stddef.h>
 
 //////////////////////////////////////////////////////////////////////////
 // ITEM TABLE
@@ -29,13 +30,29 @@ int CAT_item_init(CAT_item_type type, const char* name, int sprite_id, int price
 	return item_id;
 }
 
+bool CAT_item_validate(int item_id)
+{
+	if(item_id < 0 || item_id == item_table.length)
+	{
+		CAT_printf("[ERROR] reference to invalid item id: %d\n", item_id);
+		return false;
+	}
+	return true;
+}
+
 CAT_item* CAT_item_get(int item_id)
 {
+	if(!CAT_item_validate(item_id))
+		return NULL;
+		
 	return &item_table.data[item_id];
 }
 
 void CAT_tool_init(int item_id, int cursor_sprite_id, int dv, int df, int ds, bool consumable)
 {
+	if(!CAT_item_validate(item_id))
+		return;
+
 	CAT_item* item = CAT_item_get(item_id);
 	item->data.tool_data.cursor_sprite_id = cursor_sprite_id;
 	item->data.tool_data.dv = dv;
@@ -46,6 +63,9 @@ void CAT_tool_init(int item_id, int cursor_sprite_id, int dv, int df, int ds, bo
 
 void CAT_prop_init(int item_id, int width, int height, bool animate)
 {
+	if(!CAT_item_validate(item_id))
+		return;
+
 	CAT_item* item = CAT_item_get(item_id);
 	item->data.prop_data.shape = (CAT_ivec2) {width, height};
 	item->data.prop_data.animate = animate;
@@ -53,18 +73,27 @@ void CAT_prop_init(int item_id, int width, int height, bool animate)
 
 void CAT_gear_init(int item_id)
 {
+	if(!CAT_item_validate(item_id))
+		return;
+
 	CAT_item* item = CAT_item_get(item_id);
 	item->data.gear_data.equipped = false;
 }
 
 void CAT_gear_toggle(int item_id, bool equipped)
 {
+	if(!CAT_item_validate(item_id))
+		return;
+
 	CAT_item* item = CAT_item_get(item_id);
 	item->data.gear_data.equipped = equipped;
 }
 
 bool CAT_gear_status(int item_id)
 {
+	if(!CAT_item_validate(item_id))
+		return false;
+
 	CAT_item* item = CAT_item_get(item_id);
 	return item->data.gear_data.equipped;
 }
@@ -79,6 +108,9 @@ void CAT_item_list_init(CAT_item_list* item_list)
 
 int CAT_item_list_find(CAT_item_list* item_list, int item_id)
 {
+	if(!CAT_item_validate(item_id))
+		return -1;
+
 	for(int i = 0; i < item_list->length; i++)
 	{
 		if(item_list->item_ids[i] == item_id)
@@ -91,9 +123,9 @@ int CAT_item_list_find(CAT_item_list* item_list, int item_id)
 
 void CAT_item_list_add(CAT_item_list* item_list, int item_id)
 {
-	if(item_list->length >= CAT_ITEM_LIST_MAX_LENGTH)
+	if(!CAT_item_validate(item_id))
 		return;
-	if(item_id == -1)
+	if(item_list->length >= CAT_ITEM_LIST_MAX_LENGTH)
 		return;
 		
 	int idx = CAT_item_list_find(item_list, item_id);
@@ -125,6 +157,9 @@ void CAT_item_list_add(CAT_item_list* item_list, int item_id)
 
 void CAT_item_list_remove(CAT_item_list* item_list, int item_id)
 {
+	if(!CAT_item_validate(item_id))
+		return;
+
 	int idx = CAT_item_list_find(item_list, item_id);
 	if(idx >= 0)
 	{

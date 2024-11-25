@@ -143,10 +143,7 @@ void CAT_AM_init(CAT_AM_state* state, int enai, int tiai, int exai);
 void CAT_AM_transition(CAT_AM_state** spp, CAT_AM_state* next);
 void CAT_AM_kill(CAT_AM_state** spp);
 bool CAT_AM_is_in(CAT_AM_state** spp, CAT_AM_state* state);
-bool CAT_AM_is_entering(CAT_AM_state** spp);
 bool CAT_AM_is_ticking(CAT_AM_state** spp);
-bool CAT_AM_is_exiting(CAT_AM_state** spp);
-bool CAT_AM_is_done(CAT_AM_state** spp);
 int CAT_AM_tick(CAT_AM_state** pp);
 
 

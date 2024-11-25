@@ -171,10 +171,7 @@ void CAT_gui_popup(const char* text)
 	dialog_width = round((float) dialog_width / (float) CAT_TILE_SIZE);
 	int dialog_height = lines * (CAT_GLYPH_HEIGHT + gui.pad_y) + (CAT_TILE_SIZE + gui.margin * 2);
 	dialog_height = round((float) dialog_height / (float) CAT_TILE_SIZE);
-	dialog_height += 2;
 
 	CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {dialog_width, dialog_height});
 	CAT_gui_text(text);
-	CAT_gui_line_break();
-	
 }

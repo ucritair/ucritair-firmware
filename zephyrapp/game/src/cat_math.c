@@ -57,13 +57,6 @@ int quantize(float t, float range, int steps)
 //////////////////////////////////////////////////////////////////////////
 // RANDOM
 
-void CAT_rand_init()
-{
-#ifdef CAT_DESKTOP
-	srand(time(NULL));
-#endif
-}
-
 int CAT_rand_int(int a, int b)
 {
 	return a + rand() / (RAND_MAX / (b - a + 1) + 1);

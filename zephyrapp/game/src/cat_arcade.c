@@ -54,28 +54,6 @@ int eat_count = 0;
 
 void spawn_food()
 {
-	/*bool valid = false;
-	int its = 0;
-	while(!valid && its < SNAKE_MAX_ITERATIONS)
-	{
-		food_x = CAT_rand_int(1, WIDTH-2);
-		food_y = CAT_rand_int(1, HEIGHT-2);
-		valid = true;
-		for(int i = 0; i < snake_length; i++)
-		{
-			if
-			(
-				(food_x == snake_x[i] && food_y == snake_y[i]) ||
-				(food_x == lfx && food_y == lfy)
-			)
-			{
-				valid = false;
-				break;
-			}
-		}
-		its += 1;
-	}*/
-
 	int guess_y = CAT_rand_int(1, HEIGHT-2);
 	int steps_y = 0;
 	int guess_x = CAT_rand_int(1, WIDTH-2);

@@ -19,7 +19,6 @@ int quantize(float t, float range, int steps);
 //////////////////////////////////////////////////////////////////////////
 // RANDOM
 
-void CAT_rand_init();
 int CAT_rand_int(int a, int b);
 float CAT_rand_float(float a, float b);
 

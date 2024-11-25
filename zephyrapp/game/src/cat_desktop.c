@@ -64,7 +64,12 @@ void CAT_shader_init(char* vert_src, char* frag_src)
 
 void CAT_platform_init()
 {
-	CAT_printf("Starting CAT v%d.%d.%d.%d...\n", CAT_VERSION_MAJOR, CAT_VERSION_MINOR, CAT_VERSION_PATCH, CAT_VERSION_PUSH);
+	CAT_printf
+	(
+		"Starting CAT v%d.%d.%d.%d...\n",
+		CAT_VERSION_MAJOR, CAT_VERSION_MINOR,
+		CAT_VERSION_PATCH, CAT_VERSION_PUSH
+	);
 
 	glfwSetErrorCallback(GLFW_error_callback);
 	
@@ -143,6 +148,8 @@ void CAT_platform_init()
 
 	simulator.time = glfwGetTime();
 	simulator.delta_time = 0;
+
+	srand(time(NULL));
 }
 
 void CAT_platform_tick()
