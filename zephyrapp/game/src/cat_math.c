@@ -187,3 +187,13 @@ void CAT_perspdiv(CAT_vec4* v)
 	v->z /= v->w;
 	v->w /= v->w;
 }
+
+CAT_vec4 CAT_vec4_cross(CAT_vec4 u, CAT_vec4 v)
+{
+	return (CAT_vec4) {u.y * v.z - u.z * v.y, u.z * v.x - u.x * v.z, u.x * v.y - u.y * v.x, 0.0f};
+}
+
+float CAT_vec4_dot(CAT_vec4 u, CAT_vec4 v)
+{
+	return u.x * v.x + u.y * v.y + u.z * v.z;
+}

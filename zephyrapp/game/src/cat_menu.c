@@ -261,6 +261,8 @@ void CAT_render_hedron()
 
 	CAT_vec4 verts[36];
 	memcpy(verts, mesh, sizeof(mesh));
+	
+	
 
 	CAT_mat4 V =
 	{
@@ -295,11 +297,19 @@ void CAT_render_hedron()
 	for(int i = 0; i < NUM_VERTS; i++)
 		verts[i] = CAT_matvec_mul(S, verts[i]);
 
+	// The train arrives in clipspace
 	for(int i = 0; i < NUM_VERTS-3; i += 3)
 	{
 		CAT_vec4 a = verts[i];
 		CAT_vec4 b = verts[i+1];
 		CAT_vec4 c = verts[i+2];
+
+		if(a.w >= 0 || b.w >= 0 || c.w >= 0)
+			continue;
+		CAT_vec4 norm = CAT_vec4_cross(a, b);
+		float ndv = CAT_vec4_dot(norm, (CAT_vec4) {0, 0, -1, 0});
+		if(ndv < 0)
+			continue;
 
 		CAT_perspdiv(&a);
 		CAT_perspdiv(&b);
