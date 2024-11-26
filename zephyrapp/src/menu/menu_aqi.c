@@ -48,7 +48,10 @@ void CAT_MS_aqi(CAT_machine_signal signal)
 			if (CAT_input_pulse(CAT_BUTTON_LEFT))
 			{
 				if (aqi_view_cell == AQI_VIEW_CELL_LATEST)
-					aqi_view_cell = next_log_cell_nr - 1;
+				{
+					if (next_log_cell_nr > 0)
+						aqi_view_cell = next_log_cell_nr - 1;
+				}
 				else if (aqi_view_cell != 0)
 					aqi_view_cell--;
 			}

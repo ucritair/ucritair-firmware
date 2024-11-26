@@ -125,11 +125,12 @@ void update_rtc()
 void continue_rtc_from_log()
 {
 	if (!is_first_init) return;
-	if (next_log_cell_nr == 0) return;
+	if (next_log_cell_nr <= 0) return;
 
 	struct flash_log_cell cell;
 	flash_get_cell_by_nr(next_log_cell_nr-1, &cell);
 	set_rtc_counter_raw(cell.timestamp);
+	went_to_sleep_at = get_current_rtc_time() - 10;
 }
 
 char* month_names[12] = {

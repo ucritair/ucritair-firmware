@@ -375,7 +375,9 @@ void text_cursor(char* name, int index)
 	uint64_t ts = cell.timestamp;
 	gmtime_r(&ts, &t); 
 
-	CAT_gui_textf("%s @ %2d:%02d:%02d", get_string(get_graph_data(&cell)), t.tm_hour, t.tm_min, t.tm_sec);
+	int gd = get_graph_data(&cell);
+
+	CAT_gui_textf("%s @ %2d:%02d:%02d", gd==-1?"?":get_string(gd), t.tm_hour, t.tm_min, t.tm_sec);
 }
 
 void CAT_render_graph()
