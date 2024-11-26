@@ -197,3 +197,8 @@ float CAT_vec4_dot(CAT_vec4 u, CAT_vec4 v)
 {
 	return u.x * v.x + u.y * v.y + u.z * v.z;
 }
+
+CAT_vec4 CAT_vec4_sub(CAT_vec4 u, CAT_vec4 v)
+{
+	return (CAT_vec4) {u.x - v.x, u.y - v.y, u.z - v.z, u.w - v.w};
+}

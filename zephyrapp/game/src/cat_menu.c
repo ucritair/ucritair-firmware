@@ -185,38 +185,38 @@ CAT_vec4 mesh[36] =
 {
 	{-0.5f, -0.5f, -0.5f, 1.0f},
 	{0.5f, -0.5f, -0.5f, 1.0f},
-	{0.5f,  0.5f, -0.5f, 1.0f},
+	{0.5f,  0.5f, -0.5f, 1.0f},	
 	{0.5f,  0.5f, -0.5f, 1.0f},
 	{-0.5f,  0.5f, -0.5f, 1.0f},
 	{-0.5f, -0.5f, -0.5f, 1.0f},
 
+	{0.5f,  0.5f,  0.5f, 1.0f},
+	{0.5f, -0.5f,  0.5f, 1.0f},
 	{-0.5f, -0.5f,  0.5f, 1.0f},
+	{-0.5f, -0.5f,  0.5f, 1.0f},
+	{-0.5f,  0.5f,  0.5f, 1.0f},
+	{0.5f,  0.5f,  0.5f, 1.0f},
+
+	{-0.5f, -0.5f, -0.5f, 1.0f},
+	{-0.5f,  0.5f, -0.5f, 1.0f},
+	{-0.5f,  0.5f,  0.5f, 1.0f},
+	{-0.5f,  0.5f,  0.5f, 1.0f},
+	{-0.5f, -0.5f,  0.5f, 1.0f},
+	{-0.5f, -0.5f, -0.5f, 1.0f},
+
+	{0.5f, -0.5f, -0.5f, 1.0f},
 	{0.5f, -0.5f,  0.5f, 1.0f},
 	{0.5f,  0.5f,  0.5f, 1.0f},
-	{0.5f,  0.5f,  0.5f, 1.0f},
-	{-0.5f,  0.5f,  0.5f, 1.0f},
-	{-0.5f, -0.5f,  0.5f, 1.0f},
-
-	{-0.5f,  0.5f,  0.5f, 1.0f},
-	{-0.5f,  0.5f, -0.5f, 1.0f},
-	{-0.5f, -0.5f, -0.5f, 1.0f},
-	{-0.5f, -0.5f, -0.5f, 1.0f},
-	{-0.5f, -0.5f,  0.5f, 1.0f},
-	{-0.5f,  0.5f,  0.5f, 1.0f},
-
 	{0.5f,  0.5f,  0.5f, 1.0f},
 	{0.5f,  0.5f, -0.5f, 1.0f},
 	{0.5f, -0.5f, -0.5f, 1.0f},
-	{0.5f, -0.5f, -0.5f, 1.0f},
+	
 	{0.5f, -0.5f,  0.5f, 1.0f},
-	{0.5f,  0.5f,  0.5f, 1.0f},
-
+	{0.5f, -0.5f, -0.5f, 1.0f},
 	{-0.5f, -0.5f, -0.5f, 1.0f},
-	{0.5f, -0.5f, -0.5f, 1.0f},
-	{0.5f, -0.5f,  0.5f, 1.0f},
-	{0.5f, -0.5f,  0.5f, 1.0f},
+	{-0.5f, -0.5f, -0.5f, 1.0f},
 	{-0.5f, -0.5f,  0.5f, 1.0f},
-	{-0.5f, -0.5f, -0.5f, 1.0f},
+	{0.5f, -0.5f,  0.5f, 1.0f},
 
 	{-0.5f,  0.5f, -0.5f, 1.0f},
 	{0.5f,  0.5f, -0.5f, 1.0f},
@@ -227,7 +227,7 @@ CAT_vec4 mesh[36] =
 };
 #define NUM_VERTS (sizeof(mesh) / sizeof(mesh[0]))
 
-static CAT_vec4 translation = {0, 0, -2, 1};
+CAT_vec4 cam_pos = {0, 0, -2, 1};
 
 void CAT_MS_hedron(CAT_machine_signal signal)
 {
@@ -236,19 +236,21 @@ void CAT_MS_hedron(CAT_machine_signal signal)
 		case CAT_MACHINE_SIGNAL_ENTER:
 			break;
 		case CAT_MACHINE_SIGNAL_TICK:
-			if(CAT_input_pressed(CAT_BUTTON_B))
-				CAT_machine_back();
 			if(CAT_input_pressed(CAT_BUTTON_START))
-				CAT_machine_transition(CAT_MS_room);
-			
+				CAT_machine_back();
+
 			if(CAT_input_held(CAT_BUTTON_LEFT, 0))
-				translation.x += CAT_get_delta_time();
+				cam_pos.x += CAT_get_delta_time();
 			if(CAT_input_held(CAT_BUTTON_RIGHT, 0))
-				translation.x -= CAT_get_delta_time();
+				cam_pos.x -= CAT_get_delta_time();
 			if(CAT_input_held(CAT_BUTTON_UP, 0))
-				translation.z += CAT_get_delta_time();
+				cam_pos.z += CAT_get_delta_time();
 			if(CAT_input_held(CAT_BUTTON_DOWN, 0))
-				translation.z -= CAT_get_delta_time();
+				cam_pos.z -= CAT_get_delta_time();
+			if(CAT_input_held(CAT_BUTTON_A, 0))
+				cam_pos.y += CAT_get_delta_time();
+			if(CAT_input_held(CAT_BUTTON_B, 0))
+				cam_pos.y -= CAT_get_delta_time();
 			break;
 		case CAT_MACHINE_SIGNAL_EXIT:
 			break;
@@ -262,13 +264,11 @@ void CAT_render_hedron()
 	CAT_vec4 verts[36];
 	memcpy(verts, mesh, sizeof(mesh));
 	
-	
-
 	CAT_mat4 V =
 	{
-		1, 0, 0, -translation.x,
-		0, 1, 0, -translation.y,
-		0, 0, 1, -translation.z,
+		1, 0, 0, -cam_pos.x,
+		0, 1, 0, -cam_pos.y,
+		0, 0, 1, -cam_pos.z,
 		0, 0, 0, 1
 	};
 	for(int i = 0; i < NUM_VERTS; i++)
@@ -280,7 +280,7 @@ void CAT_render_hedron()
 	{
 		1, 0, 0, 0,
 		0, 1, 0, 0,
-		0, 0, -f/(f-n), -(f*n)/(f-n),
+		0, 0, -(f+n)/(f-n), -2*(f*n)/(f-n),
 		0, 0, -1, 0
 	};
 	for(int i = 0; i < NUM_VERTS; i++)
@@ -298,17 +298,22 @@ void CAT_render_hedron()
 		verts[i] = CAT_matvec_mul(S, verts[i]);
 
 	// The train arrives in clipspace
-	for(int i = 0; i < NUM_VERTS-3; i += 3)
+	for(int i = 0; i < NUM_VERTS; i += 3)
 	{
 		CAT_vec4 a = verts[i];
 		CAT_vec4 b = verts[i+1];
 		CAT_vec4 c = verts[i+2];
 
+		// W-culling
 		if(a.w >= 0 || b.w >= 0 || c.w >= 0)
 			continue;
-		CAT_vec4 norm = CAT_vec4_cross(a, b);
-		float ndv = CAT_vec4_dot(norm, (CAT_vec4) {0, 0, -1, 0});
-		if(ndv < 0)
+		// Backface culling
+		CAT_vec4 ba = CAT_vec4_sub(b, a);
+		CAT_vec4 ca = CAT_vec4_sub(c, a);
+		CAT_vec4 norm = CAT_vec4_cross(ba, ca);
+		CAT_printf("%d %f %f %f\n", i/3, norm.x, norm.y, norm.z);
+		float valign = CAT_vec4_dot(a, norm);
+		if(valign >= 0)
 			continue;
 
 		CAT_perspdiv(&a);

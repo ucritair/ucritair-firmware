@@ -92,3 +92,4 @@ CAT_vec4 CAT_matvec_mul(CAT_mat4 M, CAT_vec4 v);
 void CAT_perspdiv(CAT_vec4* v);
 CAT_vec4 CAT_vec4_cross(CAT_vec4 u, CAT_vec4 v);
 float CAT_vec4_dot(CAT_vec4 u, CAT_vec4 v);
+CAT_vec4 CAT_vec4_sub(CAT_vec4 u, CAT_vec4 v);
