@@ -97,7 +97,7 @@ void CAT_timer_add(int timer_id, float t)
 
 CAT_machine_state machine = NULL;
 CAT_machine_state machine_stack[64];
-int machine_depth;
+int machine_depth = 0;
 
 void push_MS(CAT_machine_state s)
 {
@@ -111,6 +111,11 @@ CAT_machine_state pop_MS()
 	return machine_stack[machine_depth];
 }
 
+CAT_machine_state peek_MS()
+{
+	return machine_stack[machine_depth-1];
+}
+
 void CAT_machine_transition(CAT_machine_state state)
 {
 	if(state == NULL)
@@ -122,8 +127,20 @@ void CAT_machine_transition(CAT_machine_state state)
 	if(machine != NULL)
 	{
 		(machine)(CAT_MACHINE_SIGNAL_EXIT);
-		push_MS(machine);
 	}
+
+	bool loop_back = false;
+	for(int i = 0; i < machine_depth; i++)
+	{
+		if(machine_stack[i] == state)
+		{
+			machine_depth = i+1;
+			loop_back = true;
+			break;
+		}
+	}
+	if(!loop_back)
+		push_MS(state);
 
 	machine = state;
 	(machine)(CAT_MACHINE_SIGNAL_ENTER);	
@@ -137,6 +154,9 @@ void CAT_machine_tick()
 
 void CAT_machine_back()
 {
-	if(machine_depth > 0)
-		CAT_machine_transition(pop_MS());
+	if(machine_depth > 1)
+	{
+		pop_MS();
+		CAT_machine_transition(peek_MS());
+	}
 }

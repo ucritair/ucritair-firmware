@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include "cat_item_dialog.h"
 #include "cat_bag.h"
+#include "cat_menu.h"
 
 CAT_deco_state deco_state =
 {
@@ -131,7 +132,9 @@ void CAT_MS_deco(CAT_machine_signal signal)
 			}
 		
 			if(CAT_input_pressed(CAT_BUTTON_B))
-				CAT_machine_transition(CAT_MS_room);
+				CAT_machine_back();
+			if(CAT_input_pressed(CAT_BUTTON_START))
+				CAT_machine_transition(CAT_MS_menu);
 			break;
 		}
 		case CAT_MACHINE_SIGNAL_EXIT:

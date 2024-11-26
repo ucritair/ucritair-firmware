@@ -361,7 +361,6 @@ void CAT_draw_tiles(int sprite_id, int frame_idx, int y_t, int h_t)
 		unpack_rle_row();
 		// uint32_t* row_start = (uint32_t*)&image_data_table[sprite_id].frames[frame_idx][0];
 #endif
-
 		uint32_t* from;
 
 		for(int y_w = y_start; y_w < y_end; y_w += CAT_TILE_SIZE)
@@ -418,15 +417,13 @@ void CAT_greenberry(int xi, int w, int yi, int h, float t)
 		for(int x = xi; x < xf; x++)
 		{
 			int idx = y * LCD_SCREEN_W + x;
-
 #ifdef CAT_DESKTOP
 			uint16_t c = FRAMEBUFFER[idx];
 			uint8_t l = luminance(c);
 			FRAMEBUFFER[idx] = RGB8882565(l >> 1, l, l >> 1);
-
+#else
 			// r4 r3 r2 r1 r0 g5 g4 g3     g2 g1 g0 b4 b3 b2 b1 b0
 			// g2 g1 g0 b4 b3 b2 b1 b0     r4 r3 r2 r1 r0 g5 g4 g3
-#else
 			uint16_t px = FRAMEBUFFER[idx];
 
 			px |= 0b011;
@@ -479,19 +476,15 @@ void CAT_greyberry(int xi, int w, int yi, int h)
 		for(int x = xi; x < xf; x++)
 		{
 			int idx = y * LCD_SCREEN_W + x;
-
 #ifdef CAT_DESKTOP
 			uint16_t c = FRAMEBUFFER[idx];
 			uint8_t l = luminance(c);
 			FRAMEBUFFER[idx] = RGB8882565(l, l, l);
-
+#else
 			// r4 r3 r2 r1 r0 g5 g4 g3     g2 g1 g0 b4 b3 b2 b1 b0
 			// g2 g1 g0 b4 b3 b2 b1 b0     r4 r3 r2 r1 r0 g5 g4 g3
-#else
 			uint16_t px = FRAMEBUFFER[idx];
-
 			px &= (0b00010000<<8) | 0b10000100;
-
 			FRAMEBUFFER[idx] = px;
 #endif
 		}
@@ -548,6 +541,25 @@ void CAT_bresenham(int xi, int yi, int xf, int yf, uint16_t c)
 		yf = temp;
 	}
 	
+#ifdef CAT_EMBEDDED
+	if(steep)
+	{
+		xi -= framebuffer_offset_h;
+		xf -= framebuffer_offset_h;
+
+		if (xi >= LCD_FRAMEBUFFER_H) return;
+		if (xf < 0) return;
+	}
+	else
+	{
+		yi -= framebuffer_offset_h;
+		yf -= framebuffer_offset_h;
+
+		if (yi >= LCD_FRAMEBUFFER_H) return;
+		if (yf < 0) return;
+	}
+#endif
+
 	int dx = xf - xi;
 	int dy = yf - yi;
 

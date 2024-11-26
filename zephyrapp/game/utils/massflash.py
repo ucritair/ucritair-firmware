@@ -3,10 +3,8 @@ import os;
 import pathlib as pl;
 import multiprocessing as mp;
 
-github_dir = os.path.join(pl.Path.home(), "Documents/GitHub");
-zproj_dir = os.path.join(github_dir, "zephyrproject");
-zapp_dir = os.path.join(github_dir, "cat_software/zephyrapp");
-game_dir = os.path.join(zapp_dir, "game");
+zapp_dir = "..";
+game_dir = ".";
 build_dir = os.path.join(zapp_dir, "build");
 
 def flash_proc(serial, serial_list):
@@ -32,7 +30,7 @@ if __name__ == '__main__':
             token = token.replace("\"", "");
             return token;
         dfu_serials = [strip_serial(t) for t in dfu_tokens];
-        dfu_serials = [t for t in dfu_tokens if t != "UNKNOWN"];
+        dfu_serials = [t for t in dfu_serials if t != "UNKNOWN"];
         for serial in dfu_serials:
             if not serial in serial_list:
                 print(f"Discovered {serial}");

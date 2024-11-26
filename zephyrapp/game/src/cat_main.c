@@ -207,8 +207,7 @@ void CAT_init(int seconds_slept)
 	CAT_apply_sleep(seconds_slept);
 	CAT_pet_reanimate();
 	
-	machine = CAT_MS_room;
-	machine(CAT_MACHINE_SIGNAL_ENTER);
+	CAT_machine_transition(CAT_MS_room);
 }
 
 void CAT_tick_logic()

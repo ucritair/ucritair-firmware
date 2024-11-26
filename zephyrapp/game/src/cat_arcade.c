@@ -324,10 +324,10 @@ void CAT_MS_arcade(CAT_machine_signal signal)
 			}
 			else if(mode == LOSE)
 			{
+				if(CAT_input_pressed(CAT_BUTTON_A) || CAT_input_pressed(CAT_BUTTON_B))
+					mode = SELECT;
 				if(CAT_input_pressed(CAT_BUTTON_START))
 					CAT_machine_transition(CAT_MS_room);
-				else if(CAT_input_pressed(CAT_BUTTON_A) || CAT_input_pressed(CAT_BUTTON_B))
-					mode = SELECT;
 			}
 			break;
 		}

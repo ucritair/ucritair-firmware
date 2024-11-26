@@ -15,6 +15,7 @@
 #include "cat_main.h"
 #include <stddef.h>
 #include <string.h>
+#include <math.h>
 
 #ifdef CAT_EMBEDDED
 #include "menu_system.h"
@@ -227,7 +228,10 @@ CAT_vec4 mesh[36] =
 };
 #define NUM_VERTS (sizeof(mesh) / sizeof(mesh[0]))
 
-CAT_vec4 cam_pos = {0, 0, -2, 1};
+float theta_h = 0;
+float theta_v = 0;
+float r = 2;
+CAT_vec4 cam_pos = {0};
 
 void CAT_MS_hedron(CAT_machine_signal signal)
 {
@@ -240,17 +244,22 @@ void CAT_MS_hedron(CAT_machine_signal signal)
 				CAT_machine_back();
 
 			if(CAT_input_held(CAT_BUTTON_LEFT, 0))
-				cam_pos.x += CAT_get_delta_time();
+				theta_h += CAT_get_delta_time();
 			if(CAT_input_held(CAT_BUTTON_RIGHT, 0))
-				cam_pos.x -= CAT_get_delta_time();
+				theta_h -= CAT_get_delta_time();
 			if(CAT_input_held(CAT_BUTTON_UP, 0))
-				cam_pos.z += CAT_get_delta_time();
+				theta_v += CAT_get_delta_time();
 			if(CAT_input_held(CAT_BUTTON_DOWN, 0))
-				cam_pos.z -= CAT_get_delta_time();
+				theta_v -= CAT_get_delta_time();
 			if(CAT_input_held(CAT_BUTTON_A, 0))
-				cam_pos.y += CAT_get_delta_time();
+				r += CAT_get_delta_time();
 			if(CAT_input_held(CAT_BUTTON_B, 0))
-				cam_pos.y -= CAT_get_delta_time();
+				r -= CAT_get_delta_time();
+			float x = r * sin(theta_h) * cos(theta_v);
+			float y = r * sin(theta_h) * sin(theta_v);
+			float z = r * cos(theta_h);
+			cam_pos = (CAT_vec4) {x, y, z, 1.0f};
+
 			break;
 		case CAT_MACHINE_SIGNAL_EXIT:
 			break;
@@ -259,16 +268,26 @@ void CAT_MS_hedron(CAT_machine_signal signal)
 
 void CAT_render_hedron()
 {
-	CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 20});
+	CAT_frameberry(0x0000);
 
 	CAT_vec4 verts[36];
 	memcpy(verts, mesh, sizeof(mesh));
 	
+	CAT_vec4 forward = CAT_vec4_sub((CAT_vec4) {0}, cam_pos);
+	CAT_vec4 up = (CAT_vec4) {0, 1, 0, 0};
+	CAT_vec4 right = CAT_vec4_cross(up, forward);
+	up = CAT_vec4_cross(forward, right);
+	right = CAT_vec4_normalize(right);
+	up = CAT_vec4_normalize(up);
+	forward = CAT_vec4_normalize(forward);
+	float tx = -CAT_vec4_dot(cam_pos, right);
+	float ty = -CAT_vec4_dot(cam_pos, up);
+	float tz = -CAT_vec4_dot(cam_pos, forward);
 	CAT_mat4 V =
 	{
-		1, 0, 0, -cam_pos.x,
-		0, 1, 0, -cam_pos.y,
-		0, 0, 1, -cam_pos.z,
+		right.x, right.y, right.z, tx,
+		up.x, up.y, up.z, ty,
+		forward.x, forward.y, forward.z, tz,
 		0, 0, 0, 1
 	};
 	for(int i = 0; i < NUM_VERTS; i++)
@@ -311,7 +330,6 @@ void CAT_render_hedron()
 		CAT_vec4 ba = CAT_vec4_sub(b, a);
 		CAT_vec4 ca = CAT_vec4_sub(c, a);
 		CAT_vec4 norm = CAT_vec4_cross(ba, ca);
-		CAT_printf("%d %f %f %f\n", i/3, norm.x, norm.y, norm.z);
 		float valign = CAT_vec4_dot(a, norm);
 		if(valign >= 0)
 			continue;
@@ -320,9 +338,9 @@ void CAT_render_hedron()
 		CAT_perspdiv(&b);
 		CAT_perspdiv(&c);
 
-		CAT_bresenham(a.x, a.y, b.x, b.y, 0x0000);
-		CAT_bresenham(b.x, b.y, c.x, c.y, 0x0000);
-		CAT_bresenham(c.x, c.y, a.x, a.y, 0x0000);
+		CAT_bresenham(a.x, a.y, b.x, b.y, 0xFFFF);
+		CAT_bresenham(b.x, b.y, c.x, c.y, 0xFFFF);
+		CAT_bresenham(c.x, c.y, a.x, a.y, 0xFFFF);
 	}
 }
 

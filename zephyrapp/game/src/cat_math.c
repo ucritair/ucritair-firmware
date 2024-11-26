@@ -195,10 +195,17 @@ CAT_vec4 CAT_vec4_cross(CAT_vec4 u, CAT_vec4 v)
 
 float CAT_vec4_dot(CAT_vec4 u, CAT_vec4 v)
 {
-	return u.x * v.x + u.y * v.y + u.z * v.z;
+	return u.x * v.x + u.y * v.y + u.z * v.z + u.w * v.w;
 }
 
 CAT_vec4 CAT_vec4_sub(CAT_vec4 u, CAT_vec4 v)
 {
 	return (CAT_vec4) {u.x - v.x, u.y - v.y, u.z - v.z, u.w - v.w};
+}
+
+CAT_vec4 CAT_vec4_normalize(CAT_vec4 v)
+{
+	float len = sqrt(v.x * v.x + v.y * v.y + v.z * v.z + v.w * v.w);
+	float s = 1.0f / len;
+	return (CAT_vec4) {v.x * s, v.y * s, v.z * s, v.w * s};
 }
