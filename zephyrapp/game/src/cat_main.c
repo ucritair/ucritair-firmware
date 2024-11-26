@@ -288,6 +288,14 @@ void CAT_tick_render(int cycle)
 	else if(machine == CAT_MS_graph)
 		CAT_render_graph();
 #endif
+	else if(machine == CAT_MS_debug)
+		CAT_render_debug();	
+	else if(machine == CAT_MS_litany)
+		CAT_render_litany();	
+	else if(machine == CAT_MS_cheats)
+		CAT_render_cheats();	
+	else if(machine == CAT_MS_hedron)
+		CAT_render_hedron();
 	else
 	{
 		CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 20});

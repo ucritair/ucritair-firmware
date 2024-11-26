@@ -158,7 +158,18 @@ bool CAT_rect_contains(CAT_rect a, CAT_rect b)
 //////////////////////////////////////////////////////////////////////////
 // RENDERING
 
-CAT_vec4 CAT_mvmul(CAT_mat4 M, CAT_vec4 v)
+CAT_mat4 CAT_mat4_id()
+{
+	return (CAT_mat4)
+	{
+		1, 0, 0, 0,
+		0, 1, 0, 0,
+		0, 0, 1, 0,
+		0, 0, 0, 1
+	};
+}
+
+CAT_vec4 CAT_matvec_mul(CAT_mat4 M, CAT_vec4 v)
 {
 	return (CAT_vec4)
 	{
@@ -167,4 +178,12 @@ CAT_vec4 CAT_mvmul(CAT_mat4 M, CAT_vec4 v)
 		M.data[8] * v.x + M.data[9] * v.y + M.data[10] * v.z + M.data[11] * v.w,
 		M.data[12] * v.x + M.data[13] * v.y + M.data[14] * v.z + M.data[15] * v.w
 	};
+}
+
+void CAT_perspdiv(CAT_vec4* v)
+{
+	v->x /= v->w;
+	v->y /= v->w;
+	v->z /= v->w;
+	v->w /= v->w;
 }

@@ -8,12 +8,7 @@
 #define CAT_GRID_SIZE (CAT_GRID_WIDTH * CAT_GRID_HEIGHT)
 
 #define CAT_MAX_COIN_COUNT 24
-
-#ifdef CAT_DESKTOP
-#define CAT_EARN_TICK_SECS 5
-#else 
 #define CAT_EARN_TICK_SECS 1800
-#endif
 
 typedef struct CAT_space
 {

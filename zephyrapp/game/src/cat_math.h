@@ -77,7 +77,6 @@ bool CAT_rect_contains(CAT_rect a, CAT_rect b);
 typedef struct CAT_mat4
 {
 	float data[16];
-	int n;
 } CAT_mat4;
 
 typedef struct CAT_vec4
@@ -88,4 +87,6 @@ typedef struct CAT_vec4
 	float w;
 } CAT_vec4;
 
-CAT_vec4 CAT_mvmul(CAT_mat4 M, CAT_vec4 v);
+CAT_mat4 CAT_mat4_id();
+CAT_vec4 CAT_matvec_mul(CAT_mat4 M, CAT_vec4 v);
+void CAT_perspdiv(CAT_vec4* v);

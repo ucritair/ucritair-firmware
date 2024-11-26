@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include "cat_machine.h"
 #include <math.h>
+#include <ctype.h>
 
 //////////////////////////////////////////////////////////////////////////
 // RENDERING
@@ -90,22 +91,37 @@ void CAT_gui_line_break()
 
 void CAT_gui_text(const char* text)
 {
-	for(const char* c = text; *c != '\0'; c++)
+	int x_lim = gui.start.x + (gui.shape.x) * CAT_TILE_SIZE - CAT_GLYPH_WIDTH - gui.margin;
+
+	const char* c = text;
+	while(*c != '\0')
 	{
+		if(gui.cursor.x >= x_lim)
+		{
+			if(!isspace(*c) && !isspace(*(c-1)))
+				CAT_draw_sprite(glyph_sprite, '-'-' ', gui.cursor.x, gui.cursor.y);
+			CAT_gui_line_break();	
+			if(isspace(*c))
+				c++;
+		}
+
 		if(*c == '\n')
 		{
 			CAT_gui_line_break();
+			c++;
 			continue;
 		}
-		else if(*c == '\t')
+		if(*c == '\t')
 		{
 			gui.cursor.x += CAT_GLYPH_WIDTH * 4;
+			c++;
 			continue;
 		}
 
 		CAT_gui_open_channel(CAT_GLYPH_HEIGHT);
 		CAT_draw_sprite(glyph_sprite, *c-' ', gui.cursor.x, gui.cursor.y);
 		gui.cursor.x += CAT_GLYPH_WIDTH;
+		c++;
 	}
 }
 
@@ -128,7 +144,7 @@ void CAT_gui_div(const char* text)
 
 	CAT_gui_text(text);
 	CAT_gui_open_channel(height);
-	int n = (14 * CAT_TILE_SIZE - strlen(text) * CAT_GLYPH_WIDTH) / CAT_TILE_SIZE;
+	int n = ((gui.shape.x - 1) * CAT_TILE_SIZE - strlen(text) * CAT_GLYPH_WIDTH) / CAT_TILE_SIZE;
 	for(int i = 0; i < n; i++)
 	{
 		CAT_draw_sprite(panel_sprite, 9, gui.cursor.x, gui.cursor.y);
