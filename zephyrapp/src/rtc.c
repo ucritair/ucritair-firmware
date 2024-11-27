@@ -19,10 +19,11 @@ static int board_cat_init_rtc(void)
 
     nrf_rtc_prescaler_set(HW_RTC_CHOSEN, 4095); // 125ms/tick
 
-    nrfx_coredep_delay_us(62200); // as of SEA-1 we are 1.563s - so 13 ticks (1.625) forward and then 62.2ms delay to get on time
+    nrfx_coredep_delay_us(105500); // as of SEA-1 we are 1.8945s - so 16 ticks (2.0) forward and then 105.5ms delay to get on time
+
     nrf_rtc_task_trigger(HW_RTC_CHOSEN, NRF_RTC_TASK_CLEAR);
     nrf_gpio_pin_set(NRF_GPIO_PIN_MAP(0, 2));
-	nrf_rtc_task_trigger(HW_RTC_CHOSEN, NRF_RTC_TASK_START);
+    nrf_rtc_task_trigger(HW_RTC_CHOSEN, NRF_RTC_TASK_START);
 
     return 0;
 }
@@ -86,7 +87,7 @@ void set_rtc_counter(struct tm* t)
 
 void snapshot_rtc_for_reboot()
 {
-	rtc_offset = rtc_offset + (uint64_t)nrf_rtc_counter_get(HW_RTC_CHOSEN) + 13; // as of SEA-1 we are 1.563s - so 13 ticks (1.625) forward and then 62.2ms delay to get on time
+	rtc_offset = rtc_offset + (uint64_t)nrf_rtc_counter_get(HW_RTC_CHOSEN) + 16; // as of SEA-1 we are 1.8945s - so 16 ticks (2.0) forward and then 105.5ms delay to get on time
 } 
 
 void check_rtc_init()
