@@ -271,6 +271,20 @@ index c5f909b4c3a..160be297c55 100644
  
  	if ((bucken_spec.port == iovdd_ctrl_spec.port) &&
  	    (bucken_spec.pin == iovdd_ctrl_spec.pin)) {
+diff --git a/include/zephyr/arch/arm/cortex_m/scripts/linker.ld b/include/zephyr/arch/arm/cortex_m/scripts/linker.ld
+index 9e123b120de..a6b76c0756c 100644
+--- a/include/zephyr/arch/arm/cortex_m/scripts/linker.ld
++++ b/include/zephyr/arch/arm/cortex_m/scripts/linker.ld
+@@ -514,4 +514,9 @@ SECTION_PROLOGUE(.last_section,,)
+  * calculate this value here. */
+ _flash_used = LOADADDR(.last_section) + SIZEOF(.last_section) - __rom_region_start;
+ 
++.pad_end : {
++  . += ROM_SIZE - _flash_used - 0x1000 - 1;
++  BYTE(0);
++} > FLASH
++
+     }
 diff --git a/soc/nordic/nrf53/soc.c b/soc/nordic/nrf53/soc.c
 index cbdb8e04fe0..6da9bd82dbe 100644
 --- a/soc/nordic/nrf53/soc.c

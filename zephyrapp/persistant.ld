@@ -1,3 +1,5 @@
 endmap_presist_region (NOLOAD) : {
-	*(.endmap_presist_region)
-}
+	. += RAM_SIZE - __kernel_ram_size - 0x1000;
+	*(.endmap_presist_region);
+} > RAM
+

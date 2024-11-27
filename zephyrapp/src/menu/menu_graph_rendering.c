@@ -35,7 +35,10 @@ void CAT_do_render_graph(int16_t* data, int max, int xoff, int yoff, int cursor_
 
 	for(int x = 0; x < GRAPH_W-1; x++)
 	{
-		CAT_bresenham(x+xoff, data[x]+yoff, x+1+xoff, data[x+1]+yoff, 0xF000);
+		if (data[x] != -1)
+		{
+			CAT_bresenham(x+xoff, data[x]+yoff, x+1+xoff, data[x+1]+yoff, 0xF000);
+		}
 
 		if(x == cursor_start)
 			CAT_bresenham(x+xoff, yoff, x+xoff, GRAPH_H-1+yoff, 0x000F);

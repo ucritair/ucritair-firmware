@@ -328,9 +328,19 @@ void CAT_tick_render(int cycle)
 }
 
 #ifdef CAT_DESKTOP
-int main()
+int main(int argc, char** argv)
 {
-	CAT_init(CAT_load_sleep());
+	int sleep = 0;
+
+	if (argc == 2)
+		sleep = atoi(argv[1]);
+
+	if (sleep == 0)
+		sleep = CAT_load_sleep();
+
+	printf("sleep = %d\n", sleep);
+
+	CAT_init(sleep);
 
 	while (CAT_get_battery_pct() > 0)
 	{

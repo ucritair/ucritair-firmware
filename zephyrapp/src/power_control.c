@@ -121,10 +121,9 @@ void power_off(int for_ms, bool protected_sleeping)
 {
 	LOG_INF("power_off(%d)", for_ms);
 
-	went_to_sleep_at = get_current_rtc_time();
-
 	if (cat_game_running)
 	{
+		went_to_sleep_at = get_current_rtc_time();
 		LOG_INF("Saving game...");
 		CAT_force_save();
 	}
