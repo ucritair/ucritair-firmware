@@ -89,14 +89,15 @@ void CAT_gui_line_break()
 	gui.channel_height = 0;
 }
 
+bool text_wrap = false;
 void CAT_gui_text(const char* text)
 {
 	int x_lim = gui.start.x + (gui.shape.x) * CAT_TILE_SIZE - CAT_GLYPH_WIDTH - gui.margin;
-
 	const char* c = text;
+
 	while(*c != '\0')
 	{
-		if(gui.cursor.x >= x_lim)
+		if(text_wrap && gui.cursor.x >= x_lim && !isspace(*(c+1)))
 		{
 			if(!isspace(*c) && !isspace(*(c-1)))
 				CAT_draw_sprite(glyph_sprite, '-'-' ', gui.cursor.x, gui.cursor.y);

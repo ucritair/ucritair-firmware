@@ -39,6 +39,30 @@ bool CAT_timer_validate(int timer_id)
 	return true;
 }
 
+float CAT_timer_get(int timer_id)
+{
+	if(!CAT_timer_validate(timer_id))
+		return 0.0f;
+
+	return timetable.timers[timer_id];
+}
+
+void CAT_timer_set(int timer_id, float t)
+{
+	if(!CAT_timer_validate(timer_id))
+		return;
+
+	timetable.timers[timer_id] = t;
+}
+
+void CAT_timer_add(int timer_id, float t)
+{
+	if(!CAT_timer_validate(timer_id))
+		return;
+
+	timetable.timers[timer_id] += t;
+}
+
 bool CAT_timer_tick(int timer_id)
 {
 	if(!CAT_timer_validate(timer_id))
@@ -67,30 +91,6 @@ float CAT_timer_progress(int timer_id)
 	return clampf(t, 0.0f, 1.0f);
 }
 
-float CAT_timer_get(int timer_id)
-{
-	if(!CAT_timer_validate(timer_id))
-		return 0.0f;
-
-	return timetable.timers[timer_id];
-}
-
-void CAT_timer_set(int timer_id, float t)
-{
-	if(!CAT_timer_validate(timer_id))
-		return;
-
-	timetable.timers[timer_id] = t;
-}
-
-void CAT_timer_add(int timer_id, float t)
-{
-	if(!CAT_timer_validate(timer_id))
-		return;
-
-	timetable.timers[timer_id] += t;
-}
-
 
 //////////////////////////////////////////////////////////////////////////
 // MACHINE
@@ -99,19 +99,19 @@ CAT_machine_state machine = NULL;
 CAT_machine_state machine_stack[64];
 int machine_depth = 0;
 
-void push_MS(CAT_machine_state s)
+void push_state(CAT_machine_state s)
 {
 	machine_stack[machine_depth] = s;
 	machine_depth += 1;
 }
 
-CAT_machine_state pop_MS()
+CAT_machine_state pop_state()
 {
 	machine_depth -= 1;
 	return machine_stack[machine_depth];
 }
 
-CAT_machine_state peek_MS()
+CAT_machine_state peek_state()
 {
 	return machine_stack[machine_depth-1];
 }
@@ -140,7 +140,7 @@ void CAT_machine_transition(CAT_machine_state state)
 		}
 	}
 	if(!loop_back)
-		push_MS(state);
+		push_state(state);
 
 	machine = state;
 	(machine)(CAT_MACHINE_SIGNAL_ENTER);	
@@ -156,7 +156,7 @@ void CAT_machine_back()
 {
 	if(machine_depth > 1)
 	{
-		pop_MS();
-		CAT_machine_transition(peek_MS());
+		pop_state();
+		CAT_machine_transition(peek_state());
 	}
 }

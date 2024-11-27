@@ -116,12 +116,22 @@ void CAT_MS_debug(CAT_machine_signal signal)
 
 void CAT_render_debug()
 {
-	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 20});
+	CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 20});
 
-	CAT_gui_textf("Last sleep: %ds\n", logged_sleep);
-	CAT_gui_textf("Life timer: %0.2fs\n", CAT_timer_get(pet.life_timer_id));
-	CAT_gui_textf("Stat timer: %0.2fs\n", CAT_timer_get(pet.stat_timer_id));
-	CAT_gui_textf("Earn timer: %0.2fs\n", CAT_timer_get(room.earn_timer_id));
+	CAT_gui_textf
+	(
+		"Game v%d.%d.%d.%d\nSave v%d.%d.%d.%d\n",
+		CAT_VERSION_MAJOR, CAT_VERSION_MINOR,
+		CAT_VERSION_PATCH, CAT_VERSION_PUSH,
+		saved_version_major, saved_version_minor,
+		saved_version_patch, saved_version_push
+	);
+	CAT_gui_line_break();
+
+	CAT_gui_textf("Slept: %ds\n", logged_sleep);
+	CAT_gui_textf("Life: %0.0fs/%0.0fs\n", CAT_timer_get(pet.life_timer_id), timetable.durations[pet.life_timer_id]);
+	CAT_gui_textf("Stat: %0.0fs/%0.0fs\n", CAT_timer_get(pet.stat_timer_id), timetable.durations[pet.stat_timer_id]);
+	CAT_gui_textf("Earn: %0.0fs/%0.0fs\n", CAT_timer_get(room.earn_timer_id), timetable.durations[room.earn_timer_id]);
 	CAT_gui_line_break();
 
 	for(int y = 0; y < space.grid_shape.y; y++)
@@ -252,9 +262,10 @@ void CAT_MS_hedron(CAT_machine_signal signal)
 			if(CAT_input_held(CAT_BUTTON_DOWN, 0))
 				theta_v -= CAT_get_delta_time();
 			if(CAT_input_held(CAT_BUTTON_A, 0))
-				r += CAT_get_delta_time();
-			if(CAT_input_held(CAT_BUTTON_B, 0))
 				r -= CAT_get_delta_time();
+			if(CAT_input_held(CAT_BUTTON_B, 0))
+				r += CAT_get_delta_time();
+			r = clampf(r, 0, 10);
 			float x = r * sin(theta_h) * cos(theta_v);
 			float y = r * sin(theta_h) * sin(theta_v);
 			float z = r * cos(theta_h);
@@ -293,7 +304,7 @@ void CAT_render_hedron()
 	for(int i = 0; i < NUM_VERTS; i++)
 		verts[i] = CAT_matvec_mul(V, verts[i]);
 
-	float n = 0.01f;
+	float n = -0.001f;
 	float f = -100.0f;
 	CAT_mat4 P =
 	{

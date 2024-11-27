@@ -10,22 +10,7 @@
 #include "cat_input.h"
 #include "cat_gui.h"
 
-CAT_pet pet =
-{
-	.vigour = 9,
-	.focus = 9,
-	.spirit = 9,
-	.lifetime = 0,
-
-	.pos = {120, 200},
-	.dir = {0, 0},
-	.left = false,
-
-	.stat_timer_id = -1,
-	.walk_timer_id = -1,
-	.react_timer_id = -1
-};
-CAT_vec2 destination = {120, 200};
+CAT_pet pet;
 
 void CAT_pet_stat(int ticks)
 {
@@ -199,11 +184,22 @@ bool CAT_pet_seek(CAT_vec2 targ)
 
 void CAT_pet_init()
 {	
+	pet.vigour = 9,
+	pet.focus = 9,
+	pet.spirit = 9,
+	pet.lifetime = 0,
+
+	pet.pos = (CAT_vec2) {120, 200},
+	pet.dir = (CAT_vec2) {0, 0},
+	pet.left = false,
+
 	pet.stat_timer_id = CAT_timer_init(CAT_STAT_TICK_SECS);
 	pet.life_timer_id = CAT_timer_init(CAT_LIFE_TICK_SECS);
 	pet.walk_timer_id = CAT_timer_init(4.0f);
 	pet.react_timer_id = CAT_timer_init(1.0f);
 }
+
+static CAT_vec2 destination = {120, 200};
 
 void CAT_pet_tick(bool capture_input)
 {

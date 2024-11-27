@@ -14,6 +14,9 @@
 #include "cat_vending.h"
 #include "cat_arcade.h"
 
+//////////////////////////////////////////////////////////////////////////
+// SPACE
+
 CAT_space space;
 
 void CAT_space_init()
@@ -134,27 +137,19 @@ CAT_ivec2 CAT_rand_free_space()
 	return space.free_list[idx];
 }
 
-CAT_room room =
-{
-	.grid_cursor = {7, 5},
 
-	.prop_count = 0,
+//////////////////////////////////////////////////////////////////////////
+// ROOM
 
-	.coin_count = 0,
-
-	.button_modes =
-	{
-		CAT_MS_feed,
-		CAT_MS_study,
-		CAT_MS_play,
-		CAT_MS_deco,
-		CAT_MS_menu
-	},
-	.mode_selector = 0
-};
+CAT_room room;
 
 void CAT_room_init()
 {
+	room.grid_cursor = (CAT_ivec2) {7, 5};
+
+	room.prop_count = 0;
+
+	room.coin_count = 0;
 	for(int i = 0; i < CAT_MAX_COIN_COUNT; i++)
 	{
 		room.coin_move_timers[i] = CAT_timer_init(0.75f);
@@ -247,7 +242,7 @@ void CAT_room_flip_prop(int idx)
 	}
 }
 
-void CAT_room_add_coin(CAT_vec2 origin, CAT_vec2 place)
+void add_coin(CAT_vec2 origin, CAT_vec2 place)
 {
 	if(room.coin_count >= CAT_MAX_COIN_COUNT)
 		return;
@@ -259,7 +254,7 @@ void CAT_room_add_coin(CAT_vec2 origin, CAT_vec2 place)
 	CAT_timer_reset(room.coin_move_timers[idx]);
 }
 
-void CAT_room_remove_coin(int idx)
+void remove_coin(int idx)
 {
 	if(idx < 0 || idx >= room.coin_count)
 		return;
@@ -294,7 +289,7 @@ void CAT_room_earn(int ticks)
 				float yi = start.y;
 				float xf = end_world.x;
 				float yf = end_world.y;
-				CAT_room_add_coin((CAT_vec2) {xi, yi}, (CAT_vec2) {xf, yf});
+				add_coin((CAT_vec2) {xi, yi}, (CAT_vec2) {xf, yf});
 			}
 		}
 	}
@@ -313,6 +308,16 @@ void CAT_room_cursor()
 	room.grid_cursor.x = clamp(room.grid_cursor.x, 0, space.grid_shape.x-1);
 	room.grid_cursor.y = clamp(room.grid_cursor.y, 0, space.grid_shape.y-1);
 }
+
+static CAT_machine_state button_modes[5] =
+{
+	CAT_MS_feed,
+	CAT_MS_study,
+	CAT_MS_play,
+	CAT_MS_deco,
+	CAT_MS_menu
+};
+static int mode_selector = 0;
 
 void CAT_room_tick(bool capture_input)
 {
@@ -352,8 +357,8 @@ void CAT_room_tick(bool capture_input)
 	{
 		if(CAT_input_touch(8+16+48*i, 280+16, 16))
 		{
-			CAT_machine_transition(room.button_modes[i]);
-			room.mode_selector = i;
+			CAT_machine_transition(button_modes[i]);
+			mode_selector = i;
 		}
 	}
 
@@ -370,7 +375,7 @@ void CAT_room_tick(bool capture_input)
 			if(CAT_input_drag(place.x + 8, place.y - 8, 16))
 			{
 				coins += 1;
-				CAT_room_remove_coin(i);
+				remove_coin(i);
 				i -= 1;
 			}
 		}
@@ -393,18 +398,18 @@ void CAT_MS_room(CAT_machine_signal signal)
 
 			if(CAT_input_pulse(CAT_BUTTON_RIGHT))
 			{
-				room.mode_selector += 1;
-				if(room.mode_selector > 4)
-					room.mode_selector = 0;
+				mode_selector += 1;
+				if(mode_selector > 4)
+					mode_selector = 0;
 			}
 			if(CAT_input_pulse(CAT_BUTTON_LEFT))
 			{
-				room.mode_selector -= 1;
-				if(room.mode_selector < 0)
-					room.mode_selector = 4;
+				mode_selector -= 1;
+				if(mode_selector < 0)
+					mode_selector = 4;
 			}
 			if(CAT_input_pressed(CAT_BUTTON_A))
-				CAT_machine_transition(room.button_modes[room.mode_selector]);
+				CAT_machine_transition(button_modes[mode_selector]);
 			break;
 		}
 		case CAT_MACHINE_SIGNAL_EXIT:
@@ -486,7 +491,7 @@ void CAT_render_room(int cycle)
 		CAT_draw_queue_add(icon_play_sprite, 0, 3, 104+16, 280+16, icon_mode);
 		CAT_draw_queue_add(icon_deco_sprite, 0, 3, 152+16, 280+16, icon_mode);
 		CAT_draw_queue_add(icon_menu_sprite, 0, 3, 200+16, 280+16, icon_mode);
-		CAT_draw_queue_add(button_hl_sprite, 0, 3, 8+16+48*room.mode_selector, 280+16, icon_mode);
+		CAT_draw_queue_add(button_hl_sprite, 0, 3, 8+16+48*mode_selector, 280+16, icon_mode);
 		if(input.touch.pressure)
 			CAT_draw_queue_add(touch_hl_sprite, 0, 4, input.touch.x, input.touch.y, icon_mode);
 	}
