@@ -209,3 +209,49 @@ CAT_vec4 CAT_vec4_normalize(CAT_vec4 v)
 	float s = 1.0f / len;
 	return (CAT_vec4) {v.x * s, v.y * s, v.z * s, v.w * s};
 }
+
+CAT_mat4 CAT_matmul(CAT_mat4 A, CAT_mat4 B)
+{
+	CAT_mat4 C;
+	for(int i = 0; i < 4; i++)
+	{
+		for(int j = 0; j < 4; j++)
+		{
+			C.data[i * 4 + j] =
+			A.data[i * 4 + 0] * B.data[0 * 4 + j] +
+			A.data[i * 4 + 1] * B.data[1 * 4 + j] +
+			A.data[i * 4 + 2] * B.data[2 * 4 + j] +
+			A.data[i * 4 + 3] * B.data[3 * 4 + j];
+		}
+	}
+	return C;
+}
+
+CAT_mat4 CAT_rotmat(float x, float y, float z)
+{
+	CAT_mat4 X =
+	{
+		1, 0, 0, 0,
+		0, cos(x), -sin(x), 0,
+		0, sin(x), cos(x), 0,
+		0, 0, 0, 1
+	};
+
+	CAT_mat4 Y =
+	{
+		cos(y), 0, sin(y), 0,
+		0, 1, 0, 0,
+		-sin(y), 0, cos(y), 0,
+		0, 0, 0, 1
+	};
+
+	CAT_mat4 Z =
+	{
+		cos(z), -sin(z), 0, 0,
+		sin(z), cos(z), 0, 0,
+		0, 0, 1, 0,
+		0, 0, 0, 1
+	};
+
+	return CAT_matmul(X, CAT_matmul(Y, Z));
+}

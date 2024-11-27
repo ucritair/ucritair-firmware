@@ -314,7 +314,7 @@ CAT_vec4 mesh[36] =
 float theta_h = 0;
 float theta_v = 0;
 float r = 2;
-CAT_vec4 cam_pos = {0};
+CAT_vec4 eye = {0};
 
 void CAT_MS_hedron(CAT_machine_signal signal)
 {
@@ -339,10 +339,6 @@ void CAT_MS_hedron(CAT_machine_signal signal)
 			if(CAT_input_held(CAT_BUTTON_B, 0))
 				r += CAT_get_delta_time();
 			r = clampf(r, 0, 10);
-			float x = r * sin(theta_h) * cos(theta_v);
-			float y = r * sin(theta_h) * sin(theta_v);
-			float z = r * cos(theta_h);
-			cam_pos = (CAT_vec4) {x, y, z, 1.0f};
 
 			break;
 		case CAT_MACHINE_SIGNAL_EXIT:
@@ -356,17 +352,22 @@ void CAT_render_hedron()
 
 	CAT_vec4 verts[36];
 	memcpy(verts, mesh, sizeof(mesh));
+
+	CAT_mat4 M = CAT_rotmat(theta_v, theta_h, 0);
+	for(int i = 0; i < NUM_VERTS; i++)
+		verts[i] = CAT_matvec_mul(M, verts[i]);
 	
-	CAT_vec4 forward = CAT_vec4_sub((CAT_vec4) {0}, cam_pos);
+	eye = (CAT_vec4) {0, 0, r, 1.0f};
+	CAT_vec4 forward = CAT_vec4_sub((CAT_vec4) {0}, eye);
 	CAT_vec4 up = (CAT_vec4) {0, 1, 0, 0};
 	CAT_vec4 right = CAT_vec4_cross(up, forward);
 	up = CAT_vec4_cross(forward, right);
 	right = CAT_vec4_normalize(right);
 	up = CAT_vec4_normalize(up);
 	forward = CAT_vec4_normalize(forward);
-	float tx = -CAT_vec4_dot(cam_pos, right);
-	float ty = -CAT_vec4_dot(cam_pos, up);
-	float tz = -CAT_vec4_dot(cam_pos, forward);
+	float tx = -CAT_vec4_dot(eye, right);
+	float ty = -CAT_vec4_dot(eye, up);
+	float tz = -CAT_vec4_dot(eye, forward);
 	CAT_mat4 V =
 	{
 		right.x, right.y, right.z, tx,
