@@ -541,25 +541,6 @@ void CAT_bresenham(int xi, int yi, int xf, int yf, uint16_t c)
 		yf = temp;
 	}
 	
-#ifdef CAT_EMBEDDED
-	if(steep)
-	{
-		xi -= framebuffer_offset_h;
-		xf -= framebuffer_offset_h;
-
-		if (xi >= LCD_FRAMEBUFFER_H) return;
-		if (xf < 0) return;
-	}
-	else
-	{
-		yi -= framebuffer_offset_h;
-		yf -= framebuffer_offset_h;
-
-		if (yi >= LCD_FRAMEBUFFER_H) return;
-		if (yf < 0) return;
-	}
-#endif
-
 	int dx = xf - xi;
 	int dy = yf - yi;
 
@@ -577,8 +558,14 @@ void CAT_bresenham(int xi, int yi, int xf, int yf, uint16_t c)
 	{
 		for(int x = xi; x < xf; x++)
 		{
+#ifdef CAT_EMBEDDED
+			int xf = x - framebuffer_offset_h;
+			if(y >= 0 && y < LCD_FRAMEBUFFER_W && xf >= 0 && xf < LCD_FRAMEBUFFER_H)
+				FRAMEBUFFER[xf * LCD_FRAMEBUFFER_W + y] = c;
+#else
 			if(y >= 0 && y < LCD_SCREEN_W && x >= 0 && x < LCD_SCREEN_H)
 				FRAMEBUFFER[x * LCD_SCREEN_W + y] = c;
+#endif
 
 			err += d_err;
 			if(err > dx)
@@ -592,8 +579,14 @@ void CAT_bresenham(int xi, int yi, int xf, int yf, uint16_t c)
 	{
 		for(int x = xi; x < xf; x++)
 		{
+#ifdef CAT_EMBEDDED
+			int yf = y - framebuffer_offset_h;
+			if(x >= 0 && x < LCD_FRAMEBUFFER_W && yf >= 0 && yf < LCD_FRAMEBUFFER_H)
+				FRAMEBUFFER[yf * LCD_FRAMEBUFFER_W + x] = c;
+#else
 			if(x >= 0 && x < LCD_SCREEN_W && y >= 0 && y < LCD_SCREEN_H)
 				FRAMEBUFFER[y * LCD_SCREEN_W + x] = c;
+#endif
 
 			err += d_err;
 			if(err > dx)

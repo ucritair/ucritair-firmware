@@ -38,6 +38,7 @@ void CAT_gui_open_channel(int height);
 void CAT_gui_line_break();
 
 void CAT_gui_text(const char* text);
+void CAT_gui_text_wrap(const char* text);
 void CAT_gui_image(int sprite_id, int frame_idx);
 void CAT_gui_div(const char* text);
 void CAT_gui_textf(const char* fmt, ...);

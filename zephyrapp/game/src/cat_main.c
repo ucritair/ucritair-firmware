@@ -45,6 +45,11 @@
 
 int logged_sleep;
 
+int saved_version_major;
+int saved_version_minor;
+int saved_version_patch;
+int saved_version_push;
+
 #ifdef CAT_DESKTOP
 int CAT_load_sleep()
 {
@@ -71,9 +76,13 @@ void CAT_save_sleep()
 }
 #endif
 
-void CAT_fresh_gamestate()
+void CAT_save_failsafe()
 {
-	CAT_item_list_init(&bag);
+	saved_version_major = CAT_VERSION_MAJOR;
+	saved_version_minor = CAT_VERSION_MINOR;
+	saved_version_patch = CAT_VERSION_PATCH;
+	saved_version_push = CAT_VERSION_PUSH;
+
 	CAT_item_list_add(&bag, gpu_item);
 	coins = 10;
 
@@ -113,7 +122,7 @@ void CAT_force_save()
 		save->bag_counts[i] = bag.counts[i];
 	}
 	save->bag_length = bag.length;
-	save->coins = coins;
+	save->coins = coins + room.coin_count;
 
 	save->masked = CAT_gear_status(mask_item);
 
@@ -130,10 +139,15 @@ void CAT_force_load()
 
 	if(!CAT_check_save(save) || save == NULL)
 	{
-		CAT_fresh_gamestate();
+		CAT_save_failsafe();
 		CAT_finish_load();
 		return;
 	}
+
+	saved_version_major = save->version_major;
+	saved_version_minor = save->version_minor;
+	saved_version_patch = save->version_patch;
+	saved_version_push = save->version_push;
 
 	pet.vigour = save->vigour;
 	pet.focus = save->focus;
@@ -164,20 +178,20 @@ void CAT_force_load()
 	CAT_finish_load();
 }
 
-void CAT_apply_sleep(int seconds)
+void CAT_apply_sleep()
 {
-	int stat_ticks = seconds / CAT_STAT_TICK_SECS;
-	int stat_remainder = seconds % CAT_STAT_TICK_SECS;
+	int stat_ticks = logged_sleep / CAT_STAT_TICK_SECS;
+	int stat_remainder = logged_sleep % CAT_STAT_TICK_SECS;
 	CAT_pet_stat(stat_ticks);
 	CAT_timer_add(pet.stat_timer_id, stat_remainder);
 
-	int life_ticks = seconds / CAT_LIFE_TICK_SECS;
-	int life_remainder = seconds % CAT_LIFE_TICK_SECS;
+	int life_ticks = logged_sleep / CAT_LIFE_TICK_SECS;
+	int life_remainder = logged_sleep % CAT_LIFE_TICK_SECS;
 	CAT_pet_life(life_ticks);
 	CAT_timer_add(pet.life_timer_id, life_remainder);
 
-	int earn_ticks = seconds / CAT_EARN_TICK_SECS;
-	int earn_remainder = seconds % CAT_EARN_TICK_SECS;
+	int earn_ticks = logged_sleep / CAT_EARN_TICK_SECS;
+	int earn_remainder = logged_sleep % CAT_EARN_TICK_SECS;
 	CAT_room_earn(earn_ticks);
 	CAT_timer_add(room.earn_timer_id, earn_remainder);
 }
@@ -188,6 +202,7 @@ void CAT_init(int seconds_slept)
 
 	CAT_platform_init();
 	CAT_input_init();
+
 	CAT_timetable_init();
 
 	CAT_atlas_init();
@@ -204,7 +219,7 @@ void CAT_init(int seconds_slept)
 	CAT_pet_init();
 
 	CAT_force_load();
-	CAT_apply_sleep(seconds_slept);
+	CAT_apply_sleep();
 	CAT_pet_reanimate();
 	
 	CAT_machine_transition(CAT_MS_room);
@@ -269,6 +284,8 @@ void CAT_tick_render(int cycle)
 		CAT_render_bag();
 	else if(machine == CAT_MS_arcade)
 		CAT_render_arcade();
+	else if(machine == CAT_MS_snake)
+		CAT_render_snake();
 	else if(machine == CAT_MS_vending)
 		CAT_render_vending();
 	else if(machine == CAT_MS_manual)
@@ -318,14 +335,10 @@ void CAT_tick_render(int cycle)
 int main(int argc, char** argv)
 {
 	int sleep = 0;
-
 	if (argc == 2)
 		sleep = atoi(argv[1]);
-
 	if (sleep == 0)
 		sleep = CAT_load_sleep();
-
-	printf("sleep = %d\n", sleep);
 
 	CAT_init(sleep);
 

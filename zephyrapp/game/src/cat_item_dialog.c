@@ -43,7 +43,7 @@ void CAT_MS_item_dialog(CAT_machine_signal signal)
 			{
 				int item_id = bag.item_ids[i];
 				CAT_item* item = CAT_item_get(item_id);
-				if(item->type == anchor.type && bag.counts[i] > 0)
+				if(item->type == anchor.type)
 				{
 					CAT_item_list_add(&roster, item_id);
 				}
@@ -127,7 +127,8 @@ void CAT_render_item_dialog()
 		CAT_gui_panel_tight((CAT_ivec2) {0, 2+i*2}, (CAT_ivec2) {15, 2});
 		CAT_gui_image(icon_item_sprite, item->type);
 		
-		CAT_gui_textf(" %s *%d ", item->name, bag.counts[idx]);
+		int bag_idx = CAT_item_list_find(&bag, item_id);
+		CAT_gui_textf(" %s *%d ", item->name, bag.counts[bag_idx]);
 
 		if(idx == selector)
 			CAT_gui_image(icon_pointer_sprite, 0);

@@ -91,12 +91,37 @@ void CAT_gui_line_break()
 
 void CAT_gui_text(const char* text)
 {
-	int x_lim = gui.start.x + (gui.shape.x) * CAT_TILE_SIZE - CAT_GLYPH_WIDTH - gui.margin;
-
 	const char* c = text;
 	while(*c != '\0')
 	{
-		if(gui.cursor.x >= x_lim)
+		if(*c == '\n')
+		{
+			CAT_gui_line_break();
+			c++;
+			continue;
+		}
+		if(*c == '\t')
+		{
+			gui.cursor.x += CAT_GLYPH_WIDTH * 4;
+			c++;
+			continue;
+		}
+
+		CAT_gui_open_channel(CAT_GLYPH_HEIGHT);
+		CAT_draw_sprite(glyph_sprite, *c-' ', gui.cursor.x, gui.cursor.y);
+		gui.cursor.x += CAT_GLYPH_WIDTH;
+		c++;
+	}
+}
+
+void CAT_gui_text_wrap(const char* text)
+{
+	int x_lim = gui.start.x + (gui.shape.x) * CAT_TILE_SIZE - CAT_GLYPH_WIDTH - gui.margin;
+	const char* c = text;
+
+	while(*c != '\0')
+	{
+		if(gui.cursor.x >= x_lim && !isspace(*(c+1)))
 		{
 			if(!isspace(*c) && !isspace(*(c-1)))
 				CAT_draw_sprite(glyph_sprite, '-'-' ', gui.cursor.x, gui.cursor.y);

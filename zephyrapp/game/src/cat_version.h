@@ -3,5 +3,5 @@
 #define CAT_VERSION_MAJOR 0
 #define CAT_VERSION_MINOR 0
 #define CAT_VERSION_PATCH 0
-#define CAT_VERSION_PUSH 40
+#define CAT_VERSION_PUSH 43
 #endif
