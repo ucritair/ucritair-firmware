@@ -1,4 +1,4 @@
-sleep = 103
+sleep = 421
 Starting CAT v0.0.0.42...
 Renderer: Apple M1 Pro
 GL version: 4.1 Metal - 88.1

@@ -114,6 +114,7 @@ void CAT_set_block(CAT_rect block, int colour)
 
 void CAT_build_free_list()
 {
+	space.free_list_length = 0;
 	for(int y = 0; y < space.grid_shape.y; y++)
 	{
 		for(int x = 0; x < space.grid_shape.x; x++)
