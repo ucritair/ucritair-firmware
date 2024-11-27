@@ -134,16 +134,25 @@ void CAT_render_debug()
 	CAT_gui_textf("Earn: %0.0fs/%0.0fs\n", CAT_timer_get(room.earn_timer_id), timetable.durations[room.earn_timer_id]);
 	CAT_gui_line_break();
 
+	int occupied_spaces = 0;
 	for(int y = 0; y < space.grid_shape.y; y++)
 	{
 		for(int x = 0; x < space.grid_shape.x; x++)
 		{
 			int idx = y * space.grid_shape.x + x;
 			int cell = space.cells[idx];
+			if(cell != 0)
+				occupied_spaces += 1;
 			CAT_gui_image(icon_cell_sprite, cell);
 		}
 		CAT_gui_line_break();
 	}
+	CAT_gui_textf
+	(
+		"%d occupied, %d free\n%d total",
+		occupied_spaces, space.free_list_length,
+		space.grid_shape.x * space.grid_shape.y
+	);
 }
 
 void CAT_MS_litany(CAT_machine_signal signal)

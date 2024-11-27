@@ -12,7 +12,7 @@ int CAT_load_sleep();
 void CAT_save_sleep();
 #endif
 
-void CAT_fresh_gamestate();
+void CAT_save_failsafe();
 void CAT_force_load();
 void CAT_force_save();
 

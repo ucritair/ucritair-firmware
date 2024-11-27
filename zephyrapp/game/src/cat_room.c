@@ -56,11 +56,22 @@ CAT_ivec2 CAT_world2grid(CAT_ivec2 world)
 
 int CAT_get_cell(CAT_ivec2 cell)
 {
+	if(cell.x < 0 || cell.x > space.grid_shape.x)
+		return 0;
+	if(cell.y < 0 || cell.y > space.grid_shape.y)
+		return 0;
+
 	int idx = cell.y * space.grid_shape.x + cell.x;
 	return space.cells[idx];
 }
+
 void CAT_set_cell(CAT_ivec2 cell, int colour)
 {
+	if(cell.x < 0 || cell.x > space.grid_shape.x)
+		return;
+	if(cell.y < 0 || cell.y > space.grid_shape.y)
+		return;
+
 	int idx = cell.y * space.grid_shape.x + cell.x;
 	space.cells[idx] = colour;
 }
@@ -86,9 +97,9 @@ bool CAT_block_free(CAT_rect block)
 
 void CAT_set_block(CAT_rect block, int colour)
 {
-	if(block.min.x < 0 || block.max.x >= space.grid_shape.x)
+	if(block.min.x < 0 || block.max.x > space.grid_shape.x)
 		return;
-	if(block.min.y < 0 || block.max.y >= space.grid_shape.y)
+	if(block.min.y < 0 || block.max.y > space.grid_shape.y)
 		return;
 
 	for(int y = block.min.y; y < block.max.y; y++)

@@ -76,9 +76,13 @@ void CAT_save_sleep()
 }
 #endif
 
-void CAT_fresh_gamestate()
+void CAT_save_failsafe()
 {
-	CAT_item_list_init(&bag);
+	saved_version_major = CAT_VERSION_MAJOR;
+	saved_version_minor = CAT_VERSION_MINOR;
+	saved_version_patch = CAT_VERSION_PATCH;
+	saved_version_push = CAT_VERSION_PUSH;
+
 	CAT_item_list_add(&bag, gpu_item);
 	coins = 10;
 
@@ -135,7 +139,7 @@ void CAT_force_load()
 
 	if(!CAT_check_save(save) || save == NULL)
 	{
-		CAT_fresh_gamestate();
+		CAT_save_failsafe();
 		CAT_finish_load();
 		return;
 	}
