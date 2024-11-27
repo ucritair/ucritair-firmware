@@ -335,14 +335,10 @@ void CAT_tick_render(int cycle)
 int main(int argc, char** argv)
 {
 	int sleep = 0;
-
 	if (argc == 2)
 		sleep = atoi(argv[1]);
-
 	if (sleep == 0)
 		sleep = CAT_load_sleep();
-
-	printf("sleep = %d\n", sleep);
 
 	CAT_init(sleep);
 

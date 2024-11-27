@@ -175,8 +175,51 @@ void CAT_MS_litany(CAT_machine_signal signal)
 void CAT_render_litany()
 {
 	CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 20});
-	CAT_gui_text("THE LITANY AGAINST FEAR\nI must not fear. Fear is the mind-killer. Fear is the little-death that brings total obliteration.\nI will face my fear. I will permit it to pass over me and through me. And when it has gone past, I will turn the inner eye to see its path. Where the fear has gone there will be nothing. Only I will remain.");
+	CAT_gui_text_wrap("THE LITANY AGAINST FEAR\nI must not fear. Fear is the mind-killer. Fear is the little-death that brings total obliteration.\nI will face my fear. I will permit it to pass over me and through me. And when it has gone past, I will turn the inner eye to see its path. Where the fear has gone there will be nothing. Only I will remain.");
 }
+
+void cheat_proc_1k_coins()
+{
+	coins += 1000;
+}
+
+void cheat_proc_base_stats()
+{
+	pet.vigour = 9;
+	pet.focus = 9;
+	pet.spirit = 9;
+	CAT_pet_reanimate();
+}
+
+void cheat_proc_crit_stats()
+{
+	pet.vigour = 3;
+	pet.focus = 3;
+	pet.spirit = 3;
+	CAT_pet_reanimate();
+}
+
+void cheat_proc_all_items()
+{
+	for(int item_id = 0; item_id < item_table.length; item_id++)
+	{
+		CAT_item_list_add(&bag, item_id);
+	}
+}
+
+struct
+{
+	const char* name;
+	void (*proc)();
+} cheat_entries[] =
+{
+	{"1000 COINS", cheat_proc_1k_coins},
+	{"BASE STATS", cheat_proc_base_stats},
+	{"CRITICAL STATS", cheat_proc_crit_stats},
+	{"ALL ITEMS", cheat_proc_all_items},
+};
+int num_cheat_entries = sizeof(cheat_entries) / sizeof(cheat_entries[0]);
+static int cheat_selector = 0;
 
 void CAT_MS_cheats(CAT_machine_signal signal)
 {
@@ -189,6 +232,15 @@ void CAT_MS_cheats(CAT_machine_signal signal)
 				CAT_machine_back();
 			if(CAT_input_pressed(CAT_BUTTON_START))
 				CAT_machine_transition(CAT_MS_room);
+
+			if(CAT_input_pulse(CAT_BUTTON_UP))
+				cheat_selector -= 1;
+			if(CAT_input_pulse(CAT_BUTTON_DOWN))
+				cheat_selector += 1;
+			cheat_selector = clamp(cheat_selector, 0, num_cheat_entries-1);
+
+			if(CAT_input_pressed(CAT_BUTTON_A))
+				cheat_entries[cheat_selector].proc();
 			break;
 		case CAT_MACHINE_SIGNAL_EXIT:
 			break;
@@ -198,7 +250,13 @@ void CAT_MS_cheats(CAT_machine_signal signal)
 void CAT_render_cheats()
 {
 	CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 20});
-	CAT_gui_text("");
+	for(int i = 0; i < num_cheat_entries; i++)
+	{
+		CAT_gui_textf("& %s ", cheat_entries[i].name);
+		if(i == cheat_selector)
+			CAT_gui_image(icon_pointer_sprite, 0);
+		CAT_gui_line_break();
+	}
 }
 
 CAT_vec4 mesh[36] =
