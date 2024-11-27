@@ -1,5 +1,4 @@
-sleep = 421
-Starting CAT v0.0.0.42...
+Starting CAT v0.0.0.43...
 Renderer: Apple M1 Pro
 GL version: 4.1 Metal - 88.1
 SL version: 4.10
@@ -166,7 +165,7 @@ BAKE-INIT: (158, "snake_body_sprite", "sprites/snake_cat_body.png", 4, 16, 16)
 BAKE-INIT: (159, "snake_corner_sprite", "sprites/snake_cat_corner.png", 4, 16, 16)
 BAKE-INIT: (160, "snake_tail_sprite", "sprites/snake_tail.png", 4, 16, 16)
 Loading...
-Loaded save from version v0.0.0.42
+Loaded save from version v0.0.0.43
 Load done!
 Saving...
 Save done!

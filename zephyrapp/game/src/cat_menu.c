@@ -259,6 +259,12 @@ void CAT_render_cheats()
 	}
 }
 
+
+//////////////////////////////////////////////////////////////////////////
+// WIP LEAVE ME ALONE
+// You'll notice that I don't combine my transformations into one matrix yet.
+// If the train takes you to clip-space too fast, you won't be able to see what's outside the window. Literally!
+
 CAT_vec4 mesh[36] =
 {
 	{-0.5f, -0.5f, -0.5f, 1.0f},
