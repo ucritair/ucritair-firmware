@@ -255,3 +255,14 @@ CAT_mat4 CAT_rotmat(float x, float y, float z)
 
 	return CAT_matmul(X, CAT_matmul(Y, Z));
 }
+
+bool CAT_is_clipped(CAT_vec4 v)
+{
+	if(v.x < -v.w || v.x > v.w)
+		return true;
+	if(v.y < -v.w || v.y > v.w)
+		return true;
+	if(v.z < -v.w || v.z > v.w)
+		return true;
+	return false;
+}

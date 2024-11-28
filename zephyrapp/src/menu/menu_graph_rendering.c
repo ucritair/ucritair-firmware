@@ -22,7 +22,6 @@ void fill_rect(int x0, int y0, int w, int h, uint16_t color)
 void CAT_do_render_graph(int16_t* data, int max, int xoff, int yoff, int cursor_start, int cursor_end)
 {
 	yoff -= framebuffer_offset_h;
-
 	if (yoff > LCD_FRAMEBUFFER_H || (yoff+GRAPH_H) < 0) return;
 
 	fill_rect(xoff, yoff, GRAPH_W+GRAPH_MARGIN+GRAPH_MARGIN, GRAPH_MARGIN, 0);
@@ -32,19 +31,23 @@ void CAT_do_render_graph(int16_t* data, int max, int xoff, int yoff, int cursor_
 
 	xoff += GRAPH_MARGIN;
 	yoff += GRAPH_MARGIN;
-
+	
 	for(int x = 0; x < GRAPH_W-1; x++)
-	{
-		if (data[x] != -1)
+	{	
+		int v0 = data[x];
+		int v1 = data[x+1];
+		if(v0 >= 0 && v1 >= 0)
 		{
-			CAT_bresenham(x+xoff, data[x]+yoff, x+1+xoff, data[x+1]+yoff, 0xF000);
+			int y0 = yoff+framebuffer_offset_h+GRAPH_H-v0;
+			int y1 = yoff+framebuffer_offset_h+GRAPH_H-v1;
+			CAT_bresenham(xoff+x, y0, xoff+x+1, y1, 0xF000);
 		}
-
-		if(x == cursor_start)
-			CAT_bresenham(x+xoff, yoff, x+xoff, GRAPH_H-1+yoff, 0x000F);
-		if(x == cursor_end)
-			CAT_bresenham(x+xoff, yoff, x+xoff, GRAPH_H-1+yoff, 0x00F0);	
 	}
+
+	if(cursor_start >= 0 && cursor_start < GRAPH_W)
+		CAT_bresenham(xoff+cursor_start, yoff, xoff+cursor_start, yoff+framebuffer_offset_h+GRAPH_H-1, 0x000F);
+	if(cursor_end >= 0 && cursor_end < GRAPH_W)
+		CAT_bresenham(xoff+cursor_end, yoff, xoff+cursor_end, yoff+framebuffer_offset_h+GRAPH_H-1, 0x00F0);
 
 	/*int last_rendered_h = -1;
 

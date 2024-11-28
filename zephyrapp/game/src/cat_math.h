@@ -96,3 +96,4 @@ CAT_vec4 CAT_vec4_sub(CAT_vec4 u, CAT_vec4 v);
 CAT_vec4 CAT_vec4_normalize(CAT_vec4 v);
 CAT_mat4 CAT_matmul(CAT_mat4 A, CAT_mat4 B);
 CAT_mat4 CAT_rotmat(float x, float y, float z);
+bool CAT_is_clipped(CAT_vec4 v);

@@ -36,10 +36,12 @@ struct entry
 	{"AIR QUALITY", CAT_MS_aqi},
 	{"SYSTEM MENU", CAT_MS_system_menu},
 #endif
+#ifdef CAT_DESKTOP
 	{"DEBUG", CAT_MS_debug},
 	{"LITANY", CAT_MS_litany},
 	{"CHEATS", CAT_MS_cheats},
 	{"HEDRON", CAT_MS_hedron},
+#endif
 	{"MANUAL", CAT_MS_manual},
 	{"BACK", CAT_MS_room}
 };
@@ -321,6 +323,9 @@ void CAT_MS_hedron(CAT_machine_signal signal)
 	switch (signal)
 	{
 		case CAT_MACHINE_SIGNAL_ENTER:
+			theta_h = 0;
+			theta_v = 0;
+			r = 2;
 			break;
 		case CAT_MACHINE_SIGNAL_TICK:
 			if(CAT_input_pressed(CAT_BUTTON_START))
@@ -346,6 +351,18 @@ void CAT_MS_hedron(CAT_machine_signal signal)
 	}
 }
 
+void CAT_print_mat4(CAT_mat4 mat)
+{
+	for(int i = 0; i < 4; i++)
+	{
+		for(int j = 0; j < 4; j++)
+		{
+			CAT_printf("%f ", mat.data[i * 4 + j]);
+		}	
+		CAT_printf("\n");
+	}
+}
+
 void CAT_render_hedron()
 {
 	CAT_frameberry(0x0000);
@@ -354,8 +371,6 @@ void CAT_render_hedron()
 	memcpy(verts, mesh, sizeof(mesh));
 
 	CAT_mat4 M = CAT_rotmat(theta_v, theta_h, 0);
-	for(int i = 0; i < NUM_VERTS; i++)
-		verts[i] = CAT_matvec_mul(M, verts[i]);
 	
 	eye = (CAT_vec4) {0, 0, r, 1.0f};
 	CAT_vec4 forward = CAT_vec4_sub((CAT_vec4) {0}, eye);
@@ -375,31 +390,33 @@ void CAT_render_hedron()
 		forward.x, forward.y, forward.z, tz,
 		0, 0, 0, 1
 	};
-	for(int i = 0; i < NUM_VERTS; i++)
-		verts[i] = CAT_matvec_mul(V, verts[i]);
 
 	float n = -0.001f;
 	float f = -100.0f;
+	float asp_inv = 1.0f / ((float) LCD_SCREEN_W / (float) LCD_SCREEN_H);
+	float fov_inv = 1.0f / tan((2.094) / 2);
 	CAT_mat4 P =
 	{
-		1, 0, 0, 0,
-		0, 1, 0, 0,
-		0, 0, -(f+n)/(f-n), -2*(f*n)/(f-n),
+		fov_inv * asp_inv, 0, 0, 0,
+		0, fov_inv, 0, 0,
+		0, 0, -(f+n)/(f-n), -2*f*n/(f-n),
 		0, 0, -1, 0
 	};
-	for(int i = 0; i < NUM_VERTS; i++)
-		verts[i] = CAT_matvec_mul(P, verts[i]);
-
-	float aspect = (float) LCD_SCREEN_W / (float) LCD_SCREEN_H;
+	
 	CAT_mat4 S =
 	{
 		LCD_SCREEN_W, 0, 0, LCD_SCREEN_W / 2,
-		0, LCD_SCREEN_H * aspect, 0, LCD_SCREEN_H / 2,
+		0, LCD_SCREEN_H, 0, LCD_SCREEN_H / 2,
 		0, 0, 1, 0,
 		0, 0, 0, 1
 	};
+
 	for(int i = 0; i < NUM_VERTS; i++)
-		verts[i] = CAT_matvec_mul(S, verts[i]);
+		verts[i] = CAT_matvec_mul(M, verts[i]);
+	for(int i = 0; i < NUM_VERTS; i++)
+		verts[i] = CAT_matvec_mul(V, verts[i]);
+	for(int i = 0; i < NUM_VERTS; i++)
+		verts[i] = CAT_matvec_mul(P, verts[i]);
 
 	// The train arrives in clipspace
 	for(int i = 0; i < NUM_VERTS; i += 3)
@@ -409,8 +426,13 @@ void CAT_render_hedron()
 		CAT_vec4 c = verts[i+2];
 
 		// W-culling
-		if(a.w >= 0 || b.w >= 0 || c.w >= 0)
+		if(CAT_is_clipped(a))
 			continue;
+		if(CAT_is_clipped(b))
+			continue;
+		if(CAT_is_clipped(c))
+			continue;
+
 		// Backface culling
 		CAT_vec4 ba = CAT_vec4_sub(b, a);
 		CAT_vec4 ca = CAT_vec4_sub(c, a);
@@ -423,9 +445,12 @@ void CAT_render_hedron()
 		CAT_perspdiv(&b);
 		CAT_perspdiv(&c);
 
+		a = CAT_matvec_mul(S, a);
+		b = CAT_matvec_mul(S, b);
+		c = CAT_matvec_mul(S, c);
+
 		CAT_bresenham(a.x, a.y, b.x, b.y, 0xFFFF);
 		CAT_bresenham(b.x, b.y, c.x, c.y, 0xFFFF);
 		CAT_bresenham(c.x, c.y, a.x, a.y, 0xFFFF);
 	}
 }
-

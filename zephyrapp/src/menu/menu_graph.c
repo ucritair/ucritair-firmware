@@ -1,4 +1,5 @@
 #include "menu_graph.h"
+
 #include "cat_room.h"
 #include "cat_item.h"
 #include "cat_gui.h"
@@ -458,8 +459,6 @@ void CAT_render_graph()
 	if (viewing == PRESS || viewing == NOX || viewing == VOC)
 	{
 		CAT_gui_line_break();
-		CAT_gui_text("(This data is not always");
-		CAT_gui_line_break();
-		CAT_gui_text(" logged.)");
+		CAT_gui_text("(This data is not always\nlogged.)");
 	}
 }
