@@ -449,7 +449,7 @@ void CAT_render_room(int cycle)
 		else if(time.hour >= 9 && time.hour <= 18)
 			CAT_draw_queue_add(window_day_sprite, 0, 2, 8, 8, CAT_DRAW_MODE_DEFAULT);
 		else
-			CAT_draw_queue_add(window_day_sprite, 0, 2, 8, 8, CAT_DRAW_MODE_DEFAULT);
+			CAT_draw_queue_add(window_night_sprite, 0, 2, 8, 8, CAT_DRAW_MODE_DEFAULT);
 		
 		CAT_draw_queue_add(vending_sprite, -1, 2, 172, 16, CAT_DRAW_MODE_DEFAULT);
 		CAT_draw_queue_add(arcade_sprite, -1, 2, 124, 48, CAT_DRAW_MODE_DEFAULT);
