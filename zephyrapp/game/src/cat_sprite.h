@@ -97,6 +97,8 @@ void CAT_triberry
 	int xc, int yc, uint16_t zc,
 	uint16_t c
 );
+void CAT_fillberry(int xi, int yi, int w, int h, uint16_t c);
+void CAT_strokeberry(int xi, int yi, int w, int h, uint16_t c);
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -160,9 +162,10 @@ int CAT_AM_tick(CAT_AM_state** pp);
 
 // TILESETS
 extern int base_wall_sprite;
-extern int base_floor_sprite;
 extern int sky_wall_sprite;
+extern int base_floor_sprite;
 extern int grass_floor_sprite;
+extern int ash_floor_sprite;
 
 extern int panel_sprite;
 extern int glyph_sprite;

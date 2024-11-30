@@ -46,14 +46,21 @@ struct entry
 	{"BACK", CAT_MS_room}
 };
 #define NUM_MENU_ITEMS (sizeof(entries)/sizeof(entries[0]))
-
 static int selector = 0;
+
+const char* flavour_text[] =
+{
+	"Reticulating splines..."
+};
+#define FLAVOUR_TEXT_COUNT (sizeof(flavour_text)/sizeof(flavour_text[0]))
+int flavour_idx = 0;
 
 void CAT_MS_menu(CAT_machine_signal signal)
 {
 	switch(signal)
 	{
 		case CAT_MACHINE_SIGNAL_ENTER:
+			flavour_idx = CAT_rand_int(0, FLAVOUR_TEXT_COUNT-1);
 			break;
 		case CAT_MACHINE_SIGNAL_TICK:
 		{
@@ -97,6 +104,9 @@ void CAT_render_menu()
 
 		CAT_gui_line_break();
 	}
+
+	CAT_gui_line_break();
+	CAT_gui_text_wrap(flavour_text[flavour_idx]);
 }
 
 void CAT_MS_debug(CAT_machine_signal signal)

@@ -297,6 +297,7 @@ void CAT_get_datetime(CAT_datetime* datetime)
 	datetime->year = lt->tm_year;
 	datetime->month = lt->tm_mon;
 	datetime->day = lt->tm_mday;
+	datetime->hour = lt->tm_hour;
 	datetime->minute = lt->tm_min;
 	datetime->second = lt->tm_sec;
 }

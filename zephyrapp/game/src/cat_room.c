@@ -431,15 +431,55 @@ void CAT_MS_room(CAT_machine_signal signal)
 	}
 }
 
+enum {WALL_BASE, WALL_SKY} bg_wall = WALL_BASE;
+enum {FLOOR_BASE, FLOOR_GRASS, FLOOR_ASH} bg_floor = FLOOR_ASH;
+
 void CAT_render_room(int cycle)
 {
-	CAT_draw_tiles(base_wall_sprite, 0, 0, 4);
-	CAT_draw_tiles(base_wall_sprite, 1, 4, 1);
-	CAT_draw_tiles(base_wall_sprite, 2, 5, 1);
-	CAT_draw_tiles(base_floor_sprite, 0, 6, 1);
-	CAT_draw_tiles(base_floor_sprite, 1, 7, 10);
-	CAT_draw_tiles(base_floor_sprite, 2, 17, 3);
-
+	switch(bg_wall)
+	{
+		case WALL_SKY:
+		{
+			for(int i = 0; i < 6; i++)
+			{
+				CAT_draw_tiles(sky_wall_sprite, i, i, 1);
+			}
+			break;
+		}
+		default:
+		{
+			CAT_draw_tiles(base_wall_sprite, 0, 0, 4);
+			CAT_draw_tiles(base_wall_sprite, 1, 4, 1);
+			CAT_draw_tiles(base_wall_sprite, 2, 5, 1);
+			break;
+		}
+	}
+	switch(bg_floor)
+	{
+		case FLOOR_GRASS:
+		{
+			CAT_draw_tiles(grass_floor_sprite, 18, 6, 1);
+			CAT_draw_tiles(grass_floor_sprite, 13, 7, 1);
+			CAT_draw_tiles(grass_floor_sprite, 4, 8, 1);
+			CAT_draw_tiles(grass_floor_sprite, 19, 9, 11);
+			break;
+		}
+		case FLOOR_ASH:
+		{
+			CAT_draw_tiles(ash_floor_sprite, 2, 6, 1);
+			CAT_draw_tiles(ash_floor_sprite, 0, 7, 1);
+			CAT_draw_tiles(ash_floor_sprite, 1, 8, 12);
+			break;
+		}
+		default:
+		{
+			CAT_draw_tiles(base_floor_sprite, 2, 6, 1);
+			CAT_draw_tiles(base_floor_sprite, 0, 7, 1);
+			CAT_draw_tiles(base_floor_sprite, 1, 8, 12);
+			break;
+		}
+	}
+	
 	if (cycle == 0)
 	{
 		CAT_datetime time;

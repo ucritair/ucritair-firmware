@@ -516,6 +516,10 @@ void CAT_roundberry(int xi, int yi, int r, uint16_t c)
 // implementation based on Dmitri Sokolov's
 void CAT_lineberry(int xi, int yi, int xf, int yf, uint16_t c)
 {
+#ifdef CAT_EMBEDDED
+	c = (c >> 8) | ((c & 0xff) << 8);
+#endif
+
 	// if the line is steep, transpose its start and end points
 	bool steep = abs(yf-yi) > abs(xf-xi);
 	if(steep)
@@ -647,6 +651,7 @@ void CAT_triberry
 	int yab = yb - ya;
 	int xac = xc - xa;
 	int yac = yc - ya;
+	float abXac = (float) cross2d(xab, yab, xac, yac);
 	
 	for(int y = min_y; y <= max_y; y++)
 	{
@@ -659,8 +664,7 @@ void CAT_triberry
 			if(x < 0 || x >= LCD_SCREEN_W)
 				continue;
 			int xp = x - xa;
-
-			float abXac = (float) cross2d(xab, yab, xac, yac);
+		
 			if(abXac == 0)
 				continue;
 			float s = (float) cross2d(xp, yp, xac, yac) / abXac;
@@ -695,6 +699,29 @@ void CAT_triberry
 	CAT_lineberry(xc, yc, xa, ya, c);
 }
 #endif
+
+void CAT_fillberry(int xi, int yi, int w, int h, uint16_t c)
+{
+#ifdef CAT_EMBEDDED
+	c = (c >> 8) | ((c & 0xff) << 8);
+#endif
+	for(int y = yi; y < yi+h; y++)
+	{
+		for(int x = xi; x < xi+w; x++)
+		{
+			FRAMEBUFFER[y * LCD_SCREEN_W + x] = c;
+		}
+	}
+}
+
+void CAT_strokeberry(int xi, int yi, int w, int h, uint16_t c)
+{
+	CAT_lineberry(xi, yi, xi+w, yi, c);
+	CAT_lineberry(xi+w, yi, xi+w, yi+h, c);
+	CAT_lineberry(xi+w, yi+h, xi, yi+h, c);
+	CAT_lineberry(xi, yi+h, xi, yi, c);
+}
+
 
 /////////////////////awhhhhhhehhhhh
 
@@ -977,9 +1004,10 @@ int CAT_AM_tick(CAT_AM_state** spp)
 
 // TILESETS
 int base_wall_sprite;
-int base_floor_sprite;
 int sky_wall_sprite;
+int base_floor_sprite;
 int grass_floor_sprite;
+int ash_floor_sprite;
 
 int panel_sprite;
 int glyph_sprite;
@@ -1234,9 +1262,10 @@ void CAT_sprite_mass_define()
 
 	// TILESETS
 	INIT_SPRITE(base_wall_sprite, "sprites/wall_basic.png", 3);
-	INIT_SPRITE(base_floor_sprite, "sprites/tile_basic.png", 3);
 	INIT_SPRITE(sky_wall_sprite, "sprites/wall_sky.png", 8);
+	INIT_SPRITE(base_floor_sprite, "sprites/tile_basic.png", 3);
 	INIT_SPRITE(grass_floor_sprite, "sprites/tile_grass.png", 21);
+	INIT_SPRITE(ash_floor_sprite, "sprites/tile_ash.png", 6);
 
 	INIT_SPRITE(panel_sprite, "sprites/panel_tiles.png", 10);
 	INIT_SPRITE(glyph_sprite, "sprites/glyphs.png", 96);
