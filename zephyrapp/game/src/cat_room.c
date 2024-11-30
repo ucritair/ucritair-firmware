@@ -432,7 +432,7 @@ void CAT_MS_room(CAT_machine_signal signal)
 }
 
 enum {WALL_BASE, WALL_SKY} bg_wall = WALL_BASE;
-enum {FLOOR_BASE, FLOOR_GRASS, FLOOR_ASH} bg_floor = FLOOR_ASH;
+enum {FLOOR_BASE, FLOOR_GRASS, FLOOR_ASH} bg_floor = FLOOR_BASE;
 
 void CAT_render_room(int cycle)
 {
