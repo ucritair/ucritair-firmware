@@ -262,7 +262,15 @@ bool CAT_is_clipped(CAT_vec4 v)
 		return true;
 	if(v.y < -v.w || v.y > v.w)
 		return true;
-	if(v.z < -v.w || v.z > v.w)
+	if(v.z < 0 || v.z > v.w)
 		return true;
 	return false;
+}
+
+CAT_vec4 CAT_centroid(CAT_vec4 a, CAT_vec4 b, CAT_vec4 c)
+{
+	float x = (a.x + b.x + c.x) / 3.0f;
+	float y = (a.y + b.y + c.y) / 3.0f;
+	float z = (a.z + b.z + c.z) / 3.0f;
+	return (CAT_vec4) {x, y, z, 1.0f};
 }

@@ -82,13 +82,21 @@ void CAT_draw_tiles(int sprite_id, int frame_idx, int y_t, int h_t);
 void CAT_spriter_cleanup();
 
 //////////////////////////////////////////////////////////////////////////
-// DIRECT FX
+// THE BERRIER
 
 void CAT_greenberry(int xi, int w, int yi, int h, float t);
 void CAT_frameberry(uint16_t c);
 void CAT_greyberry(int xi, int w, int yi, int h);
-void CAT_circberry(int xi, int yi, int r, uint16_t c);
-void CAT_bresenham(int xi, int yi, int xf, int yf, uint16_t c);
+void CAT_roundberry(int xi, int yi, int r, uint16_t c);
+void CAT_lineberry(int xi, int yi, int xf, int yf, uint16_t c);
+void CAT_depthberry();
+void CAT_triberry
+(
+	int xa, int ya, uint16_t za,
+	int xb, int yb, uint16_t zb,
+	int xc, int yc, uint16_t zc,
+	uint16_t c
+);
 
 
 //////////////////////////////////////////////////////////////////////////

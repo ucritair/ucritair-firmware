@@ -158,8 +158,17 @@ void CAT_force_load()
 
 	for(int i = 0; i < save->prop_count; i++)
 	{
-		CAT_room_add_prop(save->prop_ids[i], save->prop_places[i]);
-		room.prop_overrides[i] = save->prop_overrides[i];
+		int prop_id = save->prop_ids[i];
+		CAT_ivec2 prop_place = save->prop_places[i];
+		if(CAT_prop_fits(prop_id, prop_place))
+		{
+			CAT_room_add_prop(prop_id, prop_place);
+			room.prop_overrides[i] = save->prop_overrides[i];
+		}
+		else
+		{
+			CAT_item_list_add(&bag, save->prop_ids[i]);
+		}
 	}
 	CAT_timer_set(room.earn_timer_id, save->earn_timer);
 
@@ -321,12 +330,12 @@ void CAT_tick_render(int cycle)
 #ifdef CAT_DESKTOP
 	if(LED_rgb != 0)
 	{
-		CAT_circberry(0, 108, 8, LED_rgb);
-		CAT_circberry(224, 108, 8, LED_rgb);
-		CAT_circberry(0, 108+64, 8, LED_rgb);
-		CAT_circberry(224, 108+64, 8, LED_rgb);
-		CAT_circberry(0, 108+64+64, 8, LED_rgb);
-		CAT_circberry(224, 108+64+64, 8, LED_rgb);
+		CAT_roundberry(0, 108, 8, LED_rgb);
+		CAT_roundberry(224, 108, 8, LED_rgb);
+		CAT_roundberry(0, 108+64, 8, LED_rgb);
+		CAT_roundberry(224, 108+64, 8, LED_rgb);
+		CAT_roundberry(0, 108+64+64, 8, LED_rgb);
+		CAT_roundberry(224, 108+64+64, 8, LED_rgb);
 	}
 #endif
 }

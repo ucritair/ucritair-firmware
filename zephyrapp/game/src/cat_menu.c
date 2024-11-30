@@ -267,51 +267,12 @@ void CAT_render_cheats()
 // You'll notice that I don't combine my transformations into one matrix yet.
 // If the train takes you to clip-space too fast, you won't be able to see what's outside the window. Literally!
 
-CAT_vec4 mesh[36] =
-{
-	{-0.5f, -0.5f, -0.5f, 1.0f},
-	{0.5f, -0.5f, -0.5f, 1.0f},
-	{0.5f,  0.5f, -0.5f, 1.0f},	
-	{0.5f,  0.5f, -0.5f, 1.0f},
-	{-0.5f,  0.5f, -0.5f, 1.0f},
-	{-0.5f, -0.5f, -0.5f, 1.0f},
+#include "mesh.h"
+#define NUM_FACES (sizeof(mesh.faces) / sizeof(mesh.faces[0]))
 
-	{0.5f,  0.5f,  0.5f, 1.0f},
-	{0.5f, -0.5f,  0.5f, 1.0f},
-	{-0.5f, -0.5f,  0.5f, 1.0f},
-	{-0.5f, -0.5f,  0.5f, 1.0f},
-	{-0.5f,  0.5f,  0.5f, 1.0f},
-	{0.5f,  0.5f,  0.5f, 1.0f},
-
-	{-0.5f, -0.5f, -0.5f, 1.0f},
-	{-0.5f,  0.5f, -0.5f, 1.0f},
-	{-0.5f,  0.5f,  0.5f, 1.0f},
-	{-0.5f,  0.5f,  0.5f, 1.0f},
-	{-0.5f, -0.5f,  0.5f, 1.0f},
-	{-0.5f, -0.5f, -0.5f, 1.0f},
-
-	{0.5f, -0.5f, -0.5f, 1.0f},
-	{0.5f, -0.5f,  0.5f, 1.0f},
-	{0.5f,  0.5f,  0.5f, 1.0f},
-	{0.5f,  0.5f,  0.5f, 1.0f},
-	{0.5f,  0.5f, -0.5f, 1.0f},
-	{0.5f, -0.5f, -0.5f, 1.0f},
-	
-	{0.5f, -0.5f,  0.5f, 1.0f},
-	{0.5f, -0.5f, -0.5f, 1.0f},
-	{-0.5f, -0.5f, -0.5f, 1.0f},
-	{-0.5f, -0.5f, -0.5f, 1.0f},
-	{-0.5f, -0.5f,  0.5f, 1.0f},
-	{0.5f, -0.5f,  0.5f, 1.0f},
-
-	{-0.5f,  0.5f, -0.5f, 1.0f},
-	{0.5f,  0.5f, -0.5f, 1.0f},
-	{0.5f,  0.5f,  0.5f, 1.0f},
-	{0.5f,  0.5f,  0.5f, 1.0f},
-	{-0.5f,  0.5f,  0.5f, 1.0f},
-	{-0.5f,  0.5f, -0.5f, 1.0f}
-};
-#define NUM_VERTS (sizeof(mesh) / sizeof(mesh[0]))
+float n = 0.01f;
+float f = 100.0f;
+float hfov = 1.57079632679;
 
 float theta_h = 0;
 float theta_v = 0;
@@ -340,15 +301,21 @@ void CAT_MS_hedron(CAT_machine_signal signal)
 			if(CAT_input_held(CAT_BUTTON_DOWN, 0))
 				theta_v -= CAT_get_delta_time();
 			if(CAT_input_held(CAT_BUTTON_A, 0))
-				r -= CAT_get_delta_time();
+				r -= CAT_get_delta_time() * 2;
 			if(CAT_input_held(CAT_BUTTON_B, 0))
-				r += CAT_get_delta_time();
-			r = clampf(r, 0, 10);
+				r += CAT_get_delta_time() * 2;
+			r = clampf(r, 0, 100);
+			eye = (CAT_vec4) {0, 0, r, 1};
 
 			break;
 		case CAT_MACHINE_SIGNAL_EXIT:
 			break;
 	}
+}
+
+void CAT_print_vec4(CAT_vec4 vec)
+{
+	CAT_printf("%f %f %f %f\n", vec.x, vec.y, vec.z, vec.w);
 }
 
 void CAT_print_mat4(CAT_mat4 mat)
@@ -366,13 +333,10 @@ void CAT_print_mat4(CAT_mat4 mat)
 void CAT_render_hedron()
 {
 	CAT_frameberry(0x0000);
-
-	CAT_vec4 verts[36];
-	memcpy(verts, mesh, sizeof(mesh));
+	CAT_depthberry();
 
 	CAT_mat4 M = CAT_rotmat(theta_v, theta_h, 0);
 	
-	eye = (CAT_vec4) {0, 0, r, 1.0f};
 	CAT_vec4 forward = CAT_vec4_sub((CAT_vec4) {0}, eye);
 	CAT_vec4 up = (CAT_vec4) {0, 1, 0, 0};
 	CAT_vec4 right = CAT_vec4_cross(up, forward);
@@ -390,49 +354,69 @@ void CAT_render_hedron()
 		forward.x, forward.y, forward.z, tz,
 		0, 0, 0, 1
 	};
-
-	float n = -0.001f;
-	float f = -100.0f;
-	float asp_inv = 1.0f / ((float) LCD_SCREEN_W / (float) LCD_SCREEN_H);
-	float fov_inv = 1.0f / tan((2.094) / 2);
-	CAT_mat4 P =
+	V = (CAT_mat4)
 	{
-		fov_inv * asp_inv, 0, 0, 0,
-		0, fov_inv, 0, 0,
-		0, 0, -(f+n)/(f-n), -2*f*n/(f-n),
-		0, 0, -1, 0
-	};
-	
-	CAT_mat4 S =
-	{
-		LCD_SCREEN_W, 0, 0, LCD_SCREEN_W / 2,
-		0, LCD_SCREEN_H, 0, LCD_SCREEN_H / 2,
-		0, 0, 1, 0,
+		1, 0, 0, -eye.x,
+		0, 1, 0, -eye.y,
+		0, 0, 1, -eye.z,
 		0, 0, 0, 1
 	};
 
-	for(int i = 0; i < NUM_VERTS; i++)
-		verts[i] = CAT_matvec_mul(M, verts[i]);
-	for(int i = 0; i < NUM_VERTS; i++)
-		verts[i] = CAT_matvec_mul(V, verts[i]);
-	for(int i = 0; i < NUM_VERTS; i++)
-		verts[i] = CAT_matvec_mul(P, verts[i]);
+	// VIEW
+	// X : [-INF, INF], left to right
+	// Y : [-INF, INF], bottom to top
+	// Z : [n < 0, f < n < 0], back to front
+	// CLIP
+	// [0, w]
+	// NDC
+	// X : [-1, 1], left to right
+	// Y : [1, -1], bottom to top
+	// Z : [0, 1], back to front
+	float width = 2 * n * tan(hfov / 2);
+	float asp = ((float) LCD_SCREEN_W / (float) LCD_SCREEN_H);
+	float height = width / asp;
+	float vfov = atan(height * 0.5f / n);
+	CAT_mat4 P =
+	{
+		2 * n / width, 0, 0, 0,
+		0, -2 * n / height, 0, 0,
+		0, 0, -f/(f-n), -f*n/(f-n),
+		0, 0, -1, 0
+	};
+
+	CAT_mat4 MV = CAT_matmul(V, M);
+	CAT_mat4 MVP = CAT_matmul(P, CAT_matmul(V, M));
+	CAT_mat4 S =
+	{
+		LCD_SCREEN_W / 2, 0, 0, LCD_SCREEN_W / 2,
+		0, LCD_SCREEN_H / 2, 0, LCD_SCREEN_H / 2,
+		0, 0, 0xFFFF, 0,
+		0, 0, 0, 1
+	};
+
 
 	// The train arrives in clipspace
-	for(int i = 0; i < NUM_VERTS; i += 3)
+	for(int i = 0; i < NUM_FACES; i++)
 	{
-		CAT_vec4 a = verts[i];
-		CAT_vec4 b = verts[i+1];
-		CAT_vec4 c = verts[i+2];
+		CAT_vec4 a = mesh.verts[mesh.faces[i][0]];
+		CAT_vec4 b = mesh.verts[mesh.faces[i][1]];
+		CAT_vec4 c = mesh.verts[mesh.faces[i][2]];
 
+		a = CAT_matvec_mul(MVP, a);
+		b = CAT_matvec_mul(MVP, b);
+		c = CAT_matvec_mul(MVP, c);
+	
 		// W-culling
-		if(CAT_is_clipped(a))
+		if
+		(
+			CAT_is_clipped(a) ||
+			CAT_is_clipped(b) ||
+			CAT_is_clipped(c)
+		)
+		{
 			continue;
-		if(CAT_is_clipped(b))
-			continue;
-		if(CAT_is_clipped(c))
-			continue;
-
+		}
+			
 		// Backface culling
 		CAT_vec4 ba = CAT_vec4_sub(b, a);
 		CAT_vec4 ca = CAT_vec4_sub(c, a);
@@ -448,9 +432,27 @@ void CAT_render_hedron()
 		a = CAT_matvec_mul(S, a);
 		b = CAT_matvec_mul(S, b);
 		c = CAT_matvec_mul(S, c);
-
-		CAT_bresenham(a.x, a.y, b.x, b.y, 0xFFFF);
-		CAT_bresenham(b.x, b.y, c.x, c.y, 0xFFFF);
-		CAT_bresenham(c.x, c.y, a.x, a.y, 0xFFFF);
+		
+		// LIGHTING
+		CAT_vec4 p1 = mesh.verts[mesh.faces[i][0]];
+		CAT_vec4 p2 = mesh.verts[mesh.faces[i][1]];
+		CAT_vec4 p3 = mesh.verts[mesh.faces[i][2]];
+		p1 = CAT_matvec_mul(MV, p1);
+		p2 = CAT_matvec_mul(MV, p2);
+		p3 = CAT_matvec_mul(MV, p3);
+		float amb = 0.05f;
+		CAT_vec4 centroid = CAT_centroid(p1, p2, p3);
+		CAT_vec4 L = CAT_vec4_normalize(CAT_vec4_sub(eye, centroid));
+		CAT_vec4 N = CAT_vec4_normalize(CAT_vec4_cross(CAT_vec4_sub(p2, p1), CAT_vec4_sub(p3, p1)));
+		float diff = clampf(CAT_vec4_dot(N, L), 0.0f, 1.0f);
+		uint8_t light = 255 * clampf(amb + diff, 0.0f, 1.0f);
+		
+		CAT_triberry
+		(
+			a.x, a.y, a.z,
+			b.x, b.y, b.z,
+			c.x, c.y, c.z,
+			RGB8882565(light, light, light)
+		);
 	}
 }

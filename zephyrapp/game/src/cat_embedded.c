@@ -120,6 +120,7 @@ void CAT_get_datetime(CAT_datetime* datetime)
 	datetime->year = local.tm_year;
 	datetime->month = local.tm_mon;
 	datetime->day = local.tm_mday;
+	datetime->hour = local.tm_hour;
 	datetime->minute = local.tm_min;
 	datetime->second = local.tm_sec;	
 }

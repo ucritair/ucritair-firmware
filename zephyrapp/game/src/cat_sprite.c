@@ -379,8 +379,9 @@ void CAT_spriter_cleanup()
 #endif
 }
 
+
 //////////////////////////////////////////////////////////////////////////
-// DIRECT FX
+// THE BERRIER
 
 uint8_t luminance(uint16_t rgb)
 {
@@ -491,7 +492,7 @@ void CAT_greyberry(int xi, int w, int yi, int h)
 	}
 }
 
-void CAT_circberry(int xi, int yi, int r, uint16_t c)
+void CAT_roundberry(int xi, int yi, int r, uint16_t c)
 {
 	int xc = xi + r;
 	int yc = yi + r;
@@ -513,7 +514,7 @@ void CAT_circberry(int xi, int yi, int r, uint16_t c)
 }
 
 // implementation based on Dmitri Sokolov's
-void CAT_bresenham(int xi, int yi, int xf, int yf, uint16_t c)
+void CAT_lineberry(int xi, int yi, int xf, int yf, uint16_t c)
 {
 	// if the line is steep, transpose its start and end points
 	bool steep = abs(yf-yi) > abs(xf-xi);
@@ -598,6 +599,102 @@ void CAT_bresenham(int xi, int yi, int xf, int yf, uint16_t c)
 	}
 }
 
+#ifdef CAT_DESKTOP
+uint16_t depthbuffer[LCD_SCREEN_W * LCD_SCREEN_H];
+
+void CAT_depthberry()
+{
+	for(int i = 0; i < LCD_SCREEN_W * LCD_SCREEN_H; i++)
+		depthbuffer[i] = 0xFFFF;
+}
+
+bool depth_test_write(int x, int y, uint16_t z)
+{
+	int idx = y * LCD_SCREEN_W + x;
+	uint16_t z0 = depthbuffer[idx];
+	if(z <= z0)
+	{
+		depthbuffer[idx] = z;
+		return true;
+	}
+	return false;
+}
+
+int cross2d(int x0, int y0, int x1, int y1)
+{
+	return x0 * y1 - y0 * x1;
+}
+
+void CAT_triberry
+(
+	int xa, int ya, uint16_t za,
+	int xb, int yb, uint16_t zb,
+	int xc, int yc, uint16_t zc,
+	uint16_t c
+)
+{
+	int min_x = min(min(xa, xb), xc);
+	int min_y = min(min(ya, yb), yc);
+	int max_x = max(max(xa, xb), xc);
+	int max_y = max(max(ya, yb), yc);
+
+	if(max_x < 0 || max_y < 0)
+		return;
+	if(min_x >= LCD_SCREEN_W || min_y >= LCD_SCREEN_H)
+		return;
+
+	int xab = xb - xa;
+	int yab = yb - ya;
+	int xac = xc - xa;
+	int yac = yc - ya;
+	
+	for(int y = min_y; y <= max_y; y++)
+	{
+		if(y < 0 || y >= LCD_SCREEN_H)
+			continue;
+		int yp = y - ya;
+	
+		for(int x = min_x; x <= max_x; x++)
+		{
+			if(x < 0 || x >= LCD_SCREEN_W)
+				continue;
+			int xp = x - xa;
+
+			float abXac = (float) cross2d(xab, yab, xac, yac);
+			if(abXac == 0)
+				continue;
+			float s = (float) cross2d(xp, yp, xac, yac) / abXac;
+			float t = (float) cross2d(xab, yab, xp, yp) / abXac;
+
+			if(s < 0 || t < 0 || (s+t) > 1)
+				continue;
+			uint16_t z = s * za + t * zb + (1-s-t) * zc;
+			if(depth_test_write(x, y, z))
+			{
+				FRAMEBUFFER[y * LCD_SCREEN_W + x] = c;
+			}
+		}
+	}
+}
+#else
+void CAT_depthberry()
+{
+	return;
+}
+
+void CAT_triberry
+(
+	int xa, int ya, uint16_t za,
+	int xb, int yb, uint16_t zb,
+	int xc, int yc, uint16_t zc,
+	uint16_t c
+)
+{
+	CAT_lineberry(xa, ya, xb, yb, c);
+	CAT_lineberry(xb, yb, xc, yc, c);
+	CAT_lineberry(xc, yc, xa, ya, c);
+}
+#endif
 
 /////////////////////awhhhhhhehhhhh
 
