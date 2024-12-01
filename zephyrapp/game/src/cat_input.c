@@ -113,3 +113,8 @@ bool CAT_input_touch_rect(int x, int y, int w, int h)
 		return false;
 	return true;
 }
+
+bool CAT_input_touching()
+{
+	return input.touch.pressure;
+}

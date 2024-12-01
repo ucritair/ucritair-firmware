@@ -149,6 +149,34 @@ CAT_ivec2 CAT_rand_free_space()
 	return space.free_list[idx];
 }
 
+CAT_ivec2 CAT_nearest_free_space(CAT_ivec2 cell)
+{
+	int depth = 0;
+	int depth_max = max(space.grid_shape.x, space.grid_shape.y);
+	while(depth < depth_max)
+	{
+		for(int dy = -depth; dy <= depth; dy++)
+		{
+			int y = cell.y + dy;
+			if(y < 0 || y >= space.grid_shape.y)
+				continue;
+			for(int dx = -depth; dx <= depth; dx++)
+			{
+				int x = cell.x + dx;
+				if(x < 0 || x >= space.grid_shape.x)
+					continue;
+				if(abs(dx) + abs(dy) != depth)
+					continue;
+				int idx = y * space.grid_shape.x + x;
+				if(space.cells[idx] == 0)
+					return (CAT_ivec2) {x, y};
+			}
+		}
+		depth++;
+	}
+	return (CAT_ivec2) {0, 0};
+}
+
 
 //////////////////////////////////////////////////////////////////////////
 // ROOM

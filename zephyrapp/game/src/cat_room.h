@@ -48,6 +48,7 @@ void CAT_build_free_list();
 bool CAT_has_free_space();
 CAT_ivec2 CAT_first_free_space();
 CAT_ivec2 CAT_rand_free_space();
+CAT_ivec2 CAT_nearest_free_space(CAT_ivec2 cell);
 
 
 //////////////////////////////////////////////////////////////////////////

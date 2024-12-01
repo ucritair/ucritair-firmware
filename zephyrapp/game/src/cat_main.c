@@ -28,6 +28,7 @@
 #include "cat_manual.h"
 #include "cat_deco.h"
 #include "cat_item_dialog.h"
+#include "cat_snake.h"
 
 #include "cat_version.h"
 

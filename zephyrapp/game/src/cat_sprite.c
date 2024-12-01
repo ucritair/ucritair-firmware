@@ -604,18 +604,18 @@ void CAT_lineberry(int xi, int yi, int xf, int yf, uint16_t c)
 }
 
 #ifdef CAT_DESKTOP
-uint16_t depthbuffer[LCD_SCREEN_W * LCD_SCREEN_H];
+float depthbuffer[LCD_SCREEN_W * LCD_SCREEN_H];
 
 void CAT_depthberry()
 {
 	for(int i = 0; i < LCD_SCREEN_W * LCD_SCREEN_H; i++)
-		depthbuffer[i] = 0xFFFF;
+		depthbuffer[i] = 1.0f;
 }
 
-bool depth_test_write(int x, int y, uint16_t z)
+bool depth_test_write(int x, int y, float z)
 {
 	int idx = y * LCD_SCREEN_W + x;
-	uint16_t z0 = depthbuffer[idx];
+	float z0 = depthbuffer[idx];
 	if(z <= z0)
 	{
 		depthbuffer[idx] = z;
@@ -631,9 +631,9 @@ int cross2d(int x0, int y0, int x1, int y1)
 
 void CAT_triberry
 (
-	int xa, int ya, uint16_t za,
-	int xb, int yb, uint16_t zb,
-	int xc, int yc, uint16_t zc,
+	int xa, int ya, float za,
+	int xb, int yb, float zb,
+	int xc, int yc, float zc,
 	uint16_t c
 )
 {
@@ -652,6 +652,8 @@ void CAT_triberry
 	int xac = xc - xa;
 	int yac = yc - ya;
 	float abXac = (float) cross2d(xab, yab, xac, yac);
+	if(abXac == 0)
+		return;
 	
 	for(int y = min_y; y <= max_y; y++)
 	{
@@ -665,14 +667,17 @@ void CAT_triberry
 				continue;
 			int xp = x - xa;
 		
-			if(abXac == 0)
+			float v = (float) cross2d(xp, yp, xac, yac) / abXac;
+			if(v < 0 || v > 1)
 				continue;
-			float s = (float) cross2d(xp, yp, xac, yac) / abXac;
-			float t = (float) cross2d(xab, yab, xp, yp) / abXac;
-
-			if(s < 0 || t < 0 || (s+t) > 1)
+			float w = (float) cross2d(xab, yab, xp, yp) / abXac;
+			if(w < 0 || w > 1)
 				continue;
-			uint16_t z = s * za + t * zb + (1-s-t) * zc;
+			float u = 1.0f - v - w;
+			if(u < 0 || u > 1)
+				continue;
+				
+			float z = u * za + v * zb + w * zc;
 			if(depth_test_write(x, y, z))
 			{
 				FRAMEBUFFER[y * LCD_SCREEN_W + x] = c;

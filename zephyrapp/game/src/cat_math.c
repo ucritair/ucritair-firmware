@@ -253,7 +253,7 @@ CAT_mat4 CAT_rotmat(float x, float y, float z)
 		0, 0, 0, 1
 	};
 
-	return CAT_matmul(X, CAT_matmul(Y, Z));
+	return CAT_matmul(Z, CAT_matmul(Y, X));
 }
 
 bool CAT_is_clipped(CAT_vec4 v)
@@ -273,4 +273,14 @@ CAT_vec4 CAT_centroid(CAT_vec4 a, CAT_vec4 b, CAT_vec4 c)
 	float y = (a.y + b.y + c.y) / 3.0f;
 	float z = (a.z + b.z + c.z) / 3.0f;
 	return (CAT_vec4) {x, y, z, 1.0f};
+}
+
+CAT_vec4 CAT_vec4_add(CAT_vec4 u, CAT_vec4 v)
+{
+	return (CAT_vec4) {u.x + v.x, u.y + v.y, u.z + v.z, u.w + v.w};
+}
+
+CAT_vec4 CAT_vec4_mul(CAT_vec4 v, float l)
+{
+	return (CAT_vec4) {l * v.x, l * v.y, l * v.z, l * v.w};
 }

@@ -92,9 +92,9 @@ void CAT_lineberry(int xi, int yi, int xf, int yf, uint16_t c);
 void CAT_depthberry();
 void CAT_triberry
 (
-	int xa, int ya, uint16_t za,
-	int xb, int yb, uint16_t zb,
-	int xc, int yc, uint16_t zc,
+	int xa, int ya, float za,
+	int xb, int yb, float zb,
+	int xc, int yc, float zc,
 	uint16_t c
 );
 void CAT_fillberry(int xi, int yi, int w, int h, uint16_t c);
