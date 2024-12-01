@@ -182,6 +182,16 @@ bool CAT_pet_seek(CAT_vec2 targ)
 	}
 }
 
+void CAT_pet_placement()
+{
+	if(CAT_has_free_space())
+	{
+		CAT_ivec2 grid_pos = CAT_nearest_free_space((CAT_ivec2){8, 6});
+		CAT_ivec2 world_pos = CAT_grid2world(grid_pos);
+		pet.pos = (CAT_vec2) {world_pos.x, world_pos.y};
+	}
+}
+
 void CAT_pet_init()
 {	
 	pet.vigour = 9;
@@ -189,16 +199,7 @@ void CAT_pet_init()
 	pet.spirit = 9;
 	pet.lifetime = 0;
 
-	if(CAT_has_free_space())
-	{
-		CAT_ivec2 grid_pos = CAT_nearest_free_space((CAT_ivec2){8, 6});
-		CAT_ivec2 world_pos = CAT_grid2world(grid_pos);
-		pet.pos = (CAT_vec2) {world_pos.x, world_pos.y};
-	}
-	else
-	{
-		pet.pos = (CAT_vec2) {120, 200};
-	}
+	pet.pos = (CAT_vec2) {120, 200};
 	pet.dir = (CAT_vec2) {0, 0};
 	pet.left = false;
 

@@ -33,6 +33,7 @@ void CAT_pet_reanimate();
 void CAT_pet_settle();
 
 bool CAT_pet_seek(CAT_vec2 targ);
+void CAT_pet_placement();
 
 void CAT_pet_init();
 void CAT_pet_tick(bool capture_input);
