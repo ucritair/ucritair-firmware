@@ -13,4 +13,5 @@ cd ~/Documents/GitHub/cat_software/zephyrapp/game
 build/app | tee ../script/atlasdata.txt
 
 cd ~/Documents/GitHub/cat_software/zephyrapp/build
-make
+cmake ..
+make -j8

@@ -49,6 +49,7 @@ target_sources(app PRIVATE
 	src/cat_pet.c
 	src/cat_item_dialog.c
 	src/cat_snake.c
+	src/cat_mole.c
 	src/cat_main.c)
 
 target_include_directories(app PRIVATE src/)

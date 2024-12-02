@@ -42,6 +42,7 @@ struct entry
 	{"CHEATS", CAT_MS_cheats},
 #endif
 	{"HEDRON", CAT_MS_hedron},
+	{"SOUND", CAT_MS_sound},
 	{"MANUAL", CAT_MS_manual},
 	{"BACK", CAT_MS_room}
 };
@@ -275,7 +276,7 @@ void CAT_render_cheats()
 //////////////////////////////////////////////////////////////////////////
 // WIP LEAVE ME ALONE
 
-#include "mesh.h"
+#include "cat_mesh_asset.h"
 #define NUM_FACES (sizeof(mesh.faces) / sizeof(mesh.faces[0]))
 
 float n = 0.01f;
@@ -474,4 +475,48 @@ void CAT_render_hedron()
 		);
 #endif
 	}
+}
+
+#ifdef CAT_EMBEDDED
+#include "cat_sound_asset.h"
+#include "sound.h"
+#endif
+
+void CAT_MS_sound(CAT_machine_signal signal)
+{
+	switch (signal)
+	{
+		case CAT_MACHINE_SIGNAL_ENTER:
+#ifdef CAT_EMBEDDED
+			soundPower(true);
+#endif
+			break;
+		case CAT_MACHINE_SIGNAL_TICK:
+			if(CAT_input_pressed(CAT_BUTTON_B))
+				CAT_machine_back();
+			if(CAT_input_pressed(CAT_BUTTON_START))
+				CAT_machine_transition(CAT_MS_room);
+#ifdef CAT_EMBEDDED
+			if(CAT_input_pulse(CAT_BUTTON_A))
+				soundPlay(sound.samples, sizeof(sound.samples), SoundReplaceCurrent);
+#endif
+			break;
+		case CAT_MACHINE_SIGNAL_EXIT:
+#ifdef CAT_EMBEDDED
+			soundPower(false);
+#endif
+			break;
+	}
+}
+
+void CAT_render_sound()
+{
+	CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 20});
+#ifdef CAT_EMBEDDED
+	CAT_gui_text("Press A for sound\n");
+	if(soundIsPlaying())
+		CAT_gui_text("Sound is playing\n");
+#else
+	CAT_gui_text_wrap("Sound is only available on embedded!\n");
+#endif
 }

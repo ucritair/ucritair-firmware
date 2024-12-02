@@ -7,9 +7,9 @@
 #include "cat_bag.h"
 #include "cat_gui.h"
 
-#define SNAKE_ARENA_WIDTH 15
-#define SNAKE_ARENA_HEIGHT 20
-#define SNAKE_MAX_LENGTH (SNAKE_ARENA_WIDTH * SNAKE_ARENA_HEIGHT)
+#define ARENA_WIDTH 15
+#define ARENA_HEIGHT 20
+#define SNAKE_MAX_LENGTH (ARENA_WIDTH * ARENA_HEIGHT)
 #ifdef CAT_EMBEDDED
 #define SNAKE_TICK_PERIOD 3
 #else
@@ -60,24 +60,24 @@ void snake_init()
 	snake.dead = false;
 }
 
-void snake_food_init()
+void food_init()
 {
-	int guess_y = CAT_rand_int(1, SNAKE_ARENA_HEIGHT-2);
+	int guess_y = CAT_rand_int(1, ARENA_HEIGHT-2);
 	int steps_y = 0;
-	int guess_x = CAT_rand_int(1, SNAKE_ARENA_WIDTH-2);
+	int guess_x = CAT_rand_int(1, ARENA_WIDTH-2);
 	int steps_x = 0;
 
 food_spawn_fail:
-	guess_y = CAT_rand_int(1, SNAKE_ARENA_HEIGHT-2);
-	guess_x = CAT_rand_int(1, SNAKE_ARENA_WIDTH-2);
-	for(int y = guess_y; steps_y < SNAKE_ARENA_HEIGHT; y++)
+	guess_y = CAT_rand_int(1, ARENA_HEIGHT-2);
+	guess_x = CAT_rand_int(1, ARENA_WIDTH-2);
+	for(int y = guess_y; steps_y < ARENA_HEIGHT; y++)
 	{
-		if(y >= SNAKE_ARENA_HEIGHT)
+		if(y >= ARENA_HEIGHT)
 			y = 0;
 
-		for(int x = guess_x; steps_x < SNAKE_ARENA_WIDTH; x++)
+		for(int x = guess_x; steps_x < ARENA_WIDTH; x++)
 		{
-			if(x >= SNAKE_ARENA_WIDTH)
+			if(x >= ARENA_WIDTH)
 				x = 0;
 
 			for(int i = 0; i < snake.length; i++)
@@ -121,9 +121,10 @@ void CAT_MS_snake(CAT_machine_signal signal)
 		case CAT_MACHINE_SIGNAL_ENTER:
 		{
 			snake_init();
-			snake_food_init();
+			food_init();
 			ticks = 0;
 			score = 0;
+			is_high_score = false;
 			eat_tracker = 0;
 			break;
 		}
@@ -165,9 +166,9 @@ void CAT_MS_snake(CAT_machine_signal signal)
 					int y = snake.ys[0] + snake.dy;
 
 					snake.dead |= x < 0;
-					snake.dead |= x >= SNAKE_ARENA_WIDTH;
+					snake.dead |= x >= ARENA_WIDTH;
 					snake.dead |= y < 0;
-					snake.dead |= y >= SNAKE_ARENA_HEIGHT;
+					snake.dead |= y >= ARENA_HEIGHT;
 
 					for(int i = 0; i < snake.length; i++)
 					{
@@ -184,7 +185,7 @@ void CAT_MS_snake(CAT_machine_signal signal)
 							coins += 1;
 							eat_tracker = 0;
 						}
-						snake_food_init();
+						food_init();
 
 						score += 1;
 						snake.length += 1;

@@ -9,6 +9,7 @@
 #include "cat_bag.h"
 #include <stdio.h>
 #include "cat_snake.h"
+#include "cat_mole.h"
 
 #ifdef CAT_EMBEDDED
 #include "menu_system.h"
@@ -19,13 +20,43 @@
 //////////////////////////////////////////////////////////////////////////
 // MACHINE
 
-static int selector = 0;
+static struct
+{
+	const char* title;
+	CAT_machine_state state;
+} entries[] =
+{
+	{"AIR", NULL},
+#ifdef CAT_EMBEDDED
+	{"Air Quality Log", CAT_MS_aqi},
+	{"Air Quality Graph", CAT_MS_graph},
+#endif
+	{"ARCADE", NULL},
+	{"Snack", CAT_MS_snake},
+	{"Whack", CAT_MS_mole}
+};
+#define NUM_ENTRIES (sizeof(entries)/sizeof(entries[0]))
+static int selector = -1;
+
+int seek_entry(int idx, int dir)
+{
+	if(dir == 0)
+		return idx;
+	for(int i = idx + dir; i >= 0 && i < NUM_ENTRIES; i += dir)
+	{
+		if(entries[i].state != NULL)
+			return i;
+	}
+	return idx;
+}
 
 void CAT_MS_arcade(CAT_machine_signal signal)
 {
 	switch(signal)
 	{
 		case CAT_MACHINE_SIGNAL_ENTER:
+			if(selector == -1)
+				selector = seek_entry(0, 1);
 			break;
 		case CAT_MACHINE_SIGNAL_TICK:
 		{
@@ -33,29 +64,18 @@ void CAT_MS_arcade(CAT_machine_signal signal)
 				CAT_machine_back();
 			if(CAT_input_pressed(CAT_BUTTON_START))
 				CAT_machine_transition(CAT_MS_room);
-
-			if(CAT_input_pulse(CAT_BUTTON_UP))
-				selector -= 1;
-			if(CAT_input_pulse(CAT_BUTTON_DOWN))
-				selector += 1;
-			selector = clamp(selector, 0, 2);
 			
+			int seldir = 0;
+			if(CAT_input_pulse(CAT_BUTTON_UP))
+				seldir = -1;
+			if(CAT_input_pulse(CAT_BUTTON_DOWN))
+				seldir = 1;
+			selector = seek_entry(selector, seldir);
+
 			if(CAT_input_pressed(CAT_BUTTON_A))
 			{
-#ifdef CAT_EMBEDDED
-				if(selector == 0)
-				{
-					CAT_machine_transition(CAT_MS_aqi);
-				}
-				if(selector == 1)
-				{
-					CAT_machine_transition(CAT_MS_graph);
-				}
-#endif
-				if(selector == 2)
-				{
-					CAT_machine_transition(CAT_MS_snake);
-				}
+				if(entries[selector].state != NULL)
+					CAT_machine_transition(entries[selector].state);
 			}
 			break;
 		}
@@ -77,17 +97,18 @@ void CAT_render_arcade()
 
 	// This part is hideous. Ask M about it
 	CAT_gui_textf("uCritAir Score %0.1f%%\n", CAT_AQI_aggregate());
-	CAT_gui_div("AIR");
-	CAT_gui_text("  & Air Quality Log ");
-	if(selector == 0)
-		CAT_gui_image(icon_pointer_sprite, 0);
-	CAT_gui_line_break();
-	CAT_gui_text("  & Air Quality Graph ");
-	if(selector == 1)
-		CAT_gui_image(icon_pointer_sprite, 0);
-	CAT_gui_line_break();
-	CAT_gui_div("PLAY");
-	CAT_gui_text("  & Snack ");
-	if(selector == 2)
-		CAT_gui_image(icon_pointer_sprite, 0);
+	for(int i = 0; i < NUM_ENTRIES; i++)
+	{
+		if(entries[i].state == NULL)
+		{
+			CAT_gui_div(entries[i].title);
+		}
+		else
+		{
+			CAT_gui_textf("\t& %s ", entries[i].title);
+			if(i == selector)
+				CAT_gui_image(icon_pointer_sprite, 0);
+			CAT_gui_line_break();
+		}
+	}
 }

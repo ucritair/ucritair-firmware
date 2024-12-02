@@ -1,7 +1,9 @@
+#!/opt/homebrew/bin/python3
+
 import sys;
 
 if(len(sys.argv) != 2):
-	print("usage: python3 version.py {tell|major|minor|patch|push}");
+	print("usage: version.py {tell|major|minor|patch|push}");
 	exit();
 mode = sys.argv[1];
 
@@ -41,7 +43,7 @@ elif mode == "push":
 	push += 1;
 else:
 	print(f"Argument {mode} not recognized.")
-	print("usage: python3 version.py {tell|major|minor|patch|push}");
+	print("usage: version.py {tell|major|minor|patch|push}");
 	exit();
 
 text = ("#ifndef CAT_VERSION_H\n"
