@@ -81,25 +81,6 @@ void CAT_draw_sprite(int sprite_id, int frame_idx, int x, int y);
 void CAT_draw_tiles(int sprite_id, int frame_idx, int y_t, int h_t);
 void CAT_spriter_cleanup();
 
-//////////////////////////////////////////////////////////////////////////
-// THE BERRIER
-
-void CAT_greenberry(int xi, int w, int yi, int h, float t);
-void CAT_frameberry(uint16_t c);
-void CAT_greyberry(int xi, int w, int yi, int h);
-void CAT_roundberry(int xi, int yi, int r, uint16_t c);
-void CAT_lineberry(int xi, int yi, int xf, int yf, uint16_t c);
-void CAT_depthberry();
-void CAT_triberry
-(
-	int xa, int ya, float za,
-	int xb, int yb, float zb,
-	int xc, int yc, float zc,
-	uint16_t c
-);
-void CAT_fillberry(int xi, int yi, int w, int h, uint16_t c);
-void CAT_strokeberry(int xi, int yi, int w, int h, uint16_t c);
-
 
 //////////////////////////////////////////////////////////////////////////
 // DRAW QUEUE
@@ -118,9 +99,6 @@ typedef struct CAT_draw_queue
 {
 	CAT_draw_job jobs[CAT_DRAW_QUEUE_MAX_LENGTH];
 	int length;
-
-	float anim_period;
-	float anim_timer;
 } CAT_draw_queue;
 extern CAT_draw_queue draw_queue;
 
@@ -129,7 +107,6 @@ void CAT_anim_toggle_reverse(int sprite_id, bool toggle);
 bool CAT_anim_finished(int sprite_id);
 void CAT_anim_reset(int sprite_id);
 
-void CAT_draw_queue_init();
 void CAT_draw_queue_add(int sprite_id, int frame_idx, int layer, int x, int y, int mode);
 void CAT_draw_queue_animate(int sprite_id, int layer, int x, int y, int mode);
 void CAT_draw_queue_submit(int cycle);
@@ -138,7 +115,7 @@ void CAT_draw_queue_submit(int cycle);
 //////////////////////////////////////////////////////////////////////////
 // ANIMATION MACHINE
 
-typedef struct CAT_AM_state
+typedef struct CAT_animachine_state
 {
 	enum {ENTER, TICK, EXIT, DONE} signal;
 
@@ -146,15 +123,36 @@ typedef struct CAT_AM_state
 	int tick_anim_id;
 	int exit_anim_id;
 
-	struct CAT_AM_state* next;
-} CAT_AM_state;
+	struct CAT_animachine_state* next;
+} CAT_animachine_state;
 
-void CAT_AM_init(CAT_AM_state* state, int enai, int tiai, int exai);
-void CAT_AM_transition(CAT_AM_state** spp, CAT_AM_state* next);
-void CAT_AM_kill(CAT_AM_state** spp);
-bool CAT_AM_is_in(CAT_AM_state** spp, CAT_AM_state* state);
-bool CAT_AM_is_ticking(CAT_AM_state** spp);
-int CAT_AM_tick(CAT_AM_state** pp);
+void CAT_animachine_init(CAT_animachine_state* state, int enai, int tiai, int exai);
+void CAT_animachine_transition(CAT_animachine_state** spp, CAT_animachine_state* next);
+int CAT_animachine_tick(CAT_animachine_state** pp);
+void CAT_animachine_kill(CAT_animachine_state** spp);
+
+bool CAT_animachine_is_in(CAT_animachine_state** spp, CAT_animachine_state* state);
+bool CAT_animachine_is_ticking(CAT_animachine_state** spp);
+
+
+//////////////////////////////////////////////////////////////////////////
+// THE BERRIER
+
+void CAT_greenberry(int xi, int w, int yi, int h, float t);
+void CAT_frameberry(uint16_t c);
+void CAT_greyberry(int xi, int w, int yi, int h);
+void CAT_roundberry(int xi, int yi, int r, uint16_t c);
+void CAT_lineberry(int xi, int yi, int xf, int yf, uint16_t c);
+void CAT_depthberry();
+void CAT_triberry
+(
+	int xa, int ya, float za,
+	int xb, int yb, float zb,
+	int xc, int yc, float zc,
+	uint16_t c
+);
+void CAT_fillberry(int xi, int yi, int w, int h, uint16_t c);
+void CAT_strokeberry(int xi, int yi, int w, int h, uint16_t c);
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -375,28 +373,31 @@ extern int snake_body_sprite;
 extern int snake_corner_sprite;
 extern int snake_tail_sprite;
 
+// STUPID BULLSHIT
+extern int cliff_racer_sprite;
+
 
 // MACHINES
-extern CAT_AM_state* pet_asm;
+extern CAT_animachine_state* pet_asm;
 
-extern CAT_AM_state AS_idle;
-extern CAT_AM_state AS_walk;
-extern CAT_AM_state AS_crit;
+extern CAT_animachine_state AS_idle;
+extern CAT_animachine_state AS_walk;
+extern CAT_animachine_state AS_crit;
 
-extern CAT_AM_state AS_adjust_in;
-extern CAT_AM_state AS_approach;
-extern CAT_AM_state AS_adjust_out;
+extern CAT_animachine_state AS_adjust_in;
+extern CAT_animachine_state AS_approach;
+extern CAT_animachine_state AS_adjust_out;
 
-extern CAT_AM_state AS_eat;
-extern CAT_AM_state AS_study;
-extern CAT_AM_state AS_play;
+extern CAT_animachine_state AS_eat;
+extern CAT_animachine_state AS_study;
+extern CAT_animachine_state AS_play;
 
-extern CAT_AM_state AS_vig_up;
-extern CAT_AM_state AS_foc_up;
-extern CAT_AM_state AS_spi_up;
+extern CAT_animachine_state AS_vig_up;
+extern CAT_animachine_state AS_foc_up;
+extern CAT_animachine_state AS_spi_up;
 
-extern CAT_AM_state* react_asm;
-extern CAT_AM_state AS_react;
+extern CAT_animachine_state* react_asm;
+extern CAT_animachine_state AS_react;
 
 void CAT_sprite_mass_define();
 

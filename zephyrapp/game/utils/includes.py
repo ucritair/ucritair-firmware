@@ -4,7 +4,7 @@ import sys;
 import os;
 
 if(len(sys.argv) != 1):
-	print("usage: python3 chchecker.py");
+	print("usage: includes.py");
 	exit();
 
 src_dir = os.fsencode("src");

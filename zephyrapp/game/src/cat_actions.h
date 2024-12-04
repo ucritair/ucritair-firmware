@@ -5,15 +5,21 @@
 #include "cat_sprite.h"
 #include "cat_item.h"
 
-typedef struct CAT_action_state
+typedef struct CAT_action_profile
 {
-	CAT_machine_state action_MS;
-	CAT_AM_state* action_AS;
-	CAT_AM_state* stat_up_AS;
+	CAT_item_type tool_type;
+
+	CAT_machine_state MS;
+	CAT_animachine_state* AS;
+	CAT_animachine_state* stat_AS;
 
 	uint8_t LED_colour[3];
+} CAT_action_profile;
 
-	CAT_item_type tool_type;
+typedef struct CAT_action_state
+{
+	CAT_action_profile* profile;
+
 	int tool_id;
 	CAT_vec2 location;
 	bool confirmed;

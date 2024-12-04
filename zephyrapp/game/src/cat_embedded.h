@@ -3,8 +3,8 @@
 
 typedef enum CAT_button
 {
-    CAT_BUTTON_SELECT,
     CAT_BUTTON_START,
+    CAT_BUTTON_SELECT,
     CAT_BUTTON_A,
     CAT_BUTTON_B,
     CAT_BUTTON_DOWN,

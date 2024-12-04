@@ -17,6 +17,12 @@ void CAT_item_table_init()
 
 int CAT_item_init(CAT_item_type type, const char* name, int sprite_id, int price)
 {
+	if(item_table.length >= CAT_ITEM_TABLE_MAX_LENGTH)
+	{
+		CAT_printf("[WARNING] Attempted add to full item table\n");
+		return -1;
+	}
+
 	int item_id = item_table.length;
 	item_table.length += 1;
 
@@ -32,7 +38,7 @@ int CAT_item_init(CAT_item_type type, const char* name, int sprite_id, int price
 
 bool CAT_item_validate(int item_id)
 {
-	if(item_id < 0 || item_id == item_table.length)
+	if(item_id < 0 || item_id >= item_table.length)
 	{
 		CAT_printf("[ERROR] reference to invalid item id: %d\n", item_id);
 		return false;
@@ -126,7 +132,10 @@ void CAT_item_list_add(CAT_item_list* item_list, int item_id)
 	if(!CAT_item_validate(item_id))
 		return;
 	if(item_list->length >= CAT_ITEM_LIST_MAX_LENGTH)
+	{
+		CAT_printf("[WARNING] Attempted add to full item list\n");
 		return;
+	}
 		
 	int idx = CAT_item_list_find(item_list, item_id);
 	if(idx >= 0)

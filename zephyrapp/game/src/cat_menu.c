@@ -36,13 +36,10 @@ struct entry
 	{"AIR QUALITY", CAT_MS_aqi},
 	{"SYSTEM MENU", CAT_MS_system_menu},
 #endif
-#ifdef CAT_DESKTOP
 	{"DEBUG", CAT_MS_debug},
-	{"LITANY", CAT_MS_litany},
 	{"CHEATS", CAT_MS_cheats},
-#endif
-	{"HEDRON", CAT_MS_hedron},
 	{"SOUND", CAT_MS_sound},
+	{"KONAMI", CAT_MS_konami},
 	{"MANUAL", CAT_MS_manual},
 	{"BACK", CAT_MS_room}
 };
@@ -147,24 +144,21 @@ void CAT_render_debug()
 	CAT_gui_textf("Earn: %0.0fs/%0.0fs\n", CAT_timer_get(room.earn_timer_id), timetable.durations[room.earn_timer_id]);
 	CAT_gui_line_break();
 
-	int occupied_spaces = 0;
-	for(int y = 0; y < space.grid_shape.y; y++)
+	for(int y = 0; y < CAT_GRID_HEIGHT; y++)
 	{
-		for(int x = 0; x < space.grid_shape.x; x++)
+		for(int x = 0; x < CAT_GRID_WIDTH; x++)
 		{
-			int idx = y * space.grid_shape.x + x;
-			int cell = space.cells[idx];
-			if(cell != 0)
-				occupied_spaces += 1;
+			int idx = y * CAT_GRID_WIDTH + x;
+			int cell = space.cells[idx].occupied ? 1 : 0;
 			CAT_gui_image(icon_cell_sprite, cell);
 		}
 		CAT_gui_line_break();
 	}
 	CAT_gui_textf
 	(
-		"%d occupied, %d free\n%d total",
-		occupied_spaces, space.free_list_length,
-		space.grid_shape.x * space.grid_shape.y
+		"%d occupied, %d free\n%d total\n",
+		CAT_GRID_SIZE - space.free_cell_count, space.free_cell_count,
+		CAT_GRID_SIZE
 	);
 }
 
@@ -276,52 +270,6 @@ void CAT_render_cheats()
 //////////////////////////////////////////////////////////////////////////
 // WIP LEAVE ME ALONE
 
-#include "cat_mesh_asset.h"
-#define NUM_FACES (sizeof(mesh.faces) / sizeof(mesh.faces[0]))
-
-float n = 0.01f;
-float f = 100.0f;
-float hfov = 1.57079632679 * 0.5f;
-
-float theta_h;
-float theta_v;
-float r;
-
-bool wireframe;
-
-void CAT_MS_hedron(CAT_machine_signal signal)
-{
-	switch (signal)
-	{
-		case CAT_MACHINE_SIGNAL_ENTER:
-			theta_h = 0;
-			theta_v = 0;
-			r = 6;
-
-			wireframe = false;
-			break;
-		case CAT_MACHINE_SIGNAL_TICK:
-			if(CAT_input_pressed(CAT_BUTTON_B) || CAT_input_pressed(CAT_BUTTON_START))
-				CAT_machine_back();
-
-			if(CAT_input_pressed(CAT_BUTTON_SELECT))
-				wireframe = !wireframe;
-
-			theta_h += CAT_get_delta_time();
-			if(theta_h >= 6.28318530718f)
-				theta_h = 0;
-			
-			if(CAT_input_held(CAT_BUTTON_A, 0.0))
-				r -= CAT_get_delta_time();
-			if(CAT_input_held(CAT_BUTTON_A, 0.0))
-				r += CAT_get_delta_time();
-			r = clampf(r, 6, 12);
-			break;
-		case CAT_MACHINE_SIGNAL_EXIT:
-			break;
-	}
-}
-
 void CAT_print_vec4(CAT_vec4 vec)
 {
 	CAT_printf("%f %f %f %f\n", vec.x, vec.y, vec.z, vec.w);
@@ -339,63 +287,95 @@ void CAT_print_mat4(CAT_mat4 mat)
 	}
 }
 
+#include "cat_mesh_asset.h"
+#define NUM_FACES (sizeof(mesh.faces) / sizeof(mesh.faces[0]))
+
+CAT_vec4 eye;
+CAT_mat4 V;
+CAT_mat4 P;
+CAT_mat4 PV;
+CAT_mat4 S;
+
+float theta_h;
+
+bool wireframe;
+
+void CAT_MS_hedron(CAT_machine_signal signal)
+{
+	switch (signal)
+	{
+		case CAT_MACHINE_SIGNAL_ENTER:
+			eye = (CAT_vec4) {0, 0, 6, 1.0f};
+			CAT_vec4 up = (CAT_vec4) {0, 1, 0, 0};
+			CAT_vec4 forward = CAT_vec4_sub(eye, (CAT_vec4){0, 0, 0, 1.0f});
+			CAT_vec4 right = CAT_vec4_cross(up, forward);
+			up = CAT_vec4_cross(forward, right);
+			right = CAT_vec4_normalize(right);
+			up = CAT_vec4_normalize(up);
+			forward = CAT_vec4_normalize(forward);
+			float tx = CAT_vec4_dot(eye, right);
+			float ty = CAT_vec4_dot(eye, up);
+			float tz = CAT_vec4_dot(eye, forward);
+			V = (CAT_mat4)
+			{
+				right.x, right.y, right.z, -tx,
+				up.x, up.y, up.z, -ty,
+				forward.x, forward.y, forward.z, -tz,
+				0, 0, 0, 1
+			};
+
+			float n = 0.01f;
+			float f = 100.0f;
+			float hfov = 1.57079632679 * 0.5f;
+			float width = 2 * n * tan(hfov / 2);
+			float asp = ((float) LCD_SCREEN_W / (float) LCD_SCREEN_H);
+			float height = width / asp;
+			P = (CAT_mat4)
+			{
+				2 * n / width, 0, 0, 0,
+				0, -2 * n / height, 0, 0,
+				0, 0, -f/(f-n), -f*n/(f-n),
+				0, 0, -1, 0
+			};
+
+			PV = CAT_matmul(P, V);
+
+			S = (CAT_mat4)
+			{
+				LCD_SCREEN_W / 2, 0, 0, LCD_SCREEN_W / 2,
+				0, LCD_SCREEN_H / 2, 0, LCD_SCREEN_H / 2,
+				0, 0, 1, 0,
+				0, 0, 0, 1
+			};
+
+			theta_h = 0;
+
+			wireframe = false;
+			break;
+		case CAT_MACHINE_SIGNAL_TICK:
+			if(CAT_input_pressed(CAT_BUTTON_B) || CAT_input_pressed(CAT_BUTTON_START))
+				CAT_machine_back();
+
+			if(CAT_input_pressed(CAT_BUTTON_SELECT))
+				wireframe = !wireframe;
+
+			theta_h += CAT_get_delta_time();
+			if(theta_h >= 6.28318530718f)
+				theta_h = 0;
+			break;
+		case CAT_MACHINE_SIGNAL_EXIT:
+			break;
+	}
+}
+
 void CAT_render_hedron()
 {
 	CAT_frameberry(0x0000);
 	CAT_depthberry();
 
 	CAT_mat4 M = CAT_rotmat(0, theta_h, 0);
-	
-	CAT_vec4 eye = (CAT_vec4) {0, 0, r, 1.0f};
-	CAT_vec4 up = (CAT_vec4) {0, 1, 0, 0};
-	CAT_vec4 forward = CAT_vec4_sub(eye, (CAT_vec4){0, 0, 0, 1.0f});
-	CAT_vec4 right = CAT_vec4_cross(up, forward);
-	up = CAT_vec4_cross(forward, right);
-	right = CAT_vec4_normalize(right);
-	up = CAT_vec4_normalize(up);
-	forward = CAT_vec4_normalize(forward);
-	float tx = CAT_vec4_dot(eye, right);
-	float ty = CAT_vec4_dot(eye, up);
-	float tz = CAT_vec4_dot(eye, forward);
-	CAT_mat4 V =
-	{
-		right.x, right.y, right.z, -tx,
-		up.x, up.y, up.z, -ty,
-		forward.x, forward.y, forward.z, -tz,
-		0, 0, 0, 1
-	};
-
-	// VIEW
-	// X : [-INF, INF], left to right
-	// Y : [-INF, INF], bottom to top
-	// Z : [n < 0, f < n < 0], back to front
-	// CLIP
-	// [0, w]
-	// NDC
-	// X : [-1, 1], left to right
-	// Y : [1, -1], bottom to top
-	// Z : [0, 1], back to front
-	float width = 2 * n * tan(hfov / 2);
-	float asp = ((float) LCD_SCREEN_W / (float) LCD_SCREEN_H);
-	float height = width / asp;
-	CAT_mat4 P =
-	{
-		2 * n / width, 0, 0, 0,
-		0, -2 * n / height, 0, 0,
-		0, 0, -f/(f-n), -f*n/(f-n),
-		0, 0, -1, 0
-	};
-
 	CAT_mat4 MV = CAT_matmul(V, M);
-	CAT_mat4 MVP = CAT_matmul(P, MV);
-	CAT_mat4 S =
-	{
-		LCD_SCREEN_W / 2, 0, 0, LCD_SCREEN_W / 2,
-		0, LCD_SCREEN_H / 2, 0, LCD_SCREEN_H / 2,
-		0, 0, 1, 0,
-		0, 0, 0, 1
-	};
-
+	CAT_mat4 MVP = CAT_matmul(PV, M);
 
 	// The train arrives in clipspace
 	for(int i = 0; i < NUM_FACES; i++)
@@ -414,12 +394,6 @@ void CAT_render_hedron()
 		bool clip_c = CAT_is_clipped(c);
 		if(clip_a && clip_b && clip_c)
 			continue;
-		
-		// Clipping
-		// Two cases: 1) two vertices clipped, 2) one vertex clipped
-		// Case 1 yields one new triangle
-		// Case 2 yields two new triangles
-		// TODO
 			
 		// Backface culling
 		CAT_vec4 ba = CAT_vec4_sub(b, a);
@@ -436,9 +410,9 @@ void CAT_render_hedron()
 		a = CAT_matvec_mul(S, a);
 		b = CAT_matvec_mul(S, b);
 		c = CAT_matvec_mul(S, c);
-		
+
+		// LIGHTING	
 #ifdef CAT_DESKTOP
-		// LIGHTING
 		CAT_vec4 p1 = mesh.verts[mesh.faces[i][0]];
 		CAT_vec4 p2 = mesh.verts[mesh.faces[i][1]];
 		CAT_vec4 p3 = mesh.verts[mesh.faces[i][2]];
@@ -451,29 +425,26 @@ void CAT_render_hedron()
 		CAT_vec4 N = CAT_vec4_normalize(CAT_vec4_cross(CAT_vec4_sub(p2, p1), CAT_vec4_sub(p3, p1)));
 		float diff = clampf(CAT_vec4_dot(N, L), 0.0f, 1.0f);
 		uint8_t light = 255 * clampf(amb + diff, 0.0f, 1.0f) * 0.75f;
-
-		CAT_triberry
-		(
-			a.x, a.y, a.z,
-			b.x, b.y, b.z,
-			c.x, c.y, c.z,
-			RGB8882565(light, light, light)
-		);
+#else
+		uint8_t light = 255;
+#endif
+		
 		if(wireframe)
 		{
 			CAT_lineberry(a.x, a.y, b.x, b.y, 0xFFFF);
 			CAT_lineberry(b.x, b.y, c.x, c.y, 0xFFFF);
 			CAT_lineberry(c.x, c.y, a.x, a.y, 0xFFFF);
 		}
-#else
-		CAT_triberry
-		(
-			a.x, a.y, a.z,
-			b.x, b.y, b.z,
-			c.x, c.y, c.z,
-			0xFFFF
-		);
-#endif
+		else
+		{
+			CAT_triberry
+			(
+				a.x, a.y, a.z,
+				b.x, b.y, b.z,
+				c.x, c.y, c.z,
+				RGB8882565(light, light, light)
+			);
+		}
 	}
 }
 
@@ -515,8 +486,35 @@ void CAT_render_sound()
 #ifdef CAT_EMBEDDED
 	CAT_gui_text("Press A for sound\n");
 	if(soundIsPlaying())
+	{
 		CAT_gui_text("Sound is playing\n");
+		CAT_gui_image(cliff_racer_sprite, 0);
+	}
 #else
 	CAT_gui_text_wrap("Sound is only available on embedded!\n");
 #endif
+}
+
+void CAT_MS_konami(CAT_machine_signal signal)
+{
+	switch (signal)
+	{
+		case CAT_MACHINE_SIGNAL_ENTER:
+			break;
+		case CAT_MACHINE_SIGNAL_TICK:
+			if(CAT_input_pressed(CAT_BUTTON_START))
+				CAT_machine_back();
+
+			if(CAT_konami())
+				CAT_machine_transition(CAT_MS_hedron);
+			break;
+		case CAT_MACHINE_SIGNAL_EXIT:
+			break;
+	}
+}
+
+void CAT_render_konami()
+{
+	CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 20});
+	CAT_gui_text_wrap("Enter the Konami code to continue, or press START to go back\n");
 }

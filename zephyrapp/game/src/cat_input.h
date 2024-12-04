@@ -12,6 +12,9 @@ typedef struct CAT_input
 	CAT_touch touch;
 	bool touch_last;
 	float touch_time;
+
+	CAT_button buffer[10];
+	int buffer_head;
 } CAT_input;
 extern CAT_input input;
 
@@ -28,3 +31,5 @@ bool CAT_input_drag(int x, int y, float r);
 bool CAT_input_touch(int x, int y, float r);
 bool CAT_input_touch_rect(int x, int y, int w, int h);
 bool CAT_input_touching();
+
+bool CAT_konami();

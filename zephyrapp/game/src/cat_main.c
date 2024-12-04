@@ -218,12 +218,10 @@ void CAT_init(int seconds_slept)
 
 	CAT_atlas_init();
 	CAT_sprite_mass_define();
+	CAT_spriter_init();
 
 	CAT_item_table_init();
 	CAT_item_mass_define();
-
-	CAT_spriter_init();
-	CAT_draw_queue_init();
 
 	CAT_space_init();
 	CAT_room_init();
@@ -329,6 +327,8 @@ void CAT_tick_render(int cycle)
 		CAT_render_hedron();
 	else if(machine == CAT_MS_sound)
 		CAT_render_sound();
+	else if(machine == CAT_MS_konami)
+		CAT_render_konami();
 	else
 	{
 		CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 20});

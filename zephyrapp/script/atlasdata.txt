@@ -1,4 +1,4 @@
-Starting CAT v0.0.0.48...
+Starting CAT v0.0.0.49...
 Renderer: Apple M1 Pro
 GL version: 4.1 Metal - 88.1
 SL version: 4.10
@@ -165,8 +165,9 @@ BAKE-INIT: (158, "snake_head_sprite", "sprites/snake_cat_head_default.png", 4, 1
 BAKE-INIT: (159, "snake_body_sprite", "sprites/snake_cat_body.png", 4, 16, 16)
 BAKE-INIT: (160, "snake_corner_sprite", "sprites/snake_cat_corner.png", 4, 16, 16)
 BAKE-INIT: (161, "snake_tail_sprite", "sprites/snake_tail.png", 4, 16, 16)
+BAKE-INIT: (162, "cliff_racer_sprite", "sprites/cliff_racer.png", 1, 128, 102)
 Loading...
-Loaded save from version v0.0.0.48
+Loaded save from version v0.0.0.49
 Load done!
 Saving...
 Save done!

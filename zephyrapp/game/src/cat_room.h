@@ -9,6 +9,8 @@
 #define CAT_GRID_WIDTH 15
 #define CAT_GRID_HEIGHT 10
 #define CAT_GRID_SIZE (CAT_GRID_WIDTH * CAT_GRID_HEIGHT)
+#define CAT_WORLD_WIDTH (CAT_GRID_WIDTH * CAT_TILE_SIZE)
+#define CAT_WORLD_HEIGHT (CAT_GRID_HEIGHT * CAT_TILE_SIZE)
 
 #define CAT_MAX_COIN_COUNT 24
 #define CAT_EARN_TICK_SECS 1800
@@ -17,19 +19,24 @@
 //////////////////////////////////////////////////////////////////////////
 // SPACE
 
+typedef struct CAT_cell
+{
+	int idx;
+	CAT_ivec2 coords;
+
+	bool occupied;
+	bool visited;
+} CAT_cell;
+
 typedef struct CAT_space
 {
 	CAT_ivec2 grid_place;
-	CAT_ivec2 grid_shape;	
 
 	CAT_ivec2 world_shape;
 	CAT_rect world_rect;
 
-	int cells[CAT_GRID_SIZE];
-
-	CAT_ivec2 free_list[CAT_GRID_SIZE];
-	int free_list_length;
-
+	CAT_cell cells[CAT_GRID_SIZE];
+	int free_cell_count;
 } CAT_space;
 extern CAT_space space;
 
@@ -38,18 +45,16 @@ void CAT_space_init();
 CAT_ivec2 CAT_grid2world(CAT_ivec2 grid);
 CAT_ivec2 CAT_world2grid(CAT_ivec2 world);
 
-int CAT_get_cell(CAT_ivec2 cell);
-void CAT_set_cell(CAT_ivec2 cell, int colour);
+CAT_cell* CAT_get_cell(CAT_ivec2 cell);
 
-bool CAT_block_free(CAT_rect block);
-void CAT_set_block(CAT_rect block, int colour);
+bool CAT_is_block_free(CAT_rect block);
+void CAT_toggle_block(CAT_rect block, bool value);
 
-void CAT_build_free_list();
 bool CAT_has_free_space();
 CAT_ivec2 CAT_first_free_space();
 CAT_ivec2 CAT_rand_free_space();
 CAT_ivec2 CAT_nearest_free_space(CAT_ivec2 cell);
-
+CAT_ivec2 CAT_largest_free_space();
 
 //////////////////////////////////////////////////////////////////////////
 // ROOM

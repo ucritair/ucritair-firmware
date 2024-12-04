@@ -158,7 +158,7 @@ void CAT_pet_settle()
 {
 	if(!CAT_pet_is_critical())
 	{
-		CAT_AM_transition(&pet_asm, &AS_idle);
+		CAT_animachine_transition(&pet_asm, &AS_idle);
 	}
 }
 
@@ -230,7 +230,7 @@ void CAT_pet_tick(bool capture_input)
 	{
 		if(!CAT_pet_is_critical())
 		{
-			if(CAT_AM_is_in(&pet_asm, &AS_idle) && CAT_AM_is_ticking(&pet_asm))
+			if(CAT_animachine_is_in(&pet_asm, &AS_idle) && CAT_animachine_is_ticking(&pet_asm))
 			{
 				if(CAT_timer_tick(pet.walk_timer_id) && CAT_has_free_space())
 				{
@@ -238,38 +238,38 @@ void CAT_pet_tick(bool capture_input)
 					CAT_ivec2 world_dest = CAT_grid2world(grid_dest);
 					destination = (CAT_vec2) {world_dest.x + 8, world_dest.y + 8};
 
-					CAT_AM_transition(&pet_asm, &AS_walk);
+					CAT_animachine_transition(&pet_asm, &AS_walk);
 					CAT_timer_reset(pet.walk_timer_id);
 				}
 			}
 			
-			if(CAT_AM_is_in(&pet_asm, &AS_walk) && CAT_AM_is_ticking(&pet_asm))
+			if(CAT_animachine_is_in(&pet_asm, &AS_walk) && CAT_animachine_is_ticking(&pet_asm))
 			{
 				if(CAT_pet_seek(destination))
 				{
-					CAT_AM_transition(&pet_asm, &AS_idle);
+					CAT_animachine_transition(&pet_asm, &AS_idle);
 				}
 			}
 		}
 		else
 		{
-			if(!CAT_AM_is_in(&pet_asm, &AS_crit))
-				CAT_AM_transition(&pet_asm, &AS_crit);
+			if(!CAT_animachine_is_in(&pet_asm, &AS_crit))
+				CAT_animachine_transition(&pet_asm, &AS_crit);
 		}
 	}
 
 	if(!capture_input)
 		return;
 
-	if(!CAT_AM_is_in(&react_asm, &AS_react) && CAT_input_drag(pet.pos.x, pet.pos.y-16, 16))
+	if(!CAT_animachine_is_in(&react_asm, &AS_react) && CAT_input_drag(pet.pos.x, pet.pos.y-16, 16))
 	{
-		CAT_AM_transition(&react_asm, &AS_react);
+		CAT_animachine_transition(&react_asm, &AS_react);
 	}
-	if(CAT_AM_is_in(&react_asm, &AS_react))
+	if(CAT_animachine_is_in(&react_asm, &AS_react))
 	{
 		if(CAT_timer_tick(pet.react_timer_id))
 		{
-			CAT_AM_transition(&react_asm, NULL);
+			CAT_animachine_transition(&react_asm, NULL);
 			CAT_timer_reset(pet.react_timer_id);
 		}
 	}
@@ -282,11 +282,11 @@ void CAT_render_pet(int cycle)
 		int pet_mode = CAT_DRAW_MODE_BOTTOM | CAT_DRAW_MODE_CENTER_X;
 		if(pet.left)
 			pet_mode |= CAT_DRAW_MODE_REFLECT_X;
-		CAT_draw_queue_animate(CAT_AM_tick(&pet_asm), 2, pet.pos.x, pet.pos.y, pet_mode);	
-		if(CAT_AM_is_in(&react_asm, &AS_react))
+		CAT_draw_queue_animate(CAT_animachine_tick(&pet_asm), 2, pet.pos.x, pet.pos.y, pet_mode);	
+		if(CAT_animachine_is_in(&react_asm, &AS_react))
 		{
 			int x_off = pet.left ? 16 : -16;
-			CAT_draw_queue_animate(CAT_AM_tick(&react_asm), 3, pet.pos.x + x_off, pet.pos.y - 48, pet_mode);	
+			CAT_draw_queue_animate(CAT_animachine_tick(&react_asm), 3, pet.pos.x + x_off, pet.pos.y - 48, pet_mode);	
 		}
 	}
 }

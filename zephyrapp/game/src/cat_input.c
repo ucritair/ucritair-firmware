@@ -13,11 +13,16 @@ void CAT_input_init()
 		input.time[i] = 0;
 		input.pulse[i] = 0;	
 	}
+
 	input.touch.x = -1;
 	input.touch.y = -1;
 	input.touch.pressure = 0;
 	input.touch_last = false;
 	input.touch_time = 0;
+
+	for(int i = 0; i < 10; i++)
+		input.buffer[i] = CAT_BUTTON_LAST;
+	input.buffer_head = 0;
 }
 
 void CAT_input_tick()
@@ -33,6 +38,14 @@ void CAT_input_tick()
 			input.time[i] = 0;
 		else
 			input.time[i] += CAT_get_delta_time();
+
+		if(input.mask[i] && !input.last[i])
+		{
+			input.buffer[input.buffer_head] = i;
+			input.buffer_head += 1;
+			if(input.buffer_head >= 10)
+				input.buffer_head = 0;
+		}
 	}
 
 	bool old_state = input.touch_last;
@@ -117,4 +130,34 @@ bool CAT_input_touch_rect(int x, int y, int w, int h)
 bool CAT_input_touching()
 {
 	return input.touch.pressure;
+}
+
+static CAT_button konami_code[10] =
+{
+	CAT_BUTTON_UP,
+	CAT_BUTTON_UP,
+	CAT_BUTTON_DOWN,
+	CAT_BUTTON_DOWN,
+	CAT_BUTTON_LEFT,
+	CAT_BUTTON_RIGHT,
+	CAT_BUTTON_LEFT,
+	CAT_BUTTON_RIGHT,
+	CAT_BUTTON_B,
+	CAT_BUTTON_A
+};
+
+bool CAT_konami()
+{
+	int i = (input.buffer_head+9) % 10;
+	int steps = 0;
+	while(steps < 10)
+	{
+		if(input.buffer[i] != konami_code[9-steps])
+			return false;
+		i -= 1;
+		if(i < 0)
+			i = 9;
+		steps += 1;
+	}
+	return true;
 }

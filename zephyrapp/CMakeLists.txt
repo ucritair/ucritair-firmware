@@ -27,11 +27,14 @@ target_sources(app PRIVATE
 	src/power_control.c
 	src/rgb_leds.c
 	src/rtc.c
+	src/sound.c
+	src/sbcdec.c
 	src/sdcard.c
 	src/sensor_hal.c
 	src/sensor_lps22hh.c
 	src/sensor_sen5x.c
 	src/sensor_sunrise.c
+	src/sound.c
 	src/touch.c
 	src/wlan.c
 
@@ -39,9 +42,6 @@ target_sources(app PRIVATE
 	src/menu/menu_aqi.c
 	src/menu/menu_system.c
 	src/menu/menu_graph.c
-
-	src/sound.c
-	src/sbcdec.c
 
 	${CMAKE_CURRENT_BINARY_DIR}/images.c
 )

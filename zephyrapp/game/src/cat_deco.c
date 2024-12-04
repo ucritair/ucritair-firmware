@@ -56,7 +56,7 @@ void CAT_MS_deco(CAT_machine_signal signal)
 
 			deco_state.mode = ADD;
 			deco_state.mod_idx = -1;
-			room.grid_cursor = CAT_nearest_free_space(room.grid_cursor);
+			room.grid_cursor = CAT_largest_free_space();
 			break;
 		}
 		case CAT_MACHINE_SIGNAL_TICK:
@@ -81,7 +81,7 @@ void CAT_MS_deco(CAT_machine_signal signal)
 						CAT_rect block = CAT_rect_place(room.grid_cursor, shape);
 
 						deco_state.add_rect = block;
-						deco_state.valid_add = CAT_block_free(block);
+						deco_state.valid_add = CAT_is_block_free(block);
 
 						if(deco_state.valid_add)
 						{

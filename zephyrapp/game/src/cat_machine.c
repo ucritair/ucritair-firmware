@@ -19,7 +19,10 @@ void CAT_timetable_init()
 int CAT_timer_init(float duration)
 {
 	if(timetable.length >= CAT_TIMETABLE_MAX_LENGTH)
+	{
+		CAT_printf("[WARNING] Attempted add to full timetable\n");
 		return -1;
+	}
 		
 	int idx = timetable.length;
 	timetable.length += 1;
