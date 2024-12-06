@@ -1,5 +1,5 @@
 cd ~/Documents/GitHub/cat_software/zephyrapp/game/build
-cmake .. -DMACOS=1 -DREBUILD_ATLAS=0
+cmake .. -DMACOS=1 -DREBUILD_ATLAS=0 -DDEBUG=1
 make -j8
 cd ~/Documents/GitHub/cat_software/zephyrapp/game
 build/app

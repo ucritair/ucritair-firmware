@@ -32,4 +32,5 @@ bool CAT_input_touch(int x, int y, float r);
 bool CAT_input_touch_rect(int x, int y, int w, int h);
 bool CAT_input_touching();
 
-bool CAT_konami();
+void CAT_input_buffer_clear();
+bool CAT_input_spell(CAT_button* spell);

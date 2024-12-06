@@ -125,12 +125,6 @@ void CAT_MS_inspector(CAT_machine_signal signal)
 				CAT_machine_back();
 			if(CAT_input_pressed(CAT_BUTTON_START))
 				CAT_machine_transition(CAT_MS_room);
-			
-			if(CAT_input_pressed(CAT_BUTTON_A))
-			{
-				int item_id = bag.item_ids[selector];
-				CAT_item* item = CAT_item_get(item_id);
-			}
 			break;
 		}
 		case CAT_MACHINE_SIGNAL_EXIT:

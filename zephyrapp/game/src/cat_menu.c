@@ -36,12 +36,14 @@ struct entry
 	{"AIR QUALITY", CAT_MS_aqi},
 	{"SYSTEM MENU", CAT_MS_system_menu},
 #endif
+	{"MAGIC", CAT_MS_magic},
+	{"MANUAL", CAT_MS_manual},
+	{"BACK", CAT_MS_room},
+#ifdef CAT_DEBUG
 	{"DEBUG", CAT_MS_debug},
 	{"CHEATS", CAT_MS_cheats},
 	{"SOUND", CAT_MS_sound},
-	{"KONAMI", CAT_MS_konami},
-	{"MANUAL", CAT_MS_manual},
-	{"BACK", CAT_MS_room}
+#endif
 };
 #define NUM_MENU_ITEMS (sizeof(entries)/sizeof(entries[0]))
 static int selector = 0;
@@ -482,24 +484,38 @@ void CAT_render_sound()
 	if(soundIsPlaying())
 	{
 		CAT_gui_text("Sound is playing\n");
-		CAT_gui_image(cliff_racer_sprite, 0);
 	}
 #else
 	CAT_gui_text_wrap("Sound is only available on embedded!\n");
 #endif
 }
 
-void CAT_MS_konami(CAT_machine_signal signal)
+static CAT_button konami_spell[10] =
+{
+	CAT_BUTTON_UP,
+	CAT_BUTTON_UP,
+	CAT_BUTTON_DOWN,
+	CAT_BUTTON_DOWN,
+	CAT_BUTTON_LEFT,
+	CAT_BUTTON_RIGHT,
+	CAT_BUTTON_LEFT,
+	CAT_BUTTON_RIGHT,
+	CAT_BUTTON_B,
+	CAT_BUTTON_A
+};
+
+void CAT_MS_magic(CAT_machine_signal signal)
 {
 	switch (signal)
 	{
 		case CAT_MACHINE_SIGNAL_ENTER:
+			CAT_input_buffer_clear();
 			break;
 		case CAT_MACHINE_SIGNAL_TICK:
-			if(CAT_input_pressed(CAT_BUTTON_START))
+			if(CAT_input_held(CAT_BUTTON_B, 0.5f))
 				CAT_machine_back();
 
-			if(CAT_konami())
+			if(CAT_input_spell(konami_spell))
 				CAT_machine_transition(CAT_MS_hedron);
 			break;
 		case CAT_MACHINE_SIGNAL_EXIT:
@@ -507,8 +523,27 @@ void CAT_MS_konami(CAT_machine_signal signal)
 	}
 }
 
-void CAT_render_konami()
+void CAT_render_magic()
 {
-	CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 20});
-	CAT_gui_text_wrap("Enter the Konami code to continue, or press START to go back\n");
+	CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});  
+	CAT_gui_text("MAGIC ");
+
+	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18}); 
+	CAT_gui_text("Enter an incantation,\n");
+	CAT_gui_text("or hold ");
+	CAT_gui_image(icon_b_sprite, 0);
+	CAT_gui_text(" to exit.");
+	
+	CAT_gui_div("INCANTATION");
+	int i = (input.buffer_head+9) % 10;
+	int steps = 0;
+	while(steps < 10)
+	{
+		if(input.buffer[i] != CAT_BUTTON_LAST)
+			CAT_gui_image(icon_input_sprite, input.buffer[i]);
+		i -= 1;
+		if(i < 0)
+			i = 9;
+		steps += 1;
+	}
 }

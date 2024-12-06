@@ -16,8 +16,7 @@ CAT_gui gui =
 	.start = (CAT_ivec2) {0, 0},
 	.shape = (CAT_ivec2) {0, 0},
 	.margin = 8,
-	.pad_x = 4,
-	.pad_y = 4,
+	.pad = 4,
 
 	.cursor = (CAT_ivec2) {0, 0},
 	.channel_height = 0
@@ -64,44 +63,19 @@ void CAT_gui_line_break()
 	(gui.channel_height > 0 ?
 	gui.channel_height / 2 :
 	CAT_GLYPH_HEIGHT) +
-	gui.pad_y;
+	gui.pad;
 	gui.cursor.x = gui.start.x + gui.margin;
 	gui.channel_height = 0;
 }
 
-void CAT_gui_text(const char* text)
-{
-	const char* c = text;
-	while(*c != '\0')
-	{
-		if(*c == '\n')
-		{
-			CAT_gui_line_break();
-			c++;
-			continue;
-		}
-		if(*c == '\t')
-		{
-			gui.cursor.x += CAT_GLYPH_WIDTH * 4;
-			c++;
-			continue;
-		}
-
-		CAT_gui_open_channel(CAT_GLYPH_HEIGHT);
-		CAT_draw_sprite(glyph_sprite, *c-' ', gui.cursor.x, gui.cursor.y);
-		gui.cursor.x += CAT_GLYPH_WIDTH;
-		c++;
-	}
-}
-
-void CAT_gui_text_wrap(const char* text)
+void gui_text(const char* text, bool wrap)
 {
 	int x_lim = gui.start.x + (gui.shape.x) * CAT_TILE_SIZE - CAT_GLYPH_WIDTH - gui.margin;
 	const char* c = text;
 
 	while(*c != '\0')
 	{
-		if(gui.cursor.x >= x_lim && !isspace(*(c+1)))
+		if(wrap && gui.cursor.x >= x_lim && !isspace(*(c+1)))
 		{
 			if(!isspace(*c) && !isspace(*(c-1)))
 				CAT_draw_sprite(glyph_sprite, '-'-' ', gui.cursor.x, gui.cursor.y);
@@ -130,15 +104,25 @@ void CAT_gui_text_wrap(const char* text)
 	}
 }
 
+void CAT_gui_text(const char* text)
+{
+	return gui_text(text, false);
+}
+
+void CAT_gui_text_wrap(const char* text)
+{
+	return gui_text(text, true);
+}
+
 void CAT_gui_image(int sprite_id, int frame_idx)
 {
 	CAT_sprite sprite = atlas.table[sprite_id];
 	CAT_gui_open_channel(sprite.height);
 
+	gui.cursor.x += gui.pad / 2;
 	CAT_draw_sprite(sprite_id, frame_idx, gui.cursor.x, gui.cursor.y);
 	gui.cursor.x += sprite.width;
-
-	gui.cursor.x += gui.pad_x;
+	gui.cursor.x += gui.pad / 2;
 }
 
 void CAT_gui_div(const char* text)
@@ -152,7 +136,7 @@ void CAT_gui_div(const char* text)
 	else
 	{
 		CAT_gui_text(text);
-		CAT_lineberry(gui.cursor.x + gui.pad_x, gui.cursor.y, 240-gui.margin, gui.cursor.y, 0x0000);
+		CAT_lineberry(gui.cursor.x + gui.pad, gui.cursor.y, 240-gui.margin, gui.cursor.y, 0x0000);
 	}
 	CAT_gui_line_break();
 }
@@ -184,7 +168,7 @@ void CAT_gui_popup(const char* text)
 	
 	int dialog_width = max_length * CAT_GLYPH_WIDTH + (CAT_TILE_SIZE + gui.margin * 2);
 	dialog_width = round((float) dialog_width / (float) CAT_TILE_SIZE);
-	int dialog_height = lines * (CAT_GLYPH_HEIGHT + gui.pad_y) + (CAT_TILE_SIZE + gui.margin * 2);
+	int dialog_height = lines * (CAT_GLYPH_HEIGHT + gui.pad) + (CAT_TILE_SIZE + gui.margin * 2);
 	dialog_height = round((float) dialog_height / (float) CAT_TILE_SIZE);
 
 	CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {dialog_width, dialog_height});

@@ -3,9 +3,6 @@
 #include <GL/glew.h> 
 #include <GLFW/glfw3.h>
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// DEV MODE
-
 typedef struct CAT_simulator
 {
     GLFWwindow* lcd;
@@ -24,12 +21,12 @@ typedef enum CAT_button
 {
     CAT_BUTTON_START,
     CAT_BUTTON_SELECT,
-    CAT_BUTTON_UP,
-    CAT_BUTTON_RIGHT,
-    CAT_BUTTON_DOWN,
-    CAT_BUTTON_LEFT,
     CAT_BUTTON_A,
     CAT_BUTTON_B,
+    CAT_BUTTON_DOWN,
+    CAT_BUTTON_RIGHT,
+    CAT_BUTTON_LEFT,
+    CAT_BUTTON_UP,
     CAT_BUTTON_LAST
 } CAT_button;
 

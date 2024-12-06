@@ -245,12 +245,12 @@ int input_map[CAT_BUTTON_LAST] =
 {
 	GLFW_KEY_ESCAPE,
 	GLFW_KEY_TAB,
-	GLFW_KEY_W,
-	GLFW_KEY_D,
-	GLFW_KEY_S,
-	GLFW_KEY_A,
 	GLFW_KEY_P,
-	GLFW_KEY_L
+	GLFW_KEY_L,
+	GLFW_KEY_S,
+	GLFW_KEY_D,
+	GLFW_KEY_A,
+	GLFW_KEY_W
 };
 
 uint16_t CAT_get_buttons()

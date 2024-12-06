@@ -14,6 +14,7 @@ LOG_MODULE_REGISTER(lcd_rendering, LOG_LEVEL_DBG);
 
 #include "cat_pet.h"
 #include "cat_item.h"
+#include "cat_bag.h"
 
 #include "menu_system.h"
 
@@ -112,7 +113,7 @@ void lcd_render_diag()
 		}
 #endif
 
-		guy_is_wearing_mask = CAT_gear_status(mask_item);
+		guy_is_wearing_mask = CAT_item_list_find(&bag, mask_item) != -1;
 		if (CAT_room_find(purifier_item) != -1 && CAT_room_find(uv_item) != -1)
 		{
 			guy_happiness = 2;

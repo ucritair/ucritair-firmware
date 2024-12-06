@@ -421,11 +421,11 @@ void CAT_draw_arcade()
 	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
 
 	CAT_gui_image(snake_tail_sprite, 0);
-	gui.cursor.x -= gui.pad_x;
+	gui.cursor.x -= gui.pad;
 	for(int i = 0; i < 11; i++)
 	{
 		CAT_gui_image(snake_body_sprite, 0);
-		gui.cursor.x -= gui.pad_x;
+		gui.cursor.x -= gui.pad;
 	}
 	CAT_gui_image(snake_head_sprite, 0);
 	CAT_gui_image(padkaprow_sprite, 0);
@@ -444,11 +444,11 @@ void CAT_draw_arcade()
 
 	CAT_gui_image(coffee_sprite, 0);
 	CAT_gui_image(snake_head_sprite, 2);
-	gui.cursor.x -= gui.pad_x;
+	gui.cursor.x -= gui.pad;
 	for(int i = 0; i < 11; i++)
 	{
 		CAT_gui_image(snake_body_sprite, 2);
-		gui.cursor.x -= gui.pad_x;
+		gui.cursor.x -= gui.pad;
 	}
 	CAT_gui_image(snake_tail_sprite, 2);
 	CAT_gui_line_break();
@@ -466,11 +466,11 @@ void CAT_draw_arcade()
 	CAT_gui_line_break();
 
 	CAT_gui_image(snake_tail_sprite, 0);
-	gui.cursor.x -= gui.pad_x;
+	gui.cursor.x -= gui.pad;
 	for(int i = 0; i < 11; i++)
 	{
 		CAT_gui_image(snake_body_sprite, 0);
-		gui.cursor.x -= gui.pad_x;
+		gui.cursor.x -= gui.pad;
 	}
 	CAT_gui_image(snake_head_sprite, 0);
 	CAT_gui_image(coin_static_sprite, 0);

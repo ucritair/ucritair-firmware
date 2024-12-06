@@ -1,5 +1,4 @@
-#ifndef CAT_EMBEDDED_H
-#define CAT_EMBEDDED_H
+#pragma once
 
 typedef enum CAT_button
 {
@@ -13,5 +12,3 @@ typedef enum CAT_button
     CAT_BUTTON_UP,
     CAT_BUTTON_LAST
 } CAT_button;
-
-#endif

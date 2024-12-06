@@ -44,19 +44,19 @@ void CAT_render_stats()
 	CAT_gui_image(icon_vig_sprite, 0);
 	CAT_gui_text("VIG ");
 	for(int i = 1; i <= 12; i++)
-		CAT_gui_image(i <= pet.vigour ? cell_vig_sprite : cell_empty_sprite, 0);
+		CAT_gui_image(i <= pet.vigour ? pip_vig_sprite : pip_empty_sprite, 0);
 	CAT_gui_line_break();
 
 	CAT_gui_image(icon_foc_sprite, 0);
 	CAT_gui_text("FOC ");
 	for(int i = 1; i <= 12; i++)
-		CAT_gui_image(i <= pet.focus ? cell_foc_sprite : cell_empty_sprite, 0);
+		CAT_gui_image(i <= pet.focus ? pip_foc_sprite : pip_empty_sprite, 0);
 	CAT_gui_line_break();
 
 	CAT_gui_image(icon_spi_sprite, 0);
 	CAT_gui_text("SPI ");
 	for(int i = 1; i <= 12; i++)
-		CAT_gui_image(i <= pet.spirit ? cell_spi_sprite : cell_empty_sprite, 0);
+		CAT_gui_image(i <= pet.spirit ? pip_spi_sprite : pip_empty_sprite, 0);
 
 	CAT_gui_div("AIR QUALITY");
 	

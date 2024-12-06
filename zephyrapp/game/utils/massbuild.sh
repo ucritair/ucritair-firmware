@@ -3,9 +3,9 @@ source ~/Documents/GitHub/zephyrproject/zephyr/zephyr-env.sh
 
 cd ~/Documents/GitHub/cat_software/zephyrapp/game/build
 if [[ "$OSTYPE" == "darwin"* ]]; then
-	cmake .. -DMACOS=1 -DREBUILD_ATLAS=1
+	cmake .. -DMACOS=1 -DREBUILD_ATLAS=1 -DDEBUG=0
 else
-	cmake .. -DREBUILD_ATLAS=1
+	cmake .. -DREBUILD_ATLAS=1 -DDEBUG=0
 fi
 make -j8
 

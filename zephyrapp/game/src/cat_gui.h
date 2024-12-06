@@ -23,8 +23,7 @@ typedef struct CAT_gui
 	CAT_ivec2 start;
 	CAT_ivec2 shape;
 	int margin;
-	int pad_x;
-	int pad_y;
+	int pad;
 
 	CAT_ivec2 cursor;
 	int channel_height;

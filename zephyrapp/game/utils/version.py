@@ -46,13 +46,12 @@ else:
 	print("usage: version.py {tell|major|minor|patch|push}");
 	exit();
 
-text = ("#ifndef CAT_VERSION_H\n"
-		"#define CAT_VERSION_H\n"
+text = ("#pragma once\n"
+		"\n"
 		f"#define CAT_VERSION_MAJOR {major}\n"
 		f"#define CAT_VERSION_MINOR {minor}\n"
 		f"#define CAT_VERSION_PATCH {patch}\n"
-		f"#define CAT_VERSION_PUSH {push}\n"
-		"#endif\n");
+		f"#define CAT_VERSION_PUSH {push}\n");
 
 file = open("src/cat_version.h", "w");
 file.write(text);

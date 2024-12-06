@@ -96,7 +96,7 @@ void CAT_render_vending()
 	CAT_gui_image(icon_coin_sprite, 0);
 	CAT_gui_textf(" $%d", coins);
 
-	CAT_gui_panel((CAT_ivec2) {0, 4}, (CAT_ivec2) {15, 16});  
+	CAT_gui_panel((CAT_ivec2) {0, 4}, (CAT_ivec2) {15, 16});
 	for(int i = 0; i < VENDING_MAX_SLOTS; i++)
 	{
 		int item_id = base + i;

@@ -1040,6 +1040,7 @@ int icon_enter_sprite;
 int icon_exit_sprite;
 int icon_plot_sprite;
 int icon_equip_sprite;
+int icon_input_sprite;
 
 int icon_item_key_sprite;
 int icon_item_food_sprite;
@@ -1052,10 +1053,10 @@ int icon_coin_sprite;
 int icon_vig_sprite;
 int icon_foc_sprite;
 int icon_spi_sprite;
-int cell_vig_sprite;
-int cell_foc_sprite;
-int cell_spi_sprite;
-int cell_empty_sprite;
+int pip_vig_sprite;
+int pip_foc_sprite;
+int pip_spi_sprite;
+int pip_empty_sprite;
 
 int icon_temp_sprite;
 int icon_co2_sprite;
@@ -1234,9 +1235,6 @@ int snake_body_sprite;
 int snake_corner_sprite;
 int snake_tail_sprite;
 
-// STUPID BULLSHIT
-int cliff_racer_sprite;
-
 
 // MACHINES
 CAT_animachine_state* pet_asm;
@@ -1307,6 +1305,7 @@ void CAT_sprite_mass_define()
 	INIT_SPRITE(icon_exit_sprite, "sprites/icon_exit.png", 1);
 	INIT_SPRITE(icon_plot_sprite, "sprites/icon_plot.png", 1);
 	INIT_SPRITE(icon_equip_sprite, "sprites/icon_equip.png", 2);
+	INIT_SPRITE(icon_input_sprite, "sprites/icon_inputs.png", 8);
 
 	INIT_SPRITE(icon_item_key_sprite, "sprites/icon_item_key.png", 1);
 	INIT_SPRITE(icon_item_food_sprite, "sprites/icon_item_food.png", 1);
@@ -1319,10 +1318,10 @@ void CAT_sprite_mass_define()
 	INIT_SPRITE(icon_vig_sprite, "sprites/STAT_VIGOR2424.png", 1);
 	INIT_SPRITE(icon_foc_sprite, "sprites/STAT_FOCUS2424.png", 1);
 	INIT_SPRITE(icon_spi_sprite, "sprites/STAT_SPIRIT2424.png", 1);
-	INIT_SPRITE(cell_vig_sprite, "sprites/cell_vig.png", 1);
-	INIT_SPRITE(cell_foc_sprite, "sprites/cell_foc.png", 1);
-	INIT_SPRITE(cell_spi_sprite, "sprites/cell_spi.png", 1);
-	INIT_SPRITE(cell_empty_sprite, "sprites/cell_empty.png", 1);
+	INIT_SPRITE(pip_vig_sprite, "sprites/cell_vig.png", 1);
+	INIT_SPRITE(pip_foc_sprite, "sprites/cell_foc.png", 1);
+	INIT_SPRITE(pip_spi_sprite, "sprites/cell_spi.png", 1);
+	INIT_SPRITE(pip_empty_sprite, "sprites/cell_empty.png", 1);
 
 	INIT_SPRITE(icon_temp_sprite, "sprites/icon_temp.png", 3);
 	INIT_SPRITE(icon_co2_sprite, "sprites/icon_co2.png", 3);
@@ -1498,9 +1497,6 @@ void CAT_sprite_mass_define()
 	INIT_SPRITE(snake_body_sprite, "sprites/snake_cat_body.png", 4);
 	INIT_SPRITE(snake_corner_sprite, "sprites/snake_cat_corner.png", 4);
 	INIT_SPRITE(snake_tail_sprite, "sprites/snake_tail.png", 4);
-
-	// STUPID BULLSHIT
-	INIT_SPRITE(cliff_racer_sprite, "sprites/cliff_racer.png", 1);
 
 
 	// MACHINES

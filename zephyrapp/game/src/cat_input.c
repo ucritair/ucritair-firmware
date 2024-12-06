@@ -1,4 +1,5 @@
 #include "cat_input.h"
+
 #include "cat_core.h"
 #include "cat_math.h"
 
@@ -132,27 +133,20 @@ bool CAT_input_touching()
 	return input.touch.pressure;
 }
 
-static CAT_button konami_code[10] =
+void CAT_input_buffer_clear()
 {
-	CAT_BUTTON_UP,
-	CAT_BUTTON_UP,
-	CAT_BUTTON_DOWN,
-	CAT_BUTTON_DOWN,
-	CAT_BUTTON_LEFT,
-	CAT_BUTTON_RIGHT,
-	CAT_BUTTON_LEFT,
-	CAT_BUTTON_RIGHT,
-	CAT_BUTTON_B,
-	CAT_BUTTON_A
-};
+	for(int i = 0; i < 10; i++)
+		input.buffer[i] = CAT_BUTTON_LAST;
+	input.buffer_head = 0;
+}
 
-bool CAT_konami()
+bool CAT_input_spell(CAT_button* spell)
 {
 	int i = (input.buffer_head+9) % 10;
 	int steps = 0;
 	while(steps < 10)
 	{
-		if(input.buffer[i] != konami_code[9-steps])
+		if(input.buffer[i] != spell[9-steps])
 			return false;
 		i -= 1;
 		if(i < 0)

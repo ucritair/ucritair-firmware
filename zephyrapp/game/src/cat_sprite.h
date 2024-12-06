@@ -184,6 +184,7 @@ extern int icon_enter_sprite;
 extern int icon_exit_sprite;
 extern int icon_plot_sprite;
 extern int icon_equip_sprite;
+extern int icon_input_sprite;
 
 extern int icon_item_key_sprite;
 extern int icon_item_food_sprite;
@@ -196,10 +197,10 @@ extern int icon_coin_sprite;
 extern int icon_vig_sprite;
 extern int icon_foc_sprite;
 extern int icon_spi_sprite;
-extern int cell_vig_sprite;
-extern int cell_foc_sprite;
-extern int cell_spi_sprite;
-extern int cell_empty_sprite;
+extern int pip_vig_sprite;
+extern int pip_foc_sprite;
+extern int pip_spi_sprite;
+extern int pip_empty_sprite;
 
 extern int icon_temp_sprite;
 extern int icon_co2_sprite;
@@ -378,9 +379,6 @@ extern int snake_head_sprite;
 extern int snake_body_sprite;
 extern int snake_corner_sprite;
 extern int snake_tail_sprite;
-
-// STUPID BULLSHIT
-extern int cliff_racer_sprite;
 
 
 // MACHINES

@@ -321,13 +321,12 @@ void CAT_tick_render(int cycle)
 		CAT_render_hedron();
 	else if(machine == CAT_MS_sound)
 		CAT_render_sound();
-	else if(machine == CAT_MS_konami)
-		CAT_render_konami();
+	else if(machine == CAT_MS_magic)
+		CAT_render_magic();
 	else
 	{
 		CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 20});
 		CAT_gui_text("This machine state\nhas no render routine!");
-		CAT_gui_image(cliff_racer_sprite, 0);
 	}
 
 #ifdef CAT_DESKTOP

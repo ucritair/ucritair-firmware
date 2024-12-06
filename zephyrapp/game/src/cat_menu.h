@@ -19,5 +19,5 @@ void CAT_render_hedron();
 void CAT_MS_sound(CAT_machine_signal signal);
 void CAT_render_sound();
 
-void CAT_MS_konami(CAT_machine_signal signal);
-void CAT_render_konami();
+void CAT_MS_magic(CAT_machine_signal signal);
+void CAT_render_magic();
