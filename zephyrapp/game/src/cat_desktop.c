@@ -215,17 +215,17 @@ bool CAT_ink_is_posted()
 	return true;
 }
 
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // LEDs
+
+#define RGB8882565(r, g, b) ((r & 0b11111000) << 8) | ((g & 0b11111100) << 3) | (b >> 3)
 
 uint16_t LED_rgb = 0;
 
 void CAT_set_LEDs(uint8_t r, uint8_t g, uint8_t b)
 {
-	uint16_t r16 = (r & 0b11111000) << 8;
-	uint16_t g16 = (g & 0b11111100) << 3;
-	uint16_t b16 = (g & 0b11111000) >> 3;
-	LED_rgb = r16 | g16 | b16;
+	LED_rgb = RGB8882565(r, g, b);
 }
 
 

@@ -46,17 +46,25 @@ void CAT_deco_target(CAT_ivec2 place)
 	deco_state.mod_rect = (CAT_rect) {{0, 0}, {0, 0}};
 }
 
+bool prop_filter(int item_id)
+{
+	CAT_item* item = CAT_item_get(item_id);
+	if(item == NULL)
+		return false;
+	return item->type == CAT_ITEM_TYPE_PROP;
+}
+
 void CAT_MS_deco(CAT_machine_signal signal)
 {
 	switch(signal)
 	{
 		case CAT_MACHINE_SIGNAL_ENTER:
 		{
+			room.grid_cursor = CAT_largest_free_space();
 			CAT_pet_settle();
 
 			deco_state.mode = ADD;
 			deco_state.mod_idx = -1;
-			room.grid_cursor = CAT_largest_free_space();
 			break;
 		}
 		case CAT_MACHINE_SIGNAL_TICK:
@@ -81,9 +89,9 @@ void CAT_MS_deco(CAT_machine_signal signal)
 						CAT_rect block = CAT_rect_place(room.grid_cursor, shape);
 
 						deco_state.add_rect = block;
-						deco_state.valid_add = CAT_is_block_free(block);
-
-						if(deco_state.valid_add)
+						deco_state.valid_add = false;
+						
+						if(CAT_is_block_free(block))
 						{
 							if(CAT_input_pressed(CAT_BUTTON_A))
 							{
@@ -91,13 +99,35 @@ void CAT_MS_deco(CAT_machine_signal signal)
 								CAT_item_list_remove(&bag, deco_state.add_id);
 								deco_state.add_id = -1;
 							}
+							deco_state.valid_add = true;
 						}
+						else
+						{
+							int base_idx = CAT_room_find_spatial(room.grid_cursor);
+							if(base_idx != -1)
+							{
+								int base_id = room.prop_ids[base_idx];
+								CAT_item* base_prop = CAT_item_get(base_id);
+								bool bot_compat = base_prop->data.prop_data.type == CAT_PROP_TYPE_BOTTOM;
+								bool top_compat = prop->data.prop_data.type == CAT_PROP_TYPE_TOP;
+								if(bot_compat && top_compat)
+								{
+									if(CAT_input_pressed(CAT_BUTTON_A))
+									{
+										CAT_room_stack_prop(base_idx, deco_state.add_id);
+										deco_state.add_id = -1;
+									}
+									deco_state.valid_add = true;
+								}
+							}
+						}				
 					}
 					else
 					{
 						if(CAT_input_pressed(CAT_BUTTON_A))
 						{
-							CAT_anchor_item_dialog(CAT_MS_deco, CAT_ITEM_TYPE_PROP, &deco_state.add_id);
+							CAT_filter_item_dialog(prop_filter);
+							CAT_anchor_item_dialog(&deco_state.add_id);
 							CAT_machine_transition(CAT_MS_item_dialog);
 						}
 					}

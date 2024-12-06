@@ -328,6 +328,20 @@ int CAT_room_find(int item_id)
 	return -1;
 }
 
+int CAT_room_find_spatial(CAT_ivec2 place)
+{
+	for(int i = 0; i < room.prop_count; i++)
+	{
+		CAT_item* item = CAT_item_get(room.prop_ids[i]);
+		CAT_ivec2 shape = item->data.prop_data.shape;
+		CAT_rect block = CAT_rect_place(room.prop_places[i], shape);
+		CAT_rect point = CAT_rect_place(place, (CAT_ivec2) {1});
+		if(CAT_rect_contains(block, point))
+			return i;
+	}
+	return -1;
+}
+
 bool CAT_prop_fits(int item_id, CAT_ivec2 place)
 {
 	if(room.prop_count >= CAT_GRID_SIZE)
@@ -358,7 +372,16 @@ int CAT_room_add_prop(int item_id, CAT_ivec2 place)
 	room.prop_ids[idx] = item_id;
 	room.prop_places[idx] = place;
 	room.prop_overrides[idx] = 0;
+	room.prop_children[idx] = -1;
 	return idx;
+}
+
+void CAT_room_stack_prop(int idx, int item_id)
+{
+	if(room.prop_children[idx] != -1)
+		CAT_item_list_add(&bag, room.prop_children[idx]);
+	room.prop_children[idx] = item_id;
+	CAT_item_list_remove(&bag, item_id);
 }
 
 void CAT_room_remove_prop(int idx)
@@ -371,12 +394,16 @@ void CAT_room_remove_prop(int idx)
 	CAT_rect block = CAT_rect_place(room.prop_places[idx], shape);
 	CAT_toggle_block(block, false);
 
+	if(room.prop_children[idx] != -1)
+		CAT_item_list_add(&bag, room.prop_children[idx]);
+
 	room.prop_count -= 1;
 	for(int i = idx; i < room.prop_count; i++)
 	{
 		room.prop_ids[i] = room.prop_ids[i+1];
 		room.prop_places[i] = room.prop_places[i+1];
 		room.prop_overrides[i] = room.prop_overrides[i+1];
+		room.prop_children[i] = room.prop_children[i+1];
 	}
 }
 
@@ -388,16 +415,17 @@ void CAT_room_flip_prop(int idx)
 	int item_id = room.prop_ids[idx];
 	CAT_item* item = CAT_item_get(item_id);
 	CAT_sprite* sprite = &atlas.table[item->sprite_id];
+	int* override = &room.prop_overrides[idx];
 
 	if(item->data.prop_data.animate || sprite->frame_count == 1)
 	{
-		room.prop_overrides[idx] = !room.prop_overrides[idx];
+		*override = !(*override);
 	}
 	else
 	{
-		room.prop_overrides[idx] += 1;
-		if(room.prop_overrides[idx] >= sprite->frame_count)
-			room.prop_overrides[idx] = 0;
+		*override += 1;
+		if(*override >= sprite->frame_count)
+			*override = 0;
 	}
 }
 
@@ -581,7 +609,7 @@ void CAT_MS_room(CAT_machine_signal signal)
 enum {WALL_BASE, WALL_SKY} bg_wall = WALL_BASE;
 enum {FLOOR_BASE, FLOOR_GRASS, FLOOR_ASH} bg_floor = FLOOR_BASE;
 
-void CAT_render_room(int cycle)
+void render_background()
 {
 	switch(bg_wall)
 	{
@@ -626,72 +654,98 @@ void CAT_render_room(int cycle)
 			break;
 		}
 	}
+}
+
+void render_statics()
+{	
+	CAT_datetime time;
+	CAT_get_datetime(&time);
+	if(time.hour >= 4 && time.hour < 9)
+		CAT_draw_queue_add(window_dawn_sprite, 0, 2, 8, 8, CAT_DRAW_MODE_DEFAULT);
+	else if(time.hour >= 9 && time.hour <= 18)
+		CAT_draw_queue_add(window_day_sprite, 0, 2, 8, 8, CAT_DRAW_MODE_DEFAULT);
+	else
+		CAT_draw_queue_add(window_night_sprite, 0, 2, 8, 8, CAT_DRAW_MODE_DEFAULT);
 	
-	if (cycle == 0)
+	CAT_draw_queue_add(vending_sprite, -1, 2, 172, 16, CAT_DRAW_MODE_DEFAULT);
+	CAT_draw_queue_add(arcade_sprite, -1, 2, 124, 48, CAT_DRAW_MODE_DEFAULT);
+}
+
+void render_props()
+{
+	for(int i = 0; i < room.prop_count; i++)
 	{
-		CAT_datetime time;
-		CAT_get_datetime(&time);
-		if(time.hour >= 4 && time.hour < 9)
-			CAT_draw_queue_add(window_dawn_sprite, 0, 2, 8, 8, CAT_DRAW_MODE_DEFAULT);
-		else if(time.hour >= 9 && time.hour <= 18)
-			CAT_draw_queue_add(window_day_sprite, 0, 2, 8, 8, CAT_DRAW_MODE_DEFAULT);
-		else
-			CAT_draw_queue_add(window_night_sprite, 0, 2, 8, 8, CAT_DRAW_MODE_DEFAULT);
-		
-		CAT_draw_queue_add(vending_sprite, -1, 2, 172, 16, CAT_DRAW_MODE_DEFAULT);
-		CAT_draw_queue_add(arcade_sprite, -1, 2, 124, 48, CAT_DRAW_MODE_DEFAULT);
+		int prop_id = room.prop_ids[i];
+		CAT_item* prop = CAT_item_get(prop_id);
+		CAT_ivec2 shape = prop->data.prop_data.shape;
+		CAT_ivec2 place = room.prop_places[i];
 
-		for(int i = 0; i < room.prop_count; i++)
+		CAT_ivec2 draw_place = CAT_grid2world(place);
+		draw_place.y += shape.y * CAT_TILE_SIZE;
+
+		int mode = CAT_DRAW_MODE_BOTTOM;
+		int frame = 0;
+		if(room.prop_overrides[i])
 		{
-			int prop_id = room.prop_ids[i];
-			CAT_item* prop = CAT_item_get(prop_id);
-			CAT_ivec2 shape = prop->data.prop_data.shape;
-			CAT_ivec2 place = room.prop_places[i];
-
-			CAT_ivec2 draw_place = CAT_grid2world(place);
-			draw_place.y += shape.y * 16;
-
-			int prop_mode = CAT_DRAW_MODE_BOTTOM;
-			if(prop->data.prop_data.animate)
-			{	
-				if(room.prop_overrides[i])
-					prop_mode |= CAT_DRAW_MODE_REFLECT_X;
-				CAT_draw_queue_animate(prop->sprite_id, 2, draw_place.x, draw_place.y, prop_mode);
-			}
-			else if(atlas.table[prop->sprite_id].frame_count == 1)
-			{
-				if(room.prop_overrides[i])
-					prop_mode |= CAT_DRAW_MODE_REFLECT_X;
-				CAT_draw_queue_add(prop->sprite_id, 0, 2, draw_place.x, draw_place.y, prop_mode);
-			}
+			if(prop->data.prop_data.animate ||CAT_sprite_get(prop->sprite_id)->frame_count == 1)
+				mode |= CAT_DRAW_MODE_REFLECT_X;
 			else
-			{
-				int frame_idx = room.prop_overrides[i];
-				CAT_draw_queue_add(prop->sprite_id, frame_idx, 2, draw_place.x, draw_place.y, prop_mode);
-			}
+				frame = room.prop_overrides[i];
 		}
-
-		for(int i = 0; i < room.coin_count; i++)
+		int job = prop->data.prop_data.animate ?
+		CAT_draw_queue_animate(prop->sprite_id, 2, draw_place.x, draw_place.y, mode) :
+		CAT_draw_queue_add(prop->sprite_id, frame, 2, draw_place.x, draw_place.y, mode);
+		
+		CAT_item* child = CAT_item_get(room.prop_children[i]);
+		if(child != NULL)
 		{
-			CAT_vec2 origin = room.coin_origins[i];
-			CAT_vec2 place = room.coin_places[i];
-
-			float t = CAT_timer_progress(room.coin_move_timers[i]);
-			float x = lerp(origin.x, place.x, t);
-			float y = lerp(origin.y, place.y, 3*t*t - 2*t);
-
-			CAT_draw_queue_animate(coin_world_sprite, 2, x, y, CAT_DRAW_MODE_CENTER_X | CAT_DRAW_MODE_BOTTOM);
-			CAT_draw_queue_animate(coin_world_sprite, 2, x, y, CAT_DRAW_MODE_CENTER_X | CAT_DRAW_MODE_BOTTOM);
+			mode = CAT_DRAW_MODE_BOTTOM | CAT_DRAW_MODE_CENTER_X;
+			frame = child->data.prop_data.animate ? -1 : 0;
+			int yoff = shape.y * CAT_TILE_SIZE;
+			int xoff = shape.x * 0.5 * CAT_TILE_SIZE;
+			CAT_draw_queue_insert(job+1, child->sprite_id, frame, 2, draw_place.x + xoff, draw_place.y - yoff, mode);
 		}
+	}
+}
 
-		int icon_mode = CAT_DRAW_MODE_CENTER_X | CAT_DRAW_MODE_CENTER_Y;
-		CAT_draw_queue_add(icon_feed_sprite, 0, 3, 8+16, 280+16, icon_mode); 
-		CAT_draw_queue_add(icon_study_sprite, 0, 3, 56+16, 280+16, icon_mode); 
-		CAT_draw_queue_add(icon_play_sprite, 0, 3, 104+16, 280+16, icon_mode);
-		CAT_draw_queue_add(icon_deco_sprite, 0, 3, 152+16, 280+16, icon_mode);
-		CAT_draw_queue_add(icon_menu_sprite, 0, 3, 200+16, 280+16, icon_mode);
-		CAT_draw_queue_add(button_hl_sprite, 0, 3, 8+16+48*mode_selector, 280+16, icon_mode);
-		if(input.touch.pressure)
-			CAT_draw_queue_add(touch_hl_sprite, 0, 4, input.touch.x, input.touch.y, icon_mode);
+void render_gringus()
+{
+	for(int i = 0; i < room.coin_count; i++)
+	{
+		CAT_vec2 origin = room.coin_origins[i];
+		CAT_vec2 place = room.coin_places[i];
+
+		float t = CAT_timer_progress(room.coin_move_timers[i]);
+		float x = lerp(origin.x, place.x, t);
+		float y = lerp(origin.y, place.y, 3*t*t - 2*t);
+
+		CAT_draw_queue_animate(coin_world_sprite, 2, x, y, CAT_DRAW_MODE_CENTER_X | CAT_DRAW_MODE_BOTTOM);
+		CAT_draw_queue_animate(coin_world_sprite, 2, x, y, CAT_DRAW_MODE_CENTER_X | CAT_DRAW_MODE_BOTTOM);
+	}
+}
+
+void render_gui()
+{
+	int icon_mode = CAT_DRAW_MODE_CENTER_X | CAT_DRAW_MODE_CENTER_Y;
+	CAT_draw_queue_add(icon_feed_sprite, 0, 3, 8+16, 280+16, icon_mode); 
+	CAT_draw_queue_add(icon_study_sprite, 0, 3, 56+16, 280+16, icon_mode); 
+	CAT_draw_queue_add(icon_play_sprite, 0, 3, 104+16, 280+16, icon_mode);
+	CAT_draw_queue_add(icon_deco_sprite, 0, 3, 152+16, 280+16, icon_mode);
+	CAT_draw_queue_add(icon_menu_sprite, 0, 3, 200+16, 280+16, icon_mode);
+	CAT_draw_queue_add(button_hl_sprite, 0, 3, 8+16+48*mode_selector, 280+16, icon_mode);
+
+	if(input.touch.pressure)
+		CAT_draw_queue_add(touch_hl_sprite, 0, 4, input.touch.x, input.touch.y, icon_mode);
+}
+
+void CAT_render_room(int cycle)
+{
+	render_background();
+	if (cycle == 0)
+	{	
+		render_statics();
+		render_props();
+		render_gringus();
+		render_gui();
 	}
 }

@@ -106,7 +106,7 @@ void CAT_render_vending()
 		CAT_item* item = CAT_item_get(item_id);
 
 		CAT_gui_panel_tight((CAT_ivec2) {0, 4+i*2}, (CAT_ivec2) {15, 2});
-		CAT_gui_image(icon_item_sprite, item->type);
+		CAT_gui_image(item->icon_id, 0);
 
 		CAT_gui_textf(" %s  $%d ", item->name, item->price);
 
@@ -115,11 +115,11 @@ void CAT_render_vending()
 			CAT_gui_image(icon_pointer_sprite, 0);
 			if(purchase_progress >= 0.01)
 			{
-				CAT_greenberry(3, 234, 64 + 32 * i, 32, purchase_progress);
+				CAT_greenberry(0, 240, 64 + 32 * i, 32, purchase_progress);
 			}
 			else if(item->price > coins)
 			{
-				CAT_greyberry(3, 234, 64 + 32 * i, 32);
+				CAT_greyberry(0, 240, 64 + 32 * i, 32);
 			}
 		}
 	}

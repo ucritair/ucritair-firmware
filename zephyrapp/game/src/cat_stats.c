@@ -1,4 +1,5 @@
 #include "cat_stats.h"
+
 #include "cat_room.h"
 #include "cat_item.h"
 #include "cat_gui.h"
@@ -6,6 +7,7 @@
 #include "cat_pet.h"
 #include "cat_sprite.h"
 #include "cat_menu.h"
+#include "cat_bag.h"
 
 void CAT_MS_stats(CAT_machine_signal signal)
 {
@@ -67,7 +69,7 @@ void CAT_render_stats()
 	CAT_gui_image(icon_nox_sprite, nox_idx);
 	
 	CAT_gui_div("INTERVENTIONS");
-	if(CAT_gear_status(mask_item))
+	if(CAT_item_list_find(&bag, mask_item) != -1)
 		CAT_gui_image(icon_mask_sprite, 0);
 	if(CAT_room_find(purifier_item) != -1)
 		CAT_gui_image(icon_pure_sprite, 0);

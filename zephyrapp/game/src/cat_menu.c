@@ -179,12 +179,6 @@ void CAT_MS_litany(CAT_machine_signal signal)
 	}
 }
 
-void CAT_render_litany()
-{
-	CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 20});
-	CAT_gui_text_wrap("THE LITANY AGAINST FEAR\nI must not fear. Fear is the mind-killer. Fear is the little-death that brings total obliteration.\nI will face my fear. I will permit it to pass over me and through me. And when it has gone past, I will turn the inner eye to see its path. Where the fear has gone there will be nothing. Only I will remain.");
-}
-
 void cheat_proc_1k_coins()
 {
 	coins += 1000;

@@ -23,7 +23,7 @@ typedef struct CAT_cell
 {
 	int idx;
 	CAT_ivec2 coords;
-
+	
 	bool occupied;
 	bool visited;
 } CAT_cell;
@@ -66,6 +66,7 @@ typedef struct CAT_room
 	int prop_ids[CAT_GRID_SIZE];
 	CAT_ivec2 prop_places[CAT_GRID_SIZE];
 	int prop_overrides[CAT_GRID_SIZE];
+	int prop_children[CAT_GRID_SIZE];
 	int prop_count;
 
 	CAT_vec2 coin_origins[CAT_MAX_COIN_COUNT];
@@ -79,8 +80,10 @@ extern CAT_room room;
 void CAT_room_init();
 
 int CAT_room_find(int item_id);
+int CAT_room_find_spatial(CAT_ivec2 place);
 bool CAT_prop_fits(int item_id, CAT_ivec2 place);
 int CAT_room_add_prop(int item_id, CAT_ivec2 place);
+void CAT_room_stack_prop(int idx, int item_id);
 void CAT_room_remove_prop(int idx);
 void CAT_room_flip_prop(int idx);
 

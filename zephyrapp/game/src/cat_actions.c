@@ -9,9 +9,20 @@
 #include <stddef.h>
 #include "cat_item_dialog.h"
 
+bool food_filter(int item_id)
+{
+	CAT_item* item = CAT_item_get(item_id);
+	if(item == NULL)
+		return false;
+	if(item->type != CAT_ITEM_TYPE_TOOL)
+		return false;
+	return item->data.tool_data.type == CAT_TOOL_TYPE_FOOD;
+}
+
 CAT_action_profile feed_profile =
 {
-	.tool_type = CAT_ITEM_TYPE_FOOD,
+	.tool_type = CAT_TOOL_TYPE_FOOD,
+	.item_filter = food_filter,
 
 	.MS = CAT_MS_feed,
 	.AS = &AS_eat,
@@ -19,9 +30,21 @@ CAT_action_profile feed_profile =
 
 	.LED_colour = {255, 106, 171}
 };
+
+bool book_filter(int item_id)
+{
+	CAT_item* item = CAT_item_get(item_id);
+	if(item == NULL)
+		return false;
+	if(item->type != CAT_ITEM_TYPE_TOOL)
+		return false;
+	return item->data.tool_data.type == CAT_TOOL_TYPE_BOOK;
+}
+
 CAT_action_profile study_profile =
 {
-	.tool_type = CAT_ITEM_TYPE_BOOK,
+	.tool_type = CAT_TOOL_TYPE_BOOK,
+	.item_filter = book_filter,
 
 	.MS = CAT_MS_study,
 	.AS = &AS_study,
@@ -29,9 +52,21 @@ CAT_action_profile study_profile =
 
 	.LED_colour = {64, 206, 220}
 };
+
+bool toy_filter(int item_id)
+{
+	CAT_item* item = CAT_item_get(item_id);
+	if(item == NULL)
+		return false;
+	if(item->type != CAT_ITEM_TYPE_TOOL)
+		return false;
+	return item->data.tool_data.type == CAT_TOOL_TYPE_TOY;
+}
+
 CAT_action_profile play_profile =
 {
-	.tool_type = CAT_ITEM_TYPE_TOY,
+	.tool_type = CAT_TOOL_TYPE_TOY,
+	.item_filter = toy_filter,
 
 	.MS = CAT_MS_play,
 	.AS = &AS_play,
@@ -67,7 +102,8 @@ void action_tick()
 	
 	if(action_state.tool_id == -1)
 	{
-		CAT_anchor_item_dialog(action_state.profile->MS, action_state.profile->tool_type, &action_state.tool_id);
+		CAT_filter_item_dialog(action_state.profile->item_filter);
+		CAT_anchor_item_dialog(&action_state.tool_id);
 		CAT_machine_transition(CAT_MS_item_dialog);
 	}
 	else if(!action_state.confirmed)
@@ -110,7 +146,7 @@ void action_tick()
 				CAT_pet_reanimate();
 			
 				CAT_item* item = CAT_item_get(action_state.tool_id);
-				if(item->data.tool_data.consumable)
+				if(item->data.tool_data.type == CAT_TOOL_TYPE_FOOD)
 				{
 					CAT_item_list_remove(&bag, action_state.tool_id);
 				}
@@ -124,7 +160,12 @@ void action_tick()
 		}
 		if(CAT_animachine_is_in(&pet_asm, action_state.profile->stat_AS))
 		{
-			CAT_set_LEDs(action_state.profile->LED_colour[0], action_state.profile->LED_colour[0], action_state.profile->LED_colour[0]);
+			CAT_set_LEDs
+			(
+				action_state.profile->LED_colour[0],
+				action_state.profile->LED_colour[1],
+				action_state.profile->LED_colour[1]
+			);
 			CAT_animachine_transition(&pet_asm, &AS_adjust_out);
 		}	
 		if(CAT_animachine_is_in(&pet_asm, &AS_adjust_out))
@@ -227,7 +268,7 @@ void CAT_render_action(int cycle)
 			
 			if(!action_state.confirmed)
 			{
-				CAT_draw_queue_add(item->data.tool_data.cursor_sprite_id, 0, 2, place.x, place.y+16, CAT_DRAW_MODE_BOTTOM);
+				CAT_draw_queue_add(item->data.tool_data.cursor_id, 0, 2, place.x, place.y+16, CAT_DRAW_MODE_BOTTOM);
 				CAT_draw_queue_add(tile_hl_sprite, 0, 3, place.x, place.y+16, CAT_DRAW_MODE_BOTTOM);
 			}			
 			else if(!action_state.complete)
@@ -235,7 +276,7 @@ void CAT_render_action(int cycle)
 				int tool_mode = CAT_DRAW_MODE_BOTTOM;
 				if(place.x > pet.pos.x)
 					tool_mode |= CAT_DRAW_MODE_REFLECT_X;
-				int tool_layer = item->data.tool_data.consumable ? 1 : 2;
+				int tool_layer = item->data.tool_data.type == CAT_TOOL_TYPE_FOOD ? 1 : 2;
 				CAT_draw_queue_animate(item->sprite_id, tool_layer, place.x, place.y+16, tool_mode);
 			}
 		}

@@ -102,16 +102,9 @@ void CAT_render_bag()
 		CAT_item* item = CAT_item_get(item_id);
 
 		CAT_gui_panel_tight((CAT_ivec2) {0, 2+i*2}, (CAT_ivec2) {15, 2});
-		CAT_gui_image(icon_item_sprite, item->type);
+		CAT_gui_image(item->icon_id, 0);
 		
 		CAT_gui_textf(" %s *%d ", item->name, bag.counts[idx]);
-
-		if(item->type == CAT_ITEM_TYPE_GEAR)
-		{
-			int idx = CAT_gear_status(item_id) ? 1 : 0;
-			CAT_gui_image(icon_equip_sprite, idx);
-			CAT_gui_text(" ");
-		}
 
 		if(idx == selector)
 			CAT_gui_image(icon_pointer_sprite, 0);
@@ -137,10 +130,6 @@ void CAT_MS_inspector(CAT_machine_signal signal)
 			{
 				int item_id = bag.item_ids[selector];
 				CAT_item* item = CAT_item_get(item_id);
-				if(item->type == CAT_ITEM_TYPE_GEAR)
-				{
-					CAT_gear_toggle(item_id, !CAT_gear_status(item_id));
-				}
 			}
 			break;
 		}
@@ -167,16 +156,7 @@ void CAT_render_inspector()
 
 	if(strlen(item->text) > 0)
 	{
-		CAT_gui_text(item->text);
+		CAT_gui_text_wrap(item->text);
 		CAT_gui_div("");
-	}
-
-	if(item->type == CAT_ITEM_TYPE_GEAR)
-	{
-		CAT_gui_text("EQUIP: ");
-		int idx = CAT_gear_status(item_id) ? 1 : 0;
-		CAT_gui_image(icon_equip_sprite, idx);
-		CAT_gui_text(" ");
-		CAT_gui_image(icon_pointer_sprite, 0);
 	}
 }

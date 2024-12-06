@@ -107,8 +107,9 @@ void CAT_anim_toggle_reverse(int sprite_id, bool toggle);
 bool CAT_anim_finished(int sprite_id);
 void CAT_anim_reset(int sprite_id);
 
-void CAT_draw_queue_add(int sprite_id, int frame_idx, int layer, int x, int y, int mode);
-void CAT_draw_queue_animate(int sprite_id, int layer, int x, int y, int mode);
+void CAT_draw_queue_insert(int idx, int sprite_id, int frame_idx, int layer, int x, int y, int mode);
+int CAT_draw_queue_add(int sprite_id, int frame_idx, int layer, int x, int y, int mode);
+int CAT_draw_queue_animate(int sprite_id, int layer, int x, int y, int mode);
 void CAT_draw_queue_submit(int cycle);
 
 
@@ -184,7 +185,12 @@ extern int icon_exit_sprite;
 extern int icon_plot_sprite;
 extern int icon_equip_sprite;
 
-extern int icon_item_sprite;
+extern int icon_item_key_sprite;
+extern int icon_item_food_sprite;
+extern int icon_item_book_sprite;
+extern int icon_item_toy_sprite;
+extern int icon_item_prop_sprite;
+extern int icon_item_gear_sprite;
 extern int icon_coin_sprite;
 
 extern int icon_vig_sprite;

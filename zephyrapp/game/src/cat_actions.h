@@ -4,10 +4,12 @@
 #include "cat_math.h"
 #include "cat_sprite.h"
 #include "cat_item.h"
+#include "cat_item_dialog.h"
 
 typedef struct CAT_action_profile
 {
-	CAT_item_type tool_type;
+	CAT_tool_type tool_type;
+	CAT_item_filter item_filter;
 
 	CAT_machine_state MS;
 	CAT_animachine_state* AS;

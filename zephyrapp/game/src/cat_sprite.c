@@ -460,7 +460,7 @@ void CAT_anim_reset(int sprite_id)
 		sprite->frame_idx = 0;
 }
 
-void CAT_draw_queue_add(int sprite_id, int frame_idx, int layer, int x, int y, int mode)
+void CAT_draw_queue_insert(int idx, int sprite_id, int frame_idx, int layer, int x, int y, int mode)
 {
 	if(sprite_id < 0 || sprite_id >= atlas.length)
 	{
@@ -468,8 +468,21 @@ void CAT_draw_queue_add(int sprite_id, int frame_idx, int layer, int x, int y, i
 		return;
 	}
 	if(draw_queue.length >= CAT_DRAW_QUEUE_MAX_LENGTH)
+	{
+		CAT_printf("[WARNING] Attempted add to full draw queue\n");
 		return;
+	}
 
+	for(int i = draw_queue.length; i > idx; i--)
+	{
+		draw_queue.jobs[i] = draw_queue.jobs[i-1];
+	}
+	draw_queue.jobs[idx] = (CAT_draw_job) {sprite_id, frame_idx, layer, x, y, mode};
+	draw_queue.length += 1;
+}
+
+int CAT_draw_queue_add(int sprite_id, int frame_idx, int layer, int x, int y, int mode)
+{
 	int insert_idx = draw_queue.length;
 	for(int i = 0; i < insert_idx; i++)
 	{
@@ -481,23 +494,13 @@ void CAT_draw_queue_add(int sprite_id, int frame_idx, int layer, int x, int y, i
 		}
 	}
 
-	for(int i = draw_queue.length; i > insert_idx; i--)
-	{
-		draw_queue.jobs[i] = draw_queue.jobs[i-1];
-	}
-	draw_queue.jobs[insert_idx] = (CAT_draw_job) {sprite_id, frame_idx, layer, x, y, mode};
-	draw_queue.length += 1;
+	CAT_draw_queue_insert(insert_idx, sprite_id, frame_idx, layer, x, y, mode);
+	return insert_idx;
 }
 
-void CAT_draw_queue_animate(int sprite_id, int layer, int x, int y, int mode)
+int CAT_draw_queue_animate(int sprite_id, int layer, int x, int y, int mode)
 {
-	if(sprite_id < 0 || sprite_id >= atlas.length)
-	{
-		CAT_printf("[ERROR] reference to invalid sprite_id: %d\n", sprite_id);
-		return;
-	}
-
-	CAT_draw_queue_add(sprite_id, -1, layer, x, y, mode);
+	return CAT_draw_queue_add(sprite_id, -1, layer, x, y, mode);
 }
 
 void CAT_draw_queue_submit(int cycle)
@@ -1038,7 +1041,12 @@ int icon_exit_sprite;
 int icon_plot_sprite;
 int icon_equip_sprite;
 
-int icon_item_sprite;
+int icon_item_key_sprite;
+int icon_item_food_sprite;
+int icon_item_book_sprite;
+int icon_item_toy_sprite;
+int icon_item_prop_sprite;
+int icon_item_gear_sprite;
 int icon_coin_sprite;
 
 int icon_vig_sprite;
@@ -1300,7 +1308,12 @@ void CAT_sprite_mass_define()
 	INIT_SPRITE(icon_plot_sprite, "sprites/icon_plot.png", 1);
 	INIT_SPRITE(icon_equip_sprite, "sprites/icon_equip.png", 2);
 
-	INIT_SPRITE(icon_item_sprite, "sprites/icon_item.png", 6);
+	INIT_SPRITE(icon_item_key_sprite, "sprites/icon_item_key.png", 1);
+	INIT_SPRITE(icon_item_food_sprite, "sprites/icon_item_food.png", 1);
+	INIT_SPRITE(icon_item_book_sprite, "sprites/icon_item_book.png", 1);
+	INIT_SPRITE(icon_item_toy_sprite, "sprites/icon_item_toy.png", 1);
+	INIT_SPRITE(icon_item_prop_sprite, "sprites/icon_item_prop.png", 1);
+	INIT_SPRITE(icon_item_gear_sprite, "sprites/icon_item_gear.png", 1);
 	INIT_SPRITE(icon_coin_sprite, "sprites/icon_coin.png", 1);
 
 	INIT_SPRITE(icon_vig_sprite, "sprites/STAT_VIGOR2424.png", 1);

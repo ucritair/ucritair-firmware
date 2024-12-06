@@ -9,12 +9,13 @@
 #include "cat_room.h"
 #include "cat_input.h"
 #include "cat_gui.h"
+#include "cat_bag.h"
 
 CAT_pet pet;
 
 void CAT_pet_stat(int ticks)
 {
-	int mask = CAT_gear_status(mask_item);
+	int mask = CAT_item_list_find(&bag, mask_item) != -1;
 	int pure = CAT_room_find(purifier_item) != -1;
 	int uv = CAT_room_find(uv_item) != -1;
 

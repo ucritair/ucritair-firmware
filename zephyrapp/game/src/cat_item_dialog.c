@@ -6,18 +6,6 @@
 #include "cat_gui.h"
 #include "cat_room.h"
 
-static struct CAT_bag_anchor
-{
-	CAT_machine_state state;
-	CAT_item_type type;
-	int* ptr;
-} anchor =
-{
-	.state = NULL,
-	.type = CAT_ITEM_TYPE_KEY,
-	.ptr = NULL
-};
-
 static CAT_item_list roster =
 {
 	.length = 0,
@@ -25,11 +13,18 @@ static CAT_item_list roster =
 static int base = 0;
 static int selector = 0;
 
-void CAT_anchor_item_dialog(CAT_machine_state state, CAT_item_type type, int* ptr)
+CAT_item_filter filter = NULL;
+
+int* anchor = NULL;
+
+void CAT_filter_item_dialog(CAT_item_filter _filter)
 {
-	anchor.state = state;
-	anchor.type = type;
-	anchor.ptr = ptr;
+	filter = _filter;
+}
+
+void CAT_anchor_item_dialog(int* _anchor)
+{
+	anchor = _anchor;
 }
 
 void CAT_MS_item_dialog(CAT_machine_signal signal)
@@ -42,13 +37,9 @@ void CAT_MS_item_dialog(CAT_machine_signal signal)
 			for(int i = 0; i < bag.length; i++)
 			{
 				int item_id = bag.item_ids[i];
-				CAT_item* item = CAT_item_get(item_id);
-				if(item->type == anchor.type)
-				{
+				if(filter == NULL || filter(item_id))
 					CAT_item_list_add(&roster, item_id);
-				}
 			}
-
 			base = 0;
 			selector = 0;
 			break;
@@ -83,14 +74,13 @@ void CAT_MS_item_dialog(CAT_machine_signal signal)
 
 			if(CAT_input_pressed(CAT_BUTTON_A))
 			{
-				int item_id = roster.item_ids[selector];
-				*anchor.ptr = item_id;
-				CAT_machine_transition(anchor.state);
+				if(anchor != NULL)
+					*anchor = roster.item_ids[selector];
+				CAT_machine_back();
 			}
 			break;
 		}
 		case CAT_MACHINE_SIGNAL_EXIT:
-			CAT_anchor_item_dialog(NULL, CAT_ITEM_TYPE_KEY, NULL);
 			break;
 	}
 }
@@ -125,7 +115,7 @@ void CAT_render_item_dialog()
 		CAT_item* item = CAT_item_get(item_id);
 
 		CAT_gui_panel_tight((CAT_ivec2) {0, 2+i*2}, (CAT_ivec2) {15, 2});
-		CAT_gui_image(icon_item_sprite, item->type);
+		CAT_gui_image(item->icon_id, 0);
 		
 		int bag_idx = CAT_item_list_find(&bag, item_id);
 		CAT_gui_textf(" %s *%d ", item->name, bag.counts[bag_idx]);

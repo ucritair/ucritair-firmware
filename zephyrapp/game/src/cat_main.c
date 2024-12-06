@@ -87,9 +87,6 @@ void CAT_save_failsafe()
 
 	CAT_item_list_add(&bag, gpu_item);
 	coins = 10;
-
-	CAT_gear_toggle(mask_item, false);
-	snake_high_score = 0;
 }
 
 void CAT_force_save()
@@ -105,18 +102,15 @@ void CAT_force_save()
 	save->focus = pet.focus;
 	save->spirit = pet.spirit;
 	save->lifetime = pet.lifetime;
-	save->stat_timer = CAT_timer_get(pet.stat_timer_id);
-	save->life_timer = CAT_timer_get(pet.life_timer_id);
 
 	for(int i = 0; i < room.prop_count; i++)
 	{
 		save->prop_ids[i] = room.prop_ids[i];
 		save->prop_places[i] = room.prop_places[i];
 		save->prop_overrides[i] = room.prop_overrides[i];
+		save->prop_children[i] = room.prop_children[i];
 	}
 	save->prop_count = room.prop_count;
-
-	save->earn_timer = CAT_timer_get(room.earn_timer_id);
 
 	for(int i = 0; i < bag.length; i++)
 	{
@@ -126,12 +120,13 @@ void CAT_force_save()
 	save->bag_length = bag.length;
 	save->coins = coins + room.coin_count;
 
-	save->masked = CAT_gear_status(mask_item);
-
 	save->snake_high_score = snake_high_score;
 
-	save->magic_number = CAT_SAVE_MAGIC;
+	save->stat_timer = CAT_timer_get(pet.stat_timer_id);
+	save->life_timer = CAT_timer_get(pet.life_timer_id);
+	save->earn_timer = CAT_timer_get(room.earn_timer_id);
 
+	save->magic_number = CAT_SAVE_MAGIC;
 	CAT_finish_save(save);
 }
 
@@ -155,8 +150,6 @@ void CAT_force_load()
 	pet.focus = save->focus;
 	pet.spirit = save->spirit;
 	pet.lifetime = save->lifetime;
-	CAT_timer_set(pet.stat_timer_id, save->stat_timer);
-	CAT_timer_set(pet.life_timer_id, save->life_timer);
 
 	for(int i = 0; i < save->prop_count; i++)
 	{
@@ -166,13 +159,13 @@ void CAT_force_load()
 		{
 			CAT_room_add_prop(prop_id, prop_place);
 			room.prop_overrides[i] = save->prop_overrides[i];
+			room.prop_children[i] = save->prop_children[i];
 		}
 		else
 		{
 			CAT_item_list_add(&bag, save->prop_ids[i]);
 		}
 	}
-	CAT_timer_set(room.earn_timer_id, save->earn_timer);
 
 	for(int i = 0; i < save->bag_length; i++)
 	{	
@@ -183,8 +176,11 @@ void CAT_force_load()
 	}
 	coins = save->coins;
 
-	CAT_gear_toggle(mask_item, save->masked);
 	snake_high_score = save->snake_high_score;
+
+	CAT_timer_set(room.earn_timer_id, save->earn_timer);
+	CAT_timer_set(pet.stat_timer_id, save->stat_timer);
+	CAT_timer_set(pet.life_timer_id, save->life_timer);
 
 	CAT_finish_load();
 }
@@ -318,9 +314,7 @@ void CAT_tick_render(int cycle)
 		CAT_render_graph();
 #endif
 	else if(machine == CAT_MS_debug)
-		CAT_render_debug();	
-	else if(machine == CAT_MS_litany)
-		CAT_render_litany();	
+		CAT_render_debug();
 	else if(machine == CAT_MS_cheats)
 		CAT_render_cheats();	
 	else if(machine == CAT_MS_hedron)
@@ -333,6 +327,7 @@ void CAT_tick_render(int cycle)
 	{
 		CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 20});
 		CAT_gui_text("This machine state\nhas no render routine!");
+		CAT_gui_image(cliff_racer_sprite, 0);
 	}
 
 #ifdef CAT_DESKTOP

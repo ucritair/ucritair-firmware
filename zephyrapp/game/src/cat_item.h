@@ -18,12 +18,23 @@
 typedef enum CAT_item_type
 {
 	CAT_ITEM_TYPE_KEY,
-	CAT_ITEM_TYPE_FOOD,
-	CAT_ITEM_TYPE_BOOK,
-	CAT_ITEM_TYPE_TOY,
-	CAT_ITEM_TYPE_PROP,
-	CAT_ITEM_TYPE_GEAR
+	CAT_ITEM_TYPE_TOOL,
+	CAT_ITEM_TYPE_PROP
 } CAT_item_type;
+
+typedef enum CAT_tool_type
+{
+	CAT_TOOL_TYPE_FOOD,
+	CAT_TOOL_TYPE_BOOK,
+	CAT_TOOL_TYPE_TOY
+} CAT_tool_type;
+
+typedef enum CAT_prop_type
+{
+	CAT_PROP_TYPE_DEFAULT,
+	CAT_PROP_TYPE_BOTTOM,
+	CAT_PROP_TYPE_TOP
+} CAT_prop_type;
 
 typedef struct CAT_item
 {
@@ -32,28 +43,27 @@ typedef struct CAT_item
 	int sprite_id;
 	int price;
 	const char* text;
+	int icon_id;
 
 	union
 	{
 		struct
 		{
-			int cursor_sprite_id;
+			CAT_tool_type type;
+			int cursor_id;
+
 			int dv;
 			int df;
 			int ds;
-			bool consumable;
 		} tool_data;
 
 		struct
 		{
+			CAT_prop_type type;
+
 			CAT_ivec2 shape;
 			bool animate;
-		} prop_data;
-
-		struct
-		{
-			bool equipped;
-		} gear_data;	
+		} prop_data;	
 	} data;
 } CAT_item;
 
@@ -68,11 +78,8 @@ void CAT_item_table_init();
 int CAT_item_init(CAT_item_type type, const char* name, int sprite_id, int price);
 CAT_item* CAT_item_get(int item_id);
 
-void CAT_tool_init(int item_id, int cursor_sprite_id, int dv, int df, int ds, bool consumable);
+void CAT_tool_init(int item_id, CAT_tool_type type, int cursor_id, int dv, int df, int ds);
 void CAT_prop_init(int item_id, int width, int height, bool animate);
-void CAT_gear_init(int item_id);
-void CAT_gear_toggle(int item_id, bool equipped);
-bool CAT_gear_status(int item_id);
 
 
 //////////////////////////////////////////////////////////////////////////
