@@ -665,7 +665,21 @@ void render_statics()
 	if(time.hour >= 4 && time.hour < 9)
 		CAT_draw_queue_add(window_dawn_sprite, 0, 2, 8, 8, CAT_DRAW_MODE_DEFAULT);
 	else if(time.hour >= 9 && time.hour <= 18)
-		CAT_draw_queue_add(window_day_sprite, 0, 2, 8, 8, CAT_DRAW_MODE_DEFAULT);
+	{
+		float aqi_score = CAT_AQI_aggregate();
+		if(aqi_score <= 33.0f)
+		{
+			CAT_draw_queue_add(window_day_low_aq_sprite, 0, 2, 8, 8, CAT_DRAW_MODE_DEFAULT);
+		}
+		else if(aqi_score >= 66.0f)
+		{
+			CAT_draw_queue_animate(window_day_high_aq_sprite, 2, 8, 8, CAT_DRAW_MODE_DEFAULT);
+		}
+		else
+		{
+			CAT_draw_queue_add(window_day_sprite, 0, 2, 8, 8, CAT_DRAW_MODE_DEFAULT);
+		}
+	}
 	else
 		CAT_draw_queue_add(window_night_sprite, 0, 2, 8, 8, CAT_DRAW_MODE_DEFAULT);
 	

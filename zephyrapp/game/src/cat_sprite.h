@@ -242,7 +242,6 @@ extern int button_hl_sprite;
 extern int touch_hl_sprite;
 
 // TOOLS
-
 extern int bread_sprite;
 extern int coffee_sprite;
 extern int milk_sprite;
