@@ -189,10 +189,15 @@ void CAT_item_list_filter(CAT_item_list* a, CAT_item_list* b, CAT_item_filter fi
 int mask_item;
 
 // FOOS
-int padkaprow_item;
-int sausage_item;
+int bread_item;
 int coffee_item;
+int milk_item;
+int soup_item;
 int salad_item;
+int sausage_item;
+int green_curry_item;
+int red_curry_item;
+int padkaprow_item;
 int pill_vig_item;
 int pill_foc_item;
 int pill_spi_item;
@@ -222,10 +227,13 @@ int coffeemaker_item;
 int fan_a_item;
 int fan_b_item;
 int lantern_item;
+int laptop_item;
+int chess_item;
 
 int table_lg_item;
 int table_sm_item;
 int chair_wood_item;
+int chair_stone_item;
 int stool_wood_item;
 int stool_stone_item;
 int stool_gold_item;
@@ -264,6 +272,33 @@ void CAT_item_mass_define()
 	mask_item = CAT_item_init(CAT_ITEM_TYPE_KEY, "Mask", icon_mask_sprite, 10);
 
 	// FOOD
+	bread_item = CAT_item_init(CAT_ITEM_TYPE_TOOL, "Bread", bread_sprite, 5);
+	CAT_tool_init(bread_item, CAT_TOOL_TYPE_FOOD, bread_sprite, 2, 0, 0);
+
+	coffee_item = CAT_item_init(CAT_ITEM_TYPE_TOOL, "Coffee", coffee_sprite, 2);
+	CAT_tool_init(coffee_item, CAT_TOOL_TYPE_FOOD, coffee_sprite, 1, 1, 0);
+
+	milk_item = CAT_item_init(CAT_ITEM_TYPE_TOOL, "Milk", milk_sprite, 3);
+	CAT_tool_init(milk_item, CAT_TOOL_TYPE_FOOD, milk_sprite, 1, 0, 0);
+
+	soup_item = CAT_item_init(CAT_ITEM_TYPE_TOOL, "Soup", soup_sprite, 5);
+	CAT_tool_init(soup_item, CAT_TOOL_TYPE_FOOD, soup_sprite, 3, 0, 0);
+
+	salad_item = CAT_item_init(CAT_ITEM_TYPE_TOOL, "Salad", salad_sprite, 5);
+	CAT_tool_init(salad_item, CAT_TOOL_TYPE_FOOD, salad_sprite, 3, 0, 0);
+
+	sausage_item = CAT_item_init(CAT_ITEM_TYPE_TOOL, "Sausage", sausage_sprite, 5);
+	CAT_tool_init(sausage_item, CAT_TOOL_TYPE_FOOD, sausage_sprite, 3, 0, 0);
+
+	green_curry_item = CAT_item_init(CAT_ITEM_TYPE_TOOL, "Green Curry", green_curry_sprite, 15);
+	CAT_tool_init(green_curry_item, CAT_TOOL_TYPE_FOOD, green_curry_sprite, 5, 0, 0);
+
+	red_curry_item = CAT_item_init(CAT_ITEM_TYPE_TOOL, "Red Curry", red_curry_sprite, 15);
+	CAT_tool_init(red_curry_item, CAT_TOOL_TYPE_FOOD, red_curry_sprite, 5, 0, 0);
+
+	padkaprow_item = CAT_item_init(CAT_ITEM_TYPE_TOOL, "Pad Ka Prow", padkaprow_sprite, 15);
+	CAT_tool_init(padkaprow_item, CAT_TOOL_TYPE_FOOD, padkaprow_sprite, 5, 0, 0);
+
 	pill_vig_item = CAT_item_init(CAT_ITEM_TYPE_TOOL, "Vigour Pill", pill_vig_sprite, 2);
 	CAT_tool_init(pill_vig_item, CAT_TOOL_TYPE_FOOD, pill_vig_sprite, 1, 0, 0);
 
@@ -273,20 +308,9 @@ void CAT_item_mass_define()
 	pill_spi_item = CAT_item_init(CAT_ITEM_TYPE_TOOL, "Spirit Pill", pill_spi_sprite, 2);
 	CAT_tool_init(pill_spi_item, CAT_TOOL_TYPE_FOOD, pill_spi_sprite, 0, 0, 1);
 
-	padkaprow_item = CAT_item_init(CAT_ITEM_TYPE_TOOL, "Pad Ka Prow", padkaprow_sprite, 10);
-	CAT_tool_init(padkaprow_item, CAT_TOOL_TYPE_FOOD, padkaprow_sprite, 5, 0, 0);
-
-	sausage_item = CAT_item_init(CAT_ITEM_TYPE_TOOL, "Sausage", sausage_sprite, 5);
-	CAT_tool_init(sausage_item, CAT_TOOL_TYPE_FOOD, sausage_sprite, 3, 0, 0);
-
-	coffee_item = CAT_item_init(CAT_ITEM_TYPE_TOOL, "Coffee", coffee_sprite, 2);
-	CAT_tool_init(coffee_item, CAT_TOOL_TYPE_FOOD, coffee_sprite, 1, 1, 0);
-
-	salad_item = CAT_item_init(CAT_ITEM_TYPE_TOOL, "Salad", salad_sprite, 5);
-	CAT_tool_init(salad_item, CAT_TOOL_TYPE_FOOD, salad_sprite, 3, 0, 0);
-
 	cigarette_item = CAT_item_init(CAT_ITEM_TYPE_TOOL, "Cigarettes", cigarette_sprite, 10);
 	CAT_tool_init(cigarette_item, CAT_TOOL_TYPE_FOOD, cigarette_sprite, -1, 3, 1);
+
 
 	// BOOKS
 	book_f_item = CAT_item_init(CAT_ITEM_TYPE_TOOL, "The Disposessed", book_study_sprite, 20);
@@ -307,6 +331,7 @@ void CAT_item_mass_define()
 	book_e_item = CAT_item_init(CAT_ITEM_TYPE_TOOL, "Metal Fever", book_study_sprite, 20);
 	CAT_tool_init(book_e_item, CAT_TOOL_TYPE_BOOK, book_static_sprite, 0, 3, 0);
 
+
 	// TOYS
 	toy_golf_item = CAT_item_init(CAT_ITEM_TYPE_TOOL, "Golf Ball", toy_golf_sprite, 5);
 	CAT_tool_init(toy_golf_item, CAT_TOOL_TYPE_TOY, toy_golf_sprite, 0, 0, 1);
@@ -323,9 +348,13 @@ void CAT_item_mass_define()
 	toy_duck_item = CAT_item_init(CAT_ITEM_TYPE_TOOL, "Ducky", toy_duck_sprite, 30);
 	CAT_tool_init(toy_duck_item, CAT_TOOL_TYPE_TOY, toy_duck_sprite, 0, 0, 5);
 
+
 	// PROPS
 	chair_wood_item = CAT_item_init(CAT_ITEM_TYPE_PROP, "Wood Chair", chair_wood_sprite, 5);
 	CAT_prop_init(chair_wood_item, 2, 2, false);
+
+	chair_stone_item = CAT_item_init(CAT_ITEM_TYPE_PROP, "Stone Chair", chair_stone_sprite, 10);
+	CAT_prop_init(chair_stone_item, 2, 2, false);
 
 	table_sm_item = CAT_item_init(CAT_ITEM_TYPE_PROP, "Small Table", table_sm_sprite, 10);
 	CAT_prop_init(table_sm_item, 2, 2, true);
@@ -349,6 +378,14 @@ void CAT_item_mass_define()
 	coffeemaker_item = CAT_item_init(CAT_ITEM_TYPE_PROP, "Coffee Machine", coffeemaker_sprite, 40);
 	CAT_prop_init(coffeemaker_item, 2, 1, true);
 	item_table.data[coffeemaker_item].data.prop_data.type = CAT_PROP_TYPE_TOP;
+
+	laptop_item = CAT_item_init(CAT_ITEM_TYPE_PROP, "Laptop", laptop_sprite, 80);
+	CAT_prop_init(laptop_item, 2, 1, true);
+	item_table.data[laptop_item].data.prop_data.type = CAT_PROP_TYPE_TOP;
+
+	chess_item = CAT_item_init(CAT_ITEM_TYPE_PROP, "Chess Set", chess_sprite, 40);
+	CAT_prop_init(chess_item, 2, 2, true);
+	item_table.data[chess_item].data.prop_data.type = CAT_PROP_TYPE_TOP;
 	
 
 	uv_item = CAT_item_init(CAT_ITEM_TYPE_PROP, "UV Lamp", uv_sprite, 50);

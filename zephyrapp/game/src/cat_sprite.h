@@ -7,7 +7,7 @@
 //////////////////////////////////////////////////////////////////////////
 // CONSTANTS AND MACROS
 
-#define CAT_ATLAS_MAX_LENGTH 512
+#define CAT_ATLAS_MAX_LENGTH 256
 #define CAT_DRAW_QUEUE_MAX_LENGTH 128
 #define CAT_ANIM_MAX_LENGTH 16
 #define CAT_ANIM_TABLE_MAX_LENGTH 128
@@ -242,10 +242,16 @@ extern int button_hl_sprite;
 extern int touch_hl_sprite;
 
 // TOOLS
-extern int padkaprow_sprite;
-extern int sausage_sprite;
+
+extern int bread_sprite;
 extern int coffee_sprite;
+extern int milk_sprite;
+extern int soup_sprite;
 extern int salad_sprite;
+extern int sausage_sprite;
+extern int green_curry_sprite;
+extern int red_curry_sprite;
+extern int padkaprow_sprite;
 extern int pill_vig_sprite;
 extern int pill_foc_sprite;
 extern int pill_spi_sprite;
@@ -267,6 +273,8 @@ extern int coin_world_sprite;
 // FIXED PROPS
 extern int window_dawn_sprite;
 extern int window_day_sprite;
+extern int window_day_high_aq_sprite;
+extern int window_day_low_aq_sprite;
 extern int window_night_sprite;
 extern int vending_sprite;
 extern int arcade_sprite;
@@ -281,10 +289,13 @@ extern int coffeemaker_sprite;
 extern int fan_a_sprite;
 extern int fan_b_sprite;
 extern int lantern_sprite;
+extern int laptop_sprite;
+extern int chess_sprite;
 
 extern int table_lg_sprite;
 extern int table_sm_sprite;
 extern int chair_wood_sprite;
+extern int chair_stone_sprite;
 extern int stool_wood_sprite;
 extern int stool_stone_sprite;
 extern int stool_gold_sprite;
