@@ -148,13 +148,7 @@ void CAT_render_bag()
 	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
 	if(roster.length == 0)
 	{
-		CAT_gui_text
-		(
-			"Your bag is currently empty.\n"
-			"\n"
-			"Items can be purchased from\n"
-			"the vending machine"
-		);
+		CAT_gui_text("Nothing to see here...\n");
 		return;
 	}
 	for(int i = 0; i < 9; i++)

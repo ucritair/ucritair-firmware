@@ -302,21 +302,22 @@ void CAT_render_snake()
 	else
 	{
 		CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 20});
-		for(int i = 1; i < 14; i++)
+		spriter.mode = CAT_DRAW_MODE_DEFAULT;
+		for(int x = 0; x < 15; x++)
 		{
-			CAT_draw_sprite(snake_head_sprite, 1, i * 16, 16);
-			CAT_draw_sprite(snake_head_sprite, 1, i * 16, 19*16);
+			CAT_draw_sprite(snake_head_sprite, 1, x * CAT_TILE_SIZE, 0);
+			CAT_draw_sprite(snake_head_sprite, 1, x * CAT_TILE_SIZE, 19 * CAT_TILE_SIZE);
 		}
-		for(int i = 1; i < 20; i++)
+		for(int y = 0; y < 20; y++)
 		{
-			CAT_draw_sprite(snake_head_sprite, 1, 16, i * 16);
-			CAT_draw_sprite(snake_head_sprite, 1, 13*16, i * 16);
+			CAT_draw_sprite(snake_head_sprite, 1, 0, y * CAT_TILE_SIZE);
+			CAT_draw_sprite(snake_head_sprite, 1, 14 * CAT_TILE_SIZE, y * CAT_TILE_SIZE);
 		}
 
-		gui.cursor.x += 28;
-		gui.cursor.y += 24;
-		gui.start.x += 28;
-		gui.start.y += 24;
+		gui.cursor.x += 2 * CAT_TILE_SIZE;
+		gui.cursor.y += 2 * CAT_TILE_SIZE;
+		gui.start.x += 2;
+		gui.start.y += 2;
 		CAT_gui_textf
 		(
 			"Rest in peace,\nSnack Cat.\n"

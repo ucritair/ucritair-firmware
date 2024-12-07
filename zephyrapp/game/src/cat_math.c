@@ -127,6 +127,11 @@ CAT_ivec2 CAT_ivec2_mul(CAT_ivec2 a, int b)
 	return (CAT_ivec2) {a.x * b, a.y * b};
 }
 
+CAT_ivec2 CAT_ivec2_div(CAT_ivec2 a, int b)
+{
+	return (CAT_ivec2) {a.x / b, a.y / b};
+}
+
 
 //////////////////////////////////////////////////////////////////////////
 // COLLISION

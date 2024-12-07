@@ -99,27 +99,23 @@ void CAT_render_aqi()
 		flash_get_cell_by_nr(aqi_view_cell, &view_cell);
 		last_fetched_aqi_view_cell = aqi_view_cell;
 	}
-	
-	char buf[64];
-#define textf(...) snprintf(buf, sizeof(buf), __VA_ARGS__); CAT_gui_text(buf);
-#define textfnl(...) textf(__VA_ARGS__); CAT_gui_line_break();
 
 	if ((viewing_latest && next_log_cell_nr != 0) || (!viewing_latest && aqi_view_cell != 0))
 	{
-		textf("<  ");
+		CAT_gui_text("<  ");
 	}
 	else
 	{
-		textf("   ");
+		CAT_gui_text("   ");
 	}
 
 	if (viewing_latest)
 	{
-		textfnl("  Live Air Quality");
+		CAT_gui_text("  Live Air Quality\n");
 	}
 	else
 	{
-		textfnl("Logged Air Quality  >");
+		CAT_gui_text("Logged Air Quality  >\n");
 	}
 
 	struct tm t;
@@ -137,93 +133,87 @@ void CAT_render_aqi()
 
 	// LOG_DBG("at gmtime_r now=%lld; year=%d", now, t.tm_year);
 
-	textf("@ %s ", month_names[t.tm_mon]);
-	textf("%2d ", t.tm_mday);
-	textf("%4d, ", t.tm_year);
-	textf("%2d:", t.tm_hour);
-	textf("%2d:", t.tm_min);
-	textf("%2d", t.tm_sec);
-
+	CAT_gui_textf("@ %s ", month_names[t.tm_mon]);
+	CAT_gui_textf("%2d ", t.tm_mday);
+	CAT_gui_textf("%4d, ", t.tm_year);
+	CAT_gui_textf("%2d:", t.tm_hour);
+	CAT_gui_textf("%2d:", t.tm_min);
+	CAT_gui_textf("%2d", t.tm_sec);
 	CAT_gui_line_break();
-	
-	textfnl(" ");
+	CAT_gui_line_break();
 	
 	if (view_cell.flags & FLAG_HAS_CO2)
 	{
-		textfnl("CO2: %dppm", (int)view_cell.co2_ppmx1);
-		textfnl("    (%.1f%% rebreathed air)", ((((double)view_cell.co2_ppmx1)-420.)/38000.)*100.);
+		CAT_gui_textf("CO2: %dppm\n", (int)view_cell.co2_ppmx1);
+		CAT_gui_textf("    (%.1f%% rebreathed air)\n", ((((double)view_cell.co2_ppmx1)-420.)/38000.)*100.);
 	}
 	else
 	{
-		textfnl(viewing_latest?"CO2 sensor starting...":"CO2 not recorded");
-		textfnl("");
+		CAT_gui_textf(viewing_latest?"CO2 sensor starting...\n":"CO2 not recorded\n");
+		CAT_gui_line_break();
 	}
-
-	textfnl(" ");
+	CAT_gui_line_break();
 	
 	if (view_cell.flags & FLAG_HAS_TEMP_RH_PARTICLES)
 	{
 		if (view_pn)
 		{
-			textfnl("PN0.5: % 2.01f #/cm\x7f", ((double)view_cell.pn_ugmx100[0])/100.);
-			textfnl("PN1.0: % 2.01f #/cm\x7f", ((double)view_cell.pn_ugmx100[1])/100.);
-			textfnl("PN2.5: % 2.01f #/cm\x7f", ((double)view_cell.pn_ugmx100[2])/100.);
-			textfnl("PN4.0: % 2.01f #/cm\x7f", ((double)view_cell.pn_ugmx100[3])/100.);
-			textfnl("PN10 : % 2.01f #/cm\x7f", ((double)view_cell.pn_ugmx100[4])/100.);
+			CAT_gui_textf("PN0.5: % 2.01f #/cm\x7f\n", ((double)view_cell.pn_ugmx100[0])/100.);
+			CAT_gui_textf("PN1.0: % 2.01f #/cm\x7f\n", ((double)view_cell.pn_ugmx100[1])/100.);
+			CAT_gui_textf("PN2.5: % 2.01f #/cm\x7f\n", ((double)view_cell.pn_ugmx100[2])/100.);
+			CAT_gui_textf("PN4.0: % 2.01f #/cm\x7f\n", ((double)view_cell.pn_ugmx100[3])/100.);
+			CAT_gui_textf("PN10 : % 2.01f #/cm\x7f\n", ((double)view_cell.pn_ugmx100[4])/100.);
 		}
 		else
 		{
-			textfnl("PM1.0: % 2.01f ~g/m\x7f", ((double)view_cell.pm_ugmx100[0])/100.);
-			textfnl("PM2.5: % 2.01f ~g/m\x7f", ((double)view_cell.pm_ugmx100[1])/100.);
-			textfnl("PM4.0: % 2.01f ~g/m\x7f", ((double)view_cell.pm_ugmx100[2])/100.);
-			textfnl("PM10 : % 2.01f ~g/m\x7f", ((double)view_cell.pm_ugmx100[3])/100.);
-			textfnl(" ");
+			CAT_gui_textf("PM1.0: % 2.01f ~g/m\x7f\n", ((double)view_cell.pm_ugmx100[0])/100.);
+			CAT_gui_textf("PM2.5: % 2.01f ~g/m\x7f\n", ((double)view_cell.pm_ugmx100[1])/100.);
+			CAT_gui_textf("PM4.0: % 2.01f ~g/m\x7f\n", ((double)view_cell.pm_ugmx100[2])/100.);
+			CAT_gui_textf("PM10 : % 2.01f ~g/m\x7f\n", ((double)view_cell.pm_ugmx100[3])/100.);
+			CAT_gui_line_break();
 		}
 
 		CAT_gui_image(icon_select_sprite, 1);
-		textfnl("to view %s", view_pn?"PM":"PN");
+		CAT_gui_textf("to view %s\n", view_pn?"PM":"PN");
 	}
 	else
 	{
-		textfnl(viewing_latest?"PM sensor starting...":"PM not recorded");
-		textfnl(" ");
-		textfnl(" ");
-		textfnl(" ");
-		textfnl(" ");
+		CAT_gui_textf(viewing_latest?"PM sensor starting...\n":"PM not recorded\n");
+		CAT_gui_line_break();
+		CAT_gui_line_break();
+		CAT_gui_line_break();
 	}
-
-	textfnl(" ");
+	CAT_gui_line_break();
 	
 	if (view_cell.flags & FLAG_HAS_TEMP_RH_PARTICLES)
 	{
 		if (view_cell.pressure_hPax10 != 0)
 		{
-			textfnl("%2.1f`C    %2.0f%%RH    %.0fhPa", 
+			CAT_gui_textf("%2.1f`C    %2.0f%%RH    %.0fhPa\n", 
 				((double)view_cell.temp_Cx1000)/1000.,
 				((double)view_cell.rh_pctx100)/100.,
 				((double)view_cell.pressure_hPax10)/10.);
 		}
 		else
 		{
-			textfnl("%2.1f`C    %2.0f%%RH", 
+			CAT_gui_textf("%2.1f`C    %2.0f%%RH\n", 
 				((double)view_cell.temp_Cx1000)/1000.,
 				((double)view_cell.rh_pctx100)/100.);
 		}
 	}
 	else
 	{
-		textfnl(viewing_latest?"Temp/RH sensor starting...":"Temp/RH not recorded");
+		CAT_gui_textf(viewing_latest?"Temp/RH sensor starting...\n":"Temp/RH not recorded\n");
 	}
-
-	textfnl(" ");
+	CAT_gui_line_break();
 	
 	if (view_cell.nox_index && view_cell.voc_index)
 	{
-		textfnl("VOC %3.0f    NOX %3.0f", (double)view_cell.voc_index, (double)view_cell.nox_index);
+		CAT_gui_textf("VOC %3.0f    NOX %3.0f\n", (double)view_cell.voc_index, (double)view_cell.nox_index);
 	}
 	else
 	{
-		textfnl(viewing_latest?"VOC/NOX sensor starting...":"VOC/NOX not recorded");
-		textfnl(" ");
+		CAT_gui_textf(viewing_latest?"VOC/NOX sensor starting...\n":"VOC/NOX not recorded\n");
+		CAT_gui_line_break();
 	}
 }

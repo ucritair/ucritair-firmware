@@ -54,8 +54,6 @@ void CAT_gui_panel(CAT_ivec2 start, CAT_ivec2 shape)
 		gui.cursor.x -= gui.margin/2;
 	}
 	gui.channel_height = 0;
-
-	spriter.mode = CAT_DRAW_MODE_CENTER_Y;
 }
 
 void gui_open_channel(int height)
@@ -79,6 +77,8 @@ void CAT_gui_line_break()
 
 void CAT_gui_text(const char* text)
 {
+	spriter.mode = CAT_DRAW_MODE_CENTER_Y;
+
 	bool wrap = CAT_gui_consume_flag(CAT_GUI_WRAP_TEXT);
 	int x_lim = (gui.start.x * CAT_TILE_SIZE) + (gui.shape.x) * CAT_TILE_SIZE - CAT_GLYPH_WIDTH - gui.margin;
 	const char* c = text;
@@ -116,6 +116,8 @@ void CAT_gui_text(const char* text)
 
 void CAT_gui_image(int sprite_id, int frame_idx)
 {
+	spriter.mode = CAT_DRAW_MODE_CENTER_Y;
+
 	CAT_sprite sprite = atlas.table[sprite_id];
 	gui_open_channel(sprite.height);
 
@@ -127,6 +129,8 @@ void CAT_gui_image(int sprite_id, int frame_idx)
 
 void CAT_gui_div(const char* text)
 {
+	spriter.mode = CAT_DRAW_MODE_CENTER_Y;
+	
 	CAT_gui_line_break();
 	gui_open_channel(CAT_TILE_SIZE);
 	if(strlen(text) == 0)

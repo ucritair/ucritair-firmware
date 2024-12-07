@@ -88,8 +88,10 @@ CAT_action_state action_state =
 
 void action_enter(CAT_action_profile* profile)
 {
-	room.grid_cursor = CAT_first_free_space();
-	CAT_pet_settle();
+	if(action_state.tool_id == -1)
+		room.grid_cursor = CAT_largest_free_space();
+	room.grid_cursor = CAT_nearest_free_space(room.grid_cursor);
+	
 	action_state.profile = profile;
 }
 

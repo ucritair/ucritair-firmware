@@ -235,6 +235,7 @@ CAT_ivec2 CAT_largest_free_space()
 	
 	int max_size = 0;
 	int max_idx = 0;
+	CAT_ivec2 max_cent = {0, 0};
 	
 	for(int y = 0; y < CAT_GRID_HEIGHT; y++)
 	{
@@ -251,11 +252,13 @@ CAT_ivec2 CAT_largest_free_space()
 			idx_queue_length = 0;
 			idx_enqueue(idx);
 			int size = 0;
+			CAT_ivec2 cent = {0, 0};
 
 			while(idx_queue_length > 0)
 			{		
 				CAT_cell* c = &space.cells[idx_dequeue()];
 				size += 1;
+				cent = CAT_ivec2_add(cent, c->coords);
 
 				CAT_ivec2 n = {c->coords.x, c->coords.y-1};
 				int n_idx = n.y * CAT_GRID_WIDTH + n.x;
@@ -291,11 +294,13 @@ CAT_ivec2 CAT_largest_free_space()
 			{
 				max_size = size;
 				max_idx = idx;
+				max_cent = CAT_ivec2_div(cent, size);
 			}
 		}
 	}
 
-	return space.cells[max_idx].coords;
+	//return space.cells[max_idx].coords;
+	return max_cent;
 }
 
 
@@ -717,9 +722,10 @@ void render_props()
 		{
 			mode = CAT_DRAW_MODE_BOTTOM | CAT_DRAW_MODE_CENTER_X;
 			frame = child->data.prop_data.animate ? -1 : 0;
-			int yoff = shape.y * CAT_TILE_SIZE;
-			int xoff = shape.x * 0.5 * CAT_TILE_SIZE;
-			CAT_draw_queue_insert(job+1, child->sprite_id, frame, 2, draw_place.x + xoff, draw_place.y - yoff, mode);
+			int cx = shape.x * CAT_TILE_SIZE / 2;
+			int cy = -(shape.y + 1) * CAT_TILE_SIZE / 2;
+			int dy = -child->data.prop_data.shape.y * CAT_TILE_SIZE / 2;
+			CAT_draw_queue_insert(job+1, child->sprite_id, frame, 2, draw_place.x + cx, draw_place.y + cy + dy, mode);
 		}
 	}
 }

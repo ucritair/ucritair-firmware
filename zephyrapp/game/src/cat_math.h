@@ -55,6 +55,7 @@ typedef struct CAT_ivec2
 CAT_ivec2 CAT_ivec2_add(CAT_ivec2 a, CAT_ivec2 b);
 CAT_ivec2 CAT_ivec2_sub(CAT_ivec2 a, CAT_ivec2 b);
 CAT_ivec2 CAT_ivec2_mul(CAT_ivec2 a, int b);
+CAT_ivec2 CAT_ivec2_div(CAT_ivec2 a, int b);
 
 
 //////////////////////////////////////////////////////////////////////////
