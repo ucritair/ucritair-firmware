@@ -85,7 +85,7 @@ void CAT_save_failsafe()
 	saved_version_patch = CAT_VERSION_PATCH;
 	saved_version_push = CAT_VERSION_PUSH;
 
-	CAT_item_list_add(&bag, gpu_item);
+	CAT_item_list_add(&bag, gpu_item, 1);
 	coins = 10;
 }
 
@@ -163,16 +163,13 @@ void CAT_force_load()
 		}
 		else
 		{
-			CAT_item_list_add(&bag, save->prop_ids[i]);
+			CAT_item_list_add(&bag, save->prop_ids[i], 1);
 		}
 	}
 
 	for(int i = 0; i < save->bag_length; i++)
 	{	
-		for(int j = 0; j < save->bag_counts[i]; j++)
-		{
-			CAT_item_list_add(&bag, save->bag_ids[i]);
-		}
+		CAT_item_list_add(&bag, save->bag_ids[i], save->bag_counts[i]);
 	}
 	coins = save->coins;
 

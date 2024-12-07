@@ -166,9 +166,9 @@ extern int base_floor_sprite;
 extern int grass_floor_sprite;
 extern int ash_floor_sprite;
 
-extern int panel_sprite;
 extern int glyph_sprite;
 extern int strike_sprite;
+extern int tab_sprite;
 
 // ICONS
 extern int icon_pointer_sprite;

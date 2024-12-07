@@ -31,7 +31,7 @@ int CAT_item_init(CAT_item_type type, const char* name, int sprite_id, int price
 	item->name = name;
 	item->sprite_id = sprite_id;
 	item->price = price;
-	item->text = "";
+	item->text = "Here is some really long flavour text that is sure to wrap on at least one line.";
 	item->icon_id = icon_item_key_sprite;
 
 	return item_id;
@@ -106,7 +106,7 @@ int CAT_item_list_find(CAT_item_list* item_list, int item_id)
 	return -1;
 }
 
-void CAT_item_list_add(CAT_item_list* item_list, int item_id)
+void CAT_item_list_add(CAT_item_list* item_list, int item_id, int count)
 {
 	if(item_id < 0 || item_id >= item_table.length)
 	{
@@ -122,7 +122,7 @@ void CAT_item_list_add(CAT_item_list* item_list, int item_id)
 	int idx = CAT_item_list_find(item_list, item_id);
 	if(idx >= 0)
 	{
-		item_list->counts[idx] += 1;
+		item_list->counts[idx] += count;
 	}
 	else
 	{
@@ -141,12 +141,12 @@ void CAT_item_list_add(CAT_item_list* item_list, int item_id)
 			item_list->counts[i] = item_list->counts[i-1];
 		}
 		item_list->item_ids[insert_idx] = item_id;
-		item_list->counts[insert_idx] = 1;
+		item_list->counts[insert_idx] = count;
 		item_list->length += 1;
 	}
 }
 
-void CAT_item_list_remove(CAT_item_list* item_list, int item_id)
+void CAT_item_list_remove(CAT_item_list* item_list, int item_id, int count)
 {
 	if(item_id < 0 || item_id >= item_table.length)
 	{
@@ -157,7 +157,7 @@ void CAT_item_list_remove(CAT_item_list* item_list, int item_id)
 	int idx = CAT_item_list_find(item_list, item_id);
 	if(idx >= 0)
 	{
-		item_list->counts[idx] -= 1;
+		item_list->counts[idx] -= count;
 		if(item_list->counts[idx] <= 0)
 		{
 			for(int i = idx; i < item_list->length-1; i++)
@@ -166,6 +166,17 @@ void CAT_item_list_remove(CAT_item_list* item_list, int item_id)
 				item_list->counts[i] = item_list->counts[i+1];
 			}
 			item_list->length -= 1;
+		}
+	}
+}
+
+void CAT_item_list_filter(CAT_item_list* a, CAT_item_list* b, CAT_item_filter filter)
+{
+	for(int i = 0; i < a->length; i++)
+	{
+		if(filter == NULL || filter(a->item_ids[i]))
+		{
+			CAT_item_list_add(b, a->item_ids[i], a->counts[i]);
 		}
 	}
 }
@@ -342,6 +353,7 @@ void CAT_item_mass_define()
 
 	uv_item = CAT_item_init(CAT_ITEM_TYPE_PROP, "UV Lamp", uv_sprite, 50);
 	CAT_prop_init(uv_item, 1, 1, true);
+	item_table.data[uv_item].data.prop_data.type = CAT_PROP_TYPE_TOP;
 
 	purifier_item = CAT_item_init(CAT_ITEM_TYPE_PROP, "Air Purifier", purifier_sprite, 50);
 	CAT_prop_init(purifier_item, 2, 1, true);
@@ -426,8 +438,11 @@ void CAT_item_mass_define()
 
 	padkaprop_item = CAT_item_init(CAT_ITEM_TYPE_PROP, "Pad Ka Prop", padkaprop_sprite, 30);
 	CAT_prop_init(padkaprop_item, 2, 1, true);
+	item_table.data[padkaprop_item].data.prop_data.type = CAT_PROP_TYPE_TOP;
 
 	pixel_item = CAT_item_init(CAT_ITEM_TYPE_PROP, "Pixel", pixel_sprite, 30);
 	CAT_prop_init(pixel_item, 1, 1, true);
 	item_table.data[pixel_item].data.prop_data.type = CAT_PROP_TYPE_TOP;
+
+	CAT_printf("[INFO] %d items initialized\n", item_table.length);
 }

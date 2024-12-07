@@ -66,7 +66,7 @@ void CAT_MS_vending(CAT_machine_signal signal)
 				
 				if(purchase_progress >= 1)
 				{
-					CAT_item_list_add(&bag, selector);
+					CAT_item_list_add(&bag, selector, 1);
 					coins -= item->price;
 					purchase_progress = 0;
 					purchase_lock = true;
@@ -92,7 +92,9 @@ void CAT_render_vending()
 	CAT_gui_image(icon_enter_sprite, 0);
 	CAT_gui_image(icon_b_sprite, 1);
 	CAT_gui_image(icon_exit_sprite, 0);
-	CAT_gui_panel_tight((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 2});
+
+	CAT_gui_set_flag(CAT_GUI_TIGHT);
+	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 2});
 	CAT_gui_image(icon_coin_sprite, 0);
 	CAT_gui_textf(" $%d", coins);
 
@@ -105,7 +107,8 @@ void CAT_render_vending()
 		
 		CAT_item* item = CAT_item_get(item_id);
 
-		CAT_gui_panel_tight((CAT_ivec2) {0, 4+i*2}, (CAT_ivec2) {15, 2});
+		CAT_gui_set_flag(CAT_GUI_TIGHT);
+		CAT_gui_panel((CAT_ivec2) {0, 4+i*2}, (CAT_ivec2) {15, 2});
 		CAT_gui_image(item->icon_id, 0);
 
 		CAT_gui_textf(" %s  $%d ", item->name, item->price);

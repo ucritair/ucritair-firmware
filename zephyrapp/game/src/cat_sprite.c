@@ -1022,9 +1022,9 @@ int base_floor_sprite;
 int grass_floor_sprite;
 int ash_floor_sprite;
 
-int panel_sprite;
 int glyph_sprite;
 int strike_sprite;
+int tab_sprite;
 
 // ICONS
 int icon_pointer_sprite;
@@ -1287,9 +1287,9 @@ void CAT_sprite_mass_define()
 	INIT_SPRITE(grass_floor_sprite, "sprites/tile_grass.png", 21);
 	INIT_SPRITE(ash_floor_sprite, "sprites/tile_ash.png", 6);
 
-	INIT_SPRITE(panel_sprite, "sprites/panel_tiles.png", 10);
 	INIT_SPRITE(glyph_sprite, "sprites/glyphs.png", 96);
 	INIT_SPRITE(strike_sprite, "sprites/strikethrough.png", 1);
+	INIT_SPRITE(tab_sprite, "sprites/gui_tab.png", 2);
 
 	// ICONS
 	INIT_SPRITE(icon_pointer_sprite, "sprites/icon_pointer.png", 1);
@@ -1497,6 +1497,8 @@ void CAT_sprite_mass_define()
 	INIT_SPRITE(snake_body_sprite, "sprites/snake_cat_body.png", 4);
 	INIT_SPRITE(snake_corner_sprite, "sprites/snake_cat_corner.png", 4);
 	INIT_SPRITE(snake_tail_sprite, "sprites/snake_tail.png", 4);
+
+	CAT_printf("[INFO] %d sprites initialized\n", atlas.length);
 
 
 	// MACHINES

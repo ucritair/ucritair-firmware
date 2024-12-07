@@ -106,7 +106,8 @@ void CAT_render_menu()
 	}
 
 	CAT_gui_line_break();
-	CAT_gui_text_wrap(flavour_text[flavour_idx]);
+	CAT_gui_set_flag(CAT_GUI_WRAP_TEXT);
+	CAT_gui_text(flavour_text[flavour_idx]);
 }
 
 void CAT_MS_debug(CAT_machine_signal signal)
@@ -206,7 +207,7 @@ void cheat_proc_all_items()
 {
 	for(int item_id = 0; item_id < item_table.length; item_id++)
 	{
-		CAT_item_list_add(&bag, item_id);
+		CAT_item_list_add(&bag, item_id, 1);
 	}
 }
 
@@ -392,12 +393,14 @@ void CAT_render_hedron()
 			continue;
 			
 		// Backface culling
+#ifdef CAT_DESKTOP
 		CAT_vec4 ba = CAT_vec4_sub(b, a);
 		CAT_vec4 ca = CAT_vec4_sub(c, a);
 		CAT_vec4 norm = CAT_vec4_cross(ba, ca);
 		float valign = CAT_vec4_dot(a, norm);
 		if(valign >= 0)
 			continue;
+#endif
 
 		CAT_perspdiv(&a);
 		CAT_perspdiv(&b);
@@ -486,7 +489,8 @@ void CAT_render_sound()
 		CAT_gui_text("Sound is playing\n");
 	}
 #else
-	CAT_gui_text_wrap("Sound is only available on embedded!\n");
+	CAT_gui_set_flag(CAT_GUI_WRAP_TEXT);
+	CAT_gui_text("Sound is only available on embedded!\n");
 #endif
 }
 

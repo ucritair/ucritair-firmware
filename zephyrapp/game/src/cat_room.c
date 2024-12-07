@@ -378,10 +378,12 @@ int CAT_room_add_prop(int item_id, CAT_ivec2 place)
 
 void CAT_room_stack_prop(int idx, int item_id)
 {
-	if(room.prop_children[idx] != -1)
-		CAT_item_list_add(&bag, room.prop_children[idx]);
 	room.prop_children[idx] = item_id;
-	CAT_item_list_remove(&bag, item_id);
+}
+
+void CAT_room_unstack_prop(int idx)
+{
+	room.prop_children[idx] = -1;
 }
 
 void CAT_room_remove_prop(int idx)
@@ -395,7 +397,7 @@ void CAT_room_remove_prop(int idx)
 	CAT_toggle_block(block, false);
 
 	if(room.prop_children[idx] != -1)
-		CAT_item_list_add(&bag, room.prop_children[idx]);
+		CAT_item_list_add(&bag, room.prop_children[idx], 1);
 
 	room.prop_count -= 1;
 	for(int i = idx; i < room.prop_count; i++)

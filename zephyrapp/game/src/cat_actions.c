@@ -148,7 +148,7 @@ void action_tick()
 				CAT_item* item = CAT_item_get(action_state.tool_id);
 				if(item->data.tool_data.type == CAT_TOOL_TYPE_FOOD)
 				{
-					CAT_item_list_remove(&bag, action_state.tool_id);
+					CAT_item_list_remove(&bag, action_state.tool_id, 1);
 				}
 				
 				action_state.complete = true;
