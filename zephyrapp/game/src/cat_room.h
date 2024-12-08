@@ -13,7 +13,8 @@
 #define CAT_WORLD_HEIGHT (CAT_GRID_HEIGHT * CAT_TILE_SIZE)
 
 #define CAT_MAX_COIN_COUNT 24
-#define CAT_EARN_TICK_SECS 1800
+//#define CAT_EARN_TICK_SECS 1800
+#define CAT_EARN_TICK_SECS 5
 
 
 //////////////////////////////////////////////////////////////////////////

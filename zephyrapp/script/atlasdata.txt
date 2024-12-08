@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 Starting CAT v0.0.0.53...
 Renderer: Apple M1 Pro
 GL version: 4.1 Metal - 88.1
+=======
+Starting CAT v0.0.0.52...
+Renderer: Apple M1 Max
+GL version: 4.1 Metal - 88
+>>>>>>> ed443881613d859ecb0dd055df15e714e6b4ca14
 SL version: 4.10
 Initializing GLEW
 BAKE-INIT: (0, "base_wall_sprite", "sprites/wall_basic.png", 3, 16, 16)
@@ -184,7 +190,11 @@ BAKE-INIT: (177, "snake_tail_sprite", "sprites/snake_tail.png", 4, 16, 16)
 [INFO] 178 sprites initialized
 [INFO] 62 items initialized
 Loading...
+<<<<<<< HEAD
 Loaded save from version v0.0.0.53
+=======
+Loaded save from version v0.0.0.0
+>>>>>>> ed443881613d859ecb0dd055df15e714e6b4ca14
 Load done!
 Saving...
 Save done!

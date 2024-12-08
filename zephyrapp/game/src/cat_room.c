@@ -739,7 +739,11 @@ void render_gringus()
 
 		float t = CAT_timer_progress(room.coin_move_timers[i]);
 		float x = lerp(origin.x, place.x, t);
+		if(origin.y > place.y)
+			t = 1.0f - t;
 		float y = lerp(origin.y, place.y, 3*t*t - 2*t);
+		if(origin.y > place.y)
+			y = -y + origin.y + place.y;
 
 		CAT_draw_queue_animate(coin_world_sprite, 2, x, y, CAT_DRAW_MODE_CENTER_X | CAT_DRAW_MODE_BOTTOM);
 		CAT_draw_queue_animate(coin_world_sprite, 2, x, y, CAT_DRAW_MODE_CENTER_X | CAT_DRAW_MODE_BOTTOM);
