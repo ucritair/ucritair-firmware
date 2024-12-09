@@ -71,6 +71,7 @@ static int idx_dequeue()
 }
 
 static bool dead = false;
+static CAT_ivec2 cursor = {0, 0};
 static bool first_click = true;
 static int clicks = 0;
 
@@ -169,22 +170,31 @@ void CAT_MS_mole(CAT_machine_signal signal)
 				break;
 			}	
 
-			if(CAT_input_touching())
+			if(CAT_input_pulse(CAT_BUTTON_UP))
+				cursor.y -= 1;
+			if(CAT_input_pulse(CAT_BUTTON_RIGHT))
+				cursor.x += 1;
+			if(CAT_input_pulse(CAT_BUTTON_DOWN))
+				cursor.y += 1;
+			if(CAT_input_pulse(CAT_BUTTON_LEFT))
+				cursor.x -= 1;
+			cursor.x = clamp(cursor.x, 0, GRID_WIDTH-1);
+			cursor.y = clamp(cursor.y, 0, GRID_HEIGHT-1);
+
+			if(CAT_input_pressed(CAT_BUTTON_A))
 			{
-				int x = input.touch.x / CAT_TILE_SIZE;
-				int y = input.touch.y / CAT_TILE_SIZE;
-				grid_cell* cell = get_cell(x, y);
+				grid_cell* cell = get_cell(cursor.x, cursor.y);
 
 				if(first_click)
 				{
 					if(cell->mine)
 					{
 						cell->mine = false;
-						for(int xm = 0; xm < GRID_WIDTH; xm++)
+						for(int x = 0; x < GRID_WIDTH; x++)
 						{
-							if(!get_cell(xm, 0)->mine)
+							if(!get_cell(x, 0)->mine)
 							{
-								get_cell(xm, 0)->mine = true;
+								get_cell(x, 0)->mine = true;
 								break;
 							}
 						}
@@ -211,7 +221,7 @@ void CAT_MS_mole(CAT_machine_signal signal)
 					}
 
 					idx_queue_length = 0;
-					idx_enqueue(y * GRID_WIDTH + x);
+					idx_enqueue(cursor.y * GRID_WIDTH + cursor.x);
 					while(idx_queue_length > 0)
 					{		
 						grid_cell* c = &grid[idx_dequeue()];
@@ -291,6 +301,9 @@ void CAT_render_mole()
 				}
 			}
 		}
+
+		if(!dead)
+			CAT_draw_sprite(mines_sprite, 11, cursor.x*CAT_TILE_SIZE, cursor.y*CAT_TILE_SIZE);
 	}
 	else
 	{
