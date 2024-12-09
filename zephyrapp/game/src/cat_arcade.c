@@ -33,7 +33,7 @@ static struct
 #endif
 	{"ARCADE", NULL},
 	{"Snack", CAT_MS_snake},
-	{"Whack", CAT_MS_mole}
+	{"Sweep", CAT_MS_mole}
 };
 #define NUM_ENTRIES (sizeof(entries)/sizeof(entries[0]))
 static int selector = -1;
@@ -94,8 +94,7 @@ void CAT_render_arcade()
 	CAT_gui_image(icon_exit_sprite, 0);
 
 	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
-
-	// This part is hideous. Ask M about it
+	
 	CAT_gui_textf("uCritAir Score %0.1f%%\n", CAT_AQI_aggregate());
 	for(int i = 0; i < NUM_ENTRIES; i++)
 	{

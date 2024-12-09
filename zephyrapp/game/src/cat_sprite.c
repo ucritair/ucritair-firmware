@@ -1022,9 +1022,9 @@ int base_floor_sprite;
 int grass_floor_sprite;
 int ash_floor_sprite;
 
-int panel_sprite;
 int glyph_sprite;
 int strike_sprite;
+int tab_sprite;
 
 // ICONS
 int icon_pointer_sprite;
@@ -1098,6 +1098,11 @@ int button_hl_sprite;
 int touch_hl_sprite;
 
 // TOOLS
+int bread_sprite;
+int milk_sprite;
+int soup_sprite;
+int green_curry_sprite;
+int red_curry_sprite;
 int padkaprow_sprite;
 int sausage_sprite;
 int coffee_sprite;
@@ -1122,6 +1127,8 @@ int coin_world_sprite;
 // FIXED PROPS
 int window_dawn_sprite;
 int window_day_sprite;
+int window_day_high_aq_sprite;
+int window_day_low_aq_sprite;
 int window_night_sprite;
 int vending_sprite;
 int arcade_sprite;
@@ -1136,10 +1143,13 @@ int coffeemaker_sprite;
 int fan_a_sprite;
 int fan_b_sprite;
 int lantern_sprite;
+int laptop_sprite;
+int chess_sprite;
 
 int table_lg_sprite;
 int table_sm_sprite;
 int chair_wood_sprite;
+int chair_stone_sprite;
 int stool_wood_sprite;
 int stool_stone_sprite;
 int stool_gold_sprite;
@@ -1235,6 +1245,9 @@ int snake_body_sprite;
 int snake_corner_sprite;
 int snake_tail_sprite;
 
+// MINESWEEPER
+int mines_sprite;
+
 
 // MACHINES
 CAT_animachine_state* pet_asm;
@@ -1287,9 +1300,9 @@ void CAT_sprite_mass_define()
 	INIT_SPRITE(grass_floor_sprite, "sprites/tile_grass.png", 21);
 	INIT_SPRITE(ash_floor_sprite, "sprites/tile_ash.png", 6);
 
-	INIT_SPRITE(panel_sprite, "sprites/panel_tiles.png", 10);
 	INIT_SPRITE(glyph_sprite, "sprites/glyphs.png", 96);
 	INIT_SPRITE(strike_sprite, "sprites/strikethrough.png", 1);
+	INIT_SPRITE(tab_sprite, "sprites/gui_tab.png", 2);
 
 	// ICONS
 	INIT_SPRITE(icon_pointer_sprite, "sprites/icon_pointer.png", 1);
@@ -1363,10 +1376,15 @@ void CAT_sprite_mass_define()
 	INIT_SPRITE(touch_hl_sprite, "sprites/touch_ring_sprite.png", 1);
 	
 	// TOOLS
-	INIT_SPRITE(padkaprow_sprite, "sprites/food_padkrakow_sm.png", 1);
-	INIT_SPRITE(sausage_sprite, "sprites/food_sausage_sm.png", 1);
+	INIT_SPRITE(bread_sprite, "sprites/food_bread.png", 1);
 	INIT_SPRITE(coffee_sprite, "sprites/food_coffee_sm.png", 1);
+	INIT_SPRITE(milk_sprite, "sprites/food_milk.png", 1);
+	INIT_SPRITE(soup_sprite, "sprites/food_soup.png", 1);
 	INIT_SPRITE(salad_sprite, "sprites/food_salad_sm.png", 1);
+	INIT_SPRITE(sausage_sprite, "sprites/food_sausage_sm.png", 1);
+	INIT_SPRITE(green_curry_sprite, "sprites/food_curry_green.png", 1);
+	INIT_SPRITE(red_curry_sprite, "sprites/food_curry_red.png", 1);
+	INIT_SPRITE(padkaprow_sprite, "sprites/food_padkrakow_sm.png", 1);
 	INIT_SPRITE(pill_vig_sprite, "sprites/seed_vigor_sm.png", 1);
 	INIT_SPRITE(pill_foc_sprite, "sprites/seed_focus_sm.png", 1);
 	INIT_SPRITE(pill_spi_sprite, "sprites/seed_spirit_sm.png", 1);
@@ -1387,6 +1405,8 @@ void CAT_sprite_mass_define()
 	// FIXED PROPS
 	INIT_SPRITE(window_dawn_sprite, "sprites/prop_wall_window_dawn.png", 1);
 	INIT_SPRITE(window_day_sprite, "sprites/prop_wall_window_day.png", 1);
+	INIT_SPRITE(window_day_high_aq_sprite, "sprites/prop_wall_window_aqi_high_a.png", 8);
+	INIT_SPRITE(window_day_low_aq_sprite, "sprites/prop_wall_window_aqi_mid.png", 1);
 	INIT_SPRITE(window_night_sprite, "sprites/prop_wall_window_dark.png", 1);
 	INIT_SPRITE(vending_sprite, "sprites/interact_vending_items_a.png", 12);
 	INIT_SPRITE(arcade_sprite, "sprites/arcade_a.png", 2);
@@ -1401,10 +1421,13 @@ void CAT_sprite_mass_define()
 	INIT_SPRITE(fan_a_sprite, "sprites/prop_fan_a.png", 3);
 	INIT_SPRITE(fan_b_sprite, "sprites/prop_purifier_a.png", 6);
 	INIT_SPRITE(lantern_sprite, "sprites/prop_lantern_lit_a.png", 2);
+	INIT_SPRITE(laptop_sprite, "sprites/prop_laptop_a.png", 4);
+	INIT_SPRITE(chess_sprite, "sprites/prop_chess.png", 1);
 
 	INIT_SPRITE(table_lg_sprite, "sprites/prop_table_xl_wood.png", 1);
 	INIT_SPRITE(table_sm_sprite, "sprites/prop_table_md.png", 1);
 	INIT_SPRITE(chair_wood_sprite, "sprites/prop_chair_wood.png", 4);
+	INIT_SPRITE(chair_stone_sprite, "sprites/prop_chair_stone.png", 4);
 	INIT_SPRITE(stool_wood_sprite, "sprites/prop_stool_wood.png", 1);
 	INIT_SPRITE(stool_stone_sprite, "sprites/prop_stool_stone.png", 1);
 	INIT_SPRITE(stool_gold_sprite, "sprites/prop_stool_gold.png", 1);
@@ -1451,7 +1474,7 @@ void CAT_sprite_mass_define()
 
 	INIT_SPRITE(pet_idle_low_vig_sprite, "sprites/pet_unicorn_tired_a.png", 4);
 	INIT_SPRITE(pet_walk_low_vig_sprite, "sprites/pet_unicorn_tired_walk_a.png", 4);
-	INIT_SPRITE(pet_idle_low_foc_sprite, "sprites/pet_unicorn_messy_a.png", 3);
+	INIT_SPRITE(pet_idle_low_foc_sprite, "sprites/pet_unicorn_messy_stink_a.png", 8);
 	INIT_SPRITE(pet_walk_low_foc_sprite, "sprites/pet_unicorn_messy_walk_complex_a.png", 4);
 	INIT_SPRITE(pet_idle_low_spi_sprite, "sprites/pet_unicorn_sad_idle_a.png", 4);
 	INIT_SPRITE(pet_walk_low_spi_sprite, "sprites/pet_unicorn_sad_walk_a.png", 4);
@@ -1497,6 +1520,11 @@ void CAT_sprite_mass_define()
 	INIT_SPRITE(snake_body_sprite, "sprites/snake_cat_body.png", 4);
 	INIT_SPRITE(snake_corner_sprite, "sprites/snake_cat_corner.png", 4);
 	INIT_SPRITE(snake_tail_sprite, "sprites/snake_tail.png", 4);
+
+	// MINESWEEPER
+	INIT_SPRITE(mines_sprite, "sprites/minesweeper.png", 12);
+
+	CAT_printf("[INFO] %d sprites initialized\n", atlas.length);
 
 
 	// MACHINES

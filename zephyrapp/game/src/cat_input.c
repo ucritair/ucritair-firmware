@@ -75,7 +75,7 @@ bool CAT_input_held(int button, float t)
 
 bool CAT_input_pulse(int button)
 {
-	if(input.mask[button] && input.time[button] < 0.25f)
+	if(input.mask[button] && input.time[button] < 0.15f)
 		return !input.last[button];
 
 	bool pulse = false;

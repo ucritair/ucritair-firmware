@@ -88,8 +88,10 @@ CAT_action_state action_state =
 
 void action_enter(CAT_action_profile* profile)
 {
-	room.grid_cursor = CAT_first_free_space();
-	CAT_pet_settle();
+	if(action_state.tool_id == -1)
+		room.grid_cursor = CAT_largest_free_space();
+	room.grid_cursor = CAT_nearest_free_space(room.grid_cursor);
+	
 	action_state.profile = profile;
 }
 
@@ -148,7 +150,7 @@ void action_tick()
 				CAT_item* item = CAT_item_get(action_state.tool_id);
 				if(item->data.tool_data.type == CAT_TOOL_TYPE_FOOD)
 				{
-					CAT_item_list_remove(&bag, action_state.tool_id);
+					CAT_item_list_remove(&bag, action_state.tool_id, 1);
 				}
 				
 				action_state.complete = true;

@@ -235,6 +235,7 @@ CAT_ivec2 CAT_largest_free_space()
 	
 	int max_size = 0;
 	int max_idx = 0;
+	CAT_ivec2 max_cent = {0, 0};
 	
 	for(int y = 0; y < CAT_GRID_HEIGHT; y++)
 	{
@@ -251,11 +252,13 @@ CAT_ivec2 CAT_largest_free_space()
 			idx_queue_length = 0;
 			idx_enqueue(idx);
 			int size = 0;
+			CAT_ivec2 cent = {0, 0};
 
 			while(idx_queue_length > 0)
 			{		
 				CAT_cell* c = &space.cells[idx_dequeue()];
 				size += 1;
+				cent = CAT_ivec2_add(cent, c->coords);
 
 				CAT_ivec2 n = {c->coords.x, c->coords.y-1};
 				int n_idx = n.y * CAT_GRID_WIDTH + n.x;
@@ -291,11 +294,13 @@ CAT_ivec2 CAT_largest_free_space()
 			{
 				max_size = size;
 				max_idx = idx;
+				max_cent = CAT_ivec2_div(cent, size);
 			}
 		}
 	}
 
-	return space.cells[max_idx].coords;
+	//return space.cells[max_idx].coords;
+	return max_cent;
 }
 
 
@@ -378,10 +383,12 @@ int CAT_room_add_prop(int item_id, CAT_ivec2 place)
 
 void CAT_room_stack_prop(int idx, int item_id)
 {
-	if(room.prop_children[idx] != -1)
-		CAT_item_list_add(&bag, room.prop_children[idx]);
 	room.prop_children[idx] = item_id;
-	CAT_item_list_remove(&bag, item_id);
+}
+
+void CAT_room_unstack_prop(int idx)
+{
+	room.prop_children[idx] = -1;
 }
 
 void CAT_room_remove_prop(int idx)
@@ -395,7 +402,7 @@ void CAT_room_remove_prop(int idx)
 	CAT_toggle_block(block, false);
 
 	if(room.prop_children[idx] != -1)
-		CAT_item_list_add(&bag, room.prop_children[idx]);
+		CAT_item_list_add(&bag, room.prop_children[idx], 1);
 
 	room.prop_count -= 1;
 	for(int i = idx; i < room.prop_count; i++)
@@ -663,7 +670,21 @@ void render_statics()
 	if(time.hour >= 4 && time.hour < 9)
 		CAT_draw_queue_add(window_dawn_sprite, 0, 2, 8, 8, CAT_DRAW_MODE_DEFAULT);
 	else if(time.hour >= 9 && time.hour <= 18)
-		CAT_draw_queue_add(window_day_sprite, 0, 2, 8, 8, CAT_DRAW_MODE_DEFAULT);
+	{
+		float aqi_score = CAT_AQI_aggregate();
+		if(aqi_score <= 33.0f)
+		{
+			CAT_draw_queue_add(window_day_low_aq_sprite, 0, 2, 8, 8, CAT_DRAW_MODE_DEFAULT);
+		}
+		else if(aqi_score >= 66.0f)
+		{
+			CAT_draw_queue_animate(window_day_high_aq_sprite, 2, 8, 8, CAT_DRAW_MODE_DEFAULT);
+		}
+		else
+		{
+			CAT_draw_queue_add(window_day_sprite, 0, 2, 8, 8, CAT_DRAW_MODE_DEFAULT);
+		}
+	}
 	else
 		CAT_draw_queue_add(window_night_sprite, 0, 2, 8, 8, CAT_DRAW_MODE_DEFAULT);
 	
@@ -701,9 +722,10 @@ void render_props()
 		{
 			mode = CAT_DRAW_MODE_BOTTOM | CAT_DRAW_MODE_CENTER_X;
 			frame = child->data.prop_data.animate ? -1 : 0;
-			int yoff = shape.y * CAT_TILE_SIZE;
-			int xoff = shape.x * 0.5 * CAT_TILE_SIZE;
-			CAT_draw_queue_insert(job+1, child->sprite_id, frame, 2, draw_place.x + xoff, draw_place.y - yoff, mode);
+			int cx = shape.x * CAT_TILE_SIZE / 2;
+			int cy = -(shape.y + 1) * CAT_TILE_SIZE / 2;
+			int dy = -child->data.prop_data.shape.y * CAT_TILE_SIZE / 2;
+			CAT_draw_queue_insert(job+1, child->sprite_id, frame, 2, draw_place.x + cx, draw_place.y + cy + dy, mode);
 		}
 	}
 }
@@ -717,7 +739,11 @@ void render_gringus()
 
 		float t = CAT_timer_progress(room.coin_move_timers[i]);
 		float x = lerp(origin.x, place.x, t);
+		if(origin.y > place.y)
+			t = 1.0f - t;
 		float y = lerp(origin.y, place.y, 3*t*t - 2*t);
+		if(origin.y > place.y)
+			y = -y + origin.y + place.y;
 
 		CAT_draw_queue_animate(coin_world_sprite, 2, x, y, CAT_DRAW_MODE_CENTER_X | CAT_DRAW_MODE_BOTTOM);
 		CAT_draw_queue_animate(coin_world_sprite, 2, x, y, CAT_DRAW_MODE_CENTER_X | CAT_DRAW_MODE_BOTTOM);

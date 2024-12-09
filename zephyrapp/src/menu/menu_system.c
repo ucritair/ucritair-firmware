@@ -240,7 +240,7 @@ void CAT_render_system_menu()
 			{
 				did_co2_cal = true;
 				force_abc_sunrise();
-				CAT_item_list_add(&bag, cigarette_item);
+				CAT_item_list_add(&bag, cigarette_item, 1);
 			}
 		}
 		else

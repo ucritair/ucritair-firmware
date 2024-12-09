@@ -12,9 +12,7 @@ static CAT_item_list roster =
 };
 static int base = 0;
 static int selector = 0;
-
 CAT_item_filter filter = NULL;
-
 int* anchor = NULL;
 
 void CAT_filter_item_dialog(CAT_item_filter _filter)
@@ -34,12 +32,7 @@ void CAT_MS_item_dialog(CAT_machine_signal signal)
 		case CAT_MACHINE_SIGNAL_ENTER:
 		{
 			roster.length = 0;
-			for(int i = 0; i < bag.length; i++)
-			{
-				int item_id = bag.item_ids[i];
-				if(filter == NULL || filter(item_id))
-					CAT_item_list_add(&roster, item_id);
-			}
+			CAT_item_list_filter(&bag, &roster, filter);
 			base = 0;
 			selector = 0;
 			break;
@@ -113,8 +106,9 @@ void CAT_render_item_dialog()
 
 		int item_id = roster.item_ids[idx];
 		CAT_item* item = CAT_item_get(item_id);
-
-		CAT_gui_panel_tight((CAT_ivec2) {0, 2+i*2}, (CAT_ivec2) {15, 2});
+		
+		CAT_gui_set_flag(CAT_GUI_TIGHT);
+		CAT_gui_panel((CAT_ivec2) {0, 2+i*2}, (CAT_ivec2) {15, 2});
 		CAT_gui_image(item->icon_id, 0);
 		
 		int bag_idx = CAT_item_list_find(&bag, item_id);

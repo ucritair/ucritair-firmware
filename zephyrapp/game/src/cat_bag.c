@@ -14,12 +14,54 @@
 
 CAT_item_list bag =
 {
-	.length = 0,
+	.length = 0
 };
 int coins = 0;
 
 static int base = 0;
 static int selector = 0;
+
+
+static bool prop_filter(int item_id)
+{
+	CAT_item* item = CAT_item_get(item_id);
+	if(item == NULL)
+		return false;
+	return item->type == CAT_ITEM_TYPE_PROP;
+}
+static bool tool_filter(int item_id)
+{
+	CAT_item* item = CAT_item_get(item_id);
+	if(item == NULL)
+		return false;
+	return item->type == CAT_ITEM_TYPE_TOOL;
+}
+static bool key_filter(int item_id)
+{
+	CAT_item* item = CAT_item_get(item_id);
+	if(item == NULL)
+		return false;
+	return item->type == CAT_ITEM_TYPE_KEY;
+}
+
+struct
+{
+	const char* title;
+	CAT_item_filter filter;
+} tabs[] =
+{
+	{"ALL", NULL},
+	{"PROPS", prop_filter},
+	{"TOOLS", tool_filter},
+	{"KEYS", key_filter}
+};
+#define NUM_TABS (sizeof(tabs)/sizeof(tabs[0]))
+static int tab_selector = 0;
+
+CAT_item_list roster =
+{
+	.length = 0
+};
 
 void CAT_MS_bag(CAT_machine_signal signal)
 {
@@ -27,6 +69,7 @@ void CAT_MS_bag(CAT_machine_signal signal)
 	{
 		case CAT_MACHINE_SIGNAL_ENTER:
 		{
+			CAT_item_list_filter(&bag, &roster, tabs[tab_selector].filter);
 			break;
 		}
 		case CAT_MACHINE_SIGNAL_TICK:
@@ -35,23 +78,46 @@ void CAT_MS_bag(CAT_machine_signal signal)
 					CAT_machine_back();
 			if(CAT_input_pressed(CAT_BUTTON_START))
 				CAT_machine_transition(CAT_MS_room);
-
-			if(bag.length <= 0)
+			
+			bool tab_changed = false;
+			if(CAT_input_pulse(CAT_BUTTON_LEFT))
+			{
+				tab_selector -= 1;
+				if(tab_selector == -1)
+					tab_selector = NUM_TABS-1;	
+				tab_changed = true;
+			}
+			if(CAT_input_pulse(CAT_BUTTON_RIGHT))
+			{
+				tab_selector += 1;
+				if(tab_selector == NUM_TABS)
+					tab_selector = 0;		
+				tab_changed = true;
+			}
+			if(tab_changed)
+			{
+				roster.length = 0;
+				CAT_item_list_filter(&bag, &roster, tabs[tab_selector].filter);
+				base = 0;
+				selector = 0;
+			}
+			
+			if(roster.length <= 0)
 				break;
 
 			if(CAT_input_pulse(CAT_BUTTON_UP))
 			{
 				selector -= 1;
 				if(selector == -1)
-					selector = bag.length-1;				
+					selector = roster.length-1;		
 			}
 			if(CAT_input_pulse(CAT_BUTTON_DOWN))
 			{
 				selector += 1;
-				if(selector == bag.length)
+				if(selector == roster.length)
 					selector = 0;
 			}
-			selector = clamp(selector, 0, bag.length-1);
+			selector = clamp(selector, 0, roster.length-1);
 
 			int overshoot = selector - base;
 			if(overshoot < 0)
@@ -73,38 +139,32 @@ void CAT_MS_bag(CAT_machine_signal signal)
 void CAT_render_bag()
 {
 	CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});  
-	CAT_gui_text("BAG ");
+	CAT_gui_textf("< BAG (%s) > ", tabs[tab_selector].title);
 	CAT_gui_image(icon_a_sprite, 1);
 	CAT_gui_image(icon_enter_sprite, 0);
 	CAT_gui_image(icon_b_sprite, 1);
 	CAT_gui_image(icon_exit_sprite, 0);
 
-	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});  
+	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
+	if(roster.length == 0)
+	{
+		CAT_gui_text("Nothing to see here...\n");
+		return;
+	}
 	for(int i = 0; i < 9; i++)
 	{
-		if(bag.length == 0)
-		{
-			CAT_gui_text
-			(
-				"Your bag is currently empty.\n"
-				"\n"
-				"Items can be purchased from\n"
-				"the vending machine"
-			);
-			return;
-		}
-
 		int idx = base + i;
-		if(idx >= bag.length)
+		if(idx >= roster.length)
 			return;
 
-		int item_id = bag.item_ids[idx];
+		int item_id = roster.item_ids[idx];
 		CAT_item* item = CAT_item_get(item_id);
 
-		CAT_gui_panel_tight((CAT_ivec2) {0, 2+i*2}, (CAT_ivec2) {15, 2});
+		CAT_gui_set_flag(CAT_GUI_TIGHT);
+		CAT_gui_panel((CAT_ivec2) {0, 2+i*2}, (CAT_ivec2) {15, 2});
 		CAT_gui_image(item->icon_id, 0);
 		
-		CAT_gui_textf(" %s *%d ", item->name, bag.counts[idx]);
+		CAT_gui_textf(" %s *%d ", item->name, roster.counts[idx]);
 
 		if(idx == selector)
 			CAT_gui_image(icon_pointer_sprite, 0);
@@ -141,16 +201,17 @@ void CAT_render_inspector()
 	CAT_gui_image(icon_b_sprite, 1);
 	CAT_gui_image(icon_exit_sprite, 0);
 
-	int item_id = bag.item_ids[selector];
+	int item_id = roster.item_ids[selector];
 	CAT_item* item = CAT_item_get(item_id);
 	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
 	CAT_gui_image(item->sprite_id, 0);
-	CAT_gui_text(item->name);
+	CAT_gui_textf(" %s", item->name);
 	CAT_gui_div("");
 
 	if(strlen(item->text) > 0)
 	{
-		CAT_gui_text_wrap(item->text);
+		CAT_gui_set_flag(CAT_GUI_WRAP_TEXT);
+		CAT_gui_text(item->text);
 		CAT_gui_div("");
 	}
 }

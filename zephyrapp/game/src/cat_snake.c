@@ -7,9 +7,9 @@
 #include "cat_bag.h"
 #include "cat_gui.h"
 
-#define ARENA_WIDTH 15
-#define ARENA_HEIGHT 20
-#define SNAKE_MAX_LENGTH (ARENA_WIDTH * ARENA_HEIGHT)
+#define GRID_WIDTH 15
+#define GRID_HEIGHT 20
+#define SNAKE_MAX_LENGTH (GRID_WIDTH * GRID_HEIGHT)
 #ifdef CAT_EMBEDDED
 #define SNAKE_TICK_PERIOD 3
 #else
@@ -17,6 +17,8 @@
 #endif
 
 int snake_high_score = 0;
+static int score = 0;
+static bool is_high_score = false;
 
 static struct
 {
@@ -40,8 +42,6 @@ static struct
 } food;
 
 static int ticks = 0;
-static int score = 0;
-static bool is_high_score = false;
 static int eat_tracker = 0;
 
 void snake_init()
@@ -62,22 +62,22 @@ void snake_init()
 
 void food_init()
 {
-	int guess_y = CAT_rand_int(1, ARENA_HEIGHT-2);
+	int guess_y = CAT_rand_int(1, GRID_HEIGHT-2);
 	int steps_y = 0;
-	int guess_x = CAT_rand_int(1, ARENA_WIDTH-2);
+	int guess_x = CAT_rand_int(1, GRID_WIDTH-2);
 	int steps_x = 0;
 
 food_spawn_fail:
-	guess_y = CAT_rand_int(1, ARENA_HEIGHT-2);
-	guess_x = CAT_rand_int(1, ARENA_WIDTH-2);
-	for(int y = guess_y; steps_y < ARENA_HEIGHT; y++)
+	guess_y = CAT_rand_int(1, GRID_HEIGHT-2);
+	guess_x = CAT_rand_int(1, GRID_WIDTH-2);
+	for(int y = guess_y; steps_y < GRID_HEIGHT; y++)
 	{
-		if(y >= ARENA_HEIGHT)
+		if(y >= GRID_HEIGHT)
 			y = 0;
 
-		for(int x = guess_x; steps_x < ARENA_WIDTH; x++)
+		for(int x = guess_x; steps_x < GRID_WIDTH; x++)
 		{
-			if(x >= ARENA_WIDTH)
+			if(x >= GRID_WIDTH)
 				x = 0;
 
 			for(int i = 0; i < snake.length; i++)
@@ -101,10 +101,14 @@ food_spawn_success:
 
 	int food_sprites[] = 
 	{
-		cigarette_sprite,
+		bread_sprite,
+		soup_sprite,
+		green_curry_sprite,
+		red_curry_sprite,
 		padkaprow_sprite,
 		sausage_sprite,
-		coffee_sprite
+		coffee_sprite,
+		salad_sprite
 	};
 	int num_food_sprites = sizeof(food_sprites) / sizeof(food_sprites[0]);
 
@@ -166,9 +170,9 @@ void CAT_MS_snake(CAT_machine_signal signal)
 					int y = snake.ys[0] + snake.dy;
 
 					snake.dead |= x < 0;
-					snake.dead |= x >= ARENA_WIDTH;
+					snake.dead |= x >= GRID_WIDTH;
 					snake.dead |= y < 0;
-					snake.dead |= y >= ARENA_HEIGHT;
+					snake.dead |= y >= GRID_HEIGHT;
 
 					for(int i = 0; i < snake.length; i++)
 					{
@@ -302,32 +306,26 @@ void CAT_render_snake()
 	else
 	{
 		CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 20});
-		for(int i = 1; i < 14; i++)
+		
+		spriter.mode = CAT_DRAW_MODE_DEFAULT;
+		for(int x = 0; x < 15; x++)
 		{
-			CAT_draw_sprite(snake_head_sprite, 1, i * 16, 16);
-			CAT_draw_sprite(snake_head_sprite, 1, i * 16, 19*16);
+			CAT_draw_sprite(snake_head_sprite, 1, x * CAT_TILE_SIZE, 0);
+			CAT_draw_sprite(snake_head_sprite, 1, x * CAT_TILE_SIZE, 19 * CAT_TILE_SIZE);
 		}
-		for(int i = 1; i < 20; i++)
+		for(int y = 0; y < 20; y++)
 		{
-			CAT_draw_sprite(snake_head_sprite, 1, 16, i * 16);
-			CAT_draw_sprite(snake_head_sprite, 1, 13*16, i * 16);
+			CAT_draw_sprite(snake_head_sprite, 1, 0, y * CAT_TILE_SIZE);
+			CAT_draw_sprite(snake_head_sprite, 1, 14 * CAT_TILE_SIZE, y * CAT_TILE_SIZE);
 		}
 
-		gui.cursor.x += 28;
-		gui.cursor.y += 24;
-		gui.start.x += 28;
-		gui.start.y += 24;
+		CAT_gui_panel((CAT_ivec2) {1, 1}, (CAT_ivec2) {13, 18});
+		CAT_gui_set_flag(CAT_GUI_WRAP_TEXT);
 		CAT_gui_textf
 		(
-			"Rest in peace,\nSnack Cat.\n"
-			"\n"
-			"Your long journey has\n"
-			"come to a tragic end.\n"
-			"\n"
-			"Press A or B to\n"
-			"return from whence\n"
-			"you came.\n"
-			"\n"
+			"Rest in peace,\nSnack Cat.\n\n"
+			"Your long journey has\ncome to a tragic end.\n\n"
+			"Press A or B to return from whence you came.\n\n"
 			"SCORE: %d\n"
 			"HIGH SCORE: %d\n"
 			, score,

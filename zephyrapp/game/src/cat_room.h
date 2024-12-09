@@ -84,6 +84,7 @@ int CAT_room_find_spatial(CAT_ivec2 place);
 bool CAT_prop_fits(int item_id, CAT_ivec2 place);
 int CAT_room_add_prop(int item_id, CAT_ivec2 place);
 void CAT_room_stack_prop(int idx, int item_id);
+void CAT_room_unstack_prop(int idx);
 void CAT_room_remove_prop(int idx);
 void CAT_room_flip_prop(int idx);
 

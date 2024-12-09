@@ -8,7 +8,7 @@
 //////////////////////////////////////////////////////////////////////////
 // CONSTANTS
 
-#define CAT_ITEM_TABLE_MAX_LENGTH 256
+#define CAT_ITEM_TABLE_MAX_LENGTH 128
 #define CAT_ITEM_LIST_MAX_LENGTH CAT_ITEM_TABLE_MAX_LENGTH
 
 
@@ -92,20 +92,28 @@ typedef struct CAT_item_list
 	int length;
 } CAT_item_list;
 
+typedef bool (*CAT_item_filter)(int item_id);
+
 void CAT_item_list_init(CAT_item_list* item_list);
 int CAT_item_list_find(CAT_item_list* item_list, int item_id);
-void CAT_item_list_add(CAT_item_list* item_list, int item_id);
-void CAT_item_list_remove(CAT_item_list* item_list, int item_id);
+void CAT_item_list_add(CAT_item_list* item_list, int item_id, int count);
+void CAT_item_list_remove(CAT_item_list* item_list, int item_id, int count);
+void CAT_item_list_filter(CAT_item_list* a, CAT_item_list* b, CAT_item_filter filter);
 
 
 //////////////////////////////////////////////////////////////////////////
 // ID DECLARATIONS
 
 // TOOLS
-extern int padkaprow_item;
-extern int sausage_item;
+extern int bread_item;
 extern int coffee_item;
+extern int milk_item;
+extern int soup_item;
 extern int salad_item;
+extern int sausage_item;
+extern int green_curry_item;
+extern int red_curry_item;
+extern int padkaprow_item;
 extern int pill_vig_item;
 extern int pill_foc_item;
 extern int pill_spi_item;
@@ -136,10 +144,13 @@ extern int coffeemaker_item;
 extern int fan_a_item;
 extern int fan_b_item;
 extern int lantern_item;
+extern int laptop_item;
+extern int chess_item;
 
 extern int table_lg_item;
 extern int table_sm_item;
 extern int chair_wood_item;
+extern int chair_stone_item;
 extern int stool_wood_item;
 extern int stool_stone_item;
 extern int stool_gold_item;

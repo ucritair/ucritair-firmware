@@ -46,7 +46,7 @@ void CAT_deco_target(CAT_ivec2 place)
 	deco_state.mod_rect = (CAT_rect) {{0, 0}, {0, 0}};
 }
 
-bool prop_filter(int item_id)
+static bool prop_filter(int item_id)
 {
 	CAT_item* item = CAT_item_get(item_id);
 	if(item == NULL)
@@ -60,7 +60,10 @@ void CAT_MS_deco(CAT_machine_signal signal)
 	{
 		case CAT_MACHINE_SIGNAL_ENTER:
 		{
-			room.grid_cursor = CAT_largest_free_space();
+			if(deco_state.add_id == -1)
+				room.grid_cursor = CAT_largest_free_space();
+			room.grid_cursor = CAT_nearest_free_space(room.grid_cursor);
+			
 			CAT_pet_settle();
 
 			deco_state.mode = ADD;
@@ -96,7 +99,7 @@ void CAT_MS_deco(CAT_machine_signal signal)
 							if(CAT_input_pressed(CAT_BUTTON_A))
 							{
 								CAT_room_add_prop(deco_state.add_id, room.grid_cursor);
-								CAT_item_list_remove(&bag, deco_state.add_id);
+								CAT_item_list_remove(&bag, deco_state.add_id, 1);
 								deco_state.add_id = -1;
 							}
 							deco_state.valid_add = true;
@@ -114,7 +117,16 @@ void CAT_MS_deco(CAT_machine_signal signal)
 								{
 									if(CAT_input_pressed(CAT_BUTTON_A))
 									{
-										CAT_room_stack_prop(base_idx, deco_state.add_id);
+										if(room.prop_children[base_idx] == -1)
+										{
+											CAT_room_stack_prop(base_idx, deco_state.add_id);
+											CAT_item_list_remove(&bag, deco_state.add_id, 1);
+										}
+										else
+										{
+											CAT_item_list_add(&bag, room.prop_children[base_idx], 1);
+											CAT_room_unstack_prop(base_idx);
+										}
 										deco_state.add_id = -1;
 									}
 									deco_state.valid_add = true;
@@ -152,10 +164,20 @@ void CAT_MS_deco(CAT_machine_signal signal)
 					{
 						if(CAT_input_pressed(CAT_BUTTON_A))
 						{
-							int item_id = room.prop_ids[deco_state.mod_idx];
-							CAT_item_list_add(&bag, item_id);
-							CAT_room_remove_prop(deco_state.mod_idx);
-							deco_state.mod_idx = -1;
+							if(room.prop_children[deco_state.mod_idx] == -1)
+							{
+								int item_id = room.prop_ids[deco_state.mod_idx];
+								CAT_item_list_add(&bag, item_id, 1);
+								CAT_room_remove_prop(deco_state.mod_idx);
+								deco_state.mod_idx = -1;
+							}
+							else
+							{
+								int item_id = room.prop_children[deco_state.mod_idx];
+								CAT_item_list_add(&bag, item_id, 1);
+								CAT_room_unstack_prop(deco_state.mod_idx);
+							}
+							
 						}
 					}
 					break;

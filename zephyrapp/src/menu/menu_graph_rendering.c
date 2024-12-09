@@ -40,14 +40,14 @@ void CAT_do_render_graph(int16_t* data, int max, int xoff, int yoff, int cursor_
 		{
 			int y0 = yoff+framebuffer_offset_h+GRAPH_H-v0;
 			int y1 = yoff+framebuffer_offset_h+GRAPH_H-v1;
-			CAT_lineberry(xoff+x, y0, xoff+x+1, y1, 0xF000);
+			CAT_lineberry(xoff+x, y0, xoff+x+1, y1, 0x001F);
 		}
 	}
 
 	if(cursor_start >= 0 && cursor_start < GRAPH_W)
-		CAT_lineberry(xoff+cursor_start, yoff, xoff+cursor_start, yoff+framebuffer_offset_h+GRAPH_H-1, 0x000F);
+		CAT_lineberry(xoff+cursor_start, yoff, xoff+cursor_start, yoff+framebuffer_offset_h+GRAPH_H-1, 0x07E0);
 	if(cursor_end >= 0 && cursor_end < GRAPH_W)
-		CAT_lineberry(xoff+cursor_end, yoff, xoff+cursor_end, yoff+framebuffer_offset_h+GRAPH_H-1, 0x00F0);
+		CAT_lineberry(xoff+cursor_end, yoff, xoff+cursor_end, yoff+framebuffer_offset_h+GRAPH_H-1, 0xF800);
 
 	/*int last_rendered_h = -1;
 
