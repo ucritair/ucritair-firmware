@@ -17,6 +17,8 @@
 #endif
 
 int snake_high_score = 0;
+static int score = 0;
+static bool is_high_score = false;
 
 static struct
 {
@@ -40,8 +42,6 @@ static struct
 } food;
 
 static int ticks = 0;
-static int score = 0;
-static bool is_high_score = false;
 static int eat_tracker = 0;
 
 void snake_init()

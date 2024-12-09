@@ -390,6 +390,9 @@ extern int snake_body_sprite;
 extern int snake_corner_sprite;
 extern int snake_tail_sprite;
 
+// MINESWEEPER
+extern int mines_sprite;
+
 
 // MACHINES
 extern CAT_animachine_state* pet_asm;

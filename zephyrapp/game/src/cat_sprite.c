@@ -1245,6 +1245,9 @@ int snake_body_sprite;
 int snake_corner_sprite;
 int snake_tail_sprite;
 
+// MINESWEEPER
+int mines_sprite;
+
 
 // MACHINES
 CAT_animachine_state* pet_asm;
@@ -1517,6 +1520,9 @@ void CAT_sprite_mass_define()
 	INIT_SPRITE(snake_body_sprite, "sprites/snake_cat_body.png", 4);
 	INIT_SPRITE(snake_corner_sprite, "sprites/snake_cat_corner.png", 4);
 	INIT_SPRITE(snake_tail_sprite, "sprites/snake_tail.png", 4);
+
+	// MINESWEEPER
+	INIT_SPRITE(mines_sprite, "sprites/minesweeper.png", 12);
 
 	CAT_printf("[INFO] %d sprites initialized\n", atlas.length);
 
