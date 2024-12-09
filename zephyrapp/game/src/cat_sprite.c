@@ -1403,12 +1403,12 @@ void CAT_sprite_mass_define()
 	INIT_SPRITE(coin_world_sprite, "sprites/coin_a.png", 4);
 
 	// FIXED PROPS
-	INIT_SPRITE(window_dawn_sprite, "sprites/prop_wall_window_dawn.png", 1);
-	INIT_SPRITE(window_day_sprite, "sprites/prop_wall_window_day.png", 1);
+	INIT_SPRITE(window_dawn_sprite, "sprites/prop_wall_wdw_lg_dawn.png", 1);
+	INIT_SPRITE(window_day_sprite, "sprites/prop_wall_wdw_lg_afternoon.png", 1);
 	INIT_SPRITE(window_day_high_aq_sprite, "sprites/prop_wall_window_aqi_high_a.png", 8);
 	INIT_SPRITE(window_day_low_aq_sprite, "sprites/prop_wall_window_aqi_mid.png", 1);
-	INIT_SPRITE(window_night_sprite, "sprites/prop_wall_window_dark.png", 1);
-	INIT_SPRITE(vending_sprite, "sprites/interact_vending_items_a.png", 12);
+	INIT_SPRITE(window_night_sprite, "sprites/prop_wall_wdw_lg_night.png", 1);
+	INIT_SPRITE(vending_sprite, "sprites/i_vending_rotate_a.png", 12);
 	INIT_SPRITE(arcade_sprite, "sprites/arcade_a.png", 2);
 
 	// GAMEPLAY PROPS
@@ -1417,7 +1417,7 @@ void CAT_sprite_mass_define()
 	INIT_SPRITE(purifier_sprite, "sprites/prop_purifier_eth_a.png", 8);
 
 	// DECO PROPS
-	INIT_SPRITE(coffeemaker_sprite, "sprites/prop_coffee_empty_a.png", 14);
+	INIT_SPRITE(coffeemaker_sprite, "sprites/prop_coffee_a.png", 14);
 	INIT_SPRITE(fan_a_sprite, "sprites/prop_fan_a.png", 3);
 	INIT_SPRITE(fan_b_sprite, "sprites/prop_purifier_a.png", 6);
 	INIT_SPRITE(lantern_sprite, "sprites/prop_lantern_lit_a.png", 2);
@@ -1432,17 +1432,17 @@ void CAT_sprite_mass_define()
 	INIT_SPRITE(stool_stone_sprite, "sprites/prop_stool_stone.png", 1);
 	INIT_SPRITE(stool_gold_sprite, "sprites/prop_stool_gold.png", 1);
 
-	INIT_SPRITE(bowl_stone_sprite, "sprites/prop_bowl_stone_2.png", 1);
+	INIT_SPRITE(bowl_stone_sprite, "sprites/prop_bowl_stone.png", 1);
 	INIT_SPRITE(bowl_gold_sprite, "sprites/prop_bowl_gold.png", 1);
 
 	INIT_SPRITE(succulent_sprite, "sprites/prop_plant_md_stem.png", 2);
 	INIT_SPRITE(bush_plain_sprite, "sprites/prop_bush_lg_empty.png", 1);
 	INIT_SPRITE(bush_daisy_sprite, "sprites/prop_bush_lg_daisy.png", 1);
 	INIT_SPRITE(bush_lilac_sprite, "sprites/prop_bush_lg_lilac.png", 1);
-	INIT_SPRITE(plant_green_sprite, "sprites/prop_plant_sapling_green.png", 1);
-	INIT_SPRITE(plant_maroon_sprite, "sprites/prop_plant_sapling_maroon.png", 1);
-	INIT_SPRITE(plant_purple_sprite, "sprites/prop_plant_sapling_purple.png", 1);
-	INIT_SPRITE(plant_yellow_sprite, "sprites/prop_plant_sapling_yellow.png", 1);
+	INIT_SPRITE(plant_green_sprite, "sprites/prop_plant_lg_sapling_blank.png", 1);
+	INIT_SPRITE(plant_maroon_sprite, "sprites/prop_plant_lg_sapling_maroon.png", 1);
+	INIT_SPRITE(plant_purple_sprite, "sprites/prop_plant_lg_sapling_lilac.png", 1);
+	INIT_SPRITE(plant_yellow_sprite, "sprites/prop_plant_lg_sapling_daisy.png", 1);
 	INIT_SPRITE(flower_vig_sprite, "sprites/interact_stat_plant_vigor.png", 6);
 	INIT_SPRITE(flower_foc_sprite, "sprites/interact_stat_plant_focus.png", 6);
 	INIT_SPRITE(flower_spi_sprite, "sprites/interact_stat_plant_spirit.png", 6);
