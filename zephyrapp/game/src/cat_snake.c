@@ -101,10 +101,14 @@ food_spawn_success:
 
 	int food_sprites[] = 
 	{
-		cigarette_sprite,
+		bread_sprite,
+		soup_sprite,
+		green_curry_sprite,
+		red_curry_sprite,
 		padkaprow_sprite,
 		sausage_sprite,
-		coffee_sprite
+		coffee_sprite,
+		salad_sprite
 	};
 	int num_food_sprites = sizeof(food_sprites) / sizeof(food_sprites[0]);
 
