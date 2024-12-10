@@ -1294,235 +1294,235 @@ void CAT_sprite_mass_define()
 #endif
 
 	// TILESETS
-	INIT_SPRITE(base_wall_sprite, "sprites/wall_basic.png", 3);
-	INIT_SPRITE(sky_wall_sprite, "sprites/wall_sky.png", 8);
-	INIT_SPRITE(base_floor_sprite, "sprites/tile_basic.png", 3);
-	INIT_SPRITE(grass_floor_sprite, "sprites/tile_grass.png", 21);
-	INIT_SPRITE(ash_floor_sprite, "sprites/tile_ash.png", 6);
+	INIT_SPRITE(base_wall_sprite, "sprites/wall/basic.png", 3);
+	INIT_SPRITE(sky_wall_sprite, "sprites/wall/sky.png", 8);
+	INIT_SPRITE(base_floor_sprite, "sprites/tile/basic.png", 3);
+	INIT_SPRITE(grass_floor_sprite, "sprites/tile/grass.png", 21);
+	INIT_SPRITE(ash_floor_sprite, "sprites/tile/ash.png", 6);
 
-	INIT_SPRITE(glyph_sprite, "sprites/glyphs.png", 96);
-	INIT_SPRITE(strike_sprite, "sprites/strikethrough.png", 1);
-	INIT_SPRITE(tab_sprite, "sprites/gui_tab.png", 2);
+	INIT_SPRITE(glyph_sprite, "sprites/ui/glyphs.png", 96);
+	INIT_SPRITE(strike_sprite, "sprites/ui/strikethrough.png", 1);
+	INIT_SPRITE(tab_sprite, "sprites/ui/gui_tab.png", 2);
 
 	// ICONS
-	INIT_SPRITE(icon_pointer_sprite, "sprites/icon_pointer.png", 1);
-	INIT_SPRITE(icon_a_sprite, "sprites/A Button_Both.png", 2);
-	INIT_SPRITE(icon_b_sprite, "sprites/B Button_Both.png", 2);
-	INIT_SPRITE(icon_n_sprite, "sprites/Up_Arrow_Both.png", 2);
-	INIT_SPRITE(icon_e_sprite, "sprites/Right Arrow_Both.png", 2);
-	INIT_SPRITE(icon_s_sprite, "sprites/Down Arrow_Both.png", 2);
-	INIT_SPRITE(icon_w_sprite, "sprites/Left Arrow_Both.png", 2);
-	INIT_SPRITE(icon_start_sprite, "sprites/Start Button_Both.png", 2);
-	INIT_SPRITE(icon_select_sprite, "sprites/Select Button_Both.png", 2);
-	INIT_SPRITE(icon_enter_sprite, "sprites/icon_enter.png", 1);
-	INIT_SPRITE(icon_exit_sprite, "sprites/icon_exit.png", 1);
-	INIT_SPRITE(icon_plot_sprite, "sprites/icon_plot.png", 1);
-	INIT_SPRITE(icon_equip_sprite, "sprites/icon_equip.png", 2);
-	INIT_SPRITE(icon_input_sprite, "sprites/icon_inputs.png", 8);
+	INIT_SPRITE(icon_pointer_sprite, "sprites/ui/icon_pointer.png", 1);
+	INIT_SPRITE(icon_a_sprite, "sprites/ui/A Button_Both.png", 2);
+	INIT_SPRITE(icon_b_sprite, "sprites/ui/B Button_Both.png", 2);
+	INIT_SPRITE(icon_n_sprite, "sprites/ui/Up_Arrow_Both.png", 2);
+	INIT_SPRITE(icon_e_sprite, "sprites/ui/Right Arrow_Both.png", 2);
+	INIT_SPRITE(icon_s_sprite, "sprites/ui/Down Arrow_Both.png", 2);
+	INIT_SPRITE(icon_w_sprite, "sprites/ui/Left Arrow_Both.png", 2);
+	INIT_SPRITE(icon_start_sprite, "sprites/ui/Start Button_Both.png", 2);
+	INIT_SPRITE(icon_select_sprite, "sprites/ui/Select Button_Both.png", 2);
+	INIT_SPRITE(icon_enter_sprite, "sprites/ui/icon_enter.png", 1);
+	INIT_SPRITE(icon_exit_sprite, "sprites/ui/icon_exit.png", 1);
+	INIT_SPRITE(icon_plot_sprite, "sprites/ui/icon_plot.png", 1);
+	INIT_SPRITE(icon_equip_sprite, "sprites/ui/icon_equip.png", 2);
+	INIT_SPRITE(icon_input_sprite, "sprites/ui/icon_inputs.png", 8);
 
-	INIT_SPRITE(icon_item_key_sprite, "sprites/icon_item_key.png", 1);
-	INIT_SPRITE(icon_item_food_sprite, "sprites/icon_item_food.png", 1);
-	INIT_SPRITE(icon_item_book_sprite, "sprites/icon_item_book.png", 1);
-	INIT_SPRITE(icon_item_toy_sprite, "sprites/icon_item_toy.png", 1);
-	INIT_SPRITE(icon_item_prop_sprite, "sprites/icon_item_prop.png", 1);
-	INIT_SPRITE(icon_item_gear_sprite, "sprites/icon_item_gear.png", 1);
-	INIT_SPRITE(icon_coin_sprite, "sprites/icon_coin.png", 1);
+	INIT_SPRITE(icon_item_key_sprite, "sprites/ui/icon_item_key.png", 1);
+	INIT_SPRITE(icon_item_food_sprite, "sprites/ui/icon_item_food.png", 1);
+	INIT_SPRITE(icon_item_book_sprite, "sprites/ui/icon_item_book.png", 1);
+	INIT_SPRITE(icon_item_toy_sprite, "sprites/ui/icon_item_toy.png", 1);
+	INIT_SPRITE(icon_item_prop_sprite, "sprites/ui/icon_item_prop.png", 1);
+	INIT_SPRITE(icon_item_gear_sprite, "sprites/ui/icon_item_gear.png", 1);
+	INIT_SPRITE(icon_coin_sprite, "sprites/ui/icon_coin.png", 1);
 
-	INIT_SPRITE(icon_vig_sprite, "sprites/STAT_VIGOR2424.png", 1);
-	INIT_SPRITE(icon_foc_sprite, "sprites/STAT_FOCUS2424.png", 1);
-	INIT_SPRITE(icon_spi_sprite, "sprites/STAT_SPIRIT2424.png", 1);
-	INIT_SPRITE(pip_vig_sprite, "sprites/cell_vig.png", 1);
-	INIT_SPRITE(pip_foc_sprite, "sprites/cell_foc.png", 1);
-	INIT_SPRITE(pip_spi_sprite, "sprites/cell_spi.png", 1);
-	INIT_SPRITE(pip_empty_sprite, "sprites/cell_empty.png", 1);
+	INIT_SPRITE(icon_vig_sprite, "sprites/ui/STAT_VIGOR2424.png", 1);
+	INIT_SPRITE(icon_foc_sprite, "sprites/ui/STAT_FOCUS2424.png", 1);
+	INIT_SPRITE(icon_spi_sprite, "sprites/ui/STAT_SPIRIT2424.png", 1);
+	INIT_SPRITE(pip_vig_sprite, "sprites/ui/cell_vig.png", 1);
+	INIT_SPRITE(pip_foc_sprite, "sprites/ui/cell_foc.png", 1);
+	INIT_SPRITE(pip_spi_sprite, "sprites/ui/cell_spi.png", 1);
+	INIT_SPRITE(pip_empty_sprite, "sprites/ui/cell_empty.png", 1);
 
-	INIT_SPRITE(icon_temp_sprite, "sprites/icon_temp.png", 3);
-	INIT_SPRITE(icon_co2_sprite, "sprites/icon_co2.png", 3);
-	INIT_SPRITE(icon_pm_sprite, "sprites/icon_pm.png", 3);
-	INIT_SPRITE(icon_voc_sprite, "sprites/icon_voc.png", 3);
-	INIT_SPRITE(icon_nox_sprite, "sprites/icon_nox.png", 3);
+	INIT_SPRITE(icon_temp_sprite, "sprites/ui/icon_temp.png", 3);
+	INIT_SPRITE(icon_co2_sprite, "sprites/ui/icon_co2.png", 3);
+	INIT_SPRITE(icon_pm_sprite, "sprites/ui/icon_pm.png", 3);
+	INIT_SPRITE(icon_voc_sprite, "sprites/ui/icon_voc.png", 3);
+	INIT_SPRITE(icon_nox_sprite, "sprites/ui/icon_nox.png", 3);
 
-	INIT_SPRITE(icon_mask_sprite, "sprites/aq-protection-mask.png", 1);
-	INIT_SPRITE(icon_pure_sprite, "sprites/aq-protection-purifier.png", 1);
-	INIT_SPRITE(icon_uv_sprite, "sprites/aq-protection-uv.png", 1);
+	INIT_SPRITE(icon_mask_sprite, "sprites/ui/aq-protection-mask.png", 1);
+	INIT_SPRITE(icon_pure_sprite, "sprites/ui/aq-protection-purifier.png", 1);
+	INIT_SPRITE(icon_uv_sprite, "sprites/ui/aq-protection-uv.png", 1);
 
-	INIT_SPRITE(icon_nosmoke_sprite, "sprites/nosmoke.png", 1);
+	INIT_SPRITE(icon_nosmoke_sprite, "sprites/ui/nosmoke.png", 1);
 	INIT_SPRITE(icon_ee_sprite, "sprites/ee_logo.png", 1);
-	INIT_SPRITE(icon_aq_ccode_sprite, "sprites/icon_aq_ccode.png", 3);
-	INIT_SPRITE(icon_cell_sprite, "sprites/icon_cell_sprite.png", 2);
+	INIT_SPRITE(icon_aq_ccode_sprite, "sprites/ui/icon_aq_ccode.png", 3);
+	INIT_SPRITE(icon_cell_sprite, "sprites/ui/icon_cell_sprite.png", 2);
 
-	INIT_SPRITE(icon_feed_sprite, "sprites/Stat_Refill_Vigor_Button.png", 2);
-	INIT_SPRITE(icon_study_sprite, "sprites/Stat_Refill_Focus_Button.png", 2);
-	INIT_SPRITE(icon_play_sprite, "sprites/Stat_Refill_Spirit_Button.png", 2);
-	INIT_SPRITE(icon_deco_sprite, "sprites/sbut_deco.png", 2);
-	INIT_SPRITE(icon_menu_sprite, "sprites/sbut_menu.png", 2);
+	INIT_SPRITE(icon_feed_sprite, "sprites/ui/Stat_Refill_Vigor_Button.png", 2);
+	INIT_SPRITE(icon_study_sprite, "sprites/ui/Stat_Refill_Focus_Button.png", 2);
+	INIT_SPRITE(icon_play_sprite, "sprites/ui/Stat_Refill_Spirit_Button.png", 2);
+	INIT_SPRITE(icon_deco_sprite, "sprites/ui/sbut_deco.png", 2);
+	INIT_SPRITE(icon_menu_sprite, "sprites/ui/sbut_menu.png", 2);
 
 	// CURSORS
-	INIT_SPRITE(cursor_sprite, "sprites/cursor_room_ornate.png", 1);
-	INIT_SPRITE(tile_hl_sprite, "sprites/tile_hl.png", 1);
+	INIT_SPRITE(cursor_sprite, "sprites/ui/cursor_room_ornate.png", 1);
+	INIT_SPRITE(tile_hl_sprite, "sprites/ui/tile_hl.png", 1);
 
-	INIT_SPRITE(cursor_add_sprite, "sprites/cursor_add.png", 1);
-	INIT_SPRITE(tile_hl_add_sprite, "sprites/tile_hl_add.png", 1);
+	INIT_SPRITE(cursor_add_sprite, "sprites/ui/cursor_add.png", 1);
+	INIT_SPRITE(tile_hl_add_sprite, "sprites/ui/tile_hl_add.png", 1);
 
-	INIT_SPRITE(cursor_flip_sprite, "sprites/cursor_flip.png", 1);
-	INIT_SPRITE(tile_hl_flip_sprite, "sprites/tile_hl_flip.png", 1);
-	INIT_SPRITE(tile_mark_flip_sprite, "sprites/tile_mark_flip.png", 1);
+	INIT_SPRITE(cursor_flip_sprite, "sprites/ui/cursor_flip.png", 1);
+	INIT_SPRITE(tile_hl_flip_sprite, "sprites/ui/tile_hl_flip.png", 1);
+	INIT_SPRITE(tile_mark_flip_sprite, "sprites/ui/tile_mark_flip.png", 1);
 
-	INIT_SPRITE(cursor_remove_sprite, "sprites/cursor_remove.png", 1);
-	INIT_SPRITE(tile_hl_rm_sprite, "sprites/tile_hl_rm.png", 1);
-	INIT_SPRITE(tile_mark_rm_sprite, "sprites/tile_mark_rm.png", 1);
+	INIT_SPRITE(cursor_remove_sprite, "sprites/ui/cursor_remove.png", 1);
+	INIT_SPRITE(tile_hl_rm_sprite, "sprites/ui/tile_hl_rm.png", 1);
+	INIT_SPRITE(tile_mark_rm_sprite, "sprites/ui/tile_mark_rm.png", 1);
 	
-	INIT_SPRITE(button_hl_sprite, "sprites/sbut_hl_sprite.png", 1);
-	INIT_SPRITE(touch_hl_sprite, "sprites/touch_ring_sprite.png", 1);
+	INIT_SPRITE(button_hl_sprite, "sprites/ui/sbut_hl_sprite.png", 1);
+	INIT_SPRITE(touch_hl_sprite, "sprites/ui/touch_ring_sprite.png", 1);
 	
 	// TOOLS
-	INIT_SPRITE(bread_sprite, "sprites/food_bread.png", 1);
-	INIT_SPRITE(coffee_sprite, "sprites/food_coffee_sm.png", 1);
-	INIT_SPRITE(milk_sprite, "sprites/food_milk.png", 1);
-	INIT_SPRITE(soup_sprite, "sprites/food_soup.png", 1);
-	INIT_SPRITE(salad_sprite, "sprites/food_salad_sm.png", 1);
-	INIT_SPRITE(sausage_sprite, "sprites/food_sausage_sm.png", 1);
-	INIT_SPRITE(green_curry_sprite, "sprites/food_curry_green.png", 1);
-	INIT_SPRITE(red_curry_sprite, "sprites/food_curry_red.png", 1);
-	INIT_SPRITE(padkaprow_sprite, "sprites/food_padkrakow_sm.png", 1);
-	INIT_SPRITE(pill_vig_sprite, "sprites/seed_vigor_sm.png", 1);
-	INIT_SPRITE(pill_foc_sprite, "sprites/seed_focus_sm.png", 1);
-	INIT_SPRITE(pill_spi_sprite, "sprites/seed_spirit_sm.png", 1);
-	INIT_SPRITE(cigarette_sprite, "sprites/prop_cigarette.png", 1);
+	INIT_SPRITE(bread_sprite, "sprites/food/bread.png", 1);
+	INIT_SPRITE(coffee_sprite, "sprites/food/coffee.png", 1);
+	INIT_SPRITE(milk_sprite, "sprites/food/milk.png", 1);
+	INIT_SPRITE(soup_sprite, "sprites/food/soup.png", 1);
+	INIT_SPRITE(salad_sprite, "sprites/food/salad.png", 1);
+	INIT_SPRITE(sausage_sprite, "sprites/food/sausage.png", 1);
+	INIT_SPRITE(green_curry_sprite, "sprites/food/curry_green.png", 1);
+	INIT_SPRITE(red_curry_sprite, "sprites/food/curry_red.png", 1);
+	INIT_SPRITE(padkaprow_sprite, "sprites/food/pad_krakow.png", 1);
+	INIT_SPRITE(pill_vig_sprite, "sprites/food/seed_vigor_sm.png", 1);
+	INIT_SPRITE(pill_foc_sprite, "sprites/food/seed_focus_sm.png", 1);
+	INIT_SPRITE(pill_spi_sprite, "sprites/food/seed_spirit_sm.png", 1);
+	INIT_SPRITE(cigarette_sprite, "sprites/prop/cigarette.png", 1);
 
-	INIT_SPRITE(book_static_sprite, "sprites/read_book_upright.png", 1);
-	INIT_SPRITE(book_study_sprite, "sprites/read_book_turn_a.png", 8);
+	INIT_SPRITE(book_static_sprite, "sprites/read/book_upright.png", 1);
+	INIT_SPRITE(book_study_sprite, "sprites/read/book_turn_a.png", 8);
 
-	INIT_SPRITE(toy_duck_sprite, "sprites/toy_sm_duck.png", 1);
-	INIT_SPRITE(toy_baseball_sprite, "sprites/toy_baseball.png", 1);
-	INIT_SPRITE(toy_basketball_sprite, "sprites/toy_sm_basketball.png", 1);
-	INIT_SPRITE(toy_golf_sprite, "sprites/toy_sm_golf.png", 1);
-	INIT_SPRITE(toy_puzzle_sprite, "sprites/toy_sm_puzzle.png", 1);
+	INIT_SPRITE(toy_duck_sprite, "sprites/toy/duck.png", 1);
+	INIT_SPRITE(toy_baseball_sprite, "sprites/toy/baseball.png", 1);
+	INIT_SPRITE(toy_basketball_sprite, "sprites/toy/basketball.png", 1);
+	INIT_SPRITE(toy_golf_sprite, "sprites/toy/golf.png", 1);
+	INIT_SPRITE(toy_puzzle_sprite, "sprites/toy/puzzle.png", 1);
 
-	INIT_SPRITE(coin_static_sprite, "sprites/coin.png", 1);
+	INIT_SPRITE(coin_static_sprite, "sprites/minigame/coin.png", 1);
 	INIT_SPRITE(coin_world_sprite, "sprites/coin_a.png", 4);
 
 	// FIXED PROPS
-	INIT_SPRITE(window_dawn_sprite, "sprites/prop_wall_wdw_lg_dawn.png", 1);
-	INIT_SPRITE(window_day_sprite, "sprites/prop_wall_wdw_lg_afternoon.png", 1);
-	INIT_SPRITE(window_day_high_aq_sprite, "sprites/prop_wall_window_aqi_high_a.png", 8);
-	INIT_SPRITE(window_day_low_aq_sprite, "sprites/prop_wall_window_aqi_mid.png", 1);
-	INIT_SPRITE(window_night_sprite, "sprites/prop_wall_wdw_lg_night.png", 1);
-	INIT_SPRITE(vending_sprite, "sprites/i_vending_rotate_a.png", 12);
-	INIT_SPRITE(arcade_sprite, "sprites/arcade_a.png", 2);
+	INIT_SPRITE(window_dawn_sprite, "sprites/wall/wdw_lg_dawn.png", 1);
+	INIT_SPRITE(window_day_sprite, "sprites/wall/wdw_lg_afternoon.png", 1);
+	INIT_SPRITE(window_day_high_aq_sprite, "sprites/wall/wdw_aqi_high_a.png", 8);
+	INIT_SPRITE(window_day_low_aq_sprite, "sprites/wall/wdw_aqi_mid.png", 1);
+	INIT_SPRITE(window_night_sprite, "sprites/wall/wdw_lg_night.png", 1);
+	INIT_SPRITE(vending_sprite, "sprites/gameplay/vending_idle_a.png", 7);
+	INIT_SPRITE(arcade_sprite, "sprites/gameplay/arcade_a.png", 2);
 
 	// GAMEPLAY PROPS
-	INIT_SPRITE(gpu_sprite, "sprites/prop_solderpaste.png", 1);
-	INIT_SPRITE(uv_sprite, "sprites/prop_uv_alt_a.png", 2);
-	INIT_SPRITE(purifier_sprite, "sprites/prop_purifier_eth_a.png", 8);
+	INIT_SPRITE(gpu_sprite, "sprites/gameplay/solderpaste.png", 1);
+	INIT_SPRITE(uv_sprite, "sprites/gameplay/uv_alt_a.png", 2);
+	INIT_SPRITE(purifier_sprite, "sprites/gameplay/purifier_eth_a.png", 8);
 
 	// DECO PROPS
-	INIT_SPRITE(coffeemaker_sprite, "sprites/prop_coffee_a.png", 14);
-	INIT_SPRITE(fan_a_sprite, "sprites/prop_fan_a.png", 3);
-	INIT_SPRITE(fan_b_sprite, "sprites/prop_purifier_a.png", 6);
-	INIT_SPRITE(lantern_sprite, "sprites/prop_lantern_lit_a.png", 2);
-	INIT_SPRITE(laptop_sprite, "sprites/prop_laptop_a.png", 4);
-	INIT_SPRITE(chess_sprite, "sprites/prop_chess.png", 1);
+	INIT_SPRITE(coffeemaker_sprite, "sprites/prop/coffee_a.png", 14);
+	INIT_SPRITE(fan_a_sprite, "sprites/prop/fan_a.png", 3);
+	INIT_SPRITE(fan_b_sprite, "sprites/gameplay/purifier_a.png", 6);
+	INIT_SPRITE(lantern_sprite, "sprites/prop/lantern_lit_a.png", 2);
+	INIT_SPRITE(laptop_sprite, "sprites/prop/laptop_a.png", 4);
+	INIT_SPRITE(chess_sprite, "sprites/prop/chess.png", 1);
 
-	INIT_SPRITE(table_lg_sprite, "sprites/prop_table_xl_wood.png", 1);
-	INIT_SPRITE(table_sm_sprite, "sprites/prop_table_md.png", 1);
-	INIT_SPRITE(chair_wood_sprite, "sprites/prop_chair_wood.png", 4);
-	INIT_SPRITE(chair_stone_sprite, "sprites/prop_chair_stone.png", 4);
-	INIT_SPRITE(stool_wood_sprite, "sprites/prop_stool_wood.png", 1);
-	INIT_SPRITE(stool_stone_sprite, "sprites/prop_stool_stone.png", 1);
-	INIT_SPRITE(stool_gold_sprite, "sprites/prop_stool_gold.png", 1);
+	INIT_SPRITE(table_lg_sprite, "sprites/prop/table_xl_wood.png", 1);
+	INIT_SPRITE(table_sm_sprite, "sprites/prop/table_square_mahogany.png", 1);
+	INIT_SPRITE(chair_wood_sprite, "sprites/prop/chair_mahogany.png", 4);
+	INIT_SPRITE(chair_stone_sprite, "sprites/prop/chair_stone.png", 4);
+	INIT_SPRITE(stool_wood_sprite, "sprites/prop/stool_wood.png", 1);
+	INIT_SPRITE(stool_stone_sprite, "sprites/prop/stool_stone.png", 1);
+	INIT_SPRITE(stool_gold_sprite, "sprites/prop/stool_gold.png", 1);
 
-	INIT_SPRITE(bowl_stone_sprite, "sprites/prop_bowl_stone.png", 1);
-	INIT_SPRITE(bowl_gold_sprite, "sprites/prop_bowl_gold.png", 1);
+	INIT_SPRITE(bowl_stone_sprite, "sprites/prop/bowl_stone.png", 1);
+	INIT_SPRITE(bowl_gold_sprite, "sprites/prop/bowl_gold.png", 1);
 
-	INIT_SPRITE(succulent_sprite, "sprites/prop_plant_md_stem.png", 2);
-	INIT_SPRITE(bush_plain_sprite, "sprites/prop_bush_lg_empty.png", 1);
-	INIT_SPRITE(bush_daisy_sprite, "sprites/prop_bush_lg_daisy.png", 1);
-	INIT_SPRITE(bush_lilac_sprite, "sprites/prop_bush_lg_lilac.png", 1);
-	INIT_SPRITE(plant_green_sprite, "sprites/prop_plant_lg_sapling_blank.png", 1);
-	INIT_SPRITE(plant_maroon_sprite, "sprites/prop_plant_lg_sapling_maroon.png", 1);
-	INIT_SPRITE(plant_purple_sprite, "sprites/prop_plant_lg_sapling_lilac.png", 1);
-	INIT_SPRITE(plant_yellow_sprite, "sprites/prop_plant_lg_sapling_daisy.png", 1);
-	INIT_SPRITE(flower_vig_sprite, "sprites/interact_stat_plant_vigor.png", 6);
-	INIT_SPRITE(flower_foc_sprite, "sprites/interact_stat_plant_focus.png", 6);
-	INIT_SPRITE(flower_spi_sprite, "sprites/interact_stat_plant_spirit.png", 6);
+	INIT_SPRITE(succulent_sprite, "sprites/prop/plant_md_stem.png", 2);
+	INIT_SPRITE(bush_plain_sprite, "sprites/prop/bush_md_blank.png", 1);
+	INIT_SPRITE(bush_daisy_sprite, "sprites/prop/bush_md_daisy.png", 1);
+	INIT_SPRITE(bush_lilac_sprite, "sprites/prop/bush_md_lilac.png", 1);
+	INIT_SPRITE(plant_green_sprite, "sprites/prop/plant_lg_sapling_blank.png", 1);
+	INIT_SPRITE(plant_maroon_sprite, "sprites/prop/plant_lg_sapling_maroon.png", 1);
+	INIT_SPRITE(plant_purple_sprite, "sprites/prop/plant_lg_sapling_lilac.png", 1);
+	INIT_SPRITE(plant_yellow_sprite, "sprites/prop/plant_lg_sapling_daisy.png", 1);
+	INIT_SPRITE(flower_vig_sprite, "sprites/gameplay/stat_plant_vigor.png", 6);
+	INIT_SPRITE(flower_foc_sprite, "sprites/gameplay/stat_plant_focus.png", 6);
+	INIT_SPRITE(flower_spi_sprite, "sprites/gameplay/stat_plant_spirit.png", 6);
 
-	INIT_SPRITE(crystal_blue_lg_sprite, "sprites/prop_crystal_lg_shard_blue.png", 1);
-	INIT_SPRITE(crystal_green_lg_sprite, "sprites/prop_crystal_lg_shard_green.png", 1);
-	INIT_SPRITE(crystal_purple_lg_sprite, "sprites/prop_crystal_lg_shard_purple.png", 1);
+	INIT_SPRITE(crystal_blue_lg_sprite, "sprites/prop/crystal_lg_shard_blue.png", 1);
+	INIT_SPRITE(crystal_green_lg_sprite, "sprites/prop/crystal_lg_shard_green.png", 1);
+	INIT_SPRITE(crystal_purple_lg_sprite, "sprites/prop/crystal_lg_shard_purple.png", 1);
 
-	INIT_SPRITE(effigy_blue_sprite, "sprites/prop_effigy_blue_a.png", 4);
-	INIT_SPRITE(effigy_purple_sprite, "sprites/prop_effigy_purple_a.png", 4);
-	INIT_SPRITE(effigy_sea_sprite, "sprites/prop_effigy_sea_a.png", 4);
+	INIT_SPRITE(effigy_blue_sprite, "sprites/prop/effigy_blue_a.png", 4);
+	INIT_SPRITE(effigy_purple_sprite, "sprites/prop/effigy_purple_a.png", 4);
+	INIT_SPRITE(effigy_sea_sprite, "sprites/prop/effigy_sea_a.png", 4);
 
-	INIT_SPRITE(poster_zk_sprite, "sprites/prop_poster_md_zk.png", 1);
-	INIT_SPRITE(pixel_sprite, "sprites/prop_pixel.png", 1);
-	INIT_SPRITE(padkaprop_sprite, "sprites/food_padkrakow_md.png", 1);
+	INIT_SPRITE(poster_zk_sprite, "sprites/prop/poster_md_zk.png", 1);
+	INIT_SPRITE(pixel_sprite, "sprites/prop/pixel.png", 1);
+	INIT_SPRITE(padkaprop_sprite, "sprites/temp/food_padkrakow_md.png", 1);
 
 	// PET STATES
-	INIT_SPRITE(pet_idle_sprite, "sprites/pet_unicorn_idle_complex_a.png", 4);
-	INIT_SPRITE(pet_walk_sprite, "sprites/pet_unicorn_default_walk_complex_a.png", 4);
+	INIT_SPRITE(pet_idle_sprite, "sprites/pet/unicorn_idle_complex_a.png", 4);
+	INIT_SPRITE(pet_walk_sprite, "sprites/pet/unicorn_default_walk_complex_a.png", 4);
 
-	INIT_SPRITE(pet_idle_high_vig_sprite, "sprites/pet_unicorn_wing_idle_a.png", 4);
-	INIT_SPRITE(pet_walk_high_vig_sprite, "sprites/pet_unicorn_wing_walk_a.png", 4);
-	INIT_SPRITE(pet_idle_high_foc_sprite, "sprites/pet_unicorn_glow_idle_a.png", 4);
-	INIT_SPRITE(pet_walk_high_foc_sprite, "sprites/pet_unicorn_glow_walk_a.png", 4);
-	INIT_SPRITE(pet_idle_high_spi_sprite, "sprites/pet_unicorn_shimmer_idle_a.png", 4);
-	INIT_SPRITE(pet_walk_high_spi_sprite, "sprites/pet_unicorn_shimmer_walk_a.png", 4);
-	INIT_SPRITE(pet_wings_out_sprite, "sprites/pet_unicorn_wing_a.png", 13);
+	INIT_SPRITE(pet_idle_high_vig_sprite, "sprites/pet/unicorn_wing_idle_a.png", 4);
+	INIT_SPRITE(pet_walk_high_vig_sprite, "sprites/pet/unicorn_wing_walk_a.png", 4);
+	INIT_SPRITE(pet_idle_high_foc_sprite, "sprites/pet/unicorn_glow_idle_a.png", 4);
+	INIT_SPRITE(pet_walk_high_foc_sprite, "sprites/pet/unicorn_glow_walk_a.png", 4);
+	INIT_SPRITE(pet_idle_high_spi_sprite, "sprites/pet/unicorn_shimmer_idle_a.png", 4);
+	INIT_SPRITE(pet_walk_high_spi_sprite, "sprites/pet/unicorn_shimmer_walk_a.png", 4);
+	INIT_SPRITE(pet_wings_out_sprite, "sprites/pet/unicorn_wing_a.png", 13);
 	COPY_SPRITE(pet_wings_in_sprite, pet_wings_out_sprite, false, true);
 
-	INIT_SPRITE(pet_idle_low_vig_sprite, "sprites/pet_unicorn_tired_a.png", 4);
-	INIT_SPRITE(pet_walk_low_vig_sprite, "sprites/pet_unicorn_tired_walk_a.png", 4);
-	INIT_SPRITE(pet_idle_low_foc_sprite, "sprites/pet_unicorn_messy_stink_a.png", 8);
-	INIT_SPRITE(pet_walk_low_foc_sprite, "sprites/pet_unicorn_messy_walk_complex_a.png", 4);
-	INIT_SPRITE(pet_idle_low_spi_sprite, "sprites/pet_unicorn_sad_idle_a.png", 4);
-	INIT_SPRITE(pet_walk_low_spi_sprite, "sprites/pet_unicorn_sad_walk_a.png", 4);
+	INIT_SPRITE(pet_idle_low_vig_sprite, "sprites/pet/unicorn_tired_a.png", 4);
+	INIT_SPRITE(pet_walk_low_vig_sprite, "sprites/pet/unicorn_tired_walk_a.png", 4);
+	INIT_SPRITE(pet_idle_low_foc_sprite, "sprites/pet/unicorn_messy_stink_a.png", 8);
+	INIT_SPRITE(pet_walk_low_foc_sprite, "sprites/pet/unicorn_messy_walk_complex_a.png", 4);
+	INIT_SPRITE(pet_idle_low_spi_sprite, "sprites/pet/unicorn_sad_idle_a.png", 4);
+	INIT_SPRITE(pet_walk_low_spi_sprite, "sprites/pet/unicorn_sad_walk_a.png", 4);
 
-	INIT_SPRITE(pet_crit_vig_in_sprite, "sprites/pet_unicorn_melt_a.png", 8);
-	INIT_SPRITE(pet_crit_vig_sprite, "sprites/pet_unicorn_melt.png", 1);
+	INIT_SPRITE(pet_crit_vig_in_sprite, "sprites/pet/unicorn_melt_a.png", 8);
+	INIT_SPRITE(pet_crit_vig_sprite, "sprites/pet/unicorn_melt.png", 1);
 	COPY_SPRITE(pet_crit_vig_out_sprite, pet_crit_vig_in_sprite, false, true);
 
-	INIT_SPRITE(pet_crit_foc_in_sprite, "sprites/pet_unicorn_tipped_a.png", 6);
-	INIT_SPRITE(pet_crit_foc_sprite, "sprites/pet_unicorn_tipped.png", 1);
+	INIT_SPRITE(pet_crit_foc_in_sprite, "sprites/pet/unicorn_tipped_a.png", 6);
+	INIT_SPRITE(pet_crit_foc_sprite, "sprites/pet/unicorn_tipped.png", 1);
 	COPY_SPRITE(pet_crit_foc_out_sprite, pet_crit_foc_in_sprite, false, true);
 
-	INIT_SPRITE(pet_crit_spi_in_sprite, "sprites/pet_unicorn_block_a.png", 15);
-	INIT_SPRITE(pet_crit_spi_sprite, "sprites/pet_unicorn_block_blink_a.png", 2);
+	INIT_SPRITE(pet_crit_spi_in_sprite, "sprites/pet/unicorn_block_a.png", 15);
+	INIT_SPRITE(pet_crit_spi_sprite, "sprites/pet/unicorn_block_blink_a.png", 2);
 	COPY_SPRITE(pet_crit_spi_out_sprite, pet_crit_spi_in_sprite, false, true);
 
 	// PET ACTIONS
-	INIT_SPRITE(pet_eat_in_sprite, "sprites/pet_unicorn_eat_lower_a.png", 7);
-	INIT_SPRITE(pet_eat_sprite, "sprites/pet_unicorn_eat_chew_a.png", 2);
+	INIT_SPRITE(pet_eat_in_sprite, "sprites/pet/unicorn_eat_lower_a.png", 7);
+	INIT_SPRITE(pet_eat_sprite, "sprites/pet/unicorn_eat_chew_a.png", 2);
 	COPY_SPRITE(pet_eat_out_sprite, pet_eat_in_sprite, false, true);
 
-	INIT_SPRITE(pet_study_in_sprite, "sprites/pet_unicorn_read_sit_a.png", 6);
-	INIT_SPRITE(pet_study_sprite, "sprites/pet_unicorn_read_sit.png", 1);
+	INIT_SPRITE(pet_study_in_sprite, "sprites/pet/unicorn_read_sit_a.png", 6);
+	INIT_SPRITE(pet_study_sprite, "sprites/pet/unicorn_read_sit.png", 1);
 	COPY_SPRITE(pet_study_out_sprite, pet_study_in_sprite, false, true);
 
-	INIT_SPRITE(pet_play_a_sprite, "sprites/pet_unicorn_play_knead_a.png", 6);
-	INIT_SPRITE(pet_play_b_sprite, "sprites/pet_unicorn_play_b_a.png", 6);
-	INIT_SPRITE(pet_play_c_sprite, "sprites/pet_unicorn_play_c_a.png", 6);
+	INIT_SPRITE(pet_play_a_sprite, "sprites/pet/unicorn_play_knead_a.png", 6);
+	INIT_SPRITE(pet_play_b_sprite, "sprites/pet/unicorn_play_b_a.png", 6);
+	INIT_SPRITE(pet_play_c_sprite, "sprites/pet/unicorn_play_c_a.png", 6);
 
-	INIT_SPRITE(pet_vig_up_sprite, "sprites/pet_unicorn_stat_vigor_up_a.png", 13);
-	INIT_SPRITE(pet_foc_up_sprite, "sprites/pet_unicorn_stat_focus_up_a.png", 13);
-	INIT_SPRITE(pet_spi_up_sprite, "sprites/pet_unicorn_stat_spirit_up_a.png", 13);
+	INIT_SPRITE(pet_vig_up_sprite, "sprites/pet/unicorn_stat_vigor_up_a.png", 13);
+	INIT_SPRITE(pet_foc_up_sprite, "sprites/pet/unicorn_stat_focus_up_a.png", 13);
+	INIT_SPRITE(pet_spi_up_sprite, "sprites/pet/unicorn_stat_spirit_up_a.png", 13);
 
 	// PET MOODS
-	INIT_SPRITE(mood_low_vig_sprite, "sprites/bubl_low_vig.png", 3);
-	INIT_SPRITE(mood_low_foc_sprite, "sprites/bubl_low_foc.png", 3);
-	INIT_SPRITE(mood_low_spi_sprite, "sprites/bubl_low_spi.png", 3);
-	INIT_SPRITE(mood_good_sprite, "sprites/bubl_react_good.png", 5);
-	INIT_SPRITE(mood_bad_sprite, "sprites/bubl_react_bad.png", 3);
+	INIT_SPRITE(mood_low_vig_sprite, "sprites/ui/bubl_low_vig.png", 3);
+	INIT_SPRITE(mood_low_foc_sprite, "sprites/ui/bubl_low_foc.png", 3);
+	INIT_SPRITE(mood_low_spi_sprite, "sprites/ui/bubl_low_spi.png", 3);
+	INIT_SPRITE(mood_good_sprite, "sprites/ui/bubl_react_good.png", 5);
+	INIT_SPRITE(mood_bad_sprite, "sprites/ui/bubl_react_bad.png", 3);
 
 	// SNAKE
-	INIT_SPRITE(snake_head_sprite, "sprites/snake_cat_head_default.png", 4);
-	INIT_SPRITE(snake_body_sprite, "sprites/snake_cat_body.png", 4);
-	INIT_SPRITE(snake_corner_sprite, "sprites/snake_cat_corner.png", 4);
-	INIT_SPRITE(snake_tail_sprite, "sprites/snake_tail.png", 4);
+	INIT_SPRITE(snake_head_sprite, "sprites/minigame/snake_cat_head_default.png", 4);
+	INIT_SPRITE(snake_body_sprite, "sprites/minigame/snake_cat_body.png", 4);
+	INIT_SPRITE(snake_corner_sprite, "sprites/minigame/snake_cat_corner.png", 4);
+	INIT_SPRITE(snake_tail_sprite, "sprites/minigame/snake_tail.png", 4);
 
 	// MINESWEEPER
-	INIT_SPRITE(mines_sprite, "sprites/minesweeper.png", 12);
+	INIT_SPRITE(mines_sprite, "sprites/minigame/minesweeper.png", 12);
 
 	CAT_printf("[INFO] %d sprites initialized\n", atlas.length);
 
