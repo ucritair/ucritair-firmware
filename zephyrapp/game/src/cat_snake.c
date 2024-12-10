@@ -1,9 +1,8 @@
-#include "cat_snake.h"
+#include "cat_arcade.h"
 
 #include "cat_input.h"
 #include "cat_sprite.h"
 #include "cat_room.h"
-#include "cat_arcade.h"
 #include "cat_bag.h"
 #include "cat_gui.h"
 
@@ -173,6 +172,8 @@ void CAT_MS_snake(CAT_machine_signal signal)
 					snake.dead |= x >= GRID_WIDTH;
 					snake.dead |= y < 0;
 					snake.dead |= y >= GRID_HEIGHT;
+					if(snake.dead)
+						CAT_play_sound(&fail_sound);
 
 					for(int i = 0; i < snake.length; i++)
 					{
@@ -187,8 +188,11 @@ void CAT_MS_snake(CAT_machine_signal signal)
 						if(eat_tracker == 5)
 						{
 							coins += 1;
+							CAT_play_sound(&coin_sound);
 							eat_tracker = 0;
 						}
+						else
+							CAT_play_sound(&thud_sound);
 						food_init();
 
 						score += 1;

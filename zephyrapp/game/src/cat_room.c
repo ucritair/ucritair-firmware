@@ -234,7 +234,6 @@ CAT_ivec2 CAT_largest_free_space()
 	}
 	
 	int max_size = 0;
-	int max_idx = 0;
 	CAT_ivec2 max_cent = {0, 0};
 	
 	for(int y = 0; y < CAT_GRID_HEIGHT; y++)
@@ -293,13 +292,11 @@ CAT_ivec2 CAT_largest_free_space()
 			if(size > max_size)
 			{
 				max_size = size;
-				max_idx = idx;
 				max_cent = CAT_ivec2_div(cent, size);
 			}
 		}
 	}
 
-	//return space.cells[max_idx].coords;
 	return max_cent;
 }
 

@@ -1,16 +1,15 @@
-#include "cat_mole.h"
+#include "cat_arcade.h"
 
 #include "cat_input.h"
 #include "cat_sprite.h"
 #include "cat_room.h"
-#include "cat_arcade.h"
 #include "cat_bag.h"
 #include "cat_gui.h"
 
 #define GRID_WIDTH 15
 #define GRID_HEIGHT 20
 #define GRID_SIZE (GRID_WIDTH * GRID_HEIGHT)
-#define MINE_COUNT (GRID_SIZE / 7)
+#define MINE_COUNT (GRID_SIZE / 5)
 
 typedef struct grid_cell
 {
@@ -78,7 +77,65 @@ static int clicks = 0;
 static int reveal_timer_id = -1;
 static bool reveal_complete = false;
 
-void CAT_MS_mole(CAT_machine_signal signal)
+void toggle_mine(int x, int y, bool value)
+{
+	grid_cell* cell = get_cell(x, y);
+	int da = (cell->mine == value) ? 0 : (value ? 1 : -1);
+	cell->mine = value;
+	for(int dy = -1; dy <= 1; dy++)
+	{
+		for(int dx = -1; dx <= 1; dx++)
+		{
+			grid_cell* neighbour = get_cell(x+dx, y+dy);
+			if(neighbour != NULL)
+				neighbour->adjacent += da;
+		}
+	}
+}
+
+void flood_reveal(int x, int y)
+{
+	idx_queue_length = 0;
+	idx_enqueue(y * GRID_WIDTH + x);
+	while(idx_queue_length > 0)
+	{		
+		grid_cell* c = &grid[idx_dequeue()];
+		c->seen = true;
+		if(c->adjacent > 0)
+			continue;
+
+		CAT_ivec2 n = {c->x, c->y-1};
+		int n_idx = n.y * CAT_GRID_WIDTH + n.x;
+		if(is_cell_clean(n.x, n.y))
+		{
+			grid[n_idx].visited = true;
+			idx_enqueue(n_idx);
+		}
+		CAT_ivec2 e = {c->x+1, c->y};
+		int e_idx = e.y * CAT_GRID_WIDTH + e.x;
+		if(is_cell_clean(e.x, e.y))
+		{
+			grid[e_idx].visited = true;
+			idx_enqueue(e_idx);
+		}
+		CAT_ivec2 s = {c->x, c->y+1};
+		int s_idx = s.y * CAT_GRID_WIDTH + s.x;
+		if(is_cell_clean(s.x, s.y))
+		{
+			grid[s_idx].visited = true;
+			idx_enqueue(s_idx);
+		}	
+		CAT_ivec2 w = {c->x-1, c->y};
+		int w_idx = w.y * CAT_GRID_WIDTH + w.x;
+		if(is_cell_clean(w.x, w.y))
+		{
+			grid[w_idx].visited = true;
+			idx_enqueue(w_idx);
+		}
+	}
+}
+
+void CAT_MS_mines(CAT_machine_signal signal)
 {
 	switch(signal)
 	{
@@ -108,20 +165,9 @@ void CAT_MS_mole(CAT_machine_signal signal)
 			
 			for(int i = 0; i < MINE_COUNT; i++)
 			{
-				int xm = CAT_rand_int(0, GRID_WIDTH-1);
-				int ym = CAT_rand_int(0, GRID_HEIGHT-1);
-
-				grid_cell* cell = get_cell(xm, ym);
-				cell->mine = true;
-				for(int dy = -1; dy <= 1; dy++)
-				{
-					for(int dx = -1; dx <= 1; dx++)
-					{
-						grid_cell* neighbour = get_cell(xm+dx, ym+dy);
-						if(neighbour != NULL)
-							neighbour->adjacent += 1;
-					}
-				}
+				int x = CAT_rand_int(0, GRID_WIDTH-1);
+				int y = CAT_rand_int(0, GRID_HEIGHT-1);
+				toggle_mine(x, y, true);
 			}
 
 			dead = false;
@@ -140,7 +186,63 @@ void CAT_MS_mole(CAT_machine_signal signal)
 			if(CAT_input_pressed(CAT_BUTTON_START))
 				CAT_machine_transition(CAT_MS_room);
 
-			if(dead)
+			if(!dead)
+			{
+				if(CAT_input_pulse(CAT_BUTTON_UP))
+					cursor.y -= 1;
+				if(CAT_input_pulse(CAT_BUTTON_RIGHT))
+					cursor.x += 1;
+				if(CAT_input_pulse(CAT_BUTTON_DOWN))
+					cursor.y += 1;
+				if(CAT_input_pulse(CAT_BUTTON_LEFT))
+					cursor.x -= 1;
+				cursor.x = clamp(cursor.x, 0, GRID_WIDTH-1);
+				cursor.y = clamp(cursor.y, 0, GRID_HEIGHT-1);
+				grid_cell* cell = get_cell(cursor.x, cursor.y);
+
+				if(CAT_input_pressed(CAT_BUTTON_A))
+				{
+					if(first_click)
+					{
+						for(int dy = -1; dy <= 1; dy++)
+						{
+							for(int dx = -1; dx <= 1; dx++)
+							{
+								grid_cell* cand = get_cell(cursor.x+dx, cursor.y+dy);
+								if(cand != NULL && cand->mine)
+									toggle_mine(cursor.x+dx, cursor.y+dy, false);
+							}
+						}
+						first_click = false;
+					}
+					
+					if(!cell->seen)
+					{
+						cell->seen = true;
+
+						if(cell->mine)
+						{
+							dead = true;
+							CAT_play_sound(&fail_sound);
+							break;
+						}
+
+						clicks += 1;
+						if(clicks == 8)
+						{
+							coins += 1;
+							cell->coin = true;
+							CAT_play_sound(&coin_sound);
+							clicks = 0;	
+						}
+
+						flood_reveal(cursor.x, cursor.y);
+					}				
+				}
+				if(CAT_input_pressed(CAT_BUTTON_SELECT))
+					cell->flagged = !cell->flagged;
+			}
+			else
 			{
 				if(!reveal_complete)
 				{
@@ -154,6 +256,7 @@ void CAT_MS_mole(CAT_machine_signal signal)
 							{
 								grid[i].seen = true;
 								reveal_complete = false;
+								CAT_play_sound(&thud_sound);
 								break;
 							}	
 						}
@@ -168,98 +271,8 @@ void CAT_MS_mole(CAT_machine_signal signal)
 						CAT_machine_back();
 				}
 				break;
-			}	
-
-			if(CAT_input_pulse(CAT_BUTTON_UP))
-				cursor.y -= 1;
-			if(CAT_input_pulse(CAT_BUTTON_RIGHT))
-				cursor.x += 1;
-			if(CAT_input_pulse(CAT_BUTTON_DOWN))
-				cursor.y += 1;
-			if(CAT_input_pulse(CAT_BUTTON_LEFT))
-				cursor.x -= 1;
-			cursor.x = clamp(cursor.x, 0, GRID_WIDTH-1);
-			cursor.y = clamp(cursor.y, 0, GRID_HEIGHT-1);
-
-			if(CAT_input_pressed(CAT_BUTTON_A))
-			{
-				grid_cell* cell = get_cell(cursor.x, cursor.y);
-
-				if(first_click)
-				{
-					if(cell->mine)
-					{
-						cell->mine = false;
-						for(int x = 0; x < GRID_WIDTH; x++)
-						{
-							if(!get_cell(x, 0)->mine)
-							{
-								get_cell(x, 0)->mine = true;
-								break;
-							}
-						}
-					}
-					first_click = false;
-				}
-				
-				if(!cell->seen)
-				{
-					cell->seen = true;
-
-					if(cell->mine)
-					{
-						dead = true;
-						break;
-					}
-
-					clicks += 1;
-					if(clicks == 8)
-					{
-						coins += 1;
-						cell->coin = true;
-						clicks = 0;
-					}
-
-					idx_queue_length = 0;
-					idx_enqueue(cursor.y * GRID_WIDTH + cursor.x);
-					while(idx_queue_length > 0)
-					{		
-						grid_cell* c = &grid[idx_dequeue()];
-						c->seen = true;
-						if(c->adjacent > 0)
-							continue;
-
-						CAT_ivec2 n = {c->x, c->y-1};
-						int n_idx = n.y * CAT_GRID_WIDTH + n.x;
-						if(is_cell_clean(n.x, n.y))
-						{
-							grid[n_idx].visited = true;
-							idx_enqueue(n_idx);
-						}
-						CAT_ivec2 e = {c->x+1, c->y};
-						int e_idx = e.y * CAT_GRID_WIDTH + e.x;
-						if(is_cell_clean(e.x, e.y))
-						{
-							grid[e_idx].visited = true;
-							idx_enqueue(e_idx);
-						}
-						CAT_ivec2 s = {c->x, c->y+1};
-						int s_idx = s.y * CAT_GRID_WIDTH + s.x;
-						if(is_cell_clean(s.x, s.y))
-						{
-							grid[s_idx].visited = true;
-							idx_enqueue(s_idx);
-						}	
-						CAT_ivec2 w = {c->x-1, c->y};
-						int w_idx = w.y * CAT_GRID_WIDTH + w.x;
-						if(is_cell_clean(w.x, w.y))
-						{
-							grid[w_idx].visited = true;
-							idx_enqueue(w_idx);
-						}
-					}
-				}
 			}
+
 			break;
 		}
 		case CAT_MACHINE_SIGNAL_EXIT:
@@ -269,7 +282,7 @@ void CAT_MS_mole(CAT_machine_signal signal)
 	}
 }
 
-void CAT_render_mole()
+void CAT_render_mines()
 {
 	if(!reveal_complete)
 	{
@@ -279,29 +292,33 @@ void CAT_render_mole()
 		{
 			for(int x = 0; x < GRID_WIDTH; x++)
 			{
-				grid_cell* cell = get_cell(x, y);	
+				grid_cell* cell = get_cell(x, y);
+				int xs = x * CAT_TILE_SIZE;
+				int ys = y * CAT_TILE_SIZE;
+
 				if(cell->seen)
 				{
 					if(cell->mine)
 					{
-						CAT_draw_sprite(mines_sprite, 10, x*CAT_TILE_SIZE, y*CAT_TILE_SIZE);
+						CAT_draw_sprite(mines_sprite, 10, xs, ys);
 					}
 					else
 					{
-						CAT_draw_sprite(mines_sprite, 1, x*CAT_TILE_SIZE, y*CAT_TILE_SIZE);
+						CAT_draw_sprite(mines_sprite, 1, xs, ys);
 						if(cell->coin)
-							CAT_draw_sprite(coin_world_sprite, 0, x*CAT_TILE_SIZE, y*CAT_TILE_SIZE);
+							CAT_draw_sprite(coin_world_sprite, 0, xs, ys);
 						if(cell->adjacent > 0)
-							CAT_draw_sprite(mines_sprite, 1 + cell->adjacent, x*CAT_TILE_SIZE, y*CAT_TILE_SIZE);
+							CAT_draw_sprite(mines_sprite, 1 + cell->adjacent, xs, ys);
 					}
 				}
 				else
 				{
-					CAT_draw_sprite(mines_sprite, 0, x*CAT_TILE_SIZE, y*CAT_TILE_SIZE);
+					CAT_draw_sprite(mines_sprite, 0, xs, ys);
+					if(cell->flagged)
+						CAT_draw_sprite(mines_sprite, 12, xs, ys);
 				}
 			}
 		}
-
 		if(!dead)
 			CAT_draw_sprite(mines_sprite, 11, cursor.x*CAT_TILE_SIZE, cursor.y*CAT_TILE_SIZE);
 	}

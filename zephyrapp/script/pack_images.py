@@ -260,7 +260,7 @@ with open(f"{output}/images.c", 'w') as fd:
 		fd.write('\t},\n')
 		
 	fd.write('}, .length = '+str(len(atlas))+'};\n\n')
-
+    
 	fd.write('\n\nuint16_t rle_work_region['+str(max(x.width for x in atlas))+'];\n\n\n\n')
 
 	einksize = 0

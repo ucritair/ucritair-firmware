@@ -9,10 +9,12 @@ if(NOT TARGET app)
 	target_compile_definitions(app PRIVATE CAT_DESKTOP=1)
 
 	if(DEBUG)
+		message(STATUS "Debug enabled")
 		set(CMAKE_BUILD_TYPE Debug)
 		target_compile_definitions(app PRIVATE CAT_DEBUG=1)
 	endif()
 	if(REBUILD_ATLAS)
+		message(STATUS "Atlas rebuild enabled")
 		target_compile_definitions(app PRIVATE CAT_REBUILD_ATLAS=1)
 	endif()
 
@@ -29,8 +31,15 @@ if(NOT TARGET app)
 	target_sources(app PRIVATE src/cat_desktop.c)
 else()
 	message(WARNING "Building for embedded")
+
 	target_compile_definitions(app PRIVATE CAT_EMBEDDED=1)
 	target_compile_definitions(app PRIVATE CAT_BAKED_ASSETS=1)
+	if(DEBUG)
+		message(STATUS "Debug enabled")
+		set(CMAKE_BUILD_TYPE Debug)
+		target_compile_definitions(app PRIVATE CAT_DEBUG=1)
+	endif()
+	
 	target_sources(app PRIVATE src/cat_embedded.c)
 endif()
 
@@ -54,7 +63,9 @@ target_sources(app PRIVATE
 	src/cat_pet.c
 	src/cat_item_dialog.c
 	src/cat_snake.c
-	src/cat_mole.c
+	src/cat_mines.c
+	sounds/sound_assets.c
+	meshes/mesh_assets.c
 	src/cat_main.c)
 
 target_include_directories(app PRIVATE src/)

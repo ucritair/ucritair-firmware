@@ -1522,7 +1522,7 @@ void CAT_sprite_mass_define()
 	INIT_SPRITE(snake_tail_sprite, "sprites/snake_tail.png", 4);
 
 	// MINESWEEPER
-	INIT_SPRITE(mines_sprite, "sprites/minesweeper.png", 12);
+	INIT_SPRITE(mines_sprite, "sprites/minesweeper.png", 13);
 
 	CAT_printf("[INFO] %d sprites initialized\n", atlas.length);
 

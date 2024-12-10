@@ -52,7 +52,9 @@ void CAT_set_LEDs(uint8_t r, uint8_t g, uint8_t b);
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // SPEAKER
 
-void CAT_play_tone(float pitch_hz, float time_s);
+#include "../sounds/sound_assets.h"
+void CAT_sound_power(bool value);
+void CAT_play_sound(CAT_sound* sound);
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -180,7 +182,6 @@ extern CAT_AQI aqi;
 #define aqi current_readings
 #endif
 
-void CAT_AQI_tick();
 float CAT_co2_score(float co2);
 float CAT_voc_score(float voc);
 float CAT_nox_score(float nox);
