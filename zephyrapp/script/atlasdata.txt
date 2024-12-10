@@ -181,7 +181,7 @@ BAKE-INIT: (174, "snake_head_sprite", "sprites/snake_cat_head_default.png", 4, 1
 BAKE-INIT: (175, "snake_body_sprite", "sprites/snake_cat_body.png", 4, 16, 16)
 BAKE-INIT: (176, "snake_corner_sprite", "sprites/snake_cat_corner.png", 4, 16, 16)
 BAKE-INIT: (177, "snake_tail_sprite", "sprites/snake_tail.png", 4, 16, 16)
-BAKE-INIT: (178, "mines_sprite", "sprites/minesweeper.png", 12, 16, 16)
+BAKE-INIT: (178, "mines_sprite", "sprites/minesweeper.png", 13, 16, 16)
 [INFO] 179 sprites initialized
 [INFO] 62 items initialized
 Loading...

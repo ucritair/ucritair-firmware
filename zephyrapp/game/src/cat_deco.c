@@ -79,6 +79,7 @@ void CAT_MS_deco(CAT_machine_signal signal)
 				deco_state.mode += 1;
 				if(deco_state.mode > REMOVE)
 					deco_state.mode = ADD;
+				deco_state.add_id = -1;
 			}
 
 			switch(deco_state.mode)
@@ -113,7 +114,10 @@ void CAT_MS_deco(CAT_machine_signal signal)
 								CAT_item* base_prop = CAT_item_get(base_id);
 								bool bot_compat = base_prop->data.prop_data.type == CAT_PROP_TYPE_BOTTOM;
 								bool top_compat = prop->data.prop_data.type == CAT_PROP_TYPE_TOP;
-								if(bot_compat && top_compat)
+								bool space_compat =
+								base_prop->data.prop_data.shape.x >= prop->data.prop_data.shape.x &&
+								base_prop->data.prop_data.shape.y >= prop->data.prop_data.shape.y;
+								if(bot_compat && top_compat && space_compat)
 								{
 									if(CAT_input_pressed(CAT_BUTTON_A))
 									{

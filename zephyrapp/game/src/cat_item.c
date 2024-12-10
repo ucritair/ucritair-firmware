@@ -77,6 +77,7 @@ void CAT_prop_init(int item_id, int width, int height, bool animate)
 	item->data.prop_data.type = CAT_PROP_TYPE_DEFAULT;
 	item->data.prop_data.shape = (CAT_ivec2) {width, height};
 	item->data.prop_data.animate = animate;
+	item->data.prop_data.child_dy = 0;
 }
 
 
@@ -378,14 +379,17 @@ void CAT_item_mass_define()
 	coffeemaker_item = CAT_item_init(CAT_ITEM_TYPE_PROP, "Coffee Machine", coffeemaker_sprite, 40);
 	CAT_prop_init(coffeemaker_item, 2, 1, true);
 	item_table.data[coffeemaker_item].data.prop_data.type = CAT_PROP_TYPE_TOP;
+	item_table.data[coffeemaker_item].data.prop_data.child_dy = -6;
 
 	laptop_item = CAT_item_init(CAT_ITEM_TYPE_PROP, "Laptop", laptop_sprite, 80);
 	CAT_prop_init(laptop_item, 2, 1, true);
 	item_table.data[laptop_item].data.prop_data.type = CAT_PROP_TYPE_TOP;
+	item_table.data[laptop_item].data.prop_data.child_dy = -8;
 
 	chess_item = CAT_item_init(CAT_ITEM_TYPE_PROP, "Chess Set", chess_sprite, 40);
 	CAT_prop_init(chess_item, 2, 2, true);
 	item_table.data[chess_item].data.prop_data.type = CAT_PROP_TYPE_TOP;
+	item_table.data[chess_item].data.prop_data.child_dy = -16;
 	
 
 	uv_item = CAT_item_init(CAT_ITEM_TYPE_PROP, "UV Lamp", uv_sprite, 50);
@@ -401,15 +405,12 @@ void CAT_item_mass_define()
 	
 	stool_wood_item = CAT_item_init(CAT_ITEM_TYPE_PROP, "Wood Stool", stool_wood_sprite, 10);
 	CAT_prop_init(stool_wood_item, 2, 1, true);
-	item_table.data[stool_wood_item].data.prop_data.type = CAT_PROP_TYPE_BOTTOM;
 
 	stool_stone_item = CAT_item_init(CAT_ITEM_TYPE_PROP, "Stone Stool", stool_stone_sprite, 10);
 	CAT_prop_init(stool_stone_item, 2, 1, true);
-	item_table.data[stool_stone_item].data.prop_data.type = CAT_PROP_TYPE_BOTTOM;
 
 	stool_gold_item = CAT_item_init(CAT_ITEM_TYPE_PROP, "Gold Stool", stool_gold_sprite, 20);
 	CAT_prop_init(stool_gold_item, 2, 1, true);
-	item_table.data[stool_gold_item].data.prop_data.type = CAT_PROP_TYPE_BOTTOM;
 
 	bowl_stone_item = CAT_item_init(CAT_ITEM_TYPE_PROP, "Stone Bowl", bowl_stone_sprite, 10);
 	CAT_prop_init(bowl_stone_item, 1, 1, true);
