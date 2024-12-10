@@ -87,6 +87,9 @@ void set_rtc_counter(struct tm* t)
 
 void snapshot_rtc_for_reboot()
 {
+	// wait to synchronize to tick
+	int c = nrf_rtc_counter_get(HW_RTC_CHOSEN);
+	while (nrf_rtc_counter_get(HW_RTC_CHOSEN) == c) {}
 	rtc_offset = rtc_offset + (uint64_t)nrf_rtc_counter_get(HW_RTC_CHOSEN) + 16; // as of SEA-1 we are 1.8945s - so 16 ticks (2.0) forward and then 105.5ms delay to get on time
 } 
 

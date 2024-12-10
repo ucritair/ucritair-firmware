@@ -313,8 +313,8 @@ void power_off(int for_ms, bool protected_sleeping)
 		LOG_INF("Waking...");
 		// k_msleep(100);
 
-		nrf_gpio_pin_clear(NRF_GPIO_PIN_MAP(0, 2));
 		snapshot_rtc_for_reboot();
+		nrf_gpio_pin_clear(NRF_GPIO_PIN_MAP(0, 2));
 		sys_reboot(SYS_REBOOT_WARM);
 	}
 }
