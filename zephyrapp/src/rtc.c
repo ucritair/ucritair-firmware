@@ -1,5 +1,6 @@
 #include <zephyr/init.h>
 #include <hal/nrf_rtc.h>
+#include <nrfx_rtc.h>
 
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(rtc, LOG_LEVEL_DBG);
@@ -9,18 +10,43 @@ LOG_MODULE_REGISTER(rtc, LOG_LEVEL_DBG);
 #include "rtc.h"
 
 #include "flash.h"
+#include "lcd_driver.h"
+#include "power_control.h"
 
 #include <hal/nrf_gpio.h>
 #include <soc/nrfx_coredep.h>
 
+nrfx_rtc_t rtc_inst = NRFX_RTC_INSTANCE(0);
+
+void rtc_irq_handler(nrfx_rtc_int_type_t int_type)
+{
+	if (int_type == NRFX_RTC_INT_TICK)
+	{
+		// LOG_DBG("Tick!!!");
+	}
+	else if (int_type == NRFX_RTC_INT_COMPARE3)
+	{
+		on_rtc_compare3();
+	}
+}
+
 static int board_cat_init_rtc(void)
 {
-	nrf_gpio_cfg_output(NRF_GPIO_PIN_MAP(0, 2));
+    nrf_gpio_cfg_output(NRF_GPIO_PIN_MAP(0, 2));
 
-    nrf_rtc_prescaler_set(HW_RTC_CHOSEN, 4095); // 125ms/tick
+    nrfx_rtc_config_t config = NRFX_RTC_DEFAULT_CONFIG;
+    config.prescaler = NRF_RTC_FREQ_TO_PRESCALER(8); // 8Hz
+    config.reliable = true;
 
-    nrfx_coredep_delay_us(105500); // as of SEA-1 we are 1.8945s - so 16 ticks (2.0) forward and then 105.5ms delay to get on time
+    IRQ_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_RTC_INST_GET(0)), IRQ_PRIO_LOWEST,
+              NRFX_RTC_INST_HANDLER_GET(0), 0, 0);
 
+    nrfx_rtc_init(&rtc_inst, &config, &rtc_irq_handler);
+    nrfx_rtc_tick_enable(&rtc_inst, true);
+
+    nrfx_coredep_delay_us(101000); // as of SEA-1 we are 1.8945s - so 16 ticks (2.0) forward and then 105.5ms delay to get on time
+
+    nrf_rtc_task_trigger(HW_RTC_CHOSEN, NRF_RTC_TASK_STOP);
     nrf_rtc_task_trigger(HW_RTC_CHOSEN, NRF_RTC_TASK_CLEAR);
     nrf_gpio_pin_set(NRF_GPIO_PIN_MAP(0, 2));
     nrf_rtc_task_trigger(HW_RTC_CHOSEN, NRF_RTC_TASK_START);
@@ -30,6 +56,11 @@ static int board_cat_init_rtc(void)
 
 SYS_INIT(board_cat_init_rtc, PRE_KERNEL_1,
      CONFIG_KERNEL_INIT_PRIORITY_DEFAULT);
+
+void configure_rtc_timer3(int for_ms)
+{
+	nrfx_rtc_cc_set(&rtc_inst, 3, nrf_rtc_counter_get(HW_RTC_CHOSEN) + (for_ms/125), true);
+}
 
 
 // epoch time seconds of RTC=0
@@ -50,7 +81,9 @@ PERSIST_RAM uint8_t guy_happiness;
 
 PERSIST_RAM bool guy_is_wearing_mask;
 
-#define RTC_INIT_CHECK_MAGIC 0x0001b887
+PERSIST_RAM uint8_t screen_brightness;
+
+#define RTC_INIT_CHECK_MAGIC 0x2000b887
 
 bool is_first_init = false;
 
@@ -105,6 +138,7 @@ void check_rtc_init()
 		went_to_sleep_at = get_current_rtc_time();
 		guy_happiness = 1;
 		guy_is_wearing_mask = false;
+		screen_brightness = BACKLIGHT_FULL;
 	}
 }
 

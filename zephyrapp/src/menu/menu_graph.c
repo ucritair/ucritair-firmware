@@ -21,7 +21,6 @@
 LOG_MODULE_REGISTER(menu_graph, LOG_LEVEL_DBG);
 
 uint64_t graph_end_time;
-uint64_t graph_start_time;
 int graph_step_time;
 bool needs_update;
 
@@ -158,8 +157,6 @@ void update_graph()
 			graph_indicies[x] = -1;
 		}
 
-		// graph_data[x] = x;
-
 		time -= graph_step_time;
 	}
 
@@ -194,6 +191,8 @@ enum sel_state {
 	SEL_END,
 	SEL_DONE
 } cursor_state = SEL_START;
+
+int cursor_velocity = 1;
 
 void calc_ach();
 
@@ -266,13 +265,35 @@ void CAT_MS_graph(CAT_machine_signal signal)
 			{
 				int* sel_cursor = cursor_state==SEL_END?&cursor_end:&cursor_start;
 
-				if(CAT_input_pulse(CAT_BUTTON_LEFT))
-					(*sel_cursor)--;
-				if(CAT_input_pulse(CAT_BUTTON_RIGHT))
-					(*sel_cursor)++;
+				if(CAT_input_held(CAT_BUTTON_LEFT, 0))
+				{
+					*sel_cursor -= cursor_velocity;
+					cursor_velocity += 1;
+				}
+				else if(CAT_input_held(CAT_BUTTON_RIGHT, 0))
+				{
+					*sel_cursor += cursor_velocity;
+					cursor_velocity += 1;
+				}
+				else
+				{
+					cursor_velocity = 1;
+				}
 
-				cursor_end = clamp(cursor_end, 0, GRAPH_W-1);
-				cursor_start = clamp(cursor_start, 0, cursor_end);
+				if (*sel_cursor < 0)
+				{
+					graph_end_time -= graph_step_time * -*sel_cursor;
+					*sel_cursor = 0;
+					update_graph();
+				}
+
+				if (*sel_cursor > GRAPH_W-1)
+				{
+					graph_end_time += graph_step_time * (*sel_cursor - (GRAPH_W-1));
+					graph_end_time = MIN(graph_end_time, get_current_rtc_time() - 1);
+					*sel_cursor = GRAPH_W-1;
+					update_graph();
+				}
 			}
 
 			break;

@@ -9,6 +9,7 @@ extern volatile uint64_t rtc_offset;
 extern volatile uint16_t sensor_wakeup_rate;
 extern volatile uint8_t wakeup_is_from_timer;
 extern volatile uint64_t went_to_sleep_at;
+extern volatile uint8_t screen_brightness;
 
 #define MIN_WAKEUP_RATE_TO_DEEP_SLEEP 60
 
@@ -22,6 +23,7 @@ void snapshot_rtc_for_reboot();
 time_t get_current_rtc_time();
 void update_rtc();
 void set_rtc_counter(struct tm* t);
+void configure_rtc_timer3(int for_ms);
 
 #define PERSIST_RAM __attribute__((__section__(".endmap_presist_region"))) volatile
 

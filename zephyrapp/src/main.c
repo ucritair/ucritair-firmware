@@ -45,7 +45,7 @@ int main(void)
 
 	init_adc();
 
-	if (adc_get_voltage() < 3.6)
+	if (adc_get_voltage() > 0.2 && adc_get_voltage() < 3.6)
 	{
 		power_off(0, true);
 	}
