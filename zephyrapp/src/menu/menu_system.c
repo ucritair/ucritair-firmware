@@ -17,6 +17,7 @@
 #include "epaper_rendering.h"
 #include "sdcard.h"
 #include "flash.h"
+#include "lcd_driver.h"
 #include "lcd_rendering.h"
 #include "batt.h"
 
@@ -106,6 +107,16 @@ void menu_t_reset()
 	power_off(0, false);
 }
 
+void menu_t_bright_down()
+{
+	screen_brightness = MAX(screen_brightness-5, 10);
+}
+
+void menu_t_bright_up()
+{
+	screen_brightness = MIN(screen_brightness+5, BACKLIGHT_FULL);
+}
+
 struct entry
 {
 	const char* title;
@@ -116,6 +127,8 @@ struct entry
 	{"ERASE ON-DEVICE LOGS", menu_t_erase_logs},
 	{"WRITE LOGS TO SDCARD", menu_t_write_logs},
 	{"CALIBRATE CO2 SENSOR", menu_t_go_co2},
+	{"BRIGHTNESS DOWN", menu_t_bright_down},
+	{"BRIGHTNESS UP", menu_t_bright_up},
 	{"UPDATE EINK", menu_t_update_eink},
 	{"RESET GAME", menu_t_reset},
 	{"POWER OFF", menu_t_power_off},

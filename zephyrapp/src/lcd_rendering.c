@@ -132,7 +132,7 @@ void lcd_render_diag()
 		update_rtc();
 		update_buttons();
 
-		if (adc_get_voltage() < 3.6)
+		if (adc_get_voltage() > 0.2 && adc_get_voltage() < 3.6)
 		{
 			power_off(0, true);
 		}
@@ -149,14 +149,14 @@ void lcd_render_diag()
 		if (current_buttons || touch_pressure || co2_calibrating)
 		{
 			last_button_pressed = now;
-			set_backlight(BACKLIGHT_FULL);
+			set_backlight(screen_brightness);
 		}
 
 		int time_since_buttons = now - last_button_pressed;
 
 		if (time_since_buttons > 45*1000)
 		{
-			set_backlight(BACKLIGHT_DIM);
+			set_backlight(MAX(10, screen_brightness>>1));
 		}
 
 		if (time_since_buttons > 120*1000)

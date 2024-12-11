@@ -102,17 +102,9 @@ void button_pressed(const struct device *dev, struct gpio_callback *cb,
 	wake_cause = WAKE_CAUSE_BUTTON;
 }
 
-static void timer_handler(nrf_timer_event_t event_type, void * p_context)
+void on_rtc_compare3()
 {
-    if(event_type == NRF_TIMER_EVENT_COMPARE0)
-    {
-        wake_cause = WAKE_CAUSE_TIMER;
-    }
-    else
-    {
-    	LOG_WRN("Spurious timer IRQ?");
-    	wake_cause = WAKE_CAUSE_NONE;
-    }
+    wake_cause = WAKE_CAUSE_TIMER;
 }
 
 #include <hal/nrf_gpio.h>
@@ -136,6 +128,9 @@ void power_off(int for_ms, bool protected_sleeping)
 		bt_le_adv_stop();
 		bt_disable();
 	}
+
+	set_5v0(false);
+	set_leds(false);
 
 	// Drop IOVDD_EN
 	if (gpio_pin_configure(gpio0, 11, GPIO_OUTPUT_HIGH)) LOG_ERR("Init 0.11 failed");
@@ -175,7 +170,8 @@ void power_off(int for_ms, bool protected_sleeping)
 	nrf_pwm_disable(NRF_PWM2);
 	nrf_pwm_disable(NRF_PWM3);
 
-	// nrf_usbd_disable(NRF_USBD);
+	// ============ IS THIS CRITICAL FOR LOW POWER SLEEP?? ===============
+	nrf_usbd_disable(NRF_USBD);
 
 	nrf_clock_alwaysrun_set(NRF_CLOCK, NRF_CLOCK_DOMAIN_HFCLK, false);
 	nrf_clock_alwaysrun_set(NRF_CLOCK, NRF_CLOCK_DOMAIN_HFCLK192M, false);
@@ -201,8 +197,8 @@ void power_off(int for_ms, bool protected_sleeping)
 		gpio_pin_configure(gpio1, i, GPIO_DISCONNECTED);
 	}
 
-	set_5v0(false);
-	set_leds(false);
+	// set_5v0(false);
+	// set_leds(false);
 
 	nrfx_coredep_delay_us(1000*10);
 
@@ -220,34 +216,7 @@ void power_off(int for_ms, bool protected_sleeping)
 
 	if (for_ms)
 	{
-#define TIMER_INST_IDX 0
-		IRQ_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_TIMER_INST_GET(TIMER_INST_IDX)), IRQ_PRIO_LOWEST,
-                NRFX_TIMER_INST_HANDLER_GET(TIMER_INST_IDX), 0, 0);
-
-		nrfx_timer_t timer_inst = NRFX_TIMER_INSTANCE(TIMER_INST_IDX);
-	    uint32_t base_frequency = NRF_TIMER_BASE_FREQUENCY_GET(timer_inst.p_reg);
-	    nrfx_timer_config_t config = NRFX_TIMER_DEFAULT_CONFIG(base_frequency);
-	    config.frequency = 31250;
-	    config.bit_width = NRF_TIMER_BIT_WIDTH_32;
-
-	    // nrf_timer_prescaler_set(TIMER_INST_IDX, NRF_TIMER_PRESCALER_MAX)
-
-	    int status = nrfx_timer_init(&timer_inst, &config, timer_handler);
-	    NRFX_ASSERT(status == NRFX_SUCCESS);
-
-	    nrfx_timer_clear(&timer_inst);
-
-	    /* Creating variable desired_ticks to store the output of nrfx_timer_ms_to_ticks function */
-	    uint32_t desired_ticks = nrfx_timer_ms_to_ticks(&timer_inst, for_ms);
-
-	    /*
-	     * Setting the timer channel NRF_TIMER_CC_CHANNEL0 in the extended compare mode to stop the timer and
-	     * trigger an interrupt if internal counter register is equal to desired_ticks.
-	     */
-	    nrfx_timer_extended_compare(&timer_inst, NRF_TIMER_CC_CHANNEL0, desired_ticks,
-	                                NRF_TIMER_SHORT_COMPARE0_STOP_MASK, true);
-
-	    nrfx_timer_enable(&timer_inst);
+		configure_rtc_timer3(for_ms);
 	}
 
 	while (1)
