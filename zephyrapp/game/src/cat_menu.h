@@ -16,8 +16,5 @@ void CAT_render_cheats();
 void CAT_MS_hedron(CAT_machine_signal signal);
 void CAT_render_hedron();
 
-void CAT_MS_sound(CAT_machine_signal signal);
-void CAT_render_sound();
-
 void CAT_MS_magic(CAT_machine_signal signal);
 void CAT_render_magic();

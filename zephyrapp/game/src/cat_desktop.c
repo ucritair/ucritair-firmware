@@ -14,7 +14,7 @@
 #include <stdarg.h>
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// DEV MODE
+// CORE
 
 CAT_simulator simulator;
 
@@ -232,10 +232,8 @@ void CAT_set_LEDs(uint8_t r, uint8_t g, uint8_t b)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // SPEAKER
 
-void CAT_play_tone(float pitch_hz, float time_s)
-{
-	return;
-}
+void CAT_sound_power(bool value) {}
+void CAT_play_sound(CAT_sound* sound) {}
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -386,26 +384,25 @@ int CAT_get_battery_pct()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // AIR QUALITY
 
-CAT_AQI aqi;
-
-void CAT_AQI_tick()
+CAT_AQI aqi =
 {
-	aqi.lps22hh.uptime_last_updated = 0;
-	aqi.lps22hh.temp = 20;
-	aqi.lps22hh.pressure = 1013;
+	.lps22hh.uptime_last_updated = 0,
+	.lps22hh.temp = 20,
+	.lps22hh.pressure = 1013,
 
-	aqi.sunrise.uptime_last_updated = 0;
-	aqi.sunrise.ppm_filtered_compensated = 400;
-	aqi.sunrise.temp = 20;
+	.sunrise.uptime_last_updated = 0,
+	.sunrise.ppm_filtered_compensated = 400,
+	.sunrise.temp = 20,
 
-	aqi.sen5x.uptime_last_updated = 0;
-	aqi.sen5x.pm2_5 = 9;
-	aqi.sen5x.pm10_0 = 15;
-	aqi.sen5x.humidity_rhpct = 40;
-	aqi.sen5x.temp_degC = 20;
-	aqi.sen5x.voc_index = 1;
-	aqi.sen5x.nox_index = 100;
-}
+	.sen5x.uptime_last_updated = 0,
+	.sen5x.pm2_5 = 9,
+	.sen5x.pm10_0 = 15,
+	.sen5x.humidity_rhpct = 40,
+
+	.sen5x.temp_degC = 20,
+	.sen5x.voc_index = 1,
+	.sen5x.nox_index = 100
+};
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

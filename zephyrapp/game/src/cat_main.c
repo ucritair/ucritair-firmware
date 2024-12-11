@@ -28,8 +28,6 @@
 #include "cat_manual.h"
 #include "cat_deco.h"
 #include "cat_item_dialog.h"
-#include "cat_snake.h"
-#include "cat_mole.h"
 
 #include "cat_version.h"
 
@@ -232,7 +230,6 @@ void CAT_init(int seconds_slept)
 void CAT_tick_logic()
 {
 	CAT_platform_tick();
-	CAT_AQI_tick();
 	CAT_input_tick();
 
 	bool in_world =
@@ -290,8 +287,8 @@ void CAT_tick_render(int cycle)
 		CAT_render_arcade();
 	else if(machine == CAT_MS_snake)
 		CAT_render_snake();
-	else if(machine == CAT_MS_mole)
-		CAT_render_mole();
+	else if(machine == CAT_MS_mines)
+		CAT_render_mines();
 	else if(machine == CAT_MS_vending)
 		CAT_render_vending();
 	else if(machine == CAT_MS_manual)
@@ -316,8 +313,6 @@ void CAT_tick_render(int cycle)
 		CAT_render_cheats();	
 	else if(machine == CAT_MS_hedron)
 		CAT_render_hedron();
-	else if(machine == CAT_MS_sound)
-		CAT_render_sound();
 	else if(machine == CAT_MS_magic)
 		CAT_render_magic();
 	else

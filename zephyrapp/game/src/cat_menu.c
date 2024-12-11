@@ -42,7 +42,6 @@ struct entry
 #ifdef CAT_DEBUG
 	{"DEBUG", CAT_MS_debug},
 	{"CHEATS", CAT_MS_cheats},
-	{"SOUND", CAT_MS_sound},
 #endif
 };
 #define NUM_MENU_ITEMS (sizeof(entries)/sizeof(entries[0]))
@@ -244,7 +243,9 @@ void CAT_MS_cheats(CAT_machine_signal signal)
 			cheat_selector = clamp(cheat_selector, 0, num_cheat_entries-1);
 
 			if(CAT_input_pressed(CAT_BUTTON_A))
+			{
 				cheat_entries[cheat_selector].proc();
+			}
 			break;
 		case CAT_MACHINE_SIGNAL_EXIT:
 			break;
@@ -284,8 +285,9 @@ void CAT_print_mat4(CAT_mat4 mat)
 	}
 }
 
-#include "cat_mesh_asset.h"
-#define NUM_FACES (sizeof(mesh.faces) / sizeof(mesh.faces[0]))
+#include "../meshes/mesh_assets.h"
+
+CAT_mesh* mesh;
 
 CAT_vec4 eye;
 CAT_mat4 V;
@@ -302,6 +304,8 @@ void CAT_MS_hedron(CAT_machine_signal signal)
 	switch (signal)
 	{
 		case CAT_MACHINE_SIGNAL_ENTER:
+			mesh = &eth_mesh;
+
 			eye = (CAT_vec4) {0, 0, 6, 1.0f};
 			CAT_vec4 up = (CAT_vec4) {0, 1, 0, 0};
 			CAT_vec4 forward = CAT_vec4_sub(eye, (CAT_vec4){0, 0, 0, 1.0f});
@@ -365,6 +369,17 @@ void CAT_MS_hedron(CAT_machine_signal signal)
 	}
 }
 
+CAT_vec4 fvtov4(int fidx, int vidx)
+{
+	return (CAT_vec4)
+	{
+		mesh->verts[mesh->faces[fidx*3+vidx]*3+0],
+		mesh->verts[mesh->faces[fidx*3+vidx]*3+1],
+		mesh->verts[mesh->faces[fidx*3+vidx]*3+2],
+		1.0f
+	};
+}
+
 void CAT_render_hedron()
 {
 	CAT_frameberry(0x0000);
@@ -375,11 +390,11 @@ void CAT_render_hedron()
 	CAT_mat4 MVP = CAT_matmul(PV, M);
 
 	// The train arrives in clipspace
-	for(int i = 0; i < NUM_FACES; i++)
+	for(int i = 0; i < mesh->n_faces; i++)
 	{
-		CAT_vec4 a = mesh.verts[mesh.faces[i][0]];
-		CAT_vec4 b = mesh.verts[mesh.faces[i][1]];
-		CAT_vec4 c = mesh.verts[mesh.faces[i][2]];
+		CAT_vec4 a = fvtov4(i, 0);
+		CAT_vec4 b = fvtov4(i, 1);
+		CAT_vec4 c = fvtov4(i, 2);
 
 		a = CAT_matvec_mul(MVP, a);
 		b = CAT_matvec_mul(MVP, b);
@@ -412,9 +427,9 @@ void CAT_render_hedron()
 
 		// LIGHTING	
 #ifdef CAT_DESKTOP
-		CAT_vec4 p1 = mesh.verts[mesh.faces[i][0]];
-		CAT_vec4 p2 = mesh.verts[mesh.faces[i][1]];
-		CAT_vec4 p3 = mesh.verts[mesh.faces[i][2]];
+		CAT_vec4 p1 = fvtov4(i, 0);
+		CAT_vec4 p2 = fvtov4(i, 1);
+		CAT_vec4 p3 = fvtov4(i, 2);
 		p1 = CAT_matvec_mul(MV, p1);
 		p2 = CAT_matvec_mul(MV, p2);
 		p3 = CAT_matvec_mul(MV, p3);
@@ -445,53 +460,6 @@ void CAT_render_hedron()
 			);
 		}
 	}
-}
-
-#ifdef CAT_EMBEDDED
-#include "cat_sound_asset.h"
-#include "sound.h"
-#endif
-
-void CAT_MS_sound(CAT_machine_signal signal)
-{
-	switch (signal)
-	{
-		case CAT_MACHINE_SIGNAL_ENTER:
-#ifdef CAT_EMBEDDED
-			soundPower(true);
-#endif
-			break;
-		case CAT_MACHINE_SIGNAL_TICK:
-			if(CAT_input_pressed(CAT_BUTTON_B))
-				CAT_machine_back();
-			if(CAT_input_pressed(CAT_BUTTON_START))
-				CAT_machine_transition(CAT_MS_room);
-#ifdef CAT_EMBEDDED
-			if(CAT_input_pulse(CAT_BUTTON_A))
-				soundPlay(sound.samples, sizeof(sound.samples), SoundReplaceCurrent);
-#endif
-			break;
-		case CAT_MACHINE_SIGNAL_EXIT:
-#ifdef CAT_EMBEDDED
-			soundPower(false);
-#endif
-			break;
-	}
-}
-
-void CAT_render_sound()
-{
-	CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 20});
-#ifdef CAT_EMBEDDED
-	CAT_gui_text("Press A for sound\n");
-	if(soundIsPlaying())
-	{
-		CAT_gui_text("Sound is playing\n");
-	}
-#else
-	CAT_gui_set_flag(CAT_GUI_WRAP_TEXT);
-	CAT_gui_text("Sound is only available on embedded!\n");
-#endif
 }
 
 static CAT_button konami_spell[10] =

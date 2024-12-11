@@ -234,7 +234,6 @@ CAT_ivec2 CAT_largest_free_space()
 	}
 	
 	int max_size = 0;
-	int max_idx = 0;
 	CAT_ivec2 max_cent = {0, 0};
 	
 	for(int y = 0; y < CAT_GRID_HEIGHT; y++)
@@ -293,13 +292,11 @@ CAT_ivec2 CAT_largest_free_space()
 			if(size > max_size)
 			{
 				max_size = size;
-				max_idx = idx;
 				max_cent = CAT_ivec2_div(cent, size);
 			}
 		}
 	}
 
-	//return space.cells[max_idx].coords;
 	return max_cent;
 }
 
@@ -705,27 +702,27 @@ void render_props()
 		draw_place.y += shape.y * CAT_TILE_SIZE;
 
 		int mode = CAT_DRAW_MODE_BOTTOM;
-		int frame = 0;
+		int frame_idx = 0;
 		if(room.prop_overrides[i])
 		{
 			if(prop->data.prop_data.animate ||CAT_sprite_get(prop->sprite_id)->frame_count == 1)
 				mode |= CAT_DRAW_MODE_REFLECT_X;
 			else
-				frame = room.prop_overrides[i];
+				frame_idx = room.prop_overrides[i];
 		}
 		int job = prop->data.prop_data.animate ?
 		CAT_draw_queue_animate(prop->sprite_id, 2, draw_place.x, draw_place.y, mode) :
-		CAT_draw_queue_add(prop->sprite_id, frame, 2, draw_place.x, draw_place.y, mode);
+		CAT_draw_queue_add(prop->sprite_id, frame_idx, 2, draw_place.x, draw_place.y, mode);
 		
 		CAT_item* child = CAT_item_get(room.prop_children[i]);
 		if(child != NULL)
 		{
 			mode = CAT_DRAW_MODE_BOTTOM | CAT_DRAW_MODE_CENTER_X;
-			frame = child->data.prop_data.animate ? -1 : 0;
-			int cx = shape.x * CAT_TILE_SIZE / 2;
-			int cy = -(shape.y + 1) * CAT_TILE_SIZE / 2;
-			int dy = -child->data.prop_data.shape.y * CAT_TILE_SIZE / 2;
-			CAT_draw_queue_insert(job+1, child->sprite_id, frame, 2, draw_place.x + cx, draw_place.y + cy + dy, mode);
+			frame_idx = child->data.prop_data.animate ? -1 : 0;
+			int cx = (shape.x / 2) * CAT_TILE_SIZE;
+			int cy = shape.y * CAT_TILE_SIZE;
+			int dy = child->data.prop_data.child_dy;
+			CAT_draw_queue_insert(job+1, child->sprite_id, frame_idx, 2, draw_place.x + cx, draw_place.y - cy - dy, mode);
 		}
 	}
 }

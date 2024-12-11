@@ -8,8 +8,6 @@
 #include "cat_sprite.h"
 #include "cat_bag.h"
 #include <stdio.h>
-#include "cat_snake.h"
-#include "cat_mole.h"
 
 #ifdef CAT_EMBEDDED
 #include "menu_system.h"
@@ -33,7 +31,7 @@ static struct
 #endif
 	{"ARCADE", NULL},
 	{"Snack", CAT_MS_snake},
-	{"Sweep", CAT_MS_mole}
+	{"Sweep", CAT_MS_mines}
 };
 #define NUM_ENTRIES (sizeof(entries)/sizeof(entries[0]))
 static int selector = -1;

@@ -1,0 +1,11 @@
+[
+	{
+		"path" : "coin.wav"
+	},
+	{
+		"path" : "fail.wav"
+ 	},
+	{
+		"path" : "thud.wav"
+ 	}
+]

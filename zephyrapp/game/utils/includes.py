@@ -1,4 +1,4 @@
-#!/opt/homebrew/bin/python3
+#!utils/catenv/bin/python
 
 import sys;
 import os;

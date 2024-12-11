@@ -63,6 +63,7 @@ typedef struct CAT_item
 
 			CAT_ivec2 shape;
 			bool animate;
+			int child_dy;
 		} prop_data;	
 	} data;
 } CAT_item;

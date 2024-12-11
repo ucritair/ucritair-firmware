@@ -9,16 +9,18 @@
 #include "epaper_rendering.h"
 #include "flash.h"
 #include "rtc.h"
+#include "sound.h"
+#include "rgb_leds.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// DEV MODE
+// CORE
 
 float delta_t = 0.1;
 uint64_t last_uptime = 0;
 
 void CAT_platform_init()
 {
-	
+	soundPower(true);
 }
 
 void CAT_platform_tick()
@@ -28,24 +30,16 @@ void CAT_platform_tick()
 	last_uptime = now;
 }
 
-void CAT_AQI_tick()
-{
-	
-}
-
 void CAT_platform_cleanup()
 {
-	
+	soundPower(false);
 }
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // LCD SCREEN
 
-void CAT_LCD_post(uint16_t* buffer)
-{
-	
-}
+void CAT_LCD_post(uint16_t* buffer){}
 
 extern volatile bool write_done;
 
@@ -54,33 +48,32 @@ bool CAT_LCD_is_posted()
 	return write_done;
 }
 
-void CAT_LCD_set_backlight(int percent)
-{
-	
-}
+void CAT_LCD_set_backlight(int percent){}
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // EINK SCREEN
 
-void CAT_ink_post(uint8_t* buffer)
-{
-	
-}
+void CAT_ink_post(uint8_t* buffer){}
 
 bool CAT_ink_is_posted()
 {
 	return true;
 }
 
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // SPEAKER
 
-void CAT_play_tone(float pitch_hz, float time_s)
+void CAT_sound_power(bool value)
 {
-	
+	soundPower(value);
 }
 
+void CAT_play_sound(CAT_sound* sound)
+{
+	soundPlay(sound->samples, sound->size, SoundReplaceCurrent);
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // INPUT
@@ -125,24 +118,14 @@ void CAT_get_datetime(CAT_datetime* datetime)
 	datetime->second = local.tm_sec;	
 }
 
-void CAT_set_datetime(CAT_datetime* datetime)
-{
-	
-}
+void CAT_set_datetime(CAT_datetime* datetime){}
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // MEMORY
 
-void* CAT_malloc(int bytes)
-{
-	
-}
-
-void CAT_free(void* ptr)
-{
-	
-}
+void* CAT_malloc(int bytes){}
+void CAT_free(void* ptr){}
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -185,17 +168,14 @@ int CAT_get_battery_pct()
 	return 100;
 }
 
-#include "rgb_leds.h"
 void CAT_set_LEDs(uint8_t r, uint8_t g, uint8_t b)
 {
 #define SCALE 4
 	set_all_same_color((struct led_rgb){.r=r>>SCALE, .g=g>>SCALE, .b=b>>SCALE});
 }
 
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // DEBUG
 
-void CAT_printf(const char* fmt, ...)
-{
-	
-}
+void CAT_printf(const char* fmt, ...){}
