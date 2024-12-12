@@ -1268,15 +1268,10 @@ CAT_animachine_state* react_asm;
 CAT_animachine_state AS_react;
 
 #ifndef CAT_BAKED_ASSETS
-#ifdef CAT_REBUILD_ATLAS
 #define INIT_SPRITE(name, path, frames) name = CAT_sprite_init(path, frames);\
 										printf("BAKE-INIT: (%d, \"%s\", \"%s\", %d, %d, %d)\n", name, #name, path, frames, atlas.table[name].width, atlas.table[name].height);
 #define COPY_SPRITE(name, from) name = CAT_sprite_copy(from);\
 										printf("BAKE-COPY: (%d, \"%s\", %d)\n", name, #name, from);
-#else
-#define INIT_SPRITE(name, path, frames) name = CAT_sprite_init(path, frames);
-#define COPY_SPRITE(name, from) name = CAT_sprite_copy(from);
-#endif
 #else
 int sprite_count = 0;
 #define INIT_SPRITE(name, path, frames) name = sprite_count++;

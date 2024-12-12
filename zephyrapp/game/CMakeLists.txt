@@ -7,23 +7,14 @@ if(NOT TARGET app)
 	add_executable(app)
 
 	target_compile_definitions(app PRIVATE CAT_DESKTOP=1)
-
-	if(DEBUG)
-		message(STATUS "Debug enabled")
-		set(CMAKE_BUILD_TYPE Debug)
-		target_compile_definitions(app PRIVATE CAT_DEBUG=1)
-	endif()
-	if(REBUILD_ATLAS)
-		message(STATUS "Atlas rebuild enabled")
-		target_compile_definitions(app PRIVATE CAT_REBUILD_ATLAS=1)
-	endif()
+	target_compile_definitions(app PRIVATE CAT_DEBUG=1)
 
 	find_package(GLEW REQUIRED)
 	find_package(glfw3 3.3 REQUIRED)
 	find_package(PNG REQUIRED)
 	find_package(OpenGL REQUIRED)
 	target_link_libraries(app m glfw PNG::PNG GLEW::GLEW)
-	if(NOT MACOS)
+	if(NOT APPLE)
 		target_link_libraries(app OpenGL)
 	endif()
 	
@@ -34,14 +25,25 @@ else()
 
 	target_compile_definitions(app PRIVATE CAT_EMBEDDED=1)
 	target_compile_definitions(app PRIVATE CAT_BAKED_ASSETS=1)
-	if(DEBUG)
-		message(STATUS "Debug enabled")
-		set(CMAKE_BUILD_TYPE Debug)
-		target_compile_definitions(app PRIVATE CAT_DEBUG=1)
-	endif()
 	
 	target_sources(app PRIVATE src/cat_embedded.c)
 endif()
+
+add_custom_command(
+	OUTPUT ${CMAKE_CURRENT_LIST_DIR}/meshes/mesh_assets.c
+	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
+	COMMAND ${CMAKE_CURRENT_LIST_DIR}/utils/meshgen.py ${CMAKE_CURRENT_LIST_DIR}/meshes/
+	DEPENDS ${CMAKE_CURRENT_LIST_DIR}/meshes/meshes.json
+	DEPENDS ${CMAKE_CURRENT_LIST_DIR}/meshes/*.obj
+)
+
+add_custom_command(
+	OUTPUT ${CMAKE_CURRENT_LIST_DIR}/sounds/sound_assets.c
+	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
+	COMMAND ${CMAKE_CURRENT_LIST_DIR}/utils/soundgen.py ${CMAKE_CURRENT_LIST_DIR}/sounds/
+	DEPENDS ${CMAKE_CURRENT_LIST_DIR}/sounds/sounds.json
+	DEPENDS ${CMAKE_CURRENT_LIST_DIR}/sounds/*.wav
+)
 
 target_sources(app PRIVATE
 	src/cat_aqi.c

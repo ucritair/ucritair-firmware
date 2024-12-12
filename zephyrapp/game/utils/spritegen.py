@@ -82,7 +82,6 @@ def rldecode(runs):
 			pixels.append(r[0]);
 	return pixels;
 
-total_size = 0;
 def serialize_sprite(path, frames):
 	name = Path(path).stem;
 	sprite = Image.open(os.path.join(sprites_dir, path));
@@ -121,9 +120,6 @@ def serialize_sprite(path, frames):
 	sprite_source.write(f"\t.frames = {frames}\n");
 	sprite_source.write("};\n\n");
 
-	global total_size;
-	total_size += len(colour_table) * 2 + len(runs) * 2;
-
 if len(sys.argv) > 2 and sys.argv[-2] == "--all":
 	pngs = [p for p in os.listdir(sprites_dir) if os.path.splitext(p)[1] == ".png"]
 	for path in pngs:
@@ -131,7 +127,6 @@ if len(sys.argv) > 2 and sys.argv[-2] == "--all":
 else:
 	for sprite_obj in sprites_json:
 		serialize_sprite(sprite_obj["path"], sprite_obj["frames"]);
-print("Serialized", total_size, "bytes of colours and runs");
 
 sprite_header.close();
 sprite_source.close();

@@ -186,7 +186,7 @@ void CAT_MS_mines(CAT_machine_signal signal)
 				cursor.y = clamp(cursor.y, 0, GRID_HEIGHT-1);
 				grid_cell* cell = get_cell(cursor.x, cursor.y);
 
-				if(CAT_input_pressed(CAT_BUTTON_A))
+				if(CAT_input_pressed(CAT_BUTTON_A) && !cell->flagged)
 				{
 					if(first_click)
 					{
