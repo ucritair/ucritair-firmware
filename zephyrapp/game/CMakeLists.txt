@@ -33,6 +33,7 @@ add_custom_command(
 	OUTPUT ${CMAKE_CURRENT_LIST_DIR}/meshes/mesh_assets.c
 	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
 	COMMAND ${CMAKE_CURRENT_LIST_DIR}/utils/meshgen.py ${CMAKE_CURRENT_LIST_DIR}/meshes/
+	DEPENDS ${CMAKE_CURRENT_LIST_DIR}/utils/meshgen.py
 	DEPENDS ${CMAKE_CURRENT_LIST_DIR}/meshes/meshes.json
 	DEPENDS ${CMAKE_CURRENT_LIST_DIR}/meshes/*.obj
 )
@@ -41,6 +42,7 @@ add_custom_command(
 	OUTPUT ${CMAKE_CURRENT_LIST_DIR}/sounds/sound_assets.c
 	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
 	COMMAND ${CMAKE_CURRENT_LIST_DIR}/utils/soundgen.py ${CMAKE_CURRENT_LIST_DIR}/sounds/
+	DEPENDS ${CMAKE_CURRENT_LIST_DIR}/utils/soundgen.py
 	DEPENDS ${CMAKE_CURRENT_LIST_DIR}/sounds/sounds.json
 	DEPENDS ${CMAKE_CURRENT_LIST_DIR}/sounds/*.wav
 )
@@ -66,8 +68,8 @@ target_sources(app PRIVATE
 	src/cat_item_dialog.c
 	src/cat_snake.c
 	src/cat_mines.c
-	sounds/sound_assets.c
-	meshes/mesh_assets.c
+	${CMAKE_CURRENT_LIST_DIR}/sounds/sound_assets.c
+	${CMAKE_CURRENT_LIST_DIR}/meshes/mesh_assets.c
 	src/cat_main.c)
 
 target_include_directories(app PRIVATE src/)

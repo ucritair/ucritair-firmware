@@ -7,5 +7,6 @@ meshes/mesh_assets.*
 sounds/sound_assets.*
 sounds/temp/
 sprites/sprite_assets.*
+utils/catenv
 
 !meshes/*.obj

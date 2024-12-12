@@ -285,7 +285,6 @@ void CAT_print_mat4(CAT_mat4 mat)
 	}
 }
 
-#if 0
 #include "../meshes/mesh_assets.h"
 
 CAT_mesh* mesh;
@@ -462,18 +461,6 @@ void CAT_render_hedron()
 		}
 	}
 }
-
-#else
-void CAT_MS_hedron(CAT_machine_signal signal)
-{
-
-}
-
-void CAT_render_hedron()
-{
-	
-}
-#endif
 
 static CAT_button konami_spell[10] =
 {

@@ -1,7 +1,7 @@
 Starting CAT v0.0.0.57...
-Renderer: Apple M1 Pro
-GL version: 4.1 Metal - 88.1
-SL version: 4.10
+Renderer: Quadro M2000M/PCIe/SSE2
+GL version: 3.2.0 NVIDIA 560.35.03
+SL version: 1.50 NVIDIA via Cg compiler
 Initializing GLEW
 BAKE-INIT: (0, "base_wall_sprite", "sprites/wall_basic.png", 3, 16, 16)
 BAKE-INIT: (1, "sky_wall_sprite", "sprites/wall_sky.png", 8, 16, 14)
@@ -185,7 +185,7 @@ BAKE-INIT: (178, "mines_sprite", "sprites/minesweeper.png", 13, 16, 16)
 [INFO] 179 sprites initialized
 [INFO] 62 items initialized
 Loading...
-Loaded save from version v0.0.0.57
+Loaded save from version v0.0.0.40
 Load done!
 Saving...
 Save done!
