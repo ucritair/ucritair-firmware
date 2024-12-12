@@ -104,33 +104,19 @@ void flood_reveal(int x, int y)
 		if(c->adjacent > 0)
 			continue;
 
-		CAT_ivec2 n = {c->x, c->y-1};
-		int n_idx = n.y * CAT_GRID_WIDTH + n.x;
-		if(is_cell_clean(n.x, n.y))
+		for(int dy = -1; dy <= 1; dy++)
 		{
-			grid[n_idx].visited = true;
-			idx_enqueue(n_idx);
-		}
-		CAT_ivec2 e = {c->x+1, c->y};
-		int e_idx = e.y * CAT_GRID_WIDTH + e.x;
-		if(is_cell_clean(e.x, e.y))
-		{
-			grid[e_idx].visited = true;
-			idx_enqueue(e_idx);
-		}
-		CAT_ivec2 s = {c->x, c->y+1};
-		int s_idx = s.y * CAT_GRID_WIDTH + s.x;
-		if(is_cell_clean(s.x, s.y))
-		{
-			grid[s_idx].visited = true;
-			idx_enqueue(s_idx);
-		}	
-		CAT_ivec2 w = {c->x-1, c->y};
-		int w_idx = w.y * CAT_GRID_WIDTH + w.x;
-		if(is_cell_clean(w.x, w.y))
-		{
-			grid[w_idx].visited = true;
-			idx_enqueue(w_idx);
+			for(int dx = -1; dx <= 1; dx++)
+			{
+				if(dx == 0 && dy == 0)
+					continue;
+				int nidx = (c->y+dy) * CAT_GRID_WIDTH + (c->x+dx);
+				if(is_cell_clean(c->x+dx, c->y+dy))
+				{
+					grid[nidx].visited = true;
+					idx_enqueue(nidx);
+				}
+			}
 		}
 	}
 }
@@ -175,7 +161,7 @@ void CAT_MS_mines(CAT_machine_signal signal)
 			clicks = 0;
 
 			if(reveal_timer_id == -1)
-				reveal_timer_id = CAT_timer_init(0.25f);
+				reveal_timer_id = CAT_timer_init(0.05f);
 			reveal_complete = false;
 			break;
 		}

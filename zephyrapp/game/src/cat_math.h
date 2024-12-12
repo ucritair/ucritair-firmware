@@ -21,6 +21,7 @@ int quantize(float t, float range, int steps);
 
 int CAT_rand_int(int a, int b);
 float CAT_rand_float(float a, float b);
+bool CAT_rand_chance(int N);
 
 
 //////////////////////////////////////////////////////////////////////////

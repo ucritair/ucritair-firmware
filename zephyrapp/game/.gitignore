@@ -3,4 +3,4 @@ CMakeCache.txt
 CMakeFiles/
 app
 *.dat
-meshes/
+!meshes/*.obj

@@ -9,660 +9,13 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-//////////////////////////////////////////////////////////////////////////
-// ATLAS AND SPRITER
-
-#ifndef CAT_BAKED_ASSETS
-CAT_atlas atlas;
-#else
 #ifdef CAT_DESKTOP
-#include "../../script/images.c"
-#include <stdio.h>
-#else
-extern const CAT_baked_sprite image_data_table[];
-extern uint16_t rle_work_region[];
-#include "lcd_driver.h"
-#endif
-#endif
-
-#ifndef CAT_EMBEDDED
-#define LCD_FRAMEBUFFER_H LCD_SCREEN_H
-#endif
-
-void CAT_atlas_init()
-{
-#ifndef CAT_BAKED_ASSETS
-	atlas.length = 0;
-#endif
-}
-
-#ifndef CAT_BAKED_ASSETS
-
-#include "png.h"
-
-int CAT_sprite_init(const char* path, int frame_count)
-{
-	if(atlas.length >= CAT_ATLAS_MAX_LENGTH)
-	{
-		CAT_printf("[WARNING] Attempted add to full atlas\n");
-		return -1;
-	}
-
-	FILE* file = fopen(path, "rb");
-	if(file == NULL)
-	{
-		printf("%s not found! Loading null sprite\n", path);
-		file = fopen("sprites/none_24x24.png", "rb");
-	}
-
-	png_structp png = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
-	png_infop info = png_create_info_struct(png);
-	png_init_io(png, file);
-	png_set_sig_bytes(png, 0);
-	int png_transforms =
-		PNG_TRANSFORM_STRIP_16 |
-		PNG_TRANSFORM_PACKING |
-		PNG_TRANSFORM_EXPAND;
-	png_read_png(png, info, png_transforms, NULL);
-
-	png_uint_32 width;
-	png_uint_32 height;
-	png_get_IHDR(png, info, &width, &height, NULL, NULL, NULL, NULL, NULL);
-
-	png_bytepp rows = png_get_rows(png, info);
-	uint16_t* pixels = CAT_malloc(sizeof(uint16_t) * width * height);
-	for(int y = 0; y < height; y++)
-	{
-		uint8_t* r_row = rows[y];
-		uint16_t* w_row = &pixels[y * width];
-		for(int x = 0; x < width; x++)
-		{
-			uint8_t r = r_row[x*4+0];
-			uint8_t g = r_row[x*4+1];
-			uint8_t b = r_row[x*4+2];
-			uint8_t a = r_row[x*4+3];
-			uint16_t rgb_565 = RGB8882565(r, g, b);
-			w_row[x] = a >= 255 ? rgb_565 : 0xdead;
-		}
-	}
-	png_destroy_read_struct(&png, &info, NULL);
-	
-	CAT_sprite sprite;
-	sprite.pixels = pixels;
-	sprite.duplicate = false;
-	sprite.width = width;
-	sprite.height = height / frame_count;
-	sprite.frame_count = frame_count;
-	sprite.frame_idx = 0;
-	sprite.loop = true;
-	sprite.reverse = false;
-	sprite.needs_update = true;
-
-	int sprite_id = atlas.length;
-	atlas.table[sprite_id] = sprite;
-	atlas.length += 1;
-	return sprite_id;
-}
-
-int CAT_sprite_copy(int sprite_id, bool loop, bool reverse)
-{
-	if(sprite_id < 0 || sprite_id >= atlas.length)
-	{
-		CAT_printf("[ERROR] reference to invalid sprite_id: %d\n", sprite_id);
-		return -1;
-	}
-
-	CAT_sprite copy = atlas.table[sprite_id];
-	copy.duplicate = true;
-	copy.frame_idx = reverse ? copy.frame_count-1 : 0;
-	copy.loop = loop;
-	copy.reverse = reverse;
-	copy.needs_update = true;
-	
-	int copy_id = atlas.length;
-	atlas.table[copy_id] = copy;
-	atlas.length += 1;
-	return copy_id;
-}
-
-void CAT_atlas_cleanup()
-{
-	for(int i = 0; i < atlas.length; i++)
-	{
-		CAT_sprite* sprite = &atlas.table[i];
-		if(!sprite->duplicate)
-			CAT_free(sprite->pixels);
-	}
-}
-
-#endif
-
-CAT_sprite* CAT_sprite_get(int sprite_id)
-{
-	if(sprite_id < 0 || sprite_id >= atlas.length)
-	{
-		CAT_printf("[ERROR] reference to invalid sprite_id: %d\n", sprite_id);
-		return NULL;
-	}
-
-	return &atlas.table[sprite_id];
-}
-
-CAT_spriter spriter;
-
-void CAT_spriter_init()
-{
-#ifdef CAT_DESKTOP
-	spriter.framebuffer = CAT_malloc(sizeof(uint16_t) * LCD_SCREEN_W * LCD_SCREEN_H);
 #define FRAMEBUFFER spriter.framebuffer
+#define LCD_FRAMEBUFFER_H LCD_SCREEN_H
 #else
+#include "lcd_driver.h"
 #define FRAMEBUFFER lcd_framebuffer
 #endif
-	spriter.mode = CAT_DRAW_MODE_DEFAULT;
-}
-
-#ifdef CAT_BAKED_ASSETS
-struct {
-	const uint8_t* ptr;
-	const uint16_t* colortab;
-	int width;
-	int rle_count;
-	uint16_t rle_word;
-} rle_decode_state;
-
-void init_rle_decode(const CAT_baked_sprite* sprite, int frame_idx, int width)
-{
-	rle_decode_state.ptr = sprite->frames[frame_idx];
-	rle_decode_state.colortab = sprite->color_table;
-	rle_decode_state.width = width;
-	rle_decode_state.rle_count = 0;
-}
-
-void unpack_rle_row()
-{
-#define RLE_NEXT() *(rle_decode_state.ptr++)
-	// printf("Unpack %d, width=%d\n", sprite_id, width);
-	int unpacked = 0;
-	while (unpacked < rle_decode_state.width)
-	{
-		if (rle_decode_state.rle_count)
-		{
-			rle_work_region[unpacked++] = rle_decode_state.rle_word;
-			rle_decode_state.rle_count--;
-			continue;
-		}
-
-		uint16_t word = RLE_NEXT();
-		// printf("word %04x ->", word);
-
-		if (word == 0xff)
-		{
-			rle_decode_state.rle_word = rle_decode_state.colortab[RLE_NEXT()];
-			rle_decode_state.rle_count = RLE_NEXT();
-
-			// printf("rep %04x cnt %04x\n", repeated, repeat_count);
-		}
-		else
-		{
-			rle_work_region[unpacked++] = rle_decode_state.colortab[word];
-			// printf("direct\n");
-		}
-	}
-}
-#endif
-
-void CAT_draw_sprite(int sprite_id, int frame_idx, int x, int y)
-{
-	if(sprite_id < 0 || sprite_id >= atlas.length)
-	{
-		CAT_printf("[ERROR] reference to invalid sprite_id: %d\n", sprite_id);
-		return;
-	}
-
-	CAT_sprite sprite = atlas.table[sprite_id];
-	int w = sprite.width;
-	int h = sprite.height;
-
-#ifdef CAT_BAKED_ASSETS
-	init_rle_decode(&image_data_table[sprite_id], frame_idx, sprite.width);
-#else
-	const uint16_t* frame = &sprite.pixels[frame_idx * h * w];
-#endif
-	
-	if((spriter.mode & CAT_DRAW_MODE_CENTER_X) > 0)
-		x -= w/2;
-	if((spriter.mode & CAT_DRAW_MODE_CENTER_Y) > 0)
-		y -= h/2;
-	else if((spriter.mode & CAT_DRAW_MODE_BOTTOM) > 0)
-		y -= h;
-
-#ifdef CAT_EMBEDDED
-	y -= framebuffer_offset_h;
-
-	if (y >= LCD_FRAMEBUFFER_H) return;
-	if ((y + h) < 0) return;
-#endif
-
-	int y_end = y + h;
-
-	if (y_end >= LCD_FRAMEBUFFER_H) y_end = LCD_FRAMEBUFFER_H;
-	
-	int dy = 0; // only on PC
-	int inc_dir = (spriter.mode & CAT_DRAW_MODE_REFLECT_X)?-1:1;
-	int initial_offset = inc_dir==1?0:w-1;
-
-	while (y < y_end)
-	{
-#ifdef CAT_BAKED_ASSETS
-		unpack_rle_row();
-#endif
-		
-		if(y < 0)
-		{
-			y++;
-			dy++;
-			continue;
-		}
-
-#ifdef CAT_BAKED_ASSETS
-		const uint16_t* read_ptr = &rle_work_region[initial_offset];
-#else
-		const uint16_t* read_ptr = &frame[dy * w + initial_offset];
-#endif
-
-		uint16_t* write_ptr = &FRAMEBUFFER[y * LCD_SCREEN_W + x];
-
-		for(int dx = 0; dx < w; dx++)
-		{
-			int x_w = x+dx;
-
-			if (x_w >= LCD_SCREEN_W)
-				break;
-
-			if(x_w < 0)
-			{
-				
-			}
-			else
-			{
-				uint16_t px = *read_ptr;
-
-				if(px != 0xdead)
-					*write_ptr = px;
-			}
-
-			read_ptr += inc_dir;
-			write_ptr += 1;
-		}
-
-		y++;
-		dy++;
-	}
-}
-
-void CAT_draw_tiles(int sprite_id, int frame_idx, int y_t, int h_t)
-{
-	if(sprite_id < 0 || sprite_id >= atlas.length)
-	{
-		CAT_printf("[ERROR] reference to invalid sprite_id: %d\n", sprite_id);
-		return;
-	}
-
-	CAT_sprite sprite = atlas.table[sprite_id];
-
-#ifndef CAT_BAKED_ASSETS
-	const uint16_t* frame = &sprite.pixels[frame_idx * CAT_TILE_SIZE * CAT_TILE_SIZE];
-#endif
-
-	int y_start = y_t * CAT_TILE_SIZE;
-	int y_end = (y_t+h_t) * CAT_TILE_SIZE;
-
-#ifdef CAT_EMBEDDED
-	y_start -= framebuffer_offset_h;
-	y_end -= framebuffer_offset_h;
-
-	if (y_start >= LCD_FRAMEBUFFER_H) return;
-	if (y_end < 0) return;
-
-	if (y_start < 0) y_start = 0;
-	if (y_end > LCD_FRAMEBUFFER_H) y_end = LCD_FRAMEBUFFER_H;
-#endif
-
-#ifdef CAT_BAKED_ASSETS
-	init_rle_decode(&image_data_table[sprite_id], frame_idx, sprite.width);
-#endif
-
-#if CAT_TILE_SIZE != 16
-#error adjust tiler (rep count)
-#endif
-
-#ifdef CAT_BAKED_ASSETS
-#define RESETPTR from = (uint32_t*)rle_work_region;
-#else
-#define RESETPTR from = (uint32_t*)&frame[dy * CAT_TILE_SIZE];
-#endif
-
-#if (LCD_SCREEN_W/CAT_TILE_SIZE) != 15
-#error adjust tiler (rep count)
-#endif
-
-#ifdef CAT_EMBEDDED
-#if ((LCD_SCREEN_H/LCD_FRAMEBUFFER_SEGMENTS)%16) != 0
-#error adjust tiler (start pos)
-#endif
-#endif
-
-#define UNROLL2PX *(to++) = *(from++);
-#define UNROLL4PX UNROLL2PX UNROLL2PX
-#define UNROLL8PX UNROLL4PX UNROLL4PX
-#define UNROLL1TI RESETPTR UNROLL8PX UNROLL8PX
-#define UNROLL2TI UNROLL1TI UNROLL1TI
-#define UNROLL4TI UNROLL2TI UNROLL2TI
-#define UNROLL8TI UNROLL4TI UNROLL4TI
-#define UNROLL1LI UNROLL8TI UNROLL4TI UNROLL2TI UNROLL1TI
-
-	for (int dy = 0; dy < CAT_TILE_SIZE; dy++)
-	{
-#ifdef CAT_BAKED_ASSETS
-		unpack_rle_row();
-		// uint32_t* row_start = (uint32_t*)&image_data_table[sprite_id].frames[frame_idx][0];
-#endif
-		uint32_t* from;
-
-		for(int y_w = y_start; y_w < y_end; y_w += CAT_TILE_SIZE)
-		{
-			uint32_t* to = (uint32_t*)&FRAMEBUFFER[(y_w + dy) * LCD_SCREEN_W];
-
-			UNROLL1LI;
-		}
-	}
-}
-
-void CAT_spriter_cleanup()
-{
-#ifdef CAT_DESKTOP
-	CAT_free(spriter.framebuffer);
-#endif
-}
-
-
-/////////////////////awhhhhhhehhhhh
-
-#ifdef CAT_EMBEDDED
-#include "menu_graph_rendering.c"
-#endif
-
-
-//////////////////////////////////////////////////////////////////////////
-// DRAW QUEUE
-
-CAT_draw_queue draw_queue =
-{
-	.length = 0
-};
-
-float anim_period = 0.15f;
-float anim_timer = 0.0f;
-
-void CAT_anim_toggle_loop(int sprite_id, bool toggle)
-{
-	if(sprite_id < 0 || sprite_id >= atlas.length)
-	{
-		CAT_printf("[ERROR] reference to invalid sprite_id: %d\n", sprite_id);
-		return;
-	}
-
-	CAT_sprite* sprite = &atlas.table[sprite_id];
-	sprite->loop = toggle;
-}
-
-void CAT_anim_toggle_reverse(int sprite_id, bool toggle)
-{
-	if(sprite_id < 0 || sprite_id >= atlas.length)
-	{
-		CAT_printf("[ERROR] reference to invalid sprite_id: %d\n", sprite_id);
-		return;
-	}
-
-	CAT_sprite* sprite = &atlas.table[sprite_id];
-	sprite->reverse = toggle;
-	if(sprite->reverse)
-		sprite->frame_idx = sprite->frame_count-1;
-	else
-		sprite->frame_idx = 0;
-}
-
-bool CAT_anim_finished(int sprite_id)
-{
-	if(sprite_id < 0 || sprite_id >= atlas.length)
-	{
-		return true;
-	}
-
-	CAT_sprite* sprite = &atlas.table[sprite_id];
-	if(sprite->reverse)
-		return sprite->frame_idx == 0;
-	else
-		return sprite->frame_idx == sprite->frame_count-1;
-}
-
-void CAT_anim_reset(int sprite_id)
-{
-	if(sprite_id < 0 || sprite_id >= atlas.length)
-	{
-		return;
-	}
-
-	CAT_sprite* sprite = &atlas.table[sprite_id];
-	if(sprite->reverse)
-		sprite->frame_idx = sprite->frame_count-1;
-	else
-		sprite->frame_idx = 0;
-}
-
-void CAT_draw_queue_insert(int idx, int sprite_id, int frame_idx, int layer, int x, int y, int mode)
-{
-	if(sprite_id < 0 || sprite_id >= atlas.length)
-	{
-		CAT_printf("[ERROR] reference to invalid sprite_id: %d\n", sprite_id);
-		return;
-	}
-	if(draw_queue.length >= CAT_DRAW_QUEUE_MAX_LENGTH)
-	{
-		CAT_printf("[WARNING] Attempted add to full draw queue\n");
-		return;
-	}
-
-	for(int i = draw_queue.length; i > idx; i--)
-	{
-		draw_queue.jobs[i] = draw_queue.jobs[i-1];
-	}
-	draw_queue.jobs[idx] = (CAT_draw_job) {sprite_id, frame_idx, layer, x, y, mode};
-	draw_queue.length += 1;
-}
-
-int CAT_draw_queue_add(int sprite_id, int frame_idx, int layer, int x, int y, int mode)
-{
-	int insert_idx = draw_queue.length;
-	for(int i = 0; i < insert_idx; i++)
-	{
-		CAT_draw_job other = draw_queue.jobs[i];
-		if(layer < other.layer || (layer == other.layer && y < other.y))
-		{
-			insert_idx = i;
-			break;
-		}
-	}
-
-	CAT_draw_queue_insert(insert_idx, sprite_id, frame_idx, layer, x, y, mode);
-	return insert_idx;
-}
-
-int CAT_draw_queue_animate(int sprite_id, int layer, int x, int y, int mode)
-{
-	return CAT_draw_queue_add(sprite_id, -1, layer, x, y, mode);
-}
-
-void CAT_draw_queue_submit(int cycle)
-{
-	if (cycle==0)
-	{
-		anim_timer += CAT_get_delta_time();
-		if(anim_timer >= anim_period)
-		{
-			for(int i = 0; i < draw_queue.length; i++)
-			{
-				CAT_draw_job* job = &draw_queue.jobs[i];
-				if(job->frame_idx != -1)
-					continue;
-
-				CAT_sprite* sprite = &atlas.table[job->sprite_id];
-				if(!sprite->needs_update)
-					continue;
-				
-				int frame_start = sprite->reverse ? sprite->frame_count-1 : 0;
-				int frame_end = sprite->reverse ? 0 : sprite->frame_count-1;
-				int frame_dir = sprite->reverse ? -1 : 1;
-				if(sprite->frame_idx != frame_end)
-					sprite->frame_idx += frame_dir;
-				else if(sprite->loop)
-					sprite->frame_idx = frame_start;
-
-				sprite->needs_update = false;
-			}
-			anim_timer = 0.0f;
-		}
-
-		for (int i = 0; i < draw_queue.length; i++)
-		{
-			atlas.table[draw_queue.jobs[i].sprite_id].needs_update = true;
-		}
-	}
-
-	for(int i = 0; i < draw_queue.length; i++)
-	{
-		CAT_draw_job* job = &draw_queue.jobs[i];
-		CAT_sprite* sprite = &atlas.table[job->sprite_id];
-		if(job->frame_idx == -1)
-			job->frame_idx = sprite->frame_idx;
-			
-		spriter.mode = job->mode;
-		CAT_draw_sprite(job->sprite_id, job->frame_idx, job->x, job->y);
-	}
-}
-
-
-//////////////////////////////////////////////////////////////////////////
-// ANIMATION MACHINE
-
-void CAT_animachine_init(CAT_animachine_state* state, int enai, int tiai, int exai)
-{
-	state->signal = ENTER;
-	state->enter_anim_id = enai;
-	state->tick_anim_id = tiai;
-	state->exit_anim_id = exai;
-	state->next = NULL;
-}
-
-void CAT_animachine_transition(CAT_animachine_state** spp, CAT_animachine_state* next)
-{
-	if(next == NULL)
-	{
-		*spp = NULL;
-		return;
-	}
-
-	CAT_animachine_state* sp = *spp;
-	if(sp != NULL)
-	{
-		if(sp->signal != DONE)
-			sp->signal = EXIT;
-		sp->next = next;
-	}
-	else
-	{
-		next->signal = ENTER;
-		CAT_anim_reset(next->enter_anim_id);
-		CAT_anim_reset(next->tick_anim_id);
-		CAT_anim_reset(next->exit_anim_id);
-		*spp = next;
-	}
-}
-
-int CAT_animachine_tick(CAT_animachine_state** spp)
-{
-	if(*spp == NULL)
-		return -1;
-	CAT_animachine_state* sp = *spp;
-
-	switch(sp->signal)
-	{
-		case ENTER:
-		{
-			if(!CAT_anim_finished(sp->enter_anim_id))
-				return sp->enter_anim_id;
-			sp->signal = TICK;
-			break;
-		}
-		case TICK:
-		{
-			if(sp->tick_anim_id != -1)
-				return sp->tick_anim_id;
-			sp->signal = EXIT;
-			break;
-		}
-		case EXIT:
-		{
-			if(!CAT_anim_finished(sp->exit_anim_id))
-				return sp->exit_anim_id;
-			sp->signal = DONE;
-			break;
-		}
-		default:
-		{
-			if(sp->next != NULL)
-			{
-				CAT_animachine_state* next = sp->next;
-				sp->next = NULL;
-
-				next->signal = ENTER;
-				CAT_anim_reset(next->enter_anim_id);
-				CAT_anim_reset(next->tick_anim_id);
-				CAT_anim_reset(next->exit_anim_id);
-				*spp = next;
-			}
-			break;
-		}
-	}
-
-	return sp->exit_anim_id != -1 ? sp->exit_anim_id : sp->tick_anim_id;
-}
-
-void CAT_animachine_kill(CAT_animachine_state** spp)
-{
-	if(*spp == NULL)
-		return;
-
-	if((*spp)->signal != DONE)
-		(*spp)->signal = EXIT;
-}
-
-bool CAT_animachine_is_in(CAT_animachine_state** spp, CAT_animachine_state* state)
-{
-	if(*spp == NULL)
-		return false;
-
-	return (*spp) == state;
-}
-
-bool CAT_animachine_is_ticking(CAT_animachine_state** spp)
-{
-	if(*spp == NULL)
-		return false;
-
-	return (*spp)->signal == TICK;
-}
-
 
 //////////////////////////////////////////////////////////////////////////
 // THE BERRIER
@@ -772,27 +125,6 @@ void CAT_greyberry(int xi, int w, int yi, int h)
 			px &= (0b00010000<<8) | 0b10000100;
 			FRAMEBUFFER[idx] = px;
 #endif
-		}
-	}
-}
-
-void CAT_roundberry(int xi, int yi, int r, uint16_t c)
-{
-	int xc = xi + r;
-	int yc = yi + r;
-	int xf = xc + r;
-	int yf = yc + r;
-	for(int y = yi; y < yf; y++)
-	{
-		for(int x = xi; x < xf; x++)
-		{
-			int dx = x - xc;
-			int dy = y - yc;
-			if((dx * dx + dy * dy) < r*r)
-			{
-				int idx = y * LCD_SCREEN_W + x;
-				FRAMEBUFFER[idx] = c;
-			}
 		}
 	}
 }
@@ -1011,6 +343,672 @@ void CAT_strokeberry(int xi, int yi, int w, int h, uint16_t c)
 	CAT_lineberry(xi, yi+h, xi, yi, c);
 }
 
+#ifdef CAT_DESKTOP
+#include "../sprites/sprite_assets.h"
+void CAT_spriteberry(int x, int y)
+{
+	CAT_sprite2* sprite = &none_24x24_sprite;
+	int dy = 0;
+	int dx = 0;
+	for(int i = 0; i < sprite->n_runs; i++)
+	{
+		uint8_t run_key = sprite->runs[i*2+0];
+		uint8_t run_length = sprite->runs[i*2+1];
+		uint16_t run_colour = sprite->colour_table[run_key];
+		for(int j = 0; j < run_length; j++)
+		{
+			int xw = x + dx;
+			int yw = y + dy;
+			if(xw < 0 || xw >= LCD_SCREEN_W)
+				continue;
+			if(yw < 0 || yw >= LCD_SCREEN_H)
+				continue;
+			
+			FRAMEBUFFER[yw * LCD_SCREEN_W + xw] = run_colour;
+			
+			dx += 1;
+			if(dx >= sprite->width)
+			{
+				dx = 0;
+				dy += 1;
+			}
+		}
+	}
+}
+#endif
+
+
+//////////////////////////////////////////////////////////////////////////
+// ATLAS AND SPRITER
+
+#ifndef CAT_BAKED_ASSETS
+CAT_atlas atlas;
+#else
+#ifdef CAT_DESKTOP
+#include "../../script/images.c"
+#include <stdio.h>
+#else
+extern const CAT_baked_sprite image_data_table[];
+extern uint16_t rle_work_region[];
+#endif
+#endif
+
+void CAT_atlas_init()
+{
+#ifndef CAT_BAKED_ASSETS
+	atlas.length = 0;
+#endif
+}
+
+#ifndef CAT_BAKED_ASSETS
+
+#include "png.h"
+
+int CAT_sprite_init(const char* path, int frame_count)
+{
+	if(atlas.length >= CAT_ATLAS_MAX_LENGTH)
+	{
+		CAT_printf("[WARNING] Attempted add to full atlas\n");
+		return -1;
+	}
+
+	FILE* file = fopen(path, "rb");
+	if(file == NULL)
+	{
+		printf("%s not found! Loading null sprite\n", path);
+		file = fopen("sprites/none_24x24.png", "rb");
+	}
+
+	png_structp png = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+	png_infop info = png_create_info_struct(png);
+	png_init_io(png, file);
+	png_set_sig_bytes(png, 0);
+	int png_transforms =
+		PNG_TRANSFORM_STRIP_16 |
+		PNG_TRANSFORM_PACKING |
+		PNG_TRANSFORM_EXPAND;
+	png_read_png(png, info, png_transforms, NULL);
+
+	png_uint_32 width;
+	png_uint_32 height;
+	png_get_IHDR(png, info, &width, &height, NULL, NULL, NULL, NULL, NULL);
+
+	png_bytepp rows = png_get_rows(png, info);
+	uint16_t* pixels = CAT_malloc(sizeof(uint16_t) * width * height);
+	for(int y = 0; y < height; y++)
+	{
+		uint8_t* r_row = rows[y];
+		uint16_t* w_row = &pixels[y * width];
+		for(int x = 0; x < width; x++)
+		{
+			uint8_t r = r_row[x*4+0];
+			uint8_t g = r_row[x*4+1];
+			uint8_t b = r_row[x*4+2];
+			uint8_t a = r_row[x*4+3];
+			uint16_t rgb_565 = RGB8882565(r, g, b);
+			w_row[x] = a >= 255 ? rgb_565 : 0xdead;
+		}
+	}
+	png_destroy_read_struct(&png, &info, NULL);
+	
+	CAT_sprite sprite;
+	sprite.pixels = pixels;
+	sprite.duplicate = false;
+	sprite.width = width;
+	sprite.height = height / frame_count;
+	sprite.frame_count = frame_count;
+
+	int sprite_id = atlas.length;
+	atlas.table[sprite_id] = sprite;
+	atlas.length += 1;
+	return sprite_id;
+}
+
+int CAT_sprite_copy(int sprite_id)
+{
+	if(sprite_id < 0 || sprite_id >= atlas.length)
+	{
+		CAT_printf("[ERROR] reference to invalid sprite: %d\n", sprite_id);
+		return -1;
+	}
+
+	CAT_sprite copy = atlas.table[sprite_id];
+	copy.duplicate = true;
+	
+	int copy_id = atlas.length;
+	atlas.table[copy_id] = copy;
+	atlas.length += 1;
+	return copy_id;
+}
+
+void CAT_atlas_cleanup()
+{
+	for(int i = 0; i < atlas.length; i++)
+	{
+		CAT_sprite* sprite = &atlas.table[i];
+		if(!sprite->duplicate)
+			CAT_free(sprite->pixels);
+	}
+}
+
+#endif
+
+CAT_sprite* CAT_sprite_get(int sprite_id)
+{
+	if(sprite_id < 0 || sprite_id >= atlas.length)
+	{
+		CAT_printf("[ERROR] reference to invalid sprite: %d\n", sprite_id);
+		return NULL;
+	}
+
+	return &atlas.table[sprite_id];
+}
+
+CAT_spriter spriter;
+
+void CAT_spriter_init()
+{
+#ifdef CAT_DESKTOP
+	spriter.framebuffer = CAT_malloc(sizeof(uint16_t) * LCD_SCREEN_W * LCD_SCREEN_H);
+#endif
+	spriter.mode = CAT_DRAW_MODE_DEFAULT;	
+}
+
+#ifdef CAT_BAKED_ASSETS
+struct {
+	const uint8_t* ptr;
+	const uint16_t* colortab;
+	int width;
+	int rle_count;
+	uint16_t rle_word;
+} rle_decode_state;
+
+void init_rle_decode(const CAT_baked_sprite* sprite, int frame_idx, int width)
+{
+	rle_decode_state.ptr = sprite->frames[frame_idx];
+	rle_decode_state.colortab = sprite->color_table;
+	rle_decode_state.width = width;
+	rle_decode_state.rle_count = 0;
+}
+
+void unpack_rle_row()
+{
+#define RLE_NEXT() *(rle_decode_state.ptr++)
+	// printf("Unpack %d, width=%d\n", sprite_id, width);
+	int unpacked = 0;
+	while (unpacked < rle_decode_state.width)
+	{
+		if (rle_decode_state.rle_count)
+		{
+			rle_work_region[unpacked++] = rle_decode_state.rle_word;
+			rle_decode_state.rle_count--;
+			continue;
+		}
+
+		uint16_t word = RLE_NEXT();
+		// printf("word %04x ->", word);
+
+		if (word == 0xff)
+		{
+			rle_decode_state.rle_word = rle_decode_state.colortab[RLE_NEXT()];
+			rle_decode_state.rle_count = RLE_NEXT();
+
+			// printf("rep %04x cnt %04x\n", repeated, repeat_count);
+		}
+		else
+		{
+			rle_work_region[unpacked++] = rle_decode_state.colortab[word];
+			// printf("direct\n");
+		}
+	}
+}
+#endif
+
+void CAT_draw_sprite(int sprite_id, int frame_idx, int x, int y)
+{
+	if(sprite_id < 0 || sprite_id >= atlas.length)
+	{
+		CAT_printf("[ERROR] reference to invalid sprite: %d\n", sprite_id);
+		return;
+	}
+
+	CAT_sprite sprite = atlas.table[sprite_id];
+	int w = sprite.width;
+	int h = sprite.height;
+
+#ifdef CAT_BAKED_ASSETS
+	init_rle_decode(&image_data_table[sprite_id], frame_idx, sprite.width);
+#else
+	const uint16_t* frame = &sprite.pixels[frame_idx * h * w];
+#endif
+	
+	if((spriter.mode & CAT_DRAW_MODE_CENTER_X) > 0)
+		x -= w/2;
+	if((spriter.mode & CAT_DRAW_MODE_CENTER_Y) > 0)
+		y -= h/2;
+	else if((spriter.mode & CAT_DRAW_MODE_BOTTOM) > 0)
+		y -= h;
+
+#ifdef CAT_EMBEDDED
+	y -= framebuffer_offset_h;
+
+	if (y >= LCD_FRAMEBUFFER_H) return;
+	if ((y + h) < 0) return;
+#endif
+
+	int y_end = y + h;
+
+	if (y_end >= LCD_FRAMEBUFFER_H) y_end = LCD_FRAMEBUFFER_H;
+	
+	int dy = 0; // only on PC
+	int inc_dir = (spriter.mode & CAT_DRAW_MODE_REFLECT_X)?-1:1;
+	int initial_offset = inc_dir==1?0:w-1;
+
+	while (y < y_end)
+	{
+#ifdef CAT_BAKED_ASSETS
+		unpack_rle_row();
+#endif
+		
+		if(y < 0)
+		{
+			y++;
+			dy++;
+			continue;
+		}
+
+#ifdef CAT_BAKED_ASSETS
+		const uint16_t* read_ptr = &rle_work_region[initial_offset];
+#else
+		const uint16_t* read_ptr = &frame[dy * w + initial_offset];
+#endif
+
+		uint16_t* write_ptr = &FRAMEBUFFER[y * LCD_SCREEN_W + x];
+
+		for(int dx = 0; dx < w; dx++)
+		{
+			int x_w = x+dx;
+
+			if (x_w >= LCD_SCREEN_W)
+				break;
+
+			if(x_w >= 0)
+			{
+				uint16_t px = *read_ptr;
+
+				if(px != 0xdead)
+					*write_ptr = px;
+			}
+
+			read_ptr += inc_dir;
+			write_ptr += 1;
+		}
+
+		y++;
+		dy++;
+	}
+}
+
+void CAT_draw_tiles(int sprite_id, int frame_idx, int y_t, int h_t)
+{
+	if(sprite_id < 0 || sprite_id >= atlas.length)
+	{
+		CAT_printf("[ERROR] reference to invalid sprite: %d\n", sprite_id);
+		return;
+	}
+
+	CAT_sprite sprite = atlas.table[sprite_id];
+
+#ifndef CAT_BAKED_ASSETS
+	const uint16_t* frame = &sprite.pixels[frame_idx * CAT_TILE_SIZE * CAT_TILE_SIZE];
+#endif
+
+	int y_start = y_t * CAT_TILE_SIZE;
+	int y_end = (y_t+h_t) * CAT_TILE_SIZE;
+
+#ifdef CAT_EMBEDDED
+	y_start -= framebuffer_offset_h;
+	y_end -= framebuffer_offset_h;
+
+	if (y_start >= LCD_FRAMEBUFFER_H) return;
+	if (y_end < 0) return;
+
+	if (y_start < 0) y_start = 0;
+	if (y_end > LCD_FRAMEBUFFER_H) y_end = LCD_FRAMEBUFFER_H;
+#endif
+
+#ifdef CAT_BAKED_ASSETS
+	init_rle_decode(&image_data_table[sprite_id], frame_idx, sprite.width);
+#endif
+
+#if CAT_TILE_SIZE != 16
+#error adjust tiler (rep count)
+#endif
+
+#ifdef CAT_BAKED_ASSETS
+#define RESETPTR from = (uint32_t*)rle_work_region;
+#else
+#define RESETPTR from = (uint32_t*)&frame[dy * CAT_TILE_SIZE];
+#endif
+
+#if (LCD_SCREEN_W/CAT_TILE_SIZE) != 15
+#error adjust tiler (rep count)
+#endif
+
+#ifdef CAT_EMBEDDED
+#if ((LCD_SCREEN_H/LCD_FRAMEBUFFER_SEGMENTS)%16) != 0
+#error adjust tiler (start pos)
+#endif
+#endif
+
+#define UNROLL2PX *(to++) = *(from++);
+#define UNROLL4PX UNROLL2PX UNROLL2PX
+#define UNROLL8PX UNROLL4PX UNROLL4PX
+#define UNROLL1TI RESETPTR UNROLL8PX UNROLL8PX
+#define UNROLL2TI UNROLL1TI UNROLL1TI
+#define UNROLL4TI UNROLL2TI UNROLL2TI
+#define UNROLL8TI UNROLL4TI UNROLL4TI
+#define UNROLL1LI UNROLL8TI UNROLL4TI UNROLL2TI UNROLL1TI
+
+	for (int dy = 0; dy < CAT_TILE_SIZE; dy++)
+	{
+#ifdef CAT_BAKED_ASSETS
+		unpack_rle_row();
+		// uint32_t* row_start = (uint32_t*)&image_data_table[sprite_id].frames[frame_idx][0];
+#endif
+		uint32_t* from;
+
+		for(int y_w = y_start; y_w < y_end; y_w += CAT_TILE_SIZE)
+		{
+			uint32_t* to = (uint32_t*)&FRAMEBUFFER[(y_w + dy) * LCD_SCREEN_W];
+
+			UNROLL1LI;
+		}
+	}
+}
+
+void CAT_spriter_cleanup()
+{
+#ifdef CAT_DESKTOP
+	CAT_free(spriter.framebuffer);
+#endif
+}
+
+
+/////////////////////awhhhhhhehhhhh
+
+#ifdef CAT_EMBEDDED
+#include "menu_graph_rendering.c"
+#endif
+
+
+//////////////////////////////////////////////////////////////////////////
+// DRAW QUEUE
+
+CAT_anim_table anim_table;
+
+void CAT_anim_table_init()
+{
+	for(int i = 0; i < CAT_ATLAS_MAX_LENGTH; i++)
+	{
+		anim_table.frame_idx[i] = 0;
+		anim_table.loop[i] = true;
+		anim_table.reverse[i] = false;
+		anim_table.dirty[i] = true;
+	}
+
+	anim_table.timer = 0;
+}
+
+void CAT_anim_toggle_loop(int sprite_id, bool toggle)
+{
+	if(sprite_id < 0 || sprite_id >= atlas.length)
+	{
+		CAT_printf("[ERROR] reference to invalid animation: %d\n", sprite_id);
+		return;
+	}
+
+	anim_table.loop[sprite_id] = toggle;
+}
+
+void CAT_anim_toggle_reverse(int sprite_id, bool toggle)
+{
+	if(sprite_id < 0 || sprite_id >= atlas.length)
+	{
+		CAT_printf("[ERROR] reference to invalid animation: %d\n", sprite_id);
+		return;
+	}
+
+	anim_table.reverse[sprite_id] = toggle;
+}
+
+bool CAT_anim_finished(int sprite_id)
+{
+	if(sprite_id < 0 || sprite_id >= atlas.length)
+	{
+		return true;
+	}
+
+	CAT_sprite* sprite = &atlas.table[sprite_id];
+	return anim_table.frame_idx[sprite_id] == sprite->frame_count-1;
+}
+
+void CAT_anim_reset(int sprite_id)
+{
+	if(sprite_id < 0 || sprite_id >= atlas.length)
+	{
+		return;
+	}
+
+	anim_table.frame_idx[sprite_id] = 0;
+}
+
+CAT_draw_queue draw_queue =
+{
+	.length = 0
+};
+
+void CAT_draw_queue_insert(int idx, int sprite_id, int frame_idx, int layer, int x, int y, int mode)
+{
+	if(sprite_id < 0 || sprite_id >= atlas.length)
+	{
+		CAT_printf("[ERROR] reference to invalid sprite: %d\n", sprite_id);
+		return;
+	}
+	if(draw_queue.length >= CAT_DRAW_QUEUE_MAX_LENGTH)
+	{
+		CAT_printf("[WARNING] Attempted add to full draw queue\n");
+		return;
+	}
+
+	for(int i = draw_queue.length; i > idx; i--)
+	{
+		draw_queue.jobs[i] = draw_queue.jobs[i-1];
+	}
+	draw_queue.jobs[idx] = (CAT_draw_job) {sprite_id, frame_idx, layer, x, y, mode};
+	draw_queue.length += 1;
+}
+
+int CAT_draw_queue_add(int sprite_id, int frame_idx, int layer, int x, int y, int mode)
+{
+	int insert_idx = draw_queue.length;
+	for(int i = 0; i < insert_idx; i++)
+	{
+		CAT_draw_job other = draw_queue.jobs[i];
+		if(layer < other.layer || (layer == other.layer && y < other.y))
+		{
+			insert_idx = i;
+			break;
+		}
+	}
+
+	CAT_draw_queue_insert(insert_idx, sprite_id, frame_idx, layer, x, y, mode);
+	return insert_idx;
+}
+
+void CAT_draw_queue_submit(int cycle)
+{
+	if (cycle==0)
+	{
+		anim_table.timer += CAT_get_delta_time();
+		if(anim_table.timer >= 0.15f)
+		{
+			for(int i = 0; i < draw_queue.length; i++)
+			{
+				CAT_draw_job* job = &draw_queue.jobs[i];
+				if(job->frame_idx != -1)
+					continue;
+				int sprite_id = job->sprite_id;
+				if(!anim_table.dirty[sprite_id])
+					continue;
+			
+				CAT_sprite* sprite = CAT_sprite_get(sprite_id);
+				if(anim_table.frame_idx[sprite_id] < sprite->frame_count-1)
+					anim_table.frame_idx[sprite_id] += 1;
+				else if(anim_table.loop[sprite_id])
+					anim_table.frame_idx[sprite_id] = 0;
+				
+				anim_table.dirty[sprite_id] = false;
+			}
+			anim_table.timer = 0.0f;
+		}
+
+		for(int i = 0; i < draw_queue.length; i++)
+		{
+			CAT_draw_job* job = &draw_queue.jobs[i];
+			int sprite_id = job->sprite_id;
+			anim_table.dirty[sprite_id] = true;
+		}
+	}
+
+	for(int i = 0; i < draw_queue.length; i++)
+	{
+		CAT_draw_job* job = &draw_queue.jobs[i];
+		int sprite_id = job->sprite_id;
+		CAT_sprite* sprite = &atlas.table[sprite_id];
+		if(job->frame_idx == -1)
+		{
+			job->frame_idx = anim_table.frame_idx[sprite_id];
+			if(anim_table.reverse[sprite_id])
+				job->frame_idx = sprite->frame_count-1-job->frame_idx;
+		}
+		spriter.mode = job->mode;
+		CAT_draw_sprite(sprite_id, job->frame_idx, job->x, job->y);
+	}
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+// ANIMATION MACHINE
+
+void CAT_animachine_init(CAT_animachine_state* state, int enai, int tiai, int exai)
+{
+	state->signal = ENTER;
+	state->enter_anim_id = enai;
+	state->tick_anim_id = tiai;
+	state->exit_anim_id = exai;
+	state->next = NULL;
+}
+
+void CAT_animachine_transition(CAT_animachine_state** spp, CAT_animachine_state* next)
+{
+	if(next == NULL)
+	{
+		*spp = NULL;
+		return;
+	}
+
+	CAT_animachine_state* sp = *spp;
+	if(sp != NULL)
+	{
+		if(sp->signal != DONE)
+			sp->signal = EXIT;
+		sp->next = next;
+	}
+	else
+	{
+		next->signal = ENTER;
+		CAT_anim_reset(next->enter_anim_id);
+		CAT_anim_reset(next->tick_anim_id);
+		CAT_anim_reset(next->exit_anim_id);
+		*spp = next;
+	}
+}
+
+int CAT_animachine_tick(CAT_animachine_state** spp)
+{
+	if(*spp == NULL)
+		return -1;
+	CAT_animachine_state* sp = *spp;
+
+	switch(sp->signal)
+	{
+		case ENTER:
+		{
+			if(!CAT_anim_finished(sp->enter_anim_id))
+				return sp->enter_anim_id;
+			sp->signal = TICK;
+			break;
+		}
+		case TICK:
+		{
+			if(sp->tick_anim_id != -1)
+				return sp->tick_anim_id;
+			sp->signal = EXIT;
+			break;
+		}
+		case EXIT:
+		{
+			if(!CAT_anim_finished(sp->exit_anim_id))
+				return sp->exit_anim_id;
+			sp->signal = DONE;
+			break;
+		}
+		default:
+		{
+			if(sp->next != NULL)
+			{
+				CAT_animachine_state* next = sp->next;
+				sp->next = NULL;
+
+				next->signal = ENTER;
+				CAT_anim_reset(next->enter_anim_id);
+				CAT_anim_reset(next->tick_anim_id);
+				CAT_anim_reset(next->exit_anim_id);
+				*spp = next;
+			}
+			break;
+		}
+	}
+
+	return sp->exit_anim_id != -1 ? sp->exit_anim_id : sp->tick_anim_id;
+}
+
+void CAT_animachine_kill(CAT_animachine_state** spp)
+{
+	if(*spp == NULL)
+		return;
+
+	if((*spp)->signal != DONE)
+		(*spp)->signal = EXIT;
+}
+
+bool CAT_animachine_is_in(CAT_animachine_state** spp, CAT_animachine_state* state)
+{
+	if(*spp == NULL)
+		return false;
+
+	return (*spp) == state;
+}
+
+bool CAT_animachine_is_ticking(CAT_animachine_state** spp)
+{
+	if(*spp == NULL)
+		return false;
+
+	return (*spp)->signal == TICK;
+}
+
 
 //////////////////////////////////////////////////////////////////////////
 // DECLARATIONS
@@ -1193,8 +1191,8 @@ int pet_idle_high_foc_sprite;
 int pet_walk_high_foc_sprite;
 int pet_idle_high_spi_sprite;
 int pet_walk_high_spi_sprite;
-int pet_wings_out_sprite;
-int pet_wings_in_sprite;
+int pet_high_vig_in_sprite;
+int pet_high_vig_out_sprite;
 
 int pet_idle_low_vig_sprite;
 int pet_walk_low_vig_sprite;
@@ -1275,16 +1273,16 @@ CAT_animachine_state AS_react;
 #ifdef CAT_REBUILD_ATLAS
 #define INIT_SPRITE(name, path, frames) name = CAT_sprite_init(path, frames);\
 										printf("BAKE-INIT: (%d, \"%s\", \"%s\", %d, %d, %d)\n", name, #name, path, frames, atlas.table[name].width, atlas.table[name].height);
-#define COPY_SPRITE(name, from, loop, reverse) name = CAT_sprite_copy(from, loop, reverse);\
-										printf("BAKE-COPY: (%d, \"%s\", %d, %d, %d)\n", name, #name, from, loop, reverse);
+#define COPY_SPRITE(name, from) name = CAT_sprite_copy(from);\
+										printf("BAKE-COPY: (%d, \"%s\", %d)\n", name, #name, from);
 #else
 #define INIT_SPRITE(name, path, frames) name = CAT_sprite_init(path, frames);
-#define COPY_SPRITE(name, from, loop, reverse) name = CAT_sprite_copy(from, loop, reverse);
+#define COPY_SPRITE(name, from) name = CAT_sprite_copy(from);
 #endif
 #else
 int sprite_count = 0;
 #define INIT_SPRITE(name, path, frames) name = sprite_count++;
-#define COPY_SPRITE(name, from, loop, reverse) name = sprite_count++;
+#define COPY_SPRITE(name, from) name = sprite_count++;
 #endif
 
 void CAT_sprite_mass_define()
@@ -1463,14 +1461,16 @@ void CAT_sprite_mass_define()
 	INIT_SPRITE(pet_idle_sprite, "sprites/pet_unicorn_idle_complex_a.png", 4);
 	INIT_SPRITE(pet_walk_sprite, "sprites/pet_unicorn_default_walk_complex_a.png", 4);
 
+	INIT_SPRITE(pet_high_vig_in_sprite, "sprites/pet_unicorn_wing_a.png", 13);
+	COPY_SPRITE(pet_high_vig_out_sprite, pet_high_vig_in_sprite);
+	CAT_anim_toggle_reverse(pet_high_vig_out_sprite, true);
+	CAT_anim_toggle_loop(pet_high_vig_out_sprite, false);
 	INIT_SPRITE(pet_idle_high_vig_sprite, "sprites/pet_unicorn_wing_idle_a.png", 4);
 	INIT_SPRITE(pet_walk_high_vig_sprite, "sprites/pet_unicorn_wing_walk_a.png", 4);
 	INIT_SPRITE(pet_idle_high_foc_sprite, "sprites/pet_unicorn_glow_idle_a.png", 4);
 	INIT_SPRITE(pet_walk_high_foc_sprite, "sprites/pet_unicorn_glow_walk_a.png", 4);
 	INIT_SPRITE(pet_idle_high_spi_sprite, "sprites/pet_unicorn_shimmer_idle_a.png", 4);
 	INIT_SPRITE(pet_walk_high_spi_sprite, "sprites/pet_unicorn_shimmer_walk_a.png", 4);
-	INIT_SPRITE(pet_wings_out_sprite, "sprites/pet_unicorn_wing_a.png", 13);
-	COPY_SPRITE(pet_wings_in_sprite, pet_wings_out_sprite, false, true);
 
 	INIT_SPRITE(pet_idle_low_vig_sprite, "sprites/pet_unicorn_tired_a.png", 4);
 	INIT_SPRITE(pet_walk_low_vig_sprite, "sprites/pet_unicorn_tired_walk_a.png", 4);
@@ -1481,24 +1481,34 @@ void CAT_sprite_mass_define()
 
 	INIT_SPRITE(pet_crit_vig_in_sprite, "sprites/pet_unicorn_melt_a.png", 8);
 	INIT_SPRITE(pet_crit_vig_sprite, "sprites/pet_unicorn_melt.png", 1);
-	COPY_SPRITE(pet_crit_vig_out_sprite, pet_crit_vig_in_sprite, false, true);
+	COPY_SPRITE(pet_crit_vig_out_sprite, pet_crit_vig_in_sprite);
+	CAT_anim_toggle_reverse(pet_crit_vig_out_sprite, true);
+	CAT_anim_toggle_loop(pet_crit_vig_out_sprite, false);
 
 	INIT_SPRITE(pet_crit_foc_in_sprite, "sprites/pet_unicorn_tipped_a.png", 6);
 	INIT_SPRITE(pet_crit_foc_sprite, "sprites/pet_unicorn_tipped.png", 1);
-	COPY_SPRITE(pet_crit_foc_out_sprite, pet_crit_foc_in_sprite, false, true);
+	COPY_SPRITE(pet_crit_foc_out_sprite, pet_crit_foc_in_sprite);
+	CAT_anim_toggle_reverse(pet_crit_foc_out_sprite, true);
+	CAT_anim_toggle_loop(pet_crit_foc_out_sprite, false);
 
 	INIT_SPRITE(pet_crit_spi_in_sprite, "sprites/pet_unicorn_block_a.png", 15);
 	INIT_SPRITE(pet_crit_spi_sprite, "sprites/pet_unicorn_block_blink_a.png", 2);
-	COPY_SPRITE(pet_crit_spi_out_sprite, pet_crit_spi_in_sprite, false, true);
+	COPY_SPRITE(pet_crit_spi_out_sprite, pet_crit_spi_in_sprite);
+	CAT_anim_toggle_reverse(pet_crit_spi_out_sprite, true);
+	CAT_anim_toggle_loop(pet_crit_spi_out_sprite, false);
 
 	// PET ACTIONS
 	INIT_SPRITE(pet_eat_in_sprite, "sprites/pet_unicorn_eat_lower_a.png", 7);
 	INIT_SPRITE(pet_eat_sprite, "sprites/pet_unicorn_eat_chew_a.png", 2);
-	COPY_SPRITE(pet_eat_out_sprite, pet_eat_in_sprite, false, true);
+	COPY_SPRITE(pet_eat_out_sprite, pet_eat_in_sprite);
+	CAT_anim_toggle_reverse(pet_eat_out_sprite, true);
+	CAT_anim_toggle_loop(pet_eat_out_sprite, false);
 
 	INIT_SPRITE(pet_study_in_sprite, "sprites/pet_unicorn_read_sit_a.png", 6);
 	INIT_SPRITE(pet_study_sprite, "sprites/pet_unicorn_read_sit.png", 1);
-	COPY_SPRITE(pet_study_out_sprite, pet_study_in_sprite, false, true);
+	COPY_SPRITE(pet_study_out_sprite, pet_study_in_sprite);
+	CAT_anim_toggle_reverse(pet_study_out_sprite, true);
+	CAT_anim_toggle_loop(pet_study_out_sprite, false);
 
 	INIT_SPRITE(pet_play_a_sprite, "sprites/pet_unicorn_play_knead_a.png", 6);
 	INIT_SPRITE(pet_play_b_sprite, "sprites/pet_unicorn_play_b_a.png", 6);

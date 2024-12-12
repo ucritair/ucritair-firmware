@@ -65,18 +65,13 @@ def serialize_sound(path):
 		sound_source.write(f"\t.path = \"{path}\",\n");
 
 		sound_source.write("\t.samples = (uint8_t[])\n");
-		sound_source.write("\t{\n");
-		new_line = True;
+		sound_source.write("\t{\n\t\t");
 		for (idx, b) in enumerate(data):
-			if new_line:
-				sound_source.write("\t\t");
-				new_line = False;
-			sound_source.write(str(b));
-			if idx < len(data)-1:
-				sound_source.write(',');
-			if idx == len(data)-1 or (idx > 0 and idx % 128 == 0):
-				sound_source.write('\n');
-				new_line = True;
+			if idx > 0 and idx % 128 == 0:
+				sound_source.write("\n\t\t");
+			sound_source.write(f"{hex(b)},");
+			if idx == len(data)-1:
+				sound_source.write("\n");
 		sound_source.write("\t},\n");
 
 		sound_source.write(f"\t.size = {len(data)}\n");
