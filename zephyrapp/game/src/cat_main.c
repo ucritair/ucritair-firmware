@@ -208,6 +208,7 @@ void CAT_init(int seconds_slept)
 	CAT_timetable_init();
 
 	CAT_atlas_init();
+	CAT_anim_table_init();
 	CAT_sprite_mass_define();
 	CAT_spriter_init();
 
@@ -252,29 +253,21 @@ void CAT_tick_render(int cycle)
 		draw_queue.length = 0;
 	}
 
-	if(machine == CAT_MS_room)
+	bool in_world =
+	machine == CAT_MS_room ||
+	machine == CAT_MS_feed ||
+	machine == CAT_MS_study ||
+	machine == CAT_MS_play ||
+	machine == CAT_MS_deco;
+
+	if(in_world)
 	{
 		CAT_render_room(cycle);
 		CAT_render_pet(cycle);
-		CAT_draw_queue_submit(cycle);
-	}
-	else if
-	(
-		machine == CAT_MS_feed ||
-		machine == CAT_MS_study ||
-		machine == CAT_MS_play
-	)
-	{
-		CAT_render_room(cycle);
-		CAT_render_pet(cycle);
-		CAT_render_action(cycle);
-		CAT_draw_queue_submit(cycle);
-	}
-	else if(machine == CAT_MS_deco)
-	{
-		CAT_render_room(cycle);
-		CAT_render_pet(cycle);
-		CAT_render_deco(cycle);
+		if(machine == CAT_MS_deco)
+			CAT_render_deco(cycle);
+		else
+			CAT_render_action(cycle);
 		CAT_draw_queue_submit(cycle);
 	}
 	else if(machine == CAT_MS_menu)
@@ -320,18 +313,6 @@ void CAT_tick_render(int cycle)
 		CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 20});
 		CAT_gui_text("This machine state\nhas no render routine!");
 	}
-
-#ifdef CAT_DESKTOP
-	if(LED_rgb != 0)
-	{
-		CAT_roundberry(0, 108, 8, LED_rgb);
-		CAT_roundberry(224, 108, 8, LED_rgb);
-		CAT_roundberry(0, 108+64, 8, LED_rgb);
-		CAT_roundberry(224, 108+64, 8, LED_rgb);
-		CAT_roundberry(0, 108+64+64, 8, LED_rgb);
-		CAT_roundberry(224, 108+64+64, 8, LED_rgb);
-	}
-#endif
 }
 
 #ifdef CAT_DESKTOP

@@ -19,6 +19,29 @@
 
 
 //////////////////////////////////////////////////////////////////////////
+// THE BERRIER
+
+void CAT_greenberry(int xi, int w, int yi, int h, float t);
+void CAT_frameberry(uint16_t c);
+void CAT_greyberry(int xi, int w, int yi, int h);
+void CAT_lineberry(int xi, int yi, int xf, int yf, uint16_t c);
+void CAT_depthberry();
+void CAT_triberry
+(
+	int xa, int ya, float za,
+	int xb, int yb, float zb,
+	int xc, int yc, float zc,
+	uint16_t c
+);
+void CAT_fillberry(int xi, int yi, int w, int h, uint16_t c);
+void CAT_strokeberry(int xi, int yi, int w, int h, uint16_t c);
+
+#ifdef HORSESHIT
+void CAT_spriteberry(CAT_sprite* sprite, int x, int y);
+#endif
+
+
+//////////////////////////////////////////////////////////////////////////
 // ATLAS AND SPRITER
 
 #ifdef CAT_BAKED_ASSETS
@@ -38,11 +61,6 @@ typedef struct CAT_sprite
 	int width;
 	int height;
 	int frame_count;
-
-	int frame_idx;
-	bool loop;
-	bool reverse;
-	bool needs_update;
 } CAT_sprite;
 
 typedef struct CAT_atlas
@@ -54,7 +72,7 @@ extern CAT_atlas atlas;
 
 void CAT_atlas_init();
 int CAT_sprite_init(const char* path, int frame_count);
-int CAT_sprite_copy(int sprite_id, bool loop, bool reverse);
+int CAT_sprite_copy(int sprite_id);
 CAT_sprite* CAT_sprite_get(int sprite_id);
 void CAT_atlas_cleanup();
 
@@ -85,6 +103,23 @@ void CAT_spriter_cleanup();
 //////////////////////////////////////////////////////////////////////////
 // DRAW QUEUE
 
+typedef struct CAT_anim_table
+{
+	int frame_idx[CAT_ATLAS_MAX_LENGTH];
+	bool loop[CAT_ATLAS_MAX_LENGTH];
+	bool reverse[CAT_ATLAS_MAX_LENGTH];
+	bool dirty[CAT_ATLAS_MAX_LENGTH];
+
+	float timer;
+} CAT_anim_table;
+extern CAT_anim_table anim_table;
+
+void CAT_anim_table_init();
+void CAT_anim_toggle_loop(int sprite_id, bool toggle);
+void CAT_anim_toggle_reverse(int sprite_id, bool toggle);
+bool CAT_anim_finished(int sprite_id);
+void CAT_anim_reset(int sprite_id);
+
 typedef struct CAT_draw_job
 {
 	int sprite_id;
@@ -102,14 +137,8 @@ typedef struct CAT_draw_queue
 } CAT_draw_queue;
 extern CAT_draw_queue draw_queue;
 
-void CAT_anim_toggle_loop(int sprite_id, bool toggle);
-void CAT_anim_toggle_reverse(int sprite_id, bool toggle);
-bool CAT_anim_finished(int sprite_id);
-void CAT_anim_reset(int sprite_id);
-
 void CAT_draw_queue_insert(int idx, int sprite_id, int frame_idx, int layer, int x, int y, int mode);
 int CAT_draw_queue_add(int sprite_id, int frame_idx, int layer, int x, int y, int mode);
-int CAT_draw_queue_animate(int sprite_id, int layer, int x, int y, int mode);
 void CAT_draw_queue_submit(int cycle);
 
 
@@ -134,26 +163,6 @@ void CAT_animachine_kill(CAT_animachine_state** spp);
 
 bool CAT_animachine_is_in(CAT_animachine_state** spp, CAT_animachine_state* state);
 bool CAT_animachine_is_ticking(CAT_animachine_state** spp);
-
-
-//////////////////////////////////////////////////////////////////////////
-// THE BERRIER
-
-void CAT_greenberry(int xi, int w, int yi, int h, float t);
-void CAT_frameberry(uint16_t c);
-void CAT_greyberry(int xi, int w, int yi, int h);
-void CAT_roundberry(int xi, int yi, int r, uint16_t c);
-void CAT_lineberry(int xi, int yi, int xf, int yf, uint16_t c);
-void CAT_depthberry();
-void CAT_triberry
-(
-	int xa, int ya, float za,
-	int xb, int yb, float zb,
-	int xc, int yc, float zc,
-	uint16_t c
-);
-void CAT_fillberry(int xi, int yi, int w, int h, uint16_t c);
-void CAT_strokeberry(int xi, int yi, int w, int h, uint16_t c);
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -338,8 +347,8 @@ extern int pet_idle_high_foc_sprite;
 extern int pet_walk_high_foc_sprite;
 extern int pet_idle_high_spi_sprite;
 extern int pet_walk_high_spi_sprite;
-extern int pet_wings_out_sprite;
-extern int pet_wings_in_sprite;
+extern int pet_high_vig_in_sprite;
+extern int pet_high_vig_out_sprite;
 
 extern int pet_idle_low_vig_sprite;
 extern int pet_walk_low_vig_sprite;

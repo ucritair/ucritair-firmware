@@ -3,4 +3,7 @@ CMakeCache.txt
 CMakeFiles/
 app
 *.dat
-meshes/
+meshes/mesh_assets.*
+sounds/sound_assets.*
+sprites/sprite_assets.*
+!meshes/*.obj

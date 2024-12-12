@@ -283,11 +283,11 @@ void CAT_render_pet(int cycle)
 		int pet_mode = CAT_DRAW_MODE_BOTTOM | CAT_DRAW_MODE_CENTER_X;
 		if(pet.left)
 			pet_mode |= CAT_DRAW_MODE_REFLECT_X;
-		CAT_draw_queue_animate(CAT_animachine_tick(&pet_asm), 2, pet.pos.x, pet.pos.y, pet_mode);	
+		CAT_draw_queue_add(CAT_animachine_tick(&pet_asm), -1, 2, pet.pos.x, pet.pos.y, pet_mode);	
 		if(CAT_animachine_is_in(&react_asm, &AS_react))
 		{
 			int x_off = pet.left ? 16 : -16;
-			CAT_draw_queue_animate(CAT_animachine_tick(&react_asm), 3, pet.pos.x + x_off, pet.pos.y - 48, pet_mode);	
+			CAT_draw_queue_add(CAT_animachine_tick(&react_asm), -1, 3, pet.pos.x + x_off, pet.pos.y - 48, pet_mode);	
 		}
 	}
 }

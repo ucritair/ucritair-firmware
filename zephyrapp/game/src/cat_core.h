@@ -42,10 +42,6 @@ bool CAT_eink_is_posted();
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // LEDs
 
-#ifdef CAT_DESKTOP
-extern uint16_t LED_rgb;
-#endif
-
 void CAT_set_LEDs(uint8_t r, uint8_t g, uint8_t b);
 
 

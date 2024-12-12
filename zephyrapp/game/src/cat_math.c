@@ -68,6 +68,12 @@ float CAT_rand_float(float a, float b)
 	return a + scale * (b-a);
 }
 
+bool CAT_rand_chance(int N)
+{
+	float thresh = 1.0f / (float) N;
+	return CAT_rand_float(0.0, 1.0f) <= thresh;
+}
+
 
 //////////////////////////////////////////////////////////////////////////
 // VEC2

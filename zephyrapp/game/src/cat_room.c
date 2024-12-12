@@ -675,7 +675,7 @@ void render_statics()
 		}
 		else if(aqi_score >= 66.0f)
 		{
-			CAT_draw_queue_animate(window_day_high_aq_sprite, 2, 8, 8, CAT_DRAW_MODE_DEFAULT);
+			CAT_draw_queue_add(window_day_high_aq_sprite, -1, 2, 8, 8, CAT_DRAW_MODE_DEFAULT);
 		}
 		else
 		{
@@ -705,13 +705,13 @@ void render_props()
 		int frame_idx = 0;
 		if(room.prop_overrides[i])
 		{
-			if(prop->data.prop_data.animate ||CAT_sprite_get(prop->sprite_id)->frame_count == 1)
+			if(prop->data.prop_data.animate || CAT_sprite_get(prop->sprite_id)->frame_count == 1)
 				mode |= CAT_DRAW_MODE_REFLECT_X;
 			else
 				frame_idx = room.prop_overrides[i];
 		}
 		int job = prop->data.prop_data.animate ?
-		CAT_draw_queue_animate(prop->sprite_id, 2, draw_place.x, draw_place.y, mode) :
+		CAT_draw_queue_add(prop->sprite_id, -1, 2, draw_place.x, draw_place.y, mode) :
 		CAT_draw_queue_add(prop->sprite_id, frame_idx, 2, draw_place.x, draw_place.y, mode);
 		
 		CAT_item* child = CAT_item_get(room.prop_children[i]);
@@ -742,8 +742,8 @@ void render_gringus()
 		if(origin.y > place.y)
 			y = -y + origin.y + place.y;
 
-		CAT_draw_queue_animate(coin_world_sprite, 2, x, y, CAT_DRAW_MODE_CENTER_X | CAT_DRAW_MODE_BOTTOM);
-		CAT_draw_queue_animate(coin_world_sprite, 2, x, y, CAT_DRAW_MODE_CENTER_X | CAT_DRAW_MODE_BOTTOM);
+		CAT_draw_queue_add(coin_world_sprite, -1, 2, x, y, CAT_DRAW_MODE_CENTER_X | CAT_DRAW_MODE_BOTTOM);
+		CAT_draw_queue_add(coin_world_sprite, -1, 2, x, y, CAT_DRAW_MODE_CENTER_X | CAT_DRAW_MODE_BOTTOM);
 	}
 }
 

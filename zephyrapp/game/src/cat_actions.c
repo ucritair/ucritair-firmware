@@ -91,6 +91,8 @@ void action_enter(CAT_action_profile* profile)
 	if(action_state.tool_id == -1)
 		room.grid_cursor = CAT_largest_free_space();
 	room.grid_cursor = CAT_nearest_free_space(room.grid_cursor);
+
+	CAT_pet_settle();
 	
 	action_state.profile = profile;
 }
@@ -179,7 +181,7 @@ void action_tick()
 	if(CAT_input_pressed(CAT_BUTTON_B))
 	{
 		CAT_machine_transition(CAT_MS_room);
-	}	
+	}
 }
 
 void action_exit()
@@ -279,7 +281,7 @@ void CAT_render_action(int cycle)
 				if(place.x > pet.pos.x)
 					tool_mode |= CAT_DRAW_MODE_REFLECT_X;
 				int tool_layer = item->data.tool_data.type == CAT_TOOL_TYPE_FOOD ? 1 : 2;
-				CAT_draw_queue_animate(item->sprite_id, tool_layer, place.x, place.y+16, tool_mode);
+				CAT_draw_queue_add(item->sprite_id, -1, tool_layer, place.x, place.y+16, tool_mode);
 			}
 		}
 	}
