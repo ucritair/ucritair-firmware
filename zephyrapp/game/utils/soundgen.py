@@ -80,6 +80,6 @@ def serialize_sound(path):
 for sound_obj in sounds_json:
 	serialize_sound(sound_obj["path"]);
 
-sp.call(f"trash {temp_dir}", shell=True);
+sp.call(f"/bin/rm {temp_dir}", shell=True);
 sound_header.close();
 sound_source.close();

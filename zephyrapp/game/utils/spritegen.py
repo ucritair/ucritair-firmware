@@ -51,9 +51,6 @@ sprite_header.write("\tuint8_t frames;\n");
 sprite_header.write("} CAT_sprite;\n");
 sprite_header.write("\n");
 
-temp_dir = os.path.join(sprites_dir, "temp");
-sp.call(f"mkdir {temp_dir}", shell=True);
-
 def RGBA88882RGB565(c):
 	if len(c) == 4 and c[3] < 128:
 		return 0xdead;
@@ -136,6 +133,5 @@ else:
 		serialize_sprite(sprite_obj["path"], sprite_obj["frames"]);
 print("Serialized", total_size, "bytes of colours and runs");
 
-sp.call(f"trash {temp_dir}", shell=True);
 sprite_header.close();
 sprite_source.close();
