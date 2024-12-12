@@ -8,7 +8,7 @@ For many of the critical utilities to work, the following must be sourced:
 - `zephyrproject/venv/bin/activate`
 - `zephyrproject/zephyr/zephyr-env.sh`
 - `zephyrapp/game/utils/catenv/bin/activate`
-`envgen.sh` generates `catenv`.
+`envgen.sh` generates `catenv`, activates it, and silently installs requisite python packages.
 It also sources the zephyr scripts IFF they are found at the location where I keep them on my machine.
 If you keep them at some other location, you will need to source them yourself.
 It should itself be sourced, to properly activate the `catenv` virtual environment.

@@ -4,8 +4,8 @@ if [ -d ~/Documents/GitHub/zephyrproject ]; then
 fi
 if [ ! -d utils/catenv ]; then
 	python -m venv utils/catenv
-	source utils/catenv/bin/activate
-	pip install pygame
-	pip install pillow
 fi
 source utils/catenv/bin/activate
+pip install pygame --quiet
+pip install pillow --quiet
+
