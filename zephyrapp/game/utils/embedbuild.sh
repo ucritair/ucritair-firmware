@@ -10,5 +10,5 @@ cd ..
 build/app | tee ../script/atlasdata.txt
 
 cd ../build
-cmake .. -DDEBUG=1
+cmake .. -DDEBUG=1 -DBOARD=cat5340/nrf5340/cpuapp
 make -j8
