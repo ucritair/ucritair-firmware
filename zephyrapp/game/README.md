@@ -17,10 +17,8 @@ It should itself be sourced, to properly activate the `catenv` virtual environme
 ## Assets
 The scripts `meshgen.py`, `soundgen.py`, and `spritegen.py` are used to generate asset files.
 ## Application
-`build.sh` builds the game for desktop.
-It also calls the asset generation scripts if asset files are not found where they are expected, but it does not rebuild the atlas.
-`embedbuild.sh` builds the game for embedded, and rebuilds the atlas in addition to running the asset generation step.
-This is clearly insane. An overhaul is coming soon.
+`build.sh` builds the game, including asset files.
+To build for embedded, pass the `--embedded` flag.
 ## Flashing
 `flash.py` polls for flash-able devices and automatically starts a flashing process for each found.
 It will give you `dfu-util` errors that nobody understands.
@@ -32,6 +30,6 @@ It will give you `dfu-util` errors that nobody understands.
 In `cat_software/zephyrapp/game/`, with a CAT in bootloader mode connected by USB:
 ```
 . utils/envgen.sh
-./utils/embedbuild.sh
+./utils/build.sh --embedded
 ./utils/flash.py
 ```

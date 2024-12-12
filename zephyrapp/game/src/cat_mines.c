@@ -9,7 +9,7 @@
 #define GRID_WIDTH 15
 #define GRID_HEIGHT 20
 #define GRID_SIZE (GRID_WIDTH * GRID_HEIGHT)
-#define MINE_COUNT (GRID_SIZE / 5)
+#define MINE_COUNT (GRID_SIZE / 7)
 
 typedef struct grid_cell
 {
@@ -21,7 +21,9 @@ typedef struct grid_cell
 	bool seen;
 	bool flagged;
 	bool visited;
+
 	bool coin;
+	float coin_timer;
 
 	int adjacent;
 } grid_cell;
@@ -73,6 +75,7 @@ static bool dead = false;
 static CAT_ivec2 cursor = {0, 0};
 static bool first_click = true;
 static int clicks = 0;
+static int mines_remaining = MINE_COUNT;
 
 static int reveal_timer_id = -1;
 static bool reveal_complete = false;
@@ -90,6 +93,53 @@ void toggle_mine(int x, int y, bool value)
 			if(neighbour != NULL)
 				neighbour->adjacent += da;
 		}
+	}
+}
+
+void init_grid()
+{
+	for(int y = 0; y < GRID_HEIGHT; y++)
+	{
+		for(int x = 0; x < GRID_WIDTH; x++)
+		{
+			int idx = y * GRID_WIDTH + x;
+			grid[idx] = (grid_cell)
+			{
+				.x = x,
+				.y = y,
+				.idx = idx,
+
+				.mine = false,
+				.seen = false,
+				.flagged = false,
+				.visited = false,
+
+				.coin = false,
+				.coin_timer = 0.0f,
+
+				.adjacent = 0
+			};
+		}
+	}
+
+	idx_queue_length = 0;
+	for(int i = 0; i < GRID_SIZE; i++)
+		idx_enqueue(i);
+	for(int i = 0; i < idx_queue_length; i++)
+	{
+		int temp = idx_queue[i];
+		int rand = CAT_rand_int(0, GRID_SIZE-1);
+		idx_queue[i] = idx_queue[rand];
+		idx_queue[rand] = temp;
+	}
+
+	for(int i = 0; i < MINE_COUNT; i++)
+	{
+		idx_queue_length -= 1;
+		int idx = idx_queue[idx_queue_length];
+		int x = grid[idx].x;
+		int y = grid[idx].y;
+		toggle_mine(x, y, true);
 	}
 }
 
@@ -121,40 +171,48 @@ void flood_reveal(int x, int y)
 	}
 }
 
+void shuffle_about(int x, int y)
+{
+	idx_queue_length = 0;
+	for(int i = 0; i < GRID_SIZE; i++)
+	{
+		if(!grid[i].mine)
+			idx_enqueue(i);
+	}
+	for(int i = 0; i < idx_queue_length; i++)
+	{
+		int temp = idx_queue[i];
+		int rand = CAT_rand_int(0, GRID_SIZE-1);
+		idx_queue[i] = idx_queue[rand];
+		idx_queue[rand] = temp;
+	}
+
+	for(int dy = -1; dy <= 1; dy++)
+	{
+		for(int dx = -1; dx <= 1; dx++)
+		{
+			grid_cell* cand = get_cell(x+dx, y+dy);
+			if(cand != NULL && cand->mine)
+			{
+				toggle_mine(x+dx, y+dy, false);
+
+				idx_queue_length-1;
+				int mov_idx = idx_queue[idx_queue_length];
+				int mov_x = grid[mov_idx].x;
+				int mov_y = grid[mov_idx].y;
+				toggle_mine(mov_x, mov_y, true);
+			}
+		}
+	}
+}
+
 void CAT_MS_mines(CAT_machine_signal signal)
 {
 	switch(signal)
 	{
 		case CAT_MACHINE_SIGNAL_ENTER:
-		{
-			for(int y = 0; y < GRID_HEIGHT; y++)
-			{
-				for(int x = 0; x < GRID_WIDTH; x++)
-				{
-					int idx = y * GRID_WIDTH + x;
-					grid[idx] = (grid_cell)
-					{
-						.x = x,
-						.y = y,
-						.idx = idx,
-
-						.mine = false,
-						.seen = false,
-						.flagged = false,
-						.visited = false,
-						.coin = false,
-
-						.adjacent = 0
-					};
-				}
-			}
-			
-			for(int i = 0; i < MINE_COUNT; i++)
-			{
-				int x = CAT_rand_int(0, GRID_WIDTH-1);
-				int y = CAT_rand_int(0, GRID_HEIGHT-1);
-				toggle_mine(x, y, true);
-			}
+		{		
+			init_grid();
 
 			dead = false;
 			first_click = true;
@@ -190,15 +248,7 @@ void CAT_MS_mines(CAT_machine_signal signal)
 				{
 					if(first_click)
 					{
-						for(int dy = -1; dy <= 1; dy++)
-						{
-							for(int dx = -1; dx <= 1; dx++)
-							{
-								grid_cell* cand = get_cell(cursor.x+dx, cursor.y+dy);
-								if(cand != NULL && cand->mine)
-									toggle_mine(cursor.x+dx, cursor.y+dy, false);
-							}
-						}
+						shuffle_about(cursor.x, cursor.y);
 						first_click = false;
 					}
 					
@@ -227,6 +277,12 @@ void CAT_MS_mines(CAT_machine_signal signal)
 				}
 				if(CAT_input_pressed(CAT_BUTTON_SELECT))
 					cell->flagged = !cell->flagged;
+				
+				for(int i = 0; i < GRID_SIZE; i++)
+				{
+					if(grid[i].coin)
+						grid[i].coin_timer += CAT_get_delta_time();
+				}
 			}
 			else
 			{
@@ -291,10 +347,10 @@ void CAT_render_mines()
 					else
 					{
 						CAT_draw_sprite(mines_sprite, 1, xs, ys);
-						if(cell->coin)
-							CAT_draw_sprite(coin_world_sprite, 0, xs, ys);
 						if(cell->adjacent > 0)
 							CAT_draw_sprite(mines_sprite, 1 + cell->adjacent, xs, ys);
+						if(cell->coin && cell->coin_timer <= 1.0f)
+							CAT_draw_sprite(coin_world_sprite, 0, xs, ys);
 					}
 				}
 				else
