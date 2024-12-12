@@ -1,4 +1,4 @@
-Starting CAT v0.0.0.54...
+Starting CAT v0.0.0.56...
 Renderer: Apple M1 Pro
 GL version: 4.1 Metal - 88.1
 SL version: 4.10
@@ -137,14 +137,14 @@ BAKE-INIT: (130, "pixel_sprite", "sprites/prop_pixel.png", 1, 16, 16)
 BAKE-INIT: (131, "padkaprop_sprite", "sprites/food_padkrakow_md.png", 1, 32, 32)
 BAKE-INIT: (132, "pet_idle_sprite", "sprites/pet_unicorn_idle_complex_a.png", 4, 64, 48)
 BAKE-INIT: (133, "pet_walk_sprite", "sprites/pet_unicorn_default_walk_complex_a.png", 4, 64, 48)
-BAKE-INIT: (134, "pet_idle_high_vig_sprite", "sprites/pet_unicorn_wing_idle_a.png", 4, 64, 48)
-BAKE-INIT: (135, "pet_walk_high_vig_sprite", "sprites/pet_unicorn_wing_walk_a.png", 4, 64, 48)
-BAKE-INIT: (136, "pet_idle_high_foc_sprite", "sprites/pet_unicorn_glow_idle_a.png", 4, 64, 48)
-BAKE-INIT: (137, "pet_walk_high_foc_sprite", "sprites/pet_unicorn_glow_walk_a.png", 4, 64, 48)
-BAKE-INIT: (138, "pet_idle_high_spi_sprite", "sprites/pet_unicorn_shimmer_idle_a.png", 4, 64, 48)
-BAKE-INIT: (139, "pet_walk_high_spi_sprite", "sprites/pet_unicorn_shimmer_walk_a.png", 4, 64, 48)
-BAKE-INIT: (140, "pet_wings_out_sprite", "sprites/pet_unicorn_wing_a.png", 13, 64, 48)
-BAKE-COPY: (141, "pet_wings_in_sprite", 140, 0, 1)
+BAKE-INIT: (134, "pet_high_vig_in_sprite", "sprites/pet_unicorn_wing_a.png", 13, 64, 48)
+BAKE-COPY: (135, "pet_high_vig_out_sprite", 134)
+BAKE-INIT: (136, "pet_idle_high_vig_sprite", "sprites/pet_unicorn_wing_idle_a.png", 4, 64, 48)
+BAKE-INIT: (137, "pet_walk_high_vig_sprite", "sprites/pet_unicorn_wing_walk_a.png", 4, 64, 48)
+BAKE-INIT: (138, "pet_idle_high_foc_sprite", "sprites/pet_unicorn_glow_idle_a.png", 4, 64, 48)
+BAKE-INIT: (139, "pet_walk_high_foc_sprite", "sprites/pet_unicorn_glow_walk_a.png", 4, 64, 48)
+BAKE-INIT: (140, "pet_idle_high_spi_sprite", "sprites/pet_unicorn_shimmer_idle_a.png", 4, 64, 48)
+BAKE-INIT: (141, "pet_walk_high_spi_sprite", "sprites/pet_unicorn_shimmer_walk_a.png", 4, 64, 48)
 BAKE-INIT: (142, "pet_idle_low_vig_sprite", "sprites/pet_unicorn_tired_a.png", 4, 64, 48)
 BAKE-INIT: (143, "pet_walk_low_vig_sprite", "sprites/pet_unicorn_tired_walk_a.png", 4, 64, 48)
 BAKE-INIT: (144, "pet_idle_low_foc_sprite", "sprites/pet_unicorn_messy_stink_a.png", 8, 64, 48)
@@ -153,19 +153,19 @@ BAKE-INIT: (146, "pet_idle_low_spi_sprite", "sprites/pet_unicorn_sad_idle_a.png"
 BAKE-INIT: (147, "pet_walk_low_spi_sprite", "sprites/pet_unicorn_sad_walk_a.png", 4, 64, 48)
 BAKE-INIT: (148, "pet_crit_vig_in_sprite", "sprites/pet_unicorn_melt_a.png", 8, 64, 48)
 BAKE-INIT: (149, "pet_crit_vig_sprite", "sprites/pet_unicorn_melt.png", 1, 64, 48)
-BAKE-COPY: (150, "pet_crit_vig_out_sprite", 148, 0, 1)
+BAKE-COPY: (150, "pet_crit_vig_out_sprite", 148)
 BAKE-INIT: (151, "pet_crit_foc_in_sprite", "sprites/pet_unicorn_tipped_a.png", 6, 64, 48)
 BAKE-INIT: (152, "pet_crit_foc_sprite", "sprites/pet_unicorn_tipped.png", 1, 64, 48)
-BAKE-COPY: (153, "pet_crit_foc_out_sprite", 151, 0, 1)
+BAKE-COPY: (153, "pet_crit_foc_out_sprite", 151)
 BAKE-INIT: (154, "pet_crit_spi_in_sprite", "sprites/pet_unicorn_block_a.png", 15, 64, 48)
 BAKE-INIT: (155, "pet_crit_spi_sprite", "sprites/pet_unicorn_block_blink_a.png", 2, 64, 48)
-BAKE-COPY: (156, "pet_crit_spi_out_sprite", 154, 0, 1)
+BAKE-COPY: (156, "pet_crit_spi_out_sprite", 154)
 BAKE-INIT: (157, "pet_eat_in_sprite", "sprites/pet_unicorn_eat_lower_a.png", 7, 64, 48)
 BAKE-INIT: (158, "pet_eat_sprite", "sprites/pet_unicorn_eat_chew_a.png", 2, 64, 48)
-BAKE-COPY: (159, "pet_eat_out_sprite", 157, 0, 1)
+BAKE-COPY: (159, "pet_eat_out_sprite", 157)
 BAKE-INIT: (160, "pet_study_in_sprite", "sprites/pet_unicorn_read_sit_a.png", 6, 64, 48)
 BAKE-INIT: (161, "pet_study_sprite", "sprites/pet_unicorn_read_sit.png", 1, 64, 48)
-BAKE-COPY: (162, "pet_study_out_sprite", 160, 0, 1)
+BAKE-COPY: (162, "pet_study_out_sprite", 160)
 BAKE-INIT: (163, "pet_play_a_sprite", "sprites/pet_unicorn_play_knead_a.png", 6, 64, 48)
 BAKE-INIT: (164, "pet_play_b_sprite", "sprites/pet_unicorn_play_b_a.png", 6, 64, 48)
 BAKE-INIT: (165, "pet_play_c_sprite", "sprites/pet_unicorn_play_c_a.png", 6, 64, 48)
@@ -185,7 +185,7 @@ BAKE-INIT: (178, "mines_sprite", "sprites/minesweeper.png", 13, 16, 16)
 [INFO] 179 sprites initialized
 [INFO] 62 items initialized
 Loading...
-Loaded save from version v0.0.0.54
+Loaded save from version v0.0.0.56
 Load done!
 Saving...
 Save done!

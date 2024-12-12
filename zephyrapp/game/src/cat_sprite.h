@@ -36,8 +36,8 @@ void CAT_triberry
 void CAT_fillberry(int xi, int yi, int w, int h, uint16_t c);
 void CAT_strokeberry(int xi, int yi, int w, int h, uint16_t c);
 
-#ifdef CAT_DESKTOP
-void CAT_spriteberry(int x, int y);
+#ifdef HORSESHIT
+void CAT_spriteberry(CAT_sprite* sprite, int x, int y);
 #endif
 
 

@@ -66,7 +66,6 @@ target_sources(app PRIVATE
 	src/cat_mines.c
 	sounds/sound_assets.c
 	meshes/mesh_assets.c
-	sprites/sprite_assets.c
 	src/cat_main.c)
 
 target_include_directories(app PRIVATE src/)

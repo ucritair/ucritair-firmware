@@ -343,11 +343,9 @@ void CAT_strokeberry(int xi, int yi, int w, int h, uint16_t c)
 	CAT_lineberry(xi, yi+h, xi, yi, c);
 }
 
-#ifdef CAT_DESKTOP
-#include "../sprites/sprite_assets.h"
-void CAT_spriteberry(int x, int y)
+#ifdef HORSESHIT
+void CAT_spriteberry(CAT_sprite* sprite, int x, int y)
 {
-	CAT_sprite2* sprite = &none_24x24_sprite;
 	int dy = 0;
 	int dx = 0;
 	for(int i = 0; i < sprite->n_runs; i++)
@@ -696,7 +694,7 @@ void CAT_draw_tiles(int sprite_id, int frame_idx, int y_t, int h_t)
 #endif
 
 #ifdef CAT_EMBEDDED
-#if ((LCD_SCREEN_H/LCD_FRAMEBUFFER_SEGMENTS)%16) != 0
+#if ((LCD_SCREEN_H/LCD_FRAMEBUFFER_SEGMENTS) % 16) != 0
 #error adjust tiler (start pos)
 #endif
 #endif

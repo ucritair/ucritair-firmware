@@ -17,8 +17,6 @@ class BakeData:
 	frames: str
 	width: str
 	height: str
-	loop: bool = True
-	reverse: bool = False
 	rlesize: int = 0
 	colors: set = None
 
@@ -45,10 +43,10 @@ with open(os.path.dirname(__file__)+"/atlasdata.txt", 'r') as fd:
 		elif line.startswith("BAKE-COPY:"):
 			tup = eval(line.replace('BAKE-COPY: ', '', 1))
 
-			idx, name, from_, loop, reverse = tup
+			idx, name, from_ = tup
 			name = name.replace('[','').replace(']','')
 			from_ = atlas[from_]
-			atlas.append(BakeData(int(idx), name, from_.path, from_.frames, from_.width, from_.height, loop, reverse))
+			atlas.append(BakeData(int(idx), name, from_.path, from_.frames, from_.width, from_.height))
 
 # assert len(set(x.path for x in atlas)) == len([x.path for x in atlas]), "Duplicated path"
 assert len(set(x.name for x in atlas)) == len([x.name for x in atlas]), "Duplicated name"
@@ -254,9 +252,6 @@ with open(f"{output}/images.c", 'w') as fd:
 		fd.write('\t\t.width = '+str(sprite.width)+",\n")
 		fd.write('\t\t.height = '+str(sprite.height)+",\n")
 		fd.write('\t\t.frame_count = '+str(sprite.frames)+",\n")
-		fd.write('\t\t.frame_idx = '+str(sprite.frames-1 if sprite.reverse else 0)+',\n')
-		fd.write('\t\t.loop = '+str(int(sprite.loop))+',\n');
-		fd.write('\t\t.reverse = '+str(int(sprite.reverse))+',\n')
 		fd.write('\t},\n')
 		
 	fd.write('}, .length = '+str(len(atlas))+'};\n\n')
