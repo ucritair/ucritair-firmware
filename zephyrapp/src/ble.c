@@ -27,6 +27,7 @@
 #include <zephyr/bluetooth/services/ias.h>
 
 #include "airquality.h"
+#include "rtc.h"
 
 #define VND_UUID_PFX(x) BT_UUID_128_ENCODE(0xfc7d4395, 0x1019, 0x49c4, 0xa91b, (0x7491ecc4ull<<16) | (unsigned long long)x)
 
@@ -64,14 +65,47 @@ static ssize_t write_vnd(struct bt_conn *conn, const struct bt_gatt_attr *attr,
 	return len;
 }
 
+static ssize_t read_time(struct bt_conn *conn, const struct bt_gatt_attr *attr,
+			void *buf, uint16_t len, uint16_t offset)
+{
+	uint32_t t = RTC_TIME_TO_EPOCH_TIME(get_current_rtc_time());
+
+	return bt_gatt_attr_read(conn, attr, buf, len, offset, &t, sizeof(t));
+}
+
+static ssize_t write_time(struct bt_conn *conn, const struct bt_gatt_attr *attr,
+			 const void *buf, uint16_t len, uint16_t offset,
+			 uint8_t flags)
+{
+	uint32_t t = 0;
+
+	if (offset != 0) {
+		return BT_GATT_ERR(BT_ATT_ERR_INVALID_OFFSET);
+	}
+
+	if (len != sizeof(t))
+	{
+		return BT_GATT_ERR(BT_ATT_ERR_INVALID_ATTRIBUTE_LEN);
+	}
+
+	memcpy(t, buf, sizeof(t));
+
+	set_rtc_counter_raw(EPOCH_TIME_TO_RTC_TIME(t));
+
+	return len;
+}
 
 /* Vendor Primary Service Declaration */
 BT_GATT_SERVICE_DEFINE(vnd_svc,
 	BT_GATT_PRIMARY_SERVICE(BT_UUID_DECLARE_128(BT_UUID_CUSTOM_SERVICE_VAL)),
 	BT_GATT_CHARACTERISTIC(
 		BT_UUID_DECLARE_128(VND_UUID_PFX(0x0001)),
-		BT_GATT_CHRC_READ, BT_GATT_PERM_READ,
+		BT_GATT_CHRC_READ|BT_GATT_CHRC_WRITE, BT_GATT_PERM_READ|BT_GATT_PERM_WRITE,
 		read_vnd, write_vnd, vnd_value),
+	BT_GATT_CHARACTERISTIC(
+		BT_UUID_DECLARE_128(VND_UUID_PFX(0x0002)),
+		BT_GATT_CHRC_READ|BT_GATT_CHRC_WRITE, BT_GATT_PERM_READ|BT_GATT_PERM_WRITE,
+		read_time, write_time, NULL),
 );
 
 static ssize_t ess_read_float_u16_x100(
