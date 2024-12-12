@@ -19,7 +19,7 @@ The scripts `meshgen.py`, `soundgen.py`, and `spritegen.py` are used to generate
 ## Application
 `build.sh` builds the game for desktop.
 It also calls the asset generation scripts if asset files are not found where they are expected, but it does not rebuild the atlas.
-`embedbuild.sh` builds the game for embedded, and does not call asset generation scripts but does rebuild the atlas.
+`embedbuild.sh` builds the game for embedded, and rebuilds the atlas in addition to running the asset generation step.
 This is clearly insane. An overhaul is coming soon.
 ## Flashing
 `flash.py` polls for flash-able devices and automatically starts a flashing process for each found.
@@ -27,3 +27,11 @@ It will give you `dfu-util` errors that nobody understands.
 
 # Cleanup
 `clean.sh` deletes asset files and stray temp directories.
+
+# Complete Example
+In `cat_software/zephyrapp/game/`, with a CAT in bootloader mode connected by USB:
+```
+. utils/envgen.sh
+./utils/embedbuild.sh
+./utils/flash.py
+```
