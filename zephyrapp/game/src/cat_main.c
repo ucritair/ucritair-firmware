@@ -314,7 +314,9 @@ void CAT_tick_render(int cycle)
 		CAT_gui_text("This machine state\nhas no render routine!");
 	}
 
+#ifdef HORSESHIT
 	CAT_spriteberry(&pet_unicorn_block_a_sprite_, -10, 0);
+#endif
 }
 
 #ifdef CAT_DESKTOP

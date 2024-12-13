@@ -243,6 +243,7 @@ void CAT_strokeberry(int xi, int yi, int w, int h, uint16_t c)
 	CAT_lineberry(xi, yi+h, xi, yi, c);
 }
 
+#ifdef HORSESHIT
 void CAT_spriteberry(CAT_sprite_* sprite, int x, int y)
 {
 	int w = sprite->width;
@@ -314,6 +315,7 @@ void CAT_spriteberry(CAT_sprite_* sprite, int x, int y)
 		}
 	}
 }
+#endif
 
 
 //////////////////////////////////////////////////////////////////////////

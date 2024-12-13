@@ -28,8 +28,10 @@ void CAT_lineberry(int xi, int yi, int xf, int yf, uint16_t c);
 void CAT_fillberry(int xi, int yi, int w, int h, uint16_t c);
 void CAT_strokeberry(int xi, int yi, int w, int h, uint16_t c);
 
+#ifdef HORSESHIT
 #include "../sprites/sprite_assets.h"
 void CAT_spriteberry(CAT_sprite_* sprite, int x, int y);
+#endif
 
 
 //////////////////////////////////////////////////////////////////////////

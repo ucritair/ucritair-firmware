@@ -70,7 +70,6 @@ target_sources(app PRIVATE
 	src/cat_mines.c
 	${CMAKE_CURRENT_LIST_DIR}/sounds/sound_assets.c
 	${CMAKE_CURRENT_LIST_DIR}/meshes/mesh_assets.c
-	${CMAKE_CURRENT_LIST_DIR}/sprites/sprite_assets.c
 	src/cat_main.c)
 
 target_include_directories(app PRIVATE src/)
