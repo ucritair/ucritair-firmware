@@ -79,6 +79,7 @@ void CAT_frameberry(uint16_t c)
 #ifdef CAT_EMBEDDED
 	c = (c >> 8) | ((c & 0xff) << 8);
 #endif
+
 	uint16_t* px = FRAMEBUFFER;
 	uint16_t* end = FRAMEBUFFER + LCD_SCREEN_W * LCD_FRAMEBUFFER_H;
 	while(px != end)
@@ -219,113 +220,12 @@ void CAT_lineberry(int xi, int yi, int xf, int yf, uint16_t c)
 	}
 }
 
-#ifdef CAT_DESKTOP
-float depthbuffer[LCD_SCREEN_W * LCD_SCREEN_H];
-
-void CAT_depthberry()
-{
-	for(int i = 0; i < LCD_SCREEN_W * LCD_SCREEN_H; i++)
-		depthbuffer[i] = 1.0f;
-}
-
-bool depth_test_write(int x, int y, float z)
-{
-	int idx = y * LCD_SCREEN_W + x;
-	float z0 = depthbuffer[idx];
-	if(z <= z0)
-	{
-		depthbuffer[idx] = z;
-		return true;
-	}
-	return false;
-}
-
-int cross2d(int x0, int y0, int x1, int y1)
-{
-	return x0 * y1 - y0 * x1;
-}
-
-void CAT_triberry
-(
-	int xa, int ya, float za,
-	int xb, int yb, float zb,
-	int xc, int yc, float zc,
-	uint16_t c
-)
-{
-	int min_x = min(min(xa, xb), xc);
-	int min_y = min(min(ya, yb), yc);
-	int max_x = max(max(xa, xb), xc);
-	int max_y = max(max(ya, yb), yc);
-
-	if(max_x < 0 || max_y < 0)
-		return;
-	if(min_x >= LCD_SCREEN_W || min_y >= LCD_SCREEN_H)
-		return;
-
-	int xab = xb - xa;
-	int yab = yb - ya;
-	int xac = xc - xa;
-	int yac = yc - ya;
-	float abXac = (float) cross2d(xab, yab, xac, yac);
-	if(abXac == 0)
-		return;
-	
-	for(int y = min_y; y <= max_y; y++)
-	{
-		if(y < 0 || y >= LCD_SCREEN_H)
-			continue;
-		int yp = y - ya;
-	
-		for(int x = min_x; x <= max_x; x++)
-		{
-			if(x < 0 || x >= LCD_SCREEN_W)
-				continue;
-			int xp = x - xa;
-		
-			float v = (float) cross2d(xp, yp, xac, yac) / abXac;
-			if(v < 0 || v > 1)
-				continue;
-			float w = (float) cross2d(xab, yab, xp, yp) / abXac;
-			if(w < 0 || w > 1)
-				continue;
-			float u = 1.0f - v - w;
-			if(u < 0 || u > 1)
-				continue;
-				
-			float z = u * za + v * zb + w * zc;
-			if(depth_test_write(x, y, z))
-			{
-				FRAMEBUFFER[y * LCD_SCREEN_W + x] = c;
-			}
-		}
-	}
-}
-#else
-void CAT_depthberry()
-{
-	return;
-}
-
-void CAT_triberry
-(
-	int xa, int ya, float za,
-	int xb, int yb, float zb,
-	int xc, int yc, float zc,
-	uint16_t c
-)
-{
-	CAT_lineberry(xa, ya, xb, yb, c);
-	CAT_lineberry(xb, yb, xc, yc, c);
-	CAT_lineberry(xc, yc, xa, ya, c);
-}
-#endif
-
 void CAT_fillberry(int xi, int yi, int w, int h, uint16_t c)
 {
 #ifdef CAT_EMBEDDED
 	c = (c >> 8) | ((c & 0xff) << 8);
 #endif
+
 	for(int y = yi; y < yi+h; y++)
 	{
 		for(int x = xi; x < xi+w; x++)
@@ -343,25 +243,65 @@ void CAT_strokeberry(int xi, int yi, int w, int h, uint16_t c)
 	CAT_lineberry(xi, yi+h, xi, yi, c);
 }
 
-#ifdef HORSESHIT
-void CAT_spriteberry(CAT_sprite* sprite, int x, int y)
+void CAT_spriteberry(CAT_sprite_* sprite, int x, int y)
 {
+	int w = sprite->width;
+	int h = sprite->height;
+
+	int xwi = x;
+	int ywi = y;
+
+	int xwf = xwi + w;
+	int skip_x = 0;
+	if(xwf < 0)
+	{
+		skip_x = -xwf;
+		xwf = 0;
+	}
+		
+	int ywf = ywi + h;
+	if (ywf >= LCD_FRAMEBUFFER_H)
+		ywf = LCD_FRAMEBUFFER_H;
+
 	int dy = 0;
 	int dx = 0;
+	bool row_start = true;
 	for(int i = 0; i < sprite->n_runs; i++)
 	{
 		uint8_t run_key = sprite->runs[i*2+0];
 		uint8_t run_length = sprite->runs[i*2+1];
 		uint16_t run_colour = sprite->colour_table[run_key];
+#ifdef CAT_EMBEDDED
+		run_colour = (run_colour >> 8) | ((run_colour & 0xff) << 8);
+#endif
+
+		if(run_colour == 0xdead)
+		{
+			int skip_rows = run_length / w;
+			int skip_cols =  run_length - skip_rows * w;
+			if((dx+skip_cols) > w)
+			{
+				skip_rows += 1;
+				skip_cols -= w;
+			}
+			dy += skip_rows;
+			dx += skip_cols;
+			if(skip_rows > 1)
+				row_start = true;
+			continue;
+		}
+
+		if(row_start)
+			run_length -= skip_x;
 		for(int j = 0; j < run_length; j++)
 		{
-			int xw = x + dx;
-			int yw = y + dy;
+			int xw = xwi + dx;
+			int yw = ywi + dy;
 			if(xw < 0 || xw >= LCD_SCREEN_W)
 				continue;
 			if(yw < 0 || yw >= LCD_SCREEN_H)
 				continue;
-			
+
 			FRAMEBUFFER[yw * LCD_SCREEN_W + xw] = run_colour;
 			
 			dx += 1;
@@ -369,11 +309,11 @@ void CAT_spriteberry(CAT_sprite* sprite, int x, int y)
 			{
 				dx = 0;
 				dy += 1;
+				row_start = true;
 			}
 		}
 	}
 }
-#endif
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -595,8 +535,8 @@ void CAT_draw_sprite(int sprite_id, int frame_idx, int x, int y)
 #endif
 
 	int y_end = y + h;
-
-	if (y_end >= LCD_FRAMEBUFFER_H) y_end = LCD_FRAMEBUFFER_H;
+	if (y_end >= LCD_FRAMEBUFFER_H)
+		y_end = LCD_FRAMEBUFFER_H;
 	
 	int dy = 0; // only on PC
 	int inc_dir = (spriter.mode & CAT_DRAW_MODE_REFLECT_X)?-1:1;

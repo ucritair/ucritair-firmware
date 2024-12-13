@@ -1,4 +1,4 @@
-#!utils/catenv/bin/python
+#!/usr/bin/env python
 
 import sys;
 import json;
@@ -35,20 +35,21 @@ sprite_source.write("\n");
 sprite_source.write("#include \"sprite_assets.h\"\n");
 sprite_source.write("\n");
 
-sprite_header.write("typedef struct CAT_sprite\n");
+sprite_header.write("typedef struct CAT_sprite_\n");
 sprite_header.write("{\n");
 sprite_header.write("\tconst char* path;\n");
 sprite_header.write("\n");
-sprite_header.write(f"\tuint16_t* colour_table;\n");
-sprite_header.write(f"\tuint8_t n_colours;\n");
+sprite_header.write(f"\tconst uint16_t* colour_table;\n");
+sprite_header.write(f"\tconst uint8_t n_colours;\n");
 sprite_header.write("\n");
-sprite_header.write(f"\tuint8_t* runs;\n");
-sprite_header.write("\tuint16_t n_runs;\n");
+sprite_header.write(f"\tconst uint8_t* runs;\n");
+sprite_header.write("\tconst uint16_t n_runs;\n");
 sprite_header.write("\n");
-sprite_header.write("\tuint16_t width;\n");
-sprite_header.write("\tuint16_t height;\n");
-sprite_header.write("\tuint8_t frames;\n");
-sprite_header.write("} CAT_sprite;\n");
+sprite_header.write("\tconst uint16_t width;\n");
+sprite_header.write("\tconst uint16_t height;\n");
+sprite_header.write("\tconst uint8_t n_frames;\n");
+sprite_header.write("} CAT_sprite_;\n");
+sprite_header.write("// It's a different thing, actually...\n");
 sprite_header.write("\n");
 
 def RGBA88882RGB565(c):
@@ -69,10 +70,10 @@ def rlencode(sprite):
 	source = sprite.tobytes();
 	runs = [[source[0], 1]];
 	for i in range(1, len(source)):
-		if(source[i] != runs[-1][0]):
+		if(source[i] != runs[-1][0] or runs[-1][1] >= 255):
 			runs.append([source[i], 1]);
 		else:
-			runs[-1][1] += 1;	
+			runs[-1][1] += 1;
 	return runs;
 
 def rldecode(runs):
@@ -84,12 +85,14 @@ def rldecode(runs):
 
 def serialize_sprite(path, frames):
 	name = Path(path).stem;
+	name = name.lower().replace("-", "_").replace(" ", "_");
+
 	sprite = Image.open(os.path.join(sprites_dir, path));
 	sprite = sprite.convert("P");
 	
-	sprite_header.write(f"extern CAT_sprite {name}_sprite;\n");
+	sprite_header.write(f"extern CAT_sprite_ {name}_sprite_;\n");
 
-	sprite_source.write(f"CAT_sprite {name}_sprite = \n");
+	sprite_source.write(f"CAT_sprite_ {name}_sprite_ = \n");
 	sprite_source.write("{\n");
 	sprite_source.write(f"\t.path = \"{path}\",\n");
 	sprite_source.write("\n");
@@ -117,7 +120,7 @@ def serialize_sprite(path, frames):
 	sprite_source.write("\n");
 	sprite_source.write(f"\t.width = {sprite.size[0]},\n");
 	sprite_source.write(f"\t.height = {sprite.size[1]},\n");
-	sprite_source.write(f"\t.frames = {frames}\n");
+	sprite_source.write(f"\t.n_frames = {frames}\n");
 	sprite_source.write("};\n\n");
 
 if len(sys.argv) > 2 and sys.argv[-2] == "--all":

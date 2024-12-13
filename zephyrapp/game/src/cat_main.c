@@ -313,6 +313,8 @@ void CAT_tick_render(int cycle)
 		CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 20});
 		CAT_gui_text("This machine state\nhas no render routine!");
 	}
+
+	CAT_spriteberry(&pet_unicorn_block_a_sprite_, -10, 0);
 }
 
 #ifdef CAT_DESKTOP

@@ -297,8 +297,6 @@ CAT_mat4 S;
 
 float theta_h;
 
-bool wireframe;
-
 void CAT_MS_hedron(CAT_machine_signal signal)
 {
 	switch (signal)
@@ -350,15 +348,10 @@ void CAT_MS_hedron(CAT_machine_signal signal)
 			};
 
 			theta_h = 0;
-
-			wireframe = false;
 			break;
 		case CAT_MACHINE_SIGNAL_TICK:
 			if(CAT_input_pressed(CAT_BUTTON_B) || CAT_input_pressed(CAT_BUTTON_START))
 				CAT_machine_back();
-
-			if(CAT_input_pressed(CAT_BUTTON_SELECT))
-				wireframe = !wireframe;
 
 			theta_h += CAT_get_delta_time();
 			if(theta_h >= 6.28318530718f)
@@ -383,7 +376,6 @@ CAT_vec4 fvtov4(int fidx, int vidx)
 void CAT_render_hedron()
 {
 	CAT_frameberry(0x0000);
-	CAT_depthberry();
 
 	CAT_mat4 M = CAT_rotmat(0, theta_h, 0);
 	CAT_mat4 MV = CAT_matmul(V, M);
@@ -406,16 +398,6 @@ void CAT_render_hedron()
 		bool clip_c = CAT_is_clipped(c);
 		if(clip_a && clip_b && clip_c)
 			continue;
-			
-		// Backface culling
-#ifdef CAT_DESKTOP
-		CAT_vec4 ba = CAT_vec4_sub(b, a);
-		CAT_vec4 ca = CAT_vec4_sub(c, a);
-		CAT_vec4 norm = CAT_vec4_cross(ba, ca);
-		float valign = CAT_vec4_dot(a, norm);
-		if(valign >= 0)
-			continue;
-#endif
 
 		CAT_perspdiv(&a);
 		CAT_perspdiv(&b);
@@ -424,41 +406,10 @@ void CAT_render_hedron()
 		a = CAT_matvec_mul(S, a);
 		b = CAT_matvec_mul(S, b);
 		c = CAT_matvec_mul(S, c);
-
-		// LIGHTING	
-#ifdef CAT_DESKTOP
-		CAT_vec4 p1 = fvtov4(i, 0);
-		CAT_vec4 p2 = fvtov4(i, 1);
-		CAT_vec4 p3 = fvtov4(i, 2);
-		p1 = CAT_matvec_mul(MV, p1);
-		p2 = CAT_matvec_mul(MV, p2);
-		p3 = CAT_matvec_mul(MV, p3);
-		float amb = 0.05f;
-		CAT_vec4 centroid = CAT_centroid(p1, p2, p3);
-		CAT_vec4 L = CAT_vec4_normalize(CAT_vec4_sub(eye, centroid));
-		CAT_vec4 N = CAT_vec4_normalize(CAT_vec4_cross(CAT_vec4_sub(p2, p1), CAT_vec4_sub(p3, p1)));
-		float diff = clampf(CAT_vec4_dot(N, L), 0.0f, 1.0f);
-		uint8_t light = 255 * clampf(amb + diff, 0.0f, 1.0f) * 0.75f;
-#else
-		uint8_t light = 255;
-#endif
 		
-		if(wireframe)
-		{
-			CAT_lineberry(a.x, a.y, b.x, b.y, 0xFFFF);
-			CAT_lineberry(b.x, b.y, c.x, c.y, 0xFFFF);
-			CAT_lineberry(c.x, c.y, a.x, a.y, 0xFFFF);
-		}
-		else
-		{
-			CAT_triberry
-			(
-				a.x, a.y, a.z,
-				b.x, b.y, b.z,
-				c.x, c.y, c.z,
-				RGB8882565(light, light, light)
-			);
-		}
+		CAT_lineberry(a.x, a.y, b.x, b.y, 0xFFFF);
+		CAT_lineberry(b.x, b.y, c.x, c.y, 0xFFFF);
+		CAT_lineberry(c.x, c.y, a.x, a.y, 0xFFFF);
 	}
 }
 

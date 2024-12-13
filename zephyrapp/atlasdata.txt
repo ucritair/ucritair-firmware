@@ -1,4 +1,4 @@
-Starting CAT v0.0.0.57...
+Starting CAT v0.0.0.58...
 Renderer: Apple M1 Pro
 GL version: 4.1 Metal - 88.1
 SL version: 4.10
@@ -185,7 +185,7 @@ BAKE-INIT: (178, "mines_sprite", "sprites/minesweeper.png", 13, 16, 16)
 [INFO] 179 sprites initialized
 [INFO] 62 items initialized
 Loading...
-Loaded save from version v0.0.0.57
+Loaded save from version v0.0.0.58
 Load done!
 Saving...
 Save done!
