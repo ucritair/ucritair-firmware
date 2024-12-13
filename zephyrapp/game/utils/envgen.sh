@@ -3,7 +3,7 @@ if [ -d ~/Documents/GitHub/zephyrproject ]; then
 else
 	echo IF YOU DIDN'T SOURCE THE ZEPHYR SHELL ENVIRONMENT YOU'RE COOKED!
 fi
-source ~/Documents/GitHub/zephyrproject/venv/bin/activate
+source $ZEPHYR_BASE/../venv/bin/activate
 pip install pygame --quiet
 pip install pillow --quiet
 
