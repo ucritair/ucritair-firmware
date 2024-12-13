@@ -1,6 +1,1595 @@
 [
-	{
-		"path" : "none_24x24.png",
-		"frames" : 1
-	}
+    {
+        "mode": "init",
+        "id": 0,
+        "name": "base_wall_sprite",
+        "path": "sprites/wall/basic.png",
+        "frames": 3,
+        "width": 16,
+        "height": 16
+    },
+    {
+        "mode": "init",
+        "id": 1,
+        "name": "sky_wall_sprite",
+        "path": "sprites/wall/sky.png",
+        "frames": 7,
+        "width": 16,
+        "height": 16
+    },
+    {
+        "mode": "init",
+        "id": 2,
+        "name": "base_floor_sprite",
+        "path": "sprites/tile/basic.png",
+        "frames": 3,
+        "width": 16,
+        "height": 16
+    },
+    {
+        "mode": "init",
+        "id": 3,
+        "name": "grass_floor_sprite",
+        "path": "sprites/tile/grass.png",
+        "frames": 21,
+        "width": 16,
+        "height": 16
+    },
+    {
+        "mode": "init",
+        "id": 4,
+        "name": "ash_floor_sprite",
+        "path": "sprites/tile/ash.png",
+        "frames": 6,
+        "width": 16,
+        "height": 16
+    },
+    {
+        "mode": "init",
+        "id": 5,
+        "name": "glyph_sprite",
+        "path": "sprites/ui/glyphs.png",
+        "frames": 96,
+        "width": 8,
+        "height": 12
+    },
+    {
+        "mode": "init",
+        "id": 6,
+        "name": "strike_sprite",
+        "path": "sprites/ui/strikethrough.png",
+        "frames": 1,
+        "width": 8,
+        "height": 12
+    },
+    {
+        "mode": "init",
+        "id": 7,
+        "name": "tab_sprite",
+        "path": "sprites/ui/gui_tab.png",
+        "frames": 2,
+        "width": 48,
+        "height": 32
+    },
+    {
+        "mode": "init",
+        "id": 8,
+        "name": "icon_pointer_sprite",
+        "path": "sprites/ui/icon_pointer.png",
+        "frames": 1,
+        "width": 12,
+        "height": 12
+    },
+    {
+        "mode": "init",
+        "id": 9,
+        "name": "icon_a_sprite",
+        "path": "sprites/ui/A Button_Both.png",
+        "frames": 2,
+        "width": 16,
+        "height": 16
+    },
+    {
+        "mode": "init",
+        "id": 10,
+        "name": "icon_b_sprite",
+        "path": "sprites/ui/B Button_Both.png",
+        "frames": 2,
+        "width": 16,
+        "height": 16
+    },
+    {
+        "mode": "init",
+        "id": 11,
+        "name": "icon_n_sprite",
+        "path": "sprites/ui/Up_Arrow_Both.png",
+        "frames": 2,
+        "width": 16,
+        "height": 16
+    },
+    {
+        "mode": "init",
+        "id": 12,
+        "name": "icon_e_sprite",
+        "path": "sprites/ui/Right Arrow_Both.png",
+        "frames": 2,
+        "width": 16,
+        "height": 10
+    },
+    {
+        "mode": "init",
+        "id": 13,
+        "name": "icon_s_sprite",
+        "path": "sprites/ui/Down Arrow_Both.png",
+        "frames": 2,
+        "width": 16,
+        "height": 16
+    },
+    {
+        "mode": "init",
+        "id": 14,
+        "name": "icon_w_sprite",
+        "path": "sprites/ui/Left Arrow_Both.png",
+        "frames": 2,
+        "width": 16,
+        "height": 10
+    },
+    {
+        "mode": "init",
+        "id": 15,
+        "name": "icon_start_sprite",
+        "path": "sprites/ui/Start Button_Both.png",
+        "frames": 2,
+        "width": 24,
+        "height": 12
+    },
+    {
+        "mode": "init",
+        "id": 16,
+        "name": "icon_select_sprite",
+        "path": "sprites/ui/Select Button_Both.png",
+        "frames": 2,
+        "width": 24,
+        "height": 12
+    },
+    {
+        "mode": "init",
+        "id": 17,
+        "name": "icon_enter_sprite",
+        "path": "sprites/ui/icon_enter.png",
+        "frames": 1,
+        "width": 16,
+        "height": 16
+    },
+    {
+        "mode": "init",
+        "id": 18,
+        "name": "icon_exit_sprite",
+        "path": "sprites/ui/icon_exit.png",
+        "frames": 1,
+        "width": 16,
+        "height": 16
+    },
+    {
+        "mode": "init",
+        "id": 19,
+        "name": "icon_plot_sprite",
+        "path": "sprites/ui/icon_plot.png",
+        "frames": 1,
+        "width": 16,
+        "height": 16
+    },
+    {
+        "mode": "init",
+        "id": 20,
+        "name": "icon_equip_sprite",
+        "path": "sprites/ui/icon_equip.png",
+        "frames": 2,
+        "width": 16,
+        "height": 16
+    },
+    {
+        "mode": "init",
+        "id": 21,
+        "name": "icon_input_sprite",
+        "path": "sprites/ui/icon_inputs.png",
+        "frames": 8,
+        "width": 16,
+        "height": 16
+    },
+    {
+        "mode": "init",
+        "id": 22,
+        "name": "icon_item_key_sprite",
+        "path": "sprites/ui/icon_item_key.png",
+        "frames": 1,
+        "width": 24,
+        "height": 24
+    },
+    {
+        "mode": "init",
+        "id": 23,
+        "name": "icon_item_food_sprite",
+        "path": "sprites/ui/icon_item_food.png",
+        "frames": 1,
+        "width": 24,
+        "height": 24
+    },
+    {
+        "mode": "init",
+        "id": 24,
+        "name": "icon_item_book_sprite",
+        "path": "sprites/ui/icon_item_book.png",
+        "frames": 1,
+        "width": 24,
+        "height": 24
+    },
+    {
+        "mode": "init",
+        "id": 25,
+        "name": "icon_item_toy_sprite",
+        "path": "sprites/ui/icon_item_toy.png",
+        "frames": 1,
+        "width": 24,
+        "height": 24
+    },
+    {
+        "mode": "init",
+        "id": 26,
+        "name": "icon_item_prop_sprite",
+        "path": "sprites/ui/icon_item_prop.png",
+        "frames": 1,
+        "width": 24,
+        "height": 24
+    },
+    {
+        "mode": "init",
+        "id": 27,
+        "name": "icon_item_gear_sprite",
+        "path": "sprites/ui/icon_item_gear.png",
+        "frames": 1,
+        "width": 24,
+        "height": 24
+    },
+    {
+        "mode": "init",
+        "id": 28,
+        "name": "icon_coin_sprite",
+        "path": "sprites/ui/icon_coin.png",
+        "frames": 1,
+        "width": 24,
+        "height": 24
+    },
+    {
+        "mode": "init",
+        "id": 29,
+        "name": "icon_vig_sprite",
+        "path": "sprites/ui/STAT_VIGOR2424.png",
+        "frames": 1,
+        "width": 24,
+        "height": 24
+    },
+    {
+        "mode": "init",
+        "id": 30,
+        "name": "icon_foc_sprite",
+        "path": "sprites/ui/STAT_FOCUS2424.png",
+        "frames": 1,
+        "width": 24,
+        "height": 24
+    },
+    {
+        "mode": "init",
+        "id": 31,
+        "name": "icon_spi_sprite",
+        "path": "sprites/ui/STAT_SPIRIT2424.png",
+        "frames": 1,
+        "width": 24,
+        "height": 24
+    },
+    {
+        "mode": "init",
+        "id": 32,
+        "name": "pip_vig_sprite",
+        "path": "sprites/ui/cell_vig.png",
+        "frames": 1,
+        "width": 8,
+        "height": 16
+    },
+    {
+        "mode": "init",
+        "id": 33,
+        "name": "pip_foc_sprite",
+        "path": "sprites/ui/cell_foc.png",
+        "frames": 1,
+        "width": 8,
+        "height": 16
+    },
+    {
+        "mode": "init",
+        "id": 34,
+        "name": "pip_spi_sprite",
+        "path": "sprites/ui/cell_spi.png",
+        "frames": 1,
+        "width": 8,
+        "height": 16
+    },
+    {
+        "mode": "init",
+        "id": 35,
+        "name": "pip_empty_sprite",
+        "path": "sprites/ui/cell_empty.png",
+        "frames": 1,
+        "width": 8,
+        "height": 16
+    },
+    {
+        "mode": "init",
+        "id": 36,
+        "name": "icon_temp_sprite",
+        "path": "sprites/ui/icon_temp.png",
+        "frames": 3,
+        "width": 24,
+        "height": 24
+    },
+    {
+        "mode": "init",
+        "id": 37,
+        "name": "icon_co2_sprite",
+        "path": "sprites/ui/icon_co2.png",
+        "frames": 3,
+        "width": 24,
+        "height": 24
+    },
+    {
+        "mode": "init",
+        "id": 38,
+        "name": "icon_pm_sprite",
+        "path": "sprites/ui/icon_pm.png",
+        "frames": 3,
+        "width": 24,
+        "height": 24
+    },
+    {
+        "mode": "init",
+        "id": 39,
+        "name": "icon_voc_sprite",
+        "path": "sprites/ui/icon_voc.png",
+        "frames": 3,
+        "width": 24,
+        "height": 24
+    },
+    {
+        "mode": "init",
+        "id": 40,
+        "name": "icon_nox_sprite",
+        "path": "sprites/ui/icon_nox.png",
+        "frames": 3,
+        "width": 24,
+        "height": 24
+    },
+    {
+        "mode": "init",
+        "id": 41,
+        "name": "icon_mask_sprite",
+        "path": "sprites/ui/aq-protection-mask.png",
+        "frames": 1,
+        "width": 24,
+        "height": 24
+    },
+    {
+        "mode": "init",
+        "id": 42,
+        "name": "icon_pure_sprite",
+        "path": "sprites/ui/aq-protection-purifier.png",
+        "frames": 1,
+        "width": 24,
+        "height": 24
+    },
+    {
+        "mode": "init",
+        "id": 43,
+        "name": "icon_uv_sprite",
+        "path": "sprites/ui/aq-protection-uv.png",
+        "frames": 1,
+        "width": 24,
+        "height": 24
+    },
+    {
+        "mode": "init",
+        "id": 44,
+        "name": "icon_nosmoke_sprite",
+        "path": "sprites/ui/nosmoke.png",
+        "frames": 1,
+        "width": 32,
+        "height": 32
+    },
+    {
+        "mode": "init",
+        "id": 45,
+        "name": "icon_ee_sprite",
+        "path": "sprites/ui/ee_logo.png",
+        "frames": 1,
+        "width": 160,
+        "height": 80
+    },
+    {
+        "mode": "init",
+        "id": 46,
+        "name": "icon_aq_ccode_sprite",
+        "path": "sprites/ui/icon_aq_ccode.png",
+        "frames": 3,
+        "width": 8,
+        "height": 12
+    },
+    {
+        "mode": "init",
+        "id": 47,
+        "name": "icon_cell_sprite",
+        "path": "sprites/ui/icon_cell_sprite.png",
+        "frames": 2,
+        "width": 8,
+        "height": 8
+    },
+    {
+        "mode": "init",
+        "id": 48,
+        "name": "icon_feed_sprite",
+        "path": "sprites/ui/Stat_Refill_Vigor_Button.png",
+        "frames": 2,
+        "width": 32,
+        "height": 32
+    },
+    {
+        "mode": "init",
+        "id": 49,
+        "name": "icon_study_sprite",
+        "path": "sprites/ui/Stat_Refill_Focus_Button.png",
+        "frames": 2,
+        "width": 32,
+        "height": 32
+    },
+    {
+        "mode": "init",
+        "id": 50,
+        "name": "icon_play_sprite",
+        "path": "sprites/ui/Stat_Refill_Spirit_Button.png",
+        "frames": 2,
+        "width": 32,
+        "height": 32
+    },
+    {
+        "mode": "init",
+        "id": 51,
+        "name": "icon_deco_sprite",
+        "path": "sprites/ui/sbut_deco.png",
+        "frames": 2,
+        "width": 32,
+        "height": 32
+    },
+    {
+        "mode": "init",
+        "id": 52,
+        "name": "icon_menu_sprite",
+        "path": "sprites/ui/sbut_menu.png",
+        "frames": 2,
+        "width": 32,
+        "height": 32
+    },
+    {
+        "mode": "init",
+        "id": 53,
+        "name": "cursor_sprite",
+        "path": "sprites/ui/cursor_room_ornate.png",
+        "frames": 1,
+        "width": 16,
+        "height": 16
+    },
+    {
+        "mode": "init",
+        "id": 54,
+        "name": "tile_hl_sprite",
+        "path": "sprites/ui/tile_hl.png",
+        "frames": 1,
+        "width": 16,
+        "height": 16
+    },
+    {
+        "mode": "init",
+        "id": 55,
+        "name": "cursor_add_sprite",
+        "path": "sprites/ui/cursor_add.png",
+        "frames": 1,
+        "width": 16,
+        "height": 16
+    },
+    {
+        "mode": "init",
+        "id": 56,
+        "name": "tile_hl_add_sprite",
+        "path": "sprites/ui/tile_hl_add.png",
+        "frames": 1,
+        "width": 16,
+        "height": 16
+    },
+    {
+        "mode": "init",
+        "id": 57,
+        "name": "cursor_flip_sprite",
+        "path": "sprites/ui/cursor_flip.png",
+        "frames": 1,
+        "width": 16,
+        "height": 16
+    },
+    {
+        "mode": "init",
+        "id": 58,
+        "name": "tile_hl_flip_sprite",
+        "path": "sprites/ui/tile_hl_flip.png",
+        "frames": 1,
+        "width": 16,
+        "height": 16
+    },
+    {
+        "mode": "init",
+        "id": 59,
+        "name": "tile_mark_flip_sprite",
+        "path": "sprites/ui/tile_mark_flip.png",
+        "frames": 1,
+        "width": 16,
+        "height": 16
+    },
+    {
+        "mode": "init",
+        "id": 60,
+        "name": "cursor_remove_sprite",
+        "path": "sprites/ui/cursor_remove.png",
+        "frames": 1,
+        "width": 16,
+        "height": 16
+    },
+    {
+        "mode": "init",
+        "id": 61,
+        "name": "tile_hl_rm_sprite",
+        "path": "sprites/ui/tile_hl_rm.png",
+        "frames": 1,
+        "width": 16,
+        "height": 16
+    },
+    {
+        "mode": "init",
+        "id": 62,
+        "name": "tile_mark_rm_sprite",
+        "path": "sprites/ui/tile_mark_rm.png",
+        "frames": 1,
+        "width": 16,
+        "height": 16
+    },
+    {
+        "mode": "init",
+        "id": 63,
+        "name": "button_hl_sprite",
+        "path": "sprites/ui/sbut_hl_sprite.png",
+        "frames": 1,
+        "width": 34,
+        "height": 34
+    },
+    {
+        "mode": "init",
+        "id": 64,
+        "name": "touch_hl_sprite",
+        "path": "sprites/ui/touch_ring_sprite.png",
+        "frames": 1,
+        "width": 32,
+        "height": 32
+    },
+    {
+        "mode": "init",
+        "id": 65,
+        "name": "bread_sprite",
+        "path": "sprites/food/bread.png",
+        "frames": 1,
+        "width": 16,
+        "height": 16
+    },
+    {
+        "mode": "init",
+        "id": 66,
+        "name": "coffee_sprite",
+        "path": "sprites/food/coffee.png",
+        "frames": 1,
+        "width": 16,
+        "height": 16
+    },
+    {
+        "mode": "init",
+        "id": 67,
+        "name": "milk_sprite",
+        "path": "sprites/food/milk.png",
+        "frames": 1,
+        "width": 16,
+        "height": 16
+    },
+    {
+        "mode": "init",
+        "id": 68,
+        "name": "soup_sprite",
+        "path": "sprites/food/soup.png",
+        "frames": 1,
+        "width": 16,
+        "height": 16
+    },
+    {
+        "mode": "init",
+        "id": 69,
+        "name": "salad_sprite",
+        "path": "sprites/food/salad.png",
+        "frames": 1,
+        "width": 16,
+        "height": 16
+    },
+    {
+        "mode": "init",
+        "id": 70,
+        "name": "sausage_sprite",
+        "path": "sprites/food/sausage.png",
+        "frames": 1,
+        "width": 16,
+        "height": 16
+    },
+    {
+        "mode": "init",
+        "id": 71,
+        "name": "green_curry_sprite",
+        "path": "sprites/food/curry_green.png",
+        "frames": 1,
+        "width": 16,
+        "height": 16
+    },
+    {
+        "mode": "init",
+        "id": 72,
+        "name": "red_curry_sprite",
+        "path": "sprites/food/curry_red.png",
+        "frames": 1,
+        "width": 16,
+        "height": 16
+    },
+    {
+        "mode": "init",
+        "id": 73,
+        "name": "padkaprow_sprite",
+        "path": "sprites/food/pad_krakow.png",
+        "frames": 1,
+        "width": 16,
+        "height": 16
+    },
+    {
+        "mode": "init",
+        "id": 74,
+        "name": "pill_vig_sprite",
+        "path": "sprites/food/seed_vigor_sm.png",
+        "frames": 1,
+        "width": 16,
+        "height": 16
+    },
+    {
+        "mode": "init",
+        "id": 75,
+        "name": "pill_foc_sprite",
+        "path": "sprites/food/seed_focus_sm.png",
+        "frames": 1,
+        "width": 16,
+        "height": 16
+    },
+    {
+        "mode": "init",
+        "id": 76,
+        "name": "pill_spi_sprite",
+        "path": "sprites/food/seed_spirit_sm.png",
+        "frames": 1,
+        "width": 16,
+        "height": 16
+    },
+    {
+        "mode": "init",
+        "id": 77,
+        "name": "cigarette_sprite",
+        "path": "sprites/prop/cigarette.png",
+        "frames": 1,
+        "width": 16,
+        "height": 16
+    },
+    {
+        "mode": "init",
+        "id": 78,
+        "name": "book_static_sprite",
+        "path": "sprites/read/book_upright.png",
+        "frames": 1,
+        "width": 16,
+        "height": 16
+    },
+    {
+        "mode": "init",
+        "id": 79,
+        "name": "book_study_sprite",
+        "path": "sprites/read/book_turn_a.png",
+        "frames": 8,
+        "width": 16,
+        "height": 32
+    },
+    {
+        "mode": "init",
+        "id": 80,
+        "name": "toy_duck_sprite",
+        "path": "sprites/toy/duck.png",
+        "frames": 1,
+        "width": 16,
+        "height": 16
+    },
+    {
+        "mode": "init",
+        "id": 81,
+        "name": "toy_baseball_sprite",
+        "path": "sprites/toy/baseball.png",
+        "frames": 1,
+        "width": 16,
+        "height": 16
+    },
+    {
+        "mode": "init",
+        "id": 82,
+        "name": "toy_basketball_sprite",
+        "path": "sprites/toy/basketball.png",
+        "frames": 1,
+        "width": 16,
+        "height": 16
+    },
+    {
+        "mode": "init",
+        "id": 83,
+        "name": "toy_golf_sprite",
+        "path": "sprites/toy/golf.png",
+        "frames": 1,
+        "width": 16,
+        "height": 16
+    },
+    {
+        "mode": "init",
+        "id": 84,
+        "name": "toy_puzzle_sprite",
+        "path": "sprites/toy/puzzle.png",
+        "frames": 1,
+        "width": 16,
+        "height": 16
+    },
+    {
+        "mode": "init",
+        "id": 85,
+        "name": "coin_static_sprite",
+        "path": "sprites/minigame/coin.png",
+        "frames": 1,
+        "width": 16,
+        "height": 16
+    },
+    {
+        "mode": "init",
+        "id": 86,
+        "name": "coin_world_sprite",
+        "path": "sprites/gameplay/coin_a.png",
+        "frames": 4,
+        "width": 16,
+        "height": 16
+    },
+    {
+        "mode": "init",
+        "id": 87,
+        "name": "window_dawn_sprite",
+        "path": "sprites/wall/wdw_lg_dawn.png",
+        "frames": 1,
+        "width": 112,
+        "height": 64
+    },
+    {
+        "mode": "init",
+        "id": 88,
+        "name": "window_day_sprite",
+        "path": "sprites/wall/wdw_lg_afternoon.png",
+        "frames": 1,
+        "width": 112,
+        "height": 64
+    },
+    {
+        "mode": "init",
+        "id": 89,
+        "name": "window_day_high_aq_sprite",
+        "path": "sprites/wall/wdw_aqi_high_a.png",
+        "frames": 8,
+        "width": 112,
+        "height": 64
+    },
+    {
+        "mode": "init",
+        "id": 90,
+        "name": "window_day_low_aq_sprite",
+        "path": "sprites/wall/wdw_aqi_mid.png",
+        "frames": 1,
+        "width": 112,
+        "height": 64
+    },
+    {
+        "mode": "init",
+        "id": 91,
+        "name": "window_night_sprite",
+        "path": "sprites/wall/wdw_lg_night.png",
+        "frames": 1,
+        "width": 112,
+        "height": 64
+    },
+    {
+        "mode": "init",
+        "id": 92,
+        "name": "vending_sprite",
+        "path": "sprites/gameplay/vending_idle_a.png",
+        "frames": 7,
+        "width": 64,
+        "height": 96
+    },
+    {
+        "mode": "init",
+        "id": 93,
+        "name": "arcade_sprite",
+        "path": "sprites/gameplay/arcade_a.png",
+        "frames": 2,
+        "width": 48,
+        "height": 64
+    },
+    {
+        "mode": "init",
+        "id": 94,
+        "name": "gpu_sprite",
+        "path": "sprites/gameplay/solderpaste.png",
+        "frames": 1,
+        "width": 48,
+        "height": 48
+    },
+    {
+        "mode": "init",
+        "id": 95,
+        "name": "uv_sprite",
+        "path": "sprites/gameplay/uv_alt_a.png",
+        "frames": 2,
+        "width": 16,
+        "height": 64
+    },
+    {
+        "mode": "init",
+        "id": 96,
+        "name": "purifier_sprite",
+        "path": "sprites/gameplay/purifier_eth_a.png",
+        "frames": 8,
+        "width": 32,
+        "height": 48
+    },
+    {
+        "mode": "init",
+        "id": 97,
+        "name": "coffeemaker_sprite",
+        "path": "sprites/prop/coffee_a.png",
+        "frames": 14,
+        "width": 32,
+        "height": 48
+    },
+    {
+        "mode": "init",
+        "id": 98,
+        "name": "fan_a_sprite",
+        "path": "sprites/prop/fan_a.png",
+        "frames": 3,
+        "width": 32,
+        "height": 48
+    },
+    {
+        "mode": "init",
+        "id": 99,
+        "name": "fan_b_sprite",
+        "path": "sprites/gameplay/purifier_a.png",
+        "frames": 6,
+        "width": 32,
+        "height": 48
+    },
+    {
+        "mode": "init",
+        "id": 100,
+        "name": "lantern_sprite",
+        "path": "sprites/prop/lantern_lit_a.png",
+        "frames": 2,
+        "width": 16,
+        "height": 32
+    },
+    {
+        "mode": "init",
+        "id": 101,
+        "name": "laptop_sprite",
+        "path": "sprites/prop/laptop_a.png",
+        "frames": 4,
+        "width": 32,
+        "height": 32
+    },
+    {
+        "mode": "init",
+        "id": 102,
+        "name": "chess_sprite",
+        "path": "sprites/prop/chess.png",
+        "frames": 1,
+        "width": 32,
+        "height": 32
+    },
+    {
+        "mode": "init",
+        "id": 103,
+        "name": "table_lg_sprite",
+        "path": "sprites/prop/table_xl_wood.png",
+        "frames": 1,
+        "width": 64,
+        "height": 48
+    },
+    {
+        "mode": "init",
+        "id": 104,
+        "name": "table_sm_sprite",
+        "path": "sprites/prop/table_square_mahogany.png",
+        "frames": 1,
+        "width": 32,
+        "height": 48
+    },
+    {
+        "mode": "init",
+        "id": 105,
+        "name": "chair_wood_sprite",
+        "path": "sprites/prop/chair_mahogany.png",
+        "frames": 4,
+        "width": 32,
+        "height": 48
+    },
+    {
+        "mode": "init",
+        "id": 106,
+        "name": "chair_stone_sprite",
+        "path": "sprites/prop/chair_stone.png",
+        "frames": 4,
+        "width": 32,
+        "height": 48
+    },
+    {
+        "mode": "init",
+        "id": 107,
+        "name": "stool_wood_sprite",
+        "path": "sprites/prop/stool_wood.png",
+        "frames": 1,
+        "width": 32,
+        "height": 32
+    },
+    {
+        "mode": "init",
+        "id": 108,
+        "name": "stool_stone_sprite",
+        "path": "sprites/prop/stool_stone.png",
+        "frames": 1,
+        "width": 32,
+        "height": 32
+    },
+    {
+        "mode": "init",
+        "id": 109,
+        "name": "stool_gold_sprite",
+        "path": "sprites/prop/stool_gold.png",
+        "frames": 1,
+        "width": 32,
+        "height": 32
+    },
+    {
+        "mode": "init",
+        "id": 110,
+        "name": "bowl_stone_sprite",
+        "path": "sprites/prop/bowl_stone.png",
+        "frames": 1,
+        "width": 16,
+        "height": 16
+    },
+    {
+        "mode": "init",
+        "id": 111,
+        "name": "bowl_gold_sprite",
+        "path": "sprites/prop/bowl_gold.png",
+        "frames": 1,
+        "width": 16,
+        "height": 16
+    },
+    {
+        "mode": "init",
+        "id": 112,
+        "name": "succulent_sprite",
+        "path": "sprites/prop/plant_md_stem.png",
+        "frames": 2,
+        "width": 16,
+        "height": 32
+    },
+    {
+        "mode": "init",
+        "id": 113,
+        "name": "bush_plain_sprite",
+        "path": "sprites/prop/bush_md_blank.png",
+        "frames": 1,
+        "width": 32,
+        "height": 32
+    },
+    {
+        "mode": "init",
+        "id": 114,
+        "name": "bush_daisy_sprite",
+        "path": "sprites/prop/bush_md_daisy.png",
+        "frames": 1,
+        "width": 32,
+        "height": 32
+    },
+    {
+        "mode": "init",
+        "id": 115,
+        "name": "bush_lilac_sprite",
+        "path": "sprites/prop/bush_md_lilac.png",
+        "frames": 1,
+        "width": 32,
+        "height": 32
+    },
+    {
+        "mode": "init",
+        "id": 116,
+        "name": "plant_green_sprite",
+        "path": "sprites/prop/plant_lg_sapling_blank.png",
+        "frames": 1,
+        "width": 32,
+        "height": 80
+    },
+    {
+        "mode": "init",
+        "id": 117,
+        "name": "plant_maroon_sprite",
+        "path": "sprites/prop/plant_lg_sapling_maroon.png",
+        "frames": 1,
+        "width": 32,
+        "height": 80
+    },
+    {
+        "mode": "init",
+        "id": 118,
+        "name": "plant_purple_sprite",
+        "path": "sprites/prop/plant_lg_sapling_lilac.png",
+        "frames": 1,
+        "width": 32,
+        "height": 80
+    },
+    {
+        "mode": "init",
+        "id": 119,
+        "name": "plant_yellow_sprite",
+        "path": "sprites/prop/plant_lg_sapling_daisy.png",
+        "frames": 1,
+        "width": 32,
+        "height": 80
+    },
+    {
+        "mode": "init",
+        "id": 120,
+        "name": "flower_vig_sprite",
+        "path": "sprites/gameplay/stat_plant_vigor.png",
+        "frames": 6,
+        "width": 32,
+        "height": 64
+    },
+    {
+        "mode": "init",
+        "id": 121,
+        "name": "flower_foc_sprite",
+        "path": "sprites/gameplay/stat_plant_focus.png",
+        "frames": 6,
+        "width": 32,
+        "height": 64
+    },
+    {
+        "mode": "init",
+        "id": 122,
+        "name": "flower_spi_sprite",
+        "path": "sprites/gameplay/stat_plant_spirit.png",
+        "frames": 6,
+        "width": 32,
+        "height": 64
+    },
+    {
+        "mode": "init",
+        "id": 123,
+        "name": "crystal_blue_lg_sprite",
+        "path": "sprites/prop/crystal_lg_shard_blue.png",
+        "frames": 1,
+        "width": 32,
+        "height": 32
+    },
+    {
+        "mode": "init",
+        "id": 124,
+        "name": "crystal_green_lg_sprite",
+        "path": "sprites/prop/crystal_lg_shard_green.png",
+        "frames": 1,
+        "width": 32,
+        "height": 32
+    },
+    {
+        "mode": "init",
+        "id": 125,
+        "name": "crystal_purple_lg_sprite",
+        "path": "sprites/prop/crystal_lg_shard_purple.png",
+        "frames": 1,
+        "width": 32,
+        "height": 32
+    },
+    {
+        "mode": "init",
+        "id": 126,
+        "name": "effigy_blue_sprite",
+        "path": "sprites/prop/effigy_blue_a.png",
+        "frames": 4,
+        "width": 48,
+        "height": 80
+    },
+    {
+        "mode": "init",
+        "id": 127,
+        "name": "effigy_purple_sprite",
+        "path": "sprites/prop/effigy_purple_a.png",
+        "frames": 4,
+        "width": 48,
+        "height": 80
+    },
+    {
+        "mode": "init",
+        "id": 128,
+        "name": "effigy_sea_sprite",
+        "path": "sprites/prop/effigy_sea_a.png",
+        "frames": 4,
+        "width": 48,
+        "height": 80
+    },
+    {
+        "mode": "init",
+        "id": 129,
+        "name": "poster_zk_sprite",
+        "path": "sprites/prop/poster_md_zk.png",
+        "frames": 1,
+        "width": 32,
+        "height": 32
+    },
+    {
+        "mode": "init",
+        "id": 130,
+        "name": "pixel_sprite",
+        "path": "sprites/prop/pixel.png",
+        "frames": 1,
+        "width": 16,
+        "height": 16
+    },
+    {
+        "mode": "init",
+        "id": 131,
+        "name": "padkaprop_sprite",
+        "path": "sprites/temp/food_padkrakow_md.png",
+        "frames": 1,
+        "width": 32,
+        "height": 32
+    },
+    {
+        "mode": "init",
+        "id": 132,
+        "name": "pet_idle_sprite",
+        "path": "sprites/pet/unicorn_idle_complex_a.png",
+        "frames": 4,
+        "width": 64,
+        "height": 48
+    },
+    {
+        "mode": "init",
+        "id": 133,
+        "name": "pet_walk_sprite",
+        "path": "sprites/pet/unicorn_default_walk_complex_a.png",
+        "frames": 4,
+        "width": 64,
+        "height": 48
+    },
+    {
+        "mode": "init",
+        "id": 134,
+        "name": "pet_idle_high_vig_sprite",
+        "path": "sprites/pet/unicorn_wing_idle_a.png",
+        "frames": 4,
+        "width": 64,
+        "height": 48
+    },
+    {
+        "mode": "init",
+        "id": 135,
+        "name": "pet_walk_high_vig_sprite",
+        "path": "sprites/pet/unicorn_wing_walk_a.png",
+        "frames": 4,
+        "width": 64,
+        "height": 48
+    },
+    {
+        "mode": "init",
+        "id": 136,
+        "name": "pet_high_vig_in_sprite",
+        "path": "sprites/pet/unicorn_wing_a.png",
+        "frames": 13,
+        "width": 64,
+        "height": 48
+    },
+    {
+        "mode": "copy",
+        "id": 137,
+        "name": "pet_high_vig_out_sprite",
+        "source": 136
+    },
+    {
+        "mode": "init",
+        "id": 138,
+        "name": "pet_idle_high_foc_sprite",
+        "path": "sprites/pet/unicorn_glow_idle_a.png",
+        "frames": 4,
+        "width": 64,
+        "height": 48
+    },
+    {
+        "mode": "init",
+        "id": 139,
+        "name": "pet_walk_high_foc_sprite",
+        "path": "sprites/pet/unicorn_glow_walk_a.png",
+        "frames": 4,
+        "width": 64,
+        "height": 48
+    },
+    {
+        "mode": "init",
+        "id": 140,
+        "name": "pet_idle_high_spi_sprite",
+        "path": "sprites/pet/unicorn_shimmer_idle_a.png",
+        "frames": 4,
+        "width": 64,
+        "height": 48
+    },
+    {
+        "mode": "init",
+        "id": 141,
+        "name": "pet_walk_high_spi_sprite",
+        "path": "sprites/pet/unicorn_shimmer_walk_a.png",
+        "frames": 4,
+        "width": 64,
+        "height": 48
+    },
+    {
+        "mode": "init",
+        "id": 142,
+        "name": "pet_idle_low_vig_sprite",
+        "path": "sprites/pet/unicorn_tired_a.png",
+        "frames": 4,
+        "width": 64,
+        "height": 48
+    },
+    {
+        "mode": "init",
+        "id": 143,
+        "name": "pet_walk_low_vig_sprite",
+        "path": "sprites/pet/unicorn_tired_walk_a.png",
+        "frames": 4,
+        "width": 64,
+        "height": 48
+    },
+    {
+        "mode": "init",
+        "id": 144,
+        "name": "pet_idle_low_foc_sprite",
+        "path": "sprites/pet/unicorn_messy_stink_a.png",
+        "frames": 8,
+        "width": 64,
+        "height": 48
+    },
+    {
+        "mode": "init",
+        "id": 145,
+        "name": "pet_walk_low_foc_sprite",
+        "path": "sprites/pet/unicorn_messy_walk_complex_a.png",
+        "frames": 4,
+        "width": 64,
+        "height": 48
+    },
+    {
+        "mode": "init",
+        "id": 146,
+        "name": "pet_idle_low_spi_sprite",
+        "path": "sprites/pet/unicorn_sad_idle_a.png",
+        "frames": 4,
+        "width": 64,
+        "height": 48
+    },
+    {
+        "mode": "init",
+        "id": 147,
+        "name": "pet_walk_low_spi_sprite",
+        "path": "sprites/pet/unicorn_sad_walk_a.png",
+        "frames": 4,
+        "width": 64,
+        "height": 48
+    },
+    {
+        "mode": "init",
+        "id": 148,
+        "name": "pet_crit_vig_in_sprite",
+        "path": "sprites/pet/unicorn_melt_a.png",
+        "frames": 8,
+        "width": 64,
+        "height": 48
+    },
+    {
+        "mode": "init",
+        "id": 149,
+        "name": "pet_crit_vig_sprite",
+        "path": "sprites/pet/unicorn_melt.png",
+        "frames": 1,
+        "width": 64,
+        "height": 48
+    },
+    {
+        "mode": "copy",
+        "id": 150,
+        "name": "pet_crit_vig_out_sprite",
+        "source": 148
+    },
+    {
+        "mode": "init",
+        "id": 151,
+        "name": "pet_crit_foc_in_sprite",
+        "path": "sprites/pet/unicorn_tipped_a.png",
+        "frames": 6,
+        "width": 64,
+        "height": 48
+    },
+    {
+        "mode": "init",
+        "id": 152,
+        "name": "pet_crit_foc_sprite",
+        "path": "sprites/pet/unicorn_tipped.png",
+        "frames": 1,
+        "width": 64,
+        "height": 48
+    },
+    {
+        "mode": "copy",
+        "id": 153,
+        "name": "pet_crit_foc_out_sprite",
+        "source": 151
+    },
+    {
+        "mode": "init",
+        "id": 154,
+        "name": "pet_crit_spi_in_sprite",
+        "path": "sprites/pet/unicorn_block_a.png",
+        "frames": 15,
+        "width": 64,
+        "height": 48
+    },
+    {
+        "mode": "init",
+        "id": 155,
+        "name": "pet_crit_spi_sprite",
+        "path": "sprites/pet/unicorn_block_blink_a.png",
+        "frames": 2,
+        "width": 64,
+        "height": 48
+    },
+    {
+        "mode": "copy",
+        "id": 156,
+        "name": "pet_crit_spi_out_sprite",
+        "source": 154
+    },
+    {
+        "mode": "init",
+        "id": 157,
+        "name": "pet_eat_in_sprite",
+        "path": "sprites/pet/unicorn_eat_lower_a.png",
+        "frames": 7,
+        "width": 64,
+        "height": 48
+    },
+    {
+        "mode": "init",
+        "id": 158,
+        "name": "pet_eat_sprite",
+        "path": "sprites/pet/unicorn_eat_chew_a.png",
+        "frames": 2,
+        "width": 64,
+        "height": 48
+    },
+    {
+        "mode": "copy",
+        "id": 159,
+        "name": "pet_eat_out_sprite",
+        "source": 157
+    },
+    {
+        "mode": "init",
+        "id": 160,
+        "name": "pet_study_in_sprite",
+        "path": "sprites/pet/unicorn_read_sit_a.png",
+        "frames": 6,
+        "width": 64,
+        "height": 48
+    },
+    {
+        "mode": "init",
+        "id": 161,
+        "name": "pet_study_sprite",
+        "path": "sprites/pet/unicorn_read_sit.png",
+        "frames": 1,
+        "width": 64,
+        "height": 48
+    },
+    {
+        "mode": "copy",
+        "id": 162,
+        "name": "pet_study_out_sprite",
+        "source": 160
+    },
+    {
+        "mode": "init",
+        "id": 163,
+        "name": "pet_play_a_sprite",
+        "path": "sprites/pet/unicorn_play_knead_a.png",
+        "frames": 6,
+        "width": 64,
+        "height": 48
+    },
+    {
+        "mode": "init",
+        "id": 164,
+        "name": "pet_play_b_sprite",
+        "path": "sprites/pet/unicorn_play_b_a.png",
+        "frames": 6,
+        "width": 64,
+        "height": 48
+    },
+    {
+        "mode": "init",
+        "id": 165,
+        "name": "pet_play_c_sprite",
+        "path": "sprites/pet/unicorn_play_c_a.png",
+        "frames": 6,
+        "width": 64,
+        "height": 48
+    },
+    {
+        "mode": "init",
+        "id": 166,
+        "name": "pet_vig_up_sprite",
+        "path": "sprites/pet/unicorn_stat_vigor_up_a.png",
+        "frames": 13,
+        "width": 64,
+        "height": 48
+    },
+    {
+        "mode": "init",
+        "id": 167,
+        "name": "pet_foc_up_sprite",
+        "path": "sprites/pet/unicorn_stat_focus_up_a.png",
+        "frames": 13,
+        "width": 64,
+        "height": 48
+    },
+    {
+        "mode": "init",
+        "id": 168,
+        "name": "pet_spi_up_sprite",
+        "path": "sprites/pet/unicorn_stat_spirit_up_a.png",
+        "frames": 13,
+        "width": 64,
+        "height": 48
+    },
+    {
+        "mode": "init",
+        "id": 169,
+        "name": "mood_low_vig_sprite",
+        "path": "sprites/ui/bubl_low_vig.png",
+        "frames": 3,
+        "width": 21,
+        "height": 21
+    },
+    {
+        "mode": "init",
+        "id": 170,
+        "name": "mood_low_foc_sprite",
+        "path": "sprites/ui/bubl_low_foc.png",
+        "frames": 3,
+        "width": 21,
+        "height": 21
+    },
+    {
+        "mode": "init",
+        "id": 171,
+        "name": "mood_low_spi_sprite",
+        "path": "sprites/ui/bubl_low_spi.png",
+        "frames": 3,
+        "width": 21,
+        "height": 21
+    },
+    {
+        "mode": "init",
+        "id": 172,
+        "name": "mood_good_sprite",
+        "path": "sprites/ui/bubl_react_good.png",
+        "frames": 5,
+        "width": 21,
+        "height": 16
+    },
+    {
+        "mode": "init",
+        "id": 173,
+        "name": "mood_bad_sprite",
+        "path": "sprites/ui/bubl_react_bad.png",
+        "frames": 3,
+        "width": 21,
+        "height": 16
+    },
+    {
+        "mode": "init",
+        "id": 174,
+        "name": "snake_head_sprite",
+        "path": "sprites/minigame/snake_cat_head_default.png",
+        "frames": 4,
+        "width": 16,
+        "height": 16
+    },
+    {
+        "mode": "init",
+        "id": 175,
+        "name": "snake_body_sprite",
+        "path": "sprites/minigame/snake_cat_body.png",
+        "frames": 4,
+        "width": 16,
+        "height": 16
+    },
+    {
+        "mode": "init",
+        "id": 176,
+        "name": "snake_corner_sprite",
+        "path": "sprites/minigame/snake_cat_corner.png",
+        "frames": 4,
+        "width": 16,
+        "height": 16
+    },
+    {
+        "mode": "init",
+        "id": 177,
+        "name": "snake_tail_sprite",
+        "path": "sprites/minigame/snake_tail.png",
+        "frames": 4,
+        "width": 16,
+        "height": 16
+    },
+    {
+        "mode": "init",
+        "id": 178,
+        "name": "mines_sprite",
+        "path": "sprites/minigame/minesweeper.png",
+        "frames": 12,
+        "width": 16,
+        "height": 17
+    }
 ]

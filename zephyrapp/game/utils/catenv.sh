@@ -3,6 +3,6 @@ if [ -z ${ZEPHYR_BASE} ]; then
 	return 1
 fi
 source $ZEPHYR_BASE/../venv/bin/activate
-pip install pygame --quiet
-pip install pillow --quiet
+pip install pygame
+pip install pillow
 

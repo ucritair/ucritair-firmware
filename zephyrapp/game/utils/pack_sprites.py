@@ -32,29 +32,33 @@ class BakeData:
 
 atlas = []
 
-with open(os.path.dirname(__file__)+"/atlasdata.txt", 'r') as fd:
-	for line in fd.readlines():
-		line = line.strip()
-		if line.startswith("BAKE-INIT:"):
-			tup = eval(line.replace('BAKE-INIT: ', '', 1))
-
-			idx, name, path, frames, width, height = tup
-			name = name.replace('[','').replace(']','')
-			atlas.append(BakeData(int(idx), name, path, int(frames), int(width), int(height)))
-		elif line.startswith("BAKE-COPY:"):
-			tup = eval(line.replace('BAKE-COPY: ', '', 1))
-
-			idx, name, from_ = tup
-			name = name.replace('[','').replace(']','')
-			from_ = atlas[from_]
-			atlas.append(BakeData(int(idx), name, from_.path, from_.frames, from_.width, from_.height))
+with open("sprites/sprites.json", "r") as fd:
+	sprites = json.load(fd);
+	for sprite in sprites:
+		if sprite["mode"] == "init":
+			atlas.append(BakeData(
+				sprite["id"],
+				sprite["name"],
+				sprite["path"],
+				sprite["frames"],
+				sprite["width"],
+				sprite["height"]
+			));
+		else:
+			source = atlas[sprite["source"]];
+			atlas.append(BakeData(
+				sprite["id"],
+				sprite["name"],
+				source.path,
+				source.frames,
+				source.width,
+				source.height
+			));
 
 # assert len(set(x.path for x in atlas)) == len([x.path for x in atlas]), "Duplicated path"
 assert len(set(x.name for x in atlas)) == len([x.name for x in atlas]), "Duplicated name"
 
 atlas.sort(key=lambda x: x.idx)
-
-output = sys.argv[1]
 
 def hex4(x):
 	h = hex(x)[2:]
@@ -69,10 +73,10 @@ def hex2(x):
 textures = {}
 for x in atlas:
 	try:
-		textures[x.path] = pygame.image.load(os.path.dirname(__file__)+"/../game/"+x.path)
+		textures[x.path] = pygame.image.load(x.path)
 	except FileNotFoundError:
 		print("Falling back for ", x.path)
-		textures[x.path] = pygame.image.load(os.path.dirname(__file__)+"/../game/sprites/none_24x24.png")
+		textures[x.path] = pygame.image.load("sprites/none_24x24.png")
 
 def get_px(image, x, y):
 	r, g, b, a = image.get_at((x, y))
@@ -161,7 +165,7 @@ def rleencode(data, width):
 
 texture_use_cache = {}
 
-with open(f"{output}/images.c", 'w') as fd:
+with open("sprites/sprite_assets.c", 'w') as fd:
 	fd.write('#include <stdint.h>\n')
 	fd.write('#include "cat_sprite.h"\n')
 	fd.write('\n\n')
@@ -263,7 +267,7 @@ with open(f"{output}/images.c", 'w') as fd:
 
 	if '--noswap' not in sys.argv:
 		fd.write('#include "epaper_rendering.h"\n')
-		eink_folder = os.path.dirname(__file__)+"/../assets/"
+		eink_folder = "../assets/"
 		for path in os.listdir(eink_folder):
 			print('eink', path)
 			texture = pygame.image.load(eink_folder+path)

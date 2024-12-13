@@ -8,18 +8,18 @@ import subprocess as sp;
 from PIL import Image;
 
 if(len(sys.argv) < 2):
-	print("usage: spritegen.py [--all] <sprite directory>");
+	print("usage: tos_spritegen.py [--all] <sprite directory>");
 	exit();
 sprites_dir = sys.argv[-1];
 
-sprites_json_path = os.path.join(sprites_dir, "sprites.json");
+sprites_json_path = os.path.join(sprites_dir, "tos_sprites.json");
 sprites_json_file = open(sprites_json_path, "r");
 sprites_json = json.load(sprites_json_file);
 sprites_json_file.close();
 
-sprite_header_path = os.path.join(sprites_dir, "sprite_assets.h");
+sprite_header_path = os.path.join(sprites_dir, "tos_sprite_assets.h");
 sprite_header = open(sprite_header_path, "w");
-sprite_source_path = os.path.join(sprites_dir, "sprite_assets.c");
+sprite_source_path = os.path.join(sprites_dir, "tos_sprite_assets.c");
 sprite_source = open(sprite_source_path, "w");
 
 sprite_header.write(f"// Generated from {sprites_json_path}\n");
@@ -32,10 +32,10 @@ sprite_header.write("\n");
 
 sprite_source.write(f"// Generated from {sprites_json_path}\n");
 sprite_source.write("\n");
-sprite_source.write("#include \"sprite_assets.h\"\n");
+sprite_source.write("#include \"tos_sprite_assets.h\"\n");
 sprite_source.write("\n");
 
-sprite_header.write("typedef struct CAT_sprite_\n");
+sprite_header.write("typedef struct CAT_sprite\n");
 sprite_header.write("{\n");
 sprite_header.write("\tconst char* path;\n");
 sprite_header.write("\n");
@@ -90,9 +90,9 @@ def serialize_sprite(path, frames):
 	sprite = Image.open(os.path.join(sprites_dir, path));
 	sprite = sprite.convert("P");
 	
-	sprite_header.write(f"extern CAT_sprite_ {name}_sprite_;\n");
+	sprite_header.write(f"extern CAT_sprite {name}_sprite;\n");
 
-	sprite_source.write(f"CAT_sprite_ {name}_sprite_ = \n");
+	sprite_source.write(f"CAT_sprite {name}_sprite = \n");
 	sprite_source.write("{\n");
 	sprite_source.write(f"\t.path = \"{path}\",\n");
 	sprite_source.write("\n");

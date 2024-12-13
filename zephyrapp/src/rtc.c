@@ -83,7 +83,7 @@ PERSIST_RAM bool guy_is_wearing_mask;
 
 PERSIST_RAM uint8_t screen_brightness;
 
-#define RTC_INIT_CHECK_MAGIC 0x2000b887
+#define RTC_INIT_CHECK_MAGIC 0x2000b887 // Too many digits for hog slapper
 
 bool is_first_init = false;
 

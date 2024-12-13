@@ -251,22 +251,12 @@ void CAT_spriteberry(CAT_sprite_* sprite, int x, int y)
 
 	int xwi = x;
 	int ywi = y;
-
 	int xwf = xwi + w;
-	int skip_x = 0;
-	if(xwf < 0)
-	{
-		skip_x = -xwf;
-		xwf = 0;
-	}
-		
 	int ywf = ywi + h;
-	if (ywf >= LCD_FRAMEBUFFER_H)
-		ywf = LCD_FRAMEBUFFER_H;
 
 	int dy = 0;
 	int dx = 0;
-	bool row_start = true;
+
 	for(int i = 0; i < sprite->n_runs; i++)
 	{
 		uint8_t run_key = sprite->runs[i*2+0];
@@ -287,13 +277,9 @@ void CAT_spriteberry(CAT_sprite_* sprite, int x, int y)
 			}
 			dy += skip_rows;
 			dx += skip_cols;
-			if(skip_rows > 1)
-				row_start = true;
 			continue;
 		}
 
-		if(row_start)
-			run_length -= skip_x;
 		for(int j = 0; j < run_length; j++)
 		{
 			int xw = xwi + dx;
@@ -310,7 +296,6 @@ void CAT_spriteberry(CAT_sprite_* sprite, int x, int y)
 			{
 				dx = 0;
 				dy += 1;
-				row_start = true;
 			}
 		}
 	}
@@ -1225,10 +1210,9 @@ void CAT_sprite_mass_define()
 #ifdef CAT_DESKTOP
 	setvbuf(stdout, NULL, _IONBF, 0);
 #endif
-
 	// TILESETS
 	INIT_SPRITE(base_wall_sprite, "sprites/wall/basic.png", 3);
-	INIT_SPRITE(sky_wall_sprite, "sprites/wall/sky.png", 8);
+	INIT_SPRITE(sky_wall_sprite, "sprites/wall/sky.png", 7);
 	INIT_SPRITE(base_floor_sprite, "sprites/tile/basic.png", 3);
 	INIT_SPRITE(grass_floor_sprite, "sprites/tile/grass.png", 21);
 	INIT_SPRITE(ash_floor_sprite, "sprites/tile/ash.png", 6);
@@ -1280,7 +1264,7 @@ void CAT_sprite_mass_define()
 	INIT_SPRITE(icon_uv_sprite, "sprites/ui/aq-protection-uv.png", 1);
 
 	INIT_SPRITE(icon_nosmoke_sprite, "sprites/ui/nosmoke.png", 1);
-	INIT_SPRITE(icon_ee_sprite, "sprites/ee_logo.png", 1);
+	INIT_SPRITE(icon_ee_sprite, "sprites/ui/ee_logo.png", 1);
 	INIT_SPRITE(icon_aq_ccode_sprite, "sprites/ui/icon_aq_ccode.png", 3);
 	INIT_SPRITE(icon_cell_sprite, "sprites/ui/icon_cell_sprite.png", 2);
 
@@ -1333,7 +1317,7 @@ void CAT_sprite_mass_define()
 	INIT_SPRITE(toy_puzzle_sprite, "sprites/toy/puzzle.png", 1);
 
 	INIT_SPRITE(coin_static_sprite, "sprites/minigame/coin.png", 1);
-	INIT_SPRITE(coin_world_sprite, "sprites/coin_a.png", 4);
+	INIT_SPRITE(coin_world_sprite, "sprites/gameplay/coin_a.png", 4);
 
 	// FIXED PROPS
 	INIT_SPRITE(window_dawn_sprite, "sprites/wall/wdw_lg_dawn.png", 1);
@@ -1396,16 +1380,16 @@ void CAT_sprite_mass_define()
 	INIT_SPRITE(pet_idle_sprite, "sprites/pet/unicorn_idle_complex_a.png", 4);
 	INIT_SPRITE(pet_walk_sprite, "sprites/pet/unicorn_default_walk_complex_a.png", 4);
 
-	INIT_SPRITE(pet_high_vig_in_sprite, "sprites/pet_unicorn_wing_a.png", 13);
+	INIT_SPRITE(pet_idle_high_vig_sprite, "sprites/pet/unicorn_wing_idle_a.png", 4);
+	INIT_SPRITE(pet_walk_high_vig_sprite, "sprites/pet/unicorn_wing_walk_a.png", 4);
+	INIT_SPRITE(pet_high_vig_in_sprite, "sprites/pet/unicorn_wing_a.png", 13);
 	COPY_SPRITE(pet_high_vig_out_sprite, pet_high_vig_in_sprite);
 	CAT_anim_toggle_reverse(pet_high_vig_out_sprite, true);
 	CAT_anim_toggle_loop(pet_high_vig_out_sprite, false);
-	INIT_SPRITE(pet_idle_high_vig_sprite, "sprites/pet_unicorn_wing_idle_a.png", 4);
-	INIT_SPRITE(pet_walk_high_vig_sprite, "sprites/pet_unicorn_wing_walk_a.png", 4);
-	INIT_SPRITE(pet_idle_high_foc_sprite, "sprites/pet_unicorn_glow_idle_a.png", 4);
-	INIT_SPRITE(pet_walk_high_foc_sprite, "sprites/pet_unicorn_glow_walk_a.png", 4);
-	INIT_SPRITE(pet_idle_high_spi_sprite, "sprites/pet_unicorn_shimmer_idle_a.png", 4);
-	INIT_SPRITE(pet_walk_high_spi_sprite, "sprites/pet_unicorn_shimmer_walk_a.png", 4);
+	INIT_SPRITE(pet_idle_high_foc_sprite, "sprites/pet/unicorn_glow_idle_a.png", 4);
+	INIT_SPRITE(pet_walk_high_foc_sprite, "sprites/pet/unicorn_glow_walk_a.png", 4);
+	INIT_SPRITE(pet_idle_high_spi_sprite, "sprites/pet/unicorn_shimmer_idle_a.png", 4);
+	INIT_SPRITE(pet_walk_high_spi_sprite, "sprites/pet/unicorn_shimmer_walk_a.png", 4);
 
 	INIT_SPRITE(pet_idle_low_vig_sprite, "sprites/pet/unicorn_tired_a.png", 4);
 	INIT_SPRITE(pet_walk_low_vig_sprite, "sprites/pet/unicorn_tired_walk_a.png", 4);
@@ -1414,33 +1398,33 @@ void CAT_sprite_mass_define()
 	INIT_SPRITE(pet_idle_low_spi_sprite, "sprites/pet/unicorn_sad_idle_a.png", 4);
 	INIT_SPRITE(pet_walk_low_spi_sprite, "sprites/pet/unicorn_sad_walk_a.png", 4);
 
-	INIT_SPRITE(pet_crit_vig_in_sprite, "sprites/pet_unicorn_melt_a.png", 8);
-	INIT_SPRITE(pet_crit_vig_sprite, "sprites/pet_unicorn_melt.png", 1);
+	INIT_SPRITE(pet_crit_vig_in_sprite, "sprites/pet/unicorn_melt_a.png", 8);
+	INIT_SPRITE(pet_crit_vig_sprite, "sprites/pet/unicorn_melt.png", 1);
 	COPY_SPRITE(pet_crit_vig_out_sprite, pet_crit_vig_in_sprite);
 	CAT_anim_toggle_reverse(pet_crit_vig_out_sprite, true);
 	CAT_anim_toggle_loop(pet_crit_vig_out_sprite, false);
 
-	INIT_SPRITE(pet_crit_foc_in_sprite, "sprites/pet_unicorn_tipped_a.png", 6);
-	INIT_SPRITE(pet_crit_foc_sprite, "sprites/pet_unicorn_tipped.png", 1);
+	INIT_SPRITE(pet_crit_foc_in_sprite, "sprites/pet/unicorn_tipped_a.png", 6);
+	INIT_SPRITE(pet_crit_foc_sprite, "sprites/pet/unicorn_tipped.png", 1);
 	COPY_SPRITE(pet_crit_foc_out_sprite, pet_crit_foc_in_sprite);
 	CAT_anim_toggle_reverse(pet_crit_foc_out_sprite, true);
 	CAT_anim_toggle_loop(pet_crit_foc_out_sprite, false);
 
-	INIT_SPRITE(pet_crit_spi_in_sprite, "sprites/pet_unicorn_block_a.png", 15);
-	INIT_SPRITE(pet_crit_spi_sprite, "sprites/pet_unicorn_block_blink_a.png", 2);
+	INIT_SPRITE(pet_crit_spi_in_sprite, "sprites/pet/unicorn_block_a.png", 15);
+	INIT_SPRITE(pet_crit_spi_sprite, "sprites/pet/unicorn_block_blink_a.png", 2);
 	COPY_SPRITE(pet_crit_spi_out_sprite, pet_crit_spi_in_sprite);
 	CAT_anim_toggle_reverse(pet_crit_spi_out_sprite, true);
 	CAT_anim_toggle_loop(pet_crit_spi_out_sprite, false);
 
 	// PET ACTIONS
-	INIT_SPRITE(pet_eat_in_sprite, "sprites/pet_unicorn_eat_lower_a.png", 7);
-	INIT_SPRITE(pet_eat_sprite, "sprites/pet_unicorn_eat_chew_a.png", 2);
+	INIT_SPRITE(pet_eat_in_sprite, "sprites/pet/unicorn_eat_lower_a.png", 7);
+	INIT_SPRITE(pet_eat_sprite, "sprites/pet/unicorn_eat_chew_a.png", 2);
 	COPY_SPRITE(pet_eat_out_sprite, pet_eat_in_sprite);
 	CAT_anim_toggle_reverse(pet_eat_out_sprite, true);
 	CAT_anim_toggle_loop(pet_eat_out_sprite, false);
 
-	INIT_SPRITE(pet_study_in_sprite, "sprites/pet_unicorn_read_sit_a.png", 6);
-	INIT_SPRITE(pet_study_sprite, "sprites/pet_unicorn_read_sit.png", 1);
+	INIT_SPRITE(pet_study_in_sprite, "sprites/pet/unicorn_read_sit_a.png", 6);
+	INIT_SPRITE(pet_study_sprite, "sprites/pet/unicorn_read_sit.png", 1);
 	COPY_SPRITE(pet_study_out_sprite, pet_study_in_sprite);
 	CAT_anim_toggle_reverse(pet_study_out_sprite, true);
 	CAT_anim_toggle_loop(pet_study_out_sprite, false);
@@ -1467,7 +1451,7 @@ void CAT_sprite_mass_define()
 	INIT_SPRITE(snake_tail_sprite, "sprites/minigame/snake_tail.png", 4);
 
 	// MINESWEEPER
-	INIT_SPRITE(mines_sprite, "sprites/minesweeper.png", 13);
+	INIT_SPRITE(mines_sprite, "sprites/minigame/minesweeper.png", 12);
 
 	CAT_printf("[INFO] %d sprites initialized\n", atlas.length);
 

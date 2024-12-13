@@ -378,7 +378,6 @@ void CAT_render_hedron()
 	CAT_frameberry(0x0000);
 
 	CAT_mat4 M = CAT_rotmat(0, theta_h, 0);
-	CAT_mat4 MV = CAT_matmul(V, M);
 	CAT_mat4 MVP = CAT_matmul(PV, M);
 
 	// The train arrives in clipspace

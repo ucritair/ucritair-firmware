@@ -12,8 +12,6 @@ cd build
 make -j8
 cd ..
 
-build/app > ../atlasdata.txt
-
 # EMBEDDED
 if [[ $1 == "--embedded" ]]; then
 	if [ ! -d ../build ]; then

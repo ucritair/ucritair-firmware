@@ -43,20 +43,20 @@ target_sources(app PRIVATE
 	src/menu/menu_system.c
 	src/menu/menu_graph.c
 
-	${CMAKE_CURRENT_BINARY_DIR}/images.c
+	${CMAKE_CURRENT_BINARY_DIR}/game/sprites/sprite_assets.c
 )
 
 target_include_directories(app PRIVATE src/ src/menu/)
 
 add_custom_command(
-	OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/images.c
-	COMMAND ${CMAKE_CURRENT_LIST_DIR}/script/pack_images.py ${CMAKE_CURRENT_BINARY_DIR}
-	DEPENDS ${CMAKE_CURRENT_LIST_DIR}/script/pack_images.py
-	DEPENDS ${CMAKE_CURRENT_LIST_DIR}/script/atlasdata.txt
+	OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/game/sprites/sprite_assets.c
+	COMMAND ${CMAKE_CURRENT_LIST_DIR}/game/utils/pack_sprites.py
+	DEPENDS ${CMAKE_CURRENT_LIST_DIR}/game/utils/pack_sprites.py
+	DEPENDS ${CMAKE_CURRENT_LIST_DIR}/game/sprites/sprites.json
 	DEPENDS ${CMAKE_CURRENT_LIST_DIR}/assets
-	DEPENDS ${CMAKE_CURRENT_LIST_DIR}/assets/*
+	DEPENDS ${CMAKE_CURRENT_LIST_DIR}/assets/*.png
 	DEPENDS ${CMAKE_CURRENT_LIST_DIR}/game/sprites
-	DEPENDS ${CMAKE_CURRENT_LIST_DIR}/game/sprites/* 
+	DEPENDS ${CMAKE_CURRENT_LIST_DIR}/game/sprites/*.png
 )
 
 if(MINIMIZE_GAME_FOOTPRINT)

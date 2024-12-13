@@ -315,7 +315,7 @@ void CAT_tick_render(int cycle)
 	}
 
 #ifdef HORSESHIT
-	CAT_spriteberry(&pet_unicorn_block_a_sprite_, -10, 0);
+	CAT_spriteberry(&pet_unicorn_block_a_sprite_, 10, 10);
 #endif
 }
 
