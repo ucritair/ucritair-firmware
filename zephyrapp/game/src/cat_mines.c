@@ -75,7 +75,7 @@ static bool dead = false;
 static CAT_ivec2 cursor = {0, 0};
 static bool first_click = true;
 static int clicks = 0;
-static int mines_remaining = MINE_COUNT;
+static int mines_remaining = 0;
 
 static int reveal_timer_id = -1;
 static bool reveal_complete = false;
@@ -196,7 +196,7 @@ void shuffle_about(int x, int y)
 			{
 				toggle_mine(x+dx, y+dy, false);
 
-				idx_queue_length-1;
+				idx_queue_length -= 1;
 				int mov_idx = idx_queue[idx_queue_length];
 				int mov_x = grid[mov_idx].x;
 				int mov_y = grid[mov_idx].y;
