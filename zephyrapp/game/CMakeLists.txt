@@ -47,6 +47,16 @@ add_custom_command(
 	DEPENDS ${CMAKE_CURRENT_LIST_DIR}/sounds/*.wav
 )
 
+add_custom_command(
+	OUTPUT ${CMAKE_CURRENT_LIST_DIR}/sprites/sprite_assets.c
+	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
+	COMMAND ${CMAKE_CURRENT_LIST_DIR}/utils/jsonify_sprites.py && ${CMAKE_CURRENT_LIST_DIR}/utils/pack_sprites.py
+	DEPENDS ${CMAKE_CURRENT_LIST_DIR}/utils/jsonify_sprites.py
+	DEPENDS ${CMAKE_CURRENT_LIST_DIR}/utils/pack_sprites.py
+	DEPENDS ${CMAKE_CURRENT_LIST_DIR}/sprites/sprites.json
+	DEPENDS ${CMAKE_CURRENT_LIST_DIR}/sprites/*.png
+)
+
 target_sources(app PRIVATE
 	src/cat_aqi.c
 	src/cat_gui.c
@@ -70,6 +80,7 @@ target_sources(app PRIVATE
 	src/cat_mines.c
 	${CMAKE_CURRENT_LIST_DIR}/sounds/sound_assets.c
 	${CMAKE_CURRENT_LIST_DIR}/meshes/mesh_assets.c
+	${CMAKE_CURRENT_LIST_DIR}/sprites/sprite_assets.c
 	src/cat_main.c)
 
 target_include_directories(app PRIVATE src/)

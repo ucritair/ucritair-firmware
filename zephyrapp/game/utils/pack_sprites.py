@@ -266,7 +266,7 @@ with open("sprites/sprite_assets.c", 'w') as fd:
 	einksize = 0
 
 	if '--noswap' not in sys.argv:
-		fd.write('#include "epaper_rendering.h"\n')
+		fd.write('#include "../../src/epaper_rendering.h"\n')
 		eink_folder = "../assets/"
 		for path in os.listdir(eink_folder):
 			print('eink', path)

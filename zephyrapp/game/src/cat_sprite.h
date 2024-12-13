@@ -37,12 +37,10 @@ void CAT_spriteberry(CAT_sprite_* sprite, int x, int y);
 //////////////////////////////////////////////////////////////////////////
 // ATLAS AND SPRITER
 
-#ifdef CAT_BAKED_ASSETS
 typedef struct {
 	const uint16_t* color_table;
 	const uint8_t** frames;
 } CAT_baked_sprite;
-#endif
 
 typedef struct CAT_sprite
 {
