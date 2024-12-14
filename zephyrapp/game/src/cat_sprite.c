@@ -1195,10 +1195,8 @@ CAT_animachine_state* react_asm;
 CAT_animachine_state AS_react;
 
 #ifndef CAT_BAKED_ASSETS
-#define INIT_SPRITE(name, path, frames) name = CAT_sprite_init(path, frames);\
-										printf("BAKE-INIT: (%d, \"%s\", \"%s\", %d, %d, %d)\n", name, #name, path, frames, atlas.table[name].width, atlas.table[name].height);
-#define COPY_SPRITE(name, from) name = CAT_sprite_copy(from);\
-										printf("BAKE-COPY: (%d, \"%s\", %d)\n", name, #name, from);
+#define INIT_SPRITE(name, path, frames) name = CAT_sprite_init(path, frames);
+#define COPY_SPRITE(name, from) name = CAT_sprite_copy(from);
 #else
 int sprite_count = 0;
 #define INIT_SPRITE(name, path, frames) name = sprite_count++;
@@ -1451,7 +1449,7 @@ void CAT_sprite_mass_define()
 	INIT_SPRITE(snake_tail_sprite, "sprites/minigame/snake_tail.png", 4);
 
 	// MINESWEEPER
-	INIT_SPRITE(mines_sprite, "sprites/minigame/minesweeper.png", 12);
+	INIT_SPRITE(mines_sprite, "sprites/minigame/minesweeper.png", 13);
 
 	CAT_printf("[INFO] %d sprites initialized\n", atlas.length);
 

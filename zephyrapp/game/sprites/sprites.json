@@ -1588,8 +1588,8 @@
         "id": 178,
         "name": "mines_sprite",
         "path": "sprites/minigame/minesweeper.png",
-        "frames": 12,
+        "frames": 13,
         "width": 16,
-        "height": 17
+        "height": 16
     }
 ]

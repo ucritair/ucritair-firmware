@@ -25,5 +25,7 @@ if [[ $1 == "--embedded" ]]; then
 
 	cd build
 	make -j8
+else
+	build/app
 fi
 

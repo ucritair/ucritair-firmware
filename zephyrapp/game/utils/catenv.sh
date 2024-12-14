@@ -1,3 +1,6 @@
+if [ -d ~/Documents/GitHub/zephyrproject/ ]; then
+	source ~/Documents/GitHub/zephyrproject/zephyr/zephyr-env.sh
+fi
 if [ -z ${ZEPHYR_BASE} ]; then
 	echo ZEPHYR_BASE is not set. Please source the zephyr shell environment
 	return 1

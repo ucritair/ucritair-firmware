@@ -669,11 +669,11 @@ void render_statics()
 	else if(time.hour >= 9 && time.hour <= 18)
 	{
 		float aqi_score = CAT_AQI_aggregate();
-		if(aqi_score <= 33.0f)
+		if(aqi_score >= 66.0f)
 		{
 			CAT_draw_queue_add(window_day_low_aq_sprite, 0, 2, 8, 8, CAT_DRAW_MODE_DEFAULT);
 		}
-		else if(aqi_score >= 66.0f)
+		else if(aqi_score <= 33.0f)
 		{
 			CAT_draw_queue_add(window_day_high_aq_sprite, -1, 2, 8, 8, CAT_DRAW_MODE_DEFAULT);
 		}
