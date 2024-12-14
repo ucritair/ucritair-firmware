@@ -165,13 +165,18 @@ def rleencode(data, width):
 
 texture_use_cache = {}
 
+with open("sprites/sprite_assets.h", "w") as fd:
+	for sprite in atlas:
+		fd.write(f"extern int {sprite.name};\n");
+
 with open("sprites/sprite_assets.c", 'w') as fd:
 	fd.write('#include <stdint.h>\n')
 	fd.write('#include "cat_sprite.h"\n')
-	fd.write('\n\n')
+	fd.write('\n');
+	for (idx, sprite) in enumerate(atlas):
+		fd.write(f"int {sprite.name} = {idx};\n");
+	fd.write('\n');	
 	for sprite in atlas:
-		print(sprite.name)
-
 		if sprite.path not in texture_use_cache:
 			texture_use_cache[sprite.path] = sprite.name
 			image = textures[sprite.path]
@@ -269,7 +274,6 @@ with open("sprites/sprite_assets.c", 'w') as fd:
 		fd.write('#include "../../src/epaper_rendering.h"\n')
 		eink_folder = "../assets/"
 		for path in os.listdir(eink_folder):
-			print('eink', path)
 			texture = pygame.image.load(eink_folder+path)
 			width, height = texture.get_size()
 			e_width = width + (width % 8)
@@ -305,8 +309,6 @@ with open("sprites/sprite_assets.c", 'w') as fd:
 					fd.write('\n\t\t')
 
 			fd.write('\n\t}\n};\n\n');
-
-print('eink size', einksize)
 
 
 # print(len(colors), "colors")

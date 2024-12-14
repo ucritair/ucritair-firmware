@@ -1,4 +1,5 @@
 #include "cat_sprite.h"
+#include "../sprites/sprite_assets.h"
 
 #include <stdint.h>
 #include <string.h>
@@ -936,241 +937,7 @@ bool CAT_animachine_is_ticking(CAT_animachine_state** spp)
 
 
 //////////////////////////////////////////////////////////////////////////
-// DECLARATIONS
-
-// TILESETS
-int base_wall_sprite;
-int sky_wall_sprite;
-int base_floor_sprite;
-int grass_floor_sprite;
-int ash_floor_sprite;
-
-int glyph_sprite;
-int strike_sprite;
-int tab_sprite;
-
-// ICONS
-int icon_pointer_sprite;
-int icon_a_sprite;
-int icon_b_sprite;
-int icon_n_sprite;
-int icon_e_sprite;
-int icon_s_sprite;
-int icon_w_sprite;
-int icon_start_sprite;
-int icon_select_sprite;
-int icon_enter_sprite;
-int icon_exit_sprite;
-int icon_plot_sprite;
-int icon_equip_sprite;
-int icon_input_sprite;
-
-int icon_item_key_sprite;
-int icon_item_food_sprite;
-int icon_item_book_sprite;
-int icon_item_toy_sprite;
-int icon_item_prop_sprite;
-int icon_item_gear_sprite;
-int icon_coin_sprite;
-
-int icon_vig_sprite;
-int icon_foc_sprite;
-int icon_spi_sprite;
-int pip_vig_sprite;
-int pip_foc_sprite;
-int pip_spi_sprite;
-int pip_empty_sprite;
-
-int icon_temp_sprite;
-int icon_co2_sprite;
-int icon_pm_sprite;
-int icon_voc_sprite;
-int icon_nox_sprite;
-
-int icon_mask_sprite;
-int icon_pure_sprite;
-int icon_uv_sprite;
-
-int icon_nosmoke_sprite;
-int icon_ee_sprite;
-int icon_aq_ccode_sprite;
-int icon_cell_sprite;
-
-int icon_feed_sprite;
-int icon_study_sprite;
-int icon_play_sprite;
-int icon_deco_sprite;
-int icon_menu_sprite;
-
-// CURSORS
-int cursor_sprite;
-int tile_hl_sprite;
-
-int cursor_add_sprite;
-int tile_hl_add_sprite;
-
-int cursor_flip_sprite;
-int tile_hl_flip_sprite;
-int tile_mark_flip_sprite;
-
-int cursor_remove_sprite;
-int tile_hl_rm_sprite;
-int tile_mark_rm_sprite;
-
-int button_hl_sprite;
-int touch_hl_sprite;
-
-// TOOLS
-int bread_sprite;
-int milk_sprite;
-int soup_sprite;
-int green_curry_sprite;
-int red_curry_sprite;
-int padkaprow_sprite;
-int sausage_sprite;
-int coffee_sprite;
-int salad_sprite;
-int pill_vig_sprite;
-int pill_foc_sprite;
-int pill_spi_sprite;
-int cigarette_sprite;
-
-int book_static_sprite;
-int book_study_sprite;
-
-int toy_duck_sprite;
-int toy_baseball_sprite;
-int toy_basketball_sprite;
-int toy_golf_sprite;
-int toy_puzzle_sprite;
-
-int coin_static_sprite;
-int coin_world_sprite;
-
-// FIXED PROPS
-int window_dawn_sprite;
-int window_day_sprite;
-int window_day_high_aq_sprite;
-int window_day_low_aq_sprite;
-int window_night_sprite;
-int vending_sprite;
-int arcade_sprite;
-
-// GAMEPLAY PROPS
-int gpu_sprite;
-int uv_sprite;
-int purifier_sprite;
-
-// DECO PROPS
-int coffeemaker_sprite;
-int fan_a_sprite;
-int fan_b_sprite;
-int lantern_sprite;
-int laptop_sprite;
-int chess_sprite;
-
-int table_lg_sprite;
-int table_sm_sprite;
-int chair_wood_sprite;
-int chair_stone_sprite;
-int stool_wood_sprite;
-int stool_stone_sprite;
-int stool_gold_sprite;
-
-int bowl_stone_sprite;
-int bowl_gold_sprite;
-int vase_stone_sprite;
-int vase_gold_sprite;
-
-int succulent_sprite;
-int bush_plain_sprite;
-int bush_daisy_sprite;
-int bush_lilac_sprite;
-int plant_green_sprite;
-int plant_maroon_sprite;
-int plant_purple_sprite;
-int plant_yellow_sprite;
-int flower_vig_sprite;
-int flower_foc_sprite;
-int flower_spi_sprite;
-
-int crystal_blue_lg_sprite;
-int crystal_green_lg_sprite;
-int crystal_purple_lg_sprite;
-
-int effigy_blue_sprite;
-int effigy_purple_sprite;
-int effigy_sea_sprite;
-
-int poster_zk_sprite;
-int pixel_sprite;
-int padkaprop_sprite;
-
-// PET STATES
-int pet_idle_sprite;
-int pet_walk_sprite;
-
-int pet_idle_high_vig_sprite;
-int pet_walk_high_vig_sprite;
-int pet_idle_high_foc_sprite;
-int pet_walk_high_foc_sprite;
-int pet_idle_high_spi_sprite;
-int pet_walk_high_spi_sprite;
-int pet_high_vig_in_sprite;
-int pet_high_vig_out_sprite;
-
-int pet_idle_low_vig_sprite;
-int pet_walk_low_vig_sprite;
-int pet_idle_low_foc_sprite;
-int pet_walk_low_foc_sprite;
-int pet_idle_low_spi_sprite;
-int pet_walk_low_spi_sprite;
-
-int pet_crit_vig_in_sprite;
-int pet_crit_vig_sprite;
-int pet_crit_vig_out_sprite;
-
-int pet_crit_foc_in_sprite;
-int pet_crit_foc_sprite;
-int pet_crit_foc_out_sprite;
-
-int pet_crit_spi_in_sprite;
-int pet_crit_spi_sprite;
-int pet_crit_spi_out_sprite;
-
-int pet_vig_up_sprite;
-int pet_foc_up_sprite;
-int pet_spi_up_sprite;
-
-// PET ACTIONS
-int pet_eat_in_sprite;
-int pet_eat_sprite;
-int pet_eat_out_sprite;
-
-int pet_study_in_sprite;
-int pet_study_sprite;
-int pet_study_out_sprite;
-
-int pet_play_a_sprite;
-int pet_play_b_sprite;
-int pet_play_c_sprite;
-
-// PET MOODS
-int mood_low_vig_sprite;
-int mood_low_foc_sprite;
-int mood_low_spi_sprite;
-int mood_good_sprite;
-int mood_bad_sprite;
-
-// SNAKE
-int snake_head_sprite;
-int snake_body_sprite;
-int snake_corner_sprite;
-int snake_tail_sprite;
-
-// MINESWEEPER
-int mines_sprite;
-
+// DECLARATIONS AND DEFINITIONS
 
 // MACHINES
 CAT_animachine_state* pet_asm;
@@ -1208,6 +975,7 @@ void CAT_sprite_mass_define()
 #ifdef CAT_DESKTOP
 	setvbuf(stdout, NULL, _IONBF, 0);
 #endif
+
 	// TILESETS
 	INIT_SPRITE(base_wall_sprite, "sprites/wall/basic.png", 3);
 	INIT_SPRITE(sky_wall_sprite, "sprites/wall/sky.png", 7);
@@ -1452,7 +1220,6 @@ void CAT_sprite_mass_define()
 	INIT_SPRITE(mines_sprite, "sprites/minigame/minesweeper.png", 13);
 
 	CAT_printf("[INFO] %d sprites initialized\n", atlas.length);
-
 
 	// MACHINES
 	CAT_animachine_init(&AS_idle, -1, pet_idle_sprite, -1);
