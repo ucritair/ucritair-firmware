@@ -1,0 +1,322 @@
+[
+	{
+		"type" : "food",
+		"name" : "food_bread",
+		"display_name" : "Bread"
+	},
+	{
+		"type" : "food",
+		"name" : "food_coffee",
+		"display_name" : "Coffee"
+	},
+	{
+		"type" : "food",
+		"name" : "food_milk",
+		"display_name" : "Milk"	
+	},
+	{
+		"type" : "food",
+		"name" : "food_soup",
+		"display_name" : "Soup"
+	},
+	{
+		"type" : "food",
+		"name" : "food_salad",
+		"display_name" : "Salad"
+	},
+	{
+		"type" : "food",
+		"name" : "food_sausage",
+		"display_name" : "Sausage"
+	},
+	{
+		"type" : "food",
+		"name" : "green_curry",
+		"display_name" : "Green Curry"
+	},
+	{
+		"type" : "food",
+		"name" : "red_curry",
+		"display_name" : "Red Curry"
+	},
+	{
+		"type" : "food",
+		"name" : "pad_ka_prow",
+		"display_name" : "Pad Ka Prow"
+	},
+	{
+		"type" : "food",
+		"name" : "vig_pill",
+		"display_name" : "Vigour Pill"
+	},
+	{
+		"type" : "food",
+		"name" : "foc_pill",
+		"display_name" : "Focus Pill"
+	},
+	{
+		"type" : "food",
+		"name" : "spi_pill",
+		"display_name" : "Spirit Pill"
+	},
+	{
+		"type" : "food",
+		"name" : "cigs",
+		"display_name" : "Cigarettes"
+	},
+	{
+		"type" : "book",
+		"name" : "book_1",
+		"display_name" : "TODO"
+	},
+	{
+		"type" : "book",
+		"name" : "book_2",
+		"display_name" : "TODO"
+	},
+	{
+		"type" : "book",
+		"name" : "book_3",
+		"display_name" : "TODO"
+	},
+	{
+		"type" : "book",
+		"name" : "book_4",
+		"display_name" : "TODO"
+	},
+	{
+		"type" : "book",
+		"name" : "book_5",
+		"display_name" : "TODO"
+	},
+	{
+		"type" : "book",
+		"name" : "book_6",
+		"display_name" : "TODO"
+	},
+	{
+		"type" : "toy",
+		"name" : "toy_duck",
+		"display_name" : "Duck"
+	},
+	{
+		"type" : "toy",
+		"name" : "toy_baseball",
+		"display_name" : "Baseball"
+	},
+	{
+		"type" : "toy",
+		"name" : "toy_basketball",
+		"display_name" : "Basketball"
+	},
+	{
+		"type" : "toy",
+		"name" : "toy_golf",
+		"display_name" : "Golf Ball"
+	},
+	{
+		"type" : "toy",
+		"name" : "toy_puzzle",
+		"display_name" : "Puzzle"
+	},
+	{
+		"type" : "key",
+		"name" : "mask",
+		"display_name" : "Mask"
+	},
+	{
+		"type" : "prop",
+		"name" : "prop_eth_farm",
+		"display_name" : "Ethereum Farm"
+	},
+	{
+		"type" : "prop",
+		"name" : "prop_uv_lamp",
+		"display_name" : "UV Lamp"
+	},
+	{
+		"type" : "prop",
+		"name" : "prop_purifier",
+		"display_name" : "Air Purifier"
+	},
+	{
+		"type" : "prop",
+		"name" : "prop_coffeemaker",
+		"display_name" : "Coffee Machine"
+	},
+	{
+		"type" : "prop",
+		"name" : "prop_fan_classic",
+		"display_name" : "Classic Fan"
+	},
+	{
+		"type" : "prop",
+		"name" : "prop_fan_modern",
+		"display_name" : "Modern Fan"
+	},
+	{
+		"type" : "prop",
+		"name" : "prop_lantern",
+		"display_name" : "Lantern"
+	},
+	{
+		"type" : "prop",
+		"name" : "prop_laptop",
+		"display_name" : "Laptop"
+	},
+	{
+		"type" : "prop",
+		"name" : "prop_chess",
+		"display_name" : "Chess Set"
+	},
+	{
+		"type" : "prop",
+		"name" : "prop_table_wood_lg",
+		"display_name" : "Wood Table"
+	},
+	{
+		"type" : "prop",
+		"name" : "prop_table_wood_sm",
+		"display_name" : "Small Wood Table"
+	},
+	{
+		"type" : "prop",
+		"name" : "prop_chair",
+		"display_name" : "Wood Chair"
+	},
+	{
+		"type" : "prop",
+		"name" : "prop_chair_stone",
+		"display_name" : "Stone Chair"
+	},
+	{
+		"type" : "prop",
+		"name" : "prop_stool_wood",
+		"display_name" : "Wood Stool"
+	},
+	{
+		"type" : "prop",
+		"name" : "prop_stool_stone",
+		"display_name" : "Stone Stool"
+	},
+	{
+		"type" : "prop",
+		"name" : "prop_stool_gold",
+		"display_name" : "Gold Stool"
+	},
+	{
+		"type" : "prop",
+		"name" : "prop_bowl_stone",
+		"display_name" : "Stone Bowl"
+	},
+	{
+		"type" : "prop",
+		"name" : "prop_bowl_gold",
+		"display_name" : "Gold Bowl"
+	},
+	{
+		"type" : "prop",
+		"name" : "prop_vase_stone",
+		"display_name" : "Stone Vase"
+	},
+	{
+		"type" : "prop",
+		"name" : "prop_vase_gold",
+		"display_name" : "Gold Vase"
+	},
+	{
+		"type" : "prop",
+		"name" : "prop_succulent",
+		"display_name" : "Succulent"
+	},
+	{
+		"type" : "prop",
+		"name" : "prop_bush_plain",
+		"display_name" : "Bush"
+	},
+	{
+		"type" : "prop",
+		"name" : "prop_bush_daisy",
+		"display_name" : "Daisy Bush"
+	},
+	{
+		"type" : "prop",
+		"name" : "prop_bush_lily",
+		"display_name" : "Lily Bush"
+	},
+	{
+		"type" : "prop",
+		"name" : "prop_plant_green",
+		"display_name" : "Green Plant"
+	},
+	{
+		"type" : "prop",
+		"name" : "prop_plant_maroon",
+		"display_name" : "Maroon Plant"
+	},
+	{
+		"type" : "prop",
+		"name" : "prop_plant_purple",
+		"display_name" : "Purple Plant"
+	},
+	{
+		"type" : "prop",
+		"name" : "prop_plant_yellow",
+		"display_name" : "Yellow Plant"
+	},
+	{
+		"type" : "prop",
+		"name" : "prop_vig_flower",
+		"display_name" : "Healthy Flower"
+	},
+	{
+		"type" : "prop",
+		"name" : "prop_foc_flower",
+		"display_name" : "Smart Flower"
+	},
+	{
+		"type" : "prop",
+		"name" : "prop_spi_flower",
+		"display_name" : "Happy Flower"
+	},
+	{
+		"type" : "prop",
+		"name" : "prop_crystal_blue",
+		"display_name" : "Blue Crystal"
+	},
+	{
+		"type" : "prop",
+		"name" : "prop_crystal_green",
+		"display_name" : "Green Crystal"
+	},
+	{
+		"type" : "prop",
+		"name" : "prop_crystal_purple",
+		"display_name" : "Purple Crystal"
+	},
+	{
+		"type" : "prop",
+		"name" : "prop_effigy_blue",
+		"display_name" : "Blue Effigy"
+	},
+	{
+		"type" : "prop",
+		"name" : "prop_effigy_purple",
+		"display_name" : "Purple Effigy"
+	},
+	{
+		"type" : "prop",
+		"name" : "prop_effigy_sea",
+		"display_name" : "Sea Effigy"
+	},
+	{
+		"type" : "prop",
+		"name" : "prop_pixel",
+		"display_name" : "Pixel"
+	},
+	{
+		"type" : "prop",
+		"name" : "prop_padkaprow",
+		"display_name" : "Pad Ka Prop"
+	}
+]

@@ -330,12 +330,12 @@ void CAT_atlas_init()
 
 #include "png.h"
 
-int CAT_sprite_init(const char* path, int frame_count)
+void CAT_sprite_init(int sprite_id, const char* path, int frame_count)
 {
 	if(atlas.length >= CAT_ATLAS_MAX_LENGTH)
 	{
 		CAT_printf("[WARNING] Attempted add to full atlas\n");
-		return -1;
+		return;
 	}
 
 	FILE* file = fopen(path, "rb");
@@ -383,28 +383,22 @@ int CAT_sprite_init(const char* path, int frame_count)
 	sprite.width = width;
 	sprite.height = height / frame_count;
 	sprite.frame_count = frame_count;
-
-	int sprite_id = atlas.length;
 	atlas.table[sprite_id] = sprite;
 	atlas.length += 1;
-	return sprite_id;
 }
 
-int CAT_sprite_copy(int sprite_id)
+void CAT_sprite_copy(int to, int from)
 {
-	if(sprite_id < 0 || sprite_id >= atlas.length)
+	if(from < 0 || from >= atlas.length)
 	{
-		CAT_printf("[ERROR] reference to invalid sprite: %d\n", sprite_id);
-		return -1;
+		CAT_printf("[ERROR] reference to invalid sprite: %d\n", from);
+		return;
 	}
 
-	CAT_sprite copy = atlas.table[sprite_id];
+	CAT_sprite copy = atlas.table[from];
 	copy.duplicate = true;
-	
-	int copy_id = atlas.length;
-	atlas.table[copy_id] = copy;
+	atlas.table[to] = copy;
 	atlas.length += 1;
-	return copy_id;
 }
 
 void CAT_atlas_cleanup()
@@ -494,7 +488,7 @@ void CAT_draw_sprite(int sprite_id, int frame_idx, int x, int y)
 {
 	if(sprite_id < 0 || sprite_id >= atlas.length)
 	{
-		CAT_printf("[ERROR] reference to invalid sprite: %d\n", sprite_id);
+		CAT_printf("[ERROR] reference to invalid sprite: %d of %d\n", sprite_id);
 		return;
 	}
 
@@ -962,12 +956,12 @@ CAT_animachine_state* react_asm;
 CAT_animachine_state AS_react;
 
 #ifndef CAT_BAKED_ASSETS
-#define INIT_SPRITE(name, path, frames) name = CAT_sprite_init(path, frames);
-#define COPY_SPRITE(name, from) name = CAT_sprite_copy(from);
+#define INIT_SPRITE(name, path, frames) CAT_sprite_init(name, path, frames);
+#define COPY_SPRITE(name, from) CAT_sprite_copy(name, from);
 #else
 int sprite_count = 0;
-#define INIT_SPRITE(name, path, frames) name = sprite_count++;
-#define COPY_SPRITE(name, from) name = sprite_count++;
+#define INIT_SPRITE(name, path, frames) sprite_count++;
+#define COPY_SPRITE(name, from) sprite_count++;
 #endif
 
 void CAT_sprite_mass_define()
@@ -1220,6 +1214,7 @@ void CAT_sprite_mass_define()
 	INIT_SPRITE(mines_sprite, "sprites/minigame/minesweeper.png", 13);
 
 	CAT_printf("[INFO] %d sprites initialized\n", atlas.length);
+
 
 	// MACHINES
 	CAT_animachine_init(&AS_idle, -1, pet_idle_sprite, -1);

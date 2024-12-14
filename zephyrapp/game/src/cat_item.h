@@ -51,7 +51,6 @@ typedef struct CAT_item
 		{
 			CAT_tool_type type;
 			int cursor_id;
-
 			int dv;
 			int df;
 			int ds;
@@ -60,7 +59,6 @@ typedef struct CAT_item
 		struct
 		{
 			CAT_prop_type type;
-
 			CAT_ivec2 shape;
 			bool animate;
 			int child_dy;
