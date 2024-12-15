@@ -418,7 +418,7 @@ void CAT_room_flip_prop(int idx)
 
 	int item_id = room.prop_ids[idx];
 	CAT_item* item = CAT_item_get(item_id);
-	CAT_sprite* sprite = &atlas.table[item->sprite_id];
+	CAT_sprite* sprite = &atlas.data[item->sprite_id];
 	int* override = &room.prop_overrides[idx];
 
 	if(item->data.prop_data.animate || sprite->frame_count == 1)

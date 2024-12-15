@@ -7,6 +7,7 @@ import sys
 import pygame
 from dataclasses import dataclass
 import json
+from PIL import Image;
 
 pygame.init()
 
@@ -30,8 +31,15 @@ class BakeData:
 		return True
 		return not (self.name.startswith('base_wall') or self.name.startswith('base_floor'))
 
-atlas = []
+def RGBA88882RGB565(c):
+	if len(c) == 4 and c[3] < 128:
+		return 0xdead;
+	r = int((c[0] / 255) * 31);
+	g = int((c[1] / 255) * 63);
+	b = int((c[2] / 255) * 31);
+	return (r << 11) | (g << 5) | b;
 
+atlas = [];
 with open("sprites/sprites.json", "r") as fd:
 	sprites = json.load(fd);
 	for sprite in sprites:
@@ -166,16 +174,20 @@ def rleencode(data, width):
 texture_use_cache = {}
 
 with open("sprites/sprite_assets.h", "w") as fd:
-	fd.write("")
+	fd.write("#pragma once\n")
+	fd.write("\n")
+	fd.write("#include \"cat_sprite.h\"\n")
+	fd.write("\n")
 	for (idx, sprite) in enumerate(atlas):
-		fd.write(f"#define {sprite.name} {idx}\n");
+		fd.write(f"#define {sprite.name} {idx}\n")
 
 with open("sprites/sprite_assets.c", 'w') as fd:
-	fd.write("#include \"sprite_assets.h\"\n");
-	fd.write("\n");
+	fd.write("#include \"sprite_assets.h\"\n")
+	fd.write("\n")
 	fd.write('#include <stdint.h>\n')
 	fd.write('#include "cat_sprite.h"\n')
-	fd.write('\n');
+	fd.write('\n')
+	fd.write("#ifdef CAT_EMBEDDED\n");
 	for sprite in atlas:
 		if sprite.path not in texture_use_cache:
 			texture_use_cache[sprite.path] = sprite.name
@@ -244,9 +256,10 @@ with open("sprites/sprite_assets.c", 'w') as fd:
 			fd.write("const uint8_t* image_data_"+sprite.name+"[] = {\n")
 			for frame in range(sprite.frames):
 				fd.write("\timage_data_"+sprite.name+"_frame"+str(frame)+",\n")
-			fd.write("};\n\n");
+			fd.write("};\n")
+	fd.write("\n")
 
-	fd.write('\n\n\nconst CAT_baked_sprite image_data_table[] = {\n')
+	fd.write('const CAT_baked_sprite image_data_table[] = {\n')
 	for sprite in atlas:
 		name = texture_use_cache[sprite.path]
 		fd.write('\t['+str(sprite.idx)+'] = {\n')
@@ -255,8 +268,9 @@ with open("sprites/sprite_assets.c", 'w') as fd:
 		fd.write('\t\t.frames=image_data_'+name+',\n')
 		fd.write('\t},\n')
 	fd.write('};\n')
+	fd.write("\n")
 
-	fd.write('\n\n\nCAT_atlas atlas = { .table = {\n')
+	fd.write('CAT_atlas atlas = { .data = {\n')
 	for sprite in atlas:
 		fd.write('\t['+str(sprite.idx)+']={\n');
 		fd.write('\t\t.width = '+str(sprite.width)+",\n")
@@ -264,14 +278,13 @@ with open("sprites/sprite_assets.c", 'w') as fd:
 		fd.write('\t\t.frame_count = '+str(sprite.frames)+",\n")
 		fd.write('\t},\n')
 		
-	fd.write('}, .length = '+str(len(atlas))+'};\n\n')
-    
-	fd.write('\n\nuint16_t rle_work_region['+str(max(x.width for x in atlas))+'];\n\n\n\n')
+	fd.write('}, .length = '+str(len(atlas))+'};\n')
+	fd.write("\n")
 
 	einksize = 0
-
 	if '--noswap' not in sys.argv:
 		fd.write('#include "../../src/epaper_rendering.h"\n')
+		fd.write("\n")
 		eink_folder = "../assets/"
 		for path in os.listdir(eink_folder):
 			texture = pygame.image.load(eink_folder+path)
@@ -308,28 +321,39 @@ with open("sprites/sprite_assets.c", 'w') as fd:
 				if (i%16 == 0) and (i != 0):
 					fd.write('\n\t\t')
 
-			fd.write('\n\t}\n};\n\n');
+			fd.write('\n\t}\n};\n');
+	fd.write("#else\n");
+	source_sprites = [s for s in sprites if s["mode"] != "copy"];
+	for sprite in source_sprites:
+		image = Image.open(sprite["path"]);
+		pixels = image.load();
+		rgb888s = [];
+		for y in range(image.size[1]):
+			for x in range(image.size[0]):
+				rgb888s.append(pixels[x, y]);
+		rgb565s = [RGBA88882RGB565(c) for c in rgb888s];
+		fd.write(f"const uint16_t pixels_{sprite["id"]}[{len(rgb565s)}] =\n");
+		fd.write("{\n");
+		for (idx, c) in enumerate(rgb565s):
+			fd.write(f"\t{hex(c)},");
+			if (idx > 0 and idx % sprite["width"] == 0) or idx == len(rgb565s)-1:
+				fd.write("\n");
+		fd.write("};\n\n");
+		
+	fd.write("CAT_atlas atlas =\n");
+	fd.write("{\n");
+	fd.write("\t.data =\n");
+	fd.write("\t{\n");
+	for (idx, sprite) in enumerate(sprites):
+		fd.write("\t\t{\n");
+		source = sprites[sprite["source"]] if sprite["mode"] == "copy" else sprite;
+		fd.write(f"\t\t\t.pixels = pixels_{source["id"]},\n");
+		fd.write(f"\t\t\t.width = {source["width"]},\n");
+		fd.write(f"\t\t\t.height = {source["height"]},\n");
+		fd.write(f"\t\t\t.frame_count = {source["frames"]}\n");
+		fd.write("\t\t},\n");
+	fd.write("\t},\n");
+	fd.write(f"\t.length = {len(atlas)}\n");
+	fd.write("};\n");
+	fd.write("#endif\n");
 
-
-# print(len(colors), "colors")
-
-# print(max(len(x.colors) for x in atlas), "max colors per sprite")
-# print(sum(x.size for x in atlas), "bytes pre-RLE")
-# print(sum(x.rlesize for x in atlas), "bytes post-RLE")
-
-# colorsizes = {}
-# for sprite in atlas[:-5]:
-# 	colorsizes.setdefault(len(sprite.colors), 0)
-# 	colorsizes[len(sprite.colors)] += 1
-
-# print(colorsizes)
-
-# keying_savings = 0
-# for sprite in atlas:
-# 	tabsize = len(sprite.colors) + 1
-# 	dsize = sprite.rlesize / 2
-# 	keyedsize = int(tabsize + dsize)
-# 	if keyedsize < sprite.size:
-# 		keying_savings += sprite.size - keyedsize
-
-# print(keying_savings, "keying savings")

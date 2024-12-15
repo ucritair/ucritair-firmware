@@ -118,7 +118,7 @@ void CAT_gui_image(int sprite_id, int frame_idx)
 {
 	spriter.mode = CAT_DRAW_MODE_CENTER_Y;
 
-	CAT_sprite sprite = atlas.table[sprite_id];
+	CAT_sprite sprite = atlas.data[sprite_id];
 	gui_open_channel(sprite.height);
 
 	gui.cursor.x += gui.pad / 2;

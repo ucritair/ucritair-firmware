@@ -30,14 +30,9 @@ void CAT_lineberry(int xi, int yi, int xf, int yf, uint16_t c);
 void CAT_fillberry(int xi, int yi, int w, int h, uint16_t c);
 void CAT_strokeberry(int xi, int yi, int w, int h, uint16_t c);
 
-#ifdef HORSESHIT
-#include "../sprites/sprite_assets.h"
-void CAT_spriteberry(CAT_sprite_* sprite, int x, int y);
-#endif
-
 
 //////////////////////////////////////////////////////////////////////////
-// ATLAS AND SPRITER
+// ATLAS
 
 typedef struct {
 	const uint16_t* color_table;
@@ -46,11 +41,9 @@ typedef struct {
 
 typedef struct CAT_sprite
 {
-#ifndef CAT_BAKED_ASSETS
-	uint16_t* pixels;
-	bool duplicate;
+#ifdef CAT_DESKTOP
+	const uint16_t* pixels;
 #endif
-
 	int width;
 	int height;
 	int frame_count;
@@ -58,16 +51,16 @@ typedef struct CAT_sprite
 
 typedef struct CAT_atlas
 {
-	CAT_sprite table[CAT_ATLAS_MAX_LENGTH];
+	CAT_sprite data[CAT_ATLAS_MAX_LENGTH];
 	int length;
 } CAT_atlas;
 extern CAT_atlas atlas;
 
-void CAT_atlas_init();
-void CAT_sprite_init(int sprite_id, const char* path, int frame_count);
-void CAT_sprite_copy(int to, int from);
 CAT_sprite* CAT_sprite_get(int sprite_id);
-void CAT_atlas_cleanup();
+
+
+//////////////////////////////////////////////////////////////////////////
+// SPRITER
 
 typedef enum CAT_draw_mode
 {

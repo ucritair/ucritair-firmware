@@ -207,7 +207,6 @@ void CAT_init(int seconds_slept)
 
 	CAT_timetable_init();
 
-	CAT_atlas_init();
 	CAT_anim_table_init();
 	CAT_sprite_mass_define();
 	CAT_spriter_init();
@@ -341,9 +340,6 @@ int main(int argc, char** argv)
 	CAT_save_sleep();
 
 	CAT_spriter_cleanup();
-#ifndef CAT_BAKED_ASSETS
-	CAT_atlas_cleanup();
-#endif
 	CAT_platform_cleanup();
 	return 0;
 }

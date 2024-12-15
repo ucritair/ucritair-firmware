@@ -50,7 +50,7 @@ add_custom_command(
 add_custom_command(
 	OUTPUT ${CMAKE_CURRENT_LIST_DIR}/sprites/sprite_assets.c ${CMAKE_CURRENT_LIST_DIR}/sprites/sprite_assets.h
 	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
-	COMMAND ${CMAKE_CURRENT_LIST_DIR}/utils/jsonify_sprites.py && ${CMAKE_CURRENT_LIST_DIR}/utils/pack_sprites.py
+	COMMAND ${CMAKE_CURRENT_LIST_DIR}/utils/pack_sprites.py
 	DEPENDS ${CMAKE_CURRENT_LIST_DIR}/utils/jsonify_sprites.py
 	DEPENDS ${CMAKE_CURRENT_LIST_DIR}/utils/pack_sprites.py
 	DEPENDS ${CMAKE_CURRENT_LIST_DIR}/sprites/sprites.json
