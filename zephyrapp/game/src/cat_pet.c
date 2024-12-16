@@ -13,64 +13,30 @@
 
 CAT_pet pet;
 
-void CAT_pet_stat(int ticks)
-{
-	int mask = CAT_item_list_find(&bag, mask_item) != -1;
-	int pure = CAT_room_find(prop_purifier_item) != -1;
-	int uv = CAT_room_find(prop_uv_lamp_item) != -1;
-
-	float dv_aq =
-	(
-		CAT_pm25_score(aqi.sen5x.pm2_5) +
-		CAT_nox_score(aqi.sen5x.nox_index) +
-		CAT_voc_score(aqi.sen5x.voc_index)
-	) * 0.25f;
-	float df_aq =
-	(
-		CAT_co2_score(aqi.sunrise.ppm_filtered_compensated) +
-		CAT_nox_score(aqi.sen5x.nox_index)
-	) * 0.33f;
-	float ds_aq =
-	(
-		CAT_co2_score(aqi.sunrise.ppm_filtered_compensated) +
-		CAT_temperature_score(CAT_mean_temp())
-	) * 0.33f;
-	if(dv_aq >= 1)
-		dv_aq -= pure;
-	if(df_aq >= 1)
-		df_aq -= uv;
-	if(ds_aq >= 1)
-		ds_aq -= mask;
-	
-	int dv = round(1 + dv_aq);
-	int df = round(1 + df_aq);
-	int ds = round(1 + ds_aq);
-
-	pet.vigour = clamp(pet.vigour - dv * ticks, 0, 12);
-	pet.focus = clamp(pet.focus - df * ticks, 0, 12);
-	pet.spirit = clamp(pet.spirit - ds * ticks, 0, 12);
-}
-
-void CAT_pet_use(int item_id)
-{
-	CAT_item* item = CAT_item_get(item_id);
-	if(item == NULL)
-		return;
-	
-	pet.vigour = clamp(pet.vigour + item->data.tool_data.dv, 0, 12);
-	pet.focus = clamp(pet.focus + item->data.tool_data.df, 0, 12);
-	pet.spirit = clamp(pet.spirit + item->data.tool_data.ds, 0, 12);
-}
-
-void CAT_pet_life(int ticks)
-{
-	pet.lifetime += ticks;
-}
-
-
-bool CAT_pet_is_critical()
+bool is_critical()
 {
 	return !(pet.vigour > 0 && pet.focus > 0 && pet.spirit > 0);
+}
+
+void CAT_pet_init()
+{	
+	pet.vigour = 9;
+	pet.focus = 9;
+	pet.spirit = 9;
+	pet.lifetime = 0;
+
+	pet.pos = (CAT_vec2) {120, 200};
+	pet.dir = (CAT_vec2) {0, 0};
+	pet.left = false;
+
+	pet.stat_timer_id = CAT_timer_init(CAT_STAT_TICK_SECS);
+	pet.life_timer_id = CAT_timer_init(CAT_LIFE_TICK_SECS);
+	pet.walk_timer_id = CAT_timer_init(4.0f);
+	pet.react_timer_id = CAT_timer_init(1.0f);
+
+	pet.times_pet = 0;
+	pet.pet_cooldown_timer = CAT_timer_init(CAT_PET_COOLDOWN_SECS);
+	pet.times_milked = 0;
 }
 
 void CAT_pet_reanimate()
@@ -131,7 +97,7 @@ void CAT_pet_reanimate()
 			AS_react.tick_anim_id = mood_low_foc_sprite;
 		}
 	}
-	if(CAT_pet_is_critical())
+	if(is_critical())
 	{
 		if(pet.vigour <= 0)
 		{
@@ -157,7 +123,7 @@ void CAT_pet_reanimate()
 
 void CAT_pet_settle()
 {
-	if(!CAT_pet_is_critical())
+	if(!is_critical())
 	{
 		CAT_animachine_transition(&pet_asm, &AS_idle);
 	}
@@ -183,7 +149,7 @@ bool CAT_pet_seek(CAT_vec2 targ)
 	}
 }
 
-void CAT_pet_placement()
+void CAT_pet_reposition()
 {
 	if(CAT_has_free_space())
 	{
@@ -193,24 +159,57 @@ void CAT_pet_placement()
 	}
 }
 
-void CAT_pet_init()
-{	
-	pet.vigour = 9;
-	pet.focus = 9;
-	pet.spirit = 9;
-	pet.lifetime = 0;
+void CAT_pet_stat(int ticks)
+{
+	int mask = CAT_item_list_find(&bag, mask_item) != -1;
+	int pure = CAT_room_find(prop_purifier_item) != -1;
+	int uv = CAT_room_find(prop_uv_lamp_item) != -1;
 
-	pet.pos = (CAT_vec2) {120, 200};
-	pet.dir = (CAT_vec2) {0, 0};
-	pet.left = false;
+	float dv_aq =
+	(
+		CAT_pm25_score(aqi.sen5x.pm2_5) +
+		CAT_nox_score(aqi.sen5x.nox_index) +
+		CAT_voc_score(aqi.sen5x.voc_index)
+	) * 0.25f;
+	float df_aq =
+	(
+		CAT_co2_score(aqi.sunrise.ppm_filtered_compensated) +
+		CAT_nox_score(aqi.sen5x.nox_index)
+	) * 0.33f;
+	float ds_aq =
+	(
+		CAT_co2_score(aqi.sunrise.ppm_filtered_compensated) +
+		CAT_temperature_score(CAT_mean_temp())
+	) * 0.33f;
+	if(dv_aq >= 1)
+		dv_aq -= pure;
+	if(df_aq >= 1)
+		df_aq -= uv;
+	if(ds_aq >= 1)
+		ds_aq -= mask;
+	
+	int dv = round(1 + dv_aq);
+	int df = round(1 + df_aq);
+	int ds = round(1 + ds_aq);
 
-	pet.stat_timer_id = CAT_timer_init(CAT_STAT_TICK_SECS);
-	pet.life_timer_id = CAT_timer_init(CAT_LIFE_TICK_SECS);
-	pet.walk_timer_id = CAT_timer_init(4.0f);
-	pet.react_timer_id = CAT_timer_init(1.0f);
+	pet.vigour = clamp(pet.vigour - dv * ticks, 0, 12);
+	pet.focus = clamp(pet.focus - df * ticks, 0, 12);
+	pet.spirit = clamp(pet.spirit - ds * ticks, 0, 12);
+}
+
+
+void CAT_pet_life(int ticks)
+{
+	pet.lifetime += ticks;
+	pet.times_milked = 0;
 }
 
 static CAT_vec2 destination = {120, 200};
+
+void milk_proc()
+{
+	CAT_item_list_add(&bag, food_milk_item, 1);
+}
 
 void CAT_pet_tick(bool capture_input)
 {
@@ -227,9 +226,11 @@ void CAT_pet_tick(bool capture_input)
 		CAT_timer_reset(pet.life_timer_id);
 	}
 
+	CAT_timer_tick(pet.pet_cooldown_timer);
+
 	if(machine == CAT_MS_room)
 	{
-		if(!CAT_pet_is_critical())
+		if(!is_critical())
 		{
 			if(CAT_animachine_is_in(&pet_asm, &AS_idle) && CAT_animachine_is_ticking(&pet_asm))
 			{
@@ -272,6 +273,28 @@ void CAT_pet_tick(bool capture_input)
 		{
 			CAT_animachine_transition(&react_asm, NULL);
 			CAT_timer_reset(pet.react_timer_id);
+
+			if(CAT_timer_done(pet.pet_cooldown_timer) && pet.times_milked < 3)
+			{
+				pet.times_pet += 1;
+				if(pet.times_pet >= 5)
+				{
+					CAT_ivec2 place_grid = CAT_rand_free_space();
+					CAT_ivec2 place_world = CAT_grid2world(place_grid);
+					CAT_vec2 place = {place_world.x, place_world.y};
+
+					CAT_spawn_pickup
+					(
+						pet.pos,
+						place,
+						milk_sprite,
+						milk_proc
+					);
+					pet.times_milked += 1;
+					pet.times_pet = 0;
+				}
+				CAT_timer_reset(pet.pet_cooldown_timer);
+			}
 		}
 	}
 }

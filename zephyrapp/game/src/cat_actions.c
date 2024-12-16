@@ -9,6 +9,17 @@
 #include <stddef.h>
 #include "cat_item_dialog.h"
 
+void apply_tool(int item_id)
+{
+	CAT_item* item = CAT_item_get(item_id);
+	if(item == NULL)
+		return;
+	
+	pet.vigour = clamp(pet.vigour + item->data.tool_data.dv, 0, 12);
+	pet.focus = clamp(pet.focus + item->data.tool_data.df, 0, 12);
+	pet.spirit = clamp(pet.spirit + item->data.tool_data.ds, 0, 12);
+}
+
 bool food_filter(int item_id)
 {
 	CAT_item* item = CAT_item_get(item_id);
@@ -146,7 +157,7 @@ void action_tick()
 		{
 			if(CAT_timer_tick(action_state.timer_id) || CAT_input_pressed(CAT_BUTTON_A))
 			{
-				CAT_pet_use(action_state.tool_id);
+				apply_tool(action_state.tool_id);
 				CAT_pet_reanimate();
 			
 				CAT_item* item = CAT_item_get(action_state.tool_id);

@@ -13,14 +13,15 @@
 
 typedef struct CAT_timetable
 {
-	float timers[CAT_TIMETABLE_MAX_LENGTH];
-	float durations[CAT_TIMETABLE_MAX_LENGTH];
-	int length;
+	bool active[CAT_TIMETABLE_MAX_LENGTH];
+	float duration[CAT_TIMETABLE_MAX_LENGTH];
+	float timer[CAT_TIMETABLE_MAX_LENGTH];
 } CAT_timetable;
 extern CAT_timetable timetable;
 
 void CAT_timetable_init();
 int CAT_timer_init(float duration);
+void CAT_timer_delete(int timer_id);
 
 float CAT_timer_get(int timer_id);
 void CAT_timer_set(int timer_id, float t);
@@ -29,6 +30,7 @@ void CAT_timer_add(int timer_id, float t);
 bool CAT_timer_tick(int timer_id);
 void CAT_timer_reset(int timer_id);
 
+bool CAT_timer_done(int timer_id);
 float CAT_timer_progress(int timer_id);
 
 

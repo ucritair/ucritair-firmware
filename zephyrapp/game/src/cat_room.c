@@ -312,11 +312,7 @@ void CAT_room_init()
 
 	room.prop_count = 0;
 
-	room.coin_count = 0;
-	for(int i = 0; i < CAT_MAX_COIN_COUNT; i++)
-	{
-		room.coin_move_timers[i] = CAT_timer_init(0.75f);
-	}
+	room.pickup_count = 0;
 	room.earn_timer_id = CAT_timer_init(CAT_EARN_TICK_SECS);
 }
 
@@ -433,32 +429,36 @@ void CAT_room_flip_prop(int idx)
 	}
 }
 
-void add_coin(CAT_vec2 origin, CAT_vec2 place)
+int CAT_spawn_pickup(CAT_vec2 origin, CAT_vec2 place, int sprite_id, void (*proc)())
 {
-	if(room.coin_count >= CAT_MAX_COIN_COUNT)
-		return;
+	if(room.pickup_count >= CAT_MAX_PICKUP_COUNT)
+		return -1;
+	
+	int idx = room.pickup_count;
+	room.pickup_count += 1;
+	room.pickups[idx].origin = origin;
+	room.pickups[idx].place = place;
+	room.pickups[idx].sprite_id = sprite_id;
+	room.pickups[idx].proc = proc;
+	room.pickups[idx].timer_id = CAT_timer_init(0.75f);
 
-	int idx = room.coin_count;
-	room.coin_count += 1;
-	room.coin_origins[idx] = origin;
-	room.coin_places[idx] = place;
-	CAT_timer_reset(room.coin_move_timers[idx]);
+	return idx;
 }
 
-void remove_coin(int idx)
+void CAT_despawn_pickup(int idx)
 {
-	if(idx < 0 || idx >= room.coin_count)
+	if(idx < 0 || idx >= room.pickup_count)
 		return;
 	
-	int old_timer = room.coin_move_timers[idx];
-	for(int i = idx; i < room.coin_count-1; i++)
-	{
-		room.coin_places[i] = room.coin_places[i+1];
-		room.coin_origins[i] = room.coin_origins[i+1];
-		room.coin_move_timers[i] = room.coin_move_timers[i+1];
-	}
-	room.coin_count -= 1;
-	room.coin_move_timers[room.coin_count] = old_timer;
+	CAT_timer_delete(room.pickups[idx].timer_id);
+	for(int i = idx; i < room.pickup_count-1; i++)
+		room.pickups[i] = room.pickups[i+1];
+	room.pickup_count -=1;
+}
+
+void earn_proc()
+{
+	coins += 1;
 }
 
 void CAT_room_earn(int ticks)
@@ -480,7 +480,14 @@ void CAT_room_earn(int ticks)
 				float yi = start.y;
 				float xf = end_world.x;
 				float yf = end_world.y;
-				add_coin((CAT_vec2) {xi, yi}, (CAT_vec2) {xf, yf});
+
+				CAT_spawn_pickup
+				(
+					(CAT_vec2) {xi, yi},
+					(CAT_vec2) {xf, yf},
+					coin_world_sprite,
+					earn_proc
+				);
 			}
 		}
 	}
@@ -558,15 +565,15 @@ void CAT_room_tick(bool capture_input)
 	if(CAT_input_touch_rect(128, 48, 32, 64))
 		CAT_machine_transition(CAT_MS_arcade);
 
-	for(int i = 0; i < room.coin_count; i++)
+	for(int i = 0; i < room.pickup_count; i++)
 	{
-		if(CAT_timer_tick(room.coin_move_timers[i]))
+		if(CAT_timer_tick(room.pickups[i].timer_id))
 		{
-			CAT_vec2 place = room.coin_places[i];
+			CAT_vec2 place = room.pickups[i].place;
 			if(CAT_input_drag(place.x + 8, place.y - 8, 16))
 			{
-				coins += 1;
-				remove_coin(i);
+				room.pickups[i].proc();
+				CAT_despawn_pickup(i);
 				i -= 1;
 			}
 		}
@@ -727,14 +734,14 @@ void render_props()
 	}
 }
 
-void render_gringus()
+void render_pickups()
 {
-	for(int i = 0; i < room.coin_count; i++)
+	for(int i = 0; i < room.pickup_count; i++)
 	{
-		CAT_vec2 origin = room.coin_origins[i];
-		CAT_vec2 place = room.coin_places[i];
+		CAT_vec2 origin = room.pickups[i].origin;
+		CAT_vec2 place = room.pickups[i].place;
 
-		float t = CAT_timer_progress(room.coin_move_timers[i]);
+		float t = CAT_timer_progress(room.pickups[i].timer_id);
 		float x = lerp(origin.x, place.x, t);
 		if(origin.y > place.y)
 			t = 1.0f - t;
@@ -742,8 +749,7 @@ void render_gringus()
 		if(origin.y > place.y)
 			y = -y + origin.y + place.y;
 
-		CAT_draw_queue_add(coin_world_sprite, -1, 2, x, y, CAT_DRAW_MODE_CENTER_X | CAT_DRAW_MODE_BOTTOM);
-		CAT_draw_queue_add(coin_world_sprite, -1, 2, x, y, CAT_DRAW_MODE_CENTER_X | CAT_DRAW_MODE_BOTTOM);
+		CAT_draw_queue_add(room.pickups[i].sprite_id, -1, 2, x, y, CAT_DRAW_MODE_CENTER_X | CAT_DRAW_MODE_BOTTOM);
 	}
 }
 
@@ -768,7 +774,7 @@ void CAT_render_room(int cycle)
 	{	
 		render_statics();
 		render_props();
-		render_gringus();
+		render_pickups();
 		render_gui();
 	}
 }

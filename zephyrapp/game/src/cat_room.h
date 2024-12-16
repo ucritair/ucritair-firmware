@@ -12,8 +12,8 @@
 #define CAT_WORLD_WIDTH (CAT_GRID_WIDTH * CAT_TILE_SIZE)
 #define CAT_WORLD_HEIGHT (CAT_GRID_HEIGHT * CAT_TILE_SIZE)
 
-#define CAT_MAX_COIN_COUNT 24
-#define CAT_EARN_TICK_SECS 1800
+#define CAT_MAX_PICKUP_COUNT 128
+#define CAT_EARN_TICK_SECS (CAT_DAY_SECS / 24)
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -56,8 +56,20 @@ CAT_ivec2 CAT_rand_free_space();
 CAT_ivec2 CAT_nearest_free_space(CAT_ivec2 cell);
 CAT_ivec2 CAT_largest_free_space();
 
+
 //////////////////////////////////////////////////////////////////////////
 // ROOM
+
+typedef struct CAT_pickup
+{
+	CAT_vec2 origin;
+	CAT_vec2 place;
+
+	int sprite_id;
+	void (*proc)();
+
+	int timer_id;
+} CAT_pickup;
 
 typedef struct CAT_room
 {
@@ -69,10 +81,9 @@ typedef struct CAT_room
 	int prop_children[CAT_GRID_SIZE];
 	int prop_count;
 
-	CAT_vec2 coin_origins[CAT_MAX_COIN_COUNT];
-	CAT_vec2 coin_places[CAT_MAX_COIN_COUNT];
-	int coin_move_timers[CAT_MAX_COIN_COUNT];
-	int coin_count;
+	CAT_pickup pickups[CAT_MAX_PICKUP_COUNT];
+	int pickup_count;
+
 	int earn_timer_id;
 } CAT_room;
 extern CAT_room room;
@@ -88,6 +99,8 @@ void CAT_room_unstack_prop(int idx);
 void CAT_room_remove_prop(int idx);
 void CAT_room_flip_prop(int idx);
 
+int CAT_spawn_pickup(CAT_vec2 origin, CAT_vec2 place, int sprite_id, void (*proc)());
+void CAT_despawn_pickup(int idx);
 void CAT_room_earn(int ticks);
 
 void CAT_room_cursor();

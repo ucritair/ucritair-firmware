@@ -116,7 +116,14 @@ void CAT_force_save()
 		save->bag_counts[i] = bag.counts[i];
 	}
 	save->bag_length = bag.length;
-	save->coins = coins + room.coin_count;
+	save->coins = coins;
+	for(int i = 0; i < room.pickup_count; i++)
+	{
+		if(room.pickups[i].sprite_id == coin_world_sprite)
+		{
+			save->coins += 1;
+		}
+	}
 
 	save->snake_high_score = snake_high_score;
 
@@ -219,7 +226,7 @@ void CAT_init(int seconds_slept)
 	CAT_apply_sleep();
 	
 	CAT_pet_reanimate();
-	CAT_pet_placement();
+	CAT_pet_reposition();
 	
 	CAT_machine_transition(CAT_MS_room);
 }
