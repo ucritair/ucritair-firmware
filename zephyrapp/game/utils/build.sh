@@ -23,8 +23,9 @@ if [[ $1 == "--embedded" ]]; then
 		cd ..
 	fi
 
-	cd build
+	cd ../build
 	make -j8
+	cd ../game
 else
 	build/app
 fi

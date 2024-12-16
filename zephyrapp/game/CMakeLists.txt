@@ -30,23 +30,23 @@ endif()
 
 add_custom_command(
 	OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/../meshes/mesh_assets.h ${CMAKE_CURRENT_BINARY_DIR}/../meshes/mesh_assets.c
-	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/..
-	COMMAND ${CMAKE_CURRENT_BINARY_DIR}/../utils/meshgen.py ${CMAKE_CURRENT_BINARY_DIR}/../meshes/
+	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../
+	COMMAND ${CMAKE_CURRENT_BINARY_DIR}/../utils/meshgen.py
 	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../utils/meshgen.py
 	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../meshes/meshes.json
 )
 
 add_custom_command(
 	OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/../sounds/sound_assets.h ${CMAKE_CURRENT_BINARY_DIR}/../sounds/sound_assets.c
-	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/..
-	COMMAND ${CMAKE_CURRENT_BINARY_DIR}/../utils/soundgen.py ${CMAKE_CURRENT_BINARY_DIR}/../sounds/
+	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../
+	COMMAND ${CMAKE_CURRENT_BINARY_DIR}/../utils/soundgen.py
 	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../utils/soundgen.py
 	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../sounds/sounds.json
 )
 
 add_custom_command(
 	OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/../sprites/sprite_assets.h ${CMAKE_CURRENT_BINARY_DIR}/../sprites/sprite_assets.c
-	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/..
+	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../
 	COMMAND ${CMAKE_CURRENT_BINARY_DIR}/../utils/pack_sprites.py
 	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../utils/pack_sprites.py
 	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../sprites/sprites.json
@@ -54,7 +54,7 @@ add_custom_command(
 
 add_custom_command(
 	OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/../data/item_assets.h ${CMAKE_CURRENT_BINARY_DIR}/../data/item_assets.c
-	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/..
+	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../
 	COMMAND ${CMAKE_CURRENT_BINARY_DIR}/../utils/itemgen.py
 	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../utils/itemgen.py
 	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../data/items.json
@@ -81,10 +81,14 @@ target_sources(app PRIVATE
 	src/cat_item_dialog.c
 	src/cat_snake.c
 	src/cat_mines.c
-	${CMAKE_CURRENT_BINARY_DIR}/../sounds/sound_assets.c
-	${CMAKE_CURRENT_BINARY_DIR}/../meshes/mesh_assets.c
-	${CMAKE_CURRENT_BINARY_DIR}/../sprites/sprite_assets.c
-	${CMAKE_CURRENT_BINARY_DIR}/../data/item_assets.c
+	sounds/sound_assets.c
+	meshes/mesh_assets.c
+	sprites/sprite_assets.c
+	data/item_assets.c
 	src/cat_main.c)
 
 target_include_directories(app PRIVATE src/)
+target_include_directories(app PRIVATE sounds/)
+target_include_directories(app PRIVATE meshes/)
+target_include_directories(app PRIVATE sprites/)
+target_include_directories(app PRIVATE data/)

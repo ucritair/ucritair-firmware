@@ -1,4 +1,4 @@
-// Generated from /Users/tomas/Documents/GitHub/cat_software/zephyrapp/game/build/../meshes/meshes.json
+// Generated from meshes/meshes.json
 
 #pragma once
 

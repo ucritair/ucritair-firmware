@@ -8,9 +8,9 @@ import subprocess as sp;
 from PIL import Image;
 
 if(len(sys.argv) < 2):
-	print("usage: tos_spritegen.py [--all] <sprite directory>");
+	print("usage: spritegen.py [--all]");
 	exit();
-sprites_dir = sys.argv[-1];
+sprites_dir = "sprites/";
 
 sprites_json_path = os.path.join(sprites_dir, "tos_sprites.json");
 sprites_json_file = open(sprites_json_path, "r");

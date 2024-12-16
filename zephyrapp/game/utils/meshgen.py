@@ -6,9 +6,9 @@ import os;
 import pathlib as pl;
 
 if(len(sys.argv) != 2):
-	print("usage: meshgen.py <mesh directory>");
+	print("usage: meshgen.py");
 	exit();
-meshes_dir = sys.argv[1];
+meshes_dir = "meshes/";
 
 meshes_json_path = os.path.join(meshes_dir, "meshes.json");
 meshes_json_file = open(meshes_json_path, "r");

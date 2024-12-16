@@ -7,9 +7,9 @@ import pathlib as pl;
 import subprocess as sp;
 
 if(len(sys.argv) != 2):
-	print("usage: soundgen.py <sound directory>");
+	print("usage: soundgen.py");
 	exit();
-sounds_dir = sys.argv[1];
+sounds_dir = "sounds/";
 
 sounds_json_path = os.path.join(sounds_dir, "sounds.json");
 sounds_json_file = open(sounds_json_path, "r");

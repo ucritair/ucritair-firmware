@@ -1,4 +1,4 @@
-// Generated from /Users/tomas/Documents/GitHub/cat_software/zephyrapp/game/build/../sounds/sounds.json
+// Generated from sounds/sounds.json
 
 #include "sound_assets.h"
 

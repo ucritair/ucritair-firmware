@@ -179,8 +179,8 @@ static ssize_t read_stats(struct bt_conn *conn, const struct bt_gatt_attr *attr,
 		.age = pet.lifetime,
 
 		.interventions = ((CAT_item_list_find(&bag, mask_item) != -1) << 0) | \
-		                 ((CAT_room_find(purifier_item) != -1) << 1) | \
-		                 ((CAT_room_find(uv_item) != -1) << 2)
+		                 ((CAT_room_find(prop_purifier_item) != -1) << 1) | \
+		                 ((CAT_room_find(prop_uv_lamp_item) != -1) << 2)
 	};
 
 	return bt_gatt_attr_read(conn, attr, buf, len, offset, &readout, sizeof(readout));

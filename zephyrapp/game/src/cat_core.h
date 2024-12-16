@@ -9,6 +9,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "cat_math.h"
+#include "sound_assets.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // PLATFORM
@@ -48,7 +49,6 @@ void CAT_set_LEDs(uint8_t r, uint8_t g, uint8_t b);
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // SPEAKER
 
-#include "../sounds/sound_assets.h"
 void CAT_sound_power(bool value);
 void CAT_play_sound(CAT_sound* sound);
 
