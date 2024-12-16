@@ -83,7 +83,7 @@ void CAT_save_failsafe()
 	saved_version_patch = CAT_VERSION_PATCH;
 	saved_version_push = CAT_VERSION_PUSH;
 
-	CAT_item_list_add(&bag, gpu_item, 1);
+	CAT_item_list_add(&bag, prop_eth_farm_item, 1);
 	coins = 10;
 }
 
@@ -210,9 +210,6 @@ void CAT_init(int seconds_slept)
 	CAT_anim_table_init();
 	CAT_sprite_mass_define();
 	CAT_spriter_init();
-
-	CAT_item_table_init();
-	CAT_item_mass_define();
 
 	CAT_space_init();
 	CAT_room_init();

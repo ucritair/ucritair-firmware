@@ -254,12 +254,6 @@ void CAT_MS_mines(CAT_machine_signal signal)
 					if(first_click)
 					{
 						shuffle_about(cursor.x, cursor.y);
-						int count = 0;
-						for(int i = 0; i < GRID_SIZE; i++)
-						{
-							if(grid[i].mine)
-								count += 1;
-						}
 						first_click = false;
 					}
 					

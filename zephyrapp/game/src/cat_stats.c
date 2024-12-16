@@ -71,8 +71,8 @@ void CAT_render_stats()
 	CAT_gui_div("INTERVENTIONS");
 	if(CAT_item_list_find(&bag, mask_item) != -1)
 		CAT_gui_image(icon_mask_sprite, 0);
-	if(CAT_room_find(purifier_item) != -1)
+	if(CAT_room_find(prop_purifier_item) != -1)
 		CAT_gui_image(icon_pure_sprite, 0);
-	if(CAT_room_find(uv_item) != -1)
+	if(CAT_room_find(prop_uv_lamp_item) != -1)
 		CAT_gui_image(icon_uv_sprite, 0);
 }

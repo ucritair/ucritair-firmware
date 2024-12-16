@@ -15,7 +15,7 @@ header.write("\n");
 source.write("#include \"item_assets.h\"\n");
 source.write("\n");
 source.write("#include \"cat_item.h\"\n");
-source.write("#include \"sprite_assets.h\"\n");
+source.write("#include \"../sprites/sprite_assets.h\"\n");
 source.write("\n");
 
 items_json = json.load(json_file);
@@ -38,7 +38,7 @@ for (idx, item) in enumerate(items_json):
 	ensure_key(item, "price", 0);
 	if(item["type"] in tool_types):
 		tool_data = ensure_key(item, "tool_data", {});
-		ensure_key(tool_data, "cursor", "bread_sprite");
+		ensure_key(tool_data, "cursor", item["sprite"]);
 		ensure_key(tool_data, "dv", 0);
 		ensure_key(tool_data, "df", 0);
 		ensure_key(tool_data, "ds", 0);
@@ -55,7 +55,6 @@ source.write("{\n");
 source.write("\t.data =\n");
 source.write("\t{\n");
 for (idx, item) in enumerate(items_json):
-	source.write("\t\t(CAT_item)\n");
 	source.write("\t\t{\n");
 	if item["type"] in tool_types:
 		source.write("\t\t\t.type = CAT_ITEM_TYPE_TOOL,\n");
@@ -77,6 +76,7 @@ for (idx, item) in enumerate(items_json):
 			source.write("\t\t\t\t.type = CAT_TOOL_TYPE_BOOK,\n");
 		else:
 			source.write("\t\t\t\t.type = CAT_TOOL_TYPE_TOY,\n");
+		source.write(f"\t\t\t\t.cursor_id = {item["tool_data"]["cursor"]},\n");
 		source.write(f"\t\t\t\t.dv = {item["tool_data"]["dv"]},\n");
 		source.write(f"\t\t\t\t.df = {item["tool_data"]["df"]},\n");
 		source.write(f"\t\t\t\t.ds = {item["tool_data"]["ds"]},\n");
@@ -98,7 +98,7 @@ for (idx, item) in enumerate(items_json):
 		source.write(f"\t\t\t\t.child_dy = {item["prop_data"]["child_dy"]},\n");
 		source.write("\t\t\t}\n");
 	source.write("\t\t},\n");
-source.write("\t\t}\n");
+source.write("\t},\n");
 source.write(f"\t.length = {len(items_json)}\n");
 source.write("};\n");
 

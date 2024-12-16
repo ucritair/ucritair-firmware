@@ -4,13 +4,13 @@
         "name": "food_bread",
         "display_name": "Bread",
         "sprite": "bread_sprite",
-        "icon": "bread_sprite",
+        "icon": "icon_item_food_sprite",
         "text": "",
-        "price": 0,
+        "price": 5,
         "id": 0,
         "tool_data": {
             "cursor": "bread_sprite",
-            "dv": 0,
+            "dv": 2,
             "df": 0,
             "ds": 0
         }
@@ -19,15 +19,15 @@
         "type": "food",
         "name": "food_coffee",
         "display_name": "Coffee",
-        "sprite": "bread_sprite",
-        "icon": "bread_sprite",
+        "sprite": "coffee_sprite",
+        "icon": "icon_item_food_sprite",
         "text": "",
-        "price": 0,
+        "price": 2,
         "id": 1,
         "tool_data": {
-            "cursor": "bread_sprite",
-            "dv": 0,
-            "df": 0,
+            "cursor": "coffee_sprite",
+            "dv": 1,
+            "df": 1,
             "ds": 0
         }
     },
@@ -35,14 +35,14 @@
         "type": "food",
         "name": "food_milk",
         "display_name": "Milk",
-        "sprite": "bread_sprite",
-        "icon": "bread_sprite",
+        "sprite": "milk_sprite",
+        "icon": "icon_item_food_sprite",
         "text": "",
-        "price": 0,
+        "price": 3,
         "id": 2,
         "tool_data": {
-            "cursor": "bread_sprite",
-            "dv": 0,
+            "cursor": "milk_sprite",
+            "dv": 1,
             "df": 0,
             "ds": 0
         }
@@ -51,14 +51,14 @@
         "type": "food",
         "name": "food_soup",
         "display_name": "Soup",
-        "sprite": "bread_sprite",
-        "icon": "bread_sprite",
+        "sprite": "soup_sprite",
+        "icon": "icon_item_food_sprite",
         "text": "",
-        "price": 0,
+        "price": 5,
         "id": 3,
         "tool_data": {
-            "cursor": "bread_sprite",
-            "dv": 0,
+            "cursor": "soup_sprite",
+            "dv": 3,
             "df": 0,
             "ds": 0
         }
@@ -67,14 +67,14 @@
         "type": "food",
         "name": "food_salad",
         "display_name": "Salad",
-        "sprite": "bread_sprite",
-        "icon": "bread_sprite",
+        "sprite": "salad_sprite",
+        "icon": "icon_item_food_sprite",
         "text": "",
-        "price": 0,
+        "price": 5,
         "id": 4,
         "tool_data": {
-            "cursor": "bread_sprite",
-            "dv": 0,
+            "cursor": "salad_sprite",
+            "dv": 3,
             "df": 0,
             "ds": 0
         }
@@ -83,14 +83,14 @@
         "type": "food",
         "name": "food_sausage",
         "display_name": "Sausage",
-        "sprite": "bread_sprite",
-        "icon": "bread_sprite",
+        "sprite": "sausage_sprite",
+        "icon": "icon_item_food_sprite",
         "text": "",
-        "price": 0,
+        "price": 5,
         "id": 5,
         "tool_data": {
-            "cursor": "bread_sprite",
-            "dv": 0,
+            "cursor": "sausage_sprite",
+            "dv": 3,
             "df": 0,
             "ds": 0
         }
@@ -99,14 +99,14 @@
         "type": "food",
         "name": "green_curry",
         "display_name": "Green Curry",
-        "sprite": "bread_sprite",
-        "icon": "bread_sprite",
+        "sprite": "green_curry_sprite",
+        "icon": "icon_item_food_sprite",
         "text": "",
-        "price": 0,
+        "price": 15,
         "id": 6,
         "tool_data": {
-            "cursor": "bread_sprite",
-            "dv": 0,
+            "cursor": "green_curry_sprite",
+            "dv": 5,
             "df": 0,
             "ds": 0
         }
@@ -115,14 +115,14 @@
         "type": "food",
         "name": "red_curry",
         "display_name": "Red Curry",
-        "sprite": "bread_sprite",
-        "icon": "bread_sprite",
+        "sprite": "red_curry_sprite",
+        "icon": "icon_item_food_sprite",
         "text": "",
-        "price": 0,
+        "price": 15,
         "id": 7,
         "tool_data": {
-            "cursor": "bread_sprite",
-            "dv": 0,
+            "cursor": "red_curry_sprite",
+            "dv": 5,
             "df": 0,
             "ds": 0
         }
@@ -131,14 +131,14 @@
         "type": "food",
         "name": "pad_ka_prow",
         "display_name": "Pad Ka Prow",
-        "sprite": "bread_sprite",
-        "icon": "bread_sprite",
+        "sprite": "padkaprow_sprite",
+        "icon": "icon_item_food_sprite",
         "text": "",
-        "price": 0,
+        "price": 15,
         "id": 8,
         "tool_data": {
-            "cursor": "bread_sprite",
-            "dv": 0,
+            "cursor": "padkaprow_sprite",
+            "dv": 5,
             "df": 0,
             "ds": 0
         }
@@ -147,14 +147,14 @@
         "type": "food",
         "name": "vig_pill",
         "display_name": "Vigour Pill",
-        "sprite": "bread_sprite",
-        "icon": "bread_sprite",
+        "sprite": "pill_vig_sprite",
+        "icon": "icon_item_food_sprite",
         "text": "",
-        "price": 0,
+        "price": 1,
         "id": 9,
         "tool_data": {
-            "cursor": "bread_sprite",
-            "dv": 0,
+            "cursor": "pill_vig_sprite",
+            "dv": 1,
             "df": 0,
             "ds": 0
         }
@@ -163,15 +163,15 @@
         "type": "food",
         "name": "foc_pill",
         "display_name": "Focus Pill",
-        "sprite": "bread_sprite",
-        "icon": "bread_sprite",
+        "sprite": "pill_foc_sprite",
+        "icon": "icon_item_food_sprite",
         "text": "",
-        "price": 0,
+        "price": 1,
         "id": 10,
         "tool_data": {
-            "cursor": "bread_sprite",
+            "cursor": "pill_foc_sprite",
             "dv": 0,
-            "df": 0,
+            "df": 1,
             "ds": 0
         }
     },
@@ -179,232 +179,232 @@
         "type": "food",
         "name": "spi_pill",
         "display_name": "Spirit Pill",
-        "sprite": "bread_sprite",
-        "icon": "bread_sprite",
+        "sprite": "pill_spi_sprite",
+        "icon": "icon_item_food_sprite",
         "text": "",
-        "price": 0,
+        "price": 1,
         "id": 11,
         "tool_data": {
-            "cursor": "bread_sprite",
+            "cursor": "pill_spi_sprite",
             "dv": 0,
             "df": 0,
-            "ds": 0
+            "ds": 1
         }
     },
     {
         "type": "food",
         "name": "cigs",
         "display_name": "Cigarettes",
-        "sprite": "bread_sprite",
-        "icon": "bread_sprite",
+        "sprite": "cigarette_sprite",
+        "icon": "icon_item_food_sprite",
         "text": "",
-        "price": 0,
+        "price": 10,
         "id": 12,
         "tool_data": {
-            "cursor": "bread_sprite",
-            "dv": 0,
-            "df": 0,
-            "ds": 0
+            "cursor": "cigarette_sprite",
+            "dv": -1,
+            "df": 3,
+            "ds": 1
         }
     },
     {
         "type": "book",
         "name": "book_1",
-        "display_name": "TODO",
-        "sprite": "bread_sprite",
-        "icon": "bread_sprite",
+        "display_name": "The Disposessed",
+        "sprite": "book_study_sprite",
+        "icon": "icon_item_book_sprite",
         "text": "",
-        "price": 0,
+        "price": 20,
         "id": 13,
         "tool_data": {
-            "cursor": "bread_sprite",
+            "cursor": "book_static_sprite",
             "dv": 0,
-            "df": 0,
+            "df": 3,
             "ds": 0
         }
     },
     {
         "type": "book",
         "name": "book_2",
-        "display_name": "TODO",
-        "sprite": "bread_sprite",
-        "icon": "bread_sprite",
+        "display_name": "We Are Legion",
+        "sprite": "book_study_sprite",
+        "icon": "icon_item_book_sprite",
         "text": "",
-        "price": 0,
+        "price": 20,
         "id": 14,
         "tool_data": {
-            "cursor": "bread_sprite",
+            "cursor": "book_static_sprite",
             "dv": 0,
-            "df": 0,
+            "df": 3,
             "ds": 0
         }
     },
     {
         "type": "book",
         "name": "book_3",
-        "display_name": "TODO",
-        "sprite": "bread_sprite",
-        "icon": "bread_sprite",
+        "display_name": "The Forever War",
+        "sprite": "book_study_sprite",
+        "icon": "icon_item_book_sprite",
         "text": "",
-        "price": 0,
+        "price": 20,
         "id": 15,
         "tool_data": {
-            "cursor": "bread_sprite",
+            "cursor": "book_static_sprite",
             "dv": 0,
-            "df": 0,
+            "df": 3,
             "ds": 0
         }
     },
     {
         "type": "book",
         "name": "book_4",
-        "display_name": "TODO",
-        "sprite": "bread_sprite",
-        "icon": "bread_sprite",
+        "display_name": "Ringworld",
+        "sprite": "book_study_sprite",
+        "icon": "icon_item_book_sprite",
         "text": "",
-        "price": 0,
+        "price": 20,
         "id": 16,
         "tool_data": {
-            "cursor": "bread_sprite",
+            "cursor": "book_static_sprite",
             "dv": 0,
-            "df": 0,
+            "df": 3,
             "ds": 0
         }
     },
     {
         "type": "book",
         "name": "book_5",
-        "display_name": "TODO",
-        "sprite": "bread_sprite",
-        "icon": "bread_sprite",
+        "display_name": "The Machine Stops",
+        "sprite": "book_study_sprite",
+        "icon": "icon_item_book_sprite",
         "text": "",
-        "price": 0,
+        "price": 20,
         "id": 17,
         "tool_data": {
-            "cursor": "bread_sprite",
+            "cursor": "book_static_sprite",
             "dv": 0,
-            "df": 0,
+            "df": 3,
             "ds": 0
         }
     },
     {
         "type": "book",
         "name": "book_6",
-        "display_name": "TODO",
-        "sprite": "bread_sprite",
-        "icon": "bread_sprite",
+        "display_name": "Metal Fever",
+        "sprite": "book_study_sprite",
+        "icon": "icon_item_book_sprite",
         "text": "",
-        "price": 0,
+        "price": 20,
         "id": 18,
         "tool_data": {
-            "cursor": "bread_sprite",
+            "cursor": "book_static_sprite",
             "dv": 0,
-            "df": 0,
+            "df": 3,
             "ds": 0
         }
     },
     {
         "type": "toy",
         "name": "toy_duck",
-        "display_name": "Duck",
-        "sprite": "bread_sprite",
-        "icon": "bread_sprite",
+        "display_name": "Ducky",
+        "sprite": "toy_duck_sprite",
+        "icon": "icon_item_toy_sprite",
         "text": "",
-        "price": 0,
+        "price": 30,
         "id": 19,
         "tool_data": {
-            "cursor": "bread_sprite",
+            "cursor": "toy_duck_sprite",
             "dv": 0,
             "df": 0,
-            "ds": 0
+            "ds": 5
         }
     },
     {
         "type": "toy",
         "name": "toy_baseball",
         "display_name": "Baseball",
-        "sprite": "bread_sprite",
-        "icon": "bread_sprite",
+        "sprite": "toy_baseball_sprite",
+        "icon": "icon_item_toy_sprite",
         "text": "",
-        "price": 0,
+        "price": 20,
         "id": 20,
         "tool_data": {
-            "cursor": "bread_sprite",
+            "cursor": "toy_baseball_sprite",
             "dv": 0,
             "df": 0,
-            "ds": 0
+            "ds": 3
         }
     },
     {
         "type": "toy",
         "name": "toy_basketball",
         "display_name": "Basketball",
-        "sprite": "bread_sprite",
-        "icon": "bread_sprite",
+        "sprite": "toy_basketball_sprite",
+        "icon": "icon_item_toy_sprite",
         "text": "",
-        "price": 0,
+        "price": 20,
         "id": 21,
         "tool_data": {
-            "cursor": "bread_sprite",
+            "cursor": "toy_basketball_sprite",
             "dv": 0,
             "df": 0,
-            "ds": 0
+            "ds": 3
         }
     },
     {
         "type": "toy",
         "name": "toy_golf",
         "display_name": "Golf Ball",
-        "sprite": "bread_sprite",
-        "icon": "bread_sprite",
+        "sprite": "toy_golf_sprite",
+        "icon": "icon_item_toy_sprite",
         "text": "",
-        "price": 0,
+        "price": 5,
         "id": 22,
         "tool_data": {
-            "cursor": "bread_sprite",
+            "cursor": "toy_golf_sprite",
             "dv": 0,
             "df": 0,
-            "ds": 0
+            "ds": 1
         }
     },
     {
         "type": "toy",
         "name": "toy_puzzle",
         "display_name": "Puzzle",
-        "sprite": "bread_sprite",
-        "icon": "bread_sprite",
+        "sprite": "toy_puzzle_sprite",
+        "icon": "icon_item_toy_sprite",
         "text": "",
-        "price": 0,
+        "price": 20,
         "id": 23,
         "tool_data": {
-            "cursor": "bread_sprite",
+            "cursor": "toy_puzzle_sprite",
             "dv": 0,
             "df": 0,
-            "ds": 0
+            "ds": 3
         }
     },
     {
         "type": "key",
         "name": "mask",
         "display_name": "Mask",
-        "sprite": "bread_sprite",
-        "icon": "bread_sprite",
+        "sprite": "icon_mask_sprite",
+        "icon": "icon_item_key_sprite",
         "text": "",
-        "price": 0,
+        "price": 10,
         "id": 24
     },
     {
         "type": "prop",
         "name": "prop_eth_farm",
         "display_name": "Ethereum Farm",
-        "sprite": "bread_sprite",
-        "icon": "bread_sprite",
+        "sprite": "gpu_sprite",
+        "icon": "icon_item_prop_sprite",
         "text": "",
-        "price": 0,
+        "price": 100,
         "id": 25,
         "prop_data": {
             "shape": [
-                1,
+                3,
                 1
             ],
             "animate": true,
@@ -412,13 +412,13 @@
         }
     },
     {
-        "type": "prop",
+        "type": "top",
         "name": "prop_uv_lamp",
         "display_name": "UV Lamp",
-        "sprite": "bread_sprite",
-        "icon": "bread_sprite",
+        "sprite": "uv_sprite",
+        "icon": "icon_item_prop_sprite",
         "text": "",
-        "price": 0,
+        "price": 50,
         "id": 26,
         "prop_data": {
             "shape": [
@@ -433,14 +433,14 @@
         "type": "prop",
         "name": "prop_purifier",
         "display_name": "Air Purifier",
-        "sprite": "bread_sprite",
-        "icon": "bread_sprite",
+        "sprite": "purifier_sprite",
+        "icon": "icon_item_prop_sprite",
         "text": "",
-        "price": 0,
+        "price": 50,
         "id": 27,
         "prop_data": {
             "shape": [
-                1,
+                2,
                 1
             ],
             "animate": true,
@@ -448,35 +448,35 @@
         }
     },
     {
-        "type": "prop",
+        "type": "top",
         "name": "prop_coffeemaker",
         "display_name": "Coffee Machine",
-        "sprite": "bread_sprite",
-        "icon": "bread_sprite",
+        "sprite": "coffeemaker_sprite",
+        "icon": "icon_item_prop_sprite",
         "text": "",
-        "price": 0,
+        "price": 40,
         "id": 28,
         "prop_data": {
             "shape": [
-                1,
+                2,
                 1
             ],
             "animate": true,
-            "child_dy": 0
+            "child_dy": -6
         }
     },
     {
-        "type": "prop",
+        "type": "top",
         "name": "prop_fan_classic",
         "display_name": "Classic Fan",
-        "sprite": "bread_sprite",
-        "icon": "bread_sprite",
+        "sprite": "fan_a_sprite",
+        "icon": "icon_item_prop_sprite",
         "text": "",
-        "price": 0,
+        "price": 20,
         "id": 29,
         "prop_data": {
             "shape": [
-                1,
+                2,
                 1
             ],
             "animate": true,
@@ -484,17 +484,17 @@
         }
     },
     {
-        "type": "prop",
+        "type": "top",
         "name": "prop_fan_modern",
         "display_name": "Modern Fan",
-        "sprite": "bread_sprite",
-        "icon": "bread_sprite",
+        "sprite": "fan_b_sprite",
+        "icon": "icon_item_prop_sprite",
         "text": "",
-        "price": 0,
+        "price": 30,
         "id": 30,
         "prop_data": {
             "shape": [
-                1,
+                2,
                 1
             ],
             "animate": true,
@@ -502,13 +502,13 @@
         }
     },
     {
-        "type": "prop",
+        "type": "top",
         "name": "prop_lantern",
         "display_name": "Lantern",
         "sprite": "bread_sprite",
-        "icon": "bread_sprite",
+        "icon": "icon_item_prop_sprite",
         "text": "",
-        "price": 0,
+        "price": 20,
         "id": 31,
         "prop_data": {
             "shape": [
@@ -520,72 +520,72 @@
         }
     },
     {
-        "type": "prop",
+        "type": "top",
         "name": "prop_laptop",
         "display_name": "Laptop",
-        "sprite": "bread_sprite",
-        "icon": "bread_sprite",
+        "sprite": "laptop_sprite",
+        "icon": "icon_item_prop_sprite",
         "text": "",
-        "price": 0,
+        "price": 80,
         "id": 32,
         "prop_data": {
             "shape": [
-                1,
+                2,
                 1
             ],
             "animate": true,
-            "child_dy": 0
+            "child_dy": -8
         }
     },
     {
-        "type": "prop",
+        "type": "top",
         "name": "prop_chess",
         "display_name": "Chess Set",
-        "sprite": "bread_sprite",
-        "icon": "bread_sprite",
+        "sprite": "chess_sprite",
+        "icon": "icon_item_prop_sprite",
         "text": "",
-        "price": 0,
+        "price": 40,
         "id": 33,
         "prop_data": {
             "shape": [
-                1,
-                1
+                2,
+                2
             ],
             "animate": true,
-            "child_dy": 0
+            "child_dy": -16
         }
     },
     {
-        "type": "prop",
+        "type": "bottom",
         "name": "prop_table_wood_lg",
         "display_name": "Wood Table",
-        "sprite": "bread_sprite",
-        "icon": "bread_sprite",
+        "sprite": "table_lg_sprite",
+        "icon": "icon_item_prop_sprite",
         "text": "",
-        "price": 0,
+        "price": 20,
         "id": 34,
         "prop_data": {
             "shape": [
-                1,
-                1
+                4,
+                2
             ],
             "animate": true,
             "child_dy": 0
         }
     },
     {
-        "type": "prop",
+        "type": "bottom",
         "name": "prop_table_wood_sm",
         "display_name": "Small Wood Table",
-        "sprite": "bread_sprite",
-        "icon": "bread_sprite",
+        "sprite": "table_sm_sprite",
+        "icon": "icon_item_prop_sprite",
         "text": "",
-        "price": 0,
+        "price": 10,
         "id": 35,
         "prop_data": {
             "shape": [
-                1,
-                1
+                2,
+                2
             ],
             "animate": true,
             "child_dy": 0
@@ -595,17 +595,17 @@
         "type": "prop",
         "name": "prop_chair",
         "display_name": "Wood Chair",
-        "sprite": "bread_sprite",
-        "icon": "bread_sprite",
+        "sprite": "chair_wood_sprite",
+        "icon": "icon_item_prop_sprite",
         "text": "",
-        "price": 0,
+        "price": 5,
         "id": 36,
         "prop_data": {
             "shape": [
-                1,
-                1
+                2,
+                2
             ],
-            "animate": true,
+            "animate": false,
             "child_dy": 0
         }
     },
@@ -613,17 +613,17 @@
         "type": "prop",
         "name": "prop_chair_stone",
         "display_name": "Stone Chair",
-        "sprite": "bread_sprite",
-        "icon": "bread_sprite",
+        "sprite": "chair_stone_sprite",
+        "icon": "icon_item_prop_sprite",
         "text": "",
-        "price": 0,
+        "price": 10,
         "id": 37,
         "prop_data": {
             "shape": [
-                1,
-                1
+                2,
+                2
             ],
-            "animate": true,
+            "animate": false,
             "child_dy": 0
         }
     },
@@ -631,14 +631,14 @@
         "type": "prop",
         "name": "prop_stool_wood",
         "display_name": "Wood Stool",
-        "sprite": "bread_sprite",
-        "icon": "bread_sprite",
+        "sprite": "stool_wood_sprite",
+        "icon": "icon_item_prop_sprite",
         "text": "",
-        "price": 0,
+        "price": 10,
         "id": 38,
         "prop_data": {
             "shape": [
-                1,
+                2,
                 1
             ],
             "animate": true,
@@ -649,14 +649,14 @@
         "type": "prop",
         "name": "prop_stool_stone",
         "display_name": "Stone Stool",
-        "sprite": "bread_sprite",
-        "icon": "bread_sprite",
+        "sprite": "stool_stone_sprite",
+        "icon": "icon_item_prop_sprite",
         "text": "",
-        "price": 0,
+        "price": 10,
         "id": 39,
         "prop_data": {
             "shape": [
-                1,
+                2,
                 1
             ],
             "animate": true,
@@ -667,14 +667,14 @@
         "type": "prop",
         "name": "prop_stool_gold",
         "display_name": "Gold Stool",
-        "sprite": "bread_sprite",
-        "icon": "bread_sprite",
+        "sprite": "stool_gold_sprite",
+        "icon": "icon_item_prop_sprite",
         "text": "",
-        "price": 0,
+        "price": 20,
         "id": 40,
         "prop_data": {
             "shape": [
-                1,
+                2,
                 1
             ],
             "animate": true,
@@ -685,10 +685,10 @@
         "type": "prop",
         "name": "prop_bowl_stone",
         "display_name": "Stone Bowl",
-        "sprite": "bread_sprite",
-        "icon": "bread_sprite",
+        "sprite": "bowl_stone_sprite",
+        "icon": "icon_item_prop_sprite",
         "text": "",
-        "price": 0,
+        "price": 10,
         "id": 41,
         "prop_data": {
             "shape": [
@@ -703,10 +703,10 @@
         "type": "prop",
         "name": "prop_bowl_gold",
         "display_name": "Gold Bowl",
-        "sprite": "bread_sprite",
-        "icon": "bread_sprite",
+        "sprite": "bowl_gold_sprite",
+        "icon": "icon_item_prop_sprite",
         "text": "",
-        "price": 0,
+        "price": 20,
         "id": 42,
         "prop_data": {
             "shape": [
@@ -722,7 +722,7 @@
         "name": "prop_vase_stone",
         "display_name": "Stone Vase",
         "sprite": "bread_sprite",
-        "icon": "bread_sprite",
+        "icon": "icon_item_prop_sprite",
         "text": "",
         "price": 0,
         "id": 43,
@@ -740,7 +740,7 @@
         "name": "prop_vase_gold",
         "display_name": "Gold Vase",
         "sprite": "bread_sprite",
-        "icon": "bread_sprite",
+        "icon": "icon_item_prop_sprite",
         "text": "",
         "price": 0,
         "id": 44,
@@ -754,20 +754,20 @@
         }
     },
     {
-        "type": "prop",
+        "type": "top",
         "name": "prop_succulent",
         "display_name": "Succulent",
-        "sprite": "bread_sprite",
-        "icon": "bread_sprite",
+        "sprite": "succulent_sprite",
+        "icon": "icon_item_prop_sprite",
         "text": "",
-        "price": 0,
+        "price": 5,
         "id": 45,
         "prop_data": {
             "shape": [
                 1,
                 1
             ],
-            "animate": true,
+            "animate": false,
             "child_dy": 0
         }
     },
@@ -775,14 +775,14 @@
         "type": "prop",
         "name": "prop_bush_plain",
         "display_name": "Bush",
-        "sprite": "bread_sprite",
-        "icon": "bread_sprite",
+        "sprite": "bush_plain_sprite",
+        "icon": "icon_item_prop_sprite",
         "text": "",
-        "price": 0,
+        "price": 10,
         "id": 46,
         "prop_data": {
             "shape": [
-                1,
+                2,
                 1
             ],
             "animate": true,
@@ -793,14 +793,14 @@
         "type": "prop",
         "name": "prop_bush_daisy",
         "display_name": "Daisy Bush",
-        "sprite": "bread_sprite",
-        "icon": "bread_sprite",
+        "sprite": "bush_daisy_sprite",
+        "icon": "icon_item_prop_sprite",
         "text": "",
-        "price": 0,
+        "price": 30,
         "id": 47,
         "prop_data": {
             "shape": [
-                1,
+                2,
                 1
             ],
             "animate": true,
@@ -809,16 +809,16 @@
     },
     {
         "type": "prop",
-        "name": "prop_bush_lily",
-        "display_name": "Lily Bush",
-        "sprite": "bread_sprite",
-        "icon": "bread_sprite",
+        "name": "prop_bush_lilac",
+        "display_name": "Lilac Bush",
+        "sprite": "bush_lilac_sprite",
+        "icon": "icon_item_prop_sprite",
         "text": "",
-        "price": 0,
+        "price": 30,
         "id": 48,
         "prop_data": {
             "shape": [
-                1,
+                2,
                 1
             ],
             "animate": true,
@@ -829,14 +829,14 @@
         "type": "prop",
         "name": "prop_plant_green",
         "display_name": "Green Plant",
-        "sprite": "bread_sprite",
-        "icon": "bread_sprite",
+        "sprite": "plant_green_sprite",
+        "icon": "icon_item_prop_sprite",
         "text": "",
-        "price": 0,
+        "price": 20,
         "id": 49,
         "prop_data": {
             "shape": [
-                1,
+                2,
                 1
             ],
             "animate": true,
@@ -847,14 +847,14 @@
         "type": "prop",
         "name": "prop_plant_maroon",
         "display_name": "Maroon Plant",
-        "sprite": "bread_sprite",
-        "icon": "bread_sprite",
+        "sprite": "plant_maroon_sprite",
+        "icon": "icon_item_prop_sprite",
         "text": "",
-        "price": 0,
+        "price": 20,
         "id": 50,
         "prop_data": {
             "shape": [
-                1,
+                2,
                 1
             ],
             "animate": true,
@@ -865,14 +865,14 @@
         "type": "prop",
         "name": "prop_plant_purple",
         "display_name": "Purple Plant",
-        "sprite": "bread_sprite",
-        "icon": "bread_sprite",
+        "sprite": "plant_purple_sprite",
+        "icon": "icon_item_prop_sprite",
         "text": "",
-        "price": 0,
+        "price": 20,
         "id": 51,
         "prop_data": {
             "shape": [
-                1,
+                2,
                 1
             ],
             "animate": true,
@@ -883,14 +883,14 @@
         "type": "prop",
         "name": "prop_plant_yellow",
         "display_name": "Yellow Plant",
-        "sprite": "bread_sprite",
-        "icon": "bread_sprite",
+        "sprite": "plant_yellow_sprite",
+        "icon": "icon_item_prop_sprite",
         "text": "",
-        "price": 0,
+        "price": 20,
         "id": 52,
         "prop_data": {
             "shape": [
-                1,
+                2,
                 1
             ],
             "animate": true,
@@ -901,17 +901,17 @@
         "type": "prop",
         "name": "prop_vig_flower",
         "display_name": "Healthy Flower",
-        "sprite": "bread_sprite",
-        "icon": "bread_sprite",
+        "sprite": "flower_vig_sprite",
+        "icon": "icon_item_prop_sprite",
         "text": "",
-        "price": 0,
+        "price": 40,
         "id": 53,
         "prop_data": {
             "shape": [
-                1,
+                2,
                 1
             ],
-            "animate": true,
+            "animate": false,
             "child_dy": 0
         }
     },
@@ -919,17 +919,17 @@
         "type": "prop",
         "name": "prop_foc_flower",
         "display_name": "Smart Flower",
-        "sprite": "bread_sprite",
-        "icon": "bread_sprite",
+        "sprite": "flower_foc_sprite",
+        "icon": "icon_item_prop_sprite",
         "text": "",
-        "price": 0,
+        "price": 40,
         "id": 54,
         "prop_data": {
             "shape": [
-                1,
+                2,
                 1
             ],
-            "animate": true,
+            "animate": false,
             "child_dy": 0
         }
     },
@@ -937,17 +937,17 @@
         "type": "prop",
         "name": "prop_spi_flower",
         "display_name": "Happy Flower",
-        "sprite": "bread_sprite",
-        "icon": "bread_sprite",
+        "sprite": "flower_spi_sprite",
+        "icon": "icon_item_prop_sprite",
         "text": "",
-        "price": 0,
+        "price": 40,
         "id": 55,
         "prop_data": {
             "shape": [
-                1,
+                2,
                 1
             ],
-            "animate": true,
+            "animate": false,
             "child_dy": 0
         }
     },
@@ -955,14 +955,14 @@
         "type": "prop",
         "name": "prop_crystal_blue",
         "display_name": "Blue Crystal",
-        "sprite": "bread_sprite",
-        "icon": "bread_sprite",
+        "sprite": "crystal_blue_lg_sprite",
+        "icon": "icon_item_prop_sprite",
         "text": "",
-        "price": 0,
+        "price": 50,
         "id": 56,
         "prop_data": {
             "shape": [
-                1,
+                2,
                 1
             ],
             "animate": true,
@@ -973,14 +973,14 @@
         "type": "prop",
         "name": "prop_crystal_green",
         "display_name": "Green Crystal",
-        "sprite": "bread_sprite",
-        "icon": "bread_sprite",
+        "sprite": "crystal_green_lg_sprite",
+        "icon": "icon_item_prop_sprite",
         "text": "",
-        "price": 0,
+        "price": 50,
         "id": 57,
         "prop_data": {
             "shape": [
-                1,
+                2,
                 1
             ],
             "animate": true,
@@ -991,14 +991,14 @@
         "type": "prop",
         "name": "prop_crystal_purple",
         "display_name": "Purple Crystal",
-        "sprite": "bread_sprite",
-        "icon": "bread_sprite",
+        "sprite": "crystal_purple_lg_sprite",
+        "icon": "icon_item_prop_sprite",
         "text": "",
-        "price": 0,
+        "price": 50,
         "id": 58,
         "prop_data": {
             "shape": [
-                1,
+                2,
                 1
             ],
             "animate": true,
@@ -1009,14 +1009,14 @@
         "type": "prop",
         "name": "prop_effigy_blue",
         "display_name": "Blue Effigy",
-        "sprite": "bread_sprite",
-        "icon": "bread_sprite",
+        "sprite": "effigy_blue_sprite",
+        "icon": "icon_item_prop_sprite",
         "text": "",
-        "price": 0,
+        "price": 40,
         "id": 59,
         "prop_data": {
             "shape": [
-                1,
+                3,
                 1
             ],
             "animate": true,
@@ -1027,14 +1027,14 @@
         "type": "prop",
         "name": "prop_effigy_purple",
         "display_name": "Purple Effigy",
-        "sprite": "bread_sprite",
-        "icon": "bread_sprite",
+        "sprite": "effigy_blue_sprite",
+        "icon": "icon_item_prop_sprite",
         "text": "",
-        "price": 0,
+        "price": 40,
         "id": 60,
         "prop_data": {
             "shape": [
-                1,
+                3,
                 1
             ],
             "animate": true,
@@ -1045,14 +1045,14 @@
         "type": "prop",
         "name": "prop_effigy_sea",
         "display_name": "Sea Effigy",
-        "sprite": "bread_sprite",
-        "icon": "bread_sprite",
+        "sprite": "effigy_sea_sprite",
+        "icon": "icon_item_prop_sprite",
         "text": "",
-        "price": 0,
+        "price": 60,
         "id": 61,
         "prop_data": {
             "shape": [
-                1,
+                3,
                 1
             ],
             "animate": true,
@@ -1063,10 +1063,10 @@
         "type": "prop",
         "name": "prop_pixel",
         "display_name": "Pixel",
-        "sprite": "bread_sprite",
-        "icon": "bread_sprite",
+        "sprite": "pixel_sprite",
+        "icon": "icon_item_prop_sprite",
         "text": "",
-        "price": 0,
+        "price": 30,
         "id": 62,
         "prop_data": {
             "shape": [
@@ -1078,17 +1078,17 @@
         }
     },
     {
-        "type": "prop",
+        "type": "top",
         "name": "prop_padkaprow",
         "display_name": "Pad Ka Prop",
-        "sprite": "bread_sprite",
-        "icon": "bread_sprite",
+        "sprite": "padkaprop_sprite",
+        "icon": "icon_item_prop_sprite",
         "text": "",
-        "price": 0,
+        "price": 30,
         "id": 63,
         "prop_data": {
             "shape": [
-                1,
+                2,
                 1
             ],
             "animate": true,

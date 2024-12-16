@@ -114,7 +114,7 @@ void lcd_render_diag()
 #endif
 
 		guy_is_wearing_mask = CAT_item_list_find(&bag, mask_item) != -1;
-		if (CAT_room_find(purifier_item) != -1 && CAT_room_find(uv_item) != -1)
+		if (CAT_room_find(prop_purifier_item) != -1 && CAT_room_find(prop_uv_lamp_item) != -1)
 		{
 			guy_happiness = 2;
 		}

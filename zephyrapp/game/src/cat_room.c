@@ -465,7 +465,7 @@ void CAT_room_earn(int ticks)
 {
 	for(int i = 0; i < room.prop_count; i++)
 	{
-		if(room.prop_ids[i] == gpu_item)
+		if(room.prop_ids[i] == prop_eth_farm_item)
 		{
 			for(int t = 0; t < ticks; t++)
 			{
@@ -522,9 +522,9 @@ void CAT_room_tick(bool capture_input)
 	{
 		if
 		(
-			room.prop_ids[i] == flower_vig_item ||
-			room.prop_ids[i] == flower_foc_item ||
-			room.prop_ids[i] == flower_spi_item
+			room.prop_ids[i] == prop_vig_flower_item ||
+			room.prop_ids[i] == prop_foc_flower_item ||
+			room.prop_ids[i] == prop_spi_flower_item
 		)
 		{
 			float aqi_score = CAT_AQI_aggregate() / 100.0f;

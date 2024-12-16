@@ -48,7 +48,7 @@
 #define prop_succulent_item 45
 #define prop_bush_plain_item 46
 #define prop_bush_daisy_item 47
-#define prop_bush_lily_item 48
+#define prop_bush_lilac_item 48
 #define prop_plant_green_item 49
 #define prop_plant_maroon_item 50
 #define prop_plant_purple_item 51
