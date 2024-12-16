@@ -31,7 +31,6 @@ void CAT_MS_item_dialog(CAT_machine_signal signal)
 	{
 		case CAT_MACHINE_SIGNAL_ENTER:
 		{
-			roster.length = 0;
 			CAT_item_list_filter(&bag, &roster, filter);
 			base = 0;
 			selector = 0;

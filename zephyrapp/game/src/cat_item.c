@@ -111,6 +111,7 @@ void CAT_item_list_remove(CAT_item_list* item_list, int item_id, int count)
 
 void CAT_item_list_filter(CAT_item_list* a, CAT_item_list* b, CAT_item_filter filter)
 {
+	b->length = 0;
 	for(int i = 0; i < a->length; i++)
 	{
 		if(filter == NULL || filter(a->item_ids[i]))

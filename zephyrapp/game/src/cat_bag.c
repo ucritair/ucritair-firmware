@@ -69,6 +69,7 @@ void CAT_MS_bag(CAT_machine_signal signal)
 	{
 		case CAT_MACHINE_SIGNAL_ENTER:
 		{
+			roster.length = 0;
 			CAT_item_list_filter(&bag, &roster, tabs[tab_selector].filter);
 			break;
 		}
