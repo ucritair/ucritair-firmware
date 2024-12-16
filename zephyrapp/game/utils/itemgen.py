@@ -9,19 +9,11 @@ json_file = open("data/items.json", "r+");
 header = open("data/item_assets.h", "w");
 source = open("data/item_assets.c", "w");
 
-header.write("#pragma once\n");
-header.write("\n");
-
-source.write("#include \"item_assets.h\"\n");
-source.write("\n");
-source.write("#include \"cat_item.h\"\n");
-source.write("#include \"../sprites/sprite_assets.h\"\n");
-source.write("\n");
-
 items_json = json.load(json_file);
 
 tool_types = ["food", "book", "toy"];
 prop_types = ["prop", "bottom", "top"];
+
 def ensure_key(obj, key, default):
 	if not key in obj.keys():
 		obj[key] = default;
@@ -36,6 +28,7 @@ for (idx, item) in enumerate(items_json):
 	ensure_key(item, "icon", "item_icon_key_sprite");
 	ensure_key(item, "text", "");
 	ensure_key(item, "price", 0);
+
 	if(item["type"] in tool_types):
 		tool_data = ensure_key(item, "tool_data", {});
 		ensure_key(tool_data, "cursor", item["sprite"]);
@@ -47,9 +40,25 @@ for (idx, item) in enumerate(items_json):
 		ensure_key(prop_data, "shape", [1, 1]);
 		ensure_key(prop_data, "animate", True);
 		ensure_key(prop_data, "child_dy", 0);
+	
+	if(item["text"] == ""):
+		if(item["type"] in tool_types):
+			tool_data = item["tool_data"];
+			item["text"] += f"+VIG: {tool_data["dv"]}\\n+FOC: {tool_data["df"]}\\n+SPI: {tool_data["ds"]}\\n";
+		if(item["type"] in prop_types):
+			prop_data = item["prop_data"];
+			item["text"] += f"Shape: [{prop_data["shape"][0]}, {prop_data["shape"][1]}]\\n";
 
+header.write("#pragma once\n");
+header.write("\n");
+for (idx, item) in enumerate(items_json):
 	header.write(f"#define {item["name"]}_item {idx}\n");
 
+source.write("#include \"item_assets.h\"\n");
+source.write("\n");
+source.write("#include \"cat_item.h\"\n");
+source.write("#include \"../sprites/sprite_assets.h\"\n");
+source.write("\n");
 source.write("CAT_item_table item_table =\n");
 source.write("{\n");
 source.write("\t.data =\n");

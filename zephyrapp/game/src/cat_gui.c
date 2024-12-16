@@ -88,7 +88,7 @@ void CAT_gui_text(const char* text)
 		if(wrap && gui.cursor.x >= x_lim && !isspace(*(c+1)))
 		{
 			if(!isspace(*c) && !isspace(*(c-1)))
-				CAT_draw_sprite(glyph_sprite, '-'-' ', gui.cursor.x, gui.cursor.y);
+				CAT_draw_sprite(glyph_sprite, '-', gui.cursor.x, gui.cursor.y);
 			CAT_gui_line_break();	
 			if(isspace(*c))
 				c++;
@@ -108,7 +108,7 @@ void CAT_gui_text(const char* text)
 		}
 
 		gui_open_channel(CAT_GLYPH_HEIGHT);
-		CAT_draw_sprite(glyph_sprite, *c-' ', gui.cursor.x, gui.cursor.y);
+		CAT_draw_sprite(glyph_sprite, *c, gui.cursor.x, gui.cursor.y);
 		gui.cursor.x += CAT_GLYPH_WIDTH;
 		c++;
 	}

@@ -400,7 +400,7 @@ int text_cursor(char* name, int index)
 
 	int gd = get_graph_data(&cell);
 
-	CAT_gui_textf("%s @ %2d:%02d:%02d", gd==-1?"?":get_string(gd), t.tm_hour, t.tm_min, t.tm_sec);
+	CAT_gui_textf("%s \2 %2d:%02d:%02d", gd==-1?"?":get_string(gd), t.tm_hour, t.tm_min, t.tm_sec);
 
 	return gd;
 }

@@ -102,7 +102,7 @@ void CAT_render_arcade()
 		}
 		else
 		{
-			CAT_gui_textf("\t& %s ", entries[i].title);
+			CAT_gui_textf("\t\1 %s ", entries[i].title);
 			if(i == selector)
 				CAT_gui_image(icon_pointer_sprite, 0);
 			CAT_gui_line_break();

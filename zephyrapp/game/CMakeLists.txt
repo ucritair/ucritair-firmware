@@ -34,7 +34,6 @@ add_custom_command(
 	COMMAND ${CMAKE_CURRENT_BINARY_DIR}/../utils/meshgen.py ${CMAKE_CURRENT_BINARY_DIR}/../meshes/
 	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../utils/meshgen.py
 	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../meshes/meshes.json
-	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../meshes/*.obj
 )
 
 add_custom_command(
@@ -43,20 +42,18 @@ add_custom_command(
 	COMMAND ${CMAKE_CURRENT_BINARY_DIR}/../utils/soundgen.py ${CMAKE_CURRENT_BINARY_DIR}/../sounds/
 	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../utils/soundgen.py
 	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../sounds/sounds.json
-	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../sounds/*.wav
 )
 
 add_custom_command(
-	OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/../sprites/sprite_assets.c ${CMAKE_CURRENT_BINARY_DIR}/../sprites/sprite_assets.h
+	OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/../sprites/sprite_assets.h ${CMAKE_CURRENT_BINARY_DIR}/../sprites/sprite_assets.c
 	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/..
 	COMMAND ${CMAKE_CURRENT_BINARY_DIR}/../utils/pack_sprites.py
 	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../utils/pack_sprites.py
 	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../sprites/sprites.json
-	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../sprites/*.png
 )
 
 add_custom_command(
-	OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/../data/item_assets.c ${CMAKE_CURRENT_BINARY_DIR}/../data/item_assets.h
+	OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/../data/item_assets.h ${CMAKE_CURRENT_BINARY_DIR}/../data/item_assets.c
 	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/..
 	COMMAND ${CMAKE_CURRENT_BINARY_DIR}/../utils/itemgen.py
 	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../utils/itemgen.py

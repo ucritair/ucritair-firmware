@@ -133,7 +133,7 @@ void CAT_render_aqi()
 
 	// LOG_DBG("at gmtime_r now=%lld; year=%d", now, t.tm_year);
 
-	CAT_gui_textf("@ %s ", month_names[t.tm_mon]);
+	CAT_gui_textf("\2 %s ", month_names[t.tm_mon]);
 	CAT_gui_textf("%2d ", t.tm_mday);
 	CAT_gui_textf("%4d, ", t.tm_year);
 	CAT_gui_textf("%2d:", t.tm_hour);
@@ -158,11 +158,11 @@ void CAT_render_aqi()
 	{
 		if (view_pn)
 		{
-			CAT_gui_textf("PN0.5: % 2.01f #/cm\x7f\n", ((double)view_cell.pn_ugmx100[0])/100.);
-			CAT_gui_textf("PN1.0: % 2.01f #/cm\x7f\n", ((double)view_cell.pn_ugmx100[1])/100.);
-			CAT_gui_textf("PN2.5: % 2.01f #/cm\x7f\n", ((double)view_cell.pn_ugmx100[2])/100.);
-			CAT_gui_textf("PN4.0: % 2.01f #/cm\x7f\n", ((double)view_cell.pn_ugmx100[3])/100.);
-			CAT_gui_textf("PN10 : % 2.01f #/cm\x7f\n", ((double)view_cell.pn_ugmx100[4])/100.);
+			CAT_gui_textf("PN0.5: % 2.01f \4/cm\x7f\n", ((double)view_cell.pn_ugmx100[0])/100.);
+			CAT_gui_textf("PN1.0: % 2.01f \4/cm\x7f\n", ((double)view_cell.pn_ugmx100[1])/100.);
+			CAT_gui_textf("PN2.5: % 2.01f \4/cm\x7f\n", ((double)view_cell.pn_ugmx100[2])/100.);
+			CAT_gui_textf("PN4.0: % 2.01f \4/cm\x7f\n", ((double)view_cell.pn_ugmx100[3])/100.);
+			CAT_gui_textf("PN10 : % 2.01f \4/cm\x7f\n", ((double)view_cell.pn_ugmx100[4])/100.);
 		}
 		else
 		{
@@ -189,14 +189,14 @@ void CAT_render_aqi()
 	{
 		if (view_cell.pressure_hPax10 != 0)
 		{
-			CAT_gui_textf("%2.1f`C    %2.0f%%RH    %.0fhPa\n", 
+			CAT_gui_textf("%2.1f\3C    %2.0f%%RH    %.0fhPa\n", 
 				((double)view_cell.temp_Cx1000)/1000.,
 				((double)view_cell.rh_pctx100)/100.,
 				((double)view_cell.pressure_hPax10)/10.);
 		}
 		else
 		{
-			CAT_gui_textf("%2.1f`C    %2.0f%%RH\n", 
+			CAT_gui_textf("%2.1f\3C    %2.0f%%RH\n", 
 				((double)view_cell.temp_Cx1000)/1000.,
 				((double)view_cell.rh_pctx100)/100.);
 		}

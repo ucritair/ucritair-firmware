@@ -96,7 +96,7 @@ void CAT_render_menu()
 
 	for (int i = 0; i < NUM_MENU_ITEMS; i++)
 	{
-		CAT_gui_textf("& %s ", entries[i].title);
+		CAT_gui_textf("\1 %s ", entries[i].title);
 
 		if(i == selector)
 			CAT_gui_image(icon_pointer_sprite, 0);
@@ -257,7 +257,7 @@ void CAT_render_cheats()
 	CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 20});
 	for(int i = 0; i < num_cheat_entries; i++)
 	{
-		CAT_gui_textf("& %s ", cheat_entries[i].name);
+		CAT_gui_textf("\1 %s ", cheat_entries[i].name);
 		if(i == cheat_selector)
 			CAT_gui_image(icon_pointer_sprite, 0);
 		CAT_gui_line_break();

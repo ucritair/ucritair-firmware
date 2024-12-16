@@ -49,7 +49,7 @@
         "id": 5,
         "name": "glyph_sprite",
         "path": "sprites/ui/glyphs.png",
-        "frames": 96,
+        "frames": 127,
         "width": 8,
         "height": 12
     },
