@@ -195,3 +195,15 @@ float CAT_AQI_aggregate();
 
 void CAT_printf(const char* fmt, ...);
 
+
+//// bonus
+
+static inline uint32_t CAT_bonus_get()
+{
+	return 0;
+}
+
+static inline void CAT_bonus_set(uint32_t value)
+{
+	;
+}
