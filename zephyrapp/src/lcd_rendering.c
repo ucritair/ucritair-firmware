@@ -78,6 +78,13 @@ int epaper_update_rate = -1;
 bool in_debug_menu = false;
 bool show_fps = false;
 bool cat_game_running = false;
+int last_button_pressed = 0;
+
+void lcd_keep_awake()
+{
+	LOG_DBG("lcd_keep_awake()");
+	last_button_pressed = k_uptime_get();
+}
 
 void lcd_render_diag()
 {
@@ -102,8 +109,6 @@ void lcd_render_diag()
 
 	int last_lockmask = 0;
 
-	int last_button_pressed = 0;
-
 	while (1)
 	{
 #ifndef MINIMIZE_GAME_FOOTPRINT
@@ -112,6 +117,8 @@ void lcd_render_diag()
 			CAT_tick_logic();
 		}
 #endif
+
+		ble_update();
 
 		guy_is_wearing_mask = CAT_item_list_find(&bag, mask_item) != -1;
 		if (CAT_room_find(prop_purifier_item) != -1 && CAT_room_find(prop_uv_lamp_item) != -1)

@@ -28,6 +28,8 @@
 
 #include "airquality.h"
 #include "rtc.h"
+#include "flash.h"
+#include "lcd_rendering.h"
 
 #define VND_UUID_PFX(x) BT_UUID_128_ENCODE(0xfc7d4395, 0x1019, 0x49c4, 0xa91b, (0x7491ecc4ull<<16) | (unsigned long long)x)
 
@@ -38,7 +40,7 @@
 
 bool ble_ok = false;
 
-static uint8_t vnd_value[VND_MAX_LEN + 1] = { 'V', 'e', 'n', 'd', 'o', 'r'};
+static uint8_t vnd_value[VND_MAX_LEN + 1] = { 'u', 'c', 'r', 'i', 't', 'r'};
 
 static ssize_t read_vnd(struct bt_conn *conn, const struct bt_gatt_attr *attr,
 			void *buf, uint16_t len, uint16_t offset)
@@ -70,6 +72,7 @@ static ssize_t read_time(struct bt_conn *conn, const struct bt_gatt_attr *attr,
 {
 	uint32_t t = RTC_TIME_TO_EPOCH_TIME(get_current_rtc_time());
 
+	lcd_keep_awake();
 	return bt_gatt_attr_read(conn, attr, buf, len, offset, &t, sizeof(t));
 }
 
@@ -88,10 +91,162 @@ static ssize_t write_time(struct bt_conn *conn, const struct bt_gatt_attr *attr,
 		return BT_GATT_ERR(BT_ATT_ERR_INVALID_ATTRIBUTE_LEN);
 	}
 
-	memcpy(t, buf, sizeof(t));
+	memcpy(&t, buf, sizeof(t));
 
 	set_rtc_counter_raw(EPOCH_TIME_TO_RTC_TIME(t));
 
+	lcd_keep_awake();
+	return len;
+}
+
+static ssize_t read_cell_count(struct bt_conn *conn, const struct bt_gatt_attr *attr,
+			void *buf, uint16_t len, uint16_t offset)
+{
+	uint32_t t = next_log_cell_nr-1;
+
+	lcd_keep_awake();
+	return bt_gatt_attr_read(conn, attr, buf, len, offset, &t, sizeof(t));
+}
+
+uint32_t cell_selector = 0;
+
+static ssize_t read_cell_selector(struct bt_conn *conn, const struct bt_gatt_attr *attr,
+			void *buf, uint16_t len, uint16_t offset)
+{
+	lcd_keep_awake();
+	return bt_gatt_attr_read(conn, attr, buf, len, offset, &cell_selector, sizeof(cell_selector));
+}
+
+static ssize_t write_cell_selector(struct bt_conn *conn, const struct bt_gatt_attr *attr,
+			 const void *buf, uint16_t len, uint16_t offset,
+			 uint8_t flags)
+{
+	uint32_t t = 0;
+
+	if (offset != 0) {
+		return BT_GATT_ERR(BT_ATT_ERR_INVALID_OFFSET);
+	}
+
+	if (len != sizeof(t))
+	{
+		return BT_GATT_ERR(BT_ATT_ERR_INVALID_ATTRIBUTE_LEN);
+	}
+
+	memcpy(&t, buf, sizeof(t));
+
+	cell_selector = t;
+
+	lcd_keep_awake();
+	return len;
+}
+
+struct __attribute__((__packed__))
+{
+	uint32_t defacto_cell_nr;
+	struct flash_log_cell cell;
+} current_ble_cell = {
+	.defacto_cell_nr = 0xffffffff
+};
+
+static ssize_t read_cells(struct bt_conn *conn, const struct bt_gatt_attr *attr,
+			void *buf, uint16_t len, uint16_t offset)
+{
+	lcd_keep_awake();
+	return bt_gatt_attr_read(conn, attr, buf, len, offset, &current_ble_cell, sizeof(current_ble_cell) - sizeof(current_ble_cell.cell.pad));
+}
+
+#include "cat_pet.h"
+#include "cat_room.h"
+#include "cat_item.h"
+#include "cat_bag.h"
+#include "cat_core.h"
+
+static ssize_t read_stats(struct bt_conn *conn, const struct bt_gatt_attr *attr,
+			void *buf, uint16_t len, uint16_t offset)
+{
+	lcd_keep_awake();
+
+	struct __attribute__((__packed__))
+	{
+		uint8_t vigour, focus, spirit;
+		uint16_t age;
+		uint8_t interventions;
+	} readout = {
+		.vigour = pet.vigour,
+		.focus = pet.focus,
+		.spirit = pet.spirit,
+
+		.age = pet.lifetime,
+
+		.interventions = ((CAT_item_list_find(&bag, mask_item) != -1) << 0) | \
+		                 ((CAT_room_find(purifier_item) != -1) << 1) | \
+		                 ((CAT_room_find(uv_item) != -1) << 2)
+	};
+
+	return bt_gatt_attr_read(conn, attr, buf, len, offset, &readout, sizeof(readout));
+}
+
+static ssize_t read_items(struct bt_conn *conn, const struct bt_gatt_attr *attr,
+			void *buf, uint16_t len, uint16_t offset)
+{
+	lcd_keep_awake();
+
+	bool looking_for_placed = attr->user_data;
+
+	uint8_t bytes[CAT_ITEM_TABLE_MAX_LENGTH>>3] = {0};
+
+	for (int i = 0; i < item_table.length; i++)
+	{
+		bool found = false;
+
+		if (looking_for_placed)
+		{
+			found = CAT_room_find(i) != -1;
+		}
+		else
+		{
+			found = CAT_item_list_find(&bag, i) != -1;
+		}
+
+		if (found)
+		{
+			bytes[i>>3] |= 1<<(i&0b111);
+		}
+	}
+
+	return bt_gatt_attr_read(conn, attr, buf, len, offset, &bytes, sizeof(bytes));
+}
+
+static ssize_t read_bonus(struct bt_conn *conn, const struct bt_gatt_attr *attr,
+			void *buf, uint16_t len, uint16_t offset)
+{
+	lcd_keep_awake();
+
+	uint32_t bonus = CAT_bonus_get();
+
+	return bt_gatt_attr_read(conn, attr, buf, len, offset, &bonus, sizeof(bonus));
+}
+
+static ssize_t write_bonus(struct bt_conn *conn, const struct bt_gatt_attr *attr,
+			 const void *buf, uint16_t len, uint16_t offset,
+			 uint8_t flags)
+{
+	uint32_t t = 0;
+
+	if (offset != 0) {
+		return BT_GATT_ERR(BT_ATT_ERR_INVALID_OFFSET);
+	}
+
+	if (len != sizeof(t))
+	{
+		return BT_GATT_ERR(BT_ATT_ERR_INVALID_ATTRIBUTE_LEN);
+	}
+
+	memcpy(&t, buf, sizeof(t));
+
+	CAT_bonus_set(t);
+
+	lcd_keep_awake();
 	return len;
 }
 
@@ -106,6 +261,35 @@ BT_GATT_SERVICE_DEFINE(vnd_svc,
 		BT_UUID_DECLARE_128(VND_UUID_PFX(0x0002)),
 		BT_GATT_CHRC_READ|BT_GATT_CHRC_WRITE, BT_GATT_PERM_READ|BT_GATT_PERM_WRITE,
 		read_time, write_time, NULL),
+	BT_GATT_CHARACTERISTIC(
+		BT_UUID_DECLARE_128(VND_UUID_PFX(0x0003)),
+		BT_GATT_CHRC_READ, BT_GATT_PERM_READ,
+		read_cell_count, NULL, NULL),
+	BT_GATT_CHARACTERISTIC(
+		BT_UUID_DECLARE_128(VND_UUID_PFX(0x0004)),
+		BT_GATT_CHRC_READ|BT_GATT_CHRC_WRITE, BT_GATT_PERM_READ|BT_GATT_PERM_WRITE,
+		read_cell_selector, write_cell_selector, NULL),
+	BT_GATT_CHARACTERISTIC(
+		BT_UUID_DECLARE_128(VND_UUID_PFX(0x0005)),
+		BT_GATT_CHRC_READ, BT_GATT_PERM_READ,
+		read_cells, NULL, NULL),
+	BT_GATT_CHARACTERISTIC(
+		BT_UUID_DECLARE_128(VND_UUID_PFX(0x0010)),
+		BT_GATT_CHRC_READ, BT_GATT_PERM_READ,
+		read_stats, NULL, NULL),
+	BT_GATT_CHARACTERISTIC(
+		BT_UUID_DECLARE_128(VND_UUID_PFX(0x0011)),
+		BT_GATT_CHRC_READ, BT_GATT_PERM_READ,
+		read_items, NULL, 0),
+	BT_GATT_CHARACTERISTIC(
+		BT_UUID_DECLARE_128(VND_UUID_PFX(0x0012)),
+		BT_GATT_CHRC_READ, BT_GATT_PERM_READ,
+		read_items, NULL, 1),
+	BT_GATT_CHARACTERISTIC(
+		BT_UUID_DECLARE_128(VND_UUID_PFX(0x0013)),
+		BT_GATT_CHRC_READ|BT_GATT_CHRC_WRITE, BT_GATT_PERM_READ|BT_GATT_PERM_WRITE,
+		read_bonus, write_bonus, NULL),
+	// player attributes and age
 );
 
 static ssize_t ess_read_float_u16_x100(
@@ -316,4 +500,19 @@ int ble_main(void)
 	ble_ok = true;
 
 	return 0;
+}
+
+void ble_update()
+{
+	if (cell_selector == 0xffffffff)
+	{
+		populate_log_cell(&current_ble_cell.cell);
+		current_ble_cell.defacto_cell_nr = cell_selector;
+	}
+	else if (cell_selector != current_ble_cell.defacto_cell_nr)
+	{
+		printk("Reading cell %d into current_ble_cell\n", cell_selector);
+		flash_get_cell_by_nr(cell_selector, &current_ble_cell.cell);
+		current_ble_cell.defacto_cell_nr = cell_selector;
+	}
 }

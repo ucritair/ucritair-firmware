@@ -172,6 +172,7 @@ void update_graph()
 	if (max<2) max = 2;
 
 	float scale = ((float)GRAPH_H)/((float)max);
+	scale *= 0.95; // don't completely fill
 
 	LOG_DBG("Scale graph");
 
@@ -267,12 +268,12 @@ void CAT_MS_graph(CAT_machine_signal signal)
 
 				if(CAT_input_held(CAT_BUTTON_LEFT, 0))
 				{
-					*sel_cursor -= cursor_velocity;
+					*sel_cursor -= MAX(1, cursor_velocity-10);
 					cursor_velocity += 1;
 				}
 				else if(CAT_input_held(CAT_BUTTON_RIGHT, 0))
 				{
-					*sel_cursor += cursor_velocity;
+					*sel_cursor += MAX(1, cursor_velocity-10);
 					cursor_velocity += 1;
 				}
 				else
@@ -383,7 +384,7 @@ void calc_ach()
     LOG_DBG("ach = %.2f", ach);
 }
 
-void text_cursor(char* name, int index)
+int text_cursor(char* name, int index)
 {
 	CAT_gui_text(name);
 	// CAT_gui_line_break();
@@ -400,6 +401,8 @@ void text_cursor(char* name, int index)
 	int gd = get_graph_data(&cell);
 
 	CAT_gui_textf("%s @ %2d:%02d:%02d", gd==-1?"?":get_string(gd), t.tm_hour, t.tm_min, t.tm_sec);
+
+	return gd;
 }
 
 void CAT_render_graph()
@@ -424,6 +427,8 @@ void CAT_render_graph()
 	text_cursor("Start:", cursor_start);
 	CAT_gui_line_break();
 
+	int end_val = 0;
+
 	if (cursor_state == SEL_START)
 	{
 		CAT_gui_image(icon_a_sprite, 1);
@@ -432,7 +437,7 @@ void CAT_render_graph()
 
 	if (cursor_state > SEL_START)
 	{
-		text_cursor("End  :", cursor_end);
+		end_val = text_cursor("End  :", cursor_end);
 		CAT_gui_line_break();
 	}
 
@@ -463,6 +468,14 @@ void CAT_render_graph()
 		CAT_gui_line_break();
 		CAT_gui_image(icon_a_sprite, 1);
 		CAT_gui_text("to start over");
+
+		if (get_ach_mode() == ACH && end_val > 460)
+		{
+			CAT_gui_line_break();
+			CAT_gui_text("WARNING: End CO2 value high");
+			CAT_gui_line_break();
+			CAT_gui_text("ACH may be inaccurate!");
+		}
 	}
 
 	if (cursor_state == SEL_START)
