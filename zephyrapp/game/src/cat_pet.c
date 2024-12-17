@@ -15,7 +15,7 @@ CAT_pet pet;
 
 bool is_critical()
 {
-	return !(pet.vigour > 0 && pet.focus > 0 && pet.spirit > 0);
+	return pet.vigour <= 0 || pet.focus <= 0 || pet.spirit <= 0 || CAT_get_battery_pct() < CAT_CRITICAL_BATTERY_PCT;
 }
 
 void CAT_pet_init()
@@ -99,7 +99,13 @@ void CAT_pet_reanimate()
 	}
 	if(is_critical())
 	{
-		if(pet.vigour <= 0)
+		if(CAT_get_battery_pct() < CAT_CRITICAL_BATTERY_PCT)
+		{
+			AS_crit.enter_anim_id = pet_crit_foc_in_sprite;
+			AS_crit.tick_anim_id = icon_low_battery_pet;
+			AS_crit.exit_anim_id = pet_crit_foc_out_sprite;
+		}
+		else if(pet.vigour <= 0)
 		{
 			AS_crit.enter_anim_id = pet_crit_vig_in_sprite;
 			AS_crit.tick_anim_id = pet_crit_vig_sprite;
@@ -230,7 +236,7 @@ void CAT_pet_tick(bool capture_input)
 
 	if(machine == CAT_MS_room)
 	{
-		if(!is_critical())
+		if(!is_critical() && CAT_get_battery_pct() > CAT_CRITICAL_BATTERY_PCT)
 		{
 			if(CAT_animachine_is_in(&pet_asm, &AS_idle) && CAT_animachine_is_ticking(&pet_asm))
 			{
@@ -306,7 +312,7 @@ void CAT_render_pet(int cycle)
 		int pet_mode = CAT_DRAW_MODE_BOTTOM | CAT_DRAW_MODE_CENTER_X;
 		if(pet.left)
 			pet_mode |= CAT_DRAW_MODE_REFLECT_X;
-		CAT_draw_queue_add(CAT_animachine_tick(&pet_asm), -1, 2, pet.pos.x, pet.pos.y, pet_mode);	
+		CAT_draw_queue_add(CAT_animachine_tick(&pet_asm), -1, 2, pet.pos.x, pet.pos.y, pet_mode);
 		if(CAT_animachine_is_in(&react_asm, &AS_react))
 		{
 			int x_off = pet.left ? 16 : -16;

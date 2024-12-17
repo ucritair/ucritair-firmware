@@ -947,8 +947,8 @@
     {
         "mode": "init",
         "id": 105,
-        "name": "table_lg_sprite",
-        "path": "sprites/prop/table_xl_wood.png",
+        "name": "table_mahogany_sprite",
+        "path": "sprites/temp/table_mahogany_hack.png",
         "frames": 1,
         "width": 64,
         "height": 48
@@ -956,7 +956,7 @@
     {
         "mode": "init",
         "id": 106,
-        "name": "table_sm_sprite",
+        "name": "table_sm_mahogany_sprite",
         "path": "sprites/prop/table_square_mahogany.png",
         "frames": 1,
         "width": 32,
@@ -965,6 +965,42 @@
     {
         "mode": "init",
         "id": 107,
+        "name": "table_sm_plastic_sprite",
+        "path": "sprites/prop/table_square_plastic.png",
+        "frames": 1,
+        "width": 32,
+        "height": 48
+    },
+    {
+        "mode": "init",
+        "id": 108,
+        "name": "table_sm_plastic_alt_sprite",
+        "path": "sprites/prop/table_square_plastic_alt.png",
+        "frames": 1,
+        "width": 32,
+        "height": 48
+    },
+    {
+        "mode": "init",
+        "id": 109,
+        "name": "table_sm_walnut_sprite",
+        "path": "sprites/prop/table_square_walnut.png",
+        "frames": 1,
+        "width": 32,
+        "height": 48
+    },
+    {
+        "mode": "init",
+        "id": 110,
+        "name": "table_sm_walnut_alt_sprite",
+        "path": "sprites/prop/table_square_walnut_alt.png",
+        "frames": 1,
+        "width": 32,
+        "height": 48
+    },
+    {
+        "mode": "init",
+        "id": 111,
         "name": "chair_mahogany_sprite",
         "path": "sprites/prop/chair_mahogany.png",
         "frames": 4,
@@ -973,7 +1009,7 @@
     },
     {
         "mode": "init",
-        "id": 108,
+        "id": 112,
         "name": "chair_stone_sprite",
         "path": "sprites/prop/chair_stone.png",
         "frames": 4,
@@ -982,7 +1018,7 @@
     },
     {
         "mode": "init",
-        "id": 109,
+        "id": 113,
         "name": "stool_wood_sprite",
         "path": "sprites/prop/stool_wood.png",
         "frames": 1,
@@ -991,7 +1027,7 @@
     },
     {
         "mode": "init",
-        "id": 110,
+        "id": 114,
         "name": "stool_stone_sprite",
         "path": "sprites/prop/stool_stone.png",
         "frames": 1,
@@ -1000,7 +1036,7 @@
     },
     {
         "mode": "init",
-        "id": 111,
+        "id": 115,
         "name": "stool_gold_sprite",
         "path": "sprites/prop/stool_gold.png",
         "frames": 1,
@@ -1009,7 +1045,7 @@
     },
     {
         "mode": "init",
-        "id": 112,
+        "id": 116,
         "name": "bowl_stone_sprite",
         "path": "sprites/prop/bowl_stone.png",
         "frames": 1,
@@ -1018,7 +1054,7 @@
     },
     {
         "mode": "init",
-        "id": 113,
+        "id": 117,
         "name": "bowl_gold_sprite",
         "path": "sprites/prop/bowl_gold.png",
         "frames": 1,
@@ -1027,7 +1063,7 @@
     },
     {
         "mode": "init",
-        "id": 114,
+        "id": 118,
         "name": "succulent_sprite",
         "path": "sprites/prop/plant_md_stem.png",
         "frames": 2,
@@ -1036,7 +1072,7 @@
     },
     {
         "mode": "init",
-        "id": 115,
+        "id": 119,
         "name": "bush_plain_sprite",
         "path": "sprites/prop/bush_md_blank.png",
         "frames": 1,
@@ -1045,7 +1081,7 @@
     },
     {
         "mode": "init",
-        "id": 116,
+        "id": 120,
         "name": "bush_daisy_sprite",
         "path": "sprites/prop/bush_md_daisy.png",
         "frames": 1,
@@ -1054,7 +1090,7 @@
     },
     {
         "mode": "init",
-        "id": 117,
+        "id": 121,
         "name": "bush_lilac_sprite",
         "path": "sprites/prop/bush_md_lilac.png",
         "frames": 1,
@@ -1063,7 +1099,7 @@
     },
     {
         "mode": "init",
-        "id": 118,
+        "id": 122,
         "name": "plant_plain_sprite",
         "path": "sprites/prop/plant_lg_sapling_blank.png",
         "frames": 1,
@@ -1072,7 +1108,7 @@
     },
     {
         "mode": "init",
-        "id": 119,
+        "id": 123,
         "name": "plant_maroon_sprite",
         "path": "sprites/prop/plant_lg_sapling_maroon.png",
         "frames": 1,
@@ -1081,7 +1117,7 @@
     },
     {
         "mode": "init",
-        "id": 120,
+        "id": 124,
         "name": "plant_lilac_sprite",
         "path": "sprites/prop/plant_lg_sapling_lilac.png",
         "frames": 1,
@@ -1090,7 +1126,7 @@
     },
     {
         "mode": "init",
-        "id": 121,
+        "id": 125,
         "name": "plant_daisy_sprite",
         "path": "sprites/prop/plant_lg_sapling_daisy.png",
         "frames": 1,
@@ -1099,7 +1135,7 @@
     },
     {
         "mode": "init",
-        "id": 122,
+        "id": 126,
         "name": "flower_vig_sprite",
         "path": "sprites/gameplay/stat_plant_vigor.png",
         "frames": 6,
@@ -1108,7 +1144,7 @@
     },
     {
         "mode": "init",
-        "id": 123,
+        "id": 127,
         "name": "flower_foc_sprite",
         "path": "sprites/gameplay/stat_plant_focus.png",
         "frames": 6,
@@ -1117,7 +1153,7 @@
     },
     {
         "mode": "init",
-        "id": 124,
+        "id": 128,
         "name": "flower_spi_sprite",
         "path": "sprites/gameplay/stat_plant_spirit.png",
         "frames": 6,
@@ -1126,7 +1162,7 @@
     },
     {
         "mode": "init",
-        "id": 125,
+        "id": 129,
         "name": "crystal_blue_lg_sprite",
         "path": "sprites/prop/crystal_lg_shard_blue.png",
         "frames": 1,
@@ -1135,7 +1171,7 @@
     },
     {
         "mode": "init",
-        "id": 126,
+        "id": 130,
         "name": "crystal_green_lg_sprite",
         "path": "sprites/prop/crystal_lg_shard_green.png",
         "frames": 1,
@@ -1144,7 +1180,7 @@
     },
     {
         "mode": "init",
-        "id": 127,
+        "id": 131,
         "name": "crystal_purple_lg_sprite",
         "path": "sprites/prop/crystal_lg_shard_purple.png",
         "frames": 1,
@@ -1153,7 +1189,7 @@
     },
     {
         "mode": "init",
-        "id": 128,
+        "id": 132,
         "name": "effigy_blue_sprite",
         "path": "sprites/prop/effigy_blue_a.png",
         "frames": 4,
@@ -1162,7 +1198,7 @@
     },
     {
         "mode": "init",
-        "id": 129,
+        "id": 133,
         "name": "effigy_purple_sprite",
         "path": "sprites/prop/effigy_purple_a.png",
         "frames": 4,
@@ -1171,7 +1207,7 @@
     },
     {
         "mode": "init",
-        "id": 130,
+        "id": 134,
         "name": "effigy_sea_sprite",
         "path": "sprites/prop/effigy_sea_a.png",
         "frames": 4,
@@ -1180,7 +1216,7 @@
     },
     {
         "mode": "init",
-        "id": 131,
+        "id": 135,
         "name": "poster_zk_sprite",
         "path": "sprites/prop/poster_md_zk.png",
         "frames": 1,
@@ -1189,7 +1225,7 @@
     },
     {
         "mode": "init",
-        "id": 132,
+        "id": 136,
         "name": "pixel_sprite",
         "path": "sprites/prop/pixel.png",
         "frames": 1,
@@ -1198,7 +1234,7 @@
     },
     {
         "mode": "init",
-        "id": 133,
+        "id": 137,
         "name": "padkaprop_sprite",
         "path": "sprites/temp/food_padkrakow_md.png",
         "frames": 1,
@@ -1207,7 +1243,7 @@
     },
     {
         "mode": "init",
-        "id": 134,
+        "id": 138,
         "name": "pet_idle_sprite",
         "path": "sprites/pet/unicorn_idle_complex_a.png",
         "frames": 4,
@@ -1216,7 +1252,7 @@
     },
     {
         "mode": "init",
-        "id": 135,
+        "id": 139,
         "name": "pet_walk_sprite",
         "path": "sprites/pet/unicorn_default_walk_complex_a.png",
         "frames": 4,
@@ -1225,7 +1261,7 @@
     },
     {
         "mode": "init",
-        "id": 136,
+        "id": 140,
         "name": "pet_idle_high_vig_sprite",
         "path": "sprites/pet/unicorn_wing_idle_a.png",
         "frames": 4,
@@ -1234,7 +1270,7 @@
     },
     {
         "mode": "init",
-        "id": 137,
+        "id": 141,
         "name": "pet_walk_high_vig_sprite",
         "path": "sprites/pet/unicorn_wing_walk_a.png",
         "frames": 4,
@@ -1243,7 +1279,7 @@
     },
     {
         "mode": "init",
-        "id": 138,
+        "id": 142,
         "name": "pet_high_vig_in_sprite",
         "path": "sprites/pet/unicorn_wing_a.png",
         "frames": 13,
@@ -1252,13 +1288,13 @@
     },
     {
         "mode": "copy",
-        "id": 137,
+        "id": 143,
         "name": "pet_high_vig_out_sprite",
         "source": 136
     },
     {
         "mode": "init",
-        "id": 140,
+        "id": 144,
         "name": "pet_idle_high_foc_sprite",
         "path": "sprites/pet/unicorn_glow_idle_a.png",
         "frames": 4,
@@ -1267,7 +1303,7 @@
     },
     {
         "mode": "init",
-        "id": 141,
+        "id": 145,
         "name": "pet_walk_high_foc_sprite",
         "path": "sprites/pet/unicorn_glow_walk_a.png",
         "frames": 4,
@@ -1276,7 +1312,7 @@
     },
     {
         "mode": "init",
-        "id": 142,
+        "id": 146,
         "name": "pet_idle_high_spi_sprite",
         "path": "sprites/pet/unicorn_shimmer_idle_a.png",
         "frames": 4,
@@ -1285,7 +1321,7 @@
     },
     {
         "mode": "init",
-        "id": 143,
+        "id": 147,
         "name": "pet_walk_high_spi_sprite",
         "path": "sprites/pet/unicorn_shimmer_walk_a.png",
         "frames": 4,
@@ -1294,7 +1330,7 @@
     },
     {
         "mode": "init",
-        "id": 144,
+        "id": 148,
         "name": "pet_idle_low_vig_sprite",
         "path": "sprites/pet/unicorn_tired_a.png",
         "frames": 4,
@@ -1303,7 +1339,7 @@
     },
     {
         "mode": "init",
-        "id": 145,
+        "id": 149,
         "name": "pet_walk_low_vig_sprite",
         "path": "sprites/pet/unicorn_tired_walk_a.png",
         "frames": 4,
@@ -1312,7 +1348,7 @@
     },
     {
         "mode": "init",
-        "id": 146,
+        "id": 150,
         "name": "pet_idle_low_foc_sprite",
         "path": "sprites/pet/unicorn_messy_stink_a.png",
         "frames": 8,
@@ -1321,7 +1357,7 @@
     },
     {
         "mode": "init",
-        "id": 147,
+        "id": 151,
         "name": "pet_walk_low_foc_sprite",
         "path": "sprites/pet/unicorn_messy_walk_complex_a.png",
         "frames": 4,
@@ -1330,7 +1366,7 @@
     },
     {
         "mode": "init",
-        "id": 148,
+        "id": 152,
         "name": "pet_idle_low_spi_sprite",
         "path": "sprites/pet/unicorn_sad_idle_a.png",
         "frames": 4,
@@ -1339,7 +1375,7 @@
     },
     {
         "mode": "init",
-        "id": 149,
+        "id": 153,
         "name": "pet_walk_low_spi_sprite",
         "path": "sprites/pet/unicorn_sad_walk_a.png",
         "frames": 4,
@@ -1348,7 +1384,7 @@
     },
     {
         "mode": "init",
-        "id": 150,
+        "id": 154,
         "name": "pet_crit_vig_in_sprite",
         "path": "sprites/pet/unicorn_melt_a.png",
         "frames": 8,
@@ -1357,7 +1393,7 @@
     },
     {
         "mode": "init",
-        "id": 151,
+        "id": 155,
         "name": "pet_crit_vig_sprite",
         "path": "sprites/pet/unicorn_melt.png",
         "frames": 1,
@@ -1366,13 +1402,13 @@
     },
     {
         "mode": "copy",
-        "id": 150,
+        "id": 156,
         "name": "pet_crit_vig_out_sprite",
         "source": 148
     },
     {
         "mode": "init",
-        "id": 153,
+        "id": 157,
         "name": "pet_crit_foc_in_sprite",
         "path": "sprites/pet/unicorn_tipped_a.png",
         "frames": 6,
@@ -1381,7 +1417,7 @@
     },
     {
         "mode": "init",
-        "id": 154,
+        "id": 158,
         "name": "pet_crit_foc_sprite",
         "path": "sprites/pet/unicorn_tipped.png",
         "frames": 1,
@@ -1390,13 +1426,13 @@
     },
     {
         "mode": "copy",
-        "id": 153,
+        "id": 159,
         "name": "pet_crit_foc_out_sprite",
         "source": 151
     },
     {
         "mode": "init",
-        "id": 156,
+        "id": 160,
         "name": "pet_crit_spi_in_sprite",
         "path": "sprites/pet/unicorn_block_a.png",
         "frames": 15,
@@ -1405,7 +1441,7 @@
     },
     {
         "mode": "init",
-        "id": 157,
+        "id": 161,
         "name": "pet_crit_spi_sprite",
         "path": "sprites/pet/unicorn_block_blink_a.png",
         "frames": 2,
@@ -1414,13 +1450,13 @@
     },
     {
         "mode": "copy",
-        "id": 156,
+        "id": 162,
         "name": "pet_crit_spi_out_sprite",
         "source": 154
     },
     {
         "mode": "init",
-        "id": 159,
+        "id": 163,
         "name": "pet_eat_in_sprite",
         "path": "sprites/pet/unicorn_eat_lower_a.png",
         "frames": 7,
@@ -1429,7 +1465,7 @@
     },
     {
         "mode": "init",
-        "id": 160,
+        "id": 164,
         "name": "pet_eat_sprite",
         "path": "sprites/pet/unicorn_eat_chew_a.png",
         "frames": 2,
@@ -1438,13 +1474,13 @@
     },
     {
         "mode": "copy",
-        "id": 159,
+        "id": 165,
         "name": "pet_eat_out_sprite",
         "source": 157
     },
     {
         "mode": "init",
-        "id": 162,
+        "id": 166,
         "name": "pet_study_in_sprite",
         "path": "sprites/pet/unicorn_read_sit_a.png",
         "frames": 6,
@@ -1453,7 +1489,7 @@
     },
     {
         "mode": "init",
-        "id": 163,
+        "id": 167,
         "name": "pet_study_sprite",
         "path": "sprites/pet/unicorn_read_sit.png",
         "frames": 1,
@@ -1462,13 +1498,13 @@
     },
     {
         "mode": "copy",
-        "id": 162,
+        "id": 168,
         "name": "pet_study_out_sprite",
         "source": 160
     },
     {
         "mode": "init",
-        "id": 165,
+        "id": 169,
         "name": "pet_play_a_sprite",
         "path": "sprites/pet/unicorn_play_knead_a.png",
         "frames": 6,
@@ -1477,7 +1513,7 @@
     },
     {
         "mode": "init",
-        "id": 166,
+        "id": 170,
         "name": "pet_play_b_sprite",
         "path": "sprites/pet/unicorn_play_b_a.png",
         "frames": 6,
@@ -1486,7 +1522,7 @@
     },
     {
         "mode": "init",
-        "id": 167,
+        "id": 171,
         "name": "pet_play_c_sprite",
         "path": "sprites/pet/unicorn_play_c_a.png",
         "frames": 6,
@@ -1495,7 +1531,7 @@
     },
     {
         "mode": "init",
-        "id": 168,
+        "id": 172,
         "name": "pet_vig_up_sprite",
         "path": "sprites/pet/unicorn_stat_vigor_up_a.png",
         "frames": 13,
@@ -1504,7 +1540,7 @@
     },
     {
         "mode": "init",
-        "id": 169,
+        "id": 173,
         "name": "pet_foc_up_sprite",
         "path": "sprites/pet/unicorn_stat_focus_up_a.png",
         "frames": 13,
@@ -1513,7 +1549,7 @@
     },
     {
         "mode": "init",
-        "id": 170,
+        "id": 174,
         "name": "pet_spi_up_sprite",
         "path": "sprites/pet/unicorn_stat_spirit_up_a.png",
         "frames": 13,
@@ -1522,7 +1558,7 @@
     },
     {
         "mode": "init",
-        "id": 171,
+        "id": 175,
         "name": "mood_low_vig_sprite",
         "path": "sprites/ui/bubl_low_vig.png",
         "frames": 3,
@@ -1531,7 +1567,7 @@
     },
     {
         "mode": "init",
-        "id": 172,
+        "id": 176,
         "name": "mood_low_foc_sprite",
         "path": "sprites/ui/bubl_low_foc.png",
         "frames": 3,
@@ -1540,7 +1576,7 @@
     },
     {
         "mode": "init",
-        "id": 173,
+        "id": 177,
         "name": "mood_low_spi_sprite",
         "path": "sprites/ui/bubl_low_spi.png",
         "frames": 3,
@@ -1549,7 +1585,7 @@
     },
     {
         "mode": "init",
-        "id": 174,
+        "id": 178,
         "name": "mood_good_sprite",
         "path": "sprites/ui/bubl_react_good.png",
         "frames": 5,
@@ -1558,7 +1594,7 @@
     },
     {
         "mode": "init",
-        "id": 175,
+        "id": 179,
         "name": "mood_bad_sprite",
         "path": "sprites/ui/bubl_react_bad.png",
         "frames": 3,
@@ -1567,7 +1603,7 @@
     },
     {
         "mode": "init",
-        "id": 176,
+        "id": 180,
         "name": "snake_head_sprite",
         "path": "sprites/minigame/snake_cat_head_default.png",
         "frames": 4,
@@ -1576,7 +1612,7 @@
     },
     {
         "mode": "init",
-        "id": 177,
+        "id": 181,
         "name": "snake_body_sprite",
         "path": "sprites/minigame/snake_cat_body.png",
         "frames": 4,
@@ -1585,7 +1621,7 @@
     },
     {
         "mode": "init",
-        "id": 178,
+        "id": 182,
         "name": "snake_corner_sprite",
         "path": "sprites/minigame/snake_cat_corner.png",
         "frames": 4,
@@ -1594,7 +1630,7 @@
     },
     {
         "mode": "init",
-        "id": 179,
+        "id": 183,
         "name": "snake_tail_sprite",
         "path": "sprites/minigame/snake_tail.png",
         "frames": 4,
@@ -1603,7 +1639,88 @@
     },
     {
         "mode": "init",
-        "id": 180,
+        "id": 184,
+        "name": "bento_sprite",
+        "path": "sprites/food/bento.png",
+        "frames": 1,
+        "width": 32,
+        "height": 16
+    },
+    {
+        "mode": "init",
+        "id": 185,
+        "name": "meat_sprite",
+        "path": "sprites/food/meat.png",
+        "frames": 1,
+        "width": 32,
+        "height": 16
+    },
+    {
+        "mode": "init",
+        "id": 186,
+        "name": "orange_sprite",
+        "path": "sprites/food/orange.png",
+        "frames": 1,
+        "width": 16,
+        "height": 16
+    },
+    {
+        "mode": "init",
+        "id": 187,
+        "name": "persimmons_sprite",
+        "path": "sprites/food/persimmons.png",
+        "frames": 1,
+        "width": 16,
+        "height": 16
+    },
+    {
+        "mode": "init",
+        "id": 188,
+        "name": "soda_sprite",
+        "path": "sprites/food/soda.png",
+        "frames": 1,
+        "width": 16,
+        "height": 16
+    },
+    {
+        "mode": "init",
+        "id": 189,
+        "name": "barley_tea_sprite",
+        "path": "sprites/food/tea_barley.png",
+        "frames": 1,
+        "width": 16,
+        "height": 32
+    },
+    {
+        "mode": "init",
+        "id": 190,
+        "name": "green_tea_sprite",
+        "path": "sprites/food/tea_green.png",
+        "frames": 1,
+        "width": 16,
+        "height": 32
+    },
+    {
+        "mode": "init",
+        "id": 191,
+        "name": "tea_cup_sprite",
+        "path": "sprites/food/tea_cup_full.png",
+        "frames": 1,
+        "width": 16,
+        "height": 16
+    },
+    {
+        "mode": "init",
+        "id": 192,
+        "name": "tea_cup_empty_sprite",
+        "path": "sprites/food/tea_cup_empty.png",
+        "frames": 1,
+        "width": 16,
+        "height": 16
+    },
+    {
+        "mode": "init",
+        "id": 193,
         "name": "mines_sprite",
         "path": "sprites/minigame/minesweeper.png",
         "frames": 13,
@@ -1612,7 +1729,7 @@
     },
     {
         "mode": "init",
-        "id": 181,
+        "id": 194,
         "name": "fighter_sprite",
         "path": "sprites/minigame/fighter.png",
         "frames": 8,
@@ -1621,16 +1738,7 @@
     },
     {
         "mode": "init",
-        "id": 182,
-        "name": "chicken_sprite",
-        "path": "sprites/prop/prop_chicken_a.png",
-        "frames": 2,
-        "width": 32,
-        "height": 32
-    },
-    {
-        "mode": "init",
-        "id": 183,
+        "id": 195,
         "name": "bowl_grey_sprite",
         "path": "sprites/prop/bowl_grey.png",
         "frames": 1,
@@ -1639,7 +1747,7 @@
     },
     {
         "mode": "init",
-        "id": 184,
+        "id": 196,
         "name": "bowl_mahogany_sprite",
         "path": "sprites/prop/bowl_mahogany.png",
         "frames": 1,
@@ -1648,7 +1756,7 @@
     },
     {
         "mode": "init",
-        "id": 185,
+        "id": 197,
         "name": "bowl_walnut_sprite",
         "path": "sprites/prop/bowl_walnut.png",
         "frames": 1,
@@ -1657,7 +1765,7 @@
     },
     {
         "mode": "init",
-        "id": 186,
+        "id": 198,
         "name": "chair_plastic_sprite",
         "path": "sprites/prop/chair_plastic_alt.png",
         "frames": 4,
@@ -1666,7 +1774,7 @@
     },
     {
         "mode": "init",
-        "id": 187,
+        "id": 199,
         "name": "plant_corn_sprite",
         "path": "sprites/prop/plant_lg_corn.png",
         "frames": 1,
@@ -1675,7 +1783,16 @@
     },
     {
         "mode": "init",
-        "id": 188,
+        "id": 200,
+        "name": "chicken_sprite",
+        "path": "sprites/prop/prop_chicken_a.png",
+        "frames": 2,
+        "width": 32,
+        "height": 32
+    },
+    {
+        "mode": "init",
+        "id": 201,
         "name": "prop_mine_sprite",
         "path": "sprites/prop/prop_mine_a.png",
         "frames": 4,
@@ -1684,11 +1801,119 @@
     },
     {
         "mode": "init",
-        "id": 189,
+        "id": 202,
         "name": "stool_plastic_sprite",
         "path": "sprites/prop/stool_plastic.png",
         "frames": 1,
         "width": 32,
         "height": 32
+    },
+    {
+        "mode": "init",
+        "id": 203,
+        "name": "table_plastic_sprite",
+        "path": "sprites/temp/table_plastic_thin_hack.png",
+        "frames": 1,
+        "width": 64,
+        "height": 48
+    },
+    {
+        "mode": "init",
+        "id": 204,
+        "name": "table_plastic_alt_sprite",
+        "path": "sprites/temp/table_plastic_hack.png",
+        "frames": 1,
+        "width": 64,
+        "height": 48
+    },
+    {
+        "mode": "init",
+        "id": 205,
+        "name": "table_walnut_sprite",
+        "path": "sprites/temp/table_walnut_hack.png",
+        "frames": 1,
+        "width": 64,
+        "height": 48
+    },
+    {
+        "mode": "init",
+        "id": 206,
+        "name": "vase_gold_sprite",
+        "path": "sprites/prop/vase_gold.png",
+        "frames": 1,
+        "width": 16,
+        "height": 16
+    },
+    {
+        "mode": "init",
+        "id": 207,
+        "name": "vase_grey_sprite",
+        "path": "sprites/prop/vase_grey.png",
+        "frames": 1,
+        "width": 16,
+        "height": 16
+    },
+    {
+        "mode": "init",
+        "id": 208,
+        "name": "vase_mahogany_sprite",
+        "path": "sprites/prop/vase_mahogany.png",
+        "frames": 1,
+        "width": 16,
+        "height": 16
+    },
+    {
+        "mode": "init",
+        "id": 209,
+        "name": "vase_stone_sprite",
+        "path": "sprites/prop/vase_stone.png",
+        "frames": 1,
+        "width": 16,
+        "height": 16
+    },
+    {
+        "mode": "init",
+        "id": 210,
+        "name": "vase_walnut_sprite",
+        "path": "sprites/prop/vase_walnut.png",
+        "frames": 1,
+        "width": 16,
+        "height": 16
+    },
+    {
+        "mode": "init",
+        "id": 211,
+        "name": "icon_low_battery",
+        "path": "sprites/ui/low_battery.png",
+        "frames": 1,
+        "width": 32,
+        "height": 32
+    },
+    {
+        "mode": "init",
+        "id": 212,
+        "name": "icon_low_battery_alt",
+        "path": "sprites/ui/low_battery_alt.png",
+        "frames": 1,
+        "width": 32,
+        "height": 32
+    },
+    {
+        "mode": "init",
+        "id": 213,
+        "name": "icon_low_battery_pet",
+        "path": "sprites/ui/low_battery_unicorn.png",
+        "frames": 1,
+        "width": 64,
+        "height": 64
+    },
+    {
+        "mode": "init",
+        "id": 214,
+        "name": "null_sprite",
+        "path": "sprites/none_24x24.png",
+        "frames": 1,
+        "width": 24,
+        "height": 24
     }
 ]

@@ -800,22 +800,28 @@ CAT_animachine_state AS_react;
 void CAT_sprite_mass_define()
 {
 	// PET STATES
+	CAT_anim_toggle_loop(pet_high_vig_in_sprite, false);
 	CAT_anim_toggle_reverse(pet_high_vig_out_sprite, true);
 	CAT_anim_toggle_loop(pet_high_vig_out_sprite, false);
 
+	CAT_anim_toggle_loop(pet_crit_vig_in_sprite, false);
 	CAT_anim_toggle_reverse(pet_crit_vig_out_sprite, true);
 	CAT_anim_toggle_loop(pet_crit_vig_out_sprite, false);
 
+	CAT_anim_toggle_loop(pet_crit_foc_in_sprite, false);
 	CAT_anim_toggle_reverse(pet_crit_foc_out_sprite, true);
 	CAT_anim_toggle_loop(pet_crit_foc_out_sprite, false);
 
+	CAT_anim_toggle_loop(pet_crit_spi_in_sprite, false);
 	CAT_anim_toggle_reverse(pet_crit_spi_out_sprite, true);
 	CAT_anim_toggle_loop(pet_crit_spi_out_sprite, false);
 
 	// PET ACTIONS
+	CAT_anim_toggle_loop(pet_eat_in_sprite, false);
 	CAT_anim_toggle_reverse(pet_eat_out_sprite, true);
 	CAT_anim_toggle_loop(pet_eat_out_sprite, false);
 
+	CAT_anim_toggle_loop(pet_study_in_sprite, false);
 	CAT_anim_toggle_reverse(pet_study_out_sprite, true);
 	CAT_anim_toggle_loop(pet_study_out_sprite, false);
 

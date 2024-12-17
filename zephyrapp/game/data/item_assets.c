@@ -12,7 +12,7 @@ CAT_item_table item_table =
 			.name = "Bread",
 			.sprite_id = bread_sprite,
 			.price = 5,
-			.text = "+VIG: 2\n+FOC: 0\n+SPI: 0\n",
+			.text = "",
 			.icon_id = icon_item_food_sprite,
 			.data.tool_data =
 			{
@@ -28,7 +28,7 @@ CAT_item_table item_table =
 			.name = "Coffee",
 			.sprite_id = coffee_sprite,
 			.price = 2,
-			.text = "+VIG: 1\n+FOC: 1\n+SPI: 0\n",
+			.text = "",
 			.icon_id = icon_item_food_sprite,
 			.data.tool_data =
 			{
@@ -44,7 +44,7 @@ CAT_item_table item_table =
 			.name = "Milk",
 			.sprite_id = milk_sprite,
 			.price = 3,
-			.text = "+VIG: 1\n+FOC: 0\n+SPI: 0\n",
+			.text = "",
 			.icon_id = icon_item_food_sprite,
 			.data.tool_data =
 			{
@@ -60,7 +60,7 @@ CAT_item_table item_table =
 			.name = "Soup",
 			.sprite_id = soup_sprite,
 			.price = 5,
-			.text = "+VIG: 3\n+FOC: 0\n+SPI: 0\n",
+			.text = "",
 			.icon_id = icon_item_food_sprite,
 			.data.tool_data =
 			{
@@ -76,7 +76,7 @@ CAT_item_table item_table =
 			.name = "Salad",
 			.sprite_id = salad_sprite,
 			.price = 5,
-			.text = "+VIG: 3\n+FOC: 0\n+SPI: 0\n",
+			.text = "",
 			.icon_id = icon_item_food_sprite,
 			.data.tool_data =
 			{
@@ -92,7 +92,7 @@ CAT_item_table item_table =
 			.name = "Sausage",
 			.sprite_id = sausage_sprite,
 			.price = 5,
-			.text = "+VIG: 3\n+FOC: 0\n+SPI: 0\n",
+			.text = "",
 			.icon_id = icon_item_food_sprite,
 			.data.tool_data =
 			{
@@ -108,7 +108,7 @@ CAT_item_table item_table =
 			.name = "Green Curry",
 			.sprite_id = green_curry_sprite,
 			.price = 15,
-			.text = "+VIG: 5\n+FOC: 0\n+SPI: 0\n",
+			.text = "",
 			.icon_id = icon_item_food_sprite,
 			.data.tool_data =
 			{
@@ -124,7 +124,7 @@ CAT_item_table item_table =
 			.name = "Red Curry",
 			.sprite_id = red_curry_sprite,
 			.price = 15,
-			.text = "+VIG: 5\n+FOC: 0\n+SPI: 0\n",
+			.text = "",
 			.icon_id = icon_item_food_sprite,
 			.data.tool_data =
 			{
@@ -140,7 +140,7 @@ CAT_item_table item_table =
 			.name = "Pad Ka Prow",
 			.sprite_id = padkaprow_sprite,
 			.price = 15,
-			.text = "+VIG: 5\n+FOC: 0\n+SPI: 0\n",
+			.text = "",
 			.icon_id = icon_item_food_sprite,
 			.data.tool_data =
 			{
@@ -156,7 +156,7 @@ CAT_item_table item_table =
 			.name = "Vigour Pill",
 			.sprite_id = pill_vig_sprite,
 			.price = 1,
-			.text = "+VIG: 1\n+FOC: 0\n+SPI: 0\n",
+			.text = "",
 			.icon_id = icon_item_food_sprite,
 			.data.tool_data =
 			{
@@ -172,7 +172,7 @@ CAT_item_table item_table =
 			.name = "Focus Pill",
 			.sprite_id = pill_foc_sprite,
 			.price = 1,
-			.text = "+VIG: 0\n+FOC: 1\n+SPI: 0\n",
+			.text = "",
 			.icon_id = icon_item_food_sprite,
 			.data.tool_data =
 			{
@@ -188,7 +188,7 @@ CAT_item_table item_table =
 			.name = "Spirit Pill",
 			.sprite_id = pill_spi_sprite,
 			.price = 1,
-			.text = "+VIG: 0\n+FOC: 0\n+SPI: 1\n",
+			.text = "",
 			.icon_id = icon_item_food_sprite,
 			.data.tool_data =
 			{
@@ -204,7 +204,7 @@ CAT_item_table item_table =
 			.name = "Cigarettes",
 			.sprite_id = cigarette_sprite,
 			.price = 10,
-			.text = "+VIG: -1\n+FOC: 3\n+SPI: 1\n",
+			.text = "",
 			.icon_id = icon_item_food_sprite,
 			.data.tool_data =
 			{
@@ -220,7 +220,7 @@ CAT_item_table item_table =
 			.name = "The Disposessed",
 			.sprite_id = book_study_sprite,
 			.price = 20,
-			.text = "+VIG: 0\n+FOC: 3\n+SPI: 0\n",
+			.text = "",
 			.icon_id = icon_item_book_sprite,
 			.data.tool_data =
 			{
@@ -236,7 +236,7 @@ CAT_item_table item_table =
 			.name = "We Are Legion",
 			.sprite_id = book_study_sprite,
 			.price = 20,
-			.text = "+VIG: 0\n+FOC: 3\n+SPI: 0\n",
+			.text = "",
 			.icon_id = icon_item_book_sprite,
 			.data.tool_data =
 			{
@@ -252,7 +252,7 @@ CAT_item_table item_table =
 			.name = "The Forever War",
 			.sprite_id = book_study_sprite,
 			.price = 20,
-			.text = "+VIG: 0\n+FOC: 3\n+SPI: 0\n",
+			.text = "",
 			.icon_id = icon_item_book_sprite,
 			.data.tool_data =
 			{
@@ -268,7 +268,7 @@ CAT_item_table item_table =
 			.name = "Ringworld",
 			.sprite_id = book_study_sprite,
 			.price = 20,
-			.text = "+VIG: 0\n+FOC: 3\n+SPI: 0\n",
+			.text = "",
 			.icon_id = icon_item_book_sprite,
 			.data.tool_data =
 			{
@@ -284,7 +284,7 @@ CAT_item_table item_table =
 			.name = "The Machine Stops",
 			.sprite_id = book_study_sprite,
 			.price = 20,
-			.text = "+VIG: 0\n+FOC: 3\n+SPI: 0\n",
+			.text = "",
 			.icon_id = icon_item_book_sprite,
 			.data.tool_data =
 			{
@@ -300,7 +300,7 @@ CAT_item_table item_table =
 			.name = "Metal Fever",
 			.sprite_id = book_study_sprite,
 			.price = 20,
-			.text = "+VIG: 0\n+FOC: 3\n+SPI: 0\n",
+			.text = "",
 			.icon_id = icon_item_book_sprite,
 			.data.tool_data =
 			{
@@ -316,7 +316,7 @@ CAT_item_table item_table =
 			.name = "Ducky",
 			.sprite_id = toy_duck_sprite,
 			.price = 30,
-			.text = "+VIG: 0\n+FOC: 0\n+SPI: 5\n",
+			.text = "",
 			.icon_id = icon_item_toy_sprite,
 			.data.tool_data =
 			{
@@ -332,7 +332,7 @@ CAT_item_table item_table =
 			.name = "Baseball",
 			.sprite_id = toy_baseball_sprite,
 			.price = 20,
-			.text = "+VIG: 0\n+FOC: 0\n+SPI: 3\n",
+			.text = "",
 			.icon_id = icon_item_toy_sprite,
 			.data.tool_data =
 			{
@@ -348,7 +348,7 @@ CAT_item_table item_table =
 			.name = "Basketball",
 			.sprite_id = toy_basketball_sprite,
 			.price = 20,
-			.text = "+VIG: 0\n+FOC: 0\n+SPI: 3\n",
+			.text = "",
 			.icon_id = icon_item_toy_sprite,
 			.data.tool_data =
 			{
@@ -364,7 +364,7 @@ CAT_item_table item_table =
 			.name = "Golf Ball",
 			.sprite_id = toy_golf_sprite,
 			.price = 5,
-			.text = "+VIG: 0\n+FOC: 0\n+SPI: 1\n",
+			.text = "",
 			.icon_id = icon_item_toy_sprite,
 			.data.tool_data =
 			{
@@ -380,7 +380,7 @@ CAT_item_table item_table =
 			.name = "Puzzle",
 			.sprite_id = toy_puzzle_sprite,
 			.price = 20,
-			.text = "+VIG: 0\n+FOC: 0\n+SPI: 3\n",
+			.text = "",
 			.icon_id = icon_item_toy_sprite,
 			.data.tool_data =
 			{
@@ -404,7 +404,7 @@ CAT_item_table item_table =
 			.name = "Ethereum Farm",
 			.sprite_id = gpu_sprite,
 			.price = 100,
-			.text = "Shape: [3, 1]\n",
+			.text = "",
 			.icon_id = icon_item_prop_sprite,
 			.data.prop_data =
 			{
@@ -419,7 +419,7 @@ CAT_item_table item_table =
 			.name = "UV Lamp",
 			.sprite_id = uv_sprite,
 			.price = 50,
-			.text = "Shape: [1, 1]\n",
+			.text = "",
 			.icon_id = icon_item_prop_sprite,
 			.data.prop_data =
 			{
@@ -434,7 +434,7 @@ CAT_item_table item_table =
 			.name = "Air Purifier",
 			.sprite_id = purifier_sprite,
 			.price = 50,
-			.text = "Shape: [2, 1]\n",
+			.text = "",
 			.icon_id = icon_item_prop_sprite,
 			.data.prop_data =
 			{
@@ -449,7 +449,7 @@ CAT_item_table item_table =
 			.name = "Coffee Machine",
 			.sprite_id = coffeemaker_sprite,
 			.price = 40,
-			.text = "Shape: [2, 1]\n",
+			.text = "",
 			.icon_id = icon_item_prop_sprite,
 			.data.prop_data =
 			{
@@ -464,7 +464,7 @@ CAT_item_table item_table =
 			.name = "Classic Fan",
 			.sprite_id = fan_a_sprite,
 			.price = 20,
-			.text = "Shape: [2, 1]\n",
+			.text = "",
 			.icon_id = icon_item_prop_sprite,
 			.data.prop_data =
 			{
@@ -479,7 +479,7 @@ CAT_item_table item_table =
 			.name = "Modern Fan",
 			.sprite_id = fan_b_sprite,
 			.price = 30,
-			.text = "Shape: [2, 1]\n",
+			.text = "",
 			.icon_id = icon_item_prop_sprite,
 			.data.prop_data =
 			{
@@ -494,7 +494,7 @@ CAT_item_table item_table =
 			.name = "Lantern",
 			.sprite_id = bread_sprite,
 			.price = 20,
-			.text = "Shape: [1, 1]\n",
+			.text = "",
 			.icon_id = icon_item_prop_sprite,
 			.data.prop_data =
 			{
@@ -509,7 +509,7 @@ CAT_item_table item_table =
 			.name = "Laptop",
 			.sprite_id = laptop_sprite,
 			.price = 80,
-			.text = "Shape: [2, 1]\n",
+			.text = "",
 			.icon_id = icon_item_prop_sprite,
 			.data.prop_data =
 			{
@@ -524,7 +524,7 @@ CAT_item_table item_table =
 			.name = "Chess Set",
 			.sprite_id = chess_sprite,
 			.price = 40,
-			.text = "Shape: [2, 2]\n",
+			.text = "",
 			.icon_id = icon_item_prop_sprite,
 			.data.prop_data =
 			{
@@ -536,10 +536,10 @@ CAT_item_table item_table =
 		},
 		{
 			.type = CAT_ITEM_TYPE_PROP,
-			.name = "Wood Table",
-			.sprite_id = table_lg_sprite,
+			.name = "Mahogany Table",
+			.sprite_id = table_mahogany_sprite,
 			.price = 20,
-			.text = "Shape: [4, 2]\n",
+			.text = "",
 			.icon_id = icon_item_prop_sprite,
 			.data.prop_data =
 			{
@@ -551,10 +551,115 @@ CAT_item_table item_table =
 		},
 		{
 			.type = CAT_ITEM_TYPE_PROP,
-			.name = "Small Wood Table",
-			.sprite_id = table_sm_sprite,
+			.name = "Walnut Table",
+			.sprite_id = table_walnut_sprite,
+			.price = 20,
+			.text = "",
+			.icon_id = icon_item_prop_sprite,
+			.data.prop_data =
+			{
+				.type = CAT_PROP_TYPE_BOTTOM,
+				.shape = {4, 2},
+				.animate = true,
+				.child_dy = 0,
+			}
+		},
+		{
+			.type = CAT_ITEM_TYPE_PROP,
+			.name = "Plastic Table A",
+			.sprite_id = table_plastic_sprite,
+			.price = 20,
+			.text = "",
+			.icon_id = icon_item_prop_sprite,
+			.data.prop_data =
+			{
+				.type = CAT_PROP_TYPE_BOTTOM,
+				.shape = {4, 2},
+				.animate = true,
+				.child_dy = 0,
+			}
+		},
+		{
+			.type = CAT_ITEM_TYPE_PROP,
+			.name = "Plastic Table B",
+			.sprite_id = table_plastic_alt_sprite,
+			.price = 20,
+			.text = "",
+			.icon_id = icon_item_prop_sprite,
+			.data.prop_data =
+			{
+				.type = CAT_PROP_TYPE_BOTTOM,
+				.shape = {4, 2},
+				.animate = true,
+				.child_dy = 0,
+			}
+		},
+		{
+			.type = CAT_ITEM_TYPE_PROP,
+			.name = "Small Mahogany Table",
+			.sprite_id = table_sm_mahogany_sprite,
+			.price = 20,
+			.text = "",
+			.icon_id = icon_item_prop_sprite,
+			.data.prop_data =
+			{
+				.type = CAT_PROP_TYPE_BOTTOM,
+				.shape = {2, 2},
+				.animate = true,
+				.child_dy = 0,
+			}
+		},
+		{
+			.type = CAT_ITEM_TYPE_PROP,
+			.name = "Small Walnut Table A",
+			.sprite_id = table_sm_walnut_sprite,
+			.price = 30,
+			.text = "",
+			.icon_id = icon_item_prop_sprite,
+			.data.prop_data =
+			{
+				.type = CAT_PROP_TYPE_BOTTOM,
+				.shape = {2, 2},
+				.animate = true,
+				.child_dy = 0,
+			}
+		},
+		{
+			.type = CAT_ITEM_TYPE_PROP,
+			.name = "Small Walnut Table B",
+			.sprite_id = table_sm_walnut_alt_sprite,
+			.price = 30,
+			.text = "",
+			.icon_id = icon_item_prop_sprite,
+			.data.prop_data =
+			{
+				.type = CAT_PROP_TYPE_BOTTOM,
+				.shape = {2, 2},
+				.animate = true,
+				.child_dy = 0,
+			}
+		},
+		{
+			.type = CAT_ITEM_TYPE_PROP,
+			.name = "Small Plastic Table A",
+			.sprite_id = table_sm_plastic_sprite,
 			.price = 10,
-			.text = "Shape: [2, 2]\n",
+			.text = "",
+			.icon_id = icon_item_prop_sprite,
+			.data.prop_data =
+			{
+				.type = CAT_PROP_TYPE_BOTTOM,
+				.shape = {2, 2},
+				.animate = true,
+				.child_dy = 0,
+			}
+		},
+		{
+			.type = CAT_ITEM_TYPE_PROP,
+			.name = "Small Plastic Table B",
+			.sprite_id = table_sm_plastic_alt_sprite,
+			.price = 10,
+			.text = "",
 			.icon_id = icon_item_prop_sprite,
 			.data.prop_data =
 			{
@@ -568,8 +673,8 @@ CAT_item_table item_table =
 			.type = CAT_ITEM_TYPE_PROP,
 			.name = "Mahogany Chair",
 			.sprite_id = chair_mahogany_sprite,
-			.price = 5,
-			.text = "Shape: [2, 2]\n",
+			.price = 20,
+			.text = "",
 			.icon_id = icon_item_prop_sprite,
 			.data.prop_data =
 			{
@@ -583,8 +688,8 @@ CAT_item_table item_table =
 			.type = CAT_ITEM_TYPE_PROP,
 			.name = "Stone Chair",
 			.sprite_id = chair_stone_sprite,
-			.price = 10,
-			.text = "Shape: [2, 2]\n",
+			.price = 15,
+			.text = "",
 			.icon_id = icon_item_prop_sprite,
 			.data.prop_data =
 			{
@@ -596,10 +701,25 @@ CAT_item_table item_table =
 		},
 		{
 			.type = CAT_ITEM_TYPE_PROP,
+			.name = "Plastic Stool",
+			.sprite_id = stool_plastic_sprite,
+			.price = 5,
+			.text = "",
+			.icon_id = icon_item_prop_sprite,
+			.data.prop_data =
+			{
+				.type = CAT_PROP_TYPE_DEFAULT,
+				.shape = {2, 1},
+				.animate = true,
+				.child_dy = 0,
+			}
+		},
+		{
+			.type = CAT_ITEM_TYPE_PROP,
 			.name = "Wood Stool",
 			.sprite_id = stool_wood_sprite,
 			.price = 10,
-			.text = "Shape: [2, 1]\n",
+			.text = "",
 			.icon_id = icon_item_prop_sprite,
 			.data.prop_data =
 			{
@@ -613,8 +733,8 @@ CAT_item_table item_table =
 			.type = CAT_ITEM_TYPE_PROP,
 			.name = "Stone Stool",
 			.sprite_id = stool_stone_sprite,
-			.price = 10,
-			.text = "Shape: [2, 1]\n",
+			.price = 15,
+			.text = "",
 			.icon_id = icon_item_prop_sprite,
 			.data.prop_data =
 			{
@@ -628,8 +748,8 @@ CAT_item_table item_table =
 			.type = CAT_ITEM_TYPE_PROP,
 			.name = "Gold Stool",
 			.sprite_id = stool_gold_sprite,
-			.price = 20,
-			.text = "Shape: [2, 1]\n",
+			.price = 30,
+			.text = "",
 			.icon_id = icon_item_prop_sprite,
 			.data.prop_data =
 			{
@@ -644,11 +764,11 @@ CAT_item_table item_table =
 			.name = "Stone Bowl",
 			.sprite_id = bowl_stone_sprite,
 			.price = 10,
-			.text = "Shape: [1, 1]\n",
+			.text = "",
 			.icon_id = icon_item_prop_sprite,
 			.data.prop_data =
 			{
-				.type = CAT_PROP_TYPE_DEFAULT,
+				.type = CAT_PROP_TYPE_TOP,
 				.shape = {1, 1},
 				.animate = true,
 				.child_dy = 0,
@@ -659,11 +779,11 @@ CAT_item_table item_table =
 			.name = "Gold Bowl",
 			.sprite_id = bowl_gold_sprite,
 			.price = 20,
-			.text = "Shape: [1, 1]\n",
+			.text = "",
 			.icon_id = icon_item_prop_sprite,
 			.data.prop_data =
 			{
-				.type = CAT_PROP_TYPE_DEFAULT,
+				.type = CAT_PROP_TYPE_TOP,
 				.shape = {1, 1},
 				.animate = true,
 				.child_dy = 0,
@@ -672,13 +792,13 @@ CAT_item_table item_table =
 		{
 			.type = CAT_ITEM_TYPE_PROP,
 			.name = "Stone Vase",
-			.sprite_id = bread_sprite,
-			.price = 0,
-			.text = "Shape: [1, 1]\n",
+			.sprite_id = vase_stone_sprite,
+			.price = 7,
+			.text = "",
 			.icon_id = icon_item_prop_sprite,
 			.data.prop_data =
 			{
-				.type = CAT_PROP_TYPE_DEFAULT,
+				.type = CAT_PROP_TYPE_TOP,
 				.shape = {1, 1},
 				.animate = true,
 				.child_dy = 0,
@@ -687,13 +807,58 @@ CAT_item_table item_table =
 		{
 			.type = CAT_ITEM_TYPE_PROP,
 			.name = "Gold Vase",
-			.sprite_id = bread_sprite,
-			.price = 0,
-			.text = "Shape: [1, 1]\n",
+			.sprite_id = vase_gold_sprite,
+			.price = 20,
+			.text = "",
 			.icon_id = icon_item_prop_sprite,
 			.data.prop_data =
 			{
-				.type = CAT_PROP_TYPE_DEFAULT,
+				.type = CAT_PROP_TYPE_TOP,
+				.shape = {1, 1},
+				.animate = true,
+				.child_dy = 0,
+			}
+		},
+		{
+			.type = CAT_ITEM_TYPE_PROP,
+			.name = "Grey Vase",
+			.sprite_id = vase_grey_sprite,
+			.price = 5,
+			.text = "",
+			.icon_id = icon_item_prop_sprite,
+			.data.prop_data =
+			{
+				.type = CAT_PROP_TYPE_TOP,
+				.shape = {1, 1},
+				.animate = true,
+				.child_dy = 0,
+			}
+		},
+		{
+			.type = CAT_ITEM_TYPE_PROP,
+			.name = "Mahogany Vase",
+			.sprite_id = vase_mahogany_sprite,
+			.price = 7,
+			.text = "",
+			.icon_id = icon_item_prop_sprite,
+			.data.prop_data =
+			{
+				.type = CAT_PROP_TYPE_TOP,
+				.shape = {1, 1},
+				.animate = true,
+				.child_dy = 0,
+			}
+		},
+		{
+			.type = CAT_ITEM_TYPE_PROP,
+			.name = "Walnut Vase",
+			.sprite_id = vase_walnut_sprite,
+			.price = 7,
+			.text = "",
+			.icon_id = icon_item_prop_sprite,
+			.data.prop_data =
+			{
+				.type = CAT_PROP_TYPE_TOP,
 				.shape = {1, 1},
 				.animate = true,
 				.child_dy = 0,
@@ -704,7 +869,7 @@ CAT_item_table item_table =
 			.name = "Succulent",
 			.sprite_id = succulent_sprite,
 			.price = 5,
-			.text = "Shape: [1, 1]\n",
+			.text = "",
 			.icon_id = icon_item_prop_sprite,
 			.data.prop_data =
 			{
@@ -719,7 +884,7 @@ CAT_item_table item_table =
 			.name = "Bush",
 			.sprite_id = bush_plain_sprite,
 			.price = 10,
-			.text = "Shape: [2, 1]\n",
+			.text = "",
 			.icon_id = icon_item_prop_sprite,
 			.data.prop_data =
 			{
@@ -734,7 +899,7 @@ CAT_item_table item_table =
 			.name = "Daisy Bush",
 			.sprite_id = bush_daisy_sprite,
 			.price = 30,
-			.text = "Shape: [2, 1]\n",
+			.text = "",
 			.icon_id = icon_item_prop_sprite,
 			.data.prop_data =
 			{
@@ -749,7 +914,7 @@ CAT_item_table item_table =
 			.name = "Lilac Bush",
 			.sprite_id = bush_lilac_sprite,
 			.price = 30,
-			.text = "Shape: [2, 1]\n",
+			.text = "",
 			.icon_id = icon_item_prop_sprite,
 			.data.prop_data =
 			{
@@ -764,7 +929,7 @@ CAT_item_table item_table =
 			.name = "Plain Plant",
 			.sprite_id = plant_plain_sprite,
 			.price = 20,
-			.text = "Shape: [2, 1]\n",
+			.text = "",
 			.icon_id = icon_item_prop_sprite,
 			.data.prop_data =
 			{
@@ -779,7 +944,7 @@ CAT_item_table item_table =
 			.name = "Maroon Plant",
 			.sprite_id = plant_maroon_sprite,
 			.price = 20,
-			.text = "Shape: [2, 1]\n",
+			.text = "",
 			.icon_id = icon_item_prop_sprite,
 			.data.prop_data =
 			{
@@ -793,8 +958,8 @@ CAT_item_table item_table =
 			.type = CAT_ITEM_TYPE_PROP,
 			.name = "Lilac Plant",
 			.sprite_id = plant_lilac_sprite,
-			.price = 20,
-			.text = "Shape: [2, 1]\n",
+			.price = 25,
+			.text = "",
 			.icon_id = icon_item_prop_sprite,
 			.data.prop_data =
 			{
@@ -808,8 +973,8 @@ CAT_item_table item_table =
 			.type = CAT_ITEM_TYPE_PROP,
 			.name = "Daisy Plant",
 			.sprite_id = plant_daisy_sprite,
-			.price = 20,
-			.text = "Shape: [2, 1]\n",
+			.price = 25,
+			.text = "",
 			.icon_id = icon_item_prop_sprite,
 			.data.prop_data =
 			{
@@ -824,7 +989,7 @@ CAT_item_table item_table =
 			.name = "Healthy Flower",
 			.sprite_id = flower_vig_sprite,
 			.price = 40,
-			.text = "Shape: [2, 1]\n",
+			.text = "",
 			.icon_id = icon_item_prop_sprite,
 			.data.prop_data =
 			{
@@ -839,7 +1004,7 @@ CAT_item_table item_table =
 			.name = "Smart Flower",
 			.sprite_id = flower_foc_sprite,
 			.price = 40,
-			.text = "Shape: [2, 1]\n",
+			.text = "",
 			.icon_id = icon_item_prop_sprite,
 			.data.prop_data =
 			{
@@ -854,7 +1019,7 @@ CAT_item_table item_table =
 			.name = "Happy Flower",
 			.sprite_id = flower_spi_sprite,
 			.price = 40,
-			.text = "Shape: [2, 1]\n",
+			.text = "",
 			.icon_id = icon_item_prop_sprite,
 			.data.prop_data =
 			{
@@ -869,7 +1034,7 @@ CAT_item_table item_table =
 			.name = "Blue Crystal",
 			.sprite_id = crystal_blue_lg_sprite,
 			.price = 50,
-			.text = "Shape: [2, 1]\n",
+			.text = "",
 			.icon_id = icon_item_prop_sprite,
 			.data.prop_data =
 			{
@@ -884,7 +1049,7 @@ CAT_item_table item_table =
 			.name = "Green Crystal",
 			.sprite_id = crystal_green_lg_sprite,
 			.price = 50,
-			.text = "Shape: [2, 1]\n",
+			.text = "",
 			.icon_id = icon_item_prop_sprite,
 			.data.prop_data =
 			{
@@ -899,7 +1064,7 @@ CAT_item_table item_table =
 			.name = "Purple Crystal",
 			.sprite_id = crystal_purple_lg_sprite,
 			.price = 50,
-			.text = "Shape: [2, 1]\n",
+			.text = "",
 			.icon_id = icon_item_prop_sprite,
 			.data.prop_data =
 			{
@@ -914,7 +1079,7 @@ CAT_item_table item_table =
 			.name = "Blue Effigy",
 			.sprite_id = effigy_blue_sprite,
 			.price = 40,
-			.text = "Shape: [3, 1]\n",
+			.text = "",
 			.icon_id = icon_item_prop_sprite,
 			.data.prop_data =
 			{
@@ -929,7 +1094,7 @@ CAT_item_table item_table =
 			.name = "Purple Effigy",
 			.sprite_id = effigy_blue_sprite,
 			.price = 40,
-			.text = "Shape: [3, 1]\n",
+			.text = "",
 			.icon_id = icon_item_prop_sprite,
 			.data.prop_data =
 			{
@@ -944,7 +1109,7 @@ CAT_item_table item_table =
 			.name = "Sea Effigy",
 			.sprite_id = effigy_sea_sprite,
 			.price = 60,
-			.text = "Shape: [3, 1]\n",
+			.text = "",
 			.icon_id = icon_item_prop_sprite,
 			.data.prop_data =
 			{
@@ -959,7 +1124,7 @@ CAT_item_table item_table =
 			.name = "Pixel",
 			.sprite_id = pixel_sprite,
 			.price = 30,
-			.text = "Shape: [1, 1]\n",
+			.text = "",
 			.icon_id = icon_item_prop_sprite,
 			.data.prop_data =
 			{
@@ -974,7 +1139,7 @@ CAT_item_table item_table =
 			.name = "Pad Ka Prop",
 			.sprite_id = padkaprop_sprite,
 			.price = 30,
-			.text = "Shape: [2, 1]\n",
+			.text = "",
 			.icon_id = icon_item_prop_sprite,
 			.data.prop_data =
 			{
@@ -984,6 +1149,111 @@ CAT_item_table item_table =
 				.child_dy = 0,
 			}
 		},
+		{
+			.type = CAT_ITEM_TYPE_PROP,
+			.name = "Grey Bowl",
+			.sprite_id = bowl_grey_sprite,
+			.price = 5,
+			.text = "",
+			.icon_id = icon_item_prop_sprite,
+			.data.prop_data =
+			{
+				.type = CAT_PROP_TYPE_TOP,
+				.shape = {1, 1},
+				.animate = true,
+				.child_dy = 0,
+			}
+		},
+		{
+			.type = CAT_ITEM_TYPE_PROP,
+			.name = "Mahogany Bowl",
+			.sprite_id = bowl_mahogany_sprite,
+			.price = 7,
+			.text = "",
+			.icon_id = icon_item_prop_sprite,
+			.data.prop_data =
+			{
+				.type = CAT_PROP_TYPE_TOP,
+				.shape = {1, 1},
+				.animate = true,
+				.child_dy = 0,
+			}
+		},
+		{
+			.type = CAT_ITEM_TYPE_PROP,
+			.name = "Walnut Bowl",
+			.sprite_id = bowl_walnut_sprite,
+			.price = 7,
+			.text = "",
+			.icon_id = icon_item_prop_sprite,
+			.data.prop_data =
+			{
+				.type = CAT_PROP_TYPE_TOP,
+				.shape = {1, 1},
+				.animate = true,
+				.child_dy = 0,
+			}
+		},
+		{
+			.type = CAT_ITEM_TYPE_PROP,
+			.name = "Plastic Chair",
+			.sprite_id = chair_plastic_sprite,
+			.price = 10,
+			.text = "",
+			.icon_id = icon_item_prop_sprite,
+			.data.prop_data =
+			{
+				.type = CAT_PROP_TYPE_DEFAULT,
+				.shape = {2, 2},
+				.animate = false,
+				.child_dy = 0,
+			}
+		},
+		{
+			.type = CAT_ITEM_TYPE_PROP,
+			.name = "Corn Plant",
+			.sprite_id = plant_corn_sprite,
+			.price = 30,
+			.text = "",
+			.icon_id = icon_item_prop_sprite,
+			.data.prop_data =
+			{
+				.type = CAT_PROP_TYPE_DEFAULT,
+				.shape = {2, 1},
+				.animate = true,
+				.child_dy = 0,
+			}
+		},
+		{
+			.type = CAT_ITEM_TYPE_PROP,
+			.name = "Chicken",
+			.sprite_id = chicken_sprite,
+			.price = 50,
+			.text = "",
+			.icon_id = icon_item_prop_sprite,
+			.data.prop_data =
+			{
+				.type = CAT_PROP_TYPE_TOP,
+				.shape = {2, 1},
+				.animate = true,
+				.child_dy = 0,
+			}
+		},
+		{
+			.type = CAT_ITEM_TYPE_PROP,
+			.name = "Naval Mine",
+			.sprite_id = prop_mine_sprite,
+			.price = 50,
+			.text = "",
+			.icon_id = icon_item_prop_sprite,
+			.data.prop_data =
+			{
+				.type = CAT_PROP_TYPE_DEFAULT,
+				.shape = {2, 1},
+				.animate = true,
+				.child_dy = 0,
+			}
+		},
 	},
-	.length = 64
+	.length = 82
 };

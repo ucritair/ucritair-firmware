@@ -44,10 +44,8 @@ json_data = json.load(json_file);
 atlas = [];
 
 for (idx, sprite) in enumerate(json_data):
-	# Load atlas with correct JSON
+	sprite["id"] = idx;
 	if sprite["mode"] == "init":
-		# Rectify information, may equate to NOP
-		sprite["id"] = idx;
 		image = Image.open(sprite["path"]);
 		sprite["width"] = image.size[0];
 		sprite["height"] = image.size[1] // sprite["frames"];

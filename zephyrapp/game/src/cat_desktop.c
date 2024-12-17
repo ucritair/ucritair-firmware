@@ -370,7 +370,7 @@ int CAT_get_battery_pct()
 	{
 		return 0;
 	}
-	return 100;
+	return 2;
 }
 
 

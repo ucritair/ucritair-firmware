@@ -17,11 +17,11 @@ def ensure_key(obj, key, default):
 	return obj[key];
 
 for (idx, item) in enumerate(json_data):
-	ensure_key(item, "id", idx);
+	item["id"] = idx;
 	ensure_key(item, "type", "key");
 	ensure_key(item, "name", "item");
 	ensure_key(item, "display_name", "Item");
-	ensure_key(item, "sprite", "bread_sprite");
+	ensure_key(item, "sprite", "none_24x24.png");
 	ensure_key(item, "icon", "item_icon_key_sprite");
 	ensure_key(item, "text", "");
 	ensure_key(item, "price", 0);
@@ -37,14 +37,7 @@ for (idx, item) in enumerate(json_data):
 		ensure_key(prop_data, "shape", [1, 1]);
 		ensure_key(prop_data, "animate", True);
 		ensure_key(prop_data, "child_dy", 0);
-	
-	if(item["text"] == ""):
-		if(item["type"] in tool_types):
-			tool_data = item["tool_data"];
-			item["text"] += f"+VIG: {tool_data["dv"]}\\n+FOC: {tool_data["df"]}\\n+SPI: {tool_data["ds"]}\\n";
-		if(item["type"] in prop_types):
-			prop_data = item["prop_data"];
-			item["text"] += f"Shape: [{prop_data["shape"][0]}, {prop_data["shape"][1]}]\\n";
+	item["text"] = "";
 
 json_file.seek(0);
 json_file.truncate();

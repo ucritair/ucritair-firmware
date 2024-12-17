@@ -9,11 +9,12 @@
 //////////////////////////////////////////////////////////////////////////
 // CONSTANTS AND MACROS
 
-#define CAT_ATLAS_MAX_LENGTH 256
-#define CAT_DRAW_QUEUE_MAX_LENGTH 128
-#define CAT_ANIM_MAX_LENGTH 16
-#define CAT_ANIM_TABLE_MAX_LENGTH 128
-#define CAT_ANIM_QUEUE_MAX_LENGTH 128
+#define CAT_ATLAS_MAX_LENGTH 512
+
+#define CAT_DRAW_QUEUE_MAX_LENGTH 512
+
+#define CAT_ANIM_TABLE_MAX_LENGTH CAT_ATLAS_MAX_LENGTH
+#define CAT_ANIM_QUEUE_MAX_LENGTH CAT_ATLAS_MAX_LENGTH
 
 #define CAT_TILE_SIZE 16
 
@@ -138,6 +139,7 @@ typedef struct CAT_animachine_state
 	int enter_anim_id;
 	int tick_anim_id;
 	int exit_anim_id;
+	int last;
 
 	struct CAT_animachine_state* next;
 } CAT_animachine_state;

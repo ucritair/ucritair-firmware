@@ -667,6 +667,8 @@ void render_background()
 	}
 }
 
+float battery_blink_timer = 0.0f;
+bool battery_blink_switch = false;
 void render_statics()
 {	
 	CAT_datetime time;
@@ -676,20 +678,29 @@ void render_statics()
 	if(aqi_score <= 35.0f && time.hour >= 4 && time.hour < 22)
 		CAT_draw_queue_add(window_day_bad_aq_sprite, -1, 2, 8, 8, CAT_DRAW_MODE_DEFAULT);
 	else if(time.hour >= 4 && time.hour < 7)
-		CAT_draw_queue_add(window_dawn_sprite, 0, 2, 8, 8, CAT_DRAW_MODE_DEFAULT);
+		CAT_draw_queue_add(window_dawn_sprite, 0, 1, 8, 8, CAT_DRAW_MODE_DEFAULT);
 	else if(time.hour >= 7 && time.hour < 11)
-		CAT_draw_queue_add(window_morning_sprite, 0, 2, 8, 8, CAT_DRAW_MODE_DEFAULT);
+		CAT_draw_queue_add(window_morning_sprite, 0, 1, 8, 8, CAT_DRAW_MODE_DEFAULT);
 	else if(time.hour >= 11 && time.hour < 18)
-		CAT_draw_queue_add(window_day_sprite, 0, 2, 8, 8, CAT_DRAW_MODE_DEFAULT);
+		CAT_draw_queue_add(window_day_sprite, 0, 1, 8, 8, CAT_DRAW_MODE_DEFAULT);
 	else if(time.hour >= 18 && time.hour < 20)
-		CAT_draw_queue_add(window_evening_sprite, 0, 2, 8, 8, CAT_DRAW_MODE_DEFAULT);
+		CAT_draw_queue_add(window_evening_sprite, 0, 1, 8, 8, CAT_DRAW_MODE_DEFAULT);
 	else if(time.hour >= 20 && time.hour < 22)
-		CAT_draw_queue_add(window_dusk_sprite, 0, 2, 8, 8, CAT_DRAW_MODE_DEFAULT);
+		CAT_draw_queue_add(window_dusk_sprite, 0, 1, 8, 8, CAT_DRAW_MODE_DEFAULT);
 	else
-		CAT_draw_queue_add(window_night_sprite, 0, 2, 8, 8, CAT_DRAW_MODE_DEFAULT);
+		CAT_draw_queue_add(window_night_sprite, 0, 1, 8, 8, CAT_DRAW_MODE_DEFAULT);
 	
-	CAT_draw_queue_add(vending_sprite, -1, 2, 172, 16, CAT_DRAW_MODE_DEFAULT);
-	CAT_draw_queue_add(arcade_sprite, -1, 2, 124, 48, CAT_DRAW_MODE_DEFAULT);
+	battery_blink_timer += CAT_get_delta_time();
+	if(battery_blink_timer >= 0.5f)
+	{
+		battery_blink_timer = 0;
+		battery_blink_switch = !battery_blink_switch;
+	}
+	if(CAT_get_battery_pct() <= CAT_CRITICAL_BATTERY_PCT && battery_blink_switch)
+		CAT_draw_queue_add(icon_low_battery_alt, 0, 2, 66, 37, CAT_DRAW_MODE_CENTER_X | CAT_DRAW_MODE_CENTER_Y);
+	
+	CAT_draw_queue_add(vending_sprite, -1, 1, 172, 16, CAT_DRAW_MODE_DEFAULT);
+	CAT_draw_queue_add(arcade_sprite, -1, 1, 124, 48, CAT_DRAW_MODE_DEFAULT);
 }
 
 void render_props()
