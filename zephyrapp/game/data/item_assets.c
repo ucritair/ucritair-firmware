@@ -596,7 +596,7 @@ CAT_item_table item_table =
 		},
 		{
 			.type = CAT_ITEM_TYPE_PROP,
-			.name = "Small Mahogany Table",
+			.name = "S. Mahogany Table",
 			.sprite_id = table_sm_mahogany_sprite,
 			.price = 20,
 			.text = "",
@@ -611,7 +611,7 @@ CAT_item_table item_table =
 		},
 		{
 			.type = CAT_ITEM_TYPE_PROP,
-			.name = "Small Walnut Table A",
+			.name = "S. Walnut Table A",
 			.sprite_id = table_sm_walnut_sprite,
 			.price = 30,
 			.text = "",
@@ -626,7 +626,7 @@ CAT_item_table item_table =
 		},
 		{
 			.type = CAT_ITEM_TYPE_PROP,
-			.name = "Small Walnut Table B",
+			.name = "S. Walnut Table B",
 			.sprite_id = table_sm_walnut_alt_sprite,
 			.price = 30,
 			.text = "",
@@ -641,7 +641,7 @@ CAT_item_table item_table =
 		},
 		{
 			.type = CAT_ITEM_TYPE_PROP,
-			.name = "Small Plastic Table A",
+			.name = "S. Plastic Table A",
 			.sprite_id = table_sm_plastic_sprite,
 			.price = 10,
 			.text = "",
@@ -656,7 +656,7 @@ CAT_item_table item_table =
 		},
 		{
 			.type = CAT_ITEM_TYPE_PROP,
-			.name = "Small Plastic Table B",
+			.name = "S. Plastic Table B",
 			.sprite_id = table_sm_plastic_alt_sprite,
 			.price = 10,
 			.text = "",

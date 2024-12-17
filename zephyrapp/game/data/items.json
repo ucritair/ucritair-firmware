@@ -630,7 +630,7 @@
     {
         "type": "bottom",
         "name": "prop_table_sm_mahogany",
-        "display_name": "Small Mahogany Table",
+        "display_name": "S. Mahogany Table",
         "sprite": "table_sm_mahogany_sprite",
         "icon": "icon_item_prop_sprite",
         "text": "",
@@ -648,7 +648,7 @@
     {
         "type": "bottom",
         "name": "prop_table_sm_walnut",
-        "display_name": "Small Walnut Table A",
+        "display_name": "S. Walnut Table A",
         "sprite": "table_sm_walnut_sprite",
         "icon": "icon_item_prop_sprite",
         "text": "",
@@ -666,7 +666,7 @@
     {
         "type": "bottom",
         "name": "prop_table_sm_walnut_alt",
-        "display_name": "Small Walnut Table B",
+        "display_name": "S. Walnut Table B",
         "sprite": "table_sm_walnut_alt_sprite",
         "icon": "icon_item_prop_sprite",
         "text": "",
@@ -684,7 +684,7 @@
     {
         "type": "bottom",
         "name": "prop_table_sm_plastic",
-        "display_name": "Small Plastic Table A",
+        "display_name": "S. Plastic Table A",
         "sprite": "table_sm_plastic_sprite",
         "icon": "icon_item_prop_sprite",
         "text": "",
@@ -702,7 +702,7 @@
     {
         "type": "bottom",
         "name": "prop_table_sm_plastic_alt",
-        "display_name": "Small Plastic Table B",
+        "display_name": "S. Plastic Table B",
         "sprite": "table_sm_plastic_alt_sprite",
         "icon": "icon_item_prop_sprite",
         "text": "",
