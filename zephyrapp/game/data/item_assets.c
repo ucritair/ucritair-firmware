@@ -492,7 +492,7 @@ CAT_item_table item_table =
 		{
 			.type = CAT_ITEM_TYPE_PROP,
 			.name = "Lantern",
-			.sprite_id = bread_sprite,
+			.sprite_id = lantern_sprite,
 			.price = 20,
 			.text = "",
 			.icon_id = icon_item_prop_sprite,
@@ -1092,7 +1092,7 @@ CAT_item_table item_table =
 		{
 			.type = CAT_ITEM_TYPE_PROP,
 			.name = "Purple Effigy",
-			.sprite_id = effigy_blue_sprite,
+			.sprite_id = effigy_purple_sprite,
 			.price = 40,
 			.text = "",
 			.icon_id = icon_item_prop_sprite,
@@ -1143,7 +1143,7 @@ CAT_item_table item_table =
 			.icon_id = icon_item_prop_sprite,
 			.data.prop_data =
 			{
-				.type = CAT_PROP_TYPE_TOP,
+				.type = CAT_PROP_TYPE_DEFAULT,
 				.shape = {2, 1},
 				.animate = true,
 				.child_dy = 0,

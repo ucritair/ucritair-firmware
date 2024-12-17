@@ -11,6 +11,7 @@
 #include "rtc.h"
 #include "sound.h"
 #include "rgb_leds.h"
+#include "batt.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // CORE
@@ -165,7 +166,7 @@ void CAT_finish_load()
 
 int CAT_get_battery_pct()
 {
-	return 100;
+	return ((adc_get_voltage()-3.6)/(4.2-3.6))*100.;
 }
 
 void CAT_set_LEDs(uint8_t r, uint8_t g, uint8_t b)

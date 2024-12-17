@@ -117,20 +117,13 @@ void CAT_MS_deco(CAT_machine_signal signal)
 								bool space_compat =
 								base_prop->data.prop_data.shape.x >= prop->data.prop_data.shape.x &&
 								base_prop->data.prop_data.shape.y >= prop->data.prop_data.shape.y;
-								if(bot_compat && top_compat && space_compat)
+								bool free_compat = room.prop_children[base_idx] == -1;
+								if(bot_compat && top_compat && space_compat && free_compat)
 								{
 									if(CAT_input_pressed(CAT_BUTTON_A))
 									{
-										if(room.prop_children[base_idx] == -1)
-										{
-											CAT_room_stack_prop(base_idx, deco_state.add_id);
-											CAT_item_list_remove(&bag, deco_state.add_id, 1);
-										}
-										else
-										{
-											CAT_item_list_add(&bag, room.prop_children[base_idx], 1);
-											CAT_room_unstack_prop(base_idx);
-										}
+										CAT_room_stack_prop(base_idx, deco_state.add_id);
+										CAT_item_list_remove(&bag, deco_state.add_id, 1);
 										deco_state.add_id = -1;
 									}
 									deco_state.valid_add = true;

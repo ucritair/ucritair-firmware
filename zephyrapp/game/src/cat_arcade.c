@@ -32,7 +32,9 @@ static struct
 	{"ARCADE", NULL},
 	{"Snack", CAT_MS_snake},
 	{"Sweep", CAT_MS_mines},
+#ifdef CAT_DEBUG
 	{"Crawl", CAT_MS_crawl}
+#endif
 };
 #define NUM_ENTRIES (sizeof(entries)/sizeof(entries[0]))
 static int selector = -1;

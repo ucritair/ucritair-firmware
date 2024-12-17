@@ -160,7 +160,7 @@ bool CAT_rect_contains(CAT_rect a, CAT_rect b)
 {
 	if(b.min.x < a.min.x || b.max.x > a.max.x)
 		return false;
-	if(b.min.y < a.min.y || b.max.y > a.max.y)
+	if(b.min.y < a.min.y || b.max.y >= a.max.y)
 		return false;
 	return true;
 }

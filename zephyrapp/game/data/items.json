@@ -505,7 +505,7 @@
         "type": "top",
         "name": "prop_lantern",
         "display_name": "Lantern",
-        "sprite": "bread_sprite",
+        "sprite": "lantern_sprite",
         "icon": "icon_item_prop_sprite",
         "text": "",
         "price": 20,
@@ -1225,7 +1225,7 @@
         "type": "prop",
         "name": "prop_effigy_purple",
         "display_name": "Purple Effigy",
-        "sprite": "effigy_blue_sprite",
+        "sprite": "effigy_purple_sprite",
         "icon": "icon_item_prop_sprite",
         "text": "",
         "price": 40,
@@ -1276,7 +1276,7 @@
         }
     },
     {
-        "type": "top",
+        "type": "prop",
         "name": "prop_padkaprow",
         "display_name": "Pad Ka Prop",
         "sprite": "padkaprop_sprite",
