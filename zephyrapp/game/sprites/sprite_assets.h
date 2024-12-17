@@ -181,3 +181,5 @@
 #define snake_corner_sprite 176
 #define snake_tail_sprite 177
 #define mines_sprite 178
+#define fighter_sprite 179
+#define chicken_sprite 180

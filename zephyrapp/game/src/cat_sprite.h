@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include "cat_core.h"
 
-#include "../sprites/sprite_assets.h"
+#include "sprite_assets.h"
 
 //////////////////////////////////////////////////////////////////////////
 // CONSTANTS AND MACROS

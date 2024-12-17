@@ -1591,5 +1591,23 @@
         "frames": 13,
         "width": 16,
         "height": 16
+    },
+    {
+        "mode": "init",
+        "id": 179,
+        "name": "fighter_sprite",
+        "path": "sprites/minigame/fighter.png",
+        "frames": 8,
+        "width": 32,
+        "height": 32
+    },
+    {
+        "mode": "init",
+        "id": 180,
+        "name": "chicken_sprite",
+        "path": "sprites/prop/prop_chicken_a.png",
+        "frames": 2,
+        "width": 32,
+        "height": 32
     }
 ]

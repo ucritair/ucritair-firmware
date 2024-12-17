@@ -1,7 +1,7 @@
 #include "item_assets.h"
 
 #include "cat_item.h"
-#include "../sprites/sprite_assets.h"
+#include "sprite_assets.h"
 
 CAT_item_table item_table =
 {

@@ -6,10 +6,7 @@ import os;
 import pathlib as pl;
 
 json_file = open("data/items.json", "r+");
-header = open("data/item_assets.h", "w");
-source = open("data/item_assets.c", "w");
-
-items_json = json.load(json_file);
+json_data = json.load(json_file);
 
 tool_types = ["food", "book", "toy"];
 prop_types = ["prop", "bottom", "top"];
@@ -19,7 +16,7 @@ def ensure_key(obj, key, default):
 		obj[key] = default;
 	return obj[key];
 
-for (idx, item) in enumerate(items_json):
+for (idx, item) in enumerate(json_data):
 	ensure_key(item, "id", idx);
 	ensure_key(item, "type", "key");
 	ensure_key(item, "name", "item");
@@ -49,21 +46,29 @@ for (idx, item) in enumerate(items_json):
 			prop_data = item["prop_data"];
 			item["text"] += f"Shape: [{prop_data["shape"][0]}, {prop_data["shape"][1]}]\\n";
 
+json_file.seek(0);
+json_file.truncate();
+json_file.write(json.dumps(json_data, indent=4));
+json_file.close();
+
+header = open("data/item_assets.h", "w");
 header.write("#pragma once\n");
 header.write("\n");
-for (idx, item) in enumerate(items_json):
+for (idx, item) in enumerate(json_data):
 	header.write(f"#define {item["name"]}_item {idx}\n");
+header.close();
 
+source = open("data/item_assets.c", "w");
 source.write("#include \"item_assets.h\"\n");
 source.write("\n");
 source.write("#include \"cat_item.h\"\n");
-source.write("#include \"../sprites/sprite_assets.h\"\n");
+source.write("#include \"sprite_assets.h\"\n");
 source.write("\n");
 source.write("CAT_item_table item_table =\n");
 source.write("{\n");
 source.write("\t.data =\n");
 source.write("\t{\n");
-for (idx, item) in enumerate(items_json):
+for (idx, item) in enumerate(json_data):
 	source.write("\t\t{\n");
 	if item["type"] in tool_types:
 		source.write("\t\t\t.type = CAT_ITEM_TYPE_TOOL,\n");
@@ -108,15 +113,11 @@ for (idx, item) in enumerate(items_json):
 		source.write("\t\t\t}\n");
 	source.write("\t\t},\n");
 source.write("\t},\n");
-source.write(f"\t.length = {len(items_json)}\n");
+source.write(f"\t.length = {len(json_data)}\n");
 source.write("};\n");
-
-json_file.seek(0);
-json_file.truncate();
-json_file.write(json.dumps(items_json, indent=4));
-json_file.close();
-header.close();
 source.close();
+
+
 
 
 

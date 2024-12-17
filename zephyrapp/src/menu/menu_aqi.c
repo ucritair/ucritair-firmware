@@ -158,18 +158,18 @@ void CAT_render_aqi()
 	{
 		if (view_pn)
 		{
-			CAT_gui_textf("PN0.5: % 2.01f \4/cm\x7f\n", ((double)view_cell.pn_ugmx100[0])/100.);
-			CAT_gui_textf("PN1.0: % 2.01f \4/cm\x7f\n", ((double)view_cell.pn_ugmx100[1])/100.);
-			CAT_gui_textf("PN2.5: % 2.01f \4/cm\x7f\n", ((double)view_cell.pn_ugmx100[2])/100.);
-			CAT_gui_textf("PN4.0: % 2.01f \4/cm\x7f\n", ((double)view_cell.pn_ugmx100[3])/100.);
-			CAT_gui_textf("PN10 : % 2.01f \4/cm\x7f\n", ((double)view_cell.pn_ugmx100[4])/100.);
+			CAT_gui_textf("PN0.5: % 2.01f \4/cm\5\n", ((double)view_cell.pn_ugmx100[0])/100.);
+			CAT_gui_textf("PN1.0: % 2.01f \4/cm\5\n", ((double)view_cell.pn_ugmx100[1])/100.);
+			CAT_gui_textf("PN2.5: % 2.01f \4/cm\5\n", ((double)view_cell.pn_ugmx100[2])/100.);
+			CAT_gui_textf("PN4.0: % 2.01f \4/cm\5\n", ((double)view_cell.pn_ugmx100[3])/100.);
+			CAT_gui_textf("PN10 : % 2.01f \4/cm\5\n", ((double)view_cell.pn_ugmx100[4])/100.);
 		}
 		else
 		{
-			CAT_gui_textf("PM1.0: % 2.01f ~g/m\x7f\n", ((double)view_cell.pm_ugmx100[0])/100.);
-			CAT_gui_textf("PM2.5: % 2.01f ~g/m\x7f\n", ((double)view_cell.pm_ugmx100[1])/100.);
-			CAT_gui_textf("PM4.0: % 2.01f ~g/m\x7f\n", ((double)view_cell.pm_ugmx100[2])/100.);
-			CAT_gui_textf("PM10 : % 2.01f ~g/m\x7f\n", ((double)view_cell.pm_ugmx100[3])/100.);
+			CAT_gui_textf("PM1.0: % 2.01f \4g/m\5\n", ((double)view_cell.pm_ugmx100[0])/100.);
+			CAT_gui_textf("PM2.5: % 2.01f \4g/m\5\n", ((double)view_cell.pm_ugmx100[1])/100.);
+			CAT_gui_textf("PM4.0: % 2.01f \4g/m\5\n", ((double)view_cell.pm_ugmx100[2])/100.);
+			CAT_gui_textf("PM10 : % 2.01f \4g/m\5\n", ((double)view_cell.pm_ugmx100[3])/100.);
 			CAT_gui_line_break();
 		}
 

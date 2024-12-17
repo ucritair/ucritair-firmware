@@ -47,8 +47,8 @@ add_custom_command(
 add_custom_command(
 	OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/../sprites/sprite_assets.h ${CMAKE_CURRENT_BINARY_DIR}/../sprites/sprite_assets.c
 	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../
-	COMMAND ${CMAKE_CURRENT_BINARY_DIR}/../utils/pack_sprites.py
-	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../utils/pack_sprites.py
+	COMMAND ${CMAKE_CURRENT_BINARY_DIR}/../utils/spritegen.py
+	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../utils/spritegen.py
 	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../sprites/sprites.json
 )
 
@@ -81,6 +81,7 @@ target_sources(app PRIVATE
 	src/cat_item_dialog.c
 	src/cat_snake.c
 	src/cat_mines.c
+	src/cat_crawl.c
 	sounds/sound_assets.c
 	meshes/mesh_assets.c
 	sprites/sprite_assets.c

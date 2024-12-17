@@ -195,8 +195,7 @@ void CAT_render_system_menu()
 	{
 		for (int i = 0; i < NUM_MENU_ITEMS; i++)
 		{
-			CAT_gui_text("& ");
-			CAT_gui_text(system_entries[i].title);
+			CAT_gui_textf("\1 %s", system_entries[i].title);
 
 			if(i == system_menu_selector)
 				CAT_gui_image(icon_pointer_sprite, 0);
@@ -258,11 +257,7 @@ void CAT_render_system_menu()
 		}
 		else
 		{
-			CAT_gui_text("Done. Thanks for waiting...");
-			CAT_gui_line_break();
-			CAT_gui_text("Have some cigarettes as a");
-			CAT_gui_line_break();
-			CAT_gui_text("reward: ");
+			CAT_gui_text("Done. Thanks for waiting...\nHave some cigarettes as a\nreward: ");
 			CAT_gui_image(cigarette_sprite, 0);
 		}
 	}

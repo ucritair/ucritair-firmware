@@ -285,6 +285,8 @@ void CAT_tick_render(int cycle)
 		CAT_render_snake();
 	else if(machine == CAT_MS_mines)
 		CAT_render_mines();
+	else if(machine == CAT_MS_crawl)
+		CAT_render_crawl();
 	else if(machine == CAT_MS_vending)
 		CAT_render_vending();
 	else if(machine == CAT_MS_manual)
