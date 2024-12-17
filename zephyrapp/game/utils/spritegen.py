@@ -43,6 +43,7 @@ json_file = open("sprites/sprites.json", "r+");
 json_data = json.load(json_file);
 atlas = [];
 
+# Ensure correct JSON
 for (idx, sprite) in enumerate(json_data):
 	sprite["id"] = idx;
 	if sprite["mode"] == "init":
@@ -51,6 +52,8 @@ for (idx, sprite) in enumerate(json_data):
 		sprite["height"] = image.size[1] // sprite["frames"];
 		image.close();
 
+for (idx, sprite) in enumerate(json_data):
+	if sprite["mode"] == "init":
 		atlas.append(BakeData(
 			sprite["id"],
 			sprite["name"],
@@ -60,7 +63,8 @@ for (idx, sprite) in enumerate(json_data):
 			sprite["height"]
 		));
 	else:
-		source = atlas[sprite["source"]];
+		source_json = next(s for s in json_data if s["name"] == sprite["source"]);
+		source = atlas[source_json["id"]];
 		atlas.append(BakeData(
 			sprite["id"],
 			sprite["name"],
@@ -362,7 +366,7 @@ with open("sprites/sprite_assets.c", 'w') as fd:
 	fd.write("\t{\n");
 	for (idx, sprite) in enumerate(json_data):
 		fd.write("\t\t{\n");
-		source = json_data[sprite["source"]] if sprite["mode"] == "copy" else sprite;
+		source = next(s for s in json_data if s["name"] == sprite["source"]) if sprite["mode"] == "copy" else sprite;
 		fd.write(f"\t\t\t.pixels = pixels_{source["id"]},\n");
 		fd.write(f"\t\t\t.width = {source["width"]},\n");
 		fd.write(f"\t\t\t.height = {source["height"]},\n");

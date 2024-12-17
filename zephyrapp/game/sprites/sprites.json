@@ -1290,7 +1290,7 @@
         "mode": "copy",
         "id": 143,
         "name": "pet_high_vig_out_sprite",
-        "source": 136
+        "source": "pet_high_vig_in_sprite"
     },
     {
         "mode": "init",
@@ -1404,7 +1404,7 @@
         "mode": "copy",
         "id": 156,
         "name": "pet_crit_vig_out_sprite",
-        "source": 148
+        "source": "pet_crit_vig_in_sprite"
     },
     {
         "mode": "init",
@@ -1428,7 +1428,7 @@
         "mode": "copy",
         "id": 159,
         "name": "pet_crit_foc_out_sprite",
-        "source": 151
+        "source": "pet_crit_foc_in_sprite"
     },
     {
         "mode": "init",
@@ -1452,7 +1452,7 @@
         "mode": "copy",
         "id": 162,
         "name": "pet_crit_spi_out_sprite",
-        "source": 154
+        "source": "pet_crit_spi_in_sprite"
     },
     {
         "mode": "init",
@@ -1476,7 +1476,7 @@
         "mode": "copy",
         "id": 165,
         "name": "pet_eat_out_sprite",
-        "source": 157
+        "source": "pet_eat_in_sprite"
     },
     {
         "mode": "init",
@@ -1500,7 +1500,7 @@
         "mode": "copy",
         "id": 168,
         "name": "pet_study_out_sprite",
-        "source": 160
+        "source": "pet_study_in_sprite"
     },
     {
         "mode": "init",

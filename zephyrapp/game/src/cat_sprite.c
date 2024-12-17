@@ -669,6 +669,14 @@ void CAT_animachine_init(CAT_animachine_state* state, int enai, int tiai, int ex
 	state->enter_anim_id = enai;
 	state->tick_anim_id = tiai;
 	state->exit_anim_id = exai;
+	if(enai != -1)
+		state->last = enai;
+	else if(tiai != -1)
+		state->last = tiai;
+	else if(exai != -1)
+		state->last = exai;
+	else
+		state->last = -1;
 	state->next = NULL;
 }
 
@@ -707,24 +715,34 @@ int CAT_animachine_tick(CAT_animachine_state** spp)
 	{
 		case ENTER:
 		{
-			if(!CAT_anim_finished(sp->enter_anim_id))
-				return sp->enter_anim_id;
-			sp->signal = TICK;
-			break;
+			if(CAT_anim_finished(sp->enter_anim_id))
+			{
+				sp->signal = TICK;
+				break;
+			}
+			sp->last = sp->enter_anim_id;
+			return sp->enter_anim_id;
+			
 		}
 		case TICK:
 		{
-			if(sp->tick_anim_id != -1)
-				return sp->tick_anim_id;
-			sp->signal = EXIT;
-			break;
+			if(sp->tick_anim_id == -1)
+			{
+				sp->signal = EXIT;
+				break;
+			}
+			sp->last = sp->tick_anim_id;
+			return sp->tick_anim_id;
 		}
 		case EXIT:
 		{
-			if(!CAT_anim_finished(sp->exit_anim_id))
-				return sp->exit_anim_id;
-			sp->signal = DONE;
-			break;
+			if(CAT_anim_finished(sp->exit_anim_id))
+			{
+				sp->signal = DONE;
+				break;
+			}
+			sp->last = sp->exit_anim_id;
+			return sp->exit_anim_id;
 		}
 		default:
 		{
@@ -743,7 +761,7 @@ int CAT_animachine_tick(CAT_animachine_state** spp)
 		}
 	}
 
-	return sp->exit_anim_id != -1 ? sp->exit_anim_id : sp->tick_anim_id;
+	return sp->last;
 }
 
 void CAT_animachine_kill(CAT_animachine_state** spp)
