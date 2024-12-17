@@ -12,7 +12,7 @@ build_dir = os.path.join(zapp_dir, "build");
 def flash_proc(serial, serial_list):
     print(f"Flashing game to {serial}...");
     os.chdir(build_dir);
-    os.popen(f"west sign --tool imgtool && sudo dfu-util --serial={serial} --download zephyr/zephyr.signed.bin --reset").read();
+    os.popen(f"sudo dfu-util --serial={serial} --download zephyr/zephyr.signed.bin --reset").read();
     serial_list.remove(serial);
     print("Done!");
 

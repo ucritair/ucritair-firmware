@@ -9,7 +9,7 @@
 
 #define CAT_LIFE_TICK_SECS (CAT_DAY_SECS)
 #define CAT_STAT_TICK_SECS (CAT_DAY_SECS / 12)
-#define CAT_PET_COOLDOWN_SECS 5 //(CAT_MIN_SECS * 2)
+#define CAT_PET_COOLDOWN_SECS (CAT_MIN_SECS)
 
 typedef struct CAT_pet
 {
@@ -28,7 +28,7 @@ typedef struct CAT_pet
 	int react_timer_id;
 
 	int times_pet;
-	int pet_cooldown_timer;
+	int petting_timer_id;
 	int times_milked;
 } CAT_pet;
 extern CAT_pet pet;

@@ -8,40 +8,41 @@ import pathlib as pl;
 if(len(sys.argv) != 2):
 	print("usage: meshgen.py");
 	exit();
-meshes_dir = "meshes/";
+dir = "/";
 
-meshes_json_path = os.path.join(meshes_dir, "meshes.json");
-meshes_json_file = open(meshes_json_path, "r");
-meshes_json = json.load(meshes_json_file);
-meshes_json_file.close();
+json_path = os.path.join(dir, "meshes.json");
+json_file = open(json_path, "r+");
+json_data = json.load(json_file);
 
-mesh_header_path = os.path.join(meshes_dir, "mesh_assets.h");
-mesh_header = open(mesh_header_path, "w");
-mesh_source_path = os.path.join(meshes_dir, "mesh_assets.c");
-mesh_source = open(mesh_source_path, "w");
+json_file.close();
 
-mesh_header.write(f"// Generated from {meshes_json_path}\n");
-mesh_header.write("\n");
-mesh_header.write("#pragma once\n");
-mesh_header.write("\n");
+header_path = os.path.join(dir, "mesh_assets.h");
+header = open(header_path, "w");
+source_path = os.path.join(dir, "mesh_assets.c");
+source = open(source_path, "w");
 
-mesh_source.write(f"// Generated from {meshes_json_path}\n");
-mesh_source.write("\n");
-mesh_source.write("#include \"mesh_assets.h\"\n");
-mesh_source.write("\n");
+header.write(f"// Generated from {json_path}\n");
+header.write("\n");
+header.write("#pragma once\n");
+header.write("\n");
 
-mesh_header.write("typedef struct CAT_mesh\n");
-mesh_header.write("{\n");
-mesh_header.write("\tconst char* path;\n");
-mesh_header.write(f"\tfloat* verts;\n");
-mesh_header.write("\tint n_verts;\n");
-mesh_header.write(f"\tint* faces;\n");
-mesh_header.write("\tint n_faces;\n");
-mesh_header.write("} CAT_mesh;\n");
-mesh_header.write("\n");
+source.write(f"// Generated from {json_path}\n");
+source.write("\n");
+source.write("#include \"assets.h\"\n");
+source.write("\n");
+
+header.write("typedef struct CAT_mesh\n");
+header.write("{\n");
+header.write("\tconst char* path;\n");
+header.write(f"\tfloat* verts;\n");
+header.write("\tint n_verts;\n");
+header.write(f"\tint* faces;\n");
+header.write("\tint n_faces;\n");
+header.write("} CAT_mesh;\n");
+header.write("\n");
 
 def serialize_mesh(path):
-	with open(os.path.join(meshes_dir, path), "r") as file:
+	with open(os.path.join(dir, path), "r") as file:
 		name = pl.Path(path).stem;
 		vs = [];
 		fs = [];
@@ -59,35 +60,36 @@ def serialize_mesh(path):
 					# f TOKENS ARE JUST INT TRIPLETS
 					fs.append(f);
 		
-		mesh_header.write(f"extern CAT_mesh {name}_mesh;\n");
+		header.write(f"extern CAT_mesh {name}_mesh;\n");
 
-		mesh_source.write(f"CAT_mesh {name}_mesh =\n");
-		mesh_source.write("{\n");
-		mesh_source.write(f"\t.path = \"{path}\",\n");
+		source.write(f"CAT_mesh {name}_mesh =\n");
+		source.write("{\n");
+		source.write(f"\t.path = \"{path}\",\n");
 
-		mesh_source.write("\t.verts = (float[])\n");
-		mesh_source.write("\t{\n");
+		source.write("\t.verts = (float[])\n");
+		source.write("\t{\n");
 		for (idx, v) in enumerate(vs):
-			mesh_source.write(f"\t\t{v[0]}f, {v[1]}f, {v[2]}f");
+			source.write(f"\t\t{v[0]}f, {v[1]}f, {v[2]}f");
 			if idx < len(vs)-1:
-				mesh_source.write(",");
-			mesh_source.write("\n");
-		mesh_source.write("\t},\n");
-		mesh_source.write(f"\t.n_verts = {len(vs)},\n");
+				source.write(",");
+			source.write("\n");
+		source.write("\t},\n");
+		source.write(f"\t.n_verts = {len(vs)},\n");
 
-		mesh_source.write("\t.faces = (int[])\n");
-		mesh_source.write("\t{\n");
+		source.write("\t.faces = (int[])\n");
+		source.write("\t{\n");
 		for (idx, f) in enumerate(fs):
-			mesh_source.write(f"\t\t{f[0]}, {f[1]}, {f[2]}");
+			source.write(f"\t\t{f[0]}, {f[1]}, {f[2]}");
 			if idx < len(fs)-1:
-				mesh_source.write(",");
-			mesh_source.write("\n");
-		mesh_source.write("\t},\n");
-		mesh_source.write(f"\t.n_faces = {len(fs)},\n");
+				source.write(",");
+			source.write("\n");
+		source.write("\t},\n");
+		source.write(f"\t.n_faces = {len(fs)},\n");
 
-		mesh_source.write("};\n\n");
+		source.write("};\n\n");
 
-for mesh_obj in meshes_json:
-	serialize_mesh(mesh_obj["path"]);
-mesh_header.close();
-mesh_source.close();
+for obj in json:
+	serialize_mesh(obj["path"]);
+
+header.close();
+source.close();

@@ -25,6 +25,7 @@ if [[ $1 == "--embedded" ]]; then
 
 	cd ../build
 	make -j8
+	west sign --tool imgtool
 	cd ../game
 else
 	build/app

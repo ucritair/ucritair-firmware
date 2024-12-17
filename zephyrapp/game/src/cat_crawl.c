@@ -69,6 +69,8 @@ void CAT_MS_crawl(CAT_machine_signal signal)
 void CAT_render_crawl()
 {
 	CAT_frameberry(0x0000);
+	
+	spriter.mode = CAT_DRAW_MODE_BOTTOM | CAT_DRAW_MODE_CENTER_X;
 	int frame = 2 * dir + frame_switch;
 	CAT_draw_sprite(fighter_sprite, frame, (int) pos.x, (int) pos.y);
 }

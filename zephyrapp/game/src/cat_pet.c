@@ -35,7 +35,7 @@ void CAT_pet_init()
 	pet.react_timer_id = CAT_timer_init(1.0f);
 
 	pet.times_pet = 0;
-	pet.pet_cooldown_timer = CAT_timer_init(CAT_PET_COOLDOWN_SECS);
+	pet.petting_timer_id = CAT_timer_init(CAT_PET_COOLDOWN_SECS);
 	pet.times_milked = 0;
 }
 
@@ -201,7 +201,6 @@ void CAT_pet_stat(int ticks)
 void CAT_pet_life(int ticks)
 {
 	pet.lifetime += ticks;
-	pet.times_milked = 0;
 }
 
 static CAT_vec2 destination = {120, 200};
@@ -223,10 +222,11 @@ void CAT_pet_tick(bool capture_input)
 	if(CAT_timer_tick(pet.life_timer_id))
 	{
 		CAT_pet_life(1);
+		pet.times_milked = 0;
 		CAT_timer_reset(pet.life_timer_id);
 	}
 
-	CAT_timer_tick(pet.pet_cooldown_timer);
+	CAT_timer_tick(pet.petting_timer_id);
 
 	if(machine == CAT_MS_room)
 	{
@@ -274,7 +274,7 @@ void CAT_pet_tick(bool capture_input)
 			CAT_animachine_transition(&react_asm, NULL);
 			CAT_timer_reset(pet.react_timer_id);
 
-			if(CAT_timer_done(pet.pet_cooldown_timer) && pet.times_milked < 3)
+			if(CAT_timer_done(pet.petting_timer_id) && pet.times_milked < 3)
 			{
 				pet.times_pet += 1;
 				if(pet.times_pet >= 5)
@@ -293,7 +293,7 @@ void CAT_pet_tick(bool capture_input)
 					pet.times_milked += 1;
 					pet.times_pet = 0;
 				}
-				CAT_timer_reset(pet.pet_cooldown_timer);
+				CAT_timer_reset(pet.petting_timer_id);
 			}
 		}
 	}

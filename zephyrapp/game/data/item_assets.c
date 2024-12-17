@@ -566,8 +566,8 @@ CAT_item_table item_table =
 		},
 		{
 			.type = CAT_ITEM_TYPE_PROP,
-			.name = "Wood Chair",
-			.sprite_id = chair_wood_sprite,
+			.name = "Mahogany Chair",
+			.sprite_id = chair_mahogany_sprite,
 			.price = 5,
 			.text = "Shape: [2, 2]\n",
 			.icon_id = icon_item_prop_sprite,
@@ -761,8 +761,8 @@ CAT_item_table item_table =
 		},
 		{
 			.type = CAT_ITEM_TYPE_PROP,
-			.name = "Green Plant",
-			.sprite_id = plant_green_sprite,
+			.name = "Plain Plant",
+			.sprite_id = plant_plain_sprite,
 			.price = 20,
 			.text = "Shape: [2, 1]\n",
 			.icon_id = icon_item_prop_sprite,
@@ -791,8 +791,8 @@ CAT_item_table item_table =
 		},
 		{
 			.type = CAT_ITEM_TYPE_PROP,
-			.name = "Purple Plant",
-			.sprite_id = plant_purple_sprite,
+			.name = "Lilac Plant",
+			.sprite_id = plant_lilac_sprite,
 			.price = 20,
 			.text = "Shape: [2, 1]\n",
 			.icon_id = icon_item_prop_sprite,
@@ -806,8 +806,8 @@ CAT_item_table item_table =
 		},
 		{
 			.type = CAT_ITEM_TYPE_PROP,
-			.name = "Yellow Plant",
-			.sprite_id = plant_yellow_sprite,
+			.name = "Daisy Plant",
+			.sprite_id = plant_daisy_sprite,
 			.price = 20,
 			.text = "Shape: [2, 1]\n",
 			.icon_id = icon_item_prop_sprite,

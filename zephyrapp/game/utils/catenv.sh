@@ -6,6 +6,9 @@ if [ -z ${ZEPHYR_BASE} ]; then
 	return 1
 fi
 source $ZEPHYR_BASE/../venv/bin/activate
+
 pip3 install pygame
 pip3 install pillow
-
+pip3 install PyOpenGL
+pip3 install glfw
+pip3 install imgui-bundle

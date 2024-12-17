@@ -125,6 +125,9 @@ typedef struct __attribute__((__packed__)) CAT_save
 	float stat_timer;
 	float life_timer;
 	float earn_timer;
+	int times_pet;
+	float petting_timer;
+	int times_milked;
 } CAT_save;
 
 // Call to start saving, then populate the returned CAT_save*

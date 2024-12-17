@@ -36,7 +36,7 @@
 #define prop_chess_item 33
 #define prop_table_wood_lg_item 34
 #define prop_table_wood_sm_item 35
-#define prop_chair_item 36
+#define prop_chair_mahogany_item 36
 #define prop_chair_stone_item 37
 #define prop_stool_wood_item 38
 #define prop_stool_stone_item 39
@@ -49,10 +49,10 @@
 #define prop_bush_plain_item 46
 #define prop_bush_daisy_item 47
 #define prop_bush_lilac_item 48
-#define prop_plant_green_item 49
+#define prop_plant_plain_item 49
 #define prop_plant_maroon_item 50
-#define prop_plant_purple_item 51
-#define prop_plant_yellow_item 52
+#define prop_plant_lilac_item 51
+#define prop_plant_daisy_item 52
 #define prop_vig_flower_item 53
 #define prop_foc_flower_item 54
 #define prop_spi_flower_item 55

@@ -130,6 +130,9 @@ void CAT_force_save()
 	save->stat_timer = CAT_timer_get(pet.stat_timer_id);
 	save->life_timer = CAT_timer_get(pet.life_timer_id);
 	save->earn_timer = CAT_timer_get(room.earn_timer_id);
+	save->times_pet = pet.times_pet;
+	save->petting_timer = CAT_timer_get(pet.petting_timer_id);
+	save->times_milked = pet.times_milked;
 
 	save->magic_number = CAT_SAVE_MAGIC;
 	CAT_finish_save(save);
@@ -183,6 +186,9 @@ void CAT_force_load()
 	CAT_timer_set(room.earn_timer_id, save->earn_timer);
 	CAT_timer_set(pet.stat_timer_id, save->stat_timer);
 	CAT_timer_set(pet.life_timer_id, save->life_timer);
+	pet.times_pet = save->times_pet;
+	CAT_timer_set(pet.petting_timer_id, save->petting_timer);
+	pet.times_milked = save->times_milked;
 
 	CAT_finish_load();
 }
@@ -203,6 +209,8 @@ void CAT_apply_sleep()
 	int earn_remainder = logged_sleep % CAT_EARN_TICK_SECS;
 	CAT_room_earn(earn_ticks);
 	CAT_timer_add(room.earn_timer_id, earn_remainder);
+
+	CAT_timer_add(pet.petting_timer_id, logged_sleep);
 }
 
 void CAT_init(int seconds_slept)
