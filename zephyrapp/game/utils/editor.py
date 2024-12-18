@@ -15,6 +15,7 @@ from imgui_bundle.python_backends.glfw_backend import GlfwRenderer;
 import copy;
 import glob;
 from pathlib import Path;
+from PIL import Image;
 
 
 #########################################################
@@ -70,9 +71,7 @@ impl = GlfwRenderer(handle);
 
 
 #########################################################
-## EDITOR MACHINERY
-
-asset_dirs = ["sprites", "sounds", "meshes", "data"];
+## JSON DOCUMENT
 
 def build_title(node):
 	name = "Node";
@@ -88,13 +87,15 @@ def build_title(node):
 def build_id(node, key):
 	return f"##{id(node)}{id(key)}";
 
-class JsonFile:
+class JsonDocument:
 	def __init__(self, path):
 		self.path = path;
 		self.parent, entry = os.path.split(path);
 		self.name, _ = os.path.splitext(entry);
 		self.file = open(path, "r+");
 		self.data = json.load(self.file);
+
+		self.preview_cache = {};
 	
 	def schema_type(self, key):
 		return self.data["schema"][key]["type"];
@@ -104,6 +105,27 @@ class JsonFile:
 
 	def writable(self, key):
 		return "write" in self.data["schema"][key]["permissions"];
+	
+	def preview(self, path):
+		name, ext = os.path.splitext(path);
+		if ext == ".png":
+			texture, width, height = None, None, None;
+			if path not in self.preview_cache:
+				image = Image.open(path);
+				buffer = image.tobytes();
+				width = image.size[0];
+				height = image.size[1];
+				texture = glGenTextures(1);
+				glBindTexture(GL_TEXTURE_2D, texture);
+				glTexParameteri(GL_TEXTURE_2D, 	GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+				glTexParameteri(GL_TEXTURE_2D, 	GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+				self.preview_cache[path] = texture, width, height;
+			else:
+				texture, width, height = self.preview_cache[path];
+			imgui.image(texture, (width, height));
+		else:
+			imgui.text("[NO PREVIEW AVAILABLE]");
 	
 	def render_helper(self, node):
 		if node is None:
@@ -136,6 +158,7 @@ class JsonFile:
 							else:
 								imgui.text(str(node(key)));
 						elif "*" in schema_type:
+							self.preview(node[key]);
 							imgui.text(key);
 							imgui.same_line();
 							if self.writable(key):
@@ -143,7 +166,7 @@ class JsonFile:
 								imgui.same_line();
 								ident = build_id(node, key);
 								if imgui.button(f"...{ident}"):
-									FileExplorer(ident, working_file.parent, schema_type);
+									FileExplorer(ident, document.parent, schema_type);
 								if FileExplorer.is_active(ident):
 									FileExplorer.render();
 									ready, result = FileExplorer.harvest();
@@ -169,7 +192,11 @@ class JsonFile:
 		for node in self.data["entries"]:
 			self.render_helper(node);
 
-working_file = None;
+document = None;
+
+
+#########################################################
+## FILE EXPLORER
 
 class FileExplorer:
 	_ = None;
@@ -237,6 +264,8 @@ class FileExplorer:
 #########################################################
 ## EDITOR GUI
 
+asset_dirs = ["sprites", "sounds", "meshes", "data"];
+
 window_flag_list = [
 	imgui.WindowFlags_.no_saved_settings,
 	imgui.WindowFlags_.no_move,
@@ -271,16 +300,16 @@ while not glfw.window_should_close(handle):
 						name, ext = os.path.splitext(entry);
 						path = os.path.join(folder, entry);
 						if ext == ".json":
-							if imgui.menu_item(name, "", working_file != None and name == working_file.name)[0]:
-								working_file = JsonFile(path);
+							if imgui.menu_item(name, "", document != None and name == document.name)[0]:
+								document = JsonDocument(path);
 				imgui.end_menu();
 			if imgui.menu_item("Close", "", False)[0]:
-				working_file = None;
+				document = None;
 			imgui.end_menu();
 		imgui.end_main_menu_bar();
 	
-	if working_file != None:
-		working_file.render();
+	if document != None:
+		document.render();
 
 	imgui.end();
 	imgui.render();
