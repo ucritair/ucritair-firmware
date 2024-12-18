@@ -41,10 +41,11 @@ def RGBA88882RGB565(c):
 
 json_file = open("sprites/sprites.json", "r+");
 json_data = json.load(json_file);
+json_entries = json_data["entries"];
 atlas = [];
 
 # Ensure correct JSON
-for (idx, sprite) in enumerate(json_data):
+for (idx, sprite) in enumerate(json_entries):
 	sprite["id"] = idx;
 	if sprite["mode"] == "init":
 		image = Image.open(sprite["path"]);
@@ -52,7 +53,7 @@ for (idx, sprite) in enumerate(json_data):
 		sprite["height"] = image.size[1] // sprite["frames"];
 		image.close();
 
-for (idx, sprite) in enumerate(json_data):
+for (idx, sprite) in enumerate(json_entries):
 	if sprite["mode"] == "init":
 		atlas.append(BakeData(
 			sprite["id"],
@@ -63,7 +64,7 @@ for (idx, sprite) in enumerate(json_data):
 			sprite["height"]
 		));
 	else:
-		source_json = next(s for s in json_data if s["name"] == sprite["source"]);
+		source_json = next(s for s in json_entries if s["name"] == sprite["source"]);
 		source = atlas[source_json["id"]];
 		atlas.append(BakeData(
 			sprite["id"],
@@ -341,7 +342,7 @@ with open("sprites/sprite_assets.c", 'w') as fd:
 	
 	fd.write("#else\n");
 
-	source_sprites = [s for s in json_data if s["mode"] != "copy"];
+	source_sprites = [s for s in json_entries if s["mode"] != "copy"];
 	for sprite in source_sprites:
 		image = Image.open(sprite["path"]);
 		pixels = image.load();
@@ -364,9 +365,9 @@ with open("sprites/sprite_assets.c", 'w') as fd:
 	fd.write("{\n");
 	fd.write("\t.data =\n");
 	fd.write("\t{\n");
-	for (idx, sprite) in enumerate(json_data):
+	for (idx, sprite) in enumerate(json_entries):
 		fd.write("\t\t{\n");
-		source = next(s for s in json_data if s["name"] == sprite["source"]) if sprite["mode"] == "copy" else sprite;
+		source = next(s for s in json_entries if s["name"] == sprite["source"]) if sprite["mode"] == "copy" else sprite;
 		fd.write(f"\t\t\t.pixels = pixels_{source["id"]},\n");
 		fd.write(f"\t\t\t.width = {source["width"]},\n");
 		fd.write(f"\t\t\t.height = {source["height"]},\n");
@@ -376,4 +377,3 @@ with open("sprites/sprite_assets.c", 'w') as fd:
 	fd.write(f"\t.length = {len(atlas)}\n");
 	fd.write("};\n");
 	fd.write("#endif\n");
-
