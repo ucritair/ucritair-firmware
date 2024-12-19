@@ -16,6 +16,7 @@ import copy;
 import glob;
 from pathlib import Path;
 from PIL import Image;
+from playsound3 import playsound;
 
 
 #########################################################
@@ -73,6 +74,20 @@ impl = GlfwRenderer(handle);
 #########################################################
 ## JSON DOCUMENT
 
+def get_name(node):
+	if "name" in node:
+		return node["name"];
+	elif "path" in node:
+		return node["path"];
+	elif "id" in node:
+		return node["id"];
+	return str(id(node));
+
+asset_dirs = [Path("sprites"), Path("sounds"), Path("meshes"), Path("data")];
+asset_docs = [];
+asset_types = [];
+preview_cache = {};
+
 def build_title(node):
 	name = "Node";
 	if "name" in node:
@@ -94,8 +109,6 @@ class JsonDocument:
 		self.name, _ = os.path.splitext(entry);
 		self.file = open(path, "r+");
 		self.data = json.load(self.file);
-
-		self.preview_cache = {};
 	
 	def schema_type(self, key):
 		return self.data["schema"][key]["type"];
@@ -110,7 +123,7 @@ class JsonDocument:
 		name, ext = os.path.splitext(path);
 		if ext == ".png":
 			texture, width, height = None, None, None;
-			if path not in self.preview_cache:
+			if path not in preview_cache:
 				image = Image.open(path);
 				buffer = image.tobytes();
 				width = image.size[0];
@@ -120,10 +133,13 @@ class JsonDocument:
 				glTexParameteri(GL_TEXTURE_2D, 	GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 				glTexParameteri(GL_TEXTURE_2D, 	GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
-				self.preview_cache[path] = texture, width, height;
+				preview_cache[path] = texture, width, height;
 			else:
-				texture, width, height = self.preview_cache[path];
+				texture, width, height = preview_cache[path];
 			imgui.image(texture, (width, height));
+		elif ext == ".wav":
+			if(imgui.button("PLAY")):
+				playsound(path, block=False);
 		else:
 			imgui.text("[NO PREVIEW AVAILABLE]");
 	
@@ -133,10 +149,26 @@ class JsonDocument:
 		if isinstance(node, dict):
 			title = build_title(node);
 			if(imgui.tree_node(title)):
+				imgui.separator();
+				for key in node:
+					schema_type = self.schema_type(key);
+					if schema_type is None:
+						continue;
+					if "*" in schema_type:
+						self.preview(os.path.join(document.parent, node[key]));
+						break;
+					elif schema_type in asset_types:
+						for doc in asset_docs:
+							if doc.data["type"] == schema_type:
+								asset = next(a for a in doc.data["entries"] if a["name"] == node[key]);
+								self.preview(os.path.join(doc.parent, asset["path"]));
+						break;
 				for key in node:
 					if self.readable(key):
 						schema_type = self.schema_type(key);
-						if schema_type == "int":
+						if schema_type is None:
+							imgui.text(key);
+						elif schema_type == "int":
 							imgui.text(key);
 							imgui.same_line();
 							if self.writable(key):
@@ -158,7 +190,6 @@ class JsonDocument:
 							else:
 								imgui.text(str(node(key)));
 						elif "*" in schema_type:
-							self.preview(node[key]);
 							imgui.text(key);
 							imgui.same_line();
 							if self.writable(key):
@@ -184,8 +215,22 @@ class JsonDocument:
 									if selected:
 										imgui.set_item_default_focus();	
 								imgui.end_combo();
+						elif schema_type in asset_types:
+							imgui.text(key);
+							imgui.same_line();
+							if imgui.begin_combo(build_id(node, key), str(node[key])):
+								for doc in asset_docs:
+									if doc.data["type"] == schema_type:
+										for asset in doc.data["entries"]:
+											selected = asset["name"] == node[key];
+											if imgui.selectable(value, selected)[0]:
+												node[key] = asset["name"];
+											if selected:
+												imgui.set_item_default_focus();	
+								imgui.end_combo();
 						else:
 							imgui.text(f"UNSUPPORTED TYPE \"{schema_type}\"");
+				imgui.separator();
 				imgui.tree_pop();
 	
 	def render(self):
@@ -264,7 +309,15 @@ class FileExplorer:
 #########################################################
 ## EDITOR GUI
 
-asset_dirs = ["sprites", "sounds", "meshes", "data"];
+for folder in asset_dirs:
+	for entry in folder.iterdir():
+		name, ext = os.path.splitext(entry);
+		if ext == ".json":
+			doc = JsonDocument(entry);
+			asset_docs.append(doc);
+			asset_type = doc.data["type"];
+			if not asset_type in asset_types:
+				asset_types.append(asset_type);
 
 window_flag_list = [
 	imgui.WindowFlags_.no_saved_settings,
@@ -295,13 +348,9 @@ while not glfw.window_should_close(handle):
 	if imgui.begin_main_menu_bar():
 		if imgui.begin_menu("File"):
 			if imgui.begin_menu("Open"):
-				for folder in asset_dirs:
-					for entry in os.listdir(folder):
-						name, ext = os.path.splitext(entry);
-						path = os.path.join(folder, entry);
-						if ext == ".json":
-							if imgui.menu_item(name, "", document != None and name == document.name)[0]:
-								document = JsonDocument(path);
+				for doc in asset_docs:
+					if imgui.menu_item(doc.name, "", document != None and doc.name == document.name)[0]:
+						document = doc
 				imgui.end_menu();
 			if imgui.menu_item("Close", "", False)[0]:
 				document = None;

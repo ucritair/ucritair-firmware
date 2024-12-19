@@ -1,5 +1,3 @@
-// Generated from meshes/meshes.json
-
 #pragma once
 
 typedef struct CAT_mesh

@@ -1,5 +1,3 @@
-// Generated from meshes/meshes.json
-
 #include "mesh_assets.h"
 
 CAT_mesh eth_mesh =

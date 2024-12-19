@@ -48,7 +48,7 @@ atlas = [];
 for (idx, sprite) in enumerate(json_entries):
 	sprite["id"] = idx;
 	if sprite["mode"] == "init":
-		image = Image.open(sprite["path"]);
+		image = Image.open(os.path.join("sprites", sprite["path"]));
 		sprite["width"] = image.size[0];
 		sprite["height"] = image.size[1] // sprite["frames"];
 		image.close();
@@ -98,10 +98,10 @@ def hex2(x):
 textures = {}
 for x in atlas:
 	try:
-		textures[x.path] = pygame.image.load(x.path)
+		textures[x.path] = pygame.image.load(os.path.join("sprites", x.path))
 	except FileNotFoundError:
 		print("Falling back for ", x.path)
-		textures[x.path] = pygame.image.load("sprites/none_24x24.png")
+		textures[x.path] = pygame.image.load(os.path.join("sprites", "none_24x24.png"))
 
 def get_px(image, x, y):
 	r, g, b, a = image.get_at((x, y))
@@ -344,7 +344,7 @@ with open("sprites/sprite_assets.c", 'w') as fd:
 
 	source_sprites = [s for s in json_entries if s["mode"] != "copy"];
 	for sprite in source_sprites:
-		image = Image.open(sprite["path"]);
+		image = Image.open(os.path.join("sprites", sprite["path"]));
 		pixels = image.load();
 		rgb888s = [];
 		for y in range(image.size[1]):

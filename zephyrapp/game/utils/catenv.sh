@@ -12,3 +12,4 @@ pip3 install pillow
 pip3 install PyOpenGL
 pip3 install glfw
 pip3 install imgui-bundle
+pip3 install playsound3

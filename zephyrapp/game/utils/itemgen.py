@@ -7,6 +7,7 @@ import pathlib as pl;
 
 json_file = open("data/items.json", "r+");
 json_data = json.load(json_file);
+json_entries = json_data["entries"];
 
 tool_types = ["food", "book", "toy"];
 prop_types = ["prop", "bottom", "top"];
@@ -16,7 +17,7 @@ def ensure_key(obj, key, default):
 		obj[key] = default;
 	return obj[key];
 
-for (idx, item) in enumerate(json_data):
+for (idx, item) in enumerate(json_entries):
 	item["id"] = idx;
 	ensure_key(item, "type", "key");
 	ensure_key(item, "name", "item");
@@ -47,7 +48,7 @@ json_file.close();
 header = open("data/item_assets.h", "w");
 header.write("#pragma once\n");
 header.write("\n");
-for (idx, item) in enumerate(json_data):
+for (idx, item) in enumerate(json_entries):
 	header.write(f"#define {item["name"]}_item {idx}\n");
 header.close();
 
@@ -61,7 +62,7 @@ source.write("CAT_item_table item_table =\n");
 source.write("{\n");
 source.write("\t.data =\n");
 source.write("\t{\n");
-for (idx, item) in enumerate(json_data):
+for (idx, item) in enumerate(json_entries):
 	source.write("\t\t{\n");
 	if item["type"] in tool_types:
 		source.write("\t\t\t.type = CAT_ITEM_TYPE_TOOL,\n");
@@ -106,7 +107,7 @@ for (idx, item) in enumerate(json_data):
 		source.write("\t\t\t}\n");
 	source.write("\t\t},\n");
 source.write("\t},\n");
-source.write(f"\t.length = {len(json_data)}\n");
+source.write(f"\t.length = {len(json_entries)}\n");
 source.write("};\n");
 source.close();
 

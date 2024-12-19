@@ -1,11 +1,31 @@
-[
-	{
-		"path" : "coin.wav"
+{
+	"type" : "sound",
+	"schema" : {
+        "name": {
+            "type" : "string",
+            "permissions" : [
+                "write"
+            ]
+        },
+        "path" : {
+            "type": "*.wav",
+            "permissions" : [
+                "write"
+            ]
+        }
 	},
-	{
-		"path" : "fail.wav"
- 	},
-	{
-		"path" : "thud.wav"
- 	}
-]
+	"entries": [
+		{
+			"name" : "coin",
+			"path" : "coin.wav"
+		},
+		{
+			"name" : "fail",
+			"path" : "fail.wav"
+		},
+		{
+			"name" : "thud",
+			"path" : "thud.wav"
+		}
+	]
+}

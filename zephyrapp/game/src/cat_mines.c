@@ -410,7 +410,7 @@ void CAT_render_mines()
 
 			CAT_gui_panel((CAT_ivec2) {1, 1}, (CAT_ivec2) {13, 18});
 			CAT_gui_set_flag(CAT_GUI_WRAP_TEXT);
-			CAT_gui_text("Here's the win screen. Congrats, Louis. There are some things only you can see.");
+			CAT_gui_text("All Clear!\nThe fields are safe.");
 		}	
 	}
 }
