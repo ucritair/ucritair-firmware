@@ -808,7 +808,7 @@
         }
     },
     {
-        "type": "prop",
+        "type": "bottom",
         "name": "prop_stool_gold",
         "display_name": "Gold Stool",
         "sprite": "stool_gold_sprite",
