@@ -119,29 +119,66 @@ class JsonDocument:
 	def writable(self, key):
 		return "write" in self.data["schema"][key]["permissions"];
 	
-	def preview(self, path):
-		name, ext = os.path.splitext(path);
-		if ext == ".png":
-			texture, width, height = None, None, None;
-			if path not in preview_cache:
-				image = Image.open(path);
-				buffer = image.tobytes();
-				width = image.size[0];
-				height = image.size[1];
-				texture = glGenTextures(1);
-				glBindTexture(GL_TEXTURE_2D, texture);
-				glTexParameteri(GL_TEXTURE_2D, 	GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-				glTexParameteri(GL_TEXTURE_2D, 	GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
-				preview_cache[path] = texture, width, height;
+	def preview(self, node):
+		try:
+			path = next(node[k] for k in node if not self.schema_type(k) is None and "*" in self.schema_type(k));
+			path = os.path.join(self.parent, path);
+			name, ext = os.path.splitext(path);
+			if ext == ".png":
+				texture, width, height = None, None, None;
+				if path not in preview_cache:
+					image = Image.open(path);
+					pixels = image.load();
+
+					all_black = True;
+					inversion = [];
+					for y in range(image.size[1]):
+						for x in range(image.size[0]):
+							p = pixels[x, y];
+							if p[3] >= 128:
+								all_black &= (p[0] == 0 and p[1] == 0 and p[2] == 0);
+								inversion.append((255, 255, 255, p[3]));
+							else:
+								inversion.append(p);
+					if all_black:
+						image.putdata(inversion);
+
+					if "frames" in node:
+						transpose = [];
+						n_frames = node["frames"];
+						frame_h = image.size[1] // n_frames;
+						for y in range(frame_h):
+							for f in range(n_frames):
+								for x in range(image.size[0]):
+									transpose.append(pixels[x, y + f * frame_h]);
+						image = Image.new(image.mode, (image.size[0] * n_frames, frame_h));
+						image.putdata(transpose);
+
+					buffer = image.tobytes();
+					width = image.size[0];
+					height = image.size[1];
+					texture = glGenTextures(1);
+					glBindTexture(GL_TEXTURE_2D, texture);
+					glTexParameteri(GL_TEXTURE_2D, 	GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+					glTexParameteri(GL_TEXTURE_2D, 	GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+					glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+					preview_cache[path] = texture, width, height;
+				else:
+					texture, width, height = preview_cache[path];
+				imgui.image(texture, (width, height));
+			elif ext == ".wav":
+				if(imgui.button("PLAY")):
+					playsound(path, block=False);
 			else:
-				texture, width, height = preview_cache[path];
-			imgui.image(texture, (width, height));
-		elif ext == ".wav":
-			if(imgui.button("PLAY")):
-				playsound(path, block=False);
-		else:
-			imgui.text("[NO PREVIEW AVAILABLE]");
+				imgui.text("[NO PREVIEW AVAILABLE]");
+		except StopIteration:
+			try:
+				k = next(k for k in node if self.schema_type(k) in asset_types);
+				d = next(d for d in asset_docs if d.data["type"] == self.schema_type(k));
+				a = next(a for a in d.data["entries"] if a["name"] == node[k]);
+				d.preview(a);
+			except StopIteration:
+				imgui.text("[NO PREVIEW AVAILABLE]");
 	
 	def render_helper(self, node):
 		if node is None:
@@ -150,19 +187,7 @@ class JsonDocument:
 			title = build_title(node);
 			if(imgui.tree_node(title)):
 				imgui.separator();
-				for key in node:
-					schema_type = self.schema_type(key);
-					if schema_type is None:
-						continue;
-					if "*" in schema_type:
-						self.preview(os.path.join(document.parent, node[key]));
-						break;
-					elif schema_type in asset_types:
-						for doc in asset_docs:
-							if doc.data["type"] == schema_type:
-								asset = next(a for a in doc.data["entries"] if a["name"] == node[key]);
-								self.preview(os.path.join(doc.parent, asset["path"]));
-						break;
+				self.preview(node);
 				for key in node:
 					if self.readable(key):
 						schema_type = self.schema_type(key);
