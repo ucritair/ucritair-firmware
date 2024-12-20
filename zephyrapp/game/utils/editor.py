@@ -248,7 +248,7 @@ class JsonDocument:
 									if doc.data["type"] == schema_type:
 										for asset in doc.data["entries"]:
 											selected = asset["name"] == node[key];
-											if imgui.selectable(value, selected)[0]:
+											if imgui.selectable(asset["name"], selected)[0]:
 												node[key] = asset["name"];
 											if selected:
 												imgui.set_item_default_focus();	
