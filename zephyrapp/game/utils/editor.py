@@ -497,6 +497,7 @@ while not glfw.window_should_close(handle):
 				if "id" in new_asset:
 					new_asset["id"] = len(document.entries);
 				document.entries.append(new_asset);
+			imgui.end_menu();
 	
 		if imgui.begin_menu("Utils"):
 			for util in Path("utils").iterdir():
@@ -504,8 +505,8 @@ while not glfw.window_should_close(handle):
 					continue;
 				if imgui.menu_item_simple(str(util)):
 					sp.Popen(str(util), shell=True);				
-				
 			imgui.end_menu();
+
 		imgui.end_main_menu_bar();
 	
 	if document != None:
