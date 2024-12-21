@@ -328,8 +328,8 @@ class AssetDocument:
 			except StopIteration:
 				imgui.text("[NO PREVIEW AVAILABLE]");
 	
-	def render_helper(self, node):
-		if(imgui.tree_node(f"{get_name(node)} {get_number(node)} ####{str(id(node))}")):
+	def render_helper(self, node, title):
+		if(imgui.tree_node(f"{title} ####{str(id(node))}")):
 			imgui.separator();
 			self.preview(node);
 
@@ -420,7 +420,7 @@ class AssetDocument:
 	
 	def render(self):
 		for entry in self.entries:
-			self.render_helper(entry);
+			self.render_helper(entry, f"{get_name(entry)} {get_number(entry)}");
 	
 	def save(self):
 		self.file.seek(0);
