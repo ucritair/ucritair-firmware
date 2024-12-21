@@ -4,6 +4,5 @@ CMakeFiles/
 app
 *.dat
 sounds/temp/
-backup/
 
 !meshes/*.obj
