@@ -24,27 +24,47 @@
             "type": "*.png",
             "permissions": [
                 "write"
-            ]
+            ],
+			"constraint" : {
+				"key" : "mode",
+				"value" : "init"
+			}
         },
         "frames": {
             "type": "int",
             "permissions": [
                 "write"
-            ]
+            ],
+			"constraint" : {
+				"key" : "mode",
+				"value" : "init"
+			}
         },
         "width": {
             "type": "int",
-            "permissions": []
+            "permissions": [],
+			"constraint" : {
+				"key" : "mode",
+				"value" : "init"
+			}
         },
         "height": {
             "type": "int",
-            "permissions": []
+            "permissions": [],
+			"constraint" : {
+				"key" : "mode",
+				"value" : "init"
+			}
         },
         "source": {
             "type": "sprite",
             "permissions": [
                 "write"
-            ]
+            ],
+			"constraint" : {
+				"key" : "mode",
+				"value" : "copy"
+			}
         }
     },
     "entries": [

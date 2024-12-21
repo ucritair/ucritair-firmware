@@ -162,18 +162,47 @@ def get_number(node):
 def get_id(node, key):
 	return f"##{id(node)}{id(key)}";
 
+def get_default(t):
+	if t == "int":
+		return 0;
+	elif t == "bool":
+		return False;
+	elif t == "string":
+		return "";
+	elif t == "float":
+		return 0.0;
+	elif "*" in t:
+		return f"null{t[1:]}";
+	elif t in asset_types:
+		return f"null_{t}";
+	elif isinstance(t, list):
+		return t[0];
+	else:
+		return None;
+
 class AssetSchema:
+	def compute_constraints(self, node):
+		for key_a in node:
+			if "is_constraint" in node[key_a]:
+				continue;
+			for key_b in node:
+				if "constraint" in node[key_b] and node[key_b]["constraint"]["key"] == key_a:
+					node[key_a]["is_constraint"] = True;
+			if isinstance(node[key_a]["type"], dict):
+				self.compute_constraints(node[key_a]["type"]);
+
 	def __init__(self, schema):
-		self.root = schema;
+		self.root = copy.deepcopy(schema);
 		self.path = [self.root];
-	
+		self.compute_constraints(self.root);
+
 	def reset(self):
 		self.path = [self.root];
 
 	def push(self, key):
 		self.path.append(self.path[-1][key]["type"]);
 	
-	def back(self):
+	def pop(self):
 		self.path.pop();
 
 	def get_type(self, key):
@@ -186,6 +215,33 @@ class AssetSchema:
 	def is_writable(self, key):
 		perms = self.path[-1][key]["permissions"];
 		return "write" in perms;
+	
+	def is_constraint(self, key):
+		node = self.path[-1][key];
+		return "is_constraint" in node and node["is_constraint"];
+	
+	def prototype(self, node):
+		parent = self.path[-1];
+		for key in parent:
+			child = parent[key];
+			if "constraint" in child:
+				ckey = child["constraint"]["key"];
+				cval = child["constraint"]["value"];
+				if node[ckey] != cval:
+					if key in node:
+						del node[key];
+						continue;
+					else:
+						continue;
+			if key in node:
+				continue;
+			if isinstance(child["type"], dict):
+				self.push(key);
+				node[key] = {};
+				self.prototype(node[key]);
+				self.pop();
+			else:
+				node[key] = get_default(child["type"]);
 
 class AssetDocument:
 	def __init__(self, path):
@@ -205,6 +261,10 @@ class AssetDocument:
 		try:
 			path = next(node[k] for k in node if not self.schema.get_type(k) is None and "*" in self.schema.get_type(k));
 			path = os.path.join(self.parent, path);
+			if not Path(path).exists():
+				imgui.text("[NO PREVIEW AVAILABLE]");
+				return;
+
 			name, ext = os.path.splitext(path);
 			if ext == ".png":
 				texture, width, height = None, None, None;
@@ -255,6 +315,7 @@ class AssetDocument:
 					playsound(path, block=False);
 			else:
 				imgui.text("[NO PREVIEW AVAILABLE]");
+
 		except StopIteration:
 			try:
 				k = next(k for k in node if self.schema.get_type(k) in asset_types);
@@ -298,7 +359,7 @@ class AssetDocument:
 					imgui.text(key);
 					imgui.same_line();
 					if writable:
-						node[key] = imgui.checkbox(get_id(node, key), node[key]);
+						node[key] = imgui.checkbox(get_id(node, key), node[key])[1];
 					else:
 						imgui.text(str(node(key)));
 
@@ -347,10 +408,12 @@ class AssetDocument:
 				elif isinstance(key_type, dict):
 					self.schema.push(key);
 					self.render_helper(node[key], key);
-					self.schema.back();
+					self.schema.pop();
 
 				else:
 					imgui.text(f"[UNSUPPORTED TYPE \"{key_type}\"]");
+			
+			self.schema.prototype(node);
 		
 			imgui.tree_pop();
 	
@@ -410,11 +473,17 @@ while not glfw.window_should_close(handle):
 			if imgui.menu_item_simple("Close"):
 				document = None;
 			imgui.end_menu();
-		if imgui.begin_menu("Sort"):
+		if document != None and imgui.begin_menu("Sort"):
 			if imgui.menu_item_simple("Name"):
 				document.entries.sort(key = lambda n: get_name(n));
 			if imgui.menu_item_simple("Number"):
 				document.entries.sort(key = lambda n: get_number(n));
+			imgui.end_menu();
+		if document != None and imgui.begin_menu("Asset"):
+			if imgui.menu_item_simple("New"):
+				new_asset = {};
+				document.schema.prototype(new_asset);
+				document.entries.append(new_asset);
 			imgui.end_menu();
 		imgui.end_main_menu_bar();
 	

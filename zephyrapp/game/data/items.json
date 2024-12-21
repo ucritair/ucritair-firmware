@@ -4,12 +4,8 @@
         "type": {
             "type": [
                 "key",
-                "food",
-                "book",
-                "toy",
-                "prop",
-                "top",
-                "bottom"
+                "tool",
+                "prop"
             ],
             "permissions": [
                 "write"
@@ -57,6 +53,16 @@
         },
         "tool_data": {
             "type": {
+                "type": {
+                    "type": [
+                        "food",
+                        "book",
+                        "toy"
+                    ],
+                    "permissions": [
+                        "write"
+                    ]
+                },
                 "cursor": {
                     "type": "sprite",
                     "permissions": [
@@ -84,10 +90,24 @@
             },
             "permissions": [
                 "write"
-            ]
+            ],
+			"constraint" : {
+				"key" : "type",
+				"value" : "tool"
+			}
         },
         "prop_data": {
             "type": {
+                "type": {
+                    "type": [
+                        "default",
+                        "bottom",
+                        "top"
+                    ],
+                    "permissions": [
+                        "write"
+                    ]
+                },
                 "shape": {
                     "type": "ivec2",
                     "permissions": [
@@ -109,12 +129,16 @@
             },
             "permissions": [
                 "write"
-            ]
+            ],
+			"constraint" : {
+				"key" : "type",
+				"value" : "prop"
+			}
         }
     },
     "entries": [
         {
-            "type": "food",
+            "type": "tool",
             "name": "food_bread",
             "display_name": "Bread",
             "sprite": "bread_sprite",
@@ -126,11 +150,12 @@
                 "cursor": "bread_sprite",
                 "dv": 2,
                 "df": 0,
-                "ds": 0
+                "ds": 0,
+                "type": "food"
             }
         },
         {
-            "type": "food",
+            "type": "tool",
             "name": "food_coffee",
             "display_name": "Coffee",
             "sprite": "coffee_sprite",
@@ -142,11 +167,12 @@
                 "cursor": "coffee_sprite",
                 "dv": 1,
                 "df": 1,
-                "ds": 0
+                "ds": 0,
+                "type": "food"
             }
         },
         {
-            "type": "food",
+            "type": "tool",
             "name": "food_milk",
             "display_name": "Milk",
             "sprite": "milk_sprite",
@@ -158,11 +184,12 @@
                 "cursor": "milk_sprite",
                 "dv": 1,
                 "df": 0,
-                "ds": 0
+                "ds": 0,
+                "type": "food"
             }
         },
         {
-            "type": "food",
+            "type": "tool",
             "name": "food_soup",
             "display_name": "Soup",
             "sprite": "soup_sprite",
@@ -174,11 +201,12 @@
                 "cursor": "soup_sprite",
                 "dv": 3,
                 "df": 0,
-                "ds": 0
+                "ds": 0,
+                "type": "food"
             }
         },
         {
-            "type": "food",
+            "type": "tool",
             "name": "food_salad",
             "display_name": "Salad",
             "sprite": "salad_sprite",
@@ -190,11 +218,12 @@
                 "cursor": "salad_sprite",
                 "dv": 3,
                 "df": 0,
-                "ds": 0
+                "ds": 0,
+                "type": "food"
             }
         },
         {
-            "type": "food",
+            "type": "tool",
             "name": "food_sausage",
             "display_name": "Sausage",
             "sprite": "sausage_sprite",
@@ -206,11 +235,12 @@
                 "cursor": "sausage_sprite",
                 "dv": 3,
                 "df": 0,
-                "ds": 0
+                "ds": 0,
+                "type": "food"
             }
         },
         {
-            "type": "food",
+            "type": "tool",
             "name": "green_curry",
             "display_name": "Green Curry",
             "sprite": "green_curry_sprite",
@@ -222,11 +252,12 @@
                 "cursor": "green_curry_sprite",
                 "dv": 5,
                 "df": 0,
-                "ds": 0
+                "ds": 0,
+                "type": "food"
             }
         },
         {
-            "type": "food",
+            "type": "tool",
             "name": "red_curry",
             "display_name": "Red Curry",
             "sprite": "red_curry_sprite",
@@ -238,11 +269,12 @@
                 "cursor": "red_curry_sprite",
                 "dv": 5,
                 "df": 0,
-                "ds": 0
+                "ds": 0,
+                "type": "food"
             }
         },
         {
-            "type": "food",
+            "type": "tool",
             "name": "pad_ka_prow",
             "display_name": "Pad Ka Prow",
             "sprite": "padkaprow_sprite",
@@ -254,11 +286,12 @@
                 "cursor": "padkaprow_sprite",
                 "dv": 5,
                 "df": 0,
-                "ds": 0
+                "ds": 0,
+                "type": "food"
             }
         },
         {
-            "type": "food",
+            "type": "tool",
             "name": "vig_pill",
             "display_name": "Vigour Pill",
             "sprite": "pill_vig_sprite",
@@ -270,11 +303,12 @@
                 "cursor": "pill_vig_sprite",
                 "dv": 1,
                 "df": 0,
-                "ds": 0
+                "ds": 0,
+                "type": "food"
             }
         },
         {
-            "type": "food",
+            "type": "tool",
             "name": "foc_pill",
             "display_name": "Focus Pill",
             "sprite": "pill_foc_sprite",
@@ -286,11 +320,12 @@
                 "cursor": "pill_foc_sprite",
                 "dv": 0,
                 "df": 1,
-                "ds": 0
+                "ds": 0,
+                "type": "food"
             }
         },
         {
-            "type": "food",
+            "type": "tool",
             "name": "spi_pill",
             "display_name": "Spirit Pill",
             "sprite": "pill_spi_sprite",
@@ -302,11 +337,12 @@
                 "cursor": "pill_spi_sprite",
                 "dv": 0,
                 "df": 0,
-                "ds": 1
+                "ds": 1,
+                "type": "food"
             }
         },
         {
-            "type": "food",
+            "type": "tool",
             "name": "cigs",
             "display_name": "Cigarettes",
             "sprite": "cigarette_sprite",
@@ -318,11 +354,12 @@
                 "cursor": "cigarette_sprite",
                 "dv": -1,
                 "df": 3,
-                "ds": 1
+                "ds": 1,
+                "type": "food"
             }
         },
         {
-            "type": "book",
+            "type": "tool",
             "name": "book_1",
             "display_name": "The Disposessed",
             "sprite": "book_study_sprite",
@@ -334,11 +371,12 @@
                 "cursor": "book_static_sprite",
                 "dv": 0,
                 "df": 3,
-                "ds": 0
+                "ds": 0,
+                "type": "book"
             }
         },
         {
-            "type": "book",
+            "type": "tool",
             "name": "book_2",
             "display_name": "We Are Legion",
             "sprite": "book_study_sprite",
@@ -350,11 +388,12 @@
                 "cursor": "book_static_sprite",
                 "dv": 0,
                 "df": 3,
-                "ds": 0
+                "ds": 0,
+                "type": "book"
             }
         },
         {
-            "type": "book",
+            "type": "tool",
             "name": "book_3",
             "display_name": "The Forever War",
             "sprite": "book_study_sprite",
@@ -366,11 +405,12 @@
                 "cursor": "book_static_sprite",
                 "dv": 0,
                 "df": 3,
-                "ds": 0
+                "ds": 0,
+                "type": "book"
             }
         },
         {
-            "type": "book",
+            "type": "tool",
             "name": "book_4",
             "display_name": "Ringworld",
             "sprite": "book_study_sprite",
@@ -382,11 +422,12 @@
                 "cursor": "book_static_sprite",
                 "dv": 0,
                 "df": 3,
-                "ds": 0
+                "ds": 0,
+                "type": "book"
             }
         },
         {
-            "type": "book",
+            "type": "tool",
             "name": "book_5",
             "display_name": "The Machine Stops",
             "sprite": "book_study_sprite",
@@ -398,11 +439,12 @@
                 "cursor": "book_static_sprite",
                 "dv": 0,
                 "df": 3,
-                "ds": 0
+                "ds": 0,
+                "type": "book"
             }
         },
         {
-            "type": "book",
+            "type": "tool",
             "name": "book_6",
             "display_name": "Metal Fever",
             "sprite": "book_study_sprite",
@@ -414,11 +456,12 @@
                 "cursor": "book_static_sprite",
                 "dv": 0,
                 "df": 3,
-                "ds": 0
+                "ds": 0,
+                "type": "book"
             }
         },
         {
-            "type": "toy",
+            "type": "tool",
             "name": "toy_duck",
             "display_name": "Ducky",
             "sprite": "toy_duck_sprite",
@@ -430,11 +473,12 @@
                 "cursor": "toy_duck_sprite",
                 "dv": 0,
                 "df": 0,
-                "ds": 5
+                "ds": 5,
+                "type": "toy"
             }
         },
         {
-            "type": "toy",
+            "type": "tool",
             "name": "toy_baseball",
             "display_name": "Baseball",
             "sprite": "toy_baseball_sprite",
@@ -446,11 +490,12 @@
                 "cursor": "toy_baseball_sprite",
                 "dv": 0,
                 "df": 0,
-                "ds": 3
+                "ds": 3,
+                "type": "toy"
             }
         },
         {
-            "type": "toy",
+            "type": "tool",
             "name": "toy_basketball",
             "display_name": "Basketball",
             "sprite": "toy_basketball_sprite",
@@ -462,11 +507,12 @@
                 "cursor": "toy_basketball_sprite",
                 "dv": 0,
                 "df": 0,
-                "ds": 3
+                "ds": 3,
+                "type": "toy"
             }
         },
         {
-            "type": "toy",
+            "type": "tool",
             "name": "toy_golf",
             "display_name": "Golf Ball",
             "sprite": "toy_golf_sprite",
@@ -478,11 +524,12 @@
                 "cursor": "toy_golf_sprite",
                 "dv": 0,
                 "df": 0,
-                "ds": 1
+                "ds": 1,
+                "type": "toy"
             }
         },
         {
-            "type": "toy",
+            "type": "tool",
             "name": "toy_puzzle",
             "display_name": "Puzzle",
             "sprite": "toy_puzzle_sprite",
@@ -494,7 +541,8 @@
                 "cursor": "toy_puzzle_sprite",
                 "dv": 0,
                 "df": 0,
-                "ds": 3
+                "ds": 3,
+                "type": "toy"
             }
         },
         {
@@ -522,11 +570,12 @@
                     1
                 ],
                 "animate": true,
-                "child_dy": 0
+                "child_dy": 0,
+                "type": "default"
             }
         },
         {
-            "type": "top",
+            "type": "prop",
             "name": "prop_uv_lamp",
             "display_name": "UV Lamp",
             "sprite": "uv_sprite",
@@ -540,7 +589,8 @@
                     1
                 ],
                 "animate": true,
-                "child_dy": 0
+                "child_dy": 0,
+                "type": "default"
             }
         },
         {
@@ -558,11 +608,12 @@
                     1
                 ],
                 "animate": true,
-                "child_dy": 0
+                "child_dy": 0,
+                "type": "default"
             }
         },
         {
-            "type": "top",
+            "type": "prop",
             "name": "prop_coffeemaker",
             "display_name": "Coffee Machine",
             "sprite": "coffeemaker_sprite",
@@ -576,11 +627,12 @@
                     1
                 ],
                 "animate": true,
-                "child_dy": -6
+                "child_dy": -6,
+                "type": "default"
             }
         },
         {
-            "type": "top",
+            "type": "prop",
             "name": "prop_fan_classic",
             "display_name": "Classic Fan",
             "sprite": "fan_a_sprite",
@@ -594,11 +646,12 @@
                     1
                 ],
                 "animate": true,
-                "child_dy": 0
+                "child_dy": 0,
+                "type": "default"
             }
         },
         {
-            "type": "top",
+            "type": "prop",
             "name": "prop_fan_modern",
             "display_name": "Modern Fan",
             "sprite": "fan_b_sprite",
@@ -612,11 +665,12 @@
                     1
                 ],
                 "animate": true,
-                "child_dy": 0
+                "child_dy": 0,
+                "type": "default"
             }
         },
         {
-            "type": "top",
+            "type": "prop",
             "name": "prop_lantern",
             "display_name": "Lantern",
             "sprite": "lantern_sprite",
@@ -630,11 +684,12 @@
                     1
                 ],
                 "animate": true,
-                "child_dy": 0
+                "child_dy": 0,
+                "type": "default"
             }
         },
         {
-            "type": "top",
+            "type": "prop",
             "name": "prop_laptop",
             "display_name": "Laptop",
             "sprite": "laptop_sprite",
@@ -648,11 +703,12 @@
                     1
                 ],
                 "animate": true,
-                "child_dy": -8
+                "child_dy": -8,
+                "type": "default"
             }
         },
         {
-            "type": "top",
+            "type": "prop",
             "name": "prop_chess",
             "display_name": "Chess Set",
             "sprite": "chess_sprite",
@@ -666,11 +722,12 @@
                     2
                 ],
                 "animate": true,
-                "child_dy": -16
+                "child_dy": -16,
+                "type": "default"
             }
         },
         {
-            "type": "bottom",
+            "type": "prop",
             "name": "prop_table_mahogany",
             "display_name": "Mahogany Table",
             "sprite": "table_mahogany_sprite",
@@ -684,11 +741,12 @@
                     2
                 ],
                 "animate": true,
-                "child_dy": 0
+                "child_dy": 0,
+                "type": "default"
             }
         },
         {
-            "type": "bottom",
+            "type": "prop",
             "name": "prop_table_walnut",
             "display_name": "Walnut Table",
             "sprite": "table_walnut_sprite",
@@ -702,11 +760,12 @@
                     2
                 ],
                 "animate": true,
-                "child_dy": 0
+                "child_dy": 0,
+                "type": "default"
             }
         },
         {
-            "type": "bottom",
+            "type": "prop",
             "name": "prop_table_plastic",
             "display_name": "Plastic Table A",
             "sprite": "table_plastic_sprite",
@@ -720,11 +779,12 @@
                     2
                 ],
                 "animate": true,
-                "child_dy": 0
+                "child_dy": 0,
+                "type": "default"
             }
         },
         {
-            "type": "bottom",
+            "type": "prop",
             "name": "prop_table_plastic_alt",
             "display_name": "Plastic Table B",
             "sprite": "table_plastic_alt_sprite",
@@ -738,11 +798,12 @@
                     2
                 ],
                 "animate": true,
-                "child_dy": 0
+                "child_dy": 0,
+                "type": "default"
             }
         },
         {
-            "type": "bottom",
+            "type": "prop",
             "name": "prop_table_sm_mahogany",
             "display_name": "S. Mahogany Table",
             "sprite": "table_sm_mahogany_sprite",
@@ -756,11 +817,12 @@
                     2
                 ],
                 "animate": true,
-                "child_dy": 0
+                "child_dy": 0,
+                "type": "default"
             }
         },
         {
-            "type": "bottom",
+            "type": "prop",
             "name": "prop_table_sm_walnut",
             "display_name": "S. Walnut Table A",
             "sprite": "table_sm_walnut_sprite",
@@ -774,11 +836,12 @@
                     2
                 ],
                 "animate": true,
-                "child_dy": 0
+                "child_dy": 0,
+                "type": "default"
             }
         },
         {
-            "type": "bottom",
+            "type": "prop",
             "name": "prop_table_sm_walnut_alt",
             "display_name": "S. Walnut Table B",
             "sprite": "table_sm_walnut_alt_sprite",
@@ -792,11 +855,12 @@
                     2
                 ],
                 "animate": true,
-                "child_dy": 0
+                "child_dy": 0,
+                "type": "default"
             }
         },
         {
-            "type": "bottom",
+            "type": "prop",
             "name": "prop_table_sm_plastic",
             "display_name": "S. Plastic Table A",
             "sprite": "table_sm_plastic_sprite",
@@ -810,11 +874,12 @@
                     2
                 ],
                 "animate": true,
-                "child_dy": 0
+                "child_dy": 0,
+                "type": "default"
             }
         },
         {
-            "type": "bottom",
+            "type": "prop",
             "name": "prop_table_sm_plastic_alt",
             "display_name": "S. Plastic Table B",
             "sprite": "table_sm_plastic_alt_sprite",
@@ -828,7 +893,8 @@
                     2
                 ],
                 "animate": true,
-                "child_dy": 0
+                "child_dy": 0,
+                "type": "default"
             }
         },
         {
@@ -846,7 +912,8 @@
                     2
                 ],
                 "animate": false,
-                "child_dy": 0
+                "child_dy": 0,
+                "type": "default"
             }
         },
         {
@@ -864,7 +931,8 @@
                     2
                 ],
                 "animate": false,
-                "child_dy": 0
+                "child_dy": 0,
+                "type": "default"
             }
         },
         {
@@ -882,7 +950,8 @@
                     1
                 ],
                 "animate": true,
-                "child_dy": 0
+                "child_dy": 0,
+                "type": "default"
             }
         },
         {
@@ -900,7 +969,8 @@
                     1
                 ],
                 "animate": true,
-                "child_dy": 0
+                "child_dy": 0,
+                "type": "default"
             }
         },
         {
@@ -918,7 +988,8 @@
                     1
                 ],
                 "animate": true,
-                "child_dy": 0
+                "child_dy": 0,
+                "type": "default"
             }
         },
         {
@@ -936,11 +1007,12 @@
                     1
                 ],
                 "animate": true,
-                "child_dy": 0
+                "child_dy": 0,
+                "type": "default"
             }
         },
         {
-            "type": "top",
+            "type": "prop",
             "name": "prop_bowl_stone",
             "display_name": "Stone Bowl",
             "sprite": "bowl_stone_sprite",
@@ -954,11 +1026,12 @@
                     1
                 ],
                 "animate": true,
-                "child_dy": 0
+                "child_dy": 0,
+                "type": "default"
             }
         },
         {
-            "type": "top",
+            "type": "prop",
             "name": "prop_bowl_gold",
             "display_name": "Gold Bowl",
             "sprite": "bowl_gold_sprite",
@@ -972,11 +1045,12 @@
                     1
                 ],
                 "animate": true,
-                "child_dy": 0
+                "child_dy": 0,
+                "type": "default"
             }
         },
         {
-            "type": "top",
+            "type": "prop",
             "name": "prop_vase_stone",
             "display_name": "Stone Vase",
             "sprite": "vase_stone_sprite",
@@ -990,11 +1064,12 @@
                     1
                 ],
                 "animate": true,
-                "child_dy": 0
+                "child_dy": 0,
+                "type": "default"
             }
         },
         {
-            "type": "top",
+            "type": "prop",
             "name": "prop_vase_gold",
             "display_name": "Gold Vase",
             "sprite": "vase_gold_sprite",
@@ -1008,11 +1083,12 @@
                     1
                 ],
                 "animate": true,
-                "child_dy": 0
+                "child_dy": 0,
+                "type": "default"
             }
         },
         {
-            "type": "top",
+            "type": "prop",
             "name": "prop_vase_grey",
             "display_name": "Grey Vase",
             "sprite": "vase_grey_sprite",
@@ -1026,11 +1102,12 @@
                     1
                 ],
                 "animate": true,
-                "child_dy": 0
+                "child_dy": 0,
+                "type": "default"
             }
         },
         {
-            "type": "top",
+            "type": "prop",
             "name": "prop_vase_mahogany",
             "display_name": "Mahogany Vase",
             "sprite": "vase_mahogany_sprite",
@@ -1044,11 +1121,12 @@
                     1
                 ],
                 "animate": true,
-                "child_dy": 0
+                "child_dy": 0,
+                "type": "default"
             }
         },
         {
-            "type": "top",
+            "type": "prop",
             "name": "prop_vase_walnut",
             "display_name": "Walnut Vase",
             "sprite": "vase_walnut_sprite",
@@ -1062,11 +1140,12 @@
                     1
                 ],
                 "animate": true,
-                "child_dy": 0
+                "child_dy": 0,
+                "type": "default"
             }
         },
         {
-            "type": "top",
+            "type": "prop",
             "name": "prop_succulent",
             "display_name": "Succulent",
             "sprite": "succulent_sprite",
@@ -1080,7 +1159,8 @@
                     1
                 ],
                 "animate": false,
-                "child_dy": 0
+                "child_dy": 0,
+                "type": "default"
             }
         },
         {
@@ -1098,7 +1178,8 @@
                     1
                 ],
                 "animate": true,
-                "child_dy": 0
+                "child_dy": 0,
+                "type": "default"
             }
         },
         {
@@ -1116,7 +1197,8 @@
                     1
                 ],
                 "animate": true,
-                "child_dy": 0
+                "child_dy": 0,
+                "type": "default"
             }
         },
         {
@@ -1134,7 +1216,8 @@
                     1
                 ],
                 "animate": true,
-                "child_dy": 0
+                "child_dy": 0,
+                "type": "default"
             }
         },
         {
@@ -1152,7 +1235,8 @@
                     1
                 ],
                 "animate": true,
-                "child_dy": 0
+                "child_dy": 0,
+                "type": "default"
             }
         },
         {
@@ -1170,7 +1254,8 @@
                     1
                 ],
                 "animate": true,
-                "child_dy": 0
+                "child_dy": 0,
+                "type": "default"
             }
         },
         {
@@ -1188,7 +1273,8 @@
                     1
                 ],
                 "animate": true,
-                "child_dy": 0
+                "child_dy": 0,
+                "type": "default"
             }
         },
         {
@@ -1206,7 +1292,8 @@
                     1
                 ],
                 "animate": true,
-                "child_dy": 0
+                "child_dy": 0,
+                "type": "default"
             }
         },
         {
@@ -1224,7 +1311,8 @@
                     1
                 ],
                 "animate": false,
-                "child_dy": 0
+                "child_dy": 0,
+                "type": "default"
             }
         },
         {
@@ -1242,7 +1330,8 @@
                     1
                 ],
                 "animate": false,
-                "child_dy": 0
+                "child_dy": 0,
+                "type": "default"
             }
         },
         {
@@ -1260,7 +1349,8 @@
                     1
                 ],
                 "animate": false,
-                "child_dy": 0
+                "child_dy": 0,
+                "type": "default"
             }
         },
         {
@@ -1278,7 +1368,8 @@
                     1
                 ],
                 "animate": true,
-                "child_dy": 0
+                "child_dy": 0,
+                "type": "default"
             }
         },
         {
@@ -1296,7 +1387,8 @@
                     1
                 ],
                 "animate": true,
-                "child_dy": 0
+                "child_dy": 0,
+                "type": "default"
             }
         },
         {
@@ -1314,7 +1406,8 @@
                     1
                 ],
                 "animate": true,
-                "child_dy": 0
+                "child_dy": 0,
+                "type": "default"
             }
         },
         {
@@ -1332,7 +1425,8 @@
                     1
                 ],
                 "animate": true,
-                "child_dy": 0
+                "child_dy": 0,
+                "type": "default"
             }
         },
         {
@@ -1350,7 +1444,8 @@
                     1
                 ],
                 "animate": true,
-                "child_dy": 0
+                "child_dy": 0,
+                "type": "default"
             }
         },
         {
@@ -1368,7 +1463,8 @@
                     1
                 ],
                 "animate": true,
-                "child_dy": 0
+                "child_dy": 0,
+                "type": "default"
             }
         },
         {
@@ -1386,7 +1482,8 @@
                     1
                 ],
                 "animate": true,
-                "child_dy": 0
+                "child_dy": 0,
+                "type": "default"
             }
         },
         {
@@ -1404,11 +1501,12 @@
                     1
                 ],
                 "animate": true,
-                "child_dy": 0
+                "child_dy": 0,
+                "type": "default"
             }
         },
         {
-            "type": "top",
+            "type": "prop",
             "name": "prop_bowl_grey",
             "display_name": "Grey Bowl",
             "sprite": "bowl_grey_sprite",
@@ -1422,11 +1520,12 @@
                     1
                 ],
                 "animate": true,
-                "child_dy": 0
+                "child_dy": 0,
+                "type": "default"
             }
         },
         {
-            "type": "top",
+            "type": "prop",
             "name": "prop_bowl_mahogany",
             "display_name": "Mahogany Bowl",
             "sprite": "bowl_mahogany_sprite",
@@ -1440,11 +1539,12 @@
                     1
                 ],
                 "animate": true,
-                "child_dy": 0
+                "child_dy": 0,
+                "type": "default"
             }
         },
         {
-            "type": "top",
+            "type": "prop",
             "name": "prop_bowl_walnut",
             "display_name": "Walnut Bowl",
             "sprite": "bowl_walnut_sprite",
@@ -1458,7 +1558,8 @@
                     1
                 ],
                 "animate": true,
-                "child_dy": 0
+                "child_dy": 0,
+                "type": "default"
             }
         },
         {
@@ -1476,7 +1577,8 @@
                     2
                 ],
                 "animate": false,
-                "child_dy": 0
+                "child_dy": 0,
+                "type": "default"
             }
         },
         {
@@ -1494,11 +1596,12 @@
                     1
                 ],
                 "animate": true,
-                "child_dy": 0
+                "child_dy": 0,
+                "type": "default"
             }
         },
         {
-            "type": "top",
+            "type": "prop",
             "name": "prop_chicken",
             "display_name": "Chicken",
             "sprite": "chicken_sprite",
@@ -1512,7 +1615,8 @@
                     1
                 ],
                 "animate": true,
-                "child_dy": 0
+                "child_dy": 0,
+                "type": "default"
             }
         },
         {
@@ -1530,7 +1634,8 @@
                     1
                 ],
                 "animate": true,
-                "child_dy": 0
+                "child_dy": 0,
+                "type": "default"
             }
         }
     ]

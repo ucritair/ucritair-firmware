@@ -207,7 +207,7 @@ void CAT_draw_actions()
 	);
 	CAT_gui_line_break();
 	
-	CAT_gui_text("& STUDYING");
+	CAT_gui_text("\1 STUDYING");
 	CAT_gui_line_break();
 	CAT_gui_text
 	(

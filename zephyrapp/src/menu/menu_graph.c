@@ -94,13 +94,13 @@ char* get_string(int16_t graph_data)
 			snprintf(buf, sizeof(buf), "%dppm", graph_data);
 			break;
 		case PM2_5:
-			snprintf(buf, sizeof(buf), "%.1f~g/m\x7f", ((double)graph_data)/100.);
+			snprintf(buf, sizeof(buf), "%.1f\4g/m\5", ((double)graph_data)/100.);
 			break;
 		case PN10_0:
-			snprintf(buf, sizeof(buf), "%.1f#/cm\x7f", ((double)graph_data)/100.);
+			snprintf(buf, sizeof(buf), "%.1f#/cm\5", ((double)graph_data)/100.);
 			break;
 		case TEMP:
-			snprintf(buf, sizeof(buf), "%.1f`C", ((double)graph_data)/100.);
+			snprintf(buf, sizeof(buf), "%.1f\3C", ((double)graph_data)/100.);
 			break;
 		case RH:
 			snprintf(buf, sizeof(buf), "%.1f%%RH", ((double)graph_data)/100.);
