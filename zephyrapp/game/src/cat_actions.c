@@ -111,9 +111,7 @@ void action_enter(CAT_action_profile* profile)
 void action_tick()
 {
 	if(action_state.timer_id == -1)
-	{
 		action_state.timer_id = CAT_timer_init(2.0f);
-	}
 	
 	if(action_state.tool_id == -1)
 	{
@@ -135,16 +133,12 @@ void action_tick()
 				action_state.location = (CAT_vec2) {world_cursor.x + x_off, world_cursor.y + 16};
 
 				action_state.confirmed = true;
-				CAT_animachine_transition(&pet_asm, &AS_adjust_in);
+				CAT_animachine_transition(&pet_asm, &AS_approach);
 			}
 		}
 	}
 	else
 	{
-		if(CAT_animachine_is_in(&pet_asm, &AS_adjust_in))
-		{
-			CAT_animachine_transition(&pet_asm, &AS_approach);
-		}
 		if(CAT_animachine_is_in(&pet_asm, &AS_approach) && CAT_animachine_is_ticking(&pet_asm))
 		{
 			if(CAT_pet_seek(action_state.location))
@@ -181,18 +175,15 @@ void action_tick()
 				action_state.profile->LED_colour[1],
 				action_state.profile->LED_colour[1]
 			);
-			CAT_animachine_transition(&pet_asm, &AS_adjust_out);
-		}	
-		if(CAT_animachine_is_in(&pet_asm, &AS_adjust_out))
-		{
-			CAT_machine_transition(CAT_MS_room);
+			if(CAT_input_pressed(CAT_BUTTON_A))
+				CAT_animachine_kill(&pet_asm);
+			if(CAT_animachine_is_done(&pet_asm))
+				CAT_machine_transition(CAT_MS_room);
 		}
 	}
 
 	if(CAT_input_pressed(CAT_BUTTON_B))
-	{
 		CAT_machine_transition(CAT_MS_room);
-	}
 }
 
 void action_exit()
@@ -200,7 +191,7 @@ void action_exit()
 	action_state.tool_id = -1;
 	action_state.confirmed = false;
 	action_state.complete = false;
-	
+
 	CAT_timer_reset(action_state.timer_id);
 	CAT_set_LEDs(0, 0, 0);
 }

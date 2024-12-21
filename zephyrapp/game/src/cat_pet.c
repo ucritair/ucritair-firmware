@@ -53,9 +53,6 @@ void CAT_pet_reanimate()
 	AS_crit.tick_anim_id = pet_crit_vig_sprite;
 	AS_crit.exit_anim_id = pet_crit_vig_out_sprite;
 
-	AS_adjust_in.exit_anim_id = pet_idle_sprite;
-	AS_adjust_out.exit_anim_id = pet_idle_sprite;
-
 	AS_react.tick_anim_id = mood_good_sprite;
 
 	if(pet.vigour >= 9 || pet.focus >= 9 || pet.spirit >= 9)

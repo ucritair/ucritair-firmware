@@ -55,13 +55,61 @@
             "type": "int",
             "permissions": []
         },
-		"tool_data": {
-            "type": null,
-            "permissions": []
+        "tool_data": {
+            "type": {
+                "cursor": {
+                    "type": "sprite",
+                    "permissions": [
+                        "write"
+                    ]
+                },
+                "dv": {
+                    "type": "int",
+                    "permissions": [
+                        "write"
+                    ]
+                },
+                "df": {
+                    "type": "int",
+                    "permissions": [
+                        "write"
+                    ]
+                },
+                "ds": {
+                    "type": "int",
+                    "permissions": [
+                        "write"
+                    ]
+                }
+            },
+            "permissions": [
+                "write"
+            ]
         },
-		"prop_data": {
-            "type": null,
-            "permissions": []
+        "prop_data": {
+            "type": {
+                "shape": {
+                    "type": "ivec2",
+                    "permissions": [
+                        "write"
+                    ]
+                },
+                "animate": {
+                    "type": "bool",
+                    "permissions": [
+                        "write"
+                    ]
+                },
+                "child_dy": {
+                    "type": "int",
+                    "permissions": [
+                        "write"
+                    ]
+                }
+            },
+            "permissions": [
+                "write"
+            ]
         }
     },
     "entries": [

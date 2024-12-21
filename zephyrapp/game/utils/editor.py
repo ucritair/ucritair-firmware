@@ -72,200 +72,6 @@ impl = GlfwRenderer(handle);
 
 
 #########################################################
-## JSON DOCUMENT
-
-def get_name(node):
-	if "name" in node:
-		return node["name"];
-	elif "path" in node:
-		return node["path"];
-	elif "id" in node:
-		return node["id"];
-	return str(id(node));
-
-asset_dirs = [Path("sprites"), Path("sounds"), Path("meshes"), Path("data")];
-asset_docs = [];
-asset_types = [];
-preview_cache = {};
-
-def build_title(node):
-	name = "Node";
-	if "name" in node:
-		name = node["name"];
-	elif "path" in node:
-		name = node["path"];
-	number = id(node);
-	if "id" in node:
-		number = node["id"];
-	return f"{name} [{number}]";
-
-def build_id(node, key):
-	return f"##{id(node)}{id(key)}";
-
-class JsonDocument:
-	def __init__(self, path):
-		self.path = path;
-		self.parent, entry = os.path.split(path);
-		self.name, _ = os.path.splitext(entry);
-		self.file = open(path, "r+");
-		self.data = json.load(self.file);
-	
-	def schema_type(self, key):
-		return self.data["schema"][key]["type"];
-
-	def readable(self, key):
-		return "read" in self.data["schema"][key]["permissions"] or "write" in self.data["schema"][key]["permissions"];
-
-	def writable(self, key):
-		return "write" in self.data["schema"][key]["permissions"];
-	
-	def preview(self, node):
-		try:
-			path = next(node[k] for k in node if not self.schema_type(k) is None and "*" in self.schema_type(k));
-			path = os.path.join(self.parent, path);
-			name, ext = os.path.splitext(path);
-			if ext == ".png":
-				texture, width, height = None, None, None;
-				if path not in preview_cache:
-					image = Image.open(path);
-					pixels = image.load();
-
-					all_black = True;
-					inversion = [];
-					for y in range(image.size[1]):
-						for x in range(image.size[0]):
-							p = pixels[x, y];
-							if p[3] >= 128:
-								all_black &= (p[0] == 0 and p[1] == 0 and p[2] == 0);
-								inversion.append((255, 255, 255, p[3]));
-							else:
-								inversion.append(p);
-					if all_black:
-						image.putdata(inversion);
-
-					if "frames" in node:
-						transpose = [];
-						n_frames = node["frames"];
-						frame_h = image.size[1] // n_frames;
-						for y in range(frame_h):
-							for f in range(n_frames):
-								for x in range(image.size[0]):
-									transpose.append(pixels[x, y + f * frame_h]);
-						image = Image.new(image.mode, (image.size[0] * n_frames, frame_h));
-						image.putdata(transpose);
-
-					buffer = image.tobytes();
-					width = image.size[0];
-					height = image.size[1];
-					texture = glGenTextures(1);
-					glBindTexture(GL_TEXTURE_2D, texture);
-					glTexParameteri(GL_TEXTURE_2D, 	GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-					glTexParameteri(GL_TEXTURE_2D, 	GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-					glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
-					preview_cache[path] = texture, width, height;
-				else:
-					texture, width, height = preview_cache[path];
-				imgui.image(texture, (width, height));
-			elif ext == ".wav":
-				if(imgui.button("PLAY")):
-					playsound(path, block=False);
-			else:
-				imgui.text("[NO PREVIEW AVAILABLE]");
-		except StopIteration:
-			try:
-				k = next(k for k in node if self.schema_type(k) in asset_types);
-				d = next(d for d in asset_docs if d.data["type"] == self.schema_type(k));
-				a = next(a for a in d.data["entries"] if a["name"] == node[k]);
-				d.preview(a);
-			except StopIteration:
-				imgui.text("[NO PREVIEW AVAILABLE]");
-	
-	def render_helper(self, node):
-		if node is None:
-			return;
-		if isinstance(node, dict):
-			title = build_title(node);
-			if(imgui.tree_node(title)):
-				imgui.separator();
-				self.preview(node);
-				for key in node:
-					if self.readable(key):
-						schema_type = self.schema_type(key);
-						if schema_type is None:
-							imgui.text(key);
-						elif schema_type == "int":
-							imgui.text(key);
-							imgui.same_line();
-							if self.writable(key):
-								_, node[key] = imgui.input_int(build_id(node, key), node[key]);
-							else:
-								imgui.text(str(node[key]));
-						elif schema_type == "string":
-							imgui.text(key);
-							imgui.same_line();
-							if self.writable(key):
-								_, node[key] = imgui.input_text(build_id(node, key), node[key]);
-							else:
-								imgui.text(node(key));
-						elif schema_type == "bool":
-							imgui.text(key);
-							imgui.same_line();
-							if self.writable(key):
-								node[key] = imgui.checkbox(build_id(node, key), node[key]);
-							else:
-								imgui.text(str(node(key)));
-						elif "*" in schema_type:
-							imgui.text(key);
-							imgui.same_line();
-							if self.writable(key):
-								_, node[key] = imgui.input_text(build_id(node, key), node[key]);
-								imgui.same_line();
-								ident = build_id(node, key);
-								if imgui.button(f"...{ident}"):
-									FileExplorer(ident, document.parent, schema_type);
-								if FileExplorer.is_active(ident):
-									FileExplorer.render();
-									ready, result = FileExplorer.harvest();
-									node[key] = str(result) if ready else node[key];
-							else:
-								imgui.text(node(key));
-						elif isinstance(schema_type, list):
-							imgui.text(key);
-							imgui.same_line();
-							if imgui.begin_combo(build_id(node, key), str(node[key])):
-								for value in schema_type:
-									selected = value == node[key];
-									if imgui.selectable(value, selected)[0]:
-										node[key] = value;
-									if selected:
-										imgui.set_item_default_focus();	
-								imgui.end_combo();
-						elif schema_type in asset_types:
-							imgui.text(key);
-							imgui.same_line();
-							if imgui.begin_combo(build_id(node, key), str(node[key])):
-								for doc in asset_docs:
-									if doc.data["type"] == schema_type:
-										for asset in doc.data["entries"]:
-											selected = asset["name"] == node[key];
-											if imgui.selectable(asset["name"], selected)[0]:
-												node[key] = asset["name"];
-											if selected:
-												imgui.set_item_default_focus();	
-								imgui.end_combo();
-						else:
-							imgui.text(f"UNSUPPORTED TYPE \"{schema_type}\"");
-				imgui.separator();
-				imgui.tree_pop();
-	
-	def render(self):
-		for node in self.data["entries"]:
-			self.render_helper(node);
-
-document = None;
-
-
-#########################################################
 ## FILE EXPLORER
 
 class FileExplorer:
@@ -318,7 +124,7 @@ class FileExplorer:
 					if item.is_dir():
 						self.current = item;
 					else:
-						FileExplorer.result = self.anchor/item.absolute().relative_to(self.anchor.absolute());
+						FileExplorer.result = item.absolute().relative_to(self.anchor.absolute());
 						FileExplorer._ = None;
 			self.size = imgui.get_window_size();
 			imgui.end();
@@ -332,15 +138,239 @@ class FileExplorer:
 
 
 #########################################################
+## JSON DOCUMENT
+
+asset_dirs = [Path("sprites"), Path("sounds"), Path("meshes"), Path("data")];
+asset_docs = [];
+asset_types = [];
+preview_cache = {};
+
+def get_name(node):
+	if "name" in node:
+		return node["name"];
+	elif "path" in node:
+		return node["path"];
+	elif "id" in node:
+		return node["id"];
+	return "Node";
+
+def get_number(node):
+	if "id" in node:
+		return node["id"];
+	return id(node);
+
+def get_id(node, key):
+	return f"##{id(node)}{id(key)}";
+
+class AssetSchema:
+	def __init__(self, schema):
+		self.root = schema;
+		self.path = [self.root];
+	
+	def reset(self):
+		self.path = [self.root];
+
+	def push(self, key):
+		self.path.append(self.path[-1][key]["type"]);
+	
+	def back(self):
+		self.path.pop();
+
+	def get_type(self, key):
+		print(self.path[-1][key]);
+		return self.path[-1][key]["type"];
+	
+	def is_readable(self, key):
+		perms = self.path[-1][key]["permissions"];
+		return "read" in perms or "write" in perms;
+
+	def is_writable(self, key):
+		perms = self.path[-1][key]["permissions"];
+		return "write" in perms;
+
+class AssetDocument:
+	def __init__(self, path):
+		self.path = path;
+		self.parent, entry = os.path.split(path);
+		self.name, _ = os.path.splitext(entry);
+		self.file = open(path, "r+");
+
+		data = json.load(self.file);
+		self.type = data["type"];
+		self.schema = AssetSchema(data["schema"]);
+		self.entries = data["entries"];
+
+		self.file.close();
+	
+	def preview(self, node):
+		try:
+			path = next(node[k] for k in node if not self.schema.get_type(k) is None and "*" in self.schema.get_type(k));
+			path = os.path.join(self.parent, path);
+			name, ext = os.path.splitext(path);
+			if ext == ".png":
+				texture, width, height = None, None, None;
+				if path not in preview_cache:
+					image = Image.open(path);
+					pixels = image.load();
+
+					all_black = True;
+					inversion = [];
+					for y in range(image.size[1]):
+						for x in range(image.size[0]):
+							p = pixels[x, y];
+							if p[3] >= 128:
+								all_black &= (p[0] == 0 and p[1] == 0 and p[2] == 0);
+								inversion.append((255, 255, 255, p[3]));
+							else:
+								inversion.append(p);
+					if all_black:
+						image.putdata(inversion);
+
+					if "frames" in node:
+						transpose = [];
+						n_frames = node["frames"];
+						frame_h = image.size[1] // n_frames;
+						for y in range(frame_h):
+							for f in range(n_frames):
+								for x in range(image.size[0]):
+									transpose.append(pixels[x, y + f * frame_h]);
+						image = Image.new(image.mode, (image.size[0] * n_frames, frame_h));
+						image.putdata(transpose);
+
+					buffer = image.tobytes();
+					width = image.size[0];
+					height = image.size[1];
+					texture = glGenTextures(1);
+					glBindTexture(GL_TEXTURE_2D, texture);
+					glTexParameteri(GL_TEXTURE_2D, 	GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+					glTexParameteri(GL_TEXTURE_2D, 	GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+					glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+					preview_cache[path] = texture, width, height;
+				else:
+					texture, width, height = preview_cache[path];
+				imgui.image(texture, (width, height));
+			elif ext == ".wav":
+				if(imgui.button("PLAY")):
+					playsound(path, block=False);
+			else:
+				imgui.text("[NO PREVIEW AVAILABLE]");
+		except StopIteration:
+			try:
+				k = next(k for k in node if self.schema.get_type(k) in asset_types);
+				d = next(d for d in asset_docs if d.type == self.schema.get_type(k));
+				a = next(a for a in d.entries if a["name"] == node[k]);
+				d.preview(a);
+			except StopIteration:
+				imgui.text("[NO PREVIEW AVAILABLE]");
+	
+	def render_helper(self, node, title):
+		if(imgui.tree_node(title)):
+			imgui.separator();
+			self.preview(node);
+
+			for key in node:
+				key_type = self.schema.get_type(key);
+				readable = self.schema.is_readable(key);
+				writable = self.schema.is_writable(key);
+				if not readable:
+					continue;
+
+				if key_type is None:
+					imgui.text(key);
+				elif key_type == "int":
+					imgui.text(key);
+					imgui.same_line();
+					if writable:
+						_, node[key] = imgui.input_int(get_id(node, key), node[key]);
+					else:
+						imgui.text(str(node[key]));
+
+				elif key_type == "string":
+					imgui.text(key);
+					imgui.same_line();
+					if writable:
+						_, node[key] = imgui.input_text(get_id(node, key), node[key]);
+					else:
+						imgui.text(node[key]);
+
+				elif key_type == "bool":
+					imgui.text(key);
+					imgui.same_line();
+					if writable:
+						node[key] = imgui.checkbox(get_id(node, key), node[key]);
+					else:
+						imgui.text(str(node(key)));
+
+				elif "*" in key_type:
+					imgui.text(key);
+					imgui.same_line();
+					if writable:
+						_, node[key] = imgui.input_text(get_id(node, key), node[key]);
+						imgui.same_line();
+						ident = get_id(node, key);
+						if imgui.button(f"...{ident}"):
+							FileExplorer(ident, document.parent, key_type);
+						if FileExplorer.is_active(ident):
+							FileExplorer.render();
+							ready, result = FileExplorer.harvest();
+							node[key] = str(result) if ready else node[key];
+					else:
+						imgui.text(node[key]);
+
+				elif isinstance(key_type, list):
+					imgui.text(key);
+					imgui.same_line();
+					if imgui.begin_combo(get_id(node, key), str(node[key])):
+						for value in key_type:
+							selected = value == node[key];
+							if imgui.selectable(value, selected)[0]:
+								node[key] = value;
+							if selected:
+								imgui.set_item_default_focus();	
+						imgui.end_combo();
+
+				elif key_type in asset_types:
+					imgui.text(key);
+					imgui.same_line();
+					if imgui.begin_combo(get_id(node, key), str(node[key])):
+						for doc in asset_docs:
+							if doc.type == key_type:
+								for asset in doc.entries:
+									selected = asset["name"] == node[key];
+									if imgui.selectable(asset["name"], selected)[0]:
+										node[key] = asset["name"];
+									if selected:
+										imgui.set_item_default_focus();	
+						imgui.end_combo();
+					
+				elif isinstance(key_type, dict):
+					self.schema.push(key);
+					self.render_helper(node[key], key);
+					self.schema.back();
+
+				else:
+					imgui.text(f"[UNSUPPORTED TYPE \"{key_type}\"]");
+			
+			imgui.separator();
+			imgui.tree_pop();
+	
+	def render(self):
+		for entry in self.entries:
+			self.render_helper(entry, f"{get_name(entry)} {get_number(entry)}");
+
+document = None;
+
+
+#########################################################
 ## EDITOR GUI
 
 for folder in asset_dirs:
 	for entry in folder.iterdir():
 		name, ext = os.path.splitext(entry);
 		if ext == ".json":
-			doc = JsonDocument(entry);
+			doc = AssetDocument(entry);
 			asset_docs.append(doc);
-			asset_type = doc.data["type"];
+			asset_type = doc.type;
 			if not asset_type in asset_types:
 				asset_types.append(asset_type);
 
@@ -374,7 +404,7 @@ while not glfw.window_should_close(handle):
 		if imgui.begin_menu("File"):
 			if imgui.begin_menu("Open"):
 				for doc in asset_docs:
-					if imgui.menu_item(doc.name, "", document != None and doc.name == document.name)[0]:
+					if imgui.menu_item(str(doc.path), "", document != None and doc.name == document.name)[0]:
 						document = doc
 				imgui.end_menu();
 			if imgui.menu_item("Close", "", False)[0]:

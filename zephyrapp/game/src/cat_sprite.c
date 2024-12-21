@@ -770,14 +770,13 @@ void CAT_animachine_kill(CAT_animachine_state** spp)
 		return;
 
 	if((*spp)->signal != DONE)
-		(*spp)->signal = EXIT;
+		(*spp)->signal = DONE;
 }
 
 bool CAT_animachine_is_in(CAT_animachine_state** spp, CAT_animachine_state* state)
 {
 	if(*spp == NULL)
 		return false;
-
 	return (*spp) == state;
 }
 
@@ -785,8 +784,14 @@ bool CAT_animachine_is_ticking(CAT_animachine_state** spp)
 {
 	if(*spp == NULL)
 		return false;
-
 	return (*spp)->signal == TICK;
+}
+
+bool CAT_animachine_is_done(CAT_animachine_state** spp)
+{
+	if(*spp == NULL)
+		return false;
+	return (*spp)->signal == DONE;
 }
 
 
@@ -851,9 +856,7 @@ void CAT_sprite_mass_define()
 	CAT_animachine_init(&AS_walk, -1, pet_walk_sprite, -1);
 	CAT_animachine_init(&AS_crit, pet_crit_vig_in_sprite, pet_crit_vig_sprite, pet_crit_vig_out_sprite);
 
-	CAT_animachine_init(&AS_adjust_in, -1, -1, pet_idle_sprite);
 	CAT_animachine_init(&AS_approach, -1, pet_walk_sprite, -1);
-	CAT_animachine_init(&AS_adjust_out, -1, -1, pet_idle_sprite);
 
 	CAT_animachine_init(&AS_eat, pet_eat_in_sprite, pet_eat_sprite, pet_eat_out_sprite);
 	CAT_animachine_init(&AS_study, pet_study_in_sprite, pet_study_sprite, pet_study_out_sprite);

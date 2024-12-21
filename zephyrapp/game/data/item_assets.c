@@ -753,7 +753,7 @@ CAT_item_table item_table =
 			.icon_id = icon_item_prop_sprite,
 			.data.prop_data =
 			{
-				.type = CAT_PROP_TYPE_BOTTOM,
+				.type = CAT_PROP_TYPE_DEFAULT,
 				.shape = {2, 1},
 				.animate = true,
 				.child_dy = 0,

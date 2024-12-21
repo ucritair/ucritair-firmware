@@ -151,6 +151,7 @@ void CAT_animachine_kill(CAT_animachine_state** spp);
 
 bool CAT_animachine_is_in(CAT_animachine_state** spp, CAT_animachine_state* state);
 bool CAT_animachine_is_ticking(CAT_animachine_state** spp);
+bool CAT_animachine_is_done(CAT_animachine_state** spp);
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -163,9 +164,7 @@ extern CAT_animachine_state AS_idle;
 extern CAT_animachine_state AS_walk;
 extern CAT_animachine_state AS_crit;
 
-extern CAT_animachine_state AS_adjust_in;
 extern CAT_animachine_state AS_approach;
-extern CAT_animachine_state AS_adjust_out;
 
 extern CAT_animachine_state AS_eat;
 extern CAT_animachine_state AS_study;
