@@ -172,9 +172,9 @@ def get_default(t):
 	elif t == "float":
 		return 0.0;
 	elif "*" in t:
-		return f"null{t[1:]}";
+		return "";
 	elif t in asset_types:
-		return f"null_{t}";
+		return "";
 	elif isinstance(t, list):
 		return t[0];
 	else:
@@ -250,12 +250,10 @@ class AssetDocument:
 		self.name, _ = os.path.splitext(entry);
 		self.file = open(path, "r+");
 
-		data = json.load(self.file);
-		self.type = data["type"];
-		self.schema = AssetSchema(data["schema"]);
-		self.entries = data["entries"];
-
-		self.file.close();
+		self.data = json.load(self.file);
+		self.type = self.data["type"];
+		self.schema = AssetSchema(self.data["schema"]);
+		self.entries = self.data["entries"];
 	
 	def preview(self, node):
 		try:
@@ -321,7 +319,10 @@ class AssetDocument:
 				k = next(k for k in node if self.schema.get_type(k) in asset_types);
 				d = next(d for d in asset_docs if d.type == self.schema.get_type(k));
 				a = next(a for a in d.entries if a["name"] == node[k]);
-				d.preview(a);
+				if node != a:
+					d.preview(a);
+				else:
+					imgui.text("[NO PREVIEW AVAILABLE]");
 			except StopIteration:
 				imgui.text("[NO PREVIEW AVAILABLE]");
 	
