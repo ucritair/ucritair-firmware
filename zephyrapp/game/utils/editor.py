@@ -325,8 +325,8 @@ class AssetDocument:
 			except StopIteration:
 				imgui.text("[NO PREVIEW AVAILABLE]");
 	
-	def render_helper(self, node, title):
-		if(imgui.tree_node(title)):
+	def render_helper(self, node):
+		if(imgui.tree_node(f"{get_name(node)} {get_number(node)} ####{str(id(node))}")):
 			imgui.separator();
 			self.preview(node);
 
@@ -412,14 +412,17 @@ class AssetDocument:
 
 				else:
 					imgui.text(f"[UNSUPPORTED TYPE \"{key_type}\"]");
-			
 			self.schema.prototype(node);
-		
 			imgui.tree_pop();
 	
 	def render(self):
 		for entry in self.entries:
-			self.render_helper(entry, f"{get_name(entry)} {get_number(entry)}");
+			self.render_helper(entry);
+	
+	def save(self):
+		self.file.seek(0);
+		self.file.truncate();
+		self.file.write(json.dumps(self.data));
 
 document = None;
 
@@ -470,16 +473,18 @@ while not glfw.window_should_close(handle):
 					if imgui.menu_item_simple(str(doc.path), selected = document != None and doc.name == document.name):
 						document = doc;
 				imgui.end_menu();
-			if imgui.menu_item_simple("Close"):
+			if imgui.menu_item_simple("Save", enabled=document != None):
+					document.save();
+			if imgui.menu_item_simple("Close", enabled=document != None):
 				document = None;
 			imgui.end_menu();
-		if document != None and imgui.begin_menu("Sort"):
+		if imgui.begin_menu("Sort", enabled=document != None):
 			if imgui.menu_item_simple("Name"):
 				document.entries.sort(key = lambda n: get_name(n));
 			if imgui.menu_item_simple("Number"):
 				document.entries.sort(key = lambda n: get_number(n));
 			imgui.end_menu();
-		if document != None and imgui.begin_menu("Asset"):
+		if imgui.begin_menu("Asset", enabled=document != None):
 			if imgui.menu_item_simple("New"):
 				new_asset = {};
 				document.schema.prototype(new_asset);
