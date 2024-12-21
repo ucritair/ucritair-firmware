@@ -43,7 +43,7 @@ def foldr(f, acc, xs):
 ## CONTEXT
 
 config = configparser.ConfigParser();
-config.read("utils/editor.ini");
+config.read("editor/editor.ini");
 width = int(config["CONFIG"]["width"]);
 height = int(config["CONFIG"]["height"]);
 
@@ -71,6 +71,22 @@ imgui.create_context();
 imgui_io = imgui.get_io();
 imgui.style_colors_dark()
 impl = GlfwRenderer(handle);
+
+
+#########################################################
+## RENDERING
+
+def make_texture(path):
+	image = Image.open(path);
+	buffer = image.tobytes();
+	width = image.size[0];
+	height = image.size[1];
+	texture = glGenTextures(1);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glTexParameteri(GL_TEXTURE_2D, 	GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, 	GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+	return texture, width, height;
 
 
 #########################################################
@@ -443,6 +459,8 @@ for folder in asset_dirs:
 			if not asset_type in asset_types:
 				asset_types.append(asset_type);
 
+splash_tex = make_texture("editor/splash.png");
+
 window_flag_list = [
 	imgui.WindowFlags_.no_saved_settings,
 	imgui.WindowFlags_.no_move,
@@ -454,6 +472,12 @@ window_flag_list = [
 	imgui.WindowFlags_.no_bring_to_front_on_focus,
 ];
 window_flags = foldl(lambda a, b : a | b, 0, window_flag_list);
+
+splash_flag_list = [
+	imgui.WindowFlags_.no_scrollbar,
+	imgui.WindowFlags_.no_scroll_with_mouse
+];
+splash_flags = foldl(lambda a, b : a | b, 0, splash_flag_list);
 
 while not glfw.window_should_close(handle):
 	glfw.poll_events();
@@ -467,10 +491,9 @@ while not glfw.window_should_close(handle):
 
 	imgui.set_next_window_pos((0, 0));
 	imgui.set_next_window_size((width, height));
-	imgui.begin("Editor", flags=window_flags);
+	imgui.begin("Editor", flags=window_flags | (splash_flags if document == None else 0));
 
 	if imgui.begin_main_menu_bar():
-
 		if imgui.begin_menu("File"):
 			if imgui.begin_menu("Open"):
 				for doc in asset_docs:
@@ -511,6 +534,8 @@ while not glfw.window_should_close(handle):
 	
 	if document != None:
 		document.render();
+	else:
+		imgui.image(splash_tex[0], (splash_tex[1], splash_tex[2]));
 
 	imgui.end();
 	imgui.render();
