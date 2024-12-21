@@ -91,10 +91,10 @@
             "permissions": [
                 "write"
             ],
-			"constraint" : {
-				"key" : "type",
-				"value" : "tool"
-			}
+            "constraint": {
+                "key": "type",
+                "value": "tool"
+            }
         },
         "prop_data": {
             "type": {
@@ -130,10 +130,10 @@
             "permissions": [
                 "write"
             ],
-			"constraint" : {
-				"key" : "type",
-				"value" : "prop"
-			}
+            "constraint": {
+                "key": "type",
+                "value": "prop"
+            }
         }
     },
     "entries": [

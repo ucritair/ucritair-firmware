@@ -17,6 +17,8 @@ import glob;
 from pathlib import Path;
 from PIL import Image;
 from playsound3 import playsound;
+import subprocess as sp;
+from stat import *;
 
 
 #########################################################
@@ -468,6 +470,7 @@ while not glfw.window_should_close(handle):
 	imgui.begin("Editor", flags=window_flags);
 
 	if imgui.begin_main_menu_bar():
+
 		if imgui.begin_menu("File"):
 			if imgui.begin_menu("Open"):
 				for doc in asset_docs:
@@ -479,17 +482,29 @@ while not glfw.window_should_close(handle):
 			if imgui.menu_item_simple("Close", enabled=document != None):
 				document = None;
 			imgui.end_menu();
-		if imgui.begin_menu("Sort", enabled=document != None):
-			if imgui.menu_item_simple("Name"):
-				document.entries.sort(key = lambda n: get_name(n));
-			if imgui.menu_item_simple("Number"):
-				document.entries.sort(key = lambda n: get_number(n));
-			imgui.end_menu();
-		if imgui.begin_menu("Asset", enabled=document != None):
+
+		if imgui.begin_menu("Assets", enabled=document != None):
+			if imgui.begin_menu("Sort", enabled=document != None):
+				if imgui.menu_item_simple("Name"):
+					document.entries.sort(key = lambda n: get_name(n));
+				if imgui.menu_item_simple("Number"):
+					document.entries.sort(key = lambda n: get_number(n));
+				imgui.end_menu();
 			if imgui.menu_item_simple("New"):
 				new_asset = {};
 				document.schema.prototype(new_asset);
+				new_asset["name"] = f"new_{document.type}";
+				if "id" in new_asset:
+					new_asset["id"] = len(document.entries);
 				document.entries.append(new_asset);
+	
+		if imgui.begin_menu("Utils"):
+			for util in Path("utils").iterdir():
+				if not util.is_file() or not (os.stat(util).st_mode & S_IXUSR) > 0:
+					continue;
+				if imgui.menu_item_simple(str(util)):
+					sp.Popen(str(util), shell=True);				
+				
 			imgui.end_menu();
 		imgui.end_main_menu_bar();
 	

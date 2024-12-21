@@ -1,0 +1,23 @@
+{
+	"type" : "sound",
+	"schema" : {
+        "name": {
+            "type" : "string",
+            "permissions" : [
+                "write"
+            ]
+        },
+        "path" : {
+            "type": "*.obj",
+            "permissions" : [
+                "write"
+            ]
+        }
+	},
+	"entries": [
+		{
+			"name" : "eth",
+			"path" : "eth.obj"
+		}
+	]
+}
