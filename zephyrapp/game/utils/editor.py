@@ -177,7 +177,6 @@ class AssetSchema:
 		self.path.pop();
 
 	def get_type(self, key):
-		print(self.path[-1][key]);
 		return self.path[-1][key]["type"];
 	
 	def is_readable(self, key):
@@ -209,7 +208,8 @@ class AssetDocument:
 			name, ext = os.path.splitext(path);
 			if ext == ".png":
 				texture, width, height = None, None, None;
-				if path not in preview_cache:
+				frames = node["frames"] if "frames" in node else 1;
+				if path not in preview_cache or (path in preview_cache and frames != preview_cache[path][3]):
 					image = Image.open(path);
 					pixels = image.load();
 
@@ -225,16 +225,16 @@ class AssetDocument:
 								inversion.append(p);
 					if all_black:
 						image.putdata(inversion);
-
-					if "frames" in node:
+					
+					if frames > 1:
+						frames = node["frames"];
+						frame_h = image.size[1] // frames;
 						transpose = [];
-						n_frames = node["frames"];
-						frame_h = image.size[1] // n_frames;
 						for y in range(frame_h):
-							for f in range(n_frames):
+							for f in range(frames):
 								for x in range(image.size[0]):
 									transpose.append(pixels[x, y + f * frame_h]);
-						image = Image.new(image.mode, (image.size[0] * n_frames, frame_h));
+						image = Image.new(image.mode, (image.size[0] * frames, frame_h));
 						image.putdata(transpose);
 
 					buffer = image.tobytes();
@@ -245,10 +245,11 @@ class AssetDocument:
 					glTexParameteri(GL_TEXTURE_2D, 	GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 					glTexParameteri(GL_TEXTURE_2D, 	GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 					glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
-					preview_cache[path] = texture, width, height;
+
+					preview_cache[path] = texture, width, height, frames;
 				else:
-					texture, width, height = preview_cache[path];
-				imgui.image(texture, (width, height));
+					texture, width, height, frames = preview_cache[path];
+				imgui.image(texture, (width * 2, height * 2));
 			elif ext == ".wav":
 				if(imgui.button("PLAY")):
 					playsound(path, block=False);
@@ -350,8 +351,7 @@ class AssetDocument:
 
 				else:
 					imgui.text(f"[UNSUPPORTED TYPE \"{key_type}\"]");
-			
-			imgui.separator();
+		
 			imgui.tree_pop();
 	
 	def render(self):
@@ -404,11 +404,17 @@ while not glfw.window_should_close(handle):
 		if imgui.begin_menu("File"):
 			if imgui.begin_menu("Open"):
 				for doc in asset_docs:
-					if imgui.menu_item(str(doc.path), "", document != None and doc.name == document.name)[0]:
-						document = doc
+					if imgui.menu_item_simple(str(doc.path), selected = document != None and doc.name == document.name):
+						document = doc;
 				imgui.end_menu();
-			if imgui.menu_item("Close", "", False)[0]:
+			if imgui.menu_item_simple("Close"):
 				document = None;
+			imgui.end_menu();
+		if imgui.begin_menu("Sort"):
+			if imgui.menu_item_simple("Name"):
+				document.entries.sort(key = lambda n: get_name(n));
+			if imgui.menu_item_simple("Number"):
+				document.entries.sort(key = lambda n: get_number(n));
 			imgui.end_menu();
 		imgui.end_main_menu_bar();
 	
