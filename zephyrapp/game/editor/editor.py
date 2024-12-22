@@ -302,12 +302,11 @@ class AssetDocument:
 		self.schema = AssetSchema(self.data["schema"]);
 		self.entries = self.data["entries"];
 	
-	def preview(self, node):
-		try:
-			path = next(node[k] for k in node if not self.schema.get_type(k) is None and "*" in self.schema.get_type(k));
+	def preview(self, node, key):
+		if "*" in self.schema.get_type(key):
+			path = node[key];
 			path = os.path.join(self.parent, path);
 			if not Path(path).exists():
-				imgui.text("[NO PREVIEW AVAILABLE]");
 				return;
 
 			name, ext = os.path.splitext(path);
@@ -352,31 +351,22 @@ class AssetDocument:
 					glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
 
 					preview_cache[path] = texture, width, height, frames;
-				else:
+				else:	
 					texture, width, height, frames = preview_cache[path];
 				imgui.image(texture, (width * 2, height * 2));
 			elif ext == ".wav":
 				if(imgui.button("PLAY")):
 					playsound(path, block=False);
-			else:
-				imgui.text("[NO PREVIEW AVAILABLE]");
-
-		except StopIteration:
-			try:
-				k = next(k for k in node if self.schema.get_type(k) in asset_types);
-				d = next(d for d in asset_docs if d.type == self.schema.get_type(k));
-				a = next(a for a in d.entries if a["name"] == node[k]);
-				if node != a:
-					d.preview(a);
-				else:
-					imgui.text("[NO PREVIEW AVAILABLE]");
-			except StopIteration:
-				imgui.text("[NO PREVIEW AVAILABLE]");
+		elif self.schema.get_type(key) in asset_types:
+			d = next(d for d in asset_docs if d.type == self.schema.get_type(key));
+			a = next(a for a in d.entries if a["name"] == node[key]);
+			if a != node:
+				for k in a:
+					d.preview(a, k);
 	
 	def render_helper(self, node, title):
 		if(imgui.tree_node(f"{title} ####{str(id(node))}")):
 			imgui.separator();
-			self.preview(node);
 
 			for key in node:
 				key_type = self.schema.get_type(key);
@@ -410,8 +400,26 @@ class AssetDocument:
 						node[key] = imgui.checkbox(get_id(node, key), node[key])[1];
 					else:
 						imgui.text(str(node(key)));
+				
+				elif key_type == "ivec2":
+					imgui.text(key);
+					imgui.same_line();
+					_, node[key] = imgui.input_int2(get_id(node, key), node[key]);
+				
+				elif isinstance(key_type, list):
+					imgui.text(key);
+					imgui.same_line();
+					if imgui.begin_combo(get_id(node, key), str(node[key])):
+						for value in key_type:
+							selected = value == node[key];
+							if imgui.selectable(value, selected)[0]:
+								node[key] = value;
+							if selected:
+								imgui.set_item_default_focus();	
+						imgui.end_combo();
 
 				elif "*" in key_type:
+					self.preview(node, key);
 					imgui.text(key);
 					imgui.same_line();
 					if writable:
@@ -427,19 +435,8 @@ class AssetDocument:
 					else:
 						imgui.text(node[key]);
 
-				elif isinstance(key_type, list):
-					imgui.text(key);
-					imgui.same_line();
-					if imgui.begin_combo(get_id(node, key), str(node[key])):
-						for value in key_type:
-							selected = value == node[key];
-							if imgui.selectable(value, selected)[0]:
-								node[key] = value;
-							if selected:
-								imgui.set_item_default_focus();	
-						imgui.end_combo();
-
 				elif key_type in asset_types:
+					self.preview(node, key);
 					imgui.text(key);
 					imgui.same_line();
 					if imgui.begin_combo(get_id(node, key), str(node[key])):
