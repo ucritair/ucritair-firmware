@@ -590,7 +590,7 @@
                 ],
                 "animate": true,
                 "child_dy": 0,
-                "type": "default"
+                "type": "top"
             }
         },
         {
@@ -628,7 +628,7 @@
                 ],
                 "animate": true,
                 "child_dy": -6,
-                "type": "default"
+                "type": "top"
             }
         },
         {
@@ -647,7 +647,7 @@
                 ],
                 "animate": true,
                 "child_dy": 0,
-                "type": "default"
+                "type": "top"
             }
         },
         {
@@ -666,7 +666,7 @@
                 ],
                 "animate": true,
                 "child_dy": 0,
-                "type": "default"
+                "type": "top"
             }
         },
         {
@@ -685,7 +685,7 @@
                 ],
                 "animate": true,
                 "child_dy": 0,
-                "type": "default"
+                "type": "top"
             }
         },
         {
@@ -704,7 +704,7 @@
                 ],
                 "animate": true,
                 "child_dy": -8,
-                "type": "default"
+                "type": "top"
             }
         },
         {
@@ -723,7 +723,7 @@
                 ],
                 "animate": true,
                 "child_dy": -16,
-                "type": "default"
+                "type": "top"
             }
         },
         {
@@ -742,7 +742,7 @@
                 ],
                 "animate": true,
                 "child_dy": 0,
-                "type": "default"
+                "type": "bottom"
             }
         },
         {
@@ -761,7 +761,7 @@
                 ],
                 "animate": true,
                 "child_dy": 0,
-                "type": "default"
+                "type": "bottom"
             }
         },
         {
@@ -780,7 +780,7 @@
                 ],
                 "animate": true,
                 "child_dy": 0,
-                "type": "default"
+                "type": "bottom"
             }
         },
         {
@@ -799,7 +799,7 @@
                 ],
                 "animate": true,
                 "child_dy": 0,
-                "type": "default"
+                "type": "bottom"
             }
         },
         {
@@ -818,7 +818,7 @@
                 ],
                 "animate": true,
                 "child_dy": 0,
-                "type": "default"
+                "type": "bottom"
             }
         },
         {
@@ -837,7 +837,7 @@
                 ],
                 "animate": true,
                 "child_dy": 0,
-                "type": "default"
+                "type": "bottom"
             }
         },
         {
@@ -856,7 +856,7 @@
                 ],
                 "animate": true,
                 "child_dy": 0,
-                "type": "default"
+                "type": "bottom"
             }
         },
         {
@@ -875,7 +875,7 @@
                 ],
                 "animate": true,
                 "child_dy": 0,
-                "type": "default"
+                "type": "bottom"
             }
         },
         {
@@ -894,7 +894,7 @@
                 ],
                 "animate": true,
                 "child_dy": 0,
-                "type": "default"
+                "type": "bottom"
             }
         },
         {
@@ -1027,7 +1027,7 @@
                 ],
                 "animate": true,
                 "child_dy": 0,
-                "type": "default"
+                "type": "top"
             }
         },
         {
@@ -1046,7 +1046,7 @@
                 ],
                 "animate": true,
                 "child_dy": 0,
-                "type": "default"
+                "type": "top"
             }
         },
         {
@@ -1065,7 +1065,7 @@
                 ],
                 "animate": true,
                 "child_dy": 0,
-                "type": "default"
+                "type": "top"
             }
         },
         {
@@ -1084,7 +1084,7 @@
                 ],
                 "animate": true,
                 "child_dy": 0,
-                "type": "default"
+                "type": "top"
             }
         },
         {
@@ -1103,7 +1103,7 @@
                 ],
                 "animate": true,
                 "child_dy": 0,
-                "type": "default"
+                "type": "top"
             }
         },
         {
@@ -1122,7 +1122,7 @@
                 ],
                 "animate": true,
                 "child_dy": 0,
-                "type": "default"
+                "type": "top"
             }
         },
         {
@@ -1141,7 +1141,7 @@
                 ],
                 "animate": true,
                 "child_dy": 0,
-                "type": "default"
+                "type": "top"
             }
         },
         {
@@ -1160,7 +1160,7 @@
                 ],
                 "animate": false,
                 "child_dy": 0,
-                "type": "default"
+                "type": "top"
             }
         },
         {
@@ -1483,7 +1483,7 @@
                 ],
                 "animate": true,
                 "child_dy": 0,
-                "type": "default"
+                "type": "top"
             }
         },
         {
@@ -1521,7 +1521,7 @@
                 ],
                 "animate": true,
                 "child_dy": 0,
-                "type": "default"
+                "type": "top"
             }
         },
         {
@@ -1540,7 +1540,7 @@
                 ],
                 "animate": true,
                 "child_dy": 0,
-                "type": "default"
+                "type": "top"
             }
         },
         {
@@ -1559,7 +1559,7 @@
                 ],
                 "animate": true,
                 "child_dy": 0,
-                "type": "default"
+                "type": "top"
             }
         },
         {
@@ -1616,7 +1616,7 @@
                 ],
                 "animate": true,
                 "child_dy": 0,
-                "type": "default"
+                "type": "top"
             }
         },
         {

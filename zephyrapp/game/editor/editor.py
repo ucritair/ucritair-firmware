@@ -76,7 +76,7 @@ impl = GlfwRenderer(handle);
 #########################################################
 ## RENDERING
 
-def make_texture(path):
+def load_texture(path):
 	image = Image.open(path);
 	buffer = image.tobytes();
 	width = image.size[0];
@@ -87,6 +87,40 @@ def make_texture(path):
 	glTexParameteri(GL_TEXTURE_2D, 	GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
 	return texture, width, height;
+
+class Canvas:
+	def __init__(self, width, height):
+		self.width = width;
+		self.height = height;
+		self.buffer = bytearray(bytes(width * height * 4));
+		self.texture = glGenTextures(1);
+		glBindTexture(GL_TEXTURE_2D, self.texture);
+		glTexParameteri(GL_TEXTURE_2D, 	GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, 	GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, self.buffer);
+
+	def draw_pixel(self, x, y, c):
+		if x < 0 or x >= self.width:
+			return;
+		if y < 0 or y >= self.height:
+			return;
+		i = (y * self.width + x) * 4;
+		self.buffer[i+0] = c[0];
+		self.buffer[i+1] = c[1];
+		self.buffer[i+2] = c[2];
+		self.buffer[i+3] = c[3];
+
+	def draw_rect(self, x, y, w, h, c):
+		for dy in range(y, y+h):
+			self.draw_pixel(x, dy, c);
+			self.draw_pixel(x+w-1, dy, c);
+		for dx in range(x, x+w):
+			self.draw_pixel(dx, y, c);
+			self.draw_pixel(dx, y+h-1, c);
+	
+	def render(self):
+		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, self.width, self.height, GL_RGBA, GL_UNSIGNED_BYTE, self.buffer);
+		imgui.image(self.texture, (self.width, self.height));
 
 
 #########################################################
@@ -157,11 +191,6 @@ class FileExplorer:
 
 #########################################################
 ## JSON DOCUMENT
-
-asset_dirs = [Path("sprites"), Path("sounds"), Path("meshes"), Path("data")];
-asset_docs = [];
-asset_types = [];
-preview_cache = {};
 
 def get_name(node):
 	if "name" in node:
@@ -443,11 +472,10 @@ class AssetDocument:
 		self.file.truncate();
 		self.file.write(json.dumps(self.data));
 
-document = None;
-
-
-#########################################################
-## EDITOR GUI
+asset_dirs = [Path("sprites"), Path("sounds"), Path("meshes"), Path("data")];
+asset_docs = [];
+asset_types = [];
+preview_cache = {};
 
 for folder in asset_dirs:
 	for entry in folder.iterdir():
@@ -459,7 +487,13 @@ for folder in asset_dirs:
 			if not asset_type in asset_types:
 				asset_types.append(asset_type);
 
-splash_tex = make_texture("editor/splash.png");
+document = None;
+
+
+#########################################################
+## EDITOR GUI
+
+splash_tex = load_texture("editor/splash.png");
 
 window_flag_list = [
 	imgui.WindowFlags_.no_saved_settings,

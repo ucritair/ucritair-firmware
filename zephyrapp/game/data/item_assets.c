@@ -8,7 +8,7 @@ CAT_item_table item_table =
 	.data =
 	{
 		{
-			.type = CAT_ITEM_TYPE_KEY,
+			.type = CAT_ITEM_TYPE_TOOL,
 			.name = "Bread",
 			.sprite_id = bread_sprite,
 			.price = 5,
@@ -24,7 +24,7 @@ CAT_item_table item_table =
 			}
 		},
 		{
-			.type = CAT_ITEM_TYPE_KEY,
+			.type = CAT_ITEM_TYPE_TOOL,
 			.name = "Coffee",
 			.sprite_id = coffee_sprite,
 			.price = 2,
@@ -40,7 +40,7 @@ CAT_item_table item_table =
 			}
 		},
 		{
-			.type = CAT_ITEM_TYPE_KEY,
+			.type = CAT_ITEM_TYPE_TOOL,
 			.name = "Milk",
 			.sprite_id = milk_sprite,
 			.price = 3,
@@ -56,7 +56,7 @@ CAT_item_table item_table =
 			}
 		},
 		{
-			.type = CAT_ITEM_TYPE_KEY,
+			.type = CAT_ITEM_TYPE_TOOL,
 			.name = "Soup",
 			.sprite_id = soup_sprite,
 			.price = 5,
@@ -72,7 +72,7 @@ CAT_item_table item_table =
 			}
 		},
 		{
-			.type = CAT_ITEM_TYPE_KEY,
+			.type = CAT_ITEM_TYPE_TOOL,
 			.name = "Salad",
 			.sprite_id = salad_sprite,
 			.price = 5,
@@ -88,7 +88,7 @@ CAT_item_table item_table =
 			}
 		},
 		{
-			.type = CAT_ITEM_TYPE_KEY,
+			.type = CAT_ITEM_TYPE_TOOL,
 			.name = "Sausage",
 			.sprite_id = sausage_sprite,
 			.price = 5,
@@ -104,7 +104,7 @@ CAT_item_table item_table =
 			}
 		},
 		{
-			.type = CAT_ITEM_TYPE_KEY,
+			.type = CAT_ITEM_TYPE_TOOL,
 			.name = "Green Curry",
 			.sprite_id = green_curry_sprite,
 			.price = 15,
@@ -120,7 +120,7 @@ CAT_item_table item_table =
 			}
 		},
 		{
-			.type = CAT_ITEM_TYPE_KEY,
+			.type = CAT_ITEM_TYPE_TOOL,
 			.name = "Red Curry",
 			.sprite_id = red_curry_sprite,
 			.price = 15,
@@ -136,7 +136,7 @@ CAT_item_table item_table =
 			}
 		},
 		{
-			.type = CAT_ITEM_TYPE_KEY,
+			.type = CAT_ITEM_TYPE_TOOL,
 			.name = "Pad Ka Prow",
 			.sprite_id = padkaprow_sprite,
 			.price = 15,
@@ -152,7 +152,7 @@ CAT_item_table item_table =
 			}
 		},
 		{
-			.type = CAT_ITEM_TYPE_KEY,
+			.type = CAT_ITEM_TYPE_TOOL,
 			.name = "Vigour Pill",
 			.sprite_id = pill_vig_sprite,
 			.price = 1,
@@ -168,7 +168,7 @@ CAT_item_table item_table =
 			}
 		},
 		{
-			.type = CAT_ITEM_TYPE_KEY,
+			.type = CAT_ITEM_TYPE_TOOL,
 			.name = "Focus Pill",
 			.sprite_id = pill_foc_sprite,
 			.price = 1,
@@ -184,7 +184,7 @@ CAT_item_table item_table =
 			}
 		},
 		{
-			.type = CAT_ITEM_TYPE_KEY,
+			.type = CAT_ITEM_TYPE_TOOL,
 			.name = "Spirit Pill",
 			.sprite_id = pill_spi_sprite,
 			.price = 1,
@@ -200,7 +200,7 @@ CAT_item_table item_table =
 			}
 		},
 		{
-			.type = CAT_ITEM_TYPE_KEY,
+			.type = CAT_ITEM_TYPE_TOOL,
 			.name = "Cigarettes",
 			.sprite_id = cigarette_sprite,
 			.price = 10,
@@ -216,7 +216,7 @@ CAT_item_table item_table =
 			}
 		},
 		{
-			.type = CAT_ITEM_TYPE_KEY,
+			.type = CAT_ITEM_TYPE_TOOL,
 			.name = "The Disposessed",
 			.sprite_id = book_study_sprite,
 			.price = 20,
@@ -232,7 +232,7 @@ CAT_item_table item_table =
 			}
 		},
 		{
-			.type = CAT_ITEM_TYPE_KEY,
+			.type = CAT_ITEM_TYPE_TOOL,
 			.name = "We Are Legion",
 			.sprite_id = book_study_sprite,
 			.price = 20,
@@ -248,7 +248,7 @@ CAT_item_table item_table =
 			}
 		},
 		{
-			.type = CAT_ITEM_TYPE_KEY,
+			.type = CAT_ITEM_TYPE_TOOL,
 			.name = "The Forever War",
 			.sprite_id = book_study_sprite,
 			.price = 20,
@@ -264,7 +264,7 @@ CAT_item_table item_table =
 			}
 		},
 		{
-			.type = CAT_ITEM_TYPE_KEY,
+			.type = CAT_ITEM_TYPE_TOOL,
 			.name = "Ringworld",
 			.sprite_id = book_study_sprite,
 			.price = 20,
@@ -280,7 +280,7 @@ CAT_item_table item_table =
 			}
 		},
 		{
-			.type = CAT_ITEM_TYPE_KEY,
+			.type = CAT_ITEM_TYPE_TOOL,
 			.name = "The Machine Stops",
 			.sprite_id = book_study_sprite,
 			.price = 20,
@@ -296,7 +296,7 @@ CAT_item_table item_table =
 			}
 		},
 		{
-			.type = CAT_ITEM_TYPE_KEY,
+			.type = CAT_ITEM_TYPE_TOOL,
 			.name = "Metal Fever",
 			.sprite_id = book_study_sprite,
 			.price = 20,
@@ -312,7 +312,7 @@ CAT_item_table item_table =
 			}
 		},
 		{
-			.type = CAT_ITEM_TYPE_KEY,
+			.type = CAT_ITEM_TYPE_TOOL,
 			.name = "Ducky",
 			.sprite_id = toy_duck_sprite,
 			.price = 30,
@@ -328,7 +328,7 @@ CAT_item_table item_table =
 			}
 		},
 		{
-			.type = CAT_ITEM_TYPE_KEY,
+			.type = CAT_ITEM_TYPE_TOOL,
 			.name = "Baseball",
 			.sprite_id = toy_baseball_sprite,
 			.price = 20,
@@ -344,7 +344,7 @@ CAT_item_table item_table =
 			}
 		},
 		{
-			.type = CAT_ITEM_TYPE_KEY,
+			.type = CAT_ITEM_TYPE_TOOL,
 			.name = "Basketball",
 			.sprite_id = toy_basketball_sprite,
 			.price = 20,
@@ -360,7 +360,7 @@ CAT_item_table item_table =
 			}
 		},
 		{
-			.type = CAT_ITEM_TYPE_KEY,
+			.type = CAT_ITEM_TYPE_TOOL,
 			.name = "Golf Ball",
 			.sprite_id = toy_golf_sprite,
 			.price = 5,
@@ -376,7 +376,7 @@ CAT_item_table item_table =
 			}
 		},
 		{
-			.type = CAT_ITEM_TYPE_KEY,
+			.type = CAT_ITEM_TYPE_TOOL,
 			.name = "Puzzle",
 			.sprite_id = toy_puzzle_sprite,
 			.price = 20,
@@ -423,7 +423,7 @@ CAT_item_table item_table =
 			.icon_id = icon_item_prop_sprite,
 			.data.prop_data =
 			{
-				.type = CAT_PROP_TYPE_DEFAULT,
+				.type = CAT_PROP_TYPE_TOP,
 				.shape = {1, 1},
 				.animate = true,
 				.child_dy = 0,
@@ -453,7 +453,7 @@ CAT_item_table item_table =
 			.icon_id = icon_item_prop_sprite,
 			.data.prop_data =
 			{
-				.type = CAT_PROP_TYPE_DEFAULT,
+				.type = CAT_PROP_TYPE_TOP,
 				.shape = {2, 1},
 				.animate = true,
 				.child_dy = -6,
@@ -468,7 +468,7 @@ CAT_item_table item_table =
 			.icon_id = icon_item_prop_sprite,
 			.data.prop_data =
 			{
-				.type = CAT_PROP_TYPE_DEFAULT,
+				.type = CAT_PROP_TYPE_TOP,
 				.shape = {2, 1},
 				.animate = true,
 				.child_dy = 0,
@@ -483,7 +483,7 @@ CAT_item_table item_table =
 			.icon_id = icon_item_prop_sprite,
 			.data.prop_data =
 			{
-				.type = CAT_PROP_TYPE_DEFAULT,
+				.type = CAT_PROP_TYPE_TOP,
 				.shape = {2, 1},
 				.animate = true,
 				.child_dy = 0,
@@ -498,7 +498,7 @@ CAT_item_table item_table =
 			.icon_id = icon_item_prop_sprite,
 			.data.prop_data =
 			{
-				.type = CAT_PROP_TYPE_DEFAULT,
+				.type = CAT_PROP_TYPE_TOP,
 				.shape = {1, 1},
 				.animate = true,
 				.child_dy = 0,
@@ -513,7 +513,7 @@ CAT_item_table item_table =
 			.icon_id = icon_item_prop_sprite,
 			.data.prop_data =
 			{
-				.type = CAT_PROP_TYPE_DEFAULT,
+				.type = CAT_PROP_TYPE_TOP,
 				.shape = {2, 1},
 				.animate = true,
 				.child_dy = -8,
@@ -528,7 +528,7 @@ CAT_item_table item_table =
 			.icon_id = icon_item_prop_sprite,
 			.data.prop_data =
 			{
-				.type = CAT_PROP_TYPE_DEFAULT,
+				.type = CAT_PROP_TYPE_TOP,
 				.shape = {2, 2},
 				.animate = true,
 				.child_dy = -16,
@@ -543,7 +543,7 @@ CAT_item_table item_table =
 			.icon_id = icon_item_prop_sprite,
 			.data.prop_data =
 			{
-				.type = CAT_PROP_TYPE_DEFAULT,
+				.type = CAT_PROP_TYPE_BOTTOM,
 				.shape = {4, 2},
 				.animate = true,
 				.child_dy = 0,
@@ -558,7 +558,7 @@ CAT_item_table item_table =
 			.icon_id = icon_item_prop_sprite,
 			.data.prop_data =
 			{
-				.type = CAT_PROP_TYPE_DEFAULT,
+				.type = CAT_PROP_TYPE_BOTTOM,
 				.shape = {4, 2},
 				.animate = true,
 				.child_dy = 0,
@@ -573,7 +573,7 @@ CAT_item_table item_table =
 			.icon_id = icon_item_prop_sprite,
 			.data.prop_data =
 			{
-				.type = CAT_PROP_TYPE_DEFAULT,
+				.type = CAT_PROP_TYPE_BOTTOM,
 				.shape = {4, 2},
 				.animate = true,
 				.child_dy = 0,
@@ -588,7 +588,7 @@ CAT_item_table item_table =
 			.icon_id = icon_item_prop_sprite,
 			.data.prop_data =
 			{
-				.type = CAT_PROP_TYPE_DEFAULT,
+				.type = CAT_PROP_TYPE_BOTTOM,
 				.shape = {4, 2},
 				.animate = true,
 				.child_dy = 0,
@@ -603,7 +603,7 @@ CAT_item_table item_table =
 			.icon_id = icon_item_prop_sprite,
 			.data.prop_data =
 			{
-				.type = CAT_PROP_TYPE_DEFAULT,
+				.type = CAT_PROP_TYPE_BOTTOM,
 				.shape = {2, 2},
 				.animate = true,
 				.child_dy = 0,
@@ -618,7 +618,7 @@ CAT_item_table item_table =
 			.icon_id = icon_item_prop_sprite,
 			.data.prop_data =
 			{
-				.type = CAT_PROP_TYPE_DEFAULT,
+				.type = CAT_PROP_TYPE_BOTTOM,
 				.shape = {2, 2},
 				.animate = true,
 				.child_dy = 0,
@@ -633,7 +633,7 @@ CAT_item_table item_table =
 			.icon_id = icon_item_prop_sprite,
 			.data.prop_data =
 			{
-				.type = CAT_PROP_TYPE_DEFAULT,
+				.type = CAT_PROP_TYPE_BOTTOM,
 				.shape = {2, 2},
 				.animate = true,
 				.child_dy = 0,
@@ -648,7 +648,7 @@ CAT_item_table item_table =
 			.icon_id = icon_item_prop_sprite,
 			.data.prop_data =
 			{
-				.type = CAT_PROP_TYPE_DEFAULT,
+				.type = CAT_PROP_TYPE_BOTTOM,
 				.shape = {2, 2},
 				.animate = true,
 				.child_dy = 0,
@@ -663,7 +663,7 @@ CAT_item_table item_table =
 			.icon_id = icon_item_prop_sprite,
 			.data.prop_data =
 			{
-				.type = CAT_PROP_TYPE_DEFAULT,
+				.type = CAT_PROP_TYPE_BOTTOM,
 				.shape = {2, 2},
 				.animate = true,
 				.child_dy = 0,
@@ -768,7 +768,7 @@ CAT_item_table item_table =
 			.icon_id = icon_item_prop_sprite,
 			.data.prop_data =
 			{
-				.type = CAT_PROP_TYPE_DEFAULT,
+				.type = CAT_PROP_TYPE_TOP,
 				.shape = {1, 1},
 				.animate = true,
 				.child_dy = 0,
@@ -783,7 +783,7 @@ CAT_item_table item_table =
 			.icon_id = icon_item_prop_sprite,
 			.data.prop_data =
 			{
-				.type = CAT_PROP_TYPE_DEFAULT,
+				.type = CAT_PROP_TYPE_TOP,
 				.shape = {1, 1},
 				.animate = true,
 				.child_dy = 0,
@@ -798,7 +798,7 @@ CAT_item_table item_table =
 			.icon_id = icon_item_prop_sprite,
 			.data.prop_data =
 			{
-				.type = CAT_PROP_TYPE_DEFAULT,
+				.type = CAT_PROP_TYPE_TOP,
 				.shape = {1, 1},
 				.animate = true,
 				.child_dy = 0,
@@ -813,7 +813,7 @@ CAT_item_table item_table =
 			.icon_id = icon_item_prop_sprite,
 			.data.prop_data =
 			{
-				.type = CAT_PROP_TYPE_DEFAULT,
+				.type = CAT_PROP_TYPE_TOP,
 				.shape = {1, 1},
 				.animate = true,
 				.child_dy = 0,
@@ -828,7 +828,7 @@ CAT_item_table item_table =
 			.icon_id = icon_item_prop_sprite,
 			.data.prop_data =
 			{
-				.type = CAT_PROP_TYPE_DEFAULT,
+				.type = CAT_PROP_TYPE_TOP,
 				.shape = {1, 1},
 				.animate = true,
 				.child_dy = 0,
@@ -843,7 +843,7 @@ CAT_item_table item_table =
 			.icon_id = icon_item_prop_sprite,
 			.data.prop_data =
 			{
-				.type = CAT_PROP_TYPE_DEFAULT,
+				.type = CAT_PROP_TYPE_TOP,
 				.shape = {1, 1},
 				.animate = true,
 				.child_dy = 0,
@@ -858,7 +858,7 @@ CAT_item_table item_table =
 			.icon_id = icon_item_prop_sprite,
 			.data.prop_data =
 			{
-				.type = CAT_PROP_TYPE_DEFAULT,
+				.type = CAT_PROP_TYPE_TOP,
 				.shape = {1, 1},
 				.animate = true,
 				.child_dy = 0,
@@ -873,7 +873,7 @@ CAT_item_table item_table =
 			.icon_id = icon_item_prop_sprite,
 			.data.prop_data =
 			{
-				.type = CAT_PROP_TYPE_DEFAULT,
+				.type = CAT_PROP_TYPE_TOP,
 				.shape = {1, 1},
 				.animate = false,
 				.child_dy = 0,
@@ -1128,7 +1128,7 @@ CAT_item_table item_table =
 			.icon_id = icon_item_prop_sprite,
 			.data.prop_data =
 			{
-				.type = CAT_PROP_TYPE_DEFAULT,
+				.type = CAT_PROP_TYPE_TOP,
 				.shape = {1, 1},
 				.animate = true,
 				.child_dy = 0,
@@ -1158,7 +1158,7 @@ CAT_item_table item_table =
 			.icon_id = icon_item_prop_sprite,
 			.data.prop_data =
 			{
-				.type = CAT_PROP_TYPE_DEFAULT,
+				.type = CAT_PROP_TYPE_TOP,
 				.shape = {1, 1},
 				.animate = true,
 				.child_dy = 0,
@@ -1173,7 +1173,7 @@ CAT_item_table item_table =
 			.icon_id = icon_item_prop_sprite,
 			.data.prop_data =
 			{
-				.type = CAT_PROP_TYPE_DEFAULT,
+				.type = CAT_PROP_TYPE_TOP,
 				.shape = {1, 1},
 				.animate = true,
 				.child_dy = 0,
@@ -1188,7 +1188,7 @@ CAT_item_table item_table =
 			.icon_id = icon_item_prop_sprite,
 			.data.prop_data =
 			{
-				.type = CAT_PROP_TYPE_DEFAULT,
+				.type = CAT_PROP_TYPE_TOP,
 				.shape = {1, 1},
 				.animate = true,
 				.child_dy = 0,
@@ -1233,7 +1233,7 @@ CAT_item_table item_table =
 			.icon_id = icon_item_prop_sprite,
 			.data.prop_data =
 			{
-				.type = CAT_PROP_TYPE_DEFAULT,
+				.type = CAT_PROP_TYPE_TOP,
 				.shape = {2, 1},
 				.animate = true,
 				.child_dy = 0,

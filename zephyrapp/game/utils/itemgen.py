@@ -65,9 +65,9 @@ source.write("\t.data =\n");
 source.write("\t{\n");
 for (idx, item) in enumerate(json_entries):
 	source.write("\t\t{\n");
-	if item["type"] in tool_types:
+	if item["type"] == "tool":
 		source.write("\t\t\t.type = CAT_ITEM_TYPE_TOOL,\n");
-	elif item["type"] in prop_types:
+	elif item["type"] == "prop":
 		source.write("\t\t\t.type = CAT_ITEM_TYPE_PROP,\n");
 	else:
 		source.write("\t\t\t.type = CAT_ITEM_TYPE_KEY,\n");
