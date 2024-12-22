@@ -1,3 +1,3 @@
-# cat_software
+# uCritAir Firmware
 
-Tomas go to zephyrapp/game
+Initial Public Release 
