@@ -7,7 +7,7 @@ import OpenGL;
 OpenGL.FULL_LOGGING = True;
 from OpenGL.GL import *;
 import glfw;
-from imgui_bundle import imgui;
+from imgui_bundle import imgui, implot;
 import json;
 from enum import Enum;
 import ctypes;
@@ -19,10 +19,46 @@ from PIL import Image;
 from playsound3 import playsound;
 import subprocess as sp;
 from stat import *;
+import wave;
+import numpy as np;
 
 
 #########################################################
-## THE COW TOOLS
+## CONTEXT
+
+config = configparser.ConfigParser();
+config.read("editor/editor.ini");
+window_width = int(config["CONFIG"]["width"]);
+window_height = int(config["CONFIG"]["height"]);
+
+def glfw_error_callback(error, description):
+ 	print(f"[GLFW ERROR] {error}: {description}");
+glfw.set_error_callback(glfw_error_callback);
+if not glfw.init():
+	print("Failed to initialize GLFW. Exiting");
+	exit();
+glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 3);
+glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 3);
+glfw.window_hint(glfw.OPENGL_PROFILE, glfw.OPENGL_CORE_PROFILE);
+glfw.window_hint(glfw.OPENGL_FORWARD_COMPAT, GL_TRUE);
+handle = glfw.create_window(window_width, window_height, "Editor", None, None);
+if not handle:
+	print("Failed to create window. Exiting");
+	glfw.terminate();
+	exit();
+glfw.make_context_current(handle);
+print("Renderer:", glGetString(GL_RENDERER).decode("utf-8"));
+print("GL Version:", glGetString(GL_VERSION).decode("utf-8"));
+print("SL Version:", glGetString(GL_SHADING_LANGUAGE_VERSION).decode("utf-8"));
+
+imgui.create_context();
+imgui_io = imgui.get_io();
+imgui.style_colors_dark()
+impl = GlfwRenderer(handle);
+
+
+#########################################################
+## COW TOOLS
 
 def foldl(f, acc, xs):
 	if len(xs) == 0:
@@ -40,37 +76,131 @@ def foldr(f, acc, xs):
 
 
 #########################################################
-## CONTEXT
+## DOCUMENT MODEL
 
-config = configparser.ConfigParser();
-config.read("editor/editor.ini");
-width = int(config["CONFIG"]["width"]);
-height = int(config["CONFIG"]["height"]);
+class AssetSchema:
+	def __init__(self, schema):
+		self.root = copy.deepcopy(schema);
+		self.path = [self.root];
 
-def glfw_error_callback(error, description):
- 	print(f"[GLFW ERROR] {error}: {description}");
-glfw.set_error_callback(glfw_error_callback);
-if not glfw.init():
-	print("Failed to initialize GLFW. Exiting");
-	exit();
-glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 3);
-glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 3);
-glfw.window_hint(glfw.OPENGL_PROFILE, glfw.OPENGL_CORE_PROFILE);
-glfw.window_hint(glfw.OPENGL_FORWARD_COMPAT, GL_TRUE);
-handle = glfw.create_window(width, height, "Editor", None, None);
-if not handle:
-	print("Failed to create window. Exiting");
-	glfw.terminate();
-	exit();
-glfw.make_context_current(handle);
-print("Renderer:", glGetString(GL_RENDERER).decode("utf-8"));
-print("GL Version:", glGetString(GL_VERSION).decode("utf-8"));
-print("SL Version:", glGetString(GL_SHADING_LANGUAGE_VERSION).decode("utf-8"));
+	def reset(self):
+		self.path = [self.root];
 
-imgui.create_context();
-imgui_io = imgui.get_io();
-imgui.style_colors_dark()
-impl = GlfwRenderer(handle);
+	def push(self, key):
+		self.path.append(self.path[-1][key]["type"]);
+	
+	def pop(self):
+		self.path.pop();
+
+	def get_type(self, key):
+		return self.path[-1][key]["type"];
+	
+	def is_readable(self, key):
+		perms = self.path[-1][key]["permissions"];
+		return "read" in perms or "write" in perms;
+
+	def is_writable(self, key):
+		perms = self.path[-1][key]["permissions"];
+		return "write" in perms;
+
+	def __default(t):
+		if t == "int":
+			return 0;
+		elif t == "bool":
+			return False;
+		elif t == "string":
+			return "";
+		elif t == "float":
+			return 0.0;
+		elif t == "ivec2":
+			return [0, 0];
+		elif "*" in t:
+			return "";
+		elif t in asset_types:
+			return "";
+		elif isinstance(t, list):
+			return t[0];
+		else:
+			return None;
+	
+	def prototype(self, node):
+		parent = self.path[-1];
+		for key in parent:
+			child = parent[key];
+			if "constraint" in child:
+				ckey = child["constraint"]["key"];
+				cval = child["constraint"]["value"];
+				if node[ckey] != cval:
+					if key in node:
+						del node[key];
+						continue;
+					else:
+						continue;
+			if key in node:
+				continue;
+			if isinstance(child["type"], dict):
+				self.push(key);
+				node[key] = {};
+				self.prototype(node[key]);
+				self.pop();
+			else:
+				node[key] = AssetSchema.__default(child["type"]);
+
+class AssetDocument:
+	def __init__(self, path):
+		self.path = path;
+		self.parent, entry = os.path.split(path);
+		self.name, _ = os.path.splitext(entry);
+		self.file = open(path, "r+");
+
+		self.data = json.load(self.file);
+		self.type = self.data["type"];
+		self.schema = AssetSchema(self.data["schema"]);
+		self.entries = self.data["entries"];
+	
+	def refresh(self):
+		for entry in self.entries:
+			self.schema.prototype(entry);
+	
+	def save(self):
+		self.file.seek(0);
+		self.file.truncate();
+		self.file.write(json.dumps(self.data));
+
+
+def get_name(node):
+	if "name" in node:
+		return node["name"];
+	elif "path" in node:
+		return node["path"];
+	elif "id" in node:
+		return node["id"];
+	return "Node";
+
+def get_number(node):
+	if "id" in node:
+		return node["id"];
+	return id(node);
+
+def get_id(node, key):
+	return f"##{id(node)}{id(key)}";
+
+
+asset_dirs = [Path("sprites"), Path("sounds"), Path("meshes"), Path("data")];
+asset_docs = [];
+asset_types = [];
+
+for folder in asset_dirs:
+	for entry in folder.iterdir():
+		name, ext = os.path.splitext(entry);
+		if ext == ".json":
+			doc = AssetDocument(entry);
+			asset_docs.append(doc);
+			asset_type = doc.type;
+			if not asset_type in asset_types:
+				asset_types.append(asset_type);
+
+document = None;
 
 
 #########################################################
@@ -190,188 +320,131 @@ class FileExplorer:
 
 
 #########################################################
-## JSON DOCUMENT
+## DOCUMENT GUI
 
-def get_name(node):
-	if "name" in node:
-		return node["name"];
-	elif "path" in node:
-		return node["path"];
-	elif "id" in node:
-		return node["id"];
-	return "Node";
+class PreviewRenderer:
+	def __init__(self):
+		self.texture_cache = {};
+		self.clip_cache = {};
 
-def get_number(node):
-	if "id" in node:
-		return node["id"];
-	return id(node);
-
-def get_id(node, key):
-	return f"##{id(node)}{id(key)}";
-
-def get_default(t):
-	if t == "int":
-		return 0;
-	elif t == "bool":
-		return False;
-	elif t == "string":
-		return "";
-	elif t == "float":
-		return 0.0;
-	elif "*" in t:
-		return "";
-	elif t in asset_types:
-		return "";
-	elif isinstance(t, list):
-		return t[0];
-	else:
-		return None;
-
-class AssetSchema:
-	def compute_constraints(self, node):
-		for key_a in node:
-			if "is_constraint" in node[key_a]:
-				continue;
-			for key_b in node:
-				if "constraint" in node[key_b] and node[key_b]["constraint"]["key"] == key_a:
-					node[key_a]["is_constraint"] = True;
-			if isinstance(node[key_a]["type"], dict):
-				self.compute_constraints(node[key_a]["type"]);
-
-	def __init__(self, schema):
-		self.root = copy.deepcopy(schema);
-		self.path = [self.root];
-		self.compute_constraints(self.root);
-
-	def reset(self):
-		self.path = [self.root];
-
-	def push(self, key):
-		self.path.append(self.path[-1][key]["type"]);
+	def __invert_all_black(image):
+		pixels = image.load();
+		all_black = True;
+		inversion = [];
+		for y in range(image.size[1]):
+			for x in range(image.size[0]):
+				p = pixels[x, y];
+				if p[3] >= 128:
+					all_black &= (p[0] == 0 and p[1] == 0 and p[2] == 0);
+					if not all_black:
+						return image;
+					inversion.append((255, 255, 255, p[3]));
+				else:
+					inversion.append(p);
+		if all_black:
+			image.putdata(inversion);
+		return image;
+		
+	def __transpose_frames(image, frames):
+		pixels = image.load();
+		if frames > 1:
+			frame_h = image.size[1] // frames;
+			transpose = [];
+			for y in range(frame_h):
+				for f in range(frames):
+					for x in range(image.size[0]):
+						transpose.append(pixels[x, y + f * frame_h]);
+			image = Image.new(image.mode, (image.size[0] * frames, frame_h));
+			image.putdata(transpose);
+		return image;
 	
-	def pop(self):
-		self.path.pop();
+	def render_image(self, path, frames):
+		invalidate_cache = True;
+		if path in self.texture_cache:
+			if frames == self.texture_cache[path][3]:
+				invalidate_cache = False;
+		
+		if invalidate_cache:
+			image = Image.open(path);
+			image = PreviewRenderer.__invert_all_black(image);
+			image = PreviewRenderer.__transpose_frames(image, frames);
 
-	def get_type(self, key):
-		return self.path[-1][key]["type"];
-	
-	def is_readable(self, key):
-		perms = self.path[-1][key]["permissions"];
-		return "read" in perms or "write" in perms;
+			buffer = image.tobytes();
+			width = image.size[0];
+			height = image.size[1];
+			texture = glGenTextures(1);
+			glBindTexture(GL_TEXTURE_2D, texture);
+			glTexParameteri(GL_TEXTURE_2D, 	GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+			glTexParameteri(GL_TEXTURE_2D, 	GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+			self.texture_cache[path] = texture, width, height, frames;
 
-	def is_writable(self, key):
-		perms = self.path[-1][key]["permissions"];
-		return "write" in perms;
+			imgui.image(texture, (width * 2, height * 2));
+		else:
+			texture, width, height, frames = self.texture_cache[path];
+			imgui.image(texture, (width * 2, height * 2));
 	
-	def is_constraint(self, key):
-		node = self.path[-1][key];
-		return "is_constraint" in node and node["is_constraint"];
+	def render_sound(self, path):
+		if path in self.clip_cache:
+			frames = self.clip_cache[path];
+			for i in range(frames.shape[0]):
+				imgui.plot_lines(f"####{id(frames[i])}", frames[i], graph_size=(window_width//2, window_height//10));
+		else:
+			clip = wave.open(path, "r");
+			n_channels = clip.getnchannels();
+			n_frames = clip.getnframes();
+			width = clip.getsampwidth();
+			buffer = bytearray(clip.readframes(n_frames));
+			frames = np.ndarray((n_channels, n_frames), dtype=np.float32);
+			for i in range(n_channels):
+				for j in range(n_frames):
+					start = j * width + i * width;
+					end = start + width;
+					value = int.from_bytes(buffer[start:end]);
+					frames[i, j] = value / (2 << width*8-1);
+				imgui.plot_lines(f"####{id(frames[i])}", frames[i], graph_size=(window_width//2, window_height//10));
+			self.clip_cache[path] = frames;
 	
-	def prototype(self, node):
-		parent = self.path[-1];
-		for key in parent:
-			child = parent[key];
-			if "constraint" in child:
-				ckey = child["constraint"]["key"];
-				cval = child["constraint"]["value"];
-				if node[ckey] != cval:
-					if key in node:
-						del node[key];
-						continue;
-					else:
-						continue;
-			if key in node:
-				continue;
-			if isinstance(child["type"], dict):
-				self.push(key);
-				node[key] = {};
-				self.prototype(node[key]);
-				self.pop();
-			else:
-				node[key] = get_default(child["type"]);
-
-class AssetDocument:
-	def __init__(self, path):
-		self.path = path;
-		self.parent, entry = os.path.split(path);
-		self.name, _ = os.path.splitext(entry);
-		self.file = open(path, "r+");
-
-		self.data = json.load(self.file);
-		self.type = self.data["type"];
-		self.schema = AssetSchema(self.data["schema"]);
-		self.entries = self.data["entries"];
-	
-	def preview(self, node, key):
-		if "*" in self.schema.get_type(key):
+	def render(self, doc, node, key):
+		if "*" in doc.schema.get_type(key):
 			path = node[key];
-			path = os.path.join(self.parent, path);
+			path = os.path.join(doc.parent, path);
 			if not Path(path).exists():
 				return;
-
 			name, ext = os.path.splitext(path);
+
 			if ext == ".png":
-				texture, width, height = None, None, None;
 				frames = node["frames"] if "frames" in node else 1;
-				if path not in preview_cache or (path in preview_cache and frames != preview_cache[path][3]):
-					image = Image.open(path);
-					pixels = image.load();
-
-					all_black = True;
-					inversion = [];
-					for y in range(image.size[1]):
-						for x in range(image.size[0]):
-							p = pixels[x, y];
-							if p[3] >= 128:
-								all_black &= (p[0] == 0 and p[1] == 0 and p[2] == 0);
-								inversion.append((255, 255, 255, p[3]));
-							else:
-								inversion.append(p);
-					if all_black:
-						image.putdata(inversion);
-					
-					if frames > 1:
-						frames = node["frames"];
-						frame_h = image.size[1] // frames;
-						transpose = [];
-						for y in range(frame_h):
-							for f in range(frames):
-								for x in range(image.size[0]):
-									transpose.append(pixels[x, y + f * frame_h]);
-						image = Image.new(image.mode, (image.size[0] * frames, frame_h));
-						image.putdata(transpose);
-
-					buffer = image.tobytes();
-					width = image.size[0];
-					height = image.size[1];
-					texture = glGenTextures(1);
-					glBindTexture(GL_TEXTURE_2D, texture);
-					glTexParameteri(GL_TEXTURE_2D, 	GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-					glTexParameteri(GL_TEXTURE_2D, 	GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-					glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
-
-					preview_cache[path] = texture, width, height, frames;
-				else:	
-					texture, width, height, frames = preview_cache[path];
-				imgui.image(texture, (width * 2, height * 2));
+				self.render_image(path, frames);
 			elif ext == ".wav":
+				self.render_sound(path);
 				if(imgui.button("PLAY")):
-					playsound(path, block=False);
-		elif self.schema.get_type(key) in asset_types:
-			d = next(d for d in asset_docs if d.type == self.schema.get_type(key));
-			a = next(a for a in d.entries if a["name"] == node[key]);
-			if a != node:
-				for k in a:
-					d.preview(a, k);
-	
-	def render_helper(self, node, title):
+					playsound(path, block=False);		
+					
+		elif doc.schema.get_type(key) in asset_types:
+			docs = list(filter(lambda d: d.type == doc.schema.get_type(key), asset_docs));
+			if docs == []:
+				return;
+			d = docs[0];
+			nodes = list(filter(lambda n: n["name"] == node[key], d.entries));
+			if nodes == []:
+				return;
+			n = nodes[0];
+			if n != node:
+				for k in n:
+					self.render(d, n, k);
+
+preview_renderer = PreviewRenderer();
+
+class DocumentRenderer:	
+	def __render(doc, node, title):
 		if(imgui.tree_node(f"{title} ####{str(id(node))}")):
 			imgui.separator();
 
 			for key in node:
-				key_type = self.schema.get_type(key);
-				readable = self.schema.is_readable(key);
-				writable = self.schema.is_writable(key);
+				key_type = doc.schema.get_type(key);
+				readable = doc.schema.is_readable(key);
+				writable = doc.schema.is_writable(key);
 				if not readable:
 					continue;
 
@@ -419,7 +492,7 @@ class AssetDocument:
 						imgui.end_combo();
 
 				elif "*" in key_type:
-					self.preview(node, key);
+					preview_renderer.render(doc, node, key);
 					imgui.text(key);
 					imgui.same_line();
 					if writable:
@@ -436,7 +509,7 @@ class AssetDocument:
 						imgui.text(node[key]);
 
 				elif key_type in asset_types:
-					self.preview(node, key);
+					preview_renderer.render(doc, node, key);
 					imgui.text(key);
 					imgui.same_line();
 					if imgui.begin_combo(get_id(node, key), str(node[key])):
@@ -451,40 +524,17 @@ class AssetDocument:
 						imgui.end_combo();
 					
 				elif isinstance(key_type, dict):
-					self.schema.push(key);
-					self.render_helper(node[key], key);
-					self.schema.pop();
+					doc.schema.push(key);
+					DocumentRenderer.__render(doc, node[key], key);
+					doc.schema.pop();
 
 				else:
 					imgui.text(f"[UNSUPPORTED TYPE \"{key_type}\"]");
-			self.schema.prototype(node);
 			imgui.tree_pop();
 	
-	def render(self):
-		for entry in self.entries:
-			self.render_helper(entry, f"{get_name(entry)} {get_number(entry)}");
-	
-	def save(self):
-		self.file.seek(0);
-		self.file.truncate();
-		self.file.write(json.dumps(self.data));
-
-asset_dirs = [Path("sprites"), Path("sounds"), Path("meshes"), Path("data")];
-asset_docs = [];
-asset_types = [];
-preview_cache = {};
-
-for folder in asset_dirs:
-	for entry in folder.iterdir():
-		name, ext = os.path.splitext(entry);
-		if ext == ".json":
-			doc = AssetDocument(entry);
-			asset_docs.append(doc);
-			asset_type = doc.type;
-			if not asset_type in asset_types:
-				asset_types.append(asset_type);
-
-document = None;
+	def render(doc):
+		for entry in doc.entries:
+			DocumentRenderer.__render(doc, entry, f"{get_name(entry)} {get_number(entry)}");
 
 
 #########################################################
@@ -521,7 +571,7 @@ while not glfw.window_should_close(handle):
 	imgui.new_frame();
 
 	imgui.set_next_window_pos((0, 0));
-	imgui.set_next_window_size((width, height));
+	imgui.set_next_window_size((window_width, window_height));
 	imgui.begin("Editor", flags=window_flags | (splash_flags if document == None else 0));
 
 	if imgui.begin_main_menu_bar():
@@ -564,7 +614,8 @@ while not glfw.window_should_close(handle):
 		imgui.end_main_menu_bar();
 	
 	if document != None:
-		document.render();
+		document.refresh();
+		DocumentRenderer.render(document);
 	else:
 		imgui.image(splash_tex[0], (splash_tex[1], splash_tex[2]));
 
