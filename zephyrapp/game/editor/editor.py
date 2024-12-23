@@ -165,7 +165,7 @@ class AssetDocument:
 	def save(self):
 		self.file.seek(0);
 		self.file.truncate();
-		self.file.write(json.dumps(self.data));
+		self.file.write(json.dumps(self.data, indent=4));
 
 
 def get_name(node):
@@ -324,8 +324,7 @@ class FileExplorer:
 
 class PreviewRenderer:
 	def __init__(self):
-		self.texture_cache = {};
-		self.clip_cache = {};
+		self.cache = {};
 
 	def __invert_all_black(image):
 		pixels = image.load();
@@ -359,9 +358,11 @@ class PreviewRenderer:
 		return image;
 	
 	def render_image(self, path, frames):
+		texture, width, height = None, None, None;
+
 		invalidate_cache = True;
-		if path in self.texture_cache:
-			if frames == self.texture_cache[path][3]:
+		if path in self.cache:
+			if frames == self.cache[path][3]:
 				invalidate_cache = False;
 		
 		if invalidate_cache:
@@ -377,33 +378,41 @@ class PreviewRenderer:
 			glTexParameteri(GL_TEXTURE_2D, 	GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 			glTexParameteri(GL_TEXTURE_2D, 	GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
-			self.texture_cache[path] = texture, width, height, frames;
-
-			imgui.image(texture, (width * 2, height * 2));
+			self.cache[path] = texture, width, height, frames;
 		else:
-			texture, width, height, frames = self.texture_cache[path];
+			texture, width, height, frames = self.cache[path];
+		
+		if texture != None:
 			imgui.image(texture, (width * 2, height * 2));
 	
 	def render_sound(self, path):
-		if path in self.clip_cache:
-			frames = self.clip_cache[path];
-			for i in range(frames.shape[0]):
-				imgui.plot_lines(f"####{id(frames[i])}", frames[i], graph_size=(window_width//2, window_height//10));
+		frames, meta = None, None;
+		if path in self.cache:
+			frames, meta = self.cache[path];
 		else:
 			clip = wave.open(path, "r");
-			n_channels = clip.getnchannels();
-			n_frames = clip.getnframes();
-			width = clip.getsampwidth();
+			meta = clip.getparams();
+			n_channels = meta.nchannels;
+			n_frames = meta.nframes;
+			width = meta.sampwidth;
 			buffer = bytearray(clip.readframes(n_frames));
+			samples = np.ndarray((n_frames * n_channels,), dtype=np.int32);
+			for i in range(len(samples)):
+				start = i * width;
+				end = start + width;
+				samples[i] = int.from_bytes(buffer[start:end], "little", signed=True);
 			frames = np.ndarray((n_channels, n_frames), dtype=np.float32);
-			for i in range(n_channels):
-				for j in range(n_frames):
-					start = j * width + i * width;
-					end = start + width;
-					value = int.from_bytes(buffer[start:end]);
-					frames[i, j] = value / (2 << width*8-1);
-				imgui.plot_lines(f"####{id(frames[i])}", frames[i], graph_size=(window_width//2, window_height//10));
-			self.clip_cache[path] = frames;
+			for i in range(len(frames)):
+				frames[i] = samples[i::n_channels];
+			self.cache[path] = frames, meta;
+		if not frames is None:
+			for i in range(frames.shape[0]):
+				half_range = (1 << ((meta.sampwidth*8)-1)) - 1;
+				plot_min = -half_range;
+				plot_max = half_range;
+				plot_width = window_width//2;
+				plot_height = window_height//10;
+				imgui.plot_lines(f"####{id(frames[i])}", frames[i], scale_min=plot_min, scale_max=plot_max, graph_size=(plot_width, plot_height));
 	
 	def render(self, doc, node, key):
 		if "*" in doc.schema.get_type(key):
@@ -418,8 +427,15 @@ class PreviewRenderer:
 				self.render_image(path, frames);
 			elif ext == ".wav":
 				self.render_sound(path);
-				if(imgui.button("PLAY")):
-					playsound(path, block=False);		
+				if imgui.button(f"PLAY####{id(node)}{id(key)}"):
+					playsound(path, block=False);
+			else:
+				return;
+			imgui.same_line();
+			if imgui.button(f"REFRESH####{path}"):
+				if path in self.cache:
+					del self.cache[path];
+
 					
 		elif doc.schema.get_type(key) in asset_types:
 			docs = list(filter(lambda d: d.type == doc.schema.get_type(key), asset_docs));
