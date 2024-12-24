@@ -1615,7 +1615,7 @@
                     1
                 ],
                 "animate": true,
-                "child_dy": 0,
+                "child_dy": -6,
                 "type": "top"
             }
         },

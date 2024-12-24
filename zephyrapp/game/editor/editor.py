@@ -9,7 +9,7 @@ from OpenGL.GL import *;
 import glfw;
 from imgui_bundle import imgui, implot;
 import json;
-from enum import Enum;
+from enum import Enum, Flag, auto;
 import ctypes;
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer;
 import copy;
@@ -218,29 +218,58 @@ def load_texture(path):
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
 	return texture, width, height;
 
+class DrawFlags(Flag):
+	CENTER_X = auto()
+	CENTER_Y = auto()
+	BOTTOM = auto()
+
 class Canvas:
 	def __init__(self, width, height):
 		self.width = width;
 		self.height = height;
-		self.buffer = bytearray(bytes(width * height * 4));
+		self.buffer = bytearray(bytes(width * height * 3));
 		self.texture = glGenTextures(1);
 		glBindTexture(GL_TEXTURE_2D, self.texture);
 		glTexParameteri(GL_TEXTURE_2D, 	GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, 	GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, self.buffer);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, self.buffer);
+
+		self.draw_flags = ();
+
+	def clear(self, c):
+		for y in range(self.height):
+			for x in range(self.width):
+				i = (y * self.width + x) * 3;
+				self.buffer[i+0] = c[0];
+				self.buffer[i+1] = c[1];
+				self.buffer[i+2] = c[2];
 
 	def draw_pixel(self, x, y, c):
+		x = int(x);
+		y = int(y);
+
 		if x < 0 or x >= self.width:
 			return;
 		if y < 0 or y >= self.height:
 			return;
-		i = (y * self.width + x) * 4;
+		i = (y * self.width + x) * 3;
 		self.buffer[i+0] = c[0];
 		self.buffer[i+1] = c[1];
 		self.buffer[i+2] = c[2];
-		self.buffer[i+3] = c[3];
 
 	def draw_rect(self, x, y, w, h, c):
+		x = int(x);
+		y = int(y);
+		w = int(w);
+		h = int(h);
+
+		if DrawFlags.CENTER_X in self.draw_flags:
+			x -= image.size[0] // 2;
+		if DrawFlags.CENTER_Y in self.draw_flags:
+			y -= frame_h // 2;
+		elif DrawFlags.BOTTOM in self.draw_flags:
+			y -= frame_h;
+
 		for dy in range(y, y+h):
 			self.draw_pixel(x, dy, c);
 			self.draw_pixel(x+w-1, dy, c);
@@ -248,9 +277,44 @@ class Canvas:
 			self.draw_pixel(dx, y, c);
 			self.draw_pixel(dx, y+h-1, c);
 	
-	def render(self):
-		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, self.width, self.height, GL_RGBA, GL_UNSIGNED_BYTE, self.buffer);
-		imgui.image(self.texture, (self.width, self.height));
+	def draw_sprite(self, x, y, sprite, frame):
+		x = int(x);
+		y = int(y);
+
+		path = os.path.join("sprites", sprite["path"]);
+		image = Image.open(path);
+		pixels = image.load();
+
+		frame_h = image.size[1] // sprite["frames"];
+		frame_y = frame_h * frame;
+
+		if DrawFlags.CENTER_X in self.draw_flags:
+			x -= image.size[0] // 2;
+		if DrawFlags.CENTER_Y in self.draw_flags:
+			y -= frame_h // 2;
+		elif DrawFlags.BOTTOM in self.draw_flags:
+			y -= frame_h;
+
+		for yr in range(frame_y, frame_y + frame_h):
+			yw = y+yr;
+			if yw < 0 or yw >= self.height:
+				continue;
+			for xr in range(0, image.size[0]):
+				xw = x+xr;
+				if xw < 0 or xw >= self.width:
+					continue;
+				c = pixels[xr, yr];
+				if c[3] < 128:
+					continue;
+				i = (yw * self.width + xw) * 3;
+				self.buffer[i+0] = c[0];
+				self.buffer[i+1] = c[1];
+				self.buffer[i+2] = c[2];
+	
+	def render(self, scale):
+		glBindTexture(GL_TEXTURE_2D, self.texture);
+		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, self.width, self.height, GL_RGB, GL_UNSIGNED_BYTE, self.buffer);
+		imgui.image(self.texture, (self.width * scale, self.height * scale));
 
 
 #########################################################
@@ -320,9 +384,9 @@ class FileExplorer:
 
 
 #########################################################
-## DOCUMENT GUI
+## ASSET PREVIEWER
 
-class PreviewRenderer:
+class Preview:
 	def __init__(self):
 		self.cache = {};
 
@@ -367,8 +431,8 @@ class PreviewRenderer:
 		
 		if invalidate_cache:
 			image = Image.open(path);
-			image = PreviewRenderer.__invert_all_black(image);
-			image = PreviewRenderer.__transpose_frames(image, frames);
+			image = Preview.__invert_all_black(image);
+			image = Preview.__transpose_frames(image, frames);
 
 			buffer = image.tobytes();
 			width = image.size[0];
@@ -427,12 +491,12 @@ class PreviewRenderer:
 				self.render_image(path, frames);
 			elif ext == ".wav":
 				self.render_sound(path);
-				if imgui.button(f"PLAY####{id(node)}{id(key)}"):
+				if imgui.button(f"Play####{id(node)}{id(key)}"):
 					playsound(path, block=False);
 			else:
 				return;
 			imgui.same_line();
-			if imgui.button(f"REFRESH####{path}"):
+			if imgui.button(f"Refresh####{path}"):
 				if path in self.cache:
 					del self.cache[path];
 
@@ -450,7 +514,11 @@ class PreviewRenderer:
 				for k in n:
 					self.render(d, n, k);
 
-preview_renderer = PreviewRenderer();
+preview = Preview();
+
+
+#########################################################
+## DOCUMENT GUI
 
 class DocumentRenderer:	
 	def __render(doc, node, title):
@@ -508,7 +576,7 @@ class DocumentRenderer:
 						imgui.end_combo();
 
 				elif "*" in key_type:
-					preview_renderer.render(doc, node, key);
+					preview.render(doc, node, key);
 					imgui.text(key);
 					imgui.same_line();
 					if writable:
@@ -525,7 +593,7 @@ class DocumentRenderer:
 						imgui.text(node[key]);
 
 				elif key_type in asset_types:
-					preview_renderer.render(doc, node, key);
+					preview.render(doc, node, key);
 					imgui.text(key);
 					imgui.same_line();
 					if imgui.begin_combo(get_id(node, key), str(node[key])):
@@ -536,21 +604,124 @@ class DocumentRenderer:
 									if imgui.selectable(asset["name"], selected)[0]:
 										node[key] = asset["name"];
 									if selected:
-										imgui.set_item_default_focus();	
+										imgui.set_item_default_focus();
 						imgui.end_combo();
 					
 				elif isinstance(key_type, dict):
 					doc.schema.push(key);
 					DocumentRenderer.__render(doc, node[key], key);
 					doc.schema.pop();
-
+				
 				else:
-					imgui.text(f"[UNSUPPORTED TYPE \"{key_type}\"]");
+					imgui.text(f"[UNSUPPORTED TYPE \"{key_type}\"]");		
+
 			imgui.tree_pop();
 	
 	def render(doc):
 		for entry in doc.entries:
 			DocumentRenderer.__render(doc, entry, f"{get_name(entry)} {get_number(entry)}");
+
+
+#########################################################
+## PROP PREVIEWER
+
+class PropViewer:
+	_ = None;
+
+	def __init__(self):
+		if PropViewer._ != None:
+			return None;
+		PropViewer._ = self;
+
+		self.canvas = Canvas(240, 128);
+		self.size = (640, 480);
+		self.scale = 240 / self.canvas.height;
+		window_flag_list = [
+			imgui.WindowFlags_.no_saved_settings,
+			imgui.WindowFlags_.no_collapse,
+		];
+		self.window_flags = foldl(lambda a, b : a | b, 0, window_flag_list);
+		self.open = True;
+
+		self.props = [];
+		sprite_bank = [];
+		for doc in asset_docs:
+			if doc.type == "item":
+				self.props = list(filter(lambda i: i["type"] == "prop", doc.entries));
+			elif doc.type == "sprite":
+				sprite_bank = doc.entries;
+		self.sprites = {};
+		for prop in self.props:
+			for sprite in sprite_bank:
+				if sprite["name"] == prop["sprite"]:
+					self.sprites[prop["name"]] = sprite;
+
+		self.parent_prop = self.props[0];
+		self.child_prop = self.parent_prop;
+
+	def __draw_prop(self, x, y, prop):
+		sprite = self.sprites[prop["name"]];
+		shape = prop["prop_data"]["shape"];
+
+		tlx = x - (shape[0] * 16) // 2;
+		tly = y - (shape[1] * 16);
+
+		self.canvas.draw_flags = DrawFlags(0);
+		for sy in range(shape[1]):
+			for sx in range(shape[0]):
+				self.canvas.draw_rect(tlx + sx * 16, tly + sy * 16, 16, 16, (255, 0, 0));
+
+		self.canvas.draw_flags = DrawFlags.CENTER_X | DrawFlags.BOTTOM;
+		self.canvas.draw_sprite(x, y, sprite, 0);
+		
+	def render():
+		if PropViewer._ == None:
+			return;
+		self = PropViewer._;
+
+		if self.open:
+			imgui.set_next_window_size(self.size);
+			_, self.open = imgui.begin(f"Prop Viewer", self.open, flags=self.window_flags);
+
+			self.canvas.clear((0, 0, 0));
+			draw_x = self.canvas.width/2;
+			draw_y = self.canvas.height*0.75;
+			self.__draw_prop(draw_x, draw_y, self.parent_prop);
+			if self.child_prop["prop_data"]["type"] == "top":
+				parent_shape = self.parent_prop["prop_data"]["shape"];
+				child_x = (parent_shape[0] // 2) * 16;
+				child_y = parent_shape[1] * 16;
+				off_y = self.child_prop["prop_data"]["child_dy"];
+				self.__draw_prop(draw_x, draw_y - child_y - off_y, self.child_prop);
+			self.canvas.render(self.scale);
+
+			if imgui.begin_combo(f"Parent", self.parent_prop["name"]):
+				for prop in self.props:
+					selected = prop["name"] == self.parent_prop["name"];
+					if imgui.selectable(prop["name"], selected)[0]:
+						self.parent_prop = prop;
+					if selected:
+						imgui.set_item_default_focus();
+				imgui.end_combo();
+
+			if self.parent_prop["prop_data"]["type"] == "bottom":
+				if imgui.begin_combo(f"Child", self.child_prop["name"]):
+					for prop in self.props:
+						if prop["prop_data"]["type"] == "top":
+							selected = prop["name"] == self.child_prop["name"];
+							if imgui.selectable(prop["name"], selected)[0]:
+								self.child_prop = prop;
+							if selected:
+								imgui.set_item_default_focus();
+					imgui.end_combo();
+				if self.child_prop["prop_data"]["type"] == "top":
+					_, self.child_prop["prop_data"]["child_dy"] = imgui.input_int("Child dY", self.child_prop["prop_data"]["child_dy"]);
+
+			self.size = imgui.get_window_size();
+			imgui.end();
+		
+		if not self.open:
+			PropViewer._ = None;
 
 
 #########################################################
@@ -598,7 +769,10 @@ while not glfw.window_should_close(handle):
 						document = doc;
 				imgui.end_menu();
 			if imgui.menu_item_simple("Save", enabled=document != None):
-					document.save();
+				document.save();
+			if imgui.menu_item_simple("Save All"):
+				for doc in asset_docs:
+					doc.save();
 			if imgui.menu_item_simple("Close", enabled=document != None):
 				document = None;
 			imgui.end_menu();
@@ -618,6 +792,11 @@ while not glfw.window_should_close(handle):
 					new_asset["id"] = len(document.entries);
 				document.entries.append(new_asset);
 			imgui.end_menu();
+		
+		if imgui.begin_menu("Tools"):
+			if imgui.menu_item_simple("Prop Viewer"):
+				PropViewer();		
+			imgui.end_menu();
 	
 		if imgui.begin_menu("Utils"):
 			for util in Path("utils").iterdir():
@@ -633,7 +812,11 @@ while not glfw.window_should_close(handle):
 		document.refresh();
 		DocumentRenderer.render(document);
 	else:
+		imgui.set_scroll_x(0);
+		imgui.set_scroll_y(0);
 		imgui.image(splash_tex[0], (splash_tex[1], splash_tex[2]));
+	if PropViewer._ != None:
+		PropViewer.render();
 
 	imgui.end();
 	imgui.render();
