@@ -366,7 +366,7 @@ class FileExplorer:
 			_, self.open = imgui.begin(f"File Explorer ({self.current.name})", self.open, flags=self.window_flags);
 			for item in listings:
 				name = ".." if item == self.current.parent.absolute() else item.name;
-				if imgui.button(name):
+				if imgui.menu_item_simple(name):
 					if item.is_dir():
 						self.current = item;
 					else:
@@ -520,106 +520,145 @@ preview = Preview();
 #########################################################
 ## DOCUMENT GUI
 
+popup_statuses = {};
+
 class DocumentRenderer:	
-	def __render(doc, node, title):
-		if(imgui.tree_node(f"{title} ####{str(id(node))}")):
-			imgui.separator();
+	def __render(doc, node):
+		imgui.separator();
 
-			for key in node:
-				key_type = doc.schema.get_type(key);
-				readable = doc.schema.is_readable(key);
-				writable = doc.schema.is_writable(key);
-				if not readable:
-					continue;
+		for key in node:
+			key_type = doc.schema.get_type(key);
+			readable = doc.schema.is_readable(key);
+			writable = doc.schema.is_writable(key);
+			if not readable:
+				continue;
 
-				if key_type is None:
-					imgui.text(key);
-				elif key_type == "int":
-					imgui.text(key);
-					imgui.same_line();
-					if writable:
-						_, node[key] = imgui.input_int(get_id(node, key), node[key]);
-					else:
-						imgui.text(str(node[key]));
-
-				elif key_type == "string":
-					imgui.text(key);
-					imgui.same_line();
-					if writable:
-						_, node[key] = imgui.input_text(get_id(node, key), node[key]);
-					else:
-						imgui.text(node[key]);
-
-				elif key_type == "bool":
-					imgui.text(key);
-					imgui.same_line();
-					if writable:
-						node[key] = imgui.checkbox(get_id(node, key), node[key])[1];
-					else:
-						imgui.text(str(node(key)));
-				
-				elif key_type == "ivec2":
-					imgui.text(key);
-					imgui.same_line();
-					_, node[key] = imgui.input_int2(get_id(node, key), node[key]);
-				
-				elif isinstance(key_type, list):
-					imgui.text(key);
-					imgui.same_line();
-					if imgui.begin_combo(get_id(node, key), str(node[key])):
-						for value in key_type:
-							selected = value == node[key];
-							if imgui.selectable(value, selected)[0]:
-								node[key] = value;
-							if selected:
-								imgui.set_item_default_focus();	
-						imgui.end_combo();
-
-				elif "*" in key_type:
-					preview.render(doc, node, key);
-					imgui.text(key);
-					imgui.same_line();
-					if writable:
-						_, node[key] = imgui.input_text(get_id(node, key), node[key]);
-						imgui.same_line();
-						ident = get_id(node, key);
-						if imgui.button(f"...{ident}"):
-							FileExplorer(ident, document.parent, key_type);
-						if FileExplorer.is_active(ident):
-							FileExplorer.render();
-							ready, result = FileExplorer.harvest();
-							node[key] = str(result) if ready else node[key];
-					else:
-						imgui.text(node[key]);
-
-				elif key_type in asset_types:
-					preview.render(doc, node, key);
-					imgui.text(key);
-					imgui.same_line();
-					if imgui.begin_combo(get_id(node, key), str(node[key])):
-						for doc in asset_docs:
-							if doc.type == key_type:
-								for asset in doc.entries:
-									selected = asset["name"] == node[key];
-									if imgui.selectable(asset["name"], selected)[0]:
-										node[key] = asset["name"];
-									if selected:
-										imgui.set_item_default_focus();
-						imgui.end_combo();
-					
-				elif isinstance(key_type, dict):
-					doc.schema.push(key);
-					DocumentRenderer.__render(doc, node[key], key);
-					doc.schema.pop();
-				
+			if key_type is None:
+				imgui.text(key);
+			elif key_type == "int":
+				imgui.text(key);
+				imgui.same_line();
+				if writable:
+					_, node[key] = imgui.input_int(get_id(node, key), node[key]);
 				else:
-					imgui.text(f"[UNSUPPORTED TYPE \"{key_type}\"]");		
+					imgui.text(str(node[key]));
 
-			imgui.tree_pop();
+			elif key_type == "string":
+				imgui.text(key);
+				imgui.same_line();
+				if writable:
+					_, node[key] = imgui.input_text(get_id(node, key), node[key]);
+				else:
+					imgui.text(node[key]);
+
+			elif key_type == "bool":
+				imgui.text(key);
+				imgui.same_line();
+				if writable:
+					node[key] = imgui.checkbox(get_id(node, key), node[key])[1];
+				else:
+					imgui.text(str(node(key)));
+			
+			elif key_type == "ivec2":
+				imgui.text(key);
+				imgui.same_line();
+				_, node[key] = imgui.input_int2(get_id(node, key), node[key]);
+			
+			elif isinstance(key_type, list):
+				imgui.text(key);
+				imgui.same_line();
+				if imgui.begin_combo(get_id(node, key), str(node[key])):
+					for value in key_type:
+						selected = value == node[key];
+						if imgui.selectable(value, selected)[0]:
+							node[key] = value;
+						if selected:
+							imgui.set_item_default_focus();	
+					imgui.end_combo();
+
+			elif "*" in key_type:
+				preview.render(doc, node, key);
+				imgui.text(key);
+				imgui.same_line();
+				if writable:
+					_, node[key] = imgui.input_text(get_id(node, key), node[key]);
+					imgui.same_line();
+					ident = get_id(node, key);
+					if imgui.button(f"...{ident}"):
+						FileExplorer(ident, document.parent, key_type);
+					if FileExplorer.is_active(ident):
+						FileExplorer.render();
+						ready, result = FileExplorer.harvest();
+						node[key] = str(result) if ready else node[key];
+				else:
+					imgui.text(node[key]);
+
+			elif key_type in asset_types:
+				preview.render(doc, node, key);
+				imgui.text(key);
+				imgui.same_line();
+				if imgui.begin_combo(get_id(node, key), str(node[key])):
+					for doc in asset_docs:
+						if doc.type == key_type:
+							for asset in doc.entries:
+								selected = asset["name"] == node[key];
+								if imgui.selectable(asset["name"], selected)[0]:
+									node[key] = asset["name"];
+								if selected:
+									imgui.set_item_default_focus();
+					imgui.end_combo();
+				
+			elif isinstance(key_type, dict):
+				if imgui.tree_node(key):
+					doc.schema.push(key);
+					DocumentRenderer.__render(doc, node[key]);
+					doc.schema.pop();
+					imgui.tree_pop();
+			
+			else:
+				imgui.text(f"[UNSUPPORTED TYPE \"{key_type}\"]");
 	
 	def render(doc):
-		for entry in doc.entries:
-			DocumentRenderer.__render(doc, entry, f"{get_name(entry)} {get_number(entry)}");
+		idx = 0;
+		while idx < len(doc.entries):
+			node = doc.entries[idx];
+			node_open = imgui.tree_node(f"{get_name(node)} {get_number(node)}####{str(id(node))}");
+		
+			delete_popup_id = f"delete_popup####{id(node)}";
+			popup_statuses[delete_popup_id] = False;
+			imgui.push_id(delete_popup_id);
+
+			if imgui.begin_popup_context_item():	
+				if imgui.menu_item_simple("Delete##init"):
+					popup_statuses[delete_popup_id] = True;
+					imgui.close_current_popup();
+				imgui.end_popup();
+			
+			if popup_statuses[delete_popup_id]:
+				imgui.open_popup(delete_popup_id);
+				popup_statuses[delete_popup_id] = False;
+
+			delete_node = False;
+			if imgui.begin_popup(delete_popup_id):
+				imgui.text(f"Delete {get_name(node)}?");
+				if imgui.button("Cancel"):
+					imgui.close_current_popup();
+				imgui.same_line();
+				if imgui.button("Delete##confirm"):
+					delete_node = True;
+					imgui.close_current_popup();
+				imgui.end_popup();
+
+			imgui.pop_id();
+
+			if node_open:
+				DocumentRenderer.__render(doc, node);
+				imgui.tree_pop();
+
+			if delete_node:
+				del doc.entries[idx];
+				idx -= 1;
+			idx += 1;
 
 
 #########################################################

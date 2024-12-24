@@ -1975,15 +1975,6 @@
             "frames": 1,
             "width": 24,
             "height": 24
-        },
-        {
-            "mode": "init",
-            "id": 214,
-            "name": "uint16_poster",
-            "path": "horseshit/poster_uint16.png",
-            "frames": 1,
-            "width": 160,
-            "height": 46
         }
     ]
 }
