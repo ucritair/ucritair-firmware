@@ -1236,7 +1236,7 @@ CAT_item_table item_table =
 				.type = CAT_PROP_TYPE_TOP,
 				.shape = {2, 1},
 				.animate = true,
-				.child_dy = 0,
+				.child_dy = -6,
 			}
 		},
 		{

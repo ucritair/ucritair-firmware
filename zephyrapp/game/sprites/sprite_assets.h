@@ -216,4 +216,3 @@
 #define icon_low_battery_alt 211
 #define icon_low_battery_pet 212
 #define null_sprite 213
-#define uint16_poster 214

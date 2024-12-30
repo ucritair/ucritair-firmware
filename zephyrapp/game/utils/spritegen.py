@@ -8,6 +8,7 @@ import pygame
 from dataclasses import dataclass
 import json
 from PIL import Image;
+import copy;
 
 pygame.init()
 
@@ -44,36 +45,23 @@ json_data = json.load(json_file);
 json_entries = json_data["entries"];
 atlas = [];
 
-# Ensure correct JSON
 for (idx, sprite) in enumerate(json_entries):
+	# Ensure correct JSON
 	sprite["id"] = idx;
-	if sprite["mode"] == "init":
-		image = Image.open(os.path.join("sprites", sprite["path"]));
-		sprite["width"] = image.size[0];
-		sprite["height"] = image.size[1] // sprite["frames"];
-		image.close();
+	image = Image.open(os.path.join("sprites", sprite["path"]));
+	sprite["width"] = image.size[0];
+	sprite["height"] = image.size[1] // sprite["frames"];
+	image.close();
 
-for (idx, sprite) in enumerate(json_entries):
-	if sprite["mode"] == "init":
-		atlas.append(BakeData(
-			sprite["id"],
-			sprite["name"],
-			sprite["path"],
-			sprite["frames"],
-			sprite["width"],
-			sprite["height"]
-		));
-	else:
-		source_json = next(s for s in json_entries if s["name"] == sprite["source"]);
-		source = atlas[source_json["id"]];
-		atlas.append(BakeData(
-			sprite["id"],
-			sprite["name"],
-			source.path,
-			source.frames,
-			source.width,
-			source.height
-		));
+	# If so, atlasify
+	atlas.append(BakeData(
+		sprite["id"],
+		sprite["name"],
+		sprite["path"],
+		sprite["frames"],
+		sprite["width"],
+		sprite["height"]
+	));
 
 json_file.seek(0);
 json_file.truncate();
@@ -342,9 +330,12 @@ with open("sprites/sprite_assets.c", 'w') as fd:
 	
 	fd.write("#else\n");
 
-	source_sprites = [s for s in json_entries if s["mode"] != "copy"];
-	for sprite in source_sprites:
-		image = Image.open(os.path.join("sprites", sprite["path"]));
+	paths = set([s["path"] for s in json_entries]);
+	path_map = {};
+	for (idx, path) in enumerate(paths):
+		path_map[path] = idx;
+
+		image = Image.open(os.path.join("sprites", path));
 		pixels = image.load();
 		rgb888s = [];
 		for y in range(image.size[1]):
@@ -353,11 +344,11 @@ with open("sprites/sprite_assets.c", 'w') as fd:
 		image.close();
 
 		rgb565s = [RGBA88882RGB565(c) for c in rgb888s];
-		fd.write(f"const uint16_t pixels_{sprite["id"]}[{len(rgb565s)}] =\n");
+		fd.write(f"const uint16_t pixels_{idx}[{len(rgb565s)}] =\n");
 		fd.write("{\n");
 		for (idx, c) in enumerate(rgb565s):
 			fd.write(f"\t{hex(c)},");
-			if (idx > 0 and idx % sprite["width"] == 0) or idx == len(rgb565s)-1:
+			if (idx > 0 and idx % image.size[0] == 0) or idx == len(rgb565s)-1:
 				fd.write("\n");
 		fd.write("};\n\n");
 		
@@ -366,12 +357,11 @@ with open("sprites/sprite_assets.c", 'w') as fd:
 	fd.write("\t.data =\n");
 	fd.write("\t{\n");
 	for (idx, sprite) in enumerate(json_entries):
-		fd.write("\t\t{\n");
-		source = next(s for s in json_entries if s["name"] == sprite["source"]) if sprite["mode"] == "copy" else sprite;
-		fd.write(f"\t\t\t.pixels = pixels_{source["id"]},\n");
-		fd.write(f"\t\t\t.width = {source["width"]},\n");
-		fd.write(f"\t\t\t.height = {source["height"]},\n");
-		fd.write(f"\t\t\t.frame_count = {source["frames"]}\n");
+		fd.write(f"\t\t[{idx}] = {{\n");
+		fd.write(f"\t\t\t.pixels = pixels_{path_map[sprite["path"]]},\n");
+		fd.write(f"\t\t\t.width = {sprite["width"]},\n");
+		fd.write(f"\t\t\t.height = {sprite["height"]},\n");
+		fd.write(f"\t\t\t.frame_count = {sprite["frames"]}\n");
 		fd.write("\t\t},\n");
 	fd.write("\t},\n");
 	fd.write(f"\t.length = {len(atlas)}\n");

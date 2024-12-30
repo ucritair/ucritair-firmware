@@ -12,4 +12,3 @@ typedef struct CAT_sound
 extern CAT_sound coin_sound;
 extern CAT_sound fail_sound;
 extern CAT_sound thud_sound;
-extern CAT_sound cliffracer_sound;

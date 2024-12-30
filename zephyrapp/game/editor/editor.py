@@ -21,6 +21,7 @@ import subprocess as sp;
 from stat import *;
 import wave;
 import numpy as np;
+from collections import namedtuple;
 
 
 #########################################################
@@ -206,17 +207,88 @@ document = None;
 #########################################################
 ## RENDERING
 
-def load_texture(path):
-	image = Image.open(path);
-	buffer = image.tobytes();
-	width = image.size[0];
-	height = image.size[1];
+def make_texture(buffer, width, height):
 	texture = glGenTextures(1);
 	glBindTexture(GL_TEXTURE_2D, texture);
 	glTexParameteri(GL_TEXTURE_2D, 	GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, 	GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
-	return texture, width, height;
+	return texture;
+
+class EditorSprite:
+	def __invert_black(self, image):
+		pixels = image.load();
+		result = Image.new(self.image.mode, self.image.size);
+
+		all_black = True;
+		inversion = [];
+		for y in range(self.image.height):
+			for x in range(self.image.width):
+				p = pixels[x, y];
+				if p[3] >= 128:
+					all_black &= (p[0] == 0 and p[1] == 0 and p[2] == 0);
+					if not all_black:
+						return image;
+					inversion.append((255, 255, 255, p[3]));
+				else:
+					inversion.append(p);
+
+		result.putdata(inversion);
+		return result;
+		
+	def __transpose_frames(self, image):
+		pixels = image.load();
+		if self.frame_count > 1:
+			frame_h = image.height // self.frame_count;
+			transpose = [];
+			for y in range(frame_h):
+				for f in range(self.frame_count):
+					for x in range(image.width):
+						transpose.append(pixels[x, y + f * frame_h]);
+			result = Image.new(image.mode, (image.width * self.frame_count, frame_h));
+			result.putdata(transpose);
+			return result;
+		else:
+			return image;
+	
+	def __make_frame(self, frame):
+		pixels = self.image.load();
+
+		frame_h = self.height // self.frame_count;
+		frame_y = frame_h * frame;
+		frame = [];
+		for dy in range(0, frame_h):
+			for dx in range(0, self.width):
+				frame.append(pixels[dx, dy+frame_y]);
+
+		result = Image.new(self.image.mode, (self.width, frame_h));
+		result.putdata(frame);
+		return result;
+
+	def __init__(self, sprite):
+		self.name = sprite["name"];
+		self.path = os.path.join("sprites", sprite["path"]);
+		self.image = Image.open(self.path);
+		self.width = self.image.width;
+		self.height = self.image.height;
+		self.frame_count = sprite["frames"];
+		self.frames = [self.__make_frame(i) for i in range(self.frame_count)];
+		preview = self.__transpose_frames(self.__invert_black(self.image));
+		self.preview = make_texture(preview.tobytes(), preview.width, preview.height);
+
+class SpriteBank:
+	def __init__(self, source):
+		self.sprites = {};
+		for sprite in source:
+			editor_sprite = EditorSprite(sprite);
+			self.sprites[sprite["name"]] = editor_sprite;
+			self.sprites[sprite["path"]] = editor_sprite;
+
+	def get_sprite(self, name):
+		return self.sprites[name];
+
+sprite_doc = next(d for d in asset_docs if d.type == "sprite");
+sprite_bank = SpriteBank(sprite_doc.entries);
 
 class DrawFlags(Flag):
 	CENTER_X = auto()
@@ -227,22 +299,18 @@ class Canvas:
 	def __init__(self, width, height):
 		self.width = width;
 		self.height = height;
-		self.buffer = bytearray(bytes(width * height * 3));
-		self.texture = glGenTextures(1);
-		glBindTexture(GL_TEXTURE_2D, self.texture);
-		glTexParameteri(GL_TEXTURE_2D, 	GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, 	GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, self.buffer);
-
+		self.buffer = bytearray(bytes(width * height * 4));
+		self.texture = make_texture(self.buffer, width, height);
 		self.draw_flags = ();
 
 	def clear(self, c):
 		for y in range(self.height):
 			for x in range(self.width):
-				i = (y * self.width + x) * 3;
+				i = (y * self.width + x) * 4;
 				self.buffer[i+0] = c[0];
 				self.buffer[i+1] = c[1];
 				self.buffer[i+2] = c[2];
+				self.buffer[i+3] = 255;
 
 	def draw_pixel(self, x, y, c):
 		x = int(x);
@@ -252,7 +320,8 @@ class Canvas:
 			return;
 		if y < 0 or y >= self.height:
 			return;
-		i = (y * self.width + x) * 3;
+
+		i = (y * self.width + x) * 4;
 		self.buffer[i+0] = c[0];
 		self.buffer[i+1] = c[1];
 		self.buffer[i+2] = c[2];
@@ -264,7 +333,7 @@ class Canvas:
 		h = int(h);
 
 		if DrawFlags.CENTER_X in self.draw_flags:
-			x -= image.size[0] // 2;
+			x -= image.width // 2;
 		if DrawFlags.CENTER_Y in self.draw_flags:
 			y -= frame_h // 2;
 		elif DrawFlags.BOTTOM in self.draw_flags:
@@ -277,43 +346,38 @@ class Canvas:
 			self.draw_pixel(dx, y, c);
 			self.draw_pixel(dx, y+h-1, c);
 	
-	def draw_sprite(self, x, y, sprite, frame):
+	def draw_image(self, x, y, image):
 		x = int(x);
 		y = int(y);
 
-		path = os.path.join("sprites", sprite["path"]);
-		image = Image.open(path);
-		pixels = image.load();
-
-		frame_h = image.size[1] // sprite["frames"];
-		frame_y = frame_h * frame;
-
 		if DrawFlags.CENTER_X in self.draw_flags:
-			x -= image.size[0] // 2;
+			x -= image.width // 2;
 		if DrawFlags.CENTER_Y in self.draw_flags:
-			y -= frame_h // 2;
+			y -= image.height // 2;
 		elif DrawFlags.BOTTOM in self.draw_flags:
-			y -= frame_h;
+			y -= image.height;
 
-		for yr in range(frame_y, frame_y + frame_h):
+		pixels = image.load();
+		for yr in range(0, image.height):
 			yw = y+yr;
 			if yw < 0 or yw >= self.height:
 				continue;
-			for xr in range(0, image.size[0]):
+			for xr in range(0, image.width):
 				xw = x+xr;
 				if xw < 0 or xw >= self.width:
 					continue;
 				c = pixels[xr, yr];
 				if c[3] < 128:
 					continue;
-				i = (yw * self.width + xw) * 3;
+
+				i = (yw * self.width + xw) * 4;
 				self.buffer[i+0] = c[0];
 				self.buffer[i+1] = c[1];
 				self.buffer[i+2] = c[2];
 	
 	def render(self, scale):
 		glBindTexture(GL_TEXTURE_2D, self.texture);
-		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, self.width, self.height, GL_RGB, GL_UNSIGNED_BYTE, self.buffer);
+		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, self.width, self.height, GL_RGBA, GL_UNSIGNED_BYTE, self.buffer);
 		imgui.image(self.texture, (self.width * scale, self.height * scale));
 
 
@@ -394,8 +458,8 @@ class Preview:
 		pixels = image.load();
 		all_black = True;
 		inversion = [];
-		for y in range(image.size[1]):
-			for x in range(image.size[0]):
+		for y in range(image.height):
+			for x in range(image.width):
 				p = pixels[x, y];
 				if p[3] >= 128:
 					all_black &= (p[0] == 0 and p[1] == 0 and p[2] == 0);
@@ -411,13 +475,13 @@ class Preview:
 	def __transpose_frames(image, frames):
 		pixels = image.load();
 		if frames > 1:
-			frame_h = image.size[1] // frames;
+			frame_h = image.height // frames;
 			transpose = [];
 			for y in range(frame_h):
 				for f in range(frames):
-					for x in range(image.size[0]):
+					for x in range(image.width):
 						transpose.append(pixels[x, y + f * frame_h]);
-			image = Image.new(image.mode, (image.size[0] * frames, frame_h));
+			image = Image.new(image.mode, (image.width * frames, frame_h));
 			image.putdata(transpose);
 		return image;
 	
@@ -435,8 +499,8 @@ class Preview:
 			image = Preview.__transpose_frames(image, frames);
 
 			buffer = image.tobytes();
-			width = image.size[0];
-			height = image.size[1];
+			width = image.width;
+			height = image.height;
 			texture = glGenTextures(1);
 			glBindTexture(GL_TEXTURE_2D, texture);
 			glTexParameteri(GL_TEXTURE_2D, 	GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -662,7 +726,7 @@ class DocumentRenderer:
 
 
 #########################################################
-## PROP PREVIEWER
+## PROP VIEWER
 
 class PropViewer:
 	_ = None;
@@ -699,19 +763,16 @@ class PropViewer:
 		self.child_prop = self.parent_prop;
 
 	def __draw_prop(self, x, y, prop):
-		sprite = self.sprites[prop["name"]];
 		shape = prop["prop_data"]["shape"];
-
 		tlx = x - (shape[0] * 16) // 2;
 		tly = y - (shape[1] * 16);
-
 		self.canvas.draw_flags = DrawFlags(0);
 		for sy in range(shape[1]):
 			for sx in range(shape[0]):
 				self.canvas.draw_rect(tlx + sx * 16, tly + sy * 16, 16, 16, (255, 0, 0));
 
 		self.canvas.draw_flags = DrawFlags.CENTER_X | DrawFlags.BOTTOM;
-		self.canvas.draw_sprite(x, y, sprite, 0);
+		self.canvas.draw_image(x, y, sprite_bank.get_sprite(prop["sprite"]).frames[0]);
 		
 	def render():
 		if PropViewer._ == None:
@@ -764,9 +825,74 @@ class PropViewer:
 
 
 #########################################################
+## ANIMATION VIEWER
+
+class AnimationViewer:
+	_ = None;
+
+	def __init__(self):
+		if AnimationViewer._ != None:
+			return None;
+		AnimationViewer._ = self;
+
+		self.canvas = Canvas(240, 128);
+		self.size = (640, 480);
+		self.scale = 240 / self.canvas.height;
+		window_flag_list = [
+			imgui.WindowFlags_.no_saved_settings,
+			imgui.WindowFlags_.no_collapse,
+		];
+		self.window_flags = foldl(lambda a, b : a | b, 0, window_flag_list);
+		self.open = True;
+
+		self.sprites = [];
+		for doc in asset_docs:
+			if doc.type == "sprite":
+				self.sprites = doc.entries;
+
+		self.sprite = sprite_bank.get_sprite(self.sprites[0]["name"]);
+		self.frame = 0;
+
+	def render():
+		if AnimationViewer._ == None:
+			return;
+		self = AnimationViewer._;
+
+		if self.open:
+			imgui.set_next_window_size(self.size);
+			_, self.open = imgui.begin(f"Animation Viewer", self.open, flags=self.window_flags);
+
+			self.canvas.clear((0, 0, 0));
+			draw_x = self.canvas.width/2;
+			draw_y = self.canvas.height/2;
+			self.canvas.draw_flags = DrawFlags.CENTER_X | DrawFlags.CENTER_Y;
+			self.canvas.draw_image(draw_x, draw_y, self.sprite.frames[self.frame]);
+			self.canvas.render(self.scale);
+
+			_, self.frame = imgui.slider_int("Frame", self.frame, 0, self.sprite.frame_count-1);
+
+			if imgui.begin_combo(f"Sprite", self.sprite.name):
+				for sprite in self.sprites:
+					selected = sprite["name"] == self.sprite.name;
+					if imgui.selectable(sprite["name"], selected)[0]:
+						self.sprite = sprite_bank.get_sprite(sprite["name"]);
+						self.frame = 0;
+					if selected:
+						imgui.set_item_default_focus();
+				imgui.end_combo();
+
+			self.size = imgui.get_window_size();
+			imgui.end();
+		
+		if not self.open:
+			AnimationViewer._ = None;
+
+
+#########################################################
 ## EDITOR GUI
 
-splash_tex = load_texture("editor/splash.png");
+splash_img = Image.open("editor/splash.png");
+splash_tex = make_texture(splash_img.tobytes(), splash_img.width, splash_img.height);
 
 window_flag_list = [
 	imgui.WindowFlags_.no_saved_settings,
@@ -834,7 +960,9 @@ while not glfw.window_should_close(handle):
 		
 		if imgui.begin_menu("Tools"):
 			if imgui.menu_item_simple("Prop Viewer"):
-				PropViewer();		
+				PropViewer();	
+			if imgui.menu_item_simple("Animation Viewer"):
+				AnimationViewer();	
 			imgui.end_menu();
 	
 		if imgui.begin_menu("Utils"):
@@ -853,9 +981,11 @@ while not glfw.window_should_close(handle):
 	else:
 		imgui.set_scroll_x(0);
 		imgui.set_scroll_y(0);
-		imgui.image(splash_tex[0], (splash_tex[1], splash_tex[2]));
+		imgui.image(splash_tex, (splash_img.width, splash_img.height));
 	if PropViewer._ != None:
 		PropViewer.render();
+	if AnimationViewer._ != None:
+		AnimationViewer.render();
 
 	imgui.end();
 	imgui.render();

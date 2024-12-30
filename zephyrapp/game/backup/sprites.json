@@ -25,46 +25,46 @@
             "permissions": [
                 "write"
             ],
-			"constraint" : {
-				"key" : "mode",
-				"value" : "init"
-			}
+            "constraint": {
+                "key": "mode",
+                "value": "init"
+            }
         },
         "frames": {
             "type": "int",
             "permissions": [
                 "write"
             ],
-			"constraint" : {
-				"key" : "mode",
-				"value" : "init"
-			}
+            "constraint": {
+                "key": "mode",
+                "value": "init"
+            }
         },
         "width": {
             "type": "int",
             "permissions": [],
-			"constraint" : {
-				"key" : "mode",
-				"value" : "init"
-			}
+            "constraint": {
+                "key": "mode",
+                "value": "init"
+            }
         },
         "height": {
             "type": "int",
             "permissions": [],
-			"constraint" : {
-				"key" : "mode",
-				"value" : "init"
-			}
+            "constraint": {
+                "key": "mode",
+                "value": "init"
+            }
         },
         "source": {
             "type": "sprite",
             "permissions": [
                 "write"
             ],
-			"constraint" : {
-				"key" : "mode",
-				"value" : "copy"
-			}
+            "constraint": {
+                "key": "mode",
+                "value": "copy"
+            }
         }
     },
     "entries": [
@@ -1971,7 +1971,7 @@
             "mode": "init",
             "id": 213,
             "name": "null_sprite",
-            "path": "none_24x24.png",
+            "path": "null.png",
             "frames": 1,
             "width": 24,
             "height": 24

@@ -1,15 +1,6 @@
 {
     "type": "sprite",
     "schema": {
-        "mode": {
-            "type": [
-                "init",
-                "copy"
-            ],
-            "permissions": [
-                "read"
-            ]
-        },
         "id": {
             "type": "int",
             "permissions": []
@@ -24,52 +15,25 @@
             "type": "*.png",
             "permissions": [
                 "write"
-            ],
-            "constraint": {
-                "key": "mode",
-                "value": "init"
-            }
+            ]
         },
         "frames": {
             "type": "int",
             "permissions": [
                 "write"
-            ],
-            "constraint": {
-                "key": "mode",
-                "value": "init"
-            }
+            ]
         },
         "width": {
             "type": "int",
-            "permissions": [],
-            "constraint": {
-                "key": "mode",
-                "value": "init"
-            }
+            "permissions": []
         },
         "height": {
             "type": "int",
-            "permissions": [],
-            "constraint": {
-                "key": "mode",
-                "value": "init"
-            }
-        },
-        "source": {
-            "type": "sprite",
-            "permissions": [
-                "write"
-            ],
-            "constraint": {
-                "key": "mode",
-                "value": "copy"
-            }
+            "permissions": []
         }
     },
     "entries": [
         {
-            "mode": "init",
             "id": 0,
             "name": "base_wall_sprite",
             "path": "wall/basic.png",
@@ -78,7 +42,6 @@
             "height": 16
         },
         {
-            "mode": "init",
             "id": 1,
             "name": "sky_wall_sprite",
             "path": "wall/sky.png",
@@ -87,7 +50,6 @@
             "height": 16
         },
         {
-            "mode": "init",
             "id": 2,
             "name": "base_floor_sprite",
             "path": "tile/basic.png",
@@ -96,7 +58,6 @@
             "height": 16
         },
         {
-            "mode": "init",
             "id": 3,
             "name": "grass_floor_sprite",
             "path": "tile/grass.png",
@@ -105,7 +66,6 @@
             "height": 16
         },
         {
-            "mode": "init",
             "id": 4,
             "name": "ash_floor_sprite",
             "path": "tile/ash.png",
@@ -114,7 +74,6 @@
             "height": 16
         },
         {
-            "mode": "init",
             "id": 5,
             "name": "glyph_sprite",
             "path": "ui/glyphs.png",
@@ -123,7 +82,6 @@
             "height": 12
         },
         {
-            "mode": "init",
             "id": 6,
             "name": "strike_sprite",
             "path": "ui/strikethrough.png",
@@ -132,7 +90,6 @@
             "height": 12
         },
         {
-            "mode": "init",
             "id": 7,
             "name": "icon_pointer_sprite",
             "path": "ui/icon_pointer.png",
@@ -141,7 +98,6 @@
             "height": 12
         },
         {
-            "mode": "init",
             "id": 8,
             "name": "icon_a_sprite",
             "path": "ui/A Button_Both.png",
@@ -150,7 +106,6 @@
             "height": 16
         },
         {
-            "mode": "init",
             "id": 9,
             "name": "icon_b_sprite",
             "path": "ui/B Button_Both.png",
@@ -159,7 +114,6 @@
             "height": 16
         },
         {
-            "mode": "init",
             "id": 10,
             "name": "icon_n_sprite",
             "path": "ui/Up_Arrow_Both.png",
@@ -168,7 +122,6 @@
             "height": 16
         },
         {
-            "mode": "init",
             "id": 11,
             "name": "icon_e_sprite",
             "path": "ui/Right Arrow_Both.png",
@@ -177,7 +130,6 @@
             "height": 10
         },
         {
-            "mode": "init",
             "id": 12,
             "name": "icon_s_sprite",
             "path": "ui/Down Arrow_Both.png",
@@ -186,7 +138,6 @@
             "height": 16
         },
         {
-            "mode": "init",
             "id": 13,
             "name": "icon_w_sprite",
             "path": "ui/Left Arrow_Both.png",
@@ -195,7 +146,6 @@
             "height": 10
         },
         {
-            "mode": "init",
             "id": 14,
             "name": "icon_start_sprite",
             "path": "ui/Start Button_Both.png",
@@ -204,7 +154,6 @@
             "height": 12
         },
         {
-            "mode": "init",
             "id": 15,
             "name": "icon_select_sprite",
             "path": "ui/Select Button_Both.png",
@@ -213,7 +162,6 @@
             "height": 12
         },
         {
-            "mode": "init",
             "id": 16,
             "name": "icon_enter_sprite",
             "path": "ui/icon_enter.png",
@@ -222,7 +170,6 @@
             "height": 16
         },
         {
-            "mode": "init",
             "id": 17,
             "name": "icon_exit_sprite",
             "path": "ui/icon_exit.png",
@@ -231,7 +178,6 @@
             "height": 16
         },
         {
-            "mode": "init",
             "id": 18,
             "name": "icon_plot_sprite",
             "path": "ui/icon_plot.png",
@@ -240,7 +186,6 @@
             "height": 16
         },
         {
-            "mode": "init",
             "id": 19,
             "name": "icon_equip_sprite",
             "path": "ui/icon_equip.png",
@@ -249,7 +194,6 @@
             "height": 16
         },
         {
-            "mode": "init",
             "id": 20,
             "name": "icon_input_sprite",
             "path": "ui/icon_inputs.png",
@@ -258,7 +202,6 @@
             "height": 16
         },
         {
-            "mode": "init",
             "id": 21,
             "name": "icon_item_key_sprite",
             "path": "ui/icon_item_key.png",
@@ -267,7 +210,6 @@
             "height": 24
         },
         {
-            "mode": "init",
             "id": 22,
             "name": "icon_item_food_sprite",
             "path": "ui/icon_item_food.png",
@@ -276,7 +218,6 @@
             "height": 24
         },
         {
-            "mode": "init",
             "id": 23,
             "name": "icon_item_book_sprite",
             "path": "ui/icon_item_book.png",
@@ -285,7 +226,6 @@
             "height": 24
         },
         {
-            "mode": "init",
             "id": 24,
             "name": "icon_item_toy_sprite",
             "path": "ui/icon_item_toy.png",
@@ -294,7 +234,6 @@
             "height": 24
         },
         {
-            "mode": "init",
             "id": 25,
             "name": "icon_item_prop_sprite",
             "path": "ui/icon_item_prop.png",
@@ -303,7 +242,6 @@
             "height": 24
         },
         {
-            "mode": "init",
             "id": 26,
             "name": "icon_item_gear_sprite",
             "path": "ui/icon_item_gear.png",
@@ -312,7 +250,6 @@
             "height": 24
         },
         {
-            "mode": "init",
             "id": 27,
             "name": "icon_coin_sprite",
             "path": "ui/icon_coin.png",
@@ -321,7 +258,6 @@
             "height": 24
         },
         {
-            "mode": "init",
             "id": 28,
             "name": "icon_vig_sprite",
             "path": "ui/STAT_VIGOR2424.png",
@@ -330,7 +266,6 @@
             "height": 24
         },
         {
-            "mode": "init",
             "id": 29,
             "name": "icon_foc_sprite",
             "path": "ui/STAT_FOCUS2424.png",
@@ -339,7 +274,6 @@
             "height": 24
         },
         {
-            "mode": "init",
             "id": 30,
             "name": "icon_spi_sprite",
             "path": "ui/STAT_SPIRIT2424.png",
@@ -348,7 +282,6 @@
             "height": 24
         },
         {
-            "mode": "init",
             "id": 31,
             "name": "pip_vig_sprite",
             "path": "ui/cell_vig.png",
@@ -357,7 +290,6 @@
             "height": 16
         },
         {
-            "mode": "init",
             "id": 32,
             "name": "pip_foc_sprite",
             "path": "ui/cell_foc.png",
@@ -366,7 +298,6 @@
             "height": 16
         },
         {
-            "mode": "init",
             "id": 33,
             "name": "pip_spi_sprite",
             "path": "ui/cell_spi.png",
@@ -375,7 +306,6 @@
             "height": 16
         },
         {
-            "mode": "init",
             "id": 34,
             "name": "pip_empty_sprite",
             "path": "ui/cell_empty.png",
@@ -384,7 +314,6 @@
             "height": 16
         },
         {
-            "mode": "init",
             "id": 35,
             "name": "icon_temp_sprite",
             "path": "ui/icon_temp.png",
@@ -393,7 +322,6 @@
             "height": 24
         },
         {
-            "mode": "init",
             "id": 36,
             "name": "icon_co2_sprite",
             "path": "ui/icon_co2.png",
@@ -402,7 +330,6 @@
             "height": 24
         },
         {
-            "mode": "init",
             "id": 37,
             "name": "icon_pm_sprite",
             "path": "ui/icon_pm.png",
@@ -411,7 +338,6 @@
             "height": 24
         },
         {
-            "mode": "init",
             "id": 38,
             "name": "icon_voc_sprite",
             "path": "ui/icon_voc.png",
@@ -420,7 +346,6 @@
             "height": 24
         },
         {
-            "mode": "init",
             "id": 39,
             "name": "icon_nox_sprite",
             "path": "ui/icon_nox.png",
@@ -429,7 +354,6 @@
             "height": 24
         },
         {
-            "mode": "init",
             "id": 40,
             "name": "icon_mask_sprite",
             "path": "ui/aq-protection-mask.png",
@@ -438,7 +362,6 @@
             "height": 24
         },
         {
-            "mode": "init",
             "id": 41,
             "name": "icon_pure_sprite",
             "path": "ui/aq-protection-purifier.png",
@@ -447,7 +370,6 @@
             "height": 24
         },
         {
-            "mode": "init",
             "id": 42,
             "name": "icon_uv_sprite",
             "path": "ui/aq-protection-uv.png",
@@ -456,7 +378,6 @@
             "height": 24
         },
         {
-            "mode": "init",
             "id": 43,
             "name": "icon_nosmoke_sprite",
             "path": "ui/nosmoke.png",
@@ -465,7 +386,6 @@
             "height": 32
         },
         {
-            "mode": "init",
             "id": 44,
             "name": "icon_ee_sprite",
             "path": "ui/ee_logo.png",
@@ -474,7 +394,6 @@
             "height": 80
         },
         {
-            "mode": "init",
             "id": 45,
             "name": "icon_aq_ccode_sprite",
             "path": "ui/icon_aq_ccode.png",
@@ -483,7 +402,6 @@
             "height": 12
         },
         {
-            "mode": "init",
             "id": 46,
             "name": "icon_cell_sprite",
             "path": "ui/icon_cell_sprite.png",
@@ -492,7 +410,6 @@
             "height": 8
         },
         {
-            "mode": "init",
             "id": 47,
             "name": "icon_feed_sprite",
             "path": "ui/Stat_Refill_Vigor_Button.png",
@@ -501,7 +418,6 @@
             "height": 32
         },
         {
-            "mode": "init",
             "id": 48,
             "name": "icon_study_sprite",
             "path": "ui/Stat_Refill_Focus_Button.png",
@@ -510,7 +426,6 @@
             "height": 32
         },
         {
-            "mode": "init",
             "id": 49,
             "name": "icon_play_sprite",
             "path": "ui/Stat_Refill_Spirit_Button.png",
@@ -519,7 +434,6 @@
             "height": 32
         },
         {
-            "mode": "init",
             "id": 50,
             "name": "icon_deco_sprite",
             "path": "ui/sbut_deco.png",
@@ -528,7 +442,6 @@
             "height": 32
         },
         {
-            "mode": "init",
             "id": 51,
             "name": "icon_menu_sprite",
             "path": "ui/sbut_menu.png",
@@ -537,7 +450,6 @@
             "height": 32
         },
         {
-            "mode": "init",
             "id": 52,
             "name": "cursor_sprite",
             "path": "ui/cursor_room_ornate.png",
@@ -546,7 +458,6 @@
             "height": 16
         },
         {
-            "mode": "init",
             "id": 53,
             "name": "tile_hl_sprite",
             "path": "ui/tile_hl.png",
@@ -555,7 +466,6 @@
             "height": 16
         },
         {
-            "mode": "init",
             "id": 54,
             "name": "cursor_add_sprite",
             "path": "ui/cursor_add.png",
@@ -564,7 +474,6 @@
             "height": 16
         },
         {
-            "mode": "init",
             "id": 55,
             "name": "tile_hl_add_sprite",
             "path": "ui/tile_hl_add.png",
@@ -573,7 +482,6 @@
             "height": 16
         },
         {
-            "mode": "init",
             "id": 56,
             "name": "cursor_flip_sprite",
             "path": "ui/cursor_flip.png",
@@ -582,7 +490,6 @@
             "height": 16
         },
         {
-            "mode": "init",
             "id": 57,
             "name": "tile_hl_flip_sprite",
             "path": "ui/tile_hl_flip.png",
@@ -591,7 +498,6 @@
             "height": 16
         },
         {
-            "mode": "init",
             "id": 58,
             "name": "tile_mark_flip_sprite",
             "path": "ui/tile_mark_flip.png",
@@ -600,7 +506,6 @@
             "height": 16
         },
         {
-            "mode": "init",
             "id": 59,
             "name": "cursor_remove_sprite",
             "path": "ui/cursor_remove.png",
@@ -609,7 +514,6 @@
             "height": 16
         },
         {
-            "mode": "init",
             "id": 60,
             "name": "tile_hl_rm_sprite",
             "path": "ui/tile_hl_rm.png",
@@ -618,7 +522,6 @@
             "height": 16
         },
         {
-            "mode": "init",
             "id": 61,
             "name": "tile_mark_rm_sprite",
             "path": "ui/tile_mark_rm.png",
@@ -627,7 +530,6 @@
             "height": 16
         },
         {
-            "mode": "init",
             "id": 62,
             "name": "button_hl_sprite",
             "path": "ui/sbut_hl_sprite.png",
@@ -636,7 +538,6 @@
             "height": 34
         },
         {
-            "mode": "init",
             "id": 63,
             "name": "touch_hl_sprite",
             "path": "ui/touch_ring_sprite.png",
@@ -645,7 +546,6 @@
             "height": 32
         },
         {
-            "mode": "init",
             "id": 64,
             "name": "bread_sprite",
             "path": "food/bread.png",
@@ -654,7 +554,6 @@
             "height": 16
         },
         {
-            "mode": "init",
             "id": 65,
             "name": "coffee_sprite",
             "path": "food/coffee.png",
@@ -663,7 +562,6 @@
             "height": 16
         },
         {
-            "mode": "init",
             "id": 66,
             "name": "milk_sprite",
             "path": "food/milk.png",
@@ -672,7 +570,6 @@
             "height": 16
         },
         {
-            "mode": "init",
             "id": 67,
             "name": "soup_sprite",
             "path": "food/soup.png",
@@ -681,7 +578,6 @@
             "height": 16
         },
         {
-            "mode": "init",
             "id": 68,
             "name": "salad_sprite",
             "path": "food/salad.png",
@@ -690,7 +586,6 @@
             "height": 16
         },
         {
-            "mode": "init",
             "id": 69,
             "name": "sausage_sprite",
             "path": "food/sausage.png",
@@ -699,7 +594,6 @@
             "height": 16
         },
         {
-            "mode": "init",
             "id": 70,
             "name": "green_curry_sprite",
             "path": "food/curry_green.png",
@@ -708,7 +602,6 @@
             "height": 16
         },
         {
-            "mode": "init",
             "id": 71,
             "name": "red_curry_sprite",
             "path": "food/curry_red.png",
@@ -717,7 +610,6 @@
             "height": 16
         },
         {
-            "mode": "init",
             "id": 72,
             "name": "padkaprow_sprite",
             "path": "food/pad_krakow.png",
@@ -726,7 +618,6 @@
             "height": 16
         },
         {
-            "mode": "init",
             "id": 73,
             "name": "pill_vig_sprite",
             "path": "food/seed_vigor_sm.png",
@@ -735,7 +626,6 @@
             "height": 16
         },
         {
-            "mode": "init",
             "id": 74,
             "name": "pill_foc_sprite",
             "path": "food/seed_focus_sm.png",
@@ -744,7 +634,6 @@
             "height": 16
         },
         {
-            "mode": "init",
             "id": 75,
             "name": "pill_spi_sprite",
             "path": "food/seed_spirit_sm.png",
@@ -753,7 +642,6 @@
             "height": 16
         },
         {
-            "mode": "init",
             "id": 76,
             "name": "cigarette_sprite",
             "path": "prop/cigarette.png",
@@ -762,7 +650,6 @@
             "height": 16
         },
         {
-            "mode": "init",
             "id": 77,
             "name": "book_static_sprite",
             "path": "read/book_upright.png",
@@ -771,7 +658,6 @@
             "height": 16
         },
         {
-            "mode": "init",
             "id": 78,
             "name": "book_study_sprite",
             "path": "read/book_turn_a.png",
@@ -780,7 +666,6 @@
             "height": 32
         },
         {
-            "mode": "init",
             "id": 79,
             "name": "toy_duck_sprite",
             "path": "toy/duck.png",
@@ -789,7 +674,6 @@
             "height": 16
         },
         {
-            "mode": "init",
             "id": 80,
             "name": "toy_baseball_sprite",
             "path": "toy/baseball.png",
@@ -798,7 +682,6 @@
             "height": 16
         },
         {
-            "mode": "init",
             "id": 81,
             "name": "toy_basketball_sprite",
             "path": "toy/basketball.png",
@@ -807,7 +690,6 @@
             "height": 16
         },
         {
-            "mode": "init",
             "id": 82,
             "name": "toy_golf_sprite",
             "path": "toy/golf.png",
@@ -816,7 +698,6 @@
             "height": 16
         },
         {
-            "mode": "init",
             "id": 83,
             "name": "toy_puzzle_sprite",
             "path": "toy/puzzle.png",
@@ -825,7 +706,6 @@
             "height": 16
         },
         {
-            "mode": "init",
             "id": 84,
             "name": "coin_static_sprite",
             "path": "minigame/coin.png",
@@ -834,7 +714,6 @@
             "height": 16
         },
         {
-            "mode": "init",
             "id": 85,
             "name": "coin_world_sprite",
             "path": "gameplay/coin_a.png",
@@ -843,7 +722,6 @@
             "height": 16
         },
         {
-            "mode": "init",
             "id": 86,
             "name": "window_dawn_sprite",
             "path": "wall/wdw_lg_dawn.png",
@@ -852,7 +730,6 @@
             "height": 64
         },
         {
-            "mode": "init",
             "id": 87,
             "name": "window_morning_sprite",
             "path": "wall/wdw_lg_morning.png",
@@ -861,7 +738,6 @@
             "height": 64
         },
         {
-            "mode": "init",
             "id": 88,
             "name": "window_day_sprite",
             "path": "wall/wdw_lg_afternoon.png",
@@ -870,7 +746,6 @@
             "height": 64
         },
         {
-            "mode": "init",
             "id": 89,
             "name": "window_day_bad_aq_sprite",
             "path": "wall/wdw_aqi_high_a.png",
@@ -879,7 +754,6 @@
             "height": 64
         },
         {
-            "mode": "init",
             "id": 90,
             "name": "window_evening_sprite",
             "path": "wall/wdw_lg_evening.png",
@@ -888,7 +762,6 @@
             "height": 64
         },
         {
-            "mode": "init",
             "id": 91,
             "name": "window_dusk_sprite",
             "path": "wall/wdw_lg_dusk.png",
@@ -897,7 +770,6 @@
             "height": 64
         },
         {
-            "mode": "init",
             "id": 92,
             "name": "window_night_sprite",
             "path": "wall/wdw_lg_night.png",
@@ -906,7 +778,6 @@
             "height": 64
         },
         {
-            "mode": "init",
             "id": 93,
             "name": "vending_sprite",
             "path": "gameplay/vending_idle_a.png",
@@ -915,7 +786,6 @@
             "height": 96
         },
         {
-            "mode": "init",
             "id": 94,
             "name": "arcade_sprite",
             "path": "gameplay/arcade_a.png",
@@ -924,7 +794,6 @@
             "height": 64
         },
         {
-            "mode": "init",
             "id": 95,
             "name": "gpu_sprite",
             "path": "gameplay/solderpaste.png",
@@ -933,7 +802,6 @@
             "height": 48
         },
         {
-            "mode": "init",
             "id": 96,
             "name": "uv_sprite",
             "path": "gameplay/uv_alt_a.png",
@@ -942,7 +810,6 @@
             "height": 64
         },
         {
-            "mode": "init",
             "id": 97,
             "name": "purifier_sprite",
             "path": "gameplay/purifier_eth_a.png",
@@ -951,7 +818,6 @@
             "height": 48
         },
         {
-            "mode": "init",
             "id": 98,
             "name": "coffeemaker_sprite",
             "path": "prop/coffee_a.png",
@@ -960,7 +826,6 @@
             "height": 48
         },
         {
-            "mode": "init",
             "id": 99,
             "name": "fan_a_sprite",
             "path": "prop/fan_a.png",
@@ -969,7 +834,6 @@
             "height": 48
         },
         {
-            "mode": "init",
             "id": 100,
             "name": "fan_b_sprite",
             "path": "gameplay/purifier_a.png",
@@ -978,7 +842,6 @@
             "height": 48
         },
         {
-            "mode": "init",
             "id": 101,
             "name": "lantern_sprite",
             "path": "prop/lantern_lit_a.png",
@@ -987,7 +850,6 @@
             "height": 32
         },
         {
-            "mode": "init",
             "id": 102,
             "name": "laptop_sprite",
             "path": "prop/laptop_a.png",
@@ -996,7 +858,6 @@
             "height": 32
         },
         {
-            "mode": "init",
             "id": 103,
             "name": "chess_sprite",
             "path": "prop/chess.png",
@@ -1005,7 +866,6 @@
             "height": 32
         },
         {
-            "mode": "init",
             "id": 104,
             "name": "table_mahogany_sprite",
             "path": "temp/table_mahogany_hack.png",
@@ -1014,7 +874,6 @@
             "height": 48
         },
         {
-            "mode": "init",
             "id": 105,
             "name": "table_sm_mahogany_sprite",
             "path": "prop/table_square_mahogany.png",
@@ -1023,7 +882,6 @@
             "height": 48
         },
         {
-            "mode": "init",
             "id": 106,
             "name": "table_sm_plastic_sprite",
             "path": "prop/table_square_plastic.png",
@@ -1032,7 +890,6 @@
             "height": 48
         },
         {
-            "mode": "init",
             "id": 107,
             "name": "table_sm_plastic_alt_sprite",
             "path": "prop/table_square_plastic_alt.png",
@@ -1041,7 +898,6 @@
             "height": 48
         },
         {
-            "mode": "init",
             "id": 108,
             "name": "table_sm_walnut_sprite",
             "path": "prop/table_square_walnut.png",
@@ -1050,7 +906,6 @@
             "height": 48
         },
         {
-            "mode": "init",
             "id": 109,
             "name": "table_sm_walnut_alt_sprite",
             "path": "prop/table_square_walnut_alt.png",
@@ -1059,7 +914,6 @@
             "height": 48
         },
         {
-            "mode": "init",
             "id": 110,
             "name": "chair_mahogany_sprite",
             "path": "prop/chair_mahogany.png",
@@ -1068,7 +922,6 @@
             "height": 48
         },
         {
-            "mode": "init",
             "id": 111,
             "name": "chair_stone_sprite",
             "path": "prop/chair_stone.png",
@@ -1077,7 +930,6 @@
             "height": 48
         },
         {
-            "mode": "init",
             "id": 112,
             "name": "stool_wood_sprite",
             "path": "prop/stool_wood.png",
@@ -1086,7 +938,6 @@
             "height": 32
         },
         {
-            "mode": "init",
             "id": 113,
             "name": "stool_stone_sprite",
             "path": "prop/stool_stone.png",
@@ -1095,7 +946,6 @@
             "height": 32
         },
         {
-            "mode": "init",
             "id": 114,
             "name": "stool_gold_sprite",
             "path": "prop/stool_gold.png",
@@ -1104,7 +954,6 @@
             "height": 32
         },
         {
-            "mode": "init",
             "id": 115,
             "name": "bowl_stone_sprite",
             "path": "prop/bowl_stone.png",
@@ -1113,7 +962,6 @@
             "height": 16
         },
         {
-            "mode": "init",
             "id": 116,
             "name": "bowl_gold_sprite",
             "path": "prop/bowl_gold.png",
@@ -1122,7 +970,6 @@
             "height": 16
         },
         {
-            "mode": "init",
             "id": 117,
             "name": "succulent_sprite",
             "path": "prop/plant_md_stem.png",
@@ -1131,7 +978,6 @@
             "height": 32
         },
         {
-            "mode": "init",
             "id": 118,
             "name": "bush_plain_sprite",
             "path": "prop/bush_md_blank.png",
@@ -1140,7 +986,6 @@
             "height": 32
         },
         {
-            "mode": "init",
             "id": 119,
             "name": "bush_daisy_sprite",
             "path": "prop/bush_md_daisy.png",
@@ -1149,7 +994,6 @@
             "height": 32
         },
         {
-            "mode": "init",
             "id": 120,
             "name": "bush_lilac_sprite",
             "path": "prop/bush_md_lilac.png",
@@ -1158,7 +1002,6 @@
             "height": 32
         },
         {
-            "mode": "init",
             "id": 121,
             "name": "plant_plain_sprite",
             "path": "prop/plant_lg_sapling_blank.png",
@@ -1167,7 +1010,6 @@
             "height": 80
         },
         {
-            "mode": "init",
             "id": 122,
             "name": "plant_maroon_sprite",
             "path": "prop/plant_lg_sapling_maroon.png",
@@ -1176,7 +1018,6 @@
             "height": 80
         },
         {
-            "mode": "init",
             "id": 123,
             "name": "plant_lilac_sprite",
             "path": "prop/plant_lg_sapling_lilac.png",
@@ -1185,7 +1026,6 @@
             "height": 80
         },
         {
-            "mode": "init",
             "id": 124,
             "name": "plant_daisy_sprite",
             "path": "prop/plant_lg_sapling_daisy.png",
@@ -1194,7 +1034,6 @@
             "height": 80
         },
         {
-            "mode": "init",
             "id": 125,
             "name": "flower_vig_sprite",
             "path": "gameplay/stat_plant_vigor.png",
@@ -1203,7 +1042,6 @@
             "height": 64
         },
         {
-            "mode": "init",
             "id": 126,
             "name": "flower_foc_sprite",
             "path": "gameplay/stat_plant_focus.png",
@@ -1212,7 +1050,6 @@
             "height": 64
         },
         {
-            "mode": "init",
             "id": 127,
             "name": "flower_spi_sprite",
             "path": "gameplay/stat_plant_spirit.png",
@@ -1221,7 +1058,6 @@
             "height": 64
         },
         {
-            "mode": "init",
             "id": 128,
             "name": "crystal_blue_lg_sprite",
             "path": "prop/crystal_lg_shard_blue.png",
@@ -1230,7 +1066,6 @@
             "height": 32
         },
         {
-            "mode": "init",
             "id": 129,
             "name": "crystal_green_lg_sprite",
             "path": "prop/crystal_lg_shard_green.png",
@@ -1239,7 +1074,6 @@
             "height": 32
         },
         {
-            "mode": "init",
             "id": 130,
             "name": "crystal_purple_lg_sprite",
             "path": "prop/crystal_lg_shard_purple.png",
@@ -1248,7 +1082,6 @@
             "height": 32
         },
         {
-            "mode": "init",
             "id": 131,
             "name": "effigy_blue_sprite",
             "path": "prop/effigy_blue_a.png",
@@ -1257,7 +1090,6 @@
             "height": 80
         },
         {
-            "mode": "init",
             "id": 132,
             "name": "effigy_purple_sprite",
             "path": "prop/effigy_purple_a.png",
@@ -1266,7 +1098,6 @@
             "height": 80
         },
         {
-            "mode": "init",
             "id": 133,
             "name": "effigy_sea_sprite",
             "path": "prop/effigy_sea_a.png",
@@ -1275,7 +1106,6 @@
             "height": 80
         },
         {
-            "mode": "init",
             "id": 134,
             "name": "poster_zk_sprite",
             "path": "prop/poster_md_zk.png",
@@ -1284,7 +1114,6 @@
             "height": 32
         },
         {
-            "mode": "init",
             "id": 135,
             "name": "pixel_sprite",
             "path": "prop/pixel.png",
@@ -1293,7 +1122,6 @@
             "height": 16
         },
         {
-            "mode": "init",
             "id": 136,
             "name": "padkaprop_sprite",
             "path": "temp/food_padkrakow_md.png",
@@ -1302,7 +1130,6 @@
             "height": 32
         },
         {
-            "mode": "init",
             "id": 137,
             "name": "pet_idle_sprite",
             "path": "pet/unicorn_idle_complex_a.png",
@@ -1311,7 +1138,6 @@
             "height": 48
         },
         {
-            "mode": "init",
             "id": 138,
             "name": "pet_walk_sprite",
             "path": "pet/unicorn_default_walk_complex_a.png",
@@ -1320,7 +1146,6 @@
             "height": 48
         },
         {
-            "mode": "init",
             "id": 139,
             "name": "pet_idle_high_vig_sprite",
             "path": "pet/unicorn_wing_idle_a.png",
@@ -1329,7 +1154,6 @@
             "height": 48
         },
         {
-            "mode": "init",
             "id": 140,
             "name": "pet_walk_high_vig_sprite",
             "path": "pet/unicorn_wing_walk_a.png",
@@ -1338,7 +1162,6 @@
             "height": 48
         },
         {
-            "mode": "init",
             "id": 141,
             "name": "pet_high_vig_in_sprite",
             "path": "pet/unicorn_wing_a.png",
@@ -1347,13 +1170,14 @@
             "height": 48
         },
         {
-            "mode": "copy",
             "id": 142,
             "name": "pet_high_vig_out_sprite",
-            "source": "pet_high_vig_in_sprite"
+            "path": "pet/unicorn_wing_a.png",
+            "frames": 13,
+            "width": 64,
+            "height": 48
         },
         {
-            "mode": "init",
             "id": 143,
             "name": "pet_idle_high_foc_sprite",
             "path": "pet/unicorn_glow_idle_a.png",
@@ -1362,7 +1186,6 @@
             "height": 48
         },
         {
-            "mode": "init",
             "id": 144,
             "name": "pet_walk_high_foc_sprite",
             "path": "pet/unicorn_glow_walk_a.png",
@@ -1371,7 +1194,6 @@
             "height": 48
         },
         {
-            "mode": "init",
             "id": 145,
             "name": "pet_idle_high_spi_sprite",
             "path": "pet/unicorn_shimmer_idle_a.png",
@@ -1380,7 +1202,6 @@
             "height": 48
         },
         {
-            "mode": "init",
             "id": 146,
             "name": "pet_walk_high_spi_sprite",
             "path": "pet/unicorn_shimmer_walk_a.png",
@@ -1389,7 +1210,6 @@
             "height": 48
         },
         {
-            "mode": "init",
             "id": 147,
             "name": "pet_idle_low_vig_sprite",
             "path": "pet/unicorn_tired_a.png",
@@ -1398,7 +1218,6 @@
             "height": 48
         },
         {
-            "mode": "init",
             "id": 148,
             "name": "pet_walk_low_vig_sprite",
             "path": "pet/unicorn_tired_walk_a.png",
@@ -1407,7 +1226,6 @@
             "height": 48
         },
         {
-            "mode": "init",
             "id": 149,
             "name": "pet_idle_low_foc_sprite",
             "path": "pet/unicorn_messy_stink_a.png",
@@ -1416,7 +1234,6 @@
             "height": 48
         },
         {
-            "mode": "init",
             "id": 150,
             "name": "pet_walk_low_foc_sprite",
             "path": "pet/unicorn_messy_walk_complex_a.png",
@@ -1425,7 +1242,6 @@
             "height": 48
         },
         {
-            "mode": "init",
             "id": 151,
             "name": "pet_idle_low_spi_sprite",
             "path": "pet/unicorn_sad_idle_a.png",
@@ -1434,7 +1250,6 @@
             "height": 48
         },
         {
-            "mode": "init",
             "id": 152,
             "name": "pet_walk_low_spi_sprite",
             "path": "pet/unicorn_sad_walk_a.png",
@@ -1443,7 +1258,6 @@
             "height": 48
         },
         {
-            "mode": "init",
             "id": 153,
             "name": "pet_crit_vig_in_sprite",
             "path": "pet/unicorn_melt_a.png",
@@ -1452,7 +1266,6 @@
             "height": 48
         },
         {
-            "mode": "init",
             "id": 154,
             "name": "pet_crit_vig_sprite",
             "path": "pet/unicorn_melt.png",
@@ -1461,13 +1274,14 @@
             "height": 48
         },
         {
-            "mode": "copy",
             "id": 155,
             "name": "pet_crit_vig_out_sprite",
-            "source": "pet_crit_vig_in_sprite"
+            "path": "pet/unicorn_melt_a.png",
+            "frames": 8,
+            "width": 64,
+            "height": 48
         },
         {
-            "mode": "init",
             "id": 156,
             "name": "pet_crit_foc_in_sprite",
             "path": "pet/unicorn_tipped_a.png",
@@ -1476,7 +1290,6 @@
             "height": 48
         },
         {
-            "mode": "init",
             "id": 157,
             "name": "pet_crit_foc_sprite",
             "path": "pet/unicorn_tipped.png",
@@ -1485,13 +1298,14 @@
             "height": 48
         },
         {
-            "mode": "copy",
             "id": 158,
             "name": "pet_crit_foc_out_sprite",
-            "source": "pet_crit_foc_in_sprite"
+            "path": "pet/unicorn_tipped_a.png",
+            "frames": 6,
+            "width": 64,
+            "height": 48
         },
         {
-            "mode": "init",
             "id": 159,
             "name": "pet_crit_spi_in_sprite",
             "path": "pet/unicorn_block_a.png",
@@ -1500,7 +1314,6 @@
             "height": 48
         },
         {
-            "mode": "init",
             "id": 160,
             "name": "pet_crit_spi_sprite",
             "path": "pet/unicorn_block_blink_a.png",
@@ -1509,13 +1322,14 @@
             "height": 48
         },
         {
-            "mode": "copy",
             "id": 161,
             "name": "pet_crit_spi_out_sprite",
-            "source": "pet_crit_spi_in_sprite"
+            "path": "pet/unicorn_block_a.png",
+            "frames": 15,
+            "width": 64,
+            "height": 48
         },
         {
-            "mode": "init",
             "id": 162,
             "name": "pet_eat_in_sprite",
             "path": "pet/unicorn_eat_lower_a.png",
@@ -1524,7 +1338,6 @@
             "height": 48
         },
         {
-            "mode": "init",
             "id": 163,
             "name": "pet_eat_sprite",
             "path": "pet/unicorn_eat_chew_a.png",
@@ -1533,13 +1346,14 @@
             "height": 48
         },
         {
-            "mode": "copy",
             "id": 164,
             "name": "pet_eat_out_sprite",
-            "source": "pet_eat_in_sprite"
+            "path": "pet/unicorn_eat_lower_a.png",
+            "frames": 7,
+            "width": 64,
+            "height": 48
         },
         {
-            "mode": "init",
             "id": 165,
             "name": "pet_study_in_sprite",
             "path": "pet/unicorn_read_sit_a.png",
@@ -1548,7 +1362,6 @@
             "height": 48
         },
         {
-            "mode": "init",
             "id": 166,
             "name": "pet_study_sprite",
             "path": "pet/unicorn_read_sit.png",
@@ -1557,13 +1370,14 @@
             "height": 48
         },
         {
-            "mode": "copy",
             "id": 167,
             "name": "pet_study_out_sprite",
-            "source": "pet_study_in_sprite"
+            "path": "pet/unicorn_read_sit_a.png",
+            "frames": 6,
+            "width": 64,
+            "height": 48
         },
         {
-            "mode": "init",
             "id": 168,
             "name": "pet_play_a_sprite",
             "path": "pet/unicorn_play_knead_a.png",
@@ -1572,7 +1386,6 @@
             "height": 48
         },
         {
-            "mode": "init",
             "id": 169,
             "name": "pet_play_b_sprite",
             "path": "pet/unicorn_play_b_a.png",
@@ -1581,7 +1394,6 @@
             "height": 48
         },
         {
-            "mode": "init",
             "id": 170,
             "name": "pet_play_c_sprite",
             "path": "pet/unicorn_play_c_a.png",
@@ -1590,7 +1402,6 @@
             "height": 48
         },
         {
-            "mode": "init",
             "id": 171,
             "name": "pet_vig_up_sprite",
             "path": "pet/unicorn_stat_vigor_up_a.png",
@@ -1599,7 +1410,6 @@
             "height": 48
         },
         {
-            "mode": "init",
             "id": 172,
             "name": "pet_foc_up_sprite",
             "path": "pet/unicorn_stat_focus_up_a.png",
@@ -1608,7 +1418,6 @@
             "height": 48
         },
         {
-            "mode": "init",
             "id": 173,
             "name": "pet_spi_up_sprite",
             "path": "pet/unicorn_stat_spirit_up_a.png",
@@ -1617,7 +1426,6 @@
             "height": 48
         },
         {
-            "mode": "init",
             "id": 174,
             "name": "mood_low_vig_sprite",
             "path": "ui/bubl_low_vig.png",
@@ -1626,7 +1434,6 @@
             "height": 21
         },
         {
-            "mode": "init",
             "id": 175,
             "name": "mood_low_foc_sprite",
             "path": "ui/bubl_low_foc.png",
@@ -1635,7 +1442,6 @@
             "height": 21
         },
         {
-            "mode": "init",
             "id": 176,
             "name": "mood_low_spi_sprite",
             "path": "ui/bubl_low_spi.png",
@@ -1644,7 +1450,6 @@
             "height": 21
         },
         {
-            "mode": "init",
             "id": 177,
             "name": "mood_good_sprite",
             "path": "ui/bubl_react_good.png",
@@ -1653,7 +1458,6 @@
             "height": 16
         },
         {
-            "mode": "init",
             "id": 178,
             "name": "mood_bad_sprite",
             "path": "ui/bubl_react_bad.png",
@@ -1662,7 +1466,6 @@
             "height": 16
         },
         {
-            "mode": "init",
             "id": 179,
             "name": "snake_head_sprite",
             "path": "minigame/snake_cat_head_default.png",
@@ -1671,7 +1474,6 @@
             "height": 16
         },
         {
-            "mode": "init",
             "id": 180,
             "name": "snake_body_sprite",
             "path": "minigame/snake_cat_body.png",
@@ -1680,7 +1482,6 @@
             "height": 16
         },
         {
-            "mode": "init",
             "id": 181,
             "name": "snake_corner_sprite",
             "path": "minigame/snake_cat_corner.png",
@@ -1689,7 +1490,6 @@
             "height": 16
         },
         {
-            "mode": "init",
             "id": 182,
             "name": "snake_tail_sprite",
             "path": "minigame/snake_tail.png",
@@ -1698,7 +1498,6 @@
             "height": 16
         },
         {
-            "mode": "init",
             "id": 183,
             "name": "bento_sprite",
             "path": "food/bento.png",
@@ -1707,7 +1506,6 @@
             "height": 16
         },
         {
-            "mode": "init",
             "id": 184,
             "name": "meat_sprite",
             "path": "food/meat.png",
@@ -1716,7 +1514,6 @@
             "height": 16
         },
         {
-            "mode": "init",
             "id": 185,
             "name": "orange_sprite",
             "path": "food/orange.png",
@@ -1725,7 +1522,6 @@
             "height": 16
         },
         {
-            "mode": "init",
             "id": 186,
             "name": "persimmons_sprite",
             "path": "food/persimmons.png",
@@ -1734,7 +1530,6 @@
             "height": 16
         },
         {
-            "mode": "init",
             "id": 187,
             "name": "soda_sprite",
             "path": "food/soda.png",
@@ -1743,7 +1538,6 @@
             "height": 16
         },
         {
-            "mode": "init",
             "id": 188,
             "name": "barley_tea_sprite",
             "path": "food/tea_barley.png",
@@ -1752,7 +1546,6 @@
             "height": 32
         },
         {
-            "mode": "init",
             "id": 189,
             "name": "green_tea_sprite",
             "path": "food/tea_green.png",
@@ -1761,7 +1554,6 @@
             "height": 32
         },
         {
-            "mode": "init",
             "id": 190,
             "name": "tea_cup_sprite",
             "path": "food/tea_cup_full.png",
@@ -1770,7 +1562,6 @@
             "height": 16
         },
         {
-            "mode": "init",
             "id": 191,
             "name": "tea_cup_empty_sprite",
             "path": "food/tea_cup_empty.png",
@@ -1779,7 +1570,6 @@
             "height": 16
         },
         {
-            "mode": "init",
             "id": 192,
             "name": "mines_sprite",
             "path": "minigame/minesweeper.png",
@@ -1788,7 +1578,6 @@
             "height": 16
         },
         {
-            "mode": "init",
             "id": 193,
             "name": "fighter_sprite",
             "path": "minigame/fighter.png",
@@ -1797,7 +1586,6 @@
             "height": 32
         },
         {
-            "mode": "init",
             "id": 194,
             "name": "bowl_grey_sprite",
             "path": "prop/bowl_grey.png",
@@ -1806,7 +1594,6 @@
             "height": 16
         },
         {
-            "mode": "init",
             "id": 195,
             "name": "bowl_mahogany_sprite",
             "path": "prop/bowl_mahogany.png",
@@ -1815,7 +1602,6 @@
             "height": 16
         },
         {
-            "mode": "init",
             "id": 196,
             "name": "bowl_walnut_sprite",
             "path": "prop/bowl_walnut.png",
@@ -1824,7 +1610,6 @@
             "height": 16
         },
         {
-            "mode": "init",
             "id": 197,
             "name": "chair_plastic_sprite",
             "path": "prop/chair_plastic_alt.png",
@@ -1833,7 +1618,6 @@
             "height": 48
         },
         {
-            "mode": "init",
             "id": 198,
             "name": "plant_corn_sprite",
             "path": "prop/plant_lg_corn.png",
@@ -1842,7 +1626,6 @@
             "height": 80
         },
         {
-            "mode": "init",
             "id": 199,
             "name": "chicken_sprite",
             "path": "prop/prop_chicken_a.png",
@@ -1851,7 +1634,6 @@
             "height": 32
         },
         {
-            "mode": "init",
             "id": 200,
             "name": "prop_mine_sprite",
             "path": "prop/prop_mine_a.png",
@@ -1860,7 +1642,6 @@
             "height": 48
         },
         {
-            "mode": "init",
             "id": 201,
             "name": "stool_plastic_sprite",
             "path": "prop/stool_plastic.png",
@@ -1869,7 +1650,6 @@
             "height": 32
         },
         {
-            "mode": "init",
             "id": 202,
             "name": "table_plastic_sprite",
             "path": "temp/table_plastic_thin_hack.png",
@@ -1878,7 +1658,6 @@
             "height": 48
         },
         {
-            "mode": "init",
             "id": 203,
             "name": "table_plastic_alt_sprite",
             "path": "temp/table_plastic_hack.png",
@@ -1887,7 +1666,6 @@
             "height": 48
         },
         {
-            "mode": "init",
             "id": 204,
             "name": "table_walnut_sprite",
             "path": "temp/table_walnut_hack.png",
@@ -1896,7 +1674,6 @@
             "height": 48
         },
         {
-            "mode": "init",
             "id": 205,
             "name": "vase_gold_sprite",
             "path": "prop/vase_gold.png",
@@ -1905,7 +1682,6 @@
             "height": 16
         },
         {
-            "mode": "init",
             "id": 206,
             "name": "vase_grey_sprite",
             "path": "prop/vase_grey.png",
@@ -1914,7 +1690,6 @@
             "height": 16
         },
         {
-            "mode": "init",
             "id": 207,
             "name": "vase_mahogany_sprite",
             "path": "prop/vase_mahogany.png",
@@ -1923,7 +1698,6 @@
             "height": 16
         },
         {
-            "mode": "init",
             "id": 208,
             "name": "vase_stone_sprite",
             "path": "prop/vase_stone.png",
@@ -1932,7 +1706,6 @@
             "height": 16
         },
         {
-            "mode": "init",
             "id": 209,
             "name": "vase_walnut_sprite",
             "path": "prop/vase_walnut.png",
@@ -1941,7 +1714,6 @@
             "height": 16
         },
         {
-            "mode": "init",
             "id": 210,
             "name": "icon_low_battery",
             "path": "ui/low_battery.png",
@@ -1950,7 +1722,6 @@
             "height": 32
         },
         {
-            "mode": "init",
             "id": 211,
             "name": "icon_low_battery_alt",
             "path": "ui/low_battery_alt.png",
@@ -1959,7 +1730,6 @@
             "height": 32
         },
         {
-            "mode": "init",
             "id": 212,
             "name": "icon_low_battery_pet",
             "path": "ui/low_battery_unicorn.png",
@@ -1968,7 +1738,6 @@
             "height": 64
         },
         {
-            "mode": "init",
             "id": 213,
             "name": "null_sprite",
             "path": "null.png",
