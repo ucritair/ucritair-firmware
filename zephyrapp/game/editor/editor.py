@@ -57,6 +57,9 @@ imgui_io = imgui.get_io();
 imgui.style_colors_dark()
 impl = GlfwRenderer(handle);
 
+time = glfw.get_time();
+delta_time = 0;
+
 
 #########################################################
 ## COW TOOLS
@@ -273,22 +276,15 @@ class EditorSprite:
 		self.height = self.image.height;
 		self.frame_count = sprite["frames"];
 		self.frames = [self.__make_frame(i) for i in range(self.frame_count)];
-		preview = self.__transpose_frames(self.__invert_black(self.image));
+		preview = self.image;
+		preview = self.__invert_black(preview);
+		preview = self.__transpose_frames(preview);
 		self.preview = make_texture(preview.tobytes(), preview.width, preview.height);
 
-class SpriteBank:
-	def __init__(self, source):
-		self.sprites = {};
-		for sprite in source:
-			editor_sprite = EditorSprite(sprite);
-			self.sprites[sprite["name"]] = editor_sprite;
-			self.sprites[sprite["path"]] = editor_sprite;
-
-	def get_sprite(self, name):
-		return self.sprites[name];
-
-sprite_doc = next(d for d in asset_docs if d.type == "sprite");
-sprite_bank = SpriteBank(sprite_doc.entries);
+sprite_bank = {};
+for sprite in next(d for d in asset_docs if d.type == "sprite").entries:
+	sprite_bank[sprite["path"]] = EditorSprite(sprite);
+	sprite_bank[sprite["name"]] = sprite_bank[sprite["path"]];
 
 class DrawFlags(Flag):
 	CENTER_X = auto()
@@ -772,7 +768,7 @@ class PropViewer:
 				self.canvas.draw_rect(tlx + sx * 16, tly + sy * 16, 16, 16, (255, 0, 0));
 
 		self.canvas.draw_flags = DrawFlags.CENTER_X | DrawFlags.BOTTOM;
-		self.canvas.draw_image(x, y, sprite_bank.get_sprite(prop["sprite"]).frames[0]);
+		self.canvas.draw_image(x, y, sprite_bank[prop["sprite"]].frames[0]);
 		
 	def render():
 		if PropViewer._ == None:
@@ -783,7 +779,7 @@ class PropViewer:
 			imgui.set_next_window_size(self.size);
 			_, self.open = imgui.begin(f"Prop Viewer", self.open, flags=self.window_flags);
 
-			self.canvas.clear((0, 0, 0));
+			self.canvas.clear((128, 128, 128));
 			draw_x = self.canvas.width/2;
 			draw_y = self.canvas.height*0.75;
 			self.__draw_prop(draw_x, draw_y, self.parent_prop);
@@ -845,13 +841,12 @@ class AnimationViewer:
 		self.window_flags = foldl(lambda a, b : a | b, 0, window_flag_list);
 		self.open = True;
 
-		self.sprites = [];
-		for doc in asset_docs:
-			if doc.type == "sprite":
-				self.sprites = doc.entries;
-
-		self.sprite = sprite_bank.get_sprite(self.sprites[0]["name"]);
+		self.sprites = next(d for d in asset_docs if d.type == "sprite").entries;
+		self.sprite = sprite_bank[self.sprites[0]["name"]];
 		self.frame = 0;
+		
+		self.animate = True;
+		self.timer = 0;
 
 	def render():
 		if AnimationViewer._ == None:
@@ -862,20 +857,32 @@ class AnimationViewer:
 			imgui.set_next_window_size(self.size);
 			_, self.open = imgui.begin(f"Animation Viewer", self.open, flags=self.window_flags);
 
-			self.canvas.clear((0, 0, 0));
+			self.canvas.clear((128, 128, 128));
 			draw_x = self.canvas.width/2;
 			draw_y = self.canvas.height/2;
 			self.canvas.draw_flags = DrawFlags.CENTER_X | DrawFlags.CENTER_Y;
 			self.canvas.draw_image(draw_x, draw_y, self.sprite.frames[self.frame]);
 			self.canvas.render(self.scale);
 
-			_, self.frame = imgui.slider_int("Frame", self.frame, 0, self.sprite.frame_count-1);
+			if self.sprite.frame_count > 1:	
+				switch, self.animate = imgui.checkbox("Animate", self.animate);
+				if switch:
+					self.frame = 0;
+				if self.animate:
+					self.timer += delta_time;
+					if self.timer >= 0.2:
+						self.timer = 0;
+						self.frame += 1;
+						if self.frame >= self.sprite.frame_count:
+							self.frame = 0;
+				else:
+					_, self.frame = imgui.slider_int("Frame", self.frame, 0, self.sprite.frame_count-1);
 
 			if imgui.begin_combo(f"Sprite", self.sprite.name):
 				for sprite in self.sprites:
 					selected = sprite["name"] == self.sprite.name;
 					if imgui.selectable(sprite["name"], selected)[0]:
-						self.sprite = sprite_bank.get_sprite(sprite["name"]);
+						self.sprite = sprite_bank[sprite["name"]];
 						self.frame = 0;
 					if selected:
 						imgui.set_item_default_focus();
@@ -913,6 +920,10 @@ splash_flag_list = [
 splash_flags = foldl(lambda a, b : a | b, 0, splash_flag_list);
 
 while not glfw.window_should_close(handle):
+	time_last = time;
+	time = glfw.get_time();
+	delta_time = time - time_last;
+
 	glfw.poll_events();
 	impl.process_inputs();
 

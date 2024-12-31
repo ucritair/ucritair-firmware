@@ -181,7 +181,7 @@ texture_use_cache = {}
 with open("sprites/sprite_assets.h", "w") as fd:
 	fd.write("#pragma once\n");
 	fd.write("\n")
-	fd.write("#include <stdint.h>\n");
+	fd.write("#include \"cat_sprite.h\"\n");
 	fd.write("\n");
 	fd.write("#ifdef CAT_DESKTOP\n");
 	fd.write("typedef struct\n");
