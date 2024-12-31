@@ -419,13 +419,17 @@ void CAT_draw_sprite(const CAT_sprite* sprite, int frame_idx, int x, int y)
 		{
 			int y_w = y + dy;
 			int x_w = x + dx;
-			if(y_w >= 0 && y_w < LCD_SCREEN_H && x_w >= 0 && x_w < LCD_SCREEN_W)
+			if
+			(
+				colour_565 != 0xdead &&
+				y_w >= 0 && y_w < LCD_SCREEN_H &&
+				x_w >= 0 && x_w < LCD_SCREEN_W
+			)
 			{
-				if(colour_565 != 0xdead)
-				{
-					int px_idx = (y+dy) * LCD_SCREEN_W + (x+dx);
-					FRAMEBUFFER[px_idx] = colour_565;
-				}
+				if((spriter.mode & CAT_DRAW_MODE_REFLECT_X) > 0)
+					x_w = x + w - dx;
+				int px_idx = y_w * LCD_SCREEN_W + x_w;
+				FRAMEBUFFER[px_idx] = colour_565;
 			}
 			
 			dx += 1;
