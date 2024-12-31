@@ -119,7 +119,7 @@ void CAT_force_save()
 	save->coins = coins;
 	for(int i = 0; i < room.pickup_count; i++)
 	{
-		if(room.pickups[i].sprite_id == coin_world_sprite)
+		if(room.pickups[i].sprite == &coin_world_sprite)
 		{
 			save->coins += 1;
 		}

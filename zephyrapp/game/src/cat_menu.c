@@ -87,10 +87,10 @@ void CAT_render_menu()
 {
 	CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});  
 	CAT_gui_text("MENU ");
-	CAT_gui_image(icon_a_sprite, 1);
-	CAT_gui_image(icon_enter_sprite, 0);
-	CAT_gui_image(icon_b_sprite, 1);
-	CAT_gui_image(icon_exit_sprite, 0);
+	CAT_gui_image(&icon_a_sprite, 1);
+	CAT_gui_image(&icon_enter_sprite, 0);
+	CAT_gui_image(&icon_b_sprite, 1);
+	CAT_gui_image(&icon_exit_sprite, 0);
 
 	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
 
@@ -99,7 +99,7 @@ void CAT_render_menu()
 		CAT_gui_textf("\1 %s ", entries[i].title);
 
 		if(i == selector)
-			CAT_gui_image(icon_pointer_sprite, 0);
+			CAT_gui_image(&icon_pointer_sprite, 0);
 
 		CAT_gui_line_break();
 	}
@@ -155,7 +155,7 @@ void CAT_render_debug()
 		{
 			int idx = y * CAT_GRID_WIDTH + x;
 			int cell = space.cells[idx].occupied ? 1 : 0;
-			CAT_gui_image(icon_cell_sprite, cell);
+			CAT_gui_image(&icon_cell_sprite, cell);
 		}
 		CAT_gui_line_break();
 	}
@@ -262,7 +262,7 @@ void CAT_render_cheats()
 	{
 		CAT_gui_textf("\1 %s ", cheat_entries[i].name);
 		if(i == cheat_selector)
-			CAT_gui_image(icon_pointer_sprite, 0);
+			CAT_gui_image(&icon_pointer_sprite, 0);
 		CAT_gui_line_break();
 	}
 }
@@ -456,7 +456,7 @@ void CAT_render_magic()
 	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18}); 
 	CAT_gui_text("Enter an incantation,\n");
 	CAT_gui_text("or hold ");
-	CAT_gui_image(icon_b_sprite, 0);
+	CAT_gui_image(&icon_b_sprite, 0);
 	CAT_gui_text(" to exit.");
 	
 	CAT_gui_div("INCANTATION");
@@ -465,7 +465,7 @@ void CAT_render_magic()
 	while(steps < 10)
 	{
 		if(input.buffer[i] != CAT_BUTTON_LAST)
-			CAT_gui_image(icon_input_sprite, input.buffer[i]);
+			CAT_gui_image(&icon_input_sprite, input.buffer[i]);
 		i -= 1;
 		if(i < 0)
 			i = 9;

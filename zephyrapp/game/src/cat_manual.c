@@ -97,40 +97,40 @@ void CAT_draw_controls()
 {
 	CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});
 	CAT_gui_text("< CONTROLS > ");
-	CAT_gui_image(icon_b_sprite, 1);
-	CAT_gui_image(icon_exit_sprite, 0);
+	CAT_gui_image(&icon_b_sprite, 1);
+	CAT_gui_image(&icon_exit_sprite, 0);
 	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
 
 	CAT_gui_text("PRESS ");
-	CAT_gui_image(icon_w_sprite, 0);
+	CAT_gui_image(&icon_w_sprite, 0);
 	CAT_gui_text(" OR ");
-	CAT_gui_image(icon_e_sprite, 0);
+	CAT_gui_image(&icon_e_sprite, 0);
 	CAT_gui_text(" TO TRAVERSE\nTHE MANUAL SCREENS");
 	CAT_gui_div("");
 	CAT_gui_line_break();
 
-	CAT_gui_image(icon_start_sprite, 0);
+	CAT_gui_image(&icon_start_sprite, 0);
 	CAT_gui_text("Open/close menu");
 	CAT_gui_line_break();
-	CAT_gui_image(icon_select_sprite, 0);
+	CAT_gui_image(&icon_select_sprite, 0);
 	CAT_gui_text("Cycle decor mode");
 	CAT_gui_line_break();
-	CAT_gui_image(icon_a_sprite, 0);
+	CAT_gui_image(&icon_a_sprite, 0);
 	CAT_gui_text("Confirm");
 	CAT_gui_line_break();
-	CAT_gui_image(icon_b_sprite, 0);
+	CAT_gui_image(&icon_b_sprite, 0);
 	CAT_gui_text("Cancel");
 	CAT_gui_line_break();
-	CAT_gui_image(icon_n_sprite, 0);
+	CAT_gui_image(&icon_n_sprite, 0);
 	CAT_gui_text("Navigate up");
 	CAT_gui_line_break();
-	CAT_gui_image(icon_e_sprite, 0);
+	CAT_gui_image(&icon_e_sprite, 0);
 	CAT_gui_text("Navigate right");
 	CAT_gui_line_break();
-	CAT_gui_image(icon_s_sprite, 0);
+	CAT_gui_image(&icon_s_sprite, 0);
 	CAT_gui_text("Navigate down");
 	CAT_gui_line_break();
-	CAT_gui_image(icon_w_sprite, 0);
+	CAT_gui_image(&icon_w_sprite, 0);
 	CAT_gui_text("Navigate left");
 }
 
@@ -138,13 +138,13 @@ void CAT_draw_stats()
 {
 	CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});
 	CAT_gui_text("< STATS > ");
-	CAT_gui_image(icon_b_sprite, 1);
-	CAT_gui_image(icon_exit_sprite, 0);
+	CAT_gui_image(&icon_b_sprite, 1);
+	CAT_gui_image(&icon_exit_sprite, 0);
 	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
 
-	CAT_gui_image(icon_vig_sprite, 0);
-	CAT_gui_image(icon_foc_sprite, 0);
-	CAT_gui_image(icon_spi_sprite, 0);
+	CAT_gui_image(&icon_vig_sprite, 0);
+	CAT_gui_image(&icon_foc_sprite, 0);
+	CAT_gui_image(&icon_spi_sprite, 0);
 	CAT_gui_line_break();
 
 	CAT_gui_text("\1 VIGOUR");
@@ -184,16 +184,16 @@ void CAT_draw_actions()
 {
 	CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});
 	CAT_gui_text("< CARETAKING > ");
-	CAT_gui_image(icon_b_sprite, 1);
-	CAT_gui_image(icon_exit_sprite, 0);
+	CAT_gui_image(&icon_b_sprite, 1);
+	CAT_gui_image(&icon_exit_sprite, 0);
 	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
 
-	CAT_gui_image(icon_feed_sprite, 0);
-	CAT_gui_image(padkaprow_sprite, 0);
-	CAT_gui_image(icon_study_sprite, 0);
-	CAT_gui_image(book_static_sprite, 0);
-	CAT_gui_image(icon_play_sprite, 0);
-	CAT_gui_image(toy_duck_sprite, 0);
+	CAT_gui_image(&icon_feed_sprite, 0);
+	CAT_gui_image(&padkaprow_sprite, 0);
+	CAT_gui_image(&icon_study_sprite, 0);
+	CAT_gui_image(&book_static_sprite, 0);
+	CAT_gui_image(&icon_play_sprite, 0);
+	CAT_gui_image(&toy_duck_sprite, 0);
 	CAT_gui_line_break();
 
 	CAT_gui_text("\1 FEEDING");
@@ -233,16 +233,16 @@ void CAT_draw_deco()
 {
 	CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});
 	CAT_gui_text("< DECORATION > ");
-	CAT_gui_image(icon_b_sprite, 1);
-	CAT_gui_image(icon_exit_sprite, 0);
+	CAT_gui_image(&icon_b_sprite, 1);
+	CAT_gui_image(&icon_exit_sprite, 0);
 	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
 
-	CAT_gui_image(icon_deco_sprite, 0);
-	CAT_gui_image(padkaprop_sprite, 0);
-	CAT_gui_image(lantern_sprite, 0);
-	CAT_gui_image(bush_daisy_sprite, 0);
-	CAT_gui_image(crystal_purple_lg_sprite, 0);
-	CAT_gui_image(succulent_sprite, 0);
+	CAT_gui_image(&icon_deco_sprite, 0);
+	CAT_gui_image(&padkaprop_sprite, 0);
+	CAT_gui_image(&lantern_sprite, 0);
+	CAT_gui_image(&bush_daisy_sprite, 0);
+	CAT_gui_image(&crystal_purple_lg_sprite, 0);
+	CAT_gui_image(&succulent_sprite, 0);
 	CAT_gui_line_break();
 	CAT_gui_text
 	(
@@ -258,9 +258,9 @@ void CAT_draw_deco()
 	CAT_gui_line_break();
 	CAT_gui_line_break();
 
-	CAT_gui_image(cursor_add_sprite, 0);
-	CAT_gui_image(cursor_flip_sprite, 0);
-	CAT_gui_image(cursor_remove_sprite, 0);
+	CAT_gui_image(&cursor_add_sprite, 0);
+	CAT_gui_image(&cursor_flip_sprite, 0);
+	CAT_gui_image(&cursor_remove_sprite, 0);
 	CAT_gui_line_break();
 	CAT_gui_text
 	(
@@ -276,17 +276,17 @@ void CAT_draw_air()
 {
 	CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});
 	CAT_gui_text("< AIR QUALITY > ");
-	CAT_gui_image(icon_b_sprite, 1);
-	CAT_gui_image(icon_exit_sprite, 0);
+	CAT_gui_image(&icon_b_sprite, 1);
+	CAT_gui_image(&icon_exit_sprite, 0);
 	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
 
-	CAT_gui_image(icon_co2_sprite, 0);
-	CAT_gui_image(icon_mask_sprite, 0);
-	CAT_gui_image(icon_pm_sprite, 2);
-	CAT_gui_image(icon_pure_sprite, 0);
-	CAT_gui_image(icon_nox_sprite, 0);
-	CAT_gui_image(icon_uv_sprite, 0);
-	CAT_gui_image(icon_voc_sprite, 2);
+	CAT_gui_image(&icon_co2_sprite, 0);
+	CAT_gui_image(&icon_mask_sprite, 0);
+	CAT_gui_image(&icon_pm_sprite, 2);
+	CAT_gui_image(&icon_pure_sprite, 0);
+	CAT_gui_image(&icon_nox_sprite, 0);
+	CAT_gui_image(&icon_uv_sprite, 0);
+	CAT_gui_image(&icon_voc_sprite, 2);
 	CAT_gui_line_break();
 
 	CAT_gui_text
@@ -298,21 +298,21 @@ void CAT_draw_air()
 		"given a score of\n"
 	);
 	CAT_gui_text("GOOD");
-	CAT_gui_image(icon_aq_ccode_sprite, 0);
+	CAT_gui_image(&icon_aq_ccode_sprite, 0);
 	CAT_gui_text(", NORMAL");
-	CAT_gui_image(icon_aq_ccode_sprite, 1);
+	CAT_gui_image(&icon_aq_ccode_sprite, 1);
 	CAT_gui_text(", or BAD");
-	CAT_gui_image(icon_aq_ccode_sprite, 2);
+	CAT_gui_image(&icon_aq_ccode_sprite, 2);
 	CAT_gui_line_break();
 	CAT_gui_text("where the scored factors are\n");
-	CAT_gui_image(icon_co2_sprite, 1);
+	CAT_gui_image(&icon_co2_sprite, 1);
 	CAT_gui_text("CO2, ");
-	CAT_gui_image(icon_nox_sprite, 1);
+	CAT_gui_image(&icon_nox_sprite, 1);
 	CAT_gui_text("NOx, ");
-	CAT_gui_image(icon_voc_sprite, 1);
+	CAT_gui_image(&icon_voc_sprite, 1);
 	CAT_gui_text("VOCs,\n");
 	CAT_gui_text("and ");
-	CAT_gui_image(icon_pm_sprite, 1);
+	CAT_gui_image(&icon_pm_sprite, 1);
 	CAT_gui_text("PM2.5.");
 	CAT_gui_line_break();
 	CAT_gui_line_break();
@@ -330,14 +330,14 @@ void CAT_draw_shopping()
 {
 	CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});
 	CAT_gui_text("< SHOPPING > ");
-	CAT_gui_image(icon_b_sprite, 1);
-	CAT_gui_image(icon_exit_sprite, 0);
+	CAT_gui_image(&icon_b_sprite, 1);
+	CAT_gui_image(&icon_exit_sprite, 0);
 	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
 
 	gui.cursor.x += 6;
 	for(int i = 0; i < 11; i++)
 	{
-		CAT_gui_image(coin_world_sprite, i % 4);
+		CAT_gui_image(&coin_world_sprite, i % 4);
 	}
 	CAT_gui_line_break();
 	CAT_gui_text
@@ -362,7 +362,7 @@ void CAT_draw_shopping()
 	gui.cursor.x += 2;
 	for(int i = 2; i < 13; i++)
 	{
-		CAT_gui_image(coin_world_sprite, i % 4);
+		CAT_gui_image(&coin_world_sprite, i % 4);
 	}
 }
 
@@ -370,8 +370,8 @@ void CAT_draw_crypto()
 {
 	CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});
 	CAT_gui_text("< MINING > ");
-	CAT_gui_image(icon_b_sprite, 1);
-	CAT_gui_image(icon_exit_sprite, 0);
+	CAT_gui_image(&icon_b_sprite, 1);
+	CAT_gui_image(&icon_exit_sprite, 0);
 	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
 
 	CAT_gui_text
@@ -383,12 +383,12 @@ void CAT_draw_crypto()
 	);
 	CAT_gui_line_break();
 
-	CAT_gui_image(gpu_sprite, 0);
-	CAT_gui_image(coin_world_sprite, 2);
-	CAT_gui_image(gpu_sprite, 0);
-	CAT_gui_image(coin_world_sprite, 1);
-	CAT_gui_image(gpu_sprite, 0);
-	CAT_gui_image(coin_world_sprite, 0);
+	CAT_gui_image(&gpu_sprite, 0);
+	CAT_gui_image(&coin_world_sprite, 2);
+	CAT_gui_image(&gpu_sprite, 0);
+	CAT_gui_image(&coin_world_sprite, 1);
+	CAT_gui_image(&gpu_sprite, 0);
+	CAT_gui_image(&coin_world_sprite, 0);
 	CAT_gui_line_break();
 
 	CAT_gui_text
@@ -404,31 +404,31 @@ void CAT_draw_crypto()
 	CAT_gui_line_break();
 
 	gui.cursor.y += 16;
-	CAT_gui_image(coin_world_sprite, 0);
-	CAT_gui_image(gpu_sprite, 0);
-	CAT_gui_image(coin_world_sprite, 1);
-	CAT_gui_image(gpu_sprite, 0);
-	CAT_gui_image(coin_world_sprite, 2);
-	CAT_gui_image(gpu_sprite, 0);
+	CAT_gui_image(&coin_world_sprite, 0);
+	CAT_gui_image(&gpu_sprite, 0);
+	CAT_gui_image(&coin_world_sprite, 1);
+	CAT_gui_image(&gpu_sprite, 0);
+	CAT_gui_image(&coin_world_sprite, 2);
+	CAT_gui_image(&gpu_sprite, 0);
 }
 
 void CAT_draw_arcade()
 {
 	CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});
 	CAT_gui_text("< ARCADE > ");
-	CAT_gui_image(icon_b_sprite, 1);
-	CAT_gui_image(icon_exit_sprite, 0);
+	CAT_gui_image(&icon_b_sprite, 1);
+	CAT_gui_image(&icon_exit_sprite, 0);
 	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
 
-	CAT_gui_image(snake_tail_sprite, 0);
+	CAT_gui_image(&snake_tail_sprite, 0);
 	gui.cursor.x -= gui.pad;
 	for(int i = 0; i < 11; i++)
 	{
-		CAT_gui_image(snake_body_sprite, 0);
+		CAT_gui_image(&snake_body_sprite, 0);
 		gui.cursor.x -= gui.pad;
 	}
-	CAT_gui_image(snake_head_sprite, 0);
-	CAT_gui_image(padkaprow_sprite, 0);
+	CAT_gui_image(&snake_head_sprite, 0);
+	CAT_gui_image(&padkaprow_sprite, 0);
 	CAT_gui_line_break();
 
 	CAT_gui_text
@@ -442,15 +442,15 @@ void CAT_draw_arcade()
 	);
 	CAT_gui_line_break();
 
-	CAT_gui_image(coffee_sprite, 0);
-	CAT_gui_image(snake_head_sprite, 2);
+	CAT_gui_image(&coffee_sprite, 0);
+	CAT_gui_image(&snake_head_sprite, 2);
 	gui.cursor.x -= gui.pad;
 	for(int i = 0; i < 11; i++)
 	{
-		CAT_gui_image(snake_body_sprite, 2);
+		CAT_gui_image(&snake_body_sprite, 2);
 		gui.cursor.x -= gui.pad;
 	}
-	CAT_gui_image(snake_tail_sprite, 2);
+	CAT_gui_image(&snake_tail_sprite, 2);
 	CAT_gui_line_break();
 
 	CAT_gui_text
@@ -465,27 +465,27 @@ void CAT_draw_arcade()
 	);
 	CAT_gui_line_break();
 
-	CAT_gui_image(snake_tail_sprite, 0);
+	CAT_gui_image(&snake_tail_sprite, 0);
 	gui.cursor.x -= gui.pad;
 	for(int i = 0; i < 11; i++)
 	{
-		CAT_gui_image(snake_body_sprite, 0);
+		CAT_gui_image(&snake_body_sprite, 0);
 		gui.cursor.x -= gui.pad;
 	}
-	CAT_gui_image(snake_head_sprite, 0);
-	CAT_gui_image(coin_static_sprite, 0);
+	CAT_gui_image(&snake_head_sprite, 0);
+	CAT_gui_image(&coin_static_sprite, 0);
 }
 
 void CAT_draw_about()
 {
 	CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});
 	CAT_gui_text("< ABOUT > ");
-	CAT_gui_image(icon_b_sprite, 1);
-	CAT_gui_image(icon_exit_sprite, 0);
+	CAT_gui_image(&icon_b_sprite, 1);
+	CAT_gui_image(&icon_exit_sprite, 0);
 	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
 
 	gui.cursor.x += 24;
-	CAT_gui_image(icon_ee_sprite, 0);
+	CAT_gui_image(&icon_ee_sprite, 0);
 	CAT_gui_line_break();
 	CAT_gui_line_break();
 	
@@ -513,8 +513,8 @@ void CAT_draw_credits()
 {
 	CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});
 	CAT_gui_text("< CREDITS > ");
-	CAT_gui_image(icon_b_sprite, 1);
-	CAT_gui_image(icon_exit_sprite, 0);
+	CAT_gui_image(&icon_b_sprite, 1);
+	CAT_gui_image(&icon_exit_sprite, 0);
 	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
 
 	for(int i = 0; i < NUM_CREDITS; i++)
@@ -584,8 +584,8 @@ void CAT_render_manual()
 		{
 			CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});
 			CAT_gui_text("ERM, WHAT THE SPRUCE?");
-			CAT_gui_image(icon_b_sprite, 1);
-			CAT_gui_image(icon_exit_sprite, 0);
+			CAT_gui_image(&icon_b_sprite, 1);
+			CAT_gui_image(&icon_exit_sprite, 0);
 			CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
 			CAT_gui_text("How the did you even\nget here man? Try < or >\nor something I guess");
 			break;

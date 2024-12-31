@@ -203,7 +203,7 @@ void CAT_render_deco(int cycle)
 		{
 			if(deco_state.add_id != -1)
 			{
-				int tile_sprite = deco_state.valid_add ? tile_hl_add_sprite : tile_hl_rm_sprite;
+				CAT_sprite* tile_sprite = deco_state.valid_add ? &tile_hl_add_sprite : &tile_hl_rm_sprite;
 				for(int y = deco_state.add_rect.min.y; y < deco_state.add_rect.max.y; y++)
 				{
 					for(int x = deco_state.add_rect.min.x; x < deco_state.add_rect.max.x; x++)
@@ -216,14 +216,14 @@ void CAT_render_deco(int cycle)
 			else
 			{
 				CAT_ivec2 place = CAT_grid2world(room.grid_cursor);
-				CAT_draw_queue_add(cursor_add_sprite, 0, 3, place.x, place.y, CAT_DRAW_MODE_DEFAULT);
+				CAT_draw_queue_add(&cursor_add_sprite, 0, 3, place.x, place.y, CAT_DRAW_MODE_DEFAULT);
 			}
 		}
 		else
 		{
-			int tile_hl = deco_state.mode == FLIP ? tile_hl_flip_sprite : tile_hl_rm_sprite;
-			int tile_mark = deco_state.mode == FLIP ? tile_mark_flip_sprite : tile_mark_rm_sprite;
-			int cursor = deco_state.mode == FLIP ? cursor_flip_sprite : cursor_remove_sprite;
+			CAT_sprite* tile_hl = deco_state.mode == FLIP ? &tile_hl_flip_sprite : &tile_hl_rm_sprite;
+			CAT_sprite* tile_mark = deco_state.mode == FLIP ? &tile_mark_flip_sprite : &tile_mark_rm_sprite;
+			CAT_sprite* cursor = deco_state.mode == FLIP ? &cursor_flip_sprite : &cursor_remove_sprite;
 			if(deco_state.mod_idx != -1)
 			{
 				for(int y = deco_state.mod_rect.min.y; y < deco_state.mod_rect.max.y; y++)

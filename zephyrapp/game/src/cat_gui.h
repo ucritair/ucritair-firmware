@@ -1,6 +1,7 @@
 #pragma once
 
 #include "cat_math.h"
+#include "cat_sprite.h"
 
 //////////////////////////////////////////////////////////////////////////
 // CONSTANTS
@@ -41,7 +42,7 @@ void CAT_gui_panel(CAT_ivec2 start, CAT_ivec2 shape);
 void CAT_gui_line_break();
 
 void CAT_gui_text(const char* text);
-void CAT_gui_image(int sprite_id, int frame_idx);
+void CAT_gui_image(CAT_sprite* sprite, int frame_idx);
 void CAT_gui_div(const char* text);
 void CAT_gui_textf(const char* fmt, ...);
 

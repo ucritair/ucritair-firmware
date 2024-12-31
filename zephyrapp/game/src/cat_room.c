@@ -414,22 +414,21 @@ void CAT_room_flip_prop(int idx)
 
 	int item_id = room.prop_ids[idx];
 	CAT_item* item = CAT_item_get(item_id);
-	CAT_sprite* sprite = &atlas.data[item->sprite_id];
 	int* override = &room.prop_overrides[idx];
 
-	if(item->data.prop_data.animate || sprite->frame_count == 1)
+	if(item->data.prop_data.animate || item->sprite->frame_count == 1)
 	{
 		*override = !(*override);
 	}
 	else
 	{
 		*override += 1;
-		if(*override >= sprite->frame_count)
+		if(*override >= item->sprite->frame_count)
 			*override = 0;
 	}
 }
 
-int CAT_spawn_pickup(CAT_vec2 origin, CAT_vec2 place, int sprite_id, void (*proc)())
+int CAT_spawn_pickup(CAT_vec2 origin, CAT_vec2 place, CAT_sprite* sprite, void (*proc)())
 {
 	if(room.pickup_count >= CAT_MAX_PICKUP_COUNT)
 		return -1;
@@ -438,7 +437,7 @@ int CAT_spawn_pickup(CAT_vec2 origin, CAT_vec2 place, int sprite_id, void (*proc
 	room.pickup_count += 1;
 	room.pickups[idx].origin = origin;
 	room.pickups[idx].place = place;
-	room.pickups[idx].sprite_id = sprite_id;
+	room.pickups[idx].sprite = sprite;
 	room.pickups[idx].proc = proc;
 	room.pickups[idx].timer_id = CAT_timer_init(0.75f);
 
@@ -485,7 +484,7 @@ void CAT_room_earn(int ticks)
 				(
 					(CAT_vec2) {xi, yi},
 					(CAT_vec2) {xf, yf},
-					coin_world_sprite,
+					&coin_world_sprite,
 					earn_proc
 				);
 			}
@@ -628,15 +627,15 @@ void render_background()
 		{
 			for(int i = 0; i < 6; i++)
 			{
-				CAT_draw_tiles(sky_wall_sprite, i, i, 1);
+				CAT_draw_tiles(&sky_wall_sprite, i, i, 1);
 			}
 			break;
 		}
 		default:
 		{
-			CAT_draw_tiles(base_wall_sprite, 0, 0, 4);
-			CAT_draw_tiles(base_wall_sprite, 1, 4, 1);
-			CAT_draw_tiles(base_wall_sprite, 2, 5, 1);
+			CAT_draw_tiles(&base_wall_sprite, 0, 0, 4);
+			CAT_draw_tiles(&base_wall_sprite, 1, 4, 1);
+			CAT_draw_tiles(&base_wall_sprite, 2, 5, 1);
 			break;
 		}
 	}
@@ -644,24 +643,24 @@ void render_background()
 	{
 		case FLOOR_GRASS:
 		{
-			CAT_draw_tiles(grass_floor_sprite, 18, 6, 1);
-			CAT_draw_tiles(grass_floor_sprite, 13, 7, 1);
-			CAT_draw_tiles(grass_floor_sprite, 4, 8, 1);
-			CAT_draw_tiles(grass_floor_sprite, 19, 9, 11);
+			CAT_draw_tiles(&grass_floor_sprite, 18, 6, 1);
+			CAT_draw_tiles(&grass_floor_sprite, 13, 7, 1);
+			CAT_draw_tiles(&grass_floor_sprite, 4, 8, 1);
+			CAT_draw_tiles(&grass_floor_sprite, 19, 9, 11);
 			break;
 		}
 		case FLOOR_ASH:
 		{
-			CAT_draw_tiles(ash_floor_sprite, 2, 6, 1);
-			CAT_draw_tiles(ash_floor_sprite, 0, 7, 1);
-			CAT_draw_tiles(ash_floor_sprite, 1, 8, 12);
+			CAT_draw_tiles(&ash_floor_sprite, 2, 6, 1);
+			CAT_draw_tiles(&ash_floor_sprite, 0, 7, 1);
+			CAT_draw_tiles(&ash_floor_sprite, 1, 8, 12);
 			break;
 		}
 		default:
 		{
-			CAT_draw_tiles(base_floor_sprite, 2, 6, 1);
-			CAT_draw_tiles(base_floor_sprite, 0, 7, 1);
-			CAT_draw_tiles(base_floor_sprite, 1, 8, 12);
+			CAT_draw_tiles(&base_floor_sprite, 2, 6, 1);
+			CAT_draw_tiles(&base_floor_sprite, 0, 7, 1);
+			CAT_draw_tiles(&base_floor_sprite, 1, 8, 12);
 			break;
 		}
 	}
@@ -676,19 +675,19 @@ void render_statics()
 	float aqi_score = CAT_AQI_aggregate();
 
 	if(aqi_score <= 35.0f && time.hour >= 4 && time.hour < 22)
-		CAT_draw_queue_add(window_day_bad_aq_sprite, -1, 2, 8, 8, CAT_DRAW_MODE_DEFAULT);
+		CAT_draw_queue_add(&window_day_bad_aq_sprite, -1, 2, 8, 8, CAT_DRAW_MODE_DEFAULT);
 	else if(time.hour >= 4 && time.hour < 7)
-		CAT_draw_queue_add(window_dawn_sprite, 0, 1, 8, 8, CAT_DRAW_MODE_DEFAULT);
+		CAT_draw_queue_add(&window_dawn_sprite, 0, 1, 8, 8, CAT_DRAW_MODE_DEFAULT);
 	else if(time.hour >= 7 && time.hour < 11)
-		CAT_draw_queue_add(window_morning_sprite, 0, 1, 8, 8, CAT_DRAW_MODE_DEFAULT);
+		CAT_draw_queue_add(&window_morning_sprite, 0, 1, 8, 8, CAT_DRAW_MODE_DEFAULT);
 	else if(time.hour >= 11 && time.hour < 18)
-		CAT_draw_queue_add(window_day_sprite, 0, 1, 8, 8, CAT_DRAW_MODE_DEFAULT);
+		CAT_draw_queue_add(&window_day_sprite, 0, 1, 8, 8, CAT_DRAW_MODE_DEFAULT);
 	else if(time.hour >= 18 && time.hour < 20)
-		CAT_draw_queue_add(window_evening_sprite, 0, 1, 8, 8, CAT_DRAW_MODE_DEFAULT);
+		CAT_draw_queue_add(&window_evening_sprite, 0, 1, 8, 8, CAT_DRAW_MODE_DEFAULT);
 	else if(time.hour >= 20 && time.hour < 22)
-		CAT_draw_queue_add(window_dusk_sprite, 0, 1, 8, 8, CAT_DRAW_MODE_DEFAULT);
+		CAT_draw_queue_add(&window_dusk_sprite, 0, 1, 8, 8, CAT_DRAW_MODE_DEFAULT);
 	else
-		CAT_draw_queue_add(window_night_sprite, 0, 1, 8, 8, CAT_DRAW_MODE_DEFAULT);
+		CAT_draw_queue_add(&window_night_sprite, 0, 1, 8, 8, CAT_DRAW_MODE_DEFAULT);
 	
 	battery_blink_timer += CAT_get_delta_time();
 	if(battery_blink_timer >= 0.5f)
@@ -697,10 +696,10 @@ void render_statics()
 		battery_blink_switch = !battery_blink_switch;
 	}
 	if(CAT_get_battery_pct() <= CAT_CRITICAL_BATTERY_PCT && battery_blink_switch)
-		CAT_draw_queue_add(icon_low_battery_alt, 0, 2, 66, 37, CAT_DRAW_MODE_CENTER_X | CAT_DRAW_MODE_CENTER_Y);
+		CAT_draw_queue_add(&icon_low_battery_alt, 0, 2, 66, 37, CAT_DRAW_MODE_CENTER_X | CAT_DRAW_MODE_CENTER_Y);
 	
-	CAT_draw_queue_add(vending_sprite, -1, 1, 172, 16, CAT_DRAW_MODE_DEFAULT);
-	CAT_draw_queue_add(arcade_sprite, -1, 1, 124, 48, CAT_DRAW_MODE_DEFAULT);
+	CAT_draw_queue_add(&vending_sprite, -1, 1, 172, 16, CAT_DRAW_MODE_DEFAULT);
+	CAT_draw_queue_add(&arcade_sprite, -1, 1, 124, 48, CAT_DRAW_MODE_DEFAULT);
 }
 
 void render_props()
@@ -719,14 +718,14 @@ void render_props()
 		int frame_idx = 0;
 		if(room.prop_overrides[i])
 		{
-			if(prop->data.prop_data.animate || CAT_sprite_get(prop->sprite_id)->frame_count == 1)
+			if(prop->data.prop_data.animate || prop->sprite->frame_count == 1)
 				mode |= CAT_DRAW_MODE_REFLECT_X;
 			else
 				frame_idx = room.prop_overrides[i];
 		}
 		int job = prop->data.prop_data.animate ?
-		CAT_draw_queue_add(prop->sprite_id, -1, 2, draw_place.x, draw_place.y, mode) :
-		CAT_draw_queue_add(prop->sprite_id, frame_idx, 2, draw_place.x, draw_place.y, mode);
+		CAT_draw_queue_add(prop->sprite, -1, 2, draw_place.x, draw_place.y, mode) :
+		CAT_draw_queue_add(prop->sprite, frame_idx, 2, draw_place.x, draw_place.y, mode);
 		
 		CAT_item* child = CAT_item_get(room.prop_children[i]);
 		if(child != NULL)
@@ -736,7 +735,7 @@ void render_props()
 			int cx = (shape.x / 2) * CAT_TILE_SIZE;
 			int cy = shape.y * CAT_TILE_SIZE;
 			int dy = child->data.prop_data.child_dy;
-			CAT_draw_queue_insert(job+1, child->sprite_id, frame_idx, 2, draw_place.x + cx, draw_place.y - cy - dy, mode);
+			CAT_draw_queue_insert(job+1, child->sprite, frame_idx, 2, draw_place.x + cx, draw_place.y - cy - dy, mode);
 		}
 	}
 }
@@ -756,22 +755,22 @@ void render_pickups()
 		if(origin.y > place.y)
 			y = -y + origin.y + place.y;
 
-		CAT_draw_queue_add(room.pickups[i].sprite_id, -1, 2, x, y, CAT_DRAW_MODE_CENTER_X | CAT_DRAW_MODE_BOTTOM);
+		CAT_draw_queue_add(room.pickups[i].sprite, -1, 2, x, y, CAT_DRAW_MODE_CENTER_X | CAT_DRAW_MODE_BOTTOM);
 	}
 }
 
 void render_gui()
 {
 	int icon_mode = CAT_DRAW_MODE_CENTER_X | CAT_DRAW_MODE_CENTER_Y;
-	CAT_draw_queue_add(icon_feed_sprite, 0, 3, 8+16, 280+16, icon_mode); 
-	CAT_draw_queue_add(icon_study_sprite, 0, 3, 56+16, 280+16, icon_mode); 
-	CAT_draw_queue_add(icon_play_sprite, 0, 3, 104+16, 280+16, icon_mode);
-	CAT_draw_queue_add(icon_deco_sprite, 0, 3, 152+16, 280+16, icon_mode);
-	CAT_draw_queue_add(icon_menu_sprite, 0, 3, 200+16, 280+16, icon_mode);
-	CAT_draw_queue_add(button_hl_sprite, 0, 3, 8+16+48*mode_selector, 280+16, icon_mode);
+	CAT_draw_queue_add(&icon_feed_sprite, 0, 3, 8+16, 280+16, icon_mode); 
+	CAT_draw_queue_add(&icon_study_sprite, 0, 3, 56+16, 280+16, icon_mode); 
+	CAT_draw_queue_add(&icon_play_sprite, 0, 3, 104+16, 280+16, icon_mode);
+	CAT_draw_queue_add(&icon_deco_sprite, 0, 3, 152+16, 280+16, icon_mode);
+	CAT_draw_queue_add(&icon_menu_sprite, 0, 3, 200+16, 280+16, icon_mode);
+	CAT_draw_queue_add(&button_hl_sprite, 0, 3, 8+16+48*mode_selector, 280+16, icon_mode);
 
 	if(input.touch.pressure)
-		CAT_draw_queue_add(touch_hl_sprite, 0, 4, input.touch.x, input.touch.y, icon_mode);
+		CAT_draw_queue_add(&touch_hl_sprite, 0, 4, input.touch.x, input.touch.y, icon_mode);
 }
 
 void CAT_render_room(int cycle)

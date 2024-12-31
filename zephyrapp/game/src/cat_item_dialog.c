@@ -81,10 +81,10 @@ void CAT_render_item_dialog()
 {
 	CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});  
 	CAT_gui_text("SELECT AN ITEM ");
-	CAT_gui_image(icon_a_sprite, 1);
-	CAT_gui_image(icon_enter_sprite, 0);
-	CAT_gui_image(icon_b_sprite, 1);
-	CAT_gui_image(icon_exit_sprite, 0);
+	CAT_gui_image(&icon_a_sprite, 1);
+	CAT_gui_image(&icon_enter_sprite, 0);
+	CAT_gui_image(&icon_b_sprite, 1);
+	CAT_gui_image(&icon_exit_sprite, 0);
 
 	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});  
 	for(int i = 0; i < 9; i++)
@@ -108,12 +108,12 @@ void CAT_render_item_dialog()
 		
 		CAT_gui_set_flag(CAT_GUI_TIGHT);
 		CAT_gui_panel((CAT_ivec2) {0, 2+i*2}, (CAT_ivec2) {15, 2});
-		CAT_gui_image(item->icon_id, 0);
+		CAT_gui_image(item->icon, 0);
 		
 		int bag_idx = CAT_item_list_find(&bag, item_id);
 		CAT_gui_textf(" %s *%d ", item->name, bag.counts[bag_idx]);
 
 		if(idx == selector)
-			CAT_gui_image(icon_pointer_sprite, 0);
+			CAT_gui_image(&icon_pointer_sprite, 0);
 	}
 }

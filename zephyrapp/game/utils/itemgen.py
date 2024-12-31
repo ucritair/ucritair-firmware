@@ -72,10 +72,10 @@ for (idx, item) in enumerate(json_entries):
 	else:
 		source.write("\t\t\t.type = CAT_ITEM_TYPE_KEY,\n");
 	source.write(f"\t\t\t.name = \"{item["display_name"]}\",\n");
-	source.write(f"\t\t\t.sprite_id = {item["sprite"]},\n");
+	source.write(f"\t\t\t.sprite = &{item["sprite"]},\n");
 	source.write(f"\t\t\t.price = {item["price"]},\n");
 	source.write(f"\t\t\t.text = \"{item["text"]}\",\n");
-	source.write(f"\t\t\t.icon_id = {item["icon"]},\n");
+	source.write(f"\t\t\t.icon = &{item["icon"]},\n");
 	if item["type"] == "tool":
 		source.write("\t\t\t.data.tool_data =\n");
 		source.write("\t\t\t{\n");
@@ -85,7 +85,7 @@ for (idx, item) in enumerate(json_entries):
 			source.write("\t\t\t\t.type = CAT_TOOL_TYPE_BOOK,\n");
 		else:
 			source.write("\t\t\t\t.type = CAT_TOOL_TYPE_TOY,\n");
-		source.write(f"\t\t\t\t.cursor_id = {item["tool_data"]["cursor"]},\n");
+		source.write(f"\t\t\t\t.cursor = &{item["tool_data"]["cursor"]},\n");
 		source.write(f"\t\t\t\t.dv = {item["tool_data"]["dv"]},\n");
 		source.write(f"\t\t\t\t.df = {item["tool_data"]["df"]},\n");
 		source.write(f"\t\t\t\t.ds = {item["tool_data"]["ds"]},\n");

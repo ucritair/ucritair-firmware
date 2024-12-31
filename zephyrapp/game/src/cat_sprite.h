@@ -33,34 +33,6 @@ void CAT_strokeberry(int xi, int yi, int w, int h, uint16_t c);
 
 
 //////////////////////////////////////////////////////////////////////////
-// ATLAS
-
-typedef struct {
-	const uint16_t* color_table;
-	const uint8_t** frames;
-} CAT_baked_sprite;
-
-typedef struct CAT_sprite
-{
-#ifdef CAT_DESKTOP
-	const uint16_t* pixels;
-#endif
-	int width;
-	int height;
-	int frame_count;
-} CAT_sprite;
-
-typedef struct CAT_atlas
-{
-	CAT_sprite data[CAT_ATLAS_MAX_LENGTH];
-	int length;
-} CAT_atlas;
-extern CAT_atlas atlas;
-
-CAT_sprite* CAT_sprite_get(int sprite_id);
-
-
-//////////////////////////////////////////////////////////////////////////
 // SPRITER
 
 typedef enum CAT_draw_mode
@@ -82,8 +54,8 @@ typedef struct CAT_spriter
 extern CAT_spriter spriter;
 
 void CAT_spriter_init();
-void CAT_draw_sprite(int sprite_id, int frame_idx, int x, int y);
-void CAT_draw_tiles(int sprite_id, int frame_idx, int y_t, int h_t);
+void CAT_draw_sprite(const CAT_sprite* sprite, int frame_idx, int x, int y);
+void CAT_draw_tiles(const CAT_sprite* sprite, int frame_idx, int y_t, int h_t);
 void CAT_spriter_cleanup();
 
 
@@ -102,14 +74,14 @@ typedef struct CAT_anim_table
 extern CAT_anim_table anim_table;
 
 void CAT_anim_table_init();
-void CAT_anim_toggle_loop(int sprite_id, bool toggle);
-void CAT_anim_toggle_reverse(int sprite_id, bool toggle);
-bool CAT_anim_finished(int sprite_id);
-void CAT_anim_reset(int sprite_id);
+void CAT_anim_toggle_loop(CAT_sprite* sprite, bool toggle);
+void CAT_anim_toggle_reverse(CAT_sprite* sprite, bool toggle);
+bool CAT_anim_finished(CAT_sprite* sprite);
+void CAT_anim_reset(CAT_sprite* sprite);
 
 typedef struct CAT_draw_job
 {
-	int sprite_id;
+	CAT_sprite* sprite;
 	int frame_idx;
 	int layer;
 	int x;
@@ -124,8 +96,8 @@ typedef struct CAT_draw_queue
 } CAT_draw_queue;
 extern CAT_draw_queue draw_queue;
 
-void CAT_draw_queue_insert(int idx, int sprite_id, int frame_idx, int layer, int x, int y, int mode);
-int CAT_draw_queue_add(int sprite_id, int frame_idx, int layer, int x, int y, int mode);
+void CAT_draw_queue_insert(int idx, CAT_sprite* sprite, int frame_idx, int layer, int x, int y, int mode);
+int CAT_draw_queue_add(CAT_sprite* sprite, int frame_idx, int layer, int x, int y, int mode);
 void CAT_draw_queue_submit(int cycle);
 
 
@@ -136,17 +108,17 @@ typedef struct CAT_animachine_state
 {
 	enum {ENTER, TICK, EXIT, DONE} signal;
 
-	int enter_anim_id;
-	int tick_anim_id;
-	int exit_anim_id;
-	int last;
+	CAT_sprite* enter_anim_id;
+	CAT_sprite* tick_anim_id;
+	CAT_sprite* exit_anim_id;
+	CAT_sprite* last;
 
 	struct CAT_animachine_state* next;
 } CAT_animachine_state;
 
-void CAT_animachine_init(CAT_animachine_state* state, int enai, int tiai, int exai);
+void CAT_animachine_init(CAT_animachine_state* state, CAT_sprite* enai, CAT_sprite* tiai, CAT_sprite* exai);
 void CAT_animachine_transition(CAT_animachine_state** spp, CAT_animachine_state* next);
-int CAT_animachine_tick(CAT_animachine_state** pp);
+CAT_sprite* CAT_animachine_tick(CAT_animachine_state** pp);
 void CAT_animachine_kill(CAT_animachine_state** spp);
 
 bool CAT_animachine_is_in(CAT_animachine_state** spp, CAT_animachine_state* state);

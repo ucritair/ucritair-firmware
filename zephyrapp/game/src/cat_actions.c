@@ -274,8 +274,8 @@ void CAT_render_action(int cycle)
 			
 			if(!action_state.confirmed)
 			{
-				CAT_draw_queue_add(item->data.tool_data.cursor_id, 0, 2, place.x, place.y+16, CAT_DRAW_MODE_BOTTOM);
-				CAT_draw_queue_add(tile_hl_sprite, 0, 3, place.x, place.y+16, CAT_DRAW_MODE_BOTTOM);
+				CAT_draw_queue_add(item->data.tool_data.cursor, 0, 2, place.x, place.y+16, CAT_DRAW_MODE_BOTTOM);
+				CAT_draw_queue_add(&tile_hl_sprite, 0, 3, place.x, place.y+16, CAT_DRAW_MODE_BOTTOM);
 			}			
 			else if(!action_state.complete)
 			{
@@ -283,7 +283,7 @@ void CAT_render_action(int cycle)
 				if(place.x > pet.pos.x)
 					tool_mode |= CAT_DRAW_MODE_REFLECT_X;
 				int tool_layer = item->data.tool_data.type == CAT_TOOL_TYPE_FOOD ? 1 : 2;
-				CAT_draw_queue_add(item->sprite_id, -1, tool_layer, place.x, place.y+16, tool_mode);
+				CAT_draw_queue_add(item->sprite, -1, tool_layer, place.x, place.y+16, tool_mode);
 			}
 		}
 	}

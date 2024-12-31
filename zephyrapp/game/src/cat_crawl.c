@@ -72,5 +72,5 @@ void CAT_render_crawl()
 	
 	spriter.mode = CAT_DRAW_MODE_BOTTOM | CAT_DRAW_MODE_CENTER_X;
 	int frame = 2 * dir + frame_switch;
-	CAT_draw_sprite(fighter_sprite, frame, (int) pos.x, (int) pos.y);
+	CAT_draw_sprite(&fighter_sprite, frame, (int) pos.x, (int) pos.y);
 }

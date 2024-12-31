@@ -351,27 +351,27 @@ void CAT_render_mines()
 				{
 					if(cell->mine)
 					{
-						CAT_draw_sprite(mines_sprite, 10, xs, ys);
+						CAT_draw_sprite(&mines_sprite, 10, xs, ys);
 					}
 					else
 					{
-						CAT_draw_sprite(mines_sprite, 1, xs, ys);
+						CAT_draw_sprite(&mines_sprite, 1, xs, ys);
 						if(cell->adjacent > 0)
-							CAT_draw_sprite(mines_sprite, 1 + cell->adjacent, xs, ys);
+							CAT_draw_sprite(&mines_sprite, 1 + cell->adjacent, xs, ys);
 						if(cell->coin && cell->coin_timer <= 1.0f)
-							CAT_draw_sprite(coin_world_sprite, 0, xs, ys);
+							CAT_draw_sprite(&coin_world_sprite, 0, xs, ys);
 					}
 				}
 				else
 				{
-					CAT_draw_sprite(mines_sprite, 0, xs, ys);
+					CAT_draw_sprite(&mines_sprite, 0, xs, ys);
 					if(cell->flagged)
-						CAT_draw_sprite(mines_sprite, 12, xs, ys);
+						CAT_draw_sprite(&mines_sprite, 12, xs, ys);
 				}
 			}
 		}
 		if(state == PLAY)
-			CAT_draw_sprite(mines_sprite, 11, cursor.x*CAT_TILE_SIZE, cursor.y*CAT_TILE_SIZE);
+			CAT_draw_sprite(&mines_sprite, 11, cursor.x*CAT_TILE_SIZE, cursor.y*CAT_TILE_SIZE);
 	}
 	else
 	{
@@ -382,13 +382,13 @@ void CAT_render_mines()
 			spriter.mode = CAT_DRAW_MODE_DEFAULT;
 			for(int x = 0; x < GRID_WIDTH; x++)
 			{
-				CAT_draw_sprite(mines_sprite, 10, x * CAT_TILE_SIZE, 0);
-				CAT_draw_sprite(mines_sprite, 10, x * CAT_TILE_SIZE, (GRID_HEIGHT-1) * CAT_TILE_SIZE);
+				CAT_draw_sprite(&mines_sprite, 10, x * CAT_TILE_SIZE, 0);
+				CAT_draw_sprite(&mines_sprite, 10, x * CAT_TILE_SIZE, (GRID_HEIGHT-1) * CAT_TILE_SIZE);
 			}
 			for(int y = 0; y < GRID_HEIGHT; y++)
 			{
-				CAT_draw_sprite(mines_sprite, 10, 0, y * CAT_TILE_SIZE);
-				CAT_draw_sprite(mines_sprite, 10, (GRID_WIDTH-1) * CAT_TILE_SIZE, y * CAT_TILE_SIZE);
+				CAT_draw_sprite(&mines_sprite, 10, 0, y * CAT_TILE_SIZE);
+				CAT_draw_sprite(&mines_sprite, 10, (GRID_WIDTH-1) * CAT_TILE_SIZE, y * CAT_TILE_SIZE);
 			}
 
 			CAT_gui_panel((CAT_ivec2) {1, 1}, (CAT_ivec2) {13, 18});
@@ -399,13 +399,13 @@ void CAT_render_mines()
 		{
 			for(int x = 0; x < GRID_WIDTH; x++)
 			{
-				CAT_draw_sprite(coin_world_sprite, 0, x * CAT_TILE_SIZE, 0);
-				CAT_draw_sprite(coin_world_sprite, 0, x * CAT_TILE_SIZE, (GRID_HEIGHT-1) * CAT_TILE_SIZE);
+				CAT_draw_sprite(&coin_world_sprite, 0, x * CAT_TILE_SIZE, 0);
+				CAT_draw_sprite(&coin_world_sprite, 0, x * CAT_TILE_SIZE, (GRID_HEIGHT-1) * CAT_TILE_SIZE);
 			}
 			for(int y = 0; y < GRID_HEIGHT; y++)
 			{
-				CAT_draw_sprite(coin_world_sprite, 0, 0, y * CAT_TILE_SIZE);
-				CAT_draw_sprite(coin_world_sprite, 0, (GRID_WIDTH-1) * CAT_TILE_SIZE, y * CAT_TILE_SIZE);
+				CAT_draw_sprite(&coin_world_sprite, 0, 0, y * CAT_TILE_SIZE);
+				CAT_draw_sprite(&coin_world_sprite, 0, (GRID_WIDTH-1) * CAT_TILE_SIZE, y * CAT_TILE_SIZE);
 			}
 
 			CAT_gui_panel((CAT_ivec2) {1, 1}, (CAT_ivec2) {13, 18});

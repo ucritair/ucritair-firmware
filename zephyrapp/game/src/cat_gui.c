@@ -88,7 +88,7 @@ void CAT_gui_text(const char* text)
 		if(wrap && gui.cursor.x >= x_lim && !isspace(*(c+1)))
 		{
 			if(!isspace(*c) && !isspace(*(c-1)))
-				CAT_draw_sprite(glyph_sprite, '-', gui.cursor.x, gui.cursor.y);
+				CAT_draw_sprite(&glyph_sprite, '-', gui.cursor.x, gui.cursor.y);
 			CAT_gui_line_break();	
 			if(isspace(*c))
 				c++;
@@ -108,22 +108,21 @@ void CAT_gui_text(const char* text)
 		}
 
 		gui_open_channel(CAT_GLYPH_HEIGHT);
-		CAT_draw_sprite(glyph_sprite, *c, gui.cursor.x, gui.cursor.y);
+		CAT_draw_sprite(&glyph_sprite, *c, gui.cursor.x, gui.cursor.y);
 		gui.cursor.x += CAT_GLYPH_WIDTH;
 		c++;
 	}
 }
 
-void CAT_gui_image(int sprite_id, int frame_idx)
+void CAT_gui_image(CAT_sprite* sprite, int frame_idx)
 {
 	spriter.mode = CAT_DRAW_MODE_CENTER_Y;
 
-	CAT_sprite sprite = atlas.data[sprite_id];
-	gui_open_channel(sprite.height);
+	gui_open_channel(sprite->height);
 
 	gui.cursor.x += gui.pad / 2;
-	CAT_draw_sprite(sprite_id, frame_idx, gui.cursor.x, gui.cursor.y);
-	gui.cursor.x += sprite.width;
+	CAT_draw_sprite(sprite, frame_idx, gui.cursor.x, gui.cursor.y);
+	gui.cursor.x += sprite->width;
 	gui.cursor.x += gui.pad / 2;
 }
 

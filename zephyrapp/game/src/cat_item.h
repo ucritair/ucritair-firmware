@@ -4,8 +4,8 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-
 #include "cat_math.h"
+#include "cat_sprite.h"
 
 //////////////////////////////////////////////////////////////////////////
 // CONSTANTS
@@ -42,17 +42,17 @@ typedef struct CAT_item
 {
 	CAT_item_type type;
 	const char* name;
-	int sprite_id;
+	CAT_sprite* sprite;
 	int price;
 	const char* text;
-	int icon_id;
+	CAT_sprite* icon;
 
 	union
 	{
 		struct
 		{
 			CAT_tool_type type;
-			int cursor_id;
+			CAT_sprite* cursor;
 			int dv;
 			int df;
 			int ds;
@@ -64,7 +64,7 @@ typedef struct CAT_item
 			CAT_ivec2 shape;
 			bool animate;
 			int child_dy;
-		} prop_data;	
+		} prop_data;
 	} data;
 } CAT_item;
 

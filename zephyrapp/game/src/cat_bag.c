@@ -141,10 +141,10 @@ void CAT_render_bag()
 {
 	CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});  
 	CAT_gui_textf("< BAG (%s) > ", tabs[tab_selector].title);
-	CAT_gui_image(icon_a_sprite, 1);
-	CAT_gui_image(icon_enter_sprite, 0);
-	CAT_gui_image(icon_b_sprite, 1);
-	CAT_gui_image(icon_exit_sprite, 0);
+	CAT_gui_image(&icon_a_sprite, 1);
+	CAT_gui_image(&icon_enter_sprite, 0);
+	CAT_gui_image(&icon_b_sprite, 1);
+	CAT_gui_image(&icon_exit_sprite, 0);
 
 	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
 	if(roster.length == 0)
@@ -163,12 +163,12 @@ void CAT_render_bag()
 
 		CAT_gui_set_flag(CAT_GUI_TIGHT);
 		CAT_gui_panel((CAT_ivec2) {0, 2+i*2}, (CAT_ivec2) {15, 2});
-		CAT_gui_image(item->icon_id, 0);
+		CAT_gui_image(item->icon, 0);
 		
 		CAT_gui_textf(" %s *%d ", item->name, roster.counts[idx]);
 
 		if(idx == selector)
-			CAT_gui_image(icon_pointer_sprite, 0);
+			CAT_gui_image(&icon_pointer_sprite, 0);
 	}
 }
 
@@ -199,13 +199,13 @@ void CAT_render_inspector()
 {
 	CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});  
 	CAT_gui_text("ITEM INSPECTOR ");
-	CAT_gui_image(icon_b_sprite, 1);
-	CAT_gui_image(icon_exit_sprite, 0);
+	CAT_gui_image(&icon_b_sprite, 1);
+	CAT_gui_image(&icon_exit_sprite, 0);
 
 	int item_id = roster.item_ids[selector];
 	CAT_item* item = CAT_item_get(item_id);
 	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
-	CAT_gui_image(item->sprite_id, 0);
+	CAT_gui_image(item->sprite, 0);
 	CAT_gui_textf(" %s", item->name);
 	CAT_gui_div("");
 

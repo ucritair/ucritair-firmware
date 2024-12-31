@@ -179,12 +179,33 @@ def rleencode(data, width):
 texture_use_cache = {}
 
 with open("sprites/sprite_assets.h", "w") as fd:
-	fd.write("#pragma once\n")
+	fd.write("#pragma once\n");
 	fd.write("\n")
-	fd.write("#include \"cat_sprite.h\"\n")
-	fd.write("\n")
+	fd.write("#include <stdint.h>\n");
+	fd.write("\n");
+	fd.write("#ifdef CAT_DESKTOP\n");
+	fd.write("typedef struct\n");
+	fd.write("{\n");
+	fd.write("\tint id;\n");
+	fd.write("\tconst uint16_t* pixels;\n");
+	fd.write("\tint width;\n");
+	fd.write("\tint height;\n");
+	fd.write("\tint frame_count;\n");
+	fd.write("} CAT_sprite;\n");
+	fd.write("#else\n");
+	fd.write("typedef struct\n");
+	fd.write("{\n");
+	fd.write("\tint id;\n");
+	fd.write("\tconst uint16_t* color_table;\n");
+	fd.write("\tconst uint8_t** frames;\n");
+	fd.write("\tint width;\n");
+	fd.write("\tint height;\n");
+	fd.write("\tint frame_count;\n");
+	fd.write("} CAT_sprite;\n");
+	fd.write("#endif\n");
+	fd.write("\n");
 	for (idx, sprite) in enumerate(atlas):
-		fd.write(f"#define {sprite.name} {idx}\n")
+		fd.write(f"extern CAT_sprite {sprite.name};\n");
 
 with open("sprites/sprite_assets.c", 'w') as fd:
 	fd.write("#include \"sprite_assets.h\"\n")
@@ -264,27 +285,19 @@ with open("sprites/sprite_assets.c", 'w') as fd:
 			fd.write("};\n")
 	fd.write("\n")
 
-	fd.write('const CAT_baked_sprite image_data_table[] = {\n')
 	for sprite in atlas:
-		name = texture_use_cache[sprite.path]
-		fd.write('\t['+str(sprite.idx)+'] = {\n')
+		fd.write(f"const CAT_sprite {sprite.name} =\n");
+		fd.write("{\n");
+		name = texture_use_cache[sprite.path];
+		fd.write(f"\t.id = {sprite.idx},\n");
 		if sprite.do_compress:
-			fd.write('\t\t.color_table=image_data_'+name+'_colorkey,\n')
-		fd.write('\t\t.frames=image_data_'+name+',\n')
-		fd.write('\t},\n')
-	fd.write('};\n')
-	fd.write("\n")
-
-	fd.write('CAT_atlas atlas = { .data = {\n')
-	for sprite in atlas:
-		fd.write('\t['+str(sprite.idx)+']={\n');
-		fd.write('\t\t.width = '+str(sprite.width)+",\n")
-		fd.write('\t\t.height = '+str(sprite.height)+",\n")
-		fd.write('\t\t.frame_count = '+str(sprite.frames)+",\n")
-		fd.write('\t},\n')
-		
-	fd.write('}, .length = '+str(len(atlas))+'};\n')
-	fd.write("\n")
+			fd.write(f"\t.color_table = image_data_{name}_colorkey,\n");
+		fd.write(f"\t.frames = image_data_{name},\n");
+		fd.write(f"\t.width = {sprite.width},\n");
+		fd.write(f"\t.height = {sprite.height},\n");
+		fd.write(f"\t.frame_count = {sprite.frames}\n");
+		fd.write("};\n");
+		fd.write("\n");
 
 	einksize = 0
 	if '--noswap' not in sys.argv:
@@ -352,18 +365,14 @@ with open("sprites/sprite_assets.c", 'w') as fd:
 				fd.write("\n");
 		fd.write("};\n\n");
 		
-	fd.write("CAT_atlas atlas =\n");
-	fd.write("{\n");
-	fd.write("\t.data =\n");
-	fd.write("\t{\n");
 	for (idx, sprite) in enumerate(json_entries):
-		fd.write(f"\t\t[{idx}] = {{\n");
-		fd.write(f"\t\t\t.pixels = pixels_{path_map[sprite["path"]]},\n");
-		fd.write(f"\t\t\t.width = {sprite["width"]},\n");
-		fd.write(f"\t\t\t.height = {sprite["height"]},\n");
-		fd.write(f"\t\t\t.frame_count = {sprite["frames"]}\n");
-		fd.write("\t\t},\n");
-	fd.write("\t},\n");
-	fd.write(f"\t.length = {len(atlas)}\n");
-	fd.write("};\n");
+		fd.write(f"CAT_sprite {sprite["name"]} =\n");
+		fd.write("{\n");
+		fd.write(f"\t.id = {sprite["id"]},\n");
+		fd.write(f"\t.pixels = pixels_{path_map[sprite["path"]]},\n");
+		fd.write(f"\t.width = {sprite["width"]},\n");
+		fd.write(f"\t.height = {sprite["height"]},\n");
+		fd.write(f"\t.frame_count = {sprite["frames"]}\n");
+		fd.write("};\n");
+		fd.write("\n");
 	fd.write("#endif\n");
