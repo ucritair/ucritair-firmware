@@ -68,6 +68,36 @@ json_file.truncate();
 json_file.write(json.dumps(json_data, indent=4));
 json_file.close();
 
+with open("sprites/sprite_assets.h", "w") as fd:
+	fd.write("#pragma once\n");
+	fd.write("\n")
+	fd.write("#include <stdint.h>\n");
+	fd.write("\n");
+	fd.write("#ifdef CAT_EMBEDDED\n");
+	fd.write("typedef struct\n");
+	fd.write("{\n");
+	fd.write("\tint id;\n");
+	fd.write("\tconst uint16_t* color_table;\n");
+	fd.write("\tconst uint8_t** frames;\n");
+	fd.write("\tint frame_count;\n");
+	fd.write("\tint width;\n");
+	fd.write("\tint height;\n");
+	fd.write("} CAT_sprite;\n");
+	fd.write("#else\n");
+	fd.write("typedef struct\n");
+	fd.write("{\n");
+	fd.write("\tint id;\n");
+	fd.write("\tconst uint16_t* colour_table;\n");
+	fd.write("\tconst uint8_t** frames;\n");
+	fd.write("\tint frame_count;\n");
+	fd.write("\tint width;\n");
+	fd.write("\tint height;\n");
+	fd.write("} CAT_sprite;\n");
+	fd.write("#endif\n");
+	fd.write("\n");
+	for (idx, sprite) in enumerate(atlas):
+		fd.write(f"extern CAT_sprite {sprite.name};\n");
+
 # assert len(set(x.path for x in atlas)) == len([x.path for x in atlas]), "Duplicated path"
 assert len(set(x.name for x in atlas)) == len([x.name for x in atlas]), "Duplicated name"
 
@@ -178,40 +208,8 @@ def rleencode(data, width):
 
 texture_use_cache = {}
 
-with open("sprites/sprite_assets.h", "w") as fd:
-	fd.write("#pragma once\n");
-	fd.write("\n")
-	fd.write("#include \"cat_sprite.h\"\n");
-	fd.write("\n");
-	fd.write("#ifdef CAT_DESKTOP\n");
-	fd.write("typedef struct\n");
-	fd.write("{\n");
-	fd.write("\tint id;\n");
-	fd.write("\tconst uint16_t* pixels;\n");
-	fd.write("\tint width;\n");
-	fd.write("\tint height;\n");
-	fd.write("\tint frame_count;\n");
-	fd.write("} CAT_sprite;\n");
-	fd.write("#else\n");
-	fd.write("typedef struct\n");
-	fd.write("{\n");
-	fd.write("\tint id;\n");
-	fd.write("\tconst uint16_t* color_table;\n");
-	fd.write("\tconst uint8_t** frames;\n");
-	fd.write("\tint width;\n");
-	fd.write("\tint height;\n");
-	fd.write("\tint frame_count;\n");
-	fd.write("} CAT_sprite;\n");
-	fd.write("#endif\n");
-	fd.write("\n");
-	for (idx, sprite) in enumerate(atlas):
-		fd.write(f"extern CAT_sprite {sprite.name};\n");
-
 with open("sprites/sprite_assets.c", 'w') as fd:
 	fd.write("#include \"sprite_assets.h\"\n")
-	fd.write("\n")
-	fd.write('#include <stdint.h>\n')
-	fd.write('#include "cat_sprite.h"\n')
 	fd.write('\n')
 	fd.write("#ifdef CAT_EMBEDDED\n");
 	for sprite in atlas:
@@ -293,9 +291,9 @@ with open("sprites/sprite_assets.c", 'w') as fd:
 		if sprite.do_compress:
 			fd.write(f"\t.color_table = image_data_{name}_colorkey,\n");
 		fd.write(f"\t.frames = image_data_{name},\n");
+		fd.write(f"\t.frame_count = {sprite.frames},\n");
 		fd.write(f"\t.width = {sprite.width},\n");
 		fd.write(f"\t.height = {sprite.height},\n");
-		fd.write(f"\t.frame_count = {sprite.frames}\n");
 		fd.write("};\n");
 		fd.write("\n");
 
@@ -340,39 +338,100 @@ with open("sprites/sprite_assets.c", 'w') as fd:
 					fd.write('\n\t\t')
 
 			fd.write('\n\t}\n};\n');
-	
+			
+
+def RGBA88882RGB565(c):
+	if len(c) == 4 and c[3] < 128:
+		return 0xdead;
+	r = int((c[0] / 255) * 31);
+	g = int((c[1] / 255) * 63);
+	b = int((c[2] / 255) * 31);
+	return (r << 11) | (g << 5) | b;
+
+def TOS_tabulate_colour(image):
+	pal = image.palette.colors;
+	rgb888s = pal.keys();
+	rgb565s = [RGBA88882RGB565(c) for c in rgb888s];
+	return rgb565s;
+
+def TOS_rl_encode(image):
+	pixels = image.tobytes();
+	runs = [[pixels[0], 1]];
+	for i in range(1, len(pixels)):
+		if(pixels[i] != runs[-1][0] or runs[-1][1] >= 255):
+			runs.append([pixels[i], 1]);
+		else:
+			runs[-1][1] += 1;
+	return runs;
+
+def TOS_rl_decode(runs):
+	pixels = [];
+	for r in runs:
+		for i in range(r[1]):
+			pixels.append(r[0]);
+	return pixels;
+
+with open("sprites/sprite_assets.c", 'a') as fd:
 	fd.write("#else\n");
 
-	paths = set([s["path"] for s in json_entries]);
 	path_map = {};
-	for (idx, path) in enumerate(paths):
+	for (idx, sprite) in enumerate(json_entries):
+		path = sprite["path"];
+		if path in path_map:
+			continue;
+		frame_count = sprite["frames"];
+
+		image = Image.open(os.path.join("sprites", path)).convert("P");
+		colour_table = TOS_tabulate_colour(image);
+
+		fd.write(f"const uint16_t sprite_{idx}_colour_table[] = \n");
+		fd.write("{\n");
+		for c in colour_table:
+			fd.write(f"\t{hex(c)},\n");
+		fd.write("};\n");
+		fd.write("\n");
+
+		frame_width = image.size[0];
+		frame_height = image.size[1] // frame_count;
+		fd.write(f"const uint8_t* sprite_{idx}_frames[] = \n");
+		fd.write("{\n");
+		for i in range(frame_count):
+			l = 0;
+			r = frame_width;
+			t = frame_height * i;
+			b = t + frame_height;
+			frame = image.crop((l, t, r, b));
+			runs = TOS_rl_encode(frame);
+
+			fd.write(f"\t[{i}] = (uint8_t[])\n");
+			fd.write("\t{\n\t\t");
+			for (j, run) in enumerate(runs):
+				if j > 0 and j % 16 == 0:
+					fd.write("\n\t\t");
+				fd.write(f"{hex(run[0])},{hex(run[1])},");
+				if j == len(runs)-1:
+					fd.write("\n");
+			fd.write("\t},\n");
+		fd.write("};\n");
+		fd.write("\n");
+
 		path_map[path] = idx;
 
-		image = Image.open(os.path.join("sprites", path));
-		pixels = image.load();
-		rgb888s = [];
-		for y in range(image.size[1]):
-			for x in range(image.size[0]):
-				rgb888s.append(pixels[x, y]);
-		image.close();
-
-		rgb565s = [RGBA88882RGB565(c) for c in rgb888s];
-		fd.write(f"const uint16_t pixels_{idx}[{len(rgb565s)}] =\n");
-		fd.write("{\n");
-		for (idx, c) in enumerate(rgb565s):
-			fd.write(f"\t{hex(c)},");
-			if (idx > 0 and idx % image.size[0] == 0) or idx == len(rgb565s)-1:
-				fd.write("\n");
-		fd.write("};\n\n");
 		
 	for (idx, sprite) in enumerate(json_entries):
 		fd.write(f"CAT_sprite {sprite["name"]} =\n");
 		fd.write("{\n");
 		fd.write(f"\t.id = {sprite["id"]},\n");
-		fd.write(f"\t.pixels = pixels_{path_map[sprite["path"]]},\n");
+
+		data_idx = path_map[sprite["path"]];
+		fd.write(f"\t.colour_table = sprite_{data_idx}_colour_table,\n");
+		fd.write(f"\t.frames = sprite_{data_idx}_frames,\n");
+
+		fd.write(f"\t.frame_count = {sprite["frames"]},\n");
 		fd.write(f"\t.width = {sprite["width"]},\n");
 		fd.write(f"\t.height = {sprite["height"]},\n");
-		fd.write(f"\t.frame_count = {sprite["frames"]}\n");
 		fd.write("};\n");
 		fd.write("\n");
+
 	fd.write("#endif\n");
+	fd.write("\n");

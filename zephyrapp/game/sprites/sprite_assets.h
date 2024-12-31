@@ -2,24 +2,25 @@
 
 #include <stdint.h>
 
-#ifdef CAT_DESKTOP
-typedef struct
-{
-	int id;
-	const uint16_t* pixels;
-	int width;
-	int height;
-	int frame_count;
-} CAT_sprite;
-#else
+#ifdef CAT_EMBEDDED
 typedef struct
 {
 	int id;
 	const uint16_t* color_table;
 	const uint8_t** frames;
+	int frame_count;
 	int width;
 	int height;
+} CAT_sprite;
+#else
+typedef struct
+{
+	int id;
+	const uint16_t* colour_table;
+	const uint8_t** frames;
 	int frame_count;
+	int width;
+	int height;
 } CAT_sprite;
 #endif
 
@@ -29,7 +30,6 @@ extern CAT_sprite base_floor_sprite;
 extern CAT_sprite grass_floor_sprite;
 extern CAT_sprite ash_floor_sprite;
 extern CAT_sprite glyph_sprite;
-extern CAT_sprite strike_sprite;
 extern CAT_sprite icon_pointer_sprite;
 extern CAT_sprite icon_a_sprite;
 extern CAT_sprite icon_b_sprite;

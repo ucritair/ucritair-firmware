@@ -316,6 +316,7 @@ void unpack_rle_row()
 }
 #endif
 
+#ifdef CAT_EMBEDDED
 void CAT_draw_sprite(const CAT_sprite* sprite, int frame_idx, int x, int y)
 {
 	if(sprite == NULL)
@@ -326,12 +327,7 @@ void CAT_draw_sprite(const CAT_sprite* sprite, int frame_idx, int x, int y)
 
 	int w = sprite->width;
 	int h = sprite->height;
-
-#ifdef CAT_EMBEDDED
 	init_rle_decode(sprite, frame_idx, sprite->width);
-#else
-	const uint16_t* frame = &sprite->pixels[frame_idx * h * w];
-#endif
 	
 	if((spriter.mode & CAT_DRAW_MODE_CENTER_X) > 0)
 		x -= w/2;
@@ -339,13 +335,10 @@ void CAT_draw_sprite(const CAT_sprite* sprite, int frame_idx, int x, int y)
 		y -= h/2;
 	else if((spriter.mode & CAT_DRAW_MODE_BOTTOM) > 0)
 		y -= h;
-
-#ifdef CAT_EMBEDDED
 	y -= framebuffer_offset_h;
 
 	if (y >= LCD_FRAMEBUFFER_H) return;
 	if ((y + h) < 0) return;
-#endif
 
 	int y_end = y + h;
 	if (y_end >= LCD_FRAMEBUFFER_H)
@@ -357,9 +350,7 @@ void CAT_draw_sprite(const CAT_sprite* sprite, int frame_idx, int x, int y)
 
 	while (y < y_end)
 	{
-#ifdef CAT_EMBEDDED
 		unpack_rle_row();
-#endif
 		
 		if(y < 0)
 		{
@@ -368,12 +359,7 @@ void CAT_draw_sprite(const CAT_sprite* sprite, int frame_idx, int x, int y)
 			continue;
 		}
 
-#ifdef CAT_EMBEDDED
 		const uint16_t* read_ptr = &rle_work_region[initial_offset];
-#else
-		const uint16_t* read_ptr = &frame[dy * w + initial_offset];
-#endif
-
 		uint16_t* write_ptr = &FRAMEBUFFER[y * LCD_SCREEN_W + x];
 
 		for(int dx = 0; dx < w; dx++)
@@ -399,7 +385,64 @@ void CAT_draw_sprite(const CAT_sprite* sprite, int frame_idx, int x, int y)
 		dy++;
 	}
 }
+#else
+void CAT_draw_sprite(const CAT_sprite* sprite, int frame_idx, int x, int y)
+{
+	if(sprite == NULL)
+	{
+		CAT_printf("[ERROR] CAT_draw_sprite: null sprite\n");
+		return;
+	}
 
+	int w = sprite->width;
+	int h = sprite->height;
+	if((spriter.mode & CAT_DRAW_MODE_CENTER_X) > 0)
+		x -= w/2;
+	if((spriter.mode & CAT_DRAW_MODE_CENTER_Y) > 0)
+		y -= h/2;
+	else if((spriter.mode & CAT_DRAW_MODE_BOTTOM) > 0)
+		y -= h;
+
+	const uint8_t* frame = sprite->frames[frame_idx];
+	int run_idx = 0;
+	int px_count = 0;
+	int px_limit = w*h;
+	int dx = 0;
+	int dy = 0;
+	while(px_count < px_limit)
+	{
+		uint8_t colour_idx = frame[run_idx*2+0];
+		uint8_t run_length = frame[run_idx*2+1];
+		uint16_t colour_565 = sprite->colour_table[colour_idx];
+
+		for(int run_pos = 0; run_pos < run_length; run_pos++)
+		{
+			int y_w = y + dy;
+			int x_w = x + dx;
+			if(y_w >= 0 && y_w < LCD_SCREEN_H && x_w >= 0 && x_w < LCD_SCREEN_W)
+			{
+				if(colour_565 != 0xdead)
+				{
+					int px_idx = (y+dy) * LCD_SCREEN_W + (x+dx);
+					FRAMEBUFFER[px_idx] = colour_565;
+				}
+			}
+			
+			dx += 1;
+			if(dx >= w)
+			{
+				dx = 0;
+				dy += 1;
+			}
+		}
+
+		run_idx += 1;
+		px_count += run_length;	
+	}
+}
+#endif
+
+#ifdef CAT_EMBEDDED
 void CAT_draw_tiles(const CAT_sprite* sprite, int frame_idx, int y_t, int h_t)
 {
 	if(sprite == NULL)
@@ -408,14 +451,8 @@ void CAT_draw_tiles(const CAT_sprite* sprite, int frame_idx, int y_t, int h_t)
 		return;
 	}
 
-#ifndef CAT_EMBEDDED
-	const uint16_t* frame = &sprite->pixels[frame_idx * CAT_TILE_SIZE * CAT_TILE_SIZE];
-#endif
-
 	int y_start = y_t * CAT_TILE_SIZE;
 	int y_end = (y_t+h_t) * CAT_TILE_SIZE;
-
-#ifdef CAT_EMBEDDED
 	y_start -= framebuffer_offset_h;
 	y_end -= framebuffer_offset_h;
 
@@ -424,32 +461,10 @@ void CAT_draw_tiles(const CAT_sprite* sprite, int frame_idx, int y_t, int h_t)
 
 	if (y_start < 0) y_start = 0;
 	if (y_end > LCD_FRAMEBUFFER_H) y_end = LCD_FRAMEBUFFER_H;
-#endif
 
-#ifdef CAT_EMBEDDED
 	init_rle_decode(sprite, frame_idx, sprite->width);
-#endif
 
-#if CAT_TILE_SIZE != 16
-#error adjust tiler (rep count)
-#endif
-
-#ifdef CAT_EMBEDDED
 #define RESETPTR from = (uint32_t*)rle_work_region;
-#else
-#define RESETPTR from = (uint32_t*)&frame[dy * CAT_TILE_SIZE];
-#endif
-
-#if (LCD_SCREEN_W/CAT_TILE_SIZE) != 15
-#error adjust tiler (rep count)
-#endif
-
-#ifdef CAT_EMBEDDED
-#if ((LCD_SCREEN_H/LCD_FRAMEBUFFER_SEGMENTS) % 16) != 0
-#error adjust tiler (start pos)
-#endif
-#endif
-
 #define UNROLL2PX *(to++) = *(from++);
 #define UNROLL4PX UNROLL2PX UNROLL2PX
 #define UNROLL8PX UNROLL4PX UNROLL4PX
@@ -461,10 +476,8 @@ void CAT_draw_tiles(const CAT_sprite* sprite, int frame_idx, int y_t, int h_t)
 
 	for (int dy = 0; dy < CAT_TILE_SIZE; dy++)
 	{
-#ifdef CAT_EMBEDDED
 		unpack_rle_row();
 		// uint32_t* row_start = (uint32_t*)&image_data_table[sprite->id].frames[frame_idx][0];
-#endif
 		uint32_t* from;
 		for(int y_w = y_start; y_w < y_end; y_w += CAT_TILE_SIZE)
 		{
@@ -473,6 +486,27 @@ void CAT_draw_tiles(const CAT_sprite* sprite, int frame_idx, int y_t, int h_t)
 		}
 	}
 }
+#else
+void CAT_draw_tiles(const CAT_sprite* sprite, int frame_idx, int y_t, int h_t)
+{
+	if(sprite == NULL)
+	{
+		CAT_printf("[ERROR] CAT_draw_tiles: null sprite\n");
+		return;
+	}
+
+	int y_start = y_t * CAT_TILE_SIZE;
+	int y_end = (y_t+h_t) * CAT_TILE_SIZE;
+
+	for(int y = y_start; y <= y_end; y += CAT_TILE_SIZE)
+	{
+		for(int x = 0; x < LCD_SCREEN_W; x += CAT_TILE_SIZE)
+		{
+			CAT_draw_sprite(sprite, frame_idx, x, y);
+		}
+	}
+}
+#endif
 
 void CAT_spriter_cleanup()
 {
