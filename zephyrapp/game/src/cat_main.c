@@ -327,11 +327,7 @@ void CAT_tick_render(int cycle)
 		keyboard_open = true;
 	if(keyboard_open)
 		keyboard_open = CAT_gui_keyboard();
-	char message[64];
-	if(CAT_gui_harvest_keyboard(message))
-	{
-		CAT_printf("%s\n", message);
-	}
+	CAT_gui_harvest_keyboard(pet.name);
 }
 
 #ifdef CAT_DESKTOP

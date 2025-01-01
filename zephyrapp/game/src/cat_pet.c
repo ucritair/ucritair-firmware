@@ -37,6 +37,8 @@ void CAT_pet_init()
 	pet.times_pet = 0;
 	pet.petting_timer_id = CAT_timer_init(CAT_PET_COOLDOWN_SECS);
 	pet.times_milked = 0;
+
+	pet.name[0] = '\0';
 }
 
 void CAT_pet_reanimate()

@@ -268,7 +268,7 @@ bool CAT_gui_keyboard()
 			{
 				keyboard.buffer[keyboard.cursor] = *c;
 				keyboard.cursor += 1;
-			}	
+			}
 		}
 		keyboard.buffer[keyboard.cursor] = '\0';
 

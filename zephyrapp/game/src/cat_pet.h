@@ -30,6 +30,8 @@ typedef struct CAT_pet
 	int times_pet;
 	int petting_timer_id;
 	int times_milked;
+
+	char name[64];
 } CAT_pet;
 extern CAT_pet pet;
 
