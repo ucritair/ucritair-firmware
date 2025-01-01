@@ -45,4 +45,8 @@ void CAT_gui_text(const char* text);
 void CAT_gui_image(CAT_sprite* sprite, int frame_idx);
 void CAT_gui_div(const char* text);
 void CAT_gui_textf(const char* fmt, ...);
+void CAT_gui_title(bool tabs, CAT_sprite* a_action, CAT_sprite* b_action, const char* fmt, ...);
 
+extern bool keyboard_open;
+bool CAT_gui_keyboard();
+bool CAT_gui_harvest_keyboard(char* destination);

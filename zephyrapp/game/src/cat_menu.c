@@ -16,6 +16,7 @@
 #include <stddef.h>
 #include <string.h>
 #include <math.h>
+#include "mesh_assets.h"
 
 #ifdef CAT_EMBEDDED
 #include "menu_system.h"
@@ -85,12 +86,12 @@ void CAT_MS_menu(CAT_machine_signal signal)
 
 void CAT_render_menu()
 {
-	CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});  
-	CAT_gui_text("MENU ");
-	CAT_gui_image(&icon_a_sprite, 1);
-	CAT_gui_image(&icon_enter_sprite, 0);
-	CAT_gui_image(&icon_b_sprite, 1);
-	CAT_gui_image(&icon_exit_sprite, 0);
+	CAT_gui_title
+	(
+		false,
+		&icon_enter_sprite, &icon_exit_sprite,
+		"MENU"
+	);
 
 	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
 
@@ -165,23 +166,6 @@ void CAT_render_debug()
 		CAT_GRID_SIZE - space.free_cell_count, space.free_cell_count,
 		CAT_GRID_SIZE
 	);
-}
-
-void CAT_MS_litany(CAT_machine_signal signal)
-{
-	switch (signal)
-	{
-		case CAT_MACHINE_SIGNAL_ENTER:
-			break;
-		case CAT_MACHINE_SIGNAL_TICK:
-			if(CAT_input_pressed(CAT_BUTTON_B))
-				CAT_machine_back();
-			if(CAT_input_pressed(CAT_BUTTON_START))
-				CAT_machine_transition(CAT_MS_room);
-			break;
-		case CAT_MACHINE_SIGNAL_EXIT:
-			break;
-	}
 }
 
 void cheat_proc_1k_coins()
@@ -287,8 +271,6 @@ void CAT_print_mat4(CAT_mat4 mat)
 		CAT_printf("\n");
 	}
 }
-
-#include "../meshes/mesh_assets.h"
 
 CAT_mesh* mesh;
 

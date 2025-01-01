@@ -239,20 +239,23 @@ void CAT_init(int seconds_slept)
 	CAT_machine_transition(CAT_MS_room);
 }
 
-void CAT_tick_logic()
+bool in_world()
 {
-	CAT_platform_tick();
-	CAT_input_tick();
-
-	bool in_world =
+	return
 	machine == CAT_MS_room ||
 	machine == CAT_MS_feed ||
 	machine == CAT_MS_study ||
 	machine == CAT_MS_play ||
 	machine == CAT_MS_deco;
+}
 
-	CAT_room_tick(in_world);
-	CAT_pet_tick(in_world);
+void CAT_tick_logic()
+{
+	CAT_platform_tick();
+	CAT_input_tick();
+
+	CAT_room_tick(in_world());
+	CAT_pet_tick(in_world());
 
 	CAT_machine_tick();
 }
@@ -264,14 +267,7 @@ void CAT_tick_render(int cycle)
 		draw_queue.length = 0;
 	}
 
-	bool in_world =
-	machine == CAT_MS_room ||
-	machine == CAT_MS_feed ||
-	machine == CAT_MS_study ||
-	machine == CAT_MS_play ||
-	machine == CAT_MS_deco;
-
-	if(in_world)
+	if(in_world())
 	{
 		CAT_render_room(cycle);
 		CAT_render_pet(cycle);
@@ -327,9 +323,15 @@ void CAT_tick_render(int cycle)
 		CAT_gui_text("This machine state\nhas no render routine!");
 	}
 
-#ifdef HORSESHIT
-	CAT_spriteberry(&pet_unicorn_block_a_sprite_, 10, 10);
-#endif
+	if(CAT_input_pressed(CAT_BUTTON_B))
+		keyboard_open = true;
+	if(keyboard_open)
+		keyboard_open = CAT_gui_keyboard();
+	char message[64];
+	if(CAT_gui_harvest_keyboard(message))
+	{
+		CAT_printf("%s\n", message);
+	}
 }
 
 #ifdef CAT_DESKTOP

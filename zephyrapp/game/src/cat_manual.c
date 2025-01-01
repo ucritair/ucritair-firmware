@@ -95,10 +95,13 @@ void CAT_MS_manual(CAT_machine_signal signal)
 
 void CAT_draw_controls()
 {
-	CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});
-	CAT_gui_text("< CONTROLS > ");
-	CAT_gui_image(&icon_b_sprite, 1);
-	CAT_gui_image(&icon_exit_sprite, 0);
+	CAT_gui_title
+	(
+		true,
+		NULL, &icon_exit_sprite,
+		"CONTROLS"
+	);
+
 	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
 
 	CAT_gui_text("PRESS ");
@@ -136,10 +139,13 @@ void CAT_draw_controls()
 
 void CAT_draw_stats()
 {
-	CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});
-	CAT_gui_text("< STATS > ");
-	CAT_gui_image(&icon_b_sprite, 1);
-	CAT_gui_image(&icon_exit_sprite, 0);
+	CAT_gui_title
+	(
+		true,
+		NULL, &icon_exit_sprite,
+		"STATS"
+	);
+
 	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
 
 	CAT_gui_image(&icon_vig_sprite, 0);
@@ -182,10 +188,13 @@ void CAT_draw_stats()
 
 void CAT_draw_actions()
 {
-	CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});
-	CAT_gui_text("< CARETAKING > ");
-	CAT_gui_image(&icon_b_sprite, 1);
-	CAT_gui_image(&icon_exit_sprite, 0);
+	CAT_gui_title
+	(
+		true,
+		NULL, &icon_exit_sprite,
+		"CARETAKING"
+	);
+
 	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
 
 	CAT_gui_image(&icon_feed_sprite, 0);
@@ -231,10 +240,13 @@ void CAT_draw_actions()
 
 void CAT_draw_deco()
 {
-	CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});
-	CAT_gui_text("< DECORATION > ");
-	CAT_gui_image(&icon_b_sprite, 1);
-	CAT_gui_image(&icon_exit_sprite, 0);
+	CAT_gui_title
+	(
+		true,
+		NULL, &icon_exit_sprite,
+		"DECORATION"
+	);
+
 	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
 
 	CAT_gui_image(&icon_deco_sprite, 0);
@@ -274,10 +286,13 @@ void CAT_draw_deco()
 
 void CAT_draw_air()
 {
-	CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});
-	CAT_gui_text("< AIR QUALITY > ");
-	CAT_gui_image(&icon_b_sprite, 1);
-	CAT_gui_image(&icon_exit_sprite, 0);
+	CAT_gui_title
+	(
+		true,
+		NULL, &icon_exit_sprite,
+		"AIR QUALITY"
+	);
+
 	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
 
 	CAT_gui_image(&icon_co2_sprite, 0);
@@ -328,10 +343,13 @@ void CAT_draw_air()
 
 void CAT_draw_shopping()
 {
-	CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});
-	CAT_gui_text("< SHOPPING > ");
-	CAT_gui_image(&icon_b_sprite, 1);
-	CAT_gui_image(&icon_exit_sprite, 0);
+	CAT_gui_title
+	(
+		true,
+		NULL, &icon_exit_sprite,
+		"SHOPPING"
+	);
+
 	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
 
 	gui.cursor.x += 6;
@@ -368,10 +386,13 @@ void CAT_draw_shopping()
 
 void CAT_draw_crypto()
 {
-	CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});
-	CAT_gui_text("< MINING > ");
-	CAT_gui_image(&icon_b_sprite, 1);
-	CAT_gui_image(&icon_exit_sprite, 0);
+	CAT_gui_title
+	(
+		true,
+		NULL, &icon_exit_sprite,
+		"MINING"
+	);
+
 	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
 
 	CAT_gui_text
@@ -414,10 +435,13 @@ void CAT_draw_crypto()
 
 void CAT_draw_arcade()
 {
-	CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});
-	CAT_gui_text("< ARCADE > ");
-	CAT_gui_image(&icon_b_sprite, 1);
-	CAT_gui_image(&icon_exit_sprite, 0);
+	CAT_gui_title
+	(
+		true,
+		NULL, &icon_exit_sprite,
+		"ARCADE"
+	);
+
 	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
 
 	CAT_gui_image(&snake_tail_sprite, 0);
@@ -478,10 +502,13 @@ void CAT_draw_arcade()
 
 void CAT_draw_about()
 {
-	CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});
-	CAT_gui_text("< ABOUT > ");
-	CAT_gui_image(&icon_b_sprite, 1);
-	CAT_gui_image(&icon_exit_sprite, 0);
+	CAT_gui_title
+	(
+		true,
+		NULL, &icon_exit_sprite,
+		"ABOUT"
+	);
+
 	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
 
 	gui.cursor.x += 24;
@@ -511,10 +538,13 @@ void CAT_draw_about()
 
 void CAT_draw_credits()
 {
-	CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});
-	CAT_gui_text("< CREDITS > ");
-	CAT_gui_image(&icon_b_sprite, 1);
-	CAT_gui_image(&icon_exit_sprite, 0);
+	CAT_gui_title
+	(
+		true,
+		NULL, &icon_exit_sprite,
+		"CREDITS"
+	);
+	
 	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
 
 	for(int i = 0; i < NUM_CREDITS; i++)
@@ -582,12 +612,16 @@ void CAT_render_manual()
 		}
 		default:
 		{
-			CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});
-			CAT_gui_text("ERM, WHAT THE SPRUCE?");
-			CAT_gui_image(&icon_b_sprite, 1);
-			CAT_gui_image(&icon_exit_sprite, 0);
+			CAT_gui_title
+			(
+				true,
+				NULL, &icon_exit_sprite,
+				"WHAT?"
+			);
+			
 			CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
-			CAT_gui_text("How the did you even\nget here man? Try < or >\nor something I guess");
+			CAT_gui_set_flag(CAT_GUI_WRAP_TEXT);
+			CAT_gui_text("How the did you even get here man? Try < or > or something I guess");
 			break;
 		}
 	}

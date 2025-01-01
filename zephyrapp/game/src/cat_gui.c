@@ -7,6 +7,7 @@
 #include "cat_machine.h"
 #include <math.h>
 #include <ctype.h>
+#include "cat_input.h"
 
 //////////////////////////////////////////////////////////////////////////
 // RENDERING
@@ -152,4 +153,142 @@ void CAT_gui_textf(const char* fmt, ...)
 	vsprintf(text, fmt, args);
 	va_end(args);
 	CAT_gui_text(text);
+}
+
+void CAT_gui_title(bool tabs, CAT_sprite* a_action, CAT_sprite* b_action, const char* fmt, ...)
+{
+	CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});  
+	
+	if(tabs)
+		CAT_gui_text("< ");
+	va_list args;
+	va_start(args, fmt);
+	char text[256];
+	vsprintf(text, fmt, args);
+	va_end(args);
+	CAT_gui_text(text);
+	if(tabs)
+		CAT_gui_text(" >");
+	CAT_gui_text(" ");
+
+	if(a_action != NULL)
+	{
+		CAT_gui_image(&icon_a_sprite, 1);
+		CAT_gui_image(a_action, 0);
+	}
+	if(b_action != NULL)
+	{
+		CAT_gui_image(&icon_b_sprite, 1);
+		CAT_gui_image(b_action, 0);
+	}
+}
+
+static const char* cases[] = 
+{
+	"0123456789\x06\nQWERTYUIOP\nASDFGHJKL\x07\x09\nZXCVBNM\x08\n",
+	"0123456789\x06\nqwertyuiop\nasdfghjkl\x07\x09\nzxcvbnm\x08\n"
+};
+
+struct 
+{
+	char buffer[64];
+	int cursor;
+	bool finalized;
+	
+	bool show_cursor;
+	float cursor_timer;
+
+	int case_idx;
+} keyboard = 
+{
+	.cursor = 0,
+	.finalized = false,
+	.show_cursor = true,
+	.cursor_timer = 0.0f,
+	.case_idx = 0
+};
+bool keyboard_open = false;
+
+bool CAT_gui_keyboard()
+{
+	keyboard.cursor_timer += CAT_get_delta_time();
+	if(keyboard.cursor_timer >= 0.5f)
+	{
+		keyboard.cursor_timer = 0.0f;
+		keyboard.show_cursor = !keyboard.show_cursor;
+	}
+		
+	CAT_gui_panel((CAT_ivec2){0, 10}, (CAT_ivec2){15, 10});
+	CAT_gui_text(keyboard.buffer);
+	if(keyboard.show_cursor)
+		CAT_gui_text("|");
+	gui.cursor.y -= 4;
+	CAT_gui_div("");
+
+	spriter.mode = CAT_DRAW_MODE_DEFAULT;
+	int x_w = gui.margin * 2;
+	int y_w = gui.cursor.y;
+	const char* c = cases[keyboard.case_idx];
+	while(*c != '\0')
+	{
+		if(*c == '\n')
+		{
+			y_w += CAT_GLYPH_HEIGHT + 8;
+			x_w = gui.margin * 2;
+			c++;
+			continue;
+		}
+		
+		CAT_strokeberry(x_w, y_w, CAT_GLYPH_WIDTH + 4, CAT_GLYPH_HEIGHT + 6, 0);
+		CAT_draw_sprite(&glyph_sprite, *c, x_w + 2, y_w + 3);
+		if(CAT_input_touch_rect(x_w, y_w, CAT_GLYPH_WIDTH + 4, CAT_GLYPH_HEIGHT + 6))
+		{
+			if(*c == 6)
+			{
+				if(keyboard.cursor > 0)
+				{
+					keyboard.cursor -= 1;
+					keyboard.show_cursor = true;
+					keyboard.cursor_timer = 0;
+				}
+			}
+			else if(*c == 7)
+			{
+				keyboard.finalized = true;
+				keyboard_open = false;
+			}
+			else if(*c == 8)
+				keyboard.case_idx = !keyboard.case_idx;
+			else if(*c == 9)
+			{
+				keyboard.cursor = 0;
+				keyboard_open = false;
+			}
+			else
+			{
+				keyboard.buffer[keyboard.cursor] = *c;
+				keyboard.cursor += 1;
+			}	
+		}
+		keyboard.buffer[keyboard.cursor] = '\0';
+
+		x_w += CAT_GLYPH_WIDTH + 8;
+		c++;
+	}
+
+	return keyboard_open;
+}
+
+bool CAT_gui_harvest_keyboard(char* destination)
+{
+	if(keyboard.finalized)
+	{
+		if(destination != NULL)
+			memcpy(destination, keyboard.buffer, keyboard.cursor+1);
+		keyboard.cursor = 0;
+		keyboard.finalized = false;
+		keyboard.case_idx = 0;
+		return true;
+	}
+	return false;
 }

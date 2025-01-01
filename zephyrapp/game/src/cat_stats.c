@@ -30,10 +30,12 @@ void CAT_MS_stats(CAT_machine_signal signal)
 
 void CAT_render_stats()
 {
-	CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});  
-	CAT_gui_text("INSIGHTS ");
-	CAT_gui_image(&icon_b_sprite, 1);
-	CAT_gui_image(&icon_exit_sprite, 0);
+	CAT_gui_title
+	(
+		false,
+		NULL, &icon_exit_sprite,
+		"INSIGHTS"
+	);
 
 	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});  
 	CAT_gui_image(AS_idle.tick_anim_id, 0); 

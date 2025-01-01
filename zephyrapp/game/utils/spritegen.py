@@ -338,7 +338,7 @@ with open("sprites/sprite_assets.c", 'w') as fd:
 					fd.write('\n\t\t')
 
 			fd.write('\n\t}\n};\n');
-			
+
 
 def RGBA88882RGB565(c):
 	if len(c) == 4 and c[3] < 128:
@@ -375,6 +375,7 @@ with open("sprites/sprite_assets.c", 'a') as fd:
 	fd.write("#else\n");
 
 	path_map = {};
+	compression_ratio = 0;
 	for (idx, sprite) in enumerate(json_entries):
 		path = sprite["path"];
 		if path in path_map:
@@ -382,8 +383,9 @@ with open("sprites/sprite_assets.c", 'a') as fd:
 		frame_count = sprite["frames"];
 
 		image = Image.open(os.path.join("sprites", path)).convert("P");
-		colour_table = TOS_tabulate_colour(image);
+		raw_size = image.size[0] * image.size[1] * 2;
 
+		colour_table = TOS_tabulate_colour(image);
 		fd.write(f"const uint16_t sprite_{idx}_colour_table[] = \n");
 		fd.write("{\n");
 		for c in colour_table:
@@ -393,6 +395,7 @@ with open("sprites/sprite_assets.c", 'a') as fd:
 
 		frame_width = image.size[0];
 		frame_height = image.size[1] // frame_count;
+		compressed_size = 0;
 		fd.write(f"const uint8_t* sprite_{idx}_frames[] = \n");
 		fd.write("{\n");
 		for i in range(frame_count):
@@ -402,6 +405,7 @@ with open("sprites/sprite_assets.c", 'a') as fd:
 			b = t + frame_height;
 			frame = image.crop((l, t, r, b));
 			runs = TOS_rl_encode(frame);
+			compressed_size += len(runs) * 2;
 
 			fd.write(f"\t[{i}] = (uint8_t[])\n");
 			fd.write("\t{\n\t\t");
@@ -416,7 +420,9 @@ with open("sprites/sprite_assets.c", 'a') as fd:
 		fd.write("\n");
 
 		path_map[path] = idx;
+		compression_ratio += raw_size / compressed_size;
 
+	print(f"Mean compression ratio: {compression_ratio / len(path_map):.2f}");
 		
 	for (idx, sprite) in enumerate(json_entries):
 		fd.write(f"CAT_sprite {sprite["name"]} =\n");

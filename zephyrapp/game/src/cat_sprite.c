@@ -238,10 +238,16 @@ void CAT_fillberry(int xi, int yi, int w, int h, uint16_t c)
 
 void CAT_strokeberry(int xi, int yi, int w, int h, uint16_t c)
 {
-	CAT_lineberry(xi, yi, xi+w, yi, c);
-	CAT_lineberry(xi+w, yi, xi+w, yi+h, c);
-	CAT_lineberry(xi+w, yi+h, xi, yi+h, c);
-	CAT_lineberry(xi, yi+h, xi, yi, c);
+	for(int x = xi; x < xi + w; x++)
+	{
+		FRAMEBUFFER[yi * LCD_SCREEN_W + x] = c;
+		FRAMEBUFFER[(yi+h-1) * LCD_SCREEN_W + x] = c;
+	}
+	for(int y = yi; y < yi + h; y++)
+	{
+		FRAMEBUFFER[y * LCD_SCREEN_W + xi] = c;
+		FRAMEBUFFER[y * LCD_SCREEN_W + (xi+w-1)] = c;
+	}
 }
 
 
@@ -412,13 +418,15 @@ void CAT_draw_sprite(const CAT_sprite* sprite, int frame_idx, int x, int y)
 	while(px_count < px_limit)
 	{
 		uint8_t colour_idx = frame[run_idx*2+0];
-		uint8_t run_length = frame[run_idx*2+1];
 		uint16_t colour_565 = sprite->colour_table[colour_idx];
-
-		for(int run_pos = 0; run_pos < run_length; run_pos++)
+		uint8_t run_length = frame[run_idx*2+1];
+		uint8_t run_remainder = run_length;
+		
+		while(run_remainder > 0)
 		{
 			int y_w = y + dy;
 			int x_w = x + dx;
+
 			if
 			(
 				colour_565 != 0xdead &&
@@ -438,10 +446,11 @@ void CAT_draw_sprite(const CAT_sprite* sprite, int frame_idx, int x, int y)
 				dx = 0;
 				dy += 1;
 			}
+			run_remainder -= 1;
 		}
 
+		px_count += run_length;
 		run_idx += 1;
-		px_count += run_length;	
 	}
 }
 #endif
@@ -481,7 +490,6 @@ void CAT_draw_tiles(const CAT_sprite* sprite, int frame_idx, int y_t, int h_t)
 	for (int dy = 0; dy < CAT_TILE_SIZE; dy++)
 	{
 		unpack_rle_row();
-		// uint32_t* row_start = (uint32_t*)&image_data_table[sprite->id].frames[frame_idx][0];
 		uint32_t* from;
 		for(int y_w = y_start; y_w < y_end; y_w += CAT_TILE_SIZE)
 		{
@@ -502,6 +510,8 @@ void CAT_draw_tiles(const CAT_sprite* sprite, int frame_idx, int y_t, int h_t)
 	int y_start = y_t * CAT_TILE_SIZE;
 	int y_end = (y_t+h_t) * CAT_TILE_SIZE;
 
+	CAT_draw_mode backup = spriter.mode;
+	spriter.mode = CAT_DRAW_MODE_DEFAULT;
 	for(int y = y_start; y <= y_end; y += CAT_TILE_SIZE)
 	{
 		for(int x = 0; x < LCD_SCREEN_W; x += CAT_TILE_SIZE)
@@ -509,6 +519,7 @@ void CAT_draw_tiles(const CAT_sprite* sprite, int frame_idx, int y_t, int h_t)
 			CAT_draw_sprite(sprite, frame_idx, x, y);
 		}
 	}
+	spriter.mode = backup;
 }
 #endif
 
@@ -531,18 +542,17 @@ void CAT_spriter_cleanup()
 // DRAW QUEUE
 
 CAT_anim_table anim_table;
+static float timer = 0;
 
 void CAT_anim_table_init()
 {
-	for(int i = 0; i < CAT_ATLAS_MAX_LENGTH; i++)
+	for(int i = 0; i < CAT_ANIM_TABLE_MAX_LENGTH; i++)
 	{
 		anim_table.frame_idx[i] = 0;
 		anim_table.loop[i] = true;
 		anim_table.reverse[i] = false;
 		anim_table.dirty[i] = true;
 	}
-
-	anim_table.timer = 0;
 }
 
 void CAT_anim_toggle_loop(CAT_sprite* sprite, bool toggle)
@@ -636,8 +646,8 @@ void CAT_draw_queue_submit(int cycle)
 {
 	if (cycle==0)
 	{
-		anim_table.timer += CAT_get_delta_time();
-		if(anim_table.timer >= 0.15f)
+		timer += CAT_get_delta_time();
+		if(timer >= 0.15f)
 		{
 			for(int i = 0; i < draw_queue.length; i++)
 			{
@@ -654,7 +664,7 @@ void CAT_draw_queue_submit(int cycle)
 				
 				anim_table.dirty[job->sprite->id] = false;
 			}
-			anim_table.timer = 0.0f;
+			timer = 0.0f;
 		}
 
 		for(int i = 0; i < draw_queue.length; i++)

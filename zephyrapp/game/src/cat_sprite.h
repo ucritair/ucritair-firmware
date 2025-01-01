@@ -9,14 +9,18 @@
 //////////////////////////////////////////////////////////////////////////
 // CONSTANTS AND MACROS
 
-#define CAT_ATLAS_MAX_LENGTH 512
+#define CAT_TILE_SIZE 16
+
+enum CAT_sprite_layers
+{
+	BG_LAYER,
+	STATICS_LAYER,
+	PROPS_LAYER,
+	GUI_LAYER
+};
 
 #define CAT_DRAW_QUEUE_MAX_LENGTH 512
-
-#define CAT_ANIM_TABLE_MAX_LENGTH CAT_ATLAS_MAX_LENGTH
-#define CAT_ANIM_QUEUE_MAX_LENGTH CAT_ATLAS_MAX_LENGTH
-
-#define CAT_TILE_SIZE 16
+#define CAT_ANIM_TABLE_MAX_LENGTH 512
 
 #define RGB8882565(r, g, b) ((r & 0b11111000) << 8) | ((g & 0b11111100) << 3) | (b >> 3)
 
@@ -64,12 +68,10 @@ void CAT_spriter_cleanup();
 
 typedef struct CAT_anim_table
 {
-	int frame_idx[CAT_ATLAS_MAX_LENGTH];
-	bool loop[CAT_ATLAS_MAX_LENGTH];
-	bool reverse[CAT_ATLAS_MAX_LENGTH];
-	bool dirty[CAT_ATLAS_MAX_LENGTH];
-
-	float timer;
+	int frame_idx[CAT_ANIM_TABLE_MAX_LENGTH];
+	bool loop[CAT_ANIM_TABLE_MAX_LENGTH];
+	bool reverse[CAT_ANIM_TABLE_MAX_LENGTH];
+	bool dirty[CAT_ANIM_TABLE_MAX_LENGTH];
 } CAT_anim_table;
 extern CAT_anim_table anim_table;
 

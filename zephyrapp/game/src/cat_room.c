@@ -675,19 +675,19 @@ void render_statics()
 	float aqi_score = CAT_AQI_aggregate();
 
 	if(aqi_score <= 35.0f && time.hour >= 4 && time.hour < 22)
-		CAT_draw_queue_add(&window_day_bad_aq_sprite, -1, 2, 8, 8, CAT_DRAW_MODE_DEFAULT);
+		CAT_draw_queue_add(&window_day_bad_aq_sprite, -1, STATICS_LAYER, 8, 8, CAT_DRAW_MODE_DEFAULT);
 	else if(time.hour >= 4 && time.hour < 7)
-		CAT_draw_queue_add(&window_dawn_sprite, 0, 1, 8, 8, CAT_DRAW_MODE_DEFAULT);
+		CAT_draw_queue_add(&window_dawn_sprite, 0, STATICS_LAYER, 8, 8, CAT_DRAW_MODE_DEFAULT);
 	else if(time.hour >= 7 && time.hour < 11)
-		CAT_draw_queue_add(&window_morning_sprite, 0, 1, 8, 8, CAT_DRAW_MODE_DEFAULT);
+		CAT_draw_queue_add(&window_morning_sprite, 0, STATICS_LAYER, 8, 8, CAT_DRAW_MODE_DEFAULT);
 	else if(time.hour >= 11 && time.hour < 18)
-		CAT_draw_queue_add(&window_day_sprite, 0, 1, 8, 8, CAT_DRAW_MODE_DEFAULT);
+		CAT_draw_queue_add(&window_day_sprite, 0, STATICS_LAYER, 8, 8, CAT_DRAW_MODE_DEFAULT);
 	else if(time.hour >= 18 && time.hour < 20)
-		CAT_draw_queue_add(&window_evening_sprite, 0, 1, 8, 8, CAT_DRAW_MODE_DEFAULT);
+		CAT_draw_queue_add(&window_evening_sprite, 0, STATICS_LAYER, 8, 8, CAT_DRAW_MODE_DEFAULT);
 	else if(time.hour >= 20 && time.hour < 22)
-		CAT_draw_queue_add(&window_dusk_sprite, 0, 1, 8, 8, CAT_DRAW_MODE_DEFAULT);
+		CAT_draw_queue_add(&window_dusk_sprite, 0, STATICS_LAYER, 8, 8, CAT_DRAW_MODE_DEFAULT);
 	else
-		CAT_draw_queue_add(&window_night_sprite, 0, 1, 8, 8, CAT_DRAW_MODE_DEFAULT);
+		CAT_draw_queue_add(&window_night_sprite, 0, STATICS_LAYER, 8, 8, CAT_DRAW_MODE_DEFAULT);
 	
 	battery_blink_timer += CAT_get_delta_time();
 	if(battery_blink_timer >= 0.5f)
@@ -696,10 +696,10 @@ void render_statics()
 		battery_blink_switch = !battery_blink_switch;
 	}
 	if(CAT_get_battery_pct() <= CAT_CRITICAL_BATTERY_PCT && battery_blink_switch)
-		CAT_draw_queue_add(&icon_low_battery_alt, 0, 2, 66, 37, CAT_DRAW_MODE_CENTER_X | CAT_DRAW_MODE_CENTER_Y);
+		CAT_draw_queue_add(&icon_low_battery_alt, 0, STATICS_LAYER + 1, 66, 37, CAT_DRAW_MODE_CENTER_X | CAT_DRAW_MODE_CENTER_Y);
 	
-	CAT_draw_queue_add(&vending_sprite, -1, 1, 172, 16, CAT_DRAW_MODE_DEFAULT);
-	CAT_draw_queue_add(&arcade_sprite, -1, 1, 124, 48, CAT_DRAW_MODE_DEFAULT);
+	CAT_draw_queue_add(&vending_sprite, -1, STATICS_LAYER, 172, 16, CAT_DRAW_MODE_DEFAULT);
+	CAT_draw_queue_add(&arcade_sprite, -1, STATICS_LAYER, 124, 48, CAT_DRAW_MODE_DEFAULT);
 }
 
 void render_props()
@@ -724,8 +724,8 @@ void render_props()
 				frame_idx = room.prop_overrides[i];
 		}
 		int job = prop->data.prop_data.animate ?
-		CAT_draw_queue_add(prop->sprite, -1, 2, draw_place.x, draw_place.y, mode) :
-		CAT_draw_queue_add(prop->sprite, frame_idx, 2, draw_place.x, draw_place.y, mode);
+		CAT_draw_queue_add(prop->sprite, -1, PROPS_LAYER, draw_place.x, draw_place.y, mode) :
+		CAT_draw_queue_add(prop->sprite, frame_idx, PROPS_LAYER, draw_place.x, draw_place.y, mode);
 		
 		CAT_item* child = CAT_item_get(room.prop_children[i]);
 		if(child != NULL)
@@ -735,7 +735,7 @@ void render_props()
 			int cx = (shape.x / 2) * CAT_TILE_SIZE;
 			int cy = shape.y * CAT_TILE_SIZE;
 			int dy = child->data.prop_data.child_dy;
-			CAT_draw_queue_insert(job+1, child->sprite, frame_idx, 2, draw_place.x + cx, draw_place.y - cy - dy, mode);
+			CAT_draw_queue_insert(job+1, child->sprite, frame_idx, PROPS_LAYER, draw_place.x + cx, draw_place.y - cy - dy, mode);
 		}
 	}
 }
@@ -755,19 +755,19 @@ void render_pickups()
 		if(origin.y > place.y)
 			y = -y + origin.y + place.y;
 
-		CAT_draw_queue_add(room.pickups[i].sprite, -1, 2, x, y, CAT_DRAW_MODE_CENTER_X | CAT_DRAW_MODE_BOTTOM);
+		CAT_draw_queue_add(room.pickups[i].sprite, -1, PROPS_LAYER, x, y, CAT_DRAW_MODE_CENTER_X | CAT_DRAW_MODE_BOTTOM);
 	}
 }
 
 void render_gui()
 {
 	int icon_mode = CAT_DRAW_MODE_CENTER_X | CAT_DRAW_MODE_CENTER_Y;
-	CAT_draw_queue_add(&icon_feed_sprite, 0, 3, 8+16, 280+16, icon_mode); 
-	CAT_draw_queue_add(&icon_study_sprite, 0, 3, 56+16, 280+16, icon_mode); 
-	CAT_draw_queue_add(&icon_play_sprite, 0, 3, 104+16, 280+16, icon_mode);
-	CAT_draw_queue_add(&icon_deco_sprite, 0, 3, 152+16, 280+16, icon_mode);
-	CAT_draw_queue_add(&icon_menu_sprite, 0, 3, 200+16, 280+16, icon_mode);
-	CAT_draw_queue_add(&button_hl_sprite, 0, 3, 8+16+48*mode_selector, 280+16, icon_mode);
+	CAT_draw_queue_add(&icon_feed_sprite, 0, GUI_LAYER, 8+16, 280+16, icon_mode); 
+	CAT_draw_queue_add(&icon_study_sprite, 0, GUI_LAYER, 56+16, 280+16, icon_mode); 
+	CAT_draw_queue_add(&icon_play_sprite, 0, GUI_LAYER, 104+16, 280+16, icon_mode);
+	CAT_draw_queue_add(&icon_deco_sprite, 0, GUI_LAYER, 152+16, 280+16, icon_mode);
+	CAT_draw_queue_add(&icon_menu_sprite, 0, GUI_LAYER, 200+16, 280+16, icon_mode);
+	CAT_draw_queue_add(&button_hl_sprite, 0, GUI_LAYER, 8+16+48*mode_selector, 280+16, icon_mode);
 
 	if(input.touch.pressure)
 		CAT_draw_queue_add(&touch_hl_sprite, 0, 4, input.touch.x, input.touch.y, icon_mode);
@@ -777,7 +777,7 @@ void CAT_render_room(int cycle)
 {
 	render_background();
 	if (cycle == 0)
-	{	
+	{
 		render_statics();
 		render_props();
 		render_pickups();
