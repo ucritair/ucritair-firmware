@@ -321,11 +321,8 @@ void CAT_tick_render(int cycle)
 		CAT_gui_text("This machine state\nhas no render routine!");
 	}
 
-	/*if(CAT_input_pressed(CAT_BUTTON_B))
-		keyboard_open = true;
-	if(keyboard_open)
-		keyboard_open = CAT_gui_keyboard();
-	CAT_gui_harvest_keyboard(pet.name);*/
+	if(CAT_gui_keyboard_is_open())
+		CAT_gui_keyboard();
 }
 
 #ifdef CAT_DESKTOP

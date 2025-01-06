@@ -189,11 +189,13 @@ static const char* cases[] =
 	"0123456789\x06\nqwertyuiop\nasdfghjkl\x07\x09\nzxcvbnm\x08\n"
 };
 
-struct 
+static struct 
 {
+	bool open;
+	char* target;
+
 	char buffer[64];
 	int cursor;
-	bool finalized;
 	
 	bool show_cursor;
 	float cursor_timer;
@@ -201,15 +203,28 @@ struct
 	int case_idx;
 } keyboard = 
 {
+	.open = false,
+	.target = NULL,
 	.cursor = 0,
-	.finalized = false,
 	.show_cursor = true,
 	.cursor_timer = 0.0f,
 	.case_idx = 0
 };
-bool keyboard_open = false;
 
-bool CAT_gui_keyboard()
+void CAT_gui_open_keyboard(char* target)
+{
+	keyboard.open = true;
+	keyboard.target = target;
+	keyboard.cursor = 0;
+	keyboard.case_idx = 0;
+}
+
+bool CAT_gui_keyboard_is_open()
+{
+	return keyboard.open;
+}
+
+void CAT_gui_keyboard()
 {
 	keyboard.cursor_timer += CAT_get_delta_time();
 	if(keyboard.cursor_timer >= 0.5f)
@@ -254,15 +269,18 @@ bool CAT_gui_keyboard()
 			}
 			else if(*c == 7)
 			{
-				keyboard.finalized = true;
-				keyboard_open = false;
+				if(keyboard.target != NULL)
+				{
+					memcpy(keyboard.target, keyboard.buffer, keyboard.cursor);
+					keyboard.target[keyboard.cursor] = '\0';
+				}
+				keyboard.open = false;	
 			}
 			else if(*c == 8)
 				keyboard.case_idx = !keyboard.case_idx;
 			else if(*c == 9)
 			{
-				keyboard.cursor = 0;
-				keyboard_open = false;
+				keyboard.open = false;
 			}
 			else
 			{
@@ -275,20 +293,4 @@ bool CAT_gui_keyboard()
 		x_w += CAT_GLYPH_WIDTH + 8;
 		c++;
 	}
-
-	return keyboard_open;
-}
-
-bool CAT_gui_harvest_keyboard(char* destination)
-{
-	if(keyboard.finalized)
-	{
-		if(destination != NULL)
-			memcpy(destination, keyboard.buffer, keyboard.cursor+1);
-		keyboard.cursor = 0;
-		keyboard.finalized = false;
-		keyboard.case_idx = 0;
-		return true;
-	}
-	return false;
 }

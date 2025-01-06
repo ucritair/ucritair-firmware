@@ -28,11 +28,16 @@ static CAT_menu_node menu_node_insights =
 	.children = { NULL },
 };
 
+void name_proc()
+{
+	CAT_gui_open_keyboard(pet.name);
+}
+
 static CAT_menu_node name_menu =
 {
 	.title = "PET NAME",
-	.proc = NULL,
-	.state = CAT_MS_menu,
+	.proc = name_proc,
+	.state = NULL,
 	.children = { NULL },
 };
 
