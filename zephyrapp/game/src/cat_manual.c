@@ -11,7 +11,7 @@
 #include "cat_pet.h"
 #include "cat_main.h"
 
-enum
+static enum
 {
 	CONTROLS,
 	STATS,
@@ -616,12 +616,11 @@ void CAT_render_manual()
 			(
 				true,
 				NULL, &icon_exit_sprite,
-				"WHAT?"
+				"LAST"
 			);
-			
 			CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
 			CAT_gui_set_flag(CAT_GUI_WRAP_TEXT);
-			CAT_gui_text("How the did you even get here man? Try < or > or something I guess");
+			CAT_gui_text("You shouldn't be here");
 			break;
 		}
 	}

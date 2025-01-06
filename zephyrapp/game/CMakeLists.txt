@@ -85,6 +85,7 @@ target_sources(app PRIVATE
 	src/cat_hedron.c
 	src/cat_magic.c
 	src/cat_cheats.c
+	src/cat_debug.c
 	sounds/sound_assets.c
 	meshes/mesh_assets.c
 	sprites/sprite_assets.c

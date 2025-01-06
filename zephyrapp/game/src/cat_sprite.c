@@ -677,7 +677,7 @@ void CAT_draw_queue_submit(int cycle)
 	for(int i = 0; i < draw_queue.length; i++)
 	{
 		CAT_draw_job* job = &draw_queue.jobs[i];
-		CAT_sprite* sprite = job->sprite;
+		const CAT_sprite* sprite = job->sprite;
 		if(job->frame_idx == -1)
 		{
 			job->frame_idx = anim_table.frame_idx[sprite->id];
@@ -735,7 +735,7 @@ void CAT_animachine_transition(CAT_animachine_state** spp, CAT_animachine_state*
 	}
 }
 
-CAT_sprite* CAT_animachine_tick(CAT_animachine_state** spp)
+const CAT_sprite* CAT_animachine_tick(CAT_animachine_state** spp)
 {
 	if(*spp == NULL)
 		return NULL;

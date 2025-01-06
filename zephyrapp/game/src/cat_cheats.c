@@ -13,7 +13,7 @@ void cheat_proc_money(CAT_machine_signal signal)
 static CAT_menu_node money_cheat =
 {
 	.title = "INSTANT CASH",
-	.children = NULL,
+	.children = { NULL },
 	.state = cheat_proc_money
 };
 
@@ -29,7 +29,7 @@ void cheat_proc_base_stats(CAT_machine_signal signal)
 static CAT_menu_node base_stats_cheat =
 {
 	.title = "BASE STATS",
-	.children = NULL,
+	.children = { NULL },
 	.state = cheat_proc_base_stats
 };
 
@@ -45,7 +45,7 @@ void cheat_proc_crit_stats(CAT_machine_signal signal)
 static CAT_menu_node crit_stats_cheat =
 {
 	.title = "CRITICAL STATS",
-	.children = NULL,
+	.children = { NULL },
 	.state = cheat_proc_crit_stats
 };
 
@@ -61,14 +61,14 @@ void cheat_proc_items(CAT_machine_signal signal)
 static CAT_menu_node items_cheat =
 {
 	.title = "EVERY ITEM",
-	.children = NULL,
+	.children = { NULL },
 	.state = cheat_proc_items
 };
 
 CAT_menu_node cheats =
 {
 	.title = "CHEATS",
-	.children = (CAT_menu_node*[])
+	.children =
 	{
 		&money_cheat,
 		&items_cheat,

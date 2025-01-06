@@ -83,7 +83,7 @@ void CAT_anim_reset(const CAT_sprite* sprite);
 
 typedef struct CAT_draw_job
 {
-	CAT_sprite* sprite;
+	const CAT_sprite* sprite;
 	int frame_idx;
 	int layer;
 	int x;
@@ -120,7 +120,7 @@ typedef struct CAT_animachine_state
 
 void CAT_animachine_init(CAT_animachine_state* state, const CAT_sprite* enai, const CAT_sprite* tiai, const CAT_sprite* exai);
 void CAT_animachine_transition(CAT_animachine_state** spp, CAT_animachine_state* next);
-CAT_sprite* CAT_animachine_tick(CAT_animachine_state** pp);
+const CAT_sprite* CAT_animachine_tick(CAT_animachine_state** pp);
 void CAT_animachine_kill(CAT_animachine_state** spp);
 
 bool CAT_animachine_is_in(CAT_animachine_state** spp, CAT_animachine_state* state);
