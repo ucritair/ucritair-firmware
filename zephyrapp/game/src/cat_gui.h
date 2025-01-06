@@ -42,10 +42,10 @@ void CAT_gui_panel(CAT_ivec2 start, CAT_ivec2 shape);
 void CAT_gui_line_break();
 
 void CAT_gui_text(const char* text);
-void CAT_gui_image(CAT_sprite* sprite, int frame_idx);
+void CAT_gui_image(const CAT_sprite* sprite, int frame_idx);
 void CAT_gui_div(const char* text);
 void CAT_gui_textf(const char* fmt, ...);
-void CAT_gui_title(bool tabs, CAT_sprite* a_action, CAT_sprite* b_action, const char* fmt, ...);
+void CAT_gui_title(bool tabs, const CAT_sprite* a_action, const CAT_sprite* b_action, const char* fmt, ...);
 
 extern bool keyboard_open;
 bool CAT_gui_keyboard();

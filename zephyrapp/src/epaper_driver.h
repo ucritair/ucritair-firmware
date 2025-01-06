@@ -1,3 +1,4 @@
+#include <stdbool.h>
 
 #define EPD_IMAGE_H 128
 #define EPD_IMAGE_W 248

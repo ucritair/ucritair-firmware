@@ -37,7 +37,7 @@ static struct
 {
 	int x;
 	int y;
-	CAT_sprite* sprite;
+	const CAT_sprite* sprite;
 } food;
 
 static int ticks = 0;
@@ -98,7 +98,7 @@ food_spawn_success:
 	food.x = guess_x;
 	food.y = guess_y;
 
-	CAT_sprite* food_sprites[] = 
+	const CAT_sprite* food_sprites[] = 
 	{
 		&bread_sprite,
 		&soup_sprite,

@@ -115,7 +115,7 @@ void CAT_gui_text(const char* text)
 	}
 }
 
-void CAT_gui_image(CAT_sprite* sprite, int frame_idx)
+void CAT_gui_image(const CAT_sprite* sprite, int frame_idx)
 {
 	spriter.mode = CAT_DRAW_MODE_CENTER_Y;
 
@@ -155,7 +155,7 @@ void CAT_gui_textf(const char* fmt, ...)
 	CAT_gui_text(text);
 }
 
-void CAT_gui_title(bool tabs, CAT_sprite* a_action, CAT_sprite* b_action, const char* fmt, ...)
+void CAT_gui_title(bool tabs, const CAT_sprite* a_action, const CAT_sprite* b_action, const char* fmt, ...)
 {
 	CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});  
 	

@@ -555,7 +555,7 @@ void CAT_anim_table_init()
 	}
 }
 
-void CAT_anim_toggle_loop(CAT_sprite* sprite, bool toggle)
+void CAT_anim_toggle_loop(const CAT_sprite* sprite, bool toggle)
 {
 	if(sprite == NULL)
 	{
@@ -566,7 +566,7 @@ void CAT_anim_toggle_loop(CAT_sprite* sprite, bool toggle)
 	anim_table.loop[sprite->id] = toggle;
 }
 
-void CAT_anim_toggle_reverse(CAT_sprite* sprite, bool toggle)
+void CAT_anim_toggle_reverse(const CAT_sprite* sprite, bool toggle)
 {
 	if(sprite == NULL)
 	{
@@ -577,7 +577,7 @@ void CAT_anim_toggle_reverse(CAT_sprite* sprite, bool toggle)
 	anim_table.reverse[sprite->id] = toggle;
 }
 
-bool CAT_anim_finished(CAT_sprite* sprite)
+bool CAT_anim_finished(const CAT_sprite* sprite)
 {
 	if(sprite == NULL)
 	{
@@ -588,7 +588,7 @@ bool CAT_anim_finished(CAT_sprite* sprite)
 	return anim_table.frame_idx[sprite->id] == sprite->frame_count-1;
 }
 
-void CAT_anim_reset(CAT_sprite* sprite)
+void CAT_anim_reset(const CAT_sprite* sprite)
 {
 	if(sprite == NULL)
 	{
@@ -604,7 +604,7 @@ CAT_draw_queue draw_queue =
 	.length = 0
 };
 
-void CAT_draw_queue_insert(int idx, CAT_sprite* sprite, int frame_idx, int layer, int x, int y, int mode)
+void CAT_draw_queue_insert(int idx, const CAT_sprite* sprite, int frame_idx, int layer, int x, int y, int mode)
 {
 	if(sprite == NULL)
 	{
@@ -625,7 +625,7 @@ void CAT_draw_queue_insert(int idx, CAT_sprite* sprite, int frame_idx, int layer
 	draw_queue.length += 1;
 }
 
-int CAT_draw_queue_add(CAT_sprite* sprite, int frame_idx, int layer, int x, int y, int mode)
+int CAT_draw_queue_add(const CAT_sprite* sprite, int frame_idx, int layer, int x, int y, int mode)
 {
 	int insert_idx = draw_queue.length;
 	for(int i = 0; i < insert_idx; i++)
@@ -693,7 +693,7 @@ void CAT_draw_queue_submit(int cycle)
 //////////////////////////////////////////////////////////////////////////
 // ANIMATION MACHINE
 
-void CAT_animachine_init(CAT_animachine_state* state, CAT_sprite* enai, CAT_sprite* tiai, CAT_sprite* exai)
+void CAT_animachine_init(CAT_animachine_state* state, const CAT_sprite* enai, const CAT_sprite* tiai, const CAT_sprite* exai)
 {
 	state->signal = ENTER;
 	state->enter_anim_id = enai;

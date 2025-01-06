@@ -96,7 +96,7 @@ with open("sprites/sprite_assets.h", "w") as fd:
 	fd.write("#endif\n");
 	fd.write("\n");
 	for (idx, sprite) in enumerate(atlas):
-		fd.write(f"extern CAT_sprite {sprite.name};\n");
+		fd.write(f"extern const CAT_sprite {sprite.name};\n");
 
 # assert len(set(x.path for x in atlas)) == len([x.path for x in atlas]), "Duplicated path"
 assert len(set(x.name for x in atlas)) == len([x.name for x in atlas]), "Duplicated name"
@@ -425,7 +425,7 @@ with open("sprites/sprite_assets.c", 'a') as fd:
 	print(f"Mean compression ratio: {compression_ratio / len(path_map):.2f}");
 		
 	for (idx, sprite) in enumerate(json_entries):
-		fd.write(f"CAT_sprite {sprite["name"]} =\n");
+		fd.write(f"const CAT_sprite {sprite["name"]} =\n");
 		fd.write("{\n");
 		fd.write(f"\t.id = {sprite["id"]},\n");
 

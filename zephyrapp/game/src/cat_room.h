@@ -66,7 +66,7 @@ typedef struct CAT_pickup
 	CAT_vec2 origin;
 	CAT_vec2 place;
 
-	CAT_sprite* sprite;
+	const CAT_sprite* sprite;
 	void (*proc)();
 
 	int timer_id;
@@ -100,7 +100,7 @@ void CAT_room_unstack_prop(int idx);
 void CAT_room_remove_prop(int idx);
 void CAT_room_flip_prop(int idx);
 
-int CAT_spawn_pickup(CAT_vec2 origin, CAT_vec2 place, CAT_sprite* sprite, void (*proc)());
+int CAT_spawn_pickup(CAT_vec2 origin, CAT_vec2 place, const CAT_sprite* sprite, void (*proc)());
 void CAT_despawn_pickup(int idx);
 void CAT_room_earn(int ticks);
 

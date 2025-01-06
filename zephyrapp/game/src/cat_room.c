@@ -428,7 +428,7 @@ void CAT_room_flip_prop(int idx)
 	}
 }
 
-int CAT_spawn_pickup(CAT_vec2 origin, CAT_vec2 place, CAT_sprite* sprite, void (*proc)())
+int CAT_spawn_pickup(CAT_vec2 origin, CAT_vec2 place, const CAT_sprite* sprite, void (*proc)())
 {
 	if(room.pickup_count >= CAT_MAX_PICKUP_COUNT)
 		return -1;

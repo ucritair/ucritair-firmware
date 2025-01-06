@@ -42,17 +42,17 @@ typedef struct CAT_item
 {
 	CAT_item_type type;
 	const char* name;
-	CAT_sprite* sprite;
+	const CAT_sprite* sprite;
 	int price;
 	const char* text;
-	CAT_sprite* icon;
+	const CAT_sprite* icon;
 
 	union
 	{
 		struct
 		{
 			CAT_tool_type type;
-			CAT_sprite* cursor;
+			const CAT_sprite* cursor;
 			int dv;
 			int df;
 			int ds;

@@ -409,8 +409,8 @@ void CAT_render_graph()
 {
 	CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});  
 	CAT_gui_text("GRAPH ");
-	CAT_gui_image(icon_b_sprite, 1);
-	CAT_gui_image(icon_exit_sprite, 0);
+	CAT_gui_image(&icon_b_sprite, 1);
+	CAT_gui_image(&icon_exit_sprite, 0);
 
 	CAT_gui_line_break();
 
@@ -431,7 +431,7 @@ void CAT_render_graph()
 
 	if (cursor_state == SEL_START)
 	{
-		CAT_gui_image(icon_a_sprite, 1);
+		CAT_gui_image(&icon_a_sprite, 1);
 		CAT_gui_text("to select start");
 	}
 
@@ -443,7 +443,7 @@ void CAT_render_graph()
 
 	if (cursor_state == SEL_END)
 	{
-		CAT_gui_image(icon_a_sprite, 1);
+		CAT_gui_image(&icon_a_sprite, 1);
 		CAT_gui_text("to select end");
 	}
 
@@ -466,7 +466,7 @@ void CAT_render_graph()
 			}
 		}
 		CAT_gui_line_break();
-		CAT_gui_image(icon_a_sprite, 1);
+		CAT_gui_image(&icon_a_sprite, 1);
 		CAT_gui_text("to start over");
 
 		if (get_ach_mode() == ACH && end_val > 460)
@@ -481,12 +481,12 @@ void CAT_render_graph()
 	if (cursor_state == SEL_START)
 	{
 		CAT_gui_line_break();
-		CAT_gui_image(icon_select_sprite, 1);
+		CAT_gui_image(&icon_select_sprite, 1);
 		CAT_gui_text("to change scale");
 		CAT_gui_line_break();
 		CAT_gui_textf("(Currently %.1fh wide)", (double)(GRAPH_W*graph_step_time)/3600.);
 		CAT_gui_line_break();
-		CAT_gui_image(icon_start_sprite, 1);
+		CAT_gui_image(&icon_start_sprite, 1);
 		CAT_gui_text("to change parameter");
 	}
 

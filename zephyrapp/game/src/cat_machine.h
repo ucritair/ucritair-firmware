@@ -65,6 +65,13 @@ typedef enum CAT_machine_signal
 	CAT_MACHINE_SIGNAL_EXIT
 } CAT_machine_signal;
 
+/*typedef struct CAT_machine_state
+{
+	void (*logic)(CAT_machine_signal);
+	void (*render)();
+	int priority;
+} CAT_machine_state;*/
+
 typedef void (*CAT_machine_state)(CAT_machine_signal);
 
 extern CAT_machine_state machine;

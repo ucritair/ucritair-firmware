@@ -84,8 +84,8 @@ void CAT_render_time()
 {
 	CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});  
 	CAT_gui_text("SET TIME ");
-	CAT_gui_image(icon_b_sprite, 1);
-	CAT_gui_image(icon_exit_sprite, 0);
+	CAT_gui_image(&icon_b_sprite, 1);
+	CAT_gui_image(&icon_exit_sprite, 0);
 
 	CAT_gui_line_break();
 
@@ -95,26 +95,21 @@ void CAT_render_time()
 
 	gmtime_r(&now, &local);
 
-	char buf[64];
-#define textf(...) snprintf(buf, sizeof(buf), __VA_ARGS__); CAT_gui_text(buf)
-
 	// LOG_DBG("at gmtime_r now=%lld; year=%d", now, local.tm_year);
 	
-	textf("%s ", month_names[local.tm_mon]);
-	textf("%2d ", local.tm_mday);
-	textf("%4d, ", local.tm_year);
-	textf("%2d:", local.tm_hour);
-	textf("%02d:", local.tm_min);
-	textf("%02d", local.tm_sec);
-
+	CAT_gui_textf("%s ", month_names[local.tm_mon]);
+	CAT_gui_textf("%2d ", local.tm_mday);
+	CAT_gui_textf("%4d, ", local.tm_year);
+	CAT_gui_textf("%2d:", local.tm_hour);
+	CAT_gui_textf("%02d:", local.tm_min);
+	CAT_gui_textf("%02d", local.tm_sec);
 	CAT_gui_line_break();
 
 	for (int i = 0; i < NUM_CLOCK_EDITS; i++)
 	{
 		bool editing = i == time_edit_time_selector;
-		textf("%.*s%*s", edits[i].len, editing?"^^^^":"    ", edits[i].pad, "");
+		CAT_gui_textf("%.*s%*s", edits[i].len, editing?"^^^^":"    ", edits[i].pad, "");
 	}
-
 	CAT_gui_line_break();
 	CAT_gui_line_break();
 
@@ -134,21 +129,17 @@ void CAT_render_time()
 		local_wakeup.secs -= 60;
 	}
 
-	textf("Sample Rate: ");
-	CAT_gui_line_break();
-
-	textf("%2dh ", local_wakeup.hours);
-	textf("%02dm ", local_wakeup.mins);
-	textf("%02ds", local_wakeup.secs);
-
+	CAT_gui_textf("Sample Rate:\n");
+	CAT_gui_textf("%2dh ", local_wakeup.hours);
+	CAT_gui_textf("%02dm ", local_wakeup.mins);
+	CAT_gui_textf("%02ds", local_wakeup.secs);
 	CAT_gui_line_break();
 
 	for (int i = NUM_CLOCK_EDITS; i < NUM_CLOCK_EDITS+NUM_RATE_EDITS; i++)
 	{
 		bool editing = i == time_edit_time_selector;
-		textf("%.*s%*s", edits[i].len, editing?"^^^^":"    ", edits[i].pad, "");
+		CAT_gui_textf("%.*s%*s", edits[i].len, editing?"^^^^":"    ", edits[i].pad, "");
 	}
-
 	CAT_gui_line_break();
 	CAT_gui_line_break();
 
@@ -156,7 +147,5 @@ void CAT_render_time()
 	int hrs = get_hours_of_logging_at_rate(sensor_wakeup_rate+15);
 	int days = hrs/24;
 	hrs %= 24;
-	textf("Space for %dd %dh", days, hrs);
-	CAT_gui_line_break();
-	textf("logging left at this rate");
+	CAT_gui_textf("Space for %dd %dh\nlogging left at this rate", days, hrs);
 }

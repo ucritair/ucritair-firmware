@@ -74,7 +74,7 @@ target_sources(app PRIVATE
 	src/cat_manual.c
 	src/cat_menu.c
 	src/cat_room.c
-	src/cat_stats.c
+	src/cat_insights.c
 	src/cat_vending.c
 	src/cat_actions.c
 	src/cat_pet.c
@@ -82,6 +82,9 @@ target_sources(app PRIVATE
 	src/cat_snake.c
 	src/cat_mines.c
 	src/cat_crawl.c
+	src/cat_hedron.c
+	src/cat_magic.c
+	src/cat_cheats.c
 	sounds/sound_assets.c
 	meshes/mesh_assets.c
 	sprites/sprite_assets.c

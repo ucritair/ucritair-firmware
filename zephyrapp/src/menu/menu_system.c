@@ -184,10 +184,10 @@ void CAT_render_system_menu()
 {
 	CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});  
 	CAT_gui_text(co2_calibrating?"CO2 CALIBRATION ":"SYSTEM MENU ");
-	CAT_gui_image(icon_a_sprite, 1);
-	CAT_gui_image(icon_enter_sprite, 0);
-	CAT_gui_image(icon_b_sprite, 1);
-	CAT_gui_image(icon_exit_sprite, 0);
+	CAT_gui_image(&icon_a_sprite, 1);
+	CAT_gui_image(&icon_enter_sprite, 0);
+	CAT_gui_image(&icon_b_sprite, 1);
+	CAT_gui_image(&icon_exit_sprite, 0);
 
 	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
 
@@ -198,7 +198,7 @@ void CAT_render_system_menu()
 			CAT_gui_textf("\1 %s", system_entries[i].title);
 
 			if(i == system_menu_selector)
-				CAT_gui_image(icon_pointer_sprite, 0);
+				CAT_gui_image(&icon_pointer_sprite, 0);
 
 			CAT_gui_line_break();
 		}
@@ -236,17 +236,17 @@ void CAT_render_system_menu()
 
 		if (remaining > 0)
 		{
-			CAT_gui_image(icon_nosmoke_sprite, 0);
+			CAT_gui_image(&icon_nosmoke_sprite, 0);
 			CAT_gui_textf("%2d:%02d remaining...", remaining/60, remaining%60);
 		}
 		else if (remaining > -1)
 		{
-			CAT_gui_image(icon_nosmoke_sprite, 0);
+			CAT_gui_image(&icon_nosmoke_sprite, 0);
 			CAT_gui_textf("Calibrating...");
 		}
 		else if (remaining > -2)
 		{
-			CAT_gui_image(icon_nosmoke_sprite, 0);
+			CAT_gui_image(&icon_nosmoke_sprite, 0);
 			CAT_gui_textf("Calibrating...");
 			if (!did_co2_cal)
 			{
@@ -258,7 +258,7 @@ void CAT_render_system_menu()
 		else
 		{
 			CAT_gui_text("Done. Thanks for waiting...\nHave some cigarettes as a\nreward: ");
-			CAT_gui_image(cigarette_sprite, 0);
+			CAT_gui_image(&cigarette_sprite, 0);
 		}
 	}
 }

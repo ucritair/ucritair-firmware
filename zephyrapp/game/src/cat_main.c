@@ -21,7 +21,7 @@
 #include "cat_pet.h"
 #include "cat_actions.h"
 #include "cat_menu.h"
-#include "cat_stats.h"
+#include "cat_insights.h"
 #include "cat_bag.h"
 #include "cat_arcade.h"
 #include "cat_vending.h"
@@ -279,8 +279,8 @@ void CAT_tick_render(int cycle)
 	}
 	else if(machine == CAT_MS_menu)
 		CAT_render_menu();
-	else if(machine == CAT_MS_stats)
-		CAT_render_stats();
+	else if(machine == CAT_MS_insights)
+		CAT_render_insights();
 	else if(machine == CAT_MS_bag)
 		CAT_render_bag();
 	else if(machine == CAT_MS_arcade)
@@ -310,9 +310,7 @@ void CAT_tick_render(int cycle)
 		CAT_render_graph();
 #endif
 	else if(machine == CAT_MS_debug)
-		CAT_render_debug();
-	else if(machine == CAT_MS_cheats)
-		CAT_render_cheats();	
+		CAT_render_debug();	
 	else if(machine == CAT_MS_hedron)
 		CAT_render_hedron();
 	else if(machine == CAT_MS_magic)
@@ -323,11 +321,11 @@ void CAT_tick_render(int cycle)
 		CAT_gui_text("This machine state\nhas no render routine!");
 	}
 
-	if(CAT_input_pressed(CAT_BUTTON_B))
+	/*if(CAT_input_pressed(CAT_BUTTON_B))
 		keyboard_open = true;
 	if(keyboard_open)
 		keyboard_open = CAT_gui_keyboard();
-	CAT_gui_harvest_keyboard(pet.name);
+	CAT_gui_harvest_keyboard(pet.name);*/
 }
 
 #ifdef CAT_DESKTOP
