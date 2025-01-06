@@ -6,8 +6,9 @@ typedef struct CAT_menu_node
 {
 	const char* title;
 
+	void (*proc)(void);
 	CAT_machine_state state;
-	
+
 	struct CAT_menu_node* children[];
 } CAT_menu_node;
 

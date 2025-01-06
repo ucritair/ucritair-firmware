@@ -20,112 +20,124 @@
 #include "menu_aqi.h"
 #endif
 
-static CAT_menu_node insights =
+static CAT_menu_node menu_node_insights =
 {
 	.title = "INSIGHTS",
+	.proc = NULL,
+	.state = CAT_MS_insights,
 	.children = { NULL },
-	.state = CAT_MS_insights
 };
 
-static CAT_menu_node name =
+static CAT_menu_node name_menu =
 {
 	.title = "PET NAME",
+	.proc = NULL,
+	.state = CAT_MS_menu,
 	.children = { NULL },
-	.state = CAT_MS_menu
 };
 
-static CAT_menu_node settings =
+static CAT_menu_node menu_node_settings =
 {
 	.title = "SETTINGS",
+	.proc = NULL,
+	.state = NULL,
 	.children =
 	{
-		&name,
+		&name_menu,
 		NULL
 	},
-	.state = NULL
 };
 
-static CAT_menu_node bage =
+static CAT_menu_node menu_node_bag =
 {
 	.title = "BAG",
+	.proc = NULL,
+	.state = CAT_MS_bag,
 	.children = { NULL },
-	.state = CAT_MS_bag
 };
 
-static CAT_menu_node vending =
+static CAT_menu_node menu_node_vending =
 {
 	.title = "VENDING MACHINE",
+	.proc = NULL,
+	.state = CAT_MS_vending,
 	.children = { NULL },
-	.state = CAT_MS_vending
 };
 
-static CAT_menu_node arcade =
+static CAT_menu_node menu_node_arcade =
 {
 	.title = "ARCADE CABINET",
+	.proc = NULL,
+	.state = CAT_MS_arcade,
 	.children = { NULL },
-	.state = CAT_MS_arcade
 };
 
 #ifdef CAT_EMBEDDED
-static CAT_menu_node air =
+static CAT_menu_node menu_node_air =
 {
 	.title = "AIR QUALITY",
+	.proc = NULL,
+	.state = CAT_MS_aqi,
 	.children = { NULL },
-	.state = CAT_MS_aqi
 };
 
-static CAT_menu_node system =
+static CAT_menu_node menu_node_system =
 {
 	.title = "SYSTEM MENU",
+	.proc = NULL,
+	.state = CAT_MS_system_menu,
 	.children = { NULL },
-	.state = CAT_MS_system_menu
 };
 #endif
 
-static CAT_menu_node magic =
+static CAT_menu_node menu_node_magic =
 {
 	.title = "MAGIC",
-	.children = { NULL },
-	.state = CAT_MS_magic
+	.proc = NULL,
+	.state = CAT_MS_magic,
+	.children = { NULL },	
 };
 
-static CAT_menu_node manual =
+static CAT_menu_node menu_node_manual =
 {
 	.title = "MANUAL",
+	.proc = NULL,
+	.state = CAT_MS_manual,
 	.children = { NULL },
-	.state = CAT_MS_manual
 };
 
-static CAT_menu_node debug =
+static CAT_menu_node menu_node_debug =
 {
 	.title = "DEBUG",
+	.proc = NULL,
+	.state = CAT_MS_debug,
 	.children = { NULL },
-	.state = CAT_MS_debug
 };
 
-extern CAT_menu_node cheats;
+extern CAT_menu_node menu_node_cheats;
 
 static CAT_menu_node root =
 {
 	.title = "MENU",
+	.proc = NULL,
+	.state = NULL,
 	.children =
 	{
-		&insights,
-		&settings,
-		&bage,
-		&vending,
-		&arcade,
+		&menu_node_insights,
+		&menu_node_settings,
+		&menu_node_bag,
+		&menu_node_vending,
+		&menu_node_arcade,
 #ifdef CAT_EMBEDDED
-		&air,
-		&system,
+		&menu_node_air,
+		&menu_node_system,
 #endif
-		&magic,
-		&manual,
-		&debug,
-		&cheats,
+		&menu_node_magic,
+		&menu_node_manual,
+		&menu_node_debug,
+		&menu_node_cheats,
 		NULL
 	},
-	.state = NULL
 };
 
 static CAT_menu_node* stack[16];
@@ -183,11 +195,15 @@ void CAT_MS_menu(CAT_machine_signal signal)
 				if(child_count > 0)
 				{
 					CAT_menu_node* child = node->children[selector];
+					if(child->proc != NULL)
+					{
+						child->proc();
+					}
 					if(child->state != NULL)
 					{
 						CAT_machine_transition(child->state);
 					}
-					else
+					else if(child->children[0] != NULL)
 					{
 						push(child);
 					}
