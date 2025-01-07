@@ -194,7 +194,7 @@ static struct
 	bool open;
 	char* target;
 
-	char buffer[64];
+	char buffer[32];
 	int cursor;
 	
 	bool show_cursor;
@@ -215,7 +215,9 @@ void CAT_gui_open_keyboard(char* target)
 {
 	keyboard.open = true;
 	keyboard.target = target;
-	keyboard.cursor = 0;
+	int length = strlen(target);
+	memcpy(keyboard.buffer, target, length);
+	keyboard.cursor = length;
 	keyboard.case_idx = 0;
 }
 
@@ -282,10 +284,13 @@ void CAT_gui_keyboard()
 			{
 				keyboard.open = false;
 			}
-			else
+			else 
 			{
-				keyboard.buffer[keyboard.cursor] = *c;
-				keyboard.cursor += 1;
+				if(keyboard.cursor < 31)
+				{
+					keyboard.buffer[keyboard.cursor] = *c;
+					keyboard.cursor += 1;
+				}
 			}
 		}
 		keyboard.buffer[keyboard.cursor] = '\0';
@@ -293,4 +298,7 @@ void CAT_gui_keyboard()
 		x_w += CAT_GLYPH_WIDTH + 8;
 		c++;
 	}
+
+	if(CAT_input_pressed(CAT_BUTTON_B))
+		keyboard.open = false;
 }

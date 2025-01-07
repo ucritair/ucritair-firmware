@@ -83,6 +83,8 @@ void CAT_save_failsafe()
 	saved_version_patch = CAT_VERSION_PATCH;
 	saved_version_push = CAT_VERSION_PUSH;
 
+	strcpy(pet.name, "Waldo");
+
 	CAT_item_list_add(&bag, prop_eth_farm_item, 1);
 	coins = 10;
 }
@@ -133,6 +135,8 @@ void CAT_force_save()
 	save->times_pet = pet.times_pet;
 	save->petting_timer = CAT_timer_get(pet.petting_timer_id);
 	save->times_milked = pet.times_milked;
+
+	strcpy(save->name, pet.name);
 
 	save->magic_number = CAT_SAVE_MAGIC;
 	CAT_finish_save(save);
@@ -189,6 +193,8 @@ void CAT_force_load()
 	pet.times_pet = save->times_pet;
 	CAT_timer_set(pet.petting_timer_id, save->petting_timer);
 	pet.times_milked = save->times_milked;
+
+	strcpy(pet.name, save->name);
 
 	CAT_finish_load();
 }

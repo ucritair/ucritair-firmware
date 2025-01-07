@@ -128,6 +128,8 @@ typedef struct __attribute__((__packed__)) CAT_save
 	int times_pet;
 	float petting_timer;
 	int times_milked;
+
+	char name[32];
 } CAT_save;
 
 // Call to start saving, then populate the returned CAT_save*
@@ -201,7 +203,8 @@ float CAT_AQI_aggregate();
 void CAT_printf(const char* fmt, ...);
 
 
-//// bonus
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// BONUS
 
 static inline uint32_t CAT_bonus_get()
 {
