@@ -70,6 +70,7 @@ void menu_t_erase_logs()
 {
 	flash_erase_all_cells();
 	system_menu_note = "Done :)";
+	reset_aqi_view_cell();
 }
 
 void menu_t_write_logs()

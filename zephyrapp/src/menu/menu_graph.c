@@ -432,14 +432,19 @@ void CAT_render_graph()
 	struct tm t;
 	gmtime_r(&graph_end_time, &t); 
 
-	CAT_gui_textf("%s Graph - %d/%d/%d", get_name(), t.tm_mon, t.tm_mday, t.tm_year);
+	CAT_gui_textf("%s Graph - ", get_name());
+	CAT_gui_image(&icon_n_sprite, 1);
+	CAT_gui_textf("%d/%d/%d", t.tm_mon, t.tm_mday, t.tm_year);
+	CAT_gui_image(&icon_s_sprite, 1);
 	CAT_gui_line_break();
 
 	CAT_do_render_graph(graph_data, graph_max, GRAPH_PAD, gui.cursor.y, cursor_start, cursor_state>SEL_START?cursor_end:-1);
 
 	gui.cursor.y += GRAPH_H+GRAPH_PAD*2+GRAPH_MARGIN*2;
 
+	if (cursor_state == SEL_START) CAT_gui_image(&icon_w_sprite, 1);
 	text_cursor("Start:", cursor_start);
+	if (cursor_state == SEL_START) CAT_gui_image(&icon_e_sprite, 1);
 	CAT_gui_line_break();
 
 	int end_val = 0;
@@ -452,7 +457,9 @@ void CAT_render_graph()
 
 	if (cursor_state > SEL_START)
 	{
+		if (cursor_state == SEL_END) CAT_gui_image(&icon_w_sprite, 1);
 		end_val = text_cursor("End  :", cursor_end);
+		if (cursor_state == SEL_END) CAT_gui_image(&icon_e_sprite, 1);
 		CAT_gui_line_break();
 	}
 
