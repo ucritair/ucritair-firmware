@@ -104,8 +104,8 @@ void CAT_greyberry(int xi, int w, int yi, int h)
 	if (yi > LCD_FRAMEBUFFER_H || yf < 0)
 		return;
 
-	if (yf >= LCD_FRAMEBUFFER_H)
-		yf = LCD_FRAMEBUFFER_H-1;
+	if (yf > LCD_FRAMEBUFFER_H)
+		yf = LCD_FRAMEBUFFER_H;
 
 	if (yi < 0)
 		yi = 0;
@@ -221,13 +221,26 @@ void CAT_lineberry(int xi, int yi, int xf, int yf, uint16_t c)
 	}
 }
 
-void CAT_fillberry(int xi, int yi, int w, int h, uint16_t c)
-{
 #ifdef CAT_EMBEDDED
-	c = (c >> 8) | ((c & 0xff) << 8);
+#define IF_IF_EMBEDDED(x) if (x)
+#else
+#define IF_IF_EMBEDDED(x)
 #endif
 
-	for(int y = yi; y < yi+h; y++)
+void CAT_fillberry(int xi, int yi, int w, int h, uint16_t c)
+{
+	int yend = yi + h;
+
+#ifdef CAT_EMBEDDED
+	c = (c >> 8) | ((c & 0xff) << 8);
+	yi -= framebuffer_offset_h;
+	yend -= framebuffer_offset_h;
+
+	if (yi < 0) yi = 0;
+	if (yend >= LCD_FRAMEBUFFER_H) yend = LCD_FRAMEBUFFER_H;
+#endif
+
+	for(int y = yi; y < yend; y++)
 	{
 		for(int x = xi; x < xi+w; x++)
 		{
@@ -238,15 +251,35 @@ void CAT_fillberry(int xi, int yi, int w, int h, uint16_t c)
 
 void CAT_strokeberry(int xi, int yi, int w, int h, uint16_t c)
 {
-	for(int x = xi; x < xi + w; x++)
+#ifdef CAT_EMBEDDED
+	yi -= framebuffer_offset_h;
+#endif
+
+	IF_IF_EMBEDDED(yi >= 0 && yi < LCD_FRAMEBUFFER_H)
 	{
-		FRAMEBUFFER[yi * LCD_SCREEN_W + x] = c;
-		FRAMEBUFFER[(yi+h-1) * LCD_SCREEN_W + x] = c;
+		for(int x = xi; x < xi + w; x++)
+		{
+			FRAMEBUFFER[yi * LCD_SCREEN_W + x] = c;
+		}
 	}
+
+	int y2 = yi+h-1;
+
+	IF_IF_EMBEDDED((y2 >= 0 && y2 < LCD_FRAMEBUFFER_H))
+	{
+		for(int x = xi; x < xi + w; x++)
+		{
+			FRAMEBUFFER[(yi+h-1) * LCD_SCREEN_W + x] = c;
+		}
+	}
+
 	for(int y = yi; y < yi + h; y++)
 	{
-		FRAMEBUFFER[y * LCD_SCREEN_W + xi] = c;
-		FRAMEBUFFER[y * LCD_SCREEN_W + (xi+w-1)] = c;
+		IF_IF_EMBEDDED(y >= 0 && y < LCD_FRAMEBUFFER_H)
+		{
+			FRAMEBUFFER[y * LCD_SCREEN_W + xi] = c;
+			FRAMEBUFFER[y * LCD_SCREEN_W + (xi+w-1)] = c;
+		}
 	}
 }
 

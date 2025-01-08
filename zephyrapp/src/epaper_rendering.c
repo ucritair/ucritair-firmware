@@ -176,6 +176,8 @@ void epaper_render_test()
 	fwrite_str(128, 90, 1, "uCritAQI %.1f%%", score);
 	fwrite_str(128, 100, 1, "at %2d:%02d:%02d", t.tm_hour, t.tm_min, t.tm_sec);
 
+	fwrite_str(0, EPD_IMAGE_H-8, 1, "\"%s\"", guy_name);
+
 	imu_update();
 
 	pc_set_mode(false);

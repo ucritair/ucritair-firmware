@@ -45,8 +45,9 @@ int main(void)
 
 	init_adc();
 
-	if (adc_get_voltage() > 0.2 && adc_get_voltage() < 3.6)
+	if (adc_get_voltage() > 0.2 && adc_get_voltage() < 3.6 && !get_is_charging())
 	{
+		LOG_INF("Emergency power off");
 		power_off(0, true);
 	}
 
@@ -105,13 +106,26 @@ int main(void)
 
 		k_msleep(50);
 
+		bool trying_to_take_nox_reading = nox_every_n_samples != 0 && (nox_every_n_samples_counter == (nox_every_n_samples-1));
+
 		
 
 		int cycle = 1;
 #define CYCLE_TIME 20
 		while (cycle++)
 		{
-			set_first_led((struct led_rgb){.g=((cycle%20)>10)?1:3, 0});
+			int intensity = ((cycle%20)>10)?1:3;
+			struct led_rgb color = {0};
+			if (trying_to_take_nox_reading)
+			{
+				color.b = intensity;
+			}
+			else
+			{
+				color.g = intensity;
+			}
+
+			set_first_led(color);
 			k_msleep(CYCLE_TIME);
 
 			sensor_read_once();
@@ -130,8 +144,25 @@ int main(void)
 			// ~15s for PM
 			// ~65s for NOC+VOX!?!?!
 
-			if (is_ready_for_aqi_logging())
+			bool are_ready = is_ready_for_aqi_logging();
+
+			if (trying_to_take_nox_reading)
 			{
+				if ((current_readings.sen5x.voc_index == 0) ||
+					(current_readings.sen5x.nox_index == 0))
+				{
+					are_ready = false;
+				}
+			}
+
+			if (are_ready)
+			{
+				nox_every_n_samples_counter++;
+				if (nox_every_n_samples == nox_every_n_samples_counter)
+				{
+					nox_every_n_samples_counter = 0;
+				}
+
 				LOG_INF("readings ready");
 				k_msleep(20);
 				populate_next_log_cell();
@@ -143,9 +174,10 @@ int main(void)
 				power_off(sensor_wakeup_rate*1000, false);
 			}
 
-			if (cycle > (60000/CYCLE_TIME))
+			if (cycle > (120000/CYCLE_TIME))
 			{
 				// give up and try again later
+				LOG_INF("Giving up and power off");
 				power_off(sensor_wakeup_rate*1000, false);
 			}
 		}

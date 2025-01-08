@@ -372,6 +372,7 @@ void menu_root()
 
 	text("");
 	textf("ADC: %d / %.2fV", adc_sample(), adc_get_voltage());
+	textf("VBUS: %d", NRF_USBREGULATOR->USBREGSTATUS & 1);
 
 	text("");
 	selectable("Back to game", exit_debug_menu, NULL);

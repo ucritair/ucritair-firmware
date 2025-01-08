@@ -319,7 +319,7 @@ void CAT_render_snake()
 		}
 		for(int y = 0; y < 20; y++)
 		{
-			CAT_draw_sprite(&snake_head_sprite, 1, 0, y * CAT_TILE_SIZE);
+			CAT_draw_sprite(&snake_head_sprite, 1, 0,                  y * CAT_TILE_SIZE);
 			CAT_draw_sprite(&snake_head_sprite, 1, 14 * CAT_TILE_SIZE, y * CAT_TILE_SIZE);
 		}
 

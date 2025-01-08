@@ -243,6 +243,19 @@ void CAT_MS_graph(CAT_machine_signal signal)
 				}
 			}
 
+			if(CAT_input_pressed(CAT_BUTTON_UP))
+			{
+				graph_end_time += 60*60*24;
+				graph_end_time = MIN(graph_end_time, get_current_rtc_time() - 1);
+				update_graph();
+			}
+
+			if (CAT_input_pressed(CAT_BUTTON_DOWN))
+			{
+				graph_end_time -= 60*60*24;
+				update_graph();
+			}
+
 			if (CAT_input_pressed(CAT_BUTTON_SELECT) && cursor_state == SEL_START)
 			{
 				step_time_index++;
@@ -416,8 +429,10 @@ void CAT_render_graph()
 
 	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
 
-	CAT_gui_text(get_name());
-	CAT_gui_text(" Graph");
+	struct tm t;
+	gmtime_r(&graph_end_time, &t); 
+
+	CAT_gui_textf("%s Graph - %d/%d/%d", get_name(), t.tm_mon, t.tm_mday, t.tm_year);
 	CAT_gui_line_break();
 
 	CAT_do_render_graph(graph_data, graph_max, GRAPH_PAD, gui.cursor.y, cursor_start, cursor_state>SEL_START?cursor_end:-1);
@@ -452,7 +467,7 @@ void CAT_render_graph()
 		if (get_ach_mode() == NONE)
 		{
 			// does not produce an [e]ACH
-			CAT_gui_text("(This does not produce [e]ACH)");
+			CAT_gui_text("(This does not produce e/ACH)");
 		}
 		else
 		{

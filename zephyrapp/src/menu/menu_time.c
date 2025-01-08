@@ -22,20 +22,35 @@ struct {
 	int hours, mins, secs;
 } local_wakeup;
 
-const struct {const int len; const int pad; int* edit;} edits[] = {
-	{3, 1, &local.tm_mon},
-	{2, 1, &local.tm_mday},
-	{4, 2, &local.tm_year},
-	{2, 1, &local.tm_hour},
-	{2, 1, &local.tm_min},
-	{2, 0, &local.tm_sec},
-	{2, 2, &local_wakeup.hours},
-	{2, 2, &local_wakeup.mins},
-	{2, 0, &local_wakeup.secs}
+int local_nox_every;
+
+struct {
+	int mins, secs;
+} local_dim_after;
+
+struct {
+	int mins, secs;
+} local_sleep_after;
+
+enum which {RTC, WAKEUP, NOX, DIM, SLEEP};
+
+const struct {const int len; const int pad; int* edit; enum which which;} edits[] = {
+	{3, 1, &local.tm_mon, RTC},
+	{2, 1, &local.tm_mday, RTC},
+	{4, 2, &local.tm_year, RTC},
+	{2, 1, &local.tm_hour, RTC},
+	{2, 1, &local.tm_min, RTC},
+	{2, 0, &local.tm_sec, RTC},
+	{2, 2, &local_wakeup.hours, WAKEUP},
+	{2, 2, &local_wakeup.mins, WAKEUP},
+	{2, 0, &local_wakeup.secs, WAKEUP},
+	{0, 0, &local_nox_every, NOX},
+	{2, 2, &local_dim_after.mins, DIM},
+	{2, 0, &local_dim_after.secs, DIM},
+	{2, 2, &local_sleep_after.mins, SLEEP},
+	{2, 0, &local_sleep_after.secs, SLEEP}
 };
 
-#define NUM_CLOCK_EDITS 6
-#define NUM_RATE_EDITS 3
 #define NUM_EDITS (sizeof(edits)/sizeof(edits[0]))
 
 int time_edit_time_selector = 0;
@@ -68,15 +83,59 @@ void CAT_MS_time(CAT_machine_signal signal)
 
 			if (up||dn)
 			{
-				set_rtc_counter(&local);
-				sensor_wakeup_rate = local_wakeup.hours*60*60 + local_wakeup.mins*60 + local_wakeup.secs;
-				sensor_wakeup_rate = clamp(sensor_wakeup_rate, 15, 60*60*16);
+				switch (edits[time_edit_time_selector].which)
+				{
+				case RTC:
+					set_rtc_counter(&local);
+					break;
+
+				case WAKEUP:
+					sensor_wakeup_rate = local_wakeup.hours*60*60 + local_wakeup.mins*60 + local_wakeup.secs;
+					sensor_wakeup_rate = clamp(sensor_wakeup_rate, 15, 60*60*16);
+					break;
+
+				case NOX:
+					if (nox_every_n_samples != local_nox_every)
+						nox_every_n_samples_counter = 0;
+
+					nox_every_n_samples = local_nox_every;
+					break;
+
+				case DIM:
+					dim_after_seconds = local_dim_after.mins*60 + local_dim_after.secs;
+					dim_after_seconds = clamp(dim_after_seconds, 10, 60*10);
+
+					if (sleep_after_seconds < dim_after_seconds)
+						sleep_after_seconds = dim_after_seconds + 1;
+
+					break;
+
+				case SLEEP:
+					sleep_after_seconds = local_sleep_after.mins*60 + local_sleep_after.secs;
+					sleep_after_seconds = clamp(sleep_after_seconds, 10, 60*10);
+
+					if (sleep_after_seconds < dim_after_seconds)
+						dim_after_seconds = sleep_after_seconds - 1;
+
+					break;
+				}
 			}
 
 			break;
 		}
 		case CAT_MACHINE_SIGNAL_EXIT:
 			break;
+	}
+}
+
+void do_edit_clock_field(enum which which)
+{
+	for (int i = 0; i < NUM_EDITS; i++)
+	{
+		if (edits[i].which != which) continue;
+
+		bool editing = i == time_edit_time_selector;
+		CAT_gui_textf("%.*s%*s", edits[i].len, editing?"^^^^":"    ", edits[i].pad, "");
 	}
 }
 
@@ -105,13 +164,10 @@ void CAT_render_time()
 	CAT_gui_textf("%02d", local.tm_sec);
 	CAT_gui_line_break();
 
-	for (int i = 0; i < NUM_CLOCK_EDITS; i++)
-	{
-		bool editing = i == time_edit_time_selector;
-		CAT_gui_textf("%.*s%*s", edits[i].len, editing?"^^^^":"    ", edits[i].pad, "");
-	}
+	do_edit_clock_field(RTC);
+
 	CAT_gui_line_break();
-	CAT_gui_line_break();
+	// CAT_gui_line_break();
 
 	local_wakeup.hours = 0;
 	local_wakeup.mins = 0;
@@ -135,17 +191,65 @@ void CAT_render_time()
 	CAT_gui_textf("%02ds", local_wakeup.secs);
 	CAT_gui_line_break();
 
-	for (int i = NUM_CLOCK_EDITS; i < NUM_CLOCK_EDITS+NUM_RATE_EDITS; i++)
-	{
-		bool editing = i == time_edit_time_selector;
-		CAT_gui_textf("%.*s%*s", edits[i].len, editing?"^^^^":"    ", edits[i].pad, "");
-	}
+	do_edit_clock_field(WAKEUP);
+
+	CAT_gui_line_break();
+	// CAT_gui_line_break();
+
+	local_nox_every = nox_every_n_samples;
+
+	bool nox_selected = edits[time_edit_time_selector].which == NOX;
+	CAT_gui_textf("Sample NOX+VOC every %s%d%s\n", nox_selected?">":"", local_nox_every, nox_selected?"<":"");
+	CAT_gui_textf("samples. %s", local_nox_every!=0?"(Extra batt use)":"(Disabled)");
+
 	CAT_gui_line_break();
 	CAT_gui_line_break();
+
 
 	// +15 is approximate time to get a fix and log
 	int hrs = get_hours_of_logging_at_rate(sensor_wakeup_rate+15);
 	int days = hrs/24;
 	hrs %= 24;
 	CAT_gui_textf("Space for %dd %dh\nlogging left at this rate", days, hrs);
+
+	CAT_gui_line_break();
+	CAT_gui_line_break();
+
+	local_dim_after.mins = 0;
+	local_dim_after.secs = dim_after_seconds;
+
+	while (local_dim_after.secs >= 60)
+	{
+		local_dim_after.mins++;
+		local_dim_after.secs -= 60;
+	}
+
+	CAT_gui_textf("Dim Screen After:\n");
+	CAT_gui_textf("%02dm ", local_dim_after.mins);
+	CAT_gui_textf("%02ds", local_dim_after.secs);
+	CAT_gui_line_break();
+
+	do_edit_clock_field(DIM);
+
+	CAT_gui_line_break();
+	// CAT_gui_line_break();
+
+	local_sleep_after.mins = 0;
+	local_sleep_after.secs = sleep_after_seconds;
+
+	while (local_sleep_after.secs >= 60)
+	{
+		local_sleep_after.mins++;
+		local_sleep_after.secs -= 60;
+	}
+
+	CAT_gui_textf("Sleep After:\n");
+	CAT_gui_textf("%02dm ", local_sleep_after.mins);
+	CAT_gui_textf("%02ds", local_sleep_after.secs);
+	CAT_gui_line_break();
+
+	do_edit_clock_field(SLEEP);
+
+	CAT_gui_line_break();
+	// CAT_gui_line_break();
 }
