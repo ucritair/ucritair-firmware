@@ -82,13 +82,14 @@ PERSIST_RAM uint64_t went_to_sleep_at;
 PERSIST_RAM uint8_t guy_happiness;
 
 PERSIST_RAM bool guy_is_wearing_mask;
+PERSIST_RAM char guy_name[64];
 
 PERSIST_RAM uint8_t screen_brightness;
 
 PERSIST_RAM uint16_t dim_after_seconds;
 PERSIST_RAM uint16_t sleep_after_seconds;
 
-#define RTC_INIT_CHECK_MAGIC 0xb8870003
+#define RTC_INIT_CHECK_MAGIC 0xb8870004
 
 bool is_first_init = false;
 

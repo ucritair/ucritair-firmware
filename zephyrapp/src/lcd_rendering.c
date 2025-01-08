@@ -134,6 +134,8 @@ void lcd_render_diag()
 			guy_happiness = 1;
 		}
 
+		memcpy(guy_name, pet.name, sizeof(guy_name));
+
 		touch_update();
 		imu_update();
 		update_rtc();
