@@ -250,6 +250,23 @@ static ssize_t write_bonus(struct bt_conn *conn, const struct bt_gatt_attr *attr
 	return len;
 }
 
+static ssize_t read_name(struct bt_conn *conn, const struct bt_gatt_attr *attr,
+			void *buf, uint16_t len, uint16_t offset)
+{
+	lcd_keep_awake();
+	return bt_gatt_attr_read(conn, attr, buf, len, offset, pet.name, sizeof(pet.name));
+}
+
+static ssize_t write_name(struct bt_conn *conn, const struct bt_gatt_attr *attr,
+			 const void *buf, uint16_t len, uint16_t offset,
+			 uint8_t flags)
+{
+	memcpy(pet.name+offset, buf, len);
+
+	lcd_keep_awake();
+	return len;
+}
+
 /* Vendor Primary Service Declaration */
 BT_GATT_SERVICE_DEFINE(vnd_svc,
 	BT_GATT_PRIMARY_SERVICE(BT_UUID_DECLARE_128(BT_UUID_CUSTOM_SERVICE_VAL)),
@@ -289,6 +306,10 @@ BT_GATT_SERVICE_DEFINE(vnd_svc,
 		BT_UUID_DECLARE_128(VND_UUID_PFX(0x0013)),
 		BT_GATT_CHRC_READ|BT_GATT_CHRC_WRITE, BT_GATT_PERM_READ|BT_GATT_PERM_WRITE,
 		read_bonus, write_bonus, NULL),
+	BT_GATT_CHARACTERISTIC(
+		BT_UUID_DECLARE_128(VND_UUID_PFX(0x0014)),
+		BT_GATT_CHRC_READ|BT_GATT_CHRC_WRITE, BT_GATT_PERM_READ|BT_GATT_PERM_WRITE,
+		read_name, write_name, NULL),
 	// player attributes and age
 );
 
