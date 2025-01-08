@@ -171,6 +171,8 @@ void CAT_MS_menu(CAT_machine_signal signal)
 			break;
 		case CAT_MACHINE_SIGNAL_TICK:
 		{
+			CAT_input_ask(0);
+			
 			if(CAT_input_pressed(CAT_BUTTON_B))
 			{
 				pop();

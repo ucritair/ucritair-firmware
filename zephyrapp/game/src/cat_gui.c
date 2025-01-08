@@ -42,7 +42,7 @@ void CAT_gui_panel(CAT_ivec2 start, CAT_ivec2 shape)
 {
 	spriter.mode = CAT_DRAW_MODE_DEFAULT;
 	CAT_fillberry(start.x * CAT_TILE_SIZE, start.y * CAT_TILE_SIZE, shape.x * CAT_TILE_SIZE, shape.y * CAT_TILE_SIZE, 0xFFFF);
-	if(!CAT_gui_consume_flag(CAT_GUI_NO_BORDER))
+	if(CAT_gui_consume_flag(CAT_GUI_BORDER))
 		CAT_strokeberry(start.x * CAT_TILE_SIZE, start.y * CAT_TILE_SIZE, shape.x * CAT_TILE_SIZE, shape.y * CAT_TILE_SIZE, 0x0000);
 
 	gui.start = start;
@@ -136,12 +136,13 @@ void CAT_gui_div(const char* text)
 	gui_open_channel(CAT_TILE_SIZE);
 	if(strlen(text) == 0)
 	{
-		CAT_lineberry(0, gui.cursor.y, LCD_SCREEN_W, gui.cursor.y, 0x0000);
+		CAT_rowberry(0, gui.cursor.y, LCD_SCREEN_W, 0x0000);
 	}
 	else
 	{
 		CAT_gui_text(text);
-		CAT_lineberry(gui.cursor.x + gui.pad, gui.cursor.y, LCD_SCREEN_W-gui.margin, gui.cursor.y, 0x0000);
+		int start = gui.cursor.x + gui.pad;
+		CAT_rowberry(start, gui.cursor.y, LCD_SCREEN_W-start-gui.margin, 0x0000);
 	}
 	CAT_gui_line_break();
 }
@@ -158,7 +159,8 @@ void CAT_gui_textf(const char* fmt, ...)
 
 void CAT_gui_title(bool tabs, const CAT_sprite* a_action, const CAT_sprite* b_action, const char* fmt, ...)
 {
-	CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});  
+	CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});
+	CAT_rowberry(0, 31, LCD_SCREEN_W, 0x0000);
 	
 	if(tabs)
 		CAT_gui_text("< ");
@@ -231,11 +233,20 @@ void CAT_gui_open_keyboard(char* target)
 	keyboard.open = true;
 	keyboard.target = target;
 	int length = strlen(target);
-	memcpy(keyboard.buffer, target, length);
+	strcpy(keyboard.buffer, target);
 	keyboard.cursor = length;
 	keyboard.case_idx = 0;
 	keyboard.row_idx = 0;
 	keyboard.glyph_idx = 0;
+
+	if(CAT_input_commandeer(1))
+		CAT_input_clear();
+}
+
+static void gui_close_keyboard()
+{
+	keyboard.open = false;
+	CAT_input_yield();
 }
 
 bool CAT_gui_keyboard_is_open()
@@ -246,7 +257,8 @@ bool CAT_gui_keyboard_is_open()
 void CAT_gui_keyboard()
 {
 	if(CAT_input_pressed(CAT_BUTTON_B))
-		keyboard.open = false;
+		gui_close_keyboard();
+	CAT_input_ask(1);
 	
 	const char** typecase = typecases[keyboard.case_idx];
 
@@ -279,15 +291,14 @@ void CAT_gui_keyboard()
 		{
 			if(keyboard.target != NULL)
 			{
-				memcpy(keyboard.target, keyboard.buffer, keyboard.cursor);
-				keyboard.target[keyboard.cursor] = '\0';
+				strcpy(keyboard.target, keyboard.buffer);
 			}
-			keyboard.open = false;
+			gui_close_keyboard();
 		}
 		else if(glyph == 8)
 			keyboard.case_idx = !keyboard.case_idx;
 		else if(glyph == 9)
-			keyboard.open = false;
+			gui_close_keyboard();
 		else 
 		{
 			if(keyboard.cursor < 31)

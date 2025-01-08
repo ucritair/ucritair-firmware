@@ -8,6 +8,7 @@ typedef struct CAT_input
 	bool last[CAT_BUTTON_LAST];
 	float time[CAT_BUTTON_LAST];
 	float pulse[CAT_BUTTON_LAST];
+	bool dirty[CAT_BUTTON_LAST];
 
 	CAT_touch touch;
 	bool touch_last;
@@ -20,6 +21,11 @@ extern CAT_input input;
 
 void CAT_input_init();
 void CAT_input_tick();
+void CAT_input_clear();
+
+bool CAT_input_commandeer(int layer);
+void CAT_input_ask(int layer);
+void CAT_input_yield();
 
 bool CAT_input_pressed(int button);
 bool CAT_input_released(int button);

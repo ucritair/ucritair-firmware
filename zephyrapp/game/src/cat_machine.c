@@ -125,19 +125,19 @@ CAT_machine_state machine = NULL;
 CAT_machine_state machine_stack[64];
 int machine_depth = 0;
 
-void push_state(CAT_machine_state s)
+static void push(CAT_machine_state s)
 {
 	machine_stack[machine_depth] = s;
 	machine_depth += 1;
 }
 
-CAT_machine_state pop_state()
+static CAT_machine_state pop()
 {
 	machine_depth -= 1;
 	return machine_stack[machine_depth];
 }
 
-CAT_machine_state peek_state()
+static CAT_machine_state peek()
 {
 	return machine_stack[machine_depth-1];
 }
@@ -166,7 +166,7 @@ void CAT_machine_transition(CAT_machine_state state)
 		}
 	}
 	if(!loop_back)
-		push_state(state);
+		push(state);
 
 	machine = state;
 	(machine)(CAT_MACHINE_SIGNAL_ENTER);	
@@ -182,7 +182,7 @@ void CAT_machine_back()
 {
 	if(machine_depth > 1)
 	{
-		pop_state();
-		CAT_machine_transition(peek_state());
+		pop();
+		CAT_machine_transition(peek());
 	}
 }

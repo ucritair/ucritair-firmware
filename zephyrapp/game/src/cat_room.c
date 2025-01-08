@@ -309,7 +309,7 @@ CAT_room room;
 
 void CAT_room_init()
 {
-	room.theme = &base_theme;
+	room.theme = &grass_theme;
 	
 	room.grid_cursor = (CAT_ivec2) {7, 5};
 
@@ -624,47 +624,21 @@ enum {FLOOR_BASE, FLOOR_GRASS, FLOOR_ASH} bg_floor = FLOOR_BASE;
 
 void render_background()
 {
-	switch(bg_wall)
+	spriter.mode = CAT_DRAW_MODE_DEFAULT;
+	for(int y = 0; y < 6; y++)
 	{
-		case WALL_SKY:
+		for(int x = 0; x < 15; x++)
 		{
-			for(int i = 0; i < 6; i++)
-			{
-				CAT_draw_tiles(&sky_wall_sprite, i, i, 1);
-			}
-			break;
-		}
-		default:
-		{
-			CAT_draw_tiles(&base_wall_sprite, 0, 0, 4);
-			CAT_draw_tiles(&base_wall_sprite, 1, 4, 1);
-			CAT_draw_tiles(&base_wall_sprite, 2, 5, 1);
-			break;
+			int tile_idx = room.theme->wall_map[y * 15 + x];
+			CAT_draw_sprite(room.theme->wall_tiles, tile_idx, x * 16, y * 16);
 		}
 	}
-	switch(bg_floor)
+	for(int y = 0; y < 14; y++)
 	{
-		case FLOOR_GRASS:
+		for(int x = 0; x < 15; x++)
 		{
-			CAT_draw_tiles(&grass_floor_sprite, 18, 6, 1);
-			CAT_draw_tiles(&grass_floor_sprite, 13, 7, 1);
-			CAT_draw_tiles(&grass_floor_sprite, 4, 8, 1);
-			CAT_draw_tiles(&grass_floor_sprite, 19, 9, 11);
-			break;
-		}
-		case FLOOR_ASH:
-		{
-			CAT_draw_tiles(&ash_floor_sprite, 2, 6, 1);
-			CAT_draw_tiles(&ash_floor_sprite, 0, 7, 1);
-			CAT_draw_tiles(&ash_floor_sprite, 1, 8, 12);
-			break;
-		}
-		default:
-		{
-			CAT_draw_tiles(&base_floor_sprite, 2, 6, 1);
-			CAT_draw_tiles(&base_floor_sprite, 0, 7, 1);
-			CAT_draw_tiles(&base_floor_sprite, 1, 8, 12);
-			break;
+			int tile_idx = room.theme->floor_map[y * 15 + x];
+			CAT_draw_sprite(room.theme->floor_tiles, tile_idx, x * 16, (y + 6) * 16);
 		}
 	}
 }

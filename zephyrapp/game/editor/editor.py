@@ -54,6 +54,7 @@ print("SL Version:", glGetString(GL_SHADING_LANGUAGE_VERSION).decode("utf-8"));
 
 imgui.create_context();
 imgui_io = imgui.get_io();
+imgui_io.config_windows_move_from_title_bar_only = True;
 imgui.style_colors_dark()
 impl = GlfwRenderer(handle);
 
@@ -125,7 +126,7 @@ class AssetSchema:
 		elif isinstance(t, list):
 			return t[0];
 		elif t[0] == "[" and t[-1] == "]":
-			return [default(t[1:-1])];
+			return [AssetSchema.__default(t[1:-1])];
 		else:
 			return None;
 	
@@ -491,13 +492,15 @@ class PreviewBank:
 	
 	def init(self, asset_type, name):
 		asset = find_asset(asset_type, name);
-		preview = None;
-		match asset_type:
-			case "sprite":
-				preview = PreviewSprite(asset);
-			case "sound":
-				preview = PreviewSound(asset);
-		self.entries[asset_type][name] = preview;
+		if asset != None:	
+			match asset_type:
+				case "sprite":
+					self.entries[asset_type][name] = PreviewSprite(asset);
+				case "sound":
+					self.entries[asset_type][name] = PreviewSound(asset);
+		else:
+			self.entries[asset_type][name] = None;
+		return self.entries[asset_type][name];
 	
 	def get(self, asset_type, name):
 		if not name in self.entries[asset_type]:
@@ -512,22 +515,24 @@ class Preview:
 	
 	def render_sprite(self, name):
 		sprite = preview_bank.get("sprite", name);
-		imgui.image(sprite.preview_texture, (sprite.preview_image.width * 2, sprite.preview_image.height * 2));
-		imgui.same_line();
-		if imgui.button(f"Refresh####{name}"):
-			preview_bank.init("sprite", name);
+		if sprite != None:
+			imgui.image(sprite.preview_texture, (sprite.preview_image.width * 2, sprite.preview_image.height * 2));
+			imgui.same_line();
+			if imgui.button(f"Refresh####{name}"):
+				preview_bank.init("sprite", name);
 	
 	def render_sound(self, name):
-		sound = preview_bank.get("sound", name)
-		for i in range(sound.frames.shape[0]):
-			half_range = (1 << ((sound.meta.sampwidth*8)-1)) - 1;
-			plot_min = -half_range;
-			plot_max = half_range;
-			plot_width = window_width//2;
-			plot_height = window_height//10;
-			imgui.plot_lines(f"####{id(sound.frames[i])}", sound.frames[i], scale_min=plot_min, scale_max=plot_max, graph_size=(plot_width, plot_height));
-		if imgui.button(f"Play####{name}"):
-			playsound(sound.path, block=False);
+		sound = preview_bank.get("sound", name);
+		if sound != None:
+			for i in range(sound.frames.shape[0]):
+				half_range = (1 << ((sound.meta.sampwidth*8)-1)) - 1;
+				plot_min = -half_range;
+				plot_max = half_range;
+				plot_width = window_width//2;
+				plot_height = window_height//10;
+				imgui.plot_lines(f"####{id(sound.frames[i])}", sound.frames[i], scale_min=plot_min, scale_max=plot_max, graph_size=(plot_width, plot_height));
+			if imgui.button(f"Play####{name}"):
+				playsound(sound.path, block=False);
 	
 	def render(self, asset_type, name):
 		match asset_type:
@@ -623,14 +628,13 @@ class DocumentRenderer:
 				imgui.text(key);
 				imgui.same_line();
 				if imgui.begin_combo(get_id(node, key), str(node[key])):
-					for doc in asset_docs:
-						if doc.type == key_type:
-							for asset in doc.entries:
-								selected = asset["name"] == node[key];
-								if imgui.selectable(asset["name"], selected)[0]:
-									node[key] = asset["name"];
-								if selected:
-									imgui.set_item_default_focus();
+					assets = asset_docs[key_type].entries;
+					for asset in assets:
+						selected = asset["name"] == node[key];
+						if imgui.selectable(asset["name"], selected)[0]:
+							node[key] = asset["name"];
+						if selected:
+							imgui.set_item_default_focus();
 					imgui.end_combo();
 				
 			elif isinstance(key_type, dict):
@@ -863,7 +867,8 @@ class ThemeEditor:
 			return None;
 		ThemeEditor._ = self;
 
-		self.canvas = Canvas(240, 320);
+		self.wall_canvas = Canvas(240, 6*16);
+		self.floor_canvas = Canvas(240, 14*16);
 		self.size = (720, 480);
 		window_flag_list = [
 			imgui.WindowFlags_.no_saved_settings,
@@ -872,9 +877,13 @@ class ThemeEditor:
 		self.window_flags = foldl(lambda a, b : a | b, 0, window_flag_list);
 		self.open = True;
 
-		self.themes = asset_docs["theme"].entries;
-		self.theme_idx = 0;
 		self.grid = False;
+
+		self.themes = asset_docs["theme"].entries;
+		self.theme = self.themes[0];
+		self.cursor = (0, 0);
+		self.wall_brush = 0;
+		self.floor_brush = 0;
 
 	def render():
 		if ThemeEditor._ == None:
@@ -885,64 +894,104 @@ class ThemeEditor:
 			imgui.set_next_window_size(self.size);
 			_, self.open = imgui.begin(f"Theme Editor", self.open, flags=self.window_flags);
 
-			theme = self.themes[self.theme_idx];
-			wall_len = len(theme["wall_map"]);
-			deviation = (15 * 6) - wall_len;
-			if deviation < 0:
-				theme["wall_map"] = theme["wall_map"][:deviation];
-			else:
-				theme["wall_map"] += [0 for i in range(deviation)];
-			floor_len = len(theme["floor_map"]);
-			deviation = (15 * 14) - floor_len;
-			if deviation < 0:
-				theme["floor_map"] = theme["floor_map"][:deviation];
-			else:
-				theme["floor_map"] += [0 for i in range(deviation)];	
-			asset_docs["theme"].entries[self.theme_idx] = theme;
-
-			self.canvas.clear((128, 128, 128));
-			for y in range(6):
-				for x in range(15):
-					tile = preview_bank.get("sprite", theme["wall_tiles"]);
-					tile_frame = theme["wall_map"][y * 15 + x];
-					self.canvas.draw_image(x * 16, y * 16, tile.frame_images[tile_frame]);
-			for y in range(6, 20):
-				for x in range(15):
-					tile = preview_bank.get("sprite", theme["floor_tiles"]);
-					tile_frame = theme["floor_map"][(y-6) * 15 + x];
-					self.canvas.draw_image(x * 16, y * 16, tile.frame_images[tile_frame]);
-
-			if(self.grid):
-				for y in range(1, 20):
-					self.canvas.draw_hline(y * 16, (255, 255, 255));
-				for x in range(1, 15):
-					self.canvas.draw_vline(x * 16, (255, 255, 255));
-				self.canvas.draw_hline(6 * 16, (255, 0, 0));
-			self.canvas.render(1);
-
-			_, self.grid = imgui.checkbox("Show grid", self.grid);
-
-			imgui.text("");
-			wall_tiles = preview_bank.get("sprite", theme["wall_tiles"]);
-			for frame in wall_tiles.frame_textures:
-				imgui.same_line();
-				imgui.image_button(f"##{id(frame)}", frame, (32, 32));
-			
-			imgui.text("");
-			floor_tiles = preview_bank.get("sprite", theme["floor_tiles"]);
-			for frame in floor_tiles.frame_textures:
-				imgui.same_line();
-				imgui.image_button(f"##{id(frame)}", frame, (32, 32));
-
-			if imgui.begin_combo(f"Theme", theme["name"]):
-				for (idx, entry) in enumerate(self.themes):
-					selected = idx == self.theme_idx;
-					if imgui.selectable(entry["name"], selected)[0]:
-						self.theme_idx = idx;
+			if imgui.begin_combo(f"Theme", self.theme["name"]):
+				for theme in self.themes:
+					selected = theme == self.theme;
+					if imgui.selectable(theme["name"], selected)[0]:
+						self.theme = theme;
 					if selected:
 						imgui.set_item_default_focus();
 				imgui.end_combo();
+			
+			wall_len = len(self.theme["wall_map"]);
+			deviation = (15 * 6) - wall_len;
+			if deviation < 0:
+				self.theme["wall_map"] = self.theme["wall_map"][:deviation];
+			else:
+				self.theme["wall_map"] += [0 for i in range(deviation)];
+			floor_len = len(self.theme["floor_map"]);
+			deviation = (15 * 14) - floor_len;
+			if deviation < 0:
+				self.theme["floor_map"] = self.theme["floor_map"][:deviation];
+			else:
+				self.theme["floor_map"] += [0 for i in range(deviation)];	
 
+			canvas_pos = imgui.get_cursor_screen_pos();
+			self.wall_canvas.clear((128, 128, 128));
+			for y in range(6):
+				for x in range(15):
+					tile = preview_bank.get("sprite", self.theme["wall_tiles"]);
+					tile_frame = self.theme["wall_map"][y * 15 + x];
+					self.wall_canvas.draw_image(x * 16, y * 16, tile.frame_images[tile_frame]);
+			if(self.grid):
+				for y in range(1, 6):
+					self.wall_canvas.draw_hline(y * 16, (255, 255, 255));
+				for x in range(1, 15):
+					self.wall_canvas.draw_vline(x * 16, (255, 255, 255));
+
+			mouse_pos = imgui_io.mouse_pos;
+			brush_pos = mouse_pos - canvas_pos;
+			if brush_pos.x >= 0 and brush_pos.x < (15 * 16) and brush_pos.y >= 0 and brush_pos.y < (6 * 16):
+				self.wall_cursor = (int(brush_pos.x // 16), int(brush_pos.y // 16));
+				if imgui.is_mouse_down(0):
+					idx = self.wall_cursor[1] * 15 + self.wall_cursor[0];
+					self.theme["wall_map"][idx] = self.wall_brush;
+				self.wall_canvas.draw_rect(self.wall_cursor[0] * 16, self.wall_cursor[1] * 16, 16, 16, (255, 0, 0));
+			
+			self.wall_canvas.render(1);
+			imgui.same_line();
+			_, self.grid = imgui.checkbox("Show grid", self.grid);	
+
+			wall_tiles = preview_bank.get("sprite", self.theme["wall_tiles"]);
+			per_line = 0;
+			for (idx, frame) in enumerate(wall_tiles.frame_textures):
+				tint = (0.5, 0.5, 0.5, 1) if idx == self.wall_brush else (1, 1, 1, 1);
+				if imgui.image_button(f"##{id(frame)}", frame, (32, 32), tint_col=tint):
+					self.wall_brush = idx;
+				imgui.same_line();
+				per_line += 1;
+				if per_line >= 5:
+					imgui.new_line();
+					per_line = 0;
+			imgui.new_line();
+			
+			canvas_pos = imgui.get_cursor_screen_pos();
+			self.floor_canvas.clear((128, 128, 128));
+			for y in range(14):
+				for x in range(15):
+					tile = preview_bank.get("sprite", self.theme["floor_tiles"]);
+					tile_frame = self.theme["floor_map"][y * 15 + x];
+					self.floor_canvas.draw_image(x * 16, y * 16, tile.frame_images[tile_frame]);
+			if(self.grid):
+				for y in range(1, 14):
+					self.floor_canvas.draw_hline(y * 16, (255, 255, 255));
+				for x in range(1, 15):
+					self.floor_canvas.draw_vline(x * 16, (255, 255, 255));
+			
+			mouse_pos = imgui_io.mouse_pos;
+			brush_pos = mouse_pos - canvas_pos;
+			if brush_pos.x >= 0 and brush_pos.x < (15 * 16) and brush_pos.y >= 0 and brush_pos.y < (14 * 16):
+				self.floor_cursor = (int(brush_pos.x // 16), int(brush_pos.y // 16));
+				if imgui.is_mouse_down(0):
+					idx = self.floor_cursor[1] * 15 + self.floor_cursor[0];
+					self.theme["floor_map"][idx] = self.floor_brush;
+				self.floor_canvas.draw_rect(self.floor_cursor[0] * 16, self.floor_cursor[1] * 16, 16, 16, (255, 0, 0));
+
+			self.floor_canvas.render(1);
+
+			floor_tiles = preview_bank.get("sprite", self.theme["floor_tiles"]);
+			per_line = 0;
+			for (idx, frame) in enumerate(floor_tiles.frame_textures):
+				tint = (0.5, 0.5, 0.5, 1) if idx == self.floor_brush else (1, 1, 1, 1);
+				if imgui.image_button(f"##{id(frame)}", frame, (32, 32), tint_col=tint):
+					self.floor_brush = idx;
+				imgui.same_line();
+				per_line += 1;
+				if per_line >= 5:
+					imgui.new_line();
+					per_line = 0;
+			imgui.new_line();
+			
 			self.size = imgui.get_window_size();
 			imgui.end();
 		

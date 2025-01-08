@@ -252,6 +252,7 @@ void CAT_fillberry(int xi, int yi, int w, int h, uint16_t c)
 void CAT_strokeberry(int xi, int yi, int w, int h, uint16_t c)
 {
 #ifdef CAT_EMBEDDED
+	c = (c >> 8) | ((c & 0xff) << 8);
 	yi -= framebuffer_offset_h;
 #endif
 
@@ -280,6 +281,18 @@ void CAT_strokeberry(int xi, int yi, int w, int h, uint16_t c)
 			FRAMEBUFFER[y * LCD_SCREEN_W + xi] = c;
 			FRAMEBUFFER[y * LCD_SCREEN_W + (xi+w-1)] = c;
 		}
+	}
+}
+
+void CAT_rowberry(int x, int y, int w, uint16_t c)
+{
+#ifdef CAT_EMBEDDED
+	y -= framebuffer_offset_h;
+	c = (c >> 8) | ((c & 0xff) << 8);
+#endif
+	IF_IF_EMBEDDED(y >= 0 && y < LCD_FRAMEBUFFER_H)
+	{
+		memset(&FRAMEBUFFER[y * LCD_SCREEN_W + x], c, sizeof(uint16_t) * w);
 	}
 }
 

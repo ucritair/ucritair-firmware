@@ -34,6 +34,7 @@ void CAT_greyberry(int xi, int w, int yi, int h);
 void CAT_lineberry(int xi, int yi, int xf, int yf, uint16_t c);
 void CAT_fillberry(int xi, int yi, int w, int h, uint16_t c);
 void CAT_strokeberry(int xi, int yi, int w, int h, uint16_t c);
+void CAT_rowberry(int x, int y, int w, uint16_t c);
 
 
 //////////////////////////////////////////////////////////////////////////

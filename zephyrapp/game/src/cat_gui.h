@@ -16,7 +16,7 @@
 typedef enum CAT_gui_flag
 {
 	CAT_GUI_DEFAULT,
-	CAT_GUI_NO_BORDER,
+	CAT_GUI_BORDER,
 	CAT_GUI_WRAP_TEXT,
 	CAT_GUI_TIGHT
 } CAT_gui_flag;

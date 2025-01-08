@@ -17,6 +17,8 @@ header.write("#include \"cat_room.h\"\n");
 header.write("\n");
 for (idx, theme) in enumerate(json_entries):
 	header.write(f"extern const CAT_room_theme {theme["name"]}_theme;\n");
+header.write("\n");
+header.write("extern const CAT_room_theme* themes_list[];\n");
 header.close();
 
 def write_map(f, m, w, h):
@@ -24,7 +26,7 @@ def write_map(f, m, w, h):
 	for y in range(h):
 		f.write("\t\t");
 		for x in range(w):
-			idx = y * h + w;
+			idx = y * w + x;
 			f.write(f"{m[idx]},");
 		f.write("\n");
 	f.write("\t},\n")
@@ -46,6 +48,12 @@ for (idx, theme) in enumerate(json_entries):
 	write_map(source, theme["floor_map"], 15, 14);
 	source.write("};\n");
 	source.write("\n");
+source.write("\n");
+source.write("const CAT_room_theme* themes_list[] =\n");
+source.write("{\n");
+for (idx, theme) in enumerate(json_entries):
+	source.write(f"\t&{theme["name"]}_theme,\n");
+source.write("};\n");
 source.close();
 
 
