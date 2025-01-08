@@ -175,6 +175,7 @@ void epaper_render_test()
 	fwrite_str(128, 80, 1, "%.1f%% rebreathed", ((((double)current_readings.sunrise.ppm_filtered_compensated)-420.)/38000.)*100.);
 	fwrite_str(128, 90, 1, "uCritAQI %.1f%%", score);
 	fwrite_str(128, 100, 1, "at %2d:%02d:%02d", t.tm_hour, t.tm_min, t.tm_sec);
+	fwrite_str(128, 110, 1, "%d%% battery", get_battery_pct());
 
 	fwrite_str(0, EPD_IMAGE_H-8, 1, "\"%s\"", guy_name);
 
