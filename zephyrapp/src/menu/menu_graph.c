@@ -200,6 +200,8 @@ void calc_ach();
 int step_times[] = {3*60, 2*60, 1*60, 30, 15, 10, 5, 10*60, 5*60,};
 int step_time_index = 0;
 
+int day_scroll_accel = 1;
+
 void CAT_MS_graph(CAT_machine_signal signal)
 {
 	switch(signal)
@@ -243,17 +245,23 @@ void CAT_MS_graph(CAT_machine_signal signal)
 				}
 			}
 
-			if(CAT_input_pressed(CAT_BUTTON_UP))
+			if(CAT_input_held(CAT_BUTTON_UP, 0.1) || CAT_input_pressed(CAT_BUTTON_UP))
 			{
-				graph_end_time += 60*60*24;
+				graph_end_time += 60*60*24 * MAX(1, day_scroll_accel-10);
 				graph_end_time = MIN(graph_end_time, get_current_rtc_time() - 1);
-				update_graph();
+				day_scroll_accel += 1;
 			}
 
-			if (CAT_input_pressed(CAT_BUTTON_DOWN))
+			if (CAT_input_held(CAT_BUTTON_DOWN, 0.1) || CAT_input_pressed(CAT_BUTTON_DOWN))
 			{
-				graph_end_time -= 60*60*24;
+				graph_end_time -= 60*60*24 * MAX(1, day_scroll_accel-10);
+				day_scroll_accel += 1;
+			}
+
+			if (CAT_input_released(CAT_BUTTON_UP) || CAT_input_released(CAT_BUTTON_DOWN))
+			{
 				update_graph();
+				day_scroll_accel = 1;
 			}
 
 			if (CAT_input_pressed(CAT_BUTTON_SELECT) && cursor_state == SEL_START)
@@ -279,12 +287,12 @@ void CAT_MS_graph(CAT_machine_signal signal)
 			{
 				int* sel_cursor = cursor_state==SEL_END?&cursor_end:&cursor_start;
 
-				if(CAT_input_held(CAT_BUTTON_LEFT, 0))
+				if(CAT_input_held(CAT_BUTTON_LEFT, 0.05))
 				{
 					*sel_cursor -= MAX(1, cursor_velocity-10);
 					cursor_velocity += 1;
 				}
-				else if(CAT_input_held(CAT_BUTTON_RIGHT, 0))
+				else if(CAT_input_held(CAT_BUTTON_RIGHT, 0.05))
 				{
 					*sel_cursor += MAX(1, cursor_velocity-10);
 					cursor_velocity += 1;

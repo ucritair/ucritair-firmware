@@ -168,11 +168,6 @@ void lcd_render_diag()
 
 		int time_since_buttons = now - last_button_pressed;
 
-		if (time_since_buttons > dim_after_seconds*1000)
-		{
-			set_backlight(MAX(10, screen_brightness>>1));
-		}
-
 		if (time_since_buttons > sleep_after_seconds*1000)
 		{
 			if (!is_charging)
@@ -184,8 +179,13 @@ void lcd_render_diag()
 			}
 			else
 			{
-				set_backlight(MAX(10, screen_brightness>>2));
+				set_backlight(0);
+				// set_backlight(MAX(10, screen_brightness>>2));
 			}
+		}
+		else if (time_since_buttons > dim_after_seconds*1000)
+		{
+			set_backlight(MAX(10, screen_brightness>>1));
 		}
 
 		charging_last_frame = is_charging;
