@@ -1008,7 +1008,7 @@
                 ],
                 "animate": true,
                 "child_dy": 0,
-                "type": "default"
+                "type": "bottom"
             }
         },
         {
