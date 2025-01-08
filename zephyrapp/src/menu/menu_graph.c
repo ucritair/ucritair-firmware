@@ -434,7 +434,7 @@ void CAT_render_graph()
 
 	CAT_gui_textf("%s Graph - ", get_name());
 	CAT_gui_image(&icon_n_sprite, 1);
-	CAT_gui_textf("%d/%d/%d", t.tm_mon, t.tm_mday, t.tm_year);
+	CAT_gui_textf("%d/%d/%d", t.tm_mon+1, t.tm_mday, t.tm_year);
 	CAT_gui_image(&icon_s_sprite, 1);
 	CAT_gui_line_break();
 
