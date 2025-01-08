@@ -139,8 +139,9 @@ void lcd_render_diag()
 		update_rtc();
 		update_buttons();
 
-		if (adc_get_voltage() > 0.2 && adc_get_voltage() < 3.6)
+		if (adc_get_voltage() > 0.2 && adc_get_voltage() < 3.6 && !get_is_charging())
 		{
+			LOG_INF("lcd_rendering batt voltage poweroff");
 			power_off(0, true);
 		}
 
@@ -153,7 +154,7 @@ void lcd_render_diag()
 		last_frame_time = now - last_ms;
 		last_ms = now;
 
-		if (current_buttons || touch_pressure || co2_calibrating)
+		if (current_buttons || touch_pressure || co2_calibrating || get_is_charging())
 		{
 			last_button_pressed = now;
 			set_backlight(screen_brightness);
@@ -161,13 +162,14 @@ void lcd_render_diag()
 
 		int time_since_buttons = now - last_button_pressed;
 
-		if (time_since_buttons > 45*1000)
+		if (time_since_buttons > dim_after_seconds*1000)
 		{
 			set_backlight(MAX(10, screen_brightness>>1));
 		}
 
-		if (time_since_buttons > 120*1000)
+		if (time_since_buttons > sleep_after_seconds*1000)
 		{
+			LOG_INF("Sleeping");
 			// TODO: Save game
 			epaper_render_test();
 			power_off(sensor_wakeup_rate*1000, false);

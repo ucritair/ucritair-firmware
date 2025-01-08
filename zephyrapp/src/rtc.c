@@ -71,6 +71,8 @@ PERSIST_RAM uint32_t rtc_init_check;
 
 // seconds between sample
 PERSIST_RAM uint16_t sensor_wakeup_rate;
+PERSIST_RAM uint8_t nox_every_n_samples;
+PERSIST_RAM uint8_t nox_every_n_samples_counter;
 
 // true if we woke to sample
 PERSIST_RAM uint8_t wakeup_is_from_timer;
@@ -83,7 +85,10 @@ PERSIST_RAM bool guy_is_wearing_mask;
 
 PERSIST_RAM uint8_t screen_brightness;
 
-#define RTC_INIT_CHECK_MAGIC 0x2000b887
+PERSIST_RAM uint16_t dim_after_seconds;
+PERSIST_RAM uint16_t sleep_after_seconds;
+
+#define RTC_INIT_CHECK_MAGIC 0xb8870003
 
 bool is_first_init = false;
 
@@ -133,12 +138,16 @@ void check_rtc_init()
 		is_first_init = true;
 		rtc_init_check = RTC_INIT_CHECK_MAGIC;
 		sensor_wakeup_rate = 3*60;
+		nox_every_n_samples = 0;
+		nox_every_n_samples_counter = 0;
 		wakeup_is_from_timer = false;
 		zero_rtc_counter();
 		went_to_sleep_at = get_current_rtc_time();
 		guy_happiness = 1;
 		guy_is_wearing_mask = false;
 		screen_brightness = BACKLIGHT_FULL;
+		dim_after_seconds = 45;
+		sleep_after_seconds = 120;
 	}
 }
 

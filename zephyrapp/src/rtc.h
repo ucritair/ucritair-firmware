@@ -6,10 +6,14 @@ extern bool is_first_init;
 extern volatile bool guy_is_wearing_mask;
 extern volatile uint8_t guy_happiness;
 extern volatile uint64_t rtc_offset;
+extern volatile uint8_t nox_every_n_samples;
+extern volatile uint8_t nox_every_n_samples_counter;
 extern volatile uint16_t sensor_wakeup_rate;
 extern volatile uint8_t wakeup_is_from_timer;
 extern volatile uint64_t went_to_sleep_at;
 extern volatile uint8_t screen_brightness;
+extern volatile uint16_t dim_after_seconds;
+extern volatile uint16_t sleep_after_seconds;
 
 #define MIN_WAKEUP_RATE_TO_DEEP_SLEEP 60
 

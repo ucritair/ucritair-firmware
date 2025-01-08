@@ -323,3 +323,8 @@ static int board_cat_uicr_init(void)
 SYS_INIT(board_cat_uicr_init, PRE_KERNEL_1,
      CONFIG_KERNEL_INIT_PRIORITY_DEFAULT);
 
+
+bool get_is_charging()
+{
+	return NRF_USBREGULATOR->USBREGSTATUS & 1;
+}
