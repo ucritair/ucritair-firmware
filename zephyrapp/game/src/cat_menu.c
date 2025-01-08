@@ -8,7 +8,6 @@
 #include "cat_version.h"
 #include "cat_manual.h"
 #include "cat_vending.h"
-#include "cat_insights.h"
 #include "cat_arcade.h"
 #include "cat_bag.h"
 #include "cat_pet.h"

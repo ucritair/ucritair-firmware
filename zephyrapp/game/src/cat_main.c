@@ -21,7 +21,6 @@
 #include "cat_pet.h"
 #include "cat_actions.h"
 #include "cat_menu.h"
-#include "cat_insights.h"
 #include "cat_bag.h"
 #include "cat_arcade.h"
 #include "cat_vending.h"

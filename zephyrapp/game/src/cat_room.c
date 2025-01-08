@@ -13,6 +13,7 @@
 #include "cat_deco.h"
 #include "cat_vending.h"
 #include "cat_arcade.h"
+#include "theme_assets.h"
 
 //////////////////////////////////////////////////////////////////////////
 // SPACE
@@ -308,6 +309,8 @@ CAT_room room;
 
 void CAT_room_init()
 {
+	room.theme = &base_theme;
+	
 	room.grid_cursor = (CAT_ivec2) {7, 5};
 
 	room.prop_count = 0;

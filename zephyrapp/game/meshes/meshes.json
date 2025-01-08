@@ -1,5 +1,5 @@
 {
-	"type" : "sound",
+	"type" : "mesh",
 	"schema" : {
         "name": {
             "type" : "string",

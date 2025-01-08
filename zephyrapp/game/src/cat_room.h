@@ -61,6 +61,15 @@ CAT_ivec2 CAT_largest_free_space();
 //////////////////////////////////////////////////////////////////////////
 // ROOM
 
+typedef struct CAT_room_theme
+{
+	const char* name;
+	const CAT_sprite* wall_tiles;
+	uint8_t* wall_map;
+	const CAT_sprite* floor_tiles;
+	uint8_t* floor_map;
+} CAT_room_theme;
+
 typedef struct CAT_pickup
 {
 	CAT_vec2 origin;
@@ -74,6 +83,8 @@ typedef struct CAT_pickup
 
 typedef struct CAT_room
 {
+	const CAT_room_theme* theme;
+
 	CAT_ivec2 grid_cursor;
 
 	int prop_ids[CAT_GRID_SIZE];

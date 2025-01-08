@@ -124,6 +124,8 @@ class AssetSchema:
 			return "";
 		elif isinstance(t, list):
 			return t[0];
+		elif t[0] == "[" and t[-1] == "]":
+			return [default(t[1:-1])];
 		else:
 			return None;
 	
@@ -189,22 +191,27 @@ def get_number(node):
 def get_id(node, key):
 	return f"##{id(node)}{id(key)}";
 
-
 asset_dirs = [Path("sprites"), Path("sounds"), Path("meshes"), Path("data")];
-asset_docs = [];
 asset_types = [];
+asset_docs = {};
 
 for folder in asset_dirs:
 	for entry in folder.iterdir():
 		name, ext = os.path.splitext(entry);
 		if ext == ".json":
 			doc = AssetDocument(entry);
-			asset_docs.append(doc);
 			asset_type = doc.type;
 			if not asset_type in asset_types:
 				asset_types.append(asset_type);
+			asset_docs[asset_type] = doc;
 
 document = None;
+
+def find_asset(asset_type, name):
+	for asset in asset_docs[asset_type].entries:
+		if asset["name"] == name:
+			return asset;
+	return None;
 
 
 #########################################################
@@ -217,74 +224,6 @@ def make_texture(buffer, width, height):
 	glTexParameteri(GL_TEXTURE_2D, 	GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
 	return texture;
-
-class EditorSprite:
-	def __invert_black(self, image):
-		pixels = image.load();
-		result = Image.new(self.image.mode, self.image.size);
-
-		all_black = True;
-		inversion = [];
-		for y in range(self.image.height):
-			for x in range(self.image.width):
-				p = pixels[x, y];
-				if p[3] >= 128:
-					all_black &= (p[0] == 0 and p[1] == 0 and p[2] == 0);
-					if not all_black:
-						return image;
-					inversion.append((255, 255, 255, p[3]));
-				else:
-					inversion.append(p);
-
-		result.putdata(inversion);
-		return result;
-		
-	def __transpose_frames(self, image):
-		pixels = image.load();
-		if self.frame_count > 1:
-			frame_h = image.height // self.frame_count;
-			transpose = [];
-			for y in range(frame_h):
-				for f in range(self.frame_count):
-					for x in range(image.width):
-						transpose.append(pixels[x, y + f * frame_h]);
-			result = Image.new(image.mode, (image.width * self.frame_count, frame_h));
-			result.putdata(transpose);
-			return result;
-		else:
-			return image;
-	
-	def __make_frame(self, frame):
-		pixels = self.image.load();
-
-		frame_h = self.height // self.frame_count;
-		frame_y = frame_h * frame;
-		frame = [];
-		for dy in range(0, frame_h):
-			for dx in range(0, self.width):
-				frame.append(pixels[dx, dy+frame_y]);
-
-		result = Image.new(self.image.mode, (self.width, frame_h));
-		result.putdata(frame);
-		return result;
-
-	def __init__(self, sprite):
-		self.name = sprite["name"];
-		self.path = os.path.join("sprites", sprite["path"]);
-		self.image = Image.open(self.path);
-		self.width = self.image.width;
-		self.height = self.image.height;
-		self.frame_count = sprite["frames"];
-		self.frames = [self.__make_frame(i) for i in range(self.frame_count)];
-		preview = self.image;
-		preview = self.__invert_black(preview);
-		preview = self.__transpose_frames(preview);
-		self.preview = make_texture(preview.tobytes(), preview.width, preview.height);
-
-sprite_bank = {};
-for sprite in next(d for d in asset_docs if d.type == "sprite").entries:
-	sprite_bank[sprite["path"]] = EditorSprite(sprite);
-	sprite_bank[sprite["name"]] = sprite_bank[sprite["path"]];
 
 class DrawFlags(Flag):
 	CENTER_X = auto()
@@ -321,6 +260,14 @@ class Canvas:
 		self.buffer[i+0] = c[0];
 		self.buffer[i+1] = c[1];
 		self.buffer[i+2] = c[2];
+	
+	def draw_hline(self, y, c):
+		for x in range(self.width):
+			self.draw_pixel(x, y, c);
+	
+	def draw_vline(self, x, c):
+		for y in range(self.height):
+			self.draw_pixel(x, y, c);
 
 	def draw_rect(self, x, y, w, h, c):
 		x = int(x);
@@ -430,7 +377,7 @@ class FileExplorer:
 					if item.is_dir():
 						self.current = item;
 					else:
-						FileExplorer.result = item.absolute().relative_to(self.anchor.absolute());
+						FileExplorer.result = Path(os.path.relpath(item.absolute(), self.anchor.absolute()));
 						FileExplorer._ = None;
 			self.size = imgui.get_window_size();
 			imgui.end();
@@ -446,16 +393,15 @@ class FileExplorer:
 #########################################################
 ## ASSET PREVIEWER
 
-class Preview:
-	def __init__(self):
-		self.cache = {};
-
-	def __invert_all_black(image):
+class PreviewSprite:
+	def __invert_black(self, image):
 		pixels = image.load();
+		result = Image.new(self.image.mode, self.image.size);
+
 		all_black = True;
 		inversion = [];
-		for y in range(image.height):
-			for x in range(image.width):
+		for y in range(self.image.height):
+			for x in range(self.image.width):
 				p = pixels[x, y];
 				if p[3] >= 128:
 					all_black &= (p[0] == 0 and p[1] == 0 and p[2] == 0);
@@ -464,115 +410,132 @@ class Preview:
 					inversion.append((255, 255, 255, p[3]));
 				else:
 					inversion.append(p);
-		if all_black:
-			image.putdata(inversion);
-		return image;
+
+		result.putdata(inversion);
+		return result;
 		
-	def __transpose_frames(image, frames):
+	def __transpose_frames(self, image):
 		pixels = image.load();
-		if frames > 1:
-			frame_h = image.height // frames;
+		if self.frame_count > 1:
+			frame_h = image.height // self.frame_count;
 			transpose = [];
 			for y in range(frame_h):
-				for f in range(frames):
+				for f in range(self.frame_count):
 					for x in range(image.width):
 						transpose.append(pixels[x, y + f * frame_h]);
-			image = Image.new(image.mode, (image.width * frames, frame_h));
-			image.putdata(transpose);
-		return image;
-	
-	def render_image(self, path, frames):
-		texture, width, height = None, None, None;
-
-		invalidate_cache = True;
-		if path in self.cache:
-			if frames == self.cache[path][3]:
-				invalidate_cache = False;
-		
-		if invalidate_cache:
-			image = Image.open(path);
-			image = Preview.__invert_all_black(image);
-			image = Preview.__transpose_frames(image, frames);
-
-			buffer = image.tobytes();
-			width = image.width;
-			height = image.height;
-			texture = glGenTextures(1);
-			glBindTexture(GL_TEXTURE_2D, texture);
-			glTexParameteri(GL_TEXTURE_2D, 	GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-			glTexParameteri(GL_TEXTURE_2D, 	GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
-			self.cache[path] = texture, width, height, frames;
+			result = Image.new(image.mode, (image.width * self.frame_count, frame_h));
+			result.putdata(transpose);
+			return result;
 		else:
-			texture, width, height, frames = self.cache[path];
+			return image;
+	
+	def __make_frame(self, frame):
+		pixels = self.image.load();
+
+		frame_h = self.height // self.frame_count;
+		frame_y = frame_h * frame;
+		frame = [];
+		for dy in range(0, frame_h):
+			for dx in range(0, self.width):
+				frame.append(pixels[dx, dy+frame_y]);
+
+		result = Image.new(self.image.mode, (self.width, frame_h));
+		result.putdata(frame);
+		return result;
+
+	def __init__(self, sprite):
+		self.image = Image.open(os.path.join("sprites", sprite["path"]));
+		self.width = self.image.width;
+		self.height = self.image.height;
+		self.frame_count = sprite["frames"];
+		self.frame_width = self.width;
+		self.frame_height = self.height // self.frame_count;
+		self.frame_images = [self.__make_frame(i) for i in range(self.frame_count)];
+		self.frame_textures = [make_texture(f.tobytes(), f.width, f.height) for f in self.frame_images];
+		self.preview_image = self.image;
+		self.preview_image = self.__invert_black(self.preview_image);
+		self.preview_image = self.__transpose_frames(self.preview_image);
+		self.preview_texture = make_texture(self.preview_image.tobytes(), self.preview_image.width, self.preview_image.height);
+
+class PreviewSound:
+	def __init__(self, sound):
+		path = os.path.join("sounds", sound["path"]);
+		clip = wave.open(path, "r");
+		meta = clip.getparams();
+
+		n_channels = meta.nchannels;
+		n_frames = meta.nframes;
+		width = meta.sampwidth;
+
+		buffer = bytearray(clip.readframes(n_frames));
+		samples = np.ndarray((n_frames * n_channels,), dtype=np.int32);
+
+		for i in range(len(samples)):
+			start = i * width;
+			end = start + width;
+			samples[i] = int.from_bytes(buffer[start:end], "little", signed=True);
+			
+		frames = np.ndarray((n_channels, n_frames), dtype=np.float32);
+		for i in range(len(frames)):
+			frames[i] = samples[i::n_channels];
 		
-		if texture != None:
-			imgui.image(texture, (width * 2, height * 2));
-	
-	def render_sound(self, path):
-		frames, meta = None, None;
-		if path in self.cache:
-			frames, meta = self.cache[path];
-		else:
-			clip = wave.open(path, "r");
-			meta = clip.getparams();
-			n_channels = meta.nchannels;
-			n_frames = meta.nframes;
-			width = meta.sampwidth;
-			buffer = bytearray(clip.readframes(n_frames));
-			samples = np.ndarray((n_frames * n_channels,), dtype=np.int32);
-			for i in range(len(samples)):
-				start = i * width;
-				end = start + width;
-				samples[i] = int.from_bytes(buffer[start:end], "little", signed=True);
-			frames = np.ndarray((n_channels, n_frames), dtype=np.float32);
-			for i in range(len(frames)):
-				frames[i] = samples[i::n_channels];
-			self.cache[path] = frames, meta;
-		if not frames is None:
-			for i in range(frames.shape[0]):
-				half_range = (1 << ((meta.sampwidth*8)-1)) - 1;
-				plot_min = -half_range;
-				plot_max = half_range;
-				plot_width = window_width//2;
-				plot_height = window_height//10;
-				imgui.plot_lines(f"####{id(frames[i])}", frames[i], scale_min=plot_min, scale_max=plot_max, graph_size=(plot_width, plot_height));
-	
-	def render(self, doc, node, key):
-		if "*" in doc.schema.get_type(key):
-			path = node[key];
-			path = os.path.join(doc.parent, path);
-			if not Path(path).exists():
-				return;
-			name, ext = os.path.splitext(path);
+		self.frames = frames;
+		self.meta = meta;
+		self.path = path;
 
-			if ext == ".png":
-				frames = node["frames"] if "frames" in node else 1;
-				self.render_image(path, frames);
-			elif ext == ".wav":
-				self.render_sound(path);
-				if imgui.button(f"Play####{id(node)}{id(key)}"):
-					playsound(path, block=False);
-			else:
-				return;
-			imgui.same_line();
-			if imgui.button(f"Refresh####{path}"):
-				if path in self.cache:
-					del self.cache[path];
+class PreviewBank:
+	def __init__(self):
+		self.entries = {};
+		for asset_type in asset_types:
+			self.entries[asset_type] = {};
+	
+	def init(self, asset_type, name):
+		asset = find_asset(asset_type, name);
+		preview = None;
+		match asset_type:
+			case "sprite":
+				preview = PreviewSprite(asset);
+			case "sound":
+				preview = PreviewSound(asset);
+		self.entries[asset_type][name] = preview;
+	
+	def get(self, asset_type, name):
+		if not name in self.entries[asset_type]:
+			self.init(asset_type, name);
+		return self.entries[asset_type][name];
+		
+preview_bank = PreviewBank();
 
-					
-		elif doc.schema.get_type(key) in asset_types:
-			docs = list(filter(lambda d: d.type == doc.schema.get_type(key), asset_docs));
-			if docs == []:
-				return;
-			d = docs[0];
-			nodes = list(filter(lambda n: n["name"] == node[key], d.entries));
-			if nodes == []:
-				return;
-			n = nodes[0];
-			if n != node:
-				for k in n:
-					self.render(d, n, k);
+class Preview:
+	def __init__(self):
+		self.cache = {};
+	
+	def render_sprite(self, name):
+		sprite = preview_bank.get("sprite", name);
+		imgui.image(sprite.preview_texture, (sprite.preview_image.width * 2, sprite.preview_image.height * 2));
+		imgui.same_line();
+		if imgui.button(f"Refresh####{name}"):
+			preview_bank.init("sprite", name);
+	
+	def render_sound(self, name):
+		sound = preview_bank.get("sound", name)
+		for i in range(sound.frames.shape[0]):
+			half_range = (1 << ((sound.meta.sampwidth*8)-1)) - 1;
+			plot_min = -half_range;
+			plot_max = half_range;
+			plot_width = window_width//2;
+			plot_height = window_height//10;
+			imgui.plot_lines(f"####{id(sound.frames[i])}", sound.frames[i], scale_min=plot_min, scale_max=plot_max, graph_size=(plot_width, plot_height));
+		if imgui.button(f"Play####{name}"):
+			playsound(sound.path, block=False);
+	
+	def render(self, asset_type, name):
+		match asset_type:
+			case "sprite":
+				self.render_sprite(name);
+			case "sound":
+				self.render_sound(name);
+
 
 preview = Preview();
 
@@ -585,6 +548,8 @@ popup_statuses = {};
 class DocumentRenderer:	
 	def __render(doc, node):
 		imgui.separator();
+		
+		preview.render(doc.type, node["name"]);
 
 		for key in node:
 			key_type = doc.schema.get_type(key);
@@ -637,7 +602,6 @@ class DocumentRenderer:
 					imgui.end_combo();
 
 			elif "*" in key_type:
-				preview.render(doc, node, key);
 				imgui.text(key);
 				imgui.same_line();
 				if writable:
@@ -654,7 +618,8 @@ class DocumentRenderer:
 					imgui.text(node[key]);
 
 			elif key_type in asset_types:
-				preview.render(doc, node, key);
+				preview.render(key_type, node[key]);
+
 				imgui.text(key);
 				imgui.same_line();
 				if imgui.begin_combo(get_id(node, key), str(node[key])):
@@ -742,19 +707,7 @@ class PropViewer:
 		self.window_flags = foldl(lambda a, b : a | b, 0, window_flag_list);
 		self.open = True;
 
-		self.props = [];
-		sprite_bank = [];
-		for doc in asset_docs:
-			if doc.type == "item":
-				self.props = list(filter(lambda i: i["type"] == "prop", doc.entries));
-			elif doc.type == "sprite":
-				sprite_bank = doc.entries;
-		self.sprites = {};
-		for prop in self.props:
-			for sprite in sprite_bank:
-				if sprite["name"] == prop["sprite"]:
-					self.sprites[prop["name"]] = sprite;
-
+		self.props = list(filter(lambda i: i["type"] == "prop", asset_docs["item"].entries));
 		self.parent_prop = self.props[0];
 		self.child_prop = self.parent_prop;
 
@@ -768,7 +721,8 @@ class PropViewer:
 				self.canvas.draw_rect(tlx + sx * 16, tly + sy * 16, 16, 16, (255, 0, 0));
 
 		self.canvas.draw_flags = DrawFlags.CENTER_X | DrawFlags.BOTTOM;
-		self.canvas.draw_image(x, y, sprite_bank[prop["sprite"]].frames[0]);
+		sprite = preview_bank.get("sprite", prop["sprite"]);
+		self.canvas.draw_image(x, y, sprite.frame_images[0]);
 		
 	def render():
 		if PropViewer._ == None:
@@ -841,8 +795,8 @@ class AnimationViewer:
 		self.window_flags = foldl(lambda a, b : a | b, 0, window_flag_list);
 		self.open = True;
 
-		self.sprites = next(d for d in asset_docs if d.type == "sprite").entries;
-		self.sprite = sprite_bank[self.sprites[0]["name"]];
+		self.sprites = asset_docs["sprite"].entries;
+		self.sprite_idx = 0;
 		self.frame = 0;
 		
 		self.animate = True;
@@ -857,14 +811,17 @@ class AnimationViewer:
 			imgui.set_next_window_size(self.size);
 			_, self.open = imgui.begin(f"Animation Viewer", self.open, flags=self.window_flags);
 
+			sprite = self.sprites[self.sprite_idx];
+			preview = preview_bank.get("sprite", sprite["name"]);
+
 			self.canvas.clear((128, 128, 128));
 			draw_x = self.canvas.width/2;
 			draw_y = self.canvas.height/2;
 			self.canvas.draw_flags = DrawFlags.CENTER_X | DrawFlags.CENTER_Y;
-			self.canvas.draw_image(draw_x, draw_y, self.sprite.frames[self.frame]);
+			self.canvas.draw_image(draw_x, draw_y, preview.frame_images[self.frame]);
 			self.canvas.render(self.scale);
 
-			if self.sprite.frame_count > 1:	
+			if preview.frame_count > 1:	
 				switch, self.animate = imgui.checkbox("Animate", self.animate);
 				if switch:
 					self.frame = 0;
@@ -873,16 +830,16 @@ class AnimationViewer:
 					if self.timer >= 0.2:
 						self.timer = 0;
 						self.frame += 1;
-						if self.frame >= self.sprite.frame_count:
+						if self.frame >= preview.frame_count:
 							self.frame = 0;
 				else:
-					_, self.frame = imgui.slider_int("Frame", self.frame, 0, self.sprite.frame_count-1);
+					_, self.frame = imgui.slider_int("Frame", self.frame, 0, preview.frame_count-1);
 
-			if imgui.begin_combo(f"Sprite", self.sprite.name):
-				for sprite in self.sprites:
-					selected = sprite["name"] == self.sprite.name;
-					if imgui.selectable(sprite["name"], selected)[0]:
-						self.sprite = sprite_bank[sprite["name"]];
+			if imgui.begin_combo(f"Sprite", sprite["name"]):
+				for (idx, entry) in enumerate(self.sprites):
+					selected = idx == self.sprite_idx;
+					if imgui.selectable(entry["name"], selected)[0]:
+						self.sprite_idx = idx;
 						self.frame = 0;
 					if selected:
 						imgui.set_item_default_focus();
@@ -893,6 +850,104 @@ class AnimationViewer:
 		
 		if not self.open:
 			AnimationViewer._ = None;
+
+
+#########################################################
+## THEME EDITOR
+
+class ThemeEditor:
+	_ = None;
+
+	def __init__(self):
+		if ThemeEditor._ != None:
+			return None;
+		ThemeEditor._ = self;
+
+		self.canvas = Canvas(240, 320);
+		self.size = (720, 480);
+		window_flag_list = [
+			imgui.WindowFlags_.no_saved_settings,
+			imgui.WindowFlags_.no_collapse,
+		];
+		self.window_flags = foldl(lambda a, b : a | b, 0, window_flag_list);
+		self.open = True;
+
+		self.themes = asset_docs["theme"].entries;
+		self.theme_idx = 0;
+		self.grid = False;
+
+	def render():
+		if ThemeEditor._ == None:
+			return;
+		self = ThemeEditor._;
+
+		if self.open:
+			imgui.set_next_window_size(self.size);
+			_, self.open = imgui.begin(f"Theme Editor", self.open, flags=self.window_flags);
+
+			theme = self.themes[self.theme_idx];
+			wall_len = len(theme["wall_map"]);
+			deviation = (15 * 6) - wall_len;
+			if deviation < 0:
+				theme["wall_map"] = theme["wall_map"][:deviation];
+			else:
+				theme["wall_map"] += [0 for i in range(deviation)];
+			floor_len = len(theme["floor_map"]);
+			deviation = (15 * 14) - floor_len;
+			if deviation < 0:
+				theme["floor_map"] = theme["floor_map"][:deviation];
+			else:
+				theme["floor_map"] += [0 for i in range(deviation)];	
+			asset_docs["theme"].entries[self.theme_idx] = theme;
+
+			self.canvas.clear((128, 128, 128));
+			for y in range(6):
+				for x in range(15):
+					tile = preview_bank.get("sprite", theme["wall_tiles"]);
+					tile_frame = theme["wall_map"][y * 15 + x];
+					self.canvas.draw_image(x * 16, y * 16, tile.frame_images[tile_frame]);
+			for y in range(6, 20):
+				for x in range(15):
+					tile = preview_bank.get("sprite", theme["floor_tiles"]);
+					tile_frame = theme["floor_map"][(y-6) * 15 + x];
+					self.canvas.draw_image(x * 16, y * 16, tile.frame_images[tile_frame]);
+
+			if(self.grid):
+				for y in range(1, 20):
+					self.canvas.draw_hline(y * 16, (255, 255, 255));
+				for x in range(1, 15):
+					self.canvas.draw_vline(x * 16, (255, 255, 255));
+				self.canvas.draw_hline(6 * 16, (255, 0, 0));
+			self.canvas.render(1);
+
+			_, self.grid = imgui.checkbox("Show grid", self.grid);
+
+			imgui.text("");
+			wall_tiles = preview_bank.get("sprite", theme["wall_tiles"]);
+			for frame in wall_tiles.frame_textures:
+				imgui.same_line();
+				imgui.image_button(f"##{id(frame)}", frame, (32, 32));
+			
+			imgui.text("");
+			floor_tiles = preview_bank.get("sprite", theme["floor_tiles"]);
+			for frame in floor_tiles.frame_textures:
+				imgui.same_line();
+				imgui.image_button(f"##{id(frame)}", frame, (32, 32));
+
+			if imgui.begin_combo(f"Theme", theme["name"]):
+				for (idx, entry) in enumerate(self.themes):
+					selected = idx == self.theme_idx;
+					if imgui.selectable(entry["name"], selected)[0]:
+						self.theme_idx = idx;
+					if selected:
+						imgui.set_item_default_focus();
+				imgui.end_combo();
+
+			self.size = imgui.get_window_size();
+			imgui.end();
+		
+		if not self.open:
+			ThemeEditor._ = None;
 
 
 #########################################################
@@ -940,7 +995,7 @@ while not glfw.window_should_close(handle):
 	if imgui.begin_main_menu_bar():
 		if imgui.begin_menu("File"):
 			if imgui.begin_menu("Open"):
-				for doc in asset_docs:
+				for doc in asset_docs.values():
 					if imgui.menu_item_simple(str(doc.path), selected = document != None and doc.name == document.name):
 						document = doc;
 				imgui.end_menu();
@@ -971,9 +1026,11 @@ while not glfw.window_should_close(handle):
 		
 		if imgui.begin_menu("Tools"):
 			if imgui.menu_item_simple("Prop Viewer"):
-				PropViewer();	
+				PropViewer();
 			if imgui.menu_item_simple("Animation Viewer"):
-				AnimationViewer();	
+				AnimationViewer();
+			if imgui.menu_item_simple("Theme Editor"):
+				ThemeEditor();	
 			imgui.end_menu();
 	
 		if imgui.begin_menu("Utils"):
@@ -997,6 +1054,8 @@ while not glfw.window_should_close(handle):
 		PropViewer.render();
 	if AnimationViewer._ != None:
 		AnimationViewer.render();
+	if ThemeEditor._ != None:
+		ThemeEditor.render();
 
 	imgui.end();
 	imgui.render();

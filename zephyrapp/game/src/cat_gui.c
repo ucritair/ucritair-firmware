@@ -9,6 +9,7 @@
 #include <ctype.h>
 #include "cat_input.h"
 
+
 //////////////////////////////////////////////////////////////////////////
 // RENDERING
 
@@ -183,10 +184,20 @@ void CAT_gui_title(bool tabs, const CAT_sprite* a_action, const CAT_sprite* b_ac
 	}
 }
 
-static const char* cases[] = 
+static const char** typecases[] = 
 {
-	"0123456789\x06\nQWERTYUIOP\nASDFGHJKL\x07\x09\nZXCVBNM\x08\n",
-	"0123456789\x06\nqwertyuiop\nasdfghjkl\x07\x09\nzxcvbnm\x08\n"
+	(const char*[]) {
+		"0123456789\x06",
+		"QWERTYUIOP",
+		"ASDFGHJKL\x07\x09",
+		"ZXCVBNM\x08"
+	},
+	(const char*[]) {
+		"0123456789\x06",
+		"qwertyuiop",
+		"asdfghjkl\x07\x09",
+		"zxcvbnm\x08"
+	}
 };
 
 static struct 
@@ -201,6 +212,8 @@ static struct
 	float cursor_timer;
 
 	int case_idx;
+	int row_idx;
+	int glyph_idx;
 } keyboard = 
 {
 	.open = false,
@@ -208,7 +221,9 @@ static struct
 	.cursor = 0,
 	.show_cursor = true,
 	.cursor_timer = 0.0f,
-	.case_idx = 0
+	.case_idx = 0,
+	.row_idx = 0,
+	.glyph_idx = 0
 };
 
 void CAT_gui_open_keyboard(char* target)
@@ -219,6 +234,8 @@ void CAT_gui_open_keyboard(char* target)
 	memcpy(keyboard.buffer, target, length);
 	keyboard.cursor = length;
 	keyboard.case_idx = 0;
+	keyboard.row_idx = 0;
+	keyboard.glyph_idx = 0;
 }
 
 bool CAT_gui_keyboard_is_open()
@@ -228,6 +245,60 @@ bool CAT_gui_keyboard_is_open()
 
 void CAT_gui_keyboard()
 {
+	if(CAT_input_pressed(CAT_BUTTON_B))
+		keyboard.open = false;
+	
+	const char** typecase = typecases[keyboard.case_idx];
+
+	if(CAT_input_pulse(CAT_BUTTON_UP))
+		keyboard.row_idx -= 1;
+	if(CAT_input_pulse(CAT_BUTTON_DOWN))
+		keyboard.row_idx += 1;
+	keyboard.row_idx = clamp(keyboard.row_idx, 0, 3);
+	const char* row = typecase[keyboard.row_idx];
+
+	if(CAT_input_pulse(CAT_BUTTON_RIGHT))
+		keyboard.glyph_idx += 1;
+	if(CAT_input_pulse(CAT_BUTTON_LEFT))
+		keyboard.glyph_idx -= 1;
+	keyboard.glyph_idx = clamp(keyboard.glyph_idx, 0, strlen(row)-1);
+
+	if(CAT_input_pressed(CAT_BUTTON_A))
+	{
+		const char glyph = row[keyboard.glyph_idx];
+		if(glyph == 6)
+		{
+			if(keyboard.cursor > 0)
+			{
+				keyboard.cursor -= 1;
+				keyboard.show_cursor = true;
+				keyboard.cursor_timer = 0;
+			}
+		}
+		else if(glyph == 7)
+		{
+			if(keyboard.target != NULL)
+			{
+				memcpy(keyboard.target, keyboard.buffer, keyboard.cursor);
+				keyboard.target[keyboard.cursor] = '\0';
+			}
+			keyboard.open = false;
+		}
+		else if(glyph == 8)
+			keyboard.case_idx = !keyboard.case_idx;
+		else if(glyph == 9)
+			keyboard.open = false;
+		else 
+		{
+			if(keyboard.cursor < 31)
+			{
+				keyboard.buffer[keyboard.cursor] = glyph;
+				keyboard.cursor += 1;
+			}
+		}
+		keyboard.buffer[keyboard.cursor] = '\0';
+	}
+
 	keyboard.cursor_timer += CAT_get_delta_time();
 	if(keyboard.cursor_timer >= 0.5f)
 	{
@@ -245,60 +316,19 @@ void CAT_gui_keyboard()
 	spriter.mode = CAT_DRAW_MODE_DEFAULT;
 	int x_w = gui.margin * 2;
 	int y_w = gui.cursor.y;
-	const char* c = cases[keyboard.case_idx];
-	while(*c != '\0')
+
+	for(int i = 0; i < 4; i++)
 	{
-		if(*c == '\n')
+		const char* row = typecase[i];
+		for(int j = 0; j < strlen(row); j++)
 		{
-			y_w += CAT_GLYPH_HEIGHT + 8;
-			x_w = gui.margin * 2;
-			c++;
-			continue;
+			char glyph = row[j];
+			CAT_draw_sprite(&glyph_sprite, glyph, x_w + 2, y_w + 3);
+			if(i == keyboard.row_idx && j == keyboard.glyph_idx)
+				CAT_strokeberry(x_w, y_w, CAT_GLYPH_WIDTH + 4, CAT_GLYPH_HEIGHT + 6, 0);
+			x_w += CAT_GLYPH_WIDTH + 8;
 		}
-		
-		CAT_strokeberry(x_w, y_w, CAT_GLYPH_WIDTH + 4, CAT_GLYPH_HEIGHT + 6, 0);
-		CAT_draw_sprite(&glyph_sprite, *c, x_w + 2, y_w + 3);
-		if(CAT_input_touch_rect(x_w, y_w, CAT_GLYPH_WIDTH + 4, CAT_GLYPH_HEIGHT + 6))
-		{
-			if(*c == 6)
-			{
-				if(keyboard.cursor > 0)
-				{
-					keyboard.cursor -= 1;
-					keyboard.show_cursor = true;
-					keyboard.cursor_timer = 0;
-				}
-			}
-			else if(*c == 7)
-			{
-				if(keyboard.target != NULL)
-				{
-					memcpy(keyboard.target, keyboard.buffer, keyboard.cursor);
-					keyboard.target[keyboard.cursor] = '\0';
-				}
-				keyboard.open = false;	
-			}
-			else if(*c == 8)
-				keyboard.case_idx = !keyboard.case_idx;
-			else if(*c == 9)
-			{
-				keyboard.open = false;
-			}
-			else 
-			{
-				if(keyboard.cursor < 31)
-				{
-					keyboard.buffer[keyboard.cursor] = *c;
-					keyboard.cursor += 1;
-				}
-			}
-		}
-		keyboard.buffer[keyboard.cursor] = '\0';
-
-		x_w += CAT_GLYPH_WIDTH + 8;
-		c++;
+		y_w += CAT_GLYPH_HEIGHT + 8;
+		x_w = gui.margin * 2;
 	}
-
-	if(CAT_input_pressed(CAT_BUTTON_B))
-		keyboard.open = false;
 }

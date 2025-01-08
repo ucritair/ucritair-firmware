@@ -90,6 +90,7 @@ target_sources(app PRIVATE
 	meshes/mesh_assets.c
 	sprites/sprite_assets.c
 	data/item_assets.c
+	data/theme_assets.c
 	src/cat_main.c)
 
 target_include_directories(app PRIVATE src/)
