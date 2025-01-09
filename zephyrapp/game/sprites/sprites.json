@@ -1308,8 +1308,8 @@
         {
             "id": 159,
             "name": "pet_crit_spi_sprite",
-            "path": "pet/unicorn_block_blink_a.png",
-            "frames": 2,
+            "path": "pet/unicorn_block_blink_static.png",
+            "frames": 1,
             "width": 64,
             "height": 48
         },

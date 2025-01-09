@@ -17,6 +17,7 @@ typedef struct CAT_pet
 	int focus;
 	int spirit;
 	int lifetime;
+	int xp;
 	int level;
 
 	CAT_vec2 pos;

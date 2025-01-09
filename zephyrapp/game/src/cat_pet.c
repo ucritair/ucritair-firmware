@@ -27,6 +27,7 @@ void CAT_pet_init()
 	pet.focus = 9;
 	pet.spirit = 9;
 	pet.lifetime = 0;
+	pet.xp = 0;
 	pet.level = 1;
 
 	pet.pos = (CAT_vec2) {120, 200};
