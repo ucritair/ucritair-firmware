@@ -13,6 +13,8 @@ json_file.close();
 header = open("data/theme_assets.h", "w");
 header.write("#pragma once\n");
 header.write("\n");
+header.write(f"#define THEME_COUNT {len(json_entries)}\n");
+header.write("\n");
 header.write("#include \"cat_room.h\"\n");
 header.write("\n");
 for (idx, theme) in enumerate(json_entries):

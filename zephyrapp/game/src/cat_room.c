@@ -309,7 +309,7 @@ CAT_room room;
 
 void CAT_room_init()
 {
-	room.theme = &grass_theme;
+	room.theme = &base_theme;
 	
 	room.grid_cursor = (CAT_ivec2) {7, 5};
 

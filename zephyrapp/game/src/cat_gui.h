@@ -49,4 +49,5 @@ void CAT_gui_title(bool tabs, const CAT_sprite* a_action, const CAT_sprite* b_ac
 
 void CAT_gui_open_keyboard(char* target);
 bool CAT_gui_keyboard_is_open();
+void CAT_gui_keyboard_io();
 void CAT_gui_keyboard();

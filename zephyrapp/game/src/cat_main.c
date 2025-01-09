@@ -82,8 +82,6 @@ void CAT_save_failsafe()
 	saved_version_patch = CAT_VERSION_PATCH;
 	saved_version_push = CAT_VERSION_PUSH;
 
-	strcpy(pet.name, "Waldo");
-
 	CAT_item_list_add(&bag, prop_eth_farm_item, 1);
 	coins = 10;
 }
@@ -137,7 +135,14 @@ void CAT_force_save()
 
 	strcpy(save->name, pet.name);
 
-	save->theme = (room.theme - &base_theme);
+	for(int i = 0; i < THEME_COUNT; i++)
+	{
+		if(themes_list[i] == room.theme)
+		{
+			save->theme = i;
+			break;
+		}
+	}
 
 	save->magic_number = CAT_SAVE_MAGIC;
 	CAT_finish_save(save);
@@ -195,9 +200,15 @@ void CAT_force_load()
 	CAT_timer_set(pet.petting_timer_id, save->petting_timer);
 	pet.times_milked = save->times_milked;
 
-	strcpy(pet.name, save->name);
-
-	room.theme = (&base_theme + save->theme);
+	if(strlen(save->name) < 32)
+		strcpy(pet.name, save->name);
+	else
+		strcpy(pet.name, "Waldo");
+	
+	if(save->theme < THEME_COUNT)
+		room.theme = themes_list[save->theme];
+	else
+		room.theme = themes_list[0];
 
 	CAT_finish_load();
 }
@@ -267,6 +278,9 @@ void CAT_tick_logic()
 	CAT_pet_tick(in_world());
 
 	CAT_machine_tick();
+
+	if(CAT_gui_keyboard_is_open())
+		CAT_gui_keyboard_io();
 }
 
 void CAT_tick_render(int cycle)

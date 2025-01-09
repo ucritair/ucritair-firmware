@@ -254,7 +254,7 @@ bool CAT_gui_keyboard_is_open()
 	return keyboard.open;
 }
 
-void CAT_gui_keyboard()
+void CAT_gui_keyboard_io()
 {
 	CAT_input_ask(1);
 
@@ -310,7 +310,10 @@ void CAT_gui_keyboard()
 		}
 		keyboard.buffer[keyboard.cursor] = '\0';
 	}
+}
 
+void CAT_gui_keyboard()
+{
 	keyboard.cursor_timer += CAT_get_delta_time();
 	if(keyboard.cursor_timer >= 0.5f)
 	{
@@ -330,6 +333,7 @@ void CAT_gui_keyboard()
 	int x_w = gui.margin * 2;
 	int y_w = gui.cursor.y;
 
+	const char** typecase = typecases[keyboard.case_idx];
 	for(int i = 0; i < 4; i++)
 	{
 		const char* row = typecase[i];

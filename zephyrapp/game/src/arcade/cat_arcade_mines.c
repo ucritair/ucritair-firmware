@@ -296,6 +296,9 @@ void CAT_MS_mines(CAT_machine_signal signal)
 			}
 			else
 			{
+				//TODO: REMOVE
+				state = WIN;
+
 				if(!reveal_complete)
 				{
 					if(CAT_timer_tick(reveal_timer_id))
@@ -320,7 +323,13 @@ void CAT_MS_mines(CAT_machine_signal signal)
 				else
 				{
 					if(CAT_input_pressed(CAT_BUTTON_A))
+					{
+						if(state == WIN)
+						{
+							CAT_item_list_add(&bag, prop_mine_item, 1);
+						}
 						CAT_machine_back();
+					}	
 				}
 				break;
 			}
@@ -377,40 +386,33 @@ void CAT_render_mines()
 	{
 		CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 20});
 
-		if(state == LOSE)
+		spriter.mode = CAT_DRAW_MODE_DEFAULT;
+		for(int x = 0; x < GRID_WIDTH; x++)
 		{
-			spriter.mode = CAT_DRAW_MODE_DEFAULT;
-			for(int x = 0; x < GRID_WIDTH; x++)
-			{
-				CAT_draw_sprite(&mines_sprite, 10, x * CAT_TILE_SIZE, 0);
-				CAT_draw_sprite(&mines_sprite, 10, x * CAT_TILE_SIZE, (GRID_HEIGHT-1) * CAT_TILE_SIZE);
-			}
-			for(int y = 0; y < GRID_HEIGHT; y++)
-			{
-				CAT_draw_sprite(&mines_sprite, 10, 0, y * CAT_TILE_SIZE);
-				CAT_draw_sprite(&mines_sprite, 10, (GRID_WIDTH-1) * CAT_TILE_SIZE, y * CAT_TILE_SIZE);
-			}
+			CAT_draw_sprite(&mines_sprite, 10, x * CAT_TILE_SIZE, 0);
+			CAT_draw_sprite(&mines_sprite, 10, x * CAT_TILE_SIZE, (GRID_HEIGHT-1) * CAT_TILE_SIZE);
+		}
+		for(int y = 0; y < GRID_HEIGHT; y++)
+		{
+			CAT_draw_sprite(&mines_sprite, 10, 0, y * CAT_TILE_SIZE);
+			CAT_draw_sprite(&mines_sprite, 10, (GRID_WIDTH-1) * CAT_TILE_SIZE, y * CAT_TILE_SIZE);
+		}
 
+		if(state == WIN)
+		{
 			CAT_gui_panel((CAT_ivec2) {1, 1}, (CAT_ivec2) {13, 18});
 			CAT_gui_set_flag(CAT_GUI_WRAP_TEXT);
-			CAT_gui_text("Kaboom!\n\nYour exploration has come to an explosive end.\n\nPress A or B to return from whence you came.");
+			CAT_gui_text("All Clear!\nThe fields are safe.\nFor your diligent work, you've earned a commemorative prop.\nFind it in your bag!");
+			CAT_gui_line_break();
+			CAT_gui_line_break();
+			CAT_gui_image(&prop_mine_sprite, 0);
+			CAT_gui_text(" +1");
 		}
 		else
 		{
-			for(int x = 0; x < GRID_WIDTH; x++)
-			{
-				CAT_draw_sprite(&coin_world_sprite, 0, x * CAT_TILE_SIZE, 0);
-				CAT_draw_sprite(&coin_world_sprite, 0, x * CAT_TILE_SIZE, (GRID_HEIGHT-1) * CAT_TILE_SIZE);
-			}
-			for(int y = 0; y < GRID_HEIGHT; y++)
-			{
-				CAT_draw_sprite(&coin_world_sprite, 0, 0, y * CAT_TILE_SIZE);
-				CAT_draw_sprite(&coin_world_sprite, 0, (GRID_WIDTH-1) * CAT_TILE_SIZE, y * CAT_TILE_SIZE);
-			}
-
 			CAT_gui_panel((CAT_ivec2) {1, 1}, (CAT_ivec2) {13, 18});
 			CAT_gui_set_flag(CAT_GUI_WRAP_TEXT);
-			CAT_gui_text("All Clear!\nThe fields are safe.");
+			CAT_gui_text("Kaboom!\n\nYour exploration has come to an explosive end.\n\nPress A or B to return from whence you came.");
 		}	
 	}
 }

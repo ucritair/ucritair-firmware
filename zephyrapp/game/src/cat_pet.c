@@ -10,6 +10,7 @@
 #include "cat_input.h"
 #include "cat_gui.h"
 #include "cat_bag.h"
+#include <string.h>
 
 CAT_pet pet;
 
@@ -38,7 +39,7 @@ void CAT_pet_init()
 	pet.petting_timer_id = CAT_timer_init(CAT_PET_COOLDOWN_SECS);
 	pet.times_milked = 0;
 
-	pet.name[0] = '\0';
+	strcpy(pet.name, "Waldo");
 }
 
 void CAT_pet_reanimate()
@@ -166,9 +167,9 @@ void CAT_pet_reposition()
 
 void CAT_pet_stat(int ticks)
 {
-	int mask = CAT_item_list_find(&bag, mask_item) != -1;
-	int pure = CAT_room_find(prop_purifier_item) != -1;
-	int uv = CAT_room_find(prop_uv_lamp_item) != -1;
+	bool mask = CAT_item_list_find(&bag, mask_item) != -1;
+	bool pure = CAT_room_find(prop_purifier_item) != -1;
+	bool uv = CAT_room_find(prop_uv_lamp_item) != -1;
 
 	float dv_aq =
 	(
