@@ -70,6 +70,7 @@ void menu_t_erase_logs()
 {
 	flash_erase_all_cells();
 	system_menu_note = "Done :)";
+	reset_aqi_view_cell();
 }
 
 void menu_t_write_logs()
@@ -216,10 +217,7 @@ void CAT_render_system_menu()
 		CAT_gui_text("");
 		CAT_gui_line_break();
 
-		int pct = ((adc_get_voltage()-3.6)/(4.2-3.6))*100.;
-		pct -= pct % 5;
-		if (pct>100) pct=100;
-		CAT_gui_textf("Battery: %3d%%", pct);
+		CAT_gui_textf("Battery: %3d%%", get_battery_pct());
 	}
 	else
 	{

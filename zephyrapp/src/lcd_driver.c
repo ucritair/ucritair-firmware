@@ -3,6 +3,7 @@
 #include <zephyr/drivers/gpio.h>
 #include <zephyr/drivers/pwm.h>
 #include <zephyr/drivers/display.h>
+#include <zephyr/pm/device.h>
 
 #include "lcd_driver.h"
 #include "display_pinctrl.h"
@@ -86,6 +87,30 @@ void set_backlight(int pct)
 	// // nrf_gpio_pin_control_select(NRF_GPIO_PIN_MAP(1, pin_lcd_backlight.pin), NRF_GPIO_PIN_SEL_APP);
 	// LOG_DBG("backlight turn on");
 	// pin_write(&pin_lcd_backlight, true);
+
+	// enum pm_device_state state;
+	// if (pm_device_state_get(pwm_led0.dev, &state))
+	// {
+	// 	LOG_ERR("Failed to get state");
+	// }
+
+	// if (pct == 0)
+	// {
+	// 	if (state != PM_DEVICE_STATE_SUSPENDED)
+	// 	{
+	// 		LOG_INF("Invoke PM_DEVICE_ACTION_SUSPEND");
+	// 		pm_device_action_run(pwm_led0.dev, PM_DEVICE_ACTION_SUSPEND);
+	// 	}
+	// }
+	// else
+	// {
+	// 	if (state == PM_DEVICE_STATE_SUSPENDED)
+	// 	{
+	// 		LOG_INF("Invoke PM_DEVICE_ACTION_RESUME");
+	// 		pm_device_action_run(pwm_led0.dev, PM_DEVICE_ACTION_RESUME);
+	// 	}
+		
+	// }
 
 	pwm_set_dt(&pwm_led0, 1e+6, pct*1e+4);
 }

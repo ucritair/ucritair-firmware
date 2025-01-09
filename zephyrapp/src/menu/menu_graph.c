@@ -200,6 +200,8 @@ void calc_ach();
 int step_times[] = {3*60, 2*60, 1*60, 30, 15, 10, 5, 10*60, 5*60,};
 int step_time_index = 0;
 
+int day_scroll_accel = 1;
+
 void CAT_MS_graph(CAT_machine_signal signal)
 {
 	switch(signal)
@@ -243,17 +245,23 @@ void CAT_MS_graph(CAT_machine_signal signal)
 				}
 			}
 
-			if(CAT_input_pressed(CAT_BUTTON_UP))
+			if(CAT_input_held(CAT_BUTTON_UP, 0.1) || CAT_input_pressed(CAT_BUTTON_UP))
 			{
-				graph_end_time += 60*60*24;
+				graph_end_time += 60*60*24 * MAX(1, day_scroll_accel-10);
 				graph_end_time = MIN(graph_end_time, get_current_rtc_time() - 1);
-				update_graph();
+				day_scroll_accel += 1;
 			}
 
-			if (CAT_input_pressed(CAT_BUTTON_DOWN))
+			if (CAT_input_held(CAT_BUTTON_DOWN, 0.1) || CAT_input_pressed(CAT_BUTTON_DOWN))
 			{
-				graph_end_time -= 60*60*24;
+				graph_end_time -= 60*60*24 * MAX(1, day_scroll_accel-10);
+				day_scroll_accel += 1;
+			}
+
+			if (CAT_input_released(CAT_BUTTON_UP) || CAT_input_released(CAT_BUTTON_DOWN))
+			{
 				update_graph();
+				day_scroll_accel = 1;
 			}
 
 			if (CAT_input_pressed(CAT_BUTTON_SELECT) && cursor_state == SEL_START)
@@ -279,12 +287,12 @@ void CAT_MS_graph(CAT_machine_signal signal)
 			{
 				int* sel_cursor = cursor_state==SEL_END?&cursor_end:&cursor_start;
 
-				if(CAT_input_held(CAT_BUTTON_LEFT, 0))
+				if(CAT_input_held(CAT_BUTTON_LEFT, 0.05))
 				{
 					*sel_cursor -= MAX(1, cursor_velocity-10);
 					cursor_velocity += 1;
 				}
-				else if(CAT_input_held(CAT_BUTTON_RIGHT, 0))
+				else if(CAT_input_held(CAT_BUTTON_RIGHT, 0.05))
 				{
 					*sel_cursor += MAX(1, cursor_velocity-10);
 					cursor_velocity += 1;
@@ -432,14 +440,19 @@ void CAT_render_graph()
 	struct tm t;
 	gmtime_r(&graph_end_time, &t); 
 
-	CAT_gui_textf("%s Graph - %d/%d/%d", get_name(), t.tm_mon, t.tm_mday, t.tm_year);
+	CAT_gui_textf("%s Graph - ", get_name());
+	CAT_gui_image(&icon_n_sprite, 1);
+	CAT_gui_textf("%d/%d/%d", t.tm_mon+1, t.tm_mday, t.tm_year);
+	CAT_gui_image(&icon_s_sprite, 1);
 	CAT_gui_line_break();
 
 	CAT_do_render_graph(graph_data, graph_max, GRAPH_PAD, gui.cursor.y, cursor_start, cursor_state>SEL_START?cursor_end:-1);
 
 	gui.cursor.y += GRAPH_H+GRAPH_PAD*2+GRAPH_MARGIN*2;
 
+	if (cursor_state == SEL_START) CAT_gui_image(&icon_w_sprite, 1);
 	text_cursor("Start:", cursor_start);
+	if (cursor_state == SEL_START) CAT_gui_image(&icon_e_sprite, 1);
 	CAT_gui_line_break();
 
 	int end_val = 0;
@@ -452,7 +465,9 @@ void CAT_render_graph()
 
 	if (cursor_state > SEL_START)
 	{
+		if (cursor_state == SEL_END) CAT_gui_image(&icon_w_sprite, 1);
 		end_val = text_cursor("End  :", cursor_end);
+		if (cursor_state == SEL_END) CAT_gui_image(&icon_e_sprite, 1);
 		CAT_gui_line_break();
 	}
 

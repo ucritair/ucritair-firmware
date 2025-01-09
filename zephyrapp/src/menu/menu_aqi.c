@@ -24,6 +24,11 @@ int aqi_view_cell = AQI_VIEW_CELL_LATEST;
 int last_fetched_aqi_view_cell = AQI_VIEW_CELL_LATEST;
 struct flash_log_cell view_cell;
 
+void reset_aqi_view_cell()
+{
+	aqi_view_cell = AQI_VIEW_CELL_LATEST;
+}
+
 bool view_pn = false;
 
 void CAT_MS_aqi(CAT_machine_signal signal)

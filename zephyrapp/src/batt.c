@@ -119,3 +119,11 @@ int init_adc(void)
 	adc_get_voltage();
 	adc_get_voltage();
 }
+
+int get_battery_pct()
+{
+	int pct = ((adc_get_voltage()-3.6)/(4.2-3.6))*100.;
+	pct -= pct % 5;
+	if (pct>100) pct=100;
+	return pct;
+}

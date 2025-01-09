@@ -109,6 +109,8 @@ void lcd_render_diag()
 
 	int last_lockmask = 0;
 
+	bool charging_last_frame = false;
+
 	while (1)
 	{
 #ifndef MINIMIZE_GAME_FOOTPRINT
@@ -141,6 +143,8 @@ void lcd_render_diag()
 		update_rtc();
 		update_buttons();
 
+		bool is_charging = get_is_charging();
+
 		if (adc_get_voltage() > 0.2 && adc_get_voltage() < 3.6 && !get_is_charging())
 		{
 			LOG_INF("lcd_rendering batt voltage poweroff");
@@ -156,7 +160,7 @@ void lcd_render_diag()
 		last_frame_time = now - last_ms;
 		last_ms = now;
 
-		if (current_buttons || touch_pressure || co2_calibrating || get_is_charging())
+		if (current_buttons || touch_pressure || co2_calibrating || (charging_last_frame != is_charging))
 		{
 			last_button_pressed = now;
 			set_backlight(screen_brightness);
@@ -164,18 +168,27 @@ void lcd_render_diag()
 
 		int time_since_buttons = now - last_button_pressed;
 
-		if (time_since_buttons > dim_after_seconds*1000)
+		if (time_since_buttons > sleep_after_seconds*1000)
+		{
+			if (!is_charging)
+			{
+				LOG_INF("Sleeping");
+				// TODO: Save game
+				epaper_render_test();
+				power_off(sensor_wakeup_rate*1000, false);
+			}
+			else
+			{
+				set_backlight(0);
+				// set_backlight(MAX(10, screen_brightness>>2));
+			}
+		}
+		else if (time_since_buttons > dim_after_seconds*1000)
 		{
 			set_backlight(MAX(10, screen_brightness>>1));
 		}
 
-		if (time_since_buttons > sleep_after_seconds*1000)
-		{
-			LOG_INF("Sleeping");
-			// TODO: Save game
-			epaper_render_test();
-			power_off(sensor_wakeup_rate*1000, false);
-		}
+		charging_last_frame = is_charging;
 
 		int lockmask = 0;
 
