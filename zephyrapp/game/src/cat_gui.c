@@ -191,14 +191,14 @@ static const char** typecases[] =
 	(const char*[]) {
 		"0123456789\x06",
 		"QWERTYUIOP",
-		"ASDFGHJKL\x07\x09",
-		"ZXCVBNM\x08"
+		"ASDFGHJKL",
+		"ZXCVBNM_\x08"
 	},
 	(const char*[]) {
 		"0123456789\x06",
 		"qwertyuiop",
-		"asdfghjkl\x07\x09",
-		"zxcvbnm\x08"
+		"asdfghjkl",
+		"zxcvbnm_\x08"
 	}
 };
 
@@ -262,14 +262,25 @@ void CAT_gui_keyboard_io()
 		gui_close_keyboard();
 	
 	const char** typecase = typecases[keyboard.case_idx];
-
 	if(CAT_input_pulse(CAT_BUTTON_UP))
 		keyboard.row_idx -= 1;
 	if(CAT_input_pulse(CAT_BUTTON_DOWN))
 		keyboard.row_idx += 1;
-	keyboard.row_idx = clamp(keyboard.row_idx, 0, 3);
-	const char* row = typecase[keyboard.row_idx];
+	keyboard.row_idx = clamp(keyboard.row_idx, 0, 4);
 
+	if(keyboard.row_idx >= 4)
+	{
+		if(CAT_input_pressed(CAT_BUTTON_A))
+		{
+			if(keyboard.target != NULL)
+			{
+				strcpy(keyboard.target, keyboard.buffer);
+			}
+			gui_close_keyboard();
+		}
+	}
+
+	const char* row = typecase[keyboard.row_idx];
 	if(CAT_input_pulse(CAT_BUTTON_RIGHT))
 		keyboard.glyph_idx += 1;
 	if(CAT_input_pulse(CAT_BUTTON_LEFT))
@@ -278,7 +289,7 @@ void CAT_gui_keyboard_io()
 
 	if(CAT_input_pressed(CAT_BUTTON_A))
 	{
-		const char glyph = row[keyboard.glyph_idx];
+		char glyph = row[keyboard.glyph_idx];
 		if(glyph == 6)
 		{
 			if(keyboard.cursor > 0)
@@ -288,20 +299,11 @@ void CAT_gui_keyboard_io()
 				keyboard.cursor_timer = 0;
 			}
 		}
-		else if(glyph == 7)
-		{
-			if(keyboard.target != NULL)
-			{
-				strcpy(keyboard.target, keyboard.buffer);
-			}
-			gui_close_keyboard();
-		}
 		else if(glyph == 8)
 			keyboard.case_idx = !keyboard.case_idx;
-		else if(glyph == 9)
-			gui_close_keyboard();
 		else 
 		{
+			glyph = (glyph == '_') ? ' ' : glyph;
 			if(keyboard.cursor < 31)
 			{
 				keyboard.buffer[keyboard.cursor] = glyph;
@@ -348,4 +350,8 @@ void CAT_gui_keyboard()
 		y_w += CAT_GLYPH_HEIGHT + 8;
 		x_w = gui.margin * 2;
 	}
+	gui.cursor = (CAT_ivec2){x_w, y_w + 2};
+	CAT_gui_text("SAVE");
+	if(keyboard.row_idx >= 4)
+		CAT_strokeberry(x_w - 2, y_w, 4 * CAT_GLYPH_WIDTH + 4, CAT_GLYPH_HEIGHT + 4, 0x0000);
 }

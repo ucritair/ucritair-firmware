@@ -16,7 +16,7 @@ def is_version_def(tokens):
 		return False;
 	return True;
 
-file = open("src/cat_version.h", "r");
+file = open("src/core/cat_version.h", "r");
 lines = file.read().split("\n");
 file.close();
 lines = [line.strip() for line in lines];
