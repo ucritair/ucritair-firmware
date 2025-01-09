@@ -6,7 +6,6 @@
 #include "cat_machine.h"
 #include "cat_sprite.h"
 #include "cat_version.h"
-#include "cat_manual.h"
 #include "cat_vending.h"
 #include "cat_arcade.h"
 #include "cat_bag.h"
@@ -32,13 +31,15 @@ void name_proc()
 	CAT_gui_open_keyboard(pet.name);
 }
 
-static CAT_menu_node name_menu =
+static CAT_menu_node menu_node_name =
 {
 	.title = "PET NAME",
 	.proc = name_proc,
 	.state = NULL,
 	.children = { NULL },
 };
+
+extern CAT_menu_node menu_node_themes;
 
 static CAT_menu_node menu_node_settings =
 {
@@ -47,7 +48,8 @@ static CAT_menu_node menu_node_settings =
 	.state = NULL,
 	.children =
 	{
-		&name_menu,
+		&menu_node_name,
+		&menu_node_themes,
 		NULL
 	},
 };
@@ -172,7 +174,7 @@ void CAT_MS_menu(CAT_machine_signal signal)
 		case CAT_MACHINE_SIGNAL_TICK:
 		{
 			CAT_input_ask(0);
-			
+
 			if(CAT_input_pressed(CAT_BUTTON_B))
 			{
 				pop();

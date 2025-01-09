@@ -239,7 +239,7 @@ void CAT_gui_open_keyboard(char* target)
 	keyboard.row_idx = 0;
 	keyboard.glyph_idx = 0;
 
-	if(CAT_input_commandeer(1))
+	if(CAT_input_enforce(1))
 		CAT_input_clear();
 }
 
@@ -256,9 +256,10 @@ bool CAT_gui_keyboard_is_open()
 
 void CAT_gui_keyboard()
 {
+	CAT_input_ask(1);
+
 	if(CAT_input_pressed(CAT_BUTTON_B))
 		gui_close_keyboard();
-	CAT_input_ask(1);
 	
 	const char** typecase = typecases[keyboard.case_idx];
 
@@ -316,8 +317,9 @@ void CAT_gui_keyboard()
 		keyboard.cursor_timer = 0.0f;
 		keyboard.show_cursor = !keyboard.show_cursor;
 	}
-		
+	
 	CAT_gui_panel((CAT_ivec2){0, 10}, (CAT_ivec2){15, 10});
+	CAT_rowberry(0, 160, LCD_SCREEN_W, 0x0000);
 	CAT_gui_text(keyboard.buffer);
 	if(keyboard.show_cursor)
 		CAT_gui_text("|");

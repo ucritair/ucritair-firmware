@@ -1,4 +1,4 @@
-#include "cat_manual.h"
+#include "cat_menu.h"
 
 #include "cat_machine.h"
 #include "cat_sprite.h"

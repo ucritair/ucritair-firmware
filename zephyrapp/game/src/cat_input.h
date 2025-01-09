@@ -23,7 +23,7 @@ void CAT_input_init();
 void CAT_input_tick();
 void CAT_input_clear();
 
-bool CAT_input_commandeer(int layer);
+bool CAT_input_enforce(int layer);
 void CAT_input_ask(int layer);
 void CAT_input_yield();
 

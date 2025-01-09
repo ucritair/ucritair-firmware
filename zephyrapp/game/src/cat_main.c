@@ -24,7 +24,6 @@
 #include "cat_bag.h"
 #include "cat_arcade.h"
 #include "cat_vending.h"
-#include "cat_manual.h"
 #include "cat_deco.h"
 #include "cat_item_dialog.h"
 

@@ -77,7 +77,7 @@ void CAT_input_clear()
 	}
 }
 
-bool CAT_input_commandeer(int layer)
+bool CAT_input_enforce(int layer)
 {
 	if(layer > arbiter)
 	{

@@ -24,8 +24,8 @@ void CAT_MS_vending(CAT_machine_signal signal)
 		case CAT_MACHINE_SIGNAL_ENTER:
 			base = 0;
 			selector = 0;
-
 			purchase_lock = false;
+			CAT_input_clear();
 			break;
 		case CAT_MACHINE_SIGNAL_TICK:
 		{
