@@ -28,6 +28,7 @@
 #include "cat_item_dialog.h"
 
 #include "cat_version.h"
+#include "theme_assets.h"
 
 #ifdef CAT_EMBEDDED
 #include "menu_time.h"
@@ -136,6 +137,8 @@ void CAT_force_save()
 
 	strcpy(save->name, pet.name);
 
+	save->theme = (room.theme - &base_theme);
+
 	save->magic_number = CAT_SAVE_MAGIC;
 	CAT_finish_save(save);
 }
@@ -193,6 +196,8 @@ void CAT_force_load()
 	pet.times_milked = save->times_milked;
 
 	strcpy(pet.name, save->name);
+
+	room.theme = (&base_theme + save->theme);
 
 	CAT_finish_load();
 }

@@ -53,7 +53,7 @@ text = ("#pragma once\n"
 		f"#define CAT_VERSION_PATCH {patch}\n"
 		f"#define CAT_VERSION_PUSH {push}\n");
 
-file = open("src/cat_version.h", "w");
+file = open("src/core/cat_version.h", "w");
 file.write(text);
 file.close();
 	

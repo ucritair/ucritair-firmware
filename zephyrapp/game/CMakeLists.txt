@@ -19,13 +19,13 @@ if(NOT TARGET app)
 	endif()
 	
 	target_compile_options(app PRIVATE -Wall)
-	target_sources(app PRIVATE src/cat_desktop.c)
+	target_sources(app PRIVATE src/core/cat_desktop.c)
 else()
 	message(WARNING "Building for embedded")
 
 	target_compile_definitions(app PRIVATE CAT_EMBEDDED=1)
 	
-	target_sources(app PRIVATE src/cat_embedded.c)
+	target_sources(app PRIVATE src/core/cat_embedded.c)
 endif()
 
 add_custom_command(
@@ -61,7 +61,8 @@ add_custom_command(
 )
 
 target_sources(app PRIVATE
-	src/cat_aqi.c
+	src/core/cat_aqi.c
+
 	src/cat_gui.c
 	src/cat_input.c
 	src/cat_item.c
@@ -76,7 +77,7 @@ target_sources(app PRIVATE
 	src/cat_pet.c
 	src/cat_item_dialog.c
 
-	src/cat_menu.c
+	src/menu/cat_menu.c
 	src/menu/cat_menu_insights.c
 	src/menu/cat_menu_manual.c
 	src/menu/cat_menu_themes.c
@@ -85,7 +86,7 @@ target_sources(app PRIVATE
 	src/menu/cat_menu_cheats.c
 	src/menu/cat_menu_debug.c
 
-	src/cat_arcade.c
+	src/arcade/cat_arcade.c
 	src/arcade/cat_arcade_snake.c
 	src/arcade/cat_arcade_mines.c
 	src/arcade/cat_arcade_crawl.c
@@ -99,6 +100,10 @@ target_sources(app PRIVATE
 	src/cat_main.c)
 
 target_include_directories(app PRIVATE src/)
+target_include_directories(app PRIVATE src/core)
+target_include_directories(app PRIVATE src/menu)
+target_include_directories(app PRIVATE src/arcade)
+
 target_include_directories(app PRIVATE sounds/)
 target_include_directories(app PRIVATE meshes/)
 target_include_directories(app PRIVATE sprites/)

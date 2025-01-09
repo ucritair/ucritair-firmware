@@ -130,6 +130,8 @@ typedef struct __attribute__((__packed__)) CAT_save
 	int times_milked;
 
 	char name[32];
+
+	unsigned long int theme;
 } CAT_save;
 
 // Call to start saving, then populate the returned CAT_save*
