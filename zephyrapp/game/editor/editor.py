@@ -445,10 +445,13 @@ class PreviewSprite:
 		return result;
 
 	def __init__(self, sprite):
-		self.image = Image.open(os.path.join("sprites", sprite["path"]));
+		path = Path(os.path.join("sprites", sprite["path"]));
+		if not path.exists() or not path.is_file():
+			path = Path(os.path.join("sprites", "null.png"));
+		self.image = Image.open(path);
 		self.width = self.image.width;
 		self.height = self.image.height;
-		self.frame_count = sprite["frames"];
+		self.frame_count = max(sprite["frames"], 1);
 		self.frame_width = self.width;
 		self.frame_height = self.height // self.frame_count;
 		self.frame_images = [self.__make_frame(i) for i in range(self.frame_count)];

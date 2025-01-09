@@ -1736,6 +1736,14 @@
             "frames": 1,
             "width": 24,
             "height": 24
+        },
+        {
+            "id": 213,
+            "name": "icon_charging",
+            "path": "ui/charging_battery_alt.png",
+            "frames": 1,
+            "width": 32,
+            "height": 32
         }
     ]
 }

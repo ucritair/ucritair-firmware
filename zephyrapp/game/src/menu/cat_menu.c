@@ -130,18 +130,20 @@ static CAT_menu_node root =
 	.children =
 	{
 		&menu_node_insights,
-		&menu_node_settings,
+		&menu_node_settings,	
 		&menu_node_bag,
 		&menu_node_vending,
 		&menu_node_arcade,
+		&menu_node_magic,
 #ifdef CAT_EMBEDDED
 		&menu_node_air,
 		&menu_node_system,
 #endif
-		&menu_node_magic,
-		&menu_node_manual,
+#ifdef CAT_DEBUG
 		&menu_node_debug,
 		&menu_node_cheats,
+#endif
+		&menu_node_manual,
 		NULL
 	},
 };

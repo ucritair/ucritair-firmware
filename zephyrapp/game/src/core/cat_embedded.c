@@ -12,6 +12,7 @@
 #include "sound.h"
 #include "rgb_leds.h"
 #include "batt.h"
+#include "power_control.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // CORE
@@ -60,6 +61,16 @@ void CAT_ink_post(uint8_t* buffer){}
 bool CAT_ink_is_posted()
 {
 	return true;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// LEDs
+
+void CAT_set_LEDs(uint8_t r, uint8_t g, uint8_t b)
+{
+#define SCALE 4
+	set_all_same_color((struct led_rgb){.r=r>>SCALE, .g=g>>SCALE, .b=b>>SCALE});
 }
 
 
@@ -169,10 +180,9 @@ int CAT_get_battery_pct()
 	return ((adc_get_voltage()-3.6)/(4.2-3.6))*100.;
 }
 
-void CAT_set_LEDs(uint8_t r, uint8_t g, uint8_t b)
+bool CAT_is_charging()
 {
-#define SCALE 4
-	set_all_same_color((struct led_rgb){.r=r>>SCALE, .g=g>>SCALE, .b=b>>SCALE});
+	return get_is_charging();
 }
 
 

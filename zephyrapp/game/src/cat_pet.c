@@ -16,7 +16,9 @@ CAT_pet pet;
 
 bool is_critical()
 {
-	return pet.vigour <= 0 || pet.focus <= 0 || pet.spirit <= 0 || CAT_get_battery_pct() < CAT_CRITICAL_BATTERY_PCT;
+	return 
+	(pet.vigour <= 0 || pet.focus <= 0 || pet.spirit <= 0) ||
+	(CAT_get_battery_pct() < CAT_CRITICAL_BATTERY_PCT && !CAT_is_charging());
 }
 
 void CAT_pet_init()
@@ -25,6 +27,7 @@ void CAT_pet_init()
 	pet.focus = 9;
 	pet.spirit = 9;
 	pet.lifetime = 0;
+	pet.level = 1;
 
 	pet.pos = (CAT_vec2) {120, 200};
 	pet.dir = (CAT_vec2) {0, 0};

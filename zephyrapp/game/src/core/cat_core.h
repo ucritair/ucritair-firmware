@@ -156,6 +156,7 @@ static inline bool CAT_check_save(CAT_save* save)
 #define CAT_CRITICAL_BATTERY_PCT 10
 
 int CAT_get_battery_pct();
+bool CAT_is_charging();
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

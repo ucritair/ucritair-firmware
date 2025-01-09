@@ -666,14 +666,22 @@ void render_statics()
 	else
 		CAT_draw_queue_add(&window_night_sprite, 0, STATICS_LAYER, 8, 8, CAT_DRAW_MODE_DEFAULT);
 	
-	battery_blink_timer += CAT_get_delta_time();
-	if(battery_blink_timer >= 0.5f)
+	
+	if(CAT_is_charging())
 	{
-		battery_blink_timer = 0;
-		battery_blink_switch = !battery_blink_switch;
+		CAT_draw_queue_add(&icon_charging, 0, STATICS_LAYER + 1, 66, 37, CAT_DRAW_MODE_CENTER_X | CAT_DRAW_MODE_CENTER_Y);
 	}
-	if(CAT_get_battery_pct() <= CAT_CRITICAL_BATTERY_PCT && battery_blink_switch)
-		CAT_draw_queue_add(&icon_low_battery_alt, 0, STATICS_LAYER + 1, 66, 37, CAT_DRAW_MODE_CENTER_X | CAT_DRAW_MODE_CENTER_Y);
+	else
+	{
+		battery_blink_timer += CAT_get_delta_time();
+		if(battery_blink_timer >= 0.5f)
+		{
+			battery_blink_timer = 0;
+			battery_blink_switch = !battery_blink_switch;
+		}
+		if(CAT_get_battery_pct() <= CAT_CRITICAL_BATTERY_PCT && battery_blink_switch)
+			CAT_draw_queue_add(&icon_low_battery_alt, 0, STATICS_LAYER + 1, 66, 37, CAT_DRAW_MODE_CENTER_X | CAT_DRAW_MODE_CENTER_Y);
+	}
 	
 	CAT_draw_queue_add(&vending_sprite, -1, STATICS_LAYER, 172, 16, CAT_DRAW_MODE_DEFAULT);
 	CAT_draw_queue_add(&arcade_sprite, -1, STATICS_LAYER, 124, 48, CAT_DRAW_MODE_DEFAULT);

@@ -17,6 +17,7 @@ typedef struct CAT_pet
 	int focus;
 	int spirit;
 	int lifetime;
+	int level;
 
 	CAT_vec2 pos;
 	CAT_vec2 dir;
@@ -24,6 +25,7 @@ typedef struct CAT_pet
 	
 	int stat_timer_id;
 	int life_timer_id;
+
 	int walk_timer_id;
 	int react_timer_id;
 
