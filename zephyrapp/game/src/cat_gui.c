@@ -278,6 +278,7 @@ void CAT_gui_keyboard_io()
 			}
 			gui_close_keyboard();
 		}
+		return;
 	}
 
 	const char* row = typecase[keyboard.row_idx];
