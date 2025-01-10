@@ -1752,6 +1752,14 @@
             "frames": 1,
             "width": 32,
             "height": 32
+        },
+        {
+            "id": 215,
+            "name": "enemy_sprite",
+            "path": "minigame/enemy.png",
+            "frames": 1,
+            "width": 32,
+            "height": 32
         }
     ]
 }

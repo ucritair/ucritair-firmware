@@ -48,37 +48,4 @@ void CAT_do_render_graph(int16_t* data, int max, int xoff, int yoff, int cursor_
 		CAT_lineberry(xoff+cursor_start, yoff, xoff+cursor_start, yoff+framebuffer_offset_h+GRAPH_H-1, 0x07E0);
 	if(cursor_end >= 0 && cursor_end < GRAPH_W)
 		CAT_lineberry(xoff+cursor_end, yoff, xoff+cursor_end, yoff+framebuffer_offset_h+GRAPH_H-1, 0xF800);
-
-	/*int last_rendered_h = -1;
-
-	for (int x = 0; x < GRAPH_W; x++)
-	{
-		int h = data[x];
-		
-		if (x==cursor_start)
-		{
-			for (int i = 0; i < GRAPH_H; i++)
-			{
-				plot_px(xoff+x, yoff+i, 0x000f);
-			}
-		}
-
-		if (x==cursor_end)
-		{
-			for (int i = 0; i < GRAPH_H; i++)
-			{
-				plot_px(xoff+x, yoff+i, 0x00f0);
-			}
-		}
-
-		if (h == -1)
-		{
-			continue;
-		}
-
-		while (h--)
-		{
-			plot_px(xoff+x, yoff + GRAPH_H - h, 0xf000);
-		}
-	}*/
 }

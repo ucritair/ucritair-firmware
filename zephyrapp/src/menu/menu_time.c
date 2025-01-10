@@ -141,13 +141,7 @@ void do_edit_clock_field(enum which which)
 
 void CAT_render_time()
 {
-	CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});  
-	CAT_gui_text("SET TIME ");
-	CAT_gui_image(&icon_b_sprite, 1);
-	CAT_gui_image(&icon_exit_sprite, 0);
-
-	CAT_gui_line_break();
-
+	CAT_gui_title(false, NULL, &icon_exit_sprite, "SET TIME");
 	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
 	
 	time_t now = get_current_rtc_time();
