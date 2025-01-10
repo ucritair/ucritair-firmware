@@ -342,8 +342,11 @@ manifest:
     - name: zcbor
       revision: 47f34dd7f5284e8750b5a715dee7f77c6c5bdc3f
       path: modules/lib/zcbor
+    - name: zephyr
+      revision: 03959a20f7834ffe50a51df2b2e45ef87d1b610b
+      path: zephyr
 
   self:
-    path: zephyr
-    west-commands: scripts/west-commands.yml
-    import: submanifests
+    path: cat_software
+#    west-commands: scripts/west-commands.yml
+#    import: submanifests

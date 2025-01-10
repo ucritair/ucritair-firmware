@@ -197,7 +197,9 @@ int cursor_velocity = 1;
 
 void calc_ach();
 
-int step_times[] = {3*60, 2*60, 1*60, 30, 15, 10, 5, 10*60, 5*60,};
+#define STEPH(x) ((3600.*x)/(float)GRAPH_W)
+
+int step_times[] = {STEPH(24), STEPH(12.05), STEPH(6), STEPH(3), STEPH(1), STEPH(0.5), STEPH(0.25), STEPH(0.125)};
 int step_time_index = 0;
 
 int day_scroll_accel = 1;
@@ -209,8 +211,8 @@ void CAT_MS_graph(CAT_machine_signal signal)
 		case CAT_MACHINE_SIGNAL_ENTER:
 		{
 			graph_end_time = get_current_rtc_time();
-			graph_step_time = 3*60;
 			step_time_index = 0;
+			graph_step_time = step_times[step_time_index];
 			cursor_state = SEL_START;
 			viewing = 0;
 			cursor_end = GRAPH_W-1;
