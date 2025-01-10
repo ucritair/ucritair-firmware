@@ -144,6 +144,9 @@ void CAT_force_save()
 		}
 	}
 
+	save->level = pet.level;
+	save->xp = pet.xp;
+
 	save->magic_number = CAT_SAVE_MAGIC;
 	CAT_finish_save(save);
 }
@@ -209,6 +212,9 @@ void CAT_force_load()
 		room.theme = themes_list[save->theme];
 	else
 		room.theme = themes_list[0];
+
+	pet.level = save->level;
+	pet.xp = save->xp;
 
 	CAT_finish_load();
 }

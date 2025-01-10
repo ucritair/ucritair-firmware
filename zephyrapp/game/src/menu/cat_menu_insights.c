@@ -8,6 +8,7 @@
 #include "cat_sprite.h"
 #include "cat_bag.h"
 #include <string.h>
+#include "stats.h"
 
 void CAT_MS_insights(CAT_machine_signal signal)
 {
@@ -38,7 +39,7 @@ void CAT_render_insights()
 	);
 	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
 
-	CAT_gui_text(pet.name);
+	CAT_gui_textf("LV%d %s, %d/%d XP", pet.level, pet.name, pet.xp, level_cutoffs[pet.level-1]);
 	CAT_gui_line_break();
 	CAT_gui_image(AS_idle.tick_anim_id, 0); 
 	CAT_gui_textf("%d days old", pet.lifetime);

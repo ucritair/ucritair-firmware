@@ -132,6 +132,9 @@ typedef struct __attribute__((__packed__)) CAT_save
 	char name[32];
 
 	unsigned long int theme;
+
+	int level;
+	int xp;
 } CAT_save;
 
 // Call to start saving, then populate the returned CAT_save*

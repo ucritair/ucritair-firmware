@@ -11,6 +11,7 @@
 #include "cat_gui.h"
 #include "cat_bag.h"
 #include <string.h>
+#include "stats.h"
 
 CAT_pet pet;
 
@@ -171,46 +172,40 @@ void CAT_pet_reposition()
 
 void CAT_pet_stat(int ticks)
 {
+	float goodness = CAT_AQI_aggregate();
+	int delta = goodness < 0.35f ? 2 : 1;
+
+	pet.vigour = clamp(pet.vigour - delta * ticks, 0, 12);
+	pet.focus = clamp(pet.focus - delta * ticks, 0, 12);
+	pet.spirit = clamp(pet.spirit - delta * ticks, 0, 12);
+
 	bool mask = CAT_item_list_find(&bag, mask_item) != -1;
 	bool pure = CAT_room_find(prop_purifier_item) != -1;
 	bool uv = CAT_room_find(prop_uv_lamp_item) != -1;
 
-	float dv_aq =
-	(
-		CAT_pm25_score(aqi.sen5x.pm2_5) +
-		CAT_nox_score(aqi.sen5x.nox_index) +
-		CAT_voc_score(aqi.sen5x.voc_index)
-	) * 0.25f;
-	float df_aq =
-	(
-		CAT_co2_score(aqi.sunrise.ppm_filtered_compensated) +
-		CAT_nox_score(aqi.sen5x.nox_index)
-	) * 0.33f;
-	float ds_aq =
-	(
-		CAT_co2_score(aqi.sunrise.ppm_filtered_compensated) +
-		CAT_temperature_score(CAT_mean_temp())
-	) * 0.33f;
-	if(dv_aq >= 1)
-		dv_aq -= pure;
-	if(df_aq >= 1)
-		df_aq -= uv;
-	if(ds_aq >= 1)
-		ds_aq -= mask;
-	
-	int dv = round(1 + dv_aq);
-	int df = round(1 + df_aq);
-	int ds = round(1 + ds_aq);
-
-	pet.vigour = clamp(pet.vigour - dv * ticks, 0, 12);
-	pet.focus = clamp(pet.focus - df * ticks, 0, 12);
-	pet.spirit = clamp(pet.spirit - ds * ticks, 0, 12);
+	//TODO: UNFAKE THIS
+	if(pet.vigour <= 0 || pet.focus <= 0 || pet.spirit <= 0)
+	{
+		float xp_delta = round(((float) level_cutoffs[pet.level-1]) * 0.1f);
+		xp_delta *= mask ? 0.75f : 1;
+		xp_delta *= pure ? 0.75f : 1;
+		xp_delta *= uv ? 0.75f : 1;
+		pet.xp -= xp_delta * ticks;
+	}
 }
-
 
 void CAT_pet_life(int ticks)
 {
 	pet.lifetime += ticks;
+
+	int xp = round(((pet.vigour + pet.focus + pet.spirit) / 3.0f) * 50.0f);
+	pet.xp += xp * ticks;
+	int cutoff = level_cutoffs[pet.level-1];
+	if(pet.xp >= cutoff)
+	{
+		pet.level += 1;
+		pet.xp -= cutoff;
+	}
 }
 
 static CAT_vec2 destination = {120, 200};

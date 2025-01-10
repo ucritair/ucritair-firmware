@@ -8,7 +8,7 @@
 #define CAT_DAY_SECS 86400
 
 #define CAT_LIFE_TICK_SECS (CAT_DAY_SECS)
-#define CAT_STAT_TICK_SECS (CAT_DAY_SECS / 12)
+#define CAT_STAT_TICK_SECS (CAT_DAY_SECS / 4)
 #define CAT_PET_COOLDOWN_SECS (CAT_MIN_SECS)
 
 typedef struct CAT_pet

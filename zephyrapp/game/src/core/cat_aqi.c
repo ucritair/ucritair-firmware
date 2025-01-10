@@ -228,6 +228,7 @@ void CAT_AQI_quantize(int* temp_idx, int* co2_idx, int* pm_idx, int* voc_idx, in
 	*temp_idx = 1;
 }
 
+// pct goodness
 float CAT_AQI_aggregate()
 {
     float temp = CAT_mean_temp();
