@@ -29,32 +29,30 @@ CAT_rect attack_rect = {{0, 0}, {32, 32}};
 
 #define MAX_ENEMY_COUNT 100
 static int enemy_id[MAX_ENEMY_COUNT];
-static int enemy_x[MAX_ENEMY_COUNT];
-static int enemy_y[MAX_ENEMY_COUNT];
-static enum {ALIVE, DEAD} enemy_status[MAX_ENEMY_COUNT];
+static float enemy_x[MAX_ENEMY_COUNT];
+static float enemy_y[MAX_ENEMY_COUNT];
+static float enemy_dx[MAX_ENEMY_COUNT];
+static float enemy_dy[MAX_ENEMY_COUNT];
 static int enemy_count;
 
-void spawn(int x, int y)
+void spawn()
 {
 	enemy_id[enemy_count] = enemy_count;
-	enemy_x[enemy_count] = x;
-	enemy_y[enemy_count] = y;
+	enemy_x[enemy_count] = CAT_rand_int(0, LCD_SCREEN_W-1);
+	enemy_y[enemy_count] = CAT_rand_int(0, LCD_SCREEN_H-1);
+	enemy_dx[enemy_count] = CAT_rand_float(-SPEED * 0.5f, SPEED * 0.5f);
+	enemy_dy[enemy_count] = CAT_rand_float(-SPEED * 0.5f, SPEED * 0.5f);
 	enemy_count += 1;
-}
-
-void swap(int* a, int* b)
-{
-	int temp = *a;
-	*a = *b;
-	*b = temp;
 }
 
 void kill(int idx)
 {
 	enemy_count -= 1;
-	swap(&enemy_id[idx], &enemy_id[enemy_count]);
-	swap(&enemy_x[idx], &enemy_x[enemy_count]);
-	swap(&enemy_y[idx], &enemy_y[enemy_count]);
+	enemy_id[idx] = enemy_id[enemy_count];
+	enemy_x[idx] = enemy_x[enemy_count];
+	enemy_y[idx] = enemy_y[enemy_count];
+	enemy_dx[idx] = enemy_dx[enemy_count];
+	enemy_dy[idx] = enemy_dy[enemy_count];
 }
 
 void CAT_MS_crawl(CAT_machine_signal signal)
@@ -63,11 +61,13 @@ void CAT_MS_crawl(CAT_machine_signal signal)
 	{
 		case CAT_MACHINE_SIGNAL_ENTER:
 		{
+			pos_x = 120;
+			pos_y = 160;
+
+			enemy_count = 0;
 			for(int i = 0; i < 20; i++)
 			{
-				int x = CAT_rand_int(0, LCD_SCREEN_W-1);
-				int y = CAT_rand_int(0, LCD_SCREEN_H-1);
-				spawn(x, y);
+				spawn();
 			}
 			break;
 		}
@@ -80,6 +80,16 @@ void CAT_MS_crawl(CAT_machine_signal signal)
 			{
 				if(CAT_input_held(keys[i], 0.0f))
 				{
+					pos_x += dx[i] * CAT_get_delta_time();
+					pos_y += dy[i] * CAT_get_delta_time();
+
+					walk_cycle_timer++;
+					if(walk_cycle_timer >= WALK_CYCLE_DURATION)
+					{
+						walk_cycle_idx = !walk_cycle_idx;
+						walk_cycle_timer = 0;
+					}
+
 					if(i != dir)
 					{
 						if(attack_timer < ATTACK_DURATION)
@@ -90,17 +100,7 @@ void CAT_MS_crawl(CAT_machine_signal signal)
 						if(!newer)
 							continue;
 					}
-				
 					dir = i;
-					pos_x += dx[dir] * CAT_get_delta_time();
-					pos_y += dy[dir] * CAT_get_delta_time();
-
-					walk_cycle_timer++;
-					if(walk_cycle_timer >= WALK_CYCLE_DURATION)
-					{
-						walk_cycle_idx = !walk_cycle_idx;
-						walk_cycle_timer = 0;
-					}
 				}
 			}
 
@@ -133,6 +133,18 @@ void CAT_MS_crawl(CAT_machine_signal signal)
 				}
 
 				attack_timer += 1;
+			}
+
+			for(int i = 0; i < enemy_count; i++)
+			{
+				enemy_x[i] += enemy_dx[i] * CAT_get_delta_time();
+				enemy_y[i] += enemy_dy[i] * CAT_get_delta_time();
+
+				if(enemy_x[i] < -32 || enemy_x[i] >= LCD_SCREEN_W + 32 || enemy_y[i] < -32 || enemy_y[i] >= LCD_SCREEN_H + 32)
+				{
+					kill(i);
+					spawn();
+				}
 			}
 					
 			break;
