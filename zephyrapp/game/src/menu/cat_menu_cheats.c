@@ -15,6 +15,7 @@ static CAT_menu_node money_cheat =
 	.title = "INSTANT CASH",
 	.proc = cheat_proc_money,
 	.state = NULL,
+	.selector = 0,
 	.children = { NULL },
 };
 
@@ -31,6 +32,7 @@ static CAT_menu_node base_stats_cheat =
 	.title = "BASE STATS",
 	.proc = cheat_proc_base_stats,
 	.state = NULL,
+	.selector = 0,
 	.children = { NULL },
 };
 
@@ -47,6 +49,7 @@ static CAT_menu_node crit_stats_cheat =
 	.title = "CRITICAL STATS",
 	.proc = cheat_proc_crit_stats,
 	.state = NULL,
+	.selector = 0,
 	.children = { NULL },
 };
 
@@ -63,6 +66,7 @@ static CAT_menu_node items_cheat =
 	.title = "EVERY ITEM",
 	.proc = cheat_proc_items,
 	.state = NULL,
+	.selector = 0,
 	.children = { NULL },
 };
 
@@ -71,6 +75,7 @@ CAT_menu_node menu_node_cheats =
 	.title = "CHEATS",
 	.proc = NULL,
 	.state = NULL,
+	.selector = 0,
 	.children =
 	{
 		&money_cheat,

@@ -23,6 +23,7 @@ static CAT_menu_node menu_node_insights =
 	.title = "INSIGHTS",
 	.proc = NULL,
 	.state = CAT_MS_insights,
+	.selector = 0,
 	.children = { NULL },
 };
 
@@ -36,6 +37,7 @@ static CAT_menu_node menu_node_name =
 	.title = "PET NAME",
 	.proc = name_proc,
 	.state = NULL,
+	.selector = 0,
 	.children = { NULL },
 };
 
@@ -46,6 +48,7 @@ static CAT_menu_node menu_node_settings =
 	.title = "SETTINGS",
 	.proc = NULL,
 	.state = NULL,
+	.selector = 0,
 	.children =
 	{
 		&menu_node_name,
@@ -59,6 +62,7 @@ static CAT_menu_node menu_node_bag =
 	.title = "BAG",
 	.proc = NULL,
 	.state = CAT_MS_bag,
+	.selector = 0,
 	.children = { NULL },
 };
 
@@ -67,6 +71,7 @@ static CAT_menu_node menu_node_vending =
 	.title = "VENDING MACHINE",
 	.proc = NULL,
 	.state = CAT_MS_vending,
+	.selector = 0,
 	.children = { NULL },
 };
 
@@ -75,6 +80,7 @@ static CAT_menu_node menu_node_arcade =
 	.title = "ARCADE CABINET",
 	.proc = NULL,
 	.state = CAT_MS_arcade,
+	.selector = 0,
 	.children = { NULL },
 };
 
@@ -84,6 +90,7 @@ static CAT_menu_node menu_node_air =
 	.title = "AIR QUALITY",
 	.proc = NULL,
 	.state = CAT_MS_aqi,
+	.selector = 0,
 	.children = { NULL },
 };
 
@@ -92,6 +99,7 @@ static CAT_menu_node menu_node_system =
 	.title = "SYSTEM MENU",
 	.proc = NULL,
 	.state = CAT_MS_system_menu,
+	.selector = 0,
 	.children = { NULL },
 };
 #endif
@@ -101,6 +109,7 @@ static CAT_menu_node menu_node_magic =
 	.title = "MAGIC",
 	.proc = NULL,
 	.state = CAT_MS_magic,
+	.selector = 0,
 	.children = { NULL },	
 };
 
@@ -109,6 +118,7 @@ static CAT_menu_node menu_node_manual =
 	.title = "MANUAL",
 	.proc = NULL,
 	.state = CAT_MS_manual,
+	.selector = 0,
 	.children = { NULL },
 };
 
@@ -117,6 +127,7 @@ static CAT_menu_node menu_node_debug =
 	.title = "DEBUG",
 	.proc = NULL,
 	.state = CAT_MS_debug,
+	.selector = 0,
 	.children = { NULL },
 };
 
@@ -127,6 +138,7 @@ static CAT_menu_node root =
 	.title = "MENU",
 	.proc = NULL,
 	.state = NULL,
+	.selector = 0,
 	.children =
 	{
 		&menu_node_insights,
@@ -163,8 +175,6 @@ CAT_menu_node* pop()
 	return stack[stack_length];
 }
 
-static int selector = 0;
-
 void CAT_MS_menu(CAT_machine_signal signal)
 {
 	switch(signal)
@@ -195,16 +205,16 @@ void CAT_MS_menu(CAT_machine_signal signal)
 				child_count += 1;
 
 			if(CAT_input_pulse(CAT_BUTTON_UP))
-				selector -= 1;
+				stack[stack_length-1]->selector -= 1;
 			if(CAT_input_pulse(CAT_BUTTON_DOWN))
-				selector += 1;
-			selector = clamp(selector, 0, child_count-1);
+				stack[stack_length-1]->selector += 1;
+			stack[stack_length-1]->selector = clamp(stack[stack_length-1]->selector, 0, child_count-1);
 
 			if(CAT_input_pressed(CAT_BUTTON_A))
 			{
 				if(child_count > 0)
 				{
-					CAT_menu_node* child = node->children[selector];
+					CAT_menu_node* child = node->children[stack[stack_length-1]->selector];
 					if(child->proc != NULL)
 					{
 						child->proc();
@@ -242,7 +252,7 @@ void CAT_render_menu()
 	for(int i = 0; node->children[i] != NULL; i++)
 	{
 		CAT_gui_textf("\1 %s ", node->children[i]->title);
-		if(i == selector)
+		if(i == stack[stack_length-1]->selector)
 			CAT_gui_image(&icon_pointer_sprite, 0);
 		CAT_gui_line_break();
 	}

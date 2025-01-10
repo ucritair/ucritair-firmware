@@ -17,6 +17,7 @@ static CAT_menu_node menu_node_base_theme =
 	.title = "BASIC THEME",
 	.proc = theme_proc_base,
 	.state = NULL,
+	.selector = 0,
 	.children = { NULL },
 };
 
@@ -30,6 +31,7 @@ static CAT_menu_node menu_node_ash_theme =
 	.title = "ASHEN THEME",
 	.proc = theme_proc_ash,
 	.state = NULL,
+	.selector = 0,
 	.children = { NULL },
 };
 
@@ -43,6 +45,7 @@ static CAT_menu_node menu_node_grass_theme =
 	.title = "VERDANT THEME",
 	.proc = theme_proc_grass,
 	.state = NULL,
+	.selector = 0,
 	.children = { NULL },
 };
 
@@ -51,6 +54,7 @@ CAT_menu_node menu_node_themes =
 	.title = "ROOM THEME",
 	.proc = NULL,
 	.state = NULL,
+	.selector = 0,
 	.children =
 	{
 		&menu_node_base_theme,

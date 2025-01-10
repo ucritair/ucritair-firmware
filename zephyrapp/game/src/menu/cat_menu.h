@@ -9,6 +9,7 @@ typedef struct CAT_menu_node
 	void (*proc)(void);
 	CAT_machine_state state;
 
+	int selector;
 	struct CAT_menu_node* children[];
 } CAT_menu_node;
 
