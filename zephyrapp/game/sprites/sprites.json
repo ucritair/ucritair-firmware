@@ -1760,6 +1760,22 @@
             "frames": 1,
             "width": 32,
             "height": 32
+        },
+        {
+            "id": 216,
+            "name": "crawl_bg_1_sprite",
+            "path": "minigame/crawl_bg_1.png",
+            "frames": 1,
+            "width": 240,
+            "height": 160
+        },
+        {
+            "id": 217,
+            "name": "enemy_dead_sprite",
+            "path": "minigame/enemy_alt.png",
+            "frames": 1,
+            "width": 32,
+            "height": 32
         }
     ]
 }

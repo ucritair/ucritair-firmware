@@ -33,6 +33,7 @@ static float enemy_x[MAX_ENEMY_COUNT];
 static float enemy_y[MAX_ENEMY_COUNT];
 static float enemy_dx[MAX_ENEMY_COUNT];
 static float enemy_dy[MAX_ENEMY_COUNT];
+static enum {ALIVE, DEAD} enemy_status[MAX_ENEMY_COUNT];
 static int enemy_count;
 
 void spawn()
@@ -42,6 +43,7 @@ void spawn()
 	enemy_y[enemy_count] = CAT_rand_int(0, LCD_SCREEN_H-1);
 	enemy_dx[enemy_count] = CAT_rand_float(-SPEED * 0.5f, SPEED * 0.5f);
 	enemy_dy[enemy_count] = CAT_rand_float(-SPEED * 0.5f, SPEED * 0.5f);
+	enemy_status[enemy_count] = ALIVE;
 	enemy_count += 1;
 }
 
@@ -53,6 +55,7 @@ void kill(int idx)
 	enemy_y[idx] = enemy_y[enemy_count];
 	enemy_dx[idx] = enemy_dx[enemy_count];
 	enemy_dy[idx] = enemy_dy[enemy_count];
+	enemy_status[idx] = enemy_status[enemy_count];
 }
 
 void CAT_MS_crawl(CAT_machine_signal signal)
@@ -127,7 +130,7 @@ void CAT_MS_crawl(CAT_machine_signal signal)
 						CAT_rect enemy_rect = CAT_rect_center(enemy_x[i], enemy_y[i], 32, 32);
 						if(CAT_rect_overlaps(attack_rect, enemy_rect))
 						{
-							kill(i);
+							enemy_status[i] = DEAD;
 						}
 					}
 				}
@@ -137,6 +140,9 @@ void CAT_MS_crawl(CAT_machine_signal signal)
 
 			for(int i = 0; i < enemy_count; i++)
 			{
+				if(enemy_status[i] == DEAD)
+					continue;
+					
 				enemy_x[i] += enemy_dx[i] * CAT_get_delta_time();
 				enemy_y[i] += enemy_dy[i] * CAT_get_delta_time();
 
@@ -167,7 +173,8 @@ void CAT_render_crawl()
 
 	for(int i = 0; i < enemy_count; i++)
 	{
-		CAT_draw_sprite(&enemy_sprite, 0, enemy_x[i], enemy_y[i]);
+		const CAT_sprite* sprite = enemy_status[i] == ALIVE ? &enemy_sprite : &enemy_dead_sprite;
+		CAT_draw_sprite(sprite, 0, enemy_x[i], enemy_y[i]);
 	}
 	
 	spriter.mode = CAT_DRAW_MODE_DEFAULT;
@@ -175,4 +182,6 @@ void CAT_render_crawl()
 	{
 		CAT_draw_sprite(&attack_sprite, 0, attack_rect.min.x, attack_rect.min.y);
 	}
+
+	CAT_draw_sprite(&crawl_bg_1_sprite, 0, 0, 0);
 }
