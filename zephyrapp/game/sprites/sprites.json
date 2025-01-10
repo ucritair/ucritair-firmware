@@ -1744,6 +1744,14 @@
             "frames": 1,
             "width": 32,
             "height": 32
+        },
+        {
+            "id": 214,
+            "name": "attack_sprite",
+            "path": "minigame/attack.png",
+            "frames": 1,
+            "width": 32,
+            "height": 32
         }
     ]
 }

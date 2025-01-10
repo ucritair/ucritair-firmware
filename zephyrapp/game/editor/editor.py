@@ -200,11 +200,14 @@ for folder in asset_dirs:
 	for entry in folder.iterdir():
 		name, ext = os.path.splitext(entry);
 		if ext == ".json":
-			doc = AssetDocument(entry);
-			asset_type = doc.type;
-			if not asset_type in asset_types:
-				asset_types.append(asset_type);
-			asset_docs[asset_type] = doc;
+			try:
+				doc = AssetDocument(entry);
+				asset_type = doc.type;
+				if not asset_type in asset_types:
+					asset_types.append(asset_type);
+				asset_docs[asset_type] = doc;
+			except:
+				print(f"Failed to load {entry} as asset document!");
 
 document = None;
 
@@ -446,8 +449,6 @@ class PreviewSprite:
 
 	def __init__(self, sprite):
 		path = Path(os.path.join("sprites", sprite["path"]));
-		if not path.exists() or not path.is_file():
-			path = Path(os.path.join("sprites", "null.png"));
 		self.image = Image.open(path);
 		self.width = self.image.width;
 		self.height = self.image.height;
@@ -494,14 +495,14 @@ class PreviewBank:
 			self.entries[asset_type] = {};
 	
 	def init(self, asset_type, name):
-		asset = find_asset(asset_type, name);
-		if asset != None:	
+		try:
+			asset = find_asset(asset_type, name);
 			match asset_type:
 				case "sprite":
 					self.entries[asset_type][name] = PreviewSprite(asset);
 				case "sound":
 					self.entries[asset_type][name] = PreviewSound(asset);
-		else:
+		except:
 			self.entries[asset_type][name] = None;
 		return self.entries[asset_type][name];
 	
@@ -521,8 +522,8 @@ class Preview:
 		if sprite != None:
 			imgui.image(sprite.preview_texture, (sprite.preview_image.width * 2, sprite.preview_image.height * 2));
 			imgui.same_line();
-			if imgui.button(f"Refresh####{name}"):
-				preview_bank.init("sprite", name);
+		if imgui.button(f"Refresh##{name}"):
+			preview_bank.init("sprite", name);
 	
 	def render_sound(self, name):
 		sound = preview_bank.get("sound", name);
@@ -534,8 +535,11 @@ class Preview:
 				plot_width = window_width//2;
 				plot_height = window_height//10;
 				imgui.plot_lines(f"####{id(sound.frames[i])}", sound.frames[i], scale_min=plot_min, scale_max=plot_max, graph_size=(plot_width, plot_height));
-			if imgui.button(f"Play####{name}"):
+			if imgui.button(f"Play##{name}"):
 				playsound(sound.path, block=False);
+			imgui.same_line();
+		if imgui.button(f"Refresh##{name}"):
+			preview_bank.init("sound", name);
 	
 	def render(self, asset_type, name):
 		match asset_type:
@@ -543,7 +547,6 @@ class Preview:
 				self.render_sprite(name);
 			case "sound":
 				self.render_sound(name);
-
 
 preview = Preview();
 

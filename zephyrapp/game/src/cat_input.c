@@ -45,7 +45,7 @@ void CAT_input_tick()
 		input.last[i] = input.mask[i];
 		input.mask[i] = (mask & (1 << i)) > 0;
 		
-		if(old_state != input.mask[i])
+		if(!input.mask[i])
 			input.time[i] = 0;
 		else
 			input.time[i] += CAT_get_delta_time();
@@ -144,6 +144,11 @@ bool CAT_input_pulse(int button)
 			input.pulse[button] = 0;
 	}
 	return pulse;
+}
+
+float CAT_input_time(int button)
+{
+	return input.time[button];
 }
 
 bool CAT_input_drag(int x, int y, float r)
