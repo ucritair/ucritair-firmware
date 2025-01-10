@@ -203,7 +203,7 @@ void CAT_force_load()
 	CAT_timer_set(pet.petting_timer_id, save->petting_timer);
 	pet.times_milked = save->times_milked;
 
-	if(strlen(save->name) < 32)
+	if(strlen(save->name) <= CAT_TEXT_INPUT_MAX)
 		strcpy(pet.name, save->name);
 	else
 		strcpy(pet.name, "Waldo");

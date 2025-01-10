@@ -202,8 +202,6 @@ static const char** typecases[] =
 	}
 };
 
-#define KEYBOARD_MAX 28
-
 static struct 
 {
 	bool open;
@@ -307,7 +305,7 @@ void CAT_gui_keyboard_io()
 		else 
 		{
 			glyph = (glyph == '_') ? ' ' : glyph;
-			if(keyboard.cursor < KEYBOARD_MAX)
+			if(keyboard.cursor < CAT_TEXT_INPUT_MAX)
 			{
 				keyboard.buffer[keyboard.cursor] = glyph;
 				keyboard.cursor += 1;
