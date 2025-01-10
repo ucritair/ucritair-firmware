@@ -2,7 +2,7 @@
 
 #include "cat_input.h"
 #include "cat_room.h"
-#include "cat_sprite.h"
+#include "cat_render.h"
 
 static CAT_vec2 pos = {120, 160};
 static enum {N, E, S, W} dir = 2;

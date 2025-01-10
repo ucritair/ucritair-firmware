@@ -63,11 +63,15 @@ add_custom_command(
 target_sources(app PRIVATE
 	src/core/cat_aqi.c
 
+	src/render/cat_berrier.c
+	src/render/cat_spriter.c
+	src/render/cat_draw_queue.c
+	src/render/cat_animachine.c
+
 	src/cat_gui.c
 	src/cat_input.c
 	src/cat_item.c
 	src/cat_machine.c
-	src/cat_sprite.c
 	src/cat_math.c
 	src/cat_bag.c
 	src/cat_deco.c
@@ -102,6 +106,7 @@ target_sources(app PRIVATE
 
 target_include_directories(app PRIVATE src/)
 target_include_directories(app PRIVATE src/core)
+target_include_directories(app PRIVATE src/render)
 target_include_directories(app PRIVATE src/menu)
 target_include_directories(app PRIVATE src/arcade)
 

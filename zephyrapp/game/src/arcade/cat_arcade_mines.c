@@ -1,7 +1,7 @@
 #include "cat_arcade.h"
 
 #include "cat_input.h"
-#include "cat_sprite.h"
+#include "cat_render.h"
 #include "cat_room.h"
 #include "cat_bag.h"
 #include "cat_gui.h"

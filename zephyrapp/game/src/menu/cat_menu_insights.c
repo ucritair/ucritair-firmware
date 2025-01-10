@@ -5,7 +5,7 @@
 #include "cat_gui.h"
 #include "cat_input.h"
 #include "cat_pet.h"
-#include "cat_sprite.h"
+#include "cat_render.h"
 #include "cat_bag.h"
 #include <string.h>
 #include "stats.h"

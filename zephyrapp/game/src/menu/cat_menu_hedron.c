@@ -2,7 +2,7 @@
 
 #include "cat_math.h"
 #include "mesh_assets.h"
-#include "cat_sprite.h"
+#include "cat_render.h"
 #include "cat_input.h"
 #include "math.h"
 

@@ -1,6 +1,6 @@
 #include "cat_gui.h"
 
-#include "cat_sprite.h"
+#include "cat_render.h"
 #include <string.h>
 #include <stdarg.h>
 #include <stdio.h>

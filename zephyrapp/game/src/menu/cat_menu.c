@@ -4,7 +4,7 @@
 #include "cat_gui.h"
 #include "cat_input.h"
 #include "cat_machine.h"
-#include "cat_sprite.h"
+#include "cat_render.h"
 #include "cat_version.h"
 #include "cat_vending.h"
 #include "cat_arcade.h"

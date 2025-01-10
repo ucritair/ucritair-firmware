@@ -2,7 +2,7 @@
 
 #include <stddef.h>
 #include "cat_core.h"
-#include "cat_sprite.h"
+#include "cat_render.h"
 #include <stdio.h>
 #include <math.h>
 #include "cat_item.h"

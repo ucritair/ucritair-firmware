@@ -1,5 +1,5 @@
 #include "menu_graph.h"
-#include "cat_sprite.h"
+#include "cat_render.h"
 
 void plot_px(int x, int y, uint16_t color)
 {

@@ -8,7 +8,7 @@
 #include "cat_deco.h"
 #include "cat_actions.h"
 #include <string.h>
-#include "cat_sprite.h"
+#include "cat_render.h"
 #include <stddef.h>
 #include "cat_menu.h"
 

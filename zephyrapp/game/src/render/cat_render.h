@@ -24,6 +24,14 @@ enum CAT_sprite_layers
 
 #define RGB8882565(r, g, b) ((r & 0b11111000) << 8) | ((g & 0b11111100) << 3) | (b >> 3)
 
+#ifdef CAT_DESKTOP
+#define FRAMEBUFFER spriter.framebuffer
+#define LCD_FRAMEBUFFER_H LCD_SCREEN_H
+#else
+#include "lcd_driver.h"
+#define FRAMEBUFFER lcd_framebuffer
+#endif
+
 
 //////////////////////////////////////////////////////////////////////////
 // THE BERRIER
@@ -81,6 +89,8 @@ void CAT_anim_toggle_loop(const CAT_sprite* sprite, bool toggle);
 void CAT_anim_toggle_reverse(const CAT_sprite* sprite, bool toggle);
 bool CAT_anim_finished(const CAT_sprite* sprite);
 void CAT_anim_reset(const CAT_sprite* sprite);
+
+bool CAT_anim_should_tick();
 
 typedef struct CAT_draw_job
 {

@@ -4,7 +4,7 @@
 #include "cat_item.h"
 #include <stdio.h>
 #include "cat_pet.h"
-#include "cat_sprite.h"
+#include "cat_render.h"
 #include "cat_gui.h"
 #include "cat_bag.h"
 #include <math.h>

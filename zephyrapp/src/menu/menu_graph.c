@@ -13,6 +13,7 @@
 #include "flash.h"
 
 #include "menu_aqi.h"
+#include "menu_graph_rendering.c"
 
 #define M_E         2.7182818284590452354
 
