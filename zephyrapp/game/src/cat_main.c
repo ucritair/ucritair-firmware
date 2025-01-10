@@ -213,8 +213,15 @@ void CAT_force_load()
 	else
 		room.theme = themes_list[0];
 
-	pet.level = save->level;
-	pet.xp = save->xp;
+	if(save->level >= 1)
+		pet.level = save->level;
+	else
+		pet.level = 1;
+		
+	if(save->xp >= 0)
+		pet.xp = save->xp;
+	else
+		pet.xp = 0;
 
 	CAT_finish_load();
 }
