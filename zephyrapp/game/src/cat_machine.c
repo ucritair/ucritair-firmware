@@ -3,7 +3,7 @@
 #include <stddef.h>
 #include "cat_core.h"
 #include "cat_math.h"
-#include "cat_sprite.h"
+#include "cat_render.h"
 #include "cat_input.h"
 
 //////////////////////////////////////////////////////////////////////////

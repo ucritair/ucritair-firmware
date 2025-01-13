@@ -5,7 +5,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "cat_math.h"
-#include "cat_sprite.h"
+#include "cat_render.h"
 
 //////////////////////////////////////////////////////////////////////////
 // CONSTANTS

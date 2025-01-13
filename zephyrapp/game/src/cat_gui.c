@@ -1,6 +1,6 @@
 #include "cat_gui.h"
 
-#include "cat_sprite.h"
+#include "cat_render.h"
 #include <string.h>
 #include <stdarg.h>
 #include <stdio.h>
@@ -202,8 +202,6 @@ static const char** typecases[] =
 	}
 };
 
-#define KEYBOARD_MAX 28
-
 static struct 
 {
 	bool open;
@@ -290,7 +288,7 @@ void CAT_gui_keyboard_io()
 		keyboard.glyph_idx -= 1;
 	keyboard.glyph_idx = clamp(keyboard.glyph_idx, 0, strlen(row)-1);
 
-	if(CAT_input_pressed(CAT_BUTTON_A))
+	if(CAT_input_pulse(CAT_BUTTON_A))
 	{
 		char glyph = row[keyboard.glyph_idx];
 		if(glyph == 6)
@@ -307,7 +305,7 @@ void CAT_gui_keyboard_io()
 		else 
 		{
 			glyph = (glyph == '_') ? ' ' : glyph;
-			if(keyboard.cursor < KEYBOARD_MAX)
+			if(keyboard.cursor < CAT_TEXT_INPUT_MAX)
 			{
 				keyboard.buffer[keyboard.cursor] = glyph;
 				keyboard.cursor += 1;

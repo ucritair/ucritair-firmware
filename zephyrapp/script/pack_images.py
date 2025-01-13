@@ -163,7 +163,7 @@ texture_use_cache = {}
 
 with open(f"{output}/images.c", 'w') as fd:
 	fd.write('#include <stdint.h>\n')
-	fd.write('#include "cat_sprite.h"\n')
+	fd.write('#include "cat_render.h"\n')
 	fd.write('\n\n')
 	for sprite in atlas:
 		print(sprite.name)

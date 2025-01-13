@@ -29,9 +29,9 @@ void CAT_input_yield();
 
 bool CAT_input_pressed(int button);
 bool CAT_input_released(int button);
-
 bool CAT_input_held(int button, float t);
 bool CAT_input_pulse(int button);
+float CAT_input_time(int button);
 
 bool CAT_input_drag(int x, int y, float r);
 bool CAT_input_touch(int x, int y, float r);

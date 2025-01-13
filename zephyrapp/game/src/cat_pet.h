@@ -8,7 +8,7 @@
 #define CAT_DAY_SECS 86400
 
 #define CAT_LIFE_TICK_SECS (CAT_DAY_SECS)
-#define CAT_STAT_TICK_SECS (CAT_DAY_SECS / 12)
+#define CAT_STAT_TICK_SECS (CAT_DAY_SECS / 4)
 #define CAT_PET_COOLDOWN_SECS (CAT_MIN_SECS)
 
 typedef struct CAT_pet
@@ -17,6 +17,8 @@ typedef struct CAT_pet
 	int focus;
 	int spirit;
 	int lifetime;
+	int xp;
+	int level;
 
 	CAT_vec2 pos;
 	CAT_vec2 dir;
@@ -24,6 +26,7 @@ typedef struct CAT_pet
 	
 	int stat_timer_id;
 	int life_timer_id;
+
 	int walk_timer_id;
 	int react_timer_id;
 

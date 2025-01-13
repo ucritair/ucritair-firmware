@@ -237,3 +237,8 @@ extern const CAT_sprite icon_low_battery;
 extern const CAT_sprite icon_low_battery_alt;
 extern const CAT_sprite icon_low_battery_pet;
 extern const CAT_sprite null_sprite;
+extern const CAT_sprite icon_charging;
+extern const CAT_sprite attack_sprite;
+extern const CAT_sprite enemy_sprite;
+extern const CAT_sprite crawl_bg_1_sprite;
+extern const CAT_sprite enemy_dead_sprite;

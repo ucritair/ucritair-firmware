@@ -1308,8 +1308,8 @@
         {
             "id": 159,
             "name": "pet_crit_spi_sprite",
-            "path": "pet/unicorn_block_blink_a.png",
-            "frames": 2,
+            "path": "pet/unicorn_block_blink_static.png",
+            "frames": 1,
             "width": 64,
             "height": 48
         },
@@ -1736,6 +1736,46 @@
             "frames": 1,
             "width": 24,
             "height": 24
+        },
+        {
+            "id": 213,
+            "name": "icon_charging",
+            "path": "ui/charging_battery_alt.png",
+            "frames": 1,
+            "width": 32,
+            "height": 32
+        },
+        {
+            "id": 214,
+            "name": "attack_sprite",
+            "path": "minigame/attack.png",
+            "frames": 1,
+            "width": 32,
+            "height": 32
+        },
+        {
+            "id": 215,
+            "name": "enemy_sprite",
+            "path": "minigame/enemy.png",
+            "frames": 1,
+            "width": 32,
+            "height": 32
+        },
+        {
+            "id": 216,
+            "name": "crawl_bg_1_sprite",
+            "path": "minigame/crawl_bg_1.png",
+            "frames": 1,
+            "width": 240,
+            "height": 160
+        },
+        {
+            "id": 217,
+            "name": "enemy_dead_sprite",
+            "path": "minigame/enemy_alt.png",
+            "frames": 1,
+            "width": 32,
+            "height": 32
         }
     ]
 }

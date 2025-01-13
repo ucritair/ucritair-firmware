@@ -2,7 +2,7 @@
 
 #include "cat_machine.h"
 #include "cat_math.h"
-#include "cat_sprite.h"
+#include "cat_render.h"
 #include "cat_item.h"
 #include "cat_item_dialog.h"
 

@@ -10,7 +10,7 @@
 #include <sys/fcntl.h>
 
 #include "cat_core.h"
-#include "cat_sprite.h"
+#include "cat_render.h"
 #include "cat_math.h"
 #include "cat_item.h"
 #include "cat_gui.h"
@@ -144,6 +144,9 @@ void CAT_force_save()
 		}
 	}
 
+	save->level = pet.level;
+	save->xp = pet.xp;
+
 	save->magic_number = CAT_SAVE_MAGIC;
 	CAT_finish_save(save);
 }
@@ -200,7 +203,7 @@ void CAT_force_load()
 	CAT_timer_set(pet.petting_timer_id, save->petting_timer);
 	pet.times_milked = save->times_milked;
 
-	if(strlen(save->name) < 32)
+	if(strlen(save->name) <= CAT_TEXT_INPUT_MAX)
 		strcpy(pet.name, save->name);
 	else
 		strcpy(pet.name, "Waldo");
@@ -209,6 +212,16 @@ void CAT_force_load()
 		room.theme = themes_list[save->theme];
 	else
 		room.theme = themes_list[0];
+
+	if(save->level >= 1)
+		pet.level = save->level;
+	else
+		pet.level = 1;
+		
+	if(save->xp >= 0)
+		pet.xp = save->xp;
+	else
+		pet.xp = 0;
 
 	CAT_finish_load();
 }

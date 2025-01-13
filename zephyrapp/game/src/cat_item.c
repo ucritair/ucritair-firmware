@@ -1,7 +1,7 @@
 #include "cat_item.h"
 
 #include <stdio.h>
-#include "cat_sprite.h"
+#include "cat_render.h"
 #include <string.h>
 #include <stddef.h>
 

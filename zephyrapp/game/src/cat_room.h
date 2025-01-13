@@ -2,7 +2,7 @@
 
 #include "cat_machine.h"
 #include "cat_math.h"
-#include "cat_sprite.h"
+#include "cat_render.h"
 
 //////////////////////////////////////////////////////////////////////////
 // CONSTANTS
@@ -14,7 +14,7 @@
 #define CAT_WORLD_HEIGHT (CAT_GRID_HEIGHT * CAT_TILE_SIZE)
 
 #define CAT_MAX_PICKUP_COUNT 128
-#define CAT_EARN_TICK_SECS (CAT_DAY_SECS / 24)
+#define CAT_EARN_TICK_SECS (CAT_DAY_SECS / 6)
 
 
 //////////////////////////////////////////////////////////////////////////

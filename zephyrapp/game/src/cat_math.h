@@ -71,6 +71,7 @@ typedef struct CAT_rect
 CAT_rect CAT_rect_place(CAT_ivec2 start, CAT_ivec2 shape);
 bool CAT_rect_overlaps(CAT_rect a, CAT_rect b);
 bool CAT_rect_contains(CAT_rect a, CAT_rect b);
+CAT_rect CAT_rect_center(int x, int y, int w, int h);
 
 
 //////////////////////////////////////////////////////////////////////////

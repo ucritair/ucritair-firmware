@@ -165,6 +165,16 @@ bool CAT_rect_contains(CAT_rect a, CAT_rect b)
 	return true;
 }
 
+CAT_rect CAT_rect_center(int x, int y, int w, int h)
+{
+	CAT_rect rect;
+	rect.min.x = x - w/2;
+	rect.min.y = y - h/2;
+	rect.max.x = x + w/2;
+	rect.max.y = y + h/2;
+	return rect;
+}
+
 
 //////////////////////////////////////////////////////////////////////////
 // RENDERING

@@ -13,6 +13,7 @@
 #include "flash.h"
 
 #include "menu_aqi.h"
+#include "menu_graph_rendering.c"
 
 #define M_E         2.7182818284590452354
 
@@ -430,19 +431,13 @@ int text_cursor(char* name, int index)
 
 void CAT_render_graph()
 {
-	CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});  
-	CAT_gui_text("GRAPH ");
-	CAT_gui_image(&icon_b_sprite, 1);
-	CAT_gui_image(&icon_exit_sprite, 0);
-
-	CAT_gui_line_break();
-
+	CAT_gui_title(false, NULL, &icon_exit_sprite, "GRAPH");
 	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
 
 	struct tm t;
 	gmtime_r(&graph_end_time, &t); 
 
-	CAT_gui_textf("%s Graph - ", get_name());
+	CAT_gui_textf("%s: ", get_name());
 	CAT_gui_image(&icon_n_sprite, 1);
 	CAT_gui_textf("%d/%d/%d", t.tm_mon+1, t.tm_mday, t.tm_year);
 	CAT_gui_image(&icon_s_sprite, 1);
