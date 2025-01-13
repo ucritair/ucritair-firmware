@@ -247,14 +247,14 @@ void CAT_MS_graph(CAT_machine_signal signal)
 				}
 			}
 
-			if(CAT_input_held(CAT_BUTTON_UP, 0.1) || CAT_input_pressed(CAT_BUTTON_UP))
+			if(CAT_input_held(CAT_BUTTON_UP, 0.2) || CAT_input_pressed(CAT_BUTTON_UP))
 			{
 				graph_end_time += 60*60*24 * MAX(1, day_scroll_accel-10);
 				graph_end_time = MIN(graph_end_time, get_current_rtc_time() - 1);
 				day_scroll_accel += 1;
 			}
 
-			if (CAT_input_held(CAT_BUTTON_DOWN, 0.1) || CAT_input_pressed(CAT_BUTTON_DOWN))
+			if (CAT_input_held(CAT_BUTTON_DOWN, 0.2) || CAT_input_pressed(CAT_BUTTON_DOWN))
 			{
 				graph_end_time -= 60*60*24 * MAX(1, day_scroll_accel-10);
 				day_scroll_accel += 1;
