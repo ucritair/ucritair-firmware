@@ -36,14 +36,16 @@ void CAT_input_tick()
 
 	for(int i = 0; i < CAT_BUTTON_LAST; i++)
 	{
-		if((mask & (1 << i)) <= 0)
+		bool current_state = (mask & (1 << i)) > 0;
+
+		if(!current_state)
 			input.dirty[i] = false;
 		if(input.dirty[i])
 			continue;
 
 		bool old_state = input.last[i];
 		input.last[i] = input.mask[i];
-		input.mask[i] = (mask & (1 << i)) > 0;
+		input.mask[i] = current_state;
 		
 		if(!input.mask[i])
 			input.time[i] = 0;
