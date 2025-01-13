@@ -173,8 +173,7 @@ void CAT_render_crawl()
 
 	for(int i = 0; i < enemy_count; i++)
 	{
-		const CAT_sprite* sprite = enemy_status[i] == ALIVE ? &enemy_sprite : &enemy_dead_sprite;
-		CAT_draw_sprite(sprite, 0, enemy_x[i], enemy_y[i]);
+		CAT_draw_sprite(&enemy_sprite, enemy_status[i] == ALIVE ? 0 : 1, enemy_x[i], enemy_y[i]);
 	}
 	
 	spriter.mode = CAT_DRAW_MODE_DEFAULT;

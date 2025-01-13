@@ -1757,7 +1757,7 @@
             "id": 215,
             "name": "enemy_sprite",
             "path": "minigame/enemy.png",
-            "frames": 1,
+            "frames": 2,
             "width": 32,
             "height": 32
         },
@@ -1768,14 +1768,6 @@
             "frames": 1,
             "width": 240,
             "height": 160
-        },
-        {
-            "id": 217,
-            "name": "enemy_dead_sprite",
-            "path": "minigame/enemy_alt.png",
-            "frames": 1,
-            "width": 32,
-            "height": 32
         }
     ]
 }

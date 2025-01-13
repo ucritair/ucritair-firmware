@@ -192,6 +192,8 @@ void CAT_pet_stat(int ticks)
 		xp_delta *= uv ? 0.75f : 1;
 		pet.xp -= xp_delta * ticks;
 	}
+	if(pet.xp < 0)
+		pet.xp = 0;
 }
 
 void CAT_pet_life(int ticks)
