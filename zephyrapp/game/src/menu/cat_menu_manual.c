@@ -455,15 +455,16 @@ void CAT_draw_arcade()
 	CAT_gui_image(&padkaprow_sprite, 0);
 	CAT_gui_line_break();
 
+	gui.margin -= 4;
+	gui.cursor.x -= 4;
 	CAT_gui_text
 	(
 		"One way to actively earn\n"
 		"money and have some fun\n"
 		"along the way is to play\n"
-		"games on the arcade cabinet.\n"
-		"The popular game Snack is\n"
-		"currently available there."
+		"games on the arcade cabinet."
 	);
+	gui.margin += 4;
 	CAT_gui_line_break();
 
 	CAT_gui_image(&coffee_sprite, 0);
@@ -477,16 +478,20 @@ void CAT_draw_arcade()
 	CAT_gui_image(&snake_tail_sprite, 2);
 	CAT_gui_line_break();
 
+	gui.margin -= 4;
+	gui.cursor.x -= 4;
 	CAT_gui_text
 	(
-		"Snack Cat primarily grows by\n"
-		"gobbling up snacks, but every\n"
-		"few bites he'll encounter a\n"
-		"shiny golden coin. Snap up\n"
-		"the coin to spend it at the\n"
-		"shop, and remember not to\n"
-		"smack into anything."
+		"The games Snack and Sweep are\n"
+		"available in the arcade right\n"
+		"now. They may be familiar to\n"
+		"fans of classic games.\n"
+		"Each gives a chance to earn\n"
+		"multiple coins per session,\n"
+		"and some offer unique rewards\n"
+		"in addition."
 	);
+	gui.margin += 4;
 	CAT_gui_line_break();
 
 	CAT_gui_image(&snake_tail_sprite, 0);
