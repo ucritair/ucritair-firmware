@@ -296,9 +296,6 @@ void CAT_MS_mines(CAT_machine_signal signal)
 			}
 			else
 			{
-				//TODO: REMOVE
-				state = WIN;
-
 				if(!reveal_complete)
 				{
 					if(CAT_timer_tick(reveal_timer_id))
