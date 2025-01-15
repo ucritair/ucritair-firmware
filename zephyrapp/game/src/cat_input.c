@@ -43,7 +43,6 @@ void CAT_input_tick()
 		if(input.dirty[i])
 			current_state = false;
 
-		bool old_state = input.last[i];
 		input.last[i] = input.mask[i];
 		input.mask[i] = current_state;
 		
@@ -61,10 +60,10 @@ void CAT_input_tick()
 		}
 	}
 
-	bool old_state = input.touch_last;
 	input.touch_last = input.touch.pressure > 0;
 	CAT_get_touch(&input.touch);
-	if((input.touch.pressure > 0) != old_state)
+	bool current_state = input.touch.pressure > 0;
+	if(!current_state)
 		input.touch_time = 0;
 	else
 		input.touch_time += CAT_get_delta_time();

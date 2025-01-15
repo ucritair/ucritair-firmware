@@ -6,12 +6,14 @@
 #include "cat_main.h"
 #include "cat_pet.h"
 #include "cat_room.h"
+#include <stdint.h>
 
 static enum
 {
 	SAVE,
 	TIME,
 	DECO,
+	INPUT,
 	LAST
 } page = SAVE;
 
@@ -90,6 +92,20 @@ void CAT_render_debug()
 				CAT_GRID_SIZE - space.free_cell_count, space.free_cell_count,
 				CAT_GRID_SIZE
 			);
+		break;
+		case INPUT:
+		{
+			CAT_gui_title(true, NULL, &icon_exit_sprite, "INPUT");
+			CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
+			
+			uint16_t input_mask = CAT_get_buttons();
+			for(int i = 0; i < CAT_BUTTON_LAST; i++)
+			{
+				bool state = (input_mask & (1 << i)) > 0;
+				CAT_gui_textf("%d", state);
+			}
+			CAT_gui_line_break();
+		}
 		break;
 		default:
 		{
