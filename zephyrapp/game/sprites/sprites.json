@@ -1767,7 +1767,7 @@
             "path": "minigame/crawl_bg_1.png",
             "frames": 1,
             "width": 240,
-            "height": 160
+            "height": 120
         }
     ]
 }

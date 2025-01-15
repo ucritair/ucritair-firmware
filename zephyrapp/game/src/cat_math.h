@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdbool.h>
+#include <stdint.h>
 
 //////////////////////////////////////////////////////////////////////////
 // BASICS
@@ -49,8 +50,8 @@ float CAT_vec2_dist2(CAT_vec2 a, CAT_vec2 b);
 
 typedef struct CAT_ivec2
 {
-	int x;
-	int y;
+	int32_t x;
+	int32_t y;
 } CAT_ivec2;
 
 CAT_ivec2 CAT_ivec2_add(CAT_ivec2 a, CAT_ivec2 b);

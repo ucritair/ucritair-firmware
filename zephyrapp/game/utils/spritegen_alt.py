@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+spritegen_alt#!/usr/bin/env python3
 
 import os
 import os.path
@@ -338,7 +338,6 @@ with open("sprites/sprite_assets.c", 'w') as fd:
 					fd.write('\n\t\t')
 
 			fd.write('\n\t}\n};\n');
-	fd.write("#endif\n");
 
 
 def RGBA88882RGB565(c):
@@ -355,45 +354,35 @@ def TOS_tabulate_colour(image):
 	rgb565s = [RGBA88882RGB565(c) for c in rgb888s];
 	return rgb565s;
 
-class TOS_rle_packet:
-	def __init__(self, colour, length):
-		self.colour = colour;
-		self.length = length;
-
-	def tokenize(self):
-		if self.length > 3:
-			return [0xff, self.colour, self.length];
+def TOS_rl_encode(image):
+	pixels = image.tobytes();
+	runs = [];
+	colour = pixels[0];
+	length = 1;
+	for i in range(1, len(pixels)):
+		if length >= 255:
+			runs.append((colour, length));
+		if pixels[i] != colour:
+			if length <= 3:
+				runs.extend([colour] * 3);
+			else:
+				runs.append((colour, length));
 		else:
-			return [self.colour] * self.length;
+			run_length += 1;
+	return runs;
 
-def TOS_rl_decode(stream):
+def TOS_rl_decode(runs):
 	pixels = [];
-	for packet in stream:
-		pixels.extend([packet.colour] * packet.length);
+	for run in runs:
+		match run:
+			case (colour, length):
+				pixels.extend([colour] * 3);
+			case colour:
+				pixels.append(colour);
 	return pixels;
 
-def TOS_rl_tokenize(stream):
-	data = [];
-	for packet in stream:
-		data.extend(packet.tokenize());
-	return data;
-
-def TOS_rl_encode(image):
-	pixels = list(image.tobytes());
-	stream = [TOS_rle_packet(pixels[0], 1)];
-
-	for i in range(1, len(pixels)):
-		head = stream[-1];
-		if pixels[i] != head.colour or head.length >= 255:
-				stream.append(TOS_rle_packet(pixels[i], 1));
-		else:
-			head.length += 1;
-	
-	assert(TOS_rl_decode(stream) == pixels);
-	return stream;
-
 with open("sprites/sprite_assets.c", 'a') as fd:
-	fd.write("#ifdef CAT_DESKTOP\n");
+	fd.write("#else\n");
 
 	path_map = {};
 	compression_ratio = 0;
@@ -425,20 +414,23 @@ with open("sprites/sprite_assets.c", 'a') as fd:
 			t = frame_height * i;
 			b = t + frame_height;
 			frame = image.crop((l, t, r, b));
+			runs = TOS_rl_encode(frame);
+			compressed_size += len(runs) * 2;
 
-			stream = TOS_rl_encode(frame);
-			tokens = TOS_rl_tokenize(stream);		
 			fd.write(f"\t[{i}] = (uint8_t[])\n");
 			fd.write("\t{\n\t\t");
-			for (j, token) in enumerate(tokens):
-				if j > 0 and j % 32 == 0:
+			for (j, run) in enumerate(runs):
+				if j > 0 and j % 16 == 0:
 					fd.write("\n\t\t");
-				fd.write(f"{hex(token)},");
-				if j == len(tokens)-1:
+				match run:
+					case (colour, length):
+						pixels.extend([colour] * 3);
+					case colour:
+						pixels.append(colour);
+				fd.write(f"{hex(run[0])},{hex(run[1])},");
+				if j == len(runs)-1:
 					fd.write("\n");
 			fd.write("\t},\n");
-
-			compressed_size += len(tokens);
 		fd.write("};\n");
 		fd.write("\n");
 

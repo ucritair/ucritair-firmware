@@ -12,7 +12,7 @@ json_file.close();
 header = open("data/stats.h", "w");
 header.write("#pragma once\n");
 header.write("\n");
-header.write(f"#define CAT_MAX_LEVEL {json_data["max_level"]}\n");
+header.write(f"#define CAT_NUM_LEVELS {json_data["num_levels"]}\n");
 header.write("\n");
 header.write("extern const int level_cutoffs[];\n");
 header.close();
@@ -29,7 +29,7 @@ for x in range(25):
 	source.write(f"{curve}, ");
 source.write("\n\t");
 coeffs = json_data["advanced_level_curve"];
-for x in range(25, json_data["max_level"]):
+for x in range(25, json_data["num_levels"]):
 	curve = int(coeffs[0] + coeffs[1] * x + coeffs[2] * x**2 + coeffs[3] * x**3);
 	source.write(f"{curve}, ");
 source.write("\n};\n");

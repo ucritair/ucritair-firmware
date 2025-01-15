@@ -7,7 +7,7 @@ import OpenGL;
 OpenGL.FULL_LOGGING = True;
 from OpenGL.GL import *;
 import glfw;
-from imgui_bundle import imgui, implot;
+from imgui_bundle import imgui;
 import json;
 from enum import Enum, Flag, auto;
 import ctypes;

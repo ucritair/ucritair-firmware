@@ -120,21 +120,21 @@ typedef struct __attribute__((__packed__)) CAT_save
 	uint8_t bag_length;
 	uint32_t coins;
 
-	int snake_high_score;
+	uint16_t snake_high_score;
 
 	float stat_timer;
 	float life_timer;
 	float earn_timer;
-	int times_pet;
+	uint8_t times_pet;
 	float petting_timer;
-	int times_milked;
+	uint8_t times_milked;
 
-	char name[32];
+	uint8_t name[32];
 
-	unsigned long int theme;
+	uint32_t theme;
 
-	int level;
-	int xp;
+	uint16_t level;
+	uint32_t xp;
 } CAT_save;
 
 // Call to start saving, then populate the returned CAT_save*

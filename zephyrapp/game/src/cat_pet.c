@@ -29,7 +29,7 @@ void CAT_pet_init()
 	pet.spirit = 9;
 	pet.lifetime = 0;
 	pet.xp = 0;
-	pet.level = 1;
+	pet.level = 0;
 
 	pet.pos = (CAT_vec2) {120, 200};
 	pet.dir = (CAT_vec2) {0, 0};
@@ -186,7 +186,7 @@ void CAT_pet_stat(int ticks)
 	//TODO: UNFAKE THIS
 	if(pet.vigour <= 0 || pet.focus <= 0 || pet.spirit <= 0)
 	{
-		float xp_delta = round(((float) level_cutoffs[pet.level-1]) * 0.1f);
+		float xp_delta = round(((float) level_cutoffs[pet.level]) * 0.1f);
 		xp_delta *= mask ? 0.75f : 1;
 		xp_delta *= pure ? 0.75f : 1;
 		xp_delta *= uv ? 0.75f : 1;
@@ -202,7 +202,7 @@ void CAT_pet_life(int ticks)
 
 	int xp = round(((pet.vigour + pet.focus + pet.spirit) / 3.0f) * 50.0f);
 	pet.xp += xp * ticks;
-	int cutoff = level_cutoffs[pet.level-1];
+	int cutoff = level_cutoffs[pet.level];
 	if(pet.xp >= cutoff)
 	{
 		pet.level += 1;

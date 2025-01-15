@@ -37,11 +37,11 @@ void write_px(uint8_t* image, int o_x, int o_y, bool val)
 
 	if (val)
 	{
-		image[bytecount] |= 1<<(7-bitcount);
+		image[bytecount] |= 1 << (7-bitcount);
 	}
 	else
 	{
-		image[bytecount] &= ~(1<<(7-bitcount));
+		image[bytecount] &= ~(1 << (7-bitcount));
 	}
 }
 
@@ -53,7 +53,7 @@ void write_char(uint8_t* image, int x, int y, int scale, char c)
 	{
 		for (int by = 0; by < 8; by++)
 		{
-			if (font8x8_basic[(int)c][by] & (1<<bx))
+			if (font8x8_basic[(int) c][by] & (1<<bx))
 			{
 				for (int sx = 0; sx < scale; sx++)
 				{
@@ -161,28 +161,28 @@ void epaper_render_test()
 	blit_image(epaper_framebuffer, selected_unicorn, 0, 0);
 	blit_image(epaper_framebuffer, selected_cloud, 0, selected_unicorn->h);
 
-	fwrite_str(128, 20, 2, "%.0f", (double)current_readings.sunrise.ppm_filtered_compensated);
+	fwrite_str(128, 20, 2, "%.0f", (double) current_readings.sunrise.ppm_filtered_compensated);
 	fwrite_str(EPD_IMAGE_W-(8*3), 20, 1, "ppm\nCO2");
-	fwrite_str(128, 40, 2, "%.1f", (double)current_readings.sen5x.pm2_5);
+	fwrite_str(128, 40, 2, "%.1f", (double) current_readings.sen5x.pm2_5);
 	fwrite_str(EPD_IMAGE_W-(8*5), 40, 1, "ug/m3\nPM2.5");
 
 	if (current_readings.sen5x.nox_index && current_readings.sen5x.voc_index)
 	{
-		fwrite_str(128, 60, 1, "%.0f NOX / %.0f VOC", (double)current_readings.sen5x.nox_index, (double)current_readings.sen5x.voc_index);
+		fwrite_str(128, 60, 1, "%.0f NOX / %.0f VOC", (double) current_readings.sen5x.nox_index, (double) current_readings.sen5x.voc_index);
 	}
 	
-	fwrite_str(128, 70, 1, "%.0f C / %.0f%% RH", (double)current_readings.sen5x.temp_degC, (double)current_readings.sen5x.humidity_rhpct);
-	fwrite_str(128, 80, 1, "%.1f%% rebreathed", ((((double)current_readings.sunrise.ppm_filtered_compensated)-420.)/38000.)*100.);
+	fwrite_str(128, 70, 1, "%.0f C / %.0f%% RH", (double) current_readings.sen5x.temp_degC, (double) current_readings.sen5x.humidity_rhpct);
+	fwrite_str(128, 80, 1, "%.1f%% rebreathed", ((((double) current_readings.sunrise.ppm_filtered_compensated)-420.)/38000.)*100.);
 	fwrite_str(128, 90, 1, "uCritAQI %.1f%%", score);
 	fwrite_str(128, 100, 1, "at %2d:%02d:%02d", t.tm_hour, t.tm_min, t.tm_sec);
 	fwrite_str(128, 110, 1, "%d%% battery", get_battery_pct());
 
-	fwrite_str(0, EPD_IMAGE_H-8, 1, " %s LV%d", guy_name, pet.level);
+	fwrite_str(0, EPD_IMAGE_H-8, 1, " %s LV%d", guy_name, pet.level+1);
 
 	imu_update();
 
 	pc_set_mode(false);
-	if (is_first_init || framebuffer_fast_update_count>50)
+	if (is_first_init || framebuffer_fast_update_count > 50)
 	{
 		LOG_DBG("Opted to global update, is_first_init=%d, framebuffer_fast_update_count=%d", is_first_init, framebuffer_fast_update_count);
 		is_first_init = false;

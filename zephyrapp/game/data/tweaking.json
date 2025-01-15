@@ -1,5 +1,5 @@
 {
-	"max_level" : 50,
+	"num_levels" : 50,
 	"base_level_curve" : [
 		500,
 		14

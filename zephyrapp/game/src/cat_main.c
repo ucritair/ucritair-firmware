@@ -29,6 +29,7 @@
 
 #include "cat_version.h"
 #include "theme_assets.h"
+#include "stats.h"
 
 #ifdef CAT_EMBEDDED
 #include "menu_time.h"
@@ -44,10 +45,10 @@
 
 int logged_sleep;
 
-int saved_version_major;
-int saved_version_minor;
-int saved_version_patch;
-int saved_version_push;
+uint8_t saved_version_major;
+uint8_t saved_version_minor;
+uint8_t saved_version_patch;
+uint8_t saved_version_push;
 
 #ifdef CAT_DESKTOP
 int CAT_load_sleep()
@@ -94,7 +95,7 @@ void CAT_force_save()
 	save->version_minor = CAT_VERSION_MINOR;
 	save->version_patch = CAT_VERSION_PATCH;
 	save->version_push = CAT_VERSION_PUSH;
-
+	
 	save->vigour = pet.vigour;
 	save->focus = pet.focus;
 	save->spirit = pet.spirit;
@@ -167,14 +168,17 @@ void CAT_force_load()
 	saved_version_patch = save->version_patch;
 	saved_version_push = save->version_push;
 
-	pet.vigour = save->vigour;
-	pet.focus = save->focus;
-	pet.spirit = save->spirit;
+	if(save->vigour <= 12)
+		pet.vigour = save->vigour;
+	if(save->focus <= 12)
+		pet.focus = save->focus;
+	if(save->spirit <= 12)
+		pet.spirit = save->spirit;
 	pet.lifetime = save->lifetime;
 
 	for(int i = 0; i < save->prop_count; i++)
 	{
-		int prop_id = save->prop_ids[i];
+		uint8_t prop_id = save->prop_ids[i];
 		CAT_ivec2 prop_place = save->prop_places[i];
 		if(CAT_prop_fits(prop_id, prop_place))
 		{
@@ -205,23 +209,15 @@ void CAT_force_load()
 
 	if(strlen(save->name) <= CAT_TEXT_INPUT_MAX)
 		strcpy(pet.name, save->name);
-	else
-		strcpy(pet.name, "Waldo");
 	
 	if(save->theme < THEME_COUNT)
 		room.theme = themes_list[save->theme];
-	else
-		room.theme = themes_list[0];
 
-	if(save->level >= 1)
+	if(pet.level < CAT_NUM_LEVELS)
 		pet.level = save->level;
-	else
-		pet.level = 1;
 		
-	if(save->xp >= 0)
+	if(save->xp <= level_cutoffs[CAT_NUM_LEVELS-1]);
 		pet.xp = save->xp;
-	else
-		pet.xp = 0;
 
 	CAT_finish_load();
 }

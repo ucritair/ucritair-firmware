@@ -1,5 +1,5 @@
 #pragma once
 
-#define CAT_MAX_LEVEL 50
+#define CAT_NUM_LEVELS 50
 
 extern const int level_cutoffs[];

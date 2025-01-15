@@ -13,12 +13,12 @@
 
 typedef struct CAT_pet
 {
-	int vigour;
-	int focus;
-	int spirit;
-	int lifetime;
-	int xp;
-	int level;
+	unsigned int vigour;
+	unsigned int focus;
+	unsigned int spirit;
+	unsigned int lifetime;
+	unsigned int xp;
+	unsigned int level;
 
 	CAT_vec2 pos;
 	CAT_vec2 dir;
@@ -30,9 +30,9 @@ typedef struct CAT_pet
 	int walk_timer_id;
 	int react_timer_id;
 
-	int times_pet;
+	unsigned int times_pet;
 	int petting_timer_id;
-	int times_milked;
+	unsigned int times_milked;
 
 	char name[64];
 } CAT_pet;

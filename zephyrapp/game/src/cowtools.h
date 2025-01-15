@@ -89,6 +89,30 @@ static inline CAT_rectangle CAT_rect(float l, float b, float r, float t)
 	return result;
 }
 
+static inline CAT_rectangle CAT_rect_shift(CAT_rectangle r, CAT_vec2 v)
+{
+	r.min = CAT_v2_add(r.min, v);
+	r.max = CAT_v2_add(r.max, v);
+}
+
+static inline bool CAT_rect_point(CAT_rectangle r, CAT_vec2 p)
+{
+	if(p.x < r.l || p.x > r.r)
+		return false;
+	if(p.y < r.b || p.y > r.t)
+		return false;
+	return true;
+}
+
+static inline bool CAT_rect_rect(CAT_rectangle a, CAT_rectangle b)
+{
+	if(a.r < b.l || a.l > b.r)
+		return false;
+	if(a.t < b.b || a.b > b.t)
+		return false;
+	return true;
+}
+
 
 
 
