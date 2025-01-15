@@ -27,7 +27,7 @@ struct {
 void init_rle_decode(const CAT_sprite* sprite, int frame_idx, int width)
 {
 	rle_decode_state.ptr = sprite->frames[frame_idx];
-	rle_decode_state.colortab = sprite->color_table;
+	rle_decode_state.colortab = sprite->colour_table;
 	rle_decode_state.width = width;
 	rle_decode_state.rle_count = 0;
 }
@@ -53,7 +53,6 @@ void unpack_rle_row()
 		{
 			rle_decode_state.rle_word = rle_decode_state.colortab[RLE_NEXT()];
 			rle_decode_state.rle_count = RLE_NEXT();
-
 			// CAT_printf("rep %04x cnt %04x\n", repeated, repeat_count);
 		}
 		else

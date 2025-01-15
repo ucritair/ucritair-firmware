@@ -14,7 +14,7 @@ pygame.init()
 
 @dataclass
 class BakeData:
-	idx: int
+	i: int
 	name: str
 	path: str
 	frames: str
@@ -32,22 +32,14 @@ class BakeData:
 		return True
 		return not (self.name.startswith('base_wall') or self.name.startswith('base_floor'))
 
-def RGBA88882RGB565(c):
-	if len(c) == 4 and c[3] < 128:
-		return 0xdead;
-	r = int((c[0] / 255) * 31);
-	g = int((c[1] / 255) * 63);
-	b = int((c[2] / 255) * 31);
-	return (r << 11) | (g << 5) | b;
-
 json_file = open("sprites/sprites.json", "r+");
 json_data = json.load(json_file);
 json_entries = json_data["entries"];
 atlas = [];
 
-for (idx, sprite) in enumerate(json_entries):
+for (i, sprite) in enumerate(json_entries):
 	# Ensure correct JSON
-	sprite["id"] = idx;
+	sprite["id"] = i;
 	image = Image.open(os.path.join("sprites", sprite["path"]));
 	sprite["width"] = image.size[0];
 	sprite["height"] = image.size[1] // sprite["frames"];
@@ -73,17 +65,6 @@ with open("sprites/sprite_assets.h", "w") as fd:
 	fd.write("\n")
 	fd.write("#include <stdint.h>\n");
 	fd.write("\n");
-	fd.write("#ifdef CAT_EMBEDDED\n");
-	fd.write("typedef struct\n");
-	fd.write("{\n");
-	fd.write("\tint id;\n");
-	fd.write("\tconst uint16_t* color_table;\n");
-	fd.write("\tconst uint8_t** frames;\n");
-	fd.write("\tint frame_count;\n");
-	fd.write("\tint width;\n");
-	fd.write("\tint height;\n");
-	fd.write("} CAT_sprite;\n");
-	fd.write("#else\n");
 	fd.write("typedef struct\n");
 	fd.write("{\n");
 	fd.write("\tint id;\n");
@@ -93,15 +74,14 @@ with open("sprites/sprite_assets.h", "w") as fd:
 	fd.write("\tint width;\n");
 	fd.write("\tint height;\n");
 	fd.write("} CAT_sprite;\n");
-	fd.write("#endif\n");
 	fd.write("\n");
-	for (idx, sprite) in enumerate(atlas):
+	for (i, sprite) in enumerate(atlas):
 		fd.write(f"extern const CAT_sprite {sprite.name};\n");
 
 # assert len(set(x.path for x in atlas)) == len([x.path for x in atlas]), "Duplicated path"
 assert len(set(x.name for x in atlas)) == len([x.name for x in atlas]), "Duplicated name"
 
-atlas.sort(key=lambda x: x.idx)
+atlas.sort(key=lambda x: x.i)
 
 def hex4(x):
 	h = hex(x)[2:]
@@ -119,7 +99,7 @@ for x in atlas:
 		textures[x.path] = pygame.image.load(os.path.join("sprites", x.path))
 	except FileNotFoundError:
 		print("Falling back for ", x.path)
-		textures[x.path] = pygame.image.load(os.path.join("sprites", "none_24x24.png"))
+		textures[x.path] = pygame.image.load(os.path.join("sprites", "null.png"))
 
 def get_px(image, x, y):
 	r, g, b, a = image.get_at((x, y))
@@ -209,94 +189,11 @@ def rleencode(data, width):
 texture_use_cache = {}
 
 with open("sprites/sprite_assets.c", 'w') as fd:
-	fd.write("#include \"sprite_assets.h\"\n")
-	fd.write('\n')
+	fd.write("#include \"sprite_assets.h\"\n");
+	fd.write('\n');
+
 	fd.write("#ifdef CAT_EMBEDDED\n");
-	for sprite in atlas:
-		if sprite.path not in texture_use_cache:
-			texture_use_cache[sprite.path] = sprite.name
-			image = textures[sprite.path]
-
-			colors = {}
-			# go through the whole 'image'
-			for row in range(sprite.height * sprite.frames):
-				for col in range(sprite.width):
-					px = get_px(image, col, row)
-					colors[px] = colors.get(px, 0) + 1
-
-			color_freq = list(colors.items())
-			color_freq.sort(key=lambda i: i[1], reverse=True)
-			while len(color_freq) > 255:
-				print("Dropped color")
-				color = color_freq.pop(-1)
-
-			key = list(x[0] for x in color_freq)
-
-			if sprite.do_compress:
-				fd.write("const uint16_t image_data_"+sprite.name+"_colorkey[] = {\n\t")
-				for idx, data in enumerate(key):
-					fd.write(hex4(data) + ", ")
-
-					if (idx%16) == 0 and idx != 0:
-						fd.write('\n\t')
-				fd.write("\n};\n")
-
-			for frame in range(sprite.frames):
-				fd.write("const uint8_t image_data_"+sprite.name+"_frame"+str(frame)+"[] = {\n\t")
-
-				lin_data = []
-				for row in range(sprite.height):
-					for col in range(sprite.width):
-						px = get_px(image, col, (frame * sprite.height) + row)
-						lin_data.append(px)
-
-				if sprite.do_compress:
-					sprite.colors = set(lin_data)
-					keyed_data = []
-					for word in lin_data:
-						try:
-							pos = key.index(word)
-						except ValueError:
-							pos = 0
-						keyed_data.append(pos)
-
-					data = rleencode(keyed_data, sprite.width)
-					# sprite.rlesize = len(lin_data)
-
-					for idx, data in enumerate(data):
-						fd.write(hex2(data) + ", ")
-
-						if (idx%16) == 0 and idx != 0:
-							fd.write('\n\t')
-				else:
-					for idx, data in enumerate(lin_data):
-						fd.write(hex2(data&0xff) + ", " + hex2(data>>8) + ", ")
-
-						if (idx%16) == 0 and idx != 0:
-							fd.write('\n\t')
-
-				fd.write('\n};\n')
-
-			fd.write("const uint8_t* image_data_"+sprite.name+"[] = {\n")
-			for frame in range(sprite.frames):
-				fd.write("\timage_data_"+sprite.name+"_frame"+str(frame)+",\n")
-			fd.write("};\n")
 	fd.write("\n")
-
-	for sprite in atlas:
-		fd.write(f"const CAT_sprite {sprite.name} =\n");
-		fd.write("{\n");
-		name = texture_use_cache[sprite.path];
-		fd.write(f"\t.id = {sprite.idx},\n");
-		if sprite.do_compress:
-			fd.write(f"\t.color_table = image_data_{name}_colorkey,\n");
-		fd.write(f"\t.frames = image_data_{name},\n");
-		fd.write(f"\t.frame_count = {sprite.frames},\n");
-		fd.write(f"\t.width = {sprite.width},\n");
-		fd.write(f"\t.height = {sprite.height},\n");
-		fd.write("};\n");
-		fd.write("\n");
-
 	einksize = 0
 	if '--noswap' not in sys.argv:
 		fd.write('#include "../../src/epaper_rendering.h"\n')
@@ -339,7 +236,7 @@ with open("sprites/sprite_assets.c", 'w') as fd:
 
 			fd.write('\n\t}\n};\n');
 	fd.write("#endif\n");
-
+	fd.write("\n");
 
 def RGBA88882RGB565(c):
 	if len(c) == 4 and c[3] < 128:
@@ -348,6 +245,9 @@ def RGBA88882RGB565(c):
 	g = int((c[1] / 255) * 63);
 	b = int((c[2] / 255) * 31);
 	return (r << 11) | (g << 5) | b;
+
+def reverse_endianness(c):
+	return int.from_bytes(c.to_bytes(2)[::-1]);
 
 def TOS_tabulate_colour(image):
 	pal = image.palette.colors;
@@ -393,11 +293,10 @@ def TOS_rl_encode(image):
 	return stream;
 
 with open("sprites/sprite_assets.c", 'a') as fd:
-	fd.write("#ifdef CAT_DESKTOP\n");
-
 	path_map = {};
 	compression_ratio = 0;
-	for (idx, sprite) in enumerate(json_entries):
+
+	for (i, sprite) in enumerate(json_entries):
 		path = sprite["path"];
 		if path in path_map:
 			continue;
@@ -407,9 +306,11 @@ with open("sprites/sprite_assets.c", 'a') as fd:
 		raw_size = image.size[0] * image.size[1] * 2;
 
 		colour_table = TOS_tabulate_colour(image);
-		fd.write(f"const uint16_t sprite_{idx}_colour_table[] = \n");
+		fd.write(f"const uint16_t sprite_{i}_colour_table[] = \n");
 		fd.write("{\n");
 		for c in colour_table:
+			if c != 0xdead:
+				c = reverse_endianness(c);
 			fd.write(f"\t{hex(c)},\n");
 		fd.write("};\n");
 		fd.write("\n");
@@ -417,37 +318,38 @@ with open("sprites/sprite_assets.c", 'a') as fd:
 		frame_width = image.size[0];
 		frame_height = image.size[1] // frame_count;
 		compressed_size = 0;
-		fd.write(f"const uint8_t* sprite_{idx}_frames[] = \n");
-		fd.write("{\n");
-		for i in range(frame_count):
+		for j in range(frame_count):
 			l = 0;
 			r = frame_width;
-			t = frame_height * i;
+			t = frame_height * j;
 			b = t + frame_height;
 			frame = image.crop((l, t, r, b));
-
 			stream = TOS_rl_encode(frame);
-			tokens = TOS_rl_tokenize(stream);		
-			fd.write(f"\t[{i}] = (uint8_t[])\n");
-			fd.write("\t{\n\t\t");
-			for (j, token) in enumerate(tokens):
-				if j > 0 and j % 32 == 0:
-					fd.write("\n\t\t");
-				fd.write(f"{hex(token)},");
-				if j == len(tokens)-1:
-					fd.write("\n");
-			fd.write("\t},\n");
+			tokens = TOS_rl_tokenize(stream);	
 
+			fd.write(f"const uint8_t sprite_{i}_frame_{j}[] = \n");
+			fd.write("{\n\t");
+			for (k, token) in enumerate(tokens):
+				if k > 0 and k % 32 == 0:
+					fd.write("\n\t");
+				fd.write(f"{hex(token)},");
+				if k == len(tokens)-1:
+					fd.write("\n");
 			compressed_size += len(tokens);
+			fd.write("};\n");
+			fd.write("\n");
+
+		fd.write(f"const uint8_t* sprite_{i}_frames[] = \n");
+		fd.write("{\n");
+		for j in range(frame_count):
+			fd.write(f"\tsprite_{i}_frame_{j},\n");
 		fd.write("};\n");
 		fd.write("\n");
 
-		path_map[path] = idx;
+		path_map[path] = i;
 		compression_ratio += raw_size / compressed_size;
-
-	print(f"Mean compression ratio: {compression_ratio / len(path_map):.2f}");
-		
-	for (idx, sprite) in enumerate(json_entries):
+	
+	for (i, sprite) in enumerate(json_entries):
 		fd.write(f"const CAT_sprite {sprite["name"]} =\n");
 		fd.write("{\n");
 		fd.write(f"\t.id = {sprite["id"]},\n");
@@ -461,6 +363,6 @@ with open("sprites/sprite_assets.c", 'a') as fd:
 		fd.write(f"\t.height = {sprite["height"]},\n");
 		fd.write("};\n");
 		fd.write("\n");
-
-	fd.write("#endif\n");
 	fd.write("\n");
+
+	print(f"Mean compression ratio: {compression_ratio / len(path_map):.2f}");

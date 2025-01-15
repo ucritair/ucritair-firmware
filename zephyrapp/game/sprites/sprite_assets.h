@@ -2,17 +2,6 @@
 
 #include <stdint.h>
 
-#ifdef CAT_EMBEDDED
-typedef struct
-{
-	int id;
-	const uint16_t* color_table;
-	const uint8_t** frames;
-	int frame_count;
-	int width;
-	int height;
-} CAT_sprite;
-#else
 typedef struct
 {
 	int id;
@@ -22,7 +11,6 @@ typedef struct
 	int width;
 	int height;
 } CAT_sprite;
-#endif
 
 extern const CAT_sprite base_wall_sprite;
 extern const CAT_sprite sky_wall_sprite;
