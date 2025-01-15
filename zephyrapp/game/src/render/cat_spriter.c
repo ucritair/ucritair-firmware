@@ -204,6 +204,8 @@ void CAT_draw_sprite(const CAT_sprite* sprite, int frame_idx, int x, int y)
 		uint8_t token = frame[run_idx++];
 		uint16_t colour_idx = token == 0xff ? frame[run_idx++] : token;
 		uint16_t colour_565 = sprite->colour_table[colour_idx];
+		if(colour_565 != 0xdead)
+			colour_565 = (colour_565 >> 8) | ((colour_565 & 0xff) << 8);
 		uint8_t run_length = token == 0xff ? frame[run_idx++] : 1;
 		uint8_t run_remainder = run_length;
 		

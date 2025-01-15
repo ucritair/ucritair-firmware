@@ -41,7 +41,7 @@ void CAT_input_tick()
 		if(!current_state)
 			input.dirty[i] = false;
 		if(input.dirty[i])
-			continue;
+			current_state = false;
 
 		bool old_state = input.last[i];
 		input.last[i] = input.mask[i];

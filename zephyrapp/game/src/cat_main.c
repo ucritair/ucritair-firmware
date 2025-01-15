@@ -215,8 +215,7 @@ void CAT_force_load()
 
 	if(pet.level < CAT_NUM_LEVELS)
 		pet.level = save->level;
-		
-	if(save->xp <= level_cutoffs[CAT_NUM_LEVELS-1]);
+	if(save->xp <= level_cutoffs[pet.level]);
 		pet.xp = save->xp;
 
 	CAT_finish_load();
