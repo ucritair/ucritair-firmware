@@ -139,7 +139,6 @@ bool CAT_input_pulse(int button)
 	{
 		if(input.time[button] < 0.15f)
 		{
-			CAT_play_sound(&thud_sound);
 			return !input.last[button];
 		}
 		
@@ -147,7 +146,6 @@ bool CAT_input_pulse(int button)
 		if(input.pulse[button] >= 0.1f)
 		{
 			input.pulse[button] = 0;
-			CAT_play_sound(&coin_sound);
 			return true;
 		}
 		return false;
