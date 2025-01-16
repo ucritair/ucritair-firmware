@@ -97,7 +97,7 @@ void CAT_render_debug()
 		{
 			CAT_gui_title(true, NULL, &icon_exit_sprite, "INPUT");
 			CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
-			
+
 			uint16_t input_mask = CAT_get_buttons();
 			for(int i = 0; i < CAT_BUTTON_LAST; i++)
 			{
@@ -105,6 +105,17 @@ void CAT_render_debug()
 				CAT_gui_textf("%d", state);
 			}
 			CAT_gui_line_break();
+			if(input_mask != 0)
+			{
+				float max_time = 0;
+				for(int i = 0; i < CAT_BUTTON_LAST; i++)
+				{
+					if(input.time[i] > max_time)
+						max_time = input.time[i];
+				}
+				CAT_gui_textf("%f\n", max_time);
+			}
+			
 		}
 		break;
 		default:

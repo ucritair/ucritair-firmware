@@ -47,7 +47,10 @@ void CAT_input_tick()
 		input.mask[i] = current_state;
 		
 		if(!input.mask[i])
+		{
 			input.time[i] = 0;
+			input.pulse[i] = 0;
+		}
 		else
 			input.time[i] += CAT_get_delta_time();
 
@@ -132,19 +135,25 @@ bool CAT_input_pulse(int button)
 	if(!arbitrate())
 		return false;
 
-	if(input.mask[button] && input.time[button] < 0.15f)
-		return !input.last[button];
-
-	bool pulse = false;
 	if(input.mask[button])
 	{
-		if(input.pulse[button] == 0)
-			pulse = true;
+		if(input.time[button] < 0.15f)
+		{
+			CAT_play_sound(&thud_sound);
+			return !input.last[button];
+		}
+		
 		input.pulse[button] += CAT_get_delta_time();
 		if(input.pulse[button] >= 0.1f)
+		{
 			input.pulse[button] = 0;
+			CAT_play_sound(&coin_sound);
+			return true;
+		}
+		return false;
 	}
-	return pulse;
+
+	return false;
 }
 
 float CAT_input_time(int button)

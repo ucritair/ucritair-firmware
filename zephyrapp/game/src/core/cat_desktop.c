@@ -83,13 +83,13 @@ void CAT_platform_init()
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
-	simulator.lcd = glfwCreateWindow(LCD_SCREEN_W, LCD_SCREEN_H, "CAT", NULL, NULL);
-	if(simulator.lcd == NULL)
+	simulator.window = glfwCreateWindow(LCD_SCREEN_W, LCD_SCREEN_H, "CAT", NULL, NULL);
+	if(simulator.window == NULL)
 	{
 		CAT_printf("Failed to create window\n");
 	}
 
-	glfwMakeContextCurrent(simulator.lcd);
+	glfwMakeContextCurrent(simulator.window);
 	CAT_printf("Renderer: %s\n", glGetString(GL_RENDERER));
 	CAT_printf("GL version: %s\n", glGetString(GL_VERSION));
 	CAT_printf("SL version: %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
@@ -188,7 +188,7 @@ void CAT_LCD_post(uint16_t* buffer)
 
 	glBindVertexArray(simulator.vao_id);
 	glDrawArrays(GL_TRIANGLES, 0, 6);	
-	glfwSwapBuffers(simulator.lcd);
+	glfwSwapBuffers(simulator.window);
 }
 
 bool CAT_LCD_is_posted()
@@ -250,7 +250,7 @@ uint16_t CAT_get_buttons()
 	for(int i = 0; i < CAT_BUTTON_LAST; i++)
 	{
 		int key = input_map[i];
-		if(glfwGetKey(simulator.lcd, key))
+		if(glfwGetKey(simulator.window, key))
 		{
 			mask |= 1 << i;
 		}
@@ -261,10 +261,10 @@ uint16_t CAT_get_buttons()
 void CAT_get_touch(CAT_touch* touch)
 {
 	double x, y;
-	glfwGetCursorPos(simulator.lcd, &x, &y);
+	glfwGetCursorPos(simulator.window, &x, &y);
 	touch->x = x;
 	touch->y = y;
-	touch->pressure = glfwGetMouseButton(simulator.lcd, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS;
+	touch->pressure = glfwGetMouseButton(simulator.window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS;
 }
 
 
@@ -366,7 +366,7 @@ void CAT_finish_load()
 
 int CAT_get_battery_pct()
 {
-	if(glfwWindowShouldClose(simulator.lcd))
+	if(glfwWindowShouldClose(simulator.window))
 	{
 		return 0;
 	}

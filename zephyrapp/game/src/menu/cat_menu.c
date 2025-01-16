@@ -151,8 +151,8 @@ static CAT_menu_node root =
 		&menu_node_air,
 		&menu_node_system,
 #endif
-#ifdef CAT_DEBUG
 		&menu_node_debug,
+#ifdef CAT_DEBUG
 		&menu_node_cheats,
 #endif
 		&menu_node_manual,
