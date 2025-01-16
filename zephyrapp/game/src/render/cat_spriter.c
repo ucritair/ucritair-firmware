@@ -13,9 +13,79 @@ void CAT_spriter_init()
 	spriter.mode = CAT_DRAW_MODE_DEFAULT;
 }
 
-#ifdef CAT_EMBEDDED
-uint16_t rle_work_region[160];
+void CAT_draw_sprite(const CAT_sprite* sprite, int frame_idx, int x, int y)
+{
+	if(sprite == NULL)
+	{
+		CAT_printf("[ERROR] CAT_draw_sprite: null sprite\n");
+		return;
+	}
 
+	int w = sprite->width;
+	int h = sprite->height;
+	if((spriter.mode & CAT_DRAW_MODE_CENTER_X) > 0)
+		x -= w/2;
+	if((spriter.mode & CAT_DRAW_MODE_CENTER_Y) > 0)
+		y -= h/2;
+	else if((spriter.mode & CAT_DRAW_MODE_BOTTOM) > 0)
+		y -= h;
+
+#ifdef CAT_EMBEDDED
+	y -= framebuffer_offset_h;
+#endif
+	int y_f = y + h;
+	if (y >= LCD_FRAMEBUFFER_H)
+		return;
+	if(y_f < 0)
+		return;
+	if(y_f > LCD_FRAMEBUFFER_H)
+		y_f = LCD_FRAMEBUFFER_H;
+
+	const uint8_t* frame = sprite->frames[frame_idx];
+	int run_idx = 0;
+	int dx = 0;
+
+	while(y < y_f)
+	{
+		uint8_t token = frame[run_idx++];
+		uint16_t colour_idx = token == 0xff ? frame[run_idx++] : token;
+		uint16_t colour_565 = sprite->colour_table[colour_idx];
+#ifdef CAT_DESKTOP
+		if(colour_565 != 0xdead)
+			colour_565 = (colour_565 >> 8) | ((colour_565 & 0xff) << 8);
+#endif
+		uint8_t run_length = token == 0xff ? frame[run_idx++] : 1;
+		uint8_t run_remainder = run_length;
+		
+		while(run_remainder > 0)
+		{
+			int x_w =
+			((spriter.mode & CAT_DRAW_MODE_REFLECT_X) > 0) ?
+			x + w - dx : x + dx;
+
+			if
+			(
+				colour_565 != 0xdead &&
+				y >= 0 && x_w >= 0 && x_w < LCD_SCREEN_W
+			)
+			{
+				
+				int px_idx = y * LCD_SCREEN_W + x_w;
+				FRAMEBUFFER[px_idx] = colour_565;
+			}
+			
+			dx += 1;
+			if(dx >= w)
+			{
+				dx = 0;
+				y += 1;
+			}
+			run_remainder -= 1;
+		}
+	}
+}
+
+uint16_t rle_work_region[160];
 struct {
 	const uint8_t* ptr;
 	const uint16_t* colortab;
@@ -35,7 +105,6 @@ void init_rle_decode(const CAT_sprite* sprite, int frame_idx, int width)
 void unpack_rle_row()
 {
 #define RLE_NEXT() *(rle_decode_state.ptr++)
-	// CAT_printf("Unpack %d, width=%d\n", sprite->id, width);
 	int unpacked = 0;
 	while (unpacked < rle_decode_state.width)
 	{
@@ -47,83 +116,20 @@ void unpack_rle_row()
 		}
 
 		uint16_t word = RLE_NEXT();
-		// CAT_printf("word %04x ->", word);
 
 		if (word == 0xff)
 		{
-			rle_decode_state.rle_word = rle_decode_state.colortab[RLE_NEXT()];
+			uint16_t c = rle_decode_state.colortab[RLE_NEXT()];
+			c = (c >> 8) | ((c & 0xff) << 8);
+			rle_decode_state.rle_word = c;
 			rle_decode_state.rle_count = RLE_NEXT();
-			// CAT_printf("rep %04x cnt %04x\n", repeated, repeat_count);
 		}
 		else
 		{
-			rle_work_region[unpacked++] = rle_decode_state.colortab[word];
-			// CAT_printf("direct\n");
+			uint16_t c = rle_decode_state.colortab[word];
+			c = (c >> 8) | ((c & 0xff) << 8);
+			rle_work_region[unpacked++] = c;
 		}
-	}
-}
-
-void CAT_draw_sprite(const CAT_sprite* sprite, int frame_idx, int x, int y)
-{
-	if(sprite == NULL)
-	{
-		CAT_printf("[ERROR] CAT_draw_sprite: null sprite\n");
-		return;
-	}
-
-	int w = sprite->width;
-	int h = sprite->height;
-	init_rle_decode(sprite, frame_idx, sprite->width);
-	
-	if((spriter.mode & CAT_DRAW_MODE_CENTER_X) > 0)
-		x -= w/2;
-	if((spriter.mode & CAT_DRAW_MODE_CENTER_Y) > 0)
-		y -= h/2;
-	else if((spriter.mode & CAT_DRAW_MODE_BOTTOM) > 0)
-		y -= h;
-	y -= framebuffer_offset_h;
-	int y_end = y + h;
-
-	if (y >= LCD_FRAMEBUFFER_H) return;
-	if (y_end < 0) return;
-	if (y_end > LCD_FRAMEBUFFER_H)
-		y_end = LCD_FRAMEBUFFER_H;
-	
-	int read_dir = (spriter.mode & CAT_DRAW_MODE_REFLECT_X) ? -1 : 1;
-	int read_offset = (read_dir == 1) ? 0 : w-1;
-
-	while (y < y_end)
-	{
-		unpack_rle_row();
-		
-		if(y < 0)
-		{
-			y++;
-			continue;
-		}
-
-		const uint16_t* read_ptr = &rle_work_region[read_offset];
-		uint16_t* write_ptr = &FRAMEBUFFER[y * LCD_SCREEN_W + x];
-
-		for(int dx = 0; dx < w; dx++)
-		{
-			int x_w = x + dx;
-			if (x_w >= LCD_SCREEN_W)
-				break;
-
-			if(x_w >= 0)
-			{
-				uint16_t px = *read_ptr;
-
-				if(px != 0xdead)
-					*write_ptr = px;
-			}
-
-			read_ptr += read_dir;
-			write_ptr += 1;
-		}
-
-		y++;
 	}
 }
 
@@ -137,8 +143,10 @@ void CAT_draw_tiles(const CAT_sprite* sprite, int frame_idx, int y_t, int h_t)
 
 	int y_start = y_t * CAT_TILE_SIZE;
 	int y_end = (y_t+h_t) * CAT_TILE_SIZE;
+#ifdef CAT_EMBEDDED
 	y_start -= framebuffer_offset_h;
 	y_end -= framebuffer_offset_h;
+#endif
 
 	if (y_start >= LCD_FRAMEBUFFER_H) return;
 	if (y_end < 0) return;
@@ -169,96 +177,6 @@ void CAT_draw_tiles(const CAT_sprite* sprite, int frame_idx, int y_t, int h_t)
 		}
 	}
 }
-#endif
-
-#ifdef CAT_DESKTOP
-void CAT_draw_sprite(const CAT_sprite* sprite, int frame_idx, int x, int y)
-{
-	if(sprite == NULL)
-	{
-		CAT_printf("[ERROR] CAT_draw_sprite: null sprite\n");
-		return;
-	}
-
-	int w = sprite->width;
-	int h = sprite->height;
-	if((spriter.mode & CAT_DRAW_MODE_CENTER_X) > 0)
-		x -= w/2;
-	if((spriter.mode & CAT_DRAW_MODE_CENTER_Y) > 0)
-		y -= h/2;
-	else if((spriter.mode & CAT_DRAW_MODE_BOTTOM) > 0)
-		y -= h;
-
-	int y_f = y + h;
-	if(y_f < 0)
-		return;
-	if(y_f > LCD_SCREEN_H)
-		y_f = LCD_SCREEN_H;
-
-	const uint8_t* frame = sprite->frames[frame_idx];
-	int run_idx = 0;
-	int dx = 0;
-
-	while(y < y_f)
-	{
-		uint8_t token = frame[run_idx++];
-		uint16_t colour_idx = token == 0xff ? frame[run_idx++] : token;
-		uint16_t colour_565 = sprite->colour_table[colour_idx];
-		if(colour_565 != 0xdead)
-			colour_565 = (colour_565 >> 8) | ((colour_565 & 0xff) << 8);
-		uint8_t run_length = token == 0xff ? frame[run_idx++] : 1;
-		uint8_t run_remainder = run_length;
-		
-		while(run_remainder > 0)
-		{
-			int x_w = x + dx;
-
-			if
-			(
-				colour_565 != 0xdead &&
-				y >= 0 && x_w >= 0 && x_w < LCD_SCREEN_W
-			)
-			{
-				if((spriter.mode & CAT_DRAW_MODE_REFLECT_X) > 0)
-					x_w = x + w - dx;
-				int px_idx = y * LCD_SCREEN_W + x_w;
-				FRAMEBUFFER[px_idx] = colour_565;
-			}
-			
-			dx += 1;
-			if(dx >= w)
-			{
-				dx = 0;
-				y += 1;
-			}
-			run_remainder -= 1;
-		}
-	}
-}
-
-void CAT_draw_tiles(const CAT_sprite* sprite, int frame_idx, int y_t, int h_t)
-{
-	if(sprite == NULL)
-	{
-		CAT_printf("[ERROR] CAT_draw_tiles: null sprite\n");
-		return;
-	}
-
-	int y_start = y_t * CAT_TILE_SIZE;
-	int y_end = (y_t+h_t) * CAT_TILE_SIZE;
-
-	CAT_draw_mode backup = spriter.mode;
-	spriter.mode = CAT_DRAW_MODE_DEFAULT;
-	for(int y = y_start; y <= y_end; y += CAT_TILE_SIZE)
-	{
-		for(int x = 0; x < LCD_SCREEN_W; x += CAT_TILE_SIZE)
-		{
-			CAT_draw_sprite(sprite, frame_idx, x, y);
-		}
-	}
-	spriter.mode = backup;
-}
-#endif
 
 void CAT_spriter_cleanup()
 {
