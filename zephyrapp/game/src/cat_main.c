@@ -215,7 +215,7 @@ void CAT_force_load()
 
 	if(pet.level < CAT_NUM_LEVELS)
 		pet.level = save->level;
-	if(save->xp <= level_cutoffs[pet.level]);
+	if(save->xp <= level_cutoffs[pet.level])
 		pet.xp = save->xp;
 
 	CAT_finish_load();
@@ -241,6 +241,42 @@ void CAT_apply_sleep()
 	CAT_timer_add(pet.petting_timer_id, logged_sleep);
 }
 
+#if CLIENT == BOYS_CLUB
+const CAT_sprite* splash = &boys_club_splash;
+#else
+const CAT_sprite* splash = NULL;
+#endif
+
+void CAT_MS_splash(CAT_machine_signal signal)
+{
+	switch (signal)
+	{
+		case CAT_MACHINE_SIGNAL_ENTER:
+		break;
+		case CAT_MACHINE_SIGNAL_TICK:
+			if
+			(
+				CAT_input_pressed(CAT_BUTTON_A) ||
+				CAT_input_pressed(CAT_BUTTON_B) ||
+				CAT_input_pressed(CAT_BUTTON_START)
+			)
+			{
+				CAT_machine_transition(CAT_MS_room);
+			}
+		break;
+		case CAT_MACHINE_SIGNAL_EXIT:
+		break;
+	}
+	
+}
+
+void CAT_render_splash()
+{
+	spriter.mode = CAT_DRAW_MODE_DEFAULT;
+	CAT_frameberry(0x0000);
+	CAT_draw_sprite(splash, 0, 0, 0);
+}
+
 void CAT_init(int seconds_slept)
 {
 	logged_sleep = seconds_slept;
@@ -264,7 +300,10 @@ void CAT_init(int seconds_slept)
 	CAT_pet_reanimate();
 	CAT_pet_reposition();
 	
-	CAT_machine_transition(CAT_MS_room);
+	if(splash != NULL && logged_sleep >= 60)
+		CAT_machine_transition(CAT_MS_splash);
+	else
+		CAT_machine_transition(CAT_MS_room);
 }
 
 bool in_world()
@@ -346,6 +385,8 @@ void CAT_tick_render(int cycle)
 		CAT_render_hedron();
 	else if(machine == CAT_MS_magic)
 		CAT_render_magic();
+	else if(machine == CAT_MS_splash)
+		CAT_render_splash();
 	else
 	{
 		CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 20});
