@@ -596,13 +596,13 @@ void CAT_MS_room(CAT_machine_signal signal)
 			if(CAT_input_pressed(CAT_BUTTON_START))
 				CAT_machine_transition(CAT_MS_menu);
 
-			if(CAT_input_pulse(CAT_BUTTON_RIGHT))
+			if(CAT_input_pressed(CAT_BUTTON_RIGHT))
 			{
 				mode_selector += 1;
 				if(mode_selector > 4)
 					mode_selector = 0;
 			}
-			if(CAT_input_pulse(CAT_BUTTON_LEFT))
+			if(CAT_input_pressed(CAT_BUTTON_LEFT))
 			{
 				mode_selector -= 1;
 				if(mode_selector < 0)

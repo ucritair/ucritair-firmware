@@ -98,7 +98,7 @@ void CAT_timer_reset(int timer_id)
 	if(!CAT_timer_validate(timer_id))
 		return;
 
-	timetable.timer[timer_id] = 0;
+	timetable.timer[timer_id] = 0.0f;
 }
 
 bool CAT_timer_done(int timer_id)

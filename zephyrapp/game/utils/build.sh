@@ -20,7 +20,7 @@ if [[ $1 == "--embedded" ]]; then
 	if [ ! -f ../build/makefile ]; then
 		cd ../build
 		cmake .. -DBOARD=cat5340/nrf5340/cpuapp
-		cd ..
+		cd ../game
 	fi
 
 	cd ../build

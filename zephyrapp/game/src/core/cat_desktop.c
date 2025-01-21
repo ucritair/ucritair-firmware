@@ -1,4 +1,4 @@
-#include "cat_desktop.h"
+#include "cat_core.h"
 
 #include <time.h>
 #include <stdlib.h>
@@ -7,16 +7,29 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/stat.h>
-#include "cat_core.h"
 #include "cat_math.h"
 #include <string.h>
 #include "cat_version.h"
 #include <stdarg.h>
 
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // CORE
 
-CAT_simulator simulator;
+struct
+{
+    GLFWwindow* window;
+    GLuint vao_id;
+    GLuint vbo_id;
+    GLuint tex_id;
+    GLuint prog_id;
+    GLuint tex_loc;    
+
+    float time;
+    float delta_time;
+} simulator;
 
 void GLFW_error_callback(int error, const char* msg)
 {
@@ -201,6 +214,11 @@ void CAT_LCD_set_backlight(int percent)
 	return;
 }
 
+bool CAT_first_frame_complete()
+{
+	return true;
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // EINK SCREEN
@@ -232,7 +250,7 @@ void CAT_play_sound(CAT_sound* sound) {}
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // INPUT
 
-int input_map[CAT_BUTTON_LAST] =
+int input_map[] =
 {
 	GLFW_KEY_ESCAPE,
 	GLFW_KEY_TAB,
@@ -243,11 +261,12 @@ int input_map[CAT_BUTTON_LAST] =
 	GLFW_KEY_A,
 	GLFW_KEY_W
 };
+#define NUM_BUTTONS (sizeof(input_map) / sizeof(input_map[0]))
 
 uint16_t CAT_get_buttons()
 {
 	uint16_t mask = 0;
-	for(int i = 0; i < CAT_BUTTON_LAST; i++)
+	for(int i = 0; i < NUM_BUTTONS; i++)
 	{
 		int key = input_map[i];
 		if(glfwGetKey(simulator.window, key))

@@ -134,6 +134,12 @@
                 "key": "type",
                 "value": "prop"
             }
+        },
+        "tier": {
+            "type": "int",
+            "permissions": [
+                "write"
+            ]
         }
     },
     "entries": [

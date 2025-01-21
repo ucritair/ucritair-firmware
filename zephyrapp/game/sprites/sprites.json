@@ -1772,7 +1772,7 @@
         {
             "id": 217,
             "name": "boys_club_splash",
-            "path": "ui/boys_club_splash.png",
+            "path": "clients/boys_club_splash.png",
             "frames": 1,
             "width": 240,
             "height": 320

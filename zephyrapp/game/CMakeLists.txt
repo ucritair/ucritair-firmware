@@ -60,6 +60,22 @@ add_custom_command(
 	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../data/items.json
 )
 
+add_custom_command(
+	OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/../data/theme_assets.h ${CMAKE_CURRENT_BINARY_DIR}/../data/theme_assets.c
+	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../
+	COMMAND ${CMAKE_CURRENT_BINARY_DIR}/../utils/themegen.py
+	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../utils/themegen.py
+	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../data/themes.json
+)
+
+add_custom_command(
+	OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/../data/config.h ${CMAKE_CURRENT_BINARY_DIR}/../data/config.c
+	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../
+	COMMAND ${CMAKE_CURRENT_BINARY_DIR}/../utils/configgen.py
+	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../utils/configgen.py
+	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../data/config.json
+)
+
 target_sources(app PRIVATE
 	src/core/cat_aqi.c
 
@@ -100,7 +116,7 @@ target_sources(app PRIVATE
 	sprites/sprite_assets.c
 	data/item_assets.c
 	data/theme_assets.c
-	data/stats.c
+	data/config.c
 
 	src/cat_main.c)
 

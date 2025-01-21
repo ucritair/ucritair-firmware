@@ -15,6 +15,7 @@ LOG_MODULE_REGISTER(lcd_rendering, LOG_LEVEL_DBG);
 #include "cat_pet.h"
 #include "cat_item.h"
 #include "cat_bag.h"
+#include "cat_core.h"
 
 #include "menu_system.h"
 
@@ -70,6 +71,7 @@ void lcd_write_str(uint16_t color, int x, int y, char* str)
 uint32_t hack_cyc_before_data_write, hack_cyc_after_data_write, hack_before_blit, hack_after_blit;
 
 extern volatile bool write_done;
+volatile bool first_frame_complete = false;
 
 int epaper_update_rate = -1;
 
@@ -226,6 +228,7 @@ void lcd_render_diag()
 			{
 #ifndef MINIMIZE_GAME_FOOTPRINT
 				CAT_tick_render(step);
+				first_frame_complete = true;
 #endif
 			}
 

@@ -1,4 +1,3 @@
-#include "cat_embedded.h"
 #include "cat_core.h"
 
 #include <zephyr/kernel.h>
@@ -44,6 +43,7 @@ void CAT_platform_cleanup()
 void CAT_LCD_post(uint16_t* buffer){}
 
 extern volatile bool write_done;
+extern volatile bool first_frame_complete;
 
 bool CAT_LCD_is_posted()
 {
@@ -51,6 +51,11 @@ bool CAT_LCD_is_posted()
 }
 
 void CAT_LCD_set_backlight(int percent){}
+
+bool CAT_first_frame_complete()
+{
+	return first_frame_complete;
+}
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -1,11 +1,5 @@
 #pragma once
 
-#ifdef CAT_DESKTOP
-#include "cat_desktop.h"
-#else
-#include "cat_embedded.h"
-#endif
-
 #include <stdint.h>
 #include <stdbool.h>
 #include "cat_math.h"
@@ -28,6 +22,7 @@ void CAT_platform_cleanup();
 void CAT_LCD_post(uint16_t* buffer);
 bool CAT_LCD_is_posted();
 void CAT_LCD_set_backlight(int percent);
+bool CAT_first_frame_complete();
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -129,7 +124,7 @@ typedef struct __attribute__((__packed__)) CAT_save
 	float petting_timer;
 	uint8_t times_milked;
 
-	uint8_t name[32];
+	int8_t name[32];
 
 	uint32_t theme;
 

@@ -11,7 +11,7 @@
 #include "cat_gui.h"
 #include "cat_bag.h"
 #include <string.h>
-#include "stats.h"
+#include "config.h"
 
 CAT_pet pet;
 

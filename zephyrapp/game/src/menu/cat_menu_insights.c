@@ -8,7 +8,7 @@
 #include "cat_render.h"
 #include "cat_bag.h"
 #include <string.h>
-#include "stats.h"
+#include "config.h"
 
 void CAT_MS_insights(CAT_machine_signal signal)
 {

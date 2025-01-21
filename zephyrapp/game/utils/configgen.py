@@ -5,20 +5,22 @@ import json;
 import os;
 import pathlib as pl;
 
-json_file = open("data/tweaking.json", "r");
+json_file = open("data/config.json", "r");
 json_data = json.load(json_file);
 json_file.close();
 
-header = open("data/stats.h", "w");
+header = open("data/config.h", "w");
 header.write("#pragma once\n");
 header.write("\n");
 header.write(f"#define CAT_NUM_LEVELS {json_data["num_levels"]}\n");
-header.write("\n");
 header.write("extern const int level_cutoffs[];\n");
+header.write("\n");
+if json_data["client"] != None:
+	header.write(f"#define CLIENT {json_data["client"]}");
 header.close();
 
-source = open("data/stats.c", "w");
-source.write("#include \"stats.h\"\n");
+source = open("data/config.c", "w");
+source.write("#include \"config.h\"\n");
 source.write("\n");
 
 source.write("const int level_cutoffs[] =\n");

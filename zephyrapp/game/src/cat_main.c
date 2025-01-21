@@ -8,6 +8,7 @@
 #include <time.h>
 #include <unistd.h>
 #include <sys/fcntl.h>
+#include <stddef.h>
 
 #include "cat_core.h"
 #include "cat_render.h"
@@ -29,7 +30,7 @@
 
 #include "cat_version.h"
 #include "theme_assets.h"
-#include "stats.h"
+#include "config.h"
 
 #ifdef CAT_EMBEDDED
 #include "menu_time.h"
@@ -241,21 +242,27 @@ void CAT_apply_sleep()
 	CAT_timer_add(pet.petting_timer_id, logged_sleep);
 }
 
-#if CLIENT == BOYS_CLUB
+#define CAT_SPLASH_COOLDOWN_SECS 0
+#if defined(CLIENT)
 const CAT_sprite* splash = &boys_club_splash;
 #else
 const CAT_sprite* splash = NULL;
 #endif
+int splash_timer_id = -1;
 
 void CAT_MS_splash(CAT_machine_signal signal)
 {
 	switch (signal)
 	{
 		case CAT_MACHINE_SIGNAL_ENTER:
+			if(splash_timer_id == -1)
+				splash_timer_id = CAT_timer_init(3.0f);
+			CAT_timer_reset(splash_timer_id);
 		break;
 		case CAT_MACHINE_SIGNAL_TICK:
 			if
 			(
+				(CAT_first_frame_complete() && CAT_timer_tick(splash_timer_id)) ||
 				CAT_input_pressed(CAT_BUTTON_A) ||
 				CAT_input_pressed(CAT_BUTTON_B) ||
 				CAT_input_pressed(CAT_BUTTON_START)
@@ -267,7 +274,6 @@ void CAT_MS_splash(CAT_machine_signal signal)
 		case CAT_MACHINE_SIGNAL_EXIT:
 		break;
 	}
-	
 }
 
 void CAT_render_splash()
@@ -299,8 +305,8 @@ void CAT_init(int seconds_slept)
 	
 	CAT_pet_reanimate();
 	CAT_pet_reposition();
-	
-	if(splash != NULL && logged_sleep >= 60)
+
+	if(splash != NULL && logged_sleep >= CAT_SPLASH_COOLDOWN_SECS)
 		CAT_machine_transition(CAT_MS_splash);
 	else
 		CAT_machine_transition(CAT_MS_room);

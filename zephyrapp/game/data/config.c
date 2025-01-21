@@ -1,4 +1,4 @@
-#include "stats.h"
+#include "config.h"
 
 const int level_cutoffs[] =
 {
