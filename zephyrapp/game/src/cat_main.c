@@ -262,10 +262,11 @@ void CAT_MS_splash(CAT_machine_signal signal)
 		case CAT_MACHINE_SIGNAL_TICK:
 			if
 			(
-				(CAT_first_frame_complete() && CAT_timer_tick(splash_timer_id)) ||
+				CAT_first_frame_complete() &&
+				(CAT_timer_tick(splash_timer_id) ||
 				CAT_input_pressed(CAT_BUTTON_A) ||
 				CAT_input_pressed(CAT_BUTTON_B) ||
-				CAT_input_pressed(CAT_BUTTON_START)
+				CAT_input_pressed(CAT_BUTTON_START))
 			)
 			{
 				CAT_machine_transition(CAT_MS_room);
