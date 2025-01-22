@@ -247,44 +247,6 @@ void CAT_apply_sleep()
 	CAT_timer_add(pet.petting_timer_id, logged_sleep);
 }
 
-#define CAT_SPLASH_COOLDOWN_SECS 0
-const CAT_sprite* splash = NULL;
-int splash_timer_id = -1;
-
-void CAT_MS_splash(CAT_machine_signal signal)
-{
-	switch (signal)
-	{
-		case CAT_MACHINE_SIGNAL_ENTER:
-			if(splash_timer_id == -1)
-				splash_timer_id = CAT_timer_init(3.0f);
-			CAT_timer_reset(splash_timer_id);
-		break;
-		case CAT_MACHINE_SIGNAL_TICK:
-			if
-			(
-				CAT_first_frame_complete() &&
-				(CAT_timer_tick(splash_timer_id) ||
-				CAT_input_pressed(CAT_BUTTON_A) ||
-				CAT_input_pressed(CAT_BUTTON_B) ||
-				CAT_input_pressed(CAT_BUTTON_START))
-			)
-			{
-				CAT_machine_transition(CAT_MS_room);
-			}
-		break;
-		case CAT_MACHINE_SIGNAL_EXIT:
-		break;
-	}
-}
-
-void CAT_render_splash()
-{
-	spriter.mode = CAT_DRAW_MODE_DEFAULT;
-	CAT_frameberry(0x0000);
-	CAT_draw_sprite(splash, 0, 0, 0);
-}
-
 void CAT_init(int seconds_slept)
 {
 	logged_sleep = seconds_slept;
@@ -308,10 +270,7 @@ void CAT_init(int seconds_slept)
 	CAT_pet_reanimate();
 	CAT_pet_reposition();
 
-	if(splash != NULL && (first_load || logged_sleep >= CAT_SPLASH_COOLDOWN_SECS))
-		CAT_machine_transition(CAT_MS_splash);
-	else
-		CAT_machine_transition(CAT_MS_room);
+	CAT_machine_transition(CAT_MS_room);
 }
 
 bool in_world()
@@ -393,8 +352,6 @@ void CAT_tick_render(int cycle)
 		CAT_render_hedron();
 	else if(machine == CAT_MS_magic)
 		CAT_render_magic();
-	else if(machine == CAT_MS_splash)
-		CAT_render_splash();
 	else
 	{
 		CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 20});
