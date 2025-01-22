@@ -44,7 +44,8 @@
 #pragma GCC diagnostic ignored "-Wunknown-pragmas"
 #endif
 
-int logged_sleep;
+int logged_sleep = 0;
+bool first_load = false;
 
 uint8_t saved_version_major;
 uint8_t saved_version_minor;
@@ -159,6 +160,7 @@ void CAT_force_load()
 
 	if(!CAT_check_save(save) || save == NULL)
 	{
+		first_load = true;
 		CAT_save_failsafe();
 		CAT_finish_load();
 		return;
@@ -224,6 +226,9 @@ void CAT_force_load()
 
 void CAT_apply_sleep()
 {
+	if(logged_sleep == 0)
+		return;
+		
 	int stat_ticks = logged_sleep / CAT_STAT_TICK_SECS;
 	int stat_remainder = logged_sleep % CAT_STAT_TICK_SECS;
 	CAT_pet_stat(stat_ticks);
@@ -243,11 +248,7 @@ void CAT_apply_sleep()
 }
 
 #define CAT_SPLASH_COOLDOWN_SECS 0
-#if defined(CLIENT)
-const CAT_sprite* splash = &boys_club_splash;
-#else
 const CAT_sprite* splash = NULL;
-#endif
 int splash_timer_id = -1;
 
 void CAT_MS_splash(CAT_machine_signal signal)
@@ -307,7 +308,7 @@ void CAT_init(int seconds_slept)
 	CAT_pet_reanimate();
 	CAT_pet_reposition();
 
-	if(splash != NULL && logged_sleep >= CAT_SPLASH_COOLDOWN_SECS)
+	if(splash != NULL && (first_load || logged_sleep >= CAT_SPLASH_COOLDOWN_SECS))
 		CAT_machine_transition(CAT_MS_splash);
 	else
 		CAT_machine_transition(CAT_MS_room);
