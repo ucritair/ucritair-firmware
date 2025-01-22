@@ -45,12 +45,12 @@
 #endif
 
 int logged_sleep = 0;
-bool first_load = false;
+bool first_load = true;
 
-uint8_t saved_version_major;
-uint8_t saved_version_minor;
-uint8_t saved_version_patch;
-uint8_t saved_version_push;
+uint8_t saved_version_major = CAT_VERSION_MAJOR;
+uint8_t saved_version_minor = CAT_VERSION_MINOR;
+uint8_t saved_version_patch = CAT_VERSION_PATCH;
+uint8_t saved_version_push = CAT_VERSION_PUSH;
 
 #ifdef CAT_DESKTOP
 int CAT_load_sleep()
@@ -160,11 +160,11 @@ void CAT_force_load()
 
 	if(!CAT_check_save(save) || save == NULL)
 	{
-		first_load = true;
 		CAT_save_failsafe();
 		CAT_finish_load();
 		return;
 	}
+	first_load = false;
 
 	saved_version_major = save->version_major;
 	saved_version_minor = save->version_minor;
@@ -226,9 +226,6 @@ void CAT_force_load()
 
 void CAT_apply_sleep()
 {
-	if(logged_sleep == 0)
-		return;
-		
 	int stat_ticks = logged_sleep / CAT_STAT_TICK_SECS;
 	int stat_remainder = logged_sleep % CAT_STAT_TICK_SECS;
 	CAT_pet_stat(stat_ticks);

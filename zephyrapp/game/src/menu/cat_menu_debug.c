@@ -74,7 +74,6 @@ void CAT_render_debug()
 			CAT_gui_textf("Pet: %0.0fs/%0.0fs\n", CAT_timer_get(pet.petting_timer_id), timetable.duration[pet.petting_timer_id]);
 			CAT_gui_textf("Pets: %d/5\n", pet.times_pet, 5);
 			CAT_gui_textf("Milks: %d/3\n", pet.times_milked, 3);
-			CAT_gui_textf("Splash: %0.0fs/%0.0fs\n", CAT_timer_get(6), timetable.duration[6]);
 		break;
 		case DECO:
 			CAT_gui_title(true, NULL, &icon_exit_sprite, "DECO");
@@ -125,16 +124,12 @@ void CAT_render_debug()
 		{
 			CAT_gui_title(true, NULL, &icon_exit_sprite, "CONFIG");
 			CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
-
 #define TOSTRING_INNER(x) #x
 #define TOSTRING(x) TOSTRING_INNER(x)
 #if defined(CAT_DESKTOP)
 			CAT_gui_text("PLATFORM: DESKTOP\n");
 #elif defined(CAT_EMBEDDED)
 			CAT_gui_text("PLATFORM: EMBEDDED\n");
-#endif
-#if defined(CLIENT)
-			CAT_gui_textf("CLIENT: %s\n", TOSTRING(CLIENT));
 #endif
 		}
 		break;
