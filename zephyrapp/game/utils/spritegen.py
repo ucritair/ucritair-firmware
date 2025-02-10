@@ -34,25 +34,25 @@ class BakeData:
 
 json_file = open("sprites/sprites.json", "r+");
 json_data = json.load(json_file);
-json_entries = json_data["entries"];
+json_entries = json_data['entries'];
 atlas = [];
 
 for (i, sprite) in enumerate(json_entries):
 	# Ensure correct JSON
-	sprite["id"] = i;
-	image = Image.open(os.path.join("sprites", sprite["path"]));
-	sprite["width"] = image.size[0];
-	sprite["height"] = image.size[1] // sprite["frames"];
+	sprite['id'] = i;
+	image = Image.open(os.path.join("sprites", sprite['path']));
+	sprite['width'] = image.size[0];
+	sprite['height'] = image.size[1] // sprite['frames'];
 	image.close();
 
 	# If so, atlasify
 	atlas.append(BakeData(
-		sprite["id"],
-		sprite["name"],
-		sprite["path"],
-		sprite["frames"],
-		sprite["width"],
-		sprite["height"]
+		sprite['id'],
+		sprite['name'],
+		sprite['path'],
+		sprite['frames'],
+		sprite['width'],
+		sprite['height']
 	));
 
 json_file.seek(0);
@@ -297,10 +297,10 @@ with open("sprites/sprite_assets.c", 'a') as fd:
 	compression_ratio = 0;
 
 	for (i, sprite) in enumerate(json_entries):
-		path = sprite["path"];
+		path = sprite['path'];
 		if path in path_map:
 			continue;
-		frame_count = sprite["frames"];
+		frame_count = sprite['frames'];
 
 		image = Image.open(os.path.join("sprites", path)).convert("P");
 		raw_size = image.size[0] * image.size[1] * 2;
@@ -350,17 +350,17 @@ with open("sprites/sprite_assets.c", 'a') as fd:
 		compression_ratio += raw_size / compressed_size;
 	
 	for (i, sprite) in enumerate(json_entries):
-		fd.write(f"const CAT_sprite {sprite["name"]} =\n");
+		fd.write(f"const CAT_sprite {sprite['name']} =\n");
 		fd.write("{\n");
-		fd.write(f"\t.id = {sprite["id"]},\n");
+		fd.write(f"\t.id = {sprite['id']},\n");
 
-		data_idx = path_map[sprite["path"]];
+		data_idx = path_map[sprite['path']];
 		fd.write(f"\t.colour_table = sprite_{data_idx}_colour_table,\n");
 		fd.write(f"\t.frames = sprite_{data_idx}_frames,\n");
 
-		fd.write(f"\t.frame_count = {sprite["frames"]},\n");
-		fd.write(f"\t.width = {sprite["width"]},\n");
-		fd.write(f"\t.height = {sprite["height"]},\n");
+		fd.write(f"\t.frame_count = {sprite['frames']},\n");
+		fd.write(f"\t.width = {sprite['width']},\n");
+		fd.write(f"\t.height = {sprite['height']},\n");
 		fd.write("};\n");
 		fd.write("\n");
 	fd.write("\n");

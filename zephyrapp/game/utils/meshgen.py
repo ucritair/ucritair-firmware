@@ -8,7 +8,7 @@ import pathlib as pl;
 json_path = os.path.join("meshes", "meshes.json");
 json_file = open(json_path, "r+");
 json_data = json.load(json_file)
-json_entries = json_data["entries"];
+json_entries = json_data['entries'];
 json_file.close();
 
 header_path = os.path.join("meshes", "mesh_assets.h");
@@ -25,7 +25,7 @@ header.write("\tint n_faces;\n");
 header.write("} CAT_mesh;\n");
 header.write("\n");
 for mesh in json_entries:
-	header.write(f"extern CAT_mesh {mesh["name"]}_mesh;\n");
+	header.write(f"extern CAT_mesh {mesh['name']}_mesh;\n");
 header.close();
 
 source_path = os.path.join("meshes", "mesh_assets.c");
@@ -33,23 +33,23 @@ source = open(source_path, "w");
 source.write("#include \"mesh_assets.h\"\n");
 source.write("\n");
 for mesh in json_entries:
-	with open(os.path.join("meshes", mesh["path"]), "r") as file:
+	with open(os.path.join("meshes", mesh['path']), "r") as file:
 		vs = [];
 		fs = [];
 		for line in iter(file.readline, ""):
 			tokens = line.split();
 			match tokens:
-				case ["v", x, y, z]:
+				case ['v", x, y, z]:
 					vs.append([float(x), float(y), float(z)]);
-				case ["f", a, b, c]:
+				case ['f", a, b, c]:
 					f = []
 					for v in [a, b, c]:
 						f.append(int(v.split("/")[0])-1);
 					fs.append(f);
 		
-		source.write(f"CAT_mesh {mesh["name"]}_mesh =\n");
+		source.write(f"CAT_mesh {mesh['name']}_mesh =\n");
 		source.write("{\n");
-		source.write(f"\t.path = \"{mesh["path"]}\",\n");
+		source.write(f"\t.path = \"{mesh['path']}\",\n");
 
 		source.write("\t.verts = (float[])\n");
 		source.write("\t{\n");

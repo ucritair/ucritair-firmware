@@ -9,7 +9,7 @@ import subprocess as sp;
 json_path = os.path.join("sounds", "sounds.json");
 json_file = open(json_path, "r");
 json_data = json.load(json_file);
-json_entries = json_data["entries"];
+json_entries = json_data['entries'];
 json_file.close();
 
 header_path = os.path.join("sounds", "sound_assets.h");
@@ -32,12 +32,12 @@ header.write("\tsize_t size;\n");
 header.write("} CAT_sound;\n");
 header.write("\n");
 for sound in json_entries:
-	header.write(f"extern CAT_sound {sound["name"]}_sound;\n");
+	header.write(f"extern CAT_sound {sound['name']}_sound;\n");
 header.close();
 
 sp.call("mkdir sounds/temp", shell=True);
 for sound in json_entries:
-	in_wav_path = os.path.join("sounds", sound["path"]);
+	in_wav_path = os.path.join("sounds", sound['path']);
 	out_wav_path = os.path.join("sounds/temp", "out.wav");
 	out_au_path = os.path.join("sounds/temp", "out.au");
 	out_bin_path = os.path.join("sounds/temp", "out.bin");
@@ -46,7 +46,7 @@ for sound in json_entries:
 	sp.call(f"utils/encoder.out 23 < {out_au_path} > {out_bin_path}", shell=True);
 	with open(out_bin_path, "rb") as file:
 		data = file.read();
-		source.write(f"CAT_sound {sound["name"]}_sound = \n");
+		source.write(f"CAT_sound {sound['name']}_sound = \n");
 		source.write("{\n");
 		source.write("\t.samples = (uint8_t[])\n");
 		source.write("\t{\n\t\t");
