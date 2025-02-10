@@ -39,9 +39,9 @@ for mesh in json_entries:
 		for line in iter(file.readline, ""):
 			tokens = line.split();
 			match tokens:
-				case ['v", x, y, z]:
+				case ['v', x, y, z]:
 					vs.append([float(x), float(y), float(z)]);
-				case ['f", a, b, c]:
+				case ['f', a, b, c]:
 					f = []
 					for v in [a, b, c]:
 						f.append(int(v.split("/")[0])-1);
