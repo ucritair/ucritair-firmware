@@ -33,6 +33,11 @@ float shaped_sine(float low, float high, float period, float t)
 	low;
 }
 
+float big_dipper(float low, float high, float t)
+{
+	return high * (-1.3 * sqrt(t) + 1 + 0.5 * (t * t)) + low;
+}
+
 void fill_samples()
 {
 	if(mode == CO2)
@@ -51,14 +56,15 @@ void fill_samples()
 	}
 	else
 	{
-		float low = GRAPH_HEIGHT * 0.65;
+		float low = GRAPH_HEIGHT * 0.05;
 		float high = GRAPH_HEIGHT * 0.95;
-		float period = 2;
 		for(int i = 0; i < GRAPH_WIDTH; i++)
 		{
 			float t = (float) i / (float) GRAPH_WIDTH;
-			float x = shaped_sine(low, high, period, t);
-			samples[i] = clamp(x, 0, GRAPH_HEIGHT);
+			float dip = big_dipper(low, high, t);
+			float noise = CAT_rand_float(-5, 5);
+			float piece = t > 0.8 ? t * 20 : 0;
+			samples[i] = clamp(dip + noise + piece, 0, GRAPH_HEIGHT);
 		}
 	}
 }
@@ -69,6 +75,7 @@ void CAT_MS_graph_spoof(CAT_machine_signal signal)
 	{
 		case CAT_MACHINE_SIGNAL_ENTER:
 		{	
+			fill_samples();
 			break;
 		}
 		case CAT_MACHINE_SIGNAL_TICK:
