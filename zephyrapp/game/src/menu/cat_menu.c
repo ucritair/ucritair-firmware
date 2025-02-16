@@ -133,6 +133,15 @@ static CAT_menu_node menu_node_debug =
 
 extern CAT_menu_node menu_node_cheats;
 
+static CAT_menu_node menu_node_graph_spoof =
+{
+	.title = "GRAPH SPOOF",
+	.proc = NULL,
+	.state = CAT_MS_graph_spoof,
+	.selector = 0,
+	.children = { NULL }
+};
+
 static CAT_menu_node root =
 {
 	.title = "MENU",
@@ -156,6 +165,7 @@ static CAT_menu_node root =
 		&menu_node_cheats,
 #endif
 		&menu_node_manual,
+		&menu_node_graph_spoof,
 		NULL
 	},
 };

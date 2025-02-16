@@ -379,6 +379,18 @@ void CAT_finish_load()
 	CAT_printf("Load done!\n");
 }
 
+int CAT_get_flash_size(int* size);
+int CAT_load_flash(uint8_t* target, uint8_t** start, uint8_t** end);
+bool CAT_did_post_flash();
+
+void CAT_clear_log();
+int CAT_next_log_cell_idx();
+void CAT_get_log_cell(int idx, CAT_log_cell* out);
+void CAT_populate_log_cell(CAT_log_cell* cell);
+
+bool CAT_log_is_ready();
+void CAT_write_log();
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // POWER
@@ -401,25 +413,25 @@ bool CAT_is_charging()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // AIR QUALITY
 
-CAT_AQI aqi =
+void CAT_get_AQ_readings(CAT_AQ_readings* readings)
 {
-	.lps22hh.uptime_last_updated = 0,
-	.lps22hh.temp = 20,
-	.lps22hh.pressure = 1013,
+	readings->lps22hh.uptime_last_updated = 0;
+	readings->lps22hh.temp = 20;
+	readings->lps22hh.pressure = 1013;
 
-	.sunrise.uptime_last_updated = 0,
-	.sunrise.ppm_filtered_compensated = 400,
-	.sunrise.temp = 20,
+	readings->sunrise.uptime_last_updated = 0;
+	readings->sunrise.ppm_filtered_compensated = 400;
+	readings->sunrise.temp = 20;
 
-	.sen5x.uptime_last_updated = 0,
-	.sen5x.pm2_5 = 9,
-	.sen5x.pm10_0 = 15,
-	.sen5x.humidity_rhpct = 40,
+	readings->sen5x.uptime_last_updated = 0;
+	readings->sen5x.pm2_5 = 9;
+	readings->sen5x.pm10_0 = 15;
+	readings->sen5x.humidity_rhpct = 40;
 
-	.sen5x.temp_degC = 20,
-	.sen5x.voc_index = 1,
-	.sen5x.nox_index = 100
-};
+	readings->sen5x.temp_degC = 20;
+	readings->sen5x.voc_index = 1;
+	readings->sen5x.nox_index = 100;
+}
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -126,7 +126,7 @@ char* get_name()
 	{
 	case CO2: return "CO2";
 	case PM2_5: return "PM2.5";
-	case PN10_0: return "PN10.0";
+	case PN10_0: return "PM10.0";
 	case TEMP: return "TEMPERATURE";
 	case RH: return "HUMIDITY";
 	case PRESS: return "PRESSURE";

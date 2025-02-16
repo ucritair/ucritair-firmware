@@ -77,8 +77,6 @@ add_custom_command(
 )
 
 target_sources(app PRIVATE
-	src/core/cat_aqi.c
-
 	src/render/cat_berrier.c
 	src/render/cat_spriter.c
 	src/render/cat_draw_queue.c
@@ -96,6 +94,7 @@ target_sources(app PRIVATE
 	src/cat_actions.c
 	src/cat_pet.c
 	src/cat_item_dialog.c
+	src/cat_aqi.c
 
 	src/menu/cat_menu.c
 	src/menu/cat_menu_insights.c
@@ -105,6 +104,7 @@ target_sources(app PRIVATE
 	src/menu/cat_menu_hedron.c
 	src/menu/cat_menu_cheats.c
 	src/menu/cat_menu_debug.c
+	src/menu/cat_menu_graph_spoof.c
 
 	src/arcade/cat_arcade.c
 	src/arcade/cat_arcade_snake.c

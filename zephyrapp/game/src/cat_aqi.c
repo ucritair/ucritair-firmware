@@ -1,7 +1,9 @@
-#include "cat_core.h"
+#include "cat_aqi.h"
 
 #include <stdio.h>
 #include <math.h>
+
+CAT_AQ_readings readings;
 
 /**
  * @brief Performs linear interpolation to calculate the score for a parameter.
@@ -38,7 +40,7 @@ float interpolate(float value, const float *breakpoints, const float *scores, in
 
 float CAT_mean_temp()
 {
-	return (aqi.sen5x.temp_degC - 2.75) ;
+	return (readings.sen5x.temp_degC - 2.75) ;
 }
 
 /**
@@ -197,21 +199,21 @@ float CAT_iaq_score(float temperature, float humidity, float co2, float pm25, fl
 
 void CAT_AQI_quantize(int* temp_idx, int* co2_idx, int* pm_idx, int* voc_idx, int* nox_idx)
 {
-	float co2s = CAT_co2_score(aqi.sunrise.ppm_filtered_compensated);
-	float pms = CAT_pm25_score(aqi.sen5x.pm2_5);
-	float vocs = CAT_voc_score(aqi.sen5x.voc_index);
-	float noxs = CAT_nox_score(aqi.sen5x.nox_index);
+	float co2s = CAT_co2_score(readings.sunrise.ppm_filtered_compensated);
+	float pms = CAT_pm25_score(readings.sen5x.pm2_5);
+	float vocs = CAT_voc_score(readings.sen5x.voc_index);
+	float noxs = CAT_nox_score(readings.sen5x.nox_index);
 	*co2_idx = quantize(co2s, 5, 3);
 	*pm_idx = quantize(pms, 5, 3);
 	*voc_idx = quantize(vocs, 5, 3);
 	*nox_idx = quantize(noxs, 5, 3);
 
-    if (aqi.sen5x.voc_index == 0)
+    if (readings.sen5x.voc_index == 0)
     {
         *voc_idx = 1;
     }
 
-    if (aqi.sen5x.nox_index == 0)
+    if (readings.sen5x.nox_index == 0)
     {
         *nox_idx = 1;
     }
@@ -228,15 +230,17 @@ void CAT_AQI_quantize(int* temp_idx, int* co2_idx, int* pm_idx, int* voc_idx, in
 	*temp_idx = 1;
 }
 
-// pct goodness
+// This is a measure of goodness rather than badness,
+// a somewhat confusing choice given convention. Sorry!
 float CAT_AQI_aggregate()
 {
     float temp = CAT_mean_temp();
-    float rh = aqi.sen5x.humidity_rhpct;
-    float co2 = aqi.sunrise.ppm_filtered_compensated;
-    float pm = aqi.sen5x.pm2_5;
-    float nox = aqi.sen5x.nox_index;
-    float voc = aqi.sen5x.voc_index;
+    float rh = readings.sen5x.humidity_rhpct;
+    float co2 = readings.sunrise.ppm_filtered_compensated;
+    float pm = readings.sen5x.pm2_5;
+    float nox = readings.sen5x.nox_index;
+    float voc = readings.sen5x.voc_index;
     float score = CAT_iaq_score(temp, rh, co2, pm, nox, voc);
+	// It's the (5.0f - score) that makes this goodness instead of badness
     return ((5.0f - score) / 5.0f) * 100.0f;
 }

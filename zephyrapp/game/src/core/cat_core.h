@@ -147,6 +147,44 @@ static inline bool CAT_check_save(CAT_save* save)
 	return save->magic_number == CAT_SAVE_MAGIC;
 }
 
+typedef enum CAT_log_flags
+{
+	CAT_LOG_TEMP_RH_PARTICLES_BIT = 1,
+	CAT_LOG_CO2_BIT = 2
+} CAT_log_flags;
+
+typedef struct __attribute__((__packed__)) CAT_log_cell {
+	uint8_t flags;
+	uint8_t unused[3];
+
+	uint64_t timestamp; // timestamp in ????
+	int32_t temp_Cx1000; // C * 1000
+	uint16_t pressure_hPax10; // hPa * 10
+
+	uint16_t rh_pctx100; // % * 100
+	uint16_t co2_ppmx1; // ppm * 1
+	uint16_t pm_ugmx100[4]; //PM 1.0, 2.5, 4.0, 10.0 x100
+	uint16_t pn_ugmx100[5]; //PN 0.5, 1.0, 2.5, 4.0, 10.0 x100
+
+	uint8_t voc_index, nox_index; //x1
+
+	uint16_t co2_uncomp_ppmx1;
+
+	uint8_t pad[20];
+} CAT_log_cell;
+
+int CAT_get_flash_size(int* size);
+int CAT_load_flash(uint8_t* target, uint8_t** start, uint8_t** end);
+bool CAT_did_post_flash();
+
+void CAT_clear_log();
+int CAT_next_log_cell_idx();
+void CAT_get_log_cell(int idx, CAT_log_cell* out);
+void CAT_populate_log_cell(CAT_log_cell* cell);
+
+bool CAT_log_is_ready();
+void CAT_write_log();
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // POWER
@@ -160,8 +198,7 @@ bool CAT_is_charging();
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // AIR QUALITY
 
-#ifdef CAT_DESKTOP
-typedef struct CAT_AQI {
+typedef struct CAT_AQ_readings {
 	struct {
 		uint64_t uptime_last_updated;
 		float temp, pressure;
@@ -178,24 +215,9 @@ typedef struct CAT_AQI {
 		float pm1_0, pm2_5, pm4_0, pm10_0;
 		float humidity_rhpct, temp_degC, voc_index, nox_index;
 	} sen5x;
-} CAT_AQI;
-extern CAT_AQI aqi;
-#else
-#include "airquality.h"
-#define CAT_AQI struct current_readings
-#define aqi current_readings
-#endif
+} CAT_AQ_readings;
 
-float CAT_co2_score(float co2);
-float CAT_voc_score(float voc);
-float CAT_nox_score(float nox);
-float CAT_pm25_score(float pm25);
-float CAT_mean_temp();
-float CAT_temperature_score(float temp);
-float CAT_humidity_score(float rh);
-float CAT_iaq_score(float co2, float voc, float nox, float pm25, float temp, float rh);
-void CAT_AQI_quantize(int* temp_idx, int* co2_idx, int* pm_idx, int* voc_idx, int* nox_idx);
-float CAT_AQI_aggregate();
+void CAT_get_AQ_readings(CAT_AQ_readings* readings);
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

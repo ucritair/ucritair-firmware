@@ -349,6 +349,8 @@ void CAT_tick_render(int cycle)
 		CAT_render_hedron();
 	else if(machine == CAT_MS_magic)
 		CAT_render_magic();
+	else if(machine == CAT_MS_graph_spoof)
+		CAT_render_graph_spoof();
 	else
 	{
 		CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 20});

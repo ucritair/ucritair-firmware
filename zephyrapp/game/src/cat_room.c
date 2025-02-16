@@ -14,6 +14,7 @@
 #include "cat_vending.h"
 #include "cat_arcade.h"
 #include "theme_assets.h"
+#include "cat_aqi.h"
 
 //////////////////////////////////////////////////////////////////////////
 // SPACE

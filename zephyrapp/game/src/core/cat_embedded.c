@@ -12,6 +12,7 @@
 #include "rgb_leds.h"
 #include "batt.h"
 #include "power_control.h"
+#include "airquality.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // CORE
@@ -176,6 +177,50 @@ void CAT_finish_load()
 	// no-op
 }
 
+int CAT_get_flash_size(int* size)
+{
+	return flash_get_nrf70_fw_size(size);
+}
+
+int CAT_load_flash(uint8_t* target, uint8_t** start, uint8_t** end)
+{
+	return flash_load_nrf70_fw(target, start, end);
+}
+
+bool CAT_did_post_flash()
+{
+	return did_post_flash;
+}
+
+void CAT_clear_log()
+{
+	flash_erase_all_cells();
+}
+
+int CAT_next_log_cell_idx()
+{
+	return next_log_cell_nr;
+}
+
+void CAT_get_log_cell(int idx, CAT_log_cell* out)
+{
+	flash_get_cell_by_nr(idx, out);
+}
+
+void CAT_populate_log_cell(CAT_log_cell* cell)
+{
+	populate_log_cell(cell);
+}
+
+bool CAT_log_is_ready()
+{
+	return is_ready_for_aqi_logging();
+}
+
+void CAT_write_log()
+{
+	do_aqi_log();
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // POWER
@@ -188,6 +233,30 @@ int CAT_get_battery_pct()
 bool CAT_is_charging()
 {
 	return get_is_charging();
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// AIR QUALITY
+
+void CAT_get_AQ_readings(CAT_AQ_readings* readings)
+{
+	readings->lps22hh.uptime_last_updated = current_readings.lps22hh.uptime_last_updated;
+	readings->lps22hh.temp = current_readings.lps22hh.temp;
+	readings->lps22hh.pressure = current_readings.lps22hh.pressure;
+
+	readings->sunrise.uptime_last_updated = current_readings.sunrise.uptime_last_updated;
+	readings->sunrise.ppm_filtered_compensated = current_readings.sunrise.ppm_filtered_compensated;
+	readings->sunrise.temp = current_readings.sunrise.temp;
+
+	readings->sen5x.uptime_last_updated = current_readings.sen5x.uptime_last_updated;
+	readings->sen5x.pm2_5 = current_readings.sen5x.pm2_5;
+	readings->sen5x.pm10_0 = current_readings.sen5x.pm10_0;
+	readings->sen5x.humidity_rhpct = current_readings.sen5x.humidity_rhpct;
+
+	readings->sen5x.temp_degC = current_readings.sen5x.temp_degC;
+	readings->sen5x.voc_index = current_readings.sen5x.voc_index;
+	readings->sen5x.nox_index = current_readings.sen5x.nox_index;
 }
 
 

@@ -8,6 +8,7 @@
 #include "cat_render.h"
 #include "cat_bag.h"
 #include <stdio.h>
+#include "cat_aqi.h"
 
 #ifdef CAT_EMBEDDED
 #include "menu_system.h"

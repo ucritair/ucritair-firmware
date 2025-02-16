@@ -9,6 +9,7 @@
 #include "cat_bag.h"
 #include <string.h>
 #include "config.h"
+#include "cat_aqi.h"
 
 void CAT_MS_insights(CAT_machine_signal signal)
 {

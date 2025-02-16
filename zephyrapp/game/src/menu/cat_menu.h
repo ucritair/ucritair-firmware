@@ -31,3 +31,6 @@ void CAT_render_hedron();
 void CAT_MS_debug(CAT_machine_signal signal);
 void CAT_render_debug();
 
+void CAT_MS_graph_spoof(CAT_machine_signal signal);
+void CAT_render_graph_spoof();
+

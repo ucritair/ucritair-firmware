@@ -12,6 +12,7 @@
 #include "cat_bag.h"
 #include <string.h>
 #include "config.h"
+#include "cat_aqi.h"
 
 CAT_pet pet;
 
