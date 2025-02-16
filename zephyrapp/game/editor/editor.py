@@ -747,7 +747,7 @@ class PropViewer:
 			draw_x = self.canvas.width/2;
 			draw_y = self.canvas.height*0.75;
 			self.__draw_prop(draw_x, draw_y, self.parent_prop);
-			if self.child_prop["prop_data"]["type"] == "top":
+			if self.parent_prop["prop_data"]["type"] == "bottom" and self.child_prop["prop_data"]["type"] == "top":
 				parent_shape = self.parent_prop["prop_data"]["shape"];
 				child_x = (parent_shape[0] // 2) * 16;
 				child_y = parent_shape[1] * 16;

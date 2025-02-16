@@ -45,7 +45,8 @@
 #endif
 
 int logged_sleep = 0;
-bool first_load = true;
+bool needs_load = true;
+bool override_load = false;
 
 uint8_t saved_version_major = CAT_VERSION_MAJOR;
 uint8_t saved_version_minor = CAT_VERSION_MINOR;
@@ -77,17 +78,6 @@ void CAT_save_sleep()
 	close(fd);
 }
 #endif
-
-void CAT_save_failsafe()
-{
-	saved_version_major = CAT_VERSION_MAJOR;
-	saved_version_minor = CAT_VERSION_MINOR;
-	saved_version_patch = CAT_VERSION_PATCH;
-	saved_version_push = CAT_VERSION_PUSH;
-
-	CAT_item_list_add(&bag, prop_eth_farm_item, 1);
-	coins = 10;
-}
 
 void CAT_force_save()
 {
@@ -154,18 +144,60 @@ void CAT_force_save()
 	CAT_finish_save(save);
 }
 
+void CAT_load_failsafe()
+{
+	saved_version_major = CAT_VERSION_MAJOR;
+	saved_version_minor = CAT_VERSION_MINOR;
+	saved_version_patch = CAT_VERSION_PATCH;
+	saved_version_push = CAT_VERSION_PUSH;
+
+	CAT_item_list_add(&bag, prop_eth_farm_item, 1);
+	coins = 10;
+}
+
+void CAT_load_override()
+{
+	pet.vigour = 9;
+	pet.focus = 9;
+	pet.spirit = 9;
+
+	bag.length = 0;
+	CAT_item_list_add(&bag, book_1_item, 1);
+	CAT_item_list_add(&bag, food_bread_item, 2);
+	CAT_item_list_add(&bag, food_milk_item, 2);
+	CAT_item_list_add(&bag, food_coffee_item, 1);
+	CAT_item_list_add(&bag, prop_succulent_item, 1);
+	CAT_item_list_add(&bag, toy_baseball_item, 1);
+
+	room.prop_count = 0;
+	CAT_room_add_prop(prop_plant_plain_item, (CAT_ivec2) {0, 0});
+	CAT_room_add_prop(prop_eth_farm_item, (CAT_ivec2) {2, 0});
+	CAT_room_add_prop(prop_table_mahogany_item, (CAT_ivec2) {3, 3});
+	CAT_room_stack_prop(room.prop_count-1, prop_bowl_walnut_item);
+	CAT_room_add_prop(prop_chair_mahogany_item, (CAT_ivec2) {1, 3});
+	CAT_room_add_prop(prop_stool_wood_item, (CAT_ivec2) {7, 4});
+	CAT_room_add_prop(prop_bush_plain_item, (CAT_ivec2) {13, 2});
+	CAT_room_add_prop(prop_bush_plain_item, (CAT_ivec2) {13, 3});
+	CAT_room_add_prop(prop_table_sm_plastic_item, (CAT_ivec2) {13, 7});
+	CAT_room_stack_prop(room.prop_count-1, prop_coffeemaker_item);
+	CAT_room_add_prop(prop_plant_daisy_item, (CAT_ivec2) {0, 9});
+
+	coins = 100;
+}
+
 void CAT_force_load()
 {
 	CAT_save* save = CAT_start_load();
 
 	if(!CAT_check_save(save) || save == NULL)
 	{
-		CAT_save_failsafe();
+		CAT_load_failsafe();
 		CAT_finish_load();
+		needs_load = false;
+		CAT_force_save();
 		return;
 	}
-	first_load = false;
-
+	
 	saved_version_major = save->version_major;
 	saved_version_minor = save->version_minor;
 	saved_version_patch = save->version_patch;
@@ -220,8 +252,12 @@ void CAT_force_load()
 		pet.level = save->level;
 	if(save->xp <= level_cutoffs[pet.level])
 		pet.xp = save->xp;
+	
+	if(override_load)
+		CAT_load_override();
 
 	CAT_finish_load();
+	needs_load = false;
 }
 
 void CAT_apply_sleep()
@@ -282,6 +318,9 @@ bool in_world()
 
 void CAT_tick_logic()
 {
+	if(needs_load)
+		CAT_force_load();
+
 	CAT_platform_tick();
 	CAT_input_tick();
 

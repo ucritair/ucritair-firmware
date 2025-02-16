@@ -369,7 +369,8 @@ CAT_save* CAT_start_load()
 	(
 		"Loaded save from version v%d.%d.%d.%d\n",
 		the_save.version_major, the_save.version_minor,
-		the_save.version_patch, the_save.version_push);
+		the_save.version_patch, the_save.version_push
+	);
 		
 	return &the_save;
 }

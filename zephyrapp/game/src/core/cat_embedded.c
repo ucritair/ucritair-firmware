@@ -157,12 +157,13 @@ _Static_assert(sizeof(CAT_save) < ROOM_FOR_TOMAS);
 // Call to start saving, then populate the returned CAT_save*
 CAT_save* CAT_start_save()
 {
-	return (CAT_save*)epaper_framebuffer;
+	return (CAT_save*) epaper_framebuffer;
 }
+
 // then call with the CAT_save* to finish saving
 void CAT_finish_save(CAT_save*)
 {
-	flash_save_tomas_save((uint8_t*)epaper_framebuffer, sizeof(CAT_save));
+	flash_save_tomas_save((uint8_t*) epaper_framebuffer, sizeof(CAT_save));
 }
 
 // Call to start loading, then load from the returned CAT_save*

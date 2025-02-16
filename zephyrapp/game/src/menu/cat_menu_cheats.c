@@ -4,6 +4,7 @@
 #include "cat_pet.h"
 #include "cat_gui.h"
 #include "cat_input.h"
+#include "cat_main.h"
 
 void cheat_proc_money()
 {
@@ -70,6 +71,21 @@ static CAT_menu_node items_cheat =
 	.children = { NULL },
 };
 
+void cheat_proc_turnkey_apartment()
+{
+	needs_load = true;
+	override_load = true;
+}
+
+static CAT_menu_node turnkey_apartment_cheat =
+{
+	.title = "TURNKEY APARTMENT",
+	.proc = cheat_proc_turnkey_apartment,
+	.state = NULL,
+	.selector = 0,
+	.children = { NULL },
+};
+
 CAT_menu_node menu_node_cheats =
 {
 	.title = "CHEATS",
@@ -82,6 +98,7 @@ CAT_menu_node menu_node_cheats =
 		&items_cheat,
 		&base_stats_cheat,
 		&crit_stats_cheat,
+		&turnkey_apartment_cheat,
 		NULL
-	},	
+	},
 };

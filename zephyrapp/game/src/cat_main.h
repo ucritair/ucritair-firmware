@@ -1,8 +1,11 @@
 #pragma once
 
 #include <stdint.h>
+#include <stdbool.h>
 
 extern int logged_sleep;
+extern bool needs_load;
+extern bool override_load;
 
 extern uint8_t saved_version_major;
 extern uint8_t saved_version_minor;
@@ -14,7 +17,7 @@ int CAT_load_sleep();
 void CAT_save_sleep();
 #endif
 
-void CAT_save_failsafe();
+void CAT_load_failsafe();
 void CAT_force_load();
 void CAT_force_save();
 
