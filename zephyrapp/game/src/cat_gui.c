@@ -356,3 +356,63 @@ void CAT_gui_keyboard()
 	if(keyboard.row_idx >= 4)
 		CAT_strokeberry(x_w - 2, y_w, 4 * CAT_GLYPH_WIDTH + 4, CAT_GLYPH_HEIGHT + 4, 0x0000);
 }
+
+struct
+{
+	const char* msg;
+	bool* result;
+	uint8_t selector;
+	bool open;
+} popup =
+{
+	NULL,
+	NULL,
+	0,
+	false
+};
+
+void CAT_gui_open_popup(const char* msg, bool* result)
+{
+	if(popup.open)
+		return;
+	
+	popup.msg = msg;
+	popup.result = result;
+	popup.selector = 0;
+	popup.open = true;
+
+	CAT_input_clear();
+}
+
+bool CAT_gui_popup_is_open()
+{
+	return popup.open;
+}
+
+void CAT_gui_popup_io()
+{
+	if(CAT_input_pressed(CAT_BUTTON_LEFT))
+		popup.selector = 1;
+	if(CAT_input_pressed(CAT_BUTTON_RIGHT))
+		popup.selector = 0;
+	if(CAT_input_pressed(CAT_BUTTON_A))
+	{
+		*(popup.result) = popup.selector;
+		popup.open = false;
+	}
+	if(CAT_input_pressed(CAT_BUTTON_START) || CAT_input_pressed(CAT_BUTTON_B))
+	{
+		*(popup.result) = false;
+		popup.open = false;
+	}
+}
+
+void CAT_gui_popup()
+{
+	CAT_gui_panel(CAT_iv2(2, 6), CAT_iv2(11, 8));
+	CAT_strokeberry(2 * 16, 6 * 16, 11 * 16, 8 * 16, 0x0000);
+	CAT_gui_set_flag(CAT_GUI_WRAP_TEXT);
+	CAT_gui_text(popup.msg);
+	CAT_gui_line_break();
+	CAT_gui_text(popup.selector ? "[YES]  NO " : " YES  [NO]");
+}

@@ -118,6 +118,11 @@ float CAT_vec2_dist2(CAT_vec2 a, CAT_vec2 b)
 //////////////////////////////////////////////////////////////////////////
 // IVEC2
 
+CAT_ivec2 CAT_iv2(int x, int y)
+{
+	return (CAT_ivec2) {x, y};
+}
+
 CAT_ivec2 CAT_ivec2_add(CAT_ivec2 a, CAT_ivec2 b)
 {
 	return (CAT_ivec2) {a.x + b.x, a.y + b.y};

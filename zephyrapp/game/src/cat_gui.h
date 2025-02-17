@@ -52,3 +52,8 @@ void CAT_gui_open_keyboard(char* target);
 bool CAT_gui_keyboard_is_open();
 void CAT_gui_keyboard_io();
 void CAT_gui_keyboard();
+
+void CAT_gui_open_popup(const char* msg, bool* result);
+bool CAT_gui_popup_is_open();
+void CAT_gui_popup_io();
+void CAT_gui_popup();
