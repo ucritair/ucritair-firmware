@@ -21,7 +21,13 @@ static enum
 	CO2,
 	PM
 } mode = CO2;
-uint16_t samples[GRAPH_WIDTH];
+uint16_t maxes[] =
+{
+	2000,
+	9
+};
+
+float samples[GRAPH_WIDTH];
 int cursor_left = GRAPH_WIDTH * 0.25;
 int cursor_right = GRAPH_WIDTH * 0.75;
 
@@ -42,31 +48,41 @@ void fill_samples()
 {
 	if(mode == CO2)
 	{
-		float low = GRAPH_HEIGHT * 0.65;
-		float high = GRAPH_HEIGHT * 0.95;
+		float low = 0.65;
+		float high = 0.95;
 		float period = 3;
 		for(int i = 0; i < GRAPH_WIDTH; i++)
 		{
 			float t = (float) i / (float) GRAPH_WIDTH;
 			float sin_a = shaped_sine(low * 0.5, high, period, t);
 			float sin_b = shaped_sine(low, high * 0.5, period + 4, t * 1.5);
-			float noise = CAT_rand_float(-5, 5);
-			samples[i] = clamp(0.5 * (sin_a + sin_b) + noise, 0, GRAPH_HEIGHT);
+			float noise = CAT_rand_float(-0.05, 0.05);
+			samples[i] = 0.5 * (sin_a + sin_b) + noise;
 		}
 	}
 	else
 	{
-		float low = GRAPH_HEIGHT * 0.05;
-		float high = GRAPH_HEIGHT * 0.95;
+		float low = 0.05;
+		float high = 0.95;
 		for(int i = 0; i < GRAPH_WIDTH; i++)
 		{
 			float t = (float) i / (float) GRAPH_WIDTH;
 			float dip = big_dipper(low, high, t);
-			float noise = CAT_rand_float(-5, 5);
-			float piece = t > 0.8 ? t * 20 : 0;
-			samples[i] = clamp(dip + noise + piece, 0, GRAPH_HEIGHT);
+			float noise = CAT_rand_float(-0.05, 0.05);
+			float rise = t > 0.8 ? t * 0.3 : 0;
+			samples[i] = dip + rise + noise;
 		}
 	}
+}
+
+int sample_real(int i)
+{
+	return samples[i] * maxes[mode];
+}
+
+int sample_height(int i)
+{
+	return samples[i] * GRAPH_HEIGHT;
 }
 
 void CAT_MS_graph_spoof(CAT_machine_signal signal)
@@ -109,7 +125,7 @@ void CAT_render_graph_spoof()
 	CAT_gui_image(&icon_s_sprite, 1);
 	CAT_gui_line_break();
 
-	int x_off = GRAPH_MARGIN;
+	int x_off = GRAPH_PAD;
 	int y_off = gui.cursor.y;
 	CAT_fillberry(x_off, y_off, GRAPH_WIDTH+GRAPH_MARGIN+GRAPH_MARGIN, GRAPH_MARGIN, 0);
 	CAT_fillberry(x_off, y_off, GRAPH_MARGIN, GRAPH_HEIGHT+GRAPH_MARGIN+GRAPH_MARGIN, 0);
@@ -120,8 +136,8 @@ void CAT_render_graph_spoof()
 	y_off += GRAPH_MARGIN;
 	for(int x = 0; x < GRAPH_WIDTH-1; x++)
 	{	
-		int v0 = samples[x];
-		int v1 = samples[x+1];
+		int v0 = sample_height(x);
+		int v1 = sample_height(x+1);
 		if(v0 >= 0 && v1 >= 0)
 		{
 			int y0 = y_off+GRAPH_HEIGHT-v0;
@@ -138,9 +154,9 @@ void CAT_render_graph_spoof()
 	gui.cursor.y += GRAPH_HEIGHT+GRAPH_PAD*2+GRAPH_MARGIN*2;
 
 	const char* unit = (mode == CO2) ? "PPM" : "#/cm\5";
-	CAT_gui_textf("Start: %d%s \2 %2d:%02d:%02d", samples[cursor_left], unit, 10, 43, 26);
+	CAT_gui_textf("Start: %d%s \2 %2d:%02d:%02d", sample_real(cursor_left), unit, 10, 43, 26);
 	CAT_gui_line_break();
-	CAT_gui_textf("End: %d%s \2 %2d:%02d:%02d", samples[cursor_right], unit, 12, 36, 14);
+	CAT_gui_textf("End: %d%s \2 %2d:%02d:%02d", sample_real(cursor_right), unit, 12, 36, 14);
 	CAT_gui_line_break();
 
 	CAT_gui_image(&icon_a_sprite, 1);
