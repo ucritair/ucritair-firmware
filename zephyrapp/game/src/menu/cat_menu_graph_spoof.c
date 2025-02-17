@@ -170,13 +170,11 @@ void CAT_render_graph_spoof()
 	
 	gui.cursor.y += GRAPH_HEIGHT+GRAPH_PAD*2+GRAPH_MARGIN*2;
 
-	const char* unit = (mode == CO2) ? "PPM" : "#/cm\5";
-	CAT_gui_textf("Start: %.0f%s \2 %2d:%02d:%02d", samples[starts[mode]], unit, 10, 43, 26);
-	CAT_gui_line_break();
-	CAT_gui_textf("End: %.0f%s \2 %2d:%02d:%02d", samples[ends[mode]], unit, 12, 36, 14);
-	CAT_gui_line_break();
+	const char* unit = mode == CO2 ? "PPM" : "#/cm\5";
+	CAT_gui_textf("Start: %.0f%s \2 %2d:%02d:%02d\n", samples[starts[mode]], unit, 10, 43, 26);
+	CAT_gui_textf("End: %.0f%s \2 %2d:%02d:%02d\n", samples[ends[mode]], unit, 12, 36, 14);
+	CAT_gui_textf(mode == CO2 ? "ACH: 1.0\n" : "eACH: 3.0\n");
 
 	CAT_gui_image(&icon_a_sprite, 1);
-	CAT_gui_text(" to start over");
-	CAT_gui_line_break();
+	CAT_gui_text(" to start over\n");
 }
