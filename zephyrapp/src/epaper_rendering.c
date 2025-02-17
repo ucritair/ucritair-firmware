@@ -177,7 +177,7 @@ void epaper_render_test()
 	fwrite_str(128, 100, 1, "at %2d:%02d:%02d", t.tm_hour, t.tm_min, t.tm_sec);
 	fwrite_str(128, 110, 1, "%d%% battery", get_battery_pct());
 
-	fwrite_str(0, EPD_IMAGE_H-8, 1, " %s LV%d", guy_name, pet.level+1);
+	fwrite_str(0, EPD_IMAGE_H-8, 1, " %s LV%d", guy_name, guy_level+1);
 
 	imu_update();
 

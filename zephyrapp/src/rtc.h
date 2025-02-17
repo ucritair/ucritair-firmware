@@ -6,6 +6,7 @@ extern bool is_first_init;
 extern volatile bool guy_is_wearing_mask;
 extern volatile char guy_name[64];
 extern volatile uint8_t guy_happiness;
+extern volatile uint16_t guy_level; // POTENTIAL DISASTER
 extern volatile uint64_t rtc_offset;
 extern volatile uint8_t nox_every_n_samples;
 extern volatile uint8_t nox_every_n_samples_counter;

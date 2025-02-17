@@ -139,6 +139,8 @@ void lcd_render_diag()
 		}
 
 		memcpy(guy_name, pet.name, sizeof(guy_name));
+		
+		guy_level = pet.level; // POTENTIAL DISASTER
 
 		touch_update();
 		imu_update();

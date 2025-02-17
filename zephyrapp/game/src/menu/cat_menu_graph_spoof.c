@@ -54,7 +54,7 @@ float big_dipper(float low, float high, float t)
 
 float decay(float low, float high, float r, float t)
 {
-	return (high-low) * pow(M_E, -r * t) + low;
+	return (high-low) * pow(2.7182818284590452353, -r * t) + low;
 }
 
 void fill_samples()

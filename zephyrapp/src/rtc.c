@@ -80,16 +80,16 @@ PERSIST_RAM uint8_t wakeup_is_from_timer;
 PERSIST_RAM uint64_t went_to_sleep_at;
 
 PERSIST_RAM uint8_t guy_happiness;
-
 PERSIST_RAM bool guy_is_wearing_mask;
 PERSIST_RAM char guy_name[64];
+PERSIST_RAM uint16_t guy_level; // POTENTIAL DISASTER
 
 PERSIST_RAM uint8_t screen_brightness;
 
 PERSIST_RAM uint16_t dim_after_seconds;
 PERSIST_RAM uint16_t sleep_after_seconds;
 
-#define RTC_INIT_CHECK_MAGIC 0xb8870004
+#define RTC_INIT_CHECK_MAGIC 0xb8870005
 
 bool is_first_init = false;
 
@@ -146,6 +146,11 @@ void check_rtc_init()
 		went_to_sleep_at = get_current_rtc_time();
 		guy_happiness = 1;
 		guy_is_wearing_mask = false;
+		guy_level = 0;
+		const char* waldo_str = "Waldo";
+		for(int i = 0; waldo_str[i] < 5; i++)
+			guy_name[i] = waldo_str[i];
+		guy_name[5] = '\0';
 		screen_brightness = BACKLIGHT_FULL;
 		dim_after_seconds = 45;
 		sleep_after_seconds = 120;
