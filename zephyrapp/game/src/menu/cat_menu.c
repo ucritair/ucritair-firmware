@@ -197,7 +197,11 @@ void CAT_MS_menu(CAT_machine_signal signal)
 			break;
 		case CAT_MACHINE_SIGNAL_TICK:
 		{
-			CAT_input_ask(0);
+			if(CAT_gui_keyboard_is_open())
+			{
+				CAT_gui_keyboard_io();
+				break;
+			}
 
 			if(CAT_input_pressed(CAT_BUTTON_B))
 			{
@@ -268,4 +272,7 @@ void CAT_render_menu()
 			CAT_gui_image(&icon_pointer_sprite, 0);
 		CAT_gui_line_break();
 	}
+
+	if(CAT_gui_keyboard_is_open())
+		CAT_gui_keyboard();
 }

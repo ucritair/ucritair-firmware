@@ -230,6 +230,9 @@ static struct
 
 void CAT_gui_open_keyboard(char* target)
 {
+	if(keyboard.open)
+		return;
+
 	keyboard.open = true;
 	keyboard.target = target;
 	int length = strlen(target);
@@ -239,14 +242,12 @@ void CAT_gui_open_keyboard(char* target)
 	keyboard.row_idx = 0;
 	keyboard.glyph_idx = 0;
 
-	if(CAT_input_enforce(1))
-		CAT_input_clear();
+	CAT_input_clear();
 }
 
 static void gui_close_keyboard()
 {
 	keyboard.open = false;
-	CAT_input_yield();
 }
 
 bool CAT_gui_keyboard_is_open()
@@ -256,8 +257,6 @@ bool CAT_gui_keyboard_is_open()
 
 void CAT_gui_keyboard_io()
 {
-	CAT_input_ask(1);
-
 	if(CAT_input_pressed(CAT_BUTTON_B))
 		gui_close_keyboard();
 	

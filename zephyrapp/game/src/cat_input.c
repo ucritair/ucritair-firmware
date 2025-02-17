@@ -27,9 +27,6 @@ void CAT_input_init()
 	input.buffer_head = 0;
 }
 
-int arbiter = 0;
-int asker = 0;
-
 void CAT_input_tick()
 {
 	uint16_t mask = CAT_get_buttons();
@@ -81,60 +78,23 @@ void CAT_input_clear()
 	}
 }
 
-bool CAT_input_enforce(int layer)
-{
-	if(layer > arbiter)
-	{
-		arbiter = layer;
-		return true;
-	}
-	return false;
-}
-
-void CAT_input_ask(int layer)
-{
-	asker = layer;
-}
-
-void CAT_input_yield()
-{
-	arbiter = 0;
-}
-
-static bool arbitrate()
-{
-	return asker >= arbiter;
-}
-
 bool CAT_input_pressed(int button)
 {
-	if(!arbitrate())
-		return false;
-
 	return input.mask[button] && !input.last[button];
 }
 
 bool CAT_input_released(int button)
 {
-	if(!arbitrate())
-		return false;
-
 	return !input.mask[button] && input.last[button];
 }
 
 bool CAT_input_held(int button, float t)
 {
-	if(!arbitrate())
-		return false;
-
 	return input.mask[button] && input.time[button] >= t;
 }
 
 bool CAT_input_pulse(int button)
 {
-	if(!arbitrate())
-		return false;
-
 	if(input.mask[button])
 	{
 		if(input.time[button] < 0.15f)
@@ -161,9 +121,6 @@ float CAT_input_time(int button)
 
 bool CAT_input_drag(int x, int y, float r)
 {
-	if(!arbitrate())
-		return false;
-
 	if(input.touch.pressure > 0)
 	{
 		int x_t = input.touch.x;
@@ -178,9 +135,6 @@ bool CAT_input_drag(int x, int y, float r)
 
 bool CAT_input_touch(int x, int y, float r)
 {
-	if(!arbitrate())
-		return false;
-
 	if(input.touch.pressure > 0 && !input.touch_last)
 	{
 		int x_t = input.touch.x;
@@ -194,9 +148,6 @@ bool CAT_input_touch(int x, int y, float r)
 
 bool CAT_input_touch_rect(int x, int y, int w, int h)
 {
-	if(!arbitrate())
-		return false;
-
 	if(input.touch.pressure <= 0 || input.touch_last)
 		return false;
 	if(input.touch.x < x || input.touch.x > (x + w))
@@ -208,9 +159,6 @@ bool CAT_input_touch_rect(int x, int y, int w, int h)
 
 bool CAT_input_touching()
 {
-	if(!arbitrate())
-		return false;
-
 	return input.touch.pressure;
 }
 
@@ -223,9 +171,6 @@ void CAT_input_buffer_clear()
 
 bool CAT_input_spell(CAT_button* spell)
 {
-	if(!arbitrate())
-		return false;
-
 	int i = (input.buffer_head+9) % 10;
 	int steps = 0;
 	while(steps < 10)

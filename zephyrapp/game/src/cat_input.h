@@ -36,10 +36,6 @@ void CAT_input_init();
 void CAT_input_tick();
 void CAT_input_clear();
 
-bool CAT_input_enforce(int layer);
-void CAT_input_ask(int layer);
-void CAT_input_yield();
-
 bool CAT_input_pressed(int button);
 bool CAT_input_released(int button);
 bool CAT_input_held(int button, float t);

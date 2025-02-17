@@ -328,17 +328,12 @@ void CAT_tick_logic()
 	CAT_pet_tick(in_world());
 
 	CAT_machine_tick();
-
-	if(CAT_gui_keyboard_is_open())
-		CAT_gui_keyboard_io();
 }
 
 void CAT_tick_render(int cycle)
 {
 	if (cycle == 0)
-	{
 		draw_queue.length = 0;
-	}
 
 	if(in_world())
 	{
@@ -395,9 +390,6 @@ void CAT_tick_render(int cycle)
 		CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 20});
 		CAT_gui_text("This machine state\nhas no render routine!");
 	}
-
-	if(CAT_gui_keyboard_is_open())
-		CAT_gui_keyboard();
 }
 
 #ifdef CAT_DESKTOP
