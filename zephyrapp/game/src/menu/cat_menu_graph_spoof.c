@@ -21,15 +21,23 @@ static enum
 	CO2,
 	PM
 } mode = CO2;
+uint16_t starts[] =
+{
+	GRAPH_WIDTH * 0.15f,
+	GRAPH_WIDTH * 0.05f
+};
+uint16_t ends[] =
+{
+	(GRAPH_WIDTH-1),
+	(GRAPH_WIDTH-1) * 0.9f,
+};
 uint16_t maxes[] =
 {
-	2000,
-	9
+	1200,
+	120
 };
 
 float samples[GRAPH_WIDTH];
-int cursor_left = GRAPH_WIDTH * 0.25;
-int cursor_right = GRAPH_WIDTH * 0.75;
 
 float shaped_sine(float low, float high, float period, float t)
 {
@@ -44,45 +52,54 @@ float big_dipper(float low, float high, float t)
 	return high * (-1.3 * sqrt(t) + 1 + 0.5 * (t * t)) + low;
 }
 
+float decay(float low, float high, float r, float t)
+{
+	return (high-low) * pow(M_E, -r * t) + low;
+}
+
 void fill_samples()
 {
 	if(mode == CO2)
 	{
-		float low = 0.65;
-		float high = 0.95;
-		float period = 3;
+		float start = 0.15;
+		float end = 1.0f;
 		for(int i = 0; i < GRAPH_WIDTH; i++)
 		{
 			float t = (float) i / (float) GRAPH_WIDTH;
-			float sin_a = shaped_sine(low * 0.5, high, period, t);
-			float sin_b = shaped_sine(low, high * 0.5, period + 4, t * 1.5);
-			float noise = CAT_rand_float(-0.05, 0.05);
-			samples[i] = 0.5 * (sin_a + sin_b) + noise;
+			if(t < start)
+				samples[i] = 880;
+			else if(t < end)
+			{
+				t = (t - start) / (end - start);
+				samples[i] = decay(420, 880, 2, t * 3.5);
+			}
+			else
+				samples[i] = 420;
 		}
 	}
 	else
 	{
-		float low = 0.05;
-		float high = 0.95;
+		float start = 0.05;
+		float end = 1.0f;
 		for(int i = 0; i < GRAPH_WIDTH; i++)
 		{
 			float t = (float) i / (float) GRAPH_WIDTH;
-			float dip = big_dipper(low, high, t);
-			float noise = CAT_rand_float(-0.05, 0.05);
-			float rise = t > 0.8 ? t * 0.3 : 0;
-			samples[i] = dip + rise + noise;
+			if(t < start)
+				samples[i] = 100;
+			else if(t < end)
+			{
+				t = (t - start) / (end - start);
+				samples[i] = decay(0, 100, 3, t * 2);
+			}
+			else
+				samples[i] = 0;
 		}
 	}
 }
 
-int sample_real(int i)
-{
-	return samples[i] * maxes[mode];
-}
-
 int sample_height(int i)
 {
-	return samples[i] * GRAPH_HEIGHT;
+	return (samples[i] / maxes[mode]) * GRAPH_HEIGHT;
 }
 
 void CAT_MS_graph_spoof(CAT_machine_signal signal)
@@ -148,15 +165,15 @@ void CAT_render_graph_spoof()
 
 	uint16_t red = 0b1111100000000000;
 	uint16_t green = 0b0000011111100000;
-	CAT_lineberry(x_off+cursor_left, y_off, x_off+cursor_left, y_off+GRAPH_HEIGHT-1, green);
-	CAT_lineberry(x_off+cursor_right, y_off, x_off+cursor_right, y_off+GRAPH_HEIGHT-1, red);
+	CAT_lineberry(x_off+starts[mode], y_off, x_off+starts[mode], y_off+GRAPH_HEIGHT, green);
+	CAT_lineberry(x_off+ends[mode], y_off, x_off+ends[mode], y_off+GRAPH_HEIGHT, red);
 	
 	gui.cursor.y += GRAPH_HEIGHT+GRAPH_PAD*2+GRAPH_MARGIN*2;
 
 	const char* unit = (mode == CO2) ? "PPM" : "#/cm\5";
-	CAT_gui_textf("Start: %d%s \2 %2d:%02d:%02d", sample_real(cursor_left), unit, 10, 43, 26);
+	CAT_gui_textf("Start: %.0f%s \2 %2d:%02d:%02d", samples[starts[mode]], unit, 10, 43, 26);
 	CAT_gui_line_break();
-	CAT_gui_textf("End: %d%s \2 %2d:%02d:%02d", sample_real(cursor_right), unit, 12, 36, 14);
+	CAT_gui_textf("End: %.0f%s \2 %2d:%02d:%02d", samples[ends[mode]], unit, 12, 36, 14);
 	CAT_gui_line_break();
 
 	CAT_gui_image(&icon_a_sprite, 1);
