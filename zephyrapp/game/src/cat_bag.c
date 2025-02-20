@@ -143,7 +143,7 @@ void CAT_render_bag()
 	(
 		true,
 		&icon_enter_sprite, &icon_exit_sprite,
-		"BAG (%s)", tabs[tab_selector].title
+		"%s", tabs[tab_selector].title
 	);
 
 	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});

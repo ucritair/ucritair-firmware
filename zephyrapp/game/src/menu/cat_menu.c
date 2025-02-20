@@ -59,7 +59,7 @@ static CAT_menu_node menu_node_settings =
 
 static CAT_menu_node menu_node_bag =
 {
-	.title = "BAG",
+	.title = "INVENTORY",
 	.proc = NULL,
 	.state = CAT_MS_bag,
 	.selector = 0,

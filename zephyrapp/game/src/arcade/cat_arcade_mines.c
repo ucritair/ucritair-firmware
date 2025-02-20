@@ -80,6 +80,8 @@ static int unseen = 0;
 static int reveal_timer_id = -1;
 static bool reveal_complete = false;
 
+static bool quit = false;
+
 void toggle_mine(int x, int y, bool value)
 {
 	grid_cell* cell = get_cell(x, y);
@@ -211,7 +213,6 @@ void shuffle_about(int x, int y)
 	}
 }
 
-bool quit;
 void CAT_MS_mines(CAT_machine_signal signal)
 {
 	switch(signal)

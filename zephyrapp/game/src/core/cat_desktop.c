@@ -96,7 +96,7 @@ void CAT_platform_init()
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
-	simulator.window = glfwCreateWindow(LCD_SCREEN_W, LCD_SCREEN_H, "CAT", NULL, NULL);
+	simulator.window = glfwCreateWindow(LCD_SCREEN_W, LCD_SCREEN_H, "μCritAir", NULL, NULL);
 	if(simulator.window == NULL)
 	{
 		CAT_printf("Failed to create window\n");
