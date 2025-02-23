@@ -8,16 +8,17 @@
 #include "cat_room.h"
 #include "config.h"
 #include <stdint.h>
+#include "cat_aqi.h"
 
 static enum
 {
-	SAVE,
+	SYSTEM,
 	TIME,
 	DECO,
 	INPUT,
-	CONFIG,
+	AQI,
 	LAST
-} page = SAVE;
+} page = SYSTEM;
 
 void CAT_MS_debug(CAT_machine_signal signal)
 {
@@ -52,7 +53,7 @@ void CAT_render_debug()
 {
 	switch(page)
 	{
-		case SAVE:
+		case SYSTEM:
 			CAT_gui_title(true, NULL, &icon_exit_sprite, "SAVE");
 			CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
 			CAT_gui_textf
@@ -63,6 +64,13 @@ void CAT_render_debug()
 				saved_version_major, saved_version_minor,
 				saved_version_patch, saved_version_push
 			);
+#define TOSTRING_INNER(x) #x
+#define TOSTRING(x) TOSTRING_INNER(x)
+#if defined(CAT_DESKTOP)
+			CAT_gui_text("Platform: DESKTOP\n");
+#elif defined(CAT_EMBEDDED)
+			CAT_gui_text("Platform: EMBEDDED\n");
+#endif
 		break;
 		case TIME:
 			CAT_gui_title(true, NULL, &icon_exit_sprite, "TIME");
@@ -120,17 +128,16 @@ void CAT_render_debug()
 			
 		}
 		break;
-		case CONFIG:
+		case AQI:
 		{
-			CAT_gui_title(true, NULL, &icon_exit_sprite, "CONFIG");
+			CAT_gui_title(true, NULL, &icon_exit_sprite, "AQI");
 			CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
-#define TOSTRING_INNER(x) #x
-#define TOSTRING(x) TOSTRING_INNER(x)
-#if defined(CAT_DESKTOP)
-			CAT_gui_text("PLATFORM: DESKTOP\n");
-#elif defined(CAT_EMBEDDED)
-			CAT_gui_text("PLATFORM: EMBEDDED\n");
-#endif
+			CAT_gui_textf("RH: %f\n", readings.sen5x.humidity_rhpct);
+			CAT_gui_textf("CO2: %f\n", readings.sunrise.ppm_filtered_compensated);
+			CAT_gui_textf("PM: %f\n", readings.sen5x.pm2_5);
+			CAT_gui_textf("NOX: %f\n", readings.sen5x.nox_index);
+			CAT_gui_textf("VOC: %f\n", readings.sen5x.voc_index);
+			CAT_gui_textf("AQI: %f\n", CAT_AQI_aggregate());
 		}
 		break;
 		default:

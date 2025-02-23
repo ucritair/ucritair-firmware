@@ -12,6 +12,7 @@
 #include "cat_item.h"
 #include "cat_version.h"
 #include "cat_core.h"
+#include "cat_aqi.h"
 
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(epaper_rendering, LOG_LEVEL_DBG);

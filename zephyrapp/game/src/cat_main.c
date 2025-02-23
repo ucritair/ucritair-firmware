@@ -27,6 +27,7 @@
 #include "cat_vending.h"
 #include "cat_deco.h"
 #include "cat_item_dialog.h"
+#include "cat_aqi.h"
 
 #include "cat_version.h"
 #include "theme_assets.h"
@@ -323,6 +324,7 @@ void CAT_tick_logic()
 
 	CAT_platform_tick();
 	CAT_input_tick();
+	CAT_get_AQ_readings(&readings);
 
 	CAT_room_tick(in_world());
 	CAT_pet_tick(in_world());
