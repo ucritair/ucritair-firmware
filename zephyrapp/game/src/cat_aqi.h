@@ -2,8 +2,6 @@
 
 #include "cat_core.h"
 
-extern CAT_AQ_readings readings;
-
 float CAT_co2_score(float co2);
 float CAT_voc_score(float voc);
 float CAT_nox_score(float nox);

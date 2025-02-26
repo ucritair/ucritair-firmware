@@ -19,7 +19,8 @@ void CAT_platform_cleanup();
 #define LCD_SCREEN_W 240
 #define LCD_SCREEN_H 320
 
-void CAT_LCD_post(uint16_t* buffer);
+uint16_t* CAT_LCD_get_framebuffer();
+void CAT_LCD_post();
 bool CAT_LCD_is_posted();
 void CAT_LCD_set_backlight(int percent);
 bool CAT_first_frame_complete();
@@ -216,8 +217,9 @@ typedef struct CAT_AQ_readings {
 		float humidity_rhpct, temp_degC, voc_index, nox_index;
 	} sen5x;
 } CAT_AQ_readings;
+extern CAT_AQ_readings readings;
 
-void CAT_get_AQ_readings(CAT_AQ_readings* readings);
+void CAT_get_AQ_readings();
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

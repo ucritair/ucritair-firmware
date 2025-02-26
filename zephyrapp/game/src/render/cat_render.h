@@ -11,25 +11,27 @@
 
 #define CAT_TILE_SIZE 16
 
-enum CAT_sprite_layers
-{
-	BG_LAYER,
-	STATICS_LAYER,
-	PROPS_LAYER,
-	GUI_LAYER
-};
-
 #define CAT_DRAW_QUEUE_MAX_LENGTH 512
 #define CAT_ANIM_TABLE_MAX_LENGTH 512
 
-#define RGB8882565(r, g, b) ((r & 0b11111000) << 8) | ((g & 0b11111100) << 3) | (b >> 3)
+#define RGB8882565(r, g, b) (((r & 0b11111000) << 8) | ((g & 0b11111100) << 3) | (b >> 3))
+#define RGB5652BGR565(c) ((c >> 8) | ((c & 0xff) << 8))
 
 #ifdef CAT_DESKTOP
-#define FRAMEBUFFER spriter.framebuffer
+#define LCD_FRAMEBUFFER_W LCD_SCREEN_W
 #define LCD_FRAMEBUFFER_H LCD_SCREEN_H
+#define LCD_FRAMEBUFFER_PIXELS (LCD_FRAMEBUFFER_W * LCD_FRAMEBUFFER_H)
+#define FRAMEBUFFER_ROW_OFFSET 0
+
+#define ADAPT_DESKTOP_COLOUR(c) c
+#define ADAPT_EMBEDDED_COLOUR(c) RGB5652BGR565(c)
 #else
 #include "lcd_driver.h"
-#define FRAMEBUFFER lcd_framebuffer
+
+#define FRAMEBUFFER_ROW_OFFSET framebuffer_offset_h
+
+#define ADAPT_DESKTOP_COLOUR(c) RGB5652BGR565(c)
+#define ADAPT_EMBEDDED_COLOUR(c) c
 #endif
 
 
@@ -57,19 +59,10 @@ typedef enum CAT_draw_mode
 	CAT_DRAW_MODE_REFLECT_X = 8
 } CAT_draw_mode;
 
-typedef struct CAT_spriter
-{
-#ifdef CAT_DESKTOP
-	uint16_t* framebuffer;
-#endif
-	int mode;
-} CAT_spriter;
-extern CAT_spriter spriter;
+extern CAT_draw_mode draw_mode;
 
-void CAT_spriter_init();
 void CAT_draw_sprite(const CAT_sprite* sprite, int frame_idx, int x, int y);
 void CAT_draw_tiles(const CAT_sprite* sprite, int frame_idx, int y_t, int h_t);
-void CAT_spriter_cleanup();
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -91,6 +84,14 @@ bool CAT_anim_finished(const CAT_sprite* sprite);
 void CAT_anim_reset(const CAT_sprite* sprite);
 
 bool CAT_anim_should_tick();
+
+enum CAT_sprite_layers
+{
+	BG_LAYER,
+	STATICS_LAYER,
+	PROPS_LAYER,
+	GUI_LAYER
+};
 
 typedef struct CAT_draw_job
 {

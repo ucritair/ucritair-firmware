@@ -9,7 +9,6 @@
 #include <ctype.h>
 #include "cat_input.h"
 
-
 //////////////////////////////////////////////////////////////////////////
 // RENDERING
 
@@ -40,7 +39,7 @@ bool CAT_gui_consume_flag(CAT_gui_flag flag)
 
 void CAT_gui_panel(CAT_ivec2 start, CAT_ivec2 shape)
 {
-	spriter.mode = CAT_DRAW_MODE_DEFAULT;
+	draw_mode = CAT_DRAW_MODE_DEFAULT;
 	CAT_fillberry(start.x * CAT_TILE_SIZE, start.y * CAT_TILE_SIZE, shape.x * CAT_TILE_SIZE, shape.y * CAT_TILE_SIZE, 0xFFFF);
 	if(CAT_gui_consume_flag(CAT_GUI_BORDER))
 		CAT_strokeberry(start.x * CAT_TILE_SIZE, start.y * CAT_TILE_SIZE, shape.x * CAT_TILE_SIZE, shape.y * CAT_TILE_SIZE, 0x0000);
@@ -79,7 +78,7 @@ void CAT_gui_line_break()
 
 void CAT_gui_text(const char* text)
 {
-	spriter.mode = CAT_DRAW_MODE_CENTER_Y;
+	draw_mode = CAT_DRAW_MODE_CENTER_Y;
 
 	bool wrap = CAT_gui_consume_flag(CAT_GUI_WRAP_TEXT);
 	int x_lim = (gui.start.x * CAT_TILE_SIZE) + (gui.shape.x) * CAT_TILE_SIZE - CAT_GLYPH_WIDTH - gui.margin;
@@ -118,7 +117,7 @@ void CAT_gui_text(const char* text)
 
 void CAT_gui_image(const CAT_sprite* sprite, int frame_idx)
 {
-	spriter.mode = CAT_DRAW_MODE_CENTER_Y;
+	draw_mode = CAT_DRAW_MODE_CENTER_Y;
 
 	gui_open_channel(sprite->height);
 
@@ -130,19 +129,19 @@ void CAT_gui_image(const CAT_sprite* sprite, int frame_idx)
 
 void CAT_gui_div(const char* text)
 {
-	spriter.mode = CAT_DRAW_MODE_CENTER_Y;
+	draw_mode = CAT_DRAW_MODE_CENTER_Y;
 	
 	CAT_gui_line_break();
 	gui_open_channel(CAT_TILE_SIZE);
 	if(strlen(text) == 0)
 	{
-		CAT_rowberry(0, gui.cursor.y, LCD_SCREEN_W, 0x0000);
+		CAT_rowberry(0, gui.cursor.y, LCD_FRAMEBUFFER_W, 0x0000);
 	}
 	else
 	{
 		CAT_gui_text(text);
 		int start = gui.cursor.x + gui.pad;
-		CAT_rowberry(start, gui.cursor.y, LCD_SCREEN_W-start-gui.margin, 0x0000);
+		CAT_rowberry(start, gui.cursor.y, LCD_FRAMEBUFFER_W-start-gui.margin, 0x0000);
 	}
 	CAT_gui_line_break();
 }
@@ -160,7 +159,7 @@ void CAT_gui_textf(const char* fmt, ...)
 void CAT_gui_title(bool tabs, const CAT_sprite* a_action, const CAT_sprite* b_action, const char* fmt, ...)
 {
 	CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});
-	CAT_rowberry(0, 31, LCD_SCREEN_W, 0x0000);
+	CAT_rowberry(0, 31, LCD_FRAMEBUFFER_W, 0x0000);
 	
 	if(tabs)
 		CAT_gui_text("< ");
@@ -324,14 +323,14 @@ void CAT_gui_keyboard()
 	}
 	
 	CAT_gui_panel((CAT_ivec2){0, 10}, (CAT_ivec2){15, 10});
-	CAT_rowberry(0, 160, LCD_SCREEN_W, 0x0000);
+	CAT_rowberry(0, 160, LCD_FRAMEBUFFER_W, 0x0000);
 	CAT_gui_text(keyboard.buffer);
 	if(keyboard.show_cursor)
 		CAT_gui_text("|");
 	gui.cursor.y -= 4;
 	CAT_gui_div("");
 
-	spriter.mode = CAT_DRAW_MODE_DEFAULT;
+	draw_mode = CAT_DRAW_MODE_DEFAULT;
 	int x_w = gui.margin * 2;
 	int y_w = gui.cursor.y;
 
@@ -350,6 +349,7 @@ void CAT_gui_keyboard()
 		y_w += CAT_GLYPH_HEIGHT + 8;
 		x_w = gui.margin * 2;
 	}
+	
 	gui.cursor = (CAT_ivec2){x_w, y_w + 2};
 	CAT_gui_text("SAVE");
 	if(keyboard.row_idx >= 4)

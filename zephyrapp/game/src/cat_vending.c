@@ -97,7 +97,7 @@ void CAT_render_vending()
 	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 2});
 	CAT_gui_image(&icon_coin_sprite, 0);
 	CAT_gui_textf(" $%d", coins);
-	CAT_rowberry(0, 16 * 4 - 1, LCD_SCREEN_W, 0x0000);
+	CAT_rowberry(0, 16 * 4 - 1, LCD_FRAMEBUFFER_W, 0x0000);
 
 	CAT_gui_panel((CAT_ivec2) {0, 4}, (CAT_ivec2) {15, 16});
 	for(int i = 0; i < VENDING_MAX_SLOTS; i++)
@@ -110,7 +110,7 @@ void CAT_render_vending()
 
 		CAT_gui_set_flag(CAT_GUI_TIGHT);
 		CAT_gui_panel((CAT_ivec2) {0, 4+i*2}, (CAT_ivec2) {15, 2});
-		CAT_rowberry(0, (2+i)*32-1, LCD_SCREEN_W, 0x0000);
+		CAT_rowberry(0, (2+i)*32-1, LCD_FRAMEBUFFER_W, 0x0000);
 		CAT_gui_image(item->icon, 0);
 
 		CAT_gui_textf(" %s  $%d", item->name, item->price);

@@ -25,7 +25,7 @@ struct
     GLuint vbo_id;
     GLuint tex_id;
     GLuint prog_id;
-    GLuint tex_loc;    
+    GLuint tex_loc;
 
     float time;
     float delta_time;
@@ -186,10 +186,16 @@ void CAT_platform_cleanup()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // LCD SCREEN
 
-void CAT_LCD_post(uint16_t* buffer)
+uint16_t lcd_framebuffer[LCD_SCREEN_W * LCD_SCREEN_H];
+uint16_t* CAT_LCD_get_framebuffer()
+{
+	return lcd_framebuffer;
+}
+
+void CAT_LCD_post()
 {
 	glBindTexture(GL_TEXTURE_2D, simulator.tex_id);
-	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, LCD_SCREEN_W, LCD_SCREEN_H, GL_RGB, GL_UNSIGNED_SHORT_5_6_5, buffer);
+	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, LCD_SCREEN_W, LCD_SCREEN_H, GL_RGB, GL_UNSIGNED_SHORT_5_6_5, lcd_framebuffer);
 
 	glClearColor(0, 0, 0, 1);
 	glClear(GL_COLOR_BUFFER_BIT);
@@ -414,24 +420,26 @@ bool CAT_is_charging()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // AIR QUALITY
 
-void CAT_get_AQ_readings(CAT_AQ_readings* readings)
+CAT_AQ_readings readings;
+
+void CAT_get_AQ_readings()
 {
-	readings->lps22hh.uptime_last_updated = 0;
-	readings->lps22hh.temp = 20;
-	readings->lps22hh.pressure = 1013;
+	readings.lps22hh.uptime_last_updated = 0;
+	readings.lps22hh.temp = 20;
+	readings.lps22hh.pressure = 1013;
 
-	readings->sunrise.uptime_last_updated = 0;
-	readings->sunrise.ppm_filtered_compensated = 400;
-	readings->sunrise.temp = 20;
+	readings.sunrise.uptime_last_updated = 0;
+	readings.sunrise.ppm_filtered_compensated = 400;
+	readings.sunrise.temp = 20;
 
-	readings->sen5x.uptime_last_updated = 0;
-	readings->sen5x.pm2_5 = 9;
-	readings->sen5x.pm10_0 = 15;
-	readings->sen5x.humidity_rhpct = 40;
+	readings.sen5x.uptime_last_updated = 0;
+	readings.sen5x.pm2_5 = 9;
+	readings.sen5x.pm10_0 = 15;
+	readings.sen5x.humidity_rhpct = 40;
 
-	readings->sen5x.temp_degC = 20;
-	readings->sen5x.voc_index = 1;
-	readings->sen5x.nox_index = 100;
+	readings.sen5x.temp_degC = 20;
+	readings.sen5x.voc_index = 1;
+	readings.sen5x.nox_index = 100;
 }
 
 

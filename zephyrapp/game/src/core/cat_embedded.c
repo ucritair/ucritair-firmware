@@ -13,6 +13,7 @@
 #include "batt.h"
 #include "power_control.h"
 #include "airquality.h"
+#include "lcd_driver.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // CORE
@@ -41,11 +42,17 @@ void CAT_platform_cleanup()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // LCD SCREEN
 
-void CAT_LCD_post(uint16_t* buffer){}
+uint16_t* CAT_LCD_get_framebuffer()
+{
+	return lcd_framebuffer;
+}
+
+void CAT_LCD_post(uint16_t* buffer)
+{
+	return;
+}
 
 extern volatile bool write_done;
-extern volatile bool first_frame_complete;
-
 bool CAT_LCD_is_posted()
 {
 	return write_done;
@@ -53,6 +60,7 @@ bool CAT_LCD_is_posted()
 
 void CAT_LCD_set_backlight(int percent){}
 
+extern volatile bool first_frame_complete;
 bool CAT_first_frame_complete()
 {
 	return first_frame_complete;
@@ -142,8 +150,15 @@ void CAT_set_datetime(CAT_datetime* datetime){}
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // MEMORY
 
-void* CAT_malloc(int bytes){}
-void CAT_free(void* ptr){}
+void* CAT_malloc(int bytes)
+{
+	return NULL;
+}
+
+void CAT_free(void* ptr)
+{
+	return;
+}
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -240,24 +255,26 @@ bool CAT_is_charging()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // AIR QUALITY
 
-void CAT_get_AQ_readings(CAT_AQ_readings* readings)
+CAT_AQ_readings readings;
+
+void CAT_get_AQ_readings()
 {
-	readings->lps22hh.uptime_last_updated = current_readings.lps22hh.uptime_last_updated;
-	readings->lps22hh.temp = current_readings.lps22hh.temp;
-	readings->lps22hh.pressure = current_readings.lps22hh.pressure;
+	readings.lps22hh.uptime_last_updated = current_readings.lps22hh.uptime_last_updated;
+	readings.lps22hh.temp = current_readings.lps22hh.temp;
+	readings.lps22hh.pressure = current_readings.lps22hh.pressure;
 
-	readings->sunrise.uptime_last_updated = current_readings.sunrise.uptime_last_updated;
-	readings->sunrise.ppm_filtered_compensated = current_readings.sunrise.ppm_filtered_compensated;
-	readings->sunrise.temp = current_readings.sunrise.temp;
+	readings.sunrise.uptime_last_updated = current_readings.sunrise.uptime_last_updated;
+	readings.sunrise.ppm_filtered_compensated = current_readings.sunrise.ppm_filtered_compensated;
+	readings.sunrise.temp = current_readings.sunrise.temp;
 
-	readings->sen5x.uptime_last_updated = current_readings.sen5x.uptime_last_updated;
-	readings->sen5x.pm2_5 = current_readings.sen5x.pm2_5;
-	readings->sen5x.pm10_0 = current_readings.sen5x.pm10_0;
-	readings->sen5x.humidity_rhpct = current_readings.sen5x.humidity_rhpct;
+	readings.sen5x.uptime_last_updated = current_readings.sen5x.uptime_last_updated;
+	readings.sen5x.pm2_5 = current_readings.sen5x.pm2_5;
+	readings.sen5x.pm10_0 = current_readings.sen5x.pm10_0;
+	readings.sen5x.humidity_rhpct = current_readings.sen5x.humidity_rhpct;
 
-	readings->sen5x.temp_degC = current_readings.sen5x.temp_degC;
-	readings->sen5x.voc_index = current_readings.sen5x.voc_index;
-	readings->sen5x.nox_index = current_readings.sen5x.nox_index;
+	readings.sen5x.temp_degC = current_readings.sen5x.temp_degC;
+	readings.sen5x.voc_index = current_readings.sen5x.voc_index;
+	readings.sen5x.nox_index = current_readings.sen5x.nox_index;
 }
 
 

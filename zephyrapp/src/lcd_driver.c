@@ -67,7 +67,6 @@ uint16_t lcd_framebuffer_backing[LCD_FRAMEBUFFER_PIXELS];
 uint16_t* lcd_framebuffer = lcd_framebuffer_backing;
 #endif
 
-
 int framebuffer_offset_h = 0;
 
 void lcd_flip(uint16_t* buffer, int offset)

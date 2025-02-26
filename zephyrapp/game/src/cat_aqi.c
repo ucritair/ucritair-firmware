@@ -3,8 +3,6 @@
 #include <stdio.h>
 #include <math.h>
 
-CAT_AQ_readings readings;
-
 /**
  * @brief Performs linear interpolation to calculate the score for a parameter.
  *

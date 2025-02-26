@@ -108,7 +108,7 @@ void CAT_render_item_dialog()
 		
 		CAT_gui_set_flag(CAT_GUI_TIGHT);
 		CAT_gui_panel((CAT_ivec2) {0, 2+i*2}, (CAT_ivec2) {15, 2});
-		CAT_rowberry(0, (2+i)*32-1, LCD_SCREEN_W, 0x0000);
+		CAT_rowberry(0, (2+i)*32-1, LCD_FRAMEBUFFER_W, 0x0000);
 		CAT_gui_image(item->icon, 0);
 		
 		int bag_idx = CAT_item_list_find(&bag, item_id);

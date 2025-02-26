@@ -625,7 +625,7 @@ enum {FLOOR_BASE, FLOOR_GRASS, FLOOR_ASH} bg_floor = FLOOR_BASE;
 
 void render_background()
 {
-	spriter.mode = CAT_DRAW_MODE_DEFAULT;
+	draw_mode = CAT_DRAW_MODE_DEFAULT;
 	for(int y = 0; y < 6; y++)
 	{
 		for(int x = 0; x < 15; x++)

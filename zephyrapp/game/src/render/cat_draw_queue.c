@@ -165,7 +165,7 @@ void CAT_draw_queue_submit(int cycle)
 			if(anim_table.reverse[sprite->id])
 				job->frame_idx = sprite->frame_count-1-job->frame_idx;
 		}
-		spriter.mode = job->mode;
+		draw_mode = job->mode;
 		CAT_draw_sprite(sprite, job->frame_idx, job->x, job->y);
 	}
 }

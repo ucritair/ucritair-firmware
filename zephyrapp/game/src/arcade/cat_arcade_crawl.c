@@ -39,8 +39,8 @@ static int enemy_count;
 void spawn()
 {
 	enemy_id[enemy_count] = enemy_count;
-	enemy_x[enemy_count] = CAT_rand_int(0, LCD_SCREEN_W-1);
-	enemy_y[enemy_count] = CAT_rand_int(0, LCD_SCREEN_H-1);
+	enemy_x[enemy_count] = CAT_rand_int(0, LCD_FRAMEBUFFER_W-1);
+	enemy_y[enemy_count] = CAT_rand_int(0, LCD_FRAMEBUFFER_H-1);
 	enemy_dx[enemy_count] = CAT_rand_float(-SPEED * 0.5f, SPEED * 0.5f);
 	enemy_dy[enemy_count] = CAT_rand_float(-SPEED * 0.5f, SPEED * 0.5f);
 	enemy_status[enemy_count] = ALIVE;
@@ -146,7 +146,7 @@ void CAT_MS_crawl(CAT_machine_signal signal)
 				enemy_x[i] += enemy_dx[i] * CAT_get_delta_time();
 				enemy_y[i] += enemy_dy[i] * CAT_get_delta_time();
 
-				if(enemy_x[i] < -32 || enemy_x[i] >= LCD_SCREEN_W + 32 || enemy_y[i] < -32 || enemy_y[i] >= LCD_SCREEN_H + 32)
+				if(enemy_x[i] < -32 || enemy_x[i] >= LCD_FRAMEBUFFER_W + 32 || enemy_y[i] < -32 || enemy_y[i] >= LCD_FRAMEBUFFER_H + 32)
 				{
 					kill(i);
 					spawn();
@@ -166,7 +166,7 @@ void CAT_render_crawl()
 {
 	CAT_frameberry(0x0000);
 
-	spriter.mode = CAT_DRAW_MODE_CENTER_Y | CAT_DRAW_MODE_CENTER_X;
+	draw_mode = CAT_DRAW_MODE_CENTER_Y | CAT_DRAW_MODE_CENTER_X;
 
 	int frame = 2 * dir + walk_cycle_idx;
 	CAT_draw_sprite(&fighter_sprite, frame, round(pos_x), round(pos_y));
@@ -176,7 +176,7 @@ void CAT_render_crawl()
 		CAT_draw_sprite(&enemy_sprite, enemy_status[i] == ALIVE ? 0 : 1, enemy_x[i], enemy_y[i]);
 	}
 	
-	spriter.mode = CAT_DRAW_MODE_DEFAULT;
+	draw_mode = CAT_DRAW_MODE_DEFAULT;
 	if(attack_timer < ATTACK_DURATION)
 	{
 		CAT_draw_sprite(&attack_sprite, 0, attack_rect.min.x, attack_rect.min.y);

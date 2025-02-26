@@ -54,7 +54,7 @@ void CAT_render_debug()
 	switch(page)
 	{
 		case SYSTEM:
-			CAT_gui_title(true, NULL, &icon_exit_sprite, "SAVE");
+			CAT_gui_title(true, NULL, &icon_exit_sprite, "SYSTEM");
 			CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
 			CAT_gui_textf
 			(
@@ -115,6 +115,7 @@ void CAT_render_debug()
 				CAT_gui_textf("%d", state);
 			}
 			CAT_gui_line_break();
+
 			if(input_mask != 0)
 			{
 				float max_time = 0;

@@ -292,7 +292,6 @@ void CAT_init(int seconds_slept)
 
 	CAT_anim_table_init();
 	CAT_sprite_mass_define();
-	CAT_spriter_init();
 
 	CAT_space_init();
 	CAT_room_init();
@@ -324,7 +323,7 @@ void CAT_tick_logic()
 
 	CAT_platform_tick();
 	CAT_input_tick();
-	CAT_get_AQ_readings(&readings);
+	CAT_get_AQ_readings();
 
 	CAT_room_tick(in_world());
 	CAT_pet_tick(in_world());
@@ -409,13 +408,12 @@ int main(int argc, char** argv)
 	{
 		CAT_tick_logic();
 		CAT_tick_render(0);
-		CAT_LCD_post(spriter.framebuffer);
+		CAT_LCD_post();
 	}
 
 	CAT_force_save();
 	CAT_save_sleep();
 
-	CAT_spriter_cleanup();
 	CAT_platform_cleanup();
 	return 0;
 }
