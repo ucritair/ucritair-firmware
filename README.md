@@ -5,7 +5,7 @@ Initial Public Release
 ## Build instructions
 
 Setup:
- - Install `west` and an appropriate toolchain (`west sdk install`, we're on `zephyr-sdk-0.16.8`)
+ - Install `west` and an appropriate toolchain (`west sdk install`, we're on `zephyr-sdk-0.16.8`) . Guide : https://docs.zephyrproject.org/latest/develop/getting_started/index.html
  - Clone `cat_software`
  - `west init -l cat_software`
  - `west update`
