@@ -100,7 +100,6 @@ target_sources(app PRIVATE
 	src/menu/cat_menu.c
 	src/menu/cat_menu_insights.c
 	src/menu/cat_menu_manual.c
-	src/menu/cat_menu_themes.c
 	src/menu/cat_menu_magic.c
 	src/menu/cat_menu_hedron.c
 	src/menu/cat_menu_debug.c
