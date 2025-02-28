@@ -103,7 +103,6 @@ target_sources(app PRIVATE
 	src/menu/cat_menu_themes.c
 	src/menu/cat_menu_magic.c
 	src/menu/cat_menu_hedron.c
-	src/menu/cat_menu_cheats.c
 	src/menu/cat_menu_debug.c
 	src/menu/cat_menu_graph_spoof.c
 

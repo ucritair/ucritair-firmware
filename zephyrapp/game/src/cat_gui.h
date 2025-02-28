@@ -57,3 +57,10 @@ void CAT_gui_open_popup(const char* msg, bool* result);
 bool CAT_gui_popup_is_open();
 void CAT_gui_popup_io();
 void CAT_gui_popup();
+
+bool CAT_gui_in_menu();
+bool CAT_gui_begin_menu(const char* title);
+bool CAT_gui_menu_item(const char* title);
+void CAT_gui_end_menu();
+void CAT_gui_menu_io();
+void CAT_gui_menu();

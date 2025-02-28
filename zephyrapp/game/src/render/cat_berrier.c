@@ -215,8 +215,8 @@ void CAT_strokeberry(int xi, int yi, int w, int h, uint16_t c)
 		}
 	}
 
-	int yf = yi + h - 1;
-
+	int yf = yi + h;
+	
 	IF_IF_EMBEDDED((yf >= 0 && yf < LCD_FRAMEBUFFER_H))
 	{
 		for(int x = xi; x < xi + w; x++)
@@ -225,7 +225,7 @@ void CAT_strokeberry(int xi, int yi, int w, int h, uint16_t c)
 		}
 	}
 
-	for(int y = yi; y < yi + h; y++)
+	for(int y = yi; y < yf; y++)
 	{
 		IF_IF_EMBEDDED(y >= 0 && y < LCD_FRAMEBUFFER_H)
 		{

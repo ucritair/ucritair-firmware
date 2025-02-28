@@ -415,3 +415,210 @@ void CAT_gui_popup()
 	CAT_gui_line_break();
 	CAT_gui_text(popup.selector ? "[YES]  NO " : " YES  [NO]");
 }
+
+// Don't judge me for what comes next
+// It's actually heinous but it works
+// I'll clean it up
+
+unsigned long hash(const char* s)
+{
+	unsigned long h = 0;
+	while (*s != '\0')
+	{
+		h = (h << 4) + *(s++);
+		unsigned long g = h & 0xF0000000L;
+		if (g != 0)
+			h ^= g >> 24;
+		h &= ~g;
+	}
+	return h;
+}
+
+typedef struct menu_node
+{
+	bool live;
+
+	const char* title;
+	bool selected;
+
+	int parent;
+	uint16_t children[32];
+	uint8_t child_count;
+	uint8_t selector;
+} menu_node;
+
+menu_node menu_table[512];
+#define MENU_TABLE_SIZE (sizeof(menu_table) / sizeof(menu_table[0]))
+uint16_t menu_stack[128];
+#define MENU_STACK_SIZE (sizeof(menu_stack) / sizeof(menu_stack[0]))
+uint8_t menu_stack_length = 0;
+int root = -1;
+
+uint16_t register_menu_node(const char* title)
+{
+	uint16_t idx = hash(title) % MENU_TABLE_SIZE;
+	while (menu_table[idx].live)
+		idx++;
+
+	menu_table[idx] = (menu_node)
+	{
+		.live = true,
+		.title = title,
+		.selected = false,
+		.parent = -1,
+		.child_count = 0,
+		.selector = 0
+	};
+	return idx;
+}
+
+int find_menu_node(const char* title)
+{
+	uint16_t idx = hash(title) % MENU_TABLE_SIZE;
+	while (menu_table[idx].live)
+	{
+		if (strcmp(menu_table[idx].title, title) == 0)
+			return idx;
+		idx++;
+	}
+	return -1;
+}
+
+void push_menu_node(uint16_t table_idx)
+{
+	menu_stack[menu_stack_length] = table_idx;
+	menu_stack_length += 1;
+}
+
+uint16_t pop_menu_node()
+{
+	menu_stack_length -= 1;
+	return menu_stack[menu_stack_length];
+}
+
+uint8_t menu_add_child(uint16_t table_idx)
+{
+	menu_node* head = &menu_table[menu_stack[menu_stack_length-1]];
+
+	uint8_t child_idx = head->child_count;
+	head->children[child_idx] = table_idx;
+	head->child_count += 1;
+	menu_table[table_idx].parent = menu_stack[menu_stack_length-1];
+	return child_idx;
+}
+
+int menu_find_child(uint16_t table_idx)
+{
+	menu_node* head = &menu_table[menu_stack[menu_stack_length-1]];
+
+	for(int i = 0; i < head->child_count; i++)
+	{
+		if(head->children[i] == table_idx)
+			return i;
+	}
+	return -1;
+}
+
+menu_node* menu_find_head()
+{
+	menu_node* ptr =&menu_table[root];
+	for(int i = 0; i < ptr->child_count; i++)
+	{
+		menu_node* child = &menu_table[ptr->children[i]];
+		if(child->selected && child->child_count > 0)
+		{
+			ptr = child;
+			i = -1;
+			continue;
+		}
+	}
+	return ptr;
+}
+
+bool CAT_gui_in_menu()
+{
+	return root >= 0;
+}
+
+bool CAT_gui_begin_menu(const char* title)
+{
+	int idx = find_menu_node(title);
+	if(idx == -1)
+		idx = register_menu_node(title);
+	menu_table[idx].child_count = 0;
+
+	if (!CAT_gui_in_menu())
+	{
+		push_menu_node(idx);
+		menu_table[idx].selected = true;
+		root = idx;
+	}
+	else
+	{
+		menu_add_child(idx);
+		if(menu_table[idx].selected)
+			push_menu_node(idx);
+	}
+
+	return menu_table[idx].selected;
+}
+
+bool CAT_gui_menu_item(const char* title)
+{
+	int idx = find_menu_node(title);
+	if(idx == -1)
+		idx = register_menu_node(title);
+	menu_add_child(idx);
+
+	bool selected = menu_table[idx].selected;
+	menu_table[idx].selected = false;
+	return selected;
+}
+
+void CAT_gui_end_menu()
+{
+	pop_menu_node();
+}
+
+void CAT_gui_menu_io()
+{
+	menu_node* head = menu_find_head();
+
+	if(CAT_input_pressed(CAT_BUTTON_UP))
+		head->selector -= 1;
+	if(CAT_input_pressed(CAT_BUTTON_DOWN))
+		head->selector += 1;
+	head->selector = clamp(head->selector, 0, head->child_count-1);
+
+	menu_node* hovered = &menu_table[head->children[head->selector]];
+	if(CAT_input_pressed(CAT_BUTTON_A))
+		hovered->selected = true;
+	if(CAT_input_pressed(CAT_BUTTON_B))
+		menu_table[hovered->parent].selected = false;
+}
+
+void CAT_gui_menu()
+{
+	menu_node* head = menu_find_head();
+
+	CAT_gui_title
+	(
+		false,
+		&icon_enter_sprite, &icon_exit_sprite,
+		head->title
+	);
+
+	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
+
+	for(int i = 0; i < head->child_count; i++)
+	{
+		menu_node* child = &menu_table[head->children[i]];
+		CAT_gui_textf("\1 %s ", child->title);
+		if(i == head->selector)
+			CAT_gui_image(&icon_pointer_sprite, 0);
+		CAT_gui_line_break();
+	}
+
+	menu_stack_length = 0;
+	root = -1;
+}
