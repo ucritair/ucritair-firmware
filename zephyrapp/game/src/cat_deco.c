@@ -51,6 +51,8 @@ void CAT_MS_deco(CAT_machine_signal signal)
 	{
 		case CAT_MACHINE_SIGNAL_ENTER:
 		{
+			CAT_set_render_callback(CAT_render_deco);
+
 			CAT_pet_settle();
 			
 			mode = ADD;
@@ -127,11 +129,36 @@ void CAT_MS_deco(CAT_machine_signal signal)
 					}
 					else
 					{
-						if(CAT_input_pressed(CAT_BUTTON_A))
+						if(hover_id == -1)
 						{
-							CAT_filter_item_dialog(prop_filter);
-							CAT_anchor_item_dialog(&hold_id);
-							CAT_machine_transition(CAT_MS_item_dialog);
+							if(CAT_input_pressed(CAT_BUTTON_A))
+							{
+								CAT_filter_item_dialog(prop_filter);
+								CAT_anchor_item_dialog(&hold_id);
+								CAT_machine_transition(CAT_MS_item_dialog);
+							}
+						}
+						else
+						{
+							int hovered_child_id = room.prop_children[hover_idx];
+							if(hovered_child_id == -1)
+							{
+								if(CAT_input_pressed(CAT_BUTTON_A))
+								{
+									CAT_room_remove_prop(hover_idx);
+									CAT_item_list_add(&bag, hover_id, 1);
+									hold_id = hover_id;
+								}
+							}
+							else
+							{
+								if(CAT_input_pressed(CAT_BUTTON_A))
+								{
+									CAT_room_unstack_prop(hover_idx);
+									CAT_item_list_add(&bag, hovered_child_id, 1);
+									hold_id = hovered_child_id;
+								}
+							}
 						}
 					}
 					break;
@@ -189,53 +216,48 @@ void CAT_render_deco()
 {
 	CAT_render_room();
 
-	if(CAT_get_render_cycle() == 0)
-	{
-		if(mode == ADD)
-		{
-			if(hold_id != -1)
-			{
-				const CAT_sprite* tile_sprite = can_drop ? &tile_hl_add_sprite : &tile_hl_rm_sprite;
+	CAT_ivec2 cursor_world = CAT_grid2world(cursor);
 
-				for(int y = hold_rect.min.y; y < hold_rect.max.y; y++)
-				{
-					for(int x = hold_rect.min.x; x < hold_rect.max.x; x++)
-					{
-						CAT_ivec2 place = CAT_grid2world((CAT_ivec2) {x, y});
-						CAT_draw_queue_add(tile_sprite, 0, 3, place.x, place.y, CAT_DRAW_MODE_DEFAULT);
-					}
-				}
-			}
-			else
+	if(mode == ADD)
+	{
+		if(hold_id != -1)
+		{
+			const CAT_sprite* tile_sprite = can_drop ? &tile_hl_add_sprite : &tile_hl_rm_sprite;
+
+			for(int y = hold_rect.min.y; y < hold_rect.max.y; y++)
 			{
-				CAT_ivec2 place = CAT_grid2world(cursor);
-				CAT_draw_queue_add(&cursor_add_sprite, 0, 3, place.x, place.y, CAT_DRAW_MODE_DEFAULT);
+				for(int x = hold_rect.min.x; x < hold_rect.max.x; x++)
+				{
+					CAT_draw_queue_add(tile_sprite, 0, 3, cursor_world.x, cursor_world.y, CAT_DRAW_MODE_DEFAULT);
+				}
 			}
 		}
 		else
 		{
-			const CAT_sprite* tile_hl = mode == MOD ? &tile_hl_flip_sprite : &tile_hl_rm_sprite;
-			const CAT_sprite* tile_mark = mode == MOD ? &tile_mark_flip_sprite : &tile_mark_rm_sprite;
-			const CAT_sprite* cursor_mark = mode == MOD ? &cursor_flip_sprite : &cursor_remove_sprite;
+			CAT_draw_queue_add(&cursor_add_sprite, 0, 3, cursor_world.x, cursor_world.y, CAT_DRAW_MODE_DEFAULT);
+		}
+	}
+	else
+	{
+		const CAT_sprite* tile_hl = mode == MOD ? &tile_hl_flip_sprite : &tile_hl_rm_sprite;
+		const CAT_sprite* tile_mark = mode == MOD ? &tile_mark_flip_sprite : &tile_mark_rm_sprite;
+		const CAT_sprite* cursor_sprite = mode == MOD ? &cursor_flip_sprite : &cursor_remove_sprite;
 
-			if(hover_idx != -1)
+		if(hover_idx != -1)
+		{
+			for(int y = hover_rect.min.y; y < hover_rect.max.y; y++)
 			{
-				for(int y = hover_rect.min.y; y < hover_rect.max.y; y++)
+				for(int x = hover_rect.min.x; x < hover_rect.max.x; x++)
 				{
-					for(int x = hover_rect.min.x; x < hover_rect.max.x; x++)
-					{
-						CAT_ivec2 place = CAT_grid2world((CAT_ivec2) {x, y});
-						CAT_draw_queue_add(tile_hl, 0, 3, place.x, place.y, CAT_DRAW_MODE_DEFAULT);
-					}
+					CAT_draw_queue_add(tile_hl, 0, 3, cursor_world.x, cursor_world.y, CAT_DRAW_MODE_DEFAULT);
 				}
-				CAT_ivec2 place = CAT_grid2world(cursor);
-				CAT_draw_queue_add(tile_mark, 0, 3, place.x, place.y, CAT_DRAW_MODE_DEFAULT);
 			}
-			else
-			{
-				CAT_ivec2 place = CAT_grid2world(cursor);
-				CAT_draw_queue_add(cursor_mark, 0, 3, place.x, place.y, CAT_DRAW_MODE_DEFAULT);
-			}
+			
+			CAT_draw_queue_add(tile_mark, 0, 3, cursor_world.x, cursor_world.y, CAT_DRAW_MODE_DEFAULT);
+		}
+		else
+		{
+			CAT_draw_queue_add(cursor_sprite, 0, 3, cursor_world.x, cursor_world.y, CAT_DRAW_MODE_DEFAULT);
 		}
 	}
 }
