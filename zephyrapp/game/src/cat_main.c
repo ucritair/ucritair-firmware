@@ -97,7 +97,7 @@ void CAT_force_save()
 	for(int i = 0; i < room.prop_count; i++)
 	{
 		save->prop_ids[i] = room.prop_ids[i];
-		save->prop_places[i] = room.prop_places[i];
+		save->prop_places[i] = room.prop_rects[i].min;
 		save->prop_overrides[i] = room.prop_overrides[i];
 		save->prop_children[i] = room.prop_children[i];
 	}
@@ -204,6 +204,8 @@ void CAT_force_load()
 	saved_version_patch = save->version_patch;
 	saved_version_push = save->version_push;
 
+	
+	
 	if(save->vigour <= 12)
 		pet.vigour = save->vigour;
 	if(save->focus <= 12)
@@ -211,7 +213,7 @@ void CAT_force_load()
 	if(save->spirit <= 12)
 		pet.spirit = save->spirit;
 	pet.lifetime = save->lifetime;
-
+		
 	for(int i = 0; i < save->prop_count; i++)
 	{
 		uint8_t prop_id = save->prop_ids[i];
@@ -245,7 +247,7 @@ void CAT_force_load()
 
 	if(strlen(save->name) <= CAT_TEXT_INPUT_MAX)
 		strcpy(pet.name, save->name);
-	
+
 	if(save->theme < THEME_COUNT)
 		room.theme = themes_list[save->theme];
 
@@ -306,16 +308,6 @@ void CAT_init(int seconds_slept)
 	CAT_machine_transition(CAT_MS_room);
 }
 
-bool in_world()
-{
-	return
-	machine == CAT_MS_room ||
-	machine == CAT_MS_feed ||
-	machine == CAT_MS_study ||
-	machine == CAT_MS_play ||
-	machine == CAT_MS_deco;
-}
-
 void CAT_tick_logic()
 {
 	if(needs_load)
@@ -325,90 +317,49 @@ void CAT_tick_logic()
 	CAT_input_tick();
 	CAT_get_AQ_readings();
 
-	CAT_room_tick(in_world());
-	CAT_pet_tick(in_world());
+	CAT_room_tick();
+	CAT_pet_tick();
 
 	CAT_machine_tick();
 }
 
-void CAT_tick_render(int cycle)
+void CAT_tick_render()
 {
-	if (cycle == 0)
-		draw_queue.length = 0;
+	if (CAT_get_render_cycle() == 0)
+		CAT_draw_queue_clear();
 
-	if(in_world())
+	if(CAT_get_render_callback() != NULL)
 	{
-		CAT_render_room(cycle);
-		CAT_render_pet(cycle);
-		if(machine == CAT_MS_deco)
-			CAT_render_deco(cycle);
-		else
-			CAT_render_action(cycle);
-		CAT_draw_queue_submit(cycle);
+		(CAT_get_render_callback())();
 	}
-	else if(machine == CAT_MS_menu)
-		CAT_render_menu();
-	else if(machine == CAT_MS_insights)
-		CAT_render_insights();
-	else if(machine == CAT_MS_bag)
-		CAT_render_bag();
-	else if(machine == CAT_MS_arcade)
-		CAT_render_arcade();
-	else if(machine == CAT_MS_snake)
-		CAT_render_snake();
-	else if(machine == CAT_MS_mines)
-		CAT_render_mines();
-	else if(machine == CAT_MS_crawl)
-		CAT_render_crawl();
-	else if(machine == CAT_MS_vending)
-		CAT_render_vending();
-	else if(machine == CAT_MS_manual)
-		CAT_render_manual();
-	else if(machine == CAT_MS_item_dialog)
-		CAT_render_item_dialog();
-	else if(machine == CAT_MS_inspector)
-		CAT_render_inspector();
-#ifdef CAT_EMBEDDED
-	else if(machine == CAT_MS_time)
-		CAT_render_time();
-	else if(machine == CAT_MS_aqi)
-		CAT_render_aqi();
-	else if(machine == CAT_MS_system_menu)
-		CAT_render_system_menu();
-	else if(machine == CAT_MS_graph)
-		CAT_render_graph();
-#endif
-	else if(machine == CAT_MS_debug)
-		CAT_render_debug();	
-	else if(machine == CAT_MS_hedron)
-		CAT_render_hedron();
-	else if(machine == CAT_MS_magic)
-		CAT_render_magic();
-	else if(machine == CAT_MS_graph_spoof)
-		CAT_render_graph_spoof();
 	else
 	{
-		CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 20});
-		CAT_gui_text("This machine state\nhas no render routine!");
+		/*
+		Effortlessly at height hangs his still eye.
+		His wings hold all creation in a weightless quiet,
+		steady as a hallucination in the streaming air.
+		*/
+		CAT_draw_sprite(&null_sprite, 0, 120-12, 160-12);
 	}
+
+	CAT_draw_queue_submit();
 }
 
 #ifdef CAT_DESKTOP
 int main(int argc, char** argv)
 {
-	int sleep = 0;
-	if (argc == 2)
-		sleep = atoi(argv[1]);
-	if (sleep == 0)
-		sleep = CAT_load_sleep();
-
-	CAT_init(sleep);
+	CAT_init(CAT_load_sleep());
 
 	while (CAT_get_battery_pct() > 0)
 	{
 		CAT_tick_logic();
-		CAT_tick_render(0);
-		CAT_LCD_post();
+		for(int render_cycle = 0; render_cycle < LCD_FRAMEBUFFER_SEGMENTS; render_cycle++)
+		{
+			CAT_set_render_cycle(render_cycle);
+			CAT_tick_render();
+			CAT_LCD_post();
+		}
+		CAT_LCD_flip();
 	}
 
 	CAT_force_save();

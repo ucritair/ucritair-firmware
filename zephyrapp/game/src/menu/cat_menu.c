@@ -25,23 +25,15 @@ void CAT_MS_menu(CAT_machine_signal signal)
 	switch(signal)
 	{
 		case CAT_MACHINE_SIGNAL_ENTER:
+			CAT_set_render_callback(CAT_render_menu);
 			break;
 		case CAT_MACHINE_SIGNAL_TICK:
 		{
 			if(CAT_input_pressed(CAT_BUTTON_START))
 				CAT_machine_transition(CAT_MS_room);
-			
-			if(CAT_gui_keyboard_is_open())
-			{
-				CAT_gui_keyboard_io();
-				break;
-			}
 
 			if(CAT_gui_begin_menu("MENU"))
 			{
-				if(CAT_input_pressed(CAT_BUTTON_B))
-					CAT_machine_back();
-
 				if(CAT_gui_menu_item("INSIGHTS"))
 					CAT_machine_transition(CAT_MS_insights);
 				if(CAT_gui_begin_menu("SETTINGS"))
@@ -75,7 +67,7 @@ void CAT_MS_menu(CAT_machine_signal signal)
 					CAT_machine_transition(CAT_MS_aqi);
 				if(CAT_gui_menu_item("SYSTEM DASHBOARD"))
 					CAT_machine_transition(CAT_MS_system_menu);
-#endif		
+#endif
 #ifdef CAT_DEBUG
 				if(CAT_gui_menu_item("DEBUG DASHBOARD"))
 					CAT_machine_transition(CAT_MS_debug);
@@ -119,6 +111,12 @@ void CAT_MS_menu(CAT_machine_signal signal)
 				if(CAT_gui_menu_item("MANUAL"))
 					CAT_machine_transition(CAT_MS_manual);
 				CAT_gui_end_menu();
+			}
+			
+			if(CAT_gui_keyboard_is_open())
+			{
+				CAT_gui_keyboard_io();
+				break;
 			}
 
 			if(CAT_gui_in_menu())

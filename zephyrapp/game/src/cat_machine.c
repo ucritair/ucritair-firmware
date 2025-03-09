@@ -186,3 +186,20 @@ void CAT_machine_back()
 		CAT_machine_transition(peek());
 	}
 }
+
+CAT_machine_state CAT_get_machine_state()
+{
+	return machine;
+}
+
+CAT_render_callback render_callback;
+
+void CAT_set_render_callback(CAT_render_callback callback)
+{
+	render_callback = callback;
+}
+
+CAT_render_callback CAT_get_render_callback()
+{
+	return render_callback;
+}

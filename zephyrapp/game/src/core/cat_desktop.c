@@ -186,7 +186,7 @@ void CAT_platform_cleanup()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // LCD SCREEN
 
-uint16_t lcd_framebuffer[LCD_SCREEN_W * LCD_SCREEN_H];
+uint16_t lcd_framebuffer[LCD_FRAMEBUFFER_PIXELS];
 uint16_t* CAT_LCD_get_framebuffer()
 {
 	return lcd_framebuffer;
@@ -195,7 +195,14 @@ uint16_t* CAT_LCD_get_framebuffer()
 void CAT_LCD_post()
 {
 	glBindTexture(GL_TEXTURE_2D, simulator.tex_id);
-	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, LCD_SCREEN_W, LCD_SCREEN_H, GL_RGB, GL_UNSIGNED_SHORT_5_6_5, lcd_framebuffer);
+	glTexSubImage2D
+	(
+		GL_TEXTURE_2D, 0,
+		0, LCD_FRAMEBUFFER_H * CAT_get_render_cycle(),
+		LCD_SCREEN_W, LCD_FRAMEBUFFER_H,
+		GL_RGB, GL_UNSIGNED_SHORT_5_6_5,
+		lcd_framebuffer
+	);
 
 	glClearColor(0, 0, 0, 1);
 	glClear(GL_COLOR_BUFFER_BIT);
@@ -206,7 +213,11 @@ void CAT_LCD_post()
 	glProgramUniform1i(simulator.prog_id, simulator.tex_loc, 0);
 
 	glBindVertexArray(simulator.vao_id);
-	glDrawArrays(GL_TRIANGLES, 0, 6);	
+	glDrawArrays(GL_TRIANGLES, 0, 6);
+}
+
+void CAT_LCD_flip()
+{
 	glfwSwapBuffers(simulator.window);
 }
 
@@ -223,6 +234,18 @@ void CAT_LCD_set_backlight(int percent)
 bool CAT_first_frame_complete()
 {
 	return true;
+}
+
+int render_cycle = 0;
+
+void CAT_set_render_cycle(int cycle)
+{
+	render_cycle = cycle;
+}
+
+int CAT_get_render_cycle()
+{
+	return render_cycle;
 }
 
 

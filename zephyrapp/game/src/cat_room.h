@@ -85,10 +85,8 @@ typedef struct CAT_room
 {
 	const CAT_room_theme* theme;
 
-	CAT_ivec2 grid_cursor;
-
 	int prop_ids[CAT_GRID_SIZE];
-	CAT_ivec2 prop_places[CAT_GRID_SIZE];
+	CAT_rect prop_rects[CAT_GRID_SIZE];
 	int prop_overrides[CAT_GRID_SIZE];
 	int prop_children[CAT_GRID_SIZE];
 	int prop_count;
@@ -105,6 +103,7 @@ void CAT_room_init();
 int CAT_room_find(int item_id);
 int CAT_room_find_spatial(CAT_ivec2 place);
 bool CAT_prop_fits(int item_id, CAT_ivec2 place);
+
 int CAT_room_add_prop(int item_id, CAT_ivec2 place);
 void CAT_room_stack_prop(int idx, int item_id);
 void CAT_room_unstack_prop(int idx);
@@ -115,7 +114,6 @@ int CAT_spawn_pickup(CAT_vec2 origin, CAT_vec2 place, const CAT_sprite* sprite, 
 void CAT_despawn_pickup(int idx);
 void CAT_room_earn(int ticks);
 
-void CAT_room_cursor();
-void CAT_room_tick(bool capture_input);
+void CAT_room_tick();
 void CAT_MS_room(CAT_machine_signal signal);
-void CAT_render_room(int cycle);
+void CAT_render_room();

@@ -219,6 +219,8 @@ void CAT_MS_mines(CAT_machine_signal signal)
 	{
 		case CAT_MACHINE_SIGNAL_ENTER:
 		{		
+			CAT_set_render_callback(CAT_render_mines);
+
 			init_grid();
 
 			state = PLAY;

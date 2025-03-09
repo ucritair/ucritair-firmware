@@ -57,6 +57,7 @@ void CAT_MS_arcade(CAT_machine_signal signal)
 	switch(signal)
 	{
 		case CAT_MACHINE_SIGNAL_ENTER:
+			CAT_set_render_callback(CAT_render_arcade);
 			if(selector == -1)
 				selector = seek_entry(0, 1);
 			break;

@@ -144,6 +144,7 @@ void CAT_MS_system_menu(CAT_machine_signal signal)
 	switch(signal)
 	{
 		case CAT_MACHINE_SIGNAL_ENTER:
+			CAT_set_render_callback(CAT_render_system_menu);
 			system_menu_note = "Some items take time";
 			break;
 		case CAT_MACHINE_SIGNAL_TICK:

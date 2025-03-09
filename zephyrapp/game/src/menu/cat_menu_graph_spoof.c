@@ -108,6 +108,7 @@ void CAT_MS_graph_spoof(CAT_machine_signal signal)
 	{
 		case CAT_MACHINE_SIGNAL_ENTER:
 		{	
+			CAT_set_render_callback(CAT_render_graph_spoof);
 			fill_samples();
 			break;
 		}

@@ -218,7 +218,7 @@ void milk_proc()
 	CAT_item_list_add(&bag, food_milk_item, 1);
 }
 
-void CAT_pet_tick(bool capture_input)
+void CAT_pet_tick()
 {
 	if(CAT_timer_tick(pet.stat_timer_id))
 	{
@@ -236,7 +236,7 @@ void CAT_pet_tick(bool capture_input)
 
 	CAT_timer_tick(pet.petting_timer_id);
 
-	if(machine == CAT_MS_room)
+	if(CAT_get_machine_state() == CAT_MS_room)
 	{
 		if(!is_critical() && CAT_get_battery_pct() > CAT_CRITICAL_BATTERY_PCT)
 		{
@@ -267,9 +267,10 @@ void CAT_pet_tick(bool capture_input)
 				CAT_animachine_transition(&pet_asm, &AS_crit);
 		}
 	}
-
-	if(!capture_input)
+	else
+	{
 		return;
+	}
 
 	if(!CAT_animachine_is_in(&react_asm, &AS_react) && CAT_input_drag(pet.pos.x, pet.pos.y-16, 16))
 	{
@@ -307,19 +308,16 @@ void CAT_pet_tick(bool capture_input)
 	}
 }
 
-void CAT_render_pet(int cycle)
+void CAT_render_pet()
 {
-	if(cycle == 0)
+	int mode = CAT_DRAW_MODE_BOTTOM | CAT_DRAW_MODE_CENTER_X;
+	if(pet.left)
+		mode |= CAT_DRAW_MODE_REFLECT_X;
+	int layer = CAT_get_battery_pct() <= CAT_CRITICAL_BATTERY_PCT ? 1 : 2;
+	CAT_draw_queue_add(CAT_animachine_tick(&pet_asm), -1, layer, pet.pos.x, pet.pos.y, mode);
+	if(CAT_animachine_is_in(&react_asm, &AS_react))
 	{
-		int mode = CAT_DRAW_MODE_BOTTOM | CAT_DRAW_MODE_CENTER_X;
-		if(pet.left)
-			mode |= CAT_DRAW_MODE_REFLECT_X;
-		int layer = CAT_get_battery_pct() <= CAT_CRITICAL_BATTERY_PCT ? 1 : 2;
-		CAT_draw_queue_add(CAT_animachine_tick(&pet_asm), -1, layer, pet.pos.x, pet.pos.y, mode);
-		if(CAT_animachine_is_in(&react_asm, &AS_react))
-		{
-			int x_off = pet.left ? 16 : -16;
-			CAT_draw_queue_add(CAT_animachine_tick(&react_asm), -1, layer+1, pet.pos.x + x_off, pet.pos.y - 48, mode);	
-		}
+		int x_off = pet.left ? 16 : -16;
+		CAT_draw_queue_add(CAT_animachine_tick(&react_asm), -1, layer+1, pet.pos.x + x_off, pet.pos.y - 48, mode);	
 	}
 }

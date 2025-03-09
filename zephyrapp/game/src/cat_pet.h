@@ -48,5 +48,5 @@ void CAT_pet_reposition();
 void CAT_pet_stat(int ticks);
 void CAT_pet_life(int ticks);
 
-void CAT_pet_tick(bool capture_input);
-void CAT_render_pet(int cycle);
+void CAT_pet_tick();
+void CAT_render_pet();

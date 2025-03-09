@@ -11,39 +11,30 @@
 #include "cat_bag.h"
 #include "cat_menu.h"
 
-CAT_deco_state deco_state =
+static enum {ADD, MOD, REMOVE} mode = ADD;
+
+static CAT_ivec2 cursor;
+
+static int hold_id = -1;
+static CAT_rect hold_rect = {0};
+static bool can_drop = false;
+
+static int hover_idx = -1;
+static int hover_id = -1;
+static CAT_rect hover_rect = {0};
+
+static void control_cursor()
 {
-	.mode = ADD,
-
-	.add_id = -1,
-	.add_rect = {0},
-	.valid_add = false,
-
-	.mod_idx = -1,
-	.mod_rect = {0}
-};
-
-void CAT_deco_target(CAT_ivec2 place)
-{
-	for(int i = 0; i < room.prop_count; i++)
-	{
-		int item_id = room.prop_ids[i];
-		CAT_item* item = &item_table.data[item_id];
-		CAT_ivec2 shape = item->data.prop_data.shape;
-		CAT_rect block = CAT_rect_place(room.prop_places[i], shape);
-
-		if(place.x < block.min.x || place.x >= block.max.x)
-			continue;
-		if(place.y < block.min.y || place.y >= block.max.y)
-			continue;
-		
-		deco_state.mod_idx = i;
-		deco_state.mod_rect = block;
-		return;
-	}
-
-	deco_state.mod_idx = -1;
-	deco_state.mod_rect = (CAT_rect) {{0, 0}, {0, 0}};
+	if(CAT_input_pulse(CAT_BUTTON_UP))
+		cursor.y -= 1;
+	if(CAT_input_pulse(CAT_BUTTON_RIGHT))
+		cursor.x += 1;
+	if(CAT_input_pulse(CAT_BUTTON_DOWN))
+		cursor.y += 1;
+	if(CAT_input_pulse(CAT_BUTTON_LEFT))
+		cursor.x -= 1;
+	cursor.x = clamp(cursor.x, 0, CAT_GRID_WIDTH-1);
+	cursor.y = clamp(cursor.y, 0, CAT_GRID_HEIGHT-1);
 }
 
 static bool prop_filter(int item_id)
@@ -60,121 +51,119 @@ void CAT_MS_deco(CAT_machine_signal signal)
 	{
 		case CAT_MACHINE_SIGNAL_ENTER:
 		{
-			if(deco_state.add_id == -1)
-				room.grid_cursor = CAT_largest_free_space();
-			room.grid_cursor = CAT_nearest_free_space(room.grid_cursor);
-			
 			CAT_pet_settle();
-
-			deco_state.mode = ADD;
-			deco_state.mod_idx = -1;
+			
+			mode = ADD;
+			if(hold_id == -1)
+				cursor = CAT_largest_free_space();
+			cursor = CAT_nearest_free_space(cursor);
 			break;
 		}
 		case CAT_MACHINE_SIGNAL_TICK:
 		{
-			CAT_room_cursor();
+			control_cursor();
+
+			hover_idx = CAT_room_find_spatial(cursor);
+			if(hover_idx >= 0)
+			{
+				hover_id = room.prop_ids[hover_idx];
+				hover_rect = room.prop_rects[hover_idx];
+			}
+			else
+			{
+				hover_id = -1;
+				hover_rect = (CAT_rect) {0};
+			}
 
 			if(CAT_input_pressed(CAT_BUTTON_SELECT))
 			{
-				deco_state.mode += 1;
-				if(deco_state.mode > REMOVE)
-					deco_state.mode = ADD;
-				deco_state.add_id = -1;
+				mode += 1;
+				if(mode > REMOVE)
+					mode = ADD;
 			}
 
-			switch(deco_state.mode)
+			switch(mode)
 			{
 				case ADD:
 				{
-					if(deco_state.add_id != -1)
-					{
-						CAT_item* prop = &item_table.data[deco_state.add_id];
-						CAT_ivec2 shape = prop->data.prop_data.shape;
-						CAT_rect block = CAT_rect_place(room.grid_cursor, shape);
+					can_drop = false;
 
-						deco_state.add_rect = block;
-						deco_state.valid_add = false;
+					if(hold_id != -1)
+					{
+						CAT_item* hold_prop = &item_table.data[hold_id];
+						hold_rect = CAT_rect_place(cursor, hold_prop->data.prop_data.shape);
 						
-						if(CAT_is_block_free(block))
-						{
+						if(CAT_is_block_free(hold_rect))
+						{	
+							can_drop = true;
 							if(CAT_input_pressed(CAT_BUTTON_A))
 							{
-								CAT_room_add_prop(deco_state.add_id, room.grid_cursor);
-								CAT_item_list_remove(&bag, deco_state.add_id, 1);
-								deco_state.add_id = -1;
+								CAT_room_add_prop(hold_id, cursor);
+								CAT_item_list_remove(&bag, hold_id, 1);
+								hold_id = -1;
 							}
-							deco_state.valid_add = true;
 						}
 						else
 						{
-							int base_idx = CAT_room_find_spatial(room.grid_cursor);
-							if(base_idx != -1)
+							if(hover_id != -1 && room.prop_children[hover_idx] == -1)
 							{
-								int base_id = room.prop_ids[base_idx];
-								CAT_item* base_prop = CAT_item_get(base_id);
-								bool bot_compat = base_prop->data.prop_data.type == CAT_PROP_TYPE_BOTTOM;
-								bool top_compat = prop->data.prop_data.type == CAT_PROP_TYPE_TOP;
-								bool space_compat =
-								base_prop->data.prop_data.shape.x >= prop->data.prop_data.shape.x &&
-								base_prop->data.prop_data.shape.y >= prop->data.prop_data.shape.y;
-								bool free_compat = room.prop_children[base_idx] == -1;
-								if(bot_compat && top_compat && space_compat && free_compat)
+								CAT_item* hover_prop = CAT_item_get(hover_id);
+								if(hover_prop->data.prop_data.type != CAT_PROP_TYPE_BOTTOM)
+									break;						
+								if(hold_prop->data.prop_data.type != CAT_PROP_TYPE_TOP)
+									break;		
+								if(!CAT_rect_contains(hover_rect, hold_rect))
+									break;
+
+								can_drop = true;
+								if(CAT_input_pressed(CAT_BUTTON_A))
 								{
-									if(CAT_input_pressed(CAT_BUTTON_A))
-									{
-										CAT_room_stack_prop(base_idx, deco_state.add_id);
-										CAT_item_list_remove(&bag, deco_state.add_id, 1);
-										deco_state.add_id = -1;
-									}
-									deco_state.valid_add = true;
+									CAT_room_stack_prop(hover_idx, hold_id);
+									CAT_item_list_remove(&bag, hold_id, 1);
+									hold_id = -1;
 								}
 							}
-						}				
+						}			
 					}
 					else
 					{
 						if(CAT_input_pressed(CAT_BUTTON_A))
 						{
 							CAT_filter_item_dialog(prop_filter);
-							CAT_anchor_item_dialog(&deco_state.add_id);
+							CAT_anchor_item_dialog(&hold_id);
 							CAT_machine_transition(CAT_MS_item_dialog);
 						}
 					}
 					break;
 				}
-				case FLIP:
+				case MOD:
 				{
-					CAT_deco_target(room.grid_cursor);
-					if(deco_state.mod_idx != -1)
+					if(hover_idx != -1)
 					{
 						if(CAT_input_pressed(CAT_BUTTON_A))
 						{
-							CAT_room_flip_prop(deco_state.mod_idx);
+							CAT_room_flip_prop(hover_idx);
 						}
 					}
 					break;
 				}
 				case REMOVE:
 				{
-					CAT_deco_target(room.grid_cursor);
-					if(deco_state.mod_idx != -1)
+					if(hover_idx != -1)
 					{
 						if(CAT_input_pressed(CAT_BUTTON_A))
 						{
-							if(room.prop_children[deco_state.mod_idx] == -1)
+							if(room.prop_children[hover_idx] == -1)
 							{
-								int item_id = room.prop_ids[deco_state.mod_idx];
-								CAT_item_list_add(&bag, item_id, 1);
-								CAT_room_remove_prop(deco_state.mod_idx);
-								deco_state.mod_idx = -1;
+								CAT_item_list_add(&bag, hover_id, 1);
+								CAT_room_remove_prop(hover_idx);
 							}
 							else
 							{
-								int item_id = room.prop_children[deco_state.mod_idx];
-								CAT_item_list_add(&bag, item_id, 1);
-								CAT_room_unstack_prop(deco_state.mod_idx);
+								int child_id = room.prop_children[hover_idx];
+								CAT_item_list_add(&bag, child_id, 1);
+								CAT_room_unstack_prop(hover_idx);
 							}
-							
 						}
 					}
 					break;
@@ -189,24 +178,28 @@ void CAT_MS_deco(CAT_machine_signal signal)
 		}
 		case CAT_MACHINE_SIGNAL_EXIT:
 		{
-			deco_state.add_id = -1;
+			hold_id = -1;
+			hover_id = -1;
 			break;
 		}
 	}
 }
 
-void CAT_render_deco(int cycle)
+void CAT_render_deco()
 {
-	if(cycle == 0)
+	CAT_render_room();
+
+	if(CAT_get_render_cycle() == 0)
 	{
-		if(deco_state.mode == ADD)
+		if(mode == ADD)
 		{
-			if(deco_state.add_id != -1)
+			if(hold_id != -1)
 			{
-				const CAT_sprite* tile_sprite = deco_state.valid_add ? &tile_hl_add_sprite : &tile_hl_rm_sprite;
-				for(int y = deco_state.add_rect.min.y; y < deco_state.add_rect.max.y; y++)
+				const CAT_sprite* tile_sprite = can_drop ? &tile_hl_add_sprite : &tile_hl_rm_sprite;
+
+				for(int y = hold_rect.min.y; y < hold_rect.max.y; y++)
 				{
-					for(int x = deco_state.add_rect.min.x; x < deco_state.add_rect.max.x; x++)
+					for(int x = hold_rect.min.x; x < hold_rect.max.x; x++)
 					{
 						CAT_ivec2 place = CAT_grid2world((CAT_ivec2) {x, y});
 						CAT_draw_queue_add(tile_sprite, 0, 3, place.x, place.y, CAT_DRAW_MODE_DEFAULT);
@@ -215,32 +208,33 @@ void CAT_render_deco(int cycle)
 			}
 			else
 			{
-				CAT_ivec2 place = CAT_grid2world(room.grid_cursor);
+				CAT_ivec2 place = CAT_grid2world(cursor);
 				CAT_draw_queue_add(&cursor_add_sprite, 0, 3, place.x, place.y, CAT_DRAW_MODE_DEFAULT);
 			}
 		}
 		else
 		{
-			const CAT_sprite* tile_hl = deco_state.mode == FLIP ? &tile_hl_flip_sprite : &tile_hl_rm_sprite;
-			const CAT_sprite* tile_mark = deco_state.mode == FLIP ? &tile_mark_flip_sprite : &tile_mark_rm_sprite;
-			const CAT_sprite* cursor = deco_state.mode == FLIP ? &cursor_flip_sprite : &cursor_remove_sprite;
-			if(deco_state.mod_idx != -1)
+			const CAT_sprite* tile_hl = mode == MOD ? &tile_hl_flip_sprite : &tile_hl_rm_sprite;
+			const CAT_sprite* tile_mark = mode == MOD ? &tile_mark_flip_sprite : &tile_mark_rm_sprite;
+			const CAT_sprite* cursor_mark = mode == MOD ? &cursor_flip_sprite : &cursor_remove_sprite;
+
+			if(hover_idx != -1)
 			{
-				for(int y = deco_state.mod_rect.min.y; y < deco_state.mod_rect.max.y; y++)
+				for(int y = hover_rect.min.y; y < hover_rect.max.y; y++)
 				{
-					for(int x = deco_state.mod_rect.min.x; x < deco_state.mod_rect.max.x; x++)
+					for(int x = hover_rect.min.x; x < hover_rect.max.x; x++)
 					{
 						CAT_ivec2 place = CAT_grid2world((CAT_ivec2) {x, y});
 						CAT_draw_queue_add(tile_hl, 0, 3, place.x, place.y, CAT_DRAW_MODE_DEFAULT);
 					}
 				}
-				CAT_ivec2 place = CAT_grid2world(room.grid_cursor);
+				CAT_ivec2 place = CAT_grid2world(cursor);
 				CAT_draw_queue_add(tile_mark, 0, 3, place.x, place.y, CAT_DRAW_MODE_DEFAULT);
 			}
 			else
 			{
-				CAT_ivec2 place = CAT_grid2world(room.grid_cursor);
-				CAT_draw_queue_add(cursor, 0, 3, place.x, place.y, CAT_DRAW_MODE_DEFAULT);
+				CAT_ivec2 place = CAT_grid2world(cursor);
+				CAT_draw_queue_add(cursor_mark, 0, 3, place.x, place.y, CAT_DRAW_MODE_DEFAULT);
 			}
 		}
 	}

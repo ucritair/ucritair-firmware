@@ -19,11 +19,20 @@ void CAT_platform_cleanup();
 #define LCD_SCREEN_W 240
 #define LCD_SCREEN_H 320
 
+#define LCD_FRAMEBUFFER_SEGMENTS 2
+#define LCD_FRAMEBUFFER_W LCD_SCREEN_W
+#define LCD_FRAMEBUFFER_H (LCD_SCREEN_H / LCD_FRAMEBUFFER_SEGMENTS)
+#define LCD_FRAMEBUFFER_PIXELS (LCD_FRAMEBUFFER_W * LCD_FRAMEBUFFER_H)
+
 uint16_t* CAT_LCD_get_framebuffer();
 void CAT_LCD_post();
 bool CAT_LCD_is_posted();
+void CAT_LCD_flip();
 void CAT_LCD_set_backlight(int percent);
 bool CAT_first_frame_complete();
+
+void CAT_set_render_cycle(int cycle);
+int CAT_get_render_cycle();
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -125,7 +134,7 @@ typedef struct __attribute__((__packed__)) CAT_save
 	float petting_timer;
 	uint8_t times_milked;
 
-	int8_t name[32];
+	char name[32];
 
 	uint32_t theme;
 

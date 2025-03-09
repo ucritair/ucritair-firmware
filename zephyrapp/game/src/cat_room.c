@@ -311,8 +311,6 @@ CAT_room room;
 void CAT_room_init()
 {
 	room.theme = &base_theme;
-	
-	room.grid_cursor = (CAT_ivec2) {7, 5};
 
 	room.prop_count = 0;
 
@@ -334,11 +332,9 @@ int CAT_room_find_spatial(CAT_ivec2 place)
 {
 	for(int i = 0; i < room.prop_count; i++)
 	{
-		CAT_item* item = CAT_item_get(room.prop_ids[i]);
-		CAT_ivec2 shape = item->data.prop_data.shape;
-		CAT_rect block = CAT_rect_place(room.prop_places[i], shape);
-		CAT_rect point = CAT_rect_place(place, (CAT_ivec2) {1});
-		if(CAT_rect_contains(block, point))
+		CAT_rect prop_rect = room.prop_rects[i];
+		CAT_rect place_rect = CAT_rect_place(place, (CAT_ivec2) {1, 1});
+		if(CAT_rect_contains(prop_rect, place_rect))
 			return i;
 	}
 	return -1;
@@ -348,31 +344,29 @@ bool CAT_prop_fits(int item_id, CAT_ivec2 place)
 {
 	if(room.prop_count >= CAT_GRID_SIZE)
 		return false;
-	CAT_item* item = CAT_item_get(item_id);
-	if(item == NULL)
+	CAT_item* prop = CAT_item_get(item_id);
+	if(prop == NULL)
 		return false;
 
-	CAT_ivec2 shape = item->data.prop_data.shape;
-	CAT_rect block = CAT_rect_place(place, shape);
-	return CAT_is_block_free(block);
+	CAT_rect prop_rect = CAT_rect_place(place, prop->data.prop_data.shape);
+	return CAT_is_block_free(prop_rect);
 }
 
 int CAT_room_add_prop(int item_id, CAT_ivec2 place)
 {
 	if(room.prop_count >= CAT_GRID_SIZE)
 		return -1;
-	CAT_item* item = CAT_item_get(item_id);
-	if(item == NULL)
+	CAT_item* prop = CAT_item_get(item_id);
+	if(prop == NULL)
 		return -1;
 
-	CAT_ivec2 shape = item->data.prop_data.shape;
-	CAT_rect block = CAT_rect_place(place, shape);
-	CAT_toggle_block(block, true);
+	CAT_rect prop_rect = CAT_rect_place(place, prop->data.prop_data.shape);
+	CAT_toggle_block(prop_rect, true);
 
 	int idx = room.prop_count;
 	room.prop_count += 1;
 	room.prop_ids[idx] = item_id;
-	room.prop_places[idx] = place;
+	room.prop_rects[idx] = prop_rect;
 	room.prop_overrides[idx] = 0;
 	room.prop_children[idx] = -1;
 	return idx;
@@ -393,10 +387,8 @@ void CAT_room_remove_prop(int idx)
 	if(idx < 0 || idx >= room.prop_count)
 		return;
 
-	CAT_item* item = CAT_item_get(room.prop_ids[idx]);
-	CAT_ivec2 shape = item->data.prop_data.shape;
-	CAT_rect block = CAT_rect_place(room.prop_places[idx], shape);
-	CAT_toggle_block(block, false);
+	CAT_rect prop_rect = room.prop_rects[idx];
+	CAT_toggle_block(prop_rect, false);
 
 	if(room.prop_children[idx] != -1)
 		CAT_item_list_add(&bag, room.prop_children[idx], 1);
@@ -405,7 +397,7 @@ void CAT_room_remove_prop(int idx)
 	for(int i = idx; i < room.prop_count; i++)
 	{
 		room.prop_ids[i] = room.prop_ids[i+1];
-		room.prop_places[i] = room.prop_places[i+1];
+		room.prop_rects[i] = room.prop_rects[i+1];
 		room.prop_overrides[i] = room.prop_overrides[i+1];
 		room.prop_children[i] = room.prop_children[i+1];
 	}
@@ -416,18 +408,18 @@ void CAT_room_flip_prop(int idx)
 	if(idx < 0 || idx >= room.prop_count)
 		return;
 
-	int item_id = room.prop_ids[idx];
-	CAT_item* item = CAT_item_get(item_id);
+	int prop_id = room.prop_ids[idx];
+	CAT_item* prop = CAT_item_get(prop_id);
 	int* override = &room.prop_overrides[idx];
 
-	if(item->data.prop_data.animate || item->sprite->frame_count == 1)
+	if(prop->data.prop_data.animate || prop->sprite->frame_count == 1)
 	{
 		*override = !(*override);
 	}
 	else
 	{
 		*override += 1;
-		if(*override >= item->sprite->frame_count)
+		if(*override >= prop->sprite->frame_count)
 			*override = 0;
 	}
 }
@@ -472,7 +464,7 @@ void CAT_room_earn(int ticks)
 		{
 			for(int t = 0; t < ticks; t++)
 			{
-				CAT_ivec2 start = CAT_grid2world(room.prop_places[i]);
+				CAT_ivec2 start = CAT_grid2world(room.prop_rects[i].min);
 				start.x += 24;
 				start.y -= 24;
 
@@ -496,20 +488,6 @@ void CAT_room_earn(int ticks)
 	}
 }
 
-void CAT_room_cursor()
-{
-	if(CAT_input_pulse(CAT_BUTTON_UP))
-		room.grid_cursor.y -= 1;
-	if(CAT_input_pulse(CAT_BUTTON_RIGHT))
-		room.grid_cursor.x += 1;
-	if(CAT_input_pulse(CAT_BUTTON_DOWN))
-		room.grid_cursor.y += 1;
-	if(CAT_input_pulse(CAT_BUTTON_LEFT))
-		room.grid_cursor.x -= 1;
-	room.grid_cursor.x = clamp(room.grid_cursor.x, 0, CAT_GRID_WIDTH-1);
-	room.grid_cursor.y = clamp(room.grid_cursor.y, 0, CAT_GRID_HEIGHT-1);
-}
-
 static CAT_machine_state button_modes[5] =
 {
 	CAT_MS_feed,
@@ -520,7 +498,7 @@ static CAT_machine_state button_modes[5] =
 };
 static int mode_selector = 0;
 
-void CAT_room_tick(bool capture_input)
+void CAT_room_tick()
 {
 	if(CAT_timer_tick(room.earn_timer_id))
 	{
@@ -551,7 +529,7 @@ void CAT_room_tick(bool capture_input)
 		}
 	}
 
-	if(!capture_input)
+	if(CAT_get_machine_state() != CAT_MS_room)
 		return;
 
 	for(int i = 0; i < 5; i++)
@@ -589,6 +567,8 @@ void CAT_MS_room(CAT_machine_signal signal)
 	{
 		case CAT_MACHINE_SIGNAL_ENTER:
 		{
+			CAT_set_render_callback(CAT_render_room);
+
 			CAT_pet_settle();
 			break;
 		}
@@ -695,7 +675,7 @@ void render_props()
 		int prop_id = room.prop_ids[i];
 		CAT_item* prop = CAT_item_get(prop_id);
 		CAT_ivec2 shape = prop->data.prop_data.shape;
-		CAT_ivec2 place = room.prop_places[i];
+		CAT_ivec2 place = room.prop_rects[i].min;
 
 		CAT_ivec2 draw_place = CAT_grid2world(place);
 		draw_place.y += shape.y * CAT_TILE_SIZE;
@@ -745,6 +725,20 @@ void render_pickups()
 	}
 }
 
+void render_pet()
+{
+	int mode = CAT_DRAW_MODE_BOTTOM | CAT_DRAW_MODE_CENTER_X;
+	if(pet.left)
+		mode |= CAT_DRAW_MODE_REFLECT_X;
+	int layer = CAT_get_battery_pct() <= CAT_CRITICAL_BATTERY_PCT ? 1 : 2;
+	CAT_draw_queue_add(CAT_animachine_tick(&pet_asm), -1, layer, pet.pos.x, pet.pos.y, mode);
+	if(CAT_animachine_is_in(&react_asm, &AS_react))
+	{
+		int x_off = pet.left ? 16 : -16;
+		CAT_draw_queue_add(CAT_animachine_tick(&react_asm), -1, layer+1, pet.pos.x + x_off, pet.pos.y - 48, mode);	
+	}
+}
+
 void render_gui()
 {
 	int icon_mode = CAT_DRAW_MODE_CENTER_X | CAT_DRAW_MODE_CENTER_Y;
@@ -759,14 +753,13 @@ void render_gui()
 		CAT_draw_queue_add(&touch_hl_sprite, 0, 4, input.touch.x, input.touch.y, icon_mode);
 }
 
-void CAT_render_room(int cycle)
+void CAT_render_room()
 {
 	render_background();
-	if (cycle == 0)
-	{
-		render_statics();
-		render_props();
-		render_pickups();
-		render_gui();
-	}
+	render_statics();
+	render_props();
+	render_pickups();
+	render_pet();
+	render_gui();
+	CAT_render_pet();
 }

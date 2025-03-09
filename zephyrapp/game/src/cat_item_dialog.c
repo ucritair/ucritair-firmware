@@ -31,6 +31,7 @@ void CAT_MS_item_dialog(CAT_machine_signal signal)
 	{
 		case CAT_MACHINE_SIGNAL_ENTER:
 		{
+			CAT_set_render_callback(CAT_render_item_dialog);
 			CAT_item_list_filter(&bag, &roster, filter);
 			base = 0;
 			selector = 0;

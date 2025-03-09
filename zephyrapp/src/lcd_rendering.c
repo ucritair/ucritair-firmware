@@ -140,7 +140,7 @@ void lcd_render_diag()
 
 		memcpy(guy_name, pet.name, sizeof(guy_name));
 		
-		guy_level = pet.level; // POTENTIAL DISASTER
+		guy_level = pet.level;
 
 		touch_update();
 		imu_update();
@@ -229,7 +229,8 @@ void lcd_render_diag()
 			else
 			{
 #ifndef MINIMIZE_GAME_FOOTPRINT
-				CAT_tick_render(step);
+				CAT_set_render_cycle(step);
+				CAT_tick_render();
 				first_frame_complete = true;
 #endif
 			}

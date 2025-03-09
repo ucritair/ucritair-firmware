@@ -64,6 +64,8 @@ void CAT_MS_crawl(CAT_machine_signal signal)
 	{
 		case CAT_MACHINE_SIGNAL_ENTER:
 		{
+			CAT_set_render_callback(CAT_render_crawl);
+			
 			pos_x = 120;
 			pos_y = 160;
 

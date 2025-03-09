@@ -57,6 +57,7 @@ void CAT_MS_manual(CAT_machine_signal signal)
 	{
 		case CAT_MACHINE_SIGNAL_ENTER:
 		{
+			CAT_set_render_callback(CAT_render_manual);
 			for(int i = 0; i < NUM_CREDITS; i++)
 			{
 				int j = CAT_rand_int(0, NUM_CREDITS-1);

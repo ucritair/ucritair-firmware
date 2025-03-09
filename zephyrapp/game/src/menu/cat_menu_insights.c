@@ -16,6 +16,7 @@ void CAT_MS_insights(CAT_machine_signal signal)
 	switch(signal)
 	{
 		case CAT_MACHINE_SIGNAL_ENTER:
+			CAT_set_render_callback(CAT_render_insights);
 			break;
 		case CAT_MACHINE_SIGNAL_TICK:
 		{

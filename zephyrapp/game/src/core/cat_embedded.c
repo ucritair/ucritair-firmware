@@ -47,7 +47,12 @@ uint16_t* CAT_LCD_get_framebuffer()
 	return lcd_framebuffer;
 }
 
-void CAT_LCD_post(uint16_t* buffer)
+void CAT_LCD_post()
+{
+	return;
+}
+
+void CAT_LCD_flip()
 {
 	return;
 }
@@ -58,12 +63,27 @@ bool CAT_LCD_is_posted()
 	return write_done;
 }
 
-void CAT_LCD_set_backlight(int percent){}
+void CAT_LCD_set_backlight(int percent)
+{
+	return;
+}
 
 extern volatile bool first_frame_complete;
 bool CAT_first_frame_complete()
 {
 	return first_frame_complete;
+}
+
+int render_cycle = 0;
+
+void CAT_set_render_cycle(int cycle)
+{
+	render_cycle = cycle;
+}
+
+int CAT_get_render_cycle()
+{
+	return render_cycle;
 }
 
 

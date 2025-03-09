@@ -31,12 +31,15 @@ void reset_aqi_view_cell()
 
 bool view_pn = false;
 
+void CAT_render_aqi();
+
 void CAT_MS_aqi(CAT_machine_signal signal)
 {
 	switch(signal)
 	{
 		case CAT_MACHINE_SIGNAL_ENTER:
 		{
+			CAT_set_render_callback(CAT_render_aqi);
 			break;
 		}
 		case CAT_MACHINE_SIGNAL_TICK:

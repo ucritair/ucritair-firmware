@@ -18,10 +18,7 @@
 #define RGB5652BGR565(c) ((c >> 8) | ((c & 0xff) << 8))
 
 #ifdef CAT_DESKTOP
-#define LCD_FRAMEBUFFER_W LCD_SCREEN_W
-#define LCD_FRAMEBUFFER_H LCD_SCREEN_H
-#define LCD_FRAMEBUFFER_PIXELS (LCD_FRAMEBUFFER_W * LCD_FRAMEBUFFER_H)
-#define FRAMEBUFFER_ROW_OFFSET 0
+#define FRAMEBUFFER_ROW_OFFSET (CAT_get_render_cycle() * LCD_FRAMEBUFFER_H)
 
 #define ADAPT_DESKTOP_COLOUR(c) c
 #define ADAPT_EMBEDDED_COLOUR(c) RGB5652BGR565(c)
@@ -62,7 +59,6 @@ typedef enum CAT_draw_mode
 extern CAT_draw_mode draw_mode;
 
 void CAT_draw_sprite(const CAT_sprite* sprite, int frame_idx, int x, int y);
-void CAT_draw_tiles(const CAT_sprite* sprite, int frame_idx, int y_t, int h_t);
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -103,16 +99,10 @@ typedef struct CAT_draw_job
 	int mode;
 } CAT_draw_job;
 
-typedef struct CAT_draw_queue
-{
-	CAT_draw_job jobs[CAT_DRAW_QUEUE_MAX_LENGTH];
-	int length;
-} CAT_draw_queue;
-extern CAT_draw_queue draw_queue;
-
+void CAT_draw_queue_clear();
 void CAT_draw_queue_insert(int idx, const CAT_sprite* sprite, int frame_idx, int layer, int x, int y, int mode);
 int CAT_draw_queue_add(const CAT_sprite* sprite, int frame_idx, int layer, int x, int y, int mode);
-void CAT_draw_queue_submit(int cycle);
+void CAT_draw_queue_submit();
 
 
 //////////////////////////////////////////////////////////////////////////

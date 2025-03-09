@@ -82,10 +82,13 @@ bool CAT_anim_should_tick()
 }
 #endif
 
-CAT_draw_queue draw_queue =
+static CAT_draw_job jobs[CAT_DRAW_QUEUE_MAX_LENGTH];
+static int job_count = 0;
+
+void CAT_draw_queue_clear()
 {
-	.length = 0
-};
+	job_count = 0;
+}
 
 void CAT_draw_queue_insert(int idx, const CAT_sprite* sprite, int frame_idx, int layer, int x, int y, int mode)
 {
@@ -94,46 +97,50 @@ void CAT_draw_queue_insert(int idx, const CAT_sprite* sprite, int frame_idx, int
 		CAT_printf("[ERROR] CAT_draw_queue_insert: null sprite\n");
 		return;
 	}
-	if(draw_queue.length >= CAT_DRAW_QUEUE_MAX_LENGTH)
+	if(job_count >= CAT_DRAW_QUEUE_MAX_LENGTH)
 	{
 		CAT_printf("[WARNING] Attempted add to full draw queue\n");
 		return;
 	}
 
-	for(int i = draw_queue.length; i > idx; i--)
+	for(int i = job_count; i > idx; i--)
 	{
-		draw_queue.jobs[i] = draw_queue.jobs[i-1];
+		jobs[i] = jobs[i-1];
 	}
-	draw_queue.jobs[idx] = (CAT_draw_job) {sprite, frame_idx, layer, x, y, mode};
-	draw_queue.length += 1;
+	jobs[idx] = (CAT_draw_job) {sprite, frame_idx, layer, x, y, mode};
+	job_count += 1;
 }
 
 int CAT_draw_queue_add(const CAT_sprite* sprite, int frame_idx, int layer, int x, int y, int mode)
 {
-	int insert_idx = draw_queue.length;
-	for(int i = 0; i < insert_idx; i++)
+	if(CAT_get_render_cycle() == 0)
 	{
-		CAT_draw_job other = draw_queue.jobs[i];
-		if(layer < other.layer || (layer == other.layer && y < other.y))
+		int insert_idx = job_count;
+		for(int i = 0; i < insert_idx; i++)
 		{
-			insert_idx = i;
-			break;
+			CAT_draw_job other = jobs[i];
+			if(layer < other.layer || (layer == other.layer && y < other.y))
+			{
+				insert_idx = i;
+				break;
+			}
 		}
-	}
 
-	CAT_draw_queue_insert(insert_idx, sprite, frame_idx, layer, x, y, mode);
-	return insert_idx;
+		CAT_draw_queue_insert(insert_idx, sprite, frame_idx, layer, x, y, mode);
+		return insert_idx;
+	}
+	return -1;
 }
 
-void CAT_draw_queue_submit(int cycle)
+void CAT_draw_queue_submit()
 {
-	if (cycle==0)
+	if (CAT_get_render_cycle() == 0)
 	{
 		if(CAT_anim_should_tick())
 		{
-			for(int i = 0; i < draw_queue.length; i++)
+			for(int i = 0; i < job_count; i++)
 			{
-				CAT_draw_job* job = &draw_queue.jobs[i];
+				CAT_draw_job* job = &jobs[i];
 				if(job->frame_idx != -1)
 					continue;
 				if(!anim_table.dirty[job->sprite->id])
@@ -148,16 +155,16 @@ void CAT_draw_queue_submit(int cycle)
 			}
 		}
 
-		for(int i = 0; i < draw_queue.length; i++)
+		for(int i = 0; i < job_count; i++)
 		{
-			CAT_draw_job* job = &draw_queue.jobs[i];
+			CAT_draw_job* job = &jobs[i];
 			anim_table.dirty[job->sprite->id] = true;
 		}
 	}
 
-	for(int i = 0; i < draw_queue.length; i++)
+	for(int i = 0; i < job_count; i++)
 	{
-		CAT_draw_job* job = &draw_queue.jobs[i];
+		CAT_draw_job* job = &jobs[i];
 		const CAT_sprite* sprite = job->sprite;
 		if(job->frame_idx == -1)
 		{

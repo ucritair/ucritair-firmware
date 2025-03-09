@@ -211,6 +211,7 @@ void CAT_MS_graph(CAT_machine_signal signal)
 	{
 		case CAT_MACHINE_SIGNAL_ENTER:
 		{
+			CAT_set_render_callback(CAT_render_graph);
 			graph_end_time = get_current_rtc_time();
 			step_time_index = 0;
 			graph_step_time = step_times[step_time_index];

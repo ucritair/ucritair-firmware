@@ -21,6 +21,8 @@ void CAT_MS_hedron(CAT_machine_signal signal)
 	switch (signal)
 	{
 		case CAT_MACHINE_SIGNAL_ENTER:
+			CAT_set_render_callback(CAT_render_hedron);
+
 			mesh = &eth_mesh;
 
 			eye = (CAT_vec4) {0, 0, 6, 1.0f};

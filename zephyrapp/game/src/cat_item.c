@@ -114,9 +114,14 @@ void CAT_item_list_filter(CAT_item_list* a, CAT_item_list* b, CAT_item_filter fi
 	b->length = 0;
 	for(int i = 0; i < a->length; i++)
 	{
-		if(filter == NULL || filter(a->item_ids[i]))
-		{
-			CAT_item_list_add(b, a->item_ids[i], a->counts[i]);
-		}
+		int candidate_id = a->item_ids[i];
+		if(CAT_item_get(candidate_id) == NULL)
+			continue;
+		int candidate_count = a->counts[i];
+		if(candidate_count <= 0)
+			continue;
+		if(filter != NULL && !filter(a->item_ids[i]))
+			continue;
+		CAT_item_list_add(b, candidate_id, candidate_count);
 	}
 }

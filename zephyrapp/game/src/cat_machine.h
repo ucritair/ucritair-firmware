@@ -65,17 +65,15 @@ typedef enum CAT_machine_signal
 	CAT_MACHINE_SIGNAL_EXIT
 } CAT_machine_signal;
 
-/*typedef struct CAT_machine_state
-{
-	void (*logic)(CAT_machine_signal);
-	void (*render)();
-	int priority;
-} CAT_machine_state;*/
-
 typedef void (*CAT_machine_state)(CAT_machine_signal);
-
-extern CAT_machine_state machine;
+typedef void (*CAT_render_callback)(void);
 
 void CAT_machine_transition(CAT_machine_state state);
 void CAT_machine_tick();
 void CAT_machine_back();
+CAT_machine_state CAT_get_machine_state();
+
+void CAT_set_render_callback(CAT_render_callback callback);
+CAT_render_callback CAT_get_render_callback();
+
+

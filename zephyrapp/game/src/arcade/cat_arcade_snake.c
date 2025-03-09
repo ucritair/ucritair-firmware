@@ -125,6 +125,7 @@ void CAT_MS_snake(CAT_machine_signal signal)
 	{
 		case CAT_MACHINE_SIGNAL_ENTER:
 		{
+			CAT_set_render_callback(CAT_render_snake);
 			snake_init();
 			food_init();
 			ticks = 0;

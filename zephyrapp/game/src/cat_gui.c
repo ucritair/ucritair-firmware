@@ -311,19 +311,19 @@ void CAT_gui_keyboard_io()
 		}
 		keyboard.buffer[keyboard.cursor] = '\0';
 	}
-}
 
-void CAT_gui_keyboard()
-{
 	keyboard.cursor_timer += CAT_get_delta_time();
 	if(keyboard.cursor_timer >= 0.5f)
 	{
 		keyboard.cursor_timer = 0.0f;
 		keyboard.show_cursor = !keyboard.show_cursor;
 	}
-	
+}
+
+void CAT_gui_keyboard()
+{	
 	CAT_gui_panel((CAT_ivec2){0, 10}, (CAT_ivec2){15, 10});
-	CAT_rowberry(0, 160, LCD_FRAMEBUFFER_W, 0x0000);
+	CAT_rowberry(0, 160, LCD_SCREEN_W, 0x0000);
 	CAT_gui_text(keyboard.buffer);
 	if(keyboard.show_cursor)
 		CAT_gui_text("|");
@@ -537,7 +537,7 @@ menu_node* menu_find_head()
 
 bool CAT_gui_in_menu()
 {
-	return root >= 0;
+	return root >= 0 && menu_table[root].selected;
 }
 
 bool CAT_gui_begin_menu(const char* title)
@@ -594,7 +594,16 @@ void CAT_gui_menu_io()
 	if(CAT_input_pressed(CAT_BUTTON_A))
 		hovered->selected = true;
 	if(CAT_input_pressed(CAT_BUTTON_B))
-		menu_table[hovered->parent].selected = false;
+	{
+		if(hovered->parent == root)
+		{
+			CAT_machine_back();
+		}
+		else
+		{
+			menu_table[hovered->parent].selected = false;
+		}
+	}	
 }
 
 void CAT_gui_menu()
@@ -619,6 +628,9 @@ void CAT_gui_menu()
 		CAT_gui_line_break();
 	}
 
-	menu_stack_length = 0;
-	root = -1;
+	if(CAT_get_render_cycle() == LCD_FRAMEBUFFER_SEGMENTS-1)
+	{
+		menu_stack_length = 0;
+		root = -1;
+	}
 }

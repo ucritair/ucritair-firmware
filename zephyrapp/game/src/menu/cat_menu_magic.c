@@ -37,6 +37,7 @@ void CAT_MS_magic(CAT_machine_signal signal)
 	switch (signal)
 	{
 		case CAT_MACHINE_SIGNAL_ENTER:
+			CAT_set_render_callback(CAT_render_magic);
 			CAT_input_buffer_clear();
 			break;
 		case CAT_MACHINE_SIGNAL_TICK:
