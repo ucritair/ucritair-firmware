@@ -17,6 +17,7 @@ static CAT_ivec2 cursor;
 
 static int hold_id = -1;
 static CAT_rect hold_rect = {0};
+static bool can_pick = false;
 static bool can_drop = false;
 
 static int hover_idx = -1;
@@ -140,6 +141,7 @@ void CAT_MS_deco(CAT_machine_signal signal)
 						}
 						else
 						{
+							can_pick = true;
 							int hovered_child_id = room.prop_children[hover_idx];
 							if(hovered_child_id == -1)
 							{
@@ -223,17 +225,28 @@ void CAT_render_deco()
 		if(hold_id != -1)
 		{
 			const CAT_sprite* tile_sprite = can_drop ? &tile_hl_add_sprite : &tile_hl_rm_sprite;
-
 			for(int y = hold_rect.min.y; y < hold_rect.max.y; y++)
 			{
 				for(int x = hold_rect.min.x; x < hold_rect.max.x; x++)
 				{
-					CAT_draw_queue_add(tile_sprite, 0, 3, cursor_world.x, cursor_world.y, CAT_DRAW_MODE_DEFAULT);
+					CAT_ivec2 draw_coords = CAT_grid2world((CAT_ivec2){x, y});
+					CAT_draw_queue_add(tile_sprite, 0, 3, draw_coords.x, draw_coords.y, CAT_DRAW_MODE_DEFAULT);
 				}
 			}
 		}
 		else
 		{
+			if(can_pick)
+			{
+				for(int y = hover_rect.min.y; y < hover_rect.max.y; y++)
+				{
+					for(int x = hover_rect.min.x; x < hover_rect.max.x; x++)
+					{
+						CAT_ivec2 draw_coords = CAT_grid2world((CAT_ivec2){x, y});
+						CAT_draw_queue_add(&tile_hl_sprite, 0, 3, draw_coords.x, draw_coords.y, CAT_DRAW_MODE_DEFAULT);
+					}
+				}
+			}
 			CAT_draw_queue_add(&cursor_add_sprite, 0, 3, cursor_world.x, cursor_world.y, CAT_DRAW_MODE_DEFAULT);
 		}
 	}
@@ -249,10 +262,10 @@ void CAT_render_deco()
 			{
 				for(int x = hover_rect.min.x; x < hover_rect.max.x; x++)
 				{
+					CAT_ivec2 draw_coords = CAT_grid2world((CAT_ivec2){x, y});
 					CAT_draw_queue_add(tile_hl, 0, 3, cursor_world.x, cursor_world.y, CAT_DRAW_MODE_DEFAULT);
 				}
 			}
-			
 			CAT_draw_queue_add(tile_mark, 0, 3, cursor_world.x, cursor_world.y, CAT_DRAW_MODE_DEFAULT);
 		}
 		else
