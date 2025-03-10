@@ -8,6 +8,7 @@
 #include <math.h>
 #include <ctype.h>
 #include "cat_input.h"
+#include "cat_item.h"
 
 //////////////////////////////////////////////////////////////////////////
 // RENDERING
@@ -633,4 +634,104 @@ void CAT_gui_menu()
 		menu_stack_length = 0;
 		root = -1;
 	}
+}
+
+const char* item_list_title = "";
+CAT_item_list item_list;
+static int item_list_selector = 0;
+static int item_display_base = 0;
+
+bool item_list_active = false;
+
+void CAT_gui_begin_item_list(const char* title)
+{
+	item_list_title = title;
+	CAT_item_list_init(&item_list);
+
+	item_list_active = true;
+}
+
+void CAT_gui_item_listing(int item_id, int count)
+{
+	CAT_item_list_add(&item_list, item_id, count);
+}
+
+int CAT_gui_item_selector()
+{
+	if(item_list.length == 0)
+		return -1;
+	return item_list_selector;
+}
+
+int CAT_gui_item_selection()
+{
+	if(item_list.length == 0)
+		return -1;
+	return item_list.item_ids[item_list_selector];
+}
+
+void CAT_gui_item_list_io()
+{
+	if(item_list.length == 0)
+		return;
+
+	if(CAT_input_pulse(CAT_BUTTON_UP))
+		item_list_selector -= 1;	
+	if(CAT_input_pulse(CAT_BUTTON_DOWN))
+		item_list_selector += 1;
+	item_list_selector = (item_list_selector + item_list.length) % item_list.length;
+
+	int overshoot = item_list_selector - item_display_base;
+	if(overshoot < 0)
+		item_display_base += overshoot;
+	else if(overshoot >= 9)
+		item_display_base += (overshoot - 8);
+}
+
+void CAT_gui_item_list()
+{
+	if(!item_list_active)
+		return;
+
+	CAT_gui_title
+	(
+		false,
+		&icon_enter_sprite, &icon_exit_sprite,
+		item_list_title
+	);
+
+	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});  
+
+	if(item_list.length == 0)
+	{
+		CAT_gui_text
+		(
+			"You do not have any\n"
+			"appropriate items."
+		);
+		return;
+	}
+
+	for(int i = 0; i < 9; i++)
+	{
+		int display_idx = item_display_base + i;
+		if(display_idx >= item_list.length)
+			return;
+
+		int item_id = item_list.item_ids[display_idx];
+		CAT_item* item = CAT_item_get(item_id);
+		
+		CAT_gui_set_flag(CAT_GUI_TIGHT);
+		CAT_gui_panel((CAT_ivec2) {0, 2+i*2}, (CAT_ivec2) {15, 2});
+		CAT_rowberry(0, (2+i)*32-1, LCD_FRAMEBUFFER_W, 0x0000);
+		CAT_gui_image(item->icon, 0);
+		
+		CAT_gui_textf(" %s *%d ", item->name, item_list.counts[display_idx]);
+
+		if(display_idx == item_list_selector)
+			CAT_gui_image(&icon_pointer_sprite, 0);
+	}
+
+	if(CAT_get_render_cycle() == LCD_FRAMEBUFFER_SEGMENTS-1)
+		item_list_active = false;
 }

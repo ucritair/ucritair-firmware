@@ -135,7 +135,7 @@ void CAT_MS_deco(CAT_machine_signal signal)
 							if(CAT_input_pressed(CAT_BUTTON_A))
 							{
 								CAT_filter_item_dialog(prop_filter);
-								CAT_anchor_item_dialog(&hold_id);
+								CAT_target_item_dialog(&hold_id, false);
 								CAT_machine_transition(CAT_MS_item_dialog);
 							}
 						}

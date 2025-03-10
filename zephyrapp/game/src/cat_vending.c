@@ -9,13 +9,8 @@
 #include <stdio.h>
 #include "cat_render.h"
 
-#define VENDING_MAX_SLOTS 8
-
-static int base = 0;
-static int selector = 0;
-
-float purchase_progress = 0;
-bool purchase_lock = false;
+static float purchase_progress = 0;
+static bool purchase_lock = false;
 
 void CAT_MS_vending(CAT_machine_signal signal)
 {
@@ -23,10 +18,10 @@ void CAT_MS_vending(CAT_machine_signal signal)
 	{
 		case CAT_MACHINE_SIGNAL_ENTER:
 			CAT_set_render_callback(CAT_render_vending);
-			base = 0;
-			selector = 0;
-			purchase_lock = false;
 			CAT_input_clear();
+
+			purchase_progress = 0;
+			purchase_lock = false;
 			break;
 		case CAT_MACHINE_SIGNAL_TICK:
 		{
@@ -35,30 +30,32 @@ void CAT_MS_vending(CAT_machine_signal signal)
 			if(CAT_input_pressed(CAT_BUTTON_START))
 				CAT_machine_transition(CAT_MS_room);
 					
-			if(CAT_input_pulse(CAT_BUTTON_UP))
+			CAT_gui_begin_item_list("VENDING MACHINE");
+			for(int i = 0; i < item_table.length; i++)
 			{
-				selector -= 1;
-				if(selector == -1)
-					selector = item_table.length-1;
-				purchase_progress = 0;
-			}
-			if(CAT_input_pulse(CAT_BUTTON_DOWN))
-			{
-				selector += 1;
-				if(selector == item_table.length)
-					selector = 0;
-				purchase_progress = 0;
-			}
-			selector = clamp(selector, 0, item_table.length-1);
+				CAT_item* item = CAT_item_get(i);
 
-			int overshoot = selector - base;
-			if(overshoot < 0)
-				base += overshoot;
-			else if(overshoot >= VENDING_MAX_SLOTS)
-				base += (overshoot - VENDING_MAX_SLOTS + 1);
+				if
+				(
+					item->type == CAT_ITEM_TYPE_TOOL &&
+					(item->data.tool_data.type == CAT_TOOL_TYPE_BOOK ||
+					item->data.tool_data.type == CAT_TOOL_TYPE_TOY) &&
+					CAT_item_list_find(&bag, i) != -1
+				)
+				{
+					continue;
+				}		
 
-			CAT_item* item = CAT_item_get(selector);
-			if(item->price <= coins && !purchase_lock)
+				CAT_gui_item_listing(i, 1);
+			}
+			CAT_gui_item_list_io();
+			
+			int selection_id = CAT_gui_item_selection();
+			CAT_item* selection = CAT_item_get(selection_id);
+			if(selection == NULL)
+				break;
+				
+			if(selection->price <= coins && !purchase_lock)
 			{
 				if(CAT_input_pressed(CAT_BUTTON_A))
 					purchase_progress = 0.15f;
@@ -67,8 +64,8 @@ void CAT_MS_vending(CAT_machine_signal signal)
 				
 				if(purchase_progress >= 1)
 				{
-					CAT_item_list_add(&bag, selector, 1);
-					coins -= item->price;
+					CAT_item_list_add(&bag, selection_id, 1);
+					coins -= selection->price;
 					purchase_progress = 0;
 					purchase_lock = true;
 				}
@@ -78,6 +75,7 @@ void CAT_MS_vending(CAT_machine_signal signal)
 				purchase_progress = 0;
 				purchase_lock = false;
 			}
+			
 			break;
 		}
 		case CAT_MACHINE_SIGNAL_EXIT:
@@ -87,61 +85,20 @@ void CAT_MS_vending(CAT_machine_signal signal)
 
 void CAT_render_vending()
 {
-	CAT_gui_title
-	(
-		false,
-		&icon_enter_sprite, &icon_exit_sprite,
-		"VENDING MACHINE"
-	);
+	CAT_gui_item_list();
 
-	CAT_gui_set_flag(CAT_GUI_TIGHT);
-	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 2});
-	CAT_gui_image(&icon_coin_sprite, 0);
-	CAT_gui_textf(" $%d", coins);
-	CAT_rowberry(0, 16 * 4 - 1, LCD_FRAMEBUFFER_W, 0x0000);
+	int selector = CAT_gui_item_selector();
+	int item_id = CAT_gui_item_selection();
+	CAT_item* item = CAT_item_get(item_id);
+	if(item == NULL)
+		return;
 
-	CAT_gui_panel((CAT_ivec2) {0, 4}, (CAT_ivec2) {15, 16});
-	int item_idx = 0;
-	int slot_idx = 0;
-	while(slot_idx < VENDING_MAX_SLOTS)
+	if(purchase_progress >= 0.01)
 	{
-		int item_id = base + item_idx;
-		if(item_id >= item_table.length)
-			return;
-		CAT_item* item = CAT_item_get(item_id);
-		item_idx += 1;
-		
-		if
-		(
-			item->type == CAT_ITEM_TYPE_TOOL &&
-			(item->data.tool_data.type == CAT_TOOL_TYPE_BOOK ||
-			item->data.tool_data.type == CAT_TOOL_TYPE_TOY) &&
-			CAT_item_list_find(&bag, item_id) != -1
-		)
-		{
-			continue;
-		}
-
-		CAT_gui_set_flag(CAT_GUI_TIGHT);
-		CAT_gui_panel((CAT_ivec2) {0, 4+slot_idx*2}, (CAT_ivec2) {15, 2});
-		CAT_rowberry(0, (2+slot_idx)*32-1, LCD_FRAMEBUFFER_W, 0x0000);
-		CAT_gui_image(item->icon, 0);
-
-		CAT_gui_textf(" %s  $%d", item->name, item->price);
-
-		if(item_idx == selector)
-		{
-			CAT_gui_image(&icon_pointer_sprite, 0);
-			if(purchase_progress >= 0.01)
-			{
-				CAT_greenberry(0, 240, 64 + 32 * slot_idx, 32, purchase_progress);
-			}
-			else if(item->price > coins)
-			{
-				CAT_greyberry(0, 240, 64 + 32 * slot_idx, 32);
-			}
-		}
-
-		slot_idx += 1;
+		CAT_greenberry(0, 240, 32 + 32 * selector, 32, purchase_progress);
+	}
+	else if(item->price > coins)
+	{
+		CAT_greyberry(0, 240, 32 + 32 * selector, 32);
 	}
 }

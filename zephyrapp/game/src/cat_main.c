@@ -162,7 +162,7 @@ void CAT_load_override()
 	pet.focus = 9;
 	pet.spirit = 9;
 
-	bag.length = 0;
+	CAT_item_list_init(&bag);
 	CAT_item_list_add(&bag, book_1_item, 1);
 	CAT_item_list_add(&bag, food_bread_item, 2);
 	CAT_item_list_add(&bag, food_milk_item, 2);
@@ -170,7 +170,8 @@ void CAT_load_override()
 	CAT_item_list_add(&bag, prop_succulent_item, 1);
 	CAT_item_list_add(&bag, toy_baseball_item, 1);
 
-	room.prop_count = 0;
+	CAT_space_init();
+	CAT_room_init();
 	CAT_room_add_prop(prop_plant_plain_item, (CAT_ivec2) {0, 0});
 	CAT_room_add_prop(prop_eth_farm_item, (CAT_ivec2) {2, 0});
 	CAT_room_add_prop(prop_table_mahogany_item, (CAT_ivec2) {3, 3});

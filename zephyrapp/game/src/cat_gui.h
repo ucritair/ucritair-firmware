@@ -64,3 +64,10 @@ bool CAT_gui_menu_item(const char* title);
 void CAT_gui_end_menu();
 void CAT_gui_menu_io();
 void CAT_gui_menu();
+
+void CAT_gui_begin_item_list(const char* title);
+void CAT_gui_item_listing(int item_id, int count);
+int CAT_gui_item_selector();
+int CAT_gui_item_selection();
+void CAT_gui_item_list_io();
+void CAT_gui_item_list();

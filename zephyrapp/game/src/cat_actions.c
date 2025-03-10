@@ -78,7 +78,7 @@ void action_tick()
 	if(tool_id == -1)
 	{
 		CAT_filter_item_dialog(tool_filter);
-		CAT_anchor_item_dialog(&tool_id);
+		CAT_target_item_dialog(&tool_id, true);
 		CAT_machine_transition(CAT_MS_item_dialog);
 	}
 	else if(!action_confirmed)
