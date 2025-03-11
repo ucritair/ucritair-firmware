@@ -9,6 +9,7 @@
 #include <ctype.h>
 #include "cat_input.h"
 #include "cat_item.h"
+#include "cat_bag.h"
 
 //////////////////////////////////////////////////////////////////////////
 // RENDERING
@@ -636,16 +637,20 @@ void CAT_gui_menu()
 	}
 }
 
-int item_list_flags = 0;
-const char* item_list_title = "";
-CAT_item_list item_list;
-bool item_list_selection_mask[CAT_ITEM_LIST_MAX_LENGTH];
-bool item_list_greyout_mask[CAT_ITEM_LIST_MAX_LENGTH];
-float item_list_highlight_mask[CAT_ITEM_LIST_MAX_LENGTH];
+static const char* item_list_title = "";
+static CAT_item_list item_list;
+static bool item_list_selection_mask[CAT_ITEM_LIST_MAX_LENGTH];
+static bool item_list_greyout_mask[CAT_ITEM_LIST_MAX_LENGTH];
+static float item_list_highlight_mask[CAT_ITEM_LIST_MAX_LENGTH];
 static int item_list_selector = 0;
 static int item_display_base = 0;
+static int item_display_max = 9;
 
-bool item_list_active = false;
+static bool show_price = false;
+static bool show_count = false;
+static bool show_coins = false;
+
+static bool item_list_active = false;
 
 void CAT_gui_begin_item_list(const char* title)
 {
@@ -658,6 +663,11 @@ void CAT_gui_begin_item_list(const char* title)
 		item_list_greyout_mask[i] = false;
 		item_list_highlight_mask[i] = 0;
 	}
+
+	show_price = CAT_gui_consume_flag(CAT_GUI_ITEM_LIST_PRICE);
+	show_count = CAT_gui_consume_flag(CAT_GUI_ITEM_LIST_COUNT);
+	show_coins = CAT_gui_consume_flag(CAT_GUI_ITEM_LIST_COINS);
+	item_display_max = show_coins ? 8 : 9;
 
 	item_list_active = true;
 }
@@ -694,8 +704,8 @@ void CAT_gui_item_list_io()
 	int overshoot = item_list_selector - item_display_base;
 	if(overshoot < 0)
 		item_display_base += overshoot;
-	else if(overshoot >= 9)
-		item_display_base += (overshoot - 8);
+	else if(overshoot >= item_display_max)
+		item_display_base += (overshoot - (item_display_max-1));
 }
 
 char item_label[24];
@@ -733,10 +743,15 @@ void CAT_gui_item_list()
 		return;
 	}
 
-	bool show_price = CAT_gui_consume_flag(CAT_GUI_ITEM_LIST_PRICE);
-	bool show_count = CAT_gui_consume_flag(CAT_GUI_ITEM_LIST_COUNT);
+	if(show_coins)
+	{
+		CAT_gui_set_flag(CAT_GUI_PANEL_TIGHT);
+		CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 2});
+		CAT_gui_image(&icon_coin_sprite, 0);
+		CAT_gui_textf(" %d", coins);
+	}
 
-	for(int i = 0; i < 9; i++)
+	for(int i = 0; i < item_display_max; i++)
 	{
 		int display_idx = item_display_base + i;
 		if(display_idx >= item_list.length)
@@ -745,9 +760,10 @@ void CAT_gui_item_list()
 		int item_id = item_list.item_ids[display_idx];
 		CAT_item* item = CAT_item_get(item_id);
 		
+		int tile_row_offset = show_coins ? 4 : 2;
 		CAT_gui_set_flag(CAT_GUI_PANEL_TIGHT);
-		CAT_gui_panel((CAT_ivec2) {0, 2+i*2}, (CAT_ivec2) {15, 2});
-		CAT_rowberry(0, (2+i)*32-1, LCD_FRAMEBUFFER_W, 0x0000);
+		CAT_gui_panel((CAT_ivec2) {0, tile_row_offset+i*2}, (CAT_ivec2) {15, 2});
+		CAT_rowberry(0, (tile_row_offset+i*2)*16-1, LCD_FRAMEBUFFER_W, 0x0000);
 		CAT_gui_image(item->icon, 0);
 		
 		item_label_length = 0;
@@ -764,8 +780,8 @@ void CAT_gui_item_list()
 			CAT_gui_image(&icon_pointer_sprite, 0);
 
 		if(item_list_greyout_mask[display_idx])
-			CAT_greyberry(0, 240, 32 + 32 * i, 32);
-		CAT_greenberry(0, 240, 32 + 32 * i, 32, item_list_highlight_mask[display_idx]);
+			CAT_greyberry(0, 240, (tile_row_offset+i*2)*16, 32);
+		CAT_greenberry(0, 240, (tile_row_offset+i*2)*16, 32, item_list_highlight_mask[display_idx]);
 	}
 
 	if(CAT_get_render_cycle() == LCD_FRAMEBUFFER_SEGMENTS-1)
