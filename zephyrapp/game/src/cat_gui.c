@@ -763,7 +763,7 @@ void CAT_gui_item_list()
 		int tile_row_offset = show_coins ? 4 : 2;
 		CAT_gui_set_flag(CAT_GUI_PANEL_TIGHT);
 		CAT_gui_panel((CAT_ivec2) {0, tile_row_offset+i*2}, (CAT_ivec2) {15, 2});
-		CAT_rowberry(0, (tile_row_offset+i*2)*16-1, LCD_FRAMEBUFFER_W, 0x0000);
+		CAT_rowberry(0, (tile_row_offset+i*2+2)*16-1, LCD_FRAMEBUFFER_W, 0x0000);
 		CAT_gui_image(item->icon, 0);
 		
 		item_label_length = 0;
