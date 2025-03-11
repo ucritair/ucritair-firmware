@@ -17,9 +17,11 @@
 typedef enum CAT_gui_flag
 {
 	CAT_GUI_DEFAULT,
-	CAT_GUI_BORDER,
-	CAT_GUI_WRAP_TEXT,
-	CAT_GUI_TIGHT
+	CAT_GUI_PANEL_BORDER,
+	CAT_GUI_TEXT_WRAP,
+	CAT_GUI_PANEL_TIGHT,
+	CAT_GUI_ITEM_LIST_COUNT,
+	CAT_GUI_ITEM_LIST_PRICE
 } CAT_gui_flag;
 
 typedef struct CAT_gui
@@ -66,8 +68,8 @@ void CAT_gui_menu_io();
 void CAT_gui_menu();
 
 void CAT_gui_begin_item_list(const char* title);
-void CAT_gui_item_listing(int item_id, int count);
-int CAT_gui_item_selector();
-int CAT_gui_item_selection();
+bool CAT_gui_item_listing(int item_id, int count);
+void CAT_gui_item_greyout();
+void CAT_gui_item_highlight(float progress);
 void CAT_gui_item_list_io();
 void CAT_gui_item_list();

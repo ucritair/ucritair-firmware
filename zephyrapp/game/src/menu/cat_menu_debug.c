@@ -151,7 +151,7 @@ void CAT_render_debug()
 				"LAST"
 			);
 			CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
-			CAT_gui_set_flag(CAT_GUI_WRAP_TEXT);
+			CAT_gui_set_flag(CAT_GUI_TEXT_WRAP);
 			CAT_gui_text("You shouldn't be here");
 			break;
 		}

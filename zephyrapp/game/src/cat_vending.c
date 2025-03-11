@@ -37,44 +37,48 @@ void CAT_MS_vending(CAT_machine_signal signal)
 
 				if
 				(
-					item->type == CAT_ITEM_TYPE_TOOL &&
+					(item->type == CAT_ITEM_TYPE_KEY ||
+					(item->type == CAT_ITEM_TYPE_TOOL &&
 					(item->data.tool_data.type == CAT_TOOL_TYPE_BOOK ||
-					item->data.tool_data.type == CAT_TOOL_TYPE_TOY) &&
+					item->data.tool_data.type == CAT_TOOL_TYPE_TOY))) &&
 					CAT_item_list_find(&bag, i) != -1
 				)
 				{
 					continue;
 				}		
 
-				CAT_gui_item_listing(i, 1);
-			}
-			CAT_gui_item_list_io();
-			
-			int selection_id = CAT_gui_item_selection();
-			CAT_item* selection = CAT_item_get(selection_id);
-			if(selection == NULL)
-				break;
-				
-			if(selection->price <= coins && !purchase_lock)
-			{
-				if(CAT_input_pressed(CAT_BUTTON_A))
-					purchase_progress = 0.15f;
-				else if(CAT_input_held(CAT_BUTTON_A, 0.0f))
-					purchase_progress += CAT_get_delta_time();
-				
-				if(purchase_progress >= 1)
+				if(CAT_gui_item_listing(i, 1))
 				{
-					CAT_item_list_add(&bag, selection_id, 1);
-					coins -= selection->price;
+					if(item->price <= coins && !purchase_lock)
+					{
+						if(CAT_input_pressed(CAT_BUTTON_A))
+							purchase_progress = 0.15f;
+						else if(CAT_input_held(CAT_BUTTON_A, 0.0f))
+							purchase_progress += CAT_get_delta_time();
+						CAT_gui_item_highlight(purchase_progress);
+						
+						if(purchase_progress >= 1)
+						{
+							CAT_item_list_add(&bag, i, 1);
+							coins -= item->price;
+
+							purchase_progress = 0;
+							purchase_lock = true;
+						}
+					}
+				}
+				if(CAT_input_released(CAT_BUTTON_A))
+				{
 					purchase_progress = 0;
-					purchase_lock = true;
+					purchase_lock = false;
+				}
+
+				if(item->price > coins)
+				{
+					CAT_gui_item_greyout();
 				}
 			}
-			if(CAT_input_released(CAT_BUTTON_A))
-			{
-				purchase_progress = 0;
-				purchase_lock = false;
-			}
+			CAT_gui_item_list_io();
 			
 			break;
 		}
@@ -85,20 +89,6 @@ void CAT_MS_vending(CAT_machine_signal signal)
 
 void CAT_render_vending()
 {
+	CAT_gui_set_flag(CAT_GUI_ITEM_LIST_PRICE);
 	CAT_gui_item_list();
-
-	int selector = CAT_gui_item_selector();
-	int item_id = CAT_gui_item_selection();
-	CAT_item* item = CAT_item_get(item_id);
-	if(item == NULL)
-		return;
-
-	if(purchase_progress >= 0.01)
-	{
-		CAT_greenberry(0, 240, 32 + 32 * selector, 32, purchase_progress);
-	}
-	else if(item->price > coins)
-	{
-		CAT_greyberry(0, 240, 32 + 32 * selector, 32);
-	}
 }

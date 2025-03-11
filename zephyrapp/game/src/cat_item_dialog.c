@@ -28,6 +28,7 @@ void CAT_MS_item_dialog(CAT_machine_signal signal)
 		case CAT_MACHINE_SIGNAL_ENTER:
 		{
 			CAT_set_render_callback(CAT_render_item_dialog);
+			CAT_input_clear();
 			break;
 		}
 		case CAT_MACHINE_SIGNAL_TICK:
@@ -38,8 +39,7 @@ void CAT_MS_item_dialog(CAT_machine_signal signal)
 					CAT_machine_transition(CAT_MS_room);
 				else
 					CAT_machine_back();
-
-			}	
+			}
 			if(CAT_input_pressed(CAT_BUTTON_START))
 				CAT_machine_transition(CAT_MS_room);	
 
@@ -49,19 +49,17 @@ void CAT_MS_item_dialog(CAT_machine_signal signal)
 				int item_id = bag.item_ids[i];
 				if(filter(item_id))
 				{
-					CAT_gui_item_listing(item_id, bag.counts[i]);
+					if(CAT_gui_item_listing(item_id, bag.counts[i]))
+					{
+						if(target != NULL && (item_id != -1 || !enforce_valid_target))
+						{
+							*target = item_id;
+							CAT_machine_back();	
+						}
+					}
 				}
 			}
 			CAT_gui_item_list_io();
-
-			if(CAT_input_pressed(CAT_BUTTON_A))
-			{
-				if(target != NULL && (*target != -1 || !enforce_valid_target))
-				{
-					*target = CAT_gui_item_selection();
-					CAT_machine_back();	
-				}
-			}
 			break;
 		}
 		case CAT_MACHINE_SIGNAL_EXIT:
@@ -71,5 +69,6 @@ void CAT_MS_item_dialog(CAT_machine_signal signal)
 
 void CAT_render_item_dialog()
 {
+	CAT_gui_set_flag(CAT_GUI_ITEM_LIST_COUNT);
 	CAT_gui_item_list();
 }

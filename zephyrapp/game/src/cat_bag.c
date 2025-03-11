@@ -162,7 +162,7 @@ void CAT_render_bag()
 		int item_id = roster.item_ids[idx];
 		CAT_item* item = CAT_item_get(item_id);
 
-		CAT_gui_set_flag(CAT_GUI_TIGHT);
+		CAT_gui_set_flag(CAT_GUI_PANEL_TIGHT);
 		CAT_gui_panel((CAT_ivec2) {0, 2+i*2}, (CAT_ivec2) {15, 2});
 		CAT_rowberry(0, (2+i)*32-1, LCD_FRAMEBUFFER_W, 0x0000);
 		CAT_gui_image(item->icon, 0);
@@ -217,7 +217,7 @@ void CAT_render_inspector()
 
 	if(strlen(item->text) > 0)
 	{
-		CAT_gui_set_flag(CAT_GUI_WRAP_TEXT);
+		CAT_gui_set_flag(CAT_GUI_TEXT_WRAP);
 		CAT_gui_text(item->text);
 		CAT_gui_div("");
 	}

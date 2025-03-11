@@ -42,7 +42,7 @@ void CAT_gui_panel(CAT_ivec2 start, CAT_ivec2 shape)
 {
 	draw_mode = CAT_DRAW_MODE_DEFAULT;
 	CAT_fillberry(start.x * CAT_TILE_SIZE, start.y * CAT_TILE_SIZE, shape.x * CAT_TILE_SIZE, shape.y * CAT_TILE_SIZE, 0xFFFF);
-	if(CAT_gui_consume_flag(CAT_GUI_BORDER))
+	if(CAT_gui_consume_flag(CAT_GUI_PANEL_BORDER))
 		CAT_strokeberry(start.x * CAT_TILE_SIZE, start.y * CAT_TILE_SIZE, shape.x * CAT_TILE_SIZE, shape.y * CAT_TILE_SIZE, 0x0000);
 
 	gui.start = start;
@@ -50,7 +50,7 @@ void CAT_gui_panel(CAT_ivec2 start, CAT_ivec2 shape)
 	gui.cursor = CAT_ivec2_mul(start, CAT_TILE_SIZE);
 	gui.cursor.y += gui.margin;
 	gui.cursor.x += gui.margin;
-	if(CAT_gui_consume_flag(CAT_GUI_TIGHT))
+	if(CAT_gui_consume_flag(CAT_GUI_PANEL_TIGHT))
 	{
 		gui.cursor.y -= gui.margin/2;
 		gui.cursor.x -= gui.margin/2;
@@ -81,7 +81,7 @@ void CAT_gui_text(const char* text)
 {
 	draw_mode = CAT_DRAW_MODE_CENTER_Y;
 
-	bool wrap = CAT_gui_consume_flag(CAT_GUI_WRAP_TEXT);
+	bool wrap = CAT_gui_consume_flag(CAT_GUI_TEXT_WRAP);
 	int x_lim = (gui.start.x * CAT_TILE_SIZE) + (gui.shape.x) * CAT_TILE_SIZE - CAT_GLYPH_WIDTH - gui.margin;
 	const char* c = text;
 
@@ -411,7 +411,7 @@ void CAT_gui_popup()
 {
 	CAT_gui_panel(CAT_iv2(2, 6), CAT_iv2(11, 8));
 	CAT_strokeberry(2 * 16, 6 * 16, 11 * 16, 8 * 16, 0x0000);
-	CAT_gui_set_flag(CAT_GUI_WRAP_TEXT);
+	CAT_gui_set_flag(CAT_GUI_TEXT_WRAP);
 	CAT_gui_text(popup.msg);
 	CAT_gui_line_break();
 	CAT_gui_text(popup.selector ? "[YES]  NO " : " YES  [NO]");
@@ -636,8 +636,12 @@ void CAT_gui_menu()
 	}
 }
 
+int item_list_flags = 0;
 const char* item_list_title = "";
 CAT_item_list item_list;
+bool item_list_selection_mask[CAT_ITEM_LIST_MAX_LENGTH];
+bool item_list_greyout_mask[CAT_ITEM_LIST_MAX_LENGTH];
+float item_list_highlight_mask[CAT_ITEM_LIST_MAX_LENGTH];
 static int item_list_selector = 0;
 static int item_display_base = 0;
 
@@ -648,26 +652,32 @@ void CAT_gui_begin_item_list(const char* title)
 	item_list_title = title;
 	CAT_item_list_init(&item_list);
 
+	for(int i = 0; i < CAT_ITEM_LIST_MAX_LENGTH; i++)
+	{
+		item_list_selection_mask[i] = false;
+		item_list_greyout_mask[i] = false;
+		item_list_highlight_mask[i] = 0;
+	}
+
 	item_list_active = true;
 }
 
-void CAT_gui_item_listing(int item_id, int count)
+bool CAT_gui_item_listing(int item_id, int count)
 {
 	CAT_item_list_add(&item_list, item_id, count);
+	bool pressed = CAT_input_pressed(CAT_BUTTON_A) || CAT_input_held(CAT_BUTTON_A, 0);
+	bool hovered = item_list_selector == item_list.length-1;
+	return hovered && pressed;
 }
 
-int CAT_gui_item_selector()
+void CAT_gui_item_greyout()
 {
-	if(item_list.length == 0)
-		return -1;
-	return item_list_selector;
+	item_list_greyout_mask[item_list.length-1] = true;
 }
 
-int CAT_gui_item_selection()
+void CAT_gui_item_highlight(float progress)
 {
-	if(item_list.length == 0)
-		return -1;
-	return item_list.item_ids[item_list_selector];
+	item_list_highlight_mask[item_list.length-1] = progress;
 }
 
 void CAT_gui_item_list_io()
@@ -676,7 +686,7 @@ void CAT_gui_item_list_io()
 		return;
 
 	if(CAT_input_pulse(CAT_BUTTON_UP))
-		item_list_selector -= 1;	
+		item_list_selector -= 1;
 	if(CAT_input_pulse(CAT_BUTTON_DOWN))
 		item_list_selector += 1;
 	item_list_selector = (item_list_selector + item_list.length) % item_list.length;
@@ -686,6 +696,17 @@ void CAT_gui_item_list_io()
 		item_display_base += overshoot;
 	else if(overshoot >= 9)
 		item_display_base += (overshoot - 8);
+}
+
+char item_label[24];
+int item_label_length = 0;
+void ilprintf(const char* fmt, ...)
+{
+	va_list args;
+	va_start(args, fmt);
+	int added = vsprintf(item_label + item_label_length, fmt, args);
+	item_label_length += added;
+	va_end(args);
 }
 
 void CAT_gui_item_list()
@@ -712,6 +733,9 @@ void CAT_gui_item_list()
 		return;
 	}
 
+	bool show_price = CAT_gui_consume_flag(CAT_GUI_ITEM_LIST_PRICE);
+	bool show_count = CAT_gui_consume_flag(CAT_GUI_ITEM_LIST_COUNT);
+
 	for(int i = 0; i < 9; i++)
 	{
 		int display_idx = item_display_base + i;
@@ -721,15 +745,27 @@ void CAT_gui_item_list()
 		int item_id = item_list.item_ids[display_idx];
 		CAT_item* item = CAT_item_get(item_id);
 		
-		CAT_gui_set_flag(CAT_GUI_TIGHT);
+		CAT_gui_set_flag(CAT_GUI_PANEL_TIGHT);
 		CAT_gui_panel((CAT_ivec2) {0, 2+i*2}, (CAT_ivec2) {15, 2});
 		CAT_rowberry(0, (2+i)*32-1, LCD_FRAMEBUFFER_W, 0x0000);
 		CAT_gui_image(item->icon, 0);
 		
-		CAT_gui_textf(" %s *%d ", item->name, item_list.counts[display_idx]);
+		item_label_length = 0;
+		ilprintf(" %s", item->name);
+		if(show_price)
+			ilprintf(" $%d", item->price);
+		if(show_count)
+			ilprintf(" *%d", item_list.counts[display_idx]);
+		ilprintf(" ");
+		item_label[item_label_length] = '\0';
+		CAT_gui_text(item_label);
 
 		if(display_idx == item_list_selector)
 			CAT_gui_image(&icon_pointer_sprite, 0);
+
+		if(item_list_greyout_mask[display_idx])
+			CAT_greyberry(0, 240, 32 + 32 * i, 32);
+		CAT_greenberry(0, 240, 32 + 32 * i, 32, item_list_highlight_mask[display_idx]);
 	}
 
 	if(CAT_get_render_cycle() == LCD_FRAMEBUFFER_SEGMENTS-1)

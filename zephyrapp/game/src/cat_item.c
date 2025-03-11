@@ -45,27 +45,29 @@ int CAT_item_list_find(CAT_item_list* item_list, int item_id)
 	return -1;
 }
 
-void CAT_item_list_add(CAT_item_list* item_list, int item_id, int count)
+int CAT_item_list_add(CAT_item_list* item_list, int item_id, int count)
 {
 	if(item_id < 0 || item_id >= item_table.length)
 	{
 		CAT_printf("[ERROR] reference to invalid item id: %d\n", item_id);
-		return;
+		return -1 ;
 	}
 	if(item_list->length >= CAT_ITEM_LIST_MAX_LENGTH)
 	{
 		CAT_printf("[WARNING] attempted add to full item list\n");
-		return;
+		return -1;
 	}
 		
 	int idx = CAT_item_list_find(item_list, item_id);
 	if(idx >= 0)
 	{
 		item_list->counts[idx] += count;
+		return idx;
 	}
 	else
 	{
-		const char* a = item_table.data[item_id].name;
+		// REMOVED ALPHABETICAL SORTING TO SIMPLIFY ITEM LIST GUI LOGIC
+		/* const char* a = item_table.data[item_id].name;
 		int insert_idx = 0;
 		while(insert_idx < item_list->length)
 		{
@@ -78,10 +80,13 @@ void CAT_item_list_add(CAT_item_list* item_list, int item_id, int count)
 		{
 			item_list->item_ids[i] = item_list->item_ids[i-1];
 			item_list->counts[i] = item_list->counts[i-1];
-		}
+		} */
+
+		int insert_idx = item_list->length;
 		item_list->item_ids[insert_idx] = item_id;
 		item_list->counts[insert_idx] = count;
 		item_list->length += 1;
+		return insert_idx;
 	}
 }
 
