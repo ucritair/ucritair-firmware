@@ -637,20 +637,18 @@ void CAT_gui_menu()
 	}
 }
 
-static const char* item_list_title = "";
+static const char* item_list_title = NULL;
 static CAT_item_list item_list;
 static bool item_list_selection_mask[CAT_ITEM_LIST_MAX_LENGTH];
 static bool item_list_greyout_mask[CAT_ITEM_LIST_MAX_LENGTH];
 static float item_list_highlight_mask[CAT_ITEM_LIST_MAX_LENGTH];
 static int item_list_selector = 0;
 static int item_display_base = 0;
-static int item_display_max = 9;
+static int item_display_count = 9;
 
 static bool show_price = false;
 static bool show_count = false;
 static bool show_coins = false;
-
-static bool item_list_active = false;
 
 void CAT_gui_begin_item_list(const char* title)
 {
@@ -667,9 +665,7 @@ void CAT_gui_begin_item_list(const char* title)
 	show_price = CAT_gui_consume_flag(CAT_GUI_ITEM_LIST_PRICE);
 	show_count = CAT_gui_consume_flag(CAT_GUI_ITEM_LIST_COUNT);
 	show_coins = CAT_gui_consume_flag(CAT_GUI_ITEM_LIST_COINS);
-	item_display_max = show_coins ? 8 : 9;
-
-	item_list_active = true;
+	item_display_count = show_coins ? 8 : 9;
 }
 
 bool CAT_gui_item_listing(int item_id, int count)
@@ -704,12 +700,16 @@ void CAT_gui_item_list_io()
 	int overshoot = item_list_selector - item_display_base;
 	if(overshoot < 0)
 		item_display_base += overshoot;
-	else if(overshoot >= item_display_max)
-		item_display_base += (overshoot - (item_display_max-1));
+	else if(overshoot >= item_display_count)
+		item_display_base += (overshoot - (item_display_count-1));
 }
 
 char item_label[24];
 int item_label_length = 0;
+void ilstart()
+{
+	item_label_length = 0;
+}
 void ilprintf(const char* fmt, ...)
 {
 	va_list args;
@@ -718,10 +718,14 @@ void ilprintf(const char* fmt, ...)
 	item_label_length += added;
 	va_end(args);
 }
+void ilend()
+{
+	item_label[item_label_length] = '\0';
+}
 
 void CAT_gui_item_list()
 {
-	if(!item_list_active)
+	if(item_list_title == NULL)
 		return;
 
 	CAT_gui_title
@@ -752,7 +756,7 @@ void CAT_gui_item_list()
 		CAT_gui_textf(" %d", coins);
 	}
 
-	for(int i = 0; i < item_display_max; i++)
+	for(int i = 0; i < item_display_count; i++)
 	{
 		int display_idx = item_display_base + i;
 		if(display_idx >= item_list.length)
@@ -767,14 +771,16 @@ void CAT_gui_item_list()
 		CAT_rowberry(0, (tile_row_offset+i*2+2)*16-1, LCD_FRAMEBUFFER_W, 0x0000);
 		CAT_gui_image(item->icon, 0);
 		
-		item_label_length = 0;
+		ilstart();
 		ilprintf(" %s", item->name);
 		if(show_price)
 			ilprintf(" $%d", item->price);
 		if(show_count)
 			ilprintf(" *%d", item_list.counts[display_idx]);
-		ilprintf(" ");
-		item_label[item_label_length] = '\0';
+		/*ilprintf("%d %d", item_display_base, display_idx);
+		if(display_idx == item_list_selector)
+			ilprintf(" %d", item_list_selector);*/
+		ilend();
 		CAT_gui_text(item_label);
 
 		if(display_idx == item_list_selector)
@@ -784,7 +790,4 @@ void CAT_gui_item_list()
 			CAT_greyberry(0, 240, (tile_row_offset+i*2)*16, 32);
 		CAT_greenberry(0, 240, (tile_row_offset+i*2)*16, 32, item_list_highlight_mask[display_idx]);
 	}
-
-	if(CAT_get_render_cycle() == LCD_FRAMEBUFFER_SEGMENTS-1)
-		item_list_active = false;
 }

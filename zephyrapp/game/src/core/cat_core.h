@@ -199,7 +199,7 @@ void CAT_write_log();
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // POWER
 
-#define CAT_CRITICAL_BATTERY_PCT 10
+#define CAT_CRITICAL_BATTERY_PCT 20
 
 int CAT_get_battery_pct();
 bool CAT_is_charging();

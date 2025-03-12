@@ -169,15 +169,14 @@ void CAT_fillberry(int xi, int yi, int w, int h, uint16_t c)
 	c = ADAPT_DESKTOP_COLOUR(c);
 	uint16_t* framebuffer = CAT_LCD_get_framebuffer();
 
+	int xf = clamp(xi + w, 0, LCD_FRAMEBUFFER_W);
 	yi -= FRAMEBUFFER_ROW_OFFSET;
-	int yf = yi + h;
-
-	if (yi < 0) yi = 0;
-	if (yf >= LCD_FRAMEBUFFER_H) yf = LCD_FRAMEBUFFER_H;
+	int yf = clamp(yi + h, 0, LCD_FRAMEBUFFER_H);
+	yi = clamp(yi, 0, LCD_FRAMEBUFFER_H);
 
 	for(int y = yi; y < yf; y++)
 	{
-		for(int x = xi; x < xi+w; x++)
+		for(int x = xi; x < xf; x++)
 		{
 			framebuffer[y * LCD_FRAMEBUFFER_W + x] = c;
 		}
@@ -189,32 +188,41 @@ void CAT_strokeberry(int xi, int yi, int w, int h, uint16_t c)
 	c = ADAPT_DESKTOP_COLOUR(c);
 	uint16_t* framebuffer = CAT_LCD_get_framebuffer();
 
+	int xf = xi + w;
 	yi -= FRAMEBUFFER_ROW_OFFSET;
-
-	if(yi >= 0 && yi < LCD_FRAMEBUFFER_H)
-	{
-		for(int x = xi; x < xi + w; x++)
-		{
-			framebuffer[yi * LCD_FRAMEBUFFER_W + x] = c;
-		}
-	}
-
 	int yf = yi + h;
 	
-	if((yf >= 0 && yf < LCD_FRAMEBUFFER_H))
+	if(yi >= 0 && yf < LCD_FRAMEBUFFER_H)
 	{
-		for(int x = xi; x < xi + w; x++)
+		for(int x = xi; x < xf; x++)
 		{
-			framebuffer[(yi+h-1) * LCD_FRAMEBUFFER_W + x] = c;
+			if(x >= 0 && x < LCD_FRAMEBUFFER_W)
+				framebuffer[yi * LCD_FRAMEBUFFER_W + x] = c;	
+		}
+	}
+	if(yf > 0 && yf <= LCD_FRAMEBUFFER_H)
+	{
+		for(int x = xi; x < xf; x++)
+		{
+			if(x >= 0 && x < LCD_FRAMEBUFFER_W)
+				framebuffer[(yf-1) * LCD_FRAMEBUFFER_W + x] = c;	
 		}
 	}
 
-	for(int y = yi; y < yf; y++)
+	if(xi >= 0 && xf < LCD_FRAMEBUFFER_W)
 	{
-		if(y >= 0 && y < LCD_FRAMEBUFFER_H)
+		for(int y = yi; y < yf; y++)
 		{
-			framebuffer[y * LCD_FRAMEBUFFER_W + xi] = c;
-			framebuffer[y * LCD_FRAMEBUFFER_W + (xi+w-1)] = c;
+			if(y >= 0 && y < LCD_FRAMEBUFFER_H)
+				framebuffer[y * LCD_FRAMEBUFFER_W + xi] = c;
+		}
+	}
+	if(xf > 0 && xf <= LCD_FRAMEBUFFER_W)
+	{
+		for(int y = yi; y < yf; y++)
+		{
+			if(y >= 0 && y < LCD_FRAMEBUFFER_H)
+				framebuffer[y * LCD_FRAMEBUFFER_W + (xf-1)] = c;
 		}
 	}
 }
@@ -224,10 +232,14 @@ void CAT_rowberry(int x, int y, int w, uint16_t c)
 	c = ADAPT_DESKTOP_COLOUR(c);
 	uint16_t* framebuffer = CAT_LCD_get_framebuffer();
 
+	int xf = clamp(x+w, 0, LCD_FRAMEBUFFER_W);
 	y -= FRAMEBUFFER_ROW_OFFSET;
 
 	if(y >= 0 && y < LCD_FRAMEBUFFER_H)
 	{
-		memset(&framebuffer[y * LCD_FRAMEBUFFER_W + x], c, sizeof(uint16_t) * w);
+		for(int xw = x; xw < xf; xw++)
+		{
+			framebuffer[y * LCD_FRAMEBUFFER_W + xw] = c;
+		}
 	}
 }

@@ -235,7 +235,8 @@ void CAT_render_deco()
 				}
 			}
 			CAT_item* hold = CAT_item_get(hold_id);
-			CAT_draw_queue_add(hold->sprite, 0, 2, cursor_world.x, cursor_world.y+16, CAT_DRAW_MODE_BOTTOM);
+			int tile_height = hold_rect.max.y - hold_rect.min.y;
+			CAT_draw_queue_add(hold->sprite, 0, 2, cursor_world.x, cursor_world.y+tile_height*16, CAT_DRAW_MODE_BOTTOM);
 		}
 		else
 		{

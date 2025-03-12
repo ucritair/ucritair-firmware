@@ -205,8 +205,6 @@ void CAT_force_load()
 	saved_version_patch = save->version_patch;
 	saved_version_push = save->version_push;
 
-	
-	
 	if(save->vigour <= 12)
 		pet.vigour = save->vigour;
 	if(save->focus <= 12)
@@ -354,6 +352,7 @@ int main(int argc, char** argv)
 	while (CAT_get_battery_pct() > 0)
 	{
 		CAT_tick_logic();
+		
 		for(int render_cycle = 0; render_cycle < LCD_FRAMEBUFFER_SEGMENTS; render_cycle++)
 		{
 			CAT_set_render_cycle(render_cycle);
@@ -361,6 +360,9 @@ int main(int argc, char** argv)
 			CAT_LCD_post();
 		}
 		CAT_LCD_flip();
+
+		// 1 / FPS * 1_000_000 yields microseconds between frames at fixed FPS
+		usleep((1.0f / (float) 12) * 1000000);
 	}
 
 	CAT_force_save();

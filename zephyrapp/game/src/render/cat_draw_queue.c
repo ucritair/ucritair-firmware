@@ -60,17 +60,6 @@ void CAT_anim_reset(const CAT_sprite* sprite)
 	anim_table.frame_idx[sprite->id] = 0;
 }
 
-#ifdef CAT_DESKTOP
-static float timer = 0;
-bool CAT_anim_should_tick()
-{
-	timer += CAT_get_delta_time();
-	bool result = timer >= 0.15f;
-	if(result)
-		timer = 0;
-	return result;
-}
-#else
 static int counter = 0;
 bool CAT_anim_should_tick()
 {
@@ -80,7 +69,6 @@ bool CAT_anim_should_tick()
 		counter = 0;
 	return result;
 }
-#endif
 
 static CAT_draw_job jobs[CAT_DRAW_QUEUE_MAX_LENGTH];
 static int job_count = 0;

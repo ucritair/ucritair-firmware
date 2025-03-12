@@ -186,7 +186,9 @@ void CAT_platform_cleanup()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // LCD SCREEN
 
-uint16_t lcd_framebuffer[LCD_FRAMEBUFFER_PIXELS];
+static uint16_t lcd_framebuffer[LCD_FRAMEBUFFER_PIXELS];
+static int render_cycle = 0;
+
 uint16_t* CAT_LCD_get_framebuffer()
 {
 	return lcd_framebuffer;
@@ -198,7 +200,7 @@ void CAT_LCD_post()
 	glTexSubImage2D
 	(
 		GL_TEXTURE_2D, 0,
-		0, LCD_FRAMEBUFFER_H * CAT_get_render_cycle(),
+		0, LCD_FRAMEBUFFER_H * render_cycle,
 		LCD_SCREEN_W, LCD_FRAMEBUFFER_H,
 		GL_RGB, GL_UNSIGNED_SHORT_5_6_5,
 		lcd_framebuffer
@@ -235,8 +237,6 @@ bool CAT_first_frame_complete()
 {
 	return true;
 }
-
-int render_cycle = 0;
 
 void CAT_set_render_cycle(int cycle)
 {

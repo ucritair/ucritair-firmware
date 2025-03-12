@@ -48,7 +48,7 @@ void CAT_MS_hedron(CAT_machine_signal signal)
 			float f = 100.0f;
 			float hfov = 1.57079632679 * 0.5f;
 			float width = 2 * n * tan(hfov / 2);
-			float asp = ((float) LCD_FRAMEBUFFER_W / (float) LCD_FRAMEBUFFER_H);
+			float asp = ((float) LCD_SCREEN_W / (float) LCD_SCREEN_H);
 			float height = width / asp;
 			P = (CAT_mat4)
 			{
@@ -62,8 +62,8 @@ void CAT_MS_hedron(CAT_machine_signal signal)
 
 			S = (CAT_mat4)
 			{
-				LCD_FRAMEBUFFER_W / 2, 0, 0, LCD_FRAMEBUFFER_W / 2,
-				0, LCD_FRAMEBUFFER_H / 2, 0, LCD_FRAMEBUFFER_H / 2,
+				LCD_SCREEN_W / 2, 0, 0, LCD_SCREEN_W / 2,
+				0, LCD_SCREEN_H / 2, 0, LCD_SCREEN_H / 2,
 				0, 0, 1, 0,
 				0, 0, 0, 1
 			};

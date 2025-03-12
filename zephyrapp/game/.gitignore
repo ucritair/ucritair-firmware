@@ -4,5 +4,6 @@ CMakeFiles/
 app
 *.dat
 sounds/temp/
+cowtools/
 
 !meshes/*.obj
