@@ -704,7 +704,7 @@ void CAT_gui_item_list_io()
 		item_display_base += (overshoot - (item_display_count-1));
 }
 
-char item_label[24];
+char item_label[36];
 int item_label_length = 0;
 void ilstart()
 {
@@ -752,23 +752,23 @@ void CAT_gui_item_list()
 		CAT_gui_set_flag(CAT_GUI_PANEL_TIGHT);
 		CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 2});
 		CAT_gui_image(&icon_coin_sprite, 0);
-		CAT_rowberry(0, (2*2)*16-1, LCD_FRAMEBUFFER_W, 0x0000);
+		CAT_rowberry(0, (2*2)*16-1, LCD_SCREEN_W, 0x0000);
 		CAT_gui_textf(" %d", coins);
 	}
+	int tile_row_offset = show_coins ? 4 : 2;
 
-	for(int i = 0; i < item_display_count; i++)
+	for(int display_idx = 0; display_idx < item_display_count; display_idx++)
 	{
-		int display_idx = item_display_base + i;
-		if(display_idx >= item_list.length)
+		int list_idx = item_display_base + display_idx;
+		if(list_idx >= item_list.length)
 			return;
 
-		int item_id = item_list.item_ids[display_idx];
+		int item_id = item_list.item_ids[list_idx];
 		CAT_item* item = CAT_item_get(item_id);
 		
-		int tile_row_offset = show_coins ? 4 : 2;
 		CAT_gui_set_flag(CAT_GUI_PANEL_TIGHT);
-		CAT_gui_panel((CAT_ivec2) {0, tile_row_offset+i*2}, (CAT_ivec2) {15, 2});
-		CAT_rowberry(0, (tile_row_offset+i*2+2)*16-1, LCD_FRAMEBUFFER_W, 0x0000);
+		CAT_gui_panel((CAT_ivec2) {0, tile_row_offset+display_idx*2}, (CAT_ivec2) {15, 2});
+		CAT_rowberry(0, (tile_row_offset+display_idx*2+2)*16-1, LCD_SCREEN_W, 0x0000);
 		CAT_gui_image(item->icon, 0);
 		
 		ilstart();
@@ -776,15 +776,15 @@ void CAT_gui_item_list()
 		if(show_price)
 			ilprintf("$%d ", item->price);
 		if(show_count)
-			ilprintf("*%d ", item_list.counts[display_idx]);
+			ilprintf("*%d ", item_list.counts[list_idx]);
 		ilend();
 		CAT_gui_text(item_label);
 
-		if(display_idx == item_list_selector)
+		if(list_idx == item_list_selector)
 			CAT_gui_image(&icon_pointer_sprite, 0);
 
-		if(item_list_greyout_mask[display_idx])
-			CAT_greyberry(0, 240, (tile_row_offset+i*2)*16, 32);
-		CAT_greenberry(0, 240, (tile_row_offset+i*2)*16, 32, item_list_highlight_mask[display_idx]);
+		if(item_list_greyout_mask[list_idx])
+			CAT_greyberry(0, LCD_SCREEN_W, (tile_row_offset+display_idx*2)*16, 32);
+		CAT_greenberry(0, LCD_SCREEN_W, (tile_row_offset+display_idx*2)*16, 32, item_list_highlight_mask[list_idx]);
 	}
 }

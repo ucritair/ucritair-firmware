@@ -170,6 +170,7 @@ void CAT_fillberry(int xi, int yi, int w, int h, uint16_t c)
 	uint16_t* framebuffer = CAT_LCD_get_framebuffer();
 
 	int xf = clamp(xi + w, 0, LCD_FRAMEBUFFER_W);
+	xi = clamp(xi, 0, LCD_FRAMEBUFFER_W);
 	yi -= FRAMEBUFFER_ROW_OFFSET;
 	int yf = clamp(yi + h, 0, LCD_FRAMEBUFFER_H);
 	yi = clamp(yi, 0, LCD_FRAMEBUFFER_H);
