@@ -772,14 +772,11 @@ void CAT_gui_item_list()
 		CAT_gui_image(item->icon, 0);
 		
 		ilstart();
-		ilprintf(" %s", item->name);
+		ilprintf(" %s ", item->name);
 		if(show_price)
-			ilprintf(" $%d", item->price);
+			ilprintf("$%d ", item->price);
 		if(show_count)
-			ilprintf(" *%d", item_list.counts[display_idx]);
-		/*ilprintf("%d %d", item_display_base, display_idx);
-		if(display_idx == item_list_selector)
-			ilprintf(" %d", item_list_selector);*/
+			ilprintf("*%d ", item_list.counts[display_idx]);
 		ilend();
 		CAT_gui_text(item_label);
 

@@ -121,7 +121,8 @@ float CAT_timer_progress(int timer_id)
 //////////////////////////////////////////////////////////////////////////
 // MACHINE
 
-CAT_machine_state machine = NULL;
+CAT_machine_state current = NULL;
+CAT_machine_state next = NULL;
 CAT_machine_state machine_stack[64];
 int machine_depth = 0;
 
@@ -142,7 +143,7 @@ static CAT_machine_state peek()
 	return machine_stack[machine_depth-1];
 }
 
-void CAT_machine_transition(CAT_machine_state state)
+void complete_transition(CAT_machine_state state)
 {
 	if(state == NULL)
 	{
@@ -150,9 +151,9 @@ void CAT_machine_transition(CAT_machine_state state)
 		return;
 	}
 
-	if(machine != NULL)
+	if(current != NULL)
 	{
-		(machine)(CAT_MACHINE_SIGNAL_EXIT);
+		(current)(CAT_MACHINE_SIGNAL_EXIT);
 	}
 
 	bool loop_back = false;
@@ -168,14 +169,24 @@ void CAT_machine_transition(CAT_machine_state state)
 	if(!loop_back)
 		push(state);
 
-	machine = state;
-	(machine)(CAT_MACHINE_SIGNAL_ENTER);	
+	current = state;
+	(current)(CAT_MACHINE_SIGNAL_ENTER);
+}
+
+void CAT_machine_transition(CAT_machine_state state)
+{
+	next = state;
 }
 
 void CAT_machine_tick()
 {
-	if(machine != NULL)
-		(machine)(CAT_MACHINE_SIGNAL_TICK);
+	if(next != NULL)
+	{
+		complete_transition(next);
+		next = NULL;
+	}
+	if(current != NULL)
+		(current)(CAT_MACHINE_SIGNAL_TICK);
 }
 
 void CAT_machine_back()
@@ -189,7 +200,7 @@ void CAT_machine_back()
 
 CAT_machine_state CAT_get_machine_state()
 {
-	return machine;
+	return current;
 }
 
 CAT_render_callback render_callback;
