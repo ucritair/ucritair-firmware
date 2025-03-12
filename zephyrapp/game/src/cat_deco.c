@@ -119,6 +119,7 @@ void CAT_MS_deco(CAT_machine_signal signal)
 								CAT_room_add_prop(hold_id, cursor);
 								CAT_item_list_remove(&bag, hold_id, 1);
 								hold_id = -1;
+								hover_idx = CAT_room_find_spatial(cursor);
 							}
 							else if(can_stack())
 							{
@@ -211,7 +212,7 @@ void CAT_render_deco()
 	{
 		if(hold_id != -1)
 		{
-			const CAT_sprite* tile_sprite = can_place() ? &tile_hl_sprite : &tile_hl_rm_sprite;
+			const CAT_sprite* tile_sprite = (can_place() || can_stack()) ? &tile_hl_sprite : &tile_hl_rm_sprite;
 			for(int y = hold_rect().min.y; y < hold_rect().max.y; y++)
 			{
 				for(int x = hold_rect().min.x; x < hold_rect().max.x; x++)
