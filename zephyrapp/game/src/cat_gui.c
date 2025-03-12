@@ -748,6 +748,7 @@ void CAT_gui_item_list()
 		CAT_gui_set_flag(CAT_GUI_PANEL_TIGHT);
 		CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 2});
 		CAT_gui_image(&icon_coin_sprite, 0);
+		CAT_rowberry(0, (2*2)*16-1, LCD_FRAMEBUFFER_W, 0x0000);
 		CAT_gui_textf(" %d", coins);
 	}
 
