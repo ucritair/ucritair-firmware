@@ -21,8 +21,8 @@ typedef struct CAT_pet
 	unsigned int level;
 
 	CAT_vec2 pos;
-	CAT_vec2 dir;
-	bool left;
+	CAT_vec2 vel;
+	float rot;
 	
 	int stat_timer_id;
 	int life_timer_id;
@@ -49,4 +49,3 @@ void CAT_pet_stat(int ticks);
 void CAT_pet_life(int ticks);
 
 void CAT_pet_tick();
-void CAT_render_pet();

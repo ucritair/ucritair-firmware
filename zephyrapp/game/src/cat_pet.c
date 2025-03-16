@@ -33,8 +33,8 @@ void CAT_pet_init()
 	pet.level = 0;
 
 	pet.pos = (CAT_vec2) {120, 200};
-	pet.dir = (CAT_vec2) {0, 0};
-	pet.left = false;
+	pet.vel = (CAT_vec2) {0, 0};
+	pet.rot = 0;
 
 	pet.stat_timer_id = CAT_timer_init(CAT_STAT_TICK_SECS);
 	pet.life_timer_id = CAT_timer_init(CAT_LIFE_TICK_SECS);
@@ -145,18 +145,22 @@ bool CAT_pet_seek(CAT_vec2 targ)
 {
 	CAT_vec2 line = CAT_vec2_sub(targ, pet.pos);
 	float dist = sqrt(CAT_vec2_mag2(line));
-	float step = 48.0f * CAT_get_delta_time();
+	CAT_vec2 dir = CAT_vec2_mul(line, 1.0f/dist);
+
+	float speed = 48.0f;
+	float step = speed * CAT_get_delta_time();
+
 	if(dist < step)
 	{
+		pet.vel = (CAT_vec2) {0, 0};
 		pet.pos = targ;
-		pet.dir = (CAT_vec2) {0, 0};
 		return true;
 	}
 	else
 	{
-		pet.dir = CAT_vec2_mul(line, 1.0f/dist);
-		pet.pos = CAT_vec2_add(pet.pos, CAT_vec2_mul(pet.dir, step));
-		pet.left = pet.pos.x < targ.x;
+		pet.vel = CAT_vec2_mul(dir, speed);
+		pet.pos = CAT_vec2_add(pet.pos, CAT_vec2_mul(pet.vel, CAT_get_delta_time()));
+		pet.rot = pet.vel.x > 0 ? M_PI : 0;
 		return false;
 	}
 }
@@ -305,19 +309,5 @@ void CAT_pet_tick()
 				CAT_timer_reset(pet.petting_timer_id);
 			}
 		}
-	}
-}
-
-void CAT_render_pet()
-{
-	int mode = CAT_DRAW_MODE_BOTTOM | CAT_DRAW_MODE_CENTER_X;
-	if(pet.left)
-		mode |= CAT_DRAW_MODE_REFLECT_X;
-	int layer = CAT_get_battery_pct() <= CAT_CRITICAL_BATTERY_PCT ? 1 : 2;
-	CAT_draw_queue_add(CAT_animachine_tick(&pet_asm), -1, layer, pet.pos.x, pet.pos.y, mode);
-	if(CAT_animachine_is_in(&react_asm, &AS_react))
-	{
-		int x_off = pet.left ? 16 : -16;
-		CAT_draw_queue_add(CAT_animachine_tick(&react_asm), -1, layer+1, pet.pos.x + x_off, pet.pos.y - 48, mode);	
 	}
 }
