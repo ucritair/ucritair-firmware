@@ -9,11 +9,7 @@
 #define GRID_WIDTH 15
 #define GRID_HEIGHT 20
 #define SNAKE_MAX_LENGTH (GRID_WIDTH * GRID_HEIGHT)
-#ifdef CAT_EMBEDDED
 #define SNAKE_TICK_PERIOD 3
-#else
-#define SNAKE_TICK_PERIOD 12
-#endif
 
 int snake_high_score = 0;
 static int score = 0;

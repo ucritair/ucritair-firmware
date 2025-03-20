@@ -6,6 +6,7 @@
 extern int logged_sleep;
 extern bool needs_load;
 extern bool override_load;
+extern bool clear_load;
 
 extern uint8_t saved_version_major;
 extern uint8_t saved_version_minor;

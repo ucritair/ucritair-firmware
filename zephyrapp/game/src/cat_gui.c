@@ -32,10 +32,22 @@ void CAT_gui_set_flag(CAT_gui_flag flag)
 	gui.flags |= (1 << flag);
 }
 
+bool flag_is_set(CAT_gui_flag field, CAT_gui_flag flag)
+{
+	return (field & (1 << flag)) > 0;
+}
+
 bool CAT_gui_consume_flag(CAT_gui_flag flag)
 {
-	bool value = (gui.flags & (1 << flag)) > 0;
+	bool value =  flag_is_set(gui.flags, flag);
 	gui.flags &= ~(1 << flag);
+	return value;
+}
+
+CAT_gui_flag CAT_gui_clear_flags()
+{
+	CAT_gui_flag value = gui.flags;
+	gui.flags = 0;
 	return value;
 }
 
@@ -152,8 +164,8 @@ void CAT_gui_textf(const char* fmt, ...)
 {
 	va_list args;
 	va_start(args, fmt);
-	char text[256];
-	vsprintf(text, fmt, args);
+	char text[512];
+	vsnprintf(text, 512, fmt, args);
 	va_end(args);
 	CAT_gui_text(text);
 }
@@ -167,8 +179,8 @@ void CAT_gui_title(bool tabs, const CAT_sprite* a_action, const CAT_sprite* b_ac
 		CAT_gui_text("< ");
 	va_list args;
 	va_start(args, fmt);
-	char text[256];
-	vsprintf(text, fmt, args);
+	char text[32];
+	vsnprintf(text, 32, fmt, args);
 	va_end(args);
 	CAT_gui_text(text);
 	if(tabs)
@@ -442,6 +454,7 @@ typedef struct menu_node
 
 	const char* title;
 	bool selected;
+	CAT_gui_flag flags;
 
 	int parent;
 	uint16_t children[32];
@@ -466,6 +479,7 @@ uint16_t register_menu_node(const char* title)
 	{
 		.live = true,
 		.title = title,
+		.flags = CAT_GUI_DEFAULT,
 		.selected = false,
 		.parent = -1,
 		.child_count = 0,
@@ -574,6 +588,7 @@ bool CAT_gui_menu_item(const char* title)
 
 	bool selected = menu_table[idx].selected;
 	menu_table[idx].selected = false;
+	menu_table[idx].flags = CAT_gui_clear_flags();
 	return selected;
 }
 
@@ -598,13 +613,9 @@ void CAT_gui_menu_io()
 	if(CAT_input_pressed(CAT_BUTTON_B))
 	{
 		if(hovered->parent == root)
-		{
 			CAT_machine_back();
-		}
 		else
-		{
 			menu_table[hovered->parent].selected = false;
-		}
 	}	
 }
 
@@ -624,13 +635,19 @@ void CAT_gui_menu()
 	for(int i = 0; i < head->child_count; i++)
 	{
 		menu_node* child = &menu_table[head->children[i]];
+
 		CAT_gui_textf("\1 %s ", child->title);
+		if(flag_is_set(child->flags, CAT_GUI_MENU_HIGHLIGHTABLE))
+		{
+			CAT_gui_image(&icon_equip_sprite, flag_is_set(child->flags, CAT_GUI_MENU_HIGHLIGHTED));
+			CAT_gui_text(" ");
+		}
 		if(i == head->selector)
-			CAT_gui_image(&icon_pointer_sprite, 0);
+			CAT_gui_image(&icon_pointer_sprite, 0);	
 		CAT_gui_line_break();
 	}
 
-	if(CAT_get_render_cycle() == LCD_FRAMEBUFFER_SEGMENTS-1)
+	if(CAT_is_last_render_cycle())
 	{
 		menu_stack_length = 0;
 		root = -1;
@@ -714,7 +731,7 @@ void ilprintf(const char* fmt, ...)
 {
 	va_list args;
 	va_start(args, fmt);
-	int added = vsprintf(item_label + item_label_length, fmt, args);
+	int added = vsnprintf(item_label + item_label_length, sizeof(item_label), fmt, args);
 	item_label_length += added;
 	va_end(args);
 }

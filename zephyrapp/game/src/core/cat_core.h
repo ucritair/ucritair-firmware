@@ -33,6 +33,8 @@ bool CAT_first_frame_complete();
 
 void CAT_set_render_cycle(int cycle);
 int CAT_get_render_cycle();
+bool CAT_is_first_render_cycle();
+bool CAT_is_last_render_cycle();
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -203,6 +205,9 @@ void CAT_write_log();
 
 int CAT_get_battery_pct();
 bool CAT_is_charging();
+void CAT_sleep();
+void CAT_shutdown();
+void CAT_factory_reset();
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

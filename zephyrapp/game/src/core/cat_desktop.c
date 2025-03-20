@@ -11,6 +11,7 @@
 #include <string.h>
 #include "cat_version.h"
 #include <stdarg.h>
+#include "cat_main.h"
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -248,6 +249,16 @@ int CAT_get_render_cycle()
 	return render_cycle;
 }
 
+bool CAT_is_first_render_cycle()
+{
+	return render_cycle == 0;
+}
+
+bool CAT_is_last_render_cycle()
+{
+	return render_cycle == LCD_FRAMEBUFFER_SEGMENTS-1;
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // EINK SCREEN
@@ -439,6 +450,21 @@ bool CAT_is_charging()
 	return false;
 }
 
+void CAT_sleep()
+{
+	glfwSetWindowShouldClose(simulator.window, true);
+}
+
+void CAT_shutdown()
+{
+	glfwSetWindowShouldClose(simulator.window, true);
+}
+
+void CAT_factory_reset()
+{
+	clear_load = true;
+	needs_load = true;
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // AIR QUALITY

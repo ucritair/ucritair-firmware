@@ -48,6 +48,7 @@
 int logged_sleep = 0;
 bool needs_load = true;
 bool override_load = false;
+bool clear_load = false;
 
 uint8_t saved_version_major = CAT_VERSION_MAJOR;
 uint8_t saved_version_minor = CAT_VERSION_MINOR;
@@ -152,12 +153,25 @@ void CAT_load_failsafe()
 	saved_version_patch = CAT_VERSION_PATCH;
 	saved_version_push = CAT_VERSION_PUSH;
 
+	pet.vigour = 9;
+	pet.focus = 9;
+	pet.spirit = 9;
+
+	CAT_item_list_init(&bag);
 	CAT_item_list_add(&bag, prop_eth_farm_item, 1);
 	coins = 10;
+
+	CAT_space_init();
+	CAT_room_init();
 }
 
 void CAT_load_override()
 {
+	saved_version_major = CAT_VERSION_MAJOR;
+	saved_version_minor = CAT_VERSION_MINOR;
+	saved_version_patch = CAT_VERSION_PATCH;
+	saved_version_push = CAT_VERSION_PUSH;
+
 	pet.vigour = 9;
 	pet.focus = 9;
 	pet.spirit = 9;
@@ -169,6 +183,7 @@ void CAT_load_override()
 	CAT_item_list_add(&bag, food_coffee_item, 1);
 	CAT_item_list_add(&bag, prop_succulent_item, 1);
 	CAT_item_list_add(&bag, toy_baseball_item, 1);
+	coins = 100;
 
 	CAT_space_init();
 	CAT_room_init();
@@ -183,19 +198,18 @@ void CAT_load_override()
 	CAT_room_add_prop(prop_table_sm_plastic_item, (CAT_ivec2) {13, 7});
 	CAT_room_stack_prop(room.prop_count-1, prop_coffeemaker_item);
 	CAT_room_add_prop(prop_plant_daisy_item, (CAT_ivec2) {0, 9});
-
-	coins = 100;
 }
 
 void CAT_force_load()
 {
 	CAT_save* save = CAT_start_load();
 
-	if(!CAT_check_save(save) || save == NULL)
+	if(clear_load || !CAT_check_save(save) || save == NULL)
 	{
 		CAT_load_failsafe();
 		CAT_finish_load();
 		needs_load = false;
+		clear_load = false;
 		CAT_force_save();
 		return;
 	}

@@ -14,6 +14,7 @@
 #include "power_control.h"
 #include "airquality.h"
 #include "lcd_driver.h"
+#include "lcd_rendering.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // CORE
@@ -84,6 +85,16 @@ void CAT_set_render_cycle(int cycle)
 int CAT_get_render_cycle()
 {
 	return render_cycle;
+}
+
+bool CAT_is_first_render_cycle()
+{
+	return render_cycle == 0;
+}
+
+bool CAT_is_last_render_cycle()
+{
+	return render_cycle == LCD_FRAMEBUFFER_SEGMENTS-1;
 }
 
 
@@ -269,6 +280,24 @@ int CAT_get_battery_pct()
 bool CAT_is_charging()
 {
 	return get_is_charging();
+}
+
+void CAT_sleep()
+{
+	power_off(sensor_wakeup_rate*1000, false);
+}
+
+void CAT_shutdown()
+{
+	epaper_render_protected_off();
+	power_off(0, true);
+}
+
+void CAT_factory_reset()
+{
+	cat_game_running = 0;
+	flash_nuke_tomas_save();
+	power_off(0, false);
 }
 
 

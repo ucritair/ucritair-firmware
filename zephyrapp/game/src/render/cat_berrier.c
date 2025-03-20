@@ -193,7 +193,7 @@ void CAT_strokeberry(int xi, int yi, int w, int h, uint16_t c)
 	yi -= FRAMEBUFFER_ROW_OFFSET;
 	int yf = yi + h;
 	
-	if(yi >= 0 && yf < LCD_FRAMEBUFFER_H)
+	if(yi >= 0 && yi < LCD_FRAMEBUFFER_H)
 	{
 		for(int x = xi; x < xf; x++)
 		{
@@ -210,7 +210,7 @@ void CAT_strokeberry(int xi, int yi, int w, int h, uint16_t c)
 		}
 	}
 
-	if(xi >= 0 && xf < LCD_FRAMEBUFFER_W)
+	if(xi >= 0 && xi < LCD_FRAMEBUFFER_W)
 	{
 		for(int y = yi; y < yf; y++)
 		{

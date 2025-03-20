@@ -101,7 +101,7 @@ void CAT_draw_queue_insert(int idx, const CAT_sprite* sprite, int frame_idx, int
 
 int CAT_draw_queue_add(const CAT_sprite* sprite, int frame_idx, int layer, int x, int y, int mode)
 {
-	if(CAT_get_render_cycle() == 0)
+	if(CAT_is_first_render_cycle())
 	{
 		int insert_idx = job_count;
 		for(int i = 0; i < insert_idx; i++)
@@ -122,7 +122,7 @@ int CAT_draw_queue_add(const CAT_sprite* sprite, int frame_idx, int layer, int x
 
 void CAT_draw_queue_submit()
 {
-	if (CAT_get_render_cycle() == 0)
+	if (CAT_is_first_render_cycle())
 	{
 		if(CAT_anim_should_tick())
 		{

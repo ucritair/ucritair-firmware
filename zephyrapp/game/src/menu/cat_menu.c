@@ -20,6 +20,12 @@
 #include "menu_aqi.h"
 #endif
 
+#ifdef CAT_EMBEDDED
+#define EMBEDDED_ONLY_OPTION(name, effect) if(CAT_gui_menu_item(name)){ effect; }
+#else
+#define EMBEDDED_ONLY_OPTION(name, effect) CAT_gui_menu_item(name);
+#endif
+
 void CAT_MS_menu(CAT_machine_signal signal)
 {
 	switch(signal)
@@ -36,24 +42,6 @@ void CAT_MS_menu(CAT_machine_signal signal)
 			{
 				if(CAT_gui_menu_item("INSIGHTS"))
 					CAT_machine_transition(CAT_MS_insights);
-				if(CAT_gui_begin_menu("SETTINGS"))
-				{
-					if(CAT_gui_menu_item("PET NAME"))
-					{
-						CAT_gui_open_keyboard(pet.name);
-					}
-					if(CAT_gui_begin_menu("ROOM THEME"))
-					{
-						if(CAT_gui_menu_item("BASIC THEME"))
-							room.theme = &base_theme;
-						if(CAT_gui_menu_item("VERDANT THEME"))
-							room.theme = &grass_theme;
-						if(CAT_gui_menu_item("ASHEN THEME"))
-							room.theme = &ash_theme;
-						CAT_gui_end_menu();
-					}
-					CAT_gui_end_menu();
-				}
 				if(CAT_gui_menu_item("INVENTORY"))
 					CAT_machine_transition(CAT_MS_bag);
 				if(CAT_gui_menu_item("VENDING MACHINE"))
@@ -65,8 +53,6 @@ void CAT_MS_menu(CAT_machine_signal signal)
 #ifdef CAT_EMBEDDED
 				if(CAT_gui_menu_item("AIR QUALITY"))
 					CAT_machine_transition(CAT_MS_aqi);
-				if(CAT_gui_menu_item("SYSTEM DASHBOARD"))
-					CAT_machine_transition(CAT_MS_system_menu);
 #endif
 #ifdef CAT_DEBUG
 				if(CAT_gui_menu_item("DEBUG DASHBOARD"))
@@ -108,14 +94,70 @@ void CAT_MS_menu(CAT_machine_signal signal)
 					CAT_gui_end_menu();
 				}
 #endif
+				if(CAT_gui_begin_menu("SETTINGS"))
+				{
+					if(CAT_gui_begin_menu("COSMETICS"))
+					{
+						if(CAT_gui_menu_item("PET NAME"))
+						{
+							CAT_gui_open_keyboard(pet.name);
+						}
+						if(CAT_gui_begin_menu("ROOM THEME"))
+						{
+							for(int i = 0; i < THEME_COUNT; i++)
+							{
+								CAT_gui_set_flag(CAT_GUI_MENU_HIGHLIGHTABLE);
+								if(room.theme == themes_list[i])
+								CAT_gui_set_flag(CAT_GUI_MENU_HIGHLIGHTED);
+								if(CAT_gui_menu_item(themes_list[i]->name))
+									room.theme = themes_list[i];
+							}
+							CAT_gui_end_menu();
+						}
+						CAT_gui_end_menu();
+					}
+					if(CAT_gui_menu_item("SYSTEM"))
+					{
+#ifdef CAT_EMBEDDED
+						CAT_machine_transition(CAT_MS_system_menu);
+#endif
+					}
+					if(CAT_gui_begin_menu("DANGER ZONE"))
+					{
+						static bool factory_reset = false;
+						if(CAT_gui_menu_item("RESET SAVE"))
+							CAT_gui_open_popup("Are you sure?\nThis will delete all\ngame data!\n\n", &factory_reset);
+						if(factory_reset)
+						{
+							CAT_factory_reset();
+							factory_reset = false;
+						}
+						CAT_gui_end_menu();
+					}
+					CAT_gui_end_menu();
+				}
 				if(CAT_gui_menu_item("MANUAL"))
 					CAT_machine_transition(CAT_MS_manual);
+				if(CAT_gui_begin_menu("POWER"))
+				{
+					if(CAT_gui_menu_item("SLEEP"))
+						CAT_sleep();
+					if(CAT_gui_menu_item("SHUTDOWN"))
+						CAT_shutdown();
+					CAT_gui_end_menu();
+				}
 				CAT_gui_end_menu();
 			}
 			
 			if(CAT_gui_keyboard_is_open())
 			{
 				CAT_gui_keyboard_io();
+				break;
+			}
+
+			if(CAT_gui_popup_is_open())
+			{
+				CAT_gui_popup_io();
 				break;
 			}
 
@@ -135,4 +177,7 @@ void CAT_render_menu()
 
 	if(CAT_gui_keyboard_is_open())
 		CAT_gui_keyboard();
+	
+	if(CAT_gui_popup_is_open())
+		CAT_gui_popup();
 }

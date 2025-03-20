@@ -22,7 +22,9 @@ typedef enum CAT_gui_flag
 	CAT_GUI_PANEL_TIGHT,
 	CAT_GUI_ITEM_LIST_COUNT,
 	CAT_GUI_ITEM_LIST_PRICE,
-	CAT_GUI_ITEM_LIST_COINS
+	CAT_GUI_ITEM_LIST_COINS,
+	CAT_GUI_MENU_HIGHLIGHTABLE,
+	CAT_GUI_MENU_HIGHLIGHTED
 } CAT_gui_flag;
 
 typedef struct CAT_gui
@@ -41,6 +43,7 @@ extern CAT_gui gui;
 
 void CAT_gui_set_flag(CAT_gui_flag flag);
 bool CAT_gui_consume_flag(CAT_gui_flag flag);
+CAT_gui_flag CAT_gui_clear_flags();
 
 void CAT_gui_panel(CAT_ivec2 start, CAT_ivec2 shape);
 void CAT_gui_line_break();
