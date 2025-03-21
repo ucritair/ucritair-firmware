@@ -334,6 +334,8 @@ void CAT_tick_logic()
 	CAT_pet_tick();
 
 	CAT_machine_tick();
+
+	CAT_gui_io();
 }
 
 void CAT_tick_render()
@@ -355,6 +357,8 @@ void CAT_tick_render()
 		CAT_draw_sprite(&null_sprite, 0, 120-12, 160-12);
 	}
 
+	CAT_gui_render();
+	
 	CAT_draw_queue_submit();
 }
 

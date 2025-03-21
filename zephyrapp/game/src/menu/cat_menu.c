@@ -148,21 +148,6 @@ void CAT_MS_menu(CAT_machine_signal signal)
 				}
 				CAT_gui_end_menu();
 			}
-			
-			if(CAT_gui_keyboard_is_open())
-			{
-				CAT_gui_keyboard_io();
-				break;
-			}
-
-			if(CAT_gui_popup_is_open())
-			{
-				CAT_gui_popup_io();
-				break;
-			}
-
-			if(CAT_gui_in_menu())
-				CAT_gui_menu_io();
 			break;
 		}
 		case CAT_MACHINE_SIGNAL_EXIT:
@@ -172,12 +157,5 @@ void CAT_MS_menu(CAT_machine_signal signal)
 
 void CAT_render_menu()
 {
-	if(CAT_gui_in_menu())
-		CAT_gui_menu();
-
-	if(CAT_gui_keyboard_is_open())
-		CAT_gui_keyboard();
-	
-	if(CAT_gui_popup_is_open())
-		CAT_gui_popup();
+	// Replaced by GUI render pass
 }

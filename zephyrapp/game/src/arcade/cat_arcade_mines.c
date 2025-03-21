@@ -80,8 +80,6 @@ static int unseen = 0;
 static int reveal_timer_id = -1;
 static bool reveal_complete = false;
 
-static bool quit = false;
-
 void toggle_mine(int x, int y, bool value)
 {
 	grid_cell* cell = get_cell(x, y);
@@ -230,26 +228,19 @@ void CAT_MS_mines(CAT_machine_signal signal)
 			if(reveal_timer_id == -1)
 				reveal_timer_id = CAT_timer_init(0.05f);
 			reveal_complete = false;
-
-			quit = false;
 			break;
 		}
 		case CAT_MACHINE_SIGNAL_TICK:
 		{	
 			if(state == PLAY)
 			{
+				static bool quit = false;
 				if(CAT_input_pressed(CAT_BUTTON_B) || CAT_input_pressed(CAT_BUTTON_START))
 						CAT_gui_open_popup("Quit Sweep?\n\nProgress will not be saved!\n\n", &quit);
+				if(quit)
+					CAT_machine_transition(CAT_MS_room);
 				if(CAT_gui_popup_is_open())
-				{
-					CAT_gui_popup_io();
-					if(!CAT_gui_popup_is_open())
-					{
-						if(quit)
-							CAT_machine_transition(CAT_MS_room);
-					}
 					break;
-				}
 
 				if(CAT_input_pulse(CAT_BUTTON_UP))
 					cursor.y -= 1;
@@ -426,7 +417,4 @@ void CAT_render_mines()
 			CAT_gui_text("Kaboom!\n\nYour exploration has come to an explosive end.\n\nPress A or B to return from whence you came.");
 		}	
 	}
-
-	if(CAT_gui_popup_is_open())
-		CAT_gui_popup();
 }

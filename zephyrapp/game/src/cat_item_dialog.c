@@ -60,7 +60,6 @@ void CAT_MS_item_dialog(CAT_machine_signal signal)
 					}
 				}
 			}
-			CAT_gui_item_list_io();
 			break;
 		}
 		case CAT_MACHINE_SIGNAL_EXIT:
@@ -70,5 +69,5 @@ void CAT_MS_item_dialog(CAT_machine_signal signal)
 
 void CAT_render_item_dialog()
 {
-	CAT_gui_item_list();
+	// Replaced by GUI render pass
 }

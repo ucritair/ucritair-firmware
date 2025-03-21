@@ -55,8 +55,6 @@ void snake_init()
 	snake.dead = false;
 }
 
-static bool quit = false;
-
 void food_init()
 {
 	int guess_y = CAT_rand_int(1, GRID_HEIGHT-2);
@@ -128,25 +126,19 @@ void CAT_MS_snake(CAT_machine_signal signal)
 			score = 0;
 			is_high_score = false;
 			eat_tracker = 0;
-			quit = false;
 			break;
 		}
 		case CAT_MACHINE_SIGNAL_TICK:
 		{
 			if(!snake.dead)
 			{
+				static bool quit = false;
 				if(CAT_input_pressed(CAT_BUTTON_B) || CAT_input_pressed(CAT_BUTTON_START))
 						CAT_gui_open_popup("Quit Snack?\n\nProgress will not be saved!\n\n", &quit);
+				if(quit)
+					CAT_machine_transition(CAT_MS_room);
 				if(CAT_gui_popup_is_open())
-				{
-					CAT_gui_popup_io();
-					if(!CAT_gui_popup_is_open())
-					{
-						if(quit)
-							CAT_machine_transition(CAT_MS_room);
-					}
 					break;
-				}
 
 				if(CAT_input_pressed(CAT_BUTTON_UP) && snake.ldy != 1)
 				{
@@ -349,7 +341,4 @@ void CAT_render_snake()
 			CAT_gui_text("New high score!");
 		}
 	}
-
-	if(CAT_gui_popup_is_open())
-		CAT_gui_popup();
 }

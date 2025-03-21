@@ -80,7 +80,6 @@ void CAT_MS_vending(CAT_machine_signal signal)
 					CAT_gui_item_greyout();
 				}
 			}
-			CAT_gui_item_list_io();
 			
 			break;
 		}
@@ -91,5 +90,5 @@ void CAT_MS_vending(CAT_machine_signal signal)
 
 void CAT_render_vending()
 {
-	CAT_gui_item_list();
+	// Replaced by GUI render pass
 }

@@ -12,7 +12,7 @@
 
 
 //////////////////////////////////////////////////////////////////////////
-// RENDERING
+// BASICS
 
 typedef enum CAT_gui_flag
 {
@@ -54,26 +54,42 @@ void CAT_gui_div(const char* text);
 void CAT_gui_textf(const char* fmt, ...);
 void CAT_gui_title(bool tabs, const CAT_sprite* a_action, const CAT_sprite* b_action, const char* fmt, ...);
 
+
+//////////////////////////////////////////////////////////////////////////
+// KEYBOARD
+
 void CAT_gui_open_keyboard(char* target);
 bool CAT_gui_keyboard_is_open();
-void CAT_gui_keyboard_io();
-void CAT_gui_keyboard();
+
+
+//////////////////////////////////////////////////////////////////////////
+// POPUP
 
 void CAT_gui_open_popup(const char* msg, bool* result);
 bool CAT_gui_popup_is_open();
-void CAT_gui_popup_io();
-void CAT_gui_popup();
 
-bool CAT_gui_in_menu();
+
+//////////////////////////////////////////////////////////////////////////
+// MENU
+
 bool CAT_gui_begin_menu(const char* title);
+bool CAT_gui_menu_is_open();
 bool CAT_gui_menu_item(const char* title);
 void CAT_gui_end_menu();
-void CAT_gui_menu_io();
-void CAT_gui_menu();
+
+
+//////////////////////////////////////////////////////////////////////////
+// ITEM LIST
 
 void CAT_gui_begin_item_list(const char* title);
+bool CAT_gui_item_list_is_open();
 bool CAT_gui_item_listing(int item_id, int count);
 void CAT_gui_item_greyout();
 void CAT_gui_item_highlight(float progress);
-void CAT_gui_item_list_io();
-void CAT_gui_item_list();
+
+
+//////////////////////////////////////////////////////////////////////////
+// FINALIZATION
+
+void CAT_gui_io();
+void CAT_gui_render();

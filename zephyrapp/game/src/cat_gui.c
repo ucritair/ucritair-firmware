@@ -385,10 +385,7 @@ struct
 };
 
 void CAT_gui_open_popup(const char* msg, bool* result)
-{
-	if(popup.open)
-		return;
-	
+{	
 	popup.msg = msg;
 	popup.result = result;
 	popup.selector = 0;
@@ -462,12 +459,13 @@ typedef struct menu_node
 	uint8_t selector;
 } menu_node;
 
-menu_node menu_table[512];
+static menu_node menu_table[512];
 #define MENU_TABLE_SIZE (sizeof(menu_table) / sizeof(menu_table[0]))
-uint16_t menu_stack[128];
+static uint16_t menu_stack[128];
 #define MENU_STACK_SIZE (sizeof(menu_stack) / sizeof(menu_stack[0]))
-uint8_t menu_stack_length = 0;
-int root = -1;
+static uint8_t menu_stack_length = 0;
+static int menu_root = -1;
+static bool menu_open = false;
 
 uint16_t register_menu_node(const char* title)
 {
@@ -537,7 +535,7 @@ int menu_find_child(uint16_t table_idx)
 
 menu_node* menu_find_head()
 {
-	menu_node* ptr =&menu_table[root];
+	menu_node* ptr =&menu_table[menu_root];
 	for(int i = 0; i < ptr->child_count; i++)
 	{
 		menu_node* child = &menu_table[ptr->children[i]];
@@ -551,23 +549,20 @@ menu_node* menu_find_head()
 	return ptr;
 }
 
-bool CAT_gui_in_menu()
-{
-	return root >= 0 && menu_table[root].selected;
-}
-
 bool CAT_gui_begin_menu(const char* title)
 {
+	menu_open = true;
+
 	int idx = find_menu_node(title);
 	if(idx == -1)
 		idx = register_menu_node(title);
 	menu_table[idx].child_count = 0;
 
-	if (!CAT_gui_in_menu())
+	if (!CAT_gui_menu_is_open())
 	{
 		push_menu_node(idx);
 		menu_table[idx].selected = true;
-		root = idx;
+		menu_root = idx;
 	}
 	else
 	{
@@ -577,6 +572,11 @@ bool CAT_gui_begin_menu(const char* title)
 	}
 
 	return menu_table[idx].selected;
+}
+
+bool CAT_gui_menu_is_open()
+{
+	return menu_open && menu_root != -1 && menu_table[menu_root].selected;
 }
 
 bool CAT_gui_menu_item(const char* title)
@@ -612,7 +612,7 @@ void CAT_gui_menu_io()
 		hovered->selected = true;
 	if(CAT_input_pressed(CAT_BUTTON_B))
 	{
-		if(hovered->parent == root)
+		if(hovered->parent == menu_root)
 			CAT_machine_back();
 		else
 			menu_table[hovered->parent].selected = false;
@@ -650,15 +650,19 @@ void CAT_gui_menu()
 	if(CAT_is_last_render_cycle())
 	{
 		menu_stack_length = 0;
-		root = -1;
+		menu_root = -1;
+		menu_open = false;
 	}
 }
 
+static bool item_list_open = false;
 static const char* item_list_title = NULL;
+
 static CAT_item_list item_list;
 static bool item_list_selection_mask[CAT_ITEM_LIST_MAX_LENGTH];
 static bool item_list_greyout_mask[CAT_ITEM_LIST_MAX_LENGTH];
 static float item_list_highlight_mask[CAT_ITEM_LIST_MAX_LENGTH];
+
 static int item_list_selector = 0;
 static int item_display_base = 0;
 static int item_display_count = 9;
@@ -669,6 +673,7 @@ static bool show_coins = false;
 
 void CAT_gui_begin_item_list(const char* title)
 {
+	item_list_open = true;
 	item_list_title = title;
 	CAT_item_list_init(&item_list);
 
@@ -683,6 +688,11 @@ void CAT_gui_begin_item_list(const char* title)
 	show_count = CAT_gui_consume_flag(CAT_GUI_ITEM_LIST_COUNT);
 	show_coins = CAT_gui_consume_flag(CAT_GUI_ITEM_LIST_COINS);
 	item_display_count = show_coins ? 8 : 9;
+}
+
+bool CAT_gui_item_list_is_open()
+{
+	return item_list_open;
 }
 
 bool CAT_gui_item_listing(int item_id, int count)
@@ -742,27 +752,12 @@ void ilend()
 
 void CAT_gui_item_list()
 {
-	if(item_list_title == NULL)
-		return;
-
 	CAT_gui_title
 	(
 		false,
 		&icon_enter_sprite, &icon_exit_sprite,
 		item_list_title
-	);
-
-	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});  
-
-	if(item_list.length == 0)
-	{
-		CAT_gui_text
-		(
-			"You do not have any\n"
-			"appropriate items."
-		);
-		return;
-	}
+	); 
 
 	if(show_coins)
 	{
@@ -771,14 +766,27 @@ void CAT_gui_item_list()
 		CAT_gui_image(&icon_coin_sprite, 0);
 		CAT_rowberry(0, (2*2)*16-1, LCD_SCREEN_W, 0x0000);
 		CAT_gui_textf(" %d", coins);
+		CAT_gui_panel((CAT_ivec2) {0, 4}, (CAT_ivec2) {15, 16}); 
+	}
+	else
+	{
+		CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
 	}
 	int tile_row_offset = show_coins ? 4 : 2;
 
+	if(item_list.length == 0)
+	{
+		CAT_gui_text
+		(
+			"You do not have any\n"
+			"appropriate items."
+		);
+	}
 	for(int display_idx = 0; display_idx < item_display_count; display_idx++)
 	{
 		int list_idx = item_display_base + display_idx;
 		if(list_idx >= item_list.length)
-			return;
+			break;
 
 		int item_id = item_list.item_ids[list_idx];
 		CAT_item* item = CAT_item_get(item_id);
@@ -804,4 +812,31 @@ void CAT_gui_item_list()
 			CAT_greyberry(0, LCD_SCREEN_W, (tile_row_offset+display_idx*2)*16, 32);
 		CAT_greenberry(0, LCD_SCREEN_W, (tile_row_offset+display_idx*2)*16, 32, item_list_highlight_mask[list_idx]);
 	}
+
+	if(CAT_is_last_render_cycle())
+		item_list_open = false;	
+}
+
+void CAT_gui_io()
+{
+	if(CAT_gui_keyboard_is_open())
+		CAT_gui_keyboard_io();
+	else if(CAT_gui_popup_is_open())
+		CAT_gui_popup_io();
+	else if(CAT_gui_item_list_is_open())
+		CAT_gui_item_list_io();
+	else if(CAT_gui_menu_is_open())
+		CAT_gui_menu_io();
+}
+
+void CAT_gui_render()
+{
+	if(CAT_gui_menu_is_open())
+		CAT_gui_menu();
+	if(CAT_gui_item_list_is_open())
+		CAT_gui_item_list();
+	if(CAT_gui_popup_is_open())
+		CAT_gui_popup();
+	if(CAT_gui_keyboard_is_open())
+		CAT_gui_keyboard();
 }
