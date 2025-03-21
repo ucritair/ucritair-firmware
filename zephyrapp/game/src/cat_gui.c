@@ -12,7 +12,7 @@
 #include "cat_bag.h"
 
 //////////////////////////////////////////////////////////////////////////
-// RENDERING
+// BASICS
 
 CAT_gui gui =
 {
@@ -199,6 +199,10 @@ void CAT_gui_title(bool tabs, const CAT_sprite* a_action, const CAT_sprite* b_ac
 	}
 }
 
+
+//////////////////////////////////////////////////////////////////////////
+// KEYBOARD
+
 static const char** typecases[] = 
 {
 	(const char*[]) {
@@ -370,6 +374,10 @@ void CAT_gui_keyboard()
 		CAT_strokeberry(x_w - 2, y_w, 4 * CAT_GLYPH_WIDTH + 4, CAT_GLYPH_HEIGHT + 4, 0x0000);
 }
 
+
+//////////////////////////////////////////////////////////////////////////
+// POPUP
+
 struct
 {
 	const char* msg;
@@ -427,9 +435,9 @@ void CAT_gui_popup()
 	CAT_gui_text(popup.selector ? "[YES]  NO " : " YES  [NO]");
 }
 
-// Don't judge me for what comes next
-// It's actually heinous but it works
-// I'll clean it up
+
+//////////////////////////////////////////////////////////////////////////
+// MENU
 
 unsigned long hash(const char* s)
 {
@@ -655,6 +663,10 @@ void CAT_gui_menu()
 	}
 }
 
+
+//////////////////////////////////////////////////////////////////////////
+// ITEM LIST
+
 static bool item_list_open = false;
 static const char* item_list_title = NULL;
 
@@ -816,6 +828,10 @@ void CAT_gui_item_list()
 	if(CAT_is_last_render_cycle())
 		item_list_open = false;	
 }
+
+
+//////////////////////////////////////////////////////////////////////////
+// FINALIZATION
 
 void CAT_gui_io()
 {
