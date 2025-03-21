@@ -158,7 +158,8 @@
                 "df": 0,
                 "ds": 0,
                 "type": "food"
-            }
+            },
+            "tier": 0
         },
         {
             "type": "tool",
@@ -175,7 +176,8 @@
                 "df": 1,
                 "ds": 0,
                 "type": "food"
-            }
+            },
+            "tier": 0
         },
         {
             "type": "tool",
@@ -192,7 +194,8 @@
                 "df": 0,
                 "ds": 0,
                 "type": "food"
-            }
+            },
+            "tier": 0
         },
         {
             "type": "tool",
@@ -209,7 +212,8 @@
                 "df": 0,
                 "ds": 0,
                 "type": "food"
-            }
+            },
+            "tier": 0
         },
         {
             "type": "tool",
@@ -226,7 +230,8 @@
                 "df": 0,
                 "ds": 0,
                 "type": "food"
-            }
+            },
+            "tier": 0
         },
         {
             "type": "tool",
@@ -243,7 +248,8 @@
                 "df": 0,
                 "ds": 0,
                 "type": "food"
-            }
+            },
+            "tier": 0
         },
         {
             "type": "tool",
@@ -260,7 +266,8 @@
                 "df": 0,
                 "ds": 0,
                 "type": "food"
-            }
+            },
+            "tier": 0
         },
         {
             "type": "tool",
@@ -277,7 +284,8 @@
                 "df": 0,
                 "ds": 0,
                 "type": "food"
-            }
+            },
+            "tier": 0
         },
         {
             "type": "tool",
@@ -294,7 +302,8 @@
                 "df": 0,
                 "ds": 0,
                 "type": "food"
-            }
+            },
+            "tier": 0
         },
         {
             "type": "tool",
@@ -311,7 +320,8 @@
                 "df": 0,
                 "ds": 0,
                 "type": "food"
-            }
+            },
+            "tier": 0
         },
         {
             "type": "tool",
@@ -328,7 +338,8 @@
                 "df": 1,
                 "ds": 0,
                 "type": "food"
-            }
+            },
+            "tier": 0
         },
         {
             "type": "tool",
@@ -345,7 +356,8 @@
                 "df": 0,
                 "ds": 1,
                 "type": "food"
-            }
+            },
+            "tier": 0
         },
         {
             "type": "tool",
@@ -362,7 +374,8 @@
                 "df": 3,
                 "ds": 1,
                 "type": "food"
-            }
+            },
+            "tier": 0
         },
         {
             "type": "tool",
@@ -379,7 +392,8 @@
                 "df": 3,
                 "ds": 0,
                 "type": "book"
-            }
+            },
+            "tier": 0
         },
         {
             "type": "tool",
@@ -396,7 +410,8 @@
                 "df": 3,
                 "ds": 0,
                 "type": "book"
-            }
+            },
+            "tier": 0
         },
         {
             "type": "tool",
@@ -413,7 +428,8 @@
                 "df": 3,
                 "ds": 0,
                 "type": "book"
-            }
+            },
+            "tier": 0
         },
         {
             "type": "tool",
@@ -430,7 +446,8 @@
                 "df": 3,
                 "ds": 0,
                 "type": "book"
-            }
+            },
+            "tier": 0
         },
         {
             "type": "tool",
@@ -447,7 +464,8 @@
                 "df": 3,
                 "ds": 0,
                 "type": "book"
-            }
+            },
+            "tier": 0
         },
         {
             "type": "tool",
@@ -464,7 +482,8 @@
                 "df": 3,
                 "ds": 0,
                 "type": "book"
-            }
+            },
+            "tier": 0
         },
         {
             "type": "tool",
@@ -481,7 +500,8 @@
                 "df": 0,
                 "ds": 5,
                 "type": "toy"
-            }
+            },
+            "tier": 0
         },
         {
             "type": "tool",
@@ -498,7 +518,8 @@
                 "df": 0,
                 "ds": 3,
                 "type": "toy"
-            }
+            },
+            "tier": 0
         },
         {
             "type": "tool",
@@ -515,7 +536,8 @@
                 "df": 0,
                 "ds": 3,
                 "type": "toy"
-            }
+            },
+            "tier": 0
         },
         {
             "type": "tool",
@@ -532,7 +554,8 @@
                 "df": 0,
                 "ds": 1,
                 "type": "toy"
-            }
+            },
+            "tier": 0
         },
         {
             "type": "tool",
@@ -549,7 +572,8 @@
                 "df": 0,
                 "ds": 3,
                 "type": "toy"
-            }
+            },
+            "tier": 0
         },
         {
             "type": "key",
@@ -559,7 +583,8 @@
             "icon": "icon_item_key_sprite",
             "text": "",
             "price": 10,
-            "id": 24
+            "id": 24,
+            "tier": 0
         },
         {
             "type": "prop",
@@ -578,7 +603,8 @@
                 "animate": true,
                 "child_dy": 0,
                 "type": "default"
-            }
+            },
+            "tier": 0
         },
         {
             "type": "prop",
@@ -597,7 +623,8 @@
                 "animate": true,
                 "child_dy": 0,
                 "type": "top"
-            }
+            },
+            "tier": 0
         },
         {
             "type": "prop",
@@ -616,7 +643,8 @@
                 "animate": true,
                 "child_dy": 0,
                 "type": "default"
-            }
+            },
+            "tier": 0
         },
         {
             "type": "prop",
@@ -635,7 +663,8 @@
                 "animate": true,
                 "child_dy": -6,
                 "type": "top"
-            }
+            },
+            "tier": 0
         },
         {
             "type": "prop",
@@ -654,7 +683,8 @@
                 "animate": true,
                 "child_dy": 0,
                 "type": "top"
-            }
+            },
+            "tier": 0
         },
         {
             "type": "prop",
@@ -673,7 +703,8 @@
                 "animate": true,
                 "child_dy": 0,
                 "type": "top"
-            }
+            },
+            "tier": 0
         },
         {
             "type": "prop",
@@ -692,7 +723,8 @@
                 "animate": true,
                 "child_dy": 0,
                 "type": "top"
-            }
+            },
+            "tier": 0
         },
         {
             "type": "prop",
@@ -711,7 +743,8 @@
                 "animate": true,
                 "child_dy": -8,
                 "type": "top"
-            }
+            },
+            "tier": 0
         },
         {
             "type": "prop",
@@ -730,7 +763,8 @@
                 "animate": true,
                 "child_dy": -16,
                 "type": "top"
-            }
+            },
+            "tier": 0
         },
         {
             "type": "prop",
@@ -749,7 +783,8 @@
                 "animate": true,
                 "child_dy": 0,
                 "type": "bottom"
-            }
+            },
+            "tier": 0
         },
         {
             "type": "prop",
@@ -768,7 +803,8 @@
                 "animate": true,
                 "child_dy": 0,
                 "type": "bottom"
-            }
+            },
+            "tier": 0
         },
         {
             "type": "prop",
@@ -787,7 +823,8 @@
                 "animate": true,
                 "child_dy": 0,
                 "type": "bottom"
-            }
+            },
+            "tier": 0
         },
         {
             "type": "prop",
@@ -806,7 +843,8 @@
                 "animate": true,
                 "child_dy": 0,
                 "type": "bottom"
-            }
+            },
+            "tier": 0
         },
         {
             "type": "prop",
@@ -825,7 +863,8 @@
                 "animate": true,
                 "child_dy": 0,
                 "type": "bottom"
-            }
+            },
+            "tier": 0
         },
         {
             "type": "prop",
@@ -844,7 +883,8 @@
                 "animate": true,
                 "child_dy": 0,
                 "type": "bottom"
-            }
+            },
+            "tier": 0
         },
         {
             "type": "prop",
@@ -863,7 +903,8 @@
                 "animate": true,
                 "child_dy": 0,
                 "type": "bottom"
-            }
+            },
+            "tier": 0
         },
         {
             "type": "prop",
@@ -882,7 +923,8 @@
                 "animate": true,
                 "child_dy": 0,
                 "type": "bottom"
-            }
+            },
+            "tier": 0
         },
         {
             "type": "prop",
@@ -901,7 +943,8 @@
                 "animate": true,
                 "child_dy": 0,
                 "type": "bottom"
-            }
+            },
+            "tier": 0
         },
         {
             "type": "prop",
@@ -920,7 +963,8 @@
                 "animate": false,
                 "child_dy": 0,
                 "type": "default"
-            }
+            },
+            "tier": 0
         },
         {
             "type": "prop",
@@ -939,7 +983,8 @@
                 "animate": false,
                 "child_dy": 0,
                 "type": "default"
-            }
+            },
+            "tier": 0
         },
         {
             "type": "prop",
@@ -958,7 +1003,8 @@
                 "animate": true,
                 "child_dy": 0,
                 "type": "default"
-            }
+            },
+            "tier": 0
         },
         {
             "type": "prop",
@@ -977,7 +1023,8 @@
                 "animate": true,
                 "child_dy": 0,
                 "type": "default"
-            }
+            },
+            "tier": 0
         },
         {
             "type": "prop",
@@ -996,7 +1043,8 @@
                 "animate": true,
                 "child_dy": 0,
                 "type": "default"
-            }
+            },
+            "tier": 0
         },
         {
             "type": "prop",
@@ -1015,7 +1063,8 @@
                 "animate": true,
                 "child_dy": 0,
                 "type": "bottom"
-            }
+            },
+            "tier": 0
         },
         {
             "type": "prop",
@@ -1034,7 +1083,8 @@
                 "animate": true,
                 "child_dy": 0,
                 "type": "top"
-            }
+            },
+            "tier": 0
         },
         {
             "type": "prop",
@@ -1053,7 +1103,8 @@
                 "animate": true,
                 "child_dy": 0,
                 "type": "top"
-            }
+            },
+            "tier": 0
         },
         {
             "type": "prop",
@@ -1072,7 +1123,8 @@
                 "animate": true,
                 "child_dy": 0,
                 "type": "top"
-            }
+            },
+            "tier": 0
         },
         {
             "type": "prop",
@@ -1091,7 +1143,8 @@
                 "animate": true,
                 "child_dy": 0,
                 "type": "top"
-            }
+            },
+            "tier": 0
         },
         {
             "type": "prop",
@@ -1110,7 +1163,8 @@
                 "animate": true,
                 "child_dy": 0,
                 "type": "top"
-            }
+            },
+            "tier": 0
         },
         {
             "type": "prop",
@@ -1129,7 +1183,8 @@
                 "animate": true,
                 "child_dy": 0,
                 "type": "top"
-            }
+            },
+            "tier": 0
         },
         {
             "type": "prop",
@@ -1148,7 +1203,8 @@
                 "animate": true,
                 "child_dy": 0,
                 "type": "top"
-            }
+            },
+            "tier": 0
         },
         {
             "type": "prop",
@@ -1167,7 +1223,8 @@
                 "animate": false,
                 "child_dy": 0,
                 "type": "top"
-            }
+            },
+            "tier": 0
         },
         {
             "type": "prop",
@@ -1186,7 +1243,8 @@
                 "animate": true,
                 "child_dy": 0,
                 "type": "default"
-            }
+            },
+            "tier": 0
         },
         {
             "type": "prop",
@@ -1205,7 +1263,8 @@
                 "animate": true,
                 "child_dy": 0,
                 "type": "default"
-            }
+            },
+            "tier": 0
         },
         {
             "type": "prop",
@@ -1224,7 +1283,8 @@
                 "animate": true,
                 "child_dy": 0,
                 "type": "default"
-            }
+            },
+            "tier": 0
         },
         {
             "type": "prop",
@@ -1243,7 +1303,8 @@
                 "animate": true,
                 "child_dy": 0,
                 "type": "default"
-            }
+            },
+            "tier": 0
         },
         {
             "type": "prop",
@@ -1262,7 +1323,8 @@
                 "animate": true,
                 "child_dy": 0,
                 "type": "default"
-            }
+            },
+            "tier": 0
         },
         {
             "type": "prop",
@@ -1281,7 +1343,8 @@
                 "animate": true,
                 "child_dy": 0,
                 "type": "default"
-            }
+            },
+            "tier": 0
         },
         {
             "type": "prop",
@@ -1300,7 +1363,8 @@
                 "animate": true,
                 "child_dy": 0,
                 "type": "default"
-            }
+            },
+            "tier": 0
         },
         {
             "type": "prop",
@@ -1319,7 +1383,8 @@
                 "animate": false,
                 "child_dy": 0,
                 "type": "default"
-            }
+            },
+            "tier": 0
         },
         {
             "type": "prop",
@@ -1338,7 +1403,8 @@
                 "animate": false,
                 "child_dy": 0,
                 "type": "default"
-            }
+            },
+            "tier": 0
         },
         {
             "type": "prop",
@@ -1357,7 +1423,8 @@
                 "animate": false,
                 "child_dy": 0,
                 "type": "default"
-            }
+            },
+            "tier": 0
         },
         {
             "type": "prop",
@@ -1376,7 +1443,8 @@
                 "animate": true,
                 "child_dy": 0,
                 "type": "default"
-            }
+            },
+            "tier": 0
         },
         {
             "type": "prop",
@@ -1395,7 +1463,8 @@
                 "animate": true,
                 "child_dy": 0,
                 "type": "default"
-            }
+            },
+            "tier": 0
         },
         {
             "type": "prop",
@@ -1414,7 +1483,8 @@
                 "animate": true,
                 "child_dy": 0,
                 "type": "default"
-            }
+            },
+            "tier": 0
         },
         {
             "type": "prop",
@@ -1433,7 +1503,8 @@
                 "animate": true,
                 "child_dy": 0,
                 "type": "default"
-            }
+            },
+            "tier": 0
         },
         {
             "type": "prop",
@@ -1452,7 +1523,8 @@
                 "animate": true,
                 "child_dy": 0,
                 "type": "default"
-            }
+            },
+            "tier": 0
         },
         {
             "type": "prop",
@@ -1471,7 +1543,8 @@
                 "animate": true,
                 "child_dy": 0,
                 "type": "default"
-            }
+            },
+            "tier": 0
         },
         {
             "type": "prop",
@@ -1490,7 +1563,8 @@
                 "animate": true,
                 "child_dy": 0,
                 "type": "top"
-            }
+            },
+            "tier": 0
         },
         {
             "type": "prop",
@@ -1509,7 +1583,8 @@
                 "animate": true,
                 "child_dy": 0,
                 "type": "default"
-            }
+            },
+            "tier": 0
         },
         {
             "type": "prop",
@@ -1528,7 +1603,8 @@
                 "animate": true,
                 "child_dy": 0,
                 "type": "top"
-            }
+            },
+            "tier": 0
         },
         {
             "type": "prop",
@@ -1547,7 +1623,8 @@
                 "animate": true,
                 "child_dy": 0,
                 "type": "top"
-            }
+            },
+            "tier": 0
         },
         {
             "type": "prop",
@@ -1566,7 +1643,8 @@
                 "animate": true,
                 "child_dy": 0,
                 "type": "top"
-            }
+            },
+            "tier": 0
         },
         {
             "type": "prop",
@@ -1585,7 +1663,8 @@
                 "animate": false,
                 "child_dy": 0,
                 "type": "default"
-            }
+            },
+            "tier": 0
         },
         {
             "type": "prop",
@@ -1604,7 +1683,8 @@
                 "animate": true,
                 "child_dy": 0,
                 "type": "default"
-            }
+            },
+            "tier": 0
         },
         {
             "type": "prop",
@@ -1623,7 +1703,8 @@
                 "animate": true,
                 "child_dy": -6,
                 "type": "top"
-            }
+            },
+            "tier": 0
         },
         {
             "type": "prop",
@@ -1642,6 +1723,25 @@
                 "animate": true,
                 "child_dy": 0,
                 "type": "default"
+            },
+            "tier": 0
+        },
+        {
+            "type": "tool",
+            "name": "toy_laser_pointer",
+            "display_name": "Laser Pointer",
+            "sprite": "null_sprite",
+            "icon": "icon_item_key_sprite",
+            "text": "",
+            "price": 10,
+            "id": 82,
+            "tier": 0,
+            "tool_data": {
+                "type": "toy",
+                "cursor": "cursor_remove_sprite",
+                "dv": 0,
+                "df": 0,
+                "ds": 0
             }
         }
     ]

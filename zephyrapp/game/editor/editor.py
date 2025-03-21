@@ -560,7 +560,8 @@ class DocumentRenderer:
 	def __render(doc, node):
 		imgui.separator();
 		
-		preview.render(doc.type, node["name"]);
+		if "name" in node:
+			preview.render(doc.type, node["name"]);
 
 		for key in node:
 			key_type = doc.schema.get_type(key);

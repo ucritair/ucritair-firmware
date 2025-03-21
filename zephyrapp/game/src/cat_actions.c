@@ -83,7 +83,7 @@ void action_tick()
 	}
 	else if(!action_confirmed)
 	{
-		if(tool_id == toy_puzzle_item)
+		if(tool_id == toy_laser_pointer_item)
 			CAT_machine_transition(CAT_MS_laser);
 			
 		control_cursor();
@@ -252,7 +252,14 @@ void CAT_MS_play(CAT_machine_signal signal)
 
 static CAT_vec2 laser_pos = {120, 180};
 static CAT_vec2 laser_dir = {0, 0};
-static float laser_speed = 0;
+static float laser_speed = 72.0f;
+static int play_timer_id = -1;
+enum
+{
+	SEEKING,
+	PLAYING,
+	BORED
+} laser_state = SEEKING;
 
 void CAT_MS_laser(CAT_machine_signal signal)
 {
@@ -261,8 +268,7 @@ void CAT_MS_laser(CAT_machine_signal signal)
 		case CAT_MACHINE_SIGNAL_ENTER:
 			CAT_set_render_callback(CAT_render_laser);
 			CAT_pet_settle();
-			
-			laser_speed = 72.0f;
+			play_timer_id = CAT_timer_init(CAT_rand_float(1.5f, 3.0f));
 		break;
 		case CAT_MACHINE_SIGNAL_TICK:
 			if(CAT_input_held(CAT_BUTTON_RIGHT, 0))
@@ -272,25 +278,37 @@ void CAT_MS_laser(CAT_machine_signal signal)
 			if(CAT_input_held(CAT_BUTTON_LEFT, 0))
 				laser_dir.x -= 1.0f;
 			if(CAT_input_held(CAT_BUTTON_DOWN, 0))
-				laser_dir.y += 1.0f;
-			
+				laser_dir.y += 1.0f;		
 			laser_pos = CAT_vec2_add(laser_pos, CAT_vec2_mul(laser_dir, laser_speed * CAT_get_delta_time()));
+			laser_dir = (CAT_vec2) {0, 0};
 
-			if(!CAT_animachine_is_in(&pet_asm, &AS_idle))
+			switch(laser_state)
 			{
-				if(CAT_pet_seek(laser_pos))
-				{
+				case SEEKING:
+					if(!CAT_animachine_is_in(&pet_asm, &AS_walk))
+							CAT_animachine_transition(&pet_asm, &AS_walk);
+					else if(CAT_pet_seek(laser_pos))
+						laser_state = PLAYING;
+				break;
+				case PLAYING:
 					if(!CAT_animachine_is_in(&pet_asm, &AS_play))
 						CAT_animachine_transition(&pet_asm, &AS_play);
-				}
-				else
-				{
-					if(!CAT_animachine_is_in(&pet_asm, &AS_walk))
-						CAT_animachine_transition(&pet_asm, &AS_walk);
-				}
+					if(CAT_timer_tick(play_timer_id))
+					{
+						CAT_timer_delete(play_timer_id);
+						play_timer_id = CAT_timer_init(CAT_rand_float(1.0f, 3.0f));
+						laser_state = BORED;
+					}
+					if(CAT_vec2_dist2(pet.pos, laser_pos) >= 16)
+						laser_state = SEEKING;
+				break;
+				case BORED:
+					if(!CAT_animachine_is_in(&pet_asm, &AS_crit))
+						CAT_animachine_transition(&pet_asm, &AS_crit);
+					if(CAT_vec2_dist2(pet.pos, laser_pos) >= 16)
+						laser_state = SEEKING;
+				break;
 			}
-
-			laser_dir = (CAT_vec2) {0, 0};
 		break;
 		case CAT_MACHINE_SIGNAL_EXIT:
 		break;
@@ -327,5 +345,6 @@ void CAT_render_laser()
 {
 	CAT_render_room();
 	
-	CAT_draw_queue_add(&null_sprite, 0, 0, laser_pos.x, laser_pos.y, CAT_DRAW_MODE_CENTER_X | CAT_DRAW_MODE_CENTER_Y);
+	CAT_item* item = CAT_item_get(toy_laser_pointer_item);
+	CAT_draw_queue_add(item->data.tool_data.cursor, 0, 0, laser_pos.x, laser_pos.y, CAT_DRAW_MODE_CENTER_X | CAT_DRAW_MODE_CENTER_Y);
 }

@@ -82,3 +82,4 @@
 #define prop_plant_corn_item 79
 #define prop_chicken_item 80
 #define prop_mine_item 81
+#define toy_laser_pointer_item 82
