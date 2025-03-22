@@ -32,14 +32,9 @@ void CAT_gui_set_flag(CAT_gui_flag flag)
 	gui.flags |= (1 << flag);
 }
 
-bool flag_is_set(CAT_gui_flag field, CAT_gui_flag flag)
-{
-	return (field & (1 << flag)) > 0;
-}
-
 bool CAT_gui_consume_flag(CAT_gui_flag flag)
 {
-	bool value =  flag_is_set(gui.flags, flag);
+	bool value = (gui.flags & (1 << flag)) > 0;
 	gui.flags &= ~(1 << flag);
 	return value;
 }
@@ -459,7 +454,9 @@ typedef struct menu_node
 
 	const char* title;
 	bool selected;
-	CAT_gui_flag flags;
+	
+	bool togglable;
+	bool toggle;
 
 	int parent;
 	uint16_t children[32];
@@ -485,8 +482,9 @@ uint16_t register_menu_node(const char* title)
 	{
 		.live = true,
 		.title = title,
-		.flags = CAT_GUI_DEFAULT,
 		.selected = false,
+		.togglable = false,
+		.toggle = false,
 		.parent = -1,
 		.child_count = 0,
 		.selector = 0
@@ -594,10 +592,19 @@ bool CAT_gui_menu_item(const char* title)
 		idx = register_menu_node(title);
 	menu_add_child(idx);
 
+	menu_table[idx].togglable = false;
+	menu_table[idx].toggle = false;
+
 	bool selected = menu_table[idx].selected;
 	menu_table[idx].selected = false;
-	menu_table[idx].flags = CAT_gui_clear_flags();
 	return selected;
+}
+
+void CAT_gui_menu_toggle(bool toggle)
+{
+	menu_node* head = &menu_table[menu_stack[menu_stack_length-1]];
+	menu_table[head->children[head->child_count-1]].togglable = true;
+	menu_table[head->children[head->child_count-1]].toggle = toggle;
 }
 
 void CAT_gui_end_menu()
@@ -645,9 +652,9 @@ void CAT_gui_menu()
 		menu_node* child = &menu_table[head->children[i]];
 
 		CAT_gui_textf("\1 %s ", child->title);
-		if(flag_is_set(child->flags, CAT_GUI_MENU_HIGHLIGHTABLE))
+		if(child->togglable)
 		{
-			CAT_gui_image(&icon_equip_sprite, flag_is_set(child->flags, CAT_GUI_MENU_HIGHLIGHTED));
+			CAT_gui_image(&icon_equip_sprite, child->toggle);
 			CAT_gui_text(" ");
 		}
 		if(i == head->selector)

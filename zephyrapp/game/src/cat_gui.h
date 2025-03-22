@@ -22,9 +22,7 @@ typedef enum CAT_gui_flag
 	CAT_GUI_PANEL_TIGHT,
 	CAT_GUI_ITEM_LIST_COUNT,
 	CAT_GUI_ITEM_LIST_PRICE,
-	CAT_GUI_ITEM_LIST_COINS,
-	CAT_GUI_MENU_HIGHLIGHTABLE,
-	CAT_GUI_MENU_HIGHLIGHTED
+	CAT_GUI_ITEM_LIST_COINS
 } CAT_gui_flag;
 
 void CAT_gui_set_flag(CAT_gui_flag flag);
@@ -75,6 +73,7 @@ bool CAT_gui_popup_is_open();
 bool CAT_gui_begin_menu(const char* title);
 bool CAT_gui_menu_is_open();
 bool CAT_gui_menu_item(const char* title);
+void CAT_gui_menu_toggle(bool toggle);
 void CAT_gui_end_menu();
 
 

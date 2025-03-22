@@ -50,10 +50,14 @@ void CAT_MS_menu(CAT_machine_signal signal)
 					CAT_machine_transition(CAT_MS_arcade);
 				if(CAT_gui_menu_item("MAGIC"))
 					CAT_machine_transition(CAT_MS_magic);
-#ifdef CAT_EMBEDDED
 				if(CAT_gui_menu_item("AIR QUALITY"))
+				{
+#ifdef CAT_EMBEDDED	
 					CAT_machine_transition(CAT_MS_aqi);
 #endif
+				}
+				if(CAT_gui_menu_item("MANUAL"))
+					CAT_machine_transition(CAT_MS_manual);
 #ifdef CAT_DEBUG
 				if(CAT_gui_menu_item("DEBUG"))
 					CAT_machine_transition(CAT_MS_debug);
@@ -105,12 +109,10 @@ void CAT_MS_menu(CAT_machine_signal signal)
 						if(CAT_gui_begin_menu("ROOM THEME"))
 						{
 							for(int i = 0; i < THEME_COUNT; i++)
-							{
-								CAT_gui_set_flag(CAT_GUI_MENU_HIGHLIGHTABLE);
-								if(room.theme == themes_list[i])
-									CAT_gui_set_flag(CAT_GUI_MENU_HIGHLIGHTED);
+							{		
 								if(CAT_gui_menu_item(themes_list[i]->name))
 									room.theme = themes_list[i];
+								CAT_gui_menu_toggle(themes_list[i] == room.theme);
 							}
 							CAT_gui_end_menu();
 						}
@@ -124,26 +126,31 @@ void CAT_MS_menu(CAT_machine_signal signal)
 					}
 					if(CAT_gui_begin_menu("DANGER ZONE"))
 					{
-						static bool factory_reset = false;
+						static bool confirm_reset = false;
 						if(CAT_gui_menu_item("RESET SAVE"))
-							CAT_gui_open_popup("Are you sure?\nThis will delete all\ngame data!\n\n", &factory_reset);
-						if(factory_reset)
+							CAT_gui_open_popup("Are you sure?\nThis will delete all\ngame data!\n\n", &confirm_reset);
+						if(confirm_reset)
 						{
+							confirm_reset = false;
 							CAT_factory_reset();
-							factory_reset = false;
 						}
 						CAT_gui_end_menu();
 					}
 					CAT_gui_end_menu();
 				}
-				if(CAT_gui_menu_item("MANUAL"))
-					CAT_machine_transition(CAT_MS_manual);
 				if(CAT_gui_begin_menu("POWER"))
 				{
 					if(CAT_gui_menu_item("SLEEP"))
 						CAT_sleep();
+
+					static bool confirm_shutdown = false;
 					if(CAT_gui_menu_item("SHUTDOWN"))
+						CAT_gui_open_popup("Are you sure?\nThis will delete all\ngame data!\n\n", &confirm_shutdown);
+					if(confirm_shutdown)
+					{
+						confirm_shutdown = false;
 						CAT_shutdown();
+					}
 					CAT_gui_end_menu();
 				}
 				CAT_gui_end_menu();
