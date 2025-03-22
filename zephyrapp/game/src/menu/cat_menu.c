@@ -55,7 +55,7 @@ void CAT_MS_menu(CAT_machine_signal signal)
 					CAT_machine_transition(CAT_MS_aqi);
 #endif
 #ifdef CAT_DEBUG
-				if(CAT_gui_menu_item("DEBUG DASHBOARD"))
+				if(CAT_gui_menu_item("DEBUG"))
 					CAT_machine_transition(CAT_MS_debug);
 				if(CAT_gui_begin_menu("CHEATS"))
 				{
@@ -108,7 +108,7 @@ void CAT_MS_menu(CAT_machine_signal signal)
 							{
 								CAT_gui_set_flag(CAT_GUI_MENU_HIGHLIGHTABLE);
 								if(room.theme == themes_list[i])
-								CAT_gui_set_flag(CAT_GUI_MENU_HIGHLIGHTED);
+									CAT_gui_set_flag(CAT_GUI_MENU_HIGHLIGHTED);
 								if(CAT_gui_menu_item(themes_list[i]->name))
 									room.theme = themes_list[i];
 							}
