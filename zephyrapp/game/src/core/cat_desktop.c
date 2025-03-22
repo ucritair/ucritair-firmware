@@ -97,7 +97,7 @@ void CAT_platform_init()
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
-	simulator.window = glfwCreateWindow(LCD_SCREEN_W, LCD_SCREEN_H, "μCritAir", NULL, NULL);
+	simulator.window = glfwCreateWindow(CAT_LCD_SCREEN_W, CAT_LCD_SCREEN_H, "μCritAir", NULL, NULL);
 	if(simulator.window == NULL)
 	{
 		CAT_printf("Failed to create window\n");
@@ -137,7 +137,7 @@ void CAT_platform_init()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, LCD_SCREEN_W, LCD_SCREEN_H, 0, GL_RGB, GL_UNSIGNED_SHORT_5_6_5, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, CAT_LCD_SCREEN_W, CAT_LCD_SCREEN_H, 0, GL_RGB, GL_UNSIGNED_SHORT_5_6_5, NULL);
 	glGenerateMipmap(GL_TEXTURE_2D);
 
 	FILE* vert_file = fopen("shaders/cat.vert", "r");
@@ -187,7 +187,7 @@ void CAT_platform_cleanup()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // LCD SCREEN
 
-static uint16_t lcd_framebuffer[LCD_FRAMEBUFFER_PIXELS];
+static uint16_t lcd_framebuffer[CAT_LCD_FRAMEBUFFER_PIXELS];
 static int render_cycle = 0;
 
 uint16_t* CAT_LCD_get_framebuffer()
@@ -201,8 +201,8 @@ void CAT_LCD_post()
 	glTexSubImage2D
 	(
 		GL_TEXTURE_2D, 0,
-		0, LCD_FRAMEBUFFER_H * render_cycle,
-		LCD_SCREEN_W, LCD_FRAMEBUFFER_H,
+		0, CAT_LCD_FRAMEBUFFER_H * render_cycle,
+		CAT_LCD_SCREEN_W, CAT_LCD_FRAMEBUFFER_H,
 		GL_RGB, GL_UNSIGNED_SHORT_5_6_5,
 		lcd_framebuffer
 	);
@@ -256,7 +256,7 @@ bool CAT_is_first_render_cycle()
 
 bool CAT_is_last_render_cycle()
 {
-	return render_cycle == LCD_FRAMEBUFFER_SEGMENTS-1;
+	return render_cycle == CAT_LCD_FRAMEBUFFER_SEGMENTS-1;
 }
 
 
@@ -420,7 +420,7 @@ void CAT_finish_load()
 	CAT_printf("Load done!\n");
 }
 
-int CAT_get_flash_size(int* size);
+/*int CAT_get_flash_size(int* size);
 int CAT_load_flash(uint8_t* target, uint8_t** start, uint8_t** end);
 bool CAT_did_post_flash();
 
@@ -430,7 +430,7 @@ void CAT_get_log_cell(int idx, CAT_log_cell* out);
 void CAT_populate_log_cell(CAT_log_cell* cell);
 
 bool CAT_log_is_ready();
-void CAT_write_log();
+void CAT_write_log();*/
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

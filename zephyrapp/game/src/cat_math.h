@@ -6,6 +6,10 @@
 //////////////////////////////////////////////////////////////////////////
 // BASICS
 
+#ifndef M_PI
+#define M_PI 3.14159265359
+#endif
+
 int min(int a, int b);
 int max(int a, int b);
 int clamp(int v, int a, int b);

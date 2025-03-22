@@ -14,11 +14,11 @@ void CAT_greenberry(int xi, int w, int yi, int h, float t)
 	int xf = xi + w * t;
 	int yf = yi + h;
 
-	if (yi > LCD_FRAMEBUFFER_H || yf < 0)
+	if (yi > CAT_LCD_FRAMEBUFFER_H || yf < 0)
 		return;
 
-	if (yf >= LCD_FRAMEBUFFER_H)
-		yf = LCD_FRAMEBUFFER_H-1;
+	if (yf >= CAT_LCD_FRAMEBUFFER_H)
+		yf = CAT_LCD_FRAMEBUFFER_H-1;
 
 	if (yi < 0)
 		yi = 0;
@@ -27,7 +27,7 @@ void CAT_greenberry(int xi, int w, int yi, int h, float t)
 	{
 		for(int x = xi; x < xf; x++)
 		{
-			int idx = y * LCD_FRAMEBUFFER_W + x;
+			int idx = y * CAT_LCD_FRAMEBUFFER_W + x;
 			// r4 r3 r2 r1 r0 g5 g4 g3     g2 g1 g0 b4 b3 b2 b1 b0
 			// g2 g1 g0 b4 b3 b2 b1 b0     r4 r3 r2 r1 r0 g5 g4 g3
 			uint16_t px = framebuffer[idx];
@@ -45,7 +45,7 @@ void CAT_frameberry(uint16_t c)
 	uint16_t* framebuffer = CAT_LCD_get_framebuffer();
 
 	uint16_t* px = framebuffer;
-	uint16_t* end = framebuffer + LCD_FRAMEBUFFER_W * LCD_FRAMEBUFFER_H;
+	uint16_t* end = framebuffer + CAT_LCD_FRAMEBUFFER_W * CAT_LCD_FRAMEBUFFER_H;
 	while(px != end)
 	{
 		*(px++) = c;
@@ -62,11 +62,11 @@ void CAT_greyberry(int xi, int w, int yi, int h)
 	int xf = xi + w;
 	int yf = yi + h;
 
-	if (yi > LCD_FRAMEBUFFER_H || yf < 0)
+	if (yi > CAT_LCD_FRAMEBUFFER_H || yf < 0)
 		return;
 
-	if (yf > LCD_FRAMEBUFFER_H)
-		yf = LCD_FRAMEBUFFER_H;
+	if (yf > CAT_LCD_FRAMEBUFFER_H)
+		yf = CAT_LCD_FRAMEBUFFER_H;
 
 	if (yi < 0)
 		yi = 0;
@@ -75,7 +75,7 @@ void CAT_greyberry(int xi, int w, int yi, int h)
 	{
 		for(int x = xi; x < xf; x++)
 		{
-			int idx = y * LCD_FRAMEBUFFER_W + x;
+			int idx = y * CAT_LCD_FRAMEBUFFER_W + x;
 			// r4 r3 r2 r1 r0 g5 g4 g3     g2 g1 g0 b4 b3 b2 b1 b0
 			// g2 g1 g0 b4 b3 b2 b1 b0     r4 r3 r2 r1 r0 g5 g4 g3
 			uint16_t px = framebuffer[idx];
@@ -135,8 +135,8 @@ void CAT_lineberry(int xi, int yi, int xf, int yf, uint16_t c)
 		for(int x = xi; x < xf; x++)
 		{
 			int xw = x - FRAMEBUFFER_ROW_OFFSET;
-			if(y >= 0 && y < LCD_FRAMEBUFFER_W && xw >= 0 && xw < LCD_FRAMEBUFFER_H)
-				framebuffer[xw * LCD_FRAMEBUFFER_W + y] = c;
+			if(y >= 0 && y < CAT_LCD_FRAMEBUFFER_W && xw >= 0 && xw < CAT_LCD_FRAMEBUFFER_H)
+				framebuffer[xw * CAT_LCD_FRAMEBUFFER_W + y] = c;
 
 			err += d_err;
 			if(err > dx)
@@ -151,8 +151,8 @@ void CAT_lineberry(int xi, int yi, int xf, int yf, uint16_t c)
 		for(int x = xi; x < xf; x++)
 		{
 			int yw = y - FRAMEBUFFER_ROW_OFFSET;
-			if(x >= 0 && x < LCD_FRAMEBUFFER_W && yw >= 0 && yw < LCD_FRAMEBUFFER_H)
-				framebuffer[yw * LCD_FRAMEBUFFER_W + x] = c;
+			if(x >= 0 && x < CAT_LCD_FRAMEBUFFER_W && yw >= 0 && yw < CAT_LCD_FRAMEBUFFER_H)
+				framebuffer[yw * CAT_LCD_FRAMEBUFFER_W + x] = c;
 
 			err += d_err;
 			if(err > dx)
@@ -169,17 +169,17 @@ void CAT_fillberry(int xi, int yi, int w, int h, uint16_t c)
 	c = ADAPT_DESKTOP_COLOUR(c);
 	uint16_t* framebuffer = CAT_LCD_get_framebuffer();
 
-	int xf = clamp(xi + w, 0, LCD_FRAMEBUFFER_W);
-	xi = clamp(xi, 0, LCD_FRAMEBUFFER_W);
+	int xf = clamp(xi + w, 0, CAT_LCD_FRAMEBUFFER_W);
+	xi = clamp(xi, 0, CAT_LCD_FRAMEBUFFER_W);
 	yi -= FRAMEBUFFER_ROW_OFFSET;
-	int yf = clamp(yi + h, 0, LCD_FRAMEBUFFER_H);
-	yi = clamp(yi, 0, LCD_FRAMEBUFFER_H);
+	int yf = clamp(yi + h, 0, CAT_LCD_FRAMEBUFFER_H);
+	yi = clamp(yi, 0, CAT_LCD_FRAMEBUFFER_H);
 
 	for(int y = yi; y < yf; y++)
 	{
 		for(int x = xi; x < xf; x++)
 		{
-			framebuffer[y * LCD_FRAMEBUFFER_W + x] = c;
+			framebuffer[y * CAT_LCD_FRAMEBUFFER_W + x] = c;
 		}
 	}
 }
@@ -193,37 +193,37 @@ void CAT_strokeberry(int xi, int yi, int w, int h, uint16_t c)
 	yi -= FRAMEBUFFER_ROW_OFFSET;
 	int yf = yi + h;
 	
-	if(yi >= 0 && yi < LCD_FRAMEBUFFER_H)
+	if(yi >= 0 && yi < CAT_LCD_FRAMEBUFFER_H)
 	{
 		for(int x = xi; x < xf; x++)
 		{
-			if(x >= 0 && x < LCD_FRAMEBUFFER_W)
-				framebuffer[yi * LCD_FRAMEBUFFER_W + x] = c;	
+			if(x >= 0 && x < CAT_LCD_FRAMEBUFFER_W)
+				framebuffer[yi * CAT_LCD_FRAMEBUFFER_W + x] = c;	
 		}
 	}
-	if(yf > 0 && yf <= LCD_FRAMEBUFFER_H)
+	if(yf > 0 && yf <= CAT_LCD_FRAMEBUFFER_H)
 	{
 		for(int x = xi; x < xf; x++)
 		{
-			if(x >= 0 && x < LCD_FRAMEBUFFER_W)
-				framebuffer[(yf-1) * LCD_FRAMEBUFFER_W + x] = c;	
+			if(x >= 0 && x < CAT_LCD_FRAMEBUFFER_W)
+				framebuffer[(yf-1) * CAT_LCD_FRAMEBUFFER_W + x] = c;	
 		}
 	}
 
-	if(xi >= 0 && xi < LCD_FRAMEBUFFER_W)
+	if(xi >= 0 && xi < CAT_LCD_FRAMEBUFFER_W)
 	{
 		for(int y = yi; y < yf; y++)
 		{
-			if(y >= 0 && y < LCD_FRAMEBUFFER_H)
-				framebuffer[y * LCD_FRAMEBUFFER_W + xi] = c;
+			if(y >= 0 && y < CAT_LCD_FRAMEBUFFER_H)
+				framebuffer[y * CAT_LCD_FRAMEBUFFER_W + xi] = c;
 		}
 	}
-	if(xf > 0 && xf <= LCD_FRAMEBUFFER_W)
+	if(xf > 0 && xf <= CAT_LCD_FRAMEBUFFER_W)
 	{
 		for(int y = yi; y < yf; y++)
 		{
-			if(y >= 0 && y < LCD_FRAMEBUFFER_H)
-				framebuffer[y * LCD_FRAMEBUFFER_W + (xf-1)] = c;
+			if(y >= 0 && y < CAT_LCD_FRAMEBUFFER_H)
+				framebuffer[y * CAT_LCD_FRAMEBUFFER_W + (xf-1)] = c;
 		}
 	}
 }
@@ -233,14 +233,14 @@ void CAT_rowberry(int x, int y, int w, uint16_t c)
 	c = ADAPT_DESKTOP_COLOUR(c);
 	uint16_t* framebuffer = CAT_LCD_get_framebuffer();
 
-	int xf = clamp(x+w, 0, LCD_FRAMEBUFFER_W);
+	int xf = clamp(x+w, 0, CAT_LCD_FRAMEBUFFER_W);
 	y -= FRAMEBUFFER_ROW_OFFSET;
 
-	if(y >= 0 && y < LCD_FRAMEBUFFER_H)
+	if(y >= 0 && y < CAT_LCD_FRAMEBUFFER_H)
 	{
 		for(int xw = x; xw < xf; xw++)
 		{
-			framebuffer[y * LCD_FRAMEBUFFER_W + xw] = c;
+			framebuffer[y * CAT_LCD_FRAMEBUFFER_W + xw] = c;
 		}
 	}
 }

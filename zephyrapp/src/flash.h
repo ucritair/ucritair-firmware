@@ -50,3 +50,4 @@ float get_hours_of_logging_at_rate(int rate);
 
 void flash_save_tomas_save(uint8_t* buf, size_t size);
 void flash_load_tomas_save(uint8_t* buf, size_t size);
+void flash_nuke_tomas_save();

@@ -149,13 +149,13 @@ void CAT_gui_div(const char* text)
 	gui_open_channel(CAT_TILE_SIZE);
 	if(strlen(text) == 0)
 	{
-		CAT_rowberry(0, gui.cursor.y, LCD_FRAMEBUFFER_W, 0x0000);
+		CAT_rowberry(0, gui.cursor.y, CAT_LCD_SCREEN_W, 0x0000);
 	}
 	else
 	{
 		CAT_gui_text(text);
 		int start = gui.cursor.x + gui.pad;
-		CAT_rowberry(start, gui.cursor.y, LCD_FRAMEBUFFER_W-start-gui.margin, 0x0000);
+		CAT_rowberry(start, gui.cursor.y, CAT_LCD_SCREEN_W-start-gui.margin, 0x0000);
 	}
 	CAT_gui_line_break();
 }
@@ -173,7 +173,7 @@ void CAT_gui_textf(const char* fmt, ...)
 void CAT_gui_title(bool tabs, const CAT_sprite* a_action, const CAT_sprite* b_action, const char* fmt, ...)
 {
 	CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});
-	CAT_rowberry(0, 31, LCD_FRAMEBUFFER_W, 0x0000);
+	CAT_rowberry(0, 31, CAT_LCD_SCREEN_W, 0x0000);
 	
 	if(tabs)
 		CAT_gui_text("< ");
@@ -341,7 +341,7 @@ void CAT_gui_keyboard_io()
 void CAT_gui_keyboard()
 {	
 	CAT_gui_panel((CAT_ivec2){0, 10}, (CAT_ivec2){15, 10});
-	CAT_rowberry(0, 160, LCD_SCREEN_W, 0x0000);
+	CAT_rowberry(0, 160, CAT_LCD_SCREEN_W, 0x0000);
 	CAT_gui_text(keyboard.buffer);
 	if(keyboard.show_cursor)
 		CAT_gui_text("|");
@@ -776,7 +776,7 @@ void CAT_gui_item_list()
 		CAT_gui_set_flag(CAT_GUI_PANEL_TIGHT);
 		CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 2});
 		CAT_gui_image(&icon_coin_sprite, 0);
-		CAT_rowberry(0, (2*2)*16-1, LCD_SCREEN_W, 0x0000);
+		CAT_rowberry(0, (2*2)*16-1, CAT_LCD_SCREEN_W, 0x0000);
 		CAT_gui_textf(" %d", coins);
 		CAT_gui_panel((CAT_ivec2) {0, 4}, (CAT_ivec2) {15, 16}); 
 	}
@@ -805,7 +805,7 @@ void CAT_gui_item_list()
 		
 		CAT_gui_set_flag(CAT_GUI_PANEL_TIGHT);
 		CAT_gui_panel((CAT_ivec2) {0, tile_row_offset+display_idx*2}, (CAT_ivec2) {15, 2});
-		CAT_rowberry(0, (tile_row_offset+display_idx*2+2)*16-1, LCD_SCREEN_W, 0x0000);
+		CAT_rowberry(0, (tile_row_offset+display_idx*2+2)*16-1, CAT_LCD_SCREEN_W, 0x0000);
 		CAT_gui_image(item->icon, 0);
 		
 		ilstart();
@@ -821,8 +821,8 @@ void CAT_gui_item_list()
 			CAT_gui_image(&icon_pointer_sprite, 0);
 
 		if(item_list_greyout_mask[list_idx])
-			CAT_greyberry(0, LCD_SCREEN_W, (tile_row_offset+display_idx*2)*16, 32);
-		CAT_greenberry(0, LCD_SCREEN_W, (tile_row_offset+display_idx*2)*16, 32, item_list_highlight_mask[list_idx]);
+			CAT_greyberry(0, CAT_LCD_SCREEN_W, (tile_row_offset+display_idx*2)*16, 32);
+		CAT_greenberry(0, CAT_LCD_SCREEN_H, (tile_row_offset+display_idx*2)*16, 32, item_list_highlight_mask[list_idx]);
 	}
 
 	if(CAT_is_last_render_cycle())

@@ -25,12 +25,12 @@ void CAT_draw_sprite(const CAT_sprite* sprite, int frame_idx, int x, int y)
 
 	y -= FRAMEBUFFER_ROW_OFFSET;
 	int y_f = y + h;
-	if (y >= LCD_FRAMEBUFFER_H)
+	if (y >= CAT_LCD_FRAMEBUFFER_H)
 		return;
 	if (y_f < 0)
 		return;
-	if (y_f > LCD_FRAMEBUFFER_H)
-		y_f = LCD_FRAMEBUFFER_H;
+	if (y_f > CAT_LCD_FRAMEBUFFER_H)
+		y_f = CAT_LCD_FRAMEBUFFER_H;
 
 	const uint8_t* frame = sprite->frames[frame_idx];
 	int run_idx = 0;
@@ -55,10 +55,10 @@ void CAT_draw_sprite(const CAT_sprite* sprite, int frame_idx, int x, int y)
 			if
 			(
 				colour_565 != 0xdead &&
-				y >= 0 && x_w >= 0 && x_w < LCD_FRAMEBUFFER_W
+				y >= 0 && x_w >= 0 && x_w < CAT_LCD_FRAMEBUFFER_W
 			)
 			{
-				int px_idx = y * LCD_FRAMEBUFFER_W + x_w;
+				int px_idx = y * CAT_LCD_FRAMEBUFFER_W + x_w;
 				framebuffer[px_idx] = colour_565;
 			}
 			

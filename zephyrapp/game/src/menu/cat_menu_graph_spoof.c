@@ -9,11 +9,12 @@
 #include "cat_actions.h"
 #include "cat_bag.h"
 #include "cat_render.h"
+#include "cat_core.h"
 #include <math.h>
 
 #define GRAPH_PAD 6
 #define GRAPH_MARGIN 2
-#define GRAPH_WIDTH (LCD_FRAMEBUFFER_W-(GRAPH_PAD*2)-(GRAPH_MARGIN*2))
+#define GRAPH_WIDTH (CAT_LCD_SCREEN_W-(GRAPH_PAD*2)-(GRAPH_MARGIN*2))
 #define GRAPH_HEIGHT 120
 
 static enum 

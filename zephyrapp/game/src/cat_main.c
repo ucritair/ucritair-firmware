@@ -371,7 +371,7 @@ int main(int argc, char** argv)
 	{
 		CAT_tick_logic();
 		
-		for(int render_cycle = 0; render_cycle < LCD_FRAMEBUFFER_SEGMENTS; render_cycle++)
+		for(int render_cycle = 0; render_cycle < CAT_LCD_FRAMEBUFFER_SEGMENTS; render_cycle++)
 		{
 			CAT_set_render_cycle(render_cycle);
 			CAT_tick_render();

@@ -39,8 +39,8 @@ static int enemy_count;
 void spawn()
 {
 	enemy_id[enemy_count] = enemy_count;
-	enemy_x[enemy_count] = CAT_rand_int(0, LCD_FRAMEBUFFER_W-1);
-	enemy_y[enemy_count] = CAT_rand_int(0, LCD_FRAMEBUFFER_H-1);
+	enemy_x[enemy_count] = CAT_rand_int(0, CAT_LCD_SCREEN_W-1);
+	enemy_y[enemy_count] = CAT_rand_int(0, CAT_LCD_SCREEN_H-1);
 	enemy_dx[enemy_count] = CAT_rand_float(-SPEED * 0.5f, SPEED * 0.5f);
 	enemy_dy[enemy_count] = CAT_rand_float(-SPEED * 0.5f, SPEED * 0.5f);
 	enemy_status[enemy_count] = ALIVE;
@@ -148,7 +148,7 @@ void CAT_MS_crawl(CAT_machine_signal signal)
 				enemy_x[i] += enemy_dx[i] * CAT_get_delta_time();
 				enemy_y[i] += enemy_dy[i] * CAT_get_delta_time();
 
-				if(enemy_x[i] < -32 || enemy_x[i] >= LCD_FRAMEBUFFER_W + 32 || enemy_y[i] < -32 || enemy_y[i] >= LCD_FRAMEBUFFER_H + 32)
+				if(enemy_x[i] < -32 || enemy_x[i] >= CAT_LCD_SCREEN_W + 32 || enemy_y[i] < -32 || enemy_y[i] >= CAT_LCD_SCREEN_H + 32)
 				{
 					kill(i);
 					spawn();

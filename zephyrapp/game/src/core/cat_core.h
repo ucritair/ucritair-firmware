@@ -16,13 +16,13 @@ void CAT_platform_cleanup();
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // LCD SCREEN
 
-#define LCD_SCREEN_W 240
-#define LCD_SCREEN_H 320
+#define CAT_LCD_SCREEN_W 240
+#define CAT_LCD_SCREEN_H 320
 
-#define LCD_FRAMEBUFFER_SEGMENTS 2
-#define LCD_FRAMEBUFFER_W LCD_SCREEN_W
-#define LCD_FRAMEBUFFER_H (LCD_SCREEN_H / LCD_FRAMEBUFFER_SEGMENTS)
-#define LCD_FRAMEBUFFER_PIXELS (LCD_FRAMEBUFFER_W * LCD_FRAMEBUFFER_H)
+#define CAT_LCD_FRAMEBUFFER_SEGMENTS 2
+#define CAT_LCD_FRAMEBUFFER_W CAT_LCD_SCREEN_W
+#define CAT_LCD_FRAMEBUFFER_H (CAT_LCD_SCREEN_H / CAT_LCD_FRAMEBUFFER_SEGMENTS)
+#define CAT_LCD_FRAMEBUFFER_PIXELS (CAT_LCD_FRAMEBUFFER_W * CAT_LCD_FRAMEBUFFER_H)
 
 uint16_t* CAT_LCD_get_framebuffer();
 void CAT_LCD_post();
@@ -159,7 +159,7 @@ static inline bool CAT_check_save(CAT_save* save)
 	return save->magic_number == CAT_SAVE_MAGIC;
 }
 
-typedef enum CAT_log_flags
+/*typedef enum CAT_log_flags
 {
 	CAT_LOG_TEMP_RH_PARTICLES_BIT = 1,
 	CAT_LOG_CO2_BIT = 2
@@ -195,7 +195,7 @@ void CAT_get_log_cell(int idx, CAT_log_cell* out);
 void CAT_populate_log_cell(CAT_log_cell* cell);
 
 bool CAT_log_is_ready();
-void CAT_write_log();
+void CAT_write_log();*/
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

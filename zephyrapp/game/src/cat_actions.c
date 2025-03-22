@@ -271,6 +271,9 @@ void CAT_MS_laser(CAT_machine_signal signal)
 			play_timer_id = CAT_timer_init(CAT_rand_float(1.5f, 3.0f));
 		break;
 		case CAT_MACHINE_SIGNAL_TICK:
+			if(CAT_input_pressed(CAT_BUTTON_B))
+				CAT_machine_transition(CAT_MS_room);
+
 			if(CAT_input_held(CAT_BUTTON_RIGHT, 0))
 				laser_dir.x += 1.0f;
 			if(CAT_input_held(CAT_BUTTON_UP, 0))

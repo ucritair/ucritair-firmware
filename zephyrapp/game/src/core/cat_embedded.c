@@ -224,7 +224,7 @@ void CAT_finish_load()
 	// no-op
 }
 
-int CAT_get_flash_size(int* size)
+/*int CAT_get_flash_size(int* size)
 {
 	return flash_get_nrf70_fw_size(size);
 }
@@ -267,7 +267,7 @@ bool CAT_log_is_ready()
 void CAT_write_log()
 {
 	do_aqi_log();
-}
+}*/
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // POWER

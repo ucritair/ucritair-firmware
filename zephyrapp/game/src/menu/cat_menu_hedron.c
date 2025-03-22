@@ -37,33 +37,33 @@ void CAT_MS_hedron(CAT_machine_signal signal)
 			float ty = CAT_vec4_dot(eye, up);
 			float tz = CAT_vec4_dot(eye, forward);
 			V = (CAT_mat4)
-			{
+			{{
 				right.x, right.y, right.z, -tx,
 				up.x, up.y, up.z, -ty,
 				forward.x, forward.y, forward.z, -tz,
 				0, 0, 0, 1
-			};
+			}};
 
 			float n = 0.01f;
 			float f = 100.0f;
 			float hfov = 1.57079632679 * 0.5f;
 			float width = 2 * n * tan(hfov / 2);
-			float asp = ((float) LCD_SCREEN_W / (float) LCD_SCREEN_H);
+			float asp = ((float) CAT_LCD_SCREEN_W / (float) CAT_LCD_SCREEN_H);
 			float height = width / asp;
 			P = (CAT_mat4)
-			{
+			{{
 				2 * n / width, 0, 0, 0,
 				0, -2 * n / height, 0, 0,
 				0, 0, -f/(f-n), -f*n/(f-n),
 				0, 0, -1, 0
-			};
+			}};
 
 			PV = CAT_matmul(P, V);
 
 			S = (CAT_mat4)
 			{
-				LCD_SCREEN_W / 2, 0, 0, LCD_SCREEN_W / 2,
-				0, LCD_SCREEN_H / 2, 0, LCD_SCREEN_H / 2,
+				CAT_LCD_SCREEN_W / 2, 0, 0, CAT_LCD_SCREEN_W / 2,
+				0, CAT_LCD_SCREEN_H / 2, 0, CAT_LCD_SCREEN_H / 2,
 				0, 0, 1, 0,
 				0, 0, 0, 1
 			};

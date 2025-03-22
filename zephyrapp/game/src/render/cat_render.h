@@ -18,7 +18,7 @@
 #define RGB5652BGR565(c) ((c >> 8) | ((c & 0xff) << 8))
 
 #ifdef CAT_DESKTOP
-#define FRAMEBUFFER_ROW_OFFSET (CAT_get_render_cycle() * LCD_FRAMEBUFFER_H)
+#define FRAMEBUFFER_ROW_OFFSET (CAT_get_render_cycle() * CAT_LCD_FRAMEBUFFER_H)
 
 #define ADAPT_DESKTOP_COLOUR(c) c
 #define ADAPT_EMBEDDED_COLOUR(c) RGB5652BGR565(c)
