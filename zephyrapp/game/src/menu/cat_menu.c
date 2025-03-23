@@ -61,42 +61,8 @@ void CAT_MS_menu(CAT_machine_signal signal)
 #ifdef CAT_DEBUG
 				if(CAT_gui_menu_item("DEBUG"))
 					CAT_machine_transition(CAT_MS_debug);
-				if(CAT_gui_begin_menu("CHEATS"))
-				{
-					if(CAT_gui_menu_item("+ 1000 COINS"))
-						coins += 1000;
-					if(CAT_gui_menu_item("BASE STATS"))
-					{
-						pet.vigour = 9;
-						pet.focus = 9;
-						pet.spirit = 9;
-					}
-					if(CAT_gui_menu_item("MAX STATS"))
-					{
-						pet.vigour = 12;
-						pet.focus = 12;
-						pet.spirit = 12;
-					}
-					if(CAT_gui_menu_item("CRIT STATS"))
-					{
-						pet.vigour = 3;
-						pet.focus = 3;
-						pet.spirit = 3;
-					}
-					if(CAT_gui_menu_item("+ EVERY ITEM"))
-					{
-						for(int item_id = 0; item_id < item_table.length; item_id++)
-						{
-							CAT_item_list_add(&bag, item_id, 1);
-						}
-					}
-					if(CAT_gui_menu_item("TURNKEY APARTMENT"))
-					{
-						needs_load = true;
-						override_load = true;
-					}
-					CAT_gui_end_menu();
-				}
+				if(CAT_gui_menu_item("CHEATS"))
+					CAT_machine_transition(CAT_MS_cheats);
 #endif
 				if(CAT_gui_begin_menu("SETTINGS"))
 				{
