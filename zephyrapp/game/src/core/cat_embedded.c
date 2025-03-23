@@ -224,50 +224,6 @@ void CAT_finish_load()
 	// no-op
 }
 
-/*int CAT_get_flash_size(int* size)
-{
-	return flash_get_nrf70_fw_size(size);
-}
-
-int CAT_load_flash(uint8_t* target, uint8_t** start, uint8_t** end)
-{
-	return flash_load_nrf70_fw(target, start, end);
-}
-
-bool CAT_did_post_flash()
-{
-	return did_post_flash;
-}
-
-void CAT_clear_log()
-{
-	flash_erase_all_cells();
-}
-
-int CAT_next_log_cell_idx()
-{
-	return next_log_cell_nr;
-}
-
-void CAT_get_log_cell(int idx, CAT_log_cell* out)
-{
-	flash_get_cell_by_nr(idx, out);
-}
-
-void CAT_populate_log_cell(CAT_log_cell* cell)
-{
-	populate_log_cell(cell);
-}
-
-bool CAT_log_is_ready()
-{
-	return is_ready_for_aqi_logging();
-}
-
-void CAT_write_log()
-{
-	do_aqi_log();
-}*/
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // POWER

@@ -5,6 +5,8 @@
 #include "cat_room.h"
 #include "cat_bag.h"
 #include "cat_gui.h"
+#include "sprite_assets.h"
+#include "sound_assets.h"
 
 #define GRID_WIDTH 15
 #define GRID_HEIGHT 20

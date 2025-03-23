@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <stddef.h>
 #include "cat_item_dialog.h"
+#include "sprite_assets.h"
 
 // MECHANIC PROFILE
 
@@ -349,5 +350,5 @@ void CAT_render_laser()
 	CAT_render_room();
 	
 	CAT_item* item = CAT_item_get(toy_laser_pointer_item);
-	CAT_draw_queue_add(item->data.tool_data.cursor, 0, 0, laser_pos.x, laser_pos.y, CAT_DRAW_MODE_CENTER_X | CAT_DRAW_MODE_CENTER_Y);
+	CAT_draw_queue_add(item->data.tool_data.cursor, -1, 0, laser_pos.x, laser_pos.y, CAT_DRAW_MODE_CENTER_X | CAT_DRAW_MODE_CENTER_Y);
 }

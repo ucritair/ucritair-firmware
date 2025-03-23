@@ -1,12 +1,5 @@
 #pragma once
 
-typedef struct CAT_mesh
-{
-	const char* path;
-	float* verts;
-	int n_verts;
-	int* faces;
-	int n_faces;
-} CAT_mesh;
+#include "cat_render.h"
 
 extern CAT_mesh eth_mesh;

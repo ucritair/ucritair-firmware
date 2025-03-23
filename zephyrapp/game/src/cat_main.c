@@ -32,6 +32,7 @@
 #include "cat_version.h"
 #include "theme_assets.h"
 #include "config.h"
+#include "sprite_assets.h"
 
 #ifdef CAT_EMBEDDED
 #include "menu_time.h"

@@ -10,6 +10,7 @@
 #include <string.h>
 #include "config.h"
 #include "cat_aqi.h"
+#include "sprite_assets.h"
 
 void CAT_MS_insights(CAT_machine_signal signal)
 {

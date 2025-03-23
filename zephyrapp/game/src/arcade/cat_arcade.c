@@ -9,6 +9,7 @@
 #include "cat_bag.h"
 #include <stdio.h>
 #include "cat_aqi.h"
+#include "sprite_assets.h"
 
 #ifdef CAT_EMBEDDED
 #include "menu_system.h"

@@ -12,30 +12,9 @@ import copy;
 
 pygame.init()
 
-@dataclass
-class BakeData:
-	i: int
-	name: str
-	path: str
-	frames: str
-	width: str
-	height: str
-	rlesize: int = 0
-	colors: set = None
-
-	@property
-	def size(self):
-		return self.width * self.height * 2
-
-	@property
-	def do_compress(self):
-		return True
-		return not (self.name.startswith('base_wall') or self.name.startswith('base_floor'))
-
 json_file = open("sprites/sprites.json", "r+");
 json_data = json.load(json_file);
 json_entries = json_data['entries'];
-atlas = [];
 
 for (i, sprite) in enumerate(json_entries):
 	# Ensure correct JSON
@@ -44,16 +23,6 @@ for (i, sprite) in enumerate(json_entries):
 	sprite['width'] = image.size[0];
 	sprite['height'] = image.size[1] // sprite['frames'];
 	image.close();
-
-	# If so, atlasify
-	atlas.append(BakeData(
-		sprite['id'],
-		sprite['name'],
-		sprite['path'],
-		sprite['frames'],
-		sprite['width'],
-		sprite['height']
-	));
 
 json_file.seek(0);
 json_file.truncate();
@@ -64,24 +33,11 @@ with open("sprites/sprite_assets.h", "w") as fd:
 	fd.write("#pragma once\n");
 	fd.write("\n")
 	fd.write("#include <stdint.h>\n");
+	fd.write("#include \"cat_render.h\"\n");
+	fd.write("#include \"cat_core.h\"\n");
 	fd.write("\n");
-	fd.write("typedef struct\n");
-	fd.write("{\n");
-	fd.write("\tint id;\n");
-	fd.write("\tconst uint16_t* colour_table;\n");
-	fd.write("\tconst uint8_t** frames;\n");
-	fd.write("\tint frame_count;\n");
-	fd.write("\tint width;\n");
-	fd.write("\tint height;\n");
-	fd.write("} CAT_sprite;\n");
-	fd.write("\n");
-	for (i, sprite) in enumerate(atlas):
-		fd.write(f"extern const CAT_sprite {sprite.name};\n");
-
-# assert len(set(x.path for x in atlas)) == len([x.path for x in atlas]), "Duplicated path"
-assert len(set(x.name for x in atlas)) == len([x.name for x in atlas]), "Duplicated name"
-
-atlas.sort(key=lambda x: x.i)
+	for (i, sprite) in enumerate(json_entries):
+		fd.write(f"extern const CAT_sprite {sprite['name']};\n");
 
 def hex4(x):
 	h = hex(x)[2:]
@@ -92,14 +48,6 @@ def hex2(x):
 	h = hex(x)[2:]
 	h = (2-len(h))*'0' + h
 	return '0x' + h
-
-textures = {}
-for x in atlas:
-	try:
-		textures[x.path] = pygame.image.load(os.path.join("sprites", x.path))
-	except FileNotFoundError:
-		print("Falling back for ", x.path)
-		textures[x.path] = pygame.image.load(os.path.join("sprites", "null.png"))
 
 def get_px(image, x, y):
 	r, g, b, a = image.get_at((x, y))
@@ -361,6 +309,8 @@ with open("sprites/sprite_assets.c", 'a') as fd:
 		fd.write(f"\t.frame_count = {sprite['frames']},\n");
 		fd.write(f"\t.width = {sprite['width']},\n");
 		fd.write(f"\t.height = {sprite['height']},\n");
+		fd.write(f"\t.loop = {str(sprite['loop']).lower()},\n");
+		fd.write(f"\t.reverse = {str(sprite['reverse']).lower()},\n");
 		fd.write("};\n");
 		fd.write("\n");
 	fd.write("\n");

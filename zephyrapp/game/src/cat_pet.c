@@ -13,6 +13,7 @@
 #include <string.h>
 #include "config.h"
 #include "cat_aqi.h"
+#include "sprite_assets.h"
 
 CAT_pet pet;
 

@@ -4,8 +4,6 @@
 #include <stdbool.h>
 #include "cat_core.h"
 
-#include "sprite_assets.h"
-
 //////////////////////////////////////////////////////////////////////////
 // CONSTANTS AND MACROS
 
@@ -47,6 +45,20 @@ void CAT_rowberry(int x, int y, int w, uint16_t c);
 //////////////////////////////////////////////////////////////////////////
 // SPRITER
 
+typedef struct
+{
+	int id;
+
+	const uint16_t* colour_table;
+	const uint8_t** frames;
+	int frame_count;
+	int width;
+	int height;
+
+	bool loop;
+	bool reverse;
+} CAT_sprite;
+
 typedef enum CAT_draw_mode
 {
 	CAT_DRAW_MODE_DEFAULT = 0,
@@ -67,18 +79,13 @@ void CAT_draw_sprite(const CAT_sprite* sprite, int frame_idx, int x, int y);
 typedef struct CAT_anim_table
 {
 	int frame_idx[CAT_ANIM_TABLE_MAX_LENGTH];
-	bool loop[CAT_ANIM_TABLE_MAX_LENGTH];
-	bool reverse[CAT_ANIM_TABLE_MAX_LENGTH];
 	bool dirty[CAT_ANIM_TABLE_MAX_LENGTH];
 } CAT_anim_table;
 extern CAT_anim_table anim_table;
 
 void CAT_anim_table_init();
-void CAT_anim_toggle_loop(const CAT_sprite* sprite, bool toggle);
-void CAT_anim_toggle_reverse(const CAT_sprite* sprite, bool toggle);
 bool CAT_anim_finished(const CAT_sprite* sprite);
 void CAT_anim_reset(const CAT_sprite* sprite);
-
 bool CAT_anim_should_tick();
 
 enum CAT_sprite_layers
@@ -115,8 +122,8 @@ typedef struct CAT_animachine_state
 	const CAT_sprite* enter_anim_id;
 	const CAT_sprite* tick_anim_id;
 	const CAT_sprite* exit_anim_id;
+	
 	const CAT_sprite* last;
-
 	struct CAT_animachine_state* next;
 } CAT_animachine_state;
 
@@ -128,6 +135,19 @@ void CAT_animachine_kill(CAT_animachine_state** spp);
 bool CAT_animachine_is_in(CAT_animachine_state** spp, CAT_animachine_state* state);
 bool CAT_animachine_is_ticking(CAT_animachine_state** spp);
 bool CAT_animachine_is_done(CAT_animachine_state** spp);
+
+
+//////////////////////////////////////////////////////////////////////////
+// MESHES
+
+typedef struct CAT_mesh
+{
+	const char* path;
+	float* verts;
+	int n_verts;
+	int* faces;
+	int n_faces;
+} CAT_mesh;
 
 
 //////////////////////////////////////////////////////////////////////////

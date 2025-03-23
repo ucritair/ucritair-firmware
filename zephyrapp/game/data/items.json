@@ -1730,7 +1730,7 @@
             "type": "tool",
             "name": "toy_laser_pointer",
             "display_name": "Laser Pointer",
-            "sprite": "null_sprite",
+            "sprite": "laser_pointer_sprite",
             "icon": "icon_item_key_sprite",
             "text": "",
             "price": 10,
@@ -1738,7 +1738,7 @@
             "tier": 0,
             "tool_data": {
                 "type": "toy",
-                "cursor": "cursor_remove_sprite",
+                "cursor": "laser_marker_sprite",
                 "dv": 0,
                 "df": 0,
                 "ds": 0

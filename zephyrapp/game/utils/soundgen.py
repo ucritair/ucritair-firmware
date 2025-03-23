@@ -18,22 +18,17 @@ header.write("#pragma once\n");
 header.write("\n");
 header.write("#include <stdint.h>\n");
 header.write("#include <stdlib.h>\n");
+header.write("#include \"cat_core.h\"\n");
 header.write("\n");
+
+for sound in json_entries:
+	header.write(f"extern CAT_sound {sound['name']}_sound;\n");
+header.close();
 
 source_path = os.path.join("sounds", "sound_assets.c");
 source = open(source_path, "w");
 source.write("#include \"sound_assets.h\"\n");
 source.write("\n");
-
-header.write("typedef struct CAT_sound\n");
-header.write("{\n");
-header.write(f"\tuint8_t* samples;\n");
-header.write("\tsize_t size;\n");
-header.write("} CAT_sound;\n");
-header.write("\n");
-for sound in json_entries:
-	header.write(f"extern CAT_sound {sound['name']}_sound;\n");
-header.close();
 
 sp.call("mkdir sounds/temp", shell=True);
 for sound in json_entries:

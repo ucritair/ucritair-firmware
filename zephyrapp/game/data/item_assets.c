@@ -1257,14 +1257,14 @@ CAT_item_table item_table =
 		{
 			.type = CAT_ITEM_TYPE_TOOL,
 			.name = "Laser Pointer",
-			.sprite = &null_sprite,
+			.sprite = &laser_pointer_sprite,
 			.price = 10,
 			.text = "",
 			.icon = &icon_item_key_sprite,
 			.data.tool_data =
 			{
 				.type = CAT_TOOL_TYPE_TOY,
-				.cursor = &cursor_remove_sprite,
+				.cursor = &laser_marker_sprite,
 				.dv = 0,
 				.df = 0,
 				.ds = 0,

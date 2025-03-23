@@ -15,6 +15,7 @@
 #include "cat_arcade.h"
 #include "theme_assets.h"
 #include "cat_aqi.h"
+#include "sprite_assets.h"
 
 //////////////////////////////////////////////////////////////////////////
 // SPACE

@@ -10,32 +10,8 @@ void CAT_anim_table_init()
 	for(int i = 0; i < CAT_ANIM_TABLE_MAX_LENGTH; i++)
 	{
 		anim_table.frame_idx[i] = 0;
-		anim_table.loop[i] = true;
-		anim_table.reverse[i] = false;
 		anim_table.dirty[i] = true;
 	}
-}
-
-void CAT_anim_toggle_loop(const CAT_sprite* sprite, bool toggle)
-{
-	if(sprite == NULL)
-	{
-		CAT_printf("[ERROR] CAT_anim_toggle_loop: null sprite\n");
-		return;
-	}
-
-	anim_table.loop[sprite->id] = toggle;
-}
-
-void CAT_anim_toggle_reverse(const CAT_sprite* sprite, bool toggle)
-{
-	if(sprite == NULL)
-	{
-		CAT_printf("[ERROR] CAT_anim_toggle_reverse: null sprite\n");
-		return;
-	}
-
-	anim_table.reverse[sprite->id] = toggle;
 }
 
 bool CAT_anim_finished(const CAT_sprite* sprite)
@@ -129,24 +105,25 @@ void CAT_draw_queue_submit()
 			for(int i = 0; i < job_count; i++)
 			{
 				CAT_draw_job* job = &jobs[i];
+				const CAT_sprite* sprite = job->sprite;
+
 				if(job->frame_idx != -1)
 					continue;
-				if(!anim_table.dirty[job->sprite->id])
+				if(!anim_table.dirty[sprite->id])
 					continue;
 			
-				if(anim_table.frame_idx[job->sprite->id] < job->sprite->frame_count-1)
-					anim_table.frame_idx[job->sprite->id] += 1;
-				else if(anim_table.loop[job->sprite->id])
-					anim_table.frame_idx[job->sprite->id] = 0;
+				if(anim_table.frame_idx[sprite->id] < sprite->frame_count-1)
+					anim_table.frame_idx[sprite->id] += 1;
+				else if(sprite->loop)
+					anim_table.frame_idx[sprite->id] = 0;
 				
-				anim_table.dirty[job->sprite->id] = false;
+				anim_table.dirty[sprite->id] = false;
 			}
 		}
 
 		for(int i = 0; i < job_count; i++)
 		{
-			CAT_draw_job* job = &jobs[i];
-			anim_table.dirty[job->sprite->id] = true;
+			anim_table.dirty[jobs[i].sprite->id] = true;
 		}
 	}
 
@@ -154,12 +131,14 @@ void CAT_draw_queue_submit()
 	{
 		CAT_draw_job* job = &jobs[i];
 		const CAT_sprite* sprite = job->sprite;
+
 		if(job->frame_idx == -1)
 		{
 			job->frame_idx = anim_table.frame_idx[sprite->id];
-			if(anim_table.reverse[sprite->id])
+			if(sprite->reverse)
 				job->frame_idx = sprite->frame_count-1-job->frame_idx;
 		}
+
 		draw_mode = job->mode;
 		CAT_draw_sprite(sprite, job->frame_idx, job->x, job->y);
 	}
