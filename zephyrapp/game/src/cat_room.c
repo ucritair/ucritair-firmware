@@ -49,9 +49,9 @@ CAT_space space;
 
 void CAT_space_init()
 {
-	space.grid_place = (CAT_ivec2) {0, 7};
+	space.grid_origin = (CAT_ivec2) {0, 7};
 
-	space.world_rect.min = CAT_ivec2_mul(space.grid_place, CAT_TILE_SIZE);
+	space.world_rect.min = CAT_ivec2_mul(space.grid_origin, CAT_TILE_SIZE);
 	space.world_rect.max = CAT_ivec2_add(space.world_rect.min, (CAT_ivec2) {CAT_WORLD_WIDTH, CAT_WORLD_HEIGHT});
 
 	for(int y = 0; y < CAT_GRID_HEIGHT; y++)
@@ -70,15 +70,15 @@ void CAT_space_init()
 
 CAT_ivec2 CAT_grid2world(CAT_ivec2 grid)
 {
-	int x = (space.grid_place.x + grid.x) * CAT_TILE_SIZE;
-	int y = (space.grid_place.y + grid.y) * CAT_TILE_SIZE;
+	int x = (space.grid_origin.x + grid.x) * CAT_TILE_SIZE;
+	int y = (space.grid_origin.y + grid.y) * CAT_TILE_SIZE;
 	return (CAT_ivec2) {x, y};
 }
 
 CAT_ivec2 CAT_world2grid(CAT_ivec2 world)
 {
-	int x = world.x / 16 - space.grid_place.x;
-	int y = world.x / 16 - space.grid_place.y;
+	int x = world.x / 16 - space.grid_origin.x;
+	int y = world.x / 16 - space.grid_origin.y;
 	return (CAT_ivec2) {x, y};
 }
 
@@ -451,6 +451,16 @@ void CAT_despawn_pickup(int idx)
 	room.pickup_count -=1;
 }
 
+static CAT_machine_state button_modes[5] =
+{
+	CAT_MS_feed,
+	CAT_MS_study,
+	CAT_MS_play,
+	CAT_MS_deco,
+	CAT_MS_menu
+};
+static int mode_selector = 0;
+
 void earn_proc()
 {
 	coins += 1;
@@ -469,6 +479,8 @@ void CAT_room_earn(int ticks)
 				start.y -= 24;
 
 				CAT_ivec2 end_grid = CAT_rand_free_space();
+				end_grid.x = clamp(end_grid.x, 2, CAT_GRID_WIDTH-1);
+				end_grid.y = clamp(end_grid.y, 2, CAT_GRID_HEIGHT-1);
 				CAT_ivec2 end_world = CAT_grid2world(end_grid);
 
 				float xi = start.x;
@@ -487,16 +499,6 @@ void CAT_room_earn(int ticks)
 		}
 	}
 }
-
-static CAT_machine_state button_modes[5] =
-{
-	CAT_MS_feed,
-	CAT_MS_study,
-	CAT_MS_play,
-	CAT_MS_deco,
-	CAT_MS_menu
-};
-static int mode_selector = 0;
 
 void CAT_room_tick()
 {

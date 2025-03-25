@@ -14,7 +14,7 @@
 #define CAT_WORLD_HEIGHT (CAT_GRID_HEIGHT * CAT_TILE_SIZE)
 
 #define CAT_MAX_PICKUP_COUNT 128
-#define CAT_EARN_TICK_SECS (CAT_HOUR_SECS)
+#define CAT_EARN_TICK_SECS 1 //(CAT_HOUR_SECS)
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -31,7 +31,7 @@ typedef struct CAT_cell
 
 typedef struct CAT_space
 {
-	CAT_ivec2 grid_place;
+	CAT_ivec2 grid_origin;
 
 	CAT_ivec2 world_shape;
 	CAT_rect world_rect;
@@ -112,8 +112,8 @@ void CAT_room_flip_prop(int idx);
 
 int CAT_spawn_pickup(CAT_vec2 origin, CAT_vec2 place, const CAT_sprite* sprite, void (*proc)());
 void CAT_despawn_pickup(int idx);
-void CAT_room_earn(int ticks);
 
+void CAT_room_earn(int ticks);
 void CAT_room_tick();
 void CAT_MS_room(CAT_machine_signal signal);
 void CAT_render_room();
