@@ -480,7 +480,7 @@ void CAT_room_earn(int ticks)
 
 				CAT_ivec2 end_grid = CAT_rand_free_space();
 				end_grid.x = clamp(end_grid.x, 2, CAT_GRID_WIDTH-2);
-				end_grid.y = clamp(end_grid.y, 2, CAT_GRID_HEIGHT-2);
+				end_grid.y = clamp(end_grid.y, 2, CAT_GRID_HEIGHT-1);
 				CAT_ivec2 end_world = CAT_grid2world(end_grid);
 
 				float xi = start.x;
