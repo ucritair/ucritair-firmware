@@ -36,16 +36,6 @@ void CAT_anim_reset(const CAT_sprite* sprite)
 	anim_table.frame_idx[sprite->id] = 0;
 }
 
-static int counter = 0;
-bool CAT_anim_should_tick()
-{
-	counter += 1;
-	bool result = counter >= 2;
-	if(result)
-		counter = 0;
-	return result;
-}
-
 static CAT_draw_job jobs[CAT_DRAW_QUEUE_MAX_LENGTH];
 static int job_count = 0;
 
@@ -96,11 +86,14 @@ int CAT_draw_queue_add(const CAT_sprite* sprite, int frame_idx, int layer, int x
 	return -1;
 }
 
+static int frame_counter = 0;
+
 void CAT_draw_queue_submit()
 {
 	if (CAT_is_first_render_cycle())
 	{
-		if(CAT_anim_should_tick())
+		frame_counter += 1;
+		if(frame_counter >= 2)
 		{
 			for(int i = 0; i < job_count; i++)
 			{
@@ -119,12 +112,13 @@ void CAT_draw_queue_submit()
 				
 				anim_table.dirty[sprite->id] = false;
 			}
+			frame_counter = 0;
 		}
 
 		for(int i = 0; i < job_count; i++)
 		{
 			anim_table.dirty[jobs[i].sprite->id] = true;
-		}
+		}	
 	}
 
 	for(int i = 0; i < job_count; i++)

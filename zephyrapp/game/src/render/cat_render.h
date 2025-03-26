@@ -86,7 +86,6 @@ extern CAT_anim_table anim_table;
 void CAT_anim_table_init();
 bool CAT_anim_finished(const CAT_sprite* sprite);
 void CAT_anim_reset(const CAT_sprite* sprite);
-bool CAT_anim_should_tick();
 
 enum CAT_sprite_layers
 {
