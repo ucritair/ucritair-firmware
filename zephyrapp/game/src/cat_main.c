@@ -321,6 +321,9 @@ void CAT_init(int seconds_slept)
 	CAT_machine_transition(CAT_MS_room);
 }
 
+static float time_since_last_eink_update = 0.0f;
+static const int eink_update_time_threshold = CAT_MIN_SECS * 5;
+
 void CAT_tick_logic()
 {
 	if(needs_load)
@@ -336,6 +339,20 @@ void CAT_tick_logic()
 	CAT_machine_tick();
 
 	CAT_gui_io();
+
+	if(CAT_is_charging())
+	{
+		time_since_last_eink_update += CAT_get_delta_time();
+		if
+		(
+			time_since_last_eink_update >= eink_update_time_threshold &&
+			CAT_input_time_since_last >= eink_update_time_threshold
+		)
+		{
+			CAT_eink_update();
+			time_since_last_eink_update = 0;
+		}
+	}
 }
 
 void CAT_tick_render()

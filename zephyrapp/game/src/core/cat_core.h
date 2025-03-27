@@ -45,6 +45,7 @@ bool CAT_is_last_render_cycle();
 
 void CAT_eink_post(uint8_t* buffer);
 bool CAT_eink_is_posted();
+void CAT_eink_update();
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

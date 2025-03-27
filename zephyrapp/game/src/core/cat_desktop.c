@@ -263,14 +263,19 @@ bool CAT_is_last_render_cycle()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // EINK SCREEN
 
-void CAT_ink_post(uint8_t* buffer)
+void CAT_eink_post(uint8_t* buffer)
 {
 	return;
 }
 
-bool CAT_ink_is_posted()
+bool CAT_eink_is_posted()
 {
 	return true;
+}
+
+void CAT_eink_update()
+{
+	CAT_printf("[CALL] CAT_eink_update\n");
 }
 
 
@@ -283,8 +288,15 @@ void CAT_set_LEDs(uint8_t r, uint8_t g, uint8_t b) {}
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // SPEAKER
 
-void CAT_sound_power(bool value) {}
-void CAT_play_sound(CAT_sound* sound) {}
+void CAT_sound_power(bool value)
+{
+	CAT_printf("[CALL] CAT_sound_power\n");
+}
+
+void CAT_play_sound(CAT_sound* sound)
+{
+	CAT_printf("[CALL] CAT_play_sound\n");
+}
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -447,7 +459,7 @@ int CAT_get_battery_pct()
 
 bool CAT_is_charging()
 {
-	return false;
+	return true;
 }
 
 void CAT_sleep()

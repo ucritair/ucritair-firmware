@@ -101,11 +101,19 @@ bool CAT_is_last_render_cycle()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // EINK SCREEN
 
-void CAT_ink_post(uint8_t* buffer){}
+void CAT_eink_post(uint8_t* buffer)
+{
+	return;
+}
 
-bool CAT_ink_is_posted()
+bool CAT_eink_is_posted()
 {
 	return true;
+}
+
+void CAT_eink_update()
+{
+	epaper_render_test();
 }
 
 

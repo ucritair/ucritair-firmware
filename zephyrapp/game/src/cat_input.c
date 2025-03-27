@@ -184,3 +184,25 @@ bool CAT_input_spell(CAT_button* spell)
 	}
 	return true;
 }
+
+static float time_since_last_input = 0.0f;
+static bool input_this_frame = false;
+
+float CAT_input_time_since_last()
+{
+	input_this_frame = false;
+
+	uint16_t buttons = CAT_get_buttons();
+	input_this_frame |= buttons > 0;
+
+	CAT_touch touch;
+	CAT_get_touch(&touch);
+	input_this_frame |= touch.pressure > 0;
+
+	if(!input_this_frame)
+		time_since_last_input += CAT_get_delta_time();
+	else
+		time_since_last_input = 0;
+		
+	return time_since_last_input;
+}
