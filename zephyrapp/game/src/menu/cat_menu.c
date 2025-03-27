@@ -145,7 +145,7 @@ void CAT_MS_menu(CAT_machine_signal signal)
 
 					static bool confirm_shutdown = false;
 					if(CAT_gui_menu_item("SHUTDOWN"))
-						CAT_gui_open_popup("Are you sure?\nThis will delete all\ngame data!\n\n", &confirm_shutdown);
+						CAT_gui_open_popup("Are you sure? A\npowered-down device\nmust be reactivated\nvia the reset\nbutton!\n", &confirm_shutdown);
 					if(confirm_shutdown)
 					{
 						confirm_shutdown = false;
