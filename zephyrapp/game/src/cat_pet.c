@@ -16,6 +16,8 @@
 #include "sprite_assets.h"
 
 CAT_pet pet;
+CAT_anim_machine AM_pet;
+CAT_anim_machine AM_mood;
 
 bool is_critical()
 {
@@ -47,6 +49,19 @@ void CAT_pet_init()
 	pet.times_milked = 0;
 
 	strcpy(pet.name, "Waldo");
+
+	AM_pet = (CAT_anim_machine)
+	{
+		.state = &AS_idle,
+		.next = NULL,
+		.signal = ENTER
+	};
+	AM_mood = (CAT_anim_machine)
+	{
+		.state = &AS_react,
+		.next = NULL,
+		.signal = ENTER
+	};
 }
 
 void CAT_pet_reanimate()
@@ -138,7 +153,7 @@ void CAT_pet_settle()
 {
 	if(!is_critical())
 	{
-		CAT_anim_transition(&pet_asm, &AS_idle);
+		CAT_anim_transition(&AM_pet, &AS_idle);
 	}
 }
 
@@ -245,7 +260,7 @@ void CAT_pet_tick()
 	{
 		if(!is_critical() && CAT_get_battery_pct() > CAT_CRITICAL_BATTERY_PCT)
 		{
-			if(CAT_anim_is_in(&pet_asm, &AS_idle) && CAT_anim_is_ticking(&pet_asm))
+			if(CAT_anim_is_in(&AM_pet, &AS_idle) && CAT_anim_is_ticking(&AM_pet))
 			{
 				if(CAT_timer_tick(pet.walk_timer_id) && CAT_has_free_space())
 				{
@@ -253,23 +268,23 @@ void CAT_pet_tick()
 					CAT_ivec2 world_dest = CAT_grid2world(grid_dest);
 					destination = (CAT_vec2) {world_dest.x + 8, world_dest.y + 8};
 
-					CAT_anim_transition(&pet_asm, &AS_walk);
+					CAT_anim_transition(&AM_pet, &AS_walk);
 					CAT_timer_reset(pet.walk_timer_id);
 				}
 			}
 			
-			if(CAT_anim_is_in(&pet_asm, &AS_walk) && CAT_anim_is_ticking(&pet_asm))
+			if(CAT_anim_is_in(&AM_pet, &AS_walk) && CAT_anim_is_ticking(&AM_pet))
 			{
 				if(CAT_pet_seek(destination))
 				{
-					CAT_anim_transition(&pet_asm, &AS_idle);
+					CAT_anim_transition(&AM_pet, &AS_idle);
 				}
 			}
 		}
 		else
 		{
-			if(!CAT_anim_is_in(&pet_asm, &AS_crit))
-				CAT_anim_transition(&pet_asm, &AS_crit);
+			if(!CAT_anim_is_in(&AM_pet, &AS_crit))
+				CAT_anim_transition(&AM_pet, &AS_crit);
 		}
 	}
 	else
@@ -277,15 +292,15 @@ void CAT_pet_tick()
 		return;
 	}
 
-	if(!CAT_anim_is_in(&react_asm, &AS_react) && CAT_input_drag(pet.pos.x, pet.pos.y-16, 16))
+	if(!CAT_anim_is_in(&AM_mood, &AS_react) && CAT_input_drag(pet.pos.x, pet.pos.y-16, 16))
 	{
-		CAT_anim_transition(&react_asm, &AS_react);
+		CAT_anim_transition(&AM_mood, &AS_react);
 	}
-	if(CAT_anim_is_in(&react_asm, &AS_react))
+	if(CAT_anim_is_in(&AM_mood, &AS_react))
 	{
 		if(CAT_timer_tick(pet.react_timer_id))
 		{
-			CAT_anim_transition(&react_asm, NULL);
+			CAT_anim_transition(&AM_mood, NULL);
 			CAT_timer_reset(pet.react_timer_id);
 
 			if(CAT_timer_done(pet.petting_timer_id) && pet.times_milked < 3)

@@ -1,3 +1,5 @@
+#include "cat_render.h"
+
 #include "sprite_assets.h"
 
 //////////////////////////////////////////////////////////////////////////
@@ -38,24 +40,25 @@ void CAT_animator_tick()
 
 int CAT_animator_get_frame(const CAT_sprite* sprite)
 {
+	if(sprite == NULL)
+		return -1;
 	int idx = frame_indices[sprite->id];
 	if(sprite->reverse)
 		idx = sprite->frame_count - idx - 1;
 	return idx;
 }
 
-void animator_finish(const CAT_sprite* sprite)
-{
-	frame_indices[sprite->id] = sprite->frame_count;
-}
-
 bool animator_is_finished(const CAT_sprite* sprite)
 {
+	if(sprite == NULL)
+		return true;
 	return frame_indices[sprite->id] >= sprite->frame_count-1;
 }
 
 void animator_reset(const CAT_sprite* sprite)
 {
+	if(sprite == NULL)
+		return;
 	frame_indices[sprite->id] = 0;
 }
 
@@ -77,63 +80,56 @@ void CAT_anim_transition(CAT_anim_machine* machine, CAT_anim_state* next)
 
 const CAT_sprite* CAT_anim_tick(CAT_anim_machine* machine)
 {
-	if(CAT_is_first_render_cycle())
+	// Determine visual results before logical results 
+	// so that this frame's visuals aren't dependent on
+	// logic that represents the transition between this
+	// frame's animation state and the next
+	const CAT_sprite* sprite = NULL;
+	switch(machine->signal)
 	{
-		// Finalize transition
-		if(machine->next == NULL)
-			machine->signal = EXIT;
+		case ENTER:
+			sprite = machine->state->enter_sprite;
+			break;
+		case TICK:
+			sprite = machine->state->tick_sprite;
+			break;
+		case EXIT:
+			sprite = machine->state->exit_sprite;
+			break;
+	}
 
-		// Fast-forward
+	// Cascading logic that can skip over null signals within one frame
+	if(CAT_is_first_render_cycle())
+	{	
 		if(machine->signal == ENTER)
 		{
-			if(machine->state->enter_sprite == NULL)
+			if(animator_is_finished(machine->state->enter_sprite))
+			{
+				animator_reset(machine->state->tick_sprite);
 				machine->signal = TICK;
+			}
 		}
 		if(machine->signal == TICK)
 		{
-			if(machine->state->tick_sprite == NULL)
+			if(machine->next != NULL)
+			{
+				animator_reset(machine->state->exit_sprite);
 				machine->signal = EXIT;
+			}
 		}
 		if(machine->signal == EXIT)
 		{
-			if(machine->state->exit_sprite == NULL)
+			if(animator_is_finished(machine->state->enter_sprite))
 			{
 				machine->state = machine->next;
+				machine->next = NULL;
+				animator_reset(machine->state->enter_sprite);
 				machine->signal = ENTER;
-			}
-		}
-			
-		// Evaluate at final destination
-		switch(machine->signal)
-		{
-			case(ENTER):
-			{
-				machine->sprite = machine->state->enter_sprite;
-				if(animator_is_finished(machine->state->enter_sprite))
-					machine->signal = TICK;
-				break;
-			}
-			case(TICK):
-			{
-				machine->sprite = machine->state->tick_sprite;
-				if(machine->next != NULL)
-					machine->signal = EXIT;
-				break;
-			}
-			case(EXIT):
-			{
-				machine->sprite = machine->state->exit_sprite;
-				if(animator_is_finished(machine->state->exit_sprite))
-				{	
-					machine->state = machine->next;
-					machine->signal = ENTER;
-				}
-				break;
 			}
 		}
 	}
 
-	return machine->sprite;
+	return sprite;
 }
 
 void CAT_anim_kill(CAT_anim_machine* machine)
@@ -143,17 +139,17 @@ void CAT_anim_kill(CAT_anim_machine* machine)
 
 bool CAT_anim_is_in(CAT_anim_machine* machine, CAT_anim_state* state)
 {
-	return (*machine) == state;
+	return machine->state == state;
 }
 
 bool CAT_anim_is_ticking(CAT_anim_machine* machine)
 {
-	return (*machine)->signal == TICK;
+	return machine->signal == TICK;
 }
 
 bool CAT_anim_is_done(CAT_anim_machine* machine)
 {
-	return (*machine)->signal == EXIT && animator_is_finished((*machine)->exit_sprite);
+	return machine->signal == EXIT && animator_is_finished(machine->state->exit_sprite);
 }
 
 

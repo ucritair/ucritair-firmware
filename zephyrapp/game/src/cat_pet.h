@@ -2,6 +2,7 @@
 
 #include "cat_machine.h"
 #include "cat_math.h"
+#include "cat_render.h"
 
 #define CAT_MIN_SECS 60
 #define CAT_HOUR_SECS 3600

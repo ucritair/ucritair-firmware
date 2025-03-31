@@ -307,7 +307,6 @@ void CAT_init(int seconds_slept)
 	CAT_timetable_init();
 
 	CAT_animator_init();
-	CAT_anim_defines();
 
 	CAT_space_init();
 	CAT_room_init();

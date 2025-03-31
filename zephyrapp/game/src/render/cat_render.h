@@ -96,7 +96,6 @@ typedef struct CAT_anim_machine
 	CAT_anim_state* state;
 	CAT_anim_state* next;
 	enum {ENTER, TICK, EXIT} signal;
-	const CAT_sprite* sprite;
 } CAT_anim_machine;
 
 void CAT_anim_transition(CAT_anim_machine* machine, CAT_anim_state* next);

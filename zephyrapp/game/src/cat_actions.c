@@ -99,20 +99,20 @@ void action_tick()
 				target_location = (CAT_vec2) {world_cursor.x + x_off, world_cursor.y + 16};
 
 				action_confirmed = true;
-				CAT_anim_transition(&pet_asm, &AS_approach);
+				CAT_anim_transition(&AM_pet, &AS_walk);
 			}
 		}
 	}
 	else
 	{
-		if(CAT_anim_is_in(&pet_asm, &AS_approach) && CAT_anim_is_ticking(&pet_asm))
+		if(CAT_anim_is_in(&AM_pet, &AS_walk) && CAT_anim_is_ticking(&AM_pet))
 		{
 			if(CAT_pet_seek(target_location))
 			{
-				CAT_anim_transition(&pet_asm, action_AS);
+				CAT_anim_transition(&AM_pet, action_AS);
 			}
 		}
-		if(CAT_anim_is_in(&pet_asm, action_AS) && CAT_anim_is_ticking(&pet_asm))
+		if(CAT_anim_is_in(&AM_pet, action_AS) && CAT_anim_is_ticking(&AM_pet))
 		{
 			if(CAT_timer_tick(timer_id) || CAT_input_pressed(CAT_BUTTON_A))
 			{
@@ -128,11 +128,11 @@ void action_tick()
 				action_complete = true;
 				CAT_timer_reset(timer_id);
 
-				CAT_anim_kill(&pet_asm);
-				CAT_anim_transition(&pet_asm, result_AS);		
+				CAT_anim_kill(&AM_pet);
+				CAT_anim_transition(&AM_pet, result_AS);		
 			}
 		}
-		if(CAT_anim_is_in(&pet_asm, result_AS))
+		if(CAT_anim_is_in(&AM_pet, result_AS))
 		{
 			CAT_set_LEDs
 			(
@@ -141,8 +141,8 @@ void action_tick()
 				result_colour[1]
 			);
 			if(CAT_input_pressed(CAT_BUTTON_A))
-				CAT_anim_kill(&pet_asm);
-			if(CAT_anim_is_done(&pet_asm))
+				CAT_anim_kill(&AM_pet);
+			if(CAT_anim_is_done(&AM_pet))
 				CAT_machine_transition(CAT_MS_room);
 		}
 	}
@@ -289,14 +289,14 @@ void CAT_MS_laser(CAT_machine_signal signal)
 			switch(laser_state)
 			{
 				case SEEKING:
-					if(!CAT_anim_is_in(&pet_asm, &AS_walk))
-							CAT_anim_transition(&pet_asm, &AS_walk);
+					if(!CAT_anim_is_in(&AM_pet, &AS_walk))
+							CAT_anim_transition(&AM_pet, &AS_walk);
 					else if(CAT_pet_seek(laser_pos))
 						laser_state = PLAYING;
 				break;
 				case PLAYING:
-					if(!CAT_anim_is_in(&pet_asm, &AS_play))
-						CAT_anim_transition(&pet_asm, &AS_play);
+					if(!CAT_anim_is_in(&AM_pet, &AS_play))
+						CAT_anim_transition(&AM_pet, &AS_play);
 					if(CAT_timer_tick(play_timer_id))
 					{
 						CAT_timer_delete(play_timer_id);
@@ -307,8 +307,8 @@ void CAT_MS_laser(CAT_machine_signal signal)
 						laser_state = SEEKING;
 				break;
 				case BORED:
-					if(!CAT_anim_is_in(&pet_asm, &AS_crit))
-						CAT_anim_transition(&pet_asm, &AS_crit);
+					if(!CAT_anim_is_in(&AM_pet, &AS_crit))
+						CAT_anim_transition(&AM_pet, &AS_crit);
 					if(CAT_vec2_dist2(pet.pos, laser_pos) >= 16)
 						laser_state = SEEKING;
 				break;

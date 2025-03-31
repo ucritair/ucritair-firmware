@@ -15,11 +15,6 @@ void CAT_draw_queue_clear()
 
 void CAT_draw_queue_insert(int idx, const CAT_sprite* sprite, int frame_idx, int layer, int x, int y, int mode)
 {
-	if(sprite == NULL)
-	{
-		CAT_printf("[ERROR] CAT_draw_queue_insert: null sprite\n");
-		return;
-	}
 	if(job_count >= CAT_DRAW_QUEUE_MAX_LENGTH)
 	{
 		CAT_printf("[WARNING] Attempted add to full draw queue\n");
