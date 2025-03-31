@@ -83,6 +83,7 @@ void CAT_render_debug()
 			CAT_gui_textf("Pet: %0.0fs/%0.0fs\n", CAT_timer_get(pet.petting_timer_id), timetable.duration[pet.petting_timer_id]);
 			CAT_gui_textf("Pets: %d/5\n", pet.times_pet, 5);
 			CAT_gui_textf("Milks: %d/3\n", pet.times_milked, 3);
+			CAT_gui_textf("E-Ink: %0.0fs/%ds\n", time_since_last_eink_update, eink_update_time_threshold);
 		break;
 		case DECO:
 			CAT_gui_title(true, NULL, &icon_exit_sprite, "DECO");
@@ -109,6 +110,7 @@ void CAT_render_debug()
 			CAT_gui_title(true, NULL, &icon_exit_sprite, "INPUT");
 			CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
 
+			CAT_gui_text("Mask: ");
 			uint16_t input_mask = CAT_get_buttons();
 			for(int i = 0; i < CAT_BUTTON_LAST; i++)
 			{
@@ -117,16 +119,7 @@ void CAT_render_debug()
 			}
 			CAT_gui_line_break();
 
-			if(input_mask != 0)
-			{
-				float max_time = 0;
-				for(int i = 0; i < CAT_BUTTON_LAST; i++)
-				{
-					if(input.time[i] > max_time)
-						max_time = input.time[i];
-				}
-				CAT_gui_textf("%f\n", max_time);
-			}
+			CAT_gui_textf("Downtime: %0.1f\n", CAT_input_time_since_last());
 			
 		}
 		break;

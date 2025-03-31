@@ -13,6 +13,9 @@ extern uint8_t saved_version_minor;
 extern uint8_t saved_version_patch;
 extern uint8_t saved_version_push;
 
+extern float time_since_last_eink_update;
+extern const int eink_update_time_threshold;
+
 #ifdef CAT_DESKTOP
 int CAT_load_sleep();
 void CAT_save_sleep();

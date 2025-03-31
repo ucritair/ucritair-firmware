@@ -27,6 +27,9 @@ void CAT_input_init()
 	input.buffer_head = 0;
 }
 
+static float time_since_last_input = 0.0f;
+static bool input_this_frame = false;
+
 void CAT_input_tick()
 {
 	uint16_t mask = CAT_get_buttons();
@@ -49,7 +52,12 @@ void CAT_input_tick()
 			input.pulse[i] = 0;
 		}
 		else
+		{
 			input.time[i] += CAT_get_delta_time();
+			input.pulse[i] += CAT_get_delta_time();
+			if(input.pulse[i] >= 0.1f)
+				input.pulse[i] = 0;
+		}
 
 		if(input.mask[i] && !input.last[i])
 		{
@@ -67,6 +75,14 @@ void CAT_input_tick()
 		input.touch_time = 0;
 	else
 		input.touch_time += CAT_get_delta_time();
+
+	input_this_frame = false;
+	input_this_frame |= mask > 0;
+	input_this_frame |= input.touch.pressure > 0;
+	if(!input_this_frame)
+		time_since_last_input += CAT_get_delta_time();
+	else
+		time_since_last_input = 0;
 }
 
 void CAT_input_clear()
@@ -101,16 +117,8 @@ bool CAT_input_pulse(int button)
 		{
 			return !input.last[button];
 		}
-		
-		input.pulse[button] += CAT_get_delta_time();
-		if(input.pulse[button] >= 0.1f)
-		{
-			input.pulse[button] = 0;
-			return true;
-		}
-		return false;
+		return input.pulse[button] == 0;
 	}
-
 	return false;
 }
 
@@ -185,24 +193,7 @@ bool CAT_input_spell(CAT_button* spell)
 	return true;
 }
 
-static float time_since_last_input = 0.0f;
-static bool input_this_frame = false;
-
 float CAT_input_time_since_last()
 {
-	input_this_frame = false;
-
-	uint16_t buttons = CAT_get_buttons();
-	input_this_frame |= buttons > 0;
-
-	CAT_touch touch;
-	CAT_get_touch(&touch);
-	input_this_frame |= touch.pressure > 0;
-
-	if(!input_this_frame)
-		time_since_last_input += CAT_get_delta_time();
-	else
-		time_since_last_input = 0;
-		
 	return time_since_last_input;
 }

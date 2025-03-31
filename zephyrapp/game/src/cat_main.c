@@ -55,6 +55,9 @@ uint8_t saved_version_minor = CAT_VERSION_MINOR;
 uint8_t saved_version_patch = CAT_VERSION_PATCH;
 uint8_t saved_version_push = CAT_VERSION_PUSH;
 
+float time_since_last_eink_update = 0.0f;
+const int eink_update_time_threshold = CAT_MIN_SECS;
+
 #ifdef CAT_DESKTOP
 int CAT_load_sleep()
 {
@@ -294,6 +297,8 @@ void CAT_apply_sleep()
 	CAT_timer_add(room.earn_timer_id, earn_remainder);
 
 	CAT_timer_add(pet.petting_timer_id, logged_sleep);
+
+	time_since_last_eink_update += logged_sleep;
 }
 
 void CAT_init(int seconds_slept)
@@ -321,9 +326,6 @@ void CAT_init(int seconds_slept)
 	CAT_machine_transition(CAT_MS_room);
 }
 
-static float time_since_last_eink_update = 0.0f;
-static const int eink_update_time_threshold = CAT_MIN_SECS * 5;
-
 void CAT_tick_logic()
 {
 	if(needs_load)
@@ -340,18 +342,16 @@ void CAT_tick_logic()
 
 	CAT_gui_io();
 
-	if(CAT_is_charging())
+	time_since_last_eink_update += CAT_get_delta_time();
+	if
+	(
+		CAT_is_charging() &&
+		time_since_last_eink_update >= eink_update_time_threshold &&
+		CAT_input_time_since_last() >= eink_update_time_threshold
+	)
 	{
-		time_since_last_eink_update += CAT_get_delta_time();
-		if
-		(
-			time_since_last_eink_update >= eink_update_time_threshold &&
-			CAT_input_time_since_last >= eink_update_time_threshold
-		)
-		{
-			CAT_eink_update();
-			time_since_last_eink_update = 0;
-		}
+		CAT_eink_update();
+		time_since_last_eink_update = 0;
 	}
 }
 
