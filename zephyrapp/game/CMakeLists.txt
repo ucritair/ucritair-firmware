@@ -81,7 +81,7 @@ target_sources(app PRIVATE
 	src/render/cat_berrier.c
 	src/render/cat_spriter.c
 	src/render/cat_draw_queue.c
-	src/render/cat_animachine.c
+	src/render/cat_animation.c
 
 	src/cat_gui.c
 	src/cat_input.c

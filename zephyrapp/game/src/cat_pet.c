@@ -51,86 +51,86 @@ void CAT_pet_init()
 
 void CAT_pet_reanimate()
 {
-	AS_idle.enter_anim_id = NULL;
-	AS_idle.tick_anim_id = &pet_idle_sprite;
-	AS_idle.exit_anim_id = NULL;
+	AS_idle.enter_sprite = NULL;
+	AS_idle.tick_sprite = &pet_idle_sprite;
+	AS_idle.exit_sprite = NULL;
 
-	AS_walk.enter_anim_id = NULL;
-	AS_walk.tick_anim_id = &pet_walk_sprite;
-	AS_walk.exit_anim_id = NULL;
+	AS_walk.enter_sprite = NULL;
+	AS_walk.tick_sprite = &pet_walk_sprite;
+	AS_walk.exit_sprite = NULL;
 
-	AS_crit.enter_anim_id = &pet_crit_vig_in_sprite;
-	AS_crit.tick_anim_id = &pet_crit_vig_sprite;
-	AS_crit.exit_anim_id = &pet_crit_vig_out_sprite;
+	AS_crit.enter_sprite = &pet_crit_vig_in_sprite;
+	AS_crit.tick_sprite = &pet_crit_vig_sprite;
+	AS_crit.exit_sprite = &pet_crit_vig_out_sprite;
 
-	AS_react.tick_anim_id = &mood_good_sprite;
+	AS_react.tick_sprite = &mood_good_sprite;
 
 	if(pet.vigour >= 9 || pet.focus >= 9 || pet.spirit >= 9)
 	{
 		if(pet.vigour >= 9)
 		{
-			AS_idle.tick_anim_id = &pet_idle_high_vig_sprite;
-			AS_walk.tick_anim_id = &pet_walk_high_vig_sprite;
+			AS_idle.tick_sprite = &pet_idle_high_vig_sprite;
+			AS_walk.tick_sprite = &pet_walk_high_vig_sprite;
 		}
 		else if(pet.spirit >= 9)
 		{
-			AS_idle.tick_anim_id = &pet_idle_high_spi_sprite;
-			AS_walk.tick_anim_id = &pet_walk_high_spi_sprite;
+			AS_idle.tick_sprite = &pet_idle_high_spi_sprite;
+			AS_walk.tick_sprite = &pet_walk_high_spi_sprite;
 		}
 		else
 		{
-			AS_idle.tick_anim_id = &pet_idle_high_foc_sprite;
-			AS_walk.tick_anim_id = &pet_walk_high_foc_sprite;
+			AS_idle.tick_sprite = &pet_idle_high_foc_sprite;
+			AS_walk.tick_sprite = &pet_walk_high_foc_sprite;
 		}
 	}
 	if(pet.vigour <= 3 || pet.focus <= 3 || pet.spirit <= 3)
 	{
 		if(pet.vigour <= 3)
 		{
-			AS_idle.tick_anim_id = &pet_idle_low_vig_sprite;
-			AS_walk.tick_anim_id = &pet_walk_low_vig_sprite;	
-			AS_react.tick_anim_id = &mood_low_vig_sprite;
+			AS_idle.tick_sprite = &pet_idle_low_vig_sprite;
+			AS_walk.tick_sprite = &pet_walk_low_vig_sprite;	
+			AS_react.tick_sprite = &mood_low_vig_sprite;
 		}
 		else if(pet.spirit <= 3)
 		{
-			AS_idle.tick_anim_id = &pet_idle_low_spi_sprite;
-			AS_walk.tick_anim_id = &pet_walk_low_spi_sprite;
-			AS_react.tick_anim_id = &mood_low_spi_sprite;
+			AS_idle.tick_sprite = &pet_idle_low_spi_sprite;
+			AS_walk.tick_sprite = &pet_walk_low_spi_sprite;
+			AS_react.tick_sprite = &mood_low_spi_sprite;
 		}
 		else
 		{
-			AS_idle.tick_anim_id = &pet_idle_low_foc_sprite;
-			AS_walk.tick_anim_id = &pet_walk_low_foc_sprite;
-			AS_react.tick_anim_id = &mood_low_foc_sprite;
+			AS_idle.tick_sprite = &pet_idle_low_foc_sprite;
+			AS_walk.tick_sprite = &pet_walk_low_foc_sprite;
+			AS_react.tick_sprite = &mood_low_foc_sprite;
 		}
 	}
 	if(is_critical())
 	{
 		if(CAT_get_battery_pct() < CAT_CRITICAL_BATTERY_PCT)
 		{
-			AS_crit.enter_anim_id = &pet_crit_foc_in_sprite;
-			AS_crit.tick_anim_id = &icon_low_battery_pet;
-			AS_crit.exit_anim_id = &pet_crit_foc_out_sprite;
+			AS_crit.enter_sprite = &pet_crit_foc_in_sprite;
+			AS_crit.tick_sprite = &icon_low_battery_pet;
+			AS_crit.exit_sprite = &pet_crit_foc_out_sprite;
 		}
 		else if(pet.vigour <= 0)
 		{
-			AS_crit.enter_anim_id = &pet_crit_vig_in_sprite;
-			AS_crit.tick_anim_id = &pet_crit_vig_sprite;
-			AS_crit.exit_anim_id = &pet_crit_vig_out_sprite;
+			AS_crit.enter_sprite = &pet_crit_vig_in_sprite;
+			AS_crit.tick_sprite = &pet_crit_vig_sprite;
+			AS_crit.exit_sprite = &pet_crit_vig_out_sprite;
 		}
 		else if(pet.spirit <= 0)
 		{
-			AS_crit.enter_anim_id = &pet_crit_spi_in_sprite;
-			AS_crit.tick_anim_id = &pet_crit_spi_sprite;
-			AS_crit.exit_anim_id = &pet_crit_spi_out_sprite;
+			AS_crit.enter_sprite = &pet_crit_spi_in_sprite;
+			AS_crit.tick_sprite = &pet_crit_spi_sprite;
+			AS_crit.exit_sprite = &pet_crit_spi_out_sprite;
 		}
 		else
 		{
-			AS_crit.enter_anim_id = &pet_crit_foc_in_sprite;
-			AS_crit.tick_anim_id = &pet_crit_foc_sprite;
-			AS_crit.exit_anim_id = &pet_crit_foc_out_sprite;
+			AS_crit.enter_sprite = &pet_crit_foc_in_sprite;
+			AS_crit.tick_sprite = &pet_crit_foc_sprite;
+			AS_crit.exit_sprite = &pet_crit_foc_out_sprite;
 		}
-		AS_react.tick_anim_id = &mood_bad_sprite;
+		AS_react.tick_sprite = &mood_bad_sprite;
 	}
 }
 
@@ -138,7 +138,7 @@ void CAT_pet_settle()
 {
 	if(!is_critical())
 	{
-		CAT_animachine_transition(&pet_asm, &AS_idle);
+		CAT_anim_transition(&pet_asm, &AS_idle);
 	}
 }
 
@@ -245,7 +245,7 @@ void CAT_pet_tick()
 	{
 		if(!is_critical() && CAT_get_battery_pct() > CAT_CRITICAL_BATTERY_PCT)
 		{
-			if(CAT_animachine_is_in(&pet_asm, &AS_idle) && CAT_animachine_is_ticking(&pet_asm))
+			if(CAT_anim_is_in(&pet_asm, &AS_idle) && CAT_anim_is_ticking(&pet_asm))
 			{
 				if(CAT_timer_tick(pet.walk_timer_id) && CAT_has_free_space())
 				{
@@ -253,23 +253,23 @@ void CAT_pet_tick()
 					CAT_ivec2 world_dest = CAT_grid2world(grid_dest);
 					destination = (CAT_vec2) {world_dest.x + 8, world_dest.y + 8};
 
-					CAT_animachine_transition(&pet_asm, &AS_walk);
+					CAT_anim_transition(&pet_asm, &AS_walk);
 					CAT_timer_reset(pet.walk_timer_id);
 				}
 			}
 			
-			if(CAT_animachine_is_in(&pet_asm, &AS_walk) && CAT_animachine_is_ticking(&pet_asm))
+			if(CAT_anim_is_in(&pet_asm, &AS_walk) && CAT_anim_is_ticking(&pet_asm))
 			{
 				if(CAT_pet_seek(destination))
 				{
-					CAT_animachine_transition(&pet_asm, &AS_idle);
+					CAT_anim_transition(&pet_asm, &AS_idle);
 				}
 			}
 		}
 		else
 		{
-			if(!CAT_animachine_is_in(&pet_asm, &AS_crit))
-				CAT_animachine_transition(&pet_asm, &AS_crit);
+			if(!CAT_anim_is_in(&pet_asm, &AS_crit))
+				CAT_anim_transition(&pet_asm, &AS_crit);
 		}
 	}
 	else
@@ -277,15 +277,15 @@ void CAT_pet_tick()
 		return;
 	}
 
-	if(!CAT_animachine_is_in(&react_asm, &AS_react) && CAT_input_drag(pet.pos.x, pet.pos.y-16, 16))
+	if(!CAT_anim_is_in(&react_asm, &AS_react) && CAT_input_drag(pet.pos.x, pet.pos.y-16, 16))
 	{
-		CAT_animachine_transition(&react_asm, &AS_react);
+		CAT_anim_transition(&react_asm, &AS_react);
 	}
-	if(CAT_animachine_is_in(&react_asm, &AS_react))
+	if(CAT_anim_is_in(&react_asm, &AS_react))
 	{
 		if(CAT_timer_tick(pet.react_timer_id))
 		{
-			CAT_animachine_transition(&react_asm, NULL);
+			CAT_anim_transition(&react_asm, NULL);
 			CAT_timer_reset(pet.react_timer_id);
 
 			if(CAT_timer_done(pet.petting_timer_id) && pet.times_milked < 3)

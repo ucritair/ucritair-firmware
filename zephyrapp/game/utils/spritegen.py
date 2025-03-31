@@ -38,18 +38,21 @@ with open("sprites/sprite_assets.h", "w") as fd:
 	fd.write("\n");
 	for (i, sprite) in enumerate(json_entries):
 		fd.write(f"extern const CAT_sprite {sprite['name']};\n");
+	fd.write("\n");
+	fd.write(f"extern const CAT_sprite* sprite_list[];\n");
+	fd.write(f"#define CAT_SPRITE_LIST_LENGTH {len(json_entries)}\n");
 
-def hex4(x):
+def OLV_hex4(x):
 	h = hex(x)[2:]
 	h = (4-len(h))*'0' + h
 	return '0x' + h
 
-def hex2(x):
+def OLV_hex2(x):
 	h = hex(x)[2:]
 	h = (2-len(h))*'0' + h
 	return '0x' + h
 
-def get_px(image, x, y):
+def OLV_get_px(image, x, y):
 	r, g, b, a = image.get_at((x, y))
 	r = int(r * (1<<5) / (1<<8))
 	g = int(g * (1<<6) / (1<<8))
@@ -77,7 +80,7 @@ def get_px(image, x, y):
 
 rleword = 0xff
 
-def rledecode(data, width):
+def OLV_rledecode(data, width):
 	out = []
 
 	while data:
@@ -94,7 +97,7 @@ def rledecode(data, width):
 
 	return out
 
-def rleencode(data, width):
+def OLV_rleencode(data, width):
 	output = []
 	rleword = 0xff
 
@@ -130,16 +133,11 @@ def rleencode(data, width):
 			last = item
 			run = 1
 
-	assert rledecode(output[:], width) == in_bak
+	assert OLV_rledecode(output[:], width) == in_bak
 
 	return output
 
-texture_use_cache = {}
-
-with open("sprites/sprite_assets.c", 'w') as fd:
-	fd.write("#include \"sprite_assets.h\"\n");
-	fd.write('\n');
-
+def OLV_write_epaper_sprites(fd):
 	fd.write("#ifdef CAT_EMBEDDED\n");
 	fd.write("\n")
 	einksize = 0
@@ -178,7 +176,7 @@ with open("sprites/sprite_assets.c", 'w') as fd:
 			einksize += len(words)+2
 
 			for i, w in enumerate(words):
-				fd.write(f'{hex2(w)}, ')
+				fd.write(f'{OLV_hex2(w)}, ')
 				if (i%16 == 0) and (i != 0):
 					fd.write('\n\t\t')
 
@@ -186,7 +184,7 @@ with open("sprites/sprite_assets.c", 'w') as fd:
 	fd.write("#endif\n");
 	fd.write("\n");
 
-def RGBA88882RGB565(c):
+def TOS_RGBA88882RGB565(c):
 	if len(c) == 4 and c[3] < 128:
 		return 0xdead;
 	r = int((c[0] / 255) * 31);
@@ -194,13 +192,13 @@ def RGBA88882RGB565(c):
 	b = int((c[2] / 255) * 31);
 	return (r << 11) | (g << 5) | b;
 
-def reverse_endianness(c):
+def TOS_reverse_endianness(c):
 	return int.from_bytes(c.to_bytes(2)[::-1]);
 
 def TOS_tabulate_colour(image):
 	pal = image.palette.colors;
 	rgb888s = pal.keys();
-	rgb565s = [RGBA88882RGB565(c) for c in rgb888s];
+	rgb565s = [TOS_RGBA88882RGB565(c) for c in rgb888s];
 	return rgb565s;
 
 class TOS_rle_packet:
@@ -240,7 +238,12 @@ def TOS_rl_encode(image):
 	assert(TOS_rl_decode(stream) == pixels);
 	return stream;
 
-with open("sprites/sprite_assets.c", 'a') as fd:
+with open("sprites/sprite_assets.c", 'w') as fd:
+	fd.write("#include \"sprite_assets.h\"\n");
+	fd.write('\n');
+
+	OLV_write_epaper_sprites(fd);
+
 	path_map = {};
 	compression_ratio = 0;
 
@@ -258,7 +261,7 @@ with open("sprites/sprite_assets.c", 'a') as fd:
 		fd.write("{\n");
 		for c in colour_table:
 			if c != 0xdead:
-				c = reverse_endianness(c);
+				c = TOS_reverse_endianness(c);
 			fd.write(f"\t{hex(c)},\n");
 		fd.write("};\n");
 		fd.write("\n");
@@ -313,6 +316,13 @@ with open("sprites/sprite_assets.c", 'a') as fd:
 		fd.write(f"\t.reverse = {str(sprite['reverse']).lower()},\n");
 		fd.write("};\n");
 		fd.write("\n");
+	fd.write("\n");
+	
+	fd.write("const CAT_sprite* sprite_list[] =\n");
+	fd.write("{\n");
+	for (i, sprite) in enumerate(json_entries):
+		fd.write(f"\t&{sprite['name']},\n");
+	fd.write("};\n");
 	fd.write("\n");
 
 	print(f"Mean compression ratio: {compression_ratio / len(path_map):.2f}");

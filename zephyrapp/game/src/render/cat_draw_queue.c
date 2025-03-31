@@ -1,40 +1,9 @@
 #include "cat_render.h"
 
+#include "sprite_assets.h"
+
 //////////////////////////////////////////////////////////////////////////
 // DRAW QUEUE
-
-CAT_anim_table anim_table;
-
-void CAT_anim_table_init()
-{
-	for(int i = 0; i < CAT_ANIM_TABLE_MAX_LENGTH; i++)
-	{
-		anim_table.frame_idx[i] = 0;
-		anim_table.dirty[i] = true;
-	}
-}
-
-bool CAT_anim_finished(const CAT_sprite* sprite)
-{
-	if(sprite == NULL)
-	{
-		CAT_printf("[ERROR] CAT_anim_finished: null sprite\n");
-		return true;
-	}
-
-	return anim_table.frame_idx[sprite->id] == sprite->frame_count-1;
-}
-
-void CAT_anim_reset(const CAT_sprite* sprite)
-{
-	if(sprite == NULL)
-	{
-		CAT_printf("[ERROR] CAT_anim_reset: null sprite\n");
-		return;
-	}
-
-	anim_table.frame_idx[sprite->id] = 0;
-}
 
 static CAT_draw_job jobs[CAT_DRAW_QUEUE_MAX_LENGTH];
 static int job_count = 0;
@@ -86,52 +55,15 @@ int CAT_draw_queue_add(const CAT_sprite* sprite, int frame_idx, int layer, int x
 	return -1;
 }
 
-static int frame_counter = 0;
-
 void CAT_draw_queue_submit()
 {
-	if (CAT_is_first_render_cycle())
-	{
-		frame_counter += 1;
-		if(frame_counter >= 2)
-		{
-			for(int i = 0; i < job_count; i++)
-			{
-				CAT_draw_job* job = &jobs[i];
-				const CAT_sprite* sprite = job->sprite;
-
-				if(job->frame_idx != -1)
-					continue;
-				if(!anim_table.dirty[sprite->id])
-					continue;
-			
-				if(anim_table.frame_idx[sprite->id] < sprite->frame_count-1)
-					anim_table.frame_idx[sprite->id] += 1;
-				else if(sprite->loop)
-					anim_table.frame_idx[sprite->id] = 0;
-				
-				anim_table.dirty[sprite->id] = false;
-			}
-			frame_counter = 0;
-		}
-
-		for(int i = 0; i < job_count; i++)
-		{
-			anim_table.dirty[jobs[i].sprite->id] = true;
-		}	
-	}
-
 	for(int i = 0; i < job_count; i++)
 	{
 		CAT_draw_job* job = &jobs[i];
 		const CAT_sprite* sprite = job->sprite;
 
 		if(job->frame_idx == -1)
-		{
-			job->frame_idx = anim_table.frame_idx[sprite->id];
-			if(sprite->reverse)
-				job->frame_idx = sprite->frame_count-1-job->frame_idx;
-		}
+			job->frame_idx = CAT_animator_get_frame(sprite);
 
 		draw_mode = job->mode;
 		CAT_draw_sprite(sprite, job->frame_idx, job->x, job->y);
