@@ -6,7 +6,8 @@ Initial Public Release
 
 Setup:
  - Install `west` and an appropriate toolchain (`west sdk install`, we're on `zephyr-sdk-0.16.8`) . Guide : https://docs.zephyrproject.org/latest/develop/getting_started/index.html
- - Clone `cat_software`
+ - You may need to checkout zephyr to 3959a20
+ - Clone this repo as `cat_software`
  - `west init -l cat_software`
  - `west update`
  - `(cd zephyr ; git apply ../cat_software/zephyr.patch)`
