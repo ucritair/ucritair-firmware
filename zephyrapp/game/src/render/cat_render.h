@@ -100,12 +100,12 @@ typedef struct CAT_anim_machine
 
 void CAT_anim_transition(CAT_anim_machine* machine, CAT_anim_state* next);
 const CAT_sprite* CAT_anim_tick(CAT_anim_machine* machine);
+
 void CAT_anim_kill(CAT_anim_machine* machine);
+bool CAT_anim_is_dead(CAT_anim_machine* machine);
 
 bool CAT_anim_is_in(CAT_anim_machine* machine, CAT_anim_state* state);
 bool CAT_anim_is_ticking(CAT_anim_machine* machine);
-bool CAT_anim_is_done(CAT_anim_machine* machine);
-
 
 //////////////////////////////////////////////////////////////////////////
 // DRAW QUEUE

@@ -260,7 +260,7 @@ void CAT_pet_tick()
 	{
 		if(!is_critical() && CAT_get_battery_pct() > CAT_CRITICAL_BATTERY_PCT)
 		{
-			if(CAT_anim_is_in(&AM_pet, &AS_idle) && CAT_anim_is_ticking(&AM_pet))
+			if(CAT_anim_is_in(&AM_pet, &AS_idle) && CAT_anim_is_live(&AM_pet))
 			{
 				if(CAT_timer_tick(pet.walk_timer_id) && CAT_has_free_space())
 				{
@@ -273,7 +273,7 @@ void CAT_pet_tick()
 				}
 			}
 			
-			if(CAT_anim_is_in(&AM_pet, &AS_walk) && CAT_anim_is_ticking(&AM_pet))
+			if(CAT_anim_is_in(&AM_pet, &AS_walk) && CAT_anim_is_live(&AM_pet))
 			{
 				if(CAT_pet_seek(destination))
 				{

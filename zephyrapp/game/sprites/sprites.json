@@ -2274,6 +2274,36 @@
             "height": 64,
             "loop": true,
             "reverse": false
+        },
+        {
+            "id": 223,
+            "name": "animachine_enter_sprite",
+            "path": "testing/animachine_enter.png",
+            "frames": 2,
+            "width": 32,
+            "height": 32,
+            "loop": true,
+            "reverse": false
+        },
+        {
+            "id": 224,
+            "name": "animachine_tick_sprite",
+            "path": "testing/animachine_tick.png",
+            "frames": 2,
+            "width": 32,
+            "height": 32,
+            "loop": true,
+            "reverse": false
+        },
+        {
+            "id": 225,
+            "name": "animachine_exit_sprite",
+            "path": "testing/animachine_exit.png",
+            "frames": 2,
+            "width": 32,
+            "height": 32,
+            "loop": false,
+            "reverse": false
         }
     ]
 }

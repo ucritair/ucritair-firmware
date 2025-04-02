@@ -569,7 +569,6 @@ void CAT_MS_room(CAT_machine_signal signal)
 		case CAT_MACHINE_SIGNAL_ENTER:
 		{
 			CAT_set_render_callback(CAT_render_room);
-
 			CAT_pet_settle();
 			break;
 		}
@@ -762,4 +761,39 @@ void CAT_render_room()
 	render_pickups();
 	render_pet();
 	render_gui();
+}
+
+static CAT_anim_machine AM_test;
+static CAT_anim_state AS_test =
+{
+	.enter_sprite = &animachine_enter_sprite,
+	.tick_sprite = &animachine_tick_sprite,
+	.exit_sprite = &animachine_exit_sprite
+};
+
+void CAT_MS_playground(CAT_machine_signal signal)
+{
+	switch(signal)
+	{
+		case CAT_MACHINE_SIGNAL_ENTER:
+		{
+			CAT_set_render_callback(CAT_render_playground);	
+			break;
+		}
+		case CAT_MACHINE_SIGNAL_TICK:
+		{
+			if(CAT_input_pressed(CAT_BUTTON_A))
+				CAT_anim_transition(&AM_test, &AS_test);	
+			break;
+		}
+		case CAT_MACHINE_SIGNAL_EXIT:
+		{
+			break;
+		}
+	}
+}
+
+void CAT_render_playground()
+{
+	CAT_draw_queue_add(CAT_anim_tick(&AM_test), -1, 0, 120, 160, CAT_DRAW_MODE_CENTER_X | CAT_DRAW_MODE_CENTER_Y);
 }

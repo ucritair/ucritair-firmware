@@ -142,7 +142,7 @@ void action_tick()
 			);
 			if(CAT_input_pressed(CAT_BUTTON_A))
 				CAT_anim_kill(&AM_pet);
-			if(CAT_anim_is_done(&AM_pet))
+			if(CAT_anim_is_dead(&AM_pet))
 				CAT_machine_transition(CAT_MS_room);
 		}
 	}

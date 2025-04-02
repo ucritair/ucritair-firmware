@@ -117,3 +117,6 @@ void CAT_room_earn(int ticks);
 void CAT_room_tick();
 void CAT_MS_room(CAT_machine_signal signal);
 void CAT_render_room();
+
+void CAT_MS_playground(CAT_machine_signal signal);
+void CAT_render_playground();
