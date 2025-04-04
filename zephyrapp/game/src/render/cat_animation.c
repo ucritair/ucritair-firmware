@@ -7,7 +7,7 @@
 
 static int frame_indices[CAT_SPRITE_LIST_LENGTH];
 static int frame_counter = 0;
-static bool new_loop[CAT_SPRITE_LIST_LENGTH];
+static bool cycle_complete[CAT_SPRITE_LIST_LENGTH];
 #define CAT_ANIMATOR_FRAME_PERIOD 1
 
 void CAT_animator_init()
@@ -15,14 +15,14 @@ void CAT_animator_init()
 	for(int i = 0; i < CAT_SPRITE_LIST_LENGTH; i++)
 	{
 		frame_indices[i] = 0;
-		new_loop[i] = false;
+		cycle_complete[i] = false;
 	}
 }
 
 void CAT_animator_tick()
 {
 	for(int i = 0; i < CAT_SPRITE_LIST_LENGTH; i++)
-		new_loop[i] = false;
+		cycle_complete[i] = false;
 
 	if(frame_counter == CAT_ANIMATOR_FRAME_PERIOD)
 	{
@@ -38,7 +38,7 @@ void CAT_animator_tick()
 			{
 				if(sprite->loop)
 					frame_indices[i] = 0;
-				new_loop[i] = true;
+				cycle_complete[i] = true;
 			}
 		}
 	}
@@ -62,7 +62,7 @@ bool animator_is_finished(const CAT_sprite* sprite)
 {
 	if(sprite == NULL)
 		return true;
-	return new_loop[sprite->id];
+	return cycle_complete[sprite->id];
 }
 
 void animator_reset(const CAT_sprite* sprite)
@@ -70,7 +70,7 @@ void animator_reset(const CAT_sprite* sprite)
 	if(sprite == NULL)
 		return;
 	frame_indices[sprite->id] = 0;
-	new_loop[sprite->id] = false;
+	cycle_complete[sprite->id] = false;
 }
 
 
@@ -89,47 +89,55 @@ void CAT_anim_transition(CAT_anim_machine* machine, CAT_anim_state* next)
 	machine->next = next;
 }
 
-const CAT_sprite* CAT_anim_tick(CAT_anim_machine* machine)
+void CAT_anim_tick(CAT_anim_machine* machine)
+{
+	if(machine == NULL)
+		return;
+	if(machine->state == NULL)
+	{
+		if(machine->next != NULL)
+		{
+			machine->state = machine->next;
+			machine->next = NULL;
+			animator_reset(machine->state->enter_sprite);
+			machine->signal = ENTER;
+		}
+		else
+			return;
+	}
+	
+	if(machine->signal == ENTER)
+	{
+		if(animator_is_finished(machine->state->enter_sprite))
+		{
+			animator_reset(machine->state->tick_sprite);
+			machine->signal = TICK;
+		}
+	}
+	if(machine->signal == TICK)
+	{
+		if(machine->state->tick_sprite == NULL  || machine->next != NULL)
+		{
+			animator_reset(machine->state->exit_sprite);
+			machine->signal = EXIT;
+		}
+	}
+	if(machine->signal == EXIT)
+	{
+		if(animator_is_finished(machine->state->exit_sprite))
+		{
+			machine->state = NULL;
+			CAT_anim_tick(machine);
+		}
+	}
+}
+
+const CAT_sprite* CAT_anim_read(CAT_anim_machine* machine)
 {
 	if(machine == NULL)
 		return NULL;
 	if(machine->state == NULL)
-	{
-		if(machine->next == NULL)
-			return NULL;
-		machine->state = machine->next;
-		machine->next = NULL;
-		animator_reset(machine->state->enter_sprite);
-		machine->signal = ENTER;
-	}
-	
-	if(CAT_is_first_render_cycle())
-	{	
-		if(machine->signal == ENTER)
-		{
-			if(animator_is_finished(machine->state->enter_sprite))
-			{
-				animator_reset(machine->state->tick_sprite);
-				machine->signal = TICK;
-			}
-		}
-		if(machine->signal == TICK)
-		{
-			if(machine->next != NULL)
-			{
-				animator_reset(machine->state->exit_sprite);
-				machine->signal = EXIT;
-			}
-		}
-		if(machine->signal == EXIT)
-		{
-			if(animator_is_finished(machine->state->exit_sprite))
-			{
-				machine->state = NULL;
-				return CAT_anim_tick(machine);
-			}
-		}
-	}
+		return NULL;
 
 	switch(machine->signal)
 	{
@@ -142,8 +150,9 @@ const CAT_sprite* CAT_anim_tick(CAT_anim_machine* machine)
 		case EXIT:
 			return machine->state->exit_sprite;
 			break;
+		default:
+			return NULL;
 	}
-	return NULL;
 }
 
 void CAT_anim_kill(CAT_anim_machine* machine)

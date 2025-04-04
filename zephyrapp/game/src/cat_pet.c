@@ -52,13 +52,13 @@ void CAT_pet_init()
 
 	AM_pet = (CAT_anim_machine)
 	{
-		.state = &AS_idle,
+		.state = NULL,
 		.next = NULL,
 		.signal = ENTER
 	};
 	AM_mood = (CAT_anim_machine)
 	{
-		.state = &AS_react,
+		.state = NULL,
 		.next = NULL,
 		.signal = ENTER
 	};
@@ -151,10 +151,10 @@ void CAT_pet_reanimate()
 
 void CAT_pet_settle()
 {
-	if(!is_critical())
-	{
+	if(is_critical())
+		CAT_anim_transition(&AM_pet, &AS_crit);
+	else
 		CAT_anim_transition(&AM_pet, &AS_idle);
-	}
 }
 
 bool CAT_pet_seek(CAT_vec2 targ)
@@ -292,7 +292,7 @@ void CAT_pet_tick()
 		return;
 	}
 
-	if(!CAT_anim_is_in(&AM_mood, &AS_react) && CAT_input_drag(pet.pos.x, pet.pos.y-16, 16))
+	if(CAT_input_drag(pet.pos.x, pet.pos.y-16, 16) && !CAT_anim_is_in(&AM_mood, &AS_react))
 	{
 		CAT_anim_transition(&AM_mood, &AS_react);
 	}
@@ -300,9 +300,6 @@ void CAT_pet_tick()
 	{
 		if(CAT_timer_tick(pet.react_timer_id))
 		{
-			CAT_anim_transition(&AM_mood, NULL);
-			CAT_timer_reset(pet.react_timer_id);
-
 			if(CAT_timer_done(pet.petting_timer_id) && pet.times_milked < 3)
 			{
 				pet.times_pet += 1;
@@ -324,6 +321,9 @@ void CAT_pet_tick()
 				}
 				CAT_timer_reset(pet.petting_timer_id);
 			}
+
+			CAT_anim_kill(&AM_mood);
+			CAT_timer_reset(pet.react_timer_id);
 		}
 	}
 }

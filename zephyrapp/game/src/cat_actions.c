@@ -37,6 +37,20 @@ static bool action_confirmed = false;
 static bool action_complete = false;
 static int timer_id = -1;
 
+void action_enter()
+{
+	if(timer_id == -1)
+		timer_id = CAT_timer_init(2.0f);
+	else
+		CAT_timer_reset(timer_id);
+
+	if(tool_id == -1)
+		cursor = CAT_largest_free_space();
+	cursor = CAT_nearest_free_space(cursor);
+
+	CAT_pet_settle();
+}
+
 static void control_cursor()
 {
 	if(CAT_input_pulse(CAT_BUTTON_UP))
@@ -49,15 +63,6 @@ static void control_cursor()
 		cursor.x -= 1;
 	cursor.x = clamp(cursor.x, 0, CAT_GRID_WIDTH-1);
 	cursor.y = clamp(cursor.y, 0, CAT_GRID_HEIGHT-1);
-}
-
-void action_enter()
-{
-	if(tool_id == -1)
-		cursor = CAT_largest_free_space();
-	cursor = CAT_nearest_free_space(cursor);
-
-	CAT_pet_settle();
 }
 
 void apply_tool()
@@ -73,20 +78,22 @@ void apply_tool()
 
 void action_tick()
 {
-	if(timer_id == -1)
-		timer_id = CAT_timer_init(2.0f);
-	
 	if(tool_id == -1)
 	{
 		CAT_filter_item_dialog(tool_filter);
 		CAT_target_item_dialog(&tool_id, true);
 		CAT_machine_transition(CAT_MS_item_dialog);
+		return;
 	}
-	else if(!action_confirmed)
+
+	if(tool_id == toy_laser_pointer_item)
 	{
-		if(tool_id == toy_laser_pointer_item)
-			CAT_machine_transition(CAT_MS_laser);
-			
+		CAT_machine_transition(CAT_MS_laser);
+		return;
+	}
+	
+	if(!action_confirmed)
+	{	
 		control_cursor();
 
 		if(CAT_input_pressed(CAT_BUTTON_A))
@@ -102,53 +109,47 @@ void action_tick()
 				CAT_anim_transition(&AM_pet, &AS_walk);
 			}
 		}
+
+		return;
 	}
-	else
+
+	if(CAT_anim_is_in(&AM_pet, &AS_walk) && CAT_pet_seek(target_location))
 	{
-		if(CAT_anim_is_in(&AM_pet, &AS_walk) && CAT_anim_is_ticking(&AM_pet))
+		CAT_anim_transition(&AM_pet, action_AS);
+	}
+	if(CAT_anim_is_in(&AM_pet, action_AS) && CAT_anim_is_ticking(&AM_pet))
+	{
+		if(CAT_timer_tick(timer_id) || CAT_input_pressed(CAT_BUTTON_A))
 		{
-			if(CAT_pet_seek(target_location))
-			{
-				CAT_anim_transition(&AM_pet, action_AS);
-			}
-		}
-		if(CAT_anim_is_in(&AM_pet, action_AS) && CAT_anim_is_ticking(&AM_pet))
-		{
-			if(CAT_timer_tick(timer_id) || CAT_input_pressed(CAT_BUTTON_A))
-			{
-				apply_tool();
-				CAT_pet_reanimate();
-			
-				CAT_item* item = CAT_item_get(tool_id);
-				if(item->data.tool_data.type == CAT_TOOL_TYPE_FOOD)
-				{
-					CAT_item_list_remove(&bag, tool_id, 1);
-				}
-				
-				action_complete = true;
-				CAT_timer_reset(timer_id);
+			apply_tool();
+			CAT_pet_reanimate();
+		
+			CAT_item* item = CAT_item_get(tool_id);
+			if(item->data.tool_data.type == CAT_TOOL_TYPE_FOOD)
+				CAT_item_list_remove(&bag, tool_id, 1);
+			action_complete = true;
 
-				CAT_anim_kill(&AM_pet);
-				CAT_anim_transition(&AM_pet, result_AS);		
-			}
-		}
-		if(CAT_anim_is_in(&AM_pet, result_AS))
-		{
-			CAT_set_LEDs
-			(
-				result_colour[0],
-				result_colour[1],
-				result_colour[1]
-			);
-			if(CAT_input_pressed(CAT_BUTTON_A))
-				CAT_anim_kill(&AM_pet);
-			if(CAT_anim_is_dead(&AM_pet))
-				CAT_machine_transition(CAT_MS_room);
+			CAT_anim_transition(&AM_pet, result_AS);		
 		}
 	}
+	if(CAT_anim_is_in(&AM_pet, result_AS))
+	{
+		CAT_set_LEDs
+		(
+			result_colour[0],
+			result_colour[1],
+			result_colour[1]
+		);
 
-	if(CAT_input_pressed(CAT_BUTTON_B))
+		CAT_anim_transition(&AM_pet, &AS_idle);
+
+		if(CAT_input_pressed(CAT_BUTTON_A))
+			CAT_anim_kill(&AM_pet);
+	}
+	if(CAT_anim_is_in(&AM_pet, &AS_idle) || CAT_input_pressed(CAT_BUTTON_B))
+	{
 		CAT_machine_transition(CAT_MS_room);
+	}
 }
 
 void action_exit()
@@ -157,7 +158,6 @@ void action_exit()
 	action_confirmed = false;
 	action_complete = false;
 
-	CAT_timer_reset(timer_id);
 	CAT_set_LEDs(0, 0, 0);
 }
 

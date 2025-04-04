@@ -727,15 +727,20 @@ void render_pickups()
 
 void render_pet()
 {
+	CAT_anim_tick(&AM_pet);
+	CAT_anim_tick(&AM_mood);
+	
 	int mode = CAT_DRAW_MODE_BOTTOM | CAT_DRAW_MODE_CENTER_X;
 	if(pet.rot != 0)
 		mode |= CAT_DRAW_MODE_REFLECT_X;
 	int layer = CAT_get_battery_pct() <= CAT_CRITICAL_BATTERY_PCT ? 1 : 2;
-	CAT_draw_queue_add(CAT_anim_tick(&AM_pet), -1, layer, pet.pos.x, pet.pos.y, mode);
+
+	CAT_draw_queue_add(CAT_anim_read(&AM_pet), -1, layer, pet.pos.x, pet.pos.y, mode);
+
 	if(CAT_anim_is_in(&AM_mood, &AS_react))
 	{
 		int x_off = pet.rot != 0 ? 16 : -16;
-		CAT_draw_queue_add(CAT_anim_tick(&AM_mood), -1, layer+1, pet.pos.x + x_off, pet.pos.y - 48, mode);	
+		CAT_draw_queue_add(CAT_anim_read(&AM_mood), -1, layer+1, pet.pos.x + x_off, pet.pos.y - 48, mode);	
 	}
 }
 
@@ -743,6 +748,7 @@ static const CAT_sprite* button_sprites[] =
 {
 	&icon_feed_sprite,
 	&icon_study_sprite,
+	&icon_play_sprite,
 	&icon_deco_sprite,
 	&icon_menu_sprite
 };
@@ -770,39 +776,4 @@ void CAT_render_room()
 	render_pickups();
 	render_pet();
 	render_gui();
-}
-
-static CAT_anim_machine AM_test;
-static CAT_anim_state AS_test =
-{
-	.enter_sprite = &animachine_enter_sprite,
-	.tick_sprite = &animachine_tick_sprite,
-	.exit_sprite = &animachine_exit_sprite
-};
-
-void CAT_MS_playground(CAT_machine_signal signal)
-{
-	switch(signal)
-	{
-		case CAT_MACHINE_SIGNAL_ENTER:
-		{
-			CAT_set_render_callback(CAT_render_playground);	
-			break;
-		}
-		case CAT_MACHINE_SIGNAL_TICK:
-		{
-			if(CAT_input_pressed(CAT_BUTTON_A))
-				CAT_anim_transition(&AM_test, &AS_test);	
-			break;
-		}
-		case CAT_MACHINE_SIGNAL_EXIT:
-		{
-			break;
-		}
-	}
-}
-
-void CAT_render_playground()
-{
-	CAT_draw_queue_add(CAT_anim_tick(&AM_test), -1, 0, 120, 160, CAT_DRAW_MODE_CENTER_X | CAT_DRAW_MODE_CENTER_Y);
 }
