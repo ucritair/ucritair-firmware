@@ -320,7 +320,6 @@ void CAT_init(int seconds_slept)
 	CAT_force_load();
 	CAT_apply_sleep();
 	
-	CAT_pet_reanimate();
 	CAT_pet_reposition();
 
 	CAT_machine_transition(CAT_MS_room);
