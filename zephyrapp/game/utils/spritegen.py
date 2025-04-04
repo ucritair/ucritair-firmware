@@ -12,30 +12,9 @@ import copy;
 
 pygame.init()
 
-@dataclass
-class BakeData:
-	i: int
-	name: str
-	path: str
-	frames: str
-	width: str
-	height: str
-	rlesize: int = 0
-	colors: set = None
-
-	@property
-	def size(self):
-		return self.width * self.height * 2
-
-	@property
-	def do_compress(self):
-		return True
-		return not (self.name.startswith('base_wall') or self.name.startswith('base_floor'))
-
 json_file = open("sprites/sprites.json", "r+");
 json_data = json.load(json_file);
 json_entries = json_data['entries'];
-atlas = [];
 
 for (i, sprite) in enumerate(json_entries):
 	# Ensure correct JSON
@@ -44,16 +23,6 @@ for (i, sprite) in enumerate(json_entries):
 	sprite['width'] = image.size[0];
 	sprite['height'] = image.size[1] // sprite['frames'];
 	image.close();
-
-	# If so, atlasify
-	atlas.append(BakeData(
-		sprite['id'],
-		sprite['name'],
-		sprite['path'],
-		sprite['frames'],
-		sprite['width'],
-		sprite['height']
-	));
 
 json_file.seek(0);
 json_file.truncate();
@@ -64,44 +33,26 @@ with open("sprites/sprite_assets.h", "w") as fd:
 	fd.write("#pragma once\n");
 	fd.write("\n")
 	fd.write("#include <stdint.h>\n");
+	fd.write("#include \"cat_render.h\"\n");
+	fd.write("#include \"cat_core.h\"\n");
 	fd.write("\n");
-	fd.write("typedef struct\n");
-	fd.write("{\n");
-	fd.write("\tint id;\n");
-	fd.write("\tconst uint16_t* colour_table;\n");
-	fd.write("\tconst uint8_t** frames;\n");
-	fd.write("\tint frame_count;\n");
-	fd.write("\tint width;\n");
-	fd.write("\tint height;\n");
-	fd.write("} CAT_sprite;\n");
+	for (i, sprite) in enumerate(json_entries):
+		fd.write(f"extern const CAT_sprite {sprite['name']};\n");
 	fd.write("\n");
-	for (i, sprite) in enumerate(atlas):
-		fd.write(f"extern const CAT_sprite {sprite.name};\n");
+	fd.write(f"extern const CAT_sprite* sprite_list[];\n");
+	fd.write(f"#define CAT_SPRITE_LIST_LENGTH {len(json_entries)}\n");
 
-# assert len(set(x.path for x in atlas)) == len([x.path for x in atlas]), "Duplicated path"
-assert len(set(x.name for x in atlas)) == len([x.name for x in atlas]), "Duplicated name"
-
-atlas.sort(key=lambda x: x.i)
-
-def hex4(x):
+def OLV_hex4(x):
 	h = hex(x)[2:]
 	h = (4-len(h))*'0' + h
 	return '0x' + h
 
-def hex2(x):
+def OLV_hex2(x):
 	h = hex(x)[2:]
 	h = (2-len(h))*'0' + h
 	return '0x' + h
 
-textures = {}
-for x in atlas:
-	try:
-		textures[x.path] = pygame.image.load(os.path.join("sprites", x.path))
-	except FileNotFoundError:
-		print("Falling back for ", x.path)
-		textures[x.path] = pygame.image.load(os.path.join("sprites", "null.png"))
-
-def get_px(image, x, y):
+def OLV_get_px(image, x, y):
 	r, g, b, a = image.get_at((x, y))
 	r = int(r * (1<<5) / (1<<8))
 	g = int(g * (1<<6) / (1<<8))
@@ -129,7 +80,7 @@ def get_px(image, x, y):
 
 rleword = 0xff
 
-def rledecode(data, width):
+def OLV_rledecode(data, width):
 	out = []
 
 	while data:
@@ -146,7 +97,7 @@ def rledecode(data, width):
 
 	return out
 
-def rleencode(data, width):
+def OLV_rleencode(data, width):
 	output = []
 	rleword = 0xff
 
@@ -182,16 +133,11 @@ def rleencode(data, width):
 			last = item
 			run = 1
 
-	assert rledecode(output[:], width) == in_bak
+	assert OLV_rledecode(output[:], width) == in_bak
 
 	return output
 
-texture_use_cache = {}
-
-with open("sprites/sprite_assets.c", 'w') as fd:
-	fd.write("#include \"sprite_assets.h\"\n");
-	fd.write('\n');
-
+def OLV_write_epaper_sprites(fd):
 	fd.write("#ifdef CAT_EMBEDDED\n");
 	fd.write("\n")
 	einksize = 0
@@ -230,7 +176,7 @@ with open("sprites/sprite_assets.c", 'w') as fd:
 			einksize += len(words)+2
 
 			for i, w in enumerate(words):
-				fd.write(f'{hex2(w)}, ')
+				fd.write(f'{OLV_hex2(w)}, ')
 				if (i%16 == 0) and (i != 0):
 					fd.write('\n\t\t')
 
@@ -238,7 +184,7 @@ with open("sprites/sprite_assets.c", 'w') as fd:
 	fd.write("#endif\n");
 	fd.write("\n");
 
-def RGBA88882RGB565(c):
+def TOS_RGBA88882RGB565(c):
 	if len(c) == 4 and c[3] < 128:
 		return 0xdead;
 	r = int((c[0] / 255) * 31);
@@ -246,13 +192,13 @@ def RGBA88882RGB565(c):
 	b = int((c[2] / 255) * 31);
 	return (r << 11) | (g << 5) | b;
 
-def reverse_endianness(c):
+def TOS_reverse_endianness(c):
 	return int.from_bytes(c.to_bytes(2)[::-1]);
 
 def TOS_tabulate_colour(image):
 	pal = image.palette.colors;
 	rgb888s = pal.keys();
-	rgb565s = [RGBA88882RGB565(c) for c in rgb888s];
+	rgb565s = [TOS_RGBA88882RGB565(c) for c in rgb888s];
 	return rgb565s;
 
 class TOS_rle_packet:
@@ -292,7 +238,12 @@ def TOS_rl_encode(image):
 	assert(TOS_rl_decode(stream) == pixels);
 	return stream;
 
-with open("sprites/sprite_assets.c", 'a') as fd:
+with open("sprites/sprite_assets.c", 'w') as fd:
+	fd.write("#include \"sprite_assets.h\"\n");
+	fd.write('\n');
+
+	OLV_write_epaper_sprites(fd);
+
 	path_map = {};
 	compression_ratio = 0;
 
@@ -310,7 +261,7 @@ with open("sprites/sprite_assets.c", 'a') as fd:
 		fd.write("{\n");
 		for c in colour_table:
 			if c != 0xdead:
-				c = reverse_endianness(c);
+				c = TOS_reverse_endianness(c);
 			fd.write(f"\t{hex(c)},\n");
 		fd.write("};\n");
 		fd.write("\n");
@@ -361,8 +312,17 @@ with open("sprites/sprite_assets.c", 'a') as fd:
 		fd.write(f"\t.frame_count = {sprite['frames']},\n");
 		fd.write(f"\t.width = {sprite['width']},\n");
 		fd.write(f"\t.height = {sprite['height']},\n");
+		fd.write(f"\t.loop = {str(sprite['loop']).lower()},\n");
+		fd.write(f"\t.reverse = {str(sprite['reverse']).lower()},\n");
 		fd.write("};\n");
 		fd.write("\n");
+	fd.write("\n");
+	
+	fd.write("const CAT_sprite* sprite_list[] =\n");
+	fd.write("{\n");
+	for (i, sprite) in enumerate(json_entries):
+		fd.write(f"\t&{sprite['name']},\n");
+	fd.write("};\n");
 	fd.write("\n");
 
 	print(f"Mean compression ratio: {compression_ratio / len(path_map):.2f}");

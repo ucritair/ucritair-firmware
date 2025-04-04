@@ -11,6 +11,7 @@
 #include "cat_render.h"
 #include <stddef.h>
 #include "cat_menu.h"
+#include "sprite_assets.h"
 
 CAT_item_list bag =
 {

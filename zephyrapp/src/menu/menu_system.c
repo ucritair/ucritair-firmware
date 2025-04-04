@@ -20,6 +20,7 @@
 #include "lcd_driver.h"
 #include "lcd_rendering.h"
 #include "batt.h"
+#include "sprite_assets.h"
 
 #include <zephyr/kernel.h>
 

@@ -32,6 +32,7 @@
 #include "cat_version.h"
 #include "theme_assets.h"
 #include "config.h"
+#include "sprite_assets.h"
 
 #ifdef CAT_EMBEDDED
 #include "menu_time.h"
@@ -310,8 +311,7 @@ void CAT_init(int seconds_slept)
 
 	CAT_timetable_init();
 
-	CAT_anim_table_init();
-	CAT_sprite_mass_define();
+	CAT_animator_init();
 
 	CAT_space_init();
 	CAT_room_init();
@@ -334,6 +334,8 @@ void CAT_tick_logic()
 	CAT_platform_tick();
 	CAT_input_tick();
 	CAT_get_AQ_readings();
+
+	CAT_animator_tick();
 
 	CAT_room_tick();
 	CAT_pet_tick();

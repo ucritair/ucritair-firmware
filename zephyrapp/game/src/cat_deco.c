@@ -10,6 +10,7 @@
 #include "cat_item_dialog.h"
 #include "cat_bag.h"
 #include "cat_menu.h"
+#include "sprite_assets.h"
 
 static enum {ADD, MOD, REMOVE} mode = ADD;
 

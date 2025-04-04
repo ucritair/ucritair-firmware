@@ -9,6 +9,7 @@
 #include "config.h"
 #include <stdint.h>
 #include "cat_aqi.h"
+#include "sprite_assets.h"
 
 static enum
 {

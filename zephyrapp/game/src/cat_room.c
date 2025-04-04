@@ -15,6 +15,7 @@
 #include "cat_arcade.h"
 #include "theme_assets.h"
 #include "cat_aqi.h"
+#include "sprite_assets.h"
 
 //////////////////////////////////////////////////////////////////////////
 // SPACE
@@ -570,7 +571,6 @@ void CAT_MS_room(CAT_machine_signal signal)
 		case CAT_MACHINE_SIGNAL_ENTER:
 		{
 			CAT_set_render_callback(CAT_render_room);
-
 			CAT_pet_settle();
 			break;
 		}
@@ -729,27 +729,42 @@ void render_pickups()
 
 void render_pet()
 {
+	CAT_anim_tick(&AM_pet);
+	CAT_anim_tick(&AM_mood);
+	
 	int mode = CAT_DRAW_MODE_BOTTOM | CAT_DRAW_MODE_CENTER_X;
 	if(pet.rot != 0)
 		mode |= CAT_DRAW_MODE_REFLECT_X;
 	int layer = CAT_get_battery_pct() <= CAT_CRITICAL_BATTERY_PCT ? 1 : 2;
-	CAT_draw_queue_add(CAT_animachine_tick(&pet_asm), -1, layer, pet.pos.x, pet.pos.y, mode);
-	if(CAT_animachine_is_in(&react_asm, &AS_react))
+
+	CAT_draw_queue_add(CAT_anim_read(&AM_pet), -1, layer, pet.pos.x, pet.pos.y, mode);
+
+	if(CAT_anim_is_in(&AM_mood, &AS_react))
 	{
 		int x_off = pet.rot != 0 ? 16 : -16;
-		CAT_draw_queue_add(CAT_animachine_tick(&react_asm), -1, layer+1, pet.pos.x + x_off, pet.pos.y - 48, mode);	
+		CAT_draw_queue_add(CAT_anim_read(&AM_mood), -1, layer+1, pet.pos.x + x_off, pet.pos.y - 48, mode);	
 	}
 }
+
+static const CAT_sprite* button_sprites[] =
+{
+	&icon_feed_sprite,
+	&icon_study_sprite,
+	&icon_play_sprite,
+	&icon_deco_sprite,
+	&icon_menu_sprite
+};
+static int button_start_x = 24;
+static int button_start_y = 296;
 
 void render_gui()
 {
 	int icon_mode = CAT_DRAW_MODE_CENTER_X | CAT_DRAW_MODE_CENTER_Y;
-	CAT_draw_queue_add(&icon_feed_sprite, 0, GUI_LAYER, 8+16, 280+16, icon_mode); 
-	CAT_draw_queue_add(&icon_study_sprite, 0, GUI_LAYER, 56+16, 280+16, icon_mode); 
-	CAT_draw_queue_add(&icon_play_sprite, 0, GUI_LAYER, 104+16, 280+16, icon_mode);
-	CAT_draw_queue_add(&icon_deco_sprite, 0, GUI_LAYER, 152+16, 280+16, icon_mode);
-	CAT_draw_queue_add(&icon_menu_sprite, 0, GUI_LAYER, 200+16, 280+16, icon_mode);
-	CAT_draw_queue_add(&button_hl_sprite, 0, GUI_LAYER, 8+16+48*mode_selector, 280+16, icon_mode);
+	for(int i = 0; i < sizeof(button_sprites)/sizeof(button_sprites[0]); i++)
+	{
+		CAT_draw_queue_add(button_sprites[i], 0, GUI_LAYER, button_start_x + 48 * i, button_start_y, icon_mode);
+	}
+	CAT_draw_queue_add(&button_hl_sprite, 0, GUI_LAYER, button_start_x + 48 * mode_selector, button_start_y, icon_mode);
 
 	if(input.touch.pressure)
 		CAT_draw_queue_add(&touch_hl_sprite, 0, 4, input.touch.x, input.touch.y, icon_mode);

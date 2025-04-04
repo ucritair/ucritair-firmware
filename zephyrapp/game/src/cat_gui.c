@@ -10,6 +10,7 @@
 #include "cat_input.h"
 #include "cat_item.h"
 #include "cat_bag.h"
+#include "sprite_assets.h"
 
 //////////////////////////////////////////////////////////////////////////
 // BASICS

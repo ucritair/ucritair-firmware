@@ -8,6 +8,7 @@
 #include "cat_actions.h"
 #include "cat_bag.h"
 #include "rtc.h"
+#include "sprite_assets.h"
 
 #include "menu_system.h"
 

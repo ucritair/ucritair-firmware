@@ -2,6 +2,7 @@
 
 #include "cat_machine.h"
 #include "cat_math.h"
+#include "cat_render.h"
 
 #define CAT_MIN_SECS 60
 #define CAT_HOUR_SECS 3600
@@ -37,12 +38,15 @@ typedef struct CAT_pet
 	char name[64];
 } CAT_pet;
 extern CAT_pet pet;
+extern CAT_anim_machine AM_pet;
+extern CAT_anim_machine AM_mood;
 
 void CAT_pet_init();
 void CAT_pet_reanimate();
 void CAT_pet_settle();
 
 bool CAT_pet_seek(CAT_vec2 targ);
+void CAT_pet_face(CAT_vec2 targ);
 void CAT_pet_reposition();
 
 void CAT_pet_stat(int ticks);

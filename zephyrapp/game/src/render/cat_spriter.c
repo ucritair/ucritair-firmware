@@ -1,5 +1,7 @@
 #include "cat_render.h"
 
+#include "sprite_assets.h"
+
 //////////////////////////////////////////////////////////////////////////
 // SPRITER
 
@@ -9,9 +11,16 @@ void CAT_draw_sprite(const CAT_sprite* sprite, int frame_idx, int x, int y)
 {
 	if(sprite == NULL)
 	{
-		CAT_printf("[ERROR] CAT_draw_sprite: null sprite\n");
-		return;
+		CAT_printf("[WARNING] CAT_draw_sprite: null sprite\n");
+		sprite = &null_sprite;
+		frame_idx = 0;
 	}
+	else if(frame_idx < 0 || frame_idx >= sprite->frame_count)
+	{
+		CAT_printf("[WARNING] CAT_draw_sprite: frame index %d out of bounds\n", frame_idx);
+		frame_idx = sprite->frame_count-1;
+	}
+
 	uint16_t* framebuffer = CAT_LCD_get_framebuffer();
 
 	int w = sprite->width;

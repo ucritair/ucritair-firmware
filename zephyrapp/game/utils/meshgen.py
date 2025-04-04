@@ -15,14 +15,7 @@ header_path = os.path.join("meshes", "mesh_assets.h");
 header = open(header_path, "w");
 header.write("#pragma once\n");
 header.write("\n");
-header.write("typedef struct CAT_mesh\n");
-header.write("{\n");
-header.write("\tconst char* path;\n");
-header.write(f"\tfloat* verts;\n");
-header.write("\tint n_verts;\n");
-header.write(f"\tint* faces;\n");
-header.write("\tint n_faces;\n");
-header.write("} CAT_mesh;\n");
+header.write("#include \"cat_render.h\"\n");
 header.write("\n");
 for mesh in json_entries:
 	header.write(f"extern CAT_mesh {mesh['name']}_mesh;\n");

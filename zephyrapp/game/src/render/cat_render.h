@@ -4,8 +4,6 @@
 #include <stdbool.h>
 #include "cat_core.h"
 
-#include "sprite_assets.h"
-
 //////////////////////////////////////////////////////////////////////////
 // CONSTANTS AND MACROS
 
@@ -47,6 +45,20 @@ void CAT_rowberry(int x, int y, int w, uint16_t c);
 //////////////////////////////////////////////////////////////////////////
 // SPRITER
 
+typedef struct
+{
+	int id;
+
+	const uint16_t* colour_table;
+	const uint8_t** frames;
+	int frame_count;
+	int width;
+	int height;
+
+	bool loop;
+	bool reverse;
+} CAT_sprite;
+
 typedef enum CAT_draw_mode
 {
 	CAT_DRAW_MODE_DEFAULT = 0,
@@ -62,24 +74,42 @@ void CAT_draw_sprite(const CAT_sprite* sprite, int frame_idx, int x, int y);
 
 
 //////////////////////////////////////////////////////////////////////////
-// DRAW QUEUE
+// ANIMATOR
 
-typedef struct CAT_anim_table
+void CAT_animator_init();
+void CAT_animator_tick();
+int CAT_animator_get_frame(const CAT_sprite* sprite);
+
+
+//////////////////////////////////////////////////////////////////////////
+// ANIM GRAPH
+
+typedef struct CAT_anim_state
 {
-	int frame_idx[CAT_ANIM_TABLE_MAX_LENGTH];
-	bool loop[CAT_ANIM_TABLE_MAX_LENGTH];
-	bool reverse[CAT_ANIM_TABLE_MAX_LENGTH];
-	bool dirty[CAT_ANIM_TABLE_MAX_LENGTH];
-} CAT_anim_table;
-extern CAT_anim_table anim_table;
+	const CAT_sprite* enter_sprite;
+	const CAT_sprite* tick_sprite;
+	const CAT_sprite* exit_sprite;
+} CAT_anim_state;
 
-void CAT_anim_table_init();
-void CAT_anim_toggle_loop(const CAT_sprite* sprite, bool toggle);
-void CAT_anim_toggle_reverse(const CAT_sprite* sprite, bool toggle);
-bool CAT_anim_finished(const CAT_sprite* sprite);
-void CAT_anim_reset(const CAT_sprite* sprite);
+typedef struct CAT_anim_machine
+{
+	CAT_anim_state* state;
+	CAT_anim_state* next;
+	enum {ENTER, TICK, EXIT} signal;
+} CAT_anim_machine;
 
-bool CAT_anim_should_tick();
+void CAT_anim_transition(CAT_anim_machine* machine, CAT_anim_state* next);
+void CAT_anim_tick(CAT_anim_machine* machine);
+const CAT_sprite* CAT_anim_read(CAT_anim_machine* machine);
+
+void CAT_anim_kill(CAT_anim_machine* machine);
+bool CAT_anim_is_dead(CAT_anim_machine* machine);
+
+bool CAT_anim_is_in(CAT_anim_machine* machine, CAT_anim_state* state);
+bool CAT_anim_is_ticking(CAT_anim_machine* machine);
+
+//////////////////////////////////////////////////////////////////////////
+// DRAW QUEUE
 
 enum CAT_sprite_layers
 {
@@ -106,52 +136,34 @@ void CAT_draw_queue_submit();
 
 
 //////////////////////////////////////////////////////////////////////////
-// ANIMATION MACHINE
+// MESHES
 
-typedef struct CAT_animachine_state
+typedef struct CAT_mesh
 {
-	enum {ENTER, TICK, EXIT, DONE} signal;
-
-	const CAT_sprite* enter_anim_id;
-	const CAT_sprite* tick_anim_id;
-	const CAT_sprite* exit_anim_id;
-	const CAT_sprite* last;
-
-	struct CAT_animachine_state* next;
-} CAT_animachine_state;
-
-void CAT_animachine_init(CAT_animachine_state* state, const CAT_sprite* enai, const CAT_sprite* tiai, const CAT_sprite* exai);
-void CAT_animachine_transition(CAT_animachine_state** spp, CAT_animachine_state* next);
-const CAT_sprite* CAT_animachine_tick(CAT_animachine_state** pp);
-void CAT_animachine_kill(CAT_animachine_state** spp);
-
-bool CAT_animachine_is_in(CAT_animachine_state** spp, CAT_animachine_state* state);
-bool CAT_animachine_is_ticking(CAT_animachine_state** spp);
-bool CAT_animachine_is_done(CAT_animachine_state** spp);
+	const char* path;
+	float* verts;
+	int n_verts;
+	int* faces;
+	int n_faces;
+} CAT_mesh;
 
 
 //////////////////////////////////////////////////////////////////////////
 // DECLARATIONS
 
-// MACHINES
-extern CAT_animachine_state* pet_asm;
+extern CAT_anim_state AS_idle;
+extern CAT_anim_state AS_walk;
+extern CAT_anim_state AS_crit;
 
-extern CAT_animachine_state AS_idle;
-extern CAT_animachine_state AS_walk;
-extern CAT_animachine_state AS_crit;
+extern CAT_anim_state AS_approach;
 
-extern CAT_animachine_state AS_approach;
+extern CAT_anim_state AS_eat;
+extern CAT_anim_state AS_study;
+extern CAT_anim_state AS_play;
 
-extern CAT_animachine_state AS_eat;
-extern CAT_animachine_state AS_study;
-extern CAT_animachine_state AS_play;
+extern CAT_anim_state AS_vig_up;
+extern CAT_anim_state AS_foc_up;
+extern CAT_anim_state AS_spi_up;
 
-extern CAT_animachine_state AS_vig_up;
-extern CAT_animachine_state AS_foc_up;
-extern CAT_animachine_state AS_spi_up;
-
-extern CAT_animachine_state* react_asm;
-extern CAT_animachine_state AS_react;
-
-void CAT_sprite_mass_define();
+extern CAT_anim_state AS_react;
 

@@ -3,6 +3,7 @@
 #include "cat_gui.h"
 #include "cat_input.h"
 #include "cat_arcade.h"
+#include "sprite_assets.h"
 
 static CAT_button hedron_spell[10] =
 {

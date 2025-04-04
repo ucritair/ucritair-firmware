@@ -11,6 +11,7 @@
 #include "cat_render.h"
 #include "cat_core.h"
 #include <math.h>
+#include "sprite_assets.h"
 
 #define GRAPH_PAD 6
 #define GRAPH_MARGIN 2

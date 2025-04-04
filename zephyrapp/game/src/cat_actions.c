@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <stddef.h>
 #include "cat_item_dialog.h"
+#include "sprite_assets.h"
 
 // MECHANIC PROFILE
 
@@ -22,8 +23,8 @@ bool tool_filter(int item_id)
 }
 
 static CAT_machine_state action_MS;
-static CAT_animachine_state* action_AS;
-static CAT_animachine_state* result_AS;
+static CAT_anim_state* action_AS;
+static CAT_anim_state* result_AS;
 
 static uint8_t result_colour[3];
 
@@ -31,10 +32,25 @@ static uint8_t result_colour[3];
 
 static CAT_ivec2 cursor;
 static int tool_id = -1;
-static CAT_vec2 target_location;
+static CAT_vec2 pet_anchor;
+static CAT_vec2 tool_anchor;
 static bool action_confirmed = false;
 static bool action_complete = false;
 static int timer_id = -1;
+
+void action_enter()
+{
+	if(timer_id == -1)
+		timer_id = CAT_timer_init(2.0f);
+	else
+		CAT_timer_reset(timer_id);
+
+	if(tool_id == -1)
+		cursor = CAT_largest_free_space();
+	cursor = CAT_nearest_free_space(cursor);
+
+	CAT_pet_settle();
+}
 
 static void control_cursor()
 {
@@ -50,15 +66,6 @@ static void control_cursor()
 	cursor.y = clamp(cursor.y, 0, CAT_GRID_HEIGHT-1);
 }
 
-void action_enter()
-{
-	if(tool_id == -1)
-		cursor = CAT_largest_free_space();
-	cursor = CAT_nearest_free_space(cursor);
-
-	CAT_pet_settle();
-}
-
 void apply_tool()
 {
 	CAT_item* tool = CAT_item_get(tool_id);
@@ -72,82 +79,85 @@ void apply_tool()
 
 void action_tick()
 {
-	if(timer_id == -1)
-		timer_id = CAT_timer_init(2.0f);
-	
+	if(CAT_input_pressed(CAT_BUTTON_B))
+		CAT_machine_transition(CAT_MS_room);
+
 	if(tool_id == -1)
 	{
 		CAT_filter_item_dialog(tool_filter);
 		CAT_target_item_dialog(&tool_id, true);
 		CAT_machine_transition(CAT_MS_item_dialog);
+		return;
 	}
-	else if(!action_confirmed)
+
+	if(tool_id == toy_laser_pointer_item)
 	{
-		if(tool_id == toy_laser_pointer_item)
-			CAT_machine_transition(CAT_MS_laser);
-			
+		CAT_machine_transition(CAT_MS_laser);
+		return;
+	}
+
+	if(!action_confirmed)
+	{	
 		control_cursor();
 
 		if(CAT_input_pressed(CAT_BUTTON_A))
 		{
-			CAT_ivec2 world_cursor = CAT_grid2world(cursor);
 			CAT_rect action_rect = CAT_rect_place(cursor, (CAT_ivec2) {1, 1});
 			if(CAT_is_block_free(action_rect))
 			{
-				int x_off = world_cursor.x > pet.pos.x ? -16 : 32;
-				target_location = (CAT_vec2) {world_cursor.x + x_off, world_cursor.y + 16};
+				CAT_ivec2 world_cursor = CAT_grid2world(cursor);
+				tool_anchor = (CAT_vec2) {world_cursor.x + 8, world_cursor.y + 16};
+				pet_anchor = (CAT_vec2) 
+				{
+					tool_anchor.x > pet.pos.x ? tool_anchor.x - 24 : tool_anchor.x + 24,
+					tool_anchor.y
+				};
 
 				action_confirmed = true;
-				CAT_animachine_transition(&pet_asm, &AS_approach);
+				CAT_anim_transition(&AM_pet, &AS_walk);
 			}
 		}
+
+		return;
 	}
-	else
+
+	if(CAT_anim_is_in(&AM_pet, &AS_walk) && CAT_pet_seek(pet_anchor))
 	{
-		if(CAT_animachine_is_in(&pet_asm, &AS_approach) && CAT_animachine_is_ticking(&pet_asm))
+		CAT_pet_face(tool_anchor);
+		CAT_anim_transition(&AM_pet, action_AS);
+	}
+	if(CAT_anim_is_in(&AM_pet, action_AS) && CAT_anim_is_ticking(&AM_pet))
+	{
+		if(CAT_timer_tick(timer_id) || CAT_input_pressed(CAT_BUTTON_A))
 		{
-			if(CAT_pet_seek(target_location))
-			{
-				CAT_animachine_transition(&pet_asm, action_AS);
-			}
-		}
-		if(CAT_animachine_is_in(&pet_asm, action_AS) && CAT_animachine_is_ticking(&pet_asm))
-		{
-			if(CAT_timer_tick(timer_id) || CAT_input_pressed(CAT_BUTTON_A))
-			{
-				apply_tool();
-				CAT_pet_reanimate();
-			
-				CAT_item* item = CAT_item_get(tool_id);
-				if(item->data.tool_data.type == CAT_TOOL_TYPE_FOOD)
-				{
-					CAT_item_list_remove(&bag, tool_id, 1);
-				}
-				
-				action_complete = true;
-				CAT_timer_reset(timer_id);
+			apply_tool();
+			CAT_pet_reanimate();
+		
+			CAT_item* item = CAT_item_get(tool_id);
+			if(item->data.tool_data.type == CAT_TOOL_TYPE_FOOD)
+				CAT_item_list_remove(&bag, tool_id, 1);
+			action_complete = true;
 
-				CAT_animachine_kill(&pet_asm);
-				CAT_animachine_transition(&pet_asm, result_AS);		
-			}
-		}
-		if(CAT_animachine_is_in(&pet_asm, result_AS))
-		{
-			CAT_set_LEDs
-			(
-				result_colour[0],
-				result_colour[1],
-				result_colour[1]
-			);
-			if(CAT_input_pressed(CAT_BUTTON_A))
-				CAT_animachine_kill(&pet_asm);
-			if(CAT_animachine_is_done(&pet_asm))
-				CAT_machine_transition(CAT_MS_room);
+			CAT_anim_transition(&AM_pet, result_AS);		
 		}
 	}
+	if(CAT_anim_is_in(&AM_pet, result_AS))
+	{
+		CAT_set_LEDs
+		(
+			result_colour[0],
+			result_colour[1],
+			result_colour[1]
+		);
 
-	if(CAT_input_pressed(CAT_BUTTON_B))
+		CAT_anim_transition(&AM_pet, &AS_idle);
+		if(CAT_input_pressed(CAT_BUTTON_A))
+			CAT_anim_kill(&AM_pet);
+	}
+	if(CAT_anim_is_in(&AM_pet, &AS_idle))
+	{
 		CAT_machine_transition(CAT_MS_room);
+	}
 }
 
 void action_exit()
@@ -156,7 +166,6 @@ void action_exit()
 	action_confirmed = false;
 	action_complete = false;
 
-	CAT_timer_reset(timer_id);
 	CAT_set_LEDs(0, 0, 0);
 }
 
@@ -288,14 +297,14 @@ void CAT_MS_laser(CAT_machine_signal signal)
 			switch(laser_state)
 			{
 				case SEEKING:
-					if(!CAT_animachine_is_in(&pet_asm, &AS_walk))
-							CAT_animachine_transition(&pet_asm, &AS_walk);
+					if(!CAT_anim_is_in(&AM_pet, &AS_walk))
+							CAT_anim_transition(&AM_pet, &AS_walk);
 					else if(CAT_pet_seek(laser_pos))
 						laser_state = PLAYING;
 				break;
 				case PLAYING:
-					if(!CAT_animachine_is_in(&pet_asm, &AS_play))
-						CAT_animachine_transition(&pet_asm, &AS_play);
+					if(!CAT_anim_is_in(&AM_pet, &AS_play))
+						CAT_anim_transition(&AM_pet, &AS_play);
 					if(CAT_timer_tick(play_timer_id))
 					{
 						CAT_timer_delete(play_timer_id);
@@ -306,8 +315,8 @@ void CAT_MS_laser(CAT_machine_signal signal)
 						laser_state = SEEKING;
 				break;
 				case BORED:
-					if(!CAT_animachine_is_in(&pet_asm, &AS_crit))
-						CAT_animachine_transition(&pet_asm, &AS_crit);
+					if(!CAT_anim_is_in(&AM_pet, &AS_crit))
+						CAT_anim_transition(&AM_pet, &AS_crit);
 					if(CAT_vec2_dist2(pet.pos, laser_pos) >= 16)
 						laser_state = SEEKING;
 				break;
@@ -322,24 +331,23 @@ void CAT_render_action()
 {
 	CAT_render_room();
 
-	CAT_ivec2 place = CAT_grid2world(cursor);
-	
 	if(tool_id != -1)
 	{
 		CAT_item* item = CAT_item_get(tool_id);
-		
 		if(!action_confirmed)
 		{
-			CAT_draw_queue_add(item->data.tool_data.cursor, 0, 2, place.x, place.y+16, CAT_DRAW_MODE_BOTTOM);
-			CAT_draw_queue_add(&tile_hl_sprite, 0, 3, place.x, place.y+16, CAT_DRAW_MODE_BOTTOM);
+			int mode = CAT_DRAW_MODE_BOTTOM;
+			CAT_ivec2 place = CAT_grid2world(cursor);
+			CAT_draw_queue_add(item->data.tool_data.cursor, 0, PROPS_LAYER, place.x, place.y+16, mode);
+			CAT_draw_queue_add(&tile_hl_sprite, 0, GUI_LAYER, place.x, place.y+16, mode);
 		}
 		else if(!action_complete)
 		{
-			int tool_mode = CAT_DRAW_MODE_BOTTOM;
-			if(place.x > pet.pos.x)
-				tool_mode |= CAT_DRAW_MODE_REFLECT_X;
-			int tool_layer = item->data.tool_data.type == CAT_TOOL_TYPE_FOOD ? 1 : 2;
-			CAT_draw_queue_add(item->sprite, -1, tool_layer, place.x, place.y+16, tool_mode);
+			int mode = CAT_DRAW_MODE_BOTTOM | CAT_DRAW_MODE_CENTER_X;
+			if(tool_anchor.x > pet_anchor.x)
+			 	mode |= CAT_DRAW_MODE_REFLECT_X;
+			int tool_layer = item->data.tool_data.type == CAT_TOOL_TYPE_FOOD ? STATICS_LAYER : PROPS_LAYER;
+			CAT_draw_queue_add(item->sprite, -1, tool_layer, tool_anchor.x, tool_anchor.y, mode);
 		}
 	}
 }
@@ -349,5 +357,5 @@ void CAT_render_laser()
 	CAT_render_room();
 	
 	CAT_item* item = CAT_item_get(toy_laser_pointer_item);
-	CAT_draw_queue_add(item->data.tool_data.cursor, 0, 0, laser_pos.x, laser_pos.y, CAT_DRAW_MODE_CENTER_X | CAT_DRAW_MODE_CENTER_Y);
+	CAT_draw_queue_add(item->data.tool_data.cursor, -1, 0, laser_pos.x, laser_pos.y, CAT_DRAW_MODE_CENTER_X | CAT_DRAW_MODE_CENTER_Y);
 }

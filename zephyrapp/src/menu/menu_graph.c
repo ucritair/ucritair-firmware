@@ -11,6 +11,7 @@
 #include "rtc.h"
 #include "airquality.h"
 #include "flash.h"
+#include "sprite_assets.h"
 
 #include "menu_aqi.h"
 #include "menu_graph_rendering.c"

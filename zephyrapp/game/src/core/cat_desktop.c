@@ -432,18 +432,6 @@ void CAT_finish_load()
 	CAT_printf("Load done!\n");
 }
 
-/*int CAT_get_flash_size(int* size);
-int CAT_load_flash(uint8_t* target, uint8_t** start, uint8_t** end);
-bool CAT_did_post_flash();
-
-void CAT_clear_log();
-int CAT_next_log_cell_idx();
-void CAT_get_log_cell(int idx, CAT_log_cell* out);
-void CAT_populate_log_cell(CAT_log_cell* cell);
-
-bool CAT_log_is_ready();
-void CAT_write_log();*/
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // POWER

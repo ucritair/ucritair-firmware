@@ -4,6 +4,7 @@
 #include "cat_room.h"
 #include "cat_render.h"
 #include <math.h>
+#include "sprite_assets.h"
 
 #ifdef CAT_DESKTOP
 #define FPS 60
