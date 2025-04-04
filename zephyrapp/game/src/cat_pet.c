@@ -248,18 +248,17 @@ void CAT_pet_tick()
 	if(CAT_timer_tick(pet.stat_timer_id))
 	{
 		CAT_pet_stat(1);
-		CAT_pet_reanimate();
 		CAT_timer_reset(pet.stat_timer_id);
 	}
-
 	if(CAT_timer_tick(pet.life_timer_id))
 	{
 		CAT_pet_life(1);
 		pet.times_milked = 0;
 		CAT_timer_reset(pet.life_timer_id);
 	}
-
 	CAT_timer_tick(pet.petting_timer_id);
+
+	CAT_pet_reanimate();
 
 	if(CAT_get_machine_state() == CAT_MS_room)
 	{

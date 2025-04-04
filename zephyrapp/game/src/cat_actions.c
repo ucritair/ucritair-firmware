@@ -131,7 +131,6 @@ void action_tick()
 		if(CAT_timer_tick(timer_id) || CAT_input_pressed(CAT_BUTTON_A))
 		{
 			apply_tool();
-			CAT_pet_reanimate();
 		
 			CAT_item* item = CAT_item_get(tool_id);
 			if(item->data.tool_data.type == CAT_TOOL_TYPE_FOOD)
