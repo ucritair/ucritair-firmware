@@ -739,15 +739,24 @@ void render_pet()
 	}
 }
 
+static const CAT_sprite* button_sprites[] =
+{
+	&icon_feed_sprite,
+	&icon_study_sprite,
+	&icon_deco_sprite,
+	&icon_menu_sprite
+};
+static int button_start_x = 24;
+static int button_start_y = 296;
+
 void render_gui()
 {
 	int icon_mode = CAT_DRAW_MODE_CENTER_X | CAT_DRAW_MODE_CENTER_Y;
-	CAT_draw_queue_add(&icon_feed_sprite, 0, GUI_LAYER, 8+16, 280+16, icon_mode); 
-	CAT_draw_queue_add(&icon_study_sprite, 0, GUI_LAYER, 56+16, 280+16, icon_mode); 
-	CAT_draw_queue_add(&icon_play_sprite, 0, GUI_LAYER, 104+16, 280+16, icon_mode);
-	CAT_draw_queue_add(&icon_deco_sprite, 0, GUI_LAYER, 152+16, 280+16, icon_mode);
-	CAT_draw_queue_add(&icon_menu_sprite, 0, GUI_LAYER, 200+16, 280+16, icon_mode);
-	CAT_draw_queue_add(&button_hl_sprite, 0, GUI_LAYER, 8+16+48*mode_selector, 280+16, icon_mode);
+	for(int i = 0; i < sizeof(button_sprites)/sizeof(button_sprites[0]); i++)
+	{
+		CAT_draw_queue_add(button_sprites[i], 0, GUI_LAYER, button_start_x + 48 * i, button_start_y, icon_mode);
+	}
+	CAT_draw_queue_add(&button_hl_sprite, 0, GUI_LAYER, button_start_x + 48 * mode_selector, button_start_y, icon_mode);
 
 	if(input.touch.pressure)
 		CAT_draw_queue_add(&touch_hl_sprite, 0, 4, input.touch.x, input.touch.y, icon_mode);
