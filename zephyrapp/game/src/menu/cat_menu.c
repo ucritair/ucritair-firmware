@@ -83,7 +83,7 @@ void CAT_MS_menu(CAT_machine_signal signal)
 						pet.focus = 3;
 						pet.spirit = 3;
 					}
-					if(CAT_gui_menu_item("FUCKED STATS"))
+					if(CAT_gui_menu_item("NULL STATS"))
 					{
 						pet.vigour = 0;
 						pet.focus = 0;

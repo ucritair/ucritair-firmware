@@ -350,11 +350,6 @@ void CAT_render_action()
 			CAT_draw_queue_add(item->sprite, -1, tool_layer, tool_anchor.x, tool_anchor.y, mode);
 		}
 	}
-
-	/*CAT_draw_queue_add(&tile_hl_sprite, 0, GUI_LAYER, tool_anchor.x, tool_anchor.y, CAT_DRAW_MODE_DEFAULT);
-	CAT_draw_queue_add(&tile_hl_sprite, 0, GUI_LAYER, pet_anchor.x, pet_anchor.y, CAT_DRAW_MODE_DEFAULT);
-	CAT_ivec2 place = CAT_grid2world(cursor);
-	CAT_draw_queue_add(&tile_hl_sprite, 0, GUI_LAYER, place.x, place.y, CAT_DRAW_MODE_DEFAULT);*/
 }
 
 void CAT_render_laser()

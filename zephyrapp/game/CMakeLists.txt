@@ -25,6 +25,7 @@ else()
 	message(WARNING "Building for embedded")
 
 	target_compile_definitions(app PRIVATE CAT_EMBEDDED=1)
+	target_compile_definitions(app PRIVATE CAT_DEBUG=1)
 	
 	target_sources(app PRIVATE src/core/cat_embedded.c)
 endif()
