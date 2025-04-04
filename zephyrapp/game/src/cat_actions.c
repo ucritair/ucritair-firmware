@@ -79,6 +79,9 @@ void apply_tool()
 
 void action_tick()
 {
+	if(CAT_input_pressed(CAT_BUTTON_B))
+		CAT_machine_transition(CAT_MS_room);
+
 	if(tool_id == -1)
 	{
 		CAT_filter_item_dialog(tool_filter);
@@ -92,7 +95,7 @@ void action_tick()
 		CAT_machine_transition(CAT_MS_laser);
 		return;
 	}
-	
+
 	if(!action_confirmed)
 	{	
 		control_cursor();
@@ -148,11 +151,10 @@ void action_tick()
 		);
 
 		CAT_anim_transition(&AM_pet, &AS_idle);
-
 		if(CAT_input_pressed(CAT_BUTTON_A))
 			CAT_anim_kill(&AM_pet);
 	}
-	if(CAT_anim_is_in(&AM_pet, &AS_idle) || CAT_input_pressed(CAT_BUTTON_B))
+	if(CAT_anim_is_in(&AM_pet, &AS_idle))
 	{
 		CAT_machine_transition(CAT_MS_room);
 	}

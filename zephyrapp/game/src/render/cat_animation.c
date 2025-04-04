@@ -86,6 +86,8 @@ void CAT_anim_init(CAT_anim_state* state, const CAT_sprite* enter, const CAT_spr
 
 void CAT_anim_transition(CAT_anim_machine* machine, CAT_anim_state* next)
 {
+	if(next == machine->state)
+		return;
 	machine->next = next;
 }
 

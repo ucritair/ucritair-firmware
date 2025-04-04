@@ -11,6 +11,7 @@
 #include "airquality.h"
 #include "flash.h"
 #include "cat_menu.h"
+#include "sprite_assets.h"
 
 #include "menu_graph.h"
 
