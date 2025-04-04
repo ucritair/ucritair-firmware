@@ -174,11 +174,16 @@ bool CAT_pet_seek(CAT_vec2 targ)
 	}
 	else
 	{
+		pet.rot = dir.x > 0 ? M_PI : 0;
 		pet.vel = CAT_vec2_mul(dir, speed);
-		pet.pos = CAT_vec2_add(pet.pos, CAT_vec2_mul(pet.vel, CAT_get_delta_time()));
-		pet.rot = pet.vel.x > 0 ? M_PI : 0;
+		pet.pos = CAT_vec2_add(pet.pos, CAT_vec2_mul(pet.vel, CAT_get_delta_time()));	
 		return false;
 	}
+}
+
+void CAT_pet_face(CAT_vec2 targ)
+{
+	pet.rot = targ.x > pet.pos.x ? M_PI : 0;
 }
 
 void CAT_pet_reposition()

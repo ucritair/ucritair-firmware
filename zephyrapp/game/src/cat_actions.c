@@ -32,7 +32,8 @@ static uint8_t result_colour[3];
 
 static CAT_ivec2 cursor;
 static int tool_id = -1;
-static CAT_vec2 target_location;
+static CAT_vec2 pet_anchor;
+static CAT_vec2 tool_anchor;
 static bool action_confirmed = false;
 static bool action_complete = false;
 static int timer_id = -1;
@@ -98,12 +99,16 @@ void action_tick()
 
 		if(CAT_input_pressed(CAT_BUTTON_A))
 		{
-			CAT_ivec2 world_cursor = CAT_grid2world(cursor);
 			CAT_rect action_rect = CAT_rect_place(cursor, (CAT_ivec2) {1, 1});
 			if(CAT_is_block_free(action_rect))
 			{
-				int x_off = world_cursor.x > pet.pos.x ? -16 : 32;
-				target_location = (CAT_vec2) {world_cursor.x + x_off, world_cursor.y + 16};
+				CAT_ivec2 world_cursor = CAT_grid2world(cursor);
+				tool_anchor = (CAT_vec2) {world_cursor.x + 8, world_cursor.y + 16};
+				pet_anchor = (CAT_vec2) 
+				{
+					tool_anchor.x > pet.pos.x ? tool_anchor.x - 24 : tool_anchor.x + 24,
+					tool_anchor.y
+				};
 
 				action_confirmed = true;
 				CAT_anim_transition(&AM_pet, &AS_walk);
@@ -113,8 +118,9 @@ void action_tick()
 		return;
 	}
 
-	if(CAT_anim_is_in(&AM_pet, &AS_walk) && CAT_pet_seek(target_location))
+	if(CAT_anim_is_in(&AM_pet, &AS_walk) && CAT_pet_seek(pet_anchor))
 	{
+		CAT_pet_face(tool_anchor);
 		CAT_anim_transition(&AM_pet, action_AS);
 	}
 	if(CAT_anim_is_in(&AM_pet, action_AS) && CAT_anim_is_ticking(&AM_pet))
@@ -323,26 +329,30 @@ void CAT_render_action()
 {
 	CAT_render_room();
 
-	CAT_ivec2 place = CAT_grid2world(cursor);
-	
 	if(tool_id != -1)
 	{
 		CAT_item* item = CAT_item_get(tool_id);
-		
 		if(!action_confirmed)
 		{
-			CAT_draw_queue_add(item->data.tool_data.cursor, 0, 2, place.x, place.y+16, CAT_DRAW_MODE_BOTTOM);
-			CAT_draw_queue_add(&tile_hl_sprite, 0, 3, place.x, place.y+16, CAT_DRAW_MODE_BOTTOM);
+			int mode = CAT_DRAW_MODE_BOTTOM;
+			CAT_ivec2 place = CAT_grid2world(cursor);
+			CAT_draw_queue_add(item->data.tool_data.cursor, 0, PROPS_LAYER, place.x, place.y+16, mode);
+			CAT_draw_queue_add(&tile_hl_sprite, 0, GUI_LAYER, place.x, place.y+16, mode);
 		}
 		else if(!action_complete)
 		{
-			int tool_mode = CAT_DRAW_MODE_BOTTOM;
-			if(place.x > pet.pos.x)
-				tool_mode |= CAT_DRAW_MODE_REFLECT_X;
-			int tool_layer = item->data.tool_data.type == CAT_TOOL_TYPE_FOOD ? 1 : 2;
-			CAT_draw_queue_add(item->sprite, -1, tool_layer, place.x, place.y+16, tool_mode);
+			int mode = CAT_DRAW_MODE_BOTTOM | CAT_DRAW_MODE_CENTER_X;
+			if(tool_anchor.x > pet_anchor.x)
+			 	mode |= CAT_DRAW_MODE_REFLECT_X;
+			int tool_layer = item->data.tool_data.type == CAT_TOOL_TYPE_FOOD ? STATICS_LAYER : PROPS_LAYER;
+			CAT_draw_queue_add(item->sprite, -1, tool_layer, tool_anchor.x, tool_anchor.y, mode);
 		}
 	}
+
+	/*CAT_draw_queue_add(&tile_hl_sprite, 0, GUI_LAYER, tool_anchor.x, tool_anchor.y, CAT_DRAW_MODE_DEFAULT);
+	CAT_draw_queue_add(&tile_hl_sprite, 0, GUI_LAYER, pet_anchor.x, pet_anchor.y, CAT_DRAW_MODE_DEFAULT);
+	CAT_ivec2 place = CAT_grid2world(cursor);
+	CAT_draw_queue_add(&tile_hl_sprite, 0, GUI_LAYER, place.x, place.y, CAT_DRAW_MODE_DEFAULT);*/
 }
 
 void CAT_render_laser()
