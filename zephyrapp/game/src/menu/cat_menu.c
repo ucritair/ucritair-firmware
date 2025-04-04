@@ -101,6 +101,8 @@ void CAT_MS_menu(CAT_machine_signal signal)
 						needs_load = true;
 						override_load = true;
 					}
+					if(CAT_gui_menu_item("LEGACY CHEATS PAGE"))
+						CAT_machine_transition(CAT_MS_cheats);
 					CAT_gui_end_menu();
 				}
 #endif
