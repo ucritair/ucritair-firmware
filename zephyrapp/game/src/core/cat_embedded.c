@@ -15,6 +15,7 @@
 #include "airquality.h"
 #include "lcd_driver.h"
 #include "lcd_rendering.h"
+#include "imu.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // CORE
@@ -288,6 +289,20 @@ void CAT_get_AQ_readings()
 	readings.sen5x.temp_degC = current_readings.sen5x.temp_degC;
 	readings.sen5x.voc_index = current_readings.sen5x.voc_index;
 	readings.sen5x.nox_index = current_readings.sen5x.nox_index;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// IMU
+
+void CAT_IMU_tick()
+{
+	imu_update();
+}
+
+bool CAT_IMU_is_upside_down()
+{
+	return imu_recognized_upside_down;
 }
 
 

@@ -59,6 +59,10 @@ uint8_t saved_version_push = CAT_VERSION_PUSH;
 float time_since_last_eink_update = 0.0f;
 const int eink_update_time_threshold = CAT_MIN_SECS;
 
+CAT_screen_orientation current_orientation;
+CAT_screen_orientation last_orientation;
+float time_since_last_flip = 0.0f;
+
 #ifdef CAT_DESKTOP
 int CAT_load_sleep()
 {
@@ -323,6 +327,8 @@ void CAT_init(int seconds_slept)
 	CAT_pet_reposition();
 
 	CAT_machine_transition(CAT_MS_room);
+
+	CAT_eink_update();
 }
 
 void CAT_tick_logic()
@@ -333,6 +339,7 @@ void CAT_tick_logic()
 	CAT_platform_tick();
 	CAT_input_tick();
 	CAT_get_AQ_readings();
+	CAT_IMU_tick();
 
 	CAT_animator_tick();
 
@@ -354,6 +361,18 @@ void CAT_tick_logic()
 		CAT_eink_update();
 		time_since_last_eink_update = 0;
 	}
+
+	last_orientation = current_orientation;
+	current_orientation = CAT_IMU_is_upside_down() ? CAT_SCREEN_ORIENTATION_DOWN : CAT_SCREEN_ORIENTATION_UP;
+	if(current_orientation != last_orientation && time_since_last_flip >= 1.0f)
+	{
+		CAT_set_screen_orientation(current_orientation);
+		CAT_eink_update();
+		time_since_last_eink_update = 0;
+		time_since_last_flip = 0;
+	}
+	else
+		time_since_last_flip += CAT_get_delta_time();
 }
 
 void CAT_tick_render()

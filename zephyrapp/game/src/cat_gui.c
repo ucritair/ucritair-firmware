@@ -394,7 +394,7 @@ void CAT_gui_open_popup(const char* msg, bool* result)
 	popup.result = result;
 	popup.selector = 0;
 	popup.open = true;
-
+	
 	CAT_input_clear();
 }
 

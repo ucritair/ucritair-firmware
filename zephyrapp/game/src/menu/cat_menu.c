@@ -126,6 +126,23 @@ void CAT_MS_menu(CAT_machine_signal signal)
 						}
 						CAT_gui_end_menu();
 					}
+					if(CAT_gui_begin_menu("DISPLAY"))
+					{
+						CAT_gui_menu_item("LCD BRIGHTNESS +");
+						CAT_gui_menu_item("LCD BRIGHTNESS -");
+						CAT_gui_menu_item("LED BRIGHTNESS +");
+						CAT_gui_menu_item("LED BRIGHTNESS -");
+						if(CAT_gui_menu_item("FLIP SCREEN"))
+						{
+							CAT_set_screen_orientation
+							(
+								CAT_get_screen_orientation() == CAT_SCREEN_ORIENTATION_UP ?
+								CAT_SCREEN_ORIENTATION_DOWN :
+								CAT_SCREEN_ORIENTATION_UP
+							);
+						}
+						CAT_gui_end_menu();
+					}
 					if(CAT_gui_menu_item("SYSTEM"))
 					{
 #ifdef CAT_EMBEDDED

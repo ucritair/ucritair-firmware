@@ -30,10 +30,23 @@ void CAT_input_init()
 static float time_since_last_input = 0.0f;
 static bool input_this_frame = false;
 
+uint16_t swap_mask_bits(uint16_t mask, int a_idx, int b_idx)
+{
+	uint16_t x = ((mask >> a_idx) ^ (mask >> b_idx)) & 1;
+	return ((x << a_idx) | (x << b_idx)) ^ mask;
+}
+
 void CAT_input_tick()
 {
 	uint16_t mask = CAT_get_buttons();
-
+	if(CAT_get_screen_orientation() == CAT_SCREEN_ORIENTATION_DOWN)
+	{
+		mask = swap_mask_bits(mask, CAT_BUTTON_UP, CAT_BUTTON_DOWN);
+		mask = swap_mask_bits(mask, CAT_BUTTON_LEFT, CAT_BUTTON_RIGHT);
+		mask = swap_mask_bits(mask, CAT_BUTTON_A, CAT_BUTTON_B);
+		mask = swap_mask_bits(mask, CAT_BUTTON_START, CAT_BUTTON_SELECT);
+	}
+	
 	for(int i = 0; i < CAT_BUTTON_LAST; i++)
 	{
 		bool current_state = (mask & (1 << i)) > 0;
@@ -75,6 +88,11 @@ void CAT_input_tick()
 		input.touch_time = 0;
 	else
 		input.touch_time += CAT_get_delta_time();
+	if(CAT_get_screen_orientation() == CAT_SCREEN_ORIENTATION_DOWN)
+	{
+		input.touch.x = CAT_LCD_SCREEN_W - input.touch.x - 1;
+		input.touch.y = CAT_LCD_SCREEN_H - input.touch.y - 1;
+	}
 
 	input_this_frame = false;
 	input_this_frame |= mask > 0;

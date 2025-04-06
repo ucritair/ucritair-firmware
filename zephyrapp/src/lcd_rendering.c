@@ -204,15 +204,33 @@ void lcd_render_diag()
 		for (int step = 0; step < LCD_FRAMEBUFFER_SEGMENTS; step++)
 		{
 #ifdef LCD_FRAMEBUFFER_A_B
-			int post_buf_num = (step+1)%2;
-			int post_offset = LCD_FRAMEBUFFER_H*((step+(LCD_FRAMEBUFFER_SEGMENTS-1))%LCD_FRAMEBUFFER_SEGMENTS);
-			lcd_flip(lcd_framebuffer_pair[post_buf_num], post_offset);
+			int post_buf_num = (step + 1) % 2;
+			int work_buf_num = step % 2;
+			int post_offset = LCD_FRAMEBUFFER_H * ((step + LCD_FRAMEBUFFER_SEGMENTS - 1) % LCD_FRAMEBUFFER_SEGMENTS);
 
-			int work_buf_num = step%2;
+			if(CAT_get_screen_orientation() == CAT_SCREEN_ORIENTATION_DOWN)
+			{
+				post_buf_num = step % 2;
+				work_buf_num = (step + 1) % 2;
+				post_offset = LCD_FRAMEBUFFER_H * step;
+
+				for(int y = 0; y < LCD_FRAMEBUFFER_H/2; y++)
+				{
+					for(int x = 0; x < LCD_FRAMEBUFFER_W; x++)
+					{
+						int y_flip = LCD_FRAMEBUFFER_H - y - 1;
+						int x_flip = LCD_FRAMEBUFFER_W - x - 1;
+						int temp = lcd_framebuffer[y_flip * LCD_FRAMEBUFFER_W + x_flip];
+						lcd_framebuffer[y_flip * LCD_FRAMEBUFFER_W + x_flip] = lcd_framebuffer[y * LCD_FRAMEBUFFER_W + x];
+						lcd_framebuffer[y * LCD_FRAMEBUFFER_W + x] = temp;
+					}
+				}
+			}
+
+			lcd_flip(lcd_framebuffer_pair[post_buf_num], post_offset);
 			lcd_framebuffer = lcd_framebuffer_pair[work_buf_num];
 #endif
-
-			framebuffer_offset_h = step*LCD_FRAMEBUFFER_H;
+			framebuffer_offset_h = LCD_FRAMEBUFFER_H * step;
 
 			// LOG_INF("post %d/%d work %d/%d", post_buf_num, post_offset, work_buf_num, framebuffer_offset_h);
 
@@ -231,7 +249,7 @@ void lcd_render_diag()
 #ifndef MINIMIZE_GAME_FOOTPRINT
 				CAT_set_render_cycle(step);
 				CAT_tick_render();
-				first_frame_complete = true;
+				first_frame_complete = true;			
 #endif
 			}
 

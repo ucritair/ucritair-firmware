@@ -197,11 +197,30 @@ uint16_t* CAT_LCD_get_framebuffer()
 
 void CAT_LCD_post()
 {
+	int frame_offset = CAT_get_screen_orientation() == CAT_SCREEN_ORIENTATION_DOWN ?
+	CAT_LCD_FRAMEBUFFER_H * (CAT_LCD_FRAMEBUFFER_SEGMENTS - CAT_get_render_cycle() - 1) :
+	CAT_LCD_FRAMEBUFFER_H * CAT_get_render_cycle();
+
+	if(CAT_get_screen_orientation() == CAT_SCREEN_ORIENTATION_DOWN)
+	{
+		for(int y = 0; y < CAT_LCD_FRAMEBUFFER_H/2; y++)
+		{
+			for(int x = 0; x < CAT_LCD_FRAMEBUFFER_W; x++)
+			{
+				int y_flip = CAT_LCD_FRAMEBUFFER_H - y - 1;
+				int x_flip = CAT_LCD_FRAMEBUFFER_W - x - 1;
+				int temp = lcd_framebuffer[y_flip * CAT_LCD_FRAMEBUFFER_W + x_flip];
+				lcd_framebuffer[y_flip * CAT_LCD_FRAMEBUFFER_W + x_flip] = lcd_framebuffer[y * CAT_LCD_FRAMEBUFFER_W + x];
+				lcd_framebuffer[y * CAT_LCD_FRAMEBUFFER_W + x] = temp;
+			}
+		}
+	}
+
 	glBindTexture(GL_TEXTURE_2D, simulator.tex_id);
 	glTexSubImage2D
 	(
 		GL_TEXTURE_2D, 0,
-		0, CAT_LCD_FRAMEBUFFER_H * render_cycle,
+		0, frame_offset,
 		CAT_LCD_SCREEN_W, CAT_LCD_FRAMEBUFFER_H,
 		GL_RGB, GL_UNSIGNED_SHORT_5_6_5,
 		lcd_framebuffer
@@ -489,6 +508,20 @@ void CAT_get_AQ_readings()
 	readings.sen5x.temp_degC = 20;
 	readings.sen5x.voc_index = 1;
 	readings.sen5x.nox_index = 100;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// IMU
+
+void CAT_IMU_tick()
+{
+	return;
+}
+
+bool CAT_IMU_is_upside_down()
+{
+	return false;
 }
 
 

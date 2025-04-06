@@ -79,6 +79,8 @@ add_custom_command(
 )
 
 target_sources(app PRIVATE
+	src/core/cat_common.c
+
 	src/render/cat_berrier.c
 	src/render/cat_spriter.c
 	src/render/cat_draw_queue.c
