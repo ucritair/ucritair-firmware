@@ -128,8 +128,10 @@ void CAT_MS_menu(CAT_machine_signal signal)
 					}
 					if(CAT_gui_begin_menu("DISPLAY"))
 					{
-						CAT_gui_menu_item("LCD BRIGHTNESS +");
-						CAT_gui_menu_item("LCD BRIGHTNESS -");
+						if(CAT_gui_menu_item("LCD BRIGHTNESS +"))
+							CAT_LCD_set_brightness(CAT_LCD_get_brightness() + 5);
+						if(CAT_gui_menu_item("LCD BRIGHTNESS -"))
+							CAT_LCD_set_brightness(CAT_LCD_get_brightness() - 5);
 						CAT_gui_menu_item("LED BRIGHTNESS +");
 						CAT_gui_menu_item("LED BRIGHTNESS -");
 						if(CAT_gui_menu_item("FLIP SCREEN"))

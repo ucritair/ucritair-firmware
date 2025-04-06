@@ -24,17 +24,22 @@ void CAT_platform_cleanup();
 #define CAT_LCD_FRAMEBUFFER_H (CAT_LCD_SCREEN_H / CAT_LCD_FRAMEBUFFER_SEGMENTS)
 #define CAT_LCD_FRAMEBUFFER_PIXELS (CAT_LCD_FRAMEBUFFER_W * CAT_LCD_FRAMEBUFFER_H)
 
+#define CAT_LCD_MIN_BRIGHTNESS 10
+#define CAT_LCD_MAX_BRIGHTNESS 75
+
 uint16_t* CAT_LCD_get_framebuffer();
 void CAT_LCD_post();
 bool CAT_LCD_is_posted();
 void CAT_LCD_flip();
-void CAT_LCD_set_backlight(int percent);
 bool CAT_first_frame_complete();
 
 void CAT_set_render_cycle(int cycle);
 int CAT_get_render_cycle();
 bool CAT_is_first_render_cycle();
 bool CAT_is_last_render_cycle();
+
+uint8_t CAT_LCD_get_brightness();
+void CAT_LCD_set_brightness(uint8_t percent);
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

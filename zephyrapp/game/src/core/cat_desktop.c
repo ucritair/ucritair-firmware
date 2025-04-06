@@ -27,6 +27,7 @@ struct
     GLuint tex_id;
     GLuint prog_id;
     GLuint tex_loc;
+	GLuint brightness_loc;
 
     float time;
     float delta_time;
@@ -159,6 +160,7 @@ void CAT_platform_init()
 	CAT_shader_init(vert_src, frag_src);
 
 	simulator.tex_loc = glGetUniformLocation(simulator.prog_id, "tex");
+	simulator.brightness_loc = glGetUniformLocation(simulator.prog_id, "brightness");
 
 	simulator.time = glfwGetTime();
 	simulator.delta_time = 0;
@@ -197,12 +199,12 @@ uint16_t* CAT_LCD_get_framebuffer()
 
 void CAT_LCD_post()
 {
-	int frame_offset = CAT_get_screen_orientation() == CAT_SCREEN_ORIENTATION_DOWN ?
-	CAT_LCD_FRAMEBUFFER_H * (CAT_LCD_FRAMEBUFFER_SEGMENTS - CAT_get_render_cycle() - 1) :
-	CAT_LCD_FRAMEBUFFER_H * CAT_get_render_cycle();
-
+	int frame_offset = CAT_LCD_FRAMEBUFFER_H * CAT_get_render_cycle();
+	
 	if(CAT_get_screen_orientation() == CAT_SCREEN_ORIENTATION_DOWN)
 	{
+		frame_offset = CAT_LCD_FRAMEBUFFER_H * (CAT_LCD_FRAMEBUFFER_SEGMENTS - CAT_get_render_cycle() - 1);
+
 		for(int y = 0; y < CAT_LCD_FRAMEBUFFER_H/2; y++)
 		{
 			for(int x = 0; x < CAT_LCD_FRAMEBUFFER_W; x++)
@@ -233,6 +235,7 @@ void CAT_LCD_post()
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, simulator.tex_id);
 	glProgramUniform1i(simulator.prog_id, simulator.tex_loc, 0);
+	glProgramUniform1i(simulator.prog_id, simulator.brightness_loc, CAT_LCD_get_brightness());
 
 	glBindVertexArray(simulator.vao_id);
 	glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -246,11 +249,6 @@ void CAT_LCD_flip()
 bool CAT_LCD_is_posted()
 {
 	return true;
-}
-
-void CAT_LCD_set_backlight(int percent)
-{
-	return;
 }
 
 bool CAT_first_frame_complete()
@@ -276,6 +274,18 @@ bool CAT_is_first_render_cycle()
 bool CAT_is_last_render_cycle()
 {
 	return render_cycle == CAT_LCD_FRAMEBUFFER_SEGMENTS-1;
+}
+
+static uint8_t lcd_brightness = CAT_LCD_MAX_BRIGHTNESS;
+
+uint8_t CAT_LCD_get_brightness()
+{
+	return lcd_brightness;
+}
+
+void CAT_LCD_set_brightness(uint8_t percent)
+{
+	lcd_brightness = clamp(percent, CAT_LCD_MIN_BRIGHTNESS, CAT_LCD_MAX_BRIGHTNESS);
 }
 
 
