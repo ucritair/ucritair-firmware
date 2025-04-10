@@ -291,6 +291,8 @@ void CAT_MS_laser(CAT_machine_signal signal)
 			if(CAT_input_held(CAT_BUTTON_DOWN, 0))
 				laser_dir.y += 1.0f;
 			laser_pos = CAT_vec2_add(laser_pos, CAT_vec2_mul(laser_dir, laser_speed * CAT_get_delta_time()));
+			laser_pos.x = clamp(laser_pos.x, CAT_WORLD_MIN_X, CAT_WORLD_MAX_X);
+			laser_pos.y = clamp(laser_pos.y, CAT_WORLD_MIN_Y, CAT_WORLD_MAX_Y);
 			laser_dir = (CAT_vec2) {0, 0};
 
 			switch(laser_state)
