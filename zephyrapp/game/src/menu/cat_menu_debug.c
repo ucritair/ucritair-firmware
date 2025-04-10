@@ -69,10 +69,12 @@ void CAT_render_debug()
 #define TOSTRING_INNER(x) #x
 #define TOSTRING(x) TOSTRING_INNER(x)
 #if defined(CAT_DESKTOP)
-			CAT_gui_text("Platform: DESKTOP\n");
+			CAT_gui_text("DESKTOP\n");
 #elif defined(CAT_EMBEDDED)
-			CAT_gui_text("Platform: EMBEDDED\n");
+			CAT_gui_text("EMBEDDED\n");
 #endif
+			if(CAT_is_save_flag_enabled(CAT_SAVE_FLAG_DEVELOPER_MODE))
+				CAT_gui_text("DEVELOPER MODE\n");
 		break;
 		case TIME:
 			CAT_gui_title(true, NULL, &icon_exit_sprite, "TIME");

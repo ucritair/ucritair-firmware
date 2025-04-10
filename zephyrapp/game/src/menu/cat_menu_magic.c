@@ -19,20 +19,6 @@ static CAT_button hedron_spell[10] =
 	CAT_BUTTON_A
 };
 
-static CAT_button crawl_spell[10] =
-{
-	CAT_BUTTON_UP,
-	CAT_BUTTON_RIGHT,
-	CAT_BUTTON_DOWN,
-	CAT_BUTTON_LEFT,
-	CAT_BUTTON_LEFT,
-	CAT_BUTTON_DOWN,
-	CAT_BUTTON_RIGHT,
-	CAT_BUTTON_UP,
-	CAT_BUTTON_A,
-	CAT_BUTTON_B
-};
-
 void CAT_MS_magic(CAT_machine_signal signal)
 {
 	switch (signal)
@@ -46,9 +32,10 @@ void CAT_MS_magic(CAT_machine_signal signal)
 				CAT_machine_back();
 
 			if(CAT_input_spell(hedron_spell))
+			{
+				CAT_enable_save_flag(CAT_SAVE_FLAG_DEVELOPER_MODE);
 				CAT_machine_transition(CAT_MS_hedron);
-			else if(CAT_input_spell(crawl_spell))
-				CAT_machine_transition(CAT_MS_crawl);
+			}		
 			break;
 		case CAT_MACHINE_SIGNAL_EXIT:
 			break;
