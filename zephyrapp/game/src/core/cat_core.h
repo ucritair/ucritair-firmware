@@ -70,6 +70,8 @@ CAT_screen_orientation CAT_get_screen_orientation();
 // LEDs
 
 void CAT_set_LEDs(uint8_t r, uint8_t g, uint8_t b);
+void CAT_LED_set_brightness(uint8_t percent);
+uint8_t CAT_LED_get_brightness();
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -167,6 +169,9 @@ typedef struct __attribute__((__packed__)) CAT_save
 
 	uint16_t level;
 	uint32_t xp;
+
+	uint8_t lcd_brightness;
+	uint8_t led_brightness;
 } CAT_save;
 
 // Call to start saving, then populate the returned CAT_save*
@@ -234,6 +239,7 @@ bool CAT_IMU_is_upside_down();
 // DEBUG
 
 void CAT_printf(const char* fmt, ...);
+void CAT_print_buffer(void* buf, int width, int height, size_t size);
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

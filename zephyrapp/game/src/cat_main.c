@@ -150,6 +150,9 @@ void CAT_force_save()
 	save->level = pet.level;
 	save->xp = pet.xp;
 
+	save->lcd_brightness = CAT_LCD_get_brightness();
+	save->led_brightness = CAT_LED_get_brightness();
+
 	save->magic_number = CAT_SAVE_MAGIC;
 	CAT_finish_save(save);
 }
@@ -171,6 +174,9 @@ void CAT_load_failsafe()
 
 	CAT_space_init();
 	CAT_room_init();
+
+	CAT_LCD_set_brightness(CAT_LCD_MAX_BRIGHTNESS);
+	CAT_LED_set_brightness(100);
 }
 
 void CAT_load_override()
@@ -272,10 +278,14 @@ void CAT_force_load()
 	if(save->theme < THEME_COUNT)
 		room.theme = themes_list[save->theme];
 
-	if(pet.level < CAT_NUM_LEVELS)
+	if(save->level < CAT_NUM_LEVELS)
 		pet.level = save->level;
 	if(save->xp <= level_cutoffs[pet.level])
 		pet.xp = save->xp;
+	
+	if(save->lcd_brightness >= CAT_LCD_MIN_BRIGHTNESS && save->lcd_brightness <= CAT_LCD_MAX_BRIGHTNESS)
+		CAT_LCD_set_brightness(save->lcd_brightness);
+	CAT_LED_set_brightness(save->led_brightness);
 	
 	if(override_load)
 		CAT_load_override();
@@ -367,8 +377,11 @@ void CAT_tick_logic()
 	if(current_orientation != last_orientation && time_since_last_flip >= 1.0f)
 	{
 		CAT_set_screen_orientation(current_orientation);
-		CAT_eink_update();
-		time_since_last_eink_update = 0;
+		if(time_since_last_eink_update > 10)
+		{
+			CAT_eink_update();
+			time_since_last_eink_update = 0;
+		}
 		time_since_last_flip = 0;
 	}
 	else

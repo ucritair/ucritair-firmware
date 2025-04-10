@@ -83,6 +83,10 @@ CAT_rect CAT_rect_center(int x, int y, int w, int h);
 //////////////////////////////////////////////////////////////////////////
 // RENDERING
 
+#define RGB8882565(r, g, b) (((r & 0b11111000) << 8) | ((g & 0b11111100) << 3) | (b >> 3))
+#define RGB5652BGR565(c) ((c >> 8) | ((c & 0xff) << 8))
+#define SCALEBYTE(b, f) ((uint8_t) (b * f))
+
 typedef struct CAT_mat4
 {
 	float data[16];
