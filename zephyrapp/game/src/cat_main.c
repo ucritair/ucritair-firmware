@@ -155,6 +155,8 @@ void CAT_force_save()
 
 	save->temperature_unit = CAT_AQ_get_temperature_unit();
 
+	save->save_flags = CAT_get_save_flags();
+
 	save->magic_number = CAT_SAVE_MAGIC;
 	CAT_finish_save(save);
 }
@@ -284,6 +286,8 @@ void CAT_force_load()
 		pet.level = save->level;
 	if(save->xp <= level_cutoffs[pet.level])
 		pet.xp = save->xp;
+
+	CAT_set_save_flags(save->save_flags);
 	
 	if(save->lcd_brightness >= CAT_LCD_MIN_BRIGHTNESS && save->lcd_brightness <= CAT_LCD_MAX_BRIGHTNESS)
 		CAT_LCD_set_brightness(save->lcd_brightness);

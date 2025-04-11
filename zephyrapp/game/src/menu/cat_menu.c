@@ -58,54 +58,55 @@ void CAT_MS_menu(CAT_machine_signal signal)
 				}
 				if(CAT_gui_menu_item("MANUAL"))
 					CAT_machine_transition(CAT_MS_manual);
-#ifdef CAT_DEBUG
-				if(CAT_gui_menu_item("DEBUG"))
-					CAT_machine_transition(CAT_MS_debug);
-				if(CAT_gui_begin_menu("CHEATS"))
+				if(CAT_is_save_flag_enabled(CAT_SAVE_FLAG_DEVELOPER_MODE))
 				{
-					if(CAT_gui_menu_item("+ 1000 COINS"))
-						coins += 1000;
-					if(CAT_gui_menu_item("BASE STATS"))
+					if(CAT_gui_menu_item("DEBUG"))
+						CAT_machine_transition(CAT_MS_debug);
+					if(CAT_gui_begin_menu("CHEATS"))
 					{
-						pet.vigour = 9;
-						pet.focus = 9;
-						pet.spirit = 9;
-					}
-					if(CAT_gui_menu_item("MAX STATS"))
-					{
-						pet.vigour = 12;
-						pet.focus = 12;
-						pet.spirit = 12;
-					}
-					if(CAT_gui_menu_item("CRIT STATS"))
-					{
-						pet.vigour = 3;
-						pet.focus = 3;
-						pet.spirit = 3;
-					}
-					if(CAT_gui_menu_item("NULL STATS"))
-					{
-						pet.vigour = 0;
-						pet.focus = 0;
-						pet.spirit = 0;
-					}
-					if(CAT_gui_menu_item("+ EVERY ITEM"))
-					{
-						for(int item_id = 0; item_id < item_table.length; item_id++)
+						if(CAT_gui_menu_item("+ 1000 COINS"))
+							coins += 1000;
+						if(CAT_gui_menu_item("BASE STATS"))
 						{
-							CAT_item_list_add(&bag, item_id, 1);
+							pet.vigour = 9;
+							pet.focus = 9;
+							pet.spirit = 9;
 						}
+						if(CAT_gui_menu_item("MAX STATS"))
+						{
+							pet.vigour = 12;
+							pet.focus = 12;
+							pet.spirit = 12;
+						}
+						if(CAT_gui_menu_item("CRIT STATS"))
+						{
+							pet.vigour = 3;
+							pet.focus = 3;
+							pet.spirit = 3;
+						}
+						if(CAT_gui_menu_item("NULL STATS"))
+						{
+							pet.vigour = 0;
+							pet.focus = 0;
+							pet.spirit = 0;
+						}
+						if(CAT_gui_menu_item("+ EVERY ITEM"))
+						{
+							for(int item_id = 0; item_id < item_table.length; item_id++)
+							{
+								CAT_item_list_add(&bag, item_id, 1);
+							}
+						}
+						if(CAT_gui_menu_item("TURNKEY APARTMENT"))
+						{
+							needs_load = true;
+							override_load = true;
+						}
+						if(CAT_gui_menu_item("LEGACY CHEATS PAGE"))
+							CAT_machine_transition(CAT_MS_cheats);
+						CAT_gui_end_menu();
 					}
-					if(CAT_gui_menu_item("TURNKEY APARTMENT"))
-					{
-						needs_load = true;
-						override_load = true;
-					}
-					if(CAT_gui_menu_item("LEGACY CHEATS PAGE"))
-						CAT_machine_transition(CAT_MS_cheats);
-					CAT_gui_end_menu();
 				}
-#endif
 				if(CAT_gui_begin_menu("SETTINGS"))
 				{
 					if(CAT_gui_begin_menu("COSMETICS"))
@@ -178,6 +179,9 @@ void CAT_MS_menu(CAT_machine_signal signal)
 					}
 					if(CAT_gui_begin_menu("DANGER ZONE"))
 					{
+						if(CAT_gui_menu_item("RESET SAVE FLAGS"))
+							CAT_set_save_flags(0);
+							
 						static bool confirm_reset = false;
 						if(CAT_gui_menu_item("RESET SAVE"))
 							CAT_gui_open_popup("Are you sure?\nThis will delete all\ngame data!\n\n", &confirm_reset);
