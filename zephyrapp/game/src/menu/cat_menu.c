@@ -135,11 +135,20 @@ void CAT_MS_menu(CAT_machine_signal signal)
 						if(CAT_gui_menu_item("RESET LCD BRIGHTNESS"))
 							CAT_LCD_set_brightness(CAT_LCD_MAX_BRIGHTNESS);
 						if(CAT_gui_menu_item("LED BRIGHTNESS +"))
+						{
 							CAT_LED_set_brightness(CAT_LED_get_brightness() + 5);
+							CAT_set_LEDs(255, 255, 255);
+						}
 						if(CAT_gui_menu_item("LED BRIGHTNESS -"))
+						{
 							CAT_LED_set_brightness(CAT_LED_get_brightness() - 5);
+							CAT_set_LEDs(255, 255, 255);
+						}	
 						if(CAT_gui_menu_item("RESET LED BRIGHTNESS"))
-							CAT_LCD_set_brightness(100);
+						{
+							CAT_LED_set_brightness(100);
+							CAT_set_LEDs(255, 255, 255);
+						}	
 						if(CAT_gui_menu_item("FLIP SCREEN"))
 						{
 							CAT_set_screen_orientation
@@ -150,6 +159,10 @@ void CAT_MS_menu(CAT_machine_signal signal)
 							);
 						}
 						CAT_gui_end_menu();
+					}
+					else
+					{
+						CAT_set_LEDs(0, 0, 0);
 					}
 					if(CAT_gui_menu_item("SYSTEM"))
 					{
