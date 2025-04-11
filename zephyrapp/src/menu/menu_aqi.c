@@ -192,7 +192,7 @@ void CAT_render_aqi()
 		if (view_cell.pressure_hPax10 != 0)
 		{
 			CAT_gui_textf("%2.1f%s    %2.0f%%RH    %.0fhPa\n", 
-				((double)view_cell.temp_Cx1000)/1000.,
+				CAT_AQ_map_celsius(((double)view_cell.temp_Cx1000)/1000.),
 				CAT_AQ_get_temperature_unit_string(),
 				((double)view_cell.rh_pctx100)/100.,
 				((double)view_cell.pressure_hPax10)/10.);
@@ -200,7 +200,7 @@ void CAT_render_aqi()
 		else
 		{
 			CAT_gui_textf("%2.1f%s    %2.0f%%RH\n", 
-				((double)view_cell.temp_Cx1000)/1000.,
+				CAT_AQ_map_celsius(((double)view_cell.temp_Cx1000)/1000.),
 				CAT_AQ_get_temperature_unit_string(),
 				((double)view_cell.rh_pctx100)/100.);
 		}
