@@ -150,6 +150,8 @@ void CAT_force_save()
 	save->level = pet.level;
 	save->xp = pet.xp;
 
+	save->temperature_unit = CAT_AQ_get_temperature_unit();
+
 	save->magic_number = CAT_SAVE_MAGIC;
 	CAT_finish_save(save);
 }
@@ -276,6 +278,9 @@ void CAT_force_load()
 		pet.level = save->level;
 	if(save->xp <= level_cutoffs[pet.level])
 		pet.xp = save->xp;
+	
+	if(save->temperature_unit <= CAT_TEMPERATURE_UNIT_DEGREES_FAHRENHEIT)
+		CAT_AQ_set_temperature_unit(save->temperature_unit);
 	
 	if(override_load)
 		CAT_load_override();

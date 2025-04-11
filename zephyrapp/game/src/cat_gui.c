@@ -94,7 +94,11 @@ void CAT_gui_text(const char* text)
 	int x_lim = (gui.start.x * CAT_TILE_SIZE) + (gui.shape.x) * CAT_TILE_SIZE - CAT_GLYPH_WIDTH - gui.margin;
 	const char* c = text;
 
-	while(*c != '\0')
+	while
+	(
+		*c != '\0' &&
+		!(*c == '#' && *(c+1) == '#')
+	)
 	{
 		if(wrap && gui.cursor.x >= x_lim && !isspace(*(c+1)))
 		{
@@ -467,7 +471,7 @@ typedef struct menu_node
 
 static menu_node menu_table[512];
 #define MENU_TABLE_SIZE (sizeof(menu_table) / sizeof(menu_table[0]))
-static uint16_t menu_stack[128];
+static uint16_t menu_stack[24];
 #define MENU_STACK_SIZE (sizeof(menu_stack) / sizeof(menu_stack[0]))
 static uint8_t menu_stack_length = 0;
 static int menu_root = -1;
@@ -632,7 +636,7 @@ void CAT_gui_menu_io()
 			CAT_machine_back();
 		else
 			menu_table[hovered->parent].selected = false;
-	}	
+	}
 }
 
 void CAT_gui_menu()

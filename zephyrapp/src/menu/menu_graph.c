@@ -102,7 +102,7 @@ char* get_string(int16_t graph_data)
 			snprintf(buf, sizeof(buf), "%.1f#/cm\5", ((double)graph_data)/100.);
 			break;
 		case TEMP:
-			snprintf(buf, sizeof(buf), "%.1f\3C", ((double)graph_data)/100.);
+			snprintf(buf, sizeof(buf), "%.1f%s", ((double)graph_data)/100., CAT_AQ_get_temperature_unit_string());
 			break;
 		case RH:
 			snprintf(buf, sizeof(buf), "%.1f%%RH", ((double)graph_data)/100.);
