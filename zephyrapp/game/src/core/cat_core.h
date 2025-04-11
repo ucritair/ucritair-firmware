@@ -172,6 +172,8 @@ typedef struct __attribute__((__packed__)) CAT_save
 
 	uint8_t lcd_brightness;
 	uint8_t led_brightness;
+
+	uint8_t temperature_unit;
 } CAT_save;
 
 // Call to start saving, then populate the returned CAT_save*
@@ -226,6 +228,17 @@ typedef struct CAT_AQ_readings {
 extern CAT_AQ_readings readings;
 
 void CAT_get_AQ_readings();
+
+typedef enum
+{
+	CAT_TEMPERATURE_UNIT_DEGREES_CELSIUS,
+	CAT_TEMPERATURE_UNIT_DEGREES_FAHRENHEIT
+} CAT_temperature_unit;
+
+CAT_temperature_unit CAT_AQ_get_temperature_unit();
+void CAT_AQ_set_temperature_unit(CAT_temperature_unit unit);
+float CAT_AQ_map_celsius(float temp);
+const char* CAT_AQ_get_temperature_unit_string();
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

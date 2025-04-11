@@ -133,6 +133,7 @@ void CAT_render_debug()
 			CAT_gui_textf("PM: %f\n", readings.sen5x.pm2_5);
 			CAT_gui_textf("NOX: %f\n", readings.sen5x.nox_index);
 			CAT_gui_textf("VOC: %f\n", readings.sen5x.voc_index);
+			CAT_gui_textf("TMP: %f%s\n", CAT_AQ_map_celsius(readings.lps22hh.temp), CAT_AQ_get_temperature_unit_string());
 			CAT_gui_textf("AQI: %f\n", CAT_AQI_aggregate());
 		}
 		break;

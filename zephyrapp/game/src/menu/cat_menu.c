@@ -164,6 +164,12 @@ void CAT_MS_menu(CAT_machine_signal signal)
 					{
 						CAT_set_LEDs(0, 0, 0);
 					}
+					if(CAT_gui_begin_menu("AIR QUALITY##Settings"))
+					{
+						if(CAT_gui_menu_item("SWITCH TEMPERATURE UNIT"))
+							CAT_AQ_set_temperature_unit(!CAT_AQ_get_temperature_unit());
+						CAT_gui_end_menu();
+					}
 					if(CAT_gui_menu_item("SYSTEM"))
 					{
 #ifdef CAT_EMBEDDED

@@ -31,3 +31,34 @@ uint8_t CAT_LED_get_brightness()
 	return led_brightness;
 }
 
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// AIR QUALITY
+
+static CAT_temperature_unit temperature_unit = CAT_TEMPERATURE_UNIT_DEGREES_CELSIUS;
+
+CAT_temperature_unit CAT_AQ_get_temperature_unit()
+{
+	return temperature_unit;
+}
+
+void CAT_AQ_set_temperature_unit(CAT_temperature_unit unit)
+{
+	temperature_unit = unit;
+}
+
+float CAT_AQ_map_celsius(float temp)
+{
+	return
+	temperature_unit == CAT_TEMPERATURE_UNIT_DEGREES_CELSIUS ?
+	temp :
+	temp * (9.0f / 5.0f) + 32;
+}
+
+const char* CAT_AQ_get_temperature_unit_string()
+{
+	return
+	temperature_unit == CAT_TEMPERATURE_UNIT_DEGREES_CELSIUS ?
+	"\3C" :
+	"\3F";
+}
