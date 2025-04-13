@@ -230,6 +230,7 @@ extern const CAT_sprite window_night_sprite;
 extern const CAT_sprite animachine_enter_sprite;
 extern const CAT_sprite animachine_tick_sprite;
 extern const CAT_sprite animachine_exit_sprite;
+extern const CAT_sprite eink_refresh_splash_sprite;
 
 extern const CAT_sprite* sprite_list[];
-#define CAT_SPRITE_LIST_LENGTH 226
+#define CAT_SPRITE_LIST_LENGTH 227

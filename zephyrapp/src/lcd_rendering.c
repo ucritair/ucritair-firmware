@@ -203,33 +203,6 @@ void lcd_render_diag()
 
 		for (int step = 0; step < LCD_FRAMEBUFFER_SEGMENTS; step++)
 		{
-#ifdef LCD_FRAMEBUFFER_A_B
-			int post_buf_num = (step + 1) % 2;
-			int work_buf_num = step % 2;
-			int post_offset = LCD_FRAMEBUFFER_H * ((step + LCD_FRAMEBUFFER_SEGMENTS - 1) % LCD_FRAMEBUFFER_SEGMENTS);
-
-			if(CAT_get_screen_orientation() == CAT_SCREEN_ORIENTATION_DOWN)
-			{
-				post_buf_num = step % 2;
-				work_buf_num = (step + 1) % 2;
-				post_offset = LCD_FRAMEBUFFER_H * step;
-
-				for(int y = 0; y < LCD_FRAMEBUFFER_H/2; y++)
-				{
-					for(int x = 0; x < LCD_FRAMEBUFFER_W; x++)
-					{
-						int y_flip = LCD_FRAMEBUFFER_H - y - 1;
-						int x_flip = LCD_FRAMEBUFFER_W - x - 1;
-						int temp = lcd_framebuffer[y_flip * LCD_FRAMEBUFFER_W + x_flip];
-						lcd_framebuffer[y_flip * LCD_FRAMEBUFFER_W + x_flip] = lcd_framebuffer[y * LCD_FRAMEBUFFER_W + x];
-						lcd_framebuffer[y * LCD_FRAMEBUFFER_W + x] = temp;
-					}
-				}
-			}
-
-			lcd_flip(lcd_framebuffer_pair[post_buf_num], post_offset);
-			lcd_framebuffer = lcd_framebuffer_pair[work_buf_num];
-#endif
 			framebuffer_offset_h = LCD_FRAMEBUFFER_H * step;
 
 			// LOG_INF("post %d/%d work %d/%d", post_buf_num, post_offset, work_buf_num, framebuffer_offset_h);
@@ -259,7 +232,33 @@ void lcd_render_diag()
 				lcd_write_str(0x0ee0, 240-(strlen("XX XX FPS")*8), 0, buf);
 			}
 
-#ifndef LCD_FRAMEBUFFER_A_B
+#ifdef LCD_FRAMEBUFFER_A_B
+			int post_buf_num = step % 2;
+			int work_buf_num = (step+1) % 2;
+			int post_offset = LCD_FRAMEBUFFER_H * step;
+
+			if(CAT_get_screen_orientation() == CAT_SCREEN_ORIENTATION_DOWN)
+			{
+				post_buf_num = (step+1) % 2;
+				work_buf_num = step % 2;
+				post_offset = LCD_FRAMEBUFFER_H * ((step + LCD_FRAMEBUFFER_SEGMENTS - 1) % LCD_FRAMEBUFFER_SEGMENTS);
+
+				for(int y = 0; y < LCD_FRAMEBUFFER_H/2; y++)
+				{
+					for(int x = 0; x < LCD_FRAMEBUFFER_W; x++)
+					{
+						int y_flip = LCD_FRAMEBUFFER_H - y - 1;
+						int x_flip = LCD_FRAMEBUFFER_W - x - 1;
+						int temp = lcd_framebuffer[y_flip * LCD_FRAMEBUFFER_W + x_flip];
+						lcd_framebuffer[y_flip * LCD_FRAMEBUFFER_W + x_flip] = lcd_framebuffer[y * LCD_FRAMEBUFFER_W + x];
+						lcd_framebuffer[y * LCD_FRAMEBUFFER_W + x] = temp;
+					}
+				}
+			}
+
+			lcd_flip(lcd_framebuffer_pair[post_buf_num], post_offset);
+			lcd_framebuffer = lcd_framebuffer_pair[work_buf_num];
+#else
 			lcd_flip(lcd_framebuffer, framebuffer_offset_h);
 #endif
 
@@ -274,7 +273,6 @@ void lcd_render_diag()
 
 		last_lockmask = lockmask;
 
-
 		if ((k_uptime_get() - last_sensor_update) > 5000)
 		{
 			sensor_read_once();
@@ -285,10 +283,16 @@ void lcd_render_diag()
 			// 	hack_after_blit-hack_before_blit, hack_cyc_after_data_write-hack_cyc_before_data_write, end_ms-start_ms);
 		}
 
-		if ((k_uptime_get() - last_eink_update) > epaper_update_rate && epaper_update_rate != -1)
+		/*if ((k_uptime_get() - last_eink_update) > epaper_update_rate && epaper_update_rate != -1)
 		{
 			epaper_render_test();
 			last_eink_update = k_uptime_get();
+		}*/
+		if(CAT_eink_needs_update())
+		{
+			CAT_set_eink_update_flag(false);
+			CAT_eink_update();
+			time_since_eink_update = 0;
 		}
 
 		if ((k_uptime_get() - last_flash_log) > (sensor_wakeup_rate*1000) && is_ready_for_aqi_logging())

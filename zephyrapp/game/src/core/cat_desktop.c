@@ -327,6 +327,7 @@ bool CAT_eink_is_posted()
 void CAT_eink_update()
 {
 	CAT_printf("[CALL] CAT_eink_update\n");
+	sleep(1);
 }
 
 
@@ -469,49 +470,35 @@ void CAT_free(void* ptr)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // SAVE
 
-CAT_save the_save;
+CAT_save backing_save;
 
 CAT_save* CAT_start_save()
 {
-	CAT_printf("Saving...\n");
-
-	return &the_save;
+	return &backing_save;
 }
 
 void CAT_finish_save(CAT_save* save)
 {
-	CAT_printf("Save done!\n");
-
 	save->magic_number = CAT_SAVE_MAGIC;
 	int fd = open("save.dat", O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
-	uint8_t* buffer = CAT_malloc(sizeof(the_save));
-	memcpy(buffer, &the_save, sizeof(the_save));
-	write(fd, buffer, sizeof(the_save));
+	uint8_t* buffer = CAT_malloc(sizeof(backing_save));
+	memcpy(buffer, &backing_save, sizeof(backing_save));
+	write(fd, buffer, sizeof(backing_save));
 	CAT_free(buffer);
 	close(fd);
 }
 
 CAT_save* CAT_start_load()
 {
-	CAT_printf("Loading...\n");
-
 	int fd = open("save.dat", O_RDONLY);
-	read(fd, &the_save, sizeof(the_save));
+	read(fd, &backing_save, sizeof(backing_save));
 	close(fd);
-
-	CAT_printf
-	(
-		"Loaded save from version v%d.%d.%d.%d\n",
-		the_save.version_major, the_save.version_minor,
-		the_save.version_patch, the_save.version_push
-	);
-		
-	return &the_save;
+	return &backing_save;
 }
 
 void CAT_finish_load()
 {
-	CAT_printf("Load done!\n");
+	return;
 }
 
 
@@ -598,20 +585,4 @@ void CAT_printf(const char* fmt, ...)
 	va_start(args, fmt);
 	vprintf(fmt, args);
 	va_end(args);
-}
-
-void CAT_print_buffer(void* buf, int width, int height, size_t size)
-{
-	uint8_t* ptr = buf;
-	for(int y = 0; y < height; y++)
-	{
-		for(int x = 0; x < width; x++)
-		{
-			uint64_t value = 0;
-			for(int b = 0; b < size; b++)
-				value |= *(ptr++);
-			CAT_printf("%d ", value);
-		}
-		CAT_printf("\n");
-	}
 }

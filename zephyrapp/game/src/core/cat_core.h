@@ -51,6 +51,9 @@ void CAT_eink_post(uint8_t* buffer);
 bool CAT_eink_is_posted();
 void CAT_eink_update();
 
+void CAT_set_eink_update_flag(bool flag);
+bool CAT_eink_needs_update();
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // SCREEN MANAGEMENT
@@ -275,7 +278,6 @@ bool CAT_IMU_is_upside_down();
 // DEBUG
 
 void CAT_printf(const char* fmt, ...);
-void CAT_print_buffer(void* buf, int width, int height, size_t size);
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

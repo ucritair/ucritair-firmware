@@ -60,6 +60,8 @@ float time_since_reorient = 0.0f;
 
 void CAT_force_save()
 {
+	CAT_printf("Saving...\n");
+
 	CAT_save* save = CAT_start_save();
 
 	save->version_major = CAT_VERSION_MAJOR;
@@ -128,6 +130,8 @@ void CAT_force_save()
 
 	save->magic_number = CAT_SAVE_MAGIC;
 	CAT_finish_save(save);
+
+	CAT_printf("Save complete!\n");
 }
 
 void CAT_load_reset()
@@ -184,6 +188,8 @@ void CAT_load_override()
 
 void CAT_force_load()
 {
+	CAT_printf("Loading...\n");
+	
 	CAT_save* save = CAT_start_load();
 
 	if(save == NULL || !CAT_check_save(save) || CAT_check_load_flag(CAT_LOAD_FLAG_RESET))
@@ -193,6 +199,8 @@ void CAT_force_load()
 
 		CAT_finish_load();
 		CAT_force_save();
+
+		CAT_printf("Refreshed save state!\n");
 		return;
 	}
 	
@@ -267,6 +275,8 @@ void CAT_force_load()
 	}
 		
 	CAT_finish_load();
+
+	CAT_printf("Load complete!\n");
 }
 
 void CAT_apply_sleep(int seconds)
@@ -309,7 +319,7 @@ void CAT_init()
 
 	CAT_machine_transition(CAT_MS_room);
 
-	CAT_eink_update();
+	CAT_set_eink_update_flag(true);
 }
 
 void CAT_tick_logic()
@@ -342,8 +352,7 @@ void CAT_tick_logic()
 		CAT_input_time_since_last() >= eink_update_time_threshold
 	)
 	{
-		CAT_eink_update();
-		time_since_eink_update = 0;
+		CAT_set_eink_update_flag(true);
 	}
 
 	time_since_reorient += CAT_get_delta_time_s();
@@ -353,8 +362,8 @@ void CAT_tick_logic()
 	{
 		CAT_set_screen_orientation(current_orientation);
 		time_since_reorient = 0;
-		CAT_eink_update();
-		time_since_eink_update = 0;
+
+		CAT_set_eink_update_flag(true);
 	}
 }
 
@@ -362,7 +371,7 @@ void CAT_tick_render()
 {
 	if (CAT_get_render_cycle() == 0)
 		CAT_draw_queue_clear();
-
+	
 	if(CAT_get_render_callback() != NULL)
 	{
 		(CAT_get_render_callback())();
@@ -377,9 +386,14 @@ void CAT_tick_render()
 		CAT_draw_sprite(&null_sprite, 0, 120-12, 160-12);
 	}
 
-	CAT_gui_render();
-	
 	CAT_draw_queue_submit();
+	CAT_gui_render();
+
+	if(CAT_eink_needs_update())
+	{
+		draw_mode = CAT_DRAW_MODE_DEFAULT;
+		CAT_draw_sprite(&eink_refresh_splash_sprite, 0, 0, 0);
+	}
 }
 
 #ifdef CAT_DESKTOP
@@ -396,8 +410,15 @@ int main(int argc, char** argv)
 			CAT_set_render_cycle(render_cycle);
 			CAT_tick_render();
 			CAT_LCD_post();
+			CAT_LCD_flip();
 		}
-		CAT_LCD_flip();
+
+		if(CAT_eink_needs_update())
+		{
+			CAT_set_eink_update_flag(false);
+			CAT_eink_update();
+			time_since_eink_update = 0;
+		}
 
 		// 1 / FPS * 1_000_000 yields microseconds between frames at fixed FPS
 		usleep((1.0f / (float) 12) * 1000000);

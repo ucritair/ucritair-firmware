@@ -232,8 +232,8 @@ void CAT_finish_save(CAT_save*)
 // Call to start loading, then load from the returned CAT_save*
 CAT_save* CAT_start_load()
 {
-	flash_load_tomas_save((uint8_t*)epaper_framebuffer, sizeof(CAT_save));
-	return (CAT_save*)epaper_framebuffer;
+	flash_load_tomas_save((uint8_t*) epaper_framebuffer, sizeof(CAT_save));
+	return (CAT_save*) epaper_framebuffer;
 }
 // then call once done loading
 void CAT_finish_load()

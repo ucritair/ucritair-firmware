@@ -14,6 +14,7 @@
 #include <string.h>
 #include "cat_main.h"
 #include "theme_assets.h"
+#include "sound_assets.h"
 
 #ifdef CAT_EMBEDDED
 #include "menu_system.h"
@@ -60,11 +61,21 @@ void CAT_MS_menu(CAT_machine_signal signal)
 					CAT_machine_transition(CAT_MS_manual);
 				if(CAT_is_save_flag_enabled(CAT_SAVE_FLAG_DEVELOPER_MODE))
 				{
-					if(CAT_gui_menu_item("DEBUG"))
+					if(CAT_gui_menu_item("DEBUG VIEWS"))
 						CAT_machine_transition(CAT_MS_debug);
+					if(CAT_gui_begin_menu("DEBUG ACTIONS"))
+					{
+						if(CAT_gui_menu_item("SOUND POWER ON"))
+							CAT_sound_power(true);
+						if(CAT_gui_menu_item("SOUND POWER OFF"))
+							CAT_sound_power(false);
+						if(CAT_gui_menu_item("PLAY SOUND"))
+							CAT_play_sound(&coin_sound);
+						CAT_gui_end_menu();
+					}
 					if(CAT_gui_begin_menu("CHEATS"))
 					{
-						if(CAT_gui_menu_item("+ 1000 COINS"))
+						if(CAT_gui_menu_item("1000 COINS"))
 							coins += 1000;
 						if(CAT_gui_menu_item("BASE STATS"))
 						{
@@ -90,7 +101,7 @@ void CAT_MS_menu(CAT_machine_signal signal)
 							pet.focus = 0;
 							pet.spirit = 0;
 						}
-						if(CAT_gui_menu_item("+ EVERY ITEM"))
+						if(CAT_gui_menu_item("EVERY ITEM"))
 						{
 							for(int item_id = 0; item_id < item_table.length; item_id++)
 							{
@@ -102,7 +113,7 @@ void CAT_MS_menu(CAT_machine_signal signal)
 							CAT_set_load_flag(CAT_LOAD_FLAG_DIRTY);
 							CAT_set_load_flag(CAT_LOAD_FLAG_OVERRIDE);
 						}
-						if(CAT_gui_menu_item("LEGACY CHEATS PAGE"))
+						if(CAT_gui_menu_item("LEGACY CHEATS"))
 							CAT_machine_transition(CAT_MS_cheats);
 						CAT_gui_end_menu();
 					}
@@ -149,7 +160,11 @@ void CAT_MS_menu(CAT_machine_signal signal)
 						{
 							CAT_LED_set_brightness(100);
 							CAT_set_LEDs(255, 255, 255);
-						}	
+						}
+						if(CAT_gui_menu_item("REFRESH EINK"))
+						{
+							CAT_set_eink_update_flag(true);
+						}
 						if(CAT_gui_menu_item("FLIP SCREEN"))
 						{
 							CAT_set_screen_orientation

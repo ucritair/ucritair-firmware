@@ -1,6 +1,22 @@
 #include "cat_core.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// EINK SCREEN
+
+static bool eink_needs_update = false;
+
+void CAT_set_eink_update_flag(bool flag)
+{
+	eink_needs_update = flag;
+}
+
+bool CAT_eink_needs_update()
+{
+	return eink_needs_update;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // SCREEN MANAGEMENT
 
 static CAT_screen_orientation screen_orientation = CAT_SCREEN_ORIENTATION_UP;
@@ -67,31 +83,41 @@ const char* CAT_AQ_get_temperature_unit_string()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // SAVE
 
-static uint16_t session_flags = 0;
-
 uint16_t CAT_get_save_flags()
 {
-	return session_flags;
+	CAT_save* save = CAT_start_load();
+	uint16_t flags = save->save_flags;
+	CAT_finish_load();
+	return flags;
 }
 
 void CAT_set_save_flags(uint16_t flags)
 {
-	session_flags = flags;
+	CAT_save* save = CAT_start_save();
+	save->save_flags = flags;
+	CAT_finish_save(save);
 }
 
 void CAT_enable_save_flag(CAT_save_flag flag)
 {
-	session_flags |= (1 << flag);
+	CAT_save* save = CAT_start_save();
+	save->save_flags |= (1 << flag);
+	CAT_finish_save(save);
 }
 
 void CAT_disable_save_flag(CAT_save_flag flag)
 {
-	session_flags &= ~(1 << flag);
+	CAT_save* save = CAT_start_save();
+	save->save_flags &= ~(1 << flag);
+	CAT_finish_save(save);
 }
 
 bool CAT_is_save_flag_enabled(CAT_save_flag flag)
 {
-	return (session_flags & (1 << flag)) > 0;
+	CAT_save* save = CAT_start_load();
+	bool value = (save->save_flags & (1 << flag)) > 0;
+	CAT_finish_load();
+	return value;
 }
 
 static uint16_t load_flags = 0;
