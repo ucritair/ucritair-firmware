@@ -17,7 +17,7 @@
 #include <GLFW/glfw3.h>
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// CORE
+// PLATFORM
 
 struct
 {
@@ -29,9 +29,23 @@ struct
     GLuint tex_loc;
 	GLuint brightness_loc;
 
-    float time;
-    float delta_time;
-} simulator;
+	uint64_t slept_s;
+    float uptime_s;
+    float delta_time_s;
+} simulator =
+{
+	.window = NULL,
+	.vao_id = 0,
+	.vbo_id = 0,
+	.tex_id = 0,
+	.prog_id = 0,
+	.tex_loc = 0,
+	.brightness_loc = 0,
+
+	.slept_s = 0,
+	.uptime_s = 0,
+	.delta_time_s = 0
+};
 
 void GLFW_error_callback(int error, const char* msg)
 {
@@ -161,20 +175,27 @@ void CAT_platform_init()
 
 	simulator.tex_loc = glGetUniformLocation(simulator.prog_id, "tex");
 	simulator.brightness_loc = glGetUniformLocation(simulator.prog_id, "brightness");
-
-	simulator.time = glfwGetTime();
-	simulator.delta_time = 0;
-
-	srand(time(NULL));
+	
+	time_t sleep_time;
+	int fd = open("sleep.dat", O_RDONLY);
+	if(fd != -1)
+	{
+		read(fd, &sleep_time, sizeof(sleep_time));
+		close(fd);
+		time_t now;
+		time(&now);
+		simulator.slept_s = difftime(now, sleep_time);
+	}
+	simulator.uptime_s = glfwGetTime();
+	simulator.delta_time_s = 0;	
 }
 
 void CAT_platform_tick()
 {
-	float time = glfwGetTime();
-	simulator.delta_time = time - simulator.time;
-	simulator.time = time;
-
 	glfwPollEvents();
+
+	simulator.delta_time_s = glfwGetTime() - simulator.uptime_s;
+	simulator.uptime_s = glfwGetTime();
 }
 
 void CAT_platform_cleanup()
@@ -183,6 +204,12 @@ void CAT_platform_cleanup()
 	glDeleteTextures(1, &simulator.tex_id);
 	glDeleteBuffers(1, &simulator.vbo_id);
 	glDeleteVertexArrays(1, &simulator.vao_id);
+
+	time_t now;
+	time(&now);
+	int fd = open("sleep.dat", O_WRONLY | O_CREAT | O_TRUNC,  S_IRUSR | S_IWUSR);
+	write(fd, &now, sizeof(now));
+	close(fd);
 }
 
 
@@ -247,11 +274,6 @@ void CAT_LCD_flip()
 }
 
 bool CAT_LCD_is_posted()
-{
-	return true;
-}
-
-bool CAT_first_frame_complete()
 {
 	return true;
 }
@@ -401,31 +423,32 @@ void CAT_get_touch(CAT_touch* touch)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // TIME
 
-uint64_t CAT_get_time_ms()
+uint64_t CAT_get_slept_s()
 {
-	return glfwGetTime();
+	return simulator.slept_s;
 }
 
-float CAT_get_delta_time()
+uint64_t CAT_get_uptime_ms()
 {
-	return simulator.delta_time;
+	return simulator.uptime_s * 1000;
+}
+
+float CAT_get_delta_time_s()
+{
+	return simulator.delta_time_s;
 }
 
 void CAT_get_datetime(CAT_datetime* datetime)
 {
 	time_t t = time(NULL);
 	struct tm* lt = localtime(&t);
+	
 	datetime->year = lt->tm_year;
 	datetime->month = lt->tm_mon;
 	datetime->day = lt->tm_mday;
 	datetime->hour = lt->tm_hour;
 	datetime->minute = lt->tm_min;
 	datetime->second = lt->tm_sec;
-}
-
-void CAT_set_datetime(CAT_datetime* datetime)
-{
-	return;
 }
 
 
@@ -521,9 +544,10 @@ void CAT_shutdown()
 
 void CAT_factory_reset()
 {
-	clear_load = true;
-	needs_load = true;
+	CAT_set_load_flag(CAT_LOAD_FLAG_DIRTY);
+	CAT_set_load_flag(CAT_LOAD_FLAG_RESET);
 }
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // AIR QUALITY

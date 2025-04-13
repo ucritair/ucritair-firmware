@@ -79,14 +79,14 @@ void CAT_render_debug()
 		case TIME:
 			CAT_gui_title(true, NULL, &icon_exit_sprite, "TIME");
 			CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
-			CAT_gui_textf("Slept: %ds\n", logged_sleep);
+			CAT_gui_textf("Slept: %ds\n", CAT_get_slept_s());
 			CAT_gui_textf("Life: %0.0fs/%0.0fs\n", CAT_timer_get(pet.life_timer_id), timetable.duration[pet.life_timer_id]);
 			CAT_gui_textf("Stat: %0.0fs/%0.0fs\n", CAT_timer_get(pet.stat_timer_id), timetable.duration[pet.stat_timer_id]);
 			CAT_gui_textf("Earn: %0.0fs/%0.0fs\n", CAT_timer_get(room.earn_timer_id), timetable.duration[room.earn_timer_id]);
 			CAT_gui_textf("Pet: %0.0fs/%0.0fs\n", CAT_timer_get(pet.petting_timer_id), timetable.duration[pet.petting_timer_id]);
 			CAT_gui_textf("Pets: %d/5\n", pet.times_pet, 5);
 			CAT_gui_textf("Milks: %d/3\n", pet.times_milked, 3);
-			CAT_gui_textf("E-Ink: %0.0fs/%ds\n", time_since_last_eink_update, eink_update_time_threshold);
+			CAT_gui_textf("E-Ink: %0.0fs/%ds\n", time_since_eink_update, eink_update_time_threshold);
 		break;
 		case DECO:
 			CAT_gui_title(true, NULL, &icon_exit_sprite, "DECO");
@@ -95,18 +95,10 @@ void CAT_render_debug()
 			{
 				for(int x = 0; x < CAT_GRID_WIDTH; x++)
 				{
-					int idx = y * CAT_GRID_WIDTH + x;
-					int cell = space.cells[idx].occupied ? 1 : 0;
-					CAT_gui_image(&icon_cell_sprite, cell);
+					CAT_gui_image(&icon_cell_sprite, !CAT_is_grid_point_free((CAT_ivec2){x, y}));
 				}
 				CAT_gui_line_break();
 			}
-			CAT_gui_textf
-			(
-				"%d occupied, %d free\n%d total\n",
-				CAT_GRID_SIZE - space.free_cell_count, space.free_cell_count,
-				CAT_GRID_SIZE
-			);
 		break;
 		case INPUT:
 		{

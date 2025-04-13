@@ -71,7 +71,6 @@ void lcd_write_str(uint16_t color, int x, int y, char* str)
 uint32_t hack_cyc_before_data_write, hack_cyc_after_data_write, hack_before_blit, hack_after_blit;
 
 extern volatile bool write_done;
-volatile bool first_frame_complete = false;
 
 int epaper_update_rate = -1;
 
@@ -81,6 +80,7 @@ bool in_debug_menu = false;
 bool show_fps = false;
 bool cat_game_running = false;
 int last_button_pressed = 0;
+uint64_t slept_s = 0;
 
 void lcd_keep_awake()
 {
@@ -95,12 +95,12 @@ void lcd_render_diag()
 	int last_eink_update = 0;
 
 #ifndef MINIMIZE_GAME_FOOTPRINT
-	int slept = get_current_rtc_time() - went_to_sleep_at;
-	if (slept < 0) slept = 0;
+	slept_s = get_current_rtc_time() - went_to_sleep_at;
+	if (slept_s < 0) slept_s = 0;
 
-	LOG_INF("about to CAT_init(slept=%d)", slept);
+	LOG_INF("about to CAT_init(slept=%d)", slept_s);
 
-	CAT_init(slept);
+	CAT_init();
 	cat_game_running = true;
 #endif
 
@@ -248,8 +248,7 @@ void lcd_render_diag()
 			{
 #ifndef MINIMIZE_GAME_FOOTPRINT
 				CAT_set_render_cycle(step);
-				CAT_tick_render();
-				first_frame_complete = true;			
+				CAT_tick_render();		
 #endif
 			}
 

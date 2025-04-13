@@ -164,7 +164,7 @@ bool CAT_pet_seek(CAT_vec2 targ)
 	CAT_vec2 dir = CAT_vec2_mul(line, 1.0f/dist);
 
 	float speed = 48.0f;
-	float step = speed * CAT_get_delta_time();
+	float step = speed * CAT_get_delta_time_s();
 
 	if(dist < step)
 	{
@@ -176,7 +176,7 @@ bool CAT_pet_seek(CAT_vec2 targ)
 	{
 		pet.rot = dir.x > 0 ? M_PI : 0;
 		pet.vel = CAT_vec2_mul(dir, speed);
-		pet.pos = CAT_vec2_add(pet.pos, CAT_vec2_mul(pet.vel, CAT_get_delta_time()));	
+		pet.pos = CAT_vec2_add(pet.pos, CAT_vec2_mul(pet.vel, CAT_get_delta_time_s()));	
 		return false;
 	}
 }
@@ -184,16 +184,6 @@ bool CAT_pet_seek(CAT_vec2 targ)
 void CAT_pet_face(CAT_vec2 targ)
 {
 	pet.rot = targ.x > pet.pos.x ? M_PI : 0;
-}
-
-void CAT_pet_reposition()
-{
-	if(CAT_has_free_space())
-	{
-		CAT_ivec2 grid_pos = CAT_nearest_free_space((CAT_ivec2){8, 6});
-		CAT_ivec2 world_pos = CAT_grid2world(grid_pos);
-		pet.pos = (CAT_vec2) {world_pos.x, world_pos.y};
-	}
 }
 
 void CAT_pet_stat(int ticks)

@@ -27,47 +27,6 @@
 
 
 //////////////////////////////////////////////////////////////////////////
-// SPACE
-
-typedef struct CAT_cell
-{
-	int idx;
-	CAT_ivec2 coords;
-	
-	bool occupied;
-	bool visited;
-} CAT_cell;
-
-typedef struct CAT_space
-{
-	CAT_ivec2 grid_origin;
-
-	CAT_ivec2 world_shape;
-	CAT_rect world_rect;
-
-	CAT_cell cells[CAT_GRID_SIZE];
-	int free_cell_count;
-} CAT_space;
-extern CAT_space space;
-
-void CAT_space_init();
-
-CAT_ivec2 CAT_grid2world(CAT_ivec2 grid);
-CAT_ivec2 CAT_world2grid(CAT_ivec2 world);
-
-CAT_cell* CAT_get_cell(CAT_ivec2 cell);
-
-bool CAT_is_block_free(CAT_rect block);
-void CAT_toggle_block(CAT_rect block, bool value);
-
-bool CAT_has_free_space();
-CAT_ivec2 CAT_first_free_space();
-CAT_ivec2 CAT_rand_free_space();
-CAT_ivec2 CAT_nearest_free_space(CAT_ivec2 cell);
-CAT_ivec2 CAT_largest_free_space();
-
-
-//////////////////////////////////////////////////////////////////////////
 // ROOM
 
 typedef struct CAT_room_theme
@@ -108,6 +67,20 @@ typedef struct CAT_room
 extern CAT_room room;
 
 void CAT_room_init();
+
+CAT_ivec2 CAT_grid2world(CAT_ivec2 grid);
+CAT_ivec2 CAT_world2grid(CAT_ivec2 world);
+
+bool CAT_is_grid_point_free(CAT_ivec2 point);
+bool CAT_is_world_point_free(CAT_vec2 point);
+bool CAT_is_block_free(CAT_rect block);
+void CAT_toggle_block(CAT_rect block, bool value);
+
+bool CAT_has_free_space();
+CAT_ivec2 CAT_first_free_space();
+CAT_ivec2 CAT_rand_free_space();
+CAT_ivec2 CAT_nearest_free_space(CAT_ivec2 cell);
+CAT_ivec2 CAT_largest_free_space();
 
 int CAT_room_find(int item_id);
 int CAT_room_find_spatial(CAT_ivec2 place);

@@ -25,7 +25,7 @@ uint64_t last_uptime = 0;
 
 void CAT_platform_init()
 {
-	soundPower(true);
+	return;
 }
 
 void CAT_platform_tick()
@@ -37,7 +37,7 @@ void CAT_platform_tick()
 
 void CAT_platform_cleanup()
 {
-	soundPower(false);
+	return;
 }
 
 
@@ -165,12 +165,17 @@ void CAT_get_touch(CAT_touch* touch)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // TIME
 
-uint64_t CAT_get_time_ms()
+uint64_t CAT_get_slept_s()
+{
+	return slept_s;
+}
+
+uint64_t CAT_get_uptime_ms()
 {
 	return k_uptime_get();
 }
 
-float CAT_get_delta_time()
+float CAT_get_delta_time_s()
 {
 	return delta_t;
 }
@@ -188,8 +193,6 @@ void CAT_get_datetime(CAT_datetime* datetime)
 	datetime->minute = local.tm_min;
 	datetime->second = local.tm_sec;	
 }
-
-void CAT_set_datetime(CAT_datetime* datetime){}
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -235,7 +238,7 @@ CAT_save* CAT_start_load()
 // then call once done loading
 void CAT_finish_load()
 {
-	// no-op
+	return;
 }
 
 

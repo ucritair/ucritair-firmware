@@ -99,8 +99,8 @@ void CAT_MS_menu(CAT_machine_signal signal)
 						}
 						if(CAT_gui_menu_item("TURNKEY APARTMENT"))
 						{
-							needs_load = true;
-							override_load = true;
+							CAT_set_load_flag(CAT_LOAD_FLAG_DIRTY);
+							CAT_set_load_flag(CAT_LOAD_FLAG_OVERRIDE);
 						}
 						if(CAT_gui_menu_item("LEGACY CHEATS PAGE"))
 							CAT_machine_transition(CAT_MS_cheats);

@@ -74,7 +74,7 @@ void CAT_MS_hedron(CAT_machine_signal signal)
 			if(CAT_input_pressed(CAT_BUTTON_B) || CAT_input_pressed(CAT_BUTTON_START))
 				CAT_machine_back();
 
-			theta_h += CAT_get_delta_time();
+			theta_h += CAT_get_delta_time_s();
 			if(theta_h >= 6.28318530718f)
 				theta_h = 0;
 			break;

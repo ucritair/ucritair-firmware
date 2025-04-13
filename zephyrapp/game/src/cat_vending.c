@@ -56,7 +56,7 @@ void CAT_MS_vending(CAT_machine_signal signal)
 						if(CAT_input_pressed(CAT_BUTTON_A))
 							purchase_progress = 0.15f;
 						else if(CAT_input_held(CAT_BUTTON_A, 0.0f))
-							purchase_progress += CAT_get_delta_time();
+							purchase_progress += CAT_get_delta_time_s();
 						CAT_gui_item_highlight(purchase_progress);
 						
 						if(purchase_progress >= 1)

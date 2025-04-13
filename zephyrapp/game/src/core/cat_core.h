@@ -31,7 +31,6 @@ uint16_t* CAT_LCD_get_framebuffer();
 void CAT_LCD_post();
 bool CAT_LCD_is_posted();
 void CAT_LCD_flip();
-bool CAT_first_frame_complete();
 
 void CAT_set_render_cycle(int cycle);
 int CAT_get_render_cycle();
@@ -105,8 +104,9 @@ void CAT_get_touch(CAT_touch* touch);
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // TIME
 
-uint64_t CAT_get_time_ms();
-float CAT_get_delta_time();
+uint64_t CAT_get_slept_s();
+uint64_t CAT_get_uptime_ms();
+float CAT_get_delta_time_s();
 
 typedef struct CAT_datetime
 {
@@ -114,7 +114,6 @@ typedef struct CAT_datetime
 } CAT_datetime;
 
 void CAT_get_datetime(CAT_datetime* datetime);
-void CAT_set_datetime(CAT_datetime* datetime);
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -203,6 +202,17 @@ void CAT_set_save_flags(uint16_t flags);
 void CAT_enable_save_flag(CAT_save_flag flag);
 void CAT_disable_save_flag(CAT_save_flag flag);
 bool CAT_is_save_flag_enabled(CAT_save_flag flag);
+
+typedef enum
+{
+	CAT_LOAD_FLAG_DIRTY,
+	CAT_LOAD_FLAG_RESET,
+	CAT_LOAD_FLAG_OVERRIDE
+} CAT_load_flag;
+
+void CAT_set_load_flag(CAT_load_flag flag);
+void CAT_clear_load_flag(CAT_load_flag flag);
+bool CAT_check_load_flag(CAT_load_flag flag);
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

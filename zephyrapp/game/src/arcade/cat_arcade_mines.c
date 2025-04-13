@@ -301,7 +301,7 @@ void CAT_MS_mines(CAT_machine_signal signal)
 				for(int i = 0; i < GRID_SIZE; i++)
 				{
 					if(grid[i].coin)
-						grid[i].coin_timer += CAT_get_delta_time();
+						grid[i].coin_timer += CAT_get_delta_time_s();
 				}
 			}
 			else

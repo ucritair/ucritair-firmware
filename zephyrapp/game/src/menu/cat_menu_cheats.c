@@ -42,7 +42,11 @@ static void cheat_all_items() {
         CAT_item_list_add(&bag, i, 1);
     }
 }
-static void cheat_turnkey() { needs_load = true; override_load = true; }
+static void cheat_turnkey()
+{
+	CAT_set_load_flag(CAT_LOAD_FLAG_DIRTY);
+	CAT_set_load_flag(CAT_LOAD_FLAG_OVERRIDE);
+}
 
 static CheatEntry cheats_page1[] = {
     { "+ 1000 COINS", cheat_add_coins },

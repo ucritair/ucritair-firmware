@@ -46,48 +46,17 @@
 #pragma GCC diagnostic ignored "-Wunknown-pragmas"
 #endif
 
-int logged_sleep = 0;
-bool needs_load = true;
-bool override_load = false;
-bool clear_load = false;
-
 uint8_t saved_version_major = CAT_VERSION_MAJOR;
 uint8_t saved_version_minor = CAT_VERSION_MINOR;
 uint8_t saved_version_patch = CAT_VERSION_PATCH;
 uint8_t saved_version_push = CAT_VERSION_PUSH;
 
-float time_since_last_eink_update = 0.0f;
 const int eink_update_time_threshold = CAT_MIN_SECS;
+float time_since_eink_update = 0.0f;
 
 CAT_screen_orientation current_orientation;
 CAT_screen_orientation last_orientation;
-float time_since_last_flip = 0.0f;
-
-#ifdef CAT_DESKTOP
-int CAT_load_sleep()
-{
-	time_t sleep_time;
-	int fd = open("sleep.dat", O_RDONLY);
-	if(fd != -1)
-	{
-		read(fd, &sleep_time, sizeof(sleep_time));
-		close(fd);
-		time_t now;
-		time(&now);
-		return difftime(now, sleep_time);
-	}
-	return 0;
-}
-
-void CAT_save_sleep()
-{
-	time_t now;
-	time(&now);
-	int fd = open("sleep.dat", O_WRONLY | O_CREAT | O_TRUNC,  S_IRUSR | S_IWUSR);
-	write(fd, &now, sizeof(now));
-	close(fd);
-}
-#endif
+float time_since_reorient = 0.0f;
 
 void CAT_force_save()
 {
@@ -161,7 +130,7 @@ void CAT_force_save()
 	CAT_finish_save(save);
 }
 
-void CAT_load_failsafe()
+void CAT_load_reset()
 {
 	saved_version_major = CAT_VERSION_MAJOR;
 	saved_version_minor = CAT_VERSION_MINOR;
@@ -176,11 +145,7 @@ void CAT_load_failsafe()
 	CAT_item_list_add(&bag, prop_eth_farm_item, 1);
 	coins = 10;
 
-	CAT_space_init();
 	CAT_room_init();
-
-	CAT_LCD_set_brightness(CAT_LCD_MAX_BRIGHTNESS);
-	CAT_LED_set_brightness(100);
 }
 
 void CAT_load_override()
@@ -203,7 +168,6 @@ void CAT_load_override()
 	CAT_item_list_add(&bag, toy_baseball_item, 1);
 	coins = 100;
 
-	CAT_space_init();
 	CAT_room_init();
 	CAT_room_add_prop(prop_plant_plain_item, (CAT_ivec2) {0, 0});
 	CAT_room_add_prop(prop_eth_farm_item, (CAT_ivec2) {2, 0});
@@ -222,12 +186,12 @@ void CAT_force_load()
 {
 	CAT_save* save = CAT_start_load();
 
-	if(clear_load || !CAT_check_save(save) || save == NULL)
+	if(save == NULL || !CAT_check_save(save) || CAT_check_load_flag(CAT_LOAD_FLAG_RESET))
 	{
-		CAT_load_failsafe();
+		CAT_load_reset();
+		CAT_clear_load_flag(CAT_LOAD_FLAG_RESET);
+
 		CAT_finish_load();
-		needs_load = false;
-		clear_load = false;
 		CAT_force_save();
 		return;
 	}
@@ -296,54 +260,52 @@ void CAT_force_load()
 	if(save->temperature_unit <= CAT_TEMPERATURE_UNIT_DEGREES_FAHRENHEIT)
 		CAT_AQ_set_temperature_unit(save->temperature_unit);
 	
-	if(override_load)
+	if(CAT_check_load_flag(CAT_LOAD_FLAG_OVERRIDE))
+	{
 		CAT_load_override();
-
+		CAT_clear_load_flag(CAT_LOAD_FLAG_OVERRIDE);
+	}
+		
 	CAT_finish_load();
-	needs_load = false;
 }
 
-void CAT_apply_sleep()
+void CAT_apply_sleep(int seconds)
 {
-	int stat_ticks = logged_sleep / CAT_STAT_TICK_SECS;
-	int stat_remainder = logged_sleep % CAT_STAT_TICK_SECS;
+	int stat_ticks = seconds / CAT_STAT_TICK_SECS;
+	int stat_remainder = seconds % CAT_STAT_TICK_SECS;
 	CAT_pet_stat(stat_ticks);
 	CAT_timer_add(pet.stat_timer_id, stat_remainder);
 
-	int life_ticks = logged_sleep / CAT_LIFE_TICK_SECS;
-	int life_remainder = logged_sleep % CAT_LIFE_TICK_SECS;
+	int life_ticks = seconds / CAT_LIFE_TICK_SECS;
+	int life_remainder = seconds % CAT_LIFE_TICK_SECS;
 	CAT_pet_life(life_ticks);
 	CAT_timer_add(pet.life_timer_id, life_remainder);
 
-	int earn_ticks = logged_sleep / CAT_EARN_TICK_SECS;
-	int earn_remainder = logged_sleep % CAT_EARN_TICK_SECS;
+	int earn_ticks = seconds / CAT_EARN_TICK_SECS;
+	int earn_remainder = seconds % CAT_EARN_TICK_SECS;
 	CAT_room_earn(earn_ticks);
 	CAT_timer_add(room.earn_timer_id, earn_remainder);
 
-	CAT_timer_add(pet.petting_timer_id, logged_sleep);
+	CAT_timer_add(pet.petting_timer_id, seconds);
 
-	time_since_last_eink_update += logged_sleep;
+	time_since_eink_update += seconds;
 }
 
-void CAT_init(int seconds_slept)
+void CAT_init()
 {
-	logged_sleep = seconds_slept;
-
 	CAT_platform_init();
 	CAT_input_init();
+	CAT_sound_power(true);
 
 	CAT_timetable_init();
-
 	CAT_animator_init();
+	CAT_rand_seed();
 
-	CAT_space_init();
 	CAT_room_init();
 	CAT_pet_init();
 
 	CAT_force_load();
-	CAT_apply_sleep();
-	
-	CAT_pet_reposition();
+	CAT_apply_sleep(CAT_get_slept_s());
 
 	CAT_machine_transition(CAT_MS_room);
 
@@ -352,9 +314,12 @@ void CAT_init(int seconds_slept)
 
 void CAT_tick_logic()
 {
-	if(needs_load)
+	if(CAT_check_load_flag(CAT_LOAD_FLAG_DIRTY))
+	{
 		CAT_force_load();
-
+		CAT_clear_load_flag(CAT_LOAD_FLAG_DIRTY);
+	}
+		
 	CAT_platform_tick();
 	CAT_input_tick();
 	CAT_get_AQ_readings();
@@ -369,32 +334,28 @@ void CAT_tick_logic()
 
 	CAT_gui_io();
 
-	time_since_last_eink_update += CAT_get_delta_time();
+	time_since_eink_update += CAT_get_delta_time_s();
 	if
 	(
 		CAT_is_charging() &&
-		time_since_last_eink_update >= eink_update_time_threshold &&
+		time_since_eink_update >= eink_update_time_threshold &&
 		CAT_input_time_since_last() >= eink_update_time_threshold
 	)
 	{
 		CAT_eink_update();
-		time_since_last_eink_update = 0;
+		time_since_eink_update = 0;
 	}
 
+	time_since_reorient += CAT_get_delta_time_s();
 	last_orientation = current_orientation;
 	current_orientation = CAT_IMU_is_upside_down() ? CAT_SCREEN_ORIENTATION_DOWN : CAT_SCREEN_ORIENTATION_UP;
-	if(current_orientation != last_orientation && time_since_last_flip >= 1.0f)
+	if(current_orientation != last_orientation && time_since_reorient >= 1.0f)
 	{
 		CAT_set_screen_orientation(current_orientation);
-		if(time_since_last_eink_update > 10)
-		{
-			CAT_eink_update();
-			time_since_last_eink_update = 0;
-		}
-		time_since_last_flip = 0;
+		time_since_reorient = 0;
+		CAT_eink_update();
+		time_since_eink_update = 0;
 	}
-	else
-		time_since_last_flip += CAT_get_delta_time();
 }
 
 void CAT_tick_render()
@@ -424,7 +385,7 @@ void CAT_tick_render()
 #ifdef CAT_DESKTOP
 int main(int argc, char** argv)
 {
-	CAT_init(CAT_load_sleep());
+	CAT_init();
 
 	while (CAT_get_battery_pct() > 0)
 	{
@@ -443,7 +404,6 @@ int main(int argc, char** argv)
 	}
 
 	CAT_force_save();
-	CAT_save_sleep();
 
 	CAT_platform_cleanup();
 	return 0;

@@ -47,7 +47,6 @@ void CAT_pet_settle();
 
 bool CAT_pet_seek(CAT_vec2 targ);
 void CAT_pet_face(CAT_vec2 targ);
-void CAT_pet_reposition();
 
 void CAT_pet_stat(int ticks);
 void CAT_pet_life(int ticks);

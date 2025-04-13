@@ -330,7 +330,7 @@ void CAT_gui_keyboard_io()
 		keyboard.buffer[keyboard.cursor] = '\0';
 	}
 
-	keyboard.cursor_timer += CAT_get_delta_time();
+	keyboard.cursor_timer += CAT_get_delta_time_s();
 	if(keyboard.cursor_timer >= 0.5f)
 	{
 		keyboard.cursor_timer = 0.0f;

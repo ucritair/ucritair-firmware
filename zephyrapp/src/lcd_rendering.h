@@ -2,6 +2,7 @@
 #include <stdbool.h>
 
 extern bool cat_game_running;
+extern uint64_t slept_s;
 
 void lcd_render_diag();
 

@@ -86,8 +86,8 @@ void CAT_MS_crawl(CAT_machine_signal signal)
 			{
 				if(CAT_input_held(keys[i], 0.0f))
 				{
-					pos_x += dx[i] * CAT_get_delta_time();
-					pos_y += dy[i] * CAT_get_delta_time();
+					pos_x += dx[i] * CAT_get_delta_time_s();
+					pos_y += dy[i] * CAT_get_delta_time_s();
 
 					walk_cycle_timer++;
 					if(walk_cycle_timer >= WALK_CYCLE_DURATION)
@@ -146,8 +146,8 @@ void CAT_MS_crawl(CAT_machine_signal signal)
 				if(enemy_status[i] == DEAD)
 					continue;
 					
-				enemy_x[i] += enemy_dx[i] * CAT_get_delta_time();
-				enemy_y[i] += enemy_dy[i] * CAT_get_delta_time();
+				enemy_x[i] += enemy_dx[i] * CAT_get_delta_time_s();
+				enemy_y[i] += enemy_dy[i] * CAT_get_delta_time_s();
 
 				if(enemy_x[i] < -32 || enemy_x[i] >= CAT_LCD_SCREEN_W + 32 || enemy_y[i] < -32 || enemy_y[i] >= CAT_LCD_SCREEN_H + 32)
 				{

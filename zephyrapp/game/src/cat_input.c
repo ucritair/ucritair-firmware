@@ -66,8 +66,8 @@ void CAT_input_tick()
 		}
 		else
 		{
-			input.time[i] += CAT_get_delta_time();
-			input.pulse[i] += CAT_get_delta_time();
+			input.time[i] += CAT_get_delta_time_s();
+			input.pulse[i] += CAT_get_delta_time_s();
 			if(input.pulse[i] >= 0.1f)
 				input.pulse[i] = 0;
 		}
@@ -87,7 +87,7 @@ void CAT_input_tick()
 	if(!current_state)
 		input.touch_time = 0;
 	else
-		input.touch_time += CAT_get_delta_time();
+		input.touch_time += CAT_get_delta_time_s();
 	if(CAT_get_screen_orientation() == CAT_SCREEN_ORIENTATION_DOWN)
 	{
 		input.touch.x = CAT_LCD_SCREEN_W - input.touch.x - 1;
@@ -98,7 +98,7 @@ void CAT_input_tick()
 	input_this_frame |= mask > 0;
 	input_this_frame |= input.touch.pressure > 0;
 	if(!input_this_frame)
-		time_since_last_input += CAT_get_delta_time();
+		time_since_last_input += CAT_get_delta_time_s();
 	else
 		time_since_last_input = 0;
 }

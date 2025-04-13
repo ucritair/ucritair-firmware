@@ -93,3 +93,19 @@ bool CAT_is_save_flag_enabled(CAT_save_flag flag)
 {
 	return (session_flags & (1 << flag)) > 0;
 }
+
+static uint16_t load_flags = 0;
+
+void CAT_set_load_flag(CAT_load_flag flag)
+{
+	load_flags |= (1 << flag);
+}
+void CAT_clear_load_flag(CAT_load_flag flag)
+{
+	load_flags &= ~(1 << flag);
+}
+
+bool CAT_check_load_flag(CAT_load_flag flag)
+{
+	return (load_flags & (1 << flag)) > 0;
+}
