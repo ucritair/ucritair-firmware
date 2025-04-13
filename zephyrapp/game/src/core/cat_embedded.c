@@ -143,7 +143,8 @@ void CAT_sound_power(bool value)
 
 void CAT_play_sound(CAT_sound* sound)
 {
-	soundPlay(sound->samples, sound->size, SoundReplaceCurrent);
+	CAT_printf("[CAT_play_sound] Playing %d bytes at %p", sound->size, sound->samples);
+	// soundPlay(sound->samples, sound->size, SoundReplaceCurrent);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -317,4 +318,16 @@ bool CAT_IMU_is_upside_down()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // DEBUG
 
-void CAT_printf(const char* fmt, ...){}
+#include <zephyr/logging/log.h>
+LOG_MODULE_REGISTER(cat_embedded, LOG_LEVEL_DBG);
+
+char debug_print_buffer[512];
+
+void CAT_printf(const char* fmt, ...)
+{
+	va_list args;
+	va_start(args, fmt);
+	int added = vsnprintf(debug_print_buffer, sizeof(debug_print_buffer), fmt, args);
+	va_end(args);
+	LOG_DBG("%s", debug_print_buffer);
+}

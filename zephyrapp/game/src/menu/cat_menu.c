@@ -61,62 +61,66 @@ void CAT_MS_menu(CAT_machine_signal signal)
 					CAT_machine_transition(CAT_MS_manual);
 				if(CAT_is_save_flag_enabled(CAT_SAVE_FLAG_DEVELOPER_MODE))
 				{
-					if(CAT_gui_menu_item("DEBUG VIEWS"))
-						CAT_machine_transition(CAT_MS_debug);
-					if(CAT_gui_begin_menu("DEBUG ACTIONS"))
+					if(CAT_gui_begin_menu("DEVELOPER"))
 					{
-						if(CAT_gui_menu_item("SOUND POWER ON"))
-							CAT_sound_power(true);
-						if(CAT_gui_menu_item("SOUND POWER OFF"))
-							CAT_sound_power(false);
-						if(CAT_gui_menu_item("PLAY SOUND"))
-							CAT_play_sound(&coin_sound);
-						CAT_gui_end_menu();
-					}
-					if(CAT_gui_begin_menu("CHEATS"))
-					{
-						if(CAT_gui_menu_item("1000 COINS"))
-							coins += 1000;
-						if(CAT_gui_menu_item("BASE STATS"))
+						if(CAT_gui_menu_item("INFO"))
+							CAT_machine_transition(CAT_MS_debug);
+						if(CAT_gui_begin_menu("TESTS"))
 						{
-							pet.vigour = 9;
-							pet.focus = 9;
-							pet.spirit = 9;
+							if(CAT_gui_menu_item("SOUND POWER ON"))
+								CAT_sound_power(true);
+							if(CAT_gui_menu_item("SOUND POWER OFF"))
+								CAT_sound_power(false);
+							if(CAT_gui_menu_item("PLAY SOUND"))
+								CAT_play_sound(&coin_sound);
+							CAT_gui_end_menu();
 						}
-						if(CAT_gui_menu_item("MAX STATS"))
+						if(CAT_gui_begin_menu("CHEATS"))
 						{
-							pet.vigour = 12;
-							pet.focus = 12;
-							pet.spirit = 12;
-						}
-						if(CAT_gui_menu_item("CRIT STATS"))
-						{
-							pet.vigour = 3;
-							pet.focus = 3;
-							pet.spirit = 3;
-						}
-						if(CAT_gui_menu_item("NULL STATS"))
-						{
-							pet.vigour = 0;
-							pet.focus = 0;
-							pet.spirit = 0;
-						}
-						if(CAT_gui_menu_item("EVERY ITEM"))
-						{
-							for(int item_id = 0; item_id < item_table.length; item_id++)
+							if(CAT_gui_menu_item("1000 COINS"))
+								coins += 1000;
+							if(CAT_gui_menu_item("BASE STATS"))
 							{
-								CAT_item_list_add(&bag, item_id, 1);
+								pet.vigour = 9;
+								pet.focus = 9;
+								pet.spirit = 9;
 							}
+							if(CAT_gui_menu_item("MAX STATS"))
+							{
+								pet.vigour = 12;
+								pet.focus = 12;
+								pet.spirit = 12;
+							}
+							if(CAT_gui_menu_item("CRIT STATS"))
+							{
+								pet.vigour = 3;
+								pet.focus = 3;
+								pet.spirit = 3;
+							}
+							if(CAT_gui_menu_item("NULL STATS"))
+							{
+								pet.vigour = 0;
+								pet.focus = 0;
+								pet.spirit = 0;
+							}
+							if(CAT_gui_menu_item("EVERY ITEM"))
+							{
+								for(int item_id = 0; item_id < item_table.length; item_id++)
+								{
+									CAT_item_list_add(&bag, item_id, 1);
+								}
+							}
+							if(CAT_gui_menu_item("TURNKEY APARTMENT"))
+							{
+								CAT_set_load_flag(CAT_LOAD_FLAG_DIRTY);
+								CAT_set_load_flag(CAT_LOAD_FLAG_OVERRIDE);
+							}
+							if(CAT_gui_menu_item("LEGACY CHEATS"))
+								CAT_machine_transition(CAT_MS_cheats);
+							CAT_gui_end_menu();
 						}
-						if(CAT_gui_menu_item("TURNKEY APARTMENT"))
-						{
-							CAT_set_load_flag(CAT_LOAD_FLAG_DIRTY);
-							CAT_set_load_flag(CAT_LOAD_FLAG_OVERRIDE);
-						}
-						if(CAT_gui_menu_item("LEGACY CHEATS"))
-							CAT_machine_transition(CAT_MS_cheats);
 						CAT_gui_end_menu();
-					}
+					}				
 				}
 				if(CAT_gui_begin_menu("SETTINGS"))
 				{
