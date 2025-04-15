@@ -83,49 +83,45 @@ const char* CAT_AQ_get_temperature_unit_string()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // SAVE
 
-uint16_t CAT_get_save_flags()
+static int save_flags = 0;
+
+int CAT_export_save_flags()
 {
-	CAT_save* save = CAT_start_load();
-	uint16_t flags = save->save_flags;
-	CAT_finish_load();
-	return flags;
+	return save_flags;
 }
 
-void CAT_set_save_flags(uint16_t flags)
+void CAT_import_save_flags(int flags)
 {
-	CAT_save* save = CAT_start_save();
-	save->save_flags = flags;
-	CAT_finish_save(save);
+	save_flags = flags;
 }
 
-void CAT_enable_save_flag(CAT_save_flag flag)
+void CAT_set_save_flag(CAT_save_flag flag)
 {
-	CAT_save* save = CAT_start_save();
-	save->save_flags |= (1 << flag);
-	CAT_finish_save(save);
+	save_flags |= (1 << flag);
 }
 
-void CAT_disable_save_flag(CAT_save_flag flag)
+void CAT_clear_save_flag(CAT_save_flag flag)
 {
-	CAT_save* save = CAT_start_save();
-	save->save_flags &= ~(1 << flag);
-	CAT_finish_save(save);
+	save_flags &= ~(1 << flag);
 }
 
-bool CAT_is_save_flag_enabled(CAT_save_flag flag)
+bool CAT_check_save_flag(CAT_save_flag flag)
 {
-	CAT_save* save = CAT_start_load();
-	bool value = (save->save_flags & (1 << flag)) > 0;
-	CAT_finish_load();
-	return value;
+	return save_flags & (1 << flag);
 }
 
-static uint16_t load_flags = 0;
+void CAT_clear_save_flags()
+{
+	save_flags = 0;
+}
+
+static int load_flags = 0;
 
 void CAT_set_load_flag(CAT_load_flag flag)
 {
 	load_flags |= (1 << flag);
 }
+
 void CAT_clear_load_flag(CAT_load_flag flag)
 {
 	load_flags &= ~(1 << flag);
@@ -133,5 +129,5 @@ void CAT_clear_load_flag(CAT_load_flag flag)
 
 bool CAT_check_load_flag(CAT_load_flag flag)
 {
-	return (load_flags & (1 << flag)) > 0;
+	return load_flags & (1 << flag);
 }

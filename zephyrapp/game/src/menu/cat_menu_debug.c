@@ -73,7 +73,7 @@ void CAT_render_debug()
 #elif defined(CAT_EMBEDDED)
 			CAT_gui_text("EMBEDDED\n");
 #endif
-			if(CAT_is_save_flag_enabled(CAT_SAVE_FLAG_DEVELOPER_MODE))
+			if(CAT_check_save_flag(CAT_SAVE_FLAG_DEVELOPER_MODE))
 				CAT_gui_text("DEVELOPER MODE\n");
 		break;
 		case TIME:

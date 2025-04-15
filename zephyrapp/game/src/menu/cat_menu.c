@@ -59,7 +59,7 @@ void CAT_MS_menu(CAT_machine_signal signal)
 				}
 				if(CAT_gui_menu_item("MANUAL"))
 					CAT_machine_transition(CAT_MS_manual);
-				if(CAT_is_save_flag_enabled(CAT_SAVE_FLAG_DEVELOPER_MODE))
+				if(CAT_check_save_flag(CAT_SAVE_FLAG_DEVELOPER_MODE))
 				{
 					if(CAT_gui_begin_menu("DEVELOPER"))
 					{
@@ -199,7 +199,10 @@ void CAT_MS_menu(CAT_machine_signal signal)
 					if(CAT_gui_begin_menu("DANGER ZONE"))
 					{
 						if(CAT_gui_menu_item("RESET SAVE FLAGS"))
-							CAT_set_save_flags(0);
+						{
+							CAT_clear_save_flags();
+							CAT_force_save();
+						}
 							
 						static bool confirm_reset = false;
 						if(CAT_gui_menu_item("RESET SAVE"))

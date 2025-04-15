@@ -4,6 +4,7 @@
 #include "cat_input.h"
 #include "cat_arcade.h"
 #include "sprite_assets.h"
+#include "cat_main.h"
 
 static CAT_button hedron_spell[10] =
 {
@@ -33,7 +34,8 @@ void CAT_MS_magic(CAT_machine_signal signal)
 
 			if(CAT_input_spell(hedron_spell))
 			{
-				CAT_enable_save_flag(CAT_SAVE_FLAG_DEVELOPER_MODE);
+				CAT_set_save_flag(CAT_SAVE_FLAG_DEVELOPER_MODE);
+				CAT_force_save();
 				CAT_machine_transition(CAT_MS_hedron);
 			}		
 			break;

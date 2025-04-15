@@ -136,6 +136,13 @@ typedef enum
 	CAT_SAVE_FLAG_DEVELOPER_MODE
 } CAT_save_flag;
 
+typedef enum
+{
+	CAT_LOAD_FLAG_DIRTY,
+	CAT_LOAD_FLAG_RESET,
+	CAT_LOAD_FLAG_OVERRIDE
+} CAT_load_flag;
+
 typedef struct __attribute__((__packed__)) CAT_save
 {
 	uint32_t magic_number;
@@ -182,7 +189,7 @@ typedef struct __attribute__((__packed__)) CAT_save
 
 	uint8_t temperature_unit;
 
-	uint16_t save_flags;
+	int save_flags;
 } CAT_save;
 
 // Call to start saving, then populate the returned CAT_save*
@@ -200,18 +207,12 @@ static inline bool CAT_check_save(CAT_save* save)
 	return save->magic_number == CAT_SAVE_MAGIC;
 }
 
-uint16_t CAT_get_save_flags();
-void CAT_set_save_flags(uint16_t flags);
-void CAT_enable_save_flag(CAT_save_flag flag);
-void CAT_disable_save_flag(CAT_save_flag flag);
-bool CAT_is_save_flag_enabled(CAT_save_flag flag);
-
-typedef enum
-{
-	CAT_LOAD_FLAG_DIRTY,
-	CAT_LOAD_FLAG_RESET,
-	CAT_LOAD_FLAG_OVERRIDE
-} CAT_load_flag;
+int CAT_export_save_flags();
+void CAT_import_save_flags(int flags);
+void CAT_set_save_flag(CAT_save_flag flag);
+void CAT_clear_save_flag(CAT_save_flag flag);
+bool CAT_check_save_flag(CAT_save_flag flag);
+void CAT_clear_save_flags();
 
 void CAT_set_load_flag(CAT_load_flag flag);
 void CAT_clear_load_flag(CAT_load_flag flag);
