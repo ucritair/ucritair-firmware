@@ -143,7 +143,7 @@ void CAT_sound_power(bool value)
 
 void CAT_play_sound(CAT_sound* sound)
 {
-	soundPlay(sound->samples, sound->size, SoundWaitForCurrent);
+	soundPlay(sound->samples, sound->size, SoundReplaceCurrent);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
