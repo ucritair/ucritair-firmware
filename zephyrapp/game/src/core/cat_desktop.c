@@ -93,6 +93,10 @@ void CAT_shader_init(char* vert_src, char* frag_src)
 
 void CAT_platform_init()
 {
+	char cwd_buf[128];
+	getcwd(cwd_buf, sizeof(cwd_buf));
+	CAT_printf("[%s]\n", cwd_buf);
+	
 	CAT_printf
 	(
 		"Starting CAT v%d.%d.%d.%d...\n",

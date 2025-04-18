@@ -2308,7 +2308,7 @@
         {
             "id": 226,
             "name": "eink_refresh_splash_sprite",
-            "path": "testing/refresh.png",
+            "path": "ui/reflesh_splash_spring.png",
             "frames": 1,
             "width": 240,
             "height": 320,

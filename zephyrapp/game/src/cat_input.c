@@ -129,9 +129,11 @@ bool CAT_input_held(int button, float t)
 
 bool CAT_input_pulse(int button)
 {
+	float pulse_time = maxf(0.15, 2 * CAT_get_delta_time_s() + 0.005f);
+
 	if(input.mask[button])
 	{
-		if(input.time[button] < 0.15f)
+		if(input.time[button] < pulse_time)
 		{
 			return !input.last[button];
 		}
