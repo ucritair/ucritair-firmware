@@ -189,6 +189,9 @@ void spawn_piece(CAT_foursquares_type type, CAT_ivec2 position)
 
 void rotate_piece()
 {	
+	if(piece.type == CAT_FOURSQUARES_O)
+		return;
+
 	for(int y = 0; y < collision_h; y++)
 	{
 		for(int x = 0; x < collision_w; x++)
@@ -238,13 +241,13 @@ void CAT_MS_foursquares(CAT_machine_signal signal)
 				};
 			}
 
-			spawn_piece(CAT_FOURSQUARES_J, (CAT_ivec2) {0, 0});
+			spawn_piece(CAT_FOURSQUARES_T, (CAT_ivec2) {0, 0});
 		break;
 
 		case CAT_MACHINE_SIGNAL_TICK:
 		{
 			static bool quit = false;
-			if(CAT_input_pressed(CAT_BUTTON_B))
+			if(CAT_input_pressed(CAT_BUTTON_B) || CAT_input_pressed(CAT_BUTTON_START))
 				CAT_gui_open_popup("Quit Foursquares?\n\nProgress will not\nbe saved!\n", &quit);
 			if(quit)
 			{
@@ -252,6 +255,10 @@ void CAT_MS_foursquares(CAT_machine_signal signal)
 				CAT_machine_back();
 			}
 
+			if(CAT_input_pressed(CAT_BUTTON_SELECT))
+			{
+				spawn_piece((piece.type + 1) % 7, (CAT_ivec2) {0, 0});
+			}
 			if(CAT_input_pressed(CAT_BUTTON_A))
 			{
 				rotate_piece();
@@ -302,6 +309,13 @@ void CAT_render_foursquares()
 				for(int j = 0; j < collision_w; j++)
 				{
 					int x_p = piece.position.x + j;
+
+					CAT_fillberry
+					(
+						x_p * CAT_FOURSQUARES_TILE_SIZE, y_p * CAT_FOURSQUARES_TILE_SIZE,
+						CAT_FOURSQUARES_TILE_SIZE, CAT_FOURSQUARES_TILE_SIZE,
+						0x0000
+					);
 					if(collision_matrix[i][j])
 					{
 						CAT_fillberry
