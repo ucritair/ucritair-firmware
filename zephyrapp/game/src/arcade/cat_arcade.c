@@ -33,7 +33,8 @@ static struct
 #endif
 	{"ARCADE", NULL},
 	{"Snack", CAT_MS_snake},
-	{"Sweep", CAT_MS_mines}
+	{"Sweep", CAT_MS_mines},
+	{"Foursquares", CAT_MS_foursquares}
 };
 #define NUM_ENTRIES (sizeof(entries)/sizeof(entries[0]))
 static int selector = -1;
