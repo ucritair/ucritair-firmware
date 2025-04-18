@@ -14,3 +14,6 @@ void CAT_render_mines();
 
 void CAT_MS_crawl(CAT_machine_signal signal);
 void CAT_render_crawl();
+
+void CAT_MS_brick(CAT_machine_signal signal);
+void CAT_render_brick();
