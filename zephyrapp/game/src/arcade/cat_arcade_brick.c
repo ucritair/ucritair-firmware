@@ -33,7 +33,7 @@
  #define PADDLE_W       4      /* 4 tiles ⇒ 64 px */
  #define PADDLE_STEP    1      /* tiles per tick */
  
- #define BALL_TICK      2      
+ #define BALL_TICK      1     /* make this 2 to make the game easier (ball slower) */
  #define BRICK_ROWS     5
  #define BRICK_COLS     GRID_W
  
