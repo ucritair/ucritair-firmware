@@ -189,17 +189,17 @@ void spawn_piece(CAT_foursquares_type type, CAT_ivec2 position)
 
 void rotate_piece()
 {	
-	for(int y = 0; y < 4; y++)
+	for(int y = 0; y < collision_h; y++)
 	{
-		for(int x = 0; x < 4; x++)
+		for(int x = 0; x < collision_w; x++)
 		{
-			rotation_buffer_matrix[x][4 - y - 1] = collision_matrix[y][x];
+			rotation_buffer_matrix[x][collision_h - y - 1] = collision_matrix[y][x];
 		}
 	}
 
-	for(int y = 0; y < 4; y++)
+	for(int y = 0; y < collision_h; y++)
 	{
-		for(int x = 0; x < 4; x++)
+		for(int x = 0; x < collision_w; x++)
 		{
 			collision_matrix[y][x] = rotation_buffer_matrix[y][x];
 		}
@@ -238,7 +238,7 @@ void CAT_MS_foursquares(CAT_machine_signal signal)
 				};
 			}
 
-			spawn_piece(CAT_FOURSQUARES_I, (CAT_ivec2) {0, 0});
+			spawn_piece(CAT_FOURSQUARES_J, (CAT_ivec2) {0, 0});
 		break;
 
 		case CAT_MACHINE_SIGNAL_TICK:
