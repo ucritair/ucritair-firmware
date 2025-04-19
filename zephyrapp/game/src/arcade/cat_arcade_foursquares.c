@@ -5,17 +5,11 @@
 #include "cat_math.h"
 #include "cat_gui.h"
 
-#define CAT_FOURSQUARES_TILE_SIZE 24
+#define CAT_FOURSQUARES_TILE_SIZE 16
 #define CAT_FOURSQUARES_GRID_WIDTH (CAT_LCD_SCREEN_W / CAT_FOURSQUARES_TILE_SIZE)
 #define CAT_FOURSQUARES_GRID_HEIGHT (CAT_LCD_SCREEN_H / CAT_FOURSQUARES_TILE_SIZE)
 #define CAT_FOURSQUARES_GRID_SIZE (CAT_FOURSQUARES_GRID_WIDTH * CAT_FOURSQUARES_GRID_HEIGHT)
 #define CAT_FOURSQUARES_MAX_PIECE_COUNT (CAT_FOURSQUARES_GRID_SIZE / 4)
-
-typedef enum
-{
-	CAT_FOURSQUARES_EMPTY,
-	CAT_FOURSQUARES_FULL
-} CAT_foursquares_state;
 
 typedef enum
 {
@@ -30,22 +24,19 @@ typedef enum
 
 typedef enum
 {
-	CAT_FOURSQUARES_NORTH,
-	CAT_FOURSQUARES_EAST,
-	CAT_FOURSQUARES_SOUTH,
-	CAT_FOURSQUARES_WEST
-} CAT_foursquares_orientation;
+	CAT_FOURSQUARES_CW,
+	CAT_FOURSQUARES_CCW
+} CAT_foursquares_rotation;
 
 typedef struct
 {
 	CAT_foursquares_type type;
-	CAT_foursquares_orientation orientation;
 	CAT_ivec2 position;
 } CAT_foursquares_piece;
 
 typedef struct
 {
-	CAT_foursquares_state state;
+	bool full;
 	uint16_t colour;
 } CAT_foursquares_cell;
 
@@ -60,26 +51,13 @@ static uint16_t piece_colours[7] =
 	0xF0F0,
 };
 
-static CAT_foursquares_cell cells[CAT_FOURSQUARES_GRID_SIZE];
+static CAT_foursquares_cell cells[CAT_FOURSQUARES_GRID_HEIGHT][CAT_FOURSQUARES_GRID_WIDTH];
 static CAT_foursquares_piece piece;
 
 static uint8_t collision_matrix[4][4];
 static uint8_t collision_w = 4;
 static uint8_t collision_h = 4;
 static uint8_t rotation_buffer_matrix[4][4];
-
-void dump_collision_matrix()
-{
-	for(int y = 0; y < collision_h; y++)
-	{
-		for(int x = 0; x < collision_w; x++)
-		{
-			CAT_printf("%d ", collision_matrix[y][x]);
-		}
-		CAT_printf("\n");
-	}
-	CAT_printf("%d %d\n", collision_w, collision_h);
-}
 
 void configure_collision_matrix
 (
@@ -102,7 +80,6 @@ void spawn_piece(CAT_foursquares_type type, CAT_ivec2 position)
 	piece = (CAT_foursquares_piece)
 	{
 		.type = type,
-		.orientation = CAT_FOURSQUARES_NORTH,
 		.position = position
 	};
 
@@ -187,7 +164,7 @@ void spawn_piece(CAT_foursquares_type type, CAT_ivec2 position)
 	}
 }
 
-void rotate_piece()
+void rotate_piece(CAT_foursquares_rotation rotation)
 {	
 	if(piece.type == CAT_FOURSQUARES_O)
 		return;
@@ -196,7 +173,10 @@ void rotate_piece()
 	{
 		for(int x = 0; x < collision_w; x++)
 		{
-			rotation_buffer_matrix[x][collision_h - y - 1] = collision_matrix[y][x];
+			if(rotation == CAT_FOURSQUARES_CW)
+				rotation_buffer_matrix[x][collision_h - y - 1] = collision_matrix[y][x];
+			else
+				rotation_buffer_matrix[y][x] = collision_matrix[x][collision_h - y - 1];
 		}
 	}
 
@@ -209,9 +189,34 @@ void rotate_piece()
 	}
 }
 
-void movement_step()
+void move_piece(int dx, int dy)
 {
-	piece.position.y += 1;
+	piece.position.x += dx;
+	piece.position.y += dy;
+}
+
+void kill_piece()
+{
+	for(int dy = 0; dy < collision_h; dy++)
+	{
+		for(int dx = 0; dx < collision_w; dx++)
+		{
+			if(collision_matrix[dy][dx])
+			{
+				int x = piece.position.x + dx;
+				int y = piece.position.y + dy;
+
+				cells[y][x].full = true;
+				cells[y][x].colour = piece_colours[piece.type];
+			}
+		}
+	}
+
+	spawn_piece
+	(
+		(piece.type + 1) % 7,
+		(CAT_ivec2) {CAT_rand_int(0, CAT_FOURSQUARES_GRID_WIDTH-collision_w), 0}
+	);
 }
 
 static int frame_counter = 0;
@@ -226,6 +231,107 @@ bool should_trigger_step()
 	return false;
 }
 
+bool detect_overlap()
+{
+	for(int dy = 0; dy < collision_h; dy++)
+	{	
+		for(int dx = 0; dx < collision_w; dx++)
+		{
+			if(collision_matrix[dy][dx])
+			{
+				int x = piece.position.x + dx;
+				int y = piece.position.y + dy;
+
+				if(y >= CAT_FOURSQUARES_GRID_HEIGHT)
+					return true;
+				
+				if(x < 0)
+					return true;
+				if(x >= CAT_FOURSQUARES_GRID_WIDTH)
+					return true;
+
+				if(cells[y][x].full)
+					return true;
+			}
+		}
+	}
+
+	return false;
+}
+
+bool detect_settle()
+{
+	for(int dy = 0; dy < collision_h; dy++)
+	{
+		for(int dx = 0; dx < collision_w; dx++)
+		{
+			if(collision_matrix[dy][dx])
+			{
+				int x = piece.position.x + dx;
+				int y = piece.position.y + dy;
+
+				if(y < CAT_FOURSQUARES_GRID_HEIGHT-1)
+				{
+					if(cells[y+1][x].full)
+						return true;
+				}
+				else
+					return true;
+			}
+		}
+	}
+
+	return false;
+}
+
+void clean_grid()
+{
+	int clear_start = CAT_FOURSQUARES_GRID_HEIGHT;
+	int clear_end = -1;
+
+	for(int y = 0; y < CAT_FOURSQUARES_GRID_HEIGHT; y++)
+	{
+		bool full_row = true;
+
+		for(int x = 0; x < CAT_FOURSQUARES_GRID_WIDTH; x++)
+		{
+			if(!cells[y][x].full)
+			{
+				full_row = false;
+				break;
+			}
+		}
+
+		if(full_row)
+		{
+			clear_start = min(clear_start, y);
+			clear_end = max(clear_end, y);
+		}
+	}
+
+	if(clear_start > clear_end)
+		return;
+
+	for(int y = clear_start; y <= clear_end; y++)
+	{
+		for(int x = 0; x < CAT_FOURSQUARES_GRID_WIDTH; x++)
+		{
+			cells[y][x].full = false;
+		}
+	}
+
+	int rows_shifted = 0;
+	for(int y = clear_start-1; y >= 0; y--)
+	{
+		for(int x = 0; x < CAT_FOURSQUARES_GRID_WIDTH; x++)
+		{
+			cells[clear_end-rows_shifted][x] = cells[y][x];
+			cells[y][x].full = false;
+		}
+		rows_shifted += 1;
+	}
+}
+
 void CAT_MS_foursquares(CAT_machine_signal signal)
 {
 	switch(signal)
@@ -233,12 +339,12 @@ void CAT_MS_foursquares(CAT_machine_signal signal)
 		case CAT_MACHINE_SIGNAL_ENTER:
 			CAT_set_render_callback(CAT_render_foursquares);
 
-			for(int i = 0; i < CAT_FOURSQUARES_GRID_SIZE; i++)
+			for(int y = 0; y < CAT_FOURSQUARES_GRID_HEIGHT; y++)
 			{
-				cells[i] = (CAT_foursquares_cell)
+				for(int x = 0; x < CAT_FOURSQUARES_GRID_WIDTH; x++)
 				{
-					.state = CAT_FOURSQUARES_EMPTY
-				};
+					cells[y][x].full = false;
+				}
 			}
 
 			spawn_piece(CAT_FOURSQUARES_T, (CAT_ivec2) {0, 0});
@@ -254,21 +360,48 @@ void CAT_MS_foursquares(CAT_machine_signal signal)
 				quit = false;
 				CAT_machine_back();
 			}
+			if(CAT_gui_popup_is_open())
+				break;
 
-			if(CAT_input_pressed(CAT_BUTTON_SELECT))
-			{
-				spawn_piece((piece.type + 1) % 7, (CAT_ivec2) {0, 0});
-			}
 			if(CAT_input_pressed(CAT_BUTTON_A))
 			{
-				rotate_piece();
-				dump_collision_matrix();
+				rotate_piece(CAT_FOURSQUARES_CW);
+				if(detect_overlap())
+					rotate_piece(CAT_FOURSQUARES_CCW);
+			}
+
+			if(CAT_input_held(CAT_BUTTON_LEFT, 0))
+			{
+				move_piece(-1, 0);
+				if(detect_overlap())
+					move_piece(1, 0);
+			}		
+			if(CAT_input_held(CAT_BUTTON_RIGHT, 0))
+			{
+				move_piece(1, 0);
+				if(detect_overlap())
+					move_piece(-1, 0);
+			}
+			if(CAT_input_held(CAT_BUTTON_DOWN, 0))
+			{
+				move_piece(0, 1);
+				if(detect_overlap())
+					move_piece(0, -1);
 			}
 
 			if(should_trigger_step())
 			{
-				movement_step();
+				move_piece(0, 1);
+				if(detect_overlap())
+					move_piece(0, -1);
 			}
+
+			if(detect_settle())
+			{
+				CAT_printf("!\n");
+				kill_piece();
+				clean_grid();
+			}		
 		break;
 		}
 
@@ -285,15 +418,8 @@ void CAT_render_foursquares()
 	{
 		for(int x = 0; x < CAT_FOURSQUARES_GRID_WIDTH; x++)
 		{
-			CAT_strokeberry
-			(
-				x * CAT_FOURSQUARES_TILE_SIZE, y * CAT_FOURSQUARES_TILE_SIZE,
-				CAT_FOURSQUARES_TILE_SIZE, CAT_FOURSQUARES_TILE_SIZE,
-				0xFFFF
-			);
-
-			CAT_foursquares_cell* cell = &cells[y * CAT_FOURSQUARES_GRID_WIDTH + x];
-			if(cell->state != CAT_FOURSQUARES_EMPTY)
+			CAT_foursquares_cell* cell = &cells[y][x];
+			if(cell->full)
 			{
 				CAT_fillberry
 				(
@@ -310,12 +436,6 @@ void CAT_render_foursquares()
 				{
 					int x_p = piece.position.x + j;
 
-					CAT_fillberry
-					(
-						x_p * CAT_FOURSQUARES_TILE_SIZE, y_p * CAT_FOURSQUARES_TILE_SIZE,
-						CAT_FOURSQUARES_TILE_SIZE, CAT_FOURSQUARES_TILE_SIZE,
-						0x0000
-					);
 					if(collision_matrix[i][j])
 					{
 						CAT_fillberry
