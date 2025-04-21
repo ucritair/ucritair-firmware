@@ -105,6 +105,18 @@ static CAT_ivec2 i_kick_offsets[4][5] =
 
 static CAT_foursquares_cell cells[CAT_FOURSQUARES_GRID_HEIGHT][CAT_FOURSQUARES_GRID_WIDTH];
 
+static CAT_foursquares_type seven_bag[7] =
+{
+	CAT_FOURSQUARES_I,
+	CAT_FOURSQUARES_J,
+	CAT_FOURSQUARES_L,
+	CAT_FOURSQUARES_O,
+	CAT_FOURSQUARES_S,
+	CAT_FOURSQUARES_T,
+	CAT_FOURSQUARES_Z
+};
+int bag_idx = 0;
+
 CAT_foursquares_type piece_type;
 CAT_ivec2 piece_position;
 CAT_foursquares_orientation piece_orientation;
@@ -115,6 +127,26 @@ static uint8_t collider_h = 4;
 CAT_ivec2 piece_position_buffer;
 CAT_foursquares_orientation piece_orientation_buffer;
 static uint8_t collider_buffer[4][4];
+
+void reset_seven_bag()
+{
+	for(int i = 0; i < 7; i++)
+	{
+		int j = CAT_rand_int(0, 6);
+		int temp = seven_bag[i];
+		seven_bag[i] = seven_bag[j];
+		seven_bag[j] = temp;
+	}
+
+	bag_idx = 0;
+}
+
+CAT_foursquares_type access_seven_bag()
+{
+	if(bag_idx >= 7)
+		reset_seven_bag();
+	return seven_bag[bag_idx++];
+}
 
 void configure_collider
 (
@@ -462,7 +494,8 @@ void CAT_MS_foursquares(CAT_machine_signal signal)
 				}
 			}
 
-			spawn_piece(CAT_FOURSQUARES_T, (CAT_ivec2) {0, 0});
+			reset_seven_bag();
+			spawn_piece(access_seven_bag(), (CAT_ivec2) {0, 0});
 		break;
 
 		case CAT_MACHINE_SIGNAL_TICK:
@@ -479,12 +512,6 @@ void CAT_MS_foursquares(CAT_machine_signal signal)
 				break;
 
 			reset_buffers();
-
-			if(CAT_input_pressed(CAT_BUTTON_SELECT))
-			{
-				spawn_piece((piece_type+1)%7, (CAT_ivec2){0, 0});
-				reset_buffers();
-			}
 
 			if(CAT_input_pressed(CAT_BUTTON_A))
 			{	
@@ -518,7 +545,7 @@ void CAT_MS_foursquares(CAT_machine_signal signal)
 				clean_grid();
 				spawn_piece
 				(
-					(piece_type + 1) % 7,
+					access_seven_bag(),
 					(CAT_ivec2) {CAT_rand_int(0, CAT_FOURSQUARES_GRID_WIDTH-collider_w), 0}
 				);
 			}
