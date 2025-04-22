@@ -501,7 +501,7 @@ void CAT_MS_foursquares(CAT_machine_signal signal)
 		case CAT_MACHINE_SIGNAL_TICK:
 		{
 			static bool quit = false;
-			if(CAT_input_pressed(CAT_BUTTON_START))
+			if(CAT_input_pressed(CAT_BUTTON_START) || CAT_input_held(CAT_BUTTON_B, 0.5f))
 				CAT_gui_open_popup("Quit Foursquares?\n\nProgress will not\nbe saved!\n", &quit);
 			if(quit)
 			{
@@ -589,7 +589,7 @@ void CAT_render_foursquares()
 					CAT_FOURSQUARES_TILE_SIZE, CAT_FOURSQUARES_TILE_SIZE,
 					cell->colour
 				);
-			}	
+			}
 		}
 	}
 
@@ -603,6 +603,38 @@ void CAT_render_foursquares()
 			if(collider[i][j])
 			{
 				CAT_fillberry
+				(
+					x_p * CAT_FOURSQUARES_TILE_SIZE, y_p * CAT_FOURSQUARES_TILE_SIZE,
+					CAT_FOURSQUARES_TILE_SIZE, CAT_FOURSQUARES_TILE_SIZE,
+					piece_colours[piece_type]
+				);
+			}
+		}
+	}
+
+	int piece_height = -1;
+	for(int y = 3; y >= 0 && piece_height == -1; y--)
+	{
+		for(int x = 0; x < 4; x++)
+		{
+			if(collider[y][x])
+			{
+				piece_height = y;
+				break;
+			}
+		}
+	}
+
+	for(int i = 0; i < collider_h; i++)
+	{
+		int y_p = CAT_FOURSQUARES_GRID_HEIGHT - 1 - piece_height + i;
+		for(int j = 0; j < collider_w; j++)
+		{
+			int x_p = piece_position.x + j;
+
+			if(collider[i][j])
+			{
+				CAT_strokeberry
 				(
 					x_p * CAT_FOURSQUARES_TILE_SIZE, y_p * CAT_FOURSQUARES_TILE_SIZE,
 					CAT_FOURSQUARES_TILE_SIZE, CAT_FOURSQUARES_TILE_SIZE,
