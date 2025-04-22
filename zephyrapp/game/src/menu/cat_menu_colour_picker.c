@@ -78,9 +78,9 @@ void CAT_MS_colour_picker(CAT_machine_signal signal)
 				CAT_machine_back();
 
 			if(CAT_input_held(CAT_BUTTON_A, 0))
-				V += CAT_get_delta_time_s();
+				V += 0.05f;
 			if(CAT_input_held(CAT_BUTTON_B, 0))
-				V -= CAT_get_delta_time_s();
+				V -= 0.05f;
 			V = clampf(V, 0, 1);
 
 			if(CAT_input_touching())
