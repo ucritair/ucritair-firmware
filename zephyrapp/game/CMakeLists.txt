@@ -108,6 +108,7 @@ target_sources(app PRIVATE
 	src/menu/cat_menu_debug.c
 	src/menu/cat_menu_cheats.c
 	src/menu/cat_menu_graph_spoof.c
+	src/menu/cat_menu_colour_picker.c
 
 	src/arcade/cat_arcade.c
 	src/arcade/cat_arcade_snake.c

@@ -119,6 +119,10 @@ void CAT_MS_menu(CAT_machine_signal signal)
 								CAT_machine_transition(CAT_MS_cheats);
 							CAT_gui_end_menu();
 						}
+						if(CAT_gui_menu_item("GRAPH SPOOF"))
+							CAT_machine_transition(CAT_MS_graph_spoof);
+						if(CAT_gui_menu_item("COLOUR PICKER"))
+							CAT_machine_transition(CAT_MS_colour_picker);
 						CAT_gui_end_menu();
 					}				
 				}
