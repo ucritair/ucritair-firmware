@@ -219,16 +219,14 @@ void CAT_MS_snake(CAT_machine_signal signal)
 			}
 			else
 			{
-				if(CAT_input_pressed(CAT_BUTTON_A) || CAT_input_pressed(CAT_BUTTON_B))
-					CAT_machine_back();
-				if(CAT_input_pressed(CAT_BUTTON_START))
-					CAT_machine_transition(CAT_MS_room);
-
 				if(score > snake_high_score)
 				{
 					snake_high_score = score;
 					is_high_score = true;
 				}
+
+				if(CAT_input_pressed(CAT_BUTTON_A) || CAT_input_pressed(CAT_BUTTON_B) || CAT_input_pressed(CAT_BUTTON_START))
+					CAT_machine_back();
 			}
 			break;
 		}

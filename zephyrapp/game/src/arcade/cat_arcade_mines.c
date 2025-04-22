@@ -324,12 +324,12 @@ void CAT_MS_mines(CAT_machine_signal signal)
 						}
 					}
 					
-					if(CAT_input_pressed(CAT_BUTTON_A))
+					if(CAT_input_pressed(CAT_BUTTON_A) || CAT_input_pressed(CAT_BUTTON_B) || CAT_input_pressed(CAT_BUTTON_START))
 						reveal_complete = true;
 				}
 				else
 				{
-					if(CAT_input_pressed(CAT_BUTTON_A))
+					if(CAT_input_pressed(CAT_BUTTON_A) || CAT_input_pressed(CAT_BUTTON_B) || CAT_input_pressed(CAT_BUTTON_START))
 					{
 						if(state == WIN)
 						{

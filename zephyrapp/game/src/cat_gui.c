@@ -843,6 +843,49 @@ void CAT_gui_item_list()
 
 
 //////////////////////////////////////////////////////////////////////////
+// PANEL-FREE GUI
+
+void CAT_gui_printf(int x, int y, const char* fmt, ...)
+{
+	va_list args;
+	va_start(args, fmt);
+	char text[512];
+	vsnprintf(text, 512, fmt, args);
+	va_end(args);
+
+	draw_mode = CAT_DRAW_MODE_DEFAULT;
+	int cursor_x = x;
+	int cursor_y = y;
+
+	const char* c = text;
+
+	while
+	(
+		*c != '\0' &&
+		!(*c == '#' && *(c+1) == '#')
+	)
+	{
+		if(*c == '\n')
+		{
+			cursor_y += CAT_GLYPH_HEIGHT;
+			c++;
+			continue;
+		}
+		if(*c == '\t')
+		{
+			cursor_x += CAT_GLYPH_WIDTH * 4;
+			c++;
+			continue;
+		}
+		
+		CAT_draw_sprite(&glyph_sprite, *c, cursor_x, cursor_y);
+		cursor_x += CAT_GLYPH_WIDTH;
+		c++;
+	}
+}
+
+
+//////////////////////////////////////////////////////////////////////////
 // FINALIZATION
 
 void CAT_gui_io()

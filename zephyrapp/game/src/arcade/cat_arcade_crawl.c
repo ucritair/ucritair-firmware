@@ -34,7 +34,7 @@ static float enemy_x[MAX_ENEMY_COUNT];
 static float enemy_y[MAX_ENEMY_COUNT];
 static float enemy_dx[MAX_ENEMY_COUNT];
 static float enemy_dy[MAX_ENEMY_COUNT];
-static enum {ALIVE, DEAD} enemy_status[MAX_ENEMY_COUNT];
+static enum {ALIVE, CAT_FOURSQAURE_DEAD} enemy_status[MAX_ENEMY_COUNT];
 static int enemy_count;
 
 void spawn()
@@ -133,7 +133,7 @@ void CAT_MS_crawl(CAT_machine_signal signal)
 						CAT_rect enemy_rect = CAT_rect_center(enemy_x[i], enemy_y[i], 32, 32);
 						if(CAT_rect_overlaps(attack_rect, enemy_rect))
 						{
-							enemy_status[i] = DEAD;
+							enemy_status[i] = CAT_FOURSQAURE_DEAD;
 						}
 					}
 				}
@@ -143,7 +143,7 @@ void CAT_MS_crawl(CAT_machine_signal signal)
 
 			for(int i = 0; i < enemy_count; i++)
 			{
-				if(enemy_status[i] == DEAD)
+				if(enemy_status[i] == CAT_FOURSQAURE_DEAD)
 					continue;
 					
 				enemy_x[i] += enemy_dx[i] * CAT_get_delta_time_s();
