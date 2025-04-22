@@ -589,16 +589,16 @@ void CAT_MS_foursquares(CAT_machine_signal signal)
 						reset_buffers();
 				}
 
-				if(CAT_input_held(CAT_BUTTON_LEFT, 0))
+				if(CAT_input_pulse(CAT_BUTTON_LEFT))
 					move_piece(-1, 0);
-				if(CAT_input_held(CAT_BUTTON_RIGHT, 0))
+				if(CAT_input_pulse(CAT_BUTTON_RIGHT))
 					move_piece(1, 0);
 				if(are_buffers_valid())
 					commit_buffers();
 				else
 					reset_buffers();
 
-				if(CAT_input_held(CAT_BUTTON_DOWN, 0))
+				if(CAT_input_pulse(CAT_BUTTON_DOWN))
 					move_piece(0, 1);
 				if(are_buffers_valid())
 					commit_buffers();
@@ -694,6 +694,6 @@ void CAT_render_foursquares()
 	if(show_score)
 	{
 		CAT_fillberry(0, 0, 240, 16, 0xFFFF);
-		CAT_gui_printf(2, 2, "%d %c %c", score, "IJLOSTZ"[piece_type], "NESW"[piece_orientation]);
+		CAT_gui_printf(2, 2, "SCORE: %d", score);
 	}
 }
