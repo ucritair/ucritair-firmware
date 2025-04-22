@@ -524,30 +524,45 @@ void CAT_MS_foursquares(CAT_machine_signal signal)
 				rotate_piece(CAT_FOURSQUARES_CCW);
 				if(validate_buffers() || enumerate_kicks(CAT_FOURSQUARES_CCW))
 					commit_buffers();
+				else
+					reset_buffers();
 			}
 
 			if(CAT_input_held(CAT_BUTTON_LEFT, 0))
 				move_piece(-1, 0);
 			if(CAT_input_held(CAT_BUTTON_RIGHT, 0))
 				move_piece(1, 0);
+			if(validate_buffers())
+				commit_buffers();
+			else
+				reset_buffers();
+
 			if(CAT_input_held(CAT_BUTTON_DOWN, 0))
 				move_piece(0, 1);
 			if(validate_buffers())
 				commit_buffers();
+			else
+				reset_buffers();
 
 			if(should_trigger_step())
-				move_piece(0, 1);
-			if(validate_buffers())
-				commit_buffers();
-			else if(is_piece_settled())
 			{
-				kill_piece();
-				clean_grid();
-				spawn_piece
-				(
-					access_seven_bag(),
-					(CAT_ivec2) {CAT_rand_int(0, CAT_FOURSQUARES_GRID_WIDTH-collider_w), 0}
-				);
+				move_piece(0, 1);
+				if(validate_buffers())
+					commit_buffers();
+				else
+				{
+					if(is_piece_settled())
+					{
+						kill_piece();
+						clean_grid();
+						spawn_piece
+						(
+							access_seven_bag(),
+							(CAT_ivec2) {CAT_rand_int(0, CAT_FOURSQUARES_GRID_WIDTH-collider_w), 0}
+						);
+					}
+					reset_buffers();
+				}		
 			}
 		break;
 		}
@@ -574,25 +589,25 @@ void CAT_render_foursquares()
 					CAT_FOURSQUARES_TILE_SIZE, CAT_FOURSQUARES_TILE_SIZE,
 					cell->colour
 				);
-			}
+			}	
+		}
+	}
 
-			for(int i = 0; i < collider_h; i++)
+	for(int i = 0; i < collider_h; i++)
+	{
+		int y_p = piece_position.y + i;
+		for(int j = 0; j < collider_w; j++)
+		{
+			int x_p = piece_position.x + j;
+
+			if(collider[i][j])
 			{
-				int y_p = piece_position.y + i;
-				for(int j = 0; j < collider_w; j++)
-				{
-					int x_p = piece_position.x + j;
-
-					if(collider[i][j])
-					{
-						CAT_fillberry
-						(
-							x_p * CAT_FOURSQUARES_TILE_SIZE, y_p * CAT_FOURSQUARES_TILE_SIZE,
-							CAT_FOURSQUARES_TILE_SIZE, CAT_FOURSQUARES_TILE_SIZE,
-							piece_colours[piece_type]
-						);
-					}
-				}
+				CAT_fillberry
+				(
+					x_p * CAT_FOURSQUARES_TILE_SIZE, y_p * CAT_FOURSQUARES_TILE_SIZE,
+					CAT_FOURSQUARES_TILE_SIZE, CAT_FOURSQUARES_TILE_SIZE,
+					piece_colours[piece_type]
+				);
 			}
 		}
 	}
