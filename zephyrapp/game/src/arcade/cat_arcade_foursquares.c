@@ -197,7 +197,7 @@ void spawn_piece(CAT_foursquares_type type, CAT_ivec2 position)
 		case CAT_FOURSQUARES_J:
 			configure_collider
 			(
-				0, 0, 1, 0,
+				1, 0, 0, 0,
 				1, 1, 1, 0,
 				0, 0, 0, 0,
 				0, 0, 0, 0,
@@ -208,7 +208,7 @@ void spawn_piece(CAT_foursquares_type type, CAT_ivec2 position)
 		case CAT_FOURSQUARES_L:
 			configure_collider
 			(
-				1, 0, 0, 0,
+				0, 0, 1, 0,
 				1, 1, 1, 0,
 				0, 0, 0, 0,
 				0, 0, 0, 0,
@@ -260,7 +260,10 @@ void spawn_piece(CAT_foursquares_type type, CAT_ivec2 position)
 			);
 		break;
 	}
+}
 
+bool is_blocked_out()
+{
 	for(int dy = 0; dy < collider_h; dy++)
 	{
 		int y = piece_position.y + dy;
@@ -272,11 +275,13 @@ void spawn_piece(CAT_foursquares_type type, CAT_ivec2 position)
 			int x = piece_position.x + dx;
 			if(x < 0 || x >= CAT_FOURSQUARES_GRID_WIDTH)
 				continue;
-				
+
 			if(collider[dy][dx] && cells[y][x].full)
-				state = CAT_FOURSQUARES_GAME_OVER;
+				return true;
 		}
 	}
+
+	return false;
 }
 
 void reset_buffers()
@@ -301,7 +306,7 @@ void move_piece(int dx, int dy)
 void rotate_piece(CAT_foursquares_rotation rotation)
 {	
 	int rotation_offset = rotation == CAT_FOURSQUARES_CW ? 1 : -1;
-	piece_orientation_buffer = (piece_orientation + rotation_offset) % 4;
+	piece_orientation_buffer = (piece_orientation + rotation_offset + 4) % 4;
 
 	if(piece_type == CAT_FOURSQUARES_O)
 		return;
@@ -318,10 +323,10 @@ void rotate_piece(CAT_foursquares_rotation rotation)
 	}
 }
 
-bool validate_buffers()
+bool are_buffers_valid()
 {
 	for(int dy = 0; dy < collider_h; dy++)
-	{	
+	{
 		for(int dx = 0; dx < collider_w; dx++)
 		{
 			if(collider_buffer[dy][dx])
@@ -361,7 +366,7 @@ void commit_buffers()
 
 bool enumerate_kicks(CAT_foursquares_rotation rotation)
 {
-	int kick_case = piece_orientation;
+	int kick_case = rotation == CAT_FOURSQUARES_CW ? piece_orientation : piece_orientation_buffer;
 	int kick_dir = rotation == CAT_FOURSQUARES_CW ? 1 : -1;
 
 	for(int i = 0; i < 5; i++)
@@ -379,17 +384,17 @@ bool enumerate_kicks(CAT_foursquares_rotation rotation)
 				CAT_ivec2 offset = {base.x * signs.x, base.y * signs.y};
 				offset = CAT_ivec2_mul(offset, kick_dir);
 				piece_position_buffer = CAT_ivec2_add(piece_position, offset);
-				if(validate_buffers())
+				if(are_buffers_valid())
 					return true;
 				break;
 			}
 			
 			case CAT_FOURSQUARES_I:
 			{
-				CAT_ivec2 offset = i_kick_offsets[i][kick_case];
+				CAT_ivec2 offset = i_kick_offsets[kick_case][i];
 				offset = CAT_ivec2_mul(offset, kick_dir);
 				piece_position_buffer = CAT_ivec2_add(piece_position, offset);
-				if(validate_buffers())
+				if(are_buffers_valid())
 					return true;
 				break;
 			}
@@ -429,7 +434,7 @@ bool is_piece_settled()
 	return false;
 }
 
-void kill_piece()
+void lock_piece()
 {
 	for(int dy = 0; dy < collider_h; dy++)
 	{
@@ -543,7 +548,11 @@ void CAT_MS_foursquares(CAT_machine_signal signal)
 			}
 
 			reset_seven_bag();
-			spawn_piece(access_seven_bag(), (CAT_ivec2) {0, 0});
+			spawn_piece
+			(
+				access_seven_bag(),
+				(CAT_ivec2) {CAT_rand_int(0, CAT_FOURSQUARES_GRID_WIDTH-collider_w), 0}
+			);
 		break;
 
 		case CAT_MACHINE_SIGNAL_TICK:
@@ -568,13 +577,13 @@ void CAT_MS_foursquares(CAT_machine_signal signal)
 				if(CAT_input_pressed(CAT_BUTTON_A))
 				{	
 					rotate_piece(CAT_FOURSQUARES_CW);
-					if(validate_buffers() || enumerate_kicks(CAT_FOURSQUARES_CW))
+					if(are_buffers_valid() || enumerate_kicks(CAT_FOURSQUARES_CW))
 						commit_buffers();
 				}
 				if(CAT_input_pressed(CAT_BUTTON_B))
 				{	
 					rotate_piece(CAT_FOURSQUARES_CCW);
-					if(validate_buffers() || enumerate_kicks(CAT_FOURSQUARES_CCW))
+					if(are_buffers_valid() || enumerate_kicks(CAT_FOURSQUARES_CCW))
 						commit_buffers();
 					else
 						reset_buffers();
@@ -584,21 +593,21 @@ void CAT_MS_foursquares(CAT_machine_signal signal)
 					move_piece(-1, 0);
 				if(CAT_input_held(CAT_BUTTON_RIGHT, 0))
 					move_piece(1, 0);
-				if(validate_buffers())
+				if(are_buffers_valid())
 					commit_buffers();
 				else
 					reset_buffers();
 
 				if(CAT_input_held(CAT_BUTTON_DOWN, 0))
 					move_piece(0, 1);
-				if(validate_buffers())
+				if(are_buffers_valid())
 					commit_buffers();
 				else
 					reset_buffers();
 
 				if(CAT_input_pressed(CAT_BUTTON_UP))
 				{
-					while(validate_buffers())
+					while(are_buffers_valid())
 					{
 						commit_buffers();
 						move_piece(0, 1);
@@ -609,19 +618,21 @@ void CAT_MS_foursquares(CAT_machine_signal signal)
 				if(should_trigger_step())
 				{
 					move_piece(0, 1);
-					if(validate_buffers())
+					if(are_buffers_valid())
 						commit_buffers();
 					else
 					{
 						if(is_piece_settled())
 						{
-							kill_piece();
+							lock_piece();
 							perform_reckoning();
 							spawn_piece
 							(
 								access_seven_bag(),
 								(CAT_ivec2) {CAT_rand_int(0, CAT_FOURSQUARES_GRID_WIDTH-collider_w), 0}
 							);
+							if(is_blocked_out())
+								state = CAT_FOURSQUARES_GAME_OVER;
 						}
 						reset_buffers();
 					}		
@@ -683,6 +694,6 @@ void CAT_render_foursquares()
 	if(show_score)
 	{
 		CAT_fillberry(0, 0, 240, 16, 0xFFFF);
-		CAT_gui_printf(2, 2, "%d", score);
+		CAT_gui_printf(2, 2, "%d %c %c", score, "IJLOSTZ"[piece_type], "NESW"[piece_orientation]);
 	}
 }
