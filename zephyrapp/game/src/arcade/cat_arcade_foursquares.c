@@ -36,6 +36,12 @@ typedef enum
 	CAT_FOURSQUARES_CCW
 } CAT_foursquares_rotation;
 
+typedef enum
+{
+	CAT_FOURSQUARES_PLAYING,
+	CAT_FOURSQUARES_GAME_OVER
+} CAT_foursquares_state;
+
 typedef struct
 {
 	bool full;
@@ -115,18 +121,22 @@ static CAT_foursquares_type seven_bag[7] =
 	CAT_FOURSQUARES_T,
 	CAT_FOURSQUARES_Z
 };
-int bag_idx = 0;
+static int bag_idx = 0;
 
-CAT_foursquares_type piece_type;
-CAT_ivec2 piece_position;
-CAT_foursquares_orientation piece_orientation;
+static CAT_foursquares_type piece_type = CAT_FOURSQUARES_I;
+static CAT_ivec2 piece_position = {0, 0};
+static CAT_foursquares_orientation piece_orientation = CAT_FOURSQUARES_NORTH;
 static uint8_t collider[4][4];
 static uint8_t collider_w = 4;
 static uint8_t collider_h = 4;
 
-CAT_ivec2 piece_position_buffer;
-CAT_foursquares_orientation piece_orientation_buffer;
+static CAT_ivec2 piece_position_buffer = {0, 0};
+static CAT_foursquares_orientation piece_orientation_buffer = CAT_FOURSQUARES_NORTH;
 static uint8_t collider_buffer[4][4];
+
+static CAT_foursquares_state state = CAT_FOURSQUARES_PLAYING;
+static int score = 0;
+static bool show_score = 0;
 
 void reset_seven_bag()
 {
@@ -181,6 +191,7 @@ void spawn_piece(CAT_foursquares_type type, CAT_ivec2 position)
 				0, 0, 0, 0,
 				4, 4
 			);
+			piece_position.y -= 1;
 		break;
 
 		case CAT_FOURSQUARES_J:
@@ -248,6 +259,23 @@ void spawn_piece(CAT_foursquares_type type, CAT_ivec2 position)
 				3, 3
 			);
 		break;
+	}
+
+	for(int dy = 0; dy < collider_h; dy++)
+	{
+		int y = piece_position.y + dy;
+		if(y < 0 || y >= CAT_FOURSQUARES_GRID_HEIGHT)
+			continue;
+
+		for(int dx = 0; dx < collider_w; dx++)
+		{
+			int x = piece_position.x + dx;
+			if(x < 0 || x >= CAT_FOURSQUARES_GRID_WIDTH)
+				continue;
+				
+			if(collider[dy][dx] && cells[y][x].full)
+				state = CAT_FOURSQUARES_GAME_OVER;
+		}
 	}
 }
 
@@ -419,7 +447,7 @@ void kill_piece()
 	}
 }
 
-void clean_grid()
+void perform_reckoning()
 {
 	int clear_start = CAT_FOURSQUARES_GRID_HEIGHT;
 	int clear_end = -1;
@@ -465,6 +493,23 @@ void clean_grid()
 		}
 		rows_shifted += 1;
 	}
+
+	int rows_cleared = clear_end - clear_start + 1;
+	switch(rows_cleared)
+	{
+		case 4:
+			score += 1200;
+		break;
+		case 3:
+			score += 300;
+		break;
+		case 2:
+			score += 100;
+		break;
+		default:
+			score += 40;
+		break;
+	}
 }
 
 static int frame_counter = 0;
@@ -486,6 +531,9 @@ void CAT_MS_foursquares(CAT_machine_signal signal)
 		case CAT_MACHINE_SIGNAL_ENTER:
 			CAT_set_render_callback(CAT_render_foursquares);
 
+			state = CAT_FOURSQUARES_PLAYING;
+			score = 0;
+
 			for(int y = 0; y < CAT_FOURSQUARES_GRID_HEIGHT; y++)
 			{
 				for(int x = 0; x < CAT_FOURSQUARES_GRID_WIDTH; x++)
@@ -500,69 +548,89 @@ void CAT_MS_foursquares(CAT_machine_signal signal)
 
 		case CAT_MACHINE_SIGNAL_TICK:
 		{
-			static bool quit = false;
-			if(CAT_input_pressed(CAT_BUTTON_START) || CAT_input_held(CAT_BUTTON_B, 0.5f))
-				CAT_gui_open_popup("Quit Foursquares?\n\nProgress will not\nbe saved!\n", &quit);
-			if(quit)
+			if(state == CAT_FOURSQUARES_PLAYING)
 			{
-				quit = false;
-				CAT_machine_back();
-			}
-			if(CAT_gui_popup_is_open())
-				break;
+				static bool quit = false;
+				if(CAT_input_pressed(CAT_BUTTON_START) || CAT_input_held(CAT_BUTTON_B, 0.5f))
+					CAT_gui_open_popup("Quit Foursquares?\n\nProgress will not\nbe saved!\n", &quit);
+				if(quit)
+				{
+					quit = false;
+					CAT_machine_back();
+				}
+				if(CAT_gui_popup_is_open())
+					break;
+				
+				show_score = CAT_input_held(CAT_BUTTON_SELECT, 0);
 
-			reset_buffers();
-
-			if(CAT_input_pressed(CAT_BUTTON_A))
-			{	
-				rotate_piece(CAT_FOURSQUARES_CW);
-				if(validate_buffers() || enumerate_kicks(CAT_FOURSQUARES_CW))
-					commit_buffers();
-			}
-			if(CAT_input_pressed(CAT_BUTTON_B))
-			{	
-				rotate_piece(CAT_FOURSQUARES_CCW);
-				if(validate_buffers() || enumerate_kicks(CAT_FOURSQUARES_CCW))
-					commit_buffers();
-				else
-					reset_buffers();
-			}
-
-			if(CAT_input_held(CAT_BUTTON_LEFT, 0))
-				move_piece(-1, 0);
-			if(CAT_input_held(CAT_BUTTON_RIGHT, 0))
-				move_piece(1, 0);
-			if(validate_buffers())
-				commit_buffers();
-			else
 				reset_buffers();
 
-			if(CAT_input_held(CAT_BUTTON_DOWN, 0))
-				move_piece(0, 1);
-			if(validate_buffers())
-				commit_buffers();
-			else
-				reset_buffers();
+				if(CAT_input_pressed(CAT_BUTTON_A))
+				{	
+					rotate_piece(CAT_FOURSQUARES_CW);
+					if(validate_buffers() || enumerate_kicks(CAT_FOURSQUARES_CW))
+						commit_buffers();
+				}
+				if(CAT_input_pressed(CAT_BUTTON_B))
+				{	
+					rotate_piece(CAT_FOURSQUARES_CCW);
+					if(validate_buffers() || enumerate_kicks(CAT_FOURSQUARES_CCW))
+						commit_buffers();
+					else
+						reset_buffers();
+				}
 
-			if(should_trigger_step())
-			{
-				move_piece(0, 1);
+				if(CAT_input_held(CAT_BUTTON_LEFT, 0))
+					move_piece(-1, 0);
+				if(CAT_input_held(CAT_BUTTON_RIGHT, 0))
+					move_piece(1, 0);
 				if(validate_buffers())
 					commit_buffers();
 				else
+					reset_buffers();
+
+				if(CAT_input_held(CAT_BUTTON_DOWN, 0))
+					move_piece(0, 1);
+				if(validate_buffers())
+					commit_buffers();
+				else
+					reset_buffers();
+
+				if(CAT_input_pressed(CAT_BUTTON_UP))
 				{
-					if(is_piece_settled())
+					while(validate_buffers())
 					{
-						kill_piece();
-						clean_grid();
-						spawn_piece
-						(
-							access_seven_bag(),
-							(CAT_ivec2) {CAT_rand_int(0, CAT_FOURSQUARES_GRID_WIDTH-collider_w), 0}
-						);
+						commit_buffers();
+						move_piece(0, 1);
 					}
 					reset_buffers();
-				}		
+				}
+
+				if(should_trigger_step())
+				{
+					move_piece(0, 1);
+					if(validate_buffers())
+						commit_buffers();
+					else
+					{
+						if(is_piece_settled())
+						{
+							kill_piece();
+							perform_reckoning();
+							spawn_piece
+							(
+								access_seven_bag(),
+								(CAT_ivec2) {CAT_rand_int(0, CAT_FOURSQUARES_GRID_WIDTH-collider_w), 0}
+							);
+						}
+						reset_buffers();
+					}		
+				}
+			}
+			else
+			{
+				if(CAT_input_pressed(CAT_BUTTON_A) || CAT_input_pressed(CAT_BUTTON_B) || CAT_input_pressed(CAT_BUTTON_START))
+					CAT_machine_back();
 			}
 		break;
 		}
@@ -612,35 +680,9 @@ void CAT_render_foursquares()
 		}
 	}
 
-	int piece_height = -1;
-	for(int y = 3; y >= 0 && piece_height == -1; y--)
+	if(show_score)
 	{
-		for(int x = 0; x < 4; x++)
-		{
-			if(collider[y][x])
-			{
-				piece_height = y;
-				break;
-			}
-		}
-	}
-
-	for(int i = 0; i < collider_h; i++)
-	{
-		int y_p = CAT_FOURSQUARES_GRID_HEIGHT - 1 - piece_height + i;
-		for(int j = 0; j < collider_w; j++)
-		{
-			int x_p = piece_position.x + j;
-
-			if(collider[i][j])
-			{
-				CAT_strokeberry
-				(
-					x_p * CAT_FOURSQUARES_TILE_SIZE, y_p * CAT_FOURSQUARES_TILE_SIZE,
-					CAT_FOURSQUARES_TILE_SIZE, CAT_FOURSQUARES_TILE_SIZE,
-					piece_colours[piece_type]
-				);
-			}
-		}
+		CAT_fillberry(0, 0, 240, 16, 0xFFFF);
+		CAT_gui_printf(2, 2, "%d", score);
 	}
 }
