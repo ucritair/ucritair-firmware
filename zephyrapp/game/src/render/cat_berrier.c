@@ -244,3 +244,16 @@ void CAT_rowberry(int x, int y, int w, uint16_t c)
 		}
 	}
 }
+
+void CAT_pixberry(int x, int y, uint16_t c)
+{
+	if(x < 0 || x >= CAT_LCD_FRAMEBUFFER_W)
+		return;
+	y -= FRAMEBUFFER_ROW_OFFSET;
+	if(y < 0 || y >= CAT_LCD_FRAMEBUFFER_H)
+		return;
+
+	c = ADAPT_DESKTOP_COLOUR(c);
+	uint16_t* framebuffer = CAT_LCD_get_framebuffer();
+	framebuffer[y * CAT_LCD_FRAMEBUFFER_W + x] = c;
+}

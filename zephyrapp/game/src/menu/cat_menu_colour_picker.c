@@ -5,65 +5,57 @@
 #include "cat_gui.h"
 #include <math.h>
 
-static float V = 0.5f;
-static CAT_ivec2 cursor = {0, 0};
+#define CAT_HSV_MAX_HUE (255 * 5)
+
+static uint8_t V = 128;
+static CAT_ivec2 cursor = {120, 160};
 static bool show_details = false;
 
-uint16_t HSV2RGB(float H, float S, float V, uint8_t* R_out, uint8_t* G_out, uint8_t* B_out)
+uint8_t saturate_colour(uint8_t colour, uint8_t saturation)
 {
-	float C = (1 - fabsf(2 * V - 1)) * S;
-	float H_p = H / 60.0f;
-	float X = C * (1 - abs(((int) H_p) % 2 - 1));
+	uint8_t offset = (uint16_t) ((255 - saturation) * (255 - colour)) / 255;
+	return colour + offset;
+}
 
-	float R_1 = 0;
-	float G_1 = 0;
-	float B_1 = 0;
-	if(H_p < 1)
-	{
-		R_1 = C;
-		G_1 = X;
-	}
-	else if(H_p < 2)
-	{
-		R_1 = X;
-		G_1 = C;
-	}
-	else if(H_p < 3)
-	{
-		G_1 = C;
-		B_1 = X;
-	}
-	else if(H_p < 4)
-	{
-		G_1 = X;
-		B_1 = C;
-	}
-	else if(H_p < 5)
-	{
-		B_1 = C;
-		R_1 = X;
-	}
-	else
-	{
-		B_1 = X;
-		R_1 = C;
-	}
+void HSV2RGB(uint16_t H, uint8_t S, uint8_t V, uint8_t* R_out, uint8_t* G_out, uint8_t* B_out)
+{
+	H %= CAT_HSV_MAX_HUE;
+	uint8_t arc = H / 255;
+	uint8_t angle = H % 255;
 
-	float m = V - C * 0.5f;
-	float R_n = R_1 + m;
-	float G_n = G_1 + m;
-	float B_n = B_1 + m;
-	uint8_t R = SCALEBYTE(255, R_n);
-	uint8_t G = SCALEBYTE(255, G_n);
-	uint8_t B = SCALEBYTE(255, B_n);
-
-	if(R_out != NULL)
-		*R_out = R;
-	if(G_out != NULL)
-		*G_out = G;
-	if(B_out != NULL)
-		*B_out = B;
-	return RGB8882565(R, G, B);
+	switch (arc)
+	{
+		case 0:
+			*R_out = V;
+			*G_out = saturate_colour(angle, S) * ((uint16_t) V) / 255;
+			*B_out = (255 - S) * ((uint16_t) V) / 255;
+		break;
+		case 1:
+			*R_out = saturate_colour(255 - angle, S) * ((uint16_t) V) / 255;
+			*G_out = V;
+			*B_out = (255 - S) * ((uint16_t) V) / 255;
+		break;
+		case 2:
+			*R_out = (255 - S) * ((uint16_t) V) / 255;
+			*G_out = V;
+			*B_out = saturate_colour(angle, S) * ((uint16_t) V) / 255;
+		break;
+		case 3:
+			*R_out = (255 - S) * ((uint16_t) V) / 255;
+			*G_out = saturate_colour(255 - angle, S) * ((uint16_t) V) / 255;
+			*B_out = V;
+		break;
+		case 4:
+			*R_out = saturate_colour(angle, S) * ((uint16_t) V) / 255;
+			*G_out = (255 - S) * ((uint16_t) V) / 255;
+			*B_out = V;
+		break;
+		case 5:
+			*R_out = V;
+			*G_out = saturate_colour(255 - angle, S) * ((uint16_t) V) / 255;
+			*B_out = (255 - S) * ((uint16_t) V) / 255;
+		break;
+	}
 }
 
 void CAT_MS_colour_picker(CAT_machine_signal signal)
@@ -78,10 +70,9 @@ void CAT_MS_colour_picker(CAT_machine_signal signal)
 				CAT_machine_back();
 
 			if(CAT_input_held(CAT_BUTTON_A, 0))
-				V += 0.05f;
+				V += 4;
 			if(CAT_input_held(CAT_BUTTON_B, 0))
-				V -= 0.05f;
-			V = clampf(V, 0, 1);
+				V -= 4;
 
 			if(CAT_input_touching())
 			{
@@ -90,13 +81,13 @@ void CAT_MS_colour_picker(CAT_machine_signal signal)
 			else
 			{
 				if(CAT_input_held(CAT_BUTTON_LEFT, 0))
-					cursor.x -= 2;
+					cursor.x -= 4;
 				if(CAT_input_held(CAT_BUTTON_RIGHT, 0))
-					cursor.x += 2;
+					cursor.x += 4;
 				if(CAT_input_held(CAT_BUTTON_UP, 0))
-					cursor.y -= 2;
+					cursor.y -= 4;
 				if(CAT_input_held(CAT_BUTTON_DOWN, 0))
-					cursor.y += 2;
+					cursor.y += 4;
 			}	
 			cursor.x = clamp(cursor.x, 0, CAT_LCD_SCREEN_W-1);
 			cursor.y = clamp(cursor.y, 0, CAT_LCD_SCREEN_H-1);
@@ -115,31 +106,37 @@ void CAT_render_colour_picker()
 	for(int y = 0; y < CAT_LCD_SCREEN_H; y++)
 	{
 		float y_n = (float) y / (float) CAT_LCD_SCREEN_H;
-		float S = y_n;
+		uint8_t S = y_n * 255;
 
 		for(int x = 0; x < CAT_LCD_SCREEN_W; x++)
 		{
 			float x_n = (float) x / (float) CAT_LCD_SCREEN_W;
-			float H = x_n * 360;
+			uint16_t H = x_n * CAT_HSV_MAX_HUE;
 			
-			uint16_t colour = HSV2RGB(H, S, V, NULL, NULL, NULL);
-			CAT_fillberry(x, y, 1, 1, colour);
+			uint8_t R, G, B;
+			HSV2RGB(H, S, V, &R, &G, &B);
+			uint16_t colour = RGB8882565(R, G, B);
+			CAT_pixberry(x, y, colour);
 		}
 	}
 
-	uint8_t highlight_brightness = V < 0.75 ? 255 : 0;
-	uint16_t highlight_colour = RGB8882565(highlight_brightness, highlight_brightness, highlight_brightness);
+	uint8_t highlight_value = V < 0.75 ? 255 : 0;
+	uint16_t highlight_colour = RGB8882565(highlight_value, highlight_value, highlight_value);
 	CAT_strokeberry(cursor.x-2, cursor.y-2, 5, 5, highlight_colour);
 
 	if(show_details)
 	{
-		float S = (float) cursor.y / (float) CAT_LCD_SCREEN_H;
-		float H = 360 * (float) cursor.x / (float) CAT_LCD_SCREEN_W;
+		float y_n = (float) cursor.y / (float) CAT_LCD_SCREEN_H;
+		float x_n = (float) cursor.x / (float) CAT_LCD_SCREEN_W;
+		uint8_t S = y_n * 255;
+		uint16_t H = x_n * CAT_HSV_MAX_HUE;
 		uint8_t R, G, B;
-		uint16_t colour = HSV2RGB(H, S, V, &R, &G, &B);
+		HSV2RGB(H, S, V, &R, &G, &B);
+		uint16_t colour = RGB8882565(R, G, B);
 
 		CAT_gui_panel(CAT_iv2(2, 6), CAT_iv2(11, 8));
 		CAT_strokeberry(2 * 16, 6 * 16, 11 * 16, 8 * 16, 0x0000);
-		CAT_gui_textf("HSV: %0.0f %0.2f %0.2f\nRGB: %d %d %d\n565: %#x\n", H, S, V, R, G, B, colour);
+		CAT_gui_textf("HSV: %d %d %d\nRGB: %d %d %d\n565: %#x\n", H, S, V, R, G, B, colour);
+		CAT_fillberry(2 * 16 + 32, 6 * 16 + 72, 11 * 16 - 64, 8 * 16 - 96, colour);
 	}
 }
