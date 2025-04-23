@@ -463,7 +463,7 @@ typedef struct menu_node
 	bool togglable;
 	bool toggle;
 
-	int parent;
+	int16_t parent;
 	uint16_t children[32];
 	uint8_t child_count;
 	uint8_t selector;
@@ -622,10 +622,18 @@ void CAT_gui_menu_io()
 	menu_node* head = menu_find_head();
 
 	if(CAT_input_pressed(CAT_BUTTON_UP))
-		head->selector -= 1;
+	{
+		if(head->selector >= 1)
+			head->selector -= 1;
+		else
+			head->selector = head->child_count-1;
+	}
 	if(CAT_input_pressed(CAT_BUTTON_DOWN))
+	{
 		head->selector += 1;
-	head->selector = clamp(head->selector, 0, head->child_count-1);
+		if(head->selector >= head->child_count)
+			head->selector = 0;
+	}
 
 	menu_node* hovered = &menu_table[head->children[head->selector]];
 	if(CAT_input_pressed(CAT_BUTTON_A))
