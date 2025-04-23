@@ -56,5 +56,7 @@ text = ("#pragma once\n"
 file = open("src/core/cat_version.h", "w");
 file.write(text);
 file.close();
+
+print(f"Version {major}.{minor}.{patch}.{push}");
 	
 		
