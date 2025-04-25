@@ -106,10 +106,10 @@ void CAT_render_colour_picker()
 	uint16_t lower_row = CAT_LCD_FRAMEBUFFER_H * CAT_get_render_cycle();
 	for(uint16_t y = lower_row; y < lower_row + CAT_LCD_FRAMEBUFFER_H; y++)
 	{
-		uint8_t S = (uint32_t) y * 255 / CAT_LCD_SCREEN_H;
+		uint16_t H = ((uint32_t) y * CAT_HSV_MAX_HUE) / CAT_LCD_SCREEN_H;
 		for(uint16_t x = 0; x < CAT_LCD_SCREEN_W; x++)
 		{
-			uint16_t H = x * CAT_HSV_MAX_HUE / CAT_LCD_FRAMEBUFFER_W;
+			uint8_t S = ((uint16_t) x * 255) / CAT_LCD_SCREEN_W;
 			uint8_t R, G, B;
 			HSV2RGB(H, S, V, &R, &G, &B);
 			uint16_t colour = RGB8882565(R, G, B);
@@ -117,14 +117,14 @@ void CAT_render_colour_picker()
 		}
 	}
 
-	uint8_t highlight_value = V < 0.75 ? 255 : 0;
+	uint8_t highlight_value = V < 128 ? 255 : 0;
 	uint16_t highlight_colour = RGB8882565(highlight_value, highlight_value, highlight_value);
 	CAT_strokeberry(cursor.x-2, cursor.y-2, 5, 5, highlight_colour);
 
 	if(show_details)
 	{
-		uint8_t S = (uint32_t) cursor.y * 255 / CAT_LCD_SCREEN_H;
-		uint16_t H = cursor.x * CAT_HSV_MAX_HUE / CAT_LCD_FRAMEBUFFER_W;
+		uint16_t H = ((uint32_t) cursor.y * CAT_HSV_MAX_HUE) / CAT_LCD_SCREEN_H;
+		uint8_t S = ((uint16_t) cursor.x * 255) / CAT_LCD_SCREEN_W;	
 		uint8_t R, G, B;
 		HSV2RGB(H, S, V, &R, &G, &B);
 		uint16_t colour = RGB8882565(R, G, B);
