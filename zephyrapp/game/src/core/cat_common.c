@@ -1,6 +1,28 @@
 #include "cat_core.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// LCD
+
+// THIS IS AN INT BECAUSE IT MAY BE ACCESSED VIA AN INT POINTER AND LEAVING IT AS A UINT8 CAUSES MEMORY OVERWRITE ISSUES
+static int lcd_brightness = CAT_LCD_MAX_BRIGHTNESS;
+
+void CAT_LCD_set_brightness(uint8_t percent)
+{
+	lcd_brightness = clamp(percent, CAT_LCD_MIN_BRIGHTNESS, CAT_LCD_MAX_BRIGHTNESS);
+}
+
+uint8_t CAT_LCD_get_brightness()
+{
+	return lcd_brightness;
+}
+
+int* CAT_LCD_brightness_pointer()
+{
+	return &lcd_brightness;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // EINK SCREEN
 
 static bool eink_needs_update = false;
@@ -35,7 +57,8 @@ CAT_screen_orientation CAT_get_screen_orientation()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // LEDs
 
-static uint8_t led_brightness = 100;
+// THIS IS AN INT BECAUSE IT MAY BE ACCESSED VIA AN INT POINTER AND LEAVING IT AS A UINT8 CAUSES MEMORY OVERWRITE ISSUES
+static int led_brightness = 100;
 
 void CAT_LED_set_brightness(uint8_t percent)
 {
@@ -45,6 +68,11 @@ void CAT_LED_set_brightness(uint8_t percent)
 uint8_t CAT_LED_get_brightness()
 {
 	return led_brightness;
+}
+
+int* CAT_LED_brightness_pointer()
+{
+	return &led_brightness;
 }
 
 
