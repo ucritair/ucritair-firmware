@@ -164,6 +164,8 @@ void lcd_render_diag()
 		last_frame_time = now - last_ms;
 		last_ms = now;
 
+		screen_brightness = CAT_LCD_get_brightness();
+
 		if (current_buttons || touch_pressure || co2_calibrating || (charging_last_frame != is_charging))
 		{
 			last_button_pressed = now;

@@ -136,9 +136,8 @@ void CAT_MS_menu(CAT_machine_signal signal)
 						{
 							for(int i = 0; i < THEME_COUNT; i++)
 							{		
-								if(CAT_gui_menu_item(themes_list[i]->name))
+								if(CAT_gui_menu_toggle(themes_list[i]->name, themes_list[i] == room.theme))
 									room.theme = themes_list[i];
-								CAT_gui_menu_toggle(themes_list[i] == room.theme);
 							}
 							CAT_gui_end_menu();
 						}
@@ -146,31 +145,20 @@ void CAT_MS_menu(CAT_machine_signal signal)
 					}
 					if(CAT_gui_begin_menu("DISPLAY"))
 					{
-						if(CAT_gui_menu_item("LCD BRIGHTNESS +"))
-							CAT_LCD_set_brightness(CAT_LCD_get_brightness() + 5);
-						if(CAT_gui_menu_item("LCD BRIGHTNESS -"))
-							CAT_LCD_set_brightness(CAT_LCD_get_brightness() - 5);
+						CAT_gui_menu_ticker("LCD BRIGHTNESS", CAT_LCD_brightness_pointer(), CAT_LCD_MIN_BRIGHTNESS, CAT_LCD_MAX_BRIGHTNESS);
+
 						if(CAT_gui_menu_item("RESET LCD BRIGHTNESS"))
 							CAT_LCD_set_brightness(CAT_LCD_MAX_BRIGHTNESS);
-						if(CAT_gui_menu_item("LED BRIGHTNESS +"))
-						{
-							CAT_LED_set_brightness(CAT_LED_get_brightness() + 5);
-							CAT_set_LEDs(255, 255, 255);
-						}
-						if(CAT_gui_menu_item("LED BRIGHTNESS -"))
-						{
-							CAT_LED_set_brightness(CAT_LED_get_brightness() - 5);
-							CAT_set_LEDs(255, 255, 255);
-						}	
+						
+						CAT_gui_menu_ticker("LED BRIGHTNESS", CAT_LED_brightness_pointer(), 0, 100);
 						if(CAT_gui_menu_item("RESET LED BRIGHTNESS"))
-						{
 							CAT_LED_set_brightness(100);
-							CAT_set_LEDs(255, 255, 255);
-						}
+
 						if(CAT_gui_menu_item("REFRESH EINK"))
 						{
 							CAT_set_eink_update_flag(true);
 						}
+
 						if(CAT_gui_menu_item("FLIP SCREEN"))
 						{
 							CAT_set_screen_orientation
@@ -182,14 +170,16 @@ void CAT_MS_menu(CAT_machine_signal signal)
 						}
 						CAT_gui_end_menu();
 					}
-					else
-					{
-						CAT_set_LEDs(0, 0, 0);
-					}
 					if(CAT_gui_begin_menu("AIR QUALITY##Settings"))
 					{
-						if(CAT_gui_menu_item("SWITCH TEMPERATURE UNIT"))
-							CAT_AQ_set_temperature_unit(!CAT_AQ_get_temperature_unit());
+						if(CAT_gui_begin_menu("TEMPERATURE UNIT"))
+						{
+							if(CAT_gui_menu_toggle("CELSIUS", CAT_AQ_get_temperature_unit() == CAT_TEMPERATURE_UNIT_DEGREES_CELSIUS))
+								CAT_AQ_set_temperature_unit(CAT_TEMPERATURE_UNIT_DEGREES_CELSIUS);
+							if(CAT_gui_menu_toggle("FAHRENHEIT", CAT_AQ_get_temperature_unit() == CAT_TEMPERATURE_UNIT_DEGREES_FAHRENHEIT))
+								CAT_AQ_set_temperature_unit(CAT_TEMPERATURE_UNIT_DEGREES_FAHRENHEIT);
+							CAT_gui_end_menu();
+						}
 						CAT_gui_end_menu();
 					}
 					if(CAT_gui_menu_item("SYSTEM"))

@@ -39,6 +39,7 @@ bool CAT_is_last_render_cycle();
 
 uint8_t CAT_LCD_get_brightness();
 void CAT_LCD_set_brightness(uint8_t percent);
+int* CAT_LCD_brightness_pointer();
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -74,6 +75,7 @@ CAT_screen_orientation CAT_get_screen_orientation();
 void CAT_set_LEDs(uint8_t r, uint8_t g, uint8_t b);
 void CAT_LED_set_brightness(uint8_t percent);
 uint8_t CAT_LED_get_brightness();
+int* CAT_LED_brightness_pointer();
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

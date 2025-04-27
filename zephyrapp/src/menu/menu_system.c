@@ -131,7 +131,7 @@ struct entry
 	{"CALIBRATE CO2 SENSOR", menu_t_go_co2},
 //	{"BRIGHTNESS DOWN", menu_t_bright_down},
 //	{"BRIGHTNESS UP", menu_t_bright_up},
-	{"UPDATE EINK", menu_t_update_eink},
+//	{"UPDATE EINK", menu_t_update_eink},
 //	{"RESET GAME", menu_t_reset},
 //	{"POWER OFF", menu_t_power_off},
 //	{"SLEEP", menu_t_sleep},

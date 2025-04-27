@@ -93,16 +93,6 @@ bool CAT_is_last_render_cycle()
 	return render_cycle == LCD_FRAMEBUFFER_SEGMENTS-1;
 }
 
-uint8_t CAT_LCD_get_brightness()
-{
-	return screen_brightness;
-}
-
-void CAT_LCD_set_brightness(uint8_t percent)
-{
-	screen_brightness = clamp(percent, CAT_LCD_MIN_BRIGHTNESS, CAT_LCD_MAX_BRIGHTNESS);
-}
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // EINK SCREEN
