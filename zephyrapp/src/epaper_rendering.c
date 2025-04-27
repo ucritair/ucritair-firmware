@@ -172,7 +172,9 @@ void epaper_render_test()
 		fwrite_str(128, 60, 1, "%.0f NOX / %.0f VOC", (double) current_readings.sen5x.nox_index, (double) current_readings.sen5x.voc_index);
 	}
 	
-	fwrite_str(128, 70, 1, "%.0f C / %.0f%% RH", (double) current_readings.sen5x.temp_degC, (double) current_readings.sen5x.humidity_rhpct);
+	double deg_c = current_readings.sen5x.temp_degC;
+	double deg_mapped = CAT_AQ_map_celsius(deg_c);
+	fwrite_str(128, 70, 1, "%.0f %s / %.0f%% RH", deg_mapped, CAT_AQ_get_temperature_unit_string(), (double) current_readings.sen5x.humidity_rhpct);
 	fwrite_str(128, 80, 1, "%.1f%% rebreathed", ((((double) current_readings.sunrise.ppm_filtered_compensated)-420.)/38000.)*100.);
 	fwrite_str(128, 90, 1, "uCritAQI %.1f%%", score);
 	fwrite_str(128, 100, 1, "at %2d:%02d:%02d", t.tm_hour, t.tm_min, t.tm_sec);
