@@ -60,7 +60,7 @@ void CAT_draw_queue_submit()
 		if(job->frame_idx == -1)
 			job->frame_idx = CAT_animator_get_frame(sprite);
 
-		draw_mode = job->mode;
+		draw_flags = job->mode;
 		CAT_draw_sprite(sprite, job->frame_idx, job->x, job->y);
 	}
 }

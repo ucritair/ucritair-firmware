@@ -57,16 +57,17 @@ typedef struct
 	bool reverse;
 } CAT_sprite;
 
-typedef enum CAT_draw_mode
+typedef enum
 {
-	CAT_DRAW_MODE_DEFAULT = 0,
-	CAT_DRAW_MODE_BOTTOM = 1,
-	CAT_DRAW_MODE_CENTER_X = 2,
-	CAT_DRAW_MODE_CENTER_Y = 4,
-	CAT_DRAW_MODE_REFLECT_X = 8
-} CAT_draw_mode;
+	CAT_DRAW_FLAG_DEFAULT = 0,
+	CAT_DRAW_FLAG_BOTTOM = 1,
+	CAT_DRAW_FLAG_CENTER_X = 2,
+	CAT_DRAW_FLAG_CENTER_Y = 4,
+	CAT_DRAW_FLAG_REFLECT_X = 8,
+	CAT_DRAW_FLAG_OUTLINE = 16
+} CAT_draw_flag;
 
-extern CAT_draw_mode draw_mode;
+extern CAT_draw_flag draw_flags;
 
 void CAT_draw_sprite(const CAT_sprite* sprite, int frame_idx, int x, int y);
 
@@ -164,4 +165,6 @@ extern CAT_anim_state AS_foc_up;
 extern CAT_anim_state AS_spi_up;
 
 extern CAT_anim_state AS_react;
+
+extern CAT_anim_state AS_pounce;
 

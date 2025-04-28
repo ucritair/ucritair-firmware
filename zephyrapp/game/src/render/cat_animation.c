@@ -250,3 +250,10 @@ CAT_anim_state AS_react =
 	.tick_sprite = &mood_good_sprite,
 	.exit_sprite = NULL
 };
+
+CAT_anim_state AS_pounce =
+{
+	.enter_sprite = &pet_pounce_sprite,
+	.tick_sprite = NULL,
+	.exit_sprite = NULL
+};

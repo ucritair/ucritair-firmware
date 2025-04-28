@@ -219,12 +219,12 @@ void CAT_render_deco()
 				for(int x = hold_rect().min.x; x < hold_rect().max.x; x++)
 				{
 					CAT_ivec2 draw_coords = CAT_grid2world((CAT_ivec2){x, y});
-					CAT_draw_queue_add(tile_sprite, 0, 3, draw_coords.x, draw_coords.y, CAT_DRAW_MODE_DEFAULT);
+					CAT_draw_queue_add(tile_sprite, 0, 3, draw_coords.x, draw_coords.y, CAT_DRAW_FLAG_DEFAULT);
 				}
 			}
 			CAT_item* item = CAT_item_get(hold_id);
 			int tile_height = hold_rect().max.y - hold_rect().min.y;
-			CAT_draw_queue_add(item->sprite, 0, 2, cursor_world.x, cursor_world.y+tile_height*16, CAT_DRAW_MODE_BOTTOM);
+			CAT_draw_queue_add(item->sprite, 0, 2, cursor_world.x, cursor_world.y+tile_height*16, CAT_DRAW_FLAG_BOTTOM);
 		}
 		else if(hover_idx != -1)
 		{
@@ -233,14 +233,14 @@ void CAT_render_deco()
 				for(int x = room.prop_rects[hover_idx].min.x; x < room.prop_rects[hover_idx].max.x; x++)
 				{
 					CAT_ivec2 draw_coords = CAT_grid2world((CAT_ivec2){x, y});
-					CAT_draw_queue_add(&tile_hl_sprite, 0, 3, draw_coords.x, draw_coords.y, CAT_DRAW_MODE_DEFAULT);
+					CAT_draw_queue_add(&tile_hl_sprite, 0, 3, draw_coords.x, draw_coords.y, CAT_DRAW_FLAG_DEFAULT);
 				}
 			}
-			CAT_draw_queue_add(&tile_hl_add_sprite, 0, 3, cursor_world.x, cursor_world.y, CAT_DRAW_MODE_DEFAULT);
+			CAT_draw_queue_add(&tile_hl_add_sprite, 0, 3, cursor_world.x, cursor_world.y, CAT_DRAW_FLAG_DEFAULT);
 		}
 		else
 		{
-			CAT_draw_queue_add(&cursor_add_sprite, 0, 3, cursor_world.x, cursor_world.y, CAT_DRAW_MODE_DEFAULT);
+			CAT_draw_queue_add(&cursor_add_sprite, 0, 3, cursor_world.x, cursor_world.y, CAT_DRAW_FLAG_DEFAULT);
 		}
 	}
 	else
@@ -256,14 +256,14 @@ void CAT_render_deco()
 				for(int x = room.prop_rects[hover_idx].min.x; x < room.prop_rects[hover_idx].max.x; x++)
 				{
 					CAT_ivec2 draw_coords = CAT_grid2world((CAT_ivec2){x, y});
-					CAT_draw_queue_add(tile_hl, 0, 3, draw_coords.x, draw_coords.y, CAT_DRAW_MODE_DEFAULT);
+					CAT_draw_queue_add(tile_hl, 0, 3, draw_coords.x, draw_coords.y, CAT_DRAW_FLAG_DEFAULT);
 				}
 			}
-			CAT_draw_queue_add(tile_mark, 0, 3, cursor_world.x, cursor_world.y, CAT_DRAW_MODE_DEFAULT);
+			CAT_draw_queue_add(tile_mark, 0, 3, cursor_world.x, cursor_world.y, CAT_DRAW_FLAG_DEFAULT);
 		}
 		else
 		{
-			CAT_draw_queue_add(cursor_sprite, 0, 3, cursor_world.x, cursor_world.y, CAT_DRAW_MODE_DEFAULT);
+			CAT_draw_queue_add(cursor_sprite, 0, 3, cursor_world.x, cursor_world.y, CAT_DRAW_FLAG_DEFAULT);
 		}
 	}
 }

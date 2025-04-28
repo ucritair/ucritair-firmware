@@ -169,7 +169,7 @@ void CAT_render_crawl()
 {
 	CAT_frameberry(0x0000);
 
-	draw_mode = CAT_DRAW_MODE_CENTER_Y | CAT_DRAW_MODE_CENTER_X;
+	draw_flags = CAT_DRAW_FLAG_CENTER_Y | CAT_DRAW_FLAG_CENTER_X;
 
 	int frame = 2 * dir + walk_cycle_idx;
 	CAT_draw_sprite(&fighter_sprite, frame, round(pos_x), round(pos_y));
@@ -179,7 +179,7 @@ void CAT_render_crawl()
 		CAT_draw_sprite(&enemy_sprite, enemy_status[i] == ALIVE ? 0 : 1, enemy_x[i], enemy_y[i]);
 	}
 	
-	draw_mode = CAT_DRAW_MODE_DEFAULT;
+	draw_flags = CAT_DRAW_FLAG_DEFAULT;
 	if(attack_timer < ATTACK_DURATION)
 	{
 		CAT_draw_sprite(&attack_sprite, 0, attack_rect.min.x, attack_rect.min.y);

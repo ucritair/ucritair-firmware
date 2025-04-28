@@ -260,6 +260,7 @@ static int play_timer_id = -1;
 enum
 {
 	SEEKING,
+	POUNCING,
 	PLAYING,
 	BORED
 } laser_state = SEEKING;
@@ -287,8 +288,6 @@ void CAT_MS_laser(CAT_machine_signal signal)
 			laser_pos.y = clamp((float)touch.y,
 								CAT_WORLD_MIN_Y, CAT_WORLD_MAX_Y);
 
-			laser_state = SEEKING; /* pet chases immediately*/
-
 			if (play_timer_id != -1) /* stop boredom while touching */
 				CAT_timer_reset(play_timer_id);
 
@@ -297,7 +296,6 @@ void CAT_MS_laser(CAT_machine_signal signal)
 		}
 		else
 		{
-
 			if (CAT_input_held(CAT_BUTTON_RIGHT, 0))
 				laser_dir.x += 1.0f;
 			if (CAT_input_held(CAT_BUTTON_UP, 0))
@@ -307,6 +305,7 @@ void CAT_MS_laser(CAT_machine_signal signal)
 			if (CAT_input_held(CAT_BUTTON_DOWN, 0))
 				laser_dir.y += 1.0f;
 		}
+
 		laser_pos = CAT_vec2_add(
 		laser_pos, CAT_vec2_mul(laser_dir, laser_speed * CAT_get_delta_time_s()));
 		laser_pos.x = clamp(laser_pos.x, CAT_WORLD_MIN_X, CAT_WORLD_MAX_X);
@@ -319,7 +318,17 @@ void CAT_MS_laser(CAT_machine_signal signal)
 			if (!CAT_anim_is_in(&AM_pet, &AS_walk))
 				CAT_anim_transition(&AM_pet, &AS_walk);
 			else if (CAT_pet_seek(laser_pos))
+				laser_state = POUNCING;
+			break;
+		case POUNCING:
+			if(CAT_anim_is_dead(&AM_pet))
 				laser_state = PLAYING;
+			else if(!CAT_anim_is_in(&AM_pet, &AS_pounce))
+			{
+				pet.pos.x -= 48 * pet.rot;
+				CAT_anim_transition(&AM_pet, &AS_pounce);
+			}
+				
 			break;
 		case PLAYING:
 			if (!CAT_anim_is_in(&AM_pet, &AS_play))
@@ -355,16 +364,16 @@ void CAT_render_action()
 		CAT_item *item = CAT_item_get(tool_id);
 		if (!action_confirmed)
 		{
-			int mode = CAT_DRAW_MODE_BOTTOM;
+			int mode = CAT_DRAW_FLAG_BOTTOM;
 			CAT_ivec2 place = CAT_grid2world(cursor);
 			CAT_draw_queue_add(item->data.tool_data.cursor, 0, PROPS_LAYER, place.x, place.y + 16, mode);
 			CAT_draw_queue_add(&tile_hl_sprite, 0, GUI_LAYER, place.x, place.y + 16, mode);
 		}
 		else if (!action_complete)
 		{
-			int mode = CAT_DRAW_MODE_BOTTOM | CAT_DRAW_MODE_CENTER_X;
+			int mode = CAT_DRAW_FLAG_BOTTOM | CAT_DRAW_FLAG_CENTER_X;
 			if (tool_anchor.x > pet_anchor.x)
-				mode |= CAT_DRAW_MODE_REFLECT_X;
+				mode |= CAT_DRAW_FLAG_REFLECT_X;
 			int tool_layer = item->data.tool_data.type == CAT_TOOL_TYPE_FOOD ? STATICS_LAYER : PROPS_LAYER;
 			CAT_draw_queue_add(item->sprite, -1, tool_layer, tool_anchor.x, tool_anchor.y, mode);
 		}
@@ -376,5 +385,6 @@ void CAT_render_laser()
 	CAT_render_room();
 
 	CAT_item *item = CAT_item_get(toy_laser_pointer_item);
-	CAT_draw_queue_add(item->data.tool_data.cursor, -1, 0, laser_pos.x, laser_pos.y, CAT_DRAW_MODE_CENTER_X | CAT_DRAW_MODE_CENTER_Y);
+	CAT_draw_flag flags = CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y;
+	CAT_draw_queue_add(item->data.tool_data.cursor, -1, 0, laser_pos.x, laser_pos.y, flags);
 }
