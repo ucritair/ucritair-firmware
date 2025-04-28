@@ -12,6 +12,7 @@ LOG_MODULE_REGISTER(power_control, LOG_LEVEL_DBG);
 #include "rtc.h"
 #include "buttons.h"
 #include "lcd_rendering.h"
+#include "cat_core.h"
 
 bool is_3v3_on, is_5v0_on, is_leds_on;
 

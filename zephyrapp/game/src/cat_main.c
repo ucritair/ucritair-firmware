@@ -319,7 +319,8 @@ void CAT_init()
 
 	CAT_machine_transition(CAT_MS_room);
 
-	CAT_set_eink_update_flag(true);
+	if(CAT_get_wakeup_cause() == CAT_WAKEUP_CAUSE_POWER_ON)
+		CAT_set_eink_update_flag(true);
 }
 
 void CAT_tick_logic()
@@ -399,6 +400,8 @@ void CAT_tick_render()
 #ifdef CAT_DESKTOP
 int main(int argc, char** argv)
 {
+	CAT_set_wakeup_cause(CAT_WAKEUP_CAUSE_INPUT);
+
 	CAT_init();
 
 	while (CAT_get_battery_pct() > 0)

@@ -131,3 +131,20 @@ bool CAT_check_load_flag(CAT_load_flag flag)
 {
 	return load_flags & (1 << flag);
 }
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// POWER
+
+static CAT_wakeup_cause wakeup_cause = CAT_WAKEUP_CAUSE_POWER_ON;
+
+void CAT_set_wakeup_cause(CAT_wakeup_cause cause)
+{
+	wakeup_cause = cause;
+}
+
+CAT_wakeup_cause CAT_get_wakeup_cause()
+{
+	return wakeup_cause;
+}
+

@@ -66,6 +66,7 @@ void CAT_render_debug()
 				saved_version_major, saved_version_minor,
 				saved_version_patch, saved_version_push
 			);
+			
 #define TOSTRING_INNER(x) #x
 #define TOSTRING(x) TOSTRING_INNER(x)
 #if defined(CAT_DESKTOP)
@@ -73,8 +74,22 @@ void CAT_render_debug()
 #elif defined(CAT_EMBEDDED)
 			CAT_gui_text("EMBEDDED\n");
 #endif
+
 			if(CAT_check_save_flag(CAT_SAVE_FLAG_DEVELOPER_MODE))
 				CAT_gui_text("DEVELOPER MODE\n");
+
+			switch(CAT_get_wakeup_cause())
+			{
+				case CAT_WAKEUP_CAUSE_POWER_ON:
+					CAT_gui_text("Woke from power on.\n");
+				break;
+				case CAT_WAKEUP_CAUSE_TIMER:
+					CAT_gui_text("Woke from timer.\n");
+				break;
+				case CAT_WAKEUP_CAUSE_INPUT:
+					CAT_gui_text("Woke from input.\n");
+				break;
+			}
 		break;
 		case TIME:
 			CAT_gui_title(true, NULL, &icon_exit_sprite, "TIME");
