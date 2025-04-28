@@ -486,7 +486,7 @@ typedef struct menu_node
 	int16_t parent;
 	uint16_t children[32];
 	uint8_t child_count;
-	uint8_t selector;
+	int8_t selector;
 } menu_node;
 
 static menu_node menu_table[512];
@@ -682,7 +682,7 @@ void CAT_gui_menu_io()
 		head->selector -= 1;
 	if(CAT_input_pressed(CAT_BUTTON_DOWN))
 		head->selector += 1;
-	head->selector %= head->child_count;
+	head->selector = (head->selector + head->child_count) % head->child_count;
 	menu_node* selected = &menu_table[head->children[head->selector]];
 
 	switch (selected->type)
