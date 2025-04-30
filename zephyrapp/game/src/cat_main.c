@@ -319,7 +319,7 @@ void CAT_init()
 
 	CAT_machine_transition(CAT_MS_room);
 
-	CAT_set_eink_update_flag(true);
+	CAT_set_eink_update_flag(false); // If we are coming up from init - we dont have sensor data yet 
 }
 
 void CAT_tick_logic()
