@@ -387,4 +387,6 @@ void CAT_render_laser()
 	CAT_item *item = CAT_item_get(toy_laser_pointer_item);
 	CAT_draw_flag flags = CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y;
 	CAT_draw_queue_add(item->data.tool_data.cursor, -1, 0, laser_pos.x, laser_pos.y, flags);
+	
+	CAT_gizberry(pet.pos.x, pet.pos.y, &gizmo_target_17x17_sprite, )
 }

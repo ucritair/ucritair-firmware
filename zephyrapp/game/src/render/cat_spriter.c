@@ -87,11 +87,6 @@ void CAT_draw_sprite(const CAT_sprite* sprite, int frame_idx, int x, int y)
 			run_remainder -= 1;
 		}
 	}
-
-	if((draw_flags & CAT_DRAW_FLAG_OUTLINE) > 0)
-	{
-		CAT_strokeberry(x, y_i, w, h, RGB8882565(255, 0, 0));
-	}
 }
 
 uint16_t rle_work_region[160];

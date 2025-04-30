@@ -38,6 +38,7 @@ void CAT_fillberry(int xi, int yi, int w, int h, uint16_t c);
 void CAT_strokeberry(int xi, int yi, int w, int h, uint16_t c);
 void CAT_rowberry(int x, int y, int w, uint16_t c);
 void CAT_pixberry(int x, int y, uint16_t c);
+void CAT_gizberry(int x, int y, CAT_sprite* stencil, uint16_t c);
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -63,8 +64,7 @@ typedef enum
 	CAT_DRAW_FLAG_BOTTOM = 1,
 	CAT_DRAW_FLAG_CENTER_X = 2,
 	CAT_DRAW_FLAG_CENTER_Y = 4,
-	CAT_DRAW_FLAG_REFLECT_X = 8,
-	CAT_DRAW_FLAG_OUTLINE = 16
+	CAT_DRAW_FLAG_REFLECT_X = 8
 } CAT_draw_flag;
 
 extern CAT_draw_flag draw_flags;

@@ -2314,6 +2314,16 @@
             "height": 64,
             "loop": true,
             "reverse": false
+        },
+        {
+            "id": 227,
+            "name": "gizmo_target_17x17_sprite",
+            "path": "gizmos/target_gizmo_17x17.png",
+            "frames": 1,
+            "width": 17,
+            "height": 17,
+            "loop": false,
+            "reverse": false
         }
     ]
 }
