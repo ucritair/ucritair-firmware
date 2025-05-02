@@ -255,6 +255,8 @@ void CAT_MS_play(CAT_machine_signal signal)
 
 static CAT_vec2 laser_pos = {120, 180};
 static CAT_vec2 laser_dir = {0, 0};
+static int pounce_dir = 1;
+static CAT_vec2 pounce_pos = {120, 180};
 static float laser_speed = 72.0f;
 static int play_timer_id = -1;
 enum
@@ -263,7 +265,7 @@ enum
 	POUNCING,
 	PLAYING,
 	BORED
-} laser_state = SEEKING;
+} laser_state = BORED;
 
 void CAT_MS_laser(CAT_machine_signal signal)
 {
@@ -317,18 +319,27 @@ void CAT_MS_laser(CAT_machine_signal signal)
 		case SEEKING:
 			if (!CAT_anim_is_in(&AM_pet, &AS_walk))
 				CAT_anim_transition(&AM_pet, &AS_walk);
-			else if (CAT_pet_seek(laser_pos))
-				laser_state = POUNCING;
+			else
+			{
+				pounce_pos = CAT_vec2_add(laser_pos, (CAT_vec2) {48 * pounce_dir, 0});
+				if(CAT_pet_seek(pounce_pos))
+				{
+					CAT_pet_face(laser_pos);
+					laser_state = POUNCING;
+				}
+			}
 			break;
 		case POUNCING:
-			if(CAT_anim_is_dead(&AM_pet))
-				laser_state = PLAYING;
-			else if(!CAT_anim_is_in(&AM_pet, &AS_pounce))
+			if(!CAT_anim_is_in(&AM_pet, &AS_pounce))
 			{
-				pet.pos.x -= 48 * pet.rot;
 				CAT_anim_transition(&AM_pet, &AS_pounce);
 			}
-				
+			else if(CAT_anim_is_ending(&AM_pet))
+			{
+				pet.pos.x = laser_pos.x;
+				CAT_anim_transition(&AM_pet, &AS_play);
+				laser_state = PLAYING;
+			}
 			break;
 		case PLAYING:
 			if (!CAT_anim_is_in(&AM_pet, &AS_play))
@@ -345,7 +356,7 @@ void CAT_MS_laser(CAT_machine_signal signal)
 		case BORED:
 			if (!CAT_anim_is_in(&AM_pet, &AS_crit))
 				CAT_anim_transition(&AM_pet, &AS_crit);
-			if (CAT_vec2_dist2(pet.pos, laser_pos) >= 16)
+			if (CAT_vec2_dist2(pet.pos, laser_pos) >= 48)
 				laser_state = SEEKING;
 			break;
 		}
@@ -388,5 +399,6 @@ void CAT_render_laser()
 	CAT_draw_flag flags = CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y;
 	CAT_draw_queue_add(item->data.tool_data.cursor, -1, 0, laser_pos.x, laser_pos.y, flags);
 	
-	CAT_gizberry(pet.pos.x, pet.pos.y, &gizmo_target_17x17_sprite, )
+	CAT_gizberry(pet.pos.x, pet.pos.y, &gizmo_target_17x17_sprite, CAT_WHITE, CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
+	CAT_gizberry(pounce_pos.x, pounce_pos.y, &gizmo_target_17x17_sprite, CAT_GREEN, CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
 }

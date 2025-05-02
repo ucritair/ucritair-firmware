@@ -26,19 +26,11 @@
 #define ADAPT_EMBEDDED_COLOUR(c) c
 #endif
 
-
-//////////////////////////////////////////////////////////////////////////
-// THE BERRIER
-
-void CAT_greenberry(int xi, int w, int yi, int h, float t);
-void CAT_frameberry(uint16_t c);
-void CAT_greyberry(int xi, int w, int yi, int h);
-void CAT_lineberry(int xi, int yi, int xf, int yf, uint16_t c);
-void CAT_fillberry(int xi, int yi, int w, int h, uint16_t c);
-void CAT_strokeberry(int xi, int yi, int w, int h, uint16_t c);
-void CAT_rowberry(int x, int y, int w, uint16_t c);
-void CAT_pixberry(int x, int y, uint16_t c);
-void CAT_gizberry(int x, int y, CAT_sprite* stencil, uint16_t c);
+#define CAT_BLACK 0x0000
+#define CAT_WHITE 0xFFFF
+#define CAT_RED ADAPT_DESKTOP_COLOUR(0b1111100000000000)
+#define CAT_GREEN ADAPT_DESKTOP_COLOUR(0b0000011111100000)
+#define CAT_BLUE ADAPT_DESKTOP_COLOUR(0b0000000000011111)
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -70,6 +62,20 @@ typedef enum
 extern CAT_draw_flag draw_flags;
 
 void CAT_draw_sprite(const CAT_sprite* sprite, int frame_idx, int x, int y);
+
+
+//////////////////////////////////////////////////////////////////////////
+// THE BERRIER
+
+void CAT_greenberry(int xi, int w, int yi, int h, float t);
+void CAT_frameberry(uint16_t c);
+void CAT_greyberry(int xi, int w, int yi, int h);
+void CAT_lineberry(int xi, int yi, int xf, int yf, uint16_t c);
+void CAT_fillberry(int xi, int yi, int w, int h, uint16_t c);
+void CAT_strokeberry(int xi, int yi, int w, int h, uint16_t c);
+void CAT_rowberry(int x, int y, int w, uint16_t c);
+void CAT_pixberry(int x, int y, uint16_t c);
+void CAT_gizberry(int x, int y, CAT_sprite* stencil, uint16_t c, int flags);
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -106,6 +112,8 @@ bool CAT_anim_is_dead(CAT_anim_machine* machine);
 
 bool CAT_anim_is_in(CAT_anim_machine* machine, CAT_anim_state* state);
 bool CAT_anim_is_ticking(CAT_anim_machine* machine);
+
+bool CAT_anim_is_ending(CAT_anim_machine* machine);
 
 //////////////////////////////////////////////////////////////////////////
 // DRAW QUEUE

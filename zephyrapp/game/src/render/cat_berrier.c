@@ -288,7 +288,7 @@ void CAT_gizberry(int x, int y, CAT_sprite* stencil, uint16_t c, int flags)
 	if (y_f > CAT_LCD_FRAMEBUFFER_H)
 		y_f = CAT_LCD_FRAMEBUFFER_H;
 
-	const uint8_t* frame = stencil->frames;
+	const uint8_t* frame = stencil->frames[0];
 	int run_idx = 0;
 	int dx = 0;
 	bool valid_draw_region = true;

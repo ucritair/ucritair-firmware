@@ -760,8 +760,8 @@ void render_pet()
 	CAT_anim_tick(&AM_pet);
 	CAT_anim_tick(&AM_mood);
 	
-	int mode = CAT_DRAW_FLAG_BOTTOM | CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_OUTLINE;
-	if(pet.rot != 0)
+	int mode = CAT_DRAW_FLAG_BOTTOM | CAT_DRAW_FLAG_CENTER_X;
+	if(pet.rot != 1)
 		mode |= CAT_DRAW_FLAG_REFLECT_X;
 	int layer = CAT_get_battery_pct() <= CAT_CRITICAL_BATTERY_PCT ? 1 : 2;
 
@@ -769,7 +769,7 @@ void render_pet()
 
 	if(CAT_anim_is_in(&AM_mood, &AS_react))
 	{
-		int x_off = pet.rot != 0 ? 16 : -16;
+		int x_off = pet.rot != 1 ? 16 : -16;
 		CAT_draw_queue_add(CAT_anim_read(&AM_mood), -1, layer+1, pet.pos.x + x_off, pet.pos.y - 48, mode);	
 	}
 }

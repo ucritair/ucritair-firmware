@@ -177,6 +177,17 @@ bool CAT_anim_is_ticking(CAT_anim_machine* machine)
 	return machine->signal == TICK;
 }
 
+bool CAT_anim_is_ending(CAT_anim_machine* machine)
+{
+	CAT_sprite* sprites[3] = 
+	{
+		machine->state->enter_sprite,
+		machine->state->exit_sprite,
+		machine->state->tick_sprite
+	};
+	return animator_is_finished(sprites[machine->signal]);
+}
+
 
 //////////////////////////////////////////////////////////////////////////
 // DEFINITIONS
