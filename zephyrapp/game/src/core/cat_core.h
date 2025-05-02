@@ -224,22 +224,12 @@ bool CAT_check_load_flag(CAT_load_flag flag);
 
 #define CAT_CRITICAL_BATTERY_PCT 20
 
-typedef enum
-{
-	CAT_WAKEUP_CAUSE_TIMER,
-	CAT_WAKEUP_CAUSE_INPUT,
-	CAT_WAKEUP_CAUSE_POWER_ON
-} CAT_wakeup_cause;
-
 int CAT_get_battery_pct();
 bool CAT_is_charging();
 
 void CAT_sleep();
 void CAT_shutdown();
 void CAT_factory_reset();
-
-void CAT_set_wakeup_cause(CAT_wakeup_cause cause);
-CAT_wakeup_cause CAT_get_wakeup_cause();
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -266,6 +256,7 @@ typedef struct CAT_AQ_readings {
 extern CAT_AQ_readings readings;
 
 void CAT_get_AQ_readings();
+bool CAT_is_AQ_initialized();
 
 typedef enum
 {

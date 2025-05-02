@@ -543,7 +543,7 @@ void CAT_factory_reset()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // AIR QUALITY
 
-CAT_AQ_readings readings;
+CAT_AQ_readings readings = {0};
 
 void CAT_get_AQ_readings()
 {
@@ -564,6 +564,17 @@ void CAT_get_AQ_readings()
 	readings.sen5x.voc_index = 1;
 	readings.sen5x.nox_index = 100;
 }
+
+bool CAT_is_AQ_initialized()
+{
+	return true;
+}
+
+uint8_t* CAT_get_AQ_block()
+{
+	return &readings;
+}
+
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

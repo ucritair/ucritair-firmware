@@ -53,6 +53,7 @@ uint8_t saved_version_push = CAT_VERSION_PUSH;
 
 const int eink_update_time_threshold = CAT_MIN_SECS;
 float time_since_eink_update = 0.0f;
+bool first_eink_update_complete = false;
 
 CAT_screen_orientation current_orientation;
 CAT_screen_orientation last_orientation;
@@ -319,7 +320,7 @@ void CAT_init()
 
 	CAT_machine_transition(CAT_MS_room);
 
-	if(CAT_get_wakeup_cause() == CAT_WAKEUP_CAUSE_POWER_ON)
+	if(CAT_is_AQ_initialized())
 		CAT_set_eink_update_flag(true);
 }
 
@@ -348,9 +349,10 @@ void CAT_tick_logic()
 	time_since_eink_update += CAT_get_delta_time_s();
 	if
 	(
-		CAT_is_charging() &&
+		(CAT_is_charging() &&
 		time_since_eink_update >= eink_update_time_threshold &&
-		CAT_input_time_since_last() >= eink_update_time_threshold
+		CAT_input_time_since_last() >= eink_update_time_threshold) ||
+		(!first_eink_update_complete && CAT_is_AQ_initialized())
 	)
 	{
 		CAT_set_eink_update_flag(true);
@@ -394,14 +396,13 @@ void CAT_tick_render()
 	{
 		draw_mode = CAT_DRAW_MODE_DEFAULT;
 		CAT_draw_sprite(&eink_refresh_splash_sprite, 0, 0, 0);
+		first_eink_update_complete = true;
 	}
 }
 
 #ifdef CAT_DESKTOP
 int main(int argc, char** argv)
 {
-	CAT_set_wakeup_cause(CAT_WAKEUP_CAUSE_INPUT);
-
 	CAT_init();
 
 	while (CAT_get_battery_pct() > 0)
