@@ -66,6 +66,7 @@ void CAT_render_debug()
 				saved_version_major, saved_version_minor,
 				saved_version_patch, saved_version_push
 			);
+			
 #define TOSTRING_INNER(x) #x
 #define TOSTRING(x) TOSTRING_INNER(x)
 #if defined(CAT_DESKTOP)
@@ -73,6 +74,7 @@ void CAT_render_debug()
 #elif defined(CAT_EMBEDDED)
 			CAT_gui_text("EMBEDDED\n");
 #endif
+
 			if(CAT_check_save_flag(CAT_SAVE_FLAG_DEVELOPER_MODE))
 				CAT_gui_text("DEVELOPER MODE\n");
 		break;

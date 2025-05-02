@@ -100,15 +100,11 @@ int main(void)
 	if (wakeup_is_from_timer)
 	{
 		LOG_DBG("Booted from timer");
-		
 
 		set_first_led((struct led_rgb){.g=1});
-
 		k_msleep(50);
 
 		bool trying_to_take_nox_reading = nox_every_n_samples != 0 && (nox_every_n_samples_counter == (nox_every_n_samples-1));
-
-		
 
 		int cycle = 1;
 #define CYCLE_TIME 20
@@ -215,7 +211,6 @@ int main(void)
 #else
 	LOG_ERR("Wifi compiled out");
 #endif
-
 
 	lcd_init();
 	lcd_render_diag();

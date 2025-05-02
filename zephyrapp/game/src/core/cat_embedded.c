@@ -267,7 +267,7 @@ void CAT_factory_reset()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // AIR QUALITY
 
-CAT_AQ_readings readings;
+CAT_AQ_readings readings = {0};
 
 void CAT_get_AQ_readings()
 {
@@ -287,6 +287,16 @@ void CAT_get_AQ_readings()
 	readings.sen5x.temp_degC = current_readings.sen5x.temp_degC;
 	readings.sen5x.voc_index = current_readings.sen5x.voc_index;
 	readings.sen5x.nox_index = current_readings.sen5x.nox_index;
+}
+
+bool CAT_is_AQ_initialized()
+{
+	/*uint8_t* block = &current_readings;
+	return !(
+	*block == 0 &&
+	memcmp(block, block+1, sizeof(current_readings)-1) == 0);*/
+
+	return readings.sunrise.ppm_filtered_compensated;
 }
 
 

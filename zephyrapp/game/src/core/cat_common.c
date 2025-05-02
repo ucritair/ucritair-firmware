@@ -159,3 +159,5 @@ bool CAT_check_load_flag(CAT_load_flag flag)
 {
 	return load_flags & (1 << flag);
 }
+
+

@@ -228,6 +228,7 @@ bool CAT_check_load_flag(CAT_load_flag flag);
 
 int CAT_get_battery_pct();
 bool CAT_is_charging();
+
 void CAT_sleep();
 void CAT_shutdown();
 void CAT_factory_reset();
@@ -257,6 +258,7 @@ typedef struct CAT_AQ_readings {
 extern CAT_AQ_readings readings;
 
 void CAT_get_AQ_readings();
+bool CAT_is_AQ_initialized();
 
 typedef enum
 {
