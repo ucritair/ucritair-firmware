@@ -4,6 +4,9 @@
 #include "cat_render.h"
 #include "cat_core.h"
 
+extern const CAT_sprite animachine_enter_sprite;
+extern const CAT_sprite animachine_exit_sprite;
+extern const CAT_sprite animachine_tick_sprite;
 extern const CAT_sprite arcade_sprite;
 extern const CAT_sprite ash_floor_sprite;
 extern const CAT_sprite attack_sprite;
@@ -44,6 +47,7 @@ extern const CAT_sprite cursor_sprite;
 extern const CAT_sprite effigy_blue_sprite;
 extern const CAT_sprite effigy_purple_sprite;
 extern const CAT_sprite effigy_sea_sprite;
+extern const CAT_sprite eink_refresh_splash_sprite;
 extern const CAT_sprite enemy_sprite;
 extern const CAT_sprite fan_a_sprite;
 extern const CAT_sprite fan_b_sprite;
@@ -227,10 +231,7 @@ extern const CAT_sprite window_dusk_sprite;
 extern const CAT_sprite window_evening_sprite;
 extern const CAT_sprite window_morning_sprite;
 extern const CAT_sprite window_night_sprite;
-extern const CAT_sprite animachine_enter_sprite;
-extern const CAT_sprite animachine_tick_sprite;
-extern const CAT_sprite animachine_exit_sprite;
-extern const CAT_sprite eink_refresh_splash_sprite;
+extern const CAT_sprite gizmo_target_17x17_sprite;
 
 extern const CAT_sprite* sprite_list[];
-#define CAT_SPRITE_LIST_LENGTH 227
+#define CAT_SPRITE_LIST_LENGTH 228

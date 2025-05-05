@@ -280,11 +280,11 @@ class Canvas:
 		h = int(h);
 
 		if DrawFlags.CENTER_X in self.draw_flags:
-			x -= image.width // 2;
+			x -= w // 2;
 		if DrawFlags.CENTER_Y in self.draw_flags:
-			y -= frame_h // 2;
+			y -= h // 2;
 		elif DrawFlags.BOTTOM in self.draw_flags:
-			y -= frame_h;
+			y -= h;
 
 		for dy in range(y, y+h):
 			self.draw_pixel(x, dy, c);
@@ -811,6 +811,7 @@ class AnimationViewer:
 		self.frame = 0;
 		
 		self.animate = True;
+		self.show_AABB = False;
 		self.timer = 0;
 
 	def render():
@@ -830,11 +831,13 @@ class AnimationViewer:
 			draw_y = self.canvas.height/2;
 			self.canvas.draw_flags = DrawFlags.CENTER_X | DrawFlags.CENTER_Y;
 			self.canvas.draw_image(draw_x, draw_y, preview.frame_images[self.frame]);
+			if self.show_AABB:
+				self.canvas.draw_rect(draw_x, draw_y, preview.width, preview.height/preview.frame_count, (255, 0, 0));
 			self.canvas.render(self.scale);
 
 			if preview.frame_count > 1:	
-				switch, self.animate = imgui.checkbox("Animate", self.animate);
-				if switch:
+				animate_changed, self.animate = imgui.checkbox("Animate", self.animate);
+				if animate_changed:
 					self.frame = 0;
 				if self.animate:
 					self.timer += delta_time;
@@ -845,6 +848,8 @@ class AnimationViewer:
 							self.frame = 0;
 				else:
 					_, self.frame = imgui.slider_int("Frame", self.frame, 0, preview.frame_count-1);
+			
+			show_AABB_changed, self.show_AABB = imgui.checkbox("Show AABB", self.show_AABB);
 
 			if imgui.begin_combo(f"Sprite", sprite["name"]):
 				for (idx, entry) in enumerate(self.sprites):

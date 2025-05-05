@@ -37,7 +37,7 @@ void CAT_pet_init()
 
 	pet.pos = (CAT_vec2) {120, 200};
 	pet.vel = (CAT_vec2) {0, 0};
-	pet.rot = 0;
+	pet.rot = 1;
 
 	pet.stat_timer_id = CAT_timer_init(CAT_STAT_TICK_SECS);
 	pet.life_timer_id = CAT_timer_init(CAT_LIFE_TICK_SECS);
@@ -174,7 +174,7 @@ bool CAT_pet_seek(CAT_vec2 targ)
 	}
 	else
 	{
-		pet.rot = dir.x > 0 ? M_PI : 0;
+		pet.rot = dir.x > 0 ? -1 : 1;
 		pet.vel = CAT_vec2_mul(dir, speed);
 		pet.pos = CAT_vec2_add(pet.pos, CAT_vec2_mul(pet.vel, CAT_get_delta_time_s()));	
 		return false;
@@ -183,7 +183,7 @@ bool CAT_pet_seek(CAT_vec2 targ)
 
 void CAT_pet_face(CAT_vec2 targ)
 {
-	pet.rot = targ.x > pet.pos.x ? M_PI : 0;
+	pet.rot = targ.x > pet.pos.x ? -1 : 1;
 }
 
 void CAT_pet_stat(int ticks)

@@ -23,7 +23,7 @@ typedef struct CAT_pet
 
 	CAT_vec2 pos;
 	CAT_vec2 vel;
-	float rot;
+	int rot;
 	
 	int stat_timer_id;
 	int life_timer_id;

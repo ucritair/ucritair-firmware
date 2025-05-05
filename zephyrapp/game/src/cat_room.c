@@ -635,7 +635,7 @@ enum {FLOOR_BASE, FLOOR_GRASS, FLOOR_ASH} bg_floor = FLOOR_BASE;
 
 void render_background()
 {
-	draw_mode = CAT_DRAW_MODE_DEFAULT;
+	draw_flags = CAT_DRAW_FLAG_DEFAULT;
 	for(int y = 0; y < 6; y++)
 	{
 		for(int x = 0; x < 15; x++)
@@ -663,24 +663,24 @@ void render_statics()
 	float aqi_score = CAT_AQI_aggregate();
 
 	if(aqi_score <= 35.0f && time.hour >= 4 && time.hour < 22)
-		CAT_draw_queue_add(&window_day_bad_aq_sprite, -1, STATICS_LAYER, 8, 8, CAT_DRAW_MODE_DEFAULT);
+		CAT_draw_queue_add(&window_day_bad_aq_sprite, -1, STATICS_LAYER, 8, 8, CAT_DRAW_FLAG_DEFAULT);
 	else if(time.hour >= 4 && time.hour < 7)
-		CAT_draw_queue_add(&window_dawn_sprite, 0, STATICS_LAYER, 8, 8, CAT_DRAW_MODE_DEFAULT);
+		CAT_draw_queue_add(&window_dawn_sprite, 0, STATICS_LAYER, 8, 8, CAT_DRAW_FLAG_DEFAULT);
 	else if(time.hour >= 7 && time.hour < 11)
-		CAT_draw_queue_add(&window_morning_sprite, 0, STATICS_LAYER, 8, 8, CAT_DRAW_MODE_DEFAULT);
+		CAT_draw_queue_add(&window_morning_sprite, 0, STATICS_LAYER, 8, 8, CAT_DRAW_FLAG_DEFAULT);
 	else if(time.hour >= 11 && time.hour < 18)
-		CAT_draw_queue_add(&window_day_sprite, 0, STATICS_LAYER, 8, 8, CAT_DRAW_MODE_DEFAULT);
+		CAT_draw_queue_add(&window_day_sprite, 0, STATICS_LAYER, 8, 8, CAT_DRAW_FLAG_DEFAULT);
 	else if(time.hour >= 18 && time.hour < 20)
-		CAT_draw_queue_add(&window_evening_sprite, 0, STATICS_LAYER, 8, 8, CAT_DRAW_MODE_DEFAULT);
+		CAT_draw_queue_add(&window_evening_sprite, 0, STATICS_LAYER, 8, 8, CAT_DRAW_FLAG_DEFAULT);
 	else if(time.hour >= 20 && time.hour < 22)
-		CAT_draw_queue_add(&window_dusk_sprite, 0, STATICS_LAYER, 8, 8, CAT_DRAW_MODE_DEFAULT);
+		CAT_draw_queue_add(&window_dusk_sprite, 0, STATICS_LAYER, 8, 8, CAT_DRAW_FLAG_DEFAULT);
 	else
-		CAT_draw_queue_add(&window_night_sprite, 0, STATICS_LAYER, 8, 8, CAT_DRAW_MODE_DEFAULT);
+		CAT_draw_queue_add(&window_night_sprite, 0, STATICS_LAYER, 8, 8, CAT_DRAW_FLAG_DEFAULT);
 	
 	
 	if(CAT_is_charging())
 	{
-		CAT_draw_queue_add(&icon_charging, 0, STATICS_LAYER + 1, 66, 37, CAT_DRAW_MODE_CENTER_X | CAT_DRAW_MODE_CENTER_Y);
+		CAT_draw_queue_add(&icon_charging, 0, STATICS_LAYER + 1, 66, 37, CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
 	}
 	else
 	{
@@ -691,11 +691,11 @@ void render_statics()
 			battery_blink_switch = !battery_blink_switch;
 		}
 		if(CAT_get_battery_pct() <= CAT_CRITICAL_BATTERY_PCT && battery_blink_switch)
-			CAT_draw_queue_add(&icon_low_battery_alt, 0, STATICS_LAYER + 1, 66, 37, CAT_DRAW_MODE_CENTER_X | CAT_DRAW_MODE_CENTER_Y);
+			CAT_draw_queue_add(&icon_low_battery_alt, 0, STATICS_LAYER + 1, 66, 37, CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
 	}
 	
-	CAT_draw_queue_add(&vending_sprite, -1, STATICS_LAYER, 172, 16, CAT_DRAW_MODE_DEFAULT);
-	CAT_draw_queue_add(&arcade_sprite, -1, STATICS_LAYER, 124, 48, CAT_DRAW_MODE_DEFAULT);
+	CAT_draw_queue_add(&vending_sprite, -1, STATICS_LAYER, 172, 16, CAT_DRAW_FLAG_DEFAULT);
+	CAT_draw_queue_add(&arcade_sprite, -1, STATICS_LAYER, 124, 48, CAT_DRAW_FLAG_DEFAULT);
 }
 
 void render_props()
@@ -710,12 +710,12 @@ void render_props()
 		CAT_ivec2 draw_place = CAT_grid2world(place);
 		draw_place.y += shape.y * CAT_TILE_SIZE;
 
-		int mode = CAT_DRAW_MODE_BOTTOM;
+		int mode = CAT_DRAW_FLAG_BOTTOM;
 		int frame_idx = 0;
 		if(room.prop_overrides[i])
 		{
 			if(prop->data.prop_data.animate || prop->sprite->frame_count == 1)
-				mode |= CAT_DRAW_MODE_REFLECT_X;
+				mode |= CAT_DRAW_FLAG_REFLECT_X;
 			else
 				frame_idx = room.prop_overrides[i];
 		}
@@ -726,7 +726,7 @@ void render_props()
 		CAT_item* child = CAT_item_get(room.prop_children[i]);
 		if(child != NULL)
 		{
-			mode = CAT_DRAW_MODE_BOTTOM | CAT_DRAW_MODE_CENTER_X;
+			mode = CAT_DRAW_FLAG_BOTTOM | CAT_DRAW_FLAG_CENTER_X;
 			frame_idx = child->data.prop_data.animate ? -1 : 0;
 			int cx = (shape.x / 2) * CAT_TILE_SIZE;
 			int cy = shape.y * CAT_TILE_SIZE;
@@ -751,7 +751,7 @@ void render_pickups()
 		if(origin.y > place.y)
 			y = -y + origin.y + place.y;
 
-		CAT_draw_queue_add(room.pickups[i].sprite, -1, PROPS_LAYER, x, y, CAT_DRAW_MODE_CENTER_X | CAT_DRAW_MODE_BOTTOM);
+		CAT_draw_queue_add(room.pickups[i].sprite, -1, PROPS_LAYER, x, y, CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_BOTTOM);
 	}
 }
 
@@ -760,16 +760,16 @@ void render_pet()
 	CAT_anim_tick(&AM_pet);
 	CAT_anim_tick(&AM_mood);
 	
-	int mode = CAT_DRAW_MODE_BOTTOM | CAT_DRAW_MODE_CENTER_X;
-	if(pet.rot != 0)
-		mode |= CAT_DRAW_MODE_REFLECT_X;
+	int mode = CAT_DRAW_FLAG_BOTTOM | CAT_DRAW_FLAG_CENTER_X;
+	if(pet.rot != 1)
+		mode |= CAT_DRAW_FLAG_REFLECT_X;
 	int layer = CAT_get_battery_pct() <= CAT_CRITICAL_BATTERY_PCT ? 1 : 2;
 
 	CAT_draw_queue_add(CAT_anim_read(&AM_pet), -1, layer, pet.pos.x, pet.pos.y, mode);
 
 	if(CAT_anim_is_in(&AM_mood, &AS_react))
 	{
-		int x_off = pet.rot != 0 ? 16 : -16;
+		int x_off = pet.rot != 1 ? 16 : -16;
 		CAT_draw_queue_add(CAT_anim_read(&AM_mood), -1, layer+1, pet.pos.x + x_off, pet.pos.y - 48, mode);	
 	}
 }
@@ -787,7 +787,7 @@ static int button_start_y = 296;
 
 void render_gui()
 {
-	int icon_mode = CAT_DRAW_MODE_CENTER_X | CAT_DRAW_MODE_CENTER_Y;
+	int icon_mode = CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y;
 	for(int i = 0; i < sizeof(button_sprites)/sizeof(button_sprites[0]); i++)
 	{
 		CAT_draw_queue_add(button_sprites[i], 0, GUI_LAYER, button_start_x + 48 * i, button_start_y, icon_mode);

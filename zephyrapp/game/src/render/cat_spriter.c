@@ -5,7 +5,7 @@
 //////////////////////////////////////////////////////////////////////////
 // SPRITER
 
-CAT_draw_mode draw_mode = CAT_DRAW_MODE_DEFAULT;
+CAT_draw_flag draw_flags = CAT_DRAW_FLAG_DEFAULT;
 
 void CAT_draw_sprite(const CAT_sprite* sprite, int frame_idx, int x, int y)
 {
@@ -25,12 +25,13 @@ void CAT_draw_sprite(const CAT_sprite* sprite, int frame_idx, int x, int y)
 
 	int w = sprite->width;
 	int h = sprite->height;
-	if ((draw_mode & CAT_DRAW_MODE_CENTER_X) > 0)
+	if ((draw_flags & CAT_DRAW_FLAG_CENTER_X) > 0)
 		x -= w / 2;
-	if ((draw_mode & CAT_DRAW_MODE_CENTER_Y) > 0)
+	if ((draw_flags & CAT_DRAW_FLAG_CENTER_Y) > 0)
 		y -= h / 2;
-	else if ((draw_mode & CAT_DRAW_MODE_BOTTOM) > 0)
+	else if ((draw_flags & CAT_DRAW_FLAG_BOTTOM) > 0)
 		y -= h;
+	int y_i = y;
 
 	y -= FRAMEBUFFER_ROW_OFFSET;
 	int y_f = y + h;
@@ -44,8 +45,9 @@ void CAT_draw_sprite(const CAT_sprite* sprite, int frame_idx, int x, int y)
 	const uint8_t* frame = sprite->frames[frame_idx];
 	int run_idx = 0;
 	int dx = 0;
+	bool valid_draw_region = true;
 
-	for(;;)
+	while(valid_draw_region)
 	{
 		uint8_t token = frame[run_idx++];
 		uint16_t colour_idx = token == 0xff ? frame[run_idx++] : token;
@@ -58,7 +60,7 @@ void CAT_draw_sprite(const CAT_sprite* sprite, int frame_idx, int x, int y)
 		while(run_remainder > 0)
 		{
 			int x_w =
-			((draw_mode & CAT_DRAW_MODE_REFLECT_X) > 0) ?
+			((draw_flags & CAT_DRAW_FLAG_REFLECT_X) > 0) ?
 			x + w - dx : x + dx;
 
 			if
@@ -77,7 +79,10 @@ void CAT_draw_sprite(const CAT_sprite* sprite, int frame_idx, int x, int y)
 				dx = 0;
 				y += 1;
 				if(y >= y_f)
-					return;
+				{
+					valid_draw_region = false;
+					break;
+				}
 			}
 			run_remainder -= 1;
 		}
