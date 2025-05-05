@@ -9,6 +9,7 @@
 #include <stddef.h>
 #include "cat_item_dialog.h"
 #include "sprite_assets.h"
+#include <math.h>
 
 // MECHANIC PROFILE
 
@@ -253,12 +254,15 @@ void CAT_MS_play(CAT_machine_signal signal)
 	}
 }
 
+static float laser_speed = 72.0f;
 static CAT_vec2 laser_pos = {120, 180};
 static CAT_vec2 laser_dir = {0, 0};
-static int pounce_dir = 1;
-static CAT_vec2 pounce_pos = {120, 180};
-static float laser_speed = 72.0f;
+static float seek_dist = 0;
+static CAT_vec2 pounce_start = {120, 180};
+static CAT_vec2 pounce_end = {120, 180};
+static int pounce_dir = -1;
 static int play_timer_id = -1;
+
 enum
 {
 	SEEKING,
@@ -321,22 +325,37 @@ void CAT_MS_laser(CAT_machine_signal signal)
 				CAT_anim_transition(&AM_pet, &AS_walk);
 			else
 			{
-				pounce_pos = CAT_vec2_add(laser_pos, (CAT_vec2) {48 * pounce_dir, 0});
-				if(CAT_pet_seek(pounce_pos))
+				CAT_vec2 seek_ray = CAT_vec2_sub(laser_pos, pet.pos);
+				seek_dist = sqrt(CAT_vec2_mag2(seek_ray));
+				if(seek_dist < 32)
 				{
+					if(CAT_pet_seek(laser_pos))
+						laser_state = PLAYING;
+				}
+				else
+				{
+					CAT_vec2 seek_dir = CAT_vec2_mul(seek_ray, 1.0f/seek_dist);
+					CAT_vec2 trailing_point = CAT_vec2_sub(laser_pos, CAT_vec2_mul(seek_dir, 48));
+					trailing_point.y = laser_pos.y;
+
+					pounce_start = trailing_point;
+					pounce_end = laser_pos;
+					if(CAT_pet_seek(pounce_start))
+						laser_state = POUNCING;
 					CAT_pet_face(laser_pos);
-					laser_state = POUNCING;
 				}
 			}
 			break;
 		case POUNCING:
 			if(!CAT_anim_is_in(&AM_pet, &AS_pounce))
 			{
+				pet.rot = pounce_end.x < pounce_start.x ? 1 : -1;
 				CAT_anim_transition(&AM_pet, &AS_pounce);
+				pet.pos.x -= 16 * pet.rot;
 			}
 			else if(CAT_anim_is_ending(&AM_pet))
 			{
-				pet.pos.x = laser_pos.x;
+				pet.pos = pounce_end;
 				CAT_anim_transition(&AM_pet, &AS_play);
 				laser_state = PLAYING;
 			}
@@ -399,6 +418,15 @@ void CAT_render_laser()
 	CAT_draw_flag flags = CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y;
 	CAT_draw_queue_add(item->data.tool_data.cursor, -1, 0, laser_pos.x, laser_pos.y, flags);
 	
-	CAT_gizberry(pet.pos.x, pet.pos.y, &gizmo_target_17x17_sprite, CAT_WHITE, CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
-	CAT_gizberry(pounce_pos.x, pounce_pos.y, &gizmo_target_17x17_sprite, CAT_GREEN, CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
+	/*if(seek_dist < 32)
+	{
+		CAT_gizberry(pet.pos.x, pet.pos.y, &gizmo_target_17x17_sprite, CAT_WHITE, CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
+		CAT_gizberry(laser_pos.x, laser_pos.y, &gizmo_target_17x17_sprite, CAT_RED, CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
+	}
+	else
+	{
+		CAT_gizberry(pet.pos.x, pet.pos.y, &gizmo_target_17x17_sprite, CAT_WHITE, CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
+		CAT_gizberry(pounce_start.x, pounce_start.y, &gizmo_target_17x17_sprite, CAT_GREEN, CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
+		CAT_gizberry(pounce_end.x, pounce_end.y, &gizmo_target_17x17_sprite, CAT_RED, CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
+	}*/
 }
