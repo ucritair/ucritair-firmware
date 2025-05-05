@@ -260,7 +260,6 @@ static CAT_vec2 laser_dir = {0, 0};
 static float seek_dist = 0;
 static CAT_vec2 pounce_start = {120, 180};
 static CAT_vec2 pounce_end = {120, 180};
-static int pounce_dir = -1;
 static int play_timer_id = -1;
 
 enum
@@ -375,7 +374,7 @@ void CAT_MS_laser(CAT_machine_signal signal)
 		case BORED:
 			if (!CAT_anim_is_in(&AM_pet, &AS_crit))
 				CAT_anim_transition(&AM_pet, &AS_crit);
-			if (CAT_vec2_dist2(pet.pos, laser_pos) >= 48)
+			if (CAT_vec2_dist2(pet.pos, laser_pos) >= 32)
 				laser_state = SEEKING;
 			break;
 		}
@@ -417,16 +416,4 @@ void CAT_render_laser()
 	CAT_item *item = CAT_item_get(toy_laser_pointer_item);
 	CAT_draw_flag flags = CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y;
 	CAT_draw_queue_add(item->data.tool_data.cursor, -1, 0, laser_pos.x, laser_pos.y, flags);
-	
-	/*if(seek_dist < 32)
-	{
-		CAT_gizberry(pet.pos.x, pet.pos.y, &gizmo_target_17x17_sprite, CAT_WHITE, CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
-		CAT_gizberry(laser_pos.x, laser_pos.y, &gizmo_target_17x17_sprite, CAT_RED, CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
-	}
-	else
-	{
-		CAT_gizberry(pet.pos.x, pet.pos.y, &gizmo_target_17x17_sprite, CAT_WHITE, CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
-		CAT_gizberry(pounce_start.x, pounce_start.y, &gizmo_target_17x17_sprite, CAT_GREEN, CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
-		CAT_gizberry(pounce_end.x, pounce_end.y, &gizmo_target_17x17_sprite, CAT_RED, CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
-	}*/
 }
