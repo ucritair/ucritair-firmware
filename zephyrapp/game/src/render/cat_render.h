@@ -62,7 +62,7 @@ typedef enum
 extern CAT_draw_flag draw_flags;
 
 void CAT_draw_sprite(const CAT_sprite* sprite, int frame_idx, int x, int y);
-
+void CAT_draw_sprite_scaled(const CAT_sprite* sprite, int frame_idx, int x, int y, int scale);
 
 //////////////////////////////////////////////////////////////////////////
 // THE BERRIER

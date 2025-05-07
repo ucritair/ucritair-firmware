@@ -4,6 +4,6 @@ CMakeFiles/
 app
 *.dat
 sounds/temp/
-cowtools/
+src/cowtools/cat_math_ALT.h
 
 !meshes/*.obj

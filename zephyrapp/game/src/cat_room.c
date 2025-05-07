@@ -9,7 +9,7 @@
 #include "cat_bag.h"
 #include <math.h>
 #include "cat_menu.h"
-#include "cat_actions.h"
+#include "caring/cat_actions.h"
 #include "cat_deco.h"
 #include "cat_vending.h"
 #include "cat_arcade.h"
@@ -800,7 +800,8 @@ void render_gui()
 
 void CAT_render_room()
 {
-	render_background();
+	CAT_frameberry(CAT_BLACK);
+	//render_background();
 	render_statics();
 	render_props();
 	render_pickups();

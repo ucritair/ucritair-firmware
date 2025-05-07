@@ -10,6 +10,8 @@
 #include "cat_item_dialog.h"
 #include "sprite_assets.h"
 #include <math.h>
+#include "cat_math.h"
+#include "cat_item.h"
 
 // MECHANIC PROFILE
 
@@ -164,63 +166,33 @@ void action_exit()
 	CAT_set_LEDs(0, 0, 0);
 }
 
-void CAT_MS_feed(CAT_machine_signal signal)
-{
-	switch (signal)
-	{
-	case CAT_MACHINE_SIGNAL_ENTER:
-	{
-		CAT_set_render_callback(CAT_render_action);
-		tool_type = CAT_TOOL_TYPE_FOOD;
-		action_MS = CAT_MS_feed;
-		action_AS = &AS_eat;
-		result_AS = &AS_vig_up;
-		result_colour[0] = 255;
-		result_colour[1] = 106;
-		result_colour[2] = 171;
-		action_enter();
-		break;
-	}
-	case CAT_MACHINE_SIGNAL_TICK:
-	{
-		action_tick();
-		break;
-	}
-	case CAT_MACHINE_SIGNAL_EXIT:
-	{
-		action_exit();
-		break;
-	}
-	}
-}
-
 void CAT_MS_study(CAT_machine_signal signal)
 {
 	switch (signal)
 	{
-	case CAT_MACHINE_SIGNAL_ENTER:
-	{
-		CAT_set_render_callback(CAT_render_action);
-		tool_type = CAT_TOOL_TYPE_BOOK;
-		action_MS = CAT_MS_study;
-		action_AS = &AS_study;
-		result_AS = &AS_foc_up;
-		result_colour[0] = 64;
-		result_colour[1] = 206;
-		result_colour[2] = 220;
-		action_enter();
-		break;
-	}
-	case CAT_MACHINE_SIGNAL_TICK:
-	{
-		action_tick();
-		break;
-	}
-	case CAT_MACHINE_SIGNAL_EXIT:
-	{
-		action_exit();
-		break;
-	}
+		case CAT_MACHINE_SIGNAL_ENTER:
+		{
+			CAT_set_render_callback(CAT_render_action);
+			tool_type = CAT_TOOL_TYPE_BOOK;
+			action_MS = CAT_MS_study;
+			action_AS = &AS_study;
+			result_AS = &AS_foc_up;
+			result_colour[0] = 64;
+			result_colour[1] = 206;
+			result_colour[2] = 220;
+			action_enter();
+			break;
+		}
+		case CAT_MACHINE_SIGNAL_TICK:
+		{
+			action_tick();
+			break;
+		}
+		case CAT_MACHINE_SIGNAL_EXIT:
+		{
+			action_exit();
+			break;
+		}
 	}
 }
 
@@ -228,29 +200,54 @@ void CAT_MS_play(CAT_machine_signal signal)
 {
 	switch (signal)
 	{
-	case CAT_MACHINE_SIGNAL_ENTER:
-	{
-		CAT_set_render_callback(CAT_render_action);
-		tool_type = CAT_TOOL_TYPE_TOY;
-		action_MS = CAT_MS_play;
-		action_AS = &AS_play;
-		result_AS = &AS_spi_up;
-		result_colour[0] = 76;
-		result_colour[1] = 71;
-		result_colour[2] = 255;
-		action_enter();
-		break;
+		case CAT_MACHINE_SIGNAL_ENTER:
+		{
+			CAT_set_render_callback(CAT_render_action);
+			tool_type = CAT_TOOL_TYPE_TOY;
+			action_MS = CAT_MS_play;
+			action_AS = &AS_play;
+			result_AS = &AS_spi_up;
+			result_colour[0] = 76;
+			result_colour[1] = 71;
+			result_colour[2] = 255;
+			action_enter();
+			break;
+		}
+		case CAT_MACHINE_SIGNAL_TICK:
+		{
+			action_tick();
+			break;
+		}
+		case CAT_MACHINE_SIGNAL_EXIT:
+		{
+			action_exit();
+			break;
+		}
 	}
-	case CAT_MACHINE_SIGNAL_TICK:
+}
+
+void CAT_render_action()
+{
+	CAT_render_room();
+
+	if (tool_id != -1)
 	{
-		action_tick();
-		break;
-	}
-	case CAT_MACHINE_SIGNAL_EXIT:
-	{
-		action_exit();
-		break;
-	}
+		CAT_item *item = CAT_item_get(tool_id);
+		if (!action_confirmed)
+		{
+			int mode = CAT_DRAW_FLAG_BOTTOM;
+			CAT_ivec2 place = CAT_grid2world(cursor);
+			CAT_draw_queue_add(item->data.tool_data.cursor, 0, PROPS_LAYER, place.x, place.y + 16, mode);
+			CAT_draw_queue_add(&tile_hl_sprite, 0, GUI_LAYER, place.x, place.y + 16, mode);
+		}
+		else if (!action_complete)
+		{
+			int mode = CAT_DRAW_FLAG_BOTTOM | CAT_DRAW_FLAG_CENTER_X;
+			if (tool_anchor.x > pet_anchor.x)
+				mode |= CAT_DRAW_FLAG_REFLECT_X;
+			int tool_layer = item->data.tool_data.type == CAT_TOOL_TYPE_FOOD ? STATICS_LAYER : PROPS_LAYER;
+			CAT_draw_queue_add(item->sprite, -1, tool_layer, tool_anchor.x, tool_anchor.y, mode);
+		}
 	}
 }
 
@@ -384,31 +381,6 @@ void CAT_MS_laser(CAT_machine_signal signal)
 	}
 }
 
-void CAT_render_action()
-{
-	CAT_render_room();
-
-	if (tool_id != -1)
-	{
-		CAT_item *item = CAT_item_get(tool_id);
-		if (!action_confirmed)
-		{
-			int mode = CAT_DRAW_FLAG_BOTTOM;
-			CAT_ivec2 place = CAT_grid2world(cursor);
-			CAT_draw_queue_add(item->data.tool_data.cursor, 0, PROPS_LAYER, place.x, place.y + 16, mode);
-			CAT_draw_queue_add(&tile_hl_sprite, 0, GUI_LAYER, place.x, place.y + 16, mode);
-		}
-		else if (!action_complete)
-		{
-			int mode = CAT_DRAW_FLAG_BOTTOM | CAT_DRAW_FLAG_CENTER_X;
-			if (tool_anchor.x > pet_anchor.x)
-				mode |= CAT_DRAW_FLAG_REFLECT_X;
-			int tool_layer = item->data.tool_data.type == CAT_TOOL_TYPE_FOOD ? STATICS_LAYER : PROPS_LAYER;
-			CAT_draw_queue_add(item->sprite, -1, tool_layer, tool_anchor.x, tool_anchor.y, mode);
-		}
-	}
-}
-
 void CAT_render_laser()
 {
 	CAT_render_room();
@@ -417,3 +389,4 @@ void CAT_render_laser()
 	CAT_draw_flag flags = CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y;
 	CAT_draw_queue_add(item->data.tool_data.cursor, -1, 0, laser_pos.x, laser_pos.y, flags);
 }
+

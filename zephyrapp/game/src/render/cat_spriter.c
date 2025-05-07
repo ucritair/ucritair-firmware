@@ -31,7 +31,6 @@ void CAT_draw_sprite(const CAT_sprite* sprite, int frame_idx, int x, int y)
 		y -= h / 2;
 	else if ((draw_flags & CAT_DRAW_FLAG_BOTTOM) > 0)
 		y -= h;
-	int y_i = y;
 
 	y -= FRAMEBUFFER_ROW_OFFSET;
 	int y_f = y + h;
@@ -89,51 +88,96 @@ void CAT_draw_sprite(const CAT_sprite* sprite, int frame_idx, int x, int y)
 	}
 }
 
-uint16_t rle_work_region[160];
-struct
+void CAT_draw_sprite_scaled(const CAT_sprite* sprite, int frame_idx, int x, int y, int scale)
 {
-	const uint8_t* ptr;
-	const uint16_t* colortab;
-	int width;
-	int rle_count;
-	uint16_t rle_word;
-} rle_decode_state;
-
-void init_rle_decode(const CAT_sprite* sprite, int frame_idx, int width)
-{
-	rle_decode_state.ptr = sprite->frames[frame_idx];
-	rle_decode_state.colortab = sprite->colour_table;
-	rle_decode_state.width = width;
-	rle_decode_state.rle_count = 0;
-}
-
-void unpack_rle_row()
-{
-#define RLE_NEXT() *(rle_decode_state.ptr++)
-	int unpacked = 0;
-	while (unpacked < rle_decode_state.width)
+	if(sprite == NULL)
 	{
-		if (rle_decode_state.rle_count)
-		{
-			rle_work_region[unpacked++] = rle_decode_state.rle_word;
-			rle_decode_state.rle_count--;
-			continue;
-		}
+		CAT_printf("[WARNING] CAT_draw_sprite: null sprite\n");
+		sprite = &null_sprite;
+		frame_idx = 0;
+	}
+	else if(frame_idx < 0 || frame_idx >= sprite->frame_count)
+	{
+		CAT_printf("[WARNING] CAT_draw_sprite: frame index %d out of bounds\n", frame_idx);
+		frame_idx = sprite->frame_count-1;
+	}
 
-		uint16_t word = RLE_NEXT();
+	uint16_t* framebuffer = CAT_LCD_get_framebuffer();
 
-		if (word == 0xff)
+	int read_width = sprite->width;
+	int read_height = sprite->height;
+	int write_width = sprite->width * scale;
+	int write_height = sprite->height * scale;
+	if ((draw_flags & CAT_DRAW_FLAG_CENTER_X) > 0)
+		x -= write_width / 2;
+	if ((draw_flags & CAT_DRAW_FLAG_CENTER_Y) > 0)
+		y -= write_height / 2;
+	else if ((draw_flags & CAT_DRAW_FLAG_BOTTOM) > 0)
+		y -= write_height;
+
+	y -= FRAMEBUFFER_ROW_OFFSET;
+	int y_f = y + write_height;
+	if (y >= CAT_LCD_FRAMEBUFFER_H)
+		return;
+	if (y_f < 0)
+		return;
+	if (y_f > CAT_LCD_FRAMEBUFFER_H)
+		y_f = CAT_LCD_FRAMEBUFFER_H;	
+
+	const uint8_t* frame = sprite->frames[frame_idx];
+	int run_idx = 0;
+	int dy = 0;
+	int dx = 0;
+	bool valid_draw_region = true;
+
+	while(valid_draw_region)
+	{
+		uint8_t token = frame[run_idx++];
+		uint16_t colour_idx = token == 0xff ? frame[run_idx++] : token;
+		uint16_t colour_565 = sprite->colour_table[colour_idx];
+		if(colour_565 != 0xdead)
+			colour_565 = ADAPT_EMBEDDED_COLOUR(colour_565);
+		uint8_t run_length = token == 0xff ? frame[run_idx++] : 1;
+		uint8_t run_remainder = run_length;
+		
+		while(run_remainder > 0)
 		{
-			uint16_t c = rle_decode_state.colortab[RLE_NEXT()];
-			c = ADAPT_EMBEDDED_COLOUR(c);
-			rle_decode_state.rle_word = c;
-			rle_decode_state.rle_count = RLE_NEXT();
-		}
-		else
-		{
-			uint16_t c = rle_decode_state.colortab[word];
-			c = ADAPT_EMBEDDED_COLOUR(c);
-			rle_work_region[unpacked++] = c;
+			for(int i = 0; i < scale; i++)
+			{
+				int y_w = y + dy * scale + i;
+
+				for(int j = 0; j < scale; j++)
+				{
+					int x_w =
+					((draw_flags & CAT_DRAW_FLAG_REFLECT_X) > 0) ?
+					x + (read_width - dx) * scale - j :
+					x + dx * scale + j;
+
+					if
+					(
+						colour_565 != 0xdead &&
+						y_w >= 0 && y_w < CAT_LCD_FRAMEBUFFER_H &&
+						x_w >= 0 && x_w < CAT_LCD_FRAMEBUFFER_W
+					)
+					{
+						int px_idx = y_w * CAT_LCD_FRAMEBUFFER_W + x_w;
+						framebuffer[px_idx] = colour_565;
+					}
+				}
+			}
+			
+			dx += 1;
+			if (dx >= read_width)
+			{
+				dx = 0;
+				dy += 1;
+				if(dy >= read_height || (y + dy) >= y_f)
+				{
+					valid_draw_region = false;
+					break;
+				}
+			}
+			run_remainder -= 1;
 		}
 	}
 }

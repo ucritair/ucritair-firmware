@@ -187,7 +187,17 @@ bool CAT_input_touch_rect(int x, int y, int w, int h)
 
 bool CAT_input_touching()
 {
-	return input.touch.pressure;
+	return input.touch.pressure > 0;
+}
+
+bool CAT_input_touch_down()
+{
+	return input.touch.pressure > 0 && !input.touch_last;
+}
+
+bool CAT_input_touch_up()
+{
+	return input.touch.pressure <= 0 && input.touch_last;
 }
 
 void CAT_input_buffer_clear()

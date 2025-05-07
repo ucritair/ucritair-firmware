@@ -101,6 +101,8 @@ void CAT_item_list_remove(CAT_item_list* item_list, int item_id, int count)
 	int idx = CAT_item_list_find(item_list, item_id);
 	if(idx >= 0)
 	{
+		if(count == -1)
+			count = item_list->counts[idx];
 		item_list->counts[idx] -= count;
 		if(item_list->counts[idx] <= 0)
 		{

@@ -6,7 +6,6 @@
 #include "cat_input.h"
 #include <stdio.h>
 #include "cat_deco.h"
-#include "cat_actions.h"
 #include <string.h>
 #include "cat_render.h"
 #include <stddef.h>
@@ -21,7 +20,6 @@ int coins = 0;
 
 static int base = 0;
 static int selector = 0;
-
 
 static bool prop_filter(int item_id)
 {

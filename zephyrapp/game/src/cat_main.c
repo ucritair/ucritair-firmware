@@ -20,7 +20,7 @@
 
 #include "cat_room.h"
 #include "cat_pet.h"
-#include "cat_actions.h"
+#include "caring/cat_actions.h"
 #include "cat_menu.h"
 #include "cat_bag.h"
 #include "cat_arcade.h"
