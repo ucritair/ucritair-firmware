@@ -2324,6 +2324,16 @@
             "height": 17,
             "loop": false,
             "reverse": false
+        },
+        {
+            "id": 228,
+            "name": "gizmo_face_96x96_sprite",
+            "path": "testing/reactface.png",
+            "frames": 1,
+            "width": 96,
+            "height": 96,
+            "loop": false,
+            "reverse": false
         }
     ]
 }

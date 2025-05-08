@@ -259,7 +259,7 @@ void CAT_pixberry(int x, int y, uint16_t c)
 }
 
 // Alright, this one is pushing it
-void CAT_gizberry(int x, int y, CAT_sprite* stencil, uint16_t c, int flags)
+void CAT_gizberry(int x, int y, const CAT_sprite* stencil, uint16_t c, int flags)
 {
 	if(stencil == NULL)
 	{

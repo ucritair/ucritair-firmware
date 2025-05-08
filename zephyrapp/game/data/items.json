@@ -86,7 +86,30 @@
                     "permissions": [
                         "write"
                     ]
-                }
+                },
+				"food_data" :
+				{
+					"type" : {
+						"food_group" : {
+							"type" : [
+								"produce",
+								"grain",
+								"meat",
+								"dairy"
+							],
+							"permissions" : [
+								"write"
+							]
+						}
+					},
+					"permissions" : [
+						"write"
+					],
+					"constraint" : {
+						"key" : "type",
+						"value" : "food"
+					}
+				}
             },
             "permissions": [
                 "write"
@@ -134,12 +157,6 @@
                 "key": "type",
                 "value": "prop"
             }
-        },
-        "tier": {
-            "type": "int",
-            "permissions": [
-                "write"
-            ]
         }
     },
     "entries": [

@@ -129,6 +129,36 @@ void food_spawn(int idx)
 static int touched = -1;
 static int dx, dy;
 
+static enum
+{
+	PRODUCE,
+	GRAIN,
+	MEAT,
+	DAIRY
+} food_group;
+
+static enum
+{
+	STAPLE,
+	SOUP,
+	MAIN,
+	SIDE,
+	TREAT,
+	VICE
+} food_role;
+
+// % presence of 1 staple, 1 soup, 1 main, 2 sides
+float ichiju_sansai()
+{
+	float total = 0.0f;
+	for(int i = 0; i < food_idxs_l.length; i++)
+	{
+		CAT_item* food = food_get(i);
+		
+	}
+}
+
+
 void CAT_MS_feed(CAT_machine_signal signal)
 {
 	switch(signal)
@@ -297,6 +327,8 @@ void CAT_render_feed()
 				int y = rect.min.y;
 				CAT_draw_sprite_scaled(food->sprite, 0, x, y, 3);
 			}
+
+			CAT_gizberry(120, 290, &gizmo_face_96x96_sprite, CAT_RED, CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
 			break;
 		}
 	}

@@ -232,6 +232,7 @@ extern const CAT_sprite window_evening_sprite;
 extern const CAT_sprite window_morning_sprite;
 extern const CAT_sprite window_night_sprite;
 extern const CAT_sprite gizmo_target_17x17_sprite;
+extern const CAT_sprite gizmo_face_96x96_sprite;
 
 extern const CAT_sprite* sprite_list[];
-#define CAT_SPRITE_LIST_LENGTH 228
+#define CAT_SPRITE_LIST_LENGTH 229

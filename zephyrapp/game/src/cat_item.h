@@ -31,6 +31,24 @@ typedef enum CAT_tool_type
 	CAT_TOOL_TYPE_TOY
 } CAT_tool_type;
 
+typedef enum
+{
+	CAT_FOOD_GROUP_PRODUCE,
+	CAT_FOOD_GROUP_GRAIN,
+	CAT_FOOD_GROUP_MEAT,
+	CAT_FOOD_GROUP_DAIRY
+} CAT_food_group;
+
+typedef enum
+{
+	CAT_FOOD_ROLE_STAPLE,
+	CAT_FOOD_ROLE_MAIN,
+	CAT_FOOD_ROLE_SIDE,
+	CAT_FOOD_ROLE_SOUP,
+	CAT_FOOD_ROLE_TREAT,
+	CAT_FOOD_ROLE_VICE
+} CAT_food_role;
+
 typedef enum CAT_prop_type
 {
 	CAT_PROP_TYPE_DEFAULT,
@@ -41,6 +59,7 @@ typedef enum CAT_prop_type
 typedef struct CAT_item
 {
 	CAT_item_type type;
+
 	const char* name;
 	const CAT_sprite* sprite;
 	int price;
@@ -52,10 +71,20 @@ typedef struct CAT_item
 		struct
 		{
 			CAT_tool_type type;
+
 			const CAT_sprite* cursor;
 			int dv;
 			int df;
 			int ds;
+
+			union
+			{
+				struct
+				{
+					CAT_food_group food_group;
+					CAT_food_role food_role;
+				};
+			};
 		} tool_data;
 
 		struct

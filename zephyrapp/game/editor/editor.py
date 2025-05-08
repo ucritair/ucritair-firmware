@@ -96,6 +96,9 @@ class AssetSchema:
 	
 	def pop(self):
 		self.path.pop();
+	
+	def is_valid(self, key):
+		return key in self.path[-1];
 
 	def get_type(self, key):
 		return self.path[-1][key]["type"];
@@ -134,24 +137,25 @@ class AssetSchema:
 		parent = self.path[-1];
 		for key in parent:
 			child = parent[key];
+
 			if "constraint" in child:
 				ckey = child["constraint"]["key"];
 				cval = child["constraint"]["value"];
 				if node[ckey] != cval:
 					if key in node:
 						del node[key];
-						continue;
-					else:
-						continue;
-			if key in node:
-				continue;
+					continue;
+
 			if isinstance(child["type"], dict):
 				self.push(key);
-				node[key] = {};
+				if not key in node:
+					node[key] = {};
 				self.prototype(node[key]);
 				self.pop();
-			else:
+			
+			if not key in node:
 				node[key] = AssetSchema.__default(child["type"]);
+				
 
 class AssetDocument:
 	def __init__(self, path):
@@ -564,6 +568,9 @@ class DocumentRenderer:
 			preview.render(doc.type, node["name"]);
 
 		for key in node:
+			if not doc.schema.is_valid(key):
+				continue;
+			
 			key_type = doc.schema.get_type(key);
 			readable = doc.schema.is_readable(key);
 			writable = doc.schema.is_writable(key);

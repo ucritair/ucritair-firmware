@@ -75,7 +75,7 @@ void CAT_fillberry(int xi, int yi, int w, int h, uint16_t c);
 void CAT_strokeberry(int xi, int yi, int w, int h, uint16_t c);
 void CAT_rowberry(int x, int y, int w, uint16_t c);
 void CAT_pixberry(int x, int y, uint16_t c);
-void CAT_gizberry(int x, int y, CAT_sprite* stencil, uint16_t c, int flags);
+void CAT_gizberry(int x, int y, const CAT_sprite* stencil, uint16_t c, int flags);
 
 
 //////////////////////////////////////////////////////////////////////////
