@@ -799,8 +799,7 @@ void render_gui()
 
 void CAT_render_room()
 {
-	CAT_frameberry(CAT_BLACK);
-	//render_background();
+	render_background();
 	render_statics();
 	render_props();
 	render_pickups();

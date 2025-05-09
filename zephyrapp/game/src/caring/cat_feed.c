@@ -279,7 +279,7 @@ void CAT_MS_feed(CAT_machine_signal signal)
 					if(CAT_gui_popup_is_open())
 						break;
 					if(CAT_input_pressed(CAT_BUTTON_A))
-						CAT_gui_open_popup("Submit this meal?\nUsed food items\nwill be consumed!", &commit);
+						CAT_gui_open_popup("Submit this meal?\nUsed food items will\nbe consumed!\n", &commit);
 					if(commit)
 					{
 						commit = false;
