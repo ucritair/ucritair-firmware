@@ -94,7 +94,7 @@ void CAT_item_list_remove(CAT_item_list* item_list, int item_id, int count)
 {
 	if(item_id < 0 || item_id >= item_table.length)
 	{
-		CAT_printf("[ERROR] reference to invalid item id: %d\n", item_id);
+		CAT_printf("[ERROR] [CAT_item_list_remove] reference to invalid item id: %d\n", item_id);
 		return;
 	}
 
@@ -113,6 +113,10 @@ void CAT_item_list_remove(CAT_item_list* item_list, int item_id, int count)
 			}
 			item_list->length -= 1;
 		}
+	}
+	else
+	{
+		CAT_printf("[WARNING] [CAT_item_list_remove] item id %d not located\n", item_id);
 	}
 }
 

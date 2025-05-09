@@ -3,6 +3,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "cat_core.h"
+#ifdef CAT_EMBEDDED
+#include "lcd_driver.h"
+#endif
 
 //////////////////////////////////////////////////////////////////////////
 // CONSTANTS AND MACROS
@@ -18,8 +21,6 @@
 #define ADAPT_DESKTOP_COLOUR(c) c
 #define ADAPT_EMBEDDED_COLOUR(c) RGB5652BGR565(c)
 #else
-#include "lcd_driver.h"
-
 #define FRAMEBUFFER_ROW_OFFSET framebuffer_offset_h
 
 #define ADAPT_DESKTOP_COLOUR(c) RGB5652BGR565(c)
@@ -31,8 +32,8 @@
 #define CAT_RED ADAPT_DESKTOP_COLOUR(0b1111100000000000)
 #define CAT_GREEN ADAPT_DESKTOP_COLOUR(0b0000011111100000)
 #define CAT_BLUE ADAPT_DESKTOP_COLOUR(0b0000000000011111)
-#define CAT_YELLOW ADAPT_DESKTOP_COLOUR(RGB8882565(255, 255, 0))
-#define CAT_PURPLE ADAPT_DESKTOP_COLOUR(RGB8882565(255, 0, 255))
+#define CAT_YELLOW ADAPT_DESKTOP_COLOUR(0b1111111111100000)
+#define CAT_PURPLE ADAPT_DESKTOP_COLOUR(0b1111100000011111)
 
 //////////////////////////////////////////////////////////////////////////
 // SPRITER

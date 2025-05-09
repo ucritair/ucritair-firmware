@@ -64,6 +64,9 @@ void food_swap(int i, int j)
 	CAT_rect temp_rect = food_rects[i];
 	food_rects[i] = food_rects[j];
 	food_rects[j] = temp_rect;
+	bool temp_active = food_active_mask[i];
+	food_active_mask[i] = food_active_mask[j];
+	food_active_mask[j] = temp_active;
 }
 
 CAT_item* food_get(int i)
@@ -75,7 +78,10 @@ void food_delete(int i)
 {
 	CAT_ilist_delete(&food_idxs_l, i);
 	for(int j = i; j < 5; j++)
+	{
 		food_rects[j] = food_rects[j+1];
+		food_active_mask[j] = food_active_mask[j+1];
+	}
 }
 
 CAT_rect rect_overlap(CAT_rect a, CAT_rect b)
@@ -128,6 +134,7 @@ void food_spawn(int idx)
 
 	CAT_ilist_push(&food_idxs_l, idx);
 	food_rects[food_idxs_l.length-1] = spawn_rect;
+	food_active_mask[food_idxs_l.length-1] = false;
 }
 
 static int touched = -1;
@@ -222,17 +229,22 @@ void CAT_MS_feed(CAT_machine_signal signal)
 			CAT_item_list_init(&food_pool);
 			CAT_item_list_filter(&bag, &food_pool, food_filter);
 
-			for(int i = 0; i < food_pool.length; i++)
-				idx_pool[i] = i;
 			CAT_int_list idx_pool_l;
-			CAT_ilist(&idx_pool_l, idx_pool, food_pool.length);
+			CAT_ilist(&idx_pool_l, idx_pool, CAT_ITEM_LIST_MAX_LENGTH);
+			for(int i = 0; i < food_pool.length; i++)
+				CAT_ilist_push(&idx_pool_l, i);
 			CAT_ilist_shuffle(&idx_pool_l);
 			
 			CAT_ilist(&food_idxs_l, food_idxs, 5);
-			for(int i = 0; i < 5; i++)
-			{
+			for(int i = 0; i < min(idx_pool_l.length, 5); i++)
 				food_spawn(idx_pool[i]);
-			}
+
+			mode = ARRANGE;
+			group_score = 0;
+			role_score = 0;
+			ichisan_score = 0;
+			aggregate_score = 0;
+			level = 0;
 		break;
 		case CAT_MACHINE_SIGNAL_TICK:
 			if(CAT_input_pressed(CAT_BUTTON_B) || CAT_input_pressed(CAT_BUTTON_START))
@@ -263,7 +275,7 @@ void CAT_MS_feed(CAT_machine_signal signal)
 								food_delete(food_idxs_idx);
 							else if(food_idxs_l.length < 5)
 								food_spawn(i);
-						}	
+						}
 						
 						col += 1;
 						if(col >= CAT_LCD_SCREEN_W / w)
@@ -283,9 +295,18 @@ void CAT_MS_feed(CAT_machine_signal signal)
 					if(commit)
 					{
 						commit = false;
-						pet.vigour += level;
+						bool empty = true;
 						for(int i = 0; i < food_idxs_l.length; i++)
-							CAT_item_list_remove(&bag, food_idxs[i], 1);
+						{
+							if(food_active_mask[i])
+							{
+								CAT_printf("Removing %s\n", food_get(i)->name);
+								CAT_item_list_remove(&bag, food_pool.item_ids[food_idxs[i]], 1);
+								empty = false;
+							}
+						}
+						if(!empty)
+							pet.vigour += level;
 						CAT_machine_back();
 					}
 
@@ -310,18 +331,6 @@ void CAT_MS_feed(CAT_machine_signal signal)
 							aggregate_score >= 0.5f ? 3 :
 							aggregate_score >= 0.25f ? 2 :
 							1;
-
-							bool empty = true;
-							for(int i = 0; i < food_idxs_l.length; i++)
-							{
-								if(food_active_mask[i])
-								{
-									empty = false;
-									break;
-								}
-							}
-							if(empty)
-								level = 0;
 						}
 						touched = -1;
 					}

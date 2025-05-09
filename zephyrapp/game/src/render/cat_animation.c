@@ -179,7 +179,7 @@ bool CAT_anim_is_ticking(CAT_anim_machine* machine)
 
 bool CAT_anim_is_ending(CAT_anim_machine* machine)
 {
-	CAT_sprite* sprites[3] = 
+	const CAT_sprite* sprites[3] = 
 	{
 		machine->state->enter_sprite,
 		machine->state->exit_sprite,
