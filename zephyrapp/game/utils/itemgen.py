@@ -5,6 +5,36 @@ import json;
 import os;
 import pathlib as pl;
 
+item_type_enum_map = {
+	"key" : "CAT_ITEM_TYPE_KEY",
+	"tool" : "CAT_ITEM_TYPE_TOOL",
+	"prop" : "CAT_ITEM_TYPE_PROP",
+};
+
+tool_type_enum_map = {
+	"food" : "CAT_TOOL_TYPE_FOOD",
+	"book" : "CAT_TOOL_TYPE_BOOK",
+	"toy" : "CAT_TOOL_TYPE_TOY",
+};
+
+food_group_enum_map = {
+	"veg" : "CAT_FOOD_GROUP_VEG",
+	"starch" : "CAT_FOOD_GROUP_STARCH",
+	"meat" : "CAT_FOOD_GROUP_MEAT",
+	"dairy" : "CAT_FOOD_GROUP_DAIRY",
+	"misc" : "CAT_FOOD_GROUP_MISC",
+};
+
+food_role_enum_map = {
+	"staple" : "CAT_FOOD_ROLE_STAPLE",
+	"main" : "CAT_FOOD_ROLE_MAIN",
+	"side" : "CAT_FOOD_ROLE_SIDE",
+	"soup" : "CAT_FOOD_ROLE_SOUP",
+	"drink" : "CAT_FOOD_ROLE_DRINK",
+	"treat" : "CAT_FOOD_ROLE_TREAT",
+	"vice" : "CAT_FOOD_ROLE_VICE",
+};
+
 json_file = open("data/items.json", "r+");
 json_data = json.load(json_file);
 json_entries = json_data['entries'];
@@ -33,6 +63,10 @@ for (idx, item) in enumerate(json_entries):
 		ensure_key(tool_data, "dv", 0);
 		ensure_key(tool_data, "df", 0);
 		ensure_key(tool_data, "ds", 0);
+		if tool_data["type"] == "food":
+			food_data = ensure_key(tool_data, "food_data", {});
+			ensure_key(food_data, "food_group", "veg");
+			ensure_key(food_data, "food_role", "staple");
 	elif item['type'] == "prop":
 		prop_data = ensure_key(item, "prop_data", {});
 		ensure_key(prop_data, "type", "default");
@@ -65,12 +99,7 @@ source.write("\t.data =\n");
 source.write("\t{\n");
 for (idx, item) in enumerate(json_entries):
 	source.write("\t\t{\n");
-	if item['type'] == "tool":
-		source.write("\t\t\t.type = CAT_ITEM_TYPE_TOOL,\n");
-	elif item['type'] == "prop":
-		source.write("\t\t\t.type = CAT_ITEM_TYPE_PROP,\n");
-	else:
-		source.write("\t\t\t.type = CAT_ITEM_TYPE_KEY,\n");
+	source.write(f"\t\t\t.type = {item_type_enum_map[item['type']]},\n");
 	source.write(f"\t\t\t.name = \"{item['display_name']}\",\n");
 	source.write(f"\t\t\t.sprite = &{item['sprite']},\n");
 	source.write(f"\t\t\t.price = {item['price']},\n");
@@ -79,16 +108,15 @@ for (idx, item) in enumerate(json_entries):
 	if item['type'] == "tool":
 		source.write("\t\t\t.data.tool_data =\n");
 		source.write("\t\t\t{\n");
-		if item['tool_data']['type'] == "food":
-			source.write("\t\t\t\t.type = CAT_TOOL_TYPE_FOOD,\n");
-		elif item['tool_data']['type'] == "book":
-			source.write("\t\t\t\t.type = CAT_TOOL_TYPE_BOOK,\n");
-		else:
-			source.write("\t\t\t\t.type = CAT_TOOL_TYPE_TOY,\n");
+		source.write(f"\t\t\t\t.type = {tool_type_enum_map[item['tool_data']['type']]},\n");
 		source.write(f"\t\t\t\t.cursor = &{item['tool_data']['cursor']},\n");
 		source.write(f"\t\t\t\t.dv = {item['tool_data']['dv']},\n");
 		source.write(f"\t\t\t\t.df = {item['tool_data']['df']},\n");
 		source.write(f"\t\t\t\t.ds = {item['tool_data']['ds']},\n");
+		if(item['tool_data']['type'] == "food"):
+			source.write("\n");
+			source.write(f"\t\t\t\t.food_group = {food_group_enum_map[item['tool_data']['food_data']['food_group']]},\n");
+			source.write(f"\t\t\t\t.food_role = {food_role_enum_map[item['tool_data']['food_data']['food_role']]},\n");
 		source.write("\t\t\t}\n");
 	elif item['type'] == "prop":
 		source.write("\t\t\t.data.prop_data =\n");

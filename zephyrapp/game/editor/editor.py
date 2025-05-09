@@ -152,7 +152,7 @@ class AssetSchema:
 					node[key] = {};
 				self.prototype(node[key]);
 				self.pop();
-			
+				
 			if not key in node:
 				node[key] = AssetSchema.__default(child["type"]);
 				

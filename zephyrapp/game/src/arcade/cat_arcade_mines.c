@@ -354,7 +354,6 @@ void CAT_render_mines()
 {
 	if(!reveal_complete)
 	{
-		draw_flags = CAT_DRAW_FLAG_DEFAULT;
 		for(int y = 0; y < GRID_HEIGHT; y++)
 		{
 			for(int x = 0; x < GRID_WIDTH; x++)
@@ -393,7 +392,6 @@ void CAT_render_mines()
 	{
 		CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 20});
 
-		draw_flags = CAT_DRAW_FLAG_DEFAULT;
 		for(int x = 0; x < GRID_WIDTH; x++)
 		{
 			CAT_draw_sprite(&mines_sprite, 10, x * CAT_TILE_SIZE, 0);

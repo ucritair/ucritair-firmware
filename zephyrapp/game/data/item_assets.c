@@ -21,6 +21,9 @@ CAT_item_table item_table =
 				.dv = 2,
 				.df = 0,
 				.ds = 0,
+
+				.food_group = CAT_FOOD_GROUP_STARCH,
+				.food_role = CAT_FOOD_ROLE_STAPLE,
 			}
 		},
 		{
@@ -37,6 +40,9 @@ CAT_item_table item_table =
 				.dv = 1,
 				.df = 1,
 				.ds = 0,
+
+				.food_group = CAT_FOOD_GROUP_MISC,
+				.food_role = CAT_FOOD_ROLE_DRINK,
 			}
 		},
 		{
@@ -53,6 +59,9 @@ CAT_item_table item_table =
 				.dv = 1,
 				.df = 0,
 				.ds = 0,
+
+				.food_group = CAT_FOOD_GROUP_DAIRY,
+				.food_role = CAT_FOOD_ROLE_DRINK,
 			}
 		},
 		{
@@ -69,6 +78,9 @@ CAT_item_table item_table =
 				.dv = 3,
 				.df = 0,
 				.ds = 0,
+
+				.food_group = CAT_FOOD_GROUP_VEG,
+				.food_role = CAT_FOOD_ROLE_SOUP,
 			}
 		},
 		{
@@ -85,6 +97,9 @@ CAT_item_table item_table =
 				.dv = 3,
 				.df = 0,
 				.ds = 0,
+
+				.food_group = CAT_FOOD_GROUP_VEG,
+				.food_role = CAT_FOOD_ROLE_SIDE,
 			}
 		},
 		{
@@ -101,6 +116,9 @@ CAT_item_table item_table =
 				.dv = 3,
 				.df = 0,
 				.ds = 0,
+
+				.food_group = CAT_FOOD_GROUP_MEAT,
+				.food_role = CAT_FOOD_ROLE_MAIN,
 			}
 		},
 		{
@@ -117,6 +135,9 @@ CAT_item_table item_table =
 				.dv = 5,
 				.df = 0,
 				.ds = 0,
+
+				.food_group = CAT_FOOD_GROUP_VEG,
+				.food_role = CAT_FOOD_ROLE_MAIN,
 			}
 		},
 		{
@@ -133,6 +154,9 @@ CAT_item_table item_table =
 				.dv = 5,
 				.df = 0,
 				.ds = 0,
+
+				.food_group = CAT_FOOD_GROUP_MEAT,
+				.food_role = CAT_FOOD_ROLE_MAIN,
 			}
 		},
 		{
@@ -149,6 +173,9 @@ CAT_item_table item_table =
 				.dv = 5,
 				.df = 0,
 				.ds = 0,
+
+				.food_group = CAT_FOOD_GROUP_MEAT,
+				.food_role = CAT_FOOD_ROLE_MAIN,
 			}
 		},
 		{
@@ -165,6 +192,9 @@ CAT_item_table item_table =
 				.dv = 1,
 				.df = 0,
 				.ds = 0,
+
+				.food_group = CAT_FOOD_GROUP_MISC,
+				.food_role = CAT_FOOD_ROLE_DRINK,
 			}
 		},
 		{
@@ -181,6 +211,9 @@ CAT_item_table item_table =
 				.dv = 0,
 				.df = 1,
 				.ds = 0,
+
+				.food_group = CAT_FOOD_GROUP_MISC,
+				.food_role = CAT_FOOD_ROLE_DRINK,
 			}
 		},
 		{
@@ -197,6 +230,9 @@ CAT_item_table item_table =
 				.dv = 0,
 				.df = 0,
 				.ds = 1,
+
+				.food_group = CAT_FOOD_GROUP_MISC,
+				.food_role = CAT_FOOD_ROLE_DRINK,
 			}
 		},
 		{
@@ -213,6 +249,9 @@ CAT_item_table item_table =
 				.dv = -1,
 				.df = 3,
 				.ds = 1,
+
+				.food_group = CAT_FOOD_GROUP_MISC,
+				.food_role = CAT_FOOD_ROLE_VICE,
 			}
 		},
 		{

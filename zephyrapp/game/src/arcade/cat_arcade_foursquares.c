@@ -136,7 +136,6 @@ static uint8_t collider_buffer[4][4];
 
 static CAT_foursquares_state state = CAT_FOURSQUARES_PLAYING;
 static int score = 0;
-static bool show_score = 0;
 
 void reset_seven_bag()
 {
@@ -569,8 +568,6 @@ void CAT_MS_foursquares(CAT_machine_signal signal)
 				}
 				if(CAT_gui_popup_is_open())
 					break;
-				
-				show_score = CAT_input_held(CAT_BUTTON_SELECT, 0);
 
 				reset_buffers();
 
@@ -691,9 +688,5 @@ void CAT_render_foursquares()
 		}
 	}
 
-	if(show_score)
-	{
-		CAT_fillberry(0, 0, 240, 16, 0xFFFF);
-		CAT_gui_printf(2, 2, "SCORE: %d", score);
-	}
+	CAT_gui_printf(CAT_WHITE, "SCORE: %d", score);
 }

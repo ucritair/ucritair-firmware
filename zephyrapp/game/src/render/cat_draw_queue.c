@@ -13,7 +13,7 @@ void CAT_draw_queue_clear()
 	job_count = 0;
 }
 
-void CAT_draw_queue_insert(int idx, const CAT_sprite* sprite, int frame_idx, int layer, int x, int y, int mode)
+void CAT_draw_queue_insert(int idx, const CAT_sprite* sprite, int frame_idx, int layer, int x, int y, int flags)
 {
 	if(job_count >= CAT_DRAW_QUEUE_MAX_LENGTH)
 	{
@@ -25,11 +25,11 @@ void CAT_draw_queue_insert(int idx, const CAT_sprite* sprite, int frame_idx, int
 	{
 		jobs[i] = jobs[i-1];
 	}
-	jobs[idx] = (CAT_draw_job) {sprite, frame_idx, layer, x, y, mode};
+	jobs[idx] = (CAT_draw_job) {sprite, frame_idx, layer, x, y, flags};
 	job_count += 1;
 }
 
-int CAT_draw_queue_add(const CAT_sprite* sprite, int frame_idx, int layer, int x, int y, int mode)
+int CAT_draw_queue_add(const CAT_sprite* sprite, int frame_idx, int layer, int x, int y, int flags)
 {
 	if(CAT_is_first_render_cycle())
 	{
@@ -44,7 +44,7 @@ int CAT_draw_queue_add(const CAT_sprite* sprite, int frame_idx, int layer, int x
 			}
 		}
 
-		CAT_draw_queue_insert(insert_idx, sprite, frame_idx, layer, x, y, mode);
+		CAT_draw_queue_insert(insert_idx, sprite, frame_idx, layer, x, y, flags);
 		return insert_idx;
 	}
 	return -1;
@@ -60,7 +60,7 @@ void CAT_draw_queue_submit()
 		if(job->frame_idx == -1)
 			job->frame_idx = CAT_animator_get_frame(sprite);
 
-		draw_flags = job->mode;
+		CAT_push_draw_flags(job->flags);
 		CAT_draw_sprite(sprite, job->frame_idx, job->x, job->y);
 	}
 }

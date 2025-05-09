@@ -242,8 +242,6 @@ static int grasses[10] = {8, 2, 4, 10, 0, 11, 11, 7, 7, 12};
 
 void CAT_render_snake()
 {
-	draw_flags = CAT_DRAW_FLAG_DEFAULT;
-
 	if(!snake.dead)
 	{
 		CAT_frameberry(RGB8882565(122, 146, 57));
@@ -314,7 +312,6 @@ void CAT_render_snake()
 	{
 		CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 20});
 		
-		draw_flags = CAT_DRAW_FLAG_DEFAULT;
 		for(int x = 0; x < 15; x++)
 		{
 			CAT_draw_sprite(&snake_head_sprite, 1, x * CAT_TILE_SIZE, 0);

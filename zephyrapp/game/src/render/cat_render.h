@@ -59,10 +59,10 @@ typedef enum
 	CAT_DRAW_FLAG_REFLECT_X = 8
 } CAT_draw_flag;
 
-extern CAT_draw_flag draw_flags;
-
+void CAT_push_draw_flags(int flags);
+void CAT_push_draw_colour(uint16_t colour);
+void CAT_push_draw_scale(unsigned int);
 void CAT_draw_sprite(const CAT_sprite* sprite, int frame_idx, int x, int y);
-void CAT_draw_sprite_scaled(const CAT_sprite* sprite, int frame_idx, int x, int y, int scale);
 
 //////////////////////////////////////////////////////////////////////////
 // THE BERRIER
@@ -75,7 +75,6 @@ void CAT_fillberry(int xi, int yi, int w, int h, uint16_t c);
 void CAT_strokeberry(int xi, int yi, int w, int h, uint16_t c);
 void CAT_rowberry(int x, int y, int w, uint16_t c);
 void CAT_pixberry(int x, int y, uint16_t c);
-void CAT_gizberry(int x, int y, const CAT_sprite* stencil, uint16_t c, int flags);
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -133,7 +132,7 @@ typedef struct CAT_draw_job
 	int layer;
 	int x;
 	int y;
-	int mode;
+	int flags;
 } CAT_draw_job;
 
 void CAT_draw_queue_clear();

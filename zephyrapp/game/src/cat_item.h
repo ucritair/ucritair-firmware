@@ -17,14 +17,14 @@
 //////////////////////////////////////////////////////////////////////////
 // ITEM TABLE
 
-typedef enum CAT_item_type
+typedef enum
 {
 	CAT_ITEM_TYPE_KEY,
 	CAT_ITEM_TYPE_TOOL,
 	CAT_ITEM_TYPE_PROP
 } CAT_item_type;
 
-typedef enum CAT_tool_type
+typedef enum
 {
 	CAT_TOOL_TYPE_FOOD,
 	CAT_TOOL_TYPE_BOOK,
@@ -33,10 +33,11 @@ typedef enum CAT_tool_type
 
 typedef enum
 {
-	CAT_FOOD_GROUP_PRODUCE,
-	CAT_FOOD_GROUP_GRAIN,
+	CAT_FOOD_GROUP_VEG,
+	CAT_FOOD_GROUP_STARCH,
 	CAT_FOOD_GROUP_MEAT,
-	CAT_FOOD_GROUP_DAIRY
+	CAT_FOOD_GROUP_DAIRY,
+	CAT_FOOD_GROUP_MISC
 } CAT_food_group;
 
 typedef enum
@@ -45,6 +46,7 @@ typedef enum
 	CAT_FOOD_ROLE_MAIN,
 	CAT_FOOD_ROLE_SIDE,
 	CAT_FOOD_ROLE_SOUP,
+	CAT_FOOD_ROLE_DRINK,
 	CAT_FOOD_ROLE_TREAT,
 	CAT_FOOD_ROLE_VICE
 } CAT_food_role;

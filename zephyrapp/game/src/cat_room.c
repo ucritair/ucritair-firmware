@@ -635,7 +635,6 @@ enum {FLOOR_BASE, FLOOR_GRASS, FLOOR_ASH} bg_floor = FLOOR_BASE;
 
 void render_background()
 {
-	draw_flags = CAT_DRAW_FLAG_DEFAULT;
 	for(int y = 0; y < 6; y++)
 	{
 		for(int x = 0; x < 15; x++)
@@ -710,28 +709,28 @@ void render_props()
 		CAT_ivec2 draw_place = CAT_grid2world(place);
 		draw_place.y += shape.y * CAT_TILE_SIZE;
 
-		int mode = CAT_DRAW_FLAG_BOTTOM;
+		int flags = CAT_DRAW_FLAG_BOTTOM;
 		int frame_idx = 0;
 		if(room.prop_overrides[i])
 		{
 			if(prop->data.prop_data.animate || prop->sprite->frame_count == 1)
-				mode |= CAT_DRAW_FLAG_REFLECT_X;
+				flags |= CAT_DRAW_FLAG_REFLECT_X;
 			else
 				frame_idx = room.prop_overrides[i];
 		}
 		int job = prop->data.prop_data.animate ?
-		CAT_draw_queue_add(prop->sprite, -1, PROPS_LAYER, draw_place.x, draw_place.y, mode) :
-		CAT_draw_queue_add(prop->sprite, frame_idx, PROPS_LAYER, draw_place.x, draw_place.y, mode);
+		CAT_draw_queue_add(prop->sprite, -1, PROPS_LAYER, draw_place.x, draw_place.y, flags) :
+		CAT_draw_queue_add(prop->sprite, frame_idx, PROPS_LAYER, draw_place.x, draw_place.y, flags);
 		
 		CAT_item* child = CAT_item_get(room.prop_children[i]);
 		if(child != NULL)
 		{
-			mode = CAT_DRAW_FLAG_BOTTOM | CAT_DRAW_FLAG_CENTER_X;
+			flags = CAT_DRAW_FLAG_BOTTOM | CAT_DRAW_FLAG_CENTER_X;
 			frame_idx = child->data.prop_data.animate ? -1 : 0;
 			int cx = (shape.x / 2) * CAT_TILE_SIZE;
 			int cy = shape.y * CAT_TILE_SIZE;
 			int dy = child->data.prop_data.child_dy;
-			CAT_draw_queue_insert(job+1, child->sprite, frame_idx, PROPS_LAYER, draw_place.x + cx, draw_place.y - cy - dy, mode);
+			CAT_draw_queue_insert(job+1, child->sprite, frame_idx, PROPS_LAYER, draw_place.x + cx, draw_place.y - cy - dy, flags);
 		}
 	}
 }
@@ -760,17 +759,17 @@ void render_pet()
 	CAT_anim_tick(&AM_pet);
 	CAT_anim_tick(&AM_mood);
 	
-	int mode = CAT_DRAW_FLAG_BOTTOM | CAT_DRAW_FLAG_CENTER_X;
+	int flags = CAT_DRAW_FLAG_BOTTOM | CAT_DRAW_FLAG_CENTER_X;
 	if(pet.rot != 1)
-		mode |= CAT_DRAW_FLAG_REFLECT_X;
+		flags |= CAT_DRAW_FLAG_REFLECT_X;
 	int layer = CAT_get_battery_pct() <= CAT_CRITICAL_BATTERY_PCT ? 1 : 2;
 
-	CAT_draw_queue_add(CAT_anim_read(&AM_pet), -1, layer, pet.pos.x, pet.pos.y, mode);
+	CAT_draw_queue_add(CAT_anim_read(&AM_pet), -1, layer, pet.pos.x, pet.pos.y, flags);
 
 	if(CAT_anim_is_in(&AM_mood, &AS_react))
 	{
 		int x_off = pet.rot != 1 ? 16 : -16;
-		CAT_draw_queue_add(CAT_anim_read(&AM_mood), -1, layer+1, pet.pos.x + x_off, pet.pos.y - 48, mode);	
+		CAT_draw_queue_add(CAT_anim_read(&AM_mood), -1, layer+1, pet.pos.x + x_off, pet.pos.y - 48, flags);	
 	}
 }
 

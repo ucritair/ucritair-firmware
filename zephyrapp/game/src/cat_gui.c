@@ -49,7 +49,6 @@ CAT_gui_flag CAT_gui_clear_flags()
 
 void CAT_gui_panel(CAT_ivec2 start, CAT_ivec2 shape)
 {
-	draw_flags = CAT_DRAW_FLAG_DEFAULT;
 	CAT_fillberry(start.x * CAT_TILE_SIZE, start.y * CAT_TILE_SIZE, shape.x * CAT_TILE_SIZE, shape.y * CAT_TILE_SIZE, 0xFFFF);
 	if(CAT_gui_consume_flag(CAT_GUI_PANEL_BORDER))
 		CAT_strokeberry(start.x * CAT_TILE_SIZE, start.y * CAT_TILE_SIZE, shape.x * CAT_TILE_SIZE, shape.y * CAT_TILE_SIZE, 0x0000);
@@ -88,8 +87,6 @@ void CAT_gui_line_break()
 
 void CAT_gui_text(const char* text)
 {
-	draw_flags = CAT_DRAW_FLAG_CENTER_Y;
-
 	bool wrap = CAT_gui_consume_flag(CAT_GUI_TEXT_WRAP);
 	int x_lim = (gui.start.x * CAT_TILE_SIZE) + (gui.shape.x) * CAT_TILE_SIZE - CAT_GLYPH_WIDTH - gui.margin;
 	const char* c = text;
@@ -103,7 +100,10 @@ void CAT_gui_text(const char* text)
 		if(wrap && gui.cursor.x >= x_lim && !isspace(*(c+1)))
 		{
 			if(!isspace(*c) && !isspace(*(c-1)))
+			{
+				CAT_push_draw_flags(CAT_DRAW_FLAG_CENTER_Y);
 				CAT_draw_sprite(&glyph_sprite, '-', gui.cursor.x, gui.cursor.y);
+			}
 			CAT_gui_line_break();	
 			if(isspace(*c))
 				c++;
@@ -123,6 +123,7 @@ void CAT_gui_text(const char* text)
 		}
 
 		gui_open_channel(CAT_GLYPH_HEIGHT);
+		CAT_push_draw_flags(CAT_DRAW_FLAG_CENTER_Y);
 		CAT_draw_sprite(&glyph_sprite, *c, gui.cursor.x, gui.cursor.y);
 		gui.cursor.x += CAT_GLYPH_WIDTH;
 		c++;
@@ -131,11 +132,10 @@ void CAT_gui_text(const char* text)
 
 void CAT_gui_image(const CAT_sprite* sprite, int frame_idx)
 {
-	draw_flags = CAT_DRAW_FLAG_CENTER_Y;
-
 	gui_open_channel(sprite->height);
 
 	gui.cursor.x += gui.pad / 2;
+	CAT_push_draw_flags(CAT_DRAW_FLAG_CENTER_Y);
 	CAT_draw_sprite(sprite, frame_idx, gui.cursor.x, gui.cursor.y);
 	gui.cursor.x += sprite->width;
 	gui.cursor.x += gui.pad / 2;
@@ -143,8 +143,6 @@ void CAT_gui_image(const CAT_sprite* sprite, int frame_idx)
 
 void CAT_gui_div(const char* text)
 {
-	draw_flags = CAT_DRAW_FLAG_CENTER_Y;
-	
 	CAT_gui_line_break();
 	gui_open_channel(CAT_TILE_SIZE);
 	if(strlen(text) == 0)
@@ -348,7 +346,6 @@ void CAT_gui_keyboard()
 	gui.cursor.y -= 4;
 	CAT_gui_div("");
 
-	draw_flags = CAT_DRAW_FLAG_DEFAULT;
 	int x_w = gui.margin * 2;
 	int y_w = gui.cursor.y;
 
@@ -932,18 +929,17 @@ void CAT_gui_item_list()
 //////////////////////////////////////////////////////////////////////////
 // PANEL-FREE GUI
 
-void CAT_gui_printf(int x, int y, const char* fmt, ...)
-{
+static int printf_cursor_y = 0;
+
+void CAT_gui_printf(uint16_t colour, const char* fmt, ...)
+{	
 	va_list args;
 	va_start(args, fmt);
 	char text[512];
 	vsnprintf(text, 512, fmt, args);
 	va_end(args);
 
-	draw_flags = CAT_DRAW_FLAG_DEFAULT;
-	int cursor_x = x;
-	int cursor_y = y;
-
+	int cursor_x = 0;
 	const char* c = text;
 
 	while
@@ -954,7 +950,7 @@ void CAT_gui_printf(int x, int y, const char* fmt, ...)
 	{
 		if(*c == '\n')
 		{
-			cursor_y += CAT_GLYPH_HEIGHT;
+			printf_cursor_y += CAT_GLYPH_HEIGHT;
 			c++;
 			continue;
 		}
@@ -965,10 +961,16 @@ void CAT_gui_printf(int x, int y, const char* fmt, ...)
 			continue;
 		}
 		
-		CAT_draw_sprite(&glyph_sprite, *c, cursor_x, cursor_y);
+		CAT_push_draw_colour(colour);
+		CAT_draw_sprite(&glyph_sprite, *c, cursor_x, printf_cursor_y);
 		cursor_x += CAT_GLYPH_WIDTH;
 		c++;
 	}
+
+	printf_cursor_y += CAT_GLYPH_HEIGHT;
+
+	if(CAT_is_last_render_cycle())
+		printf_cursor_y = 0;
 }
 
 

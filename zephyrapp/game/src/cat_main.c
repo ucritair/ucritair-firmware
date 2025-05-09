@@ -394,7 +394,6 @@ void CAT_tick_render()
 
 	if(CAT_eink_needs_update())
 	{
-		draw_flags = CAT_DRAW_FLAG_DEFAULT;
 		CAT_draw_sprite(&eink_refresh_splash_sprite, 0, 0, 0);
 		first_eink_update_complete = true;
 	}

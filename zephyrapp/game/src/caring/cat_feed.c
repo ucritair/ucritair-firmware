@@ -8,6 +8,8 @@
 #include "cat_item.h"
 #include "cat_bag.h"
 #include "cowtools/cat_structures.h"
+#include "cat_gui.h"
+#include "cowtools/cat_curves.h"
 
 static enum
 {
@@ -40,6 +42,7 @@ static CAT_item_list food_pool;
 static int idx_pool[CAT_ITEM_LIST_MAX_LENGTH];
 static int food_idxs[5];
 static CAT_rect food_rects[5];
+static bool food_active_mask[5];
 static CAT_int_list food_idxs_l;
 
 bool food_filter(int item_id)
@@ -129,35 +132,76 @@ void food_spawn(int idx)
 static int touched = -1;
 static int dx, dy;
 
-static enum
+float group_diversity()
 {
-	PRODUCE,
-	GRAIN,
-	MEAT,
-	DAIRY
-} food_group;
+	float veg = 0;
+	float starch = 0;
+	float meat = 0;
+	float dairy = 0;
 
-static enum
+	for(int i = 0; i < food_idxs_l.length; i++)
+	{
+		if(!food_active_mask[i])
+			continue;	
+		CAT_item* food = food_get(i);
+		if(food->data.tool_data.food_group == CAT_FOOD_GROUP_VEG && veg < 2)
+			veg += 1;
+		else if(food->data.tool_data.food_group == CAT_FOOD_GROUP_STARCH && starch < 1)
+			starch += 1;
+		else if(food->data.tool_data.food_group == CAT_FOOD_GROUP_MEAT && meat < 1)
+			meat += 1;
+		else if(food->data.tool_data.food_group == CAT_FOOD_GROUP_DAIRY && dairy < 1)
+			dairy += 1;
+	}
+
+	return (veg + starch + meat + dairy) / 5.0f;
+}
+
+float role_propriety()
 {
-	STAPLE,
-	SOUP,
-	MAIN,
-	SIDE,
-	TREAT,
-	VICE
-} food_role;
+	float treat = 0;
+	float vice = 0;
+
+	for(int i = 0; i < food_idxs_l.length; i++)
+	{
+		if(!food_active_mask[i])
+			continue;	
+		CAT_item* food = food_get(i);
+		if(food->data.tool_data.food_role == CAT_FOOD_ROLE_TREAT && treat < 2)
+			treat += 1;
+		else if(food->data.tool_data.food_role == CAT_FOOD_ROLE_VICE)
+			vice += 1;
+	}
+
+	treat = treat == 1 ? 0 : treat;
+	return -(treat + vice) / 2.0f;
+}
 
 // % presence of 1 staple, 1 soup, 1 main, 2 sides
 float ichiju_sansai()
 {
-	float total = 0.0f;
+	float staple = 0;
+	float soup = 0;
+	float main = 0;
+	float sides = 0;
+
 	for(int i = 0; i < food_idxs_l.length; i++)
 	{
+		if(!food_active_mask[i])
+			continue;	
 		CAT_item* food = food_get(i);
-		
+		if(food->data.tool_data.food_role == CAT_FOOD_ROLE_SOUP && soup < 1)
+			soup += 1;
+		else if(food->data.tool_data.food_role == CAT_FOOD_ROLE_SIDE && sides < 2)
+			sides += 1;
+		else if(food->data.tool_data.food_role == CAT_FOOD_ROLE_MAIN && main < 1)
+			main += 1;
+		else if(food->data.tool_data.food_role == CAT_FOOD_ROLE_STAPLE && staple < 1)
+			staple += 1;
 	}
-}
 
+	return (staple + soup + main + sides) / 5.0f;
+}
 
 void CAT_MS_feed(CAT_machine_signal signal)
 {
@@ -261,6 +305,11 @@ void CAT_MS_feed(CAT_machine_signal signal)
 							food_rects[touched].max.y = food_rects[touched].min.y + h;
 						}
 					}
+
+					for(int i = 0; i < food_idxs_l.length; i++)
+					{
+						food_active_mask[i] = CAT_rect_contains(table_rect, food_rects[i]);
+					}
 					break;
 				}
 			}			
@@ -272,8 +321,6 @@ void CAT_MS_feed(CAT_machine_signal signal)
 
 void CAT_render_feed()
 {
-	draw_flags = CAT_DRAW_FLAG_DEFAULT;
-
 	switch(mode)
 	{
 		case SELECT:
@@ -286,7 +333,8 @@ void CAT_render_feed()
 				CAT_item* food = CAT_item_get(food_pool.item_ids[i]);
 				int w = food->sprite->width * 3;
 				int h = food->sprite->height * 3;
-				CAT_draw_sprite_scaled(food->sprite, 0, col * w, row * h, 3);
+				CAT_push_draw_scale(3);
+				CAT_draw_sprite(food->sprite, 0, col * w, row * h);
 
 				for(int j = 0; j < food_idxs_l.length; j++)
 				{
@@ -318,17 +366,36 @@ void CAT_render_feed()
 			int table_h = table_rect.max.y - table_y;
 			CAT_strokeberry(table_x, table_y, table_w, table_h, CAT_BLUE);
 
-			draw_flags = CAT_DRAW_FLAG_DEFAULT;
 			for(int i = food_idxs_l.length-1; i >= 0; i--)
 			{
 				CAT_item* food = food_get(i);
 				CAT_rect rect = food_rects[i];
 				int x = rect.min.x;
 				int y = rect.min.y;
-				CAT_draw_sprite_scaled(food->sprite, 0, x, y, 3);
+				CAT_push_draw_scale(3);
+				CAT_draw_sprite(food->sprite, 0, x, y);
 			}
 
-			CAT_gizberry(120, 290, &gizmo_face_96x96_sprite, CAT_RED, CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
+			float group = group_diversity();
+			float role = role_propriety();
+			float ichisan = ichiju_sansai();
+			float score = (group * 3 + role * 2 + ichisan) / 5.0f;
+			if(score >= 0.5f)
+				score *= 1.15f;
+
+			CAT_push_draw_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
+			CAT_push_draw_colour
+			(
+				score >= 0.67f ? CAT_GREEN :
+				score >= 0.33f ? CAT_BLUE :
+				CAT_RED
+			);
+			CAT_draw_sprite(&gizmo_face_96x96_sprite, 0, 120, 290);
+
+			CAT_gui_printf(CAT_WHITE, "group diversity: %0.2f", group);
+			CAT_gui_printf(CAT_WHITE, "role propriety: %0.2f", role);
+			CAT_gui_printf(CAT_WHITE, "ichiju sansai: %0.2f", ichisan);
+			CAT_gui_printf(CAT_WHITE, "aggregate: %0.2f", score);
 			break;
 		}
 	}

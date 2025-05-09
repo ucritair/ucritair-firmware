@@ -87,29 +87,43 @@
                         "write"
                     ]
                 },
-				"food_data" :
-				{
-					"type" : {
-						"food_group" : {
-							"type" : [
-								"produce",
-								"grain",
-								"meat",
-								"dairy"
-							],
-							"permissions" : [
-								"write"
-							]
-						}
-					},
-					"permissions" : [
-						"write"
-					],
-					"constraint" : {
-						"key" : "type",
-						"value" : "food"
-					}
-				}
+                "food_data": {
+                    "type": {
+                        "food_group": {
+                            "type": [
+                                "veg",
+                                "starch",
+                                "meat",
+                                "dairy",
+                                "misc"
+                            ],
+                            "permissions": [
+                                "write"
+                            ]
+                        },
+                        "food_role": {
+                            "type": [
+                                "staple",
+                                "main",
+                                "side",
+                                "soup",
+                                "drink",
+                                "treat",
+                                "vice"
+                            ],
+                            "permissions": [
+                                "write"
+                            ]
+                        }
+                    },
+                    "permissions": [
+                        "write"
+                    ],
+                    "constraint": {
+                        "key": "type",
+                        "value": "food"
+                    }
+                }
             },
             "permissions": [
                 "write"
@@ -174,7 +188,11 @@
                 "dv": 2,
                 "df": 0,
                 "ds": 0,
-                "type": "food"
+                "type": "food",
+                "food_data": {
+                    "food_group": "starch",
+                    "food_role": "staple"
+                }
             },
             "tier": 0
         },
@@ -192,7 +210,11 @@
                 "dv": 1,
                 "df": 1,
                 "ds": 0,
-                "type": "food"
+                "type": "food",
+                "food_data": {
+                    "food_group": "misc",
+                    "food_role": "drink"
+                }
             },
             "tier": 0
         },
@@ -210,7 +232,11 @@
                 "dv": 1,
                 "df": 0,
                 "ds": 0,
-                "type": "food"
+                "type": "food",
+                "food_data": {
+                    "food_group": "dairy",
+                    "food_role": "drink"
+                }
             },
             "tier": 0
         },
@@ -228,7 +254,11 @@
                 "dv": 3,
                 "df": 0,
                 "ds": 0,
-                "type": "food"
+                "type": "food",
+                "food_data": {
+                    "food_group": "veg",
+                    "food_role": "soup"
+                }
             },
             "tier": 0
         },
@@ -246,7 +276,11 @@
                 "dv": 3,
                 "df": 0,
                 "ds": 0,
-                "type": "food"
+                "type": "food",
+                "food_data": {
+                    "food_group": "veg",
+                    "food_role": "side"
+                }
             },
             "tier": 0
         },
@@ -264,13 +298,17 @@
                 "dv": 3,
                 "df": 0,
                 "ds": 0,
-                "type": "food"
+                "type": "food",
+                "food_data": {
+                    "food_group": "meat",
+                    "food_role": "main"
+                }
             },
             "tier": 0
         },
         {
             "type": "tool",
-            "name": "green_curry",
+            "name": "food_curry_green",
             "display_name": "Green Curry",
             "sprite": "green_curry_sprite",
             "icon": "icon_item_food_sprite",
@@ -282,13 +320,17 @@
                 "dv": 5,
                 "df": 0,
                 "ds": 0,
-                "type": "food"
+                "type": "food",
+                "food_data": {
+                    "food_group": "veg",
+                    "food_role": "main"
+                }
             },
             "tier": 0
         },
         {
             "type": "tool",
-            "name": "red_curry",
+            "name": "food_curry_red",
             "display_name": "Red Curry",
             "sprite": "red_curry_sprite",
             "icon": "icon_item_food_sprite",
@@ -300,13 +342,17 @@
                 "dv": 5,
                 "df": 0,
                 "ds": 0,
-                "type": "food"
+                "type": "food",
+                "food_data": {
+                    "food_group": "meat",
+                    "food_role": "main"
+                }
             },
             "tier": 0
         },
         {
             "type": "tool",
-            "name": "pad_ka_prow",
+            "name": "food_pad_ka_prow",
             "display_name": "Pad Ka Prow",
             "sprite": "padkaprow_sprite",
             "icon": "icon_item_food_sprite",
@@ -318,13 +364,17 @@
                 "dv": 5,
                 "df": 0,
                 "ds": 0,
-                "type": "food"
+                "type": "food",
+                "food_data": {
+                    "food_group": "meat",
+                    "food_role": "main"
+                }
             },
             "tier": 0
         },
         {
             "type": "tool",
-            "name": "vig_pill",
+            "name": "food_pill_vig",
             "display_name": "Vigour Pill",
             "sprite": "pill_vig_sprite",
             "icon": "icon_item_food_sprite",
@@ -336,13 +386,17 @@
                 "dv": 1,
                 "df": 0,
                 "ds": 0,
-                "type": "food"
+                "type": "food",
+                "food_data": {
+                    "food_group": "misc",
+                    "food_role": "drink"
+                }
             },
             "tier": 0
         },
         {
             "type": "tool",
-            "name": "foc_pill",
+            "name": "food_pill_foc",
             "display_name": "Focus Pill",
             "sprite": "pill_foc_sprite",
             "icon": "icon_item_food_sprite",
@@ -354,13 +408,17 @@
                 "dv": 0,
                 "df": 1,
                 "ds": 0,
-                "type": "food"
+                "type": "food",
+                "food_data": {
+                    "food_group": "misc",
+                    "food_role": "drink"
+                }
             },
             "tier": 0
         },
         {
             "type": "tool",
-            "name": "spi_pill",
+            "name": "food_pill_spi",
             "display_name": "Spirit Pill",
             "sprite": "pill_spi_sprite",
             "icon": "icon_item_food_sprite",
@@ -372,13 +430,17 @@
                 "dv": 0,
                 "df": 0,
                 "ds": 1,
-                "type": "food"
+                "type": "food",
+                "food_data": {
+                    "food_group": "misc",
+                    "food_role": "drink"
+                }
             },
             "tier": 0
         },
         {
             "type": "tool",
-            "name": "cigs",
+            "name": "food_cigs",
             "display_name": "Cigarettes",
             "sprite": "cigarette_sprite",
             "icon": "icon_item_food_sprite",
@@ -390,7 +452,11 @@
                 "dv": -1,
                 "df": 3,
                 "ds": 1,
-                "type": "food"
+                "type": "food",
+                "food_data": {
+                    "food_group": "misc",
+                    "food_role": "vice"
+                }
             },
             "tier": 0
         },
