@@ -86,9 +86,9 @@ void CAT_render_debug()
 			CAT_gui_textf("Stat: %0.0fs/%0.0fs\n", CAT_timer_get(pet.stat_timer_id), timetable.duration[pet.stat_timer_id]);
 			CAT_gui_textf("Earn: %0.0fs/%0.0fs\n", CAT_timer_get(room.earn_timer_id), timetable.duration[room.earn_timer_id]);
 			CAT_gui_textf("Pet: %0.0fs/%0.0fs\n", CAT_timer_get(pet.petting_timer_id), timetable.duration[pet.petting_timer_id]);
-			CAT_gui_textf("Pets: %d/5\n", pet.times_pet, 5);
-			CAT_gui_textf("Milks: %d/3\n", pet.times_milked, 3);
-			CAT_gui_textf("E-Ink: %0.0fs/%ds\n", time_since_eink_update, eink_update_time_threshold);
+			CAT_gui_textf("Pets: %d/5\n", pet.times_pet);
+			CAT_gui_textf("Milks: %d/3\n", pet.times_milked);
+			CAT_gui_textf("E-Ink: %0.0fs/%0.0fs\n", time_since_eink_update, eink_update_time_threshold);
 		break;
 		case DECO:
 			CAT_gui_title(true, NULL, &icon_exit_sprite, "DECO");
@@ -97,9 +97,14 @@ void CAT_render_debug()
 			{
 				for(int x = 0; x < CAT_GRID_WIDTH; x++)
 				{
-					CAT_gui_image(&icon_cell_sprite, !CAT_is_grid_point_free((CAT_ivec2){x, y}));
+					if(CAT_is_grid_point_free((CAT_ivec2){x, y}))
+						CAT_strokeberry(gui.cursor.x, gui.cursor.y, 8, 8, CAT_BLACK);
+					else
+						CAT_fillberry(gui.cursor.x, gui.cursor.y, 8, 8, CAT_BLACK);
+					gui.cursor.x += 8;
 				}
-				CAT_gui_line_break();
+				gui.cursor.x = gui.margin;
+				gui.cursor.y += 8;
 			}
 		break;
 		case INPUT:

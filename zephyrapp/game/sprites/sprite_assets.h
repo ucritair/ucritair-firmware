@@ -4,12 +4,8 @@
 #include "cat_render.h"
 #include "cat_core.h"
 
-extern const CAT_sprite animachine_enter_sprite;
-extern const CAT_sprite animachine_exit_sprite;
-extern const CAT_sprite animachine_tick_sprite;
 extern const CAT_sprite arcade_sprite;
 extern const CAT_sprite ash_floor_sprite;
-extern const CAT_sprite attack_sprite;
 extern const CAT_sprite barley_tea_sprite;
 extern const CAT_sprite base_floor_sprite;
 extern const CAT_sprite base_wall_sprite;
@@ -36,7 +32,6 @@ extern const CAT_sprite coffee_sprite;
 extern const CAT_sprite coffeemaker_sprite;
 extern const CAT_sprite coin_static_sprite;
 extern const CAT_sprite coin_world_sprite;
-extern const CAT_sprite crawl_bg_1_sprite;
 extern const CAT_sprite crystal_blue_lg_sprite;
 extern const CAT_sprite crystal_green_lg_sprite;
 extern const CAT_sprite crystal_purple_lg_sprite;
@@ -48,10 +43,8 @@ extern const CAT_sprite effigy_blue_sprite;
 extern const CAT_sprite effigy_purple_sprite;
 extern const CAT_sprite effigy_sea_sprite;
 extern const CAT_sprite eink_refresh_splash_sprite;
-extern const CAT_sprite enemy_sprite;
 extern const CAT_sprite fan_a_sprite;
 extern const CAT_sprite fan_b_sprite;
-extern const CAT_sprite fighter_sprite;
 extern const CAT_sprite flower_foc_sprite;
 extern const CAT_sprite flower_spi_sprite;
 extern const CAT_sprite flower_vig_sprite;
@@ -61,9 +54,7 @@ extern const CAT_sprite grass_floor_sprite;
 extern const CAT_sprite green_curry_sprite;
 extern const CAT_sprite green_tea_sprite;
 extern const CAT_sprite icon_a_sprite;
-extern const CAT_sprite icon_aq_ccode_sprite;
 extern const CAT_sprite icon_b_sprite;
-extern const CAT_sprite icon_cell_sprite;
 extern const CAT_sprite icon_charging;
 extern const CAT_sprite icon_co2_sprite;
 extern const CAT_sprite icon_coin_sprite;
@@ -235,4 +226,4 @@ extern const CAT_sprite gizmo_target_17x17_sprite;
 extern const CAT_sprite gizmo_face_96x96_sprite;
 
 extern const CAT_sprite* sprite_list[];
-#define CAT_SPRITE_LIST_LENGTH 229
+#define CAT_SPRITE_LIST_LENGTH 220

@@ -48,7 +48,6 @@ def ensure_key(obj, key, default):
 	return obj[key];
 
 for (idx, item) in enumerate(json_entries):
-	item['id'] = idx;
 	ensure_key(item, "type", "key");
 	ensure_key(item, "name", "item");
 	ensure_key(item, "display_name", "Item");
@@ -109,7 +108,7 @@ for (idx, item) in enumerate(json_entries):
 		source.write("\t\t\t.data.tool_data =\n");
 		source.write("\t\t\t{\n");
 		source.write(f"\t\t\t\t.type = {tool_type_enum_map[item['tool_data']['type']]},\n");
-		source.write(f"\t\t\t\t.cursor = &{item['tool_data']['cursor']},\n");
+		source.write(f"\t\t\t\t.cursor = &{item['tool_data']['cursor'] if len(item['tool_data']['cursor']) else item['sprite']},\n");
 		source.write(f"\t\t\t\t.dv = {item['tool_data']['dv']},\n");
 		source.write(f"\t\t\t\t.df = {item['tool_data']['df']},\n");
 		source.write(f"\t\t\t\t.ds = {item['tool_data']['ds']},\n");

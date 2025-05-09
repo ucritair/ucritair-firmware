@@ -104,7 +104,6 @@ target_sources(app PRIVATE
 	src/arcade/cat_arcade.c
 	src/arcade/cat_arcade_snake.c
 	src/arcade/cat_arcade_mines.c
-	src/arcade/cat_arcade_crawl.c
 	src/arcade/cat_arcade_foursquares.c
 
 	src/cat_gui.c

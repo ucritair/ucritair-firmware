@@ -176,13 +176,163 @@
     "entries": [
         {
             "type": "tool",
+            "name": "book_1",
+            "display_name": "The Disposessed",
+            "sprite": "book_study_sprite",
+            "icon": "icon_item_book_sprite",
+            "text": "",
+            "price": 20,
+            "id": 0,
+            "tool_data": {
+                "cursor": "book_static_sprite",
+                "dv": 0,
+                "df": 3,
+                "ds": 0,
+                "type": "book"
+            },
+            "tier": 0
+        },
+        {
+            "type": "tool",
+            "name": "book_2",
+            "display_name": "We Are Legion",
+            "sprite": "book_study_sprite",
+            "icon": "icon_item_book_sprite",
+            "text": "",
+            "price": 20,
+            "id": 1,
+            "tool_data": {
+                "cursor": "book_static_sprite",
+                "dv": 0,
+                "df": 3,
+                "ds": 0,
+                "type": "book"
+            },
+            "tier": 0
+        },
+        {
+            "type": "tool",
+            "name": "book_3",
+            "display_name": "The Forever War",
+            "sprite": "book_study_sprite",
+            "icon": "icon_item_book_sprite",
+            "text": "",
+            "price": 20,
+            "id": 2,
+            "tool_data": {
+                "cursor": "book_static_sprite",
+                "dv": 0,
+                "df": 3,
+                "ds": 0,
+                "type": "book"
+            },
+            "tier": 0
+        },
+        {
+            "type": "tool",
+            "name": "book_4",
+            "display_name": "Ringworld",
+            "sprite": "book_study_sprite",
+            "icon": "icon_item_book_sprite",
+            "text": "",
+            "price": 20,
+            "id": 3,
+            "tool_data": {
+                "cursor": "book_static_sprite",
+                "dv": 0,
+                "df": 3,
+                "ds": 0,
+                "type": "book"
+            },
+            "tier": 0
+        },
+        {
+            "type": "tool",
+            "name": "book_5",
+            "display_name": "The Machine Stops",
+            "sprite": "book_study_sprite",
+            "icon": "icon_item_book_sprite",
+            "text": "",
+            "price": 20,
+            "id": 4,
+            "tool_data": {
+                "cursor": "book_static_sprite",
+                "dv": 0,
+                "df": 3,
+                "ds": 0,
+                "type": "book"
+            },
+            "tier": 0
+        },
+        {
+            "type": "tool",
+            "name": "book_6",
+            "display_name": "Metal Fever",
+            "sprite": "book_study_sprite",
+            "icon": "icon_item_book_sprite",
+            "text": "",
+            "price": 20,
+            "id": 5,
+            "tool_data": {
+                "cursor": "book_static_sprite",
+                "dv": 0,
+                "df": 3,
+                "ds": 0,
+                "type": "book"
+            },
+            "tier": 0
+        },
+        {
+            "type": "tool",
+            "name": "food_barley_tea",
+            "display_name": "Barley Tea",
+            "sprite": "barley_tea_sprite",
+            "icon": "icon_item_food_sprite",
+            "text": "",
+            "price": 3,
+            "id": 6,
+            "tool_data": {
+                "type": "food",
+                "cursor": "",
+                "dv": 0,
+                "df": 0,
+                "ds": 0,
+                "food_data": {
+                    "food_group": "misc",
+                    "food_role": "drink"
+                }
+            }
+        },
+        {
+            "type": "tool",
+            "name": "food_bento",
+            "display_name": "Ebi-Ten Bento",
+            "sprite": "bento_sprite",
+            "icon": "icon_item_food_sprite",
+            "text": "",
+            "price": 10,
+            "id": 7,
+            "tool_data": {
+                "type": "food",
+                "cursor": "",
+                "dv": 0,
+                "df": 0,
+                "ds": 0,
+                "food_data": {
+                    "food_group": "meat",
+                    "food_role": "main"
+                }
+            }
+        },
+        {
+            "type": "tool",
             "name": "food_bread",
             "display_name": "Bread",
             "sprite": "bread_sprite",
             "icon": "icon_item_food_sprite",
             "text": "",
             "price": 5,
-            "id": 0,
+            "id": 8,
             "tool_data": {
                 "cursor": "bread_sprite",
                 "dv": 2,
@@ -198,13 +348,35 @@
         },
         {
             "type": "tool",
+            "name": "food_cigs",
+            "display_name": "Cigarettes",
+            "sprite": "cigarette_sprite",
+            "icon": "icon_item_food_sprite",
+            "text": "",
+            "price": 10,
+            "id": 9,
+            "tool_data": {
+                "cursor": "cigarette_sprite",
+                "dv": -1,
+                "df": 3,
+                "ds": 1,
+                "type": "food",
+                "food_data": {
+                    "food_group": "misc",
+                    "food_role": "vice"
+                }
+            },
+            "tier": 0
+        },
+        {
+            "type": "tool",
             "name": "food_coffee",
             "display_name": "Coffee",
             "sprite": "coffee_sprite",
             "icon": "icon_item_food_sprite",
             "text": "",
             "price": 2,
-            "id": 1,
+            "id": 10,
             "tool_data": {
                 "cursor": "coffee_sprite",
                 "dv": 1,
@@ -220,101 +392,13 @@
         },
         {
             "type": "tool",
-            "name": "food_milk",
-            "display_name": "Milk",
-            "sprite": "milk_sprite",
-            "icon": "icon_item_food_sprite",
-            "text": "",
-            "price": 3,
-            "id": 2,
-            "tool_data": {
-                "cursor": "milk_sprite",
-                "dv": 1,
-                "df": 0,
-                "ds": 0,
-                "type": "food",
-                "food_data": {
-                    "food_group": "dairy",
-                    "food_role": "drink"
-                }
-            },
-            "tier": 0
-        },
-        {
-            "type": "tool",
-            "name": "food_soup",
-            "display_name": "Soup",
-            "sprite": "soup_sprite",
-            "icon": "icon_item_food_sprite",
-            "text": "",
-            "price": 5,
-            "id": 3,
-            "tool_data": {
-                "cursor": "soup_sprite",
-                "dv": 3,
-                "df": 0,
-                "ds": 0,
-                "type": "food",
-                "food_data": {
-                    "food_group": "veg",
-                    "food_role": "soup"
-                }
-            },
-            "tier": 0
-        },
-        {
-            "type": "tool",
-            "name": "food_salad",
-            "display_name": "Salad",
-            "sprite": "salad_sprite",
-            "icon": "icon_item_food_sprite",
-            "text": "",
-            "price": 5,
-            "id": 4,
-            "tool_data": {
-                "cursor": "salad_sprite",
-                "dv": 3,
-                "df": 0,
-                "ds": 0,
-                "type": "food",
-                "food_data": {
-                    "food_group": "veg",
-                    "food_role": "side"
-                }
-            },
-            "tier": 0
-        },
-        {
-            "type": "tool",
-            "name": "food_sausage",
-            "display_name": "Sausage",
-            "sprite": "sausage_sprite",
-            "icon": "icon_item_food_sprite",
-            "text": "",
-            "price": 5,
-            "id": 5,
-            "tool_data": {
-                "cursor": "sausage_sprite",
-                "dv": 3,
-                "df": 0,
-                "ds": 0,
-                "type": "food",
-                "food_data": {
-                    "food_group": "meat",
-                    "food_role": "main"
-                }
-            },
-            "tier": 0
-        },
-        {
-            "type": "tool",
             "name": "food_curry_green",
             "display_name": "Green Curry",
             "sprite": "green_curry_sprite",
             "icon": "icon_item_food_sprite",
             "text": "",
             "price": 15,
-            "id": 6,
+            "id": 11,
             "tool_data": {
                 "cursor": "green_curry_sprite",
                 "dv": 5,
@@ -336,7 +420,7 @@
             "icon": "icon_item_food_sprite",
             "text": "",
             "price": 15,
-            "id": 7,
+            "id": 12,
             "tool_data": {
                 "cursor": "red_curry_sprite",
                 "dv": 5,
@@ -352,13 +436,56 @@
         },
         {
             "type": "tool",
+            "name": "food_milk",
+            "display_name": "Milk",
+            "sprite": "milk_sprite",
+            "icon": "icon_item_food_sprite",
+            "text": "",
+            "price": 3,
+            "id": 13,
+            "tool_data": {
+                "cursor": "milk_sprite",
+                "dv": 1,
+                "df": 0,
+                "ds": 0,
+                "type": "food",
+                "food_data": {
+                    "food_group": "dairy",
+                    "food_role": "drink"
+                }
+            },
+            "tier": 0
+        },
+        {
+            "type": "tool",
+            "name": "food_oranges",
+            "display_name": "Oranges",
+            "sprite": "orange_sprite",
+            "icon": "icon_item_food_sprite",
+            "text": "",
+            "price": 3,
+            "id": 14,
+            "tool_data": {
+                "type": "food",
+                "cursor": "",
+                "dv": 0,
+                "df": 0,
+                "ds": 0,
+                "food_data": {
+                    "food_group": "veg",
+                    "food_role": "side"
+                }
+            }
+        },
+        {
+            "type": "tool",
             "name": "food_pad_ka_prow",
             "display_name": "Pad Ka Prow",
             "sprite": "padkaprow_sprite",
             "icon": "icon_item_food_sprite",
             "text": "",
             "price": 15,
-            "id": 8,
+            "id": 15,
             "tool_data": {
                 "cursor": "padkaprow_sprite",
                 "dv": 5,
@@ -374,25 +501,24 @@
         },
         {
             "type": "tool",
-            "name": "food_pill_vig",
-            "display_name": "Vigour Pill",
-            "sprite": "pill_vig_sprite",
+            "name": "food_persimmons",
+            "display_name": "Persimmons",
+            "sprite": "persimmons_sprite",
             "icon": "icon_item_food_sprite",
             "text": "",
-            "price": 1,
-            "id": 9,
+            "price": 4,
+            "id": 16,
             "tool_data": {
-                "cursor": "pill_vig_sprite",
-                "dv": 1,
+                "type": "food",
+                "cursor": "",
+                "dv": 0,
                 "df": 0,
                 "ds": 0,
-                "type": "food",
                 "food_data": {
-                    "food_group": "misc",
-                    "food_role": "drink"
+                    "food_group": "veg",
+                    "food_role": "side"
                 }
-            },
-            "tier": 0
+            }
         },
         {
             "type": "tool",
@@ -402,7 +528,7 @@
             "icon": "icon_item_food_sprite",
             "text": "",
             "price": 1,
-            "id": 10,
+            "id": 17,
             "tool_data": {
                 "cursor": "pill_foc_sprite",
                 "dv": 0,
@@ -424,7 +550,7 @@
             "icon": "icon_item_food_sprite",
             "text": "",
             "price": 1,
-            "id": 11,
+            "id": 18,
             "tool_data": {
                 "cursor": "pill_spi_sprite",
                 "dv": 0,
@@ -440,221 +566,110 @@
         },
         {
             "type": "tool",
-            "name": "food_cigs",
-            "display_name": "Cigarettes",
-            "sprite": "cigarette_sprite",
+            "name": "food_pill_vig",
+            "display_name": "Vigour Pill",
+            "sprite": "pill_vig_sprite",
             "icon": "icon_item_food_sprite",
             "text": "",
-            "price": 10,
-            "id": 12,
+            "price": 1,
+            "id": 19,
             "tool_data": {
-                "cursor": "cigarette_sprite",
-                "dv": -1,
-                "df": 3,
-                "ds": 1,
+                "cursor": "pill_vig_sprite",
+                "dv": 1,
+                "df": 0,
+                "ds": 0,
                 "type": "food",
                 "food_data": {
                     "food_group": "misc",
-                    "food_role": "vice"
+                    "food_role": "drink"
                 }
             },
             "tier": 0
         },
         {
             "type": "tool",
-            "name": "book_1",
-            "display_name": "The Disposessed",
-            "sprite": "book_study_sprite",
-            "icon": "icon_item_book_sprite",
+            "name": "food_raw_meat",
+            "display_name": "Raw Meat",
+            "sprite": "meat_sprite",
+            "icon": "icon_item_food_sprite",
             "text": "",
-            "price": 20,
-            "id": 13,
-            "tool_data": {
-                "cursor": "book_static_sprite",
-                "dv": 0,
-                "df": 3,
-                "ds": 0,
-                "type": "book"
-            },
-            "tier": 0
-        },
-        {
-            "type": "tool",
-            "name": "book_2",
-            "display_name": "We Are Legion",
-            "sprite": "book_study_sprite",
-            "icon": "icon_item_book_sprite",
-            "text": "",
-            "price": 20,
-            "id": 14,
-            "tool_data": {
-                "cursor": "book_static_sprite",
-                "dv": 0,
-                "df": 3,
-                "ds": 0,
-                "type": "book"
-            },
-            "tier": 0
-        },
-        {
-            "type": "tool",
-            "name": "book_3",
-            "display_name": "The Forever War",
-            "sprite": "book_study_sprite",
-            "icon": "icon_item_book_sprite",
-            "text": "",
-            "price": 20,
-            "id": 15,
-            "tool_data": {
-                "cursor": "book_static_sprite",
-                "dv": 0,
-                "df": 3,
-                "ds": 0,
-                "type": "book"
-            },
-            "tier": 0
-        },
-        {
-            "type": "tool",
-            "name": "book_4",
-            "display_name": "Ringworld",
-            "sprite": "book_study_sprite",
-            "icon": "icon_item_book_sprite",
-            "text": "",
-            "price": 20,
-            "id": 16,
-            "tool_data": {
-                "cursor": "book_static_sprite",
-                "dv": 0,
-                "df": 3,
-                "ds": 0,
-                "type": "book"
-            },
-            "tier": 0
-        },
-        {
-            "type": "tool",
-            "name": "book_5",
-            "display_name": "The Machine Stops",
-            "sprite": "book_study_sprite",
-            "icon": "icon_item_book_sprite",
-            "text": "",
-            "price": 20,
-            "id": 17,
-            "tool_data": {
-                "cursor": "book_static_sprite",
-                "dv": 0,
-                "df": 3,
-                "ds": 0,
-                "type": "book"
-            },
-            "tier": 0
-        },
-        {
-            "type": "tool",
-            "name": "book_6",
-            "display_name": "Metal Fever",
-            "sprite": "book_study_sprite",
-            "icon": "icon_item_book_sprite",
-            "text": "",
-            "price": 20,
-            "id": 18,
-            "tool_data": {
-                "cursor": "book_static_sprite",
-                "dv": 0,
-                "df": 3,
-                "ds": 0,
-                "type": "book"
-            },
-            "tier": 0
-        },
-        {
-            "type": "tool",
-            "name": "toy_duck",
-            "display_name": "Ducky",
-            "sprite": "toy_duck_sprite",
-            "icon": "icon_item_toy_sprite",
-            "text": "",
-            "price": 30,
-            "id": 19,
-            "tool_data": {
-                "cursor": "toy_duck_sprite",
-                "dv": 0,
-                "df": 0,
-                "ds": 5,
-                "type": "toy"
-            },
-            "tier": 0
-        },
-        {
-            "type": "tool",
-            "name": "toy_baseball",
-            "display_name": "Baseball",
-            "sprite": "toy_baseball_sprite",
-            "icon": "icon_item_toy_sprite",
-            "text": "",
-            "price": 20,
+            "price": 6,
             "id": 20,
             "tool_data": {
-                "cursor": "toy_baseball_sprite",
+                "type": "food",
+                "cursor": "",
                 "dv": 0,
                 "df": 0,
-                "ds": 3,
-                "type": "toy"
-            },
-            "tier": 0
+                "ds": 0,
+                "food_data": {
+                    "food_group": "meat",
+                    "food_role": "treat"
+                }
+            }
         },
         {
             "type": "tool",
-            "name": "toy_basketball",
-            "display_name": "Basketball",
-            "sprite": "toy_basketball_sprite",
-            "icon": "icon_item_toy_sprite",
+            "name": "food_salad",
+            "display_name": "Salad",
+            "sprite": "salad_sprite",
+            "icon": "icon_item_food_sprite",
             "text": "",
-            "price": 20,
+            "price": 5,
             "id": 21,
             "tool_data": {
-                "cursor": "toy_basketball_sprite",
-                "dv": 0,
+                "cursor": "salad_sprite",
+                "dv": 3,
                 "df": 0,
-                "ds": 3,
-                "type": "toy"
+                "ds": 0,
+                "type": "food",
+                "food_data": {
+                    "food_group": "veg",
+                    "food_role": "side"
+                }
             },
             "tier": 0
         },
         {
             "type": "tool",
-            "name": "toy_golf",
-            "display_name": "Golf Ball",
-            "sprite": "toy_golf_sprite",
-            "icon": "icon_item_toy_sprite",
+            "name": "food_sausage",
+            "display_name": "Sausage",
+            "sprite": "sausage_sprite",
+            "icon": "icon_item_food_sprite",
             "text": "",
             "price": 5,
             "id": 22,
             "tool_data": {
-                "cursor": "toy_golf_sprite",
-                "dv": 0,
+                "cursor": "sausage_sprite",
+                "dv": 3,
                 "df": 0,
-                "ds": 1,
-                "type": "toy"
+                "ds": 0,
+                "type": "food",
+                "food_data": {
+                    "food_group": "meat",
+                    "food_role": "main"
+                }
             },
             "tier": 0
         },
         {
             "type": "tool",
-            "name": "toy_puzzle",
-            "display_name": "Puzzle",
-            "sprite": "toy_puzzle_sprite",
-            "icon": "icon_item_toy_sprite",
+            "name": "food_soup",
+            "display_name": "Soup",
+            "sprite": "soup_sprite",
+            "icon": "icon_item_food_sprite",
             "text": "",
-            "price": 20,
+            "price": 5,
             "id": 23,
             "tool_data": {
-                "cursor": "toy_puzzle_sprite",
-                "dv": 0,
+                "cursor": "soup_sprite",
+                "dv": 3,
                 "df": 0,
-                "ds": 3,
-                "type": "toy"
+                "ds": 0,
+                "type": "food",
+                "food_data": {
+                    "food_group": "veg",
+                    "food_role": "soup"
+                }
             },
             "tier": 0
         },
@@ -671,513 +686,13 @@
         },
         {
             "type": "prop",
-            "name": "prop_eth_farm",
-            "display_name": "Ethereum Farm",
-            "sprite": "gpu_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 100,
-            "id": 25,
-            "prop_data": {
-                "shape": [
-                    3,
-                    1
-                ],
-                "animate": true,
-                "child_dy": 0,
-                "type": "default"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_uv_lamp",
-            "display_name": "UV Lamp",
-            "sprite": "uv_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 50,
-            "id": 26,
-            "prop_data": {
-                "shape": [
-                    1,
-                    1
-                ],
-                "animate": true,
-                "child_dy": 0,
-                "type": "top"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_purifier",
-            "display_name": "Air Purifier",
-            "sprite": "purifier_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 50,
-            "id": 27,
-            "prop_data": {
-                "shape": [
-                    2,
-                    1
-                ],
-                "animate": true,
-                "child_dy": 0,
-                "type": "default"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_coffeemaker",
-            "display_name": "Coffee Machine",
-            "sprite": "coffeemaker_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 40,
-            "id": 28,
-            "prop_data": {
-                "shape": [
-                    2,
-                    1
-                ],
-                "animate": true,
-                "child_dy": -6,
-                "type": "top"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_fan_classic",
-            "display_name": "Classic Fan",
-            "sprite": "fan_a_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 20,
-            "id": 29,
-            "prop_data": {
-                "shape": [
-                    2,
-                    1
-                ],
-                "animate": true,
-                "child_dy": 0,
-                "type": "top"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_fan_modern",
-            "display_name": "Modern Fan",
-            "sprite": "fan_b_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 30,
-            "id": 30,
-            "prop_data": {
-                "shape": [
-                    2,
-                    1
-                ],
-                "animate": true,
-                "child_dy": 0,
-                "type": "top"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_lantern",
-            "display_name": "Lantern",
-            "sprite": "lantern_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 20,
-            "id": 31,
-            "prop_data": {
-                "shape": [
-                    1,
-                    1
-                ],
-                "animate": true,
-                "child_dy": 0,
-                "type": "top"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_laptop",
-            "display_name": "Laptop",
-            "sprite": "laptop_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 80,
-            "id": 32,
-            "prop_data": {
-                "shape": [
-                    2,
-                    1
-                ],
-                "animate": true,
-                "child_dy": -8,
-                "type": "top"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_chess",
-            "display_name": "Chess Set",
-            "sprite": "chess_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 40,
-            "id": 33,
-            "prop_data": {
-                "shape": [
-                    2,
-                    2
-                ],
-                "animate": true,
-                "child_dy": -16,
-                "type": "top"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_table_mahogany",
-            "display_name": "Mahogany Table",
-            "sprite": "table_mahogany_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 20,
-            "id": 34,
-            "prop_data": {
-                "shape": [
-                    4,
-                    2
-                ],
-                "animate": true,
-                "child_dy": 0,
-                "type": "bottom"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_table_walnut",
-            "display_name": "Walnut Table",
-            "sprite": "table_walnut_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 20,
-            "id": 35,
-            "prop_data": {
-                "shape": [
-                    4,
-                    2
-                ],
-                "animate": true,
-                "child_dy": 0,
-                "type": "bottom"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_table_plastic",
-            "display_name": "Plastic Table A",
-            "sprite": "table_plastic_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 20,
-            "id": 36,
-            "prop_data": {
-                "shape": [
-                    4,
-                    2
-                ],
-                "animate": true,
-                "child_dy": 0,
-                "type": "bottom"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_table_plastic_alt",
-            "display_name": "Plastic Table B",
-            "sprite": "table_plastic_alt_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 20,
-            "id": 37,
-            "prop_data": {
-                "shape": [
-                    4,
-                    2
-                ],
-                "animate": true,
-                "child_dy": 0,
-                "type": "bottom"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_table_sm_mahogany",
-            "display_name": "S. Mahogany Table",
-            "sprite": "table_sm_mahogany_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 20,
-            "id": 38,
-            "prop_data": {
-                "shape": [
-                    2,
-                    2
-                ],
-                "animate": true,
-                "child_dy": 0,
-                "type": "bottom"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_table_sm_walnut",
-            "display_name": "S. Walnut Table A",
-            "sprite": "table_sm_walnut_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 30,
-            "id": 39,
-            "prop_data": {
-                "shape": [
-                    2,
-                    2
-                ],
-                "animate": true,
-                "child_dy": 0,
-                "type": "bottom"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_table_sm_walnut_alt",
-            "display_name": "S. Walnut Table B",
-            "sprite": "table_sm_walnut_alt_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 30,
-            "id": 40,
-            "prop_data": {
-                "shape": [
-                    2,
-                    2
-                ],
-                "animate": true,
-                "child_dy": 0,
-                "type": "bottom"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_table_sm_plastic",
-            "display_name": "S. Plastic Table A",
-            "sprite": "table_sm_plastic_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 10,
-            "id": 41,
-            "prop_data": {
-                "shape": [
-                    2,
-                    2
-                ],
-                "animate": true,
-                "child_dy": 0,
-                "type": "bottom"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_table_sm_plastic_alt",
-            "display_name": "S. Plastic Table B",
-            "sprite": "table_sm_plastic_alt_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 10,
-            "id": 42,
-            "prop_data": {
-                "shape": [
-                    2,
-                    2
-                ],
-                "animate": true,
-                "child_dy": 0,
-                "type": "bottom"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_chair_mahogany",
-            "display_name": "Mahogany Chair",
-            "sprite": "chair_mahogany_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 20,
-            "id": 43,
-            "prop_data": {
-                "shape": [
-                    2,
-                    2
-                ],
-                "animate": false,
-                "child_dy": 0,
-                "type": "default"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_chair_stone",
-            "display_name": "Stone Chair",
-            "sprite": "chair_stone_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 15,
-            "id": 44,
-            "prop_data": {
-                "shape": [
-                    2,
-                    2
-                ],
-                "animate": false,
-                "child_dy": 0,
-                "type": "default"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_stool_plastic",
-            "display_name": "Plastic Stool",
-            "sprite": "stool_plastic_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 5,
-            "id": 45,
-            "prop_data": {
-                "shape": [
-                    2,
-                    1
-                ],
-                "animate": true,
-                "child_dy": 0,
-                "type": "default"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_stool_wood",
-            "display_name": "Wood Stool",
-            "sprite": "stool_wood_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 10,
-            "id": 46,
-            "prop_data": {
-                "shape": [
-                    2,
-                    1
-                ],
-                "animate": true,
-                "child_dy": 0,
-                "type": "default"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_stool_stone",
-            "display_name": "Stone Stool",
-            "sprite": "stool_stone_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 15,
-            "id": 47,
-            "prop_data": {
-                "shape": [
-                    2,
-                    1
-                ],
-                "animate": true,
-                "child_dy": 0,
-                "type": "default"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_stool_gold",
-            "display_name": "Gold Stool",
-            "sprite": "stool_gold_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 30,
-            "id": 48,
-            "prop_data": {
-                "shape": [
-                    2,
-                    1
-                ],
-                "animate": true,
-                "child_dy": 0,
-                "type": "bottom"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_bowl_stone",
-            "display_name": "Stone Bowl",
-            "sprite": "bowl_stone_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 10,
-            "id": 49,
-            "prop_data": {
-                "shape": [
-                    1,
-                    1
-                ],
-                "animate": true,
-                "child_dy": 0,
-                "type": "top"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
             "name": "prop_bowl_gold",
             "display_name": "Gold Bowl",
             "sprite": "bowl_gold_sprite",
             "icon": "icon_item_prop_sprite",
             "text": "",
             "price": 20,
-            "id": 50,
+            "id": 25,
             "prop_data": {
                 "shape": [
                     1,
@@ -1186,486 +701,6 @@
                 "animate": true,
                 "child_dy": 0,
                 "type": "top"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_vase_stone",
-            "display_name": "Stone Vase",
-            "sprite": "vase_stone_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 7,
-            "id": 51,
-            "prop_data": {
-                "shape": [
-                    1,
-                    1
-                ],
-                "animate": true,
-                "child_dy": 0,
-                "type": "top"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_vase_gold",
-            "display_name": "Gold Vase",
-            "sprite": "vase_gold_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 20,
-            "id": 52,
-            "prop_data": {
-                "shape": [
-                    1,
-                    1
-                ],
-                "animate": true,
-                "child_dy": 0,
-                "type": "top"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_vase_grey",
-            "display_name": "Grey Vase",
-            "sprite": "vase_grey_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 5,
-            "id": 53,
-            "prop_data": {
-                "shape": [
-                    1,
-                    1
-                ],
-                "animate": true,
-                "child_dy": 0,
-                "type": "top"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_vase_mahogany",
-            "display_name": "Mahogany Vase",
-            "sprite": "vase_mahogany_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 7,
-            "id": 54,
-            "prop_data": {
-                "shape": [
-                    1,
-                    1
-                ],
-                "animate": true,
-                "child_dy": 0,
-                "type": "top"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_vase_walnut",
-            "display_name": "Walnut Vase",
-            "sprite": "vase_walnut_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 7,
-            "id": 55,
-            "prop_data": {
-                "shape": [
-                    1,
-                    1
-                ],
-                "animate": true,
-                "child_dy": 0,
-                "type": "top"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_succulent",
-            "display_name": "Succulent",
-            "sprite": "succulent_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 5,
-            "id": 56,
-            "prop_data": {
-                "shape": [
-                    1,
-                    1
-                ],
-                "animate": false,
-                "child_dy": 0,
-                "type": "top"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_bush_plain",
-            "display_name": "Bush",
-            "sprite": "bush_plain_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 10,
-            "id": 57,
-            "prop_data": {
-                "shape": [
-                    2,
-                    1
-                ],
-                "animate": true,
-                "child_dy": 0,
-                "type": "default"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_bush_daisy",
-            "display_name": "Daisy Bush",
-            "sprite": "bush_daisy_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 30,
-            "id": 58,
-            "prop_data": {
-                "shape": [
-                    2,
-                    1
-                ],
-                "animate": true,
-                "child_dy": 0,
-                "type": "default"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_bush_lilac",
-            "display_name": "Lilac Bush",
-            "sprite": "bush_lilac_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 30,
-            "id": 59,
-            "prop_data": {
-                "shape": [
-                    2,
-                    1
-                ],
-                "animate": true,
-                "child_dy": 0,
-                "type": "default"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_plant_plain",
-            "display_name": "Plain Plant",
-            "sprite": "plant_plain_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 20,
-            "id": 60,
-            "prop_data": {
-                "shape": [
-                    2,
-                    1
-                ],
-                "animate": true,
-                "child_dy": 0,
-                "type": "default"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_plant_maroon",
-            "display_name": "Maroon Plant",
-            "sprite": "plant_maroon_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 20,
-            "id": 61,
-            "prop_data": {
-                "shape": [
-                    2,
-                    1
-                ],
-                "animate": true,
-                "child_dy": 0,
-                "type": "default"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_plant_lilac",
-            "display_name": "Lilac Plant",
-            "sprite": "plant_lilac_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 25,
-            "id": 62,
-            "prop_data": {
-                "shape": [
-                    2,
-                    1
-                ],
-                "animate": true,
-                "child_dy": 0,
-                "type": "default"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_plant_daisy",
-            "display_name": "Daisy Plant",
-            "sprite": "plant_daisy_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 25,
-            "id": 63,
-            "prop_data": {
-                "shape": [
-                    2,
-                    1
-                ],
-                "animate": true,
-                "child_dy": 0,
-                "type": "default"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_vig_flower",
-            "display_name": "Healthy Flower",
-            "sprite": "flower_vig_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 40,
-            "id": 64,
-            "prop_data": {
-                "shape": [
-                    2,
-                    1
-                ],
-                "animate": false,
-                "child_dy": 0,
-                "type": "default"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_foc_flower",
-            "display_name": "Smart Flower",
-            "sprite": "flower_foc_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 40,
-            "id": 65,
-            "prop_data": {
-                "shape": [
-                    2,
-                    1
-                ],
-                "animate": false,
-                "child_dy": 0,
-                "type": "default"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_spi_flower",
-            "display_name": "Happy Flower",
-            "sprite": "flower_spi_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 40,
-            "id": 66,
-            "prop_data": {
-                "shape": [
-                    2,
-                    1
-                ],
-                "animate": false,
-                "child_dy": 0,
-                "type": "default"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_crystal_blue",
-            "display_name": "Blue Crystal",
-            "sprite": "crystal_blue_lg_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 50,
-            "id": 67,
-            "prop_data": {
-                "shape": [
-                    2,
-                    1
-                ],
-                "animate": true,
-                "child_dy": 0,
-                "type": "default"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_crystal_green",
-            "display_name": "Green Crystal",
-            "sprite": "crystal_green_lg_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 50,
-            "id": 68,
-            "prop_data": {
-                "shape": [
-                    2,
-                    1
-                ],
-                "animate": true,
-                "child_dy": 0,
-                "type": "default"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_crystal_purple",
-            "display_name": "Purple Crystal",
-            "sprite": "crystal_purple_lg_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 50,
-            "id": 69,
-            "prop_data": {
-                "shape": [
-                    2,
-                    1
-                ],
-                "animate": true,
-                "child_dy": 0,
-                "type": "default"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_effigy_blue",
-            "display_name": "Blue Effigy",
-            "sprite": "effigy_blue_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 40,
-            "id": 70,
-            "prop_data": {
-                "shape": [
-                    3,
-                    1
-                ],
-                "animate": true,
-                "child_dy": 0,
-                "type": "default"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_effigy_purple",
-            "display_name": "Purple Effigy",
-            "sprite": "effigy_purple_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 40,
-            "id": 71,
-            "prop_data": {
-                "shape": [
-                    3,
-                    1
-                ],
-                "animate": true,
-                "child_dy": 0,
-                "type": "default"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_effigy_sea",
-            "display_name": "Sea Effigy",
-            "sprite": "effigy_sea_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 60,
-            "id": 72,
-            "prop_data": {
-                "shape": [
-                    3,
-                    1
-                ],
-                "animate": true,
-                "child_dy": 0,
-                "type": "default"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_pixel",
-            "display_name": "Pixel",
-            "sprite": "pixel_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 30,
-            "id": 73,
-            "prop_data": {
-                "shape": [
-                    1,
-                    1
-                ],
-                "animate": true,
-                "child_dy": 0,
-                "type": "top"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_padkaprow",
-            "display_name": "Pad Ka Prop",
-            "sprite": "padkaprop_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 30,
-            "id": 74,
-            "prop_data": {
-                "shape": [
-                    2,
-                    1
-                ],
-                "animate": true,
-                "child_dy": 0,
-                "type": "default"
             },
             "tier": 0
         },
@@ -1677,7 +712,7 @@
             "icon": "icon_item_prop_sprite",
             "text": "",
             "price": 5,
-            "id": 75,
+            "id": 26,
             "prop_data": {
                 "shape": [
                     1,
@@ -1697,7 +732,27 @@
             "icon": "icon_item_prop_sprite",
             "text": "",
             "price": 7,
-            "id": 76,
+            "id": 27,
+            "prop_data": {
+                "shape": [
+                    1,
+                    1
+                ],
+                "animate": true,
+                "child_dy": 0,
+                "type": "top"
+            },
+            "tier": 0
+        },
+        {
+            "type": "prop",
+            "name": "prop_bowl_stone",
+            "display_name": "Stone Bowl",
+            "sprite": "bowl_stone_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "",
+            "price": 10,
+            "id": 28,
             "prop_data": {
                 "shape": [
                     1,
@@ -1717,6 +772,966 @@
             "icon": "icon_item_prop_sprite",
             "text": "",
             "price": 7,
+            "id": 29,
+            "prop_data": {
+                "shape": [
+                    1,
+                    1
+                ],
+                "animate": true,
+                "child_dy": 0,
+                "type": "top"
+            },
+            "tier": 0
+        },
+        {
+            "type": "prop",
+            "name": "prop_bush_daisy",
+            "display_name": "Daisy Bush",
+            "sprite": "bush_daisy_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "",
+            "price": 30,
+            "id": 30,
+            "prop_data": {
+                "shape": [
+                    2,
+                    1
+                ],
+                "animate": true,
+                "child_dy": 0,
+                "type": "default"
+            },
+            "tier": 0
+        },
+        {
+            "type": "prop",
+            "name": "prop_bush_lilac",
+            "display_name": "Lilac Bush",
+            "sprite": "bush_lilac_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "",
+            "price": 30,
+            "id": 31,
+            "prop_data": {
+                "shape": [
+                    2,
+                    1
+                ],
+                "animate": true,
+                "child_dy": 0,
+                "type": "default"
+            },
+            "tier": 0
+        },
+        {
+            "type": "prop",
+            "name": "prop_bush_plain",
+            "display_name": "Bush",
+            "sprite": "bush_plain_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "",
+            "price": 10,
+            "id": 32,
+            "prop_data": {
+                "shape": [
+                    2,
+                    1
+                ],
+                "animate": true,
+                "child_dy": 0,
+                "type": "default"
+            },
+            "tier": 0
+        },
+        {
+            "type": "prop",
+            "name": "prop_chair_mahogany",
+            "display_name": "Mahogany Chair",
+            "sprite": "chair_mahogany_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "",
+            "price": 20,
+            "id": 33,
+            "prop_data": {
+                "shape": [
+                    2,
+                    2
+                ],
+                "animate": false,
+                "child_dy": 0,
+                "type": "default"
+            },
+            "tier": 0
+        },
+        {
+            "type": "prop",
+            "name": "prop_chair_plastic",
+            "display_name": "Plastic Chair",
+            "sprite": "chair_plastic_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "",
+            "price": 10,
+            "id": 34,
+            "prop_data": {
+                "shape": [
+                    2,
+                    2
+                ],
+                "animate": false,
+                "child_dy": 0,
+                "type": "default"
+            },
+            "tier": 0
+        },
+        {
+            "type": "prop",
+            "name": "prop_chair_stone",
+            "display_name": "Stone Chair",
+            "sprite": "chair_stone_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "",
+            "price": 15,
+            "id": 35,
+            "prop_data": {
+                "shape": [
+                    2,
+                    2
+                ],
+                "animate": false,
+                "child_dy": 0,
+                "type": "default"
+            },
+            "tier": 0
+        },
+        {
+            "type": "prop",
+            "name": "prop_chess",
+            "display_name": "Chess Set",
+            "sprite": "chess_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "",
+            "price": 40,
+            "id": 36,
+            "prop_data": {
+                "shape": [
+                    2,
+                    2
+                ],
+                "animate": true,
+                "child_dy": -16,
+                "type": "top"
+            },
+            "tier": 0
+        },
+        {
+            "type": "prop",
+            "name": "prop_chicken",
+            "display_name": "Chicken",
+            "sprite": "chicken_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "",
+            "price": 50,
+            "id": 37,
+            "prop_data": {
+                "shape": [
+                    2,
+                    1
+                ],
+                "animate": true,
+                "child_dy": -6,
+                "type": "top"
+            },
+            "tier": 0
+        },
+        {
+            "type": "prop",
+            "name": "prop_coffeemaker",
+            "display_name": "Coffee Machine",
+            "sprite": "coffeemaker_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "",
+            "price": 40,
+            "id": 38,
+            "prop_data": {
+                "shape": [
+                    2,
+                    1
+                ],
+                "animate": true,
+                "child_dy": -6,
+                "type": "top"
+            },
+            "tier": 0
+        },
+        {
+            "type": "prop",
+            "name": "prop_crystal_blue",
+            "display_name": "Blue Crystal",
+            "sprite": "crystal_blue_lg_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "",
+            "price": 50,
+            "id": 39,
+            "prop_data": {
+                "shape": [
+                    2,
+                    1
+                ],
+                "animate": true,
+                "child_dy": 0,
+                "type": "default"
+            },
+            "tier": 0
+        },
+        {
+            "type": "prop",
+            "name": "prop_crystal_green",
+            "display_name": "Green Crystal",
+            "sprite": "crystal_green_lg_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "",
+            "price": 50,
+            "id": 40,
+            "prop_data": {
+                "shape": [
+                    2,
+                    1
+                ],
+                "animate": true,
+                "child_dy": 0,
+                "type": "default"
+            },
+            "tier": 0
+        },
+        {
+            "type": "prop",
+            "name": "prop_crystal_purple",
+            "display_name": "Purple Crystal",
+            "sprite": "crystal_purple_lg_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "",
+            "price": 50,
+            "id": 41,
+            "prop_data": {
+                "shape": [
+                    2,
+                    1
+                ],
+                "animate": true,
+                "child_dy": 0,
+                "type": "default"
+            },
+            "tier": 0
+        },
+        {
+            "type": "prop",
+            "name": "prop_effigy_blue",
+            "display_name": "Blue Effigy",
+            "sprite": "effigy_blue_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "",
+            "price": 40,
+            "id": 42,
+            "prop_data": {
+                "shape": [
+                    3,
+                    1
+                ],
+                "animate": true,
+                "child_dy": 0,
+                "type": "default"
+            },
+            "tier": 0
+        },
+        {
+            "type": "prop",
+            "name": "prop_effigy_purple",
+            "display_name": "Purple Effigy",
+            "sprite": "effigy_purple_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "",
+            "price": 40,
+            "id": 43,
+            "prop_data": {
+                "shape": [
+                    3,
+                    1
+                ],
+                "animate": true,
+                "child_dy": 0,
+                "type": "default"
+            },
+            "tier": 0
+        },
+        {
+            "type": "prop",
+            "name": "prop_effigy_sea",
+            "display_name": "Sea Effigy",
+            "sprite": "effigy_sea_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "",
+            "price": 60,
+            "id": 44,
+            "prop_data": {
+                "shape": [
+                    3,
+                    1
+                ],
+                "animate": true,
+                "child_dy": 0,
+                "type": "default"
+            },
+            "tier": 0
+        },
+        {
+            "type": "prop",
+            "name": "prop_eth_farm",
+            "display_name": "Ethereum Farm",
+            "sprite": "gpu_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "",
+            "price": 100,
+            "id": 45,
+            "prop_data": {
+                "shape": [
+                    3,
+                    1
+                ],
+                "animate": true,
+                "child_dy": 0,
+                "type": "default"
+            },
+            "tier": 0
+        },
+        {
+            "type": "prop",
+            "name": "prop_fan_classic",
+            "display_name": "Classic Fan",
+            "sprite": "fan_a_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "",
+            "price": 20,
+            "id": 46,
+            "prop_data": {
+                "shape": [
+                    2,
+                    1
+                ],
+                "animate": true,
+                "child_dy": 0,
+                "type": "top"
+            },
+            "tier": 0
+        },
+        {
+            "type": "prop",
+            "name": "prop_fan_modern",
+            "display_name": "Modern Fan",
+            "sprite": "fan_b_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "",
+            "price": 30,
+            "id": 47,
+            "prop_data": {
+                "shape": [
+                    2,
+                    1
+                ],
+                "animate": true,
+                "child_dy": 0,
+                "type": "top"
+            },
+            "tier": 0
+        },
+        {
+            "type": "prop",
+            "name": "prop_foc_flower",
+            "display_name": "Smart Flower",
+            "sprite": "flower_foc_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "",
+            "price": 40,
+            "id": 48,
+            "prop_data": {
+                "shape": [
+                    2,
+                    1
+                ],
+                "animate": false,
+                "child_dy": 0,
+                "type": "default"
+            },
+            "tier": 0
+        },
+        {
+            "type": "prop",
+            "name": "prop_lantern",
+            "display_name": "Lantern",
+            "sprite": "lantern_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "",
+            "price": 20,
+            "id": 49,
+            "prop_data": {
+                "shape": [
+                    1,
+                    1
+                ],
+                "animate": true,
+                "child_dy": 0,
+                "type": "top"
+            },
+            "tier": 0
+        },
+        {
+            "type": "prop",
+            "name": "prop_laptop",
+            "display_name": "Laptop",
+            "sprite": "laptop_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "",
+            "price": 80,
+            "id": 50,
+            "prop_data": {
+                "shape": [
+                    2,
+                    1
+                ],
+                "animate": true,
+                "child_dy": -8,
+                "type": "top"
+            },
+            "tier": 0
+        },
+        {
+            "type": "prop",
+            "name": "prop_mine",
+            "display_name": "Naval Mine",
+            "sprite": "prop_mine_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "",
+            "price": 50,
+            "id": 51,
+            "prop_data": {
+                "shape": [
+                    2,
+                    1
+                ],
+                "animate": true,
+                "child_dy": 0,
+                "type": "default"
+            },
+            "tier": 0
+        },
+        {
+            "type": "prop",
+            "name": "prop_padkaprow",
+            "display_name": "Pad Ka Prop",
+            "sprite": "padkaprop_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "",
+            "price": 30,
+            "id": 52,
+            "prop_data": {
+                "shape": [
+                    2,
+                    1
+                ],
+                "animate": true,
+                "child_dy": 0,
+                "type": "default"
+            },
+            "tier": 0
+        },
+        {
+            "type": "prop",
+            "name": "prop_pixel",
+            "display_name": "Pixel",
+            "sprite": "pixel_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "",
+            "price": 30,
+            "id": 53,
+            "prop_data": {
+                "shape": [
+                    1,
+                    1
+                ],
+                "animate": true,
+                "child_dy": 0,
+                "type": "top"
+            },
+            "tier": 0
+        },
+        {
+            "type": "prop",
+            "name": "prop_plant_corn",
+            "display_name": "Corn Plant",
+            "sprite": "plant_corn_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "",
+            "price": 30,
+            "id": 54,
+            "prop_data": {
+                "shape": [
+                    2,
+                    1
+                ],
+                "animate": true,
+                "child_dy": 0,
+                "type": "default"
+            },
+            "tier": 0
+        },
+        {
+            "type": "prop",
+            "name": "prop_plant_daisy",
+            "display_name": "Daisy Plant",
+            "sprite": "plant_daisy_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "",
+            "price": 25,
+            "id": 55,
+            "prop_data": {
+                "shape": [
+                    2,
+                    1
+                ],
+                "animate": true,
+                "child_dy": 0,
+                "type": "default"
+            },
+            "tier": 0
+        },
+        {
+            "type": "prop",
+            "name": "prop_plant_lilac",
+            "display_name": "Lilac Plant",
+            "sprite": "plant_lilac_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "",
+            "price": 25,
+            "id": 56,
+            "prop_data": {
+                "shape": [
+                    2,
+                    1
+                ],
+                "animate": true,
+                "child_dy": 0,
+                "type": "default"
+            },
+            "tier": 0
+        },
+        {
+            "type": "prop",
+            "name": "prop_plant_maroon",
+            "display_name": "Maroon Plant",
+            "sprite": "plant_maroon_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "",
+            "price": 20,
+            "id": 57,
+            "prop_data": {
+                "shape": [
+                    2,
+                    1
+                ],
+                "animate": true,
+                "child_dy": 0,
+                "type": "default"
+            },
+            "tier": 0
+        },
+        {
+            "type": "prop",
+            "name": "prop_plant_plain",
+            "display_name": "Plain Plant",
+            "sprite": "plant_plain_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "",
+            "price": 20,
+            "id": 58,
+            "prop_data": {
+                "shape": [
+                    2,
+                    1
+                ],
+                "animate": true,
+                "child_dy": 0,
+                "type": "default"
+            },
+            "tier": 0
+        },
+        {
+            "type": "prop",
+            "name": "prop_purifier",
+            "display_name": "Air Purifier",
+            "sprite": "purifier_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "",
+            "price": 50,
+            "id": 59,
+            "prop_data": {
+                "shape": [
+                    2,
+                    1
+                ],
+                "animate": true,
+                "child_dy": 0,
+                "type": "default"
+            },
+            "tier": 0
+        },
+        {
+            "type": "prop",
+            "name": "prop_spi_flower",
+            "display_name": "Happy Flower",
+            "sprite": "flower_spi_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "",
+            "price": 40,
+            "id": 60,
+            "prop_data": {
+                "shape": [
+                    2,
+                    1
+                ],
+                "animate": false,
+                "child_dy": 0,
+                "type": "default"
+            },
+            "tier": 0
+        },
+        {
+            "type": "prop",
+            "name": "prop_stool_gold",
+            "display_name": "Gold Stool",
+            "sprite": "stool_gold_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "",
+            "price": 30,
+            "id": 61,
+            "prop_data": {
+                "shape": [
+                    2,
+                    1
+                ],
+                "animate": true,
+                "child_dy": 0,
+                "type": "bottom"
+            },
+            "tier": 0
+        },
+        {
+            "type": "prop",
+            "name": "prop_stool_plastic",
+            "display_name": "Plastic Stool",
+            "sprite": "stool_plastic_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "",
+            "price": 5,
+            "id": 62,
+            "prop_data": {
+                "shape": [
+                    2,
+                    1
+                ],
+                "animate": true,
+                "child_dy": 0,
+                "type": "default"
+            },
+            "tier": 0
+        },
+        {
+            "type": "prop",
+            "name": "prop_stool_stone",
+            "display_name": "Stone Stool",
+            "sprite": "stool_stone_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "",
+            "price": 15,
+            "id": 63,
+            "prop_data": {
+                "shape": [
+                    2,
+                    1
+                ],
+                "animate": true,
+                "child_dy": 0,
+                "type": "default"
+            },
+            "tier": 0
+        },
+        {
+            "type": "prop",
+            "name": "prop_stool_wood",
+            "display_name": "Wood Stool",
+            "sprite": "stool_wood_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "",
+            "price": 10,
+            "id": 64,
+            "prop_data": {
+                "shape": [
+                    2,
+                    1
+                ],
+                "animate": true,
+                "child_dy": 0,
+                "type": "default"
+            },
+            "tier": 0
+        },
+        {
+            "type": "prop",
+            "name": "prop_succulent",
+            "display_name": "Succulent",
+            "sprite": "succulent_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "",
+            "price": 5,
+            "id": 65,
+            "prop_data": {
+                "shape": [
+                    1,
+                    1
+                ],
+                "animate": false,
+                "child_dy": 0,
+                "type": "top"
+            },
+            "tier": 0
+        },
+        {
+            "type": "prop",
+            "name": "prop_table_mahogany",
+            "display_name": "Mahogany Table",
+            "sprite": "table_mahogany_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "",
+            "price": 20,
+            "id": 66,
+            "prop_data": {
+                "shape": [
+                    4,
+                    2
+                ],
+                "animate": true,
+                "child_dy": 0,
+                "type": "bottom"
+            },
+            "tier": 0
+        },
+        {
+            "type": "prop",
+            "name": "prop_table_plastic",
+            "display_name": "Plastic Table A",
+            "sprite": "table_plastic_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "",
+            "price": 20,
+            "id": 67,
+            "prop_data": {
+                "shape": [
+                    4,
+                    2
+                ],
+                "animate": true,
+                "child_dy": 0,
+                "type": "bottom"
+            },
+            "tier": 0
+        },
+        {
+            "type": "prop",
+            "name": "prop_table_plastic_alt",
+            "display_name": "Plastic Table B",
+            "sprite": "table_plastic_alt_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "",
+            "price": 20,
+            "id": 68,
+            "prop_data": {
+                "shape": [
+                    4,
+                    2
+                ],
+                "animate": true,
+                "child_dy": 0,
+                "type": "bottom"
+            },
+            "tier": 0
+        },
+        {
+            "type": "prop",
+            "name": "prop_table_sm_mahogany",
+            "display_name": "S. Mahogany Table",
+            "sprite": "table_sm_mahogany_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "",
+            "price": 20,
+            "id": 69,
+            "prop_data": {
+                "shape": [
+                    2,
+                    2
+                ],
+                "animate": true,
+                "child_dy": 0,
+                "type": "bottom"
+            },
+            "tier": 0
+        },
+        {
+            "type": "prop",
+            "name": "prop_table_sm_plastic",
+            "display_name": "S. Plastic Table A",
+            "sprite": "table_sm_plastic_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "",
+            "price": 10,
+            "id": 70,
+            "prop_data": {
+                "shape": [
+                    2,
+                    2
+                ],
+                "animate": true,
+                "child_dy": 0,
+                "type": "bottom"
+            },
+            "tier": 0
+        },
+        {
+            "type": "prop",
+            "name": "prop_table_sm_plastic_alt",
+            "display_name": "S. Plastic Table B",
+            "sprite": "table_sm_plastic_alt_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "",
+            "price": 10,
+            "id": 71,
+            "prop_data": {
+                "shape": [
+                    2,
+                    2
+                ],
+                "animate": true,
+                "child_dy": 0,
+                "type": "bottom"
+            },
+            "tier": 0
+        },
+        {
+            "type": "prop",
+            "name": "prop_table_sm_walnut",
+            "display_name": "S. Walnut Table A",
+            "sprite": "table_sm_walnut_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "",
+            "price": 30,
+            "id": 72,
+            "prop_data": {
+                "shape": [
+                    2,
+                    2
+                ],
+                "animate": true,
+                "child_dy": 0,
+                "type": "bottom"
+            },
+            "tier": 0
+        },
+        {
+            "type": "prop",
+            "name": "prop_table_sm_walnut_alt",
+            "display_name": "S. Walnut Table B",
+            "sprite": "table_sm_walnut_alt_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "",
+            "price": 30,
+            "id": 73,
+            "prop_data": {
+                "shape": [
+                    2,
+                    2
+                ],
+                "animate": true,
+                "child_dy": 0,
+                "type": "bottom"
+            },
+            "tier": 0
+        },
+        {
+            "type": "prop",
+            "name": "prop_table_walnut",
+            "display_name": "Walnut Table",
+            "sprite": "table_walnut_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "",
+            "price": 20,
+            "id": 74,
+            "prop_data": {
+                "shape": [
+                    4,
+                    2
+                ],
+                "animate": true,
+                "child_dy": 0,
+                "type": "bottom"
+            },
+            "tier": 0
+        },
+        {
+            "type": "prop",
+            "name": "prop_uv_lamp",
+            "display_name": "UV Lamp",
+            "sprite": "uv_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "",
+            "price": 50,
+            "id": 75,
+            "prop_data": {
+                "shape": [
+                    1,
+                    1
+                ],
+                "animate": true,
+                "child_dy": 0,
+                "type": "top"
+            },
+            "tier": 0
+        },
+        {
+            "type": "prop",
+            "name": "prop_vase_gold",
+            "display_name": "Gold Vase",
+            "sprite": "vase_gold_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "",
+            "price": 20,
+            "id": 76,
+            "prop_data": {
+                "shape": [
+                    1,
+                    1
+                ],
+                "animate": true,
+                "child_dy": 0,
+                "type": "top"
+            },
+            "tier": 0
+        },
+        {
+            "type": "prop",
+            "name": "prop_vase_grey",
+            "display_name": "Grey Vase",
+            "sprite": "vase_grey_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "",
+            "price": 5,
             "id": 77,
             "prop_data": {
                 "shape": [
@@ -1731,17 +1746,77 @@
         },
         {
             "type": "prop",
-            "name": "prop_chair_plastic",
-            "display_name": "Plastic Chair",
-            "sprite": "chair_plastic_sprite",
+            "name": "prop_vase_mahogany",
+            "display_name": "Mahogany Vase",
+            "sprite": "vase_mahogany_sprite",
             "icon": "icon_item_prop_sprite",
             "text": "",
-            "price": 10,
+            "price": 7,
             "id": 78,
             "prop_data": {
                 "shape": [
+                    1,
+                    1
+                ],
+                "animate": true,
+                "child_dy": 0,
+                "type": "top"
+            },
+            "tier": 0
+        },
+        {
+            "type": "prop",
+            "name": "prop_vase_stone",
+            "display_name": "Stone Vase",
+            "sprite": "vase_stone_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "",
+            "price": 7,
+            "id": 79,
+            "prop_data": {
+                "shape": [
+                    1,
+                    1
+                ],
+                "animate": true,
+                "child_dy": 0,
+                "type": "top"
+            },
+            "tier": 0
+        },
+        {
+            "type": "prop",
+            "name": "prop_vase_walnut",
+            "display_name": "Walnut Vase",
+            "sprite": "vase_walnut_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "",
+            "price": 7,
+            "id": 80,
+            "prop_data": {
+                "shape": [
+                    1,
+                    1
+                ],
+                "animate": true,
+                "child_dy": 0,
+                "type": "top"
+            },
+            "tier": 0
+        },
+        {
+            "type": "prop",
+            "name": "prop_vig_flower",
+            "display_name": "Healthy Flower",
+            "sprite": "flower_vig_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "",
+            "price": 40,
+            "id": 81,
+            "prop_data": {
+                "shape": [
                     2,
-                    2
+                    1
                 ],
                 "animate": false,
                 "child_dy": 0,
@@ -1750,62 +1825,74 @@
             "tier": 0
         },
         {
-            "type": "prop",
-            "name": "prop_plant_corn",
-            "display_name": "Corn Plant",
-            "sprite": "plant_corn_sprite",
-            "icon": "icon_item_prop_sprite",
+            "type": "tool",
+            "name": "toy_baseball",
+            "display_name": "Baseball",
+            "sprite": "toy_baseball_sprite",
+            "icon": "icon_item_toy_sprite",
+            "text": "",
+            "price": 20,
+            "id": 82,
+            "tool_data": {
+                "cursor": "toy_baseball_sprite",
+                "dv": 0,
+                "df": 0,
+                "ds": 3,
+                "type": "toy"
+            },
+            "tier": 0
+        },
+        {
+            "type": "tool",
+            "name": "toy_basketball",
+            "display_name": "Basketball",
+            "sprite": "toy_basketball_sprite",
+            "icon": "icon_item_toy_sprite",
+            "text": "",
+            "price": 20,
+            "id": 83,
+            "tool_data": {
+                "cursor": "toy_basketball_sprite",
+                "dv": 0,
+                "df": 0,
+                "ds": 3,
+                "type": "toy"
+            },
+            "tier": 0
+        },
+        {
+            "type": "tool",
+            "name": "toy_duck",
+            "display_name": "Ducky",
+            "sprite": "toy_duck_sprite",
+            "icon": "icon_item_toy_sprite",
             "text": "",
             "price": 30,
-            "id": 79,
-            "prop_data": {
-                "shape": [
-                    2,
-                    1
-                ],
-                "animate": true,
-                "child_dy": 0,
-                "type": "default"
+            "id": 84,
+            "tool_data": {
+                "cursor": "toy_duck_sprite",
+                "dv": 0,
+                "df": 0,
+                "ds": 5,
+                "type": "toy"
             },
             "tier": 0
         },
         {
-            "type": "prop",
-            "name": "prop_chicken",
-            "display_name": "Chicken",
-            "sprite": "chicken_sprite",
-            "icon": "icon_item_prop_sprite",
+            "type": "tool",
+            "name": "toy_golf",
+            "display_name": "Golf Ball",
+            "sprite": "toy_golf_sprite",
+            "icon": "icon_item_toy_sprite",
             "text": "",
-            "price": 50,
-            "id": 80,
-            "prop_data": {
-                "shape": [
-                    2,
-                    1
-                ],
-                "animate": true,
-                "child_dy": -6,
-                "type": "top"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_mine",
-            "display_name": "Naval Mine",
-            "sprite": "prop_mine_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 50,
-            "id": 81,
-            "prop_data": {
-                "shape": [
-                    2,
-                    1
-                ],
-                "animate": true,
-                "child_dy": 0,
-                "type": "default"
+            "price": 5,
+            "id": 85,
+            "tool_data": {
+                "cursor": "toy_golf_sprite",
+                "dv": 0,
+                "df": 0,
+                "ds": 1,
+                "type": "toy"
             },
             "tier": 0
         },
@@ -1817,7 +1904,7 @@
             "icon": "icon_item_key_sprite",
             "text": "",
             "price": 10,
-            "id": 82,
+            "id": 86,
             "tier": 0,
             "tool_data": {
                 "type": "toy",
@@ -1826,6 +1913,24 @@
                 "df": 0,
                 "ds": 0
             }
+        },
+        {
+            "type": "tool",
+            "name": "toy_puzzle",
+            "display_name": "Puzzle",
+            "sprite": "toy_puzzle_sprite",
+            "icon": "icon_item_toy_sprite",
+            "text": "",
+            "price": 20,
+            "id": 87,
+            "tool_data": {
+                "cursor": "toy_puzzle_sprite",
+                "dv": 0,
+                "df": 0,
+                "ds": 3,
+                "type": "toy"
+            },
+            "tier": 0
         }
     ]
 }
