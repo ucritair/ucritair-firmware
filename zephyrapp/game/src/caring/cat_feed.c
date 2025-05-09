@@ -10,6 +10,7 @@
 #include "cowtools/cat_structures.h"
 #include "cat_gui.h"
 #include "cowtools/cat_curves.h"
+#include "cat_pet.h"
 
 static enum
 {
@@ -203,6 +204,14 @@ float ichiju_sansai()
 	return (staple + soup + main + sides) / 5.0f;
 }
 
+static float group_score = 0.0f;
+static float role_score = 0.0f;
+static float ichisan_score = 0.0f;
+static float aggregate_score = 0.0f;
+static int level = 0;
+
+static bool commit = false;
+
 void CAT_MS_feed(CAT_machine_signal signal)
 {
 	switch(signal)
@@ -266,7 +275,20 @@ void CAT_MS_feed(CAT_machine_signal signal)
 					break;
 				}
 				case ARRANGE:
-				{
+				{		
+					if(CAT_gui_popup_is_open())
+						break;
+					if(CAT_input_pressed(CAT_BUTTON_A))
+						CAT_gui_open_popup("Submit this meal?\nUsed food items\nwill be consumed!", &commit);
+					if(commit)
+					{
+						commit = false;
+						pet.vigour += level;
+						for(int i = 0; i < food_idxs_l.length; i++)
+							CAT_item_list_remove(&bag, food_idxs[i], 1);
+						CAT_machine_back();
+					}
+
 					if(CAT_input_pressed(CAT_BUTTON_SELECT))
 					{
 						mode = SELECT;
@@ -274,7 +296,23 @@ void CAT_MS_feed(CAT_machine_signal signal)
 					}
 
 					if(!CAT_input_touching())
+					{
+						if(CAT_input_touch_up())
+						{
+							group_score = group_diversity();
+							role_score = role_propriety();
+							ichisan_score = ichiju_sansai();
+							aggregate_score = (group_score * 3 + role_score * 2 + ichisan_score) / 5.0f;
+							if(aggregate_score >= 0.5f)
+								aggregate_score *= 1.15f;
+							level =
+							aggregate_score >= 0.75f ? 4 :
+							aggregate_score >= 0.5f ? 3 :
+							aggregate_score >= 0.25f ? 2 :
+							1;
+						}
 						touched = -1;
+					}
 					else if(CAT_input_touch_down())
 					{
 						for(int i = 0; i < food_idxs_l.length; i++)
@@ -307,9 +345,7 @@ void CAT_MS_feed(CAT_machine_signal signal)
 					}
 
 					for(int i = 0; i < food_idxs_l.length; i++)
-					{
 						food_active_mask[i] = CAT_rect_contains(table_rect, food_rects[i]);
-					}
 					break;
 				}
 			}			
@@ -376,28 +412,21 @@ void CAT_render_feed()
 				CAT_draw_sprite(food->sprite, 0, x, y);
 			}
 
-			float group = group_diversity();
-			float role = role_propriety();
-			float ichisan = ichiju_sansai();
-			float score = (group * 3 + role * 2 + ichisan) / 5.0f;
-			if(score >= 0.5f)
-				score *= 1.15f;
-
 			CAT_push_draw_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
 			CAT_push_draw_colour
 			(
-				score >= 0.67f ? CAT_GREEN :
-				score >= 0.33f ? CAT_BLUE :
+				level == 4 ? CAT_PURPLE :
+				level == 3 ? CAT_GREEN :
+				level == 2 ? CAT_YELLOW :
 				CAT_RED
 			);
 			CAT_draw_sprite(&gizmo_face_96x96_sprite, 0, 120, 290);
 
-			CAT_gui_printf(CAT_WHITE, "group diversity: %0.2f", group);
-			CAT_gui_printf(CAT_WHITE, "role propriety: %0.2f", role);
-			CAT_gui_printf(CAT_WHITE, "ichiju sansai: %0.2f", ichisan);
-			CAT_gui_printf(CAT_WHITE, "aggregate: %0.2f", score);
+			CAT_gui_printf(CAT_WHITE, "group diversity: %0.2f", group_score);
+			CAT_gui_printf(CAT_WHITE, "role propriety: %0.2f", role_score);
+			CAT_gui_printf(CAT_WHITE, "ichiju sansai: %0.2f", ichisan_score);
+			CAT_gui_printf(CAT_WHITE, "aggregate: %0.2f", aggregate_score);
 			break;
 		}
 	}
-	
 }
