@@ -279,7 +279,7 @@ void CAT_MS_feed(CAT_machine_signal signal)
 					if(CAT_gui_popup_is_open())
 						break;
 					if(CAT_input_pressed(CAT_BUTTON_A))
-						CAT_gui_open_popup("Submit this meal?\nUsed food items will\nbe consumed!\n", &commit);
+						CAT_gui_open_popup("Submit this meal?\nFood items on table\nwill be consumed!\n", &commit);
 					if(commit)
 					{
 						commit = false;
@@ -310,6 +310,18 @@ void CAT_MS_feed(CAT_machine_signal signal)
 							aggregate_score >= 0.5f ? 3 :
 							aggregate_score >= 0.25f ? 2 :
 							1;
+
+							bool empty = true;
+							for(int i = 0; i < food_idxs_l.length; i++)
+							{
+								if(food_active_mask[i])
+								{
+									empty = false;
+									break;
+								}
+							}
+							if(empty)
+								level = 0;
 						}
 						touched = -1;
 					}
