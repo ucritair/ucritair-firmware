@@ -49,16 +49,14 @@ void CAT_MS_menu(CAT_machine_signal signal)
 					CAT_machine_transition(CAT_MS_vending);
 				if(CAT_gui_menu_item("ARCADE"))
 					CAT_machine_transition(CAT_MS_arcade);
-				if(CAT_gui_menu_item("MAGIC"))
-					CAT_machine_transition(CAT_MS_magic);
 				if(CAT_gui_menu_item("AIR QUALITY"))
 				{
 #ifdef CAT_EMBEDDED	
 					CAT_machine_transition(CAT_MS_aqi);
 #endif
 				}
-				if(CAT_gui_menu_item("MANUAL"))
-					CAT_machine_transition(CAT_MS_manual);
+				if(CAT_gui_menu_item("MAGIC"))
+					CAT_machine_transition(CAT_MS_magic);
 				if(CAT_check_save_flag(CAT_SAVE_FLAG_DEVELOPER_MODE))
 				{
 					if(CAT_gui_begin_menu("DEVELOPER"))
@@ -208,6 +206,8 @@ void CAT_MS_menu(CAT_machine_signal signal)
 					}
 					CAT_gui_end_menu();
 				}
+				if(CAT_gui_menu_item("ABOUT"))
+					CAT_machine_transition(CAT_MS_manual);
 				if(CAT_gui_begin_menu("POWER"))
 				{
 					if(CAT_gui_menu_item("SLEEP"))
