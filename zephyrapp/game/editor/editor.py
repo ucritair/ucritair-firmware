@@ -376,6 +376,7 @@ class FileExplorer:
 			for entry in self.current.glob(self.glob):
 				if not entry in listings:
 					listings.append(entry);
+			listings.sort();
 			
 			imgui.set_next_window_size(self.size);
 			_, self.open = imgui.begin(f"File Explorer ({self.current.name})", self.open, flags=self.window_flags);
@@ -397,6 +398,57 @@ class FileExplorer:
 		FileExplorer.result = None;
 		return ready, result;
 
+#########################################################
+## SPRITE EXPLORER
+
+class SpriteExplorer:
+	_ = None;
+	result = None;
+
+	def __init__(self, target):
+		if SpriteExplorer._ != None:
+			return None;
+		SpriteExplorer._ = self;
+		SpriteExplorer.result = None;
+
+		self.target = target;
+
+		self.size = (640, 480);
+		window_flag_list = [
+			imgui.WindowFlags_.no_saved_settings,
+			imgui.WindowFlags_.no_collapse,
+		];
+		self.window_flags = foldl(lambda a, b : a | b, 0, window_flag_list);
+		self.open = True;
+	
+	def is_active(target):
+		return SpriteExplorer._ != None and SpriteExplorer._.target == target;
+
+	def render():
+		if SpriteExplorer._ == None:
+			return;
+
+		self = SpriteExplorer._;
+		if self.open:
+			listings = [s["name"] for s in asset_docs["sprite"].entries];
+			listings.sort();
+			
+			imgui.set_next_window_size(self.size);
+			_, self.open = imgui.begin(f"Sprite Explorer", self.open, flags=self.window_flags);
+			for item in listings:
+				preview.thumbnail("sprite", item);
+				if imgui.menu_item_simple(item):
+					SpriteExplorer.result = item;
+					SpriteExplorer._ = None;
+			self.size = imgui.get_window_size();
+			imgui.end();
+		if not self.open:
+			SpriteExplorer._ = None;
+		
+	def harvest():
+		ready, result = SpriteExplorer.result != None, SpriteExplorer.result;
+		SpriteExplorer.result = None;
+		return ready, result;
 
 #########################################################
 ## ASSET PREVIEWER
@@ -524,10 +576,16 @@ class Preview:
 	def render_sprite(self, name):
 		sprite = preview_bank.get("sprite", name);
 		if sprite != None:
-			imgui.image(sprite.preview_texture, (sprite.preview_image.width * 2, sprite.preview_image.height * 2));
+			if imgui.button(f"!##{name}"):
+				preview_bank.init("sprite", name);
 			imgui.same_line();
-		if imgui.button(f"Refresh##{name}"):
-			preview_bank.init("sprite", name);
+			imgui.image(sprite.preview_texture, (sprite.preview_image.width * 2, sprite.preview_image.height * 2));
+
+	def thumbnail_sprite(self, name):
+		sprite = preview_bank.get("sprite", name);
+		if sprite != None:
+			imgui.image(sprite.frame_textures[0], (48, 48));
+			imgui.same_line();
 	
 	def render_sound(self, name):
 		sound = preview_bank.get("sound", name);
@@ -550,7 +608,12 @@ class Preview:
 			case "sprite":
 				self.render_sprite(name);
 			case "sound":
-				self.render_sound(name);
+				self.render_sound(name);	
+
+	def thumbnail(self, asset_type, name):
+		match asset_type:
+			case "sprite":
+				self.thumbnail_sprite(name);
 
 preview = Preview();
 
@@ -559,6 +622,7 @@ preview = Preview();
 ## DOCUMENT GUI
 
 popup_statuses = {};
+search_term = "";
 
 class DocumentRenderer:	
 	def __render(doc, node):
@@ -638,18 +702,32 @@ class DocumentRenderer:
 
 			elif key_type in asset_types:
 				preview.render(key_type, node[key]);
-
 				imgui.text(key);
 				imgui.same_line();
-				if imgui.begin_combo(get_id(node, key), str(node[key])):
-					assets = asset_docs[key_type].entries;
-					for asset in assets:
-						selected = asset["name"] == node[key];
-						if imgui.selectable(asset["name"], selected)[0]:
-							node[key] = asset["name"];
-						if selected:
-							imgui.set_item_default_focus();
-					imgui.end_combo();
+
+				if key_type == "sprite":
+					if writable:
+						_, node[key] = imgui.input_text(get_id(node, key), node[key]);
+						imgui.same_line();
+						ident = get_id(node, key);
+						if imgui.button(f"...{ident}"):
+							SpriteExplorer(ident);
+						if SpriteExplorer.is_active(ident):
+							SpriteExplorer.render();
+							ready, result = SpriteExplorer.harvest();
+							node[key] = result if ready else node[key];
+					else:
+						imgui.text(node[key]);
+				else:
+					if imgui.begin_combo(get_id(node, key), str(node[key])):
+						assets = asset_docs[key_type].entries;
+						for asset in assets:
+							selected = asset["name"] == node[key];
+							if imgui.selectable(asset["name"], selected)[0]:
+								node[key] = asset["name"];
+							if selected:
+								imgui.set_item_default_focus();
+						imgui.end_combo();
 				
 			elif isinstance(key_type, dict):
 				if imgui.tree_node(key):
@@ -662,9 +740,15 @@ class DocumentRenderer:
 				imgui.text(f"[UNSUPPORTED TYPE \"{key_type}\"]");
 	
 	def render(doc):
+		global search_term;
+		_, search_term = imgui.input_text("Search", search_term);
+
 		idx = 0;
 		while idx < len(doc.entries):
 			node = doc.entries[idx];
+			if len(search_term) > 0 and search_term not in node['name']:
+				idx += 1;
+				continue;
 			node_open = imgui.tree_node(f"{get_name(node)} {get_number(node)}####{str(id(node))}");
 		
 			delete_popup_id = f"delete_popup####{id(node)}";
@@ -1070,7 +1154,7 @@ while not glfw.window_should_close(handle):
 			if imgui.menu_item_simple("Save", enabled=document != None):
 				document.save();
 			if imgui.menu_item_simple("Save All"):
-				for doc in asset_docs:
+				for doc in asset_docs.values():
 					doc.save();
 			if imgui.menu_item_simple("Close", enabled=document != None):
 				document = None;

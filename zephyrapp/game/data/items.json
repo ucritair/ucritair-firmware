@@ -284,6 +284,48 @@
         },
         {
             "type": "tool",
+            "name": "food_bagel",
+            "display_name": "Bagel",
+            "sprite": "bagel_sprite",
+            "icon": "icon_item_food_sprite",
+            "text": "",
+            "price": 0,
+            "id": 88,
+            "tool_data": {
+                "type": "food",
+                "cursor": "",
+                "dv": 0,
+                "df": 0,
+                "ds": 0,
+                "food_data": {
+                    "food_group": "starch",
+                    "food_role": "staple"
+                }
+            }
+        },
+        {
+            "type": "tool",
+            "name": "food_bananas",
+            "display_name": "Bananas",
+            "sprite": "banana_sprite",
+            "icon": "icon_item_food_sprite",
+            "text": "",
+            "price": 0,
+            "id": 89,
+            "tool_data": {
+                "type": "food",
+                "cursor": "",
+                "dv": 0,
+                "df": 0,
+                "ds": 0,
+                "food_data": {
+                    "food_group": "veg",
+                    "food_role": "side"
+                }
+            }
+        },
+        {
+            "type": "tool",
             "name": "food_barley_tea",
             "display_name": "Barley Tea",
             "sprite": "barley_tea_sprite",
@@ -300,6 +342,27 @@
                 "food_data": {
                     "food_group": "misc",
                     "food_role": "drink"
+                }
+            }
+        },
+        {
+            "type": "tool",
+            "name": "food_beef_noodles",
+            "display_name": "Beef Noodles",
+            "sprite": "beef_noodle_sprite",
+            "icon": "icon_item_food_sprite",
+            "text": "",
+            "price": 0,
+            "id": 90,
+            "tool_data": {
+                "type": "food",
+                "cursor": "",
+                "dv": 0,
+                "df": 0,
+                "ds": 0,
+                "food_data": {
+                    "food_group": "meat",
+                    "food_role": "main"
                 }
             }
         },
@@ -348,6 +411,48 @@
         },
         {
             "type": "tool",
+            "name": "food_burger",
+            "display_name": "Burger",
+            "sprite": "burger_sprite",
+            "icon": "icon_item_food_sprite",
+            "text": "",
+            "price": 0,
+            "id": 91,
+            "tool_data": {
+                "type": "food",
+                "cursor": "",
+                "dv": 0,
+                "df": 0,
+                "ds": 0,
+                "food_data": {
+                    "food_group": "meat",
+                    "food_role": "main"
+                }
+            }
+        },
+        {
+            "type": "tool",
+            "name": "food_carrots",
+            "display_name": "Carrots",
+            "sprite": "carrot_sprite",
+            "icon": "icon_item_food_sprite",
+            "text": "",
+            "price": 0,
+            "id": 92,
+            "tool_data": {
+                "type": "food",
+                "cursor": "",
+                "dv": 0,
+                "df": 0,
+                "ds": 0,
+                "food_data": {
+                    "food_group": "veg",
+                    "food_role": "side"
+                }
+            }
+        },
+        {
+            "type": "tool",
             "name": "food_cigs",
             "display_name": "Cigarettes",
             "sprite": "cigarette_sprite",
@@ -389,6 +494,27 @@
                 }
             },
             "tier": 0
+        },
+        {
+            "type": "tool",
+            "name": "food_congee",
+            "display_name": "Congee",
+            "sprite": "congee_sprite",
+            "icon": "icon_item_food_sprite",
+            "text": "",
+            "price": 0,
+            "id": 93,
+            "tool_data": {
+                "type": "food",
+                "cursor": "",
+                "dv": 0,
+                "df": 0,
+                "ds": 0,
+                "food_data": {
+                    "food_group": "starch",
+                    "food_role": "staple"
+                }
+            }
         },
         {
             "type": "tool",
@@ -436,6 +562,132 @@
         },
         {
             "type": "tool",
+            "name": "food_donut",
+            "display_name": "Donut",
+            "sprite": "donut_sprite",
+            "icon": "icon_item_food_sprite",
+            "text": "",
+            "price": 0,
+            "id": 94,
+            "tool_data": {
+                "type": "food",
+                "cursor": "",
+                "dv": 0,
+                "df": 0,
+                "ds": 0,
+                "food_data": {
+                    "food_group": "starch",
+                    "food_role": "treat"
+                }
+            }
+        },
+        {
+            "type": "tool",
+            "name": "food_dumplings",
+            "display_name": "Pork Dumplings",
+            "sprite": "dumplings_sprite",
+            "icon": "icon_item_food_sprite",
+            "text": "",
+            "price": 0,
+            "id": 95,
+            "tool_data": {
+                "type": "food",
+                "cursor": "",
+                "dv": 0,
+                "df": 0,
+                "ds": 0,
+                "food_data": {
+                    "food_group": "meat",
+                    "food_role": "main"
+                }
+            }
+        },
+        {
+            "type": "tool",
+            "name": "food_egg",
+            "display_name": "Egg",
+            "sprite": "egg_sprite",
+            "icon": "icon_item_food_sprite",
+            "text": "",
+            "price": 0,
+            "id": 96,
+            "tool_data": {
+                "type": "food",
+                "cursor": "",
+                "dv": 0,
+                "df": 0,
+                "ds": 0,
+                "food_data": {
+                    "food_group": "dairy",
+                    "food_role": "side"
+                }
+            }
+        },
+        {
+            "type": "tool",
+            "name": "food_empanadas",
+            "display_name": "Beef Empanadas",
+            "sprite": "empanadas_sprite",
+            "icon": "icon_item_food_sprite",
+            "text": "",
+            "price": 0,
+            "id": 97,
+            "tool_data": {
+                "type": "food",
+                "cursor": "",
+                "dv": 0,
+                "df": 0,
+                "ds": 0,
+                "food_data": {
+                    "food_group": "meat",
+                    "food_role": "main"
+                }
+            }
+        },
+        {
+            "type": "tool",
+            "name": "food_green_tea",
+            "display_name": "Green Tea",
+            "sprite": "green_tea_sprite",
+            "icon": "icon_item_food_sprite",
+            "text": "",
+            "price": 0,
+            "id": 104,
+            "tool_data": {
+                "type": "food",
+                "cursor": "",
+                "dv": 0,
+                "df": 0,
+                "ds": 0,
+                "food_data": {
+                    "food_group": "misc",
+                    "food_role": "drink"
+                }
+            }
+        },
+        {
+            "type": "tool",
+            "name": "food_hotdog",
+            "display_name": "Hotdog",
+            "sprite": "hotdog_sprite",
+            "icon": "icon_item_food_sprite",
+            "text": "",
+            "price": 0,
+            "id": 98,
+            "tool_data": {
+                "type": "food",
+                "cursor": "",
+                "dv": 0,
+                "df": 0,
+                "ds": 0,
+                "food_data": {
+                    "food_group": "meat",
+                    "food_role": "main"
+                }
+            }
+        },
+        {
+            "type": "tool",
             "name": "food_milk",
             "display_name": "Milk",
             "sprite": "milk_sprite",
@@ -455,6 +707,27 @@
                 }
             },
             "tier": 0
+        },
+        {
+            "type": "tool",
+            "name": "food_nasi_lemak",
+            "display_name": "Nasi Lemak",
+            "sprite": "nasi_lemak_sprite",
+            "icon": "icon_item_food_sprite",
+            "text": "",
+            "price": 0,
+            "id": 99,
+            "tool_data": {
+                "type": "food",
+                "cursor": "",
+                "dv": 0,
+                "df": 0,
+                "ds": 0,
+                "food_data": {
+                    "food_group": "veg",
+                    "food_role": "main"
+                }
+            }
         },
         {
             "type": "tool",
@@ -523,7 +796,7 @@
         {
             "type": "tool",
             "name": "food_pill_foc",
-            "display_name": "Focus Pill",
+            "display_name": "Focus Seed",
             "sprite": "pill_foc_sprite",
             "icon": "icon_item_food_sprite",
             "text": "",
@@ -536,8 +809,8 @@
                 "ds": 0,
                 "type": "food",
                 "food_data": {
-                    "food_group": "misc",
-                    "food_role": "drink"
+                    "food_group": "veg",
+                    "food_role": "vice"
                 }
             },
             "tier": 0
@@ -545,7 +818,7 @@
         {
             "type": "tool",
             "name": "food_pill_spi",
-            "display_name": "Spirit Pill",
+            "display_name": "Spirit Seed",
             "sprite": "pill_spi_sprite",
             "icon": "icon_item_food_sprite",
             "text": "",
@@ -558,8 +831,8 @@
                 "ds": 1,
                 "type": "food",
                 "food_data": {
-                    "food_group": "misc",
-                    "food_role": "drink"
+                    "food_group": "veg",
+                    "food_role": "vice"
                 }
             },
             "tier": 0
@@ -567,7 +840,7 @@
         {
             "type": "tool",
             "name": "food_pill_vig",
-            "display_name": "Vigour Pill",
+            "display_name": "Vigour Seed",
             "sprite": "pill_vig_sprite",
             "icon": "icon_item_food_sprite",
             "text": "",
@@ -580,11 +853,32 @@
                 "ds": 0,
                 "type": "food",
                 "food_data": {
-                    "food_group": "misc",
-                    "food_role": "drink"
+                    "food_group": "veg",
+                    "food_role": "vice"
                 }
             },
             "tier": 0
+        },
+        {
+            "type": "tool",
+            "name": "food_ramen",
+            "display_name": "Chashu Ramen",
+            "sprite": "ramen_sprite",
+            "icon": "icon_item_food_sprite",
+            "text": "",
+            "price": 0,
+            "id": 100,
+            "tool_data": {
+                "type": "food",
+                "cursor": "",
+                "dv": 0,
+                "df": 0,
+                "ds": 0,
+                "food_data": {
+                    "food_group": "meat",
+                    "food_role": "main"
+                }
+            }
         },
         {
             "type": "tool",
@@ -631,6 +925,27 @@
         },
         {
             "type": "tool",
+            "name": "food_salmon",
+            "display_name": "Salmon",
+            "sprite": "salmon_sprite",
+            "icon": "icon_item_food_sprite",
+            "text": "",
+            "price": 0,
+            "id": 101,
+            "tool_data": {
+                "type": "food",
+                "cursor": "",
+                "dv": 0,
+                "df": 0,
+                "ds": 0,
+                "food_data": {
+                    "food_group": "meat",
+                    "food_role": "main"
+                }
+            }
+        },
+        {
+            "type": "tool",
             "name": "food_sausage",
             "display_name": "Sausage",
             "sprite": "sausage_sprite",
@@ -653,6 +968,27 @@
         },
         {
             "type": "tool",
+            "name": "food_soda",
+            "display_name": "Soda",
+            "sprite": "soda_sprite",
+            "icon": "icon_item_food_sprite",
+            "text": "",
+            "price": 0,
+            "id": 102,
+            "tool_data": {
+                "type": "food",
+                "cursor": "",
+                "dv": 0,
+                "df": 0,
+                "ds": 0,
+                "food_data": {
+                    "food_group": "misc",
+                    "food_role": "treat"
+                }
+            }
+        },
+        {
+            "type": "tool",
             "name": "food_soup",
             "display_name": "Soup",
             "sprite": "soup_sprite",
@@ -672,6 +1008,48 @@
                 }
             },
             "tier": 0
+        },
+        {
+            "type": "tool",
+            "name": "food_strange_meal",
+            "display_name": "Strange Meal",
+            "sprite": "strange_meal_sprite",
+            "icon": "icon_item_food_sprite",
+            "text": "",
+            "price": 0,
+            "id": 103,
+            "tool_data": {
+                "type": "food",
+                "cursor": "",
+                "dv": 0,
+                "df": 0,
+                "ds": 0,
+                "food_data": {
+                    "food_group": "misc",
+                    "food_role": "main"
+                }
+            }
+        },
+        {
+            "type": "tool",
+            "name": "food_tuna",
+            "display_name": "Tuna",
+            "sprite": "tuna_sprite",
+            "icon": "icon_item_food_sprite",
+            "text": "",
+            "price": 0,
+            "id": 105,
+            "tool_data": {
+                "type": "food",
+                "cursor": "",
+                "dv": 0,
+                "df": 0,
+                "ds": 0,
+                "food_data": {
+                    "food_group": "meat",
+                    "food_role": "main"
+                }
+            }
         },
         {
             "type": "key",
