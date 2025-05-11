@@ -124,7 +124,7 @@ void CAT_pet_reanimate()
 		if(CAT_get_battery_pct() < CAT_CRITICAL_BATTERY_PCT)
 		{
 			AS_crit.enter_sprite = &pet_crit_foc_in_sprite;
-			AS_crit.tick_sprite = &icon_low_battery_pet;
+			AS_crit.tick_sprite = &icon_low_battery_pet_sprite;
 			AS_crit.exit_sprite = &pet_crit_foc_out_sprite;
 		}
 		else if(pet.vigour <= 0)

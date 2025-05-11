@@ -679,7 +679,7 @@ void render_statics()
 	
 	if(CAT_is_charging())
 	{
-		CAT_draw_queue_add(&icon_charging, 0, STATICS_LAYER + 1, 66, 37, CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
+		CAT_draw_queue_add(&icon_charging_sprite, 0, STATICS_LAYER + 1, 66, 37, CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
 	}
 	else
 	{
@@ -690,7 +690,7 @@ void render_statics()
 			battery_blink_switch = !battery_blink_switch;
 		}
 		if(CAT_get_battery_pct() <= CAT_CRITICAL_BATTERY_PCT && battery_blink_switch)
-			CAT_draw_queue_add(&icon_low_battery_alt, 0, STATICS_LAYER + 1, 66, 37, CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
+			CAT_draw_queue_add(&icon_low_battery_alt_sprite, 0, STATICS_LAYER + 1, 66, 37, CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
 	}
 	
 	CAT_draw_queue_add(&vending_sprite, -1, STATICS_LAYER, 172, 16, CAT_DRAW_FLAG_DEFAULT);
@@ -781,20 +781,19 @@ static const CAT_sprite* button_sprites[] =
 	&icon_deco_sprite,
 	&icon_menu_sprite
 };
-static int button_start_x = 24;
-static int button_start_y = 296;
+static int button_start_x = 16;
+static int button_start_y = 280;
 
 void render_gui()
 {
-	int icon_mode = CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y;
 	for(int i = 0; i < sizeof(button_sprites)/sizeof(button_sprites[0]); i++)
 	{
-		CAT_draw_queue_add(button_sprites[i], 0, GUI_LAYER, button_start_x + 48 * i, button_start_y, icon_mode);
+		CAT_draw_queue_add(button_sprites[i], 0, GUI_LAYER, button_start_x + 44 * i, button_start_y, CAT_DRAW_FLAG_DEFAULT);
 	}
-	CAT_draw_queue_add(&button_hl_sprite, 0, GUI_LAYER, button_start_x + 48 * mode_selector, button_start_y, icon_mode);
+	CAT_strokeberry(button_start_x + 44 * mode_selector, button_start_y, 33, 33, 0xFFFF);
 
 	if(input.touch.pressure)
-		CAT_draw_queue_add(&touch_hl_sprite, 0, 4, input.touch.x, input.touch.y, icon_mode);
+		CAT_draw_queue_add(&touch_hl_sprite, 0, 4, input.touch.x, input.touch.y, CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
 }
 
 void CAT_render_room()

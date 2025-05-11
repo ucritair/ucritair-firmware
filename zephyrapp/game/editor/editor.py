@@ -436,7 +436,7 @@ class SpriteExplorer:
 			imgui.set_next_window_size(self.size);
 			_, self.open = imgui.begin(f"Sprite Explorer", self.open, flags=self.window_flags);
 			for item in listings:
-				preview.thumbnail("sprite", item);
+				Preview.thumbnail("sprite", item);
 				if imgui.menu_item_simple(item):
 					SpriteExplorer.result = item;
 					SpriteExplorer._ = None;
@@ -569,25 +569,24 @@ class PreviewBank:
 		
 preview_bank = PreviewBank();
 
-class Preview:
-	def __init__(self):
-		self.cache = {};
-	
-	def render_sprite(self, name):
+class Preview:	
+	def render_sprite(name):
 		sprite = preview_bank.get("sprite", name);
 		if sprite != None:
 			if imgui.button(f"!##{name}"):
 				preview_bank.init("sprite", name);
 			imgui.same_line();
 			imgui.image(sprite.preview_texture, (sprite.preview_image.width * 2, sprite.preview_image.height * 2));
+		else:
+			preview_bank.init("sprite", name);
 
-	def thumbnail_sprite(self, name):
+	def thumbnail_sprite(name):
 		sprite = preview_bank.get("sprite", name);
 		if sprite != None:
 			imgui.image(sprite.frame_textures[0], (48, 48));
 			imgui.same_line();
 	
-	def render_sound(self, name):
+	def render_sound(name):
 		sound = preview_bank.get("sound", name);
 		if sound != None:
 			for i in range(sound.frames.shape[0]):
@@ -603,19 +602,17 @@ class Preview:
 		if imgui.button(f"Refresh##{name}"):
 			preview_bank.init("sound", name);
 	
-	def render(self, asset_type, name):
+	def render(asset_type, name):
 		match asset_type:
 			case "sprite":
-				self.render_sprite(name);
+				Preview.render_sprite(name);
 			case "sound":
-				self.render_sound(name);	
+				Preview.render_sound(name);	
 
-	def thumbnail(self, asset_type, name):
+	def thumbnail(asset_type, name):
 		match asset_type:
 			case "sprite":
-				self.thumbnail_sprite(name);
-
-preview = Preview();
+				Preview.thumbnail_sprite(name);
 
 
 #########################################################
@@ -629,7 +626,7 @@ class DocumentRenderer:
 		imgui.separator();
 		
 		if "name" in node:
-			preview.render(doc.type, node["name"]);
+			Preview.render(doc.type, node["name"]);
 
 		for key in node:
 			if not doc.schema.is_valid(key):
@@ -701,7 +698,7 @@ class DocumentRenderer:
 					imgui.text(node[key]);
 
 			elif key_type in asset_types:
-				preview.render(key_type, node[key]);
+				Preview.render(key_type, node[key]);
 				imgui.text(key);
 				imgui.same_line();
 
@@ -921,12 +918,12 @@ class AnimationViewer:
 			draw_x = self.canvas.width/2;
 			draw_y = self.canvas.height/2;
 			self.canvas.draw_flags = DrawFlags.CENTER_X | DrawFlags.CENTER_Y;
-			self.canvas.draw_image(draw_x, draw_y, preview.frame_images[self.frame]);
+			self.canvas.draw_image(draw_x, draw_y, Preview.frame_images[self.frame]);
 			if self.show_AABB:
-				self.canvas.draw_rect(draw_x, draw_y, preview.width, preview.height/preview.frame_count, (255, 0, 0));
+				self.canvas.draw_rect(draw_x, draw_y, Preview.width, Preview.height/Preview.frame_count, (255, 0, 0));
 			self.canvas.render(self.scale);
 
-			if preview.frame_count > 1:	
+			if Preview.frame_count > 1:	
 				animate_changed, self.animate = imgui.checkbox("Animate", self.animate);
 				if animate_changed:
 					self.frame = 0;
@@ -935,10 +932,10 @@ class AnimationViewer:
 					if self.timer >= 0.2:
 						self.timer = 0;
 						self.frame += 1;
-						if self.frame >= preview.frame_count:
+						if self.frame >= Preview.frame_count:
 							self.frame = 0;
 				else:
-					_, self.frame = imgui.slider_int("Frame", self.frame, 0, preview.frame_count-1);
+					_, self.frame = imgui.slider_int("Frame", self.frame, 0, Preview.frame_count-1);
 			
 			show_AABB_changed, self.show_AABB = imgui.checkbox("Show AABB", self.show_AABB);
 

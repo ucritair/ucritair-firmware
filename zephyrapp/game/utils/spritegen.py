@@ -19,6 +19,8 @@ json_entries = json_data['entries'];
 for (i, sprite) in enumerate(json_entries):
 	# Ensure correct JSON
 	sprite['id'] = i;
+	if not sprite['name'].endswith("_sprite"):
+		sprite['name'] += "_sprite";
 	sprite['frames'] = max(sprite['frames'], 1);
 	image = Image.open(os.path.join("sprites", sprite['path']));
 	sprite['width'] = image.size[0];
