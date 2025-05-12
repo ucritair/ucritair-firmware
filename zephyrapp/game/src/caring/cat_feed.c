@@ -221,6 +221,8 @@ static bool commit = false;
 int select_grid_margin = 12;
 int scroll_last_touch_y = 0;
 int scroll_offset = 0;
+int last_selected = -1;
+bool scrolled_last_frame = false;
 
 void render_select_grid()
 {
@@ -272,33 +274,47 @@ void select_grid_io()
 		int min_scroll_y = -select_grid_margin;
 		int max_scroll_y = ((food_pool.length / 3) + 3) * 64 + select_grid_margin - CAT_LCD_SCREEN_H;
 		scroll_offset = -clamp(-scroll_offset, min_scroll_y, max_scroll_y);
+
+		scrolled_last_frame = true;
 		return;
 	}
 
-	int x = select_grid_margin;
-	int y = select_grid_margin + scroll_offset;
-	int food_idx = 0;
-	for(int row = 0; ; row++)
+	if(CAT_input_touching())
 	{
-		for(int col = 0; col < 3; col++)
+		last_selected = -1;
+
+		int x = select_grid_margin;
+		int y = select_grid_margin + scroll_offset;
+		int food_idx = 0;
+		for(int row = 0; ; row++)
 		{
-			if(CAT_input_touch_down() && CAT_input_touch_rect(x, y, 64, 64))
-			{	
-				int active_idx = CAT_ilist_find(&food_idxs_l, food_idx);
-				if(active_idx != -1)
-					food_delete(active_idx);
-				else if(food_idxs_l.length < 5)
-					food_spawn(food_idx);
+			for(int col = 0; col < 3; col++)
+			{
+				if(CAT_input_touch_down() && CAT_input_touch_rect(x, y, 64, 64))
+				{
+					last_selected = food_idx;
+					scrolled_last_frame = false;
+					break;
+				}
+
+				food_idx += 1;
+				x += 64 + 12;
 			}
+			x = select_grid_margin;
+			y += 64 + select_grid_margin;
 
-			food_idx += 1;
-			x += 64 + 12;
+			if(food_idx >= food_pool.length)
+				break;
 		}
-		x = select_grid_margin;
-		y += 64 + select_grid_margin;
+	}
 
-		if(food_idx >= food_pool.length)
-			break;
+	if(CAT_input_touch_up() && !scrolled_last_frame)
+	{
+		int active_idx = CAT_ilist_find(&food_idxs_l, last_selected);
+		if(active_idx != -1)
+			food_delete(active_idx);
+		else if(food_idxs_l.length < 5)
+			food_spawn(last_selected);
 	}
 }
 
