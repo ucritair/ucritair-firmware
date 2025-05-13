@@ -373,11 +373,12 @@ void CAT_tick_logic()
 void CAT_tick_render()
 {
 	if (CAT_get_render_cycle() == 0)
-		CAT_draw_queue_clear();
-	
-	if(CAT_get_render_callback() != NULL)
+			CAT_draw_queue_clear();
+
+	CAT_render_callback render_callback = CAT_get_render_callback();
+	if(render_callback != NULL)
 	{
-		(CAT_get_render_callback())();
+		render_callback();
 	}
 	else
 	{
@@ -386,7 +387,9 @@ void CAT_tick_render()
 		His wings hold all creation in a weightless quiet,
 		steady as a hallucination in the streaming air.
 		*/
-		CAT_draw_sprite(&null_sprite, 0, 120-12, 160-12);
+		CAT_frameberry(CAT_BLACK);
+		CAT_push_draw_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
+		CAT_draw_sprite(&null_sprite, 0, 120, 160);
 	}
 
 	CAT_draw_queue_submit();
