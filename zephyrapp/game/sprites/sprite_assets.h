@@ -248,6 +248,7 @@ extern const CAT_sprite window_evening_sprite;
 extern const CAT_sprite window_morning_sprite;
 extern const CAT_sprite window_night_sprite;
 extern const CAT_sprite tile_floor_wood_sprite;
+extern const CAT_sprite display_glyphs_sprite;
 
 extern const CAT_sprite* sprite_list[];
-#define CAT_SPRITE_LIST_LENGTH 244
+#define CAT_SPRITE_LIST_LENGTH 245

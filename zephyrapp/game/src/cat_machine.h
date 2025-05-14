@@ -21,6 +21,7 @@ extern CAT_timetable timetable;
 
 void CAT_timetable_init();
 int CAT_timer_init(float duration);
+void CAT_timer_reinit(int* timer_id, float duration);
 void CAT_timer_delete(int timer_id);
 
 float CAT_timer_get(int timer_id);

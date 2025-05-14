@@ -38,6 +38,20 @@ int CAT_timer_init(float duration)
 	return -1;
 }
 
+void CAT_timer_reinit(int* timer_id, float duration)
+{
+	int idx = *timer_id;
+	if(idx == -1 || idx >= CAT_TIMETABLE_MAX_LENGTH || !timetable.active[idx])
+	{
+		*timer_id = CAT_timer_init(duration);
+	}
+	else
+	{
+		timetable.duration[idx] = duration;
+		timetable.timer[idx] = 0.0f;
+	}
+}
+
 void CAT_timer_delete(int timer_id)
 {
 	timetable.active[timer_id] = false;

@@ -15,6 +15,7 @@
 static enum
 {
 	SELECT,
+	INSPECT,
 	ARRANGE
 } mode = ARRANGE;
 
@@ -218,45 +219,14 @@ static float aggregate_score = 0.0f;
 static int level = 0;
 static bool commit = false;
 
-int select_grid_margin = 12;
-int scroll_last_touch_y = 0;
-int scroll_offset = 0;
-int last_selected = -1;
-bool scrolling = false;
+static int select_grid_margin = 12;
+static int scroll_last_touch_y = 0;
+static int scroll_offset = 0;
+static int last_selected = -1;
+static bool scrolling = false;
+static int inspect_timer_id = -1;
 
-void render_select_grid()
-{
-	CAT_frameberry(0xbdb4);
-
-	int x = select_grid_margin;
-	int y = select_grid_margin + scroll_offset;
-	int food_idx = 0;
-	for(int row = 0; ; row++)
-	{
-		for(int col = 0; col < 3; col++)
-		{
-			CAT_draw_sprite(&ui_item_frame_bg_sprite, 0, x, y);
-			
-			int food_id = food_pool.item_ids[food_idx];
-			CAT_item* food = CAT_item_get(food_id);
-			CAT_push_draw_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
-			CAT_push_draw_scale(2);
-			CAT_draw_sprite(food->sprite, 0, x + 32, y + 32);
-
-			int active_idx = CAT_ilist_find(&food_idxs_l, food_idx);
-			if(active_idx != -1)
-				CAT_draw_sprite(&ui_item_frame_fg_sprite, 0, x, y);
-
-			food_idx += 1;
-			x += 64 + 12;
-		}
-		x = select_grid_margin;
-		y += 64 + select_grid_margin;
-
-		if(food_idx >= food_pool.length)
-			break;
-	}
-}
+static CAT_item* inspectee = NULL;
 
 int get_hovered()
 {
@@ -314,13 +284,28 @@ void select_grid_io()
 			scroll_offset = -clamp(-scroll_offset, min_scroll_y, max_scroll_y);
 
 			scrolling = true;
+			CAT_timer_reset(inspect_timer_id);
+			last_selected = -1;
 			return;
 		}
 	
 		if(currently_hovered != last_selected)
 		{
 			last_selected = -1;
-		}	
+			CAT_timer_reset(inspect_timer_id);
+		}
+		else if(!scrolling)
+		{
+			if(input.touch_time >= 0.5f)
+			{
+				if(CAT_timer_tick(inspect_timer_id))
+				{
+					CAT_timer_reset(inspect_timer_id);
+					inspectee = CAT_item_get(food_pool.item_ids[last_selected]);
+					mode = INSPECT;
+				}
+			}
+		}
 	}
 	else if(CAT_input_touch_up())
 	{
@@ -329,11 +314,109 @@ void select_grid_io()
 			int active_idx = CAT_ilist_find(&food_idxs_l, last_selected);
 			if(active_idx != -1)
 				food_delete(active_idx);
-			else if(food_idxs_l.length < 5)
+			else
+			{
+				if(food_idxs_l.length == 5)
+					food_delete(4);
 				food_spawn(last_selected);
+			}
 		}
+
 		scrolling = false;
+		CAT_timer_reset(inspect_timer_id);
+		last_selected = -1;
 	}
+}
+
+void render_ring(int x, int y, int R, int r, uint16_t c, float t)
+{
+	int xi = x - r;
+	int yi = y - r;
+	for(int dy = -R; dy < R; dy++)
+	{
+		for(int dx = -R; dx < R; dx++)
+		{
+			if((dx*dx+dy*dy) <= R*R && (dx*dx+dy*dy) >= r*r)
+			{
+				float arc = atan2f((float) dy, (float) dx) + M_PI - (M_PI / 8);
+				if(arc <= t * M_PI * 2)
+					CAT_pixberry(x+dx, y+dy, c);
+			}
+		}
+	}
+}
+
+void render_select_grid()
+{
+	CAT_frameberry(0xbdb4);
+
+	int x = select_grid_margin;
+	int y = select_grid_margin + scroll_offset;
+	int food_idx = 0;
+	for(int row = 0; ; row++)
+	{
+		for(int col = 0; col < 3; col++)
+		{
+			CAT_draw_sprite(&ui_item_frame_bg_sprite, 0, x, y);
+			
+			int food_id = food_pool.item_ids[food_idx];
+			CAT_item* food = CAT_item_get(food_id);
+			CAT_push_draw_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
+			CAT_push_draw_scale(2);
+			CAT_draw_sprite(food->sprite, 0, x + 32, y + 32);
+
+			int active_idx = CAT_ilist_find(&food_idxs_l, food_idx);
+			if(active_idx != -1)
+				CAT_draw_sprite(&ui_item_frame_fg_sprite, 0, x, y);
+			
+			if(food_idx == last_selected && CAT_timer_progress(inspect_timer_id) >= 0.05f)
+			{
+				render_ring(input.touch.x, input.touch.y, 24, 18, RGB8882565(255-0, 255-141, 255-141), CAT_timer_progress(inspect_timer_id));
+			}
+
+			food_idx += 1;
+			x += 64 + 12;
+		}
+		x = select_grid_margin;
+		y += 64 + select_grid_margin;
+
+		if(food_idx >= food_pool.length)
+			break;
+	}
+}
+
+void render_text(const char* str, int x, int y, uint16_t c)
+{
+	int draw_x = x;
+	int draw_y = y;
+	const char* g = str;
+	while(*g != '\0')
+	{
+		char glyph = *g;
+		if(glyph == ' ')
+			draw_x += 10;
+		else if(glyph == '\n')
+		{
+			draw_x = x;
+			draw_y += 24+2;
+		}
+		else
+		{
+			CAT_push_draw_colour(c);
+			CAT_push_draw_scale(2);
+			CAT_draw_sprite(&glyph_sprite, glyph, draw_x, draw_y);
+			draw_x += 16;
+		}
+
+		g++;
+	}
+}
+
+void render_inspector()
+{
+	CAT_frameberry(0xbdb4);
+
+	render_text(inspectee->name, 8, 8, CAT_BLACK);
 }
 
 void CAT_MS_feed(CAT_machine_signal signal)
@@ -362,16 +445,19 @@ void CAT_MS_feed(CAT_machine_signal signal)
 			ichisan_score = 0;
 			aggregate_score = 0;
 			level = 0;
+			commit = false;
+
+			scroll_offset = 0;
+			last_selected = -1;
+			scrolling = false;
+			CAT_timer_reinit(&inspect_timer_id, 1.0f);
 		break;
 		case CAT_MACHINE_SIGNAL_TICK:
-			if(CAT_input_pressed(CAT_BUTTON_B) || CAT_input_pressed(CAT_BUTTON_START))
-				CAT_machine_back();
-			
 			switch(mode)
 			{
 				case SELECT:
 				{
-					if(CAT_input_pressed(CAT_BUTTON_SELECT))
+					if(CAT_input_pressed(CAT_BUTTON_B) || CAT_input_pressed(CAT_BUTTON_START) || CAT_input_pressed(CAT_BUTTON_SELECT))
 					{
 						mode = ARRANGE;
 						break;
@@ -380,8 +466,25 @@ void CAT_MS_feed(CAT_machine_signal signal)
 					select_grid_io();
 					break;
 				}
+				case INSPECT:
+				{
+					if(CAT_input_pressed(CAT_BUTTON_B) || CAT_input_pressed(CAT_BUTTON_START))
+					{
+						mode = SELECT;
+						break;
+					}
+					else if(CAT_input_pressed(CAT_BUTTON_SELECT))
+					{
+						mode = ARRANGE;
+						break;
+					}
+					break;
+				}
 				case ARRANGE:
 				{		
+					if(CAT_input_pressed(CAT_BUTTON_B) || CAT_input_pressed(CAT_BUTTON_START))
+						CAT_machine_back();
+
 					if(CAT_gui_popup_is_open())
 						break;
 					if(CAT_input_pressed(CAT_BUTTON_A))
@@ -477,6 +580,11 @@ void CAT_render_feed()
 		case SELECT:
 		{
 			render_select_grid();
+			break;
+		}
+		case INSPECT:
+		{
+			render_inspector();
 			break;
 		}
 		case ARRANGE:
