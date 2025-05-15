@@ -22,3 +22,5 @@ extern struct epaper_image_asset epaper_image_unicorn_default;
 extern struct epaper_image_asset epaper_image_unicorn_happy;
 extern struct epaper_image_asset epaper_image_unicorn_mask;
 extern struct epaper_image_asset epaper_image_unicorn_sad;
+
+extern struct epaper_image_asset epaper_image_protected;
