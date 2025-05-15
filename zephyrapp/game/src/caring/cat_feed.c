@@ -420,14 +420,87 @@ void render_text(int x, int y, uint16_t c, int scale, const char* fmt, ...)
 	}
 }
 
+static const char* group_strings[] =
+{
+	"VEG",
+	"STARCH",
+	"MEAT",
+	"DAIRY",
+	"MISC."
+};
+
+static const char* role_strings[] =
+{
+	"STAPLE",
+	"MAIN",
+	"SIDE",
+	"SOUP",
+	"DRINK",
+	"TREAT",
+	"VICE"
+};
+
 void render_inspector()
 {
 	CAT_frameberry(RGB8882565(142, 171, 174));
 
 	render_text(8, 8, CAT_WHITE, 2, inspectee->name);
-	render_text(8, 8+28, CAT_WHITE, 1, "GROUP: %d", inspectee->data.tool_data.food_group);
-	render_text(8, 8+28+16, CAT_WHITE, 1, "ROLE: %d", inspectee->data.tool_data.food_role);
+	render_text(8, 8+28, CAT_WHITE, 1, "GROUP: %s", group_strings[inspectee->data.tool_data.food_group]);
+	render_text(8, 8+28+16, CAT_WHITE, 1, "ROLE: %s", role_strings[inspectee->data.tool_data.food_role]);
 	render_text(8, 8+28+16+16, CAT_WHITE, 1, inspectee->text);
+
+	CAT_push_draw_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
+	CAT_push_draw_scale(6);
+	CAT_draw_sprite(inspectee->sprite, 0, 120, 160);
+}
+
+void render_arrangement()
+{
+	CAT_frameberry(CAT_BLACK);
+
+	int menu_x = menu_rect.min.x;
+	int menu_y = menu_rect.min.y;
+	int menu_w = menu_rect.max.x - menu_x;
+	int menu_h = menu_rect.max.y - menu_y;
+	CAT_strokeberry(menu_x, menu_y, menu_w, menu_h, CAT_RED);
+	int table_x = table_rect.min.x;
+	int table_y = table_rect.min.y;
+	int table_w = table_rect.max.x - table_x;
+	int table_h = table_rect.max.y - table_y;
+	CAT_strokeberry(table_x, table_y, table_w, table_h, CAT_BLUE);
+
+	for(int i = food_idxs_l.length-1; i >= 0; i--)
+	{
+		CAT_item* food = food_get(i);
+		CAT_rect rect = food_rects[i];
+		int x = rect.min.x;
+		int y = rect.min.y;
+		int w = rect.max.x - x;
+		int h = rect.max.y - y;
+		CAT_push_draw_scale(3);
+		CAT_push_draw_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
+		CAT_draw_sprite(food->sprite, 0, x+w/2, y+h/2);
+
+		if(food_active_mask[i] || true)
+		{
+			CAT_strokeberry(x, y, w, h, CAT_WHITE);
+		}
+	}
+
+	CAT_push_draw_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
+	CAT_push_draw_colour
+	(
+		level == 4 ? CAT_PURPLE :
+		level == 3 ? CAT_GREEN :
+		level == 2 ? CAT_YELLOW :
+		CAT_RED
+	);
+	CAT_draw_sprite(&gizmo_face_96x96_sprite, 0, 120, 290);
+
+	CAT_gui_printf(CAT_WHITE, "group diversity: %0.2f", group_score);
+	CAT_gui_printf(CAT_WHITE, "role propriety: %0.2f", role_score);
+	CAT_gui_printf(CAT_WHITE, "ichiju sansai: %0.2f", ichisan_score);
+	CAT_gui_printf(CAT_WHITE, "aggregate: %0.2f", aggregate_score);
 }
 
 void CAT_MS_feed(CAT_machine_signal signal)
@@ -600,43 +673,7 @@ void CAT_render_feed()
 		}
 		case ARRANGE:
 		{
-			CAT_frameberry(CAT_BLACK);
-
-			int menu_x = menu_rect.min.x;
-			int menu_y = menu_rect.min.y;
-			int menu_w = menu_rect.max.x - menu_x;
-			int menu_h = menu_rect.max.y - menu_y;
-			CAT_strokeberry(menu_x, menu_y, menu_w, menu_h, CAT_RED);
-			int table_x = table_rect.min.x;
-			int table_y = table_rect.min.y;
-			int table_w = table_rect.max.x - table_x;
-			int table_h = table_rect.max.y - table_y;
-			CAT_strokeberry(table_x, table_y, table_w, table_h, CAT_BLUE);
-
-			for(int i = food_idxs_l.length-1; i >= 0; i--)
-			{
-				CAT_item* food = food_get(i);
-				CAT_rect rect = food_rects[i];
-				int x = rect.min.x;
-				int y = rect.min.y;
-				CAT_push_draw_scale(3);
-				CAT_draw_sprite(food->sprite, 0, x, y);
-			}
-
-			CAT_push_draw_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
-			CAT_push_draw_colour
-			(
-				level == 4 ? CAT_PURPLE :
-				level == 3 ? CAT_GREEN :
-				level == 2 ? CAT_YELLOW :
-				CAT_RED
-			);
-			CAT_draw_sprite(&gizmo_face_96x96_sprite, 0, 120, 290);
-
-			CAT_gui_printf(CAT_WHITE, "group diversity: %0.2f", group_score);
-			CAT_gui_printf(CAT_WHITE, "role propriety: %0.2f", role_score);
-			CAT_gui_printf(CAT_WHITE, "ichiju sansai: %0.2f", ichisan_score);
-			CAT_gui_printf(CAT_WHITE, "aggregate: %0.2f", aggregate_score);
+			render_arrangement();
 			break;
 		}
 	}
