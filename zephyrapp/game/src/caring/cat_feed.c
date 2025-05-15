@@ -11,6 +11,8 @@
 #include "cat_gui.h"
 #include "cowtools/cat_curves.h"
 #include "cat_pet.h"
+#include <stdarg.h>
+#include <stdio.h>
 
 static enum
 {
@@ -385,27 +387,33 @@ void render_select_grid()
 	}
 }
 
-void render_text(const char* str, int x, int y, uint16_t c)
+void render_text(int x, int y, uint16_t c, int scale, const char* fmt, ...)
 {
+	va_list args;
+	va_start(args, fmt);
+	char text[128];
+	vsnprintf(text, 128, fmt, args);
+	va_end(args);
+
 	int draw_x = x;
 	int draw_y = y;
-	const char* g = str;
+	const char* g = text;
 	while(*g != '\0')
 	{
 		char glyph = *g;
 		if(glyph == ' ')
-			draw_x += 10;
+			draw_x += 5 * scale;
 		else if(glyph == '\n')
 		{
 			draw_x = x;
-			draw_y += 24+2;
+			draw_y += 13 * scale;
 		}
 		else
 		{
 			CAT_push_draw_colour(c);
-			CAT_push_draw_scale(2);
+			CAT_push_draw_scale(scale);
 			CAT_draw_sprite(&glyph_sprite, glyph, draw_x, draw_y);
-			draw_x += 16;
+			draw_x += 8 * scale;
 		}
 
 		g++;
@@ -414,9 +422,12 @@ void render_text(const char* str, int x, int y, uint16_t c)
 
 void render_inspector()
 {
-	CAT_frameberry(0xbdb4);
+	CAT_frameberry(RGB8882565(142, 171, 174));
 
-	render_text(inspectee->name, 8, 8, CAT_BLACK);
+	render_text(8, 8, CAT_WHITE, 2, inspectee->name);
+	render_text(8, 8+28, CAT_WHITE, 1, "GROUP: %d", inspectee->data.tool_data.food_group);
+	render_text(8, 8+28+16, CAT_WHITE, 1, "ROLE: %d", inspectee->data.tool_data.food_role);
+	render_text(8, 8+28+16+16, CAT_WHITE, 1, inspectee->text);
 }
 
 void CAT_MS_feed(CAT_machine_signal signal)
