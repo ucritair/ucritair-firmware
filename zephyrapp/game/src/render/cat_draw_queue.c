@@ -57,9 +57,6 @@ void CAT_draw_queue_submit()
 		CAT_draw_job* job = &jobs[i];
 		const CAT_sprite* sprite = job->sprite;
 
-		if(job->frame_idx == -1)
-			job->frame_idx = CAT_animator_get_frame(sprite);
-
 		CAT_push_draw_flags(job->flags);
 		CAT_draw_sprite(sprite, job->frame_idx, job->x, job->y);
 	}

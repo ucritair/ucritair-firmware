@@ -36,6 +36,50 @@
 #define CAT_PURPLE 0b1111100000011111
 
 //////////////////////////////////////////////////////////////////////////
+// COLOUR
+
+typedef union
+{
+	struct
+	{
+		uint8_t r;
+		uint8_t g;
+		uint8_t b;
+	};
+
+	uint8_t channels[3];
+} CAT_RGB888;
+
+static inline CAT_RGB888 CAT_RGB24(uint8_t r, uint8_t g, uint8_t b)
+{
+	return (CAT_RGB888)
+	{
+		.r = r,
+		.g = g,
+		.b = b
+	};
+}
+
+static inline CAT_RGB888 CAT_RGB888_lerp(CAT_RGB888 a, CAT_RGB888 b, float t)
+{
+	return (CAT_RGB888)
+	{
+		.r = (1.0f-t) * (float) a.r + t * (float) b.r,
+		.g = (1.0f-t) * (float) a.g + t * (float) b.g,
+		.b = (1.0f-t) * (float) a.b + t * (float) b.b
+	};
+}
+
+static inline uint16_t CAT_RGB8882565(CAT_RGB888 c)
+{
+	return 
+	((c.r & 0b11111000) << 8) |
+	((c.g & 0b11111100) << 3) |
+	(c.b >> 3);
+}
+
+
+//////////////////////////////////////////////////////////////////////////
 // SPRITER
 
 typedef struct

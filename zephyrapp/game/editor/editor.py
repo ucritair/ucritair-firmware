@@ -918,12 +918,12 @@ class AnimationViewer:
 			draw_x = self.canvas.width/2;
 			draw_y = self.canvas.height/2;
 			self.canvas.draw_flags = DrawFlags.CENTER_X | DrawFlags.CENTER_Y;
-			self.canvas.draw_image(draw_x, draw_y, Preview.frame_images[self.frame]);
+			self.canvas.draw_image(draw_x, draw_y, preview.frame_images[self.frame]);
 			if self.show_AABB:
-				self.canvas.draw_rect(draw_x, draw_y, Preview.width, Preview.height/Preview.frame_count, (255, 0, 0));
+				self.canvas.draw_rect(draw_x, draw_y, preview.width, preview.height/preview.frame_count, (255, 0, 0));
 			self.canvas.render(self.scale);
 
-			if Preview.frame_count > 1:	
+			if preview.frame_count > 1:	
 				animate_changed, self.animate = imgui.checkbox("Animate", self.animate);
 				if animate_changed:
 					self.frame = 0;
@@ -932,10 +932,10 @@ class AnimationViewer:
 					if self.timer >= 0.2:
 						self.timer = 0;
 						self.frame += 1;
-						if self.frame >= Preview.frame_count:
+						if self.frame >= preview.frame_count:
 							self.frame = 0;
 				else:
-					_, self.frame = imgui.slider_int("Frame", self.frame, 0, Preview.frame_count-1);
+					_, self.frame = imgui.slider_int("Frame", self.frame, 0, preview.frame_count-1);
 			
 			show_AABB_changed, self.show_AABB = imgui.checkbox("Show AABB", self.show_AABB);
 

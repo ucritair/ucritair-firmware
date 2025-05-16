@@ -145,6 +145,7 @@ extern const CAT_sprite pet_crit_vig_sprite;
 extern const CAT_sprite pet_eat_in_sprite;
 extern const CAT_sprite pet_eat_out_sprite;
 extern const CAT_sprite pet_eat_sprite;
+extern const CAT_sprite pet_feed_back_sprite;
 extern const CAT_sprite pet_foc_up_sprite;
 extern const CAT_sprite pet_high_vig_in_sprite;
 extern const CAT_sprite pet_high_vig_out_sprite;
@@ -218,6 +219,7 @@ extern const CAT_sprite table_sm_walnut_sprite;
 extern const CAT_sprite table_walnut_sprite;
 extern const CAT_sprite tea_cup_empty_sprite;
 extern const CAT_sprite tea_cup_sprite;
+extern const CAT_sprite tile_floor_wood_sprite;
 extern const CAT_sprite tile_hl_add_sprite;
 extern const CAT_sprite tile_hl_flip_sprite;
 extern const CAT_sprite tile_hl_rm_sprite;
@@ -231,6 +233,7 @@ extern const CAT_sprite toy_duck_sprite;
 extern const CAT_sprite toy_golf_sprite;
 extern const CAT_sprite toy_puzzle_sprite;
 extern const CAT_sprite tuna_sprite;
+extern const CAT_sprite ui_down_arrow_sprite;
 extern const CAT_sprite ui_item_frame_bg_sprite;
 extern const CAT_sprite ui_item_frame_fg_sprite;
 extern const CAT_sprite uv_sprite;
@@ -247,8 +250,6 @@ extern const CAT_sprite window_dusk_sprite;
 extern const CAT_sprite window_evening_sprite;
 extern const CAT_sprite window_morning_sprite;
 extern const CAT_sprite window_night_sprite;
-extern const CAT_sprite tile_floor_wood_sprite;
-extern const CAT_sprite display_glyphs_sprite;
 
 extern const CAT_sprite* sprite_list[];
-#define CAT_SPRITE_LIST_LENGTH 245
+#define CAT_SPRITE_LIST_LENGTH 246

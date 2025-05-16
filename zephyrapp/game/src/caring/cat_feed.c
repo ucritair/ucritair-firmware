@@ -46,8 +46,15 @@ static CAT_item_list food_pool;
 static int idx_pool[CAT_ITEM_LIST_MAX_LENGTH];
 static int food_idxs[5];
 static CAT_rect food_rects[5];
-static bool food_active_mask[5];
 static CAT_int_list food_idxs_l;
+
+static bool food_active_mask[5];
+static int food_active_count;
+static CAT_vec2 food_centers[5];
+static CAT_vec2 food_centroid;
+
+static int touched = -1;
+static int dx, dy;
 
 bool food_filter(int item_id)
 {
@@ -70,6 +77,9 @@ void food_swap(int i, int j)
 	bool temp_active = food_active_mask[i];
 	food_active_mask[i] = food_active_mask[j];
 	food_active_mask[j] = temp_active;
+	CAT_vec2 temp_center = food_centers[i];
+	food_centers[i] = food_centers[j];
+	food_centers[j] = temp_center;
 }
 
 CAT_item* food_get(int i)
@@ -118,6 +128,28 @@ float spawn_rect_fill(int rect_idx)
 	return (float) overlap_a / (float) spawn_a;
 }
 
+void food_refresh()
+{
+	food_active_count = 0;
+	food_centroid =(CAT_vec2) {0, 0};
+
+	for(int i = 0; i < food_idxs_l.length; i++)
+	{
+		food_active_mask[i] = CAT_rect_contains(table_rect, food_rects[i]);
+		if(!food_active_mask[i])
+			continue;
+		food_active_count += 1;
+
+		food_centers[i] = (CAT_vec2)
+		{
+			(food_rects[i].min.x + food_rects[i].max.x) * 0.5f,
+			(food_rects[i].min.y + food_rects[i].max.y) * 0.5f
+		};
+		food_centroid = CAT_vec2_add(food_centroid, food_centers[i]);
+	}
+	food_centroid = CAT_vec2_mul(food_centroid, 1.0f / (float) food_active_count);
+}
+
 void food_spawn(int idx)
 {
 	int free_rect_idx = -1;
@@ -137,11 +169,18 @@ void food_spawn(int idx)
 
 	CAT_ilist_push(&food_idxs_l, idx);
 	food_rects[food_idxs_l.length-1] = spawn_rect;
-	food_active_mask[food_idxs_l.length-1] = false;
+
+	food_refresh();
 }
 
-static int touched = -1;
-static int dx, dy;
+static float group_score = 0.0f;
+static float role_score = 0.0f;
+static float ichisan_score = 0.0f;
+static float spacing_score = 0.0f;
+static float evenness_score = 0.0f;
+static float aggregate_score = 0.0f;
+static int level = 0;
+static bool commit = false;
 
 float group_diversity()
 {
@@ -188,7 +227,6 @@ float role_propriety()
 	return -(treat + vice) / 2.0f;
 }
 
-// % presence of 1 staple, 1 soup, 1 main, 2 sides
 float ichiju_sansai()
 {
 	float staple = 0;
@@ -214,12 +252,86 @@ float ichiju_sansai()
 	return (staple + soup + main + sides) / 5.0f;
 }
 
-static float group_score = 0.0f;
-static float role_score = 0.0f;
-static float ichisan_score = 0.0f;
-static float aggregate_score = 0.0f;
-static int level = 0;
-static bool commit = false;
+float score_spacing()
+{
+	bool collision_mask[5] = {false, false, false, false, false};
+	float collision_count = 0;
+
+	for(int i = 0; i < food_idxs_l.length; i++)
+	{
+		if(!food_active_mask[i])
+			continue;
+		for(int j = i+1; j < food_idxs_l.length; j++)
+		{
+			if(!food_active_mask[j])
+				continue;	
+			if(CAT_rect_overlaps(food_rects[i], food_rects[j]))
+			{
+				collision_mask[i] = collision_mask[j] = true;
+				break;
+			}
+		}
+	}
+	for(int i = 0; i < 5; i++)
+	{
+		if(collision_mask[i])
+			collision_count += 1;
+	}
+
+	return 
+	food_active_count > 0 ?
+	1.0f - collision_count / food_active_count :
+	0;
+}
+
+float score_evenness()
+{
+	float spokes[5];
+
+	float spoke_mean = 0.0f;
+	for(int i = 0; i < food_idxs_l.length; i++)
+	{
+		if(!food_active_mask[i])
+			continue;
+		spokes[i] = sqrt(CAT_vec2_dist2(food_centroid, food_centers[i]));
+		spoke_mean += spokes[i];
+	}
+	spoke_mean /= food_active_count;
+
+	float spoke_stddev = 0.0f;
+	for(int i = 0; i < food_idxs_l.length; i++)
+	{
+		if(!food_active_mask[i])
+			continue;
+		spoke_stddev += (spokes[i] - spoke_mean) * (spokes[i] - spoke_mean);
+	}
+	spoke_stddev = sqrt(spoke_stddev / (food_active_count-1));
+
+	float evenness = CAT_ease_in_quad(1.0f - spoke_stddev / spoke_mean);
+	return food_active_count > 0 ?
+	evenness :
+	0;
+}
+
+void score_refresh()
+{
+	group_score = group_diversity();
+	role_score = role_propriety();
+	ichisan_score = ichiju_sansai();
+	spacing_score = score_spacing();
+	evenness_score = score_evenness();
+	aggregate_score = 
+	(
+		group_score * 3 +
+		role_score * 2 +
+		spacing_score
+	) / 6.0f;
+
+	aggregate_score += ichisan_score * 0.25f;
+	aggregate_score = clampf(aggregate_score, 0, 1.0f);
+
+	level = round(aggregate_score * 6.0f);
+}
 
 static int select_grid_margin = 12;
 static int scroll_last_touch_y = 0;
@@ -227,6 +339,16 @@ static int scroll_offset = 0;
 static int last_selected = -1;
 static bool scrolling = false;
 static int inspect_timer_id = -1;
+
+int get_min_scroll_y()
+{
+	return -select_grid_margin;
+}
+
+int get_max_scroll_y()
+{
+	return ((food_pool.length / 3) + 3) * 64 + select_grid_margin - CAT_LCD_SCREEN_H;
+}
 
 static CAT_item* inspectee = NULL;
 
@@ -280,10 +402,7 @@ void select_grid_io()
 		{
 			scroll_offset += scroll_dy;
 			scroll_last_touch_y = scroll_touch_y;
-
-			int min_scroll_y = -select_grid_margin;
-			int max_scroll_y = ((food_pool.length / 3) + 3) * 64 + select_grid_margin - CAT_LCD_SCREEN_H;
-			scroll_offset = -clamp(-scroll_offset, min_scroll_y, max_scroll_y);
+			scroll_offset = -clamp(-scroll_offset, get_min_scroll_y(), get_max_scroll_y());
 
 			scrolling = true;
 			CAT_timer_reset(inspect_timer_id);
@@ -385,6 +504,11 @@ void render_select_grid()
 		if(food_idx >= food_pool.length)
 			break;
 	}
+
+	if(abs(-scroll_offset - get_max_scroll_y()) >= 64)
+	{
+		CAT_draw_sprite(&ui_down_arrow_sprite, -1, 240-52, 320-24);
+	}
 }
 
 void render_text(int x, int y, uint16_t c, int scale, const char* fmt, ...)
@@ -422,11 +546,11 @@ void render_text(int x, int y, uint16_t c, int scale, const char* fmt, ...)
 
 static const char* group_strings[] =
 {
-	"VEG",
+	"VEG / FRUIT",
 	"STARCH",
 	"MEAT",
 	"DAIRY",
-	"MISC."
+	"MISCELLANY"
 };
 
 static const char* role_strings[] =
@@ -445,8 +569,8 @@ void render_inspector()
 	CAT_frameberry(RGB8882565(142, 171, 174));
 
 	render_text(8, 8, CAT_WHITE, 2, inspectee->name);
-	render_text(8, 8+28, CAT_WHITE, 1, "GROUP: %s", group_strings[inspectee->data.tool_data.food_group]);
-	render_text(8, 8+28+16, CAT_WHITE, 1, "ROLE: %s", role_strings[inspectee->data.tool_data.food_role]);
+	render_text(8, 8+28, CAT_WHITE, 1, "Group: %s", group_strings[inspectee->data.tool_data.food_group]);
+	render_text(8, 8+28+16, CAT_WHITE, 1, "Role: %s", role_strings[inspectee->data.tool_data.food_role]);
 	render_text(8, 8+28+16+16, CAT_WHITE, 1, inspectee->text);
 
 	CAT_push_draw_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
@@ -481,25 +605,26 @@ void render_arrangement()
 		CAT_push_draw_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
 		CAT_draw_sprite(food->sprite, 0, x+w/2, y+h/2);
 
-		if(food_active_mask[i] || true)
+		CAT_strokeberry(food_centroid.x-4, food_centroid.y-4, 8, 8, CAT_RED);
+		if(food_active_mask[i])
 		{
+			CAT_RGB888 red = CAT_RGB24(255, 0, 0);
+			CAT_RGB888 green = CAT_RGB24(0, 255, 0);
+			uint16_t evenness_colour = CAT_RGB8882565(CAT_RGB888_lerp(red, green, evenness_score));
+			CAT_lineberry(food_centers[i].x, food_centers[i].y, food_centroid.x, food_centroid.y, evenness_colour);
+
 			CAT_strokeberry(x, y, w, h, CAT_WHITE);
 		}
 	}
 
-	CAT_push_draw_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
-	CAT_push_draw_colour
-	(
-		level == 4 ? CAT_PURPLE :
-		level == 3 ? CAT_GREEN :
-		level == 2 ? CAT_YELLOW :
-		CAT_RED
-	);
-	CAT_draw_sprite(&gizmo_face_96x96_sprite, 0, 120, 290);
+	CAT_push_draw_flags(CAT_DRAW_FLAG_BOTTOM | CAT_DRAW_FLAG_CENTER_X);
+	CAT_draw_sprite(&pet_feed_back_sprite, -1, 120, 320);
 
 	CAT_gui_printf(CAT_WHITE, "group diversity: %0.2f", group_score);
 	CAT_gui_printf(CAT_WHITE, "role propriety: %0.2f", role_score);
 	CAT_gui_printf(CAT_WHITE, "ichiju sansai: %0.2f", ichisan_score);
+	CAT_gui_printf(CAT_WHITE, "spacing: %0.2f", spacing_score);
+	CAT_gui_printf(CAT_WHITE, "evenness: %0.2f", evenness_score);
 	CAT_gui_printf(CAT_WHITE, "aggregate: %0.2f", aggregate_score);
 }
 
@@ -527,6 +652,7 @@ void CAT_MS_feed(CAT_machine_signal signal)
 			group_score = 0;
 			role_score = 0;
 			ichisan_score = 0;
+			spacing_score = 0;
 			aggregate_score = 0;
 			level = 0;
 			commit = false;
@@ -601,17 +727,8 @@ void CAT_MS_feed(CAT_machine_signal signal)
 					{
 						if(CAT_input_touch_up())
 						{
-							group_score = group_diversity();
-							role_score = role_propriety();
-							ichisan_score = ichiju_sansai();
-							aggregate_score = (group_score * 3 + role_score * 2 + ichisan_score) / 5.0f;
-							if(aggregate_score >= 0.5f)
-								aggregate_score *= 1.15f;
-							level =
-							aggregate_score >= 0.75f ? 4 :
-							aggregate_score >= 0.5f ? 3 :
-							aggregate_score >= 0.25f ? 2 :
-							1;
+							food_refresh();
+							score_refresh();
 						}
 						touched = -1;
 					}
@@ -645,9 +762,6 @@ void CAT_MS_feed(CAT_machine_signal signal)
 							food_rects[touched].max.y = food_rects[touched].min.y + h;
 						}
 					}
-
-					for(int i = 0; i < food_idxs_l.length; i++)
-						food_active_mask[i] = CAT_rect_contains(table_rect, food_rects[i]);
 					break;
 				}
 			}			

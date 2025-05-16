@@ -116,7 +116,7 @@ void CAT_platform_init()
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
-	simulator.window = glfwCreateWindow(CAT_LCD_SCREEN_W, CAT_LCD_SCREEN_H + 16, "μCritAir", NULL, NULL);
+	simulator.window = glfwCreateWindow(CAT_LCD_SCREEN_W, CAT_LCD_SCREEN_H, "μCritAir", NULL, NULL);
 	if(simulator.window == NULL)
 	{
 		CAT_printf("Failed to create window\n");
@@ -156,7 +156,7 @@ void CAT_platform_init()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, CAT_LCD_SCREEN_W, CAT_LCD_SCREEN_H + 16, 0, GL_RGB, GL_UNSIGNED_SHORT_5_6_5, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, CAT_LCD_SCREEN_W, CAT_LCD_SCREEN_H, 0, GL_RGB, GL_UNSIGNED_SHORT_5_6_5, NULL);
 	glGenerateMipmap(GL_TEXTURE_2D);
 
 	FILE* vert_file = fopen("shaders/cat.vert", "r");
@@ -326,36 +326,18 @@ void CAT_eink_update()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // LEDs
 
-uint16_t led_buffer[CAT_LCD_SCREEN_W * 16];
+uint8_t LEDs[6][3];
 
 void CAT_set_LEDs(uint8_t r, uint8_t g, uint8_t b)
 {
 	float power = CAT_LED_get_brightness() / 100.0f;
-	uint16_t scaled_rgb565 = 
-	RGB8882565
-	(
-		SCALEBYTE(r, power),
-		SCALEBYTE(g, power),
-		SCALEBYTE(b, power)
-	);
 
-	for(int y = 0; y < 16; y++)
+	for(int i = 0; i < 6; i++)
 	{
-		for(int x = 0; x < CAT_LCD_SCREEN_W; x++)
-		{
-			led_buffer[y * CAT_LCD_SCREEN_W + x] = scaled_rgb565;
-		}
+		LEDs[i][0] = SCALEBYTE(r, power);
+		LEDs[i][1] = SCALEBYTE(g, power);
+		LEDs[i][2] = SCALEBYTE(b, power);
 	}
-	
-	glBindTexture(GL_TEXTURE_2D, simulator.tex_id);
-	glTexSubImage2D
-	(
-		GL_TEXTURE_2D, 0,
-		0, CAT_LCD_SCREEN_H,
-		CAT_LCD_SCREEN_W, 16,
-		GL_RGB, GL_UNSIGNED_SHORT_5_6_5,
-		led_buffer
-	);
 }
 
 

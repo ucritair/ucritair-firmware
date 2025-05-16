@@ -42,6 +42,10 @@ void CAT_draw_sprite(const CAT_sprite* sprite, int frame_idx, int x, int y)
 		sprite = &null_sprite;
 		frame_idx = 0;
 	}
+	else if(frame_idx == -1)
+	{
+		frame_idx = CAT_animator_get_frame(sprite);
+	}
 	else if(frame_idx < 0 || frame_idx >= sprite->frame_count)
 	{
 		CAT_printf("[WARNING] CAT_draw_sprite: frame index %d out of bounds\n", frame_idx);
