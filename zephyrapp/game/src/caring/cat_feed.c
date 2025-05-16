@@ -517,8 +517,8 @@ void score_refresh()
 		role_score * 2 +
 		spacing_score +
 		evenness_score +
-		ichisan_score
-	) / 7.0f;
+		ichisan_score * 0.5f
+	) / 6.5f;
 
 	aggregate_score = clampf(aggregate_score, 0, 1.0f);
 	aggregate_score = CAT_ease_in_sine(aggregate_score);
@@ -720,6 +720,31 @@ void render_inspector()
 	CAT_draw_sprite(inspectee->sprite, 0, 120, 160);
 }
 
+static bool show_feedback = false;
+static int feedback_timer_id = -1;
+
+void render_feedback()
+{
+	//CAT_frameberry(CAT_BLACK);
+
+	CAT_push_draw_flags(CAT_DRAW_FLAG_BOTTOM);
+	const CAT_sprite* sprite = &pet_feed_neutral_sprite;
+	int x = 240-96; int y = 320;
+	if(level == 1 || food_active_count == 0)
+	{
+		sprite = &pet_feed_very_bad_sprite;
+	}
+	else if(level > 5 || level > (food_active_count+1))
+	{
+		sprite = &pet_feed_good_sprite;
+	}
+	else if(level < food_active_count)
+	{
+		sprite = &pet_feed_bad_sprite;
+	}
+	CAT_draw_sprite(sprite, 0, x, y);
+}
+
 void render_arrangement()
 {
 	CAT_frameberry(CAT_BLACK);
@@ -763,7 +788,11 @@ void render_arrangement()
 	}
 
 	CAT_push_draw_flags(CAT_DRAW_FLAG_BOTTOM | CAT_DRAW_FLAG_CENTER_X);
+	if(show_feedback)
+		CAT_push_draw_colour(RGB8882565(64, 64, 64));
 	CAT_draw_sprite(&pet_feed_back_sprite, -1, 120, 320);
+	if(show_feedback)
+		render_feedback();
 
 	CAT_gui_printf(CAT_WHITE, "group diversity: %0.2f", group_score);
 	CAT_gui_printf(CAT_WHITE, "role propriety: %0.2f", role_score);
@@ -772,6 +801,8 @@ void render_arrangement()
 	CAT_gui_printf(CAT_WHITE, "evenness: %0.2f", evenness_score);
 	CAT_gui_printf(CAT_WHITE, "aggregate: %0.2f", aggregate_score);
 	CAT_gui_printf(CAT_WHITE, "level: %d", level);
+
+	
 }
 
 void CAT_MS_feed(CAT_machine_signal signal)
@@ -799,6 +830,7 @@ void CAT_MS_feed(CAT_machine_signal signal)
 			role_score = 0;
 			ichisan_score = 0;
 			spacing_score = 0;
+			evenness_score = 0;
 			aggregate_score = 0;
 			level = 0;
 			commit = false;
@@ -807,6 +839,8 @@ void CAT_MS_feed(CAT_machine_signal signal)
 			last_selected = -1;
 			scrolling = false;
 			CAT_timer_reinit(&inspect_timer_id, 1.0f);
+
+			CAT_timer_reinit(&feedback_timer_id, 2.0f);
 		break;
 		case CAT_MACHINE_SIGNAL_TICK:
 			switch(mode)
@@ -853,7 +887,6 @@ void CAT_MS_feed(CAT_machine_signal signal)
 						{
 							if(food_active_mask[i])
 							{
-								CAT_printf("Removing %s\n", food_get(i)->name);
 								CAT_item_list_remove(&bag, food_pool.item_ids[food_idxs[i]], 1);
 								empty = false;
 							}
@@ -896,6 +929,12 @@ void CAT_MS_feed(CAT_machine_signal signal)
 								break;
 							}
 						}
+
+						if(CAT_input_touch_rect(85, 240, 64, 64))
+						{
+							show_feedback = true;
+							CAT_timer_reset(feedback_timer_id);
+						}
 					}
 					else
 					{
@@ -909,6 +948,9 @@ void CAT_MS_feed(CAT_machine_signal signal)
 							food_rects[touched].max.y = food_rects[touched].min.y + h;
 						}
 					}
+
+					if(show_feedback && CAT_timer_tick(feedback_timer_id))
+						show_feedback = false;
 					break;
 				}
 			}			

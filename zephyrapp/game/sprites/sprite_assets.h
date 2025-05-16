@@ -146,6 +146,10 @@ extern const CAT_sprite pet_eat_in_sprite;
 extern const CAT_sprite pet_eat_out_sprite;
 extern const CAT_sprite pet_eat_sprite;
 extern const CAT_sprite pet_feed_back_sprite;
+extern const CAT_sprite pet_feed_bad_sprite;
+extern const CAT_sprite pet_feed_good_sprite;
+extern const CAT_sprite pet_feed_neutral_sprite;
+extern const CAT_sprite pet_feed_very_bad_sprite;
 extern const CAT_sprite pet_foc_up_sprite;
 extern const CAT_sprite pet_high_vig_in_sprite;
 extern const CAT_sprite pet_high_vig_out_sprite;
@@ -252,4 +256,4 @@ extern const CAT_sprite window_morning_sprite;
 extern const CAT_sprite window_night_sprite;
 
 extern const CAT_sprite* sprite_list[];
-#define CAT_SPRITE_LIST_LENGTH 246
+#define CAT_SPRITE_LIST_LENGTH 250
