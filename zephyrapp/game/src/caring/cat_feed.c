@@ -14,6 +14,57 @@
 #include <stdarg.h>
 #include <stdio.h>
 
+void render_ring(int x, int y, int R, int r, uint16_t c, float t)
+{
+	int xi = x - r;
+	int yi = y - r;
+	for(int dy = -R; dy < R; dy++)
+	{
+		for(int dx = -R; dx < R; dx++)
+		{
+			if((dx*dx+dy*dy) <= R*R && (dx*dx+dy*dy) >= r*r)
+			{
+				float arc = atan2f((float) dy, (float) dx) + M_PI - (M_PI / 8);
+				if(arc <= t * M_PI * 2)
+					CAT_pixberry(x+dx, y+dy, c);
+			}
+		}
+	}
+}
+
+void render_text(int x, int y, uint16_t c, int scale, const char* fmt, ...)
+{
+	va_list args;
+	va_start(args, fmt);
+	char text[128];
+	vsnprintf(text, 128, fmt, args);
+	va_end(args);
+
+	int draw_x = x;
+	int draw_y = y;
+	const char* g = text;
+	while(*g != '\0')
+	{
+		char glyph = *g;
+		if(glyph == ' ')
+			draw_x += 5 * scale;
+		else if(glyph == '\n')
+		{
+			draw_x = x;
+			draw_y += 13 * scale;
+		}
+		else
+		{
+			CAT_push_draw_colour(c);
+			CAT_push_draw_scale(scale);
+			CAT_draw_sprite(&glyph_sprite, glyph, draw_x, draw_y);
+			draw_x += 8 * scale;
+		}
+
+		g++;
+	}
+}
+
 static enum
 {
 	SELECT,
@@ -52,6 +103,8 @@ static bool food_active_mask[5];
 static int food_active_count;
 static CAT_vec2 food_centers[5];
 static CAT_vec2 food_centroid;
+static float food_angles[5];
+static int food_neighbour_map[5];
 
 static int touched = -1;
 static int dx, dy;
@@ -80,6 +133,12 @@ void food_swap(int i, int j)
 	CAT_vec2 temp_center = food_centers[i];
 	food_centers[i] = food_centers[j];
 	food_centers[j] = temp_center;
+	float temp_angle = food_angles[i];
+	food_angles[i] = food_angles[j];
+	food_angles[j] = temp_angle;
+	int temp_neighbour = food_neighbour_map[i];
+	food_neighbour_map[i] = food_neighbour_map[j];
+	food_neighbour_map[j] = temp_neighbour;
 }
 
 CAT_item* food_get(int i)
@@ -148,6 +207,18 @@ void food_refresh()
 		food_centroid = CAT_vec2_add(food_centroid, food_centers[i]);
 	}
 	food_centroid = CAT_vec2_mul(food_centroid, 1.0f / (float) food_active_count);
+
+	for(int i = 0; i < food_idxs_l.length; i++)
+	{
+		if(!food_active_mask[i])
+			continue;
+
+		CAT_vec2 spoke = CAT_vec2_sub(food_centers[i], food_centroid);
+		float angle = atan2(-spoke.y, spoke.x);
+		if(angle < 0)
+			angle += M_PI * 2;
+		food_angles[i] = angle;
+	}
 }
 
 void food_spawn(int idx)
@@ -209,22 +280,52 @@ float group_diversity()
 
 float role_propriety()
 {
-	float treat = 0;
-	float vice = 0;
+	float staple_count = 0;
+	float main_count = 0;
+	float side_count = 0;
+	float treat_count = 0;
+	float vice_count = 0;
+	float default_count = 0;
 
 	for(int i = 0; i < food_idxs_l.length; i++)
 	{
 		if(!food_active_mask[i])
-			continue;	
+			continue;
+
 		CAT_item* food = food_get(i);
-		if(food->data.tool_data.food_role == CAT_FOOD_ROLE_TREAT && treat < 2)
-			treat += 1;
-		else if(food->data.tool_data.food_role == CAT_FOOD_ROLE_VICE)
-			vice += 1;
+		switch(food->data.tool_data.food_role)
+		{
+			case CAT_FOOD_ROLE_STAPLE:
+				staple_count += 1;
+			break;
+			case CAT_FOOD_ROLE_MAIN:
+				main_count += 1;
+			break;
+			case CAT_FOOD_ROLE_SIDE:
+				side_count += 1;
+			break;
+			case CAT_FOOD_ROLE_TREAT:
+				treat_count += 1;
+			break;
+			case CAT_FOOD_ROLE_VICE:
+				vice_count += 1;
+			break;
+			default:
+				default_count += 1;
+			break;
+		}
 	}
 
-	treat = treat == 1 ? 0 : treat;
-	return -(treat + vice) / 2.0f;
+	float propriety = 1.0f;
+	if(treat_count > 1)
+		propriety -= 0.25f;
+	if(vice_count > 0)
+		propriety -= 0.5f;
+	if(main_count != 1)
+		propriety *= 0.5f;
+	if(staple_count >= 1)
+		propriety *= 1.25f;
+	return clampf(propriety, 0, 1.0f);
 }
 
 float ichiju_sansai()
@@ -254,6 +355,9 @@ float ichiju_sansai()
 
 float score_spacing()
 {
+	if(food_active_count <= 1)
+		return 1.0f;
+
 	bool collision_mask[5] = {false, false, false, false, false};
 	float collision_count = 0;
 
@@ -284,33 +388,120 @@ float score_spacing()
 	0;
 }
 
+void map_neighbours()
+{
+	if(food_active_count <= 1)
+		return;
+
+	for(int i = 0; i < food_idxs_l.length; i++)
+	{
+		food_neighbour_map[i] = -1;
+	}
+
+	int max_idx = -1;
+	int min_idx = -1;
+	float max_angle = -INFINITY;
+	float min_angle = INFINITY;
+	for(int i = 0; i < food_idxs_l.length; i++)
+	{	
+		if(!food_active_mask[i])
+			continue;
+		float angle = food_angles[i];
+		if(angle > max_angle)
+		{
+			max_idx = i;
+			max_angle = angle;
+		}
+		if(angle < min_angle)
+		{
+			min_idx = i;
+			min_angle = angle;
+		}
+	}
+	food_neighbour_map[max_idx] = min_idx;
+	
+	for(int i = 0; i < food_idxs_l.length; i++)
+	{
+		if(!food_active_mask[i])
+			continue;
+		if(i == max_idx)
+			continue;
+
+		float this_angle = food_angles[i];
+		
+		for(int j = 0; j < food_idxs_l.length; j++)
+		{
+			if(j == i || !food_active_mask[j])
+				continue;
+
+			int best_neighbour = food_neighbour_map[i];
+			float best_angle = best_neighbour == -1 ?
+			INFINITY : food_angles[best_neighbour];
+			float candidate_angle = food_angles[j];
+			if(candidate_angle > this_angle && candidate_angle < best_angle)
+			{
+				food_neighbour_map[i] = j;
+			}
+		}
+	}
+}
+
+bool surrounding_centroid(int i)
+{
+	return
+	food_active_mask[i] &&
+	CAT_vec2_dist2(food_centers[i], food_centroid) >= 32*32;
+}
+
 float score_evenness()
 {
+	if(food_active_count <= 2)
+		return 1.0f;
+
 	float spokes[5];
+	float edges[5];
+	int surrounding_count = 0;
 
 	float spoke_mean = 0.0f;
+	float edge_mean = 0.0f;
 	for(int i = 0; i < food_idxs_l.length; i++)
 	{
-		if(!food_active_mask[i])
+		if(!surrounding_centroid(i))
 			continue;
+		surrounding_count += 1;
+
 		spokes[i] = sqrt(CAT_vec2_dist2(food_centroid, food_centers[i]));
 		spoke_mean += spokes[i];
+		edges[i] = sqrt(CAT_vec2_dist2(food_centers[food_neighbour_map[i]], food_centers[i]));
+		edge_mean += edges[i];
 	}
-	spoke_mean /= food_active_count;
+	spoke_mean /= surrounding_count;
+	edge_mean /= surrounding_count;
 
 	float spoke_stddev = 0.0f;
+	float edge_stddev = 0.0f;
 	for(int i = 0; i < food_idxs_l.length; i++)
 	{
-		if(!food_active_mask[i])
+		if(!surrounding_centroid(i))
 			continue;
-		spoke_stddev += (spokes[i] - spoke_mean) * (spokes[i] - spoke_mean);
-	}
-	spoke_stddev = sqrt(spoke_stddev / (food_active_count-1));
 
-	float evenness = CAT_ease_in_quad(1.0f - spoke_stddev / spoke_mean);
-	return food_active_count > 0 ?
-	evenness :
-	0;
+		spoke_stddev += (spokes[i] - spoke_mean) * (spokes[i] - spoke_mean);
+		edge_stddev += (edges[i] - edge_mean) * (edges[i] - edge_mean);
+	}
+	spoke_stddev = sqrt(spoke_stddev / (surrounding_count-1));
+	edge_stddev = sqrt(edge_stddev / (surrounding_count-1));
+
+	if(surrounding_count <= 2)
+		return 1.0f;
+	else
+	{
+		return CAT_ease_in_sine
+		(
+			1.0f -
+			((spoke_stddev / spoke_mean) +
+			(edge_stddev / edge_mean)) * 0.5f
+		);
+	}
 }
 
 void score_refresh()
@@ -318,17 +509,19 @@ void score_refresh()
 	group_score = group_diversity();
 	role_score = role_propriety();
 	ichisan_score = ichiju_sansai();
-	spacing_score = score_spacing();
-	evenness_score = score_evenness();
+	spacing_score = food_active_count > 1 ? score_spacing() : 0.5f;
+	evenness_score = food_active_count > 2 ? score_evenness() : 0.5f;
 	aggregate_score = 
 	(
-		group_score * 3 +
+		group_score * 2 +
 		role_score * 2 +
-		spacing_score
-	) / 6.0f;
+		spacing_score +
+		evenness_score +
+		ichisan_score
+	) / 7.0f;
 
-	aggregate_score += ichisan_score * 0.25f;
 	aggregate_score = clampf(aggregate_score, 0, 1.0f);
+	aggregate_score = CAT_ease_in_sine(aggregate_score);
 
 	level = round(aggregate_score * 6.0f);
 }
@@ -449,24 +642,6 @@ void select_grid_io()
 	}
 }
 
-void render_ring(int x, int y, int R, int r, uint16_t c, float t)
-{
-	int xi = x - r;
-	int yi = y - r;
-	for(int dy = -R; dy < R; dy++)
-	{
-		for(int dx = -R; dx < R; dx++)
-		{
-			if((dx*dx+dy*dy) <= R*R && (dx*dx+dy*dy) >= r*r)
-			{
-				float arc = atan2f((float) dy, (float) dx) + M_PI - (M_PI / 8);
-				if(arc <= t * M_PI * 2)
-					CAT_pixberry(x+dx, y+dy, c);
-			}
-		}
-	}
-}
-
 void render_select_grid()
 {
 	CAT_frameberry(0xbdb4);
@@ -508,39 +683,6 @@ void render_select_grid()
 	if(abs(-scroll_offset - get_max_scroll_y()) >= 64)
 	{
 		CAT_draw_sprite(&ui_down_arrow_sprite, -1, 240-52, 320-24);
-	}
-}
-
-void render_text(int x, int y, uint16_t c, int scale, const char* fmt, ...)
-{
-	va_list args;
-	va_start(args, fmt);
-	char text[128];
-	vsnprintf(text, 128, fmt, args);
-	va_end(args);
-
-	int draw_x = x;
-	int draw_y = y;
-	const char* g = text;
-	while(*g != '\0')
-	{
-		char glyph = *g;
-		if(glyph == ' ')
-			draw_x += 5 * scale;
-		else if(glyph == '\n')
-		{
-			draw_x = x;
-			draw_y += 13 * scale;
-		}
-		else
-		{
-			CAT_push_draw_colour(c);
-			CAT_push_draw_scale(scale);
-			CAT_draw_sprite(&glyph_sprite, glyph, draw_x, draw_y);
-			draw_x += 8 * scale;
-		}
-
-		g++;
 	}
 }
 
@@ -612,8 +754,11 @@ void render_arrangement()
 			CAT_RGB888 green = CAT_RGB24(0, 255, 0);
 			uint16_t evenness_colour = CAT_RGB8882565(CAT_RGB888_lerp(red, green, evenness_score));
 			CAT_lineberry(food_centers[i].x, food_centers[i].y, food_centroid.x, food_centroid.y, evenness_colour);
+			int j = food_neighbour_map[i];
+			CAT_lineberry(food_centers[i].x, food_centers[i].y, food_centers[j].x, food_centers[j].y, evenness_colour);
 
 			CAT_strokeberry(x, y, w, h, CAT_WHITE);
+			render_text(x, y-14, CAT_WHITE, 1, "%d: %0.2f", i, food_angles[i]);
 		}
 	}
 
@@ -626,6 +771,7 @@ void render_arrangement()
 	CAT_gui_printf(CAT_WHITE, "spacing: %0.2f", spacing_score);
 	CAT_gui_printf(CAT_WHITE, "evenness: %0.2f", evenness_score);
 	CAT_gui_printf(CAT_WHITE, "aggregate: %0.2f", aggregate_score);
+	CAT_gui_printf(CAT_WHITE, "level: %d", level);
 }
 
 void CAT_MS_feed(CAT_machine_signal signal)
@@ -728,6 +874,7 @@ void CAT_MS_feed(CAT_machine_signal signal)
 						if(CAT_input_touch_up())
 						{
 							food_refresh();
+							map_neighbours();
 							score_refresh();
 						}
 						touched = -1;
