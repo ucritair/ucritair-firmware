@@ -13,11 +13,10 @@
 #include "cat_pet.h"
 #include <stdarg.h>
 #include <stdio.h>
+#include <string.h>
 
 void render_ring(int x, int y, int R, int r, uint16_t c, float t)
 {
-	int xi = x - r;
-	int yi = y - r;
 	for(int dy = -R; dy < R; dy++)
 	{
 		for(int dx = -R; dx < R; dx++)
@@ -119,6 +118,7 @@ static float aggregate_score = 0.0f;
 static int level = 0;
 static bool commit = false;
 bool show_gizmos = false;
+bool show_debug_text = false;
 
 static const char* group_strings[] =
 {
@@ -326,10 +326,8 @@ float role_propriety()
 {
 	float staple_count = 0;
 	float main_count = 0;
-	float side_count = 0;
 	float treat_count = 0;
 	float vice_count = 0;
-	float default_count = 0;
 
 	for(int i = 0; i < food_idxs_l.length; i++)
 	{
@@ -345,9 +343,6 @@ float role_propriety()
 			case CAT_FOOD_ROLE_MAIN:
 				main_count += 1;
 			break;
-			case CAT_FOOD_ROLE_SIDE:
-				side_count += 1;
-			break;
 			case CAT_FOOD_ROLE_TREAT:
 				treat_count += 1;
 			break;
@@ -355,7 +350,6 @@ float role_propriety()
 				vice_count += 1;
 			break;
 			default:
-				default_count += 1;
 			break;
 		}
 	}
@@ -585,7 +579,7 @@ int get_hovered()
 	int x = select_grid_margin;
 	int y = select_grid_margin + scroll_offset;
 	int food_idx = 0;
-	for(int row = 0; ; row++)
+	while(food_idx < food_pool.length)
 	{
 		for(int col = 0; col < 3; col++)
 		{
@@ -601,12 +595,11 @@ int get_hovered()
 
 			food_idx += 1;
 			x += 64 + 12;
+			if(food_idx >= food_pool.length)
+				break;
 		}
 		x = select_grid_margin;
 		y += 64 + select_grid_margin;
-
-		if(food_idx >= food_pool.length)
-			break;
 	}
 	return -1;
 }
@@ -684,7 +677,7 @@ void render_select_grid()
 	int x = select_grid_margin;
 	int y = select_grid_margin + scroll_offset;
 	int food_idx = 0;
-	for(int row = 0; ; row++)
+	while(food_idx < food_pool.length)
 	{
 		for(int col = 0; col < 3; col++)
 		{
@@ -707,20 +700,16 @@ void render_select_grid()
 
 			food_idx += 1;
 			x += 64 + 12;
-
 			if(food_idx >= food_pool.length)
 				break;
 		}
 		x = select_grid_margin;
 		y += 64 + select_grid_margin;
-
-		if(food_idx >= food_pool.length)
-			break;
 	}
 
 	if(abs(-scroll_offset - get_max_scroll_y()) >= 64)
 	{
-		CAT_draw_sprite(&ui_down_arrow_sprite, -1, 240-52, 320-24);
+		CAT_draw_sprite(&ui_down_arrow_sprite, -1, 240-32, 320-24);
 	}
 }
 
@@ -795,7 +784,9 @@ void render_arrangement()
 		
 		if(show_gizmos)
 		{
-			CAT_strokeberry(food_centroid.x-4, food_centroid.y-4, 8, 8, CAT_RED);
+			if(food_active_count > 0)
+				CAT_strokeberry(food_centroid.x-4, food_centroid.y-4, 8, 8, CAT_RED);
+
 			if(food_active_mask[i])
 			{
 				CAT_RGB888 red = CAT_RGB24(255, 0, 0);
@@ -803,11 +794,16 @@ void render_arrangement()
 				uint16_t evenness_colour = CAT_RGB8882565(CAT_RGB888_lerp(red, green, evenness_score));
 				CAT_lineberry(food_centers[i].x, food_centers[i].y, food_centroid.x, food_centroid.y, evenness_colour);
 				int j = food_neighbour_map[i];
-				CAT_lineberry(food_centers[i].x, food_centers[i].y, food_centers[j].x, food_centers[j].y, evenness_colour);
+				if(food_active_mask[j])
+					CAT_lineberry(food_centers[i].x, food_centers[i].y, food_centers[j].x, food_centers[j].y, evenness_colour);
 
 				CAT_strokeberry(x, y, w, h, CAT_WHITE);
-				render_text(x, y-14, CAT_WHITE, 1, "%d: %0.2f", i, food_angles[i]);
 			}
+		}
+		if(show_debug_text)
+		{
+			if(food_active_mask[i])
+				render_text(x, y-14, CAT_WHITE, 1, "%d: %0.2f", i, food_angles[i]);
 		}
 	}
 
@@ -818,7 +814,7 @@ void render_arrangement()
 	if(show_feedback)
 		render_feedback();
 
-	if(show_gizmos)
+	if(show_debug_text)
 	{
 		CAT_gui_printf(CAT_WHITE, "group diversity: %0.2f", group_score);
 		CAT_gui_printf(CAT_WHITE, "role propriety: %0.2f", role_score);
@@ -840,28 +836,39 @@ void render_summary()
 	switch (summary_page)
 	{
 		case PERFORMANCE:
-		title = "Performance";
-		stamp_idx = level;
+			title = "Performance";
+			stamp_idx = level;
 		break;
 		case VARIETY:
-		title = "Variety";
-		stamp_idx = round(group_score * 5);
+			title = "Variety";
+			stamp_idx = round(group_score * 5);
 		break;
 		case PORTIONING:
-		title = "Portioning";
-		stamp_idx = round(role_score * 5);
+			title = "Portioning";
+			stamp_idx = round(role_score * 5);
 		break;
 		case LAYOUT:
-		title = "Layout";
-		stamp_idx = round((spacing_score + evenness_score) * 0.5f * 5);
+			title = "Layout";
+			stamp_idx = round((spacing_score + evenness_score) * 0.5f * 5);
+		break;
+		default:
+			return;
 		break;
 	}
 
-	render_text(12, 12, CAT_BLACK, 2, title);
+	int title_len = strlen(title);
+	int title_x = (CAT_LCD_SCREEN_W - 1 - title_len * 16) / 2;
+	render_text(title_x, 12, CAT_BLACK, 2, title);
 	CAT_push_draw_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
+	CAT_push_draw_colour(RGB8882565(128, 128, 128));
 	CAT_draw_sprite(&feed_stamp_frame_sprite, 0, 120, 160);
 	CAT_push_draw_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
-	CAT_draw_sprite(&feed_grade_stamos_sprite, stamp_idx, 120+stamp_jitters[summary_page].x, 160+stamp_jitters[summary_page].y);
+	CAT_draw_sprite(&feed_grade_stamps_sprite, stamp_idx, 120+stamp_jitters[summary_page].x, 160+stamp_jitters[summary_page].y);
+
+	CAT_push_draw_colour(RGB8882565(64, 64, 64));
+	CAT_draw_sprite(&ui_left_arrow_sprite, -1, 8, 12);
+	CAT_push_draw_colour(RGB8882565(64, 64, 64));
+	CAT_draw_sprite(&ui_right_arrow_sprite, -1, 240-13-8, 12);
 }
 
 void CAT_MS_feed(CAT_machine_signal signal)
@@ -940,6 +947,12 @@ void CAT_MS_feed(CAT_machine_signal signal)
 					if(CAT_input_pressed(CAT_BUTTON_B) || CAT_input_pressed(CAT_BUTTON_START))
 						CAT_machine_back();
 
+					if(CAT_input_pressed(CAT_BUTTON_SELECT))
+					{
+						mode = SELECT;
+						break;
+					}
+
 					if(CAT_gui_popup_is_open())
 						break;
 					if(CAT_input_pressed(CAT_BUTTON_A))
@@ -967,11 +980,10 @@ void CAT_MS_feed(CAT_machine_signal signal)
 						}
 					}
 
-					if(CAT_input_pressed(CAT_BUTTON_SELECT))
-					{
-						mode = SELECT;
-						break;
-					}
+					if(CAT_input_pressed(CAT_BUTTON_RIGHT))
+						show_debug_text = !show_debug_text;
+					if(CAT_input_pressed(CAT_BUTTON_LEFT))
+						show_gizmos = !show_gizmos;
 
 					if(!CAT_input_touching())
 					{
