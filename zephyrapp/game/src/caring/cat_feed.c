@@ -330,35 +330,70 @@ void food_spawn(int idx)
 	food_refresh();
 }
 
-float group_diversity()
+float score_variety()
 {
 	if(food_active_count <= 0)
 		return 0.0f;
 
-	float veg = 0;
-	float starch = 0;
-	float meat = 0;
-	float dairy = 0;
+	// Ideally a meal has:
+	// At least some veg (3pt)
+	// At least as much veg as meat (1pt)
+	// No more than 1 starch (1pt)
+	// All major groups present (1pt)
+
+	float point_total = 5.0f;
+	float points = point_total;
+
+	int veg_count = 0;
+	int starch_count = 0;
+	int meat_count = 0;
+	int dairy_count = 0;
 
 	for(int i = 0; i < food_idxs_l.length; i++)
 	{
 		if(!food_active_mask[i])
 			continue;	
 		CAT_item* food = food_get(i);
-		if(food->data.tool_data.food_group == CAT_FOOD_GROUP_VEG && veg < 2)
-			veg += 1;
-		else if(food->data.tool_data.food_group == CAT_FOOD_GROUP_STARCH && starch < 1)
-			starch += 1;
-		else if(food->data.tool_data.food_group == CAT_FOOD_GROUP_MEAT && meat < 1)
-			meat += 1;
-		else if(food->data.tool_data.food_group == CAT_FOOD_GROUP_DAIRY && dairy < 1)
-			dairy += 1;
+		CAT_food_group group = food->data.tool_data.food_group;
+		switch (group)
+		{
+			case CAT_FOOD_GROUP_VEG:
+				veg_count += 1;
+			break;
+			case CAT_FOOD_GROUP_STARCH:
+				starch_count += 1;
+			break;
+			case CAT_FOOD_GROUP_MEAT:
+				meat_count += 1;
+			break;
+			case CAT_FOOD_GROUP_DAIRY:
+				dairy_count += 1;
+			break;
+			default:
+				break;
+		}
 	}
 
-	return (veg + starch + meat + dairy) / 5.0f;
+	if(veg_count < 1)
+		points -= 2;
+	if(veg_count < meat_count)
+		points -= 1;
+	if(starch_count > 1)
+		points -= 1;
+	if
+	(
+		veg_count == 0 ||
+		meat_count == 0 ||
+		starch_count == 0 ||
+		dairy_count == 0
+	)
+	{
+		points -= 1;
+	}
+	return clampf(points / point_total, 0, 1);
 }
 
-float role_propriety()
+float score_propriety()
 {
 	if(food_active_count <= 0)
 		return 0.0f;
@@ -600,8 +635,8 @@ float score_evenness()
 
 void score_refresh()
 {
-	group_score = group_diversity();
-	role_score = role_propriety();
+	group_score = score_variety();
+	role_score = score_propriety();
 	ichisan_score = ichiju_sansai();
 	spacing_score = score_spacing();
 	evenness_score = score_evenness();

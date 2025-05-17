@@ -809,7 +809,7 @@
                 "ds": 0,
                 "type": "food",
                 "food_data": {
-                    "food_group": "veg",
+                    "food_group": "misc",
                     "food_role": "vice"
                 }
             },
@@ -831,7 +831,7 @@
                 "ds": 1,
                 "type": "food",
                 "food_data": {
-                    "food_group": "veg",
+                    "food_group": "misc",
                     "food_role": "vice"
                 }
             },
@@ -853,7 +853,7 @@
                 "ds": 0,
                 "type": "food",
                 "food_data": {
-                    "food_group": "veg",
+                    "food_group": "misc",
                     "food_role": "vice"
                 }
             },
