@@ -707,6 +707,9 @@ void render_select_grid()
 
 			food_idx += 1;
 			x += 64 + 12;
+
+			if(food_idx >= food_pool.length)
+				break;
 		}
 		x = select_grid_margin;
 		y += 64 + select_grid_margin;
@@ -896,7 +899,7 @@ void CAT_MS_feed(CAT_machine_signal signal)
 			scrolling = false;
 			CAT_timer_reinit(&inspect_timer_id, 1.0f);
 
-			CAT_timer_reinit(&feedback_timer_id, 2.0f);
+			CAT_timer_reinit(&feedback_timer_id, 5.0f);
 		break;
 		case CAT_MACHINE_SIGNAL_TICK:
 			switch(mode)
