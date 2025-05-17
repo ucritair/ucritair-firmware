@@ -110,8 +110,8 @@ static bool food_collision_mask[5];
 static int touched = -1;
 static int dx, dy;
 
-static float group_score = 0.0f;
-static float role_score = 0.0f;
+static float variety_score = 0.0f;
+static float propriety_score = 0.0f;
 static float ichisan_score = 0.0f;
 static float spacing_score = 0.0f;
 static float evenness_score = 0.0f;
@@ -579,15 +579,29 @@ void map_neighbours()
 	}
 }
 
-bool surrounding_centroid(int i)
+static float placement_exception_radius = 16.0f;
+static int placement_exception = -1;
+
+bool placement_excepted(int i)
 {
-	return
-	food_active_mask[i] &&
-	CAT_vec2_dist2(food_centers[i], food_centroid) >= 32*32;
+	if(!food_active_mask[i])
+		return true;
+	
+	if(placement_exception == -1)
+	{
+		if(CAT_vec2_dist2(food_centers[i], food_centroid) < placement_exception_radius * placement_exception_radius)
+		{
+			placement_exception = i;
+		}
+	}
+	
+	return placement_exception == i;
 }
 
 float score_evenness()
 {
+	placement_exception = -1;
+
 	if(food_active_count == 0)
 		return 0.0f;
 	if(food_active_count <= 2)
@@ -601,7 +615,7 @@ float score_evenness()
 	float edge_mean = 0.0f;
 	for(int i = 0; i < food_idxs_l.length; i++)
 	{
-		if(!surrounding_centroid(i))
+		if(placement_excepted(i))
 			continue;
 		surrounding_count += 1;
 
@@ -617,7 +631,7 @@ float score_evenness()
 	float edge_stddev = 0.0f;
 	for(int i = 0; i < food_idxs_l.length; i++)
 	{
-		if(!surrounding_centroid(i))
+		if(placement_excepted(i))
 			continue;
 
 		spoke_stddev += (spokes[i] - spoke_mean) * (spokes[i] - spoke_mean);
@@ -641,15 +655,15 @@ float score_evenness()
 
 void score_refresh()
 {
-	group_score = score_variety();
-	role_score = score_propriety();
+	variety_score = score_variety();
+	propriety_score = score_propriety();
 	ichisan_score = ichiju_sansai();
 	spacing_score = score_spacing();
 	evenness_score = score_evenness();
 	aggregate_score = 
 	(
-		group_score * 2 +
-		role_score * 2 +
+		variety_score * 2 +
+		propriety_score * 2 +
 		spacing_score +
 		evenness_score +
 		ichisan_score * 0.5f
@@ -882,7 +896,7 @@ void render_arrangement()
 		if(show_gizmos)
 		{
 			if(food_active_count > 0)
-				CAT_strokeberry(food_centroid.x-4, food_centroid.y-4, 8, 8, CAT_RED);
+				CAT_circberry(food_centroid.x, food_centroid.y, placement_exception_radius, placement_exception == -1 ? CAT_GREEN : CAT_RED);
 
 			if(food_active_mask[i])
 			{
@@ -913,8 +927,8 @@ void render_arrangement()
 
 	if(show_debug_text)
 	{
-		CAT_gui_printf(CAT_WHITE, "group diversity: %0.2f", group_score);
-		CAT_gui_printf(CAT_WHITE, "role propriety: %0.2f", role_score);
+		CAT_gui_printf(CAT_WHITE, "group diversity: %0.2f", variety_score);
+		CAT_gui_printf(CAT_WHITE, "role propriety: %0.2f", propriety_score);
 		CAT_gui_printf(CAT_WHITE, "ichiju sansai: %0.2f", ichisan_score);
 		CAT_gui_printf(CAT_WHITE, "spacing: %0.2f", spacing_score);
 		CAT_gui_printf(CAT_WHITE, "evenness: %0.2f", evenness_score);
@@ -938,11 +952,11 @@ void render_summary()
 		break;
 		case VARIETY:
 			title = "Variety";
-			stamp_idx = round(group_score * 5);
+			stamp_idx = round(variety_score * 5);
 		break;
 		case PROPRIETY:
 			title = "Propriety";
-			stamp_idx = round(role_score * 5);
+			stamp_idx = round(propriety_score * 5);
 		break;
 		case LAYOUT:
 			title = "Layout";
@@ -990,8 +1004,8 @@ void CAT_MS_feed(CAT_machine_signal signal)
 				food_spawn(idx_pool[i]);
 
 			mode = ARRANGE;
-			group_score = 0;
-			role_score = 0;
+			variety_score = 0;
+			propriety_score = 0;
 			ichisan_score = 0;
 			spacing_score = 0;
 			evenness_score = 0;
