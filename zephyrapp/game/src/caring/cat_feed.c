@@ -261,16 +261,22 @@ void food_refresh()
 
 	for(int i = 0; i < food_idxs_l.length; i++)
 	{
-		food_active_mask[i] = CAT_rect_contains(table_rect, food_rects[i]);
-		if(!food_active_mask[i])
-			continue;
-		food_active_count += 1;
-
 		food_centers[i] = (CAT_vec2)
 		{
 			(food_rects[i].min.x + food_rects[i].max.x) * 0.5f,
 			(food_rects[i].min.y + food_rects[i].max.y) * 0.5f
 		};
+
+		food_active_mask[i] =
+		food_centers[i].x > table_rect.min.x &&
+		food_centers[i].x < table_rect.max.x &&
+		food_centers[i].y > table_rect.min.y &&
+		food_centers[i].y < table_rect.max.y;
+
+		if(!food_active_mask[i])
+			continue;
+		food_active_count += 1;
+
 		food_centroid = CAT_vec2_add(food_centroid, food_centers[i]);
 	}
 	food_centroid = CAT_vec2_mul(food_centroid, 1.0f / (float) food_active_count);
