@@ -69,7 +69,8 @@ static enum
 {
 	SELECT,
 	INSPECT,
-	ARRANGE
+	ARRANGE,
+	SUMMARY,
 } mode = ARRANGE;
 
 static CAT_rect menu_rect =
@@ -80,17 +81,17 @@ static CAT_rect menu_rect =
 
 static CAT_rect spawn_rects[5] =
 {
-	{{32, 24}, {32+48, 24+48}},
-	{{64, 24}, {64+48, 24+48}},
-	{{96, 24}, {96+48, 24+48}},
-	{{128, 24}, {128+48, 24+48}},
-	{{160, 24}, {160+48, 24+48}}
+	{{32, 8}, {32+48, 8+48}},
+	{{64, 8}, {64+48, 8+48}},
+	{{96, 8}, {96+48, 8+48}},
+	{{128, 8}, {128+48, 8+48}},
+	{{160, 8}, {160+48, 8+48}}
 };
 
 static CAT_rect table_rect =
 {
-	.min = {0, 80},
-	.max = {240, 240}
+	.min = {0, 96},
+	.max = {240, 256}
 };
 
 static CAT_item_list food_pool;
@@ -108,6 +109,58 @@ static int food_neighbour_map[5];
 
 static int touched = -1;
 static int dx, dy;
+
+static float group_score = 0.0f;
+static float role_score = 0.0f;
+static float ichisan_score = 0.0f;
+static float spacing_score = 0.0f;
+static float evenness_score = 0.0f;
+static float aggregate_score = 0.0f;
+static int level = 0;
+static bool commit = false;
+bool show_gizmos = false;
+
+static const char* group_strings[] =
+{
+	"VEG / FRUIT",
+	"STARCH",
+	"MEAT",
+	"DAIRY",
+	"MISCELLANY"
+};
+
+static const char* role_strings[] =
+{
+	"STAPLE",
+	"MAIN",
+	"SIDE",
+	"SOUP",
+	"DRINK",
+	"TREAT",
+	"VICE"
+};
+
+static int select_grid_margin = 12;
+static int scroll_last_touch_y = 0;
+static int scroll_offset = 0;
+static int last_selected = -1;
+static bool scrolling = false;
+static int inspect_timer_id = -1;
+static int inspect_idx = -1;
+
+static bool show_feedback = false;
+static int feedback_timer_id = -1;
+
+static enum
+{
+	PERFORMANCE,
+	VARIETY,
+	PORTIONING,
+	LAYOUT,
+	SUMMARY_PAGE_MAX
+} summary_page = PERFORMANCE;
+
+static CAT_vec2 stamp_jitters[SUMMARY_PAGE_MAX];
 
 bool food_filter(int item_id)
 {
@@ -243,15 +296,6 @@ void food_spawn(int idx)
 
 	food_refresh();
 }
-
-static float group_score = 0.0f;
-static float role_score = 0.0f;
-static float ichisan_score = 0.0f;
-static float spacing_score = 0.0f;
-static float evenness_score = 0.0f;
-static float aggregate_score = 0.0f;
-static int level = 0;
-static bool commit = false;
 
 float group_diversity()
 {
@@ -526,13 +570,6 @@ void score_refresh()
 	level = round(aggregate_score * 6.0f);
 }
 
-static int select_grid_margin = 12;
-static int scroll_last_touch_y = 0;
-static int scroll_offset = 0;
-static int last_selected = -1;
-static bool scrolling = false;
-static int inspect_timer_id = -1;
-
 int get_min_scroll_y()
 {
 	return -select_grid_margin;
@@ -542,8 +579,6 @@ int get_max_scroll_y()
 {
 	return ((food_pool.length / 3) + 3) * 64 + select_grid_margin - CAT_LCD_SCREEN_H;
 }
-
-static CAT_item* inspectee = NULL;
 
 int get_hovered()
 {
@@ -615,7 +650,7 @@ void select_grid_io()
 				if(CAT_timer_tick(inspect_timer_id))
 				{
 					CAT_timer_reset(inspect_timer_id);
-					inspectee = CAT_item_get(food_pool.item_ids[last_selected]);
+					inspect_idx = last_selected;
 					mode = INSPECT;
 				}
 			}
@@ -686,29 +721,11 @@ void render_select_grid()
 	}
 }
 
-static const char* group_strings[] =
-{
-	"VEG / FRUIT",
-	"STARCH",
-	"MEAT",
-	"DAIRY",
-	"MISCELLANY"
-};
-
-static const char* role_strings[] =
-{
-	"STAPLE",
-	"MAIN",
-	"SIDE",
-	"SOUP",
-	"DRINK",
-	"TREAT",
-	"VICE"
-};
-
 void render_inspector()
 {
 	CAT_frameberry(RGB8882565(142, 171, 174));
+
+	CAT_item* inspectee = CAT_item_get(food_pool.item_ids[inspect_idx]);
 
 	render_text(8, 8, CAT_WHITE, 2, inspectee->name);
 	render_text(8, 8+28, CAT_WHITE, 1, "Group: %s", group_strings[inspectee->data.tool_data.food_group]);
@@ -720,13 +737,8 @@ void render_inspector()
 	CAT_draw_sprite(inspectee->sprite, 0, 120, 160);
 }
 
-static bool show_feedback = false;
-static int feedback_timer_id = -1;
-
 void render_feedback()
 {
-	//CAT_frameberry(CAT_BLACK);
-
 	CAT_push_draw_flags(CAT_DRAW_FLAG_BOTTOM);
 	const CAT_sprite* sprite = &pet_feed_neutral_sprite;
 	int x = 240-96; int y = 320;
@@ -747,18 +759,24 @@ void render_feedback()
 
 void render_arrangement()
 {
-	CAT_frameberry(CAT_BLACK);
+	CAT_frameberry(0x53ab);
 
-	int menu_x = menu_rect.min.x;
-	int menu_y = menu_rect.min.y;
-	int menu_w = menu_rect.max.x - menu_x;
-	int menu_h = menu_rect.max.y - menu_y;
-	CAT_strokeberry(menu_x, menu_y, menu_w, menu_h, CAT_RED);
-	int table_x = table_rect.min.x;
-	int table_y = table_rect.min.y;
-	int table_w = table_rect.max.x - table_x;
-	int table_h = table_rect.max.y - table_y;
-	CAT_strokeberry(table_x, table_y, table_w, table_h, CAT_BLUE);
+	CAT_draw_sprite(&feed_upper_tray_sprite, 0, menu_rect.min.x, menu_rect.min.y);
+	CAT_draw_sprite(&feed_lower_tray_sprite, 0, table_rect.min.x, table_rect.min.y);
+
+	if(show_gizmos)
+	{
+		int menu_x = menu_rect.min.x;
+		int menu_y = menu_rect.min.y;
+		int menu_w = menu_rect.max.x - menu_x;
+		int menu_h = menu_rect.max.y - menu_y;
+		CAT_strokeberry(menu_x, menu_y, menu_w, menu_h, CAT_RED);
+		int table_x = table_rect.min.x;
+		int table_y = table_rect.min.y;
+		int table_w = table_rect.max.x - table_x;
+		int table_h = table_rect.max.y - table_y;
+		CAT_strokeberry(table_x, table_y, table_w, table_h, CAT_BLUE);
+	}
 
 	for(int i = food_idxs_l.length-1; i >= 0; i--)
 	{
@@ -769,21 +787,24 @@ void render_arrangement()
 		int w = rect.max.x - x;
 		int h = rect.max.y - y;
 		CAT_push_draw_scale(3);
-		CAT_push_draw_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
-		CAT_draw_sprite(food->sprite, 0, x+w/2, y+h/2);
-
-		CAT_strokeberry(food_centroid.x-4, food_centroid.y-4, 8, 8, CAT_RED);
-		if(food_active_mask[i])
+		CAT_push_draw_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_BOTTOM);
+		CAT_draw_sprite(food->sprite, 0, x+w/2, y+h);
+		
+		if(show_gizmos)
 		{
-			CAT_RGB888 red = CAT_RGB24(255, 0, 0);
-			CAT_RGB888 green = CAT_RGB24(0, 255, 0);
-			uint16_t evenness_colour = CAT_RGB8882565(CAT_RGB888_lerp(red, green, evenness_score));
-			CAT_lineberry(food_centers[i].x, food_centers[i].y, food_centroid.x, food_centroid.y, evenness_colour);
-			int j = food_neighbour_map[i];
-			CAT_lineberry(food_centers[i].x, food_centers[i].y, food_centers[j].x, food_centers[j].y, evenness_colour);
+			CAT_strokeberry(food_centroid.x-4, food_centroid.y-4, 8, 8, CAT_RED);
+			if(food_active_mask[i])
+			{
+				CAT_RGB888 red = CAT_RGB24(255, 0, 0);
+				CAT_RGB888 green = CAT_RGB24(0, 255, 0);
+				uint16_t evenness_colour = CAT_RGB8882565(CAT_RGB888_lerp(red, green, evenness_score));
+				CAT_lineberry(food_centers[i].x, food_centers[i].y, food_centroid.x, food_centroid.y, evenness_colour);
+				int j = food_neighbour_map[i];
+				CAT_lineberry(food_centers[i].x, food_centers[i].y, food_centers[j].x, food_centers[j].y, evenness_colour);
 
-			CAT_strokeberry(x, y, w, h, CAT_WHITE);
-			render_text(x, y-14, CAT_WHITE, 1, "%d: %0.2f", i, food_angles[i]);
+				CAT_strokeberry(x, y, w, h, CAT_WHITE);
+				render_text(x, y-14, CAT_WHITE, 1, "%d: %0.2f", i, food_angles[i]);
+			}
 		}
 	}
 
@@ -794,15 +815,50 @@ void render_arrangement()
 	if(show_feedback)
 		render_feedback();
 
-	CAT_gui_printf(CAT_WHITE, "group diversity: %0.2f", group_score);
-	CAT_gui_printf(CAT_WHITE, "role propriety: %0.2f", role_score);
-	CAT_gui_printf(CAT_WHITE, "ichiju sansai: %0.2f", ichisan_score);
-	CAT_gui_printf(CAT_WHITE, "spacing: %0.2f", spacing_score);
-	CAT_gui_printf(CAT_WHITE, "evenness: %0.2f", evenness_score);
-	CAT_gui_printf(CAT_WHITE, "aggregate: %0.2f", aggregate_score);
-	CAT_gui_printf(CAT_WHITE, "level: %d", level);
+	if(show_gizmos)
+	{
+		CAT_gui_printf(CAT_WHITE, "group diversity: %0.2f", group_score);
+		CAT_gui_printf(CAT_WHITE, "role propriety: %0.2f", role_score);
+		CAT_gui_printf(CAT_WHITE, "ichiju sansai: %0.2f", ichisan_score);
+		CAT_gui_printf(CAT_WHITE, "spacing: %0.2f", spacing_score);
+		CAT_gui_printf(CAT_WHITE, "evenness: %0.2f", evenness_score);
+		CAT_gui_printf(CAT_WHITE, "aggregate: %0.2f", aggregate_score);
+		CAT_gui_printf(CAT_WHITE, "level: %d", level);
+	}
+}
 
-	
+void render_summary()
+{
+	CAT_frameberry(CAT_WHITE);
+
+	const char* title;
+	int stamp_idx;
+
+	switch (summary_page)
+	{
+		case PERFORMANCE:
+		title = "Performance";
+		stamp_idx = level;
+		break;
+		case VARIETY:
+		title = "Variety";
+		stamp_idx = round(group_score * 5);
+		break;
+		case PORTIONING:
+		title = "Portioning";
+		stamp_idx = round(role_score * 5);
+		break;
+		case LAYOUT:
+		title = "Layout";
+		stamp_idx = round((spacing_score + evenness_score) * 0.5f * 5);
+		break;
+	}
+
+	render_text(12, 12, CAT_BLACK, 2, title);
+	CAT_push_draw_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
+	CAT_draw_sprite(&feed_stamp_frame_sprite, 0, 120, 160);
+	CAT_push_draw_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
+	CAT_draw_sprite(&feed_grade_stamos_sprite, stamp_idx, 120+stamp_jitters[summary_page].x, 160+stamp_jitters[summary_page].y);
 }
 
 void CAT_MS_feed(CAT_machine_signal signal)
@@ -868,6 +924,12 @@ void CAT_MS_feed(CAT_machine_signal signal)
 						mode = ARRANGE;
 						break;
 					}
+
+					if(CAT_input_pressed(CAT_BUTTON_RIGHT))
+						inspect_idx += 1;
+					if(CAT_input_pressed(CAT_BUTTON_LEFT))
+						inspect_idx -= 1;
+					inspect_idx = (inspect_idx + food_pool.length) % food_pool.length;
 					break;
 				}
 				case ARRANGE:
@@ -893,7 +955,13 @@ void CAT_MS_feed(CAT_machine_signal signal)
 						}
 						if(!empty)
 							pet.vigour += level;
-						CAT_machine_back();
+
+						mode = SUMMARY;
+						summary_page = PERFORMANCE;
+						for(int i = 0; i < SUMMARY_PAGE_MAX; i++)
+						{
+							stamp_jitters[i] = (CAT_vec2){CAT_rand_int(-5, 5), CAT_rand_int(-5, 5)};
+						}
 					}
 
 					if(CAT_input_pressed(CAT_BUTTON_SELECT))
@@ -953,6 +1021,26 @@ void CAT_MS_feed(CAT_machine_signal signal)
 						show_feedback = false;
 					break;
 				}
+				case SUMMARY:
+				{
+					if
+					(
+						CAT_input_pressed(CAT_BUTTON_A) ||
+						CAT_input_pressed(CAT_BUTTON_B) ||
+						CAT_input_pressed(CAT_BUTTON_START) ||
+						CAT_input_pressed(CAT_BUTTON_SELECT)
+					)
+					{
+						CAT_machine_back();
+					}
+
+					if(CAT_input_pressed(CAT_BUTTON_RIGHT))
+						summary_page += 1;
+					if(CAT_input_pressed(CAT_BUTTON_LEFT))
+						summary_page -= 1;
+					summary_page = (summary_page + SUMMARY_PAGE_MAX) % SUMMARY_PAGE_MAX;
+					break;
+				}
 			}			
 		break;
 		case CAT_MACHINE_SIGNAL_EXIT:
@@ -977,6 +1065,11 @@ void CAT_render_feed()
 		case ARRANGE:
 		{
 			render_arrangement();
+			break;
+		}
+		case SUMMARY:
+		{
+			render_summary();
 			break;
 		}
 	}
