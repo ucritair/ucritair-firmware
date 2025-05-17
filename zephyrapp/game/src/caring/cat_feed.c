@@ -105,6 +105,7 @@ static CAT_vec2 food_centers[5];
 static CAT_vec2 food_centroid;
 static float food_angles[5];
 static int food_neighbour_map[5];
+static bool food_collision_mask[5];
 
 static int touched = -1;
 static int dx, dy;
@@ -155,10 +156,20 @@ static enum
 {
 	PERFORMANCE,
 	VARIETY,
-	PORTIONING,
+	PROPRIETY,
 	LAYOUT,
 	SUMMARY_PAGE_MAX
 } summary_page = PERFORMANCE;
+
+static uint16_t grade_colours[6] =
+{
+	0x8082, // F
+	0x81e2, // C
+	0xbae4, // B-
+	0xd506, // B
+	0xad49, // A-
+	0x7d67 // A
+};
 
 static CAT_vec2 stamp_jitters[SUMMARY_PAGE_MAX];
 
@@ -192,6 +203,9 @@ void food_swap(int i, int j)
 	int temp_neighbour = food_neighbour_map[i];
 	food_neighbour_map[i] = food_neighbour_map[j];
 	food_neighbour_map[j] = temp_neighbour;
+	bool temp_collision = food_collision_mask[i];
+	food_collision_mask[i] = food_collision_mask[j];
+	food_collision_mask[j] = temp_collision;
 }
 
 CAT_item* food_get(int i)
@@ -272,6 +286,25 @@ void food_refresh()
 			angle += M_PI * 2;
 		food_angles[i] = angle;
 	}
+
+	for(int i = 0; i < food_idxs_l.length; i++)
+		food_collision_mask[i] = false;
+	for(int i = 0; i < food_idxs_l.length; i++)
+	{
+		if(!food_active_mask[i])
+			continue;
+
+		for(int j = i+1; j < food_idxs_l.length; j++)
+		{
+			if(!food_active_mask[j])
+				continue;
+			if(CAT_vec2_dist2(food_centers[i], food_centers[j]) < 44 * 44)
+			{
+				food_collision_mask[i] = food_collision_mask[j] = true;
+				break;
+			}
+		}
+	}
 }
 
 void food_spawn(int idx)
@@ -299,6 +332,9 @@ void food_spawn(int idx)
 
 float group_diversity()
 {
+	if(food_active_count <= 0)
+		return 0.0f;
+
 	float veg = 0;
 	float starch = 0;
 	float meat = 0;
@@ -324,10 +360,24 @@ float group_diversity()
 
 float role_propriety()
 {
-	float staple_count = 0;
-	float main_count = 0;
-	float treat_count = 0;
-	float vice_count = 0;
+	if(food_active_count <= 0)
+		return 0.0f;
+
+	// Ideally a meal has:
+	// Exactly one main (2pt)
+	// Exactly one staple (1pt)
+	// No treats if no sides are present (1pt)
+	// At most one treat if sides are present (1pt)
+	// No vices (As many demerits as vices)
+
+	float point_total = 5.0f;
+	float points = point_total;
+
+	int staple_count = 0;
+	int main_count = 0;
+	int treat_count = 0;
+	int vice_count = 0;
+	int side_count = 0;
 
 	for(int i = 0; i < food_idxs_l.length; i++)
 	{
@@ -349,25 +399,44 @@ float role_propriety()
 			case CAT_FOOD_ROLE_VICE:
 				vice_count += 1;
 			break;
+			case CAT_FOOD_ROLE_SIDE:
+			case CAT_FOOD_ROLE_SOUP:
+				side_count += 1;
+			break;
 			default:
 			break;
 		}
 	}
 
-	float propriety = 1.0f;
-	if(treat_count > 1)
-		propriety -= 0.25f;
-	if(vice_count > 0)
-		propriety -= 0.5f;
-	if(main_count != 1)
-		propriety *= 0.5f;
-	if(staple_count >= 1)
-		propriety *= 1.25f;
-	return clampf(propriety, 0, 1.0f);
+	if(food_active_count > 1 && main_count != 1)
+	{
+		points -= 2;
+	}
+	else if(food_active_count == 1 && main_count != 1)
+	{
+		points -= 3;
+	}
+	if(staple_count != 1)
+	{
+		points -= 1;
+	}
+	if(side_count == 0 && treat_count > 0)
+	{
+		points -= 1;
+	}
+	else if(side_count > 0 && treat_count > 1)
+	{
+		points -= 1;
+	}
+	points -= vice_count;
+	return clampf(points / point_total, 0, 1.0f);
 }
 
 float ichiju_sansai()
 {
+	if(food_active_count <= 0)
+		return 0.0f;
+
 	float staple = 0;
 	float soup = 0;
 	float main = 0;
@@ -393,30 +462,15 @@ float ichiju_sansai()
 
 float score_spacing()
 {
+	if(food_active_count <= 0)
+		return 0.0f;
 	if(food_active_count <= 1)
-		return 1.0f;
+		return 0.5f;
 
-	bool collision_mask[5] = {false, false, false, false, false};
 	float collision_count = 0;
-
-	for(int i = 0; i < food_idxs_l.length; i++)
-	{
-		if(!food_active_mask[i])
-			continue;
-		for(int j = i+1; j < food_idxs_l.length; j++)
-		{
-			if(!food_active_mask[j])
-				continue;	
-			if(CAT_rect_overlaps(food_rects[i], food_rects[j]))
-			{
-				collision_mask[i] = collision_mask[j] = true;
-				break;
-			}
-		}
-	}
 	for(int i = 0; i < 5; i++)
 	{
-		if(collision_mask[i])
+		if(food_collision_mask[i])
 			collision_count += 1;
 	}
 
@@ -493,8 +547,10 @@ bool surrounding_centroid(int i)
 
 float score_evenness()
 {
+	if(food_active_count == 0)
+		return 0.0f;
 	if(food_active_count <= 2)
-		return 1.0f;
+		return 0.5f;
 
 	float spokes[5];
 	float edges[5];
@@ -547,8 +603,8 @@ void score_refresh()
 	group_score = group_diversity();
 	role_score = role_propriety();
 	ichisan_score = ichiju_sansai();
-	spacing_score = food_active_count > 1 ? score_spacing() : 0.5f;
-	evenness_score = food_active_count > 2 ? score_evenness() : 0.5f;
+	spacing_score = score_spacing();
+	evenness_score = score_evenness();
 	aggregate_score = 
 	(
 		group_score * 2 +
@@ -796,8 +852,8 @@ void render_arrangement()
 				int j = food_neighbour_map[i];
 				if(food_active_mask[j])
 					CAT_lineberry(food_centers[i].x, food_centers[i].y, food_centers[j].x, food_centers[j].y, evenness_colour);
-
-				CAT_strokeberry(x, y, w, h, CAT_WHITE);
+				
+				CAT_circberry(x+w/2, y+h/2, w/2, food_collision_mask[i] ? CAT_RED : CAT_WHITE);
 			}
 		}
 		if(show_debug_text)
@@ -828,7 +884,7 @@ void render_arrangement()
 
 void render_summary()
 {
-	CAT_frameberry(CAT_WHITE);
+	CAT_frameberry(0xef39);
 
 	const char* title;
 	int stamp_idx;
@@ -843,8 +899,8 @@ void render_summary()
 			title = "Variety";
 			stamp_idx = round(group_score * 5);
 		break;
-		case PORTIONING:
-			title = "Portioning";
+		case PROPRIETY:
+			title = "Propriety";
 			stamp_idx = round(role_score * 5);
 		break;
 		case LAYOUT:
@@ -863,6 +919,7 @@ void render_summary()
 	CAT_push_draw_colour(RGB8882565(128, 128, 128));
 	CAT_draw_sprite(&feed_stamp_frame_sprite, 0, 120, 160);
 	CAT_push_draw_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
+	CAT_push_draw_colour(grade_colours[stamp_idx]);
 	CAT_draw_sprite(&feed_grade_stamps_sprite, stamp_idx, 120+stamp_jitters[summary_page].x, 160+stamp_jitters[summary_page].y);
 
 	CAT_push_draw_colour(RGB8882565(64, 64, 64));
@@ -906,7 +963,7 @@ void CAT_MS_feed(CAT_machine_signal signal)
 			scrolling = false;
 			CAT_timer_reinit(&inspect_timer_id, 1.0f);
 
-			CAT_timer_reinit(&feedback_timer_id, 5.0f);
+			CAT_timer_reinit(&feedback_timer_id, 1.5f);
 		break;
 		case CAT_MACHINE_SIGNAL_TICK:
 			switch(mode)

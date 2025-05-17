@@ -234,6 +234,7 @@ void CAT_rowberry(int x, int y, int w, uint16_t c)
 	uint16_t* framebuffer = CAT_LCD_get_framebuffer();
 
 	int xf = clamp(x+w, 0, CAT_LCD_FRAMEBUFFER_W);
+	x = clamp(x, 0, CAT_LCD_FRAMEBUFFER_W);
 	y -= FRAMEBUFFER_ROW_OFFSET;
 
 	if(y >= 0 && y < CAT_LCD_FRAMEBUFFER_H)
@@ -256,4 +257,45 @@ void CAT_pixberry(int x, int y, uint16_t c)
 	c = ADAPT_DESKTOP_COLOUR(c);
 	uint16_t* framebuffer = CAT_LCD_get_framebuffer();
 	framebuffer[y * CAT_LCD_FRAMEBUFFER_W + x] = c;
+}
+
+void CAT_circberry(int x, int y, int r, uint16_t c)
+{
+	c = ADAPT_DESKTOP_COLOUR(c);
+	uint16_t* framebuffer = CAT_LCD_get_framebuffer();
+
+	int f = 1 - r;
+	int ddfx = 0;
+	int ddfy = -2 * r;
+	int dx = 0;
+	int dy = r;
+
+	CAT_pixberry(x, y + r, c);
+	CAT_pixberry(x, y - r, c);
+	CAT_pixberry(x + r, y, c);
+	CAT_pixberry(x - r, y, c);
+
+	while(dx < dy)
+	{
+		if(f >= 0)
+		{
+			dy--;
+			ddfy += 2;
+			f += ddfy;
+		}
+
+		dx++;
+		ddfx += 2;
+		f += ddfx + 1;
+
+		CAT_pixberry(x + dx, y + dy, c);
+        CAT_pixberry(x - dx, y + dy, c);
+        CAT_pixberry(x + dx, y - dy, c);
+        CAT_pixberry(x - dx, y - dy, c);
+        CAT_pixberry(x + dy, y + dx, c);
+        CAT_pixberry(x - dy, y + dx, c);
+        CAT_pixberry(x + dy, y - dx, c);
+        CAT_pixberry(x - dy, y - dx, c);
+	}
+	
 }
