@@ -55,9 +55,12 @@ extern const CAT_sprite eink_refresh_splash_sprite;
 extern const CAT_sprite empanadas_sprite;
 extern const CAT_sprite fan_a_sprite;
 extern const CAT_sprite fan_b_sprite;
-extern const CAT_sprite ui_feed_grade_stamps_sprite;
+extern const CAT_sprite feed_chopsticks_sprite;
+extern const CAT_sprite feed_flower_sprite;
 extern const CAT_sprite feed_lower_tray_sprite;
-extern const CAT_sprite ui_feed_stamp_frame_sprite;
+extern const CAT_sprite feed_table_sprite;
+extern const CAT_sprite feed_tablecloth_sprite;
+extern const CAT_sprite feed_tray_sprite;
 extern const CAT_sprite feed_upper_tray_sprite;
 extern const CAT_sprite floor_alley_sprite;
 extern const CAT_sprite floor_iron_sprite;
@@ -242,6 +245,8 @@ extern const CAT_sprite toy_golf_sprite;
 extern const CAT_sprite toy_puzzle_sprite;
 extern const CAT_sprite tuna_sprite;
 extern const CAT_sprite ui_down_arrow_sprite;
+extern const CAT_sprite ui_feed_grade_stamps_sprite;
+extern const CAT_sprite ui_feed_stamp_frame_sprite;
 extern const CAT_sprite ui_item_frame_bg_sprite;
 extern const CAT_sprite ui_item_frame_fg_sprite;
 extern const CAT_sprite ui_left_arrow_sprite;
@@ -262,4 +267,4 @@ extern const CAT_sprite window_morning_sprite;
 extern const CAT_sprite window_night_sprite;
 
 extern const CAT_sprite* sprite_list[];
-#define CAT_SPRITE_LIST_LENGTH 256
+#define CAT_SPRITE_LIST_LENGTH 261

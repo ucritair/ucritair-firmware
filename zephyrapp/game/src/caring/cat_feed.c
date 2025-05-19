@@ -15,6 +15,11 @@
 #include <stdio.h>
 #include <string.h>
 
+#define FOOD_SCALE 2
+#define FOOD_COLLISION_R 24
+#define FOOD_RECT_W (FOOD_SCALE * 16)
+#define FOOD_RECT_H (FOOD_SCALE * 16)
+
 void render_ring(int x, int y, int R, int r, uint16_t c, float t)
 {
 	for(int dy = -R; dy < R; dy++)
@@ -78,19 +83,12 @@ static CAT_rect menu_rect =
 	.max = {240, 80}
 };
 
-static CAT_rect spawn_rects[5] =
-{
-	{{32, 8}, {32+48, 8+48}},
-	{{64, 8}, {64+48, 8+48}},
-	{{96, 8}, {96+48, 8+48}},
-	{{128, 8}, {128+48, 8+48}},
-	{{160, 8}, {160+48, 8+48}}
-};
+static CAT_rect spawn_rects[5];
 
 static CAT_rect table_rect =
 {
-	.min = {0, 96},
-	.max = {240, 256}
+	.min = {0+60, 96+44},
+	.max = {240-60, 256-48}
 };
 
 static CAT_item_list food_pool;
@@ -172,6 +170,22 @@ static uint16_t grade_colours[6] =
 };
 
 static CAT_vec2 stamp_jitters[SUMMARY_PAGE_MAX];
+
+void init_spawn_rects()
+{
+	int spawn_rect_start_x = 16;
+	int spawn_rect_start_y = 16;
+	for(int i = 0; i < 5; i++)
+	{
+		int x = spawn_rect_start_x + i * (FOOD_RECT_W + 12);
+		int y = spawn_rect_start_y;
+		spawn_rects[i] = (CAT_rect)
+		{
+			{x, y},
+			{x + FOOD_RECT_W, y + FOOD_RECT_H}
+		};
+	}
+}
 
 bool food_filter(int item_id)
 {
@@ -304,7 +318,7 @@ void food_refresh()
 		{
 			if(!food_active_mask[j])
 				continue;
-			if(CAT_vec2_dist2(food_centers[i], food_centers[j]) < 44 * 44)
+			if(CAT_vec2_dist2(food_centers[i], food_centers[j]) < FOOD_COLLISION_R * FOOD_COLLISION_R)
 			{
 				food_collision_mask[i] = food_collision_mask[j] = true;
 				break;
@@ -328,7 +342,13 @@ void food_spawn(int idx)
 	}
 
 	CAT_rect spawn_rect = free_rect_idx != -1 ?
-	spawn_rects[free_rect_idx] : (CAT_rect) {{96, 16}, {144, 64}};
+	spawn_rects[free_rect_idx] :
+	CAT_rect_center
+	(
+		(table_rect.min.x+table_rect.max.x) * 0.5f,
+		(table_rect.min.y+table_rect.max.y) * 0.5f,
+		FOOD_RECT_W, FOOD_RECT_H
+	);
 
 	CAT_ilist_push(&food_idxs_l, idx);
 	food_rects[food_idxs_l.length-1] = spawn_rect;
@@ -579,28 +599,28 @@ void map_neighbours()
 	}
 }
 
-static float placement_exception_radius = 16.0f;
-static int placement_exception = -1;
+static float centerpiece_radius = 12.0f;
+static int centerpiece_idx = -1;
 
 bool placement_excepted(int i)
 {
 	if(!food_active_mask[i])
 		return true;
 	
-	if(placement_exception == -1)
+	if(centerpiece_idx == -1)
 	{
-		if(CAT_vec2_dist2(food_centers[i], food_centroid) < placement_exception_radius * placement_exception_radius)
+		if(CAT_vec2_dist2(food_centers[i], food_centroid) < centerpiece_radius * centerpiece_radius)
 		{
-			placement_exception = i;
+			centerpiece_idx = i;
 		}
 	}
 	
-	return placement_exception == i;
+	return centerpiece_idx == i;
 }
 
 float score_evenness()
 {
-	placement_exception = -1;
+	centerpiece_idx = -1;
 
 	if(food_active_count == 0)
 		return 0.0f;
@@ -779,6 +799,12 @@ void select_grid_io()
 		CAT_timer_reset(inspect_timer_id);
 		last_selected = -1;
 	}
+
+	if(CAT_input_held(CAT_BUTTON_UP, 0))
+		scroll_offset += 32;
+	if(CAT_input_held(CAT_BUTTON_DOWN, 0))
+		scroll_offset -= 32;
+	scroll_offset = -clamp(-scroll_offset, get_min_scroll_y(), get_max_scroll_y());
 }
 
 void render_select_grid()
@@ -862,22 +888,45 @@ void render_feedback()
 
 void render_arrangement()
 {
-	CAT_frameberry(0x53ab);
+	CAT_draw_sprite(&floor_stone_sprite, 0, 0, 160);
+	CAT_draw_sprite(&floor_stone_sprite, 0, 0, 0);
+	
+	int menu_x = menu_rect.min.x;
+	int menu_y = menu_rect.min.y;
+	int menu_w = menu_rect.max.x - menu_x;
+	int menu_h = menu_rect.max.y - menu_y;
+	int table_x = table_rect.min.x;
+	int table_y = table_rect.min.y;
+	int table_w = table_rect.max.x - table_x;
+	int table_h = table_rect.max.y - table_y;
 
-	CAT_draw_sprite(&feed_upper_tray_sprite, 0, menu_rect.min.x, menu_rect.min.y);
-	CAT_draw_sprite(&feed_lower_tray_sprite, 0, table_rect.min.x, table_rect.min.y);
+	CAT_draw_sprite(&feed_upper_tray_sprite, 0, 0, 0);
+	if(food_pool.length <= 0)
+	{
+		render_text(menu_x+68, menu_y + 6, CAT_WHITE, 2, "Out of");
+		render_text(menu_x+34, menu_y + 32, CAT_WHITE, 2, "food items!");
+	}
+
+	int center_x = table_x + table_w / 2;
+	int center_y = table_y + table_h / 2;
+	CAT_push_draw_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
+	CAT_draw_sprite(&feed_table_sprite, 0, center_x, center_y + 16);
+	CAT_push_draw_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
+	CAT_draw_sprite(&feed_tablecloth_sprite, 0, center_x, center_y + 16);
+	CAT_push_draw_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
+	CAT_draw_sprite(&feed_tray_sprite, 0, center_x, center_y);
 
 	if(show_gizmos)
 	{
-		int menu_x = menu_rect.min.x;
-		int menu_y = menu_rect.min.y;
-		int menu_w = menu_rect.max.x - menu_x;
-		int menu_h = menu_rect.max.y - menu_y;
 		CAT_strokeberry(menu_x, menu_y, menu_w, menu_h, CAT_RED);
-		int table_x = table_rect.min.x;
-		int table_y = table_rect.min.y;
-		int table_w = table_rect.max.x - table_x;
-		int table_h = table_rect.max.y - table_y;
+		for(int i = 0; i < 5; i++)
+		{
+			CAT_rect spawn_rect = spawn_rects[i];
+			int spawn_x = spawn_rect.min.x; int spawn_y = spawn_rect.min.y;
+			int spawn_w = spawn_rect.max.x - spawn_x; int spawn_h = spawn_rect.max.y - spawn_y;
+			CAT_strokeberry(spawn_x, spawn_y, spawn_w, spawn_h, CAT_WHITE);
+		}
+
 		CAT_strokeberry(table_x, table_y, table_w, table_h, CAT_BLUE);
 	}
 
@@ -889,14 +938,14 @@ void render_arrangement()
 		int y = rect.min.y;
 		int w = rect.max.x - x;
 		int h = rect.max.y - y;
-		CAT_push_draw_scale(3);
+		CAT_push_draw_scale(2);
 		CAT_push_draw_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_BOTTOM);
 		CAT_draw_sprite(food->sprite, 0, x+w/2, y+h);
 		
 		if(show_gizmos)
 		{
 			if(food_active_count > 0)
-				CAT_circberry(food_centroid.x, food_centroid.y, placement_exception_radius, placement_exception == -1 ? CAT_GREEN : CAT_RED);
+				CAT_circberry(food_centroid.x, food_centroid.y, centerpiece_radius, centerpiece_idx == -1 ? CAT_GREEN : CAT_RED);
 
 			if(food_active_mask[i])
 			{
@@ -927,7 +976,7 @@ void render_arrangement()
 
 	if(show_debug_text)
 	{
-		CAT_gui_printf(CAT_WHITE, "group diversity: %0.2f", variety_score);
+		CAT_gui_printf(CAT_WHITE, "group variety: %0.2f", variety_score);
 		CAT_gui_printf(CAT_WHITE, "role propriety: %0.2f", propriety_score);
 		CAT_gui_printf(CAT_WHITE, "ichiju sansai: %0.2f", ichisan_score);
 		CAT_gui_printf(CAT_WHITE, "spacing: %0.2f", spacing_score);
@@ -955,7 +1004,7 @@ void render_summary()
 			stamp_idx = round(variety_score * 5);
 		break;
 		case PROPRIETY:
-			title = "Propriety";
+			title = "Nutrition";
 			stamp_idx = round(propriety_score * 5);
 		break;
 		case LAYOUT:
@@ -989,6 +1038,8 @@ void CAT_MS_feed(CAT_machine_signal signal)
 	{
 		case CAT_MACHINE_SIGNAL_ENTER:
 			CAT_set_render_callback(CAT_render_feed);
+
+			init_spawn_rects();
 
 			CAT_item_list_init(&food_pool);
 			CAT_item_list_filter(&bag, &food_pool, food_filter);
@@ -1056,15 +1107,6 @@ void CAT_MS_feed(CAT_machine_signal signal)
 				}
 				case ARRANGE:
 				{		
-					if(CAT_input_pressed(CAT_BUTTON_B) || CAT_input_pressed(CAT_BUTTON_START))
-						CAT_machine_back();
-
-					if(CAT_input_pressed(CAT_BUTTON_SELECT))
-					{
-						mode = SELECT;
-						break;
-					}
-
 					if(CAT_gui_popup_is_open())
 						break;
 					if(CAT_input_pressed(CAT_BUTTON_A))
@@ -1090,6 +1132,15 @@ void CAT_MS_feed(CAT_machine_signal signal)
 						{
 							stamp_jitters[i] = (CAT_vec2){CAT_rand_int(-5, 5), CAT_rand_int(-5, 5)};
 						}
+					}
+					
+					if(CAT_input_pressed(CAT_BUTTON_B) || CAT_input_pressed(CAT_BUTTON_START))
+						CAT_machine_back();
+
+					if(CAT_input_pressed(CAT_BUTTON_SELECT) && food_pool.length > 0)
+					{
+						mode = SELECT;
+						break;
 					}
 
 					if(CAT_input_pressed(CAT_BUTTON_RIGHT))

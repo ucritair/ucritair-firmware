@@ -91,7 +91,7 @@ void CAT_MS_arcade(CAT_machine_signal signal)
 					if(game_selector < 0)
 					{
 						mode = AQ;
-						aq_selector = NUM_AQ_ENTRIES-1;
+						aq_selector = (int) NUM_AQ_ENTRIES-1;
 					}
 					else if(game_selector >= NUM_GAME_ENTRIES)
 					{
