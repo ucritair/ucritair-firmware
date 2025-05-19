@@ -972,10 +972,10 @@ void render_summary()
 	render_text(title_x, 12, CAT_BLACK, 2, title);
 	CAT_push_draw_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
 	CAT_push_draw_colour(RGB8882565(128, 128, 128));
-	CAT_draw_sprite(&feed_stamp_frame_sprite, 0, 120, 160);
+	CAT_draw_sprite(&ui_feed_stamp_frame_sprite, 0, 120, 180);
 	CAT_push_draw_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
 	CAT_push_draw_colour(grade_colours[stamp_idx]);
-	CAT_draw_sprite(&feed_grade_stamps_sprite, stamp_idx, 120+stamp_jitters[summary_page].x, 160+stamp_jitters[summary_page].y);
+	CAT_draw_sprite(&ui_feed_grade_stamps_sprite, stamp_idx, 120+stamp_jitters[summary_page].x, 180+stamp_jitters[summary_page].y);
 
 	CAT_push_draw_colour(RGB8882565(64, 64, 64));
 	CAT_draw_sprite(&ui_left_arrow_sprite, -1, 8, 12);

@@ -561,7 +561,7 @@
         },
         {
             "id": 51,
-            "name": "feed_grade_stamps_sprite",
+            "name": "ui_feed_grade_stamps_sprite",
             "path": "testing/grade_stamps.png",
             "frames": 6,
             "width": 100,
@@ -581,11 +581,11 @@
         },
         {
             "id": 53,
-            "name": "feed_stamp_frame_sprite",
+            "name": "ui_feed_stamp_frame_sprite",
             "path": "testing/stamp_frame.png",
             "frames": 1,
-            "width": 120,
-            "height": 160,
+            "width": 160,
+            "height": 200,
             "loop": false,
             "reverse": false
         },
