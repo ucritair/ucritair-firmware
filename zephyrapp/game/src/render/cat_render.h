@@ -122,6 +122,7 @@ void CAT_strokeberry(int xi, int yi, int w, int h, uint16_t c);
 void CAT_rowberry(int x, int y, int w, uint16_t c);
 void CAT_pixberry(int x, int y, uint16_t c);
 void CAT_circberry(int x, int y, int r, uint16_t c);
+void CAT_discberry(int x, int y, int r, uint16_t c);
 
 
 //////////////////////////////////////////////////////////////////////////

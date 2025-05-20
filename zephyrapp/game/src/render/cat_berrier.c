@@ -297,5 +297,36 @@ void CAT_circberry(int x, int y, int r, uint16_t c)
         CAT_pixberry(x + dy, y - dx, c);
         CAT_pixberry(x - dy, y - dx, c);
 	}
-	
+}
+
+void CAT_discberry(int x, int y, int r, uint16_t c)
+{
+	c = ADAPT_DESKTOP_COLOUR(c);
+	uint16_t* framebuffer = CAT_LCD_get_framebuffer();
+
+	y -= FRAMEBUFFER_ROW_OFFSET;
+	int yi = y - r;
+	int yf = y + r;
+	if (yi > CAT_LCD_FRAMEBUFFER_H || yf < 0)
+		return;
+
+	for(int dy = -r; dy < r; dy++)
+	{
+		int y_w = y + dy;
+		if(y_w < 0 || y_w >= CAT_LCD_FRAMEBUFFER_H)
+			continue;
+
+		for(int dx = -r; dx < r; dx++)
+		{
+			int x_w = x + dx;
+			if(x_w < 0 || x_w >= CAT_LCD_FRAMEBUFFER_W)
+				continue;
+
+			if((dx*dx+dy*dy) <= r*r)
+			{
+				int idx = y_w * CAT_LCD_FRAMEBUFFER_W + x_w;
+				framebuffer[idx] = c;
+			}
+		}
+	}
 }

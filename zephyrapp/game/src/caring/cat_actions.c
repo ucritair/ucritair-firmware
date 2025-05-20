@@ -166,36 +166,6 @@ void action_exit()
 	CAT_set_LEDs(0, 0, 0);
 }
 
-void CAT_MS_study(CAT_machine_signal signal)
-{
-	switch (signal)
-	{
-		case CAT_MACHINE_SIGNAL_ENTER:
-		{
-			CAT_set_render_callback(CAT_render_action);
-			tool_type = CAT_TOOL_TYPE_BOOK;
-			action_MS = CAT_MS_study;
-			action_AS = &AS_study;
-			result_AS = &AS_foc_up;
-			result_colour[0] = 64;
-			result_colour[1] = 206;
-			result_colour[2] = 220;
-			action_enter();
-			break;
-		}
-		case CAT_MACHINE_SIGNAL_TICK:
-		{
-			action_tick();
-			break;
-		}
-		case CAT_MACHINE_SIGNAL_EXIT:
-		{
-			action_exit();
-			break;
-		}
-	}
-}
-
 void CAT_MS_play(CAT_machine_signal signal)
 {
 	switch (signal)

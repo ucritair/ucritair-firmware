@@ -45,7 +45,6 @@ CAT_vec2 CAT_vec2_mul(CAT_vec2 a, float b);
 
 float CAT_vec2_dot(CAT_vec2 a, CAT_vec2 b);
 float CAT_vec2_mag2(CAT_vec2 a);
-
 CAT_vec2 CAT_vec2_unit(CAT_vec2 a);
 float CAT_vec2_dist2(CAT_vec2 a, CAT_vec2 b);
 

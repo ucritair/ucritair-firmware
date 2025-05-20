@@ -100,6 +100,7 @@ target_sources(app PRIVATE
 
 	src/caring/cat_actions.c
 	src/caring/cat_feed.c
+	src/caring/cat_study.c
 
 	src/arcade/cat_arcade.c
 	src/arcade/cat_arcade_snake.c
