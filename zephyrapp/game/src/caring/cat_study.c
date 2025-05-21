@@ -4,6 +4,7 @@
 #include "cat_input.h"
 
 CAT_vec2 cursor;
+bool cursor_committed = false;
 
 typedef struct
 {
