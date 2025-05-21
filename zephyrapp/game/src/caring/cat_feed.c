@@ -156,6 +156,7 @@ static enum
 	VARIETY,
 	PROPRIETY,
 	LAYOUT,
+	NOTES,
 	SUMMARY_PAGE_MAX
 } summary_page = PERFORMANCE;
 
@@ -169,7 +170,38 @@ static uint16_t grade_colours[6] =
 	0x7d67 // A
 };
 
-static CAT_vec2 stamp_jitters[SUMMARY_PAGE_MAX];
+static CAT_vec2 registration_errors[SUMMARY_PAGE_MAX];
+
+static uint16_t severity_colours[4] =
+{
+	CAT_BLACK, // BASIC
+	0xc983, // BAD
+	0x4c07, // GOOD
+	0x82B9, // SPECIAL
+};
+
+struct
+{
+	const char* message;
+	enum
+	{
+		BASIC,
+		BAD,
+		GOOD,
+		SPECIAL
+	} severity;
+} notes[12];
+int note_count = 0;
+
+void add_note(const char* message, int severity)
+{
+	if(note_count >= 12)
+		return;
+	int idx = note_count;
+	notes[idx].message = message;
+	notes[idx].severity = severity;
+	note_count += 1;
+}
 
 void init_spawn_rects()
 {
@@ -401,11 +433,26 @@ float score_variety()
 	}
 
 	if(veg_count < 1)
+	{
 		points -= 2;
+		add_note("Needs more vegetables", BAD);
+	}
 	if(veg_count < meat_count)
+	{
 		points -= 1;
+		add_note("Heavy on the meat", BASIC);
+	}
+	if(veg_count > 2)
+	{
+		add_note("Lots of veggies!", GOOD);
+	}
+
 	if(starch_count > 1)
+	{
 		points -= 1;
+		add_note("One starch will do", BASIC);
+	}
+
 	if
 	(
 		veg_count == 0 ||
@@ -415,7 +462,13 @@ float score_variety()
 	)
 	{
 		points -= 1;
+		add_note("Could use more variety", BASIC);
 	}
+	else
+	{
+		add_note("Highly varied", GOOD);
+	}
+
 	return clampf(points / point_total, 0, 1);
 }
 
@@ -472,24 +525,49 @@ float score_propriety()
 	if(food_active_count > 1 && main_count != 1)
 	{
 		points -= 2;
+		add_note("One main is plenty", BAD);
 	}
 	else if(food_active_count == 1 && main_count != 1)
 	{
 		points -= 3;
+		add_note("No main course?!", BAD);
 	}
+
 	if(staple_count != 1)
 	{
 		points -= 1;
+		add_note("Lacking a staple", BASIC);
 	}
+
 	if(side_count == 0 && treat_count > 0)
 	{
 		points -= 1;
+		add_note("Prioritize the basics", BASIC);
 	}
 	else if(side_count > 0 && treat_count > 1)
 	{
 		points -= 1;
+		add_note("Heavy on the treats", BASIC);
 	}
+	if(treat_count > 2)
+	{
+		add_note("Very indulgent", BAD);
+	}
+
 	points -= vice_count;
+	if(vice_count > 1)
+	{
+		add_note("Riddled with vice", BAD);
+	}
+	else if(vice_count == 1)
+	{
+		add_note("Vice is best avoided", BASIC);
+	}   
+	else if(vice_count == 0 && treat_count == 0)
+	{
+		add_note("Impressive restraint", GOOD);
+	}
+
 	return clampf(points / point_total, 0, 1.0f);
 }
 
@@ -518,7 +596,11 @@ float ichiju_sansai()
 			staple += 1;
 	}
 
-	return (staple + soup + main + sides) / 5.0f;
+	float ichisan = (staple + soup + main + sides) / 5.0f;
+	if(ichisan == 1.0f)
+		add_note("Ichi-ju san-sai!", SPECIAL);
+
+	return ichisan;
 }
 
 float score_spacing()
@@ -534,6 +616,11 @@ float score_spacing()
 		if(food_collision_mask[i])
 			collision_count += 1;
 	}
+
+	if(collision_count >= 4)
+		add_note("Terribly crowded", BAD);
+	else if(collision_count >= 2)
+		add_note("A little crowded", BASIC);
 
 	return 
 	food_active_count > 0 ?
@@ -660,21 +747,36 @@ float score_evenness()
 	spoke_stddev = sqrt(spoke_stddev / (surrounding_count-1));
 	edge_stddev = sqrt(edge_stddev / (surrounding_count-1));
 
+	float evenness = CAT_ease_in_sine
+	(
+		1.0f -
+		((spoke_stddev / spoke_mean) +
+		(edge_stddev / edge_mean)) * 0.5f
+	);
+
 	if(surrounding_count <= 2)
 		return 1.0f;
 	else
 	{
-		return CAT_ease_in_sine
-		(
-			1.0f -
-			((spoke_stddev / spoke_mean) +
-			(edge_stddev / edge_mean)) * 0.5f
-		);
+		if(evenness > 0.9f)
+			add_note("Impeccably spaced", SPECIAL);
+		if(evenness > 0.65f)
+			add_note("Pleasingly spaced", GOOD);
+		else if (evenness > 0.45f)
+			add_note("Placement a bit awkward", BASIC);
+		else
+			add_note("Nonsensical placement", BAD);
+
+		return evenness;
 	}
 }
 
 void score_refresh()
 {
+	note_count = 0;
+	if(food_active_count == 0)
+		add_note("That was nothing!", BAD);
+
 	variety_score = score_variety();
 	propriety_score = score_propriety();
 	ichisan_score = ichiju_sansai();
@@ -702,7 +804,8 @@ int get_min_scroll_y()
 
 int get_max_scroll_y()
 {
-	return ((food_pool.length / 3) + 3) * 64 + select_grid_margin - CAT_LCD_SCREEN_H;
+	int pool_size = ((food_pool.length / 3) + 3) * 64 + select_grid_margin - CAT_LCD_SCREEN_H;
+	return pool_size > 0 ? pool_size : select_grid_margin;
 }
 
 int get_hovered()
@@ -767,7 +870,7 @@ void select_grid_io()
 			last_selected = -1;
 			CAT_timer_reset(inspect_timer_id);
 		}
-		else if(!scrolling)
+		else if(!scrolling && last_selected != -1)
 		{
 			if(input.touch_time >= 0.5f)
 			{
@@ -1011,25 +1114,63 @@ void render_summary()
 			title = "Layout";
 			stamp_idx = round((spacing_score + evenness_score) * 0.5f * 5);
 		break;
+		case NOTES:
+			title = "Notes";
+			stamp_idx = -1;
+		break;
 		default:
-			return;
 		break;
 	}
-
-	int title_len = strlen(title);
-	int title_x = (CAT_LCD_SCREEN_W - 1 - title_len * 16) / 2;
-	render_text(title_x, 12, CAT_BLACK, 2, title);
-	CAT_push_draw_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
-	CAT_push_draw_colour(RGB8882565(128, 128, 128));
-	CAT_draw_sprite(&ui_feed_stamp_frame_sprite, 0, 120, 180);
-	CAT_push_draw_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
-	CAT_push_draw_colour(grade_colours[stamp_idx]);
-	CAT_draw_sprite(&ui_feed_grade_stamps_sprite, stamp_idx, 120+stamp_jitters[summary_page].x, 180+stamp_jitters[summary_page].y);
 
 	CAT_push_draw_colour(RGB8882565(64, 64, 64));
 	CAT_draw_sprite(&ui_left_arrow_sprite, -1, 8, 12);
 	CAT_push_draw_colour(RGB8882565(64, 64, 64));
 	CAT_draw_sprite(&ui_right_arrow_sprite, -1, 240-13-8, 12);
+	int title_len = strlen(title);
+	int title_x = (CAT_LCD_SCREEN_W - 1 - title_len * 16) / 2;
+	render_text(title_x, 12, CAT_BLACK, 2, title);
+
+	if(summary_page != NOTES)
+	{
+		CAT_push_draw_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
+		CAT_push_draw_colour(RGB8882565(128, 128, 128));
+		CAT_draw_sprite(&ui_feed_stamp_frame_sprite, 0, 120, 180);
+		CAT_push_draw_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
+		CAT_push_draw_colour(grade_colours[stamp_idx]);
+		CAT_draw_sprite(&ui_feed_stamp_base_sprite, stamp_idx == 2 || stamp_idx == 4, 120+registration_errors[summary_page].x, 180+registration_errors[summary_page].y);
+		CAT_push_draw_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
+		CAT_push_draw_colour(grade_colours[stamp_idx]);
+		int glyph_idx = stamp_idx;
+		switch(stamp_idx)
+		{
+			case 0:
+			case 1:
+			default:
+			break;
+			
+			case 2:
+			case 3:
+				glyph_idx = 2;
+			break;
+
+			case 4:
+			case 5:
+				glyph_idx = 3;
+			break;
+		}
+		CAT_draw_sprite(&ui_feed_stamp_glyphs_sprite, glyph_idx, 120+registration_errors[summary_page].x, 180+registration_errors[summary_page].y);
+	}
+	else
+	{
+		int cursor_y = 52;
+		for(int i = 0; i < note_count; i++)
+		{
+			render_text(12, cursor_y, severity_colours[notes[i].severity], 1, "\1 %s", notes[i].message);
+			cursor_y += 18;
+		}
+		const char* signature = "- Inspector Reed";
+		render_text(240 - strlen(signature) * 8 - 12, cursor_y + 6, CAT_BLACK, 1, signature);
+	}
 }
 
 void CAT_MS_feed(CAT_machine_signal signal)
@@ -1125,13 +1266,14 @@ void CAT_MS_feed(CAT_machine_signal signal)
 						}
 						if(!empty)
 							pet.vigour += level;
-
-						mode = SUMMARY;
-						summary_page = PERFORMANCE;
+						
+						score_refresh();
 						for(int i = 0; i < SUMMARY_PAGE_MAX; i++)
 						{
-							stamp_jitters[i] = (CAT_vec2){CAT_rand_int(-5, 5), CAT_rand_int(-5, 5)};
+							registration_errors[i] = (CAT_vec2){CAT_rand_int(-12, 12), CAT_rand_int(-12, 12)};
 						}
+						summary_page = PERFORMANCE;
+						mode = SUMMARY;
 					}
 					
 					if(CAT_input_pressed(CAT_BUTTON_B) || CAT_input_pressed(CAT_BUTTON_START))
@@ -1212,15 +1354,18 @@ void CAT_MS_feed(CAT_machine_signal signal)
 						CAT_machine_back();
 					}
 
+					// enum = (enum + ENUM_MAX) % ENUM_MAX doesn't work on embedded
+					int summary_page_proxy = summary_page;
 					if(CAT_input_pressed(CAT_BUTTON_RIGHT))
-						summary_page += 1;
+						summary_page_proxy += 1;
 					if(CAT_input_pressed(CAT_BUTTON_LEFT))
-						summary_page -= 1;
-					summary_page = (summary_page + SUMMARY_PAGE_MAX) % SUMMARY_PAGE_MAX;
+						summary_page_proxy -= 1;
+					summary_page = (summary_page_proxy + SUMMARY_PAGE_MAX) % SUMMARY_PAGE_MAX;
 					break;
 				}
 			}			
 		break;
+
 		case CAT_MACHINE_SIGNAL_EXIT:
 		break;
 	}
