@@ -870,7 +870,7 @@ void select_grid_io()
 			last_selected = -1;
 			CAT_timer_reset(inspect_timer_id);
 		}
-		else if(!scrolling)
+		else if(!scrolling && last_selected != -1)
 		{
 			if(input.touch_time >= 0.5f)
 			{
@@ -1364,6 +1364,7 @@ void CAT_MS_feed(CAT_machine_signal signal)
 				}
 			}			
 		break;
+
 		case CAT_MACHINE_SIGNAL_EXIT:
 		break;
 	}
