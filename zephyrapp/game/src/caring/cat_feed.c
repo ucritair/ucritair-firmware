@@ -804,7 +804,8 @@ int get_min_scroll_y()
 
 int get_max_scroll_y()
 {
-	return ((food_pool.length / 3) + 3) * 64 + select_grid_margin - CAT_LCD_SCREEN_H;
+	int pool_size = ((food_pool.length / 3) + 3) * 64 + select_grid_margin - CAT_LCD_SCREEN_H;
+	return pool_size > 0 ? pool_size : select_grid_margin;
 }
 
 int get_hovered()
