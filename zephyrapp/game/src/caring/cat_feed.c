@@ -1119,7 +1119,6 @@ void render_summary()
 			stamp_idx = -1;
 		break;
 		default:
-			return;
 		break;
 	}
 
@@ -1355,11 +1354,13 @@ void CAT_MS_feed(CAT_machine_signal signal)
 						CAT_machine_back();
 					}
 
+					// enum = (enum + ENUM_MAX) % ENUM_MAX doesn't work on embedded
+					int summary_page_proxy = summary_page;
 					if(CAT_input_pressed(CAT_BUTTON_RIGHT))
-						summary_page += 1;
+						summary_page_proxy += 1;
 					if(CAT_input_pressed(CAT_BUTTON_LEFT))
-						summary_page -= 1;
-					summary_page = (summary_page + SUMMARY_PAGE_MAX) % SUMMARY_PAGE_MAX;
+						summary_page_proxy -= 1;
+					summary_page = (summary_page_proxy + SUMMARY_PAGE_MAX) % SUMMARY_PAGE_MAX;
 					break;
 				}
 			}			
