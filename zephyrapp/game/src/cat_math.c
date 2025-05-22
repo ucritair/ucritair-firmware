@@ -100,6 +100,11 @@ CAT_vec2 CAT_vec2_mul(CAT_vec2 a, float b)
 	return (CAT_vec2) {a.x*b, a.y*b};
 }
 
+CAT_vec2 CAT_vec2_div(CAT_vec2 a, float b)
+{
+	return (CAT_vec2) {a.x/b, a.y/b};
+}
+
 float CAT_vec2_dot(CAT_vec2 a, CAT_vec2 b)
 {
 	return a.x*b.x + a.y*b.y;
@@ -125,11 +130,6 @@ float CAT_vec2_dist2(CAT_vec2 a, CAT_vec2 b)
 //////////////////////////////////////////////////////////////////////////
 // IVEC2
 
-CAT_ivec2 CAT_iv2(int x, int y)
-{
-	return (CAT_ivec2) {x, y};
-}
-
 CAT_ivec2 CAT_ivec2_add(CAT_ivec2 a, CAT_ivec2 b)
 {
 	return (CAT_ivec2) {a.x + b.x, a.y + b.y};
@@ -140,14 +140,28 @@ CAT_ivec2 CAT_ivec2_sub(CAT_ivec2 a, CAT_ivec2 b)
 	return (CAT_ivec2) {a.x - b.x, a.y - b.y};
 }
 
-CAT_ivec2 CAT_ivec2_mul(CAT_ivec2 a, int b)
+CAT_ivec2 CAT_ivec2_mul(CAT_ivec2 a, float b)
 {
 	return (CAT_ivec2) {a.x * b, a.y * b};
 }
 
-CAT_ivec2 CAT_ivec2_div(CAT_ivec2 a, int b)
+CAT_ivec2 CAT_ivec2_div(CAT_ivec2 a, float b)
 {
 	return (CAT_ivec2) {a.x / b, a.y / b};
+}
+
+int CAT_ivec2_dot(CAT_ivec2 a, CAT_ivec2 b)
+{
+	return a.x*b.x + a.y*b.y;
+}
+int CAT_ivec2_mag2(CAT_ivec2 a)
+{
+	return CAT_ivec2_dot(a, a);
+}
+
+float CAT_ivec2_dist2(CAT_ivec2 a, CAT_ivec2 b)
+{
+	return CAT_ivec2_mag2(CAT_ivec2_sub(b, a));
 }
 
 
@@ -185,6 +199,15 @@ CAT_rect CAT_rect_center(int x, int y, int w, int h)
 	rect.max.x = x + w/2;
 	rect.max.y = y + h/2;
 	return rect;
+}
+
+CAT_rect CAT_rect_overlap(CAT_rect a, CAT_rect b)
+{
+	return (CAT_rect)
+	{
+		{ max(a.min.x, b.min.x), max(a.min.y, b.min.y) },
+		{ min(a.max.x, b.max.x), min(a.max.y, b.max.y) }
+	};
 }
 
 

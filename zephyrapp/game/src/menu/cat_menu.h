@@ -34,8 +34,5 @@ void CAT_render_debug();
 void CAT_MS_graph_spoof(CAT_machine_signal signal);
 void CAT_render_graph_spoof();
 
-void CAT_MS_cheats(CAT_machine_signal signal);
-void CAT_render_cheats();
-
 void CAT_MS_colour_picker(CAT_machine_signal signal);
 void CAT_render_colour_picker();

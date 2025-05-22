@@ -1,40 +1,56 @@
 #include "cat_render.h"
 
 #include "sprite_assets.h"
+#include <math.h>
 
 //////////////////////////////////////////////////////////////////////////
 // SPRITER
 
 static CAT_draw_flag draw_flags = CAT_DRAW_FLAG_DEFAULT;
-static bool draw_flags_set = false;
-static uint16_t draw_colour = CAT_WHITE;
-static bool draw_colour_set = false;
+static uint16_t draw_colour = CAT_TRANSPARENT;
 static unsigned int draw_scale = 1;
-static bool draw_scale_set = false;
 
 void CAT_push_draw_flags(int flags)
 {
 	draw_flags = flags;
-	draw_flags_set = true;
+}
+
+CAT_draw_flag consume_draw_flags()
+{
+	CAT_draw_flag value = draw_flags;
+	draw_flags = CAT_DRAW_FLAG_DEFAULT;
+	return value;
 }
 
 void CAT_push_draw_colour(uint16_t colour)
 {
 	draw_colour = colour;
-	draw_colour_set = true;
+}
+
+uint16_t consume_draw_colour()
+{
+	uint16_t value = draw_colour;
+	draw_colour = CAT_TRANSPARENT;
+	return value;
 }
 
 void CAT_push_draw_scale(unsigned int scale)
 {
 	draw_scale = scale;
-	draw_scale_set = true;
+}
+
+int consume_draw_scale()
+{
+	int value = draw_scale;
+	draw_scale = 1;
+	return value;
 }
 
 void CAT_draw_sprite(const CAT_sprite* sprite, int frame_idx, int x, int y)
 {
-	CAT_draw_flag flags_override = draw_flags;
-	uint16_t colour_override = draw_colour;
-	int scale_override = draw_scale;
+	CAT_draw_flag flags_override = consume_draw_flags();
+	uint16_t colour_override = consume_draw_colour();
+	int scale_override = consume_draw_scale();
 
 	if(sprite == NULL)
 	{
@@ -56,25 +72,32 @@ void CAT_draw_sprite(const CAT_sprite* sprite, int frame_idx, int x, int y)
 
 	int read_width = sprite->width;
 	int read_height = sprite->height;
-	int write_width = sprite->width * (draw_scale_set ? scale_override : 1);
-	int write_height = sprite->height * (draw_scale_set ? scale_override : 1);
+	int write_width = sprite->width * scale_override;
+	int write_height = sprite->height * scale_override;
 
-	if(draw_flags_set)
-	{
-		if ((flags_override & CAT_DRAW_FLAG_CENTER_X) > 0)
+	if ((flags_override & CAT_DRAW_FLAG_CENTER_X) > 0)
 			x -= write_width / 2;
-		if ((flags_override & CAT_DRAW_FLAG_CENTER_Y) > 0)
-			y -= write_height / 2;
-		else if ((flags_override & CAT_DRAW_FLAG_BOTTOM) > 0)
-			y -= write_height;
+	if ((flags_override & CAT_DRAW_FLAG_CENTER_Y) > 0)
+		y -= write_height / 2;
+	else if ((flags_override & CAT_DRAW_FLAG_BOTTOM) > 0)
+		y -= write_height;
+	if((flags_override & CAT_DRAW_FLAG_STRANGE) > 0)
+	{
+		y += 
+		write_height / 8 *
+		sin
+		(
+			(float) CAT_get_uptime_ms() / 1000.0f *
+			(8 * x / (float) CAT_LCD_SCREEN_W)
+		);
 	}
 	
 	y -= FRAMEBUFFER_ROW_OFFSET;
 	int y_f = y + write_height;
 	if (y >= CAT_LCD_FRAMEBUFFER_H)
-		goto draw_sprite_end;
+		return;
 	if (y_f < 0)
-		goto draw_sprite_end;
+		return;
 	if (y_f > CAT_LCD_FRAMEBUFFER_H)
 		y_f = CAT_LCD_FRAMEBUFFER_H;	
 
@@ -89,9 +112,9 @@ void CAT_draw_sprite(const CAT_sprite* sprite, int frame_idx, int x, int y)
 		uint8_t token = frame[run_idx++];
 		uint16_t colour_idx = token == 0xff ? frame[run_idx++] : token;
 		uint16_t colour = sprite->colour_table[colour_idx];
-		if(colour != 0xdead)
+		if(colour != CAT_TRANSPARENT)
 		{
-			if(draw_colour_set)
+			if(colour_override != CAT_TRANSPARENT)
 				colour = ADAPT_DESKTOP_COLOUR(colour_override);
 			else
 				colour = ADAPT_EMBEDDED_COLOUR(colour);
@@ -101,7 +124,7 @@ void CAT_draw_sprite(const CAT_sprite* sprite, int frame_idx, int x, int y)
 		
 		while(run_remainder > 0)
 		{
-			if(draw_scale_set)
+			if(scale_override != 1)
 			{
 				for(int i = 0; i < scale_override; i++)
 				{
@@ -110,7 +133,7 @@ void CAT_draw_sprite(const CAT_sprite* sprite, int frame_idx, int x, int y)
 					for(int j = 0; j < scale_override; j++)
 					{
 						int x_w =
-						((draw_flags & CAT_DRAW_FLAG_REFLECT_X) > 0) ?
+						((flags_override & CAT_DRAW_FLAG_REFLECT_X) > 0) ?
 						x + (read_width - dx) * scale_override - j :
 						x + dx * scale_override + j;
 
@@ -131,7 +154,7 @@ void CAT_draw_sprite(const CAT_sprite* sprite, int frame_idx, int x, int y)
 			{
 				int y_w = y + dy;
 				int x_w =
-				((draw_flags & CAT_DRAW_FLAG_REFLECT_X) > 0) ?
+				((flags_override & CAT_DRAW_FLAG_REFLECT_X) > 0) ?
 				x + read_width - dx :
 				x + dx;
 
@@ -162,9 +185,5 @@ void CAT_draw_sprite(const CAT_sprite* sprite, int frame_idx, int x, int y)
 		}
 	}
 
-draw_sprite_end:
-	draw_flags_set = false;
-	draw_colour_set = false;
-	draw_scale_set = false;
 	return;
 }

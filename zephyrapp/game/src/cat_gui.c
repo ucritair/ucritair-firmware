@@ -165,6 +165,7 @@ void CAT_gui_textf(const char* fmt, ...)
 	char text[512];
 	vsnprintf(text, 512, fmt, args);
 	va_end(args);
+
 	CAT_gui_text(text);
 }
 
@@ -424,7 +425,7 @@ void CAT_gui_popup_io()
 
 void CAT_gui_popup()
 {
-	CAT_gui_panel(CAT_iv2(2, 6), CAT_iv2(11, 8));
+	CAT_gui_panel((CAT_ivec2) {2, 6}, (CAT_ivec2) {11, 8});
 	CAT_strokeberry(2 * 16, 6 * 16, 11 * 16, 8 * 16, 0x0000);
 	CAT_gui_set_flag(CAT_GUI_TEXT_WRAP);
 	CAT_gui_text(popup.msg);
@@ -935,40 +936,13 @@ void CAT_gui_printf(uint16_t colour, const char* fmt, ...)
 {	
 	va_list args;
 	va_start(args, fmt);
-	char text[512];
-	vsnprintf(text, 512, fmt, args);
+	char text[128];
+	vsnprintf(text, 128, fmt, args);
 	va_end(args);
 
-	int cursor_x = 0;
-	const char* c = text;
-
-	while
-	(
-		*c != '\0' &&
-		!(*c == '#' && *(c+1) == '#')
-	)
-	{
-		if(*c == '\n')
-		{
-			printf_cursor_y += CAT_GLYPH_HEIGHT;
-			c++;
-			continue;
-		}
-		if(*c == '\t')
-		{
-			cursor_x += CAT_GLYPH_WIDTH * 4;
-			c++;
-			continue;
-		}
-		
-		CAT_push_draw_colour(colour);
-		CAT_draw_sprite(&glyph_sprite, *c, cursor_x, printf_cursor_y);
-		cursor_x += CAT_GLYPH_WIDTH;
-		c++;
-	}
-
-	printf_cursor_y += CAT_GLYPH_HEIGHT;
-
+	CAT_textberry(0, printf_cursor_y, colour, 1, text);
+	
+	printf_cursor_y += CAT_GLYPH_HEIGHT + 2;
 	if(CAT_is_last_render_cycle())
 		printf_cursor_y = 0;
 }

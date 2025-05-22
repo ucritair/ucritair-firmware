@@ -42,10 +42,10 @@ typedef struct CAT_vec2
 CAT_vec2 CAT_vec2_add(CAT_vec2 a, CAT_vec2 b);
 CAT_vec2 CAT_vec2_sub(CAT_vec2 a, CAT_vec2 b);
 CAT_vec2 CAT_vec2_mul(CAT_vec2 a, float b);
+CAT_vec2 CAT_vec2_div(CAT_vec2 a, float b);
 
 float CAT_vec2_dot(CAT_vec2 a, CAT_vec2 b);
 float CAT_vec2_mag2(CAT_vec2 a);
-
 CAT_vec2 CAT_vec2_unit(CAT_vec2 a);
 float CAT_vec2_dist2(CAT_vec2 a, CAT_vec2 b);
 
@@ -59,11 +59,14 @@ typedef struct CAT_ivec2
 	int32_t y;
 } CAT_ivec2;
 
-CAT_ivec2 CAT_iv2(int x, int y);
 CAT_ivec2 CAT_ivec2_add(CAT_ivec2 a, CAT_ivec2 b);
 CAT_ivec2 CAT_ivec2_sub(CAT_ivec2 a, CAT_ivec2 b);
-CAT_ivec2 CAT_ivec2_mul(CAT_ivec2 a, int b);
-CAT_ivec2 CAT_ivec2_div(CAT_ivec2 a, int b);
+CAT_ivec2 CAT_ivec2_mul(CAT_ivec2 a, float b);
+CAT_ivec2 CAT_ivec2_div(CAT_ivec2 a, float b);
+
+int CAT_ivec2_dot(CAT_ivec2 a, CAT_ivec2 b);
+int CAT_ivec2_mag2(CAT_ivec2 a);
+float CAT_ivec2_dist2(CAT_ivec2 a, CAT_ivec2 b);
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -79,6 +82,7 @@ CAT_rect CAT_rect_place(CAT_ivec2 start, CAT_ivec2 shape);
 bool CAT_rect_overlaps(CAT_rect a, CAT_rect b);
 bool CAT_rect_contains(CAT_rect a, CAT_rect b);
 CAT_rect CAT_rect_center(int x, int y, int w, int h);
+CAT_rect CAT_rect_overlap(CAT_rect a, CAT_rect b);
 
 
 //////////////////////////////////////////////////////////////////////////
