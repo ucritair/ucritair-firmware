@@ -187,6 +187,15 @@ CAT_rect CAT_rect_center(int x, int y, int w, int h)
 	return rect;
 }
 
+CAT_rect CAT_rect_overlap(CAT_rect a, CAT_rect b)
+{
+	return (CAT_rect)
+	{
+		{ max(a.min.x, b.min.x), max(a.min.y, b.min.y) },
+		{ min(a.max.x, b.max.x), min(a.max.y, b.max.y) }
+	};
+}
+
 
 //////////////////////////////////////////////////////////////////////////
 // RENDERING

@@ -1,6 +1,10 @@
 #include "cat_render.h"
 
 #include <string.h>
+#include <stdarg.h>
+#include "sprite_assets.h"
+#include <math.h>
+#include <stdio.h>
 
 //////////////////////////////////////////////////////////////////////////
 // THE BERRIER
@@ -262,7 +266,7 @@ void CAT_pixberry(int x, int y, uint16_t c)
 void CAT_circberry(int x, int y, int r, uint16_t c)
 {
 	c = ADAPT_DESKTOP_COLOUR(c);
-	uint16_t* framebuffer = CAT_LCD_get_framebuffer();
+	//uint16_t* framebuffer = CAT_LCD_get_framebuffer();
 
 	int f = 1 - r;
 	int ddfx = 0;
@@ -297,5 +301,112 @@ void CAT_circberry(int x, int y, int r, uint16_t c)
         CAT_pixberry(x + dy, y - dx, c);
         CAT_pixberry(x - dy, y - dx, c);
 	}
-	
+}
+
+void CAT_discberry(int x, int y, int r, uint16_t c)
+{
+	c = ADAPT_DESKTOP_COLOUR(c);
+	uint16_t* framebuffer = CAT_LCD_get_framebuffer();
+
+	y -= FRAMEBUFFER_ROW_OFFSET;
+	int yi = y - r;
+	int yf = y + r;
+	if (yi > CAT_LCD_FRAMEBUFFER_H || yf < 0)
+		return;
+
+	for(int dy = -r; dy < r; dy++)
+	{
+		int y_w = y + dy;
+		if(y_w < 0 || y_w >= CAT_LCD_FRAMEBUFFER_H)
+			continue;
+
+		for(int dx = -r; dx < r; dx++)
+		{
+			int x_w = x + dx;
+			if(x_w < 0 || x_w >= CAT_LCD_FRAMEBUFFER_W)
+				continue;
+
+			if((dx*dx+dy*dy) <= r*r)
+			{
+				framebuffer[y_w * CAT_LCD_FRAMEBUFFER_W + x_w] = c;
+			}
+		}
+	}
+}
+
+void CAT_ringberry(int x, int y, int R, int r, uint16_t c, float t)
+{
+	c = ADAPT_DESKTOP_COLOUR(c);
+	uint16_t* framebuffer = CAT_LCD_get_framebuffer();
+
+	y -= FRAMEBUFFER_ROW_OFFSET;
+	int yi = y - r;
+	int yf = y + r;
+	if (yi > CAT_LCD_FRAMEBUFFER_H || yf < 0)
+		return;
+
+	for(int dy = -R; dy < R; dy++)
+	{
+		int y_w = y + dy;
+		if(y_w < 0 || y_w >= CAT_LCD_FRAMEBUFFER_H)
+			continue;
+
+		for(int dx = -R; dx < R; dx++)
+		{
+			int x_w = x + dx;
+			if(x_w < 0 || x_w >= CAT_LCD_FRAMEBUFFER_W)
+				continue;
+
+			if((dx*dx+dy*dy) <= R*R && (dx*dx+dy*dy) >= r*r)
+			{
+				float arc = atan2f((float) dy, (float) dx) + M_PI - (M_PI / 8);
+				if(arc <= t * M_PI * 2)
+				{
+					framebuffer[y_w * CAT_LCD_FRAMEBUFFER_W + x_w] = c;
+				}
+			}
+		}
+	}
+}
+
+void CAT_textberry(int x, int y, uint16_t c, int scale, const char* text)
+{
+	const char* glyph_ptr = text;
+	int cursor_x = x;
+	int cursor_y = y;
+
+	while (*glyph_ptr != '\0')
+	{
+		if(*glyph_ptr == '\n')
+		{
+			cursor_x = x;
+			cursor_y +=(CAT_GLYPH_HEIGHT + 2) * scale;
+			glyph_ptr++;
+			continue;
+		}
+		if(*glyph_ptr == '\t')
+		{
+			cursor_x += CAT_GLYPH_WIDTH * 4 * scale;
+			glyph_ptr++;
+			continue;
+		}
+
+		CAT_push_draw_colour(c);
+		CAT_push_draw_scale(scale);
+		CAT_draw_sprite(&glyph_sprite, *glyph_ptr, cursor_x, cursor_y);
+		cursor_x += CAT_GLYPH_WIDTH * scale;
+		glyph_ptr++;
+	}
+}
+
+char text_buffer[512];
+
+void CAT_textfberry(int x, int y, uint16_t c, int scale, const char* fmt, ...)
+{
+	va_list args;
+	va_start(args, fmt);
+	vsnprintf(text_buffer, 512, fmt, args);
+	va_end(args);
+
+	CAT_textberry(x, y, c, scale, text_buffer);
 }

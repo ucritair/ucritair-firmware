@@ -11,10 +11,7 @@
 CAT_item* CAT_item_get(int item_id)
 {
 	if(item_id < 0 || item_id >= item_table.length)
-	{
 		return NULL;
-	}
-		
 	return &item_table.data[item_id];
 }
 

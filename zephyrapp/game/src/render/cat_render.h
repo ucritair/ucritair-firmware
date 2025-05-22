@@ -11,6 +11,8 @@
 // CONSTANTS AND MACROS
 
 #define CAT_TILE_SIZE 16
+#define CAT_GLYPH_WIDTH 8
+#define CAT_GLYPH_HEIGHT 12
 
 #define CAT_DRAW_QUEUE_MAX_LENGTH 512
 #define CAT_ANIM_TABLE_MAX_LENGTH 512
@@ -122,6 +124,10 @@ void CAT_strokeberry(int xi, int yi, int w, int h, uint16_t c);
 void CAT_rowberry(int x, int y, int w, uint16_t c);
 void CAT_pixberry(int x, int y, uint16_t c);
 void CAT_circberry(int x, int y, int r, uint16_t c);
+void CAT_discberry(int x, int y, int r, uint16_t c);
+void CAT_ringberry(int x, int y, int R, int r, uint16_t c, float t);
+void CAT_textberry(int x, int y, uint16_t c, int scale, const char* text);
+void CAT_textfberry(int x, int y, uint16_t c, int scale, const char* fmt, ...);
 
 
 //////////////////////////////////////////////////////////////////////////

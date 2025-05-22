@@ -6,8 +6,6 @@
 //////////////////////////////////////////////////////////////////////////
 // CONSTANTS
 
-#define CAT_GLYPH_WIDTH 8
-#define CAT_GLYPH_HEIGHT 12
 #define CAT_TEXT_INPUT_MAX 28
 
 
