@@ -96,7 +96,7 @@ typedef struct
 {
 	int pool_idx;
 
-	CAT_vec2 position;
+	CAT_ivec2 position;
 	bool active;
 	bool colliding;
 
@@ -108,105 +108,13 @@ food_object food_list[MAX_FOOD_COUNT];
 int food_count = 0;
 
 int active_food_count = 0;
-CAT_vec2 active_food_centroid;
+CAT_ivec2 active_food_centroid;
 
-float get_spawn_rect_fill(int rect_idx)
-{
-	CAT_rect spawn_rect = spawn_rects[rect_idx];
-	int spawn_w = spawn_rect.max.x - spawn_rect.min.x;
-	int spawn_h = spawn_rect.max.y - spawn_rect.min.y;
-	int spawn_a = spawn_w * spawn_h;
-
-	int overlap_a = 0;
-	for(int i = 0; i < food_count; i++)
-	{
-		CAT_rect food_rect = CAT_rect_center
-		(
-			food_list[i].position.x, food_list[i].position.y,
-			FOOD_COLLISION_W, FOOD_COLLISION_H
-		);
-		CAT_rect overlap = CAT_rect_overlap(spawn_rect, food_rect);
-		int w = overlap.max.x - overlap.min.x;
-		int h = overlap.max.y - overlap.min.y;
-		w = w > 0 ? w : 0;
-		h = h > 0 ? h : 0;
-		overlap_a += w * h;
-	}
-
-	return (float) overlap_a / (float) spawn_a;
-}
-
-CAT_vec2 get_spawn_position()
-{
-	int free_idx = -1;
-	float min_fill = 2.0f;
-	for(int i = 0; i < 5; i++)
-	{
-		float fill = get_spawn_rect_fill(i);
-		if(fill < min_fill)
-		{
-			free_idx = i;
-			min_fill = fill;
-		}
-	}
-
-	CAT_rect rect = spawn_rects[free_idx];
-	float x = rect.min.x;
-	float y = rect.min.y;
-	float w = rect.max.x - x;
-	float h = rect.max.y - y;
-	return (CAT_vec2) {x + w * 0.5f, y + h * 0.5f};
-}
-
-int food_spawn(int pool_idx)
-{
-	if(food_count >= MAX_FOOD_COUNT)
-		return -1;
-
-	int list_idx = food_count;
-	food_list[list_idx] = (food_object)
-	{
-		.pool_idx = pool_idx,
-
-		.position = get_spawn_position(),
-		.active = false,
-		.colliding = false,
-
-		.angle = 0,
-		.neighbour = -1
-	};
-	food_count += 1;
-	return list_idx;
-}
-
-void food_despawn(int list_idx)
-{
-	if(list_idx < 0 || list_idx >= MAX_FOOD_COUNT)
-		return;
-	food_count -= 1;
-	for(int i = list_idx; i < food_count; i++)
-	{
-		food_list[i] = food_list[i+1];
-	}
-}
-
-CAT_item* food_lookup(int list_idx)
-{
-	return CAT_item_get(food_pool.data[food_list[list_idx].pool_idx]);
-}
-
-void init_food_list()
-{
-	food_count = 0;
-	for(int i = 0; i < min(food_pool.length, MAX_FOOD_COUNT); i++)
-		food_spawn(i);
-}
-
-void refresh_food_list()
+void refresh_food_states()
 {
 	// Active food mask, count, and centroid
 	active_food_count = 0;
-	active_food_centroid = (CAT_vec2) {0, 0};
+	active_food_centroid = (CAT_ivec2) {0, 0};
 	for(int i = 0; i < food_count; i++)
 	{
 		food_list[i].active =
@@ -218,10 +126,10 @@ void refresh_food_list()
 		if(food_list[i].active)
 		{
 			active_food_count += 1;
-			active_food_centroid = CAT_vec2_add(active_food_centroid, food_list[i].position);
+			active_food_centroid = CAT_ivec2_add(active_food_centroid, food_list[i].position);
 		}
 	}
-	active_food_centroid = CAT_vec2_mul(active_food_centroid, 1.0f / (float) active_food_count);
+	active_food_centroid = CAT_ivec2_div(active_food_centroid, active_food_count);
 
 	// Collision mask
 	for(int i = 0; i < food_count; i++)
@@ -236,7 +144,7 @@ void refresh_food_list()
 			if(!food_list[j].active)
 				continue;
 
-			if(CAT_vec2_dist2(food_list[i].position, food_list[j].position) < FOOD_COLLISION_R * FOOD_COLLISION_R)
+			if(CAT_ivec2_dist2(food_list[i].position, food_list[j].position) < FOOD_COLLISION_R * FOOD_COLLISION_R)
 			{
 				food_list[i].colliding = food_list[j].colliding = true;
 				break;
@@ -250,7 +158,7 @@ void refresh_food_list()
 		if(!food_list[i].active)
 			continue;
 
-		CAT_vec2 spoke = CAT_vec2_sub(food_list[i].position, active_food_centroid);
+		CAT_ivec2 spoke = CAT_ivec2_sub(food_list[i].position, active_food_centroid);
 		float angle = atan2(-spoke.y, spoke.x);
 		if(angle < 0)
 			angle += M_PI * 2;
@@ -318,6 +226,102 @@ void refresh_food_list()
 	}
 }
 
+float get_spawn_rect_fill(int rect_idx)
+{
+	CAT_rect spawn_rect = spawn_rects[rect_idx];
+	int spawn_w = spawn_rect.max.x - spawn_rect.min.x;
+	int spawn_h = spawn_rect.max.y - spawn_rect.min.y;
+	int spawn_a = spawn_w * spawn_h;
+
+	int overlap_a = 0;
+	for(int i = 0; i < food_count; i++)
+	{
+		CAT_rect food_rect = CAT_rect_center
+		(
+			food_list[i].position.x, food_list[i].position.y,
+			FOOD_COLLISION_W, FOOD_COLLISION_H
+		);
+		CAT_rect overlap = CAT_rect_overlap(spawn_rect, food_rect);
+		int w = overlap.max.x - overlap.min.x;
+		int h = overlap.max.y - overlap.min.y;
+		w = w > 0 ? w : 0;
+		h = h > 0 ? h : 0;
+		overlap_a += w * h;
+	}
+
+	return (float) overlap_a / (float) spawn_a;
+}
+
+CAT_ivec2 get_spawn_position()
+{
+	int free_idx = -1;
+	float min_fill = 2.0f;
+	for(int i = 0; i < 5; i++)
+	{
+		float fill = get_spawn_rect_fill(i);
+		if(fill < min_fill)
+		{
+			free_idx = i;
+			min_fill = fill;
+		}
+	}
+
+	CAT_rect rect = spawn_rects[free_idx];
+	float x = rect.min.x;
+	float y = rect.min.y;
+	float w = rect.max.x - x;
+	float h = rect.max.y - y;
+	return (CAT_ivec2) {x + w / 2, y + h / 2};
+}
+
+int food_spawn(int pool_idx)
+{
+	if(food_count >= MAX_FOOD_COUNT)
+		return -1;
+
+	int list_idx = food_count;
+	food_list[list_idx] = (food_object)
+	{
+		.pool_idx = pool_idx,
+
+		.position = get_spawn_position(),
+		.active = false,
+		.colliding = false,
+
+		.angle = 0,
+		.neighbour = -1
+	};
+	food_count += 1;
+
+	refresh_food_states();
+	return list_idx;
+}
+
+void food_despawn(int list_idx)
+{
+	if(list_idx < 0 || list_idx >= MAX_FOOD_COUNT)
+		return;
+	food_count -= 1;
+	for(int i = list_idx; i < food_count; i++)
+	{
+		food_list[i] = food_list[i+1];
+	}
+
+	refresh_food_states();
+}
+
+CAT_item* food_lookup(int list_idx)
+{
+	return CAT_item_get(food_pool.data[food_list[list_idx].pool_idx]);
+}
+
+void init_food_list()
+{
+	food_count = 0;
+	for(int i = 0; i < min(food_pool.length, MAX_FOOD_COUNT); i++)
+		food_spawn(i);
+}
+
 struct
 {
 	float variety;
@@ -328,11 +332,6 @@ struct
 	float aggregate;
 	int grade;
 } score_object = {0};
-
-void init_scores()
-{
-	memset(&score_object, 0, sizeof(score_object));
-}
 
 struct
 {
@@ -579,7 +578,7 @@ float score_spacing()
 {
 	if(active_food_count == 0)
 		return 0.0f;
-	if(active_food_count == 1)
+	if(active_food_count < 3)
 		return 0.5f;
 
 	int collision_count = 0;
@@ -613,7 +612,7 @@ float score_evenness()
 		if(!food_list[i].active)
 			continue;
 
-		if(CAT_vec2_dist2(food_list[i].position, active_food_centroid) < CENTERPIECE_RADIUS * CENTERPIECE_RADIUS)
+		if(CAT_ivec2_dist2(food_list[i].position, active_food_centroid) < CENTERPIECE_RADIUS * CENTERPIECE_RADIUS)
 		{
 			centerpiece_idx = i;
 			break;
@@ -631,12 +630,12 @@ float score_evenness()
 		if(!food_list[i].active || i == centerpiece_idx)
 			continue;
 
-		CAT_vec2 this_pos = food_list[i].position;
-		spokes[i] = sqrt(CAT_vec2_dist2(active_food_centroid, this_pos));
+		CAT_ivec2 this_pos = food_list[i].position;
+		spokes[i] = sqrt(CAT_ivec2_dist2(active_food_centroid, this_pos));
 		spoke_mean += spokes[i];
 
-		CAT_vec2 neighbour_pos = food_list[food_list[i].neighbour].position;
-		edges[i] = sqrt(CAT_vec2_dist2(neighbour_pos, this_pos));
+		CAT_ivec2 neighbour_pos = food_list[food_list[i].neighbour].position;
+		edges[i] = sqrt(CAT_ivec2_dist2(neighbour_pos, this_pos));
 		edge_mean += edges[i];
 	}
 	spoke_mean /= (float) surrounding_count;
@@ -703,6 +702,11 @@ void refresh_scores()
 	score_object.aggregate = CAT_ease_in_sine(score_object.aggregate);
 
 	score_object.grade = round(score_object.aggregate * 6.0f);
+}
+
+void init_scores()
+{
+	memset(&score_object, 0, sizeof(score_object));
 }
 
 static bool commit_arrangement = false;
@@ -782,14 +786,14 @@ void MS_feed_arrange(CAT_machine_signal signal)
 			}
 			else if(CAT_input_touch_up())
 			{
-				refresh_food_list();
+				refresh_food_states();
 				refresh_scores();
 
 				pick_idx = -1;
 			}
 			else if(pick_idx != -1)
 			{
-				food_list[pick_idx].position = (CAT_vec2)
+				food_list[pick_idx].position = (CAT_ivec2)
 				{
 					CAT_input_cursor().x + pick_delta.x,
 					CAT_input_cursor().y + pick_delta.y
@@ -871,7 +875,7 @@ void render_arrange()
 	for(int i = food_count-1; i >= 0; i--)
 	{
 		CAT_item* food = food_lookup(i);
-		CAT_vec2 food_pos = food_list[i].position;
+		CAT_ivec2 food_pos = food_list[i].position;
 		CAT_rect food_rect = CAT_rect_center(food_pos.x, food_pos.y, FOOD_COLLISION_W, FOOD_COLLISION_H);
 		CAT_push_draw_scale(2);
 		CAT_push_draw_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_BOTTOM);
@@ -1278,8 +1282,8 @@ void render_summary()
 {
 	CAT_frameberry(0xef39);
 
-	const char* title;
-	int grade;
+	const char* title = "N/A";
+	int grade = 0;
 
 	switch (summary_page)
 	{
@@ -1352,7 +1356,7 @@ void CAT_MS_feed(CAT_machine_signal signal)
 			init_spawn_rects();
 			init_item_id_pool();
 			init_food_list();
-			refresh_food_list();
+			refresh_food_states();
 			init_scores();
 			init_registration_errors();
 			refresh_scores();

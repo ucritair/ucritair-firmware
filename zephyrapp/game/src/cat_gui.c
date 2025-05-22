@@ -425,7 +425,7 @@ void CAT_gui_popup_io()
 
 void CAT_gui_popup()
 {
-	CAT_gui_panel(CAT_iv2(2, 6), CAT_iv2(11, 8));
+	CAT_gui_panel((CAT_ivec2) {2, 6}, (CAT_ivec2) {11, 8});
 	CAT_strokeberry(2 * 16, 6 * 16, 11 * 16, 8 * 16, 0x0000);
 	CAT_gui_set_flag(CAT_GUI_TEXT_WRAP);
 	CAT_gui_text(popup.msg);

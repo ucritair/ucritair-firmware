@@ -167,7 +167,6 @@ void complete_transition(CAT_machine_state state)
 
 	if(current != NULL)
 	{
-		CAT_printf("[...] exiting %p\n", current);
 		(current)(CAT_MACHINE_SIGNAL_EXIT);
 	}
 
@@ -183,17 +182,13 @@ void complete_transition(CAT_machine_state state)
 	}
 	if(!loop_back)
 		push(state);
-	else
-		CAT_printf("[...] transition is of loop-back type\n");
 
-	CAT_printf("[...] entering %p\n", state);
 	current = state;
 	(current)(CAT_MACHINE_SIGNAL_ENTER);
 }
 
 void CAT_machine_transition(CAT_machine_state state)
 {
-	CAT_printf("[CAT_machine_transition] generating transition to %p\n", state);
 	next = state;
 }
 
@@ -201,7 +196,6 @@ void CAT_machine_tick()
 {
 	if(next != NULL)
 	{
-		CAT_printf("[CAT_machine_tick] transition to %p detected\n", next);
 		complete_transition(next);
 		next = NULL;
 	}

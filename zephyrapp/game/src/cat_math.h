@@ -42,6 +42,7 @@ typedef struct CAT_vec2
 CAT_vec2 CAT_vec2_add(CAT_vec2 a, CAT_vec2 b);
 CAT_vec2 CAT_vec2_sub(CAT_vec2 a, CAT_vec2 b);
 CAT_vec2 CAT_vec2_mul(CAT_vec2 a, float b);
+CAT_vec2 CAT_vec2_div(CAT_vec2 a, float b);
 
 float CAT_vec2_dot(CAT_vec2 a, CAT_vec2 b);
 float CAT_vec2_mag2(CAT_vec2 a);
@@ -58,11 +59,14 @@ typedef struct CAT_ivec2
 	int32_t y;
 } CAT_ivec2;
 
-CAT_ivec2 CAT_iv2(int x, int y);
 CAT_ivec2 CAT_ivec2_add(CAT_ivec2 a, CAT_ivec2 b);
 CAT_ivec2 CAT_ivec2_sub(CAT_ivec2 a, CAT_ivec2 b);
-CAT_ivec2 CAT_ivec2_mul(CAT_ivec2 a, int b);
-CAT_ivec2 CAT_ivec2_div(CAT_ivec2 a, int b);
+CAT_ivec2 CAT_ivec2_mul(CAT_ivec2 a, float b);
+CAT_ivec2 CAT_ivec2_div(CAT_ivec2 a, float b);
+
+int CAT_ivec2_dot(CAT_ivec2 a, CAT_ivec2 b);
+int CAT_ivec2_mag2(CAT_ivec2 a);
+float CAT_ivec2_dist2(CAT_ivec2 a, CAT_ivec2 b);
 
 
 //////////////////////////////////////////////////////////////////////////

@@ -265,7 +265,6 @@ void CAT_pixberry(int x, int y, uint16_t c)
 
 void CAT_circberry(int x, int y, int r, uint16_t c)
 {
-	c = ADAPT_DESKTOP_COLOUR(c);
 	//uint16_t* framebuffer = CAT_LCD_get_framebuffer();
 
 	int f = 1 - r;
