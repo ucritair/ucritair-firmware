@@ -144,7 +144,8 @@ void refresh_food_states()
 			if(!food_list[j].active)
 				continue;
 
-			if(CAT_ivec2_dist2(food_list[i].position, food_list[j].position) < FOOD_COLLISION_R * FOOD_COLLISION_R)
+			int collision_distance = (FOOD_COLLISION_R * 0.9f) * 2;
+			if(CAT_ivec2_dist2(food_list[i].position, food_list[j].position) < collision_distance * collision_distance)
 			{
 				food_list[i].colliding = food_list[j].colliding = true;
 				break;
@@ -356,6 +357,8 @@ int add_note(const char* message, int severity)
 	note_count += 1;
 	return idx;
 }
+
+int centerpiece_idx = -1;
 
 float score_variety()
 {
@@ -606,7 +609,7 @@ float score_evenness()
 	if(active_food_count == 2)
 		return 0.5f;
 
-	int centerpiece_idx = -1;
+	centerpiece_idx = -1;
 	for(int i = 0; i < food_count; i++)
 	{
 		if(!food_list[i].active)
@@ -916,7 +919,7 @@ void render_arrange()
 	if(show_gizmos)
 	{
 		if(active_food_count > 0)
-			CAT_circberry(active_food_centroid.x, active_food_centroid.y, CENTERPIECE_RADIUS, CAT_RED);
+			CAT_circberry(active_food_centroid.x, active_food_centroid.y, CENTERPIECE_RADIUS, centerpiece_idx == -1 ? CAT_GREEN : CAT_RED);
 	}
 
 	CAT_push_draw_flags(CAT_DRAW_FLAG_BOTTOM | CAT_DRAW_FLAG_CENTER_X);

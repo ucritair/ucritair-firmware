@@ -29,6 +29,7 @@
 #define ADAPT_EMBEDDED_COLOUR(c) c
 #endif
 
+#define CAT_TRANSPARENT 0xDEAD
 #define CAT_BLACK 0x0000
 #define CAT_WHITE 0xFFFF
 #define CAT_RED 0b1111100000000000
@@ -104,7 +105,8 @@ typedef enum
 	CAT_DRAW_FLAG_BOTTOM = 1,
 	CAT_DRAW_FLAG_CENTER_X = 2,
 	CAT_DRAW_FLAG_CENTER_Y = 4,
-	CAT_DRAW_FLAG_REFLECT_X = 8
+	CAT_DRAW_FLAG_REFLECT_X = 8,
+	CAT_DRAW_FLAG_STRANGE = 16
 } CAT_draw_flag;
 
 void CAT_push_draw_flags(int flags);
