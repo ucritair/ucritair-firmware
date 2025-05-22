@@ -54,6 +54,10 @@ int CAT_item_list_add(CAT_item_list* item_list, int item_id, int count)
 		CAT_printf("[WARNING] attempted add to full item list\n");
 		return -1;
 	}
+	if(count == 0)
+	{
+		return -1;
+	}
 		
 	int idx = CAT_item_list_find(item_list, item_id);
 	if(idx >= 0)

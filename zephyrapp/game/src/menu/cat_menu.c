@@ -113,8 +113,6 @@ void CAT_MS_menu(CAT_machine_signal signal)
 								CAT_set_load_flag(CAT_LOAD_FLAG_DIRTY);
 								CAT_set_load_flag(CAT_LOAD_FLAG_OVERRIDE);
 							}
-							if(CAT_gui_menu_item("LEGACY CHEATS"))
-								CAT_machine_transition(CAT_MS_cheats);
 							CAT_gui_end_menu();
 						}
 						if(CAT_gui_menu_item("COLOUR PICKER"))

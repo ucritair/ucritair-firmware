@@ -604,9 +604,9 @@ float score_spacing()
 
 float score_evenness()
 {
-	if(active_food_count <= 1)
+	if(active_food_count == 0)
 		return 0.0f;
-	if(active_food_count == 2)
+	if(active_food_count < 3)
 		return 0.5f;
 
 	centerpiece_idx = -1;
@@ -897,7 +897,7 @@ void render_arrange()
 				CAT_lineberry(food_list[i].position.x, food_list[i].position.y, active_food_centroid.x, active_food_centroid.y, evenness_colour);
 
 				int j = food_list[i].neighbour;
-				if(food_list[j].active)
+				if(j != -1 && food_list[j].active)
 					CAT_lineberry(food_list[i].position.x, food_list[i].position.y, food_list[j].position.x, food_list[j].position.y, evenness_colour);
 			}
 		}
