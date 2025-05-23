@@ -84,7 +84,7 @@ void CAT_draw_sprite(const CAT_sprite* sprite, int16_t frame_idx, int16_t x, int
 	if (y_f < 0)
 		return;
 	if (y_f > CAT_LCD_FRAMEBUFFER_H)
-		y_f = CAT_LCD_FRAMEBUFFER_H;
+		y_f = CAT_LCD_FRAMEBUFFER_H-1;
 	
 	if(x >= CAT_LCD_FRAMEBUFFER_W)
 		return;
