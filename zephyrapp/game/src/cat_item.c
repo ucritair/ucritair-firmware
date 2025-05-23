@@ -11,10 +11,7 @@
 CAT_item* CAT_item_get(int item_id)
 {
 	if(item_id < 0 || item_id >= item_table.length)
-	{
 		return NULL;
-	}
-		
 	return &item_table.data[item_id];
 }
 
@@ -55,6 +52,10 @@ int CAT_item_list_add(CAT_item_list* item_list, int item_id, int count)
 	if(item_list->length >= CAT_ITEM_LIST_MAX_LENGTH)
 	{
 		CAT_printf("[WARNING] attempted add to full item list\n");
+		return -1;
+	}
+	if(count == 0)
+	{
 		return -1;
 	}
 		

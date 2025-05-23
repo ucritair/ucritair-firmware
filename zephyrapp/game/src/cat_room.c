@@ -662,26 +662,26 @@ void render_statics()
 	float aqi_score = CAT_AQI_aggregate();
 
 	if(aqi_score <= 35.0f && time.hour >= 4 && time.hour < 22)
-		CAT_draw_queue_add(&window_day_bad_aq_sprite, -1, STATICS_LAYER, 8, 8, CAT_DRAW_FLAG_DEFAULT);
+		CAT_draw_sprite(&window_day_bad_aq_sprite, -1, 8, 8);
 	else if(time.hour >= 4 && time.hour < 7)
-		CAT_draw_queue_add(&window_dawn_sprite, 0, STATICS_LAYER, 8, 8, CAT_DRAW_FLAG_DEFAULT);
+		CAT_draw_sprite(&window_dawn_sprite, 0, 8, 8);
 	else if(time.hour >= 7 && time.hour < 11)
-		CAT_draw_queue_add(&window_morning_sprite, 0, STATICS_LAYER, 8, 8, CAT_DRAW_FLAG_DEFAULT);
+		CAT_draw_sprite(&window_morning_sprite, 0, 8, 8);
 	else if(time.hour >= 11 && time.hour < 18)
-		CAT_draw_queue_add(&window_day_sprite, 0, STATICS_LAYER, 8, 8, CAT_DRAW_FLAG_DEFAULT);
+		CAT_draw_sprite(&window_day_sprite, 0, 8, 8);
 	else if(time.hour >= 18 && time.hour < 20)
-		CAT_draw_queue_add(&window_evening_sprite, 0, STATICS_LAYER, 8, 8, CAT_DRAW_FLAG_DEFAULT);
+		CAT_draw_sprite(&window_evening_sprite, 0, 8, 8);
 	else if(time.hour >= 20 && time.hour < 22)
-		CAT_draw_queue_add(&window_dusk_sprite, 0, STATICS_LAYER, 8, 8, CAT_DRAW_FLAG_DEFAULT);
+		CAT_draw_sprite(&window_dusk_sprite, 0, 8, 8);
 	else
-		CAT_draw_queue_add(&window_night_sprite, 0, STATICS_LAYER, 8, 8, CAT_DRAW_FLAG_DEFAULT);
-	
+		CAT_draw_sprite(&window_night_sprite, 0, 8, 8);
 	
 	if(CAT_is_charging())
 	{
-		CAT_draw_queue_add(&icon_charging_sprite, 0, STATICS_LAYER + 1, 66, 37, CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
+		CAT_push_draw_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
+		CAT_draw_sprite(&icon_charging_sprite, 0, 66, 37);
 	}
-	else
+	else if(CAT_get_battery_pct() <= CAT_CRITICAL_BATTERY_PCT)
 	{
 		battery_blink_timer += CAT_get_delta_time_s();
 		if(battery_blink_timer >= 0.5f)
@@ -689,12 +689,16 @@ void render_statics()
 			battery_blink_timer = 0;
 			battery_blink_switch = !battery_blink_switch;
 		}
-		if(CAT_get_battery_pct() <= CAT_CRITICAL_BATTERY_PCT && battery_blink_switch)
-			CAT_draw_queue_add(&icon_low_battery_alt_sprite, 0, STATICS_LAYER + 1, 66, 37, CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
+
+		if(battery_blink_switch)
+		{
+			CAT_push_draw_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
+			CAT_draw_sprite(&icon_low_battery_alt_sprite, 0, 66, 37);
+		}
 	}
 	
-	CAT_draw_queue_add(&vending_sprite, -1, STATICS_LAYER, 172, 16, CAT_DRAW_FLAG_DEFAULT);
-	CAT_draw_queue_add(&arcade_sprite, -1, STATICS_LAYER, 124, 48, CAT_DRAW_FLAG_DEFAULT);
+	CAT_draw_sprite(&vending_sprite, -1, 172, 16);
+	CAT_draw_sprite(&arcade_sprite, -1, 124, 48);
 }
 
 void render_props()

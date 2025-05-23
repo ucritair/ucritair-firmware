@@ -6,8 +6,6 @@
 //////////////////////////////////////////////////////////////////////////
 // CONSTANTS
 
-#define CAT_GLYPH_WIDTH 8
-#define CAT_GLYPH_HEIGHT 12
 #define CAT_TEXT_INPUT_MAX 28
 
 
@@ -18,11 +16,11 @@ typedef enum CAT_gui_flag
 {
 	CAT_GUI_DEFAULT,
 	CAT_GUI_PANEL_BORDER,
-	CAT_GUI_TEXT_WRAP,
 	CAT_GUI_PANEL_TIGHT,
+	CAT_GUI_TEXT_WRAP,
 	CAT_GUI_ITEM_LIST_COUNT,
 	CAT_GUI_ITEM_LIST_PRICE,
-	CAT_GUI_ITEM_LIST_COINS
+	CAT_GUI_ITEM_LIST_COINS,
 } CAT_gui_flag;
 
 void CAT_gui_set_flag(CAT_gui_flag flag);

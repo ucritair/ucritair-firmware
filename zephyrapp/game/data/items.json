@@ -289,7 +289,7 @@
             "sprite": "bagel_sprite",
             "icon": "icon_item_food_sprite",
             "text": "",
-            "price": 0,
+            "price": 5,
             "id": 88,
             "tool_data": {
                 "type": "food",
@@ -310,7 +310,7 @@
             "sprite": "banana_sprite",
             "icon": "icon_item_food_sprite",
             "text": "",
-            "price": 0,
+            "price": 2,
             "id": 89,
             "tool_data": {
                 "type": "food",
@@ -352,7 +352,7 @@
             "sprite": "beef_noodle_sprite",
             "icon": "icon_item_food_sprite",
             "text": "",
-            "price": 0,
+            "price": 10,
             "id": 90,
             "tool_data": {
                 "type": "food",
@@ -373,7 +373,7 @@
             "sprite": "bento_sprite",
             "icon": "icon_item_food_sprite",
             "text": "",
-            "price": 10,
+            "price": 15,
             "id": 7,
             "tool_data": {
                 "type": "food",
@@ -416,7 +416,7 @@
             "sprite": "burger_sprite",
             "icon": "icon_item_food_sprite",
             "text": "",
-            "price": 0,
+            "price": 7,
             "id": 91,
             "tool_data": {
                 "type": "food",
@@ -437,7 +437,7 @@
             "sprite": "carrot_sprite",
             "icon": "icon_item_food_sprite",
             "text": "",
-            "price": 0,
+            "price": 3,
             "id": 92,
             "tool_data": {
                 "type": "food",
@@ -502,7 +502,7 @@
             "sprite": "congee_sprite",
             "icon": "icon_item_food_sprite",
             "text": "",
-            "price": 0,
+            "price": 3,
             "id": 93,
             "tool_data": {
                 "type": "food",
@@ -567,7 +567,7 @@
             "sprite": "donut_sprite",
             "icon": "icon_item_food_sprite",
             "text": "",
-            "price": 0,
+            "price": 5,
             "id": 94,
             "tool_data": {
                 "type": "food",
@@ -588,7 +588,7 @@
             "sprite": "dumplings_sprite",
             "icon": "icon_item_food_sprite",
             "text": "",
-            "price": 0,
+            "price": 5,
             "id": 95,
             "tool_data": {
                 "type": "food",
@@ -609,7 +609,7 @@
             "sprite": "egg_sprite",
             "icon": "icon_item_food_sprite",
             "text": "",
-            "price": 0,
+            "price": 5,
             "id": 96,
             "tool_data": {
                 "type": "food",
@@ -630,7 +630,7 @@
             "sprite": "empanadas_sprite",
             "icon": "icon_item_food_sprite",
             "text": "",
-            "price": 0,
+            "price": 7,
             "id": 97,
             "tool_data": {
                 "type": "food",
@@ -651,7 +651,7 @@
             "sprite": "green_tea_sprite",
             "icon": "icon_item_food_sprite",
             "text": "",
-            "price": 0,
+            "price": 3,
             "id": 104,
             "tool_data": {
                 "type": "food",
@@ -672,7 +672,7 @@
             "sprite": "hotdog_sprite",
             "icon": "icon_item_food_sprite",
             "text": "",
-            "price": 0,
+            "price": 5,
             "id": 98,
             "tool_data": {
                 "type": "food",
@@ -715,7 +715,7 @@
             "sprite": "nasi_lemak_sprite",
             "icon": "icon_item_food_sprite",
             "text": "",
-            "price": 0,
+            "price": 10,
             "id": 99,
             "tool_data": {
                 "type": "food",
@@ -779,7 +779,7 @@
             "sprite": "persimmons_sprite",
             "icon": "icon_item_food_sprite",
             "text": "",
-            "price": 4,
+            "price": 5,
             "id": 16,
             "tool_data": {
                 "type": "food",
@@ -800,7 +800,7 @@
             "sprite": "pill_foc_sprite",
             "icon": "icon_item_food_sprite",
             "text": "",
-            "price": 1,
+            "price": 3,
             "id": 17,
             "tool_data": {
                 "cursor": "pill_foc_sprite",
@@ -822,7 +822,7 @@
             "sprite": "pill_spi_sprite",
             "icon": "icon_item_food_sprite",
             "text": "",
-            "price": 1,
+            "price": 3,
             "id": 18,
             "tool_data": {
                 "cursor": "pill_spi_sprite",
@@ -844,7 +844,7 @@
             "sprite": "pill_vig_sprite",
             "icon": "icon_item_food_sprite",
             "text": "",
-            "price": 1,
+            "price": 3,
             "id": 19,
             "tool_data": {
                 "cursor": "pill_vig_sprite",
@@ -866,7 +866,7 @@
             "sprite": "ramen_sprite",
             "icon": "icon_item_food_sprite",
             "text": "",
-            "price": 0,
+            "price": 10,
             "id": 100,
             "tool_data": {
                 "type": "food",
@@ -887,7 +887,7 @@
             "sprite": "meat_sprite",
             "icon": "icon_item_food_sprite",
             "text": "",
-            "price": 6,
+            "price": 8,
             "id": 20,
             "tool_data": {
                 "type": "food",
@@ -930,7 +930,7 @@
             "sprite": "salmon_sprite",
             "icon": "icon_item_food_sprite",
             "text": "",
-            "price": 0,
+            "price": 8,
             "id": 101,
             "tool_data": {
                 "type": "food",
@@ -951,7 +951,7 @@
             "sprite": "sausage_sprite",
             "icon": "icon_item_food_sprite",
             "text": "",
-            "price": 5,
+            "price": 7,
             "id": 22,
             "tool_data": {
                 "cursor": "sausage_sprite",
@@ -973,7 +973,7 @@
             "sprite": "soda_sprite",
             "icon": "icon_item_food_sprite",
             "text": "",
-            "price": 0,
+            "price": 3,
             "id": 102,
             "tool_data": {
                 "type": "food",
@@ -1016,7 +1016,7 @@
             "sprite": "strange_meal_sprite",
             "icon": "icon_item_food_sprite",
             "text": "",
-            "price": 0,
+            "price": 10,
             "id": 103,
             "tool_data": {
                 "type": "food",
@@ -1037,7 +1037,7 @@
             "sprite": "tuna_sprite",
             "icon": "icon_item_food_sprite",
             "text": "",
-            "price": 0,
+            "price": 8,
             "id": 105,
             "tool_data": {
                 "type": "food",

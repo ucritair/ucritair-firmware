@@ -387,7 +387,6 @@ void CAT_tick_render()
 		His wings hold all creation in a weightless quiet,
 		steady as a hallucination in the streaming air.
 		*/
-		CAT_frameberry(CAT_BLACK);
 		CAT_push_draw_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
 		CAT_draw_sprite(&null_sprite, 0, 120, 160);
 	}

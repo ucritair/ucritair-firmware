@@ -24,7 +24,7 @@ typedef struct CAT_input
 	bool dirty[CAT_BUTTON_LAST];
 
 	CAT_touch touch;
-	bool touch_last;
+	CAT_touch touch_last;
 	float touch_time;
 
 	CAT_button buffer[10];
@@ -45,9 +45,14 @@ float CAT_input_time(int button);
 bool CAT_input_drag(int x, int y, float r);
 bool CAT_input_touch(int x, int y, float r);
 bool CAT_input_touch_rect(int x, int y, int w, int h);
+
 bool CAT_input_touching();
 bool CAT_input_touch_down();
 bool CAT_input_touch_up();
+
+CAT_ivec2 CAT_input_cursor();
+bool CAT_input_cursor_in_rect(int x, int y, int w, int h);
+bool CAT_input_cursor_in_circle(int x, int y, int r);
 
 void CAT_input_buffer_clear();
 bool CAT_input_spell(CAT_button* spell);

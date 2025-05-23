@@ -16,10 +16,15 @@ void CAT_input_init()
 		input.dirty[i] = false;
 	}
 
-	input.touch.x = -1;
-	input.touch.y = -1;
+	input.touch.x = 0;
+	input.touch.y = 0;
 	input.touch.pressure = 0;
-	input.touch_last = false;
+	input.touch_last = (CAT_touch) 
+	{
+		.x = 0,
+		.y = 0,
+		.pressure = 0
+	};
 	input.touch_time = 0;
 
 	for(int i = 0; i < 10; i++)
@@ -81,7 +86,7 @@ void CAT_input_tick()
 		}
 	}
 
-	input.touch_last = input.touch.pressure > 0;
+	input.touch_last = input.touch;
 	CAT_get_touch(&input.touch);
 	bool current_state = input.touch.pressure > 0;
 	if(!current_state)
@@ -163,7 +168,7 @@ bool CAT_input_drag(int x, int y, float r)
 
 bool CAT_input_touch(int x, int y, float r)
 {
-	if(input.touch.pressure > 0 && !input.touch_last)
+	if(input.touch.pressure > 0 && input.touch_last.pressure <= 0)
 	{
 		int x_t = input.touch.x;
 		int y_t = input.touch.y;
@@ -171,12 +176,13 @@ bool CAT_input_touch(int x, int y, float r)
 		int y_d = y - y_t;
 		return x_d*x_d + y_d*y_d <= r*r;
 	}
+
 	return false;
 }
 
 bool CAT_input_touch_rect(int x, int y, int w, int h)
 {
-	if(input.touch.pressure <= 0 || input.touch_last)
+	if(input.touch.pressure <= 0 || input.touch_last.pressure > 0)
 		return false;
 	if(input.touch.x < x || input.touch.x > (x + w))
 		return false;
@@ -192,12 +198,33 @@ bool CAT_input_touching()
 
 bool CAT_input_touch_down()
 {
-	return input.touch.pressure > 0 && !input.touch_last;
+	return input.touch.pressure > 0 && input.touch_last.pressure <= 0;
 }
 
 bool CAT_input_touch_up()
 {
-	return input.touch.pressure <= 0 && input.touch_last;
+	return input.touch.pressure <= 0 && input.touch_last.pressure > 0;
+}
+
+CAT_ivec2 CAT_input_cursor()
+{
+	return (CAT_ivec2) {input.touch.x, input.touch.y};
+}
+
+bool CAT_input_cursor_in_rect(int x, int y, int w, int h)
+{
+	if(input.touch.x < x || input.touch.x > x + w)
+		return false;
+	if(input.touch.y < y || input.touch.y > y + h)
+		return false;
+	return true;
+}
+
+bool CAT_input_cursor_in_circle(int x, int y, int r)
+{
+	int dx = input.touch.x - x;
+	int dy = input.touch.y - y;
+	return dx*dx + dy*dy < r*r;
 }
 
 void CAT_input_buffer_clear()

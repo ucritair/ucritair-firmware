@@ -129,7 +129,7 @@ void CAT_render_colour_picker()
 		HSV2RGB(H, S, V, &R, &G, &B);
 		uint16_t colour = RGB8882565(R, G, B);
 
-		CAT_gui_panel(CAT_iv2(2, 6), CAT_iv2(11, 8));
+		CAT_gui_panel((CAT_ivec2) {2, 6}, (CAT_ivec2) {11, 8});
 		CAT_strokeberry(2 * 16, 6 * 16, 11 * 16, 8 * 16, 0x0000);
 		CAT_gui_textf("HSV: %d %d %d\nRGB: %d %d %d\n565: %#x\n", H, S, V, R, G, B, colour);
 		CAT_fillberry(2 * 16 + 32, 6 * 16 + 72, 11 * 16 - 64, 8 * 16 - 96, colour);
