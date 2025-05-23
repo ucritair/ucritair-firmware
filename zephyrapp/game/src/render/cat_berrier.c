@@ -325,10 +325,10 @@ void CAT_discberry(int x, int y, int r, uint16_t c)
 			if(x_w < 0 || x_w >= CAT_LCD_FRAMEBUFFER_W)
 				continue;
 
-			if((dx*dx+dy*dy) <= r*r)
-			{
+			int L = dx*dx+dy*dy;
+			int R = r*r;
+			if(L <= R)
 				framebuffer[y_w * CAT_LCD_FRAMEBUFFER_W + x_w] = c;
-			}
 		}
 	}
 }
@@ -408,4 +408,23 @@ void CAT_textfberry(int x, int y, uint16_t c, int scale, const char* fmt, ...)
 	va_end(args);
 
 	CAT_textberry(x, y, c, scale, text_buffer);
+}
+
+void CAT_polyberry(int x, int y, int* poly, int count, uint16_t c, CAT_poly_mode mode)
+{
+	int i = 0;
+	int stride = mode == CAT_POLY_MODE_LINES ? 2 : 1;
+	while(i < count-1)
+	{
+		int x0 = poly[i*2+0]; int y0 = poly[i*2+1];
+		int x1 = poly[(i+1)*2+0]; int y1 = poly[(i+1)*2+1];
+		CAT_lineberry(x+x0, y+y0, x+x1, y+y1, c);
+		i += stride;
+	}
+	if(mode == CAT_POLY_MODE_LINE_LOOP)
+	{
+		int x0 = poly[i*2+0]; int y0 = poly[i*2+1];
+		int x1 = poly[0]; int y1 = poly[1];
+		CAT_lineberry(x+x0, y+y0, x+x1, y+y1, c);
+	}
 }

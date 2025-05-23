@@ -426,7 +426,7 @@ int main(int argc, char** argv)
 		}
 
 		// 1 / FPS * 1_000_000 yields microseconds between frames at fixed FPS
-		usleep((1.0f / (float) 12) * 1000000);
+		//usleep((1.0f / (float) 12) * 1000000);
 	}
 
 	CAT_force_save();

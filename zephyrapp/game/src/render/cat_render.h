@@ -117,6 +117,13 @@ void CAT_draw_sprite(const CAT_sprite* sprite, int frame_idx, int x, int y);
 //////////////////////////////////////////////////////////////////////////
 // THE BERRIER
 
+typedef enum
+{
+	CAT_POLY_MODE_LINES,
+	CAT_POLY_MODE_LINE_STRIP,
+	CAT_POLY_MODE_LINE_LOOP
+} CAT_poly_mode;
+
 void CAT_greenberry(int xi, int w, int yi, int h, float t);
 void CAT_frameberry(uint16_t c);
 void CAT_greyberry(int xi, int w, int yi, int h);
@@ -130,7 +137,7 @@ void CAT_discberry(int x, int y, int r, uint16_t c);
 void CAT_ringberry(int x, int y, int R, int r, uint16_t c, float t);
 void CAT_textberry(int x, int y, uint16_t c, int scale, const char* text);
 void CAT_textfberry(int x, int y, uint16_t c, int scale, const char* fmt, ...);
-
+void CAT_polyberry(int x, int y, int* poly, int count, uint16_t c, CAT_poly_mode mode);
 
 //////////////////////////////////////////////////////////////////////////
 // ANIMATOR
