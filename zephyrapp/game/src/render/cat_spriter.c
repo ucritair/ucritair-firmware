@@ -47,7 +47,7 @@ uint8_t consume_draw_scale()
 	return value;
 }
 
-void CAT_draw_sprite(const CAT_sprite* sprite, int16_t frame_idx, int16_t x, int16_t y)
+void CAT_draw_sprite(const CAT_sprite* sprite, int frame_idx, int x, int y)
 {
 	if(sprite == NULL)
 	{
@@ -80,41 +80,49 @@ void CAT_draw_sprite(const CAT_sprite* sprite, int16_t frame_idx, int16_t x, int
 	y -= FRAMEBUFFER_ROW_OFFSET;
 	if (y >= CAT_LCD_FRAMEBUFFER_H)
 		return;
-	int16_t y_f = y + h;
+	int y_f = y + h;
 	if (y_f < 0)
 		return;
-	if (y_f > CAT_LCD_FRAMEBUFFER_H)
-		y_f = CAT_LCD_FRAMEBUFFER_H-1;
+	if (y_f > CAT_LCD_FRAMEBUFFER_H+scale_override)
+		y_f = CAT_LCD_FRAMEBUFFER_H+scale_override;
 	
 	if(x >= CAT_LCD_FRAMEBUFFER_W)
 		return;
-	int16_t x_f = x + w;
+	int x_f = x + w;
 	if(x_f < 0)
 		return;
 
 	const uint8_t* frame = sprite->frames[frame_idx];
 	uint16_t run_idx = 0;
 
+	uint8_t token;
+	uint8_t colour_idx; uint16_t colour;
+	uint8_t run_length; uint8_t run_remainder;
+
+	int y_w;
+	int x_start; int x_end; int dx;
+	int x_w;
+
 	if(scale_override != 1)
 	{
-		int16_t y_w = y;
-		int16_t x_start = reflect_x ? x_f-scale_override : x;
-		int16_t x_end = reflect_x ? x-scale_override : x_f;
-		int16_t dx = reflect_x ? -1 : 1;
-		int16_t x_w = x_start;
+		y_w = y;
+		x_start = reflect_x ? x_f-scale_override : x;
+		x_end = reflect_x ? x-scale_override : x_f;
+		dx = reflect_x ? -1 : 1;
+		x_w = x_start;
 
 		while(y_w < y_f)
 		{
-			uint8_t token = frame[run_idx++];
+			token = frame[run_idx++];
 
-			uint16_t colour_idx = token == 0xff ? frame[run_idx++] : token;
-			uint16_t colour = sprite->colour_table[colour_idx];
+			colour_idx = token == 0xff ? frame[run_idx++] : token;
+			colour = sprite->colour_table[colour_idx];
 			bool transparent = colour == CAT_TRANSPARENT;
 			colour = colour_override == CAT_TRANSPARENT ?
 			ADAPT_EMBEDDED_COLOUR(colour) : ADAPT_DESKTOP_COLOUR(colour_override);
 
-			uint8_t run_length = token == 0xff ? frame[run_idx++] : 1;
-			uint8_t run_remainder = run_length;
+			run_length = token == 0xff ? frame[run_idx++] : 1;
+			run_remainder = run_length;
 			
 			while(run_remainder > 0)
 			{
@@ -150,24 +158,24 @@ void CAT_draw_sprite(const CAT_sprite* sprite, int16_t frame_idx, int16_t x, int
 	}
 	else
 	{
-		int16_t y_w = y;
-		int16_t x_start = reflect_x ? x_f-1 : x;
-		int16_t x_end = reflect_x ? x-1 : x_f;
-		int16_t dx = reflect_x ? -1 : 1;
-		int16_t x_w = x_start;
+		y_w = y;
+		x_start = reflect_x ? x_f-1 : x;
+		x_end = reflect_x ? x-1 : x_f;
+		dx = reflect_x ? -1 : 1;
+		x_w = x_start;
 
 		while(y_w < y_f)
 		{
-			uint8_t token = frame[run_idx++];
+			token = frame[run_idx++];
 
-			uint16_t colour_idx = token == 0xff ? frame[run_idx++] : token;
-			uint16_t colour = sprite->colour_table[colour_idx];
+			colour_idx = token == 0xff ? frame[run_idx++] : token;
+			colour = sprite->colour_table[colour_idx];
 			bool transparent = colour == CAT_TRANSPARENT;
 			colour = colour_override == CAT_TRANSPARENT ?
 			ADAPT_EMBEDDED_COLOUR(colour) : ADAPT_DESKTOP_COLOUR(colour_override);
 
-			uint8_t run_length = token == 0xff ? frame[run_idx++] : 1;
-			uint8_t run_remainder = run_length;
+			run_length = token == 0xff ? frame[run_idx++] : 1;
+			run_remainder = run_length;
 			
 			while(run_remainder > 0)
 			{
