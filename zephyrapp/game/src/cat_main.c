@@ -372,8 +372,6 @@ void CAT_tick_logic()
 
 void CAT_tick_render()
 {
-	CAT_frameberry(CAT_BLACK);
-
 	if (CAT_get_render_cycle() == 0)
 			CAT_draw_queue_clear();
 

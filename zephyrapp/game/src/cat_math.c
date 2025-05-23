@@ -8,21 +8,6 @@
 //////////////////////////////////////////////////////////////////////////
 // BASICS
 
-int min(int a, int b)
-{
-	return b < a ? b : a;
-}
-
-int max(int a, int b)
-{
-	return b > a ? b : a;
-}
-
-int clamp(int v, int a, int b)
-{
-	return min(max(v, a), b);
-}
-
 float lerp(float a, float b, float t)
 {
 	return (1.0f-t) * a + t * b;

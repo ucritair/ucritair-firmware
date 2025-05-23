@@ -258,6 +258,7 @@ extern const CAT_sprite vase_mahogany_sprite;
 extern const CAT_sprite vase_stone_sprite;
 extern const CAT_sprite vase_walnut_sprite;
 extern const CAT_sprite vending_sprite;
+extern const CAT_sprite wall_alley_sprite;
 extern const CAT_sprite window_dawn_sprite;
 extern const CAT_sprite window_day_bad_aq_sprite;
 extern const CAT_sprite window_day_sprite;
@@ -267,4 +268,4 @@ extern const CAT_sprite window_morning_sprite;
 extern const CAT_sprite window_night_sprite;
 
 extern const CAT_sprite* sprite_list[];
-#define CAT_SPRITE_LIST_LENGTH 261
+#define CAT_SPRITE_LIST_LENGTH 262

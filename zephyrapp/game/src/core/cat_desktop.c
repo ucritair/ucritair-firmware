@@ -482,9 +482,7 @@ void CAT_finish_load()
 int CAT_get_battery_pct()
 {
 	if(glfwWindowShouldClose(simulator.window))
-	{
 		return 0;
-	}
 	return 100;
 }
 

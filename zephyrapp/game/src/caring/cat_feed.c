@@ -52,25 +52,22 @@ void render_summary();
 #define SELECT_GRID_MARGIN 12
 
 static CAT_rect counter_rect =
-{
-	.min = {COUNTER_X, COUNTER_Y},
-	.max = {COUNTER_X + COUNTER_W, COUNTER_Y + COUNTER_H}
-};
-static CAT_rect table_rect = 
-{
-	.min = {TABLE_X, TABLE_Y},
-	.max = {TABLE_X + TABLE_W, TABLE_Y + TABLE_H}
-};
+	{
+		.min = {COUNTER_X, COUNTER_Y},
+		.max = {COUNTER_X + COUNTER_W, COUNTER_Y + COUNTER_H}};
+static CAT_rect table_rect =
+	{
+		.min = {TABLE_X, TABLE_Y},
+		.max = {TABLE_X + TABLE_W, TABLE_Y + TABLE_H}};
 static CAT_rect spawn_rects[MAX_FOOD_COUNT];
 
 void init_spawn_rects()
 {
-	for(int i = 0; i < 5; i++)
+	for (int i = 0; i < 5; i++)
 	{
-		spawn_rects[i] = (CAT_rect)
-		{
-			.min = (CAT_ivec2) {SPAWN_X + SPAWN_W * i + SPAWN_MARGIN * i, SPAWN_Y},
-			.max = (CAT_ivec2) {SPAWN_X + SPAWN_W * i + SPAWN_MARGIN * i + SPAWN_W, SPAWN_Y + SPAWN_H},
+		spawn_rects[i] = (CAT_rect){
+			.min = (CAT_ivec2){SPAWN_X + SPAWN_W * i + SPAWN_MARGIN * i, SPAWN_Y},
+			.max = (CAT_ivec2){SPAWN_X + SPAWN_W * i + SPAWN_MARGIN * i + SPAWN_W, SPAWN_Y + SPAWN_H},
 		};
 	}
 }
@@ -81,10 +78,10 @@ CAT_int_list food_pool;
 void init_item_id_pool()
 {
 	CAT_ilist(&food_pool, food_pool_backing, CAT_ITEM_LIST_MAX_LENGTH);
-	for(int i = 0; i < bag.length; i++)
+	for (int i = 0; i < bag.length; i++)
 	{
-		CAT_item* item = CAT_item_get(bag.item_ids[i]);
-		if(item->type == CAT_ITEM_TYPE_TOOL && item->data.tool_data.type == CAT_TOOL_TYPE_FOOD)
+		CAT_item *item = CAT_item_get(bag.item_ids[i]);
+		if (item->type == CAT_ITEM_TYPE_TOOL && item->data.tool_data.type == CAT_TOOL_TYPE_FOOD)
 		{
 			CAT_ilist_push(&food_pool, bag.item_ids[i]);
 		}
@@ -114,16 +111,16 @@ void refresh_food_states()
 {
 	// Active food mask, count, and centroid
 	active_food_count = 0;
-	active_food_centroid = (CAT_ivec2) {0, 0};
-	for(int i = 0; i < food_count; i++)
+	active_food_centroid = (CAT_ivec2){0, 0};
+	for (int i = 0; i < food_count; i++)
 	{
 		food_list[i].active =
-		food_list[i].position.x > table_rect.min.x &&
-		food_list[i].position.x < table_rect.max.x &&
-		food_list[i].position.y > table_rect.min.y &&
-		food_list[i].position.y < table_rect.max.y;
+			food_list[i].position.x > table_rect.min.x &&
+			food_list[i].position.x < table_rect.max.x &&
+			food_list[i].position.y > table_rect.min.y &&
+			food_list[i].position.y < table_rect.max.y;
 
-		if(food_list[i].active)
+		if (food_list[i].active)
 		{
 			active_food_count += 1;
 			active_food_centroid = CAT_ivec2_add(active_food_centroid, food_list[i].position);
@@ -132,20 +129,20 @@ void refresh_food_states()
 	active_food_centroid = CAT_ivec2_div(active_food_centroid, active_food_count);
 
 	// Collision mask
-	for(int i = 0; i < food_count; i++)
+	for (int i = 0; i < food_count; i++)
 		food_list[i].colliding = false;
-	for(int i = 0; i < food_count; i++)
+	for (int i = 0; i < food_count; i++)
 	{
-		if(!food_list[i].active)
+		if (!food_list[i].active)
 			continue;
 
-		for(int j = i+1; j < food_count; j++)
+		for (int j = i + 1; j < food_count; j++)
 		{
-			if(!food_list[j].active)
+			if (!food_list[j].active)
 				continue;
 
 			int collision_distance = (FOOD_COLLISION_R * 0.9f) * 2;
-			if(CAT_ivec2_dist2(food_list[i].position, food_list[j].position) < collision_distance * collision_distance)
+			if (CAT_ivec2_dist2(food_list[i].position, food_list[j].position) < collision_distance * collision_distance)
 			{
 				food_list[i].colliding = food_list[j].colliding = true;
 				break;
@@ -154,23 +151,23 @@ void refresh_food_states()
 	}
 
 	// Angles
-	for(int i = 0; i < food_count; i++)
+	for (int i = 0; i < food_count; i++)
 	{
-		if(!food_list[i].active)
+		if (!food_list[i].active)
 			continue;
 
 		CAT_ivec2 spoke = CAT_ivec2_sub(food_list[i].position, active_food_centroid);
 		float angle = atan2(-spoke.y, spoke.x);
-		if(angle < 0)
+		if (angle < 0)
 			angle += M_PI * 2;
 		food_list[i].angle = angle;
 	}
 
 	// CCW Sorting and neighbour map
-	if(active_food_count > 1)
+	if (active_food_count > 1)
 	{
 		// Clear current values
-		for(int i = 0; i < food_count; i++)
+		for (int i = 0; i < food_count; i++)
 			food_list[i].neighbour = -1;
 
 		// Identify the wraparound point:
@@ -179,48 +176,47 @@ void refresh_food_states()
 		int min_angle_idx = -1;
 		float max_angle = -INFINITY;
 		float min_angle = INFINITY;
-		for(int i = 0; i < food_count; i++)
-		{	
-			if(!food_list[i].active)
+		for (int i = 0; i < food_count; i++)
+		{
+			if (!food_list[i].active)
 				continue;
 
 			float angle = food_list[i].angle;
-			if(angle > max_angle)
+			if (angle > max_angle)
 			{
 				max_angle_idx = i;
 				max_angle = angle;
 			}
-			if(angle < min_angle)
+			if (angle < min_angle)
 			{
 				min_angle_idx = i;
 				min_angle = angle;
 			}
 		}
 		food_list[max_angle_idx].neighbour = min_angle_idx;
-		
+
 		// Identify all other neighbour relations
-		for(int i = 0; i < food_count; i++)
+		for (int i = 0; i < food_count; i++)
 		{
-			if(!food_list[i].active)
+			if (!food_list[i].active)
 				continue;
 
 			// Skip the wraparound point as our usual logic won't work for it
-			if(i == max_angle_idx)
+			if (i == max_angle_idx)
 				continue;
 
 			float this_angle = food_list[i].angle;
-			for(int j = 0; j < food_count; j++)
+			for (int j = 0; j < food_count; j++)
 			{
-				if(j == i || !food_list[j].active)
+				if (j == i || !food_list[j].active)
 					continue;
 
 				int best_neighbour = food_list[i].neighbour;
 				float best_angle =
-				best_neighbour == -1 ?
-				INFINITY : food_list[best_neighbour].angle;
+					best_neighbour == -1 ? INFINITY : food_list[best_neighbour].angle;
 
 				float candidate_angle = food_list[j].angle;
-				if(candidate_angle > this_angle && candidate_angle < best_angle)
+				if (candidate_angle > this_angle && candidate_angle < best_angle)
 					food_list[i].neighbour = j;
 			}
 		}
@@ -235,13 +231,11 @@ float get_spawn_rect_fill(int rect_idx)
 	int spawn_a = spawn_w * spawn_h;
 
 	int overlap_a = 0;
-	for(int i = 0; i < food_count; i++)
+	for (int i = 0; i < food_count; i++)
 	{
-		CAT_rect food_rect = CAT_rect_center
-		(
+		CAT_rect food_rect = CAT_rect_center(
 			food_list[i].position.x, food_list[i].position.y,
-			FOOD_COLLISION_W, FOOD_COLLISION_H
-		);
+			FOOD_COLLISION_W, FOOD_COLLISION_H);
 		CAT_rect overlap = CAT_rect_overlap(spawn_rect, food_rect);
 		int w = overlap.max.x - overlap.min.x;
 		int h = overlap.max.y - overlap.min.y;
@@ -250,17 +244,17 @@ float get_spawn_rect_fill(int rect_idx)
 		overlap_a += w * h;
 	}
 
-	return (float) overlap_a / (float) spawn_a;
+	return (float)overlap_a / (float)spawn_a;
 }
 
 CAT_ivec2 get_spawn_position()
 {
 	int free_idx = -1;
 	float min_fill = 2.0f;
-	for(int i = 0; i < 5; i++)
+	for (int i = 0; i < 5; i++)
 	{
 		float fill = get_spawn_rect_fill(i);
-		if(fill < min_fill)
+		if (fill < min_fill)
 		{
 			free_idx = i;
 			min_fill = fill;
@@ -272,17 +266,16 @@ CAT_ivec2 get_spawn_position()
 	float y = rect.min.y;
 	float w = rect.max.x - x;
 	float h = rect.max.y - y;
-	return (CAT_ivec2) {x + w / 2, y + h / 2};
+	return (CAT_ivec2){x + w / 2, y + h / 2};
 }
 
 int food_spawn(int pool_idx)
 {
-	if(food_count >= MAX_FOOD_COUNT)
+	if (food_count >= MAX_FOOD_COUNT)
 		return -1;
 
 	int list_idx = food_count;
-	food_list[list_idx] = (food_object)
-	{
+	food_list[list_idx] = (food_object){
 		.pool_idx = pool_idx,
 
 		.position = get_spawn_position(),
@@ -290,8 +283,7 @@ int food_spawn(int pool_idx)
 		.colliding = false,
 
 		.angle = 0,
-		.neighbour = -1
-	};
+		.neighbour = -1};
 	food_count += 1;
 
 	refresh_food_states();
@@ -300,18 +292,18 @@ int food_spawn(int pool_idx)
 
 void food_despawn(int list_idx)
 {
-	if(list_idx < 0 || list_idx >= MAX_FOOD_COUNT)
+	if (list_idx < 0 || list_idx >= MAX_FOOD_COUNT)
 		return;
 	food_count -= 1;
-	for(int i = list_idx; i < food_count; i++)
+	for (int i = list_idx; i < food_count; i++)
 	{
-		food_list[i] = food_list[i+1];
+		food_list[i] = food_list[i + 1];
 	}
 
 	refresh_food_states();
 }
 
-CAT_item* food_lookup(int list_idx)
+CAT_item *food_lookup(int list_idx)
 {
 	return CAT_item_get(food_pool.data[food_list[list_idx].pool_idx]);
 }
@@ -319,7 +311,7 @@ CAT_item* food_lookup(int list_idx)
 void init_food_list()
 {
 	food_count = 0;
-	for(int i = 0; i < min(food_pool.length, MAX_FOOD_COUNT); i++)
+	for (int i = 0; i < min(food_pool.length, MAX_FOOD_COUNT); i++)
 		food_spawn(i);
 }
 
@@ -336,7 +328,7 @@ struct
 
 struct
 {
-	const char* message;
+	const char *message;
 	enum
 	{
 		BASIC,
@@ -347,9 +339,9 @@ struct
 } note_list[12];
 int note_count = 0;
 
-int add_note(const char* message, int severity)
+int add_note(const char *message, int severity)
 {
-	if(note_count >= 12)
+	if (note_count >= 12)
 		return -1;
 	int idx = note_count;
 	note_list[idx].message = message;
@@ -362,7 +354,7 @@ int centerpiece_idx = -1;
 
 float score_variety()
 {
-	if(active_food_count == 0)
+	if (active_food_count == 0)
 		return 0.0f;
 
 	// Ideally a meal has:
@@ -379,60 +371,58 @@ float score_variety()
 	int meat_count = 0;
 	int dairy_count = 0;
 
-	for(int i = 0; i < food_count; i++)
+	for (int i = 0; i < food_count; i++)
 	{
-		if(!food_list[i].active)
-			continue;	
+		if (!food_list[i].active)
+			continue;
 
-		CAT_item* food = food_lookup(i);
+		CAT_item *food = food_lookup(i);
 		CAT_food_group group = food->data.tool_data.food_group;
 		switch (group)
 		{
-			case CAT_FOOD_GROUP_VEG:
-				veg_count += 1;
+		case CAT_FOOD_GROUP_VEG:
+			veg_count += 1;
 			break;
-			case CAT_FOOD_GROUP_STARCH:
-				starch_count += 1;
+		case CAT_FOOD_GROUP_STARCH:
+			starch_count += 1;
 			break;
-			case CAT_FOOD_GROUP_MEAT:
-				meat_count += 1;
+		case CAT_FOOD_GROUP_MEAT:
+			meat_count += 1;
 			break;
-			case CAT_FOOD_GROUP_DAIRY:
-				dairy_count += 1;
+		case CAT_FOOD_GROUP_DAIRY:
+			dairy_count += 1;
 			break;
-			default:
-				break;
+		default:
+			break;
 		}
 	}
 
-	if(veg_count < 1)
+	if (veg_count < 1)
 	{
 		points -= 2;
 		add_note("Needs more vegetables", BAD);
 	}
-	if(veg_count < meat_count)
+	if (veg_count < meat_count)
 	{
 		points -= 1;
 		add_note("Heavy on the meat", BASIC);
 	}
-	if(veg_count > 2)
+	if (veg_count > 2)
 	{
 		add_note("Lots of veggies!", GOOD);
 	}
 
-	if(starch_count > 1)
+	if (starch_count > 1)
 	{
 		points -= 1;
 		add_note("One starch will do", BASIC);
 	}
 
-	if
-	(
+	if (
 		veg_count == 0 ||
 		meat_count == 0 ||
 		starch_count == 0 ||
-		dairy_count == 0
-	)
+		dairy_count == 0)
 	{
 		points -= 1;
 		add_note("Could use more variety", BASIC);
@@ -447,7 +437,7 @@ float score_variety()
 
 float score_propriety()
 {
-	if(active_food_count == 0)
+	if (active_food_count == 0)
 		return 0.0f;
 
 	// Ideally a meal has:
@@ -466,77 +456,77 @@ float score_propriety()
 	int vice_count = 0;
 	int side_count = 0;
 
-	for(int i = 0; i < food_count; i++)
+	for (int i = 0; i < food_count; i++)
 	{
-		if(!food_list[i].active)
+		if (!food_list[i].active)
 			continue;
 
-		CAT_item* food = food_lookup(i);
-		switch(food->data.tool_data.food_role)
+		CAT_item *food = food_lookup(i);
+		switch (food->data.tool_data.food_role)
 		{
-			case CAT_FOOD_ROLE_STAPLE:
-				staple_count += 1;
+		case CAT_FOOD_ROLE_STAPLE:
+			staple_count += 1;
 			break;
-			case CAT_FOOD_ROLE_MAIN:
-				main_count += 1;
+		case CAT_FOOD_ROLE_MAIN:
+			main_count += 1;
 			break;
-			case CAT_FOOD_ROLE_TREAT:
-				treat_count += 1;
+		case CAT_FOOD_ROLE_TREAT:
+			treat_count += 1;
 			break;
-			case CAT_FOOD_ROLE_VICE:
-				vice_count += 1;
+		case CAT_FOOD_ROLE_VICE:
+			vice_count += 1;
 			break;
-			case CAT_FOOD_ROLE_SIDE:
-			case CAT_FOOD_ROLE_SOUP:
-				side_count += 1;
+		case CAT_FOOD_ROLE_SIDE:
+		case CAT_FOOD_ROLE_SOUP:
+			side_count += 1;
 			break;
-			default:
+		default:
 			break;
 		}
 	}
 
-	if(main_count == 0)
+	if (main_count == 0)
 	{
 		points -= 3;
 		add_note("No main course?!", BAD);
 	}
-	else if(main_count > 1)
+	else if (main_count > 1)
 	{
 		points -= 2;
 		add_note("One main is plenty", BAD);
 	}
 
-	if(staple_count != 1)
+	if (staple_count != 1)
 	{
 		points -= 1;
 		add_note("Lacking a staple", BASIC);
 	}
 
-	if(side_count == 0 && treat_count > 0)
+	if (side_count == 0 && treat_count > 0)
 	{
 		points -= 1;
 		add_note("Prioritize the basics", BASIC);
 	}
-	else if(side_count > 0 && treat_count > 1)
+	else if (side_count > 0 && treat_count > 1)
 	{
 		points -= 1;
 		add_note("Heavy on the treats", BASIC);
 	}
-	if(treat_count > 2)
+	if (treat_count > 2)
 	{
 		add_note("Very indulgent", BAD);
 	}
 
 	points -= vice_count;
-	if(vice_count > 1)
+	if (vice_count > 1)
 	{
 		add_note("Riddled with vice", BAD);
 	}
-	else if(vice_count == 1)
+	else if (vice_count == 1)
 	{
 		add_note("Vice is best avoided", BASIC);
-	}   
-	else if(vice_count == 0 && treat_count == 0)
+	}
+	else if (vice_count == 0 && treat_count == 0)
 	{
 		add_note("Impressive restraint", GOOD);
 	}
@@ -546,7 +536,7 @@ float score_propriety()
 
 float score_ichiju_sansai()
 {
-	if(active_food_count == 0)
+	if (active_food_count == 0)
 		return 0.0f;
 
 	float staple = 0;
@@ -554,24 +544,24 @@ float score_ichiju_sansai()
 	float main = 0;
 	float sides = 0;
 
-	for(int i = 0; i < food_count; i++)
+	for (int i = 0; i < food_count; i++)
 	{
-		if(!food_list[i].active)
-			continue;	
+		if (!food_list[i].active)
+			continue;
 
-		CAT_item* food = food_lookup(i);
-		if(food->data.tool_data.food_role == CAT_FOOD_ROLE_SOUP && soup < 1)
+		CAT_item *food = food_lookup(i);
+		if (food->data.tool_data.food_role == CAT_FOOD_ROLE_SOUP && soup < 1)
 			soup += 1;
-		else if(food->data.tool_data.food_role == CAT_FOOD_ROLE_SIDE && sides < 2)
+		else if (food->data.tool_data.food_role == CAT_FOOD_ROLE_SIDE && sides < 2)
 			sides += 1;
-		else if(food->data.tool_data.food_role == CAT_FOOD_ROLE_MAIN && main < 1)
+		else if (food->data.tool_data.food_role == CAT_FOOD_ROLE_MAIN && main < 1)
 			main += 1;
-		else if(food->data.tool_data.food_role == CAT_FOOD_ROLE_STAPLE && staple < 1)
+		else if (food->data.tool_data.food_role == CAT_FOOD_ROLE_STAPLE && staple < 1)
 			staple += 1;
 	}
 
 	float ichisan = (staple + soup + main + sides) / 5.0f;
-	if(ichisan == 1.0f)
+	if (ichisan == 1.0f)
 		add_note("Ichi-ju san-sai!", SPECIAL);
 
 	return ichisan;
@@ -579,43 +569,40 @@ float score_ichiju_sansai()
 
 float score_spacing()
 {
-	if(active_food_count == 0)
+	if (active_food_count == 0)
 		return 0.0f;
-	if(active_food_count < 3)
+	if (active_food_count < 3)
 		return 0.5f;
 
 	int collision_count = 0;
-	for(int i = 0; i < 5; i++)
+	for (int i = 0; i < 5; i++)
 	{
-		if(food_list[i].colliding)
+		if (food_list[i].colliding)
 			collision_count += 1;
 	}
 
-	if(collision_count >= 4)
+	if (collision_count >= 4)
 		add_note("Terribly crowded", BAD);
-	else if(collision_count >= 2)
+	else if (collision_count >= 2)
 		add_note("A little crowded", BASIC);
 
-	return 
-	active_food_count > 0 ?
-	1.0f - (float) collision_count / (float) active_food_count :
-	0;
+	return active_food_count > 0 ? 1.0f - (float)collision_count / (float)active_food_count : 0;
 }
 
 float score_evenness()
 {
-	if(active_food_count == 0)
+	if (active_food_count == 0)
 		return 0.0f;
-	if(active_food_count < 3)
+	if (active_food_count < 3)
 		return 0.5f;
 
 	centerpiece_idx = -1;
-	for(int i = 0; i < food_count; i++)
+	for (int i = 0; i < food_count; i++)
 	{
-		if(!food_list[i].active)
+		if (!food_list[i].active)
 			continue;
 
-		if(CAT_ivec2_dist2(food_list[i].position, active_food_centroid) < CENTERPIECE_RADIUS * CENTERPIECE_RADIUS)
+		if (CAT_ivec2_dist2(food_list[i].position, active_food_centroid) < CENTERPIECE_RADIUS * CENTERPIECE_RADIUS)
 		{
 			centerpiece_idx = i;
 			break;
@@ -628,9 +615,9 @@ float score_evenness()
 
 	float spoke_mean = 0.0f;
 	float edge_mean = 0.0f;
-	for(int i = 0; i < food_count; i++)
+	for (int i = 0; i < food_count; i++)
 	{
-		if(!food_list[i].active || i == centerpiece_idx)
+		if (!food_list[i].active || i == centerpiece_idx)
 			continue;
 
 		CAT_ivec2 this_pos = food_list[i].position;
@@ -641,36 +628,35 @@ float score_evenness()
 		edges[i] = sqrt(CAT_ivec2_dist2(neighbour_pos, this_pos));
 		edge_mean += edges[i];
 	}
-	spoke_mean /= (float) surrounding_count;
-	edge_mean /= (float) surrounding_count;
+	spoke_mean /= (float)surrounding_count;
+	edge_mean /= (float)surrounding_count;
 
 	float spoke_stddev = 0.0f;
 	float edge_stddev = 0.0f;
-	for(int i = 0; i < food_count; i++)
+	for (int i = 0; i < food_count; i++)
 	{
-		if(!food_list[i].active || i == centerpiece_idx)
+		if (!food_list[i].active || i == centerpiece_idx)
 			continue;
 
 		spoke_stddev += (spokes[i] - spoke_mean) * (spokes[i] - spoke_mean);
 		edge_stddev += (edges[i] - edge_mean) * (edges[i] - edge_mean);
 	}
-	spoke_stddev = sqrt(spoke_stddev / (float) (surrounding_count-1));
-	edge_stddev = sqrt(edge_stddev / (float) (surrounding_count-1));
+	spoke_stddev = sqrt(spoke_stddev / (float)(surrounding_count - 1));
+	edge_stddev = sqrt(edge_stddev / (float)(surrounding_count - 1));
 
-	float evenness = CAT_ease_in_sine
-	(
+	float evenness = CAT_ease_in_sine(
 		1.0f -
 		((spoke_stddev / spoke_mean) +
-		(edge_stddev / edge_mean)) * 0.5f
-	);
+		 (edge_stddev / edge_mean)) *
+			0.5f);
 
-	if(surrounding_count <= 2)
+	if (surrounding_count <= 2)
 		return 1.0f;
 	else
 	{
-		if(evenness > 0.9f)
+		if (evenness > 0.9f)
 			add_note("Impeccably spaced", SPECIAL);
-		if(evenness > 0.65f)
+		if (evenness > 0.65f)
 			add_note("Pleasingly spaced", GOOD);
 		else if (evenness > 0.45f)
 			add_note("Placement a bit awkward", BASIC);
@@ -684,7 +670,7 @@ float score_evenness()
 void refresh_scores()
 {
 	note_count = 0;
-	if(active_food_count == 0)
+	if (active_food_count == 0)
 		add_note("That was nothing!", BAD);
 
 	score_object.variety = score_variety();
@@ -693,14 +679,13 @@ void refresh_scores()
 	score_object.spacing = score_spacing();
 	score_object.evenness = score_evenness();
 
-	score_object.aggregate = 
-	(
-		score_object.variety * 2 +
-		score_object.propriety * 2 +
-		score_object.ichiju_sansai * 0.5f +
-		score_object.spacing +
-		score_object.evenness
-	) / 6.5f;
+	score_object.aggregate =
+		(score_object.variety * 2 +
+		 score_object.propriety * 2 +
+		 score_object.ichiju_sansai * 0.5f +
+		 score_object.spacing +
+		 score_object.evenness) /
+		6.5f;
 	score_object.aggregate = clampf(score_object.aggregate, 0, 1.0f);
 	score_object.aggregate = CAT_ease_in_sine(score_object.aggregate);
 
@@ -726,88 +711,85 @@ void MS_feed_arrange(CAT_machine_signal signal)
 {
 	switch (signal)
 	{
-		case CAT_MACHINE_SIGNAL_ENTER:		
-			CAT_set_render_callback(render_arrange);
-			pick_idx = -1;
+	case CAT_MACHINE_SIGNAL_ENTER:
+		CAT_set_render_callback(render_arrange);
+		pick_idx = -1;
+		commit_arrangement = false;
+		CAT_timer_reinit(&show_feedback_timer_id, 1.0f);
+		break;
+
+	case CAT_MACHINE_SIGNAL_TICK:
+		if (CAT_gui_popup_is_open())
+			break;
+		if (CAT_input_pressed(CAT_BUTTON_A))
+			CAT_gui_open_popup("Submit this meal?\nFood items on table\nwill be consumed!\n", &commit_arrangement);
+		if (commit_arrangement)
+		{
 			commit_arrangement = false;
-			CAT_timer_reinit(&show_feedback_timer_id, 1.0f);
-		break;
-		
-		case CAT_MACHINE_SIGNAL_TICK:
-			if(CAT_gui_popup_is_open())
-				break;
-			if(CAT_input_pressed(CAT_BUTTON_A))
-				CAT_gui_open_popup("Submit this meal?\nFood items on table\nwill be consumed!\n", &commit_arrangement);
-			if(commit_arrangement)
+
+			for (int i = 0; i < food_count; i++)
 			{
-				commit_arrangement = false;
-
-				for(int i = 0; i < food_count; i++)
-				{
-					if(food_list[i].active)
-						CAT_item_list_remove(&bag, food_pool.data[food_list[i].pool_idx], 1);
-				}
-				pet.vigour += score_object.grade;
-
-				CAT_machine_transition(MS_feed_summary);
+				if (food_list[i].active)
+					CAT_item_list_remove(&bag, food_pool.data[food_list[i].pool_idx], 1);
 			}
-			
-			if(CAT_input_pressed(CAT_BUTTON_B))
-				CAT_machine_transition(CAT_MS_room);
-			if(CAT_input_pressed(CAT_BUTTON_SELECT) && food_pool.length > 0)
-				CAT_machine_transition(MS_feed_select);
+			pet.vigour += score_object.grade;
 
-			if(CAT_input_touch_rect(85, 240, 64, 64))
+			CAT_machine_transition(MS_feed_summary);
+		}
+
+		if (CAT_input_pressed(CAT_BUTTON_B))
+			CAT_machine_transition(CAT_MS_room);
+		if (CAT_input_pressed(CAT_BUTTON_SELECT) && food_pool.length > 0)
+			CAT_machine_transition(MS_feed_select);
+
+		if (CAT_input_touch_rect(85, 240, 64, 64))
+		{
+			show_feedback = true;
+			CAT_timer_reset(show_feedback_timer_id);
+		}
+		if (CAT_input_pressed(CAT_BUTTON_RIGHT))
+			show_debug_text = !show_debug_text;
+		if (CAT_input_pressed(CAT_BUTTON_LEFT))
+			show_gizmos = !show_gizmos;
+
+		if (CAT_input_touch_down())
+		{
+			for (int i = 0; i < food_count; i++)
 			{
-				show_feedback = true;
-				CAT_timer_reset(show_feedback_timer_id);
-			}
-			if(CAT_input_pressed(CAT_BUTTON_RIGHT))
-				show_debug_text = !show_debug_text;
-			if(CAT_input_pressed(CAT_BUTTON_LEFT))
-				show_gizmos = !show_gizmos;
-			
-			if(CAT_input_touch_down())
-			{
-				for(int i = 0; i < food_count; i++)
+				if (CAT_input_cursor_in_circle(food_list[i].position.x, food_list[i].position.y, FOOD_COLLISION_R))
 				{
-					if(CAT_input_cursor_in_circle(food_list[i].position.x, food_list[i].position.y, FOOD_COLLISION_R))
-					{
-						food_object temp = food_list[0];
-						food_list[0] = food_list[i];
-						food_list[i] = temp;
-						
-						pick_idx = 0;
-						pick_delta = (CAT_ivec2)
-						{
-							food_list[0].position.x - CAT_input_cursor().x,
-							food_list[0].position.y - CAT_input_cursor().y,
-						};
-						break;
-					}
+					food_object temp = food_list[0];
+					food_list[0] = food_list[i];
+					food_list[i] = temp;
+
+					pick_idx = 0;
+					pick_delta = (CAT_ivec2){
+						food_list[0].position.x - CAT_input_cursor().x,
+						food_list[0].position.y - CAT_input_cursor().y,
+					};
+					break;
 				}
 			}
-			else if(CAT_input_touch_up())
-			{
-				refresh_food_states();
-				refresh_scores();
+		}
+		else if (CAT_input_touch_up())
+		{
+			refresh_food_states();
+			refresh_scores();
 
-				pick_idx = -1;
-			}
-			else if(pick_idx != -1)
-			{
-				food_list[pick_idx].position = (CAT_ivec2)
-				{
-					CAT_input_cursor().x + pick_delta.x,
-					CAT_input_cursor().y + pick_delta.y
-				};
-			}
+			pick_idx = -1;
+		}
+		else if (pick_idx != -1)
+		{
+			food_list[pick_idx].position = (CAT_ivec2){
+				CAT_input_cursor().x + pick_delta.x,
+				CAT_input_cursor().y + pick_delta.y};
+		}
 
-			if(show_feedback && CAT_timer_tick(show_feedback_timer_id))
-				show_feedback = false;
+		if (show_feedback && CAT_timer_tick(show_feedback_timer_id))
+			show_feedback = false;
 		break;
 
-		case CAT_MACHINE_SIGNAL_EXIT:
+	case CAT_MACHINE_SIGNAL_EXIT:
 		break;
 	}
 }
@@ -815,17 +797,18 @@ void MS_feed_arrange(CAT_machine_signal signal)
 void render_feedback()
 {
 	CAT_push_draw_flags(CAT_DRAW_FLAG_BOTTOM);
-	const CAT_sprite* sprite = &pet_feed_neutral_sprite;
-	int x = 240-96; int y = 320;
-	if(score_object.grade == 1 || active_food_count == 0)
+	const CAT_sprite *sprite = &pet_feed_neutral_sprite;
+	int x = 240 - 96;
+	int y = 320;
+	if (score_object.grade == 1 || active_food_count == 0)
 	{
 		sprite = &pet_feed_very_bad_sprite;
 	}
-	else if(score_object.grade > 5 || score_object.grade > (active_food_count+1))
+	else if (score_object.grade > 5 || score_object.grade > (active_food_count + 1))
 	{
 		sprite = &pet_feed_good_sprite;
 	}
-	else if(score_object.grade < active_food_count)
+	else if (score_object.grade < active_food_count)
 	{
 		sprite = &pet_feed_bad_sprite;
 	}
@@ -836,16 +819,16 @@ void render_arrange()
 {
 	CAT_draw_sprite(&floor_stone_sprite, 0, 0, 160);
 	CAT_draw_sprite(&floor_stone_sprite, 0, 0, 0);
-	
+
 	int counter_x = counter_rect.min.x;
 	int counter_y = counter_rect.min.y;
 	int counter_w = counter_rect.max.x - counter_x;
 	int counter_h = counter_rect.max.y - counter_y;
 	CAT_draw_sprite(&feed_upper_tray_sprite, 0, 0, 0);
-	if(food_pool.length <= 0)
+	if (food_pool.length <= 0)
 	{
-		CAT_textfberry(counter_x+68, counter_y + 6, CAT_WHITE, 2, "Out of");
-		CAT_textfberry(counter_x+34, counter_y + 32, CAT_WHITE, 2, "food items!");
+		CAT_textfberry(counter_x + 68, counter_y + 6, CAT_WHITE, 2, "Out of");
+		CAT_textfberry(counter_x + 34, counter_y + 32, CAT_WHITE, 2, "food items!");
 	}
 
 	int table_x = table_rect.min.x;
@@ -861,34 +844,36 @@ void render_arrange()
 	CAT_push_draw_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
 	CAT_draw_sprite(&feed_tray_sprite, 0, center_x, center_y);
 
-	if(show_gizmos)
+	if (show_gizmos)
 	{
 		CAT_strokeberry(counter_x, counter_y, counter_w, counter_h, CAT_RED);
-		for(int i = 0; i < 5; i++)
+		for (int i = 0; i < 5; i++)
 		{
 			CAT_rect spawn_rect = spawn_rects[i];
-			int spawn_x = spawn_rect.min.x; int spawn_y = spawn_rect.min.y;
-			int spawn_w = spawn_rect.max.x - spawn_x; int spawn_h = spawn_rect.max.y - spawn_y;
+			int spawn_x = spawn_rect.min.x;
+			int spawn_y = spawn_rect.min.y;
+			int spawn_w = spawn_rect.max.x - spawn_x;
+			int spawn_h = spawn_rect.max.y - spawn_y;
 			CAT_strokeberry(spawn_x, spawn_y, spawn_w, spawn_h, CAT_WHITE);
 		}
 
 		CAT_strokeberry(table_x, table_y, table_w, table_h, CAT_BLUE);
 	}
 
-	for(int i = food_count-1; i >= 0; i--)
+	for (int i = food_count - 1; i >= 0; i--)
 	{
-		CAT_item* food = food_lookup(i);
+		CAT_item *food = food_lookup(i);
 		CAT_ivec2 food_pos = food_list[i].position;
 		CAT_rect food_rect = CAT_rect_center(food_pos.x, food_pos.y, FOOD_COLLISION_W, FOOD_COLLISION_H);
 		CAT_push_draw_scale(2);
 		CAT_push_draw_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_BOTTOM);
 		CAT_draw_sprite(food->sprite, 0, food_pos.x, food_rect.max.y);
-		
-		if(show_gizmos)
+
+		if (show_gizmos)
 		{
 			CAT_circberry(food_list[i].position.x, food_list[i].position.y, FOOD_COLLISION_R, food_list[i].colliding ? CAT_RED : CAT_WHITE);
-			
-			if(food_list[i].active)
+
+			if (food_list[i].active)
 			{
 				CAT_RGB888 red = CAT_RGB24(255, 0, 0);
 				CAT_RGB888 green = CAT_RGB24(0, 255, 0);
@@ -897,39 +882,37 @@ void render_arrange()
 				CAT_lineberry(food_list[i].position.x, food_list[i].position.y, active_food_centroid.x, active_food_centroid.y, evenness_colour);
 
 				int j = food_list[i].neighbour;
-				if(j != -1 && food_list[j].active)
+				if (j != -1 && food_list[j].active)
 					CAT_lineberry(food_list[i].position.x, food_list[i].position.y, food_list[j].position.x, food_list[j].position.y, evenness_colour);
 			}
 		}
-		if(show_debug_text)
+		if (show_debug_text)
 		{
-			if(food_list[i].active)
+			if (food_list[i].active)
 			{
-				CAT_textfberry
-				(
-					food_list[i].position.x-FOOD_COLLISION_W/2,
-					food_list[i].position.y-FOOD_COLLISION_H/2-14,
+				CAT_textfberry(
+					food_list[i].position.x - FOOD_COLLISION_W / 2,
+					food_list[i].position.y - FOOD_COLLISION_H / 2 - 14,
 					CAT_WHITE, 1,
-					"%d: %0.2f", i, food_list[i].angle
-				);
+					"%d: %0.2f", i, food_list[i].angle);
 			}
 		}
 	}
 
-	if(show_gizmos)
+	if (show_gizmos)
 	{
-		if(active_food_count > 0)
+		if (active_food_count > 0)
 			CAT_circberry(active_food_centroid.x, active_food_centroid.y, CENTERPIECE_RADIUS, centerpiece_idx == -1 ? CAT_GREEN : CAT_RED);
 	}
 
 	CAT_push_draw_flags(CAT_DRAW_FLAG_BOTTOM | CAT_DRAW_FLAG_CENTER_X);
-	if(show_feedback)
+	if (show_feedback)
 		CAT_push_draw_colour(RGB8882565(64, 64, 64));
 	CAT_draw_sprite(&pet_feed_back_sprite, -1, 120, 320);
-	if(show_feedback)
+	if (show_feedback)
 		render_feedback();
 
-	if(show_debug_text)
+	if (show_debug_text)
 	{
 		CAT_gui_printf(CAT_WHITE, "variety: %0.2f", score_object.variety);
 		CAT_gui_printf(CAT_WHITE, "propriety: %0.2f", score_object.propriety);
@@ -941,25 +924,23 @@ void render_arrange()
 	}
 }
 
-static const char* group_strings[] =
-{
-	"VEG / FRUIT",
-	"STARCH",
-	"MEAT",
-	"DAIRY",
-	"MISCELLANY"
-};
+static const char *group_strings[] =
+	{
+		"VEG / FRUIT",
+		"STARCH",
+		"MEAT",
+		"DAIRY",
+		"MISCELLANY"};
 
-static const char* role_strings[] =
-{
-	"STAPLE",
-	"MAIN",
-	"SIDE",
-	"SOUP",
-	"DRINK",
-	"TREAT",
-	"VICE"
-};
+static const char *role_strings[] =
+	{
+		"STAPLE",
+		"MAIN",
+		"SIDE",
+		"SOUP",
+		"DRINK",
+		"TREAT",
+		"VICE"};
 
 static int scroll_y_anchor = 0;
 static int scroll_y_delta = 0;
@@ -976,16 +957,16 @@ int get_hovered_idx()
 	int y = SELECT_GRID_MARGIN + scroll_y_delta;
 	int idx = 0;
 
-	while(idx < food_pool.length && idx < food_pool.length)
+	while (idx < food_pool.length && idx < food_pool.length)
 	{
-		for(int col = 0; col < 3; col++)
+		for (int col = 0; col < 3; col++)
 		{
-			if(CAT_input_cursor_in_rect(x, y, 64, 64))
+			if (CAT_input_cursor_in_rect(x, y, 64, 64))
 				return idx;
 
 			x += 64 + 12;
 			idx += 1;
-			if(idx >= food_pool.length)
+			if (idx >= food_pool.length)
 				break;
 		}
 		x = SELECT_GRID_MARGIN;
@@ -1011,104 +992,104 @@ void MS_feed_select(CAT_machine_signal signal)
 {
 	switch (signal)
 	{
-		case CAT_MACHINE_SIGNAL_ENTER:
-			CAT_set_render_callback(render_select);
-			scroll_y_anchor = 0;
-			scroll_y_delta = 0;
-			last_clicked_idx = -1;
-			CAT_timer_reinit(&inspect_timer_id, 1.0f);
-			inspect_idx = -1;
+	case CAT_MACHINE_SIGNAL_ENTER:
+		CAT_set_render_callback(render_select);
+		scroll_y_anchor = 0;
+		scroll_y_delta = 0;
+		last_clicked_idx = -1;
+		CAT_timer_reinit(&inspect_timer_id, 1.0f);
+		inspect_idx = -1;
 		break;
 
-		case CAT_MACHINE_SIGNAL_TICK:
-			if(CAT_input_pressed(CAT_BUTTON_B) || CAT_input_pressed(CAT_BUTTON_SELECT))
-				CAT_machine_transition(MS_feed_arrange);
+	case CAT_MACHINE_SIGNAL_TICK:
+		if (CAT_input_pressed(CAT_BUTTON_B) || CAT_input_pressed(CAT_BUTTON_SELECT))
+			CAT_machine_transition(MS_feed_arrange);
 
-			if(CAT_input_touching())
+		if (CAT_input_touching())
+		{
+			// We always want to know this
+			int hovered_idx = get_hovered_idx();
+
+			// If this is the click frame, register any clicked box
+			if (CAT_input_touch_down())
 			{
-				// We always want to know this
-				int hovered_idx = get_hovered_idx();
-
-				// If this is the click frame, register any clicked box
-				if(CAT_input_touch_down())
-				{
-					scroll_y_anchor = input.touch.y;
-					last_clicked_idx = hovered_idx;
-				}
-
-				// Detect if this is a scroll action and quit early if so
-				int scroll_y = input.touch.y;
-				int scroll_dy = scroll_y - scroll_y_anchor;
-				if(abs(scroll_dy) > 4)
-				{
-					scroll_y_anchor = scroll_y;
-					scroll_y_delta += scroll_dy;
-					scroll_y_delta = -clamp(-scroll_y_delta, get_min_scroll_y(), get_max_scroll_y());
-
-					scrolling = true;
-					last_clicked_idx = -1;
-					CAT_timer_reset(inspect_timer_id);
-					return;
-				}
-				
-				// If we have left the last clicked box, cancel any inspection
-				if(hovered_idx != last_clicked_idx)
-				{
-					last_clicked_idx = -1;
-					CAT_timer_reset(inspect_timer_id);
-				}
-				// Otherwise continue to inspection logic
-				else if(!scrolling && last_clicked_idx != -1)
-				{
-					if(input.touch_time >= 0.5f)
-					{
-						if(CAT_timer_tick(inspect_timer_id))
-						{
-							CAT_timer_reset(inspect_timer_id);
-							inspect_idx = last_clicked_idx;
-							CAT_machine_transition(MS_feed_inspect);
-						}
-					}
-				}
+				scroll_y_anchor = input.touch.y;
+				last_clicked_idx = hovered_idx;
 			}
-			else if(CAT_input_touch_up())
-			{
-				// Only register de/selection if not scrolling
-				if(!scrolling)
-				{
-					int list_idx = -1;
-					for(int i = 0; i < food_count; i++)
-					{
-						if(food_list[i].pool_idx == last_clicked_idx)
-						{
-							list_idx = i;
-							break;
-						}
-					}
-					
-					if(list_idx == -1)
-					{
-						if(food_count == 5)
-							food_despawn(4);
-						food_spawn(last_clicked_idx);
-					}
-					else
-						food_despawn(list_idx);
-				}
 
-				scrolling = false;
+			// Detect if this is a scroll action and quit early if so
+			int scroll_y = input.touch.y;
+			int scroll_dy = scroll_y - scroll_y_anchor;
+			if (abs(scroll_dy) > 4)
+			{
+				scroll_y_anchor = scroll_y;
+				scroll_y_delta += scroll_dy;
+				scroll_y_delta = -clamp(-scroll_y_delta, get_min_scroll_y(), get_max_scroll_y());
+
+				scrolling = true;
 				last_clicked_idx = -1;
-				CAT_timer_reset(inspect_timer_id);	
+				CAT_timer_reset(inspect_timer_id);
+				return;
 			}
 
-			if(CAT_input_held(CAT_BUTTON_UP, 0))
-				scroll_y_delta += 32;
-			if(CAT_input_held(CAT_BUTTON_DOWN, 0))
-				scroll_y_delta -= 32;
-			scroll_y_delta = -clamp(-scroll_y_delta, get_min_scroll_y(), get_max_scroll_y());
+			// If we have left the last clicked box, cancel any inspection
+			if (hovered_idx != last_clicked_idx)
+			{
+				last_clicked_idx = -1;
+				CAT_timer_reset(inspect_timer_id);
+			}
+			// Otherwise continue to inspection logic
+			else if (!scrolling && last_clicked_idx != -1)
+			{
+				if (input.touch_time >= 0.5f)
+				{
+					if (CAT_timer_tick(inspect_timer_id))
+					{
+						CAT_timer_reset(inspect_timer_id);
+						inspect_idx = last_clicked_idx;
+						CAT_machine_transition(MS_feed_inspect);
+					}
+				}
+			}
+		}
+		else if (CAT_input_touch_up())
+		{
+			// Only register de/selection if not scrolling
+			if (!scrolling)
+			{
+				int list_idx = -1;
+				for (int i = 0; i < food_count; i++)
+				{
+					if (food_list[i].pool_idx == last_clicked_idx)
+					{
+						list_idx = i;
+						break;
+					}
+				}
+
+				if (list_idx == -1)
+				{
+					if (food_count == 5)
+						food_despawn(4);
+					food_spawn(last_clicked_idx);
+				}
+				else
+					food_despawn(list_idx);
+			}
+
+			scrolling = false;
+			last_clicked_idx = -1;
+			CAT_timer_reset(inspect_timer_id);
+		}
+
+		if (CAT_input_held(CAT_BUTTON_UP, 0))
+			scroll_y_delta += 32;
+		if (CAT_input_held(CAT_BUTTON_DOWN, 0))
+			scroll_y_delta -= 32;
+		scroll_y_delta = -clamp(-scroll_y_delta, get_min_scroll_y(), get_max_scroll_y());
 		break;
 
-		case CAT_MACHINE_SIGNAL_EXIT:
+	case CAT_MACHINE_SIGNAL_EXIT:
 		break;
 	}
 }
@@ -1120,32 +1101,32 @@ void render_select()
 	int x = SELECT_GRID_MARGIN;
 	int y = SELECT_GRID_MARGIN + scroll_y_delta;
 	int idx = 0;
-	while(idx < food_pool.length)
+	while (idx < food_pool.length)
 	{
-		for(int col = 0; col < 3; col++)
+		for (int col = 0; col < 3; col++)
 		{
 			CAT_draw_sprite(&ui_item_frame_bg_sprite, 0, x, y);
-			
-			CAT_item* food = CAT_item_get(food_pool.data[idx]);
+
+			CAT_item *food = CAT_item_get(food_pool.data[idx]);
 			CAT_push_draw_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
 			CAT_push_draw_scale(2);
 			CAT_draw_sprite(food->sprite, 0, x + 32, y + 32);
 
-			for(int i = 0; i < food_count; i++)
+			for (int i = 0; i < food_count; i++)
 			{
-				if(food_list[i].pool_idx == idx)
+				if (food_list[i].pool_idx == idx)
 				{
 					CAT_draw_sprite(&ui_item_frame_fg_sprite, 0, x, y);
 					break;
 				}
-			}	
-			
-			if(idx == last_clicked_idx && CAT_timer_progress(inspect_timer_id) >= 0.05f)
-				CAT_ringberry(input.touch.x, input.touch.y, 24, 18, RGB8882565(255-0, 255-141, 255-141), CAT_timer_progress(inspect_timer_id));
+			}
+
+			if (idx == last_clicked_idx && CAT_timer_progress(inspect_timer_id) >= 0.05f)
+				CAT_ringberry(input.touch.x, input.touch.y, 24, 18, RGB8882565(255 - 0, 255 - 141, 255 - 141), CAT_timer_progress(inspect_timer_id));
 
 			idx += 1;
 			x += 64 + 12;
-			if(idx >= food_pool.length)
+			if (idx >= food_pool.length)
 				break;
 		}
 
@@ -1153,34 +1134,34 @@ void render_select()
 		y += 64 + SELECT_GRID_MARGIN;
 	}
 
-	if(abs(-scroll_y_delta - get_max_scroll_y()) >= 64)
+	if (abs(-scroll_y_delta - get_max_scroll_y()) >= 64)
 	{
-		CAT_draw_sprite(&ui_down_arrow_sprite, -1, 240-32, 320-24);
+		CAT_draw_sprite(&ui_down_arrow_sprite, -1, 240 - 32, 320 - 24);
 	}
 }
 
 void MS_feed_inspect(CAT_machine_signal signal)
 {
-	switch(signal)
+	switch (signal)
 	{
-		case CAT_MACHINE_SIGNAL_ENTER:
-			CAT_set_render_callback(render_inspect);
+	case CAT_MACHINE_SIGNAL_ENTER:
+		CAT_set_render_callback(render_inspect);
 		break;
 
-		case CAT_MACHINE_SIGNAL_TICK:
-			if(CAT_input_pressed(CAT_BUTTON_B))
-				CAT_machine_transition(MS_feed_select);
-			else if(CAT_input_pressed(CAT_BUTTON_SELECT))
-				CAT_machine_transition(MS_feed_arrange);
+	case CAT_MACHINE_SIGNAL_TICK:
+		if (CAT_input_pressed(CAT_BUTTON_B))
+			CAT_machine_transition(MS_feed_select);
+		else if (CAT_input_pressed(CAT_BUTTON_SELECT))
+			CAT_machine_transition(MS_feed_arrange);
 
-			if(CAT_input_pressed(CAT_BUTTON_RIGHT))
-				inspect_idx += 1;
-			if(CAT_input_pressed(CAT_BUTTON_LEFT))
-				inspect_idx -= 1;
-			inspect_idx = (inspect_idx + food_pool.length) % food_pool.length;
+		if (CAT_input_pressed(CAT_BUTTON_RIGHT))
+			inspect_idx += 1;
+		if (CAT_input_pressed(CAT_BUTTON_LEFT))
+			inspect_idx -= 1;
+		inspect_idx = (inspect_idx + food_pool.length) % food_pool.length;
 		break;
 
-		case CAT_MACHINE_SIGNAL_EXIT:
+	case CAT_MACHINE_SIGNAL_EXIT:
 		break;
 	}
 }
@@ -1189,22 +1170,21 @@ void render_inspect()
 {
 	CAT_frameberry(RGB8882565(142, 171, 174));
 
-	CAT_item* inspectee = CAT_item_get(food_pool.data[inspect_idx]);
-	if(inspectee == NULL)
+	CAT_item *inspectee = CAT_item_get(food_pool.data[inspect_idx]);
+	if (inspectee == NULL)
 		return;
 
 	CAT_textfberry(8, 8, CAT_WHITE, 2, inspectee->name);
-	CAT_textfberry(8, 8+28, CAT_WHITE, 1, "Group: %s", group_strings[inspectee->data.tool_data.food_group]);
-	CAT_textfberry(8, 8+28+16, CAT_WHITE, 1, "Role: %s", role_strings[inspectee->data.tool_data.food_role]);
-	CAT_textfberry(8, 8+28+16+16, CAT_WHITE, 1, inspectee->text);
+	CAT_textfberry(8, 8 + 28, CAT_WHITE, 1, "Group: %s", group_strings[inspectee->data.tool_data.food_group]);
+	CAT_textfberry(8, 8 + 28 + 16, CAT_WHITE, 1, "Role: %s", role_strings[inspectee->data.tool_data.food_role]);
+	CAT_textfberry(8, 8 + 28 + 16 + 16, CAT_WHITE, 1, inspectee->text);
 
 	CAT_push_draw_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
 	CAT_push_draw_scale(6);
 	CAT_draw_sprite(inspectee->sprite, 0, 120, 160);
 }
 
-static enum
-{
+static enum {
 	PERFORMANCE,
 	VARIETY,
 	PROPRIETY,
@@ -1215,122 +1195,121 @@ static enum
 
 void MS_feed_summary(CAT_machine_signal signal)
 {
-	switch(signal)
+	switch (signal)
 	{
-		case CAT_MACHINE_SIGNAL_ENTER:
-			CAT_set_render_callback(render_summary);
-			summary_page = PERFORMANCE;
+	case CAT_MACHINE_SIGNAL_ENTER:
+		CAT_set_render_callback(render_summary);
+		summary_page = PERFORMANCE;
 		break;
 
-		case CAT_MACHINE_SIGNAL_TICK:
-			if(CAT_input_pressed(CAT_BUTTON_A) || CAT_input_pressed(CAT_BUTTON_B))
-				CAT_machine_transition(CAT_MS_room);
+	case CAT_MACHINE_SIGNAL_TICK:
+		if (CAT_input_pressed(CAT_BUTTON_A) || CAT_input_pressed(CAT_BUTTON_B))
+			CAT_machine_transition(CAT_MS_room);
 
-			// enum = (enum + ENUM_MAX) % ENUM_MAX doesn't work on embedded
-			int summary_page_proxy = summary_page;
-			if(CAT_input_pressed(CAT_BUTTON_RIGHT))
-				summary_page_proxy += 1;
-			if(CAT_input_pressed(CAT_BUTTON_LEFT))
-				summary_page_proxy -= 1;
-			summary_page = (summary_page_proxy + SUMMARY_PAGE_MAX) % SUMMARY_PAGE_MAX;
+		// enum = (enum + ENUM_MAX) % ENUM_MAX doesn't work on embedded
+		int summary_page_proxy = summary_page;
+		if (CAT_input_pressed(CAT_BUTTON_RIGHT))
+			summary_page_proxy += 1;
+		if (CAT_input_pressed(CAT_BUTTON_LEFT))
+			summary_page_proxy -= 1;
+		summary_page = (summary_page_proxy + SUMMARY_PAGE_MAX) % SUMMARY_PAGE_MAX;
 		break;
 
-		case CAT_MACHINE_SIGNAL_EXIT:
+	case CAT_MACHINE_SIGNAL_EXIT:
 		break;
 	}
 }
 
 static uint16_t grade_colours[6] =
-{
-	0x8082, // F
-	0x81e2, // C
-	0xbae4, // B-
-	0xd506, // B
-	0xad49, // A-
-	0x7d67 // A
+	{
+		0x8082, // F
+		0x81e2, // C
+		0xbae4, // B-
+		0xd506, // B
+		0xad49, // A-
+		0x7d67	// A
 };
 
 static uint16_t severity_colours[4] =
-{
-	CAT_BLACK, // BASIC
-	0xc983, // BAD
-	0x4c07, // GOOD
-	0x82B9, // SPECIAL
+	{
+		CAT_BLACK, // BASIC
+		0xc983,	   // BAD
+		0x4c07,	   // GOOD
+		0x82B9,	   // SPECIAL
 };
 
 static CAT_ivec2 registration_errors[SUMMARY_PAGE_MAX];
 
 void init_registration_errors()
 {
-	for(int i = 0; i < SUMMARY_PAGE_MAX; i++)
+	for (int i = 0; i < SUMMARY_PAGE_MAX; i++)
 	{
-		registration_errors[i] = (CAT_ivec2)
-		{
+		registration_errors[i] = (CAT_ivec2){
 			CAT_rand_int(-12, 12),
-			CAT_rand_int(-12, 12)
-		};
+			CAT_rand_int(-12, 12)};
 	}
 }
 
 int get_glyph_idx(int grade)
 {
-	if(grade == 2 || grade == 3)
+	if (grade == 2 || grade == 3)
 		return 2;
-	if(grade == 4 || grade == 5)
+	if (grade == 4 || grade == 5)
 		return 3;
-	else return grade;
+	else
+		return grade;
 }
 
 void render_summary()
 {
 	CAT_frameberry(0xef39);
 
-	const char* title = "N/A";
+	const char *title = "N/A";
 	int grade = 0;
 
 	switch (summary_page)
 	{
-		case PERFORMANCE:
-			title = "Performance";
-			grade = score_object.grade;
+	case PERFORMANCE:
+		title = "Performance";
+		grade = score_object.grade;
 		break;
-		case VARIETY:
-			title = "Variety";
-			grade = round(score_object.variety * 5);
+	case VARIETY:
+		title = "Variety";
+		grade = round(score_object.variety * 5);
 		break;
-		case PROPRIETY:
-			title = "Nutrition";
-			grade = round(score_object.propriety * 5);
+	case PROPRIETY:
+		title = "Nutrition";
+		grade = round(score_object.propriety * 5);
 		break;
-		case LAYOUT:
-			title = "Layout";
-			grade = round((score_object.spacing + score_object.evenness) * 0.5f * 5);
+	case LAYOUT:
+		title = "Layout";
+		grade = round((score_object.spacing + score_object.evenness) * 0.5f * 5);
 		break;
-		case NOTES:
-			title = "Notes";
+	case NOTES:
+		title = "Notes";
 		break;
 
-		default:
+	default:
 		break;
 	}
 
 	CAT_push_draw_colour(RGB8882565(64, 64, 64));
 	CAT_draw_sprite(&ui_left_arrow_sprite, -1, 8, 12);
 	CAT_push_draw_colour(RGB8882565(64, 64, 64));
-	CAT_draw_sprite(&ui_right_arrow_sprite, -1, 240-13-8, 12);
+	CAT_draw_sprite(&ui_right_arrow_sprite, -1, 240 - 13 - 8, 12);
 	int title_len = strlen(title);
 	int title_x = (CAT_LCD_SCREEN_W - 1 - title_len * 16) / 2;
 	CAT_textfberry(title_x, 12, CAT_BLACK, 2, title);
 
-	if(summary_page == NOTES)
+	if (summary_page == NOTES)
 	{
 		int cursor_y = 52;
-		for(int i = 0; i < note_count; i++)
+		for (int i = 0; i < note_count; i++)
 		{
 			CAT_textfberry(12, cursor_y, severity_colours[note_list[i].severity], 1, "\1 %s", note_list[i].message);
 			cursor_y += 18;
 		}
-		const char* signature = "- Inspector Reed";
+		const char *signature = "- Inspector Reed";
 		CAT_textfberry(240 - strlen(signature) * 8 - 12, cursor_y + 6, CAT_BLACK, 1, signature);
 	}
 	else
@@ -1341,36 +1320,36 @@ void render_summary()
 
 		CAT_push_draw_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
 		CAT_push_draw_colour(grade_colours[grade]);
-		CAT_draw_sprite(&ui_feed_stamp_base_sprite, grade == 2 || grade == 4, 120+registration_errors[summary_page].x, 180+registration_errors[summary_page].y);
+		CAT_draw_sprite(&ui_feed_stamp_base_sprite, grade == 2 || grade == 4, 120 + registration_errors[summary_page].x, 180 + registration_errors[summary_page].y);
 
 		int glyph_idx = get_glyph_idx(grade);
 		CAT_push_draw_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
 		CAT_push_draw_colour(grade_colours[grade]);
-		CAT_draw_sprite(&ui_feed_stamp_glyphs_sprite, glyph_idx, 120+registration_errors[summary_page].x, 180+registration_errors[summary_page].y);
+		CAT_draw_sprite(&ui_feed_stamp_glyphs_sprite, glyph_idx, 120 + registration_errors[summary_page].x, 180 + registration_errors[summary_page].y);
 	}
 }
 
 void CAT_MS_feed(CAT_machine_signal signal)
 {
-	switch(signal)
+	switch (signal)
 	{
-		case CAT_MACHINE_SIGNAL_ENTER:
-		{
-			init_spawn_rects();
-			init_item_id_pool();
-			init_food_list();
-			refresh_food_states();
-			init_scores();
-			init_registration_errors();
-			refresh_scores();
-		}
+	case CAT_MACHINE_SIGNAL_ENTER:
+	{
+		init_spawn_rects();
+		init_item_id_pool();
+		init_food_list();
+		refresh_food_states();
+		init_scores();
+		init_registration_errors();
+		refresh_scores();
+	}
+	break;
+
+	case CAT_MACHINE_SIGNAL_TICK:
+		CAT_machine_transition(MS_feed_arrange);
 		break;
 
-		case CAT_MACHINE_SIGNAL_TICK:
-			CAT_machine_transition(MS_feed_arrange);
-		break;
-
-		case CAT_MACHINE_SIGNAL_EXIT:
+	case CAT_MACHINE_SIGNAL_EXIT:
 		break;
 	}
 }

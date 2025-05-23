@@ -2591,6 +2591,16 @@
         },
         {
             "id": 254,
+            "name": "wall_alley_sprite",
+            "path": "wall/wall_alley.png",
+            "frames": 1,
+            "width": 240,
+            "height": 128,
+            "loop": false,
+            "reverse": false
+        },
+        {
+            "id": 255,
             "name": "window_dawn_sprite",
             "path": "wall/wdw_lg_dawn.png",
             "frames": 1,
@@ -2600,7 +2610,7 @@
             "reverse": false
         },
         {
-            "id": 255,
+            "id": 256,
             "name": "window_day_bad_aq_sprite",
             "path": "wall/wdw_aqi_high_a.png",
             "frames": 8,
@@ -2610,7 +2620,7 @@
             "reverse": false
         },
         {
-            "id": 256,
+            "id": 257,
             "name": "window_day_sprite",
             "path": "wall/wdw_lg_afternoon.png",
             "frames": 1,
@@ -2620,7 +2630,7 @@
             "reverse": false
         },
         {
-            "id": 257,
+            "id": 258,
             "name": "window_dusk_sprite",
             "path": "wall/wdw_lg_dusk.png",
             "frames": 1,
@@ -2630,7 +2640,7 @@
             "reverse": false
         },
         {
-            "id": 258,
+            "id": 259,
             "name": "window_evening_sprite",
             "path": "wall/wdw_lg_evening.png",
             "frames": 1,
@@ -2640,7 +2650,7 @@
             "reverse": false
         },
         {
-            "id": 259,
+            "id": 260,
             "name": "window_morning_sprite",
             "path": "wall/wdw_lg_morning.png",
             "frames": 1,
@@ -2650,7 +2660,7 @@
             "reverse": false
         },
         {
-            "id": 260,
+            "id": 261,
             "name": "window_night_sprite",
             "path": "wall/wdw_lg_night.png",
             "frames": 1,

@@ -10,9 +10,18 @@
 #define M_PI 3.14159265359
 #endif
 
-int min(int a, int b);
-int max(int a, int b);
-int clamp(int v, int a, int b);
+#ifndef max
+#define max(a, b) ((b) > (a) ? (b) : (a))
+#endif
+
+#ifndef min
+#define min(a, b) ((b) < (a) ? (b) : (a))
+#endif
+
+#ifndef clamp
+#define clamp(v, a, b) ((v) < (a) ? (a) : ((v) > (b) ? (b) : (v)))
+#endif
+
 float lerp(float a, float b, float t);
 float inv_lerp(float t, float a, float b);
 float minf(float a, float b);

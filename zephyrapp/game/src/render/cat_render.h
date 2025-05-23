@@ -111,8 +111,8 @@ typedef enum
 
 void CAT_push_draw_flags(int flags);
 void CAT_push_draw_colour(uint16_t colour);
-void CAT_push_draw_scale(unsigned int);
-void CAT_draw_sprite(const CAT_sprite* sprite, int frame_idx, int x, int y);
+void CAT_push_draw_scale(uint8_t scale);
+void CAT_draw_sprite(const CAT_sprite* sprite, int16_t frame_idx, int16_t x, int16_t y);
 
 //////////////////////////////////////////////////////////////////////////
 // THE BERRIER
