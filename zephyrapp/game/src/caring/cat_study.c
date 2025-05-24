@@ -12,7 +12,7 @@
 #define FADE_OUT_DURATION 1.0f
 #define BITE_MIN_WAIT 1.5f
 #define BITE_MAX_WAIT 3.5f
-#define VULN_TIMEOUT 0.25f
+#define VULN_TIMEOUT 0.35f
 
 void MS_cast(CAT_machine_signal signal);
 void render_MS_cast();

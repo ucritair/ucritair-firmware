@@ -1,0 +1,84 @@
+{
+    "type": "fish",
+    "schema": {
+        "name": {
+            "type": "string",
+            "permissions": [
+                "write"
+            ]
+        },
+        "display_name": {
+            "type": "string",
+            "permissions": [
+                "write"
+            ]
+        },
+        "proverb": {
+            "type": "string",
+            "permissions": [
+                "write"
+            ]
+        },
+        "min_length": {
+            "type": "float",
+            "permissions": [
+                "write"
+            ]
+        },
+        "max_length": {
+            "type": "float",
+            "permissions": [
+                "write"
+            ]
+        },
+        "min_lustre": {
+            "type": "float",
+            "permissions": [
+                "write"
+            ]
+        },
+        "max_lustre": {
+            "type": "float",
+            "permissions": [
+                "write"
+            ]
+        },
+        "min_wisdom": {
+            "type": "float",
+            "permissions": [
+                "write"
+            ]
+        },
+        "max_wisdom": {
+            "type": "float",
+            "permissions": [
+                "write"
+            ]
+        },
+        "vertices": {
+            "type": "[int]",
+            "permissions": []
+        },
+        "vertex_count": {
+            "type": "int",
+            "permissions": [
+                "read"
+            ]
+        }
+    },
+    "entries": [
+        {
+            "name": "horse_mackerel",
+            "display_name": "Horse Mackerel",
+            "proverb": "I can do all things through Christ who strengthens me.",
+            "min_length": 0.0,
+            "max_length": 0.0,
+            "min_lustre": 0.0,
+            "max_lustre": 0.0,
+            "min_wisdom": 0.0,
+            "max_wisdom": 0.0,
+            "vertices": [],
+            "vertex_count": 0
+        }
+    ]
+}

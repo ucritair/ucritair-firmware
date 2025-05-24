@@ -129,7 +129,7 @@ class AssetSchema:
 		elif isinstance(t, list):
 			return t[0];
 		elif t[0] == "[" and t[-1] == "]":
-			return [AssetSchema.__default(t[1:-1])];
+			return [];
 		else:
 			return None;
 	
@@ -296,6 +296,102 @@ class Canvas:
 		for dx in range(x, x+w):
 			self.draw_pixel(dx, y, c);
 			self.draw_pixel(dx, y+h-1, c);
+
+	def draw_line(self, xi, yi, xf, yf, c):
+		xi = int(xi);
+		yi = int(yi);
+		xf = int(xf);
+		yf = int(yf);
+	
+		steep = abs(yf-yi) > abs(xf-xi);
+		if steep:
+			temp = xi;
+			xi = yi;
+			yi = temp;
+
+			temp = xf;
+			xf = yf;
+			yf = temp;
+
+		# if the line heads left, swap its start and end points
+		leftward = xi > xf;
+		if leftward:
+			temp = xi;
+			xi = xf;
+			xf = temp;
+
+			temp = yi;
+			yi = yf;
+			yf = temp;
+		
+		dx = xf - xi;
+		dy = yf - yi;
+
+		# account for line heading up or down
+		y_step = 1 if (yf > yi) else -1;
+		y = yi;
+		
+		# approximate d_err as abs(dy) / (dx ~= 0.5)
+		d_err = abs(dy) * 2;
+		err = 0;
+
+		# if line is steep, we swap x,y in the draw call to undo our earlier transposition
+		# we employ a branch between two for loops to avoid branching within one loop
+		if steep:
+			for x in range(xi, xf):
+				xw = x;
+				if y >= 0 and y < self.width and xw >= 0 and xw < self.height:
+					self.draw_pixel(y, xw, c);
+
+				err += d_err;
+				if err > dx:
+					y += y_step;
+					err -= 2*dx;
+		else:
+			for x in range(xi, xf):
+				yw = y;
+				if x >= 0 and x < self.width and yw >= 0 and yw < self.height:
+					self.draw_pixel(x, yw, c);
+
+				err += d_err;
+				if err > dx:
+					y += y_step;
+					err -= dx*2;
+
+	def draw_circle(self, x, y, r, c):
+		x = int(x);
+		y = int(y);
+		r = int(r);
+	
+		f = 1 - r;
+		ddfx = 0;
+		ddfy = -2 * r;
+		dx = 0;
+		dy = r;
+
+		self.draw_pixel(x, y + r, c);
+		self.draw_pixel(x, y - r, c);
+		self.draw_pixel(x + r, y, c);
+		self.draw_pixel(x - r, y, c);
+
+		while dx < dy:
+			if f >= 0:
+				dy -= 1;
+				ddfy += 2;
+				f += ddfy;
+
+			dx += 1;
+			ddfx += 2;
+			f += ddfx + 1;
+
+			self.draw_pixel(x + dx, y + dy, c);
+			self.draw_pixel(x - dx, y + dy, c);
+			self.draw_pixel(x + dx, y - dy, c);
+			self.draw_pixel(x - dx, y - dy, c);
+			self.draw_pixel(x + dy, y + dx, c);
+			self.draw_pixel(x - dy, y + dx, c);
+			self.draw_pixel(x + dy, y - dx, c);
+			self.draw_pixel(x - dy, y - dx, c);
 	
 	def draw_image(self, x, y, image):
 		x = int(x);
@@ -640,11 +736,20 @@ class DocumentRenderer:
 
 			if key_type is None:
 				imgui.text(key);
+			
 			elif key_type == "int":
 				imgui.text(key);
 				imgui.same_line();
 				if writable:
 					_, node[key] = imgui.input_int(get_id(node, key), node[key]);
+				else:
+					imgui.text(str(node[key]));
+
+			elif key_type == "float":
+				imgui.text(key);
+				imgui.same_line();
+				if writable:
+					_, node[key] = imgui.input_float(get_id(node, key), node[key]);
 				else:
 					imgui.text(str(node[key]));
 
@@ -1100,6 +1205,96 @@ class ThemeEditor:
 
 
 #########################################################
+## FISH EDITOR
+
+class FishEditor:
+	_ = None;
+
+	def __init__(self):
+		if FishEditor._ != None:
+			return None;
+		FishEditor._ = self;
+
+		self.canvas = Canvas(240, 160);
+		self.canvas_scale = 2;
+		self.size = (720, 480);
+		window_flag_list = [
+			imgui.WindowFlags_.no_saved_settings,
+			imgui.WindowFlags_.no_collapse,
+		];
+		self.window_flags = foldl(lambda a, b : a | b, 0, window_flag_list);
+		self.open = True;
+
+		self.show_grid = True;
+
+		self.fishes = asset_docs["fish"].entries;
+		self.fish = self.fishes[0];
+		
+		self.cell_dist = 4;
+		self.grid_width = self.canvas.width // self.cell_dist;
+		self.gri_height = self.canvas.height // self.cell_dist;
+		self.cursor = (0, 0);
+		self.was_click = False;
+
+	def render():
+		if FishEditor._ == None:
+			return;
+		self = FishEditor._;
+
+		if self.open:
+			imgui.set_next_window_size(self.size);
+			_, self.open = imgui.begin(f"Fish Editor", self.open, flags=self.window_flags);
+
+			if imgui.begin_combo(f"Fish", self.fish["name"]):
+				for fish in self.fishes:
+					selected = fish == self.fish;
+					if imgui.selectable(fish["name"], selected)[0]:
+						self.fish = fish;
+					if selected:
+						imgui.set_item_default_focus();
+				imgui.end_combo();	
+
+			canvas_pos = imgui.get_cursor_screen_pos();
+			self.canvas.clear((0, 0, 0));
+			if self.show_grid:
+				for y in range(1, self.gri_height):
+					for x in range(1, self.grid_width):
+						self.canvas.draw_pixel(x * self.cell_dist, y * self.cell_dist, (128, 128, 128));
+			if self.fish["vertex_count"] > 1:
+				for i in range(self.fish["vertex_count"]-1):
+					x0 = self.fish["vertices"][i * 2 + 0];
+					y0 = self.fish["vertices"][i * 2 + 1];
+					x1 = self.fish["vertices"][(i+1) * 2 + 0];
+					y1 = self.fish["vertices"][(i+1) * 2 + 1];
+					self.canvas.draw_line(x0, y0, x1, y1, (255, 255, 255));
+
+			mouse_pos = imgui_io.mouse_pos;
+			brush_pos = mouse_pos - canvas_pos;
+			if brush_pos.x >= 0 and brush_pos.x < self.canvas.width * self.canvas_scale and brush_pos.y >= 0 and brush_pos.y < self.canvas.height * self.canvas_scale:
+				self.cursor = (brush_pos.x // (self.cell_dist * self.canvas_scale), brush_pos.y // (self.cell_dist * self.canvas_scale));
+				self.canvas.draw_circle(self.cursor[0] * self.cell_dist, self.cursor[1] * self.cell_dist, 2, (255, 255, 255));
+				if imgui.is_mouse_down(0) and not self.was_click:
+					self.fish["vertices"].append(self.cursor[0] * self.cell_dist);
+					self.fish["vertices"].append(self.cursor[1] * self.cell_dist);
+					self.fish["vertex_count"] += 1;
+					self.was_click = True;
+				elif not imgui.is_mouse_down(0):
+					self.was_click = False;
+			
+			self.canvas.render(self.canvas_scale);
+			_, self.show_grid = imgui.checkbox("Show grid", self.show_grid);
+			if imgui.button("Clear"):
+				self.fish["vertex_count"] = 0;
+				self.fish["vertices"] = [];
+			
+			self.size = imgui.get_window_size();
+			imgui.end();
+		
+		if not self.open:
+			FishEditor._ = None;
+
+
+#########################################################
 ## EDITOR GUI
 
 splash_img = Image.open("editor/splash.png");
@@ -1180,6 +1375,8 @@ while not glfw.window_should_close(handle):
 				AnimationViewer();
 			if imgui.menu_item_simple("Theme Editor"):
 				ThemeEditor();	
+			if imgui.menu_item_simple("Fish Editor"):
+				FishEditor();	
 			imgui.end_menu();
 	
 		if imgui.begin_menu("Utils"):
@@ -1205,6 +1402,8 @@ while not glfw.window_should_close(handle):
 		AnimationViewer.render();
 	if ThemeEditor._ != None:
 		ThemeEditor.render();
+	if FishEditor._ != None:
+		FishEditor.render();
 
 	imgui.end();
 	imgui.render();
