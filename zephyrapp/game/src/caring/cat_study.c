@@ -8,12 +8,18 @@
 #include "sprite_assets.h"
 
 #define SCREEN_DIAG 400
-#define FADE_DURATION 1.0f
+#define FADE_IN_DURATION 2.0f
+#define FADE_OUT_DURATION 1.0f
+#define BITE_MIN_WAIT 1.5f
+#define BITE_MAX_WAIT 3.5f
+#define VULN_TIMEOUT 0.25f
 
 void MS_cast(CAT_machine_signal signal);
 void render_MS_cast();
 void MS_fish(CAT_machine_signal signal);
 void render_MS_fish();
+void MS_catch(CAT_machine_signal signal);
+void render_MS_catch();
 
 typedef struct
 {
@@ -91,21 +97,228 @@ void render_rings()
 	}
 }
 
-CAT_vec2 cursor;
+struct
+{
+	CAT_ivec2 center;
+	int length;
+
+	float target;
+	float guess;
+	bool committed;
+	float error;
+
+	int vertices[10*2];
+} pole;
+
+void init_pole(CAT_ivec2 center, int length)
+{
+	pole.center = center;
+	pole.length = length;
+
+	pole.target = CAT_rand_float(0.2, 0.8);
+	pole.guess = 0;
+	pole.committed = false;
+	pole.error = 0;
+
+	int top_x = 0; int top_y = -length/2;
+	int bottom_x = 0; int bottom_y = length/2;
+	int top_left_x = top_x - 8; int top_left_y = top_y + 8;
+	int top_right_x = top_x + 8; int top_right_y = top_y + 8;
+	int bottom_left_x = bottom_x - 8; int bottom_left_y = bottom_y - 8;
+	int bottom_right_x = bottom_x + 8; int bottom_right_y = bottom_y - 8;
+	pole.vertices[0] = top_x;
+	pole.vertices[1] = top_y;
+	pole.vertices[2] = top_left_x;
+	pole.vertices[3] = top_left_y;
+	pole.vertices[4] = top_x;
+	pole.vertices[5] = top_y;
+	pole.vertices[6] = top_right_x;
+	pole.vertices[7] = top_right_y;
+	pole.vertices[8] = top_x;
+	pole.vertices[9] = top_y;
+	pole.vertices[10] = bottom_x;
+	pole.vertices[11] = bottom_y;
+	pole.vertices[12] = bottom_x;
+	pole.vertices[13] = bottom_y;
+	pole.vertices[14] = bottom_left_x;
+	pole.vertices[15] = bottom_left_y;
+	pole.vertices[16] = bottom_x;
+	pole.vertices[17] = bottom_y;
+	pole.vertices[18] = bottom_right_x;
+	pole.vertices[19] = bottom_right_y;
+}
+
+CAT_ivec2 point_on_bar(float t)
+{
+	int x = pole.center.x;
+	int y =
+	pole.center.y + pole.length / 2 -
+	pole.length * t;
+	return (CAT_ivec2) {x, y};
+}
+
+void render_pole()
+{
+	CAT_polyberry
+	(
+		pole.center.x, pole.center.y,
+		pole.vertices, 10,
+		CAT_WHITE,
+		CAT_POLY_MODE_LINES
+	);
+
+	CAT_ivec2 target = point_on_bar(pole.target);
+	CAT_ivec2 guess = point_on_bar(pole.guess);
+	CAT_discberry(target.x, target.y, pole.committed ? 3 : 4, CAT_RED);
+	CAT_circberry(guess.x, guess.y, 6, CAT_WHITE);
+	if(pole.committed)
+		CAT_circberry(target.x, target.y, pole.error * pole.length, CAT_RED);
+}
+
+float cast_t = 0.0f;
+float cast_dir = 1.0f;
+
+bool fading_out = false;
+float fade_out_t = 0.0f;
+
+void MS_cast(CAT_machine_signal signal)
+{
+	switch (signal)
+	{
+		case CAT_MACHINE_SIGNAL_ENTER:
+		{
+			CAT_set_render_callback(render_MS_cast);
+			init_rings();
+			init_pole((CAT_ivec2){CAT_LCD_SCREEN_W/2, CAT_LCD_SCREEN_H/2}, CAT_LCD_SCREEN_H * 0.75f);
+			cast_t = 0;
+			cast_dir = 0;
+			fading_out = false;
+			fade_out_t = 0;
+		}
+		break;
+
+		case CAT_MACHINE_SIGNAL_TICK:
+		{
+			if(CAT_input_pressed(CAT_BUTTON_B) || CAT_input_pressed(CAT_BUTTON_START))
+				CAT_machine_transition(CAT_MS_room);
+
+			if(CAT_input_pressed(CAT_BUTTON_A))
+			{
+				if(!pole.committed)
+				{
+					pole.committed = true;
+					pole.error = fabs(pole.target - pole.guess);
+
+					spawn_ring(CAT_iv2v(point_on_bar(pole.target)), SCREEN_DIAG, 320);
+				}
+				else if(!fading_out)
+				{
+					fading_out = true;
+					customize_ring
+					(
+						spawn_ring
+						(
+							CAT_iv2v(point_on_bar(pole.target)),
+							SCREEN_DIAG * 2, SCREEN_DIAG / FADE_OUT_DURATION
+						),
+						CAT_BLACK, true
+					);
+				}
+			}
+
+			if(!pole.committed)
+			{
+				cast_t += cast_dir * CAT_get_delta_time_s() / 3.0f;
+				cast_t = clamp(cast_t, 0.2f, 0.8f);
+				if(cast_t >= 0.79f)
+					cast_dir = -1.0f;
+				else if(cast_t <= 0.21f)
+					cast_dir = 1.0f;
+				pole.guess = CAT_ease_inout_elastic(cast_t);
+			}
+			else if(fading_out)
+			{
+				fade_out_t += CAT_get_delta_time_s();
+				if(fade_out_t >= FADE_OUT_DURATION)
+					CAT_machine_transition(MS_fish);
+			}
+
+			rings_tick();
+		}
+		break;
+
+		case CAT_MACHINE_SIGNAL_EXIT:
+		break;
+	}
+}
+
+void render_MS_cast()
+{
+	CAT_frameberry(CAT_BLACK);
+	render_pole();
+	render_rings();
+}
+
+CAT_vec2 hook;
+
+typedef struct
+{
+	const char* name;
+	const char* proverb;
+
+	float min_length;
+	float max_length;
+	float min_lustre;
+	float max_lustre;
+	float min_wisdom;
+	float max_wisdom;
+} study_fish_type;
+
+const study_fish_type horse_mackerel =
+{
+	.name = "Horse Mackerel",
+	.proverb = "I can do all things\nthrough Christ who\nstrengthens me.",
+	.min_length = 0.15, .max_length = 0.4,
+	.min_lustre = 0.5, .max_lustre = 0.8,
+	.min_wisdom = 0.1, .max_wisdom = 0.3
+};
+
+const study_fish_type* fish_types[1] =
+{
+	&horse_mackerel
+};
+#define FISH_TYPE_COUNT (sizeof(fish_types)/sizeof(fish_types[0]))
 
 struct
 {
+	const study_fish_type* type;
+	float length;
+	float lustre;
+	float wisdom;
+
 	CAT_vec2 positions[3];
 	CAT_vec2 headings[3];
 	float radii[3];
 	CAT_vec2 target;
-} fish;
 
-int fish_turn_timer_id = -1;
-bool fish_bite_trigger = true;
+	bool bite_trigger;
+	int bite_timer_id;
+
+	bool vuln_trigger;
+	int vuln_timer_id;
+} fish =
+{
+	.bite_timer_id = -1,
+	.vuln_timer_id = -1
+};
 
 void init_fish(CAT_vec2 lead_position, CAT_vec2 lead_heading, float lead_radius)
 {
+	fish.type = fish_types[CAT_rand_int(0, FISH_TYPE_COUNT-1)];
+	fish.length = CAT_rand_float(fish.type->min_length, fish.type->max_length);
+	fish.lustre = CAT_rand_float(fish.type->min_lustre, fish.type->max_lustre);
+	fish.wisdom = CAT_rand_float(fish.type->min_wisdom, fish.type->max_wisdom);
+
 	fish.positions[0] = lead_position;
 	fish.headings[0] = lead_heading;
 	fish.radii[0] = lead_radius;
@@ -118,34 +331,71 @@ void init_fish(CAT_vec2 lead_position, CAT_vec2 lead_heading, float lead_radius)
 		fish.headings[i] = lead_heading;	
 	}
 
-	CAT_timer_reinit(&fish_turn_timer_id, 3.0f);
+	fish.bite_trigger = false;
+	CAT_timer_reinit(&fish.bite_timer_id, 3.0f);
+
+	fish.vuln_trigger = false;
+	CAT_timer_reinit(&fish.vuln_timer_id, VULN_TIMEOUT);
 }
 
 void fish_tick()
 {
-	CAT_vec2 axis = CAT_vec2_sub(cursor, fish.positions[0]);
-	if(CAT_vec2_mag2(axis) < fish.radii[0])
-	{
-		if(fish_bite_trigger)
-		{
-			spawn_ring(cursor, SCREEN_DIAG, 64);
-			fish_bite_trigger = false;
-		}
-		return;
-	}
-	else
-	{
-		fish_bite_trigger = true;
-	}
-		
+	CAT_vec2 axis = CAT_vec2_sub(hook, fish.positions[0]);
+
 	fish.headings[0] = CAT_vec2_unit(axis);
 	fish.positions[0] = CAT_vec2_add(fish.positions[0],  CAT_vec2_mul(fish.headings[0], 64 * CAT_get_delta_time_s()));
-		
+
 	for(int i = 1; i < 3; i++)
 	{
 		fish.headings[i] = CAT_vec2_unit(CAT_vec2_sub(fish.positions[i-1], fish.positions[i]));
 		float interspace = fish.radii[i-1] + fish.radii[0] / 2 + fish.radii[i];
 		fish.positions[i] = CAT_vec2_add(fish.positions[i-1], CAT_vec2_mul(fish.headings[i], -interspace));
+	}
+
+	if(!fish.bite_trigger)
+	{
+		if(CAT_vec2_mag2(axis) < fish.radii[0])
+		{
+			fish.bite_trigger = true;
+			CAT_timer_reinit(&fish.bite_timer_id, CAT_rand_float(BITE_MIN_WAIT, BITE_MAX_WAIT));
+		}
+	}
+	else
+	{
+		if(CAT_vec2_mag2(axis) >= fish.radii[0] + 4)
+		{
+			fish.bite_trigger = false;
+		}
+		else
+		{
+			if(CAT_timer_tick(fish.bite_timer_id))
+			{
+				if(CAT_rand_chance(3))
+				{
+					fish.vuln_trigger = true;
+					CAT_timer_reinit(&fish.vuln_timer_id, VULN_TIMEOUT);
+
+					for(int i = 0; i < 3; i++)
+					{
+						int ring_idx = spawn_ring(hook, 400, 64);
+						rings[ring_idx].radius += i * 12;
+					}
+				}
+				else
+				{
+					spawn_ring(hook, 400, 64);
+				}
+				CAT_timer_reinit(&fish.bite_timer_id, CAT_rand_float(BITE_MIN_WAIT, BITE_MAX_WAIT));
+			}
+		}
+	}
+
+	if(fish.vuln_trigger)
+	{
+		if(CAT_timer_tick(fish.vuln_timer_id))
+		{
+			fish.vuln_trigger = false;
+		}
 	}
 }
 
@@ -164,168 +414,6 @@ void render_fish()
 	CAT_lineberry(fish.positions[0].x, fish.positions[0].y, right_tip.x, right_tip.y, CAT_RED);
 }
 
-struct
-{
-	CAT_ivec2 center;
-	int length;
-
-	float target;
-	float guess;
-	bool committed;
-	float error;
-
-	int vertices[10*2];
-} casting_bar;
-
-void init_casting_bar(CAT_ivec2 center, int length)
-{
-	casting_bar.center = center;
-	casting_bar.length = length;
-
-	casting_bar.target = CAT_rand_float(0.2, 0.8);
-	casting_bar.guess = 0;
-	casting_bar.committed = false;
-	casting_bar.error = 0;
-
-	int top_x = 0; int top_y = -length/2;
-	int bottom_x = 0; int bottom_y = length/2;
-	int top_left_x = top_x - 8; int top_left_y = top_y + 8;
-	int top_right_x = top_x + 8; int top_right_y = top_y + 8;
-	int bottom_left_x = bottom_x - 8; int bottom_left_y = bottom_y - 8;
-	int bottom_right_x = bottom_x + 8; int bottom_right_y = bottom_y - 8;
-	casting_bar.vertices[0] = top_x;
-	casting_bar.vertices[1] = top_y;
-	casting_bar.vertices[2] = top_left_x;
-	casting_bar.vertices[3] = top_left_y;
-	casting_bar.vertices[4] = top_x;
-	casting_bar.vertices[5] = top_y;
-	casting_bar.vertices[6] = top_right_x;
-	casting_bar.vertices[7] = top_right_y;
-	casting_bar.vertices[8] = top_x;
-	casting_bar.vertices[9] = top_y;
-	casting_bar.vertices[10] = bottom_x;
-	casting_bar.vertices[11] = bottom_y;
-	casting_bar.vertices[12] = bottom_x;
-	casting_bar.vertices[13] = bottom_y;
-	casting_bar.vertices[14] = bottom_left_x;
-	casting_bar.vertices[15] = bottom_left_y;
-	casting_bar.vertices[16] = bottom_x;
-	casting_bar.vertices[17] = bottom_y;
-	casting_bar.vertices[18] = bottom_right_x;
-	casting_bar.vertices[19] = bottom_right_y;
-}
-
-CAT_ivec2 point_on_bar(float t)
-{
-	int x = casting_bar.center.x;
-	int y =
-	casting_bar.center.y + casting_bar.length / 2 -
-	casting_bar.length * t;
-	return (CAT_ivec2) {x, y};
-}
-
-void render_casting_bar()
-{
-	CAT_polyberry
-	(
-		casting_bar.center.x, casting_bar.center.y,
-		casting_bar.vertices, 10,
-		CAT_WHITE,
-		CAT_POLY_MODE_LINES
-	);
-
-	CAT_ivec2 target = point_on_bar(casting_bar.target);
-	CAT_ivec2 guess = point_on_bar(casting_bar.guess);
-	CAT_discberry(target.x, target.y, casting_bar.committed ? 3 : 4, CAT_RED);
-	CAT_circberry(guess.x, guess.y, 6, CAT_WHITE);
-	if(casting_bar.committed)
-		CAT_circberry(target.x, target.y, casting_bar.error * casting_bar.length, CAT_RED);
-}
-
-float cast_t = 0.0f;
-float cast_dir = 1.0f;
-
-bool fading = false;
-float fade_t = 0.0f;
-
-void MS_cast(CAT_machine_signal signal)
-{
-	switch (signal)
-	{
-		case CAT_MACHINE_SIGNAL_ENTER:
-		{
-			CAT_set_render_callback(render_MS_cast);
-			init_rings();
-			init_casting_bar((CAT_ivec2){CAT_LCD_SCREEN_W/2, CAT_LCD_SCREEN_H/2}, CAT_LCD_SCREEN_H * 0.75f);
-			cast_t = 0;
-			cast_dir = 0;
-			fading = false;
-			fade_t = 0;
-		}
-		break;
-
-		case CAT_MACHINE_SIGNAL_TICK:
-		{
-			if(CAT_input_pressed(CAT_BUTTON_B) || CAT_input_pressed(CAT_BUTTON_START))
-				CAT_machine_transition(CAT_MS_room);
-
-			if(CAT_input_pressed(CAT_BUTTON_A))
-			{
-				if(!casting_bar.committed)
-				{
-					casting_bar.committed = true;
-					casting_bar.error = fabs(casting_bar.target - casting_bar.guess);
-
-					spawn_ring(CAT_iv2v(point_on_bar(casting_bar.target)), SCREEN_DIAG, 320);
-				}
-				else if(!fading)
-				{
-					fading = true;
-					customize_ring
-					(
-						spawn_ring
-						(
-							CAT_iv2v(point_on_bar(casting_bar.target)),
-							SCREEN_DIAG * 2, SCREEN_DIAG / FADE_DURATION
-						),
-						CAT_BLACK, true
-					);
-				}
-			}
-
-			if(!casting_bar.committed)
-			{
-				cast_t += cast_dir * CAT_get_delta_time_s() / 3.0f;
-				cast_t = clamp(cast_t, 0.2f, 0.8f);
-				if(cast_t >= 0.79f)
-					cast_dir = -1.0f;
-				else if(cast_t <= 0.21f)
-					cast_dir = 1.0f;
-				casting_bar.guess = CAT_ease_inout_elastic(cast_t);
-			}
-			else if(fading)
-			{
-				fade_t += CAT_get_delta_time_s();
-				if(fade_t >= FADE_DURATION)
-					CAT_machine_transition(MS_fish);
-			}
-
-			rings_tick();
-		}
-		break;
-
-		case CAT_MACHINE_SIGNAL_EXIT:
-		break;
-	}
-}
-
-void render_MS_cast()
-{
-	CAT_frameberry(CAT_BLACK);
-	render_casting_bar();
-	render_rings();
-}
-
 void MS_fish(CAT_machine_signal signal)
 {
 	switch (signal)
@@ -334,8 +422,8 @@ void MS_fish(CAT_machine_signal signal)
 		{
 			CAT_set_render_callback(render_MS_fish);
 			init_rings();
-			init_fish((CAT_vec2) {120, 160}, (CAT_vec2) {0, 1.0f}, 16.0f);
-			cursor = (CAT_vec2) {120, 160};
+			init_fish((CAT_vec2) {120, 0}, (CAT_vec2) {0, 1.0f}, 16.0f);
+			hook = (CAT_vec2) {120, 160};
 		}
 		break;
 
@@ -346,24 +434,32 @@ void MS_fish(CAT_machine_signal signal)
 
 			if(CAT_input_touching())
 			{
-				cursor = CAT_iv2v(CAT_input_cursor());
+				hook = CAT_iv2v(CAT_input_cursor());
 			}
 			else
 			{
 				float speed = 96 * CAT_get_delta_time_s();
 				if(CAT_input_held(CAT_BUTTON_UP, 0))
-					cursor.y -= speed;
+					hook.y -= speed;
 				if(CAT_input_held(CAT_BUTTON_DOWN, 0))
-					cursor.y += speed;
+					hook.y += speed;
 				if(CAT_input_held(CAT_BUTTON_LEFT, 0))
-					cursor.x -= speed;
+					hook.x -= speed;
 				if(CAT_input_held(CAT_BUTTON_RIGHT, 0))
-					cursor.x += speed;
+					hook.x += speed;
+			}
+
+			if(CAT_input_pressed(CAT_BUTTON_A))
+			{
+				if(fish.vuln_trigger)
+				{
+					CAT_machine_transition(MS_catch);
+				}
 			}
 				
-			cursor.x = clamp(cursor.x, 0, CAT_LCD_SCREEN_W-1);
-			cursor.y = clamp(cursor.y, 0, CAT_LCD_SCREEN_H-1);
-			
+			hook.x = clamp(hook.x, 0, CAT_LCD_SCREEN_W-1);
+			hook.y = clamp(hook.y, 0, CAT_LCD_SCREEN_H-1);
+
 			fish_tick();
 			rings_tick();
 		}
@@ -383,7 +479,42 @@ void render_MS_fish()
 
 	CAT_push_draw_colour(CAT_WHITE);
 	CAT_push_draw_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
-	CAT_draw_sprite(&gizmo_target_17x17_sprite, 0, cursor.x, cursor.y);
+	CAT_draw_sprite(&gizmo_target_17x17_sprite, 0, hook.x, hook.y);
+}
+
+void MS_catch(CAT_machine_signal signal)
+{
+	switch (signal)
+	{
+		case CAT_MACHINE_SIGNAL_ENTER:
+			CAT_set_render_callback(render_MS_catch);
+		break;
+
+		case CAT_MACHINE_SIGNAL_TICK:
+		{
+			if(CAT_input_pressed(CAT_BUTTON_B) || CAT_input_pressed(CAT_BUTTON_START))
+				CAT_machine_transition(CAT_MS_room);
+		}
+		break;
+
+		case CAT_MACHINE_SIGNAL_EXIT:
+		break;
+	}
+}
+
+void render_MS_catch()
+{
+	CAT_frameberry(CAT_BLACK);
+
+	int cursor_y = 0;
+	CAT_textfberry(12, (cursor_y += 12), CAT_WHITE, 2, fish.type->name);
+	CAT_textfberry(12, (cursor_y += 36), CAT_WHITE, 1, fish.type->proverb);
+	CAT_textfberry(12, (cursor_y += 52), CAT_WHITE, 1, "Length: %0.0f cm", fish.length * 100);
+	CAT_lineberry(12, (cursor_y += 20), 12 + CAT_LCD_SCREEN_W * 0.75 * inv_lerp(fish.length, fish.type->min_length, fish.type->max_length), cursor_y, CAT_WHITE);
+	CAT_textfberry(12, (cursor_y += 16), CAT_WHITE, 1, "Lustre: %0.2f", fish.lustre);
+	CAT_lineberry(12, (cursor_y += 20), 12 + CAT_LCD_SCREEN_W * 0.75 * inv_lerp(fish.lustre, fish.type->min_lustre, fish.type->max_lustre), cursor_y, CAT_WHITE);
+	CAT_textfberry(12, (cursor_y += 16), CAT_WHITE, 1, "Wisdom: %0.2f", fish.wisdom);
+	CAT_lineberry(12, (cursor_y += 20), 12 + CAT_LCD_SCREEN_W * 0.75 * inv_lerp(fish.wisdom, fish.type->min_wisdom, fish.type->max_wisdom), cursor_y, CAT_WHITE);
 }
 
 void CAT_MS_study(CAT_machine_signal signal)
