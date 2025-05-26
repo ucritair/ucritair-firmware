@@ -12,7 +12,7 @@
 #define FADE_OUT_DURATION 1.0f
 #define BITE_MIN_WAIT 1.5f
 #define BITE_MAX_WAIT 3.5f
-#define VULN_TIMEOUT 0.35f
+#define VULN_FRAMES 3
 
 void MS_cast(CAT_machine_signal signal);
 void render_MS_cast();
@@ -305,12 +305,20 @@ struct
 	int bite_timer_id;
 
 	bool vuln_trigger;
-	int vuln_timer_id;
+	int vuln_frame_counter;
 } fish =
 {
 	.bite_timer_id = -1,
-	.vuln_timer_id = -1
 };
+
+void ring_burst(int n, CAT_vec2 pos, int speed)
+{
+	for(int i = 0; i < n; i++)
+	{
+		int ring_idx = spawn_ring(pos, 400, speed);
+		rings[ring_idx].radius += i * 12;
+	}
+}
 
 void init_fish(CAT_vec2 lead_position, CAT_vec2 lead_heading, float lead_radius)
 {
@@ -335,34 +343,70 @@ void init_fish(CAT_vec2 lead_position, CAT_vec2 lead_heading, float lead_radius)
 	CAT_timer_reinit(&fish.bite_timer_id, 3.0f);
 
 	fish.vuln_trigger = false;
-	CAT_timer_reinit(&fish.vuln_timer_id, VULN_TIMEOUT);
+	fish.vuln_frame_counter = 0;
+}
+
+CAT_vec2 rotate(CAT_vec2 u, float t)
+{
+	return (CAT_vec2)
+	{
+		cos(t) * u.x - sin(t) * u.y,
+		sin(t) * u.x + cos(t) * u.y
+	};
 }
 
 void fish_tick()
 {
-	CAT_vec2 axis = CAT_vec2_sub(hook, fish.positions[0]);
+	if(fish.vuln_trigger)
+	{	
+		if(fish.vuln_frame_counter > VULN_FRAMES)
+			fish.vuln_trigger = false;
+		fish.vuln_frame_counter += 1;
+	}
 
-	fish.headings[0] = CAT_vec2_unit(axis);
-	fish.positions[0] = CAT_vec2_add(fish.positions[0],  CAT_vec2_mul(fish.headings[0], 64 * CAT_get_delta_time_s()));
-
-	for(int i = 1; i < 3; i++)
+	CAT_vec2 beeline = CAT_vec2_sub(hook, fish.positions[0]);
+	float distance = sqrt(CAT_vec2_mag2(beeline));
+	CAT_vec2 axis = CAT_vec2_div(beeline, distance);
+	if(distance >= fish.radii[0])
 	{
-		fish.headings[i] = CAT_vec2_unit(CAT_vec2_sub(fish.positions[i-1], fish.positions[i]));
-		float interspace = fish.radii[i-1] + fish.radii[0] / 2 + fish.radii[i];
-		fish.positions[i] = CAT_vec2_add(fish.positions[i-1], CAT_vec2_mul(fish.headings[i], -interspace));
+		fish.headings[0] = axis;
+		fish.positions[0] = CAT_vec2_add(fish.positions[0],  CAT_vec2_mul(axis, 64 * CAT_get_delta_time_s()));
+	}
+	else if(!fish.bite_trigger)
+	{
+		fish.bite_trigger = true;
+		CAT_timer_reinit(&fish.bite_timer_id, CAT_rand_float(BITE_MIN_WAIT, BITE_MAX_WAIT));
 	}
 
 	if(!fish.bite_trigger)
 	{
-		if(CAT_vec2_mag2(axis) < fish.radii[0])
+		for(int i = 1; i < 3; i++)
 		{
-			fish.bite_trigger = true;
-			CAT_timer_reinit(&fish.bite_timer_id, CAT_rand_float(BITE_MIN_WAIT, BITE_MAX_WAIT));
+			CAT_vec2 heading = CAT_vec2_unit(CAT_vec2_sub(fish.positions[i-1], fish.positions[i]));
+			float interspace = fish.radii[i-1] + fish.radii[0] / 2 + fish.radii[i];
+			CAT_vec2 position = CAT_vec2_add(fish.positions[i-1], CAT_vec2_mul(heading, -interspace));
+			fish.headings[i] = heading;
+			fish.positions[i] = position;
 		}
 	}
 	else
 	{
-		if(CAT_vec2_mag2(axis) >= fish.radii[0] + 4)
+		for(int i = 1; i < 3; i++)
+		{
+			CAT_vec2 heading = fish.headings[i-1];
+			CAT_vec2 normal = (CAT_vec2) {heading.y, -heading.x};
+			float amplitude = 0.5f * sin(CAT_get_uptime_ms() / 1000.0f + (2-i));
+			heading = rotate(heading, amplitude);
+			float interspace = fish.radii[i-1] + fish.radii[0] / 2 + fish.radii[i];
+			CAT_vec2 position = CAT_vec2_add(fish.positions[i-1], CAT_vec2_mul(heading, -interspace));
+			fish.headings[i] = heading;
+			fish.positions[i] = position;
+		}	
+	}
+
+	if(fish.bite_trigger)
+	{
+		if(distance > fish.radii[0] * 2)
 		{
 			fish.bite_trigger = false;
 		}
@@ -373,28 +417,15 @@ void fish_tick()
 				if(CAT_rand_chance(3))
 				{
 					fish.vuln_trigger = true;
-					CAT_timer_reinit(&fish.vuln_timer_id, VULN_TIMEOUT);
-
-					for(int i = 0; i < 3; i++)
-					{
-						int ring_idx = spawn_ring(hook, 400, 64);
-						rings[ring_idx].radius += i * 12;
-					}
+					fish.vuln_frame_counter = 0;
+					ring_burst(3, hook, 64);
 				}
 				else
 				{
-					spawn_ring(hook, 400, 64);
+					ring_burst(CAT_rand_int(1, 3), hook, 64);
 				}
 				CAT_timer_reinit(&fish.bite_timer_id, CAT_rand_float(BITE_MIN_WAIT, BITE_MAX_WAIT));
 			}
-		}
-	}
-
-	if(fish.vuln_trigger)
-	{
-		if(CAT_timer_tick(fish.vuln_timer_id))
-		{
-			fish.vuln_trigger = false;
 		}
 	}
 }
@@ -448,17 +479,20 @@ void MS_fish(CAT_machine_signal signal)
 				if(CAT_input_held(CAT_BUTTON_RIGHT, 0))
 					hook.x += speed;
 			}
+			hook.x = clamp(hook.x, 0, CAT_LCD_SCREEN_W-1);
+			hook.y = clamp(hook.y, 0, CAT_LCD_SCREEN_H-1);
 
-			if(CAT_input_pressed(CAT_BUTTON_A))
+			if(CAT_input_held(CAT_BUTTON_A, 0))
 			{
 				if(fish.vuln_trigger)
 				{
 					CAT_machine_transition(MS_catch);
 				}
-			}
-				
-			hook.x = clamp(hook.x, 0, CAT_LCD_SCREEN_W-1);
-			hook.y = clamp(hook.y, 0, CAT_LCD_SCREEN_H-1);
+				else
+				{
+					CAT_machine_transition(MS_cast);
+				}
+			}	
 
 			fish_tick();
 			rings_tick();
@@ -477,7 +511,7 @@ void render_MS_fish()
 	render_fish();
 	render_rings();
 
-	CAT_push_draw_colour(CAT_WHITE);
+	CAT_push_draw_colour(fish.vuln_trigger ? CAT_RED : CAT_WHITE);
 	CAT_push_draw_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
 	CAT_draw_sprite(&gizmo_target_17x17_sprite, 0, hook.x, hook.y);
 }

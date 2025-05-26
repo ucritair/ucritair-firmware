@@ -1255,6 +1255,18 @@ class FishEditor:
 				imgui.end_combo();	
 
 			canvas_pos = imgui.get_cursor_screen_pos();
+			mouse_pos = imgui_io.mouse_pos;
+			brush_pos = mouse_pos - canvas_pos;
+			if brush_pos.x >= 0 and brush_pos.x < self.canvas.width * self.canvas_scale and brush_pos.y >= 0 and brush_pos.y < self.canvas.height * self.canvas_scale:
+				self.cursor = (brush_pos.x // (self.cell_dist * self.canvas_scale), brush_pos.y // (self.cell_dist * self.canvas_scale));
+				if imgui.is_mouse_down(0) and not self.was_click:
+					self.fish["vertices"].append(self.cursor[0] * self.cell_dist);
+					self.fish["vertices"].append(self.cursor[1] * self.cell_dist);
+					self.fish["vertex_count"] += 1;
+					self.was_click = True;
+				elif not imgui.is_mouse_down(0):
+					self.was_click = False;
+			
 			self.canvas.clear((0, 0, 0));
 			if self.show_grid:
 				for y in range(1, self.gri_height):
@@ -1267,19 +1279,13 @@ class FishEditor:
 					x1 = self.fish["vertices"][(i+1) * 2 + 0];
 					y1 = self.fish["vertices"][(i+1) * 2 + 1];
 					self.canvas.draw_line(x0, y0, x1, y1, (255, 255, 255));
-
-			mouse_pos = imgui_io.mouse_pos;
-			brush_pos = mouse_pos - canvas_pos;
-			if brush_pos.x >= 0 and brush_pos.x < self.canvas.width * self.canvas_scale and brush_pos.y >= 0 and brush_pos.y < self.canvas.height * self.canvas_scale:
-				self.cursor = (brush_pos.x // (self.cell_dist * self.canvas_scale), brush_pos.y // (self.cell_dist * self.canvas_scale));
-				self.canvas.draw_circle(self.cursor[0] * self.cell_dist, self.cursor[1] * self.cell_dist, 2, (255, 255, 255));
-				if imgui.is_mouse_down(0) and not self.was_click:
-					self.fish["vertices"].append(self.cursor[0] * self.cell_dist);
-					self.fish["vertices"].append(self.cursor[1] * self.cell_dist);
-					self.fish["vertex_count"] += 1;
-					self.was_click = True;
-				elif not imgui.is_mouse_down(0):
-					self.was_click = False;
+			if self.fish["vertex_count"] > 0:
+				x0 = self.fish["vertices"][-2];
+				y0 = self.fish["vertices"][-1];
+				x1 = self.cursor[0] * self.cell_dist;
+				y1 = self.cursor[1] * self.cell_dist;
+				self.canvas.draw_line(x0, y0, x1, y1, (255, 255, 255))
+			self.canvas.draw_circle(self.cursor[0] * self.cell_dist, self.cursor[1] * self.cell_dist, 2, (255, 255, 255));
 			
 			self.canvas.render(self.canvas_scale);
 			_, self.show_grid = imgui.checkbox("Show grid", self.show_grid);
