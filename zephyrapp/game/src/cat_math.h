@@ -22,11 +22,12 @@
 #define clamp(v, a, b) ((v) < (a) ? (a) : ((v) > (b) ? (b) : (v)))
 #endif
 
+#ifndef sgn
+#define sgn(a) ((a) < 0 ? -1 : 1)
+#endif
+
 float lerp(float a, float b, float t);
 float inv_lerp(float t, float a, float b);
-float minf(float a, float b);
-float maxf(float a, float b);
-float clampf(float v, float a, float b);
 int quantize(float t, float range, int steps);
 
 
@@ -63,6 +64,9 @@ float CAT_vec2_dot(CAT_vec2 a, CAT_vec2 b);
 float CAT_vec2_mag2(CAT_vec2 a);
 CAT_vec2 CAT_vec2_unit(CAT_vec2 a);
 float CAT_vec2_dist2(CAT_vec2 a, CAT_vec2 b);
+
+CAT_vec2 CAT_vec2_rotate(CAT_vec2 a, float t);
+CAT_vec2 CAT_vec2_reflect(CAT_vec2 a, CAT_vec2 n);
 
 CAT_ivec2 CAT_ivec2_add(CAT_ivec2 a, CAT_ivec2 b);
 CAT_ivec2 CAT_ivec2_sub(CAT_ivec2 a, CAT_ivec2 b);

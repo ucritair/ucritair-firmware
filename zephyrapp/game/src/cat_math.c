@@ -18,21 +18,6 @@ float inv_lerp(float t, float a, float b)
 	return (t-a) / (b-a);
 }
 
-float minf(float a, float b)
-{
-	return a < b ? a : b;
-}
-
-float maxf(float a, float b)
-{
-	return a > b ? a : b;
-}
-
-float clampf(float v, float a, float b)
-{
-	return minf(maxf(v, a), b);
-}
-
 int quantize(float t, float range, int steps)
 {
 	return clamp(round((t / range) * (float) (steps - 1)), 0, steps - 1);
@@ -109,6 +94,20 @@ CAT_vec2 CAT_vec2_unit(CAT_vec2 a)
 float CAT_vec2_dist2(CAT_vec2 a, CAT_vec2 b)
 {
 	return CAT_vec2_mag2(CAT_vec2_sub(b, a));
+}
+
+CAT_vec2 CAT_vec2_rotate(CAT_vec2 a, float t)
+{
+	return (CAT_vec2)
+	{
+		cos(t) * a.x - sin(t) * a.y,
+		sin(t) * a.x + cos(t) * a.y
+	};
+}
+
+CAT_vec2 CAT_vec2_reflect(CAT_vec2 a, CAT_vec2 n)
+{
+	return CAT_vec2_unit(CAT_vec2_sub(CAT_vec2_mul(n, 2), a));
 }
 
 CAT_ivec2 CAT_ivec2_add(CAT_ivec2 a, CAT_ivec2 b)

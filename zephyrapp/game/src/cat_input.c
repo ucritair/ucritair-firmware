@@ -12,6 +12,7 @@ void CAT_input_init()
 		input.mask[i] = false;
 		input.last[i] = false;
 		input.time[i] = 0;
+		input.since[i] = 0;
 		input.pulse[i] = 0;
 		input.dirty[i] = false;
 	}
@@ -51,6 +52,7 @@ void CAT_input_tick()
 		mask = swap_mask_bits(mask, CAT_BUTTON_A, CAT_BUTTON_B);
 		mask = swap_mask_bits(mask, CAT_BUTTON_START, CAT_BUTTON_SELECT);
 	}
+	const float dt = CAT_get_delta_time_s();
 	
 	for(int i = 0; i < CAT_BUTTON_LAST; i++)
 	{
@@ -67,12 +69,14 @@ void CAT_input_tick()
 		if(!input.mask[i])
 		{
 			input.time[i] = 0;
+			input.since[i] += dt;
 			input.pulse[i] = 0;
 		}
 		else
 		{
-			input.time[i] += CAT_get_delta_time_s();
-			input.pulse[i] += CAT_get_delta_time_s();
+			input.time[i] += dt;
+			input.since[i] = 0;
+			input.pulse[i] += dt;
 			if(input.pulse[i] >= 0.1f)
 				input.pulse[i] = 0;
 		}
@@ -92,7 +96,7 @@ void CAT_input_tick()
 	if(!current_state)
 		input.touch_time = 0;
 	else
-		input.touch_time += CAT_get_delta_time_s();
+		input.touch_time += dt;
 	if(CAT_get_screen_orientation() == CAT_SCREEN_ORIENTATION_DOWN)
 	{
 		input.touch.x = CAT_LCD_SCREEN_W - input.touch.x - 1;
@@ -103,7 +107,7 @@ void CAT_input_tick()
 	input_this_frame |= mask > 0;
 	input_this_frame |= input.touch.pressure > 0;
 	if(!input_this_frame)
-		time_since_last_input += CAT_get_delta_time_s();
+		time_since_last_input += dt;
 	else
 		time_since_last_input = 0;
 }
@@ -134,7 +138,7 @@ bool CAT_input_held(int button, float t)
 
 bool CAT_input_pulse(int button)
 {
-	float pulse_time = maxf(0.15, 2 * CAT_get_delta_time_s() + 0.005f);
+	float pulse_time = max(0.15, 2 * CAT_get_delta_time_s() + 0.005f);
 
 	if(input.mask[button])
 	{

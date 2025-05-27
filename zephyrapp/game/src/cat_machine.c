@@ -128,7 +128,7 @@ float CAT_timer_progress(int timer_id)
 		return 0.0f;
 
 	float t = timetable.timer[timer_id] / timetable.duration[timer_id];
-	return clampf(t, 0.0f, 1.0f);
+	return clamp(t, 0.0f, 1.0f);
 }
 
 

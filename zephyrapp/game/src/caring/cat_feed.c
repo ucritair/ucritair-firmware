@@ -432,7 +432,7 @@ float score_variety()
 		add_note("Highly varied", GOOD);
 	}
 
-	return clampf(points / point_total, 0, 1);
+	return clamp(points / point_total, 0, 1);
 }
 
 float score_propriety()
@@ -531,7 +531,7 @@ float score_propriety()
 		add_note("Impressive restraint", GOOD);
 	}
 
-	return clampf(points / point_total, 0, 1.0f);
+	return clamp(points / point_total, 0, 1.0f);
 }
 
 float score_ichiju_sansai()
@@ -686,7 +686,7 @@ void refresh_scores()
 		 score_object.spacing +
 		 score_object.evenness) /
 		6.5f;
-	score_object.aggregate = clampf(score_object.aggregate, 0, 1.0f);
+	score_object.aggregate = clamp(score_object.aggregate, 0, 1.0f);
 	score_object.aggregate = CAT_ease_in_sine(score_object.aggregate);
 
 	score_object.grade = round(score_object.aggregate * 6.0f);

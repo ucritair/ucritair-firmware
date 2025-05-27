@@ -20,6 +20,7 @@ typedef struct CAT_input
 	bool mask[CAT_BUTTON_LAST];
 	bool last[CAT_BUTTON_LAST];
 	float time[CAT_BUTTON_LAST];
+	float since[CAT_BUTTON_LAST];
 	float pulse[CAT_BUTTON_LAST];
 	bool dirty[CAT_BUTTON_LAST];
 
