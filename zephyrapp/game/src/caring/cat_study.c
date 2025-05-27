@@ -21,11 +21,14 @@
 #define EXIT_SPEED 128
 #define BAR_MIN_WAIT 2
 #define BAR_MAX_WAIT 5
+#define BAR_ERROR_MARGIN 0.1
 
 void MS_cast(CAT_machine_signal signal);
 void render_MS_cast();
 void MS_fish(CAT_machine_signal signal);
 void render_MS_fish();
+void MS_catch(CAT_machine_signal signal);
+void render_MS_catch();
 void MS_fail(CAT_machine_signal signal);
 void render_MS_fail();
 void MS_succeed(CAT_machine_signal signal);
@@ -559,6 +562,82 @@ void render_fish(uint16_t colour)
 	CAT_lineberry(fish.positions[0].x, fish.positions[0].y, right_tip.x, right_tip.y, colour);
 }
 
+void MS_fish(CAT_machine_signal signal)
+{
+	switch (signal)
+	{
+		case CAT_MACHINE_SIGNAL_ENTER:
+		{
+			CAT_set_render_callback(render_MS_fish);
+			init_rings();
+			init_fish((CAT_vec2) {120, 60}, (CAT_vec2) {CAT_rand_float(-1, 1), CAT_rand_float(-1, 1)}, 16.0f);
+
+			hook = (CAT_vec2) {120, 160};
+			init_bite_probability();
+		}
+		break;
+
+		case CAT_MACHINE_SIGNAL_TICK:
+		{
+			if(CAT_input_pressed(CAT_BUTTON_B) || CAT_input_pressed(CAT_BUTTON_START))
+				CAT_machine_transition(CAT_MS_room);
+
+			if(!fish.nibble_trigger)
+			{
+				if(CAT_input_touching())
+				{
+					hook = CAT_iv2v(CAT_input_cursor());
+				}
+				else
+				{
+					float speed = 96 * CAT_get_delta_time_s();
+					if(CAT_input_held(CAT_BUTTON_UP, 0))
+						hook.y -= speed;
+					if(CAT_input_held(CAT_BUTTON_DOWN, 0))
+						hook.y += speed;
+					if(CAT_input_held(CAT_BUTTON_LEFT, 0))
+						hook.x -= speed;
+					if(CAT_input_held(CAT_BUTTON_RIGHT, 0))
+						hook.x += speed;
+				}
+				hook.x = clamp(hook.x, 0, CAT_LCD_SCREEN_W-1);
+				hook.y = clamp(hook.y, 0, CAT_LCD_SCREEN_H-1);
+			}
+			else
+			{
+				if(CAT_input_pressed(CAT_BUTTON_A))
+				{
+					if(fish.vuln_trigger)
+						CAT_machine_transition(MS_catch);
+					else
+						CAT_machine_transition(MS_fail);
+				}
+			}
+
+			fish_tick();
+			rings_tick();	
+		}
+		break;
+
+		case CAT_MACHINE_SIGNAL_EXIT:
+		break;
+	}
+}
+
+void render_MS_fish()
+{
+	CAT_frameberry(CAT_BLACK);
+	render_fish(CAT_RED);
+	render_rings();
+
+	if(!fish.bite_trigger)
+	{
+		CAT_push_draw_colour(CAT_WHITE);
+		CAT_push_draw_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
+		CAT_draw_sprite(&gizmo_target_17x17_sprite, 0, hook.x, hook.y);
+	}
+}
+
 struct
 {
 	float target;
@@ -566,6 +645,7 @@ struct
 	float wait;
 	float waiter;
 	float cursor;
+	float progress;
 
 	CAT_ivec2 center;
 	int length;
@@ -579,6 +659,7 @@ void init_bar(CAT_ivec2 center, int length)
 	bar.wait = CAT_rand_float(BAR_MIN_WAIT, BAR_MAX_WAIT);
 	bar.waiter = 0;
 	bar.cursor = 0.5f;
+	bar.progress = 0.15f;
 
 	bar.center = center;
 	bar.length = length;
@@ -630,6 +711,7 @@ void bar_tick()
 
 	bar.target = clamp(bar.target, 0, 1);
 	bar.cursor = clamp(bar.cursor, 0, 1);
+	bar.progress = clamp(bar.progress, 0, 1);
 }
 
 CAT_ivec2 point_on_bar(float t)
@@ -655,84 +737,53 @@ void render_bar()
 	CAT_ivec2 guess = point_on_bar(bar.cursor);
 	CAT_discberry(target.x, target.y, 4, CAT_RED);
 	CAT_circberry(guess.x, guess.y, 6, CAT_WHITE);
+
+	int left = bar.center.x - bar.length / 2 + 16;
+	int right = left + (bar.length - 32) * bar.progress;
+	CAT_lineberry(left, bar.center.y - 8, right, bar.center.y - 8, CAT_RED);
 }
 
-
-void MS_fish(CAT_machine_signal signal)
+void MS_catch(CAT_machine_signal signal)
 {
 	switch (signal)
 	{
 		case CAT_MACHINE_SIGNAL_ENTER:
-		{
-			CAT_set_render_callback(render_MS_fish);
-			init_rings();
-			init_fish((CAT_vec2) {120, 60}, (CAT_vec2) {CAT_rand_float(-1, 1), CAT_rand_float(-1, 1)}, 16.0f);
-
-			hook = (CAT_vec2) {120, 160};
-			init_bite_probability();
-
+			CAT_set_render_callback(render_MS_catch);
 			init_bar((CAT_ivec2){120, 300}, 200);
-		}
 		break;
 
 		case CAT_MACHINE_SIGNAL_TICK:
 		{
-			if(CAT_input_pressed(CAT_BUTTON_B) || CAT_input_pressed(CAT_BUTTON_START))
-				CAT_machine_transition(CAT_MS_room);
-
-			if(!fish.nibble_trigger)
+			if(CAT_input_pressed(CAT_BUTTON_A))
 			{
-				if(CAT_input_touching())
-				{
-					hook = CAT_iv2v(CAT_input_cursor());
-				}
-				else
-				{
-					float speed = 96 * CAT_get_delta_time_s();
-					if(CAT_input_held(CAT_BUTTON_UP, 0))
-						hook.y -= speed;
-					if(CAT_input_held(CAT_BUTTON_DOWN, 0))
-						hook.y += speed;
-					if(CAT_input_held(CAT_BUTTON_LEFT, 0))
-						hook.x -= speed;
-					if(CAT_input_held(CAT_BUTTON_RIGHT, 0))
-						hook.x += speed;
-				}
+				bar.cursor += 0.25f * CAT_get_delta_time_s();
 			}
-			hook.x = clamp(hook.x, 0, CAT_LCD_SCREEN_W-1);
-			hook.y = clamp(hook.y, 0, CAT_LCD_SCREEN_H-1);
-
-			/*if(CAT_input_pressed(CAT_BUTTON_A))
+			else if(CAT_input_held(CAT_BUTTON_A, 0))
 			{
-				if(fish.vuln_trigger)
-					CAT_machine_transition(MS_succeed);
-				else
-					CAT_machine_transition(MS_fail);
-			}*/
+				float time = input.time[CAT_BUTTON_A];
+				float rise = 0.75f + CAT_ease_in_cubic(time);
+				bar.cursor += rise * CAT_get_delta_time_s();
+			}
+			else
+			{
+				float time = input.since[CAT_BUTTON_A];
+				float fall = 0.25f + CAT_ease_in_cubic(time) * 3.0f;
+				bar.cursor -= fall * CAT_get_delta_time_s();
+			}
+			float error = fabs(bar.cursor - bar.target);
+			if(error < BAR_ERROR_MARGIN)
+				bar.progress += CAT_get_delta_time_s() / 10.0f;
+			else
+				bar.progress -= CAT_get_delta_time_s() / 15.0f;
+
+			if(bar.progress >= 1)	
+				CAT_machine_transition(MS_succeed);
+			else if(bar.progress <= 0)
+				CAT_machine_transition(MS_fail);
 			
-			if(fish.nibble_trigger)
-			{
-				if(CAT_input_pressed(CAT_BUTTON_A))
-				{
-					bar.cursor += 0.25f * CAT_get_delta_time_s();
-				}
-				else if(CAT_input_held(CAT_BUTTON_A, 0))
-				{
-					float time = input.time[CAT_BUTTON_A];
-					float rise = 0.75f + CAT_ease_in_cubic(time);
-					bar.cursor += rise * CAT_get_delta_time_s();
-				}
-				else
-				{
-					float time = input.since[CAT_BUTTON_A];
-					float fall = 0.25f + CAT_ease_in_cubic(time) * 3.0f;
-					bar.cursor -= fall * CAT_get_delta_time_s();
-				}
-				bar_tick();
-			}
-
 			fish_tick();
 			rings_tick();	
+			bar_tick();
 		}
 		break;
 
@@ -741,23 +792,12 @@ void MS_fish(CAT_machine_signal signal)
 	}
 }
 
-void render_MS_fish()
+void render_MS_catch()
 {
 	CAT_frameberry(CAT_BLACK);
 	render_fish(CAT_RED);
-	render_rings();
-
-	if(!fish.bite_trigger)
-	{
-		CAT_push_draw_colour(CAT_WHITE);
-		CAT_push_draw_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
-		CAT_draw_sprite(&gizmo_target_17x17_sprite, 0, hook.x, hook.y);
-	}
-
-	if(fish.nibble_trigger)
-	{
-		render_bar();
-	}
+	// render_rings();
+	render_bar();
 }
 
 CAT_RGB888 fail_colour;
@@ -824,7 +864,7 @@ void MS_succeed(CAT_machine_signal signal)
 			rings_tick();
 
 			succeed_colour = CAT_RGB888_lerp(CAT_RGB24(255,0,0), CAT_RGB24(255,255,255), clamp(progress / 3.0f, 0, 1));
-			if(CAT_input_pressed(CAT_BUTTON_A) || progress >= 3.0f)
+			if(progress >= 3.0f)
 				CAT_machine_transition(MS_summary);
 			progress += CAT_get_delta_time_s();
 		break;
