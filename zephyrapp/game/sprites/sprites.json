@@ -2668,6 +2668,16 @@
             "height": 64,
             "loop": true,
             "reverse": false
+        },
+        {
+            "id": 262,
+            "name": "study_a_button_sprite",
+            "path": "minigame/fishing/a_button.png",
+            "frames": 1,
+            "width": 24,
+            "height": 24,
+            "loop": false,
+            "reverse": false
         }
     ]
 }

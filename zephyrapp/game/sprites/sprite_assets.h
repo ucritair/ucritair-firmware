@@ -266,6 +266,7 @@ extern const CAT_sprite window_dusk_sprite;
 extern const CAT_sprite window_evening_sprite;
 extern const CAT_sprite window_morning_sprite;
 extern const CAT_sprite window_night_sprite;
+extern const CAT_sprite study_a_button_sprite;
 
 extern const CAT_sprite* sprite_list[];
-#define CAT_SPRITE_LIST_LENGTH 262
+#define CAT_SPRITE_LIST_LENGTH 263

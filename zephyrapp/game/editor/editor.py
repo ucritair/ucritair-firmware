@@ -1235,6 +1235,7 @@ class FishEditor:
 		self.gri_height = self.canvas.height // self.cell_dist;
 		self.cursor = (0, 0);
 		self.was_click = False;
+		self.line_closed = True;
 
 	def render():
 		if FishEditor._ == None:
@@ -1260,9 +1261,43 @@ class FishEditor:
 			if brush_pos.x >= 0 and brush_pos.x < self.canvas.width * self.canvas_scale and brush_pos.y >= 0 and brush_pos.y < self.canvas.height * self.canvas_scale:
 				self.cursor = (brush_pos.x // (self.cell_dist * self.canvas_scale), brush_pos.y // (self.cell_dist * self.canvas_scale));
 				if imgui.is_mouse_down(0) and not self.was_click:
-					self.fish["vertices"].append(self.cursor[0] * self.cell_dist);
-					self.fish["vertices"].append(self.cursor[1] * self.cell_dist);
-					self.fish["vertex_count"] += 1;
+					new_vertex = (self.cursor[0] * self.cell_dist, self.cursor[1] * self.cell_dist);
+					last_vertex = (self.fish["vertices"][-2], self.fish["vertices"][-1]) if self.fish["vertex_count"] > 0 else None;
+
+					has_last = not last_vertex is None;
+					last_same = has_last and new_vertex[0] == last_vertex[0] and new_vertex[1] == last_vertex[1];
+					even_count = self.fish["vertex_count"] % 2 == 0;
+					def add_new():
+						self.fish["vertices"].append(new_vertex[0]);
+						self.fish["vertices"].append(new_vertex[1]);
+						self.fish["vertex_count"] += 1;
+					def add_last():
+						self.fish["vertices"].append(last_vertex[0]);
+						self.fish["vertices"].append(last_vertex[1]);
+						self.fish["vertex_count"] += 1;
+					
+					if self.line_closed:
+						if even_count:
+							if not last_same:
+								add_new();
+						else:
+							if last_same:
+								add_last();
+						self.line_closed = False;
+					else:
+						if even_count:
+							if not last_same:
+								add_last();
+								add_new();
+							else:
+								self.line_closed = True;
+						else:
+							if last_same:
+								add_last();
+								self.line_closed = True;
+							else:
+								add_new();
+					
 					self.was_click = True;
 				elif not imgui.is_mouse_down(0):
 					self.was_click = False;
@@ -1272,14 +1307,18 @@ class FishEditor:
 				for y in range(1, self.gri_height):
 					for x in range(1, self.grid_width):
 						self.canvas.draw_pixel(x * self.cell_dist, y * self.cell_dist, (128, 128, 128));
-			if self.fish["vertex_count"] > 1:
-				for i in range(self.fish["vertex_count"]-1):
-					x0 = self.fish["vertices"][i * 2 + 0];
-					y0 = self.fish["vertices"][i * 2 + 1];
-					x1 = self.fish["vertices"][(i+1) * 2 + 0];
-					y1 = self.fish["vertices"][(i+1) * 2 + 1];
+			i = 0;
+			while i < self.fish["vertex_count"]-1:
+				x0 = self.fish["vertices"][i*2 + 0];
+				y0 = self.fish["vertices"][i*2 + 1];
+				x1 = self.fish["vertices"][(i+1)*2 + 0];
+				y1 = self.fish["vertices"][(i+1)*2 + 1];
+				if x0 != x1 or y0 != y1:
 					self.canvas.draw_line(x0, y0, x1, y1, (255, 255, 255));
-			if self.fish["vertex_count"] > 0:
+				else:
+					self.canvas.draw_circle(x0, y0, 1, (255, 255, 255));
+				i += 2;
+			if not self.line_closed:
 				x0 = self.fish["vertices"][-2];
 				y0 = self.fish["vertices"][-1];
 				x1 = self.cursor[0] * self.cell_dist;
@@ -1292,6 +1331,7 @@ class FishEditor:
 			if imgui.button("Clear"):
 				self.fish["vertex_count"] = 0;
 				self.fish["vertices"] = [];
+			imgui.text(f"{self.line_closed}, {self.fish["vertex_count"]}");
 			
 			self.size = imgui.get_window_size();
 			imgui.end();
