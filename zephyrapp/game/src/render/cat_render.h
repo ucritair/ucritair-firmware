@@ -63,7 +63,7 @@ static inline CAT_RGB888 CAT_RGB24(uint8_t r, uint8_t g, uint8_t b)
 	};
 }
 
-static inline CAT_RGB888 CAT_RGB888_lerp(CAT_RGB888 a, CAT_RGB888 b, float t)
+static inline CAT_RGB888 CAT_RGB24_lerp(CAT_RGB888 a, CAT_RGB888 b, float t)
 {
 	return (CAT_RGB888)
 	{
@@ -73,12 +73,23 @@ static inline CAT_RGB888 CAT_RGB888_lerp(CAT_RGB888 a, CAT_RGB888 b, float t)
 	};
 }
 
-static inline uint16_t CAT_RGB8882565(CAT_RGB888 c)
+static inline uint16_t CAT_RGB24216(CAT_RGB888 c)
 {
 	return 
 	((c.r & 0b11111000) << 8) |
 	((c.g & 0b11111100) << 3) |
 	(c.b >> 3);
+}
+
+static inline CAT_RGB888 CAT_RGB16224(uint16_t c)
+{
+	uint8_t r8 = (c & 0b1111100000000000) >> 11;
+	uint8_t g8 = (c & 0b0000011111100000) >> 5;
+	uint8_t b8 = c & 0b0000000000011111;
+	uint16_t r16 = clamp(255 * r8 / 31, 0, 255);
+	uint16_t g16 = clamp(255 * g8 / 31, 0, 255);
+	uint16_t b16 = clamp(255 * b8 / 31, 0, 255);
+	return CAT_RGB24(r16, g16, b16);
 }
 
 

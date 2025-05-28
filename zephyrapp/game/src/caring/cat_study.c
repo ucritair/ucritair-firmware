@@ -10,8 +10,8 @@
 
 #define SCREEN_DIAG 400
 #define BLACK_OUT_DURATION 1.0f
-#define NIBBLE_MIN_WAIT 1.5f
-#define NIBBLE_MAX_WAIT 3.5f
+#define NIBBLE_WAIT_MIN 1.5f
+#define NIBBLE_WAIT_MAX 3.5f
 #define VULN_FRAMES 5
 #define BITE_CHANCE 5
 #define RETARGET_TIMEOUT 3
@@ -19,9 +19,14 @@
 #define FOCUSED_SPEED 64
 #define ELLIPSE_MARGIN 12
 #define EXIT_SPEED 128
-#define BAR_MIN_WAIT 2
-#define BAR_MAX_WAIT 5
-#define BAR_ERROR_MARGIN 0.1
+#define BAR_WAIT_MIN 2
+#define BAR_WAIT_MAX 5
+#define BAR_ERROR_MARGIN_MIN 0.05
+#define BAR_ERROR_MARGIN_MAX 0.1
+#define ARENA_RADIUS 48
+#define ARENA_FADE_DURATION 1.0f
+
+#define FADE(a, b, t) CAT_RGB24216(CAT_RGB24_lerp(CAT_RGB16224(a), CAT_RGB16224(b), t))
 
 void MS_cast(CAT_machine_signal signal);
 void render_MS_cast();
@@ -35,6 +40,48 @@ void MS_succeed(CAT_machine_signal signal);
 void render_MS_succeed();
 void MS_summary(CAT_machine_signal signal);
 void render_MS_summary();
+
+/*void render_beach_curve()
+{
+	uint16_t* framebuffer = CAT_LCD_get_framebuffer();
+	uint16_t base = ADAPT_DESKTOP_COLOUR(BEACH_BASE_COLOUR);
+	uint16_t edge = ADAPT_DESKTOP_COLOUR(BEACH_EDGE_COLOUR);
+
+	for(int x = 0; x < 240; x++)
+	{
+		int y_f = 320 - (beach_base_curve[x]);
+		y_f -= FRAMEBUFFER_ROW_OFFSET;
+		if(y_f < 0)
+			y_f = 0;
+		if(y_f > CAT_LCD_FRAMEBUFFER_H)
+			continue;
+
+		int y_m = y_f + beach_edge_curve[x];
+		for(int y_w = y_f; y_w < y_m; y_w++)
+			framebuffer[y_w * CAT_LCD_FRAMEBUFFER_W + x] = edge;
+		for(int y_w = y_m; y_w < CAT_LCD_FRAMEBUFFER_H; y_w++)
+			framebuffer[y_w * CAT_LCD_FRAMEBUFFER_W + x] = base;
+	}
+}*/
+
+/*void render_deathblow(CAT_vec2 c, int R)
+{
+	int R2 = R*R;
+	int Ro2 = R/2;
+	for(int dy = -R; dy < R; dy++)
+	{
+		for(int dx = -R; dx < R; dx++)
+		{
+			int mag2 = dx*dx+dy*dy;
+			if(mag2 < R2)
+			{
+				int creep = Ro2 *  0.5f * (sin(CAT_get_uptime_ms() / 1000.0f * M_PI * 2) + 1);
+				float r = mag2 / (float)(R2 - creep * creep);
+				CAT_pixberry(c.x+dx, c.y+dy, FADE(CAT_RED, CAT_BLACK, r));
+			}
+		}
+	}
+}*/
 
 typedef struct
 {
@@ -111,29 +158,6 @@ void render_rings()
 			CAT_circberry(ring->center.x, ring->center.y, ring->radius, ring->colour);
 	}
 }
-
-/*void render_beach_curve()
-{
-	uint16_t* framebuffer = CAT_LCD_get_framebuffer();
-	uint16_t base = ADAPT_DESKTOP_COLOUR(BEACH_BASE_COLOUR);
-	uint16_t edge = ADAPT_DESKTOP_COLOUR(BEACH_EDGE_COLOUR);
-
-	for(int x = 0; x < 240; x++)
-	{
-		int y_f = 320 - (beach_base_curve[x]);
-		y_f -= FRAMEBUFFER_ROW_OFFSET;
-		if(y_f < 0)
-			y_f = 0;
-		if(y_f > CAT_LCD_FRAMEBUFFER_H)
-			continue;
-
-		int y_m = y_f + beach_edge_curve[x];
-		for(int y_w = y_f; y_w < y_m; y_w++)
-			framebuffer[y_w * CAT_LCD_FRAMEBUFFER_W + x] = edge;
-		for(int y_w = y_m; y_w < CAT_LCD_FRAMEBUFFER_H; y_w++)
-			framebuffer[y_w * CAT_LCD_FRAMEBUFFER_W + x] = base;
-	}
-}*/
 
 struct
 {
@@ -296,6 +320,18 @@ void render_MS_cast()
 	CAT_frameberry(CAT_BLACK);
 	render_pole();
 	render_rings();
+
+	if(!pole.committed)
+	{
+		CAT_textberry(12, 12, CAT_WHITE, 2, "CAST");
+		CAT_textberry(12, 12+28, CAT_WHITE, 2, "A");
+		CAT_textberry(12, 12+28+28, CAT_WHITE, 2, "LINE");
+	}
+	else if(!blacking_out)
+	{
+		CAT_textberry(12, 12, CAT_WHITE, 2, "GO");
+		CAT_textberry(12, 12+28, CAT_WHITE, 2, "FISH!");
+	}
 }
 
 CAT_vec2 hook;
@@ -339,18 +375,21 @@ struct
 	CAT_vec2 headings[3];
 	float radii[3];
 
-	int retarget_timer_id;
 	bool focus_trigger;
+	CAT_vec2 focus_heading;
 
 	bool nibble_trigger;
 	int nibble_timer_id;
-	bool bite_trigger;
 
 	bool vuln_trigger;
 	int vuln_frame_counter;
+	bool bite_trigger;
+	float bite_timer;
+
+	bool race_trigger;
 } fish =
 {
-	.nibble_timer_id = -1,
+	.nibble_timer_id = -1
 };
 
 void init_fish(CAT_vec2 lead_position, CAT_vec2 lead_heading, float lead_radius)
@@ -380,15 +419,17 @@ void init_fish(CAT_vec2 lead_position, CAT_vec2 lead_heading, float lead_radius)
 		fish.headings[i] = lead_heading;	
 	}
 
-	CAT_timer_reinit(&fish.retarget_timer_id, RETARGET_TIMEOUT);
 	fish.focus_trigger = false;
 
 	fish.nibble_trigger = false;
 	CAT_timer_reinit(&fish.nibble_timer_id, 3.0f);
-	fish.bite_trigger = false;
-
+	
 	fish.vuln_trigger = false;
 	fish.vuln_frame_counter = 0;
+	fish.bite_trigger = false;
+	fish.bite_timer = 0;
+
+	fish.race_trigger = false;
 }
 
 void fish_pbd_default()
@@ -494,12 +535,23 @@ void nibble_burst(int n)
 
 void fish_tick()
 {
-	CAT_vec2 beeline = CAT_vec2_sub(hook, fish.positions[0]);
-	float distance = sqrt(CAT_vec2_mag2(beeline));
-	CAT_vec2 axis = CAT_vec2_div(beeline, distance);
-	float align = CAT_vec2_dot(fish.headings[0], axis);
+	CAT_vec2 hook_beeline = CAT_vec2_sub(hook, fish.positions[0]);
+	float hook_distance = sqrt(CAT_vec2_mag2(hook_beeline));
+	CAT_vec2 hook_heading = CAT_vec2_div(hook_beeline, hook_distance);
+	float hook_align = CAT_vec2_dot(fish.headings[0], hook_heading);
 
-	if(fish.nibble_trigger)
+	if(fish.bite_trigger)
+	{
+		if(fish.vuln_trigger)
+		{	
+			if(fish.vuln_frame_counter > VULN_FRAMES)
+				fish.vuln_trigger = false;
+			fish.vuln_frame_counter += 1;
+		}
+
+		fish.bite_timer += CAT_get_delta_time_s();
+	}
+	else if(fish.nibble_trigger)
 	{
 		if(CAT_timer_tick(fish.nibble_timer_id))
 		{
@@ -514,31 +566,38 @@ void fish_tick()
 			{
 				nibble_burst(CAT_rand_int(1, 3));
 			}
-			CAT_timer_reinit(&fish.nibble_timer_id, CAT_rand_float(NIBBLE_MIN_WAIT, NIBBLE_MAX_WAIT));
+			CAT_timer_reinit(&fish.nibble_timer_id, CAT_rand_float(NIBBLE_WAIT_MIN, NIBBLE_WAIT_MAX));
 		}
 	}
 	else if(fish.focus_trigger)
 	{
-		if(distance > fish.radii[0])
-			fish_integrate_heading(axis, FOCUSED_SPEED);
+		float hook_arena_dist = sqrt(CAT_vec2_dist2((CAT_vec2){120, 160}, hook));
+		if(hook_arena_dist < ARENA_RADIUS && hook_align > 0.7)
+		{
+			if(hook_distance <= fish.radii[0])
+			{
+				fish.nibble_trigger = true;
+				CAT_timer_reinit(&fish.nibble_timer_id, CAT_rand_float(NIBBLE_WAIT_MIN, NIBBLE_WAIT_MAX));
+			}
+		}
 		else
 		{
-			fish.nibble_trigger = true;
-			CAT_timer_reinit(&fish.nibble_timer_id, CAT_rand_float(NIBBLE_MIN_WAIT, NIBBLE_MAX_WAIT));
+			float fish_arena_dist = sqrt(CAT_vec2_dist2((CAT_vec2){120, 160}, fish.positions[0]));
+			if(fish_arena_dist < ARENA_RADIUS)
+				fish.race_trigger = true;
+			if(fish.race_trigger && fish_arena_dist > ARENA_RADIUS)
+				CAT_machine_transition(MS_fail);
 		}
+		fish_integrate_heading(fish.focus_heading, FOCUSED_SPEED);
 	}
 	else
 	{
-		if(align > 0.7 && distance < fish.radii[0] * 3)
+		if(hook_align > 0.7 && hook_distance < fish.radii[0] * 3)
+		{
 			fish.focus_trigger = true;
+			fish.focus_heading = CAT_vec2_unit(CAT_vec2_sub((CAT_vec2) {120, 160}, fish.positions[0]));
+		}
 		fish_integrate_ellipse(CAT_get_uptime_ms() / 20000.0f);
-	}
-
-	if(fish.vuln_trigger)
-	{	
-		if(fish.vuln_frame_counter > VULN_FRAMES)
-			fish.vuln_trigger = false;
-		fish.vuln_frame_counter += 1;
 	}
 
 	if(fish.nibble_trigger)
@@ -562,6 +621,12 @@ void render_fish(uint16_t colour)
 	CAT_lineberry(fish.positions[0].x, fish.positions[0].y, right_tip.x, right_tip.y, colour);
 }
 
+float arena_fade_timer;
+CAT_ivec2 hook_jitter;
+float blink_timer;
+float blink_period;
+bool blink_switch;
+
 void MS_fish(CAT_machine_signal signal)
 {
 	switch (signal)
@@ -574,6 +639,12 @@ void MS_fish(CAT_machine_signal signal)
 
 			hook = (CAT_vec2) {120, 160};
 			init_bite_probability();
+
+			arena_fade_timer = 0.0f;
+			hook_jitter = (CAT_ivec2) {0, 0};
+			blink_timer = 0;
+			blink_period = 0.5f;
+			blink_switch = false;
 		}
 		break;
 
@@ -612,10 +683,36 @@ void MS_fish(CAT_machine_signal signal)
 					else
 						CAT_machine_transition(MS_fail);
 				}
+
+				if(fish.bite_trigger && fish.bite_timer >= 1.0f)
+					CAT_machine_transition(MS_fail);	
 			}
 
+			if(fish.focus_trigger)
+			{
+				if(fish.nibble_trigger)
+					arena_fade_timer -= CAT_get_delta_time_s();
+				else
+					arena_fade_timer += CAT_get_delta_time_s();
+				arena_fade_timer = clamp(arena_fade_timer, 0, ARENA_FADE_DURATION);
+			}
+
+			hook_jitter = (CAT_ivec2)
+			{
+				CAT_rand_int(-1, 1),
+				CAT_rand_int(-1, 1)
+			};
+			
+			blink_period = fish.focus_trigger ? 0.25f : 0.5f;
+			if(blink_timer >= blink_period)
+			{
+				blink_switch = !blink_switch;
+				blink_timer = 0.0f;
+			}
+			blink_timer += CAT_get_delta_time_s();
+
 			fish_tick();
-			rings_tick();	
+			rings_tick();
 		}
 		break;
 
@@ -627,6 +724,10 @@ void MS_fish(CAT_machine_signal signal)
 void render_MS_fish()
 {
 	CAT_frameberry(CAT_BLACK);
+
+	if(fish.focus_trigger)
+		CAT_circberry(120, 160, ARENA_RADIUS, FADE(CAT_BLACK, 0x6800, arena_fade_timer/ARENA_FADE_DURATION));
+		
 	render_fish(CAT_RED);
 	render_rings();
 
@@ -634,16 +735,26 @@ void render_MS_fish()
 	{
 		CAT_push_draw_colour(CAT_WHITE);
 		CAT_push_draw_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
-		CAT_draw_sprite(&gizmo_target_17x17_sprite, 0, hook.x, hook.y);
+		CAT_vec2 bobber = fish.nibble_trigger ? CAT_vec2_add(hook, CAT_iv2v(hook_jitter)) : hook;
+		CAT_draw_sprite(&gizmo_target_17x17_sprite, 0, bobber.x, bobber.y);
 	}
+
+	if(!fish.nibble_trigger && blink_switch)
+		CAT_textberry(12, 12, CAT_WHITE, 2, "INTERCEPT!");
 }
 
 struct
 {
+	float margin;
 	float target;
-	float next;
+	
+	float target_next;
+	float margin_next;
+
 	float wait;
 	float waiter;
+	float slider;
+
 	float cursor;
 	float progress;
 
@@ -654,10 +765,15 @@ struct
 
 void init_bar(CAT_ivec2 center, int length)
 {
-	bar.target = CAT_rand_float(0, 1);
-	bar.next = CAT_rand_float(0, 1);
-	bar.wait = CAT_rand_float(BAR_MIN_WAIT, BAR_MAX_WAIT);
+	bar.margin = CAT_rand_float(BAR_ERROR_MARGIN_MIN, BAR_ERROR_MARGIN_MAX);
+	bar.target = CAT_rand_float(bar.margin, 1-bar.margin);
+
+	bar.margin_next = CAT_rand_float(BAR_ERROR_MARGIN_MIN, BAR_ERROR_MARGIN_MAX);
+	bar.target_next = CAT_rand_float(bar.margin_next, 1-bar.margin_next);
+
+	bar.wait = CAT_rand_float(BAR_WAIT_MIN, BAR_WAIT_MAX);
 	bar.waiter = 0;
+
 	bar.cursor = 0.5f;
 	bar.progress = 0.15f;
 
@@ -696,17 +812,20 @@ void bar_tick()
 {
 	if(bar.waiter >= bar.wait)
 	{
-		bar.next = CAT_rand_float(0, 1);
-		bar.wait = CAT_rand_float(BAR_MIN_WAIT, BAR_MAX_WAIT);
+		bar.margin_next = CAT_rand_float(BAR_ERROR_MARGIN_MIN, BAR_ERROR_MARGIN_MAX);
+		bar.target_next = CAT_rand_float(bar.margin_next, 1-bar.margin_next);
+
+		bar.wait = CAT_rand_float(BAR_WAIT_MIN, BAR_WAIT_MAX);
 		bar.waiter = 0;
+		bar.slider = 0;
 	}
 	bar.waiter += CAT_get_delta_time_s();
 
-	float delta = bar.next - bar.target;
-	if(fabs(delta) >= CAT_get_delta_time_s())
+	if(bar.slider < 1)
 	{
-		delta = sgn(delta);
-		bar.target += delta * CAT_get_delta_time_s();
+		bar.target = lerp(bar.target, bar.target_next, bar.slider);
+		bar.margin = lerp(bar.margin, bar.margin_next, bar.slider);
+		bar.slider += CAT_get_delta_time_s();
 	}
 
 	bar.target = clamp(bar.target, 0, 1);
@@ -723,6 +842,8 @@ CAT_ivec2 point_on_bar(float t)
 	return (CAT_ivec2) {x, y};
 }
 
+CAT_ivec2 bar_jitter;
+
 void render_bar()
 {
 	CAT_polyberry
@@ -734,14 +855,25 @@ void render_bar()
 	);
 
 	CAT_ivec2 target = point_on_bar(bar.target);
-	CAT_ivec2 guess = point_on_bar(bar.cursor);
-	CAT_discberry(target.x, target.y, 4, CAT_RED);
-	CAT_circberry(guess.x, guess.y, 6, CAT_WHITE);
+	target = CAT_ivec2_add(target, bar_jitter);
 
-	int left = bar.center.x - bar.length / 2 + 16;
-	int right = left + (bar.length - 32) * bar.progress;
+	int left = target.x - bar.length * bar.margin;
+	int right = target.x + bar.length * bar.margin;
+	CAT_lineberry(left, bar.center.y-4, left, bar.center.y+4, CAT_RED);
+	CAT_lineberry(right, bar.center.y-4, right, bar.center.y+4, CAT_RED);
+	CAT_lineberry(left, bar.center.y, right, bar.center.y, CAT_RED);
+
+	CAT_ivec2 guess = point_on_bar(bar.cursor);
+	float error = fabs(bar.cursor - bar.target);
+	CAT_circberry(guess.x, guess.y, 6, (error < bar.margin) ? CAT_RED : CAT_WHITE);
+
+	left = bar.center.x - ((bar.length - 16) * bar.progress) / 2;
+	right = bar.center.x + ((bar.length - 16) * bar.progress) / 2;
 	CAT_lineberry(left, bar.center.y - 8, right, bar.center.y - 8, CAT_RED);
 }
+
+float struggle_timer;
+float struggle_wait;
 
 void MS_catch(CAT_machine_signal signal)
 {
@@ -750,6 +882,9 @@ void MS_catch(CAT_machine_signal signal)
 		case CAT_MACHINE_SIGNAL_ENTER:
 			CAT_set_render_callback(render_MS_catch);
 			init_bar((CAT_ivec2){120, 300}, 200);
+
+			struggle_timer = 0;
+			struggle_wait = CAT_rand_float(1.0f, 3.0f);
 		break;
 
 		case CAT_MACHINE_SIGNAL_TICK:
@@ -771,15 +906,34 @@ void MS_catch(CAT_machine_signal signal)
 				bar.cursor -= fall * CAT_get_delta_time_s();
 			}
 			float error = fabs(bar.cursor - bar.target);
-			if(error < BAR_ERROR_MARGIN)
-				bar.progress += CAT_get_delta_time_s() / 10.0f;
+			if(error < bar.margin)
+				bar.progress += CAT_get_delta_time_s() / 6.5f;
 			else
-				bar.progress -= CAT_get_delta_time_s() / 15.0f;
+			{
+				if(bar.progress < 0.15f)
+					bar.progress -= CAT_get_delta_time_s() / 10.0f;
+				else
+					bar.progress -= CAT_get_delta_time_s() / 7.5f;
+			}	
 
 			if(bar.progress >= 1)	
 				CAT_machine_transition(MS_succeed);
 			else if(bar.progress <= 0)
 				CAT_machine_transition(MS_fail);
+
+			bar_jitter = (CAT_ivec2)
+			{
+				CAT_rand_int(-1, 1),
+				CAT_rand_int(-1, 1)
+			};
+
+			if(struggle_timer >= struggle_wait)
+			{
+				spawn_ring(hook, 64, 64);
+				struggle_timer = 0;
+				struggle_wait = CAT_rand_float(1.0f, 3.0f);
+			}
+			struggle_timer += CAT_get_delta_time_s();
 			
 			fish_tick();
 			rings_tick();	
@@ -796,7 +950,7 @@ void render_MS_catch()
 {
 	CAT_frameberry(CAT_BLACK);
 	render_fish(CAT_RED);
-	// render_rings();
+	render_rings();
 	render_bar();
 }
 
@@ -818,7 +972,7 @@ void MS_fail(CAT_machine_signal signal)
 			fish_integrate_heading(fish.headings[0], EXIT_SPEED);
 			fish_pbd_default();
 
-			fail_colour = CAT_RGB888_lerp(CAT_RGB24(255,0,0), CAT_RGB24(0,0,0), progress);
+			fail_colour = CAT_RGB24_lerp(CAT_RGB24(255,0,0), CAT_RGB24(0,0,0), progress);
 			progress += CAT_get_delta_time_s();
 			if(progress >= 1)
 				CAT_machine_transition(CAT_MS_room);
@@ -832,21 +986,10 @@ void MS_fail(CAT_machine_signal signal)
 void render_MS_fail()
 {
 	CAT_frameberry(CAT_BLACK);
-	render_fish(CAT_RGB8882565(fail_colour));
+	render_fish(CAT_RGB24216(fail_colour));
 }
 
 CAT_RGB888 succeed_colour;
-
-void catch_burst()
-{
-	ring_count = 0;
-	for(int i = 5; i >= 0; i--)
-	{
-		int ring_idx = spawn_ring(fish.positions[0], 400, 64);
-		rings[ring_idx].radius += i * 12;
-		rings[ring_idx].colour = CAT_RED;
-	}
-}
 
 void MS_succeed(CAT_machine_signal signal)
 {
@@ -856,14 +999,15 @@ void MS_succeed(CAT_machine_signal signal)
 	{
 		case CAT_MACHINE_SIGNAL_ENTER:
 			CAT_set_render_callback(render_MS_succeed);
-			catch_burst();
+			int ring_idx = spawn_ring(fish.positions[0], 400, 64);
+			rings[ring_idx].colour = CAT_RED;
 			progress = 0;
 		break;
 
 		case CAT_MACHINE_SIGNAL_TICK:
 			rings_tick();
 
-			succeed_colour = CAT_RGB888_lerp(CAT_RGB24(255,0,0), CAT_RGB24(255,255,255), clamp(progress / 3.0f, 0, 1));
+			succeed_colour = CAT_RGB24_lerp(CAT_RGB24(255,0,0), CAT_RGB24(255,255,255), clamp(progress / 3.0f, 0, 1));
 			if(progress >= 3.0f)
 				CAT_machine_transition(MS_summary);
 			progress += CAT_get_delta_time_s();
@@ -877,7 +1021,7 @@ void MS_succeed(CAT_machine_signal signal)
 void render_MS_succeed()
 {
 	CAT_frameberry(CAT_BLACK);
-	render_fish(CAT_RGB8882565(succeed_colour));
+	render_fish(CAT_RGB24216(succeed_colour));
 	render_rings();
 }
 

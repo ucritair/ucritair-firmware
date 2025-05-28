@@ -89,6 +89,13 @@ void CAT_render_debug()
 			CAT_gui_textf("Pets: %d/5\n", pet.times_pet);
 			CAT_gui_textf("Milks: %d/3\n", pet.times_milked);
 			CAT_gui_textf("E-Ink: %0.0fs/%0.0fs\n", time_since_eink_update, eink_update_time_threshold);
+			int active_timers = 0;
+			for(int i = 0; i < CAT_TIMETABLE_MAX_LENGTH; i++)
+			{
+				if(timetable.active[i])
+					active_timers += 1;
+			}
+			CAT_gui_textf("Timers: %d\n", active_timers);
 		break;
 		case DECO:
 			CAT_gui_title(true, NULL, &icon_exit_sprite, "DECO");
