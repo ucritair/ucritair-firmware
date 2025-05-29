@@ -861,6 +861,11 @@ class DocumentRenderer:
 				if imgui.menu_item_simple("Delete##init"):
 					popup_statuses[delete_popup_id] = True;
 					imgui.close_current_popup();
+				if imgui.menu_item_simple("Duplicate"):
+					dupe = copy.deepcopy(doc.entries[idx]);
+					dupe["id"] += 1;
+					doc.entries.append(dupe);
+					imgui.close_current_popup();
 				imgui.end_popup();
 			
 			if popup_statuses[delete_popup_id]:

@@ -47,7 +47,10 @@ void CAT_MS_vending(CAT_machine_signal signal)
 				)
 				{
 					continue;
-				}		
+				}
+
+				if(item->price == 0)
+					continue;
 
 				if(CAT_gui_item_listing(i, 1))
 				{

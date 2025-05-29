@@ -104,6 +104,30 @@ CAT_item_table item_table =
 			}
 		},
 		{
+			.type = CAT_ITEM_TYPE_KEY,
+			.name = "1-Star Fish",
+			.sprite = &salmon_sprite,
+			.price = 0,
+			.text = "",
+			.icon = &icon_item_key_sprite,
+		},
+		{
+			.type = CAT_ITEM_TYPE_KEY,
+			.name = "2-Star Fish",
+			.sprite = &salmon_sprite,
+			.price = 0,
+			.text = "",
+			.icon = &icon_item_key_sprite,
+		},
+		{
+			.type = CAT_ITEM_TYPE_KEY,
+			.name = "3-Star Fish",
+			.sprite = &salmon_sprite,
+			.price = 0,
+			.text = "",
+			.icon = &icon_item_key_sprite,
+		},
+		{
 			.type = CAT_ITEM_TYPE_TOOL,
 			.name = "Bagel",
 			.sprite = &bagel_sprite,
@@ -1747,5 +1771,5 @@ CAT_item_table item_table =
 			}
 		},
 	},
-	.length = 106
+	.length = 109
 };

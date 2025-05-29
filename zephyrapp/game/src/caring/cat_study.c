@@ -10,6 +10,9 @@
 #include "fish_assets.h"
 #include "cat_gui.h"
 #include "cat_text.h"
+#include "item_assets.h"
+#include "cat_pet.h"
+#include "cat_bag.h"
 
 #define SCREEN_DIAG 400
 #define BLACK_OUT_DURATION 1.0f
@@ -48,6 +51,20 @@ const float stat_ranges[] =
 	0.1, 0.75,
 	0.25, 0.85,
 	0.5, 1.0
+};
+
+const int item_rewards[] =
+{
+	fish_grade_0_item,
+	fish_grade_1_item,
+	fish_grade_2_item
+};
+
+const int stat_rewards[] =
+{
+	2,
+	3,
+	4
 };
 
 void MS_cast(CAT_machine_signal signal);
@@ -1034,6 +1051,8 @@ void MS_succeed(CAT_machine_signal signal)
 		break;
 
 		case CAT_MACHINE_SIGNAL_EXIT:
+			pet.focus += stat_rewards[fish.grade];
+			CAT_item_list_add(&bag, item_rewards[fish.grade], 1);
 		break;
 	}
 }

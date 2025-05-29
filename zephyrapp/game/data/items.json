@@ -283,6 +283,36 @@
             "tier": 0
         },
         {
+            "type": "key",
+            "name": "fish_grade_0",
+            "display_name": "1-Star Fish",
+            "sprite": "salmon_sprite",
+            "icon": "icon_item_key_sprite",
+            "text": "",
+            "price": 0,
+            "id": 106
+        },
+        {
+            "type": "key",
+            "name": "fish_grade_1",
+            "display_name": "2-Star Fish",
+            "sprite": "salmon_sprite",
+            "icon": "icon_item_key_sprite",
+            "text": "",
+            "price": 0,
+            "id": 107
+        },
+        {
+            "type": "key",
+            "name": "fish_grade_2",
+            "display_name": "3-Star Fish",
+            "sprite": "salmon_sprite",
+            "icon": "icon_item_key_sprite",
+            "text": "",
+            "price": 0,
+            "id": 108
+        },
+        {
             "type": "tool",
             "name": "food_bagel",
             "display_name": "Bagel",
