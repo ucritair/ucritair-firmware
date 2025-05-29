@@ -17,19 +17,38 @@
 #define NIBBLE_WAIT_MAX 3.5f
 #define VULN_FRAMES 5
 #define BITE_CHANCE 5
-#define RETARGET_TIMEOUT 3
 #define UNFOCUSED_SPEED 48
 #define FOCUSED_SPEED 64
 #define ELLIPSE_MARGIN 12
 #define EXIT_SPEED 128
-#define BAR_WAIT_MIN 2
-#define BAR_WAIT_MAX 5
-#define BAR_ERROR_MARGIN_MIN 0.05
-#define BAR_ERROR_MARGIN_MAX 0.1
 #define ARENA_RADIUS 48
 #define ARENA_FADE_DURATION 1.0f
 
 #define FADE(a, b, t) CAT_RGB24216(CAT_RGB24_lerp(CAT_RGB16224(a), CAT_RGB16224(b), t))
+
+// Lower lull, higher difficulty
+const float bar_lull_ranges[] =
+{
+	3, 5,
+	2, 4,
+	1, 4
+};
+
+// Lower margins, higher difficulty
+const float bar_margin_ranges[] =
+{
+	0.1, 0.125,
+	0.075, 0.09,
+	0.05, 0.075
+};
+
+// Higher difficulty, higher ranges
+const float stat_ranges[] =
+{
+	0.1, 0.75,
+	0.25, 0.85,
+	0.5, 1.0
+};
 
 void MS_cast(CAT_machine_signal signal);
 void render_MS_cast();
@@ -202,6 +221,7 @@ float cast_t = 0.0f;
 float cast_dir = 1.0f;
 
 int cast_grade;
+int fish_grade;
 
 bool blacking_out = false;
 float black_out_t = 0.0f;
@@ -219,6 +239,7 @@ void MS_cast(CAT_machine_signal signal)
 			cast_t = 0;
 			cast_dir = 0;
 			cast_grade = 0;
+			fish_grade = 0;
 
 			blacking_out = false;
 			black_out_t = 0;
@@ -317,6 +338,7 @@ CAT_vec2 hook;
 struct
 {
 	const CAT_fish* type;
+	int grade;
 	float length;
 	float lustre;
 	float wisdom;
@@ -364,10 +386,13 @@ void init_fish(CAT_vec2 lead_position, CAT_vec2 lead_heading, float lead_radius)
 	CAT_ilist_shuffle(&fish_pool);
 	int choice = fish_pool.data[CAT_rand_int(0, fish_pool.length-1)];
 	fish.type = fish_list[choice];
+	fish.grade = CAT_rand_int(fish.type->grade_constraint, cast_grade);
 
-	fish.length = CAT_rand_float(fish.type->min_length, fish.type->max_length);
-	fish.lustre = CAT_rand_float(fish.type->min_lustre, fish.type->max_lustre);
-	fish.wisdom = CAT_rand_float(fish.type->min_wisdom, fish.type->max_wisdom);
+	float stat_min = stat_ranges[fish.grade*2+0];
+	float stat_max = stat_ranges[fish.grade*2+1];
+	fish.length = lerp(fish.type->min_length, fish.type->max_length, CAT_rand_float(stat_min, stat_max));
+	fish.lustre = lerp(fish.type->min_lustre, fish.type->max_lustre, CAT_rand_float(stat_min, stat_max));
+	fish.wisdom = lerp(fish.type->min_wisdom, fish.type->max_wisdom, CAT_rand_float(stat_min, stat_max));
 
 	fish.positions[0] = lead_position;
 	fish.headings[0] = CAT_vec2_unit(lead_heading);
@@ -736,16 +761,30 @@ struct
 	int vertices[10*2];
 } bar;
 
-void init_bar(CAT_ivec2 center, int length)
+void bar_retarget(bool hard)
 {
-	bar.margin = CAT_rand_float(BAR_ERROR_MARGIN_MIN, BAR_ERROR_MARGIN_MAX);
-	bar.target = CAT_rand_float(bar.margin, 1-bar.margin);
+	float min_margin = bar_margin_ranges[fish.grade*2+0];
+	float max_margin = bar_margin_ranges[fish.grade*2+1];
+	float min_lull = bar_lull_ranges[fish.grade*2+0];
+	float max_lull = bar_lull_ranges[fish.grade*2+1];
+	
+	if(hard)
+	{
+		bar.margin = CAT_rand_float(min_margin, max_margin);
+		bar.target = CAT_rand_float(bar.margin, 1-bar.margin);
+	}
 
-	bar.margin_next = CAT_rand_float(BAR_ERROR_MARGIN_MIN, BAR_ERROR_MARGIN_MAX);
+	bar.margin_next = CAT_rand_float(min_margin, max_margin);
 	bar.target_next = CAT_rand_float(bar.margin_next, 1-bar.margin_next);
 
-	bar.wait = CAT_rand_float(BAR_WAIT_MIN, BAR_WAIT_MAX);
+	bar.wait = CAT_rand_float(min_lull, max_lull);
 	bar.waiter = 0;
+	bar.slider = 0;
+}
+
+void init_bar(CAT_ivec2 center, int length)
+{
+	bar_retarget(true);
 
 	bar.cursor = 0.5f;
 	bar.progress = 0.15f;
@@ -785,12 +824,7 @@ void bar_tick()
 {
 	if(bar.waiter >= bar.wait)
 	{
-		bar.margin_next = CAT_rand_float(BAR_ERROR_MARGIN_MIN, BAR_ERROR_MARGIN_MAX);
-		bar.target_next = CAT_rand_float(bar.margin_next, 1-bar.margin_next);
-
-		bar.wait = CAT_rand_float(BAR_WAIT_MIN, BAR_WAIT_MAX);
-		bar.waiter = 0;
-		bar.slider = 0;
+		bar_retarget(false);
 	}
 	bar.waiter += CAT_get_delta_time_s();
 
@@ -860,9 +894,6 @@ void MS_catch(CAT_machine_signal signal)
 
 			struggle_timer = 0;
 			struggle_wait = CAT_rand_float(1.0f, 3.0f);
-			blink_timer = 0;
-			blink_period = 1.0f;
-			blink_switch = true;
 		break;
 
 		case CAT_MACHINE_SIGNAL_TICK:
@@ -912,28 +943,6 @@ void MS_catch(CAT_machine_signal signal)
 				struggle_wait = CAT_rand_float(1.0f, 3.0f);
 			}
 			struggle_timer += CAT_get_delta_time_s();
-
-			if(blink_timer >= blink_period)
-			{
-				if(blink_switch)
-				{
-					if(blink_period == 1.0f)
-						blink_period = 0.125f;
-					else
-						blink_period = 1.0f;
-				}
-				else
-				{
-					if(blink_period == 0.125f)
-						blink_period = 0.125f;
-					else
-						blink_period = 1.0f;
-				}
-
-				blink_switch = !blink_switch;
-				blink_timer = 0.0f;
-			}
-			blink_timer += CAT_get_delta_time_s();
 			
 			fish_tick();
 			rings_tick();	

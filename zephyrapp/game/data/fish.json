@@ -19,6 +19,24 @@
                 "write"
             ]
         },
+		"grade_constraint": {
+            "type": "int",
+            "permissions": [
+                "write"
+            ]
+        },
+		"characteristic": {
+			"type": [
+				"plain",
+				"slimy",
+				"bony",
+				"glittering",
+				"fatty"
+			],
+			"permissions": [
+				"write"
+			]
+		},
         "min_length": {
             "type": "float",
             "permissions": [
@@ -51,12 +69,6 @@
         },
         "max_wisdom": {
             "type": "float",
-            "permissions": [
-                "write"
-            ]
-        },
-        "grade_constraint": {
-            "type": "int",
             "permissions": [
                 "write"
             ]
