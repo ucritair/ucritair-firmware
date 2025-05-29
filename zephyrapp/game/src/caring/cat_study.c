@@ -7,6 +7,9 @@
 #include "cowtools/cat_curves.h"
 #include "sprite_assets.h"
 #include "cowtools/cat_structures.h"
+#include "fish_assets.h"
+#include "cat_gui.h"
+#include "cat_text.h"
 
 #define SCREEN_DIAG 400
 #define BLACK_OUT_DURATION 1.0f
@@ -198,6 +201,8 @@ void render_pole()
 float cast_t = 0.0f;
 float cast_dir = 1.0f;
 
+int cast_grade;
+
 bool blacking_out = false;
 float black_out_t = 0.0f;
 
@@ -213,6 +218,7 @@ void MS_cast(CAT_machine_signal signal)
 
 			cast_t = 0;
 			cast_dir = 0;
+			cast_grade = 0;
 
 			blacking_out = false;
 			black_out_t = 0;
@@ -230,6 +236,10 @@ void MS_cast(CAT_machine_signal signal)
 				{
 					pole.committed = true;
 					pole.error = fabs(pole.target - pole.guess);
+					if(pole.error < 0.05)
+						cast_grade = 2;
+					else if(pole.error < 0.15)
+						cast_grade = 1;
 
 					spawn_ring(CAT_iv2v(point_on_pole(pole.target)), SCREEN_DIAG, 320);
 				}
@@ -250,7 +260,7 @@ void MS_cast(CAT_machine_signal signal)
 
 			if(!pole.committed)
 			{
-				cast_t += cast_dir * CAT_get_delta_time_s() / 3.0f;
+				cast_t += cast_dir * CAT_get_delta_time_s() / 1.5f;
 				if(cast_t >= 0.99f)
 					cast_dir = -1.0f;
 				else if(cast_t <= 0.01f)
@@ -281,50 +291,32 @@ void render_MS_cast()
 
 	if(!pole.committed)
 	{
-		CAT_textberry(12, 12, CAT_WHITE, 2, "CAST");
-		CAT_textberry(12, 12+28, CAT_WHITE, 2, "A");
-		CAT_textberry(12, 12+28+28, CAT_WHITE, 2, "LINE");
+		CAT_push_text_scale(2);
+		CAT_push_text_colour(CAT_WHITE);
+		CAT_draw_text(12, 12, "CAST");
+		CAT_push_text_scale(2);
+		CAT_push_text_colour(CAT_WHITE);
+		CAT_draw_text(12, 12+28, "A");
+		CAT_push_text_scale(2);
+		CAT_push_text_colour(CAT_WHITE);
+		CAT_draw_text(12, 12+28+28, "LINE");
 	}
 	else if(!blacking_out)
 	{
-		CAT_textberry(12, 12, CAT_RED, 2, "GO");
-		CAT_textberry(12, 12+28, CAT_RED, 2, "FISH!");
+		CAT_push_text_scale(2);
+		CAT_push_text_colour(CAT_RED);
+		CAT_draw_text(12, 12, "GO");
+		CAT_push_text_scale(2);
+		CAT_push_text_colour(CAT_RED);
+		CAT_draw_text(12, 12+28, "FISH!");
 	}
 }
 
 CAT_vec2 hook;
 
-typedef struct
-{
-	const char* name;
-	const char* proverb;
-
-	float min_length;
-	float max_length;
-	float min_lustre;
-	float max_lustre;
-	float min_wisdom;
-	float max_wisdom;
-} study_fish_type;
-
-const study_fish_type horse_mackerel =
-{
-	.name = "Horse Mackerel",
-	.proverb = "I can do all things\nthrough Christ who\nstrengthens me.",
-	.min_length = 0.15, .max_length = 0.4,
-	.min_lustre = 0.5, .max_lustre = 0.8,
-	.min_wisdom = 0.1, .max_wisdom = 0.3
-};
-
-const study_fish_type* fish_types[1] =
-{
-	&horse_mackerel
-};
-#define FISH_TYPE_COUNT (sizeof(fish_types)/sizeof(fish_types[0]))
-
 struct
 {
-	const study_fish_type* type;
+	const CAT_fish* type;
 	float length;
 	float lustre;
 	float wisdom;
@@ -350,9 +342,29 @@ struct
 	.nibble_timer_id = -1
 };
 
+int fish_pool_backing[FISH_COUNT*3];
+CAT_int_list fish_pool;
+
 void init_fish(CAT_vec2 lead_position, CAT_vec2 lead_heading, float lead_radius)
 {
-	fish.type = fish_types[CAT_rand_int(0, FISH_TYPE_COUNT-1)];
+	CAT_ilist(&fish_pool, fish_pool_backing, FISH_COUNT*3);
+	for(int i = 0; i < FISH_COUNT; i++)
+	{
+		const CAT_fish* fish_type = fish_list[i];
+		if(fish_type->grade_constraint <= cast_grade)
+		{
+			CAT_ilist_push(&fish_pool, i);
+			if(cast_grade > 0 && fish_type->grade_constraint == cast_grade)
+			{
+				for(int j = 0; j <= cast_grade; j++)
+					CAT_ilist_push(&fish_pool, i);
+			}
+		}
+	}
+	CAT_ilist_shuffle(&fish_pool);
+	int choice = fish_pool.data[CAT_rand_int(0, fish_pool.length-1)];
+	fish.type = fish_list[choice];
+
 	fish.length = CAT_rand_float(fish.type->min_length, fish.type->max_length);
 	fish.lustre = CAT_rand_float(fish.type->min_lustre, fish.type->max_lustre);
 	fish.wisdom = CAT_rand_float(fish.type->min_wisdom, fish.type->max_wisdom);
@@ -605,6 +617,9 @@ void MS_fish(CAT_machine_signal signal)
 		{
 			if(CAT_input_pressed(CAT_BUTTON_B) || CAT_input_pressed(CAT_BUTTON_START))
 				CAT_machine_transition(CAT_MS_room);
+			
+			if(CAT_input_pressed(CAT_BUTTON_SELECT))
+				CAT_machine_transition(MS_summary);
 
 			if(!fish.nibble_trigger)
 			{
@@ -694,7 +709,11 @@ void render_MS_fish()
 	}
 
 	if(!fish.nibble_trigger && blink_switch)
-		CAT_textberry(12, 12, fish.race_trigger ? CAT_RED : CAT_WHITE, 2, "INTERCEPT!");
+	{
+		CAT_push_text_scale(2);
+		CAT_push_text_colour(fish.race_trigger ? CAT_RED : CAT_WHITE);
+		CAT_draw_text(12, 12, "INTERCEPT!");
+	}
 }
 
 struct
@@ -940,7 +959,8 @@ void render_MS_catch()
 		CAT_push_draw_colour(CAT_RED);
 		CAT_draw_sprite(&study_a_button_sprite, 0, 120, bar.center.y - 48);
 	}
-	CAT_textfberry(120-8*2+4, bar.center.y - 26, CAT_RED, 1, "%.1f%%", bar.progress * 100);
+	CAT_push_text_colour(CAT_RED);
+	CAT_draw_textf(120-8*2+4, bar.center.y - 26, "%.1f%%", bar.progress * 100);
 }
 
 CAT_RGB888 fail_colour;
@@ -1080,21 +1100,35 @@ void render_MS_summary()
 	render_wave_buffer();
 
 	int cursor_y = 12;
-	CAT_textfberry(12, cursor_y, CAT_WHITE, 2, fish.type->name);
+
+	CAT_push_text_scale(2);
+	CAT_push_text_colour(CAT_WHITE);
+	CAT_draw_textf(12, cursor_y, fish.type->name);
 	cursor_y += 36;
-	CAT_textfberry(12, cursor_y, CAT_WHITE, 1, fish.type->proverb);
+
+	CAT_push_text_colour(CAT_WHITE);
+	CAT_push_text_flags(CAT_TEXT_FLAG_WRAP);
+	CAT_draw_textf(12, cursor_y, fish.type->proverb);
 	cursor_y += 52;
-	CAT_textfberry(12, cursor_y, CAT_WHITE, 1, "Length: %0.0f cm", fish.length * 100);
+
+	CAT_push_text_colour(CAT_WHITE);
+	CAT_draw_textf(12, cursor_y, "Length: %0.0f cm", fish.length * 100);
 	cursor_y += 20;
 	CAT_lineberry(12, cursor_y, 12 + CAT_LCD_SCREEN_W * 0.75 * inv_lerp(fish.length, fish.type->min_length, fish.type->max_length), cursor_y, CAT_WHITE);
 	cursor_y += 16;
-	CAT_textfberry(12, cursor_y, CAT_WHITE, 1, "Lustre: %0.2f", fish.lustre);
+
+	CAT_push_text_colour(CAT_WHITE);
+	CAT_draw_textf(12, cursor_y, "Lustre: %0.2f", fish.lustre);
 	cursor_y += 20;
 	CAT_lineberry(12, cursor_y, 12 + CAT_LCD_SCREEN_W * 0.75 * inv_lerp(fish.lustre, fish.type->min_lustre, fish.type->max_lustre), cursor_y, CAT_WHITE);
 	cursor_y += 16;
-	CAT_textfberry(12, cursor_y, CAT_WHITE, 1, "Wisdom: %0.2f", fish.wisdom);
+
+	CAT_push_text_colour(CAT_WHITE);
+	CAT_draw_textf(12, cursor_y, "Wisdom: %0.2f", fish.wisdom);
 	cursor_y += 20;
 	CAT_lineberry(12, cursor_y, 12 + CAT_LCD_SCREEN_W * 0.75 * inv_lerp(fish.wisdom, fish.type->min_wisdom, fish.type->max_wisdom), cursor_y, CAT_WHITE);
+
+	CAT_polyberry(0, 188, fish.type->vertices, fish.type->vertex_count, CAT_WHITE, CAT_POLY_MODE_LINES);
 }
 
 void CAT_MS_study(CAT_machine_signal signal)

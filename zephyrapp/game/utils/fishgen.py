@@ -17,44 +17,47 @@ header.write(f"#define FISH_COUNT {len(json_entries)}\n");
 header.write("\n");
 header.write("#include \"caring/cat_study.h\"\n");
 header.write("\n");
-for (idx, theme) in enumerate(json_entries):
-	header.write(f"extern const CAT_room_theme {theme['name']}_theme;\n");
+for (idx, fish) in enumerate(json_entries):
+	header.write(f"extern const CAT_fish {fish['name']}_fish;\n");
 header.write("\n");
-header.write("extern const CAT_room_theme* themes_list[];\n");
+header.write("extern const CAT_fish* fish_list[];\n");
 header.close();
 
-def write_map(f, m, w, h):
+def write_geometry(f, vertices, count):
+	f.write("\t.vertices = (int[])");
 	f.write("\t{\n");
-	for y in range(h):
-		f.write("\t\t");
-		for x in range(w):
-			idx = y * w + x;
-			f.write(f"{m[idx]},");
-		f.write("\n");
+	i = 0;
+	while i < count:
+		f.write(f"\t\t{int(vertices[i*2+0])}, {int(vertices[i*2+1])},\n");
+		i += 1;
 	f.write("\t},\n")
+	f.write(f"\t.vertex_count = {count}\n");
 
-source = open("data/theme_assets.c", "w");
-source.write("#include \"theme_assets.h\"\n");
+source = open("data/fish_assets.c", "w");
+source.write("#include \"fish_assets.h\"\n");
 source.write("\n");
-source.write("#include \"sprite_assets.h\"\n");
-source.write("\n");
-for (idx, theme) in enumerate(json_entries):
-	source.write(f"const CAT_room_theme {theme['name']}_theme =\n");
+for (idx, fish) in enumerate(json_entries):
+	source.write(f"const CAT_fish {fish['name']}_fish =\n");
 	source.write("{\n");
-	source.write(f"\t.name = \"{theme['display_name']}\",\n");
-	source.write(f"\t.wall_tiles = &{theme['wall_tiles']},\n");
-	source.write(f"\t.wall_map = (uint8_t[])\n");
-	write_map(source, theme['wall_map'], 15, 6);
-	source.write(f"\t.floor_tiles = &{theme['floor_tiles']},\n");
-	source.write(f"\t.floor_map = (uint8_t[])\n");
-	write_map(source, theme['floor_map'], 15, 14);
+	source.write(f"\t.name = \"{fish['display_name']}\",\n");
+	source.write(f"\t.proverb = \"{fish['proverb']}\",\n");
+	source.write(f"\t.grade_constraint = {fish['grade_constraint']},\n");
+	source.write("\n");
+	source.write(f"\t.min_length = {fish['min_length']},\n");
+	source.write(f"\t.max_length = {fish['max_length']},\n");
+	source.write(f"\t.min_lustre = {fish['min_lustre']},\n");
+	source.write(f"\t.max_lustre = {fish['max_lustre']},\n");
+	source.write(f"\t.min_wisdom = {fish['min_wisdom']},\n");
+	source.write(f"\t.max_wisdom = {fish['max_wisdom']},\n");
+	source.write("\n");
+	write_geometry(source, fish['vertices'], fish['vertex_count']);
 	source.write("};\n");
 	source.write("\n");
 source.write("\n");
-source.write("const CAT_room_theme* themes_list[] =\n");
+source.write("const CAT_fish* fish_list[] =\n");
 source.write("{\n");
-for (idx, theme) in enumerate(json_entries):
-	source.write(f"\t&{theme['name']}_theme,\n");
+for (idx, fish) in enumerate(json_entries):
+	source.write(f"\t&{fish['name']}_fish,\n");
 source.write("};\n");
 source.close();
 

@@ -112,12 +112,12 @@ typedef struct
 
 typedef enum
 {
-	CAT_DRAW_FLAG_DEFAULT = 0,
-	CAT_DRAW_FLAG_BOTTOM = 1,
-	CAT_DRAW_FLAG_CENTER_X = 2,
-	CAT_DRAW_FLAG_CENTER_Y = 4,
-	CAT_DRAW_FLAG_REFLECT_X = 8,
-	CAT_DRAW_FLAG_STRANGE = 16
+	CAT_DRAW_FLAG_DEFAULT = 1,
+	CAT_DRAW_FLAG_BOTTOM = 2,
+	CAT_DRAW_FLAG_CENTER_X = 4,
+	CAT_DRAW_FLAG_CENTER_Y = 8,
+	CAT_DRAW_FLAG_REFLECT_X = 16,
+	CAT_DRAW_FLAG_STRANGE = 32
 } CAT_draw_flag;
 
 void CAT_push_draw_flags(int flags);
@@ -146,8 +146,6 @@ void CAT_pixberry(int x, int y, uint16_t c);
 void CAT_circberry(int x, int y, int r, uint16_t c);
 void CAT_discberry(int x, int y, int r, uint16_t c);
 void CAT_ringberry(int x, int y, int R, int r, uint16_t c, float t);
-void CAT_textberry(int x, int y, uint16_t c, int scale, const char* text);
-void CAT_textfberry(int x, int y, uint16_t c, int scale, const char* fmt, ...);
 void CAT_polyberry(int x, int y, int* poly, int count, uint16_t c, CAT_poly_mode mode);
 
 //////////////////////////////////////////////////////////////////////////

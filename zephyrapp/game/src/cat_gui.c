@@ -11,6 +11,7 @@
 #include "cat_item.h"
 #include "cat_bag.h"
 #include "sprite_assets.h"
+#include "cat_text.h"
 
 //////////////////////////////////////////////////////////////////////////
 // BASICS
@@ -940,9 +941,10 @@ void CAT_gui_printf(uint16_t colour, const char* fmt, ...)
 	vsnprintf(text, 128, fmt, args);
 	va_end(args);
 
-	CAT_textberry(0, printf_cursor_y, colour, 1, text);
-	
+	CAT_push_text_colour(colour);
+	CAT_draw_text(0, printf_cursor_y, text);
 	printf_cursor_y += CAT_GLYPH_HEIGHT + 2;
+
 	if(CAT_is_last_render_cycle())
 		printf_cursor_y = 0;
 }

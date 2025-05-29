@@ -15,6 +15,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "cat_room.h"
+#include "cat_text.h"
 
 void MS_feed_arrange(CAT_machine_signal signal);
 void render_arrange();
@@ -827,8 +828,12 @@ void render_arrange()
 	CAT_draw_sprite(&feed_upper_tray_sprite, 0, 0, 0);
 	if (food_pool.length <= 0)
 	{
-		CAT_textfberry(counter_x + 68, counter_y + 6, CAT_WHITE, 2, "Out of");
-		CAT_textfberry(counter_x + 34, counter_y + 32, CAT_WHITE, 2, "food items!");
+		CAT_push_text_scale(2);
+		CAT_push_text_colour(CAT_WHITE);
+		CAT_draw_textf(counter_x + 68, counter_y + 6, "Out of");
+		CAT_push_text_scale(2);
+		CAT_push_text_colour(CAT_WHITE);
+		CAT_draw_textf(counter_x + 34, counter_y + 32, "food items!");
 	}
 
 	int table_x = table_rect.min.x;
@@ -890,11 +895,13 @@ void render_arrange()
 		{
 			if (food_list[i].active)
 			{
-				CAT_textfberry(
+				CAT_push_text_colour(CAT_WHITE);
+				CAT_draw_textf
+				(
 					food_list[i].position.x - FOOD_COLLISION_W / 2,
 					food_list[i].position.y - FOOD_COLLISION_H / 2 - 14,
-					CAT_WHITE, 1,
-					"%d: %0.2f", i, food_list[i].angle);
+					"%d: %0.2f", i, food_list[i].angle
+				);
 			}
 		}
 	}
@@ -1174,10 +1181,15 @@ void render_inspect()
 	if (inspectee == NULL)
 		return;
 
-	CAT_textfberry(8, 8, CAT_WHITE, 2, inspectee->name);
-	CAT_textfberry(8, 8 + 28, CAT_WHITE, 1, "Group: %s", group_strings[inspectee->data.tool_data.food_group]);
-	CAT_textfberry(8, 8 + 28 + 16, CAT_WHITE, 1, "Role: %s", role_strings[inspectee->data.tool_data.food_role]);
-	CAT_textfberry(8, 8 + 28 + 16 + 16, CAT_WHITE, 1, inspectee->text);
+	CAT_push_text_scale(2);
+	CAT_push_text_colour(CAT_WHITE);
+	CAT_draw_text(8, 8, inspectee->name);
+	CAT_push_text_colour(CAT_WHITE);
+	CAT_draw_textf(8, 8 + 28, "Group: %s", group_strings[inspectee->data.tool_data.food_group]);
+	CAT_push_text_colour(CAT_WHITE);
+	CAT_draw_textf(8, 8 + 28 + 16, "Role: %s", role_strings[inspectee->data.tool_data.food_role]);
+	CAT_push_text_colour(CAT_WHITE);
+	CAT_draw_text(8, 8 + 28 + 16 + 16, inspectee->text);
 
 	CAT_push_draw_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
 	CAT_push_draw_scale(6);
@@ -1299,18 +1311,21 @@ void render_summary()
 	CAT_draw_sprite(&ui_right_arrow_sprite, -1, 240 - 13 - 8, 12);
 	int title_len = strlen(title);
 	int title_x = (CAT_LCD_SCREEN_W - 1 - title_len * 16) / 2;
-	CAT_textfberry(title_x, 12, CAT_BLACK, 2, title);
+	CAT_push_text_colour(CAT_BLACK);
+	CAT_push_text_scale(2);
+	CAT_draw_text(title_x, 12, title);
 
 	if (summary_page == NOTES)
 	{
 		int cursor_y = 52;
 		for (int i = 0; i < note_count; i++)
 		{
-			CAT_textfberry(12, cursor_y, severity_colours[note_list[i].severity], 1, "\1 %s", note_list[i].message);
+			CAT_push_text_colour(severity_colours[note_list[i].severity]);
+			CAT_draw_textf(12, cursor_y, "\1 %s", note_list[i].message);
 			cursor_y += 18;
 		}
 		const char *signature = "- Inspector Reed";
-		CAT_textfberry(240 - strlen(signature) * 8 - 12, cursor_y + 6, CAT_BLACK, 1, signature);
+		CAT_draw_text(240 - strlen(signature) * 8 - 12, cursor_y + 6, signature);
 	}
 	else
 	{

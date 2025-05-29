@@ -78,6 +78,14 @@ add_custom_command(
 	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../data/config.json
 )
 
+add_custom_command(
+	OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/../data/fish_assets.h ${CMAKE_CURRENT_BINARY_DIR}/../data/fish_assets.c
+	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../
+	COMMAND ${CMAKE_CURRENT_BINARY_DIR}/../utils/fishgen.py
+	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../utils/fishgen.py
+	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../data/fish.json
+)
+
 target_sources(app PRIVATE
 	src/core/cat_common.c
 
@@ -87,6 +95,7 @@ target_sources(app PRIVATE
 	src/render/cat_spriter.c
 	src/render/cat_draw_queue.c
 	src/render/cat_animation.c
+	src/render/cat_text.c
 
 	src/menu/cat_menu.c
 	src/menu/cat_menu_insights.c
@@ -125,6 +134,7 @@ target_sources(app PRIVATE
 	data/item_assets.c
 	data/theme_assets.c
 	data/config.c
+	data/fish_assets.c
 
 	src/cat_main.c)
 

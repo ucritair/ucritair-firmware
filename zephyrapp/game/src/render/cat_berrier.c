@@ -1,10 +1,8 @@
 #include "cat_render.h"
 
 #include <string.h>
-#include <stdarg.h>
 #include "sprite_assets.h"
 #include <math.h>
-#include <stdio.h>
 
 //////////////////////////////////////////////////////////////////////////
 // THE BERRIER
@@ -366,48 +364,6 @@ void CAT_ringberry(int x, int y, int R, int r, uint16_t c, float t)
 			}
 		}
 	}
-}
-
-void CAT_textberry(int x, int y, uint16_t c, int scale, const char* text)
-{
-	const char* glyph_ptr = text;
-	int cursor_x = x;
-	int cursor_y = y;
-
-	while (*glyph_ptr != '\0')
-	{
-		if(*glyph_ptr == '\n')
-		{
-			cursor_x = x;
-			cursor_y +=(CAT_GLYPH_HEIGHT + 2) * scale;
-			glyph_ptr++;
-			continue;
-		}
-		if(*glyph_ptr == '\t')
-		{
-			cursor_x += CAT_GLYPH_WIDTH * 4 * scale;
-			glyph_ptr++;
-			continue;
-		}
-
-		CAT_push_draw_colour(c);
-		CAT_push_draw_scale(scale);
-		CAT_draw_sprite(&glyph_sprite, *glyph_ptr, cursor_x, cursor_y);
-		cursor_x += CAT_GLYPH_WIDTH * scale;
-		glyph_ptr++;
-	}
-}
-
-char text_buffer[512];
-
-void CAT_textfberry(int x, int y, uint16_t c, int scale, const char* fmt, ...)
-{
-	va_list args;
-	va_start(args, fmt);
-	vsnprintf(text_buffer, 512, fmt, args);
-	va_end(args);
-
-	CAT_textberry(x, y, c, scale, text_buffer);
 }
 
 void CAT_polyberry(int x, int y, int* poly, int count, uint16_t c, CAT_poly_mode mode)
