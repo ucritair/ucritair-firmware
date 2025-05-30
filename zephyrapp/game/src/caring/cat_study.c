@@ -166,7 +166,7 @@ struct
 	bool committed;
 	float error;
 
-	int vertices[10*2];
+	int16_t vertices[10*2];
 } pole;
 
 void init_pole(CAT_ivec2 center, int length)
@@ -218,7 +218,7 @@ CAT_ivec2 point_on_pole(float t)
 
 void render_pole()
 {
-	CAT_polyberry
+	CAT_polyberry_16
 	(
 		pole.center.x, pole.center.y,
 		pole.vertices, 10,
@@ -775,7 +775,7 @@ struct
 
 	CAT_ivec2 center;
 	int length;
-	int vertices[10*2];
+	int16_t vertices[10*2];
 } bar;
 
 void bar_retarget(bool hard)
@@ -870,7 +870,7 @@ CAT_ivec2 bar_jitter;
 
 void render_bar()
 {
-	CAT_polyberry
+	CAT_polyberry_16
 	(
 		bar.center.x, bar.center.y,
 		bar.vertices, 10,
@@ -1105,6 +1105,7 @@ void MS_summary(CAT_machine_signal signal)
 void render_wave_buffer()
 {
 	uint16_t* framebuffer = CAT_LCD_get_framebuffer();
+	uint16_t c = ADAPT_DESKTOP_COLOUR(0x4cb5);
 
 	for(int x = 0; x < 240; x++)
 	{
@@ -1118,7 +1119,7 @@ void render_wave_buffer()
 			continue;
 
 		for(int y_w = y_f; y_w < CAT_LCD_FRAMEBUFFER_H; y_w++)
-			framebuffer[y_w * CAT_LCD_FRAMEBUFFER_W + x] = 0x4cb5;
+			framebuffer[y_w * CAT_LCD_FRAMEBUFFER_W + x] = c;
 	}
 }
 
@@ -1156,7 +1157,7 @@ void render_MS_summary()
 	cursor_y += 20;
 	CAT_lineberry(12, cursor_y, 12 + CAT_LCD_SCREEN_W * 0.75 * inv_lerp(fish.wisdom, fish.type->min_wisdom, fish.type->max_wisdom), cursor_y, CAT_WHITE);
 
-	CAT_polyberry(0, 188, fish.type->vertices, fish.type->vertex_count, CAT_WHITE, CAT_POLY_MODE_LINES);
+	CAT_polyberry_u8(0, 188, fish.type->vertices, fish.type->vertex_count, CAT_WHITE);
 }
 
 void CAT_MS_study(CAT_machine_signal signal)

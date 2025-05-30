@@ -24,7 +24,7 @@ header.write("extern const CAT_fish* fish_list[];\n");
 header.close();
 
 def write_geometry(f, vertices, count):
-	f.write("\t.vertices = (int[])");
+	f.write("\t.vertices = (uint8_t[])");
 	f.write("\t{\n");
 	i = 0;
 	while i < count:

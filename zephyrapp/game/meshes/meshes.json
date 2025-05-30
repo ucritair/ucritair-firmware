@@ -1,23 +1,23 @@
 {
-	"type" : "mesh",
-	"schema" : {
+    "type": "mesh",
+    "schema": {
         "name": {
-            "type" : "string",
-            "permissions" : [
+            "type": "string",
+            "permissions": [
                 "write"
             ]
         },
-        "path" : {
+        "path": {
             "type": "*.obj",
-            "permissions" : [
+            "permissions": [
                 "write"
             ]
         }
-	},
-	"entries": [
-		{
-			"name" : "eth",
-			"path" : "eth.obj"
-		}
-	]
+    },
+    "entries": [
+        {
+            "name": "eth",
+            "path": "eth.obj"
+        }
+    ]
 }

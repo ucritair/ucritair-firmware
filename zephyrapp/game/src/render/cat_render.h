@@ -146,7 +146,8 @@ void CAT_pixberry(int x, int y, uint16_t c);
 void CAT_circberry(int x, int y, int r, uint16_t c);
 void CAT_discberry(int x, int y, int r, uint16_t c);
 void CAT_ringberry(int x, int y, int R, int r, uint16_t c, float t);
-void CAT_polyberry(int x, int y, int* poly, int count, uint16_t c, CAT_poly_mode mode);
+void CAT_polyberry_16(int x, int y, int16_t* poly, int count, uint16_t c, CAT_poly_mode mode);
+void CAT_polyberry_u8(int x, int y, uint8_t* poly, int count, uint16_t c);
 
 //////////////////////////////////////////////////////////////////////////
 // ANIMATOR

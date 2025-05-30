@@ -1,6 +1,7 @@
 #pragma once
 
 #include "cat_machine.h"
+#include <stdint.h>
 
 typedef struct
 {
@@ -15,7 +16,7 @@ typedef struct
 	float min_wisdom;
 	float max_wisdom;
 
-	int* vertices;
+	uint8_t* vertices;
 	int vertex_count;
 } CAT_fish;
 

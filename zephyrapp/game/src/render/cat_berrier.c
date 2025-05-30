@@ -366,7 +366,7 @@ void CAT_ringberry(int x, int y, int R, int r, uint16_t c, float t)
 	}
 }
 
-void CAT_polyberry(int x, int y, int* poly, int count, uint16_t c, CAT_poly_mode mode)
+void CAT_polyberry_16(int x, int y, int16_t* poly, int count, uint16_t c, CAT_poly_mode mode)
 {
 	int i = 0;
 	int stride = mode == CAT_POLY_MODE_LINES ? 2 : 1;
@@ -382,5 +382,17 @@ void CAT_polyberry(int x, int y, int* poly, int count, uint16_t c, CAT_poly_mode
 		int x0 = poly[i*2+0]; int y0 = poly[i*2+1];
 		int x1 = poly[0]; int y1 = poly[1];
 		CAT_lineberry(x+x0, y+y0, x+x1, y+y1, c);
+	}
+}
+
+void CAT_polyberry_u8(int x, int y, uint8_t* poly, int count, uint16_t c)
+{
+	int i = 0;
+	while(i < count-1)
+	{
+		int x0 = poly[i*2+0]; int y0 = poly[i*2+1];
+		int x1 = poly[(i+1)*2+0]; int y1 = poly[(i+1)*2+1];
+		CAT_lineberry(x+x0, y+y0, x+x1, y+y1, c);
+		i += 2;
 	}
 }
