@@ -41,5 +41,5 @@ void CAT_push_text_line_width(int width);
 void CAT_push_text_colour(uint16_t colour);
 void CAT_push_text_scale(uint8_t scale);
 
-void CAT_draw_text(int x, int y, const char* text);
-void CAT_draw_textf(int x, int y, const char* fmt, ...);
+int CAT_draw_text(int x, int y, const char* text);
+int CAT_draw_textf(int x, int y, const char* fmt, ...);

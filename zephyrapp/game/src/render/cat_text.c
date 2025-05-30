@@ -120,7 +120,7 @@ uint8_t consume_text_scale()
 	return value;
 }
 
-void CAT_draw_text(int x, int y, const char* text)
+int CAT_draw_text(int x, int y, const char* text)
 {
 	int flags = consume_text_flags();
 	int line_width = consume_text_line_width();
@@ -166,16 +166,18 @@ void CAT_draw_text(int x, int y, const char* text)
 		cursor_x += CAT_GLYPH_WIDTH * scale;
 		glyph_ptr++; glyph_idx++;
 	}
+
+	return cursor_y;
 }
 
 char textf_buffer[512];
 
-void CAT_draw_textf(int x, int y, const char* fmt, ...)
+int CAT_draw_textf(int x, int y, const char* fmt, ...)
 {
 	va_list args;
 	va_start(args, fmt);
 	vsnprintf(textf_buffer, 512, fmt, args);
 	va_end(args);
 
-	CAT_draw_text(x, y, textf_buffer);
+	return CAT_draw_text(x, y, textf_buffer);
 }

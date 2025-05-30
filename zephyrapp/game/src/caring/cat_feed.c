@@ -53,13 +53,15 @@ void render_summary();
 #define SELECT_GRID_MARGIN 12
 
 static CAT_rect counter_rect =
-	{
-		.min = {COUNTER_X, COUNTER_Y},
-		.max = {COUNTER_X + COUNTER_W, COUNTER_Y + COUNTER_H}};
+{
+	.min = {COUNTER_X, COUNTER_Y},
+	.max = {COUNTER_X + COUNTER_W, COUNTER_Y + COUNTER_H}
+};
 static CAT_rect table_rect =
-	{
-		.min = {TABLE_X, TABLE_Y},
-		.max = {TABLE_X + TABLE_W, TABLE_Y + TABLE_H}};
+{
+	.min = {TABLE_X, TABLE_Y},
+	.max = {TABLE_X + TABLE_W, TABLE_Y + TABLE_H}
+};
 static CAT_rect spawn_rects[MAX_FOOD_COUNT];
 
 void init_spawn_rects()
@@ -1233,7 +1235,7 @@ void MS_feed_summary(CAT_machine_signal signal)
 }
 
 static uint16_t grade_colours[6] =
-	{
+{
 		0x8082, // F
 		0x81e2, // C
 		0xbae4, // B-
@@ -1243,7 +1245,7 @@ static uint16_t grade_colours[6] =
 };
 
 static uint16_t severity_colours[4] =
-	{
+{
 		CAT_BLACK, // BASIC
 		0xc983,	   // BAD
 		0x4c07,	   // GOOD
@@ -1274,7 +1276,7 @@ int get_glyph_idx(int grade)
 
 void render_summary()
 {
-	CAT_frameberry(0xef39);
+	CAT_frameberry(CAT_PAPER);
 
 	const char *title = "N/A";
 	int grade = 0;

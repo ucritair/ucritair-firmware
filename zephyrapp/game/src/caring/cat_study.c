@@ -49,7 +49,7 @@ const float bar_margin_ranges[] =
 const float stat_ranges[] =
 {
 	0.1, 0.75,
-	0.25, 0.85,
+	0.35, 0.85,
 	0.5, 1.0
 };
 
@@ -65,6 +65,13 @@ const int stat_rewards[] =
 	2,
 	3,
 	4
+};
+
+const int xp_rewards[] =
+{
+	2, 7,
+	7, 15,
+	15, 30 
 };
 
 void MS_cast(CAT_machine_signal signal);
@@ -238,7 +245,6 @@ float cast_t = 0.0f;
 float cast_dir = 1.0f;
 
 int cast_grade;
-int fish_grade;
 
 bool blacking_out = false;
 float black_out_t = 0.0f;
@@ -256,7 +262,6 @@ void MS_cast(CAT_machine_signal signal)
 			cast_t = 0;
 			cast_dir = 0;
 			cast_grade = 0;
-			fish_grade = 0;
 
 			blacking_out = false;
 			black_out_t = 0;
@@ -265,7 +270,7 @@ void MS_cast(CAT_machine_signal signal)
 
 		case CAT_MACHINE_SIGNAL_TICK:
 		{
-			if(CAT_input_pressed(CAT_BUTTON_B) || CAT_input_pressed(CAT_BUTTON_START))
+			if(CAT_input_pressed(CAT_BUTTON_B))
 				CAT_machine_transition(CAT_MS_room);
 
 			if(CAT_input_pressed(CAT_BUTTON_A))
@@ -352,6 +357,9 @@ void render_MS_cast()
 
 CAT_vec2 hook;
 
+int fish_pool_backing[FISH_COUNT*3];
+CAT_int_list fish_pool;
+
 struct
 {
 	const CAT_fish* type;
@@ -381,8 +389,9 @@ struct
 	.nibble_timer_id = -1
 };
 
-int fish_pool_backing[FISH_COUNT*3];
-CAT_int_list fish_pool;
+int item_reward;
+int focus_reward;
+int xp_reward;
 
 void init_fish(CAT_vec2 lead_position, CAT_vec2 lead_heading, float lead_radius)
 {
@@ -392,12 +401,8 @@ void init_fish(CAT_vec2 lead_position, CAT_vec2 lead_heading, float lead_radius)
 		const CAT_fish* fish_type = fish_list[i];
 		if(fish_type->grade_constraint <= cast_grade)
 		{
-			CAT_ilist_push(&fish_pool, i);
-			if(cast_grade > 0 && fish_type->grade_constraint == cast_grade)
-			{
-				for(int j = 0; j <= cast_grade; j++)
-					CAT_ilist_push(&fish_pool, i);
-			}
+			for(int j = 0; j <= cast_grade; j++)
+				CAT_ilist_push(&fish_pool, i);
 		}
 	}
 	CAT_ilist_shuffle(&fish_pool);
@@ -634,6 +639,21 @@ float blink_timer;
 float blink_period;
 bool blink_switch;
 
+static bool quit_trigger = false;
+bool quit_popup()
+{
+	if (CAT_gui_popup_is_open())
+		return true;
+	if (CAT_input_pressed(CAT_BUTTON_B))
+		CAT_gui_open_popup("Quit fishing?\nYou will lose this\ncatch!\n", &quit_trigger);
+	if (quit_trigger)
+	{
+		quit_trigger = false;
+		CAT_machine_transition(CAT_MS_room);
+	}
+	return false;
+}
+
 void MS_fish(CAT_machine_signal signal)
 {
 	switch (signal)
@@ -642,7 +662,11 @@ void MS_fish(CAT_machine_signal signal)
 		{
 			CAT_set_render_callback(render_MS_fish);
 			init_rings();
+
 			init_fish((CAT_vec2) {120, 60}, (CAT_vec2) {CAT_rand_float(-1, 1), CAT_rand_float(-1, 1)}, 16.0f);
+			item_reward = item_rewards[fish.grade];
+			focus_reward = stat_rewards[fish.grade];
+			xp_reward = CAT_rand_int(xp_rewards[fish.grade*2+0], xp_rewards[fish.grade*2+1]);
 
 			hook = (CAT_vec2) {120, 160};
 			init_bite_probability();
@@ -657,11 +681,8 @@ void MS_fish(CAT_machine_signal signal)
 
 		case CAT_MACHINE_SIGNAL_TICK:
 		{
-			if(CAT_input_pressed(CAT_BUTTON_B) || CAT_input_pressed(CAT_BUTTON_START))
-				CAT_machine_transition(CAT_MS_room);
-			
-			if(CAT_input_pressed(CAT_BUTTON_SELECT))
-				CAT_machine_transition(MS_summary);
+			if(quit_popup())
+				break;
 
 			if(!fish.nibble_trigger)
 			{
@@ -915,6 +936,9 @@ void MS_catch(CAT_machine_signal signal)
 
 		case CAT_MACHINE_SIGNAL_TICK:
 		{
+			if(quit_popup())
+				break;
+
 			if(CAT_input_pressed(CAT_BUTTON_A))
 			{
 				bar.cursor += 0.25f * CAT_get_delta_time_s();
@@ -1051,8 +1075,9 @@ void MS_succeed(CAT_machine_signal signal)
 		break;
 
 		case CAT_MACHINE_SIGNAL_EXIT:
-			pet.focus += stat_rewards[fish.grade];
 			CAT_item_list_add(&bag, item_rewards[fish.grade], 1);
+			pet.focus += focus_reward;
+			pet.xp += xp_reward;
 		break;
 	}
 }
@@ -1063,6 +1088,12 @@ void render_MS_succeed()
 	render_fish(CAT_RGB24216(succeed_colour));
 	render_rings();
 }
+
+static enum {
+	FISH,
+	PERFORMANCE,
+	SUMMARY_PAGE_MAX
+} summary_page = FISH;
 
 int wave_buffer[240];
 int wave_phase = 0;
@@ -1086,13 +1117,24 @@ void MS_summary(CAT_machine_signal signal)
 	{
 		case CAT_MACHINE_SIGNAL_ENTER:
 			CAT_set_render_callback(render_MS_summary);
+			summary_page = FISH;
 			init_wave_buffer();
 		break;
 
 		case CAT_MACHINE_SIGNAL_TICK:
 		{
-			if(CAT_input_pressed(CAT_BUTTON_B) || CAT_input_pressed(CAT_BUTTON_START))
-				CAT_machine_transition(CAT_MS_room);
+			if(CAT_input_released(CAT_BUTTON_A))
+			{
+				if(summary_page == PERFORMANCE)
+					CAT_machine_transition(CAT_MS_room);
+			}
+
+			// enum = (enum + ENUM_MAX) % ENUM_MAX doesn't work on embedded
+			int summary_page_proxy = summary_page;
+			if (CAT_input_pressed(CAT_BUTTON_RIGHT))
+				summary_page_proxy += 1;
+			summary_page = (summary_page_proxy + SUMMARY_PAGE_MAX) % SUMMARY_PAGE_MAX;
+
 			wave_phase = (wave_phase + 1) % 240;
 		}
 		break;
@@ -1123,41 +1165,104 @@ void render_wave_buffer()
 	}
 }
 
+void render_score_line(int x, int y, int w, float t, float a, float b)
+{
+	int start_x = x;
+	int mid_x = x + w * inv_lerp(t, a, b);
+	int end_x = x + w;
+	CAT_lineberry(start_x, y, mid_x, y, CAT_WHITE);
+	CAT_lineberry(mid_x, y, end_x, y, CAT_RED);
+}
+
 void render_MS_summary()
 {
 	CAT_frameberry(CAT_BLACK);
-	render_wave_buffer();
 
-	int cursor_y = 12;
+	CAT_push_draw_colour(RGB8882565(255, 255, 255));
+	CAT_draw_sprite(&ui_right_arrow_sprite, -1, 240 - 24 - 8, 12);
 
-	CAT_push_text_scale(2);
-	CAT_push_text_colour(CAT_WHITE);
-	CAT_draw_textf(12, cursor_y, fish.type->name);
-	cursor_y += 36;
+	switch (summary_page)
+	{
+		case FISH:
+		{		
+			render_wave_buffer();
+			CAT_draw_mesh2d(fish.type->mesh, 0, 232, CAT_WHITE);
 
-	CAT_push_text_colour(CAT_WHITE);
-	CAT_push_text_flags(CAT_TEXT_FLAG_WRAP);
-	CAT_draw_textf(12, cursor_y, fish.type->proverb);
-	cursor_y += 52;
+			int cursor_y = 12;
+			CAT_push_text_scale(2);
+			CAT_push_text_colour(CAT_WHITE);
+			CAT_draw_textf(12, cursor_y, fish.type->name);
+			cursor_y += 36;
 
-	CAT_push_text_colour(CAT_WHITE);
-	CAT_draw_textf(12, cursor_y, "Length: %0.0f cm", fish.length * 100);
-	cursor_y += 20;
-	CAT_lineberry(12, cursor_y, 12 + CAT_LCD_SCREEN_W * 0.75 * inv_lerp(fish.length, fish.type->min_length, fish.type->max_length), cursor_y, CAT_WHITE);
-	cursor_y += 16;
+			CAT_push_text_colour(CAT_WHITE);
+			CAT_push_text_flags(CAT_TEXT_FLAG_WRAP);
+			cursor_y = CAT_draw_textf(12, cursor_y, fish.type->proverb) + 32;
 
-	CAT_push_text_colour(CAT_WHITE);
-	CAT_draw_textf(12, cursor_y, "Lustre: %0.2f", fish.lustre);
-	cursor_y += 20;
-	CAT_lineberry(12, cursor_y, 12 + CAT_LCD_SCREEN_W * 0.75 * inv_lerp(fish.lustre, fish.type->min_lustre, fish.type->max_lustre), cursor_y, CAT_WHITE);
-	cursor_y += 16;
+			CAT_push_text_colour(CAT_WHITE);
+			CAT_draw_textf(12, cursor_y, "Length: %0.0f cm", fish.length * 100);
+			cursor_y += 20;
+			render_score_line(12, cursor_y, CAT_LCD_SCREEN_W * 0.75, fish.length, fish.type->min_length, fish.type->max_length);
+			cursor_y += 16;
 
-	CAT_push_text_colour(CAT_WHITE);
-	CAT_draw_textf(12, cursor_y, "Wisdom: %0.2f", fish.wisdom);
-	cursor_y += 20;
-	CAT_lineberry(12, cursor_y, 12 + CAT_LCD_SCREEN_W * 0.75 * inv_lerp(fish.wisdom, fish.type->min_wisdom, fish.type->max_wisdom), cursor_y, CAT_WHITE);
+			CAT_push_text_colour(CAT_WHITE);
+			CAT_draw_textf(12, cursor_y, "Lustre: %0.2f", fish.lustre);
+			cursor_y += 20;
+			render_score_line(12, cursor_y, CAT_LCD_SCREEN_W * 0.75, fish.lustre, fish.type->min_lustre, fish.type->max_lustre);
+			cursor_y += 16;
 
-	CAT_draw_mesh2d(fish.type->mesh, 0, 232, CAT_WHITE);
+			CAT_push_text_colour(CAT_WHITE);
+			CAT_draw_textf(12, cursor_y, "Wisdom: %0.2f", fish.wisdom);
+			cursor_y += 20;
+			render_score_line(12, cursor_y, CAT_LCD_SCREEN_W * 0.75, fish.wisdom, fish.type->min_wisdom, fish.type->max_wisdom);
+		}
+		break;
+
+		case PERFORMANCE:
+		{
+			int cursor_y = 12;
+			CAT_push_text_scale(2);
+			CAT_push_text_colour(CAT_WHITE);
+			CAT_draw_textf(12, cursor_y, "Performance");
+			cursor_y += 52;
+
+			CAT_push_text_colour(CAT_WHITE);
+			CAT_draw_textf(12, cursor_y, "Casting skill:");
+			cursor_y += 20;
+			render_score_line(12, cursor_y, CAT_LCD_SCREEN_W * 0.75, cast_grade+1, 0, 3);
+			cursor_y += 16;
+
+			CAT_push_text_colour(CAT_WHITE);
+			CAT_draw_textf(12, cursor_y, "Fish quality:");
+			cursor_y += 20;
+			render_score_line(12, cursor_y, CAT_LCD_SCREEN_W * 0.75, fish.grade+1, 0, 3);
+			cursor_y += 32;
+
+			CAT_push_text_colour(CAT_WHITE);
+			CAT_draw_textf(12, cursor_y, "+ Focus: %d", focus_reward);
+			cursor_y += 20;
+			render_score_line(12, cursor_y, CAT_LCD_SCREEN_W * 0.75, focus_reward+1, stat_rewards[0], stat_rewards[2]+1);
+			cursor_y += 16;
+
+			CAT_push_text_colour(CAT_WHITE);
+			CAT_draw_textf(12, cursor_y, "+ XP: %d", xp_reward);
+			cursor_y += 20;
+			render_score_line(12, cursor_y, CAT_LCD_SCREEN_W * 0.75, xp_reward+1, xp_rewards[0], xp_rewards[2*2+1]+1);
+			cursor_y += 16;
+
+			CAT_push_draw_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
+			CAT_push_draw_scale(2);
+			if(CAT_input_held(CAT_BUTTON_A, 0))
+			{
+				CAT_push_draw_colour(CAT_RED);
+				CAT_push_draw_scale(3);
+			}
+			CAT_draw_sprite(&study_a_button_sprite, 0, 120, 260);
+		}
+		break;
+
+		default:
+		break;
+	}
 }
 
 void CAT_MS_study(CAT_machine_signal signal)
