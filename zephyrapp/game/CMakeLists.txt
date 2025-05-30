@@ -32,6 +32,7 @@ endif()
 
 add_custom_command(
 	OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/../meshes/mesh_assets.h ${CMAKE_CURRENT_BINARY_DIR}/../meshes/mesh_assets.c
+	OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/../meshes/mesh2d_assets.h ${CMAKE_CURRENT_BINARY_DIR}/../meshes/mesh2d_assets.c
 	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../
 	COMMAND ${CMAKE_CURRENT_BINARY_DIR}/../utils/meshgen.py
 	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../utils/meshgen.py
@@ -130,6 +131,7 @@ target_sources(app PRIVATE
 
 	sounds/sound_assets.c
 	meshes/mesh_assets.c
+	meshes/mesh2d_assets.c
 	sprites/sprite_assets.c
 	data/item_assets.c
 	data/theme_assets.c

@@ -147,7 +147,7 @@ def OLV_write_epaper_sprites(fd):
 	if '--noswap' not in sys.argv:
 		fd.write('#include "../../src/epaper_rendering.h"\n')
 		fd.write("\n")
-		eink_folder = "../assets/"
+		eink_folder = "sprites/eink/"
 		for path in os.listdir(eink_folder):
 			texture = pygame.image.load(eink_folder+path)
 			width, height = texture.get_size()

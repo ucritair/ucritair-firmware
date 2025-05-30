@@ -2,7 +2,6 @@
 
 CAT_mesh eth_mesh =
 {
-	.path = "eth.obj",
 	.verts = (float[])
 	{
 		0.0f, -1.241874f, -0.707107f,
@@ -18,7 +17,7 @@ CAT_mesh eth_mesh =
 		0.0f, 2.50259f, 0.0f
 	},
 	.n_verts = 11,
-	.faces = (int[])
+	.faces = (uint8_t[])
 	{
 		4, 0, 3,
 		2, 4, 1,

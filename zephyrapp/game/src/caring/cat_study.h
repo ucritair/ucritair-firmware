@@ -2,6 +2,7 @@
 
 #include "cat_machine.h"
 #include <stdint.h>
+#include "cat_render.h"
 
 typedef struct
 {
@@ -16,8 +17,7 @@ typedef struct
 	float min_wisdom;
 	float max_wisdom;
 
-	uint8_t* vertices;
-	int vertex_count;
+	const CAT_mesh2d* mesh;
 } CAT_fish;
 
 void CAT_MS_study(CAT_machine_signal signal);

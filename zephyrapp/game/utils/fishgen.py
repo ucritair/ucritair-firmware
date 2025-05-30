@@ -23,18 +23,9 @@ header.write("\n");
 header.write("extern const CAT_fish* fish_list[];\n");
 header.close();
 
-def write_geometry(f, vertices, count):
-	f.write("\t.vertices = (uint8_t[])");
-	f.write("\t{\n");
-	i = 0;
-	while i < count:
-		f.write(f"\t\t{int(vertices[i*2+0])}, {int(vertices[i*2+1])},\n");
-		i += 1;
-	f.write("\t},\n")
-	f.write(f"\t.vertex_count = {count}\n");
-
 source = open("data/fish_assets.c", "w");
 source.write("#include \"fish_assets.h\"\n");
+source.write("#include \"mesh2d_assets.h\"\n");
 source.write("\n");
 for (idx, fish) in enumerate(json_entries):
 	source.write(f"const CAT_fish {fish['name']}_fish =\n");
@@ -50,7 +41,7 @@ for (idx, fish) in enumerate(json_entries):
 	source.write(f"\t.min_wisdom = {fish['min_wisdom']},\n");
 	source.write(f"\t.max_wisdom = {fish['max_wisdom']},\n");
 	source.write("\n");
-	write_geometry(source, fish['vertices'], fish['vertex_count']);
+	source.write(f"\t.mesh = &{fish['mesh']}_mesh2d,\n");
 	source.write("};\n");
 	source.write("\n");
 source.write("\n");

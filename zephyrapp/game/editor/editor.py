@@ -21,7 +21,7 @@ import subprocess as sp;
 from stat import *;
 import wave;
 import numpy as np;
-from collections import namedtuple;
+from collections import OrderedDict;
 
 
 #########################################################
@@ -1219,187 +1219,208 @@ class ThemeEditor:
 
 
 #########################################################
-## FISH EDITOR
+## MESH2D EDITOR
 
-class FishEditor:
+class Mesh2DEditor:
 	_ = None;
 
 	def __init__(self):
-		if FishEditor._ != None:
+		if Mesh2DEditor._ != None:
 			return None;
-		FishEditor._ = self;
+		Mesh2DEditor._ = self;
 
-		self.canvas = Canvas(240, 160);
+		self.polyline = [];
+		self.edge_buffer = [];
+
+		self.canvas = Canvas(240, 120);
 		self.canvas_scale = 2;
-		self.size = (720, 480);
+		self.size = (720, 720);
 		window_flag_list = [
 			imgui.WindowFlags_.no_saved_settings,
 			imgui.WindowFlags_.no_collapse,
 		];
 		self.window_flags = foldl(lambda a, b : a | b, 0, window_flag_list);
 		self.open = True;
+
+		self.grid_dist = 4;
 		self.show_grid = True;
 		self.show_verts = False;
-
-		self.fishes = asset_docs["fish"].entries;
-		self.fish = self.fishes[0];
 		
-		self.cell_dist = 4;
-		self.grid_width = self.canvas.width // self.cell_dist;
-		self.gri_height = self.canvas.height // self.cell_dist;
 		self.was_left_click = False;
 		self.was_right_click = False;
-		self.line_closed = True;
-		
+		self.last_edge_closed = True;
+	
+		self.mesh_pool = asset_docs["mesh2d"].entries;
+		self.mesh = self.mesh_pool[0] if len(self.mesh_pool) > 0 else None;
+		if(not self.mesh is None):
+			self.open_mesh(self.mesh);
+	
+	def in_bounds(self, p):
+		if p.x < 0:
+			return False;
+		if p.x >= self.canvas.width:
+			return False;
+		if p.y < 0:
+			return False;
+		if p.y >= self.canvas.height:
+			return False;
+		return True;
+
+	def open_mesh(self, mesh):
+		self.mesh = mesh;
+		self.polyline = [];
+		self.edge_buffer = [];
+		if not mesh is None:
+			V = mesh['verts'];
+			E = mesh['edges'];
+			n_E = mesh['edge_count'];
+			e_idx = 0;
+			while e_idx < n_E:
+				v0_idx = E[e_idx*2+0];
+				v1_idx = E[e_idx*2+1];
+				v0_x = V[v0_idx*2+0];
+				v0_y = V[v0_idx*2+1];
+				v1_x = V[v1_idx*2+0];
+				v1_y = V[v1_idx*2+1];
+				self.polyline.append([
+					imgui.ImVec2(v0_x, v0_y),
+					imgui.ImVec2(v1_x, v1_y)
+				]);
+				e_idx += 1;
+	
+	def shunt(self):
+		corner = imgui.ImVec2(256, 256);
+		for [v0, v1] in self.polyline:
+			corner.x = min(v0.x, v1.x, corner.x);
+			corner.y = min(v0.y, v1.y, corner.y);
+		for [v0, v1] in self.polyline:
+			v0 -= corner;
+			v1 -= corner;
+	
+	def close_mesh(self):
+		if not self.mesh is None:
+			self.shunt();
+
+			polyline = [(v0, v1) for [v0, v1] in self.polyline];
+			polyline = list(set(polyline));
+			flat_polyline = [];
+			for p in polyline:
+				flat_polyline += p;
+			
+			vert_map = OrderedDict();
+			for v in flat_polyline:
+				if not v in vert_map:
+					vert_map[v] = len(vert_map);
+			
+			flat_edges = [];
+			for v in flat_polyline:
+				flat_edges.append(vert_map[v]);
+			flat_verts = [];
+			for v in vert_map.keys():
+				flat_verts += [int(v.x), int(v.y)];
+			
+			self.mesh['verts'] = flat_verts.copy();
+			self.mesh['vert_count'] = len(flat_verts) // 2;
+			self.mesh['edges'] = flat_edges.copy();
+			self.mesh['edge_count'] = len(flat_edges) // 2;
+			self.mesh = None;
+	
+	def buffer_vertex(self, v):
+		self.edge_buffer.append(imgui.ImVec2(v));
+		if len(self.edge_buffer) == 2:
+			l = self.edge_buffer[0];
+			if v != l:
+				self.polyline.append(self.edge_buffer);
+				self.edge_buffer = [imgui.ImVec2(v)];
+			else:
+				self.edge_buffer = [];
+	
+	def delete_vertex(self, v):
+		if v in self.edge_buffer:
+			self.edge_buffer = [];
+		i = 0;
+		while i < len(self.polyline):
+			if v in self.polyline[i]:
+				del self.polyline[i];
+				i -= 1;
+			i += 1;
 
 	def render():
-		if FishEditor._ == None:
+		if Mesh2DEditor._ == None:
 			return;
-		self = FishEditor._;
+		self = Mesh2DEditor._;
 
 		if self.open:
 			imgui.set_next_window_size(self.size);
-			_, self.open = imgui.begin(f"Fish Editor", self.open, flags=self.window_flags);
-			if imgui.begin_combo(f"Fish", self.fish["name"]):
-				for fish in self.fishes:
-					selected = fish == self.fish;
-					if imgui.selectable(fish["name"], selected)[0]:
-						self.fish = fish;
+			_, self.open = imgui.begin("Mesh2D Editor", self.open, flags=self.window_flags);
+
+			if imgui.begin_combo(f"Meshes", self.mesh["name"] if not self.mesh is None else "None"):
+				for mesh in self.mesh_pool:
+					selected = mesh == self.mesh;
+					if imgui.selectable(mesh["name"], selected)[0]:
+						self.close_mesh();
+						self.open_mesh(mesh);
 					if selected:
 						imgui.set_item_default_focus();
-				if self.fish["vertex_count"] % 2 == 1:
-					if not self.line_closed:
-						del self.fish["vertices"][-1];
-						del self.fish["vertices"][-1];
-						self.fish["vertex_count"] -= 1;
-					self.line_closed = True;
 				imgui.end_combo();
 
 			canvas_pos = imgui.get_cursor_screen_pos();
 			mouse_pos = imgui_io.mouse_pos;
 			brush_pos = mouse_pos - canvas_pos;
-			in_bounds = brush_pos.x >= 0 and brush_pos.x < self.canvas.width * self.canvas_scale and brush_pos.y >= 0 and brush_pos.y < self.canvas.height * self.canvas_scale;
-			last_vertex = (self.fish["vertices"][-2], self.fish["vertices"][-1]) if self.fish["vertex_count"] > 0 else None;
-			def add_last():
-				self.fish["vertices"].append(last_vertex[0]);
-				self.fish["vertices"].append(last_vertex[1]);
-				self.fish["vertex_count"] += 1;
-			has_last = not last_vertex is None;
-			even_count = self.fish["vertex_count"] % 2 == 0;
-			vertex = None;
+			brush_pos /= self.canvas_scale; 
+			vertex = imgui.ImVec2((brush_pos.x // self.grid_dist) * self.grid_dist, (brush_pos.y // self.grid_dist) * self.grid_dist);
+			in_bounds = self.in_bounds(brush_pos);
 
 			if in_bounds:
-				cursor = (brush_pos.x // (self.canvas_scale * self.cell_dist), brush_pos.y // (self.canvas_scale * self.cell_dist));
-				vertex = (cursor[0] * self.cell_dist, cursor[1] * self.cell_dist);
-				def add_new():
-					self.fish["vertices"].append(vertex[0]);
-					self.fish["vertices"].append(vertex[1]);
-					self.fish["vertex_count"] += 1;
-				last_same = has_last and vertex[0] == last_vertex[0] and vertex[1] == last_vertex[1];	
-				
 				if imgui.is_mouse_down(0) and not self.was_left_click:
-					if self.line_closed:
-						if even_count:
-							if not last_same:
-								add_new();
-						else:
-							if last_same:
-								add_last();
-						self.line_closed = False;
-					else:
-						if even_count:
-							if not last_same:
-								add_last();
-								add_new();
-							else:
-								self.line_closed = True;
-						else:
-							if last_same:
-								add_last();
-								self.line_closed = True;
-							else:
-								add_new();
-
+					self.buffer_vertex(vertex);
 					self.was_left_click = True;
 				if not imgui.is_mouse_down(0):
 					self.was_left_click = False;
 				
 				if imgui.is_mouse_down(1) and not self.was_right_click:
-					if self.line_closed:
-						i = 0;
-						while i < self.fish["vertex_count"]-1:
-							x0 = self.fish["vertices"][i*2 + 0];
-							y0 = self.fish["vertices"][i*2 + 1];
-							x1 = self.fish["vertices"][(i+1)*2 + 0];
-							y1 = self.fish["vertices"][(i+1)*2 + 1];
-							if (vertex[0] == x0 and vertex[1] == y0) or (vertex[0] == x1 and vertex[1] == y1):
-								del self.fish["vertices"][i*2];
-								del self.fish["vertices"][i*2];
-								del self.fish["vertices"][i*2];
-								del self.fish["vertices"][i*2];
-								self.fish["vertex_count"] -= 2;
-								i -= 2;
-							i += 2;
-					else:
-						if even_count:
-							self.line_closed = True;
-						else:
-							add_last();
-							self.line_closed = True;
-					
+					self.delete_vertex(vertex);
 					self.was_right_click = True;
 				if not imgui.is_mouse_down(1):
 					self.was_right_click = False;
 			
 			self.canvas.clear((0, 0, 0));
 			if self.show_grid:
-				for y in range(1, self.gri_height):
-					for x in range(1, self.grid_width):
-						self.canvas.draw_pixel(x * self.cell_dist, y * self.cell_dist, (128, 128, 128));
+				for y in range(self.grid_dist, self.canvas.height, self.grid_dist):
+					for x in range(self.grid_dist, self.canvas.width, self.grid_dist):
+						self.canvas.draw_pixel(x, y, (128, 128, 128));
 			
-			i = 0;
-			while i < self.fish["vertex_count"]-1:
-				x0 = self.fish["vertices"][i*2 + 0];
-				y0 = self.fish["vertices"][i*2 + 1];
-				x1 = self.fish["vertices"][(i+1)*2 + 0];
-				y1 = self.fish["vertices"][(i+1)*2 + 1];
-				if x0 != x1 or y0 != y1:
-					self.canvas.draw_line(x0, y0, x1, y1, (255, 255, 255));
-				else:
-					self.canvas.draw_circle(x0, y0, 1, (255, 255, 255));
+			for [v0, v1] in self.polyline:
+				self.canvas.draw_line(v0.x, v0.y, v1.x, v1.y, (255, 255, 255));
 				if self.show_verts:
-					self.canvas.draw_circle(x0, y0, 1, (255, 255, 255));
-					self.canvas.draw_circle(x1, y1, 1, (255, 255, 255));
-					
-				i += 2;
-			
-			if vertex != None:
-				if in_bounds and not self.line_closed:
-					self.canvas.draw_line(last_vertex[0], last_vertex[1], vertex[0], vertex[1], (255, 255, 255))
-				self.canvas.draw_circle(vertex[0], vertex[1], 2, (255, 255, 255));
+					self.canvas.draw_circle(v0.x, v0.y, 1, (255, 255, 255));
+					self.canvas.draw_circle(v1.x, v1.y, 1, (255, 255, 255));
+			if len(self.edge_buffer) > 0:
+				last = self.edge_buffer[-1];
+				self.canvas.draw_line(last.x, last.y, vertex.x, vertex.y, (255, 255, 255));
+			self.canvas.draw_circle(vertex.x, vertex.y, 2, (255, 255, 255));
 			
 			self.canvas.render(self.canvas_scale);
 			_, self.show_grid = imgui.checkbox("Show grid", self.show_grid);
 			imgui.same_line();
 			_, self.show_verts = imgui.checkbox("Show verts", self.show_verts);
-			if imgui.button(f"Clear {self.fish['vertex_count']} verts"):
-				self.fish["vertex_count"] = 0;
-				self.fish["vertices"] = [];
-				self.line_closed = True;
+			imgui.same_line();
+			imgui.push_item_width(72);
+			_, self.grid_dist = imgui.input_int("Cell size", self.grid_dist);
+			imgui.pop_item_width();
+			if imgui.button("Clear"):
+				self.polyline = [];
+				self.edge_buffer = [];
+			imgui.same_line();
+			if imgui.button("Shunt"):
+				self.shunt();
 			
 			self.size = imgui.get_window_size();
 			imgui.end();
 		
 		if not self.open:
-			if not even_count:
-				if not self.line_closed:
-					add_last();
-				else:
-					del self.fish["vertices"][-1];
-					del self.fish["vertices"][-1];
-					self.fish["vertex_count"] -= 1;
-			self.line_closed = True;
-			FishEditor._ = None;
+			self.close_mesh();
+			Mesh2DEditor._ = None;
 
 
 #########################################################
@@ -1488,8 +1509,8 @@ while not glfw.window_should_close(handle):
 				AnimationViewer();
 			if imgui.menu_item_simple("Theme Editor"):
 				ThemeEditor();	
-			if imgui.menu_item_simple("Fish Editor"):
-				FishEditor();	
+			if imgui.menu_item_simple("Mesh2D Editor"):
+				Mesh2DEditor();	
 			imgui.end_menu();
 	
 		if imgui.begin_menu("Utils"):
@@ -1515,8 +1536,8 @@ while not glfw.window_should_close(handle):
 		AnimationViewer.render();
 	if ThemeEditor._ != None:
 		ThemeEditor.render();
-	if FishEditor._ != None:
-		FishEditor.render();
+	if Mesh2DEditor._ != None:
+		Mesh2DEditor.render();
 
 	imgui.end();
 	imgui.render();

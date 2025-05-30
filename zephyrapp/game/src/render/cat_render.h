@@ -146,8 +146,8 @@ void CAT_pixberry(int x, int y, uint16_t c);
 void CAT_circberry(int x, int y, int r, uint16_t c);
 void CAT_discberry(int x, int y, int r, uint16_t c);
 void CAT_ringberry(int x, int y, int R, int r, uint16_t c, float t);
-void CAT_polyberry_16(int x, int y, int16_t* poly, int count, uint16_t c, CAT_poly_mode mode);
-void CAT_polyberry_u8(int x, int y, uint8_t* poly, int count, uint16_t c);
+void CAT_polyberry(int x, int y, int16_t* poly, int count, uint16_t c, CAT_poly_mode mode);
+
 
 //////////////////////////////////////////////////////////////////////////
 // ANIMATOR
@@ -186,6 +186,7 @@ bool CAT_anim_is_ticking(CAT_anim_machine* machine);
 
 bool CAT_anim_is_ending(CAT_anim_machine* machine);
 
+
 //////////////////////////////////////////////////////////////////////////
 // DRAW QUEUE
 
@@ -216,14 +217,23 @@ void CAT_draw_queue_submit();
 //////////////////////////////////////////////////////////////////////////
 // MESHES
 
-typedef struct CAT_mesh
+typedef struct
 {
-	const char* path;
 	float* verts;
 	int n_verts;
-	int* faces;
+	uint8_t* faces;
 	int n_faces;
 } CAT_mesh;
+
+typedef struct
+{
+	uint8_t* verts;
+	uint8_t vert_count;
+	uint8_t* edges;
+	uint16_t edge_count;
+} CAT_mesh2d;
+
+void CAT_draw_mesh2d(const CAT_mesh2d* mesh, int x, int y, uint16_t c);
 
 
 //////////////////////////////////////////////////////////////////////////

@@ -218,7 +218,7 @@ CAT_ivec2 point_on_pole(float t)
 
 void render_pole()
 {
-	CAT_polyberry_16
+	CAT_polyberry
 	(
 		pole.center.x, pole.center.y,
 		pole.vertices, 10,
@@ -870,7 +870,7 @@ CAT_ivec2 bar_jitter;
 
 void render_bar()
 {
-	CAT_polyberry_16
+	CAT_polyberry
 	(
 		bar.center.x, bar.center.y,
 		bar.vertices, 10,
@@ -1157,7 +1157,7 @@ void render_MS_summary()
 	cursor_y += 20;
 	CAT_lineberry(12, cursor_y, 12 + CAT_LCD_SCREEN_W * 0.75 * inv_lerp(fish.wisdom, fish.type->min_wisdom, fish.type->max_wisdom), cursor_y, CAT_WHITE);
 
-	CAT_polyberry_u8(0, 188, fish.type->vertices, fish.type->vertex_count, CAT_WHITE);
+	CAT_draw_mesh2d(fish.type->mesh, 0, 232, CAT_WHITE);
 }
 
 void CAT_MS_study(CAT_machine_signal signal)
