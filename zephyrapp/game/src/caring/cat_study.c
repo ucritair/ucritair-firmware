@@ -409,6 +409,11 @@ void init_fish(CAT_vec2 lead_position, CAT_vec2 lead_heading, float lead_radius)
 	int choice = fish_pool.data[CAT_rand_int(0, fish_pool.length-1)];
 	fish.type = fish_list[choice];
 	fish.grade = CAT_rand_int(fish.type->grade_constraint, cast_grade);
+	if(cast_grade == 2)
+	{
+		if(CAT_rand_chance(2))
+			fish.grade = 2;
+	}
 
 	float stat_min = stat_ranges[fish.grade*2+0];
 	float stat_max = stat_ranges[fish.grade*2+1];
@@ -1128,11 +1133,13 @@ void MS_summary(CAT_machine_signal signal)
 				if(summary_page == PERFORMANCE)
 					CAT_machine_transition(CAT_MS_room);
 			}
-
+			
 			// enum = (enum + ENUM_MAX) % ENUM_MAX doesn't work on embedded
 			int summary_page_proxy = summary_page;
 			if (CAT_input_pressed(CAT_BUTTON_RIGHT))
 				summary_page_proxy += 1;
+			if (CAT_input_pressed(CAT_BUTTON_LEFT))
+				summary_page_proxy -= 1;
 			summary_page = (summary_page_proxy + SUMMARY_PAGE_MAX) % SUMMARY_PAGE_MAX;
 
 			wave_phase = (wave_phase + 1) % 240;
@@ -1174,12 +1181,22 @@ void render_score_line(int x, int y, int w, float t, float a, float b)
 	CAT_lineberry(mid_x, y, end_x, y, CAT_RED);
 }
 
+void render_title(const char* title, int cursor_y)
+{
+	CAT_push_draw_colour(CAT_WHITE);
+	CAT_draw_sprite(&ui_left_arrow_sprite, -1, 8, 12);
+	CAT_push_draw_colour(CAT_WHITE);
+	CAT_draw_sprite(&ui_right_arrow_sprite, -1, 240 - 13 - 8, 12);
+	int title_len = strlen(title);
+	int title_x = (CAT_LCD_SCREEN_W - 1 - title_len * 16) / 2;
+	CAT_push_text_colour(CAT_WHITE);
+	CAT_push_text_scale(2);
+	CAT_draw_text(title_x, cursor_y, title);
+}
+
 void render_MS_summary()
 {
 	CAT_frameberry(CAT_BLACK);
-
-	CAT_push_draw_colour(RGB8882565(255, 255, 255));
-	CAT_draw_sprite(&ui_right_arrow_sprite, -1, 240 - 24 - 8, 12);
 
 	switch (summary_page)
 	{
@@ -1189,9 +1206,7 @@ void render_MS_summary()
 			CAT_draw_mesh2d(fish.type->mesh, 0, 232, CAT_WHITE);
 
 			int cursor_y = 12;
-			CAT_push_text_scale(2);
-			CAT_push_text_colour(CAT_WHITE);
-			CAT_draw_textf(12, cursor_y, fish.type->name);
+			render_title(fish.type->name, cursor_y);
 			cursor_y += 36;
 
 			CAT_push_text_colour(CAT_WHITE);
@@ -1220,9 +1235,7 @@ void render_MS_summary()
 		case PERFORMANCE:
 		{
 			int cursor_y = 12;
-			CAT_push_text_scale(2);
-			CAT_push_text_colour(CAT_WHITE);
-			CAT_draw_textf(12, cursor_y, "Performance");
+			render_title("Performance", cursor_y);
 			cursor_y += 52;
 
 			CAT_push_text_colour(CAT_WHITE);
