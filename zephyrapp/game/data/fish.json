@@ -72,8 +72,8 @@
     "entries": [
         {
             "name": "mackerel",
-            "display_name": "Mackerel",
-            "proverb": "I can do all things through Christ who strengthens me.",
+            "display_name": "King Mackerel",
+            "proverb": "When the game is done, the king and the pawn go in the same box.",
             "min_length": 0.15000000596046448,
             "max_length": 0.4000000059604645,
             "min_lustre": 0.5,
@@ -86,7 +86,7 @@
         {
             "name": "crucian_carp",
             "display_name": "Crucian Carp",
-            "proverb": "I can do all things through Christ who strengthens me.",
+            "proverb": "They also serve, who only stand and wait.",
             "min_length": 0.15000000596046448,
             "max_length": 0.4000000059604645,
             "min_lustre": 0.5,
@@ -99,7 +99,7 @@
         {
             "name": "sardine",
             "display_name": "Sardine",
-            "proverb": "I can do all things through Christ who strengthens me.",
+            "proverb": "The ant finds kingdoms in a foot of ground.",
             "min_length": 0.15000000596046448,
             "max_length": 0.4000000059604645,
             "min_lustre": 0.5,
@@ -112,33 +112,7 @@
         {
             "name": "cod",
             "display_name": "Cod",
-            "proverb": "I can do all things through Christ who strengthens me.",
-            "min_length": 0.15000000596046448,
-            "max_length": 0.4000000059604645,
-            "min_lustre": 0.5,
-            "max_lustre": 0.800000011920929,
-            "min_wisdom": 0.10000000149011612,
-            "max_wisdom": 0.30000001192092896,
-            "grade_constraint": 0,
-            "mesh": "horse_mackerel"
-        },
-        {
-            "name": "hake",
-            "display_name": "Hake",
-            "proverb": "I can do all things through Christ who strengthens me.",
-            "min_length": 0.15000000596046448,
-            "max_length": 0.4000000059604645,
-            "min_lustre": 0.5,
-            "max_lustre": 0.800000011920929,
-            "min_wisdom": 0.10000000149011612,
-            "max_wisdom": 0.30000001192092896,
-            "grade_constraint": 0,
-            "mesh": "horse_mackerel"
-        },
-        {
-            "name": "catfish",
-            "display_name": "Catfish",
-            "proverb": "I can do all things through Christ who strengthens me.",
+            "proverb": "The world of utility and the world of beauty are not separate realms.",
             "min_length": 0.15000000596046448,
             "max_length": 0.4000000059604645,
             "min_lustre": 0.5,
@@ -151,20 +125,7 @@
         {
             "name": "herring",
             "display_name": "Herring",
-            "proverb": "I can do all things through Christ who strengthens me.",
-            "min_length": 0.15000000596046448,
-            "max_length": 0.4000000059604645,
-            "min_lustre": 0.5,
-            "max_lustre": 0.800000011920929,
-            "min_wisdom": 0.10000000149011612,
-            "max_wisdom": 0.30000001192092896,
-            "grade_constraint": 0,
-            "mesh": "horse_mackerel"
-        },
-        {
-            "name": "eel",
-            "display_name": "Eel",
-            "proverb": "I can do all things through Christ who strengthens me.",
+            "proverb": "Here is the essence of North -- and it's autumn I've chosen as this year's friend.",
             "min_length": 0.15000000596046448,
             "max_length": 0.4000000059604645,
             "min_lustre": 0.5,
@@ -177,7 +138,7 @@
         {
             "name": "tilapia",
             "display_name": "Tilapia",
-            "proverb": "I can do all things through Christ who strengthens me.",
+            "proverb": "We are kept keen on the grindstone of pain and necessity.",
             "min_length": 0.15000000596046448,
             "max_length": 0.4000000059604645,
             "min_lustre": 0.5,
@@ -190,7 +151,7 @@
         {
             "name": "crawfish",
             "display_name": "Crawfish",
-            "proverb": "How do you pronounce this one?",
+            "proverb": "Astacology is the study of crayfish, crawfish, or crawdads.",
             "min_length": 0.15000000596046448,
             "max_length": 0.4000000059604645,
             "min_lustre": 0.5,
@@ -201,9 +162,22 @@
             "mesh": "horse_mackerel"
         },
         {
-            "name": "sea_bream",
-            "display_name": "Sea Bream",
-            "proverb": "I can do all things through Christ who strengthens me.",
+            "name": "catfish",
+            "display_name": "Catfish",
+            "proverb": "The world is mud-luscious and puddle-wonderful.",
+            "min_length": 0.15000000596046448,
+            "max_length": 0.4000000059604645,
+            "min_lustre": 0.5,
+            "max_lustre": 0.800000011920929,
+            "min_wisdom": 0.10000000149011612,
+            "max_wisdom": 0.30000001192092896,
+            "grade_constraint": 1,
+            "mesh": "horse_mackerel"
+        },
+        {
+            "name": "eel",
+            "display_name": "Eel",
+            "proverb": "A certain length is necessary, and a length which can be easily embraced by the memory.",
             "min_length": 0.15000000596046448,
             "max_length": 0.4000000059604645,
             "min_lustre": 0.5,
@@ -216,7 +190,7 @@
         {
             "name": "salmon",
             "display_name": "Salmon",
-            "proverb": "I can do all things through Christ who strengthens me.",
+            "proverb": "Passing spring. Birds cry, and tears in the eyes of fish.",
             "min_length": 0.15000000596046448,
             "max_length": 0.4000000059604645,
             "min_lustre": 0.5,
@@ -229,20 +203,7 @@
         {
             "name": "gindara",
             "display_name": "Gindara",
-            "proverb": "I can do all things through Christ who strengthens me.",
-            "min_length": 0.15000000596046448,
-            "max_length": 0.4000000059604645,
-            "min_lustre": 0.5,
-            "max_lustre": 0.800000011920929,
-            "min_wisdom": 0.10000000149011612,
-            "max_wisdom": 0.30000001192092896,
-            "grade_constraint": 1,
-            "mesh": "horse_mackerel"
-        },
-        {
-            "name": "anago",
-            "display_name": "Anago",
-            "proverb": "I'm the rain king",
+            "proverb": "Seek wisdom like silver; search for it like hidden treasure.",
             "min_length": 0.15000000596046448,
             "max_length": 0.4000000059604645,
             "min_lustre": 0.5,
@@ -255,7 +216,7 @@
         {
             "name": "ruby_trout",
             "display_name": "Ruby Trout",
-            "proverb": "I'm the rain king",
+            "proverb": "Take thy rubies, pearls, and diamonds forth, and make thyself a constellation of them all.",
             "min_length": 0.15000000596046448,
             "max_length": 0.4000000059604645,
             "min_lustre": 0.5,
@@ -268,7 +229,7 @@
         {
             "name": "skipjack_tuna",
             "display_name": "Skipjack Tuna",
-            "proverb": "I can do all things through Christ who strengthens me.",
+            "proverb": "True machine of the sea: unflawed, undefiled, navigating now the waters of death.",
             "min_length": 0.15000000596046448,
             "max_length": 0.4000000059604645,
             "min_lustre": 0.5,
@@ -281,7 +242,7 @@
         {
             "name": "yellowtail",
             "display_name": "Yellowtail",
-            "proverb": "I can do all things through Christ who strengthens me.",
+            "proverb": "It glistens with various yellows, citrons, oranges and greens flowering over the skin.",
             "min_length": 0.15000000596046448,
             "max_length": 0.4000000059604645,
             "min_lustre": 0.5,
@@ -294,7 +255,7 @@
         {
             "name": "coelecanth",
             "display_name": "Coelecanth",
-            "proverb": "Nintendo if you try to claim the coelecanth as your property so help me god,",
+            "proverb": "Gray hair is a crown of glory; it is gained in a righteous life.",
             "min_length": 0.15000000596046448,
             "max_length": 0.4000000059604645,
             "min_lustre": 0.5,

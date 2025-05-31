@@ -765,7 +765,11 @@ class DocumentRenderer:
 				imgui.text(key);
 				imgui.same_line();
 				if writable:
-					_, node[key] = imgui.input_text(get_id(node, key), node[key]);
+					try:
+						changed, output = imgui.input_text(get_id(node, key), str(node[key]));
+						node[key] = str(output);
+					except:
+						print("Something went wrong!");
 				else:
 					imgui.text(node[key]);
 
