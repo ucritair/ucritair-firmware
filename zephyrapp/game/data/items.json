@@ -306,7 +306,7 @@
             "type": "key",
             "name": "fish_grade_2",
             "display_name": "3-Star Fish",
-            "sprite": "salmon_sprite",
+            "sprite": "tuna_sprite",
             "icon": "icon_item_key_sprite",
             "text": "",
             "price": 0,

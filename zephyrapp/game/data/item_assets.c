@@ -122,7 +122,7 @@ CAT_item_table item_table =
 		{
 			.type = CAT_ITEM_TYPE_KEY,
 			.name = "3-Star Fish",
-			.sprite = &salmon_sprite,
+			.sprite = &tuna_sprite,
 			.price = 0,
 			.text = "",
 			.icon = &icon_item_key_sprite,

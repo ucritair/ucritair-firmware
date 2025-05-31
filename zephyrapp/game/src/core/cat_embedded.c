@@ -126,14 +126,16 @@ void CAT_set_LEDs(uint8_t r, uint8_t g, uint8_t b)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // SPEAKER
 
+// TEMPORARILY DISABLED DUE TO CRASH
+
 void CAT_sound_power(bool value)
 {
-	soundPower(value);
+	// soundPower(value);
 }
 
 void CAT_play_sound(CAT_sound* sound)
 {
-	soundPlay(sound->samples, sound->size, SoundReplaceCurrent);
+	// soundPlay(sound->samples, sound->size, SoundReplaceCurrent);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
