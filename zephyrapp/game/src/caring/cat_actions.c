@@ -339,8 +339,8 @@ void CAT_MS_laser(CAT_machine_signal signal)
 				laser_state = SEEKING;
 			break;
 		case BORED:
-			if (!CAT_anim_is_in(&AM_pet, &AS_crit))
-				CAT_anim_transition(&AM_pet, &AS_crit);
+			if (!CAT_anim_is_in(&AM_pet, &AS_idle))
+				CAT_anim_transition(&AM_pet, &AS_idle);
 			if (CAT_vec2_dist2(pet.pos, laser_pos) >= 32)
 				laser_state = SEEKING;
 			break;
