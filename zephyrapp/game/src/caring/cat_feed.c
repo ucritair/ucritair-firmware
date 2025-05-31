@@ -16,6 +16,7 @@
 #include <string.h>
 #include "cat_room.h"
 #include "cat_text.h"
+#include "config.h"
 
 void MS_feed_arrange(CAT_machine_signal signal);
 void render_arrange();
@@ -730,13 +731,6 @@ void MS_feed_arrange(CAT_machine_signal signal)
 		{
 			commit_arrangement = false;
 
-			for (int i = 0; i < food_count; i++)
-			{
-				if (food_list[i].active)
-					CAT_item_list_remove(&bag, food_pool.data[food_list[i].pool_idx], 1);
-			}
-			pet.vigour += score_object.grade;
-
 			CAT_machine_transition(MS_feed_summary);
 		}
 
@@ -1208,8 +1202,21 @@ static enum {
 	PROPRIETY,
 	LAYOUT,
 	NOTES,
+	REWARDS,
 	SUMMARY_PAGE_MAX
 } summary_page = PERFORMANCE;
+
+static const int xp_rewards[] =
+{
+	0, 0,
+	1, 3,
+	5, 8,
+	8, 12,
+	12, 18,
+	18, 25
+};
+
+static int xp_reward;
 
 void MS_feed_summary(CAT_machine_signal signal)
 {
@@ -1218,6 +1225,7 @@ void MS_feed_summary(CAT_machine_signal signal)
 	case CAT_MACHINE_SIGNAL_ENTER:
 		CAT_set_render_callback(render_summary);
 		summary_page = PERFORMANCE;
+		xp_reward = CAT_rand_int(xp_rewards[score_object.grade*2+0], xp_rewards[score_object.grade*2+1]);
 		break;
 
 	case CAT_MACHINE_SIGNAL_TICK:
@@ -1234,6 +1242,12 @@ void MS_feed_summary(CAT_machine_signal signal)
 		break;
 
 	case CAT_MACHINE_SIGNAL_EXIT:
+			for (int i = 0; i < food_count; i++)
+			{
+				if (food_list[i].active)
+					CAT_item_list_remove(&bag, food_pool.data[food_list[i].pool_idx], 1);
+			}
+			pet.vigour += score_object.grade;
 		break;
 	}
 }
@@ -1262,9 +1276,11 @@ void init_registration_errors()
 {
 	for (int i = 0; i < SUMMARY_PAGE_MAX; i++)
 	{
-		registration_errors[i] = (CAT_ivec2){
+		registration_errors[i] = (CAT_ivec2)
+		{
 			CAT_rand_int(-12, 12),
-			CAT_rand_int(-12, 12)};
+			CAT_rand_int(-12, 12)
+		};
 	}
 }
 
@@ -1276,6 +1292,21 @@ int get_glyph_idx(int grade)
 		return 3;
 	else
 		return grade;
+}
+
+void render_plus_line(int x, int y, int w, float min, float base, float plus, float max)
+{
+	int overshoot = (base+plus) - max;
+	if(overshoot > 0)
+		plus -= overshoot;
+
+	int start_x = x;
+	int base_x = x + w * inv_lerp(base, min, max);
+	int plus_x = x + w * inv_lerp(base+plus, min, max);
+	int end_x = x + w;
+	CAT_lineberry(start_x, y, base_x, y, 0xd506);
+	CAT_lineberry(base_x, y, plus_x, y, 0x7d67);
+	CAT_lineberry(plus_x, y, end_x, y, CAT_GREY);
 }
 
 void render_summary()
@@ -1306,7 +1337,9 @@ void render_summary()
 	case NOTES:
 		title = "Notes";
 		break;
-
+	case REWARDS:
+		title = "Rewards";
+		break;
 	default:
 		break;
 	}
@@ -1332,6 +1365,22 @@ void render_summary()
 		}
 		const char *signature = "- Inspector Reed";
 		CAT_draw_text(240 - strlen(signature) * 8 - 12, cursor_y + 6, signature);
+	}
+	else if(summary_page == REWARDS)
+	{
+		int cursor_y = 52;
+
+		CAT_push_text_colour(CAT_BLACK);
+		CAT_draw_textf(12, cursor_y, "+ Vigour: %d", score_object.grade);
+		cursor_y += 20;
+		render_plus_line(12, cursor_y, CAT_LCD_SCREEN_W * 0.75, 0, pet.vigour, score_object.grade, 12);
+		cursor_y += 16;
+
+		CAT_push_text_colour(CAT_BLACK);
+		CAT_draw_textf(12, cursor_y, "+ XP: %d", xp_reward);
+		cursor_y += 20;
+		render_plus_line(12, cursor_y, CAT_LCD_SCREEN_W * 0.75, 0, pet.xp, xp_reward, level_cutoffs[pet.level]);
+		cursor_y += 16;
 	}
 	else
 	{

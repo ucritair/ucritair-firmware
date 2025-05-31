@@ -31,7 +31,7 @@
 #define FADE(a, b, t) CAT_RGB24216(CAT_RGB24_lerp(CAT_RGB16224(a), CAT_RGB16224(b), t))
 
 // Lower lull, higher difficulty
-const float bar_lull_ranges[] =
+static const float bar_lull_ranges[] =
 {
 	1, 2,
 	1, 3,
@@ -39,7 +39,7 @@ const float bar_lull_ranges[] =
 };
 
 // Lower margins, higher difficulty
-const float bar_margin_ranges[] =
+static const float bar_margin_ranges[] =
 {
 	0.1, 0.125,
 	0.075, 0.09,
@@ -47,7 +47,7 @@ const float bar_margin_ranges[] =
 };
 
 // Larger jumps, higher difficulty
-const float bar_jump_ranges[] =
+static const float bar_jump_ranges[] =
 {
 	0.1, 0.25,
 	0.2, 0.5,
@@ -55,46 +55,46 @@ const float bar_jump_ranges[] =
 };
 
 // Higher difficulty, higher ranges
-const float stat_ranges[] =
+static const float stat_ranges[] =
 {
 	0.1, 0.75,
 	0.35, 0.85,
 	0.5, 1.0
 };
 
-const int item_rewards[] =
+static const int item_rewards[] =
 {
 	fish_grade_0_item,
 	fish_grade_1_item,
 	fish_grade_2_item
 };
 
-const int stat_rewards[] =
+static const int stat_rewards[] =
 {
 	2,
 	3,
 	4
 };
 
-const int xp_rewards[] =
+static const int xp_rewards[] =
 {
 	2, 7,
 	7, 15,
 	20, 30 
 };
 
-void MS_cast(CAT_machine_signal signal);
-void render_MS_cast();
-void MS_fish(CAT_machine_signal signal);
-void render_MS_fish();
-void MS_catch(CAT_machine_signal signal);
-void render_MS_catch();
-void MS_fail(CAT_machine_signal signal);
-void render_MS_fail();
-void MS_succeed(CAT_machine_signal signal);
-void render_MS_succeed();
-void MS_summary(CAT_machine_signal signal);
-void render_MS_summary();
+static void MS_cast(CAT_machine_signal signal);
+static void render_MS_cast();
+static void MS_fish(CAT_machine_signal signal);
+static void render_MS_fish();
+static void MS_catch(CAT_machine_signal signal);
+static void render_MS_catch();
+static void MS_fail(CAT_machine_signal signal);
+static void render_MS_fail();
+static void MS_succeed(CAT_machine_signal signal);
+static void render_MS_succeed();
+static void MS_summary(CAT_machine_signal signal);
+static void render_MS_summary();
 
 typedef struct
 {
@@ -107,15 +107,15 @@ typedef struct
 
 	float radius;
 } study_ring;
-study_ring rings[16];
-int ring_count = 0;
+static study_ring rings[16];
+static int ring_count = 0;
 
-void init_rings()
+static void init_rings()
 {
 	ring_count = 0;
 }
 
-int spawn_ring(CAT_vec2 center, float max_radius, float speed)
+static int spawn_ring(CAT_vec2 center, float max_radius, float speed)
 {
 	if(ring_count >= 16)
 		return -1;
@@ -131,7 +131,7 @@ int spawn_ring(CAT_vec2 center, float max_radius, float speed)
 	return idx;
 }
 
-void customize_ring(int idx, uint16_t colour, bool fill)
+static void customize_ring(int idx, uint16_t colour, bool fill)
 {
 	if(idx < 0 || idx >= ring_count)
 		return;
@@ -140,14 +140,14 @@ void customize_ring(int idx, uint16_t colour, bool fill)
 	ring->fill = fill;
 }
 
-void swap_rings(int i, int j)
+static void swap_rings(int i, int j)
 {
 	study_ring temp = rings[i];
 	rings[i] = rings[j];
 	rings[j] = temp;
 }
 
-void rings_tick()
+static void rings_tick()
 {
 	for(int i = 0; i < ring_count; i++)
 	{
@@ -160,7 +160,7 @@ void rings_tick()
 	}
 }
 
-void render_rings()
+static void render_rings()
 {
 	for(int i = 0; i < ring_count; i++)
 	{
@@ -172,7 +172,7 @@ void render_rings()
 	}
 }
 
-struct
+static struct
 {
 	CAT_ivec2 center;
 	int length;
@@ -185,7 +185,7 @@ struct
 	int16_t vertices[10*2];
 } pole;
 
-void init_pole(CAT_ivec2 center, int length)
+static void init_pole(CAT_ivec2 center, int length)
 {
 	pole.center = center;
 	pole.length = length;
@@ -223,7 +223,7 @@ void init_pole(CAT_ivec2 center, int length)
 	pole.vertices[19] = bottom_right_y;
 }
 
-CAT_ivec2 point_on_pole(float t)
+static CAT_ivec2 point_on_pole(float t)
 {
 	int x = pole.center.x;
 	int y =
@@ -232,7 +232,7 @@ CAT_ivec2 point_on_pole(float t)
 	return (CAT_ivec2) {x, y};
 }
 
-void render_pole()
+static void render_pole()
 {
 	CAT_polyberry
 	(
@@ -250,15 +250,15 @@ void render_pole()
 		CAT_circberry(target.x, target.y, pole.error * pole.length, CAT_RED);
 }
 
-float cast_t = 0.0f;
-float cast_dir = 1.0f;
+static float cast_t = 0.0f;
+static float cast_dir = 1.0f;
 
-int cast_grade;
+static int cast_grade;
 
-bool blacking_out = false;
-float black_out_t = 0.0f;
+static bool blacking_out = false;
+static float black_out_t = 0.0f;
 
-void MS_cast(CAT_machine_signal signal)
+static void MS_cast(CAT_machine_signal signal)
 {
 	switch (signal)
 	{
@@ -335,7 +335,7 @@ void MS_cast(CAT_machine_signal signal)
 	}
 }
 
-void render_MS_cast()
+static void render_MS_cast()
 {
 	CAT_frameberry(CAT_BLACK);
 	render_pole();
@@ -364,12 +364,12 @@ void render_MS_cast()
 	}
 }
 
-CAT_vec2 hook;
+static CAT_vec2 hook;
 
-int fish_pool_backing[FISH_COUNT*3];
-CAT_int_list fish_pool;
+static int fish_pool_backing[FISH_COUNT*3];
+static CAT_int_list fish_pool;
 
-struct
+static struct
 {
 	const CAT_fish* type;
 	int grade;
@@ -398,11 +398,11 @@ struct
 	.nibble_timer_id = -1
 };
 
-int item_reward;
-int focus_reward;
-int xp_reward;
+static int item_reward;
+static int focus_reward;
+static int xp_reward;
 
-void init_fish(CAT_vec2 lead_position, CAT_vec2 lead_heading, float lead_radius)
+static void init_fish(CAT_vec2 lead_position, CAT_vec2 lead_heading, float lead_radius)
 {
 	CAT_ilist(&fish_pool, fish_pool_backing, FISH_COUNT*3);
 	for(int i = 0; i < FISH_COUNT; i++)
@@ -463,7 +463,7 @@ void init_fish(CAT_vec2 lead_position, CAT_vec2 lead_heading, float lead_radius)
 	fish.race_trigger = false;
 }
 
-void fish_pbd_default()
+static void fish_pbd_default()
 {
 	for(int i = 1; i < 3; i++)
 	{
@@ -475,7 +475,7 @@ void fish_pbd_default()
 	}
 }
 
-void fish_pbd_waggle()
+static void fish_pbd_waggle()
 {
 	for(int i = 1; i < 3; i++)
 	{
@@ -489,7 +489,7 @@ void fish_pbd_waggle()
 	}
 }
 
-void fish_integrate_heading(CAT_vec2 heading, float speed)
+static void fish_integrate_heading(CAT_vec2 heading, float speed)
 {
 	fish.headings[0] = heading;
 	fish.positions[0] = CAT_vec2_add
@@ -503,7 +503,7 @@ void fish_integrate_heading(CAT_vec2 heading, float speed)
 	);
 }
 
-CAT_vec2 fish_ellipse_position(float t)
+static CAT_vec2 fish_ellipse_position(float t)
 {
 	t = t * 2 * M_PI;
 	return (CAT_vec2)
@@ -513,7 +513,7 @@ CAT_vec2 fish_ellipse_position(float t)
 	};
 }
 
-CAT_vec2 fish_ellipse_heading(float t)
+static CAT_vec2 fish_ellipse_heading(float t)
 {
 	t = t * 2 * M_PI;
 	return CAT_vec2_unit((CAT_vec2) 
@@ -523,21 +523,21 @@ CAT_vec2 fish_ellipse_heading(float t)
 	});
 }
 
-void fish_integrate_ellipse(float t)
+static void fish_integrate_ellipse(float t)
 {
 	fish.headings[0] = fish_ellipse_heading(t);
 	fish.positions[0] = fish_ellipse_position(t);
 }
 
-int bite_prob_backing[BITE_CHANCE];
-CAT_int_list bite_prob = 
+static int bite_prob_backing[BITE_CHANCE];
+static CAT_int_list bite_prob = 
 {
 	.capacity = BITE_CHANCE,
 	.data = bite_prob_backing,
 	.length = 0
 };
 
-void init_bite_probability()
+static void init_bite_probability()
 {
 	CAT_ilist(&bite_prob, bite_prob_backing, BITE_CHANCE);
 	for(int i = 0; i < 5; i++)
@@ -545,7 +545,7 @@ void init_bite_probability()
 	CAT_ilist_shuffle(&bite_prob);
 }
 
-bool draw_bite_probability()
+static bool draw_bite_probability()
 {
 	if(bite_prob.length == 0)
 		init_bite_probability();
@@ -555,7 +555,7 @@ bool draw_bite_probability()
 	return value;
 }
 
-void nibble_burst(int n)
+static void nibble_burst(int n)
 {
 	for(int i = n-1; i >= 0; i--)
 	{
@@ -564,7 +564,7 @@ void nibble_burst(int n)
 	}
 }
 
-void fish_tick()
+static void fish_tick()
 {
 	CAT_vec2 hook_beeline = CAT_vec2_sub(hook, fish.positions[0]);
 	float hook_distance = sqrt(CAT_vec2_mag2(hook_beeline));
@@ -632,7 +632,7 @@ void fish_tick()
 		fish_pbd_default();
 }
 
-void render_fish(uint16_t colour)
+static void render_fish(uint16_t colour)
 {
 	for(int i = 0; i < 3; i++)
 		CAT_discberry(fish.positions[i].x, fish.positions[i].y, fish.radii[i], colour);
@@ -647,14 +647,14 @@ void render_fish(uint16_t colour)
 	CAT_lineberry(fish.positions[0].x, fish.positions[0].y, right_tip.x, right_tip.y, colour);
 }
 
-float arena_fade_timer;
-CAT_ivec2 hook_jitter;
-float blink_timer;
-float blink_period;
-bool blink_switch;
+static float arena_fade_timer;
+static CAT_ivec2 hook_jitter;
+static float blink_timer;
+static float blink_period;
+static bool blink_switch;
 
 static bool quit_trigger = false;
-bool quit_popup()
+static bool quit_popup()
 {
 	if (CAT_gui_popup_is_open())
 		return true;
@@ -668,7 +668,7 @@ bool quit_popup()
 	return false;
 }
 
-void MS_fish(CAT_machine_signal signal)
+static void MS_fish(CAT_machine_signal signal)
 {
 	switch (signal)
 	{
@@ -775,7 +775,7 @@ void MS_fish(CAT_machine_signal signal)
 	}
 }
 
-void render_MS_fish()
+static void render_MS_fish()
 {
 	CAT_frameberry(CAT_BLACK);
 
@@ -819,7 +819,7 @@ void render_MS_fish()
 	}
 }
 
-struct
+static struct
 {
 	float margin;
 	float target;
@@ -839,7 +839,7 @@ struct
 	int16_t vertices[10*2];
 } bar;
 
-void bar_retarget(bool hard)
+static void bar_retarget(bool hard)
 {
 	float min_margin = bar_margin_ranges[fish.grade*2+0];
 	float max_margin = bar_margin_ranges[fish.grade*2+1];
@@ -868,7 +868,7 @@ void bar_retarget(bool hard)
 	bar.slider = 0;
 }
 
-void init_bar(CAT_ivec2 center, int length)
+static void init_bar(CAT_ivec2 center, int length)
 {
 	bar_retarget(true);
 
@@ -906,7 +906,7 @@ void init_bar(CAT_ivec2 center, int length)
 	bar.vertices[19] = right_bottom_y;
 }
 
-void bar_tick()
+static void bar_tick()
 {
 	if(bar.waiter >= bar.wait)
 	{
@@ -926,7 +926,7 @@ void bar_tick()
 	bar.progress = clamp(bar.progress, 0, 1);
 }
 
-CAT_ivec2 point_on_bar(float t)
+static CAT_ivec2 point_on_bar(float t)
 {
 	int y = bar.center.y;
 	int x =
@@ -935,9 +935,9 @@ CAT_ivec2 point_on_bar(float t)
 	return (CAT_ivec2) {x, y};
 }
 
-CAT_ivec2 bar_jitter;
+static CAT_ivec2 bar_jitter;
 
-void render_bar()
+static void render_bar()
 {
 	CAT_polyberry
 	(
@@ -965,10 +965,10 @@ void render_bar()
 	CAT_lineberry(left, bar.center.y - 8, right, bar.center.y - 8, CAT_RED);
 }
 
-float struggle_timer;
-float struggle_wait;
+static float struggle_timer;
+static float struggle_wait;
 
-void MS_catch(CAT_machine_signal signal)
+static void MS_catch(CAT_machine_signal signal)
 {
 	switch (signal)
 	{
@@ -1046,7 +1046,7 @@ void MS_catch(CAT_machine_signal signal)
 	}
 }
 
-void render_MS_catch()
+static void render_MS_catch()
 {
 	CAT_frameberry(CAT_BLACK);
 	render_fish(CAT_RED);
@@ -1063,9 +1063,9 @@ void render_MS_catch()
 	CAT_draw_textf(120-8*2+4, bar.center.y - 26, "%.1f%%", bar.progress * 100);
 }
 
-CAT_RGB888 fail_colour;
+static CAT_RGB888 fail_colour;
 
-void MS_fail(CAT_machine_signal signal)
+static void MS_fail(CAT_machine_signal signal)
 {
 	static float progress;
 
@@ -1093,15 +1093,16 @@ void MS_fail(CAT_machine_signal signal)
 		break;
 	}
 }
-void render_MS_fail()
+
+static void render_MS_fail()
 {
 	CAT_frameberry(CAT_BLACK);
 	render_fish(CAT_RGB24216(fail_colour));
 }
 
-CAT_RGB888 succeed_colour;
+static CAT_RGB888 succeed_colour;
 
-void MS_succeed(CAT_machine_signal signal)
+static void MS_succeed(CAT_machine_signal signal)
 {
 	static float progress;
 
@@ -1129,7 +1130,7 @@ void MS_succeed(CAT_machine_signal signal)
 	}
 }
 
-void render_MS_succeed()
+static void render_MS_succeed()
 {
 	CAT_frameberry(CAT_BLACK);
 	render_fish(CAT_RGB24216(succeed_colour));
@@ -1142,10 +1143,10 @@ static enum {
 	SUMMARY_PAGE_MAX
 } summary_page = FISH;
 
-int wave_buffer[240];
-int wave_phase = 0;
+static int wave_buffer[240];
+static int wave_phase = 0;
 
-void init_wave_buffer()
+static void init_wave_buffer()
 {
 	for(int x = 0; x < 240; x++)
 	{
@@ -1158,7 +1159,7 @@ void init_wave_buffer()
 	wave_phase = 0;
 }
 
-void MS_summary(CAT_machine_signal signal)
+static void MS_summary(CAT_machine_signal signal)
 {
 	switch (signal)
 	{
@@ -1196,7 +1197,7 @@ void MS_summary(CAT_machine_signal signal)
 	}
 }
 
-void render_wave_buffer()
+static void render_wave_buffer()
 {
 	uint16_t* framebuffer = CAT_LCD_get_framebuffer();
 	uint16_t c = ADAPT_DESKTOP_COLOUR(0x4cb5);
@@ -1217,7 +1218,7 @@ void render_wave_buffer()
 	}
 }
 
-void render_score_line(int x, int y, int w, float t, float a, float b)
+static void render_score_line(int x, int y, int w, float t, float a, float b)
 {
 	int start_x = x;
 	int mid_x = x + w * inv_lerp(t, a, b);
@@ -1226,7 +1227,7 @@ void render_score_line(int x, int y, int w, float t, float a, float b)
 	CAT_lineberry(mid_x, y, end_x, y, CAT_RED);
 }
 
-void render_plus_line(int x, int y, int w, float min, float base, float plus, float max)
+static void render_plus_line(int x, int y, int w, float min, float base, float plus, float max)
 {
 	int overshoot = (base+plus) - max;
 	if(overshoot > 0)
@@ -1241,7 +1242,7 @@ void render_plus_line(int x, int y, int w, float min, float base, float plus, fl
 	CAT_lineberry(plus_x, y, end_x, y, CAT_GREY);
 }
 
-void render_page_markers(int x, int y)
+static void render_page_markers(int x, int y)
 {
 	int start_x = x - ((16 + 2) * SUMMARY_PAGE_MAX) / 2;
 	for(int i = 0; i < SUMMARY_PAGE_MAX; i++)
@@ -1251,7 +1252,7 @@ void render_page_markers(int x, int y)
 	}
 }
 
-void render_MS_summary()
+static void render_MS_summary()
 {
 	CAT_frameberry(CAT_BLACK);
 
