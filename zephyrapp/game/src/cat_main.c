@@ -171,6 +171,7 @@ void CAT_load_override()
 	CAT_item_list_add(&bag, food_coffee_item, 1);
 	CAT_item_list_add(&bag, prop_succulent_item, 1);
 	CAT_item_list_add(&bag, toy_baseball_item, 1);
+	CAT_item_list_add(&bag, toy_laser_pointer_item, 1);
 	coins = 100;
 
 	CAT_room_init();
