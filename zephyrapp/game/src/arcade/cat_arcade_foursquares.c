@@ -4,6 +4,8 @@
 #include "cat_input.h"
 #include "cat_math.h"
 #include "cat_gui.h"
+#include "cat_text.h"
+#include "cat_room.h"
 
 #define CAT_FOURSQUARES_TILE_SIZE 16
 #define CAT_FOURSQUARES_GRID_WIDTH (CAT_LCD_SCREEN_W / CAT_FOURSQUARES_TILE_SIZE)
@@ -35,12 +37,6 @@ typedef enum
 	CAT_FOURSQUARES_CW,
 	CAT_FOURSQUARES_CCW
 } CAT_foursquares_rotation;
-
-typedef enum
-{
-	CAT_FOURSQUARES_PLAYING,
-	CAT_FOURSQUARES_GAME_OVER
-} CAT_foursquares_state;
 
 typedef struct
 {
@@ -134,7 +130,6 @@ static CAT_ivec2 piece_position_buffer = {0, 0};
 static CAT_foursquares_orientation piece_orientation_buffer = CAT_FOURSQUARES_NORTH;
 static uint8_t collider_buffer[4][4];
 
-static CAT_foursquares_state state = CAT_FOURSQUARES_PLAYING;
 static int score = 0;
 
 void reset_seven_bag()
@@ -528,6 +523,48 @@ bool should_trigger_step()
 	return false;
 }
 
+void render_game_over()
+{
+	CAT_frameberry(CAT_BLACK);
+
+	int cursor_y = 12;
+	CAT_push_text_scale(2);
+	CAT_push_text_colour(CAT_WHITE);
+	CAT_draw_text(12, cursor_y, "Game over...");
+	cursor_y += 52;
+
+	CAT_push_text_colour(CAT_WHITE);
+	CAT_draw_text(12, cursor_y, "Today's score:");
+	cursor_y += 16;
+	CAT_push_text_scale(2);
+	CAT_push_text_colour(CAT_WHITE);
+	CAT_draw_textf(12, cursor_y, "%d POINTS!", score);
+	cursor_y += 52;
+
+	CAT_push_text_colour(CAT_RED);
+	CAT_push_text_flags(CAT_TEXT_FLAG_WRAP);
+	CAT_push_text_line_width(CAT_LCD_SCREEN_W-24);
+	CAT_draw_text(12, cursor_y, "... for the rectilinear belongs only to Geometry and not to Nature and Life.");
+}
+
+void MS_game_over(CAT_machine_signal signal)
+{
+	switch(signal)
+	{
+		case CAT_MACHINE_SIGNAL_ENTER:
+			CAT_set_render_callback(render_game_over);
+		break;
+
+		case CAT_MACHINE_SIGNAL_TICK:
+			if(CAT_input_pressed(CAT_BUTTON_A) || CAT_input_pressed(CAT_BUTTON_B) || CAT_input_pressed(CAT_BUTTON_START))
+				CAT_machine_transition(CAT_MS_room);
+		break;
+
+		case CAT_MACHINE_SIGNAL_EXIT:
+		break;
+	}
+}
+
 void CAT_MS_foursquares(CAT_machine_signal signal)
 {
 	switch(signal)
@@ -535,7 +572,6 @@ void CAT_MS_foursquares(CAT_machine_signal signal)
 		case CAT_MACHINE_SIGNAL_ENTER:
 			CAT_set_render_callback(CAT_render_foursquares);
 
-			state = CAT_FOURSQUARES_PLAYING;
 			score = 0;
 
 			for(int y = 0; y < CAT_FOURSQUARES_GRID_HEIGHT; y++)
@@ -556,89 +592,81 @@ void CAT_MS_foursquares(CAT_machine_signal signal)
 
 		case CAT_MACHINE_SIGNAL_TICK:
 		{
-			if(state == CAT_FOURSQUARES_PLAYING)
+			static bool quit = false;
+			if(CAT_input_pressed(CAT_BUTTON_START) || CAT_input_held(CAT_BUTTON_B, 0.5f))
+				CAT_gui_open_popup("Quit Foursquares?\n\nProgress will not\nbe saved!\n", &quit);
+			if(quit)
 			{
-				static bool quit = false;
-				if(CAT_input_pressed(CAT_BUTTON_START) || CAT_input_held(CAT_BUTTON_B, 0.5f))
-					CAT_gui_open_popup("Quit Foursquares?\n\nProgress will not\nbe saved!\n", &quit);
-				if(quit)
-				{
-					quit = false;
-					CAT_machine_back();
-				}
-				if(CAT_gui_popup_is_open())
-					break;
+				quit = false;
+				CAT_machine_back();
+			}
+			if(CAT_gui_popup_is_open())
+				break;
 
+			reset_buffers();
+
+			if(CAT_input_pressed(CAT_BUTTON_A))
+			{	
+				rotate_piece(CAT_FOURSQUARES_CW);
+				if(are_buffers_valid() || enumerate_kicks(CAT_FOURSQUARES_CW))
+					commit_buffers();
+			}
+			if(CAT_input_pressed(CAT_BUTTON_B))
+			{	
+				rotate_piece(CAT_FOURSQUARES_CCW);
+				if(are_buffers_valid() || enumerate_kicks(CAT_FOURSQUARES_CCW))
+					commit_buffers();
+				else
+					reset_buffers();
+			}
+
+			if(CAT_input_pulse(CAT_BUTTON_LEFT))
+				move_piece(-1, 0);
+			if(CAT_input_pulse(CAT_BUTTON_RIGHT))
+				move_piece(1, 0);
+			if(are_buffers_valid())
+				commit_buffers();
+			else
 				reset_buffers();
 
-				if(CAT_input_pressed(CAT_BUTTON_A))
-				{	
-					rotate_piece(CAT_FOURSQUARES_CW);
-					if(are_buffers_valid() || enumerate_kicks(CAT_FOURSQUARES_CW))
-						commit_buffers();
-				}
-				if(CAT_input_pressed(CAT_BUTTON_B))
-				{	
-					rotate_piece(CAT_FOURSQUARES_CCW);
-					if(are_buffers_valid() || enumerate_kicks(CAT_FOURSQUARES_CCW))
-						commit_buffers();
-					else
-						reset_buffers();
-				}
+			if(CAT_input_pulse(CAT_BUTTON_DOWN))
+				move_piece(0, 1);
+			if(are_buffers_valid())
+				commit_buffers();
+			else
+				reset_buffers();
 
-				if(CAT_input_pulse(CAT_BUTTON_LEFT))
-					move_piece(-1, 0);
-				if(CAT_input_pulse(CAT_BUTTON_RIGHT))
-					move_piece(1, 0);
-				if(are_buffers_valid())
-					commit_buffers();
-				else
-					reset_buffers();
-
-				if(CAT_input_pulse(CAT_BUTTON_DOWN))
-					move_piece(0, 1);
-				if(are_buffers_valid())
-					commit_buffers();
-				else
-					reset_buffers();
-
-				if(CAT_input_pressed(CAT_BUTTON_UP))
+			if(CAT_input_pressed(CAT_BUTTON_UP))
+			{
+				while(are_buffers_valid())
 				{
-					while(are_buffers_valid())
+					commit_buffers();
+					move_piece(0, 1);
+				}
+				reset_buffers();
+			}
+
+			if(should_trigger_step())
+			{
+				move_piece(0, 1);
+				if(are_buffers_valid())
+					commit_buffers();
+				else
+				{
+					if(is_piece_settled())
 					{
-						commit_buffers();
-						move_piece(0, 1);
+						lock_piece();
+						perform_reckoning();
+						spawn_piece
+						(
+							access_seven_bag(),
+							(CAT_ivec2) {CAT_rand_int(0, CAT_FOURSQUARES_GRID_WIDTH-collider_w), 0}
+						);
+						if(is_blocked_out())
+							CAT_machine_transition(MS_game_over);
 					}
 					reset_buffers();
-				}
-
-				if(should_trigger_step())
-				{
-					move_piece(0, 1);
-					if(are_buffers_valid())
-						commit_buffers();
-					else
-					{
-						if(is_piece_settled())
-						{
-							lock_piece();
-							perform_reckoning();
-							spawn_piece
-							(
-								access_seven_bag(),
-								(CAT_ivec2) {CAT_rand_int(0, CAT_FOURSQUARES_GRID_WIDTH-collider_w), 0}
-							);
-							if(is_blocked_out())
-								state = CAT_FOURSQUARES_GAME_OVER;
-						}
-						reset_buffers();
-					}		
-				}
-			}
-			else
-			{
-				if(CAT_input_pressed(CAT_BUTTON_A) || CAT_input_pressed(CAT_BUTTON_B) || CAT_input_pressed(CAT_BUTTON_START))
-					CAT_machine_back();
+				}		
 			}
 		break;
 		}
