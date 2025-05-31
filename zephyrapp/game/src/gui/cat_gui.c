@@ -11,7 +11,7 @@
 #include "cat_item.h"
 #include "cat_bag.h"
 #include "sprite_assets.h"
-#include "cat_text.h"
+#include "cat_gui.h"
 
 //////////////////////////////////////////////////////////////////////////
 // BASICS
@@ -929,7 +929,7 @@ void CAT_gui_item_list()
 
 
 //////////////////////////////////////////////////////////////////////////
-// PANEL-FREE GUI
+// PRINTING
 
 static int printf_cursor_y = 0;
 
@@ -940,13 +940,14 @@ void CAT_gui_printf(uint16_t colour, const char* fmt, ...)
 	char text[128];
 	vsnprintf(text, 128, fmt, args);
 	va_end(args);
+	
+	int modified_y = printf_cursor_y - FRAMEBUFFER_ROW_OFFSET;
+	if(modified_y < 0 || modified_y >= CAT_LCD_FRAMEBUFFER_H)
+		return;
 
 	CAT_push_text_colour(colour);
 	CAT_draw_text(0, printf_cursor_y, text);
 	printf_cursor_y += CAT_GLYPH_HEIGHT + 2;
-
-	if(CAT_is_last_render_cycle())
-		printf_cursor_y = 0;
 }
 
 
@@ -975,4 +976,7 @@ void CAT_gui_render()
 		CAT_gui_popup();
 	if(CAT_gui_keyboard_is_open())
 		CAT_gui_keyboard();
+	
+	if(CAT_is_last_render_cycle())
+		printf_cursor_y = 0;
 }

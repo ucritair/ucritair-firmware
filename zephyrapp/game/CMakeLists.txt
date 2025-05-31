@@ -96,7 +96,6 @@ target_sources(app PRIVATE
 	src/render/cat_spriter.c
 	src/render/cat_draw_queue.c
 	src/render/cat_animation.c
-	src/render/cat_text.c
 
 	src/menu/cat_menu.c
 	src/menu/cat_menu_insights.c
@@ -118,7 +117,9 @@ target_sources(app PRIVATE
 
 	src/monitors/cat_monitor_air.c
 
-	src/cat_gui.c
+	src/gui/cat_gui.c
+	src/gui/cat_text.c
+
 	src/cat_input.c
 	src/cat_item.c
 	src/cat_machine.c
@@ -148,6 +149,7 @@ target_include_directories(app PRIVATE src/render)
 target_include_directories(app PRIVATE src/menu)
 target_include_directories(app PRIVATE src/arcade)
 target_include_directories(app PRIVATE src/monitors)
+target_include_directories(app PRIVATE src/gui)
 
 target_include_directories(app PRIVATE sounds/)
 target_include_directories(app PRIVATE meshes/)

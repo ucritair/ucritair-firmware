@@ -1,4 +1,4 @@
-#include "cat_text.h"
+#include "cat_gui.h"
 
 #include "sprite_assets.h"
 #include <stdarg.h>
