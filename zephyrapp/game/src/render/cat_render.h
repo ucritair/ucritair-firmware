@@ -37,7 +37,8 @@
 #define CAT_BLUE 0b0000000000011111
 #define CAT_YELLOW 0b1111111111100000
 #define CAT_PURPLE 0b1111100000011111
-#define CAT_PAPER 0xef39
+#define CAT_PAPER 0xEF39
+#define CAT_GREY 0x8410
 
 //////////////////////////////////////////////////////////////////////////
 // COLOUR

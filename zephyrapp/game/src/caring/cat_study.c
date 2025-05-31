@@ -13,6 +13,7 @@
 #include "item_assets.h"
 #include "cat_pet.h"
 #include "cat_bag.h"
+#include "config.h"
 
 #define SCREEN_DIAG 400
 #define BLACK_OUT_DURATION 1.0f
@@ -32,8 +33,8 @@
 // Lower lull, higher difficulty
 const float bar_lull_ranges[] =
 {
-	3, 5,
-	2, 4,
+	1, 2,
+	1, 3,
 	1, 4
 };
 
@@ -43,6 +44,14 @@ const float bar_margin_ranges[] =
 	0.1, 0.125,
 	0.075, 0.09,
 	0.05, 0.075
+};
+
+// Larger jumps, higher difficulty
+const float bar_jump_ranges[] =
+{
+	0.1, 0.25,
+	0.2, 0.5,
+	0.25, 0.75
 };
 
 // Higher difficulty, higher ranges
@@ -71,7 +80,7 @@ const int xp_rewards[] =
 {
 	2, 7,
 	7, 15,
-	15, 30 
+	20, 30 
 };
 
 void MS_cast(CAT_machine_signal signal);
@@ -689,6 +698,14 @@ void MS_fish(CAT_machine_signal signal)
 			if(quit_popup())
 				break;
 
+			if(CAT_check_save_flag(CAT_SAVE_FLAG_DEVELOPER_MODE))
+			{
+				if(CAT_input_pressed(CAT_BUTTON_SELECT))
+				{
+					CAT_machine_transition(MS_summary);
+				}
+			}
+
 			if(!fish.nibble_trigger)
 			{
 				if(CAT_input_touching())
@@ -768,19 +785,37 @@ void render_MS_fish()
 	render_fish(CAT_RED);
 	render_rings();
 
+	if(fish.nibble_trigger)
+	{
+		if(fish.bite_trigger)
+		{
+			CAT_push_text_colour(CAT_RED);
+			CAT_push_text_scale(2);
+			CAT_draw_text(12, 12, "GO!");
+		}
+		else
+		{
+			CAT_push_text_colour(CAT_WHITE);
+			CAT_push_text_scale(2);
+			CAT_draw_text(12, 12, "WAIT...");
+		}
+	}
+	else
+	{
+		if(blink_switch)
+		{
+			CAT_push_text_scale(2);
+			CAT_push_text_colour(fish.race_trigger ? CAT_RED : CAT_WHITE);
+			CAT_draw_text(12, 12, "INTERCEPT!");
+		}
+	}
+
 	if(!fish.bite_trigger)
 	{
 		CAT_push_draw_colour(CAT_WHITE);
 		CAT_push_draw_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
 		CAT_vec2 bobber = fish.nibble_trigger ? CAT_vec2_add(hook, CAT_iv2v(hook_jitter)) : hook;
 		CAT_draw_sprite(&gizmo_target_17x17_sprite, 0, bobber.x, bobber.y);
-	}
-
-	if(!fish.nibble_trigger && blink_switch)
-	{
-		CAT_push_text_scale(2);
-		CAT_push_text_colour(fish.race_trigger ? CAT_RED : CAT_WHITE);
-		CAT_draw_text(12, 12, "INTERCEPT!");
 	}
 }
 
@@ -808,6 +843,8 @@ void bar_retarget(bool hard)
 {
 	float min_margin = bar_margin_ranges[fish.grade*2+0];
 	float max_margin = bar_margin_ranges[fish.grade*2+1];
+	float min_jump = bar_jump_ranges[fish.grade*2+0];
+	float max_jump = bar_jump_ranges[fish.grade*2+1];
 	float min_lull = bar_lull_ranges[fish.grade*2+0];
 	float max_lull = bar_lull_ranges[fish.grade*2+1];
 	
@@ -818,7 +855,13 @@ void bar_retarget(bool hard)
 	}
 
 	bar.margin_next = CAT_rand_float(min_margin, max_margin);
-	bar.target_next = CAT_rand_float(bar.margin_next, 1-bar.margin_next);
+	float ideal_jump = CAT_rand_float(min_jump, max_jump);
+	ideal_jump *= CAT_rand_int(0, 1) ? 1 : -1;
+	float candidate = clamp(bar.target + ideal_jump, bar.margin_next, 1-bar.margin_next);
+	if(fabs(candidate - bar.target) < min_jump)
+		bar.target_next = clamp(bar.target - ideal_jump, bar.margin_next, 1-bar.margin_next);
+	else
+		bar.target_next = candidate;
 
 	bar.wait = CAT_rand_float(min_lull, max_lull);
 	bar.waiter = 0;
@@ -961,8 +1004,10 @@ void MS_catch(CAT_machine_signal signal)
 				bar.cursor -= fall * CAT_get_delta_time_s();
 			}
 			float error = fabs(bar.cursor - bar.target);
-			if(error < bar.margin)
+			if(error <= bar.margin)
+			{
 				bar.progress += CAT_get_delta_time_s() / 6.5f;
+			}
 			else
 			{
 				if(bar.progress < 0.15f)
@@ -1080,9 +1125,6 @@ void MS_succeed(CAT_machine_signal signal)
 		break;
 
 		case CAT_MACHINE_SIGNAL_EXIT:
-			CAT_item_list_add(&bag, item_rewards[fish.grade], 1);
-			pet.focus += focus_reward;
-			pet.xp += xp_reward;
 		break;
 	}
 }
@@ -1133,7 +1175,7 @@ void MS_summary(CAT_machine_signal signal)
 				if(summary_page == PERFORMANCE)
 					CAT_machine_transition(CAT_MS_room);
 			}
-			
+
 			// enum = (enum + ENUM_MAX) % ENUM_MAX doesn't work on embedded
 			int summary_page_proxy = summary_page;
 			if (CAT_input_pressed(CAT_BUTTON_RIGHT))
@@ -1147,6 +1189,9 @@ void MS_summary(CAT_machine_signal signal)
 		break;
 
 		case CAT_MACHINE_SIGNAL_EXIT:
+			CAT_item_list_add(&bag, item_rewards[fish.grade], 1);
+			pet.focus += focus_reward;
+			CAT_pet_gain_xp(xp_reward);
 		break;
 	}
 }
@@ -1181,17 +1226,29 @@ void render_score_line(int x, int y, int w, float t, float a, float b)
 	CAT_lineberry(mid_x, y, end_x, y, CAT_RED);
 }
 
-void render_title(const char* title, int cursor_y)
+void render_plus_line(int x, int y, int w, float min, float base, float plus, float max)
 {
-	CAT_push_draw_colour(CAT_WHITE);
-	CAT_draw_sprite(&ui_left_arrow_sprite, -1, 8, 12);
-	CAT_push_draw_colour(CAT_WHITE);
-	CAT_draw_sprite(&ui_right_arrow_sprite, -1, 240 - 13 - 8, 12);
-	int title_len = strlen(title);
-	int title_x = (CAT_LCD_SCREEN_W - 1 - title_len * 16) / 2;
-	CAT_push_text_colour(CAT_WHITE);
-	CAT_push_text_scale(2);
-	CAT_draw_text(title_x, cursor_y, title);
+	int overshoot = (base+plus) - max;
+	if(overshoot > 0)
+		plus -= overshoot;
+
+	int start_x = x;
+	int base_x = x + w * inv_lerp(base, min, max);
+	int plus_x = x + w * inv_lerp(base+plus, min, max);
+	int end_x = x + w;
+	CAT_lineberry(start_x, y, base_x, y, CAT_WHITE);
+	CAT_lineberry(base_x, y, plus_x, y, CAT_GREEN);
+	CAT_lineberry(plus_x, y, end_x, y, CAT_GREY);
+}
+
+void render_page_markers(int x, int y)
+{
+	int start_x = x - ((16 + 2) * SUMMARY_PAGE_MAX) / 2;
+	for(int i = 0; i < SUMMARY_PAGE_MAX; i++)
+	{
+		int x = start_x + i * (16 + 2);
+		CAT_draw_sprite(&ui_radio_button_diamond_sprite, summary_page == i, x, y);
+	}
 }
 
 void render_MS_summary()
@@ -1204,9 +1261,14 @@ void render_MS_summary()
 		{		
 			render_wave_buffer();
 			CAT_draw_mesh2d(fish.type->mesh, 0, 232, CAT_WHITE);
-
-			int cursor_y = 12;
-			render_title(fish.type->name, cursor_y);
+			
+			int cursor_y = 4;
+			render_page_markers(120, cursor_y);
+			cursor_y += 24;
+			
+			CAT_push_text_colour(CAT_WHITE);
+			CAT_push_text_scale(2);
+			CAT_draw_text(12, cursor_y, fish.type->name);
 			cursor_y += 36;
 
 			CAT_push_text_colour(CAT_WHITE);
@@ -1234,9 +1296,14 @@ void render_MS_summary()
 
 		case PERFORMANCE:
 		{
-			int cursor_y = 12;
-			render_title("Performance", cursor_y);
-			cursor_y += 52;
+			int cursor_y = 4;
+			render_page_markers(120, cursor_y);
+			cursor_y += 24;
+
+			CAT_push_text_colour(CAT_WHITE);
+			CAT_push_text_scale(2);
+			CAT_draw_text(12, cursor_y, "Performance");
+			cursor_y += 36;
 
 			CAT_push_text_colour(CAT_WHITE);
 			CAT_draw_textf(12, cursor_y, "Casting skill:");
@@ -1253,13 +1320,13 @@ void render_MS_summary()
 			CAT_push_text_colour(CAT_WHITE);
 			CAT_draw_textf(12, cursor_y, "+ Focus: %d", focus_reward);
 			cursor_y += 20;
-			render_score_line(12, cursor_y, CAT_LCD_SCREEN_W * 0.75, focus_reward+1, stat_rewards[0], stat_rewards[2]+1);
+			render_plus_line(12, cursor_y, CAT_LCD_SCREEN_W * 0.75, 0, pet.focus, focus_reward, 12);
 			cursor_y += 16;
 
 			CAT_push_text_colour(CAT_WHITE);
 			CAT_draw_textf(12, cursor_y, "+ XP: %d", xp_reward);
 			cursor_y += 20;
-			render_score_line(12, cursor_y, CAT_LCD_SCREEN_W * 0.75, xp_reward+1, xp_rewards[0], xp_rewards[2*2+1]+1);
+			render_plus_line(12, cursor_y, CAT_LCD_SCREEN_W * 0.75, 0, pet.xp, xp_reward, level_cutoffs[pet.level]);
 			cursor_y += 16;
 
 			CAT_push_draw_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);

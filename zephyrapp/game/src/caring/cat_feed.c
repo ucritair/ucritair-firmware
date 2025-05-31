@@ -750,10 +750,14 @@ void MS_feed_arrange(CAT_machine_signal signal)
 			show_feedback = true;
 			CAT_timer_reset(show_feedback_timer_id);
 		}
-		if (CAT_input_pressed(CAT_BUTTON_RIGHT))
-			show_debug_text = !show_debug_text;
-		if (CAT_input_pressed(CAT_BUTTON_LEFT))
-			show_gizmos = !show_gizmos;
+
+		if(CAT_check_save_flag(CAT_SAVE_FLAG_DEVELOPER_MODE))
+		{
+			if (CAT_input_pressed(CAT_BUTTON_RIGHT))
+				show_debug_text = !show_debug_text;
+			if (CAT_input_pressed(CAT_BUTTON_LEFT))
+				show_gizmos = !show_gizmos;
+		}
 
 		if (CAT_input_touch_down())
 		{

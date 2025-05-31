@@ -186,6 +186,16 @@ void CAT_pet_face(CAT_vec2 targ)
 	pet.rot = targ.x > pet.pos.x ? -1 : 1;
 }
 
+void CAT_pet_gain_xp(int xp)
+{
+	int cutoff = level_cutoffs[pet.level];
+	if(pet.xp >= cutoff)
+	{
+		pet.level += 1;
+		pet.xp -= cutoff;
+	}
+}
+
 void CAT_pet_stat(int ticks)
 {
 	float goodness = CAT_AQI_aggregate();
@@ -217,13 +227,7 @@ void CAT_pet_life(int ticks)
 	pet.lifetime += ticks;
 
 	int xp = round(((pet.vigour + pet.focus + pet.spirit) / 3.0f) * 50.0f);
-	pet.xp += xp * ticks;
-	int cutoff = level_cutoffs[pet.level];
-	if(pet.xp >= cutoff)
-	{
-		pet.level += 1;
-		pet.xp -= cutoff;
-	}
+	CAT_pet_gain_xp(xp * ticks);
 }
 
 static CAT_vec2 destination = {120, 200};

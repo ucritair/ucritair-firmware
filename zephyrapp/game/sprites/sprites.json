@@ -2678,6 +2678,16 @@
             "height": 24,
             "loop": false,
             "reverse": false
+        },
+        {
+            "id": 263,
+            "name": "ui_radio_button_diamond_sprite",
+            "path": "ui/radio_button_diamond.png",
+            "frames": 2,
+            "width": 16,
+            "height": 16,
+            "loop": false,
+            "reverse": false
         }
     ]
 }
