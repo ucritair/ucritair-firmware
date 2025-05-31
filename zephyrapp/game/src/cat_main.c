@@ -28,6 +28,7 @@
 #include "cat_deco.h"
 #include "cat_item_dialog.h"
 #include "cat_aqi.h"
+#include "cat_monitors.h"
 
 #include "cat_version.h"
 #include "theme_assets.h"
@@ -318,7 +319,10 @@ void CAT_init()
 	CAT_force_load();
 	CAT_apply_sleep(CAT_get_slept_s());
 
-	CAT_machine_transition(CAT_MS_room);
+	if(CAT_check_save_flag(CAT_SAVE_FLAG_AQ_FIRST))
+		CAT_machine_transition(CAT_MS_monitor_air);
+	else
+		CAT_machine_transition(CAT_MS_room);
 
 	if(CAT_is_AQ_initialized())
 		CAT_set_eink_update_flag(true);

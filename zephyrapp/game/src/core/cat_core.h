@@ -136,7 +136,8 @@ void CAT_free(void* ptr);
 
 typedef enum
 {
-	CAT_SAVE_FLAG_DEVELOPER_MODE
+	CAT_SAVE_FLAG_DEVELOPER_MODE = 1,
+	CAT_SAVE_FLAG_AQ_FIRST = 2
 } CAT_save_flag;
 
 typedef enum
@@ -238,7 +239,7 @@ void CAT_factory_reset();
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // AIR QUALITY
 
-typedef struct CAT_AQ_readings {
+typedef struct {
 	struct {
 		uint64_t uptime_last_updated;
 		float temp, pressure;

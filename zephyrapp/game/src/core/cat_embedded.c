@@ -293,11 +293,6 @@ void CAT_get_AQ_readings()
 
 bool CAT_is_AQ_initialized()
 {
-	/*uint8_t* block = &current_readings;
-	return !(
-	*block == 0 &&
-	memcmp(block, block+1, sizeof(current_readings)-1) == 0);*/
-
 	return
 	current_readings.sunrise.ppm_filtered_uncompensated > 0 &&
 	(current_readings.sen5x.temp_degC != 0 ||

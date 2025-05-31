@@ -116,6 +116,8 @@ target_sources(app PRIVATE
 	src/arcade/cat_arcade_mines.c
 	src/arcade/cat_arcade_foursquares.c
 
+	src/monitors/cat_monitor_air.c
+
 	src/cat_gui.c
 	src/cat_input.c
 	src/cat_item.c
@@ -145,6 +147,7 @@ target_include_directories(app PRIVATE src/core)
 target_include_directories(app PRIVATE src/render)
 target_include_directories(app PRIVATE src/menu)
 target_include_directories(app PRIVATE src/arcade)
+target_include_directories(app PRIVATE src/monitors)
 
 target_include_directories(app PRIVATE sounds/)
 target_include_directories(app PRIVATE meshes/)
