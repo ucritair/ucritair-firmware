@@ -103,9 +103,12 @@ static struct
 	int center_x;
 	int center_y;
 	int pps;
+
+	int marks[2];
 } graph;
 
 bool graph_show_reticle = false;
+int graph_mark_idx = 1;
 
 static void init_graph()
 {
@@ -114,11 +117,13 @@ static void init_graph()
 		float t = i / (float) (GRAPH_WIDTH-1);
 		graph.samples[i] = (0.5 * (sin(4 * t*2*M_PI) + 1)) * GRAPH_HEIGHT;
 	}
-	CAT_printf("%d\n", graph.samples[0]);
 
 	graph.center_x = 0;
 	graph.center_y = 0;
 	graph.pps = 1;
+
+	graph.marks[0] = 0;
+	graph.marks[1] = 0;
 }
 
 static void graph_tick()
@@ -140,15 +145,19 @@ static void graph_tick()
 			graph.pps -= 1;
 		graph.pps = clamp(graph.pps, 1, 16);
 
+		if(CAT_input_released(CAT_BUTTON_A))
+		{
+			graph.marks[graph_mark_idx] = graph.center_x;
+			graph_mark_idx  = (graph_mark_idx + 1) % 2;
+		}
+
 		if(CAT_input_pressed(CAT_BUTTON_START) && CAT_input_pressed(CAT_BUTTON_SELECT))
 			graph_show_reticle = !graph_show_reticle;
 	}
 }
 
-static int get_sample_x(int i)
+static int graph_transform_x(int x)
 {
-	int x = i;
-
 	x -= graph.center_x;
 	x *= graph.pps;
 
@@ -156,17 +165,27 @@ static int get_sample_x(int i)
 	return x;
 }
 
-static int get_sample_y(int i)
+static int graph_transform_y(int y)
 {
-	int y = graph.samples[i];
-	y -= GRAPH_HEIGHT / 2;
-
 	y -= graph.center_y;
 	y *= graph.pps;
 	
 	y += GRAPH_HEIGHT / 2;
 	y = GRAPH_MAX_Y - y;
 	return y;
+}
+
+static int get_sample_x(int i)
+{
+	int x = i;
+	return graph_transform_x(x);
+}
+
+static int get_sample_y(int i)
+{
+	int y = graph.samples[i];
+	y -= GRAPH_HEIGHT / 2;
+	return graph_transform_y(y);
 }
 
 static void render_graph()
@@ -176,15 +195,21 @@ static void render_graph()
 
 	CAT_fillberry(GRAPH_X, GRAPH_Y, GRAPH_WIDTH, GRAPH_HEIGHT, GRAPH_BG_COLOUR);
 
+	CAT_CSCLIP_set_rect(GRAPH_X, GRAPH_Y, GRAPH_MAX_X, GRAPH_MAX_Y);
 	for(int i = 0; i < GRAPH_SAMPLE_COUNT-1; i++)
 	{
 		int x0 = get_sample_x(i);
 		int y0 = get_sample_y(i);
 		int x1 = get_sample_x(i+1);
 		int y1 = get_sample_y(i+1);
-		CAT_CSCLIP_set_rect(GRAPH_X, GRAPH_Y, GRAPH_MAX_X, GRAPH_MAX_Y);
 		if(CAT_CSCLIP(&x0, &y0, &x1, &y1))
 			CAT_lineberry(x0, y0, x1, y1, GRAPH_FG_COLOUR);
+	}
+	for(int i = 0; i < 2; i++)
+	{
+		int x = graph_transform_x(graph.marks[i]);
+		if(x >= GRAPH_X && x <= GRAPH_MAX_X)
+			CAT_lineberry(x, GRAPH_Y+1, x, GRAPH_MAX_Y, i == 0 ? CAT_GREEN : CAT_RED);
 	}
 
 	if(graph_show_reticle)
@@ -201,7 +226,6 @@ static void render_graph()
 	CAT_strokeberry(GRAPH_X, GRAPH_Y, GRAPH_WIDTH, GRAPH_HEIGHT, CAT_WHITE);
 	CAT_push_text_colour(CAT_WHITE);
 	CAT_draw_textf(GRAPH_X, GRAPH_MAX_Y+3, "(%d, %d) x %d", graph.center_x, graph.center_y, graph.pps);
-	CAT_push_text_colour(CAT_WHITE);
 }
 
 #define CLOCK_X 120
