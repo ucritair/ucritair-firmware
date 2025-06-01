@@ -296,9 +296,8 @@ static void render_monitor_air()
 	CAT_frameberry(RGB8882565(35, 157, 235));
 	render_page_markers(120, 8);
 
-	CAT_discberry(-32, 320, 116, RGB8882565(220, 220, 220));
-	CAT_discberry(92, 320, 48, CAT_WHITE);
-	CAT_discberry(200, 320, 92, CAT_WHITE);
+	CAT_push_draw_flags(CAT_DRAW_FLAG_BOTTOM);
+	CAT_draw_sprite(&monitor_clouds_sprite, 0, 0, 320);
 
 	CAT_push_text_colour(RGB8882565(35, 157, 235));
 	CAT_draw_text(64, 304, "[START] to enter game");
