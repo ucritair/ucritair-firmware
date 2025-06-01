@@ -19,6 +19,11 @@ enum
 static int page = SUMMARY;
 static bool focused = false;
 
+void summary_tick()
+{
+	focused = false;
+}
+
 static void render_page_markers(int x, int y)
 {
 	int start_x = x - ((16 + 2) * PAGE_MAX) / 2;
@@ -98,7 +103,7 @@ static void render_summary()
 
 static struct
 {
-	uint8_t samples[512];
+	int16_t samples[GRAPH_SAMPLE_COUNT];
 
 	int center_x;
 	int center_y;
@@ -115,7 +120,7 @@ static void init_graph()
 	for(int i = 0; i < 512; i++)
 	{
 		float t = i / (float) (GRAPH_WIDTH-1);
-		graph.samples[i] = (0.5 * (sin(4 * t*2*M_PI) + 1)) * GRAPH_HEIGHT;
+		graph.samples[i] = (0.5 * (sin(4 * t*2*M_PI) + 1)) * GRAPH_HEIGHT / 2;
 	}
 
 	graph.center_x = 0;
@@ -245,6 +250,8 @@ struct
 
 static void clock_tick()
 {
+	focused = false;
+
 	CAT_get_datetime(&clock.datetime);
 
 	float arc_base = M_PI * 0.5f;
@@ -345,6 +352,7 @@ void CAT_MS_monitor_air(CAT_machine_signal signal)
 			switch (page)
 			{
 				case SUMMARY:
+					summary_tick();
 				break;
 
 				case GRAPH:
