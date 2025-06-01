@@ -20,6 +20,9 @@
 #ifdef CAT_DESKTOP
 #define FRAMEBUFFER_ROW_OFFSET (CAT_get_render_cycle() * CAT_LCD_FRAMEBUFFER_H)
 
+#define RGB8882565(r, g, b) ((((r) & 0b11111000) << 8) | (((g) & 0b11111100) << 3) | ((b) >> 3))
+#define RGB5652BGR565(c) (((c) >> 8) | (((c) & 0xff) << 8))
+
 #define ADAPT_DESKTOP_COLOUR(c) c
 #define ADAPT_EMBEDDED_COLOUR(c) RGB5652BGR565(c)
 #else
@@ -114,12 +117,11 @@ typedef struct
 
 typedef enum
 {
-	CAT_DRAW_FLAG_DEFAULT = 1,
-	CAT_DRAW_FLAG_BOTTOM = 2,
-	CAT_DRAW_FLAG_CENTER_X = 4,
-	CAT_DRAW_FLAG_CENTER_Y = 8,
-	CAT_DRAW_FLAG_REFLECT_X = 16,
-	CAT_DRAW_FLAG_STRANGE = 32
+	CAT_DRAW_FLAG_NONE = 0,
+	CAT_DRAW_FLAG_BOTTOM = 1,
+	CAT_DRAW_FLAG_CENTER_X = 2,
+	CAT_DRAW_FLAG_CENTER_Y = 4,
+	CAT_DRAW_FLAG_REFLECT_X = 8
 } CAT_draw_flag;
 
 void CAT_push_draw_flags(int flags);

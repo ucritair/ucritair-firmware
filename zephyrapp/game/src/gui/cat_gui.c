@@ -18,7 +18,7 @@
 
 CAT_gui gui =
 {
-	.flags = CAT_GUI_DEFAULT,
+	.flags = CAT_GUI_FLAG_NONE,
 
 	.start = (CAT_ivec2) {0, 0},
 	.shape = (CAT_ivec2) {0, 0},
@@ -51,7 +51,7 @@ CAT_gui_flag CAT_gui_clear_flags()
 void CAT_gui_panel(CAT_ivec2 start, CAT_ivec2 shape)
 {
 	CAT_fillberry(start.x * CAT_TILE_SIZE, start.y * CAT_TILE_SIZE, shape.x * CAT_TILE_SIZE, shape.y * CAT_TILE_SIZE, 0xFFFF);
-	if(CAT_gui_consume_flag(CAT_GUI_PANEL_BORDER))
+	if(CAT_gui_consume_flag(CAT_GUI_FLAG_BORDERED))
 		CAT_strokeberry(start.x * CAT_TILE_SIZE, start.y * CAT_TILE_SIZE, shape.x * CAT_TILE_SIZE, shape.y * CAT_TILE_SIZE, 0x0000);
 
 	gui.start = start;
@@ -59,7 +59,7 @@ void CAT_gui_panel(CAT_ivec2 start, CAT_ivec2 shape)
 	gui.cursor = CAT_ivec2_mul(start, CAT_TILE_SIZE);
 	gui.cursor.y += gui.margin;
 	gui.cursor.x += gui.margin;
-	if(CAT_gui_consume_flag(CAT_GUI_PANEL_TIGHT))
+	if(CAT_gui_consume_flag(CAT_GUI_FLAG_TIGHT))
 	{
 		gui.cursor.y -= gui.margin/2;
 		gui.cursor.x -= gui.margin/2;
@@ -88,7 +88,7 @@ void CAT_gui_line_break()
 
 void CAT_gui_text(const char* text)
 {
-	bool wrap = CAT_gui_consume_flag(CAT_GUI_TEXT_WRAP);
+	bool wrap = CAT_gui_consume_flag(CAT_GUI_FLAG_WRAPPED);
 	int x_lim = (gui.start.x * CAT_TILE_SIZE) + (gui.shape.x) * CAT_TILE_SIZE - CAT_GLYPH_WIDTH - gui.margin;
 	const char* c = text;
 
@@ -428,7 +428,7 @@ void CAT_gui_popup()
 {
 	CAT_gui_panel((CAT_ivec2) {2, 6}, (CAT_ivec2) {11, 8});
 	CAT_strokeberry(2 * 16, 6 * 16, 11 * 16, 8 * 16, 0x0000);
-	CAT_gui_set_flag(CAT_GUI_TEXT_WRAP);
+	CAT_gui_set_flag(CAT_GUI_FLAG_WRAPPED);
 	CAT_gui_text(popup.msg);
 	CAT_gui_line_break();
 	CAT_gui_text(popup.selector ? "[YES]  NO " : " YES  [NO]");
@@ -794,9 +794,9 @@ void CAT_gui_begin_item_list(const char* title)
 		item_list_highlight_mask[i] = 0;
 	}
 
-	show_price = CAT_gui_consume_flag(CAT_GUI_ITEM_LIST_PRICE);
-	show_count = CAT_gui_consume_flag(CAT_GUI_ITEM_LIST_COUNT);
-	show_coins = CAT_gui_consume_flag(CAT_GUI_ITEM_LIST_COINS);
+	show_price = CAT_gui_consume_flag(CAT_GUI_FLAG_INCLUDE_PRICE);
+	show_count = CAT_gui_consume_flag(CAT_GUI_FLAG_INCLUDE_COUNT);
+	show_coins = CAT_gui_consume_flag(CAT_GUI_FLAG_SHOW_COINS);
 	item_display_count = show_coins ? 8 : 9;
 }
 
@@ -871,7 +871,7 @@ void CAT_gui_item_list()
 
 	if(show_coins)
 	{
-		CAT_gui_set_flag(CAT_GUI_PANEL_TIGHT);
+		CAT_gui_set_flag(CAT_GUI_FLAG_TIGHT);
 		CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 2});
 		CAT_gui_image(&icon_coin_sprite, 0);
 		CAT_rowberry(0, (2*2)*16-1, CAT_LCD_SCREEN_W, 0x0000);
@@ -901,7 +901,7 @@ void CAT_gui_item_list()
 		int item_id = item_list.item_ids[list_idx];
 		CAT_item* item = CAT_item_get(item_id);
 		
-		CAT_gui_set_flag(CAT_GUI_PANEL_TIGHT);
+		CAT_gui_set_flag(CAT_GUI_FLAG_TIGHT);
 		CAT_gui_panel((CAT_ivec2) {0, tile_row_offset+display_idx*2}, (CAT_ivec2) {15, 2});
 		CAT_rowberry(0, (tile_row_offset+display_idx*2+2)*16-1, CAT_LCD_SCREEN_W, 0x0000);
 		CAT_gui_image(item->icon, 0);

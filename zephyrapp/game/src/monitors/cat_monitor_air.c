@@ -17,6 +17,7 @@ enum
 	PAGE_MAX
 };
 static int page = SUMMARY;
+static bool focused = false;
 
 static void render_page_markers(int x, int y)
 {
@@ -83,19 +84,115 @@ static void render_summary()
 	}
 }
 
+#define GRAPH_X 12
+#define GRAPH_Y 38
+#define GRAPH_WIDTH (CAT_LCD_SCREEN_W - 2 * GRAPH_X)
+#define GRAPH_HEIGHT 128
+#define GRAPH_MAX_X (GRAPH_X + GRAPH_WIDTH - 1)
+#define GRAPH_MAX_Y (GRAPH_Y + GRAPH_HEIGHT - 1)
+
+static struct
+{
+	uint8_t samples[GRAPH_WIDTH];
+
+	int origin_x;
+	int origin_y;
+	int pps;
+} graph;
+
+bool graph_show_reticle = false;
+
+static void init_graph()
+{
+	for(int i = 0; i < GRAPH_WIDTH; i++)
+	{
+		float t = i / (float) (GRAPH_WIDTH-1);
+		graph.samples[i] = GRAPH_HEIGHT * (0.5 * (sin(4 * t*2*M_PI) + 1));
+	}
+
+	graph.origin_x = 0;
+	graph.origin_y = 0;
+	graph.pps = 1;
+}
+
+static void graph_tick()
+{
+	if(focused)
+	{
+		if(CAT_input_held(CAT_BUTTON_LEFT, 0))
+			graph.origin_x -= graph.pps;
+		if(CAT_input_held(CAT_BUTTON_RIGHT, 0))
+			graph.origin_x += graph.pps;
+		if(CAT_input_held(CAT_BUTTON_UP, 0))
+			graph.origin_y += graph.pps;
+		if(CAT_input_held(CAT_BUTTON_DOWN, 0))
+			graph.origin_y -= graph.pps;
+
+		if(CAT_input_released(CAT_BUTTON_START))
+			graph.pps += 1;
+		if(CAT_input_released(CAT_BUTTON_SELECT))
+			graph.pps -= 1;
+		graph.pps = clamp(graph.pps, 1, 16);
+
+		if(CAT_input_pressed(CAT_BUTTON_START) && CAT_input_pressed(CAT_BUTTON_SELECT))
+			graph_show_reticle = !graph_show_reticle;
+	}
+}
+
+static int get_sample_x(int i)
+{
+	int x = i;
+	x += GRAPH_X + GRAPH_WIDTH / 2;
+	x -= graph.origin_x;
+	x *= graph.pps;
+	return x;
+}
+
+static int get_sample_y(int i)
+{
+	int y = graph.samples[i];
+	y -= GRAPH_HEIGHT / 2;
+	y -= graph.origin_y;
+	y *= graph.pps;
+	y = GRAPH_MAX_Y - y - GRAPH_HEIGHT / 2;
+	return y;
+}
+
 static void render_graph()
 {
 	CAT_push_text_colour(CAT_WHITE);
 	CAT_draw_text(12, 24, "GRAPH");
-	CAT_strokeberry(12, 38, CAT_LCD_SCREEN_W-24, 128, CAT_WHITE);
+
+	CAT_strokeberry(GRAPH_X, GRAPH_Y, GRAPH_WIDTH, GRAPH_HEIGHT, CAT_WHITE);
+	for(int i = 0; i < GRAPH_WIDTH-1; i++)
+	{
+		int x0 = get_sample_x(i);
+		int y0 = get_sample_y(i);
+		int x1 = get_sample_x(i+1);
+		int y1 = get_sample_y(i+1);
+		CAT_CSCLIP_set_rect(GRAPH_X, GRAPH_Y, GRAPH_MAX_X, GRAPH_MAX_Y);
+		if(CAT_CSCLIP(&x0, &y0, &x1, &y1))
+			CAT_lineberry(x0, y0, x1, y1, CAT_WHITE);
+	}
+
+	if(graph_show_reticle)
+	{
+		int c_x = GRAPH_X + GRAPH_WIDTH / 2;
+		int c_y = GRAPH_Y + GRAPH_HEIGHT / 2;
+		CAT_strokeberry(c_x-graph.pps, c_y-graph.pps, graph.pps*2+1, graph.pps*2+1, CAT_RED);
+		CAT_lineberry(GRAPH_X+1, c_y, c_x-graph.pps+1, c_y, CAT_RED);
+		CAT_lineberry(c_x+graph.pps, c_y, GRAPH_MAX_X, c_y, CAT_RED);
+		CAT_lineberry(c_x, GRAPH_Y+1, c_x, c_y-graph.pps, CAT_RED);
+		CAT_lineberry(c_x, c_y+graph.pps, c_x, GRAPH_MAX_Y, CAT_RED);
+	}
 }
 
 #define CLOCK_X 120
 #define CLOCK_Y 132
 #define CLOCK_RADIUS 96
-#define CLOCK_HOUR_HAND_LENGTH (CLOCK_RADIUS * 0.5f)
-#define CLOCK_MINUTE_HAND_LENGTH (CLOCK_RADIUS * 0.7f)
-#define CLOCK_SECOND_HAND_LENGTH (CLOCK_RADIUS * 0.85f)
+#define CLOCK_HOUR_HAND_LENGTH (CLOCK_RADIUS * 0.6f)
+#define CLOCK_MINUTE_HAND_LENGTH (CLOCK_RADIUS * 0.75f)
+#define CLOCK_SECOND_HAND_LENGTH (CLOCK_RADIUS * 0.9f)
 
 struct
 {
@@ -110,15 +207,14 @@ static void clock_tick()
 	CAT_get_datetime(&clock.datetime);
 
 	float arc_base = M_PI * 0.5f;
-	float arc_full = 4 * M_PI;
 
 	float hour_t = clock.datetime.hour / 24.0f;
 	float min_t = clock.datetime.minute / 60.0f;
 	float sec_t = clock.datetime.second / 60.0f;
 
-	clock.hour_arc = arc_base - hour_t * arc_full;
-	clock.minute_arc = arc_base - min_t * arc_full;
-	clock.second_arc = arc_base - sec_t * arc_full;
+	clock.hour_arc = arc_base - hour_t * (4 * M_PI);
+	clock.minute_arc = arc_base - min_t * (2 * M_PI);
+	clock.second_arc = arc_base - sec_t * (2 * M_PI);
 }
 
 CAT_vec2 clock_point(float t, float r)
@@ -126,7 +222,7 @@ CAT_vec2 clock_point(float t, float r)
 	float dx = cos(t) * r;
 	float dy = sin(t) * r;
 	float x = CLOCK_X + dx;
-	float y = CLOCK_Y + dy;
+	float y = CLOCK_Y - dy;
 	return (CAT_vec2) {x, y};
 }
 
@@ -181,17 +277,29 @@ void CAT_MS_monitor_air(CAT_machine_signal signal)
 	{
 		case CAT_MACHINE_SIGNAL_ENTER:
 			CAT_set_render_callback(render_monitor_air);
+			init_graph();
 		break;
 
 		case CAT_MACHINE_SIGNAL_TICK:
-			if(CAT_input_pressed(CAT_BUTTON_START))
-				CAT_machine_transition(CAT_MS_room);
+			if(!focused)
+			{
+				if(CAT_input_pressed(CAT_BUTTON_START))
+					CAT_machine_transition(CAT_MS_room);
 
-			if (CAT_input_pressed(CAT_BUTTON_RIGHT))
-				page += 1;
-			if (CAT_input_pressed(CAT_BUTTON_LEFT))
-				page -= 1;
-			page = (page + PAGE_MAX) % PAGE_MAX;
+				if (CAT_input_pressed(CAT_BUTTON_RIGHT))
+					page += 1;
+				if (CAT_input_pressed(CAT_BUTTON_LEFT))
+					page -= 1;
+				page = (page + PAGE_MAX) % PAGE_MAX;
+
+				if(CAT_input_pressed(CAT_BUTTON_A))
+					focused = true;
+			}
+			else
+			{
+				if(CAT_input_released(CAT_BUTTON_B))
+					focused = false;
+			}
 
 			switch (page)
 			{
@@ -199,6 +307,7 @@ void CAT_MS_monitor_air(CAT_machine_signal signal)
 				break;
 
 				case GRAPH:
+					graph_tick();
 				break;
 
 				case CLOCK:

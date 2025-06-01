@@ -136,15 +136,17 @@ void CAT_free(void* ptr);
 
 typedef enum
 {
+	CAT_SAVE_FLAG_NONE = 0,
 	CAT_SAVE_FLAG_DEVELOPER_MODE = 1,
 	CAT_SAVE_FLAG_AQ_FIRST = 2
 } CAT_save_flag;
 
 typedef enum
 {
-	CAT_LOAD_FLAG_DIRTY,
-	CAT_LOAD_FLAG_RESET,
-	CAT_LOAD_FLAG_OVERRIDE
+	CAT_LOAD_FLAG_NONE = 0,
+	CAT_LOAD_FLAG_DIRTY = 1,
+	CAT_LOAD_FLAG_RESET = 2,
+	CAT_LOAD_FLAG_OVERRIDE = 4
 } CAT_load_flag;
 
 typedef struct __attribute__((__packed__)) CAT_save

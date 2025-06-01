@@ -105,11 +105,7 @@ CAT_rect CAT_rect_overlap(CAT_rect a, CAT_rect b);
 
 
 //////////////////////////////////////////////////////////////////////////
-// RENDERING
-
-#define RGB8882565(r, g, b) ((((r) & 0b11111000) << 8) | (((g) & 0b11111100) << 3) | ((b) >> 3))
-#define RGB5652BGR565(c) (((c) >> 8) | (((c) & 0xff) << 8))
-#define SCALEBYTE(b, f) ((uint8_t) ((b) * (f)))
+// POLYGON RENDERING
 
 typedef struct CAT_mat4
 {
@@ -124,7 +120,6 @@ typedef struct CAT_vec4
 	float w;
 } CAT_vec4;
 
-CAT_mat4 CAT_mat4_id();
 CAT_vec4 CAT_matvec_mul(CAT_mat4 M, CAT_vec4 v);
 void CAT_perspdiv(CAT_vec4* v);
 CAT_vec4 CAT_vec4_cross(CAT_vec4 u, CAT_vec4 v);
@@ -134,6 +129,20 @@ CAT_vec4 CAT_vec4_normalize(CAT_vec4 v);
 CAT_mat4 CAT_matmul(CAT_mat4 A, CAT_mat4 B);
 CAT_mat4 CAT_rotmat(float x, float y, float z);
 bool CAT_is_clipped(CAT_vec4 v);
-CAT_vec4 CAT_centroid(CAT_vec4 a, CAT_vec4 b, CAT_vec4 c);
-CAT_vec4 CAT_vec4_add(CAT_vec4 u, CAT_vec4 v);
-CAT_vec4 CAT_vec4_mul(CAT_vec4 v, float l);
+
+
+//////////////////////////////////////////////////////////////////////////
+// COHEN-SUTHERLAND CLIPPING
+
+typedef enum
+{
+	CAT_CSCLIP_FLAG_INSIDE = 0,
+	CAT_CSCLIP_FLAG_LEFT = 1,
+	CAT_CSCLIP_FLAG_RIGHT = 2,
+	CAT_CSCLIP_FLAG_BOTTOM = 4,
+	CAT_CSCLIP_FLAG_TOP = 8
+} CAT_CSCLIP_flag;
+
+void CAT_CSCLIP_set_rect(int x0, int y0, int x1, int y1);
+int CAT_CSCLIP_get_flags(int x, int y);
+bool CAT_CSCLIP(int* x0, int* y0, int* x1, int* y1);

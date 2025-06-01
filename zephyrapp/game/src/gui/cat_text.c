@@ -67,7 +67,7 @@ bool break_list_lookup(int idx)
 //////////////////////////////////////////////////////////////////////////
 // DRAWING
 
-static int text_flags = CAT_TEXT_FLAG_DEFAULT;
+static int text_flags = CAT_TEXT_FLAG_NONE;
 static int text_line_width = CAT_LCD_SCREEN_W;
 static uint16_t text_colour = CAT_BLACK;
 static uint8_t text_scale = 1;
@@ -80,7 +80,7 @@ void CAT_push_text_flags(int flags)
 int consume_text_flags()
 {
 	int value = text_flags;
-	text_flags = CAT_TEXT_FLAG_DEFAULT;
+	text_flags = CAT_TEXT_FLAG_NONE;
 	return value;
 }
 

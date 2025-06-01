@@ -30,8 +30,8 @@ void CAT_MS_vending(CAT_machine_signal signal)
 			if(CAT_input_pressed(CAT_BUTTON_START))
 				CAT_machine_transition(CAT_MS_room);
 			
-			CAT_gui_set_flag(CAT_GUI_ITEM_LIST_PRICE);
-			CAT_gui_set_flag(CAT_GUI_ITEM_LIST_COINS);
+			CAT_gui_set_flag(CAT_GUI_FLAG_INCLUDE_PRICE);
+			CAT_gui_set_flag(CAT_GUI_FLAG_SHOW_COINS);
 			CAT_gui_begin_item_list("VENDING MACHINE");
 			for(int i = 0; i < item_table.length; i++)
 			{

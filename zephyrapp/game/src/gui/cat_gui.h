@@ -14,13 +14,13 @@
 
 typedef enum CAT_gui_flag
 {
-	CAT_GUI_DEFAULT,
-	CAT_GUI_PANEL_BORDER,
-	CAT_GUI_PANEL_TIGHT,
-	CAT_GUI_TEXT_WRAP,
-	CAT_GUI_ITEM_LIST_COUNT,
-	CAT_GUI_ITEM_LIST_PRICE,
-	CAT_GUI_ITEM_LIST_COINS,
+	CAT_GUI_FLAG_NONE = 0,
+	CAT_GUI_FLAG_BORDERED = 1,
+	CAT_GUI_FLAG_TIGHT = 2,
+	CAT_GUI_FLAG_WRAPPED = 4,
+	CAT_GUI_FLAG_INCLUDE_COUNT = 8,
+	CAT_GUI_FLAG_INCLUDE_PRICE = 16,
+	CAT_GUI_FLAG_SHOW_COINS = 32,
 } CAT_gui_flag;
 
 void CAT_gui_set_flag(CAT_gui_flag flag);
@@ -137,8 +137,8 @@ bool break_list_lookup(int idx);
 
 typedef enum
 {
-	CAT_TEXT_FLAG_DEFAULT = 1,
-	CAT_TEXT_FLAG_WRAP = 2
+	CAT_TEXT_FLAG_NONE = 0,
+	CAT_TEXT_FLAG_WRAP = 1
 } CAT_text_flag;
 
 void CAT_push_text_flags(int flags);

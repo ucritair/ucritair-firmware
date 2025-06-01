@@ -12,6 +12,7 @@
 #include "cat_version.h"
 #include <stdarg.h>
 #include "cat_main.h"
+#include "cat_math.h"
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -334,9 +335,9 @@ void CAT_set_LEDs(uint8_t r, uint8_t g, uint8_t b)
 
 	for(int i = 0; i < 6; i++)
 	{
-		LEDs[i][0] = SCALEBYTE(r, power);
-		LEDs[i][1] = SCALEBYTE(g, power);
-		LEDs[i][2] = SCALEBYTE(b, power);
+		LEDs[i][0] = (uint8_t) (power * r);
+		LEDs[i][1] = (uint8_t) (power * g);
+		LEDs[i][2] = (uint8_t) (power * b);
 	}
 }
 
