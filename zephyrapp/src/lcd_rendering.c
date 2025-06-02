@@ -5,8 +5,6 @@
 LOG_MODULE_REGISTER(lcd_rendering, LOG_LEVEL_DBG);
 #include "lcd_driver.h"
 
-#include "airquality.h"
-
 #include "buttons.h"
 #include "touch.h"
 #include "rtc.h"

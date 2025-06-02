@@ -5,7 +5,7 @@
 #include "sen5x_i2c.h"
 
 #include "sensor_hal.h"
-#include "airquality.h"
+#include "cat_core.h"
 
 LOG_MODULE_REGISTER(sen5x, SENSOR_LOG_LEVEL);
 
@@ -137,21 +137,21 @@ int sen5x_read()
     LOG_INF("voc_index=%.1f", state.voc_index);
     LOG_INF("nox_index=%.1f", state.nox_index);
 
-    current_readings.sen5x.pm1_0 = state.mc_pm1p0;
-    current_readings.sen5x.pm2_5 = state.mc_pm2p5;
-    current_readings.sen5x.pm4_0 = state.mc_pm4p0;
-    current_readings.sen5x.pm10_0 = state.mc_pm10p0;
-    current_readings.sen5x.nc0_5 = state.nc_pm0p5;
-    current_readings.sen5x.nc1_0 = state.nc_pm1p0;
-    current_readings.sen5x.nc2_5 = state.nc_pm2p5;
-    current_readings.sen5x.nc4_0 = state.nc_pm4p0;
-    current_readings.sen5x.nc10_0 = state.nc_pm10p0;
-    current_readings.sen5x.typ_particle_sz_um = state.typical_particle_size_um;
-    current_readings.sen5x.humidity_rhpct = state.humidity;
-    current_readings.sen5x.temp_degC = state.temp_c;
-    current_readings.sen5x.voc_index = state.voc_index;
-    current_readings.sen5x.nox_index = state.nox_index;
-    current_readings.sen5x.uptime_last_updated = k_uptime_get();
+    readings.sen5x.pm1_0 = state.mc_pm1p0;
+    readings.sen5x.pm2_5 = state.mc_pm2p5;
+    readings.sen5x.pm4_0 = state.mc_pm4p0;
+    readings.sen5x.pm10_0 = state.mc_pm10p0;
+    readings.sen5x.nc0_5 = state.nc_pm0p5;
+    readings.sen5x.nc1_0 = state.nc_pm1p0;
+    readings.sen5x.nc2_5 = state.nc_pm2p5;
+    readings.sen5x.nc4_0 = state.nc_pm4p0;
+    readings.sen5x.nc10_0 = state.nc_pm10p0;
+    readings.sen5x.typ_particle_sz_um = state.typical_particle_size_um;
+    readings.sen5x.humidity_rhpct = state.humidity;
+    readings.sen5x.temp_degC = state.temp_c;
+    readings.sen5x.voc_index = state.voc_index;
+    readings.sen5x.nox_index = state.nox_index;
+    readings.sen5x.uptime_last_updated = k_uptime_get();
 
     return 0;
 }

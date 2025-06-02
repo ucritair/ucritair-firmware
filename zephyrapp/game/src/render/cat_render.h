@@ -17,11 +17,11 @@
 #define CAT_DRAW_QUEUE_MAX_LENGTH 512
 #define CAT_ANIM_TABLE_MAX_LENGTH 512
 
-#ifdef CAT_DESKTOP
-#define FRAMEBUFFER_ROW_OFFSET (CAT_get_render_cycle() * CAT_LCD_FRAMEBUFFER_H)
-
 #define RGB8882565(r, g, b) ((((r) & 0b11111000) << 8) | (((g) & 0b11111100) << 3) | ((b) >> 3))
 #define RGB5652BGR565(c) (((c) >> 8) | (((c) & 0xff) << 8))
+
+#ifdef CAT_DESKTOP
+#define FRAMEBUFFER_ROW_OFFSET (CAT_get_render_cycle() * CAT_LCD_FRAMEBUFFER_H)
 
 #define ADAPT_DESKTOP_COLOUR(c) c
 #define ADAPT_EMBEDDED_COLOUR(c) RGB5652BGR565(c)

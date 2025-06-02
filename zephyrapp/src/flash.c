@@ -4,7 +4,6 @@
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(cat_flash, LOG_LEVEL_DBG);
 
-#include "airquality.h"
 #include "rtc.h"
 #include "flash.h"
 #include "sdcard.h"
@@ -20,7 +19,7 @@ struct __attribute__((__packed__)) flash_header {
 	uint32_t persistance_offset;
 } flash_header_read = {0};
 
-static inline bool cell_is_valid(struct flash_log_cell* cell)
+static inline bool cell_is_valid(CAT_log_cell* cell)
 {
 	return cell->timestamp != 0 && cell->timestamp != UINT64_MAX;
 }
@@ -29,7 +28,7 @@ static inline bool cell_is_valid(struct flash_log_cell* cell)
 #define PERSISTANCE_OFFSET (flash_header_read.persistance_offset + TOTAL_SAVE_ROOM)
 #define SYSTEM_OFFSET (flash_header_read.persistance_offset)
 #define TOMAS_OFFSET (flash_header_read.persistance_offset+ROOM_FOR_SYSTEM)
-#define MAX_LOG_CELL_COUNT (((FLASH_SIZE - PERSISTANCE_OFFSET) / sizeof(struct flash_log_cell)) & ~1)
+#define MAX_LOG_CELL_COUNT (((FLASH_SIZE - PERSISTANCE_OFFSET) / sizeof(CAT_log_cell)) & ~1)
 
 #define LOG_CELL_NR_FULL -1
 #define LOG_CELL_NR_UNKOWN -2
@@ -37,7 +36,7 @@ static inline bool cell_is_valid(struct flash_log_cell* cell)
 int next_log_cell_nr = LOG_CELL_NR_UNKOWN;
 int flash_get_next_log_cell_nr();
 
-_Static_assert(sizeof(struct flash_log_cell) == 64);
+_Static_assert(sizeof(CAT_log_cell) == 64);
 
 bool did_post_flash = false;
 
@@ -110,26 +109,26 @@ void flash_nuke_tomas_save()
 }
 
 
-#define OFFSET_OF_CELL(nr) (PERSISTANCE_OFFSET + (sizeof(struct flash_log_cell) * nr))
+#define OFFSET_OF_CELL(nr) (PERSISTANCE_OFFSET + (sizeof(CAT_log_cell) * nr))
 
-void flash_get_cell_by_nr(int nr, struct flash_log_cell* out)
+void flash_get_cell_by_nr(int nr, CAT_log_cell* out)
 {
 	if (!did_post_flash) return;
 	LOG_DBG("%s(%d) (@%x)", __func__, nr, OFFSET_OF_CELL(nr));
-	flash_read(flash_dev, OFFSET_OF_CELL(nr), out, sizeof(struct flash_log_cell));
+	flash_read(flash_dev, OFFSET_OF_CELL(nr), out, sizeof(CAT_log_cell));
 }
 
-void flash_write_cell_by_nr(int nr, struct flash_log_cell* out)
+void flash_write_cell_by_nr(int nr, CAT_log_cell* out)
 {
 	if (!did_post_flash) return;
 	LOG_DBG("%s(%d) (@%x)", __func__, nr, OFFSET_OF_CELL(nr));
-	flash_write(flash_dev, OFFSET_OF_CELL(nr), out, sizeof(struct flash_log_cell));
+	flash_write(flash_dev, OFFSET_OF_CELL(nr), out, sizeof(CAT_log_cell));
 }
 
 int flash_get_next_log_cell_nr()
 {
 	if (!did_post_flash) return LOG_CELL_NR_FULL;
-	struct flash_log_cell cell;
+	CAT_log_cell cell;
 
 	LOG_DBG("flash_get_next_log_cell_nr: MAX_LOG_CELL_COUNT=%d", MAX_LOG_CELL_COUNT);
 
@@ -166,7 +165,7 @@ int flash_get_next_log_cell_nr()
 	return LOG_CELL_NR_FULL;
 }
 
-int flash_get_first_cell_before_time(int check, uint64_t t, struct flash_log_cell* cell)
+int flash_get_first_cell_before_time(int check, uint64_t t, CAT_log_cell* cell)
 {
 	if (!did_post_flash) return 0;
 	if (check == -1) check = next_log_cell_nr-1;
@@ -192,16 +191,16 @@ float get_hours_of_logging_at_rate(int rate)
 	return ((double)(rate*left))/3600.;
 }
 
-void populate_log_cell(struct flash_log_cell* cell)
+void populate_log_cell(CAT_log_cell* cell)
 {
 	if (!did_post_flash) return;
 	cell->flags = 0;
 
 	int now = k_uptime_get();
 	int ago[2] = {
-		// current_readings.lps22hh.uptime_last_updated,
-		current_readings.sunrise.uptime_last_updated,
-		current_readings.sen5x.uptime_last_updated
+		// readings.lps22hh.uptime_last_updated,
+		readings.sunrise.uptime_last_updated,
+		readings.sen5x.uptime_last_updated
 	};
 
 	int longest_ago = 0;
@@ -228,37 +227,37 @@ void populate_log_cell(struct flash_log_cell* cell)
 
 	// LOG_DBG("cell->timestamp = %d", cell->timestamp);
 
-	cell->pressure_hPax10 = current_readings.lps22hh.pressure * 10;
+	cell->pressure_hPax10 = readings.lps22hh.pressure * 10;
 
-	cell->temp_Cx1000 = current_readings.sen5x.temp_degC * 1000; // C * 1000
-	cell->rh_pctx100 = current_readings.sen5x.humidity_rhpct * 100; // % * 100
+	cell->temp_Cx1000 = readings.sen5x.temp_degC * 1000; // C * 1000
+	cell->rh_pctx100 = readings.sen5x.humidity_rhpct * 100; // % * 100
 
-	cell->co2_ppmx1 = current_readings.sunrise.ppm_filtered_compensated * 1; // ppm * 1
-	cell->co2_uncomp_ppmx1 = current_readings.sunrise.ppm_filtered_uncompensated * 1; // ppm * 1
+	cell->co2_ppmx1 = readings.sunrise.ppm_filtered_compensated * 1; // ppm * 1
+	cell->co2_uncomp_ppmx1 = readings.sunrise.ppm_filtered_uncompensated * 1; // ppm * 1
 
-	if (current_readings.sunrise.uptime_last_updated)
+	if (readings.sunrise.uptime_last_updated)
 	{
-		cell->flags |= FLAG_HAS_CO2;
+		cell->flags |= CAT_LOG_CELL_FLAG_HAS_CO2;
 	}
 
-	cell->pm_ugmx100[0] = current_readings.sen5x.pm1_0 * 100; //1.0, 2.5, 4.0, 10.0 x100
-	cell->pm_ugmx100[1] = current_readings.sen5x.pm2_5 * 100;
-	cell->pm_ugmx100[2] = current_readings.sen5x.pm4_0 * 100;
-	cell->pm_ugmx100[3] = current_readings.sen5x.pm10_0 * 100;
+	cell->pm_ugmx100[0] = readings.sen5x.pm1_0 * 100; //1.0, 2.5, 4.0, 10.0 x100
+	cell->pm_ugmx100[1] = readings.sen5x.pm2_5 * 100;
+	cell->pm_ugmx100[2] = readings.sen5x.pm4_0 * 100;
+	cell->pm_ugmx100[3] = readings.sen5x.pm10_0 * 100;
 
-	cell->pn_ugmx100[0] = current_readings.sen5x.nc0_5 * 100; 
-	cell->pn_ugmx100[1] = current_readings.sen5x.nc1_0 * 100; //1.0, 2.5, 4.0, 10.0 x100
-	cell->pn_ugmx100[2] = current_readings.sen5x.nc2_5 * 100;
-	cell->pn_ugmx100[3] = current_readings.sen5x.nc4_0 * 100;
-	cell->pn_ugmx100[4] = current_readings.sen5x.nc10_0 * 100;
+	cell->pn_ugmx100[0] = readings.sen5x.nc0_5 * 100; 
+	cell->pn_ugmx100[1] = readings.sen5x.nc1_0 * 100; //1.0, 2.5, 4.0, 10.0 x100
+	cell->pn_ugmx100[2] = readings.sen5x.nc2_5 * 100;
+	cell->pn_ugmx100[3] = readings.sen5x.nc4_0 * 100;
+	cell->pn_ugmx100[4] = readings.sen5x.nc10_0 * 100;
 
-	if (current_readings.sen5x.uptime_last_updated)
+	if (readings.sen5x.uptime_last_updated)
 	{
-		cell->flags |= FLAG_HAS_TEMP_RH_PARTICLES;
+		cell->flags |= CAT_LOG_CELL_FLAG_HAS_TEMP_RH_PARTICLES;
 	}
 
-	cell->voc_index = current_readings.sen5x.voc_index * 1; //x1
-	cell->nox_index = current_readings.sen5x.nox_index * 1; //x1
+	cell->voc_index = readings.sen5x.voc_index * 1; //x1
+	cell->nox_index = readings.sen5x.nox_index * 1; //x1
 }
 
 void populate_next_log_cell()
@@ -274,7 +273,7 @@ void populate_next_log_cell()
 		return;
 	}
 
-	struct flash_log_cell cell;
+	CAT_log_cell cell;
 	populate_log_cell(&cell);
 	flash_write_cell_by_nr(next_log_cell_nr, &cell);
 
@@ -301,9 +300,9 @@ void flash_erase_all_cells()
 bool is_ready_for_aqi_logging()
 {
 	return 
-			// current_readings.lps22hh.uptime_last_updated &&
-		   current_readings.sunrise.uptime_last_updated &&
-		   current_readings.sen5x.uptime_last_updated;
+			// readings.lps22hh.uptime_last_updated &&
+		   readings.sunrise.uptime_last_updated &&
+		   readings.sen5x.uptime_last_updated;
 }
 
 
@@ -314,7 +313,7 @@ static int sh_retrieve_cell(const struct shell *sh, size_t argc,
 {
 	int nr = atoi(argv[1]);
 
-	struct flash_log_cell cell;
+	CAT_log_cell cell;
 	flash_get_cell_by_nr(nr, &cell);
 
 	printf("Cell[%d] = {\n", nr);

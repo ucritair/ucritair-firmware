@@ -30,7 +30,6 @@ LOG_MODULE_REGISTER(sample, LOG_LEVEL_INF);
 #include "flash.h"
 #include "rgb_leds.h"
 #include "rtc.h"
-#include "airquality.h"
 #include "buttons.h"
 #include "batt.h"
 
@@ -144,8 +143,8 @@ int main(void)
 
 			if (trying_to_take_nox_reading)
 			{
-				if ((current_readings.sen5x.voc_index == 0) ||
-					(current_readings.sen5x.nox_index == 0))
+				if ((readings.sen5x.voc_index == 0) ||
+					(readings.sen5x.nox_index == 0))
 				{
 					are_ready = false;
 				}

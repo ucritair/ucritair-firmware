@@ -6,7 +6,6 @@
 #include <string.h>
 
 #include <zephyr/kernel.h>
-#include "airquality.h"
 #include "sound.h"
 #include "rgb_leds.h"
 #include "epaper_rendering.h"
@@ -103,23 +102,23 @@ void menu_sensors()
 	textf("Uptime: %lldms", k_uptime_get());
 
 	text("");
-	textf("LPS22HH @ %lldms", current_readings.lps22hh.uptime_last_updated);
-	textf("Temp: %.1fC; Pressure: %.1f?", (double)current_readings.lps22hh.temp, (double)current_readings.lps22hh.pressure);
+	textf("LPS22HH @ %lldms", readings.lps22hh.uptime_last_updated);
+	textf("Temp: %.1fC; Pressure: %.1f?", (double)readings.lps22hh.temp, (double)readings.lps22hh.pressure);
 
 	text("");
-	textf("Sunrise @ %lldms", current_readings.sunrise.uptime_last_updated);
-	textf("CO2: %.0fppm", (double)current_readings.sunrise.ppm_filtered_compensated);
-	textf("Temp: %.1fC", (double)current_readings.sunrise.temp);
+	textf("Sunrise @ %lldms", readings.sunrise.uptime_last_updated);
+	textf("CO2: %.0fppm", (double)readings.sunrise.ppm_filtered_compensated);
+	textf("Temp: %.1fC", (double)readings.sunrise.temp);
 
 	text("");
-	textf("SEN5x @ %lldms", current_readings.sen5x.uptime_last_updated);
-	textf("PM1.0: %.1f | PM2.5: %.1f", (double)current_readings.sen5x.pm1_0, (double)current_readings.sen5x.pm2_5);
-	textf("PM4.0: %.1f | PM10.0: %.1f", (double)current_readings.sen5x.pm4_0, (double)current_readings.sen5x.pm10_0);
-	textf("PN0.5: %.1f", (double)current_readings.sen5x.nc0_5);
-	textf("PN1.0: %.1f | PN2.5: %.1f", (double)current_readings.sen5x.nc1_0, (double)current_readings.sen5x.nc2_5);
-	textf("PN4.0: %.1f | PN10.0: %.1f", (double)current_readings.sen5x.nc4_0, (double)current_readings.sen5x.nc10_0);
-	textf("Humidity: %.1f%%RH; Temp: %.1fC", (double)current_readings.sen5x.humidity_rhpct, (double)current_readings.sen5x.temp_degC);
-	textf("VOC: %.1f; NOX: %.1f", (double)current_readings.sen5x.voc_index, (double)current_readings.sen5x.nox_index);
+	textf("SEN5x @ %lldms", readings.sen5x.uptime_last_updated);
+	textf("PM1.0: %.1f | PM2.5: %.1f", (double)readings.sen5x.pm1_0, (double)readings.sen5x.pm2_5);
+	textf("PM4.0: %.1f | PM10.0: %.1f", (double)readings.sen5x.pm4_0, (double)readings.sen5x.pm10_0);
+	textf("PN0.5: %.1f", (double)readings.sen5x.nc0_5);
+	textf("PN1.0: %.1f | PN2.5: %.1f", (double)readings.sen5x.nc1_0, (double)readings.sen5x.nc2_5);
+	textf("PN4.0: %.1f | PN10.0: %.1f", (double)readings.sen5x.nc4_0, (double)readings.sen5x.nc10_0);
+	textf("Humidity: %.1f%%RH; Temp: %.1fC", (double)readings.sen5x.humidity_rhpct, (double)readings.sen5x.temp_degC);
+	textf("VOC: %.1f; NOX: %.1f", (double)readings.sen5x.voc_index, (double)readings.sen5x.nox_index);
 
 	text("");
 	selectable("Force Sunrise ABC", menu_force_sunrise_abc, NULL);
@@ -145,19 +144,19 @@ void menu_post()
 	textf("Uptime: %lldms", k_uptime_get());
 
 	text("");
-	uint16_t c = current_readings.lps22hh.uptime_last_updated==0?POST_RED:POST_GRN;
-	textfc(c, "LPS22HH @ %lldms", current_readings.lps22hh.uptime_last_updated);
-	textfc(c, "Temp: %.1fC; Pressure: %.1f?", (double)current_readings.lps22hh.temp, (double)current_readings.lps22hh.pressure);
+	uint16_t c = readings.lps22hh.uptime_last_updated==0?POST_RED:POST_GRN;
+	textfc(c, "LPS22HH @ %lldms", readings.lps22hh.uptime_last_updated);
+	textfc(c, "Temp: %.1fC; Pressure: %.1f?", (double)readings.lps22hh.temp, (double)readings.lps22hh.pressure);
 
 	text("");
-	c = current_readings.sunrise.uptime_last_updated==0?POST_RED:POST_GRN;
-	textfc(c, "Sunrise @ %lldms", current_readings.sunrise.uptime_last_updated);
-	textfc(c, "CO2: %.0fppm", (double)current_readings.sunrise.ppm_filtered_compensated);
+	c = readings.sunrise.uptime_last_updated==0?POST_RED:POST_GRN;
+	textfc(c, "Sunrise @ %lldms", readings.sunrise.uptime_last_updated);
+	textfc(c, "CO2: %.0fppm", (double)readings.sunrise.ppm_filtered_compensated);
 
 	text("");
-	c = current_readings.sen5x.uptime_last_updated==0?POST_RED:POST_GRN;
-	textfc(c, "SEN5x @ %lldms", current_readings.sen5x.uptime_last_updated);
-	textfc(c, "PM1.0: %.1f | PM2.5: %.1f", (double)current_readings.sen5x.pm1_0, (double)current_readings.sen5x.pm2_5);
+	c = readings.sen5x.uptime_last_updated==0?POST_RED:POST_GRN;
+	textfc(c, "SEN5x @ %lldms", readings.sen5x.uptime_last_updated);
+	textfc(c, "PM1.0: %.1f | PM2.5: %.1f", (double)readings.sen5x.pm1_0, (double)readings.sen5x.pm2_5);
 
 	text("");
 	textfc(did_post_imu?POST_GRN:POST_RED,         "IMU  %s", did_post_imu?"OK":"FAIL");

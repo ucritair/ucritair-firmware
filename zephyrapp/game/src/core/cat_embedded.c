@@ -12,7 +12,6 @@
 #include "rgb_leds.h"
 #include "batt.h"
 #include "power_control.h"
-#include "airquality.h"
 #include "lcd_driver.h"
 #include "lcd_rendering.h"
 #include "imu.h"
@@ -119,7 +118,7 @@ void CAT_eink_update()
 void CAT_set_LEDs(uint8_t r, uint8_t g, uint8_t b)
 {
 	float power = CAT_LED_get_brightness() / 100.0f;
-	set_all_same_color((struct led_rgb){.r=SCALEBYTE(r, power), .g=SCALEBYTE(r, power), .b=SCALEBYTE(r, power)});
+	set_all_same_color((struct led_rgb){.r=power * r, .g=power * g, .b=power * b});
 }
 
 
@@ -170,6 +169,11 @@ uint64_t CAT_get_uptime_ms()
 float CAT_get_delta_time_s()
 {
 	return delta_t;
+}
+
+uint64_t CAT_get_rtc_now()
+{
+	return get_current_rtc_time();
 }
 
 void CAT_get_datetime(CAT_datetime* datetime)
@@ -235,6 +239,20 @@ void CAT_finish_load()
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// LOGS
+
+void CAT_read_log_cell_at_idx(int idx, CAT_log_cell* out)
+{
+	flash_get_cell_by_nr(idx, out);
+}
+
+int CAT_read_log_cell_before_time(int base_idx, uint64_t time, CAT_log_cell* out)
+{
+	return flash_get_first_cell_before_time(base_idx, time, out);
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // POWER
 
 int CAT_get_battery_pct()
@@ -263,41 +281,6 @@ void CAT_factory_reset()
 	cat_game_running = 0;
 	flash_nuke_tomas_save();
 	power_off(0, false);
-}
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// AIR QUALITY
-
-CAT_AQ_readings readings = {0};
-
-void CAT_get_AQ_readings()
-{
-	readings.lps22hh.uptime_last_updated = current_readings.lps22hh.uptime_last_updated;
-	readings.lps22hh.temp = current_readings.lps22hh.temp;
-	readings.lps22hh.pressure = current_readings.lps22hh.pressure;
-
-	readings.sunrise.uptime_last_updated = current_readings.sunrise.uptime_last_updated;
-	readings.sunrise.ppm_filtered_compensated = current_readings.sunrise.ppm_filtered_compensated;
-	readings.sunrise.temp = current_readings.sunrise.temp;
-
-	readings.sen5x.uptime_last_updated = current_readings.sen5x.uptime_last_updated;
-	readings.sen5x.pm2_5 = current_readings.sen5x.pm2_5;
-	readings.sen5x.pm10_0 = current_readings.sen5x.pm10_0;
-	readings.sen5x.humidity_rhpct = current_readings.sen5x.humidity_rhpct;
-
-	readings.sen5x.temp_degC = current_readings.sen5x.temp_degC;
-	readings.sen5x.voc_index = current_readings.sen5x.voc_index;
-	readings.sen5x.nox_index = current_readings.sen5x.nox_index;
-}
-
-bool CAT_is_AQ_initialized()
-{
-	return
-	current_readings.sunrise.ppm_filtered_uncompensated > 0 &&
-	(current_readings.sen5x.temp_degC != 0 ||
-	current_readings.sen5x.humidity_rhpct > 0 ||
-	current_readings.sen5x.pm2_5 > 0);
 }
 
 

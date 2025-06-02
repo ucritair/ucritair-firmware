@@ -10,7 +10,6 @@ add_subdirectory(vendor)
 add_subdirectory(game)
 
 target_sources(app PRIVATE
-	src/airquality.c
 	src/batt.c
 	src/ble.c
 	src/buttons.c
