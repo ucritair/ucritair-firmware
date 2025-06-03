@@ -15,6 +15,7 @@
 #include "cat_main.h"
 #include "theme_assets.h"
 #include "sound_assets.h"
+#include "cat_monitors.h"
 
 #ifdef CAT_EMBEDDED
 #include "menu_system.h"
@@ -49,11 +50,17 @@ void CAT_MS_menu(CAT_machine_signal signal)
 					CAT_machine_transition(CAT_MS_vending);
 				if(CAT_gui_menu_item("ARCADE"))
 					CAT_machine_transition(CAT_MS_arcade);
-				if(CAT_gui_menu_item("AIR QUALITY"))
+				if(CAT_gui_begin_menu("AIR QUALITY"))
 				{
-#ifdef CAT_EMBEDDED	
-					CAT_machine_transition(CAT_MS_aqi);
+					if(CAT_gui_menu_item("DASHBOARD"))
+						CAT_machine_transition(CAT_MS_monitor);
+					if(CAT_gui_menu_item("LOGS"))
+					{
+#ifdef CAT_EMBEDDED
+						CAT_machine_transition(CAT_MS_aqi);
 #endif
+					}
+					CAT_gui_end_menu();
 				}
 				if(CAT_gui_menu_item("MAGIC"))
 					CAT_machine_transition(CAT_MS_magic);
@@ -185,7 +192,7 @@ void CAT_MS_menu(CAT_machine_signal signal)
 							CAT_clear_save_flag(CAT_SAVE_FLAG_AQ_FIRST);
 							CAT_force_save();
 						}
-						if(CAT_gui_menu_toggle("AIR QUALITY FIRST", CAT_check_save_flag(CAT_SAVE_FLAG_AQ_FIRST)))
+						if(CAT_gui_menu_toggle("DASHBOARD FIRST", CAT_check_save_flag(CAT_SAVE_FLAG_AQ_FIRST)))
 						{
 							CAT_set_save_flag(CAT_SAVE_FLAG_AQ_FIRST);
 							CAT_force_save();

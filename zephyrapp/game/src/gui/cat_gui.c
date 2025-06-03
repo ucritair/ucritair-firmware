@@ -501,6 +501,12 @@ uint16_t register_menu_node(const char* title, CAT_gui_menu_type type)
 	while (menu_table[idx].live)
 		idx++;
 
+	if(idx < 0 || idx >= MENU_TABLE_SIZE)
+	{
+		CAT_printf("[ERROR] Menu node index %d is invalid", idx);
+		return UINT16_MAX;
+	}
+
 	menu_table[idx] = (menu_node)
 	{
 		.live = true,
@@ -531,6 +537,12 @@ int find_menu_node(const char* title)
 
 void push_menu_node(uint16_t table_idx)
 {
+	if(menu_stack_length >= MENU_STACK_SIZE)
+	{
+		CAT_printf("[ERROR] Attempted to add to full menu stack!\n");
+		return;
+	}
+
 	menu_stack[menu_stack_length] = table_idx;
 	menu_stack_length += 1;
 }
@@ -545,7 +557,6 @@ menu_node* get_local_head()
 {
 	return &menu_table[menu_stack[menu_stack_length-1]];
 }
-
 
 menu_node* get_global_head()
 {
@@ -566,8 +577,13 @@ menu_node* get_global_head()
 uint8_t menu_add_child(uint16_t table_idx)
 {
 	menu_node* head = get_local_head();
-
 	uint8_t child_idx = head->child_count;
+	if(child_idx >= 32)
+	{
+		CAT_printf("[ERROR] Attempted to add child to full menu node!\n");
+		return 255;
+	}
+
 	head->children[child_idx] = table_idx;
 	head->child_count += 1;
 	menu_table[table_idx].parent = menu_stack[menu_stack_length-1];
