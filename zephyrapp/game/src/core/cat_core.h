@@ -313,6 +313,9 @@ void CAT_AQ_set_temperature_unit(CAT_temperature_unit unit);
 float CAT_AQ_map_celsius(float temp);
 const char* CAT_AQ_get_temperature_unit_string();
 
+uint8_t CAT_AQ_count_stored_scores();
+uint8_t CAT_AQ_get_stored_score(int idx);
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // IMU

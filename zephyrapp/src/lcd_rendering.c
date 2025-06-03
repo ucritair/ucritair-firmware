@@ -14,6 +14,7 @@ LOG_MODULE_REGISTER(lcd_rendering, LOG_LEVEL_DBG);
 #include "cat_item.h"
 #include "cat_bag.h"
 #include "cat_core.h"
+#include "cat_aqi.h"
 
 #include "menu_system.h"
 
@@ -193,6 +194,19 @@ void lcd_render_diag()
 		}
 
 		charging_last_frame = is_charging;
+
+		time_t current_moment = get_current_rtc_time();
+		uint32_t time_since = current_moment - aq_score_last_time;
+		if(time_since > 86400 && CAT_is_AQ_initialized())
+		{
+			aq_score_buffer[aq_score_write_head] = round(CAT_AQI_aggregate());
+			aq_score_write_head = (aq_score_write_head+1) % 8;
+
+			if(aq_score_write_head == aq_score_read_head)
+				aq_score_read_head = (aq_score_read_head+1) % 8;
+
+			aq_score_last_time = current_moment;
+		}
 
 		int lockmask = 0;
 

@@ -10,6 +10,7 @@
 void CAT_monitor_MS_air(CAT_machine_signal signal);
 void CAT_monitor_render_summary();
 void CAT_monitor_render_details();
+void CAT_monitor_render_sparklines();
 #include "cat_monitor_air.c"
 
 
@@ -21,6 +22,7 @@ enum
 {
 	SUMMARY,
 	DETAILS,
+	SPARKLINES,
 	CLOCK,
 	PAGE_MAX
 };
@@ -41,6 +43,11 @@ static struct
 	{
 		.state = CAT_monitor_MS_air,
 		.render = CAT_monitor_render_details
+	},
+	[SPARKLINES] =
+	{
+		.state = CAT_monitor_MS_air,
+		.render = CAT_monitor_render_sparklines
 	},
 	[CLOCK] =
 	{

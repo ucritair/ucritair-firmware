@@ -285,6 +285,25 @@ void CAT_factory_reset()
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// AIR QUALITY
+
+uint8_t CAT_AQ_count_stored_scores()
+{
+	return
+	aq_score_write_head > aq_score_read_head ?
+	aq_score_write_head - aq_score_read_head :
+	8 - aq_score_read_head + aq_score_write_head;
+}
+
+uint8_t CAT_AQ_get_stored_score(int idx)
+{
+	if(idx < 0 || idx >= 7)
+		return 0;
+	return aq_score_buffer[(aq_score_read_head + idx) % 8];
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // IMU
 
 void CAT_IMU_tick()

@@ -206,6 +206,68 @@ void CAT_monitor_render_details()
 	CAT_draw_textf(12, cursor_y, "%.1f%% rebreathed air", pct_rebreathed);
 }
 
+#define SPARKLINE_X 12
+#define SPARKLINE_Y 48
+#define SPARKLINE_WIDTH (CAT_LCD_SCREEN_W - 2 * SPARKLINE_X)
+#define SPARKLINE_HEIGHT 96
+#define SPARKLINE_MAX_X (SPARKLINE_X + SPARKLINE_WIDTH - 1)
+#define SPARKLINE_MAX_Y (SPARKLINE_Y + SPARKLINE_HEIGHT - 1)
+#define SPARKLINE_STEP_SIZE (SPARKLINE_WIDTH / 6)
+
+#define SPARKLINE_BG_COLOUR 0xe7bf
+#define SPARKLINE_FG_COLOUR 0x6b11
+#define SPARKLINE_RETICLE_COLOUR 0xadfa
+
+int transform_sparkline_y(uint8_t y)
+{
+	float t = inv_lerp(y, 0, 120);
+	int h = t * SPARKLINE_HEIGHT;
+	return SPARKLINE_MAX_Y - h;
+}
+
+void CAT_monitor_render_sparklines()
+{
+	if(!CAT_is_AQ_initialized())
+	{
+		draw_uninit_notif();
+		return;
+	}
+	if(CAT_AQ_count_stored_scores() < 2)
+	{
+		CAT_push_text_colour(CAT_WHITE);
+		CAT_push_text_scale(2);
+		CAT_push_text_line_width(CAT_LCD_SCREEN_W-24);
+		CAT_push_text_flags(CAT_TEXT_FLAG_WRAP);
+		CAT_draw_text(12, 30, "Not enough stored samples!");
+		CAT_push_text_colour(CAT_WHITE);
+		CAT_push_text_line_width(CAT_LCD_SCREEN_W-24);
+		CAT_push_text_flags(CAT_TEXT_FLAG_WRAP);
+		CAT_draw_text(12, 64, "At least 2 24-hour samples must be taken before the sparkline can be shown.");
+	}
+
+	CAT_push_text_colour(CAT_WHITE);
+	CAT_draw_textf(12, SPARKLINE_Y-14, "SPARKLINE");
+
+	CAT_fillberry(SPARKLINE_X, SPARKLINE_Y, SPARKLINE_WIDTH, SPARKLINE_HEIGHT, SPARKLINE_BG_COLOUR);
+	CAT_CSCLIP_set_rect(SPARKLINE_X, SPARKLINE_Y, SPARKLINE_MAX_X, SPARKLINE_MAX_Y);
+	for(int i = 0; i < CAT_AQ_count_stored_scores()-1; i++)
+	{
+		int s0 = CAT_AQ_get_stored_score(i);
+		int x0 = SPARKLINE_X + SPARKLINE_STEP_SIZE * i;
+		int y0 = transform_sparkline_y(s0);
+		int s1 = CAT_AQ_get_stored_score(i+1);
+		int x1 = SPARKLINE_X + SPARKLINE_STEP_SIZE * (i+1);
+		int y1 = transform_sparkline_y(s1);
+
+		if(CAT_CSCLIP(&x0, &y0, &x1, &y1))
+		{
+			CAT_lineberry(x0, y0, x1, y1, SPARKLINE_FG_COLOUR);
+			if(i > 0 && i < 6)
+				CAT_discberry(x0, y0, 4, colour_score(s0/100.0f));
+		}
+	}
+}
+
 static void update_scores()
 {
 	score = CAT_AQI_aggregate();

@@ -82,12 +82,17 @@ PERSIST_RAM uint64_t went_to_sleep_at;
 PERSIST_RAM uint8_t guy_happiness;
 PERSIST_RAM bool guy_is_wearing_mask;
 PERSIST_RAM char guy_name[64];
-PERSIST_RAM uint16_t guy_level; // POTENTIAL DISASTER
+PERSIST_RAM uint16_t guy_level;
 
 PERSIST_RAM uint8_t screen_brightness;
 
 PERSIST_RAM uint16_t dim_after_seconds;
 PERSIST_RAM uint16_t sleep_after_seconds;
+
+PERSIST_RAM uint8_t aq_score_buffer[8];
+PERSIST_RAM uint8_t aq_score_read_head;
+PERSIST_RAM uint8_t aq_score_write_head;
+PERSIST_RAM uint32_t aq_score_last_time;
 
 #define RTC_INIT_CHECK_MAGIC 0xb8870005
 
@@ -154,6 +159,9 @@ void check_rtc_init()
 		screen_brightness = BACKLIGHT_FULL;
 		dim_after_seconds = 45;
 		sleep_after_seconds = 120;
+		aq_score_read_head = 0;
+		aq_score_write_head = 0;
+		aq_score_last_time = 0;
 	}
 }
 
