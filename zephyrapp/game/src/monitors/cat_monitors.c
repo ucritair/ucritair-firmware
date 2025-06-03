@@ -66,11 +66,21 @@ static void render_page_markers()
 	}
 }
 
+static void render_exit_notice()
+{
+	const char* text = "[START] to exit";
+	int x = CAT_LCD_SCREEN_W - 6 - strlen(text) * CAT_GLYPH_WIDTH;
+	int y = CAT_LCD_SCREEN_H - 4 - CAT_GLYPH_HEIGHT;
+	CAT_push_text_colour(0x2455);
+	CAT_draw_text(x, y, text);
+}
+
 static void render_monitor()
 {
 	render_background();
 	render_page_markers();
 	routines[page].render();
+	// render_exit_notice();
 }
 
 void CAT_monitor_advance()
