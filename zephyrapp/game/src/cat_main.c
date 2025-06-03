@@ -320,7 +320,7 @@ void CAT_init()
 	CAT_apply_sleep(CAT_get_slept_s());
 
 	if(CAT_check_save_flag(CAT_SAVE_FLAG_AQ_FIRST))
-		CAT_machine_transition(CAT_MS_monitor_air);
+		CAT_machine_transition(CAT_MS_monitor);
 	else
 		CAT_machine_transition(CAT_MS_room);
 

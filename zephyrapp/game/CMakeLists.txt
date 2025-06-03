@@ -116,7 +116,7 @@ target_sources(app PRIVATE
 	src/arcade/cat_arcade_mines.c
 	src/arcade/cat_arcade_foursquares.c
 
-	src/monitors/cat_monitor_air.c
+	src/monitors/cat_monitors.c
 
 	src/gui/cat_gui.c
 	src/gui/cat_text.c
