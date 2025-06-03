@@ -8,6 +8,8 @@
 #include <time.h>
 #include <math.h>
 
+#define M_PI_6 0.52359877559
+
 #define CLOCK_X 120
 #define CLOCK_Y 132
 #define CLOCK_RADIUS 96
@@ -34,7 +36,16 @@ void CAT_monitor_render_clock()
 	CAT_push_text_colour(CAT_WHITE);
 	CAT_draw_textf(12, 24, "%d:%d\n%ds", datetime.hour, datetime.minute, datetime.second);
 
-	CAT_circberry(120, 132, 96, CAT_WHITE);
+	CAT_circberry(CLOCK_X, CLOCK_Y, CLOCK_RADIUS, CAT_WHITE);
+	CAT_circberry(CLOCK_X, CLOCK_Y, CLOCK_RADIUS+4, CAT_WHITE);
+
+	for(int i = 1; i <= 12; i++)
+	{
+		float t = M_PI_6 + i * M_PI_6;
+		CAT_vec2 a = radial_point(t, CLOCK_RADIUS * 0.9f);
+		CAT_vec2 b = radial_point(t, CLOCK_RADIUS * 0.95f);
+		CAT_lineberry(a.x, a.y, b.x, b.y, CAT_WHITE);
+	}
 
 	CAT_vec2 hour_point = radial_point(hour_arc, CLOCK_HOUR_HAND_LENGTH);
 	CAT_lineberry(CLOCK_X, CLOCK_Y, hour_point.x, hour_point.y, CAT_WHITE);
@@ -69,14 +80,14 @@ void CAT_monitor_MS_clock(CAT_machine_signal signal)
 		break;
 
 		case CAT_MACHINE_SIGNAL_TICK:
-			clock_tick();
-
 			if(CAT_input_released(CAT_BUTTON_START))
 				CAT_monitor_exit();
 			if(CAT_input_pressed(CAT_BUTTON_LEFT))
 				CAT_monitor_retreat();
 			if(CAT_input_pressed(CAT_BUTTON_RIGHT))
 				CAT_monitor_advance();
+			
+			clock_tick();
 		break;
 
 		case CAT_MACHINE_SIGNAL_EXIT:

@@ -311,13 +311,13 @@ void CAT_discberry(int x, int y, int r, uint16_t c)
 	if (yi > CAT_LCD_FRAMEBUFFER_H || yf < 0)
 		return;
 
-	for(int dy = -r; dy < r; dy++)
+	for(int dy = -r; dy <= r; dy++)
 	{
 		int y_w = y + dy;
 		if(y_w < 0 || y_w >= CAT_LCD_FRAMEBUFFER_H)
 			continue;
 
-		for(int dx = -r; dx < r; dx++)
+		for(int dx = -r; dx <= r; dx++)
 		{
 			int x_w = x + dx;
 			if(x_w < 0 || x_w >= CAT_LCD_FRAMEBUFFER_W)
@@ -331,7 +331,7 @@ void CAT_discberry(int x, int y, int r, uint16_t c)
 	}
 }
 
-void CAT_ringberry(int x, int y, int R, int r, uint16_t c, float t)
+void CAT_ringberry(int x, int y, int R, int r, uint16_t c, float t, float shift)
 {
 	c = ADAPT_DESKTOP_COLOUR(c);
 	uint16_t* framebuffer = CAT_LCD_get_framebuffer();
@@ -342,22 +342,27 @@ void CAT_ringberry(int x, int y, int R, int r, uint16_t c, float t)
 	if (yi > CAT_LCD_FRAMEBUFFER_H || yf < 0)
 		return;
 
-	for(int dy = -R; dy < R; dy++)
+	t *= 2 * M_PI;
+	shift *= 2 * M_PI;
+
+	for(int dy = -R; dy <= R; dy++)
 	{
 		int y_w = y + dy;
 		if(y_w < 0 || y_w >= CAT_LCD_FRAMEBUFFER_H)
 			continue;
 
-		for(int dx = -R; dx < R; dx++)
+		for(int dx = -R; dx <= R; dx++)
 		{
 			int x_w = x + dx;
 			if(x_w < 0 || x_w >= CAT_LCD_FRAMEBUFFER_W)
 				continue;
 
-			if((dx*dx+dy*dy) <= R*R && (dx*dx+dy*dy) >= r*r)
+			CAT_vec2 spoke = CAT_vec2_rotate((CAT_vec2){dx, dy}, shift);
+			float length = CAT_vec2_mag2(spoke);
+			if(length >= r*r && length <= R*R)
 			{
-				float arc = atan2f((float) dy, (float) dx) + M_PI - (M_PI / 8);
-				if(arc <= t * M_PI * 2)
+				float arc = atan2f(spoke.y, -spoke.x) + M_PI;
+				if(arc <= t)
 				{
 					framebuffer[y_w * CAT_LCD_FRAMEBUFFER_W + x_w] = c;
 				}

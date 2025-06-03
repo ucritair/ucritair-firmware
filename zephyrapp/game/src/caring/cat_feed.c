@@ -1134,7 +1134,7 @@ static void render_select()
 			}
 
 			if (idx == last_clicked_idx && CAT_timer_progress(inspect_timer_id) >= 0.05f)
-				CAT_ringberry(input.touch.x, input.touch.y, 24, 18, RGB8882565(255 - 0, 255 - 141, 255 - 141), CAT_timer_progress(inspect_timer_id));
+				CAT_ringberry(input.touch.x, input.touch.y, 24, 18, RGB8882565(255 - 0, 255 - 141, 255 - 141), CAT_timer_progress(inspect_timer_id) + 0.15f, 0);
 
 			idx += 1;
 			x += 64 + 12;

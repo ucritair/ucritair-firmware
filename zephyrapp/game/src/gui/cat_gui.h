@@ -130,6 +130,8 @@ static const char* example_text =
 
 void break_list_init(const char* txt, int line_width, int scale);
 bool break_list_lookup(int idx);
+int break_list_count();
+int break_list_get(int idx);
 
 
 //////////////////////////////////////////////////////////////////////////

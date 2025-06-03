@@ -92,7 +92,7 @@ static inline CAT_RGB888 CAT_RGB16224(uint16_t c)
 	uint8_t g8 = (c & 0b0000011111100000) >> 5;
 	uint8_t b8 = c & 0b0000000000011111;
 	uint16_t r16 = clamp(255 * r8 / 31, 0, 255);
-	uint16_t g16 = clamp(255 * g8 / 31, 0, 255);
+	uint16_t g16 = clamp(255 * g8 / 63, 0, 255);
 	uint16_t b16 = clamp(255 * b8 / 31, 0, 255);
 	return CAT_RGB24(r16, g16, b16);
 }
@@ -149,7 +149,7 @@ void CAT_rowberry(int x, int y, int w, uint16_t c);
 void CAT_pixberry(int x, int y, uint16_t c);
 void CAT_circberry(int x, int y, int r, uint16_t c);
 void CAT_discberry(int x, int y, int r, uint16_t c);
-void CAT_ringberry(int x, int y, int R, int r, uint16_t c, float t);
+void CAT_ringberry(int x, int y, int R, int r, uint16_t c, float t, float shift);
 void CAT_polyberry(int x, int y, int16_t* poly, int count, uint16_t c, CAT_poly_mode mode);
 
 
