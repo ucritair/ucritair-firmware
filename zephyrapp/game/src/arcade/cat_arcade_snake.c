@@ -324,7 +324,7 @@ void CAT_render_snake()
 		}
 
 		CAT_gui_panel((CAT_ivec2) {1, 1}, (CAT_ivec2) {13, 18});
-		CAT_gui_set_flag(CAT_GUI_TEXT_WRAP);
+		CAT_gui_set_flag(CAT_GUI_FLAG_WRAPPED);
 		CAT_gui_textf
 		(
 			"Rest in peace,\nSnack Cat.\n\n"

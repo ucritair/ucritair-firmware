@@ -11,14 +11,14 @@
 #include "cat_item.h"
 #include "cat_bag.h"
 #include "sprite_assets.h"
-#include "cat_text.h"
+#include "cat_gui.h"
 
 //////////////////////////////////////////////////////////////////////////
 // BASICS
 
 CAT_gui gui =
 {
-	.flags = CAT_GUI_DEFAULT,
+	.flags = CAT_GUI_FLAG_NONE,
 
 	.start = (CAT_ivec2) {0, 0},
 	.shape = (CAT_ivec2) {0, 0},
@@ -51,7 +51,7 @@ CAT_gui_flag CAT_gui_clear_flags()
 void CAT_gui_panel(CAT_ivec2 start, CAT_ivec2 shape)
 {
 	CAT_fillberry(start.x * CAT_TILE_SIZE, start.y * CAT_TILE_SIZE, shape.x * CAT_TILE_SIZE, shape.y * CAT_TILE_SIZE, 0xFFFF);
-	if(CAT_gui_consume_flag(CAT_GUI_PANEL_BORDER))
+	if(CAT_gui_consume_flag(CAT_GUI_FLAG_BORDERED))
 		CAT_strokeberry(start.x * CAT_TILE_SIZE, start.y * CAT_TILE_SIZE, shape.x * CAT_TILE_SIZE, shape.y * CAT_TILE_SIZE, 0x0000);
 
 	gui.start = start;
@@ -59,7 +59,7 @@ void CAT_gui_panel(CAT_ivec2 start, CAT_ivec2 shape)
 	gui.cursor = CAT_ivec2_mul(start, CAT_TILE_SIZE);
 	gui.cursor.y += gui.margin;
 	gui.cursor.x += gui.margin;
-	if(CAT_gui_consume_flag(CAT_GUI_PANEL_TIGHT))
+	if(CAT_gui_consume_flag(CAT_GUI_FLAG_TIGHT))
 	{
 		gui.cursor.y -= gui.margin/2;
 		gui.cursor.x -= gui.margin/2;
@@ -88,7 +88,7 @@ void CAT_gui_line_break()
 
 void CAT_gui_text(const char* text)
 {
-	bool wrap = CAT_gui_consume_flag(CAT_GUI_TEXT_WRAP);
+	bool wrap = CAT_gui_consume_flag(CAT_GUI_FLAG_WRAPPED);
 	int x_lim = (gui.start.x * CAT_TILE_SIZE) + (gui.shape.x) * CAT_TILE_SIZE - CAT_GLYPH_WIDTH - gui.margin;
 	const char* c = text;
 
@@ -428,7 +428,7 @@ void CAT_gui_popup()
 {
 	CAT_gui_panel((CAT_ivec2) {2, 6}, (CAT_ivec2) {11, 8});
 	CAT_strokeberry(2 * 16, 6 * 16, 11 * 16, 8 * 16, 0x0000);
-	CAT_gui_set_flag(CAT_GUI_TEXT_WRAP);
+	CAT_gui_set_flag(CAT_GUI_FLAG_WRAPPED);
 	CAT_gui_text(popup.msg);
 	CAT_gui_line_break();
 	CAT_gui_text(popup.selector ? "[YES]  NO " : " YES  [NO]");
@@ -501,6 +501,12 @@ uint16_t register_menu_node(const char* title, CAT_gui_menu_type type)
 	while (menu_table[idx].live)
 		idx++;
 
+	if(idx < 0 || idx >= MENU_TABLE_SIZE)
+	{
+		CAT_printf("[ERROR] Menu node index %d is invalid", idx);
+		return UINT16_MAX;
+	}
+
 	menu_table[idx] = (menu_node)
 	{
 		.live = true,
@@ -531,6 +537,12 @@ int find_menu_node(const char* title)
 
 void push_menu_node(uint16_t table_idx)
 {
+	if(menu_stack_length >= MENU_STACK_SIZE)
+	{
+		CAT_printf("[ERROR] Attempted to add to full menu stack!\n");
+		return;
+	}
+
 	menu_stack[menu_stack_length] = table_idx;
 	menu_stack_length += 1;
 }
@@ -545,7 +557,6 @@ menu_node* get_local_head()
 {
 	return &menu_table[menu_stack[menu_stack_length-1]];
 }
-
 
 menu_node* get_global_head()
 {
@@ -566,8 +577,13 @@ menu_node* get_global_head()
 uint8_t menu_add_child(uint16_t table_idx)
 {
 	menu_node* head = get_local_head();
-
 	uint8_t child_idx = head->child_count;
+	if(child_idx >= 32)
+	{
+		CAT_printf("[ERROR] Attempted to add child to full menu node!\n");
+		return 255;
+	}
+
 	head->children[child_idx] = table_idx;
 	head->child_count += 1;
 	menu_table[table_idx].parent = menu_stack[menu_stack_length-1];
@@ -794,9 +810,9 @@ void CAT_gui_begin_item_list(const char* title)
 		item_list_highlight_mask[i] = 0;
 	}
 
-	show_price = CAT_gui_consume_flag(CAT_GUI_ITEM_LIST_PRICE);
-	show_count = CAT_gui_consume_flag(CAT_GUI_ITEM_LIST_COUNT);
-	show_coins = CAT_gui_consume_flag(CAT_GUI_ITEM_LIST_COINS);
+	show_price = CAT_gui_consume_flag(CAT_GUI_FLAG_INCLUDE_PRICE);
+	show_count = CAT_gui_consume_flag(CAT_GUI_FLAG_INCLUDE_COUNT);
+	show_coins = CAT_gui_consume_flag(CAT_GUI_FLAG_SHOW_COINS);
 	item_display_count = show_coins ? 8 : 9;
 }
 
@@ -871,7 +887,7 @@ void CAT_gui_item_list()
 
 	if(show_coins)
 	{
-		CAT_gui_set_flag(CAT_GUI_PANEL_TIGHT);
+		CAT_gui_set_flag(CAT_GUI_FLAG_TIGHT);
 		CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 2});
 		CAT_gui_image(&icon_coin_sprite, 0);
 		CAT_rowberry(0, (2*2)*16-1, CAT_LCD_SCREEN_W, 0x0000);
@@ -901,7 +917,7 @@ void CAT_gui_item_list()
 		int item_id = item_list.item_ids[list_idx];
 		CAT_item* item = CAT_item_get(item_id);
 		
-		CAT_gui_set_flag(CAT_GUI_PANEL_TIGHT);
+		CAT_gui_set_flag(CAT_GUI_FLAG_TIGHT);
 		CAT_gui_panel((CAT_ivec2) {0, tile_row_offset+display_idx*2}, (CAT_ivec2) {15, 2});
 		CAT_rowberry(0, (tile_row_offset+display_idx*2+2)*16-1, CAT_LCD_SCREEN_W, 0x0000);
 		CAT_gui_image(item->icon, 0);
@@ -929,7 +945,7 @@ void CAT_gui_item_list()
 
 
 //////////////////////////////////////////////////////////////////////////
-// PANEL-FREE GUI
+// PRINTING
 
 static int printf_cursor_y = 0;
 
@@ -940,13 +956,14 @@ void CAT_gui_printf(uint16_t colour, const char* fmt, ...)
 	char text[128];
 	vsnprintf(text, 128, fmt, args);
 	va_end(args);
+	
+	int modified_y = printf_cursor_y - FRAMEBUFFER_ROW_OFFSET;
+	if(modified_y < 0 || modified_y >= CAT_LCD_FRAMEBUFFER_H)
+		return;
 
 	CAT_push_text_colour(colour);
 	CAT_draw_text(0, printf_cursor_y, text);
 	printf_cursor_y += CAT_GLYPH_HEIGHT + 2;
-
-	if(CAT_is_last_render_cycle())
-		printf_cursor_y = 0;
 }
 
 
@@ -975,4 +992,7 @@ void CAT_gui_render()
 		CAT_gui_popup();
 	if(CAT_gui_keyboard_is_open())
 		CAT_gui_keyboard();
+	
+	if(CAT_is_last_render_cycle())
+		printf_cursor_y = 0;
 }

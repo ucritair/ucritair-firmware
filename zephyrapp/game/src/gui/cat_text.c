@@ -1,4 +1,4 @@
-#include "cat_text.h"
+#include "cat_gui.h"
 
 #include "sprite_assets.h"
 #include <stdarg.h>
@@ -63,11 +63,23 @@ bool break_list_lookup(int idx)
 	return false;
 }
 
+int break_list_count()
+{
+	return break_count;
+}
+
+int break_list_get(int idx)
+{
+	if(idx > 0 && idx < break_count)
+		return break_list[idx];
+	return -1;
+}
+
 
 //////////////////////////////////////////////////////////////////////////
 // DRAWING
 
-static int text_flags = CAT_TEXT_FLAG_DEFAULT;
+static int text_flags = CAT_TEXT_FLAG_NONE;
 static int text_line_width = CAT_LCD_SCREEN_W;
 static uint16_t text_colour = CAT_BLACK;
 static uint8_t text_scale = 1;
@@ -80,7 +92,7 @@ void CAT_push_text_flags(int flags)
 int consume_text_flags()
 {
 	int value = text_flags;
-	text_flags = CAT_TEXT_FLAG_DEFAULT;
+	text_flags = CAT_TEXT_FLAG_NONE;
 	return value;
 }
 
@@ -170,14 +182,13 @@ int CAT_draw_text(int x, int y, const char* text)
 	return cursor_y;
 }
 
-char textf_buffer[512];
-
 int CAT_draw_textf(int x, int y, const char* fmt, ...)
 {
+	static char buf[512];
 	va_list args;
 	va_start(args, fmt);
-	vsnprintf(textf_buffer, 512, fmt, args);
+	vsnprintf(buf, 512, fmt, args);
 	va_end(args);
 
-	return CAT_draw_text(x, y, textf_buffer);
+	return CAT_draw_text(x, y, buf);
 }

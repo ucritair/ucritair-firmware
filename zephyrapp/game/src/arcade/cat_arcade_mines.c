@@ -406,7 +406,7 @@ void CAT_render_mines()
 		if(state == WIN)
 		{
 			CAT_gui_panel((CAT_ivec2) {1, 1}, (CAT_ivec2) {13, 18});
-			CAT_gui_set_flag(CAT_GUI_TEXT_WRAP);
+			CAT_gui_set_flag(CAT_GUI_FLAG_WRAPPED);
 			CAT_gui_text("All Clear!\nThe fields are safe.\nFor your diligent work, you've earned a commemorative prop.\nFind it in your bag!");
 			CAT_gui_line_break();
 			CAT_gui_line_break();
@@ -416,7 +416,7 @@ void CAT_render_mines()
 		else
 		{
 			CAT_gui_panel((CAT_ivec2) {1, 1}, (CAT_ivec2) {13, 18});
-			CAT_gui_set_flag(CAT_GUI_TEXT_WRAP);
+			CAT_gui_set_flag(CAT_GUI_FLAG_WRAPPED);
 			CAT_gui_text("Kaboom!\n\nYour exploration has come to an explosive end.\n\nPress A or B to return from whence you came.");
 		}	
 	}

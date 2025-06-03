@@ -7,7 +7,6 @@
 #include "cat_deco.h"
 #include "cat_bag.h"
 #include "rtc.h"
-#include "airquality.h"
 #include "flash.h"
 #include "cat_menu.h"
 #include "sprite_assets.h"
@@ -22,7 +21,7 @@ LOG_MODULE_REGISTER(menu_aqi, LOG_LEVEL_DBG);
 
 int aqi_view_cell = AQI_VIEW_CELL_LATEST;
 int last_fetched_aqi_view_cell = AQI_VIEW_CELL_LATEST;
-struct flash_log_cell view_cell;
+CAT_log_cell view_cell;
 
 void reset_aqi_view_cell()
 {
@@ -143,7 +142,7 @@ void CAT_render_aqi()
 	CAT_gui_line_break();
 	CAT_gui_line_break();
 	
-	if (view_cell.flags & FLAG_HAS_CO2)
+	if (view_cell.flags & CAT_LOG_CELL_FLAG_HAS_CO2)
 	{
 		CAT_gui_textf("CO2: %dppm\n", (int)view_cell.co2_ppmx1);
 		CAT_gui_textf("    (%.1f%% rebreathed air)\n", ((((double)view_cell.co2_ppmx1)-420.)/38000.)*100.);
@@ -155,7 +154,7 @@ void CAT_render_aqi()
 	}
 	CAT_gui_line_break();
 	
-	if (view_cell.flags & FLAG_HAS_TEMP_RH_PARTICLES)
+	if (view_cell.flags & CAT_LOG_CELL_FLAG_HAS_TEMP_RH_PARTICLES)
 	{
 		if (view_pn)
 		{
@@ -186,7 +185,7 @@ void CAT_render_aqi()
 	}
 	CAT_gui_line_break();
 	
-	if (view_cell.flags & FLAG_HAS_TEMP_RH_PARTICLES)
+	if (view_cell.flags & CAT_LOG_CELL_FLAG_HAS_TEMP_RH_PARTICLES)
 	{
 		if (view_cell.pressure_hPax10 != 0)
 		{

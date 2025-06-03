@@ -7,7 +7,7 @@
 //////////////////////////////////////////////////////////////////////////
 // SPRITER
 
-static CAT_draw_flag draw_flags = CAT_DRAW_FLAG_DEFAULT;
+static CAT_draw_flag draw_flags = CAT_DRAW_FLAG_NONE;
 static uint16_t draw_colour = CAT_TRANSPARENT;
 static uint8_t draw_scale = 1;
 
@@ -19,7 +19,7 @@ void CAT_push_draw_flags(int flags)
 CAT_draw_flag consume_draw_flags()
 {
 	CAT_draw_flag value = draw_flags;
-	draw_flags = CAT_DRAW_FLAG_DEFAULT;
+	draw_flags = CAT_DRAW_FLAG_NONE;
 	return value;
 }
 

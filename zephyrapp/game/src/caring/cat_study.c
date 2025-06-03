@@ -9,7 +9,6 @@
 #include "cowtools/cat_structures.h"
 #include "fish_assets.h"
 #include "cat_gui.h"
-#include "cat_text.h"
 #include "item_assets.h"
 #include "cat_pet.h"
 #include "cat_bag.h"

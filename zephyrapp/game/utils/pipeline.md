@@ -23,3 +23,10 @@ Connect device via USB
 Use `dfu-util --list` to find its serial number.
 Stil in `zephyrapp/build/`...
 `dfu-util --serial=<SERIAL NUMBER> --download zephyr/zephyr.signed.bin --reset`
+
+# Launching the editor
+In `zephyrapp/game/`...
+To ensure that python virtual environment has all packages needed by the editor:
+`source utils/catenv.sh`
+To launch the editor itself:
+`editor/editor.py`

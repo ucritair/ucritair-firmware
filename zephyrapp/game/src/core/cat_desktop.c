@@ -12,6 +12,7 @@
 #include "cat_version.h"
 #include <stdarg.h>
 #include "cat_main.h"
+#include "cat_math.h"
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -334,9 +335,9 @@ void CAT_set_LEDs(uint8_t r, uint8_t g, uint8_t b)
 
 	for(int i = 0; i < 6; i++)
 	{
-		LEDs[i][0] = SCALEBYTE(r, power);
-		LEDs[i][1] = SCALEBYTE(g, power);
-		LEDs[i][2] = SCALEBYTE(b, power);
+		LEDs[i][0] = (uint8_t) (power * r);
+		LEDs[i][1] = (uint8_t) (power * g);
+		LEDs[i][2] = (uint8_t) (power * b);
 	}
 }
 
@@ -413,6 +414,11 @@ float CAT_get_delta_time_s()
 	return simulator.delta_time_s;
 }
 
+uint64_t CAT_get_rtc_now()
+{
+	return CAT_get_uptime_ms();
+}
+
 void CAT_get_datetime(CAT_datetime* datetime)
 {
 	time_t t = time(NULL);
@@ -477,6 +483,21 @@ void CAT_finish_load()
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// LOGS
+
+void CAT_read_log_cell_at_idx(int idx, CAT_log_cell* out)
+{
+	memset(out, 0, sizeof(CAT_log_cell));
+}
+
+int CAT_read_log_cell_before_time(int base_idx, uint64_t time, CAT_log_cell* out)
+{
+	CAT_read_log_cell_at_idx(-1, out);
+	return 0;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // POWER
 
 int CAT_get_battery_pct()
@@ -505,37 +526,6 @@ void CAT_factory_reset()
 {
 	CAT_set_load_flag(CAT_LOAD_FLAG_DIRTY);
 	CAT_set_load_flag(CAT_LOAD_FLAG_RESET);
-}
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// AIR QUALITY
-
-CAT_AQ_readings readings = {0};
-
-void CAT_get_AQ_readings()
-{
-	readings.lps22hh.uptime_last_updated = 0;
-	readings.lps22hh.temp = 20;
-	readings.lps22hh.pressure = 1013;
-
-	readings.sunrise.uptime_last_updated = 0;
-	readings.sunrise.ppm_filtered_compensated = 400;
-	readings.sunrise.temp = 20;
-
-	readings.sen5x.uptime_last_updated = 0;
-	readings.sen5x.pm2_5 = 9;
-	readings.sen5x.pm10_0 = 15;
-	readings.sen5x.humidity_rhpct = 40;
-
-	readings.sen5x.temp_degC = 20;
-	readings.sen5x.voc_index = 1;
-	readings.sen5x.nox_index = 100;
-}
-
-bool CAT_is_AQ_initialized()
-{
-	return true;
 }
 
 

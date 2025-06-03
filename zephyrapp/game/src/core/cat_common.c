@@ -79,6 +79,17 @@ int* CAT_LED_brightness_pointer()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // AIR QUALITY
 
+CAT_AQ_readings readings = {0};
+
+bool CAT_is_AQ_initialized()
+{
+	return
+	readings.sunrise.ppm_filtered_uncompensated > 0 &&
+	(readings.sen5x.temp_degC != 0 ||
+	readings.sen5x.humidity_rhpct > 0 ||
+	readings.sen5x.pm2_5 > 0);
+}
+
 static CAT_temperature_unit temperature_unit = CAT_TEMPERATURE_UNIT_DEGREES_CELSIUS;
 
 CAT_temperature_unit CAT_AQ_get_temperature_unit()

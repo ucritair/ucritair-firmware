@@ -4,7 +4,7 @@
 #include "lps22hh.h"
 
 #include "sensor_hal.h"
-#include "airquality.h"
+#include "cat_core.h"
 
 LOG_MODULE_REGISTER(lps22hh, SENSOR_LOG_LEVEL);
 
@@ -80,9 +80,9 @@ int lps22hh_read()
     CHK(LPS22HH_PRESS_GetPressure(&obj, &pressure));
     LOG_INF("temp=%.2f  pressure=%.2f", (double)temp, (double)pressure);
     
-    current_readings.lps22hh.temp = temp;
-    current_readings.lps22hh.pressure = pressure;
-    current_readings.lps22hh.uptime_last_updated = k_uptime_get();
+    readings.lps22hh.temp = temp;
+    readings.lps22hh.pressure = pressure;
+    readings.lps22hh.uptime_last_updated = k_uptime_get();
 
     //TODO: is this the right place for this?
     if (update_pressure_sunrise(pressure) != 0) {

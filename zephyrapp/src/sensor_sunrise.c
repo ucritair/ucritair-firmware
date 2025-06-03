@@ -5,7 +5,7 @@
 #include "sensor_hal.h"
 #include <zephyr/sys/byteorder.h>
 
-#include "airquality.h"
+#include "cat_core.h"
 
 LOG_MODULE_REGISTER(sunrise, LOG_LEVEL_DBG);
 
@@ -402,10 +402,10 @@ int sunrise_read()
     int16_t temp;
     CHK(Read_Temperature(&temp));
 
-    current_readings.sunrise.temp = (float)temp / 100.;
-    current_readings.sunrise.ppm_filtered_compensated = ppm_filtered_compensated;
-    current_readings.sunrise.ppm_filtered_uncompensated = ppm_filtered;
-    current_readings.sunrise.uptime_last_updated = k_uptime_get();
+    readings.sunrise.temp = (float)temp / 100.;
+    readings.sunrise.ppm_filtered_compensated = ppm_filtered_compensated;
+    readings.sunrise.ppm_filtered_uncompensated = ppm_filtered;
+    readings.sunrise.uptime_last_updated = k_uptime_get();
 
     return 0;
 }

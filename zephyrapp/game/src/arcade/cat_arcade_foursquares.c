@@ -4,7 +4,6 @@
 #include "cat_input.h"
 #include "cat_math.h"
 #include "cat_gui.h"
-#include "cat_text.h"
 #include "cat_room.h"
 
 #define CAT_FOURSQUARES_TILE_SIZE 16

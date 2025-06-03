@@ -26,7 +26,6 @@
 #include <zephyr/bluetooth/services/hrs.h>
 #include <zephyr/bluetooth/services/ias.h>
 
-#include "airquality.h"
 #include "rtc.h"
 #include "flash.h"
 #include "lcd_rendering.h"
@@ -143,7 +142,7 @@ static ssize_t write_cell_selector(struct bt_conn *conn, const struct bt_gatt_at
 struct __attribute__((__packed__))
 {
 	uint32_t defacto_cell_nr;
-	struct flash_log_cell cell;
+	CAT_log_cell cell;
 } current_ble_cell = {
 	.defacto_cell_nr = 0xffffffff
 };
@@ -353,25 +352,25 @@ BT_GATT_SERVICE_DEFINE(ess_svc,
 	BT_GATT_PRIMARY_SERVICE(BT_UUID_ESS),
 	BT_GATT_CHARACTERISTIC(BT_UUID_TEMPERATURE,
         BT_GATT_CHRC_READ, BT_GATT_PERM_READ,
-        ess_read_float_u16_x100, NULL, &current_readings.lps22hh.temp),
+        ess_read_float_u16_x100, NULL, &readings.lps22hh.temp),
 	BT_GATT_CHARACTERISTIC(BT_UUID_PRESSURE,
         BT_GATT_CHRC_READ, BT_GATT_PERM_READ,
-        ess_read_float_u32_x1000, NULL, &current_readings.lps22hh.pressure),
+        ess_read_float_u32_x1000, NULL, &readings.lps22hh.pressure),
 	BT_GATT_CHARACTERISTIC(BT_UUID_HUMIDITY,
         BT_GATT_CHRC_READ, BT_GATT_PERM_READ,
-        ess_read_float_u16_x100, NULL, &current_readings.sen5x.humidity_rhpct),
+        ess_read_float_u16_x100, NULL, &readings.sen5x.humidity_rhpct),
 	BT_GATT_CHARACTERISTIC(BT_UUID_GATT_CO2CONC,
         BT_GATT_CHRC_READ, BT_GATT_PERM_READ,
-        ess_read_float_u16_x1, NULL, &current_readings.sunrise.ppm_filtered_compensated),
+        ess_read_float_u16_x1, NULL, &readings.sunrise.ppm_filtered_compensated),
 	BT_GATT_CHARACTERISTIC(BT_UUID_GATT_PM1CONC,
         BT_GATT_CHRC_READ, BT_GATT_PERM_READ,
-        ess_read_float_fp16_x1, NULL, &current_readings.sen5x.pm1_0),
+        ess_read_float_fp16_x1, NULL, &readings.sen5x.pm1_0),
 	BT_GATT_CHARACTERISTIC(BT_UUID_GATT_PM25CONC,
         BT_GATT_CHRC_READ, BT_GATT_PERM_READ,
-        ess_read_float_fp16_x1, NULL, &current_readings.sen5x.pm2_5),
+        ess_read_float_fp16_x1, NULL, &readings.sen5x.pm2_5),
 	BT_GATT_CHARACTERISTIC(BT_UUID_GATT_PM10CONC,
         BT_GATT_CHRC_READ, BT_GATT_PERM_READ,
-        ess_read_float_fp16_x1, NULL, &current_readings.sen5x.pm10_0),
+        ess_read_float_fp16_x1, NULL, &readings.sen5x.pm10_0),
 );
 
 static const struct bt_data ad[] = {

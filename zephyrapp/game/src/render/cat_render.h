@@ -17,6 +17,9 @@
 #define CAT_DRAW_QUEUE_MAX_LENGTH 512
 #define CAT_ANIM_TABLE_MAX_LENGTH 512
 
+#define RGB8882565(r, g, b) ((((r) & 0b11111000) << 8) | (((g) & 0b11111100) << 3) | ((b) >> 3))
+#define RGB5652BGR565(c) (((c) >> 8) | (((c) & 0xff) << 8))
+
 #ifdef CAT_DESKTOP
 #define FRAMEBUFFER_ROW_OFFSET (CAT_get_render_cycle() * CAT_LCD_FRAMEBUFFER_H)
 
@@ -89,7 +92,7 @@ static inline CAT_RGB888 CAT_RGB16224(uint16_t c)
 	uint8_t g8 = (c & 0b0000011111100000) >> 5;
 	uint8_t b8 = c & 0b0000000000011111;
 	uint16_t r16 = clamp(255 * r8 / 31, 0, 255);
-	uint16_t g16 = clamp(255 * g8 / 31, 0, 255);
+	uint16_t g16 = clamp(255 * g8 / 63, 0, 255);
 	uint16_t b16 = clamp(255 * b8 / 31, 0, 255);
 	return CAT_RGB24(r16, g16, b16);
 }
@@ -114,12 +117,11 @@ typedef struct
 
 typedef enum
 {
-	CAT_DRAW_FLAG_DEFAULT = 1,
-	CAT_DRAW_FLAG_BOTTOM = 2,
-	CAT_DRAW_FLAG_CENTER_X = 4,
-	CAT_DRAW_FLAG_CENTER_Y = 8,
-	CAT_DRAW_FLAG_REFLECT_X = 16,
-	CAT_DRAW_FLAG_STRANGE = 32
+	CAT_DRAW_FLAG_NONE = 0,
+	CAT_DRAW_FLAG_BOTTOM = 1,
+	CAT_DRAW_FLAG_CENTER_X = 2,
+	CAT_DRAW_FLAG_CENTER_Y = 4,
+	CAT_DRAW_FLAG_REFLECT_X = 8
 } CAT_draw_flag;
 
 void CAT_push_draw_flags(int flags);
@@ -147,7 +149,7 @@ void CAT_rowberry(int x, int y, int w, uint16_t c);
 void CAT_pixberry(int x, int y, uint16_t c);
 void CAT_circberry(int x, int y, int r, uint16_t c);
 void CAT_discberry(int x, int y, int r, uint16_t c);
-void CAT_ringberry(int x, int y, int R, int r, uint16_t c, float t);
+void CAT_ringberry(int x, int y, int R, int r, uint16_t c, float t, float shift);
 void CAT_polyberry(int x, int y, int16_t* poly, int count, uint16_t c, CAT_poly_mode mode);
 
 

@@ -43,7 +43,7 @@ void CAT_MS_item_dialog(CAT_machine_signal signal)
 			if(CAT_input_pressed(CAT_BUTTON_START))
 				CAT_machine_transition(CAT_MS_room);	
 
-			CAT_gui_set_flag(CAT_GUI_ITEM_LIST_COUNT);
+			CAT_gui_set_flag(CAT_GUI_FLAG_INCLUDE_COUNT);
 			CAT_gui_begin_item_list("SELECT AN ITEM");
 			for(int i = 0; i < bag.length; i++)
 			{

@@ -14,13 +14,13 @@
 
 typedef enum CAT_gui_flag
 {
-	CAT_GUI_DEFAULT,
-	CAT_GUI_PANEL_BORDER,
-	CAT_GUI_PANEL_TIGHT,
-	CAT_GUI_TEXT_WRAP,
-	CAT_GUI_ITEM_LIST_COUNT,
-	CAT_GUI_ITEM_LIST_PRICE,
-	CAT_GUI_ITEM_LIST_COINS,
+	CAT_GUI_FLAG_NONE = 0,
+	CAT_GUI_FLAG_BORDERED = 1,
+	CAT_GUI_FLAG_TIGHT = 2,
+	CAT_GUI_FLAG_WRAPPED = 4,
+	CAT_GUI_FLAG_INCLUDE_COUNT = 8,
+	CAT_GUI_FLAG_INCLUDE_PRICE = 16,
+	CAT_GUI_FLAG_SHOW_COINS = 32,
 } CAT_gui_flag;
 
 void CAT_gui_set_flag(CAT_gui_flag flag);
@@ -96,7 +96,7 @@ void CAT_gui_item_highlight(float progress);
 
 
 //////////////////////////////////////////////////////////////////////////
-// PANEL-FREE GUI
+// PRINTING
 
 void CAT_gui_printf(uint16_t colour, const char* fmt, ...);
 
@@ -106,3 +106,48 @@ void CAT_gui_printf(uint16_t colour, const char* fmt, ...);
 
 void CAT_gui_io();
 void CAT_gui_render();
+
+
+//////////////////////////////////////////////////////////////////////////
+// TEXT CONSTANTS
+
+#define CAT_TEXT_LINE_HEIGHT (CAT_GLYPH_HEIGHT + 2)
+#define CAT_TEXT_MAX_LINES (CAT_LCD_SCREEN_H / CAT_TEXT_LINE_HEIGHT)
+
+static const char* example_text =
+"I must not fear."
+"Fear is the mind-killer."
+"Fear is the little-death that brings total obliteration."
+"I will face my fear."
+"I will permit it to pass over me and through me."
+"And when it has gone past, I will turn the inner eye to see its path."
+"Where the fear has gone there will be nothing."
+"Only I will remain";
+
+
+//////////////////////////////////////////////////////////////////////////
+// TEXT WRAPPING
+
+void break_list_init(const char* txt, int line_width, int scale);
+bool break_list_lookup(int idx);
+int break_list_count();
+int break_list_get(int idx);
+
+
+//////////////////////////////////////////////////////////////////////////
+// TEXT
+
+typedef enum
+{
+	CAT_TEXT_FLAG_NONE = 0,
+	CAT_TEXT_FLAG_WRAP = 1
+} CAT_text_flag;
+
+void CAT_push_text_flags(int flags);
+void CAT_push_text_line_width(int width);
+void CAT_push_text_colour(uint16_t colour);
+void CAT_push_text_scale(uint8_t scale);
+
+int CAT_draw_text(int x, int y, const char* text);
+int CAT_draw_textf(int x, int y, const char* fmt, ...);
+

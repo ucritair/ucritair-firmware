@@ -90,13 +90,10 @@ add_custom_command(
 target_sources(app PRIVATE
 	src/core/cat_common.c
 
-	src/cowtools/cat_structures.c
-
 	src/render/cat_berrier.c
 	src/render/cat_spriter.c
 	src/render/cat_draw_queue.c
 	src/render/cat_animation.c
-	src/render/cat_text.c
 
 	src/menu/cat_menu.c
 	src/menu/cat_menu_insights.c
@@ -107,6 +104,9 @@ target_sources(app PRIVATE
 	src/menu/cat_menu_graph_spoof.c
 	src/menu/cat_menu_colour_picker.c
 
+	src/cowtools/cat_structures.c
+	src/cowtools/cat_math.c
+
 	src/caring/cat_actions.c
 	src/caring/cat_feed.c
 	src/caring/cat_study.c
@@ -116,11 +116,14 @@ target_sources(app PRIVATE
 	src/arcade/cat_arcade_mines.c
 	src/arcade/cat_arcade_foursquares.c
 
-	src/cat_gui.c
+	src/monitors/cat_monitors.c
+
+	src/gui/cat_gui.c
+	src/gui/cat_text.c
+
 	src/cat_input.c
 	src/cat_item.c
 	src/cat_machine.c
-	src/cat_math.c
 	src/cat_bag.c
 	src/cat_deco.c
 	src/cat_room.c
@@ -145,6 +148,9 @@ target_include_directories(app PRIVATE src/core)
 target_include_directories(app PRIVATE src/render)
 target_include_directories(app PRIVATE src/menu)
 target_include_directories(app PRIVATE src/arcade)
+target_include_directories(app PRIVATE src/monitors)
+target_include_directories(app PRIVATE src/gui)
+target_include_directories(app PRIVATE src/cowtools)
 
 target_include_directories(app PRIVATE sounds/)
 target_include_directories(app PRIVATE meshes/)

@@ -249,7 +249,7 @@ enum sdcard_result write_log_to_sdcard()
 	{
 		LOG_DBG("Write cell %d", nr);
 
-		struct flash_log_cell cell;
+		CAT_log_cell cell;
 		flash_get_cell_by_nr(nr, &cell);
 
 #define UG(x) (((double)x)/100.)

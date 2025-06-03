@@ -792,7 +792,7 @@ void render_gui()
 {
 	for(int i = 0; i < sizeof(button_sprites)/sizeof(button_sprites[0]); i++)
 	{
-		CAT_draw_queue_add(button_sprites[i], 0, GUI_LAYER, button_start_x + 44 * i, button_start_y, CAT_DRAW_FLAG_DEFAULT);
+		CAT_draw_queue_add(button_sprites[i], 0, GUI_LAYER, button_start_x + 44 * i, button_start_y, CAT_DRAW_FLAG_NONE);
 	}
 	CAT_strokeberry(button_start_x + 44 * mode_selector, button_start_y, 33, 33, 0xFFFF);
 

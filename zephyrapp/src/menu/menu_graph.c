@@ -8,7 +8,6 @@
 #include "cat_deco.h"
 #include "cat_bag.h"
 #include "rtc.h"
-#include "airquality.h"
 #include "flash.h"
 #include "sprite_assets.h"
 
@@ -41,21 +40,21 @@ enum view_opt {
 	VIEW_OPT_END
 } viewing = CO2;
 
-int16_t get_graph_data(struct flash_log_cell* cell)
+int16_t get_graph_data(CAT_log_cell* cell)
 {
 	switch (viewing)
 	{
 #define NEG1_IF_NOT_FLAG(x, flag) ((cell->flags&flag)?x:-1)
 		case CO2:
-			return NEG1_IF_NOT_FLAG(cell->co2_ppmx1, FLAG_HAS_CO2);
+			return NEG1_IF_NOT_FLAG(cell->co2_ppmx1, CAT_LOG_CELL_FLAG_HAS_CO2);
 		case PM2_5:
-			return NEG1_IF_NOT_FLAG(cell->pm_ugmx100[1], FLAG_HAS_TEMP_RH_PARTICLES);
+			return NEG1_IF_NOT_FLAG(cell->pm_ugmx100[1], CAT_LOG_CELL_FLAG_HAS_TEMP_RH_PARTICLES);
 		case PN10_0:
-			return NEG1_IF_NOT_FLAG(cell->pn_ugmx100[4], FLAG_HAS_TEMP_RH_PARTICLES);
+			return NEG1_IF_NOT_FLAG(cell->pn_ugmx100[4], CAT_LOG_CELL_FLAG_HAS_TEMP_RH_PARTICLES);
 		case TEMP:
-			return NEG1_IF_NOT_FLAG(cell->temp_Cx1000/10, FLAG_HAS_TEMP_RH_PARTICLES);
+			return NEG1_IF_NOT_FLAG(cell->temp_Cx1000/10, CAT_LOG_CELL_FLAG_HAS_TEMP_RH_PARTICLES);
 		case RH:
-			return NEG1_IF_NOT_FLAG(cell->rh_pctx100, FLAG_HAS_TEMP_RH_PARTICLES);
+			return NEG1_IF_NOT_FLAG(cell->rh_pctx100, CAT_LOG_CELL_FLAG_HAS_TEMP_RH_PARTICLES);
 #define NEG1_IF_0(x) (x==0?-1:x)
 		case PRESS:
 			return NEG1_IF_0(cell->pressure_hPax10);
@@ -144,7 +143,7 @@ void update_graph()
 
 	for(int x = GRAPH_W-1; x >= 0; x--)
 	{
-		struct flash_log_cell cell;
+		CAT_log_cell cell;
 		memo = flash_get_first_cell_before_time(memo, time, &cell);
 		if (memo > 0)
 		{
@@ -347,7 +346,7 @@ void calc_ach()
 
 	for (int cur = cursor_start; cur <= o_cursor_end; cur++)
 	{
-		struct flash_log_cell cell;
+		CAT_log_cell cell;
 		int nr = graph_indicies[cur];
 		if (nr != -1)
 			flash_get_cell_by_nr(nr, &cell);
@@ -381,7 +380,7 @@ void calc_ach()
 	uint64_t decay_time = 0;
 	for (int cur = cursor_start; cur <= cursor_end; cur++)
 	{
-		struct flash_log_cell cell;
+		CAT_log_cell cell;
 		int nr = graph_indicies[cur];
 		if (nr != -1)
 			flash_get_cell_by_nr(nr, &cell);
@@ -414,7 +413,7 @@ int text_cursor(char* name, int index)
 	CAT_gui_text(name);
 	// CAT_gui_line_break();
 
-	struct flash_log_cell cell = {0};
+	CAT_log_cell cell = {0};
 	int nr = graph_indicies[index];
 	if (nr != -1)
 		flash_get_cell_by_nr(nr, &cell);

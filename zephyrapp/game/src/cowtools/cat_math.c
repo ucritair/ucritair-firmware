@@ -192,18 +192,7 @@ CAT_rect CAT_rect_overlap(CAT_rect a, CAT_rect b)
 
 
 //////////////////////////////////////////////////////////////////////////
-// RENDERING
-
-CAT_mat4 CAT_mat4_id()
-{
-	return (CAT_mat4)
-	{
-		1, 0, 0, 0,
-		0, 1, 0, 0,
-		0, 0, 1, 0,
-		0, 0, 0, 1
-	};
-}
+// POLYGON RENDERING
 
 CAT_vec4 CAT_matvec_mul(CAT_mat4 M, CAT_vec4 v)
 {
@@ -303,20 +292,97 @@ bool CAT_is_clipped(CAT_vec4 v)
 	return false;
 }
 
-CAT_vec4 CAT_centroid(CAT_vec4 a, CAT_vec4 b, CAT_vec4 c)
+
+//////////////////////////////////////////////////////////////////////////
+// COHEN-SUTHERLAND
+
+static int CS_min_x;
+static int CS_min_y;
+static int CS_max_x;
+static int CS_max_y;
+
+void CAT_CSCLIP_set_rect(int x0, int y0, int x1, int y1)
 {
-	float x = (a.x + b.x + c.x) / 3.0f;
-	float y = (a.y + b.y + c.y) / 3.0f;
-	float z = (a.z + b.z + c.z) / 3.0f;
-	return (CAT_vec4) {x, y, z, 1.0f};
+	CS_min_x = x0;
+	CS_min_y = y0;
+	CS_max_x = x1;
+	CS_max_y = y1;
 }
 
-CAT_vec4 CAT_vec4_add(CAT_vec4 u, CAT_vec4 v)
+int CAT_CSCLIP_get_flags(int x, int y)
 {
-	return (CAT_vec4) {u.x + v.x, u.y + v.y, u.z + v.z, u.w + v.w};
+	int flags = CAT_CSCLIP_FLAG_INSIDE;
+	if(x < CS_min_x)
+		flags |= CAT_CSCLIP_FLAG_LEFT;
+	if(x > CS_max_x)
+		flags |= CAT_CSCLIP_FLAG_RIGHT;
+	if(y < CS_min_y)
+		flags |= CAT_CSCLIP_FLAG_TOP;
+	if(y > CS_max_y)
+		flags |= CAT_CSCLIP_FLAG_BOTTOM;
+	return flags;
 }
 
-CAT_vec4 CAT_vec4_mul(CAT_vec4 v, float l)
+bool CAT_CSCLIP(int* x0, int* y0, int* x1, int* y1)
 {
-	return (CAT_vec4) {l * v.x, l * v.y, l * v.z, l * v.w};
+	int flags_0 = CAT_CSCLIP_get_flags(*x0, *y0);
+	int flags_1 = CAT_CSCLIP_get_flags(*x1, *y1);
+	bool accept = false;
+
+	for(;;)
+	{
+		if(!(flags_0 | flags_1)) // BOTH 'INSIDE', ACCEPT
+		{
+			accept = true;
+			break;
+		}
+		else if(flags_0 & flags_1) // BOTH SHARE AN 'OUTSIDE' ZONE, REJECT
+		{
+			break;
+		}
+		else // SOME PART OF THE LINE IS 'INSIDE', SOME PART IS 'OUTSIDE'. THIS PASS EXECUTES UNTIL CLIPPING IS COMPLETE
+		{
+			// PICK 'OUTSIDE'-EST FLAGS FOR THIS PASS
+			int flags = flags_1 > flags_0 ? flags_1 : flags_0;
+
+			// CLIP THAT FLAVOUR OF 'OUTSIDE'-NESS
+			float x, y;
+			if(flags & CAT_CSCLIP_FLAG_BOTTOM)
+			{
+				x = *x0 + (*x1 - *x0) * (CS_max_y - *y0) / (float) (*y1 - *y0);
+				y = CS_max_y;
+			}
+			else if(flags & CAT_CSCLIP_FLAG_TOP)
+			{
+				x = *x0 + (*x1 - *x0) * (CS_min_y - *y0) / (float) (*y1 - *y0);
+				y = CS_min_y;
+			}
+			else if(flags & CAT_CSCLIP_FLAG_RIGHT)
+			{
+				x = CS_max_x;
+				y = *y0 + (*y1 - *y0) * (CS_max_x - *x0) / (float) (*x1 - *x0);
+			}
+			else if(flags & CAT_CSCLIP_FLAG_LEFT)
+			{
+				x = CS_min_x;
+				y = *y0 + (*y1 - *y0) * (CS_min_x - *x0) / (float) (*x1 - *x0);
+			}
+
+			// COMMIT THIS PASS' RESULTS IN PREPARATION FOR NEXT PASS
+			if(flags == flags_0)
+			{
+				*x0 = x;
+				*y0 = y;
+				flags_0 = CAT_CSCLIP_get_flags(*x0, *y0);
+			}
+			else
+			{
+				*x1 = x;
+				*y1 = y;
+				flags_1 = CAT_CSCLIP_get_flags(*x1, *y1);
+			}
+		}
+	}
+
+	return accept;
 }

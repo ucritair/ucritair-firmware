@@ -28,6 +28,7 @@
 #include "cat_deco.h"
 #include "cat_item_dialog.h"
 #include "cat_aqi.h"
+#include "cat_monitors.h"
 
 #include "cat_version.h"
 #include "theme_assets.h"
@@ -319,7 +320,10 @@ void CAT_init()
 	CAT_force_load();
 	CAT_apply_sleep(CAT_get_slept_s());
 
-	CAT_machine_transition(CAT_MS_room);
+	if(CAT_check_save_flag(CAT_SAVE_FLAG_AQ_FIRST))
+		CAT_machine_transition(CAT_MS_monitor);
+	else
+		CAT_machine_transition(CAT_MS_room);
 
 	if(CAT_is_AQ_initialized())
 		CAT_set_eink_update_flag(true);
@@ -335,7 +339,6 @@ void CAT_tick_logic()
 		
 	CAT_platform_tick();
 	CAT_input_tick();
-	CAT_get_AQ_readings();
 	CAT_IMU_tick();
 
 	CAT_animator_tick();
@@ -403,12 +406,35 @@ void CAT_tick_render()
 }
 
 #ifdef CAT_DESKTOP
+
+void aq_spoof()
+{
+	readings.lps22hh.uptime_last_updated = 0;
+	readings.lps22hh.temp = 20;
+	readings.lps22hh.pressure = 1013;
+
+	readings.sunrise.uptime_last_updated = 0;
+	readings.sunrise.ppm_filtered_compensated = 400;
+	readings.sunrise.ppm_filtered_uncompensated = 400;
+	readings.sunrise.temp = 20;
+
+	readings.sen5x.uptime_last_updated = 0;
+	readings.sen5x.pm2_5 = 9;
+	readings.sen5x.pm10_0 = 15;
+	readings.sen5x.humidity_rhpct = 40;
+
+	readings.sen5x.temp_degC = 20;
+	readings.sen5x.voc_index = 1;
+	readings.sen5x.nox_index = 100;
+}
+
 int main(int argc, char** argv)
 {
 	CAT_init();
 
 	while (CAT_get_battery_pct() > 0)
 	{
+		aq_spoof();
 		CAT_tick_logic();
 		
 		for(int render_cycle = 0; render_cycle < CAT_LCD_FRAMEBUFFER_SEGMENTS; render_cycle++)
