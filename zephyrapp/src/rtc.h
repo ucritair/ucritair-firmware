@@ -1,12 +1,14 @@
 #include <time.h>
 #include <stdbool.h>
+#include "cat_aqi.h"
 
 extern bool is_first_init;
 
 extern volatile bool guy_is_wearing_mask;
 extern volatile char guy_name[64];
 extern volatile uint8_t guy_happiness;
-extern volatile uint16_t guy_level; // POTENTIAL DISASTER
+extern volatile uint16_t guy_level;
+
 extern volatile uint64_t rtc_offset;
 extern volatile uint8_t nox_every_n_samples;
 extern volatile uint8_t nox_every_n_samples_counter;
@@ -16,6 +18,14 @@ extern volatile uint64_t went_to_sleep_at;
 extern volatile uint8_t screen_brightness;
 extern volatile uint16_t dim_after_seconds;
 extern volatile uint16_t sleep_after_seconds;
+
+extern volatile CAT_AQ_moving_scores aq_moving_scores;
+extern volatile uint32_t aq_moving_scores_last_time;
+
+extern volatile CAT_AQ_score_block aq_score_buffer[7];
+extern volatile uint8_t aq_score_head;
+extern volatile uint8_t aq_score_count;
+extern volatile uint32_t aq_score_last_time;
 
 #include "cat_pet.h"
 _Static_assert(sizeof(guy_name) == sizeof(pet.name));

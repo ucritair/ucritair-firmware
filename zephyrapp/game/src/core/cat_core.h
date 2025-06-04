@@ -313,6 +313,37 @@ void CAT_AQ_set_temperature_unit(CAT_temperature_unit unit);
 float CAT_AQ_map_celsius(float temp);
 const char* CAT_AQ_get_temperature_unit_string();
 
+typedef struct __attribute__((__packed__))
+{
+	uint8_t CO2;
+	uint8_t VOC;
+	uint8_t NOX;
+	uint8_t PM2_5;
+	uint8_t temp;
+	uint8_t rh;
+	uint8_t aggregate;
+} CAT_AQ_score_block;
+
+typedef struct __attribute__((__packed__))
+{
+	float CO2;
+	float VOC;
+	float NOX;
+	float PM2_5;
+	float temp;
+	float rh;
+	float aggregate;
+	uint64_t sample_count;
+} CAT_AQ_moving_scores;
+
+void CAT_AQ_move_scores();
+void CAT_AQ_store_moving_scores(CAT_AQ_score_block* block);
+
+int CAT_AQ_get_stored_scores_count();
+void CAT_AQ_read_stored_scores(int idx, CAT_AQ_score_block* out);
+
+void CAT_AQ_clear_stored_scores();
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // IMU

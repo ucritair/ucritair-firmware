@@ -430,11 +430,12 @@ void aq_spoof()
 
 int main(int argc, char** argv)
 {
-	CAT_init();
+	aq_spoof();
 
+	CAT_init();
+	
 	while (CAT_get_battery_pct() > 0)
 	{
-		aq_spoof();
 		CAT_tick_logic();
 		
 		for(int render_cycle = 0; render_cycle < CAT_LCD_FRAMEBUFFER_SEGMENTS; render_cycle++)
