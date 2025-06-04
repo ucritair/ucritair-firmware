@@ -204,7 +204,7 @@ void lcd_render_diag()
 		}
 		
 		time_since = current_moment - aq_score_last_time;
-		if(time_since > 5 && CAT_is_AQ_initialized())
+		if(time_since > 86400 && CAT_is_AQ_initialized())
 		{
 			volatile CAT_AQ_score_block* block = &aq_score_buffer[aq_score_head];
 			CAT_AQ_store_moving_scores(block);

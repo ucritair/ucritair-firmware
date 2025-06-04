@@ -101,12 +101,12 @@ static uint16_t colour_score(float t)
 
 const char* subscore_titles[SUBSCORE_COUNT] =
 {
-	"CO2",
-	"PM25",
-	"VOC",
-	"NOX",
-	"TEMP",
-	"RH"
+	[CO2] = "CO2",
+	[PM2_5] = "PM25",
+	[NOX] = "NOX",
+	[VOC] = "VOC",
+	[TEMP] = "TEMP",
+	[RH] = "RH"
 };
 
 static void draw_uninit_notif()
