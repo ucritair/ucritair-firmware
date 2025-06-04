@@ -196,17 +196,21 @@ void lcd_render_diag()
 		charging_last_frame = is_charging;
 
 		time_t current_moment = get_current_rtc_time();
-		uint32_t time_since = current_moment - aq_score_last_time;
+		uint32_t time_since = current_moment - aq_moving_scores_last_time;
 		if(time_since > 5 && CAT_is_AQ_initialized())
 		{
 			CAT_AQ_move_scores();
-
-			CAT_AQ_score_block* block = &aq_score_buffer[aq_score_head];
+			aq_moving_scores_last_time = current_moment;
+		}
+		
+		time_since = current_moment - aq_score_last_time;
+		if(time_since > 5 && CAT_is_AQ_initialized())
+		{
+			volatile CAT_AQ_score_block* block = &aq_score_buffer[aq_score_head];
 			CAT_AQ_store_moving_scores(block);
 			aq_score_head = (aq_score_head+1) % 7;
 			if(aq_score_count < 7)
 				aq_score_count += 1;
-
 			aq_score_last_time = current_moment;
 		}
 

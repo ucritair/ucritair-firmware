@@ -308,7 +308,7 @@ void CAT_AQ_move_scores()
 
 	aq_moving_scores.sample_count += 1;
 
-	CAT_printf("[MOVING AVERAGES]\n");
+	CAT_printf("[MOVING SCORES]\n");
 	CAT_printf("CO2: %f NOX: %f\n", aq_moving_scores.CO2, aq_moving_scores.NOX);
 	CAT_printf("VOC: %f PM2_5: %f\n", aq_moving_scores.VOC, aq_moving_scores.PM2_5);
 	CAT_printf("temp: %f\n", aq_moving_scores.temp);
@@ -326,6 +326,8 @@ void CAT_AQ_store_moving_scores(CAT_AQ_score_block* block)
 	STORE_SCORE(temp, 5.0f);
 	STORE_SCORE(rh, 5.0f);
 	STORE_SCORE(aggregate, 100.0f);
+
+	CAT_printf("[BUFFERING MOVING SCORES]\n");
 }
 
 int CAT_AQ_get_stored_scores_count()
@@ -342,6 +344,13 @@ void CAT_AQ_read_stored_scores(int idx, CAT_AQ_score_block* out)
 	memcpy(out, &aq_score_buffer[idx], sizeof(CAT_AQ_score_block));
 }
 
+
+void CAT_AQ_clear_stored_scores()
+{
+	aq_score_count = 0;
+	aq_score_head = 0;
+	return;
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // IMU

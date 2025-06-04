@@ -13,11 +13,12 @@
 
 enum
 {
-	TEMP,
 	CO2,
-	PM,
+	PM2_5,
 	NOX,
 	VOC,
+	TEMP,
+	RH,
 	SUBSCORE_COUNT
 };
 
@@ -100,11 +101,12 @@ static uint16_t colour_score(float t)
 
 const char* subscore_titles[SUBSCORE_COUNT] =
 {
-	"TEMP",
 	"CO2",
-	"PM",
+	"PM25",
 	"VOC",
 	"NOX",
+	"TEMP",
+	"RH"
 };
 
 static void draw_uninit_notif()
@@ -175,11 +177,8 @@ static int labeled_scoref(int x, int y, uint16_t c, int score_idx, const char* s
 	CAT_draw_text(x, y-CAT_GLYPH_HEIGHT, unit);
 	x += strlen(unit) == 0 ? 4 : strlen(unit) * CAT_GLYPH_WIDTH + 12;
 
-	if(score_idx != -1)
-	{
-		int y_off = strlen(unit) == 0 ? -CAT_GLYPH_HEIGHT : -CAT_GLYPH_HEIGHT/2;
-		score_bar(x, y+y_off, score_idx);
-	}
+	int y_off = strlen(unit) == 0 ? -CAT_GLYPH_HEIGHT : -CAT_GLYPH_HEIGHT/2;
+	score_bar(x, y+y_off, score_idx);
 
 	return y + CAT_GLYPH_HEIGHT*2 + 6;
 }
@@ -194,11 +193,11 @@ void CAT_monitor_render_details()
 
 	int cursor_y = 64;	
 	cursor_y = labeled_scoref(12, cursor_y, CAT_WHITE, CO2, "CO2", "ppm", "%.0f", readings.sunrise.ppm_filtered_compensated);
-	cursor_y = labeled_scoref(12, cursor_y, CAT_WHITE, PM, "PM2.5", "\4g/m\5", "%.0f", readings.sen5x.pm2_5);
+	cursor_y = labeled_scoref(12, cursor_y, CAT_WHITE, PM2_5, "PM2.5", "\4g/m\5", "%.0f", readings.sen5x.pm2_5);
 	cursor_y = labeled_scoref(12, cursor_y, CAT_WHITE, NOX, "NOX", "", "%.0f", readings.sen5x.nox_index);
 	cursor_y = labeled_scoref(12, cursor_y, CAT_WHITE, VOC, "VOC", "", "%.0f", readings.sen5x.voc_index);
 	cursor_y = labeled_scoref(12, cursor_y, CAT_WHITE, TEMP, "TEMP", CAT_AQ_get_temperature_unit_string(), "%.0f", CAT_AQ_map_celsius(readings.sen5x.temp_degC));
-	cursor_y = labeled_scoref(12, cursor_y, CAT_WHITE, -1, "RH", "\%", "%.0f", readings.sen5x.humidity_rhpct);
+	cursor_y = labeled_scoref(12, cursor_y, CAT_WHITE, RH, "RH", "\%", "%.0f", readings.sen5x.humidity_rhpct);
 	cursor_y += 172;
 
 	float pct_rebreathed = ((((double) readings.sunrise.ppm_filtered_compensated)-420.)/38000.)*100.;
@@ -207,31 +206,46 @@ void CAT_monitor_render_details()
 }
 
 #define SPARKLINE_X 12
-#define SPARKLINE_Y 48
-#define SPARKLINE_WIDTH (CAT_LCD_SCREEN_W - 2 * SPARKLINE_X)
-#define SPARKLINE_HEIGHT 64
+#define SPARKLINE_Y 32
+#define SPARKLINE_PAD 4
+#define SPARKLINE_WIDTH (CAT_LCD_SCREEN_W - 2 * SPARKLINE_X - 4 * CAT_GLYPH_WIDTH)
+#define SPARKLINE_HEIGHT 36
 #define SPARKLINE_MAX_X (SPARKLINE_X + SPARKLINE_WIDTH - 1)
 #define SPARKLINE_MAX_Y (SPARKLINE_Y + SPARKLINE_HEIGHT - 1)
-#define SPARKLINE_STEP_SIZE (SPARKLINE_WIDTH / 6)
+#define SPARKLINE_STEP_SIZE (round(SPARKLINE_WIDTH / 6.0f))
+#define SPARKLINE_LABEL_X (SPARKLINE_MAX_X + SPARKLINE_PAD)
+
+#define SPLN_I_Y(i) (SPARKLINE_Y + (SPARKLINE_HEIGHT + SPARKLINE_PAD) * (i))
+#define SPLN_I_MAX_Y(i) (SPLN_I_Y(i) + SPARKLINE_HEIGHT-1)
 
 #define SPARKLINE_BG_COLOUR 0xe7bf
 #define SPARKLINE_FG_COLOUR 0x6b11
 #define SPARKLINE_RETICLE_COLOUR 0xadfa
 
-int transform_sparkline_y(uint8_t y)
+uint8_t get_sparkline_value(int idx, CAT_AQ_score_block* block)
 {
-	float t = inv_lerp(y, 0, 255);
+	idx -= 1;
+	switch(idx)
+	{
+		case CO2: return block->CO2;
+		case PM2_5: return block->PM2_5;
+		case NOX: return block->NOX;
+		case VOC: return block->VOC;
+		case TEMP: return block->temp;
+		case RH : return block->rh;
+		default: return block->aggregate;
+	}
+}
+
+int sparkline_value_to_y(int idx, uint8_t value)
+{
+	float t = inv_lerp(value, 0, 255);
 	int h = t * SPARKLINE_HEIGHT;
-	return SPARKLINE_MAX_Y - h;
+	return SPLN_I_MAX_Y(idx) - h;
 }
 
 void CAT_monitor_render_sparklines()
 {
-	if(!CAT_is_AQ_initialized())
-	{
-		draw_uninit_notif();
-		return;
-	}
 	if(CAT_AQ_get_stored_scores_count() < 2)
 	{
 		CAT_push_text_colour(CAT_WHITE);
@@ -243,31 +257,42 @@ void CAT_monitor_render_sparklines()
 		CAT_push_text_line_width(CAT_LCD_SCREEN_W-24);
 		CAT_push_text_flags(CAT_TEXT_FLAG_WRAP);
 		CAT_draw_text(12, 64, "At least 2 24-hour samples must be taken before the sparkline can be shown.");
+		return;
 	}
 
-	CAT_push_text_colour(CAT_WHITE);
-	CAT_draw_textf(12, SPARKLINE_Y-14, "SPARKLINE");
+	CAT_fillberry(0, SPARKLINE_Y, 240, 320-SPARKLINE_Y, RGB8882565(35, 157, 235));
 
-	CAT_fillberry(SPARKLINE_X, SPARKLINE_Y, SPARKLINE_WIDTH, SPARKLINE_HEIGHT, SPARKLINE_BG_COLOUR);
-	CAT_CSCLIP_set_rect(SPARKLINE_X, SPARKLINE_Y, SPARKLINE_MAX_X, SPARKLINE_MAX_Y);
-	for(int i = 0; i < CAT_AQ_get_stored_scores_count(); i++)
+	for(int i = 0; i < SUBSCORE_COUNT+1; i++)
 	{
-		CAT_AQ_score_block s0;
-		CAT_AQ_read_stored_scores(i, &s0);
-		CAT_AQ_score_block s1;
-		CAT_AQ_read_stored_scores(i+1, &s1);
-
-		int x0 = SPARKLINE_X + SPARKLINE_STEP_SIZE * i;
-		int y0 = transform_sparkline_y(s0.aggregate);
-		int x1 = SPARKLINE_X + SPARKLINE_STEP_SIZE * (i+1);
-		int y1 = transform_sparkline_y(s1.aggregate);
-
-		if(CAT_CSCLIP(&x0, &y0, &x1, &y1))
+		CAT_fillberry(SPARKLINE_X, SPLN_I_Y(i), SPARKLINE_WIDTH, SPARKLINE_HEIGHT, SPARKLINE_BG_COLOUR);
+		CAT_CSCLIP_set_rect(SPARKLINE_X, SPLN_I_Y(i), SPARKLINE_MAX_X, SPLN_I_MAX_Y(i));
+		for(int j = 0; j < CAT_AQ_get_stored_scores_count()-1; j++)
 		{
-			CAT_lineberry(x0, y0, x1, y1, SPARKLINE_FG_COLOUR);
-			if(i > 0 && i < 6)
-				CAT_discberry(x0, y0, 4, colour_score(s0.aggregate/255.0f));
+			CAT_AQ_score_block s0;
+			CAT_AQ_read_stored_scores(j, &s0);
+			CAT_AQ_score_block s1;
+			CAT_AQ_read_stored_scores(j+1, &s1);
+
+			int x0 = SPARKLINE_X + SPARKLINE_STEP_SIZE * j;
+			int y0 = sparkline_value_to_y(i, get_sparkline_value(i, &s0));
+			int x1 = SPARKLINE_X + SPARKLINE_STEP_SIZE * (j+1);
+			int y1 = sparkline_value_to_y(i, get_sparkline_value(i, &s1));
+
+			if(CAT_CSCLIP(&x0, &y0, &x1, &y1))
+			{
+				CAT_lineberry(x0, y0, x1, y1, SPARKLINE_FG_COLOUR);
+				CAT_discberry(x0, y0, 2, SPARKLINE_FG_COLOUR);
+				CAT_discberry(x1, y1, 2, SPARKLINE_FG_COLOUR);
+			}
 		}
+		
+		CAT_push_text_colour(CAT_WHITE);
+		CAT_draw_text
+		(
+			SPARKLINE_LABEL_X, SPLN_I_Y(i),
+			i == 0 ? "\4CAQ" :
+			subscore_titles[i-1]
+		);
 	}
 }
 
@@ -275,12 +300,13 @@ static void update_scores()
 {
 	score = CAT_AQI_aggregate();
 	score_t = score / 100.0f;
-
-	subscores[TEMP] = CAT_temperature_score(CAT_canonical_temp());
+	
 	subscores[CO2] = CAT_co2_score(readings.sunrise.ppm_filtered_compensated);
-	subscores[PM] = CAT_pm25_score(readings.sen5x.pm2_5);
+	subscores[PM2_5] = CAT_pm25_score(readings.sen5x.pm2_5);
 	subscores[VOC] = CAT_voc_score(readings.sen5x.voc_index);
 	subscores[NOX] = CAT_nox_score(readings.sen5x.nox_index);
+	subscores[TEMP] = CAT_temperature_score(CAT_canonical_temp());
+	subscores[RH] = CAT_humidity_score(readings.sen5x.humidity_rhpct);
 
 	for(int i = 0; i < SUBSCORE_COUNT; i++)
 		subscores[i] = inv_lerp(subscores[i], 5, 0);

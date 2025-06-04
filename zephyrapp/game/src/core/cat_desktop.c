@@ -588,6 +588,10 @@ void CAT_AQ_read_stored_scores(int idx, CAT_AQ_score_block* out)
 	memcpy(out, &aq_score_buffer[idx], sizeof(CAT_AQ_score_block));
 }
 
+void CAT_AQ_clear_stored_scores()
+{
+	return;
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // IMU

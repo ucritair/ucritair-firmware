@@ -342,6 +342,8 @@ void CAT_AQ_store_moving_scores(CAT_AQ_score_block* block);
 int CAT_AQ_get_stored_scores_count();
 void CAT_AQ_read_stored_scores(int idx, CAT_AQ_score_block* out);
 
+void CAT_AQ_clear_stored_scores();
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // IMU
