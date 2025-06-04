@@ -36,7 +36,7 @@ float interpolate(float value, const float *breakpoints, const float *scores, in
     return 0.0f;
 }
 
-float CAT_mean_temp()
+float CAT_canonical_temp()
 {
 	return (readings.sen5x.temp_degC - 2.75) ;
 }
@@ -216,8 +216,8 @@ void CAT_AQI_quantize(int* temp_idx, int* co2_idx, int* pm_idx, int* voc_idx, in
         *nox_idx = 1;
     }
 
-	float ts = CAT_temperature_score(CAT_mean_temp());
-	if(CAT_mean_temp() < 20 && ts >= 3)
+	float ts = CAT_temperature_score(CAT_canonical_temp());
+	if(CAT_canonical_temp() < 20 && ts >= 3)
     {
 		*temp_idx = 0;
     }
@@ -232,7 +232,7 @@ void CAT_AQI_quantize(int* temp_idx, int* co2_idx, int* pm_idx, int* voc_idx, in
 // a somewhat confusing choice given convention. Sorry!
 float CAT_AQI_aggregate()
 {
-    float temp = CAT_mean_temp();
+    float temp = CAT_canonical_temp();
     float rh = readings.sen5x.humidity_rhpct;
     float co2 = readings.sunrise.ppm_filtered_compensated;
     float pm = readings.sen5x.pm2_5;

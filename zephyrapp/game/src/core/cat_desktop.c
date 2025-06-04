@@ -13,6 +13,7 @@
 #include <stdarg.h>
 #include "cat_main.h"
 #include "cat_math.h"
+#include "cat_aqi.h"
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -532,21 +533,59 @@ void CAT_factory_reset()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // AIR QUALITY
 
-static uint8_t stored_scores[7] =
-{
-	50, 20, 32, 97, 15, 64, 72
-};
+static CAT_AQ_moving_scores aq_moving_scores;
+static CAT_AQ_score_block aq_score_buffer[7];
 
-uint8_t CAT_AQ_count_stored_scores()
+void CAT_AQ_move_scores()
+{
+	float CO2 = CAT_co2_score(readings.sunrise.ppm_filtered_uncompensated);
+	float NOX = CAT_nox_score(readings.sen5x.nox_index);
+	float VOC = CAT_voc_score(readings.sen5x.voc_index);
+	float PM2_5 = CAT_pm25_score(readings.sen5x.pm2_5);
+	float temp = CAT_temperature_score(CAT_canonical_temp());
+	float rh = CAT_humidity_score(readings.sen5x.humidity_rhpct);
+	float aggregate = CAT_AQI_aggregate();
+
+#define MOVE_AVERAGE(x) (aq_moving_scores.x = (aq_moving_scores.x + (x - aq_moving_scores.x) / (float) aq_moving_scores.sample_count))
+	MOVE_AVERAGE(CO2);
+	MOVE_AVERAGE(NOX);
+	MOVE_AVERAGE(VOC);
+	MOVE_AVERAGE(PM2_5);
+	MOVE_AVERAGE(temp);
+	MOVE_AVERAGE(rh);
+	MOVE_AVERAGE(aggregate);
+
+	aq_moving_scores.sample_count += 1;
+
+	CAT_printf("[MOVING AVERAGES]\n");
+	CAT_printf("CO2: %f NOX: %f\n", aq_moving_scores.CO2, aq_moving_scores.NOX);
+	CAT_printf("VOC: %f PM2_5: %f\n", aq_moving_scores.VOC, aq_moving_scores.PM2_5);
+	CAT_printf("temp: %f\nRH: %f\n", aq_moving_scores.temp, aq_moving_scores.rh);
+	CAT_printf("aggregate: %f count: %d\n", aq_moving_scores.aggregate, aq_moving_scores.sample_count);		
+}
+
+void CAT_AQ_store_moving_scores(CAT_AQ_score_block* block)
+{
+#define STORE_SCORE(x, X) (block->x = round((aq_moving_scores.x / X) * 255.0f))
+	STORE_SCORE(CO2, 5.0f);
+	STORE_SCORE(NOX, 5.0f);
+	STORE_SCORE(VOC, 5.0f);
+	STORE_SCORE(PM2_5, 5.0f);
+	STORE_SCORE(temp, 5.0f);
+	STORE_SCORE(rh, 5.0f);
+	STORE_SCORE(aggregate, 100.0f);
+}
+
+int CAT_AQ_get_stored_scores_count()
 {
 	return 7;
 }
 
-uint8_t CAT_AQ_get_stored_score(int idx)
+void CAT_AQ_read_stored_scores(int idx, CAT_AQ_score_block* out)
 {
 	if(idx < 0 || idx >= 7)
-		return 0;
-	return stored_scores[idx];
+		return;
+	memcpy(out, &aq_score_buffer[idx], sizeof(CAT_AQ_score_block));
 }
 
 

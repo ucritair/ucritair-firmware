@@ -209,7 +209,7 @@ void CAT_monitor_render_details()
 #define SPARKLINE_X 12
 #define SPARKLINE_Y 48
 #define SPARKLINE_WIDTH (CAT_LCD_SCREEN_W - 2 * SPARKLINE_X)
-#define SPARKLINE_HEIGHT 96
+#define SPARKLINE_HEIGHT 64
 #define SPARKLINE_MAX_X (SPARKLINE_X + SPARKLINE_WIDTH - 1)
 #define SPARKLINE_MAX_Y (SPARKLINE_Y + SPARKLINE_HEIGHT - 1)
 #define SPARKLINE_STEP_SIZE (SPARKLINE_WIDTH / 6)
@@ -220,7 +220,7 @@ void CAT_monitor_render_details()
 
 int transform_sparkline_y(uint8_t y)
 {
-	float t = inv_lerp(y, 0, 120);
+	float t = inv_lerp(y, 0, 255);
 	int h = t * SPARKLINE_HEIGHT;
 	return SPARKLINE_MAX_Y - h;
 }
@@ -232,7 +232,7 @@ void CAT_monitor_render_sparklines()
 		draw_uninit_notif();
 		return;
 	}
-	if(CAT_AQ_count_stored_scores() < 2)
+	if(CAT_AQ_get_stored_scores_count() < 2)
 	{
 		CAT_push_text_colour(CAT_WHITE);
 		CAT_push_text_scale(2);
@@ -250,20 +250,23 @@ void CAT_monitor_render_sparklines()
 
 	CAT_fillberry(SPARKLINE_X, SPARKLINE_Y, SPARKLINE_WIDTH, SPARKLINE_HEIGHT, SPARKLINE_BG_COLOUR);
 	CAT_CSCLIP_set_rect(SPARKLINE_X, SPARKLINE_Y, SPARKLINE_MAX_X, SPARKLINE_MAX_Y);
-	for(int i = 0; i < CAT_AQ_count_stored_scores()-1; i++)
+	for(int i = 0; i < CAT_AQ_get_stored_scores_count(); i++)
 	{
-		int s0 = CAT_AQ_get_stored_score(i);
+		CAT_AQ_score_block s0;
+		CAT_AQ_read_stored_scores(i, &s0);
+		CAT_AQ_score_block s1;
+		CAT_AQ_read_stored_scores(i+1, &s1);
+
 		int x0 = SPARKLINE_X + SPARKLINE_STEP_SIZE * i;
-		int y0 = transform_sparkline_y(s0);
-		int s1 = CAT_AQ_get_stored_score(i+1);
+		int y0 = transform_sparkline_y(s0.aggregate);
 		int x1 = SPARKLINE_X + SPARKLINE_STEP_SIZE * (i+1);
-		int y1 = transform_sparkline_y(s1);
+		int y1 = transform_sparkline_y(s1.aggregate);
 
 		if(CAT_CSCLIP(&x0, &y0, &x1, &y1))
 		{
 			CAT_lineberry(x0, y0, x1, y1, SPARKLINE_FG_COLOUR);
 			if(i > 0 && i < 6)
-				CAT_discberry(x0, y0, 4, colour_score(s0/100.0f));
+				CAT_discberry(x0, y0, 4, colour_score(s0.aggregate/255.0f));
 		}
 	}
 }
@@ -273,7 +276,7 @@ static void update_scores()
 	score = CAT_AQI_aggregate();
 	score_t = score / 100.0f;
 
-	subscores[TEMP] = CAT_temperature_score(CAT_mean_temp());
+	subscores[TEMP] = CAT_temperature_score(CAT_canonical_temp());
 	subscores[CO2] = CAT_co2_score(readings.sunrise.ppm_filtered_compensated);
 	subscores[PM] = CAT_pm25_score(readings.sen5x.pm2_5);
 	subscores[VOC] = CAT_voc_score(readings.sen5x.voc_index);

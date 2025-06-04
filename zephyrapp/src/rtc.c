@@ -89,12 +89,13 @@ PERSIST_RAM uint8_t screen_brightness;
 PERSIST_RAM uint16_t dim_after_seconds;
 PERSIST_RAM uint16_t sleep_after_seconds;
 
-PERSIST_RAM uint8_t aq_score_buffer[8];
-PERSIST_RAM uint8_t aq_score_read_head;
-PERSIST_RAM uint8_t aq_score_write_head;
+PERSIST_RAM CAT_AQ_moving_scores aq_moving_scores;
+PERSIST_RAM CAT_AQ_score_block aq_score_buffer[7];
+PERSIST_RAM uint8_t aq_score_head;
+PERSIST_RAM uint8_t aq_score_count;
 PERSIST_RAM uint32_t aq_score_last_time;
 
-#define RTC_INIT_CHECK_MAGIC 0xb8870005
+#define RTC_INIT_CHECK_MAGIC 0xb8870006
 
 bool is_first_init = false;
 
@@ -143,12 +144,14 @@ void check_rtc_init()
 	{
 		is_first_init = true;
 		rtc_init_check = RTC_INIT_CHECK_MAGIC;
+
 		sensor_wakeup_rate = 3*60;
 		nox_every_n_samples = 0;
 		nox_every_n_samples_counter = 0;
 		wakeup_is_from_timer = false;
 		zero_rtc_counter();
 		went_to_sleep_at = get_current_rtc_time();
+
 		guy_happiness = 1;
 		guy_is_wearing_mask = false;
 		guy_level = 0;
@@ -156,11 +159,24 @@ void check_rtc_init()
 		for(int i = 0; waldo_str[i] < 5; i++)
 			guy_name[i] = waldo_str[i];
 		guy_name[5] = '\0';
+
 		screen_brightness = BACKLIGHT_FULL;
 		dim_after_seconds = 45;
 		sleep_after_seconds = 120;
-		aq_score_read_head = 0;
-		aq_score_write_head = 0;
+		
+		aq_moving_scores = (CAT_AQ_moving_scores)
+		{
+			.CO2 = 0,
+			.NOX = 0,
+			.VOC = 0,
+			.PM2_5 = 0,
+			.temp = 0,
+			.rh = 0,
+			.aggregate = 100,
+			.sample_count = 1
+		};
+		aq_score_head = 0;
+		aq_score_count = 0;
 		aq_score_last_time = 0;
 	}
 }

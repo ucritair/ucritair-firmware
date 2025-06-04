@@ -197,13 +197,15 @@ void lcd_render_diag()
 
 		time_t current_moment = get_current_rtc_time();
 		uint32_t time_since = current_moment - aq_score_last_time;
-		if(time_since > 86400 && CAT_is_AQ_initialized())
+		if(time_since > 5 && CAT_is_AQ_initialized())
 		{
-			aq_score_buffer[aq_score_write_head] = round(CAT_AQI_aggregate());
-			aq_score_write_head = (aq_score_write_head+1) % 8;
+			CAT_AQ_move_scores();
 
-			if(aq_score_write_head == aq_score_read_head)
-				aq_score_read_head = (aq_score_read_head+1) % 8;
+			CAT_AQ_score_block* block = &aq_score_buffer[aq_score_head];
+			CAT_AQ_store_moving_scores(block);
+			aq_score_head = (aq_score_head+1) % 7;
+			if(aq_score_count < 7)
+				aq_score_count += 1;
 
 			aq_score_last_time = current_moment;
 		}
