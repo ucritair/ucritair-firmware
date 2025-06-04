@@ -274,7 +274,6 @@ void CAT_MS_mines(CAT_machine_signal signal)
 						if(cell->mine)
 						{
 							state = LOSE;
-							CAT_play_sound(&fail_sound);
 							break;
 						}
 
@@ -283,7 +282,6 @@ void CAT_MS_mines(CAT_machine_signal signal)
 						{
 							coins += 1;
 							cell->coin = true;
-							CAT_play_sound(&coin_sound);
 							clicks = 0;
 						}
 
@@ -318,7 +316,6 @@ void CAT_MS_mines(CAT_machine_signal signal)
 							{
 								grid[i].seen = true;
 								reveal_complete = false;
-								CAT_play_sound(&thud_sound);
 								break;
 							}	
 						}

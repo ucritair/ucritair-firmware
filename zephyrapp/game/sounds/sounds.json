@@ -14,18 +14,5 @@
             ]
         }
     },
-    "entries": [
-        {
-            "name": "coin",
-            "path": "coin.wav"
-        },
-        {
-            "name": "fail",
-            "path": "fail.wav"
-        },
-        {
-            "name": "thud",
-            "path": "thud.wav"
-        }
-    ]
+    "entries": []
 }

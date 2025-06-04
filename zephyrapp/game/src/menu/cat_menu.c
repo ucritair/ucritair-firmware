@@ -70,16 +70,6 @@ void CAT_MS_menu(CAT_machine_signal signal)
 					{
 						if(CAT_gui_menu_item("INFO"))
 							CAT_machine_transition(CAT_MS_debug);
-						if(CAT_gui_begin_menu("TESTS"))
-						{
-							if(CAT_gui_menu_item("SOUND POWER ON"))
-								CAT_sound_power(true);
-							if(CAT_gui_menu_item("SOUND POWER OFF"))
-								CAT_sound_power(false);
-							if(CAT_gui_menu_item("PLAY SOUND"))
-								CAT_play_sound(&coin_sound);
-							CAT_gui_end_menu();
-						}
 						if(CAT_gui_begin_menu("CHEATS"))
 						{
 							if(CAT_gui_menu_item("1000 COINS"))

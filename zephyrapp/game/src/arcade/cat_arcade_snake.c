@@ -177,8 +177,6 @@ void CAT_MS_snake(CAT_machine_signal signal)
 					snake.dead |= x >= GRID_WIDTH;
 					snake.dead |= y < 0;
 					snake.dead |= y >= GRID_HEIGHT;
-					if(snake.dead)
-						CAT_play_sound(&fail_sound);
 
 					for(int i = 0; i < snake.length; i++)
 					{
@@ -193,11 +191,9 @@ void CAT_MS_snake(CAT_machine_signal signal)
 						if(eat_tracker == 5)
 						{
 							coins += 1;
-							CAT_play_sound(&coin_sound);
 							eat_tracker = 0;
 						}
-						else
-							CAT_play_sound(&thud_sound);
+
 						food_init();
 
 						score += 1;
