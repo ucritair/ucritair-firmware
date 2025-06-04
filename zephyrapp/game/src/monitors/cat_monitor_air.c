@@ -246,17 +246,18 @@ int sparkline_value_to_y(int idx, uint8_t value)
 
 void CAT_monitor_render_sparklines()
 {
-	if(CAT_AQ_get_stored_scores_count() < 2)
+	//if(CAT_AQ_get_stored_scores_count() < 2)
+	if(true)
 	{
 		CAT_push_text_colour(CAT_WHITE);
 		CAT_push_text_scale(2);
 		CAT_push_text_line_width(CAT_LCD_SCREEN_W-24);
 		CAT_push_text_flags(CAT_TEXT_FLAG_WRAP);
-		CAT_draw_text(12, 30, "Not enough stored samples!");
+		int cursor_y = CAT_draw_text(12, 36, "Not enough stored samples!");
 		CAT_push_text_colour(CAT_WHITE);
 		CAT_push_text_line_width(CAT_LCD_SCREEN_W-24);
 		CAT_push_text_flags(CAT_TEXT_FLAG_WRAP);
-		CAT_draw_text(12, 64, "At least 2 24-hour samples must be taken before the sparkline can be shown.");
+		CAT_draw_text(12, cursor_y + 46, "At least 2 24-hour samples must be taken before the sparkline can be shown.");
 		return;
 	}
 
