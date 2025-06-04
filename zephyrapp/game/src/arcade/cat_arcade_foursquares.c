@@ -714,6 +714,4 @@ void CAT_render_foursquares()
 			}
 		}
 	}
-
-	CAT_gui_printf(CAT_WHITE, "SCORE: %d", score);
 }
