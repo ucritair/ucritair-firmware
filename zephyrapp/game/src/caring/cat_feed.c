@@ -1305,8 +1305,8 @@ void render_plus_line(int x, int y, int w, float min, float base, float plus, fl
 	int plus_x = x + w * inv_lerp(base+plus, min, max);
 	int end_x = x + w;
 	CAT_lineberry(start_x, y, base_x, y, 0xd506);
-	CAT_lineberry(base_x, y, plus_x, y, 0x7d67);
-	CAT_lineberry(plus_x, y, end_x, y, CAT_GREY);
+	CAT_lineberry(base_x, y, plus_x, y, 0x54a2);
+	CAT_lineberry(plus_x, y, end_x, y, 0xc618);
 }
 
 void render_summary()
