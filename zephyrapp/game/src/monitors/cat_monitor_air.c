@@ -246,8 +246,7 @@ int sparkline_value_to_y(int idx, uint8_t value)
 
 void CAT_monitor_render_sparklines()
 {
-	//if(CAT_AQ_get_stored_scores_count() < 2)
-	if(true)
+	if(CAT_AQ_get_stored_scores_count() < 2)
 	{
 		CAT_push_text_colour(CAT_WHITE);
 		CAT_push_text_scale(2);
