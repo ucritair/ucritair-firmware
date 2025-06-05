@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <math.h>
 #include "cat_curves.h"
+#include "sprite_assets.h"
 
 enum
 {
