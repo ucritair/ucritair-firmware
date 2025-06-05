@@ -321,7 +321,7 @@ bool CAT_is_point_free(CAT_vec2 point)
 
 CAT_room room =
 {
-	.theme = &base_theme,
+	.theme = &basic_theme,
 	.prop_count = 0,
 	.pickup_count = 0
 };
@@ -341,7 +341,7 @@ void CAT_room_init()
 	}
 	free_cell_count = CAT_GRID_SIZE;
 
-	room.theme = &base_theme;
+	room.theme = &basic_theme;
 	room.prop_count = 0;
 	room.pickup_count = 0;
 	room.earn_timer_id = CAT_timer_init(CAT_EARN_TICK_SECS);
@@ -630,56 +630,79 @@ void CAT_MS_room(CAT_machine_signal signal)
 	}
 }
 
-enum {WALL_BASE, WALL_SKY} bg_wall = WALL_BASE;
-enum {FLOOR_BASE, FLOOR_GRASS, FLOOR_ASH} bg_floor = FLOOR_BASE;
-
-void render_background()
-{
-	for(int y = 0; y < 6; y++)
-	{
-		for(int x = 0; x < 15; x++)
-		{
-			int tile_idx = room.theme->wall_map[y * 15 + x];
-			CAT_draw_sprite(room.theme->wall_tiles, tile_idx, x * 16, y * 16);
-		}
-	}
-	for(int y = 0; y < 14; y++)
-	{
-		for(int x = 0; x < 15; x++)
-		{
-			int tile_idx = room.theme->floor_map[y * 15 + x];
-			CAT_draw_sprite(room.theme->floor_tiles, tile_idx, x * 16, (y + 6) * 16);
-		}
-	}
-}
-
 float battery_blink_timer = 0.0f;
 bool battery_blink_switch = false;
+
 void render_statics()
-{	
+{
 	CAT_datetime time;
 	CAT_get_datetime(&time);
 	float aqi_score = CAT_AQI_aggregate();
 
-	if(aqi_score <= 35.0f && time.hour >= 4 && time.hour < 22)
-		CAT_draw_sprite(&window_day_bad_aq_sprite, -1, 8, 8);
-	else if(time.hour >= 4 && time.hour < 7)
-		CAT_draw_sprite(&window_dawn_sprite, 0, 8, 8);
-	else if(time.hour >= 7 && time.hour < 11)
-		CAT_draw_sprite(&window_morning_sprite, 0, 8, 8);
-	else if(time.hour >= 11 && time.hour < 18)
-		CAT_draw_sprite(&window_day_sprite, 0, 8, 8);
-	else if(time.hour >= 18 && time.hour < 20)
-		CAT_draw_sprite(&window_evening_sprite, 0, 8, 8);
-	else if(time.hour >= 20 && time.hour < 22)
-		CAT_draw_sprite(&window_dusk_sprite, 0, 8, 8);
+	int window_y = room.theme->window_rect.min.y;
+	int window_x = room.theme->window_rect.min.x;
+	int window_width = room.theme->window_rect.max.x-room.theme->window_rect.min.x;
+	int window_height = room.theme->window_rect.max.y-room.theme->window_rect.min.y;
+	int window_columns = window_width / 8;
+	int sky_row_off = time.hour * (480 - window_height) / 23;
+
+	if(room.theme->tile_wall)
+	{
+		for(int y = 0; y < 6; y++)
+		{
+			for(int x = 0; x < 15; x++)
+			{
+				int tile_idx = room.theme->wall_map[y * 15 + x];
+				CAT_draw_sprite(room.theme->wall_tiles, tile_idx, x * 16, y * 16);
+			}
+		}
+
+		for(int i = 0; i < window_columns; i++)
+		{
+			CAT_set_draw_mask(window_x+4, window_y+4, window_x+window_width-4, window_y+window_height-4);
+			CAT_draw_sprite(&sky_gradient_sprite, 0, window_x + i * 8, window_y - sky_row_off);
+		}
+		CAT_draw_sprite(&window_sprite, 0, window_x, window_y);
+	}
 	else
-		CAT_draw_sprite(&window_night_sprite, 0, 8, 8);
-	
+	{
+		for(int i = 0; i < window_columns; i++)
+		{
+			CAT_set_draw_mask(window_x, window_y, window_x+window_width, window_y+window_height);
+			CAT_draw_sprite(&sky_gradient_sprite, 0, window_x + i * 8, window_y - sky_row_off);
+		}
+		CAT_draw_sprite(room.theme->wall_tiles, 0, 0, 0);
+	}
+
+	if(room.theme->tile_floor)
+	{
+		for(int y = 0; y < 14; y++)
+		{
+			for(int x = 0; x < 15; x++)
+			{
+				int tile_idx = room.theme->floor_map[y * 15 + x];
+				CAT_draw_sprite(room.theme->floor_tiles, tile_idx, x * 16, (y + 6) * 16);
+			}
+		}
+	}
+	else
+	{
+		int row_offset = room.theme->tile_wall ?
+		16*16 : room.theme->wall_tiles->height;
+		CAT_draw_sprite(room.theme->floor_tiles, 0, 0, row_offset);
+	}
+
+	CAT_draw_sprite(&vending_sprite, -1, 172, 16);
+	CAT_draw_sprite(&arcade_sprite, -1, 124, 48);	
+
+	int battery_x = window_width == 240 ?
+	196 : window_x+window_width/2;
+	int battery_y = window_width == 240 ?
+	62 : window_y+window_height/2 - 2;
 	if(CAT_is_charging())
 	{
-		CAT_push_draw_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
-		CAT_draw_sprite(&icon_charging_sprite, 0, 66, 37);
+		CAT_set_draw_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
+		CAT_draw_sprite(&icon_charging_sprite, 0, battery_x, battery_y);
 	}
 	else if(CAT_get_battery_pct() <= CAT_CRITICAL_BATTERY_PCT)
 	{
@@ -692,13 +715,10 @@ void render_statics()
 
 		if(battery_blink_switch)
 		{
-			CAT_push_draw_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
-			CAT_draw_sprite(&icon_low_battery_alt_sprite, 0, 66, 37);
+			CAT_set_draw_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
+			CAT_draw_sprite(&icon_low_battery_alt_sprite, 0, battery_x, battery_y);
 		}
 	}
-	
-	CAT_draw_sprite(&vending_sprite, -1, 172, 16);
-	CAT_draw_sprite(&arcade_sprite, -1, 124, 48);
 }
 
 void render_props()
@@ -802,7 +822,6 @@ void render_gui()
 
 void CAT_render_room()
 {
-	render_background();
 	render_statics();
 	render_props();
 	render_pickups();

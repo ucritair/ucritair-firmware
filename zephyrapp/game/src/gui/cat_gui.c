@@ -102,7 +102,7 @@ void CAT_gui_text(const char* text)
 		{
 			if(!isspace(*c) && !isspace(*(c-1)))
 			{
-				CAT_push_draw_flags(CAT_DRAW_FLAG_CENTER_Y);
+				CAT_set_draw_flags(CAT_DRAW_FLAG_CENTER_Y);
 				CAT_draw_sprite(&glyph_sprite, '-', gui.cursor.x, gui.cursor.y);
 			}
 			CAT_gui_line_break();	
@@ -124,7 +124,7 @@ void CAT_gui_text(const char* text)
 		}
 
 		gui_open_channel(CAT_GLYPH_HEIGHT);
-		CAT_push_draw_flags(CAT_DRAW_FLAG_CENTER_Y);
+		CAT_set_draw_flags(CAT_DRAW_FLAG_CENTER_Y);
 		CAT_draw_sprite(&glyph_sprite, *c, gui.cursor.x, gui.cursor.y);
 		gui.cursor.x += CAT_GLYPH_WIDTH;
 		c++;
@@ -136,7 +136,7 @@ void CAT_gui_image(const CAT_sprite* sprite, int frame_idx)
 	gui_open_channel(sprite->height);
 
 	gui.cursor.x += gui.pad / 2;
-	CAT_push_draw_flags(CAT_DRAW_FLAG_CENTER_Y);
+	CAT_set_draw_flags(CAT_DRAW_FLAG_CENTER_Y);
 	CAT_draw_sprite(sprite, frame_idx, gui.cursor.x, gui.cursor.y);
 	gui.cursor.x += sprite->width;
 	gui.cursor.x += gui.pad / 2;
@@ -961,7 +961,7 @@ void CAT_gui_printf(uint16_t colour, const char* fmt, ...)
 	if(modified_y < 0 || modified_y >= CAT_LCD_FRAMEBUFFER_H)
 		return;
 
-	CAT_push_text_colour(colour);
+	CAT_set_text_colour(colour);
 	CAT_draw_text(0, printf_cursor_y, text);
 	printf_cursor_y += CAT_GLYPH_HEIGHT + 2;
 }

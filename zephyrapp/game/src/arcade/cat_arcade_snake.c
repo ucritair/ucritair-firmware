@@ -243,7 +243,7 @@ void CAT_render_snake()
 		CAT_frameberry(RGB8882565(122, 146, 57));
 		for(int y = 0; y < 20; y += 2)
 		{
-			CAT_draw_sprite(&grass_floor_sprite, 17, grasses[y/2]*16, y*16);
+			CAT_draw_sprite(&floor_grass_tile_sprite, 17, grasses[y/2]*16, y*16);
 		}
 
 		int dx = snake.xs[0] - snake.xs[1];

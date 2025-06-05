@@ -124,9 +124,11 @@ typedef enum
 	CAT_DRAW_FLAG_REFLECT_X = 8
 } CAT_draw_flag;
 
-void CAT_push_draw_flags(int flags);
-void CAT_push_draw_colour(uint16_t colour);
-void CAT_push_draw_scale(uint8_t scale);
+void CAT_set_draw_flags(int flags);
+void CAT_set_draw_colour(uint16_t colour);
+void CAT_set_draw_scale(uint8_t scale);
+void CAT_set_draw_mask(int x0, int y0, int x1, int y1);
+
 void CAT_draw_sprite(const CAT_sprite* sprite, int frame_idx, int x, int y);
 
 //////////////////////////////////////////////////////////////////////////

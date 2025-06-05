@@ -32,9 +32,14 @@
 typedef struct CAT_room_theme
 {
 	const char* name;
+
 	const CAT_sprite* wall_tiles;
+	bool tile_wall;
 	uint8_t* wall_map;
+	CAT_rect window_rect;
+
 	const CAT_sprite* floor_tiles;
+	bool tile_floor;
 	uint8_t* floor_map;
 } CAT_room_theme;
 

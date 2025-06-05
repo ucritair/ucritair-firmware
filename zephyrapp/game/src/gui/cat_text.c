@@ -84,7 +84,7 @@ static int text_line_width = CAT_LCD_SCREEN_W;
 static uint16_t text_colour = CAT_BLACK;
 static uint8_t text_scale = 1;
 
-void CAT_push_text_flags(int flags)
+void CAT_set_text_flags(int flags)
 {
 	text_flags = flags;
 }
@@ -96,7 +96,7 @@ int consume_text_flags()
 	return value;
 }
 
-void CAT_push_text_line_width(int width)
+void CAT_set_text_line_width(int width)
 {
 	text_line_width = width;
 }
@@ -108,7 +108,7 @@ int consume_text_line_width()
 	return value;
 }
 
-void CAT_push_text_colour(uint16_t colour)
+void CAT_set_text_colour(uint16_t colour)
 {
 	text_colour = colour;
 }
@@ -120,7 +120,7 @@ uint16_t consume_text_colour()
 	return value;
 }
 
-void CAT_push_text_scale(uint8_t scale)
+void CAT_set_text_scale(uint8_t scale)
 {
 	text_scale = scale;
 }
@@ -172,8 +172,8 @@ int CAT_draw_text(int x, int y, const char* text)
 			continue;
 		}
 
-		CAT_push_draw_colour(colour);
-		CAT_push_draw_scale(scale);
+		CAT_set_draw_colour(colour);
+		CAT_set_draw_scale(scale);
 		CAT_draw_sprite(&glyph_sprite, *glyph_ptr, cursor_x, cursor_y);
 		cursor_x += CAT_GLYPH_WIDTH * scale;
 		glyph_ptr++; glyph_idx++;

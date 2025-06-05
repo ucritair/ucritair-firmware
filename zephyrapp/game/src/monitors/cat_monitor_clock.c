@@ -33,7 +33,7 @@ static CAT_vec2 radial_point(float t, float r)
 
 void CAT_monitor_render_clock()
 {
-	CAT_push_text_colour(CAT_WHITE);
+	CAT_set_text_colour(CAT_WHITE);
 	CAT_draw_textf(8, 26, "%.2i:%.2i:%.2is", datetime.hour, datetime.minute, datetime.second);
 
 	CAT_circberry(CLOCK_X, CLOCK_Y, CLOCK_RADIUS, CAT_WHITE);
