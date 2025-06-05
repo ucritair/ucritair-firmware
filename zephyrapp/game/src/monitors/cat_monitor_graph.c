@@ -304,9 +304,9 @@ static int graph_sample_y(int i)
 
 static void render_graph()
 {
-	CAT_push_text_colour(CAT_WHITE);
+	CAT_set_text_colour(CAT_WHITE);
 	CAT_draw_textf(12, GRAPH_Y-14, "%s", graph_get_title());
-	CAT_push_text_colour(CAT_WHITE);
+	CAT_set_text_colour(CAT_WHITE);
 	CAT_draw_textf(GRAPH_MAX_X - 8 * CAT_GLYPH_WIDTH, GRAPH_Y-14, "%d/%d/%d", graph_current_timestamp.tm_mon+1, graph_current_timestamp.tm_mday, graph_current_timestamp.tm_year);
 
 	CAT_fillberry(GRAPH_X, GRAPH_Y, GRAPH_WIDTH, GRAPH_HEIGHT, GRAPH_BG_COLOUR);
@@ -346,9 +346,9 @@ static void render_graph()
 		CAT_strokeberry(x, y, GRAPH_TAB_W, GRAPH_TAB_H, CAT_WHITE);
 	}
 
-	CAT_push_text_colour(CAT_WHITE);
+	CAT_set_text_colour(CAT_WHITE);
 	CAT_draw_textf(GRAPH_X, GRAPH_TABS_MAX_Y+3, "(%d, %d) at %dx", graph.center_x, graph.center_y, graph.pps);
-	CAT_push_text_colour(CAT_WHITE);
+	CAT_set_text_colour(CAT_WHITE);
 
 	if(graph_current_cell_idx != -1)
 	{	

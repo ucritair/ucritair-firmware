@@ -2,10 +2,11 @@
 
 #include "sprite_assets.h"
 
-const CAT_room_theme base_theme =
+const CAT_room_theme basic_theme =
 {
-	.name = "Basic Theme",
-	.wall_tiles = &base_wall_sprite,
+	.name = "Basic",
+	.wall_tiles = &wall_base_tile_sprite,
+	.tile_wall = true,
 	.wall_map = (uint8_t[])
 	{
 		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -15,7 +16,13 @@ const CAT_room_theme base_theme =
 		1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
 		2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
 	},
-	.floor_tiles = &base_floor_sprite,
+	.window_rect = (CAT_rect)
+	{
+		.min = {8, 8},
+		.max = {120, 72},
+	},
+	.floor_tiles = &floor_basic_tile_sprite,
+	.tile_floor = true,
 	.floor_map = (uint8_t[])
 	{
 		2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
@@ -37,8 +44,9 @@ const CAT_room_theme base_theme =
 
 const CAT_room_theme grass_theme =
 {
-	.name = "Grass Theme",
-	.wall_tiles = &sky_wall_sprite,
+	.name = "Grass",
+	.wall_tiles = &wall_sky_tile_sprite,
+	.tile_wall = true,
 	.wall_map = (uint8_t[])
 	{
 		6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,
@@ -48,7 +56,13 @@ const CAT_room_theme grass_theme =
 		2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
 		1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
 	},
-	.floor_tiles = &grass_floor_sprite,
+	.window_rect = (CAT_rect)
+	{
+		.min = {8, 8},
+		.max = {120, 72},
+	},
+	.floor_tiles = &floor_grass_tile_sprite,
+	.tile_floor = true,
 	.floor_map = (uint8_t[])
 	{
 		18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,
@@ -68,10 +82,11 @@ const CAT_room_theme grass_theme =
 	},
 };
 
-const CAT_room_theme ash_theme =
+const CAT_room_theme basic_ash_theme =
 {
-	.name = "Ashen Theme",
-	.wall_tiles = &base_wall_sprite,
+	.name = "Basic (Ash)",
+	.wall_tiles = &wall_base_tile_sprite,
+	.tile_wall = true,
 	.wall_map = (uint8_t[])
 	{
 		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -81,7 +96,13 @@ const CAT_room_theme ash_theme =
 		1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
 		2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
 	},
-	.floor_tiles = &ash_floor_sprite,
+	.window_rect = (CAT_rect)
+	{
+		.min = {8, 8},
+		.max = {120, 72},
+	},
+	.floor_tiles = &floor_ash_tile_sprite,
+	.tile_floor = true,
 	.floor_map = (uint8_t[])
 	{
 		2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
@@ -101,10 +122,11 @@ const CAT_room_theme ash_theme =
 	},
 };
 
-const CAT_room_theme base_wood_theme =
+const CAT_room_theme basic_wood_theme =
 {
 	.name = "Basic (Wood)",
-	.wall_tiles = &base_wall_sprite,
+	.wall_tiles = &wall_base_tile_sprite,
+	.tile_wall = true,
 	.wall_map = (uint8_t[])
 	{
 		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -114,7 +136,13 @@ const CAT_room_theme base_wood_theme =
 		1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
 		2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
 	},
-	.floor_tiles = &tile_floor_wood_sprite,
+	.window_rect = (CAT_rect)
+	{
+		.min = {8, 8},
+		.max = {120, 72},
+	},
+	.floor_tiles = &floor_wood_tile_sprite,
+	.tile_floor = true,
 	.floor_map = (uint8_t[])
 	{
 		5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,
@@ -134,11 +162,102 @@ const CAT_room_theme base_wood_theme =
 	},
 };
 
+const CAT_room_theme stone_theme =
+{
+	.name = "Stone",
+	.wall_tiles = &wall_stone_sprite,
+	.tile_wall = false,
+	.wall_map = (uint8_t[])
+	{0},
+	.window_rect = (CAT_rect)
+	{
+		.min = {16, 12},
+		.max = {128, 60},
+	},
+	.floor_tiles = &floor_stone_sprite,
+	.tile_floor = false,
+	.floor_map = (uint8_t[])
+	{0},
+};
+
+const CAT_room_theme iron_theme =
+{
+	.name = "Iron",
+	.wall_tiles = &wall_iron_sprite,
+	.tile_wall = false,
+	.wall_map = (uint8_t[])
+	{0},
+	.window_rect = (CAT_rect)
+	{
+		.min = {16, 0},
+		.max = {128, 64},
+	},
+	.floor_tiles = &floor_iron_sprite,
+	.tile_floor = false,
+	.floor_map = (uint8_t[])
+	{0},
+};
+
+const CAT_room_theme redwood_theme =
+{
+	.name = "Redwood",
+	.wall_tiles = &wall_redwood_sprite,
+	.tile_wall = false,
+	.wall_map = (uint8_t[])
+	{0},
+	.window_rect = (CAT_rect)
+	{
+		.min = {16, 10},
+		.max = {128, 58},
+	},
+	.floor_tiles = &floor_redwood_sprite,
+	.tile_floor = false,
+	.floor_map = (uint8_t[])
+	{0},
+};
+
+const CAT_room_theme roof_theme =
+{
+	.name = "Roof",
+	.wall_tiles = &wall_roof_sprite,
+	.tile_wall = false,
+	.wall_map = (uint8_t[])
+	{0},
+	.window_rect = (CAT_rect)
+	{
+		.min = {0, 0},
+		.max = {240, 96},
+	},
+	.floor_tiles = &floor_roof_tile_sprite,
+	.tile_floor = true,
+	.floor_map = (uint8_t[])
+	{
+		3,2,2,2,2,2,2,2,2,2,2,2,2,2,4,
+		2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+		2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+		2,4,2,2,2,2,2,2,2,2,2,5,2,2,2,
+		2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+		2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+		2,2,2,2,2,2,2,2,2,2,2,2,2,4,2,
+		2,2,2,2,2,2,2,2,2,2,2,2,2,6,2,
+		2,2,2,2,2,5,6,2,2,2,2,2,2,2,2,
+		2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+		2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+		2,2,2,2,2,2,2,2,2,2,3,2,2,2,2,
+		2,5,2,2,2,2,2,2,2,2,2,2,2,2,2,
+		2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+	},
+};
+
 
 const CAT_room_theme* themes_list[] =
 {
-	&base_theme,
+	&basic_theme,
 	&grass_theme,
-	&ash_theme,
-	&base_wood_theme,
+	&basic_ash_theme,
+	&basic_wood_theme,
+	&stone_theme,
+	&iron_theme,
+	&redwood_theme,
+	&roof_theme,
 };

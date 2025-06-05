@@ -56,10 +56,10 @@ static struct
 	}
 };
 
-static void render_background()
+static void render_statics()
 {
 	CAT_frameberry(RGB8882565(35, 157, 235));
-	CAT_push_draw_flags(CAT_DRAW_FLAG_BOTTOM);
+	CAT_set_draw_flags(CAT_DRAW_FLAG_BOTTOM);
 	CAT_draw_sprite(&monitor_clouds_sprite, 0, 0, 320);
 }
 
@@ -78,13 +78,13 @@ static void render_exit_notice()
 	const char* text = "[START] to exit";
 	int x = CAT_LCD_SCREEN_W - 6 - strlen(text) * CAT_GLYPH_WIDTH;
 	int y = CAT_LCD_SCREEN_H - 4 - CAT_GLYPH_HEIGHT;
-	CAT_push_text_colour(0x2455);
+	CAT_set_text_colour(0x2455);
 	CAT_draw_text(x, y, text);
 }
 
 static void render_monitor()
 {
-	render_background();
+	render_statics();
 	render_page_markers();
 	routines[page].render();
 	// render_exit_notice();

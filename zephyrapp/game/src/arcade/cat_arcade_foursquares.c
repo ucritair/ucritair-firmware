@@ -527,22 +527,22 @@ void render_game_over()
 	CAT_frameberry(CAT_BLACK);
 
 	int cursor_y = 12;
-	CAT_push_text_scale(2);
-	CAT_push_text_colour(CAT_WHITE);
+	CAT_set_text_scale(2);
+	CAT_set_text_colour(CAT_WHITE);
 	CAT_draw_text(12, cursor_y, "Game over...");
 	cursor_y += 52;
 
-	CAT_push_text_colour(CAT_WHITE);
+	CAT_set_text_colour(CAT_WHITE);
 	CAT_draw_text(12, cursor_y, "Today's score:");
 	cursor_y += 16;
-	CAT_push_text_scale(2);
-	CAT_push_text_colour(CAT_WHITE);
+	CAT_set_text_scale(2);
+	CAT_set_text_colour(CAT_WHITE);
 	CAT_draw_textf(12, cursor_y, "%d POINTS!", score);
 	cursor_y += 52;
 
-	CAT_push_text_colour(CAT_RED);
-	CAT_push_text_flags(CAT_TEXT_FLAG_WRAP);
-	CAT_push_text_line_width(CAT_LCD_SCREEN_W-24);
+	CAT_set_text_colour(CAT_RED);
+	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
+	CAT_set_text_line_width(CAT_LCD_SCREEN_W-24);
 	CAT_draw_text(12, cursor_y, "... for the rectilinear belongs only to Geometry and not to Nature and Life.");
 }
 
