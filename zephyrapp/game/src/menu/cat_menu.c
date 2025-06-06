@@ -16,6 +16,7 @@
 #include "theme_assets.h"
 #include "sound_assets.h"
 #include "cat_monitors.h"
+#include "cat_world.h"
 
 #ifdef CAT_EMBEDDED
 #include "menu_system.h"
@@ -114,6 +115,8 @@ void CAT_MS_menu(CAT_machine_signal signal)
 						}
 						if(CAT_gui_menu_item("COLOUR PICKER"))
 							CAT_machine_transition(CAT_MS_colour_picker);
+						if(CAT_gui_menu_item("WORLD"))
+							CAT_machine_transition(CAT_MS_world);
 						CAT_gui_end_menu();
 					}				
 				}

@@ -118,6 +118,8 @@ target_sources(app PRIVATE
 
 	src/monitors/cat_monitors.c
 
+	src/world/cat_world.c
+
 	src/gui/cat_gui.c
 	src/gui/cat_text.c
 
@@ -151,6 +153,7 @@ target_include_directories(app PRIVATE src/arcade)
 target_include_directories(app PRIVATE src/monitors)
 target_include_directories(app PRIVATE src/gui)
 target_include_directories(app PRIVATE src/cowtools)
+target_include_directories(app PRIVATE src/world)
 
 target_include_directories(app PRIVATE sounds/)
 target_include_directories(app PRIVATE meshes/)

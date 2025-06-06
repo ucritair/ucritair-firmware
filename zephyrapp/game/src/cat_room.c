@@ -637,7 +637,6 @@ void render_statics()
 {
 	CAT_datetime time;
 	CAT_get_datetime(&time);
-	float aqi_score = CAT_AQI_aggregate();
 
 	int window_y = room.theme->window_rect.min.y;
 	int window_x = room.theme->window_rect.min.x;
