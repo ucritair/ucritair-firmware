@@ -34,56 +34,56 @@ add_custom_command(
 	OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/../meshes/mesh_assets.h ${CMAKE_CURRENT_BINARY_DIR}/../meshes/mesh_assets.c
 	OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/../meshes/mesh2d_assets.h ${CMAKE_CURRENT_BINARY_DIR}/../meshes/mesh2d_assets.c
 	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../
-	COMMAND ${CMAKE_CURRENT_BINARY_DIR}/../utils/meshgen.py
-	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../utils/meshgen.py
+	COMMAND ${CMAKE_CURRENT_BINARY_DIR}/../utils/asset_gen/meshgen.py
+	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../utils/asset_gen/meshgen.py
 	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../meshes/meshes.json
 )
 
 add_custom_command(
 	OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/../sounds/sound_assets.h ${CMAKE_CURRENT_BINARY_DIR}/../sounds/sound_assets.c
 	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../
-	COMMAND ${CMAKE_CURRENT_BINARY_DIR}/../utils/soundgen.py
-	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../utils/soundgen.py
+	COMMAND ${CMAKE_CURRENT_BINARY_DIR}/../utils/asset_gen/soundgen.py
+	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../utils/asset_gen/soundgen.py
 	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../sounds/sounds.json
 )
 
 add_custom_command(
 	OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/../sprites/sprite_assets.h ${CMAKE_CURRENT_BINARY_DIR}/../sprites/sprite_assets.c
 	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../
-	COMMAND ${CMAKE_CURRENT_BINARY_DIR}/../utils/spritegen.py
-	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../utils/spritegen.py
+	COMMAND ${CMAKE_CURRENT_BINARY_DIR}/../utils/asset_gen/spritegen.py
+	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../utils/asset_gen/spritegen.py
 	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../sprites/sprites.json
 )
 
 add_custom_command(
 	OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/../data/item_assets.h ${CMAKE_CURRENT_BINARY_DIR}/../data/item_assets.c
 	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../
-	COMMAND ${CMAKE_CURRENT_BINARY_DIR}/../utils/itemgen.py
-	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../utils/itemgen.py
+	COMMAND ${CMAKE_CURRENT_BINARY_DIR}/../utils/asset_gen/itemgen.py
+	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../utils/asset_gen/itemgen.py
 	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../data/items.json
 )
 
 add_custom_command(
 	OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/../data/theme_assets.h ${CMAKE_CURRENT_BINARY_DIR}/../data/theme_assets.c
 	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../
-	COMMAND ${CMAKE_CURRENT_BINARY_DIR}/../utils/themegen.py
-	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../utils/themegen.py
+	COMMAND ${CMAKE_CURRENT_BINARY_DIR}/../utils/asset_gen/themegen.py
+	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../utils/asset_gen/themegen.py
 	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../data/themes.json
 )
 
 add_custom_command(
 	OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/../data/config.h ${CMAKE_CURRENT_BINARY_DIR}/../data/config.c
 	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../
-	COMMAND ${CMAKE_CURRENT_BINARY_DIR}/../utils/configgen.py
-	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../utils/configgen.py
+	COMMAND ${CMAKE_CURRENT_BINARY_DIR}/../utils/asset_gen/configgen.py
+	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../utils/asset_gen/configgen.py
 	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../data/config.json
 )
 
 add_custom_command(
 	OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/../data/fish_assets.h ${CMAKE_CURRENT_BINARY_DIR}/../data/fish_assets.c
 	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../
-	COMMAND ${CMAKE_CURRENT_BINARY_DIR}/../utils/fishgen.py
-	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../utils/fishgen.py
+	COMMAND ${CMAKE_CURRENT_BINARY_DIR}/../utils/asset_gen/fishgen.py
+	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../utils/asset_gen/fishgen.py
 	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../data/fish.json
 )
 
