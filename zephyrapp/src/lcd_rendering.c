@@ -201,6 +201,7 @@ void lcd_render_diag()
 		{
 			CAT_AQ_move_scores();
 			aq_moving_scores_last_time = current_moment;
+			CAT_printf("%d stored score, %d towards next\n", aq_score_count, current_moment - aq_score_last_time);
 		}
 		
 		time_since = current_moment - aq_score_last_time;

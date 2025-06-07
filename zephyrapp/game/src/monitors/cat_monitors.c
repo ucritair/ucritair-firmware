@@ -56,7 +56,7 @@ static struct
 	}
 };
 
-static void render_background()
+static void render_statics()
 {
 	CAT_frameberry(RGB8882565(35, 157, 235));
 }
@@ -73,7 +73,7 @@ static void render_page_markers()
 
 static void render_monitor()
 {
-	render_background();
+	render_statics();
 	render_page_markers();
 	routines[page].render();
 }

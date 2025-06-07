@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <math.h>
 #include "cat_curves.h"
+#include "sprite_assets.h"
 
 enum
 {
@@ -41,8 +42,8 @@ static int center_textf(int x, int y, int scale, uint16_t c, const char* fmt, ..
 	int text_height = CAT_GLYPH_HEIGHT * scale;
 	int center_y = y - text_height / 2;
 
-	CAT_push_text_scale(scale);
-	CAT_push_text_colour(c);
+	CAT_set_text_scale(scale);
+	CAT_set_text_colour(c);
 	CAT_draw_text(center_x, center_y, textf_buf);
 
 	return y + text_height;
@@ -55,7 +56,7 @@ static void vert_text(int x, int y, uint16_t c, const char* text)
 	
 	while(*g != '\0')
 	{
-		CAT_push_draw_colour(CAT_WHITE);
+		CAT_set_draw_colour(CAT_WHITE);
 		CAT_draw_sprite(&glyph_sprite, *g, x, y);
 		g++;
 		y += CAT_GLYPH_HEIGHT + 1;
@@ -111,12 +112,12 @@ const char* subscore_titles[SUBSCORE_COUNT] =
 
 static void draw_uninit_notif()
 {
-	CAT_push_text_colour(CAT_WHITE);
-	CAT_push_text_scale(2);
+	CAT_set_text_colour(CAT_WHITE);
+	CAT_set_text_scale(2);
 	CAT_draw_text(12, 30, "Please wait...");
-	CAT_push_text_colour(CAT_WHITE);
-	CAT_push_text_line_width(CAT_LCD_SCREEN_W-24);
-	CAT_push_text_flags(CAT_TEXT_FLAG_WRAP);
+	CAT_set_text_colour(CAT_WHITE);
+	CAT_set_text_line_width(CAT_LCD_SCREEN_W-24);
+	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
 	CAT_draw_text(12, 64, "Air quality sensors are coming online.");
 }
 
@@ -166,14 +167,14 @@ static int labeled_scoref(int x, int y, uint16_t c, int score_idx, const char* s
 	vsnprintf(textf_buf, 32, fmt, args);
 	va_end(args);
 
-	CAT_push_text_colour(c);
+	CAT_set_text_colour(c);
 	CAT_draw_text(x, y-CAT_GLYPH_HEIGHT, stuff);
 	x += strlen(stuff) * CAT_GLYPH_WIDTH + 8;
-	CAT_push_text_scale(2);
-	CAT_push_text_colour(c);
+	CAT_set_text_scale(2);
+	CAT_set_text_colour(c);
 	CAT_draw_text(x, y-CAT_GLYPH_HEIGHT*2, textf_buf);
 	x += strlen(textf_buf) * CAT_GLYPH_WIDTH*2 + 8;
-	CAT_push_text_colour(c);
+	CAT_set_text_colour(c);
 	CAT_draw_text(x, y-CAT_GLYPH_HEIGHT, unit);
 	x += strlen(unit) == 0 ? 4 : strlen(unit) * CAT_GLYPH_WIDTH + 12;
 
@@ -201,7 +202,7 @@ void CAT_monitor_render_details()
 	cursor_y += 172;
 
 	float pct_rebreathed = ((((double) readings.sunrise.ppm_filtered_compensated)-420.)/38000.)*100.;
-	CAT_push_text_colour(CAT_WHITE);
+	CAT_set_text_colour(CAT_WHITE);
 	CAT_draw_textf(12, cursor_y, "%.1f%% rebreathed air", pct_rebreathed);
 }
 
@@ -248,14 +249,14 @@ void CAT_monitor_render_sparklines()
 {
 	if(CAT_AQ_get_stored_scores_count() < 2)
 	{
-		CAT_push_text_colour(CAT_WHITE);
-		CAT_push_text_scale(2);
-		CAT_push_text_line_width(CAT_LCD_SCREEN_W-24);
-		CAT_push_text_flags(CAT_TEXT_FLAG_WRAP);
+		CAT_set_text_colour(CAT_WHITE);
+		CAT_set_text_scale(2);
+		CAT_set_text_line_width(CAT_LCD_SCREEN_W-24);
+		CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
 		int cursor_y = CAT_draw_text(12, 36, "Not enough stored samples!");
-		CAT_push_text_colour(CAT_WHITE);
-		CAT_push_text_line_width(CAT_LCD_SCREEN_W-24);
-		CAT_push_text_flags(CAT_TEXT_FLAG_WRAP);
+		CAT_set_text_colour(CAT_WHITE);
+		CAT_set_text_line_width(CAT_LCD_SCREEN_W-24);
+		CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
 		CAT_draw_text(12, cursor_y + 46, "At least 2 24-hour samples must be taken before the sparkline can be shown.");
 		return;
 	}
@@ -284,7 +285,7 @@ void CAT_monitor_render_sparklines()
 			}
 		}
 		
-		CAT_push_text_colour(CAT_WHITE);
+		CAT_set_text_colour(CAT_WHITE);
 		CAT_draw_text
 		(
 			SPARKLINE_LABEL_X, SPLN_I_Y(i),
