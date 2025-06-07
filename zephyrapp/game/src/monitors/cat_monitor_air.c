@@ -260,8 +260,6 @@ void CAT_monitor_render_sparklines()
 		return;
 	}
 
-	CAT_fillberry(0, SPARKLINE_Y, 240, 320-SPARKLINE_Y, RGB8882565(35, 157, 235));
-
 	for(int i = 0; i < SUBSCORE_COUNT+1; i++)
 	{
 		CAT_fillberry(SPARKLINE_X, SPLN_I_Y(i), SPARKLINE_WIDTH, SPARKLINE_HEIGHT, SPARKLINE_BG_COLOUR);
