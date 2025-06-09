@@ -599,7 +599,11 @@ void CAT_MS_room(CAT_machine_signal signal)
 		case CAT_MACHINE_SIGNAL_ENTER:
 		{
 			CAT_set_render_callback(CAT_render_room);
+
 			CAT_pet_settle();
+
+			CAT_gui_menu_reset();
+			CAT_gui_item_list_reset();
 			break;
 		}
 		case CAT_MACHINE_SIGNAL_TICK:
@@ -637,7 +641,6 @@ void render_statics()
 {
 	CAT_datetime time;
 	CAT_get_datetime(&time);
-	float aqi_score = CAT_AQI_aggregate();
 
 	int window_y = room.theme->window_rect.min.y;
 	int window_x = room.theme->window_rect.min.x;

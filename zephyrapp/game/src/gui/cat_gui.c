@@ -12,6 +12,7 @@
 #include "cat_bag.h"
 #include "sprite_assets.h"
 #include "cat_gui.h"
+#include "cat_structures.h"
 
 //////////////////////////////////////////////////////////////////////////
 // BASICS
@@ -29,22 +30,22 @@ CAT_gui gui =
 	.channel_height = 0
 };
 
-void CAT_gui_set_flag(CAT_gui_flag flag)
+void CAT_gui_set_flag(int flag)
 {
-	gui.flags |= (1 << flag);
+	gui.flags = CAT_set_flag(gui.flags, flag);
 }
 
-bool CAT_gui_consume_flag(CAT_gui_flag flag)
+bool CAT_gui_consume_flag(int flag)
 {
-	bool value = (gui.flags & (1 << flag)) > 0;
-	gui.flags &= ~(1 << flag);
+	bool value = CAT_get_flag(gui.flags, flag);
+	gui.flags = CAT_unset_flag(gui.flags, flag);
 	return value;
 }
 
-CAT_gui_flag CAT_gui_clear_flags()
+int CAT_gui_clear_flags()
 {
-	CAT_gui_flag value = gui.flags;
-	gui.flags = 0;
+	int value = gui.flags;
+	gui.flags = CAT_GUI_FLAG_NONE;
 	return value;
 }
 
@@ -689,6 +690,14 @@ void CAT_gui_end_menu()
 	pop_menu_node();
 }
 
+void CAT_gui_menu_reset()
+{
+	for(int i = 0; i < MENU_TABLE_SIZE; i++)
+		menu_table[i].selector = 0;
+	menu_stack_length = 0;
+	menu_root = -1;
+}
+
 void CAT_gui_menu_io()
 {
 	menu_node* head = get_global_head();
@@ -724,7 +733,10 @@ void CAT_gui_menu_io()
 	if(CAT_input_pressed(CAT_BUTTON_B))
 	{
 		if(head->parent == -1)
+		{
 			CAT_machine_back();
+			CAT_gui_menu_reset();
+		}
 		else
 			head->clicked = false;
 	}
@@ -883,7 +895,7 @@ void CAT_gui_item_list()
 		false,
 		&icon_enter_sprite, &icon_exit_sprite,
 		item_list_title
-	); 
+	);
 
 	if(show_coins)
 	{
@@ -940,7 +952,13 @@ void CAT_gui_item_list()
 	}
 
 	if(CAT_is_last_render_cycle())
-		item_list_open = false;	
+		item_list_open = false;
+}
+
+void CAT_gui_item_list_reset()
+{
+	item_list_selector = 0;
+	item_display_base = 0;
 }
 
 

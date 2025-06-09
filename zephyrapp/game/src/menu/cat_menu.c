@@ -236,8 +236,9 @@ void CAT_MS_menu(CAT_machine_signal signal)
 			}
 			break;
 		}
+
 		case CAT_MACHINE_SIGNAL_EXIT:
-			break;
+		break;
 	}
 }
 
