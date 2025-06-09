@@ -497,6 +497,12 @@ int CAT_read_log_cell_before_time(int base_idx, uint64_t time, CAT_log_cell* out
 	return 0;
 }
 
+int CAT_read_log_cell_after_time(int base_idx, uint64_t time, CAT_log_cell* out)
+{
+	CAT_read_log_cell_at_idx(-1, out);
+	return 0;
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // POWER

@@ -732,7 +732,7 @@
         {
             "id": 68,
             "name": "glyph_sprite",
-            "path": "ui/glyphs.png",
+            "path": "ui/glyphs_db.png",
             "frames": 127,
             "width": 8,
             "height": 12,
@@ -2696,6 +2696,16 @@
             "frames": 1,
             "width": 2,
             "height": 2,
+            "loop": false,
+            "reverse": false
+        },
+        {
+            "id": 265,
+            "name": "ui_skulls_sprite",
+            "path": "ui/monitors/skulls.png",
+            "frames": 1,
+            "width": 24,
+            "height": 24,
             "loop": false,
             "reverse": false
         }

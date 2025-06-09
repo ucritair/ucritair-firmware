@@ -22,6 +22,7 @@ from stat import *;
 import wave;
 import numpy as np;
 from collections import OrderedDict;
+import math;
 
 
 #########################################################
@@ -1383,6 +1384,17 @@ class Mesh2DEditor:
 				del self.polyline[i];
 				i -= 1;
 			i += 1;
+	
+	def snap(self, p):
+		p.x /= self.grid_dist;
+		p.y /= self.grid_dist;
+		p.x = round(p.x);
+		p.y = round(p.y);
+		p.x *= self.grid_dist;
+		p.y *= self.grid_dist;
+		p.x = min(max(p.x, 0), self.canvas.width-1);
+		p.y = min(max(p.y, 0), self.canvas.height-1);
+		return p;
 
 	def render():
 		if Mesh2DEditor._ == None:
@@ -1406,9 +1418,9 @@ class Mesh2DEditor:
 			canvas_pos = imgui.get_cursor_screen_pos();
 			mouse_pos = imgui_io.mouse_pos;
 			brush_pos = mouse_pos - canvas_pos;
-			brush_pos /= self.canvas_scale; 
-			vertex = imgui.ImVec2((brush_pos.x // self.grid_dist) * self.grid_dist, (brush_pos.y // self.grid_dist) * self.grid_dist);
+			brush_pos /= self.canvas_scale;
 			in_bounds = self.in_bounds(brush_pos);
+			vertex = self.snap(brush_pos);
 
 			if in_bounds:
 				if imgui.is_mouse_down(0) and not self.was_left_click:
@@ -1425,9 +1437,10 @@ class Mesh2DEditor:
 			
 			self.canvas.clear((0, 0, 0));
 			if self.show_grid:
-				for y in range(self.grid_dist, self.canvas.height, self.grid_dist):
-					for x in range(self.grid_dist, self.canvas.width, self.grid_dist):
+				for y in range(0, self.canvas.height, self.grid_dist):
+					for x in range(0, self.canvas.width, self.grid_dist):
 						self.canvas.draw_pixel(x, y, (128, 128, 128));
+				self.canvas.draw_rect(0, 0, self.canvas.width, self.canvas.height, (128, 128, 128));
 			
 			for [v0, v1] in self.polyline:
 				self.canvas.draw_line(v0.x, v0.y, v1.x, v1.y, (255, 255, 255));
@@ -1453,6 +1466,8 @@ class Mesh2DEditor:
 			imgui.same_line();
 			if imgui.button("Shunt"):
 				self.shunt();
+			imgui.same_line();
+			imgui.text(f"({vertex.x}, {vertex.y})");
 			
 			self.size = imgui.get_window_size();
 			imgui.end();

@@ -185,6 +185,26 @@ int flash_get_first_cell_before_time(int check, uint64_t t, CAT_log_cell* cell)
 	return 0;
 }
 
+int flash_get_first_cell_after_time(int check, uint64_t t, CAT_log_cell* cell)
+{
+	if (!did_post_flash) return 0;
+	if (check == -1) check = 0;
+
+	while (check < next_log_cell_nr)
+	{
+		flash_get_cell_by_nr(check, cell);
+
+		if (cell->timestamp >= t)
+		{
+			return check;
+		}
+
+		check++;
+	}
+
+	return 0;
+}
+
 float get_hours_of_logging_at_rate(int rate)
 {
 	int left = MAX_LOG_CELL_COUNT - next_log_cell_nr;

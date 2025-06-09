@@ -35,16 +35,12 @@ static const char* CAT_AQM_titles[] =
 	[CAT_AQM_AGGREGATE] = "\4CAQ"
 };
 
-static const char* CAT_AQM_units[] =
-{
-	[CAT_AQM_CO2] = "ppm",
-	[CAT_AQM_PM2_5] = "\4g/m\5",
-	[CAT_AQM_NOX] = "",
-	[CAT_AQM_VOC] = "",
-	//CAT_AQM_TEMP unit is variable
-	[CAT_AQM_RH] = "\%",
-	[CAT_AQM_AGGREGATE] = ""
-};
+const char* CAT_get_AQM_unit(int aqm);
 
 extern float CAT_AQ_normalized_scores[CAT_AQM_COUNT];
 void CAT_AQ_store_normalized_scores();
+
+typedef enum
+{
+	CAT_AQ_SKULL_XP_UP
+} CAT_AQ_skull;

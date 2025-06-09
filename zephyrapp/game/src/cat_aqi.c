@@ -210,6 +210,18 @@ float CAT_aq_aggregate_score()
     return ((5.0f - score) / 5.0f) * 100.0f;
 }
 
+const char* CAT_get_AQM_unit(int aqm)
+{
+	switch(aqm)
+	{
+		case CAT_AQM_CO2: return "ppm";
+		case CAT_AQM_PM2_5: return "\4g/m\5";
+		case CAT_AQM_TEMP: return CAT_AQ_get_temperature_unit_string();
+		case CAT_AQM_RH : return "\%";
+		default: return "";
+	}
+}
+
 float CAT_AQ_normalized_scores[CAT_AQM_COUNT];
 
 void CAT_AQ_store_normalized_scores()

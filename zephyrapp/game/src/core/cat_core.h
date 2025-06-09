@@ -122,6 +122,8 @@ typedef struct CAT_datetime
 
 void CAT_get_datetime(CAT_datetime* datetime);
 
+extern uint64_t CAT_frame_counter;
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // MEMORY
@@ -258,6 +260,7 @@ typedef enum
 
 void CAT_read_log_cell_at_idx(int idx, CAT_log_cell* out);
 int CAT_read_log_cell_before_time(int base_idx, uint64_t time, CAT_log_cell* out);
+int CAT_read_log_cell_after_time(int base_idx, uint64_t time, CAT_log_cell* out);
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

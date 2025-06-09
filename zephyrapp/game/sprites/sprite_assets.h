@@ -269,6 +269,7 @@ extern const CAT_sprite wall_stone_sprite;
 extern const CAT_sprite sky_gradient_sprite;
 extern const CAT_sprite window_sprite;
 extern const CAT_sprite squinkus;
+extern const CAT_sprite ui_skulls_sprite;
 
 extern const CAT_sprite* sprite_list[];
-#define CAT_SPRITE_LIST_LENGTH 265
+#define CAT_SPRITE_LIST_LENGTH 266

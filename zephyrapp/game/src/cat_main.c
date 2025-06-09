@@ -60,6 +60,8 @@ CAT_screen_orientation current_orientation;
 CAT_screen_orientation last_orientation;
 float time_since_reorient = 0.0f;
 
+uint64_t CAT_frame_counter = 0;
+
 void CAT_force_save()
 {
 	CAT_printf("Saving...\n");
@@ -306,6 +308,8 @@ void CAT_apply_sleep(int seconds)
 
 void CAT_init()
 {
+	CAT_frame_counter = 0;
+
 	CAT_platform_init();
 	CAT_input_init();
 	CAT_sound_power(true);
@@ -372,6 +376,8 @@ void CAT_tick_logic()
 
 		CAT_set_eink_update_flag(true);
 	}
+
+	CAT_frame_counter += 1;
 }
 
 void CAT_tick_render()
@@ -407,7 +413,7 @@ void CAT_tick_render()
 
 #ifdef CAT_DESKTOP
 
-void aq_spoof()
+void readings_spoof()
 {
 	readings.lps22hh.uptime_last_updated = 0;
 	readings.lps22hh.temp = 20;
@@ -428,9 +434,14 @@ void aq_spoof()
 	readings.sen5x.nox_index = 100;
 }
 
+void flash_spoof()
+{
+	
+}
+
 int main(int argc, char** argv)
 {
-	aq_spoof();
+	readings_spoof();
 
 	CAT_init();
 	

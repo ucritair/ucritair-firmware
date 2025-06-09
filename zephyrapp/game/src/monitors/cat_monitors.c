@@ -19,21 +19,31 @@ void CAT_monitor_MS_sparklines(CAT_machine_signal signal);
 void CAT_monitor_render_sparklines();
 #include "cat_monitor_sparklines.c"
 
-void CAT_monitor_MS_clock(CAT_machine_signal signal);
-void CAT_monitor_render_clock();
-#include "cat_monitor_clock.c"
+void CAT_monitor_MS_calendar(CAT_machine_signal signal);
+void CAT_monitor_render_calendar();
+#include "cat_monitor_calendar.c"
+
+void CAT_monitor_MS_graph(CAT_machine_signal signal);
+void CAT_monitor_render_graph();
+#include "cat_monitor_graph.c"
 
 void CAT_monitor_MS_gameplay(CAT_machine_signal signal);
 void CAT_monitor_render_gameplay();
 #include "cat_monitor_gameplay.c"
+
+void CAT_monitor_MS_clock(CAT_machine_signal signal);
+void CAT_monitor_render_clock();
+#include "cat_monitor_clock.c"
 
 enum
 {
 	SUMMARY,
 	DETAILS,
 	SPARKLINES,
-	CLOCK,
+	CALENDAR,
+	GRAPH,
 	GAMEPLAY,
+	CLOCK,
 	PAGE_COUNT
 };
 static int page = SUMMARY;
@@ -59,16 +69,26 @@ static struct
 		.state = CAT_monitor_MS_sparklines,
 		.render = CAT_monitor_render_sparklines
 	},
-	[CLOCK] =
+	[CALENDAR] =
 	{
-		.state = CAT_monitor_MS_clock,
-		.render = CAT_monitor_render_clock
+		.state = CAT_monitor_MS_calendar,
+		.render = CAT_monitor_render_calendar
+	},
+	[GRAPH] =
+	{
+		.state = CAT_monitor_MS_graph,
+		.render = CAT_monitor_render_graph
 	},
 	[GAMEPLAY] =
 	{
 		.state = CAT_monitor_MS_gameplay,
 		.render = CAT_monitor_render_gameplay
-	}
+	},
+	[CLOCK] =
+	{
+		.state = CAT_monitor_MS_clock,
+		.render = CAT_monitor_render_clock
+	},
 };
 
 static void draw_uninit_warning()

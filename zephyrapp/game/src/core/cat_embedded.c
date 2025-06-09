@@ -251,6 +251,11 @@ int CAT_read_log_cell_before_time(int base_idx, uint64_t time, CAT_log_cell* out
 	return flash_get_first_cell_before_time(base_idx, time, out);
 }
 
+int CAT_read_log_cell_after_time(int base_idx, uint64_t time, CAT_log_cell* out)
+{
+	return flash_get_first_cell_after_time(base_idx, time, out);
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // POWER

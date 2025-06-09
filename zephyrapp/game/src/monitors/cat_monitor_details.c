@@ -39,7 +39,7 @@ static int labeled_scoref(int x, int y, uint16_t c, int aqm, const char* fmt, ..
 	CAT_draw_text(x, y-CAT_GLYPH_HEIGHT*2, textf_buf);
 	x += strlen(textf_buf) * CAT_GLYPH_WIDTH*2 + 8;
 
-	const char* unit = aqm == CAT_AQM_TEMP ? CAT_AQ_get_temperature_unit_string() : CAT_AQM_units[aqm];
+	const char* unit = CAT_get_AQM_unit(aqm);
 	CAT_set_text_colour(c);
 	CAT_draw_text(x, y-CAT_GLYPH_HEIGHT, unit);
 	x += strlen(unit) == 0 ? 4 : strlen(unit) * CAT_GLYPH_WIDTH + 12;
