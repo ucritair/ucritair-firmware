@@ -24,7 +24,6 @@ extern volatile uint32_t aq_moving_scores_last_time;
 
 extern volatile CAT_AQ_score_block aq_score_buffer[7];
 extern volatile uint8_t aq_score_head;
-extern volatile uint8_t aq_score_count;
 extern volatile uint32_t aq_score_last_time;
 
 #include "cat_pet.h"

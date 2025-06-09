@@ -94,10 +94,9 @@ PERSIST_RAM uint32_t aq_moving_scores_last_time;
 
 PERSIST_RAM CAT_AQ_score_block aq_score_buffer[7];
 PERSIST_RAM uint8_t aq_score_head;
-PERSIST_RAM uint8_t aq_score_count;
 PERSIST_RAM uint32_t aq_score_last_time;
 
-#define RTC_INIT_CHECK_MAGIC 0xb8870008
+#define RTC_INIT_CHECK_MAGIC 0xb8870000
 
 bool is_first_init = false;
 
@@ -180,7 +179,6 @@ void check_rtc_init()
 		aq_moving_scores_last_time = 0;
 
 		aq_score_head = 0;
-		aq_score_count = 0;
 		aq_score_last_time = 0;
 	}
 }

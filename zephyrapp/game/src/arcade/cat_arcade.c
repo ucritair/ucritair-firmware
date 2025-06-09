@@ -128,7 +128,7 @@ void CAT_render_arcade()
 
 	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
 	
-	CAT_gui_textf("uCritAir Score %0.1f%%\n", CAT_AQI_aggregate());
+	CAT_gui_textf("uCritAir Score %0.1f%%\n", CAT_aq_aggregate_score());
 	CAT_gui_div("AIR QUALITY");
 	for(int i = 0; i < NUM_AQ_ENTRIES; i++)
 	{

@@ -195,42 +195,9 @@ float CAT_iaq_score(float temperature, float humidity, float co2, float pm25, fl
     return finalScore;
 }
 
-void CAT_AQI_quantize(int* temp_idx, int* co2_idx, int* pm_idx, int* voc_idx, int* nox_idx)
-{
-	float co2s = CAT_co2_score(readings.sunrise.ppm_filtered_compensated);
-	float pms = CAT_pm25_score(readings.sen5x.pm2_5);
-	float vocs = CAT_voc_score(readings.sen5x.voc_index);
-	float noxs = CAT_nox_score(readings.sen5x.nox_index);
-	*co2_idx = quantize(co2s, 5, 3);
-	*pm_idx = quantize(pms, 5, 3);
-	*voc_idx = quantize(vocs, 5, 3);
-	*nox_idx = quantize(noxs, 5, 3);
-
-    if (readings.sen5x.voc_index == 0)
-    {
-        *voc_idx = 1;
-    }
-
-    if (readings.sen5x.nox_index == 0)
-    {
-        *nox_idx = 1;
-    }
-
-	float ts = CAT_temperature_score(CAT_canonical_temp());
-	if(CAT_canonical_temp() < 20 && ts >= 3)
-    {
-		*temp_idx = 0;
-    }
-	else if(ts >= 3)
-    {
-		*temp_idx = 2;
-    }
-	*temp_idx = 1;
-}
-
 // This is a measure of goodness rather than badness,
 // a somewhat confusing choice given convention. Sorry!
-float CAT_AQI_aggregate()
+float CAT_aq_aggregate_score()
 {
     float temp = CAT_canonical_temp();
     float rh = readings.sen5x.humidity_rhpct;
@@ -241,4 +208,20 @@ float CAT_AQI_aggregate()
     float score = CAT_iaq_score(temp, rh, co2, pm, nox, voc);
 	// It's the (5.0f - score) that makes this goodness instead of badness
     return ((5.0f - score) / 5.0f) * 100.0f;
+}
+
+float CAT_AQ_normalized_scores[CAT_AQM_COUNT];
+
+void CAT_AQ_store_normalized_scores()
+{
+	CAT_AQ_normalized_scores[CAT_AQM_CO2] = CAT_co2_score(readings.sunrise.ppm_filtered_compensated);
+	CAT_AQ_normalized_scores[CAT_AQM_PM2_5] = CAT_pm25_score(readings.sen5x.pm2_5);
+	CAT_AQ_normalized_scores[CAT_AQM_VOC] = CAT_voc_score(readings.sen5x.voc_index);
+	CAT_AQ_normalized_scores[CAT_AQM_NOX] = CAT_nox_score(readings.sen5x.nox_index);
+	CAT_AQ_normalized_scores[CAT_AQM_TEMP] = CAT_temperature_score(CAT_canonical_temp());
+	CAT_AQ_normalized_scores[CAT_AQM_RH] = CAT_humidity_score(readings.sen5x.humidity_rhpct);
+	for(int i = 0; i < CAT_AQM_AGGREGATE; i++)
+		CAT_AQ_normalized_scores[i] = inv_lerp(CAT_AQ_normalized_scores[i], 5, 0);
+
+	CAT_AQ_normalized_scores[CAT_AQM_AGGREGATE] = CAT_aq_aggregate_score() / 100.0f;	
 }

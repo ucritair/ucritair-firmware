@@ -542,7 +542,7 @@ void render_game_over()
 
 	CAT_set_text_colour(CAT_RED);
 	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
-	CAT_set_text_line_width(CAT_LCD_SCREEN_W-24);
+	CAT_set_text_mask(12, -1, CAT_LCD_SCREEN_W-12, -1);
 	CAT_draw_text(12, cursor_y, "... for the rectilinear belongs only to Geometry and not to Nature and Life.");
 }
 

@@ -295,7 +295,7 @@ void CAT_AQ_move_scores()
 	float PM2_5 = CAT_pm25_score(readings.sen5x.pm2_5);
 	float temp = CAT_temperature_score(CAT_canonical_temp());
 	float rh = CAT_humidity_score(readings.sen5x.humidity_rhpct);
-	float aggregate = CAT_AQI_aggregate();
+	float aggregate = CAT_aq_aggregate_score();
 
 #define MOVE_AVERAGE(x) (aq_moving_scores.x = (aq_moving_scores.x + (x - aq_moving_scores.x) / (float) aq_moving_scores.sample_count))
 	MOVE_AVERAGE(CO2);
@@ -330,27 +330,14 @@ void CAT_AQ_store_moving_scores(CAT_AQ_score_block* block)
 	CAT_printf("[BUFFERING MOVING SCORES]\n");
 }
 
-int CAT_AQ_get_stored_scores_count()
-{
-	return aq_score_count;
-}
-
 void CAT_AQ_read_stored_scores(int idx, CAT_AQ_score_block* out)
 {
-	if(idx < 0 || idx >= aq_score_count)
+	if(idx < 0 || idx >= 7)
 		return;
-	if(aq_score_count >= 7)
-		idx = (aq_score_head + idx) % 7;
+	idx = (aq_score_head + idx) % 7;
 	memcpy(out, &aq_score_buffer[idx], sizeof(CAT_AQ_score_block));
 }
 
-
-void CAT_AQ_clear_stored_scores()
-{
-	aq_score_count = 0;
-	aq_score_head = 0;
-	return;
-}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // IMU

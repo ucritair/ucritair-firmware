@@ -7,6 +7,7 @@
 #include "cat_core.h"
 #include <time.h>
 #include <math.h>
+#include "sprite_assets.h"
 
 #define M_PI_6 0.52359877559
 

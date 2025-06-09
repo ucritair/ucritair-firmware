@@ -198,7 +198,7 @@ void CAT_pet_gain_xp(int xp)
 
 void CAT_pet_stat(int ticks)
 {
-	float goodness = CAT_AQI_aggregate();
+	float goodness = CAT_aq_aggregate_score();
 	int delta = goodness < 0.35f ? 2 : 1;
 
 	pet.vigour = clamp(pet.vigour - delta * ticks, 0, 12);

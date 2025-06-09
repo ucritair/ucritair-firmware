@@ -201,17 +201,24 @@ void lcd_render_diag()
 		{
 			CAT_AQ_move_scores();
 			aq_moving_scores_last_time = current_moment;
-			CAT_printf("%d stored score, %d towards next\n", aq_score_count, current_moment - aq_score_last_time);
 		}
 		
 		time_since = current_moment - aq_score_last_time;
 		if(time_since > 86400 && CAT_is_AQ_initialized())
 		{
+			if(aq_score_last_time == 0)
+			{
+				for(int i = 0; i < 6; i++)
+				{
+					volatile CAT_AQ_score_block* block = &aq_score_buffer[i];
+					CAT_AQ_store_moving_scores(block);
+					aq_score_head += 1;
+				}
+			}
+
 			volatile CAT_AQ_score_block* block = &aq_score_buffer[aq_score_head];
 			CAT_AQ_store_moving_scores(block);
 			aq_score_head = (aq_score_head+1) % 7;
-			if(aq_score_count < 7)
-				aq_score_count += 1;
 			aq_score_last_time = current_moment;
 		}
 
