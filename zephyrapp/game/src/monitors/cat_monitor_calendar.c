@@ -9,7 +9,7 @@
 #define SELECTOR_X 8
 #define SELECTOR_Y 148
 
-bool focused = false;
+static bool focused = false;
 
 enum
 {

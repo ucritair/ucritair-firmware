@@ -417,7 +417,7 @@ float CAT_get_delta_time_s()
 
 uint64_t CAT_get_rtc_now()
 {
-	return CAT_get_uptime_ms();
+	return time(NULL);
 }
 
 void CAT_get_datetime(CAT_datetime* datetime)
@@ -425,8 +425,8 @@ void CAT_get_datetime(CAT_datetime* datetime)
 	time_t t = time(NULL);
 	struct tm* lt = localtime(&t);
 	
-	datetime->year = lt->tm_year;
-	datetime->month = lt->tm_mon;
+	datetime->year = lt->tm_year+1900;
+	datetime->month = lt->tm_mon+1;
 	datetime->day = lt->tm_mday;
 	datetime->hour = lt->tm_hour;
 	datetime->minute = lt->tm_min;

@@ -5,6 +5,7 @@
 #include "cat_gui.h"
 #include <stdarg.h>
 #include "cat_aqi.h"
+#include "cat_monitor_graphics_utils.h"
 
 #define TEXT_Y 44
 

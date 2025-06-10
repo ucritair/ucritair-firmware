@@ -8,33 +8,6 @@
 #include "sprite_assets.h"
 #include "cat_monitor_graphics_utils.h"
 
-void CAT_monitor_MS_summary(CAT_machine_signal signal);
-void CAT_monitor_render_summary();
-#include "cat_monitor_summary.c"
-
-void CAT_monitor_render_details();
-#include "cat_monitor_details.c"
-
-void CAT_monitor_MS_sparklines(CAT_machine_signal signal);
-void CAT_monitor_render_sparklines();
-#include "cat_monitor_sparklines.c"
-
-void CAT_monitor_MS_calendar(CAT_machine_signal signal);
-void CAT_monitor_render_calendar();
-#include "cat_monitor_calendar.c"
-
-void CAT_monitor_MS_graph(CAT_machine_signal signal);
-void CAT_monitor_render_graph();
-#include "cat_monitor_graph.c"
-
-void CAT_monitor_MS_gameplay(CAT_machine_signal signal);
-void CAT_monitor_render_gameplay();
-#include "cat_monitor_gameplay.c"
-
-void CAT_monitor_MS_clock(CAT_machine_signal signal);
-void CAT_monitor_render_clock();
-#include "cat_monitor_clock.c"
-
 enum
 {
 	SUMMARY,

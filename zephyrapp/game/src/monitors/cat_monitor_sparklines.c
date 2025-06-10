@@ -83,11 +83,11 @@ void CAT_monitor_render_sparklines()
 	CAT_set_text_colour(CAT_WHITE);
 	CAT_set_text_mask(SPARKLINE_X, -1, SPARKLINE_MAX_X, -1);
 	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
-
+	
 	cursor_y = CAT_draw_textf
 	(
 		SPARKLINE_X, SPARKLINE_MAX_Y + 8,
-		"The last recorded score for this week is %d."
+		"The last recorded score for this week is %.1f."
 		" Scores this week have ranged from %.1f to %.1f,"
 		" with a mean of %.1f."
 		,

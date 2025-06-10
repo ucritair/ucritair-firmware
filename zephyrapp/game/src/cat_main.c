@@ -60,8 +60,6 @@ CAT_screen_orientation current_orientation;
 CAT_screen_orientation last_orientation;
 float time_since_reorient = 0.0f;
 
-uint64_t CAT_frame_counter = 0;
-
 void CAT_force_save()
 {
 	CAT_printf("Saving...\n");
@@ -308,8 +306,6 @@ void CAT_apply_sleep(int seconds)
 
 void CAT_init()
 {
-	CAT_frame_counter = 0;
-
 	CAT_platform_init();
 	CAT_input_init();
 	CAT_sound_power(true);
@@ -376,8 +372,6 @@ void CAT_tick_logic()
 
 		CAT_set_eink_update_flag(true);
 	}
-
-	CAT_frame_counter += 1;
 }
 
 void CAT_tick_render()
