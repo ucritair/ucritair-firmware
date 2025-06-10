@@ -599,7 +599,11 @@ void CAT_MS_room(CAT_machine_signal signal)
 		case CAT_MACHINE_SIGNAL_ENTER:
 		{
 			CAT_set_render_callback(CAT_render_room);
+
 			CAT_pet_settle();
+
+			CAT_gui_menu_reset();
+			CAT_gui_item_list_reset();
 			break;
 		}
 		case CAT_MACHINE_SIGNAL_TICK:

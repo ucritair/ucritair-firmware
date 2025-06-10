@@ -102,15 +102,15 @@ int CAT_ilist_find(CAT_int_list* list, int item)
 
 bool CAT_get_flag(int field, int flag)
 {
-	return field & (1 << flag);
+	return field & flag;
 }
 
 int CAT_set_flag(int field, int flag)
 {
-	return field | (1 << flag);
+	return field | flag;
 }
 
 int CAT_unset_flag(int field, int flag)
 {
-	return field & ~(1 << flag);
+	return field & ~flag;
 }

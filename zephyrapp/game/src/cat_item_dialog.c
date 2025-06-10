@@ -62,8 +62,9 @@ void CAT_MS_item_dialog(CAT_machine_signal signal)
 			}
 			break;
 		}
+
 		case CAT_MACHINE_SIGNAL_EXIT:
-			break;
+		break;
 	}
 }
 

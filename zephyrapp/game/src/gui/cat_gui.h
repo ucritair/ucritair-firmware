@@ -23,9 +23,9 @@ typedef enum CAT_gui_flag
 	CAT_GUI_FLAG_SHOW_COINS = 32,
 } CAT_gui_flag;
 
-void CAT_gui_set_flag(CAT_gui_flag flag);
-bool CAT_gui_consume_flag(CAT_gui_flag flag);
-CAT_gui_flag CAT_gui_clear_flags();
+void CAT_gui_set_flag(int flag);
+bool CAT_gui_consume_flag(int flag);
+int CAT_gui_clear_flags();
 
 typedef struct CAT_gui
 {
@@ -83,6 +83,7 @@ bool CAT_gui_menu_toggle(const char* title, bool toggle);
 bool CAT_gui_menu_ticker(const char* title, int* ticker, int min, int max);
 bool CAT_gui_menu_text(const char* fmt, ...);
 void CAT_gui_end_menu();
+void CAT_gui_menu_reset();
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -93,6 +94,7 @@ bool CAT_gui_item_list_is_open();
 bool CAT_gui_item_listing(int item_id, int count);
 void CAT_gui_item_greyout();
 void CAT_gui_item_highlight(float progress);
+void CAT_gui_item_list_reset();
 
 
 //////////////////////////////////////////////////////////////////////////

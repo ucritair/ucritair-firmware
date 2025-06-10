@@ -76,9 +76,7 @@ void CAT_MS_bag(CAT_machine_signal signal)
 		case CAT_MACHINE_SIGNAL_TICK:
 		{
 			if(CAT_input_pressed(CAT_BUTTON_B))
-					CAT_machine_back();
-			if(CAT_input_pressed(CAT_BUTTON_START))
-				CAT_machine_transition(CAT_MS_room);
+				CAT_machine_back();
 			
 			bool tab_changed = false;
 			if(CAT_input_pulse(CAT_BUTTON_LEFT))
@@ -127,13 +125,12 @@ void CAT_MS_bag(CAT_machine_signal signal)
 				base += (overshoot - 8);
 
 			if(CAT_input_pressed(CAT_BUTTON_A))
-			{
 				CAT_machine_transition(CAT_MS_inspector);
-			}
 			break;
 		}
+
 		case CAT_MACHINE_SIGNAL_EXIT:
-			break;
+		break;
 	}
 }
 
