@@ -22,7 +22,7 @@ enum
 {
 	SUMMARY,
 	DETAILS,
-	SPARKLINES,
+	/*SPARKLINES,*/
 	CLOCK,
 	PAGE_MAX
 };
@@ -44,11 +44,11 @@ static struct
 		.state = CAT_monitor_MS_air,
 		.render = CAT_monitor_render_details
 	},
-	[SPARKLINES] =
+	/*[SPARKLINES] =
 	{
 		.state = CAT_monitor_MS_air,
 		.render = CAT_monitor_render_sparklines
-	},
+	},*/
 	[CLOCK] =
 	{
 		.state = CAT_monitor_MS_clock,
