@@ -94,7 +94,7 @@
             "min_wisdom": 0.10000000149011612,
             "max_wisdom": 0.30000001192092896,
             "grade_constraint": 0,
-            "mesh": "horse_mackerel"
+            "mesh": "crucian_carp"
         },
         {
             "name": "sardine",
@@ -107,7 +107,7 @@
             "min_wisdom": 0.10000000149011612,
             "max_wisdom": 0.30000001192092896,
             "grade_constraint": 0,
-            "mesh": "horse_mackerel"
+            "mesh": "sardine"
         },
         {
             "name": "cod",
@@ -133,7 +133,7 @@
             "min_wisdom": 0.10000000149011612,
             "max_wisdom": 0.30000001192092896,
             "grade_constraint": 0,
-            "mesh": "horse_mackerel"
+            "mesh": "herring"
         },
         {
             "name": "tilapia",
@@ -146,7 +146,7 @@
             "min_wisdom": 0.10000000149011612,
             "max_wisdom": 0.30000001192092896,
             "grade_constraint": 0,
-            "mesh": "horse_mackerel"
+            "mesh": "tilapia"
         },
         {
             "name": "crawfish",
@@ -172,7 +172,7 @@
             "min_wisdom": 0.10000000149011612,
             "max_wisdom": 0.30000001192092896,
             "grade_constraint": 1,
-            "mesh": "horse_mackerel"
+            "mesh": "catfish"
         },
         {
             "name": "eel",
@@ -185,7 +185,7 @@
             "min_wisdom": 0.10000000149011612,
             "max_wisdom": 0.30000001192092896,
             "grade_constraint": 1,
-            "mesh": "horse_mackerel"
+            "mesh": "eel"
         },
         {
             "name": "salmon",
@@ -211,7 +211,7 @@
             "min_wisdom": 0.10000000149011612,
             "max_wisdom": 0.30000001192092896,
             "grade_constraint": 1,
-            "mesh": "horse_mackerel"
+            "mesh": "cod"
         },
         {
             "name": "ruby_trout",
@@ -237,7 +237,7 @@
             "min_wisdom": 0.10000000149011612,
             "max_wisdom": 0.30000001192092896,
             "grade_constraint": 2,
-            "mesh": "horse_mackerel"
+            "mesh": "herring"
         },
         {
             "name": "yellowtail",
@@ -250,7 +250,7 @@
             "min_wisdom": 0.10000000149011612,
             "max_wisdom": 0.30000001192092896,
             "grade_constraint": 2,
-            "mesh": "horse_mackerel"
+            "mesh": "herring"
         },
         {
             "name": "coelecanth",
@@ -263,7 +263,7 @@
             "min_wisdom": 0.10000000149011612,
             "max_wisdom": 0.30000001192092896,
             "grade_constraint": 2,
-            "mesh": "horse_mackerel"
+            "mesh": "cod"
         }
     ]
 }
