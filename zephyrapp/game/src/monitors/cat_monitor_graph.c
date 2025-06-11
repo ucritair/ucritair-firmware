@@ -21,7 +21,7 @@
 
 #define GRAPH_BG_COLOUR 0xe7bf
 #define GRAPH_FG_COLOUR 0x6b11
-#define GRAPH_RETICLE_COLOUR 0xadfa
+#define GRAPH_RETICLE_COLOUR CAT_RED //0xadfa
 
 static bool focused = false;
 
@@ -30,13 +30,14 @@ static struct
 	int16_t values[GRAPH_SAMPLE_COUNT];
 	int16_t value_min;
 	int16_t value_max;
+	uint16_t range;
 
 	int center_x;
 	int center_y;
-	int pps;
-} graph;
+	uint8_t pps;
 
-static bool graph_show_reticle = false;
+	int target;
+} graph;
 
 static struct tm today;
 static int graph_indices[GRAPH_SAMPLE_COUNT];
@@ -140,6 +141,10 @@ static char* graph_make_value_text(int16_t value)
 
 static void graph_update()
 {
+	graph.value_max = INT16_MIN;
+	graph.value_min = INT16_MAX;
+	graph.range = UINT16_MAX;
+
 	time_t now = (time_t) CAT_get_rtc_now();
 	gmtime_r(&now, &today);
 	today.tm_hour = 0;
@@ -162,82 +167,24 @@ static void graph_update()
 		}
 		else
 		{
-			graph.values[i] = i;
+			graph.values[i] = 16 * sin(4 * i / (float) GRAPH_WIDTH);
 			graph_indices[i] = -1;
 		}
 
-		CAT_printf("Value %d: %d (%d)\n", i, graph.values[i], memo);
-
-		graph.value_max = max(graph.value_max, graph.values[i]);
+		if(graph.values[i] > graph.value_max)
+		{
+			graph.value_max = graph.values[i];
+			graph.target = i;
+		}
 		graph.value_min = min(graph.value_min, graph.values[i]);
 
 		sample_time += GRAPH_SAMPLE_DIST;
 	}
 
-	CAT_printf("Min: %d Max: %d\n", graph.value_min, graph.value_max);
-}
-
-static void init_graph()
-{
-	memset(graph.values, 0, sizeof(graph.values));
-	graph.value_max = INT16_MIN;
-	graph.value_min = INT16_MAX;
-
-	graph.center_x = 0;
-	graph.center_y = 0;
 	graph.pps = 1;
-
-	for(int i = 0; i < GRAPH_SAMPLE_COUNT; i++)
-		graph_indices[i] = -1;
-	graph_current_cell_idx = -1;
-
-	graph_update();
-
-	graph.center_x = GRAPH_WIDTH / 2;
+	graph.center_x = GRAPH_WIDTH/2;
 	graph.center_y = (graph.value_min + graph.value_max) / 2;
-}
-
-static void graph_tick()
-{
-	if(CAT_input_released(CAT_BUTTON_START))
-		graph.pps += 1;
-	if(CAT_input_released(CAT_BUTTON_SELECT))
-		graph.pps -= 1;
-	graph.pps = clamp(graph.pps, 1, 16);
-
-	int dx = 0;
-	int dy = 0;
-	if(CAT_input_held(CAT_BUTTON_LEFT, 0))
-		dx -= 1;
-	if(CAT_input_held(CAT_BUTTON_RIGHT, 0))
-		dx += 1;
-	if(CAT_input_held(CAT_BUTTON_UP, 0))
-		dy += 1;
-	if(CAT_input_held(CAT_BUTTON_DOWN, 0))
-		dy -= 1;
-	graph.center_x += dx;
-	graph.center_y += dy;
-
-	int wdw_hw = (GRAPH_WIDTH/2) / graph.pps;
-	graph.center_x = clamp(graph.center_x, wdw_hw, GRAPH_WIDTH-wdw_hw);
-	graph.center_y = clamp(graph.center_y, graph.value_min, graph.value_max);
-
-	if(CAT_input_pressed(CAT_BUTTON_START) && CAT_input_pressed(CAT_BUTTON_SELECT))
-		graph_show_reticle = !graph_show_reticle;
-
-	if(CAT_input_touch_rect(GRAPH_X, GRAPH_Y, GRAPH_WIDTH, GRAPH_HEIGHT))
-		graph_view = (graph_view+1) % GRAPH_VIEW_MAX;
-
-	graph_current_cell_idx = -1;
-	/*if(graph.center_x >= 0 && graph.center_x < GRAPH_SAMPLE_COUNT)
-	{
-		graph_current_cell_idx = graph_indices[graph.center_x];
-		if(graph_current_cell_idx != -1)
-		{
-			CAT_read_log_cell_at_idx(graph_current_cell_idx, &graph_current_cell);
-			gmtime_r(&graph_current_cell.timestamp, &graph_current_timestamp);
-		}
-	}*/
+	graph.range = graph.value_max - graph.value_min;
 }
 
 static int graph_transform_x(int x)
@@ -251,14 +198,17 @@ static int graph_transform_x(int x)
 
 static int graph_transform_y(int y)
 {
-	y -= graph.center_y;
-	int range = graph.value_max-graph.value_min;
-	y = inv_lerp(y, 0, range) * GRAPH_HEIGHT;
-	y *= graph.pps;
+	float yf = y;
+	yf -= graph.center_y;
+	float range = graph.value_max-graph.value_min;
+	float margin = range * 0.25f;
+	range += margin * 2;
+	yf = inv_lerp(yf, 0, range) * GRAPH_HEIGHT;
+	yf *= graph.pps;
 	
-	y += GRAPH_HEIGHT / 2;
-	y = GRAPH_MAX_Y - y;
-	return y;
+	yf += GRAPH_HEIGHT / 2;
+	yf = GRAPH_MAX_Y - yf;
+	return yf;
 }
 
 void CAT_monitor_render_graph()
@@ -279,29 +229,21 @@ void CAT_monitor_render_graph()
 		if(CAT_CSCLIP(&x0, &y0, &x1, &y1))
 			CAT_lineberry(x0, y0, x1, y1, GRAPH_FG_COLOUR);
 	}
+	CAT_circberry(graph_transform_x(graph.target), graph_transform_y(graph.values[graph.target]), 2, CAT_RED);
 
-	if(graph_show_reticle)
-	{
-		int c_x = GRAPH_X + GRAPH_WIDTH / 2;
-		int c_y = GRAPH_Y + GRAPH_HEIGHT / 2;
-		CAT_strokeberry(c_x-graph.pps, c_y-graph.pps, graph.pps*2+1, graph.pps*2+1, GRAPH_RETICLE_COLOUR);
-		CAT_lineberry(GRAPH_X+1, c_y, c_x-graph.pps+1, c_y, GRAPH_RETICLE_COLOUR);
-		CAT_lineberry(c_x+graph.pps, c_y, GRAPH_MAX_X, c_y, GRAPH_RETICLE_COLOUR);
-		CAT_lineberry(c_x, GRAPH_Y+1, c_x, c_y-graph.pps, GRAPH_RETICLE_COLOUR);
-		CAT_lineberry(c_x, c_y+graph.pps, c_x, GRAPH_MAX_Y, GRAPH_RETICLE_COLOUR);
-	}
 	CAT_strokeberry(GRAPH_X, GRAPH_Y, GRAPH_WIDTH, GRAPH_HEIGHT, CAT_WHITE);
-
 	CAT_set_text_colour(CAT_WHITE);
 	CAT_draw_textf(GRAPH_X, GRAPH_MAX_Y+3, "(%d, %d) at %dx", graph.center_x, graph.center_y, graph.pps);
 
 	if(graph_current_cell_idx != -1)
 	{	
-		int16_t current_value = graph_make_value(&graph_current_cell);
+		/*int16_t current_value = graph_make_value(&graph_current_cell);
 		CAT_set_text_colour(CAT_WHITE);
 		CAT_draw_text(GRAPH_X, GRAPH_MAX_Y+17, graph_make_value_text(current_value));
 		CAT_set_text_colour(CAT_WHITE);
-		CAT_draw_textf(GRAPH_X, GRAPH_MAX_Y+17+17, "%d:%d", graph_current_timestamp.tm_hour, graph_current_timestamp.tm_min);
+		CAT_draw_textf(GRAPH_X, GRAPH_MAX_Y+17+17, "%d:%d", graph_current_timestamp.tm_hour, graph_current_timestamp.tm_min);*/
+		CAT_set_text_colour(CAT_WHITE);
+		CAT_draw_textf(GRAPH_X, GRAPH_MAX_Y+17, "%d", graph_current_cell_idx);
 	}
 	else
 	{
@@ -316,17 +258,59 @@ void CAT_monitor_MS_graph(CAT_machine_signal signal)
 	{
 		case CAT_MACHINE_SIGNAL_ENTER:
 			focused = false;
-			init_graph();	
+
+			graph_update();
 		break;
 
 		case CAT_MACHINE_SIGNAL_TICK:
 			if(focused)
 			{
-				if(CAT_input_pressed(CAT_BUTTON_B))
+				if(CAT_input_pressed(CAT_BUTTON_START))
 					focused = false;
+
+				if(CAT_input_touch_rect(GRAPH_X, GRAPH_Y, GRAPH_WIDTH, GRAPH_HEIGHT))
+				{
+					graph_view = (graph_view+1) % GRAPH_VIEW_MAX;
+					graph_update();
+				}
+
 				if(CAT_input_pressed(CAT_BUTTON_A))
-					CAT_printf("%d %d\n", graph_transform_x(graph.center_x), graph_transform_y(graph.center_y));
-				graph_tick();
+					graph.pps += 1;
+				if(CAT_input_pressed(CAT_BUTTON_B))
+					graph.pps -= 1;
+				graph.pps = clamp(graph.pps, 1, 16);
+
+				float dx = 0;
+				float dy = 0;
+				if(CAT_input_held(CAT_BUTTON_LEFT, 0))
+					dx -= 1;
+				if(CAT_input_held(CAT_BUTTON_LEFT, 1))
+					dx -= 3;
+				if(CAT_input_held(CAT_BUTTON_RIGHT, 0))
+					dx += 1;
+				if(CAT_input_held(CAT_BUTTON_RIGHT, 1))
+					dx += 3;
+				graph.target += dx;
+				graph.target = clamp(graph.target, 0, GRAPH_WIDTH-1);
+				
+				int wdw_hw = (GRAPH_WIDTH/2) / graph.pps;
+				graph.center_x = clamp(graph.target, wdw_hw, GRAPH_WIDTH-wdw_hw);
+
+				if(graph.pps > 1)
+					graph.center_y = graph.values[graph.target];
+				else
+					graph.center_y = (graph.value_min + graph.value_max) / 2;
+
+				graph_current_cell_idx = -1;
+				if(graph.target >= 0 && graph.target < GRAPH_SAMPLE_COUNT)
+				{
+					graph_current_cell_idx = graph_indices[graph.target];
+					if(graph_current_cell_idx != -1)
+					{
+						/*CAT_read_log_cell_at_idx(graph_current_cell_idx, &graph_current_cell);
+						gmtime_r(&graph_current_cell.timestamp, &graph_current_timestamp);*/
+					}
+				}
 			}
 			else
 			{
