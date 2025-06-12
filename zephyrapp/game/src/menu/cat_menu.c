@@ -179,12 +179,10 @@ void CAT_MS_menu(CAT_machine_signal signal)
 						if(CAT_gui_menu_toggle("GAME FIRST", !CAT_check_save_flags(CAT_SAVE_FLAG_AQ_FIRST)))
 						{
 							CAT_unset_save_flags(CAT_SAVE_FLAG_AQ_FIRST);
-							CAT_force_save();
 						}
 						if(CAT_gui_menu_toggle("DASHBOARD FIRST", CAT_check_save_flags(CAT_SAVE_FLAG_AQ_FIRST)))
 						{
 							CAT_set_save_flags(CAT_SAVE_FLAG_AQ_FIRST);
-							CAT_force_save();
 						}
 						CAT_gui_end_menu();
 					}
@@ -199,7 +197,6 @@ void CAT_MS_menu(CAT_machine_signal signal)
 						if(CAT_gui_menu_item("RESET SAVE FLAGS"))
 						{
 							CAT_import_save_flags(CAT_SAVE_FLAG_NONE);
-							CAT_force_save();
 						}
 							
 						static bool confirm_reset = false;

@@ -128,32 +128,33 @@ const char* CAT_AQ_get_temperature_unit_string()
 
 int CAT_export_save_flags()
 {
-	return CAT_start_load()->save_flags;
+	return CAT_start_save()->save_flags;
 }
 
 void CAT_import_save_flags(int flags)
 {
-	CAT_start_load()->save_flags = flags;
+	CAT_start_save()->save_flags = flags;
 }
 
 void CAT_set_save_flags(int flags)
 {
-	CAT_start_load()->save_flags =
-	CAT_set_flag(CAT_start_load()->save_flags, flags);
+	CAT_start_save()->save_flags =
+	CAT_set_flag(CAT_start_save()->save_flags, flags);
 }
+
 void CAT_unset_save_flags(int flags)
 {
-	CAT_start_load()->save_flags =
-	CAT_unset_flag(CAT_start_load()->save_flags, flags);
+	CAT_start_save()->save_flags =
+	CAT_unset_flag(CAT_start_save()->save_flags, flags);
 }
 
 bool CAT_check_save_flags(int flags)
 {
 	return
-	CAT_get_flag(CAT_start_load()->save_flags, flags);
+	CAT_get_flag(CAT_start_save()->save_flags, flags);
 }
 
-static int load_flags = 0;
+static int load_flags = CAT_LOAD_FLAG_NONE;
 
 void CAT_set_load_flags(int flags)
 {
