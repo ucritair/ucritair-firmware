@@ -6,7 +6,7 @@
 #include "cat_pet.h"
 #include "cat_render.h"
 #include "cat_gui.h"
-#include "cat_bag.h"
+#include "cat_inventory.h"
 #include <math.h>
 #include "cat_menu.h"
 #include "caring/cat_actions.h"
@@ -420,7 +420,7 @@ void CAT_room_remove_prop(int idx)
 	CAT_toggle_block(prop_rect, false);
 
 	if(room.prop_children[idx] != -1)
-		CAT_item_list_add(&bag, room.prop_children[idx], 1);
+		CAT_bag_add(room.prop_children[idx], 1);
 
 	room.prop_count -= 1;
 	for(int i = idx; i < room.prop_count; i++)

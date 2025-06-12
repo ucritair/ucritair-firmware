@@ -22,7 +22,7 @@
 #include "cat_pet.h"
 #include "caring/cat_actions.h"
 #include "cat_menu.h"
-#include "cat_bag.h"
+#include "cat_inventory.h"
 #include "cat_arcade.h"
 #include "cat_vending.h"
 #include "cat_deco.h"
@@ -85,12 +85,12 @@ void CAT_force_save()
 	}
 	save->prop_count = room.prop_count;
 
-	for(int i = 0; i < bag.length; i++)
+	for(int i = 0; i < item_table.length; i++)
 	{
-		save->bag_ids[i] = bag.item_ids[i];
-		save->bag_counts[i] = bag.counts[i];
+		save->bag_ids[i] = i;
+		save->bag_counts[i] = item_table.counts[i];
 	}
-	save->bag_length = bag.length;
+
 	save->coins = coins;
 	for(int i = 0; i < room.pickup_count; i++)
 	{
@@ -147,9 +147,9 @@ void CAT_load_reset()
 	pet.focus = 12;
 	pet.spirit = 12;
 
-	CAT_item_list_init(&bag);
-	CAT_item_list_add(&bag, prop_eth_farm_item, 1);
-	CAT_item_list_add(&bag, toy_laser_pointer_item, 1);
+	CAT_bag_clear();
+	CAT_bag_add(prop_eth_farm_item, 1);
+	CAT_bag_add(toy_laser_pointer_item, 1);
 	coins = 10;
 
 	CAT_room_init();
@@ -166,14 +166,14 @@ void CAT_load_override()
 	pet.focus = 9;
 	pet.spirit = 9;
 
-	CAT_item_list_init(&bag);
-	CAT_item_list_add(&bag, book_1_item, 1);
-	CAT_item_list_add(&bag, food_bread_item, 2);
-	CAT_item_list_add(&bag, food_milk_item, 2);
-	CAT_item_list_add(&bag, food_coffee_item, 1);
-	CAT_item_list_add(&bag, prop_succulent_item, 1);
-	CAT_item_list_add(&bag, toy_baseball_item, 1);
-	CAT_item_list_add(&bag, toy_laser_pointer_item, 1);
+	CAT_bag_clear();
+	CAT_bag_add(book_1_item, 1);
+	CAT_bag_add(food_bread_item, 2);
+	CAT_bag_add(food_milk_item, 2);
+	CAT_bag_add(food_coffee_item, 1);
+	CAT_bag_add(prop_succulent_item, 1);
+	CAT_bag_add(toy_baseball_item, 1);
+	CAT_bag_add(toy_laser_pointer_item, 1);
 	coins = 100;
 
 	CAT_room_init();
@@ -233,13 +233,13 @@ void CAT_force_load()
 		}
 		else
 		{
-			CAT_item_list_add(&bag, save->prop_ids[i], 1);
+			CAT_bag_add(save->prop_ids[i], 1);
 		}
 	}
 
-	for(int i = 0; i < save->bag_length; i++)
+	for(int i = 0; i < item_table.length; i++)
 	{	
-		CAT_item_list_add(&bag, save->bag_ids[i], save->bag_counts[i]);
+		CAT_bag_add(save->bag_ids[i], save->bag_counts[i]);
 	}
 	coins = save->coins;
 

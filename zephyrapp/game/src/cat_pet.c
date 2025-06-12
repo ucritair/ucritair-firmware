@@ -9,7 +9,7 @@
 #include "cat_room.h"
 #include "cat_input.h"
 #include "cat_gui.h"
-#include "cat_bag.h"
+#include "cat_inventory.h"
 #include <string.h>
 #include "config.h"
 #include "cat_aqi.h"
@@ -205,7 +205,7 @@ void CAT_pet_stat(int ticks)
 	pet.focus = clamp(pet.focus - delta * ticks, 0, 12);
 	pet.spirit = clamp(pet.spirit - delta * ticks, 0, 12);
 
-	bool mask = CAT_item_list_find(&bag, mask_item) != -1;
+	bool mask = item_table.counts[mask_item] > 0;
 	bool pure = CAT_room_find(prop_purifier_item) != -1;
 	bool uv = CAT_room_find(prop_uv_lamp_item) != -1;
 
@@ -234,7 +234,7 @@ static CAT_vec2 destination = {120, 200};
 
 void milk_proc()
 {
-	CAT_item_list_add(&bag, food_milk_item, 1);
+	CAT_bag_add(food_milk_item, 1);
 }
 
 void CAT_pet_tick()
