@@ -90,6 +90,7 @@ void CAT_force_save()
 		save->bag_ids[i] = i;
 		save->bag_counts[i] = item_table.counts[i];
 	}
+	save->bag_length = item_table.length;
 
 	save->coins = coins;
 	for(int i = 0; i < room.pickup_count; i++)
@@ -233,11 +234,13 @@ void CAT_force_load()
 		}
 		else
 		{
+			if(save->prop_children[i] != -1)
+				CAT_bag_add(save->prop_children[i], 1);
 			CAT_bag_add(save->prop_ids[i], 1);
 		}
 	}
 
-	for(int i = 0; i < item_table.length; i++)
+	for(int i = 0; i < save->bag_length; i++)
 	{	
 		CAT_bag_add(save->bag_ids[i], save->bag_counts[i]);
 	}
