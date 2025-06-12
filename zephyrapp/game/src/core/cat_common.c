@@ -137,19 +137,19 @@ void CAT_import_save_flags(int flags)
 	save_flags = flags;
 }
 
-void CAT_set_save_flag(CAT_save_flag flag)
+void CAT_set_save_flag(int flag)
 {
-	save_flags |= (1 << flag);
+	save_flags |= flag;
 }
 
-void CAT_clear_save_flag(CAT_save_flag flag)
+void CAT_clear_save_flag(int flag)
 {
-	save_flags &= ~(1 << flag);
+	save_flags &= ~flag;
 }
 
-bool CAT_check_save_flag(CAT_save_flag flag)
+bool CAT_check_save_flag(int flag)
 {
-	return save_flags & (1 << flag);
+	return save_flags & flag;
 }
 
 void CAT_clear_save_flags()
@@ -159,19 +159,19 @@ void CAT_clear_save_flags()
 
 static int load_flags = 0;
 
-void CAT_set_load_flag(CAT_load_flag flag)
+void CAT_set_load_flag(int flag)
 {
-	load_flags |= (1 << flag);
+	load_flags |= flag;
 }
 
-void CAT_clear_load_flag(CAT_load_flag flag)
+void CAT_clear_load_flag(int flag)
 {
-	load_flags &= ~(1 << flag);
+	load_flags &= ~flag;
 }
 
-bool CAT_check_load_flag(CAT_load_flag flag)
+bool CAT_check_load_flag(int flag)
 {
-	return load_flags & (1 << flag);
+	return load_flags & flag;
 }
 
 
