@@ -234,8 +234,15 @@ CAT_save_error CAT_verify_save_structure(CAT_save* save)
 
 		if(next->label != current->label + 1)
 		{
-			if(next->label < CAT_SAVE_SECTOR_FOOTER && next->size == 0)
+			if
+			(
+				current->label >= CAT_SAVE_SECTOR_CONFIG &&
+				current->label < CAT_SAVE_SECTOR_FOOTER &&
+				next->label < CAT_SAVE_SECTOR_FOOTER && next->size == 0
+			)
+			{
 				return CAT_SAVE_ERROR_SECTOR_MISSING;
+			}
 			return CAT_SAVE_ERROR_SECTOR_CORRUPT;
 		}
 		
@@ -251,6 +258,9 @@ void CAT_migrate_legacy_save(void* save_location)
 	memcpy(&legacy, save_location, sizeof(CAT_save_legacy));
 	CAT_save* new = (CAT_save*) save_location;
 	CAT_initialize_save(new);
+
+	CAT_printf("[INFO] Migrating legacy save to new format\n");
+	CAT_printf("[INFO] Save was %d bytes, now %d bytes\n", sizeof(CAT_save_legacy), sizeof(CAT_save));
 
 	strcpy(new->pet.name, legacy.name);
 	new->pet.level = legacy.level;
