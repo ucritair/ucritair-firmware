@@ -92,7 +92,7 @@ void CAT_MS_deco(CAT_machine_signal signal)
 		}
 		case CAT_MACHINE_SIGNAL_TICK:
 		{
-			if(CAT_input_pressed(CAT_BUTTON_B) || CAT_input_pressed(CAT_BUTTON_START))
+			if(CAT_input_pressed(CAT_BUTTON_B))
 				CAT_machine_back();
 			
 			if(CAT_input_pressed(CAT_BUTTON_SELECT))

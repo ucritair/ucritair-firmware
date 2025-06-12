@@ -143,12 +143,13 @@ void CAT_load_reset()
 	saved_version_patch = CAT_VERSION_PATCH;
 	saved_version_push = CAT_VERSION_PUSH;
 
-	pet.vigour = 9;
-	pet.focus = 9;
-	pet.spirit = 9;
+	pet.vigour = 12;
+	pet.focus = 12;
+	pet.spirit = 12;
 
 	CAT_item_list_init(&bag);
 	CAT_item_list_add(&bag, prop_eth_farm_item, 1);
+	CAT_item_list_add(&bag, toy_laser_pointer_item, 1);
 	coins = 10;
 
 	CAT_room_init();

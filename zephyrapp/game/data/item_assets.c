@@ -8,102 +8,6 @@ CAT_item_table item_table =
 	.data =
 	{
 		{
-			.type = CAT_ITEM_TYPE_TOOL,
-			.name = "The Disposessed",
-			.sprite = &book_study_sprite,
-			.price = 20,
-			.text = "",
-			.icon = &icon_item_book_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_BOOK,
-				.cursor = &book_static_sprite,
-				.dv = 0,
-				.df = 3,
-				.ds = 0,
-			}
-		},
-		{
-			.type = CAT_ITEM_TYPE_TOOL,
-			.name = "We Are Legion",
-			.sprite = &book_study_sprite,
-			.price = 20,
-			.text = "",
-			.icon = &icon_item_book_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_BOOK,
-				.cursor = &book_static_sprite,
-				.dv = 0,
-				.df = 3,
-				.ds = 0,
-			}
-		},
-		{
-			.type = CAT_ITEM_TYPE_TOOL,
-			.name = "The Forever War",
-			.sprite = &book_study_sprite,
-			.price = 20,
-			.text = "",
-			.icon = &icon_item_book_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_BOOK,
-				.cursor = &book_static_sprite,
-				.dv = 0,
-				.df = 3,
-				.ds = 0,
-			}
-		},
-		{
-			.type = CAT_ITEM_TYPE_TOOL,
-			.name = "Ringworld",
-			.sprite = &book_study_sprite,
-			.price = 20,
-			.text = "",
-			.icon = &icon_item_book_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_BOOK,
-				.cursor = &book_static_sprite,
-				.dv = 0,
-				.df = 3,
-				.ds = 0,
-			}
-		},
-		{
-			.type = CAT_ITEM_TYPE_TOOL,
-			.name = "The Machine Stops",
-			.sprite = &book_study_sprite,
-			.price = 20,
-			.text = "",
-			.icon = &icon_item_book_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_BOOK,
-				.cursor = &book_static_sprite,
-				.dv = 0,
-				.df = 3,
-				.ds = 0,
-			}
-		},
-		{
-			.type = CAT_ITEM_TYPE_TOOL,
-			.name = "Metal Fever",
-			.sprite = &book_study_sprite,
-			.price = 20,
-			.text = "",
-			.icon = &icon_item_book_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_BOOK,
-				.cursor = &book_static_sprite,
-				.dv = 0,
-				.df = 3,
-				.ds = 0,
-			}
-		},
-		{
 			.type = CAT_ITEM_TYPE_KEY,
 			.name = "1-Star Fish",
 			.sprite = &salmon_sprite,
@@ -129,686 +33,21 @@ CAT_item_table item_table =
 		},
 		{
 			.type = CAT_ITEM_TYPE_TOOL,
-			.name = "Bagel",
-			.sprite = &bagel_sprite,
-			.price = 5,
-			.text = "",
-			.icon = &icon_item_food_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_FOOD,
-				.cursor = &bagel_sprite,
-				.dv = 0,
-				.df = 0,
-				.ds = 0,
-
-				.food_group = CAT_FOOD_GROUP_STARCH,
-				.food_role = CAT_FOOD_ROLE_STAPLE,
-			}
-		},
-		{
-			.type = CAT_ITEM_TYPE_TOOL,
-			.name = "Bananas",
-			.sprite = &banana_sprite,
-			.price = 2,
-			.text = "",
-			.icon = &icon_item_food_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_FOOD,
-				.cursor = &banana_sprite,
-				.dv = 0,
-				.df = 0,
-				.ds = 0,
-
-				.food_group = CAT_FOOD_GROUP_VEG,
-				.food_role = CAT_FOOD_ROLE_SIDE,
-			}
-		},
-		{
-			.type = CAT_ITEM_TYPE_TOOL,
-			.name = "Barley Tea",
-			.sprite = &barley_tea_sprite,
-			.price = 3,
-			.text = "",
-			.icon = &icon_item_food_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_FOOD,
-				.cursor = &barley_tea_sprite,
-				.dv = 0,
-				.df = 0,
-				.ds = 0,
-
-				.food_group = CAT_FOOD_GROUP_MISC,
-				.food_role = CAT_FOOD_ROLE_DRINK,
-			}
-		},
-		{
-			.type = CAT_ITEM_TYPE_TOOL,
-			.name = "Beef Noodles",
-			.sprite = &beef_noodle_sprite,
-			.price = 10,
-			.text = "",
-			.icon = &icon_item_food_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_FOOD,
-				.cursor = &beef_noodle_sprite,
-				.dv = 0,
-				.df = 0,
-				.ds = 0,
-
-				.food_group = CAT_FOOD_GROUP_MEAT,
-				.food_role = CAT_FOOD_ROLE_MAIN,
-			}
-		},
-		{
-			.type = CAT_ITEM_TYPE_TOOL,
-			.name = "Ebi-Ten Bento",
-			.sprite = &bento_sprite,
-			.price = 15,
-			.text = "",
-			.icon = &icon_item_food_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_FOOD,
-				.cursor = &bento_sprite,
-				.dv = 0,
-				.df = 0,
-				.ds = 0,
-
-				.food_group = CAT_FOOD_GROUP_MEAT,
-				.food_role = CAT_FOOD_ROLE_MAIN,
-			}
-		},
-		{
-			.type = CAT_ITEM_TYPE_TOOL,
-			.name = "Bread",
-			.sprite = &bread_sprite,
-			.price = 5,
-			.text = "",
-			.icon = &icon_item_food_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_FOOD,
-				.cursor = &bread_sprite,
-				.dv = 2,
-				.df = 0,
-				.ds = 0,
-
-				.food_group = CAT_FOOD_GROUP_STARCH,
-				.food_role = CAT_FOOD_ROLE_STAPLE,
-			}
-		},
-		{
-			.type = CAT_ITEM_TYPE_TOOL,
-			.name = "Burger",
-			.sprite = &burger_sprite,
-			.price = 7,
-			.text = "",
-			.icon = &icon_item_food_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_FOOD,
-				.cursor = &burger_sprite,
-				.dv = 0,
-				.df = 0,
-				.ds = 0,
-
-				.food_group = CAT_FOOD_GROUP_MEAT,
-				.food_role = CAT_FOOD_ROLE_MAIN,
-			}
-		},
-		{
-			.type = CAT_ITEM_TYPE_TOOL,
-			.name = "Carrots",
-			.sprite = &carrot_sprite,
-			.price = 3,
-			.text = "",
-			.icon = &icon_item_food_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_FOOD,
-				.cursor = &carrot_sprite,
-				.dv = 0,
-				.df = 0,
-				.ds = 0,
-
-				.food_group = CAT_FOOD_GROUP_VEG,
-				.food_role = CAT_FOOD_ROLE_SIDE,
-			}
-		},
-		{
-			.type = CAT_ITEM_TYPE_TOOL,
 			.name = "Cigarettes",
 			.sprite = &cigarette_sprite,
-			.price = 10,
+			.price = 0,
 			.text = "",
 			.icon = &icon_item_food_sprite,
 			.data.tool_data =
 			{
 				.type = CAT_TOOL_TYPE_FOOD,
 				.cursor = &cigarette_sprite,
-				.dv = -1,
+				.dv = 0,
 				.df = 3,
 				.ds = 1,
 
 				.food_group = CAT_FOOD_GROUP_MISC,
 				.food_role = CAT_FOOD_ROLE_VICE,
-			}
-		},
-		{
-			.type = CAT_ITEM_TYPE_TOOL,
-			.name = "Coffee",
-			.sprite = &coffee_sprite,
-			.price = 2,
-			.text = "",
-			.icon = &icon_item_food_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_FOOD,
-				.cursor = &coffee_sprite,
-				.dv = 1,
-				.df = 1,
-				.ds = 0,
-
-				.food_group = CAT_FOOD_GROUP_MISC,
-				.food_role = CAT_FOOD_ROLE_DRINK,
-			}
-		},
-		{
-			.type = CAT_ITEM_TYPE_TOOL,
-			.name = "Congee",
-			.sprite = &congee_sprite,
-			.price = 3,
-			.text = "",
-			.icon = &icon_item_food_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_FOOD,
-				.cursor = &congee_sprite,
-				.dv = 0,
-				.df = 0,
-				.ds = 0,
-
-				.food_group = CAT_FOOD_GROUP_STARCH,
-				.food_role = CAT_FOOD_ROLE_STAPLE,
-			}
-		},
-		{
-			.type = CAT_ITEM_TYPE_TOOL,
-			.name = "Green Curry",
-			.sprite = &green_curry_sprite,
-			.price = 15,
-			.text = "",
-			.icon = &icon_item_food_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_FOOD,
-				.cursor = &green_curry_sprite,
-				.dv = 5,
-				.df = 0,
-				.ds = 0,
-
-				.food_group = CAT_FOOD_GROUP_VEG,
-				.food_role = CAT_FOOD_ROLE_MAIN,
-			}
-		},
-		{
-			.type = CAT_ITEM_TYPE_TOOL,
-			.name = "Red Curry",
-			.sprite = &red_curry_sprite,
-			.price = 15,
-			.text = "",
-			.icon = &icon_item_food_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_FOOD,
-				.cursor = &red_curry_sprite,
-				.dv = 5,
-				.df = 0,
-				.ds = 0,
-
-				.food_group = CAT_FOOD_GROUP_MEAT,
-				.food_role = CAT_FOOD_ROLE_MAIN,
-			}
-		},
-		{
-			.type = CAT_ITEM_TYPE_TOOL,
-			.name = "Donut",
-			.sprite = &donut_sprite,
-			.price = 5,
-			.text = "",
-			.icon = &icon_item_food_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_FOOD,
-				.cursor = &donut_sprite,
-				.dv = 0,
-				.df = 0,
-				.ds = 0,
-
-				.food_group = CAT_FOOD_GROUP_STARCH,
-				.food_role = CAT_FOOD_ROLE_TREAT,
-			}
-		},
-		{
-			.type = CAT_ITEM_TYPE_TOOL,
-			.name = "Pork Dumplings",
-			.sprite = &dumplings_sprite,
-			.price = 5,
-			.text = "",
-			.icon = &icon_item_food_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_FOOD,
-				.cursor = &dumplings_sprite,
-				.dv = 0,
-				.df = 0,
-				.ds = 0,
-
-				.food_group = CAT_FOOD_GROUP_MEAT,
-				.food_role = CAT_FOOD_ROLE_MAIN,
-			}
-		},
-		{
-			.type = CAT_ITEM_TYPE_TOOL,
-			.name = "Egg",
-			.sprite = &egg_sprite,
-			.price = 5,
-			.text = "",
-			.icon = &icon_item_food_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_FOOD,
-				.cursor = &egg_sprite,
-				.dv = 0,
-				.df = 0,
-				.ds = 0,
-
-				.food_group = CAT_FOOD_GROUP_DAIRY,
-				.food_role = CAT_FOOD_ROLE_SIDE,
-			}
-		},
-		{
-			.type = CAT_ITEM_TYPE_TOOL,
-			.name = "Beef Empanadas",
-			.sprite = &empanadas_sprite,
-			.price = 7,
-			.text = "",
-			.icon = &icon_item_food_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_FOOD,
-				.cursor = &empanadas_sprite,
-				.dv = 0,
-				.df = 0,
-				.ds = 0,
-
-				.food_group = CAT_FOOD_GROUP_MEAT,
-				.food_role = CAT_FOOD_ROLE_MAIN,
-			}
-		},
-		{
-			.type = CAT_ITEM_TYPE_TOOL,
-			.name = "Green Tea",
-			.sprite = &green_tea_sprite,
-			.price = 3,
-			.text = "",
-			.icon = &icon_item_food_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_FOOD,
-				.cursor = &green_tea_sprite,
-				.dv = 0,
-				.df = 0,
-				.ds = 0,
-
-				.food_group = CAT_FOOD_GROUP_MISC,
-				.food_role = CAT_FOOD_ROLE_DRINK,
-			}
-		},
-		{
-			.type = CAT_ITEM_TYPE_TOOL,
-			.name = "Hotdog",
-			.sprite = &hotdog_sprite,
-			.price = 5,
-			.text = "",
-			.icon = &icon_item_food_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_FOOD,
-				.cursor = &hotdog_sprite,
-				.dv = 0,
-				.df = 0,
-				.ds = 0,
-
-				.food_group = CAT_FOOD_GROUP_MEAT,
-				.food_role = CAT_FOOD_ROLE_MAIN,
-			}
-		},
-		{
-			.type = CAT_ITEM_TYPE_TOOL,
-			.name = "Milk",
-			.sprite = &milk_sprite,
-			.price = 3,
-			.text = "",
-			.icon = &icon_item_food_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_FOOD,
-				.cursor = &milk_sprite,
-				.dv = 1,
-				.df = 0,
-				.ds = 0,
-
-				.food_group = CAT_FOOD_GROUP_DAIRY,
-				.food_role = CAT_FOOD_ROLE_DRINK,
-			}
-		},
-		{
-			.type = CAT_ITEM_TYPE_TOOL,
-			.name = "Nasi Lemak",
-			.sprite = &nasi_lemak_sprite,
-			.price = 10,
-			.text = "",
-			.icon = &icon_item_food_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_FOOD,
-				.cursor = &nasi_lemak_sprite,
-				.dv = 0,
-				.df = 0,
-				.ds = 0,
-
-				.food_group = CAT_FOOD_GROUP_VEG,
-				.food_role = CAT_FOOD_ROLE_MAIN,
-			}
-		},
-		{
-			.type = CAT_ITEM_TYPE_TOOL,
-			.name = "Oranges",
-			.sprite = &orange_sprite,
-			.price = 3,
-			.text = "",
-			.icon = &icon_item_food_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_FOOD,
-				.cursor = &orange_sprite,
-				.dv = 0,
-				.df = 0,
-				.ds = 0,
-
-				.food_group = CAT_FOOD_GROUP_VEG,
-				.food_role = CAT_FOOD_ROLE_SIDE,
-			}
-		},
-		{
-			.type = CAT_ITEM_TYPE_TOOL,
-			.name = "Pad Ka Prow",
-			.sprite = &padkaprow_sprite,
-			.price = 15,
-			.text = "",
-			.icon = &icon_item_food_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_FOOD,
-				.cursor = &padkaprow_sprite,
-				.dv = 5,
-				.df = 0,
-				.ds = 0,
-
-				.food_group = CAT_FOOD_GROUP_MEAT,
-				.food_role = CAT_FOOD_ROLE_MAIN,
-			}
-		},
-		{
-			.type = CAT_ITEM_TYPE_TOOL,
-			.name = "Persimmons",
-			.sprite = &persimmons_sprite,
-			.price = 5,
-			.text = "",
-			.icon = &icon_item_food_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_FOOD,
-				.cursor = &persimmons_sprite,
-				.dv = 0,
-				.df = 0,
-				.ds = 0,
-
-				.food_group = CAT_FOOD_GROUP_VEG,
-				.food_role = CAT_FOOD_ROLE_SIDE,
-			}
-		},
-		{
-			.type = CAT_ITEM_TYPE_TOOL,
-			.name = "Focus Seed",
-			.sprite = &pill_foc_sprite,
-			.price = 3,
-			.text = "",
-			.icon = &icon_item_food_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_FOOD,
-				.cursor = &pill_foc_sprite,
-				.dv = 0,
-				.df = 1,
-				.ds = 0,
-
-				.food_group = CAT_FOOD_GROUP_MISC,
-				.food_role = CAT_FOOD_ROLE_VICE,
-			}
-		},
-		{
-			.type = CAT_ITEM_TYPE_TOOL,
-			.name = "Spirit Seed",
-			.sprite = &pill_spi_sprite,
-			.price = 3,
-			.text = "",
-			.icon = &icon_item_food_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_FOOD,
-				.cursor = &pill_spi_sprite,
-				.dv = 0,
-				.df = 0,
-				.ds = 1,
-
-				.food_group = CAT_FOOD_GROUP_MISC,
-				.food_role = CAT_FOOD_ROLE_VICE,
-			}
-		},
-		{
-			.type = CAT_ITEM_TYPE_TOOL,
-			.name = "Vigour Seed",
-			.sprite = &pill_vig_sprite,
-			.price = 3,
-			.text = "",
-			.icon = &icon_item_food_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_FOOD,
-				.cursor = &pill_vig_sprite,
-				.dv = 1,
-				.df = 0,
-				.ds = 0,
-
-				.food_group = CAT_FOOD_GROUP_MISC,
-				.food_role = CAT_FOOD_ROLE_VICE,
-			}
-		},
-		{
-			.type = CAT_ITEM_TYPE_TOOL,
-			.name = "Chashu Ramen",
-			.sprite = &ramen_sprite,
-			.price = 10,
-			.text = "",
-			.icon = &icon_item_food_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_FOOD,
-				.cursor = &ramen_sprite,
-				.dv = 0,
-				.df = 0,
-				.ds = 0,
-
-				.food_group = CAT_FOOD_GROUP_MEAT,
-				.food_role = CAT_FOOD_ROLE_MAIN,
-			}
-		},
-		{
-			.type = CAT_ITEM_TYPE_TOOL,
-			.name = "Raw Meat",
-			.sprite = &meat_sprite,
-			.price = 8,
-			.text = "",
-			.icon = &icon_item_food_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_FOOD,
-				.cursor = &meat_sprite,
-				.dv = 0,
-				.df = 0,
-				.ds = 0,
-
-				.food_group = CAT_FOOD_GROUP_MEAT,
-				.food_role = CAT_FOOD_ROLE_TREAT,
-			}
-		},
-		{
-			.type = CAT_ITEM_TYPE_TOOL,
-			.name = "Salad",
-			.sprite = &salad_sprite,
-			.price = 5,
-			.text = "",
-			.icon = &icon_item_food_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_FOOD,
-				.cursor = &salad_sprite,
-				.dv = 3,
-				.df = 0,
-				.ds = 0,
-
-				.food_group = CAT_FOOD_GROUP_VEG,
-				.food_role = CAT_FOOD_ROLE_SIDE,
-			}
-		},
-		{
-			.type = CAT_ITEM_TYPE_TOOL,
-			.name = "Salmon",
-			.sprite = &salmon_sprite,
-			.price = 8,
-			.text = "",
-			.icon = &icon_item_food_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_FOOD,
-				.cursor = &salmon_sprite,
-				.dv = 0,
-				.df = 0,
-				.ds = 0,
-
-				.food_group = CAT_FOOD_GROUP_MEAT,
-				.food_role = CAT_FOOD_ROLE_MAIN,
-			}
-		},
-		{
-			.type = CAT_ITEM_TYPE_TOOL,
-			.name = "Sausage",
-			.sprite = &sausage_sprite,
-			.price = 7,
-			.text = "",
-			.icon = &icon_item_food_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_FOOD,
-				.cursor = &sausage_sprite,
-				.dv = 3,
-				.df = 0,
-				.ds = 0,
-
-				.food_group = CAT_FOOD_GROUP_MEAT,
-				.food_role = CAT_FOOD_ROLE_MAIN,
-			}
-		},
-		{
-			.type = CAT_ITEM_TYPE_TOOL,
-			.name = "Soda",
-			.sprite = &soda_sprite,
-			.price = 3,
-			.text = "",
-			.icon = &icon_item_food_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_FOOD,
-				.cursor = &soda_sprite,
-				.dv = 0,
-				.df = 0,
-				.ds = 0,
-
-				.food_group = CAT_FOOD_GROUP_MISC,
-				.food_role = CAT_FOOD_ROLE_TREAT,
-			}
-		},
-		{
-			.type = CAT_ITEM_TYPE_TOOL,
-			.name = "Soup",
-			.sprite = &soup_sprite,
-			.price = 5,
-			.text = "",
-			.icon = &icon_item_food_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_FOOD,
-				.cursor = &soup_sprite,
-				.dv = 3,
-				.df = 0,
-				.ds = 0,
-
-				.food_group = CAT_FOOD_GROUP_VEG,
-				.food_role = CAT_FOOD_ROLE_SOUP,
-			}
-		},
-		{
-			.type = CAT_ITEM_TYPE_TOOL,
-			.name = "Strange Meal",
-			.sprite = &strange_meal_sprite,
-			.price = 10,
-			.text = "",
-			.icon = &icon_item_food_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_FOOD,
-				.cursor = &strange_meal_sprite,
-				.dv = 0,
-				.df = 0,
-				.ds = 0,
-
-				.food_group = CAT_FOOD_GROUP_MISC,
-				.food_role = CAT_FOOD_ROLE_MAIN,
-			}
-		},
-		{
-			.type = CAT_ITEM_TYPE_TOOL,
-			.name = "Tuna",
-			.sprite = &tuna_sprite,
-			.price = 8,
-			.text = "",
-			.icon = &icon_item_food_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_FOOD,
-				.cursor = &tuna_sprite,
-				.dv = 0,
-				.df = 0,
-				.ds = 0,
-
-				.food_group = CAT_FOOD_GROUP_MEAT,
-				.food_role = CAT_FOOD_ROLE_MAIN,
 			}
 		},
 		{
@@ -1676,9 +915,504 @@ CAT_item_table item_table =
 		},
 		{
 			.type = CAT_ITEM_TYPE_TOOL,
+			.name = "The Disposessed",
+			.sprite = &book_study_sprite,
+			.price = 7,
+			.text = "",
+			.icon = &icon_item_book_sprite,
+			.data.tool_data =
+			{
+				.type = CAT_TOOL_TYPE_BOOK,
+				.cursor = &book_static_sprite,
+				.dv = 0,
+				.df = 3,
+				.ds = 0,
+			}
+		},
+		{
+			.type = CAT_ITEM_TYPE_TOOL,
+			.name = "We Are Legion",
+			.sprite = &book_study_sprite,
+			.price = 7,
+			.text = "",
+			.icon = &icon_item_book_sprite,
+			.data.tool_data =
+			{
+				.type = CAT_TOOL_TYPE_BOOK,
+				.cursor = &book_static_sprite,
+				.dv = 0,
+				.df = 3,
+				.ds = 0,
+			}
+		},
+		{
+			.type = CAT_ITEM_TYPE_TOOL,
+			.name = "The Forever War",
+			.sprite = &book_study_sprite,
+			.price = 7,
+			.text = "",
+			.icon = &icon_item_book_sprite,
+			.data.tool_data =
+			{
+				.type = CAT_TOOL_TYPE_BOOK,
+				.cursor = &book_static_sprite,
+				.dv = 0,
+				.df = 3,
+				.ds = 0,
+			}
+		},
+		{
+			.type = CAT_ITEM_TYPE_TOOL,
+			.name = "Ringworld",
+			.sprite = &book_study_sprite,
+			.price = 7,
+			.text = "",
+			.icon = &icon_item_book_sprite,
+			.data.tool_data =
+			{
+				.type = CAT_TOOL_TYPE_BOOK,
+				.cursor = &book_static_sprite,
+				.dv = 0,
+				.df = 3,
+				.ds = 0,
+			}
+		},
+		{
+			.type = CAT_ITEM_TYPE_TOOL,
+			.name = "The Machine Stops",
+			.sprite = &book_study_sprite,
+			.price = 7,
+			.text = "",
+			.icon = &icon_item_book_sprite,
+			.data.tool_data =
+			{
+				.type = CAT_TOOL_TYPE_BOOK,
+				.cursor = &book_static_sprite,
+				.dv = 0,
+				.df = 3,
+				.ds = 0,
+			}
+		},
+		{
+			.type = CAT_ITEM_TYPE_TOOL,
+			.name = "Metal Fever",
+			.sprite = &book_study_sprite,
+			.price = 7,
+			.text = "",
+			.icon = &icon_item_book_sprite,
+			.data.tool_data =
+			{
+				.type = CAT_TOOL_TYPE_BOOK,
+				.cursor = &book_static_sprite,
+				.dv = 0,
+				.df = 3,
+				.ds = 0,
+			}
+		},
+		{
+			.type = CAT_ITEM_TYPE_TOOL,
+			.name = "Bagel",
+			.sprite = &bagel_sprite,
+			.price = 3,
+			.text = "",
+			.icon = &icon_item_food_sprite,
+			.data.tool_data =
+			{
+				.type = CAT_TOOL_TYPE_FOOD,
+				.cursor = &bagel_sprite,
+				.dv = 1,
+				.df = 0,
+				.ds = 0,
+
+				.food_group = CAT_FOOD_GROUP_STARCH,
+				.food_role = CAT_FOOD_ROLE_STAPLE,
+			}
+		},
+		{
+			.type = CAT_ITEM_TYPE_TOOL,
+			.name = "Bananas",
+			.sprite = &banana_sprite,
+			.price = 3,
+			.text = "",
+			.icon = &icon_item_food_sprite,
+			.data.tool_data =
+			{
+				.type = CAT_TOOL_TYPE_FOOD,
+				.cursor = &banana_sprite,
+				.dv = 1,
+				.df = 0,
+				.ds = 0,
+
+				.food_group = CAT_FOOD_GROUP_VEG,
+				.food_role = CAT_FOOD_ROLE_SIDE,
+			}
+		},
+		{
+			.type = CAT_ITEM_TYPE_TOOL,
+			.name = "Barley Tea",
+			.sprite = &barley_tea_sprite,
+			.price = 3,
+			.text = "",
+			.icon = &icon_item_food_sprite,
+			.data.tool_data =
+			{
+				.type = CAT_TOOL_TYPE_FOOD,
+				.cursor = &barley_tea_sprite,
+				.dv = 1,
+				.df = 0,
+				.ds = 0,
+
+				.food_group = CAT_FOOD_GROUP_MISC,
+				.food_role = CAT_FOOD_ROLE_DRINK,
+			}
+		},
+		{
+			.type = CAT_ITEM_TYPE_TOOL,
+			.name = "Bread",
+			.sprite = &bread_sprite,
+			.price = 3,
+			.text = "",
+			.icon = &icon_item_food_sprite,
+			.data.tool_data =
+			{
+				.type = CAT_TOOL_TYPE_FOOD,
+				.cursor = &bread_sprite,
+				.dv = 1,
+				.df = 0,
+				.ds = 0,
+
+				.food_group = CAT_FOOD_GROUP_STARCH,
+				.food_role = CAT_FOOD_ROLE_STAPLE,
+			}
+		},
+		{
+			.type = CAT_ITEM_TYPE_TOOL,
+			.name = "Carrots",
+			.sprite = &carrot_sprite,
+			.price = 3,
+			.text = "",
+			.icon = &icon_item_food_sprite,
+			.data.tool_data =
+			{
+				.type = CAT_TOOL_TYPE_FOOD,
+				.cursor = &carrot_sprite,
+				.dv = 1,
+				.df = 0,
+				.ds = 0,
+
+				.food_group = CAT_FOOD_GROUP_VEG,
+				.food_role = CAT_FOOD_ROLE_SIDE,
+			}
+		},
+		{
+			.type = CAT_ITEM_TYPE_TOOL,
+			.name = "Coffee",
+			.sprite = &coffee_sprite,
+			.price = 3,
+			.text = "",
+			.icon = &icon_item_food_sprite,
+			.data.tool_data =
+			{
+				.type = CAT_TOOL_TYPE_FOOD,
+				.cursor = &coffee_sprite,
+				.dv = 1,
+				.df = 1,
+				.ds = 0,
+
+				.food_group = CAT_FOOD_GROUP_MISC,
+				.food_role = CAT_FOOD_ROLE_DRINK,
+			}
+		},
+		{
+			.type = CAT_ITEM_TYPE_TOOL,
+			.name = "Congee",
+			.sprite = &congee_sprite,
+			.price = 3,
+			.text = "",
+			.icon = &icon_item_food_sprite,
+			.data.tool_data =
+			{
+				.type = CAT_TOOL_TYPE_FOOD,
+				.cursor = &congee_sprite,
+				.dv = 1,
+				.df = 0,
+				.ds = 0,
+
+				.food_group = CAT_FOOD_GROUP_STARCH,
+				.food_role = CAT_FOOD_ROLE_STAPLE,
+			}
+		},
+		{
+			.type = CAT_ITEM_TYPE_TOOL,
+			.name = "Donut",
+			.sprite = &donut_sprite,
+			.price = 3,
+			.text = "",
+			.icon = &icon_item_food_sprite,
+			.data.tool_data =
+			{
+				.type = CAT_TOOL_TYPE_FOOD,
+				.cursor = &donut_sprite,
+				.dv = 1,
+				.df = 0,
+				.ds = 0,
+
+				.food_group = CAT_FOOD_GROUP_STARCH,
+				.food_role = CAT_FOOD_ROLE_TREAT,
+			}
+		},
+		{
+			.type = CAT_ITEM_TYPE_TOOL,
+			.name = "Egg",
+			.sprite = &egg_sprite,
+			.price = 3,
+			.text = "",
+			.icon = &icon_item_food_sprite,
+			.data.tool_data =
+			{
+				.type = CAT_TOOL_TYPE_FOOD,
+				.cursor = &egg_sprite,
+				.dv = 1,
+				.df = 0,
+				.ds = 0,
+
+				.food_group = CAT_FOOD_GROUP_DAIRY,
+				.food_role = CAT_FOOD_ROLE_SIDE,
+			}
+		},
+		{
+			.type = CAT_ITEM_TYPE_TOOL,
+			.name = "Green Tea",
+			.sprite = &green_tea_sprite,
+			.price = 3,
+			.text = "",
+			.icon = &icon_item_food_sprite,
+			.data.tool_data =
+			{
+				.type = CAT_TOOL_TYPE_FOOD,
+				.cursor = &green_tea_sprite,
+				.dv = 1,
+				.df = 0,
+				.ds = 0,
+
+				.food_group = CAT_FOOD_GROUP_MISC,
+				.food_role = CAT_FOOD_ROLE_DRINK,
+			}
+		},
+		{
+			.type = CAT_ITEM_TYPE_TOOL,
+			.name = "Milk",
+			.sprite = &milk_sprite,
+			.price = 3,
+			.text = "",
+			.icon = &icon_item_food_sprite,
+			.data.tool_data =
+			{
+				.type = CAT_TOOL_TYPE_FOOD,
+				.cursor = &milk_sprite,
+				.dv = 1,
+				.df = 0,
+				.ds = 0,
+
+				.food_group = CAT_FOOD_GROUP_DAIRY,
+				.food_role = CAT_FOOD_ROLE_DRINK,
+			}
+		},
+		{
+			.type = CAT_ITEM_TYPE_TOOL,
+			.name = "Oranges",
+			.sprite = &orange_sprite,
+			.price = 3,
+			.text = "",
+			.icon = &icon_item_food_sprite,
+			.data.tool_data =
+			{
+				.type = CAT_TOOL_TYPE_FOOD,
+				.cursor = &orange_sprite,
+				.dv = 1,
+				.df = 0,
+				.ds = 0,
+
+				.food_group = CAT_FOOD_GROUP_VEG,
+				.food_role = CAT_FOOD_ROLE_SIDE,
+			}
+		},
+		{
+			.type = CAT_ITEM_TYPE_TOOL,
+			.name = "Persimmons",
+			.sprite = &persimmons_sprite,
+			.price = 3,
+			.text = "",
+			.icon = &icon_item_food_sprite,
+			.data.tool_data =
+			{
+				.type = CAT_TOOL_TYPE_FOOD,
+				.cursor = &persimmons_sprite,
+				.dv = 1,
+				.df = 0,
+				.ds = 0,
+
+				.food_group = CAT_FOOD_GROUP_VEG,
+				.food_role = CAT_FOOD_ROLE_SIDE,
+			}
+		},
+		{
+			.type = CAT_ITEM_TYPE_TOOL,
+			.name = "Focus Seed",
+			.sprite = &pill_foc_sprite,
+			.price = 3,
+			.text = "",
+			.icon = &icon_item_food_sprite,
+			.data.tool_data =
+			{
+				.type = CAT_TOOL_TYPE_FOOD,
+				.cursor = &pill_foc_sprite,
+				.dv = 1,
+				.df = 1,
+				.ds = 0,
+
+				.food_group = CAT_FOOD_GROUP_MISC,
+				.food_role = CAT_FOOD_ROLE_VICE,
+			}
+		},
+		{
+			.type = CAT_ITEM_TYPE_TOOL,
+			.name = "Spirit Seed",
+			.sprite = &pill_spi_sprite,
+			.price = 3,
+			.text = "",
+			.icon = &icon_item_food_sprite,
+			.data.tool_data =
+			{
+				.type = CAT_TOOL_TYPE_FOOD,
+				.cursor = &pill_spi_sprite,
+				.dv = 1,
+				.df = 0,
+				.ds = 1,
+
+				.food_group = CAT_FOOD_GROUP_MISC,
+				.food_role = CAT_FOOD_ROLE_VICE,
+			}
+		},
+		{
+			.type = CAT_ITEM_TYPE_TOOL,
+			.name = "Vigour Seed",
+			.sprite = &pill_vig_sprite,
+			.price = 3,
+			.text = "",
+			.icon = &icon_item_food_sprite,
+			.data.tool_data =
+			{
+				.type = CAT_TOOL_TYPE_FOOD,
+				.cursor = &pill_vig_sprite,
+				.dv = 1,
+				.df = 0,
+				.ds = 0,
+
+				.food_group = CAT_FOOD_GROUP_MISC,
+				.food_role = CAT_FOOD_ROLE_VICE,
+			}
+		},
+		{
+			.type = CAT_ITEM_TYPE_TOOL,
+			.name = "Salad",
+			.sprite = &salad_sprite,
+			.price = 3,
+			.text = "",
+			.icon = &icon_item_food_sprite,
+			.data.tool_data =
+			{
+				.type = CAT_TOOL_TYPE_FOOD,
+				.cursor = &salad_sprite,
+				.dv = 1,
+				.df = 0,
+				.ds = 0,
+
+				.food_group = CAT_FOOD_GROUP_VEG,
+				.food_role = CAT_FOOD_ROLE_SIDE,
+			}
+		},
+		{
+			.type = CAT_ITEM_TYPE_TOOL,
+			.name = "Sausage",
+			.sprite = &sausage_sprite,
+			.price = 3,
+			.text = "",
+			.icon = &icon_item_food_sprite,
+			.data.tool_data =
+			{
+				.type = CAT_TOOL_TYPE_FOOD,
+				.cursor = &sausage_sprite,
+				.dv = 1,
+				.df = 0,
+				.ds = 0,
+
+				.food_group = CAT_FOOD_GROUP_MEAT,
+				.food_role = CAT_FOOD_ROLE_MAIN,
+			}
+		},
+		{
+			.type = CAT_ITEM_TYPE_TOOL,
+			.name = "Soda",
+			.sprite = &soda_sprite,
+			.price = 3,
+			.text = "",
+			.icon = &icon_item_food_sprite,
+			.data.tool_data =
+			{
+				.type = CAT_TOOL_TYPE_FOOD,
+				.cursor = &soda_sprite,
+				.dv = 1,
+				.df = 0,
+				.ds = 0,
+
+				.food_group = CAT_FOOD_GROUP_MISC,
+				.food_role = CAT_FOOD_ROLE_TREAT,
+			}
+		},
+		{
+			.type = CAT_ITEM_TYPE_TOOL,
+			.name = "Soup",
+			.sprite = &soup_sprite,
+			.price = 3,
+			.text = "",
+			.icon = &icon_item_food_sprite,
+			.data.tool_data =
+			{
+				.type = CAT_TOOL_TYPE_FOOD,
+				.cursor = &soup_sprite,
+				.dv = 1,
+				.df = 0,
+				.ds = 0,
+
+				.food_group = CAT_FOOD_GROUP_VEG,
+				.food_role = CAT_FOOD_ROLE_SOUP,
+			}
+		},
+		{
+			.type = CAT_ITEM_TYPE_TOOL,
+			.name = "Strange Meal",
+			.sprite = &strange_meal_sprite,
+			.price = 3,
+			.text = "",
+			.icon = &icon_item_food_sprite,
+			.data.tool_data =
+			{
+				.type = CAT_TOOL_TYPE_FOOD,
+				.cursor = &strange_meal_sprite,
+				.dv = 1,
+				.df = 0,
+				.ds = 0,
+
+				.food_group = CAT_FOOD_GROUP_MISC,
+				.food_role = CAT_FOOD_ROLE_MAIN,
+			}
+		},
+		{
+			.type = CAT_ITEM_TYPE_TOOL,
 			.name = "Baseball",
 			.sprite = &toy_baseball_sprite,
-			.price = 20,
+			.price = 7,
 			.text = "",
 			.icon = &icon_item_toy_sprite,
 			.data.tool_data =
@@ -1687,46 +1421,14 @@ CAT_item_table item_table =
 				.cursor = &toy_baseball_sprite,
 				.dv = 0,
 				.df = 0,
-				.ds = 3,
-			}
-		},
-		{
-			.type = CAT_ITEM_TYPE_TOOL,
-			.name = "Basketball",
-			.sprite = &toy_basketball_sprite,
-			.price = 20,
-			.text = "",
-			.icon = &icon_item_toy_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_TOY,
-				.cursor = &toy_basketball_sprite,
-				.dv = 0,
-				.df = 0,
-				.ds = 3,
-			}
-		},
-		{
-			.type = CAT_ITEM_TYPE_TOOL,
-			.name = "Ducky",
-			.sprite = &toy_duck_sprite,
-			.price = 30,
-			.text = "",
-			.icon = &icon_item_toy_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_TOY,
-				.cursor = &toy_duck_sprite,
-				.dv = 0,
-				.df = 0,
-				.ds = 5,
+				.ds = 1,
 			}
 		},
 		{
 			.type = CAT_ITEM_TYPE_TOOL,
 			.name = "Golf Ball",
 			.sprite = &toy_golf_sprite,
-			.price = 5,
+			.price = 7,
 			.text = "",
 			.icon = &icon_item_toy_sprite,
 			.data.tool_data =
@@ -1740,31 +1442,329 @@ CAT_item_table item_table =
 		},
 		{
 			.type = CAT_ITEM_TYPE_TOOL,
-			.name = "Laser Pointer",
-			.sprite = &laser_pointer_sprite,
-			.price = 10,
+			.name = "Ebi-Ten Bento",
+			.sprite = &bento_sprite,
+			.price = 7,
 			.text = "",
-			.icon = &icon_item_key_sprite,
+			.icon = &icon_item_food_sprite,
+			.data.tool_data =
+			{
+				.type = CAT_TOOL_TYPE_FOOD,
+				.cursor = &bento_sprite,
+				.dv = 2,
+				.df = 0,
+				.ds = 0,
+
+				.food_group = CAT_FOOD_GROUP_MEAT,
+				.food_role = CAT_FOOD_ROLE_MAIN,
+			}
+		},
+		{
+			.type = CAT_ITEM_TYPE_TOOL,
+			.name = "Burger",
+			.sprite = &burger_sprite,
+			.price = 7,
+			.text = "",
+			.icon = &icon_item_food_sprite,
+			.data.tool_data =
+			{
+				.type = CAT_TOOL_TYPE_FOOD,
+				.cursor = &burger_sprite,
+				.dv = 2,
+				.df = 0,
+				.ds = 0,
+
+				.food_group = CAT_FOOD_GROUP_MEAT,
+				.food_role = CAT_FOOD_ROLE_MAIN,
+			}
+		},
+		{
+			.type = CAT_ITEM_TYPE_TOOL,
+			.name = "Pork Dumplings",
+			.sprite = &dumplings_sprite,
+			.price = 7,
+			.text = "",
+			.icon = &icon_item_food_sprite,
+			.data.tool_data =
+			{
+				.type = CAT_TOOL_TYPE_FOOD,
+				.cursor = &dumplings_sprite,
+				.dv = 2,
+				.df = 0,
+				.ds = 0,
+
+				.food_group = CAT_FOOD_GROUP_MEAT,
+				.food_role = CAT_FOOD_ROLE_MAIN,
+			}
+		},
+		{
+			.type = CAT_ITEM_TYPE_TOOL,
+			.name = "Beef Empanadas",
+			.sprite = &empanadas_sprite,
+			.price = 7,
+			.text = "",
+			.icon = &icon_item_food_sprite,
+			.data.tool_data =
+			{
+				.type = CAT_TOOL_TYPE_FOOD,
+				.cursor = &empanadas_sprite,
+				.dv = 2,
+				.df = 0,
+				.ds = 0,
+
+				.food_group = CAT_FOOD_GROUP_MEAT,
+				.food_role = CAT_FOOD_ROLE_MAIN,
+			}
+		},
+		{
+			.type = CAT_ITEM_TYPE_TOOL,
+			.name = "Hotdog",
+			.sprite = &hotdog_sprite,
+			.price = 7,
+			.text = "",
+			.icon = &icon_item_food_sprite,
+			.data.tool_data =
+			{
+				.type = CAT_TOOL_TYPE_FOOD,
+				.cursor = &hotdog_sprite,
+				.dv = 2,
+				.df = 0,
+				.ds = 0,
+
+				.food_group = CAT_FOOD_GROUP_MEAT,
+				.food_role = CAT_FOOD_ROLE_MAIN,
+			}
+		},
+		{
+			.type = CAT_ITEM_TYPE_TOOL,
+			.name = "Chashu Ramen",
+			.sprite = &ramen_sprite,
+			.price = 7,
+			.text = "",
+			.icon = &icon_item_food_sprite,
+			.data.tool_data =
+			{
+				.type = CAT_TOOL_TYPE_FOOD,
+				.cursor = &ramen_sprite,
+				.dv = 2,
+				.df = 0,
+				.ds = 0,
+
+				.food_group = CAT_FOOD_GROUP_MEAT,
+				.food_role = CAT_FOOD_ROLE_MAIN,
+			}
+		},
+		{
+			.type = CAT_ITEM_TYPE_TOOL,
+			.name = "Raw Meat",
+			.sprite = &meat_sprite,
+			.price = 7,
+			.text = "",
+			.icon = &icon_item_food_sprite,
+			.data.tool_data =
+			{
+				.type = CAT_TOOL_TYPE_FOOD,
+				.cursor = &meat_sprite,
+				.dv = 2,
+				.df = 0,
+				.ds = 0,
+
+				.food_group = CAT_FOOD_GROUP_MEAT,
+				.food_role = CAT_FOOD_ROLE_TREAT,
+			}
+		},
+		{
+			.type = CAT_ITEM_TYPE_TOOL,
+			.name = "Salmon",
+			.sprite = &salmon_sprite,
+			.price = 7,
+			.text = "",
+			.icon = &icon_item_food_sprite,
+			.data.tool_data =
+			{
+				.type = CAT_TOOL_TYPE_FOOD,
+				.cursor = &salmon_sprite,
+				.dv = 2,
+				.df = 0,
+				.ds = 0,
+
+				.food_group = CAT_FOOD_GROUP_MEAT,
+				.food_role = CAT_FOOD_ROLE_MAIN,
+			}
+		},
+		{
+			.type = CAT_ITEM_TYPE_TOOL,
+			.name = "Tuna",
+			.sprite = &tuna_sprite,
+			.price = 7,
+			.text = "",
+			.icon = &icon_item_food_sprite,
+			.data.tool_data =
+			{
+				.type = CAT_TOOL_TYPE_FOOD,
+				.cursor = &tuna_sprite,
+				.dv = 2,
+				.df = 0,
+				.ds = 0,
+
+				.food_group = CAT_FOOD_GROUP_MEAT,
+				.food_role = CAT_FOOD_ROLE_MAIN,
+			}
+		},
+		{
+			.type = CAT_ITEM_TYPE_TOOL,
+			.name = "Basketball",
+			.sprite = &toy_basketball_sprite,
+			.price = 14,
+			.text = "",
+			.icon = &icon_item_toy_sprite,
 			.data.tool_data =
 			{
 				.type = CAT_TOOL_TYPE_TOY,
-				.cursor = &laser_marker_sprite,
+				.cursor = &toy_basketball_sprite,
 				.dv = 0,
 				.df = 0,
-				.ds = 0,
+				.ds = 2,
 			}
 		},
 		{
 			.type = CAT_ITEM_TYPE_TOOL,
 			.name = "Puzzle",
 			.sprite = &toy_puzzle_sprite,
-			.price = 20,
+			.price = 14,
 			.text = "",
 			.icon = &icon_item_toy_sprite,
 			.data.tool_data =
 			{
 				.type = CAT_TOOL_TYPE_TOY,
 				.cursor = &toy_puzzle_sprite,
+				.dv = 0,
+				.df = 0,
+				.ds = 2,
+			}
+		},
+		{
+			.type = CAT_ITEM_TYPE_TOOL,
+			.name = "Beef Noodles",
+			.sprite = &beef_noodle_sprite,
+			.price = 12,
+			.text = "",
+			.icon = &icon_item_food_sprite,
+			.data.tool_data =
+			{
+				.type = CAT_TOOL_TYPE_FOOD,
+				.cursor = &beef_noodle_sprite,
+				.dv = 3,
+				.df = 0,
+				.ds = 0,
+
+				.food_group = CAT_FOOD_GROUP_MEAT,
+				.food_role = CAT_FOOD_ROLE_MAIN,
+			}
+		},
+		{
+			.type = CAT_ITEM_TYPE_TOOL,
+			.name = "Green Curry",
+			.sprite = &green_curry_sprite,
+			.price = 12,
+			.text = "",
+			.icon = &icon_item_food_sprite,
+			.data.tool_data =
+			{
+				.type = CAT_TOOL_TYPE_FOOD,
+				.cursor = &green_curry_sprite,
+				.dv = 3,
+				.df = 0,
+				.ds = 0,
+
+				.food_group = CAT_FOOD_GROUP_VEG,
+				.food_role = CAT_FOOD_ROLE_MAIN,
+			}
+		},
+		{
+			.type = CAT_ITEM_TYPE_TOOL,
+			.name = "Red Curry",
+			.sprite = &red_curry_sprite,
+			.price = 12,
+			.text = "",
+			.icon = &icon_item_food_sprite,
+			.data.tool_data =
+			{
+				.type = CAT_TOOL_TYPE_FOOD,
+				.cursor = &red_curry_sprite,
+				.dv = 3,
+				.df = 0,
+				.ds = 0,
+
+				.food_group = CAT_FOOD_GROUP_MEAT,
+				.food_role = CAT_FOOD_ROLE_MAIN,
+			}
+		},
+		{
+			.type = CAT_ITEM_TYPE_TOOL,
+			.name = "Nasi Lemak",
+			.sprite = &nasi_lemak_sprite,
+			.price = 12,
+			.text = "",
+			.icon = &icon_item_food_sprite,
+			.data.tool_data =
+			{
+				.type = CAT_TOOL_TYPE_FOOD,
+				.cursor = &nasi_lemak_sprite,
+				.dv = 3,
+				.df = 0,
+				.ds = 0,
+
+				.food_group = CAT_FOOD_GROUP_VEG,
+				.food_role = CAT_FOOD_ROLE_MAIN,
+			}
+		},
+		{
+			.type = CAT_ITEM_TYPE_TOOL,
+			.name = "Pad Ka Prow",
+			.sprite = &padkaprow_sprite,
+			.price = 12,
+			.text = "",
+			.icon = &icon_item_food_sprite,
+			.data.tool_data =
+			{
+				.type = CAT_TOOL_TYPE_FOOD,
+				.cursor = &padkaprow_sprite,
+				.dv = 3,
+				.df = 0,
+				.ds = 0,
+
+				.food_group = CAT_FOOD_GROUP_MEAT,
+				.food_role = CAT_FOOD_ROLE_MAIN,
+			}
+		},
+		{
+			.type = CAT_ITEM_TYPE_TOOL,
+			.name = "Ducky",
+			.sprite = &toy_duck_sprite,
+			.price = 21,
+			.text = "",
+			.icon = &icon_item_toy_sprite,
+			.data.tool_data =
+			{
+				.type = CAT_TOOL_TYPE_TOY,
+				.cursor = &toy_duck_sprite,
+				.dv = 0,
+				.df = 0,
+				.ds = 3,
+			}
+		},
+		{
+			.type = CAT_ITEM_TYPE_TOOL,
+			.name = "Laser Pointer",
+			.sprite = &laser_pointer_sprite,
+			.price = 21,
+			.text = "",
+			.icon = &icon_item_key_sprite,
+			.data.tool_data =
+			{
+				.type = CAT_TOOL_TYPE_TOY,
+				.cursor = &laser_marker_sprite,
 				.dv = 0,
 				.df = 0,
 				.ds = 3,
