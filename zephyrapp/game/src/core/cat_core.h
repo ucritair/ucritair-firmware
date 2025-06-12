@@ -135,21 +135,6 @@ void CAT_free(void* ptr);
 
 #define CAT_SAVE_MAGIC 0xaabbccde
 
-typedef enum
-{
-	CAT_SAVE_FLAG_NONE = 0,
-	CAT_SAVE_FLAG_DEVELOPER_MODE = 1,
-	CAT_SAVE_FLAG_AQ_FIRST = 2
-} CAT_save_flag;
-
-typedef enum
-{
-	CAT_LOAD_FLAG_NONE = 0,
-	CAT_LOAD_FLAG_DIRTY = 1,
-	CAT_LOAD_FLAG_RESET = 2,
-	CAT_LOAD_FLAG_OVERRIDE = 4
-} CAT_load_flag;
-
 typedef struct __attribute__((__packed__))
 {
 	uint32_t magic_number;
@@ -197,29 +182,140 @@ typedef struct __attribute__((__packed__))
 	uint8_t temperature_unit;
 
 	int save_flags;
+} CAT_save_legacy;
+
+typedef enum
+{
+	CAT_CONFIG_FLAG_NONE = 0,
+	CAT_CONFIG_FLAG_DEVELOPER = 1,
+	CAT_CONFIG_FLAG_USE_FAHRENHEIT = 2,
+	CAT_CONFIG_FLAG_AQ_FIRST = 4,
+} CAT_config_flag;
+
+typedef enum
+{
+	CAT_SAVE_SECTOR_PET,
+	CAT_SAVE_SECTOR_INVENTORY,
+	CAT_SAVE_SECTOR_DECO,
+	CAT_SAVE_SECTOR_HIGHSCORES,
+	CAT_SAVE_SECTOR_TIMING,
+	CAT_SAVE_SECTOR_CONFIG,
+	CAT_SAVE_SECTOR_FOOTER,
+} CAT_save_sector;
+
+typedef struct __attribute__((__packed__))
+{
+	uint8_t label;
+	uint16_t size;
+} CAT_save_sector_header;
+
+typedef struct __attribute__((__packed__))
+{
+	// HEADER : MAGIC NUMBER
+	uint32_t magic_number;
+
+	// HEADER : VERSION
+	uint8_t version_major;
+	uint8_t version_minor;
+	uint8_t version_patch;
+	uint8_t version_push;
+
+	// SECTOR : PET
+	struct __attribute__((__packed__))
+	{
+		CAT_save_sector_header header;
+		char name[32];
+		uint8_t level;
+		uint32_t xp;
+		uint8_t lifespan;
+		uint8_t lifetime;
+		uint8_t vigour;
+		uint8_t focus;
+		uint8_t spirit;
+	} pet;
+
+	// SECTOR : INVENTORY
+	struct __attribute__((__packed__))
+	{
+		CAT_save_sector_header header;
+		uint8_t counts[256];
+		uint32_t coins;
+	} inventory;
+
+	// SECTOR : DECO
+	struct __attribute__((__packed__))
+	{
+		CAT_save_sector_header header;
+		uint8_t props[150];
+		uint8_t positions[150*2];
+		uint8_t overrides[150];
+		uint8_t children[150];
+	} deco;
+	
+	// SECTOR : HIGHSCORES
+	struct __attribute__((__packed__))
+	{
+		CAT_save_sector_header header;
+		uint16_t snake;
+		uint16_t mine;
+		uint16_t foursquares;
+	} highscores;
+
+	// SECTOR : TIMING
+	struct __attribute__((__packed__))
+	{
+		CAT_save_sector_header header;
+		uint32_t stat_timer;
+		uint32_t life_timer;
+		uint32_t earn_timer;
+		uint32_t petting_timer;
+		uint8_t petting_count;
+		uint8_t milking_count;
+	} timing;
+
+	// SECTOR : CONFIG
+	struct __attribute__((__packed__))
+	{
+		CAT_save_sector_header header;
+		uint64_t flags;
+		uint8_t theme;
+	} config;
+
+	// FOOTER
+	CAT_save_sector_header footer;
 } CAT_save;
 
-// Call to start saving, then populate the returned CAT_save*
-CAT_save* CAT_start_save();
-// then call with the CAT_save* to finish saving
-void CAT_finish_save(CAT_save*);
-
-// Call to start loading, then load from the returned CAT_save*
-CAT_save* CAT_start_load();
-// then call once done loading
-void CAT_finish_load();
-
-static inline bool CAT_check_save(CAT_save* save)
+typedef enum
 {
-	return save->magic_number == CAT_SAVE_MAGIC;
-}
+	CAT_SAVE_ERROR_NONE,
+	CAT_SAVE_ERROR_MAGIC,
+	CAT_SAVE_ERROR_SECTOR_CORRUPT,
+	CAT_SAVE_ERROR_SECTOR_MISSING
+} CAT_save_error;
 
-int CAT_export_save_flags();
-void CAT_import_save_flags(int flags);
+void CAT_initialize_save(CAT_save* save);
+void CAT_migrate_legacy_save(void* save_location);
+void CAT_extend_save(CAT_save* save);
+CAT_save_error CAT_verify_save_structure(CAT_save* save);
 
-void CAT_set_save_flags(int flags);
-void CAT_unset_save_flags(int flags);
-bool CAT_check_save_flags(int flags);
+CAT_save* CAT_start_save();
+void CAT_finish_save(CAT_save* save);
+CAT_save* CAT_start_load();
+
+int CAT_export_config_flags();
+void CAT_import_config_flags(int flags);
+
+void CAT_set_config_flags(int flags);
+void CAT_unset_config_flags(int flags);
+bool CAT_check_config_flags(int flags);
+
+typedef enum
+{
+	CAT_LOAD_FLAG_NONE = 0,
+	CAT_LOAD_FLAG_DIRTY = 1,
+	CAT_LOAD_FLAG_DEFAULT = 2,
+	CAT_LOAD_FLAG_TURNKEY = 4
+} CAT_load_flag;
 
 void CAT_set_load_flags(int flags);
 void CAT_unset_load_flags(int flags);

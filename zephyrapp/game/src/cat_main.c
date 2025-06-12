@@ -47,11 +47,6 @@
 #pragma GCC diagnostic ignored "-Wunknown-pragmas"
 #endif
 
-uint8_t saved_version_major = CAT_VERSION_MAJOR;
-uint8_t saved_version_minor = CAT_VERSION_MINOR;
-uint8_t saved_version_patch = CAT_VERSION_PATCH;
-uint8_t saved_version_push = CAT_VERSION_PUSH;
-
 const int eink_update_time_threshold = CAT_MIN_SECS;
 float time_since_eink_update = 0.0f;
 bool first_eink_update_complete = false;
@@ -63,121 +58,81 @@ float time_since_reorient = 0.0f;
 void CAT_force_save()
 {
 	CAT_printf("Saving...\n");
-
 	CAT_save* save = CAT_start_save();
 
-	save->version_major = CAT_VERSION_MAJOR;
-	save->version_minor = CAT_VERSION_MINOR;
-	save->version_patch = CAT_VERSION_PATCH;
-	save->version_push = CAT_VERSION_PUSH;
-	
-	save->vigour = pet.vigour;
-	save->focus = pet.focus;
-	save->spirit = pet.spirit;
-	save->lifetime = pet.lifetime;
+	strcpy(save->pet.name, pet.name);
+	save->pet.level = pet.level;
+	save->pet.xp = pet.xp;
+	save->pet.lifespan = 30;
+	save->pet.lifetime = pet.lifetime;
+	save->pet.vigour = pet.vigour;
+	save->pet.focus = pet.focus;
+	save->pet.spirit = pet.spirit;
 
-	for(int i = 0; i < room.prop_count; i++)
+	for(int i = 0; i < item_table.length; i++)
 	{
-		save->prop_ids[i] = room.prop_ids[i];
-		save->prop_places[i] = room.prop_rects[i].min;
-		save->prop_overrides[i] = room.prop_overrides[i];
-		save->prop_children[i] = room.prop_children[i];
+		int bag_idx = CAT_item_list_find(&bag, i);
+		if(bag_idx != -1)
+			save->inventory.counts[i] = bag.counts[bag_idx];
 	}
-	save->prop_count = room.prop_count;
-
-	for(int i = 0; i < bag.length; i++)
-	{
-		save->bag_ids[i] = bag.item_ids[i];
-		save->bag_counts[i] = bag.counts[i];
-	}
-	save->bag_length = bag.length;
-	save->coins = coins;
-
 	for(int i = 0; i < room.pickup_count; i++)
 	{
 		if(room.pickups[i].sprite == &coin_world_sprite)
 		{
-			save->coins += 1;
+			coins += 1;
 		}
 	}
+	save->inventory.coins = coins;
 
-	save->snake_high_score = snake_high_score;
+	for(int i = 0; i < room.prop_count; i++)
+	{
+		save->deco.props[i] = room.prop_ids[i] + 1;
+		save->deco.positions[i*2+0] = room.prop_rects[i].min.x;
+		save->deco.positions[i*2+1] = room.prop_rects[i].min.y;
+		save->deco.overrides[i] = room.prop_overrides[i];
+		save->deco.children[i] = room.prop_children[i] + 1;
+	}
 
-	save->stat_timer = CAT_timer_get(pet.stat_timer_id);
-	save->life_timer = CAT_timer_get(pet.life_timer_id);
-	save->earn_timer = CAT_timer_get(room.earn_timer_id);
-	save->times_pet = pet.times_pet;
-	save->petting_timer = CAT_timer_get(pet.petting_timer_id);
-	save->times_milked = pet.times_milked;
+	save->highscores.snake = snake_high_score;
+	save->highscores.mine = 0;
+	save->highscores.foursquares = 0;
 
-	strcpy(save->name, pet.name);
+	save->timing.stat_timer = CAT_timer_get(pet.stat_timer_id);
+	save->timing.life_timer = CAT_timer_get(pet.life_timer_id);
+	save->timing.earn_timer = CAT_timer_get(room.earn_timer_id);
+	save->timing.petting_timer = CAT_timer_get(pet.petting_timer_id);
+	save->timing.petting_count = pet.times_pet;
+	save->timing.milking_count = pet.times_milked;
 
 	for(int i = 0; i < THEME_COUNT; i++)
 	{
 		if(themes_list[i] == room.theme)
 		{
-			save->theme = i;
-			break;
+			save->config.theme = i;
 		}
 	}
 
-	save->level = pet.level;
-	save->xp = pet.xp;
-
-	save->lcd_brightness = CAT_LCD_get_brightness();
-	save->led_brightness = CAT_LED_get_brightness();
-
-	save->temperature_unit = CAT_AQ_get_temperature_unit();
-
-	save->save_flags = CAT_export_save_flags();
-
-	save->magic_number = CAT_SAVE_MAGIC;
 	CAT_finish_save(save);
-
 	CAT_printf("Save complete!\n");
 }
 
-void CAT_load_reset()
+void CAT_load_default()
 {
-	saved_version_major = CAT_VERSION_MAJOR;
-	saved_version_minor = CAT_VERSION_MINOR;
-	saved_version_patch = CAT_VERSION_PATCH;
-	saved_version_push = CAT_VERSION_PUSH;
-
-	pet.vigour = 12;
-	pet.focus = 12;
-	pet.spirit = 12;
-
+	CAT_room_init();
+	CAT_pet_init();
 	CAT_item_list_init(&bag);
+	
 	CAT_item_list_add(&bag, prop_eth_farm_item, 1);
 	CAT_item_list_add(&bag, toy_laser_pointer_item, 1);
 	coins = 10;
-
-	CAT_room_init();
 }
 
-void CAT_load_override()
+void CAT_load_turnkey()
 {
-	saved_version_major = CAT_VERSION_MAJOR;
-	saved_version_minor = CAT_VERSION_MINOR;
-	saved_version_patch = CAT_VERSION_PATCH;
-	saved_version_push = CAT_VERSION_PUSH;
-
-	pet.vigour = 9;
-	pet.focus = 9;
-	pet.spirit = 9;
-
-	CAT_item_list_init(&bag);
-	CAT_item_list_add(&bag, book_1_item, 1);
-	CAT_item_list_add(&bag, food_bread_item, 2);
-	CAT_item_list_add(&bag, food_milk_item, 2);
-	CAT_item_list_add(&bag, food_coffee_item, 1);
-	CAT_item_list_add(&bag, prop_succulent_item, 1);
-	CAT_item_list_add(&bag, toy_baseball_item, 1);
-	CAT_item_list_add(&bag, toy_laser_pointer_item, 1);
-	coins = 100;
-
 	CAT_room_init();
+	CAT_pet_init();
+	CAT_item_list_init(&bag);
+
 	CAT_room_add_prop(prop_plant_plain_item, (CAT_ivec2) {0, 0});
 	CAT_room_add_prop(prop_eth_farm_item, (CAT_ivec2) {2, 0});
 	CAT_room_add_prop(prop_table_mahogany_item, (CAT_ivec2) {3, 3});
@@ -189,99 +144,131 @@ void CAT_load_override()
 	CAT_room_add_prop(prop_table_sm_plastic_item, (CAT_ivec2) {13, 7});
 	CAT_room_stack_prop(room.prop_count-1, prop_coffeemaker_item);
 	CAT_room_add_prop(prop_plant_daisy_item, (CAT_ivec2) {0, 9});
+
+	CAT_item_list_add(&bag, book_1_item, 1);
+	CAT_item_list_add(&bag, food_bread_item, 2);
+	CAT_item_list_add(&bag, food_milk_item, 2);
+	CAT_item_list_add(&bag, food_coffee_item, 1);
+	CAT_item_list_add(&bag, prop_succulent_item, 1);
+	CAT_item_list_add(&bag, toy_baseball_item, 1);
+	CAT_item_list_add(&bag, toy_laser_pointer_item, 1);
+	coins = 100;
 }
 
 void CAT_force_load()
 {
 	CAT_printf("Loading...\n");
-	
 	CAT_save* save = CAT_start_load();
 
-	if(save == NULL || !CAT_check_save(save) || CAT_check_load_flags(CAT_LOAD_FLAG_RESET))
+	if(save == NULL)
 	{
-		CAT_load_reset();
-		CAT_unset_load_flags(CAT_LOAD_FLAG_RESET);
-
-		CAT_finish_load();
+		CAT_printf("Failed to locate save...\n");
+		CAT_load_default();
 		CAT_force_save();
-
-		CAT_printf("Refreshed save state!\n");
+		CAT_printf("Save state reset!\n");
 		return;
 	}
-	
-	saved_version_major = save->version_major;
-	saved_version_minor = save->version_minor;
-	saved_version_patch = save->version_patch;
-	saved_version_push = save->version_push;
-
-	if(save->vigour <= 12)
-		pet.vigour = save->vigour;
-	if(save->focus <= 12)
-		pet.focus = save->focus;
-	if(save->spirit <= 12)
-		pet.spirit = save->spirit;
-	pet.lifetime = save->lifetime;
-		
-	for(int i = 0; i < save->prop_count; i++)
+	else if(CAT_check_load_flags(CAT_LOAD_FLAG_DEFAULT))
 	{
-		uint8_t prop_id = save->prop_ids[i];
-		CAT_ivec2 prop_place = save->prop_places[i];
-		if(CAT_prop_fits(prop_id, prop_place))
+		CAT_printf("Save reset flag encountered...\n");
+		CAT_load_default();
+		CAT_force_save();
+		CAT_unset_load_flags(CAT_LOAD_FLAG_DEFAULT);
+		CAT_printf("Save reset flag encountered. Save state reset!\n");
+		return;
+	}
+	else
+	{
+		int save_status = CAT_verify_save_structure(save);
+		if(save_status == CAT_SAVE_ERROR_MAGIC)
 		{
-			CAT_room_add_prop(prop_id, prop_place);
-			room.prop_overrides[i] = save->prop_overrides[i];
-			room.prop_children[i] = save->prop_children[i];
+			CAT_printf("Save has become corrupted...\n");
+			CAT_load_default();
+			CAT_force_save();
+			CAT_printf("Save state reset!\n");
+			return;
+		}
+		else if(save_status == CAT_SAVE_ERROR_SECTOR_CORRUPT)
+		{
+			CAT_printf("Save requires migration...\n");
+			CAT_migrate_legacy_save(save);
+			CAT_printf("Save migrated!\n");
+		}
+		else if(save_status == CAT_SAVE_ERROR_SECTOR_MISSING)
+		{
+			CAT_printf("Save is missing sector...\n");
+			CAT_extend_save(save);
+			CAT_printf("Save extended!\n");
+		}
+	}
+
+	if(strlen(save->pet.name) <= CAT_TEXT_INPUT_MAX)
+		strcpy(pet.name, save->pet.name);
+	if(save->pet.level < CAT_NUM_LEVELS)
+		pet.level = save->pet.level;
+	if(save->pet.xp < level_cutoffs[pet.level])
+		pet.xp = save->pet.xp;
+	pet.lifetime = save->pet.lifetime;
+	if(save->pet.vigour <= 12)
+		pet.vigour = save->pet.vigour;
+	if(save->pet.focus <= 12)
+		pet.focus = save->pet.focus;
+	if(save->pet.spirit <= 12)
+		pet.spirit = save->pet.spirit;
+
+	CAT_item_list_init(&bag);
+	for(int i = 0; i < item_table.length; i++)
+	{
+		CAT_item_list_add(&bag, i, save->inventory.counts[i]);
+	}
+	coins = save->inventory.coins;
+
+	for(int i = 0; i < 150; i++)
+	{
+		int prop_id = save->deco.props[i] - 1;
+		CAT_item* prop = CAT_item_get(prop_id);
+		if(prop == NULL)
+			continue;
+		int child_id = save->deco.children[i] - 1;
+		CAT_item* child = CAT_item_get(child_id);
+
+		CAT_ivec2 position =
+		{
+			save->deco.positions[i*2+0],
+			save->deco.positions[i*2+0],
+		};
+		int prop_idx = CAT_room_add_prop(prop_id, position);
+
+		if(prop_idx == -1)
+		{
+			CAT_item_list_add(&bag, prop_id, 1);
+			if(child != NULL)
+				CAT_item_list_add(&bag, child_id, 1);
 		}
 		else
 		{
-			CAT_item_list_add(&bag, save->prop_ids[i], 1);
+			int override = save->deco.overrides[i];
+			if(override < prop->sprite->frame_count)
+				room.prop_overrides[prop_idx] = override;
+			
+			if(child != NULL)
+				CAT_room_stack_prop(prop_idx, child_id);
 		}
 	}
 
-	for(int i = 0; i < save->bag_length; i++)
-	{	
-		if(CAT_item_get(save->bag_ids[i]) != NULL)
-			CAT_item_list_add(&bag, save->bag_ids[i], save->bag_counts[i]);
-	}
-	coins = save->coins;
+	snake_high_score = save->highscores.snake;
 
-	snake_high_score = save->snake_high_score;
+	CAT_timer_set(pet.stat_timer_id, save->timing.stat_timer);
+	CAT_timer_set(pet.life_timer_id, save->timing.life_timer);
+	CAT_timer_set(room.earn_timer_id, save->timing.earn_timer);
+	CAT_timer_set(pet.petting_timer_id, save->timing.petting_timer);
+	pet.times_pet = save->timing.petting_count;
+	pet.times_milked = save->timing.milking_count;
 
-	CAT_timer_set(room.earn_timer_id, save->earn_timer);
-	CAT_timer_set(pet.stat_timer_id, save->stat_timer);
-	CAT_timer_set(pet.life_timer_id, save->life_timer);
-	pet.times_pet = save->times_pet;
-	CAT_timer_set(pet.petting_timer_id, save->petting_timer);
-	pet.times_milked = save->times_milked;
+	if(save->config.theme < THEME_COUNT)
+		room.theme = themes_list[save->config.theme];
 
-	if(strlen(save->name) <= CAT_TEXT_INPUT_MAX)
-		strcpy(pet.name, save->name);
-
-	if(save->theme < THEME_COUNT)
-		room.theme = themes_list[save->theme];
-
-	if(save->level < CAT_NUM_LEVELS)
-		pet.level = save->level;
-	if(save->xp <= level_cutoffs[pet.level])
-		pet.xp = save->xp;
-
-	CAT_import_save_flags(save->save_flags);
-	
-	if(save->lcd_brightness >= CAT_LCD_MIN_BRIGHTNESS && save->lcd_brightness <= CAT_LCD_MAX_BRIGHTNESS)
-		CAT_LCD_set_brightness(save->lcd_brightness);
-	CAT_LED_set_brightness(save->led_brightness);
-	
-	if(save->temperature_unit <= CAT_TEMPERATURE_UNIT_DEGREES_FAHRENHEIT)
-		CAT_AQ_set_temperature_unit(save->temperature_unit);
-	
-	if(CAT_check_load_flags(CAT_LOAD_FLAG_OVERRIDE))
-	{
-		CAT_load_override();
-		CAT_unset_load_flags(CAT_LOAD_FLAG_OVERRIDE);
-	}
-		
-	CAT_finish_load();
-
+	//CAT_finish_load(save);
 	CAT_printf("Load complete!\n");
 }
 
@@ -323,7 +310,7 @@ void CAT_init()
 	CAT_force_load();
 	CAT_apply_sleep(CAT_get_slept_s());
 
-	if(CAT_check_save_flags(CAT_SAVE_FLAG_AQ_FIRST))
+	if(CAT_check_config_flags(CAT_CONFIG_FLAG_AQ_FIRST))
 		CAT_machine_transition(CAT_MS_monitor);
 	else
 		CAT_machine_transition(CAT_MS_room);

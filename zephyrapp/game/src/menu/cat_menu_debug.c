@@ -58,13 +58,15 @@ void CAT_render_debug()
 		case SYSTEM:
 			CAT_gui_title(true, NULL, &icon_exit_sprite, "SYSTEM");
 			CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
+			
+			CAT_save* save = CAT_start_save();
 			CAT_gui_textf
 			(
 				"Game v%d.%d.%d.%d\nSave v%d.%d.%d.%d\n",
 				CAT_VERSION_MAJOR, CAT_VERSION_MINOR,
 				CAT_VERSION_PATCH, CAT_VERSION_PUSH,
-				saved_version_major, saved_version_minor,
-				saved_version_patch, saved_version_push
+				save->version_major, save->version_minor,
+				save->version_patch, save->version_push
 			);
 			
 #define TOSTRING_INNER(x) #x
@@ -75,7 +77,7 @@ void CAT_render_debug()
 			CAT_gui_text("EMBEDDED\n");
 #endif
 
-			if(CAT_check_save_flags(CAT_SAVE_FLAG_DEVELOPER_MODE))
+			if(CAT_check_config_flags(CAT_CONFIG_FLAG_DEVELOPER))
 				CAT_gui_text("DEVELOPER MODE\n");
 		break;
 		case TIME:
