@@ -2,6 +2,7 @@
 
 #include "cat_aqi.h"
 #include <math.h>
+#include "cat_structures.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // LCD
@@ -125,53 +126,48 @@ const char* CAT_AQ_get_temperature_unit_string()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // SAVE
 
-static int save_flags = 0;
-
 int CAT_export_save_flags()
 {
-	return save_flags;
+	return CAT_start_load()->save_flags;
 }
 
 void CAT_import_save_flags(int flags)
 {
-	save_flags = flags;
+	CAT_start_load()->save_flags = flags;
 }
 
-void CAT_set_save_flag(CAT_save_flag flag)
+void CAT_set_save_flags(int flags)
 {
-	save_flags |= (1 << flag);
+	CAT_start_load()->save_flags =
+	CAT_set_flag(CAT_start_load()->save_flags, flags);
+}
+void CAT_unset_save_flags(int flags)
+{
+	CAT_start_load()->save_flags =
+	CAT_unset_flag(CAT_start_load()->save_flags, flags);
 }
 
-void CAT_clear_save_flag(CAT_save_flag flag)
+bool CAT_check_save_flags(int flags)
 {
-	save_flags &= ~(1 << flag);
-}
-
-bool CAT_check_save_flag(CAT_save_flag flag)
-{
-	return save_flags & (1 << flag);
-}
-
-void CAT_clear_save_flags()
-{
-	save_flags = 0;
+	return
+	CAT_get_flag(CAT_start_load()->save_flags, flags);
 }
 
 static int load_flags = 0;
 
-void CAT_set_load_flag(CAT_load_flag flag)
+void CAT_set_load_flags(int flags)
 {
-	load_flags |= (1 << flag);
+	load_flags = CAT_set_flag(load_flags, flags);
 }
 
-void CAT_clear_load_flag(CAT_load_flag flag)
+void CAT_unset_load_flags(int flags)
 {
-	load_flags &= ~(1 << flag);
+	load_flags = CAT_unset_flag(load_flags, flags);
 }
 
-bool CAT_check_load_flag(CAT_load_flag flag)
+bool CAT_check_load_flags(int flags)
 {
-	return load_flags & (1 << flag);
+	return CAT_get_flag(load_flags, flags);
 }
 
 

@@ -216,14 +216,14 @@ static inline bool CAT_check_save(CAT_save* save)
 
 int CAT_export_save_flags();
 void CAT_import_save_flags(int flags);
-void CAT_set_save_flag(CAT_save_flag flag);
-void CAT_clear_save_flag(CAT_save_flag flag);
-bool CAT_check_save_flag(CAT_save_flag flag);
-void CAT_clear_save_flags();
 
-void CAT_set_load_flag(CAT_load_flag flag);
-void CAT_clear_load_flag(CAT_load_flag flag);
-bool CAT_check_load_flag(CAT_load_flag flag);
+void CAT_set_save_flags(int flags);
+void CAT_unset_save_flags(int flags);
+bool CAT_check_save_flags(int flags);
+
+void CAT_set_load_flags(int flags);
+void CAT_unset_load_flags(int flags);
+bool CAT_check_load_flags(int flags);
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

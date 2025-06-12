@@ -744,7 +744,7 @@ void MS_feed_arrange(CAT_machine_signal signal)
 			CAT_timer_reset(show_feedback_timer_id);
 		}
 
-		if(CAT_check_save_flag(CAT_SAVE_FLAG_DEVELOPER_MODE))
+		if(CAT_check_save_flags(CAT_SAVE_FLAG_DEVELOPER_MODE))
 		{
 			if (CAT_input_pressed(CAT_BUTTON_RIGHT))
 				show_debug_text = !show_debug_text;

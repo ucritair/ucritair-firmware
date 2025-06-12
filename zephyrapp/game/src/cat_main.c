@@ -92,6 +92,7 @@ void CAT_force_save()
 	}
 	save->bag_length = bag.length;
 	save->coins = coins;
+
 	for(int i = 0; i < room.pickup_count; i++)
 	{
 		if(room.pickups[i].sprite == &coin_world_sprite)
@@ -196,10 +197,10 @@ void CAT_force_load()
 	
 	CAT_save* save = CAT_start_load();
 
-	if(save == NULL || !CAT_check_save(save) || CAT_check_load_flag(CAT_LOAD_FLAG_RESET))
+	if(save == NULL || !CAT_check_save(save) || CAT_check_load_flags(CAT_LOAD_FLAG_RESET))
 	{
 		CAT_load_reset();
-		CAT_clear_load_flag(CAT_LOAD_FLAG_RESET);
+		CAT_unset_load_flags(CAT_LOAD_FLAG_RESET);
 
 		CAT_finish_load();
 		CAT_force_save();
@@ -239,7 +240,8 @@ void CAT_force_load()
 
 	for(int i = 0; i < save->bag_length; i++)
 	{	
-		CAT_item_list_add(&bag, save->bag_ids[i], save->bag_counts[i]);
+		if(CAT_item_get(save->bag_ids[i]) != NULL)
+			CAT_item_list_add(&bag, save->bag_ids[i], save->bag_counts[i]);
 	}
 	coins = save->coins;
 
@@ -272,10 +274,10 @@ void CAT_force_load()
 	if(save->temperature_unit <= CAT_TEMPERATURE_UNIT_DEGREES_FAHRENHEIT)
 		CAT_AQ_set_temperature_unit(save->temperature_unit);
 	
-	if(CAT_check_load_flag(CAT_LOAD_FLAG_OVERRIDE))
+	if(CAT_check_load_flags(CAT_LOAD_FLAG_OVERRIDE))
 	{
 		CAT_load_override();
-		CAT_clear_load_flag(CAT_LOAD_FLAG_OVERRIDE);
+		CAT_unset_load_flags(CAT_LOAD_FLAG_OVERRIDE);
 	}
 		
 	CAT_finish_load();
@@ -321,7 +323,7 @@ void CAT_init()
 	CAT_force_load();
 	CAT_apply_sleep(CAT_get_slept_s());
 
-	if(CAT_check_save_flag(CAT_SAVE_FLAG_AQ_FIRST))
+	if(CAT_check_save_flags(CAT_SAVE_FLAG_AQ_FIRST))
 		CAT_machine_transition(CAT_MS_monitor);
 	else
 		CAT_machine_transition(CAT_MS_room);
@@ -332,10 +334,10 @@ void CAT_init()
 
 void CAT_tick_logic()
 {
-	if(CAT_check_load_flag(CAT_LOAD_FLAG_DIRTY))
+	if(CAT_check_load_flags(CAT_LOAD_FLAG_DIRTY))
 	{
 		CAT_force_load();
-		CAT_clear_load_flag(CAT_LOAD_FLAG_DIRTY);
+		CAT_unset_load_flags(CAT_LOAD_FLAG_DIRTY);
 	}
 		
 	CAT_platform_tick();

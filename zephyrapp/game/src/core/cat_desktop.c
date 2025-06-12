@@ -462,10 +462,7 @@ void CAT_finish_save(CAT_save* save)
 {
 	save->magic_number = CAT_SAVE_MAGIC;
 	int fd = open("save.dat", O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
-	uint8_t* buffer = CAT_malloc(sizeof(backing_save));
-	memcpy(buffer, &backing_save, sizeof(backing_save));
-	write(fd, buffer, sizeof(backing_save));
-	CAT_free(buffer);
+	write(fd, &backing_save, sizeof(backing_save));
 	close(fd);
 }
 
@@ -525,8 +522,8 @@ void CAT_shutdown()
 
 void CAT_factory_reset()
 {
-	CAT_set_load_flag(CAT_LOAD_FLAG_DIRTY);
-	CAT_set_load_flag(CAT_LOAD_FLAG_RESET);
+	CAT_set_load_flags(CAT_LOAD_FLAG_DIRTY);
+	CAT_set_load_flags(CAT_LOAD_FLAG_RESET);
 }
 
 

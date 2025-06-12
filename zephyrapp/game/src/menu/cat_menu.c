@@ -64,7 +64,7 @@ void CAT_MS_menu(CAT_machine_signal signal)
 				}
 				if(CAT_gui_menu_item("MAGIC"))
 					CAT_machine_transition(CAT_MS_magic);
-				if(CAT_check_save_flag(CAT_SAVE_FLAG_DEVELOPER_MODE))
+				if(CAT_check_save_flags(CAT_SAVE_FLAG_DEVELOPER_MODE))
 				{
 					if(CAT_gui_begin_menu("DEVELOPER"))
 					{
@@ -107,8 +107,7 @@ void CAT_MS_menu(CAT_machine_signal signal)
 							}
 							if(CAT_gui_menu_item("TURNKEY APARTMENT"))
 							{
-								CAT_set_load_flag(CAT_LOAD_FLAG_DIRTY);
-								CAT_set_load_flag(CAT_LOAD_FLAG_OVERRIDE);
+								CAT_set_load_flags(CAT_LOAD_FLAG_DIRTY | CAT_LOAD_FLAG_OVERRIDE);
 							}
 							CAT_gui_end_menu();
 						}
@@ -177,14 +176,14 @@ void CAT_MS_menu(CAT_machine_signal signal)
 					}
 					if(CAT_gui_begin_menu("LAUNCH MODE"))
 					{
-						if(CAT_gui_menu_toggle("GAME FIRST", !CAT_check_save_flag(CAT_SAVE_FLAG_AQ_FIRST)))
+						if(CAT_gui_menu_toggle("GAME FIRST", !CAT_check_save_flags(CAT_SAVE_FLAG_AQ_FIRST)))
 						{
-							CAT_clear_save_flag(CAT_SAVE_FLAG_AQ_FIRST);
+							CAT_unset_save_flags(CAT_SAVE_FLAG_AQ_FIRST);
 							CAT_force_save();
 						}
-						if(CAT_gui_menu_toggle("DASHBOARD FIRST", CAT_check_save_flag(CAT_SAVE_FLAG_AQ_FIRST)))
+						if(CAT_gui_menu_toggle("DASHBOARD FIRST", CAT_check_save_flags(CAT_SAVE_FLAG_AQ_FIRST)))
 						{
-							CAT_set_save_flag(CAT_SAVE_FLAG_AQ_FIRST);
+							CAT_set_save_flags(CAT_SAVE_FLAG_AQ_FIRST);
 							CAT_force_save();
 						}
 						CAT_gui_end_menu();
@@ -199,7 +198,7 @@ void CAT_MS_menu(CAT_machine_signal signal)
 					{
 						if(CAT_gui_menu_item("RESET SAVE FLAGS"))
 						{
-							CAT_clear_save_flags();
+							CAT_import_save_flags(CAT_SAVE_FLAG_NONE);
 							CAT_force_save();
 						}
 							
