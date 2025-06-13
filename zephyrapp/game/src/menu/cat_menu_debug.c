@@ -79,6 +79,8 @@ void CAT_render_debug()
 
 			if(CAT_check_config_flags(CAT_CONFIG_FLAG_DEVELOPER))
 				CAT_gui_text("DEVELOPER MODE\n");
+			if(CAT_check_config_flags(CAT_CONFIG_FLAG_MIGRATED))
+				CAT_gui_text("MIGRATED SAVE\n");
 		break;
 		case TIME:
 			CAT_gui_title(true, NULL, &icon_exit_sprite, "TIME");

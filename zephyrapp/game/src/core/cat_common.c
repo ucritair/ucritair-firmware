@@ -252,11 +252,11 @@ CAT_save_error CAT_verify_save_structure(CAT_save* save)
 	return CAT_SAVE_ERROR_NONE;
 }
 
-void CAT_migrate_legacy_save(void* save_location)
+void CAT_migrate_legacy_save(void* save)
 {
 	CAT_save_legacy legacy;
-	memcpy(&legacy, save_location, sizeof(CAT_save_legacy));
-	CAT_save* new = (CAT_save*) save_location;
+	memcpy(&legacy, save, sizeof(CAT_save_legacy));
+	CAT_save* new = (CAT_save*) save;
 	CAT_initialize_save(new);
 
 	CAT_printf("[INFO] Migrating legacy save to new format\n");
@@ -295,6 +295,7 @@ void CAT_migrate_legacy_save(void* save_location)
 	new->timing.milking_count = legacy.times_milked;
 
 	new->config.flags = (legacy.save_flags & 1) ? CAT_CONFIG_FLAG_DEVELOPER : CAT_CONFIG_FLAG_NONE;
+	new->config.flags |= CAT_CONFIG_FLAG_MIGRATED;
 	new->config.theme = legacy.theme;
 }
 
@@ -324,35 +325,34 @@ void CAT_extend_save(CAT_save* save)
 	}
 }
 
+static uint64_t config_flags;
+
 int CAT_export_config_flags()
 {
-	return CAT_start_save()->config.flags;
+	return config_flags;
 }
 
 void CAT_import_config_flags(int flags)
 {
-	CAT_start_save()->config.flags = flags;
+	config_flags = flags;
 }
 
 void CAT_set_config_flags(int flags)
 {
-	CAT_start_save()->config.flags =
-	CAT_set_flag(CAT_start_save()->config.flags, flags);
+	config_flags = CAT_set_flag(config_flags, flags);
 }
 
 void CAT_unset_config_flags(int flags)
 {
-	CAT_start_save()->config.flags =
-	CAT_unset_flag(CAT_start_save()->config.flags, flags);
+	config_flags = CAT_unset_flag(config_flags, flags);
 }
 
 bool CAT_check_config_flags(int flags)
 {
-	return
-	CAT_get_flag(CAT_start_save()->config.flags, flags);
+	return CAT_get_flag(config_flags, flags);
 }
 
-static int load_flags = CAT_LOAD_FLAG_NONE;
+static uint64_t load_flags = CAT_LOAD_FLAG_NONE;
 
 void CAT_set_load_flags(int flags)
 {
@@ -369,8 +369,10 @@ bool CAT_check_load_flags(int flags)
 	return CAT_get_flag(load_flags, flags);
 }
 
-void CAT_legacy_turnkey(CAT_save_legacy* save)
+void CAT_legacy_override()
 {
+	CAT_save_legacy* save = CAT_start_save();
+
 	save->magic_number = CAT_SAVE_MAGIC;
 
 	save->version_major = 0;
@@ -417,7 +419,5 @@ void CAT_legacy_turnkey(CAT_save_legacy* save)
 
 	save->save_flags = CAT_CONFIG_FLAG_DEVELOPER;
 
-	uint8_t* location = CAT_start_save();
-	memcpy(location, save, sizeof(CAT_save_legacy));
-	CAT_finish_save(location);
+	CAT_finish_save(save);
 }

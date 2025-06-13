@@ -104,6 +104,7 @@ void CAT_force_save()
 	save->timing.petting_count = pet.times_pet;
 	save->timing.milking_count = pet.times_milked;
 
+	save->config.flags = CAT_export_config_flags();
 	for(int i = 0; i < THEME_COUNT; i++)
 	{
 		if(themes_list[i] == room.theme)
@@ -166,7 +167,7 @@ void CAT_force_load()
 		CAT_printf("Reset flag encountered...\n");
 		CAT_initialize_save(save);
 		CAT_load_default();
-		CAT_force_save();	
+		CAT_force_save();
 		CAT_printf("Game state reset and saved!\n");
 		CAT_unset_load_flags(CAT_LOAD_FLAG_DEFAULT);
 		return;
@@ -177,7 +178,7 @@ void CAT_force_load()
 		CAT_initialize_save(save);
 		CAT_load_turnkey();
 		CAT_force_save();
-		CAT_printf("Game state set to turnkey configuration and saved!\n");
+		CAT_printf("Game state set to turnkey configuration!\n");
 		CAT_unset_load_flags(CAT_LOAD_FLAG_TURNKEY);
 		return;
 	}
@@ -190,7 +191,7 @@ void CAT_force_load()
 			CAT_initialize_save(save);
 			CAT_load_default();
 			CAT_force_save();
-			CAT_printf("Game state reset and saved!\n");
+			CAT_printf("Game state reset!\n");
 			return;
 		}
 		else if(save_status == CAT_SAVE_ERROR_SECTOR_CORRUPT)
@@ -223,7 +224,6 @@ void CAT_force_load()
 	if(save->pet.spirit <= 12)
 		pet.spirit = save->pet.spirit;
 
-	CAT_item_list_init(&bag);
 	for(int i = 0; i < item_table.length; i++)
 	{
 		CAT_item_list_add(&bag, i, save->inventory.counts[i]);
@@ -272,6 +272,7 @@ void CAT_force_load()
 	pet.times_pet = save->timing.petting_count;
 	pet.times_milked = save->timing.milking_count;
 
+	CAT_import_config_flags(save->config.flags);
 	if(save->config.theme < THEME_COUNT)
 		room.theme = themes_list[save->config.theme];
 
@@ -313,6 +314,7 @@ void CAT_init()
 	CAT_room_init();
 	CAT_pet_init();
 
+	// CAT_legacy_override();
 	CAT_force_load();
 	CAT_apply_sleep(CAT_get_slept_s());
 

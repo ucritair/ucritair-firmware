@@ -190,6 +190,7 @@ typedef enum
 	CAT_CONFIG_FLAG_DEVELOPER = 1,
 	CAT_CONFIG_FLAG_USE_FAHRENHEIT = 2,
 	CAT_CONFIG_FLAG_AQ_FIRST = 4,
+	CAT_CONFIG_FLAG_MIGRATED = 8,
 } CAT_config_flag;
 
 typedef enum
@@ -294,7 +295,7 @@ typedef enum
 } CAT_save_error;
 
 void CAT_initialize_save(CAT_save* save);
-void CAT_migrate_legacy_save(void* save_location);
+void CAT_migrate_legacy_save(void* save);
 void CAT_extend_save(CAT_save* save);
 CAT_save_error CAT_verify_save_structure(CAT_save* save);
 
@@ -321,7 +322,7 @@ void CAT_set_load_flags(int flags);
 void CAT_unset_load_flags(int flags);
 bool CAT_check_load_flags(int flags);
 
-void CAT_legacy_turnkey(CAT_save_legacy* save);
+void CAT_legacy_override();
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
