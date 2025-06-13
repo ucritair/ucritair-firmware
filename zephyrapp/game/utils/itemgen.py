@@ -79,6 +79,13 @@ json_file.truncate();
 json_file.write(json.dumps(json_data, indent=4));
 json_file.close();
 
+json_entries.sort(key = lambda i: i["id"]);
+for i in range(len(json_entries)-1):
+	a = json_entries[i];
+	b = json_entries[i+1];
+	if b["id"]-a["id"] != 1:
+		print(f"[WARNING] Gap between item IDs {a["id"]} and {b["id"]}!");
+	
 header = open("data/item_assets.h", "w");
 header.write("#pragma once\n");
 header.write("\n");

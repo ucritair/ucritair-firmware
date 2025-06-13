@@ -270,7 +270,7 @@ void CAT_migrate_legacy_save(void* save_location)
 	new->pet.focus = legacy.focus;
 	new->pet.spirit = legacy.spirit;
 
-	for(int i = 0; i < 128; i++)
+	for(int i = 0; i < legacy.bag_length; i++)
 	{
 		new->inventory.counts[legacy.bag_ids[i]] = legacy.bag_counts[i];
 	}
@@ -294,6 +294,7 @@ void CAT_migrate_legacy_save(void* save_location)
 	new->timing.petting_count = legacy.times_pet;
 	new->timing.milking_count = legacy.times_milked;
 
+	new->config.flags = (legacy.save_flags & 1) ? CAT_CONFIG_FLAG_DEVELOPER : CAT_CONFIG_FLAG_NONE;
 	new->config.theme = legacy.theme;
 }
 
@@ -368,4 +369,55 @@ bool CAT_check_load_flags(int flags)
 	return CAT_get_flag(load_flags, flags);
 }
 
+void CAT_legacy_turnkey(CAT_save_legacy* save)
+{
+	save->magic_number = CAT_SAVE_MAGIC;
 
+	save->version_major = 0;
+	save->version_minor = 3;
+	save->version_patch = 29;
+	save->version_push = 81;
+
+	save->vigour = 12;
+	save->focus = 12; 
+	save->spirit = 12;
+	save->lifetime = 0xdead;
+
+	save->prop_ids[0] = 33;
+	save->prop_places[0] = (CAT_ivec2) {7, 7};
+	save->prop_overrides[0] = 1;
+	save->prop_children[0] = -1;
+	save->prop_count = 1;
+
+	save->bag_ids[0] = 86;
+	save->bag_counts[0] = 1;
+	save->bag_length = 1;
+	save->coins = 27;
+
+	save->snake_high_score = 777;
+
+	save->stat_timer = 0;
+	save->life_timer = 0;
+	save->earn_timer = 0;
+	save->times_pet = 0;
+	save->petting_timer = 0;
+	save->times_milked = 0;
+
+	strcpy(save->name, "Tomas");
+
+	save->theme = 0;
+
+	save->level = 35;
+	save->xp = 777;
+
+	save->lcd_brightness = 100;
+	save->led_brightness = 100;
+
+	save->temperature_unit = CAT_TEMPERATURE_UNIT_DEGREES_FAHRENHEIT;
+
+	save->save_flags = CAT_CONFIG_FLAG_DEVELOPER;
+
+	uint8_t* location = CAT_start_save();
+	memcpy(location, save, sizeof(CAT_save_legacy));
+	CAT_finish_save(location);
+}

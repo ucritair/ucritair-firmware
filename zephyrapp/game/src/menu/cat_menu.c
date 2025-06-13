@@ -70,6 +70,7 @@ void CAT_MS_menu(CAT_machine_signal signal)
 					{
 						if(CAT_gui_menu_item("INFO"))
 							CAT_machine_transition(CAT_MS_debug);
+							
 						if(CAT_gui_begin_menu("CHEATS"))
 						{
 							if(CAT_gui_menu_item("1000 COINS"))
@@ -111,8 +112,16 @@ void CAT_MS_menu(CAT_machine_signal signal)
 							}
 							CAT_gui_end_menu();
 						}
+
 						if(CAT_gui_menu_item("COLOUR PICKER"))
 							CAT_machine_transition(CAT_MS_colour_picker);
+
+						if(CAT_gui_menu_item("FORCE LEGACY SAVE"))
+						{
+							CAT_save_legacy dummy_save;
+							CAT_legacy_turnkey(&dummy_save);
+							CAT_force_load();
+						}
 						CAT_gui_end_menu();
 					}				
 				}

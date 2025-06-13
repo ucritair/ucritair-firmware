@@ -321,6 +321,8 @@ void CAT_set_load_flags(int flags);
 void CAT_unset_load_flags(int flags);
 bool CAT_check_load_flags(int flags);
 
+void CAT_legacy_turnkey(CAT_save_legacy* save);
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // LOGS

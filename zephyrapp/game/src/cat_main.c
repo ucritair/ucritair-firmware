@@ -157,24 +157,28 @@ void CAT_load_turnkey()
 
 void CAT_force_load()
 {
-	CAT_printf("Loading...\n");
+	CAT_printf("Load requested...\n");
+	
 	CAT_save* save = CAT_start_load();
 
-	if(save == NULL)
+	if(CAT_check_load_flags(CAT_LOAD_FLAG_DEFAULT))
 	{
-		CAT_printf("Failed to locate save...\n");
+		CAT_printf("Reset flag encountered...\n");
+		CAT_initialize_save(save);
 		CAT_load_default();
-		CAT_force_save();
-		CAT_printf("Save state reset!\n");
+		CAT_force_save();	
+		CAT_printf("Game state reset and saved!\n");
+		CAT_unset_load_flags(CAT_LOAD_FLAG_DEFAULT);
 		return;
 	}
-	else if(CAT_check_load_flags(CAT_LOAD_FLAG_DEFAULT))
-	{
-		CAT_printf("Save reset flag encountered...\n");
-		CAT_load_default();
+	else if(CAT_check_load_flags(CAT_LOAD_FLAG_TURNKEY))
+	{	
+		CAT_printf("Turnkey flag encountered...\n");
+		CAT_initialize_save(save);
+		CAT_load_turnkey();
 		CAT_force_save();
-		CAT_unset_load_flags(CAT_LOAD_FLAG_DEFAULT);
-		CAT_printf("Save reset flag encountered. Save state reset!\n");
+		CAT_printf("Game state set to turnkey configuration and saved!\n");
+		CAT_unset_load_flags(CAT_LOAD_FLAG_TURNKEY);
 		return;
 	}
 	else
@@ -183,9 +187,10 @@ void CAT_force_load()
 		if(save_status == CAT_SAVE_ERROR_MAGIC)
 		{
 			CAT_printf("Save has become corrupted...\n");
+			CAT_initialize_save(save);
 			CAT_load_default();
 			CAT_force_save();
-			CAT_printf("Save state reset!\n");
+			CAT_printf("Game state reset and saved!\n");
 			return;
 		}
 		else if(save_status == CAT_SAVE_ERROR_SECTOR_CORRUPT)
@@ -201,6 +206,8 @@ void CAT_force_load()
 			CAT_printf("Save extended!\n");
 		}
 	}
+
+	CAT_printf("Loading...\n");
 
 	if(strlen(save->pet.name) <= CAT_TEXT_INPUT_MAX)
 		strcpy(pet.name, save->pet.name);
@@ -268,7 +275,6 @@ void CAT_force_load()
 	if(save->config.theme < THEME_COUNT)
 		room.theme = themes_list[save->config.theme];
 
-	//CAT_finish_load(save);
 	CAT_printf("Load complete!\n");
 }
 
