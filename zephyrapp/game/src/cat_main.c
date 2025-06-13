@@ -242,7 +242,7 @@ void CAT_force_load()
 		CAT_ivec2 position =
 		{
 			save->deco.positions[i*2+0],
-			save->deco.positions[i*2+0],
+			save->deco.positions[i*2+1],
 		};
 		int prop_idx = CAT_room_add_prop(prop_id, position);
 
