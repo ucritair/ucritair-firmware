@@ -6,7 +6,7 @@
 #include "cat_room.h"
 #include "cat_input.h"
 #include "cat_render.h"
-#include "cat_bag.h"
+#include "cat_inventory.h"
 #include <stdio.h>
 #include "cat_aqi.h"
 #include "sprite_assets.h"

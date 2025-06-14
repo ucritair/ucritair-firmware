@@ -8,7 +8,7 @@
 #include "cat_version.h"
 #include "cat_vending.h"
 #include "cat_arcade.h"
-#include "cat_bag.h"
+#include "cat_inventory.h"
 #include "cat_pet.h"
 #include <stddef.h>
 #include <string.h>
@@ -45,7 +45,7 @@ void CAT_MS_menu(CAT_machine_signal signal)
 				if(CAT_gui_menu_item("INSIGHTS"))
 					CAT_machine_transition(CAT_MS_insights);
 				if(CAT_gui_menu_item("INVENTORY"))
-					CAT_machine_transition(CAT_MS_bag);
+					CAT_machine_transition(CAT_MS_inventory);
 				if(CAT_gui_menu_item("VENDING MACHINE"))
 					CAT_machine_transition(CAT_MS_vending);
 				if(CAT_gui_menu_item("ARCADE"))
@@ -103,7 +103,7 @@ void CAT_MS_menu(CAT_machine_signal signal)
 							{
 								for(int item_id = 0; item_id < item_table.length; item_id++)
 								{
-									CAT_item_list_add(&bag, item_id, 1);
+									CAT_bag_add(item_id, 1);
 								}
 							}
 							if(CAT_gui_menu_item("TURNKEY APARTMENT"))

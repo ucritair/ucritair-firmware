@@ -11,7 +11,7 @@
 #include "cat_gui.h"
 #include "item_assets.h"
 #include "cat_pet.h"
-#include "cat_bag.h"
+#include "cat_inventory.h"
 #include "config.h"
 
 #define SCREEN_DIAG 400
@@ -1189,7 +1189,7 @@ static void MS_summary(CAT_machine_signal signal)
 		break;
 
 		case CAT_MACHINE_SIGNAL_EXIT:
-			CAT_item_list_add(&bag, item_rewards[fish.grade], 1);
+			CAT_bag_add(item_rewards[fish.grade], 1);
 			pet.focus += focus_reward;
 			CAT_pet_gain_xp(xp_reward);
 		break;

@@ -1,7 +1,7 @@
 #include "cat_item_dialog.h"
 
 #include "cat_input.h"
-#include "cat_bag.h"
+#include "cat_inventory.h"
 #include "cat_render.h"
 #include "cat_gui.h"
 #include "cat_room.h"
@@ -45,16 +45,15 @@ void CAT_MS_item_dialog(CAT_machine_signal signal)
 
 			CAT_gui_set_flag(CAT_GUI_FLAG_INCLUDE_COUNT);
 			CAT_gui_begin_item_list("SELECT AN ITEM");
-			for(int i = 0; i < bag.length; i++)
+			for(int i = 0; i < item_table.length; i++)
 			{
-				int item_id = bag.item_ids[i];
-				if(filter(item_id))
+				if(item_table.counts[i] > 0 && filter(i))
 				{
-					if(CAT_gui_item_listing(item_id, bag.counts[i]))
+					if(CAT_gui_item_listing(i))
 					{
-						if(target != NULL && (item_id != -1 || !enforce_valid_target))
+						if(target != NULL && (i != -1 || !enforce_valid_target))
 						{
-							*target = item_id;
+							*target = i;
 							CAT_machine_back();	
 						}
 					}

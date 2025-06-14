@@ -334,7 +334,7 @@ void do_populate_next(void* arg)
 }
 
 
-#include "cat_bag.h"
+#include "cat_inventory.h"
 void menu_coins(void* arg)
 {
 	coins += 1000;

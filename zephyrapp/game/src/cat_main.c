@@ -22,7 +22,7 @@
 #include "cat_pet.h"
 #include "caring/cat_actions.h"
 #include "cat_menu.h"
-#include "cat_bag.h"
+#include "cat_inventory.h"
 #include "cat_arcade.h"
 #include "cat_vending.h"
 #include "cat_deco.h"
@@ -72,10 +72,9 @@ void CAT_force_save()
 
 	for(int i = 0; i < item_table.length; i++)
 	{
-		int bag_idx = CAT_item_list_find(&bag, i);
-		if(bag_idx != -1)
-			save->inventory.counts[i] = bag.counts[bag_idx];
+		save->inventory.counts[i] = item_table.counts[i];
 	}
+
 	for(int i = 0; i < room.pickup_count; i++)
 	{
 		if(room.pickups[i].sprite == &coin_world_sprite)
@@ -125,21 +124,33 @@ void CAT_force_save()
 
 void CAT_load_default()
 {
-	CAT_room_init();
-	CAT_pet_init();
-	CAT_item_list_init(&bag);
-	
-	CAT_item_list_add(&bag, prop_eth_farm_item, 1);
-	CAT_item_list_add(&bag, toy_laser_pointer_item, 1);
+	pet.vigour = 12;
+	pet.focus = 12;
+	pet.spirit = 12;
+
+	CAT_bag_clear();
+	CAT_bag_add(prop_eth_farm_item, 1);
+	CAT_bag_add(toy_laser_pointer_item, 1);
 	coins = 10;
 }
 
 void CAT_load_turnkey()
 {
-	CAT_room_init();
-	CAT_pet_init();
-	CAT_item_list_init(&bag);
+	pet.vigour = 9;
+	pet.focus = 9;
+	pet.spirit = 9;
 
+	CAT_bag_clear();
+	CAT_bag_add(book_1_item, 1);
+	CAT_bag_add(food_bread_item, 2);
+	CAT_bag_add(food_milk_item, 2);
+	CAT_bag_add(food_coffee_item, 1);
+	CAT_bag_add(prop_succulent_item, 1);
+	CAT_bag_add(toy_baseball_item, 1);
+	CAT_bag_add(toy_laser_pointer_item, 1);
+	coins = 100;
+
+	CAT_room_init();
 	CAT_room_add_prop(prop_plant_plain_item, (CAT_ivec2) {0, 0});
 	CAT_room_add_prop(prop_eth_farm_item, (CAT_ivec2) {2, 0});
 	CAT_room_add_prop(prop_table_mahogany_item, (CAT_ivec2) {3, 3});
@@ -151,15 +162,6 @@ void CAT_load_turnkey()
 	CAT_room_add_prop(prop_table_sm_plastic_item, (CAT_ivec2) {13, 7});
 	CAT_room_stack_prop(room.prop_count-1, prop_coffeemaker_item);
 	CAT_room_add_prop(prop_plant_daisy_item, (CAT_ivec2) {0, 9});
-
-	CAT_item_list_add(&bag, book_1_item, 1);
-	CAT_item_list_add(&bag, food_bread_item, 2);
-	CAT_item_list_add(&bag, food_milk_item, 2);
-	CAT_item_list_add(&bag, food_coffee_item, 1);
-	CAT_item_list_add(&bag, prop_succulent_item, 1);
-	CAT_item_list_add(&bag, toy_baseball_item, 1);
-	CAT_item_list_add(&bag, toy_laser_pointer_item, 1);
-	coins = 100;
 }
 
 void CAT_force_load()
@@ -235,7 +237,7 @@ void CAT_force_load()
 
 	for(int i = 0; i < item_table.length; i++)
 	{
-		CAT_item_list_add(&bag, i, save->inventory.counts[i]);
+		CAT_bag_add(i, save->inventory.counts[i]);
 	}
 	coins = save->inventory.coins;
 
@@ -257,16 +259,12 @@ void CAT_force_load()
 
 		if(prop_idx == -1)
 		{
-			CAT_item_list_add(&bag, prop_id, 1);
+			CAT_bag_add(prop_id, 1);
 			if(child != NULL)
-				CAT_item_list_add(&bag, child_id, 1);
+				CAT_bag_add(child_id, 1);
 		}
 		else
 		{
-			int override = save->deco.overrides[i];
-			if(override < prop->sprite->frame_count)
-				room.prop_overrides[prop_idx] = override;
-			
 			if(child != NULL)
 				CAT_room_stack_prop(prop_idx, child_id);
 		}
