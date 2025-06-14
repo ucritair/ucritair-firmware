@@ -326,6 +326,7 @@ void CAT_unset_load_flags(int flags);
 bool CAT_check_load_flags(int flags);
 
 void CAT_legacy_override();
+void CAT_dump_migration_log();
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

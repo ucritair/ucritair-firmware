@@ -44,7 +44,7 @@ void CAT_MS_debug(CAT_machine_signal signal)
 				page += 1;
 				if(page >= LAST)
 					page = 0;
-			}	
+			}
 			break;
 		case CAT_MACHINE_SIGNAL_EXIT:
 			break;

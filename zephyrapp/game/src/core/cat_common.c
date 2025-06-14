@@ -4,6 +4,8 @@
 #include <math.h>
 #include "cat_structures.h"
 #include "cat_version.h"
+#include <stdarg.h>
+#include <stdio.h>
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // LCD
@@ -248,19 +250,42 @@ bool verify_sector_size(CAT_save* save, CAT_save_sector sector)
 	}
 }
 
+char migration_log[512];
+int migration_log_ptr = 0;
+
+void mlprintf(const char* fmt, ...)
+{
+	static char buffer[128];
+	va_list args;
+	va_start(args, fmt);
+	vsnprintf(buffer, 128, fmt, args);
+	va_end(args);
+	memcpy(migration_log+migration_log_ptr, buffer, strlen(buffer));
+	migration_log_ptr += strlen(buffer);
+}
+
 CAT_save_error CAT_verify_save_structure(CAT_save* save)
 {
 	if(save->magic_number != CAT_SAVE_MAGIC)
 		return CAT_SAVE_ERROR_MAGIC;
 
 	CAT_save_sector_header* current = &save->pet;
+	int sectors_traversed = 0;
 
-	while(current->label != CAT_SAVE_SECTOR_FOOTER)
+	while(current->label < CAT_SAVE_SECTOR_FOOTER)
 	{
+		sectors_traversed += 1;
+
 		if(!verify_sector_label(save, current->label))
+		{
+			mlprintf("Incorrect label, sector %d\n", current->label);
 			return CAT_SAVE_ERROR_SECTOR_CORRUPT;
+		}
 		if(!verify_sector_size(save, current->label))
+		{
+			mlprintf("Incorrect size, sector %d\n", current->label);
 			return CAT_SAVE_ERROR_SECTOR_CORRUPT;
+		}
 
 		uint8_t* proxy = (uint8_t*) current;
 		CAT_save_sector_header* next = proxy + current->size;
@@ -273,61 +298,84 @@ CAT_save_error CAT_verify_save_structure(CAT_save* save)
 				next->label < CAT_SAVE_SECTOR_FOOTER && next->size == 0
 			)
 			{
+				mlprintf("Early truncation, sectors %d to %d\n", current->label, next->label);
 				return CAT_SAVE_ERROR_SECTOR_MISSING;
 			}
+
+			mlprintf("Gap, sectors %d to %d\n", current->label, next->label);
 			return CAT_SAVE_ERROR_SECTOR_CORRUPT;
 		}
 		
 		current = next;
 	}
 
+	if(sectors_traversed < CAT_SAVE_SECTOR_FOOTER)
+	{
+		mlprintf("Only traversed %d of %d sectors\n", sectors_traversed, CAT_SAVE_SECTOR_FOOTER);
+		return CAT_SAVE_ERROR_SECTOR_CORRUPT;
+	}
+
+	mlprintf("No issues found\n");
 	return CAT_SAVE_ERROR_NONE;
 }
 
+CAT_save_legacy migration_buffer;
+
 void CAT_migrate_legacy_save(void* save)
 {
-	CAT_save_legacy legacy;
-	memcpy(&legacy, save, sizeof(CAT_save_legacy));
-	CAT_save* new = (CAT_save*) save;
+	memcpy(&migration_buffer, save, sizeof(CAT_save_legacy));
+
+	CAT_save* new = save;
 	CAT_initialize_save(new);
 
-	CAT_printf("[INFO] Migrating legacy save to new format\n");
-	CAT_printf("[INFO] Save was %d bytes, now %d bytes\n", sizeof(CAT_save_legacy), sizeof(CAT_save));
+	mlprintf("%x\n", migration_buffer.magic_number);
+	mlprintf("%d %d %d %d\n", migration_buffer.version_major, migration_buffer.version_minor, migration_buffer.version_patch, migration_buffer.version_push);
 
-	strcpy(new->pet.name, legacy.name);
-	new->pet.level = legacy.level;
-	new->pet.xp = legacy.xp;
-	new->pet.lifetime = legacy.lifetime;
-	new->pet.vigour = legacy.vigour;
-	new->pet.focus = legacy.focus;
-	new->pet.spirit = legacy.spirit;
+	mlprintf("%s\n", migration_buffer.name);
+	mlprintf("%d\n", migration_buffer.level);
+	mlprintf("%d\n", migration_buffer.xp);
 
-	for(int i = 0; i < legacy.bag_length; i++)
+	mlprintf("%d\n", migration_buffer.bag_length);
+	mlprintf("%d\n", migration_buffer.coins);
+
+	mlprintf("%d\n", migration_buffer.prop_count);
+
+	CAT_printf("[INFO] Migrating legacy save to new format...\n");
+
+	strcpy(new->pet.name, migration_buffer.name);
+	new->pet.level = migration_buffer.level;
+	new->pet.xp = migration_buffer.xp;
+	new->pet.lifetime = migration_buffer.lifetime;
+	new->pet.vigour = migration_buffer.vigour;
+	new->pet.focus = migration_buffer.focus;
+	new->pet.spirit = migration_buffer.spirit;
+
+	for(int i = 0; i < migration_buffer.bag_length; i++)
 	{
-		new->inventory.counts[legacy.bag_ids[i]] = legacy.bag_counts[i];
+		new->inventory.counts[migration_buffer.bag_ids[i]] = migration_buffer.bag_counts[i];
 	}
-	new->inventory.coins = legacy.coins;
+	new->inventory.coins = migration_buffer.coins;
 
-	for(int i = 0; i < legacy.prop_count; i++)
+	for(int i = 0; i < migration_buffer.prop_count; i++)
 	{
-		new->deco.props[i] = legacy.prop_ids[i]+1;
-		new->deco.positions[i*2+0] = legacy.prop_places[i].x;
-		new->deco.positions[i*2+1] = legacy.prop_places[i].y;
-		new->deco.overrides[i] = legacy.prop_overrides[i];
-		new->deco.children[i] = legacy.prop_children[i]+1;
+		new->deco.props[i] = migration_buffer.prop_ids[i]+1;
+		new->deco.positions[i*2+0] = migration_buffer.prop_places[i].x;
+		new->deco.positions[i*2+1] = migration_buffer.prop_places[i].y;
+		new->deco.overrides[i] = migration_buffer.prop_overrides[i];
+		new->deco.children[i] = migration_buffer.prop_children[i]+1;
 	}
 
-	new->highscores.snake = legacy.snake_high_score;
+	new->highscores.snake = migration_buffer.snake_high_score;
 
-	new->timing.stat_timer = legacy.stat_timer;
-	new->timing.life_timer = legacy.life_timer;
-	new->timing.earn_timer = legacy.earn_timer;
-	new->timing.petting_timer = legacy.petting_timer;
-	new->timing.petting_count = legacy.times_pet;
-	new->timing.milking_count = legacy.times_milked;
+	new->timing.stat_timer = migration_buffer.stat_timer;
+	new->timing.life_timer = migration_buffer.life_timer;
+	new->timing.earn_timer = migration_buffer.earn_timer;
+	new->timing.petting_timer = migration_buffer.petting_timer;
+	new->timing.petting_count = migration_buffer.times_pet;
+	new->timing.milking_count = migration_buffer.times_milked;
 
-	new->config.flags = (legacy.save_flags & 1) ? CAT_CONFIG_FLAG_DEVELOPER : CAT_CONFIG_FLAG_NONE;
-	new->config.theme = legacy.theme;
+	new->config.flags = (migration_buffer.save_flags & 1) ? CAT_CONFIG_FLAG_DEVELOPER : CAT_CONFIG_FLAG_NONE;
+	new->config.theme = migration_buffer.theme;
 }
 
 void CAT_extend_save(CAT_save* save)
@@ -451,4 +499,10 @@ void CAT_legacy_override()
 	save->save_flags = CAT_CONFIG_FLAG_DEVELOPER;
 
 	CAT_finish_save(save);
+}
+
+void CAT_dump_migration_log()
+{
+	migration_log[migration_log_ptr] = '\0';
+	CAT_printf(migration_log);
 }

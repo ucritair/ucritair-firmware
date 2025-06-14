@@ -195,7 +195,7 @@ void CAT_force_load()
 
 		if(save_status == CAT_SAVE_ERROR_MAGIC)
 		{
-			CAT_printf("Save has become corrupted...\n");
+			CAT_printf("Invalid save header...\n");
 			CAT_initialize_save(save);
 			CAT_load_default();
 			CAT_set_config_flags(CAT_CONFIG_FLAG_BLANK_SLATE);
@@ -385,6 +385,9 @@ void CAT_tick_logic()
 
 		CAT_set_eink_update_flag(true);
 	}
+
+	if(CAT_input_pressed(CAT_BUTTON_A))
+		CAT_dump_migration_log();
 }
 
 void CAT_tick_render()
