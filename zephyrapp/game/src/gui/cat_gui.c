@@ -32,13 +32,13 @@ CAT_gui gui =
 
 void CAT_gui_set_flag(int flag)
 {
-	gui.flags = CAT_set_flag(gui.flags, flag);
+	gui.flags |= flag;
 }
 
 bool CAT_gui_consume_flag(int flag)
 {
-	bool value = CAT_get_flag(gui.flags, flag);
-	gui.flags = CAT_unset_flag(gui.flags, flag);
+	bool value = gui.flags & flag;
+	gui.flags = gui.flags &= ~flag;
 	return value;
 }
 

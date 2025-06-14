@@ -6,6 +6,8 @@ import pathlib as pl;
 import multiprocessing as mp;
 
 legacy = len(sys.argv) > 1 and sys.argv[1] == "--legacy";
+if legacy:
+	print("Flashing stashed legacy firmware!");
 
 def flash_proc(serial, serial_list):
 	print(f"Flashing game to {serial}...");

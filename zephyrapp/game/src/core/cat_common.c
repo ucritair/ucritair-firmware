@@ -220,6 +220,34 @@ void CAT_initialize_save(CAT_save* save)
 	CAT_initialize_save_sector(save, CAT_SAVE_SECTOR_FOOTER);
 }
 
+bool verify_sector_label(CAT_save* save, CAT_save_sector sector)
+{
+	switch(sector)
+	{
+		case CAT_SAVE_SECTOR_PET: return save->pet.header.label == CAT_SAVE_SECTOR_PET;
+		case CAT_SAVE_SECTOR_INVENTORY: return save->inventory.header.label == CAT_SAVE_SECTOR_INVENTORY;
+		case CAT_SAVE_SECTOR_DECO: return save->deco.header.label == CAT_SAVE_SECTOR_DECO;
+		case CAT_SAVE_SECTOR_HIGHSCORES: return save->highscores.header.label == CAT_SAVE_SECTOR_HIGHSCORES;
+		case CAT_SAVE_SECTOR_TIMING: return save->timing.header.label == CAT_SAVE_SECTOR_TIMING;
+		case CAT_SAVE_SECTOR_CONFIG: return save->config.header.label == CAT_SAVE_SECTOR_CONFIG;
+		case CAT_SAVE_SECTOR_FOOTER: return save->footer.label ==  CAT_SAVE_SECTOR_FOOTER;
+	}
+}
+
+bool verify_sector_size(CAT_save* save, CAT_save_sector sector)
+{
+	switch(sector)
+	{
+		case CAT_SAVE_SECTOR_PET: return save->pet.header.size == sizeof(save->pet);
+		case CAT_SAVE_SECTOR_INVENTORY: return save->inventory.header.size == sizeof(save->inventory);
+		case CAT_SAVE_SECTOR_DECO: return save->deco.header.size == sizeof(save->deco);
+		case CAT_SAVE_SECTOR_HIGHSCORES: return save->highscores.header.size == sizeof(save->highscores);
+		case CAT_SAVE_SECTOR_TIMING: return save->timing.header.size == sizeof(save->timing);
+		case CAT_SAVE_SECTOR_CONFIG: return save->config.header.size == sizeof(save->config);
+		case CAT_SAVE_SECTOR_FOOTER: return save->footer.size == 0;
+	}
+}
+
 CAT_save_error CAT_verify_save_structure(CAT_save* save)
 {
 	if(save->magic_number != CAT_SAVE_MAGIC)
@@ -229,6 +257,11 @@ CAT_save_error CAT_verify_save_structure(CAT_save* save)
 
 	while(current->label != CAT_SAVE_SECTOR_FOOTER)
 	{
+		if(!verify_sector_label(save, current->label))
+			return CAT_SAVE_ERROR_SECTOR_CORRUPT;
+		if(!verify_sector_size(save, current->label))
+			return CAT_SAVE_ERROR_SECTOR_CORRUPT;
+
 		uint8_t* proxy = (uint8_t*) current;
 		CAT_save_sector_header* next = proxy + current->size;
 
@@ -236,8 +269,7 @@ CAT_save_error CAT_verify_save_structure(CAT_save* save)
 		{
 			if
 			(
-				current->label >= CAT_SAVE_SECTOR_CONFIG &&
-				current->label < CAT_SAVE_SECTOR_FOOTER &&
+				current->label == CAT_SAVE_SECTOR_CONFIG &&
 				next->label < CAT_SAVE_SECTOR_FOOTER && next->size == 0
 			)
 			{
@@ -295,7 +327,6 @@ void CAT_migrate_legacy_save(void* save)
 	new->timing.milking_count = legacy.times_milked;
 
 	new->config.flags = (legacy.save_flags & 1) ? CAT_CONFIG_FLAG_DEVELOPER : CAT_CONFIG_FLAG_NONE;
-	new->config.flags |= CAT_CONFIG_FLAG_MIGRATED;
 	new->config.theme = legacy.theme;
 }
 
@@ -325,7 +356,7 @@ void CAT_extend_save(CAT_save* save)
 	}
 }
 
-static uint64_t config_flags;
+static uint64_t config_flags = CAT_CONFIG_FLAG_NONE;
 
 int CAT_export_config_flags()
 {
@@ -339,34 +370,34 @@ void CAT_import_config_flags(int flags)
 
 void CAT_set_config_flags(int flags)
 {
-	config_flags = CAT_set_flag(config_flags, flags);
+	config_flags |= flags; 
 }
 
 void CAT_unset_config_flags(int flags)
 {
-	config_flags = CAT_unset_flag(config_flags, flags);
+	config_flags &= ~flags;
 }
 
 bool CAT_check_config_flags(int flags)
 {
-	return CAT_get_flag(config_flags, flags);
+	return config_flags & flags;
 }
 
 static uint64_t load_flags = CAT_LOAD_FLAG_NONE;
 
 void CAT_set_load_flags(int flags)
 {
-	load_flags = CAT_set_flag(load_flags, flags);
+	load_flags |= flags;
 }
 
 void CAT_unset_load_flags(int flags)
 {
-	load_flags = CAT_unset_flag(load_flags, flags);
+	load_flags &= ~flags;
 }
 
 bool CAT_check_load_flags(int flags)
 {
-	return CAT_get_flag(load_flags, flags);
+	return load_flags & flags;
 }
 
 void CAT_legacy_override()
@@ -375,10 +406,10 @@ void CAT_legacy_override()
 
 	save->magic_number = CAT_SAVE_MAGIC;
 
-	save->version_major = 0;
-	save->version_minor = 3;
-	save->version_patch = 29;
-	save->version_push = 81;
+	save->version_major = 7;
+	save->version_minor = 7;
+	save->version_patch = 7;
+	save->version_push = 7;
 
 	save->vigour = 12;
 	save->focus = 12; 

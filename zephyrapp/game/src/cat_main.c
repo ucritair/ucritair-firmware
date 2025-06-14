@@ -60,6 +60,13 @@ void CAT_force_save()
 	CAT_printf("Saving...\n");
 	CAT_save* save = CAT_start_save();
 
+	save->magic_number = CAT_SAVE_MAGIC;
+
+	save->version_major = CAT_VERSION_MAJOR;
+	save->version_minor = CAT_VERSION_MINOR;
+	save->version_patch = CAT_VERSION_PATCH;
+	save->version_push = CAT_VERSION_PUSH;
+
 	strcpy(save->pet.name, pet.name);
 	save->pet.level = pet.level;
 	save->pet.xp = pet.xp;
@@ -185,11 +192,13 @@ void CAT_force_load()
 	else
 	{
 		int save_status = CAT_verify_save_structure(save);
+
 		if(save_status == CAT_SAVE_ERROR_MAGIC)
 		{
 			CAT_printf("Save has become corrupted...\n");
 			CAT_initialize_save(save);
 			CAT_load_default();
+			CAT_set_config_flags(CAT_CONFIG_FLAG_BLANK_SLATE);
 			CAT_force_save();
 			CAT_printf("Game state reset!\n");
 			return;
@@ -198,13 +207,19 @@ void CAT_force_load()
 		{
 			CAT_printf("Save requires migration...\n");
 			CAT_migrate_legacy_save(save);
+			CAT_set_config_flags(CAT_CONFIG_FLAG_MIGRATED);
 			CAT_printf("Save migrated!\n");
 		}
 		else if(save_status == CAT_SAVE_ERROR_SECTOR_MISSING)
 		{
 			CAT_printf("Save is missing sector...\n");
 			CAT_extend_save(save);
+			CAT_set_config_flags(CAT_CONFIG_FLAG_EXTENDED);
 			CAT_printf("Save extended!\n");
+		}
+		else
+		{
+			CAT_set_config_flags(CAT_CONFIG_FLAG_NO_PROBLEMS);
 		}
 	}
 
@@ -272,7 +287,7 @@ void CAT_force_load()
 	pet.times_pet = save->timing.petting_count;
 	pet.times_milked = save->timing.milking_count;
 
-	CAT_import_config_flags(save->config.flags);
+	CAT_set_config_flags(save->config.flags);
 	if(save->config.theme < THEME_COUNT)
 		room.theme = themes_list[save->config.theme];
 

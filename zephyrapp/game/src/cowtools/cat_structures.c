@@ -95,22 +95,3 @@ int CAT_ilist_find(CAT_int_list* list, int item)
 	}
 	return -1;
 }
-
-
-//////////////////////////////////////////////////////////////////////////
-// ENUM FLAGS
-
-bool CAT_get_flag(int field, int flag)
-{
-	return field & flag;
-}
-
-int CAT_set_flag(int field, int flag)
-{
-	return field | flag;
-}
-
-int CAT_unset_flag(int field, int flag)
-{
-	return field & ~flag;
-}
