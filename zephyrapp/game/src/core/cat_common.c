@@ -344,7 +344,11 @@ void CAT_migrate_legacy_save(void* save)
 	new->timing.petting_count = migration_buffer.times_pet;
 	new->timing.milking_count = migration_buffer.times_milked;
 
-	new->config.flags = (migration_buffer.save_flags & 1) ? CAT_CONFIG_FLAG_DEVELOPER : CAT_CONFIG_FLAG_NONE;
+	new->config.flags = CAT_CONFIG_FLAG_NONE;
+	if(migration_buffer.save_flags & 1)
+		new->config.flags |= CAT_CONFIG_FLAG_DEVELOPER;
+	if(migration_buffer.temperature_unit == CAT_TEMPERATURE_UNIT_DEGREES_FAHRENHEIT)
+		new->config.flags |= CAT_CONFIG_FLAG_USE_FAHRENHEIT;
 	new->config.theme = migration_buffer.theme;
 }
 

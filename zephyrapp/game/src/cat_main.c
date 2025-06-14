@@ -105,7 +105,12 @@ void CAT_force_save()
 	save->timing.petting_count = pet.times_pet;
 	save->timing.milking_count = pet.times_milked;
 
+	if(CAT_AQ_get_temperature_unit() == CAT_TEMPERATURE_UNIT_DEGREES_FAHRENHEIT)
+		CAT_set_config_flags(CAT_CONFIG_FLAG_USE_FAHRENHEIT);
+	else
+		CAT_unset_config_flags(CAT_CONFIG_FLAG_USE_FAHRENHEIT);
 	save->config.flags = CAT_export_config_flags();
+
 	for(int i = 0; i < THEME_COUNT; i++)
 	{
 		if(themes_list[i] == room.theme)
@@ -277,6 +282,11 @@ void CAT_force_load()
 	pet.times_milked = save->timing.milking_count;
 
 	CAT_set_config_flags(save->config.flags);
+	if(save->config.flags & CAT_CONFIG_FLAG_USE_FAHRENHEIT)
+		CAT_AQ_set_temperature_unit(CAT_TEMPERATURE_UNIT_DEGREES_FAHRENHEIT);
+	else
+		CAT_AQ_set_temperature_unit(CAT_TEMPERATURE_UNIT_DEGREES_CELSIUS);
+
 	if(save->config.theme < THEME_COUNT)
 		room.theme = themes_list[save->config.theme];
 
