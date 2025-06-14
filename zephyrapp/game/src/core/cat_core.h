@@ -190,10 +190,7 @@ typedef enum
 	CAT_CONFIG_FLAG_DEVELOPER = (1 << 0),
 	CAT_CONFIG_FLAG_USE_FAHRENHEIT = (1 << 1),
 	CAT_CONFIG_FLAG_AQ_FIRST = (1 << 2),
-	CAT_CONFIG_FLAG_MIGRATED = (1 << 3),
-	CAT_CONFIG_FLAG_BLANK_SLATE = (1 << 4),
-	CAT_CONFIG_FLAG_EXTENDED = (1 << 5),
-	CAT_CONFIG_FLAG_NO_PROBLEMS = (1 << 6),
+	CAT_CONFIG_FLAG_MIGRATED = (1 << 3)
 } CAT_config_flag;
 
 typedef enum
@@ -228,7 +225,7 @@ typedef struct __attribute__((__packed__))
 	struct __attribute__((__packed__))
 	{
 		CAT_save_sector_header header;
-		uint8_t name[32];
+		char name[32];
 		uint8_t level;
 		uint32_t xp;
 		uint8_t lifespan;
@@ -324,9 +321,6 @@ typedef enum
 void CAT_set_load_flags(int flags);
 void CAT_unset_load_flags(int flags);
 bool CAT_check_load_flags(int flags);
-
-void CAT_legacy_override();
-void CAT_dump_migration_log();
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

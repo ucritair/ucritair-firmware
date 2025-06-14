@@ -59,14 +59,11 @@ void CAT_render_debug()
 			CAT_gui_title(true, NULL, &icon_exit_sprite, "SYSTEM");
 			CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
 			
-			CAT_save* save = CAT_start_save();
 			CAT_gui_textf
 			(
-				"Game v%d.%d.%d.%d\nSave v%d.%d.%d.%d\n",
+				"Game v%d.%d.%d.%d\n",
 				CAT_VERSION_MAJOR, CAT_VERSION_MINOR,
-				CAT_VERSION_PATCH, CAT_VERSION_PUSH,
-				save->version_major, save->version_minor,
-				save->version_patch, save->version_push
+				CAT_VERSION_PATCH, CAT_VERSION_PUSH
 			);
 			
 #define TOSTRING_INNER(x) #x
@@ -81,12 +78,6 @@ void CAT_render_debug()
 				CAT_gui_text("DEVELOPER MODE\n");
 			if(CAT_check_config_flags(CAT_CONFIG_FLAG_MIGRATED))
 				CAT_gui_text("MIGRATED SAVE\n");
-			if(CAT_check_config_flags(CAT_CONFIG_FLAG_EXTENDED))
-				CAT_gui_text("EXTENDED SAVE\n");
-			if(CAT_check_config_flags(CAT_CONFIG_FLAG_BLANK_SLATE))
-				CAT_gui_text("FRESH SAVE\n");
-			if(CAT_check_config_flags(CAT_CONFIG_FLAG_NO_PROBLEMS))
-				CAT_gui_text("SERIOUSLY?\n");
 		break;
 		case TIME:
 			CAT_gui_title(true, NULL, &icon_exit_sprite, "TIME");

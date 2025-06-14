@@ -27,7 +27,7 @@ static inline bool cell_is_valid(CAT_log_cell* cell)
 #define FLASH_SIZE 0x1000000
 #define PERSISTANCE_OFFSET (flash_header_read.persistance_offset + TOTAL_SAVE_ROOM)
 #define SYSTEM_OFFSET (flash_header_read.persistance_offset)
-#define TOMAS_OFFSET (flash_header_read.persistance_offset+ROOM_FOR_SYSTEM)
+#define TOMAS_OFFSET (flash_header_read.persistance_offset + ROOM_FOR_SYSTEM)
 #define MAX_LOG_CELL_COUNT (((FLASH_SIZE - PERSISTANCE_OFFSET) / sizeof(CAT_log_cell)) & ~1)
 
 #define LOG_CELL_NR_FULL -1
@@ -88,7 +88,7 @@ void flash_save_tomas_save(uint8_t* buf, size_t size)
 
 	if (size > ROOM_FOR_TOMAS)
 	{
-		LOG_ERR("uhhhhhh, too big?");
+		LOG_ERR("[ERROR] Requested save overreaches bounds!");
 		return;
 	}
 
@@ -105,7 +105,7 @@ void flash_load_tomas_save(uint8_t* buf, size_t size)
 void flash_nuke_tomas_save()
 {
 	if (!did_post_flash) return;
-	flash_erase(flash_dev, TOMAS_OFFSET, 0x1000);
+	flash_erase(flash_dev, TOMAS_OFFSET, TOTAL_SAVE_ROOM);
 }
 
 

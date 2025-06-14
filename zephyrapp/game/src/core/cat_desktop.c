@@ -471,7 +471,7 @@ CAT_save* CAT_start_load()
 	int fd = open("save.dat", O_RDONLY);
 	read(fd, &save_backing, sizeof(save_backing));
 	close(fd);
-	return &save_backing;
+	return (CAT_save*) &save_backing;
 }
 
 

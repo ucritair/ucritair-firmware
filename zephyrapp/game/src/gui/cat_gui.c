@@ -38,7 +38,7 @@ void CAT_gui_set_flag(int flag)
 bool CAT_gui_consume_flag(int flag)
 {
 	bool value = gui.flags & flag;
-	gui.flags = gui.flags &= ~flag;
+	gui.flags &= ~flag;
 	return value;
 }
 

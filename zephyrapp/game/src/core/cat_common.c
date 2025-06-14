@@ -206,6 +206,8 @@ void CAT_initialize_save_sector(CAT_save* save, CAT_save_sector sector)
 
 void CAT_initialize_save(CAT_save* save)
 {
+	CAT_printf("[CALL] CAT_initialize_save\n");
+
 	save->magic_number = CAT_SAVE_MAGIC;
 
 	save->version_major = CAT_VERSION_MAJOR;
@@ -250,20 +252,6 @@ bool verify_sector_size(CAT_save* save, CAT_save_sector sector)
 	}
 }
 
-char migration_log[512];
-int migration_log_ptr = 0;
-
-void mlprintf(const char* fmt, ...)
-{
-	static char buffer[128];
-	va_list args;
-	va_start(args, fmt);
-	vsnprintf(buffer, 128, fmt, args);
-	va_end(args);
-	memcpy(migration_log+migration_log_ptr, buffer, strlen(buffer));
-	migration_log_ptr += strlen(buffer);
-}
-
 CAT_save_error CAT_verify_save_structure(CAT_save* save)
 {
 	if(save->magic_number != CAT_SAVE_MAGIC)
@@ -278,12 +266,10 @@ CAT_save_error CAT_verify_save_structure(CAT_save* save)
 
 		if(!verify_sector_label(save, current->label))
 		{
-			mlprintf("Incorrect label, sector %d\n", current->label);
 			return CAT_SAVE_ERROR_SECTOR_CORRUPT;
 		}
 		if(!verify_sector_size(save, current->label))
 		{
-			mlprintf("Incorrect size, sector %d\n", current->label);
 			return CAT_SAVE_ERROR_SECTOR_CORRUPT;
 		}
 
@@ -298,11 +284,9 @@ CAT_save_error CAT_verify_save_structure(CAT_save* save)
 				next->label < CAT_SAVE_SECTOR_FOOTER && next->size == 0
 			)
 			{
-				mlprintf("Early truncation, sectors %d to %d\n", current->label, next->label);
 				return CAT_SAVE_ERROR_SECTOR_MISSING;
 			}
 
-			mlprintf("Gap, sectors %d to %d\n", current->label, next->label);
 			return CAT_SAVE_ERROR_SECTOR_CORRUPT;
 		}
 		
@@ -311,11 +295,9 @@ CAT_save_error CAT_verify_save_structure(CAT_save* save)
 
 	if(sectors_traversed < CAT_SAVE_SECTOR_FOOTER)
 	{
-		mlprintf("Only traversed %d of %d sectors\n", sectors_traversed, CAT_SAVE_SECTOR_FOOTER);
 		return CAT_SAVE_ERROR_SECTOR_CORRUPT;
 	}
 
-	mlprintf("No issues found\n");
 	return CAT_SAVE_ERROR_NONE;
 }
 
@@ -327,18 +309,6 @@ void CAT_migrate_legacy_save(void* save)
 
 	CAT_save* new = save;
 	CAT_initialize_save(new);
-
-	mlprintf("%x\n", migration_buffer.magic_number);
-	mlprintf("%d %d %d %d\n", migration_buffer.version_major, migration_buffer.version_minor, migration_buffer.version_patch, migration_buffer.version_push);
-
-	mlprintf("%s\n", migration_buffer.name);
-	mlprintf("%d\n", migration_buffer.level);
-	mlprintf("%d\n", migration_buffer.xp);
-
-	mlprintf("%d\n", migration_buffer.bag_length);
-	mlprintf("%d\n", migration_buffer.coins);
-
-	mlprintf("%d\n", migration_buffer.prop_count);
 
 	CAT_printf("[INFO] Migrating legacy save to new format...\n");
 
@@ -446,63 +416,4 @@ void CAT_unset_load_flags(int flags)
 bool CAT_check_load_flags(int flags)
 {
 	return load_flags & flags;
-}
-
-void CAT_legacy_override()
-{
-	CAT_save_legacy* save = CAT_start_save();
-
-	save->magic_number = CAT_SAVE_MAGIC;
-
-	save->version_major = 7;
-	save->version_minor = 7;
-	save->version_patch = 7;
-	save->version_push = 7;
-
-	save->vigour = 12;
-	save->focus = 12; 
-	save->spirit = 12;
-	save->lifetime = 0xdead;
-
-	save->prop_ids[0] = 33;
-	save->prop_places[0] = (CAT_ivec2) {7, 7};
-	save->prop_overrides[0] = 1;
-	save->prop_children[0] = -1;
-	save->prop_count = 1;
-
-	save->bag_ids[0] = 86;
-	save->bag_counts[0] = 1;
-	save->bag_length = 1;
-	save->coins = 27;
-
-	save->snake_high_score = 777;
-
-	save->stat_timer = 0;
-	save->life_timer = 0;
-	save->earn_timer = 0;
-	save->times_pet = 0;
-	save->petting_timer = 0;
-	save->times_milked = 0;
-
-	strcpy(save->name, "Tomas");
-
-	save->theme = 0;
-
-	save->level = 35;
-	save->xp = 777;
-
-	save->lcd_brightness = 100;
-	save->led_brightness = 100;
-
-	save->temperature_unit = CAT_TEMPERATURE_UNIT_DEGREES_FAHRENHEIT;
-
-	save->save_flags = CAT_CONFIG_FLAG_DEVELOPER;
-
-	CAT_finish_save(save);
-}
-
-void CAT_dump_migration_log()
-{
-	migration_log[migration_log_ptr] = '\0';
-	CAT_printf(migration_log);
 }

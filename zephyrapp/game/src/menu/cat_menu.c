@@ -210,6 +210,12 @@ void CAT_MS_menu(CAT_machine_signal signal)
 							confirm_reset = false;
 							CAT_factory_reset();
 						}
+
+						if(CAT_gui_menu_item("SAVE AND RELOAD"))
+						{
+							CAT_force_save();
+							CAT_set_load_flags(CAT_LOAD_FLAG_DIRTY);
+						}
 						CAT_gui_end_menu();
 					}
 					CAT_gui_end_menu();

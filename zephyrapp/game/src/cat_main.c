@@ -59,13 +59,7 @@ void CAT_force_save()
 {
 	CAT_printf("Saving...\n");
 	CAT_save* save = CAT_start_save();
-
-	save->magic_number = CAT_SAVE_MAGIC;
-
-	save->version_major = CAT_VERSION_MAJOR;
-	save->version_minor = CAT_VERSION_MINOR;
-	save->version_patch = CAT_VERSION_PATCH;
-	save->version_push = CAT_VERSION_PUSH;
+	CAT_initialize_save(save);
 
 	strcpy(save->pet.name, pet.name);
 	save->pet.level = pet.level;
@@ -198,7 +192,6 @@ void CAT_force_load()
 			CAT_printf("Invalid save header...\n");
 			CAT_initialize_save(save);
 			CAT_load_default();
-			CAT_set_config_flags(CAT_CONFIG_FLAG_BLANK_SLATE);
 			CAT_force_save();
 			CAT_printf("Game state reset!\n");
 			return;
@@ -214,12 +207,7 @@ void CAT_force_load()
 		{
 			CAT_printf("Save is missing sector...\n");
 			CAT_extend_save(save);
-			CAT_set_config_flags(CAT_CONFIG_FLAG_EXTENDED);
 			CAT_printf("Save extended!\n");
-		}
-		else
-		{
-			CAT_set_config_flags(CAT_CONFIG_FLAG_NO_PROBLEMS);
 		}
 	}
 
@@ -231,7 +219,8 @@ void CAT_force_load()
 		pet.level = save->pet.level;
 	if(save->pet.xp < level_cutoffs[pet.level])
 		pet.xp = save->pet.xp;
-	pet.lifetime = save->pet.lifetime;
+	if(pet.lifetime <= 365)
+		pet.lifetime = save->pet.lifetime;
 	if(save->pet.vigour <= 12)
 		pet.vigour = save->pet.vigour;
 	if(save->pet.focus <= 12)
@@ -329,7 +318,6 @@ void CAT_init()
 	CAT_room_init();
 	CAT_pet_init();
 
-	// CAT_legacy_override();
 	CAT_force_load();
 	CAT_apply_sleep(CAT_get_slept_s());
 
@@ -385,9 +373,6 @@ void CAT_tick_logic()
 
 		CAT_set_eink_update_flag(true);
 	}
-
-	if(CAT_input_pressed(CAT_BUTTON_A))
-		CAT_dump_migration_log();
 }
 
 void CAT_tick_render()
