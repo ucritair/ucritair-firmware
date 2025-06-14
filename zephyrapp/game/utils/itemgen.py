@@ -79,6 +79,8 @@ json_file.truncate();
 json_file.write(json.dumps(json_data, indent=4));
 json_file.close();
 
+json_entries.sort(key = lambda i: i["id"]);
+
 header = open("data/item_assets.h", "w");
 header.write("#pragma once\n");
 header.write("\n");
