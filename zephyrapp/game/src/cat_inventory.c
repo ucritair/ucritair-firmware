@@ -1,4 +1,4 @@
-#include "cat_bag.h"
+#include "cat_inventory.h"
 
 #include "cat_room.h"
 #include "cat_item.h"
@@ -12,35 +12,57 @@
 #include "cat_menu.h"
 #include "sprite_assets.h"
 
-CAT_item_list bag =
-{
-	.length = 0
-};
 int coins = 0;
 
-static int base = 0;
-static int selector = 0;
+void CAT_bag_clear()
+{
+	for(int i = 0; i < CAT_ITEM_TABLE_CAPACITY; i++)
+	{
+		item_table.counts[i] = 0;
+	}
+}
+
+void CAT_bag_add(int item_id, int count)
+{
+	if(item_id >= 0 && item_id < item_table.length)
+	{
+		item_table.counts[item_id] += count;
+	}
+}
+
+void CAT_bag_remove(int item_id, int count)
+{
+	if(item_id >= 0 && item_id < item_table.length)
+	{
+		count = count == -1 ? item_table.counts[item_id] : count;
+		count = max(count, item_table.counts[item_id]);
+		item_table.counts[item_id] -= count;
+	}
+}
+
+static bool basic_filter(int item_id)
+{
+	if(item_id < 0 || item_id >= item_table.length)
+		return false;
+	if(item_table.counts[item_id] <= 0)
+		return false;
+	return true;
+}
 
 static bool prop_filter(int item_id)
 {
-	CAT_item* item = CAT_item_get(item_id);
-	if(item == NULL)
-		return false;
-	return item->type == CAT_ITEM_TYPE_PROP;
+	return basic_filter(item_id) &&
+	item_table.data[item_id].type == CAT_ITEM_TYPE_PROP;
 }
 static bool tool_filter(int item_id)
 {
-	CAT_item* item = CAT_item_get(item_id);
-	if(item == NULL)
-		return false;
-	return item->type == CAT_ITEM_TYPE_TOOL;
+	return basic_filter(item_id) &&
+	item_table.data[item_id].type == CAT_ITEM_TYPE_TOOL;
 }
 static bool key_filter(int item_id)
 {
-	CAT_item* item = CAT_item_get(item_id);
-	if(item == NULL)
-		return false;
-	return item->type == CAT_ITEM_TYPE_KEY;
+	return basic_filter(item_id) &&
+	item_table.data[item_id].type == CAT_ITEM_TYPE_KEY;
 }
 
 struct
@@ -49,7 +71,7 @@ struct
 	CAT_item_filter filter;
 } tabs[] =
 {
-	{"ALL", NULL},
+	{"ALL", basic_filter},
 	{"PROPS", prop_filter},
 	{"TOOLS", tool_filter},
 	{"KEYS", key_filter}
@@ -57,20 +79,21 @@ struct
 #define NUM_TABS (sizeof(tabs)/sizeof(tabs[0]))
 static int tab_selector = 0;
 
-CAT_item_list roster =
-{
-	.length = 0
-};
+int roster_backing[CAT_ITEM_TABLE_CAPACITY];
+CAT_int_list roster;
 
-void CAT_MS_bag(CAT_machine_signal signal)
+static int base = 0;
+static int selector = 0;
+
+void CAT_MS_inventory(CAT_machine_signal signal)
 {
 	switch(signal)
 	{
 		case CAT_MACHINE_SIGNAL_ENTER:
 		{
-			CAT_set_render_callback(CAT_render_bag);
-			roster.length = 0;
-			CAT_item_list_filter(&bag, &roster, tabs[tab_selector].filter);
+			CAT_set_render_callback(CAT_render_inventory);
+			CAT_ilist(&roster, roster_backing, CAT_ITEM_TABLE_CAPACITY);
+			CAT_filter_item_table(tabs[tab_selector].filter, &roster);
 			break;
 		}
 		case CAT_MACHINE_SIGNAL_TICK:
@@ -96,7 +119,7 @@ void CAT_MS_bag(CAT_machine_signal signal)
 			if(tab_changed)
 			{
 				roster.length = 0;
-				CAT_item_list_filter(&bag, &roster, tabs[tab_selector].filter);
+				CAT_filter_item_table(tabs[tab_selector].filter, &roster);
 				base = 0;
 				selector = 0;
 			}
@@ -105,18 +128,10 @@ void CAT_MS_bag(CAT_machine_signal signal)
 				break;
 
 			if(CAT_input_pulse(CAT_BUTTON_UP))
-			{
 				selector -= 1;
-				if(selector == -1)
-					selector = roster.length-1;		
-			}
 			if(CAT_input_pulse(CAT_BUTTON_DOWN))
-			{
 				selector += 1;
-				if(selector == roster.length)
-					selector = 0;
-			}
-			selector = clamp(selector, 0, roster.length-1);
+			selector = (selector + roster.length) % roster.length;
 
 			int overshoot = selector - base;
 			if(overshoot < 0)
@@ -134,7 +149,7 @@ void CAT_MS_bag(CAT_machine_signal signal)
 	}
 }
 
-void CAT_render_bag()
+void CAT_render_inventory()
 {
 	CAT_gui_title
 	(
@@ -155,7 +170,7 @@ void CAT_render_bag()
 		if(idx >= roster.length)
 			return;
 
-		int item_id = roster.item_ids[idx];
+		int item_id = roster.data[idx];
 		CAT_item* item = CAT_item_get(item_id);
 
 		CAT_gui_set_flag(CAT_GUI_FLAG_TIGHT);
@@ -163,7 +178,7 @@ void CAT_render_bag()
 		CAT_rowberry(0, (2+i)*32-1, CAT_LCD_SCREEN_W, 0x0000);
 		CAT_gui_image(item->icon, 0);
 		
-		CAT_gui_textf(" %s *%d ", item->name, roster.counts[idx]);
+		CAT_gui_textf(" %s *%d ", item->name, item_table.counts[item_id]);
 
 		if(idx == selector)
 			CAT_gui_image(&icon_pointer_sprite, 0);
@@ -196,7 +211,7 @@ void CAT_MS_inspector(CAT_machine_signal signal)
 
 void CAT_render_inspector()
 {
-	int item_id = roster.item_ids[selector];
+	int item_id = roster.data[selector];
 	CAT_item* item = CAT_item_get(item_id);
 
 	CAT_gui_title

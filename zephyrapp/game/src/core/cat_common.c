@@ -2,6 +2,10 @@
 
 #include "cat_aqi.h"
 #include <math.h>
+#include "cat_structures.h"
+#include "cat_version.h"
+#include <stdarg.h>
+#include <stdio.h>
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // LCD
@@ -125,53 +129,295 @@ const char* CAT_AQ_get_temperature_unit_string()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // SAVE
 
-static int save_flags = 0;
+#define ZERO_STATIC_BUFFER(x) (memset(x, 0, sizeof(x)))
 
-int CAT_export_save_flags()
+void CAT_initialize_save_sector(CAT_save* save, CAT_save_sector sector)
 {
-	return save_flags;
+	switch (sector)
+	{
+		case CAT_SAVE_SECTOR_PET:
+			CAT_printf("[INFO] Initializing save sector PET\n");
+			save->pet.header.label = CAT_SAVE_SECTOR_PET;
+			save->pet.header.size = sizeof(save->pet);
+			strcpy(save->pet.name, "Waldo");
+			save->pet.level = 0;
+			save->pet.xp = 0;
+			save->pet.lifespan = 30;
+			save->pet.lifetime = 0;
+			save->pet.vigour = 12;
+			save->pet.focus = 12;
+			save->pet.spirit = 12;
+			break;
+
+		case CAT_SAVE_SECTOR_INVENTORY:
+			CAT_printf("[INFO] Initializing save sector INVENTORY\n");
+			save->inventory.header.label = CAT_SAVE_SECTOR_INVENTORY;
+			save->inventory.header.size = sizeof(save->inventory);
+			ZERO_STATIC_BUFFER(save->inventory.counts);
+			save->inventory.coins = 0;
+			break;
+
+		case CAT_SAVE_SECTOR_DECO:
+			CAT_printf("[INFO] Initializing save sector DECO\n");
+			save->deco.header.label = CAT_SAVE_SECTOR_DECO;
+			save->deco.header.size = sizeof(save->deco);
+			ZERO_STATIC_BUFFER(save->deco.props);
+			ZERO_STATIC_BUFFER(save->deco.positions);
+			ZERO_STATIC_BUFFER(save->deco.overrides);
+			ZERO_STATIC_BUFFER(save->deco.children);
+			break;
+
+		case CAT_SAVE_SECTOR_HIGHSCORES:
+			CAT_printf("[INFO] Initializing save sector HIGHSCORES\n");
+			save->highscores.header.label = CAT_SAVE_SECTOR_HIGHSCORES;
+			save->highscores.header.size = sizeof(save->highscores);
+			save->highscores.snake = 0;
+			save->highscores.mine = 0;
+			save->highscores.foursquares = 0;
+			break;
+
+		case CAT_SAVE_SECTOR_TIMING:
+			CAT_printf("[INFO] Initializing save sector TIMING\n");
+			save->timing.header.label = CAT_SAVE_SECTOR_TIMING;
+			save->timing.header.size = sizeof(save->timing);
+			save->timing.stat_timer = 0;
+			save->timing.life_timer = 0;
+			save->timing.earn_timer = 0;
+			save->timing.petting_timer = 0;
+			save->timing.petting_count = 0;
+			save->timing.milking_count = 0;
+			break;
+
+		case CAT_SAVE_SECTOR_CONFIG:
+			CAT_printf("[INFO] Initializing save sector CONFIG\n");
+			save->config.header.label = CAT_SAVE_SECTOR_CONFIG;
+			save->config.header.size = sizeof(save->config);
+			save->config.flags = CAT_CONFIG_FLAG_NONE;
+			save->config.theme = 0;
+			break;
+
+		case CAT_SAVE_SECTOR_FOOTER:
+			CAT_printf("[INFO] Initializing save sector FOOTER\n");
+			save->footer.label = CAT_SAVE_SECTOR_FOOTER;
+			save->footer.size = 0;
+			break;
+	}
 }
 
-void CAT_import_save_flags(int flags)
+void CAT_initialize_save(CAT_save* save)
 {
-	save_flags = flags;
+	CAT_printf("[CALL] CAT_initialize_save\n");
+
+	save->magic_number = CAT_SAVE_MAGIC;
+
+	save->version_major = CAT_VERSION_MAJOR;
+	save->version_minor = CAT_VERSION_MINOR;
+	save->version_patch = CAT_VERSION_PATCH;
+	save->version_push = CAT_VERSION_PUSH;
+
+	CAT_initialize_save_sector(save, CAT_SAVE_SECTOR_PET);
+	CAT_initialize_save_sector(save, CAT_SAVE_SECTOR_INVENTORY);
+	CAT_initialize_save_sector(save, CAT_SAVE_SECTOR_DECO);
+	CAT_initialize_save_sector(save, CAT_SAVE_SECTOR_HIGHSCORES);
+	CAT_initialize_save_sector(save, CAT_SAVE_SECTOR_TIMING);
+	CAT_initialize_save_sector(save, CAT_SAVE_SECTOR_CONFIG);
+	CAT_initialize_save_sector(save, CAT_SAVE_SECTOR_FOOTER);
 }
 
-void CAT_set_save_flag(int flag)
+bool verify_sector_label(CAT_save* save, CAT_save_sector sector)
 {
-	save_flags |= flag;
+	switch(sector)
+	{
+		case CAT_SAVE_SECTOR_PET: return save->pet.header.label == CAT_SAVE_SECTOR_PET;
+		case CAT_SAVE_SECTOR_INVENTORY: return save->inventory.header.label == CAT_SAVE_SECTOR_INVENTORY;
+		case CAT_SAVE_SECTOR_DECO: return save->deco.header.label == CAT_SAVE_SECTOR_DECO;
+		case CAT_SAVE_SECTOR_HIGHSCORES: return save->highscores.header.label == CAT_SAVE_SECTOR_HIGHSCORES;
+		case CAT_SAVE_SECTOR_TIMING: return save->timing.header.label == CAT_SAVE_SECTOR_TIMING;
+		case CAT_SAVE_SECTOR_CONFIG: return save->config.header.label == CAT_SAVE_SECTOR_CONFIG;
+		case CAT_SAVE_SECTOR_FOOTER: return save->footer.label ==  CAT_SAVE_SECTOR_FOOTER;
+	}
 }
 
-void CAT_clear_save_flag(int flag)
+bool verify_sector_size(CAT_save* save, CAT_save_sector sector)
 {
-	save_flags &= ~flag;
+	switch(sector)
+	{
+		case CAT_SAVE_SECTOR_PET: return save->pet.header.size == sizeof(save->pet);
+		case CAT_SAVE_SECTOR_INVENTORY: return save->inventory.header.size == sizeof(save->inventory);
+		case CAT_SAVE_SECTOR_DECO: return save->deco.header.size == sizeof(save->deco);
+		case CAT_SAVE_SECTOR_HIGHSCORES: return save->highscores.header.size == sizeof(save->highscores);
+		case CAT_SAVE_SECTOR_TIMING: return save->timing.header.size == sizeof(save->timing);
+		case CAT_SAVE_SECTOR_CONFIG: return save->config.header.size == sizeof(save->config);
+		case CAT_SAVE_SECTOR_FOOTER: return save->footer.size == 0;
+	}
 }
 
-bool CAT_check_save_flag(int flag)
+CAT_save_error CAT_verify_save_structure(CAT_save* save)
 {
-	return save_flags & flag;
+	if(save->magic_number != CAT_SAVE_MAGIC)
+		return CAT_SAVE_ERROR_MAGIC;
+
+	CAT_save_sector_header* current = &save->pet;
+	int sectors_traversed = 0;
+
+	while(current->label < CAT_SAVE_SECTOR_FOOTER)
+	{
+		sectors_traversed += 1;
+
+		if(!verify_sector_label(save, current->label))
+		{
+			return CAT_SAVE_ERROR_SECTOR_CORRUPT;
+		}
+		if(!verify_sector_size(save, current->label))
+		{
+			return CAT_SAVE_ERROR_SECTOR_CORRUPT;
+		}
+
+		uint8_t* proxy = (uint8_t*) current;
+		CAT_save_sector_header* next = proxy + current->size;
+
+		if(next->label != current->label + 1)
+		{
+			if
+			(
+				current->label == CAT_SAVE_SECTOR_CONFIG &&
+				next->label < CAT_SAVE_SECTOR_FOOTER && next->size == 0
+			)
+			{
+				return CAT_SAVE_ERROR_SECTOR_MISSING;
+			}
+
+			return CAT_SAVE_ERROR_SECTOR_CORRUPT;
+		}
+		
+		current = next;
+	}
+
+	if(sectors_traversed < CAT_SAVE_SECTOR_FOOTER)
+	{
+		return CAT_SAVE_ERROR_SECTOR_CORRUPT;
+	}
+
+	return CAT_SAVE_ERROR_NONE;
 }
 
-void CAT_clear_save_flags()
+CAT_save_legacy migration_buffer;
+
+void CAT_migrate_legacy_save(void* save)
 {
-	save_flags = 0;
+	memcpy(&migration_buffer, save, sizeof(CAT_save_legacy));
+
+	CAT_save* new = save;
+	CAT_initialize_save(new);
+
+	CAT_printf("[INFO] Migrating legacy save to new format...\n");
+
+	strcpy(new->pet.name, migration_buffer.name);
+	new->pet.level = migration_buffer.level;
+	new->pet.xp = migration_buffer.xp;
+	new->pet.lifetime = migration_buffer.lifetime;
+	new->pet.vigour = migration_buffer.vigour;
+	new->pet.focus = migration_buffer.focus;
+	new->pet.spirit = migration_buffer.spirit;
+
+	for(int i = 0; i < migration_buffer.bag_length; i++)
+	{
+		new->inventory.counts[migration_buffer.bag_ids[i]] = migration_buffer.bag_counts[i];
+	}
+	new->inventory.coins = migration_buffer.coins;
+
+	for(int i = 0; i < migration_buffer.prop_count; i++)
+	{
+		new->deco.props[i] = migration_buffer.prop_ids[i]+1;
+		new->deco.positions[i*2+0] = migration_buffer.prop_places[i].x;
+		new->deco.positions[i*2+1] = migration_buffer.prop_places[i].y;
+		new->deco.overrides[i] = migration_buffer.prop_overrides[i];
+		new->deco.children[i] = migration_buffer.prop_children[i]+1;
+	}
+
+	new->highscores.snake = migration_buffer.snake_high_score;
+
+	new->timing.stat_timer = migration_buffer.stat_timer;
+	new->timing.life_timer = migration_buffer.life_timer;
+	new->timing.earn_timer = migration_buffer.earn_timer;
+	new->timing.petting_timer = migration_buffer.petting_timer;
+	new->timing.petting_count = migration_buffer.times_pet;
+	new->timing.milking_count = migration_buffer.times_milked;
+
+	new->config.flags = CAT_CONFIG_FLAG_NONE;
+	if(migration_buffer.save_flags & 1)
+		new->config.flags |= CAT_CONFIG_FLAG_DEVELOPER;
+	if(migration_buffer.temperature_unit == CAT_TEMPERATURE_UNIT_DEGREES_FAHRENHEIT)
+		new->config.flags |= CAT_CONFIG_FLAG_USE_FAHRENHEIT;
+	new->config.theme = migration_buffer.theme;
 }
 
-static int load_flags = 0;
-
-void CAT_set_load_flag(int flag)
+void CAT_extend_save(CAT_save* save)
 {
-	load_flags |= flag;
+	CAT_save_sector_header* current = &save->pet;
+	CAT_save_sector missing_sector = CAT_SAVE_SECTOR_FOOTER;
+
+	while(current->label != CAT_SAVE_SECTOR_FOOTER)
+	{
+		uint8_t* proxy = (uint8_t*) current;
+		CAT_save_sector_header* next = proxy + current->size;
+
+		if(next->label < CAT_SAVE_SECTOR_FOOTER && next->size == 0)
+		{
+			missing_sector = next->label;
+			break;
+		}
+
+		current = next;
+	}
+
+	while(missing_sector <= CAT_SAVE_SECTOR_FOOTER)
+	{
+		CAT_initialize_save_sector(save, missing_sector);
+		missing_sector += 1;
+	}
 }
 
-void CAT_clear_load_flag(int flag)
+static uint64_t config_flags = CAT_CONFIG_FLAG_NONE;
+
+int CAT_export_config_flags()
 {
-	load_flags &= ~flag;
+	return config_flags;
 }
 
-bool CAT_check_load_flag(int flag)
+void CAT_import_config_flags(int flags)
 {
-	return load_flags & flag;
+	config_flags = flags;
 }
 
+void CAT_set_config_flags(int flags)
+{
+	config_flags |= flags; 
+}
 
+void CAT_unset_config_flags(int flags)
+{
+	config_flags &= ~flags;
+}
+
+bool CAT_check_config_flags(int flags)
+{
+	return config_flags & flags;
+}
+
+static uint64_t load_flags = CAT_LOAD_FLAG_NONE;
+
+void CAT_set_load_flags(int flags)
+{
+	load_flags |= flags;
+}
+
+void CAT_unset_load_flags(int flags)
+{
+	load_flags &= ~flags;
+}
+
+bool CAT_check_load_flags(int flags)
+{
+	return load_flags & flags;
+}

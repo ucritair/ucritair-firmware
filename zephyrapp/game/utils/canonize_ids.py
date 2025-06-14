@@ -11,15 +11,14 @@ if(len(sys.argv) != 3):
 operand_path = sys.argv[1];
 canon_path = sys.argv[2];
 
-json_file = open(operand_path, "r");
-json_data = json.load(json_file);
-operands = json_data['entries'];
-json_file.close();
+canon_file = open(canon_path, "r");
+canon_data = json.load(canon_file);
+canon = canon_data['entries'];
+canon_file.close();
 
-json_file = open(canon_path, "r");
-json_data = json.load(json_file);
-canon = json_data['entries'];
-json_file.close();
+operand_file = open(operand_path, "r+");
+operand_data = json.load(operand_file);
+operands = operand_data['entries'];
 
 canon_id_map = {};
 for entry in canon:
@@ -44,7 +43,6 @@ for entry in operands:
 		old_id = entry["id"];
 		print(f"[NEW] {entry["name"]} : {entry["id"]}");
 
-
-
-
-
+operand_file.seek(0);
+operand_file.truncate();
+operand_file.write(json.dumps(operand_data, indent=4));

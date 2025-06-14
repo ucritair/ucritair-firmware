@@ -8,7 +8,7 @@
 #include "cat_version.h"
 #include "cat_vending.h"
 #include "cat_arcade.h"
-#include "cat_bag.h"
+#include "cat_inventory.h"
 #include "cat_pet.h"
 #include <stddef.h>
 #include <string.h>
@@ -45,7 +45,7 @@ void CAT_MS_menu(CAT_machine_signal signal)
 				if(CAT_gui_menu_item("INSIGHTS"))
 					CAT_machine_transition(CAT_MS_insights);
 				if(CAT_gui_menu_item("INVENTORY"))
-					CAT_machine_transition(CAT_MS_bag);
+					CAT_machine_transition(CAT_MS_inventory);
 				if(CAT_gui_menu_item("VENDING MACHINE"))
 					CAT_machine_transition(CAT_MS_vending);
 				if(CAT_gui_menu_item("ARCADE"))
@@ -64,12 +64,13 @@ void CAT_MS_menu(CAT_machine_signal signal)
 				}
 				if(CAT_gui_menu_item("MAGIC"))
 					CAT_machine_transition(CAT_MS_magic);
-				if(CAT_check_save_flag(CAT_SAVE_FLAG_DEVELOPER_MODE))
+				if(CAT_check_config_flags(CAT_CONFIG_FLAG_DEVELOPER))
 				{
 					if(CAT_gui_begin_menu("DEVELOPER"))
 					{
 						if(CAT_gui_menu_item("INFO"))
 							CAT_machine_transition(CAT_MS_debug);
+							
 						if(CAT_gui_begin_menu("CHEATS"))
 						{
 							if(CAT_gui_menu_item("1000 COINS"))
@@ -102,18 +103,19 @@ void CAT_MS_menu(CAT_machine_signal signal)
 							{
 								for(int item_id = 0; item_id < item_table.length; item_id++)
 								{
-									CAT_item_list_add(&bag, item_id, 1);
+									CAT_bag_add(item_id, 1);
 								}
 							}
 							if(CAT_gui_menu_item("TURNKEY APARTMENT"))
 							{
-								CAT_set_load_flag(CAT_LOAD_FLAG_DIRTY);
-								CAT_set_load_flag(CAT_LOAD_FLAG_OVERRIDE);
+								CAT_set_load_flags(CAT_LOAD_FLAG_DIRTY | CAT_LOAD_FLAG_TURNKEY);
 							}
 							CAT_gui_end_menu();
 						}
+
 						if(CAT_gui_menu_item("COLOUR PICKER"))
 							CAT_machine_transition(CAT_MS_colour_picker);
+							
 						CAT_gui_end_menu();
 					}				
 				}
@@ -177,15 +179,13 @@ void CAT_MS_menu(CAT_machine_signal signal)
 					}
 					if(CAT_gui_begin_menu("LAUNCH MODE"))
 					{
-						if(CAT_gui_menu_toggle("GAME FIRST", !CAT_check_save_flag(CAT_SAVE_FLAG_AQ_FIRST)))
+						if(CAT_gui_menu_toggle("GAME FIRST", !CAT_check_config_flags(CAT_CONFIG_FLAG_AQ_FIRST)))
 						{
-							CAT_clear_save_flag(CAT_SAVE_FLAG_AQ_FIRST);
-							CAT_force_save();
+							CAT_unset_config_flags(CAT_CONFIG_FLAG_AQ_FIRST);
 						}
-						if(CAT_gui_menu_toggle("DASHBOARD FIRST", CAT_check_save_flag(CAT_SAVE_FLAG_AQ_FIRST)))
+						if(CAT_gui_menu_toggle("DASHBOARD FIRST", CAT_check_config_flags(CAT_CONFIG_FLAG_AQ_FIRST)))
 						{
-							CAT_set_save_flag(CAT_SAVE_FLAG_AQ_FIRST);
-							CAT_force_save();
+							CAT_set_config_flags(CAT_CONFIG_FLAG_AQ_FIRST);
 						}
 						CAT_gui_end_menu();
 					}
@@ -197,10 +197,9 @@ void CAT_MS_menu(CAT_machine_signal signal)
 					}
 					if(CAT_gui_begin_menu("DANGER ZONE"))
 					{
-						if(CAT_gui_menu_item("RESET SAVE FLAGS"))
+						if(CAT_gui_menu_item("RESET CONFIG FLAGS"))
 						{
-							CAT_clear_save_flags();
-							CAT_force_save();
+							CAT_import_config_flags(CAT_CONFIG_FLAG_NONE);
 						}
 							
 						static bool confirm_reset = false;
@@ -210,6 +209,12 @@ void CAT_MS_menu(CAT_machine_signal signal)
 						{
 							confirm_reset = false;
 							CAT_factory_reset();
+						}
+
+						if(CAT_gui_menu_item("SAVE AND RELOAD"))
+						{
+							CAT_force_save();
+							CAT_set_load_flags(CAT_LOAD_FLAG_DIRTY);
 						}
 						CAT_gui_end_menu();
 					}

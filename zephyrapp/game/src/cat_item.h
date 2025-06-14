@@ -1,17 +1,16 @@
 #pragma once
 
-#include "../data/item_assets.h"
-
 #include <stdbool.h>
 #include <stdlib.h>
 #include "cat_math.h"
 #include "cat_render.h"
+#include "cat_structures.h"
+#include "item_assets.h"
 
 //////////////////////////////////////////////////////////////////////////
 // CONSTANTS
 
-#define CAT_ITEM_TABLE_MAX_LENGTH 128
-#define CAT_ITEM_LIST_MAX_LENGTH CAT_ITEM_TABLE_MAX_LENGTH
+#define CAT_ITEM_TABLE_CAPACITY 128
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -64,7 +63,7 @@ typedef struct CAT_item
 
 	const char* name;
 	const CAT_sprite* sprite;
-	int price;
+	uint16_t price;
 	const char* text;
 	const CAT_sprite* icon;
 
@@ -75,9 +74,9 @@ typedef struct CAT_item
 			CAT_tool_type type;
 
 			const CAT_sprite* cursor;
-			int dv;
-			int df;
-			int ds;
+			int8_t dv;
+			int8_t df;
+			int8_t ds;
 
 			union
 			{
@@ -94,35 +93,22 @@ typedef struct CAT_item
 			CAT_prop_type type;
 			CAT_ivec2 shape;
 			bool animate;
-			int child_dy;
+			int8_t child_dy;
 		} prop_data;
 	} data;
 } CAT_item;
 
 typedef struct CAT_item_table
 {
-	CAT_item data[CAT_ITEM_TABLE_MAX_LENGTH];
-	int length;
+	CAT_item data[CAT_ITEM_TABLE_CAPACITY];
+	uint16_t counts[CAT_ITEM_TABLE_CAPACITY];
+	uint16_t length;
 } CAT_item_table;
 extern CAT_item_table item_table;
 
 CAT_item* CAT_item_get(int item_id);
 
-
-//////////////////////////////////////////////////////////////////////////
-// ITEM LIST
-
-typedef struct CAT_item_list
-{
-	int item_ids[CAT_ITEM_LIST_MAX_LENGTH];
-	int counts[CAT_ITEM_LIST_MAX_LENGTH];
-	int length;
-} CAT_item_list;
-
 typedef bool (*CAT_item_filter)(int item_id);
+void CAT_filter_item_table(CAT_item_filter filter, CAT_int_list* list);
 
-void CAT_item_list_init(CAT_item_list* item_list);
-int CAT_item_list_find(CAT_item_list* item_list, int item_id);
-int CAT_item_list_add(CAT_item_list* item_list, int item_id, int count);
-void CAT_item_list_remove(CAT_item_list* item_list, int item_id, int count);
-void CAT_item_list_filter(CAT_item_list* a, CAT_item_list* b, CAT_item_filter filter);
+

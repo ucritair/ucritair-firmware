@@ -157,7 +157,7 @@ static ssize_t read_cells(struct bt_conn *conn, const struct bt_gatt_attr *attr,
 #include "cat_pet.h"
 #include "cat_room.h"
 #include "cat_item.h"
-#include "cat_bag.h"
+#include "cat_inventory.h"
 #include "cat_core.h"
 
 static ssize_t read_stats(struct bt_conn *conn, const struct bt_gatt_attr *attr,
@@ -177,7 +177,7 @@ static ssize_t read_stats(struct bt_conn *conn, const struct bt_gatt_attr *attr,
 
 		.age = pet.lifetime,
 
-		.interventions = ((CAT_item_list_find(&bag, mask_item) != -1) << 0) | \
+		.interventions = ((item_table.counts[mask_item] > 0) << 0) | \
 		                 ((CAT_room_find(prop_purifier_item) != -1) << 1) | \
 		                 ((CAT_room_find(prop_uv_lamp_item) != -1) << 2)
 	};
@@ -192,7 +192,7 @@ static ssize_t read_items(struct bt_conn *conn, const struct bt_gatt_attr *attr,
 
 	bool looking_for_placed = attr->user_data;
 
-	uint8_t bytes[CAT_ITEM_TABLE_MAX_LENGTH>>3] = {0};
+	uint8_t bytes[CAT_ITEM_TABLE_CAPACITY>>3] = {0};
 
 	for (int i = 0; i < item_table.length; i++)
 	{
@@ -204,7 +204,7 @@ static ssize_t read_items(struct bt_conn *conn, const struct bt_gatt_attr *attr,
 		}
 		else
 		{
-			found = CAT_item_list_find(&bag, i) != -1;
+			found = item_table.counts[i] > 0;
 		}
 
 		if (found)
