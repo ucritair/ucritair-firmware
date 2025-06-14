@@ -28,7 +28,7 @@ int CAT_item_list_find(CAT_item_list* item_list, int item_id)
 {
 	if(item_id < 0 || item_id >= item_table.length)
 	{
-		CAT_printf("[ERROR] reference to invalid item id: %d\n", item_id);
+		CAT_printf("[ERROR][CAT_item_list_find] reference to invalid item id: %d\n", item_id);
 		return -1;
 	}
 
@@ -46,7 +46,7 @@ int CAT_item_list_add(CAT_item_list* item_list, int item_id, int count)
 {
 	if(item_id < 0 || item_id >= item_table.length)
 	{
-		CAT_printf("[ERROR] reference to invalid item id: %d\n", item_id);
+		CAT_printf("[ERROR][CAT_item_list_add] reference to invalid item id: %d\n", item_id);
 		return -1 ;
 	}
 	if(item_list->length >= CAT_ITEM_LIST_MAX_LENGTH)
@@ -95,7 +95,7 @@ void CAT_item_list_remove(CAT_item_list* item_list, int item_id, int count)
 {
 	if(item_id < 0 || item_id >= item_table.length)
 	{
-		CAT_printf("[ERROR] [CAT_item_list_remove] reference to invalid item id: %d\n", item_id);
+		CAT_printf("[ERROR][CAT_item_list_remove] reference to invalid item id: %d\n", item_id);
 		return;
 	}
 

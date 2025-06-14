@@ -98,8 +98,10 @@ void lcd_render_diag()
 	if (slept_s < 0) slept_s = 0;
 
 	LOG_INF("about to CAT_init(slept=%d)", slept_s);
-
+	
+	CAT_save_legacy fodder;
 	CAT_init();
+
 	cat_game_running = true;
 #endif
 

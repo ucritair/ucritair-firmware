@@ -451,35 +451,27 @@ void CAT_free(void* ptr)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // SAVE
 
-CAT_save backing_save;
+uint8_t save_backing[0x0e000];
 
 CAT_save* CAT_start_save()
 {
-	return &backing_save;
+	return (CAT_save*) save_backing;
 }
 
 void CAT_finish_save(CAT_save* save)
 {
 	save->magic_number = CAT_SAVE_MAGIC;
 	int fd = open("save.dat", O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
-	uint8_t* buffer = CAT_malloc(sizeof(backing_save));
-	memcpy(buffer, &backing_save, sizeof(backing_save));
-	write(fd, buffer, sizeof(backing_save));
-	CAT_free(buffer);
+	write(fd, &save_backing, sizeof(save_backing));
 	close(fd);
 }
 
 CAT_save* CAT_start_load()
 {
 	int fd = open("save.dat", O_RDONLY);
-	read(fd, &backing_save, sizeof(backing_save));
+	read(fd, &save_backing, sizeof(save_backing));
 	close(fd);
-	return &backing_save;
-}
-
-void CAT_finish_load()
-{
-	return;
+	return (CAT_save*) &save_backing;
 }
 
 
@@ -525,8 +517,8 @@ void CAT_shutdown()
 
 void CAT_factory_reset()
 {
-	CAT_set_load_flag(CAT_LOAD_FLAG_DIRTY);
-	CAT_set_load_flag(CAT_LOAD_FLAG_RESET);
+	CAT_set_load_flags(CAT_LOAD_FLAG_DIRTY);
+	CAT_set_load_flags(CAT_LOAD_FLAG_DEFAULT);
 }
 
 
@@ -592,6 +584,7 @@ void CAT_AQ_clear_stored_scores()
 {
 	return;
 }
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // IMU

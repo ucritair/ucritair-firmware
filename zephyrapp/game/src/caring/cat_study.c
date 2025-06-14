@@ -697,7 +697,7 @@ static void MS_fish(CAT_machine_signal signal)
 			if(quit_popup())
 				break;
 
-			if(CAT_check_save_flag(CAT_SAVE_FLAG_DEVELOPER_MODE))
+			if(CAT_check_config_flags(CAT_CONFIG_FLAG_DEVELOPER))
 			{
 				if(CAT_input_pressed(CAT_BUTTON_SELECT))
 				{
