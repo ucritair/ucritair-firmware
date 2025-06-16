@@ -7,7 +7,7 @@
 #include "cat_aqi.h"
 #include "cat_monitor_graphics_utils.h"
 
-#define TEXT_Y 44
+#define TITLE_Y 44
 
 static char textf_buf[32];
 
@@ -53,9 +53,9 @@ static int labeled_scoref(int x, int y, uint16_t c, int aqm, const char* fmt, ..
 
 void CAT_monitor_render_details()
 {
-	int cursor_y = TEXT_Y;
-	cursor_y = center_textf(120, cursor_y, 1, CAT_WHITE, "Live Readings");
-	cursor_y = underline(120, cursor_y, 1, CAT_WHITE, "Live Readings") + 44;
+	int cursor_y = TITLE_Y;
+	cursor_y = center_textf(120, cursor_y, 1, CAT_WHITE, "Details");
+	cursor_y = underline(120, cursor_y, 1, CAT_WHITE, "Details") + 44;
 
 	cursor_y = labeled_scoref(12, cursor_y, CAT_WHITE, CAT_AQM_CO2, "%.0f", readings.sunrise.ppm_filtered_compensated);
 	cursor_y = labeled_scoref(12, cursor_y, CAT_WHITE, CAT_AQM_PM2_5, "%.0f", readings.sen5x.pm2_5);

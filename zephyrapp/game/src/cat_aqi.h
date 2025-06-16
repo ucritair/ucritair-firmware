@@ -32,10 +32,14 @@ static const char* CAT_AQM_titles[] =
 	[CAT_AQM_VOC] = "VOC",
 	[CAT_AQM_TEMP] = "TEMP",
 	[CAT_AQM_RH] = "RH",
-	[CAT_AQM_AGGREGATE] = "\4CAQ"
+	[CAT_AQM_AGGREGATE] = "\4CritAQ Score"
 };
 
 const char* CAT_get_AQM_unit(int aqm);
+
+
+extern float CAT_AQ_raw_scores[CAT_AQM_COUNT];
+void CAT_AQ_store_raw_scores();
 
 extern float CAT_AQ_normalized_scores[CAT_AQM_COUNT];
 void CAT_AQ_store_normalized_scores();

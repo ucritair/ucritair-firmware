@@ -222,8 +222,19 @@ const char* CAT_get_AQM_unit(int aqm)
 	}
 }
 
-float CAT_AQ_normalized_scores[CAT_AQM_COUNT];
+float CAT_AQ_raw_scores[CAT_AQM_COUNT];
+void CAT_AQ_store_raw_scores()
+{
+	CAT_AQ_raw_scores[CAT_AQM_CO2] = readings.sunrise.ppm_filtered_compensated;
+	CAT_AQ_raw_scores[CAT_AQM_PM2_5] = readings.sen5x.pm2_5;
+	CAT_AQ_raw_scores[CAT_AQM_VOC] = readings.sen5x.voc_index;
+	CAT_AQ_raw_scores[CAT_AQM_NOX] = readings.sen5x.nox_index;
+	CAT_AQ_raw_scores[CAT_AQM_TEMP] = CAT_canonical_temp();
+	CAT_AQ_raw_scores[CAT_AQM_RH] = readings.sen5x.humidity_rhpct;
+	CAT_AQ_raw_scores[CAT_AQM_AGGREGATE] = CAT_aq_aggregate_score();
+}
 
+float CAT_AQ_normalized_scores[CAT_AQM_COUNT];
 void CAT_AQ_store_normalized_scores()
 {
 	CAT_AQ_normalized_scores[CAT_AQM_CO2] = CAT_co2_score(readings.sunrise.ppm_filtered_compensated);

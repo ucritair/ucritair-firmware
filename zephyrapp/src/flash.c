@@ -27,7 +27,7 @@ static inline bool cell_is_valid(CAT_log_cell* cell)
 #define FLASH_SIZE 0x1000000
 #define PERSISTANCE_OFFSET (flash_header_read.persistance_offset + TOTAL_SAVE_ROOM)
 #define SYSTEM_OFFSET (flash_header_read.persistance_offset)
-#define TOMAS_OFFSET (flash_header_read.persistance_offset+ROOM_FOR_SYSTEM)
+#define TOMAS_OFFSET (flash_header_read.persistance_offset + ROOM_FOR_SYSTEM)
 #define MAX_LOG_CELL_COUNT (((FLASH_SIZE - PERSISTANCE_OFFSET) / sizeof(CAT_log_cell)) & ~1)
 
 #define LOG_CELL_NR_FULL -1
@@ -88,7 +88,7 @@ void flash_save_tomas_save(uint8_t* buf, size_t size)
 
 	if (size > ROOM_FOR_TOMAS)
 	{
-		LOG_ERR("uhhhhhh, too big?");
+		LOG_ERR("[ERROR] Requested save overreaches bounds!");
 		return;
 	}
 
@@ -105,7 +105,7 @@ void flash_load_tomas_save(uint8_t* buf, size_t size)
 void flash_nuke_tomas_save()
 {
 	if (!did_post_flash) return;
-	flash_erase(flash_dev, TOMAS_OFFSET, 0x1000);
+	flash_erase(flash_dev, TOMAS_OFFSET, TOTAL_SAVE_ROOM);
 }
 
 
@@ -114,7 +114,7 @@ void flash_nuke_tomas_save()
 void flash_get_cell_by_nr(int nr, CAT_log_cell* out)
 {
 	if (!did_post_flash) return;
-	LOG_DBG("%s(%d) (@%x)", __func__, nr, OFFSET_OF_CELL(nr));
+	// LOG_DBG("%s(%d) (@%x)", __func__, nr, OFFSET_OF_CELL(nr));
 	flash_read(flash_dev, OFFSET_OF_CELL(nr), out, sizeof(CAT_log_cell));
 }
 
@@ -188,19 +188,41 @@ int flash_get_first_cell_before_time(int check, uint64_t t, CAT_log_cell* cell)
 int flash_get_first_cell_after_time(int check, uint64_t t, CAT_log_cell* cell)
 {
 	if (!did_post_flash) return 0;
-	if (check == -1)
-		return flash_get_first_cell_before_time(check, t, cell);
+	if (check == -1) check = 0;
 
 	while (check < next_log_cell_nr)
 	{
 		flash_get_cell_by_nr(check, cell);
-		
+
 		if (cell->timestamp >= t)
 		{
-			return check;
+			CAT_datetime date;
+			CAT_make_datetime(cell->timestamp, &date);
+			if(date.year >= 2000)
+				return check;
 		}
 
 		check++;
+	}
+
+	return next_log_cell_nr-1;
+}
+
+int flash_get_first_calendar_cell(CAT_log_cell* cell)
+{
+	int idx = 0;
+
+	while (idx < next_log_cell_nr)
+	{
+		flash_get_cell_by_nr(idx, cell);
+
+		CAT_datetime datetime;
+		CAT_make_datetime(cell->timestamp, &datetime);
+		
+		if (datetime.year >= 2000)
+			return idx;
+
+		idx++;
 	}
 
 	return next_log_cell_nr-1;

@@ -6,7 +6,7 @@
 #include "cat_input.h"
 #include <stdio.h>
 #include "cat_deco.h"
-#include "cat_bag.h"
+#include "cat_inventory.h"
 #include "rtc.h"
 #include "flash.h"
 #include "sprite_assets.h"
@@ -420,7 +420,7 @@ int text_cursor(char* name, int index)
 
 	struct tm t;
 	uint64_t ts = cell.timestamp;
-	gmtime_r(&ts, &t); 
+	gmtime_r(&ts, &t);
 
 	int gd = get_graph_data(&cell);
 

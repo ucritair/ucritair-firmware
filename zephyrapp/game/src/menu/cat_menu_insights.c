@@ -6,7 +6,7 @@
 #include "cat_input.h"
 #include "cat_pet.h"
 #include "cat_render.h"
-#include "cat_bag.h"
+#include "cat_inventory.h"
 #include <string.h>
 #include "config.h"
 #include "cat_aqi.h"
@@ -67,7 +67,7 @@ void CAT_render_insights()
 		CAT_gui_image(i <= pet.spirit ? &pip_spi_sprite : &pip_empty_sprite, 0);
 	
 	CAT_gui_div("INTERVENTIONS");
-	if(CAT_item_list_find(&bag, mask_item) != -1)
+	if(item_table.counts[mask_item] > 0)
 		CAT_gui_image(&icon_mask_sprite, 0);
 	if(CAT_room_find(prop_purifier_item) != -1)
 		CAT_gui_image(&icon_pure_sprite, 0);

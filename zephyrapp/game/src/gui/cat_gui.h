@@ -91,7 +91,7 @@ void CAT_gui_menu_reset();
 
 void CAT_gui_begin_item_list(const char* title);
 bool CAT_gui_item_list_is_open();
-bool CAT_gui_item_listing(int item_id, int count);
+bool CAT_gui_item_listing(int item_id);
 void CAT_gui_item_greyout();
 void CAT_gui_item_highlight(float progress);
 void CAT_gui_item_list_reset();

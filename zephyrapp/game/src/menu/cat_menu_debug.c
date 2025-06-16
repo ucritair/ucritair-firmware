@@ -44,7 +44,7 @@ void CAT_MS_debug(CAT_machine_signal signal)
 				page += 1;
 				if(page >= LAST)
 					page = 0;
-			}	
+			}
 			break;
 		case CAT_MACHINE_SIGNAL_EXIT:
 			break;
@@ -58,13 +58,12 @@ void CAT_render_debug()
 		case SYSTEM:
 			CAT_gui_title(true, NULL, &icon_exit_sprite, "SYSTEM");
 			CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
+			
 			CAT_gui_textf
 			(
-				"Game v%d.%d.%d.%d\nSave v%d.%d.%d.%d\n",
+				"Game v%d.%d.%d.%d\n",
 				CAT_VERSION_MAJOR, CAT_VERSION_MINOR,
-				CAT_VERSION_PATCH, CAT_VERSION_PUSH,
-				saved_version_major, saved_version_minor,
-				saved_version_patch, saved_version_push
+				CAT_VERSION_PATCH, CAT_VERSION_PUSH
 			);
 			
 #define TOSTRING_INNER(x) #x
@@ -75,8 +74,10 @@ void CAT_render_debug()
 			CAT_gui_text("EMBEDDED\n");
 #endif
 
-			if(CAT_check_save_flag(CAT_SAVE_FLAG_DEVELOPER_MODE))
+			if(CAT_check_config_flags(CAT_CONFIG_FLAG_DEVELOPER))
 				CAT_gui_text("DEVELOPER MODE\n");
+			if(CAT_check_config_flags(CAT_CONFIG_FLAG_MIGRATED))
+				CAT_gui_text("MIGRATED SAVE\n");
 		break;
 		case TIME:
 			CAT_gui_title(true, NULL, &icon_exit_sprite, "TIME");

@@ -8,7 +8,7 @@
 #include "cat_render.h"
 #include <stdio.h>
 #include "cat_item_dialog.h"
-#include "cat_bag.h"
+#include "cat_inventory.h"
 #include "cat_menu.h"
 #include "sprite_assets.h"
 
@@ -92,7 +92,7 @@ void CAT_MS_deco(CAT_machine_signal signal)
 		}
 		case CAT_MACHINE_SIGNAL_TICK:
 		{
-			if(CAT_input_pressed(CAT_BUTTON_B) || CAT_input_pressed(CAT_BUTTON_START))
+			if(CAT_input_pressed(CAT_BUTTON_B))
 				CAT_machine_back();
 			
 			if(CAT_input_pressed(CAT_BUTTON_SELECT))
@@ -116,14 +116,14 @@ void CAT_MS_deco(CAT_machine_signal signal)
 							if(can_place())
 							{
 								CAT_room_add_prop(hold_id, cursor);
-								CAT_item_list_remove(&bag, hold_id, 1);
+								CAT_bag_remove(hold_id, 1);
 								hold_id = -1;
 								hover_idx = CAT_room_find_spatial(cursor);
 							}
 							else if(can_stack())
 							{
 								CAT_room_stack_prop(hover_idx, hold_id);
-								CAT_item_list_remove(&bag, hold_id, 1);
+								CAT_bag_remove(hold_id, 1);
 								hold_id = -1;
 							}
 						}
@@ -136,13 +136,13 @@ void CAT_MS_deco(CAT_machine_signal signal)
 							if(room.prop_children[hover_idx] != -1)
 							{
 								hold_id = room.prop_children[hover_idx];
-								CAT_item_list_add(&bag, room.prop_children[hover_idx], 1);
+								CAT_bag_add(room.prop_children[hover_idx], 1);
 								CAT_room_unstack_prop(hover_idx);
 							}
 							else
 							{
 								hold_id = room.prop_ids[hover_idx];
-								CAT_item_list_add(&bag, room.prop_ids[hover_idx], 1);
+								CAT_bag_add(room.prop_ids[hover_idx], 1);
 								CAT_room_remove_prop(hover_idx);
 							}
 						}
@@ -175,13 +175,13 @@ void CAT_MS_deco(CAT_machine_signal signal)
 						{
 							if(room.prop_children[hover_idx] == -1)
 							{
-								CAT_item_list_add(&bag, room.prop_ids[hover_idx], 1);
+								CAT_bag_add(room.prop_ids[hover_idx], 1);
 								CAT_room_remove_prop(hover_idx);
 							}
 							else
 							{
 								int child_id = room.prop_children[hover_idx];
-								CAT_item_list_add(&bag, child_id, 1);
+								CAT_bag_add(child_id, 1);
 								CAT_room_unstack_prop(hover_idx);
 							}
 						}

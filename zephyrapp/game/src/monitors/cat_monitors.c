@@ -14,7 +14,6 @@ enum
 	DETAILS,
 	SPARKLINES,
 	CALENDAR,
-	GRAPH,
 	GAMEPLAY,
 	CLOCK,
 	PAGE_COUNT
@@ -47,11 +46,6 @@ static struct
 		.state = CAT_monitor_MS_calendar,
 		.render = CAT_monitor_render_calendar
 	},
-	[GRAPH] =
-	{
-		.state = CAT_monitor_MS_graph,
-		.render = CAT_monitor_render_graph
-	},
 	[GAMEPLAY] =
 	{
 		.state = CAT_monitor_MS_gameplay,
@@ -80,7 +74,7 @@ static void render_monitor()
 	CAT_frameberry(RGB8882565(35, 157, 235));
 	draw_page_markers(8, PAGE_COUNT, page);
 
-	if(!CAT_is_AQ_initialized())
+	if(page != SPARKLINES && page != CALENDAR && !CAT_is_AQ_initialized())
 		draw_uninit_warning();
 	else
 		routines[page].render();

@@ -176,20 +176,6 @@ uint64_t CAT_get_rtc_now()
 	return get_current_rtc_time();
 }
 
-void CAT_get_datetime(CAT_datetime* datetime)
-{
-	time_t now = get_current_rtc_time();
-	struct tm local;
-	gmtime_r(&now, &local);
-	
-	datetime->year = local.tm_year;
-	datetime->month = local.tm_mon+1;
-	datetime->day = local.tm_mday;
-	datetime->hour = local.tm_hour;
-	datetime->minute = local.tm_min;
-	datetime->second = local.tm_sec;	
-}
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // MEMORY
@@ -222,19 +208,15 @@ CAT_save* CAT_start_save()
 // then call with the CAT_save* to finish saving
 void CAT_finish_save(CAT_save*)
 {
-	flash_save_tomas_save((uint8_t*) epaper_framebuffer, sizeof(CAT_save));
+	flash_save_tomas_save((uint8_t*) epaper_framebuffer, max(sizeof(CAT_save), sizeof(CAT_save_legacy)));
 }
 
 // Call to start loading, then load from the returned CAT_save*
 CAT_save* CAT_start_load()
 {
-	flash_load_tomas_save((uint8_t*) epaper_framebuffer, sizeof(CAT_save));
+	// NEED ENOUGH SPACE TO LOAD AND MIGRATE A LEGACY SAVE
+	flash_load_tomas_save((uint8_t*) epaper_framebuffer, max(sizeof(CAT_save), sizeof(CAT_save_legacy)));
 	return (CAT_save*) epaper_framebuffer;
-}
-// then call once done loading
-void CAT_finish_load()
-{
-	return;
 }
 
 
@@ -254,6 +236,11 @@ int CAT_read_log_cell_before_time(int base_idx, uint64_t time, CAT_log_cell* out
 int CAT_read_log_cell_after_time(int base_idx, uint64_t time, CAT_log_cell* out)
 {
 	return flash_get_first_cell_after_time(base_idx, time, out);
+}
+
+int CAT_read_first_calendar_cell(CAT_log_cell* cell)
+{
+	return flash_get_first_calendar_cell(cell);
 }
 
 

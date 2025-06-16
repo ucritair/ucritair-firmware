@@ -417,20 +417,11 @@ float CAT_get_delta_time_s()
 
 uint64_t CAT_get_rtc_now()
 {
-	return time(NULL);
-}
-
-void CAT_get_datetime(CAT_datetime* datetime)
-{
 	time_t t = time(NULL);
-	struct tm* lt = localtime(&t);
-	
-	datetime->year = lt->tm_year+1900;
-	datetime->month = lt->tm_mon+1;
-	datetime->day = lt->tm_mday;
-	datetime->hour = lt->tm_hour;
-	datetime->minute = lt->tm_min;
-	datetime->second = lt->tm_sec;
+	struct tm tm;
+	localtime_r(&t, &tm);
+	tm.tm_year += 1900;
+	return timegm(&tm);
 }
 
 
@@ -451,35 +442,27 @@ void CAT_free(void* ptr)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // SAVE
 
-CAT_save backing_save;
+uint8_t save_backing[0x0e000];
 
 CAT_save* CAT_start_save()
 {
-	return &backing_save;
+	return (CAT_save*) save_backing;
 }
 
 void CAT_finish_save(CAT_save* save)
 {
 	save->magic_number = CAT_SAVE_MAGIC;
 	int fd = open("save.dat", O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
-	uint8_t* buffer = CAT_malloc(sizeof(backing_save));
-	memcpy(buffer, &backing_save, sizeof(backing_save));
-	write(fd, buffer, sizeof(backing_save));
-	CAT_free(buffer);
+	write(fd, &save_backing, sizeof(save_backing));
 	close(fd);
 }
 
 CAT_save* CAT_start_load()
 {
 	int fd = open("save.dat", O_RDONLY);
-	read(fd, &backing_save, sizeof(backing_save));
+	read(fd, &save_backing, sizeof(save_backing));
 	close(fd);
-	return &backing_save;
-}
-
-void CAT_finish_load()
-{
-	return;
+	return (CAT_save*) &save_backing;
 }
 
 
@@ -500,6 +483,12 @@ int CAT_read_log_cell_before_time(int base_idx, uint64_t time, CAT_log_cell* out
 int CAT_read_log_cell_after_time(int base_idx, uint64_t time, CAT_log_cell* out)
 {
 	CAT_read_log_cell_at_idx(-1, out);
+	return 0;
+}
+
+int CAT_read_first_calendar_cell(CAT_log_cell* cell)
+{
+	CAT_read_log_cell_at_idx(-1, cell);
 	return 0;
 }
 
@@ -531,8 +520,8 @@ void CAT_shutdown()
 
 void CAT_factory_reset()
 {
-	CAT_set_load_flag(CAT_LOAD_FLAG_DIRTY);
-	CAT_set_load_flag(CAT_LOAD_FLAG_RESET);
+	CAT_set_load_flags(CAT_LOAD_FLAG_DIRTY);
+	CAT_set_load_flags(CAT_LOAD_FLAG_DEFAULT);
 }
 
 
@@ -588,6 +577,7 @@ void CAT_AQ_read_stored_scores(int idx, CAT_AQ_score_block* out)
 		return;
 	memcpy(out, &aq_score_buffer[idx], sizeof(CAT_AQ_score_block));
 }
+
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

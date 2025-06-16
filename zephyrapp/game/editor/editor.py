@@ -175,6 +175,42 @@ class AssetDocument:
 		self.schema = AssetSchema(self.data["schema"]);
 		self.entries = self.data["entries"];
 	
+		self.id_set = set();
+		if "id" in self.schema.keys():
+			for entry in self.entries:
+				self.id_set.add(entry["id"]);
+	
+	def take_free_id(self):
+		M = max(self.id_set);
+		i = 0;
+		while i <= M:
+			if not i in self.id_set:
+				self.id_set.add(i);
+				return i;
+			i += 1;
+		self.id_set.add(M+1);
+		return M+1;
+	
+	def spawn_new_entry(self):
+		new = {};
+		self.schema.prototype(new);
+		new["name"] = f"new_{document.type}";
+		if "id" in new:
+			new["id"] = self.take_free_id();
+		self.entries.append(new);
+	
+	def duplicate_entry(self, idx):
+		new = copy.deepcopy(self.entries[idx]);
+		if "id" in new:
+			new["id"] = self.take_free_id();
+		self.entries.append(new);
+	
+	def delete_entry(self, idx):
+		entry = self.entries[idx];
+		if "id" in entry:
+			self.id_set.remove(entry["id"]);
+		del self.entries[idx];
+	
 	def refresh(self):
 		for entry in self.entries:
 			self.schema.prototype(entry);
@@ -873,10 +909,7 @@ class DocumentRenderer:
 					popup_statuses[delete_popup_id] = True;
 					imgui.close_current_popup();
 				if imgui.menu_item_simple("Duplicate"):
-					dupe = copy.deepcopy(doc.entries[idx]);
-					if "id" in dupe:
-						dupe["id"] += 1;
-					doc.entries.append(dupe);
+					doc.duplicate_entry(idx);
 					imgui.close_current_popup();
 				imgui.end_popup();
 			
@@ -902,7 +935,7 @@ class DocumentRenderer:
 				imgui.tree_pop();
 
 			if delete_node:
-				del doc.entries[idx];
+				doc.delete_entry(idx);
 				idx -= 1;
 			idx += 1;
 
@@ -1478,6 +1511,111 @@ class Mesh2DEditor:
 
 
 #########################################################
+## ITEM REFORMER
+
+class ItemReform:
+	def __init__(self, name, filt, path, values):
+		self.name = name;
+		self.filt = filt;
+		self.path = path;
+		self.values = values;
+	
+	def __path_assign(object, path, value):
+		match path:
+			case []:
+				return;
+			case [token]:
+				object[token] = value;
+			case head, *tail:
+				ItemReform.__path_assign(object[head], tail, value);
+
+	def apply(self, items):
+		operands = filter(self.filt, items);
+		for operand in operands:
+			ItemReform.__path_assign(operand, self.path, self.values[operand["tier"]]);
+
+class ItemReformer:
+	_ = None;
+
+	def __init__(self):
+		if ItemReformer._ != None:
+			return None;
+		ItemReformer._ = self;
+
+		self.canvas = Canvas(240, 128);
+		self.size = (640, 480);
+		self.scale = 240 / self.canvas.height;
+		window_flag_list = [
+			imgui.WindowFlags_.no_saved_settings,
+			imgui.WindowFlags_.no_collapse,
+		];
+		self.window_flags = foldl(lambda a, b : a | b, 0, window_flag_list);
+		self.open = True;
+		
+		self.items = asset_docs["item"].entries;
+		self.reforms = [
+			ItemReform (
+				"Food Prices",
+				lambda i: i["type"] == "tool" and i["tool_data"]["type"] == "food",
+				["price"],
+				[tier*3 for tier in range(4)]
+			),
+			ItemReform (
+				"Book and Toy Prices",
+				lambda i: i["type"] == "tool" and (i["tool_data"]["type"] == "book" or i["tool_data"]["type"] == "toy"),
+				["price"],
+				[tier*7 for tier in range(4)]
+			),
+			ItemReform (
+				"Food Power",
+				lambda i: i["type"] == "tool" and i["tool_data"]["type"] == "food",
+				["tool_data", "dv"],
+				[tier for tier in range(4)]
+			),
+			ItemReform (
+				"Book Power",
+				lambda i: i["type"] == "tool" and i["tool_data"]["type"] == "book",
+				["tool_data", "df"],
+				[tier for tier in range(4)]
+			),
+			ItemReform (
+				"Toy Power",
+				lambda i: i["type"] == "tool" and i["tool_data"]["type"] == "toy",
+				["tool_data", "ds"],
+				[tier for tier in range(4)]
+			),
+		];
+
+	def render():
+		if ItemReformer._ == None:
+			return;
+		self = ItemReformer._;
+
+		if self.open:
+			imgui.set_next_window_size(self.size);
+			_, self.open = imgui.begin(f"Item Reformer", self.open, flags=self.window_flags);
+
+			for reform in self.reforms:
+				imgui.push_id(str(id(reform)));
+				if imgui.collapsing_header(reform.name):
+					for tier in range(1, 4):
+						imgui.push_id(str(tier));
+						imgui.text(f"Tier {"I"*tier}:");
+						imgui.same_line();
+						_, reform.values[tier] = imgui.input_int("", reform.values[tier]);
+						imgui.pop_id();
+					if imgui.button("Apply"):
+						reform.apply(self.items);
+				imgui.pop_id();
+
+			self.size = imgui.get_window_size();
+			imgui.end();
+		
+		if not self.open:
+			ItemReformer._ = None;
+
+
+#########################################################
 ## EDITOR GUI
 
 splash_img = Image.open("editor/splash.png");
@@ -1548,12 +1686,7 @@ while not glfw.window_should_close(handle):
 						document.entries.sort(key = lambda n: n[rank_keys[0]]);
 				imgui.end_menu();
 			if imgui.menu_item_simple("New"):
-				new_asset = {};
-				document.schema.prototype(new_asset);
-				new_asset["name"] = f"new_{document.type}";
-				if "id" in new_asset:
-					new_asset["id"] = len(document.entries);
-				document.entries.append(new_asset);
+				document.spawn_new_entry();
 			imgui.end_menu();
 		
 		if imgui.begin_menu("Tools"):
@@ -1564,7 +1697,9 @@ while not glfw.window_should_close(handle):
 			if imgui.menu_item_simple("Theme Editor"):
 				ThemeEditor();	
 			if imgui.menu_item_simple("Mesh2D Editor"):
-				Mesh2DEditor();	
+				Mesh2DEditor();
+			if imgui.menu_item_simple("Item Reformer"):
+				ItemReformer();	
 			imgui.end_menu();
 
 		imgui.end_main_menu_bar();
@@ -1584,6 +1719,8 @@ while not glfw.window_should_close(handle):
 		ThemeEditor.render();
 	if Mesh2DEditor._ != None:
 		Mesh2DEditor.render();
+	if ItemReformer._ != None:
+		ItemReformer.render();
 
 	imgui.end();
 	imgui.render();
