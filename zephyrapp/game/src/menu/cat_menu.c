@@ -20,6 +20,7 @@
 #ifdef CAT_EMBEDDED
 #include "menu_system.h"
 #include "menu_aqi.h"
+#include "menu_graph.h"
 #endif
 
 #ifdef CAT_EMBEDDED
@@ -54,11 +55,15 @@ void CAT_MS_menu(CAT_machine_signal signal)
 				{
 					if(CAT_gui_menu_item("DASHBOARD"))
 						CAT_machine_transition(CAT_MS_monitor);
-					if(CAT_gui_menu_item("LOGS"))
+					if(CAT_gui_begin_menu("LEGACY"))
 					{
 #ifdef CAT_EMBEDDED
-						CAT_machine_transition(CAT_MS_aqi);
+						if(CAT_gui_menu_item("LOGS"))
+							CAT_machine_transition(CAT_MS_aqi);
+						if(CAT_gui_menu_item("GRAPH"))
+							CAT_machine_transition(CAT_MS_graph);
 #endif
+						CAT_gui_end_menu();
 					}
 					CAT_gui_end_menu();
 				}

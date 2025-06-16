@@ -21,8 +21,8 @@ void CAT_monitor_render_calendar();
 void CAT_monitor_MS_logs(CAT_machine_signal signal);
 void CAT_monitor_render_logs();
 
-void CAT_monitor_MS_gameplay(CAT_machine_signal signal);
-void CAT_monitor_render_gameplay();
+/*void CAT_monitor_MS_gameplay(CAT_machine_signal signal);
+void CAT_monitor_render_gameplay();*/
 
 void CAT_monitor_MS_clock(CAT_machine_signal signal);
 void CAT_monitor_render_clock();

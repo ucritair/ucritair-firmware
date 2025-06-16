@@ -732,7 +732,7 @@
         {
             "id": 68,
             "name": "glyph_sprite",
-            "path": "ui/glyphs_db.png",
+            "path": "ui/glyphs.png",
             "frames": 127,
             "width": 8,
             "height": 12,

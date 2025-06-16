@@ -438,9 +438,9 @@ void calendar_logic()
 		if(CAT_input_pressed(CAT_BUTTON_B))
 				focused = false;
 			
-		if(CAT_input_pressed(CAT_BUTTON_LEFT))
+		if(CAT_input_pulse(CAT_BUTTON_LEFT))
 			target.month -= 1;
-		if(CAT_input_pressed(CAT_BUTTON_RIGHT))
+		if(CAT_input_pulse(CAT_BUTTON_RIGHT))
 			target.month += 1;
 		if(target.month < 1)
 		{

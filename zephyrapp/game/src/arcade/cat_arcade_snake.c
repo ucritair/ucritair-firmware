@@ -140,7 +140,7 @@ void CAT_MS_snake(CAT_machine_signal signal)
 				if(quit)
 				{
 					quit = false;
-					CAT_machine_transition(CAT_MS_room);
+					CAT_machine_back();
 				}
 				if(CAT_gui_popup_is_open())
 					break;

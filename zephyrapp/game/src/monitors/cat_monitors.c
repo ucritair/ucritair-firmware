@@ -15,7 +15,7 @@ enum
 	SPARKLINES,
 	CALENDAR,
 	LOGS,
-	GAMEPLAY,
+	// GAMEPLAY,
 	CLOCK,
 	PAGE_COUNT
 };
@@ -52,11 +52,11 @@ static struct
 		.state = CAT_monitor_MS_logs,
 		.render = CAT_monitor_render_logs
 	},
-	[GAMEPLAY] =
+	/*[GAMEPLAY] =
 	{
 		.state = CAT_monitor_MS_gameplay,
 		.render = CAT_monitor_render_gameplay
-	},
+	},*/
 	[CLOCK] =
 	{
 		.state = CAT_monitor_MS_clock,
@@ -82,9 +82,8 @@ static void render_monitor()
 
 	if
 	(
-		page != SPARKLINES &&
-		page != CALENDAR &&
-		page != LOGS &&
+		(page == SUMMARY ||
+		page == DETAILS) &&
 		!CAT_is_AQ_initialized()
 	
 	)
