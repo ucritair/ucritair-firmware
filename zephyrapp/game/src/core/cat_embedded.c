@@ -243,6 +243,11 @@ int CAT_read_first_calendar_cell(CAT_log_cell* cell)
 	return flash_get_first_calendar_cell(cell);
 }
 
+int CAT_get_log_cell_count()
+{
+	return next_log_cell_nr;
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // POWER

@@ -469,27 +469,51 @@ CAT_save* CAT_start_load()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // LOGS
 
+CAT_log_cell log_cell =
+{
+	.flags = CAT_LOG_CELL_FLAG_HAS_CO2 | CAT_LOG_CELL_FLAG_HAS_TEMP_RH_PARTICLES,
+
+	.timestamp = 0,
+	.temp_Cx1000 = 22700,
+	.pressure_hPax10 = 9760,
+
+	.rh_pctx100 = 4800,
+	.co2_ppmx1 = 644,
+	.pm_ugmx100 = {100, 110, 110, 110},
+	.pn_ugmx100 = {650, 720, 720, 720, 720},
+
+	.voc_index = 105,
+	.nox_index = 1,
+
+	.co2_uncomp_ppmx1 = 644
+};
+
 void CAT_read_log_cell_at_idx(int idx, CAT_log_cell* out)
 {
-	memset(out, 0, sizeof(CAT_log_cell));
+	memcpy(out, &log_cell, sizeof(CAT_log_cell));
 }
 
 int CAT_read_log_cell_before_time(int base_idx, uint64_t time, CAT_log_cell* out)
 {
-	CAT_read_log_cell_at_idx(-1, out);
-	return 0;
+	CAT_read_log_cell_at_idx(1, out);
+	return 1;
 }
 
 int CAT_read_log_cell_after_time(int base_idx, uint64_t time, CAT_log_cell* out)
 {
-	CAT_read_log_cell_at_idx(-1, out);
-	return 0;
+	CAT_read_log_cell_at_idx(1, out);
+	return 1;
 }
 
 int CAT_read_first_calendar_cell(CAT_log_cell* cell)
 {
-	CAT_read_log_cell_at_idx(-1, cell);
-	return 0;
+	CAT_read_log_cell_at_idx(1, cell);
+	return 1;
+}
+
+int CAT_get_log_cell_count()
+{
+	return 1;
 }
 
 

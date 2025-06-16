@@ -161,8 +161,6 @@ static char* graph_make_value_text(int16_t value)
 
 static void graph_init()
 {
-	graph_view = CO2;
-
 	graph.value_max = INT16_MIN;
 	graph.value_min = INT16_MAX;
 	graph.range = UINT16_MAX;
@@ -432,7 +430,7 @@ void calendar_logic()
 		if(CAT_input_pressed(CAT_BUTTON_RIGHT))
 			CAT_monitor_advance();
 
-		if(CAT_input_pressed(CAT_BUTTON_A))
+		if(CAT_input_released(CAT_BUTTON_A))
 			focused = true;
 	}
 	else
@@ -474,23 +472,38 @@ void calendar_logic()
 
 void render_calendar()
 {
+	if(!focused)
+	{
+		int cursor_y = center_textf(120, 60, 2, CAT_WHITE, "Calendar");
+		cursor_y = underline(120, cursor_y, 2, CAT_WHITE, "Calendar");
+
+		CAT_fillberry(120 - 60, 160 - 20, 120, 40, RGB8882565(35, 157, 235));
+		center_textf(120, 160, CAT_input_held(CAT_BUTTON_A, 0) ? 3 : 2 ,CAT_WHITE, "Press A");
+		return;
+	}
+
 	CAT_set_text_scale(2);
 	CAT_set_text_colour(CAT_WHITE);
 	CAT_draw_textf(DATE_X, DATE_Y, "%.2d/%.2d/%.4d", target.month, target.day, target.year);
 
-	int max_days = days_in_month(target.year, target.month);
-	if(target.year == today.year && target.month == today.month)
-		max_days = today.day;
 	int day = 1;
-
 	for(int row = 0; row < 5; row++)
 	{
 		int y = GRID_Y + ((GRID_CELL_R * 2) + GRID_SPACING) * row;
 		int cols = row == 4 ? 3 : 7;
+
 		for(int col = 0; col < cols; col++)
 		{
 			int x = GRID_X + ((GRID_CELL_R * 2) + GRID_SPACING) * col;
-			if(day <= max_days)
+
+			CAT_datetime date = target;
+			date.day = day;
+			if
+			(
+				CAT_cmp_datetime(&date, &origin) >= 0 &&
+				CAT_cmp_datetime(&date, &today) <= 0 &&
+				day <= days_in_month(target.year, target.month)
+			)
 			{
 				CAT_circberry(x + GRID_CELL_R, y + GRID_CELL_R, GRID_CELL_R, day == target.day ? CAT_RED : CAT_WHITE);
 				center_textf(x + GRID_CELL_R, y + GRID_CELL_R, 1, CAT_WHITE, "%d", day);
@@ -502,6 +515,9 @@ void render_calendar()
 			day += 1;
 		}
 	}
+
+	CAT_set_text_colour(CAT_WHITE);
+	CAT_draw_text(GRID_X, GRID_Y + (GRID_CELL_R * 2 + GRID_SPACING) * 5 + 20, "Double-tap to select a date");
 }
 
 void CAT_monitor_MS_calendar(CAT_machine_signal signal)

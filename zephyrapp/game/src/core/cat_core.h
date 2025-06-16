@@ -362,9 +362,10 @@ typedef enum
 } CAT_log_cell_flag;
 
 void CAT_read_log_cell_at_idx(int idx, CAT_log_cell* out);
-int CAT_read_log_cell_before_time(int base_idx, uint64_t time, CAT_log_cell* out);
-int CAT_read_log_cell_after_time(int base_idx, uint64_t time, CAT_log_cell* out);
+int CAT_read_log_cell_before_time(int bookmark, uint64_t time, CAT_log_cell* out);
+int CAT_read_log_cell_after_time(int bookmark, uint64_t time, CAT_log_cell* out);
 int CAT_read_first_calendar_cell(CAT_log_cell* cell);
+int CAT_get_log_cell_count();
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
