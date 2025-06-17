@@ -30,9 +30,6 @@ void CAT_MS_arcade(CAT_machine_signal signal)
 
 		case CAT_MACHINE_SIGNAL_TICK:
 		{
-			if(CAT_input_pressed(CAT_BUTTON_B))
-				CAT_machine_back();
-			
 			if(CAT_gui_begin_menu("ARCADE"))
 			{
 				if(CAT_gui_menu_item("SNACK"))
@@ -42,7 +39,7 @@ void CAT_MS_arcade(CAT_machine_signal signal)
 				if(CAT_gui_menu_item("FOURSQUARES"))
 					CAT_machine_transition(CAT_MS_foursquares);
 				CAT_gui_end_menu();
-			}	
+			}
 		}
 		break;
 
