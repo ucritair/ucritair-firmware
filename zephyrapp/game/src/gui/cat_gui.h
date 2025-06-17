@@ -136,9 +136,9 @@ typedef enum
 } CAT_text_flag;
 
 void CAT_set_text_flags(int flags);
-void CAT_set_text_line_width(int width);
 void CAT_set_text_colour(uint16_t colour);
 void CAT_set_text_scale(uint8_t scale);
+void CAT_set_text_mask(int x0, int y0, int x1, int y1);
 
 int CAT_draw_text(int x, int y, const char* text);
 int CAT_draw_textf(int x, int y, const char* fmt, ...);

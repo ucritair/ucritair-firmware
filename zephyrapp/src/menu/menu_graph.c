@@ -420,7 +420,7 @@ int text_cursor(char* name, int index)
 
 	struct tm t;
 	uint64_t ts = cell.timestamp;
-	gmtime_r(&ts, &t); 
+	gmtime_r(&ts, &t);
 
 	int gd = get_graph_data(&cell);
 

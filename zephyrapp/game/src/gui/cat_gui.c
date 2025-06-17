@@ -693,7 +693,10 @@ void CAT_gui_end_menu()
 void CAT_gui_menu_reset()
 {
 	for(int i = 0; i < MENU_TABLE_SIZE; i++)
+	{
+		menu_table[i].clicked = false;
 		menu_table[i].selector = 0;
+	}
 	menu_stack_length = 0;
 	menu_root = -1;
 }

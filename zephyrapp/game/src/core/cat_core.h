@@ -115,12 +115,21 @@ uint64_t CAT_get_uptime_ms();
 float CAT_get_delta_time_s();
 uint64_t CAT_get_rtc_now();
 
-typedef struct CAT_datetime
+typedef union CAT_datetime
 {
-    int year, month, day, hour, minute, second;
+	struct
+	{
+		int year, month, day, hour, minute, second;
+	};
+	
+   	int data[6];
 } CAT_datetime;
 
 void CAT_get_datetime(CAT_datetime* datetime);
+int CAT_datecmp(CAT_datetime* a, CAT_datetime* b);
+int CAT_timecmp(CAT_datetime* a, CAT_datetime* b);
+void CAT_make_datetime(uint64_t timestamp, CAT_datetime* datetime);
+uint64_t CAT_make_timestamp(CAT_datetime* datetime);
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -190,7 +199,8 @@ typedef enum
 	CAT_CONFIG_FLAG_DEVELOPER = (1 << 0),
 	CAT_CONFIG_FLAG_USE_FAHRENHEIT = (1 << 1),
 	CAT_CONFIG_FLAG_AQ_FIRST = (1 << 2),
-	CAT_CONFIG_FLAG_MIGRATED = (1 << 3)
+	CAT_CONFIG_FLAG_MIGRATED = (1 << 3),
+	CAT_CONFIG_FLAG_PERSIST_CLEARED = (1 << 4),
 } CAT_config_flag;
 
 typedef enum
@@ -354,7 +364,10 @@ typedef enum
 } CAT_log_cell_flag;
 
 void CAT_read_log_cell_at_idx(int idx, CAT_log_cell* out);
-int CAT_read_log_cell_before_time(int base_idx, uint64_t time, CAT_log_cell* out);
+int CAT_read_log_cell_before_time(int bookmark, uint64_t time, CAT_log_cell* out);
+int CAT_read_log_cell_after_time(int bookmark, uint64_t time, CAT_log_cell* out);
+int CAT_read_first_calendar_cell(CAT_log_cell* cell);
+int CAT_get_log_cell_count();
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -412,34 +425,22 @@ const char* CAT_AQ_get_temperature_unit_string();
 
 typedef struct __attribute__((__packed__))
 {
-	uint8_t CO2;
-	uint8_t VOC;
-	uint8_t NOX;
-	uint8_t PM2_5;
-	uint8_t temp;
-	uint8_t rh;
-	uint8_t aggregate;
+	uint16_t CO2; // ppm x1
+	uint8_t VOC; // index x1
+	uint8_t NOX; // index x1
+	uint16_t PM2_5; // ug/m3 x100
+	int32_t temp; // degC x1000
+	uint16_t rh; // % x100
+	uint8_t aggregate; // score x1
+	uint64_t sample_count;
 } CAT_AQ_score_block;
 
-typedef struct __attribute__((__packed__))
-{
-	float CO2;
-	float VOC;
-	float NOX;
-	float PM2_5;
-	float temp;
-	float rh;
-	float aggregate;
-	uint64_t sample_count;
-} CAT_AQ_moving_scores;
+CAT_AQ_score_block* CAT_AQ_get_moving_scores();
+CAT_AQ_score_block* CAT_AQ_get_score_buffer();
 
 void CAT_AQ_move_scores();
-void CAT_AQ_store_moving_scores(CAT_AQ_score_block* block);
-
-int CAT_AQ_get_stored_scores_count();
-void CAT_AQ_read_stored_scores(int idx, CAT_AQ_score_block* out);
-
-void CAT_AQ_clear_stored_scores();
+void CAT_AQ_buffer_scores(CAT_AQ_score_block* block);
+void CAT_AQ_read_scores(int idx, CAT_AQ_score_block* out);
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

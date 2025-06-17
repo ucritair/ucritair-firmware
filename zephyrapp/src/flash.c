@@ -114,7 +114,7 @@ void flash_nuke_tomas_save()
 void flash_get_cell_by_nr(int nr, CAT_log_cell* out)
 {
 	if (!did_post_flash) return;
-	LOG_DBG("%s(%d) (@%x)", __func__, nr, OFFSET_OF_CELL(nr));
+	// LOG_DBG("%s(%d) (@%x)", __func__, nr, OFFSET_OF_CELL(nr));
 	flash_read(flash_dev, OFFSET_OF_CELL(nr), out, sizeof(CAT_log_cell));
 }
 
@@ -183,6 +183,49 @@ int flash_get_first_cell_before_time(int check, uint64_t t, CAT_log_cell* cell)
 	}
 
 	return 0;
+}
+
+int flash_get_first_cell_after_time(int check, uint64_t t, CAT_log_cell* cell)
+{
+	if (!did_post_flash) return 0;
+	if (check == -1) check = 0;
+
+	while (check < next_log_cell_nr)
+	{
+		flash_get_cell_by_nr(check, cell);
+
+		if (cell->timestamp >= t)
+		{
+			CAT_datetime date;
+			CAT_make_datetime(cell->timestamp, &date);
+			if(date.year >= 2000)
+				return check;
+		}
+
+		check++;
+	}
+
+	return next_log_cell_nr-1;
+}
+
+int flash_get_first_calendar_cell(CAT_log_cell* cell)
+{
+	int idx = 0;
+
+	while (idx < next_log_cell_nr)
+	{
+		flash_get_cell_by_nr(idx, cell);
+
+		CAT_datetime datetime;
+		CAT_make_datetime(cell->timestamp, &datetime);
+		
+		if (datetime.year >= 2000)
+			return idx;
+
+		idx++;
+	}
+
+	return next_log_cell_nr-1;
 }
 
 float get_hours_of_logging_at_rate(int rate)

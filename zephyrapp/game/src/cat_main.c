@@ -416,7 +416,10 @@ void CAT_tick_render()
 
 #ifdef CAT_DESKTOP
 
-void aq_spoof()
+#include <inttypes.h>
+#include <arpa/inet.h>
+
+void readings_spoof()
 {
 	readings.lps22hh.uptime_last_updated = 0;
 	readings.lps22hh.temp = 20;
@@ -439,7 +442,7 @@ void aq_spoof()
 
 int main(int argc, char** argv)
 {
-	aq_spoof();
+	readings_spoof();
 
 	CAT_init();
 	

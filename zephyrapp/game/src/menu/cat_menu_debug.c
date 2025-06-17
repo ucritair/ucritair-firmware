@@ -78,10 +78,17 @@ void CAT_render_debug()
 				CAT_gui_text("DEVELOPER MODE\n");
 			if(CAT_check_config_flags(CAT_CONFIG_FLAG_MIGRATED))
 				CAT_gui_text("MIGRATED SAVE\n");
+			if(CAT_check_config_flags(CAT_CONFIG_FLAG_PERSIST_CLEARED))
+				CAT_gui_text("PERSIST CLEARED\n");
 		break;
 		case TIME:
 			CAT_gui_title(true, NULL, &icon_exit_sprite, "TIME");
 			CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
+
+			CAT_datetime datetime;
+			CAT_get_datetime(&datetime);
+			CAT_gui_textf("%d/%d/%d %d:%d:%d\n", datetime.month, datetime.day, datetime.year, datetime.hour, datetime.minute, datetime.second);
+
 			CAT_gui_textf("Slept: %ds\n", CAT_get_slept_s());
 			CAT_gui_textf("Life: %0.0fs/%0.0fs\n", CAT_timer_get(pet.life_timer_id), timetable.duration[pet.life_timer_id]);
 			CAT_gui_textf("Stat: %0.0fs/%0.0fs\n", CAT_timer_get(pet.stat_timer_id), timetable.duration[pet.stat_timer_id]);
@@ -90,6 +97,7 @@ void CAT_render_debug()
 			CAT_gui_textf("Pets: %d/5\n", pet.times_pet);
 			CAT_gui_textf("Milks: %d/3\n", pet.times_milked);
 			CAT_gui_textf("E-Ink: %0.0fs/%0.0fs\n", time_since_eink_update, eink_update_time_threshold);
+			
 			int active_timers = 0;
 			for(int i = 0; i < CAT_TIMETABLE_MAX_LENGTH; i++)
 			{
@@ -143,7 +151,7 @@ void CAT_render_debug()
 			CAT_gui_textf("NOX: %f\n", readings.sen5x.nox_index);
 			CAT_gui_textf("VOC: %f\n", readings.sen5x.voc_index);
 			CAT_gui_textf("TMP: %f%s\n", CAT_AQ_map_celsius(readings.lps22hh.temp), CAT_AQ_get_temperature_unit_string());
-			CAT_gui_textf("AQI: %f\n", CAT_AQI_aggregate());
+			CAT_gui_textf("AQI: %f\n", CAT_aq_aggregate_score());
 		}
 		break;
 		default:

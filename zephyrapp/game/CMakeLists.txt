@@ -117,6 +117,14 @@ target_sources(app PRIVATE
 	src/arcade/cat_arcade_foursquares.c
 
 	src/monitors/cat_monitors.c
+	src/monitors/cat_monitor_summary.c
+	src/monitors/cat_monitor_details.c
+	src/monitors/cat_monitor_sparklines.c
+	src/monitors/cat_monitor_calendar.c
+	src/monitors/cat_monitor_logs.c
+	src/monitors/cat_monitor_gameplay.c
+	src/monitors/cat_monitor_clock.c
+	
 
 	src/gui/cat_gui.c
 	src/gui/cat_text.c

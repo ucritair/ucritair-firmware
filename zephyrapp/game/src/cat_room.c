@@ -546,7 +546,7 @@ void CAT_room_tick()
 			room.prop_ids[i] == prop_spi_flower_item
 		)
 		{
-			float aqi_score = CAT_AQI_aggregate() / 100.0f;
+			float aqi_score = CAT_aq_aggregate_score() / 100.0f;
 			if(aqi_score < 0.15f)
 			{
 				room.prop_overrides[i] = 5;

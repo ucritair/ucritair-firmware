@@ -65,16 +65,6 @@ void CAT_render_insights()
 	CAT_gui_text("SPI ");
 	for(int i = 1; i <= 12; i++)
 		CAT_gui_image(i <= pet.spirit ? &pip_spi_sprite : &pip_empty_sprite, 0);
-
-	CAT_gui_div("AIR QUALITY");
-	
-	int temp_idx, co2_idx, pm_idx, voc_idx, nox_idx;
-	CAT_AQI_quantize(&temp_idx, &co2_idx, &pm_idx, &voc_idx, &nox_idx);
-	CAT_gui_image(&icon_temp_sprite, temp_idx);
-	CAT_gui_image(&icon_co2_sprite, co2_idx);
-	CAT_gui_image(&icon_pm_sprite, pm_idx);
-	CAT_gui_image(&icon_voc_sprite, voc_idx);
-	CAT_gui_image(&icon_nox_sprite, nox_idx);
 	
 	CAT_gui_div("INTERVENTIONS");
 	if(item_table.counts[mask_item] > 0)

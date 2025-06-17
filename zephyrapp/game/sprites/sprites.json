@@ -2698,6 +2698,16 @@
             "height": 2,
             "loop": false,
             "reverse": false
+        },
+        {
+            "id": 265,
+            "name": "ui_skulls_sprite",
+            "path": "ui/monitors/skulls.png",
+            "frames": 1,
+            "width": 24,
+            "height": 24,
+            "loop": false,
+            "reverse": false
         }
     ]
 }
