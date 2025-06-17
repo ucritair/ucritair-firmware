@@ -29,6 +29,7 @@ void CAT_MS_item_dialog(CAT_machine_signal signal)
 		{
 			CAT_set_render_callback(CAT_render_item_dialog);
 			CAT_input_clear();
+			CAT_gui_begin_item_list_context();
 			break;
 		}
 		case CAT_MACHINE_SIGNAL_TICK:
@@ -63,6 +64,7 @@ void CAT_MS_item_dialog(CAT_machine_signal signal)
 		}
 
 		case CAT_MACHINE_SIGNAL_EXIT:
+			CAT_gui_end_item_list_context();
 		break;
 	}
 }

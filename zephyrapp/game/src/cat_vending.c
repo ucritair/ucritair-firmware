@@ -19,6 +19,7 @@ void CAT_MS_vending(CAT_machine_signal signal)
 		case CAT_MACHINE_SIGNAL_ENTER:
 			CAT_set_render_callback(CAT_render_vending);
 			CAT_input_clear();
+			CAT_gui_begin_item_list_context();
 
 			purchase_progress = 0;
 			purchase_lock = false;
@@ -88,6 +89,7 @@ void CAT_MS_vending(CAT_machine_signal signal)
 		}
 
 		case CAT_MACHINE_SIGNAL_EXIT:
+			CAT_gui_end_item_list_context();
 		break;
 	}
 }

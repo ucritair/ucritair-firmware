@@ -11,12 +11,6 @@
 #include "cat_aqi.h"
 #include "sprite_assets.h"
 
-#ifdef CAT_EMBEDDED
-#include "menu_system.h"
-#include "menu_aqi.h"
-#include "menu_graph.h"
-#endif
-
 //////////////////////////////////////////////////////////////////////////
 // MACHINE
 
@@ -26,6 +20,7 @@ void CAT_MS_arcade(CAT_machine_signal signal)
 	{
 		case CAT_MACHINE_SIGNAL_ENTER:
 			CAT_set_render_callback(CAT_render_arcade);
+			CAT_gui_begin_menu_context();
 		break;
 
 		case CAT_MACHINE_SIGNAL_TICK:
@@ -44,7 +39,8 @@ void CAT_MS_arcade(CAT_machine_signal signal)
 		break;
 
 		case CAT_MACHINE_SIGNAL_EXIT:
-			break;
+			CAT_gui_end_menu_context();
+		break;
 	}
 }
 

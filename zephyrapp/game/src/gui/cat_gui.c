@@ -599,6 +599,18 @@ bool consume_click(uint16_t table_idx)
 	return value;
 }
 
+
+void CAT_gui_begin_menu_context()
+{
+	for(int i = 0; i < MENU_TABLE_SIZE; i++)
+	{
+		menu_table[i].clicked = false;
+		menu_table[i].parent = -1;
+		menu_table[i].child_count = 0;
+		menu_table[i].selector = 0;
+	}
+}
+
 bool CAT_gui_begin_menu(const char* title)
 {
 	int idx = find_menu_node(title);
@@ -690,15 +702,9 @@ void CAT_gui_end_menu()
 	pop_menu_node();
 }
 
-void CAT_gui_menu_reset()
+void CAT_gui_end_menu_context()
 {
-	for(int i = 0; i < MENU_TABLE_SIZE; i++)
-	{
-		menu_table[i].clicked = false;
-		menu_table[i].selector = 0;
-	}
-	menu_stack_length = 0;
-	menu_root = -1;
+
 }
 
 void CAT_gui_menu_io()
@@ -738,7 +744,6 @@ void CAT_gui_menu_io()
 		if(head->parent == -1)
 		{
 			CAT_machine_back();
-			CAT_gui_menu_reset();
 		}
 		else
 			head->clicked = false;
@@ -812,6 +817,15 @@ static int item_display_count = 9;
 static bool show_price = false;
 static bool show_count = false;
 static bool show_coins = false;
+
+void CAT_gui_begin_item_list_context()
+{
+	item_list_selector = 0;
+	item_display_base = 0;
+	show_price = false;
+	show_count = false;
+	show_coins = false;
+}
 
 void CAT_gui_begin_item_list(const char* title)
 {
@@ -959,10 +973,9 @@ void CAT_gui_item_list()
 		item_list_open = false;
 }
 
-void CAT_gui_item_list_reset()
+void CAT_gui_end_item_list_context()
 {
-	item_list_selector = 0;
-	item_display_base = 0;
+
 }
 
 

@@ -23,7 +23,7 @@ int wrdlen(const char* txt, int idx)
 	return length;
 }
 
-void break_list_init(const char* txt, int line_width, int scale)
+void CAT_break_list_init(const char* txt, int line_width, int scale)
 {
 	break_count = 0;
 
@@ -53,7 +53,7 @@ void break_list_init(const char* txt, int line_width, int scale)
 	}
 }
 
-bool break_list_lookup(int idx)
+bool CAT_break_list_lookup(int idx)
 {
 	for(int i = 0; i < break_count; i++)
 	{
@@ -63,12 +63,12 @@ bool break_list_lookup(int idx)
 	return false;
 }
 
-int break_list_count()
+int CAT_break_list_count()
 {
 	return break_count;
 }
 
-int break_list_get(int idx)
+int CAT_break_list_get(int idx)
 {
 	if(idx > 0 && idx < break_count)
 		return break_list[idx];
@@ -150,7 +150,7 @@ int CAT_draw_text(int x, int y, const char* text)
 
 	bool wrap = (flags & CAT_TEXT_FLAG_WRAP) > 0;
 	if(wrap)
-		break_list_init(text, mask_x1 - mask_x0, scale);
+		CAT_break_list_init(text, mask_x1 - mask_x0, scale);
 
 	const char* glyph_ptr = text; int glyph_idx = 0;
 	int cursor_x = x;
@@ -167,7 +167,7 @@ int CAT_draw_text(int x, int y, const char* text)
 		}
 		else if(wrap)
 		{
-			if(break_list_lookup(glyph_idx))
+			if(CAT_break_list_lookup(glyph_idx))
 			{
 				cursor_x = x;
 				cursor_y += (CAT_GLYPH_HEIGHT + 2) * scale;
