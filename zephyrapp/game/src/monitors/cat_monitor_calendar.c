@@ -35,7 +35,7 @@ static int bookmark = -1;
 static int search_direction = -1;
 
 #define GRAPH_X 12
-#define GRAPH_Y 42
+#define GRAPH_Y 64
 #define GRAPH_WIDTH (CAT_LCD_SCREEN_W - 2 * GRAPH_X)
 #define GRAPH_HEIGHT 128
 #define GRAPH_MAX_X (GRAPH_X + GRAPH_WIDTH - 1)
@@ -171,7 +171,7 @@ static void graph_init()
 	target_tm.tm_mday = target.day;
 	uint64_t start_time = mktime(&target_tm);
 
-	search_direction = CAT_cmp_datetime(&target, &target_last);
+	search_direction = CAT_datecmp(&target, &target_last);
 	CAT_printf("Direction is %d. Starting from %d\n", search_direction, bookmark);
 	CAT_log_cell cell;
 	if(bookmark == -1)
@@ -305,6 +305,8 @@ static int graph_transform_y(int y)
 
 void render_graph()
 {
+	draw_subpage_markers(32, GRAPH_VIEW_MAX, graph_view);
+
 	CAT_set_text_colour(CAT_WHITE);
 	CAT_draw_textf(12, GRAPH_Y-14, "%s", graph_get_title());
 	CAT_set_text_colour(CAT_WHITE);
@@ -342,16 +344,21 @@ void render_graph()
 			gmtime_r(&current_timestamp, &current_datetime);
 
 			CAT_set_text_colour(CAT_WHITE);
-			CAT_draw_textf(GRAPH_X, GRAPH_MAX_Y+3, "%s at %dx zoom", graph_make_value_text(current_value), graph.pps);
+			CAT_draw_textf(GRAPH_MAX_X-CAT_GLYPH_WIDTH*3, GRAPH_MAX_Y + 4, "%.2dx", graph.pps);
+			
 			CAT_set_text_colour(CAT_WHITE);
-			CAT_draw_textf(GRAPH_X, GRAPH_MAX_Y+17, "Time: %d:%d", current_datetime.tm_hour, current_datetime.tm_min);
+			CAT_set_text_scale(2);
+			CAT_draw_textf(GRAPH_X, GRAPH_MAX_Y+4, "%s", graph_make_value_text(current_value));
+
+			CAT_set_text_colour(CAT_WHITE);
+			CAT_draw_textf(GRAPH_X, GRAPH_MAX_Y+32, "at %.2d:%.2d", current_datetime.tm_hour, current_datetime.tm_min);
 		}
 		else
 		{
 			CAT_circberry(graph_transform_x(graph.target), graph_transform_y(graph.center_y), 2, CAT_GREY);
 
 			CAT_set_text_colour(CAT_WHITE);
-			CAT_draw_text(GRAPH_X, GRAPH_MAX_Y+3, "N/A");
+			CAT_draw_text(GRAPH_X, GRAPH_MAX_Y+4, "N/A");
 		}
 	}	
 }
@@ -500,8 +507,8 @@ void render_calendar()
 			date.day = day;
 			if
 			(
-				CAT_cmp_datetime(&date, &origin) >= 0 &&
-				CAT_cmp_datetime(&date, &today) <= 0 &&
+				CAT_datecmp(&date, &origin) >= 0 &&
+				CAT_datecmp(&date, &today) <= 0 &&
 				day <= days_in_month(target.year, target.month)
 			)
 			{

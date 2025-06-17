@@ -37,7 +37,6 @@ static const char* CAT_AQM_titles[] =
 
 const char* CAT_get_AQM_unit(int aqm);
 
-
 extern float CAT_AQ_raw_scores[CAT_AQM_COUNT];
 void CAT_AQ_store_raw_scores();
 

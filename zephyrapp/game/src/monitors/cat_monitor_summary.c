@@ -49,6 +49,8 @@ void CAT_monitor_render_summary()
 		1.25f-CAT_AQ_normalized_scores[CAT_AQM_AGGREGATE]*0.5f
 	);
 	cursor_y = center_textf(120, cursor_y, 3, CAT_WHITE, "%.0f", CAT_aq_aggregate_score());
+	if(CAT_aq_aggregate_score() >= 78)
+		cursor_y += 4;
 	cursor_y = center_textf(120, cursor_y, 1, CAT_WHITE, "\4CritAQ Score");
 	
 	cursor_y += 32;

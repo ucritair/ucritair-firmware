@@ -284,55 +284,14 @@ void CAT_factory_reset()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // AIR QUALITY
 
-void CAT_AQ_move_scores()
+CAT_AQ_score_block* CAT_AQ_get_moving_scores()
 {
-	float CO2 = CAT_co2_score(readings.sunrise.ppm_filtered_uncompensated);
-	float NOX = CAT_nox_score(readings.sen5x.nox_index);
-	float VOC = CAT_voc_score(readings.sen5x.voc_index);
-	float PM2_5 = CAT_pm25_score(readings.sen5x.pm2_5);
-	float temp = CAT_temperature_score(CAT_canonical_temp());
-	float rh = CAT_humidity_score(readings.sen5x.humidity_rhpct);
-	float aggregate = CAT_aq_aggregate_score();
-
-#define MOVE_AVERAGE(x) (aq_moving_scores.x = (aq_moving_scores.x + (x - aq_moving_scores.x) / (float) aq_moving_scores.sample_count))
-	MOVE_AVERAGE(CO2);
-	MOVE_AVERAGE(NOX);
-	MOVE_AVERAGE(VOC);
-	MOVE_AVERAGE(PM2_5);
-	MOVE_AVERAGE(temp);
-	MOVE_AVERAGE(rh);
-	MOVE_AVERAGE(aggregate);
-
-	aq_moving_scores.sample_count += 1;
-
-	CAT_printf("[MOVING SCORES]\n");
-	CAT_printf("CO2: %f NOX: %f\n", aq_moving_scores.CO2, aq_moving_scores.NOX);
-	CAT_printf("VOC: %f PM2_5: %f\n", aq_moving_scores.VOC, aq_moving_scores.PM2_5);
-	CAT_printf("temp: %f\n", aq_moving_scores.temp);
-	CAT_printf("RH: %f\n", aq_moving_scores.rh);
-	CAT_printf("aggregate: %f count: %d\n", aq_moving_scores.aggregate, aq_moving_scores.sample_count);		
+	return &aq_moving_scores;
 }
 
-void CAT_AQ_store_moving_scores(CAT_AQ_score_block* block)
+CAT_AQ_score_block* CAT_AQ_get_score_buffer()
 {
-#define STORE_SCORE(x, X) (block->x = round((aq_moving_scores.x / X) * 255.0f))
-	STORE_SCORE(CO2, 5.0f);
-	STORE_SCORE(NOX, 5.0f);
-	STORE_SCORE(VOC, 5.0f);
-	STORE_SCORE(PM2_5, 5.0f);
-	STORE_SCORE(temp, 5.0f);
-	STORE_SCORE(rh, 5.0f);
-	STORE_SCORE(aggregate, 100.0f);
-
-	CAT_printf("[BUFFERING MOVING SCORES]\n");
-}
-
-void CAT_AQ_read_stored_scores(int idx, CAT_AQ_score_block* out)
-{
-	if(idx < 0 || idx >= 7)
-		return;
-	idx = (aq_score_head + idx) % 7;
-	memcpy(out, &aq_score_buffer[idx], sizeof(CAT_AQ_score_block));
+	return aq_score_buffer;
 }
 
 

@@ -416,6 +416,9 @@ void CAT_tick_render()
 
 #ifdef CAT_DESKTOP
 
+#include <inttypes.h>
+#include <arpa/inet.h>
+
 void readings_spoof()
 {
 	readings.lps22hh.uptime_last_updated = 0;
@@ -435,11 +438,6 @@ void readings_spoof()
 	readings.sen5x.temp_degC = 20;
 	readings.sen5x.voc_index = 1;
 	readings.sen5x.nox_index = 100;
-}
-
-void flash_spoof()
-{
-	
 }
 
 int main(int argc, char** argv)

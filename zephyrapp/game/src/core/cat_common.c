@@ -126,6 +126,68 @@ const char* CAT_AQ_get_temperature_unit_string()
 	"\3F";
 }
 
+int float2int(float f, int scale_factor)
+{
+	return round(f * scale_factor);
+}
+
+float int2float(int i, float scale_factor)
+{
+	return i / scale_factor;
+}
+
+int move_average(int x_bar, int samples, float x, float scale_factor)
+{
+	float x_bar_f = int2float(x_bar, scale_factor);
+	x_bar_f = x_bar_f + (x - x_bar_f) / (float) samples;
+	return float2int(x_bar_f, scale_factor);
+}
+
+void CAT_AQ_move_scores()
+{
+	CAT_AQ_score_block* block = CAT_AQ_get_moving_scores();
+	if(block->sample_count > 0)
+	{
+		block->CO2 = move_average(block->CO2, block->sample_count, readings.sunrise.ppm_filtered_uncompensated, 1);
+		block->NOX = move_average(block->NOX, block->sample_count, readings.sen5x.nox_index, 1);
+		block->VOC = move_average(block->VOC, block->sample_count, readings.sen5x.voc_index, 1);
+		block->PM2_5 = move_average(block->PM2_5, block->sample_count, readings.sen5x.pm2_5, 100);
+		block->temp = move_average(block->temp, block->sample_count, CAT_canonical_temp(), 1);
+		block->rh = move_average(block->rh, block->sample_count, readings.sen5x.humidity_rhpct, 1000);
+		block->aggregate = move_average(block->aggregate, block->sample_count, CAT_aq_aggregate_score(), 1);
+	}
+	else
+	{
+		block->CO2 = float2int(readings.sunrise.ppm_filtered_uncompensated, 1);
+		block->NOX = float2int(readings.sen5x.nox_index, 1);
+		block->VOC = float2int(readings.sen5x.voc_index, 1);
+		block->PM2_5 = float2int(readings.sen5x.pm2_5, 100);
+		block->temp = float2int(CAT_canonical_temp(), 1000);
+		block->rh = float2int(readings.sen5x.humidity_rhpct, 100);
+		block->aggregate = float2int(CAT_aq_aggregate_score(), 1);	
+	}
+	block->sample_count += 1;
+
+	CAT_printf("[MOVING AVERAGES]\n");
+	CAT_printf("CO2: %f NOX: %f\n", int2float(block->CO2, 1), int2float(block->NOX, 1));
+	CAT_printf("VOC: %f PM2_5: %f\n", int2float(block->VOC, 1), int2float(block->PM2_5, 100));
+	CAT_printf("temp: %f RH: %f\n", int2float(block->temp, 1000), int2float(block->rh, 100));
+	CAT_printf("aggregate: %f count: %d\n", int2float(block->aggregate, 1), block->sample_count);		
+}
+
+void CAT_AQ_buffer_scores(CAT_AQ_score_block* block)
+{
+	memcpy(block, CAT_AQ_get_moving_scores(), sizeof(CAT_AQ_score_block));
+	block->sample_count = 0;
+}
+
+void CAT_AQ_read_scores(int idx, CAT_AQ_score_block* out)
+{
+	if(idx < 0 || idx >= 7)
+		return;
+	memcpy(out, &(CAT_AQ_get_score_buffer()[idx]), sizeof(CAT_AQ_score_block));
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // TIME
@@ -144,7 +206,7 @@ void CAT_get_datetime(CAT_datetime* datetime)
 	datetime->second = local.tm_sec;	
 }
 
-int CAT_cmp_datetime(CAT_datetime* a, CAT_datetime* b)
+int CAT_datecmp(CAT_datetime* a, CAT_datetime* b)
 {
 	if(a->year > b->year)
 		return 1;
@@ -161,6 +223,35 @@ int CAT_cmp_datetime(CAT_datetime* a, CAT_datetime* b)
 	return 0;
 }
 
+int CAT_timecmp(CAT_datetime* a, CAT_datetime* b)
+{
+	if(a->year > b->year)
+		return 1;
+	if(a->year < b->year)
+		return -1;
+	if(a->month > b->month)
+		return 1;
+	if(a->month < b->month)
+		return -1;
+	if(a->day > b->day)
+		return 1;
+	if(a->day < b->day)
+		return -1;
+	if(a->hour > b->hour)
+		return 1;
+	if(a->hour < b->hour)
+		return -1;
+	if(a->minute > b->minute)
+		return 1;
+	if(a->minute < b->minute)
+		return -1;
+	if(a->second > b->second)
+		return 1;
+	if(a->second < b->second)
+		return -1;
+	return 0;
+}
+
 void CAT_make_datetime(uint64_t timestamp, CAT_datetime* datetime)
 {
 	struct tm unix;
@@ -168,6 +259,9 @@ void CAT_make_datetime(uint64_t timestamp, CAT_datetime* datetime)
 	datetime->year = unix.tm_year;
 	datetime->month = unix.tm_mon+1;
 	datetime->day = unix.tm_mday;
+	datetime->hour = unix.tm_hour;
+	datetime->minute = unix.tm_min;
+	datetime->second = unix.tm_sec;
 }
 
 uint64_t CAT_make_timestamp(CAT_datetime* datetime)
@@ -176,6 +270,9 @@ uint64_t CAT_make_timestamp(CAT_datetime* datetime)
 	unix.tm_year = datetime->year;
 	unix.tm_mon = datetime->month-1;
 	unix.tm_mday = datetime->day;
+	unix.tm_hour = datetime->hour;
+	unix.tm_min = datetime->minute;
+	unix.tm_sec = datetime->second;
 	return timegm(&unix);
 }
 

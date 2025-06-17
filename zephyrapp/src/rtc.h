@@ -19,7 +19,7 @@ extern volatile uint8_t screen_brightness;
 extern volatile uint16_t dim_after_seconds;
 extern volatile uint16_t sleep_after_seconds;
 
-extern volatile CAT_AQ_moving_scores aq_moving_scores;
+extern volatile CAT_AQ_score_block aq_moving_scores;
 extern volatile uint32_t aq_moving_scores_last_time;
 
 extern volatile CAT_AQ_score_block aq_score_buffer[7];

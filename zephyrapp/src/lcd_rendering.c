@@ -213,13 +213,13 @@ void lcd_render_diag()
 				for(int i = 0; i < 6; i++)
 				{
 					volatile CAT_AQ_score_block* block = &aq_score_buffer[i];
-					CAT_AQ_store_moving_scores(block);
+					CAT_AQ_buffer_scores(block);
 					aq_score_head += 1;
 				}
 			}
 
 			volatile CAT_AQ_score_block* block = &aq_score_buffer[aq_score_head];
-			CAT_AQ_store_moving_scores(block);
+			CAT_AQ_buffer_scores(block);
 			aq_score_head = (aq_score_head+1) % 7;
 			aq_score_last_time = current_moment;
 		}
