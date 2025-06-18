@@ -20,13 +20,10 @@
 
 #include "cat_room.h"
 #include "cat_pet.h"
-#include "caring/cat_actions.h"
+#include "cat_actions.h"
 #include "cat_menu.h"
-#include "cat_inventory.h"
 #include "cat_arcade.h"
-#include "cat_vending.h"
 #include "cat_deco.h"
-#include "cat_item_dialog.h"
 #include "cat_aqi.h"
 #include "cat_monitors.h"
 
@@ -34,6 +31,7 @@
 #include "theme_assets.h"
 #include "config.h"
 #include "sprite_assets.h"
+#include "item_assets.h"
 
 #ifdef CAT_EMBEDDED
 #include "menu_time.h"
@@ -128,9 +126,9 @@ void CAT_load_default()
 	pet.focus = 12;
 	pet.spirit = 12;
 
-	CAT_bag_clear();
-	CAT_bag_add(prop_eth_farm_item, 1);
-	CAT_bag_add(toy_laser_pointer_item, 1);
+	CAT_inventory_clear();
+	CAT_inventory_add(prop_eth_farm_item, 1);
+	CAT_inventory_add(toy_laser_pointer_item, 1);
 	coins = 10;
 }
 
@@ -140,14 +138,14 @@ void CAT_load_turnkey()
 	pet.focus = 9;
 	pet.spirit = 9;
 
-	CAT_bag_clear();
-	CAT_bag_add(book_1_item, 1);
-	CAT_bag_add(food_bread_item, 2);
-	CAT_bag_add(food_milk_item, 2);
-	CAT_bag_add(food_coffee_item, 1);
-	CAT_bag_add(prop_succulent_item, 1);
-	CAT_bag_add(toy_baseball_item, 1);
-	CAT_bag_add(toy_laser_pointer_item, 1);
+	CAT_inventory_clear();
+	CAT_inventory_add(book_1_item, 1);
+	CAT_inventory_add(food_bread_item, 2);
+	CAT_inventory_add(food_milk_item, 2);
+	CAT_inventory_add(food_coffee_item, 1);
+	CAT_inventory_add(prop_succulent_item, 1);
+	CAT_inventory_add(toy_baseball_item, 1);
+	CAT_inventory_add(toy_laser_pointer_item, 1);
 	coins = 100;
 
 	CAT_room_init();
@@ -237,7 +235,7 @@ void CAT_force_load()
 
 	for(int i = 0; i < item_table.length; i++)
 	{
-		CAT_bag_add(i, save->inventory.counts[i]);
+		CAT_inventory_add(i, save->inventory.counts[i]);
 	}
 	coins = save->inventory.coins;
 
@@ -259,9 +257,9 @@ void CAT_force_load()
 
 		if(prop_idx == -1)
 		{
-			CAT_bag_add(prop_id, 1);
+			CAT_inventory_add(prop_id, 1);
 			if(child != NULL)
-				CAT_bag_add(child_id, 1);
+				CAT_inventory_add(child_id, 1);
 		}
 		else
 		{

@@ -2,29 +2,20 @@
 
 #include "cat_room.h"
 #include "cat_input.h"
-#include "cat_inventory.h"
 #include "cat_pet.h"
 #include "cat_render.h"
 #include <stdio.h>
 #include <stddef.h>
-#include "cat_item_dialog.h"
 #include "sprite_assets.h"
 #include <math.h>
 #include "cat_math.h"
 #include "cat_item.h"
+#include "item_assets.h"
+#include "cat_gui.h"
 
 // MECHANIC PROFILE
 
 static CAT_tool_type tool_type;
-
-bool tool_filter(int item_id)
-{
-	if(item_id < 0 || item_id >= item_table.length)
-		return false;
-	return item_table.counts[item_id] > 0 &&
-	item_table.data[item_id].type == CAT_ITEM_TYPE_TOOL &&
-	item_table.data[item_id].data.tool_data.type == tool_type;
-}
 
 static CAT_machine_state action_MS;
 static CAT_anim_state *action_AS;
@@ -54,6 +45,8 @@ void action_enter()
 	cursor = CAT_nearest_free_space(cursor);
 
 	CAT_pet_settle();
+
+	CAT_gui_begin_item_grid_context();
 }
 
 static void control_cursor()
@@ -81,6 +74,11 @@ void apply_tool()
 	pet.spirit = clamp(pet.spirit + tool->data.tool_data.ds, 0, 12);
 }
 
+void choose_tool(int item_id)
+{
+	tool_id = item_id;
+}
+
 void action_tick()
 {
 	if (CAT_input_pressed(CAT_BUTTON_B))
@@ -88,9 +86,15 @@ void action_tick()
 
 	if (tool_id == -1)
 	{
-		CAT_filter_item_dialog(tool_filter);
-		CAT_target_item_dialog(&tool_id, true);
-		CAT_machine_transition(CAT_MS_item_dialog);
+		CAT_gui_begin_item_grid("SELECT TOY", NULL, choose_tool);
+		for(int i = 0; i < item_table.length; i++)
+		{
+			if(item_table.counts[i] <= 0)
+				continue;
+			if(item_table.data[i].type != CAT_ITEM_TYPE_TOOL || item_table.data[i].data.tool_data.type != tool_type)
+				continue;
+			CAT_gui_item_grid_cell(i);
+		}
 		return;
 	}
 
@@ -136,7 +140,7 @@ void action_tick()
 
 			CAT_item *item = CAT_item_get(tool_id);
 			if (item->data.tool_data.type == CAT_TOOL_TYPE_FOOD)
-				CAT_bag_remove(tool_id, 1);
+				CAT_inventory_remove(tool_id, 1);
 			action_complete = true;
 
 			CAT_anim_transition(&AM_pet, result_AS);

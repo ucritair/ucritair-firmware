@@ -12,9 +12,10 @@ LOG_MODULE_REGISTER(lcd_rendering, LOG_LEVEL_DBG);
 
 #include "cat_pet.h"
 #include "cat_item.h"
-#include "cat_inventory.h"
+#include "cat_item.h"
 #include "cat_core.h"
 #include "cat_aqi.h"
+#include "item_assets.h"
 
 #include "menu_system.h"
 

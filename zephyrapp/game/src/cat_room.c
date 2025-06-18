@@ -6,16 +6,15 @@
 #include "cat_pet.h"
 #include "cat_render.h"
 #include "cat_gui.h"
-#include "cat_inventory.h"
 #include <math.h>
 #include "cat_menu.h"
 #include "caring/cat_actions.h"
 #include "cat_deco.h"
-#include "cat_vending.h"
 #include "cat_arcade.h"
 #include "theme_assets.h"
 #include "cat_aqi.h"
 #include "sprite_assets.h"
+#include "item_assets.h"
 
 //////////////////////////////////////////////////////////////////////////
 // SPACE
@@ -420,7 +419,7 @@ void CAT_room_remove_prop(int idx)
 	CAT_toggle_block(prop_rect, false);
 
 	if(room.prop_children[idx] != -1)
-		CAT_bag_add(room.prop_children[idx], 1);
+		CAT_inventory_add(room.prop_children[idx], 1);
 
 	room.prop_count -= 1;
 	for(int i = idx; i < room.prop_count; i++)
@@ -573,7 +572,7 @@ void CAT_room_tick()
 	}
 
 	if(CAT_input_touch_rect(176, 16, 56, 96))
-		CAT_machine_transition(CAT_MS_vending);
+		CAT_machine_transition(CAT_MS_shop);
 	if(CAT_input_touch_rect(128, 48, 32, 64))
 		CAT_machine_transition(CAT_MS_arcade);
 

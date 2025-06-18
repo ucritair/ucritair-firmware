@@ -6,7 +6,7 @@
 #include "cat_input.h"
 #include <stdio.h>
 #include "cat_deco.h"
-#include "cat_inventory.h"
+#include "cat_item.h"
 #include "cat_render.h"
 #include "cat_core.h"
 #include <math.h>

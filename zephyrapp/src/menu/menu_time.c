@@ -5,7 +5,7 @@
 #include "cat_input.h"
 #include <stdio.h>
 #include "cat_deco.h"
-#include "cat_inventory.h"
+#include "cat_item.h"
 #include "rtc.h"
 #include "sprite_assets.h"
 

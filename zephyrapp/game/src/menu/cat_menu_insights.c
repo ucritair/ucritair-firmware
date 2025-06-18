@@ -6,11 +6,11 @@
 #include "cat_input.h"
 #include "cat_pet.h"
 #include "cat_render.h"
-#include "cat_inventory.h"
 #include <string.h>
 #include "config.h"
 #include "cat_aqi.h"
 #include "sprite_assets.h"
+#include "item_assets.h"
 
 void CAT_MS_insights(CAT_machine_signal signal)
 {

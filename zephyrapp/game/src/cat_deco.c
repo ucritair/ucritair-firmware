@@ -7,10 +7,10 @@
 #include "cat_pet.h"
 #include "cat_render.h"
 #include <stdio.h>
-#include "cat_item_dialog.h"
-#include "cat_inventory.h"
+#include "cat_item.h"
 #include "cat_menu.h"
 #include "sprite_assets.h"
+#include "cat_gui.h"
 
 static enum {ADD, MOD, REMOVE} mode = ADD;
 
@@ -66,12 +66,12 @@ static bool can_stack()
 	return false;
 }
 
-static bool prop_filter(int item_id)
+static bool selecting = false;
+
+static void choose_prop(int item_id)
 {
-	CAT_item* item = CAT_item_get(item_id);
-	if(item == NULL)
-		return false;
-	return item->type == CAT_ITEM_TYPE_PROP;
+	hold_id = item_id;
+	selecting = false;
 }
 
 void CAT_MS_deco(CAT_machine_signal signal)
@@ -88,22 +88,42 @@ void CAT_MS_deco(CAT_machine_signal signal)
 			if(hold_id == -1)
 				cursor = CAT_largest_free_space();
 			cursor = CAT_nearest_free_space(cursor);
+
+			CAT_gui_begin_item_grid_context();
 			break;
 		}
 		case CAT_MACHINE_SIGNAL_TICK:
 		{
-			if(CAT_input_pressed(CAT_BUTTON_B))
-				CAT_machine_back();
-			
-			if(CAT_input_pressed(CAT_BUTTON_SELECT))
+			if(!selecting)
 			{
-				mode += 1;
-				if(mode > REMOVE)
-					mode = ADD;
-			}
+				if(CAT_input_pressed(CAT_BUTTON_B))
+					CAT_machine_back();
+			
+				if(CAT_input_pressed(CAT_BUTTON_SELECT))
+				{
+					mode += 1;
+					if(mode > REMOVE)
+						mode = ADD;
+				}
 
-			control_cursor();
-			hover_idx = CAT_room_find_spatial(cursor);
+				control_cursor();
+				hover_idx = CAT_room_find_spatial(cursor);
+			}
+			else
+			{
+				CAT_gui_begin_item_grid("SELECT PROP", NULL, choose_prop);
+				for(int i = 0; i < item_table.length; i++)
+				{
+					if(item_table.counts[i] <= 0)
+						continue;
+					if(item_table.data[i].type != CAT_ITEM_TYPE_PROP)
+						continue;
+					CAT_gui_item_grid_cell(i);
+				}
+
+				if(CAT_input_pressed(CAT_BUTTON_B))
+					selecting = false;
+			}
 
 			switch(mode)
 			{
@@ -116,14 +136,14 @@ void CAT_MS_deco(CAT_machine_signal signal)
 							if(can_place())
 							{
 								CAT_room_add_prop(hold_id, cursor);
-								CAT_bag_remove(hold_id, 1);
+								CAT_inventory_remove(hold_id, 1);
 								hold_id = -1;
 								hover_idx = CAT_room_find_spatial(cursor);
 							}
 							else if(can_stack())
 							{
 								CAT_room_stack_prop(hover_idx, hold_id);
-								CAT_bag_remove(hold_id, 1);
+								CAT_inventory_remove(hold_id, 1);
 								hold_id = -1;
 							}
 						}
@@ -136,13 +156,13 @@ void CAT_MS_deco(CAT_machine_signal signal)
 							if(room.prop_children[hover_idx] != -1)
 							{
 								hold_id = room.prop_children[hover_idx];
-								CAT_bag_add(room.prop_children[hover_idx], 1);
+								CAT_inventory_add(room.prop_children[hover_idx], 1);
 								CAT_room_unstack_prop(hover_idx);
 							}
 							else
 							{
 								hold_id = room.prop_ids[hover_idx];
-								CAT_bag_add(room.prop_ids[hover_idx], 1);
+								CAT_inventory_add(room.prop_ids[hover_idx], 1);
 								CAT_room_remove_prop(hover_idx);
 							}
 						}
@@ -150,11 +170,7 @@ void CAT_MS_deco(CAT_machine_signal signal)
 					else
 					{
 						if(CAT_input_pressed(CAT_BUTTON_A))
-						{
-							CAT_filter_item_dialog(prop_filter);
-							CAT_target_item_dialog(&hold_id, false);
-							CAT_machine_transition(CAT_MS_item_dialog);
-						}
+							selecting = true;
 					}
 					break;
 				}
@@ -175,13 +191,13 @@ void CAT_MS_deco(CAT_machine_signal signal)
 						{
 							if(room.prop_children[hover_idx] == -1)
 							{
-								CAT_bag_add(room.prop_ids[hover_idx], 1);
+								CAT_inventory_add(room.prop_ids[hover_idx], 1);
 								CAT_room_remove_prop(hover_idx);
 							}
 							else
 							{
 								int child_id = room.prop_children[hover_idx];
-								CAT_bag_add(child_id, 1);
+								CAT_inventory_add(child_id, 1);
 								CAT_room_unstack_prop(hover_idx);
 							}
 						}

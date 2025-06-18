@@ -5,7 +5,7 @@
 #include "cat_math.h"
 #include "cat_render.h"
 #include "cat_structures.h"
-#include "item_assets.h"
+#include "cat_machine.h"
 
 //////////////////////////////////////////////////////////////////////////
 // CONSTANTS
@@ -111,4 +111,35 @@ CAT_item* CAT_item_get(int item_id);
 typedef bool (*CAT_item_filter)(int item_id);
 void CAT_filter_item_table(CAT_item_filter filter, CAT_int_list* list);
 
+
+//////////////////////////////////////////////////////////////////////////
+// BAG
+
+extern int coins;
+
+void CAT_inventory_clear();
+void CAT_inventory_add(int item_id, int count);
+void CAT_inventory_remove(int item_id, int count);
+
+
+//////////////////////////////////////////////////////////////////////////
+// INVENTORY
+
+void CAT_bind_inspector(int item_id);
+void CAT_MS_inspector(CAT_machine_signal signal);
+void CAT_render_inspector();
+
+void CAT_MS_inventory(CAT_machine_signal signal);
+void CAT_render_inventory();
+
+
+//////////////////////////////////////////////////////////////////////////
+// SHOP
+
+void CAT_bind_checkout(int item_id);
+void CAT_MS_checkout(CAT_machine_signal signal);
+void CAT_render_checkout();
+
+void CAT_MS_shop(CAT_machine_signal signal);
+void CAT_render_shop();
 

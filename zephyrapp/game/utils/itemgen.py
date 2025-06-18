@@ -55,7 +55,7 @@ for (idx, item) in enumerate(json_entries):
 	ensure_key(item, "icon", "item_icon_key_sprite");
 	ensure_key(item, "text", "");
 	ensure_key(item, "price", 0);
-	if item['type'] == "tool":
+	if item["type"] == "tool":
 		tool_data = ensure_key(item, "tool_data", {});
 		ensure_key(tool_data, "type", "food");
 		ensure_key(tool_data, "cursor", item['sprite']);
@@ -72,7 +72,6 @@ for (idx, item) in enumerate(json_entries):
 		ensure_key(prop_data, "shape", [1, 1]);
 		ensure_key(prop_data, "animate", True);
 		ensure_key(prop_data, "child_dy", 0);
-	item['text'] = "";
 
 json_file.seek(0);
 json_file.truncate();

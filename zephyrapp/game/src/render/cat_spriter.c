@@ -116,9 +116,9 @@ void CAT_draw_sprite(const CAT_sprite* sprite, int frame_idx, int x, int y)
 		return;
 	
 	int mask_x0 = mask.min.x == -1 ? x : mask.min.x;
-	int mask_y0 = mask.min.y == -1 ? y : mask.min.y;
+	int mask_y0 = mask.min.y == -1 ? y : mask.min.y - FRAMEBUFFER_ROW_OFFSET;
 	int mask_x1 = mask.max.x == -1 ? x_f : mask.max.x;
-	int mask_y1 = mask.max.y == -1 ? y_f : mask.max.y;
+	int mask_y1 = mask.max.y == -1 ? y_f : mask.max.y - FRAMEBUFFER_ROW_OFFSET;
 	mask_x0 = max(mask_x0, 0);
 	mask_y0 = max(mask_y0, 0);
 	mask_x1 = min(mask_x1, CAT_LCD_FRAMEBUFFER_W);
@@ -135,7 +135,7 @@ void CAT_draw_sprite(const CAT_sprite* sprite, int frame_idx, int x, int y)
 	int x_start; int x_end; int dx;
 	int x_w;
 
-	if(scale != 1)
+	if(scale > 1)
 	{
 		y_w = y;
 		x_start = reflect_x ? x_f-scale : x;

@@ -6,7 +6,7 @@
 #include "cat_room.h"
 #include "cat_input.h"
 #include "cat_render.h"
-#include "cat_inventory.h"
+#include "cat_item.h"
 #include <stdio.h>
 #include "cat_aqi.h"
 #include "sprite_assets.h"
@@ -39,7 +39,6 @@ void CAT_MS_arcade(CAT_machine_signal signal)
 		break;
 
 		case CAT_MACHINE_SIGNAL_EXIT:
-			CAT_gui_end_menu_context();
 		break;
 	}
 }

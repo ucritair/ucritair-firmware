@@ -6,9 +6,9 @@
 #include "cat_machine.h"
 #include "cat_render.h"
 #include "cat_version.h"
-#include "cat_vending.h"
+#include "cat_item.h"
 #include "cat_arcade.h"
-#include "cat_inventory.h"
+#include "cat_item.h"
 #include "cat_pet.h"
 #include <stddef.h>
 #include <string.h>
@@ -36,6 +36,7 @@ void CAT_MS_menu(CAT_machine_signal signal)
 		case CAT_MACHINE_SIGNAL_ENTER:
 			CAT_set_render_callback(CAT_render_menu);
 			CAT_gui_begin_menu_context();
+			CAT_gui_begin_item_grid_context();
 			break;
 		case CAT_MACHINE_SIGNAL_TICK:
 		{
@@ -49,7 +50,7 @@ void CAT_MS_menu(CAT_machine_signal signal)
 				if(CAT_gui_menu_item("INVENTORY"))
 					CAT_machine_transition(CAT_MS_inventory);
 				if(CAT_gui_menu_item("VENDING MACHINE"))
-					CAT_machine_transition(CAT_MS_vending);
+					CAT_machine_transition(CAT_MS_shop);
 				if(CAT_gui_menu_item("ARCADE"))
 					CAT_machine_transition(CAT_MS_arcade);
 				if(CAT_gui_begin_menu("AIR QUALITY"))
@@ -109,7 +110,7 @@ void CAT_MS_menu(CAT_machine_signal signal)
 							{
 								for(int item_id = 0; item_id < item_table.length; item_id++)
 								{
-									CAT_bag_add(item_id, 1);
+									CAT_inventory_add(item_id, 1);
 								}
 							}
 							if(CAT_gui_menu_item("TURNKEY APARTMENT"))
@@ -216,12 +217,6 @@ void CAT_MS_menu(CAT_machine_signal signal)
 							confirm_reset = false;
 							CAT_factory_reset();
 						}
-
-						if(CAT_gui_menu_item("SAVE AND RELOAD"))
-						{
-							CAT_force_save();
-							CAT_set_load_flags(CAT_LOAD_FLAG_DIRTY);
-						}
 						CAT_gui_end_menu();
 					}
 					CAT_gui_end_menu();
@@ -249,7 +244,6 @@ void CAT_MS_menu(CAT_machine_signal signal)
 		}
 
 		case CAT_MACHINE_SIGNAL_EXIT:
-			CAT_gui_end_menu_context();
 		break;
 	}
 }

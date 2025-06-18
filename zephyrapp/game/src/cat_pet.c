@@ -9,11 +9,11 @@
 #include "cat_room.h"
 #include "cat_input.h"
 #include "cat_gui.h"
-#include "cat_inventory.h"
 #include <string.h>
 #include "config.h"
 #include "cat_aqi.h"
 #include "sprite_assets.h"
+#include "item_assets.h"
 
 CAT_pet pet;
 CAT_anim_machine AM_pet;
@@ -234,7 +234,7 @@ static CAT_vec2 destination = {120, 200};
 
 void milk_proc()
 {
-	CAT_bag_add(food_milk_item, 1);
+	CAT_inventory_add(food_milk_item, 1);
 }
 
 void CAT_pet_tick()

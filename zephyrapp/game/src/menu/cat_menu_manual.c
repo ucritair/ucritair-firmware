@@ -5,7 +5,7 @@
 #include "cat_gui.h"
 #include "cat_room.h"
 #include "cat_input.h"
-#include "cat_inventory.h"
+#include "cat_item.h"
 #include "cat_version.h"
 #include "cat_menu.h"
 #include "cat_pet.h"

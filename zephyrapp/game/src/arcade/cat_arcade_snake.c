@@ -3,7 +3,7 @@
 #include "cat_input.h"
 #include "cat_render.h"
 #include "cat_room.h"
-#include "cat_inventory.h"
+#include "cat_item.h"
 #include "cat_gui.h"
 #include "sprite_assets.h"
 #include "sound_assets.h"

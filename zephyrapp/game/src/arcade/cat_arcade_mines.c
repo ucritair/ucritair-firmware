@@ -3,10 +3,11 @@
 #include "cat_input.h"
 #include "cat_render.h"
 #include "cat_room.h"
-#include "cat_inventory.h"
+#include "cat_item.h"
 #include "cat_gui.h"
 #include "sprite_assets.h"
 #include "sound_assets.h"
+#include "item_assets.h"
 
 #define GRID_WIDTH 15
 #define GRID_HEIGHT 20
@@ -330,7 +331,7 @@ void CAT_MS_mines(CAT_machine_signal signal)
 					{
 						if(state == WIN)
 						{
-							CAT_bag_add(prop_mine_item, 1);
+							CAT_inventory_add(prop_mine_item, 1);
 						}
 						CAT_machine_back();
 					}	

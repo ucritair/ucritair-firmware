@@ -6,7 +6,7 @@
 #include "sprite_assets.h"
 #include "item_assets.h"
 #include "cat_item.h"
-#include "cat_inventory.h"
+#include "cat_item.h"
 #include "cowtools/cat_structures.h"
 #include "cat_gui.h"
 #include "cowtools/cat_curves.h"
@@ -935,22 +935,24 @@ static void render_arrange()
 }
 
 static const char *group_strings[] =
-	{
-		"VEG / FRUIT",
-		"STARCH",
-		"MEAT",
-		"DAIRY",
-		"MISCELLANY"};
+{
+	"VEG / FRUIT",
+	"STARCH",
+	"MEAT",
+	"DAIRY",
+	"MISCELLANY"
+};
 
 static const char *role_strings[] =
-	{
-		"STAPLE",
-		"MAIN",
-		"SIDE",
-		"SOUP",
-		"DRINK",
-		"TREAT",
-		"VICE"};
+{
+	"STAPLE",
+	"MAIN",
+	"SIDE",
+	"SOUP",
+	"DRINK",
+	"TREAT",
+	"VICE"
+};
 
 static int scroll_y_anchor = 0;
 static int scroll_y_delta = 0;
@@ -1248,7 +1250,7 @@ static void MS_feed_summary(CAT_machine_signal signal)
 			for (int i = 0; i < food_count; i++)
 			{
 				if (food_list[i].active)
-					CAT_bag_remove(food_pool.data[food_list[i].pool_idx], 1);
+					CAT_inventory_remove(food_pool.data[food_list[i].pool_idx], 1);
 			}
 			pet.vigour += score_object.grade;
 		break;

@@ -124,20 +124,17 @@ target_sources(app PRIVATE
 	src/monitors/cat_monitor_logs.c
 	src/monitors/cat_monitor_gameplay.c
 	src/monitors/cat_monitor_clock.c
-	
+
+	src/inventory/cat_item.c
 
 	src/gui/cat_gui.c
 	src/gui/cat_text.c
 
 	src/cat_input.c
-	src/cat_item.c
 	src/cat_machine.c
-	src/cat_inventory.c
 	src/cat_deco.c
 	src/cat_room.c
-	src/cat_vending.c
 	src/cat_pet.c
-	src/cat_item_dialog.c
 	src/cat_aqi.c
 
 	sounds/sound_assets.c
@@ -159,6 +156,8 @@ target_include_directories(app PRIVATE src/arcade)
 target_include_directories(app PRIVATE src/monitors)
 target_include_directories(app PRIVATE src/gui)
 target_include_directories(app PRIVATE src/cowtools)
+target_include_directories(app PRIVATE src/inventory)
+target_include_directories(app PRIVATE src/caring)
 
 target_include_directories(app PRIVATE sounds/)
 target_include_directories(app PRIVATE meshes/)
