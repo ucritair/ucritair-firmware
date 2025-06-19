@@ -95,8 +95,15 @@ void CAT_gui_printf(uint16_t colour, const char* fmt, ...);
 
 typedef void (*CAT_item_proc)(int item_id);
 
+typedef enum
+{
+	CAT_GUI_ITEM_GRID_FLAG_NONE = 0,
+	CAT_GUI_ITEM_GRID_FLAG_TABS = (1 << 0)
+} CAT_gui_item_grid_flag;
+
 void CAT_gui_begin_item_grid_context();
 void CAT_gui_begin_item_grid(const char* title, CAT_int_list* roster, CAT_item_proc action);
+bool CAT_gui_item_grid_set_flags(int flags);
 void CAT_gui_item_grid_cell(int item_id);
 bool CAT_gui_item_grid_is_open();
 

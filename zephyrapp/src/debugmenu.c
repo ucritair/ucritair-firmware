@@ -333,13 +333,6 @@ void do_populate_next(void* arg)
 	populate_next_log_cell();
 }
 
-
-#include "cat_item.h"
-void menu_coins(void* arg)
-{
-	coins += 1000;
-}
-
 #include <hal/nrf_rtc.h>
 
 void menu_root()
@@ -358,7 +351,6 @@ void menu_root()
 	selectable("Power Off (for 10s)", menu_power_off, (void*)10000);
 	selectable("Power Off", menu_power_off, (void*)0);
 	selectable("Protected Power Off", menu_power_off_protected, NULL);
-	selectable("+1000 coins", menu_coins, NULL);
 
 	text("")
 	textf("Clock: %lld o=%lld", get_current_rtc_time(), rtc_offset);

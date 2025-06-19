@@ -249,8 +249,7 @@ typedef struct __attribute__((__packed__))
 	struct __attribute__((__packed__))
 	{
 		CAT_save_sector_header header;
-		uint8_t counts[256];
-		uint32_t coins;
+		uint16_t counts[512];
 	} inventory;
 
 	// SECTOR : DECO

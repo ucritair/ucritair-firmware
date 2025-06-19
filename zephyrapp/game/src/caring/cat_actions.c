@@ -69,9 +69,9 @@ void apply_tool()
 	if (tool == NULL)
 		return;
 
-	pet.vigour = clamp(pet.vigour + tool->data.tool_data.dv, 0, 12);
-	pet.focus = clamp(pet.focus + tool->data.tool_data.df, 0, 12);
-	pet.spirit = clamp(pet.spirit + tool->data.tool_data.ds, 0, 12);
+	pet.vigour = clamp(pet.vigour + tool->tool_dv, 0, 12);
+	pet.focus = clamp(pet.focus + tool->tool_df, 0, 12);
+	pet.spirit = clamp(pet.spirit + tool->tool_ds, 0, 12);
 }
 
 void choose_tool(int item_id)
@@ -91,7 +91,7 @@ void action_tick()
 		{
 			if(item_table.counts[i] <= 0)
 				continue;
-			if(item_table.data[i].type != CAT_ITEM_TYPE_TOOL || item_table.data[i].data.tool_data.type != tool_type)
+			if(item_table.data[i].type != CAT_ITEM_TYPE_TOOL || item_table.data[i].tool_type != tool_type)
 				continue;
 			CAT_gui_item_grid_cell(i);
 		}
@@ -139,7 +139,7 @@ void action_tick()
 			apply_tool();
 
 			CAT_item *item = CAT_item_get(tool_id);
-			if (item->data.tool_data.type == CAT_TOOL_TYPE_FOOD)
+			if (item->tool_type == CAT_TOOL_TYPE_FOOD)
 				CAT_inventory_remove(tool_id, 1);
 			action_complete = true;
 
@@ -213,7 +213,7 @@ void CAT_render_action()
 		{
 			int mode = CAT_DRAW_FLAG_BOTTOM;
 			CAT_ivec2 place = CAT_grid2world(cursor);
-			CAT_draw_queue_add(item->data.tool_data.cursor, 0, PROPS_LAYER, place.x, place.y + 16, mode);
+			CAT_draw_queue_add(item->tool_cursor, 0, PROPS_LAYER, place.x, place.y + 16, mode);
 			CAT_draw_queue_add(&tile_hl_sprite, 0, GUI_LAYER, place.x, place.y + 16, mode);
 		}
 		else if (!action_complete)
@@ -221,7 +221,7 @@ void CAT_render_action()
 			int mode = CAT_DRAW_FLAG_BOTTOM | CAT_DRAW_FLAG_CENTER_X;
 			if (tool_anchor.x > pet_anchor.x)
 				mode |= CAT_DRAW_FLAG_REFLECT_X;
-			int tool_layer = item->data.tool_data.type == CAT_TOOL_TYPE_FOOD ? STATICS_LAYER : PROPS_LAYER;
+			int tool_layer = item->tool_type == CAT_TOOL_TYPE_FOOD ? STATICS_LAYER : PROPS_LAYER;
 			CAT_draw_queue_add(item->sprite, -1, tool_layer, tool_anchor.x, tool_anchor.y, mode);
 		}
 	}
@@ -363,6 +363,6 @@ void CAT_render_laser()
 
 	CAT_item *item = CAT_item_get(toy_laser_pointer_item);
 	CAT_draw_flag flags = CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y;
-	CAT_draw_queue_add(item->data.tool_data.cursor, -1, 0, laser_pos.x, laser_pos.y, flags);
+	CAT_draw_queue_add(item->tool_cursor, -1, 0, laser_pos.x, laser_pos.y, flags);
 }
 

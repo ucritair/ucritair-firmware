@@ -68,19 +68,14 @@ void CAT_force_save()
 	save->pet.focus = pet.focus;
 	save->pet.spirit = pet.spirit;
 
+	for(int i = 0; i < room.pickup_count; i++)
+	{
+		room.pickups[i].proc();
+	}
 	for(int i = 0; i < item_table.length; i++)
 	{
 		save->inventory.counts[i] = item_table.counts[i];
 	}
-
-	for(int i = 0; i < room.pickup_count; i++)
-	{
-		if(room.pickups[i].sprite == &coin_world_sprite)
-		{
-			coins += 1;
-		}
-	}
-	save->inventory.coins = coins;
 
 	for(int i = 0; i < room.prop_count; i++)
 	{
@@ -129,7 +124,7 @@ void CAT_load_default()
 	CAT_inventory_clear();
 	CAT_inventory_add(prop_eth_farm_item, 1);
 	CAT_inventory_add(toy_laser_pointer_item, 1);
-	coins = 10;
+	CAT_inventory_add(coin_item, 10);
 }
 
 void CAT_load_turnkey()
@@ -146,7 +141,7 @@ void CAT_load_turnkey()
 	CAT_inventory_add(prop_succulent_item, 1);
 	CAT_inventory_add(toy_baseball_item, 1);
 	CAT_inventory_add(toy_laser_pointer_item, 1);
-	coins = 100;
+	CAT_inventory_add(coin_item, 100);
 
 	CAT_room_init();
 	CAT_room_add_prop(prop_plant_plain_item, (CAT_ivec2) {0, 0});
@@ -237,7 +232,6 @@ void CAT_force_load()
 	{
 		CAT_inventory_add(i, save->inventory.counts[i]);
 	}
-	coins = save->inventory.coins;
 
 	for(int i = 0; i < 150; i++)
 	{

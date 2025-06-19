@@ -8,6 +8,8 @@
 #include "sprite_assets.h"
 #include "cat_gui.h"
 #include "cat_curves.h"
+#include "item_assets.h"
+#include "cat_gizmos.h"
 
 //////////////////////////////////////////////////////////////////////////
 // ITEM TABLE
@@ -32,32 +34,42 @@ void CAT_filter_item_table(CAT_item_filter filter, CAT_int_list* list)
 //////////////////////////////////////////////////////////////////////////
 // BAG
 
-int coins = 0;
-
 void CAT_inventory_clear()
 {
-	for(int i = 0; i < CAT_ITEM_TABLE_CAPACITY; i++)
+	for(int i = 0; i < item_table.length; i++)
 	{
 		item_table.counts[i] = 0;
 	}
 }
 
-void CAT_inventory_add(int item_id, int count)
+bool CAT_inventory_add(int item_id, int count)
 {
-	if(item_id >= 0 && item_id < item_table.length)
-	{
-		item_table.counts[item_id] += count;
-	}
+	if(item_id < 0 || item_id >= item_table.length)
+		return false;
+	uint32_t new_count = item_table.counts[item_id] + count;
+	if(new_count > UINT16_MAX)
+		return false;
+	item_table.counts[item_id] = new_count;
+	return true;
 }
 
-void CAT_inventory_remove(int item_id, int count)
+bool CAT_inventory_remove(int item_id, int count)
 {
-	if(item_id >= 0 && item_id < item_table.length)
-	{
-		count = count == -1 ? item_table.counts[item_id] : count;
-		count = max(count, item_table.counts[item_id]);
-		item_table.counts[item_id] -= count;
-	}
+	if(item_id < 0 || item_id >= item_table.length)
+		return false;
+	if(count > item_table.counts[item_id])
+		return false;
+	if(count == -1)
+		count = item_table.counts[item_id];
+	item_table.counts[item_id] -= count;
+	return true;
+}
+
+int CAT_inventory_count(int item_id)
+{
+	if(item_id < 0 || item_id >= item_table.length)
+		return -1;
+	return item_table.counts[item_id];
 }
 
 
@@ -93,9 +105,9 @@ static struct
 } item_tabs[] =
 {
 	{"ALL", basic_filter},
-	{"PROPS", prop_filter},
-	{"TOOLS", tool_filter},
-	{"KEYS", key_filter}
+	{"DECORATIONS", prop_filter},
+	{"CARE ITEMS", tool_filter},
+	{"KEY ITEMS", key_filter}
 };
 #define NUM_ITEM_TABS (sizeof(item_tabs)/sizeof(item_tabs[0]))
 static int inventory_tab_selector = 0;
@@ -148,7 +160,7 @@ void CAT_render_inspector()
 	CAT_set_text_mask(INSPECTOR_MARGIN, -1, CAT_LCD_SCREEN_W-INSPECTOR_MARGIN, -1);
 	cursor_y = CAT_draw_textf(INSPECTOR_MARGIN, cursor_y, "%s\n", item->name) + 2;
 	CAT_set_text_colour(CAT_WHITE);
-	cursor_y = CAT_draw_textf(INSPECTOR_MARGIN, cursor_y, "x%d\n", item->price, item_table.counts[inspect_id]);
+	cursor_y = CAT_draw_textf(INSPECTOR_MARGIN, cursor_y, "x%d\n", CAT_inventory_count(inspect_id));
 	
 	cursor_y += 6;
 	CAT_lineberry(INSPECTOR_MARGIN, cursor_y, CAT_LCD_SCREEN_W-INSPECTOR_MARGIN, cursor_y, CAT_WHITE);
@@ -208,6 +220,7 @@ void CAT_MS_inventory(CAT_machine_signal signal)
 			inventory_tab_selector = (inventory_tab_selector + NUM_ITEM_TABS) % NUM_ITEM_TABS;
 			
 			CAT_gui_begin_item_grid(item_tabs[inventory_tab_selector].title, NULL, inventory_action_proc);
+			CAT_gui_item_grid_set_flags(CAT_GUI_ITEM_GRID_FLAG_TABS);
 			for(int i = 0; i < item_table.length; i++)
 			{
 				if(item_table.counts[i] <= 0)
@@ -267,7 +280,7 @@ void CAT_MS_checkout(CAT_machine_signal signal)
 			if(CAT_input_pulse(CAT_BUTTON_RIGHT))
 				purchase_qty += 1;
 			
-			int purchasable = coins / item_table.data[checkout_id].price;
+			int purchasable = CAT_inventory_count(coin_item) / item_table.data[checkout_id].price;
 			if(purchasable <= 0)
 				purchase_qty = 0;
 			else
@@ -295,8 +308,8 @@ void CAT_MS_checkout(CAT_machine_signal signal)
 			{
 				if(purchase_lock)
 				{
-					item_table.counts[checkout_id] += purchase_qty;
-					coins -= item_table.data[checkout_id].price * purchase_qty;
+					CAT_inventory_add(checkout_id, purchase_qty);
+					CAT_inventory_remove(coin_item, item_table.data[checkout_id].price * purchase_qty);
 				}
 
 				purchase_progress = 0;
@@ -332,7 +345,7 @@ void CAT_render_checkout()
 	CAT_set_text_colour(CAT_WHITE);
 	cursor_y = CAT_draw_textf(INSPECTOR_MARGIN, cursor_y, "$%d / x%d owned", item->price, item_table.counts[checkout_id]);
 	CAT_set_text_colour(CHECKOUT_GOLD_COLOUR);
-	cursor_y = CAT_draw_textf(CAT_LCD_SCREEN_W-INSPECTOR_MARGIN-CAT_GLYPH_WIDTH*7, cursor_y, "$%.6d\n", coins);
+	cursor_y = CAT_draw_textf(CAT_LCD_SCREEN_W-INSPECTOR_MARGIN-CAT_GLYPH_WIDTH*7, cursor_y, "$%.6d\n", CAT_inventory_count(coin_item));
 	
 	cursor_y += 6;
 	CAT_lineberry(INSPECTOR_MARGIN, cursor_y, CAT_LCD_SCREEN_W-INSPECTOR_MARGIN, cursor_y, CAT_WHITE);
@@ -366,13 +379,8 @@ void CAT_render_checkout()
 
 		int size = purchase_lock ? 36 : 32;
 		float progress = CAT_ease_out_quart(purchase_progress);
-		int anchor_l = 120 - size - progress * 32;
-		int anchor_r = 120 + size + progress * 32;
-		int anchor_y = cursor_y + 12;
-		CAT_lineberry(anchor_l, anchor_y, anchor_l + size, anchor_y + size, colour);
-		CAT_lineberry(anchor_l, anchor_y, anchor_l + size, anchor_y - size, colour);
-		CAT_lineberry(anchor_r, anchor_y, anchor_r - size, anchor_y + size, colour);
-		CAT_lineberry(anchor_r, anchor_y, anchor_r - size, anchor_y - size, colour);
+		int dist = progress * 64;
+		CAT_draw_arrows(120, cursor_y + 12, size, dist, colour);
 	}
 	else
 	{
@@ -413,6 +421,7 @@ void CAT_MS_shop(CAT_machine_signal signal)
 			shop_tab_selector = (shop_tab_selector + NUM_ITEM_TABS) % NUM_ITEM_TABS;
 			
 			CAT_gui_begin_item_grid(item_tabs[shop_tab_selector].title, NULL, shop_action_proc);
+			CAT_gui_item_grid_set_flags(CAT_GUI_ITEM_GRID_FLAG_TABS);
 			for(int i = 0; i < item_table.length; i++)
 			{
 				if(item_table.data[i].price <= 0)
@@ -422,11 +431,10 @@ void CAT_MS_shop(CAT_machine_signal signal)
 				if
 				(
 					item_table.data[i].type == CAT_ITEM_TYPE_TOOL &&
-					item_table.data[i].data.tool_data.type != CAT_TOOL_TYPE_FOOD &&
+					item_table.data[i].tool_type != CAT_TOOL_TYPE_FOOD &&
 					item_table.counts[i] > 0
 				)
 					continue;
-
 				CAT_gui_item_grid_cell(i);
 			}
 			break;

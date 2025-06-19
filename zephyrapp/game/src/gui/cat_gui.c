@@ -13,6 +13,7 @@
 #include "sprite_assets.h"
 #include "cat_gui.h"
 #include "cat_structures.h"
+#include "cat_gizmos.h"
 
 //////////////////////////////////////////////////////////////////////////
 // BASICS
@@ -825,6 +826,7 @@ static bool item_grid_status = false;
 static const char* item_grid_title;
 static CAT_int_list* item_grid_roster;
 static CAT_item_proc item_grid_action;
+static int item_grid_flags;
 
 static int item_grid_pool_backing[CAT_ITEM_TABLE_CAPACITY];
 static CAT_int_list item_grid_pool;
@@ -841,6 +843,7 @@ void CAT_gui_begin_item_grid_context()
 	item_grid_title = "";
 	item_grid_roster = NULL;
 	item_grid_action = NULL;
+	item_grid_flags = CAT_GUI_ITEM_GRID_FLAG_NONE;
 
 	CAT_ilist(&item_grid_pool, item_grid_pool_backing, CAT_ITEM_TABLE_CAPACITY);
 	item_grid_selector = -1;
@@ -859,6 +862,11 @@ void CAT_gui_begin_item_grid(const char* title, CAT_int_list* roster, CAT_item_p
 	item_grid_action = action;
 
 	CAT_ilist(&item_grid_pool, item_grid_pool_backing, CAT_ITEM_TABLE_CAPACITY);
+}
+
+bool CAT_gui_item_grid_set_flags(int flags)
+{
+	item_grid_flags = flags;
 }
 
 void CAT_gui_item_grid_cell(int item_id)
@@ -1042,11 +1050,16 @@ void CAT_gui_item_grid()
 		y += 64 + ITEM_GRID_MARGIN;
 	}
 
+	bool tabs = item_grid_flags & CAT_GUI_ITEM_GRID_FLAG_TABS;
 	CAT_fillberry(0, 0, CAT_LCD_SCREEN_W, ITEM_GRID_HEADER_HEIGHT, ITEM_GRID_BG_COLOUR);
 	CAT_set_text_colour(CAT_WHITE);
 	CAT_set_text_scale(2);
-	CAT_draw_text(ITEM_GRID_MARGIN, ITEM_GRID_MARGIN, item_grid_title);
+	if(tabs)
+		CAT_set_text_flags(CAT_TEXT_FLAG_CENTER);
+	CAT_draw_text(tabs ? 120 : ITEM_GRID_MARGIN, ITEM_GRID_MARGIN, item_grid_title);
 	CAT_lineberry(ITEM_GRID_MARGIN, ITEM_GRID_HEADER_HEIGHT-8, CAT_LCD_SCREEN_W-ITEM_GRID_MARGIN, ITEM_GRID_HEADER_HEIGHT-8, CAT_WHITE);
+	if(tabs)
+		CAT_draw_arrows(120, ITEM_GRID_MARGIN + 12, 8, CAT_LCD_SCREEN_W-ITEM_GRID_MARGIN*2-8*2, CAT_WHITE);
 
 	float select_progress = item_grid_select_timer / ITEM_GRID_SELECT_TIME;
 	if (item_grid_action != NULL && select_progress >= 0.05f)
@@ -1058,7 +1071,10 @@ void CAT_gui_item_grid()
 	}
 
 	if(CAT_is_last_render_cycle())
+	{
 		item_grid_status = false;
+		item_grid_flags = CAT_GUI_ITEM_GRID_FLAG_NONE;
+	}
 }
 
 

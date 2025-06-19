@@ -7,6 +7,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <time.h>
+#include "item_assets.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // LCD
@@ -303,7 +304,6 @@ void CAT_initialize_save_sector(CAT_save* save, CAT_save_sector sector)
 			save->inventory.header.label = CAT_SAVE_SECTOR_INVENTORY;
 			save->inventory.header.size = sizeof(save->inventory);
 			ZERO_STATIC_BUFFER(save->inventory.counts);
-			save->inventory.coins = 0;
 			break;
 
 		case CAT_SAVE_SECTOR_DECO:
@@ -466,7 +466,7 @@ void CAT_migrate_legacy_save(void* save)
 	{
 		new->inventory.counts[migration_buffer.bag_ids[i]] = migration_buffer.bag_counts[i];
 	}
-	new->inventory.coins = migration_buffer.coins;
+	new->inventory.counts[coin_item] = migration_buffer.coins;
 
 	for(int i = 0; i < migration_buffer.prop_count; i++)
 	{

@@ -37,7 +37,7 @@ static CAT_rect hold_rect()
 	if(hold_id != -1)
 	{
 		CAT_item* item = CAT_item_get(hold_id);
-		return CAT_rect_place(cursor, item->data.prop_data.shape);
+		return CAT_rect_place(cursor, item->prop_shape);
 	}
 	else
 	{
@@ -59,8 +59,8 @@ static bool can_stack()
 		CAT_item* hold_item = CAT_item_get(hold_id);
 		CAT_item* hover_item = CAT_item_get(room.prop_ids[hover_idx]);
 		return
-		hover_item->data.prop_data.type == CAT_PROP_TYPE_BOTTOM &&
-		hold_item->data.prop_data.type == CAT_PROP_TYPE_TOP &&
+		hover_item->prop_type == CAT_PROP_TYPE_BOTTOM &&
+		hold_item->prop_type == CAT_PROP_TYPE_TOP &&
 		CAT_rect_contains(room.prop_rects[hover_idx], hold_rect());
 	}
 	return false;

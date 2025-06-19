@@ -281,7 +281,7 @@ void CAT_MS_mines(CAT_machine_signal signal)
 						clicks += 1;
 						if(clicks == 8)
 						{
-							coins += 1;
+							CAT_inventory_add(coin_item, 1);
 							cell->coin = true;
 							clicks = 0;
 						}

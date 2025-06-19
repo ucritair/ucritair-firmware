@@ -2372,6 +2372,17 @@
                 }
             },
             "tier": 3
+        },
+        {
+            "type": "key",
+            "name": "coin",
+            "display_name": "Coin",
+            "tier": 1,
+            "sprite": "coin_static_sprite",
+            "icon": "icon_item_key_sprite",
+            "text": "A gleaming golden coin. The possibilities for its use are endless.",
+            "price": 0,
+            "id": 109
         }
     ]
 }

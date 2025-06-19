@@ -87,7 +87,7 @@ static void init_item_id_pool()
 		(
 			item_table.counts[i] > 0 &&
 			item_table.data[i].type == CAT_ITEM_TYPE_TOOL &&
-			item_table.data[i].data.tool_data.type == CAT_TOOL_TYPE_FOOD
+			item_table.data[i].tool_type == CAT_TOOL_TYPE_FOOD
 		)
 		{
 			CAT_ilist_push(&food_pool, i);
@@ -384,7 +384,7 @@ static float score_variety()
 			continue;
 
 		CAT_item *food = food_lookup(i);
-		CAT_food_group group = food->data.tool_data.food_group;
+		CAT_food_group group = food->food_group;
 		switch (group)
 		{
 		case CAT_FOOD_GROUP_VEG:
@@ -469,7 +469,7 @@ static float score_propriety()
 			continue;
 
 		CAT_item *food = food_lookup(i);
-		switch (food->data.tool_data.food_role)
+		switch (food->food_role)
 		{
 		case CAT_FOOD_ROLE_STAPLE:
 			staple_count += 1;
@@ -557,13 +557,13 @@ static float score_ichiju_sansai()
 			continue;
 
 		CAT_item *food = food_lookup(i);
-		if (food->data.tool_data.food_role == CAT_FOOD_ROLE_SOUP && soup < 1)
+		if (food->food_role == CAT_FOOD_ROLE_SOUP && soup < 1)
 			soup += 1;
-		else if (food->data.tool_data.food_role == CAT_FOOD_ROLE_SIDE && sides < 2)
+		else if (food->food_role == CAT_FOOD_ROLE_SIDE && sides < 2)
 			sides += 1;
-		else if (food->data.tool_data.food_role == CAT_FOOD_ROLE_MAIN && main < 1)
+		else if (food->food_role == CAT_FOOD_ROLE_MAIN && main < 1)
 			main += 1;
-		else if (food->data.tool_data.food_role == CAT_FOOD_ROLE_STAPLE && staple < 1)
+		else if (food->food_role == CAT_FOOD_ROLE_STAPLE && staple < 1)
 			staple += 1;
 	}
 
@@ -1190,9 +1190,9 @@ static void render_inspect()
 	CAT_set_text_colour(CAT_WHITE);
 	CAT_draw_text(8, 8, inspectee->name);
 	CAT_set_text_colour(CAT_WHITE);
-	CAT_draw_textf(8, 8 + 28, "Group: %s", group_strings[inspectee->data.tool_data.food_group]);
+	CAT_draw_textf(8, 8 + 28, "Group: %s", group_strings[inspectee->food_group]);
 	CAT_set_text_colour(CAT_WHITE);
-	CAT_draw_textf(8, 8 + 28 + 16, "Role: %s", role_strings[inspectee->data.tool_data.food_role]);
+	CAT_draw_textf(8, 8 + 28 + 16, "Role: %s", role_strings[inspectee->food_role]);
 	CAT_set_text_colour(CAT_WHITE);
 	CAT_draw_text(8, 8 + 28 + 16 + 16, inspectee->text);
 

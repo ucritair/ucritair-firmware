@@ -7,6 +7,7 @@
 #include "cat_gui.h"
 #include "sprite_assets.h"
 #include "sound_assets.h"
+#include "item_assets.h"
 
 #define GRID_WIDTH 15
 #define GRID_HEIGHT 20
@@ -190,7 +191,7 @@ void CAT_MS_snake(CAT_machine_signal signal)
 						eat_tracker += 1;
 						if(eat_tracker == 5)
 						{
-							coins += 1;
+							CAT_inventory_add(coin_item, 1);
 							eat_tracker = 0;
 						}
 

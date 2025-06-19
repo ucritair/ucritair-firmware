@@ -14,17 +14,14 @@ CAT_item_table item_table =
 			.price = 3,
 			.text = "A freshly baked loaf of bread. It has a soft crust and a slightly cakey crumb.",
 			.icon = &icon_item_food_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_FOOD,
-				.cursor = &bread_sprite,
-				.dv = 1,
-				.df = 0,
-				.ds = 0,
+			.tool_type = CAT_TOOL_TYPE_FOOD,
+			.tool_cursor = &bread_sprite,
+			.tool_dv = 1,
+			.tool_df = 0,
+			.tool_ds = 0,
 
-				.food_group = CAT_FOOD_GROUP_STARCH,
-				.food_role = CAT_FOOD_ROLE_STAPLE,
-			}
+			.food_group = CAT_FOOD_GROUP_STARCH,
+			.food_role = CAT_FOOD_ROLE_STAPLE,
 		},
 		{
 			.type = CAT_ITEM_TYPE_TOOL,
@@ -33,17 +30,14 @@ CAT_item_table item_table =
 			.price = 3,
 			.text = "A hot cup of coffee. It's a dark roast with a chocolatey flavour. Some might think it almost tastes burnt.",
 			.icon = &icon_item_food_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_FOOD,
-				.cursor = &coffee_sprite,
-				.dv = 1,
-				.df = 1,
-				.ds = 0,
+			.tool_type = CAT_TOOL_TYPE_FOOD,
+			.tool_cursor = &coffee_sprite,
+			.tool_dv = 1,
+			.tool_df = 1,
+			.tool_ds = 0,
 
-				.food_group = CAT_FOOD_GROUP_MISC,
-				.food_role = CAT_FOOD_ROLE_DRINK,
-			}
+			.food_group = CAT_FOOD_GROUP_MISC,
+			.food_role = CAT_FOOD_ROLE_DRINK,
 		},
 		{
 			.type = CAT_ITEM_TYPE_TOOL,
@@ -52,17 +46,14 @@ CAT_item_table item_table =
 			.price = 3,
 			.text = "",
 			.icon = &icon_item_food_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_FOOD,
-				.cursor = &milk_sprite,
-				.dv = 1,
-				.df = 0,
-				.ds = 0,
+			.tool_type = CAT_TOOL_TYPE_FOOD,
+			.tool_cursor = &milk_sprite,
+			.tool_dv = 1,
+			.tool_df = 0,
+			.tool_ds = 0,
 
-				.food_group = CAT_FOOD_GROUP_DAIRY,
-				.food_role = CAT_FOOD_ROLE_DRINK,
-			}
+			.food_group = CAT_FOOD_GROUP_DAIRY,
+			.food_role = CAT_FOOD_ROLE_DRINK,
 		},
 		{
 			.type = CAT_ITEM_TYPE_TOOL,
@@ -71,17 +62,14 @@ CAT_item_table item_table =
 			.price = 3,
 			.text = "",
 			.icon = &icon_item_food_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_FOOD,
-				.cursor = &soup_sprite,
-				.dv = 1,
-				.df = 0,
-				.ds = 0,
+			.tool_type = CAT_TOOL_TYPE_FOOD,
+			.tool_cursor = &soup_sprite,
+			.tool_dv = 1,
+			.tool_df = 0,
+			.tool_ds = 0,
 
-				.food_group = CAT_FOOD_GROUP_VEG,
-				.food_role = CAT_FOOD_ROLE_SOUP,
-			}
+			.food_group = CAT_FOOD_GROUP_VEG,
+			.food_role = CAT_FOOD_ROLE_SOUP,
 		},
 		{
 			.type = CAT_ITEM_TYPE_TOOL,
@@ -90,17 +78,14 @@ CAT_item_table item_table =
 			.price = 3,
 			.text = "",
 			.icon = &icon_item_food_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_FOOD,
-				.cursor = &salad_sprite,
-				.dv = 1,
-				.df = 0,
-				.ds = 0,
+			.tool_type = CAT_TOOL_TYPE_FOOD,
+			.tool_cursor = &salad_sprite,
+			.tool_dv = 1,
+			.tool_df = 0,
+			.tool_ds = 0,
 
-				.food_group = CAT_FOOD_GROUP_VEG,
-				.food_role = CAT_FOOD_ROLE_SIDE,
-			}
+			.food_group = CAT_FOOD_GROUP_VEG,
+			.food_role = CAT_FOOD_ROLE_SIDE,
 		},
 		{
 			.type = CAT_ITEM_TYPE_TOOL,
@@ -109,17 +94,14 @@ CAT_item_table item_table =
 			.price = 3,
 			.text = "",
 			.icon = &icon_item_food_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_FOOD,
-				.cursor = &sausage_sprite,
-				.dv = 1,
-				.df = 0,
-				.ds = 0,
+			.tool_type = CAT_TOOL_TYPE_FOOD,
+			.tool_cursor = &sausage_sprite,
+			.tool_dv = 1,
+			.tool_df = 0,
+			.tool_ds = 0,
 
-				.food_group = CAT_FOOD_GROUP_MEAT,
-				.food_role = CAT_FOOD_ROLE_MAIN,
-			}
+			.food_group = CAT_FOOD_GROUP_MEAT,
+			.food_role = CAT_FOOD_ROLE_MAIN,
 		},
 		{
 			.type = CAT_ITEM_TYPE_TOOL,
@@ -128,17 +110,14 @@ CAT_item_table item_table =
 			.price = 12,
 			.text = "",
 			.icon = &icon_item_food_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_FOOD,
-				.cursor = &green_curry_sprite,
-				.dv = 3,
-				.df = 0,
-				.ds = 0,
+			.tool_type = CAT_TOOL_TYPE_FOOD,
+			.tool_cursor = &green_curry_sprite,
+			.tool_dv = 3,
+			.tool_df = 0,
+			.tool_ds = 0,
 
-				.food_group = CAT_FOOD_GROUP_VEG,
-				.food_role = CAT_FOOD_ROLE_MAIN,
-			}
+			.food_group = CAT_FOOD_GROUP_VEG,
+			.food_role = CAT_FOOD_ROLE_MAIN,
 		},
 		{
 			.type = CAT_ITEM_TYPE_TOOL,
@@ -147,17 +126,14 @@ CAT_item_table item_table =
 			.price = 12,
 			.text = "",
 			.icon = &icon_item_food_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_FOOD,
-				.cursor = &red_curry_sprite,
-				.dv = 3,
-				.df = 0,
-				.ds = 0,
+			.tool_type = CAT_TOOL_TYPE_FOOD,
+			.tool_cursor = &red_curry_sprite,
+			.tool_dv = 3,
+			.tool_df = 0,
+			.tool_ds = 0,
 
-				.food_group = CAT_FOOD_GROUP_MEAT,
-				.food_role = CAT_FOOD_ROLE_MAIN,
-			}
+			.food_group = CAT_FOOD_GROUP_MEAT,
+			.food_role = CAT_FOOD_ROLE_MAIN,
 		},
 		{
 			.type = CAT_ITEM_TYPE_TOOL,
@@ -166,17 +142,14 @@ CAT_item_table item_table =
 			.price = 12,
 			.text = "",
 			.icon = &icon_item_food_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_FOOD,
-				.cursor = &padkaprow_sprite,
-				.dv = 3,
-				.df = 0,
-				.ds = 0,
+			.tool_type = CAT_TOOL_TYPE_FOOD,
+			.tool_cursor = &padkaprow_sprite,
+			.tool_dv = 3,
+			.tool_df = 0,
+			.tool_ds = 0,
 
-				.food_group = CAT_FOOD_GROUP_MEAT,
-				.food_role = CAT_FOOD_ROLE_MAIN,
-			}
+			.food_group = CAT_FOOD_GROUP_MEAT,
+			.food_role = CAT_FOOD_ROLE_MAIN,
 		},
 		{
 			.type = CAT_ITEM_TYPE_TOOL,
@@ -185,17 +158,14 @@ CAT_item_table item_table =
 			.price = 3,
 			.text = "",
 			.icon = &icon_item_food_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_FOOD,
-				.cursor = &pill_vig_sprite,
-				.dv = 1,
-				.df = 0,
-				.ds = 0,
+			.tool_type = CAT_TOOL_TYPE_FOOD,
+			.tool_cursor = &pill_vig_sprite,
+			.tool_dv = 1,
+			.tool_df = 0,
+			.tool_ds = 0,
 
-				.food_group = CAT_FOOD_GROUP_MISC,
-				.food_role = CAT_FOOD_ROLE_VICE,
-			}
+			.food_group = CAT_FOOD_GROUP_MISC,
+			.food_role = CAT_FOOD_ROLE_VICE,
 		},
 		{
 			.type = CAT_ITEM_TYPE_TOOL,
@@ -204,17 +174,14 @@ CAT_item_table item_table =
 			.price = 3,
 			.text = "",
 			.icon = &icon_item_food_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_FOOD,
-				.cursor = &pill_foc_sprite,
-				.dv = 1,
-				.df = 1,
-				.ds = 0,
+			.tool_type = CAT_TOOL_TYPE_FOOD,
+			.tool_cursor = &pill_foc_sprite,
+			.tool_dv = 1,
+			.tool_df = 1,
+			.tool_ds = 0,
 
-				.food_group = CAT_FOOD_GROUP_MISC,
-				.food_role = CAT_FOOD_ROLE_VICE,
-			}
+			.food_group = CAT_FOOD_GROUP_MISC,
+			.food_role = CAT_FOOD_ROLE_VICE,
 		},
 		{
 			.type = CAT_ITEM_TYPE_TOOL,
@@ -223,17 +190,14 @@ CAT_item_table item_table =
 			.price = 3,
 			.text = "",
 			.icon = &icon_item_food_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_FOOD,
-				.cursor = &pill_spi_sprite,
-				.dv = 1,
-				.df = 0,
-				.ds = 1,
+			.tool_type = CAT_TOOL_TYPE_FOOD,
+			.tool_cursor = &pill_spi_sprite,
+			.tool_dv = 1,
+			.tool_df = 0,
+			.tool_ds = 1,
 
-				.food_group = CAT_FOOD_GROUP_MISC,
-				.food_role = CAT_FOOD_ROLE_VICE,
-			}
+			.food_group = CAT_FOOD_GROUP_MISC,
+			.food_role = CAT_FOOD_ROLE_VICE,
 		},
 		{
 			.type = CAT_ITEM_TYPE_TOOL,
@@ -242,17 +206,14 @@ CAT_item_table item_table =
 			.price = 0,
 			.text = "",
 			.icon = &icon_item_food_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_FOOD,
-				.cursor = &cigarette_sprite,
-				.dv = 0,
-				.df = 3,
-				.ds = 1,
+			.tool_type = CAT_TOOL_TYPE_FOOD,
+			.tool_cursor = &cigarette_sprite,
+			.tool_dv = 0,
+			.tool_df = 3,
+			.tool_ds = 1,
 
-				.food_group = CAT_FOOD_GROUP_MISC,
-				.food_role = CAT_FOOD_ROLE_VICE,
-			}
+			.food_group = CAT_FOOD_GROUP_MISC,
+			.food_role = CAT_FOOD_ROLE_VICE,
 		},
 		{
 			.type = CAT_ITEM_TYPE_TOOL,
@@ -261,14 +222,11 @@ CAT_item_table item_table =
 			.price = 7,
 			.text = "",
 			.icon = &icon_item_book_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_BOOK,
-				.cursor = &book_static_sprite,
-				.dv = 0,
-				.df = 3,
-				.ds = 0,
-			}
+			.tool_type = CAT_TOOL_TYPE_BOOK,
+			.tool_cursor = &book_static_sprite,
+			.tool_dv = 0,
+			.tool_df = 3,
+			.tool_ds = 0,
 		},
 		{
 			.type = CAT_ITEM_TYPE_TOOL,
@@ -277,14 +235,11 @@ CAT_item_table item_table =
 			.price = 7,
 			.text = "",
 			.icon = &icon_item_book_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_BOOK,
-				.cursor = &book_static_sprite,
-				.dv = 0,
-				.df = 3,
-				.ds = 0,
-			}
+			.tool_type = CAT_TOOL_TYPE_BOOK,
+			.tool_cursor = &book_static_sprite,
+			.tool_dv = 0,
+			.tool_df = 3,
+			.tool_ds = 0,
 		},
 		{
 			.type = CAT_ITEM_TYPE_TOOL,
@@ -293,14 +248,11 @@ CAT_item_table item_table =
 			.price = 7,
 			.text = "",
 			.icon = &icon_item_book_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_BOOK,
-				.cursor = &book_static_sprite,
-				.dv = 0,
-				.df = 3,
-				.ds = 0,
-			}
+			.tool_type = CAT_TOOL_TYPE_BOOK,
+			.tool_cursor = &book_static_sprite,
+			.tool_dv = 0,
+			.tool_df = 3,
+			.tool_ds = 0,
 		},
 		{
 			.type = CAT_ITEM_TYPE_TOOL,
@@ -309,14 +261,11 @@ CAT_item_table item_table =
 			.price = 7,
 			.text = "",
 			.icon = &icon_item_book_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_BOOK,
-				.cursor = &book_static_sprite,
-				.dv = 0,
-				.df = 3,
-				.ds = 0,
-			}
+			.tool_type = CAT_TOOL_TYPE_BOOK,
+			.tool_cursor = &book_static_sprite,
+			.tool_dv = 0,
+			.tool_df = 3,
+			.tool_ds = 0,
 		},
 		{
 			.type = CAT_ITEM_TYPE_TOOL,
@@ -325,14 +274,11 @@ CAT_item_table item_table =
 			.price = 7,
 			.text = "",
 			.icon = &icon_item_book_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_BOOK,
-				.cursor = &book_static_sprite,
-				.dv = 0,
-				.df = 3,
-				.ds = 0,
-			}
+			.tool_type = CAT_TOOL_TYPE_BOOK,
+			.tool_cursor = &book_static_sprite,
+			.tool_dv = 0,
+			.tool_df = 3,
+			.tool_ds = 0,
 		},
 		{
 			.type = CAT_ITEM_TYPE_TOOL,
@@ -341,14 +287,11 @@ CAT_item_table item_table =
 			.price = 7,
 			.text = "",
 			.icon = &icon_item_book_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_BOOK,
-				.cursor = &book_static_sprite,
-				.dv = 0,
-				.df = 3,
-				.ds = 0,
-			}
+			.tool_type = CAT_TOOL_TYPE_BOOK,
+			.tool_cursor = &book_static_sprite,
+			.tool_dv = 0,
+			.tool_df = 3,
+			.tool_ds = 0,
 		},
 		{
 			.type = CAT_ITEM_TYPE_TOOL,
@@ -357,14 +300,11 @@ CAT_item_table item_table =
 			.price = 21,
 			.text = "",
 			.icon = &icon_item_toy_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_TOY,
-				.cursor = &toy_duck_sprite,
-				.dv = 0,
-				.df = 0,
-				.ds = 3,
-			}
+			.tool_type = CAT_TOOL_TYPE_TOY,
+			.tool_cursor = &toy_duck_sprite,
+			.tool_dv = 0,
+			.tool_df = 0,
+			.tool_ds = 3,
 		},
 		{
 			.type = CAT_ITEM_TYPE_TOOL,
@@ -373,14 +313,11 @@ CAT_item_table item_table =
 			.price = 7,
 			.text = "",
 			.icon = &icon_item_toy_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_TOY,
-				.cursor = &toy_baseball_sprite,
-				.dv = 0,
-				.df = 0,
-				.ds = 1,
-			}
+			.tool_type = CAT_TOOL_TYPE_TOY,
+			.tool_cursor = &toy_baseball_sprite,
+			.tool_dv = 0,
+			.tool_df = 0,
+			.tool_ds = 1,
 		},
 		{
 			.type = CAT_ITEM_TYPE_TOOL,
@@ -389,14 +326,11 @@ CAT_item_table item_table =
 			.price = 14,
 			.text = "",
 			.icon = &icon_item_toy_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_TOY,
-				.cursor = &toy_basketball_sprite,
-				.dv = 0,
-				.df = 0,
-				.ds = 2,
-			}
+			.tool_type = CAT_TOOL_TYPE_TOY,
+			.tool_cursor = &toy_basketball_sprite,
+			.tool_dv = 0,
+			.tool_df = 0,
+			.tool_ds = 2,
 		},
 		{
 			.type = CAT_ITEM_TYPE_TOOL,
@@ -405,14 +339,11 @@ CAT_item_table item_table =
 			.price = 7,
 			.text = "",
 			.icon = &icon_item_toy_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_TOY,
-				.cursor = &toy_golf_sprite,
-				.dv = 0,
-				.df = 0,
-				.ds = 1,
-			}
+			.tool_type = CAT_TOOL_TYPE_TOY,
+			.tool_cursor = &toy_golf_sprite,
+			.tool_dv = 0,
+			.tool_df = 0,
+			.tool_ds = 1,
 		},
 		{
 			.type = CAT_ITEM_TYPE_TOOL,
@@ -421,14 +352,11 @@ CAT_item_table item_table =
 			.price = 14,
 			.text = "",
 			.icon = &icon_item_toy_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_TOY,
-				.cursor = &toy_puzzle_sprite,
-				.dv = 0,
-				.df = 0,
-				.ds = 2,
-			}
+			.tool_type = CAT_TOOL_TYPE_TOY,
+			.tool_cursor = &toy_puzzle_sprite,
+			.tool_dv = 0,
+			.tool_df = 0,
+			.tool_ds = 2,
 		},
 		{
 			.type = CAT_ITEM_TYPE_KEY,
@@ -445,13 +373,10 @@ CAT_item_table item_table =
 			.price = 100,
 			.text = "",
 			.icon = &icon_item_prop_sprite,
-			.data.prop_data =
-			{
-				.type = CAT_PROP_TYPE_DEFAULT,
-				.shape = {3, 1},
-				.animate = true,
-				.child_dy = 0,
-			}
+			.prop_type = CAT_PROP_TYPE_DEFAULT,
+			.prop_shape = {3, 1},
+			.prop_animated = true,
+			.prop_child_dy = 0,
 		},
 		{
 			.type = CAT_ITEM_TYPE_PROP,
@@ -460,13 +385,10 @@ CAT_item_table item_table =
 			.price = 50,
 			.text = "",
 			.icon = &icon_item_prop_sprite,
-			.data.prop_data =
-			{
-				.type = CAT_PROP_TYPE_TOP,
-				.shape = {1, 1},
-				.animate = true,
-				.child_dy = 0,
-			}
+			.prop_type = CAT_PROP_TYPE_TOP,
+			.prop_shape = {1, 1},
+			.prop_animated = true,
+			.prop_child_dy = 0,
 		},
 		{
 			.type = CAT_ITEM_TYPE_PROP,
@@ -475,13 +397,10 @@ CAT_item_table item_table =
 			.price = 50,
 			.text = "",
 			.icon = &icon_item_prop_sprite,
-			.data.prop_data =
-			{
-				.type = CAT_PROP_TYPE_DEFAULT,
-				.shape = {2, 1},
-				.animate = true,
-				.child_dy = 0,
-			}
+			.prop_type = CAT_PROP_TYPE_DEFAULT,
+			.prop_shape = {2, 1},
+			.prop_animated = true,
+			.prop_child_dy = 0,
 		},
 		{
 			.type = CAT_ITEM_TYPE_PROP,
@@ -490,13 +409,10 @@ CAT_item_table item_table =
 			.price = 40,
 			.text = "",
 			.icon = &icon_item_prop_sprite,
-			.data.prop_data =
-			{
-				.type = CAT_PROP_TYPE_TOP,
-				.shape = {2, 1},
-				.animate = true,
-				.child_dy = -6,
-			}
+			.prop_type = CAT_PROP_TYPE_TOP,
+			.prop_shape = {2, 1},
+			.prop_animated = true,
+			.prop_child_dy = -6,
 		},
 		{
 			.type = CAT_ITEM_TYPE_PROP,
@@ -505,13 +421,10 @@ CAT_item_table item_table =
 			.price = 20,
 			.text = "",
 			.icon = &icon_item_prop_sprite,
-			.data.prop_data =
-			{
-				.type = CAT_PROP_TYPE_TOP,
-				.shape = {2, 1},
-				.animate = true,
-				.child_dy = 0,
-			}
+			.prop_type = CAT_PROP_TYPE_TOP,
+			.prop_shape = {2, 1},
+			.prop_animated = true,
+			.prop_child_dy = 0,
 		},
 		{
 			.type = CAT_ITEM_TYPE_PROP,
@@ -520,13 +433,10 @@ CAT_item_table item_table =
 			.price = 30,
 			.text = "",
 			.icon = &icon_item_prop_sprite,
-			.data.prop_data =
-			{
-				.type = CAT_PROP_TYPE_TOP,
-				.shape = {2, 1},
-				.animate = true,
-				.child_dy = 0,
-			}
+			.prop_type = CAT_PROP_TYPE_TOP,
+			.prop_shape = {2, 1},
+			.prop_animated = true,
+			.prop_child_dy = 0,
 		},
 		{
 			.type = CAT_ITEM_TYPE_PROP,
@@ -535,13 +445,10 @@ CAT_item_table item_table =
 			.price = 20,
 			.text = "",
 			.icon = &icon_item_prop_sprite,
-			.data.prop_data =
-			{
-				.type = CAT_PROP_TYPE_TOP,
-				.shape = {1, 1},
-				.animate = true,
-				.child_dy = 0,
-			}
+			.prop_type = CAT_PROP_TYPE_TOP,
+			.prop_shape = {1, 1},
+			.prop_animated = true,
+			.prop_child_dy = 0,
 		},
 		{
 			.type = CAT_ITEM_TYPE_PROP,
@@ -550,13 +457,10 @@ CAT_item_table item_table =
 			.price = 80,
 			.text = "",
 			.icon = &icon_item_prop_sprite,
-			.data.prop_data =
-			{
-				.type = CAT_PROP_TYPE_TOP,
-				.shape = {2, 1},
-				.animate = true,
-				.child_dy = -8,
-			}
+			.prop_type = CAT_PROP_TYPE_TOP,
+			.prop_shape = {2, 1},
+			.prop_animated = true,
+			.prop_child_dy = -8,
 		},
 		{
 			.type = CAT_ITEM_TYPE_PROP,
@@ -565,13 +469,10 @@ CAT_item_table item_table =
 			.price = 40,
 			.text = "",
 			.icon = &icon_item_prop_sprite,
-			.data.prop_data =
-			{
-				.type = CAT_PROP_TYPE_TOP,
-				.shape = {2, 2},
-				.animate = true,
-				.child_dy = -16,
-			}
+			.prop_type = CAT_PROP_TYPE_TOP,
+			.prop_shape = {2, 2},
+			.prop_animated = true,
+			.prop_child_dy = -16,
 		},
 		{
 			.type = CAT_ITEM_TYPE_PROP,
@@ -580,13 +481,10 @@ CAT_item_table item_table =
 			.price = 20,
 			.text = "",
 			.icon = &icon_item_prop_sprite,
-			.data.prop_data =
-			{
-				.type = CAT_PROP_TYPE_BOTTOM,
-				.shape = {4, 2},
-				.animate = true,
-				.child_dy = 0,
-			}
+			.prop_type = CAT_PROP_TYPE_BOTTOM,
+			.prop_shape = {4, 2},
+			.prop_animated = true,
+			.prop_child_dy = 0,
 		},
 		{
 			.type = CAT_ITEM_TYPE_PROP,
@@ -595,13 +493,10 @@ CAT_item_table item_table =
 			.price = 20,
 			.text = "",
 			.icon = &icon_item_prop_sprite,
-			.data.prop_data =
-			{
-				.type = CAT_PROP_TYPE_BOTTOM,
-				.shape = {4, 2},
-				.animate = true,
-				.child_dy = 0,
-			}
+			.prop_type = CAT_PROP_TYPE_BOTTOM,
+			.prop_shape = {4, 2},
+			.prop_animated = true,
+			.prop_child_dy = 0,
 		},
 		{
 			.type = CAT_ITEM_TYPE_PROP,
@@ -610,13 +505,10 @@ CAT_item_table item_table =
 			.price = 20,
 			.text = "",
 			.icon = &icon_item_prop_sprite,
-			.data.prop_data =
-			{
-				.type = CAT_PROP_TYPE_BOTTOM,
-				.shape = {4, 2},
-				.animate = true,
-				.child_dy = 0,
-			}
+			.prop_type = CAT_PROP_TYPE_BOTTOM,
+			.prop_shape = {4, 2},
+			.prop_animated = true,
+			.prop_child_dy = 0,
 		},
 		{
 			.type = CAT_ITEM_TYPE_PROP,
@@ -625,13 +517,10 @@ CAT_item_table item_table =
 			.price = 20,
 			.text = "",
 			.icon = &icon_item_prop_sprite,
-			.data.prop_data =
-			{
-				.type = CAT_PROP_TYPE_BOTTOM,
-				.shape = {4, 2},
-				.animate = true,
-				.child_dy = 0,
-			}
+			.prop_type = CAT_PROP_TYPE_BOTTOM,
+			.prop_shape = {4, 2},
+			.prop_animated = true,
+			.prop_child_dy = 0,
 		},
 		{
 			.type = CAT_ITEM_TYPE_PROP,
@@ -640,13 +529,10 @@ CAT_item_table item_table =
 			.price = 20,
 			.text = "",
 			.icon = &icon_item_prop_sprite,
-			.data.prop_data =
-			{
-				.type = CAT_PROP_TYPE_BOTTOM,
-				.shape = {2, 2},
-				.animate = true,
-				.child_dy = 0,
-			}
+			.prop_type = CAT_PROP_TYPE_BOTTOM,
+			.prop_shape = {2, 2},
+			.prop_animated = true,
+			.prop_child_dy = 0,
 		},
 		{
 			.type = CAT_ITEM_TYPE_PROP,
@@ -655,13 +541,10 @@ CAT_item_table item_table =
 			.price = 30,
 			.text = "",
 			.icon = &icon_item_prop_sprite,
-			.data.prop_data =
-			{
-				.type = CAT_PROP_TYPE_BOTTOM,
-				.shape = {2, 2},
-				.animate = true,
-				.child_dy = 0,
-			}
+			.prop_type = CAT_PROP_TYPE_BOTTOM,
+			.prop_shape = {2, 2},
+			.prop_animated = true,
+			.prop_child_dy = 0,
 		},
 		{
 			.type = CAT_ITEM_TYPE_PROP,
@@ -670,13 +553,10 @@ CAT_item_table item_table =
 			.price = 30,
 			.text = "",
 			.icon = &icon_item_prop_sprite,
-			.data.prop_data =
-			{
-				.type = CAT_PROP_TYPE_BOTTOM,
-				.shape = {2, 2},
-				.animate = true,
-				.child_dy = 0,
-			}
+			.prop_type = CAT_PROP_TYPE_BOTTOM,
+			.prop_shape = {2, 2},
+			.prop_animated = true,
+			.prop_child_dy = 0,
 		},
 		{
 			.type = CAT_ITEM_TYPE_PROP,
@@ -685,13 +565,10 @@ CAT_item_table item_table =
 			.price = 10,
 			.text = "",
 			.icon = &icon_item_prop_sprite,
-			.data.prop_data =
-			{
-				.type = CAT_PROP_TYPE_BOTTOM,
-				.shape = {2, 2},
-				.animate = true,
-				.child_dy = 0,
-			}
+			.prop_type = CAT_PROP_TYPE_BOTTOM,
+			.prop_shape = {2, 2},
+			.prop_animated = true,
+			.prop_child_dy = 0,
 		},
 		{
 			.type = CAT_ITEM_TYPE_PROP,
@@ -700,13 +577,10 @@ CAT_item_table item_table =
 			.price = 10,
 			.text = "",
 			.icon = &icon_item_prop_sprite,
-			.data.prop_data =
-			{
-				.type = CAT_PROP_TYPE_BOTTOM,
-				.shape = {2, 2},
-				.animate = true,
-				.child_dy = 0,
-			}
+			.prop_type = CAT_PROP_TYPE_BOTTOM,
+			.prop_shape = {2, 2},
+			.prop_animated = true,
+			.prop_child_dy = 0,
 		},
 		{
 			.type = CAT_ITEM_TYPE_PROP,
@@ -715,13 +589,10 @@ CAT_item_table item_table =
 			.price = 20,
 			.text = "",
 			.icon = &icon_item_prop_sprite,
-			.data.prop_data =
-			{
-				.type = CAT_PROP_TYPE_DEFAULT,
-				.shape = {2, 2},
-				.animate = false,
-				.child_dy = 0,
-			}
+			.prop_type = CAT_PROP_TYPE_DEFAULT,
+			.prop_shape = {2, 2},
+			.prop_animated = false,
+			.prop_child_dy = 0,
 		},
 		{
 			.type = CAT_ITEM_TYPE_PROP,
@@ -730,13 +601,10 @@ CAT_item_table item_table =
 			.price = 15,
 			.text = "",
 			.icon = &icon_item_prop_sprite,
-			.data.prop_data =
-			{
-				.type = CAT_PROP_TYPE_DEFAULT,
-				.shape = {2, 2},
-				.animate = false,
-				.child_dy = 0,
-			}
+			.prop_type = CAT_PROP_TYPE_DEFAULT,
+			.prop_shape = {2, 2},
+			.prop_animated = false,
+			.prop_child_dy = 0,
 		},
 		{
 			.type = CAT_ITEM_TYPE_PROP,
@@ -745,13 +613,10 @@ CAT_item_table item_table =
 			.price = 5,
 			.text = "",
 			.icon = &icon_item_prop_sprite,
-			.data.prop_data =
-			{
-				.type = CAT_PROP_TYPE_DEFAULT,
-				.shape = {2, 1},
-				.animate = true,
-				.child_dy = 0,
-			}
+			.prop_type = CAT_PROP_TYPE_DEFAULT,
+			.prop_shape = {2, 1},
+			.prop_animated = true,
+			.prop_child_dy = 0,
 		},
 		{
 			.type = CAT_ITEM_TYPE_PROP,
@@ -760,13 +625,10 @@ CAT_item_table item_table =
 			.price = 10,
 			.text = "",
 			.icon = &icon_item_prop_sprite,
-			.data.prop_data =
-			{
-				.type = CAT_PROP_TYPE_DEFAULT,
-				.shape = {2, 1},
-				.animate = true,
-				.child_dy = 0,
-			}
+			.prop_type = CAT_PROP_TYPE_DEFAULT,
+			.prop_shape = {2, 1},
+			.prop_animated = true,
+			.prop_child_dy = 0,
 		},
 		{
 			.type = CAT_ITEM_TYPE_PROP,
@@ -775,13 +637,10 @@ CAT_item_table item_table =
 			.price = 15,
 			.text = "",
 			.icon = &icon_item_prop_sprite,
-			.data.prop_data =
-			{
-				.type = CAT_PROP_TYPE_DEFAULT,
-				.shape = {2, 1},
-				.animate = true,
-				.child_dy = 0,
-			}
+			.prop_type = CAT_PROP_TYPE_DEFAULT,
+			.prop_shape = {2, 1},
+			.prop_animated = true,
+			.prop_child_dy = 0,
 		},
 		{
 			.type = CAT_ITEM_TYPE_PROP,
@@ -790,13 +649,10 @@ CAT_item_table item_table =
 			.price = 30,
 			.text = "",
 			.icon = &icon_item_prop_sprite,
-			.data.prop_data =
-			{
-				.type = CAT_PROP_TYPE_BOTTOM,
-				.shape = {2, 1},
-				.animate = true,
-				.child_dy = 0,
-			}
+			.prop_type = CAT_PROP_TYPE_BOTTOM,
+			.prop_shape = {2, 1},
+			.prop_animated = true,
+			.prop_child_dy = 0,
 		},
 		{
 			.type = CAT_ITEM_TYPE_PROP,
@@ -805,13 +661,10 @@ CAT_item_table item_table =
 			.price = 10,
 			.text = "",
 			.icon = &icon_item_prop_sprite,
-			.data.prop_data =
-			{
-				.type = CAT_PROP_TYPE_TOP,
-				.shape = {1, 1},
-				.animate = true,
-				.child_dy = 0,
-			}
+			.prop_type = CAT_PROP_TYPE_TOP,
+			.prop_shape = {1, 1},
+			.prop_animated = true,
+			.prop_child_dy = 0,
 		},
 		{
 			.type = CAT_ITEM_TYPE_PROP,
@@ -820,13 +673,10 @@ CAT_item_table item_table =
 			.price = 20,
 			.text = "",
 			.icon = &icon_item_prop_sprite,
-			.data.prop_data =
-			{
-				.type = CAT_PROP_TYPE_TOP,
-				.shape = {1, 1},
-				.animate = true,
-				.child_dy = 0,
-			}
+			.prop_type = CAT_PROP_TYPE_TOP,
+			.prop_shape = {1, 1},
+			.prop_animated = true,
+			.prop_child_dy = 0,
 		},
 		{
 			.type = CAT_ITEM_TYPE_PROP,
@@ -835,13 +685,10 @@ CAT_item_table item_table =
 			.price = 7,
 			.text = "",
 			.icon = &icon_item_prop_sprite,
-			.data.prop_data =
-			{
-				.type = CAT_PROP_TYPE_TOP,
-				.shape = {1, 1},
-				.animate = true,
-				.child_dy = 0,
-			}
+			.prop_type = CAT_PROP_TYPE_TOP,
+			.prop_shape = {1, 1},
+			.prop_animated = true,
+			.prop_child_dy = 0,
 		},
 		{
 			.type = CAT_ITEM_TYPE_PROP,
@@ -850,13 +697,10 @@ CAT_item_table item_table =
 			.price = 20,
 			.text = "",
 			.icon = &icon_item_prop_sprite,
-			.data.prop_data =
-			{
-				.type = CAT_PROP_TYPE_TOP,
-				.shape = {1, 1},
-				.animate = true,
-				.child_dy = 0,
-			}
+			.prop_type = CAT_PROP_TYPE_TOP,
+			.prop_shape = {1, 1},
+			.prop_animated = true,
+			.prop_child_dy = 0,
 		},
 		{
 			.type = CAT_ITEM_TYPE_PROP,
@@ -865,13 +709,10 @@ CAT_item_table item_table =
 			.price = 5,
 			.text = "",
 			.icon = &icon_item_prop_sprite,
-			.data.prop_data =
-			{
-				.type = CAT_PROP_TYPE_TOP,
-				.shape = {1, 1},
-				.animate = true,
-				.child_dy = 0,
-			}
+			.prop_type = CAT_PROP_TYPE_TOP,
+			.prop_shape = {1, 1},
+			.prop_animated = true,
+			.prop_child_dy = 0,
 		},
 		{
 			.type = CAT_ITEM_TYPE_PROP,
@@ -880,13 +721,10 @@ CAT_item_table item_table =
 			.price = 7,
 			.text = "",
 			.icon = &icon_item_prop_sprite,
-			.data.prop_data =
-			{
-				.type = CAT_PROP_TYPE_TOP,
-				.shape = {1, 1},
-				.animate = true,
-				.child_dy = 0,
-			}
+			.prop_type = CAT_PROP_TYPE_TOP,
+			.prop_shape = {1, 1},
+			.prop_animated = true,
+			.prop_child_dy = 0,
 		},
 		{
 			.type = CAT_ITEM_TYPE_PROP,
@@ -895,13 +733,10 @@ CAT_item_table item_table =
 			.price = 7,
 			.text = "",
 			.icon = &icon_item_prop_sprite,
-			.data.prop_data =
-			{
-				.type = CAT_PROP_TYPE_TOP,
-				.shape = {1, 1},
-				.animate = true,
-				.child_dy = 0,
-			}
+			.prop_type = CAT_PROP_TYPE_TOP,
+			.prop_shape = {1, 1},
+			.prop_animated = true,
+			.prop_child_dy = 0,
 		},
 		{
 			.type = CAT_ITEM_TYPE_PROP,
@@ -910,13 +745,10 @@ CAT_item_table item_table =
 			.price = 5,
 			.text = "",
 			.icon = &icon_item_prop_sprite,
-			.data.prop_data =
-			{
-				.type = CAT_PROP_TYPE_TOP,
-				.shape = {1, 1},
-				.animate = false,
-				.child_dy = 0,
-			}
+			.prop_type = CAT_PROP_TYPE_TOP,
+			.prop_shape = {1, 1},
+			.prop_animated = false,
+			.prop_child_dy = 0,
 		},
 		{
 			.type = CAT_ITEM_TYPE_PROP,
@@ -925,13 +757,10 @@ CAT_item_table item_table =
 			.price = 10,
 			.text = "",
 			.icon = &icon_item_prop_sprite,
-			.data.prop_data =
-			{
-				.type = CAT_PROP_TYPE_DEFAULT,
-				.shape = {2, 1},
-				.animate = true,
-				.child_dy = 0,
-			}
+			.prop_type = CAT_PROP_TYPE_DEFAULT,
+			.prop_shape = {2, 1},
+			.prop_animated = true,
+			.prop_child_dy = 0,
 		},
 		{
 			.type = CAT_ITEM_TYPE_PROP,
@@ -940,13 +769,10 @@ CAT_item_table item_table =
 			.price = 30,
 			.text = "",
 			.icon = &icon_item_prop_sprite,
-			.data.prop_data =
-			{
-				.type = CAT_PROP_TYPE_DEFAULT,
-				.shape = {2, 1},
-				.animate = true,
-				.child_dy = 0,
-			}
+			.prop_type = CAT_PROP_TYPE_DEFAULT,
+			.prop_shape = {2, 1},
+			.prop_animated = true,
+			.prop_child_dy = 0,
 		},
 		{
 			.type = CAT_ITEM_TYPE_PROP,
@@ -955,13 +781,10 @@ CAT_item_table item_table =
 			.price = 30,
 			.text = "",
 			.icon = &icon_item_prop_sprite,
-			.data.prop_data =
-			{
-				.type = CAT_PROP_TYPE_DEFAULT,
-				.shape = {2, 1},
-				.animate = true,
-				.child_dy = 0,
-			}
+			.prop_type = CAT_PROP_TYPE_DEFAULT,
+			.prop_shape = {2, 1},
+			.prop_animated = true,
+			.prop_child_dy = 0,
 		},
 		{
 			.type = CAT_ITEM_TYPE_PROP,
@@ -970,13 +793,10 @@ CAT_item_table item_table =
 			.price = 20,
 			.text = "",
 			.icon = &icon_item_prop_sprite,
-			.data.prop_data =
-			{
-				.type = CAT_PROP_TYPE_DEFAULT,
-				.shape = {2, 1},
-				.animate = true,
-				.child_dy = 0,
-			}
+			.prop_type = CAT_PROP_TYPE_DEFAULT,
+			.prop_shape = {2, 1},
+			.prop_animated = true,
+			.prop_child_dy = 0,
 		},
 		{
 			.type = CAT_ITEM_TYPE_PROP,
@@ -985,13 +805,10 @@ CAT_item_table item_table =
 			.price = 20,
 			.text = "",
 			.icon = &icon_item_prop_sprite,
-			.data.prop_data =
-			{
-				.type = CAT_PROP_TYPE_DEFAULT,
-				.shape = {2, 1},
-				.animate = true,
-				.child_dy = 0,
-			}
+			.prop_type = CAT_PROP_TYPE_DEFAULT,
+			.prop_shape = {2, 1},
+			.prop_animated = true,
+			.prop_child_dy = 0,
 		},
 		{
 			.type = CAT_ITEM_TYPE_PROP,
@@ -1000,13 +817,10 @@ CAT_item_table item_table =
 			.price = 25,
 			.text = "",
 			.icon = &icon_item_prop_sprite,
-			.data.prop_data =
-			{
-				.type = CAT_PROP_TYPE_DEFAULT,
-				.shape = {2, 1},
-				.animate = true,
-				.child_dy = 0,
-			}
+			.prop_type = CAT_PROP_TYPE_DEFAULT,
+			.prop_shape = {2, 1},
+			.prop_animated = true,
+			.prop_child_dy = 0,
 		},
 		{
 			.type = CAT_ITEM_TYPE_PROP,
@@ -1015,13 +829,10 @@ CAT_item_table item_table =
 			.price = 25,
 			.text = "",
 			.icon = &icon_item_prop_sprite,
-			.data.prop_data =
-			{
-				.type = CAT_PROP_TYPE_DEFAULT,
-				.shape = {2, 1},
-				.animate = true,
-				.child_dy = 0,
-			}
+			.prop_type = CAT_PROP_TYPE_DEFAULT,
+			.prop_shape = {2, 1},
+			.prop_animated = true,
+			.prop_child_dy = 0,
 		},
 		{
 			.type = CAT_ITEM_TYPE_PROP,
@@ -1030,13 +841,10 @@ CAT_item_table item_table =
 			.price = 40,
 			.text = "",
 			.icon = &icon_item_prop_sprite,
-			.data.prop_data =
-			{
-				.type = CAT_PROP_TYPE_DEFAULT,
-				.shape = {2, 1},
-				.animate = false,
-				.child_dy = 0,
-			}
+			.prop_type = CAT_PROP_TYPE_DEFAULT,
+			.prop_shape = {2, 1},
+			.prop_animated = false,
+			.prop_child_dy = 0,
 		},
 		{
 			.type = CAT_ITEM_TYPE_PROP,
@@ -1045,13 +853,10 @@ CAT_item_table item_table =
 			.price = 40,
 			.text = "",
 			.icon = &icon_item_prop_sprite,
-			.data.prop_data =
-			{
-				.type = CAT_PROP_TYPE_DEFAULT,
-				.shape = {2, 1},
-				.animate = false,
-				.child_dy = 0,
-			}
+			.prop_type = CAT_PROP_TYPE_DEFAULT,
+			.prop_shape = {2, 1},
+			.prop_animated = false,
+			.prop_child_dy = 0,
 		},
 		{
 			.type = CAT_ITEM_TYPE_PROP,
@@ -1060,13 +865,10 @@ CAT_item_table item_table =
 			.price = 40,
 			.text = "",
 			.icon = &icon_item_prop_sprite,
-			.data.prop_data =
-			{
-				.type = CAT_PROP_TYPE_DEFAULT,
-				.shape = {2, 1},
-				.animate = false,
-				.child_dy = 0,
-			}
+			.prop_type = CAT_PROP_TYPE_DEFAULT,
+			.prop_shape = {2, 1},
+			.prop_animated = false,
+			.prop_child_dy = 0,
 		},
 		{
 			.type = CAT_ITEM_TYPE_PROP,
@@ -1075,13 +877,10 @@ CAT_item_table item_table =
 			.price = 50,
 			.text = "",
 			.icon = &icon_item_prop_sprite,
-			.data.prop_data =
-			{
-				.type = CAT_PROP_TYPE_DEFAULT,
-				.shape = {2, 1},
-				.animate = true,
-				.child_dy = 0,
-			}
+			.prop_type = CAT_PROP_TYPE_DEFAULT,
+			.prop_shape = {2, 1},
+			.prop_animated = true,
+			.prop_child_dy = 0,
 		},
 		{
 			.type = CAT_ITEM_TYPE_PROP,
@@ -1090,13 +889,10 @@ CAT_item_table item_table =
 			.price = 50,
 			.text = "",
 			.icon = &icon_item_prop_sprite,
-			.data.prop_data =
-			{
-				.type = CAT_PROP_TYPE_DEFAULT,
-				.shape = {2, 1},
-				.animate = true,
-				.child_dy = 0,
-			}
+			.prop_type = CAT_PROP_TYPE_DEFAULT,
+			.prop_shape = {2, 1},
+			.prop_animated = true,
+			.prop_child_dy = 0,
 		},
 		{
 			.type = CAT_ITEM_TYPE_PROP,
@@ -1105,13 +901,10 @@ CAT_item_table item_table =
 			.price = 50,
 			.text = "",
 			.icon = &icon_item_prop_sprite,
-			.data.prop_data =
-			{
-				.type = CAT_PROP_TYPE_DEFAULT,
-				.shape = {2, 1},
-				.animate = true,
-				.child_dy = 0,
-			}
+			.prop_type = CAT_PROP_TYPE_DEFAULT,
+			.prop_shape = {2, 1},
+			.prop_animated = true,
+			.prop_child_dy = 0,
 		},
 		{
 			.type = CAT_ITEM_TYPE_PROP,
@@ -1120,13 +913,10 @@ CAT_item_table item_table =
 			.price = 40,
 			.text = "",
 			.icon = &icon_item_prop_sprite,
-			.data.prop_data =
-			{
-				.type = CAT_PROP_TYPE_DEFAULT,
-				.shape = {3, 1},
-				.animate = true,
-				.child_dy = 0,
-			}
+			.prop_type = CAT_PROP_TYPE_DEFAULT,
+			.prop_shape = {3, 1},
+			.prop_animated = true,
+			.prop_child_dy = 0,
 		},
 		{
 			.type = CAT_ITEM_TYPE_PROP,
@@ -1135,13 +925,10 @@ CAT_item_table item_table =
 			.price = 40,
 			.text = "",
 			.icon = &icon_item_prop_sprite,
-			.data.prop_data =
-			{
-				.type = CAT_PROP_TYPE_DEFAULT,
-				.shape = {3, 1},
-				.animate = true,
-				.child_dy = 0,
-			}
+			.prop_type = CAT_PROP_TYPE_DEFAULT,
+			.prop_shape = {3, 1},
+			.prop_animated = true,
+			.prop_child_dy = 0,
 		},
 		{
 			.type = CAT_ITEM_TYPE_PROP,
@@ -1150,13 +937,10 @@ CAT_item_table item_table =
 			.price = 60,
 			.text = "",
 			.icon = &icon_item_prop_sprite,
-			.data.prop_data =
-			{
-				.type = CAT_PROP_TYPE_DEFAULT,
-				.shape = {3, 1},
-				.animate = true,
-				.child_dy = 0,
-			}
+			.prop_type = CAT_PROP_TYPE_DEFAULT,
+			.prop_shape = {3, 1},
+			.prop_animated = true,
+			.prop_child_dy = 0,
 		},
 		{
 			.type = CAT_ITEM_TYPE_PROP,
@@ -1165,13 +949,10 @@ CAT_item_table item_table =
 			.price = 30,
 			.text = "",
 			.icon = &icon_item_prop_sprite,
-			.data.prop_data =
-			{
-				.type = CAT_PROP_TYPE_TOP,
-				.shape = {1, 1},
-				.animate = true,
-				.child_dy = 0,
-			}
+			.prop_type = CAT_PROP_TYPE_TOP,
+			.prop_shape = {1, 1},
+			.prop_animated = true,
+			.prop_child_dy = 0,
 		},
 		{
 			.type = CAT_ITEM_TYPE_PROP,
@@ -1180,13 +961,10 @@ CAT_item_table item_table =
 			.price = 30,
 			.text = "",
 			.icon = &icon_item_prop_sprite,
-			.data.prop_data =
-			{
-				.type = CAT_PROP_TYPE_DEFAULT,
-				.shape = {2, 1},
-				.animate = true,
-				.child_dy = 0,
-			}
+			.prop_type = CAT_PROP_TYPE_DEFAULT,
+			.prop_shape = {2, 1},
+			.prop_animated = true,
+			.prop_child_dy = 0,
 		},
 		{
 			.type = CAT_ITEM_TYPE_PROP,
@@ -1195,13 +973,10 @@ CAT_item_table item_table =
 			.price = 5,
 			.text = "",
 			.icon = &icon_item_prop_sprite,
-			.data.prop_data =
-			{
-				.type = CAT_PROP_TYPE_TOP,
-				.shape = {1, 1},
-				.animate = true,
-				.child_dy = 0,
-			}
+			.prop_type = CAT_PROP_TYPE_TOP,
+			.prop_shape = {1, 1},
+			.prop_animated = true,
+			.prop_child_dy = 0,
 		},
 		{
 			.type = CAT_ITEM_TYPE_PROP,
@@ -1210,13 +985,10 @@ CAT_item_table item_table =
 			.price = 7,
 			.text = "",
 			.icon = &icon_item_prop_sprite,
-			.data.prop_data =
-			{
-				.type = CAT_PROP_TYPE_TOP,
-				.shape = {1, 1},
-				.animate = true,
-				.child_dy = 0,
-			}
+			.prop_type = CAT_PROP_TYPE_TOP,
+			.prop_shape = {1, 1},
+			.prop_animated = true,
+			.prop_child_dy = 0,
 		},
 		{
 			.type = CAT_ITEM_TYPE_PROP,
@@ -1225,13 +997,10 @@ CAT_item_table item_table =
 			.price = 7,
 			.text = "",
 			.icon = &icon_item_prop_sprite,
-			.data.prop_data =
-			{
-				.type = CAT_PROP_TYPE_TOP,
-				.shape = {1, 1},
-				.animate = true,
-				.child_dy = 0,
-			}
+			.prop_type = CAT_PROP_TYPE_TOP,
+			.prop_shape = {1, 1},
+			.prop_animated = true,
+			.prop_child_dy = 0,
 		},
 		{
 			.type = CAT_ITEM_TYPE_PROP,
@@ -1240,13 +1009,10 @@ CAT_item_table item_table =
 			.price = 10,
 			.text = "",
 			.icon = &icon_item_prop_sprite,
-			.data.prop_data =
-			{
-				.type = CAT_PROP_TYPE_DEFAULT,
-				.shape = {2, 2},
-				.animate = false,
-				.child_dy = 0,
-			}
+			.prop_type = CAT_PROP_TYPE_DEFAULT,
+			.prop_shape = {2, 2},
+			.prop_animated = false,
+			.prop_child_dy = 0,
 		},
 		{
 			.type = CAT_ITEM_TYPE_PROP,
@@ -1255,13 +1021,10 @@ CAT_item_table item_table =
 			.price = 30,
 			.text = "",
 			.icon = &icon_item_prop_sprite,
-			.data.prop_data =
-			{
-				.type = CAT_PROP_TYPE_DEFAULT,
-				.shape = {2, 1},
-				.animate = true,
-				.child_dy = 0,
-			}
+			.prop_type = CAT_PROP_TYPE_DEFAULT,
+			.prop_shape = {2, 1},
+			.prop_animated = true,
+			.prop_child_dy = 0,
 		},
 		{
 			.type = CAT_ITEM_TYPE_PROP,
@@ -1270,13 +1033,10 @@ CAT_item_table item_table =
 			.price = 50,
 			.text = "",
 			.icon = &icon_item_prop_sprite,
-			.data.prop_data =
-			{
-				.type = CAT_PROP_TYPE_TOP,
-				.shape = {2, 1},
-				.animate = true,
-				.child_dy = -6,
-			}
+			.prop_type = CAT_PROP_TYPE_TOP,
+			.prop_shape = {2, 1},
+			.prop_animated = true,
+			.prop_child_dy = -6,
 		},
 		{
 			.type = CAT_ITEM_TYPE_PROP,
@@ -1285,13 +1045,10 @@ CAT_item_table item_table =
 			.price = 50,
 			.text = "",
 			.icon = &icon_item_prop_sprite,
-			.data.prop_data =
-			{
-				.type = CAT_PROP_TYPE_DEFAULT,
-				.shape = {2, 1},
-				.animate = true,
-				.child_dy = 0,
-			}
+			.prop_type = CAT_PROP_TYPE_DEFAULT,
+			.prop_shape = {2, 1},
+			.prop_animated = true,
+			.prop_child_dy = 0,
 		},
 		{
 			.type = CAT_ITEM_TYPE_TOOL,
@@ -1300,14 +1057,11 @@ CAT_item_table item_table =
 			.price = 21,
 			.text = "",
 			.icon = &icon_item_key_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_TOY,
-				.cursor = &laser_marker_sprite,
-				.dv = 0,
-				.df = 0,
-				.ds = 3,
-			}
+			.tool_type = CAT_TOOL_TYPE_TOY,
+			.tool_cursor = &laser_marker_sprite,
+			.tool_dv = 0,
+			.tool_df = 0,
+			.tool_ds = 3,
 		},
 		{
 			.type = CAT_ITEM_TYPE_KEY,
@@ -1340,17 +1094,14 @@ CAT_item_table item_table =
 			.price = 3,
 			.text = "",
 			.icon = &icon_item_food_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_FOOD,
-				.cursor = &bagel_sprite,
-				.dv = 1,
-				.df = 0,
-				.ds = 0,
+			.tool_type = CAT_TOOL_TYPE_FOOD,
+			.tool_cursor = &bagel_sprite,
+			.tool_dv = 1,
+			.tool_df = 0,
+			.tool_ds = 0,
 
-				.food_group = CAT_FOOD_GROUP_STARCH,
-				.food_role = CAT_FOOD_ROLE_STAPLE,
-			}
+			.food_group = CAT_FOOD_GROUP_STARCH,
+			.food_role = CAT_FOOD_ROLE_STAPLE,
 		},
 		{
 			.type = CAT_ITEM_TYPE_TOOL,
@@ -1359,17 +1110,14 @@ CAT_item_table item_table =
 			.price = 3,
 			.text = "",
 			.icon = &icon_item_food_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_FOOD,
-				.cursor = &banana_sprite,
-				.dv = 1,
-				.df = 0,
-				.ds = 0,
+			.tool_type = CAT_TOOL_TYPE_FOOD,
+			.tool_cursor = &banana_sprite,
+			.tool_dv = 1,
+			.tool_df = 0,
+			.tool_ds = 0,
 
-				.food_group = CAT_FOOD_GROUP_VEG,
-				.food_role = CAT_FOOD_ROLE_SIDE,
-			}
+			.food_group = CAT_FOOD_GROUP_VEG,
+			.food_role = CAT_FOOD_ROLE_SIDE,
 		},
 		{
 			.type = CAT_ITEM_TYPE_TOOL,
@@ -1378,17 +1126,14 @@ CAT_item_table item_table =
 			.price = 3,
 			.text = "",
 			.icon = &icon_item_food_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_FOOD,
-				.cursor = &barley_tea_sprite,
-				.dv = 1,
-				.df = 0,
-				.ds = 0,
+			.tool_type = CAT_TOOL_TYPE_FOOD,
+			.tool_cursor = &barley_tea_sprite,
+			.tool_dv = 1,
+			.tool_df = 0,
+			.tool_ds = 0,
 
-				.food_group = CAT_FOOD_GROUP_MISC,
-				.food_role = CAT_FOOD_ROLE_DRINK,
-			}
+			.food_group = CAT_FOOD_GROUP_MISC,
+			.food_role = CAT_FOOD_ROLE_DRINK,
 		},
 		{
 			.type = CAT_ITEM_TYPE_TOOL,
@@ -1397,17 +1142,14 @@ CAT_item_table item_table =
 			.price = 3,
 			.text = "",
 			.icon = &icon_item_food_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_FOOD,
-				.cursor = &carrot_sprite,
-				.dv = 1,
-				.df = 0,
-				.ds = 0,
+			.tool_type = CAT_TOOL_TYPE_FOOD,
+			.tool_cursor = &carrot_sprite,
+			.tool_dv = 1,
+			.tool_df = 0,
+			.tool_ds = 0,
 
-				.food_group = CAT_FOOD_GROUP_VEG,
-				.food_role = CAT_FOOD_ROLE_SIDE,
-			}
+			.food_group = CAT_FOOD_GROUP_VEG,
+			.food_role = CAT_FOOD_ROLE_SIDE,
 		},
 		{
 			.type = CAT_ITEM_TYPE_TOOL,
@@ -1416,17 +1158,14 @@ CAT_item_table item_table =
 			.price = 3,
 			.text = "",
 			.icon = &icon_item_food_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_FOOD,
-				.cursor = &congee_sprite,
-				.dv = 1,
-				.df = 0,
-				.ds = 0,
+			.tool_type = CAT_TOOL_TYPE_FOOD,
+			.tool_cursor = &congee_sprite,
+			.tool_dv = 1,
+			.tool_df = 0,
+			.tool_ds = 0,
 
-				.food_group = CAT_FOOD_GROUP_STARCH,
-				.food_role = CAT_FOOD_ROLE_STAPLE,
-			}
+			.food_group = CAT_FOOD_GROUP_STARCH,
+			.food_role = CAT_FOOD_ROLE_STAPLE,
 		},
 		{
 			.type = CAT_ITEM_TYPE_TOOL,
@@ -1435,17 +1174,14 @@ CAT_item_table item_table =
 			.price = 3,
 			.text = "",
 			.icon = &icon_item_food_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_FOOD,
-				.cursor = &donut_sprite,
-				.dv = 1,
-				.df = 0,
-				.ds = 0,
+			.tool_type = CAT_TOOL_TYPE_FOOD,
+			.tool_cursor = &donut_sprite,
+			.tool_dv = 1,
+			.tool_df = 0,
+			.tool_ds = 0,
 
-				.food_group = CAT_FOOD_GROUP_STARCH,
-				.food_role = CAT_FOOD_ROLE_TREAT,
-			}
+			.food_group = CAT_FOOD_GROUP_STARCH,
+			.food_role = CAT_FOOD_ROLE_TREAT,
 		},
 		{
 			.type = CAT_ITEM_TYPE_TOOL,
@@ -1454,17 +1190,14 @@ CAT_item_table item_table =
 			.price = 3,
 			.text = "",
 			.icon = &icon_item_food_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_FOOD,
-				.cursor = &egg_sprite,
-				.dv = 1,
-				.df = 0,
-				.ds = 0,
+			.tool_type = CAT_TOOL_TYPE_FOOD,
+			.tool_cursor = &egg_sprite,
+			.tool_dv = 1,
+			.tool_df = 0,
+			.tool_ds = 0,
 
-				.food_group = CAT_FOOD_GROUP_DAIRY,
-				.food_role = CAT_FOOD_ROLE_SIDE,
-			}
+			.food_group = CAT_FOOD_GROUP_DAIRY,
+			.food_role = CAT_FOOD_ROLE_SIDE,
 		},
 		{
 			.type = CAT_ITEM_TYPE_TOOL,
@@ -1473,17 +1206,14 @@ CAT_item_table item_table =
 			.price = 3,
 			.text = "",
 			.icon = &icon_item_food_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_FOOD,
-				.cursor = &green_tea_sprite,
-				.dv = 1,
-				.df = 0,
-				.ds = 0,
+			.tool_type = CAT_TOOL_TYPE_FOOD,
+			.tool_cursor = &green_tea_sprite,
+			.tool_dv = 1,
+			.tool_df = 0,
+			.tool_ds = 0,
 
-				.food_group = CAT_FOOD_GROUP_MISC,
-				.food_role = CAT_FOOD_ROLE_DRINK,
-			}
+			.food_group = CAT_FOOD_GROUP_MISC,
+			.food_role = CAT_FOOD_ROLE_DRINK,
 		},
 		{
 			.type = CAT_ITEM_TYPE_TOOL,
@@ -1492,17 +1222,14 @@ CAT_item_table item_table =
 			.price = 3,
 			.text = "",
 			.icon = &icon_item_food_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_FOOD,
-				.cursor = &orange_sprite,
-				.dv = 1,
-				.df = 0,
-				.ds = 0,
+			.tool_type = CAT_TOOL_TYPE_FOOD,
+			.tool_cursor = &orange_sprite,
+			.tool_dv = 1,
+			.tool_df = 0,
+			.tool_ds = 0,
 
-				.food_group = CAT_FOOD_GROUP_VEG,
-				.food_role = CAT_FOOD_ROLE_SIDE,
-			}
+			.food_group = CAT_FOOD_GROUP_VEG,
+			.food_role = CAT_FOOD_ROLE_SIDE,
 		},
 		{
 			.type = CAT_ITEM_TYPE_TOOL,
@@ -1511,17 +1238,14 @@ CAT_item_table item_table =
 			.price = 3,
 			.text = "",
 			.icon = &icon_item_food_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_FOOD,
-				.cursor = &persimmons_sprite,
-				.dv = 1,
-				.df = 0,
-				.ds = 0,
+			.tool_type = CAT_TOOL_TYPE_FOOD,
+			.tool_cursor = &persimmons_sprite,
+			.tool_dv = 1,
+			.tool_df = 0,
+			.tool_ds = 0,
 
-				.food_group = CAT_FOOD_GROUP_VEG,
-				.food_role = CAT_FOOD_ROLE_SIDE,
-			}
+			.food_group = CAT_FOOD_GROUP_VEG,
+			.food_role = CAT_FOOD_ROLE_SIDE,
 		},
 		{
 			.type = CAT_ITEM_TYPE_TOOL,
@@ -1530,17 +1254,14 @@ CAT_item_table item_table =
 			.price = 3,
 			.text = "",
 			.icon = &icon_item_food_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_FOOD,
-				.cursor = &soda_sprite,
-				.dv = 1,
-				.df = 0,
-				.ds = 0,
+			.tool_type = CAT_TOOL_TYPE_FOOD,
+			.tool_cursor = &soda_sprite,
+			.tool_dv = 1,
+			.tool_df = 0,
+			.tool_ds = 0,
 
-				.food_group = CAT_FOOD_GROUP_MISC,
-				.food_role = CAT_FOOD_ROLE_TREAT,
-			}
+			.food_group = CAT_FOOD_GROUP_MISC,
+			.food_role = CAT_FOOD_ROLE_TREAT,
 		},
 		{
 			.type = CAT_ITEM_TYPE_TOOL,
@@ -1549,17 +1270,14 @@ CAT_item_table item_table =
 			.price = 3,
 			.text = "",
 			.icon = &icon_item_food_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_FOOD,
-				.cursor = &strange_meal_sprite,
-				.dv = 1,
-				.df = 0,
-				.ds = 0,
+			.tool_type = CAT_TOOL_TYPE_FOOD,
+			.tool_cursor = &strange_meal_sprite,
+			.tool_dv = 1,
+			.tool_df = 0,
+			.tool_ds = 0,
 
-				.food_group = CAT_FOOD_GROUP_MISC,
-				.food_role = CAT_FOOD_ROLE_MAIN,
-			}
+			.food_group = CAT_FOOD_GROUP_MISC,
+			.food_role = CAT_FOOD_ROLE_MAIN,
 		},
 		{
 			.type = CAT_ITEM_TYPE_TOOL,
@@ -1568,17 +1286,14 @@ CAT_item_table item_table =
 			.price = 7,
 			.text = "",
 			.icon = &icon_item_food_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_FOOD,
-				.cursor = &bento_sprite,
-				.dv = 2,
-				.df = 0,
-				.ds = 0,
+			.tool_type = CAT_TOOL_TYPE_FOOD,
+			.tool_cursor = &bento_sprite,
+			.tool_dv = 2,
+			.tool_df = 0,
+			.tool_ds = 0,
 
-				.food_group = CAT_FOOD_GROUP_MEAT,
-				.food_role = CAT_FOOD_ROLE_MAIN,
-			}
+			.food_group = CAT_FOOD_GROUP_MEAT,
+			.food_role = CAT_FOOD_ROLE_MAIN,
 		},
 		{
 			.type = CAT_ITEM_TYPE_TOOL,
@@ -1587,17 +1302,14 @@ CAT_item_table item_table =
 			.price = 7,
 			.text = "",
 			.icon = &icon_item_food_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_FOOD,
-				.cursor = &burger_sprite,
-				.dv = 2,
-				.df = 0,
-				.ds = 0,
+			.tool_type = CAT_TOOL_TYPE_FOOD,
+			.tool_cursor = &burger_sprite,
+			.tool_dv = 2,
+			.tool_df = 0,
+			.tool_ds = 0,
 
-				.food_group = CAT_FOOD_GROUP_MEAT,
-				.food_role = CAT_FOOD_ROLE_MAIN,
-			}
+			.food_group = CAT_FOOD_GROUP_MEAT,
+			.food_role = CAT_FOOD_ROLE_MAIN,
 		},
 		{
 			.type = CAT_ITEM_TYPE_TOOL,
@@ -1606,17 +1318,14 @@ CAT_item_table item_table =
 			.price = 7,
 			.text = "",
 			.icon = &icon_item_food_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_FOOD,
-				.cursor = &dumplings_sprite,
-				.dv = 2,
-				.df = 0,
-				.ds = 0,
+			.tool_type = CAT_TOOL_TYPE_FOOD,
+			.tool_cursor = &dumplings_sprite,
+			.tool_dv = 2,
+			.tool_df = 0,
+			.tool_ds = 0,
 
-				.food_group = CAT_FOOD_GROUP_MEAT,
-				.food_role = CAT_FOOD_ROLE_MAIN,
-			}
+			.food_group = CAT_FOOD_GROUP_MEAT,
+			.food_role = CAT_FOOD_ROLE_MAIN,
 		},
 		{
 			.type = CAT_ITEM_TYPE_TOOL,
@@ -1625,17 +1334,14 @@ CAT_item_table item_table =
 			.price = 7,
 			.text = "",
 			.icon = &icon_item_food_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_FOOD,
-				.cursor = &empanadas_sprite,
-				.dv = 2,
-				.df = 0,
-				.ds = 0,
+			.tool_type = CAT_TOOL_TYPE_FOOD,
+			.tool_cursor = &empanadas_sprite,
+			.tool_dv = 2,
+			.tool_df = 0,
+			.tool_ds = 0,
 
-				.food_group = CAT_FOOD_GROUP_MEAT,
-				.food_role = CAT_FOOD_ROLE_MAIN,
-			}
+			.food_group = CAT_FOOD_GROUP_MEAT,
+			.food_role = CAT_FOOD_ROLE_MAIN,
 		},
 		{
 			.type = CAT_ITEM_TYPE_TOOL,
@@ -1644,17 +1350,14 @@ CAT_item_table item_table =
 			.price = 7,
 			.text = "",
 			.icon = &icon_item_food_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_FOOD,
-				.cursor = &hotdog_sprite,
-				.dv = 2,
-				.df = 0,
-				.ds = 0,
+			.tool_type = CAT_TOOL_TYPE_FOOD,
+			.tool_cursor = &hotdog_sprite,
+			.tool_dv = 2,
+			.tool_df = 0,
+			.tool_ds = 0,
 
-				.food_group = CAT_FOOD_GROUP_MEAT,
-				.food_role = CAT_FOOD_ROLE_MAIN,
-			}
+			.food_group = CAT_FOOD_GROUP_MEAT,
+			.food_role = CAT_FOOD_ROLE_MAIN,
 		},
 		{
 			.type = CAT_ITEM_TYPE_TOOL,
@@ -1663,17 +1366,14 @@ CAT_item_table item_table =
 			.price = 7,
 			.text = "",
 			.icon = &icon_item_food_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_FOOD,
-				.cursor = &ramen_sprite,
-				.dv = 2,
-				.df = 0,
-				.ds = 0,
+			.tool_type = CAT_TOOL_TYPE_FOOD,
+			.tool_cursor = &ramen_sprite,
+			.tool_dv = 2,
+			.tool_df = 0,
+			.tool_ds = 0,
 
-				.food_group = CAT_FOOD_GROUP_MEAT,
-				.food_role = CAT_FOOD_ROLE_MAIN,
-			}
+			.food_group = CAT_FOOD_GROUP_MEAT,
+			.food_role = CAT_FOOD_ROLE_MAIN,
 		},
 		{
 			.type = CAT_ITEM_TYPE_TOOL,
@@ -1682,17 +1382,14 @@ CAT_item_table item_table =
 			.price = 7,
 			.text = "",
 			.icon = &icon_item_food_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_FOOD,
-				.cursor = &meat_sprite,
-				.dv = 2,
-				.df = 0,
-				.ds = 0,
+			.tool_type = CAT_TOOL_TYPE_FOOD,
+			.tool_cursor = &meat_sprite,
+			.tool_dv = 2,
+			.tool_df = 0,
+			.tool_ds = 0,
 
-				.food_group = CAT_FOOD_GROUP_MEAT,
-				.food_role = CAT_FOOD_ROLE_TREAT,
-			}
+			.food_group = CAT_FOOD_GROUP_MEAT,
+			.food_role = CAT_FOOD_ROLE_TREAT,
 		},
 		{
 			.type = CAT_ITEM_TYPE_TOOL,
@@ -1701,17 +1398,14 @@ CAT_item_table item_table =
 			.price = 7,
 			.text = "",
 			.icon = &icon_item_food_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_FOOD,
-				.cursor = &salmon_sprite,
-				.dv = 2,
-				.df = 0,
-				.ds = 0,
+			.tool_type = CAT_TOOL_TYPE_FOOD,
+			.tool_cursor = &salmon_sprite,
+			.tool_dv = 2,
+			.tool_df = 0,
+			.tool_ds = 0,
 
-				.food_group = CAT_FOOD_GROUP_MEAT,
-				.food_role = CAT_FOOD_ROLE_MAIN,
-			}
+			.food_group = CAT_FOOD_GROUP_MEAT,
+			.food_role = CAT_FOOD_ROLE_MAIN,
 		},
 		{
 			.type = CAT_ITEM_TYPE_TOOL,
@@ -1720,17 +1414,14 @@ CAT_item_table item_table =
 			.price = 7,
 			.text = "",
 			.icon = &icon_item_food_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_FOOD,
-				.cursor = &tuna_sprite,
-				.dv = 2,
-				.df = 0,
-				.ds = 0,
+			.tool_type = CAT_TOOL_TYPE_FOOD,
+			.tool_cursor = &tuna_sprite,
+			.tool_dv = 2,
+			.tool_df = 0,
+			.tool_ds = 0,
 
-				.food_group = CAT_FOOD_GROUP_MEAT,
-				.food_role = CAT_FOOD_ROLE_MAIN,
-			}
+			.food_group = CAT_FOOD_GROUP_MEAT,
+			.food_role = CAT_FOOD_ROLE_MAIN,
 		},
 		{
 			.type = CAT_ITEM_TYPE_TOOL,
@@ -1739,17 +1430,14 @@ CAT_item_table item_table =
 			.price = 12,
 			.text = "",
 			.icon = &icon_item_food_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_FOOD,
-				.cursor = &beef_noodle_sprite,
-				.dv = 3,
-				.df = 0,
-				.ds = 0,
+			.tool_type = CAT_TOOL_TYPE_FOOD,
+			.tool_cursor = &beef_noodle_sprite,
+			.tool_dv = 3,
+			.tool_df = 0,
+			.tool_ds = 0,
 
-				.food_group = CAT_FOOD_GROUP_MEAT,
-				.food_role = CAT_FOOD_ROLE_MAIN,
-			}
+			.food_group = CAT_FOOD_GROUP_MEAT,
+			.food_role = CAT_FOOD_ROLE_MAIN,
 		},
 		{
 			.type = CAT_ITEM_TYPE_TOOL,
@@ -1758,18 +1446,23 @@ CAT_item_table item_table =
 			.price = 12,
 			.text = "",
 			.icon = &icon_item_food_sprite,
-			.data.tool_data =
-			{
-				.type = CAT_TOOL_TYPE_FOOD,
-				.cursor = &nasi_lemak_sprite,
-				.dv = 3,
-				.df = 0,
-				.ds = 0,
+			.tool_type = CAT_TOOL_TYPE_FOOD,
+			.tool_cursor = &nasi_lemak_sprite,
+			.tool_dv = 3,
+			.tool_df = 0,
+			.tool_ds = 0,
 
-				.food_group = CAT_FOOD_GROUP_VEG,
-				.food_role = CAT_FOOD_ROLE_MAIN,
-			}
+			.food_group = CAT_FOOD_GROUP_VEG,
+			.food_role = CAT_FOOD_ROLE_MAIN,
+		},
+		{
+			.type = CAT_ITEM_TYPE_KEY,
+			.name = "Coin",
+			.sprite = &coin_static_sprite,
+			.price = 0,
+			.text = "A gleaming golden coin. The possibilities for its use are endless.",
+			.icon = &icon_item_key_sprite,
 		},
 	},
-	.length = 109
+	.length = 110
 };

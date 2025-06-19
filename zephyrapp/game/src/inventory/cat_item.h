@@ -10,7 +10,7 @@
 //////////////////////////////////////////////////////////////////////////
 // CONSTANTS
 
-#define CAT_ITEM_TABLE_CAPACITY 128
+#define CAT_ITEM_TABLE_CAPACITY 512
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -71,12 +71,12 @@ typedef struct CAT_item
 	{
 		struct
 		{
-			CAT_tool_type type;
+			CAT_tool_type tool_type;
 
-			const CAT_sprite* cursor;
-			int8_t dv;
-			int8_t df;
-			int8_t ds;
+			const CAT_sprite* tool_cursor;
+			int8_t tool_dv;
+			int8_t tool_df;
+			int8_t tool_ds;
 
 			union
 			{
@@ -86,16 +86,16 @@ typedef struct CAT_item
 					CAT_food_role food_role;
 				};
 			};
-		} tool_data;
+		};
 
 		struct
 		{
-			CAT_prop_type type;
-			CAT_ivec2 shape;
-			bool animate;
-			int8_t child_dy;
-		} prop_data;
-	} data;
+			CAT_prop_type prop_type;
+			CAT_ivec2 prop_shape;
+			bool prop_animated;
+			int8_t prop_child_dy;
+		};
+	};
 } CAT_item;
 
 typedef struct CAT_item_table
@@ -115,11 +115,10 @@ void CAT_filter_item_table(CAT_item_filter filter, CAT_int_list* list);
 //////////////////////////////////////////////////////////////////////////
 // BAG
 
-extern int coins;
-
 void CAT_inventory_clear();
-void CAT_inventory_add(int item_id, int count);
-void CAT_inventory_remove(int item_id, int count);
+bool CAT_inventory_add(int item_id, int count);
+bool CAT_inventory_remove(int item_id, int count);
+int CAT_inventory_count(int item_id);
 
 
 //////////////////////////////////////////////////////////////////////////

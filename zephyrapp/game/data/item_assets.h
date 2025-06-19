@@ -109,3 +109,4 @@
 #define food_tuna_item 106
 #define food_beef_noodles_item 107
 #define food_nasi_lemak_item 108
+#define coin_item 109

@@ -16,6 +16,7 @@
 #include "theme_assets.h"
 #include "sound_assets.h"
 #include "cat_monitors.h"
+#include "item_assets.h"
 
 #ifdef CAT_EMBEDDED
 #include "menu_system.h"
@@ -81,7 +82,7 @@ void CAT_MS_menu(CAT_machine_signal signal)
 						if(CAT_gui_begin_menu("CHEATS"))
 						{
 							if(CAT_gui_menu_item("1000 COINS"))
-								coins += 1000;
+								CAT_inventory_add(coin_item, 1000);
 							if(CAT_gui_menu_item("BASE STATS"))
 							{
 								pet.vigour = 9;
