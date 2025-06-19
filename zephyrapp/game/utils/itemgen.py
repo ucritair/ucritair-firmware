@@ -90,6 +90,9 @@ for i in range(len(json_entries)-1):
 	b = json_entries[i+1];
 	if b["id"]-a["id"] != 1:
 		print(f"[WARNING] Gap between item IDs {a["id"]} and {b["id"]}!");
+if max([j["id"] for j in json_entries]) >= 256:
+	print("[ERROR] Item ID exceeding 255 found. Aborting!");
+	exit();
 	
 header = open("data/item_assets.h", "w");
 header.write("#pragma once\n");
@@ -115,7 +118,6 @@ for (idx, item) in enumerate(json_entries):
 	source.write(f"\t\t\t.sprite = &{item['sprite']},\n");
 	source.write(f"\t\t\t.price = {item['price']},\n");
 	source.write(f"\t\t\t.text = \"{item['text']}\",\n");
-	source.write(f"\t\t\t.icon = &{item['icon']},\n");
 	if item['type'] == "tool":
 		source.write(f"\t\t\t.tool_type = {tool_type_enum_map[item['tool_data']['type']]},\n");
 		source.write(f"\t\t\t.tool_cursor = &{item['tool_data']['cursor'] if len(item['tool_data']['cursor']) else item['sprite']},\n");

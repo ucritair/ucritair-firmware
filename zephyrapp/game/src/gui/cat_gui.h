@@ -103,7 +103,7 @@ typedef enum
 
 void CAT_gui_begin_item_grid_context();
 void CAT_gui_begin_item_grid(const char* title, CAT_int_list* roster, CAT_item_proc action);
-bool CAT_gui_item_grid_set_flags(int flags);
+void CAT_gui_item_grid_set_flags(int flags);
 void CAT_gui_item_grid_cell(int item_id);
 bool CAT_gui_item_grid_is_open();
 

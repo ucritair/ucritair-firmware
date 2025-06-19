@@ -864,14 +864,13 @@ void CAT_gui_begin_item_grid(const char* title, CAT_int_list* roster, CAT_item_p
 	CAT_ilist(&item_grid_pool, item_grid_pool_backing, CAT_ITEM_TABLE_CAPACITY);
 }
 
-bool CAT_gui_item_grid_set_flags(int flags)
+void CAT_gui_item_grid_set_flags(int flags)
 {
 	item_grid_flags = flags;
 }
 
 void CAT_gui_item_grid_cell(int item_id)
 {
-	int idx = item_grid_pool.length;
 	CAT_ilist_push(&item_grid_pool, item_id);
 }
 

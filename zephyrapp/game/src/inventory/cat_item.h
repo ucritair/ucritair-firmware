@@ -10,7 +10,7 @@
 //////////////////////////////////////////////////////////////////////////
 // CONSTANTS
 
-#define CAT_ITEM_TABLE_CAPACITY 512
+#define CAT_ITEM_TABLE_CAPACITY 256
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -65,7 +65,6 @@ typedef struct CAT_item
 	const CAT_sprite* sprite;
 	uint16_t price;
 	const char* text;
-	const CAT_sprite* icon;
 
 	union
 	{
