@@ -19,10 +19,18 @@ Install the following tools on your host machine:
 
 ### macOS
 
-Use [Homebrew](https://brew.sh/):
+1. Use [Homebrew](https://brew.sh/):
 
 ```bash
 brew install dfu-util
+```
+2. (Optional) Install homebrew dependencies if you want to run tools locally outside Docker :
+   
+```bash
+brew update && brew install \
+  git cmake ninja gperf ccache make \
+  dfu-util dtc python wget xz file-formula gcc \
+  sdl2 libarchive glew glfw zlib gawk bison flex ncurses gettext libpng ffmpeg
 ```
 
 ### Linux
