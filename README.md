@@ -2,8 +2,13 @@
 
 This project uses a Docker-based development environment to ensure a consistent, reproducible build process for all developers. This repository includes a `docker-compose.yaml` file that automates the entire environment setup.
 
+**GitHub Workflow**
+The project automatically runs the docker image and tries to generate a binary. Please click on the badge below for information and to download a binary. The binary can then be flashed using dfu-util as described below.
+[![Build Firmware](https://github.com/ucritair/ucritair-firmware/actions/workflows/build-firmware.yml/badge.svg)](https://github.com/ucritair/ucritair-firmware/actions/workflows/build-firmware.yml)
+
+
 > **Why Docker?**
-> By using Docker, you don't need to manually install the Zephyr SDK, toolchains, or any system dependencies on your host machine. The entire build environment is self-contained, preventing conflicts with your local setup and guaranteeing that the firmware builds the same way for everyone.
+> By using Docker, you don't need to manually install the Zephyr SDK, toolchains, or any system dependencies on your host machine. The entire build environment is self-contained, preventing conflicts with your local setup and guaranteeing that the firmware builds the same way for everyone. Follow the instructions below to build your own local copies of the firmware for development :) 
 
 > **Note:** Zephyr is huge—we are sorry. This Docker image is approximately 17GB. You will likely need to increase Docker Desktop's allowed storage space.
 
