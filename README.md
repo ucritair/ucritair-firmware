@@ -5,6 +5,8 @@ This project uses a Docker-based development environment to ensure a consistent,
 > **Why Docker?**
 > By using Docker, you don't need to manually install the Zephyr SDK, toolchains, or any system dependencies on your host machine. The entire build environment is self-contained, preventing conflicts with your local setup and guaranteeing that the firmware builds the same way for everyone.
 
+> **Note:** Zephyr is huge—we are sorry. This Docker image is approximately 17GB. You will likely need to increase Docker Desktop's allowed storage space.
+
 ---
 
 ## Prerequisites
@@ -45,22 +47,18 @@ sudo udevadm control --reload-rules
 
 ### Windows
 
-You must run the Zadig driver replacement twice, once for normal and once for DFU mode:
+You must run the Zadig driver replacement twice, due to the device entering a second-stage DFU mode after the first DFU action:
 
 1. Place `dfu-util` binary in your PATH.
 2. Download and use **[Zadig Tool](https://zadig.akeo.ie/)**.
 
-**First Driver Installation (Normal Mode):**
+**Driver Installation Steps:**
 
-* Connect device normally.
+* Connect your device in DFU mode initially.
 * Run Zadig, check `Options` → `List All Devices`.
-* Select your device, choose `WinUSB`, and click "Replace Driver".
-
-**Second Driver Installation (DFU Mode):**
-
-* Connect the device in DFU mode.
-* Select the new `STM32 BOOTLOADER` in Zadig.
-* Choose `WinUSB`, click "Replace Driver" again.
+* Select the `STM32 BOOTLOADER` device, choose `WinUSB`, and click "Replace Driver".
+* Use `dfu-util` to flash the firmware; this action will trigger the device to enter a second-stage DFU mode.
+* Re-run Zadig and repeat the process, selecting the new device entry again and installing the `WinUSB` driver.
 
 > **Detailed guide:** Refer to the **[uCritAir Web DFU page](https://ucritair.github.io/ucritair-webdfu/)** for detailed instructions.
 
@@ -80,7 +78,7 @@ cd ucritair-firmware
 Launch the development container:
 
 ```bash
-docker-compose run --rm dev
+docker compose run --rm dev
 ```
 
 Inside the container, run:
@@ -91,9 +89,8 @@ Inside the container, run:
 
 Compiled firmware will be available at:
 
-```
-zephyrapp/game/build/
-```
+* Embedded files: `ucritair-firmware/zephyrapp/build`
+* Desktop files: `ucritair-firmware/zephyrapp/game/build`
 
 ### Step 3: Flashing the Firmware
 
@@ -105,22 +102,8 @@ exit
 
 Connect device in DFU mode and flash firmware:
 
-**Linux (Recommended, if udev rules set):**
-
 ```bash
-dfu-util --download zephyrapp/game/build/zephyr/zephyr.signed.bin
-```
-
-**macOS & Windows:**
-
-```bash
-dfu-util --download zephyrapp/game/build/zephyr/zephyr.signed.bin
-```
-
-**Linux (without udev rules):**
-
-```bash
-sudo dfu-util --download zephyrapp/game/build/zephyr/zephyr.signed.bin
+dfu-util --download ucritair-firmware/zephyrapp/build/zephyr/zephyr.signed.bin
 ```
 
 Your device now runs the latest firmware.
@@ -133,7 +116,7 @@ Your device now runs the latest firmware.
 * **Build in Docker:** From project root, run:
 
 ```bash
-docker-compose run --rm dev
+docker compose run --rm dev
 ```
 
 Then inside the container:
