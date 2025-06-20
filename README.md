@@ -3,6 +3,7 @@
 This project uses a Docker-based development environment to ensure a consistent, reproducible build process for all developers. This repository includes a `docker-compose.yaml` file that automates the entire environment setup.
 
 **GitHub Workflow**
+
 The project automatically runs the docker image and tries to generate a binary. Please click on the badge below for information and to download a binary. The binary can then be flashed using dfu-util as described below.
 
 [![uCritAir Firmware Build](https://github.com/ucritair/ucritair-firmware/actions/workflows/build-firmware.yml/badge.svg)](https://github.com/ucritair/ucritair-firmware/actions/workflows/build-firmware.yml)
