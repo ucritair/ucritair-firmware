@@ -15,9 +15,13 @@ jobs:
         with:
           submodules: 'recursive'
 
-      - name: Build firmware
+      - name: Build firmware as root in container
         run: |
-          docker compose run --rm --user "$(id -u):$(id -g)" dev ./utils/build.sh --embedded
+          docker compose run --rm dev ./utils/build.sh --embedded
+
+      - name: Change ownership of build outputs
+        run: |
+          sudo chown -R $(id -u):$(id -g) zephyrapp/build
 
       - name: Prepare file for upload
         id: prep
