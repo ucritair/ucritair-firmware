@@ -47,8 +47,7 @@ sudo udevadm control --reload-rules
 
 4. (Optional) Install Linux Dependencies if you want to run tools locally outside Docker :
 ```bash
-sudo apt-get update && apt-get install --no-install-recommends -y git cmake ninja-build gperf ccache make dfu-util device-tree-compiler python3-dev python3-pip python3-setuptools python3-tk python3-venv python3-wheel wget xz-utils file gcc g++ libsdl2-dev libarchive-dev libglew-dev libglfw3-dev zlib1g-dev gawk bison flex libncurses5-dev gettext libpng-dev ffmpeg && if [ "${TARGETARCH}" = "amd64" ]; then echo "Installing x86_64 specific packages (multilib)..." && apt-get install -y --no-install-recommends gcc-multilib g++-multilib; fi
-
+sudo apt-get update && sudo apt-get install --no-install-recommends -y git cmake ninja-build gperf ccache make dfu-util device-tree-compiler python3-dev python3-pip python3-setuptools python3-tk python3-venv python3-wheel wget xz-utils file gcc g++ libsdl2-dev libarchive-dev libglew-dev libglfw3-dev zlib1g-dev gawk bison flex libncurses5-dev gettext libpng-dev ffmpeg && if [ "${TARGETARCH}" = "amd64" ]; then echo "Installing x86_64 specific packages (multilib)..." && sudo apt-get install -y --no-install-recommends gcc-multilib g++-multilib; fi
 ```
 
 
