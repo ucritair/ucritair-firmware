@@ -343,7 +343,6 @@ void CAT_room_init()
 	room.theme = &basic_theme;
 	room.prop_count = 0;
 	room.pickup_count = 0;
-	room.earn_timer_id = CAT_timer_init(CAT_EARN_TICK_SECS);
 }
 
 int CAT_room_find(int item_id)
@@ -452,7 +451,9 @@ void CAT_room_flip_prop(int idx)
 	}
 }
 
-int CAT_spawn_pickup(CAT_vec2 origin, CAT_vec2 place, const CAT_sprite* sprite, void (*proc)())
+#define PICKUP_AIR_TIME 0.75f
+
+int CAT_spawn_pickup(CAT_ivec2 origin, CAT_ivec2 place, const CAT_sprite* sprite, void (*proc)())
 {
 	if(room.pickup_count >= CAT_MAX_PICKUP_COUNT)
 		return -1;
@@ -463,7 +464,7 @@ int CAT_spawn_pickup(CAT_vec2 origin, CAT_vec2 place, const CAT_sprite* sprite, 
 	room.pickups[idx].place = place;
 	room.pickups[idx].sprite = sprite;
 	room.pickups[idx].proc = proc;
-	room.pickups[idx].timer_id = CAT_timer_init(0.75f);
+	room.pickups[idx].timer = 0;
 
 	return idx;
 }
@@ -473,7 +474,6 @@ void CAT_despawn_pickup(int idx)
 	if(idx < 0 || idx >= room.pickup_count)
 		return;
 	
-	CAT_timer_delete(room.pickups[idx].timer_id);
 	for(int i = idx; i < room.pickup_count-1; i++)
 		room.pickups[i] = room.pickups[i+1];
 	room.pickup_count -=1;
@@ -511,15 +511,15 @@ void CAT_room_earn(int ticks)
 				end_grid.y = clamp(end_grid.y, 2, CAT_GRID_HEIGHT-1);
 				CAT_ivec2 end_world = CAT_grid2world(end_grid);
 
-				float xi = start.x;
-				float yi = start.y;
-				float xf = end_world.x;
-				float yf = end_world.y;
+				int xi = start.x;
+				int yi = start.y;
+				int xf = end_world.x;
+				int yf = end_world.y;
 
 				CAT_spawn_pickup
 				(
-					(CAT_vec2) {xi, yi},
-					(CAT_vec2) {xf, yf},
+					(CAT_ivec2) {xi, yi},
+					(CAT_ivec2) {xf, yf},
 					&coin_world_sprite,
 					earn_proc
 				);
@@ -530,10 +530,17 @@ void CAT_room_earn(int ticks)
 
 void CAT_room_tick()
 {
-	if(CAT_timer_tick(room.earn_timer_id))
+	if(room.earn_timer >= CAT_EARN_TIME)
 	{
 		CAT_room_earn(1);
-		CAT_timer_reset(room.earn_timer_id);
+		room.earn_timer = 0;
+	}
+	room.earn_timer += CAT_get_delta_time_s();
+
+	for(int i = 0; i < room.pickup_count; i++)
+	{
+		if(room.pickups[i].timer < PICKUP_AIR_TIME)
+			room.pickups[i].timer += CAT_get_delta_time_s();
 	}
 
 	for(int i = 0; i < room.prop_count; i++)
@@ -545,51 +552,36 @@ void CAT_room_tick()
 			room.prop_ids[i] == prop_spi_flower_item
 		)
 		{
-			float aqi_score = CAT_aq_aggregate_score() / 100.0f;
-			if(aqi_score < 0.15f)
+			float aqi_score = CAT_AQ_aggregate_score();
+			if(aqi_score < 15)
 			{
 				room.prop_overrides[i] = 5;
 			}
 			else
 			{
-				int aqi_idx = round(aqi_score * 4.0f);
+				int aqi_idx = round(aqi_score / 100.0f * 4.0f);
 				aqi_idx = clamp(aqi_idx, 0, 4);
 				room.prop_overrides[i] = aqi_idx;
 			}
 		}
 	}
-
-	if(CAT_get_machine_state() != CAT_MS_room)
-		return;
-
-	for(int i = 0; i < 5; i++)
-	{
-		if(CAT_input_touch(8+16+48*i, 280+16, 16))
-		{
-			CAT_machine_transition(button_modes[i]);
-			mode_selector = i;
-		}
-	}
-
-	if(CAT_input_touch_rect(176, 16, 56, 96))
-		CAT_machine_transition(CAT_MS_shop);
-	if(CAT_input_touch_rect(128, 48, 32, 64))
-		CAT_machine_transition(CAT_MS_arcade);
-
-	for(int i = 0; i < room.pickup_count; i++)
-	{
-		if(CAT_timer_tick(room.pickups[i].timer_id))
-		{
-			CAT_vec2 place = room.pickups[i].place;
-			if(CAT_input_drag(place.x + 8, place.y - 8, 16))
-			{
-				room.pickups[i].proc();
-				CAT_despawn_pickup(i);
-				i -= 1;
-			}
-		}
-	}
 }
+
+#define MODE_BUTTON_COUNT 5
+#define MODE_BUTTONS_X 16
+#define MODE_BUTTONS_Y 280
+#define MODE_BUTTON_SIZE 32
+#define MODE_BUTTON_PAD 12
+
+#define ARCADE_X 128
+#define ARCADE_Y 48
+#define ARCADE_W 32
+#define ARCADE_H 64
+
+#define VENDING_MACHINE_X 176
+#define VENDING_MACHINE_Y 16
+#define VENDING_MACHINE_W 56
+#define VENDING_MACHINE_H 96
 
 void CAT_MS_room(CAT_machine_signal signal)
 {
@@ -603,23 +595,61 @@ void CAT_MS_room(CAT_machine_signal signal)
 		}
 		case CAT_MACHINE_SIGNAL_TICK:
 		{
+			if(CAT_AQ_is_crisis_notice_posted())
+			{
+				if(CAT_input_dismissal())
+					CAT_AQ_dismiss_crisis_notice();
+				break;
+			}
+
 			if(CAT_input_pressed(CAT_BUTTON_START))
 				CAT_machine_transition(CAT_MS_menu);
 
 			if(CAT_input_pressed(CAT_BUTTON_RIGHT))
-			{
 				mode_selector += 1;
-				if(mode_selector > 4)
-					mode_selector = 0;
-			}
 			if(CAT_input_pressed(CAT_BUTTON_LEFT))
-			{
 				mode_selector -= 1;
-				if(mode_selector < 0)
-					mode_selector = 4;
-			}
+			mode_selector = (mode_selector + MODE_BUTTON_COUNT) % MODE_BUTTON_COUNT;
+
 			if(CAT_input_pressed(CAT_BUTTON_A))
 				CAT_machine_transition(button_modes[mode_selector]);
+			
+			for(int i = 0; i < MODE_BUTTON_COUNT; i++)
+			{
+				if(CAT_input_touch_rect
+				(
+					MODE_BUTTONS_X + (MODE_BUTTON_SIZE + MODE_BUTTON_PAD) * i,
+					MODE_BUTTONS_Y,
+					MODE_BUTTON_SIZE, MODE_BUTTON_SIZE
+				))
+				{
+					CAT_machine_transition(button_modes[i]);
+					mode_selector = i;
+				}
+			}
+
+			if(CAT_input_touch_rect(VENDING_MACHINE_X, VENDING_MACHINE_Y, VENDING_MACHINE_W, VENDING_MACHINE_H))
+				CAT_machine_transition(CAT_MS_shop);
+			if(CAT_input_touch_rect(ARCADE_X, ARCADE_Y, ARCADE_W, ARCADE_H))
+				CAT_machine_transition(CAT_MS_arcade);
+
+			for(int i = 0; i < room.pickup_count; i++)
+			{
+				if(room.pickups[i].timer >= PICKUP_AIR_TIME)
+				{
+					CAT_ivec2 place = room.pickups[i].place;
+					if(CAT_input_drag(place.x + 8, place.y - 8, 16))
+					{
+						room.pickups[i].proc();
+						CAT_despawn_pickup(i);
+						i -= 1;
+					}
+				}
+			}
+
+			CAT_pet_reanimate();
+			CAT_pet_walk();
+			CAT_pet_react();
 			break;
 		}
 		case CAT_MACHINE_SIGNAL_EXIT:
@@ -629,10 +659,10 @@ void CAT_MS_room(CAT_machine_signal signal)
 	}
 }
 
-float battery_blink_timer = 0.0f;
-bool battery_blink_switch = false;
+static float battery_blink_timer = 0.0f;
+static bool battery_blink_switch = false;
 
-void render_statics()
+static void render_statics()
 {
 	CAT_datetime time;
 	CAT_get_datetime(&time);
@@ -719,7 +749,7 @@ void render_statics()
 	}
 }
 
-void render_props()
+static void render_props()
 {
 	for(int i = 0; i < room.prop_count; i++)
 	{
@@ -757,14 +787,14 @@ void render_props()
 	}
 }
 
-void render_pickups()
+static void render_pickups()
 {
 	for(int i = 0; i < room.pickup_count; i++)
 	{
-		CAT_vec2 origin = room.pickups[i].origin;
-		CAT_vec2 place = room.pickups[i].place;
+		CAT_ivec2 origin = room.pickups[i].origin;
+		CAT_ivec2 place = room.pickups[i].place;
 
-		float t = CAT_timer_progress(room.pickups[i].timer_id);
+		float t = min(room.pickups[i].timer / PICKUP_AIR_TIME, 1.0f);
 		float x = lerp(origin.x, place.x, t);
 		if(origin.y > place.y)
 			t = 1.0f - t;
@@ -776,7 +806,7 @@ void render_pickups()
 	}
 }
 
-void render_pet()
+static void render_pet()
 {
 	CAT_anim_tick(&AM_pet);
 	CAT_anim_tick(&AM_mood);
@@ -803,23 +833,50 @@ static const CAT_sprite* button_sprites[] =
 	&icon_deco_sprite,
 	&icon_menu_sprite
 };
-static int button_start_x = 16;
-static int button_start_y = 280;
 
-void render_gui()
+static void render_gui()
 {
 	for(int i = 0; i < sizeof(button_sprites)/sizeof(button_sprites[0]); i++)
 	{
-		CAT_draw_queue_add(button_sprites[i], 0, GUI_LAYER, button_start_x + 44 * i, button_start_y, CAT_DRAW_FLAG_NONE);
+		CAT_draw_queue_add
+		(
+			button_sprites[i], 0, GUI_LAYER,
+			MODE_BUTTONS_X + (MODE_BUTTON_SIZE + MODE_BUTTON_PAD) * i,
+			MODE_BUTTONS_Y,
+			CAT_DRAW_FLAG_NONE
+		);
 	}
-	CAT_strokeberry(button_start_x + 44 * mode_selector, button_start_y, 33, 33, 0xFFFF);
+	CAT_strokeberry
+	(
+		MODE_BUTTONS_X + (MODE_BUTTON_SIZE + MODE_BUTTON_PAD) * mode_selector,
+		MODE_BUTTONS_Y,
+		MODE_BUTTON_SIZE+1, MODE_BUTTON_SIZE+1,
+		CAT_WHITE
+	);
 
 	if(input.touch.pressure)
-		CAT_draw_queue_add(&touch_hl_sprite, 0, 4, input.touch.x, input.touch.y, CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
+		CAT_draw_queue_add
+		(
+			&touch_hl_sprite, 0, GUI_LAYER+1,
+			input.touch.x, input.touch.y,
+			CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y
+		);
+}
+
+static void render_notice()
+{
+	CAT_frameberry(CAT_WHITE);
+
 }
 
 void CAT_render_room()
 {
+	if(CAT_AQ_is_crisis_notice_posted())
+	{
+		render_notice();
+		return;
+	}
+
 	render_statics();
 	render_props();
 	render_pickups();

@@ -710,7 +710,7 @@ static int pick_idx = -1;
 static CAT_ivec2 pick_delta;
 
 static bool show_feedback = false;
-static int show_feedback_timer_id = -1;
+static float feedback_timer = 0;
 static bool show_gizmos = false;
 static bool show_debug_text = false;
 
@@ -722,7 +722,7 @@ void MS_feed_arrange(CAT_machine_signal signal)
 		CAT_set_render_callback(render_arrange);
 		pick_idx = -1;
 		commit_arrangement = false;
-		CAT_timer_reinit(&show_feedback_timer_id, 1.0f);
+		feedback_timer = 0;
 		break;
 
 	case CAT_MACHINE_SIGNAL_TICK:
@@ -742,10 +742,10 @@ void MS_feed_arrange(CAT_machine_signal signal)
 		if (CAT_input_pressed(CAT_BUTTON_SELECT) && food_pool.length > 0)
 			CAT_machine_transition(MS_feed_select);
 
-		if (CAT_input_touch_rect(85, 240, 64, 64))
+		if (CAT_input_touch_rect(85, 240, 64, 64) && !show_feedback)
 		{
 			show_feedback = true;
-			CAT_timer_reset(show_feedback_timer_id);
+			feedback_timer = 0;
 		}
 
 		if(CAT_check_config_flags(CAT_CONFIG_FLAG_DEVELOPER))
@@ -789,8 +789,12 @@ void MS_feed_arrange(CAT_machine_signal signal)
 				CAT_input_cursor().y + pick_delta.y};
 		}
 
-		if (show_feedback && CAT_timer_tick(show_feedback_timer_id))
-			show_feedback = false;
+		if(show_feedback)
+		{
+			if(feedback_timer >= 1)
+				show_feedback = false;
+			feedback_timer += CAT_get_delta_time_s();
+		}
 		break;
 
 	case CAT_MACHINE_SIGNAL_EXIT:
@@ -960,7 +964,7 @@ static bool scrolling = false;
 
 static int last_clicked_idx = -1;
 
-static int inspect_timer_id = -1;
+static float inspect_timer = 0;
 static int inspect_idx = -1;
 
 static int get_hovered_idx()
@@ -1009,7 +1013,7 @@ static void MS_feed_select(CAT_machine_signal signal)
 		scroll_y_anchor = 0;
 		scroll_y_delta = 0;
 		last_clicked_idx = -1;
-		CAT_timer_reinit(&inspect_timer_id, 1.0f);
+		inspect_timer = 0;
 		inspect_idx = -1;
 		break;
 
@@ -1040,7 +1044,7 @@ static void MS_feed_select(CAT_machine_signal signal)
 
 				scrolling = true;
 				last_clicked_idx = -1;
-				CAT_timer_reset(inspect_timer_id);
+				inspect_timer = 0;
 				return;
 			}
 
@@ -1048,19 +1052,20 @@ static void MS_feed_select(CAT_machine_signal signal)
 			if (hovered_idx != last_clicked_idx)
 			{
 				last_clicked_idx = -1;
-				CAT_timer_reset(inspect_timer_id);
+				inspect_timer = 0;
 			}
 			// Otherwise continue to inspection logic
 			else if (!scrolling && last_clicked_idx != -1)
 			{
 				if (input.touch_time >= 0.5f)
 				{
-					if (CAT_timer_tick(inspect_timer_id))
+					if(inspect_timer >= 1.0f)
 					{
-						CAT_timer_reset(inspect_timer_id);
 						inspect_idx = last_clicked_idx;
 						CAT_machine_transition(MS_feed_inspect);
+						inspect_timer = 0;
 					}
+					inspect_timer += CAT_get_delta_time_s();
 				}
 			}
 		}
@@ -1091,7 +1096,7 @@ static void MS_feed_select(CAT_machine_signal signal)
 
 			scrolling = false;
 			last_clicked_idx = -1;
-			CAT_timer_reset(inspect_timer_id);
+			inspect_timer = 0;
 		}
 
 		if (CAT_input_held(CAT_BUTTON_UP, 0))
@@ -1133,8 +1138,8 @@ static void render_select()
 				}
 			}
 
-			if (idx == last_clicked_idx && CAT_timer_progress(inspect_timer_id) >= 0.05f)
-				CAT_ringberry(input.touch.x, input.touch.y, 24, 18, RGB8882565(255 - 0, 255 - 141, 255 - 141), CAT_timer_progress(inspect_timer_id) + 0.15f, 0);
+			if (idx == last_clicked_idx && inspect_timer >= 0.05f)
+				CAT_ringberry(input.touch.x, input.touch.y, 24, 18, RGB8882565(255 - 0, 255 - 141, 255 - 141), inspect_timer + 0.15f, 0);
 
 			idx += 1;
 			x += 64 + 12;

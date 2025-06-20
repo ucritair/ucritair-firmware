@@ -31,21 +31,13 @@ static CAT_vec2 pet_anchor;
 static CAT_vec2 tool_anchor;
 static bool action_confirmed = false;
 static bool action_complete = false;
-static int timer_id = -1;
+static float timer = 0;
 
 void action_enter()
 {
-	if (timer_id == -1)
-		timer_id = CAT_timer_init(2.0f);
-	else
-		CAT_timer_reset(timer_id);
-
-	if (tool_id == -1)
-		cursor = CAT_largest_free_space();
+	timer = 0;
 	cursor = CAT_nearest_free_space(cursor);
-
 	CAT_pet_settle();
-
 	CAT_gui_begin_item_grid_context();
 }
 
@@ -134,7 +126,7 @@ void action_tick()
 	}
 	if (CAT_anim_is_in(&AM_pet, action_AS) && CAT_anim_is_ticking(&AM_pet))
 	{
-		if (CAT_timer_tick(timer_id) || CAT_input_pressed(CAT_BUTTON_A))
+		if (timer >= 2 || CAT_input_pressed(CAT_BUTTON_A))
 		{
 			apply_tool();
 
@@ -144,7 +136,10 @@ void action_tick()
 			action_complete = true;
 
 			CAT_anim_transition(&AM_pet, result_AS);
+
+			timer = 0;
 		}
+		timer += CAT_get_delta_time_s();
 	}
 	if (CAT_anim_is_in(&AM_pet, result_AS))
 	{
@@ -233,7 +228,8 @@ static CAT_vec2 laser_dir = {0, 0};
 static float seek_dist = 0;
 static CAT_vec2 pounce_start = {120, 180};
 static CAT_vec2 pounce_end = {120, 180};
-static int play_timer_id = -1;
+static float play_timer = 0;
+static float play_duration = 0;
 
 enum
 {
@@ -250,7 +246,8 @@ void CAT_MS_laser(CAT_machine_signal signal)
 	case CAT_MACHINE_SIGNAL_ENTER:
 		CAT_set_render_callback(CAT_render_laser);
 		CAT_pet_settle();
-		play_timer_id = CAT_timer_init(CAT_rand_float(1.5f, 3.0f));
+		play_timer = 0;
+		play_duration = CAT_rand_float(1.5f, 3.0f);
 		break;
 	case CAT_MACHINE_SIGNAL_TICK:
 		if (CAT_input_pressed(CAT_BUTTON_B))
@@ -260,16 +257,10 @@ void CAT_MS_laser(CAT_machine_signal signal)
 			CAT_touch touch;
 			CAT_get_touch(&touch);
 
-			/* clamp to the room’s pixel bounds so the dot never escapes */
-			laser_pos.x = clamp((float)touch.x,
-								CAT_WORLD_MIN_X, CAT_WORLD_MAX_X);
-			laser_pos.y = clamp((float)touch.y,
-								CAT_WORLD_MIN_Y, CAT_WORLD_MAX_Y);
+			laser_pos.x = clamp(touch.x, CAT_WORLD_MIN_X, CAT_WORLD_MAX_X);
+			laser_pos.y = clamp(touch.y, CAT_WORLD_MIN_Y, CAT_WORLD_MAX_Y);
 
-			if (play_timer_id != -1) /* stop boredom while touching */
-				CAT_timer_reset(play_timer_id);
-
-			/* skip the D‑pad block this frame */
+			play_timer = 0;
 			laser_dir = (CAT_vec2){0, 0};
 		}
 		else
@@ -335,12 +326,15 @@ void CAT_MS_laser(CAT_machine_signal signal)
 		case PLAYING:
 			if (!CAT_anim_is_in(&AM_pet, &AS_play))
 				CAT_anim_transition(&AM_pet, &AS_play);
-			if (CAT_timer_tick(play_timer_id))
+
+			if (play_timer >= play_duration)
 			{
-				CAT_timer_delete(play_timer_id);
-				play_timer_id = CAT_timer_init(CAT_rand_float(1.0f, 3.0f));
+				play_timer = 0;
+				play_duration = CAT_rand_float(1.0f, 3.0f);
 				laser_state = BORED;
 			}
+			play_timer += CAT_get_delta_time_s();
+
 			if (CAT_vec2_dist2(pet.pos, laser_pos) >= 16)
 				laser_state = SEEKING;
 			break;

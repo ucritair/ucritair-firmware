@@ -7,6 +7,27 @@
 #include <string.h>
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// MISCELLANY
+
+#define CAT_MINUTE_SECONDS 60
+#define CAT_HOUR_SECONDS (60 * CAT_MINUTE_SECONDS)
+#define CAT_DAY_SECONDS (24 * CAT_HOUR_SECONDS)
+
+#define CAT_LCD_SCREEN_W 240
+#define CAT_LCD_SCREEN_H 320
+
+#define EINK_SCREEN_W 212
+#define EINK_SCREEN_H 104
+
+#define CAT_TILE_SIZE 16
+#define CAT_GLYPH_WIDTH 8
+#define CAT_GLYPH_HEIGHT 12
+#define CAT_LEADING 2
+
+#define CAT_SCREEN_GRID_W (CAT_LCD_SCREEN_W / CAT_TILE_SIZE)
+#define CAT_SCREEN_GRID_H (CAT_LCD_SCREEN_H / CAT_TILE_SIZE)
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // PLATFORM
 
 void CAT_platform_init();
@@ -16,9 +37,6 @@ void CAT_platform_cleanup();
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // LCD SCREEN
-
-#define CAT_LCD_SCREEN_W 240
-#define CAT_LCD_SCREEN_H 320
 
 #define CAT_LCD_FRAMEBUFFER_SEGMENTS 2
 #define CAT_LCD_FRAMEBUFFER_W CAT_LCD_SCREEN_W
@@ -45,9 +63,6 @@ int* CAT_LCD_brightness_pointer();
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // EINK SCREEN
-
-#define EINK_SCREEN_W 212
-#define EINK_SCREEN_H 104
 
 void CAT_eink_post(uint8_t* buffer);
 bool CAT_eink_is_posted();

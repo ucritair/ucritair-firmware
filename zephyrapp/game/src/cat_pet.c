@@ -39,13 +39,13 @@ void CAT_pet_init()
 	pet.vel = (CAT_vec2) {0, 0};
 	pet.rot = 1;
 
-	pet.stat_timer_id = CAT_timer_init(CAT_STAT_TICK_SECS);
-	pet.life_timer_id = CAT_timer_init(CAT_LIFE_TICK_SECS);
-	pet.walk_timer_id = CAT_timer_init(4.0f);
-	pet.react_timer_id = CAT_timer_init(1.0f);
+	pet.stat_timer = 0;
+	pet.life_timer = 0;
+	pet.walk_timer = 0;
+	pet.react_timer = 0;
 
 	pet.times_pet = 0;
-	pet.petting_timer_id = CAT_timer_init(CAT_PET_COOLDOWN_SECS);
+	pet.petting_timer = 0;
 	pet.times_milked = 0;
 
 	strcpy(pet.name, "Waldo");
@@ -198,7 +198,7 @@ void CAT_pet_gain_xp(int xp)
 
 void CAT_pet_stat(int ticks)
 {
-	float goodness = CAT_aq_aggregate_score();
+	float goodness = CAT_AQ_aggregate_score();
 	int delta = goodness < 0.35f ? 2 : 1;
 
 	pet.vigour = clamp(pet.vigour - delta * ticks, 0, 12);
@@ -228,6 +228,8 @@ void CAT_pet_life(int ticks)
 
 	int xp = round(((pet.vigour + pet.focus + pet.spirit) / 3.0f) * 50.0f);
 	CAT_pet_gain_xp(xp * ticks);
+
+	pet.times_milked = 0;
 }
 
 static CAT_vec2 destination = {120, 200};
@@ -239,89 +241,92 @@ void milk_proc()
 
 void CAT_pet_tick()
 {
-	if(CAT_timer_tick(pet.stat_timer_id))
+	if(pet.stat_timer >= CAT_STAT_TICK_TIME)
 	{
 		CAT_pet_stat(1);
-		CAT_timer_reset(pet.stat_timer_id);
+		pet.stat_timer = 0;
 	}
-	if(CAT_timer_tick(pet.life_timer_id))
+	
+	if(pet.life_timer >= CAT_LIFE_TICK_TIME)
 	{
 		CAT_pet_life(1);
-		pet.times_milked = 0;
-		CAT_timer_reset(pet.life_timer_id);
+		pet.life_timer = 0;
 	}
-	CAT_timer_tick(pet.petting_timer_id);
 
-	CAT_pet_reanimate();
+	pet.stat_timer += CAT_get_delta_time_s();
+	pet.life_timer += CAT_get_delta_time_s();
+	pet.petting_timer += CAT_get_delta_time_s();
+}
 
-	if(CAT_get_machine_state() == CAT_MS_room)
+void CAT_pet_walk()
+{
+	if(!is_critical() && CAT_get_battery_pct() > CAT_CRITICAL_BATTERY_PCT)
 	{
-		if(!is_critical() && CAT_get_battery_pct() > CAT_CRITICAL_BATTERY_PCT)
-		{
-			if(CAT_anim_is_in(&AM_pet, &AS_idle) && CAT_anim_is_ticking(&AM_pet))
+		if(CAT_anim_is_in(&AM_pet, &AS_idle) && CAT_anim_is_ticking(&AM_pet))
+		{	
+			if(pet.walk_timer >= CAT_PET_WALK_COOLDOWN && CAT_has_free_space())
 			{
-				if(CAT_timer_tick(pet.walk_timer_id) && CAT_has_free_space())
-				{
-					CAT_ivec2 grid_dest = CAT_rand_free_space();
-					CAT_ivec2 world_dest = CAT_grid2world(grid_dest);
-					destination = (CAT_vec2) {world_dest.x + 8, world_dest.y + 8};
-
-					CAT_anim_transition(&AM_pet, &AS_walk);
-					CAT_timer_reset(pet.walk_timer_id);
-				}
+				CAT_ivec2 grid_dest = CAT_rand_free_space();
+				CAT_ivec2 world_dest = CAT_grid2world(grid_dest);
+				destination = (CAT_vec2) {world_dest.x + 8, world_dest.y + 8};
+				CAT_anim_transition(&AM_pet, &AS_walk);
+				pet.walk_timer = 0;
 			}
-			
-			if(CAT_anim_is_in(&AM_pet, &AS_walk) && CAT_anim_is_ticking(&AM_pet))
-			{
-				if(CAT_pet_seek(destination))
-				{
-					CAT_anim_transition(&AM_pet, &AS_idle);
-				}
-			}
+			pet.walk_timer += CAT_get_delta_time_s();
 		}
-		else
+		
+		if(CAT_anim_is_in(&AM_pet, &AS_walk) && CAT_anim_is_ticking(&AM_pet))
 		{
-			if(!CAT_anim_is_in(&AM_pet, &AS_crit))
-				CAT_anim_transition(&AM_pet, &AS_crit);
+			if(CAT_pet_seek(destination))
+			{
+				CAT_anim_transition(&AM_pet, &AS_idle);
+			}
 		}
 	}
 	else
 	{
-		return;
+		if(!CAT_anim_is_in(&AM_pet, &AS_crit))
+			CAT_anim_transition(&AM_pet, &AS_crit);
 	}
+}
 
+void CAT_pet_react()
+{
 	if(CAT_input_drag(pet.pos.x, pet.pos.y-16, 16) && !CAT_anim_is_in(&AM_mood, &AS_react))
-	{
 		CAT_anim_transition(&AM_mood, &AS_react);
-	}
+
 	if(CAT_anim_is_in(&AM_mood, &AS_react))
 	{
-		if(CAT_timer_tick(pet.react_timer_id))
+		if(pet.react_timer >= CAT_PET_REACT_TIME)
 		{
-			if(CAT_timer_done(pet.petting_timer_id) && pet.times_milked < 3)
+			if(pet.petting_timer >= CAT_PET_PET_COOLDOWN && pet.times_milked < 3)
 			{
 				pet.times_pet += 1;
 				if(pet.times_pet >= 5)
 				{
 					CAT_ivec2 place_grid = CAT_rand_free_space();
 					CAT_ivec2 place_world = CAT_grid2world(place_grid);
-					CAT_vec2 place = {place_world.x, place_world.y};
+					CAT_ivec2 place = {place_world.x, place_world.y};
 
 					CAT_spawn_pickup
 					(
-						pet.pos,
+						CAT_v2iv(pet.pos),
 						place,
 						&milk_sprite,
 						milk_proc
 					);
+
 					pet.times_milked += 1;
 					pet.times_pet = 0;
 				}
-				CAT_timer_reset(pet.petting_timer_id);
+
+				pet.petting_timer = 0;
 			}
 
 			CAT_anim_kill(&AM_mood);
-			CAT_timer_reset(pet.react_timer_id);
+			pet.react_timer = 0;
 		}
+
+		pet.react_timer += CAT_get_delta_time_s();
 	}
 }

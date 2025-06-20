@@ -15,8 +15,8 @@ enum
 	SPARKLINES,
 	CALENDAR,
 	LOGS,
-	// GAMEPLAY,
 	CLOCK,
+	GAMEPLAY,
 	PAGE_COUNT
 };
 static int page = SUMMARY;
@@ -52,15 +52,15 @@ static struct
 		.state = CAT_monitor_MS_logs,
 		.render = CAT_monitor_render_logs
 	},
-	/*[GAMEPLAY] =
-	{
-		.state = CAT_monitor_MS_gameplay,
-		.render = CAT_monitor_render_gameplay
-	},*/
 	[CLOCK] =
 	{
 		.state = CAT_monitor_MS_clock,
 		.render = CAT_monitor_render_clock
+	},
+	[GAMEPLAY] =
+	{
+		.state = CAT_monitor_MS_gameplay,
+		.render = CAT_monitor_render_gameplay
 	},
 };
 
@@ -75,9 +75,14 @@ static void draw_uninit_warning()
 	CAT_draw_text(12, 64, "Air quality sensors are coming online.");
 }
 
+static uint16_t bg_colour = CAT_MONITOR_BG_BLUE;
+
 static void render_monitor()
 {
-	CAT_frameberry(RGB8882565(35, 157, 235));
+	if(page != GAMEPLAY)
+		bg_colour = CAT_MONITOR_BG_BLUE;
+		
+	CAT_frameberry(bg_colour);
 	draw_page_markers(8, PAGE_COUNT, page);
 
 	if
@@ -109,6 +114,11 @@ void CAT_monitor_retreat()
 void CAT_monitor_exit()
 {
 	CAT_machine_transition(CAT_MS_room);
+}
+
+void CAT_monitor_set_background(uint16_t colour)
+{
+	bg_colour = colour;
 }
 
 void CAT_MS_monitor(CAT_machine_signal signal)

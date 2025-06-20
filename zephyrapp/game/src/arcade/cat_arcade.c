@@ -29,7 +29,7 @@ void CAT_MS_arcade(CAT_machine_signal signal)
 			{
 				if(CAT_gui_menu_item("SNACK"))
 					CAT_machine_transition(CAT_MS_snake);
-				if(CAT_gui_menu_item("MINES"))
+				if(CAT_gui_menu_item("SWEEP"))
 					CAT_machine_transition(CAT_MS_mines);
 				if(CAT_gui_menu_item("FOURSQUARES"))
 					CAT_machine_transition(CAT_MS_foursquares);

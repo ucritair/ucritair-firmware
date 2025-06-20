@@ -118,7 +118,7 @@ static int underline(int x, int y, int scale, uint16_t c, const char* fmt, ...)
 
 static void score_bar(int x, int y, int aqm)
 {
-	float subscore = 1-CAT_AQ_normalized_scores[aqm];
+	float subscore = 1-CAT_AQ_get_normalized_score(aqm);
 	int total_width = 16*4;
 	int filled_width = total_width * subscore;
 	uint16_t colour = colour_score(1-subscore);
@@ -145,7 +145,7 @@ static int labeled_scoref(int x, int y, uint16_t c, int aqm, const char* fmt, ..
 	CAT_draw_text(x, y-CAT_GLYPH_HEIGHT*2, textf_buf);
 	x += strlen(textf_buf) * CAT_GLYPH_WIDTH*2 + 8;
 
-	const char* unit = CAT_get_AQM_unit(aqm);
+	const char* unit = CAT_get_AQM_unit_string(aqm);
 	CAT_set_text_colour(c);
 	CAT_draw_text(x, y-CAT_GLYPH_HEIGHT, unit);
 	x += strlen(unit) == 0 ? 4 : strlen(unit) * CAT_GLYPH_WIDTH + 12;

@@ -9,33 +9,18 @@
 #include "mesh2d_assets.h"
 #include "sprite_assets.h"
 
-#define BANNER_Y 40
-
-#define SKULLS_X 12
-#define SKULLS_Y 80
-
-static bool crisis = false;
-
-static void draw_crisis_alert()
-{
-	if(crisis)
-	{
-		CAT_draw_mesh2d(&crisis_alert_mesh2d, 0, BANNER_Y, CAT_RED);
-		CAT_set_text_colour(CAT_RED);
-		if(CAT_pulse(0.25f))
-			CAT_draw_text(8, BANNER_Y + 8, "CRISIS ALERT!");
-	}
-	else
-	{
-		CAT_draw_mesh2d(&crisis_alert_mesh2d, 0, BANNER_Y, CAT_WHITE);
-		CAT_set_text_colour(CAT_WHITE);
-		CAT_draw_text(8, BANNER_Y + 8, "ALL CLEAR");
-	}
-}
-
 void CAT_monitor_render_gameplay()
 {
-	draw_crisis_alert();
+	if(CAT_AQ_is_crisis_ongoing())
+	{
+		CAT_set_text_scale(2);
+		CAT_set_text_colour(CAT_WHITE);
+		CAT_draw_textf(12, 44, CAT_AQ_get_crisis_title());
+		CAT_set_text_colour(CAT_WHITE);
+		CAT_draw_textf(12, 44 + 26, CAT_AQ_get_crisis_severity_string());
+		CAT_set_text_colour(CAT_WHITE);
+		CAT_draw_textf(12, 44 + 26 + 14, "%d / %d\n", CAT_AQ_get_crisis_duration(), CAT_AQ_get_crisis_primetime());
+	}
 }
 
 void CAT_monitor_MS_gameplay(CAT_machine_signal signal)
@@ -51,10 +36,7 @@ void CAT_monitor_MS_gameplay(CAT_machine_signal signal)
 			if(CAT_input_pressed(CAT_BUTTON_LEFT))
 				CAT_monitor_retreat();
 			if(CAT_input_pressed(CAT_BUTTON_RIGHT))
-				CAT_monitor_advance();
-
-			if(CAT_input_touch_down())
-				crisis = !crisis;
+				CAT_monitor_advance();		
 		break;
 
 		case CAT_MACHINE_SIGNAL_EXIT:

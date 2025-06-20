@@ -384,7 +384,8 @@ static struct
 	CAT_vec2 focus_heading;
 
 	bool nibble_trigger;
-	int nibble_timer_id;
+	float nibble_timer;
+	float nibble_time;
 
 	bool vuln_trigger;
 	int vuln_frame_counter;
@@ -392,10 +393,7 @@ static struct
 	float bite_timer;
 
 	bool race_trigger;
-} fish =
-{
-	.nibble_timer_id = -1
-};
+} fish;
 
 static int item_reward;
 static int focus_reward;
@@ -452,7 +450,7 @@ static void init_fish(CAT_vec2 lead_position, CAT_vec2 lead_heading, float lead_
 	fish.focus_trigger = false;
 
 	fish.nibble_trigger = false;
-	CAT_timer_reinit(&fish.nibble_timer_id, 3.0f);
+	fish.nibble_timer = 0;
 	
 	fish.vuln_trigger = false;
 	fish.vuln_frame_counter = 0;
@@ -583,7 +581,7 @@ static void fish_tick()
 	}
 	else if(fish.nibble_trigger)
 	{
-		if(CAT_timer_tick(fish.nibble_timer_id))
+		if(fish.nibble_timer >= fish.nibble_time)
 		{
 			if(draw_bite_probability())
 			{
@@ -596,8 +594,11 @@ static void fish_tick()
 			{
 				nibble_burst(CAT_rand_int(1, 3));
 			}
-			CAT_timer_reinit(&fish.nibble_timer_id, CAT_rand_float(NIBBLE_WAIT_MIN, NIBBLE_WAIT_MAX));
+
+			fish.nibble_timer = 0;
+			fish.nibble_time = CAT_rand_float(NIBBLE_WAIT_MIN, NIBBLE_WAIT_MAX);
 		}
+		fish.nibble_timer += CAT_get_delta_time_s();
 	}
 	else if(fish.focus_trigger)
 	{
@@ -605,7 +606,8 @@ static void fish_tick()
 		if(hook_arena_dist < ARENA_RADIUS && hook_align > 0.7 && hook_distance <= fish.radii[0])
 		{
 			fish.nibble_trigger = true;
-			CAT_timer_reinit(&fish.nibble_timer_id, CAT_rand_float(NIBBLE_WAIT_MIN, NIBBLE_WAIT_MAX));
+			fish.nibble_timer = 0;
+			fish.nibble_time = CAT_rand_float(NIBBLE_WAIT_MIN, NIBBLE_WAIT_MAX);
 		}
 
 		float fish_arena_dist = sqrt(CAT_vec2_dist2((CAT_vec2){120, 160}, fish.positions[0]));
@@ -1195,7 +1197,7 @@ static void render_wave_buffer()
 		int i = (x - wave_phase + 240) % 240;
 
 		int y_f = 320 - (wave_buffer[i]);
-		y_f -= FRAMEBUFFER_ROW_OFFSET;
+		y_f -= CAT_LCD_FRAMEBUFFER_OFFSET;
 		if(y_f < 0)
 			y_f = 0;
 		if(y_f > CAT_LCD_FRAMEBUFFER_H)

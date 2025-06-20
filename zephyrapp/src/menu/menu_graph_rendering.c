@@ -22,7 +22,7 @@ void fill_rect(int x0, int y0, int w, int h, uint16_t color)
 
 void CAT_do_render_graph(int16_t* data, int max, int xoff, int yoff, int cursor_start, int cursor_end)
 {
-	yoff -= FRAMEBUFFER_ROW_OFFSET;
+	yoff -= CAT_LCD_FRAMEBUFFER_OFFSET;
 	if (yoff > LCD_FRAMEBUFFER_H || (yoff+GRAPH_H) < 0) return;
 
 	fill_rect(xoff, yoff, GRAPH_W+GRAPH_MARGIN+GRAPH_MARGIN, GRAPH_MARGIN, 0);
@@ -39,14 +39,14 @@ void CAT_do_render_graph(int16_t* data, int max, int xoff, int yoff, int cursor_
 		int v1 = data[x+1];
 		if(v0 >= 0 && v1 >= 0)
 		{
-			int y0 = yoff+FRAMEBUFFER_ROW_OFFSET+GRAPH_H-v0;
-			int y1 = yoff+FRAMEBUFFER_ROW_OFFSET+GRAPH_H-v1;
+			int y0 = yoff+CAT_LCD_FRAMEBUFFER_OFFSET+GRAPH_H-v0;
+			int y1 = yoff+CAT_LCD_FRAMEBUFFER_OFFSET+GRAPH_H-v1;
 			CAT_lineberry(xoff+x, y0, xoff+x+1, y1, 0x001F);
 		}
 	}
 
 	if(cursor_start >= 0 && cursor_start < GRAPH_W)
-		CAT_lineberry(xoff+cursor_start, yoff, xoff+cursor_start, yoff+FRAMEBUFFER_ROW_OFFSET+GRAPH_H-1, 0x07E0);
+		CAT_lineberry(xoff+cursor_start, yoff, xoff+cursor_start, yoff+CAT_LCD_FRAMEBUFFER_OFFSET+GRAPH_H-1, 0x07E0);
 	if(cursor_end >= 0 && cursor_end < GRAPH_W)
-		CAT_lineberry(xoff+cursor_end, yoff, xoff+cursor_end, yoff+FRAMEBUFFER_ROW_OFFSET+GRAPH_H-1, 0xF800);
+		CAT_lineberry(xoff+cursor_end, yoff, xoff+cursor_end, yoff+CAT_LCD_FRAMEBUFFER_OFFSET+GRAPH_H-1, 0xF800);
 }

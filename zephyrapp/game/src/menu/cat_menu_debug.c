@@ -90,21 +90,13 @@ void CAT_render_debug()
 			CAT_gui_textf("%d/%d/%d %d:%d:%d\n", datetime.month, datetime.day, datetime.year, datetime.hour, datetime.minute, datetime.second);
 
 			CAT_gui_textf("Slept: %ds\n", CAT_get_slept_s());
-			CAT_gui_textf("Life: %0.0fs/%0.0fs\n", CAT_timer_get(pet.life_timer_id), timetable.duration[pet.life_timer_id]);
-			CAT_gui_textf("Stat: %0.0fs/%0.0fs\n", CAT_timer_get(pet.stat_timer_id), timetable.duration[pet.stat_timer_id]);
-			CAT_gui_textf("Earn: %0.0fs/%0.0fs\n", CAT_timer_get(room.earn_timer_id), timetable.duration[room.earn_timer_id]);
-			CAT_gui_textf("Pet: %0.0fs/%0.0fs\n", CAT_timer_get(pet.petting_timer_id), timetable.duration[pet.petting_timer_id]);
+			CAT_gui_textf("Life: %0.0fs/%ds\n", pet.life_timer, CAT_LIFE_TICK_TIME);
+			CAT_gui_textf("Stat: %0.0fs/%ds\n", pet.stat_timer, CAT_STAT_TICK_TIME);
+			CAT_gui_textf("Pet: %0.0fs/%ds\n", pet.petting_timer, CAT_PET_PET_COOLDOWN);
 			CAT_gui_textf("Pets: %d/5\n", pet.times_pet);
 			CAT_gui_textf("Milks: %d/3\n", pet.times_milked);
-			CAT_gui_textf("E-Ink: %0.0fs/%0.0fs\n", time_since_eink_update, eink_update_time_threshold);
-			
-			int active_timers = 0;
-			for(int i = 0; i < CAT_TIMETABLE_MAX_LENGTH; i++)
-			{
-				if(timetable.active[i])
-					active_timers += 1;
-			}
-			CAT_gui_textf("Timers: %d\n", active_timers);
+			CAT_gui_textf("Earn: %0.0fs/%ds\n", room.earn_timer, CAT_EARN_TIME);
+			CAT_gui_textf("E-Ink: %0.0fs/%ds\n", time_since_eink_update, eink_update_time_threshold);
 		break;
 		case DECO:
 			CAT_gui_title(true, NULL, &icon_exit_sprite, "DECO");
@@ -151,7 +143,7 @@ void CAT_render_debug()
 			CAT_gui_textf("NOX: %f\n", readings.sen5x.nox_index);
 			CAT_gui_textf("VOC: %f\n", readings.sen5x.voc_index);
 			CAT_gui_textf("TMP: %f%s\n", CAT_AQ_map_celsius(readings.lps22hh.temp), CAT_AQ_get_temperature_unit_string());
-			CAT_gui_textf("AQI: %f\n", CAT_aq_aggregate_score());
+			CAT_gui_textf("AQI: %f\n", CAT_AQ_aggregate_score());
 		}
 		break;
 		default:

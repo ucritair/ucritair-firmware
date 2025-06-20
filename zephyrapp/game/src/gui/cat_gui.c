@@ -144,13 +144,13 @@ void CAT_gui_div(const char* text)
 	gui_open_channel(CAT_TILE_SIZE);
 	if(strlen(text) == 0)
 	{
-		CAT_rowberry(0, gui.cursor.y, CAT_LCD_SCREEN_W, 0x0000);
+		CAT_lineberry(0, gui.cursor.y, CAT_LCD_SCREEN_W, gui.cursor.y, 0x0000);
 	}
 	else
 	{
 		CAT_gui_text(text);
 		int start = gui.cursor.x + gui.pad;
-		CAT_rowberry(start, gui.cursor.y, CAT_LCD_SCREEN_W-start-gui.margin, 0x0000);
+		CAT_lineberry(start, gui.cursor.y, CAT_LCD_SCREEN_W-gui.margin, gui.cursor.y, 0x0000);
 	}
 	CAT_gui_line_break();
 }
@@ -169,7 +169,7 @@ void CAT_gui_textf(const char* fmt, ...)
 void CAT_gui_title(bool tabs, const CAT_sprite* a_action, const CAT_sprite* b_action, const char* fmt, ...)
 {
 	CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});
-	CAT_rowberry(0, 31, CAT_LCD_SCREEN_W, 0x0000);
+	CAT_lineberry(0, 31, CAT_LCD_SCREEN_W, 31, 0x0000);
 	
 	if(tabs)
 		CAT_gui_text("< ");
@@ -337,7 +337,7 @@ void CAT_gui_keyboard_io()
 void CAT_gui_keyboard()
 {	
 	CAT_gui_panel((CAT_ivec2){0, 10}, (CAT_ivec2){15, 10});
-	CAT_rowberry(0, 160, CAT_LCD_SCREEN_W, 0x0000);
+	CAT_lineberry(0, 160, CAT_LCD_SCREEN_W, 160, 0x0000);
 	CAT_gui_text(keyboard.buffer);
 	if(keyboard.show_cursor)
 		CAT_gui_text("|");
@@ -801,7 +801,7 @@ void CAT_gui_printf(uint16_t colour, const char* fmt, ...)
 	vsnprintf(text, 128, fmt, args);
 	va_end(args);
 	
-	int modified_y = printf_cursor_y - FRAMEBUFFER_ROW_OFFSET;
+	int modified_y = printf_cursor_y - CAT_LCD_FRAMEBUFFER_OFFSET;
 	if(modified_y < 0 || modified_y >= CAT_LCD_FRAMEBUFFER_H)
 		return;
 
@@ -1082,27 +1082,27 @@ void CAT_gui_item_grid()
 
 void CAT_gui_io()
 {
-	if(CAT_gui_keyboard_is_open())
-		CAT_gui_keyboard_io();
-	else if(CAT_gui_popup_is_open())
+	if(CAT_gui_popup_is_open())
 		CAT_gui_popup_io();
+	else if(CAT_gui_keyboard_is_open())
+		CAT_gui_keyboard_io();
+	else if(CAT_gui_item_grid_is_open())
+		CAT_gui_item_grid_io();
 	else if(CAT_gui_menu_is_open())
 		CAT_gui_menu_io();
-
-	if(CAT_gui_item_grid_is_open())
-		CAT_gui_item_grid_io();
 }
 
 void CAT_gui_render()
 {
 	if(CAT_gui_menu_is_open())
 		CAT_gui_menu();
-	if(CAT_gui_item_grid_is_open())
+	else if(CAT_gui_item_grid_is_open())
 		CAT_gui_item_grid();
-	if(CAT_gui_popup_is_open())
-		CAT_gui_popup();
+
 	if(CAT_gui_keyboard_is_open())
 		CAT_gui_keyboard();
+	if(CAT_gui_popup_is_open())
+		CAT_gui_popup();
 	
 	if(CAT_is_last_render_cycle())
 		printf_cursor_y = 0;

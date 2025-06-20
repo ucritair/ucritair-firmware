@@ -2,6 +2,9 @@
 
 #include <math.h>
 
+//////////////////////////////////////////////////////////////////////////
+// EASING CURVES
+
 static inline float CAT_ease_in_sine(float t)
 {
 	return 1 - cos(0.5f * M_PI * t);
@@ -180,4 +183,15 @@ static inline float CAT_ease_inout_elastic(float t)
 	t < 0.5f ?
 	-pow(2, 20*t-10) * sin(c*(20*t-11.125)) * 0.5f :
 	pow(2, -20*t+10) * sin(c*(20*t-11.125)) * 0.5f + 1;
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+// TIMED CURVES
+
+static inline bool CAT_pulse(float period)
+{
+	int T = period * 1000.0f;
+	int t = CAT_get_uptime_ms();
+	return t % (2*T) < T;
 }

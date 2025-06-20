@@ -45,7 +45,7 @@
 #pragma GCC diagnostic ignored "-Wunknown-pragmas"
 #endif
 
-const int eink_update_time_threshold = CAT_MIN_SECS;
+const int eink_update_time_threshold = CAT_MINUTE_SECONDS;
 float time_since_eink_update = 0.0f;
 bool first_eink_update_complete = false;
 
@@ -90,10 +90,10 @@ void CAT_force_save()
 	save->highscores.mine = 0;
 	save->highscores.foursquares = 0;
 
-	save->timing.stat_timer = CAT_timer_get(pet.stat_timer_id);
-	save->timing.life_timer = CAT_timer_get(pet.life_timer_id);
-	save->timing.earn_timer = CAT_timer_get(room.earn_timer_id);
-	save->timing.petting_timer = CAT_timer_get(pet.petting_timer_id);
+	save->timing.stat_timer = pet.stat_timer;
+	save->timing.life_timer = pet.life_timer;
+	save->timing.earn_timer = room.earn_timer;
+	save->timing.petting_timer = pet.petting_timer;
 	save->timing.petting_count = pet.times_pet;
 	save->timing.milking_count = pet.times_milked;
 
@@ -264,10 +264,10 @@ void CAT_force_load()
 
 	snake_high_score = save->highscores.snake;
 
-	CAT_timer_set(pet.stat_timer_id, save->timing.stat_timer);
-	CAT_timer_set(pet.life_timer_id, save->timing.life_timer);
-	CAT_timer_set(room.earn_timer_id, save->timing.earn_timer);
-	CAT_timer_set(pet.petting_timer_id, save->timing.petting_timer);
+	pet.stat_timer = save->timing.stat_timer;
+	pet.life_timer = save->timing.life_timer;
+	room.earn_timer = save->timing.earn_timer;
+	pet.petting_timer = save->timing.petting_timer;
 	pet.times_pet = save->timing.petting_count;
 	pet.times_milked = save->timing.milking_count;
 
@@ -285,22 +285,22 @@ void CAT_force_load()
 
 void CAT_apply_sleep(int seconds)
 {
-	int stat_ticks = seconds / CAT_STAT_TICK_SECS;
-	int stat_remainder = seconds % CAT_STAT_TICK_SECS;
+	int stat_ticks = seconds / CAT_STAT_TICK_TIME;
+	int stat_remainder = seconds % CAT_STAT_TICK_TIME;
 	CAT_pet_stat(stat_ticks);
-	CAT_timer_add(pet.stat_timer_id, stat_remainder);
+	pet.stat_timer += stat_remainder;
 
-	int life_ticks = seconds / CAT_LIFE_TICK_SECS;
-	int life_remainder = seconds % CAT_LIFE_TICK_SECS;
+	int life_ticks = seconds / CAT_LIFE_TICK_TIME;
+	int life_remainder = seconds % CAT_LIFE_TICK_TIME;
 	CAT_pet_life(life_ticks);
-	CAT_timer_add(pet.life_timer_id, life_remainder);
+	pet.life_timer += life_remainder;
 
-	int earn_ticks = seconds / CAT_EARN_TICK_SECS;
-	int earn_remainder = seconds % CAT_EARN_TICK_SECS;
+	int earn_ticks = seconds / CAT_EARN_TIME;
+	int earn_remainder = seconds % CAT_EARN_TIME;
 	CAT_room_earn(earn_ticks);
-	CAT_timer_add(room.earn_timer_id, earn_remainder);
+	room.earn_timer += earn_remainder;
 
-	CAT_timer_add(pet.petting_timer_id, seconds);
+	pet.petting_timer += seconds;
 
 	time_since_eink_update += seconds;
 }
@@ -311,12 +311,11 @@ void CAT_init()
 	CAT_input_init();
 	CAT_sound_power(true);
 
-	CAT_timetable_init();
-	CAT_animator_init();
 	CAT_rand_seed();
+	CAT_animator_init();
 
-	CAT_room_init();
 	CAT_pet_init();
+	CAT_room_init();
 
 	CAT_force_load();
 	CAT_apply_sleep(CAT_get_slept_s());
@@ -344,9 +343,10 @@ void CAT_tick_logic()
 
 	CAT_animator_tick();
 
-	CAT_room_tick();
+	CAT_AQ_tick();
 	CAT_pet_tick();
-
+	CAT_room_tick();
+	
 	CAT_machine_tick();
 
 	CAT_gui_io();

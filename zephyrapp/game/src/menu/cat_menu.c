@@ -20,14 +20,6 @@
 
 #ifdef CAT_EMBEDDED
 #include "menu_system.h"
-#include "menu_aqi.h"
-#include "menu_graph.h"
-#endif
-
-#ifdef CAT_EMBEDDED
-#define EMBEDDED_ONLY_OPTION(name, effect) if(CAT_gui_menu_item(name)){ effect; }
-#else
-#define EMBEDDED_ONLY_OPTION(name, effect) CAT_gui_menu_item(name);
 #endif
 
 void CAT_MS_menu(CAT_machine_signal signal)
@@ -54,22 +46,8 @@ void CAT_MS_menu(CAT_machine_signal signal)
 					CAT_machine_transition(CAT_MS_shop);
 				if(CAT_gui_menu_item("ARCADE"))
 					CAT_machine_transition(CAT_MS_arcade);
-				if(CAT_gui_begin_menu("AIR QUALITY"))
-				{
-					if(CAT_gui_menu_item("DASHBOARD"))
-						CAT_machine_transition(CAT_MS_monitor);
-					if(CAT_gui_begin_menu("LEGACY"))
-					{
-#ifdef CAT_EMBEDDED
-						if(CAT_gui_menu_item("LOGS"))
-							CAT_machine_transition(CAT_MS_aqi);
-						if(CAT_gui_menu_item("GRAPH"))
-							CAT_machine_transition(CAT_MS_graph);
-#endif
-						CAT_gui_end_menu();
-					}
-					CAT_gui_end_menu();
-				}
+				if(CAT_gui_menu_item("DASHBOARD"))
+					CAT_machine_transition(CAT_MS_monitor);
 				if(CAT_gui_menu_item("MAGIC"))
 					CAT_machine_transition(CAT_MS_magic);
 				if(CAT_check_config_flags(CAT_CONFIG_FLAG_DEVELOPER))
@@ -173,7 +151,7 @@ void CAT_MS_menu(CAT_machine_signal signal)
 						}
 						CAT_gui_end_menu();
 					}
-					if(CAT_gui_begin_menu("AIR QUALITY##Settings"))
+					if(CAT_gui_begin_menu("AIR QUALITY"))
 					{
 						if(CAT_gui_begin_menu("TEMPERATURE UNIT"))
 						{
@@ -183,17 +161,17 @@ void CAT_MS_menu(CAT_machine_signal signal)
 								CAT_AQ_set_temperature_unit(CAT_TEMPERATURE_UNIT_DEGREES_FAHRENHEIT);
 							CAT_gui_end_menu();
 						}
-						CAT_gui_end_menu();
-					}
-					if(CAT_gui_begin_menu("LAUNCH MODE"))
-					{
-						if(CAT_gui_menu_toggle("GAME FIRST", !CAT_check_config_flags(CAT_CONFIG_FLAG_AQ_FIRST)))
+						if(CAT_gui_begin_menu("LAUNCH MODE"))
 						{
-							CAT_unset_config_flags(CAT_CONFIG_FLAG_AQ_FIRST);
-						}
-						if(CAT_gui_menu_toggle("DASHBOARD FIRST", CAT_check_config_flags(CAT_CONFIG_FLAG_AQ_FIRST)))
-						{
-							CAT_set_config_flags(CAT_CONFIG_FLAG_AQ_FIRST);
+							if(CAT_gui_menu_toggle("GAME FIRST", !CAT_check_config_flags(CAT_CONFIG_FLAG_AQ_FIRST)))
+							{
+								CAT_unset_config_flags(CAT_CONFIG_FLAG_AQ_FIRST);
+							}
+							if(CAT_gui_menu_toggle("DASHBOARD FIRST", CAT_check_config_flags(CAT_CONFIG_FLAG_AQ_FIRST)))
+							{
+								CAT_set_config_flags(CAT_CONFIG_FLAG_AQ_FIRST);
+							}
+							CAT_gui_end_menu();
 						}
 						CAT_gui_end_menu();
 					}

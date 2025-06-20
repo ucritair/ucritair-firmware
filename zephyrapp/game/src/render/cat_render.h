@@ -10,23 +10,16 @@
 //////////////////////////////////////////////////////////////////////////
 // CONSTANTS AND MACROS
 
-#define CAT_TILE_SIZE 16
-#define CAT_GLYPH_WIDTH 8
-#define CAT_GLYPH_HEIGHT 12
-
-#define CAT_DRAW_QUEUE_MAX_LENGTH 512
-#define CAT_ANIM_TABLE_MAX_LENGTH 512
-
 #define RGB8882565(r, g, b) ((((r) & 0b11111000) << 8) | (((g) & 0b11111100) << 3) | ((b) >> 3))
 #define RGB5652BGR565(c) (((c) >> 8) | (((c) & 0xff) << 8))
 
 #ifdef CAT_DESKTOP
-#define FRAMEBUFFER_ROW_OFFSET (CAT_get_render_cycle() * CAT_LCD_FRAMEBUFFER_H)
+#define CAT_LCD_FRAMEBUFFER_OFFSET (CAT_get_render_cycle() * CAT_LCD_FRAMEBUFFER_H)
 
 #define ADAPT_DESKTOP_COLOUR(c) c
 #define ADAPT_EMBEDDED_COLOUR(c) RGB5652BGR565(c)
 #else
-#define FRAMEBUFFER_ROW_OFFSET framebuffer_offset_h
+#define CAT_LCD_FRAMEBUFFER_OFFSET framebuffer_offset_h
 
 #define ADAPT_DESKTOP_COLOUR(c) RGB5652BGR565(c)
 #define ADAPT_EMBEDDED_COLOUR(c) c
@@ -141,13 +134,10 @@ typedef enum
 	CAT_POLY_MODE_LINE_LOOP
 } CAT_poly_mode;
 
-void CAT_greenberry(int xi, int w, int yi, int h, float t);
 void CAT_frameberry(uint16_t c);
-void CAT_greyberry(int xi, int w, int yi, int h);
 void CAT_lineberry(int xi, int yi, int xf, int yf, uint16_t c);
 void CAT_fillberry(int xi, int yi, int w, int h, uint16_t c);
 void CAT_strokeberry(int xi, int yi, int w, int h, uint16_t c);
-void CAT_rowberry(int x, int y, int w, uint16_t c);
 void CAT_pixberry(int x, int y, uint16_t c);
 void CAT_circberry(int x, int y, int r, uint16_t c);
 void CAT_discberry(int x, int y, int r, uint16_t c);
@@ -195,6 +185,8 @@ bool CAT_anim_is_ending(CAT_anim_machine* machine);
 
 //////////////////////////////////////////////////////////////////////////
 // DRAW QUEUE
+
+#define CAT_DRAW_QUEUE_MAX_LENGTH 256
 
 enum CAT_sprite_layers
 {

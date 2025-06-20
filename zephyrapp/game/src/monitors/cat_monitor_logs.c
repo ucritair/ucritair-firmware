@@ -39,47 +39,47 @@ void CAT_monitor_render_logs()
 	if(cell.flags & CAT_LOG_CELL_FLAG_HAS_CO2)
 	{
 		CAT_set_text_colour(CAT_WHITE);
-		cursor_y = CAT_draw_textf(MARGIN_X, cursor_y, "CO2\t   %d ppm\n", cell.co2_ppmx1);
+		cursor_y = CAT_draw_textf(MARGIN_X, cursor_y, "CO2       %d ppm\n", cell.co2_ppmx1);
 		cursor_y += 6;
 	}
 
 	if(cell.voc_index && cell.nox_index)
 	{
 		CAT_set_text_colour(CAT_WHITE);
-		cursor_y = CAT_draw_textf(MARGIN_X, cursor_y, "VOC\t   %d\n", cell.voc_index);
+		cursor_y = CAT_draw_textf(MARGIN_X, cursor_y, "VOC       %d\n", cell.voc_index);
 		CAT_set_text_colour(CAT_WHITE);
-		cursor_y = CAT_draw_textf(MARGIN_X, cursor_y, "NOX\t   %d\n", cell.nox_index);
+		cursor_y = CAT_draw_textf(MARGIN_X, cursor_y, "NOX       %d\n", cell.nox_index);
 		cursor_y += 6;
 	}
 
 	if(cell.flags & CAT_LOG_CELL_FLAG_HAS_TEMP_RH_PARTICLES)
 	{
 		CAT_set_text_colour(CAT_WHITE);
-		cursor_y = CAT_draw_textf(MARGIN_X, cursor_y, "PM 1.0\t%.1f \4g/m\5\n", cell.pm_ugmx100[0]/100.0f);
+		cursor_y = CAT_draw_textf(MARGIN_X, cursor_y, "PM 1.0    %.1f \4g/m\5\n", cell.pm_ugmx100[0]/100.0f);
 		CAT_set_text_colour(CAT_WHITE);
-		cursor_y = CAT_draw_textf(MARGIN_X, cursor_y, "PM 2.5\t%.1f \4g/m\5\n", cell.pm_ugmx100[1]/100.0f);
+		cursor_y = CAT_draw_textf(MARGIN_X, cursor_y, "PM 2.5    %.1f \4g/m\5\n", cell.pm_ugmx100[1]/100.0f);
 		CAT_set_text_colour(CAT_WHITE);
-		cursor_y = CAT_draw_textf(MARGIN_X, cursor_y, "PM 4.0\t%.1f \4g/m\5\n", cell.pm_ugmx100[2]/100.0f);
+		cursor_y = CAT_draw_textf(MARGIN_X, cursor_y, "PM 4.0    %.1f \4g/m\5\n", cell.pm_ugmx100[2]/100.0f);
 		CAT_set_text_colour(CAT_WHITE);
-		cursor_y = CAT_draw_textf(MARGIN_X, cursor_y, "PM10.0\t%.1f \4g/m\5\n", cell.pm_ugmx100[3]/100.0f);
+		cursor_y = CAT_draw_textf(MARGIN_X, cursor_y, "PM10.0    %.1f \4g/m\5\n", cell.pm_ugmx100[3]/100.0f);
 		cursor_y += 6;
 
 		CAT_set_text_colour(CAT_WHITE);
-		cursor_y = CAT_draw_textf(MARGIN_X, cursor_y, "PN 0.5\t%.1f #/cm\5\n", cell.pn_ugmx100[0]/100.0f);
+		cursor_y = CAT_draw_textf(MARGIN_X, cursor_y, "PN 0.5    %.1f #/cm\5\n", cell.pn_ugmx100[0]/100.0f);
 		CAT_set_text_colour(CAT_WHITE);
-		cursor_y = CAT_draw_textf(MARGIN_X, cursor_y, "PN 1.0\t%.1f #/cm\5\n", cell.pn_ugmx100[1]/100.0f);
+		cursor_y = CAT_draw_textf(MARGIN_X, cursor_y, "PN 1.0    %.1f #/cm\5\n", cell.pn_ugmx100[1]/100.0f);
 		CAT_set_text_colour(CAT_WHITE);
-		cursor_y = CAT_draw_textf(MARGIN_X, cursor_y, "PN 2.5\t%.1f #/cm\5\n", cell.pn_ugmx100[2]/100.0f);
+		cursor_y = CAT_draw_textf(MARGIN_X, cursor_y, "PN 2.5    %.1f #/cm\5\n", cell.pn_ugmx100[2]/100.0f);
 		CAT_set_text_colour(CAT_WHITE);
-		cursor_y = CAT_draw_textf(MARGIN_X, cursor_y, "PN 4.0\t%.1f #/cm\5\n", cell.pn_ugmx100[3]/100.0f);
+		cursor_y = CAT_draw_textf(MARGIN_X, cursor_y, "PN 4.0    %.1f #/cm\5\n", cell.pn_ugmx100[3]/100.0f);
 		CAT_set_text_colour(CAT_WHITE);
-		cursor_y = CAT_draw_textf(MARGIN_X, cursor_y, "PN10.0\t%.1f #/cm\5\n", cell.pn_ugmx100[4]/100.0f);
+		cursor_y = CAT_draw_textf(MARGIN_X, cursor_y, "PN10.0    %.1f #/cm\5\n", cell.pn_ugmx100[4]/100.0f);
 		cursor_y += 6;
 
 		CAT_set_text_colour(CAT_WHITE);
 		cursor_y = CAT_draw_textf
 		(
-			MARGIN_X, cursor_y, "%.1f %s %.1f %%RH %.1f hPa",
+			MARGIN_X, cursor_y, "%.1f%s  %.1f %%RH  %.1f hPa",
 			CAT_AQ_map_celsius(cell.temp_Cx1000 / 1000.0f), CAT_AQ_get_temperature_unit_string(),
 			cell.rh_pctx100 / 100.0f, cell.pressure_hPax10 / 10.0f
 		);

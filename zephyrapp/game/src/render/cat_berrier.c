@@ -7,84 +7,13 @@
 //////////////////////////////////////////////////////////////////////////
 // THE BERRIER
 
-// CATs when they eat a
-void CAT_greenberry(int xi, int w, int yi, int h, float t)
-{
-	uint16_t* framebuffer = CAT_LCD_get_framebuffer();
-
-	yi -= FRAMEBUFFER_ROW_OFFSET;
-	int xf = xi + w * t;
-	int yf = yi + h;
-
-	if (yi > CAT_LCD_FRAMEBUFFER_H || yf < 0)
-		return;
-
-	if (yf >= CAT_LCD_FRAMEBUFFER_H)
-		yf = CAT_LCD_FRAMEBUFFER_H-1;
-
-	if (yi < 0)
-		yi = 0;
-
-	for(int y = yi; y < yf; y++)
-	{
-		for(int x = xi; x < xf; x++)
-		{
-			int idx = y * CAT_LCD_FRAMEBUFFER_W + x;
-			// r4 r3 r2 r1 r0 g5 g4 g3     g2 g1 g0 b4 b3 b2 b1 b0
-			// g2 g1 g0 b4 b3 b2 b1 b0     r4 r3 r2 r1 r0 g5 g4 g3
-			uint16_t px = framebuffer[idx];
-			px |= 0b011;
-			px &= (0b00010000<<8) | 0b10001111;
-			framebuffer[idx] = ADAPT_EMBEDDED_COLOUR(px);
-		}
-	}
-}
-// Okay, it's more of an orangeberry. [Goldberry?](https://tolkiengateway.net/wiki/Goldberry)
-
 void CAT_frameberry(uint16_t c)
 {
 	c = ADAPT_DESKTOP_COLOUR(c);
-	uint16_t* framebuffer = CAT_LCD_get_framebuffer();
-
-	uint16_t* px = framebuffer;
-	uint16_t* end = framebuffer + CAT_LCD_FRAMEBUFFER_W * CAT_LCD_FRAMEBUFFER_H;
-	while(px != end)
-	{
-		*(px++) = c;
-	}
-}
-
-
-// Cats would probably never eat this one
-void CAT_greyberry(int xi, int w, int yi, int h)
-{
-	uint16_t* framebuffer = CAT_LCD_get_framebuffer();
-
-	yi -= FRAMEBUFFER_ROW_OFFSET;
-	int xf = xi + w;
-	int yf = yi + h;
-
-	if (yi > CAT_LCD_FRAMEBUFFER_H || yf < 0)
-		return;
-
-	if (yf > CAT_LCD_FRAMEBUFFER_H)
-		yf = CAT_LCD_FRAMEBUFFER_H;
-
-	if (yi < 0)
-		yi = 0;
-
-	for(int y = yi; y < yf; y++)
-	{
-		for(int x = xi; x < xf; x++)
-		{
-			int idx = y * CAT_LCD_FRAMEBUFFER_W + x;
-			// r4 r3 r2 r1 r0 g5 g4 g3     g2 g1 g0 b4 b3 b2 b1 b0
-			// g2 g1 g0 b4 b3 b2 b1 b0     r4 r3 r2 r1 r0 g5 g4 g3
-			uint16_t px = framebuffer[idx];
-			px &= (0b00010000<<8) | 0b10000100;
-			framebuffer[idx] = ADAPT_EMBEDDED_COLOUR(px);
-		}
-	}
+	uint32_t c32 = (c << 16) | c;
+	uint32_t* px = CAT_LCD_get_framebuffer();
+	for(int i = 0; i < 19200; i++)
+		*(px++) = c32;
 }
 
 // implementation based on Dmitri Sokolov's
@@ -134,9 +63,9 @@ void CAT_lineberry(int xi, int yi, int xf, int yf, uint16_t c)
 	// we employ a branch between two for loops to avoid branching within one loop
 	if(steep)
 	{
-		for(int x = xi; x < xf; x++)
+		for(int x = xi; x <= xf; x++)
 		{
-			int xw = x - FRAMEBUFFER_ROW_OFFSET;
+			int xw = x - CAT_LCD_FRAMEBUFFER_OFFSET;
 			if(y >= 0 && y < CAT_LCD_FRAMEBUFFER_W && xw >= 0 && xw < CAT_LCD_FRAMEBUFFER_H)
 				framebuffer[xw * CAT_LCD_FRAMEBUFFER_W + y] = c;
 
@@ -150,9 +79,9 @@ void CAT_lineberry(int xi, int yi, int xf, int yf, uint16_t c)
 	}
 	else
 	{
-		for(int x = xi; x < xf; x++)
+		for(int x = xi; x <= xf; x++)
 		{
-			int yw = y - FRAMEBUFFER_ROW_OFFSET;
+			int yw = y - CAT_LCD_FRAMEBUFFER_OFFSET;
 			if(x >= 0 && x < CAT_LCD_FRAMEBUFFER_W && yw >= 0 && yw < CAT_LCD_FRAMEBUFFER_H)
 				framebuffer[yw * CAT_LCD_FRAMEBUFFER_W + x] = c;
 
@@ -173,7 +102,7 @@ void CAT_fillberry(int xi, int yi, int w, int h, uint16_t c)
 
 	int xf = clamp(xi + w, 0, CAT_LCD_FRAMEBUFFER_W);
 	xi = clamp(xi, 0, CAT_LCD_FRAMEBUFFER_W);
-	yi -= FRAMEBUFFER_ROW_OFFSET;
+	yi -= CAT_LCD_FRAMEBUFFER_OFFSET;
 	int yf = clamp(yi + h, 0, CAT_LCD_FRAMEBUFFER_H);
 	yi = clamp(yi, 0, CAT_LCD_FRAMEBUFFER_H);
 
@@ -192,7 +121,7 @@ void CAT_strokeberry(int xi, int yi, int w, int h, uint16_t c)
 	uint16_t* framebuffer = CAT_LCD_get_framebuffer();
 
 	int xf = xi + w;
-	yi -= FRAMEBUFFER_ROW_OFFSET;
+	yi -= CAT_LCD_FRAMEBUFFER_OFFSET;
 	int yf = yi + h;
 	
 	if(yi >= 0 && yi < CAT_LCD_FRAMEBUFFER_H)
@@ -230,29 +159,11 @@ void CAT_strokeberry(int xi, int yi, int w, int h, uint16_t c)
 	}
 }
 
-void CAT_rowberry(int x, int y, int w, uint16_t c)
-{
-	c = ADAPT_DESKTOP_COLOUR(c);
-	uint16_t* framebuffer = CAT_LCD_get_framebuffer();
-
-	int xf = clamp(x+w, 0, CAT_LCD_FRAMEBUFFER_W);
-	x = clamp(x, 0, CAT_LCD_FRAMEBUFFER_W);
-	y -= FRAMEBUFFER_ROW_OFFSET;
-
-	if(y >= 0 && y < CAT_LCD_FRAMEBUFFER_H)
-	{
-		for(int xw = x; xw < xf; xw++)
-		{
-			framebuffer[y * CAT_LCD_FRAMEBUFFER_W + xw] = c;
-		}
-	}
-}
-
 void CAT_pixberry(int x, int y, uint16_t c)
 {
 	if(x < 0 || x >= CAT_LCD_FRAMEBUFFER_W)
 		return;
-	y -= FRAMEBUFFER_ROW_OFFSET;
+	y -= CAT_LCD_FRAMEBUFFER_OFFSET;
 	if(y < 0 || y >= CAT_LCD_FRAMEBUFFER_H)
 		return;
 
@@ -264,6 +175,19 @@ void CAT_pixberry(int x, int y, uint16_t c)
 void CAT_circberry(int x, int y, int r, uint16_t c)
 {
 	//uint16_t* framebuffer = CAT_LCD_get_framebuffer();
+
+	int min_x = x-r;
+	int max_x = x+r;
+	int min_y = y-r - CAT_LCD_FRAMEBUFFER_OFFSET;
+	int max_y = y+r - CAT_LCD_FRAMEBUFFER_OFFSET;
+	if(min_x >= CAT_LCD_FRAMEBUFFER_W)
+		return;
+	if(max_x < 0)
+		return;
+	if(min_y >= CAT_LCD_FRAMEBUFFER_H)
+		return;
+	if(max_y < 0)
+		return;
 
 	int f = 1 - r;
 	int ddfx = 0;
@@ -305,7 +229,7 @@ void CAT_discberry(int x, int y, int r, uint16_t c)
 	c = ADAPT_DESKTOP_COLOUR(c);
 	uint16_t* framebuffer = CAT_LCD_get_framebuffer();
 
-	y -= FRAMEBUFFER_ROW_OFFSET;
+	y -= CAT_LCD_FRAMEBUFFER_OFFSET;
 	int yi = y - r;
 	int yf = y + r;
 	if (yi > CAT_LCD_FRAMEBUFFER_H || yf < 0)
@@ -336,7 +260,7 @@ void CAT_ringberry(int x, int y, int R, int r, uint16_t c, float t, float shift)
 	c = ADAPT_DESKTOP_COLOUR(c);
 	uint16_t* framebuffer = CAT_LCD_get_framebuffer();
 
-	y -= FRAMEBUFFER_ROW_OFFSET;
+	y -= CAT_LCD_FRAMEBUFFER_OFFSET;
 	int yi = y - r;
 	int yf = y + r;
 	if (yi > CAT_LCD_FRAMEBUFFER_H || yf < 0)
@@ -344,6 +268,10 @@ void CAT_ringberry(int x, int y, int R, int r, uint16_t c, float t, float shift)
 
 	t *= 2 * M_PI;
 	shift *= 2 * M_PI;
+
+	float cos_s, sin_s;
+	cos_s = cos(shift);
+	sin_s = sin(shift);
 
 	for(int dy = -R; dy <= R; dy++)
 	{
@@ -357,15 +285,14 @@ void CAT_ringberry(int x, int y, int R, int r, uint16_t c, float t, float shift)
 			if(x_w < 0 || x_w >= CAT_LCD_FRAMEBUFFER_W)
 				continue;
 
-			CAT_vec2 spoke = CAT_vec2_rotate((CAT_vec2){dx, dy}, shift);
-			float length = CAT_vec2_mag2(spoke);
-			if(length >= r*r && length <= R*R)
+			int length2 = dx*dx + dy*dy;
+			if(length2 >= r*r && length2 <= R*R)
 			{
-				float arc = atan2f(spoke.y, -spoke.x) + M_PI;
+				float dxr = shift == 0 ? dx : cos_s * dx - sin_s * dy;
+				float dyr = shift == 0 ? dy : sin_s * dx + cos_s * dy;
+				float arc = atan2f(dyr, -dxr) + M_PI;
 				if(arc <= t)
-				{
-					framebuffer[y_w * CAT_LCD_FRAMEBUFFER_W + x_w] = c;
-				}
+					framebuffer[y_w * CAT_LCD_FRAMEBUFFER_W + x_w] = c;				
 			}
 		}
 	}

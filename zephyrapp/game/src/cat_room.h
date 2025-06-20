@@ -23,7 +23,7 @@
 #define CAT_WORLD_MAX_Y (CAT_WORLD_MIN_Y + CAT_WORLD_HEIGHT - 1)
 
 #define CAT_MAX_PICKUP_COUNT 128
-#define CAT_EARN_TICK_SECS (CAT_HOUR_SECS)
+#define CAT_EARN_TIME CAT_HOUR_SECONDS
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -45,13 +45,13 @@ typedef struct CAT_room_theme
 
 typedef struct CAT_pickup
 {
-	CAT_vec2 origin;
-	CAT_vec2 place;
+	CAT_ivec2 origin;
+	CAT_ivec2 place;
 
 	const CAT_sprite* sprite;
 	void (*proc)();
 
-	int timer_id;
+	float timer;
 } CAT_pickup;
 
 typedef struct CAT_room
@@ -67,7 +67,7 @@ typedef struct CAT_room
 	CAT_pickup pickups[CAT_MAX_PICKUP_COUNT];
 	int pickup_count;
 
-	int earn_timer_id;
+	float earn_timer;
 } CAT_room;
 extern CAT_room room;
 
@@ -97,7 +97,7 @@ void CAT_room_unstack_prop(int idx);
 void CAT_room_remove_prop(int idx);
 void CAT_room_flip_prop(int idx);
 
-int CAT_spawn_pickup(CAT_vec2 origin, CAT_vec2 place, const CAT_sprite* sprite, void (*proc)());
+int CAT_spawn_pickup(CAT_ivec2 origin, CAT_ivec2 place, const CAT_sprite* sprite, void (*proc)());
 void CAT_despawn_pickup(int idx);
 
 void CAT_room_earn(int ticks);

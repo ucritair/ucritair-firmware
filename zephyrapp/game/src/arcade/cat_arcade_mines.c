@@ -80,7 +80,7 @@ static bool first_click = true;
 static int clicks = 0;
 static int unseen = 0;
 
-static int reveal_timer_id = -1;
+static int last_revealed = 0;
 static bool reveal_complete = false;
 
 void toggle_mine(int x, int y, bool value)
@@ -228,8 +228,7 @@ void CAT_MS_mines(CAT_machine_signal signal)
 			first_click = true;
 			clicks = 0;
 
-			if(reveal_timer_id == -1)
-				reveal_timer_id = CAT_timer_init(0.05f);
+			last_revealed = -1;
 			reveal_complete = false;
 			break;
 		}
@@ -307,34 +306,29 @@ void CAT_MS_mines(CAT_machine_signal signal)
 			{
 				if(!reveal_complete)
 				{
-					if(CAT_timer_tick(reveal_timer_id))
+					if(CAT_input_dismissal())
+						reveal_complete = true;
+
+					for(int i = last_revealed; i < GRID_SIZE; i++)
 					{
-						CAT_timer_reset(reveal_timer_id);
-						reveal_complete = true;
-						for(int i = 0; i < GRID_SIZE; i++)
+						if(grid[i].mine && !grid[i].seen)
 						{
-							if(grid[i].mine && !grid[i].seen)
-							{
-								grid[i].seen = true;
-								reveal_complete = false;
-								break;
-							}	
+							grid[i].seen = true;
+							last_revealed = i;
+							break;
 						}
+						else if(i == GRID_SIZE-1)
+							reveal_complete = true;
 					}
-					
-					if(CAT_input_pressed(CAT_BUTTON_A) || CAT_input_pressed(CAT_BUTTON_B) || CAT_input_pressed(CAT_BUTTON_START))
-						reveal_complete = true;
 				}
 				else
 				{
-					if(CAT_input_pressed(CAT_BUTTON_A) || CAT_input_pressed(CAT_BUTTON_B) || CAT_input_pressed(CAT_BUTTON_START))
+					if(CAT_input_dismissal())
 					{
 						if(state == WIN)
-						{
 							CAT_inventory_add(prop_mine_item, 1);
-						}
 						CAT_machine_back();
-					}	
+					}
 				}
 				break;
 			}

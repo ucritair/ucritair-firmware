@@ -4,13 +4,11 @@
 #include "cat_math.h"
 #include "cat_render.h"
 
-#define CAT_MIN_SECS 60
-#define CAT_HOUR_SECS 3600
-#define CAT_DAY_SECS 86400
-
-#define CAT_LIFE_TICK_SECS (CAT_DAY_SECS)
-#define CAT_STAT_TICK_SECS (CAT_DAY_SECS / 4)
-#define CAT_PET_COOLDOWN_SECS (CAT_MIN_SECS)
+#define CAT_LIFE_TICK_TIME (CAT_DAY_SECONDS)
+#define CAT_STAT_TICK_TIME (CAT_DAY_SECONDS / 4)
+#define CAT_PET_PET_COOLDOWN (CAT_MINUTE_SECONDS)
+#define CAT_PET_WALK_COOLDOWN 4
+#define CAT_PET_REACT_TIME 2
 
 typedef struct CAT_pet
 {
@@ -25,14 +23,14 @@ typedef struct CAT_pet
 	CAT_vec2 vel;
 	int rot;
 	
-	int stat_timer_id;
-	int life_timer_id;
+	float stat_timer;
+	float life_timer;
 
-	int walk_timer_id;
-	int react_timer_id;
+	float walk_timer;
+	float react_timer;
 
 	unsigned int times_pet;
-	int petting_timer_id;
+	float petting_timer;
 	unsigned int times_milked;
 
 	char name[64];
@@ -44,6 +42,8 @@ extern CAT_anim_machine AM_mood;
 void CAT_pet_init();
 void CAT_pet_reanimate();
 void CAT_pet_settle();
+void CAT_pet_walk();
+void CAT_pet_react();
 
 bool CAT_pet_seek(CAT_vec2 targ);
 void CAT_pet_face(CAT_vec2 targ);
