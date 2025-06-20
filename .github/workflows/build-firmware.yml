@@ -31,7 +31,7 @@ jobs:
           mv zephyrapp/build/zephyr/zephyr.signed.bin ${{ env.FILENAME }}
           
       - name: Upload firmware binary
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: firmware-binary
           path: ${{ env.FILENAME }}
