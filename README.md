@@ -103,7 +103,7 @@ exit
 Connect device in DFU mode and flash firmware:
 
 ```bash
-dfu-util --download ucritair-firmware/zephyrapp/build/zephyr/zephyr.signed.bin
+dfu-util --download zephyrapp/build/zephyr/zephyr.signed.bin --reset
 ```
 
 Your device now runs the latest firmware.
