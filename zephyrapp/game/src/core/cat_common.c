@@ -8,6 +8,13 @@
 #include <stdio.h>
 #include <time.h>
 
+//Dirty Hack to work on Linux because unix was used a variable name - remove when fixed.
+#ifdef unix
+#undef unix
+#endif
+
+
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // LCD
 
