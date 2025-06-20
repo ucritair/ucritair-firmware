@@ -4,9 +4,11 @@ This project uses a Docker-based development environment to ensure a consistent,
 
 **GitHub Workflow**
 
-The project automatically runs the docker image and tries to generate a binary. Please click on the badge below for information and to download a binary. The binary can then be flashed using dfu-util as described below.
+The project automatically runs the docker image and tries to generate a binary. Please click on the Build Firmware badge below for information and to download a binary. The binary can then be flashed using dfu-util as described below.
 
-[![uCritAir Firmware Build](https://github.com/ucritair/ucritair-firmware/actions/workflows/build-firmware.yml/badge.svg)](https://github.com/ucritair/ucritair-firmware/actions/workflows/build-firmware.yml)
+**uCritAir Firmware Build Status** 
+
+[![Build Firmware](https://github.com/ucritair/ucritair-firmware/actions/workflows/build-firmware.yml/badge.svg)](https://github.com/ucritair/ucritair-firmware/actions/workflows/build-firmware.yml)
 
 
 > **Why Docker?**
