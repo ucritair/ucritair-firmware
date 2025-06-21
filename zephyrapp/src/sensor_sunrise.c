@@ -301,10 +301,10 @@ static int force_abc_sunrise_target(uint16_t target_ppm)
     /* 6. restore original MeterControl */
     CHK(Write_MeterControl(mc_orig));
     CHK(Write_CalibrationStatus(cs_zero));
-    return 0;
 
-    /* Write Debug Dump*/
+     /* Write Debug Dump*/
     sunrise_dump_debug();
+    return 0;
 }
 
 /* --- legacy wrapper: keeps existing call-sites working ------------- */
