@@ -204,7 +204,7 @@ int sunrise_init(void)
 
     LOG_INF("Sunrise FW %u.%u  ProdCode=\"%s\"  ABC=%s",
         fw_rev.main, fw_rev.sub, pc.code,
-        mc.abc_disabled ? "DISABLED" : "enabled");
+        mc.abc_disabled ? "DISABLED" : "ENABLED");
     return 0;
 }
 
@@ -245,7 +245,8 @@ int sunrise_read(void)
     readings.sunrise.ppm_filtered_compensated   = filt_pc;
     readings.sunrise.uptime_last_updated        = k_uptime_get();
 
-    LOG_INF("CO2 %d ppm (filtered)", filt);
+    LOG_INF("CO2 %d ppm (filt)", filt);
+    LOG_INF("CO2 %d ppm (filt+comp)", filt_pc);
     return 0;
 }
 
