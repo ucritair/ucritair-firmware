@@ -193,9 +193,18 @@ int sunrise_init(void)
     uint8_t fw_type;            CHK(Read_FirmwareType(&fw_type));
     struct fw_rev_t fw_rev;     CHK(Read_FirmwareRevision(&fw_rev));
     struct product_code_t pc;   CHK(Read_ProductCode(&pc));
+    struct meter_control_t mc;
+    CHK(Read_MeterControl(&mc));
 
-    LOG_INF("Sunrise FW %u.%u  ProdCode=\"%s\"",
-            fw_rev.main, fw_rev.sub, pc.code);
+    if (mc.abc_disabled == 0) {       /* only touch EEPROM if we must   */
+        mc.abc_disabled = 1;
+        CHK(Write_MeterControl(mc));  /* EE write → 25 ms delay inside  */
+        LOG_INF("Sunrise ABC set to disabled");
+    }
+
+    LOG_INF("Sunrise FW %u.%u  ProdCode=\"%s\"  ABC=%s",
+        fw_rev.main, fw_rev.sub, pc.code,
+        mc.abc_disabled ? "DISABLED" : "enabled");
     return 0;
 }
 
@@ -205,6 +214,23 @@ int sunrise_is_ready(bool *ready)
     CHK(Read_MeasurementCount(&c));
     if (c != state.count) { *ready = true; state.count = c; }
     return 0;
+}
+
+static void sunrise_dump_debug(void)
+{
+    uint16_t tgt;           CHK(Read_CalibrationTarget(&tgt));
+    uint16_t abc_period;    CHK(Read_AbcPeriod(&abc_period));
+
+    int16_t  filt, filt_pc; CHK(Read_MeasuredConcentration_Filtered(&filt));
+                            CHK(Read_MeasuredConcentration_Filtered_PressureCompensated(&filt_pc));
+
+    struct calibration_status_t cs; CHK(Read_CalibrationStatus(&cs));
+
+    LOG_INF("target_calibration bit = %d", cs.target_calibration);        /* 1 = OK            */
+    LOG_INF("AbcPeriod = %u h", abc_period);                              /* 0 or 0xFFFF = off */
+    LOG_INF("CalTarget = %u ppm", tgt);                                   /* 427 ppm expected  */
+    LOG_INF("Raw        = %d ppm", filt);                                 /* ~400 ppm          */
+    LOG_INF("Compensated = %d ppm", filt_pc);                             /* ~427 ppm          */
 }
 
 int sunrise_read(void)
@@ -236,6 +262,7 @@ int update_pressure_sunrise(float hPa)
     LOG_DBG("Pressure %.1f hPa pushed to Sunrise", hPa);
     return 0;
 }
+
 
 /******************************************************************************
  *  Target calibration helpers
@@ -274,6 +301,9 @@ static int force_abc_sunrise_target(uint16_t target_ppm)
     CHK(Write_MeterControl(mc_orig));
     CHK(Write_CalibrationStatus(cs_zero));
     return 0;
+
+    /* Write Debug Dump*/
+    sunrise_dump_debug();
 }
 
 /* --- legacy wrapper: keeps existing call-sites working ------------- */
