@@ -91,6 +91,11 @@ void menu_force_sunrise_abc(void* arg)
 	force_abc_sunrise();
 }
 
+void menu_force_sunrise_zero(void* arg)
+{
+	force_abc_sunrise_target_ppm(0);
+}
+
 char textf_buf[256];
 #define textfc(c, ...) snprintf(textf_buf, sizeof(textf_buf)-1, __VA_ARGS__); textc(textf_buf, c);
 #define textf(...) textfc(0xffff, __VA_ARGS__)
@@ -121,7 +126,8 @@ void menu_sensors()
 	textf("VOC: %.1f; NOX: %.1f", (double)readings.sen5x.voc_index, (double)readings.sen5x.nox_index);
 
 	text("");
-	selectable("Force Sunrise ABC", menu_force_sunrise_abc, NULL);
+	selectable("Force Sunrise Ambient Air Cal", menu_force_sunrise_abc, NULL);
+	selectable("Force Sunrise Zero (N2) Cal", menu_force_sunrise_zero, NULL);
 	selectable("Back", goto_menu, menu_root);
 }
 

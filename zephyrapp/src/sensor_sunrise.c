@@ -270,6 +270,7 @@ int update_pressure_sunrise(float hPa)
  ******************************************************************************/
 static int force_abc_sunrise_target(uint16_t target_ppm)
 {
+    LOG_INF("Beginning Calibration");
     /* 0. push latest pressure (if valid) */
     float p = readings.lps22hh.pressure;
     if (p > 300.f && p < 1300.f) CHK(update_pressure_sunrise(p));
