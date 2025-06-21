@@ -9,7 +9,7 @@
 LOG_MODULE_REGISTER(sunrise, LOG_LEVEL_DBG);
 
 /*------------- default CO2 value -----------------------------------*/
-#define SUNRISE_DEFAULT_TARGET_PPM  427 //Mauna Loa Seasonal Adjusted as of June 2025.
+#define SUNRISE_DEFAULT_TARGET_PPM  427 // Mauna Loa Average June 2025. 
 
 /* -------------------- byte-order helpers --------------------------- */
 #define FROM_BE16(v) sys_be16_to_cpu(v)

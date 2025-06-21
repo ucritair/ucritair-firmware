@@ -126,8 +126,8 @@ void menu_sensors()
 	textf("VOC: %.1f; NOX: %.1f", (double)readings.sen5x.voc_index, (double)readings.sen5x.nox_index);
 
 	text("");
-	selectable("Force Sunrise Ambient Air Cal", menu_force_sunrise_abc, NULL);
-	selectable("Force Sunrise Zero (N2) Cal", menu_force_sunrise_zero, NULL);
+	selectable("Cal CO2 Ambient", menu_force_sunrise_abc, NULL);
+	selectable("Cal CO2 Zero (Nitrogen)", menu_force_sunrise_zero, NULL);
 	selectable("Back", goto_menu, menu_root);
 }
 
