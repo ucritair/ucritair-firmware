@@ -287,3 +287,8 @@ int force_abc_sunrise_target_ppm(uint16_t ppm)
 {
     return force_abc_sunrise_target(ppm);
 }
+
+/* ------------------------------------------------------------------ */
+/*  Define Sensor :)*/
+/* ------------------------------------------------------------------ */
+SENSOR_DEFINE(sunrise);
