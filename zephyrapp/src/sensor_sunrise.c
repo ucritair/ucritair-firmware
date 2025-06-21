@@ -264,13 +264,13 @@ int update_pressure_sunrise(float hPa)
     return 0;
 }
 
-
 /******************************************************************************
- *  Target calibration helpers
+ *  Target / zero calibration helper
  ******************************************************************************/
 static int force_abc_sunrise_target(uint16_t target_ppm)
 {
-    LOG_INF("Beginning Calibration");
+    LOG_INF("Beginning calibration (%u ppm requested)", target_ppm);
+
     /* 0. push latest pressure (if valid) */
     float p = readings.lps22hh.pressure;
     if (p > 300.f && p < 1300.f) CHK(update_pressure_sunrise(p));
@@ -284,26 +284,38 @@ static int force_abc_sunrise_target(uint16_t target_ppm)
     CHK(Write_CalibrationStatus(cs_zero));
     CHK(Write_ErrorStatus(es_zero));
 
-    /* 3. enable ABC temporarily */
+    /* 3. enable ABC temporarily (required by Sunrise FW for any calib cmd) */
     struct meter_control_t mc_tmp = mc_orig; mc_tmp.abc_disabled = 0;
     CHK(Write_MeterControl(mc_tmp));
     k_msleep(50);
 
-    /* 4. write the target ppm & issue command 0x7C05 */
-    CHK(Write_CalibrationTarget(target_ppm));          /* macro = BE */
-    CHK(Write_CalibrationCommand((uint16_t)CAL_TargetCalibration));
+    /* 4. decide which command to send */
+    if (target_ppm == 0) {
+        /* ---- ZERO CALIBRATION ---------------------------------------- */
+        CHK(Write_CalibrationCommand((uint16_t)CAL_ZeroCalibration));
+        LOG_INF("Issued Zero-Calibration (0 ppm)");
+    } else {
+        /* ---- TARGET CALIBRATION -------------------------------------- */
+        CHK(Write_CalibrationTarget(target_ppm));        /* BE16 helper */
+        CHK(Write_CalibrationCommand((uint16_t)CAL_TargetCalibration));
+        LOG_INF("Issued Target-Calibration to %u ppm", target_ppm);
+    }
 
-    /* 5. poll until bit-4 sets */
+    /* 5. poll completion flag */
     struct calibration_status_t cs;
-    do { k_msleep(200); CHK(Read_CalibrationStatus(&cs)); }
-    while (!cs.target_calibration);
-    LOG_INF("Target calibration to %u ppm finished ✓", target_ppm);
+    do {
+        k_msleep(200);
+        CHK(Read_CalibrationStatus(&cs));
+    } while ( (target_ppm == 0  && !cs.zero_calibration) ||
+              (target_ppm != 0 && !cs.target_calibration) );
 
-    /* 6. restore original MeterControl */
+    LOG_INF("Calibration finished ✓");
+
+    /* 6. restore original MeterControl & clear status */
     CHK(Write_MeterControl(mc_orig));
     CHK(Write_CalibrationStatus(cs_zero));
 
-     /* Write Debug Dump*/
+    /* 7. final diagnostics */
     sunrise_dump_debug();
     return 0;
 }
