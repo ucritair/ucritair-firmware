@@ -253,6 +253,8 @@ void CAT_render_system_menu()
 		{
 			CAT_gui_text("Done. Thanks for waiting...\nHave some cigarettes as a\nreward: ");
 			CAT_gui_image(&cigarette_sprite, 0);
+			CAT_machine_back(); //Go back so we dont recal by mistake
+			CAT_machine_back(); //Go back so we dont recal by mistake
 		}
 	}
 }
