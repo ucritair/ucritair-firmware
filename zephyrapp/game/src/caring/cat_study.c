@@ -233,7 +233,7 @@ static CAT_ivec2 point_on_pole(float t)
 
 static void render_pole()
 {
-	CAT_polyberry
+	CAT_draw_polyline
 	(
 		pole.center.x, pole.center.y,
 		pole.vertices, 10,
@@ -929,7 +929,7 @@ static CAT_ivec2 bar_jitter;
 
 static void render_bar()
 {
-	CAT_polyberry
+	CAT_draw_polyline
 	(
 		bar.center.x, bar.center.y,
 		bar.vertices, 10,

@@ -8,7 +8,7 @@
 #include "cat_gui.h"
 #include <math.h>
 #include "cat_menu.h"
-#include "caring/cat_actions.h"
+#include "cat_actions.h"
 #include "cat_deco.h"
 #include "cat_arcade.h"
 #include "theme_assets.h"
@@ -671,7 +671,7 @@ static void render_statics()
 	int window_x = room.theme->window_rect.min.x;
 	int window_width = room.theme->window_rect.max.x-room.theme->window_rect.min.x;
 	int window_height = room.theme->window_rect.max.y-room.theme->window_rect.min.y;
-	int window_columns = window_width / 8;
+	int window_columns = window_width/8;
 	int sky_row_off = time.hour * (480 - window_height) / 23;
 
 	if(room.theme->tile_wall)
@@ -681,25 +681,26 @@ static void render_statics()
 			for(int x = 0; x < 15; x++)
 			{
 				int tile_idx = room.theme->wall_map[y * 15 + x];
-				CAT_draw_sprite(room.theme->wall_tiles, tile_idx, x * 16, y * 16);
+				CAT_draw_tile(room.theme->wall_tiles, tile_idx, x * 16, y * 16);
 			}
 		}
 
 		for(int i = 0; i < window_columns; i++)
 		{
 			CAT_set_draw_mask(window_x+4, window_y+4, window_x+window_width-4, window_y+window_height-4);
-			CAT_draw_sprite(&sky_gradient_sprite, 0, window_x + i * 8, window_y - sky_row_off);
+			CAT_draw_sprite_raw(&sky_gradient_sprite, 0, window_x + i * 8, window_y - sky_row_off);
 		}
-		CAT_draw_sprite(&window_sprite, 0, window_x, window_y);
+		CAT_strokeberry(window_x, window_y - sky_row_off, window_width, window_height, CAT_RED);
+		CAT_draw_sprite_raw(&window_sprite, 0, window_x, window_y);
 	}
 	else
 	{
 		for(int i = 0; i < window_columns; i++)
 		{
 			CAT_set_draw_mask(window_x, window_y, window_x+window_width, window_y+window_height);
-			CAT_draw_sprite(&sky_gradient_sprite, 0, window_x + i * 8, window_y - sky_row_off);
+			CAT_draw_sprite_raw(&sky_gradient_sprite, 0, window_x + i * 8, window_y - sky_row_off);
 		}
-		CAT_draw_sprite(room.theme->wall_tiles, 0, 0, 0);
+		CAT_draw_background(room.theme->wall_tiles, 0, 0);
 	}
 
 	if(room.theme->tile_floor)
@@ -709,7 +710,7 @@ static void render_statics()
 			for(int x = 0; x < 15; x++)
 			{
 				int tile_idx = room.theme->floor_map[y * 15 + x];
-				CAT_draw_sprite(room.theme->floor_tiles, tile_idx, x * 16, (y + 6) * 16);
+				CAT_draw_tile(room.theme->floor_tiles, tile_idx, x * 16, (6 + y) * 16);
 			}
 		}
 	}
@@ -717,13 +718,13 @@ static void render_statics()
 	{
 		int row_offset = room.theme->tile_wall ?
 		16*16 : room.theme->wall_tiles->height;
-		CAT_draw_sprite(room.theme->floor_tiles, 0, 0, row_offset);
+		CAT_draw_background(room.theme->floor_tiles, 0, row_offset);
 	}
 
-	CAT_draw_sprite(&vending_sprite, -1, 172, 16);
-	CAT_draw_sprite(&arcade_sprite, -1, 124, 48);	
+	CAT_draw_sprite_raw(&vending_sprite, -1, 172, 16);
+	CAT_draw_sprite_raw(&arcade_sprite, -1, 124, 48);
 
-	int battery_x = window_width == 240 ?
+	/*int battery_x = window_width == 240 ?
 	196 : window_x+window_width/2;
 	int battery_y = window_width == 240 ?
 	62 : window_y+window_height/2 - 2;
@@ -746,7 +747,7 @@ static void render_statics()
 			CAT_set_draw_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
 			CAT_draw_sprite(&icon_low_battery_alt_sprite, 0, battery_x, battery_y);
 		}
-	}
+	}*/
 }
 
 static void render_props()
@@ -855,18 +856,12 @@ static void render_gui()
 	);
 
 	if(input.touch.pressure)
-		CAT_draw_queue_add
-		(
-			&touch_hl_sprite, 0, GUI_LAYER+1,
-			input.touch.x, input.touch.y,
-			CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y
-		);
+		CAT_circberry(input.touch.x, input.touch.y, 16, CAT_WHITE);
 }
 
 static void render_notice()
 {
 	CAT_frameberry(CAT_WHITE);
-
 }
 
 void CAT_render_room()

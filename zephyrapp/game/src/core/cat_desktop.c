@@ -193,7 +193,7 @@ void CAT_platform_init()
 		simulator.slept_s = difftime(now, sleep_time);
 	}
 	simulator.uptime_s = glfwGetTime();
-	simulator.delta_time_s = 0;	
+	simulator.delta_time_s = 0;
 }
 
 void CAT_platform_tick()
@@ -600,6 +600,6 @@ void CAT_printf(const char* fmt, ...)
 {
 	va_list args;
 	va_start(args, fmt);
-	vprintf(fmt, args);
+	vdprintf(STDOUT_FILENO, fmt, args);
 	va_end(args);
 }

@@ -327,12 +327,12 @@ CAT_save* CAT_start_save();
 void CAT_finish_save(CAT_save* save);
 CAT_save* CAT_start_load();
 
-int CAT_export_config_flags();
-void CAT_import_config_flags(int flags);
+uint64_t CAT_get_config_flags();
+void CAT_set_config_flags(uint64_t flags);
 
-void CAT_set_config_flags(int flags);
-void CAT_unset_config_flags(int flags);
-bool CAT_check_config_flags(int flags);
+void CAT_raise_config_flags(uint64_t flags);
+void CAT_lower_config_flags(uint64_t flags);
+bool CAT_check_config_flags(uint64_t flags);
 
 typedef enum
 {
@@ -342,9 +342,9 @@ typedef enum
 	CAT_LOAD_FLAG_TURNKEY = 4
 } CAT_load_flag;
 
-void CAT_set_load_flags(int flags);
-void CAT_unset_load_flags(int flags);
-bool CAT_check_load_flags(int flags);
+void CAT_set_load_flags(uint64_t flags);
+void CAT_unset_load_flags(uint64_t flags);
+bool CAT_check_load_flags(uint64_t flags);
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -42,7 +42,7 @@ void CAT_monitor_render_summary()
 
 	float agg_score_norm = CAT_AQ_get_normalized_score(CAT_AQM_AGGREGATE);
 	CAT_circberry(120, cursor_y, SCORE_R0 + SCORE_W/2, CAT_WHITE);
-	CAT_ringberry
+	CAT_annulusberry
 	(
 		120, cursor_y,
 		SCORE_R1, SCORE_R0,

@@ -111,28 +111,34 @@ typedef struct
 typedef enum
 {
 	CAT_DRAW_FLAG_NONE = 0,
-	CAT_DRAW_FLAG_BOTTOM = 1,
-	CAT_DRAW_FLAG_CENTER_X = 2,
-	CAT_DRAW_FLAG_CENTER_Y = 4,
-	CAT_DRAW_FLAG_REFLECT_X = 8
+	CAT_DRAW_FLAG_BOTTOM = (1 << 0),
+	CAT_DRAW_FLAG_CENTER_X = (1 << 1),
+	CAT_DRAW_FLAG_CENTER_Y = (1 << 2),
+	CAT_DRAW_FLAG_REFLECT_X = (1 << 3)
 } CAT_draw_flag;
 
-void CAT_set_draw_flags(int flags);
+typedef enum
+{
+	CAT_SPRITE_OVERRIDE_NONE = 0,
+	CAT_SPRITE_OVERRIDE_FLAGS = (1 << 0),
+	CAT_SPRITE_OVERRIDE_COLOUR = (1 << 1),
+	CAT_SPRITE_OVERRIDE_SCALE = (1 << 2),
+	CAT_SPRITE_OVERRIDE_MASK = (1 << 3)
+} CAT_sprite_override;
+
+void CAT_set_draw_flags(uint64_t flags);
 void CAT_set_draw_colour(uint16_t colour);
 void CAT_set_draw_scale(uint8_t scale);
 void CAT_set_draw_mask(int x0, int y0, int x1, int y1);
 
 void CAT_draw_sprite(const CAT_sprite* sprite, int frame_idx, int x, int y);
+void CAT_draw_sprite_raw(const CAT_sprite* sprite, int frame_idx, int x, int y);
+void CAT_draw_background(const CAT_sprite* sprite, int frame_idx, int y);
+void CAT_draw_tile(const CAT_sprite* sprite, int frame_idx, int x, int y);
+void CAT_draw_tile_alpha(const CAT_sprite* sprite, int frame_idx, int x, int y);
 
 //////////////////////////////////////////////////////////////////////////
 // THE BERRIER
-
-typedef enum
-{
-	CAT_POLY_MODE_LINES,
-	CAT_POLY_MODE_LINE_STRIP,
-	CAT_POLY_MODE_LINE_LOOP
-} CAT_poly_mode;
 
 void CAT_frameberry(uint16_t c);
 void CAT_lineberry(int xi, int yi, int xf, int yf, uint16_t c);
@@ -141,8 +147,7 @@ void CAT_strokeberry(int xi, int yi, int w, int h, uint16_t c);
 void CAT_pixberry(int x, int y, uint16_t c);
 void CAT_circberry(int x, int y, int r, uint16_t c);
 void CAT_discberry(int x, int y, int r, uint16_t c);
-void CAT_ringberry(int x, int y, int R, int r, uint16_t c, float t, float shift);
-void CAT_polyberry(int x, int y, int16_t* poly, int count, uint16_t c, CAT_poly_mode mode);
+void CAT_annulusberry(int x, int y, int R, int r, uint16_t c, float t, float shift);
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -213,7 +218,7 @@ void CAT_draw_queue_submit();
 
 
 //////////////////////////////////////////////////////////////////////////
-// MESHES
+// MESHES AND POLYLINES
 
 typedef struct
 {
@@ -232,6 +237,15 @@ typedef struct
 } CAT_mesh2d;
 
 void CAT_draw_mesh2d(const CAT_mesh2d* mesh, int x, int y, uint16_t c);
+
+typedef enum
+{
+	CAT_POLY_MODE_LINES,
+	CAT_POLY_MODE_LINE_STRIP,
+	CAT_POLY_MODE_LINE_LOOP
+} CAT_poly_mode;
+
+void CAT_draw_polyline(int x, int y, int16_t* poly, int count, uint16_t c, CAT_poly_mode mode);
 
 
 //////////////////////////////////////////////////////////////////////////

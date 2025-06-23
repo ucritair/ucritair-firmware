@@ -7,6 +7,7 @@
 //////////////////////////////////////////////////////////////////////////
 // THE BERRIER
 
+// CATs when they eat a frameberry
 void CAT_frameberry(uint16_t c)
 {
 	c = ADAPT_DESKTOP_COLOUR(c);
@@ -16,7 +17,7 @@ void CAT_frameberry(uint16_t c)
 		*(px++) = c32;
 }
 
-// implementation based on Dmitri Sokolov's
+// CATs when they eat a lineberry
 void CAT_lineberry(int xi, int yi, int xf, int yf, uint16_t c)
 {
 	c = ADAPT_DESKTOP_COLOUR(c);
@@ -95,6 +96,7 @@ void CAT_lineberry(int xi, int yi, int xf, int yf, uint16_t c)
 	}
 }
 
+// CATs when they eat a fillberry
 void CAT_fillberry(int xi, int yi, int w, int h, uint16_t c)
 {
 	c = ADAPT_DESKTOP_COLOUR(c);
@@ -115,6 +117,7 @@ void CAT_fillberry(int xi, int yi, int w, int h, uint16_t c)
 	}
 }
 
+// CATs when they eat a strokeberry
 void CAT_strokeberry(int xi, int yi, int w, int h, uint16_t c)
 {
 	c = ADAPT_DESKTOP_COLOUR(c);
@@ -159,6 +162,7 @@ void CAT_strokeberry(int xi, int yi, int w, int h, uint16_t c)
 	}
 }
 
+// CATs when they eat a pixberry
 void CAT_pixberry(int x, int y, uint16_t c)
 {
 	if(x < 0 || x >= CAT_LCD_FRAMEBUFFER_W)
@@ -172,6 +176,7 @@ void CAT_pixberry(int x, int y, uint16_t c)
 	framebuffer[y * CAT_LCD_FRAMEBUFFER_W + x] = c;
 }
 
+// CATs when they eat a circberry
 void CAT_circberry(int x, int y, int r, uint16_t c)
 {
 	//uint16_t* framebuffer = CAT_LCD_get_framebuffer();
@@ -224,6 +229,7 @@ void CAT_circberry(int x, int y, int r, uint16_t c)
 	}
 }
 
+// CATs when they eat a discberry
 void CAT_discberry(int x, int y, int r, uint16_t c)
 {
 	c = ADAPT_DESKTOP_COLOUR(c);
@@ -255,7 +261,8 @@ void CAT_discberry(int x, int y, int r, uint16_t c)
 	}
 }
 
-void CAT_ringberry(int x, int y, int R, int r, uint16_t c, float t, float shift)
+// CATs when they eat an annulusberry
+void CAT_annulusberry(int x, int y, int R, int r, uint16_t c, float t, float shift)
 {
 	c = ADAPT_DESKTOP_COLOUR(c);
 	uint16_t* framebuffer = CAT_LCD_get_framebuffer();
@@ -295,38 +302,5 @@ void CAT_ringberry(int x, int y, int R, int r, uint16_t c, float t, float shift)
 					framebuffer[y_w * CAT_LCD_FRAMEBUFFER_W + x_w] = c;				
 			}
 		}
-	}
-}
-
-void CAT_polyberry(int x, int y, int16_t* poly, int count, uint16_t c, CAT_poly_mode mode)
-{
-	int i = 0;
-	int stride = mode == CAT_POLY_MODE_LINES ? 2 : 1;
-	while(i < count-1)
-	{
-		int x0 = poly[i*2+0]; int y0 = poly[i*2+1];
-		int x1 = poly[(i+1)*2+0]; int y1 = poly[(i+1)*2+1];
-		CAT_lineberry(x+x0, y+y0, x+x1, y+y1, c);
-		i += stride;
-	}
-	if(mode == CAT_POLY_MODE_LINE_LOOP)
-	{
-		int x0 = poly[i*2+0]; int y0 = poly[i*2+1];
-		int x1 = poly[0]; int y1 = poly[1];
-		CAT_lineberry(x+x0, y+y0, x+x1, y+y1, c);
-	}
-}
-
-void CAT_draw_mesh2d(const CAT_mesh2d* mesh, int x, int y, uint16_t c)
-{
-	for(int i = 0; i < mesh->edge_count; i++)
-	{
-		uint8_t v0_idx = mesh->edges[i*2+0];
-		uint8_t v1_idx = mesh->edges[i*2+1];
-		uint8_t v0_x = mesh->verts[v0_idx*2+0];
-		uint8_t v0_y = mesh->verts[v0_idx*2+1];
-		uint8_t v1_x = mesh->verts[v1_idx*2+0];
-		uint8_t v1_y = mesh->verts[v1_idx*2+1];
-		CAT_lineberry(v0_x+x, v0_y+y, v1_x+x, v1_y+y, c);
 	}
 }

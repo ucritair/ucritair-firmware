@@ -98,10 +98,10 @@ void CAT_force_save()
 	save->timing.milking_count = pet.times_milked;
 
 	if(CAT_AQ_get_temperature_unit() == CAT_TEMPERATURE_UNIT_DEGREES_FAHRENHEIT)
-		CAT_set_config_flags(CAT_CONFIG_FLAG_USE_FAHRENHEIT);
+		CAT_raise_config_flags(CAT_CONFIG_FLAG_USE_FAHRENHEIT);
 	else
-		CAT_unset_config_flags(CAT_CONFIG_FLAG_USE_FAHRENHEIT);
-	save->config.flags = CAT_export_config_flags();
+		CAT_lower_config_flags(CAT_CONFIG_FLAG_USE_FAHRENHEIT);
+	save->config.flags = CAT_get_config_flags();
 
 	for(int i = 0; i < THEME_COUNT; i++)
 	{
@@ -200,7 +200,7 @@ void CAT_force_load()
 		{
 			CAT_printf("Save requires migration...\n");
 			CAT_migrate_legacy_save(save);
-			CAT_set_config_flags(CAT_CONFIG_FLAG_MIGRATED);
+			CAT_raise_config_flags(CAT_CONFIG_FLAG_MIGRATED);
 			CAT_printf("Save migrated!\n");
 		}
 		else if(save_status == CAT_SAVE_ERROR_SECTOR_MISSING)
@@ -271,12 +271,12 @@ void CAT_force_load()
 	pet.times_pet = save->timing.petting_count;
 	pet.times_milked = save->timing.milking_count;
 
+	
 	CAT_set_config_flags(save->config.flags);
 	if(save->config.flags & CAT_CONFIG_FLAG_USE_FAHRENHEIT)
 		CAT_AQ_set_temperature_unit(CAT_TEMPERATURE_UNIT_DEGREES_FAHRENHEIT);
 	else
 		CAT_AQ_set_temperature_unit(CAT_TEMPERATURE_UNIT_DEGREES_CELSIUS);
-
 	if(save->config.theme < THEME_COUNT)
 		room.theme = themes_list[save->config.theme];
 
@@ -407,35 +407,8 @@ void CAT_tick_render()
 }
 
 #ifdef CAT_DESKTOP
-
-#include <inttypes.h>
-#include <arpa/inet.h>
-
-void readings_spoof()
-{
-	readings.lps22hh.uptime_last_updated = 0;
-	readings.lps22hh.temp = 20;
-	readings.lps22hh.pressure = 1013;
-
-	readings.sunrise.uptime_last_updated = 0;
-	readings.sunrise.ppm_filtered_compensated = 400;
-	readings.sunrise.ppm_filtered_uncompensated = 400;
-	readings.sunrise.temp = 20;
-
-	readings.sen5x.uptime_last_updated = 0;
-	readings.sen5x.pm2_5 = 9;
-	readings.sen5x.pm10_0 = 15;
-	readings.sen5x.humidity_rhpct = 40;
-
-	readings.sen5x.temp_degC = 20;
-	readings.sen5x.voc_index = 1;
-	readings.sen5x.nox_index = 100;
-}
-
 int main(int argc, char** argv)
 {
-	readings_spoof();
-
 	CAT_init();
 	
 	while (CAT_get_battery_pct() > 0)
@@ -457,12 +430,11 @@ int main(int argc, char** argv)
 			time_since_eink_update = 0;
 		}
 
-		// 1 / FPS * 1_000_000 yields microseconds between frames at fixed FPS
-		usleep((1.0f / (float) 14) * 1000000);
+		// 1 / FPS * 1_000_000 yields microseconds between framebuffer updates at fixed FPS
+		usleep((1.0f / 14.0f) * 1000000);
 	}
 
 	CAT_force_save();
-
 	CAT_platform_cleanup();
 	return 0;
 }

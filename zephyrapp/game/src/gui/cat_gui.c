@@ -1062,7 +1062,7 @@ void CAT_gui_item_grid()
 
 	float select_progress = item_grid_select_timer / ITEM_GRID_SELECT_TIME;
 	if (item_grid_action != NULL && select_progress >= 0.05f)
-		CAT_ringberry(input.touch.x, input.touch.y, 24, 18, ITEM_GRID_ACTION_COLOUR, select_progress + 0.15f, 0);
+		CAT_annulusberry(input.touch.x, input.touch.y, 24, 18, ITEM_GRID_ACTION_COLOUR, select_progress + 0.15f, 0);
 
 	if (abs(-item_grid_delta_y - item_grid_get_max_scroll_y()) >= 64)
 	{

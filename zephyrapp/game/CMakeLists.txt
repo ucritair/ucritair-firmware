@@ -95,6 +95,7 @@ target_sources(app PRIVATE
 	src/render/cat_draw_queue.c
 	src/render/cat_animation.c
 	src/render/cat_gizmos.c
+	src/render/cat_poly.c
 
 	src/menu/cat_menu.c
 	src/menu/cat_menu_insights.c

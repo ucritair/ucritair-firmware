@@ -88,7 +88,26 @@ int* CAT_LED_brightness_pointer()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // AIR QUALITY
 
-CAT_AQ_readings readings = {0};
+CAT_AQ_readings readings =
+{
+	.lps22hh.uptime_last_updated = 0,
+	.lps22hh.temp = 20,
+	.lps22hh.pressure = 1013,
+
+	.sunrise.uptime_last_updated = 0,
+	.sunrise.ppm_filtered_compensated = 400,
+	.sunrise.ppm_filtered_uncompensated = 400,
+	.sunrise.temp = 20,
+
+	.sen5x.uptime_last_updated = 0,
+	.sen5x.pm2_5 = 9,
+	.sen5x.pm10_0 = 15,
+	.sen5x.humidity_rhpct = 40,
+
+	.sen5x.temp_degC = 20,
+	.sen5x.voc_index = 1,
+	.sen5x.nox_index = 100,
+};
 
 bool CAT_is_AQ_initialized()
 {
@@ -522,44 +541,44 @@ void CAT_extend_save(CAT_save* save)
 
 static uint64_t config_flags = CAT_CONFIG_FLAG_NONE;
 
-int CAT_export_config_flags()
+uint64_t CAT_get_config_flags()
 {
 	return config_flags;
 }
 
-void CAT_import_config_flags(int flags)
+void CAT_set_config_flags(uint64_t flags)
 {
 	config_flags = flags;
 }
 
-void CAT_set_config_flags(int flags)
+void CAT_raise_config_flags(uint64_t flags)
 {
 	config_flags |= flags; 
 }
 
-void CAT_unset_config_flags(int flags)
+void CAT_lower_config_flags(uint64_t flags)
 {
 	config_flags &= ~flags;
 }
 
-bool CAT_check_config_flags(int flags)
+bool CAT_check_config_flags(uint64_t flags)
 {
 	return config_flags & flags;
 }
 
 static uint64_t load_flags = CAT_LOAD_FLAG_NONE;
 
-void CAT_set_load_flags(int flags)
+void CAT_set_load_flags(uint64_t flags)
 {
 	load_flags |= flags;
 }
 
-void CAT_unset_load_flags(int flags)
+void CAT_unset_load_flags(uint64_t flags)
 {
 	load_flags &= ~flags;
 }
 
-bool CAT_check_load_flags(int flags)
+bool CAT_check_load_flags(uint64_t flags)
 {
 	return load_flags & flags;
 }

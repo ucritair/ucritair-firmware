@@ -171,7 +171,7 @@ void check_rtc_init()
 		aq_score_head = 0;
 		aq_score_last_time = 0;
 
-		CAT_set_config_flags(CAT_CONFIG_FLAG_PERSIST_CLEARED);
+		CAT_raise_config_flags(CAT_CONFIG_FLAG_PERSIST_CLEARED);
 	}
 }
 

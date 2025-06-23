@@ -165,11 +165,11 @@ void CAT_MS_menu(CAT_machine_signal signal)
 						{
 							if(CAT_gui_menu_toggle("GAME FIRST", !CAT_check_config_flags(CAT_CONFIG_FLAG_AQ_FIRST)))
 							{
-								CAT_unset_config_flags(CAT_CONFIG_FLAG_AQ_FIRST);
+								CAT_lower_config_flags(CAT_CONFIG_FLAG_AQ_FIRST);
 							}
 							if(CAT_gui_menu_toggle("DASHBOARD FIRST", CAT_check_config_flags(CAT_CONFIG_FLAG_AQ_FIRST)))
 							{
-								CAT_set_config_flags(CAT_CONFIG_FLAG_AQ_FIRST);
+								CAT_raise_config_flags(CAT_CONFIG_FLAG_AQ_FIRST);
 							}
 							CAT_gui_end_menu();
 						}
@@ -185,7 +185,7 @@ void CAT_MS_menu(CAT_machine_signal signal)
 					{
 						if(CAT_gui_menu_item("RESET CONFIG FLAGS"))
 						{
-							CAT_import_config_flags(CAT_CONFIG_FLAG_NONE);
+							CAT_set_config_flags(CAT_CONFIG_FLAG_NONE);
 						}
 							
 						static bool confirm_reset = false;

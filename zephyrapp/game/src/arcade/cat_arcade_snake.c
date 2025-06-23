@@ -244,7 +244,7 @@ void CAT_render_snake()
 		CAT_frameberry(RGB8882565(122, 146, 57));
 		for(int y = 0; y < 20; y += 2)
 		{
-			CAT_draw_sprite(&floor_grass_tile_sprite, 17, grasses[y/2]*16, y*16);
+			CAT_draw_tile_alpha(&floor_grass_tile_sprite, 17, grasses[y/2]*16, y*16);
 		}
 
 		int dx = snake.xs[0] - snake.xs[1];
@@ -253,13 +253,13 @@ void CAT_render_snake()
 		int head_y = snake.ys[0] * 16;
 
 		if(dx == 1)
-			CAT_draw_sprite(&snake_head_sprite, 0, head_x, head_y);
+			CAT_draw_tile_alpha(&snake_head_sprite, 0, head_x, head_y);
 		else if(dy == 1)
-			CAT_draw_sprite(&snake_head_sprite, 1, head_x, head_y);
+			CAT_draw_tile_alpha(&snake_head_sprite, 1, head_x, head_y);
 		else if(dx == -1)
-			CAT_draw_sprite(&snake_head_sprite, 2, head_x, head_y);
+			CAT_draw_tile_alpha(&snake_head_sprite, 2, head_x, head_y);
 		else if(dy == -1)
-			CAT_draw_sprite(&snake_head_sprite, 3, head_x, head_y);
+			CAT_draw_tile_alpha(&snake_head_sprite, 3, head_x, head_y);
 
 		for(int i = 1; i < snake.length; i++)
 		{
@@ -272,13 +272,13 @@ void CAT_render_snake()
 			if(i == snake.length-1)
 			{
 				if(dbx == 1)
-					CAT_draw_sprite(&snake_tail_sprite, 0, body_x, body_y);
+					CAT_draw_tile_alpha(&snake_tail_sprite, 0, body_x, body_y);
 				else if(dby == 1)
-					CAT_draw_sprite(&snake_tail_sprite, 1, body_x, body_y);
+					CAT_draw_tile_alpha(&snake_tail_sprite, 1, body_x, body_y);
 				else if(dbx == -1)
-					CAT_draw_sprite(&snake_tail_sprite, 2, body_x, body_y);
+					CAT_draw_tile_alpha(&snake_tail_sprite, 2, body_x, body_y);
 				else if(dby == -1)
-					CAT_draw_sprite(&snake_tail_sprite, 3, body_x, body_y);
+					CAT_draw_tile_alpha(&snake_tail_sprite, 3, body_x, body_y);
 				break;
 			}
 
@@ -286,24 +286,24 @@ void CAT_render_snake()
 			int dfy = snake.ys[i] - snake.ys[i+1];
 
 			if(dfx == 1 && dbx == 1)
-				CAT_draw_sprite(&snake_body_sprite, 0, body_x, body_y);
+				CAT_draw_tile_alpha(&snake_body_sprite, 0, body_x, body_y);
 			else if(dfy == 1 && dby == 1)
-				CAT_draw_sprite(&snake_body_sprite, 1, body_x, body_y);
+				CAT_draw_tile_alpha(&snake_body_sprite, 1, body_x, body_y);
 			else if(dfx == -1 && dbx == -1)
-				CAT_draw_sprite(&snake_body_sprite, 2, body_x, body_y);
+				CAT_draw_tile_alpha(&snake_body_sprite, 2, body_x, body_y);
 			else if(dfy == -1 && dby == -1)
-				CAT_draw_sprite(&snake_body_sprite, 3, body_x, body_y);
+				CAT_draw_tile_alpha(&snake_body_sprite, 3, body_x, body_y);
 			else if((dfx == -1 && dby == 1) || (dfy == -1 && dbx == 1))
-				CAT_draw_sprite(&snake_corner_sprite, 0, body_x, body_y);
+				CAT_draw_tile_alpha(&snake_corner_sprite, 0, body_x, body_y);
 			else if((dfx == 1 && dby == 1) || (dfy == -1 && dbx == -1))
-				CAT_draw_sprite(&snake_corner_sprite, 1, body_x, body_y);
+				CAT_draw_tile_alpha(&snake_corner_sprite, 1, body_x, body_y);
 			else if((dfx == 1 && dby == -1) || (dfy == 1 && dbx == -1))
-				CAT_draw_sprite(&snake_corner_sprite, 2, body_x, body_y);
+				CAT_draw_tile_alpha(&snake_corner_sprite, 2, body_x, body_y);
 			else if((dfx == -1 && dby == -1) || (dfy == 1 && dbx == 1))
-				CAT_draw_sprite(&snake_corner_sprite, 3, body_x, body_y);
+				CAT_draw_tile_alpha(&snake_corner_sprite, 3, body_x, body_y);
 		}
 
-		CAT_draw_sprite(food.sprite, 0, food.x * 16, food.y * 16);
+		CAT_draw_tile_alpha(food.sprite, 0, food.x * 16, food.y * 16);
 	}
 	else
 	{
@@ -311,13 +311,13 @@ void CAT_render_snake()
 		
 		for(int x = 0; x < 15; x++)
 		{
-			CAT_draw_sprite(&snake_head_sprite, 1, x * CAT_TILE_SIZE, 0);
-			CAT_draw_sprite(&snake_head_sprite, 1, x * CAT_TILE_SIZE, 19 * CAT_TILE_SIZE);
+			CAT_draw_tile_alpha(&snake_head_sprite, 1, x * CAT_TILE_SIZE, 0);
+			CAT_draw_tile_alpha(&snake_head_sprite, 1, x * CAT_TILE_SIZE, 19 * CAT_TILE_SIZE);
 		}
 		for(int y = 0; y < 20; y++)
 		{
-			CAT_draw_sprite(&snake_head_sprite, 1, 0,                  y * CAT_TILE_SIZE);
-			CAT_draw_sprite(&snake_head_sprite, 1, 14 * CAT_TILE_SIZE, y * CAT_TILE_SIZE);
+			CAT_draw_tile_alpha(&snake_head_sprite, 1, 0,                  y * CAT_TILE_SIZE);
+			CAT_draw_tile_alpha(&snake_head_sprite, 1, 14 * CAT_TILE_SIZE, y * CAT_TILE_SIZE);
 		}
 
 		CAT_gui_panel((CAT_ivec2) {1, 1}, (CAT_ivec2) {13, 18});

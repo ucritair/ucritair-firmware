@@ -723,6 +723,7 @@ void MS_feed_arrange(CAT_machine_signal signal)
 		pick_idx = -1;
 		commit_arrangement = false;
 		feedback_timer = 0;
+		show_feedback = false;
 		break;
 
 	case CAT_MACHINE_SIGNAL_TICK:
@@ -820,19 +821,19 @@ static void render_feedback()
 	{
 		sprite = &pet_feed_bad_sprite;
 	}
-	CAT_draw_sprite(sprite, 0, x, y);
+	CAT_draw_sprite_raw(sprite, 0, x, y);
 }
 
 static void render_arrange()
 {
-	CAT_draw_sprite(&floor_stone_sprite, 0, 0, 160);
-	CAT_draw_sprite(&floor_stone_sprite, 0, 0, 0);
-
+	CAT_draw_background(&floor_stone_sprite, 0, 0);
+	CAT_draw_background(&floor_stone_sprite, 0, 160);
+	
 	int counter_x = counter_rect.min.x;
 	int counter_y = counter_rect.min.y;
 	int counter_w = counter_rect.max.x - counter_x;
 	int counter_h = counter_rect.max.y - counter_y;
-	CAT_draw_sprite(&feed_upper_tray_sprite, 0, 0, 0);
+	CAT_draw_background(&feed_upper_tray_sprite, 0, 0);
 	if (food_pool.length <= 0)
 	{
 		CAT_set_text_scale(2);
@@ -850,11 +851,11 @@ static void render_arrange()
 	int center_x = table_x + table_w / 2;
 	int center_y = table_y + table_h / 2;
 	CAT_set_draw_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
-	CAT_draw_sprite(&feed_table_sprite, 0, center_x, center_y + 16);
+	CAT_draw_sprite_raw(&feed_table_sprite, 0, center_x, center_y + 16);
 	CAT_set_draw_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
-	CAT_draw_sprite(&feed_tablecloth_sprite, 0, center_x, center_y + 16);
+	CAT_draw_sprite_raw(&feed_tablecloth_sprite, 0, center_x, center_y + 16);
 	CAT_set_draw_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
-	CAT_draw_sprite(&feed_tray_sprite, 0, center_x, center_y);
+	CAT_draw_sprite_raw(&feed_tray_sprite, 0, center_x, center_y);
 
 	if (show_gizmos)
 	{
@@ -921,8 +922,14 @@ static void render_arrange()
 
 	CAT_set_draw_flags(CAT_DRAW_FLAG_BOTTOM | CAT_DRAW_FLAG_CENTER_X);
 	if (show_feedback)
+	{
 		CAT_set_draw_colour(RGB8882565(64, 64, 64));
-	CAT_draw_sprite(&pet_feed_back_sprite, -1, 120, 320);
+		CAT_draw_sprite_raw(&pet_feed_back_sprite, -1, 120, 320);
+	}
+	else
+	{
+		CAT_draw_sprite_raw(&pet_feed_back_sprite, -1, 120, 320);
+	}
 	if (show_feedback)
 		render_feedback();
 
@@ -1139,7 +1146,7 @@ static void render_select()
 			}
 
 			if (idx == last_clicked_idx && inspect_timer >= 0.05f)
-				CAT_ringberry(input.touch.x, input.touch.y, 24, 18, RGB8882565(255 - 0, 255 - 141, 255 - 141), inspect_timer + 0.15f, 0);
+				CAT_annulusberry(input.touch.x, input.touch.y, 24, 18, RGB8882565(255 - 0, 255 - 141, 255 - 141), inspect_timer + 0.15f, 0);
 
 			idx += 1;
 			x += 64 + 12;

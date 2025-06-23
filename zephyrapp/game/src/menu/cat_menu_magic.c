@@ -34,7 +34,7 @@ void CAT_MS_magic(CAT_machine_signal signal)
 
 			if(CAT_input_spell(hedron_spell))
 			{
-				CAT_set_config_flags(CAT_CONFIG_FLAG_DEVELOPER);
+				CAT_raise_config_flags(CAT_CONFIG_FLAG_DEVELOPER);
 				CAT_machine_transition(CAT_MS_hedron);
 			}		
 			break;
