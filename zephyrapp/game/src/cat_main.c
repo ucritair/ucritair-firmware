@@ -26,6 +26,7 @@
 #include "cat_deco.h"
 #include "cat_aqi.h"
 #include "cat_monitors.h"
+#include "cat_crisis.h"
 
 #include "cat_version.h"
 #include "theme_assets.h"
@@ -344,6 +345,7 @@ void CAT_tick_logic()
 	CAT_animator_tick();
 
 	CAT_AQ_tick();
+	CAT_AQ_poll_crisis();
 	CAT_pet_tick();
 	CAT_room_tick();
 	
@@ -377,9 +379,6 @@ void CAT_tick_logic()
 
 void CAT_tick_render()
 {
-	if (CAT_get_render_cycle() == 0)
-			CAT_draw_queue_clear();
-
 	CAT_render_callback render_callback = CAT_get_render_callback();
 	if(render_callback != NULL)
 	{
@@ -396,7 +395,6 @@ void CAT_tick_render()
 		CAT_draw_sprite(&null_sprite, 0, 120, 160);
 	}
 
-	CAT_draw_queue_submit();
 	CAT_gui_render();
 
 	if(CAT_eink_needs_update())

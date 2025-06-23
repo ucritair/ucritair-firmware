@@ -15,6 +15,7 @@
 #include "cat_aqi.h"
 #include "sprite_assets.h"
 #include "item_assets.h"
+#include "cat_crisis.h"
 
 //////////////////////////////////////////////////////////////////////////
 // SPACE
@@ -596,12 +597,8 @@ void CAT_MS_room(CAT_machine_signal signal)
 		case CAT_MACHINE_SIGNAL_TICK:
 		{
 			if(CAT_AQ_is_crisis_notice_posted())
-			{
-				if(CAT_input_dismissal())
-					CAT_AQ_dismiss_crisis_notice();
-				break;
-			}
-
+				CAT_machine_transition(CAT_MS_crisis_notice);
+				
 			if(CAT_input_pressed(CAT_BUTTON_START))
 				CAT_machine_transition(CAT_MS_menu);
 
@@ -724,14 +721,14 @@ static void render_statics()
 	CAT_draw_sprite_raw(&vending_sprite, -1, 172, 16);
 	CAT_draw_sprite_raw(&arcade_sprite, -1, 124, 48);
 
-	/*int battery_x = window_width == 240 ?
+	int battery_x = window_width == 240 ?
 	196 : window_x+window_width/2;
 	int battery_y = window_width == 240 ?
 	62 : window_y+window_height/2 - 2;
 	if(CAT_is_charging())
 	{
 		CAT_set_draw_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
-		CAT_draw_sprite(&icon_charging_sprite, 0, battery_x, battery_y);
+		CAT_draw_sprite_raw(&icon_charging_sprite, 0, battery_x, battery_y);
 	}
 	else if(CAT_get_battery_pct() <= CAT_CRITICAL_BATTERY_PCT)
 	{
@@ -745,9 +742,9 @@ static void render_statics()
 		if(battery_blink_switch)
 		{
 			CAT_set_draw_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
-			CAT_draw_sprite(&icon_low_battery_alt_sprite, 0, battery_x, battery_y);
+			CAT_draw_sprite_raw(&icon_low_battery_alt_sprite, 0, battery_x, battery_y);
 		}
-	}*/
+	}
 }
 
 static void render_props()
@@ -859,22 +856,16 @@ static void render_gui()
 		CAT_circberry(input.touch.x, input.touch.y, 16, CAT_WHITE);
 }
 
-static void render_notice()
-{
-	CAT_frameberry(CAT_WHITE);
-}
-
 void CAT_render_room()
 {
-	if(CAT_AQ_is_crisis_notice_posted())
-	{
-		render_notice();
-		return;
-	}
-
 	render_statics();
+
+	if (CAT_get_render_cycle() == 0)
+		CAT_draw_queue_clear();
 	render_props();
 	render_pickups();
 	render_pet();
+	CAT_draw_queue_submit();
+
 	render_gui();
 }

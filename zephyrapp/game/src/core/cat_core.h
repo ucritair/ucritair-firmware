@@ -27,6 +27,7 @@
 #define CAT_SCREEN_GRID_W (CAT_LCD_SCREEN_W / CAT_TILE_SIZE)
 #define CAT_SCREEN_GRID_H (CAT_LCD_SCREEN_H / CAT_TILE_SIZE)
 
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // PLATFORM
 

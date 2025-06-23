@@ -132,12 +132,15 @@ target_sources(app PRIVATE
 	src/gui/cat_gui.c
 	src/gui/cat_text.c
 
-	src/cat_input.c
-	src/cat_machine.c
-	src/cat_deco.c
-	src/cat_room.c
-	src/cat_pet.c
-	src/cat_aqi.c
+	src/air/cat_aqi.c
+	src/air/cat_crisis.c
+
+	src/systems/cat_input.c
+	src/systems/cat_machine.c
+
+	src/room/cat_deco.c
+	src/room/cat_room.c
+	src/room/cat_pet.c
 
 	sounds/sound_assets.c
 	meshes/mesh_assets.c
@@ -160,6 +163,9 @@ target_include_directories(app PRIVATE src/gui)
 target_include_directories(app PRIVATE src/cowtools)
 target_include_directories(app PRIVATE src/inventory)
 target_include_directories(app PRIVATE src/caring)
+target_include_directories(app PRIVATE src/air)
+target_include_directories(app PRIVATE src/systems)
+target_include_directories(app PRIVATE src/room)
 
 target_include_directories(app PRIVATE sounds/)
 target_include_directories(app PRIVATE meshes/)

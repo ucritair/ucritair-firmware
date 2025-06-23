@@ -296,8 +296,10 @@ void CAT_draw_sprite_raw(const CAT_sprite* sprite, int frame_idx, int x, int y)
 			px_idx += (run_rows * pitch) + run_length;
 			continue;
 		}
-
-		c = ADAPT_EMBEDDED_COLOUR(c);
+		if(sprite_overrides & CAT_SPRITE_OVERRIDE_COLOUR)
+			c = draw_colour;
+		else
+			c = ADAPT_EMBEDDED_COLOUR(c);
 		
 		while(run_remainder > 0 && dy < h)
 		{

@@ -8,56 +8,45 @@
 #include "sprite_assets.h"
 #include "cat_monitor_graphics_utils.h"
 
-enum
-{
-	SUMMARY,
-	DETAILS,
-	SPARKLINES,
-	CALENDAR,
-	LOGS,
-	CLOCK,
-	GAMEPLAY,
-	PAGE_COUNT
-};
-static int page = SUMMARY;
+static int page = CAT_MONITOR_PAGE_SUMMARY;
 
 static struct
 {
 	CAT_machine_state state;
 	CAT_render_callback render;
-} routines[PAGE_COUNT] =
+} routines[CAT_MONITOR_PAGE_COUNT] =
 {
-	[SUMMARY] =
+	[CAT_MONITOR_PAGE_SUMMARY] =
 	{
 		.state = CAT_monitor_MS_summary,
 		.render = CAT_monitor_render_summary
 	},
-	[DETAILS] =
+	[CAT_MONITOR_PAGE_DETAILS] =
 	{
 		.state = CAT_monitor_MS_summary,
 		.render = CAT_monitor_render_details
 	},
-	[SPARKLINES] =
+	[CAT_MONITOR_PAGE_SPARKLINES] =
 	{
 		.state = CAT_monitor_MS_sparklines,
 		.render = CAT_monitor_render_sparklines
 	},
-	[CALENDAR] =
+	[CAT_MONITOR_PAGE_CALENDAR] =
 	{
 		.state = CAT_monitor_MS_calendar,
 		.render = CAT_monitor_render_calendar
 	},
-	[LOGS] =
+	[CAT_MONITOR_PAGE_LOGS] =
 	{
 		.state = CAT_monitor_MS_logs,
 		.render = CAT_monitor_render_logs
 	},
-	[CLOCK] =
+	[CAT_MONITOR_PAGE_CLOCK] =
 	{
 		.state = CAT_monitor_MS_clock,
 		.render = CAT_monitor_render_clock
 	},
-	[GAMEPLAY] =
+	[CAT_MONITOR_PAGE_GAMEPLAY] =
 	{
 		.state = CAT_monitor_MS_gameplay,
 		.render = CAT_monitor_render_gameplay
@@ -79,16 +68,16 @@ static uint16_t bg_colour = CAT_MONITOR_BG_BLUE;
 
 static void render_monitor()
 {
-	if(page != GAMEPLAY)
+	if(page != CAT_MONITOR_PAGE_GAMEPLAY)
 		bg_colour = CAT_MONITOR_BG_BLUE;
 		
 	CAT_frameberry(bg_colour);
-	draw_page_markers(8, PAGE_COUNT, page);
+	draw_page_markers(8, CAT_MONITOR_PAGE_COUNT, page);
 
 	if
 	(
-		(page == SUMMARY ||
-		page == DETAILS) &&
+		(page == CAT_MONITOR_PAGE_SUMMARY ||
+		page == CAT_MONITOR_PAGE_DETAILS) &&
 		!CAT_is_AQ_initialized()
 	
 	)
@@ -101,13 +90,19 @@ static void render_monitor()
 
 void CAT_monitor_advance()
 {
-	page = (page+1) % PAGE_COUNT;
+	page = (page+1) % CAT_MONITOR_PAGE_COUNT;
 	CAT_machine_transition(routines[page].state);
 }
 
 void CAT_monitor_retreat()
 {
-	page = (page-1+PAGE_COUNT) % PAGE_COUNT;
+	page = (page-1+CAT_MONITOR_PAGE_COUNT) % CAT_MONITOR_PAGE_COUNT;
+	CAT_machine_transition(routines[page].state);
+}
+
+void CAT_monitor_seek(int target)
+{
+	page = clamp(target, CAT_MONITOR_PAGE_SUMMARY, CAT_MONITOR_PAGE_COUNT-1);
 	CAT_machine_transition(routines[page].state);
 }
 
@@ -127,7 +122,7 @@ void CAT_MS_monitor(CAT_machine_signal signal)
 	{
 		case CAT_MACHINE_SIGNAL_ENTER:
 			CAT_set_render_callback(render_monitor);
-			page = SUMMARY;
+			page = CAT_MONITOR_PAGE_SUMMARY;
 		break;
 
 		case CAT_MACHINE_SIGNAL_TICK:

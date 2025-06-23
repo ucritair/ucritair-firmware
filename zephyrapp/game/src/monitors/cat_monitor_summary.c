@@ -12,6 +12,7 @@
 #include "cat_curves.h"
 #include "sprite_assets.h"
 #include "cat_monitor_graphics_utils.h"
+#include "cat_crisis.h"
 
 #define TITLE_Y 44
 
@@ -25,12 +26,6 @@
 #define DOT_COUNT (CAT_AQM_COUNT-1)
 #define DOT_MARGIN 6
 #define DOT_D ((BAR_W - (DOT_COUNT-1) * DOT_MARGIN) / DOT_COUNT)
-
-enum
-{
-	SUMMARY,
-	DETAILS
-} mode;
 
 void CAT_monitor_render_summary()
 {
@@ -84,6 +79,9 @@ void CAT_monitor_MS_summary(CAT_machine_signal signal)
 				CAT_monitor_retreat();
 			if(CAT_input_pressed(CAT_BUTTON_RIGHT))
 				CAT_monitor_advance();
+			
+			if(CAT_AQ_is_crisis_notice_posted())
+
 		break;
 
 		case CAT_MACHINE_SIGNAL_EXIT:

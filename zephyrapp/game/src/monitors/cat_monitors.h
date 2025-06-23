@@ -5,8 +5,21 @@
 
 #define CAT_MONITOR_BG_BLUE RGB8882565(35, 157, 235)
 
+typedef enum
+{
+	CAT_MONITOR_PAGE_SUMMARY,
+	CAT_MONITOR_PAGE_DETAILS,
+	CAT_MONITOR_PAGE_SPARKLINES,
+	CAT_MONITOR_PAGE_CALENDAR,
+	CAT_MONITOR_PAGE_LOGS,
+	CAT_MONITOR_PAGE_CLOCK,
+	CAT_MONITOR_PAGE_GAMEPLAY,
+	CAT_MONITOR_PAGE_COUNT
+} CAT_monitor_page;
+
 void CAT_monitor_advance();
 void CAT_monitor_retreat();
+void CAT_monitor_seek(int target);
 void CAT_monitor_exit();
 
 void CAT_monitor_set_background(uint16_t colour);

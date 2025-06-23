@@ -8,6 +8,7 @@
 #include "cat_aqi.h"
 #include "mesh2d_assets.h"
 #include "sprite_assets.h"
+#include "cat_crisis.h"
 
 void CAT_monitor_render_gameplay()
 {
@@ -19,7 +20,7 @@ void CAT_monitor_render_gameplay()
 		CAT_set_text_colour(CAT_WHITE);
 		CAT_draw_textf(12, 44 + 26, CAT_AQ_get_crisis_severity_string());
 		CAT_set_text_colour(CAT_WHITE);
-		CAT_draw_textf(12, 44 + 26 + 14, "%d / %d\n", CAT_AQ_get_crisis_duration(), CAT_AQ_get_crisis_primetime());
+		CAT_draw_textf(12, 44 + 26 + 14, "%d / %d\n", CAT_AQ_get_crisis_uptime(), CAT_AQ_get_crisis_primetime());
 	}
 }
 

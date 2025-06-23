@@ -274,26 +274,26 @@ int CAT_timecmp(CAT_datetime* a, CAT_datetime* b)
 
 void CAT_make_datetime(uint64_t timestamp, CAT_datetime* datetime)
 {
-	struct tm unix;
-	gmtime_r(&timestamp, &unix);
-	datetime->year = unix.tm_year;
-	datetime->month = unix.tm_mon+1;
-	datetime->day = unix.tm_mday;
-	datetime->hour = unix.tm_hour;
-	datetime->minute = unix.tm_min;
-	datetime->second = unix.tm_sec;
+	struct tm t;
+	gmtime_r(&timestamp, &t);
+	datetime->year = t.tm_year;
+	datetime->month = t.tm_mon+1;
+	datetime->day = t.tm_mday;
+	datetime->hour = t.tm_hour;
+	datetime->minute = t.tm_min;
+	datetime->second = t.tm_sec;
 }
 
 uint64_t CAT_make_timestamp(CAT_datetime* datetime)
 {
-	struct tm unix;
-	unix.tm_year = datetime->year;
-	unix.tm_mon = datetime->month-1;
-	unix.tm_mday = datetime->day;
-	unix.tm_hour = datetime->hour;
-	unix.tm_min = datetime->minute;
-	unix.tm_sec = datetime->second;
-	return timegm(&unix);
+	struct tm t;
+	t.tm_year = datetime->year;
+	t.tm_mon = datetime->month-1;
+	t.tm_mday = datetime->day;
+	t.tm_hour = datetime->hour;
+	t.tm_min = datetime->minute;
+	t.tm_sec = datetime->second;
+	return timegm(&t);
 }
 
 
