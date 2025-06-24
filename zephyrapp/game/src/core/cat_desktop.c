@@ -190,29 +190,37 @@ void CAT_platform_init()
 	simulator.delta_time_s = 0;
 }
 
-uint8_t screen_capture[CAT_LCD_SCREEN_W*CAT_LCD_SCREEN_H*(RETINA_SCALE*RETINA_SCALE)*(WINDOW_SCALE*WINDOW_SCALE)*3];
-uint8_t screen_capture_flip_buffer[sizeof(screen_capture)];
+#define SCREEN_CAPTURE_ROWS (CAT_LCD_SCREEN_H*RETINA_SCALE*WINDOW_SCALE)
+#define SCREEN_CAPTURE_COLS (CAT_LCD_SCREEN_W*RETINA_SCALE*WINDOW_SCALE)
+#define SCREEN_CAPTURE_ROW_SIZE (SCREEN_CAPTURE_COLS*3)
+#define SCREEN_CAPTURE_SIZE (SCREEN_CAPTURE_ROWS * SCREEN_CAPTURE_ROW_SIZE)
+uint8_t screen_capture[2][SCREEN_CAPTURE_SIZE];
+int screen_capture_buffer_idx = 0;
 
 void flip_screen_capture()
 {
-	int width = CAT_LCD_SCREEN_W*RETINA_SCALE*WINDOW_SCALE*3;
-	int height = CAT_LCD_SCREEN_H*RETINA_SCALE*WINDOW_SCALE;
-	for(int y = 0; y < height; y++)
+	int a_idx = screen_capture_buffer_idx;
+	int b_idx = (screen_capture_buffer_idx+1)%2;
+
+	for(int y = 0; y < SCREEN_CAPTURE_ROWS; y++)
 	{
-		int y_inv = CAT_LCD_SCREEN_H*RETINA_SCALE*WINDOW_SCALE-y-1;
-		for(int x = 0; x < width; x++)
-		{
-			screen_capture_flip_buffer[y*width+x] = screen_capture[y_inv*width+x];
-		}	
+		int y_inv = SCREEN_CAPTURE_ROWS-y-1;
+		memcpy
+		(
+			&screen_capture[b_idx][y*SCREEN_CAPTURE_ROW_SIZE],
+			&screen_capture[a_idx][y_inv*SCREEN_CAPTURE_ROW_SIZE],
+			SCREEN_CAPTURE_ROW_SIZE
+		);
 	}
-	memcpy(screen_capture, screen_capture_flip_buffer, sizeof(screen_capture));
+
+	screen_capture_buffer_idx = b_idx;
 }
 
 void write_screen_capture(const char* path)
 {
 	FILE* file = fopen(path, "w");
-	fprintf(file, "%s\n%u %u\n%u\n", "P6", CAT_LCD_SCREEN_W*RETINA_SCALE*WINDOW_SCALE, CAT_LCD_SCREEN_H*RETINA_SCALE*WINDOW_SCALE, 255);
-	fwrite(screen_capture, sizeof(uint8_t), sizeof(screen_capture), file);
+	fprintf(file, "%s\n%u %u\n%u\n", "P6", SCREEN_CAPTURE_COLS, SCREEN_CAPTURE_ROWS, 255);
+	fwrite(screen_capture[screen_capture_buffer_idx], sizeof(uint8_t), SCREEN_CAPTURE_SIZE, file);
 	fclose(file);
 }
 
@@ -228,12 +236,22 @@ void CAT_platform_tick()
 		glReadPixels
 		(
 			0, 0,
-			CAT_LCD_SCREEN_W*RETINA_SCALE*WINDOW_SCALE, CAT_LCD_SCREEN_H*RETINA_SCALE*WINDOW_SCALE,
+			SCREEN_CAPTURE_COLS, SCREEN_CAPTURE_ROWS,
 			GL_RGB, GL_UNSIGNED_BYTE,
-			screen_capture
+			screen_capture[screen_capture_buffer_idx]
 		);
 		flip_screen_capture();
-		write_screen_capture("screen_capture/test.ppm");
+		
+		CAT_datetime t;
+		CAT_get_datetime(&t);
+		char path[strlen("screen_capture/####_##_##_##_##_##.ppm")+1];
+		snprintf
+		(
+			path, sizeof(path),
+			"screen_capture/%.4d_%.2d_%.2d_%.2d_%.2d_%.2d.ppm",
+			t.year, t.month, t.day, t.hour, t.minute, t.second
+		);
+		write_screen_capture(path);
 	}
 }
 

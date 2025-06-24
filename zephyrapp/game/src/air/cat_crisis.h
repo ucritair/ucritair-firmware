@@ -33,6 +33,7 @@ typedef enum
 
 typedef enum
 {
+	CAT_AQ_CRISIS_RESPONSE_GRADE_NONE,
 	CAT_AQ_CRISIS_RESPONSE_GRADE_DISASTROUS,
 	CAT_AQ_CRISIS_RESPONSE_GRADE_INADEQUATE,
 	CAT_AQ_CRISIS_RESPONSE_GRADE_ADEQUATE,
@@ -43,22 +44,21 @@ CAT_AQ_crisis_type CAT_AQ_poll_crisis_type();
 CAT_AQ_crisis_severity CAT_AQ_poll_crisis_severity(CAT_AQ_crisis_type type);
 
 void CAT_AQ_start_crisis(CAT_AQ_crisis_type type, CAT_AQ_crisis_severity severity);
-void CAT_AQ_stop_crisis(CAT_AQ_crisis_response_type response_type);
 bool CAT_AQ_is_crisis_ongoing();
-void CAT_AQ_crisis_tick();
-
 int CAT_AQ_get_crisis_primetime();
 int CAT_AQ_get_crisis_uptime();
 int CAT_AQ_get_crisis_overtime();
+void CAT_AQ_stop_crisis(CAT_AQ_crisis_response_type response_type);
 CAT_AQ_crisis_response_grade CAT_AQ_grade_crisis_response();
+bool CAT_AQ_is_crisis_waiting();
+void CAT_AQ_crisis_tick();
 
 bool CAT_AQ_is_crisis_notice_posted();
 void CAT_AQ_dismiss_crisis_notice();
 
 const char* CAT_AQ_get_crisis_title();
 const char* CAT_AQ_get_crisis_severity_string();
-
-void CAT_AQ_poll_crisis();
+const char* CAT_AQ_get_crisis_response_grade_string();
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

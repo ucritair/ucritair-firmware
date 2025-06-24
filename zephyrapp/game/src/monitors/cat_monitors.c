@@ -116,7 +116,10 @@ int CAT_monitor_tell()
 
 void CAT_monitor_exit()
 {
-	CAT_machine_transition(CAT_MS_room);
+	if(CAT_AQ_is_crisis_notice_posted())
+		CAT_machine_transition(CAT_MS_crisis_notice);
+	else
+		CAT_machine_transition(CAT_MS_room);
 }
 
 void CAT_monitor_colour_bg(uint16_t colour)

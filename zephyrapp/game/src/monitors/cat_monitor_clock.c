@@ -84,8 +84,6 @@ void CAT_monitor_MS_clock(CAT_machine_signal signal)
 		break;
 
 		case CAT_MACHINE_SIGNAL_TICK:
-			if(CAT_input_released(CAT_BUTTON_START))
-				CAT_monitor_exit();
 			if(CAT_input_pressed(CAT_BUTTON_LEFT))
 				CAT_monitor_retreat();
 			if(CAT_input_pressed(CAT_BUTTON_RIGHT))

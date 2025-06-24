@@ -5,5 +5,5 @@ app
 *.dat
 sounds/temp/
 src/cowtools/cat_math_ALT.h
-
-!meshes/*.obj
+screen_capture/*.png
+screen_capture/*.ppm

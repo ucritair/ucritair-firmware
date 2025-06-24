@@ -7,6 +7,7 @@
 #include "cat_gui.h"
 #include "cat_curves.h"
 #include "cat_gizmos.h"
+#include "cat_room.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // CRISIS
@@ -82,41 +83,38 @@ CAT_AQ_crisis_severity CAT_AQ_poll_crisis_severity(CAT_AQ_crisis_type type)
 
 static CAT_AQ_crisis_type crisis_type = CAT_AQ_CRISIS_TYPE_NONE;
 static CAT_AQ_crisis_severity crisis_severity = CAT_AQ_CRISIS_SEVERITY_NONE;
-static float crisis_timer = 0;
-static CAT_AQ_crisis_response_type crisis_response_type;
+static bool crisis_ongoing = false;
 static bool crisis_notice = false;
-static uint64_t crisis_timestamp;
+
+static uint64_t crisis_start_timestamp = 0;
+static uint64_t crisis_end_timestamp = 0;
+static uint64_t crisis_notice_dismiss_timestamp = 0;
+static float crisis_timer = 0;
+
+static CAT_AQ_crisis_response_type crisis_response_type = CAT_AQ_CRISIS_RESPONSE_TYPE_NONE;
+static CAT_AQ_crisis_response_grade crisis_response_grade = CAT_AQ_CRISIS_RESPONSE_GRADE_NONE;
+static uint8_t lifetime_damage = 0;
 
 void CAT_AQ_start_crisis(CAT_AQ_crisis_type type, CAT_AQ_crisis_severity severity)
 {
 	crisis_type = type;
 	crisis_severity = severity;
-	crisis_timer = 0;
-	crisis_response_type = CAT_AQ_CRISIS_RESPONSE_TYPE_NONE;
+	crisis_ongoing = true;
 	crisis_notice = true;
-	crisis_timestamp = CAT_get_rtc_now();
-}
 
-void CAT_AQ_stop_crisis(CAT_AQ_crisis_response_type response_type)
-{
-	crisis_response_type = response_type;
+	crisis_start_timestamp = CAT_get_rtc_now();
+	crisis_end_timestamp = 0;
+	crisis_notice_dismiss_timestamp = 0;
+	crisis_timer = 0;
+
+	crisis_response_type = CAT_AQ_CRISIS_RESPONSE_TYPE_NONE;
+	crisis_response_grade = CAT_AQ_CRISIS_RESPONSE_GRADE_NONE;
+	lifetime_damage = 0;
 }
 
 bool CAT_AQ_is_crisis_ongoing()
 {
-	return
-	crisis_type != CAT_AQ_CRISIS_TYPE_NONE &&
-	crisis_response_type == CAT_AQ_CRISIS_RESPONSE_TYPE_NONE;
-}
-
-void CAT_AQ_crisis_tick()
-{
-	if(crisis_type != CAT_AQ_CRISIS_TYPE_NONE && CAT_AQ_is_crisis_ongoing())
-	{
-		crisis_timer += CAT_get_delta_time_s();
-		if(CAT_AQ_poll_crisis_severity(crisis_type) == CAT_AQ_CRISIS_SEVERITY_NONE)
-			CAT_AQ_stop_crisis(CAT_AQ_CRISIS_RESPONSE_TYPE_AUTOMATIC);
-	}
+	return crisis_ongoing;
 }
 
 int CAT_AQ_get_crisis_primetime()
@@ -134,21 +132,62 @@ int CAT_AQ_get_crisis_overtime()
 	return crisis_timer - CAT_AQ_get_crisis_primetime();
 }
 
-CAT_AQ_crisis_response_grade CAT_AQ_grade_crisis_response()
+void CAT_AQ_stop_crisis(CAT_AQ_crisis_response_type response_type)
 {
+	crisis_ongoing = false;
+	crisis_end_timestamp = CAT_get_rtc_now();
+	crisis_response_type = response_type;
+	
 	int primetime = CAT_AQ_get_crisis_primetime();
 	int overtime = crisis_timer - primetime;
-	
-	if(overtime <= 0)
+	crisis_response_grade =
+	overtime <= (-primetime / 2) ? CAT_AQ_CRISIS_RESPONSE_GRADE_EXCELLENT :
+	overtime <= 0 ? CAT_AQ_CRISIS_RESPONSE_GRADE_ADEQUATE :
+	overtime <= primetime ? CAT_AQ_CRISIS_RESPONSE_GRADE_INADEQUATE :
+	CAT_AQ_CRISIS_RESPONSE_GRADE_DISASTROUS;
+}
+
+CAT_AQ_crisis_response_grade CAT_AQ_grade_crisis_response()
+{
+	return crisis_response_grade;
+}
+
+bool CAT_AQ_is_crisis_waiting()
+{
+	return
+	!crisis_ongoing &&
+	crisis_notice;
+}
+
+void CAT_AQ_crisis_tick()
+{
+	if(!CAT_AQ_is_crisis_ongoing())
 	{
-		if(crisis_timer <= CAT_MINUTE_SECONDS*5)
-			return CAT_AQ_CRISIS_RESPONSE_GRADE_EXCELLENT;
-		return CAT_AQ_CRISIS_RESPONSE_GRADE_ADEQUATE;
+		if(!CAT_AQ_is_crisis_waiting())
+		{
+			uint64_t time_since_last_crisis = CAT_get_rtc_now() - crisis_notice_dismiss_timestamp;
+			if(time_since_last_crisis >= 5)
+			{
+				CAT_AQ_crisis_type type = CAT_AQ_poll_crisis_type();
+				if(type != CAT_AQ_CRISIS_TYPE_NONE)
+				{
+					CAT_AQ_crisis_severity severity = CAT_AQ_poll_crisis_severity(type);
+					if(severity != CAT_AQ_CRISIS_SEVERITY_NONE)
+						CAT_AQ_start_crisis(type, severity);
+				}
+			}
+		}
 	}
-	else if(overtime <= primetime * 2)
-		return CAT_AQ_CRISIS_RESPONSE_GRADE_INADEQUATE;
 	else
-		return CAT_AQ_CRISIS_RESPONSE_GRADE_DISASTROUS;
+	{
+		crisis_timer = CAT_AQ_get_crisis_primetime() * 3;
+		CAT_AQ_stop_crisis(CAT_AQ_CRISIS_RESPONSE_TYPE_AUTOMATIC);
+		/*crisis_timer += CAT_get_delta_time_s();
+		if(CAT_AQ_poll_crisis_severity(crisis_type) == CAT_AQ_CRISIS_SEVERITY_NONE)
+		{
+			CAT_AQ_stop_crisis(CAT_AQ_CRISIS_RESPONSE_TYPE_AUTOMATIC);
+		}*/
+	}
 }
 
 bool CAT_AQ_is_crisis_notice_posted()
@@ -159,6 +198,7 @@ bool CAT_AQ_is_crisis_notice_posted()
 void CAT_AQ_dismiss_crisis_notice()
 {
 	crisis_notice = false;
+	crisis_notice_dismiss_timestamp = CAT_get_rtc_now();
 }
 
 static const char* crisis_titles[] =
@@ -178,6 +218,15 @@ static const char* crisis_severity_strings[] =
 	"SEVERE",
 };
 
+static const char* crisis_response_grade_strings[] =
+{
+	"N/A",
+	"DISASTROUS",
+	"INADEQUATE",
+	"ADEQUATE",
+	"EXCELLENT",
+};
+
 const char* CAT_AQ_get_crisis_title()
 {
 	return crisis_titles[crisis_type];
@@ -188,22 +237,9 @@ const char* CAT_AQ_get_crisis_severity_string()
 	return crisis_severity_strings[crisis_severity];
 }
 
-void CAT_AQ_poll_crisis()
+const char* CAT_AQ_get_crisis_response_grade_string()
 {
-	if(!CAT_AQ_is_crisis_ongoing())
-	{
-		CAT_AQ_crisis_type type = CAT_AQ_poll_crisis_type();
-		if(type != CAT_AQ_CRISIS_TYPE_NONE)
-		{
-			CAT_AQ_crisis_severity severity = CAT_AQ_poll_crisis_severity(type);
-			if(severity != CAT_AQ_CRISIS_SEVERITY_NONE)
-				CAT_AQ_start_crisis(type, severity);
-		}
-	}
-	else
-	{
-		CAT_AQ_crisis_tick();	
-	}
+	return crisis_response_grade_strings[crisis_response_grade];
 }
 
 
@@ -222,7 +258,7 @@ void CAT_MS_crisis_notice(CAT_machine_signal signal)
 			if(CAT_input_dismissal())
 			{
 				CAT_AQ_dismiss_crisis_notice();
-				CAT_machine_back();
+				CAT_machine_transition(CAT_MS_room);
 			}
 		break;
 
@@ -265,6 +301,13 @@ static void draw_countdown()
 	}
 }
 
+void configure_status_text()
+{
+	CAT_set_text_mask(MARGIN*2+MARGIN, -1, CAT_LCD_SCREEN_W-MARGIN*2-MARGIN-12, -1);
+	CAT_set_text_colour(CAT_WHITE);
+	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
+}
+
 void CAT_render_crisis_notice()
 {
 	CAT_frameberry(CAT_BLACK);
@@ -288,7 +331,7 @@ void CAT_render_crisis_notice()
 	cursor_y = CAT_draw_textf(MARGIN, cursor_y, "SEVERITY: %s\n", CAT_AQ_get_crisis_severity_string());
 
 	CAT_datetime datetime;
-	CAT_make_datetime(crisis_timestamp, &datetime);
+	CAT_make_datetime(crisis_start_timestamp, &datetime);
 	CAT_set_text_colour(CRISIS_RED);
 	cursor_y = CAT_draw_textf(MARGIN, cursor_y, "ONSET: %.2d/%.2d/%.4d %.2d:%.2d:%.2d\n", datetime.month, datetime.day, datetime.year, datetime.hour, datetime.minute, datetime.second);
 
@@ -297,15 +340,35 @@ void CAT_render_crisis_notice()
 	cursor_y += 24;
 	int box_start_row = cursor_y;
 
-	CAT_set_text_mask(MARGIN*2+MARGIN, -1, CAT_LCD_SCREEN_W-MARGIN*2-MARGIN-12, -1);
-	CAT_set_text_colour(CAT_WHITE);
-	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
+	configure_status_text();
 	cursor_y = CAT_draw_textf
 	(
 		MARGIN*2+MARGIN, cursor_y+MARGIN,
-		"Crisis occurred at %.2d:%.2d on %.2d/%.2d/%.4d. No response has yet been made. Critter is likely to suffer as crisis conditions continue.\n",
+		"Crisis occurred at %.2d:%.2d on %.2d/%.2d/%.4d.\n",
 		datetime.hour, datetime.minute, datetime.month, datetime.day, datetime.year
 	);
+	if(CAT_AQ_is_crisis_ongoing())
+	{
+		configure_status_text();
+		cursor_y = CAT_draw_textf
+		(
+			MARGIN*2+MARGIN, cursor_y,
+			"No response has yet been made. "
+			"With crisis conditions ongoing, the critter's health will deteriorate.\n"
+		);
+	}
+	else
+	{
+		configure_status_text();
+		cursor_y = CAT_draw_textf
+		(
+			MARGIN*2+MARGIN, cursor_y,
+			"Intervention occurred %d seconds into the event."
+			"With the crisis suppressed, the critter's condition is stable.\n"
+			,
+			CAT_AQ_get_crisis_uptime()
+		);
+	}
 
 	CAT_draw_cross_box
 	(

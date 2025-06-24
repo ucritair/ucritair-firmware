@@ -430,8 +430,6 @@ void calendar_logic()
 {
 	if(!focused)
 	{
-		if(CAT_input_pressed(CAT_BUTTON_START))
-			CAT_monitor_exit();
 		if(CAT_input_pressed(CAT_BUTTON_LEFT))
 			CAT_monitor_retreat();
 		if(CAT_input_pressed(CAT_BUTTON_RIGHT))

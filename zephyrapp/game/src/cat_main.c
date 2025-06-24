@@ -345,7 +345,7 @@ void CAT_tick_logic()
 	CAT_animator_tick();
 
 	CAT_AQ_tick();
-	CAT_AQ_poll_crisis();
+	CAT_AQ_crisis_tick();
 	CAT_pet_tick();
 	CAT_room_tick();
 	
