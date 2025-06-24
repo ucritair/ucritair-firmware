@@ -6,7 +6,7 @@
 #include "sensor_hal.h"
 #include "cat_core.h"
 
-LOG_MODULE_REGISTER(sunrise, LOG_LEVEL_DBG);
+LOG_MODULE_REGISTER(sunrise, SENSOR_LOG_LEVEL);
 
 /*------------- default CO2 value -----------------------------------*/
 #define SUNRISE_DEFAULT_TARGET_PPM  427 // Mauna Loa Average June 2025. 
