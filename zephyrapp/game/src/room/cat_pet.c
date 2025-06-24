@@ -28,10 +28,11 @@ bool is_critical()
 
 void CAT_pet_init()
 {	
-	pet.vigour = 9;
-	pet.focus = 9;
-	pet.spirit = 9;
+	pet.vigour = 12;
+	pet.focus = 12;
+	pet.spirit = 12;
 	pet.lifetime = 0;
+	pet.lifespan = 30;
 	pet.xp = 0;
 	pet.level = 0;
 

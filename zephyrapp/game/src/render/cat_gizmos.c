@@ -50,3 +50,24 @@ void CAT_draw_progress_bar(int x, int y, int w, int h, uint16_t co, uint16_t ci,
 		CAT_fillberry(x-w/2+2, y-h/2+2, (w-4)*t, h-4, ci);
 	}
 }
+
+void CAT_draw_hexagon(int x, int y, int r, uint16_t c, float p)
+{
+	int rh = r / (2 * sin(M_PI / 6));
+	float dt = 2 * M_PI / 6.0f;
+	float t = p;
+
+	int x0, y0, x1, y1;
+	x0 = rh*cos(t);
+	y0 = rh*sin(t);
+	t += dt;
+	for(int i = 1; i <= 6; i++)
+	{
+		int x1 = rh*cos(t);
+		int y1 = rh*sin(t);
+		CAT_lineberry(x+x0, y+y0, x+x1, y+y1, c);
+		x0 = x1;
+		y0 = y1;
+		t += dt;
+	}
+}

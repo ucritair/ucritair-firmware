@@ -90,7 +90,7 @@ void draw_ongoing_crisis()
 	CAT_set_text_mask(box_x0+4, box_y0+4, box_x1-4, box_y1-4);
 	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP | CAT_TEXT_FLAG_CENTER);
 	CAT_set_text_colour(CRISIS_RED);
-	CAT_draw_text((box_x0+box_x1)/2, box_y0+12, "Critter is in danger of taking lifetime damage!\n");
+	CAT_draw_text((box_x0+box_x1)/2, box_y0+12, "Critter is in danger of taking lifespan damage!\n");
 }
 
 void draw_waiting_crisis()

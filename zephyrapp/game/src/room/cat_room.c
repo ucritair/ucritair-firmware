@@ -16,6 +16,7 @@
 #include "sprite_assets.h"
 #include "item_assets.h"
 #include "cat_crisis.h"
+#include "cat_monitors.h"
 
 //////////////////////////////////////////////////////////////////////////
 // SPACE
@@ -629,6 +630,16 @@ void CAT_MS_room(CAT_machine_signal signal)
 				CAT_machine_transition(CAT_MS_shop);
 			if(CAT_input_touch_rect(ARCADE_X, ARCADE_Y, ARCADE_W, ARCADE_H))
 				CAT_machine_transition(CAT_MS_arcade);
+			if(CAT_input_touch_rect
+			(
+				room.theme->window_rect.min.x+4,
+				room.theme->window_rect.min.y+4,
+				room.theme->window_rect.max.x-room.theme->window_rect.min.x-8,
+				room.theme->window_rect.max.y-room.theme->window_rect.min.y-8
+			))
+			{
+				CAT_machine_transition(CAT_MS_monitor);
+			}
 
 			for(int i = 0; i < room.pickup_count; i++)
 			{

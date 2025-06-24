@@ -3,6 +3,10 @@
 #include "cat_core.h"
 #include "cat_aqi.h"
 #include "cat_render.h"
+#include "cat_item.h"
+#include "item_assets.h"
+#include "cat_room.h"
+#include "cat_pet.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // CRISIS
@@ -17,8 +21,8 @@ static const int crisis_primetimes[] =
 {
 	0, // NONE
 	CAT_MINUTE_SECONDS * 30, // MILD
-	CAT_MINUTE_SECONDS * 20, // MODERATE
-	CAT_MINUTE_SECONDS * 10 // SEVERE
+	CAT_MINUTE_SECONDS * 10, // MODERATE
+	CAT_MINUTE_SECONDS * 5 // SEVERE
 };
 
 CAT_AQ_crisis_type CAT_AQ_poll_crisis_type()
@@ -88,7 +92,7 @@ static float crisis_timer = 0;
 
 static CAT_AQ_crisis_response_type crisis_response_type = CAT_AQ_CRISIS_RESPONSE_TYPE_NONE;
 static CAT_AQ_crisis_response_grade crisis_response_grade = CAT_AQ_CRISIS_RESPONSE_GRADE_NONE;
-static uint8_t lifetime_damage = 0;
+static uint8_t lifespan_damage = 0;
 
 void CAT_AQ_start_crisis(CAT_AQ_crisis_type type, CAT_AQ_crisis_severity severity)
 {
@@ -104,7 +108,7 @@ void CAT_AQ_start_crisis(CAT_AQ_crisis_type type, CAT_AQ_crisis_severity severit
 
 	crisis_response_type = CAT_AQ_CRISIS_RESPONSE_TYPE_NONE;
 	crisis_response_grade = CAT_AQ_CRISIS_RESPONSE_GRADE_NONE;
-	lifetime_damage = 0;
+	lifespan_damage = 0;
 }
 
 bool CAT_AQ_is_crisis_ongoing()
@@ -114,7 +118,7 @@ bool CAT_AQ_is_crisis_ongoing()
 
 int CAT_AQ_get_crisis_primetime()
 {
-	return 10;//crisis_primetimes[crisis_severity];
+	return crisis_primetimes[crisis_severity];
 }
 
 int CAT_AQ_get_crisis_uptime()
@@ -150,6 +154,13 @@ void CAT_AQ_stop_crisis(CAT_AQ_crisis_response_type response_type)
 	overtime <= 0 ? CAT_AQ_CRISIS_RESPONSE_GRADE_ADEQUATE :
 	overtime <= primetime ? CAT_AQ_CRISIS_RESPONSE_GRADE_INADEQUATE :
 	CAT_AQ_CRISIS_RESPONSE_GRADE_DISASTROUS;
+
+	lifespan_damage =
+	crisis_response_grade <= CAT_AQ_CRISIS_RESPONSE_GRADE_DISASTROUS ? 3 :
+	crisis_response_grade <= CAT_AQ_CRISIS_RESPONSE_GRADE_INADEQUATE ? 2 :
+	0;
+
+	pet.lifespan -= lifespan_damage;
 }
 
 CAT_AQ_crisis_response_grade CAT_AQ_grade_crisis_response()
@@ -157,9 +168,9 @@ CAT_AQ_crisis_response_grade CAT_AQ_grade_crisis_response()
 	return crisis_response_grade;
 }
 
-int CAT_AQ_get_crisis_lifetime_damage()
+int CAT_AQ_get_crisis_lifespan_damage()
 {
-	return lifetime_damage;
+	return lifespan_damage;
 }
 
 bool CAT_AQ_is_crisis_waiting()
@@ -175,14 +186,15 @@ void CAT_AQ_crisis_tick()
 	{
 		if(!CAT_AQ_is_crisis_waiting())
 		{
-			uint64_t time_since_last_crisis = CAT_get_rtc_now() - crisis_notice_dismiss_timestamp;
-			if(time_since_last_crisis >= 5)
+			CAT_AQ_crisis_type type = CAT_AQ_poll_crisis_type();
+			if(type != CAT_AQ_CRISIS_TYPE_NONE)
 			{
-				CAT_AQ_crisis_type type = CAT_AQ_poll_crisis_type();
-				if(type != CAT_AQ_CRISIS_TYPE_NONE)
+				CAT_AQ_crisis_severity severity = CAT_AQ_poll_crisis_severity(type);
+				if(severity != CAT_AQ_CRISIS_SEVERITY_NONE)
 				{
-					CAT_AQ_crisis_severity severity = CAT_AQ_poll_crisis_severity(type);
-					if(severity != CAT_AQ_CRISIS_SEVERITY_NONE)
+					uint64_t time_since_last_crisis = CAT_get_rtc_now() - crisis_notice_dismiss_timestamp;
+					uint16_t threshold = type == CAT_AQ_CRISIS_TYPE_TEMP_RH ? CAT_HOUR_SECONDS * 3 : CAT_MINUTE_SECONDS * 30;
+					if(time_since_last_crisis >= threshold)
 						CAT_AQ_start_crisis(type, severity);
 				}
 			}
@@ -191,9 +203,42 @@ void CAT_AQ_crisis_tick()
 	else
 	{
 		crisis_timer += CAT_get_delta_time_s();
-		if(CAT_AQ_poll_crisis_severity(crisis_type) == CAT_AQ_CRISIS_SEVERITY_NONE || crisis_timer >= CAT_AQ_get_crisis_primetime())
+
+		// AUTOMATIC RESPONSE
+		if(CAT_AQ_poll_crisis_severity(crisis_type) == CAT_AQ_CRISIS_SEVERITY_NONE)
 		{
 			CAT_AQ_stop_crisis(CAT_AQ_CRISIS_RESPONSE_TYPE_AUTOMATIC);
+		}
+
+		// ITEM ASSISTED RESPONSE
+		if(crisis_type == CAT_AQ_CRISIS_TYPE_CO2)
+		{
+			int uv_idx = CAT_room_find(prop_uv_lamp_item);
+			if(uv_idx != -1)
+			{
+				CAT_room_remove_prop(uv_idx);
+				CAT_AQ_stop_crisis(CAT_AQ_CRISIS_RESPONSE_TYPE_ASSISTED);
+			}
+		}
+		else if(crisis_type == CAT_AQ_CRISIS_TYPE_PM2_5 || crisis_type == CAT_AQ_CRISIS_TYPE_NOX_VOC)
+		{
+			if(crisis_severity <= CAT_AQ_CRISIS_SEVERITY_MILD)
+			{
+				if(CAT_inventory_count(mask_item))
+				{
+					CAT_inventory_remove(mask_item, 1);
+					CAT_AQ_stop_crisis(CAT_AQ_CRISIS_RESPONSE_TYPE_ASSISTED);
+				}
+			}
+			else
+			{
+				int pure_idx = CAT_room_find(prop_purifier_item);
+				if(pure_idx != -1)
+				{
+					CAT_room_remove_prop(pure_idx);
+					CAT_AQ_stop_crisis(CAT_AQ_CRISIS_RESPONSE_TYPE_ASSISTED);
+				}
+			}
 		}
 	}
 }

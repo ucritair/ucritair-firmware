@@ -5,6 +5,7 @@
 #include "cat_curves.h"
 #include "cat_gizmos.h"
 #include "cat_room.h"
+#include "cat_pet.h"
 
 static enum
 {
@@ -263,6 +264,7 @@ void draw_outcomes_page()
 		CAT_set_text_colour(CRISIS_RED);
 		cursor_y = CAT_draw_textf(MARGIN, cursor_y, "RESPONSE TIME: %.2dm %.2ds\n", uptime/60, uptime%60);
 
+		int grade = CAT_AQ_grade_crisis_response();
 		CAT_set_text_colour(CRISIS_YELLOW);
 		cursor_y = CAT_draw_textf(MARGIN, cursor_y, "RESPONSE GRADE: %s\n", CAT_AQ_get_crisis_response_grade_string());
 
@@ -272,6 +274,30 @@ void draw_outcomes_page()
 		CAT_set_text_colour(CRISIS_GREEN);
 		cursor_y = CAT_draw_textf(MARGIN, cursor_y, ">>>>>>>>>>>>>>>>>>>>>>>>>>>>");
 		cursor_y += 24;
+
+		int box_x0 = MARGIN*2; int box_y0 = cursor_y;
+		int box_x1 = CAT_LCD_SCREEN_W-MARGIN*2; int box_y1 = CAT_LCD_SCREEN_H-64;
+		CAT_draw_corner_box(box_x0, box_y0, box_x1, box_y1, CRISIS_YELLOW);
+
+		uint16_t grade_colour =
+		grade >= CAT_AQ_CRISIS_RESPONSE_GRADE_ADEQUATE ? CRISIS_GREEN :
+		grade >= CAT_AQ_CRISIS_RESPONSE_GRADE_INADEQUATE ? CRISIS_YELLOW :
+		CRISIS_RED;
+		CAT_draw_hexagon((box_x0+box_x1)/2, (box_y0+box_y1)/2, 64, grade_colour, 0);
+
+		CAT_set_text_flags(CAT_TEXT_FLAG_CENTER);
+		CAT_set_text_colour(CAT_WHITE);
+		int damage = CAT_AQ_get_crisis_lifespan_damage();
+		cursor_y = CAT_draw_textf
+		(
+			(box_x0+box_x1)/2, (box_y0+box_y1)/2 - (14*3/2),
+			"LIFESPAN DAMAGE [%.2d]\n"
+			"PREVIOUS LIFESPAN [%.2d]\n"
+			"CURRENT LIFESPAN [%.2d]\n"
+			,
+			damage,
+			pet.lifespan+damage, pet.lifespan
+		);
 	}
 
 	CAT_set_text_colour(CRISIS_GREEN);

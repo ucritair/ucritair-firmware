@@ -57,7 +57,7 @@ uint64_t CAT_AQ_get_crisis_end();
 void CAT_AQ_stop_crisis(CAT_AQ_crisis_response_type response_type);
 
 CAT_AQ_crisis_response_grade CAT_AQ_grade_crisis_response();
-int CAT_AQ_get_crisis_lifetime_damage();
+int CAT_AQ_get_crisis_lifespan_damage();
 bool CAT_AQ_is_crisis_waiting();
 
 void CAT_AQ_crisis_tick();
