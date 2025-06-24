@@ -65,11 +65,14 @@ static void draw_uninit_warning()
 }
 
 static uint16_t bg_colour = CAT_MONITOR_BG_BLUE;
+static uint16_t fg_colour = CAT_WHITE;
 
 static void render_monitor()
 {
 	if(page != CAT_MONITOR_PAGE_GAMEPLAY)
 		bg_colour = CAT_MONITOR_BG_BLUE;
+	if(page != CAT_MONITOR_PAGE_GAMEPLAY)
+		fg_colour = CAT_WHITE;
 		
 	CAT_frameberry(bg_colour);
 	draw_page_markers(8, CAT_MONITOR_PAGE_COUNT, page);
@@ -106,14 +109,34 @@ void CAT_monitor_seek(int target)
 	CAT_machine_transition(routines[page].state);
 }
 
+int CAT_monitor_tell()
+{
+	return page;
+}
+
 void CAT_monitor_exit()
 {
 	CAT_machine_transition(CAT_MS_room);
 }
 
-void CAT_monitor_set_background(uint16_t colour)
+void CAT_monitor_colour_bg(uint16_t colour)
 {
 	bg_colour = colour;
+}
+
+void CAT_monitor_colour_fg(uint16_t colour)
+{
+	fg_colour = colour;
+}
+
+uint16_t CAT_monitor_bg_colour()
+{
+	return bg_colour;
+}
+
+uint16_t CAT_monitor_fg_colour()
+{
+	return fg_colour;
 }
 
 void CAT_MS_monitor(CAT_machine_signal signal)

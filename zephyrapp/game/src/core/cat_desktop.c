@@ -21,6 +21,13 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // PLATFORM
 
+#define WINDOW_SCALE 2
+#ifdef CAT_MACOS
+#define RETINA_SCALE 2
+#else
+#define RETINA_SCALE 1
+#endif
+
 struct
 {
     GLFWwindow* window;
@@ -34,20 +41,7 @@ struct
 	uint64_t slept_s;
     float uptime_s;
     float delta_time_s;
-} simulator =
-{
-	.window = NULL,
-	.vao_id = 0,
-	.vbo_id = 0,
-	.tex_id = 0,
-	.prog_id = 0,
-	.tex_loc = 0,
-	.brightness_loc = 0,
-
-	.slept_s = 0,
-	.uptime_s = 0,
-	.delta_time_s = 0
-};
+} simulator = {0};
 
 void GLFW_error_callback(int error, const char* msg)
 {
@@ -118,7 +112,7 @@ void CAT_platform_init()
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
-	simulator.window = glfwCreateWindow(CAT_LCD_SCREEN_W, CAT_LCD_SCREEN_H, "μCritAir", NULL, NULL);
+	simulator.window = glfwCreateWindow(CAT_LCD_SCREEN_W*WINDOW_SCALE, CAT_LCD_SCREEN_H*WINDOW_SCALE, "μCritAir", NULL, NULL);
 	if(simulator.window == NULL)
 	{
 		CAT_printf("Failed to create window\n");
@@ -196,12 +190,51 @@ void CAT_platform_init()
 	simulator.delta_time_s = 0;
 }
 
+uint8_t screen_capture[CAT_LCD_SCREEN_W*CAT_LCD_SCREEN_H*(RETINA_SCALE*RETINA_SCALE)*(WINDOW_SCALE*WINDOW_SCALE)*3];
+uint8_t screen_capture_flip_buffer[sizeof(screen_capture)];
+
+void flip_screen_capture()
+{
+	int width = CAT_LCD_SCREEN_W*RETINA_SCALE*WINDOW_SCALE*3;
+	int height = CAT_LCD_SCREEN_H*RETINA_SCALE*WINDOW_SCALE;
+	for(int y = 0; y < height; y++)
+	{
+		int y_inv = CAT_LCD_SCREEN_H*RETINA_SCALE*WINDOW_SCALE-y-1;
+		for(int x = 0; x < width; x++)
+		{
+			screen_capture_flip_buffer[y*width+x] = screen_capture[y_inv*width+x];
+		}	
+	}
+	memcpy(screen_capture, screen_capture_flip_buffer, sizeof(screen_capture));
+}
+
+void write_screen_capture(const char* path)
+{
+	FILE* file = fopen(path, "w");
+	fprintf(file, "%s\n%u %u\n%u\n", "P6", CAT_LCD_SCREEN_W*RETINA_SCALE*WINDOW_SCALE, CAT_LCD_SCREEN_H*RETINA_SCALE*WINDOW_SCALE, 255);
+	fwrite(screen_capture, sizeof(uint8_t), sizeof(screen_capture), file);
+	fclose(file);
+}
+
 void CAT_platform_tick()
 {
 	glfwPollEvents();
 
 	simulator.delta_time_s = glfwGetTime() - simulator.uptime_s;
 	simulator.uptime_s = glfwGetTime();
+
+	if(glfwGetKey(simulator.window, GLFW_KEY_ENTER))
+	{
+		glReadPixels
+		(
+			0, 0,
+			CAT_LCD_SCREEN_W*RETINA_SCALE*WINDOW_SCALE, CAT_LCD_SCREEN_H*RETINA_SCALE*WINDOW_SCALE,
+			GL_RGB, GL_UNSIGNED_BYTE,
+			screen_capture
+		);
+		flip_screen_capture();
+		write_screen_capture("screen_capture/test.ppm");
+	}
 }
 
 void CAT_platform_cleanup()
@@ -391,6 +424,8 @@ void CAT_get_touch(CAT_touch* touch)
 {
 	double x, y;
 	glfwGetCursorPos(simulator.window, &x, &y);
+	x /= WINDOW_SCALE;
+	y /= WINDOW_SCALE;
 	touch->x = x;
 	touch->y = y;
 	touch->pressure = glfwGetMouseButton(simulator.window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS;

@@ -805,7 +805,7 @@ void MS_feed_arrange(CAT_machine_signal signal)
 
 static void render_feedback()
 {
-	CAT_set_draw_flags(CAT_DRAW_FLAG_BOTTOM);
+	CAT_set_sprite_flags(CAT_DRAW_FLAG_BOTTOM);
 	const CAT_sprite *sprite = &pet_feed_neutral_sprite;
 	int x = 240 - 96;
 	int y = 320;
@@ -850,11 +850,11 @@ static void render_arrange()
 	int table_h = table_rect.max.y - table_y;
 	int center_x = table_x + table_w / 2;
 	int center_y = table_y + table_h / 2;
-	CAT_set_draw_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
+	CAT_set_sprite_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
 	CAT_draw_sprite_raw(&feed_table_sprite, 0, center_x, center_y + 16);
-	CAT_set_draw_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
+	CAT_set_sprite_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
 	CAT_draw_sprite_raw(&feed_tablecloth_sprite, 0, center_x, center_y + 16);
-	CAT_set_draw_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
+	CAT_set_sprite_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
 	CAT_draw_sprite_raw(&feed_tray_sprite, 0, center_x, center_y);
 
 	if (show_gizmos)
@@ -878,8 +878,8 @@ static void render_arrange()
 		CAT_item *food = food_lookup(i);
 		CAT_ivec2 food_pos = food_list[i].position;
 		CAT_rect food_rect = CAT_rect_center(food_pos.x, food_pos.y, FOOD_COLLISION_W, FOOD_COLLISION_H);
-		CAT_set_draw_scale(2);
-		CAT_set_draw_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_BOTTOM);
+		CAT_set_sprite_scale(2);
+		CAT_set_sprite_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_BOTTOM);
 		CAT_draw_sprite(food->sprite, 0, food_pos.x, food_rect.max.y);
 
 		if (show_gizmos)
@@ -920,10 +920,10 @@ static void render_arrange()
 			CAT_circberry(active_food_centroid.x, active_food_centroid.y, CENTERPIECE_RADIUS, centerpiece_idx == -1 ? CAT_GREEN : CAT_RED);
 	}
 
-	CAT_set_draw_flags(CAT_DRAW_FLAG_BOTTOM | CAT_DRAW_FLAG_CENTER_X);
+	CAT_set_sprite_flags(CAT_DRAW_FLAG_BOTTOM | CAT_DRAW_FLAG_CENTER_X);
 	if (show_feedback)
 	{
-		CAT_set_draw_colour(RGB8882565(64, 64, 64));
+		CAT_set_sprite_colour(RGB8882565(64, 64, 64));
 		CAT_draw_sprite_raw(&pet_feed_back_sprite, -1, 120, 320);
 	}
 	else
@@ -1132,8 +1132,8 @@ static void render_select()
 			CAT_draw_sprite(&ui_item_frame_bg_sprite, 0, x, y);
 
 			CAT_item *food = CAT_item_get(food_pool.data[idx]);
-			CAT_set_draw_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
-			CAT_set_draw_scale(2);
+			CAT_set_sprite_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
+			CAT_set_sprite_scale(2);
 			CAT_draw_sprite(food->sprite, 0, x + 32, y + 32);
 
 			for (int i = 0; i < food_count; i++)
@@ -1208,8 +1208,8 @@ static void render_inspect()
 	CAT_set_text_colour(CAT_WHITE);
 	CAT_draw_text(8, 8 + 28 + 16 + 16, inspectee->text);
 
-	CAT_set_draw_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
-	CAT_set_draw_scale(6);
+	CAT_set_sprite_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
+	CAT_set_sprite_scale(6);
 	CAT_draw_sprite(inspectee->sprite, 0, 120, 160);
 }
 
@@ -1361,9 +1361,9 @@ static void render_summary()
 		break;
 	}
 
-	CAT_set_draw_colour(RGB8882565(64, 64, 64));
+	CAT_set_sprite_colour(RGB8882565(64, 64, 64));
 	CAT_draw_sprite(&ui_left_arrow_sprite, -1, 8, 12);
-	CAT_set_draw_colour(RGB8882565(64, 64, 64));
+	CAT_set_sprite_colour(RGB8882565(64, 64, 64));
 	CAT_draw_sprite(&ui_right_arrow_sprite, -1, 240 - 13 - 8, 12);
 	int title_len = strlen(title);
 	int title_x = (CAT_LCD_SCREEN_W - 1 - title_len * 16) / 2;
@@ -1401,17 +1401,17 @@ static void render_summary()
 	}
 	else
 	{
-		CAT_set_draw_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
-		CAT_set_draw_colour(RGB8882565(128, 128, 128));
+		CAT_set_sprite_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
+		CAT_set_sprite_colour(RGB8882565(128, 128, 128));
 		CAT_draw_sprite(&ui_feed_stamp_frame_sprite, 0, 120, 180);
 
-		CAT_set_draw_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
-		CAT_set_draw_colour(grade_colours[grade]);
+		CAT_set_sprite_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
+		CAT_set_sprite_colour(grade_colours[grade]);
 		CAT_draw_sprite(&ui_feed_stamp_base_sprite, grade == 2 || grade == 4, 120 + registration_errors[summary_page].x, 180 + registration_errors[summary_page].y);
 
 		int glyph_idx = get_glyph_idx(grade);
-		CAT_set_draw_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
-		CAT_set_draw_colour(grade_colours[grade]);
+		CAT_set_sprite_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
+		CAT_set_sprite_colour(grade_colours[grade]);
 		CAT_draw_sprite(&ui_feed_stamp_glyphs_sprite, glyph_idx, 120 + registration_errors[summary_page].x, 180 + registration_errors[summary_page].y);
 	}
 }

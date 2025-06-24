@@ -8,6 +8,20 @@
 #include "cat_gui.h"
 #include "sprite_assets.h"
 #include "cat_aqi.h"
+#include "cat_monitors.h"
+#include "cat_crisis.h"
+
+static void draw_diamond(int x, int y, int r)
+{
+	int x0 = x-r-1; int y0 = y-1;
+	int x1 = x-1; int y1 = y-r-1;
+	int x2 = x+r-1; int y2 = y-1;
+	int x3 = x-1; int y3 = y+r-1;
+	CAT_lineberry(x0+1, y0, x1, y1+1, CAT_RED);
+	CAT_lineberry(x1+1, y1+1, x2, y2, CAT_RED);
+	CAT_lineberry(x2, y2+1, x3+1, y3, CAT_RED);
+	CAT_lineberry(x3, y3, x0+1, y0+1, CAT_RED);
+}
 
 static void draw_page_markers(int y, int pages, int page)
 {
@@ -15,7 +29,19 @@ static void draw_page_markers(int y, int pages, int page)
 	for(int i = 0; i < pages; i++)
 	{
 		int x = start_x + i * (16 + 2);
-		CAT_draw_sprite(&ui_radio_button_diamond_sprite, page == i, x, y);
+		if(i == CAT_MONITOR_PAGE_GAMEPLAY && CAT_AQ_is_crisis_ongoing())
+		{				
+			if(page == CAT_MONITOR_PAGE_GAMEPLAY)		
+				CAT_set_sprite_colour(CAT_RED);
+			CAT_draw_sprite(&ui_radio_button_diamond_sprite, page == i, x, y);
+			if(CAT_pulse(0.25f))
+				draw_diamond(x+8, y+8, 16);
+		}
+		else
+		{
+			CAT_set_sprite_colour(CAT_monitor_fg_colour());
+			CAT_draw_sprite(&ui_radio_button_diamond_sprite, page == i, x, y);
+		}
 	}
 }
 
@@ -91,7 +117,7 @@ static void vert_text(int x, int y, uint16_t c, const char* text)
 	
 	while(*g != '\0')
 	{
-		CAT_set_draw_colour(CAT_WHITE);
+		CAT_set_sprite_colour(CAT_WHITE);
 		CAT_draw_sprite(&glyph_sprite, *g, x, y);
 		g++;
 		y += CAT_GLYPH_HEIGHT + 1;

@@ -802,8 +802,8 @@ static void render_MS_fish()
 
 	if(!fish.bite_trigger)
 	{
-		CAT_set_draw_colour(CAT_WHITE);
-		CAT_set_draw_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
+		CAT_set_sprite_colour(CAT_WHITE);
+		CAT_set_sprite_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
 		CAT_vec2 bobber = fish.nibble_trigger ? CAT_vec2_add(hook, CAT_iv2v(hook_jitter)) : hook;
 		CAT_draw_sprite(&gizmo_target_17x17_sprite, 0, bobber.x, bobber.y);
 	}
@@ -1045,8 +1045,8 @@ static void render_MS_catch()
 
 	if(!CAT_input_held(CAT_BUTTON_A, 0))
 	{
-		CAT_set_draw_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
-		CAT_set_draw_colour(CAT_RED);
+		CAT_set_sprite_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
+		CAT_set_sprite_colour(CAT_RED);
 		CAT_draw_sprite(&study_a_button_sprite, 0, 120, bar.center.y - 48);
 	}
 	CAT_set_text_colour(CAT_RED);
@@ -1320,12 +1320,12 @@ static void render_MS_summary()
 			render_plus_line(12, cursor_y, CAT_LCD_SCREEN_W * 0.75, 0, pet.xp, xp_reward, level_cutoffs[pet.level]);
 			cursor_y += 16;
 
-			CAT_set_draw_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
-			CAT_set_draw_scale(2);
+			CAT_set_sprite_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
+			CAT_set_sprite_scale(2);
 			if(CAT_input_held(CAT_BUTTON_A, 0))
 			{
-				CAT_set_draw_colour(CAT_RED);
-				CAT_set_draw_scale(3);
+				CAT_set_sprite_colour(CAT_RED);
+				CAT_set_sprite_scale(3);
 			}
 			CAT_draw_sprite(&study_a_button_sprite, 0, 120, 260);
 		}

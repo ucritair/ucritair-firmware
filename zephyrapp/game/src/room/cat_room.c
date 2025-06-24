@@ -684,7 +684,7 @@ static void render_statics()
 
 		for(int i = 0; i < window_columns; i++)
 		{
-			CAT_set_draw_mask(window_x+4, window_y+4, window_x+window_width-4, window_y+window_height-4);
+			CAT_set_sprite_mask(window_x+4, window_y+4, window_x+window_width-4, window_y+window_height-4);
 			CAT_draw_sprite_raw(&sky_gradient_sprite, 0, window_x + i * 8, window_y - sky_row_off);
 		}
 		CAT_strokeberry(window_x, window_y - sky_row_off, window_width, window_height, CAT_RED);
@@ -694,7 +694,7 @@ static void render_statics()
 	{
 		for(int i = 0; i < window_columns; i++)
 		{
-			CAT_set_draw_mask(window_x, window_y, window_x+window_width, window_y+window_height);
+			CAT_set_sprite_mask(window_x, window_y, window_x+window_width, window_y+window_height);
 			CAT_draw_sprite_raw(&sky_gradient_sprite, 0, window_x + i * 8, window_y - sky_row_off);
 		}
 		CAT_draw_background(room.theme->wall_tiles, 0, 0);
@@ -727,7 +727,7 @@ static void render_statics()
 	62 : window_y+window_height/2 - 2;
 	if(CAT_is_charging())
 	{
-		CAT_set_draw_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
+		CAT_set_sprite_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
 		CAT_draw_sprite_raw(&icon_charging_sprite, 0, battery_x, battery_y);
 	}
 	else if(CAT_get_battery_pct() <= CAT_CRITICAL_BATTERY_PCT)
@@ -741,7 +741,7 @@ static void render_statics()
 
 		if(battery_blink_switch)
 		{
-			CAT_set_draw_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
+			CAT_set_sprite_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
 			CAT_draw_sprite_raw(&icon_low_battery_alt_sprite, 0, battery_x, battery_y);
 		}
 	}

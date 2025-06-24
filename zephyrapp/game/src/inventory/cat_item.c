@@ -174,11 +174,11 @@ void CAT_render_inspector()
 	float aspect = item->sprite->height / (float) item->sprite->width;
 	int draw_y = 200;
 	if(aspect <= 1.25f)
-		CAT_set_draw_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
+		CAT_set_sprite_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
 	else
 	{
 		draw_y = 300;
-		CAT_set_draw_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_BOTTOM);
+		CAT_set_sprite_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_BOTTOM);
 	}
 	for(int scale = 1; scale <= 6; scale++)
 	{
@@ -187,7 +187,7 @@ void CAT_render_inspector()
 			item->sprite->width * scale <= 240 &&
 			item->sprite->height * scale <= 160
 		)
-			CAT_set_draw_scale(scale);
+			CAT_set_sprite_scale(scale);
 	}
 	CAT_draw_sprite(item->sprite, 0, 120, draw_y);
 }
@@ -351,7 +351,7 @@ void CAT_render_checkout()
 	CAT_lineberry(INSPECTOR_MARGIN, cursor_y, CAT_LCD_SCREEN_W-INSPECTOR_MARGIN, cursor_y, CAT_WHITE);
 	cursor_y += 12;
 
-	CAT_set_draw_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
+	CAT_set_sprite_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
 	for(int scale = 1; scale <= 6; scale++)
 	{
 		if
@@ -359,9 +359,9 @@ void CAT_render_checkout()
 			item->sprite->width * scale <= 240 &&
 			item->sprite->height * scale <= 160
 		)
-			CAT_set_draw_scale(scale);
+			CAT_set_sprite_scale(scale);
 	}
-	CAT_set_draw_mask(INSPECTOR_MARGIN, cursor_y, CAT_LCD_SCREEN_W-INSPECTOR_MARGIN, cursor_y + 160);
+	CAT_set_sprite_mask(INSPECTOR_MARGIN, cursor_y, CAT_LCD_SCREEN_W-INSPECTOR_MARGIN, cursor_y + 160);
 	CAT_draw_sprite(item->sprite, 0, 120, cursor_y + 80);
 	CAT_strokeberry(INSPECTOR_MARGIN, cursor_y, CAT_LCD_SCREEN_W-INSPECTOR_MARGIN * 2, 160, CAT_WHITE);
 	cursor_y += 160;

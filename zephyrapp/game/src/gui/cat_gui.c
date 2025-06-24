@@ -104,7 +104,7 @@ void CAT_gui_text(const char* text)
 		{
 			if(!isspace(*c) && !isspace(*(c-1)))
 			{
-				CAT_set_draw_flags(CAT_DRAW_FLAG_CENTER_Y);
+				CAT_set_sprite_flags(CAT_DRAW_FLAG_CENTER_Y);
 				CAT_draw_sprite(&glyph_sprite, '-', gui.cursor.x, gui.cursor.y);
 			}
 			CAT_gui_line_break();	
@@ -120,7 +120,7 @@ void CAT_gui_text(const char* text)
 		}
 
 		gui_open_channel(CAT_GLYPH_HEIGHT);
-		CAT_set_draw_flags(CAT_DRAW_FLAG_CENTER_Y);
+		CAT_set_sprite_flags(CAT_DRAW_FLAG_CENTER_Y);
 		CAT_draw_sprite(&glyph_sprite, *c, gui.cursor.x, gui.cursor.y);
 		gui.cursor.x += CAT_GLYPH_WIDTH;
 		c++;
@@ -132,7 +132,7 @@ void CAT_gui_image(const CAT_sprite* sprite, int frame_idx)
 	gui_open_channel(sprite->height);
 
 	gui.cursor.x += gui.pad / 2;
-	CAT_set_draw_flags(CAT_DRAW_FLAG_CENTER_Y);
+	CAT_set_sprite_flags(CAT_DRAW_FLAG_CENTER_Y);
 	CAT_draw_sprite(sprite, frame_idx, gui.cursor.x, gui.cursor.y);
 	gui.cursor.x += sprite->width;
 	gui.cursor.x += gui.pad / 2;
@@ -1017,20 +1017,20 @@ void CAT_gui_item_grid()
 
 				int draw_y = y + ITEM_GRID_CELL_SIZE/2;
 				if(aspect <= 1.25f)
-					CAT_set_draw_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
+					CAT_set_sprite_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
 				else
 				{
 					draw_y = y + ITEM_GRID_CELL_SIZE - 4;
-					CAT_set_draw_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_BOTTOM);
+					CAT_set_sprite_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_BOTTOM);
 				}
 
 				for(int scale = 1; scale <= 3; scale++)
 				{
 					if(major_axis * scale <= ITEM_GRID_CELL_SIZE)
-						CAT_set_draw_scale(scale);
+						CAT_set_sprite_scale(scale);
 				}
 				
-				CAT_set_draw_mask(x+6, y+6, x+ITEM_GRID_CELL_SIZE-6, y+ITEM_GRID_CELL_SIZE-6);
+				CAT_set_sprite_mask(x+6, y+6, x+ITEM_GRID_CELL_SIZE-6, y+ITEM_GRID_CELL_SIZE-6);
 				CAT_draw_sprite(item->sprite, 0, x + ITEM_GRID_CELL_SIZE/2, draw_y);
 				
 				if(item_grid_roster != NULL && CAT_ilist_find(item_grid_roster, idx) >= 0)

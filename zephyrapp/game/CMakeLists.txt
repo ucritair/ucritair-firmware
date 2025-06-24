@@ -8,6 +8,9 @@ if(NOT TARGET app)
 
 	target_compile_definitions(app PRIVATE CAT_DESKTOP=1)
 	target_compile_definitions(app PRIVATE CAT_DEBUG=1)
+	if(APPLE)
+		target_compile_definitions(app PRIVATE CAT_MACOS=1)
+	endif()
 
 	find_package(GLEW REQUIRED)
 	find_package(glfw3 3.3 REQUIRED)

@@ -64,6 +64,10 @@ void CAT_AQ_poll_crisis();
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // NOTICE
 
+#define CRISIS_RED 0xea01
+#define CRISIS_YELLOW 0xfd45
+#define CRISIS_GREEN 0x5d6d
+
 void CAT_MS_crisis_notice(CAT_machine_signal signal);
 void CAT_render_crisis_notice();
 

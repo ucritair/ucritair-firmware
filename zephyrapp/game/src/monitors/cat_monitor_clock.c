@@ -34,7 +34,7 @@ static CAT_vec2 radial_point(float t, float r)
 
 void CAT_monitor_render_clock()
 {
-	CAT_set_draw_flags(CAT_DRAW_FLAG_BOTTOM);
+	CAT_set_sprite_flags(CAT_DRAW_FLAG_BOTTOM);
 	CAT_draw_sprite(&monitor_clouds_sprite, 0, 0, 320);
 	
 	CAT_set_text_colour(CAT_WHITE);

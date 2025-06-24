@@ -18,26 +18,26 @@ static int draw_mask_y1;
 
 static uint64_t sprite_overrides = CAT_SPRITE_OVERRIDE_NONE;
 
-void CAT_set_draw_flags(uint64_t flags)
+void CAT_set_sprite_flags(uint64_t flags)
 {
 	draw_flags = flags;
 	sprite_overrides |= CAT_SPRITE_OVERRIDE_FLAGS;
 }
 
-void CAT_set_draw_colour(uint16_t colour)
+void CAT_set_sprite_colour(uint16_t colour)
 {
 	draw_colour = ADAPT_DESKTOP_COLOUR(colour);
 	sprite_overrides |= CAT_SPRITE_OVERRIDE_COLOUR;
 }
 
-void CAT_set_draw_scale(uint8_t scale)
+void CAT_set_sprite_scale(uint8_t scale)
 {
 	draw_scale = scale;
 	if(scale != 1)
 		sprite_overrides |= CAT_SPRITE_OVERRIDE_SCALE;
 }
 
-void CAT_set_draw_mask(int x0, int y0, int x1, int y1)
+void CAT_set_sprite_mask(int x0, int y0, int x1, int y1)
 {
 	draw_mask_x0 = x0;
 	draw_mask_y0 = y0;

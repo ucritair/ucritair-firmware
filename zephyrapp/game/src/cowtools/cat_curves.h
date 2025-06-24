@@ -17,7 +17,7 @@ static inline float CAT_ease_out_sine(float t)
 
 static inline float CAT_ease_inout_sine(float t)
 {
-	return -cos(M_PI * t - 1) * 0.5f;
+	return -(cos(M_PI * t)-1) * 0.5f;
 }
 
 static inline float CAT_ease_in_quad(float t)

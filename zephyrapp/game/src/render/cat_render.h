@@ -126,10 +126,10 @@ typedef enum
 	CAT_SPRITE_OVERRIDE_MASK = (1 << 3)
 } CAT_sprite_override;
 
-void CAT_set_draw_flags(uint64_t flags);
-void CAT_set_draw_colour(uint16_t colour);
-void CAT_set_draw_scale(uint8_t scale);
-void CAT_set_draw_mask(int x0, int y0, int x1, int y1);
+void CAT_set_sprite_flags(uint64_t flags);
+void CAT_set_sprite_colour(uint16_t colour);
+void CAT_set_sprite_scale(uint8_t scale);
+void CAT_set_sprite_mask(int x0, int y0, int x1, int y1);
 
 void CAT_draw_sprite(const CAT_sprite* sprite, int frame_idx, int x, int y);
 void CAT_draw_sprite_raw(const CAT_sprite* sprite, int frame_idx, int x, int y);
@@ -231,8 +231,8 @@ typedef struct
 typedef struct
 {
 	uint8_t* verts;
-	uint8_t vert_count;
-	uint8_t* edges;
+	uint16_t vert_count;
+	uint16_t* edges;
 	uint16_t edge_count;
 } CAT_mesh2d;
 

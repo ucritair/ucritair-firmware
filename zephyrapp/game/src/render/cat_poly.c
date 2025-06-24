@@ -4,8 +4,8 @@ void CAT_draw_mesh2d(const CAT_mesh2d* mesh, int x, int y, uint16_t c)
 {
 	for(int i = 0; i < mesh->edge_count; i++)
 	{
-		uint8_t v0_idx = mesh->edges[i*2+0];
-		uint8_t v1_idx = mesh->edges[i*2+1];
+		uint16_t v0_idx = mesh->edges[i*2+0];
+		uint16_t v1_idx = mesh->edges[i*2+1];
 		uint8_t v0_x = mesh->verts[v0_idx*2+0];
 		uint8_t v0_y = mesh->verts[v0_idx*2+1];
 		uint8_t v1_x = mesh->verts[v1_idx*2+0];

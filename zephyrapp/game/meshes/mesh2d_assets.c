@@ -70,7 +70,7 @@ const CAT_mesh2d horse_mackerel_mesh2d =
 		132, 4,
 	},
 	.vert_count = 64,
-	.edges = (uint8_t[])
+	.edges = (uint16_t[])
 	{
 		0, 1,
 		2, 3,
@@ -268,7 +268,7 @@ const CAT_mesh2d crucian_carp_mesh2d =
 		196, 24,
 	},
 	.vert_count = 154,
-	.edges = (uint8_t[])
+	.edges = (uint16_t[])
 	{
 		0, 1,
 		2, 3,
@@ -459,7 +459,7 @@ const CAT_mesh2d sardine_mesh2d =
 		108, 40,
 	},
 	.vert_count = 102,
-	.edges = (uint8_t[])
+	.edges = (uint16_t[])
 	{
 		0, 1,
 		2, 3,
@@ -694,7 +694,7 @@ const CAT_mesh2d cod_mesh2d =
 		128, 8,
 	},
 	.vert_count = 172,
-	.edges = (uint8_t[])
+	.edges = (uint16_t[])
 	{
 		0, 1,
 		2, 3,
@@ -920,7 +920,7 @@ const CAT_mesh2d herring_mesh2d =
 		44, 32,
 	},
 	.vert_count = 128,
-	.edges = (uint8_t[])
+	.edges = (uint16_t[])
 	{
 		0, 1,
 		2, 3,
@@ -1228,7 +1228,7 @@ const CAT_mesh2d tilapia_mesh2d =
 		48, 24,
 	},
 	.vert_count = 232,
-	.edges = (uint8_t[])
+	.edges = (uint16_t[])
 	{
 		0, 1,
 		2, 3,
@@ -1760,7 +1760,7 @@ const CAT_mesh2d crawfish_mesh2d =
 		88, 8,
 	},
 	.vert_count = 404,
-	.edges = (uint8_t[])
+	.edges = (uint16_t[])
 	{
 		0, 1,
 		2, 3,
@@ -2290,7 +2290,7 @@ const CAT_mesh2d eel_mesh2d =
 		184, 4,
 	},
 	.vert_count = 316,
-	.edges = (uint8_t[])
+	.edges = (uint16_t[])
 	{
 		0, 1,
 		2, 3,
@@ -2696,7 +2696,7 @@ const CAT_mesh2d catfish_mesh2d =
 		144, 68,
 	},
 	.vert_count = 236,
-	.edges = (uint8_t[])
+	.edges = (uint16_t[])
 	{
 		0, 1,
 		2, 3,
@@ -3072,7 +3072,7 @@ const CAT_mesh2d salmon_mesh2d =
 		84, 36,
 	},
 	.vert_count = 246,
-	.edges = (uint8_t[])
+	.edges = (uint16_t[])
 	{
 		0, 1,
 		2, 3,
@@ -3207,7 +3207,7 @@ const CAT_mesh2d gindara_mesh2d =
 	{
 	},
 	.vert_count = 0,
-	.edges = (uint8_t[])
+	.edges = (uint16_t[])
 	{
 	},
 	.edge_count = 0,
@@ -3219,7 +3219,7 @@ const CAT_mesh2d ruby_trout_mesh2d =
 	{
 	},
 	.vert_count = 0,
-	.edges = (uint8_t[])
+	.edges = (uint16_t[])
 	{
 	},
 	.edge_count = 0,
@@ -3231,7 +3231,7 @@ const CAT_mesh2d skipjack_tuna_mesh2d =
 	{
 	},
 	.vert_count = 0,
-	.edges = (uint8_t[])
+	.edges = (uint16_t[])
 	{
 	},
 	.edge_count = 0,
@@ -3243,7 +3243,7 @@ const CAT_mesh2d yellowtail_mesh2d =
 	{
 	},
 	.vert_count = 0,
-	.edges = (uint8_t[])
+	.edges = (uint16_t[])
 	{
 	},
 	.edge_count = 0,
@@ -3255,7 +3255,7 @@ const CAT_mesh2d coelecanth_mesh2d =
 	{
 	},
 	.vert_count = 0,
-	.edges = (uint8_t[])
+	.edges = (uint16_t[])
 	{
 	},
 	.edge_count = 0,
@@ -3411,7 +3411,7 @@ const CAT_mesh2d myaurr_guy_mesh2d =
 		8, 56,
 	},
 	.vert_count = 144,
-	.edges = (uint8_t[])
+	.edges = (uint16_t[])
 	{
 		0, 1,
 		2, 3,

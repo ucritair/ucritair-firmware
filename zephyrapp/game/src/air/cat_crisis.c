@@ -5,6 +5,8 @@
 #include "cat_render.h"
 #include "cat_input.h"
 #include "cat_gui.h"
+#include "cat_curves.h"
+#include "cat_gizmos.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // CRISIS
@@ -229,17 +231,87 @@ void CAT_MS_crisis_notice(CAT_machine_signal signal)
 	}
 }
 
+#define MARGIN 8
+
+#define COUNTDOWN_W 64
+#define COUNTDOWN_X (CAT_LCD_SCREEN_W-MARGIN-COUNTDOWN_W)
+#define COUNTDOWN_Y MARGIN
+#define COUNTDOWN_H 40
+
+static void draw_countdown()
+{
+	//CAT_strokeberry(COUNTDOWN_X, COUNTDOWN_Y, COUNTDOWN_W, COUNTDOWN_H, CRISIS_YELLOW);
+	CAT_draw_corner_box
+	(
+		COUNTDOWN_X, COUNTDOWN_Y,
+		COUNTDOWN_X+COUNTDOWN_W,
+		COUNTDOWN_Y+COUNTDOWN_H,
+		CRISIS_YELLOW
+	);
+
+	int countdown = CAT_AQ_get_crisis_primetime() - CAT_AQ_get_crisis_uptime();
+	if(countdown > 60 || CAT_pulse(0.25f))
+	{
+		CAT_set_text_colour(CRISIS_RED);
+		CAT_set_text_mask(COUNTDOWN_X, -1, COUNTDOWN_X+COUNTDOWN_W, -1);
+		CAT_set_text_flags(CAT_TEXT_FLAG_WRAP | CAT_TEXT_FLAG_CENTER);
+		CAT_draw_textf
+		(
+			COUNTDOWN_X+COUNTDOWN_W/2,
+			COUNTDOWN_Y+MARGIN,
+			"DANGER %.2d:%.2d\n",
+			countdown / 60, countdown % 60
+		);
+	}
+}
+
 void CAT_render_crisis_notice()
 {
-	CAT_gui_panel((CAT_ivec2){0, 0}, (CAT_ivec2){15, 20});
-	CAT_gui_textf(CAT_AQ_get_crisis_title());
-	CAT_gui_line_break();
-	CAT_gui_textf(CAT_AQ_get_crisis_severity_string());
-	CAT_gui_line_break();
-	
+	CAT_frameberry(CAT_BLACK);
+
+	draw_countdown();
+
+	int cursor_y = 12;
+
+	CAT_set_text_mask(MARGIN, -1, CAT_LCD_SCREEN_W-MARGIN, -1);
+	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
+	CAT_set_text_colour(CRISIS_YELLOW);
+	CAT_set_text_scale(2);
+	cursor_y = CAT_draw_textf(MARGIN, cursor_y, "CRISIS REPORT:\n");
+
+	CAT_set_text_mask(MARGIN, -1, CAT_LCD_SCREEN_W-MARGIN, -1);
+	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
+	CAT_set_text_colour(CRISIS_RED);
+	cursor_y = CAT_draw_textf(MARGIN, cursor_y, "THREAT: %s\n", CAT_AQ_get_crisis_title());
+
+	CAT_set_text_colour(CRISIS_YELLOW);
+	cursor_y = CAT_draw_textf(MARGIN, cursor_y, "SEVERITY: %s\n", CAT_AQ_get_crisis_severity_string());
+
 	CAT_datetime datetime;
 	CAT_make_datetime(crisis_timestamp, &datetime);
-	CAT_gui_textf("%.2d/%.2d/%.4d %.2d:%.2d:%.2d", datetime.month, datetime.day, datetime.year, datetime.hour, datetime.minute, datetime.second);
-	CAT_gui_line_break();
-	CAT_gui_textf("%d/%d", CAT_AQ_get_crisis_uptime(), CAT_AQ_get_crisis_primetime());
+	CAT_set_text_colour(CRISIS_RED);
+	cursor_y = CAT_draw_textf(MARGIN, cursor_y, "ONSET: %.2d/%.2d/%.4d %.2d:%.2d:%.2d\n", datetime.month, datetime.day, datetime.year, datetime.hour, datetime.minute, datetime.second);
+
+	CAT_set_text_colour(CRISIS_GREEN);
+	cursor_y = CAT_draw_textf(MARGIN, cursor_y, ">>>>>>>>>>>>>>>>>>>>>>>>>>");
+	cursor_y += 24;
+	int box_start_row = cursor_y;
+
+	CAT_set_text_mask(MARGIN*2+MARGIN, -1, CAT_LCD_SCREEN_W-MARGIN*2-MARGIN-12, -1);
+	CAT_set_text_colour(CAT_WHITE);
+	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
+	cursor_y = CAT_draw_textf
+	(
+		MARGIN*2+MARGIN, cursor_y+MARGIN,
+		"Crisis occurred at %.2d:%.2d on %.2d/%.2d/%.4d. No response has yet been made. Critter is likely to suffer as crisis conditions continue.\n",
+		datetime.hour, datetime.minute, datetime.month, datetime.day, datetime.year
+	);
+
+	CAT_draw_cross_box
+	(
+		MARGIN*2, box_start_row,
+		CAT_LCD_SCREEN_W-MARGIN*2-12,
+		cursor_y+MARGIN,
+		CRISIS_GREEN
+	);
 }
