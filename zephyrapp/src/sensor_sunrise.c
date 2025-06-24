@@ -285,9 +285,10 @@ static int force_abc_sunrise_target(uint16_t target_ppm)
     CHK(Write_ErrorStatus(es_zero));
 
     /* 3. enable ABC temporarily (required by Sunrise FW for any calib cmd) */
-    struct meter_control_t mc_tmp = mc_orig; mc_tmp.abc_disabled = 0;
-    CHK(Write_MeterControl(mc_tmp));
-    k_msleep(50);
+    /*This is not necessary per June 24 call with Senseair FAE*/
+    //struct meter_control_t mc_tmp = mc_orig; mc_tmp.abc_disabled = 0;
+    //CHK(Write_MeterControl(mc_tmp));
+    //k_msleep(50);
 
     /* 4. decide which command to send */
     if (target_ppm == 0) {
