@@ -2,6 +2,7 @@
 
 #include "stdbool.h"
 #include "cat_machine.h"
+#include "stdint.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // CRISIS
@@ -44,13 +45,21 @@ CAT_AQ_crisis_type CAT_AQ_poll_crisis_type();
 CAT_AQ_crisis_severity CAT_AQ_poll_crisis_severity(CAT_AQ_crisis_type type);
 
 void CAT_AQ_start_crisis(CAT_AQ_crisis_type type, CAT_AQ_crisis_severity severity);
+
 bool CAT_AQ_is_crisis_ongoing();
 int CAT_AQ_get_crisis_primetime();
 int CAT_AQ_get_crisis_uptime();
 int CAT_AQ_get_crisis_overtime();
+
+uint64_t CAT_AQ_get_crisis_start();
+uint64_t CAT_AQ_get_crisis_end();
+
 void CAT_AQ_stop_crisis(CAT_AQ_crisis_response_type response_type);
+
 CAT_AQ_crisis_response_grade CAT_AQ_grade_crisis_response();
+int CAT_AQ_get_crisis_lifetime_damage();
 bool CAT_AQ_is_crisis_waiting();
+
 void CAT_AQ_crisis_tick();
 
 bool CAT_AQ_is_crisis_notice_posted();
@@ -58,17 +67,18 @@ void CAT_AQ_dismiss_crisis_notice();
 
 const char* CAT_AQ_get_crisis_title();
 const char* CAT_AQ_get_crisis_severity_string();
+const char* CAT_AQ_get_crisis_response_type_string();
 const char* CAT_AQ_get_crisis_response_grade_string();
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// NOTICE
+// REPORT
 
 #define CRISIS_RED 0xea01
 #define CRISIS_YELLOW 0xfd45
 #define CRISIS_GREEN 0x5d6d
 
-void CAT_MS_crisis_notice(CAT_machine_signal signal);
-void CAT_render_crisis_notice();
+void CAT_MS_crisis_report(CAT_machine_signal signal);
+void CAT_render_crisis_report();
 
 

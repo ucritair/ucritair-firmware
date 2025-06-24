@@ -3,11 +3,6 @@
 #include "cat_core.h"
 #include "cat_aqi.h"
 #include "cat_render.h"
-#include "cat_input.h"
-#include "cat_gui.h"
-#include "cat_curves.h"
-#include "cat_gizmos.h"
-#include "cat_room.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // CRISIS
@@ -119,7 +114,7 @@ bool CAT_AQ_is_crisis_ongoing()
 
 int CAT_AQ_get_crisis_primetime()
 {
-	return crisis_primetimes[crisis_severity];
+	return 10;//crisis_primetimes[crisis_severity];
 }
 
 int CAT_AQ_get_crisis_uptime()
@@ -130,6 +125,16 @@ int CAT_AQ_get_crisis_uptime()
 int CAT_AQ_get_crisis_overtime()
 {
 	return crisis_timer - CAT_AQ_get_crisis_primetime();
+}
+
+uint64_t CAT_AQ_get_crisis_start()
+{
+	return crisis_start_timestamp;
+}
+
+uint64_t CAT_AQ_get_crisis_end()
+{
+	return crisis_end_timestamp;
 }
 
 void CAT_AQ_stop_crisis(CAT_AQ_crisis_response_type response_type)
@@ -150,6 +155,11 @@ void CAT_AQ_stop_crisis(CAT_AQ_crisis_response_type response_type)
 CAT_AQ_crisis_response_grade CAT_AQ_grade_crisis_response()
 {
 	return crisis_response_grade;
+}
+
+int CAT_AQ_get_crisis_lifetime_damage()
+{
+	return lifetime_damage;
 }
 
 bool CAT_AQ_is_crisis_waiting()
@@ -180,13 +190,11 @@ void CAT_AQ_crisis_tick()
 	}
 	else
 	{
-		crisis_timer = CAT_AQ_get_crisis_primetime() * 3;
-		CAT_AQ_stop_crisis(CAT_AQ_CRISIS_RESPONSE_TYPE_AUTOMATIC);
-		/*crisis_timer += CAT_get_delta_time_s();
-		if(CAT_AQ_poll_crisis_severity(crisis_type) == CAT_AQ_CRISIS_SEVERITY_NONE)
+		crisis_timer += CAT_get_delta_time_s();
+		if(CAT_AQ_poll_crisis_severity(crisis_type) == CAT_AQ_CRISIS_SEVERITY_NONE || crisis_timer >= CAT_AQ_get_crisis_primetime())
 		{
 			CAT_AQ_stop_crisis(CAT_AQ_CRISIS_RESPONSE_TYPE_AUTOMATIC);
-		}*/
+		}
 	}
 }
 
@@ -218,6 +226,14 @@ static const char* crisis_severity_strings[] =
 	"SEVERE",
 };
 
+static const char* crisis_response_type_strings[] =
+{
+	"N/A",
+	"MANUAL",
+	"NATURAL",
+	"EQUIPMENT",
+};
+
 static const char* crisis_response_grade_strings[] =
 {
 	"N/A",
@@ -237,144 +253,12 @@ const char* CAT_AQ_get_crisis_severity_string()
 	return crisis_severity_strings[crisis_severity];
 }
 
+const char* CAT_AQ_get_crisis_response_type_string()
+{
+	return crisis_response_type_strings[crisis_response_type];
+}
+
 const char* CAT_AQ_get_crisis_response_grade_string()
 {
 	return crisis_response_grade_strings[crisis_response_grade];
-}
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// NOTICE
-
-void CAT_MS_crisis_notice(CAT_machine_signal signal)
-{
-	switch (signal)
-	{
-		case CAT_MACHINE_SIGNAL_ENTER:
-			CAT_set_render_callback(CAT_render_crisis_notice);
-		break;
-
-		case CAT_MACHINE_SIGNAL_TICK:
-			if(CAT_input_dismissal())
-			{
-				CAT_AQ_dismiss_crisis_notice();
-				CAT_machine_transition(CAT_MS_room);
-			}
-		break;
-
-		case CAT_MACHINE_SIGNAL_EXIT:
-		break;
-	}
-}
-
-#define MARGIN 8
-
-#define COUNTDOWN_W 64
-#define COUNTDOWN_X (CAT_LCD_SCREEN_W-MARGIN-COUNTDOWN_W)
-#define COUNTDOWN_Y MARGIN
-#define COUNTDOWN_H 40
-
-static void draw_countdown()
-{
-	//CAT_strokeberry(COUNTDOWN_X, COUNTDOWN_Y, COUNTDOWN_W, COUNTDOWN_H, CRISIS_YELLOW);
-	CAT_draw_corner_box
-	(
-		COUNTDOWN_X, COUNTDOWN_Y,
-		COUNTDOWN_X+COUNTDOWN_W,
-		COUNTDOWN_Y+COUNTDOWN_H,
-		CRISIS_YELLOW
-	);
-
-	int countdown = CAT_AQ_get_crisis_primetime() - CAT_AQ_get_crisis_uptime();
-	if(countdown > 60 || CAT_pulse(0.25f))
-	{
-		CAT_set_text_colour(CRISIS_RED);
-		CAT_set_text_mask(COUNTDOWN_X, -1, COUNTDOWN_X+COUNTDOWN_W, -1);
-		CAT_set_text_flags(CAT_TEXT_FLAG_WRAP | CAT_TEXT_FLAG_CENTER);
-		CAT_draw_textf
-		(
-			COUNTDOWN_X+COUNTDOWN_W/2,
-			COUNTDOWN_Y+MARGIN,
-			"DANGER %.2d:%.2d\n",
-			countdown / 60, countdown % 60
-		);
-	}
-}
-
-void configure_status_text()
-{
-	CAT_set_text_mask(MARGIN*2+MARGIN, -1, CAT_LCD_SCREEN_W-MARGIN*2-MARGIN-12, -1);
-	CAT_set_text_colour(CAT_WHITE);
-	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
-}
-
-void CAT_render_crisis_notice()
-{
-	CAT_frameberry(CAT_BLACK);
-
-	draw_countdown();
-
-	int cursor_y = 12;
-
-	CAT_set_text_mask(MARGIN, -1, CAT_LCD_SCREEN_W-MARGIN, -1);
-	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
-	CAT_set_text_colour(CRISIS_YELLOW);
-	CAT_set_text_scale(2);
-	cursor_y = CAT_draw_textf(MARGIN, cursor_y, "CRISIS REPORT:\n");
-
-	CAT_set_text_mask(MARGIN, -1, CAT_LCD_SCREEN_W-MARGIN, -1);
-	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
-	CAT_set_text_colour(CRISIS_RED);
-	cursor_y = CAT_draw_textf(MARGIN, cursor_y, "THREAT: %s\n", CAT_AQ_get_crisis_title());
-
-	CAT_set_text_colour(CRISIS_YELLOW);
-	cursor_y = CAT_draw_textf(MARGIN, cursor_y, "SEVERITY: %s\n", CAT_AQ_get_crisis_severity_string());
-
-	CAT_datetime datetime;
-	CAT_make_datetime(crisis_start_timestamp, &datetime);
-	CAT_set_text_colour(CRISIS_RED);
-	cursor_y = CAT_draw_textf(MARGIN, cursor_y, "ONSET: %.2d/%.2d/%.4d %.2d:%.2d:%.2d\n", datetime.month, datetime.day, datetime.year, datetime.hour, datetime.minute, datetime.second);
-
-	CAT_set_text_colour(CRISIS_GREEN);
-	cursor_y = CAT_draw_textf(MARGIN, cursor_y, ">>>>>>>>>>>>>>>>>>>>>>>>>>");
-	cursor_y += 24;
-	int box_start_row = cursor_y;
-
-	configure_status_text();
-	cursor_y = CAT_draw_textf
-	(
-		MARGIN*2+MARGIN, cursor_y+MARGIN,
-		"Crisis occurred at %.2d:%.2d on %.2d/%.2d/%.4d.\n",
-		datetime.hour, datetime.minute, datetime.month, datetime.day, datetime.year
-	);
-	if(CAT_AQ_is_crisis_ongoing())
-	{
-		configure_status_text();
-		cursor_y = CAT_draw_textf
-		(
-			MARGIN*2+MARGIN, cursor_y,
-			"No response has yet been made. "
-			"With crisis conditions ongoing, the critter's health will deteriorate.\n"
-		);
-	}
-	else
-	{
-		configure_status_text();
-		cursor_y = CAT_draw_textf
-		(
-			MARGIN*2+MARGIN, cursor_y,
-			"Intervention occurred %d seconds into the event."
-			"With the crisis suppressed, the critter's condition is stable.\n"
-			,
-			CAT_AQ_get_crisis_uptime()
-		);
-	}
-
-	CAT_draw_cross_box
-	(
-		MARGIN*2, box_start_row,
-		CAT_LCD_SCREEN_W-MARGIN*2-12,
-		cursor_y+MARGIN,
-		CRISIS_GREEN
-	);
 }

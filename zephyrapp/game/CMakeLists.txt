@@ -137,6 +137,7 @@ target_sources(app PRIVATE
 
 	src/air/cat_aqi.c
 	src/air/cat_crisis.c
+	src/air/cat_crisis_report.c
 
 	src/systems/cat_input.c
 	src/systems/cat_machine.c
