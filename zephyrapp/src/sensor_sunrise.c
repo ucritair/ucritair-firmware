@@ -155,12 +155,15 @@ REG_EE(0xaa, ConcentrationScaleFactor_Denominator, uint16_t, FROM_BE16, TO_BE16)
 REG_RW(0xac, ScaledCalibrationTarget,        uint16_t,                   FROM_BE16, TO_BE16)
 REG_RW(0xae, ScaledMeasuredConcentrationOverride, uint16_t,              FROM_BE16, TO_BE16)
 REG_EE(0xb0, ScaledAbcTarget,                uint16_t,                   FROM_BE16, TO_BE16)
+REG_RW(0xb2, ZeroTrim,                       int16_t,                    FROM_BE16, TO_BE16)
 REG_RW(0xc1, Mirror_CalibrationStatus,       struct calibration_status_t, ID, ID)
 REG_RW(0xc3, Mirror_StartSingleMeasurement,  uint8_t,                    ID, ID)
 REG_RW(0xc4, Mirror_AbcParameters,           struct abc_parameters_t,    ID, ID)
 REG_RW(0xce, FilterParameters,               struct filter_parameters_t, ID, ID)
 REG_RW(0xdc, BarometricAirPressure,          int16_t,                    FROM_BE16, TO_BE16)
 REG_RW(0xde, AbcBarometricPressure,          int16_t,                    FROM_BE16, TO_BE16)
+
+/*There is a zero trim register at 0xb2 (upper byte) and 0xb3(lower byte) as a signed 16 bit int*/
 
 /* ===================== I²C wake-up helper ========================= */
 static inline int _wakeup(void)
@@ -196,6 +199,7 @@ int sunrise_init(void)
     struct meter_control_t mc;
     CHK(Read_MeterControl(&mc));
 
+    /*Senseair says to consider turning on ABC and set this to 6-9 months and hope we see 420 ppm at least once */
     if (mc.abc_disabled == 0) {       /* only touch EEPROM if we must   */
         mc.abc_disabled = 1;
         CHK(Write_MeterControl(mc));  /* EE write → 25 ms delay inside  */
@@ -235,10 +239,11 @@ static void sunrise_dump_debug(void)
 
 int sunrise_read(void)
 {
-    int16_t filt, filt_pc, temp;
+    int16_t filt, filt_pc, temp, zero_trim;
     CHK(Read_MeasuredConcentration_Filtered(&filt));
     CHK(Read_MeasuredConcentration_Filtered_PressureCompensated(&filt_pc));
     CHK(Read_Temperature(&temp));
+    CHK(Read_ZeroTrim(&zero_trim));
 
     readings.sunrise.temp                       = temp / 100.0f;
     readings.sunrise.ppm_filtered_uncompensated = filt;
@@ -247,6 +252,7 @@ int sunrise_read(void)
 
     LOG_INF("CO2 %d ppm (filt)", filt);
     LOG_INF("CO2 %d ppm (filt+comp)", filt_pc);
+    LOG_INF("Zero Trim: %d", zero_trim);
     return 0;
 }
 
