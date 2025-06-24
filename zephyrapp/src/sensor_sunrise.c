@@ -224,26 +224,43 @@ static void sunrise_dump_debug(void)
 {
     uint16_t tgt;           CHK(Read_CalibrationTarget(&tgt));
     uint16_t abc_period;    CHK(Read_AbcPeriod(&abc_period));
+    int16_t zero_trim;
+    struct error_status_t es;
 
     int16_t  filt, filt_pc; CHK(Read_MeasuredConcentration_Filtered(&filt));
                             CHK(Read_MeasuredConcentration_Filtered_PressureCompensated(&filt_pc));
 
     struct calibration_status_t cs; CHK(Read_CalibrationStatus(&cs));
 
+    CHK(Read_ZeroTrim(&zero_trim));
+    CHK(Read_ErrorStatus(&es));
+
+
     LOG_INF("target_calibration bit = %d", cs.target_calibration);        /* 1 = OK            */
     LOG_INF("AbcPeriod = %u h", abc_period);                              /* 0 or 0xFFFF = off */
     LOG_INF("CalTarget = %u ppm", tgt);                                   /* 427 ppm expected  */
     LOG_INF("Raw        = %d ppm", filt);                                 /* ~400 ppm          */
     LOG_INF("Compensated = %d ppm", filt_pc);                             /* ~427 ppm          */
+    LOG_INF("Zero Trim: %d", zero_trim);
+
+    if (*(uint16_t*)&es != 0) {
+        LOG_WRN("Sunrise Error Status: fatal=%d, i2c=%d, alg=%d, cal=%d, diag=%d, range=%d, mem=%d, no_meas=%d",
+                es.fatal_error, es.i2c_error, es.algorithm_error, es.calibration_error,
+                es.self_diag_error, es.out_of_range, es.memory_error, es.no_measurement_completed);
+        LOG_WRN("Sunrise Error Status (cont): vreg_low=%d, timeout=%d, signal_abnormal=%d, scale_err=%d",
+                es.low_internal_regulator_voltage, es.measurement_timeout, es.abnormal_signal_level,
+                es.scale_factor_error);
+    }   
+    return 0; 
 }
 
 int sunrise_read(void)
 {
-    int16_t filt, filt_pc, temp, zero_trim;
+    int16_t filt, filt_pc, temp;
+    
     CHK(Read_MeasuredConcentration_Filtered(&filt));
     CHK(Read_MeasuredConcentration_Filtered_PressureCompensated(&filt_pc));
     CHK(Read_Temperature(&temp));
-    CHK(Read_ZeroTrim(&zero_trim));
 
     readings.sunrise.temp                       = temp / 100.0f;
     readings.sunrise.ppm_filtered_uncompensated = filt;
@@ -252,7 +269,7 @@ int sunrise_read(void)
 
     LOG_INF("CO2 %d ppm (filt)", filt);
     LOG_INF("CO2 %d ppm (filt+comp)", filt_pc);
-    LOG_INF("Zero Trim: %d", zero_trim);
+    //sunrise_dump_debug(); // Disabled in normal read unless we need this. 
     return 0;
 }
 

@@ -2,7 +2,7 @@
 
 #include <zephyr/kernel.h>
 
-#define SENSOR_LOG_LEVEL LOG_LEVEL_WRN
+#define SENSOR_LOG_LEVEL LOG_LEVEL_DBG
 
 /* Sensor definition.
  * 
