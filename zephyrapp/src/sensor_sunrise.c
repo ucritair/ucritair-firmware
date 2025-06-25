@@ -6,7 +6,7 @@
 #include "sensor_hal.h"
 #include "cat_core.h"
 
-LOG_MODULE_REGISTER(sunrise, LOG_LEVEL_DBG);
+LOG_MODULE_REGISTER(sunrise, SENSOR_LOG_LEVEL);
 
 /*------------- default CO2 value -----------------------------------*/
 #define SUNRISE_DEFAULT_TARGET_PPM  427 // Mauna Loa Average June 2025. 
@@ -155,12 +155,15 @@ REG_EE(0xaa, ConcentrationScaleFactor_Denominator, uint16_t, FROM_BE16, TO_BE16)
 REG_RW(0xac, ScaledCalibrationTarget,        uint16_t,                   FROM_BE16, TO_BE16)
 REG_RW(0xae, ScaledMeasuredConcentrationOverride, uint16_t,              FROM_BE16, TO_BE16)
 REG_EE(0xb0, ScaledAbcTarget,                uint16_t,                   FROM_BE16, TO_BE16)
+REG_RW(0xb2, ZeroTrim,                       int16_t,                    FROM_BE16, TO_BE16)
 REG_RW(0xc1, Mirror_CalibrationStatus,       struct calibration_status_t, ID, ID)
 REG_RW(0xc3, Mirror_StartSingleMeasurement,  uint8_t,                    ID, ID)
 REG_RW(0xc4, Mirror_AbcParameters,           struct abc_parameters_t,    ID, ID)
 REG_RW(0xce, FilterParameters,               struct filter_parameters_t, ID, ID)
 REG_RW(0xdc, BarometricAirPressure,          int16_t,                    FROM_BE16, TO_BE16)
 REG_RW(0xde, AbcBarometricPressure,          int16_t,                    FROM_BE16, TO_BE16)
+
+/*There is a zero trim register at 0xb2 (upper byte) and 0xb3(lower byte) as a signed 16 bit int*/
 
 /* ===================== I²C wake-up helper ========================= */
 static inline int _wakeup(void)
@@ -196,6 +199,7 @@ int sunrise_init(void)
     struct meter_control_t mc;
     CHK(Read_MeterControl(&mc));
 
+    /*Senseair says to consider turning on ABC and set this to 6-9 months and hope we see 420 ppm at least once */
     if (mc.abc_disabled == 0) {       /* only touch EEPROM if we must   */
         mc.abc_disabled = 1;
         CHK(Write_MeterControl(mc));  /* EE write → 25 ms delay inside  */
@@ -220,22 +224,40 @@ static void sunrise_dump_debug(void)
 {
     uint16_t tgt;           CHK(Read_CalibrationTarget(&tgt));
     uint16_t abc_period;    CHK(Read_AbcPeriod(&abc_period));
+    int16_t zero_trim;
+    struct error_status_t es;
 
     int16_t  filt, filt_pc; CHK(Read_MeasuredConcentration_Filtered(&filt));
                             CHK(Read_MeasuredConcentration_Filtered_PressureCompensated(&filt_pc));
 
     struct calibration_status_t cs; CHK(Read_CalibrationStatus(&cs));
 
+    CHK(Read_ZeroTrim(&zero_trim));
+    CHK(Read_ErrorStatus(&es));
+
+
     LOG_INF("target_calibration bit = %d", cs.target_calibration);        /* 1 = OK            */
     LOG_INF("AbcPeriod = %u h", abc_period);                              /* 0 or 0xFFFF = off */
     LOG_INF("CalTarget = %u ppm", tgt);                                   /* 427 ppm expected  */
     LOG_INF("Raw        = %d ppm", filt);                                 /* ~400 ppm          */
     LOG_INF("Compensated = %d ppm", filt_pc);                             /* ~427 ppm          */
+    LOG_INF("Zero Trim: %d", zero_trim);
+
+    if (*(uint16_t*)&es != 0) {
+        LOG_WRN("Sunrise Error Status: fatal=%d, i2c=%d, alg=%d, cal=%d, diag=%d, range=%d, mem=%d, no_meas=%d",
+                es.fatal_error, es.i2c_error, es.algorithm_error, es.calibration_error,
+                es.self_diag_error, es.out_of_range, es.memory_error, es.no_measurement_completed);
+        LOG_WRN("Sunrise Error Status (cont): vreg_low=%d, timeout=%d, signal_abnormal=%d, scale_err=%d",
+                es.low_internal_regulator_voltage, es.measurement_timeout, es.abnormal_signal_level,
+                es.scale_factor_error);
+    }   
+    return 0; 
 }
 
 int sunrise_read(void)
 {
     int16_t filt, filt_pc, temp;
+    
     CHK(Read_MeasuredConcentration_Filtered(&filt));
     CHK(Read_MeasuredConcentration_Filtered_PressureCompensated(&filt_pc));
     CHK(Read_Temperature(&temp));
@@ -247,6 +269,7 @@ int sunrise_read(void)
 
     LOG_INF("CO2 %d ppm (filt)", filt);
     LOG_INF("CO2 %d ppm (filt+comp)", filt_pc);
+    //sunrise_dump_debug(); // Disabled in normal read unless we need this. 
     return 0;
 }
 
@@ -285,9 +308,10 @@ static int force_abc_sunrise_target(uint16_t target_ppm)
     CHK(Write_ErrorStatus(es_zero));
 
     /* 3. enable ABC temporarily (required by Sunrise FW for any calib cmd) */
-    struct meter_control_t mc_tmp = mc_orig; mc_tmp.abc_disabled = 0;
-    CHK(Write_MeterControl(mc_tmp));
-    k_msleep(50);
+    /*This is not necessary per June 24 call with Senseair FAE*/
+    //struct meter_control_t mc_tmp = mc_orig; mc_tmp.abc_disabled = 0;
+    //CHK(Write_MeterControl(mc_tmp));
+    //k_msleep(50);
 
     /* 4. decide which command to send */
     if (target_ppm == 0) {
