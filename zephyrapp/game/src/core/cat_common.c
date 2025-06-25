@@ -89,14 +89,15 @@ int* CAT_LED_brightness_pointer()
 // AIR QUALITY
 
 CAT_AQ_readings readings =
+#ifdef CAT_DESKTOP
 {
 	.lps22hh.uptime_last_updated = 0,
 	.lps22hh.temp = 20,
 	.lps22hh.pressure = 1013,
 
 	.sunrise.uptime_last_updated = 0,
-	.sunrise.ppm_filtered_compensated = 400,
-	.sunrise.ppm_filtered_uncompensated = 400,
+	.sunrise.ppm_filtered_compensated = 450,
+	.sunrise.ppm_filtered_uncompensated = 450,
 	.sunrise.temp = 20,
 
 	.sen5x.uptime_last_updated = 0,
@@ -104,10 +105,13 @@ CAT_AQ_readings readings =
 	.sen5x.pm10_0 = 15,
 	.sen5x.humidity_rhpct = 40,
 
-	.sen5x.temp_degC = 20,
+	.sen5x.temp_degC = 23,
 	.sen5x.voc_index = 1,
 	.sen5x.nox_index = 100,
 };
+#else
+{0};
+#endif
 
 bool CAT_is_AQ_initialized()
 {

@@ -33,6 +33,8 @@ void CAT_pet_init()
 	pet.spirit = 12;
 	pet.lifetime = 0;
 	pet.lifespan = 30;
+	pet.incarnations = 1;
+
 	pet.xp = 0;
 	pet.level = 0;
 

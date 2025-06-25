@@ -43,7 +43,7 @@ void CAT_MS_crisis_report(CAT_machine_signal signal)
 				exit_progress = clamp(exit_progress, 0, 1);
 				if(exit_progress >= 1.0f && input.time[CAT_BUTTON_A] >= 1.25f)
 				{
-					CAT_AQ_dismiss_crisis_notice();
+					CAT_AQ_dismiss_crisis_report();
 					CAT_machine_transition(CAT_MS_room);
 				}
 			}
@@ -128,8 +128,8 @@ void draw_intro_page()
 {
 	CAT_frameberry(CAT_BLACK);
 
-	int uptime = CAT_AQ_get_crisis_uptime();
-	int countdown = CAT_AQ_get_crisis_primetime() - uptime;
+	int uptime = CAT_AQ_get_crisis_total_uptime();
+	int countdown = -CAT_AQ_get_crisis_disaster_uptime();
 	draw_countdown(countdown);
 
 	int cursor_y = 12;
@@ -143,15 +143,16 @@ void draw_intro_page()
 	CAT_set_text_mask(MARGIN, -1, CAT_LCD_SCREEN_W-MARGIN, -1);
 	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
 	CAT_set_text_colour(CRISIS_RED);
-	cursor_y = CAT_draw_textf(MARGIN, cursor_y, "THREAT: %s\n", CAT_AQ_get_crisis_title());
+	cursor_y = CAT_draw_textf(MARGIN, cursor_y, "THREAT: %s\n", CAT_AQ_crisis_type_string(-1));
 
+	int peak_severity = CAT_AQ_get_crisis_peak_severity();
 	CAT_set_text_colour(CRISIS_YELLOW);
-	cursor_y = CAT_draw_textf(MARGIN, cursor_y, "SEVERITY: %s\n", CAT_AQ_get_crisis_severity_string());
+	cursor_y = CAT_draw_textf(MARGIN, cursor_y, "PEAK SEVERITY: %s\n", CAT_AQ_crisis_severity_string(peak_severity));
 
-	CAT_datetime datetime;
-	CAT_make_datetime(CAT_AQ_get_crisis_start(), &datetime);
+	CAT_datetime onset;
+	CAT_make_datetime(CAT_AQ_get_crisis_start(), &onset);
 	CAT_set_text_colour(CRISIS_RED);
-	cursor_y = CAT_draw_textf(MARGIN, cursor_y, "ONSET: %.2d/%.2d/%.4d %.2d:%.2d:%.2d\n", datetime.month, datetime.day, datetime.year, datetime.hour, datetime.minute, datetime.second);
+	cursor_y = CAT_draw_textf(MARGIN, cursor_y, "ONSET: %.2d/%.2d/%.4d %.2d:%.2d:%.2d\n", onset.month, onset.day, onset.year, onset.hour, onset.minute, onset.second);
 
 	CAT_set_text_colour(CRISIS_GREEN);
 	cursor_y = CAT_draw_textf(MARGIN, cursor_y, ">>>>>>>>>>>>>>>>>>>>>>>>>>");
@@ -190,12 +191,12 @@ void draw_intro_page()
 		cursor_y = CAT_draw_textf
 		(
 			MARGIN*2+MARGIN, cursor_y,
-			"Mitigation occurred %dm, %ds into the crisis. "
-			"The mitigation has been graded %s. "
+			"Crisis was mitigated %dm, %ds after onset. "
+			"Mitigation time has been graded %s. "
 			"With the crisis suppressed, the critter's condition is stable.\n"
 			,
 			uptime / 60, uptime % 60,
-			CAT_AQ_get_crisis_response_grade_string()
+			CAT_AQ_crisis_response_grade_string(-1)
 		);
 	}
 
@@ -246,7 +247,7 @@ void draw_outcomes_page()
 		cursor_y = CAT_draw_textf
 		(
 			MARGIN*2+MARGIN, cursor_y,
-			"With the crisis ongoing, no outcomes have yet been determined.\n"
+			"With the crisis ongoing, final outcomes have yet been determined.\n"			
 			"\n"
 			"Return to the crisis report once crisis conditions have been alleviated.\n"
 		);
@@ -257,19 +258,32 @@ void draw_outcomes_page()
 			cursor_y+MARGIN,
 			CRISIS_RED
 		);
+		cursor_y += 24;
+		if(CAT_AQ_get_crisis_peak_severity() >= CAT_AQ_CRISIS_SEVERITY_EXTREME)
+		{
+			CAT_set_text_colour(CRISIS_RED);
+			CAT_set_text_mask(MARGIN, -1, CAT_LCD_SCREEN_W-MARGIN, -1);
+			CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
+			cursor_y = CAT_draw_textf
+			(
+				MARGIN, cursor_y,
+				"PEAK CRISIS SEVERITY HAS REACHED \"EXTREME\" LEVELS."
+				"PARTIAL CRITTER DAMAGE IS NOW INEVITABLE!"
+			);
+		}
 	}
 	else
 	{
-		int uptime = CAT_AQ_get_crisis_uptime();
+		int uptime = CAT_AQ_get_crisis_total_uptime();
 		CAT_set_text_colour(CRISIS_RED);
 		cursor_y = CAT_draw_textf(MARGIN, cursor_y, "RESPONSE TIME: %.2dm %.2ds\n", uptime/60, uptime%60);
 
-		int grade = CAT_AQ_grade_crisis_response();
+		int grade = CAT_AQ_get_crisis_response_grade();
 		CAT_set_text_colour(CRISIS_YELLOW);
-		cursor_y = CAT_draw_textf(MARGIN, cursor_y, "RESPONSE GRADE: %s\n", CAT_AQ_get_crisis_response_grade_string());
+		cursor_y = CAT_draw_textf(MARGIN, cursor_y, "RESPONSE GRADE: %s\n", CAT_AQ_crisis_response_grade_string(-1));
 
 		CAT_set_text_colour(CRISIS_RED);
-		cursor_y = CAT_draw_textf(MARGIN, cursor_y, "INTERVENTION TYPE: %s\n", CAT_AQ_get_crisis_response_type_string());
+		cursor_y = CAT_draw_textf(MARGIN, cursor_y, "INTERVENTION TYPE: %s\n", CAT_AQ_crisis_response_type_string(-1));
 
 		CAT_set_text_colour(CRISIS_GREEN);
 		cursor_y = CAT_draw_textf(MARGIN, cursor_y, ">>>>>>>>>>>>>>>>>>>>>>>>>>>>");

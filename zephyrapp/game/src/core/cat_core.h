@@ -256,6 +256,7 @@ typedef struct __attribute__((__packed__))
 		uint32_t xp;
 		uint8_t lifespan;
 		uint8_t lifetime;
+		uint16_t incarnations;
 		uint8_t vigour;
 		uint8_t focus;
 		uint8_t spirit;

@@ -116,7 +116,7 @@ int CAT_monitor_tell()
 
 void CAT_monitor_exit()
 {
-	if(CAT_AQ_is_crisis_notice_posted())
+	if(CAT_AQ_is_crisis_report_posted())
 		CAT_machine_transition(CAT_MS_crisis_report);
 	else
 		CAT_machine_transition(CAT_MS_room);

@@ -78,7 +78,7 @@ void CAT_monitor_MS_summary(CAT_machine_signal signal)
 			if(CAT_input_pressed(CAT_BUTTON_RIGHT))
 				CAT_monitor_advance();
 			
-			if(CAT_AQ_is_crisis_notice_posted())
+			if(CAT_AQ_is_crisis_report_posted())
 
 		break;
 

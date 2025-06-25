@@ -32,16 +32,16 @@ void draw_ongoing_crisis()
 	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
 	CAT_set_text_scale(2);
 	CAT_set_text_colour(CRISIS_YELLOW);
-	cursor_y = CAT_draw_textf(MARGIN, cursor_y, "%s CRISIS\n", CAT_AQ_get_crisis_title());
+	cursor_y = CAT_draw_textf(MARGIN, cursor_y, "%s CRISIS\n", CAT_AQ_crisis_type_string(-1));
 	CAT_set_text_colour(CRISIS_RED);
-	cursor_y = CAT_draw_textf(MARGIN, cursor_y, "%s SEVERITY\n", CAT_AQ_get_crisis_severity_string());
+	cursor_y = CAT_draw_textf(MARGIN, cursor_y, "%s SEVERITY\n", CAT_AQ_crisis_severity_string(-1));
 
 	cursor_y += 8;
 	CAT_set_text_colour(CRISIS_GREEN);
 	CAT_draw_textf(MARGIN, cursor_y, ">>>>>>>>>>>>>>>>>>>>>>>>>>>");
 	cursor_y += 22;
 
-	int countdown = CAT_AQ_get_crisis_primetime() - CAT_AQ_get_crisis_uptime();
+	int countdown = -CAT_AQ_get_crisis_disaster_uptime();
 	if(countdown > 0)
 	{
 		CAT_set_text_colour(CRISIS_YELLOW);
@@ -82,15 +82,20 @@ void draw_ongoing_crisis()
 			);
 		}
 	}
-
-	int box_x0 = MARGIN; int box_x1 =  CAT_LCD_SCREEN_W-MARGIN;
-	int box_y0 = CAT_LCD_SCREEN_H-112; int box_y1 = CAT_LCD_SCREEN_H-64;
-	CAT_draw_corner_box(box_x0, box_y0, box_x1, box_y1, CRISIS_YELLOW);
 	
-	CAT_set_text_mask(box_x0+4, box_y0+4, box_x1-4, box_y1-4);
-	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP | CAT_TEXT_FLAG_CENTER);
-	CAT_set_text_colour(CRISIS_RED);
-	CAT_draw_text((box_x0+box_x1)/2, box_y0+12, "Critter is in danger of taking lifespan damage!\n");
+	CAT_set_text_mask(MARGIN, -1, CAT_LCD_SCREEN_W-MARGIN, -1);
+	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
+	CAT_set_text_colour(CRISIS_YELLOW);
+	CAT_draw_text(MARGIN, CAT_LCD_SCREEN_H-92, "CRITTER AT RISK! ALLEVIATE CRISIS CONDITIONS IMMEDIATELY!\n");
+
+	CAT_set_text_colour(CRISIS_GREEN);
+	CAT_draw_textf
+	(
+		EXIT_BAR_X-EXIT_BAR_W/2,
+		EXIT_BAR_Y-EXIT_BAR_H/2-16,
+		"[A] TO CRISIS REPORT >>>>>>"
+	);
+	CAT_draw_progress_bar(EXIT_BAR_X, EXIT_BAR_Y, EXIT_BAR_W, EXIT_BAR_H, CRISIS_YELLOW, CRISIS_GREEN, exit_progress);
 }
 
 void draw_waiting_crisis()
@@ -104,9 +109,9 @@ void draw_waiting_crisis()
 	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
 	CAT_set_text_scale(2);
 	CAT_set_text_colour(CRISIS_YELLOW);
-	cursor_y = CAT_draw_textf(MARGIN, cursor_y, "RESOLVED %s CRISIS\n", CAT_AQ_get_crisis_title());
+	cursor_y = CAT_draw_textf(MARGIN, cursor_y, "RESOLVED %s CRISIS\n", CAT_AQ_crisis_type_string(-1));
 	CAT_set_text_colour(CRISIS_RED);
-	cursor_y = CAT_draw_textf(MARGIN, cursor_y, "%s SEVERITY\n", CAT_AQ_get_crisis_severity_string());
+	cursor_y = CAT_draw_textf(MARGIN, cursor_y, "%s SEVERITY\n", CAT_AQ_crisis_severity_string(-1));
 
 	cursor_y += 8;
 	CAT_set_text_colour(CRISIS_GREEN);
@@ -119,10 +124,10 @@ void draw_waiting_crisis()
 	(
 		MARGIN,
 		cursor_y,
-		"OUTCOME:\n"
+		"RESPONSE:\n"
 	);
 
-	CAT_AQ_crisis_response_grade grade = CAT_AQ_grade_crisis_response();
+	CAT_AQ_crisis_response_grade grade = CAT_AQ_get_crisis_response_grade();
 	uint16_t grade_colour =
 	grade >= CAT_AQ_CRISIS_RESPONSE_GRADE_ADEQUATE ? CRISIS_GREEN :
 	grade >= CAT_AQ_CRISIS_RESPONSE_GRADE_INADEQUATE ? CRISIS_YELLOW :
@@ -134,22 +139,88 @@ void draw_waiting_crisis()
 		MARGIN,
 		cursor_y,
 		"%s\n",
-		CAT_AQ_get_crisis_response_grade_string()
+		CAT_AQ_crisis_response_grade_string(-1)
 	);
 
 	int box_x0 = MARGIN; int box_x1 =  CAT_LCD_SCREEN_W-MARGIN;
-	int box_y0 = CAT_LCD_SCREEN_H-90; int box_y1 = CAT_LCD_SCREEN_H-56;
+	int box_y0 = cursor_y+4; int box_y1 = box_y0 + 64;
 	CAT_draw_corner_box(box_x0, box_y0, box_x1, box_y1, CRISIS_YELLOW);
 
+	int damage = CAT_AQ_get_crisis_lifespan_damage();
 	CAT_set_text_mask(box_x0+4, box_y0+4, box_x1-4, box_y1-4);
 	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP | CAT_TEXT_FLAG_CENTER);
-	CAT_set_text_colour(grade_colour);
-	CAT_draw_text(
+	CAT_set_text_colour(damage <= 0 ? CRISIS_GREEN : CRISIS_RED);
+	CAT_draw_text
 	(
-		box_x0+box_x1)/2, box_y0+12,
-		grade >= CAT_AQ_CRISIS_RESPONSE_GRADE_ADEQUATE ?
+		(box_x0+box_x1)/2, (box_y0+box_y1)/2-CAT_GLYPH_HEIGHT/2,
+		damage <= 0 ?
 		"Critter avoided damage\n" : "Critter suffered damage\n"
 	);
+
+	CAT_set_text_colour(CRISIS_GREEN);
+	CAT_draw_textf
+	(
+		EXIT_BAR_X-EXIT_BAR_W/2,
+		EXIT_BAR_Y-EXIT_BAR_H/2-16,
+		"[A] TO CRISIS REPORT >>>>>>"
+	);
+	CAT_draw_progress_bar(EXIT_BAR_X, EXIT_BAR_Y, EXIT_BAR_W, EXIT_BAR_H, CRISIS_YELLOW, CRISIS_GREEN, exit_progress);
+}
+
+void draw_all_clear()
+{
+	CAT_monitor_colour_bg(CAT_BLACK);
+	CAT_monitor_colour_fg(CRISIS_YELLOW);
+
+	int cursor_y = 44;
+
+	CAT_set_text_mask(MARGIN, -1, CAT_LCD_SCREEN_W-MARGIN, -1);
+	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
+	CAT_set_text_scale(2);
+	CAT_set_text_colour(CRISIS_GREEN);
+	cursor_y = CAT_draw_textf(MARGIN, cursor_y, "ALL CLEAR\n", CAT_AQ_crisis_type_string(-1));
+	CAT_set_text_colour(CRISIS_YELLOW);
+	cursor_y = CAT_draw_textf(MARGIN, cursor_y, "NO CRISIS DETECTED\n");
+
+	cursor_y += 8;
+	CAT_set_text_colour(CRISIS_GREEN);
+	CAT_draw_textf(MARGIN, cursor_y, ">>>>>>>>>>>>>>>>>>>>>>>>>>>");
+	cursor_y += 22;
+
+	CAT_draw_hexagon(120, cursor_y + 64, 64, CRISIS_GREEN, 0);
+
+	CAT_set_text_mask(MARGIN, -1, CAT_LCD_SCREEN_W-MARGIN, -1);
+	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
+	CAT_set_text_colour(CRISIS_YELLOW);
+	CAT_set_text_scale(2);
+	cursor_y = CAT_draw_textf
+	(
+		MARGIN,
+		cursor_y,
+		"ALWAYS ON STANDBY\n"
+	);
+
+	int box_x0 = MARGIN+4; int box_x1 =  CAT_LCD_SCREEN_W-MARGIN-4;
+	int box_y0 = cursor_y + 8; int box_y1 = CAT_LCD_SCREEN_H-64;
+	CAT_draw_cross_box(box_x0, box_y0, box_x1, box_y1, CRISIS_YELLOW);
+
+	CAT_set_text_mask(box_x0+4, box_y0+4, box_x1, box_y1-4);
+	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
+	CAT_set_text_colour(CAT_WHITE);
+	CAT_draw_text
+	(
+		box_x0+8, box_y0+12,
+		"CONDITIONS ARE NORMAL. IN CASE OF CRITICAL CONDITIONS CRISIS INTERFACE WILL APPEAR.\n"
+	);
+
+	CAT_set_text_colour(CRISIS_GREEN);
+	CAT_draw_textf
+	(
+		EXIT_BAR_X-EXIT_BAR_W/2,
+		EXIT_BAR_Y-EXIT_BAR_H/2-16,
+		"[A] TO INNERWORLD >>>>>>"
+	);
+	CAT_draw_progress_bar(EXIT_BAR_X, EXIT_BAR_Y, EXIT_BAR_W, EXIT_BAR_H, CRISIS_YELLOW, CRISIS_GREEN, exit_progress);
 }
 
 void CAT_monitor_render_gameplay()
@@ -162,15 +233,10 @@ void CAT_monitor_render_gameplay()
 	{
 		draw_waiting_crisis();
 	}
-
-	CAT_set_text_colour(CRISIS_GREEN);
-	CAT_draw_textf
-	(
-		EXIT_BAR_X-EXIT_BAR_W/2,
-		EXIT_BAR_Y-EXIT_BAR_H/2-16,
-		"[A] TO CRISIS REPORT >>>>>>"
-	);
-	CAT_draw_progress_bar(EXIT_BAR_X, EXIT_BAR_Y, EXIT_BAR_W, EXIT_BAR_H, CRISIS_YELLOW, CRISIS_GREEN, exit_progress);
+	else
+	{
+		draw_all_clear();
+	}
 }
 
 void CAT_monitor_MS_gameplay(CAT_machine_signal signal)
@@ -193,7 +259,10 @@ void CAT_monitor_MS_gameplay(CAT_machine_signal signal)
 				exit_progress -= CAT_get_delta_time_s() * 1.5f;
 			exit_progress = clamp(exit_progress, 0, 1);
 			if(exit_progress >= 1.0f && input.time[CAT_BUTTON_A] >= 1.25f)
+			{
+				CAT_AQ_post_crisis_report();
 				CAT_monitor_exit();
+			}
 		break;
 
 		case CAT_MACHINE_SIGNAL_EXIT:
