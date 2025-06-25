@@ -269,7 +269,7 @@ int sunrise_read(void)
 
     LOG_INF("CO2 %d ppm (filt)", filt);
     LOG_INF("CO2 %d ppm (filt+comp)", filt_pc);
-    //sunrise_dump_debug(); // Disabled in normal read unless we need this. 
+    sunrise_dump_debug(); // Disabled in normal read unless we need this. 
     return 0;
 }
 
@@ -277,6 +277,7 @@ bool sunrise_is_faulted(void)
 {
     return state.is_faulted;
 }
+
 
 /* ----------------- helper: write barometric pressure --------------- */
 int update_pressure_sunrise(float hPa)
@@ -286,6 +287,8 @@ int update_pressure_sunrise(float hPa)
     LOG_DBG("Pressure %.1f hPa pushed to Sunrise", hPa);
     return 0;
 }
+
+
 
 /******************************************************************************
  *  Target / zero calibration helper
@@ -318,7 +321,12 @@ static int force_abc_sunrise_target(uint16_t target_ppm)
         /* ---- ZERO CALIBRATION ---------------------------------------- */
         CHK(Write_CalibrationCommand((uint16_t)CAL_ZeroCalibration));
         LOG_INF("Issued Zero-Calibration (0 ppm)");
-    } else {
+    }
+    else if (target_ppm == 69) {
+        CHK(Write_CalibrationCommand((uint16_t)CAL_RestoreFactoryCalibration));
+        LOG_INF("Restored Factory Cal"); // Dirty hack to do factory cal
+    }
+    else {
         /* ---- TARGET CALIBRATION -------------------------------------- */
         CHK(Write_CalibrationTarget(target_ppm));        /* BE16 helper */
         CHK(Write_CalibrationCommand((uint16_t)CAL_TargetCalibration));
@@ -327,11 +335,14 @@ static int force_abc_sunrise_target(uint16_t target_ppm)
 
     /* 5. poll completion flag */
     struct calibration_status_t cs;
+
     do {
         k_msleep(200);
         CHK(Read_CalibrationStatus(&cs));
-    } while ( (target_ppm == 0  && !cs.zero_calibration) ||
-              (target_ppm != 0 && !cs.target_calibration) );
+    }
+    while ( (target_ppm == 0 && !cs.zero_calibration) ||
+            (target_ppm == 69 && !cs.factory_calibration_restored) ||
+            (target_ppm > 0 && target_ppm != 69 && !cs.target_calibration) ); // Dirty hack to do factory cal
 
     LOG_INF("Calibration finished ✓");
 
@@ -343,6 +354,7 @@ static int force_abc_sunrise_target(uint16_t target_ppm)
     sunrise_dump_debug();
     return 0;
 }
+
 
 /* --- legacy wrapper: keeps existing call-sites working ------------- */
 int force_abc_sunrise(void)

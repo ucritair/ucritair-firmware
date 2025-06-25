@@ -96,6 +96,11 @@ void menu_force_sunrise_zero(void* arg)
 	force_abc_sunrise_target_ppm(0);
 }
 
+void menu_force_sunrise_factory(void* arg)
+{
+	force_abc_sunrise_target_ppm(69);
+}
+
 char textf_buf[256];
 #define textfc(c, ...) snprintf(textf_buf, sizeof(textf_buf)-1, __VA_ARGS__); textc(textf_buf, c);
 #define textf(...) textfc(0xffff, __VA_ARGS__)
@@ -127,6 +132,7 @@ void menu_sensors()
 
 	text("");
 	selectable("Cal CO2 Ambient", menu_force_sunrise_abc, NULL);
+	selectable("Cal CO2 Factory", menu_force_sunrise_factory, NULL);
 	selectable("Cal CO2 Zero (Nitrogen)", menu_force_sunrise_zero, NULL);
 	selectable("Back", goto_menu, menu_root);
 }
