@@ -155,15 +155,12 @@ REG_EE(0xaa, ConcentrationScaleFactor_Denominator, uint16_t, FROM_BE16, TO_BE16)
 REG_RW(0xac, ScaledCalibrationTarget,        uint16_t,                   FROM_BE16, TO_BE16)
 REG_RW(0xae, ScaledMeasuredConcentrationOverride, uint16_t,              FROM_BE16, TO_BE16)
 REG_EE(0xb0, ScaledAbcTarget,                uint16_t,                   FROM_BE16, TO_BE16)
-REG_RW(0xb2, ZeroTrim,                       int16_t,                    FROM_BE16, TO_BE16)
 REG_RW(0xc1, Mirror_CalibrationStatus,       struct calibration_status_t, ID, ID)
 REG_RW(0xc3, Mirror_StartSingleMeasurement,  uint8_t,                    ID, ID)
 REG_RW(0xc4, Mirror_AbcParameters,           struct abc_parameters_t,    ID, ID)
 REG_RW(0xce, FilterParameters,               struct filter_parameters_t, ID, ID)
 REG_RW(0xdc, BarometricAirPressure,          int16_t,                    FROM_BE16, TO_BE16)
 REG_RW(0xde, AbcBarometricPressure,          int16_t,                    FROM_BE16, TO_BE16)
-
-/*There is a zero trim register at 0xb2 (upper byte) and 0xb3(lower byte) as a signed 16 bit int*/
 
 /* ===================== I²C wake-up helper ========================= */
 static inline int _wakeup(void)
@@ -224,7 +221,7 @@ static void sunrise_dump_debug(void)
 {
     uint16_t tgt;           CHK(Read_CalibrationTarget(&tgt));
     uint16_t abc_period;    CHK(Read_AbcPeriod(&abc_period));
-    int16_t zero_trim;
+
     struct error_status_t es;
 
     int16_t  filt, filt_pc; CHK(Read_MeasuredConcentration_Filtered(&filt));
@@ -232,7 +229,6 @@ static void sunrise_dump_debug(void)
 
     struct calibration_status_t cs; CHK(Read_CalibrationStatus(&cs));
 
-    CHK(Read_ZeroTrim(&zero_trim));
     CHK(Read_ErrorStatus(&es));
 
 
@@ -241,7 +237,6 @@ static void sunrise_dump_debug(void)
     LOG_INF("CalTarget = %u ppm", tgt);                                   /* 427 ppm expected  */
     LOG_INF("Raw        = %d ppm", filt);                                 /* ~400 ppm          */
     LOG_INF("Compensated = %d ppm", filt_pc);                             /* ~427 ppm          */
-    LOG_INF("Zero Trim: %d", zero_trim);
 
     if (*(uint16_t*)&es != 0) {
         LOG_WRN("Sunrise Error Status: fatal=%d, i2c=%d, alg=%d, cal=%d, diag=%d, range=%d, mem=%d, no_meas=%d",
@@ -278,6 +273,7 @@ bool sunrise_is_faulted(void)
     return state.is_faulted;
 }
 
+
 /* ----------------- helper: write barometric pressure --------------- */
 int update_pressure_sunrise(float hPa)
 {
@@ -294,55 +290,58 @@ static int force_abc_sunrise_target(uint16_t target_ppm)
 {
     LOG_INF("Beginning calibration (%u ppm requested)", target_ppm);
 
-    /* 0. push latest pressure (if valid) */
+    /* push latest pressure (if valid) */
     float p = readings.lps22hh.pressure;
     if (p > 300.f && p < 1300.f) CHK(update_pressure_sunrise(p));
 
-    /* 1. snapshot current MeterControl */
+    /* snapshot current MeterControl */
     struct meter_control_t mc_orig; CHK(Read_MeterControl(&mc_orig));
 
-    /* 2. clear previous status / errors */
+    /* clear previous status / errors */
     struct calibration_status_t cs_zero = {0};
     struct error_status_t       es_zero = {0};
     CHK(Write_CalibrationStatus(cs_zero));
     CHK(Write_ErrorStatus(es_zero));
 
-    /* 3. enable ABC temporarily (required by Sunrise FW for any calib cmd) */
-    /*This is not necessary per June 24 call with Senseair FAE*/
-    //struct meter_control_t mc_tmp = mc_orig; mc_tmp.abc_disabled = 0;
-    //CHK(Write_MeterControl(mc_tmp));
-    //k_msleep(50);
-
-    /* 4. decide which command to send */
+    /* decide which command to send */
     if (target_ppm == 0) {
         /* ---- ZERO CALIBRATION ---------------------------------------- */
         CHK(Write_CalibrationCommand((uint16_t)CAL_ZeroCalibration));
         LOG_INF("Issued Zero-Calibration (0 ppm)");
-    } else {
+    }
+    else if (target_ppm == 69) {
+        CHK(Write_CalibrationCommand((uint16_t)CAL_RestoreFactoryCalibration));
+        LOG_INF("Restored Factory Cal"); // Dirty hack to do factory cal
+    }
+    else {
         /* ---- TARGET CALIBRATION -------------------------------------- */
         CHK(Write_CalibrationTarget(target_ppm));        /* BE16 helper */
         CHK(Write_CalibrationCommand((uint16_t)CAL_TargetCalibration));
         LOG_INF("Issued Target-Calibration to %u ppm", target_ppm);
     }
 
-    /* 5. poll completion flag */
+    /* poll completion flag */
     struct calibration_status_t cs;
+
     do {
         k_msleep(200);
         CHK(Read_CalibrationStatus(&cs));
-    } while ( (target_ppm == 0  && !cs.zero_calibration) ||
-              (target_ppm != 0 && !cs.target_calibration) );
+    }
+    while ( (target_ppm == 0 && !cs.zero_calibration) ||
+            (target_ppm == 69 && !cs.factory_calibration_restored) || // Dirty hack to do factory cal
+            (target_ppm > 0 && target_ppm != 69 && !cs.target_calibration) ); // Dirty hack to do factory cal
 
     LOG_INF("Calibration finished ✓");
 
-    /* 6. restore original MeterControl & clear status */
+    /* restore original MeterControl & clear status */
     CHK(Write_MeterControl(mc_orig));
     CHK(Write_CalibrationStatus(cs_zero));
 
-    /* 7. final diagnostics */
+    /*final diagnostics */
     sunrise_dump_debug();
     return 0;
 }
+
 
 /* --- legacy wrapper: keeps existing call-sites working ------------- */
 int force_abc_sunrise(void)
