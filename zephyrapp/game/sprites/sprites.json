@@ -780,52 +780,12 @@
             "reverse": false
         },
         {
-            "id": 73,
-            "name": "icon_a_sprite",
-            "path": "ui/A Button_Both.png",
-            "frames": 2,
-            "width": 16,
-            "height": 16,
-            "loop": true,
-            "reverse": false
-        },
-        {
-            "id": 74,
-            "name": "icon_b_sprite",
-            "path": "ui/B Button_Both.png",
-            "frames": 2,
-            "width": 16,
-            "height": 16,
-            "loop": true,
-            "reverse": false
-        },
-        {
             "id": 75,
             "name": "icon_charging_sprite",
             "path": "ui/charging_battery_alt.png",
             "frames": 1,
             "width": 32,
             "height": 32,
-            "loop": true,
-            "reverse": false
-        },
-        {
-            "id": 76,
-            "name": "icon_co2_sprite",
-            "path": "ui/icon_co2.png",
-            "frames": 3,
-            "width": 24,
-            "height": 24,
-            "loop": true,
-            "reverse": false
-        },
-        {
-            "id": 77,
-            "name": "icon_coin_sprite",
-            "path": "ui/icon_coin.png",
-            "frames": 1,
-            "width": 24,
-            "height": 24,
             "loop": true,
             "reverse": false
         },
@@ -840,16 +800,6 @@
             "reverse": false
         },
         {
-            "id": 79,
-            "name": "icon_e_sprite",
-            "path": "ui/Right Arrow_Both.png",
-            "frames": 2,
-            "width": 16,
-            "height": 10,
-            "loop": true,
-            "reverse": false
-        },
-        {
             "id": 80,
             "name": "icon_ee_sprite",
             "path": "ui/ee_logo.png",
@@ -860,30 +810,10 @@
             "reverse": false
         },
         {
-            "id": 81,
-            "name": "icon_enter_sprite",
-            "path": "ui/icon_enter.png",
-            "frames": 1,
-            "width": 16,
-            "height": 16,
-            "loop": true,
-            "reverse": false
-        },
-        {
             "id": 82,
             "name": "icon_equip_sprite",
             "path": "ui/icon_equip.png",
             "frames": 2,
-            "width": 16,
-            "height": 16,
-            "loop": true,
-            "reverse": false
-        },
-        {
-            "id": 83,
-            "name": "icon_exit_sprite",
-            "path": "ui/icon_exit.png",
-            "frames": 1,
             "width": 16,
             "height": 16,
             "loop": true,
@@ -900,82 +830,12 @@
             "reverse": false
         },
         {
-            "id": 85,
-            "name": "icon_foc_sprite",
-            "path": "ui/STAT_FOCUS2424.png",
-            "frames": 1,
-            "width": 24,
-            "height": 24,
-            "loop": true,
-            "reverse": false
-        },
-        {
             "id": 86,
             "name": "icon_input_sprite",
             "path": "ui/icon_inputs.png",
             "frames": 8,
             "width": 16,
             "height": 16,
-            "loop": true,
-            "reverse": false
-        },
-        {
-            "id": 87,
-            "name": "icon_item_book_sprite",
-            "path": "ui/icon_item_book.png",
-            "frames": 1,
-            "width": 24,
-            "height": 24,
-            "loop": true,
-            "reverse": false
-        },
-        {
-            "id": 88,
-            "name": "icon_item_food_sprite",
-            "path": "ui/icon_item_food.png",
-            "frames": 1,
-            "width": 24,
-            "height": 24,
-            "loop": true,
-            "reverse": false
-        },
-        {
-            "id": 89,
-            "name": "icon_item_gear_sprite",
-            "path": "ui/icon_item_gear.png",
-            "frames": 1,
-            "width": 24,
-            "height": 24,
-            "loop": true,
-            "reverse": false
-        },
-        {
-            "id": 90,
-            "name": "icon_item_key_sprite",
-            "path": "ui/icon_item_key.png",
-            "frames": 1,
-            "width": 24,
-            "height": 24,
-            "loop": true,
-            "reverse": false
-        },
-        {
-            "id": 91,
-            "name": "icon_item_prop_sprite",
-            "path": "ui/icon_item_prop.png",
-            "frames": 1,
-            "width": 24,
-            "height": 24,
-            "loop": true,
-            "reverse": false
-        },
-        {
-            "id": 92,
-            "name": "icon_item_toy_sprite",
-            "path": "ui/icon_item_toy.png",
-            "frames": 1,
-            "width": 24,
-            "height": 24,
             "loop": true,
             "reverse": false
         },
@@ -1030,32 +890,12 @@
             "reverse": false
         },
         {
-            "id": 98,
-            "name": "icon_n_sprite",
-            "path": "ui/Up_Arrow_Both.png",
-            "frames": 2,
-            "width": 16,
-            "height": 16,
-            "loop": true,
-            "reverse": false
-        },
-        {
             "id": 99,
             "name": "icon_nosmoke_sprite",
             "path": "ui/nosmoke.png",
             "frames": 1,
             "width": 32,
             "height": 32,
-            "loop": true,
-            "reverse": false
-        },
-        {
-            "id": 100,
-            "name": "icon_nox_sprite",
-            "path": "ui/icon_nox.png",
-            "frames": 3,
-            "width": 24,
-            "height": 24,
             "loop": true,
             "reverse": false
         },
@@ -1070,82 +910,12 @@
             "reverse": false
         },
         {
-            "id": 102,
-            "name": "icon_plot_sprite",
-            "path": "ui/icon_plot.png",
-            "frames": 1,
-            "width": 16,
-            "height": 16,
-            "loop": true,
-            "reverse": false
-        },
-        {
-            "id": 103,
-            "name": "icon_pm_sprite",
-            "path": "ui/icon_pm.png",
-            "frames": 3,
-            "width": 24,
-            "height": 24,
-            "loop": true,
-            "reverse": false
-        },
-        {
-            "id": 104,
-            "name": "icon_pointer_sprite",
-            "path": "ui/icon_pointer.png",
-            "frames": 1,
-            "width": 12,
-            "height": 12,
-            "loop": true,
-            "reverse": false
-        },
-        {
             "id": 105,
             "name": "icon_pure_sprite",
             "path": "ui/aq-protection-purifier.png",
             "frames": 1,
             "width": 24,
             "height": 24,
-            "loop": true,
-            "reverse": false
-        },
-        {
-            "id": 106,
-            "name": "icon_s_sprite",
-            "path": "ui/Down Arrow_Both.png",
-            "frames": 2,
-            "width": 16,
-            "height": 16,
-            "loop": true,
-            "reverse": false
-        },
-        {
-            "id": 107,
-            "name": "icon_select_sprite",
-            "path": "ui/Select Button_Both.png",
-            "frames": 2,
-            "width": 24,
-            "height": 12,
-            "loop": true,
-            "reverse": false
-        },
-        {
-            "id": 108,
-            "name": "icon_spi_sprite",
-            "path": "ui/STAT_SPIRIT2424.png",
-            "frames": 1,
-            "width": 24,
-            "height": 24,
-            "loop": true,
-            "reverse": false
-        },
-        {
-            "id": 109,
-            "name": "icon_start_sprite",
-            "path": "ui/Start Button_Both.png",
-            "frames": 2,
-            "width": 24,
-            "height": 12,
             "loop": true,
             "reverse": false
         },
@@ -1160,52 +930,12 @@
             "reverse": false
         },
         {
-            "id": 111,
-            "name": "icon_temp_sprite",
-            "path": "ui/icon_temp.png",
-            "frames": 3,
-            "width": 24,
-            "height": 24,
-            "loop": true,
-            "reverse": false
-        },
-        {
             "id": 112,
             "name": "icon_uv_sprite",
             "path": "ui/aq-protection-uv.png",
             "frames": 1,
             "width": 24,
             "height": 24,
-            "loop": true,
-            "reverse": false
-        },
-        {
-            "id": 113,
-            "name": "icon_vig_sprite",
-            "path": "ui/STAT_VIGOR2424.png",
-            "frames": 1,
-            "width": 24,
-            "height": 24,
-            "loop": true,
-            "reverse": false
-        },
-        {
-            "id": 114,
-            "name": "icon_voc_sprite",
-            "path": "ui/icon_voc.png",
-            "frames": 3,
-            "width": 24,
-            "height": 24,
-            "loop": true,
-            "reverse": false
-        },
-        {
-            "id": 115,
-            "name": "icon_w_sprite",
-            "path": "ui/Left Arrow_Both.png",
-            "frames": 2,
-            "width": 16,
-            "height": 10,
             "loop": true,
             "reverse": false
         },
@@ -2370,16 +2100,6 @@
             "reverse": false
         },
         {
-            "id": 232,
-            "name": "touch_hl_sprite",
-            "path": "ui/touch_ring_sprite.png",
-            "frames": 1,
-            "width": 32,
-            "height": 32,
-            "loop": true,
-            "reverse": false
-        },
-        {
             "id": 233,
             "name": "toy_baseball_sprite",
             "path": "toy/baseball.png",
@@ -2454,16 +2174,6 @@
             "name": "ui_feed_stamp_base_sprite",
             "path": "minigame/stamp_base.png",
             "frames": 2,
-            "width": 160,
-            "height": 200,
-            "loop": false,
-            "reverse": false
-        },
-        {
-            "id": 241,
-            "name": "ui_feed_stamp_frame_sprite",
-            "path": "minigame/stamp_frame.png",
-            "frames": 1,
             "width": 160,
             "height": 200,
             "loop": false,
@@ -2691,7 +2401,7 @@
         },
         {
             "id": 264,
-            "name": "squinkus",
+            "name": "squinkus_sprite",
             "path": "testing/squinkus.png",
             "frames": 1,
             "width": 2,
@@ -2700,12 +2410,92 @@
             "reverse": false
         },
         {
-            "id": 265,
-            "name": "ui_skulls_sprite",
-            "path": "ui/monitors/skulls.png",
+            "id": 266,
+            "name": "portal_orange_sprite",
+            "path": "prop/portal_orange_a.png",
+            "frames": 4,
+            "width": 0,
+            "height": 0,
+            "loop": true,
+            "reverse": false
+        },
+        {
+            "id": 267,
+            "name": "portal_blue_sprite",
+            "path": "prop/portal_blue_a.png",
+            "frames": 4,
+            "width": 0,
+            "height": 0,
+            "loop": true,
+            "reverse": false
+        },
+        {
+            "id": 73,
+            "name": "fishing_bobber_idle_sprite",
+            "path": "minigame/fishing/bobber_idle_a.png",
+            "frames": 2,
+            "width": 0,
+            "height": 0,
+            "loop": true,
+            "reverse": false
+        },
+        {
+            "id": 74,
+            "name": "fishing_bobber_set_sprite",
+            "path": "minigame/fishing/bobber_set_a.png",
+            "frames": 10,
+            "width": 0,
+            "height": 0,
+            "loop": false,
+            "reverse": false
+        },
+        {
+            "id": 76,
+            "name": "fishing_bobber_bite_sprite",
+            "path": "minigame/fishing/bobber_click_a.png",
+            "frames": 9,
+            "width": 0,
+            "height": 0,
+            "loop": false,
+            "reverse": false
+        },
+        {
+            "id": 77,
+            "name": "xen_crystal_sprite",
+            "path": "prop/crystal_md_xen.png",
             "frames": 1,
-            "width": 24,
-            "height": 24,
+            "width": 0,
+            "height": 0,
+            "loop": false,
+            "reverse": false
+        },
+        {
+            "id": 79,
+            "name": "fish_tier_1_icon",
+            "path": "ui/monitors/icon_fish_tier_1.png",
+            "frames": 1,
+            "width": 0,
+            "height": 0,
+            "loop": false,
+            "reverse": false
+        },
+        {
+            "id": 81,
+            "name": "fish_tier_2_icon",
+            "path": "ui/monitors/icon_fish_tier_2.png",
+            "frames": 1,
+            "width": 0,
+            "height": 0,
+            "loop": false,
+            "reverse": false
+        },
+        {
+            "id": 83,
+            "name": "fish_tier_3_icon",
+            "path": "ui/monitors/icon_fish_tier_3.png",
+            "frames": 1,
+            "width": 0,
+            "height": 0,
             "loop": false,
             "reverse": false
         }
