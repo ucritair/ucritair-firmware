@@ -167,7 +167,7 @@ void CAT_gui_textf(const char* fmt, ...)
 	CAT_gui_text(text);
 }
 
-void CAT_gui_title(bool tabs, const CAT_sprite* a_action, const CAT_sprite* b_action, const char* fmt, ...)
+void CAT_gui_title(bool tabs, const char* fmt, ...)
 {
 	CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});
 	CAT_lineberry(0, 31, CAT_LCD_SCREEN_W, 31, 0x0000);
@@ -183,17 +183,6 @@ void CAT_gui_title(bool tabs, const CAT_sprite* a_action, const CAT_sprite* b_ac
 	if(tabs)
 		CAT_gui_text(" >");
 	CAT_gui_text(" ");
-
-	if(a_action != NULL)
-	{
-		CAT_gui_image(&icon_a_sprite, 1);
-		CAT_gui_image(a_action, 0);
-	}
-	if(b_action != NULL)
-	{
-		CAT_gui_image(&icon_b_sprite, 1);
-		CAT_gui_image(b_action, 0);
-	}
 }
 
 
@@ -748,7 +737,6 @@ void CAT_gui_menu()
 	CAT_gui_title
 	(
 		false,
-		&icon_enter_sprite, &icon_exit_sprite,
 		head->title
 	);
 
@@ -765,7 +753,8 @@ void CAT_gui_menu()
 		switch (child->type)
 		{
 			case CAT_GUI_MENU_TYPE_TOGGLE:
-				CAT_gui_image(&icon_equip_sprite, child->data.toggle_data.toggle);
+				CAT_set_sprite_colour(CAT_BLACK);
+				CAT_gui_image(&ui_radio_button_diamond_sprite, child->data.toggle_data.toggle);
 				CAT_gui_text(" ");
 			break;
 			case CAT_GUI_MENU_TYPE_TICKER:
@@ -776,7 +765,7 @@ void CAT_gui_menu()
 		}
 
 		if(i == head->selector)
-			CAT_gui_image(&icon_pointer_sprite, 0);
+			CAT_gui_text("<");
 			
 		CAT_gui_line_break();
 	}

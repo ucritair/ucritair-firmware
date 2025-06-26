@@ -1,6 +1,5 @@
-#pragma once
-
 #include "cat_pet.h"
+
 #include "cat_input.h"
 #include "cat_room.h"
 #include "cat_render.h"

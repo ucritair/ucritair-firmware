@@ -169,27 +169,24 @@ void CAT_render_inspector()
 	CAT_set_text_colour(CAT_WHITE);
 	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
 	CAT_set_text_mask(INSPECTOR_MARGIN, -1, CAT_LCD_SCREEN_W-INSPECTOR_MARGIN, -1);
-	cursor_y = CAT_draw_text(INSPECTOR_MARGIN, cursor_y, item->text);
+	cursor_y = CAT_draw_textf(INSPECTOR_MARGIN, cursor_y, "%s\n", item->text);
 
-	float aspect = item->sprite->height / (float) item->sprite->width;
-	int draw_y = 200;
-	if(aspect <= 1.25f)
-		CAT_set_sprite_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
-	else
-	{
-		draw_y = 300;
-		CAT_set_sprite_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_BOTTOM);
-	}
+	int free_space = CAT_LCD_SCREEN_H-INSPECTOR_MARGIN-cursor_y;
 	for(int scale = 1; scale <= 6; scale++)
 	{
 		if
 		(
 			item->sprite->width * scale <= 240 &&
-			item->sprite->height * scale <= 160
+			item->sprite->height * scale <= free_space
 		)
+		{
 			CAT_set_sprite_scale(scale);
+		}
 	}
-	CAT_draw_sprite(item->sprite, 0, 120, draw_y);
+	cursor_y += free_space / 2;
+	
+	CAT_set_sprite_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
+	CAT_draw_sprite(item->sprite, 0, 120, cursor_y);
 }
 
 static void inventory_action_proc(int item_id)
@@ -346,25 +343,23 @@ void CAT_render_checkout()
 	cursor_y = CAT_draw_textf(INSPECTOR_MARGIN, cursor_y, "$%d / x%d owned", item->price, item_table.counts[checkout_id]);
 	CAT_set_text_colour(CHECKOUT_GOLD_COLOUR);
 	cursor_y = CAT_draw_textf(CAT_LCD_SCREEN_W-INSPECTOR_MARGIN-CAT_GLYPH_WIDTH*7, cursor_y, "$%.6d\n", CAT_inventory_count(coin_item));
-	
 	cursor_y += 6;
-	CAT_lineberry(INSPECTOR_MARGIN, cursor_y, CAT_LCD_SCREEN_W-INSPECTOR_MARGIN, cursor_y, CAT_WHITE);
-	cursor_y += 12;
 
+	int box_h = CAT_LCD_SCREEN_H-INSPECTOR_MARGIN-84-cursor_y;
 	CAT_set_sprite_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
 	for(int scale = 1; scale <= 6; scale++)
 	{
 		if
 		(
 			item->sprite->width * scale <= 240 &&
-			item->sprite->height * scale <= 160
+			item->sprite->height * scale <= box_h
 		)
 			CAT_set_sprite_scale(scale);
 	}
-	CAT_set_sprite_mask(INSPECTOR_MARGIN, cursor_y, CAT_LCD_SCREEN_W-INSPECTOR_MARGIN, cursor_y + 160);
-	CAT_draw_sprite(item->sprite, 0, 120, cursor_y + 80);
-	CAT_strokeberry(INSPECTOR_MARGIN, cursor_y, CAT_LCD_SCREEN_W-INSPECTOR_MARGIN * 2, 160, CAT_WHITE);
-	cursor_y += 160;
+	CAT_set_sprite_mask(INSPECTOR_MARGIN, cursor_y, CAT_LCD_SCREEN_W-INSPECTOR_MARGIN, cursor_y + box_h);
+	CAT_draw_sprite(item->sprite, 0, 120, cursor_y + box_h/2);
+	CAT_strokeberry(INSPECTOR_MARGIN, cursor_y, CAT_LCD_SCREEN_W-INSPECTOR_MARGIN * 2, box_h, CAT_WHITE);
+	cursor_y += box_h;
 
 	cursor_y += 32;
 

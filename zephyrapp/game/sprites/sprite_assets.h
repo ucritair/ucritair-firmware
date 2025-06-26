@@ -80,7 +80,6 @@ extern const CAT_sprite hotdog_sprite;
 extern const CAT_sprite icon_charging_sprite;
 extern const CAT_sprite icon_deco_sprite;
 extern const CAT_sprite icon_ee_sprite;
-extern const CAT_sprite icon_equip_sprite;
 extern const CAT_sprite icon_feed_sprite;
 extern const CAT_sprite icon_input_sprite;
 extern const CAT_sprite icon_low_battery_alt_sprite;
@@ -249,6 +248,7 @@ extern const CAT_sprite xen_crystal_sprite;
 extern const CAT_sprite fish_tier_1_icon;
 extern const CAT_sprite fish_tier_2_icon;
 extern const CAT_sprite fish_tier_3_icon;
+extern const CAT_sprite prop_hoopy_sprite;
 
 extern const CAT_sprite* sprite_list[];
 #define CAT_SPRITE_LIST_LENGTH 245

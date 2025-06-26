@@ -16,6 +16,7 @@
 #include <string.h>
 #include "cat_room.h"
 #include "config.h"
+#include "cat_gizmos.h"
 
 static void MS_feed_arrange(CAT_machine_signal signal);
 static void render_arrange();
@@ -1407,9 +1408,7 @@ static void render_summary()
 	}
 	else
 	{
-		CAT_set_sprite_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
-		CAT_set_sprite_colour(RGB8882565(128, 128, 128));
-		CAT_draw_sprite(&ui_feed_stamp_frame_sprite, 0, 120, 180);
+		CAT_draw_cross_box(120-80, 160-100, 120+80, 160+100, CAT_GREY);
 
 		CAT_set_sprite_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
 		CAT_set_sprite_colour(grade_colours[grade]);

@@ -106,7 +106,6 @@ target_sources(app PRIVATE
 	src/menu/cat_menu_magic.c
 	src/menu/cat_menu_hedron.c
 	src/menu/cat_menu_debug.c
-	src/menu/cat_menu_graph_spoof.c
 	src/menu/cat_menu_colour_picker.c
 
 	src/cowtools/cat_structures.c

@@ -56,7 +56,7 @@ void CAT_render_debug()
 	switch(page)
 	{
 		case SYSTEM:
-			CAT_gui_title(true, NULL, &icon_exit_sprite, "SYSTEM");
+			CAT_gui_title(true, "SYSTEM");
 			CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
 			
 			CAT_gui_textf
@@ -82,7 +82,7 @@ void CAT_render_debug()
 				CAT_gui_text("PERSIST CLEARED\n");
 		break;
 		case TIME:
-			CAT_gui_title(true, NULL, &icon_exit_sprite, "TIME");
+			CAT_gui_title(true, "TIME");
 			CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
 
 			CAT_datetime datetime;
@@ -99,7 +99,7 @@ void CAT_render_debug()
 			CAT_gui_textf("E-Ink: %0.0fs/%ds\n", time_since_eink_update, eink_update_time_threshold);
 		break;
 		case DECO:
-			CAT_gui_title(true, NULL, &icon_exit_sprite, "DECO");
+			CAT_gui_title(true, "DECO");
 			CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
 			for(int y = 0; y < CAT_GRID_HEIGHT; y++)
 			{
@@ -117,7 +117,7 @@ void CAT_render_debug()
 		break;
 		case INPUT:
 		{
-			CAT_gui_title(true, NULL, &icon_exit_sprite, "INPUT");
+			CAT_gui_title(true, "INPUT");
 			CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
 
 			CAT_gui_text("Mask: ");
@@ -135,7 +135,7 @@ void CAT_render_debug()
 		break;
 		case AQI:
 		{
-			CAT_gui_title(true, NULL, &icon_exit_sprite, "AQI");
+			CAT_gui_title(true, "AQI");
 			CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
 			CAT_gui_textf("RH: %f\n", readings.sen5x.humidity_rhpct);
 			CAT_gui_textf("CO2: %f\n", readings.sunrise.ppm_filtered_compensated);
@@ -148,12 +148,7 @@ void CAT_render_debug()
 		break;
 		default:
 		{
-			CAT_gui_title
-			(
-				true,
-				NULL, &icon_exit_sprite,
-				"LAST"
-			);
+			CAT_gui_title(true, "LAST");
 			CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
 			CAT_gui_set_flag(CAT_GUI_FLAG_WRAPPED);
 			CAT_gui_text("You shouldn't be here");

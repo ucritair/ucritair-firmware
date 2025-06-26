@@ -49,9 +49,7 @@ void CAT_render_magic()
 
 	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18}); 
 	CAT_gui_text("Enter an incantation,\n");
-	CAT_gui_text("or hold ");
-	CAT_gui_image(&icon_b_sprite, 0);
-	CAT_gui_text(" to exit.");
+	CAT_gui_text("or hold [B] to exit");
 	
 	CAT_gui_div("INCANTATION");
 	int i = (input.buffer_head+9) % 10;

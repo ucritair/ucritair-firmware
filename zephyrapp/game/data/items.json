@@ -36,12 +36,6 @@
                 "write"
             ]
         },
-        "icon": {
-            "type": "sprite",
-            "permissions": [
-                "write"
-            ]
-        },
         "text": {
             "type": "string",
             "permissions": [
@@ -1838,7 +1832,7 @@
             "type": "key",
             "name": "fish_grade_0",
             "display_name": "1-Star Fish",
-            "sprite": "salmon_sprite",
+            "sprite": "fish_tier_1_icon",
             "icon": "icon_item_key_sprite",
             "text": "",
             "price": 0,
@@ -1849,7 +1843,7 @@
             "type": "key",
             "name": "fish_grade_1",
             "display_name": "2-Star Fish",
-            "sprite": "salmon_sprite",
+            "sprite": "fish_tier_2_icon",
             "icon": "icon_item_key_sprite",
             "text": "",
             "price": 0,
@@ -1860,7 +1854,7 @@
             "type": "key",
             "name": "fish_grade_2",
             "display_name": "3-Star Fish",
-            "sprite": "tuna_sprite",
+            "sprite": "fish_tier_3_icon",
             "icon": "icon_item_key_sprite",
             "text": "",
             "price": 0,
@@ -2383,6 +2377,86 @@
             "text": "A gleaming golden coin. The possibilities for its use are endless.",
             "price": 0,
             "id": 109
+        },
+        {
+            "type": "prop",
+            "name": "prop_portal_orange",
+            "display_name": "Orange Portal",
+            "tier": 0,
+            "sprite": "portal_orange_sprite",
+            "text": "",
+            "price": 0,
+            "id": 110,
+            "prop_data": {
+                "type": "default",
+                "shape": [
+                    2,
+                    1
+                ],
+                "animate": true,
+                "child_dy": 0
+            },
+            "icon": "item_icon_key_sprite"
+        },
+        {
+            "type": "prop",
+            "name": "prop_portal_blue",
+            "display_name": "Blue Portal",
+            "tier": 0,
+            "sprite": "portal_blue_sprite",
+            "text": "",
+            "price": 0,
+            "id": 111,
+            "prop_data": {
+                "type": "default",
+                "shape": [
+                    2,
+                    1
+                ],
+                "animate": true,
+                "child_dy": 0
+            },
+            "icon": "item_icon_key_sprite"
+        },
+        {
+            "type": "prop",
+            "name": "prop_xen_crystal",
+            "display_name": "Xen Crystal",
+            "tier": 0,
+            "sprite": "xen_crystal_sprite",
+            "text": "",
+            "price": 0,
+            "id": 112,
+            "prop_data": {
+                "type": "default",
+                "shape": [
+                    1,
+                    1
+                ],
+                "animate": false,
+                "child_dy": 0
+            },
+            "icon": "item_icon_key_sprite"
+        },
+        {
+            "type": "prop",
+            "name": "prop_hoopy",
+            "display_name": "Hoopy the Hoop",
+            "tier": 0,
+            "sprite": "prop_hoopy_sprite",
+            "text": "Does this one look like glados_debris_05 or glados_gib_10 to you?",
+            "price": 0,
+            "id": 113,
+            "prop_data": {
+                "type": "default",
+                "shape": [
+                    2,
+                    1
+                ],
+                "animate": true,
+                "child_dy": 0
+            },
+            "icon": "item_icon_key_sprite"
         }
     ]
 }

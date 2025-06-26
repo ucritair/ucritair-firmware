@@ -128,6 +128,8 @@ class AssetSchema:
 			return "";
 		elif t == "float":
 			return 0.0;
+		elif t == "ivec2":
+			return [0, 0];
 		elif "*" in t:
 			return "";
 		elif t in asset_types:

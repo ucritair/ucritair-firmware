@@ -110,3 +110,7 @@
 #define food_beef_noodles_item 107
 #define food_nasi_lemak_item 108
 #define coin_item 109
+#define prop_portal_orange_item 110
+#define prop_portal_blue_item 111
+#define prop_xen_crystal_item 112
+#define prop_hoopy_item 113

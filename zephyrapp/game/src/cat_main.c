@@ -123,6 +123,9 @@ void CAT_load_default()
 	CAT_inventory_add(prop_eth_farm_item, 1);
 	CAT_inventory_add(toy_laser_pointer_item, 1);
 	CAT_inventory_add(coin_item, 10);
+	CAT_inventory_add(prop_portal_orange_item, 1);
+	CAT_inventory_add(prop_xen_crystal_item, 1);
+	CAT_inventory_add(prop_hoopy_item, 1);
 }
 
 void CAT_load_turnkey()
