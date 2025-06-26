@@ -247,7 +247,7 @@ void draw_outcomes_page()
 		cursor_y = CAT_draw_textf
 		(
 			MARGIN*2+MARGIN, cursor_y,
-			"With the crisis ongoing, final outcomes have yet been determined.\n"			
+			"With the crisis ongoing, final outcomes have not been determined.\n"			
 			"\n"
 			"Return to the crisis report once crisis conditions have been alleviated.\n"
 		);
@@ -268,7 +268,7 @@ void draw_outcomes_page()
 			(
 				MARGIN, cursor_y,
 				"PEAK CRISIS SEVERITY HAS REACHED \"EXTREME\" LEVELS."
-				"PARTIAL CRITTER DAMAGE IS NOW INEVITABLE!"
+				"VERY HIGH RISK OF HEALTH EFFECTS ON CRITTER!"
 			);
 		}
 	}

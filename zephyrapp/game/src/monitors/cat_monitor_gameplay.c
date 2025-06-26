@@ -111,7 +111,7 @@ void draw_waiting_crisis()
 	CAT_set_text_colour(CRISIS_YELLOW);
 	cursor_y = CAT_draw_textf(MARGIN, cursor_y, "RESOLVED %s CRISIS\n", CAT_AQ_crisis_type_string(-1));
 	CAT_set_text_colour(CRISIS_RED);
-	cursor_y = CAT_draw_textf(MARGIN, cursor_y, "%s SEVERITY\n", CAT_AQ_crisis_severity_string(-1));
+	cursor_y = CAT_draw_textf(MARGIN, cursor_y, "%s SEVERITY\n", CAT_AQ_crisis_severity_string(CAT_AQ_get_crisis_peak_severity()));
 
 	cursor_y += 8;
 	CAT_set_text_colour(CRISIS_GREEN);
@@ -142,19 +142,14 @@ void draw_waiting_crisis()
 		CAT_AQ_crisis_response_grade_string(-1)
 	);
 
-	int box_x0 = MARGIN; int box_x1 =  CAT_LCD_SCREEN_W-MARGIN;
-	int box_y0 = cursor_y+4; int box_y1 = box_y0 + 64;
-	CAT_draw_corner_box(box_x0, box_y0, box_x1, box_y1, CRISIS_YELLOW);
-
 	int damage = CAT_AQ_get_crisis_lifespan_damage();
-	CAT_set_text_mask(box_x0+4, box_y0+4, box_x1-4, box_y1-4);
-	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP | CAT_TEXT_FLAG_CENTER);
 	CAT_set_text_colour(damage <= 0 ? CRISIS_GREEN : CRISIS_RED);
 	CAT_draw_text
 	(
-		(box_x0+box_x1)/2, (box_y0+box_y1)/2-CAT_GLYPH_HEIGHT/2,
-		damage <= 0 ?
-		"Critter avoided damage\n" : "Critter suffered damage\n"
+		EXIT_BAR_X-EXIT_BAR_W/2,
+		EXIT_BAR_Y-EXIT_BAR_H/2-32,
+		damage > 0 ?
+		"CRITTER HAS SUFFERED DAMAGE\n" : "ALL CRITTER DAMAGE AVOIDED\n"
 	);
 
 	CAT_set_text_colour(CRISIS_GREEN);

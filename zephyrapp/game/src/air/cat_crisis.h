@@ -9,37 +9,58 @@
 
 typedef enum
 {
-	CAT_AQ_CRISIS_TYPE_NONE,
-	CAT_AQ_CRISIS_TYPE_CO2,
-	CAT_AQ_CRISIS_TYPE_PM2_5,
-	CAT_AQ_CRISIS_TYPE_NOX_VOC,
-	CAT_AQ_CRISIS_TYPE_TEMP_RH
+	CAT_AQ_CRISIS_TYPE_NONE = 0,
+	CAT_AQ_CRISIS_TYPE_CO2 = 1,
+	CAT_AQ_CRISIS_TYPE_PM2_5 = 2,
+	CAT_AQ_CRISIS_TYPE_NOX_VOC = 3,
+	CAT_AQ_CRISIS_TYPE_TEMP_RH = 4
 } CAT_AQ_crisis_type;
 
 typedef enum
 {
-	CAT_AQ_CRISIS_SEVERITY_NONE,
-	CAT_AQ_CRISIS_SEVERITY_MILD,
-	CAT_AQ_CRISIS_SEVERITY_MODERATE,
-	CAT_AQ_CRISIS_SEVERITY_EXTREME
+	CAT_AQ_CRISIS_SEVERITY_NONE = 0,
+	CAT_AQ_CRISIS_SEVERITY_MILD = 1,
+	CAT_AQ_CRISIS_SEVERITY_MODERATE = 2,
+	CAT_AQ_CRISIS_SEVERITY_EXTREME = 3
 } CAT_AQ_crisis_severity;
 
 typedef enum
 {
-	CAT_AQ_CRISIS_RESPONSE_TYPE_NONE,
-	CAT_AQ_CRISIS_RESPONSE_TYPE_MANUAL,
-	CAT_AQ_CRISIS_RESPONSE_TYPE_AUTOMATIC,
-	CAT_AQ_CRISIS_RESPONSE_TYPE_ASSISTED
+	CAT_AQ_CRISIS_RESPONSE_TYPE_NONE = 0,
+	CAT_AQ_CRISIS_RESPONSE_TYPE_MANUAL = 1,
+	CAT_AQ_CRISIS_RESPONSE_TYPE_AUTOMATIC = 2,
+	CAT_AQ_CRISIS_RESPONSE_TYPE_ASSISTED = 3
 } CAT_AQ_crisis_response_type;
 
 typedef enum
 {
-	CAT_AQ_CRISIS_RESPONSE_GRADE_NONE,
-	CAT_AQ_CRISIS_RESPONSE_GRADE_DISASTROUS,
-	CAT_AQ_CRISIS_RESPONSE_GRADE_INADEQUATE,
-	CAT_AQ_CRISIS_RESPONSE_GRADE_ADEQUATE,
-	CAT_AQ_CRISIS_RESPONSE_GRADE_EXCELLENT
+	CAT_AQ_CRISIS_RESPONSE_GRADE_NONE = 0,
+	CAT_AQ_CRISIS_RESPONSE_GRADE_DISASTROUS = 1,
+	CAT_AQ_CRISIS_RESPONSE_GRADE_INADEQUATE = 2,
+	CAT_AQ_CRISIS_RESPONSE_GRADE_ADEQUATE = 3,
+	CAT_AQ_CRISIS_RESPONSE_GRADE_EXCELLENT = 4
 } CAT_AQ_crisis_response_grade;
+
+typedef struct __attribute__((__packed__))
+{
+	CAT_AQ_crisis_type type;
+	CAT_AQ_crisis_severity severity;
+	CAT_AQ_crisis_severity peak_severity;
+	bool ongoing;
+	bool report;
+
+	uint64_t start_timestamp;
+	uint64_t peak_timestamp;
+	uint64_t end_timestamp;
+
+	CAT_AQ_crisis_response_type response_type;
+	CAT_AQ_crisis_response_grade response_grade;
+	uint8_t lifespan_damage;
+} CAT_AQ_crisis_state;
+
+void CAT_AQ_init_crisis_state();
+void CAT_AQ_export_crisis_state(CAT_AQ_crisis_state* out);
+void CAT_AQ_import_crisis_state(CAT_AQ_crisis_state* in);
 
 CAT_AQ_crisis_type CAT_AQ_poll_crisis_type();
 CAT_AQ_crisis_severity CAT_AQ_poll_crisis_severity(CAT_AQ_crisis_type type);

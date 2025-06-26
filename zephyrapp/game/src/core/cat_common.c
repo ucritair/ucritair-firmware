@@ -163,7 +163,8 @@ float int2float(int i, float scale_factor)
 int move_average(int x_bar, int samples, float x, float scale_factor)
 {
 	float x_bar_f = int2float(x_bar, scale_factor);
-	x_bar_f = x_bar_f + (x - x_bar_f) / (float) samples;
+	//x_bar_f = x_bar_f + (x - x_bar_f) / (float) samples;
+	x_bar_f = x_bar_f + (x - x_bar_f) / 7;
 	return float2int(x_bar_f, scale_factor);
 }
 
@@ -209,6 +210,7 @@ void CAT_AQ_read_scores(int idx, CAT_AQ_score_block* out)
 {
 	if(idx < 0 || idx >= 7)
 		return;
+	idx = (CAT_AQ_get_score_buffer_head() + idx) % 7;
 	memcpy(out, &(CAT_AQ_get_score_buffer()[idx]), sizeof(CAT_AQ_score_block));
 }
 

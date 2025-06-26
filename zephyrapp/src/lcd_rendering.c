@@ -100,7 +100,8 @@ void lcd_render_diag()
 
 	LOG_INF("about to CAT_init(slept=%d)", slept_s);
 	
-	CAT_save_legacy fodder;
+
+	CAT_AQ_import_crisis_state(&aq_crisis_state);
 	CAT_init();
 
 	cat_game_running = true;
@@ -198,6 +199,9 @@ void lcd_render_diag()
 
 		charging_last_frame = is_charging;
 
+		//////////////////////////////////////////////////////////
+		// AQ SPARKLINE STORE
+
 		time_t current_moment = get_current_rtc_time();
 		uint32_t time_since = current_moment - aq_moving_scores_last_time;
 		if(time_since > 5 && CAT_is_AQ_initialized())
@@ -207,7 +211,7 @@ void lcd_render_diag()
 		}
 		
 		time_since = current_moment - aq_score_last_time;
-		if(time_since > 86400 && CAT_is_AQ_initialized())
+		if(time_since > CAT_HOUR_SECONDS && CAT_is_AQ_initialized())
 		{
 			if(aq_score_last_time == 0)
 			{
@@ -224,6 +228,11 @@ void lcd_render_diag()
 			aq_score_head = (aq_score_head+1) % 7;
 			aq_score_last_time = current_moment;
 		}
+
+		//////////////////////////////////////////////////////////
+		// AQ CRISIS STATE
+
+		CAT_AQ_export_crisis_state(&aq_crisis_state);
 
 		int lockmask = 0;
 

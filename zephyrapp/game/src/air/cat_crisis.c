@@ -17,7 +17,7 @@ static const float crisis_severity_cutoffs[] =
 	1.0f, 0.5f, 0.35f, 0.25f,
 };
 
-static const int crisis_primetimes[] =
+static const int crisis_avoidance_windows[] =
 {
 	0, // NONE
 	CAT_MINUTE_SECONDS * 30, // MILD
@@ -80,119 +80,130 @@ CAT_AQ_crisis_severity CAT_AQ_poll_crisis_severity(CAT_AQ_crisis_type type)
 	return CAT_AQ_CRISIS_SEVERITY_NONE;
 }
 
-static CAT_AQ_crisis_type crisis_type = CAT_AQ_CRISIS_TYPE_NONE;
-static CAT_AQ_crisis_severity crisis_severity = CAT_AQ_CRISIS_SEVERITY_NONE;
-static CAT_AQ_crisis_severity crisis_peak_severity = CAT_AQ_CRISIS_SEVERITY_NONE;
-static bool crisis_ongoing = false;
-static bool crisis_report = false;
+static CAT_AQ_crisis_state crisis;
 
-static uint64_t crisis_start_timestamp = 0;
-static uint64_t crisis_peak_timestamp = 0;
-static uint64_t crisis_end_timestamp = 0;
-
-static CAT_AQ_crisis_response_type crisis_response_type = CAT_AQ_CRISIS_RESPONSE_TYPE_NONE;
-static CAT_AQ_crisis_response_grade crisis_response_grade = CAT_AQ_CRISIS_RESPONSE_GRADE_NONE;
-static uint8_t lifespan_damage = 0;
+void CAT_AQ_export_crisis_state(CAT_AQ_crisis_state* out)
+{
+	memcpy(out, &crisis, sizeof(crisis));
+}
+void CAT_AQ_import_crisis_state(CAT_AQ_crisis_state* in)
+{
+	memcpy(&crisis, in, sizeof(crisis));
+}
 
 void CAT_AQ_start_crisis(CAT_AQ_crisis_type type, CAT_AQ_crisis_severity severity)
 {
-	crisis_type = type;
-	crisis_severity = severity;
-	crisis_peak_severity = severity;
-	crisis_ongoing = true;
-	crisis_report = true;
+	crisis.type = type;
+	crisis.severity = severity;
+	crisis.peak_severity = severity;
+	crisis.ongoing = true;
+	crisis.report = true;
 
-	crisis_start_timestamp = CAT_get_rtc_now();
-	crisis_peak_timestamp = CAT_get_rtc_now();
-	crisis_end_timestamp = 0;
+	crisis.start_timestamp = CAT_get_rtc_now();
+	crisis.peak_timestamp = CAT_get_rtc_now();
+	crisis.end_timestamp = 0;
 
-	crisis_response_type = CAT_AQ_CRISIS_RESPONSE_TYPE_NONE;
-	crisis_response_grade = CAT_AQ_CRISIS_RESPONSE_GRADE_NONE;
-	lifespan_damage = severity >= CAT_AQ_CRISIS_SEVERITY_EXTREME ? 1 : 0;
+	crisis.response_type = CAT_AQ_CRISIS_RESPONSE_TYPE_NONE;
+	crisis.response_grade = CAT_AQ_CRISIS_RESPONSE_GRADE_NONE;
+	crisis.lifespan_damage = 0;
 }
 
 bool CAT_AQ_is_crisis_ongoing()
 {
-	return crisis_ongoing;
+	return crisis.ongoing;
 }
 
 int CAT_AQ_get_crisis_avoidance_window()
 {
-	return crisis_primetimes[crisis_severity];
+	return crisis_avoidance_windows[crisis.severity];
 }
 
 int CAT_AQ_get_crisis_total_uptime()
 {
 	if(CAT_AQ_is_crisis_ongoing())
-		return CAT_get_rtc_now() - crisis_start_timestamp;
-	return crisis_end_timestamp - crisis_start_timestamp;
+		return CAT_get_rtc_now() - crisis.start_timestamp;
+	return crisis.end_timestamp - crisis.start_timestamp;
 }
 
 int CAT_AQ_get_crisis_peak_uptime()
 {
 	if(CAT_AQ_is_crisis_ongoing())
-		return CAT_get_rtc_now() - crisis_peak_timestamp;
-	return crisis_end_timestamp - crisis_peak_timestamp;
+		return CAT_get_rtc_now() - crisis.peak_timestamp;
+	return crisis.end_timestamp - crisis.peak_timestamp;
 }
 
 int CAT_AQ_get_crisis_disaster_uptime()
 {
-	return CAT_AQ_get_crisis_peak_uptime() - CAT_AQ_get_crisis_avoidance_window();
+	return CAT_AQ_get_crisis_peak_uptime() - crisis_avoidance_windows[crisis.peak_severity];
 }
 
 uint64_t CAT_AQ_get_crisis_start()
 {
-	return crisis_start_timestamp;
+	return crisis.start_timestamp;
 }
 
 uint64_t CAT_AQ_get_crisis_end()
 {
-	return crisis_end_timestamp;
+	return crisis.end_timestamp;
 }
 
 void CAT_AQ_stop_crisis(CAT_AQ_crisis_response_type response_type)
 {
-	crisis_ongoing = false;
-	crisis_report = true;
-	crisis_end_timestamp = CAT_get_rtc_now();
-	crisis_response_type = response_type;
+	if(!crisis.ongoing)
+		return;
+		
+	crisis.ongoing = false;
+	crisis.report = true;
+	crisis.end_timestamp = CAT_get_rtc_now();
+	crisis.response_type = response_type;
 	
-	int window = CAT_AQ_get_crisis_avoidance_window();
+	int window = crisis_avoidance_windows[crisis.peak_severity];
 	int overtime = CAT_AQ_get_crisis_disaster_uptime();
-	crisis_response_grade =
-	overtime <= (-window / 2) ? CAT_AQ_CRISIS_RESPONSE_GRADE_EXCELLENT :
-	overtime <= 0 ? CAT_AQ_CRISIS_RESPONSE_GRADE_ADEQUATE :
-	overtime <= window ? CAT_AQ_CRISIS_RESPONSE_GRADE_INADEQUATE :
+	float response_ratio = (float) overtime / (float) window;
+	CAT_printf("%d VS %d -> %f\n", overtime, window, response_ratio);
+	crisis.response_grade =
+	response_ratio <= 0.5f ? CAT_AQ_CRISIS_RESPONSE_GRADE_EXCELLENT :
+	response_ratio <= 1.0f ? CAT_AQ_CRISIS_RESPONSE_GRADE_ADEQUATE :
+	response_ratio < 2.0f ? CAT_AQ_CRISIS_RESPONSE_GRADE_INADEQUATE :
 	CAT_AQ_CRISIS_RESPONSE_GRADE_DISASTROUS;
 
-	lifespan_damage +=
-	crisis_response_grade <= CAT_AQ_CRISIS_RESPONSE_GRADE_DISASTROUS ? 2 :
-	crisis_response_grade <= CAT_AQ_CRISIS_RESPONSE_GRADE_INADEQUATE ? 1 :
+	if
+	(
+		crisis.peak_severity >= CAT_AQ_CRISIS_SEVERITY_EXTREME &&
+		crisis.response_grade < CAT_AQ_CRISIS_RESPONSE_GRADE_EXCELLENT
+	)
+	{
+		crisis.lifespan_damage += 1;
+	}
+
+	crisis.lifespan_damage +=
+	crisis.response_grade <= CAT_AQ_CRISIS_RESPONSE_GRADE_DISASTROUS ? 2 :
+	crisis.response_grade <= CAT_AQ_CRISIS_RESPONSE_GRADE_INADEQUATE ? 1 :
 	0;
 
-	pet.lifespan -= lifespan_damage;
+	pet.lifespan -= crisis.lifespan_damage;
 }
 
 CAT_AQ_crisis_response_grade CAT_AQ_get_crisis_response_grade()
 {
-	return crisis_response_grade;
+	return crisis.response_grade;
 }
 
 int CAT_AQ_get_crisis_lifespan_damage()
 {
-	return lifespan_damage;
+	return crisis.lifespan_damage;
 }
 
 CAT_AQ_crisis_severity CAT_AQ_get_crisis_peak_severity()
 {
-	return crisis_peak_severity;
+	return crisis.peak_severity;
 }
 
 bool CAT_AQ_is_crisis_waiting()
 {
 	return
-	!crisis_ongoing &&
-	crisis_report;
+	!crisis.ongoing &&
+	crisis.report;
 }
 
 void CAT_AQ_crisis_tick()
@@ -209,16 +220,16 @@ void CAT_AQ_crisis_tick()
 
 			if(type != CAT_AQ_CRISIS_TYPE_NONE && severity != CAT_AQ_CRISIS_SEVERITY_NONE)
 			{
-				uint64_t time_since_last_crisis = CAT_get_rtc_now() - crisis_end_timestamp;
+				uint64_t time_since_last_crisis = CAT_get_rtc_now() - crisis.end_timestamp;
 				uint16_t threshold = 60;
 
 				// Two crises of different types can occur one after the other within a minute
 				// Most crisis types can occur consecutively once per their own primetime
 				// Consecutive therm crises can only occur once every 3 hours
-				if(type == crisis_type)
+				if(type == crisis.type)
 				{
 					if(type == CAT_AQ_CRISIS_TYPE_TEMP_RH)
-						threshold = crisis_primetimes[severity];
+						threshold = crisis_avoidance_windows[severity];
 					else
 						threshold = CAT_MINUTE_SECONDS * 30;
 				}
@@ -236,20 +247,24 @@ void CAT_AQ_crisis_tick()
 	}
 	else
 	{
-		CAT_AQ_crisis_severity current_severity = CAT_AQ_poll_crisis_severity(crisis_type);
-		if(current_severity > crisis_severity)
-			crisis_peak_timestamp = CAT_get_rtc_now();
-		crisis_severity = current_severity;
-		crisis_peak_severity = max(crisis_peak_severity, crisis_severity);
-		CAT_printf("%d\n", CAT_AQ_get_crisis_peak_uptime());
+		CAT_AQ_crisis_severity current_severity = CAT_AQ_poll_crisis_severity(crisis.type);
 
 		// AUTOMATIC RESPONSE
-		if(crisis_severity == CAT_AQ_CRISIS_SEVERITY_NONE)
+		if(current_severity == CAT_AQ_CRISIS_SEVERITY_NONE)
 		{
 			CAT_AQ_stop_crisis(CAT_AQ_CRISIS_RESPONSE_TYPE_AUTOMATIC);
+			return;
 		}
+
+		if(current_severity > crisis.peak_severity)
+		{
+			crisis.peak_severity = current_severity;
+			crisis.peak_timestamp = CAT_get_rtc_now();
+		}
+		crisis.severity = current_severity;
+
 		// ITEM ASSISTED RESPONSES
-		else if(crisis_type == CAT_AQ_CRISIS_TYPE_CO2)
+		if(crisis.type == CAT_AQ_CRISIS_TYPE_CO2)
 		{
 			int uv_idx = CAT_room_find(prop_uv_lamp_item);
 			if(uv_idx != -1)
@@ -258,9 +273,9 @@ void CAT_AQ_crisis_tick()
 				CAT_AQ_stop_crisis(CAT_AQ_CRISIS_RESPONSE_TYPE_ASSISTED);
 			}
 		}
-		else if(crisis_type == CAT_AQ_CRISIS_TYPE_PM2_5 || crisis_type == CAT_AQ_CRISIS_TYPE_NOX_VOC)
+		else if(crisis.type == CAT_AQ_CRISIS_TYPE_PM2_5 || crisis.type == CAT_AQ_CRISIS_TYPE_NOX_VOC)
 		{
-			if(crisis_severity <= CAT_AQ_CRISIS_SEVERITY_MILD)
+			if(crisis.severity <= CAT_AQ_CRISIS_SEVERITY_MILD)
 			{
 				if(CAT_inventory_count(mask_item))
 				{
@@ -284,20 +299,20 @@ void CAT_AQ_crisis_tick()
 void CAT_AQ_post_crisis_report()
 {
 	if(CAT_AQ_is_crisis_ongoing() || CAT_AQ_is_crisis_waiting())
-		crisis_report = true;
+		crisis.report = true;
 }
 
 bool CAT_AQ_is_crisis_report_posted()
 {
-	return crisis_report;
+	return crisis.report;
 }
 
 void CAT_AQ_dismiss_crisis_report()
 {
-	crisis_report = false;
+	crisis.report = false;
 }
 
-static const char* crisis_titles[] =
+static const char* crisis_type_strings[] =
 {
 	"N/A",
 	"MIASMA",
@@ -334,27 +349,27 @@ static const char* crisis_response_grade_strings[] =
 const char* CAT_AQ_crisis_type_string(int type)
 {
 	if(type == -1)
-		type = crisis_type;
-	return crisis_titles[type];
+		type = crisis.type;
+	return crisis_type_strings[type];
 }
 
 const char* CAT_AQ_crisis_severity_string(int severity)
 {
 	if(severity == -1)
-		severity = crisis_severity;
+		severity = crisis.severity;
 	return crisis_severity_strings[severity];
 }
 
 const char* CAT_AQ_crisis_response_type_string(int type)
 {
 	if(type == -1)
-		type = crisis_response_type;
+		type = crisis.response_type;
 	return crisis_response_type_strings[type];
 }
 
 const char* CAT_AQ_crisis_response_grade_string(int grade)
 {
 	if(grade == -1)
-		grade = crisis_response_grade;
+		grade = crisis.response_grade;
 	return crisis_response_grade_strings[grade];
 }

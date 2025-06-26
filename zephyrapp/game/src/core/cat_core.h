@@ -453,6 +453,7 @@ typedef struct __attribute__((__packed__))
 
 CAT_AQ_score_block* CAT_AQ_get_moving_scores();
 CAT_AQ_score_block* CAT_AQ_get_score_buffer();
+int CAT_AQ_get_score_buffer_head();
 
 void CAT_AQ_move_scores();
 void CAT_AQ_buffer_scores(CAT_AQ_score_block* block);

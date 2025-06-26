@@ -631,6 +631,11 @@ CAT_AQ_score_block* CAT_AQ_get_score_buffer()
 	return aq_score_buffer;
 }
 
+int CAT_AQ_get_score_buffer_head()
+{
+	0;
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // IMU
