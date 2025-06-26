@@ -63,8 +63,9 @@ void CAT_force_save()
 	strcpy(save->pet.name, pet.name);
 	save->pet.level = pet.level;
 	save->pet.xp = pet.xp;
-	save->pet.lifespan = 30;
+	save->pet.lifespan = pet.lifespan;
 	save->pet.lifetime = pet.lifetime;
+	save->pet.incarnations = pet.incarnations;
 	save->pet.vigour = pet.vigour;
 	save->pet.focus = pet.focus;
 	save->pet.spirit = pet.spirit;
@@ -118,10 +119,6 @@ void CAT_force_save()
 
 void CAT_load_default()
 {
-	pet.vigour = 12;
-	pet.focus = 12;
-	pet.spirit = 12;
-
 	CAT_inventory_clear();
 	CAT_inventory_add(prop_eth_farm_item, 1);
 	CAT_inventory_add(toy_laser_pointer_item, 1);
@@ -130,10 +127,6 @@ void CAT_load_default()
 
 void CAT_load_turnkey()
 {
-	pet.vigour = 9;
-	pet.focus = 9;
-	pet.spirit = 9;
-
 	CAT_inventory_clear();
 	CAT_inventory_add(book_1_item, 1);
 	CAT_inventory_add(food_bread_item, 2);
@@ -214,14 +207,18 @@ void CAT_force_load()
 
 	CAT_printf("Loading...\n");
 
-	if(strlen(save->pet.name) <= CAT_TEXT_INPUT_MAX)
-		strcpy(pet.name, save->pet.name);
+	if(strlen(save->pet.name) <= CAT_TEXT_INPUT_MAX_LENGTH)
+		strncpy(pet.name, save->pet.name, sizeof(pet.name));
 	if(save->pet.level < CAT_NUM_LEVELS)
 		pet.level = save->pet.level;
 	if(save->pet.xp < level_cutoffs[pet.level])
 		pet.xp = save->pet.xp;
-	if(pet.lifetime <= 365)
+	if(save->pet.lifetime <= UINT8_MAX)
 		pet.lifetime = save->pet.lifetime;
+	if(save->pet.lifespan <= 30)
+		pet.lifespan = save->pet.lifespan;
+	if(save->pet.incarnations <= UINT16_MAX)
+		pet.incarnations = save->pet.incarnations;
 	if(save->pet.vigour <= 12)
 		pet.vigour = save->pet.vigour;
 	if(save->pet.focus <= 12)
@@ -272,7 +269,6 @@ void CAT_force_load()
 	pet.times_pet = save->timing.petting_count;
 	pet.times_milked = save->timing.milking_count;
 
-	
 	CAT_set_config_flags(save->config.flags);
 	if(save->config.flags & CAT_CONFIG_FLAG_USE_FAHRENHEIT)
 		CAT_AQ_set_temperature_unit(CAT_TEMPERATURE_UNIT_DEGREES_FAHRENHEIT);

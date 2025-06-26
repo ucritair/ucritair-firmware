@@ -31,9 +31,12 @@ void CAT_pet_init()
 	pet.vigour = 12;
 	pet.focus = 12;
 	pet.spirit = 12;
+
 	pet.lifetime = 0;
 	pet.lifespan = 30;
 	pet.incarnations = 1;
+	pet.birthday = CAT_get_RTC_now();
+	pet.deathday = 0;
 
 	pet.xp = 0;
 	pet.level = 0;
@@ -51,7 +54,7 @@ void CAT_pet_init()
 	pet.petting_timer = 0;
 	pet.times_milked = 0;
 
-	strcpy(pet.name, "Waldo");
+	strcpy(pet.name, CAT_DEFAULT_PET_NAME);
 
 	AM_pet = (CAT_anim_machine)
 	{
@@ -67,7 +70,7 @@ void CAT_pet_init()
 	};
 }
 
-void CAT_pet_reanimate()
+void CAT_pet_update_animations()
 {
 	AS_idle.enter_sprite = NULL;
 	AS_idle.tick_sprite = &pet_idle_sprite;
@@ -208,26 +211,24 @@ void CAT_pet_stat(int ticks)
 	pet.focus = clamp(pet.focus - delta * ticks, 0, 12);
 	pet.spirit = clamp(pet.spirit - delta * ticks, 0, 12);
 
-	bool mask = item_table.counts[mask_item] > 0;
-	bool pure = CAT_room_find(prop_purifier_item) != -1;
-	bool uv = CAT_room_find(prop_uv_lamp_item) != -1;
-
-	//TODO: UNFAKE THIS
 	if(pet.vigour <= 0 || pet.focus <= 0 || pet.spirit <= 0)
 	{
 		float xp_delta = round(((float) level_cutoffs[pet.level]) * 0.1f);
-		xp_delta *= mask ? 0.75f : 1;
-		xp_delta *= pure ? 0.75f : 1;
-		xp_delta *= uv ? 0.75f : 1;
 		pet.xp -= xp_delta * ticks;
 	}
-	if(pet.xp < 0)
-		pet.xp = 0;
+	pet.xp = max(pet.xp, 0);
 }
 
 void CAT_pet_life(int ticks)
 {
-	pet.lifetime += ticks;
+	if(!CAT_pet_is_dead())
+	{
+		pet.lifetime += ticks;
+		if(CAT_pet_is_dead())
+		{	
+			pet.deathday = CAT_get_RTC_now();
+		}
+	}
 
 	int xp = round(((pet.vigour + pet.focus + pet.spirit) / 3.0f) * 50.0f);
 	CAT_pet_gain_xp(xp * ticks);
@@ -332,4 +333,48 @@ void CAT_pet_react()
 
 		pet.react_timer += CAT_get_delta_time_s();
 	}
+}
+
+bool CAT_pet_is_dead()
+{
+	return pet.lifetime > pet.lifespan;
+}
+
+void CAT_pet_reincarnate()
+{
+	pet.vigour = 12;
+	pet.focus = 12;
+	pet.spirit = 12;
+	pet.lifetime = 0;
+	pet.lifespan = 30;
+	pet.incarnations += 1;
+
+	pet.xp = 0;
+
+	pet.pos = (CAT_vec2) {120, 200};
+	pet.vel = (CAT_vec2) {0, 0};
+	pet.rot = 1;
+
+	pet.stat_timer = 0;
+	pet.life_timer = 0;
+	pet.walk_timer = 0;
+	pet.react_timer = 0;
+
+	pet.times_pet = 0;
+	pet.petting_timer = 0;
+	pet.times_milked = 0;
+
+	strcpy(pet.name, CAT_DEFAULT_PET_NAME);
+}
+
+static bool death_report = false;
+
+void CAT_pet_post_death_report()
+{
+	death_report = true;
+}
+
+void CAT_pet_dismiss_death_report()
+{
+	death_report = false;
 }

@@ -430,6 +430,8 @@ void calendar_logic()
 {
 	if(!focused)
 	{
+		if(CAT_input_dismissal())
+				CAT_monitor_soft_exit();
 		if(CAT_input_pressed(CAT_BUTTON_LEFT))
 			CAT_monitor_retreat();
 		if(CAT_input_pressed(CAT_BUTTON_RIGHT))
@@ -510,8 +512,18 @@ void render_calendar()
 				day <= days_in_month(target.year, target.month)
 			)
 			{
-				CAT_circberry(x + GRID_CELL_R, y + GRID_CELL_R, GRID_CELL_R, day == target.day ? CAT_RED : CAT_WHITE);
-				center_textf(x + GRID_CELL_R, y + GRID_CELL_R, 1, CAT_WHITE, "%d", day);
+				if(day == target.day)
+				{
+					CAT_discberry(x + GRID_CELL_R, y + GRID_CELL_R, GRID_CELL_R, CAT_WHITE);
+					CAT_circberry(x + GRID_CELL_R, y + GRID_CELL_R, GRID_CELL_R, CAT_WHITE);
+					center_textf(x + GRID_CELL_R, y + GRID_CELL_R, 1, CAT_MONITOR_BLUE, "%d", day);
+				}
+				else
+				{	
+					CAT_circberry(x + GRID_CELL_R, y + GRID_CELL_R, GRID_CELL_R, CAT_WHITE);
+					center_textf(x + GRID_CELL_R, y + GRID_CELL_R, 1, CAT_WHITE, "%d", day);
+				}
+				
 			}
 			else
 			{

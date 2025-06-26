@@ -36,7 +36,8 @@ void CAT_monitor_render_summary()
 	cursor_y += 56;
 
 	float agg_score_norm = CAT_AQ_get_normalized_score(CAT_AQM_AGGREGATE);
-	CAT_circberry(120, cursor_y, SCORE_R0 + SCORE_W/2, CAT_WHITE);
+	CAT_circberry(120, cursor_y, SCORE_R0, colour_score(agg_score_norm));
+	CAT_circberry(120, cursor_y, SCORE_R1, colour_score(agg_score_norm));
 	CAT_annulusberry
 	(
 		120, cursor_y,
@@ -73,6 +74,8 @@ void CAT_monitor_MS_summary(CAT_machine_signal signal)
 		break;
 
 		case CAT_MACHINE_SIGNAL_TICK:
+			if(CAT_input_dismissal())
+				CAT_monitor_soft_exit();
 			if(CAT_input_pressed(CAT_BUTTON_LEFT))
 				CAT_monitor_retreat();
 			if(CAT_input_pressed(CAT_BUTTON_RIGHT))

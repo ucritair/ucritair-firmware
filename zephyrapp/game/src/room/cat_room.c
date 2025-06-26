@@ -599,6 +599,8 @@ void CAT_MS_room(CAT_machine_signal signal)
 		{
 			if(CAT_AQ_is_crisis_report_posted())
 				CAT_machine_transition(CAT_MS_crisis_report);
+			if(CAT_pet_is_dead())
+				CAT_machine_transition(CAT_MS_death_report);
 				
 			if(CAT_input_pressed(CAT_BUTTON_START))
 				CAT_machine_transition(CAT_MS_menu);
@@ -611,7 +613,7 @@ void CAT_MS_room(CAT_machine_signal signal)
 
 			if(CAT_input_pressed(CAT_BUTTON_A))
 				CAT_machine_transition(button_modes[mode_selector]);
-			
+					
 			for(int i = 0; i < MODE_BUTTON_COUNT; i++)
 			{
 				if(CAT_input_touch_rect
@@ -655,7 +657,7 @@ void CAT_MS_room(CAT_machine_signal signal)
 				}
 			}
 
-			CAT_pet_reanimate();
+			CAT_pet_update_animations();
 			CAT_pet_walk();
 			CAT_pet_react();
 			break;
@@ -670,7 +672,7 @@ void CAT_MS_room(CAT_machine_signal signal)
 static float battery_blink_timer = 0.0f;
 static bool battery_blink_switch = false;
 
-static void render_statics()
+void CAT_room_draw_statics()
 {
 	CAT_datetime time;
 	CAT_get_datetime(&time);
@@ -698,7 +700,6 @@ static void render_statics()
 			CAT_set_sprite_mask(window_x+4, window_y+4, window_x+window_width-4, window_y+window_height-4);
 			CAT_draw_sprite_raw(&sky_gradient_sprite, 0, window_x + i * 8, window_y - sky_row_off);
 		}
-		CAT_strokeberry(window_x, window_y - sky_row_off, window_width, window_height, CAT_RED);
 		CAT_draw_sprite_raw(&window_sprite, 0, window_x, window_y);
 	}
 	else
@@ -758,7 +759,7 @@ static void render_statics()
 	}
 }
 
-static void render_props()
+void CAT_room_draw_props()
 {
 	for(int i = 0; i < room.prop_count; i++)
 	{
@@ -796,7 +797,7 @@ static void render_props()
 	}
 }
 
-static void render_pickups()
+void CAT_room_draw_pickups()
 {
 	for(int i = 0; i < room.pickup_count; i++)
 	{
@@ -815,7 +816,7 @@ static void render_pickups()
 	}
 }
 
-static void render_pet()
+void CAT_room_draw_pet()
 {
 	CAT_anim_tick(&AM_pet);
 	CAT_anim_tick(&AM_mood);
@@ -843,7 +844,7 @@ static const CAT_sprite* button_sprites[] =
 	&icon_menu_sprite
 };
 
-static void render_gui()
+void CAT_room_draw_gui()
 {
 	for(int i = 0; i < sizeof(button_sprites)/sizeof(button_sprites[0]); i++)
 	{
@@ -869,14 +870,14 @@ static void render_gui()
 
 void CAT_render_room()
 {
-	render_statics();
+	CAT_room_draw_statics();
 
 	if (CAT_get_render_cycle() == 0)
 		CAT_draw_queue_clear();
-	render_props();
-	render_pickups();
-	render_pet();
+	CAT_room_draw_props();
+	CAT_room_draw_pickups();
+	CAT_room_draw_pet();
 	CAT_draw_queue_submit();
 
-	render_gui();
+	CAT_room_draw_gui();
 }

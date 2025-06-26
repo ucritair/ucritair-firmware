@@ -58,7 +58,6 @@ typedef struct __attribute__((__packed__))
 	uint8_t lifespan_damage;
 } CAT_AQ_crisis_state;
 
-void CAT_AQ_init_crisis_state();
 void CAT_AQ_export_crisis_state(CAT_AQ_crisis_state* out);
 void CAT_AQ_import_crisis_state(CAT_AQ_crisis_state* in);
 
@@ -78,6 +77,8 @@ uint64_t CAT_AQ_get_crisis_end();
 
 void CAT_AQ_stop_crisis(CAT_AQ_crisis_response_type response_type);
 
+CAT_AQ_crisis_type CAT_AQ_get_crisis_type();
+CAT_AQ_crisis_response_type CAT_AQ_get_crisis_response_type();
 CAT_AQ_crisis_response_grade CAT_AQ_get_crisis_response_grade();
 int CAT_AQ_get_crisis_lifespan_damage();
 CAT_AQ_crisis_severity CAT_AQ_get_crisis_peak_severity();
@@ -97,10 +98,6 @@ const char* CAT_AQ_crisis_response_grade_string(int grade);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // REPORT
-
-#define CRISIS_RED 0xea01
-#define CRISIS_YELLOW 0xfd45
-#define CRISIS_GREEN 0x5d6d
 
 void CAT_MS_crisis_report(CAT_machine_signal signal);
 void CAT_render_crisis_report();

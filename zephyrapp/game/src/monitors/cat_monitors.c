@@ -64,13 +64,13 @@ static void draw_uninit_warning()
 	CAT_draw_text(12, 64, "Air quality sensors are coming online.");
 }
 
-static uint16_t bg_colour = CAT_MONITOR_BG_BLUE;
+static uint16_t bg_colour = CAT_MONITOR_BLUE;
 static uint16_t fg_colour = CAT_WHITE;
 
 static void render_monitor()
 {
 	if(page != CAT_MONITOR_PAGE_GAMEPLAY)
-		bg_colour = CAT_MONITOR_BG_BLUE;
+		bg_colour = CAT_MONITOR_BLUE;
 	if(page != CAT_MONITOR_PAGE_GAMEPLAY)
 		fg_colour = CAT_WHITE;
 		
@@ -120,6 +120,11 @@ void CAT_monitor_exit()
 		CAT_machine_transition(CAT_MS_crisis_report);
 	else
 		CAT_machine_transition(CAT_MS_room);
+}
+
+void CAT_monitor_soft_exit()
+{
+	CAT_monitor_seek(CAT_MONITOR_PAGE_GAMEPLAY);
 }
 
 void CAT_monitor_colour_bg(uint16_t colour)

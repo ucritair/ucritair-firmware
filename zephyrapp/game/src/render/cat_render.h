@@ -36,6 +36,16 @@
 #define CAT_PAPER 0xEF39
 #define CAT_GREY 0x8410
 
+#define CAT_CRISIS_RED 0xea01
+#define CAT_CRISIS_YELLOW 0xfd45
+#define CAT_CRISIS_GREEN 0x5d6d
+
+#define CAT_MONITOR_BLUE RGB8882565(35, 157, 235)
+
+#define CAT_VIGOUR_ORANGE RGB8882565(223, 64, 47)
+#define CAT_FOCUS_BLUE RGB8882565(102, 181, 179)
+#define CAT_SPIRIT_PURPLE RGB8882565(129, 91, 152)
+
 //////////////////////////////////////////////////////////////////////////
 // COLOUR
 

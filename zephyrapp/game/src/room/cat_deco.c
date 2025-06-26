@@ -219,10 +219,14 @@ void CAT_MS_deco(CAT_machine_signal signal)
 
 void CAT_render_deco()
 {
-	CAT_render_room();
+	CAT_room_draw_statics();
+	if (CAT_get_render_cycle() == 0)
+		CAT_draw_queue_clear();
+	CAT_room_draw_props();
+	CAT_room_draw_pickups();
+	CAT_room_draw_pet();
 
 	CAT_ivec2 cursor_world = CAT_grid2world(cursor);
-
 	if(mode == ADD)
 	{
 		if(hold_id != -1)
@@ -280,4 +284,7 @@ void CAT_render_deco()
 			CAT_draw_queue_add(cursor_sprite, 0, 3, cursor_world.x, cursor_world.y, CAT_DRAW_FLAG_NONE);
 		}
 	}
+
+	CAT_draw_queue_submit();
+	CAT_room_draw_gui();
 }

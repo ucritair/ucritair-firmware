@@ -14,6 +14,7 @@
 #include "cat_gui.h"
 #include "cat_structures.h"
 #include "cat_gizmos.h"
+#include "cat_core.h"
 
 //////////////////////////////////////////////////////////////////////////
 // BASICS
@@ -249,7 +250,7 @@ void CAT_gui_open_keyboard(char* target)
 	keyboard.open = true;
 	keyboard.target = target;
 	int length = strlen(target);
-	strcpy(keyboard.buffer, target);
+	strncpy(keyboard.buffer, target, 32);
 	keyboard.cursor = length;
 	keyboard.case_idx = 0;
 	keyboard.row_idx = 0;
@@ -317,7 +318,7 @@ void CAT_gui_keyboard_io()
 		else 
 		{
 			glyph = (glyph == '_') ? ' ' : glyph;
-			if(keyboard.cursor < CAT_TEXT_INPUT_MAX)
+			if(keyboard.cursor < CAT_TEXT_INPUT_MAX_LENGTH)
 			{
 				keyboard.buffer[keyboard.cursor] = glyph;
 				keyboard.cursor += 1;
@@ -831,6 +832,7 @@ static int item_grid_flags;
 static int item_grid_pool_backing[CAT_ITEM_TABLE_CAPACITY];
 static CAT_int_list item_grid_pool;
 static int item_grid_selector = -1;
+static int item_grid_last_marked = -1;
 
 static int item_grid_anchor_y = 0;
 static int item_grid_delta_y = 0;;
@@ -925,6 +927,7 @@ void CAT_gui_item_grid_io()
 		{
 			item_grid_anchor_y = input.touch.y;
 			item_grid_selector = hovered_idx;
+			item_grid_last_marked = hovered_idx;
 		}
 
 		// Detect if this is a scroll action and quit early if so
@@ -952,7 +955,7 @@ void CAT_gui_item_grid_io()
 		// Otherwise continue to inspection logic
 		else if (!item_grid_scrolling && item_grid_selector != -1)
 		{
-			if (input.touch_time >= 0.5f)
+			if (input.touch_time >= 0.25f)
 			{
 				item_grid_select_timer += CAT_get_delta_time_s();
 				if(item_grid_select_timer >= ITEM_GRID_SELECT_TIME)
@@ -968,13 +971,20 @@ void CAT_gui_item_grid_io()
 	{
 		if(!item_grid_scrolling)
 		{
-			if(item_grid_selector != -1 && item_grid_roster != NULL)
+			if(item_grid_selector != -1)
 			{
-				int idx = CAT_ilist_find(item_grid_roster, item_grid_selector);
-				if(idx < 0)
-					CAT_ilist_push(item_grid_roster, item_grid_selector);
+				if(item_grid_roster != NULL)
+				{
+					int idx = CAT_ilist_find(item_grid_roster, item_grid_selector);
+					if(idx < 0)
+						CAT_ilist_push(item_grid_roster, item_grid_selector);
+					else
+						CAT_ilist_delete(item_grid_roster, idx);
+				}
 				else
-					CAT_ilist_delete(item_grid_roster, idx);
+				{
+					item_grid_last_marked = item_grid_selector;
+				}
 			}
 		}
 
@@ -1034,6 +1044,10 @@ void CAT_gui_item_grid()
 				CAT_draw_sprite(item->sprite, 0, x + ITEM_GRID_CELL_SIZE/2, draw_y);
 				
 				if(item_grid_roster != NULL && CAT_ilist_find(item_grid_roster, idx) >= 0)
+				{
+					CAT_draw_sprite(&ui_item_frame_fg_sprite, 0, x, y);
+				}
+				else if(idx == item_grid_last_marked)
 				{
 					CAT_draw_sprite(&ui_item_frame_fg_sprite, 0, x, y);
 				}

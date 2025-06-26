@@ -98,6 +98,8 @@ void CAT_monitor_MS_logs(CAT_machine_signal signal)
 		case CAT_MACHINE_SIGNAL_TICK:
 			if(!focused)
 			{
+				if(CAT_input_dismissal())
+					CAT_monitor_soft_exit();
 				if(CAT_input_pressed(CAT_BUTTON_LEFT))
 					CAT_monitor_retreat();
 				if(CAT_input_pressed(CAT_BUTTON_RIGHT))

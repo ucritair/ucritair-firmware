@@ -145,6 +145,7 @@ target_sources(app PRIVATE
 	src/room/cat_deco.c
 	src/room/cat_room.c
 	src/room/cat_pet.c
+	src/room/cat_death_report.c
 
 	sounds/sound_assets.c
 	meshes/mesh_assets.c

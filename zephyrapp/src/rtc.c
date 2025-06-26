@@ -169,9 +169,9 @@ void check_rtc_init()
 		guy_happiness = 1;
 		guy_is_wearing_mask = false;
 		guy_level = 0;
-		const char* waldo_str = "Waldo";
-		for(int i = 0; waldo_str[i] < 5; i++)
-			guy_name[i] = waldo_str[i];
+		const char* name_str = CAT_DEFAULT_PET_NAME;
+		for(int i = 0; name_str[i] < 5; i++)
+			guy_name[i] = name_str[i];
 		guy_name[5] = '\0';
 
 		screen_brightness = BACKLIGHT_FULL;

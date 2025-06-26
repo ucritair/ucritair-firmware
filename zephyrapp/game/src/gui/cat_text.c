@@ -232,13 +232,14 @@ int CAT_draw_text(int x, int y, const char* text)
 	return cursor_y;
 }
 
+static char draw_textf_buffer[512];
+
 int CAT_draw_textf(int x, int y, const char* fmt, ...)
 {
-	static char buf[512];
 	va_list args;
 	va_start(args, fmt);
-	vsnprintf(buf, 512, fmt, args);
+	vsnprintf(draw_textf_buffer, sizeof(draw_textf_buffer), fmt, args);
 	va_end(args);
 
-	return CAT_draw_text(x, y, buf);
+	return CAT_draw_text(x, y, draw_textf_buffer);
 }

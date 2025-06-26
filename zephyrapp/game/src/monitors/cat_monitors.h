@@ -3,8 +3,6 @@
 #include "cat_machine.h"
 #include "cat_core.h"
 
-#define CAT_MONITOR_BG_BLUE RGB8882565(35, 157, 235)
-
 typedef enum
 {
 	CAT_MONITOR_PAGE_SUMMARY,
@@ -22,6 +20,7 @@ void CAT_monitor_retreat();
 void CAT_monitor_seek(int target);
 int CAT_monitor_tell();
 void CAT_monitor_exit();
+void CAT_monitor_soft_exit();
 
 void CAT_monitor_colour_bg(uint16_t colour);
 void CAT_monitor_colour_fg(uint16_t colour);

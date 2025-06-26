@@ -759,6 +759,7 @@ void MS_feed_arrange(CAT_machine_signal signal)
 
 		if (CAT_input_touch_down())
 		{
+			bool picked = false;
 			for (int i = 0; i < food_count; i++)
 			{
 				if (CAT_input_cursor_in_circle(food_list[i].position.x, food_list[i].position.y, FOOD_COLLISION_R))
@@ -772,9 +773,14 @@ void MS_feed_arrange(CAT_machine_signal signal)
 						food_list[0].position.x - CAT_input_cursor().x,
 						food_list[0].position.y - CAT_input_cursor().y,
 					};
+
+					picked = true;
 					break;
 				}
 			}
+			
+			if(!picked && CAT_input_touch_rect(COUNTER_X, COUNTER_Y, COUNTER_W, COUNTER_H) && food_pool.length > 0)
+				CAT_machine_transition(MS_feed_select);
 		}
 		else if (CAT_input_touch_up())
 		{

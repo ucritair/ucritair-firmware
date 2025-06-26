@@ -315,7 +315,7 @@ void CAT_initialize_save_sector(CAT_save* save, CAT_save_sector sector)
 		case CAT_SAVE_SECTOR_PET:
 			save->pet.header.label = CAT_SAVE_SECTOR_PET;
 			save->pet.header.size = sizeof(save->pet);
-			strcpy(save->pet.name, "Waldo");
+			strcpy(save->pet.name, CAT_DEFAULT_PET_NAME);
 			save->pet.level = 0;
 			save->pet.xp = 0;
 			save->pet.lifespan = 30;

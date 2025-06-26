@@ -80,7 +80,20 @@ CAT_AQ_crisis_severity CAT_AQ_poll_crisis_severity(CAT_AQ_crisis_type type)
 	return CAT_AQ_CRISIS_SEVERITY_NONE;
 }
 
-static CAT_AQ_crisis_state crisis;
+static CAT_AQ_crisis_state crisis =
+{
+	.end_timestamp = 0,
+	.lifespan_damage = 0,
+	.ongoing = false,
+	.peak_severity = CAT_AQ_CRISIS_SEVERITY_NONE,
+	.peak_timestamp = 0,
+	.report = false,
+	.response_grade = CAT_AQ_CRISIS_RESPONSE_GRADE_NONE,
+	.response_type = CAT_AQ_CRISIS_RESPONSE_TYPE_NONE,
+	.severity = CAT_AQ_CRISIS_SEVERITY_NONE,
+	.start_timestamp = 0,
+	.type = CAT_AQ_CRISIS_TYPE_NONE
+};
 
 void CAT_AQ_export_crisis_state(CAT_AQ_crisis_state* out)
 {
@@ -160,7 +173,6 @@ void CAT_AQ_stop_crisis(CAT_AQ_crisis_response_type response_type)
 	int window = crisis_avoidance_windows[crisis.peak_severity];
 	int overtime = CAT_AQ_get_crisis_disaster_uptime();
 	float response_ratio = (float) overtime / (float) window;
-	CAT_printf("%d VS %d -> %f\n", overtime, window, response_ratio);
 	crisis.response_grade =
 	response_ratio <= 0.5f ? CAT_AQ_CRISIS_RESPONSE_GRADE_EXCELLENT :
 	response_ratio <= 1.0f ? CAT_AQ_CRISIS_RESPONSE_GRADE_ADEQUATE :
@@ -182,6 +194,16 @@ void CAT_AQ_stop_crisis(CAT_AQ_crisis_response_type response_type)
 	0;
 
 	pet.lifespan -= crisis.lifespan_damage;
+}
+
+CAT_AQ_crisis_type CAT_AQ_get_crisis_type()
+{
+	return crisis.type;
+}
+
+CAT_AQ_crisis_response_type CAT_AQ_get_crisis_response_type()
+{
+	return crisis.response_type;
 }
 
 CAT_AQ_crisis_response_grade CAT_AQ_get_crisis_response_grade()
@@ -238,10 +260,6 @@ void CAT_AQ_crisis_tick()
 				{
 					CAT_AQ_start_crisis(type, severity);
 				}	
-				else
-				{
-					CAT_printf("THRESHOLD FAIL! %d %d\n", time_since_last_crisis, threshold);
-				}
 			}
 		}
 	}
@@ -267,7 +285,7 @@ void CAT_AQ_crisis_tick()
 		if(crisis.type == CAT_AQ_CRISIS_TYPE_CO2)
 		{
 			int uv_idx = CAT_room_find(prop_uv_lamp_item);
-			if(uv_idx != -1)
+			if(CAT_get_machine_state() == &CAT_MS_room && uv_idx != -1)
 			{
 				CAT_room_remove_prop(uv_idx);
 				CAT_AQ_stop_crisis(CAT_AQ_CRISIS_RESPONSE_TYPE_ASSISTED);
@@ -286,7 +304,7 @@ void CAT_AQ_crisis_tick()
 			else
 			{
 				int pure_idx = CAT_room_find(prop_purifier_item);
-				if(pure_idx != -1)
+				if(CAT_get_machine_state() == &CAT_MS_room && pure_idx != -1)
 				{
 					CAT_room_remove_prop(pure_idx);
 					CAT_AQ_stop_crisis(CAT_AQ_CRISIS_RESPONSE_TYPE_ASSISTED);
@@ -315,10 +333,10 @@ void CAT_AQ_dismiss_crisis_report()
 static const char* crisis_type_strings[] =
 {
 	"N/A",
-	"MIASMA",
-	"PARTICULATE STORM",
-	"REAGENT STORM",
-	"THERMICS"
+	"CARBON DIOXIDE",
+	"PARTICULATE MATTER",
+	"VOLATILE COMPOUNDS",
+	"TEMPERATURE"
 };
 
 static const char* crisis_severity_strings[] =

@@ -27,6 +27,10 @@
 #define CAT_SCREEN_GRID_W (CAT_LCD_SCREEN_W / CAT_TILE_SIZE)
 #define CAT_SCREEN_GRID_H (CAT_LCD_SCREEN_H / CAT_TILE_SIZE)
 
+#define CAT_DEFAULT_PET_NAME "Aura"
+
+#define CAT_TEXT_INPUT_MAX_LENGTH 24
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // PLATFORM
@@ -251,12 +255,12 @@ typedef struct __attribute__((__packed__))
 	struct __attribute__((__packed__))
 	{
 		CAT_save_sector_header header;
-		char name[32];
-		uint8_t level;
-		uint32_t xp;
+		char name[24];
 		uint8_t lifespan;
 		uint8_t lifetime;
 		uint16_t incarnations;
+		uint8_t level;
+		uint32_t xp;
 		uint8_t vigour;
 		uint8_t focus;
 		uint8_t spirit;

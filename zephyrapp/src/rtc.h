@@ -6,7 +6,7 @@
 extern bool is_first_init;
 
 extern volatile bool guy_is_wearing_mask;
-extern volatile char guy_name[64];
+extern volatile char guy_name[64]; // CHANGE THIS, RISK DESTROYING LOGS
 extern volatile uint8_t guy_happiness;
 extern volatile uint16_t guy_level;
 
