@@ -25,7 +25,7 @@
 #define toy_golf_item 22
 #define toy_puzzle_item 23
 #define mask_item 24
-#define prop_eth_farm_item 25
+#define prop_crafter_item 25
 #define prop_uv_lamp_item 26
 #define prop_purifier_item 27
 #define prop_coffeemaker_item 28

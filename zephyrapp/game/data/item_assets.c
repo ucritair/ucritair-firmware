@@ -343,8 +343,8 @@ CAT_item_table item_table =
 		},
 		{
 			.type = CAT_ITEM_TYPE_PROP,
-			.name = "Ethereum Farm",
-			.sprite = &gpu_sprite,
+			.name = "Defunct Crafting Station",
+			.sprite = &prop_crafter_sprite,
 			.price = 100,
 			.text = "",
 			.prop_type = CAT_PROP_TYPE_DEFAULT,

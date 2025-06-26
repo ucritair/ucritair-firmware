@@ -70,10 +70,9 @@ extern const CAT_sprite floor_wood_tile_sprite;
 extern const CAT_sprite flower_foc_sprite;
 extern const CAT_sprite flower_spi_sprite;
 extern const CAT_sprite flower_vig_sprite;
-extern const CAT_sprite gizmo_face_96x96_sprite;
 extern const CAT_sprite gizmo_target_17x17_sprite;
 extern const CAT_sprite glyph_sprite;
-extern const CAT_sprite gpu_sprite;
+extern const CAT_sprite prop_crafter_sprite;
 extern const CAT_sprite green_curry_sprite;
 extern const CAT_sprite green_tea_sprite;
 extern const CAT_sprite hotdog_sprite;
@@ -251,4 +250,4 @@ extern const CAT_sprite fish_tier_3_icon;
 extern const CAT_sprite prop_hoopy_sprite;
 
 extern const CAT_sprite* sprite_list[];
-#define CAT_SPRITE_LIST_LENGTH 245
+#define CAT_SPRITE_LIST_LENGTH 244

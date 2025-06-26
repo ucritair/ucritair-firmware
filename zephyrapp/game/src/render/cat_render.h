@@ -167,6 +167,7 @@ void CAT_annulusberry(int x, int y, int R, int r, uint16_t c, float t, float shi
 void CAT_animator_init();
 void CAT_animator_tick();
 int CAT_animator_get_frame(const CAT_sprite* sprite);
+void CAT_animator_reset(const CAT_sprite* sprite);
 
 
 //////////////////////////////////////////////////////////////////////////

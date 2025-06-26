@@ -120,7 +120,7 @@ void CAT_force_save()
 void CAT_load_default()
 {
 	CAT_inventory_clear();
-	CAT_inventory_add(prop_eth_farm_item, 1);
+	CAT_inventory_add(prop_crafter_item, 1);
 	CAT_inventory_add(toy_laser_pointer_item, 1);
 	CAT_inventory_add(coin_item, 10);
 	CAT_inventory_add(prop_portal_orange_item, 1);
@@ -142,7 +142,7 @@ void CAT_load_turnkey()
 
 	CAT_room_init();
 	CAT_room_add_prop(prop_plant_plain_item, (CAT_ivec2) {0, 0});
-	CAT_room_add_prop(prop_eth_farm_item, (CAT_ivec2) {2, 0});
+	CAT_room_add_prop(prop_crafter_item, (CAT_ivec2) {2, 0});
 	CAT_room_add_prop(prop_table_mahogany_item, (CAT_ivec2) {3, 3});
 	CAT_room_stack_prop(room.prop_count-1, prop_bowl_walnut_item);
 	CAT_room_add_prop(prop_chair_mahogany_item, (CAT_ivec2) {1, 3});

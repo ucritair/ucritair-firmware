@@ -672,9 +672,9 @@
         },
         {
             "type": "prop",
-            "name": "prop_eth_farm",
-            "display_name": "Ethereum Farm",
-            "sprite": "gpu_sprite",
+            "name": "prop_crafter",
+            "display_name": "Defunct Crafting Station",
+            "sprite": "prop_crafter_sprite",
             "icon": "icon_item_prop_sprite",
             "text": "",
             "price": 100,

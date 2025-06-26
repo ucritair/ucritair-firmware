@@ -1371,11 +1371,17 @@ class Mesh2DEditor:
 		for [v0, v1] in self.polyline:
 			v0 -= corner;
 			v1 -= corner;
+	def center(self):
+		middle = imgui.ImVec2(0, 0);
+		for [v0, v1] in self.polyline:
+			middle += v0 + v1;
+		middle /= len(self.polyline);
+		for [v0, v1] in self.polyline:
+			v0 -= middle;
+			v1 -= middle;
 	
 	def close_mesh(self):
 		if not self.mesh is None:
-			self.shunt();
-
 			polyline = [(v0, v1) for [v0, v1] in self.polyline];
 			polyline = list(set(polyline));
 			flat_polyline = [];
@@ -1501,6 +1507,9 @@ class Mesh2DEditor:
 			imgui.same_line();
 			if imgui.button("Shunt"):
 				self.shunt();
+			imgui.same_line();
+			if imgui.button("Center"):
+				self.center();
 			imgui.same_line();
 			imgui.text(f"({vertex.x}, {vertex.y})");
 			

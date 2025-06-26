@@ -500,7 +500,7 @@ void CAT_room_earn(int ticks)
 {
 	for(int i = 0; i < room.prop_count; i++)
 	{
-		if(room.prop_ids[i] == prop_eth_farm_item)
+		if(room.prop_ids[i] == prop_crafter_item)
 		{
 			for(int t = 0; t < ticks; t++)
 			{
@@ -593,6 +593,7 @@ void CAT_MS_room(CAT_machine_signal signal)
 		{
 			CAT_set_render_callback(CAT_render_room);
 			CAT_pet_settle();
+			CAT_animator_reset(&prop_hoopy_sprite);
 			break;
 		}
 		case CAT_MACHINE_SIGNAL_TICK:
