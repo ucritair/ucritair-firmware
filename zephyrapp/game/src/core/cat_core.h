@@ -129,7 +129,7 @@ void CAT_get_touch(CAT_touch* touch);
 uint64_t CAT_get_slept_s();
 uint64_t CAT_get_uptime_ms();
 float CAT_get_delta_time_s();
-uint64_t CAT_get_rtc_now();
+uint64_t CAT_get_RTC_now();
 
 typedef union CAT_datetime
 {

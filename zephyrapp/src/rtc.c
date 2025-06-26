@@ -95,11 +95,11 @@ PERSIST_RAM uint16_t sleep_after_seconds;
 // AQ SPARKLINE STORE
 
 PERSIST_RAM CAT_AQ_score_block aq_moving_scores;
-PERSIST_RAM uint32_t aq_moving_scores_last_time;
+PERSIST_RAM uint64_t aq_last_moving_score_time;
 
 PERSIST_RAM CAT_AQ_score_block aq_score_buffer[7];
 PERSIST_RAM uint8_t aq_score_head;
-PERSIST_RAM uint32_t aq_score_last_time;
+PERSIST_RAM uint64_t aq_last_buffered_score_time;
 
 //////////////////////////////////////////////////////////
 // AQ CRISIS STATE
@@ -109,7 +109,7 @@ PERSIST_RAM CAT_AQ_crisis_state aq_crisis_state;
 // END PERSIST RAM
 //////////////////////////////////////////////////////////
 
-#define RTC_INIT_CHECK_MAGIC 0xb8870001
+#define RTC_INIT_CHECK_MAGIC 0xb8870000
 
 bool is_first_init = false;
 
@@ -182,10 +182,10 @@ void check_rtc_init()
 		// AQ SPARKLINE STORE
 		
 		aq_moving_scores = (CAT_AQ_score_block) {0};
-		aq_moving_scores_last_time = 0;
+		aq_last_moving_score_time = 0;
 
 		aq_score_head = 0;
-		aq_score_last_time = 0;
+		aq_last_buffered_score_time = 0;
 
 		//////////////////////////////////////////////////////////
 		// AQ CRISIS STATE

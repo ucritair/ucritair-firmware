@@ -468,7 +468,7 @@ float CAT_get_delta_time_s()
 	return simulator.delta_time_s;
 }
 
-uint64_t CAT_get_rtc_now()
+uint64_t CAT_get_RTC_now()
 {
 	time_t t = time(NULL);
 	struct tm tm;

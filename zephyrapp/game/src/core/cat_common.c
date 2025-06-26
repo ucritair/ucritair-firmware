@@ -220,7 +220,7 @@ void CAT_AQ_read_scores(int idx, CAT_AQ_score_block* out)
 
 void CAT_get_datetime(CAT_datetime* datetime)
 {
-	time_t now = CAT_get_rtc_now();
+	time_t now = CAT_get_RTC_now();
 	struct tm local;
 	gmtime_r(&now, &local);
 	

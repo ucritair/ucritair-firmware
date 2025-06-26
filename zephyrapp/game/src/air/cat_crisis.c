@@ -99,8 +99,8 @@ void CAT_AQ_start_crisis(CAT_AQ_crisis_type type, CAT_AQ_crisis_severity severit
 	crisis.ongoing = true;
 	crisis.report = true;
 
-	crisis.start_timestamp = CAT_get_rtc_now();
-	crisis.peak_timestamp = CAT_get_rtc_now();
+	crisis.start_timestamp = CAT_get_RTC_now();
+	crisis.peak_timestamp = CAT_get_RTC_now();
 	crisis.end_timestamp = 0;
 
 	crisis.response_type = CAT_AQ_CRISIS_RESPONSE_TYPE_NONE;
@@ -121,14 +121,14 @@ int CAT_AQ_get_crisis_avoidance_window()
 int CAT_AQ_get_crisis_total_uptime()
 {
 	if(CAT_AQ_is_crisis_ongoing())
-		return CAT_get_rtc_now() - crisis.start_timestamp;
+		return CAT_get_RTC_now() - crisis.start_timestamp;
 	return crisis.end_timestamp - crisis.start_timestamp;
 }
 
 int CAT_AQ_get_crisis_peak_uptime()
 {
 	if(CAT_AQ_is_crisis_ongoing())
-		return CAT_get_rtc_now() - crisis.peak_timestamp;
+		return CAT_get_RTC_now() - crisis.peak_timestamp;
 	return crisis.end_timestamp - crisis.peak_timestamp;
 }
 
@@ -154,7 +154,7 @@ void CAT_AQ_stop_crisis(CAT_AQ_crisis_response_type response_type)
 		
 	crisis.ongoing = false;
 	crisis.report = true;
-	crisis.end_timestamp = CAT_get_rtc_now();
+	crisis.end_timestamp = CAT_get_RTC_now();
 	crisis.response_type = response_type;
 	
 	int window = crisis_avoidance_windows[crisis.peak_severity];
@@ -220,7 +220,7 @@ void CAT_AQ_crisis_tick()
 
 			if(type != CAT_AQ_CRISIS_TYPE_NONE && severity != CAT_AQ_CRISIS_SEVERITY_NONE)
 			{
-				uint64_t time_since_last_crisis = CAT_get_rtc_now() - crisis.end_timestamp;
+				uint64_t time_since_last_crisis = CAT_get_RTC_now() - crisis.end_timestamp;
 				uint16_t threshold = 60;
 
 				// Two crises of different types can occur one after the other within a minute
@@ -259,7 +259,7 @@ void CAT_AQ_crisis_tick()
 		if(current_severity > crisis.peak_severity)
 		{
 			crisis.peak_severity = current_severity;
-			crisis.peak_timestamp = CAT_get_rtc_now();
+			crisis.peak_timestamp = CAT_get_RTC_now();
 		}
 		crisis.severity = current_severity;
 
