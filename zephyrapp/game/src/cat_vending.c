@@ -5,7 +5,7 @@
 #include "cat_input.h"
 #include "cat_gui.h"
 #include "cat_item.h"
-#include "cat_bag.h"
+#include "cat_inventory.h"
 #include <stdio.h>
 #include "cat_render.h"
 
@@ -19,6 +19,7 @@ void CAT_MS_vending(CAT_machine_signal signal)
 		case CAT_MACHINE_SIGNAL_ENTER:
 			CAT_set_render_callback(CAT_render_vending);
 			CAT_input_clear();
+			CAT_gui_begin_item_list_context();
 
 			purchase_progress = 0;
 			purchase_lock = false;
@@ -43,7 +44,7 @@ void CAT_MS_vending(CAT_machine_signal signal)
 					(item->type == CAT_ITEM_TYPE_TOOL &&
 					(item->data.tool_data.type == CAT_TOOL_TYPE_BOOK ||
 					item->data.tool_data.type == CAT_TOOL_TYPE_TOY))) &&
-					CAT_item_list_find(&bag, i) != -1
+					item_table.counts[i] > 0
 				)
 				{
 					continue;
@@ -52,7 +53,7 @@ void CAT_MS_vending(CAT_machine_signal signal)
 				if(item->price == 0)
 					continue;
 
-				if(CAT_gui_item_listing(i, 1))
+				if(CAT_gui_item_listing(i))
 				{
 					if(item->price <= coins && !purchase_lock)
 					{
@@ -64,7 +65,7 @@ void CAT_MS_vending(CAT_machine_signal signal)
 						
 						if(purchase_progress >= 1)
 						{
-							CAT_item_list_add(&bag, i, 1);
+							CAT_bag_add(i, 1);
 							coins -= item->price;
 
 							purchase_progress = 0;
@@ -88,6 +89,7 @@ void CAT_MS_vending(CAT_machine_signal signal)
 		}
 
 		case CAT_MACHINE_SIGNAL_EXIT:
+			CAT_gui_end_item_list_context();
 		break;
 	}
 }

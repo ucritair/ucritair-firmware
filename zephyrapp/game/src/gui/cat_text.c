@@ -23,7 +23,7 @@ int wrdlen(const char* txt, int idx)
 	return length;
 }
 
-void break_list_init(const char* txt, int line_width, int scale)
+void CAT_break_list_init(const char* txt, int line_width, int scale)
 {
 	break_count = 0;
 
@@ -53,7 +53,7 @@ void break_list_init(const char* txt, int line_width, int scale)
 	}
 }
 
-bool break_list_lookup(int idx)
+bool CAT_break_list_lookup(int idx)
 {
 	for(int i = 0; i < break_count; i++)
 	{
@@ -63,12 +63,12 @@ bool break_list_lookup(int idx)
 	return false;
 }
 
-int break_list_count()
+int CAT_break_list_count()
 {
 	return break_count;
 }
 
-int break_list_get(int idx)
+int CAT_break_list_get(int idx)
 {
 	if(idx > 0 && idx < break_count)
 		return break_list[idx];
@@ -80,9 +80,9 @@ int break_list_get(int idx)
 // DRAWING
 
 static int text_flags = CAT_TEXT_FLAG_NONE;
-static int text_line_width = CAT_LCD_SCREEN_W;
 static uint16_t text_colour = CAT_BLACK;
 static uint8_t text_scale = 1;
+static CAT_rect text_mask = {{-1, -1}, {-1, -1}};
 
 void CAT_set_text_flags(int flags)
 {
@@ -93,18 +93,6 @@ int consume_text_flags()
 {
 	int value = text_flags;
 	text_flags = CAT_TEXT_FLAG_NONE;
-	return value;
-}
-
-void CAT_set_text_line_width(int width)
-{
-	text_line_width = width;
-}
-
-int consume_text_line_width()
-{
-	int value = text_line_width;
-	text_line_width = CAT_LCD_SCREEN_W;
 	return value;
 }
 
@@ -132,16 +120,37 @@ uint8_t consume_text_scale()
 	return value;
 }
 
+void CAT_set_text_mask(int x0, int y0, int x1, int y1)
+{
+	text_mask = (CAT_rect){{x0, y0}, {x1, y1}};
+}
+
+CAT_rect consume_text_mask()
+{
+	CAT_rect value = text_mask;
+	text_mask = (CAT_rect){{-1, -1}, {-1, -1}};
+	return value;
+}
+
 int CAT_draw_text(int x, int y, const char* text)
 {
 	int flags = consume_text_flags();
-	int line_width = consume_text_line_width();
 	uint16_t colour = consume_text_colour();
 	int scale = consume_text_scale();
+	CAT_rect mask = consume_text_mask();
+
+	int mask_x0 = mask.min.x == -1 ? x : mask.min.x;
+	int mask_y0 = mask.min.y == -1 ? y : mask.min.y;
+	int mask_x1 = mask.max.x == -1 ? CAT_LCD_SCREEN_W : mask.max.x;
+	int mask_y1 = mask.max.y == -1 ? CAT_LCD_SCREEN_H : mask.max.y;
+	mask_x0 = max(mask_x0, 0);
+	mask_y0 = max(mask_y0, 0);
+	mask_x1 = min(mask_x1, CAT_LCD_SCREEN_W);
+	mask_y1 = min(mask_y1, CAT_LCD_SCREEN_H);
 
 	bool wrap = (flags & CAT_TEXT_FLAG_WRAP) > 0;
 	if(wrap)
-		break_list_init(text, line_width, scale);
+		CAT_break_list_init(text, mask_x1 - mask_x0, scale);
 
 	const char* glyph_ptr = text; int glyph_idx = 0;
 	int cursor_x = x;
@@ -158,7 +167,7 @@ int CAT_draw_text(int x, int y, const char* text)
 		}
 		else if(wrap)
 		{
-			if(break_list_lookup(glyph_idx))
+			if(CAT_break_list_lookup(glyph_idx))
 			{
 				cursor_x = x;
 				cursor_y += (CAT_GLYPH_HEIGHT + 2) * scale;
@@ -174,6 +183,7 @@ int CAT_draw_text(int x, int y, const char* text)
 
 		CAT_set_draw_colour(colour);
 		CAT_set_draw_scale(scale);
+		//CAT_set_draw_mask(mask_x0, mask_y0, mask_x1, mask_y1);
 		CAT_draw_sprite(&glyph_sprite, *glyph_ptr, cursor_x, cursor_y);
 		cursor_x += CAT_GLYPH_WIDTH * scale;
 		glyph_ptr++; glyph_idx++;

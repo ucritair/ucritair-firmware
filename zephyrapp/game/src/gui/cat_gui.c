@@ -9,7 +9,7 @@
 #include <ctype.h>
 #include "cat_input.h"
 #include "cat_item.h"
-#include "cat_bag.h"
+#include "cat_inventory.h"
 #include "sprite_assets.h"
 #include "cat_gui.h"
 #include "cat_structures.h"
@@ -32,13 +32,13 @@ CAT_gui gui =
 
 void CAT_gui_set_flag(int flag)
 {
-	gui.flags = CAT_set_flag(gui.flags, flag);
+	gui.flags |= flag;
 }
 
 bool CAT_gui_consume_flag(int flag)
 {
-	bool value = CAT_get_flag(gui.flags, flag);
-	gui.flags = CAT_unset_flag(gui.flags, flag);
+	bool value = gui.flags & flag;
+	gui.flags &= ~flag;
 	return value;
 }
 
@@ -599,6 +599,18 @@ bool consume_click(uint16_t table_idx)
 	return value;
 }
 
+
+void CAT_gui_begin_menu_context()
+{
+	for(int i = 0; i < MENU_TABLE_SIZE; i++)
+	{
+		menu_table[i].clicked = false;
+		menu_table[i].parent = -1;
+		menu_table[i].child_count = 0;
+		menu_table[i].selector = 0;
+	}
+}
+
 bool CAT_gui_begin_menu(const char* title)
 {
 	int idx = find_menu_node(title);
@@ -690,12 +702,9 @@ void CAT_gui_end_menu()
 	pop_menu_node();
 }
 
-void CAT_gui_menu_reset()
+void CAT_gui_end_menu_context()
 {
-	for(int i = 0; i < MENU_TABLE_SIZE; i++)
-		menu_table[i].selector = 0;
-	menu_stack_length = 0;
-	menu_root = -1;
+
 }
 
 void CAT_gui_menu_io()
@@ -735,7 +744,6 @@ void CAT_gui_menu_io()
 		if(head->parent == -1)
 		{
 			CAT_machine_back();
-			CAT_gui_menu_reset();
 		}
 		else
 			head->clicked = false;
@@ -796,10 +804,11 @@ void CAT_gui_menu()
 static bool item_list_open = false;
 static const char* item_list_title = NULL;
 
-static CAT_item_list item_list;
-static bool item_list_selection_mask[CAT_ITEM_LIST_MAX_LENGTH];
-static bool item_list_greyout_mask[CAT_ITEM_LIST_MAX_LENGTH];
-static float item_list_highlight_mask[CAT_ITEM_LIST_MAX_LENGTH];
+int item_list_backing[CAT_ITEM_TABLE_CAPACITY];
+static CAT_int_list item_list;
+static bool item_list_selection_mask[CAT_ITEM_TABLE_CAPACITY];
+static bool item_list_greyout_mask[CAT_ITEM_TABLE_CAPACITY];
+static float item_list_highlight_mask[CAT_ITEM_TABLE_CAPACITY];
 
 static int item_list_selector = 0;
 static int item_display_base = 0;
@@ -809,13 +818,22 @@ static bool show_price = false;
 static bool show_count = false;
 static bool show_coins = false;
 
+void CAT_gui_begin_item_list_context()
+{
+	item_list_selector = 0;
+	item_display_base = 0;
+	show_price = false;
+	show_count = false;
+	show_coins = false;
+}
+
 void CAT_gui_begin_item_list(const char* title)
 {
 	item_list_open = true;
 	item_list_title = title;
-	CAT_item_list_init(&item_list);
+	CAT_ilist(&item_list, &item_list_backing, CAT_ITEM_TABLE_CAPACITY);
 
-	for(int i = 0; i < CAT_ITEM_LIST_MAX_LENGTH; i++)
+	for(int i = 0; i < CAT_ITEM_TABLE_CAPACITY; i++)
 	{
 		item_list_selection_mask[i] = false;
 		item_list_greyout_mask[i] = false;
@@ -833,9 +851,9 @@ bool CAT_gui_item_list_is_open()
 	return item_list_open;
 }
 
-bool CAT_gui_item_listing(int item_id, int count)
+bool CAT_gui_item_listing(int item_id)
 {
-	CAT_item_list_add(&item_list, item_id, count);
+	CAT_ilist_push(&item_list, item_id);
 	bool pressed = CAT_input_pressed(CAT_BUTTON_A) || CAT_input_held(CAT_BUTTON_A, 0);
 	bool hovered = item_list_selector == item_list.length-1;
 	return hovered && pressed;
@@ -926,7 +944,7 @@ void CAT_gui_item_list()
 		if(list_idx >= item_list.length)
 			break;
 
-		int item_id = item_list.item_ids[list_idx];
+		int item_id = item_list.data[list_idx];
 		CAT_item* item = CAT_item_get(item_id);
 		
 		CAT_gui_set_flag(CAT_GUI_FLAG_TIGHT);
@@ -939,7 +957,7 @@ void CAT_gui_item_list()
 		if(show_price)
 			ilprintf("$%d ", item->price);
 		if(show_count)
-			ilprintf("*%d ", item_list.counts[list_idx]);
+			ilprintf("*%d ", item_table.counts[item_id]);
 		ilend();
 		CAT_gui_text(item_label);
 
@@ -955,10 +973,9 @@ void CAT_gui_item_list()
 		item_list_open = false;
 }
 
-void CAT_gui_item_list_reset()
+void CAT_gui_end_item_list_context()
 {
-	item_list_selector = 0;
-	item_display_base = 0;
+
 }
 
 

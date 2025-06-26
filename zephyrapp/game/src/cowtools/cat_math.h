@@ -146,3 +146,4 @@ typedef enum
 void CAT_CSCLIP_set_rect(int x0, int y0, int x1, int y1);
 int CAT_CSCLIP_get_flags(int x, int y);
 bool CAT_CSCLIP(int* x0, int* y0, int* x1, int* y1);
+

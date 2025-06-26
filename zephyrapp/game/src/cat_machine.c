@@ -131,6 +131,13 @@ float CAT_timer_progress(int timer_id)
 	return clamp(t, 0.0f, 1.0f);
 }
 
+bool CAT_pulse(float period)
+{
+	int T = period * 1000.0f;
+	int t = CAT_get_uptime_ms();
+	return t % (2*T) < T;
+}
+
 
 //////////////////////////////////////////////////////////////////////////
 // MACHINE

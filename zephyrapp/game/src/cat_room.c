@@ -6,7 +6,7 @@
 #include "cat_pet.h"
 #include "cat_render.h"
 #include "cat_gui.h"
-#include "cat_bag.h"
+#include "cat_inventory.h"
 #include <math.h>
 #include "cat_menu.h"
 #include "caring/cat_actions.h"
@@ -420,7 +420,7 @@ void CAT_room_remove_prop(int idx)
 	CAT_toggle_block(prop_rect, false);
 
 	if(room.prop_children[idx] != -1)
-		CAT_item_list_add(&bag, room.prop_children[idx], 1);
+		CAT_bag_add(room.prop_children[idx], 1);
 
 	room.prop_count -= 1;
 	for(int i = idx; i < room.prop_count; i++)
@@ -546,7 +546,7 @@ void CAT_room_tick()
 			room.prop_ids[i] == prop_spi_flower_item
 		)
 		{
-			float aqi_score = CAT_AQI_aggregate() / 100.0f;
+			float aqi_score = CAT_aq_aggregate_score() / 100.0f;
 			if(aqi_score < 0.15f)
 			{
 				room.prop_overrides[i] = 5;
@@ -599,11 +599,7 @@ void CAT_MS_room(CAT_machine_signal signal)
 		case CAT_MACHINE_SIGNAL_ENTER:
 		{
 			CAT_set_render_callback(CAT_render_room);
-
 			CAT_pet_settle();
-
-			CAT_gui_menu_reset();
-			CAT_gui_item_list_reset();
 			break;
 		}
 		case CAT_MACHINE_SIGNAL_TICK:

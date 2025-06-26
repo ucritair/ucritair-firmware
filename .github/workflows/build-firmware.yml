@@ -1,0 +1,41 @@
+name: Build Firmware
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
+
+      - name: Build firmware as root in container
+        run: |
+          docker compose run --rm dev ./utils/build.sh --embedded
+
+      - name: Change ownership of build outputs
+        run: |
+          sudo chown -R $(id -u):$(id -g) zephyrapp/build
+
+      - name: Prepare file for upload
+        id: prep
+        run: |
+          SHORT_SHA=$(git rev-parse --short HEAD)
+          BUILD_DATE=$(date +'%Y-%m-%d-%H-%M')
+          echo "FILENAME=ucritair-firmware_${BUILD_DATE}_${SHORT_SHA}.bin" >> $GITHUB_ENV
+
+      - name: Rename firmware binary
+        run: |
+          mv zephyrapp/build/zephyr/zephyr.signed.bin ${{ env.FILENAME }}
+          
+      - name: Upload firmware binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.FILENAME }}
+          path: ${{ env.FILENAME }}

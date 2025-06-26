@@ -417,20 +417,11 @@ float CAT_get_delta_time_s()
 
 uint64_t CAT_get_rtc_now()
 {
-	return CAT_get_uptime_ms();
-}
-
-void CAT_get_datetime(CAT_datetime* datetime)
-{
 	time_t t = time(NULL);
-	struct tm* lt = localtime(&t);
-	
-	datetime->year = lt->tm_year;
-	datetime->month = lt->tm_mon;
-	datetime->day = lt->tm_mday;
-	datetime->hour = lt->tm_hour;
-	datetime->minute = lt->tm_min;
-	datetime->second = lt->tm_sec;
+	struct tm tm;
+	localtime_r(&t, &tm);
+	tm.tm_year += 1900;
+	return timegm(&tm);
 }
 
 
@@ -451,50 +442,78 @@ void CAT_free(void* ptr)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // SAVE
 
-CAT_save backing_save;
+uint8_t save_backing[0x0e000];
 
 CAT_save* CAT_start_save()
 {
-	return &backing_save;
+	return (CAT_save*) save_backing;
 }
 
 void CAT_finish_save(CAT_save* save)
 {
 	save->magic_number = CAT_SAVE_MAGIC;
 	int fd = open("save.dat", O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
-	uint8_t* buffer = CAT_malloc(sizeof(backing_save));
-	memcpy(buffer, &backing_save, sizeof(backing_save));
-	write(fd, buffer, sizeof(backing_save));
-	CAT_free(buffer);
+	write(fd, &save_backing, sizeof(save_backing));
 	close(fd);
 }
 
 CAT_save* CAT_start_load()
 {
 	int fd = open("save.dat", O_RDONLY);
-	read(fd, &backing_save, sizeof(backing_save));
+	read(fd, &save_backing, sizeof(save_backing));
 	close(fd);
-	return &backing_save;
-}
-
-void CAT_finish_load()
-{
-	return;
+	return (CAT_save*) &save_backing;
 }
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // LOGS
 
+CAT_log_cell log_cell =
+{
+	.flags = CAT_LOG_CELL_FLAG_HAS_CO2 | CAT_LOG_CELL_FLAG_HAS_TEMP_RH_PARTICLES,
+
+	.timestamp = 61686489600,
+	.temp_Cx1000 = 22700,
+	.pressure_hPax10 = 9760,
+
+	.rh_pctx100 = 4800,
+	.co2_ppmx1 = 644,
+	.pm_ugmx100 = {100, 110, 110, 110},
+	.pn_ugmx100 = {650, 720, 720, 720, 720},
+
+	.voc_index = 105,
+	.nox_index = 1,
+
+	.co2_uncomp_ppmx1 = 644
+};
+
 void CAT_read_log_cell_at_idx(int idx, CAT_log_cell* out)
 {
-	memset(out, 0, sizeof(CAT_log_cell));
+	memcpy(out, &log_cell, sizeof(CAT_log_cell));
 }
 
 int CAT_read_log_cell_before_time(int base_idx, uint64_t time, CAT_log_cell* out)
 {
-	CAT_read_log_cell_at_idx(-1, out);
-	return 0;
+	CAT_read_log_cell_at_idx(1, out);
+	return 1;
+}
+
+int CAT_read_log_cell_after_time(int base_idx, uint64_t time, CAT_log_cell* out)
+{
+	CAT_read_log_cell_at_idx(1, out);
+	return 1;
+}
+
+int CAT_read_first_calendar_cell(CAT_log_cell* cell)
+{
+	CAT_read_log_cell_at_idx(1, cell);
+	return 1;
+}
+
+int CAT_get_log_cell_count()
+{
+	return 1;
 }
 
 
@@ -525,73 +544,40 @@ void CAT_shutdown()
 
 void CAT_factory_reset()
 {
-	CAT_set_load_flag(CAT_LOAD_FLAG_DIRTY);
-	CAT_set_load_flag(CAT_LOAD_FLAG_RESET);
+	CAT_set_load_flags(CAT_LOAD_FLAG_DIRTY);
+	CAT_set_load_flags(CAT_LOAD_FLAG_DEFAULT);
 }
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // AIR QUALITY
 
-static CAT_AQ_moving_scores aq_moving_scores;
+static CAT_AQ_score_block aq_moving_scores =
+{
+	.CO2 = 777,
+	.VOC = 7,
+	.NOX = 77,
+	.PM2_5 = 77 * 100,
+	.temp = 7 * 1000,
+	.rh = 7 * 100,
+	.aggregate = 77,
+	.sample_count = 0
+};
+
 static CAT_AQ_score_block aq_score_buffer[7];
 
-void CAT_AQ_move_scores()
+CAT_AQ_score_block* CAT_AQ_get_moving_scores()
 {
-	float CO2 = CAT_co2_score(readings.sunrise.ppm_filtered_uncompensated);
-	float NOX = CAT_nox_score(readings.sen5x.nox_index);
-	float VOC = CAT_voc_score(readings.sen5x.voc_index);
-	float PM2_5 = CAT_pm25_score(readings.sen5x.pm2_5);
-	float temp = CAT_temperature_score(CAT_canonical_temp());
-	float rh = CAT_humidity_score(readings.sen5x.humidity_rhpct);
-	float aggregate = CAT_AQI_aggregate();
-
-#define MOVE_AVERAGE(x) (aq_moving_scores.x = (aq_moving_scores.x + (x - aq_moving_scores.x) / (float) aq_moving_scores.sample_count))
-	MOVE_AVERAGE(CO2);
-	MOVE_AVERAGE(NOX);
-	MOVE_AVERAGE(VOC);
-	MOVE_AVERAGE(PM2_5);
-	MOVE_AVERAGE(temp);
-	MOVE_AVERAGE(rh);
-	MOVE_AVERAGE(aggregate);
-
-	aq_moving_scores.sample_count += 1;
-
-	CAT_printf("[MOVING AVERAGES]\n");
-	CAT_printf("CO2: %f NOX: %f\n", aq_moving_scores.CO2, aq_moving_scores.NOX);
-	CAT_printf("VOC: %f PM2_5: %f\n", aq_moving_scores.VOC, aq_moving_scores.PM2_5);
-	CAT_printf("temp: %f\nRH: %f\n", aq_moving_scores.temp, aq_moving_scores.rh);
-	CAT_printf("aggregate: %f count: %d\n", aq_moving_scores.aggregate, aq_moving_scores.sample_count);		
+	return &aq_moving_scores;
 }
 
-void CAT_AQ_store_moving_scores(CAT_AQ_score_block* block)
+CAT_AQ_score_block* CAT_AQ_get_score_buffer()
 {
-#define STORE_SCORE(x, X) (block->x = round((aq_moving_scores.x / X) * 255.0f))
-	STORE_SCORE(CO2, 5.0f);
-	STORE_SCORE(NOX, 5.0f);
-	STORE_SCORE(VOC, 5.0f);
-	STORE_SCORE(PM2_5, 5.0f);
-	STORE_SCORE(temp, 5.0f);
-	STORE_SCORE(rh, 5.0f);
-	STORE_SCORE(aggregate, 100.0f);
+	for(int i = 0; i < 7; i++)
+		memcpy(&aq_score_buffer[i], &aq_moving_scores, sizeof(CAT_AQ_score_block));
+	return aq_score_buffer;
 }
 
-int CAT_AQ_get_stored_scores_count()
-{
-	return 7;
-}
-
-void CAT_AQ_read_stored_scores(int idx, CAT_AQ_score_block* out)
-{
-	if(idx < 0 || idx >= 7)
-		return;
-	memcpy(out, &aq_score_buffer[idx], sizeof(CAT_AQ_score_block));
-}
-
-void CAT_AQ_clear_stored_scores()
-{
-	return;
-}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // IMU

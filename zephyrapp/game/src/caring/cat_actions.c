@@ -2,7 +2,7 @@
 
 #include "cat_room.h"
 #include "cat_input.h"
-#include "cat_bag.h"
+#include "cat_inventory.h"
 #include "cat_pet.h"
 #include "cat_render.h"
 #include <stdio.h>
@@ -19,9 +19,11 @@ static CAT_tool_type tool_type;
 
 bool tool_filter(int item_id)
 {
-	CAT_item *item = CAT_item_get(item_id);
-	return item->type == CAT_ITEM_TYPE_TOOL &&
-		   item->data.tool_data.type == tool_type;
+	if(item_id < 0 || item_id >= item_table.length)
+		return false;
+	return item_table.counts[item_id] > 0 &&
+	item_table.data[item_id].type == CAT_ITEM_TYPE_TOOL &&
+	item_table.data[item_id].data.tool_data.type == tool_type;
 }
 
 static CAT_machine_state action_MS;
@@ -134,7 +136,7 @@ void action_tick()
 
 			CAT_item *item = CAT_item_get(tool_id);
 			if (item->data.tool_data.type == CAT_TOOL_TYPE_FOOD)
-				CAT_item_list_remove(&bag, tool_id, 1);
+				CAT_bag_remove(tool_id, 1);
 			action_complete = true;
 
 			CAT_anim_transition(&AM_pet, result_AS);

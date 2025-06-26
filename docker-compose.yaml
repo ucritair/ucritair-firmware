@@ -1,0 +1,17 @@
+services:
+  dev:
+    # Use your pre-built image from Docker Hub
+    image: mpangch/ucritter-dev:latest
+
+    # This is the equivalent of the -v flag
+    # It mounts the current directory (.) on the host
+    # to /ucritair-firmware in the container.
+    volumes:
+      - .:/ucritair-firmware
+
+    # This sets the default directory when you enter the container
+    working_dir: /ucritair-firmware/zephyrapp/game
+
+    # These are the equivalent of the -it flags
+    tty: true
+    stdin_open: true

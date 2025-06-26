@@ -7,6 +7,7 @@
 #include "cat_core.h"
 #include <time.h>
 #include <math.h>
+#include "sprite_assets.h"
 
 #define M_PI_6 0.52359877559
 
@@ -17,7 +18,7 @@
 #define CLOCK_MINUTE_HAND_LENGTH (CLOCK_RADIUS * 0.75f)
 #define CLOCK_SECOND_HAND_LENGTH (CLOCK_RADIUS * 0.9f)
 
-static CAT_datetime datetime;
+static CAT_datetime now;
 static float hour_arc;
 static float minute_arc;
 static float second_arc;
@@ -33,8 +34,11 @@ static CAT_vec2 radial_point(float t, float r)
 
 void CAT_monitor_render_clock()
 {
+	CAT_set_draw_flags(CAT_DRAW_FLAG_BOTTOM);
+	CAT_draw_sprite(&monitor_clouds_sprite, 0, 0, 320);
+	
 	CAT_set_text_colour(CAT_WHITE);
-	CAT_draw_textf(8, 26, "%.2i:%.2i:%.2is", datetime.hour, datetime.minute, datetime.second);
+	CAT_draw_textf(8, 30, "%.2i:%.2i:%.2is", now.hour, now.minute, now.second);
 
 	CAT_circberry(CLOCK_X, CLOCK_Y, CLOCK_RADIUS, CAT_WHITE);
 	CAT_circberry(CLOCK_X, CLOCK_Y, CLOCK_RADIUS+4, CAT_WHITE);
@@ -59,13 +63,13 @@ void CAT_monitor_render_clock()
 
 static void clock_tick()
 {
-	CAT_get_datetime(&datetime);
+	CAT_get_datetime(&now);
 
 	float arc_base = M_PI * 0.5f;
 
-	float hour_t = datetime.hour / 24.0f;
-	float min_t = datetime.minute / 60.0f;
-	float sec_t = datetime.second / 60.0f;
+	float hour_t = now.hour / 24.0f;
+	float min_t = now.minute / 60.0f;
+	float sec_t = now.second / 60.0f;
 
 	hour_arc = arc_base - hour_t * (4 * M_PI);
 	minute_arc = arc_base - min_t * (2 * M_PI);

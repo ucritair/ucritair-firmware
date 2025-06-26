@@ -11,7 +11,7 @@
 #include "cat_gui.h"
 #include "item_assets.h"
 #include "cat_pet.h"
-#include "cat_bag.h"
+#include "cat_inventory.h"
 #include "config.h"
 
 #define SCREEN_DIAG 400
@@ -648,9 +648,6 @@ static void render_fish(uint16_t colour)
 
 static float arena_fade_timer;
 static CAT_ivec2 hook_jitter;
-static float blink_timer;
-static float blink_period;
-static bool blink_switch;
 
 static bool quit_trigger = false;
 static bool quit_popup()
@@ -686,9 +683,6 @@ static void MS_fish(CAT_machine_signal signal)
 
 			arena_fade_timer = 0.0f;
 			hook_jitter = (CAT_ivec2) {0, 0};
-			blink_timer = 0;
-			blink_period = 0.5f;
-			blink_switch = false;
 		}
 		break;
 
@@ -697,7 +691,7 @@ static void MS_fish(CAT_machine_signal signal)
 			if(quit_popup())
 				break;
 
-			if(CAT_check_save_flag(CAT_SAVE_FLAG_DEVELOPER_MODE))
+			if(CAT_check_config_flags(CAT_CONFIG_FLAG_DEVELOPER))
 			{
 				if(CAT_input_pressed(CAT_BUTTON_SELECT))
 				{
@@ -754,15 +748,6 @@ static void MS_fish(CAT_machine_signal signal)
 				CAT_rand_int(-1, 1),
 				CAT_rand_int(-1, 1)
 			};
-			
-			blink_period = fish.focus_trigger ? 0.25f : blink_period;
-			blink_period = fish.race_trigger ? 0.125f : blink_period;
-			if(blink_timer >= blink_period)
-			{
-				blink_switch = !blink_switch;
-				blink_timer = 0.0f;
-			}
-			blink_timer += CAT_get_delta_time_s();
 
 			fish_tick();
 			rings_tick();
@@ -801,7 +786,11 @@ static void render_MS_fish()
 	}
 	else
 	{
-		if(blink_switch)
+		if(CAT_pulse(
+			fish.race_trigger ? 0.125f :
+			fish.focus_trigger ? 0.25f :
+			0.5f
+		))
 		{
 			CAT_set_text_scale(2);
 			CAT_set_text_colour(fish.race_trigger ? CAT_RED : CAT_WHITE);
@@ -1189,7 +1178,7 @@ static void MS_summary(CAT_machine_signal signal)
 		break;
 
 		case CAT_MACHINE_SIGNAL_EXIT:
-			CAT_item_list_add(&bag, item_rewards[fish.grade], 1);
+			CAT_bag_add(item_rewards[fish.grade], 1);
 			pet.focus += focus_reward;
 			CAT_pet_gain_xp(xp_reward);
 		break;

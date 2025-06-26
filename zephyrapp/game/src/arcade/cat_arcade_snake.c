@@ -3,7 +3,7 @@
 #include "cat_input.h"
 #include "cat_render.h"
 #include "cat_room.h"
-#include "cat_bag.h"
+#include "cat_inventory.h"
 #include "cat_gui.h"
 #include "sprite_assets.h"
 #include "sound_assets.h"
@@ -140,7 +140,7 @@ void CAT_MS_snake(CAT_machine_signal signal)
 				if(quit)
 				{
 					quit = false;
-					CAT_machine_transition(CAT_MS_room);
+					CAT_machine_back();
 				}
 				if(CAT_gui_popup_is_open())
 					break;

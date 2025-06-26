@@ -76,6 +76,7 @@ typedef enum
 	CAT_GUI_MENU_TYPE_TEXT
 } CAT_gui_menu_type;
 
+void CAT_gui_begin_menu_context();
 bool CAT_gui_begin_menu(const char* title);
 bool CAT_gui_menu_is_open();
 bool CAT_gui_menu_item(const char* title);
@@ -83,18 +84,19 @@ bool CAT_gui_menu_toggle(const char* title, bool toggle);
 bool CAT_gui_menu_ticker(const char* title, int* ticker, int min, int max);
 bool CAT_gui_menu_text(const char* fmt, ...);
 void CAT_gui_end_menu();
-void CAT_gui_menu_reset();
+void CAT_gui_end_menu_context();
 
 
 //////////////////////////////////////////////////////////////////////////
 // ITEM LIST
 
+void CAT_gui_begin_item_list_context();
 void CAT_gui_begin_item_list(const char* title);
 bool CAT_gui_item_list_is_open();
-bool CAT_gui_item_listing(int item_id, int count);
+bool CAT_gui_item_listing(int item_id);
 void CAT_gui_item_greyout();
 void CAT_gui_item_highlight(float progress);
-void CAT_gui_item_list_reset();
+void CAT_gui_end_item_list_context();
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -120,10 +122,10 @@ void CAT_gui_render();
 //////////////////////////////////////////////////////////////////////////
 // TEXT WRAPPING
 
-void break_list_init(const char* txt, int line_width, int scale);
-bool break_list_lookup(int idx);
-int break_list_count();
-int break_list_get(int idx);
+void CAT_break_list_init(const char* txt, int line_width, int scale);
+bool CAT_break_list_lookup(int idx);
+int CAT_break_list_count();
+int CAT_break_list_get(int idx);
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -136,9 +138,9 @@ typedef enum
 } CAT_text_flag;
 
 void CAT_set_text_flags(int flags);
-void CAT_set_text_line_width(int width);
 void CAT_set_text_colour(uint16_t colour);
 void CAT_set_text_scale(uint8_t scale);
+void CAT_set_text_mask(int x0, int y0, int x1, int y1);
 
 int CAT_draw_text(int x, int y, const char* text);
 int CAT_draw_textf(int x, int y, const char* fmt, ...);

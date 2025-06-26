@@ -6,7 +6,7 @@
 #include "sprite_assets.h"
 #include "item_assets.h"
 #include "cat_item.h"
-#include "cat_bag.h"
+#include "cat_inventory.h"
 #include "cowtools/cat_structures.h"
 #include "cat_gui.h"
 #include "cowtools/cat_curves.h"
@@ -75,18 +75,22 @@ static void init_spawn_rects()
 	}
 }
 
-static int food_pool_backing[CAT_ITEM_LIST_MAX_LENGTH];
+static int food_pool_backing[CAT_ITEM_TABLE_CAPACITY];
 static CAT_int_list food_pool;
 
 static void init_item_id_pool()
 {
-	CAT_ilist(&food_pool, food_pool_backing, CAT_ITEM_LIST_MAX_LENGTH);
-	for (int i = 0; i < bag.length; i++)
+	CAT_ilist(&food_pool, food_pool_backing, CAT_ITEM_TABLE_CAPACITY);
+	for (int i = 0; i < item_table.length; i++)
 	{
-		CAT_item *item = CAT_item_get(bag.item_ids[i]);
-		if (item->type == CAT_ITEM_TYPE_TOOL && item->data.tool_data.type == CAT_TOOL_TYPE_FOOD)
+		if 
+		(
+			item_table.counts[i] > 0 &&
+			item_table.data[i].type == CAT_ITEM_TYPE_TOOL &&
+			item_table.data[i].data.tool_data.type == CAT_TOOL_TYPE_FOOD
+		)
 		{
-			CAT_ilist_push(&food_pool, bag.item_ids[i]);
+			CAT_ilist_push(&food_pool, i);
 		}
 	}
 	CAT_ilist_shuffle(&food_pool);
@@ -744,7 +748,7 @@ void MS_feed_arrange(CAT_machine_signal signal)
 			CAT_timer_reset(show_feedback_timer_id);
 		}
 
-		if(CAT_check_save_flag(CAT_SAVE_FLAG_DEVELOPER_MODE))
+		if(CAT_check_config_flags(CAT_CONFIG_FLAG_DEVELOPER))
 		{
 			if (CAT_input_pressed(CAT_BUTTON_RIGHT))
 				show_debug_text = !show_debug_text;
@@ -1244,7 +1248,7 @@ static void MS_feed_summary(CAT_machine_signal signal)
 			for (int i = 0; i < food_count; i++)
 			{
 				if (food_list[i].active)
-					CAT_item_list_remove(&bag, food_pool.data[food_list[i].pool_idx], 1);
+					CAT_bag_remove(food_pool.data[food_list[i].pool_idx], 1);
 			}
 			pet.vigour += score_object.grade;
 		break;

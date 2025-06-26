@@ -12,7 +12,7 @@ LOG_MODULE_REGISTER(lcd_rendering, LOG_LEVEL_DBG);
 
 #include "cat_pet.h"
 #include "cat_item.h"
-#include "cat_bag.h"
+#include "cat_inventory.h"
 #include "cat_core.h"
 #include "cat_aqi.h"
 
@@ -98,8 +98,10 @@ void lcd_render_diag()
 	if (slept_s < 0) slept_s = 0;
 
 	LOG_INF("about to CAT_init(slept=%d)", slept_s);
-
+	
+	CAT_save_legacy fodder;
 	CAT_init();
+
 	cat_game_running = true;
 #endif
 
@@ -123,7 +125,7 @@ void lcd_render_diag()
 
 		ble_update();
 
-		guy_is_wearing_mask = CAT_item_list_find(&bag, mask_item) != -1;
+		guy_is_wearing_mask = item_table.counts[mask_item] > 0;
 		if (CAT_room_find(prop_purifier_item) != -1 && CAT_room_find(prop_uv_lamp_item) != -1)
 		{
 			guy_happiness = 2;
@@ -201,17 +203,24 @@ void lcd_render_diag()
 		{
 			CAT_AQ_move_scores();
 			aq_moving_scores_last_time = current_moment;
-			CAT_printf("%d stored score, %d towards next\n", aq_score_count, current_moment - aq_score_last_time);
 		}
 		
 		time_since = current_moment - aq_score_last_time;
 		if(time_since > 86400 && CAT_is_AQ_initialized())
 		{
+			if(aq_score_last_time == 0)
+			{
+				for(int i = 0; i < 6; i++)
+				{
+					volatile CAT_AQ_score_block* block = &aq_score_buffer[i];
+					CAT_AQ_buffer_scores(block);
+					aq_score_head += 1;
+				}
+			}
+
 			volatile CAT_AQ_score_block* block = &aq_score_buffer[aq_score_head];
-			CAT_AQ_store_moving_scores(block);
+			CAT_AQ_buffer_scores(block);
 			aq_score_head = (aq_score_head+1) % 7;
-			if(aq_score_count < 7)
-				aq_score_count += 1;
 			aq_score_last_time = current_moment;
 		}
 
