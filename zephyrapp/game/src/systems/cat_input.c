@@ -262,7 +262,6 @@ float CAT_input_time_since_last()
 bool CAT_input_dismissal()
 {
 	return
-	CAT_input_pressed(CAT_BUTTON_A) ||
 	CAT_input_pressed(CAT_BUTTON_B) ||
 	CAT_input_pressed(CAT_BUTTON_START);
 }

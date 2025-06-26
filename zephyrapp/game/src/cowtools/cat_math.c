@@ -29,7 +29,7 @@ int quantize(float t, float range, int steps)
 
 void CAT_rand_seed()
 {
-	srand(CAT_get_rtc_now());
+	srand(CAT_get_RTC_now());
 }
 
 int CAT_rand_int(int a, int b)

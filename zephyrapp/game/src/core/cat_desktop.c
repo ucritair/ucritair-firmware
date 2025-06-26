@@ -468,7 +468,7 @@ float CAT_get_delta_time_s()
 	return simulator.delta_time_s;
 }
 
-uint64_t CAT_get_rtc_now()
+uint64_t CAT_get_RTC_now()
 {
 	time_t t = time(NULL);
 	struct tm tm;
@@ -629,6 +629,11 @@ CAT_AQ_score_block* CAT_AQ_get_score_buffer()
 	for(int i = 0; i < 7; i++)
 		memcpy(&aq_score_buffer[i], &aq_moving_scores, sizeof(CAT_AQ_score_block));
 	return aq_score_buffer;
+}
+
+int CAT_AQ_get_score_buffer_head()
+{
+	0;
 }
 
 

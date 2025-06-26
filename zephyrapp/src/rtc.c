@@ -62,6 +62,8 @@ void configure_rtc_timer3(int for_ms)
 	nrfx_rtc_cc_set(&rtc_inst, 3, nrf_rtc_counter_get(HW_RTC_CHOSEN) + (for_ms/125), true);
 }
 
+//////////////////////////////////////////////////////////
+// BEGIN PERSIST RAM
 
 // epoch time seconds of RTC=0
 PERSIST_RAM uint64_t rtc_offset;
@@ -89,14 +91,25 @@ PERSIST_RAM uint8_t screen_brightness;
 PERSIST_RAM uint16_t dim_after_seconds;
 PERSIST_RAM uint16_t sleep_after_seconds;
 
+//////////////////////////////////////////////////////////
+// AQ SPARKLINE STORE
+
 PERSIST_RAM CAT_AQ_score_block aq_moving_scores;
-PERSIST_RAM uint32_t aq_moving_scores_last_time;
+PERSIST_RAM uint64_t aq_last_moving_score_time;
 
 PERSIST_RAM CAT_AQ_score_block aq_score_buffer[7];
 PERSIST_RAM uint8_t aq_score_head;
-PERSIST_RAM uint32_t aq_score_last_time;
+PERSIST_RAM uint64_t aq_last_buffered_score_time;
 
-#define RTC_INIT_CHECK_MAGIC 0xb8870001
+//////////////////////////////////////////////////////////
+// AQ CRISIS STATE
+
+PERSIST_RAM CAT_AQ_crisis_state aq_crisis_state;
+
+// END PERSIST RAM
+//////////////////////////////////////////////////////////
+
+#define RTC_INIT_CHECK_MAGIC 0xb8870000
 
 bool is_first_init = false;
 
@@ -164,12 +177,34 @@ void check_rtc_init()
 		screen_brightness = BACKLIGHT_FULL;
 		dim_after_seconds = 45;
 		sleep_after_seconds = 120;
+
+		//////////////////////////////////////////////////////////
+		// AQ SPARKLINE STORE
 		
 		aq_moving_scores = (CAT_AQ_score_block) {0};
-		aq_moving_scores_last_time = 0;
+		aq_last_moving_score_time = 0;
 
 		aq_score_head = 0;
-		aq_score_last_time = 0;
+		aq_last_buffered_score_time = 0;
+
+		//////////////////////////////////////////////////////////
+		// AQ CRISIS STATE
+
+		aq_crisis_state = (CAT_AQ_crisis_state)
+		{
+			.type = CAT_AQ_CRISIS_TYPE_NONE,
+			.severity = CAT_AQ_CRISIS_SEVERITY_NONE,
+			.peak_severity = CAT_AQ_CRISIS_SEVERITY_NONE,
+			.ongoing = false,
+			.report = false,
+			.start_timestamp = 0,
+			.peak_timestamp = 0,
+			.end_timestamp = 0,
+			.response_type = CAT_AQ_CRISIS_RESPONSE_TYPE_NONE,
+			.response_grade = CAT_AQ_CRISIS_RESPONSE_GRADE_NONE,
+			.lifespan_damage = 0
+		};
+		CAT_AQ_import_crisis_state(&aq_crisis_state);
 
 		CAT_raise_config_flags(CAT_CONFIG_FLAG_PERSIST_CLEARED);
 	}

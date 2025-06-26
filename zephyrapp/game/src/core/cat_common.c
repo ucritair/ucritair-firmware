@@ -89,14 +89,15 @@ int* CAT_LED_brightness_pointer()
 // AIR QUALITY
 
 CAT_AQ_readings readings =
+#ifdef CAT_DESKTOP
 {
 	.lps22hh.uptime_last_updated = 0,
 	.lps22hh.temp = 20,
 	.lps22hh.pressure = 1013,
 
 	.sunrise.uptime_last_updated = 0,
-	.sunrise.ppm_filtered_compensated = 400,
-	.sunrise.ppm_filtered_uncompensated = 400,
+	.sunrise.ppm_filtered_compensated = 450,
+	.sunrise.ppm_filtered_uncompensated = 450,
 	.sunrise.temp = 20,
 
 	.sen5x.uptime_last_updated = 0,
@@ -104,10 +105,13 @@ CAT_AQ_readings readings =
 	.sen5x.pm10_0 = 15,
 	.sen5x.humidity_rhpct = 40,
 
-	.sen5x.temp_degC = 20,
+	.sen5x.temp_degC = 23,
 	.sen5x.voc_index = 1,
 	.sen5x.nox_index = 100,
 };
+#else
+{0};
+#endif
 
 bool CAT_is_AQ_initialized()
 {
@@ -159,7 +163,8 @@ float int2float(int i, float scale_factor)
 int move_average(int x_bar, int samples, float x, float scale_factor)
 {
 	float x_bar_f = int2float(x_bar, scale_factor);
-	x_bar_f = x_bar_f + (x - x_bar_f) / (float) samples;
+	//x_bar_f = x_bar_f + (x - x_bar_f) / (float) samples;
+	x_bar_f = x_bar_f + (x - x_bar_f) / 7;
 	return float2int(x_bar_f, scale_factor);
 }
 
@@ -205,6 +210,7 @@ void CAT_AQ_read_scores(int idx, CAT_AQ_score_block* out)
 {
 	if(idx < 0 || idx >= 7)
 		return;
+	idx = (CAT_AQ_get_score_buffer_head() + idx) % 7;
 	memcpy(out, &(CAT_AQ_get_score_buffer()[idx]), sizeof(CAT_AQ_score_block));
 }
 
@@ -214,7 +220,7 @@ void CAT_AQ_read_scores(int idx, CAT_AQ_score_block* out)
 
 void CAT_get_datetime(CAT_datetime* datetime)
 {
-	time_t now = CAT_get_rtc_now();
+	time_t now = CAT_get_RTC_now();
 	struct tm local;
 	gmtime_r(&now, &local);
 	

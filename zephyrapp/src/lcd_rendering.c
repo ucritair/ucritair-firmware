@@ -100,7 +100,8 @@ void lcd_render_diag()
 
 	LOG_INF("about to CAT_init(slept=%d)", slept_s);
 	
-	CAT_save_legacy fodder;
+
+	CAT_AQ_import_crisis_state(&aq_crisis_state);
 	CAT_init();
 
 	cat_game_running = true;
@@ -198,18 +199,21 @@ void lcd_render_diag()
 
 		charging_last_frame = is_charging;
 
-		time_t current_moment = get_current_rtc_time();
-		uint32_t time_since = current_moment - aq_moving_scores_last_time;
+		//////////////////////////////////////////////////////////
+		// AQ SPARKLINE STORE
+
+		uint64_t current_second = CAT_get_RTC_now();
+		uint64_t time_since = current_second - aq_last_moving_score_time;
 		if(time_since > 5 && CAT_is_AQ_initialized())
 		{
 			CAT_AQ_move_scores();
-			aq_moving_scores_last_time = current_moment;
+			aq_last_moving_score_time = current_second;
 		}
 		
-		time_since = current_moment - aq_score_last_time;
-		if(time_since > 86400 && CAT_is_AQ_initialized())
+		time_since = current_second - aq_last_buffered_score_time;
+		if(time_since > CAT_DAY_SECONDS && CAT_is_AQ_initialized())
 		{
-			if(aq_score_last_time == 0)
+			if(aq_last_buffered_score_time == 0)
 			{
 				for(int i = 0; i < 6; i++)
 				{
@@ -222,8 +226,13 @@ void lcd_render_diag()
 			volatile CAT_AQ_score_block* block = &aq_score_buffer[aq_score_head];
 			CAT_AQ_buffer_scores(block);
 			aq_score_head = (aq_score_head+1) % 7;
-			aq_score_last_time = current_moment;
+			aq_last_buffered_score_time = current_second;
 		}
+
+		//////////////////////////////////////////////////////////
+		// AQ CRISIS STATE
+
+		CAT_AQ_export_crisis_state(&aq_crisis_state);
 
 		int lockmask = 0;
 

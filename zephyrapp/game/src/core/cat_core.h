@@ -129,7 +129,7 @@ void CAT_get_touch(CAT_touch* touch);
 uint64_t CAT_get_slept_s();
 uint64_t CAT_get_uptime_ms();
 float CAT_get_delta_time_s();
-uint64_t CAT_get_rtc_now();
+uint64_t CAT_get_RTC_now();
 
 typedef union CAT_datetime
 {
@@ -256,6 +256,7 @@ typedef struct __attribute__((__packed__))
 		uint32_t xp;
 		uint8_t lifespan;
 		uint8_t lifetime;
+		uint16_t incarnations;
 		uint8_t vigour;
 		uint8_t focus;
 		uint8_t spirit;
@@ -452,6 +453,7 @@ typedef struct __attribute__((__packed__))
 
 CAT_AQ_score_block* CAT_AQ_get_moving_scores();
 CAT_AQ_score_block* CAT_AQ_get_score_buffer();
+int CAT_AQ_get_score_buffer_head();
 
 void CAT_AQ_move_scores();
 void CAT_AQ_buffer_scores(CAT_AQ_score_block* block);

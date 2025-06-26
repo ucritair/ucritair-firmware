@@ -597,7 +597,7 @@ void CAT_MS_room(CAT_machine_signal signal)
 		}
 		case CAT_MACHINE_SIGNAL_TICK:
 		{
-			if(CAT_AQ_is_crisis_notice_posted())
+			if(CAT_AQ_is_crisis_report_posted())
 				CAT_machine_transition(CAT_MS_crisis_report);
 				
 			if(CAT_input_pressed(CAT_BUTTON_START))

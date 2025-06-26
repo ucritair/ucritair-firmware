@@ -101,6 +101,28 @@ void CAT_MS_menu(CAT_machine_signal signal)
 
 						if(CAT_gui_menu_item("COLOUR PICKER"))
 							CAT_machine_transition(CAT_MS_colour_picker);
+						
+						if(CAT_gui_begin_menu("AQ CONTROL PANEL"))
+						{
+							if(CAT_gui_menu_item("EXTREME CO2"))
+								readings.sunrise.ppm_filtered_compensated = 5000;
+							if(CAT_gui_menu_item("MODERATE CO2"))
+								readings.sunrise.ppm_filtered_compensated = 2000;
+							if(CAT_gui_menu_item("MILD CO2"))
+								readings.sunrise.ppm_filtered_compensated = 1000;
+							if(CAT_gui_menu_item("NORMAL CO2"))
+								readings.sunrise.ppm_filtered_compensated = 450;
+
+							if(CAT_gui_menu_item("EXTREME TEMP"))
+								readings.sen5x.temp_degC = 43;
+							if(CAT_gui_menu_item("MODERATE TEMP"))
+								readings.sen5x.temp_degC = 33;
+							if(CAT_gui_menu_item("MILD TEMP"))
+								readings.sen5x.temp_degC = 28;
+							if(CAT_gui_menu_item("NORMAL TEMP"))
+								readings.sen5x.temp_degC = 23;
+							CAT_gui_end_menu();
+						}
 							
 						CAT_gui_end_menu();
 					}				

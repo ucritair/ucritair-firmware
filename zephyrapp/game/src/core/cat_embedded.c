@@ -171,7 +171,7 @@ float CAT_get_delta_time_s()
 	return delta_t;
 }
 
-uint64_t CAT_get_rtc_now()
+uint64_t CAT_get_RTC_now()
 {
 	return get_current_rtc_time();
 }
@@ -292,6 +292,11 @@ CAT_AQ_score_block* CAT_AQ_get_moving_scores()
 CAT_AQ_score_block* CAT_AQ_get_score_buffer()
 {
 	return aq_score_buffer;
+}
+
+int CAT_AQ_get_score_buffer_head()
+{
+	return aq_score_head;
 }
 
 
