@@ -4,11 +4,21 @@
 #include "cat_math.h"
 #include "cat_render.h"
 
-#define CAT_LIFE_TICK_TIME (CAT_DAY_SECONDS)
-#define CAT_STAT_TICK_TIME (CAT_DAY_SECONDS / 4)
-#define CAT_PET_PET_COOLDOWN (CAT_MINUTE_SECONDS)
-#define CAT_PET_WALK_COOLDOWN 4
-#define CAT_PET_REACT_TIME 2
+#define CAT_LIFE_TICK_PERIOD CAT_DAY_SECONDS
+#define CAT_STAT_TICK_PERIOD (CAT_DAY_SECONDS / 4)
+#define CAT_PET_MILK_COOLDOWN (CAT_MINUTE_SECONDS)
+
+typedef struct __attribute__((__packed__))
+{
+	uint64_t last_stat_time;
+	uint64_t last_life_time;
+
+	uint64_t last_milk_time;
+	uint8_t times_milked_since_producing;
+	uint8_t milks_produced_today;
+} CAT_pet_timing_state;
+void CAT_pet_export_timing_state(CAT_pet_timing_state* out);
+void CAT_pet_import_timing_state(CAT_pet_timing_state* in);
 
 typedef struct CAT_pet
 {
@@ -30,16 +40,6 @@ typedef struct CAT_pet
 	CAT_vec2 pos;
 	CAT_vec2 vel;
 	int rot;
-	
-	float stat_timer;
-	float life_timer;
-
-	float walk_timer;
-	float react_timer;
-
-	unsigned int times_pet;
-	float petting_timer;
-	unsigned int times_milked;
 } CAT_pet;
 extern CAT_pet pet;
 extern CAT_anim_machine AM_pet;
@@ -55,8 +55,6 @@ bool CAT_pet_seek(CAT_vec2 targ);
 void CAT_pet_face(CAT_vec2 targ);
 
 void CAT_pet_gain_xp(int xp);
-void CAT_pet_stat(int ticks);
-void CAT_pet_life(int ticks);
 
 void CAT_pet_tick();
 

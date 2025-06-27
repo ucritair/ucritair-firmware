@@ -66,8 +66,6 @@ typedef struct CAT_room
 
 	CAT_pickup pickups[CAT_MAX_PICKUP_COUNT];
 	int pickup_count;
-
-	float earn_timer;
 } CAT_room;
 extern CAT_room room;
 
@@ -100,7 +98,6 @@ void CAT_room_flip_prop(int idx);
 int CAT_spawn_pickup(CAT_ivec2 origin, CAT_ivec2 place, const CAT_sprite* sprite, void (*proc)());
 void CAT_despawn_pickup(int idx);
 
-void CAT_room_earn(int ticks);
 void CAT_room_tick();
 void CAT_MS_room(CAT_machine_signal signal);
 void CAT_room_draw_statics();

@@ -2,6 +2,7 @@
 #include <stdbool.h>
 #include "cat_aqi.h"
 #include "cat_crisis.h"
+#include "cat_pet.h"
 
 extern bool is_first_init;
 
@@ -31,9 +32,10 @@ extern volatile uint8_t aq_score_head;
 extern volatile uint64_t aq_last_buffered_score_time;
 
 //////////////////////////////////////////////////////////
-// AQ CRISIS STATE
+// MISC. STATE CHUNKS
 
 extern volatile CAT_AQ_crisis_state aq_crisis_state;
+extern volatile CAT_pet_timing_state pet_timing_state;
 
 #include "cat_pet.h"
 _Static_assert(sizeof(guy_name) == sizeof(pet.name));

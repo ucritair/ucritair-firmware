@@ -102,9 +102,10 @@ PERSIST_RAM uint8_t aq_score_head;
 PERSIST_RAM uint64_t aq_last_buffered_score_time;
 
 //////////////////////////////////////////////////////////
-// AQ CRISIS STATE
+// MISC. STATE CHUNKS
 
 PERSIST_RAM CAT_AQ_crisis_state aq_crisis_state;
+PERSIST_RAM CAT_pet_timing_state pet_timing_state;
 
 // END PERSIST RAM
 //////////////////////////////////////////////////////////
@@ -188,7 +189,7 @@ void check_rtc_init()
 		aq_last_buffered_score_time = 0;
 
 		//////////////////////////////////////////////////////////
-		// AQ CRISIS STATE
+		// MISC. STATE CHUNKS
 
 		aq_crisis_state = (CAT_AQ_crisis_state)
 		{
@@ -205,6 +206,16 @@ void check_rtc_init()
 			.lifespan_damage = 0
 		};
 		CAT_AQ_import_crisis_state(&aq_crisis_state);
+
+		pet_timing_state = (CAT_pet_timing_state)
+		{
+			.last_life_time = CAT_get_RTC_now(),
+			.last_milk_time = CAT_get_RTC_now(),
+			.last_stat_time = CAT_get_RTC_now(),
+			.milks_produced_today = 0,
+			.times_milked_since_producing = 0
+		};
+		CAT_pet_import_timing_state(&pet_timing_state);
 
 		CAT_raise_config_flags(CAT_CONFIG_FLAG_PERSIST_CLEARED);
 	}

@@ -16,6 +16,7 @@ LOG_MODULE_REGISTER(lcd_rendering, LOG_LEVEL_DBG);
 #include "cat_core.h"
 #include "cat_aqi.h"
 #include "item_assets.h"
+#include "cat_pet.h"
 
 #include "menu_system.h"
 
@@ -100,8 +101,6 @@ void lcd_render_diag()
 
 	LOG_INF("about to CAT_init(slept=%d)", slept_s);
 	
-
-	CAT_AQ_import_crisis_state(&aq_crisis_state);
 	CAT_init();
 
 	cat_game_running = true;
@@ -228,11 +227,6 @@ void lcd_render_diag()
 			aq_score_head = (aq_score_head+1) % 7;
 			aq_last_buffered_score_time = current_second;
 		}
-
-		//////////////////////////////////////////////////////////
-		// AQ CRISIS STATE
-
-		CAT_AQ_export_crisis_state(&aq_crisis_state);
 
 		int lockmask = 0;
 

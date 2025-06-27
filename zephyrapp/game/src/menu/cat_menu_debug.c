@@ -85,17 +85,21 @@ void CAT_render_debug()
 			CAT_gui_title(true, "TIME");
 			CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
 
+			uint64_t now = CAT_get_RTC_now();
 			CAT_datetime datetime;
-			CAT_get_datetime(&datetime);
-			CAT_gui_textf("%d/%d/%d %d:%d:%d\n", datetime.month, datetime.day, datetime.year, datetime.hour, datetime.minute, datetime.second);
+			CAT_make_datetime(now, &datetime);
+			CAT_gui_textf("%.2d/%.2d/%.4d %.2d:%.2d:%.2d\n", datetime.month, datetime.day, datetime.year, datetime.hour, datetime.minute, datetime.second);
 
-			CAT_gui_textf("Slept: %ds\n", CAT_get_slept_s());
-			CAT_gui_textf("Life: %0.0fs/%ds\n", pet.life_timer, CAT_LIFE_TICK_TIME);
-			CAT_gui_textf("Stat: %0.0fs/%ds\n", pet.stat_timer, CAT_STAT_TICK_TIME);
-			CAT_gui_textf("Pet: %0.0fs/%ds\n", pet.petting_timer, CAT_PET_PET_COOLDOWN);
-			CAT_gui_textf("Pets: %d/5\n", pet.times_pet);
-			CAT_gui_textf("Milks: %d/3\n", pet.times_milked);
-			CAT_gui_textf("Earn: %0.0fs/%ds\n", room.earn_timer, CAT_EARN_TIME);
+			CAT_pet_timing_state pet_timing;
+			CAT_pet_export_timing_state(&pet_timing);
+
+			CAT_gui_textf("Since Life: %ds/%ds\n", (int) (now-pet_timing.last_life_time), CAT_LIFE_TICK_PERIOD);
+			CAT_gui_textf("Since Stat: %ds/%ds\n", (int) (now-pet_timing.last_stat_time), CAT_STAT_TICK_PERIOD);
+			CAT_gui_textf("Since Milk: %ds/%ds\n", (int) (now-pet_timing.last_milk_time), CAT_PET_MILK_COOLDOWN);
+			CAT_gui_textf("Times Milked: %d/5\n", (int) (pet_timing.times_milked_since_producing));
+			CAT_gui_textf("Milks Produced: %d/3\n", (int) (pet_timing.milks_produced_today));
+
+			CAT_gui_textf("Slept: %ds\n", (int) CAT_get_slept_s());
 			CAT_gui_textf("E-Ink: %0.0fs/%ds\n", time_since_eink_update, eink_update_time_threshold);
 		break;
 		case DECO:

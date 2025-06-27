@@ -322,11 +322,14 @@ void CAT_initialize_save_sector(CAT_save* save, CAT_save_sector sector)
 		case CAT_SAVE_SECTOR_PET:
 			save->pet.header.label = CAT_SAVE_SECTOR_PET;
 			save->pet.header.size = sizeof(save->pet);
-			strcpy(save->pet.name, CAT_DEFAULT_PET_NAME);
-			save->pet.level = 0;
-			save->pet.xp = 0;
+			strncpy(save->pet.name, CAT_DEFAULT_PET_NAME, 24);
 			save->pet.lifespan = 30;
 			save->pet.lifetime = 0;
+			save->pet.incarnations = 1;
+			save->pet.birthday = CAT_get_RTC_now();
+			save->pet.deathday = 0;
+			save->pet.level = 0;
+			save->pet.xp = 0;
 			save->pet.vigour = 12;
 			save->pet.focus = 12;
 			save->pet.spirit = 12;
@@ -353,17 +356,6 @@ void CAT_initialize_save_sector(CAT_save* save, CAT_save_sector sector)
 			save->highscores.snake = 0;
 			save->highscores.mine = 0;
 			save->highscores.foursquares = 0;
-			break;
-
-		case CAT_SAVE_SECTOR_TIMING:
-			save->timing.header.label = CAT_SAVE_SECTOR_TIMING;
-			save->timing.header.size = sizeof(save->timing);
-			save->timing.stat_timer = 0;
-			save->timing.life_timer = 0;
-			save->timing.earn_timer = 0;
-			save->timing.petting_timer = 0;
-			save->timing.petting_count = 0;
-			save->timing.milking_count = 0;
 			break;
 
 		case CAT_SAVE_SECTOR_CONFIG:
@@ -393,7 +385,6 @@ void CAT_initialize_save(CAT_save* save)
 	CAT_initialize_save_sector(save, CAT_SAVE_SECTOR_INVENTORY);
 	CAT_initialize_save_sector(save, CAT_SAVE_SECTOR_DECO);
 	CAT_initialize_save_sector(save, CAT_SAVE_SECTOR_HIGHSCORES);
-	CAT_initialize_save_sector(save, CAT_SAVE_SECTOR_TIMING);
 	CAT_initialize_save_sector(save, CAT_SAVE_SECTOR_CONFIG);
 	CAT_initialize_save_sector(save, CAT_SAVE_SECTOR_FOOTER);
 }
@@ -406,7 +397,6 @@ bool verify_sector_label(CAT_save* save, CAT_save_sector sector)
 		case CAT_SAVE_SECTOR_INVENTORY: return save->inventory.header.label == CAT_SAVE_SECTOR_INVENTORY;
 		case CAT_SAVE_SECTOR_DECO: return save->deco.header.label == CAT_SAVE_SECTOR_DECO;
 		case CAT_SAVE_SECTOR_HIGHSCORES: return save->highscores.header.label == CAT_SAVE_SECTOR_HIGHSCORES;
-		case CAT_SAVE_SECTOR_TIMING: return save->timing.header.label == CAT_SAVE_SECTOR_TIMING;
 		case CAT_SAVE_SECTOR_CONFIG: return save->config.header.label == CAT_SAVE_SECTOR_CONFIG;
 		case CAT_SAVE_SECTOR_FOOTER: return save->footer.label ==  CAT_SAVE_SECTOR_FOOTER;
 	}
@@ -420,7 +410,6 @@ bool verify_sector_size(CAT_save* save, CAT_save_sector sector)
 		case CAT_SAVE_SECTOR_INVENTORY: return save->inventory.header.size == sizeof(save->inventory);
 		case CAT_SAVE_SECTOR_DECO: return save->deco.header.size == sizeof(save->deco);
 		case CAT_SAVE_SECTOR_HIGHSCORES: return save->highscores.header.size == sizeof(save->highscores);
-		case CAT_SAVE_SECTOR_TIMING: return save->timing.header.size == sizeof(save->timing);
 		case CAT_SAVE_SECTOR_CONFIG: return save->config.header.size == sizeof(save->config);
 		case CAT_SAVE_SECTOR_FOOTER: return save->footer.size == 0;
 	}
@@ -486,10 +475,14 @@ void CAT_migrate_legacy_save(void* save)
 
 	CAT_printf("[INFO] Migrating legacy save to new format...\n");
 
-	strcpy(new->pet.name, migration_buffer.name);
+	strncpy(new->pet.name, migration_buffer.name, 24);
+	new->pet.lifespan = 30;
+	new->pet.lifetime = migration_buffer.lifetime;
+	new->pet.incarnations = 1;
+	new->pet.birthday = CAT_get_RTC_now() - CAT_DAY_SECONDS * migration_buffer.lifetime;
+	new->pet.deathday = 0;
 	new->pet.level = migration_buffer.level;
 	new->pet.xp = migration_buffer.xp;
-	new->pet.lifetime = migration_buffer.lifetime;
 	new->pet.vigour = migration_buffer.vigour;
 	new->pet.focus = migration_buffer.focus;
 	new->pet.spirit = migration_buffer.spirit;
@@ -510,13 +503,6 @@ void CAT_migrate_legacy_save(void* save)
 	}
 
 	new->highscores.snake = migration_buffer.snake_high_score;
-
-	new->timing.stat_timer = migration_buffer.stat_timer;
-	new->timing.life_timer = migration_buffer.life_timer;
-	new->timing.earn_timer = migration_buffer.earn_timer;
-	new->timing.petting_timer = migration_buffer.petting_timer;
-	new->timing.petting_count = migration_buffer.times_pet;
-	new->timing.milking_count = migration_buffer.times_milked;
 
 	new->config.flags = CAT_CONFIG_FLAG_NONE;
 	if(migration_buffer.save_flags & 1)

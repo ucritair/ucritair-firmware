@@ -229,7 +229,6 @@ typedef enum
 	CAT_SAVE_SECTOR_INVENTORY,
 	CAT_SAVE_SECTOR_DECO,
 	CAT_SAVE_SECTOR_HIGHSCORES,
-	CAT_SAVE_SECTOR_TIMING,
 	CAT_SAVE_SECTOR_CONFIG,
 	CAT_SAVE_SECTOR_FOOTER,
 } CAT_save_sector;
@@ -259,6 +258,8 @@ typedef struct __attribute__((__packed__))
 		uint8_t lifespan;
 		uint8_t lifetime;
 		uint16_t incarnations;
+		uint64_t birthday;
+		uint64_t deathday;
 		uint8_t level;
 		uint32_t xp;
 		uint8_t vigour;
@@ -291,18 +292,6 @@ typedef struct __attribute__((__packed__))
 		uint16_t mine;
 		uint16_t foursquares;
 	} highscores;
-
-	// SECTOR : TIMING
-	struct __attribute__((__packed__))
-	{
-		CAT_save_sector_header header;
-		uint32_t stat_timer;
-		uint32_t life_timer;
-		uint32_t earn_timer;
-		uint32_t petting_timer;
-		uint8_t petting_count;
-		uint8_t milking_count;
-	} timing;
 
 	// SECTOR : CONFIG
 	struct __attribute__((__packed__))
@@ -489,3 +478,10 @@ static inline void CAT_bonus_set(uint32_t value)
 {
 	;
 }
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// PERSISTENCE
+
+uint8_t* CAT_AQ_crisis_state_persist();
+uint8_t* CAT_pet_timing_state_persist();

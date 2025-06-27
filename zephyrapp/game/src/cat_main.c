@@ -66,6 +66,8 @@ void CAT_force_save()
 	save->pet.lifespan = pet.lifespan;
 	save->pet.lifetime = pet.lifetime;
 	save->pet.incarnations = pet.incarnations;
+	save->pet.birthday = pet.birthday;
+	save->pet.deathday = pet.deathday;
 	save->pet.vigour = pet.vigour;
 	save->pet.focus = pet.focus;
 	save->pet.spirit = pet.spirit;
@@ -92,13 +94,6 @@ void CAT_force_save()
 	save->highscores.mine = 0;
 	save->highscores.foursquares = 0;
 
-	save->timing.stat_timer = pet.stat_timer;
-	save->timing.life_timer = pet.life_timer;
-	save->timing.earn_timer = room.earn_timer;
-	save->timing.petting_timer = pet.petting_timer;
-	save->timing.petting_count = pet.times_pet;
-	save->timing.milking_count = pet.times_milked;
-
 	if(CAT_AQ_get_temperature_unit() == CAT_TEMPERATURE_UNIT_DEGREES_FAHRENHEIT)
 		CAT_raise_config_flags(CAT_CONFIG_FLAG_USE_FAHRENHEIT);
 	else
@@ -115,6 +110,10 @@ void CAT_force_save()
 
 	CAT_finish_save(save);
 	CAT_printf("Save complete!\n");
+
+	CAT_printf("Persist save!\n");
+	CAT_AQ_export_crisis_state(CAT_AQ_crisis_state_persist());
+	CAT_pet_export_timing_state(CAT_pet_timing_state_persist());
 }
 
 void CAT_load_default()
@@ -122,7 +121,7 @@ void CAT_load_default()
 	CAT_inventory_clear();
 	CAT_inventory_add(prop_crafter_item, 1);
 	CAT_inventory_add(toy_laser_pointer_item, 1);
-	CAT_inventory_add(coin_item, 10);
+	CAT_inventory_add(coin_item, 100);
 	CAT_inventory_add(prop_portal_orange_item, 1);
 	CAT_inventory_add(prop_xen_crystal_item, 1);
 	CAT_inventory_add(prop_hoopy_item, 1);
@@ -222,6 +221,10 @@ void CAT_force_load()
 		pet.lifespan = save->pet.lifespan;
 	if(save->pet.incarnations <= UINT16_MAX)
 		pet.incarnations = save->pet.incarnations;
+	if(save->pet.birthday <= CAT_get_RTC_now() && save->pet.birthday > 0)
+		pet.birthday = save->pet.birthday;
+	if(save->pet.deathday <= CAT_get_RTC_now())
+		pet.deathday = save->pet.deathday;
 	if(save->pet.vigour <= 12)
 		pet.vigour = save->pet.vigour;
 	if(save->pet.focus <= 12)
@@ -265,13 +268,6 @@ void CAT_force_load()
 
 	snake_high_score = save->highscores.snake;
 
-	pet.stat_timer = save->timing.stat_timer;
-	pet.life_timer = save->timing.life_timer;
-	room.earn_timer = save->timing.earn_timer;
-	pet.petting_timer = save->timing.petting_timer;
-	pet.times_pet = save->timing.petting_count;
-	pet.times_milked = save->timing.milking_count;
-
 	CAT_set_config_flags(save->config.flags);
 	if(save->config.flags & CAT_CONFIG_FLAG_USE_FAHRENHEIT)
 		CAT_AQ_set_temperature_unit(CAT_TEMPERATURE_UNIT_DEGREES_FAHRENHEIT);
@@ -281,27 +277,14 @@ void CAT_force_load()
 		room.theme = themes_list[save->config.theme];
 
 	CAT_printf("Load complete!\n");
+
+	CAT_printf("Persist load!\n");
+	CAT_AQ_import_crisis_state(CAT_AQ_crisis_state_persist());
+	CAT_pet_import_timing_state(CAT_pet_timing_state_persist());
 }
 
 void CAT_apply_sleep(int seconds)
 {
-	int stat_ticks = seconds / CAT_STAT_TICK_TIME;
-	int stat_remainder = seconds % CAT_STAT_TICK_TIME;
-	CAT_pet_stat(stat_ticks);
-	pet.stat_timer += stat_remainder;
-
-	int life_ticks = seconds / CAT_LIFE_TICK_TIME;
-	int life_remainder = seconds % CAT_LIFE_TICK_TIME;
-	CAT_pet_life(life_ticks);
-	pet.life_timer += life_remainder;
-
-	int earn_ticks = seconds / CAT_EARN_TIME;
-	int earn_remainder = seconds % CAT_EARN_TIME;
-	CAT_room_earn(earn_ticks);
-	room.earn_timer += earn_remainder;
-
-	pet.petting_timer += seconds;
-
 	time_since_eink_update += seconds;
 }
 
@@ -309,7 +292,6 @@ void CAT_init()
 {
 	CAT_platform_init();
 	CAT_input_init();
-	CAT_sound_power(true);
 
 	CAT_rand_seed();
 	CAT_animator_init();

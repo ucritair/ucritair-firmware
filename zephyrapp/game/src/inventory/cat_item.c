@@ -186,7 +186,7 @@ void CAT_render_inspector()
 	cursor_y += free_space / 2;
 	
 	CAT_set_sprite_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
-	CAT_draw_sprite(item->sprite, 0, 120, cursor_y);
+	CAT_draw_sprite(item->sprite, -1, 120, cursor_y);
 }
 
 static void inventory_action_proc(int item_id)

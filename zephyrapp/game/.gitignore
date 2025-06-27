@@ -7,3 +7,4 @@ sounds/temp/
 src/cowtools/cat_math_ALT.h
 screen_capture/*.png
 screen_capture/*.ppm
+persist/*.dat

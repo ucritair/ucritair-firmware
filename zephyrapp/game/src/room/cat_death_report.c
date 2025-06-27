@@ -67,7 +67,7 @@ void CAT_render_death_report()
 	CAT_set_text_mask(MARGIN, -1, CAT_LCD_SCREEN_W-MARGIN, -1);
 	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
 	CAT_set_text_colour(CAT_CRISIS_YELLOW);
-	cursor_y = CAT_draw_textf(MARGIN, cursor_y, "LIVED: %d DAYS\n", (pet.deathday - pet.birthday) / CAT_DAY_SECONDS);
+	cursor_y = CAT_draw_textf(MARGIN, cursor_y, "LIVED: %d DAYS\n", pet.lifespan);
 
 	CAT_set_text_colour(CAT_CRISIS_GREEN);
 	cursor_y = CAT_draw_textf(MARGIN, cursor_y, ">>>>>>>>>>>>>>>>>>>>>>>>>>>>");

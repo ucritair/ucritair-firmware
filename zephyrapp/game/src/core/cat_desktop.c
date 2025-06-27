@@ -14,6 +14,9 @@
 #include "cat_main.h"
 #include "cat_math.h"
 #include "cat_aqi.h"
+#include <sys/mman.h>
+#include "cat_pet.h"
+#include "cat_crisis.h"
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -661,3 +664,41 @@ void CAT_printf(const char* fmt, ...)
 	vdprintf(STDOUT_FILENO, fmt, args);
 	va_end(args);
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// PERSISTENCE
+
+static int AQ_crisis_state_fd = -1;
+static uint8_t* AQ_crisis_state_mmap = NULL;
+static int pet_timing_state_fd = -1;
+static uint8_t* pet_timing_state_mmap = NULL;
+
+uint8_t* generate_persist(const char* path, size_t size, int* fd)
+{
+	*fd = open(path, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
+	size_t file_size = lseek(*fd, 0, SEEK_END);
+	if(file_size < size)
+	{
+		lseek(*fd, 0, SEEK_SET);
+		uint8_t* zeroes = malloc(size);
+		write(*fd, zeroes, size);
+	}
+	uint8_t* mem = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, *fd, 0);
+	close(*fd);
+	return mem;
+}
+
+uint8_t* CAT_AQ_crisis_state_persist()
+{
+	if(AQ_crisis_state_fd == -1)
+		AQ_crisis_state_mmap = generate_persist("persist/AQ_crisis_state.dat", sizeof(CAT_AQ_crisis_state), &AQ_crisis_state_fd);
+	return AQ_crisis_state_mmap;
+}
+
+uint8_t* CAT_pet_timing_state_persist()
+{
+	if(pet_timing_state_fd == -1)
+		pet_timing_state_mmap = generate_persist("persist/pet_timing_state.dat", sizeof(CAT_pet_timing_state), &pet_timing_state_fd);
+	return pet_timing_state_mmap;
+}
+

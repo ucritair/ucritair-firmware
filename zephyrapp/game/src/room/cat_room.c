@@ -491,54 +491,8 @@ static CAT_machine_state button_modes[5] =
 };
 static int mode_selector = 0;
 
-void earn_proc()
-{
-	CAT_inventory_add(coin_item, 1);
-}
-
-void CAT_room_earn(int ticks)
-{
-	for(int i = 0; i < room.prop_count; i++)
-	{
-		if(room.prop_ids[i] == prop_crafter_item)
-		{
-			for(int t = 0; t < ticks; t++)
-			{
-				CAT_ivec2 start = CAT_grid2world(room.prop_rects[i].min);
-				start.x += 24;
-				start.y -= 24;
-
-				CAT_ivec2 end_grid = CAT_rand_free_space();
-				end_grid.x = clamp(end_grid.x, 2, CAT_GRID_WIDTH-2);
-				end_grid.y = clamp(end_grid.y, 2, CAT_GRID_HEIGHT-1);
-				CAT_ivec2 end_world = CAT_grid2world(end_grid);
-
-				int xi = start.x;
-				int yi = start.y;
-				int xf = end_world.x;
-				int yf = end_world.y;
-
-				CAT_spawn_pickup
-				(
-					(CAT_ivec2) {xi, yi},
-					(CAT_ivec2) {xf, yf},
-					&coin_world_sprite,
-					earn_proc
-				);
-			}
-		}
-	}
-}
-
 void CAT_room_tick()
 {
-	if(room.earn_timer >= CAT_EARN_TIME)
-	{
-		CAT_room_earn(1);
-		room.earn_timer = 0;
-	}
-	room.earn_timer += CAT_get_delta_time_s();
-
 	for(int i = 0; i < room.pickup_count; i++)
 	{
 		if(room.pickups[i].timer < PICKUP_AIR_TIME)

@@ -333,3 +333,16 @@ void CAT_printf(const char* fmt, ...)
 		debug_print_buffer[printed-1] = '\0';
 	LOG_DBG("%s", debug_print_buffer);
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// PERSISTENCE
+
+uint8_t* CAT_AQ_crisis_state_persist()
+{
+	return &aq_crisis_state;
+}
+
+uint8_t* CAT_pet_timing_state_persist()
+{
+	return &pet_timing_state;
+}

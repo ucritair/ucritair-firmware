@@ -45,7 +45,7 @@ void CAT_MS_magic(CAT_machine_signal signal)
 
 void CAT_render_magic()
 {
-	CAT_gui_title(false, NULL, NULL, "MAGIC");
+	CAT_gui_title(false, "MAGIC");
 
 	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18}); 
 	CAT_gui_text("Enter an incantation,\n");

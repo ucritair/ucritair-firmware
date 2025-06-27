@@ -15,6 +15,18 @@
 #include "sprite_assets.h"
 #include "item_assets.h"
 
+static CAT_pet_timing_state timing_state;
+
+void CAT_pet_export_timing_state(CAT_pet_timing_state* out)
+{
+	memcpy(out, &timing_state, sizeof(timing_state));
+}
+
+void CAT_pet_import_timing_state(CAT_pet_timing_state* in)
+{
+	memcpy(&timing_state, in, sizeof(timing_state));
+}
+
 CAT_pet pet;
 CAT_anim_machine AM_pet;
 CAT_anim_machine AM_mood;
@@ -28,6 +40,15 @@ bool is_critical()
 
 void CAT_pet_init()
 {	
+	timing_state = (CAT_pet_timing_state)
+	{
+		.last_life_time = CAT_get_RTC_now(),
+		.last_milk_time = CAT_get_RTC_now(),
+		.last_stat_time = CAT_get_RTC_now(),
+		.milks_produced_today = 0,
+		.times_milked_since_producing = 0
+	};
+
 	pet.vigour = 12;
 	pet.focus = 12;
 	pet.spirit = 12;
@@ -44,15 +65,6 @@ void CAT_pet_init()
 	pet.pos = (CAT_vec2) {120, 200};
 	pet.vel = (CAT_vec2) {0, 0};
 	pet.rot = 1;
-
-	pet.stat_timer = 0;
-	pet.life_timer = 0;
-	pet.walk_timer = 0;
-	pet.react_timer = 0;
-
-	pet.times_pet = 0;
-	pet.petting_timer = 0;
-	pet.times_milked = 0;
 
 	strcpy(pet.name, CAT_DEFAULT_PET_NAME);
 
@@ -194,6 +206,7 @@ void CAT_pet_face(CAT_vec2 targ)
 
 void CAT_pet_gain_xp(int xp)
 {
+	pet.xp += xp;
 	int cutoff = level_cutoffs[pet.level];
 	if(pet.xp >= cutoff)
 	{
@@ -202,28 +215,27 @@ void CAT_pet_gain_xp(int xp)
 	}
 }
 
-void CAT_pet_stat(int ticks)
+void CAT_pet_stat()
 {
-	float goodness = CAT_AQ_aggregate_score();
-	int delta = goodness < 0.35f ? 2 : 1;
+	int delta = 1;
 
-	pet.vigour = clamp(pet.vigour - delta * ticks, 0, 12);
-	pet.focus = clamp(pet.focus - delta * ticks, 0, 12);
-	pet.spirit = clamp(pet.spirit - delta * ticks, 0, 12);
+	pet.vigour = clamp(pet.vigour - delta, 0, 12);
+	pet.focus = clamp(pet.focus - delta, 0, 12);
+	pet.spirit = clamp(pet.spirit - delta, 0, 12);
 
 	if(pet.vigour <= 0 || pet.focus <= 0 || pet.spirit <= 0)
 	{
 		float xp_delta = round(((float) level_cutoffs[pet.level]) * 0.1f);
-		pet.xp -= xp_delta * ticks;
+		pet.xp -= xp_delta;
 	}
 	pet.xp = max(pet.xp, 0);
 }
 
-void CAT_pet_life(int ticks)
+void CAT_pet_life()
 {
 	if(!CAT_pet_is_dead())
 	{
-		pet.lifetime += ticks;
+		pet.lifetime += 1;
 		if(CAT_pet_is_dead())
 		{	
 			pet.deathday = CAT_get_RTC_now();
@@ -231,9 +243,9 @@ void CAT_pet_life(int ticks)
 	}
 
 	int xp = round(((pet.vigour + pet.focus + pet.spirit) / 3.0f) * 50.0f);
-	CAT_pet_gain_xp(xp * ticks);
+	CAT_pet_gain_xp(xp);
 
-	pet.times_milked = 0;
+	timing_state.times_milked_since_producing = 0;
 }
 
 static CAT_vec2 destination = {120, 200};
@@ -245,22 +257,25 @@ void milk_proc()
 
 void CAT_pet_tick()
 {
-	if(pet.stat_timer >= CAT_STAT_TICK_TIME)
-	{
-		CAT_pet_stat(1);
-		pet.stat_timer = 0;
-	}
-	
-	if(pet.life_timer >= CAT_LIFE_TICK_TIME)
-	{
-		CAT_pet_life(1);
-		pet.life_timer = 0;
-	}
+	uint64_t now = CAT_get_RTC_now();
 
-	pet.stat_timer += CAT_get_delta_time_s();
-	pet.life_timer += CAT_get_delta_time_s();
-	pet.petting_timer += CAT_get_delta_time_s();
+	uint32_t time_since = now - timing_state.last_stat_time;
+	uint32_t ticks = time_since / CAT_STAT_TICK_PERIOD;
+	uint32_t remainder = time_since % CAT_STAT_TICK_PERIOD;
+	for(int i = 0; i < ticks; i++)
+		CAT_pet_stat();
+	timing_state.last_stat_time = now - remainder;
+
+	time_since = now - timing_state.last_life_time;
+	ticks = time_since / CAT_LIFE_TICK_PERIOD;
+	remainder = time_since % CAT_LIFE_TICK_PERIOD;
+	for(int i = 0; i < ticks; i++)
+		CAT_pet_life();
+	timing_state.last_life_time = now - remainder;
 }
+
+#define WALK_COOLDOWN 4
+static float walk_timer = 0;
 
 void CAT_pet_walk()
 {
@@ -268,15 +283,15 @@ void CAT_pet_walk()
 	{
 		if(CAT_anim_is_in(&AM_pet, &AS_idle) && CAT_anim_is_ticking(&AM_pet))
 		{	
-			if(pet.walk_timer >= CAT_PET_WALK_COOLDOWN && CAT_has_free_space())
+			if(walk_timer >= WALK_COOLDOWN && CAT_has_free_space())
 			{
 				CAT_ivec2 grid_dest = CAT_rand_free_space();
 				CAT_ivec2 world_dest = CAT_grid2world(grid_dest);
 				destination = (CAT_vec2) {world_dest.x + 8, world_dest.y + 8};
 				CAT_anim_transition(&AM_pet, &AS_walk);
-				pet.walk_timer = 0;
+				walk_timer = 0;
 			}
-			pet.walk_timer += CAT_get_delta_time_s();
+			walk_timer += CAT_get_delta_time_s();
 		}
 		
 		if(CAT_anim_is_in(&AM_pet, &AS_walk) && CAT_anim_is_ticking(&AM_pet))
@@ -294,6 +309,9 @@ void CAT_pet_walk()
 	}
 }
 
+#define REACT_DURATION 2
+float react_timer = 0;
+
 void CAT_pet_react()
 {
 	if(CAT_input_drag(pet.pos.x, pet.pos.y-16, 16) && !CAT_anim_is_in(&AM_mood, &AS_react))
@@ -301,12 +319,16 @@ void CAT_pet_react()
 
 	if(CAT_anim_is_in(&AM_mood, &AS_react))
 	{
-		if(pet.react_timer >= CAT_PET_REACT_TIME)
+		if(react_timer >= REACT_DURATION)
 		{
-			if(pet.petting_timer >= CAT_PET_PET_COOLDOWN && pet.times_milked < 3)
+			uint64_t now = CAT_get_RTC_now();
+			uint32_t time_since = now - timing_state.last_milk_time;
+
+			if(time_since >= CAT_PET_MILK_COOLDOWN && timing_state.milks_produced_today < 3)
 			{
-				pet.times_pet += 1;
-				if(pet.times_pet >= 5)
+				timing_state.times_milked_since_producing += 1;
+
+				if(timing_state.times_milked_since_producing >= 5)
 				{
 					CAT_ivec2 place_grid = CAT_rand_free_space();
 					CAT_ivec2 place_world = CAT_grid2world(place_grid);
@@ -320,18 +342,18 @@ void CAT_pet_react()
 						milk_proc
 					);
 
-					pet.times_milked += 1;
-					pet.times_pet = 0;
+					timing_state.milks_produced_today += 1;
+					timing_state.times_milked_since_producing = 0;
 				}
 
-				pet.petting_timer = 0;
+				timing_state.last_milk_time = now;
 			}
 
 			CAT_anim_kill(&AM_mood);
-			pet.react_timer = 0;
+			react_timer = 0;
 		}
 
-		pet.react_timer += CAT_get_delta_time_s();
+		react_timer += CAT_get_delta_time_s();
 	}
 }
 
@@ -342,29 +364,13 @@ bool CAT_pet_is_dead()
 
 void CAT_pet_reincarnate()
 {
-	pet.vigour = 12;
-	pet.focus = 12;
-	pet.spirit = 12;
-	pet.lifetime = 0;
-	pet.lifespan = 30;
-	pet.incarnations += 1;
+	int incarnation_backup = pet.incarnations;
+	int level_backup = pet.level;
 
-	pet.xp = 0;
+	CAT_pet_init();
 
-	pet.pos = (CAT_vec2) {120, 200};
-	pet.vel = (CAT_vec2) {0, 0};
-	pet.rot = 1;
-
-	pet.stat_timer = 0;
-	pet.life_timer = 0;
-	pet.walk_timer = 0;
-	pet.react_timer = 0;
-
-	pet.times_pet = 0;
-	pet.petting_timer = 0;
-	pet.times_milked = 0;
-
-	strcpy(pet.name, CAT_DEFAULT_PET_NAME);
+	pet.incarnations = incarnation_backup + 1;
+	pet.level = level_backup;
 }
 
 static bool death_report = false;
