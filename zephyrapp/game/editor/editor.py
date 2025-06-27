@@ -1493,7 +1493,15 @@ class Mesh2DEditor:
 				if in_bounds:
 					if imgui.is_mouse_down(0) and not self.was_left_click:
 						if imgui_io.key_shift:
-							delta = vertex - self.last_click;
+							tl = imgui.ImVec2(256, 256);
+							br = imgui.ImVec2(-1, -1);
+							for [v0, v1] in self.polyline:
+								tl.x = min(v0.x, v1.x, tl.x);
+								tl.y = min(v0.y, v1.y, tl.y);
+								br.x = max(v0.x, v1.x, br.x);
+								br.y = max(v0.y, v1.y, br.y);
+							middle = (tl+br)/2;
+							delta = vertex - middle;
 							self.translate(delta);
 							self.last_click = vertex;
 						else:
