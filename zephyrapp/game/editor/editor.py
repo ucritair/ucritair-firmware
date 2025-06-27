@@ -59,6 +59,17 @@ imgui_io.config_windows_move_from_title_bar_only = True;
 imgui.style_colors_dark()
 impl = GlfwRenderer(handle);
 
+def get_clipboard_text(_ctx: imgui.internal.Context) -> str:
+	s = glfw.get_clipboard_string(handle);
+	return s.decode();
+
+def set_clipboard_text(_ctx: imgui.internal.Context, text: str) -> str:
+	glfw.set_clipboard_string(handle, text);
+
+platform_io = imgui.get_platform_io();
+platform_io.platform_get_clipboard_text_fn = get_clipboard_text;
+platform_io.platform_set_clipboard_text_fn = set_clipboard_text;
+
 time = glfw.get_time();
 delta_time = 0;
 
@@ -802,11 +813,12 @@ class DocumentRenderer:
 				imgui.text(key);
 				imgui.same_line();
 				if writable:
-					try:
-						changed, output = imgui.input_text(get_id(node, key), str(node[key]));
-						node[key] = str(output);
-					except:
-						print("Something went wrong!");
+					#try:
+					_, output = imgui.input_text(get_id(node, key), node[key]);
+					node[key] = output;
+					#except Exception as e:
+						#print("Something went wrong!");
+						#print(e);
 				else:
 					imgui.text(node[key]);
 
@@ -1678,6 +1690,21 @@ splash_flag_list = [
 ];
 splash_flags = foldl(lambda a, b : a | b, 0, splash_flag_list);
 
+input_states = {};
+
+def track_inputs():
+	for key in range(glfw.KEY_SPACE, glfw.KEY_LAST+1):
+		if not key in input_states:
+			input_states[key] = [glfw.get_key(handle, key), False];
+		else:
+			input_states[key] = [glfw.get_key(handle, key), input_states[key][0]];
+
+def is_held(key):
+	return input_states[key][0];
+
+def is_pressed(key):
+	return input_states[key][0] and not input_states[key][1];
+
 while not glfw.window_should_close(handle):
 	time_last = time;
 	time = glfw.get_time();
@@ -1685,6 +1712,13 @@ while not glfw.window_should_close(handle):
 
 	glfw.poll_events();
 	impl.process_inputs();
+
+	track_inputs();
+
+	if is_held(glfw.KEY_LEFT_SUPER) and is_pressed(glfw.KEY_S):
+		if document != None:
+			document.save();
+			print("Saved via hotkey!");
 
 	glEnable(GL_PROGRAM_POINT_SIZE);
 	glClearColor(0, 0, 0, 1);
