@@ -1306,6 +1306,7 @@ class Mesh2DEditor:
 
 		self.polyline = [];
 		self.edge_buffer = [];
+		self.trash = None;
 
 		self.canvas = Canvas(240, 120);
 		self.canvas_scale = 2;
@@ -1321,9 +1322,11 @@ class Mesh2DEditor:
 		self.show_grid = True;
 		self.show_verts = False;
 		
+		self.edit_mode = False;
 		self.was_left_click = False;
 		self.was_right_click = False;
 		self.last_edge_closed = True;
+		self.last_click = imgui.ImVec2(-1, -1);
 	
 		self.mesh_pool = asset_docs["mesh2d"].entries;
 		self.mesh = self.mesh_pool[0] if len(self.mesh_pool) > 0 else None;
@@ -1372,13 +1375,22 @@ class Mesh2DEditor:
 			v0 -= corner;
 			v1 -= corner;
 	def center(self):
-		middle = imgui.ImVec2(0, 0);
+		tl = imgui.ImVec2(256, 256);
+		br = imgui.ImVec2(-1, -1);
 		for [v0, v1] in self.polyline:
-			middle += v0 + v1;
-		middle /= len(self.polyline);
+			tl.x = min(v0.x, v1.x, tl.x);
+			tl.y = min(v0.y, v1.y, tl.y);
+			br.x = max(v0.x, v1.x, br.x);
+			br.y = max(v0.y, v1.y, br.y);
+		middle = (tl+br)/2;
+		shift = imgui.ImVec2(120, 60) - middle;
 		for [v0, v1] in self.polyline:
-			v0 -= middle;
-			v1 -= middle;
+			v0 += shift;
+			v1 += shift;
+	def translate(self, delta):
+		for [v0, v1] in self.polyline:
+			v0 += delta;
+			v1 += delta;
 	
 	def close_mesh(self):
 		if not self.mesh is None:
@@ -1463,18 +1475,26 @@ class Mesh2DEditor:
 			in_bounds = self.in_bounds(brush_pos);
 			vertex = self.snap(brush_pos);
 
-			if in_bounds:
-				if imgui.is_mouse_down(0) and not self.was_left_click:
-					self.buffer_vertex(vertex);
-					self.was_left_click = True;
-				if not imgui.is_mouse_down(0):
-					self.was_left_click = False;
-				
-				if imgui.is_mouse_down(1) and not self.was_right_click:
-					self.delete_vertex(vertex);
-					self.was_right_click = True;
-				if not imgui.is_mouse_down(1):
-					self.was_right_click = False;
+			if self.edit_mode:
+				if self.last_click == imgui.ImVec2(-1, -1):
+					self.last_click = vertex;
+				if in_bounds:
+					if imgui.is_mouse_down(0) and not self.was_left_click:
+						if imgui_io.key_shift:
+							delta = vertex - self.last_click;
+							self.translate(delta);
+							self.last_click = vertex;
+						else:
+							self.buffer_vertex(vertex);
+							self.was_left_click = True;
+					if not imgui.is_mouse_down(0):
+						self.was_left_click = False;
+					
+					if imgui.is_mouse_down(1) and not self.was_right_click:
+						self.delete_vertex(vertex);
+						self.was_right_click = True;
+					if not imgui.is_mouse_down(1):
+						self.was_right_click = False;
 			
 			self.canvas.clear((0, 0, 0));
 			if self.show_grid:
@@ -1488,11 +1508,13 @@ class Mesh2DEditor:
 				if self.show_verts:
 					self.canvas.draw_circle(v0.x, v0.y, 1, (255, 255, 255));
 					self.canvas.draw_circle(v1.x, v1.y, 1, (255, 255, 255));
-			if len(self.edge_buffer) > 0:
-				last = self.edge_buffer[-1];
-				self.canvas.draw_line(last.x, last.y, vertex.x, vertex.y, (255, 255, 255));
-			self.canvas.draw_circle(vertex.x, vertex.y, 2, (255, 255, 255));
 			
+			if self.edit_mode:
+				if len(self.edge_buffer) > 0:
+					last = self.edge_buffer[-1];
+					self.canvas.draw_line(last.x, last.y, vertex.x, vertex.y, (255, 255, 255));
+				self.canvas.draw_circle(vertex.x, vertex.y, 2, (255, 255, 255));
+				
 			self.canvas.render(self.canvas_scale);
 			_, self.show_grid = imgui.checkbox("Show grid", self.show_grid);
 			imgui.same_line();
@@ -1501,17 +1523,23 @@ class Mesh2DEditor:
 			imgui.push_item_width(72);
 			_, self.grid_dist = imgui.input_int("Cell size", self.grid_dist);
 			imgui.pop_item_width();
-			if imgui.button("Clear"):
-				self.polyline = [];
-				self.edge_buffer = [];
-			imgui.same_line();
-			if imgui.button("Shunt"):
-				self.shunt();
-			imgui.same_line();
-			if imgui.button("Center"):
-				self.center();
-			imgui.same_line();
-			imgui.text(f"({vertex.x}, {vertex.y})");
+
+			_, self.edit_mode = imgui.checkbox("Edit Mode", self.edit_mode);
+			if self.edit_mode:
+				imgui.same_line();
+				if imgui.button("Shunt"):
+					self.shunt();
+				imgui.same_line();
+				if imgui.button("Center"):
+					self.center();
+				if imgui.button("Clear"):
+					self.trash = self.polyline, self.edge_buffer;
+					self.polyline = [];
+					self.edge_buffer = [];
+				imgui.same_line();
+				if imgui.button("Restore") and self.trash != None:
+					self.polyline, self.edge_buffer = self.trash;
+					self.trash = None;
 			
 			self.size = imgui.get_window_size();
 			imgui.end();

@@ -1251,7 +1251,7 @@ static void render_MS_summary()
 		case FISH:
 		{		
 			render_wave_buffer();
-			CAT_draw_mesh2d(fish.type->mesh, 0, 232, CAT_WHITE);
+			CAT_draw_mesh2d(fish.type->mesh, 0, 208, CAT_WHITE);
 			
 			int cursor_y = 4;
 			render_page_markers(120, cursor_y);
@@ -1259,28 +1259,30 @@ static void render_MS_summary()
 			
 			CAT_set_text_colour(CAT_WHITE);
 			CAT_set_text_scale(2);
-			CAT_draw_text(12, cursor_y, fish.type->name);
-			cursor_y += 36;
+			cursor_y = CAT_draw_textf(12, cursor_y, "%s\n", fish.type->name);
+			cursor_y += 8;
 
 			CAT_set_text_colour(CAT_WHITE);
 			CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
-			cursor_y = CAT_draw_textf(12, cursor_y, fish.type->proverb) + 32;
+			CAT_set_text_mask(12, -1, CAT_LCD_SCREEN_W-12, -1);
+			cursor_y = CAT_draw_textf(12, cursor_y, "%s\n", fish.type->proverb);
+			cursor_y += 8;
 
 			CAT_set_text_colour(CAT_WHITE);
 			CAT_draw_textf(12, cursor_y, "Length: %0.0f cm", fish.length * 100);
-			cursor_y += 20;
-			render_score_line(12, cursor_y, CAT_LCD_SCREEN_W * 0.75, fish.length, fish.type->min_length, fish.type->max_length);
 			cursor_y += 16;
+			render_score_line(12, cursor_y, CAT_LCD_SCREEN_W * 0.75, fish.length, fish.type->min_length, fish.type->max_length);
+			cursor_y += 12;
 
 			CAT_set_text_colour(CAT_WHITE);
 			CAT_draw_textf(12, cursor_y, "Lustre: %0.2f", fish.lustre);
-			cursor_y += 20;
-			render_score_line(12, cursor_y, CAT_LCD_SCREEN_W * 0.75, fish.lustre, fish.type->min_lustre, fish.type->max_lustre);
 			cursor_y += 16;
+			render_score_line(12, cursor_y, CAT_LCD_SCREEN_W * 0.75, fish.lustre, fish.type->min_lustre, fish.type->max_lustre);
+			cursor_y += 12;
 
 			CAT_set_text_colour(CAT_WHITE);
 			CAT_draw_textf(12, cursor_y, "Wisdom: %0.2f", fish.wisdom);
-			cursor_y += 20;
+			cursor_y += 16;
 			render_score_line(12, cursor_y, CAT_LCD_SCREEN_W * 0.75, fish.wisdom, fish.type->min_wisdom, fish.type->max_wisdom);
 		}
 		break;
