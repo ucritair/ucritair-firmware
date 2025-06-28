@@ -28,8 +28,18 @@ void CAT_pet_import_timing_state(CAT_pet_timing_state* in)
 }
 
 CAT_pet pet;
-CAT_anim_machine AM_pet;
-CAT_anim_machine AM_mood;
+CAT_anim_machine AM_pet =
+{
+	.state = NULL,
+	.next = NULL,
+	.signal = ENTER
+};
+CAT_anim_machine AM_mood =
+{
+	.state = NULL,
+	.next = NULL,
+	.signal = ENTER
+};
 
 bool is_critical()
 {
@@ -49,37 +59,23 @@ void CAT_pet_init()
 		.times_milked_since_producing = 0
 	};
 
-	pet.vigour = 12;
-	pet.focus = 12;
-	pet.spirit = 12;
+	strncpy(pet.name, CAT_DEFAULT_PET_NAME, sizeof(pet.name));
 
-	pet.lifetime = 0;
 	pet.lifespan = 30;
-	pet.incarnations = 1;
 	pet.birthday = CAT_get_RTC_now();
 	pet.deathday = 0;
+	pet.incarnations = 1;
 
 	pet.xp = 0;
 	pet.level = 0;
 
+	pet.vigour = 12;
+	pet.focus = 12;
+	pet.spirit = 12;
+
 	pet.pos = (CAT_vec2) {120, 200};
 	pet.vel = (CAT_vec2) {0, 0};
 	pet.rot = 1;
-
-	strcpy(pet.name, CAT_DEFAULT_PET_NAME);
-
-	AM_pet = (CAT_anim_machine)
-	{
-		.state = NULL,
-		.next = NULL,
-		.signal = ENTER
-	};
-	AM_mood = (CAT_anim_machine)
-	{
-		.state = NULL,
-		.next = NULL,
-		.signal = ENTER
-	};
 }
 
 void CAT_pet_update_animations()
@@ -235,17 +231,11 @@ void CAT_pet_life()
 {
 	if(!CAT_pet_is_dead())
 	{
-		pet.lifetime += 1;
-		if(CAT_pet_is_dead())
-		{	
-			pet.deathday = CAT_get_RTC_now();
-		}
+		int xp = round(((pet.vigour + pet.focus + pet.spirit) / 3.0f) * 50.0f);
+		CAT_pet_gain_xp(xp);
+
+		timing_state.times_milked_since_producing = 0;
 	}
-
-	int xp = round(((pet.vigour + pet.focus + pet.spirit) / 3.0f) * 50.0f);
-	CAT_pet_gain_xp(xp);
-
-	timing_state.times_milked_since_producing = 0;
 }
 
 static CAT_vec2 destination = {120, 200};
@@ -272,6 +262,12 @@ void CAT_pet_tick()
 	for(int i = 0; i < ticks; i++)
 		CAT_pet_life();
 	timing_state.last_life_time = now - remainder;
+
+	if(CAT_pet_days_alive() > pet.lifespan)
+	{
+		pet.deathday = CAT_get_RTC_now();
+		CAT_pet_post_death_report();
+	}
 }
 
 #define WALK_COOLDOWN 4
@@ -357,9 +353,16 @@ void CAT_pet_react()
 	}
 }
 
+int CAT_pet_days_alive()
+{
+	uint64_t now = CAT_get_RTC_now();
+	uint64_t seconds_alive = now - pet.birthday;
+	return seconds_alive / CAT_DAY_SECONDS;
+}
+
 bool CAT_pet_is_dead()
 {
-	return pet.lifetime > pet.lifespan;
+	return pet.deathday >= pet.birthday;
 }
 
 void CAT_pet_reincarnate()
@@ -371,6 +374,10 @@ void CAT_pet_reincarnate()
 
 	pet.incarnations = incarnation_backup + 1;
 	pet.level = level_backup;
+
+	AM_pet.state = &AS_idle;
+	AM_pet.next = NULL;
+	AM_pet.signal = TICK;
 }
 
 static bool death_report = false;
@@ -383,4 +390,9 @@ void CAT_pet_post_death_report()
 void CAT_pet_dismiss_death_report()
 {
 	death_report = false;
+}
+
+bool CAT_pet_is_death_report_posted()
+{
+	return death_report;
 }

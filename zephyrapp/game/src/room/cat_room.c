@@ -539,6 +539,69 @@ void CAT_room_tick()
 #define VENDING_MACHINE_W 56
 #define VENDING_MACHINE_H 96
 
+void mode_button_input()
+{
+	if(CAT_input_pressed(CAT_BUTTON_RIGHT))
+		mode_selector += 1;
+	if(CAT_input_pressed(CAT_BUTTON_LEFT))
+		mode_selector -= 1;
+	mode_selector = (mode_selector + MODE_BUTTON_COUNT) % MODE_BUTTON_COUNT;
+	if(CAT_input_pressed(CAT_BUTTON_A))
+		CAT_machine_transition(button_modes[mode_selector]);
+	
+	for(int i = 0; i < MODE_BUTTON_COUNT; i++)
+	{
+		if(CAT_input_touch_rect
+		(
+			MODE_BUTTONS_X + (MODE_BUTTON_SIZE + MODE_BUTTON_PAD) * i,
+			MODE_BUTTONS_Y,
+			MODE_BUTTON_SIZE, MODE_BUTTON_SIZE
+		))
+		{
+			if(i == mode_selector)
+				CAT_machine_transition(button_modes[mode_selector]);
+			mode_selector = i;
+		}
+	}
+}
+
+void world_button_input()
+{
+	if(CAT_input_touch_rect(VENDING_MACHINE_X, VENDING_MACHINE_Y, VENDING_MACHINE_W, VENDING_MACHINE_H))
+				CAT_machine_transition(CAT_MS_shop);
+
+	if(CAT_input_touch_rect(ARCADE_X, ARCADE_Y, ARCADE_W, ARCADE_H))
+		CAT_machine_transition(CAT_MS_arcade);
+
+	if(CAT_input_touch_rect
+	(
+		room.theme->window_rect.min.x+4,
+		room.theme->window_rect.min.y+4,
+		room.theme->window_rect.max.x-room.theme->window_rect.min.x-8,
+		room.theme->window_rect.max.y-room.theme->window_rect.min.y-8
+	))
+	{
+		CAT_machine_transition(CAT_MS_monitor);
+	}
+}
+
+void pickup_input()
+{
+	for(int i = 0; i < room.pickup_count; i++)
+	{
+		if(room.pickups[i].timer >= PICKUP_AIR_TIME)
+		{
+			CAT_ivec2 place = room.pickups[i].place;
+			if(CAT_input_drag(place.x + 8, place.y - 8, 16))
+			{
+				room.pickups[i].proc();
+				CAT_despawn_pickup(i);
+				i -= 1;
+			}
+		}
+	}
+}
+
 void CAT_MS_room(CAT_machine_signal signal)
 {
 	switch(signal)
@@ -554,67 +617,32 @@ void CAT_MS_room(CAT_machine_signal signal)
 		{
 			if(CAT_AQ_is_crisis_report_posted())
 				CAT_machine_transition(CAT_MS_crisis_report);
-			if(CAT_pet_is_dead())
+			if(CAT_pet_is_death_report_posted())
 				CAT_machine_transition(CAT_MS_death_report);
 				
 			if(CAT_input_pressed(CAT_BUTTON_START))
 				CAT_machine_transition(CAT_MS_menu);
 
-			if(CAT_input_pressed(CAT_BUTTON_RIGHT))
-				mode_selector += 1;
-			if(CAT_input_pressed(CAT_BUTTON_LEFT))
-				mode_selector -= 1;
-			mode_selector = (mode_selector + MODE_BUTTON_COUNT) % MODE_BUTTON_COUNT;
-
-			if(CAT_input_pressed(CAT_BUTTON_A))
-				CAT_machine_transition(button_modes[mode_selector]);
-					
-			for(int i = 0; i < MODE_BUTTON_COUNT; i++)
+			if(CAT_pet_is_dead())
 			{
-				if(CAT_input_touch_rect
-				(
-					MODE_BUTTONS_X + (MODE_BUTTON_SIZE + MODE_BUTTON_PAD) * i,
-					MODE_BUTTONS_Y,
-					MODE_BUTTON_SIZE, MODE_BUTTON_SIZE
-				))
+				if(CAT_input_touch_rect(120-32, 228-80, 64, 80))
 				{
-					CAT_machine_transition(button_modes[i]);
-					mode_selector = i;
+					CAT_pet_reincarnate();
 				}
-			}
 
-			if(CAT_input_touch_rect(VENDING_MACHINE_X, VENDING_MACHINE_Y, VENDING_MACHINE_W, VENDING_MACHINE_H))
-				CAT_machine_transition(CAT_MS_shop);
-			if(CAT_input_touch_rect(ARCADE_X, ARCADE_Y, ARCADE_W, ARCADE_H))
-				CAT_machine_transition(CAT_MS_arcade);
-			if(CAT_input_touch_rect
-			(
-				room.theme->window_rect.min.x+4,
-				room.theme->window_rect.min.y+4,
-				room.theme->window_rect.max.x-room.theme->window_rect.min.x-8,
-				room.theme->window_rect.max.y-room.theme->window_rect.min.y-8
-			))
+				world_button_input();
+				pickup_input();
+			}
+			else
 			{
-				CAT_machine_transition(CAT_MS_monitor);
-			}
+				mode_button_input();
+				world_button_input();
+				pickup_input();
 
-			for(int i = 0; i < room.pickup_count; i++)
-			{
-				if(room.pickups[i].timer >= PICKUP_AIR_TIME)
-				{
-					CAT_ivec2 place = room.pickups[i].place;
-					if(CAT_input_drag(place.x + 8, place.y - 8, 16))
-					{
-						room.pickups[i].proc();
-						CAT_despawn_pickup(i);
-						i -= 1;
-					}
-				}
+				CAT_pet_update_animations();
+				CAT_pet_walk();
+				CAT_pet_react();
 			}
-
-			CAT_pet_update_animations();
-			CAT_pet_walk();
-			CAT_pet_react();
 			break;
 		}
 		case CAT_MACHINE_SIGNAL_EXIT:
@@ -775,18 +803,25 @@ void CAT_room_draw_pet()
 {
 	CAT_anim_tick(&AM_pet);
 	CAT_anim_tick(&AM_mood);
-	
-	int flags = CAT_DRAW_FLAG_BOTTOM | CAT_DRAW_FLAG_CENTER_X;
-	if(pet.rot != 1)
-		flags |= CAT_DRAW_FLAG_REFLECT_X;
-	int layer = CAT_get_battery_pct() <= CAT_CRITICAL_BATTERY_PCT ? 1 : 2;
 
-	CAT_draw_queue_add(CAT_anim_read(&AM_pet), -1, layer, pet.pos.x, pet.pos.y, flags);
-
-	if(CAT_anim_is_in(&AM_mood, &AS_react))
+	if(CAT_pet_is_dead())
 	{
-		int x_off = pet.rot != 1 ? 16 : -16;
-		CAT_draw_queue_add(CAT_anim_read(&AM_mood), -1, layer+1, pet.pos.x + x_off, pet.pos.y - 48, flags);	
+		CAT_draw_queue_add(&grave_egg_sprite, 0, PROPS_LAYER, 120, 228, CAT_DRAW_FLAG_BOTTOM | CAT_DRAW_FLAG_CENTER_X);
+	}
+	else
+	{
+		int flags = CAT_DRAW_FLAG_BOTTOM | CAT_DRAW_FLAG_CENTER_X;
+		if(pet.rot != 1)
+			flags |= CAT_DRAW_FLAG_REFLECT_X;
+		int layer = CAT_get_battery_pct() <= CAT_CRITICAL_BATTERY_PCT ? 1 : 2;
+
+		CAT_draw_queue_add(CAT_anim_read(&AM_pet), -1, layer, pet.pos.x, pet.pos.y, flags);
+
+		if(CAT_anim_is_in(&AM_mood, &AS_react))
+		{
+			int x_off = pet.rot != 1 ? 16 : -16;
+			CAT_draw_queue_add(CAT_anim_read(&AM_mood), -1, layer+1, pet.pos.x + x_off, pet.pos.y - 48, flags);	
+		}
 	}
 }
 
@@ -801,6 +836,9 @@ static const CAT_sprite* button_sprites[] =
 
 void CAT_room_draw_gui()
 {
+	if(CAT_pet_is_dead())
+		return;
+
 	for(int i = 0; i < sizeof(button_sprites)/sizeof(button_sprites[0]); i++)
 	{
 		CAT_draw_queue_add

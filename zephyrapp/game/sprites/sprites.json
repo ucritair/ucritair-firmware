@@ -2488,6 +2488,16 @@
             "height": 32,
             "loop": false,
             "reverse": false
+        },
+        {
+            "id": 244,
+            "name": "grave_egg_sprite",
+            "path": "pet/unicorn_egg.png",
+            "frames": 1,
+            "width": 64,
+            "height": 80,
+            "loop": false,
+            "reverse": false
         }
     ]
 }

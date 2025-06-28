@@ -1,6 +1,6 @@
 #pragma once
 
-#define MESH2D_COUNT 16
+#define MESH2D_COUNT 17
 
 #include "cat_render.h"
 
@@ -20,5 +20,6 @@ extern const CAT_mesh2d skipjack_tuna_mesh2d;
 extern const CAT_mesh2d yellowtail_mesh2d;
 extern const CAT_mesh2d coelecanth_mesh2d;
 extern const CAT_mesh2d myaurr_guy_mesh2d;
+extern const CAT_mesh2d feed_your_strange_mesh2d;
 
 extern const CAT_mesh2d* mesh2d_list[];

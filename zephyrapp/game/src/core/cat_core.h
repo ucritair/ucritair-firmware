@@ -12,6 +12,7 @@
 #define CAT_MINUTE_SECONDS 60
 #define CAT_HOUR_SECONDS (60 * CAT_MINUTE_SECONDS)
 #define CAT_DAY_SECONDS (24 * CAT_HOUR_SECONDS)
+#define CAT_DAY_ZERO 60904915200 // (2000/1/1 00:00:00)
 
 #define CAT_LCD_SCREEN_W 240
 #define CAT_LCD_SCREEN_H 320
@@ -139,7 +140,13 @@ typedef union CAT_datetime
 {
 	struct
 	{
-		int year, month, day, hour, minute, second;
+		int
+		year, // [0, INF)
+		month, // [1, 12]
+		day, // [1, 31]
+		hour, // [0, 24)
+		minute, // [0, 60)
+		second; // [0, 60)
 	};
 	
    	int data[6];
@@ -256,10 +263,9 @@ typedef struct __attribute__((__packed__))
 		CAT_save_sector_header header;
 		char name[24];
 		uint8_t lifespan;
-		uint8_t lifetime;
-		uint16_t incarnations;
 		uint64_t birthday;
 		uint64_t deathday;
+		uint16_t incarnations;
 		uint8_t level;
 		uint32_t xp;
 		uint8_t vigour;

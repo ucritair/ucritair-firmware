@@ -813,12 +813,8 @@ class DocumentRenderer:
 				imgui.text(key);
 				imgui.same_line();
 				if writable:
-					#try:
 					_, output = imgui.input_text(get_id(node, key), node[key]);
 					node[key] = output;
-					#except Exception as e:
-						#print("Something went wrong!");
-						#print(e);
 				else:
 					imgui.text(node[key]);
 
@@ -1724,9 +1720,9 @@ while not glfw.window_should_close(handle):
 	track_inputs();
 
 	if is_held(glfw.KEY_LEFT_SUPER) and is_pressed(glfw.KEY_S):
-		if document != None:
-			document.save();
-			print("Saved via hotkey!");
+		for doc in asset_docs.values():
+			doc.save();
+		print("Saved all documents!");
 
 	glEnable(GL_PROGRAM_POINT_SIZE);
 	glClearColor(0, 0, 0, 1);

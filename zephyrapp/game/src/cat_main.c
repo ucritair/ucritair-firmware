@@ -61,13 +61,15 @@ void CAT_force_save()
 	CAT_initialize_save(save);
 
 	strcpy(save->pet.name, pet.name);
-	save->pet.level = pet.level;
-	save->pet.xp = pet.xp;
+
 	save->pet.lifespan = pet.lifespan;
-	save->pet.lifetime = pet.lifetime;
-	save->pet.incarnations = pet.incarnations;
 	save->pet.birthday = pet.birthday;
 	save->pet.deathday = pet.deathday;
+	save->pet.incarnations = pet.incarnations;
+
+	save->pet.level = pet.level;
+	save->pet.xp = pet.xp;
+
 	save->pet.vigour = pet.vigour;
 	save->pet.focus = pet.focus;
 	save->pet.spirit = pet.spirit;
@@ -118,6 +120,9 @@ void CAT_force_save()
 
 void CAT_load_default()
 {
+	CAT_pet_init();
+	CAT_room_init();
+
 	CAT_inventory_clear();
 	CAT_inventory_add(prop_crafter_item, 1);
 	CAT_inventory_add(toy_laser_pointer_item, 1);
@@ -129,6 +134,9 @@ void CAT_load_default()
 
 void CAT_load_turnkey()
 {
+	CAT_pet_init();
+	CAT_room_init();
+
 	CAT_inventory_clear();
 	CAT_inventory_add(book_1_item, 1);
 	CAT_inventory_add(food_bread_item, 2);
@@ -151,6 +159,10 @@ void CAT_load_turnkey()
 	CAT_room_add_prop(prop_table_sm_plastic_item, (CAT_ivec2) {13, 7});
 	CAT_room_stack_prop(room.prop_count-1, prop_coffeemaker_item);
 	CAT_room_add_prop(prop_plant_daisy_item, (CAT_ivec2) {0, 9});
+
+	CAT_inventory_add(prop_portal_orange_item, 1);
+	CAT_inventory_add(prop_xen_crystal_item, 1);
+	CAT_inventory_add(prop_hoopy_item, 1);
 }
 
 void CAT_force_load()
@@ -167,6 +179,7 @@ void CAT_force_load()
 		CAT_force_save();
 		CAT_printf("Game state reset and saved!\n");
 		CAT_unset_load_flags(CAT_LOAD_FLAG_DEFAULT);
+		CAT_force_load();
 		return;
 	}
 	else if(CAT_check_load_flags(CAT_LOAD_FLAG_TURNKEY))
@@ -177,6 +190,7 @@ void CAT_force_load()
 		CAT_force_save();
 		CAT_printf("Game state set to turnkey configuration!\n");
 		CAT_unset_load_flags(CAT_LOAD_FLAG_TURNKEY);
+		CAT_force_load();
 		return;
 	}
 	else
@@ -211,20 +225,21 @@ void CAT_force_load()
 
 	if(strlen(save->pet.name) <= CAT_TEXT_INPUT_MAX_LENGTH)
 		strncpy(pet.name, save->pet.name, sizeof(pet.name));
+
+	if(save->pet.lifespan <= 30)
+		pet.lifespan = save->pet.lifespan;
+	if(save->pet.birthday >= CAT_DAY_ZERO && save->pet.birthday <= CAT_get_RTC_now())
+		pet.birthday = save->pet.birthday;
+	if(save->pet.deathday >= save->pet.birthday)
+		pet.deathday = save->pet.deathday;
+	if(save->pet.incarnations <= UINT16_MAX)
+		pet.incarnations = save->pet.incarnations;
+
 	if(save->pet.level < CAT_NUM_LEVELS)
 		pet.level = save->pet.level;
 	if(save->pet.xp < level_cutoffs[pet.level])
 		pet.xp = save->pet.xp;
-	if(save->pet.lifetime <= UINT8_MAX)
-		pet.lifetime = save->pet.lifetime;
-	if(save->pet.lifespan <= 30)
-		pet.lifespan = save->pet.lifespan;
-	if(save->pet.incarnations <= UINT16_MAX)
-		pet.incarnations = save->pet.incarnations;
-	if(save->pet.birthday <= CAT_get_RTC_now() && save->pet.birthday > 0)
-		pet.birthday = save->pet.birthday;
-	if(save->pet.deathday <= CAT_get_RTC_now())
-		pet.deathday = save->pet.deathday;
+
 	if(save->pet.vigour <= 12)
 		pet.vigour = save->pet.vigour;
 	if(save->pet.focus <= 12)

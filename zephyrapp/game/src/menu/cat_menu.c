@@ -85,6 +85,10 @@ void CAT_MS_menu(CAT_machine_signal signal)
 								pet.focus = 0;
 								pet.spirit = 0;
 							}
+							if(CAT_gui_menu_item("KILL PET"))
+							{
+								pet.deathday = CAT_get_RTC_now();
+							}
 							if(CAT_gui_menu_item("EVERY ITEM"))
 							{
 								for(int item_id = 0; item_id < item_table.length; item_id++)
