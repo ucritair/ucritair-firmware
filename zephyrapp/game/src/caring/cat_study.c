@@ -1089,6 +1089,25 @@ static void render_MS_fail()
 {
 	CAT_frameberry(CAT_BLACK);
 	render_fish(CAT_RGB24216(fail_colour));
+
+	if(fish.bite_trigger)
+	{
+		CAT_set_text_colour(CAT_RED);
+		CAT_set_text_scale(2);
+		CAT_draw_text(12, 12, "TOO LATE...");
+	}
+	else if(fish.nibble_trigger)
+	{
+		CAT_set_text_colour(CAT_RED);
+		CAT_set_text_scale(2);
+		CAT_draw_text(12, 12, "TOO EARLY...");
+	}
+	else
+	{
+		CAT_set_text_colour(CAT_RED);
+		CAT_set_text_scale(2);
+		CAT_draw_text(12, 12, "GOT AWAY...");
+	}
 }
 
 static CAT_RGB888 succeed_colour;

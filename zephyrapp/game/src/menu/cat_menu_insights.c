@@ -70,7 +70,7 @@ void CAT_render_insights()
 	cursor_y += 8;
 
 	CAT_set_text_colour(CAT_WHITE);
-	cursor_y = CAT_draw_textf(MARGIN, cursor_y, "LEVEL %d \1 XP %d/%d\n", pet.level, pet.xp, level_cutoffs[pet.level]);
+	cursor_y = CAT_draw_textf(MARGIN, cursor_y, "LEVEL %d \1 XP %d/%d\n", pet.level+1, pet.xp, level_cutoffs[pet.level]);
 
 	CAT_set_sprite_scale(2);
 	CAT_draw_sprite(AS_idle.tick_sprite, 0, MARGIN, cursor_y);

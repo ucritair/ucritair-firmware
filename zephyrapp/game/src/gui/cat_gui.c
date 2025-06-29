@@ -618,7 +618,7 @@ void CAT_gui_begin_menu_context()
 		menu_table[i].clicked = false;
 		menu_table[i].parent = -1;
 		menu_table[i].child_count = 0;
-		menu_table[i].selector = 0;
+		// menu_table[i].selector = 0;
 	}
 }
 

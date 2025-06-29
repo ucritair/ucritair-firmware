@@ -281,6 +281,8 @@ static int food_spawn(int pool_idx)
 {
 	if (food_count >= MAX_FOOD_COUNT)
 		return -1;
+	if(pool_idx == -1)
+		return -1;
 
 	int list_idx = food_count;
 	food_list[list_idx] = (food_object){
@@ -319,8 +321,8 @@ static CAT_item *food_lookup(int list_idx)
 static void init_food_list()
 {
 	food_count = 0;
-	for (int i = 0; i < min(food_pool.length, MAX_FOOD_COUNT); i++)
-		food_spawn(i);
+	/*for (int i = 0; i < min(food_pool.length, MAX_FOOD_COUNT); i++)
+		food_spawn(i);*/
 }
 
 static struct
@@ -842,6 +844,7 @@ static void render_arrange()
 	int counter_w = counter_rect.max.x - counter_x;
 	int counter_h = counter_rect.max.y - counter_y;
 	CAT_draw_background(&feed_upper_tray_sprite, 0, 0);
+
 	if (food_pool.length <= 0)
 	{
 		CAT_set_text_scale(2);
@@ -851,8 +854,22 @@ static void render_arrange()
 		CAT_set_text_colour(CAT_WHITE);
 		CAT_draw_textf(counter_x + 34, counter_y + 32, "food items!");
 	}
+	else if(food_count <= 0)
+	{
+		CAT_set_text_mask(counter_x+8, -1, counter_x+counter_w-8, -1);
+		CAT_set_text_colour(CAT_WHITE);
+		CAT_set_text_flags(CAT_TEXT_FLAG_WRAP | CAT_TEXT_FLAG_CENTER);
+		CAT_draw_textf(counter_x+counter_w/2, counter_y+counter_h/2-18, "Press [SELECT] to select food items.\n");
+	}
+	else if(active_food_count == food_count)
+	{
+		CAT_set_text_mask(counter_x+8, -1, counter_x+counter_w-8, -1);
+		CAT_set_text_colour(CAT_WHITE);
+		CAT_set_text_flags(CAT_TEXT_FLAG_WRAP | CAT_TEXT_FLAG_CENTER);
+		CAT_draw_textf(counter_x+counter_w/2, counter_y+counter_h/2-18, "Press [A] to submit your meal.\n");
+	}
 
-	int table_x = table_rect.min.x;
+	int table_x = table_rect.min.x;	
 	int table_y = table_rect.min.y;
 	int table_w = table_rect.max.x - table_x;
 	int table_h = table_rect.max.y - table_y;
@@ -864,6 +881,9 @@ static void render_arrange()
 	CAT_draw_sprite_raw(&feed_tablecloth_sprite, 0, center_x, center_y + 16);
 	CAT_set_sprite_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
 	CAT_draw_sprite_raw(&feed_tray_sprite, 0, center_x, center_y);
+
+	CAT_draw_sprite_raw(&feed_flower_sprite, 0, table_x - 36, table_y - 48);
+	CAT_draw_sprite_raw(&feed_chopsticks_sprite, 0, table_x + table_w + 4, table_y);
 
 	if (show_gizmos)
 	{
@@ -1103,7 +1123,8 @@ static void MS_feed_select(CAT_machine_signal signal)
 				{
 					if (food_count == 5)
 						food_despawn(4);
-					food_spawn(last_clicked_idx);
+					if(last_clicked_idx != -1)
+						food_spawn(last_clicked_idx);
 				}
 				else
 					food_despawn(list_idx);
