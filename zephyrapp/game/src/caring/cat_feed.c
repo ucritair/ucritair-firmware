@@ -722,7 +722,6 @@ void MS_feed_arrange(CAT_machine_signal signal)
 	case CAT_MACHINE_SIGNAL_ENTER:
 		CAT_set_render_callback(render_arrange);
 		pick_idx = -1;
-		commit_arrangement = false;
 		feedback_timer = 0;
 		show_feedback = false;
 		break;
@@ -731,12 +730,11 @@ void MS_feed_arrange(CAT_machine_signal signal)
 		if (CAT_gui_popup_is_open())
 			break;
 		if (CAT_input_pressed(CAT_BUTTON_A))
-			CAT_gui_open_popup("Submit this meal?\nFood items on table\nwill be consumed!\n", &commit_arrangement);
-		if (commit_arrangement)
+			CAT_gui_open_popup("Submit this meal?\nFood items on table\nwill be consumed!\n");
+		if (CAT_gui_consume_popup())
 		{
-			commit_arrangement = false;
-
 			CAT_machine_transition(MS_feed_summary);
+			break;
 		}
 
 		if (CAT_input_pressed(CAT_BUTTON_B))

@@ -135,13 +135,12 @@ void CAT_MS_snake(CAT_machine_signal signal)
 		{
 			if(!snake.dead)
 			{
-				static bool quit = false;
 				if(CAT_input_pressed(CAT_BUTTON_B) || CAT_input_pressed(CAT_BUTTON_START))
-						CAT_gui_open_popup("Quit Snack?\n\nProgress will not be saved!\n\n", &quit);
-				if(quit)
+						CAT_gui_open_popup("Quit Snack?\n\nProgress will not be saved!\n\n");
+				else if(CAT_gui_consume_popup())
 				{
-					quit = false;
 					CAT_machine_back();
+					break;
 				}
 				if(CAT_gui_popup_is_open())
 					break;

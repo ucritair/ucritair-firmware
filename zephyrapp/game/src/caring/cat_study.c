@@ -651,18 +651,19 @@ static void render_fish(uint16_t colour)
 static float arena_fade_timer;
 static CAT_ivec2 hook_jitter;
 
-static bool quit_trigger = false;
 static bool quit_popup()
 {
 	if (CAT_gui_popup_is_open())
 		return true;
+
 	if (CAT_input_pressed(CAT_BUTTON_B))
-		CAT_gui_open_popup("Quit fishing?\nYou will lose this\ncatch!\n", &quit_trigger);
-	if (quit_trigger)
+		CAT_gui_open_popup("Quit fishing?\nYou will lose this\ncatch!\n");
+	if (CAT_gui_consume_popup())
 	{
-		quit_trigger = false;
 		CAT_machine_transition(CAT_MS_room);
+		return true;
 	}
+
 	return false;
 }
 

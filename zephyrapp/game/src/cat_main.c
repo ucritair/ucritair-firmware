@@ -342,8 +342,9 @@ void CAT_tick_logic()
 
 	CAT_AQ_tick();
 	CAT_AQ_crisis_tick();
-	CAT_pet_tick();
+
 	CAT_room_tick();
+	CAT_pet_tick();
 	
 	CAT_machine_tick();
 

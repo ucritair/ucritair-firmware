@@ -227,6 +227,7 @@ void CAT_MS_mines(CAT_machine_signal signal)
 			state = PLAY;
 			first_click = true;
 			clicks = 0;
+			cursor = (CAT_ivec2) {0, 0};
 
 			last_revealed = -1;
 			reveal_complete = false;
@@ -236,14 +237,13 @@ void CAT_MS_mines(CAT_machine_signal signal)
 		{	
 			if(state == PLAY)
 			{
-				static bool quit = false;
 				if(CAT_input_pressed(CAT_BUTTON_B) || CAT_input_pressed(CAT_BUTTON_START))
-						CAT_gui_open_popup("Quit Sweep?\n\nProgress will not be saved!\n\n", &quit);
-				if(quit)
+						CAT_gui_open_popup("Quit Sweep?\n\nProgress will not be saved!\n\n");
+				else if(CAT_gui_consume_popup())
 				{
-					quit = false;
 					CAT_machine_back();
-				}		
+					break;
+				}
 				if(CAT_gui_popup_is_open())
 					break;
 

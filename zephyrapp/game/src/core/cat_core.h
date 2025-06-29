@@ -228,6 +228,7 @@ typedef enum
 	CAT_CONFIG_FLAG_AQ_FIRST = (1 << 2),
 	CAT_CONFIG_FLAG_MIGRATED = (1 << 3),
 	CAT_CONFIG_FLAG_PERSIST_CLEARED = (1 << 4),
+	CAT_CONFIG_FLAG_PAUSE_CARE = (1 << 5)
 } CAT_config_flag;
 
 typedef enum

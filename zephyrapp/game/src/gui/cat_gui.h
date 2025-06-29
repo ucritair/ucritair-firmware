@@ -54,8 +54,9 @@ bool CAT_gui_keyboard_is_open();
 //////////////////////////////////////////////////////////////////////////
 // POPUP
 
-void CAT_gui_open_popup(const char* msg, bool* result);
+void CAT_gui_open_popup(const char* msg);
 bool CAT_gui_popup_is_open();
+bool CAT_gui_consume_popup();
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -69,11 +70,17 @@ typedef enum
 	CAT_GUI_MENU_TYPE_TEXT
 } CAT_gui_menu_type;
 
+typedef enum
+{
+	CAT_GUI_TOGGLE_STYLE_CHECKBOX,
+	CAT_GUI_TOGGLE_STYLE_RADIO_BUTTON
+} CAT_gui_toggle_style;
+
 void CAT_gui_begin_menu_context();
 bool CAT_gui_begin_menu(const char* title);
 bool CAT_gui_menu_is_open();
 bool CAT_gui_menu_item(const char* title);
-bool CAT_gui_menu_toggle(const char* title, bool toggle);
+bool CAT_gui_menu_toggle(const char* title, bool toggle, CAT_gui_toggle_style style);
 bool CAT_gui_menu_ticker(const char* title, int* ticker, int min, int max);
 bool CAT_gui_menu_text(const char* fmt, ...);
 void CAT_gui_end_menu();

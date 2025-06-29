@@ -366,7 +366,7 @@ void CAT_gui_keyboard()
 struct
 {
 	const char* msg;
-	bool* result;
+	bool result;
 	uint8_t selector;
 	bool open;
 } popup =
@@ -377,10 +377,10 @@ struct
 	false
 };
 
-void CAT_gui_open_popup(const char* msg, bool* result)
+void CAT_gui_open_popup(const char* msg)
 {	
 	popup.msg = msg;
-	popup.result = result;
+	popup.result = false;
 	popup.selector = 0;
 	popup.open = true;
 	
@@ -400,24 +400,49 @@ void CAT_gui_popup_io()
 		popup.selector = 0;
 	if(CAT_input_pressed(CAT_BUTTON_A))
 	{
-		*(popup.result) = popup.selector;
+		popup.result = popup.selector;
 		popup.open = false;
 	}
 	if(CAT_input_pressed(CAT_BUTTON_START) || CAT_input_pressed(CAT_BUTTON_B))
 	{
-		*(popup.result) = false;
+		popup.result = false;
 		popup.open = false;
 	}
 }
 
+#define POPUP_TILE_X 2
+#define POPUP_TILE_Y 6
+#define POPUP_TILE_W 11
+#define POPUP_TILE_H 8
+#define POPUP_X (POPUP_TILE_X * CAT_TILE_SIZE)
+#define POPUP_Y (POPUP_TILE_Y * CAT_TILE_SIZE)
+#define POPUP_W (POPUP_TILE_W * CAT_TILE_SIZE)
+#define POPUP_H (POPUP_TILE_H * CAT_TILE_SIZE)
+#define POPUP_MARGIN 8
+
 void CAT_gui_popup()
 {
-	CAT_gui_panel((CAT_ivec2) {2, 6}, (CAT_ivec2) {11, 8});
-	CAT_strokeberry(2 * 16, 6 * 16, 11 * 16, 8 * 16, 0x0000);
-	CAT_gui_set_flag(CAT_GUI_FLAG_WRAPPED);
-	CAT_gui_text(popup.msg);
-	CAT_gui_line_break();
-	CAT_gui_text(popup.selector ? "[YES]  NO " : " YES  [NO]");
+	CAT_gui_panel((CAT_ivec2) {POPUP_TILE_X, POPUP_TILE_Y}, (CAT_ivec2) {POPUP_TILE_W, POPUP_TILE_H});
+	CAT_strokeberry(POPUP_X, POPUP_Y, POPUP_W, POPUP_H, CAT_BLACK);
+	CAT_strokeberry(POPUP_X-1, POPUP_Y-1, POPUP_W+2, POPUP_H+2, CAT_GREY);
+	
+	CAT_set_text_mask(POPUP_X+POPUP_MARGIN, -1, POPUP_X+POPUP_W-POPUP_MARGIN, -1);
+	CAT_draw_text(POPUP_X+POPUP_MARGIN, POPUP_Y+POPUP_MARGIN, popup.msg);
+
+	CAT_draw_text
+	(
+		POPUP_X+POPUP_MARGIN, POPUP_Y+POPUP_H-POPUP_MARGIN-CAT_GLYPH_HEIGHT,
+		popup.selector ? "[YES]  NO " : " YES  [NO]"
+	);
+}
+
+bool CAT_gui_consume_popup()
+{
+	if(popup.open)
+		return false;
+	bool result = popup.result;
+	popup.result = false;
+	return result;
 }
 
 
@@ -453,6 +478,7 @@ typedef struct menu_node
 		struct
 		{
 			bool toggle;
+			int style;
 		} toggle_data;
 		
 		struct
@@ -466,7 +492,7 @@ typedef struct menu_node
 		{
 			char text[32];
 		} text_data;
-	} data;
+	};
 	
 	int16_t parent;
 	uint16_t children[32];
@@ -500,7 +526,7 @@ uint16_t register_menu_node(const char* title, CAT_gui_menu_type type)
 		.clicked = false,
 
 		.type = type,
-		.data.default_data = {},
+		.default_data = {},
 
 		.parent = -1,
 		.child_count = 0,
@@ -634,7 +660,7 @@ bool CAT_gui_menu_item(const char* title)
 	return consume_click(idx);
 }
 
-bool CAT_gui_menu_toggle(const char* title, bool toggle)
+bool CAT_gui_menu_toggle(const char* title, bool toggle, CAT_gui_toggle_style style)
 {	
 	int idx = find_menu_node(title);
 	if(idx == -1)
@@ -642,7 +668,8 @@ bool CAT_gui_menu_toggle(const char* title, bool toggle)
 	menu_add_child(idx);
 	menu_node* node = &menu_table[idx];
 
-	node->data.toggle_data.toggle = toggle;
+	node->toggle_data.toggle = toggle;
+	node->toggle_data.style = style;
 
 	return consume_click(idx);
 }
@@ -655,9 +682,9 @@ bool CAT_gui_menu_ticker(const char* title, int* ticker, int min, int max)
 	menu_add_child(idx);
 	menu_node* node = &menu_table[idx];
 
-	node->data.ticker_data.ticker = ticker;
-	node->data.ticker_data.min = min;
-	node->data.ticker_data.max = max;
+	node->ticker_data.ticker = ticker;
+	node->ticker_data.min = min;
+	node->ticker_data.max = max;
 
 	return consume_click(idx);
 }
@@ -676,8 +703,8 @@ bool CAT_gui_menu_text(const char* fmt, ...)
 	menu_add_child(idx);
 	menu_node* node = &menu_table[idx];
 
-	strcpy(node->data.text_data.text, temp);
-	node->title = node->data.text_data.text;
+	strcpy(node->text_data.text, temp);
+	node->title = node->text_data.text;
 
 	return consume_click(idx);
 }
@@ -702,15 +729,15 @@ void CAT_gui_menu_io()
 	{
 		case CAT_GUI_MENU_TYPE_TICKER:
 		{
-			int* ticker = selected->data.ticker_data.ticker;
+			int* ticker = selected->ticker_data.ticker;
 			if(CAT_input_pulse(CAT_BUTTON_LEFT))
 				*ticker -= 1;
 			if(CAT_input_pulse(CAT_BUTTON_RIGHT))
 				*ticker += 1;
-			if(*ticker < selected->data.ticker_data.min)
-				*ticker = selected->data.ticker_data.max;
-			if(*ticker > selected->data.ticker_data.max)
-				*ticker = selected->data.ticker_data.min;
+			if(*ticker < selected->ticker_data.min)
+				*ticker = selected->ticker_data.max;
+			if(*ticker > selected->ticker_data.max)
+				*ticker = selected->ticker_data.min;
 		}
 		break;
 		default:
@@ -754,11 +781,14 @@ void CAT_gui_menu()
 		{
 			case CAT_GUI_MENU_TYPE_TOGGLE:
 				CAT_set_sprite_colour(CAT_BLACK);
-				CAT_gui_image(&ui_radio_button_diamond_sprite, child->data.toggle_data.toggle);
+				CAT_sprite* sprite =
+				child->toggle_data.style == CAT_GUI_TOGGLE_STYLE_CHECKBOX ?
+				&ui_checkbox_sprite : &ui_radio_button_circle_sprite;
+				CAT_gui_image(sprite, child->toggle_data.toggle);
 				CAT_gui_text(" ");
 			break;
 			case CAT_GUI_MENU_TYPE_TICKER:
-				CAT_gui_textf("< %d > ", *(int*)(child->data.ticker_data.ticker));
+				CAT_gui_textf("< %d > ", *(int*)(child->ticker_data.ticker));
 			break;
 			default:
 			break;
@@ -827,6 +857,8 @@ static int item_grid_anchor_y = 0;
 static int item_grid_delta_y = 0;;
 static bool item_grid_scrolling = false;
 static float item_grid_select_timer = 0;
+
+static enum {TOUCH, BUTTON} item_grid_input_mode = TOUCH;
 
 void CAT_gui_begin_item_grid_context()
 {
@@ -987,6 +1019,18 @@ void CAT_gui_item_grid_io()
 	if (CAT_input_held(CAT_BUTTON_DOWN, 0))
 		item_grid_delta_y -= 32;
 	item_grid_delta_y = -clamp(-item_grid_delta_y, item_grid_get_min_scroll_y(), item_grid_get_max_scroll_y());
+
+	if(CAT_input_pressed(CAT_BUTTON_A))
+	{
+		item_grid_last_marked = 0;
+		item_grid_selector = 0;
+	}
+	if(CAT_input_pressed(CAT_BUTTON_UP))
+		item_grid_selector -= 3;
+	if(CAT_input_pressed(CAT_BUTTON_DOWN))
+		item_grid_selector += 3;
+	item_grid_selector = (item_grid_selector + item_grid_pool.length) % item_grid_pool.length;
+	item_grid_last_marked = item_grid_selector;
 }
 
 bool CAT_gui_item_grid_is_open()

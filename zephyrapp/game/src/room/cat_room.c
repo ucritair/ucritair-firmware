@@ -569,11 +569,9 @@ void world_button_input()
 {
 	if(CAT_input_touch_rect(VENDING_MACHINE_X, VENDING_MACHINE_Y, VENDING_MACHINE_W, VENDING_MACHINE_H))
 				CAT_machine_transition(CAT_MS_shop);
-
-	if(CAT_input_touch_rect(ARCADE_X, ARCADE_Y, ARCADE_W, ARCADE_H))
+	else if(CAT_input_touch_rect(ARCADE_X, ARCADE_Y, ARCADE_W, ARCADE_H))
 		CAT_machine_transition(CAT_MS_arcade);
-
-	if(CAT_input_touch_rect
+	else if(CAT_input_touch_rect
 	(
 		room.theme->window_rect.min.x+4,
 		room.theme->window_rect.min.y+4,

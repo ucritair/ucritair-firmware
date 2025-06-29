@@ -249,6 +249,8 @@ extern const CAT_sprite fish_tier_2_icon;
 extern const CAT_sprite fish_tier_3_icon;
 extern const CAT_sprite prop_hoopy_sprite;
 extern const CAT_sprite grave_egg_sprite;
+extern const CAT_sprite ui_radio_button_circle_sprite;
+extern const CAT_sprite ui_checkbox_sprite;
 
 extern const CAT_sprite* sprite_list[];
-#define CAT_SPRITE_LIST_LENGTH 245
+#define CAT_SPRITE_LIST_LENGTH 247
