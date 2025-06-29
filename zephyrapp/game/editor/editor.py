@@ -1725,8 +1725,8 @@ while not glfw.window_should_close(handle):
 
 	if is_held(glfw.KEY_LEFT_SUPER) and is_pressed(glfw.KEY_S):
 		for doc in asset_docs.values():
+			print(f"Saving {doc.name}!");
 			doc.save();
-		print("Saved all documents!");
 
 	glEnable(GL_PROGRAM_POINT_SIZE);
 	glClearColor(0, 0, 0, 1);
@@ -1745,10 +1745,9 @@ while not glfw.window_should_close(handle):
 					if imgui.menu_item_simple(str(doc.path), selected = document != None and doc.name == document.name):
 						document = doc;
 				imgui.end_menu();
-			if imgui.menu_item_simple("Save", enabled=document != None):
-				document.save();
-			if imgui.menu_item_simple("Save All"):
+			if imgui.menu_item_simple("Save"):
 				for doc in asset_docs.values():
+					print(f"Saving {doc.name}!");
 					doc.save();
 			if imgui.menu_item_simple("Close", enabled=document != None):
 				document = None;

@@ -46,12 +46,12 @@ void CAT_MS_menu(CAT_machine_signal signal)
 					CAT_machine_transition(CAT_MS_shop);
 				if(CAT_gui_menu_item("ARCADE"))
 					CAT_machine_transition(CAT_MS_arcade);
+
 				if(CAT_gui_menu_item("DASHBOARD"))
-				{
-					CAT_gui_open_popup("Go to air quality\nDashboard?\n\n\n");
-					if(CAT_gui_consume_popup())
-						CAT_machine_transition(CAT_MS_monitor);
-				}
+					CAT_gui_open_popup("Go to air quality\nDashboard?\n");
+				if(CAT_gui_consume_popup())
+					CAT_machine_transition(CAT_MS_monitor);
+					
 				if(CAT_gui_menu_item("MAGIC"))
 					CAT_machine_transition(CAT_MS_magic);
 				if(CAT_check_config_flags(CAT_CONFIG_FLAG_DEVELOPER))
