@@ -176,7 +176,7 @@ static ssize_t read_stats(struct bt_conn *conn, const struct bt_gatt_attr *attr,
 		.focus = pet.focus,
 		.spirit = pet.spirit,
 
-		.age = pet.lifetime,
+		.age = CAT_pet_days_alive(),
 
 		.interventions = ((item_table.counts[mask_item] > 0) << 0) | \
 		                 ((CAT_room_find(prop_purifier_item) != -1) << 1) | \

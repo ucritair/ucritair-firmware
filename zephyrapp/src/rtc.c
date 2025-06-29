@@ -110,7 +110,7 @@ PERSIST_RAM CAT_pet_timing_state pet_timing_state;
 // END PERSIST RAM
 //////////////////////////////////////////////////////////
 
-#define RTC_INIT_CHECK_MAGIC 0xb8870000
+#define RTC_INIT_CHECK_MAGIC 0xb88712345
 
 bool is_first_init = false;
 
