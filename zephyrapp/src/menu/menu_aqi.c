@@ -5,7 +5,7 @@
 #include "cat_input.h"
 #include <stdio.h>
 #include "cat_deco.h"
-#include "cat_inventory.h"
+#include "cat_item.h"
 #include "rtc.h"
 #include "flash.h"
 #include "cat_menu.h"
@@ -85,7 +85,7 @@ uint64_t latch_most_recent = 0;
 
 void CAT_render_aqi()
 {
-	CAT_gui_title(false, &icon_plot_sprite, &icon_exit_sprite, "AIR QUALITY");
+	CAT_gui_title(false, "AIR QUALITY");
 	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
 
 	bool viewing_latest = aqi_view_cell == AQI_VIEW_CELL_LATEST;
@@ -173,7 +173,7 @@ void CAT_render_aqi()
 			CAT_gui_line_break();
 		}
 
-		CAT_gui_image(&icon_select_sprite, 1);
+		CAT_gui_text("<");
 		CAT_gui_textf("to view %s\n", view_pn?"PM":"PN");
 	}
 	else

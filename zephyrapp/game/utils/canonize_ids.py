@@ -23,8 +23,8 @@ operands = operand_data['entries'];
 canon_id_map = {};
 for entry in canon:
 	canon_id_map[entry["name"]] = entry["id"];
-
 canon_id_set = set(canon_id_map.values());
+
 def take_free_id():
 	M = max(canon_id_set);
 	i = 0;
@@ -40,7 +40,8 @@ for entry in operands:
 		entry["id"] = canon_id_map[entry["name"]];
 		print(f"[CANON] {entry["name"]} : {entry["id"]}");
 	else:
-		old_id = entry["id"];
+		new_id = take_free_id();
+		entry["id"] = new_id;
 		print(f"[NEW] {entry["name"]} : {entry["id"]}");
 
 operand_file.seek(0);

@@ -91,6 +91,16 @@ void menu_force_sunrise_abc(void* arg)
 	force_abc_sunrise();
 }
 
+void menu_force_sunrise_zero(void* arg)
+{
+	force_abc_sunrise_target_ppm(0);
+}
+
+void menu_force_sunrise_factory(void* arg)
+{
+	force_abc_sunrise_target_ppm(69);
+}
+
 char textf_buf[256];
 #define textfc(c, ...) snprintf(textf_buf, sizeof(textf_buf)-1, __VA_ARGS__); textc(textf_buf, c);
 #define textf(...) textfc(0xffff, __VA_ARGS__)
@@ -121,7 +131,9 @@ void menu_sensors()
 	textf("VOC: %.1f; NOX: %.1f", (double)readings.sen5x.voc_index, (double)readings.sen5x.nox_index);
 
 	text("");
-	selectable("Force Sunrise ABC", menu_force_sunrise_abc, NULL);
+	selectable("Cal CO2 Ambient", menu_force_sunrise_abc, NULL);
+	selectable("Cal CO2 Factory", menu_force_sunrise_factory, NULL);
+	selectable("Cal CO2 Zero (Nitrogen)", menu_force_sunrise_zero, NULL);
 	selectable("Back", goto_menu, menu_root);
 }
 
@@ -333,13 +345,6 @@ void do_populate_next(void* arg)
 	populate_next_log_cell();
 }
 
-
-#include "cat_inventory.h"
-void menu_coins(void* arg)
-{
-	coins += 1000;
-}
-
 #include <hal/nrf_rtc.h>
 
 void menu_root()
@@ -358,7 +363,6 @@ void menu_root()
 	selectable("Power Off (for 10s)", menu_power_off, (void*)10000);
 	selectable("Power Off", menu_power_off, (void*)0);
 	selectable("Protected Power Off", menu_power_off_protected, NULL);
-	selectable("+1000 coins", menu_coins, NULL);
 
 	text("")
 	textf("Clock: %lld o=%lld", get_current_rtc_time(), rtc_offset);

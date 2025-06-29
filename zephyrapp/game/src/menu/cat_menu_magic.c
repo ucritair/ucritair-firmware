@@ -34,7 +34,7 @@ void CAT_MS_magic(CAT_machine_signal signal)
 
 			if(CAT_input_spell(hedron_spell))
 			{
-				CAT_set_config_flags(CAT_CONFIG_FLAG_DEVELOPER);
+				CAT_raise_config_flags(CAT_CONFIG_FLAG_DEVELOPER);
 				CAT_machine_transition(CAT_MS_hedron);
 			}		
 			break;
@@ -45,13 +45,11 @@ void CAT_MS_magic(CAT_machine_signal signal)
 
 void CAT_render_magic()
 {
-	CAT_gui_title(false, NULL, NULL, "MAGIC");
+	CAT_gui_title(false, "MAGIC");
 
 	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18}); 
 	CAT_gui_text("Enter an incantation,\n");
-	CAT_gui_text("or hold ");
-	CAT_gui_image(&icon_b_sprite, 0);
-	CAT_gui_text(" to exit.");
+	CAT_gui_text("or hold [B] to exit");
 	
 	CAT_gui_div("INCANTATION");
 	int i = (input.buffer_head+9) % 10;

@@ -114,7 +114,7 @@ void flash_nuke_tomas_save()
 void flash_get_cell_by_nr(int nr, CAT_log_cell* out)
 {
 	if (!did_post_flash) return;
-	// LOG_DBG("%s(%d) (@%x)", __func__, nr, OFFSET_OF_CELL(nr));
+	LOG_DBG("%s(%d) (@%x)", __func__, nr, OFFSET_OF_CELL(nr));
 	flash_read(flash_dev, OFFSET_OF_CELL(nr), out, sizeof(CAT_log_cell));
 }
 

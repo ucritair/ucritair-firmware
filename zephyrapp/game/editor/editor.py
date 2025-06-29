@@ -59,6 +59,17 @@ imgui_io.config_windows_move_from_title_bar_only = True;
 imgui.style_colors_dark()
 impl = GlfwRenderer(handle);
 
+def get_clipboard_text(_ctx: imgui.internal.Context) -> str:
+	s = glfw.get_clipboard_string(handle);
+	return s.decode();
+
+def set_clipboard_text(_ctx: imgui.internal.Context, text: str) -> str:
+	glfw.set_clipboard_string(handle, text);
+
+platform_io = imgui.get_platform_io();
+platform_io.platform_get_clipboard_text_fn = get_clipboard_text;
+platform_io.platform_set_clipboard_text_fn = set_clipboard_text;
+
 time = glfw.get_time();
 delta_time = 0;
 
@@ -128,6 +139,8 @@ class AssetSchema:
 			return "";
 		elif t == "float":
 			return 0.0;
+		elif t == "ivec2":
+			return [0, 0];
 		elif "*" in t:
 			return "";
 		elif t in asset_types:
@@ -800,11 +813,8 @@ class DocumentRenderer:
 				imgui.text(key);
 				imgui.same_line();
 				if writable:
-					try:
-						changed, output = imgui.input_text(get_id(node, key), str(node[key]));
-						node[key] = str(output);
-					except:
-						print("Something went wrong!");
+					_, output = imgui.input_text(get_id(node, key), node[key]);
+					node[key] = output;
 				else:
 					imgui.text(node[key]);
 
@@ -1185,6 +1195,8 @@ class ThemeEditor:
 					for x in range(15):
 						tile = preview_bank.get("sprite", self.theme["wall_tiles"]);
 						tile_frame = self.theme["wall_map"][y * 15 + x];
+						if tile_frame >= tile.frame_count:
+							tile_frame = tile.frame_count-1;
 						self.wall_canvas.draw_image(x * 16, y * 16, tile.frame_images[tile_frame]);
 				if(self.grid):
 					for y in range(1, 6):
@@ -1247,6 +1259,8 @@ class ThemeEditor:
 					for x in range(15):
 						tile = preview_bank.get("sprite", self.theme["floor_tiles"]);
 						tile_frame = self.theme["floor_map"][y * 15 + x];
+						if tile_frame >= tile.frame_count:
+							tile_frame = tile.frame_count-1;
 						self.floor_canvas.draw_image(x * 16, y * 16, tile.frame_images[tile_frame]);
 				if(self.grid):
 					for y in range(1, 14):
@@ -1304,6 +1318,7 @@ class Mesh2DEditor:
 
 		self.polyline = [];
 		self.edge_buffer = [];
+		self.trash = None;
 
 		self.canvas = Canvas(240, 120);
 		self.canvas_scale = 2;
@@ -1319,9 +1334,11 @@ class Mesh2DEditor:
 		self.show_grid = True;
 		self.show_verts = False;
 		
+		self.edit_mode = False;
 		self.was_left_click = False;
 		self.was_right_click = False;
 		self.last_edge_closed = True;
+		self.last_click = imgui.ImVec2(-1, -1);
 	
 		self.mesh_pool = asset_docs["mesh2d"].entries;
 		self.mesh = self.mesh_pool[0] if len(self.mesh_pool) > 0 else None;
@@ -1369,11 +1386,26 @@ class Mesh2DEditor:
 		for [v0, v1] in self.polyline:
 			v0 -= corner;
 			v1 -= corner;
+	def center(self):
+		tl = imgui.ImVec2(256, 256);
+		br = imgui.ImVec2(-1, -1);
+		for [v0, v1] in self.polyline:
+			tl.x = min(v0.x, v1.x, tl.x);
+			tl.y = min(v0.y, v1.y, tl.y);
+			br.x = max(v0.x, v1.x, br.x);
+			br.y = max(v0.y, v1.y, br.y);
+		middle = (tl+br)/2;
+		shift = imgui.ImVec2(120, 60) - middle;
+		for [v0, v1] in self.polyline:
+			v0 += shift;
+			v1 += shift;
+	def translate(self, delta):
+		for [v0, v1] in self.polyline:
+			v0 += delta;
+			v1 += delta;
 	
 	def close_mesh(self):
 		if not self.mesh is None:
-			self.shunt();
-
 			polyline = [(v0, v1) for [v0, v1] in self.polyline];
 			polyline = list(set(polyline));
 			flat_polyline = [];
@@ -1455,18 +1487,34 @@ class Mesh2DEditor:
 			in_bounds = self.in_bounds(brush_pos);
 			vertex = self.snap(brush_pos);
 
-			if in_bounds:
-				if imgui.is_mouse_down(0) and not self.was_left_click:
-					self.buffer_vertex(vertex);
-					self.was_left_click = True;
-				if not imgui.is_mouse_down(0):
-					self.was_left_click = False;
-				
-				if imgui.is_mouse_down(1) and not self.was_right_click:
-					self.delete_vertex(vertex);
-					self.was_right_click = True;
-				if not imgui.is_mouse_down(1):
-					self.was_right_click = False;
+			if self.edit_mode:
+				if self.last_click == imgui.ImVec2(-1, -1):
+					self.last_click = vertex;
+				if in_bounds:
+					if imgui.is_mouse_down(0) and not self.was_left_click:
+						if imgui_io.key_shift:
+							tl = imgui.ImVec2(256, 256);
+							br = imgui.ImVec2(-1, -1);
+							for [v0, v1] in self.polyline:
+								tl.x = min(v0.x, v1.x, tl.x);
+								tl.y = min(v0.y, v1.y, tl.y);
+								br.x = max(v0.x, v1.x, br.x);
+								br.y = max(v0.y, v1.y, br.y);
+							middle = (tl+br)/2;
+							delta = vertex - middle;
+							self.translate(delta);
+							self.last_click = vertex;
+						else:
+							self.buffer_vertex(vertex);
+							self.was_left_click = True;
+					if not imgui.is_mouse_down(0):
+						self.was_left_click = False;
+					
+					if imgui.is_mouse_down(1) and not self.was_right_click:
+						self.delete_vertex(vertex);
+						self.was_right_click = True;
+					if not imgui.is_mouse_down(1):
+						self.was_right_click = False;
 			
 			self.canvas.clear((0, 0, 0));
 			if self.show_grid:
@@ -1480,11 +1528,13 @@ class Mesh2DEditor:
 				if self.show_verts:
 					self.canvas.draw_circle(v0.x, v0.y, 1, (255, 255, 255));
 					self.canvas.draw_circle(v1.x, v1.y, 1, (255, 255, 255));
-			if len(self.edge_buffer) > 0:
-				last = self.edge_buffer[-1];
-				self.canvas.draw_line(last.x, last.y, vertex.x, vertex.y, (255, 255, 255));
-			self.canvas.draw_circle(vertex.x, vertex.y, 2, (255, 255, 255));
 			
+			if self.edit_mode:
+				if len(self.edge_buffer) > 0:
+					last = self.edge_buffer[-1];
+					self.canvas.draw_line(last.x, last.y, vertex.x, vertex.y, (255, 255, 255));
+				self.canvas.draw_circle(vertex.x, vertex.y, 2, (255, 255, 255));
+				
 			self.canvas.render(self.canvas_scale);
 			_, self.show_grid = imgui.checkbox("Show grid", self.show_grid);
 			imgui.same_line();
@@ -1493,14 +1543,23 @@ class Mesh2DEditor:
 			imgui.push_item_width(72);
 			_, self.grid_dist = imgui.input_int("Cell size", self.grid_dist);
 			imgui.pop_item_width();
-			if imgui.button("Clear"):
-				self.polyline = [];
-				self.edge_buffer = [];
-			imgui.same_line();
-			if imgui.button("Shunt"):
-				self.shunt();
-			imgui.same_line();
-			imgui.text(f"({vertex.x}, {vertex.y})");
+
+			_, self.edit_mode = imgui.checkbox("Edit Mode", self.edit_mode);
+			if self.edit_mode:
+				imgui.same_line();
+				if imgui.button("Shunt"):
+					self.shunt();
+				imgui.same_line();
+				if imgui.button("Center"):
+					self.center();
+				if imgui.button("Clear"):
+					self.trash = self.polyline, self.edge_buffer;
+					self.polyline = [];
+					self.edge_buffer = [];
+				imgui.same_line();
+				if imgui.button("Restore") and self.trash != None:
+					self.polyline, self.edge_buffer = self.trash;
+					self.trash = None;
 			
 			self.size = imgui.get_window_size();
 			imgui.end();
@@ -1639,6 +1698,21 @@ splash_flag_list = [
 ];
 splash_flags = foldl(lambda a, b : a | b, 0, splash_flag_list);
 
+input_states = {};
+
+def track_inputs():
+	for key in range(glfw.KEY_SPACE, glfw.KEY_LAST+1):
+		if not key in input_states:
+			input_states[key] = [glfw.get_key(handle, key), False];
+		else:
+			input_states[key] = [glfw.get_key(handle, key), input_states[key][0]];
+
+def is_held(key):
+	return input_states[key][0];
+
+def is_pressed(key):
+	return input_states[key][0] and not input_states[key][1];
+
 while not glfw.window_should_close(handle):
 	time_last = time;
 	time = glfw.get_time();
@@ -1646,6 +1720,13 @@ while not glfw.window_should_close(handle):
 
 	glfw.poll_events();
 	impl.process_inputs();
+
+	track_inputs();
+
+	if is_held(glfw.KEY_LEFT_SUPER) and is_pressed(glfw.KEY_S):
+		for doc in asset_docs.values():
+			print(f"Saving {doc.name}!");
+			doc.save();
 
 	glEnable(GL_PROGRAM_POINT_SIZE);
 	glClearColor(0, 0, 0, 1);
@@ -1664,10 +1745,9 @@ while not glfw.window_should_close(handle):
 					if imgui.menu_item_simple(str(doc.path), selected = document != None and doc.name == document.name):
 						document = doc;
 				imgui.end_menu();
-			if imgui.menu_item_simple("Save", enabled=document != None):
-				document.save();
-			if imgui.menu_item_simple("Save All"):
+			if imgui.menu_item_simple("Save"):
 				for doc in asset_docs.values():
+					print(f"Saving {doc.name}!");
 					doc.save();
 			if imgui.menu_item_simple("Close", enabled=document != None):
 				document = None;

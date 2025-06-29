@@ -5,12 +5,12 @@
 #include "cat_math.h"
 #include "cat_render.h"
 #include "cat_structures.h"
-#include "item_assets.h"
+#include "cat_machine.h"
 
 //////////////////////////////////////////////////////////////////////////
 // CONSTANTS
 
-#define CAT_ITEM_TABLE_CAPACITY 128
+#define CAT_ITEM_TABLE_CAPACITY 256
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -65,18 +65,17 @@ typedef struct CAT_item
 	const CAT_sprite* sprite;
 	uint16_t price;
 	const char* text;
-	const CAT_sprite* icon;
 
 	union
 	{
 		struct
 		{
-			CAT_tool_type type;
+			CAT_tool_type tool_type;
 
-			const CAT_sprite* cursor;
-			int8_t dv;
-			int8_t df;
-			int8_t ds;
+			const CAT_sprite* tool_cursor;
+			int8_t tool_dv;
+			int8_t tool_df;
+			int8_t tool_ds;
 
 			union
 			{
@@ -86,16 +85,16 @@ typedef struct CAT_item
 					CAT_food_role food_role;
 				};
 			};
-		} tool_data;
+		};
 
 		struct
 		{
-			CAT_prop_type type;
-			CAT_ivec2 shape;
-			bool animate;
-			int8_t child_dy;
-		} prop_data;
-	} data;
+			CAT_prop_type prop_type;
+			CAT_ivec2 prop_shape;
+			bool prop_animated;
+			int8_t prop_child_dy;
+		};
+	};
 } CAT_item;
 
 typedef struct CAT_item_table
@@ -111,4 +110,34 @@ CAT_item* CAT_item_get(int item_id);
 typedef bool (*CAT_item_filter)(int item_id);
 void CAT_filter_item_table(CAT_item_filter filter, CAT_int_list* list);
 
+
+//////////////////////////////////////////////////////////////////////////
+// BAG
+
+void CAT_inventory_clear();
+bool CAT_inventory_add(int item_id, int count);
+bool CAT_inventory_remove(int item_id, int count);
+int CAT_inventory_count(int item_id);
+
+
+//////////////////////////////////////////////////////////////////////////
+// INVENTORY
+
+void CAT_bind_inspector(int item_id);
+void CAT_MS_inspector(CAT_machine_signal signal);
+void CAT_render_inspector();
+
+void CAT_MS_inventory(CAT_machine_signal signal);
+void CAT_render_inventory();
+
+
+//////////////////////////////////////////////////////////////////////////
+// SHOP
+
+void CAT_bind_checkout(int item_id);
+void CAT_MS_checkout(CAT_machine_signal signal);
+void CAT_render_checkout();
+
+void CAT_MS_shop(CAT_machine_signal signal);
+void CAT_render_shop();
 

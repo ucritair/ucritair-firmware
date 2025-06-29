@@ -12,6 +12,7 @@
 #include "cat_curves.h"
 #include "sprite_assets.h"
 #include "cat_monitor_graphics_utils.h"
+#include "cat_crisis.h"
 
 #define TITLE_Y 44
 
@@ -26,12 +27,6 @@
 #define DOT_MARGIN 6
 #define DOT_D ((BAR_W - (DOT_COUNT-1) * DOT_MARGIN) / DOT_COUNT)
 
-enum
-{
-	SUMMARY,
-	DETAILS
-} mode;
-
 void CAT_monitor_render_summary()
 {
 	int cursor_y = TITLE_Y;
@@ -40,16 +35,18 @@ void CAT_monitor_render_summary()
 
 	cursor_y += 56;
 
-	CAT_circberry(120, cursor_y, SCORE_R0 + SCORE_W/2, CAT_WHITE);
-	CAT_ringberry
+	float agg_score_norm = CAT_AQ_get_normalized_score(CAT_AQM_AGGREGATE);
+	CAT_circberry(120, cursor_y, SCORE_R0, colour_score(agg_score_norm));
+	CAT_circberry(120, cursor_y, SCORE_R1, colour_score(agg_score_norm));
+	CAT_annulusberry
 	(
 		120, cursor_y,
 		SCORE_R1, SCORE_R0,
-		colour_score(CAT_AQ_normalized_scores[CAT_AQM_AGGREGATE]),
-		CAT_AQ_normalized_scores[CAT_AQM_AGGREGATE],
-		1.25f-CAT_AQ_normalized_scores[CAT_AQM_AGGREGATE]*0.5f
+		colour_score(agg_score_norm),
+		agg_score_norm,
+		1.25f-agg_score_norm*0.5f
 	);
-	cursor_y = center_textf(120, cursor_y, 3, CAT_WHITE, "%.0f", CAT_aq_aggregate_score());
+	cursor_y = center_textf(120, cursor_y, 3, CAT_WHITE, "%.0f", CAT_AQ_aggregate_score());
 	cursor_y += 16;
 	cursor_y = center_textf(120, cursor_y, 1, CAT_WHITE, "\4CritAQ Score");
 	
@@ -62,10 +59,10 @@ void CAT_monitor_render_summary()
 		CAT_circberry(x, y, DOT_D/3, CAT_WHITE);
 		vert_text(x, cursor_y+DOT_D-1, CAT_WHITE, CAT_AQM_titles[i]);
 
-		uint16_t dot_colour = colour_score(CAT_AQ_normalized_scores[i]);
+		uint16_t dot_colour = colour_score(CAT_AQ_get_normalized_score(i));
 		CAT_discberry(x, y, DOT_D/4, dot_colour);
 
-		center_textf(x, y - 20, 1, CAT_WHITE, "%.0f", CAT_AQ_raw_scores[i]);
+		center_textf(x, y - 20, 1, CAT_WHITE, "%.0f", CAT_AQ_get_raw_score(i));
 	}
 }
 
@@ -77,15 +74,15 @@ void CAT_monitor_MS_summary(CAT_machine_signal signal)
 		break;
 
 		case CAT_MACHINE_SIGNAL_TICK:
-			if(CAT_input_pressed(CAT_BUTTON_START))
-				CAT_monitor_exit();
+			if(CAT_input_dismissal())
+				CAT_monitor_soft_exit();
 			if(CAT_input_pressed(CAT_BUTTON_LEFT))
 				CAT_monitor_retreat();
 			if(CAT_input_pressed(CAT_BUTTON_RIGHT))
 				CAT_monitor_advance();
+			
+			if(CAT_AQ_is_crisis_report_posted())
 
-			CAT_AQ_store_raw_scores();
-			CAT_AQ_store_normalized_scores();
 		break;
 
 		case CAT_MACHINE_SIGNAL_EXIT:

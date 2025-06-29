@@ -56,7 +56,7 @@ void CAT_render_debug()
 	switch(page)
 	{
 		case SYSTEM:
-			CAT_gui_title(true, NULL, &icon_exit_sprite, "SYSTEM");
+			CAT_gui_title(true, "SYSTEM");
 			CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
 			
 			CAT_gui_textf
@@ -82,32 +82,28 @@ void CAT_render_debug()
 				CAT_gui_text("PERSIST CLEARED\n");
 		break;
 		case TIME:
-			CAT_gui_title(true, NULL, &icon_exit_sprite, "TIME");
+			CAT_gui_title(true, "TIME");
 			CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
 
+			uint64_t now = CAT_get_RTC_now();
 			CAT_datetime datetime;
-			CAT_get_datetime(&datetime);
-			CAT_gui_textf("%d/%d/%d %d:%d:%d\n", datetime.month, datetime.day, datetime.year, datetime.hour, datetime.minute, datetime.second);
+			CAT_make_datetime(now, &datetime);
+			CAT_gui_textf("%.2d/%.2d/%.4d %.2d:%.2d:%.2d\n", datetime.month, datetime.day, datetime.year, datetime.hour, datetime.minute, datetime.second);
 
-			CAT_gui_textf("Slept: %ds\n", CAT_get_slept_s());
-			CAT_gui_textf("Life: %0.0fs/%0.0fs\n", CAT_timer_get(pet.life_timer_id), timetable.duration[pet.life_timer_id]);
-			CAT_gui_textf("Stat: %0.0fs/%0.0fs\n", CAT_timer_get(pet.stat_timer_id), timetable.duration[pet.stat_timer_id]);
-			CAT_gui_textf("Earn: %0.0fs/%0.0fs\n", CAT_timer_get(room.earn_timer_id), timetable.duration[room.earn_timer_id]);
-			CAT_gui_textf("Pet: %0.0fs/%0.0fs\n", CAT_timer_get(pet.petting_timer_id), timetable.duration[pet.petting_timer_id]);
-			CAT_gui_textf("Pets: %d/5\n", pet.times_pet);
-			CAT_gui_textf("Milks: %d/3\n", pet.times_milked);
-			CAT_gui_textf("E-Ink: %0.0fs/%0.0fs\n", time_since_eink_update, eink_update_time_threshold);
-			
-			int active_timers = 0;
-			for(int i = 0; i < CAT_TIMETABLE_MAX_LENGTH; i++)
-			{
-				if(timetable.active[i])
-					active_timers += 1;
-			}
-			CAT_gui_textf("Timers: %d\n", active_timers);
+			CAT_pet_timing_state pet_timing;
+			CAT_pet_export_timing_state(&pet_timing);
+
+			CAT_gui_textf("Since Life: %ds/%ds\n", (int) (now-pet_timing.last_life_time), CAT_LIFE_TICK_PERIOD);
+			CAT_gui_textf("Since Stat: %ds/%ds\n", (int) (now-pet_timing.last_stat_time), CAT_STAT_TICK_PERIOD);
+			CAT_gui_textf("Since Milk: %ds/%ds\n", (int) (now-pet_timing.last_milk_time), CAT_PET_MILK_COOLDOWN);
+			CAT_gui_textf("Times Milked: %d/5\n", (int) (pet_timing.times_milked_since_producing));
+			CAT_gui_textf("Milks Produced: %d/3\n", (int) (pet_timing.milks_produced_today));
+
+			CAT_gui_textf("Slept: %ds\n", (int) CAT_get_slept_s());
+			CAT_gui_textf("E-Ink: %0.0fs/%ds\n", time_since_eink_update, eink_update_time_threshold);
 		break;
 		case DECO:
-			CAT_gui_title(true, NULL, &icon_exit_sprite, "DECO");
+			CAT_gui_title(true, "DECO");
 			CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
 			for(int y = 0; y < CAT_GRID_HEIGHT; y++)
 			{
@@ -125,7 +121,7 @@ void CAT_render_debug()
 		break;
 		case INPUT:
 		{
-			CAT_gui_title(true, NULL, &icon_exit_sprite, "INPUT");
+			CAT_gui_title(true, "INPUT");
 			CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
 
 			CAT_gui_text("Mask: ");
@@ -143,7 +139,7 @@ void CAT_render_debug()
 		break;
 		case AQI:
 		{
-			CAT_gui_title(true, NULL, &icon_exit_sprite, "AQI");
+			CAT_gui_title(true, "AQI");
 			CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
 			CAT_gui_textf("RH: %f\n", readings.sen5x.humidity_rhpct);
 			CAT_gui_textf("CO2: %f\n", readings.sunrise.ppm_filtered_compensated);
@@ -151,17 +147,12 @@ void CAT_render_debug()
 			CAT_gui_textf("NOX: %f\n", readings.sen5x.nox_index);
 			CAT_gui_textf("VOC: %f\n", readings.sen5x.voc_index);
 			CAT_gui_textf("TMP: %f%s\n", CAT_AQ_map_celsius(readings.lps22hh.temp), CAT_AQ_get_temperature_unit_string());
-			CAT_gui_textf("AQI: %f\n", CAT_aq_aggregate_score());
+			CAT_gui_textf("AQI: %f\n", CAT_AQ_aggregate_score());
 		}
 		break;
 		default:
 		{
-			CAT_gui_title
-			(
-				true,
-				NULL, &icon_exit_sprite,
-				"LAST"
-			);
+			CAT_gui_title(true, "LAST");
 			CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
 			CAT_gui_set_flag(CAT_GUI_FLAG_WRAPPED);
 			CAT_gui_text("You shouldn't be here");

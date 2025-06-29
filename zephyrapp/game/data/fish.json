@@ -81,7 +81,7 @@
             "min_wisdom": 0.10000000149011612,
             "max_wisdom": 0.30000001192092896,
             "grade_constraint": 0,
-            "mesh": "horse_mackerel"
+            "mesh": "myaurr_guy"
         },
         {
             "name": "crucian_carp",
@@ -120,7 +120,7 @@
             "min_wisdom": 0.10000000149011612,
             "max_wisdom": 0.30000001192092896,
             "grade_constraint": 0,
-            "mesh": "horse_mackerel"
+            "mesh": "myaurr_guy"
         },
         {
             "name": "herring",
@@ -159,7 +159,7 @@
             "min_wisdom": 0.10000000149011612,
             "max_wisdom": 0.30000001192092896,
             "grade_constraint": 0,
-            "mesh": "horse_mackerel"
+            "mesh": "crawfish"
         },
         {
             "name": "catfish",
@@ -224,7 +224,7 @@
             "min_wisdom": 0.10000000149011612,
             "max_wisdom": 0.30000001192092896,
             "grade_constraint": 1,
-            "mesh": "horse_mackerel"
+            "mesh": "myaurr_guy"
         },
         {
             "name": "skipjack_tuna",
@@ -237,7 +237,7 @@
             "min_wisdom": 0.10000000149011612,
             "max_wisdom": 0.30000001192092896,
             "grade_constraint": 2,
-            "mesh": "herring"
+            "mesh": "myaurr_guy"
         },
         {
             "name": "yellowtail",
@@ -250,7 +250,7 @@
             "min_wisdom": 0.10000000149011612,
             "max_wisdom": 0.30000001192092896,
             "grade_constraint": 2,
-            "mesh": "herring"
+            "mesh": "myaurr_guy"
         },
         {
             "name": "coelecanth",
@@ -263,7 +263,7 @@
             "min_wisdom": 0.10000000149011612,
             "max_wisdom": 0.30000001192092896,
             "grade_constraint": 2,
-            "mesh": "cod"
+            "mesh": "myaurr_guy"
         }
     ]
 }

@@ -7,6 +7,33 @@
 #include <string.h>
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// MISCELLANY
+
+#define CAT_MINUTE_SECONDS 60
+#define CAT_HOUR_SECONDS (60 * CAT_MINUTE_SECONDS)
+#define CAT_DAY_SECONDS (24 * CAT_HOUR_SECONDS)
+#define CAT_DAY_ZERO 60904915200 // (2000/1/1 00:00:00)
+
+#define CAT_LCD_SCREEN_W 240
+#define CAT_LCD_SCREEN_H 320
+
+#define EINK_SCREEN_W 212
+#define EINK_SCREEN_H 104
+
+#define CAT_TILE_SIZE 16
+#define CAT_GLYPH_WIDTH 8
+#define CAT_GLYPH_HEIGHT 12
+#define CAT_LEADING 2
+
+#define CAT_SCREEN_GRID_W (CAT_LCD_SCREEN_W / CAT_TILE_SIZE)
+#define CAT_SCREEN_GRID_H (CAT_LCD_SCREEN_H / CAT_TILE_SIZE)
+
+#define CAT_DEFAULT_PET_NAME "Aura"
+
+#define CAT_TEXT_INPUT_MAX_LENGTH 24
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // PLATFORM
 
 void CAT_platform_init();
@@ -16,9 +43,6 @@ void CAT_platform_cleanup();
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // LCD SCREEN
-
-#define CAT_LCD_SCREEN_W 240
-#define CAT_LCD_SCREEN_H 320
 
 #define CAT_LCD_FRAMEBUFFER_SEGMENTS 2
 #define CAT_LCD_FRAMEBUFFER_W CAT_LCD_SCREEN_W
@@ -45,9 +69,6 @@ int* CAT_LCD_brightness_pointer();
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // EINK SCREEN
-
-#define EINK_SCREEN_W 212
-#define EINK_SCREEN_H 104
 
 void CAT_eink_post(uint8_t* buffer);
 bool CAT_eink_is_posted();
@@ -113,13 +134,19 @@ void CAT_get_touch(CAT_touch* touch);
 uint64_t CAT_get_slept_s();
 uint64_t CAT_get_uptime_ms();
 float CAT_get_delta_time_s();
-uint64_t CAT_get_rtc_now();
+uint64_t CAT_get_RTC_now();
 
 typedef union CAT_datetime
 {
 	struct
 	{
-		int year, month, day, hour, minute, second;
+		int
+		year, // [0, INF)
+		month, // [1, 12]
+		day, // [1, 31]
+		hour, // [0, 24)
+		minute, // [0, 60)
+		second; // [0, 60)
 	};
 	
    	int data[6];
@@ -201,6 +228,7 @@ typedef enum
 	CAT_CONFIG_FLAG_AQ_FIRST = (1 << 2),
 	CAT_CONFIG_FLAG_MIGRATED = (1 << 3),
 	CAT_CONFIG_FLAG_PERSIST_CLEARED = (1 << 4),
+	CAT_CONFIG_FLAG_PAUSE_CARE = (1 << 5)
 } CAT_config_flag;
 
 typedef enum
@@ -209,7 +237,6 @@ typedef enum
 	CAT_SAVE_SECTOR_INVENTORY,
 	CAT_SAVE_SECTOR_DECO,
 	CAT_SAVE_SECTOR_HIGHSCORES,
-	CAT_SAVE_SECTOR_TIMING,
 	CAT_SAVE_SECTOR_CONFIG,
 	CAT_SAVE_SECTOR_FOOTER,
 } CAT_save_sector;
@@ -235,11 +262,13 @@ typedef struct __attribute__((__packed__))
 	struct __attribute__((__packed__))
 	{
 		CAT_save_sector_header header;
-		char name[32];
+		char name[24];
+		uint8_t lifespan;
+		uint64_t birthday;
+		uint64_t deathday;
+		uint16_t incarnations;
 		uint8_t level;
 		uint32_t xp;
-		uint8_t lifespan;
-		uint8_t lifetime;
 		uint8_t vigour;
 		uint8_t focus;
 		uint8_t spirit;
@@ -249,8 +278,7 @@ typedef struct __attribute__((__packed__))
 	struct __attribute__((__packed__))
 	{
 		CAT_save_sector_header header;
-		uint8_t counts[256];
-		uint32_t coins;
+		uint16_t counts[256];
 	} inventory;
 
 	// SECTOR : DECO
@@ -271,18 +299,6 @@ typedef struct __attribute__((__packed__))
 		uint16_t mine;
 		uint16_t foursquares;
 	} highscores;
-
-	// SECTOR : TIMING
-	struct __attribute__((__packed__))
-	{
-		CAT_save_sector_header header;
-		uint32_t stat_timer;
-		uint32_t life_timer;
-		uint32_t earn_timer;
-		uint32_t petting_timer;
-		uint8_t petting_count;
-		uint8_t milking_count;
-	} timing;
 
 	// SECTOR : CONFIG
 	struct __attribute__((__packed__))
@@ -313,12 +329,12 @@ CAT_save* CAT_start_save();
 void CAT_finish_save(CAT_save* save);
 CAT_save* CAT_start_load();
 
-int CAT_export_config_flags();
-void CAT_import_config_flags(int flags);
+uint64_t CAT_get_config_flags();
+void CAT_set_config_flags(uint64_t flags);
 
-void CAT_set_config_flags(int flags);
-void CAT_unset_config_flags(int flags);
-bool CAT_check_config_flags(int flags);
+void CAT_raise_config_flags(uint64_t flags);
+void CAT_lower_config_flags(uint64_t flags);
+bool CAT_check_config_flags(uint64_t flags);
 
 typedef enum
 {
@@ -328,9 +344,9 @@ typedef enum
 	CAT_LOAD_FLAG_TURNKEY = 4
 } CAT_load_flag;
 
-void CAT_set_load_flags(int flags);
-void CAT_unset_load_flags(int flags);
-bool CAT_check_load_flags(int flags);
+void CAT_set_load_flags(uint64_t flags);
+void CAT_unset_load_flags(uint64_t flags);
+bool CAT_check_load_flags(uint64_t flags);
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -437,6 +453,7 @@ typedef struct __attribute__((__packed__))
 
 CAT_AQ_score_block* CAT_AQ_get_moving_scores();
 CAT_AQ_score_block* CAT_AQ_get_score_buffer();
+int CAT_AQ_get_score_buffer_head();
 
 void CAT_AQ_move_scores();
 void CAT_AQ_buffer_scores(CAT_AQ_score_block* block);
@@ -468,3 +485,10 @@ static inline void CAT_bonus_set(uint32_t value)
 {
 	;
 }
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// PERSISTENCE
+
+uint8_t* CAT_AQ_crisis_state_persist();
+uint8_t* CAT_pet_timing_state_persist();

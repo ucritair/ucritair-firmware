@@ -8,6 +8,9 @@ if(NOT TARGET app)
 
 	target_compile_definitions(app PRIVATE CAT_DESKTOP=1)
 	target_compile_definitions(app PRIVATE CAT_DEBUG=1)
+	if(APPLE)
+		target_compile_definitions(app PRIVATE CAT_MACOS=1)
+	endif()
 
 	find_package(GLEW REQUIRED)
 	find_package(glfw3 3.3 REQUIRED)
@@ -94,6 +97,8 @@ target_sources(app PRIVATE
 	src/render/cat_spriter.c
 	src/render/cat_draw_queue.c
 	src/render/cat_animation.c
+	src/render/cat_gizmos.c
+	src/render/cat_poly.c
 
 	src/menu/cat_menu.c
 	src/menu/cat_menu_insights.c
@@ -101,7 +106,6 @@ target_sources(app PRIVATE
 	src/menu/cat_menu_magic.c
 	src/menu/cat_menu_hedron.c
 	src/menu/cat_menu_debug.c
-	src/menu/cat_menu_graph_spoof.c
 	src/menu/cat_menu_colour_picker.c
 
 	src/cowtools/cat_structures.c
@@ -124,21 +128,23 @@ target_sources(app PRIVATE
 	src/monitors/cat_monitor_logs.c
 	src/monitors/cat_monitor_gameplay.c
 	src/monitors/cat_monitor_clock.c
-	
+
+	src/inventory/cat_item.c
 
 	src/gui/cat_gui.c
 	src/gui/cat_text.c
 
-	src/cat_input.c
-	src/cat_item.c
-	src/cat_machine.c
-	src/cat_inventory.c
-	src/cat_deco.c
-	src/cat_room.c
-	src/cat_vending.c
-	src/cat_pet.c
-	src/cat_item_dialog.c
-	src/cat_aqi.c
+	src/air/cat_aqi.c
+	src/air/cat_crisis.c
+	src/air/cat_crisis_report.c
+
+	src/systems/cat_input.c
+	src/systems/cat_machine.c
+
+	src/room/cat_deco.c
+	src/room/cat_room.c
+	src/room/cat_pet.c
+	src/room/cat_death_report.c
 
 	sounds/sound_assets.c
 	meshes/mesh_assets.c
@@ -159,6 +165,11 @@ target_include_directories(app PRIVATE src/arcade)
 target_include_directories(app PRIVATE src/monitors)
 target_include_directories(app PRIVATE src/gui)
 target_include_directories(app PRIVATE src/cowtools)
+target_include_directories(app PRIVATE src/inventory)
+target_include_directories(app PRIVATE src/caring)
+target_include_directories(app PRIVATE src/air)
+target_include_directories(app PRIVATE src/systems)
+target_include_directories(app PRIVATE src/room)
 
 target_include_directories(app PRIVATE sounds/)
 target_include_directories(app PRIVATE meshes/)

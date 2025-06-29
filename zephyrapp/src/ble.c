@@ -29,6 +29,8 @@
 #include "rtc.h"
 #include "flash.h"
 #include "lcd_rendering.h"
+#include "item_assets.h"
+#include "cat_pet.h"
 
 #define VND_UUID_PFX(x) BT_UUID_128_ENCODE(0xfc7d4395, 0x1019, 0x49c4, 0xa91b, (0x7491ecc4ull<<16) | (unsigned long long)x)
 
@@ -157,7 +159,7 @@ static ssize_t read_cells(struct bt_conn *conn, const struct bt_gatt_attr *attr,
 #include "cat_pet.h"
 #include "cat_room.h"
 #include "cat_item.h"
-#include "cat_inventory.h"
+#include "cat_item.h"
 #include "cat_core.h"
 
 static ssize_t read_stats(struct bt_conn *conn, const struct bt_gatt_attr *attr,
@@ -175,7 +177,7 @@ static ssize_t read_stats(struct bt_conn *conn, const struct bt_gatt_attr *attr,
 		.focus = pet.focus,
 		.spirit = pet.spirit,
 
-		.age = pet.lifetime,
+		.age = CAT_pet_days_alive(),
 
 		.interventions = ((item_table.counts[mask_item] > 0) << 0) | \
 		                 ((CAT_room_find(prop_purifier_item) != -1) << 1) | \
