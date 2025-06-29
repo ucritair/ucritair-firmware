@@ -30,6 +30,7 @@
 #include "flash.h"
 #include "lcd_rendering.h"
 #include "item_assets.h"
+#include "cat_pet.h"
 
 #define VND_UUID_PFX(x) BT_UUID_128_ENCODE(0xfc7d4395, 0x1019, 0x49c4, 0xa91b, (0x7491ecc4ull<<16) | (unsigned long long)x)
 

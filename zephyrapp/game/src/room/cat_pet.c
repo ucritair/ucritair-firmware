@@ -44,8 +44,9 @@ CAT_anim_machine AM_mood =
 bool is_critical()
 {
 	return 
-	(pet.vigour <= 0 || pet.focus <= 0 || pet.spirit <= 0) ||
-	(CAT_get_battery_pct() < CAT_CRITICAL_BATTERY_PCT && !CAT_is_charging());
+	pet.vigour <= 0 ||
+	pet.focus <= 0 ||
+	pet.spirit <= 0;
 }
 
 void CAT_pet_init()
@@ -135,13 +136,7 @@ void CAT_pet_update_animations()
 	}
 	if(is_critical())
 	{
-		if(CAT_get_battery_pct() < CAT_CRITICAL_BATTERY_PCT)
-		{
-			AS_crit.enter_sprite = &pet_crit_foc_in_sprite;
-			AS_crit.tick_sprite = &icon_low_battery_pet_sprite;
-			AS_crit.exit_sprite = &pet_crit_foc_out_sprite;
-		}
-		else if(pet.vigour <= 0)
+		if(pet.vigour <= 0)
 		{
 			AS_crit.enter_sprite = &pet_crit_vig_in_sprite;
 			AS_crit.tick_sprite = &pet_crit_vig_sprite;

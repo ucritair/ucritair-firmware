@@ -179,7 +179,7 @@ void CAT_force_load()
 		CAT_force_save();
 		CAT_printf("Game state reset and saved!\n");
 		CAT_unset_load_flags(CAT_LOAD_FLAG_DEFAULT);
-		//CAT_force_load();
+		CAT_force_load();
 		return;
 	}
 	else if(CAT_check_load_flags(CAT_LOAD_FLAG_TURNKEY))
@@ -190,7 +190,7 @@ void CAT_force_load()
 		CAT_force_save();
 		CAT_printf("Game state set to turnkey configuration!\n");
 		CAT_unset_load_flags(CAT_LOAD_FLAG_TURNKEY);
-		//CAT_force_load();
+		CAT_force_load();
 		return;
 	}
 	else
@@ -374,6 +374,18 @@ void CAT_tick_logic()
 	}
 }
 
+void CAT_draw_eink_refresh_notice()
+{
+	// WILL RETURN TO THIS WHEN MEMORY RUNS OUT
+	/*CAT_frameberry(CAT_MONITOR_BLUE);
+	CAT_set_text_scale(2);
+	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
+	CAT_set_text_colour(CAT_WHITE);
+	CAT_draw_text(12, 12, "UPDATING E-INK...\nPLEASE WAIT\n");*/
+
+	CAT_draw_background(&eink_update_splash_sprite, 0, 0);
+}
+
 void CAT_tick_render()
 {
 	CAT_render_callback render_callback = CAT_get_render_callback();
@@ -396,7 +408,7 @@ void CAT_tick_render()
 
 	if(CAT_eink_needs_update())
 	{
-		CAT_draw_sprite(&eink_refresh_splash_sprite, 0, 0, 0);
+		CAT_draw_eink_refresh_notice();
 		first_eink_update_complete = true;
 	}
 }

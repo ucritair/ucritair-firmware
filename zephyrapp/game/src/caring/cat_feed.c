@@ -705,8 +705,6 @@ static void init_scores()
 	memset(&score_object, 0, sizeof(score_object));
 }
 
-static bool commit_arrangement = false;
-
 static int pick_idx = -1;
 static CAT_ivec2 pick_delta;
 
@@ -831,8 +829,13 @@ static void render_feedback()
 
 static void render_arrange()
 {
-	CAT_draw_background(&floor_stone_sprite, 0, 0);
-	CAT_draw_background(&floor_stone_sprite, 0, 160);
+	for(int y = 64; y < 320; y+=16)
+	{
+		for(int x = 0; x < 240; x+=16)
+		{
+			CAT_draw_tile(&floor_basic_tile_sprite, 2, x, y);
+		}
+	}
 	
 	int counter_x = counter_rect.min.x;
 	int counter_y = counter_rect.min.y;

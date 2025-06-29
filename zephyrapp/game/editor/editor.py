@@ -1195,6 +1195,8 @@ class ThemeEditor:
 					for x in range(15):
 						tile = preview_bank.get("sprite", self.theme["wall_tiles"]);
 						tile_frame = self.theme["wall_map"][y * 15 + x];
+						if tile_frame >= tile.frame_count:
+							tile_frame = tile.frame_count-1;
 						self.wall_canvas.draw_image(x * 16, y * 16, tile.frame_images[tile_frame]);
 				if(self.grid):
 					for y in range(1, 6):
@@ -1257,6 +1259,8 @@ class ThemeEditor:
 					for x in range(15):
 						tile = preview_bank.get("sprite", self.theme["floor_tiles"]);
 						tile_frame = self.theme["floor_map"][y * 15 + x];
+						if tile_frame >= tile.frame_count:
+							tile_frame = tile.frame_count-1;
 						self.floor_canvas.draw_image(x * 16, y * 16, tile.frame_images[tile_frame]);
 				if(self.grid):
 					for y in range(1, 14):
