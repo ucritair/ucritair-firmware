@@ -111,6 +111,14 @@ bool CAT_gui_item_grid_is_open();
 
 
 //////////////////////////////////////////////////////////////////////////
+// DIALOGUE BOX
+
+void CAT_gui_open_dialogue(const char* text, int duration);
+bool CAT_gui_dialogue_is_open();
+void CAT_gui_dismiss_dialogue();
+
+
+//////////////////////////////////////////////////////////////////////////
 // FINALIZATION
 
 void CAT_gui_io();

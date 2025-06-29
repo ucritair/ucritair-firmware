@@ -781,7 +781,7 @@ void CAT_gui_menu()
 		{
 			case CAT_GUI_MENU_TYPE_TOGGLE:
 				CAT_set_sprite_colour(CAT_BLACK);
-				CAT_sprite* sprite =
+				const CAT_sprite* sprite =
 				child->toggle_data.style == CAT_GUI_TOGGLE_STYLE_CHECKBOX ?
 				&ui_checkbox_sprite : &ui_radio_button_circle_sprite;
 				CAT_gui_image(sprite, child->toggle_data.toggle);
@@ -857,8 +857,6 @@ static int item_grid_anchor_y = 0;
 static int item_grid_delta_y = 0;;
 static bool item_grid_scrolling = false;
 static float item_grid_select_timer = 0;
-
-static enum {TOUCH, BUTTON} item_grid_input_mode = TOUCH;
 
 void CAT_gui_begin_item_grid_context()
 {
@@ -1014,23 +1012,20 @@ void CAT_gui_item_grid_io()
 		item_grid_select_timer = 0;
 	}
 
-	if (CAT_input_held(CAT_BUTTON_UP, 0))
-		item_grid_delta_y += 32;
-	if (CAT_input_held(CAT_BUTTON_DOWN, 0))
-		item_grid_delta_y -= 32;
-	item_grid_delta_y = -clamp(-item_grid_delta_y, item_grid_get_min_scroll_y(), item_grid_get_max_scroll_y());
+	if(!CAT_input_touching())
+	{
+		if (CAT_input_held(CAT_BUTTON_UP, 0))
+			item_grid_delta_y += 32;
+		if (CAT_input_held(CAT_BUTTON_DOWN, 0))
+			item_grid_delta_y -= 32;
+		item_grid_delta_y = -clamp(-item_grid_delta_y, item_grid_get_min_scroll_y(), item_grid_get_max_scroll_y());
+	}
 
 	if(CAT_input_pressed(CAT_BUTTON_A))
 	{
-		item_grid_last_marked = 0;
-		item_grid_selector = 0;
+		if(!CAT_gui_dialogue_is_open())
+			CAT_gui_open_dialogue("Try touching and holding on the item you want to select...\n", 1);
 	}
-	if(CAT_input_pressed(CAT_BUTTON_UP))
-		item_grid_selector -= 3;
-	if(CAT_input_pressed(CAT_BUTTON_DOWN))
-		item_grid_selector += 3;
-	item_grid_selector = (item_grid_selector + item_grid_pool.length) % item_grid_pool.length;
-	item_grid_last_marked = item_grid_selector;
 }
 
 bool CAT_gui_item_grid_is_open()
@@ -1125,6 +1120,55 @@ void CAT_gui_item_grid()
 
 
 //////////////////////////////////////////////////////////////////////////
+// DIALOGUE BOX
+
+const char* dialogue_text = "";
+int dialogue_duration = 0;
+uint64_t dialogue_timestamp = 0;
+bool dialogue_open = false;
+
+#define DIALOGUE_X 4
+#define DIALOGUE_Y 4
+#define DIALOGUE_W CAT_LCD_SCREEN_W-8
+#define DIALOGUE_H (CAT_LCD_SCREEN_H / 6)
+
+void CAT_gui_open_dialogue(const char* text, int duration)
+{
+	dialogue_text = text;
+	dialogue_duration = duration;
+	dialogue_timestamp = CAT_get_RTC_now();
+	dialogue_open = true;
+}
+
+bool CAT_gui_dialogue_is_open()
+{
+	return dialogue_open;
+}
+
+void CAT_gui_dismiss_dialogue()
+{
+	dialogue_open = false;
+}
+
+void CAT_gui_dialogue_io()
+{
+	if((CAT_get_RTC_now() - dialogue_timestamp) > dialogue_duration)
+		dialogue_open = false;
+}
+
+void CAT_gui_dialogue()
+{
+	CAT_fillberry(DIALOGUE_X, DIALOGUE_Y, DIALOGUE_W, DIALOGUE_H, CAT_WHITE);
+	CAT_strokeberry(DIALOGUE_X, DIALOGUE_Y, DIALOGUE_W, DIALOGUE_H, CAT_GREY);
+	CAT_strokeberry(DIALOGUE_X+1, DIALOGUE_Y+1, DIALOGUE_W-2, DIALOGUE_H-2, CAT_GREY);
+	
+	CAT_set_text_mask(DIALOGUE_X+4, -1, DIALOGUE_X+DIALOGUE_W-4, -1);
+	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
+	CAT_draw_text(DIALOGUE_X+4, DIALOGUE_X+4, dialogue_text);
+}
+
+
+//////////////////////////////////////////////////////////////////////////
 // FINALIZATION
 
 void CAT_gui_io()
@@ -1137,6 +1181,9 @@ void CAT_gui_io()
 		CAT_gui_item_grid_io();
 	else if(CAT_gui_menu_is_open())
 		CAT_gui_menu_io();
+
+	if(CAT_gui_dialogue_is_open())
+		CAT_gui_dialogue_io();
 }
 
 void CAT_gui_render()
@@ -1150,6 +1197,8 @@ void CAT_gui_render()
 		CAT_gui_keyboard();
 	if(CAT_gui_popup_is_open())
 		CAT_gui_popup();
+	if(CAT_gui_dialogue_is_open())
+		CAT_gui_dialogue();	
 	
 	if(CAT_is_last_render_cycle())
 		printf_cursor_y = 0;
