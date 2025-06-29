@@ -46,11 +46,8 @@ void CAT_MS_menu(CAT_machine_signal signal)
 					CAT_machine_transition(CAT_MS_shop);
 				if(CAT_gui_menu_item("ARCADE"))
 					CAT_machine_transition(CAT_MS_arcade);
-
 				if(CAT_gui_menu_item("DASHBOARD"))
-					CAT_gui_open_popup("Go to air quality\nDashboard?\n");
-				if(CAT_gui_consume_popup())
-					CAT_machine_transition(CAT_MS_monitor);
+					CAT_machine_transition(CAT_MS_monitor);				
 					
 				if(CAT_gui_menu_item("MAGIC"))
 					CAT_machine_transition(CAT_MS_magic);
@@ -230,7 +227,7 @@ void CAT_MS_menu(CAT_machine_signal signal)
 						}
 							
 						if(CAT_gui_menu_item("RESET SAVE"))
-							CAT_gui_open_popup("Are you sure?\nThis will delete all\ngame data!\n\n");
+							CAT_gui_open_popup("Are you sure? This will delete all game data!\n");
 						if(CAT_gui_consume_popup())
 							CAT_factory_reset();
 
@@ -246,7 +243,7 @@ void CAT_MS_menu(CAT_machine_signal signal)
 						CAT_sleep();
 
 					if(CAT_gui_menu_item("SHUTDOWN"))
-						CAT_gui_open_popup("Are you sure? A\npowered-down device\nmust be reactivated\nvia the reset\nbutton!\n");
+						CAT_gui_open_popup("Are you sure? A powered-down device must be reactivated via the reset button!\n");
 					if(CAT_gui_consume_popup())
 						CAT_shutdown();
 					

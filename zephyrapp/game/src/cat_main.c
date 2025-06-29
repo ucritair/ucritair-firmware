@@ -179,7 +179,6 @@ void CAT_force_load()
 		CAT_force_save();
 		CAT_printf("Game state reset and saved!\n");
 		CAT_unset_load_flags(CAT_LOAD_FLAG_DEFAULT);
-		CAT_force_load();
 		return;
 	}
 	else if(CAT_check_load_flags(CAT_LOAD_FLAG_TURNKEY))
@@ -190,7 +189,6 @@ void CAT_force_load()
 		CAT_force_save();
 		CAT_printf("Game state set to turnkey configuration!\n");
 		CAT_unset_load_flags(CAT_LOAD_FLAG_TURNKEY);
-		CAT_force_load();
 		return;
 	}
 	else

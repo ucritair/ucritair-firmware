@@ -139,7 +139,7 @@ void CAT_monitor_MS_sparklines(CAT_machine_signal signal)
 			if(CAT_input_touch_rect(SPARKLINE_X, SPARKLINE_Y, SPARKLINE_WIDTH, SPARKLINE_HEIGHT))
 				view = (view+1) % CAT_AQM_COUNT;
 
-			CAT_AQ_store_normalized_scores();
+			CAT_AQ_normalize_scores();
 		break;
 
 		case CAT_MACHINE_SIGNAL_EXIT:

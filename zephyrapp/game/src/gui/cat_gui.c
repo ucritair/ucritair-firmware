@@ -372,7 +372,7 @@ struct
 } popup =
 {
 	NULL,
-	NULL,
+	false,
 	0,
 	false
 };
@@ -398,6 +398,7 @@ void CAT_gui_popup_io()
 		popup.selector = 1;
 	if(CAT_input_pressed(CAT_BUTTON_RIGHT))
 		popup.selector = 0;
+
 	if(CAT_input_pressed(CAT_BUTTON_A))
 	{
 		popup.result = popup.selector;
@@ -427,8 +428,8 @@ void CAT_gui_popup()
 	CAT_strokeberry(POPUP_X-1, POPUP_Y-1, POPUP_W+2, POPUP_H+2, CAT_GREY);
 	
 	CAT_set_text_mask(POPUP_X+POPUP_MARGIN, -1, POPUP_X+POPUP_W-POPUP_MARGIN, -1);
+	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
 	CAT_draw_text(POPUP_X+POPUP_MARGIN, POPUP_Y+POPUP_MARGIN, popup.msg);
-
 	CAT_draw_text
 	(
 		POPUP_X+POPUP_MARGIN, POPUP_Y+POPUP_H-POPUP_MARGIN-CAT_GLYPH_HEIGHT,

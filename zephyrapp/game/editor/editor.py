@@ -1403,31 +1403,34 @@ class Mesh2DEditor:
 		for [v0, v1] in self.polyline:
 			v0 += delta;
 			v1 += delta;
+
+	def write_mesh(self):
+		polyline = [(v0, v1) for [v0, v1] in self.polyline];
+		polyline = list(set(polyline));
+		flat_polyline = [];
+		for p in polyline:
+			flat_polyline += p;
+		
+		vert_map = OrderedDict();
+		for v in flat_polyline:
+			if not v in vert_map:
+				vert_map[v] = len(vert_map);
+		
+		flat_edges = [];
+		for v in flat_polyline:
+			flat_edges.append(vert_map[v]);
+		flat_verts = [];
+		for v in vert_map.keys():
+			flat_verts += [int(v.x), int(v.y)];
+		
+		self.mesh['verts'] = flat_verts.copy();
+		self.mesh['vert_count'] = len(flat_verts) // 2;
+		self.mesh['edges'] = flat_edges.copy();
+		self.mesh['edge_count'] = len(flat_edges) // 2;
 	
 	def close_mesh(self):
 		if not self.mesh is None:
-			polyline = [(v0, v1) for [v0, v1] in self.polyline];
-			polyline = list(set(polyline));
-			flat_polyline = [];
-			for p in polyline:
-				flat_polyline += p;
-			
-			vert_map = OrderedDict();
-			for v in flat_polyline:
-				if not v in vert_map:
-					vert_map[v] = len(vert_map);
-			
-			flat_edges = [];
-			for v in flat_polyline:
-				flat_edges.append(vert_map[v]);
-			flat_verts = [];
-			for v in vert_map.keys():
-				flat_verts += [int(v.x), int(v.y)];
-			
-			self.mesh['verts'] = flat_verts.copy();
-			self.mesh['vert_count'] = len(flat_verts) // 2;
-			self.mesh['edges'] = flat_edges.copy();
-			self.mesh['edge_count'] = len(flat_edges) // 2;
+			self.write_mesh();
 			self.mesh = None;
 	
 	def buffer_vertex(self, v):

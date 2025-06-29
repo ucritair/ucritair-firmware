@@ -80,8 +80,6 @@ void CAT_monitor_MS_summary(CAT_machine_signal signal)
 				CAT_monitor_retreat();
 			if(CAT_input_pressed(CAT_BUTTON_RIGHT))
 				CAT_monitor_advance();
-			
-			if(CAT_AQ_is_crisis_report_posted())
 
 		break;
 

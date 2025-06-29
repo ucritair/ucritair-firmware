@@ -44,6 +44,6 @@ float CAT_AQ_get_raw_score(int aqm);
 void CAT_AQ_store_raw_scores();
 
 float CAT_AQ_get_normalized_score(int aqm);
-void CAT_AQ_store_normalized_scores();
+void CAT_AQ_normalize_scores();
 
 void CAT_AQ_tick();
