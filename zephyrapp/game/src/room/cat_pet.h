@@ -52,7 +52,10 @@ void CAT_pet_react();
 bool CAT_pet_seek(CAT_vec2 targ);
 void CAT_pet_face(CAT_vec2 targ);
 
-void CAT_pet_gain_xp(int xp);
+void CAT_pet_change_XP(int delta);
+void CAT_pet_change_vigour(int delta);
+void CAT_pet_change_focus(int delta);
+void CAT_pet_change_spirit(int delta);
 
 void CAT_pet_tick();
 

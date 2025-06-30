@@ -55,12 +55,8 @@ int draw_stat_pips(int cursor_y, const char* name, uint16_t colour, int value)
 	return cursor_y + CAT_GLYPH_HEIGHT + 4;
 }
 
-void CAT_render_insights()
+int draw_pet(int cursor_y)
 {
-	CAT_frameberry(CAT_BLACK);
-
-	int cursor_y = 12;
-
 	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
 	CAT_set_text_mask(MARGIN, -1, CAT_LCD_SCREEN_W-MARGIN, -1);
 	CAT_set_text_colour(CAT_WHITE);
@@ -85,8 +81,34 @@ void CAT_render_insights()
 	cursor_y = draw_stat_pips(cursor_y, "FOC", CAT_FOCUS_BLUE, pet.focus);
 	cursor_y = draw_stat_pips(cursor_y, "SPI", CAT_SPIRIT_PURPLE, pet.spirit);
 
+	return cursor_y;
+}
+
+int draw_grave_egg(int cursor_y)
+{
+	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
+	CAT_set_text_mask(MARGIN, -1, CAT_LCD_SCREEN_W-MARGIN, -1);
+	CAT_set_text_colour(CAT_WHITE);
+	CAT_set_text_scale(2);
+	cursor_y = CAT_draw_textf(MARGIN, cursor_y, "GRAVE EGG\n");
+
+	CAT_lineberry(MARGIN, cursor_y, CAT_LCD_SCREEN_W-MARGIN, cursor_y, CAT_WHITE);
 	cursor_y += 8;
 
+	CAT_set_text_colour(CAT_WHITE);
+	CAT_set_text_mask(MARGIN, -1, CAT_LCD_SCREEN_W-MARGIN, -1);
+	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
+	cursor_y = CAT_draw_textf(MARGIN, cursor_y, "UNBOUND FROM LIFE, READY TO BE BORN\n", pet.level+1, pet.xp, level_cutoffs[pet.level]);
+
+	CAT_set_sprite_scale(2);
+	CAT_draw_sprite(&grave_egg_sprite, 0, MARGIN, cursor_y);
+	cursor_y += (grave_egg_sprite.height*2) + 16;
+
+	return cursor_y;
+}
+
+int draw_defenses(int cursor_y)
+{
 	CAT_set_text_colour(CAT_WHITE);
 	cursor_y = CAT_draw_textf(MARGIN, cursor_y, "ACTIVE DEFENSES\n");
 	CAT_lineberry(MARGIN, cursor_y, CAT_LCD_SCREEN_W-MARGIN, cursor_y, CAT_WHITE);
@@ -108,4 +130,22 @@ void CAT_render_insights()
 		CAT_draw_sprite(&icon_pure_sprite, 0, cursor_x, cursor_y);
 		cursor_x += icon_pure_sprite.width + 4;
 	}
+
+	return cursor_y;
+}
+
+void CAT_render_insights()
+{
+	CAT_frameberry(CAT_BLACK);
+
+	int cursor_y = 12;
+
+	if(CAT_pet_is_dead())
+		cursor_y = draw_grave_egg(cursor_y);
+	else
+		cursor_y = draw_pet(cursor_y);
+
+	cursor_y += 8;
+
+	draw_defenses(cursor_y);
 }

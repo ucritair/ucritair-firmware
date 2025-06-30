@@ -192,15 +192,44 @@ void CAT_pet_face(CAT_vec2 targ)
 	pet.rot = targ.x > pet.pos.x ? -1 : 1;
 }
 
-void CAT_pet_gain_xp(int xp)
+void CAT_pet_change_XP(int delta)
 {
-	pet.xp += xp;
+	if(CAT_pet_is_dead())
+		return;
+
+	pet.xp += delta;
+	pet.xp = max(pet.xp, 0);
+
 	int cutoff = level_cutoffs[pet.level];
 	if(pet.xp >= cutoff)
 	{
 		pet.level += 1;
 		pet.xp -= cutoff;
 	}
+}
+
+void CAT_pet_change_vigour(int delta)
+{
+	if(CAT_pet_is_dead())
+		return;
+
+	pet.vigour = clamp(pet.vigour+delta, 0, 12);
+}
+
+void CAT_pet_change_focus(int delta)
+{
+	if(CAT_pet_is_dead())
+		return;
+
+	pet.focus = clamp(pet.focus+delta, 0, 12);
+}
+
+void CAT_pet_change_spirit(int delta)
+{
+	if(CAT_pet_is_dead())
+		return;
+
+	pet.spirit = clamp(pet.spirit+delta, 0, 12);
 }
 
 static CAT_vec2 destination = {120, 200};
@@ -212,12 +241,15 @@ void milk_proc()
 
 void apply_life_ticks(int ticks)
 {
+	if(CAT_pet_is_dead())
+		return;
+
 	pet.lifetime += ticks;
 	
 	for(int i = 0; i < ticks; i++)
 	{
-		int xp = round(((pet.vigour + pet.focus + pet.spirit) / 3.0f) * 50.0f);
-		CAT_pet_gain_xp(xp);
+		int xp_delta = round(((pet.vigour + pet.focus + pet.spirit) / 3.0f) * 50.0f);
+		CAT_pet_change_XP(xp_delta);
 
 		timing_state.times_milked_since_producing = 0;
 	}
@@ -225,18 +257,20 @@ void apply_life_ticks(int ticks)
 
 void apply_stat_ticks(int ticks)
 {
+	if(CAT_pet_is_dead())
+		return;
+
 	for(int i = 0; i < ticks; i++)
 	{
-		pet.vigour = clamp(pet.vigour - 1, 0, 12);
-		pet.focus = clamp(pet.focus - 1, 0, 12);
-		pet.spirit = clamp(pet.spirit - 1, 0, 12);
+		CAT_pet_change_vigour(-1);
+		CAT_pet_change_focus(-1);
+		CAT_pet_change_spirit(-1);
 
 		if(pet.vigour <= 0 || pet.focus <= 0 || pet.spirit <= 0)
 		{
-			float xp_delta = round(((float) level_cutoffs[pet.level]) * 0.1f);
-			pet.xp -= xp_delta;
-		}
-		pet.xp = max(pet.xp, 0);			
+			int xp_delta = round(level_cutoffs[pet.level] * 0.1f);
+			CAT_pet_change_XP(xp_delta);
+		}			
 	}
 }
 
@@ -251,15 +285,13 @@ void CAT_pet_tick()
 	ticks = time_since / CAT_STAT_TICK_PERIOD;
 	remainder = time_since % CAT_STAT_TICK_PERIOD;
 	timing_state.last_stat_time = now - remainder;
-	if(!CAT_pet_is_dead() && !CAT_check_config_flags(CAT_CONFIG_FLAG_PAUSE_CARE))
-		apply_stat_ticks(ticks);
+	apply_stat_ticks(ticks);
 		
 	time_since = now - timing_state.last_life_time;
 	ticks = time_since / CAT_LIFE_TICK_PERIOD;
 	remainder = time_since % CAT_LIFE_TICK_PERIOD;
 	timing_state.last_life_time = now - remainder;
-	if(!CAT_pet_is_dead() && !CAT_check_config_flags(CAT_CONFIG_FLAG_PAUSE_CARE))
-		apply_life_ticks(ticks);
+	apply_life_ticks(ticks);
 	
 	if(CAT_pet_needs_death_report())
 	{

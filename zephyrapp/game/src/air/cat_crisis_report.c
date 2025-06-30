@@ -24,7 +24,7 @@ void CAT_MS_crisis_report(CAT_machine_signal signal)
 	{
 		case CAT_MACHINE_SIGNAL_ENTER:
 			CAT_set_render_callback(CAT_render_crisis_report);
-			page = CAT_AQ_is_crisis_ongoing() ? OUTCOMES : INTRO;
+			page = INTRO;
 			exit_progress = 0;
 		break;
 
@@ -163,44 +163,37 @@ void draw_intro_page()
 	cursor_y += 36;
 	int box_y = cursor_y-8;
 
+	configure_description_text();
+	CAT_set_text_colour(CAT_WHITE);
 	if(CAT_AQ_is_crisis_ongoing())
 	{
-		if(countdown <= 0)
-		{
-			configure_description_text();
-			CAT_set_text_colour(CAT_WHITE);
-			cursor_y = CAT_draw_textf
-			(
-				MARGIN*2+MARGIN, cursor_y,
-				"No response has yet been made. "
-				"With disastrous conditions ongoing, the critter's health has begun to deteriorate.\n"
-			);
-		}
-		else
-		{
-			configure_description_text();
-			CAT_set_text_colour(CAT_WHITE);
-			cursor_y = CAT_draw_textf
-			(
-				MARGIN*2+MARGIN, cursor_y,
-				"No response has yet been made. "
-				"If conditions are not improved, the critter will suffer damaging outcomes to its health.\n"
-			);
-		}
+		cursor_y = CAT_draw_textf
+		(
+			MARGIN*2+MARGIN, cursor_y,
+			"No response has yet been made. "
+			"%s\n"
+			,
+			CAT_pet_is_dead() ?
+			"A grave egg feels no pain." :
+			countdown <= 0 ?
+			"With disastrous conditions ongoing, the critter's health has begun to deteriorate." :
+			"If conditions are not improved, the critter will suffer damaging outcomes to its health."
+		);
 	}
 	else
 	{
-		configure_description_text();
-		CAT_set_text_colour(CAT_WHITE);
 		cursor_y = CAT_draw_textf
 		(
 			MARGIN*2+MARGIN, cursor_y,
 			"Crisis was mitigated %dm, %ds after onset. "
 			"Mitigation time has been graded %s. "
-			"With the crisis suppressed, the critter's condition is stable.\n"
+			"%s\n"
 			,
 			uptime / 60, uptime % 60,
-			CAT_AQ_crisis_response_grade_string(-1)
+			CAT_AQ_crisis_response_grade_string(-1),
+			CAT_pet_is_dead() ?
+			"A grave egg feels no pain." :
+			"With the crisis suppressed, the critter's condition is stable."
 		);
 	}
 
@@ -315,26 +308,38 @@ void draw_details_page()
 			break;
 		}
 
-		configure_description_text();
-		if(lifespan_damage > 0)
+		if(!CAT_pet_is_dead())
 		{
+			configure_description_text();
+			if(lifespan_damage > 0)
+			{
+				CAT_set_text_colour(CAT_CRISIS_RED);
+				cursor_y = CAT_draw_textf
+				(
+					MARGIN*2+MARGIN, cursor_y,
+					"%s unfortunately suffered negative health effects, resulting in a reduced lifespan.\n",
+					pet.name
+				);
+			}
+			else
+			{
+				CAT_set_text_colour(CAT_CRISIS_GREEN);
+				cursor_y = CAT_draw_textf
+				(
+					MARGIN*2+MARGIN, cursor_y,
+					"Thankfully, %s suffered no negative health effects.\n",
+					pet.name
+				);
+			}
+		}
+		else
+		{
+			configure_description_text();
 			CAT_set_text_colour(CAT_CRISIS_RED);
 			cursor_y = CAT_draw_textf
 			(
 				MARGIN*2+MARGIN, cursor_y,
-				"%s unfortunately suffered negative health effects, resulting in a reduced lifespan.\n",
-				pet.name
-			);
-		}
-		else
-		{
-			CAT_set_text_colour(CAT_CRISIS_GREEN);
-			cursor_y = CAT_draw_textf
-			(
-				MARGIN*2+MARGIN, cursor_y,
-				"Thankfully, %s suffered no negative health effects.\n"
-				"Good work.\n",
-				pet.name
+				"A grave egg feels no pain.\n"
 			);
 		}
 
@@ -398,6 +403,7 @@ void draw_outcomes_page()
 			CAT_CRISIS_RED
 		);
 		cursor_y += 24;
+
 		if(CAT_AQ_get_crisis_peak_severity() >= CAT_AQ_CRISIS_SEVERITY_EXTREME)
 		{
 			CAT_set_text_colour(CAT_CRISIS_RED);
@@ -406,7 +412,10 @@ void draw_outcomes_page()
 			cursor_y = CAT_draw_textf
 			(
 				MARGIN, cursor_y,
-				"PEAK CRISIS SEVERITY HAS REACHED \"EXTREME\" LEVELS."
+				"PEAK CRISIS SEVERITY HAS REACHED \"EXTREME\" LEVELS. "
+				"%s\n",
+				CAT_pet_is_dead() ?
+				"A GRAVE EGG FEELS NO PAIN." :
 				"VERY HIGH RISK OF HEALTH EFFECTS ON CRITTER!"
 			);
 		}
@@ -429,25 +438,45 @@ void draw_outcomes_page()
 		int box_x1 = CAT_LCD_SCREEN_W-MARGIN*2; int box_y1 = CAT_LCD_SCREEN_H-64;
 		CAT_draw_corner_box(box_x0, box_y0, box_x1, box_y1, CAT_CRISIS_YELLOW);
 
-		uint16_t grade_colour =
-		grade >= CAT_AQ_CRISIS_RESPONSE_GRADE_ADEQUATE ? CAT_CRISIS_GREEN :
-		grade >= CAT_AQ_CRISIS_RESPONSE_GRADE_INADEQUATE ? CAT_CRISIS_YELLOW :
-		CAT_CRISIS_RED;
-		CAT_draw_hexagon((box_x0+box_x1)/2, (box_y0+box_y1)/2, 64, grade_colour, 0);
+		if(!CAT_pet_is_dead())
+		{
+			uint16_t grade_colour =
+			grade >= CAT_AQ_CRISIS_RESPONSE_GRADE_ADEQUATE ? CAT_CRISIS_GREEN :
+			grade >= CAT_AQ_CRISIS_RESPONSE_GRADE_INADEQUATE ? CAT_CRISIS_YELLOW :
+			CAT_CRISIS_RED;
+			CAT_draw_hexagon((box_x0+box_x1)/2, (box_y0+box_y1)/2, 64, grade_colour, 0);
 
-		CAT_set_text_flags(CAT_TEXT_FLAG_CENTER);
-		CAT_set_text_colour(CAT_WHITE);
-		int damage = CAT_AQ_get_crisis_lifespan_damage();
-		cursor_y = CAT_draw_textf
-		(
-			(box_x0+box_x1)/2, (box_y0+box_y1)/2 - (14*3/2),
-			"LIFESPAN DAMAGE [%.2d]\n"
-			"PREVIOUS LIFESPAN [%.2d]\n"
-			"CURRENT LIFESPAN [%.2d]\n"
-			,
-			damage,
-			pet.lifespan+damage, pet.lifespan
-		);
+			int damage = CAT_AQ_get_crisis_lifespan_damage();
+			CAT_set_text_flags(CAT_TEXT_FLAG_CENTER);
+			CAT_set_text_colour(CAT_WHITE);
+			cursor_y = CAT_draw_textf
+			(
+				(box_x0+box_x1)/2, (box_y0+box_y1)/2 - (14*3/2),
+				"LIFESPAN DAMAGE [%.2d]\n"
+				"PREVIOUS LIFESPAN [%.2d]\n"
+				"CURRENT LIFESPAN [%.2d]\n"
+				,
+				damage,
+				pet.lifespan+damage, pet.lifespan
+			);
+		}
+		else
+		{
+			CAT_draw_hexagon((box_x0+box_x1)/2, (box_y0+box_y1)/2, 64, CAT_WHITE, 0.25f);
+
+			CAT_set_text_flags(CAT_TEXT_FLAG_CENTER);
+			CAT_set_text_colour(CAT_WHITE);
+			int damage = CAT_AQ_get_crisis_lifespan_damage();
+			cursor_y = CAT_draw_textf
+			(
+				(box_x0+box_x1)/2, (box_y0+box_y1)/2 - (14*2/2),
+				"A GRAVE EGG FEELS\n"
+				"NO PAIN\n"
+				,
+				damage,
+				pet.lifespan+damage, pet.lifespan
+			);
+		}
 	}
 
 	CAT_set_text_colour(CAT_CRISIS_GREEN);

@@ -11,6 +11,7 @@
 #include "cat_crisis.h"
 #include "cat_curves.h"
 #include "cat_gizmos.h"
+#include "cat_pet.h"
 
 #define MARGIN 12
 
@@ -65,10 +66,20 @@ void draw_ongoing_crisis()
 			);
 		}
 
-		CAT_set_text_mask(MARGIN, -1, CAT_LCD_SCREEN_W-MARGIN, -1);
-		CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
-		CAT_set_text_colour(CAT_CRISIS_YELLOW);
-		CAT_draw_text(MARGIN, CAT_LCD_SCREEN_H-92, "CRITTER AT RISK! ALLEVIATE CRISIS CONDITIONS IMMEDIATELY!\n");
+		if(!CAT_pet_is_dead())
+		{
+			CAT_set_text_mask(MARGIN, -1, CAT_LCD_SCREEN_W-MARGIN, -1);
+			CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
+			CAT_set_text_colour(CAT_CRISIS_YELLOW);
+			CAT_draw_text(MARGIN, CAT_LCD_SCREEN_H-92, "CRITTER AT RISK! ALLEVIATE CRISIS CONDITIONS IMMEDIATELY!\n");
+		}
+		else
+		{
+			CAT_set_text_mask(MARGIN, -1, CAT_LCD_SCREEN_W-MARGIN, -1);
+			CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
+			CAT_set_text_colour(CAT_CRISIS_YELLOW);
+			CAT_draw_text(MARGIN, CAT_LCD_SCREEN_H-92, "A GRAVE EGG FEELS NO PAIN\n");
+		}
 	}
 	else
 	{
@@ -142,15 +153,18 @@ void draw_waiting_crisis()
 		CAT_AQ_crisis_response_grade_string(-1)
 	);
 
-	int damage = CAT_AQ_get_crisis_lifespan_damage();
-	CAT_set_text_colour(damage <= 0 ? CAT_CRISIS_GREEN : CAT_CRISIS_RED);
-	CAT_draw_text
-	(
-		EXIT_BAR_X-EXIT_BAR_W/2,
-		EXIT_BAR_Y-EXIT_BAR_H/2-32,
-		damage > 0 ?
-		"CRITTER HAS SUFFERED DAMAGE\n" : "ALL CRITTER DAMAGE AVOIDED\n"
-	);
+	if(!CAT_pet_is_dead())
+	{
+		int damage = CAT_AQ_get_crisis_lifespan_damage();
+		CAT_set_text_colour(damage <= 0 ? CAT_CRISIS_GREEN : CAT_CRISIS_RED);
+		CAT_draw_text
+		(
+			EXIT_BAR_X-EXIT_BAR_W/2,
+			EXIT_BAR_Y-EXIT_BAR_H/2-32,
+			damage > 0 ?
+			"CRITTER HAS SUFFERED DAMAGE\n" : "ALL CRITTER DAMAGE AVOIDED\n"
+		);
+	}
 
 	CAT_set_text_colour(CAT_CRISIS_GREEN);
 	CAT_draw_textf

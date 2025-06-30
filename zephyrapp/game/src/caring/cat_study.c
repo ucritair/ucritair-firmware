@@ -1202,7 +1202,7 @@ static void MS_summary(CAT_machine_signal signal)
 		case CAT_MACHINE_SIGNAL_EXIT:
 			CAT_inventory_add(item_rewards[fish.grade], 1);
 			pet.focus += focus_reward;
-			CAT_pet_gain_xp(xp_reward);
+			CAT_pet_change_XP(xp_reward);
 		break;
 	}
 }

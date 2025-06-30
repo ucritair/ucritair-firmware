@@ -222,8 +222,7 @@ void CAT_force_load()
 
 	if(save->pet.lifespan <= 30)
 		pet.lifespan = save->pet.lifespan;
-	if(save->pet.lifetime <= 31)
-		pet.lifetime = save->pet.lifetime;
+	pet.lifetime = min(save->pet.lifetime, 31);
 	if(save->pet.incarnations <= UINT16_MAX)
 		pet.incarnations = save->pet.incarnations;
 
