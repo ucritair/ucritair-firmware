@@ -603,7 +603,7 @@ static void fish_tick()
 	else if(fish.focus_trigger)
 	{
 		float hook_arena_dist = sqrt(CAT_vec2_dist2((CAT_vec2){120, 160}, hook));
-		if(hook_arena_dist < ARENA_RADIUS && hook_align > 0.7 && hook_distance <= fish.radii[0])
+		if(hook_arena_dist < ARENA_RADIUS && hook_align > 0.7 && hook_distance <= (fish.radii[0] + 8))
 		{
 			fish.nibble_trigger = true;
 			fish.nibble_timer = 0;
@@ -801,12 +801,32 @@ static void render_MS_fish()
 		}
 	}
 
-	if(!fish.bite_trigger)
+	if(!fish.nibble_trigger)
 	{
 		CAT_set_sprite_colour(CAT_WHITE);
 		CAT_set_sprite_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
-		CAT_vec2 bobber = fish.nibble_trigger ? CAT_vec2_add(hook, CAT_iv2v(hook_jitter)) : hook;
-		CAT_draw_sprite(&gizmo_target_17x17_sprite, 0, bobber.x, bobber.y);
+		CAT_draw_sprite(&gizmo_target_17x17_sprite, 0, hook.x, hook.y);
+
+		CAT_animator_reset(&fishing_bobber_set_sprite);
+	}
+	else if(!fish.bite_trigger)
+	{
+		CAT_set_sprite_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
+		if(CAT_animator_get_frame(&fishing_bobber_set_sprite) < fishing_bobber_set_sprite.frame_count-1)
+			CAT_draw_sprite(&fishing_bobber_set_sprite, -1, hook.x, hook.y);
+		else
+		{
+			//CAT_vec2 bobber = CAT_vec2_add(hook, CAT_iv2v(hook_jitter));
+			CAT_draw_sprite(&fishing_bobber_idle_sprite, -1, hook.x, hook.y);
+		}
+
+		CAT_animator_reset(&fishing_bobber_bite_sprite);
+	}
+	else
+	{
+		CAT_set_sprite_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
+		CAT_vec2 bobber = hook;
+		CAT_draw_sprite(&fishing_bobber_bite_sprite, -1, bobber.x, bobber.y);
 	}
 }
 
