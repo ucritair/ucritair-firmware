@@ -60,6 +60,7 @@ bool CAT_pet_is_dead();
 void CAT_pet_reincarnate();
 void CAT_pet_post_death_report();
 void CAT_pet_dismiss_death_report();
+bool CAT_pet_needs_death_report();
 bool CAT_pet_is_death_report_posted();
 void CAT_MS_death_report(CAT_machine_signal signal);
 void CAT_render_death_report();

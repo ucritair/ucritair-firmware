@@ -263,7 +263,7 @@ void CAT_pet_tick()
 	if(!CAT_pet_is_dead() && !CAT_check_config_flags(CAT_CONFIG_FLAG_PAUSE_CARE))
 		apply_life_ticks(ticks);
 	
-	if(pet.lifetime > pet.lifespan)
+	if(CAT_pet_needs_death_report())
 	{
 		CAT_pet_post_death_report();
 	}
@@ -372,19 +372,29 @@ void CAT_pet_reincarnate()
 	AM_pet.signal = TICK;
 }
 
-static bool death_report = false;
+static enum
+{
+	NONE,
+	POSTED,
+	DISMISSED
+} death_report_status = NONE;
 
 void CAT_pet_post_death_report()
 {
-	death_report = true;
+	death_report_status = POSTED;
 }
 
 void CAT_pet_dismiss_death_report()
 {
-	death_report = false;
+	death_report_status = DISMISSED;
+}
+
+bool CAT_pet_needs_death_report()
+{
+	return CAT_pet_is_dead() && death_report_status == NONE;
 }
 
 bool CAT_pet_is_death_report_posted()
 {
-	return death_report;
+	return death_report_status == POSTED;
 }
