@@ -211,9 +211,9 @@ void lcd_render_diag()
 		}
 		
 		time_since = current_second - aq_last_buffered_score_time;
-		if(time_since > CAT_MINUTE_SECONDS && CAT_AQ_sensors_initialized())
+		if(time_since > CAT_DAY_SECONDS && CAT_AQ_sensors_initialized())
 		{
-			if(aq_last_buffered_score_time == 0)
+			if(is_first_init)
 			{
 				for(int i = 0; i < 6; i++)
 				{

@@ -184,7 +184,7 @@ void CAT_AQ_move_scores()
 		block->VOC = move_average(block->VOC, block->sample_count, readings.sen5x.voc_index, 1);
 		block->PM2_5 = move_average(block->PM2_5, block->sample_count, readings.sen5x.pm2_5, 100);
 		block->temp = move_average(block->temp, block->sample_count, CAT_canonical_temp(), 1);
-		block->rh = move_average(block->rh, block->sample_count, readings.sen5x.humidity_rhpct, 1000);
+		block->rh = move_average(block->rh, block->sample_count, readings.sen5x.humidity_rhpct, 100);
 		block->aggregate = move_average(block->aggregate, block->sample_count, CAT_AQ_aggregate_score(), 1);
 	}
 	else

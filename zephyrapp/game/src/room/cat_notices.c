@@ -5,7 +5,7 @@
 #include "cat_gui.h"
 #include <stdio.h>
 
-#define NOTICE_COOLDOWN (CAT_MINUTE_SECONDS)
+#define NOTICE_COOLDOWN (CAT_MINUTE_SECONDS * 2)
 #define NOTICE_DURATION 2
 
 static const char** notice_pool[CAT_NOTICE_TYPE_COUNT] =
