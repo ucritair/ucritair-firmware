@@ -183,7 +183,7 @@
             "icon": "icon_item_food_sprite",
             "text": "A freshly baked loaf of bread. It has a soft crust and a slightly cakey crumb.",
             "price": 3,
-            "id": 0,
+            "id": 14,
             "tool_data": {
                 "cursor": "bread_sprite",
                 "dv": 1,
@@ -205,7 +205,7 @@
             "icon": "icon_item_food_sprite",
             "text": "A hot cup of coffee. It's a dark roast with a chocolatey flavour. Some might think it almost tastes burnt.",
             "price": 3,
-            "id": 1,
+            "id": 18,
             "tool_data": {
                 "cursor": "coffee_sprite",
                 "dv": 1,
@@ -227,7 +227,7 @@
             "icon": "icon_item_food_sprite",
             "text": "Fresh milk in a white paper carton. Somehow rich and refreshing all at once.",
             "price": 3,
-            "id": 2,
+            "id": 28,
             "tool_data": {
                 "cursor": "milk_sprite",
                 "dv": 1,
@@ -249,7 +249,7 @@
             "icon": "icon_item_food_sprite",
             "text": "Piping hot soup. Excellent in sickness or in health.",
             "price": 3,
-            "id": 3,
+            "id": 42,
             "tool_data": {
                 "cursor": "soup_sprite",
                 "dv": 1,
@@ -271,7 +271,7 @@
             "icon": "icon_item_food_sprite",
             "text": "A crisp fresh salad with just enough dressing. It's even got toasted pumpkin seeds.",
             "price": 3,
-            "id": 4,
+            "id": 38,
             "tool_data": {
                 "cursor": "salad_sprite",
                 "dv": 1,
@@ -293,7 +293,7 @@
             "icon": "icon_item_food_sprite",
             "text": "Sausages grilled on a skewer. The casing is snappy and gives way to a meaty interior.",
             "price": 3,
-            "id": 5,
+            "id": 40,
             "tool_data": {
                 "cursor": "sausage_sprite",
                 "dv": 1,
@@ -315,7 +315,7 @@
             "icon": "icon_item_food_sprite",
             "text": "A hot curry that tastes of coconut and green chili.",
             "price": 12,
-            "id": 6,
+            "id": 20,
             "tool_data": {
                 "cursor": "green_curry_sprite",
                 "dv": 3,
@@ -337,7 +337,7 @@
             "icon": "icon_item_food_sprite",
             "text": "A deep red curry with a warming heat behind it.",
             "price": 12,
-            "id": 7,
+            "id": 21,
             "tool_data": {
                 "cursor": "red_curry_sprite",
                 "dv": 3,
@@ -359,7 +359,7 @@
             "icon": "icon_item_food_sprite",
             "text": "Perfectly browned ground meat with wisps of basil over rice. It's got everything, even an egg.",
             "price": 12,
-            "id": 8,
+            "id": 31,
             "tool_data": {
                 "cursor": "padkaprow_sprite",
                 "dv": 3,
@@ -381,7 +381,7 @@
             "icon": "icon_item_food_sprite",
             "text": "A bitter pill that will reinvigorate you.",
             "price": 3,
-            "id": 9,
+            "id": 35,
             "tool_data": {
                 "cursor": "pill_vig_sprite",
                 "dv": 1,
@@ -403,7 +403,7 @@
             "icon": "icon_item_food_sprite",
             "text": "A bitter pill that will sharpen your focus.",
             "price": 3,
-            "id": 10,
+            "id": 33,
             "tool_data": {
                 "cursor": "pill_foc_sprite",
                 "dv": 1,
@@ -425,7 +425,7 @@
             "icon": "icon_item_food_sprite",
             "text": "A bitter pill that will raise your spirits.",
             "price": 3,
-            "id": 11,
+            "id": 34,
             "tool_data": {
                 "cursor": "pill_spi_sprite",
                 "dv": 1,
@@ -447,7 +447,7 @@
             "icon": "icon_item_food_sprite",
             "text": "They're awful for you. Where did you even find these?",
             "price": 0,
-            "id": 12,
+            "id": 17,
             "tool_data": {
                 "cursor": "cigarette_sprite",
                 "dv": 0,
@@ -469,7 +469,7 @@
             "icon": "icon_item_book_sprite",
             "text": "Nothing is yours. It is to use. It is to share. If you will not share it, you cannot use it.",
             "price": 7,
-            "id": 13,
+            "id": 0,
             "tool_data": {
                 "cursor": "book_static_sprite",
                 "dv": 0,
@@ -487,7 +487,7 @@
             "icon": "icon_item_book_sprite",
             "text": "Go to bed; tired is stupid.",
             "price": 7,
-            "id": 14,
+            "id": 1,
             "tool_data": {
                 "cursor": "book_static_sprite",
                 "dv": 0,
@@ -505,7 +505,7 @@
             "icon": "icon_item_book_sprite",
             "text": "There is no greater opportunity for appreciating beauty than through its use in our everyday lives.",
             "price": 7,
-            "id": 15,
+            "id": 2,
             "tool_data": {
                 "cursor": "book_static_sprite",
                 "dv": 0,
@@ -523,7 +523,7 @@
             "icon": "icon_item_book_sprite",
             "text": "The desire for purified identity is a state of absolute bondage to the status quo.",
             "price": 7,
-            "id": 16,
+            "id": 3,
             "tool_data": {
                 "cursor": "book_static_sprite",
                 "dv": 0,
@@ -541,7 +541,7 @@
             "icon": "icon_item_book_sprite",
             "text": "The programmer must seek both perfection of part and adequacy of collection.",
             "price": 7,
-            "id": 17,
+            "id": 4,
             "tool_data": {
                 "cursor": "book_static_sprite",
                 "dv": 0,
@@ -559,7 +559,7 @@
             "icon": "icon_item_book_sprite",
             "text": "Now I am going to destroy my heart myself, and pour my blood into your veins.",
             "price": 7,
-            "id": 18,
+            "id": 5,
             "tool_data": {
                 "cursor": "book_static_sprite",
                 "dv": 0,
@@ -577,7 +577,7 @@
             "icon": "icon_item_toy_sprite",
             "text": "A rubber ducky. Squeeze it to see if it makes a noise.",
             "price": 21,
-            "id": 19,
+            "id": 105,
             "tool_data": {
                 "cursor": "toy_duck_sprite",
                 "dv": 0,
@@ -595,7 +595,7 @@
             "icon": "icon_item_toy_sprite",
             "text": "White leather is pulled perfectly taut over its core. Its red stitching gleams softly.",
             "price": 7,
-            "id": 20,
+            "id": 103,
             "tool_data": {
                 "cursor": "toy_baseball_sprite",
                 "dv": 0,
@@ -613,7 +613,7 @@
             "icon": "icon_item_toy_sprite",
             "text": "It bounces instantly up from the floor. The smell of fresh rubber.",
             "price": 14,
-            "id": 21,
+            "id": 104,
             "tool_data": {
                 "cursor": "toy_basketball_sprite",
                 "dv": 0,
@@ -631,7 +631,7 @@
             "icon": "icon_item_toy_sprite",
             "text": "Just by looking at it you can hear the crack of the club's contact.",
             "price": 7,
-            "id": 22,
+            "id": 106,
             "tool_data": {
                 "cursor": "toy_golf_sprite",
                 "dv": 0,
@@ -649,7 +649,7 @@
             "icon": "icon_item_toy_sprite",
             "text": "If you touch it, you'll start looking for a place to put it.",
             "price": 14,
-            "id": 23,
+            "id": 108,
             "tool_data": {
                 "cursor": "toy_puzzle_sprite",
                 "dv": 0,
@@ -667,18 +667,18 @@
             "icon": "icon_item_key_sprite",
             "text": "This mask can protect you from some, but certainly not all, airborne risks.",
             "price": 10,
-            "id": 24,
+            "id": 45,
             "tier": 0
         },
         {
             "type": "prop",
-            "name": "prop_crafter",
+            "name": "prop_eth_farm",
             "display_name": "Defunct Crafting Station",
             "sprite": "prop_crafter_sprite",
             "icon": "icon_item_prop_sprite",
             "text": "Though dormant now, it is clearly a fine machine. Nothing made so well can be useless for long.",
             "price": 100,
-            "id": 25,
+            "id": 66,
             "prop_data": {
                 "shape": [
                     3,
@@ -698,7 +698,7 @@
             "icon": "icon_item_prop_sprite",
             "text": "Its ghostly light will banish airborne pathogens.",
             "price": 50,
-            "id": 26,
+            "id": 96,
             "prop_data": {
                 "shape": [
                     1,
@@ -718,7 +718,7 @@
             "icon": "icon_item_prop_sprite",
             "text": "It processes the air around you, leaving it cleaner than before.",
             "price": 50,
-            "id": 27,
+            "id": 80,
             "prop_data": {
                 "shape": [
                     2,
@@ -738,7 +738,7 @@
             "icon": "icon_item_prop_sprite",
             "text": "It is simple to use and produces serviceable coffee. Its gentle sound colours your mornings.",
             "price": 40,
-            "id": 28,
+            "id": 59,
             "prop_data": {
                 "shape": [
                     2,
@@ -758,7 +758,7 @@
             "icon": "icon_item_prop_sprite",
             "text": "Not state of the art, but tried and true. A vision of relief in summer.",
             "price": 20,
-            "id": 29,
+            "id": 67,
             "prop_data": {
                 "shape": [
                     2,
@@ -778,7 +778,7 @@
             "icon": "icon_item_prop_sprite",
             "text": "A rather advanced fan. Popular with those who seek to understand air.",
             "price": 30,
-            "id": 30,
+            "id": 68,
             "prop_data": {
                 "shape": [
                     2,
@@ -798,7 +798,7 @@
             "icon": "icon_item_prop_sprite",
             "text": "A sturdy but finely wrought lantern. Its light spills over its metalwork.",
             "price": 20,
-            "id": 31,
+            "id": 70,
             "prop_data": {
                 "shape": [
                     1,
@@ -818,7 +818,7 @@
             "icon": "icon_item_prop_sprite",
             "text": "A surprisingly sturdy laptop. It invites you to fill it with software.",
             "price": 80,
-            "id": 32,
+            "id": 71,
             "prop_data": {
                 "shape": [
                     2,
@@ -838,7 +838,7 @@
             "icon": "icon_item_prop_sprite",
             "text": "A beautiful chess set with polished pieces. Your critter is smart, but can it really use this?",
             "price": 40,
-            "id": 33,
+            "id": 57,
             "prop_data": {
                 "shape": [
                     2,
@@ -858,7 +858,7 @@
             "icon": "icon_item_prop_sprite",
             "text": "A sturdy table. Its top looks like it can stand up to anything.",
             "price": 20,
-            "id": 34,
+            "id": 87,
             "prop_data": {
                 "shape": [
                     4,
@@ -878,7 +878,7 @@
             "icon": "icon_item_prop_sprite",
             "text": "A sturdy table. Its top looks like it can stand up to anything.",
             "price": 20,
-            "id": 35,
+            "id": 95,
             "prop_data": {
                 "shape": [
                     4,
@@ -898,7 +898,7 @@
             "icon": "icon_item_prop_sprite",
             "text": "Perfect for a lawn party or a snack spread.",
             "price": 20,
-            "id": 36,
+            "id": 88,
             "prop_data": {
                 "shape": [
                     4,
@@ -918,7 +918,7 @@
             "icon": "icon_item_prop_sprite",
             "text": "Its shape is imposing.",
             "price": 20,
-            "id": 37,
+            "id": 89,
             "prop_data": {
                 "shape": [
                     4,
@@ -938,7 +938,7 @@
             "icon": "icon_item_prop_sprite",
             "text": "A sturdy little table. It would make for a good nightstand.",
             "price": 20,
-            "id": 38,
+            "id": 90,
             "prop_data": {
                 "shape": [
                     2,
@@ -958,7 +958,7 @@
             "icon": "icon_item_prop_sprite",
             "text": "A sturdy little table. It would make for a good nightstand.",
             "price": 30,
-            "id": 39,
+            "id": 93,
             "prop_data": {
                 "shape": [
                     2,
@@ -978,7 +978,7 @@
             "icon": "icon_item_prop_sprite",
             "text": "A sturdy little table. It would make for a good nightstand.",
             "price": 30,
-            "id": 40,
+            "id": 94,
             "prop_data": {
                 "shape": [
                     2,
@@ -998,7 +998,7 @@
             "icon": "icon_item_prop_sprite",
             "text": "A sturdy little table. It would make for a good nightstand.",
             "price": 10,
-            "id": 41,
+            "id": 91,
             "prop_data": {
                 "shape": [
                     2,
@@ -1018,7 +1018,7 @@
             "icon": "icon_item_prop_sprite",
             "text": "A sturdy little table. It would make for a good nightstand.",
             "price": 10,
-            "id": 42,
+            "id": 92,
             "prop_data": {
                 "shape": [
                     2,
@@ -1038,7 +1038,7 @@
             "icon": "icon_item_prop_sprite",
             "text": "It can support the critter's whole weight. And surprisingly, it's really comfortable.",
             "price": 20,
-            "id": 43,
+            "id": 54,
             "prop_data": {
                 "shape": [
                     2,
@@ -1058,7 +1058,7 @@
             "icon": "icon_item_prop_sprite",
             "text": "It can support the critter's whole weight. And surprisingly, it's really comfortable.",
             "price": 15,
-            "id": 44,
+            "id": 56,
             "prop_data": {
                 "shape": [
                     2,
@@ -1078,7 +1078,7 @@
             "icon": "icon_item_prop_sprite",
             "text": "Good for standing on if you need to get snacks out of the cabinet.",
             "price": 5,
-            "id": 45,
+            "id": 83,
             "prop_data": {
                 "shape": [
                     2,
@@ -1098,7 +1098,7 @@
             "icon": "icon_item_prop_sprite",
             "text": "Good for standing on if you need to get snacks out of the cabinet.",
             "price": 10,
-            "id": 46,
+            "id": 85,
             "prop_data": {
                 "shape": [
                     2,
@@ -1118,7 +1118,7 @@
             "icon": "icon_item_prop_sprite",
             "text": "Good for standing on if you need to get snacks out of the cabinet.",
             "price": 15,
-            "id": 47,
+            "id": 84,
             "prop_data": {
                 "shape": [
                     2,
@@ -1138,7 +1138,7 @@
             "icon": "icon_item_prop_sprite",
             "text": "Good for standing on if you need to get snacks out of the cabinet. And it's gold.",
             "price": 30,
-            "id": 48,
+            "id": 82,
             "prop_data": {
                 "shape": [
                     2,
@@ -1178,7 +1178,7 @@
             "icon": "icon_item_prop_sprite",
             "text": "A smooth bowl with decent heft. It will keep your meal standing still.",
             "price": 20,
-            "id": 50,
+            "id": 46,
             "prop_data": {
                 "shape": [
                     1,
@@ -1198,7 +1198,7 @@
             "icon": "icon_item_prop_sprite",
             "text": "It can hold a lot more than flowers. Why not put oil or wax in it?",
             "price": 7,
-            "id": 51,
+            "id": 100,
             "prop_data": {
                 "shape": [
                     1,
@@ -1218,7 +1218,7 @@
             "icon": "icon_item_prop_sprite",
             "text": "It can hold a lot more than flowers. Why not put oil or wax in it?",
             "price": 20,
-            "id": 52,
+            "id": 97,
             "prop_data": {
                 "shape": [
                     1,
@@ -1238,7 +1238,7 @@
             "icon": "icon_item_prop_sprite",
             "text": "It can hold a lot more than flowers. Why not put oil or wax in it?",
             "price": 5,
-            "id": 53,
+            "id": 98,
             "prop_data": {
                 "shape": [
                     1,
@@ -1258,7 +1258,7 @@
             "icon": "icon_item_prop_sprite",
             "text": "It can hold a lot more than flowers. Why not put oil or wax in it?",
             "price": 7,
-            "id": 54,
+            "id": 99,
             "prop_data": {
                 "shape": [
                     1,
@@ -1278,7 +1278,7 @@
             "icon": "icon_item_prop_sprite",
             "text": "It can hold a lot more than flowers. Why not put oil or wax in it?",
             "price": 7,
-            "id": 55,
+            "id": 101,
             "prop_data": {
                 "shape": [
                     1,
@@ -1298,7 +1298,7 @@
             "icon": "icon_item_prop_sprite",
             "text": "Small but lively, this succulent does a surprising amount for the atmosphere of your living space.",
             "price": 5,
-            "id": 56,
+            "id": 86,
             "prop_data": {
                 "shape": [
                     1,
@@ -1318,7 +1318,7 @@
             "icon": "icon_item_prop_sprite",
             "text": "A classic bush. It's quite green.",
             "price": 10,
-            "id": 57,
+            "id": 53,
             "prop_data": {
                 "shape": [
                     2,
@@ -1338,7 +1338,7 @@
             "icon": "icon_item_prop_sprite",
             "text": "A floral take on the classic bush. Its white accents are eye-catching.",
             "price": 30,
-            "id": 58,
+            "id": 51,
             "prop_data": {
                 "shape": [
                     2,
@@ -1358,7 +1358,7 @@
             "icon": "icon_item_prop_sprite",
             "text": "A floral take on the classic bush. Its purple accents are eye-catching.",
             "price": 30,
-            "id": 59,
+            "id": 52,
             "prop_data": {
                 "shape": [
                     2,
@@ -1378,7 +1378,7 @@
             "icon": "icon_item_prop_sprite",
             "text": "It stands tall and proud for something that cannot live past the edges of a pot.",
             "price": 20,
-            "id": 60,
+            "id": 79,
             "prop_data": {
                 "shape": [
                     2,
@@ -1398,7 +1398,7 @@
             "icon": "icon_item_prop_sprite",
             "text": "Look closely at the vivid colour of its trunk. It is subtle but striking.",
             "price": 20,
-            "id": 61,
+            "id": 78,
             "prop_data": {
                 "shape": [
                     2,
@@ -1418,7 +1418,7 @@
             "icon": "icon_item_prop_sprite",
             "text": "Its purple flowers are a welcome pop of colour at any time of year.",
             "price": 25,
-            "id": 62,
+            "id": 77,
             "prop_data": {
                 "shape": [
                     2,
@@ -1438,7 +1438,7 @@
             "icon": "icon_item_prop_sprite",
             "text": "Its bright white flowers are oddly dazzling. They almost don't belong inside.",
             "price": 25,
-            "id": 63,
+            "id": 76,
             "prop_data": {
                 "shape": [
                     2,
@@ -1458,7 +1458,7 @@
             "icon": "icon_item_prop_sprite",
             "text": "This flower is a symbol of strength. It blooms full when times are good.",
             "price": 40,
-            "id": 64,
+            "id": 102,
             "prop_data": {
                 "shape": [
                     2,
@@ -1478,7 +1478,7 @@
             "icon": "icon_item_prop_sprite",
             "text": "This flower is a symbol of wisdom. It blooms full when times are good.",
             "price": 40,
-            "id": 65,
+            "id": 69,
             "prop_data": {
                 "shape": [
                     2,
@@ -1498,7 +1498,7 @@
             "icon": "icon_item_prop_sprite",
             "text": "This flower is a symbol of fulfillment. It blooms full when times are good.",
             "price": 40,
-            "id": 66,
+            "id": 81,
             "prop_data": {
                 "shape": [
                     2,
@@ -1518,7 +1518,7 @@
             "icon": "icon_item_prop_sprite",
             "text": "Nobody is quite sure of this crystal's rarity. Its value comes purely from its beauty.",
             "price": 50,
-            "id": 67,
+            "id": 60,
             "prop_data": {
                 "shape": [
                     2,
@@ -1538,7 +1538,7 @@
             "icon": "icon_item_prop_sprite",
             "text": "Nobody is quite sure of this crystal's rarity. Its value comes purely from its beauty.",
             "price": 50,
-            "id": 68,
+            "id": 61,
             "prop_data": {
                 "shape": [
                     2,
@@ -1558,7 +1558,7 @@
             "icon": "icon_item_prop_sprite",
             "text": "Nobody is quite sure of this crystal's rarity. Its value comes purely from its beauty.",
             "price": 50,
-            "id": 69,
+            "id": 62,
             "prop_data": {
                 "shape": [
                     2,
@@ -1578,7 +1578,7 @@
             "icon": "icon_item_prop_sprite",
             "text": "Art wrought by some unknown civilization, not of the past but of the future.",
             "price": 40,
-            "id": 70,
+            "id": 63,
             "prop_data": {
                 "shape": [
                     3,
@@ -1598,7 +1598,7 @@
             "icon": "icon_item_prop_sprite",
             "text": "Art wrought by some unknown civilization, not of the past but of the future.",
             "price": 40,
-            "id": 71,
+            "id": 64,
             "prop_data": {
                 "shape": [
                     3,
@@ -1618,7 +1618,7 @@
             "icon": "icon_item_prop_sprite",
             "text": "Art wrought by some unknown civilization, not of the past but of the future.",
             "price": 60,
-            "id": 72,
+            "id": 65,
             "prop_data": {
                 "shape": [
                     3,
@@ -1638,7 +1638,7 @@
             "icon": "icon_item_prop_sprite",
             "text": "Pixel 63118 of 76800. Rank: Sergeant First Class.",
             "price": 30,
-            "id": 73,
+            "id": 74,
             "prop_data": {
                 "shape": [
                     1,
@@ -1658,7 +1658,7 @@
             "icon": "icon_item_prop_sprite",
             "text": "A feast for the eyes, but nothing more.",
             "price": 30,
-            "id": 74,
+            "id": 73,
             "prop_data": {
                 "shape": [
                     2,
@@ -1678,7 +1678,7 @@
             "icon": "icon_item_prop_sprite",
             "text": "A smooth bowl with decent heft. It will keep your meal standing still.",
             "price": 5,
-            "id": 75,
+            "id": 47,
             "prop_data": {
                 "shape": [
                     1,
@@ -1698,7 +1698,7 @@
             "icon": "icon_item_prop_sprite",
             "text": "A smooth bowl with decent heft. It will keep your meal standing still.",
             "price": 7,
-            "id": 76,
+            "id": 48,
             "prop_data": {
                 "shape": [
                     1,
@@ -1718,7 +1718,7 @@
             "icon": "icon_item_prop_sprite",
             "text": "A smooth bowl with decent heft. It will keep your meal standing still.",
             "price": 7,
-            "id": 77,
+            "id": 50,
             "prop_data": {
                 "shape": [
                     1,
@@ -1738,7 +1738,7 @@
             "icon": "icon_item_prop_sprite",
             "text": "It can support the critter's whole weight. And surprisingly, it's really comfortable.",
             "price": 10,
-            "id": 78,
+            "id": 55,
             "prop_data": {
                 "shape": [
                     2,
@@ -1758,7 +1758,7 @@
             "icon": "icon_item_prop_sprite",
             "text": "Though it doesn't yet produce vegetables, it may still be handy to keep around.",
             "price": 30,
-            "id": 79,
+            "id": 75,
             "prop_data": {
                 "shape": [
                     2,
@@ -1778,7 +1778,7 @@
             "icon": "icon_item_prop_sprite",
             "text": "An exceptionally round bird. Not food, but a dear friend.",
             "price": 50,
-            "id": 80,
+            "id": 58,
             "prop_data": {
                 "shape": [
                     2,
@@ -1798,7 +1798,7 @@
             "icon": "icon_item_prop_sprite",
             "text": "You disarmed this one yourself. Good work.",
             "price": 50,
-            "id": 81,
+            "id": 72,
             "prop_data": {
                 "shape": [
                     2,
@@ -1818,7 +1818,7 @@
             "icon": "icon_item_key_sprite",
             "text": "All CATs love to chase a laser pointer.",
             "price": 21,
-            "id": 82,
+            "id": 107,
             "tier": 3,
             "tool_data": {
                 "type": "toy",
@@ -1836,7 +1836,7 @@
             "icon": "icon_item_key_sprite",
             "text": "A fish of decent but unremarkable quality.",
             "price": 0,
-            "id": 83,
+            "id": 6,
             "tier": 0
         },
         {
@@ -1847,7 +1847,7 @@
             "icon": "icon_item_key_sprite",
             "text": "A fish of notable quality.",
             "price": 0,
-            "id": 84,
+            "id": 7,
             "tier": 0
         },
         {
@@ -1858,7 +1858,7 @@
             "icon": "icon_item_key_sprite",
             "text": "An astounding catch.",
             "price": 0,
-            "id": 85,
+            "id": 8,
             "tier": 0
         },
         {
@@ -1869,7 +1869,7 @@
             "icon": "icon_item_food_sprite",
             "text": "Perfectly chewy with a slightly glossy exterior.",
             "price": 3,
-            "id": 86,
+            "id": 9,
             "tool_data": {
                 "type": "food",
                 "cursor": "",
@@ -1891,7 +1891,7 @@
             "icon": "icon_item_food_sprite",
             "text": "Nature's perfect dessert. And packed with potassium to boot!",
             "price": 3,
-            "id": 87,
+            "id": 10,
             "tool_data": {
                 "type": "food",
                 "cursor": "",
@@ -1913,7 +1913,7 @@
             "icon": "icon_item_food_sprite",
             "text": "More delicious than water and more refreshing than coffee.",
             "price": 3,
-            "id": 88,
+            "id": 11,
             "tool_data": {
                 "type": "food",
                 "cursor": "",
@@ -1935,7 +1935,7 @@
             "icon": "icon_item_food_sprite",
             "text": "The critter has the shape of an animal that would love carrots.",
             "price": 3,
-            "id": 89,
+            "id": 16,
             "tool_data": {
                 "type": "food",
                 "cursor": "",
@@ -1957,7 +1957,7 @@
             "icon": "icon_item_food_sprite",
             "text": "An strong foundation of rice porridge loaded with flavourful add-ons.",
             "price": 3,
-            "id": 90,
+            "id": 19,
             "tool_data": {
                 "type": "food",
                 "cursor": "",
@@ -1979,7 +1979,7 @@
             "icon": "icon_item_food_sprite",
             "text": "Dough fried golden brown, topped with sweet crackling icing. Cake or classic, take your pick.",
             "price": 3,
-            "id": 91,
+            "id": 22,
             "tool_data": {
                 "type": "food",
                 "cursor": "",
@@ -2001,7 +2001,7 @@
             "icon": "icon_item_food_sprite",
             "text": "An egg.",
             "price": 3,
-            "id": 92,
+            "id": 24,
             "tool_data": {
                 "type": "food",
                 "cursor": "",
@@ -2023,7 +2023,7 @@
             "icon": "icon_item_food_sprite",
             "text": "It's somehow always the right temperature. Perfectly bitter.",
             "price": 3,
-            "id": 93,
+            "id": 26,
             "tool_data": {
                 "type": "food",
                 "cursor": "",
@@ -2045,7 +2045,7 @@
             "icon": "icon_item_food_sprite",
             "text": "The smell of citrus wafts off of them. You can tell they are sweet just at a glance.",
             "price": 3,
-            "id": 94,
+            "id": 30,
             "tool_data": {
                 "type": "food",
                 "cursor": "",
@@ -2067,7 +2067,7 @@
             "icon": "icon_item_food_sprite",
             "text": "Just ripe enough to eat, and sweet as candy. Don't eat too many or you'll get a bezoar.",
             "price": 3,
-            "id": 95,
+            "id": 32,
             "tool_data": {
                 "type": "food",
                 "cursor": "",
@@ -2089,7 +2089,7 @@
             "icon": "icon_item_food_sprite",
             "text": "Sugary and fizzy and strongly flavoured. Drink it cold on a hot day.",
             "price": 3,
-            "id": 96,
+            "id": 41,
             "tool_data": {
                 "type": "food",
                 "cursor": "",
@@ -2111,7 +2111,7 @@
             "icon": "icon_item_food_sprite",
             "text": "What could this possibly be? Do you think it tastes good?",
             "price": 3,
-            "id": 97,
+            "id": 43,
             "tool_data": {
                 "type": "food",
                 "cursor": "",
@@ -2133,7 +2133,7 @@
             "icon": "icon_item_food_sprite",
             "text": "Crispy fried shrimp with a moderate helping of rice and a variety of sides.",
             "price": 7,
-            "id": 98,
+            "id": 13,
             "tool_data": {
                 "type": "food",
                 "cursor": "",
@@ -2155,7 +2155,7 @@
             "icon": "icon_item_food_sprite",
             "text": "It's as classic as can be. The toppings and the bun don't outshine the patty itself.",
             "price": 7,
-            "id": 99,
+            "id": 15,
             "tool_data": {
                 "type": "food",
                 "cursor": "",
@@ -2177,7 +2177,7 @@
             "icon": "icon_item_food_sprite",
             "text": "Steamed dumplings filled with minced pork and aromatic vegetables. The skin's texture is ideal.",
             "price": 7,
-            "id": 100,
+            "id": 23,
             "tool_data": {
                 "type": "food",
                 "cursor": "",
@@ -2199,7 +2199,7 @@
             "icon": "icon_item_food_sprite",
             "text": "Toasty flaky dough covering a richly spiced meat filling. It's hard to stop at a couple.",
             "price": 7,
-            "id": 101,
+            "id": 25,
             "tool_data": {
                 "type": "food",
                 "cursor": "",
@@ -2221,7 +2221,7 @@
             "icon": "icon_item_food_sprite",
             "text": "It's something you might get at a backyard BBQ. It's got the right amount of char.",
             "price": 7,
-            "id": 102,
+            "id": 27,
             "tool_data": {
                 "type": "food",
                 "cursor": "",
@@ -2243,7 +2243,7 @@
             "icon": "icon_item_food_sprite",
             "text": "Hot rich broth and just barely toothsome noodles. You look forward to it after a long night.",
             "price": 7,
-            "id": 103,
+            "id": 36,
             "tool_data": {
                 "type": "food",
                 "cursor": "",
@@ -2265,7 +2265,7 @@
             "icon": "icon_item_food_sprite",
             "text": "It's good meat, no more and no less. Don't forget that your critter is an animal.",
             "price": 7,
-            "id": 104,
+            "id": 37,
             "tool_data": {
                 "type": "food",
                 "cursor": "",
@@ -2287,7 +2287,7 @@
             "icon": "icon_item_food_sprite",
             "text": "A beautiful salmon. Its eyes are bright and clear and its scales glitter.",
             "price": 7,
-            "id": 105,
+            "id": 39,
             "tool_data": {
                 "type": "food",
                 "cursor": "",
@@ -2309,7 +2309,7 @@
             "icon": "icon_item_food_sprite",
             "text": "Catafalqued king of my own ocean.",
             "price": 7,
-            "id": 106,
+            "id": 44,
             "tool_data": {
                 "type": "food",
                 "cursor": "",
@@ -2331,7 +2331,7 @@
             "icon": "icon_item_food_sprite",
             "text": "Chewy noodles loaded with tender beef. The smell is divine.",
             "price": 12,
-            "id": 107,
+            "id": 12,
             "tool_data": {
                 "type": "food",
                 "cursor": "",
@@ -2353,7 +2353,7 @@
             "icon": "icon_item_food_sprite",
             "text": "The smell of coconut and pandan entices you to have a bite of rice loaded with sides.",
             "price": 12,
-            "id": 108,
+            "id": 29,
             "tool_data": {
                 "type": "food",
                 "cursor": "",

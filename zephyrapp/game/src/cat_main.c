@@ -128,7 +128,7 @@ void CAT_load_default()
 	CAT_inventory_add(coin_item, 100);
 
 	CAT_room_init();
-	CAT_room_add_prop(prop_crafter_item, (CAT_ivec2) {2, 0});
+	CAT_room_add_prop(prop_eth_farm_item, (CAT_ivec2) {2, 0});
 	CAT_room_add_prop(prop_table_mahogany_item, (CAT_ivec2) {6, 3});
 	CAT_room_add_prop(prop_chair_mahogany_item, (CAT_ivec2) {4, 3});
 }
@@ -150,7 +150,7 @@ void CAT_load_turnkey()
 
 	CAT_room_init();
 	CAT_room_add_prop(prop_plant_plain_item, (CAT_ivec2) {0, 0});
-	CAT_room_add_prop(prop_crafter_item, (CAT_ivec2) {2, 0});
+	CAT_room_add_prop(prop_eth_farm_item, (CAT_ivec2) {2, 0});
 	CAT_room_add_prop(prop_table_mahogany_item, (CAT_ivec2) {3, 3});
 	CAT_room_stack_prop(room.prop_count-1, prop_xen_crystal_item);
 	CAT_room_add_prop(prop_chair_mahogany_item, (CAT_ivec2) {1, 3});
@@ -257,26 +257,42 @@ void CAT_force_load()
 		CAT_item* prop = CAT_item_get(prop_id);
 		if(prop == NULL)
 			continue;
-		if(prop->type != CAT_ITEM_TYPE_PROP)
-			CAT_inventory_add(prop_id, 1);
-		
-		CAT_ivec2 position =
-		{
-			save->deco.positions[i*2+0],
-			save->deco.positions[i*2+1],
-		};
-		int prop_idx = CAT_room_add_prop(prop_id, position);
-		if(prop_idx == -1)
-			CAT_inventory_add(prop_id, 1);
 
+		int prop_idx = -1;
+		if(prop->type != CAT_ITEM_TYPE_PROP)
+		{
+			CAT_inventory_add(prop_id, 1);
+		}
+		else
+		{
+			CAT_ivec2 position =
+			{
+				save->deco.positions[i*2+0],
+				save->deco.positions[i*2+1],
+			};
+			prop_idx = CAT_room_add_prop(prop_id, position);
+			if(prop_idx == -1)
+				CAT_inventory_add(prop_id, 1);
+		}
+		
 		int child_id = save->deco.children[i] - 1;
 		CAT_item* child = CAT_item_get(child_id);
 		if(child == NULL)
 			continue;
-		if(child->type != CAT_ITEM_TYPE_PROP || prop_idx == -1)
+		if
+		(
+			child->type != CAT_ITEM_TYPE_PROP ||
+			child->prop_type != CAT_PROP_TYPE_TOP ||
+			prop_idx == -1 ||
+			prop->prop_type != CAT_PROP_TYPE_BOTTOM
+		)
+		{
 			CAT_inventory_add(child_id, 1);
-		
-		CAT_room_stack_prop(prop_idx, child_id);
+		}
+		else
+		{
+			CAT_room_stack_prop(prop_idx, child_id);
+		}
 	}
 
 	snake_high_score = save->highscores.snake;
