@@ -120,12 +120,17 @@ void CAT_load_default()
 	CAT_room_init();
 
 	CAT_inventory_clear();
-	CAT_inventory_add(prop_crafter_item, 1);
+	CAT_inventory_add(food_bread_item, 2);
+	CAT_inventory_add(food_milk_item, 2);
+	CAT_inventory_add(food_coffee_item, 1);
+	CAT_inventory_add(prop_succulent_item, 1);
 	CAT_inventory_add(toy_laser_pointer_item, 1);
 	CAT_inventory_add(coin_item, 100);
-	CAT_inventory_add(prop_portal_orange_item, 1);
-	CAT_inventory_add(prop_xen_crystal_item, 1);
-	CAT_inventory_add(prop_hoopy_item, 1);
+
+	CAT_room_init();
+	CAT_room_add_prop(prop_crafter_item, (CAT_ivec2) {2, 0});
+	CAT_room_add_prop(prop_table_mahogany_item, (CAT_ivec2) {6, 3});
+	CAT_room_add_prop(prop_chair_mahogany_item, (CAT_ivec2) {4, 3});
 }
 
 void CAT_load_turnkey()
@@ -147,7 +152,7 @@ void CAT_load_turnkey()
 	CAT_room_add_prop(prop_plant_plain_item, (CAT_ivec2) {0, 0});
 	CAT_room_add_prop(prop_crafter_item, (CAT_ivec2) {2, 0});
 	CAT_room_add_prop(prop_table_mahogany_item, (CAT_ivec2) {3, 3});
-	CAT_room_stack_prop(room.prop_count-1, prop_bowl_walnut_item);
+	CAT_room_stack_prop(room.prop_count-1, prop_xen_crystal_item);
 	CAT_room_add_prop(prop_chair_mahogany_item, (CAT_ivec2) {1, 3});
 	CAT_room_add_prop(prop_stool_wood_item, (CAT_ivec2) {7, 4});
 	CAT_room_add_prop(prop_bush_plain_item, (CAT_ivec2) {13, 2});
@@ -157,7 +162,7 @@ void CAT_load_turnkey()
 	CAT_room_add_prop(prop_plant_daisy_item, (CAT_ivec2) {0, 9});
 
 	CAT_inventory_add(prop_portal_orange_item, 1);
-	CAT_inventory_add(prop_xen_crystal_item, 1);
+	CAT_inventory_add(prop_portal_blue_item, 1);
 	CAT_inventory_add(prop_hoopy_item, 1);
 }
 
@@ -196,6 +201,7 @@ void CAT_force_load()
 			CAT_printf("Invalid save header...\n");
 			CAT_initialize_save(save);
 			CAT_load_default();
+			CAT_inventory_add(save_reset_mark_item, 1);
 			CAT_force_save();
 			CAT_printf("Game state reset!\n");
 			return;
@@ -205,12 +211,14 @@ void CAT_force_load()
 			CAT_printf("Save requires migration...\n");
 			CAT_migrate_legacy_save(save);
 			CAT_raise_config_flags(CAT_CONFIG_FLAG_MIGRATED);
+			CAT_inventory_add(save_migrate_mark_item, 1);
 			CAT_printf("Save migrated!\n");
 		}
 		else if(save_status == CAT_SAVE_ERROR_SECTOR_MISSING)
 		{
 			CAT_printf("Save is missing sector...\n");
 			CAT_extend_save(save);
+			CAT_inventory_add(save_extend_mark_item, 1);
 			CAT_printf("Save extended!\n");
 		}
 	}
@@ -249,27 +257,26 @@ void CAT_force_load()
 		CAT_item* prop = CAT_item_get(prop_id);
 		if(prop == NULL)
 			continue;
-		int child_id = save->deco.children[i] - 1;
-		CAT_item* child = CAT_item_get(child_id);
-
+		if(prop->type != CAT_ITEM_TYPE_PROP)
+			CAT_inventory_add(prop_id, 1);
+		
 		CAT_ivec2 position =
 		{
 			save->deco.positions[i*2+0],
 			save->deco.positions[i*2+1],
 		};
 		int prop_idx = CAT_room_add_prop(prop_id, position);
-
 		if(prop_idx == -1)
-		{
 			CAT_inventory_add(prop_id, 1);
-			if(child != NULL)
-				CAT_inventory_add(child_id, 1);
-		}
-		else
-		{
-			if(child != NULL)
-				CAT_room_stack_prop(prop_idx, child_id);
-		}
+
+		int child_id = save->deco.children[i] - 1;
+		CAT_item* child = CAT_item_get(child_id);
+		if(child == NULL)
+			continue;
+		if(child->type != CAT_ITEM_TYPE_PROP || prop_idx == -1)
+			CAT_inventory_add(child_id, 1);
+		
+		CAT_room_stack_prop(prop_idx, child_id);
 	}
 
 	snake_high_score = save->highscores.snake;

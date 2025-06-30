@@ -19,7 +19,8 @@ static enum
 	INPUT,
 	AQI,
 	LAST
-} page = SYSTEM;
+};
+int page = SYSTEM;
 
 void CAT_MS_debug(CAT_machine_signal signal)
 {
@@ -33,18 +34,11 @@ void CAT_MS_debug(CAT_machine_signal signal)
 				CAT_machine_back();
 
 			if(CAT_input_pulse(CAT_BUTTON_LEFT))
-			{
-				if(page == 0)
-					page = LAST-1;
-				else
-					page -= 1;
-			}
+				page -= 1;
 			if(CAT_input_pulse(CAT_BUTTON_RIGHT))
-			{
 				page += 1;
-				if(page >= LAST)
-					page = 0;
-			}
+			page = (page+LAST)%LAST;
+
 			break;
 		case CAT_MACHINE_SIGNAL_EXIT:
 			break;
@@ -79,6 +73,7 @@ void CAT_render_debug()
 			if(CAT_check_config_flags(CAT_CONFIG_FLAG_MIGRATED))
 				CAT_gui_text("MIGRATED SAVE\n");
 		break;
+		
 		case TIME:
 			CAT_gui_title(true, "TIME");
 			CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
@@ -102,6 +97,7 @@ void CAT_render_debug()
 			CAT_gui_textf("Slept: %llus\n", CAT_get_slept_s());
 			CAT_gui_textf("E-Ink: %llus/%ds\n", now-last_eink_time, EINK_UPDATE_PERIOD);
 		break;
+
 		case DECO:
 			CAT_gui_title(true, "DECO");
 			CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
@@ -119,6 +115,7 @@ void CAT_render_debug()
 				gui.cursor.y += 8;
 			}
 		break;
+
 		case INPUT:
 		{
 			CAT_gui_title(true, "INPUT");
@@ -137,6 +134,7 @@ void CAT_render_debug()
 			
 		}
 		break;
+
 		case AQI:
 		{
 			CAT_gui_title(true, "AQI");
@@ -155,6 +153,7 @@ void CAT_render_debug()
 			CAT_gui_textf("TMP: %f%s\n", CAT_AQ_map_celsius(readings.lps22hh.temp), CAT_AQ_get_temperature_unit_string());
 			CAT_gui_textf("AQI: %f\n", CAT_AQ_aggregate_score());
 		}
+
 		default:
 		{
 			CAT_gui_title(true, "LAST");

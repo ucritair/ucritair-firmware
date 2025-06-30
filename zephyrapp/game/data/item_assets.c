@@ -1381,10 +1381,10 @@ CAT_item_table item_table =
 			.sprite = &xen_crystal_sprite,
 			.price = 0,
 			.text = "Its label says GG-3883. Can't hurt to keep it around for now.",
-			.prop_type = CAT_PROP_TYPE_DEFAULT,
+			.prop_type = CAT_PROP_TYPE_TOP,
 			.prop_shape = {1, 1},
 			.prop_animated = false,
-			.prop_child_dy = 0,
+			.prop_child_dy = -3,
 		},
 		{
 			.type = CAT_ITEM_TYPE_PROP,
@@ -1397,6 +1397,27 @@ CAT_item_table item_table =
 			.prop_animated = true,
 			.prop_child_dy = 0,
 		},
+		{
+			.type = CAT_ITEM_TYPE_KEY,
+			.name = "Migration Mark",
+			.sprite = &cursor_flip_sprite,
+			.price = 0,
+			.text = "Commemorates a great leap forward.",
+		},
+		{
+			.type = CAT_ITEM_TYPE_KEY,
+			.name = "Oblivion Mark",
+			.sprite = &cursor_remove_sprite,
+			.price = 0,
+			.text = "Commemorates starting over fresh.",
+		},
+		{
+			.type = CAT_ITEM_TYPE_KEY,
+			.name = "Extension Mark",
+			.sprite = &cursor_add_sprite,
+			.price = 0,
+			.text = "Commemorates incremental progress.",
+		},
 	},
-	.length = 114
+	.length = 117
 };

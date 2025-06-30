@@ -1293,7 +1293,8 @@ static void MS_feed_summary(CAT_machine_signal signal)
 				if (food_list[i].active)
 					CAT_inventory_remove(food_pool.data[food_list[i].pool_idx], 1);
 			}
-			pet.vigour += score_object.grade;
+			CAT_pet_change_vigour(score_object.grade);
+			CAT_pet_change_XP(xp_reward);
 		break;
 	}
 }

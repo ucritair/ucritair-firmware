@@ -114,3 +114,6 @@
 #define prop_portal_blue_item 111
 #define prop_xen_crystal_item 112
 #define prop_hoopy_item 113
+#define save_migrate_mark_item 114
+#define save_reset_mark_item 115
+#define save_extend_mark_item 116

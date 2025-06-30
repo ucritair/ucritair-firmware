@@ -77,6 +77,7 @@ typedef enum
 } CAT_gui_toggle_style;
 
 void CAT_gui_begin_menu_context();
+void CAT_gui_clear_menu_context();
 bool CAT_gui_begin_menu(const char* title);
 bool CAT_gui_menu_is_open();
 bool CAT_gui_menu_item(const char* title);

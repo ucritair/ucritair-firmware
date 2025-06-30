@@ -2428,13 +2428,13 @@
             "price": 0,
             "id": 112,
             "prop_data": {
-                "type": "default",
+                "type": "top",
                 "shape": [
                     1,
                     1
                 ],
                 "animate": false,
-                "child_dy": 0
+                "child_dy": -3
             },
             "icon": "item_icon_key_sprite"
         },
@@ -2456,6 +2456,39 @@
                 "animate": true,
                 "child_dy": 0
             },
+            "icon": "item_icon_key_sprite"
+        },
+        {
+            "type": "key",
+            "name": "save_migrate_mark",
+            "display_name": "Migration Mark",
+            "tier": 0,
+            "sprite": "cursor_flip_sprite",
+            "text": "Commemorates a great leap forward.",
+            "price": 0,
+            "id": 114,
+            "icon": "item_icon_key_sprite"
+        },
+        {
+            "type": "key",
+            "name": "save_reset_mark",
+            "display_name": "Oblivion Mark",
+            "tier": 0,
+            "sprite": "cursor_remove_sprite",
+            "text": "Commemorates starting over fresh.",
+            "price": 0,
+            "id": 115,
+            "icon": "item_icon_key_sprite"
+        },
+        {
+            "type": "key",
+            "name": "save_extend_mark",
+            "display_name": "Extension Mark",
+            "tier": 0,
+            "sprite": "cursor_add_sprite",
+            "text": "Commemorates incremental progress.",
+            "price": 0,
+            "id": 116,
             "icon": "item_icon_key_sprite"
         }
     ]

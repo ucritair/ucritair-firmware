@@ -619,7 +619,14 @@ void CAT_gui_begin_menu_context()
 		menu_table[i].clicked = false;
 		menu_table[i].parent = -1;
 		menu_table[i].child_count = 0;
-		// menu_table[i].selector = 0;
+	}
+}
+
+void CAT_gui_clear_menu_context()
+{
+	for(int i = 0; i < MENU_TABLE_SIZE; i++)
+	{
+		menu_table[i].selector = 0;
 	}
 }
 
@@ -894,6 +901,8 @@ void CAT_gui_item_grid_set_flags(int flags)
 
 void CAT_gui_item_grid_cell(int item_id)
 {
+	if(item_id < 0 || item_id >= item_table.length)
+		return;
 	CAT_ilist_push(&item_grid_pool, item_id);
 }
 
