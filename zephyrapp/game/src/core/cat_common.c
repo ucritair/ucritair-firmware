@@ -9,12 +9,6 @@
 #include <time.h>
 #include "item_assets.h"
 
-//Dirty Hack to work on Linux because unix was used a variable name - remove when fixed.
-#ifdef unix
-#undef unix
-#endif
-
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // LCD
@@ -120,10 +114,15 @@ CAT_AQ_readings readings =
 {0};
 #endif
 
-bool CAT_is_AQ_initialized()
+bool CAT_AQ_logs_initialized()
+{
+	return CAT_get_log_cell_count() >= 1;
+}
+
+bool CAT_AQ_sensors_initialized()
 {
 	return
-	readings.sunrise.ppm_filtered_uncompensated > 0 &&
+	readings.sunrise.ppm_filtered_compensated > 0 &&
 	(readings.sen5x.temp_degC != 0 ||
 	readings.sen5x.humidity_rhpct > 0 ||
 	readings.sen5x.pm2_5 > 0);
@@ -579,3 +578,4 @@ bool CAT_check_load_flags(uint64_t flags)
 {
 	return load_flags & flags;
 }
+

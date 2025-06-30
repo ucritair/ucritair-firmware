@@ -17,7 +17,6 @@
 #include "cat_gui.h"
 #include "cat_input.h"
 #include "cat_machine.h"
-
 #include "cat_room.h"
 #include "cat_pet.h"
 #include "cat_actions.h"
@@ -27,7 +26,6 @@
 #include "cat_aqi.h"
 #include "cat_monitors.h"
 #include "cat_crisis.h"
-
 #include "cat_version.h"
 #include "theme_assets.h"
 #include "config.h"
@@ -46,13 +44,12 @@
 #pragma GCC diagnostic ignored "-Wunknown-pragmas"
 #endif
 
-const int eink_update_time_threshold = CAT_MINUTE_SECONDS;
-float time_since_eink_update = 0.0f;
+uint64_t last_eink_time;
 bool first_eink_update_complete = false;
 
 CAT_screen_orientation current_orientation;
 CAT_screen_orientation last_orientation;
-float time_since_reorient = 0.0f;
+uint64_t last_reorient_time;
 
 void CAT_force_save()
 {
@@ -296,11 +293,6 @@ void CAT_force_load()
 	CAT_pet_import_timing_state(CAT_pet_timing_state_persist());
 }
 
-void CAT_apply_sleep(int seconds)
-{
-	time_since_eink_update += seconds;
-}
-
 void CAT_init()
 {
 	CAT_platform_init();
@@ -313,19 +305,35 @@ void CAT_init()
 	CAT_room_init();
 
 	CAT_force_load();
-	CAT_apply_sleep(CAT_get_slept_s());
 
 	if(CAT_check_config_flags(CAT_CONFIG_FLAG_AQ_FIRST))
 		CAT_machine_transition(CAT_MS_monitor);
 	else
 		CAT_machine_transition(CAT_MS_room);
 
-	if(CAT_is_AQ_initialized())
+	if(CAT_AQ_sensors_initialized())
 		CAT_set_eink_update_flag(true);
 }
 
+static uint64_t last_time;
+
 void CAT_tick_logic()
 {
+	uint64_t now = CAT_get_RTC_now();
+	int diff = now - last_time;
+	last_time = now;
+	if(diff < 0)
+	{
+		CAT_datetime a, b;
+		CAT_make_datetime(last_time, &a);
+		CAT_make_datetime(now, &b);
+		CAT_printf(
+			"%d/%d/%d %d:%d:%d -> %d/%d/%d %d:%d:%d",
+			a.year, a.month, a.day, a.hour, a.minute, a.second,
+			b.year, b.month, b.day, b.hour, b.minute, b.second
+		);
+	}
+	
 	if(CAT_check_load_flags(CAT_LOAD_FLAG_DIRTY))
 	{
 		CAT_force_load();
@@ -348,25 +356,23 @@ void CAT_tick_logic()
 
 	CAT_gui_io();
 
-	time_since_eink_update += CAT_get_delta_time_s();
 	if
 	(
 		(CAT_is_charging() &&
-		time_since_eink_update >= eink_update_time_threshold &&
-		CAT_input_time_since_last() >= eink_update_time_threshold) ||
-		(!first_eink_update_complete && CAT_is_AQ_initialized())
+		(now - last_eink_time) >= EINK_UPDATE_PERIOD &&
+		CAT_input_time_since_last() >= EINK_UPDATE_PERIOD) ||
+		(!first_eink_update_complete && CAT_AQ_sensors_initialized())
 	)
 	{
 		CAT_set_eink_update_flag(true);
 	}
 
-	time_since_reorient += CAT_get_delta_time_s();
 	last_orientation = current_orientation;
 	current_orientation = CAT_IMU_is_upside_down() ? CAT_SCREEN_ORIENTATION_DOWN : CAT_SCREEN_ORIENTATION_UP;
-	if(current_orientation != last_orientation && time_since_reorient >= 1.0f)
+	if(current_orientation != last_orientation && (now - last_reorient_time) >= 1)
 	{
 		CAT_set_screen_orientation(current_orientation);
-		time_since_reorient = 0;
+		last_reorient_time = now;
 
 		CAT_set_eink_update_flag(true);
 	}
@@ -374,13 +380,6 @@ void CAT_tick_logic()
 
 void CAT_draw_eink_refresh_notice()
 {
-	// WILL RETURN TO THIS WHEN MEMORY RUNS OUT
-	/*CAT_frameberry(CAT_MONITOR_BLUE);
-	CAT_set_text_scale(2);
-	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
-	CAT_set_text_colour(CAT_WHITE);
-	CAT_draw_text(12, 12, "UPDATING E-INK...\nPLEASE WAIT\n");*/
-
 	CAT_draw_background(&eink_update_splash_sprite, 0, 0);
 }
 
@@ -432,7 +431,7 @@ int main(int argc, char** argv)
 		{
 			CAT_set_eink_update_flag(false);
 			CAT_eink_update();
-			time_since_eink_update = 0;
+			last_eink_time = CAT_get_RTC_now();
 		}
 
 		// 1 / FPS * 1_000_000 yields microseconds between framebuffer updates at fixed FPS

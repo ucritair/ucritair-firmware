@@ -110,7 +110,7 @@ PERSIST_RAM CAT_pet_timing_state pet_timing_state;
 // END PERSIST RAM
 //////////////////////////////////////////////////////////
 
-#define RTC_INIT_CHECK_MAGIC 0xb88712345
+#define RTC_INIT_CHECK_MAGIC 0xb8870001
 
 bool is_first_init = false;
 
@@ -118,7 +118,7 @@ _Static_assert(sizeof(time_t) == sizeof(uint64_t));
 
 time_t get_current_rtc_time()
 {
-	return ((uint64_t)nrf_rtc_counter_get(HW_RTC_CHOSEN) + rtc_offset) / 8;
+	return ((uint64_t) nrf_rtc_counter_get(HW_RTC_CHOSEN) + rtc_offset) / 8;
 }
 
 void set_rtc_counter_raw(uint64_t t)
@@ -194,16 +194,7 @@ void check_rtc_init()
 		aq_crisis_state = (CAT_AQ_crisis_state)
 		{
 			.type = CAT_AQ_CRISIS_TYPE_NONE,
-			.severity = CAT_AQ_CRISIS_SEVERITY_NONE,
-			.peak_severity = CAT_AQ_CRISIS_SEVERITY_NONE,
-			.ongoing = false,
-			.report = false,
-			.start_timestamp = 0,
-			.peak_timestamp = 0,
-			.end_timestamp = 0,
-			.response_type = CAT_AQ_CRISIS_RESPONSE_TYPE_NONE,
-			.response_grade = CAT_AQ_CRISIS_RESPONSE_GRADE_NONE,
-			.lifespan_damage = 0
+			.severity = CAT_AQ_CRISIS_SEVERITY_NONE
 		};
 		CAT_AQ_import_crisis_state(&aq_crisis_state);
 
@@ -216,8 +207,6 @@ void check_rtc_init()
 			.times_milked_since_producing = 0
 		};
 		CAT_pet_import_timing_state(&pet_timing_state);
-
-		CAT_raise_config_flags(CAT_CONFIG_FLAG_PERSIST_CLEARED);
 	}
 }
 

@@ -3,8 +3,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-extern float time_since_eink_update;
-extern const int eink_update_time_threshold;
+#define EINK_UPDATE_PERIOD CAT_MINUTE_SECONDS
+extern uint64_t last_eink_time;
 
 void CAT_load_default();
 void CAT_load_turnkey();

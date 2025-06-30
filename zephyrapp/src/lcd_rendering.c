@@ -93,7 +93,6 @@ void lcd_render_diag()
 {
 	int last_sensor_update = 0;
 	int last_flash_log = 0;
-	int last_eink_update = 0;
 
 #ifndef MINIMIZE_GAME_FOOTPRINT
 	slept_s = get_current_rtc_time() - went_to_sleep_at;
@@ -203,14 +202,15 @@ void lcd_render_diag()
 
 		uint64_t current_second = CAT_get_RTC_now();
 		uint64_t time_since = current_second - aq_last_moving_score_time;
-		if(time_since > 5 && CAT_is_AQ_initialized())
+
+		if(time_since > 5 && CAT_AQ_sensors_initialized())
 		{
 			CAT_AQ_move_scores();
 			aq_last_moving_score_time = current_second;
 		}
 		
 		time_since = current_second - aq_last_buffered_score_time;
-		if(time_since > CAT_DAY_SECONDS && CAT_is_AQ_initialized())
+		if(time_since > CAT_MINUTE_SECONDS && CAT_AQ_sensors_initialized())
 		{
 			if(aq_last_buffered_score_time == 0)
 			{
@@ -230,7 +230,8 @@ void lcd_render_diag()
 
 		int lockmask = 0;
 
-		while (!write_done) {
+		while (!write_done)
+		{
 			lockmask |= 1<<(LCD_FRAMEBUFFER_SEGMENTS-1);
 			k_usleep(250);
 		} // TODO: Move things around to fit game logic before this
@@ -317,16 +318,11 @@ void lcd_render_diag()
 			// 	hack_after_blit-hack_before_blit, hack_cyc_after_data_write-hack_cyc_before_data_write, end_ms-start_ms);
 		}
 
-		/*if ((k_uptime_get() - last_eink_update) > epaper_update_rate && epaper_update_rate != -1)
-		{
-			epaper_render_test();
-			last_eink_update = k_uptime_get();
-		}*/
 		if(CAT_eink_needs_update())
 		{
 			CAT_set_eink_update_flag(false);
 			CAT_eink_update();
-			time_since_eink_update = 0;
+			last_eink_time = CAT_get_RTC_now();
 		}
 
 		if ((k_uptime_get() - last_flash_log) > (sensor_wakeup_rate*1000) && is_ready_for_aqi_logging())

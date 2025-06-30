@@ -442,6 +442,8 @@ void calendar_logic()
 		if(CAT_input_pressed(CAT_BUTTON_RIGHT))
 			CAT_monitor_advance();
 
+		if(!CAT_AQ_logs_initialized())
+			return;
 		if(CAT_input_released(CAT_BUTTON_A))
 			focused = true;
 	}
@@ -497,8 +499,16 @@ void render_calendar()
 		int cursor_y = center_textf(120, 60, 2, CAT_WHITE, "Calendar");
 		cursor_y = underline(120, cursor_y, 2, CAT_WHITE, "Calendar");
 
-		CAT_fillberry(120 - 60, 160 - 20, 120, 40, RGB8882565(35, 157, 235));
-		center_textf(120, 160, CAT_input_held(CAT_BUTTON_A, 0) ? 3 : 2 ,CAT_WHITE, "Press A");
+		if(!CAT_AQ_logs_initialized())
+		{
+			CAT_fillberry(120 - 60, 160 - 20, 120, 40, RGB8882565(35, 157, 235));
+			center_textf(120, 160, CAT_input_held(CAT_BUTTON_A, 0) ? 3 : 2 ,CAT_WHITE, "No Logs");
+		}
+		else
+		{
+			CAT_fillberry(120 - 60, 160 - 20, 120, 40, RGB8882565(35, 157, 235));
+			center_textf(120, 160, CAT_input_held(CAT_BUTTON_A, 0) ? 3 : 2 ,CAT_WHITE, "Press A");
+		}		
 		return;
 	}
 

@@ -859,7 +859,7 @@ static void render_arrange()
 		CAT_set_text_mask(counter_x+8, -1, counter_x+counter_w-8, -1);
 		CAT_set_text_colour(CAT_WHITE);
 		CAT_set_text_flags(CAT_TEXT_FLAG_WRAP | CAT_TEXT_FLAG_CENTER);
-		CAT_draw_textf(counter_x+counter_w/2, counter_y+counter_h/2-18, "Press [SELECT] to select food items.\n");
+		CAT_draw_textf(counter_x+counter_w/2, counter_y+counter_h/2-18, "Press [SELECT] or touch here to select food items.\n");
 	}
 	else if(active_food_count == food_count)
 	{

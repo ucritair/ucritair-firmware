@@ -17,6 +17,7 @@
 #include "item_assets.h"
 #include "cat_crisis.h"
 #include "cat_monitors.h"
+#include "cat_notices.h"
 
 //////////////////////////////////////////////////////////////////////////
 // SPACE
@@ -327,6 +328,8 @@ CAT_room room =
 	.pickup_count = 0
 };
 
+static CAT_datetime datetime;
+
 void CAT_room_init()
 {
 	for(int y = 0; y < CAT_GRID_HEIGHT; y++)
@@ -609,10 +612,13 @@ void CAT_MS_room(CAT_machine_signal signal)
 			CAT_set_render_callback(CAT_render_room);
 			CAT_pet_settle();
 			CAT_animator_reset(&prop_hoopy_sprite);
+			CAT_gui_dismiss_dialogue();
 			break;
 		}
 		case CAT_MACHINE_SIGNAL_TICK:
 		{
+			CAT_get_datetime(&datetime);
+
 			if(CAT_AQ_is_crisis_report_posted())
 				CAT_machine_transition(CAT_MS_crisis_report);
 			if(CAT_pet_is_death_report_posted())
@@ -640,11 +646,48 @@ void CAT_MS_room(CAT_machine_signal signal)
 				CAT_pet_update_animations();
 				CAT_pet_walk();
 				CAT_pet_react();
+
+				if(CAT_should_post_notice())
+				{
+					CAT_clear_notice_types();
+
+					if(pet.vigour < 6 && pet.focus < 6 && pet.spirit < 6)
+						CAT_enable_notice_type(CAT_NOTICE_TYPE_STATS_BAD);
+					else if(pet.vigour > 6 && pet.focus > 6 && pet.spirit > 6)
+						CAT_enable_notice_type(CAT_NOTICE_TYPE_STATS_GOOD);
+
+					if(CAT_AQ_aggregate_score() <= 60)
+						CAT_enable_notice_type(CAT_NOTICE_TYPE_AQ_BAD);
+					else if(CAT_AQ_aggregate_score() > 80)
+						CAT_enable_notice_type(CAT_NOTICE_TYPE_AQ_GOOD);
+
+					if(datetime.hour >= 4 && datetime.hour < 11)
+						CAT_enable_notice_type(CAT_NOTICE_TYPE_MORNING);
+					else if(datetime.hour >= 11 && datetime.hour < 20)
+						CAT_enable_notice_type(CAT_NOTICE_TYPE_DAY);
+					else if(datetime.hour >= 20)
+						CAT_enable_notice_type(CAT_NOTICE_TYPE_NIGHT);
+					
+					if(datetime.month <= 3)
+						CAT_enable_notice_type(CAT_NOTICE_TYPE_SPRING);
+					else if(datetime.month <= 6)
+						CAT_enable_notice_type(CAT_NOTICE_TYPE_SUMMER);
+					else if(datetime.month <= 9)
+						CAT_enable_notice_type(CAT_NOTICE_TYPE_AUTUMN);
+					else
+						CAT_enable_notice_type(CAT_NOTICE_TYPE_WINTER);
+					
+					CAT_enable_notice_type(CAT_NOTICE_TYPE_MISCELLANY);
+
+					const char* notice = CAT_pick_notice(CAT_pick_notice_type());
+					CAT_post_notice(notice);
+				}
 			}
 			break;
 		}
 		case CAT_MACHINE_SIGNAL_EXIT:
 		{
+			CAT_gui_dismiss_dialogue();
 			break;
 		}
 	}
@@ -655,15 +698,12 @@ static bool battery_blink_switch = false;
 
 void CAT_room_draw_statics()
 {
-	CAT_datetime time;
-	CAT_get_datetime(&time);
-
 	int window_y = room.theme->window_rect.min.y;
 	int window_x = room.theme->window_rect.min.x;
 	int window_width = room.theme->window_rect.max.x-room.theme->window_rect.min.x;
 	int window_height = room.theme->window_rect.max.y-room.theme->window_rect.min.y;
 	int window_columns = window_width/8;
-	int sky_row_off = time.hour * (480 - window_height) / 23;
+	int sky_row_off = datetime.hour * (480 - window_height) / 23;
 
 	if(room.theme->tile_wall)
 	{

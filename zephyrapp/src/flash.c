@@ -268,8 +268,6 @@ void populate_log_cell(CAT_log_cell* cell)
 
 	cell->timestamp = get_current_rtc_time() - ago_offset; // epoch time timestamp in seconds
 
-	// LOG_DBG("cell->timestamp = %d", cell->timestamp);
-
 	cell->pressure_hPax10 = readings.lps22hh.pressure * 10;
 
 	cell->temp_Cx1000 = readings.sen5x.temp_degC * 1000; // C * 1000

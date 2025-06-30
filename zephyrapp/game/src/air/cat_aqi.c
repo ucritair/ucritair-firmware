@@ -232,51 +232,42 @@ float CAT_AQ_get_raw_score(int aqm)
 	return raw_scores[aqm];
 }
 
-static int fallback_log_idx = -1;
+bool CAT_AQ_load_fallback()
+{
+	if(!CAT_AQ_logs_initialized())
+		return false;
+
+	CAT_log_cell last_cell;
+	CAT_read_log_cell_at_idx(CAT_get_log_cell_count()-1, &last_cell);
+
+	raw_scores[CAT_AQM_CO2] = (float) last_cell.co2_ppmx1 * 1.0f;
+	raw_scores[CAT_AQM_PM2_5] = (float) last_cell.pm_ugmx100[1] / 100.0f;
+	raw_scores[CAT_AQM_VOC] = (float) last_cell.voc_index;
+	raw_scores[CAT_AQM_NOX] = (float) last_cell.nox_index;
+	raw_scores[CAT_AQM_TEMP] = (float) last_cell.temp_Cx1000 / 1000.0f;
+	raw_scores[CAT_AQM_RH] = (float) last_cell.rh_pctx100 / 100.0f;
+
+	float iaq = CAT_IAQ_score
+	(
+		raw_scores[CAT_AQM_TEMP],
+		raw_scores[CAT_AQM_RH],
+		raw_scores[CAT_AQM_CO2],
+		raw_scores[CAT_AQM_PM2_5],
+		raw_scores[CAT_AQM_NOX],
+		raw_scores[CAT_AQM_VOC]
+	);
+	raw_scores[CAT_AQM_AGGREGATE] = ((5.0f - iaq) / 5.0f) * 100.0f;
+}
 
 void CAT_AQ_store_raw_scores()
 {
-	if(CAT_is_AQ_initialized())
-	{
-		raw_scores[CAT_AQM_CO2] = readings.sunrise.ppm_filtered_compensated;
-		raw_scores[CAT_AQM_PM2_5] = readings.sen5x.pm2_5;
-		raw_scores[CAT_AQM_VOC] = readings.sen5x.voc_index;
-		raw_scores[CAT_AQM_NOX] = readings.sen5x.nox_index;
-		raw_scores[CAT_AQM_TEMP] = CAT_canonical_temp();
-		raw_scores[CAT_AQM_RH] = readings.sen5x.humidity_rhpct;
-		raw_scores[CAT_AQM_AGGREGATE] = CAT_AQ_aggregate_score();
-	}
-	else
-	{
-		if(fallback_log_idx == -1)
-			fallback_log_idx = CAT_get_log_cell_count()-1;
-		if(fallback_log_idx < 0)
-			return;
-
-		CAT_log_cell last_cell;
-		CAT_read_log_cell_at_idx(fallback_log_idx, &last_cell);
-		
-		raw_scores[CAT_AQM_CO2] = (float) last_cell.co2_ppmx1 * 1.0f;
-		raw_scores[CAT_AQM_PM2_5] = (float) last_cell.pm_ugmx100[1] / 100.0f;
-		raw_scores[CAT_AQM_VOC] = (float) last_cell.voc_index;
-		raw_scores[CAT_AQM_NOX] = (float) last_cell.nox_index;
-		raw_scores[CAT_AQM_TEMP] = (float) last_cell.temp_Cx1000 / 1000.0f;
-		raw_scores[CAT_AQM_RH] = (float) last_cell.rh_pctx100 / 100.0f;
-		raw_scores[CAT_AQM_AGGREGATE] = 
-		((5.0f -
-			CAT_IAQ_score
-			(
-				raw_scores[CAT_AQM_TEMP],
-				raw_scores[CAT_AQM_RH],
-				raw_scores[CAT_AQM_CO2],
-				raw_scores[CAT_AQM_PM2_5],
-				raw_scores[CAT_AQM_NOX],
-				raw_scores[CAT_AQM_VOC]
-			)
-		) / 5.0f) * 100.0f;
-
-		fallback_log_idx = -1;
-	}
+	raw_scores[CAT_AQM_CO2] = readings.sunrise.ppm_filtered_compensated;
+	raw_scores[CAT_AQM_PM2_5] = readings.sen5x.pm2_5;
+	raw_scores[CAT_AQM_VOC] = readings.sen5x.voc_index;
+	raw_scores[CAT_AQM_NOX] = readings.sen5x.nox_index;
+	raw_scores[CAT_AQM_TEMP] = CAT_canonical_temp();
+	raw_scores[CAT_AQM_RH] = readings.sen5x.humidity_rhpct;
+	raw_scores[CAT_AQM_AGGREGATE] = CAT_AQ_aggregate_score();
 }
 
 float normalized_scores[CAT_AQM_COUNT];
@@ -302,6 +293,9 @@ void CAT_AQ_normalize_scores()
 
 void CAT_AQ_tick()
 {
-	CAT_AQ_store_raw_scores();
+	if(!CAT_AQ_sensors_initialized() && CAT_AQ_logs_initialized())
+		CAT_AQ_load_fallback();
+	else
+		CAT_AQ_store_raw_scores();
 	CAT_AQ_normalize_scores();
 }

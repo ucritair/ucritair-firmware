@@ -206,15 +206,45 @@ void CAT_pet_gain_xp(int xp)
 	}
 }
 
-void CAT_pet_life()
-{
-}
-
 static CAT_vec2 destination = {120, 200};
 
 void milk_proc()
 {
 	CAT_inventory_add(food_milk_item, 1);
+}
+
+void apply_life_ticks(int ticks)
+{
+	for(int i = 0; i < ticks; i++)
+	{
+		int xp = round(((pet.vigour + pet.focus + pet.spirit) / 3.0f) * 50.0f);
+		CAT_pet_gain_xp(xp);
+
+		timing_state.times_milked_since_producing = 0;
+	}
+	
+	if(CAT_pet_days_alive() > pet.lifespan)
+	{
+		pet.deathday = CAT_get_RTC_now();
+		CAT_pet_post_death_report();
+	}
+}
+
+void apply_stat_ticks(int ticks)
+{
+	for(int i = 0; i < ticks; i++)
+	{
+		pet.vigour = clamp(pet.vigour - 1, 0, 12);
+		pet.focus = clamp(pet.focus - 1, 0, 12);
+		pet.spirit = clamp(pet.spirit - 1, 0, 12);
+
+		if(pet.vigour <= 0 || pet.focus <= 0 || pet.spirit <= 0)
+		{
+			float xp_delta = round(((float) level_cutoffs[pet.level]) * 0.1f);
+			pet.xp -= xp_delta;
+		}
+		pet.xp = max(pet.xp, 0);			
+	}
 }
 
 void CAT_pet_tick()
@@ -224,44 +254,19 @@ void CAT_pet_tick()
 	uint32_t ticks;
 	uint32_t remainder;
 
+	time_since = now - timing_state.last_stat_time;
+	ticks = time_since / CAT_STAT_TICK_PERIOD;
+	remainder = time_since % CAT_STAT_TICK_PERIOD;
+	timing_state.last_stat_time = now - remainder;
 	if(!CAT_pet_is_dead() && !CAT_check_config_flags(CAT_CONFIG_FLAG_PAUSE_CARE))
-	{
-		time_since = now - timing_state.last_stat_time;
-		ticks = time_since / CAT_STAT_TICK_PERIOD;
-		remainder = time_since % CAT_STAT_TICK_PERIOD;
-		for(int i = 0; i < ticks; i++)
-		{
-			pet.vigour = clamp(pet.vigour - 1, 0, 12);
-			pet.focus = clamp(pet.focus - 1, 0, 12);
-			pet.spirit = clamp(pet.spirit - 1, 0, 12);
-
-			if(pet.vigour <= 0 || pet.focus <= 0 || pet.spirit <= 0)
-			{
-				float xp_delta = round(((float) level_cutoffs[pet.level]) * 0.1f);
-				pet.xp -= xp_delta;
-			}
-			pet.xp = max(pet.xp, 0);			
-		}
-		timing_state.last_stat_time = now - remainder;
-
-		time_since = now - timing_state.last_life_time;
-		ticks = time_since / CAT_LIFE_TICK_PERIOD;
-		remainder = time_since % CAT_LIFE_TICK_PERIOD;
-		for(int i = 0; i < ticks; i++)
-		{
-			int xp = round(((pet.vigour + pet.focus + pet.spirit) / 3.0f) * 50.0f);
-			CAT_pet_gain_xp(xp);
-
-			timing_state.times_milked_since_producing = 0;
-		}
-		timing_state.last_life_time = now - remainder;
-
-		if(CAT_pet_days_alive() > pet.lifespan)
-		{
-			pet.deathday = CAT_get_RTC_now();
-			CAT_pet_post_death_report();
-		}
-	}
+		apply_stat_ticks(ticks);
+		
+	time_since = now - timing_state.last_life_time;
+	ticks = time_since / CAT_LIFE_TICK_PERIOD;
+	remainder = time_since % CAT_LIFE_TICK_PERIOD;
+	timing_state.last_life_time = now - remainder;
+	if(!CAT_pet_is_dead() && !CAT_check_config_flags(CAT_CONFIG_FLAG_PAUSE_CARE))
+		apply_life_ticks(ticks);
 }
 
 #define WALK_COOLDOWN 4

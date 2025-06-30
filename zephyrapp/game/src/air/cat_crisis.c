@@ -27,7 +27,7 @@ static const int crisis_avoidance_windows[] =
 
 CAT_AQ_crisis_type CAT_AQ_poll_crisis_type()
 {
-	if(!CAT_is_AQ_initialized())
+	if(!CAT_AQ_sensors_initialized())
 		return CAT_AQ_CRISIS_TYPE_NONE;
 
 	int worst_aqm = -1;
@@ -230,7 +230,7 @@ bool CAT_AQ_is_crisis_waiting()
 
 void CAT_AQ_crisis_tick()
 {
-	if(!CAT_is_AQ_initialized())
+	if(!CAT_AQ_sensors_initialized())
 		return;
 
 	if(!CAT_AQ_is_crisis_ongoing())

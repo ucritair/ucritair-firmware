@@ -78,8 +78,6 @@ void CAT_render_debug()
 				CAT_gui_text("DEVELOPER MODE\n");
 			if(CAT_check_config_flags(CAT_CONFIG_FLAG_MIGRATED))
 				CAT_gui_text("MIGRATED SAVE\n");
-			if(CAT_check_config_flags(CAT_CONFIG_FLAG_PERSIST_CLEARED))
-				CAT_gui_text("PERSIST CLEARED\n");
 		break;
 		case TIME:
 			CAT_gui_title(true, "TIME");
@@ -92,15 +90,17 @@ void CAT_render_debug()
 
 			CAT_pet_timing_state pet_timing;
 			CAT_pet_export_timing_state(&pet_timing);
+			
+			CAT_make_datetime(pet_timing.last_life_time, &datetime);
+			CAT_gui_textf("Life: %d/%d/%d %d:%d:%d\n", datetime.year, datetime.month, datetime.day, datetime.hour, datetime.minute, datetime.second);
+			CAT_make_datetime(pet_timing.last_stat_time, &datetime);
+			CAT_gui_textf("Stat: %d/%d/%d %d:%d:%d\n", datetime.year, datetime.month, datetime.day, datetime.hour, datetime.minute, datetime.second);
 
-			CAT_gui_textf("Since Life: %ds/%ds\n", (int) (now-pet_timing.last_life_time), CAT_LIFE_TICK_PERIOD);
-			CAT_gui_textf("Since Stat: %ds/%ds\n", (int) (now-pet_timing.last_stat_time), CAT_STAT_TICK_PERIOD);
-			CAT_gui_textf("Since Milk: %ds/%ds\n", (int) (now-pet_timing.last_milk_time), CAT_PET_MILK_COOLDOWN);
-			CAT_gui_textf("Times Milked: %d/5\n", (int) (pet_timing.times_milked_since_producing));
-			CAT_gui_textf("Milks Produced: %d/3\n", (int) (pet_timing.milks_produced_today));
+			CAT_gui_textf("Since Life: %llus/%ds\n", now-pet_timing.last_life_time, CAT_LIFE_TICK_PERIOD);
+			CAT_gui_textf("Since Stat: %llus/%ds\n", now-pet_timing.last_stat_time, CAT_STAT_TICK_PERIOD);
 
-			CAT_gui_textf("Slept: %ds\n", (int) CAT_get_slept_s());
-			CAT_gui_textf("E-Ink: %0.0fs/%ds\n", time_since_eink_update, eink_update_time_threshold);
+			CAT_gui_textf("Slept: %llus\n", CAT_get_slept_s());
+			CAT_gui_textf("E-Ink: %llus/%ds\n", now-last_eink_time, EINK_UPDATE_PERIOD);
 		break;
 		case DECO:
 			CAT_gui_title(true, "DECO");
@@ -141,6 +141,12 @@ void CAT_render_debug()
 		{
 			CAT_gui_title(true, "AQI");
 			CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
+
+			if(CAT_AQ_logs_initialized())
+				CAT_gui_textf("Logs initialized (%d)\n", CAT_get_log_cell_count());
+			if(CAT_AQ_sensors_initialized())
+				CAT_gui_text("Sensors initialized\n");
+
 			CAT_gui_textf("RH: %f\n", readings.sen5x.humidity_rhpct);
 			CAT_gui_textf("CO2: %f\n", readings.sunrise.ppm_filtered_compensated);
 			CAT_gui_textf("PM: %f\n", readings.sen5x.pm2_5);
@@ -149,7 +155,6 @@ void CAT_render_debug()
 			CAT_gui_textf("TMP: %f%s\n", CAT_AQ_map_celsius(readings.lps22hh.temp), CAT_AQ_get_temperature_unit_string());
 			CAT_gui_textf("AQI: %f\n", CAT_AQ_aggregate_score());
 		}
-		break;
 		default:
 		{
 			CAT_gui_title(true, "LAST");

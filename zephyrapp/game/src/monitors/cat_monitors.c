@@ -77,17 +77,19 @@ static void render_monitor()
 	CAT_frameberry(bg_colour);
 	draw_page_markers(8, CAT_MONITOR_PAGE_COUNT, page);
 
-	/*if
+	if
 	(
 		(page == CAT_MONITOR_PAGE_SUMMARY ||
 		page == CAT_MONITOR_PAGE_DETAILS) &&
-		!CAT_is_AQ_initialized()
+		!CAT_AQ_sensors_initialized() && !CAT_AQ_logs_initialized()
 	)
 	{
 		draw_uninit_warning();
 	}
-	else*/
+	else
+	{
 		routines[page].render();
+	}
 }
 
 void CAT_monitor_advance()
