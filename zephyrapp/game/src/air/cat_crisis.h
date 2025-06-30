@@ -57,9 +57,8 @@ typedef struct __attribute__((__packed__))
 	CAT_AQ_crisis_response_grade response_grade;
 	uint8_t lifespan_damage;
 } CAT_AQ_crisis_state;
-
-void CAT_AQ_export_crisis_state(CAT_AQ_crisis_state* out);
-void CAT_AQ_import_crisis_state(CAT_AQ_crisis_state* in);
+void CAT_AQ_export_crisis_state(volatile CAT_AQ_crisis_state* out);
+void CAT_AQ_import_crisis_state(volatile CAT_AQ_crisis_state* in);
 
 CAT_AQ_crisis_type CAT_AQ_poll_crisis_type();
 CAT_AQ_crisis_severity CAT_AQ_poll_crisis_severity(CAT_AQ_crisis_type type);

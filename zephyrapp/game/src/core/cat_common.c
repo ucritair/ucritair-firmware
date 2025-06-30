@@ -577,3 +577,21 @@ bool CAT_check_load_flags(uint64_t flags)
 	return load_flags & flags;
 }
 
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// DEBUG
+
+void CAT_print_datetime(const char* title, CAT_datetime* t)
+{
+	CAT_printf
+	(
+		"%s: %.2d/%.2d/%.4d %.2d:%.2d:%.2d\n",
+		title, t->month, t->day, t->year, t->hour, t->minute, t->second
+	);
+}
+void CAT_print_timestamp(const char* title, uint64_t t)
+{
+	CAT_datetime dt;
+	CAT_make_datetime(t, &dt);
+	CAT_print_datetime(title, &dt);
+}

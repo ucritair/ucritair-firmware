@@ -337,12 +337,12 @@ void CAT_printf(const char* fmt, ...)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // PERSISTENCE
 
-uint8_t* CAT_AQ_crisis_state_persist()
+volatile uint8_t* CAT_AQ_crisis_state_persist()
 {
 	return &aq_crisis_state;
 }
 
-uint8_t* CAT_pet_timing_state_persist()
+volatile uint8_t* CAT_pet_timing_state_persist()
 {
 	return &pet_timing_state;
 }

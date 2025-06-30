@@ -41,7 +41,7 @@ void CAT_monitor_render_logs()
 	cursor_y = center_textf(120, cursor_y, 1, CAT_WHITE, "Log %d", idx);
 	cursor_y = underline(120, cursor_y, 1, CAT_WHITE, "Log %d", idx);
 	cursor_y += 8;
-	cursor_y = center_textf(120, cursor_y, 1, CAT_WHITE, "%.2d/%.2d/%.4d %d:%.2d", datetime.month, datetime.day, datetime.year, datetime.hour, datetime.second);
+	cursor_y = center_textf(120, cursor_y, 1, CAT_WHITE, "%.2d/%.2d/%.4d %.2d:%.2d", datetime.month, datetime.day, datetime.year, datetime.hour, datetime.minute);
 	cursor_y += 12;
 
 	if(cell.flags & CAT_LOG_CELL_FLAG_HAS_CO2)

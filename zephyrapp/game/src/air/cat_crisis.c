@@ -80,28 +80,14 @@ CAT_AQ_crisis_severity CAT_AQ_poll_crisis_severity(CAT_AQ_crisis_type type)
 	return CAT_AQ_CRISIS_SEVERITY_NONE;
 }
 
-static CAT_AQ_crisis_state crisis =
+static CAT_AQ_crisis_state crisis = {0};
+void CAT_AQ_export_crisis_state(volatile CAT_AQ_crisis_state* out)
 {
-	.end_timestamp = 0,
-	.lifespan_damage = 0,
-	.ongoing = false,
-	.peak_severity = CAT_AQ_CRISIS_SEVERITY_NONE,
-	.peak_timestamp = 0,
-	.report = false,
-	.response_grade = CAT_AQ_CRISIS_RESPONSE_GRADE_NONE,
-	.response_type = CAT_AQ_CRISIS_RESPONSE_TYPE_NONE,
-	.severity = CAT_AQ_CRISIS_SEVERITY_NONE,
-	.start_timestamp = 0,
-	.type = CAT_AQ_CRISIS_TYPE_NONE
-};
-
-void CAT_AQ_export_crisis_state(CAT_AQ_crisis_state* out)
-{
-	memcpy(out, &crisis, sizeof(crisis));
+	memcpy(out, &crisis, sizeof(CAT_AQ_crisis_state));
 }
-void CAT_AQ_import_crisis_state(CAT_AQ_crisis_state* in)
+void CAT_AQ_import_crisis_state(volatile CAT_AQ_crisis_state* in)
 {
-	memcpy(&crisis, in, sizeof(crisis));
+	memcpy(&crisis, in, sizeof(CAT_AQ_crisis_state));
 }
 
 void CAT_AQ_start_crisis(CAT_AQ_crisis_type type, CAT_AQ_crisis_severity severity)

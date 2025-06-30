@@ -82,6 +82,7 @@ bool show_fps = false;
 bool cat_game_running = false;
 int last_button_pressed = 0;
 uint64_t slept_s = 0;
+uint64_t last_dump = 0;
 
 void lcd_keep_awake()
 {
@@ -226,6 +227,30 @@ void lcd_render_diag()
 			CAT_AQ_buffer_scores(block);
 			aq_score_head = (aq_score_head+1) % 7;
 			aq_last_buffered_score_time = current_second;
+		}
+
+		//////////////////////////////////////////////////////////
+		// MISC. UPDATES
+
+		if((current_second - last_dump) >= 5)
+		{
+			CAT_printf("[GENERAL INFO]\n");
+			CAT_print_timestamp("NOW", current_second);
+			CAT_print_timestamp("MOVED", aq_last_moving_score_time);
+			CAT_print_timestamp("BUFFERED", aq_last_buffered_score_time);
+			CAT_printf("RTC REINIT: %s\n", is_first_init ? "TRUE" : "FALSE");
+			if(CAT_get_log_cell_count() >= 3)
+			{
+				CAT_log_cell last_cell;
+				CAT_read_log_cell_at_idx(CAT_get_log_cell_count()-1, &last_cell);
+				CAT_print_timestamp("LAST LOG", last_cell.timestamp);
+			}
+			CAT_print_timestamp("LAST LIFE", pet_timing_state.last_life_time);
+			CAT_print_timestamp("LAST STAT", pet_timing_state.last_stat_time);
+			if(CAT_AQ_is_crisis_ongoing())
+				CAT_print_timestamp("CRISIS START", aq_crisis_state.start_timestamp);
+
+			last_dump = current_second;
 		}
 
 		int lockmask = 0;

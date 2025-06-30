@@ -470,6 +470,8 @@ bool CAT_IMU_is_upside_down();
 // DEBUG
 
 void CAT_printf(const char* fmt, ...);
+void CAT_print_datetime(const char* title, CAT_datetime* t);
+void CAT_print_timestamp(const char* title, uint64_t t);
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -489,5 +491,5 @@ static inline void CAT_bonus_set(uint32_t value)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // PERSISTENCE
 
-uint8_t* CAT_AQ_crisis_state_persist();
-uint8_t* CAT_pet_timing_state_persist();
+volatile uint8_t* CAT_AQ_crisis_state_persist();
+volatile uint8_t* CAT_pet_timing_state_persist();

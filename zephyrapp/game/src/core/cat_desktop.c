@@ -688,14 +688,14 @@ uint8_t* generate_persist(const char* path, size_t size, int* fd)
 	return mem;
 }
 
-uint8_t* CAT_AQ_crisis_state_persist()
+volatile uint8_t* CAT_AQ_crisis_state_persist()
 {
 	if(AQ_crisis_state_fd == -1)
 		AQ_crisis_state_mmap = generate_persist("persist/AQ_crisis_state.dat", sizeof(CAT_AQ_crisis_state), &AQ_crisis_state_fd);
 	return AQ_crisis_state_mmap;
 }
 
-uint8_t* CAT_pet_timing_state_persist()
+volatile uint8_t* CAT_pet_timing_state_persist()
 {
 	if(pet_timing_state_fd == -1)
 		pet_timing_state_mmap = generate_persist("persist/pet_timing_state.dat", sizeof(CAT_pet_timing_state), &pet_timing_state_fd);

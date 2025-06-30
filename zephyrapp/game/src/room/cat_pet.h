@@ -17,8 +17,8 @@ typedef struct __attribute__((__packed__))
 	uint8_t times_milked_since_producing;
 	uint8_t milks_produced_today;
 } CAT_pet_timing_state;
-void CAT_pet_export_timing_state(CAT_pet_timing_state* out);
-void CAT_pet_import_timing_state(CAT_pet_timing_state* in);
+void CAT_pet_export_timing_state(volatile CAT_pet_timing_state* out);
+void CAT_pet_import_timing_state(volatile CAT_pet_timing_state* in);
 
 typedef struct CAT_pet
 {
