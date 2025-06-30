@@ -18,7 +18,7 @@
 #define BLACK_OUT_DURATION 1.0f
 #define NIBBLE_WAIT_MIN 1.5f
 #define NIBBLE_WAIT_MAX 3.5f
-#define VULN_FRAMES 5
+#define VULN_FRAMES 7
 #define BITE_CHANCE 5
 #define UNFOCUSED_SPEED 48
 #define FOCUSED_SPEED 64
@@ -1290,6 +1290,8 @@ static void render_MS_summary()
 	{
 		case FISH:
 		{		
+			fish.type = &eel_fish;
+			
 			render_wave_buffer();
 			CAT_draw_mesh2d(fish.type->mesh, 0, 208, CAT_WHITE);
 			

@@ -10,7 +10,7 @@ import pathlib as pl;
 
 json_path = os.path.join("meshes", "meshes.json");
 json_file = open(json_path, "r+");
-json_data = json.load(json_file)
+json_data = json.load(json_file);
 json_entries = json_data['entries'];
 json_file.close();
 

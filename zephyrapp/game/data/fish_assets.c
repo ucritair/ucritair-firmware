@@ -4,7 +4,7 @@
 const CAT_fish mackerel_fish =
 {
 	.name = "King Mackerel",
-	.proverb = "When the game is done, the king and the pawn go in the same box.",
+	.proverb = "Man is most free when his tools are proportional to his needs.",
 	.grade_constraint = 0,
 
 	.min_length = 0.15000000596046448,
@@ -14,13 +14,13 @@ const CAT_fish mackerel_fish =
 	.min_wisdom = 0.10000000149011612,
 	.max_wisdom = 0.30000001192092896,
 
-	.mesh = &myaurr_guy_mesh2d,
+	.mesh = &sardine_mesh2d,
 };
 
 const CAT_fish crucian_carp_fish =
 {
 	.name = "Crucian Carp",
-	.proverb = "They also serve, who only stand and wait.",
+	.proverb = "We must not confuse admiration for the machine itself with an automatic satisfaction with its products.",
 	.grade_constraint = 0,
 
 	.min_length = 0.15000000596046448,
@@ -36,7 +36,7 @@ const CAT_fish crucian_carp_fish =
 const CAT_fish sardine_fish =
 {
 	.name = "Sardine",
-	.proverb = "The ant finds kingdoms in a foot of ground.",
+	.proverb = "What must be avoided at all costs is dishonest, distorted, and ornate work.",
 	.grade_constraint = 0,
 
 	.min_length = 0.15000000596046448,
@@ -62,13 +62,13 @@ const CAT_fish cod_fish =
 	.min_wisdom = 0.10000000149011612,
 	.max_wisdom = 0.30000001192092896,
 
-	.mesh = &myaurr_guy_mesh2d,
+	.mesh = &cod_mesh2d,
 };
 
 const CAT_fish herring_fish =
 {
 	.name = "Herring",
-	.proverb = "Here is the essence of North -- and it's autumn I've chosen as this year's friend.",
+	.proverb = "What must be sought is the natural, direct, simple, sturdy, and safe.",
 	.grade_constraint = 0,
 
 	.min_length = 0.15000000596046448,
@@ -84,7 +84,7 @@ const CAT_fish herring_fish =
 const CAT_fish tilapia_fish =
 {
 	.name = "Tilapia",
-	.proverb = "We are kept keen on the grindstone of pain and necessity.",
+	.proverb = "Words are not meant to stir the air only: they are capable of moving greater things.",
 	.grade_constraint = 0,
 
 	.min_length = 0.15000000596046448,
@@ -100,7 +100,7 @@ const CAT_fish tilapia_fish =
 const CAT_fish crawfish_fish =
 {
 	.name = "Crawfish",
-	.proverb = "Astacology is the study of crayfish, crawfish, or crawdads.",
+	.proverb = "It is certainly quite wrong to read a poem in a hurry, as if it were a telegram.",
 	.grade_constraint = 0,
 
 	.min_length = 0.15000000596046448,
@@ -132,7 +132,7 @@ const CAT_fish catfish_fish =
 const CAT_fish eel_fish =
 {
 	.name = "Eel",
-	.proverb = "A certain length is necessary, and a length which can be easily embraced by the memory.",
+	.proverb = "A cicada shell.\nIt sang itself\nutterly away.",
 	.grade_constraint = 1,
 
 	.min_length = 0.15000000596046448,
@@ -164,7 +164,7 @@ const CAT_fish salmon_fish =
 const CAT_fish gindara_fish =
 {
 	.name = "Gindara",
-	.proverb = "Seek wisdom like silver; search for it like hidden treasure.",
+	.proverb = "As they begin to rise again\nChrysanthemums faintly smell\nafter the flooding rain.",
 	.grade_constraint = 1,
 
 	.min_length = 0.15000000596046448,
@@ -174,13 +174,13 @@ const CAT_fish gindara_fish =
 	.min_wisdom = 0.10000000149011612,
 	.max_wisdom = 0.30000001192092896,
 
-	.mesh = &cod_mesh2d,
+	.mesh = &gindara_mesh2d,
 };
 
 const CAT_fish ruby_trout_fish =
 {
 	.name = "Ruby Trout",
-	.proverb = "Take thy rubies, pearls, and diamonds forth, and make thyself a constellation of them all.",
+	.proverb = "A rain drop from\nthe roof\nfell into my beer.",
 	.grade_constraint = 1,
 
 	.min_length = 0.15000000596046448,
@@ -190,7 +190,7 @@ const CAT_fish ruby_trout_fish =
 	.min_wisdom = 0.10000000149011612,
 	.max_wisdom = 0.30000001192092896,
 
-	.mesh = &myaurr_guy_mesh2d,
+	.mesh = &ruby_trout_mesh2d,
 };
 
 const CAT_fish skipjack_tuna_fish =
@@ -206,7 +206,7 @@ const CAT_fish skipjack_tuna_fish =
 	.min_wisdom = 0.10000000149011612,
 	.max_wisdom = 0.30000001192092896,
 
-	.mesh = &myaurr_guy_mesh2d,
+	.mesh = &skipjack_tuna_mesh2d,
 };
 
 const CAT_fish yellowtail_fish =
@@ -222,7 +222,7 @@ const CAT_fish yellowtail_fish =
 	.min_wisdom = 0.10000000149011612,
 	.max_wisdom = 0.30000001192092896,
 
-	.mesh = &myaurr_guy_mesh2d,
+	.mesh = &yellowtail_mesh2d,
 };
 
 const CAT_fish coelecanth_fish =
@@ -237,6 +237,22 @@ const CAT_fish coelecanth_fish =
 	.max_lustre = 0.800000011920929,
 	.min_wisdom = 0.10000000149011612,
 	.max_wisdom = 0.30000001192092896,
+
+	.mesh = &gindara_mesh2d,
+};
+
+const CAT_fish myaurr_fish =
+{
+	.name = "Myaurr",
+	.proverb = "Myaurr",
+	.grade_constraint = 2,
+
+	.min_length = 1.0,
+	.max_length = 100.0,
+	.min_lustre = 0.0,
+	.max_lustre = 1.0,
+	.min_wisdom = 0.800000011920929,
+	.max_wisdom = 1.0,
 
 	.mesh = &myaurr_guy_mesh2d,
 };
@@ -259,4 +275,5 @@ const CAT_fish* fish_list[] =
 	&skipjack_tuna_fish,
 	&yellowtail_fish,
 	&coelecanth_fish,
+	&myaurr_fish,
 };
