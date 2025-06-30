@@ -63,8 +63,7 @@ void CAT_pet_init()
 	strncpy(pet.name, CAT_DEFAULT_PET_NAME, sizeof(pet.name));
 
 	pet.lifespan = 30;
-	pet.birthday = CAT_get_RTC_now();
-	pet.deathday = 0;
+	pet.lifetime = 0;
 	pet.incarnations = 1;
 
 	pet.xp = 0;
@@ -215,18 +214,14 @@ void milk_proc()
 
 void apply_life_ticks(int ticks)
 {
+	pet.lifetime += ticks;
+	
 	for(int i = 0; i < ticks; i++)
 	{
 		int xp = round(((pet.vigour + pet.focus + pet.spirit) / 3.0f) * 50.0f);
 		CAT_pet_gain_xp(xp);
 
 		timing_state.times_milked_since_producing = 0;
-	}
-	
-	if(CAT_pet_days_alive() > pet.lifespan)
-	{
-		pet.deathday = CAT_get_RTC_now();
-		CAT_pet_post_death_report();
 	}
 }
 
@@ -267,6 +262,11 @@ void CAT_pet_tick()
 	timing_state.last_life_time = now - remainder;
 	if(!CAT_pet_is_dead() && !CAT_check_config_flags(CAT_CONFIG_FLAG_PAUSE_CARE))
 		apply_life_ticks(ticks);
+	
+	if(pet.lifetime > pet.lifespan)
+	{
+		CAT_pet_post_death_report();
+	}
 }
 
 #define WALK_COOLDOWN 4
@@ -352,16 +352,9 @@ void CAT_pet_react()
 	}
 }
 
-int CAT_pet_days_alive()
-{
-	uint64_t now = CAT_get_RTC_now();
-	uint64_t seconds_alive = now - pet.birthday;
-	return seconds_alive / CAT_DAY_SECONDS;
-}
-
 bool CAT_pet_is_dead()
 {
-	return pet.deathday >= pet.birthday;
+	return pet.lifetime > pet.lifespan;
 }
 
 void CAT_pet_reincarnate()

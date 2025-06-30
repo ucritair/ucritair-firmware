@@ -88,7 +88,7 @@ void CAT_MS_menu(CAT_machine_signal signal)
 							}
 							if(CAT_gui_menu_item("KILL PET"))
 							{
-								pet.deathday = CAT_get_RTC_now();
+								pet.lifetime = 255;
 							}
 							if(CAT_gui_menu_item("EVERY ITEM"))
 							{

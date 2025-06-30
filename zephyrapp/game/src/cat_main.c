@@ -60,8 +60,7 @@ void CAT_force_save()
 	strcpy(save->pet.name, pet.name);
 
 	save->pet.lifespan = pet.lifespan;
-	save->pet.birthday = pet.birthday;
-	save->pet.deathday = pet.deathday;
+	save->pet.lifetime = pet.lifetime;
 	save->pet.incarnations = pet.incarnations;
 
 	save->pet.level = pet.level;
@@ -223,10 +222,8 @@ void CAT_force_load()
 
 	if(save->pet.lifespan <= 30)
 		pet.lifespan = save->pet.lifespan;
-	if(save->pet.birthday >= CAT_DAY_ZERO && save->pet.birthday <= CAT_get_RTC_now())
-		pet.birthday = save->pet.birthday;
-	if(save->pet.deathday >= save->pet.birthday)
-		pet.deathday = save->pet.deathday;
+	if(save->pet.lifetime <= 31)
+		pet.lifetime = save->pet.lifetime;
 	if(save->pet.incarnations <= UINT16_MAX)
 		pet.incarnations = save->pet.incarnations;
 

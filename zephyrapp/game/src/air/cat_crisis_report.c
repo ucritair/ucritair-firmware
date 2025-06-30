@@ -24,11 +24,14 @@ void CAT_MS_crisis_report(CAT_machine_signal signal)
 	{
 		case CAT_MACHINE_SIGNAL_ENTER:
 			CAT_set_render_callback(CAT_render_crisis_report);
-			page = INTRO;
+			page = CAT_AQ_is_crisis_ongoing() ? OUTCOMES : INTRO;
 			exit_progress = 0;
 		break;
 
 		case CAT_MACHINE_SIGNAL_TICK:
+			if(CAT_input_dismissal())
+				page = OUTCOMES;
+				
 			if(CAT_input_pressed(CAT_BUTTON_RIGHT))
 				page += 1;
 			if(CAT_input_pressed(CAT_BUTTON_LEFT))

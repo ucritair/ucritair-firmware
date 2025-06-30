@@ -323,8 +323,7 @@ void CAT_initialize_save_sector(CAT_save* save, CAT_save_sector sector)
 			save->pet.header.size = sizeof(save->pet);
 			strncpy(save->pet.name, CAT_DEFAULT_PET_NAME, 24);
 			save->pet.lifespan = 30;
-			save->pet.birthday = CAT_get_RTC_now();
-			save->pet.deathday = 0;
+			save->pet.lifetime = 0;
 			save->pet.incarnations = 1;
 			save->pet.level = 0;
 			save->pet.xp = 0;
@@ -475,8 +474,7 @@ void CAT_migrate_legacy_save(void* save)
 
 	strncpy(new->pet.name, migration_buffer.name, 24);
 	new->pet.lifespan = 30;
-	new->pet.birthday = CAT_get_RTC_now() - CAT_DAY_SECONDS * migration_buffer.lifetime;
-	new->pet.deathday = 0;
+	new->pet.lifetime = migration_buffer.lifetime;
 	new->pet.incarnations = 1;
 	new->pet.level = migration_buffer.level;
 	new->pet.xp = migration_buffer.xp;

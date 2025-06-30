@@ -25,8 +25,7 @@ typedef struct CAT_pet
 	char name[64];
 
 	uint8_t lifespan;
-	uint64_t birthday;
-	uint64_t deathday;
+	uint8_t lifetime;
 	uint16_t incarnations;
 
 	uint8_t level;
@@ -57,7 +56,6 @@ void CAT_pet_gain_xp(int xp);
 
 void CAT_pet_tick();
 
-int CAT_pet_days_alive();
 bool CAT_pet_is_dead();
 void CAT_pet_reincarnate();
 void CAT_pet_post_death_report();

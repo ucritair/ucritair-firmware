@@ -263,8 +263,7 @@ typedef struct __attribute__((__packed__))
 		CAT_save_sector_header header;
 		char name[24];
 		uint8_t lifespan;
-		uint64_t birthday;
-		uint64_t deathday;
+		uint8_t lifetime;
 		uint16_t incarnations;
 		uint8_t level;
 		uint32_t xp;

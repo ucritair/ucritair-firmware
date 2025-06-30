@@ -76,12 +76,8 @@ void CAT_render_insights()
 	CAT_draw_sprite(AS_idle.tick_sprite, 0, MARGIN, cursor_y);
 	cursor_y += (AS_idle.tick_sprite->height*2) + 4;
 
-	CAT_datetime birthday;
-	CAT_make_datetime(pet.birthday, &birthday);
 	CAT_set_text_colour(CAT_WHITE);
-	cursor_y = CAT_draw_textf(MARGIN, cursor_y, "BORN ON %.2d/%.2d/%.4d\n", birthday.month, birthday.day, birthday.year);
-	CAT_set_text_colour(CAT_WHITE);
-	cursor_y = CAT_draw_textf(MARGIN, cursor_y, "LIFETIME %d \1 LIFESPAN %d\n", CAT_pet_days_alive(), pet.lifespan);
+	cursor_y = CAT_draw_textf(MARGIN, cursor_y, "LIFETIME %d \1 LIFESPAN %d\n", pet.lifetime, pet.lifespan);
 
 	cursor_y += 8;
 

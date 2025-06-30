@@ -25,7 +25,6 @@ void CAT_MS_death_report(CAT_machine_signal signal)
 			exit_progress = clamp(exit_progress, 0, 1);
 			if(exit_progress >= 1.0f && input.time[CAT_BUTTON_A] >= 1.25f)
 			{
-				CAT_pet_reincarnate();
 				CAT_pet_dismiss_death_report();
 				CAT_machine_transition(CAT_MS_room);
 			}
@@ -53,16 +52,6 @@ void CAT_render_death_report()
 	CAT_set_text_colour(CAT_CRISIS_RED);
 	CAT_set_text_scale(2);
 	cursor_y = CAT_draw_textf(MARGIN, cursor_y, "DEATH REPORT:\n");
-
-	CAT_datetime birthday;
-	CAT_make_datetime(pet.birthday, &birthday);
-	CAT_set_text_colour(CAT_CRISIS_YELLOW);
-	cursor_y = CAT_draw_textf(MARGIN, cursor_y, "BORN: %.2d/%.2d/%.4d\n", birthday.month, birthday.day, birthday.year);
-
-	CAT_datetime deathday;
-	CAT_make_datetime(pet.deathday, &deathday);
-	CAT_set_text_colour(CAT_CRISIS_RED);
-	cursor_y = CAT_draw_textf(MARGIN, cursor_y, "DIED: %.2d/%.2d/%.4d\n", deathday.month, deathday.day, deathday.year);
 
 	CAT_set_text_mask(MARGIN, -1, CAT_LCD_SCREEN_W-MARGIN, -1);
 	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
