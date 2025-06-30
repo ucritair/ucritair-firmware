@@ -620,9 +620,15 @@ void CAT_MS_room(CAT_machine_signal signal)
 			CAT_get_datetime(&datetime);
 
 			if(CAT_AQ_is_crisis_report_posted())
+			{
 				CAT_machine_transition(CAT_MS_crisis_report);
+				return;
+			}
 			if(CAT_pet_is_death_report_posted())
+			{
 				CAT_machine_transition(CAT_MS_death_report);
+				return;
+			}
 				
 			if(CAT_input_pressed(CAT_BUTTON_START))
 				CAT_machine_transition(CAT_MS_menu);
@@ -646,11 +652,17 @@ void CAT_MS_room(CAT_machine_signal signal)
 				CAT_pet_update_animations();
 				CAT_pet_walk();
 				CAT_pet_react();
+			}
 
-				if(CAT_should_post_notice())
+			if(CAT_should_post_notice())
+			{
+				CAT_clear_notice_types();
+				CAT_enable_notice_type(CAT_NOTICE_TYPE_MISCELLANY);
+
+				if(CAT_pet_is_dead())
+					CAT_enable_notice_type(CAT_NOTICE_TYPE_DEAD);
+				else
 				{
-					CAT_clear_notice_types();
-
 					if(pet.vigour < 6 && pet.focus < 6 && pet.spirit < 6)
 						CAT_enable_notice_type(CAT_NOTICE_TYPE_STATS_BAD);
 					else if(pet.vigour > 6 && pet.focus > 6 && pet.spirit > 6)
@@ -676,12 +688,10 @@ void CAT_MS_room(CAT_machine_signal signal)
 						CAT_enable_notice_type(CAT_NOTICE_TYPE_AUTUMN);
 					else
 						CAT_enable_notice_type(CAT_NOTICE_TYPE_WINTER);
-					
-					CAT_enable_notice_type(CAT_NOTICE_TYPE_MISCELLANY);
-
-					const char* notice = CAT_pick_notice(CAT_pick_notice_type());
-					CAT_post_notice(notice);
 				}
+
+				const char* notice = CAT_pick_notice(CAT_pick_notice_type());
+				CAT_post_notice(notice);
 			}
 			break;
 		}

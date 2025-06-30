@@ -5,7 +5,7 @@
 #include "cat_gui.h"
 #include <stdio.h>
 
-#define NOTICE_COOLDOWN (CAT_MINUTE_SECONDS * 2)
+#define NOTICE_COOLDOWN (CAT_MINUTE_SECONDS)
 #define NOTICE_DURATION 2
 
 static const char** notice_pool[CAT_NOTICE_TYPE_COUNT] =
@@ -90,6 +90,11 @@ static const char** notice_pool[CAT_NOTICE_TYPE_COUNT] =
 		"The last train speeds home",
 		NULL,
 	},
+	[CAT_NOTICE_TYPE_DEAD] = (const char*[])
+	{
+		"A grave egg feels no pain",
+		NULL,
+	},
 	[CAT_NOTICE_TYPE_MISCELLANY] = (const char*[])
 	{
 		"A distant bell sounds",
@@ -128,9 +133,8 @@ int CAT_pick_notice_type()
 
 bool CAT_should_post_notice()
 {
-	return
-	(CAT_get_RTC_now() - notice_timestamp) >
-	NOTICE_COOLDOWN;
+	int time_since = CAT_get_RTC_now() - notice_timestamp;
+	return time_since >= NOTICE_COOLDOWN;
 }
 
 const char* CAT_pick_notice(int type)
