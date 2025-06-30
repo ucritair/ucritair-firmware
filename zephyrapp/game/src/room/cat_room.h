@@ -7,23 +7,22 @@
 //////////////////////////////////////////////////////////////////////////
 // CONSTANTS
 
-#define CAT_GRID_MIN_X 0
-#define CAT_GRID_MIN_Y 7
-#define CAT_GRID_WIDTH 15
-#define CAT_GRID_HEIGHT 10
-#define CAT_GRID_SIZE (CAT_GRID_WIDTH * CAT_GRID_HEIGHT)
-#define CAT_GRID_MAX_X (CAT_GRID_MIN_X + CAT_GRID_WIDTH - 1)
-#define CAT_GRID_MAX_Y (CAT_GRID_MIN_Y + CAT_GRID_HEIGHT - 1)
+#define CAT_ROOM_GRID_X 0
+#define CAT_ROOM_GRID_Y 7
+#define CAT_ROOM_GRID_W 15
+#define CAT_ROOM_GRID_H 10
+#define CAT_ROOM_GRID_SIZE (CAT_ROOM_GRID_W * CAT_ROOM_GRID_H)
+#define CAT_ROOM_GRID_MAX_X (CAT_ROOM_GRID_X + CAT_ROOM_GRID_W-1)
+#define CAT_ROOM_GRID_MAX_Y (CAT_ROOM_GRID_Y + CAT_ROOM_GRID_H-1)
 
-#define CAT_WORLD_MIN_X (CAT_GRID_MIN_X * CAT_TILE_SIZE)
-#define CAT_WORLD_MIN_Y (CAT_GRID_MIN_Y * CAT_TILE_SIZE)
-#define CAT_WORLD_WIDTH (CAT_GRID_WIDTH * CAT_TILE_SIZE)
-#define CAT_WORLD_HEIGHT (CAT_GRID_HEIGHT * CAT_TILE_SIZE)
-#define CAT_WORLD_MAX_X (CAT_WORLD_MIN_X + CAT_WORLD_WIDTH - 1)
-#define CAT_WORLD_MAX_Y (CAT_WORLD_MIN_Y + CAT_WORLD_HEIGHT - 1)
+#define CAT_ROOM_X (CAT_ROOM_GRID_X * CAT_TILE_SIZE)
+#define CAT_ROOM_Y (CAT_ROOM_GRID_Y * CAT_TILE_SIZE)
+#define CAT_ROOM_W (CAT_ROOM_GRID_W * CAT_TILE_SIZE)
+#define CAT_ROOM_H (CAT_ROOM_GRID_H * CAT_TILE_SIZE)
+#define CAT_ROOM_MAX_X (CAT_ROOM_X + CAT_ROOM_W-1)
+#define CAT_ROOM_MAX_Y (CAT_ROOM_Y + CAT_ROOM_H-1)
 
 #define CAT_MAX_PICKUP_COUNT 128
-#define CAT_EARN_TIME CAT_HOUR_SECONDS
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -58,10 +57,10 @@ typedef struct CAT_room
 {
 	const CAT_room_theme* theme;
 
-	int prop_ids[CAT_GRID_SIZE];
-	CAT_rect prop_rects[CAT_GRID_SIZE];
-	int prop_overrides[CAT_GRID_SIZE];
-	int prop_children[CAT_GRID_SIZE];
+	int prop_ids[CAT_ROOM_GRID_SIZE];
+	CAT_rect prop_rects[CAT_ROOM_GRID_SIZE];
+	int prop_overrides[CAT_ROOM_GRID_SIZE];
+	int prop_children[CAT_ROOM_GRID_SIZE];
 	int prop_count;
 
 	CAT_pickup pickups[CAT_MAX_PICKUP_COUNT];

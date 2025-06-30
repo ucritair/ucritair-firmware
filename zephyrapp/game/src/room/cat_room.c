@@ -31,15 +31,15 @@ typedef struct CAT_cell
 	bool visited;
 } CAT_cell;
 
-static CAT_cell cells[CAT_GRID_SIZE];
-static int free_cell_count = CAT_GRID_SIZE;
+static CAT_cell cells[CAT_ROOM_GRID_SIZE];
+static int free_cell_count = CAT_ROOM_GRID_SIZE;
 
-static int idx_queue[CAT_GRID_SIZE];
+static int idx_queue[CAT_ROOM_GRID_SIZE];
 static int idx_queue_length = 0;
 
 void idx_enqueue(int idx)
 {
-	if(idx_queue_length >= CAT_GRID_SIZE)
+	if(idx_queue_length >= CAT_ROOM_GRID_SIZE)
 		return;
 
 	idx_queue[idx_queue_length] = idx;
@@ -62,36 +62,36 @@ int idx_dequeue()
 
 CAT_ivec2 CAT_grid2world(CAT_ivec2 grid)
 {
-	int x = (grid.x + CAT_GRID_MIN_X) * CAT_TILE_SIZE;
-	int y = (grid.y + CAT_GRID_MIN_Y) * CAT_TILE_SIZE;
+	int x = (grid.x + CAT_ROOM_GRID_X) * CAT_TILE_SIZE;
+	int y = (grid.y + CAT_ROOM_GRID_Y) * CAT_TILE_SIZE;
 	return (CAT_ivec2) {x, y};
 }
 
 CAT_ivec2 CAT_world2grid(CAT_ivec2 world)
 {
-	int x = world.x / CAT_TILE_SIZE - CAT_GRID_MIN_X;
-	int y = world.y / CAT_TILE_SIZE - CAT_GRID_MIN_Y;
+	int x = world.x / CAT_TILE_SIZE - CAT_ROOM_GRID_X;
+	int y = world.y / CAT_TILE_SIZE - CAT_ROOM_GRID_Y;
 	return (CAT_ivec2) {x, y};
 }
 
 CAT_cell* CAT_get_cell(CAT_ivec2 coords)
 {
-	if(coords.x < 0 || coords.x >= CAT_GRID_WIDTH)
+	if(coords.x < 0 || coords.x >= CAT_ROOM_GRID_W)
 		return NULL;
-	if(coords.y < 0 || coords.y >= CAT_GRID_HEIGHT)
+	if(coords.y < 0 || coords.y >= CAT_ROOM_GRID_H)
 		return NULL;
 
-	int idx = coords.y * CAT_GRID_WIDTH + coords.x;
+	int idx = coords.y * CAT_ROOM_GRID_W + coords.x;
 	return &cells[idx];
 }
 
 bool CAT_is_grid_point_free(CAT_ivec2 point)
 {
-	if(point.x < 0 || point.x >= CAT_GRID_WIDTH)
+	if(point.x < 0 || point.x >= CAT_ROOM_GRID_W)
 		return false;
-	if(point.y < 0 || point.y >= CAT_GRID_HEIGHT)
+	if(point.y < 0 || point.y >= CAT_ROOM_GRID_H)
 		return false;
-	return !cells[point.y * CAT_GRID_WIDTH + point.x].occupied;
+	return !cells[point.y * CAT_ROOM_GRID_W + point.x].occupied;
 }
 
 bool CAT_is_world_point_free(CAT_vec2 point)
@@ -103,16 +103,16 @@ bool CAT_is_world_point_free(CAT_vec2 point)
 
 bool CAT_is_block_free(CAT_rect block)
 {
-	if(block.min.x < 0 || block.max.x > CAT_GRID_WIDTH)
+	if(block.min.x < 0 || block.max.x > CAT_ROOM_GRID_W)
 		return false;
-	if(block.min.y < 0 || block.max.y > CAT_GRID_HEIGHT)
+	if(block.min.y < 0 || block.max.y > CAT_ROOM_GRID_H)
 		return false;
 	
 	for(int y = block.min.y; y < block.max.y; y++)
 	{
 		for(int x = block.min.x; x < block.max.x; x++)
 		{
-			int idx = y * CAT_GRID_WIDTH + x;
+			int idx = y * CAT_ROOM_GRID_W + x;
 			if(cells[idx].occupied)
 				return false;
 		}
@@ -122,16 +122,16 @@ bool CAT_is_block_free(CAT_rect block)
 
 void CAT_toggle_block(CAT_rect block, bool value)
 {
-	if(block.min.x < 0 || block.max.x > CAT_GRID_WIDTH)
+	if(block.min.x < 0 || block.max.x > CAT_ROOM_GRID_W)
 		return;
-	if(block.min.y < 0 || block.max.y > CAT_GRID_HEIGHT)
+	if(block.min.y < 0 || block.max.y > CAT_ROOM_GRID_H)
 		return;
 
 	for(int y = block.min.y; y < block.max.y; y++)
 	{
 		for(int x = block.min.x; x < block.max.x; x++)
 		{
-			int idx = y * CAT_GRID_WIDTH + x;
+			int idx = y * CAT_ROOM_GRID_W + x;
 			if(cells[idx].occupied != value)
 			{
 				cells[idx].occupied = value;
@@ -154,7 +154,7 @@ CAT_ivec2 CAT_first_free_space()
 		return (CAT_ivec2) {-1, -1};
 	}
 
-	for(int i = 0; i < CAT_GRID_SIZE; i++)
+	for(int i = 0; i < CAT_ROOM_GRID_SIZE; i++)
 	{
 		if(!cells[i].occupied)
 			return cells[i].coords;
@@ -171,7 +171,7 @@ CAT_ivec2 CAT_rand_free_space()
 	}
 
 	idx_queue_length = 0;
-	for(int i = 0; i < CAT_GRID_SIZE; i++)
+	for(int i = 0; i < CAT_ROOM_GRID_SIZE; i++)
 	{
 		if(!cells[i].occupied)
 			idx_enqueue(i);
@@ -190,25 +190,25 @@ CAT_ivec2 CAT_nearest_free_space(CAT_ivec2 cell)
 	}
 
 	int depth = 0;
-	int depth_max = max(CAT_GRID_WIDTH, CAT_GRID_HEIGHT) / 2 + 1;
+	int depth_max = max(CAT_ROOM_GRID_W, CAT_ROOM_GRID_H) / 2 + 1;
 
 	while(depth < depth_max)
 	{
 		for(int dy = -depth; dy <= depth; dy++)
 		{
 			int y = cell.y + dy;
-			if(y < 0 || y >= CAT_GRID_HEIGHT)
+			if(y < 0 || y >= CAT_ROOM_GRID_H)
 				continue;
 
 			for(int dx = -depth; dx <= depth; dx++)
 			{
 				int x = cell.x + dx;
-				if(x < 0 || x >= CAT_GRID_WIDTH)
+				if(x < 0 || x >= CAT_ROOM_GRID_W)
 					continue;
 				if(abs(dx) + abs(dy) != depth)
 					continue;
 
-				int idx = y * CAT_GRID_WIDTH + x;
+				int idx = y * CAT_ROOM_GRID_W + x;
 				if(!cells[idx].occupied)
 					return (CAT_ivec2) {x, y};
 			}
@@ -221,12 +221,12 @@ CAT_ivec2 CAT_nearest_free_space(CAT_ivec2 cell)
 
 bool is_cell_clean(CAT_ivec2 coords)
 {
-	if(coords.x < 0 || coords.x >= CAT_GRID_WIDTH)
+	if(coords.x < 0 || coords.x >= CAT_ROOM_GRID_W)
 		return false;
-	if(coords.y < 0 || coords.y >= CAT_GRID_HEIGHT)
+	if(coords.y < 0 || coords.y >= CAT_ROOM_GRID_H)
 		return false;
 
-	int idx = coords.y * CAT_GRID_WIDTH + coords.x;
+	int idx = coords.y * CAT_ROOM_GRID_W + coords.x;
 	return !(cells[idx].occupied || cells[idx].visited);
 }
 
@@ -238,7 +238,7 @@ CAT_ivec2 CAT_largest_free_space()
 		return (CAT_ivec2) {-1, -1};
 	}
 	
-	for(int i = 0; i < CAT_GRID_SIZE; i++)
+	for(int i = 0; i < CAT_ROOM_GRID_SIZE; i++)
 	{
 		cells[i].visited = false;
 	}
@@ -246,12 +246,12 @@ CAT_ivec2 CAT_largest_free_space()
 	int max_size = 0;
 	CAT_ivec2 max_cent = {0, 0};
 	
-	for(int y = 0; y < CAT_GRID_HEIGHT; y++)
+	for(int y = 0; y < CAT_ROOM_GRID_H; y++)
 	{
-		for(int x = 0; x < CAT_GRID_WIDTH; x++)
+		for(int x = 0; x < CAT_ROOM_GRID_W; x++)
 		{
 			CAT_ivec2 coords = {x, y};
-			int idx = y * CAT_GRID_WIDTH + x;
+			int idx = y * CAT_ROOM_GRID_W + x;
 
 			if(CAT_get_cell(coords)->occupied)
 				continue;
@@ -270,28 +270,28 @@ CAT_ivec2 CAT_largest_free_space()
 				cent = CAT_ivec2_add(cent, c->coords);
 
 				CAT_ivec2 n = {c->coords.x, c->coords.y-1};
-				int n_idx = n.y * CAT_GRID_WIDTH + n.x;
+				int n_idx = n.y * CAT_ROOM_GRID_W + n.x;
 				if(is_cell_clean(n))
 				{
 					cells[n_idx].visited = true;
 					idx_enqueue(n_idx);
 				}
 				CAT_ivec2 e = {c->coords.x+1, c->coords.y};
-				int e_idx = e.y * CAT_GRID_WIDTH + e.x;
+				int e_idx = e.y * CAT_ROOM_GRID_W + e.x;
 				if(is_cell_clean(e))
 				{
 					cells[e_idx].visited = true;
 					idx_enqueue(e_idx);
 				}
 				CAT_ivec2 s = {c->coords.x, c->coords.y+1};
-				int s_idx = s.y * CAT_GRID_WIDTH + s.x;
+				int s_idx = s.y * CAT_ROOM_GRID_W + s.x;
 				if(is_cell_clean(s))
 				{
 					cells[s_idx].visited = true;
 					idx_enqueue(s_idx);
 				}	
 				CAT_ivec2 w = {c->coords.x-1, c->coords.y};
-				int w_idx = w.y * CAT_GRID_WIDTH + w.x;
+				int w_idx = w.y * CAT_ROOM_GRID_W + w.x;
 				if(is_cell_clean(w))
 				{
 					cells[w_idx].visited = true;
@@ -332,18 +332,18 @@ static CAT_datetime datetime;
 
 void CAT_room_init()
 {
-	for(int y = 0; y < CAT_GRID_HEIGHT; y++)
+	for(int y = 0; y < CAT_ROOM_GRID_H; y++)
 	{
-		for(int x = 0; x < CAT_GRID_WIDTH; x++)
+		for(int x = 0; x < CAT_ROOM_GRID_W; x++)
 		{
-			int idx = y * CAT_GRID_WIDTH + x;
+			int idx = y * CAT_ROOM_GRID_W + x;
 			cells[idx].idx = idx;
 			cells[idx].coords = (CAT_ivec2) {x, y};
 			cells[idx].occupied = false;
 			cells[idx].visited = false;
 		}
 	}
-	free_cell_count = CAT_GRID_SIZE;
+	free_cell_count = CAT_ROOM_GRID_SIZE;
 
 	room.theme = &basic_theme;
 	room.prop_count = 0;
@@ -374,7 +374,7 @@ int CAT_room_find_spatial(CAT_ivec2 place)
 
 bool CAT_prop_fits(int item_id, CAT_ivec2 place)
 {
-	if(room.prop_count >= CAT_GRID_SIZE)
+	if(room.prop_count >= CAT_ROOM_GRID_SIZE)
 		return false;
 	CAT_item* prop = CAT_item_get(item_id);
 	if(prop == NULL)
@@ -386,7 +386,7 @@ bool CAT_prop_fits(int item_id, CAT_ivec2 place)
 
 int CAT_room_add_prop(int item_id, CAT_ivec2 place)
 {
-	if(room.prop_count >= CAT_GRID_SIZE)
+	if(room.prop_count >= CAT_ROOM_GRID_SIZE)
 		return -1;
 	CAT_item* prop = CAT_item_get(item_id);
 	if(prop == NULL)

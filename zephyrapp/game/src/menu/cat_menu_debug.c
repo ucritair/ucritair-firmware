@@ -105,9 +105,9 @@ void CAT_render_debug()
 		case DECO:
 			CAT_gui_title(true, "DECO");
 			CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
-			for(int y = 0; y < CAT_GRID_HEIGHT; y++)
+			for(int y = 0; y < CAT_ROOM_GRID_H; y++)
 			{
-				for(int x = 0; x < CAT_GRID_WIDTH; x++)
+				for(int x = 0; x < CAT_ROOM_GRID_W; x++)
 				{
 					if(CAT_is_grid_point_free((CAT_ivec2){x, y}))
 						CAT_strokeberry(gui.cursor.x, gui.cursor.y, 8, 8, CAT_BLACK);

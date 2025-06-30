@@ -869,6 +869,7 @@ void CAT_gui_begin_item_grid_context()
 
 	CAT_ilist(&item_grid_pool, item_grid_pool_backing, CAT_ITEM_TABLE_CAPACITY);
 	item_grid_selector = -1;
+	item_grid_last_marked = -1;
 
 	item_grid_anchor_y = 0;
 	item_grid_delta_y = 0;

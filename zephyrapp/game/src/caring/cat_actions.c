@@ -51,8 +51,8 @@ static void control_cursor()
 		cursor.y += 1;
 	if (CAT_input_pulse(CAT_BUTTON_LEFT))
 		cursor.x -= 1;
-	cursor.x = clamp(cursor.x, 0, CAT_GRID_WIDTH - 1);
-	cursor.y = clamp(cursor.y, 0, CAT_GRID_HEIGHT - 1);
+	cursor.x = clamp(cursor.x, 0, CAT_ROOM_GRID_W - 1);
+	cursor.y = clamp(cursor.y, 0, CAT_ROOM_GRID_H - 1);
 }
 
 void apply_tool()
@@ -257,8 +257,8 @@ void CAT_MS_laser(CAT_machine_signal signal)
 			CAT_touch touch;
 			CAT_get_touch(&touch);
 
-			laser_pos.x = clamp(touch.x, CAT_WORLD_MIN_X, CAT_WORLD_MAX_X);
-			laser_pos.y = clamp(touch.y, CAT_WORLD_MIN_Y, CAT_WORLD_MAX_Y);
+			laser_pos.x = clamp(touch.x, CAT_ROOM_X, CAT_ROOM_MAX_X);
+			laser_pos.y = clamp(touch.y, CAT_ROOM_Y, CAT_ROOM_MAX_Y);
 
 			play_timer = 0;
 			laser_dir = (CAT_vec2){0, 0};
@@ -277,8 +277,8 @@ void CAT_MS_laser(CAT_machine_signal signal)
 
 		laser_pos = CAT_vec2_add(
 		laser_pos, CAT_vec2_mul(laser_dir, laser_speed * CAT_get_delta_time_s()));
-		laser_pos.x = clamp(laser_pos.x, CAT_WORLD_MIN_X, CAT_WORLD_MAX_X);
-		laser_pos.y = clamp(laser_pos.y, CAT_WORLD_MIN_Y, CAT_WORLD_MAX_Y);
+		laser_pos.x = clamp(laser_pos.x, CAT_ROOM_X, CAT_ROOM_MAX_X);
+		laser_pos.y = clamp(laser_pos.y, CAT_ROOM_Y, CAT_ROOM_MAX_Y);
 		laser_dir = (CAT_vec2){0, 0};
 
 		switch (laser_state)

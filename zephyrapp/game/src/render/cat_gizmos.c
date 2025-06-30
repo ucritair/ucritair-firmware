@@ -71,3 +71,18 @@ void CAT_draw_hexagon(int x, int y, int r, uint16_t c, float p)
 		t += dt;
 	}
 }
+
+void CAT_draw_dot_grid(int x, int y, int w, int h, int s, uint16_t c)
+{
+	int xi = x+s;
+	int yi = y+s;
+	int xf = x+w*s;
+	int yf = y+h*s;
+	for(int yw = yi; yw < yf; yw += s)
+	{
+		for(int xw = xi; xw < xf; xw += s)
+		{
+			draw_cross(xw, yw, 1, c);
+		}
+	}
+}

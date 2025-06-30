@@ -168,7 +168,7 @@ void flood_reveal(int x, int y)
 			{
 				if(dx == 0 && dy == 0)
 					continue;
-				int nidx = (c->y+dy) * CAT_GRID_WIDTH + (c->x+dx);
+				int nidx = (c->y+dy) * CAT_ROOM_GRID_W + (c->x+dx);
 				if(is_cell_clean(c->x+dx, c->y+dy))
 				{
 					grid[nidx].visited = true;
