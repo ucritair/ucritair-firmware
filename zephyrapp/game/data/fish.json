@@ -263,7 +263,7 @@
             "min_wisdom": 0.10000000149011612,
             "max_wisdom": 0.30000001192092896,
             "grade_constraint": 2,
-            "mesh": "gindara"
+            "mesh": "coelecanth"
         },
         {
             "name": "myaurr",

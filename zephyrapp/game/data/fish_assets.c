@@ -238,7 +238,7 @@ const CAT_fish coelecanth_fish =
 	.min_wisdom = 0.10000000149011612,
 	.max_wisdom = 0.30000001192092896,
 
-	.mesh = &gindara_mesh2d,
+	.mesh = &coelecanth_mesh2d,
 };
 
 const CAT_fish myaurr_fish =
