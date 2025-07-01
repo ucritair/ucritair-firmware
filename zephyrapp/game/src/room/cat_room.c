@@ -862,7 +862,7 @@ void CAT_room_draw_pet()
 		int flags = CAT_DRAW_FLAG_BOTTOM | CAT_DRAW_FLAG_CENTER_X;
 		if(pet.rot != 1)
 			flags |= CAT_DRAW_FLAG_REFLECT_X;
-		int layer = CAT_get_battery_pct() <= CAT_CRITICAL_BATTERY_PCT ? 1 : 2;
+		int layer = CAT_get_battery_pct() <= CAT_CRITICAL_BATTERY_PCT ? PROPS_LAYER-1 : PROPS_LAYER;
 
 		CAT_draw_queue_add(CAT_anim_read(&AM_pet), -1, layer, pet.pos.x, pet.pos.y, flags);
 

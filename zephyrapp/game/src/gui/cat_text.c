@@ -51,7 +51,7 @@ void CAT_break_list_init(const char* txt, int line_width, int scale)
 		int word_width = l * CAT_GLYPH_WIDTH * scale;
 		int space_width = CAT_GLYPH_WIDTH * scale;
 
-		if ((word_width + space_width) > slack)
+		if ((word_width + space_width) > slack && idx != 0)
 		{
 			break_list[break_count] = idx;
 			break_count += 1;

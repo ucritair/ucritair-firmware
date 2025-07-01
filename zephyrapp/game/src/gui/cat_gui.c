@@ -264,9 +264,9 @@ void CAT_gui_keyboard_io()
 		gui_close_keyboard();
 	
 	const char** typecase = typecases[keyboard.case_idx];
-	if(CAT_input_pressed(CAT_BUTTON_UP))
+	if(CAT_input_pulse(CAT_BUTTON_UP))
 		keyboard.row_idx -= 1;
-	if(CAT_input_pressed(CAT_BUTTON_DOWN))
+	if(CAT_input_pulse(CAT_BUTTON_DOWN))
 		keyboard.row_idx += 1;
 	keyboard.row_idx = clamp(keyboard.row_idx, 0, 4);
 
@@ -284,9 +284,9 @@ void CAT_gui_keyboard_io()
 	}
 
 	const char* row = typecase[keyboard.row_idx];
-	if(CAT_input_pressed(CAT_BUTTON_RIGHT))
+	if(CAT_input_pulse(CAT_BUTTON_RIGHT))
 		keyboard.glyph_idx += 1;
-	if(CAT_input_pressed(CAT_BUTTON_LEFT))
+	if(CAT_input_pulse(CAT_BUTTON_LEFT))
 		keyboard.glyph_idx -= 1;
 	keyboard.glyph_idx = clamp(keyboard.glyph_idx, 0, strlen(row)-1);
 

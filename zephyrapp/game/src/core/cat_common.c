@@ -474,7 +474,7 @@ void CAT_migrate_legacy_save(void* save)
 
 	strncpy(new->pet.name, migration_buffer.name, 24);
 	new->pet.lifespan = 30;
-	new->pet.lifetime = migration_buffer.lifetime;
+	new->pet.lifetime = min(15, migration_buffer.lifetime);
 	new->pet.incarnations = 1;
 	new->pet.level = migration_buffer.level;
 	new->pet.xp = migration_buffer.xp;
