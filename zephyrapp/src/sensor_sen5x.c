@@ -123,7 +123,7 @@ int sen5x_read()
     state.typical_particle_size_um = typical_particle_size / 1000.0;
     state.humidity = humidity / 100.0;
     state.temp_c = temp / 200.0;
-    state.temp_c -= 2.5; // per MP 10/11/24 21:38:43
+    state.temp_c -= 2.5; // per MP July 1 2025 - Loose approx before cal curve implemented
     state.voc_index = voc_index / 10.0;
     state.nox_index = nox_index / 10.0;
 
