@@ -270,7 +270,7 @@ void CAT_MS_sale(CAT_machine_signal signal)
 				if(sale_lock)
 				{
 					CAT_inventory_remove(sale_id, sale_qty);
-					CAT_inventory_add(coin_item, item_table.data[checkout_id].price * sale_qty);
+					CAT_inventory_add(coin_item, item_table.data[sale_id].price * sale_qty);
 				}
 
 				sale_progress = 0;
