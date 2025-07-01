@@ -79,14 +79,16 @@ void action_tick()
 	if (tool_id == -1)
 	{
 		CAT_gui_begin_item_grid("SELECT TOY", NULL, choose_tool);
-		for(int i = 0; i < item_table.length; i++)
+		/*for(int i = 0; i < item_table.length; i++)
 		{
 			if(item_table.counts[i] <= 0)
 				continue;
 			if(item_table.data[i].type != CAT_ITEM_TYPE_TOOL || item_table.data[i].tool_type != tool_type)
 				continue;
 			CAT_gui_item_grid_cell(i);
-		}
+		}*/
+		if(CAT_inventory_count(toy_laser_pointer_item) > 0)
+			CAT_gui_item_grid_cell(toy_laser_pointer_item);
 		return;
 	}
 
@@ -238,13 +240,15 @@ static CAT_vec2 pounce_start = {120, 180};
 static CAT_vec2 pounce_end = {120, 180};
 static float play_timer = 0;
 static float play_duration = 0;
+static int pounce_count = 0;
 
 enum
 {
 	SEEKING,
 	POUNCING,
 	PLAYING,
-	BORED
+	BORED,
+	HAPPY,
 } laser_state = BORED;
 
 void CAT_MS_laser(CAT_machine_signal signal)
@@ -328,7 +332,14 @@ void CAT_MS_laser(CAT_machine_signal signal)
 			{
 				pet.pos = pounce_end;
 				CAT_anim_transition(&AM_pet, &AS_play);
-				laser_state = PLAYING;
+				pounce_count += 1;
+				if(pounce_count == 3)
+				{
+					pounce_count = 0;
+					laser_state = HAPPY;
+				}
+				else
+					laser_state = PLAYING;
 			}
 			break;
 		case PLAYING:
@@ -352,6 +363,14 @@ void CAT_MS_laser(CAT_machine_signal signal)
 			if (CAT_vec2_dist2(pet.pos, laser_pos) >= 32)
 				laser_state = SEEKING;
 			break;
+		case HAPPY:
+			if(!CAT_anim_is_in(&AM_pet, &AS_spi_up))
+				CAT_anim_transition(&AM_pet, &AS_spi_up);
+			if(CAT_anim_is_ending(&AM_pet))
+			{
+				CAT_pet_change_spirit(1);
+				laser_state = SEEKING;
+			}
 		}
 		break;
 	case CAT_MACHINE_SIGNAL_EXIT:
