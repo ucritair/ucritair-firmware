@@ -48,6 +48,18 @@
                 "write"
             ]
         },
+        "can_buy": {
+            "type": "bool",
+            "permissions": [
+                "write"
+            ]
+        },
+        "can_sell": {
+            "type": "bool",
+            "permissions": [
+                "write"
+            ]
+        },
         "id": {
             "type": "int",
             "permissions": []
@@ -195,7 +207,9 @@
                     "food_role": "staple"
                 }
             },
-            "tier": 1
+            "tier": 1,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "tool",
@@ -217,7 +231,9 @@
                     "food_role": "drink"
                 }
             },
-            "tier": 1
+            "tier": 1,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "tool",
@@ -239,7 +255,9 @@
                     "food_role": "drink"
                 }
             },
-            "tier": 1
+            "tier": 1,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "tool",
@@ -261,7 +279,9 @@
                     "food_role": "soup"
                 }
             },
-            "tier": 1
+            "tier": 1,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "tool",
@@ -283,7 +303,9 @@
                     "food_role": "side"
                 }
             },
-            "tier": 1
+            "tier": 1,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "tool",
@@ -305,7 +327,9 @@
                     "food_role": "main"
                 }
             },
-            "tier": 1
+            "tier": 1,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "tool",
@@ -327,7 +351,9 @@
                     "food_role": "main"
                 }
             },
-            "tier": 3
+            "tier": 3,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "tool",
@@ -349,7 +375,9 @@
                     "food_role": "main"
                 }
             },
-            "tier": 3
+            "tier": 3,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "tool",
@@ -371,7 +399,9 @@
                     "food_role": "main"
                 }
             },
-            "tier": 3
+            "tier": 3,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "tool",
@@ -393,7 +423,9 @@
                     "food_role": "vice"
                 }
             },
-            "tier": 1
+            "tier": 1,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "tool",
@@ -415,7 +447,9 @@
                     "food_role": "vice"
                 }
             },
-            "tier": 1
+            "tier": 1,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "tool",
@@ -437,7 +471,9 @@
                     "food_role": "vice"
                 }
             },
-            "tier": 1
+            "tier": 1,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "tool",
@@ -459,7 +495,9 @@
                     "food_role": "vice"
                 }
             },
-            "tier": 0
+            "tier": 0,
+            "can_buy": false,
+            "can_sell": false
         },
         {
             "type": "tool",
@@ -477,7 +515,9 @@
                 "ds": 0,
                 "type": "book"
             },
-            "tier": 1
+            "tier": 1,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "tool",
@@ -495,7 +535,9 @@
                 "ds": 0,
                 "type": "book"
             },
-            "tier": 1
+            "tier": 1,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "tool",
@@ -513,7 +555,9 @@
                 "ds": 0,
                 "type": "book"
             },
-            "tier": 1
+            "tier": 1,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "tool",
@@ -531,7 +575,9 @@
                 "ds": 0,
                 "type": "book"
             },
-            "tier": 1
+            "tier": 1,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "tool",
@@ -549,7 +595,9 @@
                 "ds": 0,
                 "type": "book"
             },
-            "tier": 1
+            "tier": 1,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "tool",
@@ -567,7 +615,9 @@
                 "ds": 0,
                 "type": "book"
             },
-            "tier": 1
+            "tier": 1,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "tool",
@@ -585,7 +635,9 @@
                 "ds": 3,
                 "type": "toy"
             },
-            "tier": 3
+            "tier": 3,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "tool",
@@ -603,7 +655,9 @@
                 "ds": 1,
                 "type": "toy"
             },
-            "tier": 1
+            "tier": 1,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "tool",
@@ -621,7 +675,9 @@
                 "ds": 2,
                 "type": "toy"
             },
-            "tier": 2
+            "tier": 2,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "tool",
@@ -639,7 +695,9 @@
                 "ds": 1,
                 "type": "toy"
             },
-            "tier": 1
+            "tier": 1,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "tool",
@@ -657,7 +715,9 @@
                 "ds": 2,
                 "type": "toy"
             },
-            "tier": 2
+            "tier": 2,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "key",
@@ -668,7 +728,9 @@
             "text": "This mask can protect you from some, but certainly not all, airborne risks.",
             "price": 10,
             "id": 45,
-            "tier": 0
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "prop",
@@ -688,7 +750,9 @@
                 "child_dy": 0,
                 "type": "default"
             },
-            "tier": 0
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "prop",
@@ -708,7 +772,9 @@
                 "child_dy": 0,
                 "type": "top"
             },
-            "tier": 0
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "prop",
@@ -728,7 +794,9 @@
                 "child_dy": 0,
                 "type": "default"
             },
-            "tier": 0
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "prop",
@@ -748,7 +816,9 @@
                 "child_dy": -6,
                 "type": "top"
             },
-            "tier": 0
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "prop",
@@ -768,7 +838,9 @@
                 "child_dy": 0,
                 "type": "top"
             },
-            "tier": 0
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "prop",
@@ -788,7 +860,9 @@
                 "child_dy": 0,
                 "type": "top"
             },
-            "tier": 0
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "prop",
@@ -808,7 +882,9 @@
                 "child_dy": 0,
                 "type": "top"
             },
-            "tier": 0
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "prop",
@@ -828,7 +904,9 @@
                 "child_dy": -8,
                 "type": "top"
             },
-            "tier": 0
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "prop",
@@ -848,7 +926,9 @@
                 "child_dy": -16,
                 "type": "top"
             },
-            "tier": 0
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "prop",
@@ -868,7 +948,9 @@
                 "child_dy": 0,
                 "type": "bottom"
             },
-            "tier": 0
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "prop",
@@ -888,7 +970,9 @@
                 "child_dy": 0,
                 "type": "bottom"
             },
-            "tier": 0
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "prop",
@@ -908,7 +992,9 @@
                 "child_dy": 0,
                 "type": "bottom"
             },
-            "tier": 0
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "prop",
@@ -928,7 +1014,9 @@
                 "child_dy": 0,
                 "type": "bottom"
             },
-            "tier": 0
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "prop",
@@ -948,7 +1036,9 @@
                 "child_dy": 0,
                 "type": "bottom"
             },
-            "tier": 0
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "prop",
@@ -968,7 +1058,9 @@
                 "child_dy": 0,
                 "type": "bottom"
             },
-            "tier": 0
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "prop",
@@ -988,7 +1080,9 @@
                 "child_dy": 0,
                 "type": "bottom"
             },
-            "tier": 0
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "prop",
@@ -1008,7 +1102,9 @@
                 "child_dy": 0,
                 "type": "bottom"
             },
-            "tier": 0
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "prop",
@@ -1028,7 +1124,9 @@
                 "child_dy": 0,
                 "type": "bottom"
             },
-            "tier": 0
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "prop",
@@ -1048,7 +1146,9 @@
                 "child_dy": 0,
                 "type": "default"
             },
-            "tier": 0
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "prop",
@@ -1068,7 +1168,9 @@
                 "child_dy": 0,
                 "type": "default"
             },
-            "tier": 0
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "prop",
@@ -1088,7 +1190,9 @@
                 "child_dy": 0,
                 "type": "default"
             },
-            "tier": 0
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "prop",
@@ -1108,7 +1212,9 @@
                 "child_dy": 0,
                 "type": "default"
             },
-            "tier": 0
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "prop",
@@ -1128,7 +1234,9 @@
                 "child_dy": 0,
                 "type": "default"
             },
-            "tier": 0
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "prop",
@@ -1148,7 +1256,9 @@
                 "child_dy": 0,
                 "type": "bottom"
             },
-            "tier": 0
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "prop",
@@ -1168,7 +1278,9 @@
                 "child_dy": 0,
                 "type": "top"
             },
-            "tier": 0
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "prop",
@@ -1188,7 +1300,9 @@
                 "child_dy": 0,
                 "type": "top"
             },
-            "tier": 0
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "prop",
@@ -1208,7 +1322,9 @@
                 "child_dy": 0,
                 "type": "top"
             },
-            "tier": 0
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "prop",
@@ -1228,7 +1344,9 @@
                 "child_dy": 0,
                 "type": "top"
             },
-            "tier": 0
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "prop",
@@ -1248,7 +1366,9 @@
                 "child_dy": 0,
                 "type": "top"
             },
-            "tier": 0
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "prop",
@@ -1268,7 +1388,9 @@
                 "child_dy": 0,
                 "type": "top"
             },
-            "tier": 0
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "prop",
@@ -1288,7 +1410,9 @@
                 "child_dy": 0,
                 "type": "top"
             },
-            "tier": 0
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "prop",
@@ -1308,7 +1432,9 @@
                 "child_dy": 0,
                 "type": "top"
             },
-            "tier": 0
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "prop",
@@ -1328,7 +1454,9 @@
                 "child_dy": 0,
                 "type": "default"
             },
-            "tier": 0
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "prop",
@@ -1348,7 +1476,9 @@
                 "child_dy": 0,
                 "type": "default"
             },
-            "tier": 0
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "prop",
@@ -1368,7 +1498,9 @@
                 "child_dy": 0,
                 "type": "default"
             },
-            "tier": 0
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "prop",
@@ -1388,7 +1520,9 @@
                 "child_dy": 0,
                 "type": "default"
             },
-            "tier": 0
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "prop",
@@ -1408,7 +1542,9 @@
                 "child_dy": 0,
                 "type": "default"
             },
-            "tier": 0
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "prop",
@@ -1428,7 +1564,9 @@
                 "child_dy": 0,
                 "type": "default"
             },
-            "tier": 0
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "prop",
@@ -1448,7 +1586,9 @@
                 "child_dy": 0,
                 "type": "default"
             },
-            "tier": 0
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "prop",
@@ -1468,7 +1608,9 @@
                 "child_dy": 0,
                 "type": "default"
             },
-            "tier": 0
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "prop",
@@ -1488,7 +1630,9 @@
                 "child_dy": 0,
                 "type": "default"
             },
-            "tier": 0
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "prop",
@@ -1508,7 +1652,9 @@
                 "child_dy": 0,
                 "type": "default"
             },
-            "tier": 0
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "prop",
@@ -1528,7 +1674,9 @@
                 "child_dy": 0,
                 "type": "default"
             },
-            "tier": 0
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "prop",
@@ -1548,7 +1696,9 @@
                 "child_dy": 0,
                 "type": "default"
             },
-            "tier": 0
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "prop",
@@ -1568,7 +1718,9 @@
                 "child_dy": 0,
                 "type": "default"
             },
-            "tier": 0
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "prop",
@@ -1588,7 +1740,9 @@
                 "child_dy": 0,
                 "type": "default"
             },
-            "tier": 0
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "prop",
@@ -1608,7 +1762,9 @@
                 "child_dy": 0,
                 "type": "default"
             },
-            "tier": 0
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "prop",
@@ -1628,7 +1784,9 @@
                 "child_dy": 0,
                 "type": "default"
             },
-            "tier": 0
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "prop",
@@ -1648,7 +1806,9 @@
                 "child_dy": 0,
                 "type": "top"
             },
-            "tier": 0
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "prop",
@@ -1668,7 +1828,9 @@
                 "child_dy": 0,
                 "type": "default"
             },
-            "tier": 0
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "prop",
@@ -1688,7 +1850,9 @@
                 "child_dy": 0,
                 "type": "top"
             },
-            "tier": 0
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "prop",
@@ -1708,7 +1872,9 @@
                 "child_dy": 0,
                 "type": "top"
             },
-            "tier": 0
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "prop",
@@ -1728,7 +1894,9 @@
                 "child_dy": 0,
                 "type": "top"
             },
-            "tier": 0
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "prop",
@@ -1748,7 +1916,9 @@
                 "child_dy": 0,
                 "type": "default"
             },
-            "tier": 0
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "prop",
@@ -1768,7 +1938,9 @@
                 "child_dy": 0,
                 "type": "default"
             },
-            "tier": 0
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "prop",
@@ -1788,7 +1960,9 @@
                 "child_dy": -6,
                 "type": "top"
             },
-            "tier": 0
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "prop",
@@ -1808,7 +1982,9 @@
                 "child_dy": 0,
                 "type": "default"
             },
-            "tier": 0
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "tool",
@@ -1826,7 +2002,9 @@
                 "dv": 0,
                 "df": 0,
                 "ds": 3
-            }
+            },
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "key",
@@ -1835,9 +2013,11 @@
             "sprite": "fish_tier_1_icon",
             "icon": "icon_item_key_sprite",
             "text": "A fish of decent but unremarkable quality.",
-            "price": 0,
+            "price": 3,
             "id": 6,
-            "tier": 0
+            "tier": 0,
+            "can_buy": false,
+            "can_sell": true
         },
         {
             "type": "key",
@@ -1846,9 +2026,11 @@
             "sprite": "fish_tier_2_icon",
             "icon": "icon_item_key_sprite",
             "text": "A fish of notable quality.",
-            "price": 0,
+            "price": 7,
             "id": 7,
-            "tier": 0
+            "tier": 0,
+            "can_buy": false,
+            "can_sell": true
         },
         {
             "type": "key",
@@ -1857,9 +2039,11 @@
             "sprite": "fish_tier_3_icon",
             "icon": "icon_item_key_sprite",
             "text": "An astounding catch.",
-            "price": 0,
+            "price": 15,
             "id": 8,
-            "tier": 0
+            "tier": 0,
+            "can_buy": false,
+            "can_sell": true
         },
         {
             "type": "tool",
@@ -1881,7 +2065,9 @@
                     "food_role": "staple"
                 }
             },
-            "tier": 1
+            "tier": 1,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "tool",
@@ -1903,7 +2089,9 @@
                     "food_role": "side"
                 }
             },
-            "tier": 1
+            "tier": 1,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "tool",
@@ -1925,7 +2113,9 @@
                     "food_role": "drink"
                 }
             },
-            "tier": 1
+            "tier": 1,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "tool",
@@ -1947,7 +2137,9 @@
                     "food_role": "side"
                 }
             },
-            "tier": 1
+            "tier": 1,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "tool",
@@ -1969,7 +2161,9 @@
                     "food_role": "staple"
                 }
             },
-            "tier": 1
+            "tier": 1,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "tool",
@@ -1991,7 +2185,9 @@
                     "food_role": "treat"
                 }
             },
-            "tier": 1
+            "tier": 1,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "tool",
@@ -2013,7 +2209,9 @@
                     "food_role": "side"
                 }
             },
-            "tier": 1
+            "tier": 1,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "tool",
@@ -2035,7 +2233,9 @@
                     "food_role": "drink"
                 }
             },
-            "tier": 1
+            "tier": 1,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "tool",
@@ -2057,7 +2257,9 @@
                     "food_role": "side"
                 }
             },
-            "tier": 1
+            "tier": 1,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "tool",
@@ -2079,7 +2281,9 @@
                     "food_role": "side"
                 }
             },
-            "tier": 1
+            "tier": 1,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "tool",
@@ -2101,7 +2305,9 @@
                     "food_role": "treat"
                 }
             },
-            "tier": 1
+            "tier": 1,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "tool",
@@ -2123,7 +2329,9 @@
                     "food_role": "main"
                 }
             },
-            "tier": 1
+            "tier": 1,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "tool",
@@ -2145,7 +2353,9 @@
                     "food_role": "main"
                 }
             },
-            "tier": 2
+            "tier": 2,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "tool",
@@ -2167,7 +2377,9 @@
                     "food_role": "main"
                 }
             },
-            "tier": 2
+            "tier": 2,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "tool",
@@ -2189,7 +2401,9 @@
                     "food_role": "main"
                 }
             },
-            "tier": 2
+            "tier": 2,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "tool",
@@ -2211,7 +2425,9 @@
                     "food_role": "main"
                 }
             },
-            "tier": 2
+            "tier": 2,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "tool",
@@ -2233,7 +2449,9 @@
                     "food_role": "main"
                 }
             },
-            "tier": 2
+            "tier": 2,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "tool",
@@ -2255,7 +2473,9 @@
                     "food_role": "main"
                 }
             },
-            "tier": 2
+            "tier": 2,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "tool",
@@ -2277,7 +2497,9 @@
                     "food_role": "treat"
                 }
             },
-            "tier": 2
+            "tier": 2,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "tool",
@@ -2299,7 +2521,9 @@
                     "food_role": "main"
                 }
             },
-            "tier": 2
+            "tier": 2,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "tool",
@@ -2321,7 +2545,9 @@
                     "food_role": "main"
                 }
             },
-            "tier": 2
+            "tier": 2,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "tool",
@@ -2343,7 +2569,9 @@
                     "food_role": "main"
                 }
             },
-            "tier": 3
+            "tier": 3,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "tool",
@@ -2365,7 +2593,9 @@
                     "food_role": "main"
                 }
             },
-            "tier": 3
+            "tier": 3,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "key",
@@ -2376,7 +2606,9 @@
             "icon": "icon_item_key_sprite",
             "text": "A gleaming golden coin. The possibilities for its use are endless.",
             "price": 0,
-            "id": 109
+            "id": 109,
+            "can_buy": false,
+            "can_sell": false
         },
         {
             "type": "prop",
@@ -2396,7 +2628,9 @@
                 "animate": true,
                 "child_dy": 0
             },
-            "icon": "item_icon_key_sprite"
+            "icon": "item_icon_key_sprite",
+            "can_buy": false,
+            "can_sell": false
         },
         {
             "type": "prop",
@@ -2416,7 +2650,9 @@
                 "animate": true,
                 "child_dy": 0
             },
-            "icon": "item_icon_key_sprite"
+            "icon": "item_icon_key_sprite",
+            "can_buy": false,
+            "can_sell": false
         },
         {
             "type": "prop",
@@ -2436,7 +2672,9 @@
                 "animate": false,
                 "child_dy": -3
             },
-            "icon": "item_icon_key_sprite"
+            "icon": "item_icon_key_sprite",
+            "can_buy": false,
+            "can_sell": false
         },
         {
             "type": "prop",
@@ -2456,7 +2694,9 @@
                 "animate": true,
                 "child_dy": 0
             },
-            "icon": "item_icon_key_sprite"
+            "icon": "item_icon_key_sprite",
+            "can_buy": false,
+            "can_sell": false
         },
         {
             "type": "key",
@@ -2467,7 +2707,9 @@
             "text": "Commemorates a great leap forward.",
             "price": 0,
             "id": 114,
-            "icon": "item_icon_key_sprite"
+            "icon": "item_icon_key_sprite",
+            "can_buy": false,
+            "can_sell": false
         },
         {
             "type": "key",
@@ -2478,7 +2720,9 @@
             "text": "Commemorates starting over fresh.",
             "price": 0,
             "id": 115,
-            "icon": "item_icon_key_sprite"
+            "icon": "item_icon_key_sprite",
+            "can_buy": false,
+            "can_sell": false
         },
         {
             "type": "key",
@@ -2489,7 +2733,9 @@
             "text": "Commemorates incremental progress.",
             "price": 0,
             "id": 116,
-            "icon": "item_icon_key_sprite"
+            "icon": "item_icon_key_sprite",
+            "can_buy": false,
+            "can_sell": false
         }
     ]
 }

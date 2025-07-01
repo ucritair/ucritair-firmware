@@ -862,9 +862,11 @@ static int item_grid_selector = -1;
 static int item_grid_last_marked = -1;
 
 static int item_grid_anchor_y = 0;
-static int item_grid_delta_y = 0;;
+static int item_grid_delta_y = 0;
 static bool item_grid_scrolling = false;
 static float item_grid_select_timer = 0;
+
+static const char* item_grid_text = "There's nothing here...";
 
 void CAT_gui_begin_item_grid_context()
 {
@@ -882,6 +884,8 @@ void CAT_gui_begin_item_grid_context()
 	item_grid_delta_y = 0;
 	item_grid_scrolling = false;
 	item_grid_select_timer = 0;
+
+	item_grid_text = "There's nothing here...";
 }
 
 void CAT_gui_begin_item_grid(const char* title, CAT_int_list* roster, CAT_item_proc action)
@@ -892,6 +896,8 @@ void CAT_gui_begin_item_grid(const char* title, CAT_int_list* roster, CAT_item_p
 	item_grid_action = action;
 
 	CAT_ilist(&item_grid_pool, item_grid_pool_backing, CAT_ITEM_TABLE_CAPACITY);
+
+	item_grid_text = "There's nothing here...";
 }
 
 void CAT_gui_item_grid_set_flags(int flags)
@@ -1035,7 +1041,7 @@ void CAT_gui_item_grid_io()
 	if(CAT_input_pressed(CAT_BUTTON_A))
 	{
 		if(!CAT_gui_dialogue_is_open())
-			CAT_gui_open_dialogue("Try touching and holding on the item you want to select...\n", 1);
+			CAT_gui_open_dialogue("Try touching and holding on the item you want to select.\n", 1);
 	}
 }
 
@@ -1102,6 +1108,12 @@ void CAT_gui_item_grid()
 		y += 64 + ITEM_GRID_MARGIN;
 	}
 
+	if(item_grid_pool.length == 0)
+	{
+		CAT_set_text_colour(CAT_WHITE);
+		CAT_draw_text(ITEM_GRID_MARGIN, ITEM_GRID_MARGIN + ITEM_GRID_HEADER_HEIGHT + item_grid_delta_y, item_grid_text);
+	}
+
 	bool tabs = item_grid_flags & CAT_GUI_ITEM_GRID_FLAG_TABS;
 	CAT_fillberry(0, 0, CAT_LCD_SCREEN_W, ITEM_GRID_HEADER_HEIGHT, ITEM_GRID_BG_COLOUR);
 	CAT_set_text_colour(CAT_WHITE);
@@ -1127,6 +1139,19 @@ void CAT_gui_item_grid()
 		item_grid_status = false;
 		item_grid_flags = CAT_GUI_ITEM_GRID_FLAG_NONE;
 	}
+}
+
+void CAT_gui_item_grid_refresh()
+{
+	item_grid_delta_y = item_grid_get_min_scroll_y();
+	item_grid_selector = -1;
+	item_grid_select_timer = 0;
+	item_grid_last_marked = -1;
+}
+
+void CAT_gui_item_grid_set_text(const char* text)
+{
+	item_grid_text = text;
 }
 
 

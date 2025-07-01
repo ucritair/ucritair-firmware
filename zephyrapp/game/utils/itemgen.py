@@ -61,6 +61,8 @@ for (idx, item) in enumerate(json_entries):
 	ensure_key(item, "icon", "item_icon_key_sprite");
 	ensure_key(item, "text", "");
 	ensure_key(item, "price", 0);
+	ensure_key(item, "can_buy", False);
+	ensure_key(item, "can_sell", False);
 	if item["type"] == "tool":
 		tool_data = ensure_key(item, "tool_data", {});
 		ensure_key(tool_data, "type", "food");
@@ -118,6 +120,8 @@ for (idx, item) in enumerate(json_entries):
 	source.write(f"\t\t\t.sprite = &{item['sprite']},\n");
 	source.write(f"\t\t\t.price = {item['price']},\n");
 	source.write(f"\t\t\t.text = \"{item['text']}\",\n");
+	source.write(f"\t\t\t.can_buy = {str(item['can_buy']).lower()},\n");
+	source.write(f"\t\t\t.can_sell = {str(item['can_sell']).lower()},\n");
 	if item['type'] == "tool":
 		source.write(f"\t\t\t.tool_type = {tool_type_enum_map[item['tool_data']['type']]},\n");
 		source.write(f"\t\t\t.tool_cursor = &{item['tool_data']['cursor'] if len(item['tool_data']['cursor']) else item['sprite']},\n");

@@ -109,6 +109,8 @@ void CAT_gui_begin_item_grid(const char* title, CAT_int_list* roster, CAT_item_p
 void CAT_gui_item_grid_set_flags(int flags);
 void CAT_gui_item_grid_cell(int item_id);
 bool CAT_gui_item_grid_is_open();
+void CAT_gui_item_grid_refresh();
+void CAT_gui_item_grid_set_text(const char* text);
 
 
 //////////////////////////////////////////////////////////////////////////

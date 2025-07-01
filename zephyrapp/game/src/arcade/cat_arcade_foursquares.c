@@ -657,7 +657,7 @@ void CAT_MS_foursquares(CAT_machine_signal signal)
 						perform_reckoning();
 
 						int piece_type = access_seven_bag();
-						int collider_x_off = piece_type == CAT_FOURSQUARES_I ? collider_w-1 : collider_w;
+						int collider_x_off = piece_type == CAT_FOURSQUARES_I ? collider_w+1 : collider_w;
 						spawn_piece
 						(
 							access_seven_bag(),

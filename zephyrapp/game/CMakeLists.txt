@@ -130,6 +130,7 @@ target_sources(app PRIVATE
 	src/monitors/cat_monitor_clock.c
 
 	src/inventory/cat_item.c
+	src/inventory/cat_shop.c
 
 	src/gui/cat_gui.c
 	src/gui/cat_text.c

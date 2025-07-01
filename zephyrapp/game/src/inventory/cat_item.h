@@ -65,6 +65,8 @@ typedef struct CAT_item
 	const CAT_sprite* sprite;
 	uint16_t price;
 	const char* text;
+	bool can_buy;
+	bool can_sell;
 
 	union
 	{
@@ -137,6 +139,10 @@ void CAT_render_inventory();
 void CAT_bind_checkout(int item_id);
 void CAT_MS_checkout(CAT_machine_signal signal);
 void CAT_render_checkout();
+
+void CAT_bind_sale(int item_id);
+void CAT_MS_sale(CAT_machine_signal signal);
+void CAT_render_sale();
 
 void CAT_MS_shop(CAT_machine_signal signal);
 void CAT_render_shop();

@@ -18,7 +18,7 @@
 #define BLACK_OUT_DURATION 1.0f
 #define NIBBLE_WAIT_MIN 1.5f
 #define NIBBLE_WAIT_MAX 3.5f
-#define VULN_FRAMES 7
+#define VULN_FRAMES 10
 #define BITE_CHANCE 5
 #define UNFOCUSED_SPEED 48
 #define FOCUSED_SPEED 64
@@ -639,6 +639,7 @@ static void render_fish(uint16_t colour)
 		CAT_discberry(fish.positions[i].x, fish.positions[i].y, fish.radii[i], colour);
 	for(int i = 1; i < 3; i++)
 		CAT_lineberry(fish.positions[i].x, fish.positions[i].y, fish.positions[i-1].x, fish.positions[i-1].y, colour);
+
 	CAT_vec2 left = CAT_vec2_unit((CAT_vec2) {fish.headings[0].y, -fish.headings[0].x});
 	CAT_vec2 right = CAT_vec2_mul(left, -1);
 	CAT_vec2 anchor = CAT_vec2_add(fish.positions[0], CAT_vec2_mul(fish.headings[0], -fish.radii[0] * 1.5f));
@@ -1290,8 +1291,6 @@ static void render_MS_summary()
 	{
 		case FISH:
 		{		
-			fish.type = &eel_fish;
-			
 			render_wave_buffer();
 			CAT_draw_mesh2d(fish.type->mesh, 0, 208, CAT_WHITE);
 			
