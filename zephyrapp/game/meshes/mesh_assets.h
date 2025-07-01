@@ -2,4 +2,4 @@
 
 #include "cat_render.h"
 
-extern CAT_mesh eth_mesh;
+extern CAT_mesh hedron_mesh;

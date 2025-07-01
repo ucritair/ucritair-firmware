@@ -4,11 +4,6 @@
 #include "cat_render.h"
 #include "cat_structures.h"
 
-//////////////////////////////////////////////////////////////////////////
-// CONSTANTS
-
-#define CAT_TEXT_INPUT_MAX 28
-
 
 //////////////////////////////////////////////////////////////////////////
 // BASICS
@@ -46,7 +41,7 @@ void CAT_gui_text(const char* text);
 void CAT_gui_image(const CAT_sprite* sprite, int frame_idx);
 void CAT_gui_div(const char* text);
 void CAT_gui_textf(const char* fmt, ...);
-void CAT_gui_title(bool tabs, const CAT_sprite* a_action, const CAT_sprite* b_action, const char* fmt, ...);
+void CAT_gui_title(bool tabs, const char* fmt, ...);
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -59,8 +54,9 @@ bool CAT_gui_keyboard_is_open();
 //////////////////////////////////////////////////////////////////////////
 // POPUP
 
-void CAT_gui_open_popup(const char* msg, bool* result);
+void CAT_gui_open_popup(const char* msg);
 bool CAT_gui_popup_is_open();
+bool CAT_gui_consume_popup();
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -74,11 +70,18 @@ typedef enum
 	CAT_GUI_MENU_TYPE_TEXT
 } CAT_gui_menu_type;
 
+typedef enum
+{
+	CAT_GUI_TOGGLE_STYLE_CHECKBOX,
+	CAT_GUI_TOGGLE_STYLE_RADIO_BUTTON
+} CAT_gui_toggle_style;
+
 void CAT_gui_begin_menu_context();
+void CAT_gui_clear_menu_context();
 bool CAT_gui_begin_menu(const char* title);
 bool CAT_gui_menu_is_open();
 bool CAT_gui_menu_item(const char* title);
-bool CAT_gui_menu_toggle(const char* title, bool toggle);
+bool CAT_gui_menu_toggle(const char* title, bool toggle, CAT_gui_toggle_style style);
 bool CAT_gui_menu_ticker(const char* title, int* ticker, int min, int max);
 bool CAT_gui_menu_text(const char* fmt, ...);
 void CAT_gui_end_menu();
@@ -106,6 +109,16 @@ void CAT_gui_begin_item_grid(const char* title, CAT_int_list* roster, CAT_item_p
 void CAT_gui_item_grid_set_flags(int flags);
 void CAT_gui_item_grid_cell(int item_id);
 bool CAT_gui_item_grid_is_open();
+void CAT_gui_item_grid_refresh();
+void CAT_gui_item_grid_set_text(const char* text);
+
+
+//////////////////////////////////////////////////////////////////////////
+// DIALOGUE BOX
+
+void CAT_gui_open_dialogue(const char* text, int duration);
+bool CAT_gui_dialogue_is_open();
+void CAT_gui_dismiss_dialogue();
 
 
 //////////////////////////////////////////////////////////////////////////

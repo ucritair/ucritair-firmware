@@ -9,12 +9,6 @@
 #include <time.h>
 #include "item_assets.h"
 
-//Dirty Hack to work on Linux because unix was used a variable name - remove when fixed.
-#ifdef unix
-#undef unix
-#endif
-
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // LCD
@@ -95,12 +89,40 @@ int* CAT_LED_brightness_pointer()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // AIR QUALITY
 
-CAT_AQ_readings readings = {0};
+CAT_AQ_readings readings =
+#ifdef CAT_DESKTOP
+{
+	.lps22hh.uptime_last_updated = 0,
+	.lps22hh.temp = 20,
+	.lps22hh.pressure = 1013,
 
-bool CAT_is_AQ_initialized()
+	.sunrise.uptime_last_updated = 0,
+	.sunrise.ppm_filtered_compensated = 450,
+	.sunrise.ppm_filtered_uncompensated = 450,
+	.sunrise.temp = 20,
+
+	.sen5x.uptime_last_updated = 0,
+	.sen5x.pm2_5 = 9,
+	.sen5x.pm10_0 = 15,
+	.sen5x.humidity_rhpct = 40,
+
+	.sen5x.temp_degC = 23,
+	.sen5x.voc_index = 1,
+	.sen5x.nox_index = 100,
+};
+#else
+{0};
+#endif
+
+bool CAT_AQ_logs_initialized()
+{
+	return CAT_get_log_cell_count() >= 1;
+}
+
+bool CAT_AQ_sensors_initialized()
 {
 	return
-	readings.sunrise.ppm_filtered_uncompensated > 0 &&
+	readings.sunrise.ppm_filtered_compensated > 0 &&
 	(readings.sen5x.temp_degC != 0 ||
 	readings.sen5x.humidity_rhpct > 0 ||
 	readings.sen5x.pm2_5 > 0);
@@ -147,7 +169,8 @@ float int2float(int i, float scale_factor)
 int move_average(int x_bar, int samples, float x, float scale_factor)
 {
 	float x_bar_f = int2float(x_bar, scale_factor);
-	x_bar_f = x_bar_f + (x - x_bar_f) / (float) samples;
+	//x_bar_f = x_bar_f + (x - x_bar_f) / (float) samples;
+	x_bar_f = x_bar_f + (x - x_bar_f) / 7;
 	return float2int(x_bar_f, scale_factor);
 }
 
@@ -161,8 +184,8 @@ void CAT_AQ_move_scores()
 		block->VOC = move_average(block->VOC, block->sample_count, readings.sen5x.voc_index, 1);
 		block->PM2_5 = move_average(block->PM2_5, block->sample_count, readings.sen5x.pm2_5, 100);
 		block->temp = move_average(block->temp, block->sample_count, CAT_canonical_temp(), 1);
-		block->rh = move_average(block->rh, block->sample_count, readings.sen5x.humidity_rhpct, 1000);
-		block->aggregate = move_average(block->aggregate, block->sample_count, CAT_aq_aggregate_score(), 1);
+		block->rh = move_average(block->rh, block->sample_count, readings.sen5x.humidity_rhpct, 100);
+		block->aggregate = move_average(block->aggregate, block->sample_count, CAT_AQ_aggregate_score(), 1);
 	}
 	else
 	{
@@ -172,7 +195,7 @@ void CAT_AQ_move_scores()
 		block->PM2_5 = float2int(readings.sen5x.pm2_5, 100);
 		block->temp = float2int(CAT_canonical_temp(), 1000);
 		block->rh = float2int(readings.sen5x.humidity_rhpct, 100);
-		block->aggregate = float2int(CAT_aq_aggregate_score(), 1);	
+		block->aggregate = float2int(CAT_AQ_aggregate_score(), 1);	
 	}
 	block->sample_count += 1;
 
@@ -193,6 +216,7 @@ void CAT_AQ_read_scores(int idx, CAT_AQ_score_block* out)
 {
 	if(idx < 0 || idx >= 7)
 		return;
+	idx = (CAT_AQ_get_score_buffer_head() + idx) % 7;
 	memcpy(out, &(CAT_AQ_get_score_buffer()[idx]), sizeof(CAT_AQ_score_block));
 }
 
@@ -202,7 +226,7 @@ void CAT_AQ_read_scores(int idx, CAT_AQ_score_block* out)
 
 void CAT_get_datetime(CAT_datetime* datetime)
 {
-	time_t now = CAT_get_rtc_now();
+	time_t now = CAT_get_RTC_now();
 	struct tm local;
 	gmtime_r(&now, &local);
 	
@@ -262,26 +286,26 @@ int CAT_timecmp(CAT_datetime* a, CAT_datetime* b)
 
 void CAT_make_datetime(uint64_t timestamp, CAT_datetime* datetime)
 {
-	struct tm unix;
-	gmtime_r(&timestamp, &unix);
-	datetime->year = unix.tm_year;
-	datetime->month = unix.tm_mon+1;
-	datetime->day = unix.tm_mday;
-	datetime->hour = unix.tm_hour;
-	datetime->minute = unix.tm_min;
-	datetime->second = unix.tm_sec;
+	struct tm t;
+	gmtime_r(&timestamp, &t);
+	datetime->year = t.tm_year;
+	datetime->month = t.tm_mon+1;
+	datetime->day = t.tm_mday;
+	datetime->hour = t.tm_hour;
+	datetime->minute = t.tm_min;
+	datetime->second = t.tm_sec;
 }
 
 uint64_t CAT_make_timestamp(CAT_datetime* datetime)
 {
-	struct tm unix;
-	unix.tm_year = datetime->year;
-	unix.tm_mon = datetime->month-1;
-	unix.tm_mday = datetime->day;
-	unix.tm_hour = datetime->hour;
-	unix.tm_min = datetime->minute;
-	unix.tm_sec = datetime->second;
-	return timegm(&unix);
+	struct tm t;
+	t.tm_year = datetime->year;
+	t.tm_mon = datetime->month-1;
+	t.tm_mday = datetime->day;
+	t.tm_hour = datetime->hour;
+	t.tm_min = datetime->minute;
+	t.tm_sec = datetime->second;
+	return timegm(&t);
 }
 
 
@@ -297,11 +321,12 @@ void CAT_initialize_save_sector(CAT_save* save, CAT_save_sector sector)
 		case CAT_SAVE_SECTOR_PET:
 			save->pet.header.label = CAT_SAVE_SECTOR_PET;
 			save->pet.header.size = sizeof(save->pet);
-			strcpy(save->pet.name, "Waldo");
-			save->pet.level = 0;
-			save->pet.xp = 0;
+			strncpy(save->pet.name, CAT_DEFAULT_PET_NAME, 24);
 			save->pet.lifespan = 30;
 			save->pet.lifetime = 0;
+			save->pet.incarnations = 1;
+			save->pet.level = 0;
+			save->pet.xp = 0;
 			save->pet.vigour = 12;
 			save->pet.focus = 12;
 			save->pet.spirit = 12;
@@ -328,17 +353,6 @@ void CAT_initialize_save_sector(CAT_save* save, CAT_save_sector sector)
 			save->highscores.snake = 0;
 			save->highscores.mine = 0;
 			save->highscores.foursquares = 0;
-			break;
-
-		case CAT_SAVE_SECTOR_TIMING:
-			save->timing.header.label = CAT_SAVE_SECTOR_TIMING;
-			save->timing.header.size = sizeof(save->timing);
-			save->timing.stat_timer = 0;
-			save->timing.life_timer = 0;
-			save->timing.earn_timer = 0;
-			save->timing.petting_timer = 0;
-			save->timing.petting_count = 0;
-			save->timing.milking_count = 0;
 			break;
 
 		case CAT_SAVE_SECTOR_CONFIG:
@@ -368,7 +382,6 @@ void CAT_initialize_save(CAT_save* save)
 	CAT_initialize_save_sector(save, CAT_SAVE_SECTOR_INVENTORY);
 	CAT_initialize_save_sector(save, CAT_SAVE_SECTOR_DECO);
 	CAT_initialize_save_sector(save, CAT_SAVE_SECTOR_HIGHSCORES);
-	CAT_initialize_save_sector(save, CAT_SAVE_SECTOR_TIMING);
 	CAT_initialize_save_sector(save, CAT_SAVE_SECTOR_CONFIG);
 	CAT_initialize_save_sector(save, CAT_SAVE_SECTOR_FOOTER);
 }
@@ -381,7 +394,6 @@ bool verify_sector_label(CAT_save* save, CAT_save_sector sector)
 		case CAT_SAVE_SECTOR_INVENTORY: return save->inventory.header.label == CAT_SAVE_SECTOR_INVENTORY;
 		case CAT_SAVE_SECTOR_DECO: return save->deco.header.label == CAT_SAVE_SECTOR_DECO;
 		case CAT_SAVE_SECTOR_HIGHSCORES: return save->highscores.header.label == CAT_SAVE_SECTOR_HIGHSCORES;
-		case CAT_SAVE_SECTOR_TIMING: return save->timing.header.label == CAT_SAVE_SECTOR_TIMING;
 		case CAT_SAVE_SECTOR_CONFIG: return save->config.header.label == CAT_SAVE_SECTOR_CONFIG;
 		case CAT_SAVE_SECTOR_FOOTER: return save->footer.label ==  CAT_SAVE_SECTOR_FOOTER;
 	}
@@ -395,7 +407,6 @@ bool verify_sector_size(CAT_save* save, CAT_save_sector sector)
 		case CAT_SAVE_SECTOR_INVENTORY: return save->inventory.header.size == sizeof(save->inventory);
 		case CAT_SAVE_SECTOR_DECO: return save->deco.header.size == sizeof(save->deco);
 		case CAT_SAVE_SECTOR_HIGHSCORES: return save->highscores.header.size == sizeof(save->highscores);
-		case CAT_SAVE_SECTOR_TIMING: return save->timing.header.size == sizeof(save->timing);
 		case CAT_SAVE_SECTOR_CONFIG: return save->config.header.size == sizeof(save->config);
 		case CAT_SAVE_SECTOR_FOOTER: return save->footer.size == 0;
 	}
@@ -461,10 +472,12 @@ void CAT_migrate_legacy_save(void* save)
 
 	CAT_printf("[INFO] Migrating legacy save to new format...\n");
 
-	strcpy(new->pet.name, migration_buffer.name);
+	strncpy(new->pet.name, migration_buffer.name, 24);
+	new->pet.lifespan = 30;
+	new->pet.lifetime = min(15, migration_buffer.lifetime);
+	new->pet.incarnations = 1;
 	new->pet.level = migration_buffer.level;
 	new->pet.xp = migration_buffer.xp;
-	new->pet.lifetime = migration_buffer.lifetime;
 	new->pet.vigour = migration_buffer.vigour;
 	new->pet.focus = migration_buffer.focus;
 	new->pet.spirit = migration_buffer.spirit;
@@ -485,13 +498,6 @@ void CAT_migrate_legacy_save(void* save)
 	}
 
 	new->highscores.snake = migration_buffer.snake_high_score;
-
-	new->timing.stat_timer = migration_buffer.stat_timer;
-	new->timing.life_timer = migration_buffer.life_timer;
-	new->timing.earn_timer = migration_buffer.earn_timer;
-	new->timing.petting_timer = migration_buffer.petting_timer;
-	new->timing.petting_count = migration_buffer.times_pet;
-	new->timing.milking_count = migration_buffer.times_milked;
 
 	new->config.flags = CAT_CONFIG_FLAG_NONE;
 	if(migration_buffer.save_flags & 1)
@@ -529,44 +535,63 @@ void CAT_extend_save(CAT_save* save)
 
 static uint64_t config_flags = CAT_CONFIG_FLAG_NONE;
 
-int CAT_export_config_flags()
+uint64_t CAT_get_config_flags()
 {
 	return config_flags;
 }
 
-void CAT_import_config_flags(int flags)
+void CAT_set_config_flags(uint64_t flags)
 {
 	config_flags = flags;
 }
 
-void CAT_set_config_flags(int flags)
+void CAT_raise_config_flags(uint64_t flags)
 {
 	config_flags |= flags; 
 }
 
-void CAT_unset_config_flags(int flags)
+void CAT_lower_config_flags(uint64_t flags)
 {
 	config_flags &= ~flags;
 }
 
-bool CAT_check_config_flags(int flags)
+bool CAT_check_config_flags(uint64_t flags)
 {
 	return config_flags & flags;
 }
 
 static uint64_t load_flags = CAT_LOAD_FLAG_NONE;
 
-void CAT_set_load_flags(int flags)
+void CAT_set_load_flags(uint64_t flags)
 {
 	load_flags |= flags;
 }
 
-void CAT_unset_load_flags(int flags)
+void CAT_unset_load_flags(uint64_t flags)
 {
 	load_flags &= ~flags;
 }
 
-bool CAT_check_load_flags(int flags)
+bool CAT_check_load_flags(uint64_t flags)
 {
 	return load_flags & flags;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// DEBUG
+
+void CAT_print_datetime(const char* title, CAT_datetime* t)
+{
+	CAT_printf
+	(
+		"%s: %.2d/%.2d/%.4d %.2d:%.2d:%.2d\n",
+		title, t->month, t->day, t->year, t->hour, t->minute, t->second
+	);
+}
+void CAT_print_timestamp(const char* title, uint64_t t)
+{
+	CAT_datetime dt;
+	CAT_make_datetime(t, &dt);
+	CAT_print_datetime(title, &dt);
 }

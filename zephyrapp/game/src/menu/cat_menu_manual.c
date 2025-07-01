@@ -92,7 +92,6 @@ void CAT_draw_about()
 	CAT_gui_title
 	(
 		true,
-		NULL, &icon_exit_sprite,
 		"ABOUT"
 	);
 
@@ -128,7 +127,6 @@ void CAT_draw_credits()
 	CAT_gui_title
 	(
 		true,
-		NULL, &icon_exit_sprite,
 		"CREDITS"
 	);
 	
@@ -159,12 +157,7 @@ void CAT_render_manual()
 		}
 		default:
 		{
-			CAT_gui_title
-			(
-				true,
-				NULL, &icon_exit_sprite,
-				"LAST"
-			);
+			CAT_gui_title(true, "LAST");
 			CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
 			CAT_gui_set_flag(CAT_GUI_FLAG_WRAPPED);
 			CAT_gui_text("You shouldn't be here");

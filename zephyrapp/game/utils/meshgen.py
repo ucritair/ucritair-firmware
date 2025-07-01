@@ -10,7 +10,7 @@ import pathlib as pl;
 
 json_path = os.path.join("meshes", "meshes.json");
 json_file = open(json_path, "r+");
-json_data = json.load(json_file)
+json_data = json.load(json_file);
 json_entries = json_data['entries'];
 json_file.close();
 
@@ -101,7 +101,7 @@ def write_verts(f, verts, count):
 	f.write(f"\t.vert_count = {count},\n");
 
 def write_edges(f, edges, count):
-	f.write("\t.edges = (uint8_t[])\n");
+	f.write("\t.edges = (uint16_t[])\n");
 	f.write("\t{\n");
 	i = 0;
 	while i < count:

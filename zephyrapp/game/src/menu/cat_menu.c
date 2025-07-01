@@ -20,14 +20,6 @@
 
 #ifdef CAT_EMBEDDED
 #include "menu_system.h"
-#include "menu_aqi.h"
-#include "menu_graph.h"
-#endif
-
-#ifdef CAT_EMBEDDED
-#define EMBEDDED_ONLY_OPTION(name, effect) if(CAT_gui_menu_item(name)){ effect; }
-#else
-#define EMBEDDED_ONLY_OPTION(name, effect) CAT_gui_menu_item(name);
 #endif
 
 void CAT_MS_menu(CAT_machine_signal signal)
@@ -54,22 +46,9 @@ void CAT_MS_menu(CAT_machine_signal signal)
 					CAT_machine_transition(CAT_MS_shop);
 				if(CAT_gui_menu_item("ARCADE"))
 					CAT_machine_transition(CAT_MS_arcade);
-				if(CAT_gui_begin_menu("AIR QUALITY"))
-				{
-					if(CAT_gui_menu_item("DASHBOARD"))
-						CAT_machine_transition(CAT_MS_monitor);
-					if(CAT_gui_begin_menu("LEGACY"))
-					{
-#ifdef CAT_EMBEDDED
-						if(CAT_gui_menu_item("LOGS"))
-							CAT_machine_transition(CAT_MS_aqi);
-						if(CAT_gui_menu_item("GRAPH"))
-							CAT_machine_transition(CAT_MS_graph);
-#endif
-						CAT_gui_end_menu();
-					}
-					CAT_gui_end_menu();
-				}
+				if(CAT_gui_menu_item("DASHBOARD"))
+					CAT_machine_transition(CAT_MS_monitor);				
+					
 				if(CAT_gui_menu_item("MAGIC"))
 					CAT_machine_transition(CAT_MS_magic);
 				if(CAT_check_config_flags(CAT_CONFIG_FLAG_DEVELOPER))
@@ -107,6 +86,10 @@ void CAT_MS_menu(CAT_machine_signal signal)
 								pet.focus = 0;
 								pet.spirit = 0;
 							}
+							if(CAT_gui_menu_item("KILL PET"))
+							{
+								pet.lifetime = 255;
+							}
 							if(CAT_gui_menu_item("EVERY ITEM"))
 							{
 								for(int item_id = 0; item_id < item_table.length; item_id++)
@@ -123,12 +106,50 @@ void CAT_MS_menu(CAT_machine_signal signal)
 
 						if(CAT_gui_menu_item("COLOUR PICKER"))
 							CAT_machine_transition(CAT_MS_colour_picker);
+						
+						if(CAT_gui_begin_menu("AQ CONTROL PANEL"))
+						{
+							if(CAT_gui_menu_item("EXTREME CO2"))
+								readings.sunrise.ppm_filtered_compensated = 5000;
+							if(CAT_gui_menu_item("MODERATE CO2"))
+								readings.sunrise.ppm_filtered_compensated = 2000;
+							if(CAT_gui_menu_item("MILD CO2"))
+								readings.sunrise.ppm_filtered_compensated = 1000;
+							if(CAT_gui_menu_item("NORMAL CO2"))
+								readings.sunrise.ppm_filtered_compensated = 450;
+
+							if(CAT_gui_menu_item("EXTREME TEMP"))
+								readings.sen5x.temp_degC = 43;
+							if(CAT_gui_menu_item("MODERATE TEMP"))
+								readings.sen5x.temp_degC = 33;
+							if(CAT_gui_menu_item("MILD TEMP"))
+								readings.sen5x.temp_degC = 28;
+							if(CAT_gui_menu_item("NORMAL TEMP"))
+								readings.sen5x.temp_degC = 23;
+							CAT_gui_end_menu();
+						}
 							
 						CAT_gui_end_menu();
 					}				
 				}
 				if(CAT_gui_begin_menu("SETTINGS"))
 				{
+					if(CAT_gui_begin_menu("GAMEPLAY"))
+					{
+						if(CAT_gui_begin_menu("LAUNCH MODE"))
+						{
+							if(CAT_gui_menu_toggle("GAME FIRST", !CAT_check_config_flags(CAT_CONFIG_FLAG_AQ_FIRST), CAT_GUI_TOGGLE_STYLE_RADIO_BUTTON))
+							{
+								CAT_lower_config_flags(CAT_CONFIG_FLAG_AQ_FIRST);
+							}
+							if(CAT_gui_menu_toggle("DASHBOARD FIRST", CAT_check_config_flags(CAT_CONFIG_FLAG_AQ_FIRST), CAT_GUI_TOGGLE_STYLE_RADIO_BUTTON))
+							{
+								CAT_raise_config_flags(CAT_CONFIG_FLAG_AQ_FIRST);
+							}
+							CAT_gui_end_menu();
+						}
+						CAT_gui_end_menu();
+					}
 					if(CAT_gui_begin_menu("COSMETICS"))
 					{
 						if(CAT_gui_menu_item("PET NAME"))
@@ -139,7 +160,7 @@ void CAT_MS_menu(CAT_machine_signal signal)
 						{
 							for(int i = 0; i < THEME_COUNT; i++)
 							{		
-								if(CAT_gui_menu_toggle(themes_list[i]->name, themes_list[i] == room.theme))
+								if(CAT_gui_menu_toggle(themes_list[i]->name, themes_list[i] == room.theme, CAT_GUI_TOGGLE_STYLE_RADIO_BUTTON))
 									room.theme = themes_list[i];
 							}
 							CAT_gui_end_menu();
@@ -173,27 +194,15 @@ void CAT_MS_menu(CAT_machine_signal signal)
 						}
 						CAT_gui_end_menu();
 					}
-					if(CAT_gui_begin_menu("AIR QUALITY##Settings"))
+					if(CAT_gui_begin_menu("AIR QUALITY"))
 					{
 						if(CAT_gui_begin_menu("TEMPERATURE UNIT"))
 						{
-							if(CAT_gui_menu_toggle("CELSIUS", CAT_AQ_get_temperature_unit() == CAT_TEMPERATURE_UNIT_DEGREES_CELSIUS))
+							if(CAT_gui_menu_toggle("CELSIUS", CAT_AQ_get_temperature_unit() == CAT_TEMPERATURE_UNIT_DEGREES_CELSIUS, CAT_GUI_TOGGLE_STYLE_RADIO_BUTTON))
 								CAT_AQ_set_temperature_unit(CAT_TEMPERATURE_UNIT_DEGREES_CELSIUS);
-							if(CAT_gui_menu_toggle("FAHRENHEIT", CAT_AQ_get_temperature_unit() == CAT_TEMPERATURE_UNIT_DEGREES_FAHRENHEIT))
+							if(CAT_gui_menu_toggle("FAHRENHEIT", CAT_AQ_get_temperature_unit() == CAT_TEMPERATURE_UNIT_DEGREES_FAHRENHEIT, CAT_GUI_TOGGLE_STYLE_RADIO_BUTTON))
 								CAT_AQ_set_temperature_unit(CAT_TEMPERATURE_UNIT_DEGREES_FAHRENHEIT);
 							CAT_gui_end_menu();
-						}
-						CAT_gui_end_menu();
-					}
-					if(CAT_gui_begin_menu("LAUNCH MODE"))
-					{
-						if(CAT_gui_menu_toggle("GAME FIRST", !CAT_check_config_flags(CAT_CONFIG_FLAG_AQ_FIRST)))
-						{
-							CAT_unset_config_flags(CAT_CONFIG_FLAG_AQ_FIRST);
-						}
-						if(CAT_gui_menu_toggle("DASHBOARD FIRST", CAT_check_config_flags(CAT_CONFIG_FLAG_AQ_FIRST)))
-						{
-							CAT_set_config_flags(CAT_CONFIG_FLAG_AQ_FIRST);
 						}
 						CAT_gui_end_menu();
 					}
@@ -207,17 +216,14 @@ void CAT_MS_menu(CAT_machine_signal signal)
 					{
 						if(CAT_gui_menu_item("RESET CONFIG FLAGS"))
 						{
-							CAT_import_config_flags(CAT_CONFIG_FLAG_NONE);
+							CAT_set_config_flags(CAT_CONFIG_FLAG_NONE);
 						}
 							
-						static bool confirm_reset = false;
 						if(CAT_gui_menu_item("RESET SAVE"))
-							CAT_gui_open_popup("Are you sure?\nThis will delete all\ngame data!\n\n", &confirm_reset);
-						if(confirm_reset)
-						{
-							confirm_reset = false;
+							CAT_gui_open_popup("Are you sure? This will delete all game data!\n");
+						if(CAT_gui_consume_popup())
 							CAT_factory_reset();
-						}
+
 						CAT_gui_end_menu();
 					}
 					CAT_gui_end_menu();
@@ -229,14 +235,11 @@ void CAT_MS_menu(CAT_machine_signal signal)
 					if(CAT_gui_menu_item("SLEEP"))
 						CAT_sleep();
 
-					static bool confirm_shutdown = false;
 					if(CAT_gui_menu_item("SHUTDOWN"))
-						CAT_gui_open_popup("Are you sure? A\npowered-down device\nmust be reactivated\nvia the reset\nbutton!\n", &confirm_shutdown);
-					if(confirm_shutdown)
-					{
-						confirm_shutdown = false;
+						CAT_gui_open_popup("Are you sure? A powered-down device must be reactivated via the reset button!\n");
+					if(CAT_gui_consume_popup())
 						CAT_shutdown();
-					}
+					
 					CAT_gui_end_menu();
 				}
 				CAT_gui_end_menu();

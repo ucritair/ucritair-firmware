@@ -14,12 +14,22 @@
 #include "cat_main.h"
 #include "cat_math.h"
 #include "cat_aqi.h"
+#include <sys/mman.h>
+#include "cat_pet.h"
+#include "cat_crisis.h"
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // PLATFORM
+
+#define WINDOW_SCALE 2
+#ifdef CAT_MACOS
+#define RETINA_SCALE 2
+#else
+#define RETINA_SCALE 1
+#endif
 
 struct
 {
@@ -34,20 +44,7 @@ struct
 	uint64_t slept_s;
     float uptime_s;
     float delta_time_s;
-} simulator =
-{
-	.window = NULL,
-	.vao_id = 0,
-	.vbo_id = 0,
-	.tex_id = 0,
-	.prog_id = 0,
-	.tex_loc = 0,
-	.brightness_loc = 0,
-
-	.slept_s = 0,
-	.uptime_s = 0,
-	.delta_time_s = 0
-};
+} simulator = {0};
 
 void GLFW_error_callback(int error, const char* msg)
 {
@@ -118,7 +115,7 @@ void CAT_platform_init()
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
-	simulator.window = glfwCreateWindow(CAT_LCD_SCREEN_W, CAT_LCD_SCREEN_H, "μCritAir", NULL, NULL);
+	simulator.window = glfwCreateWindow(CAT_LCD_SCREEN_W*WINDOW_SCALE, CAT_LCD_SCREEN_H*WINDOW_SCALE, "μCritAir", NULL, NULL);
 	if(simulator.window == NULL)
 	{
 		CAT_printf("Failed to create window\n");
@@ -193,7 +190,41 @@ void CAT_platform_init()
 		simulator.slept_s = difftime(now, sleep_time);
 	}
 	simulator.uptime_s = glfwGetTime();
-	simulator.delta_time_s = 0;	
+	simulator.delta_time_s = 0;
+}
+
+#define SCREEN_CAPTURE_ROWS (CAT_LCD_SCREEN_H*RETINA_SCALE*WINDOW_SCALE)
+#define SCREEN_CAPTURE_COLS (CAT_LCD_SCREEN_W*RETINA_SCALE*WINDOW_SCALE)
+#define SCREEN_CAPTURE_ROW_SIZE (SCREEN_CAPTURE_COLS*3)
+#define SCREEN_CAPTURE_SIZE (SCREEN_CAPTURE_ROWS * SCREEN_CAPTURE_ROW_SIZE)
+uint8_t screen_capture[2][SCREEN_CAPTURE_SIZE];
+int screen_capture_buffer_idx = 0;
+
+void flip_screen_capture()
+{
+	int a_idx = screen_capture_buffer_idx;
+	int b_idx = (screen_capture_buffer_idx+1)%2;
+
+	for(int y = 0; y < SCREEN_CAPTURE_ROWS; y++)
+	{
+		int y_inv = SCREEN_CAPTURE_ROWS-y-1;
+		memcpy
+		(
+			&screen_capture[b_idx][y*SCREEN_CAPTURE_ROW_SIZE],
+			&screen_capture[a_idx][y_inv*SCREEN_CAPTURE_ROW_SIZE],
+			SCREEN_CAPTURE_ROW_SIZE
+		);
+	}
+
+	screen_capture_buffer_idx = b_idx;
+}
+
+void write_screen_capture(const char* path)
+{
+	FILE* file = fopen(path, "w");
+	fprintf(file, "%s\n%u %u\n%u\n", "P6", SCREEN_CAPTURE_COLS, SCREEN_CAPTURE_ROWS, 255);
+	fwrite(screen_capture[screen_capture_buffer_idx], sizeof(uint8_t), SCREEN_CAPTURE_SIZE, file);
+	fclose(file);
 }
 
 void CAT_platform_tick()
@@ -202,6 +233,29 @@ void CAT_platform_tick()
 
 	simulator.delta_time_s = glfwGetTime() - simulator.uptime_s;
 	simulator.uptime_s = glfwGetTime();
+
+	if(glfwGetKey(simulator.window, GLFW_KEY_ENTER))
+	{
+		glReadPixels
+		(
+			0, 0,
+			SCREEN_CAPTURE_COLS, SCREEN_CAPTURE_ROWS,
+			GL_RGB, GL_UNSIGNED_BYTE,
+			screen_capture[screen_capture_buffer_idx]
+		);
+		flip_screen_capture();
+		
+		CAT_datetime t;
+		CAT_get_datetime(&t);
+		char path[strlen("screen_capture/####_##_##_##_##_##.ppm")+1];
+		snprintf
+		(
+			path, sizeof(path),
+			"screen_capture/%.4d_%.2d_%.2d_%.2d_%.2d_%.2d.ppm",
+			t.year, t.month, t.day, t.hour, t.minute, t.second
+		);
+		write_screen_capture(path);
+	}
 }
 
 void CAT_platform_cleanup()
@@ -391,6 +445,8 @@ void CAT_get_touch(CAT_touch* touch)
 {
 	double x, y;
 	glfwGetCursorPos(simulator.window, &x, &y);
+	x /= WINDOW_SCALE;
+	y /= WINDOW_SCALE;
 	touch->x = x;
 	touch->y = y;
 	touch->pressure = glfwGetMouseButton(simulator.window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS;
@@ -415,7 +471,7 @@ float CAT_get_delta_time_s()
 	return simulator.delta_time_s;
 }
 
-uint64_t CAT_get_rtc_now()
+uint64_t CAT_get_RTC_now()
 {
 	time_t t = time(NULL);
 	struct tm tm;
@@ -578,6 +634,11 @@ CAT_AQ_score_block* CAT_AQ_get_score_buffer()
 	return aq_score_buffer;
 }
 
+int CAT_AQ_get_score_buffer_head()
+{
+	0;
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // IMU
@@ -600,6 +661,44 @@ void CAT_printf(const char* fmt, ...)
 {
 	va_list args;
 	va_start(args, fmt);
-	vprintf(fmt, args);
+	vdprintf(STDOUT_FILENO, fmt, args);
 	va_end(args);
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// PERSISTENCE
+
+static int AQ_crisis_state_fd = -1;
+static uint8_t* AQ_crisis_state_mmap = NULL;
+static int pet_timing_state_fd = -1;
+static uint8_t* pet_timing_state_mmap = NULL;
+
+uint8_t* generate_persist(const char* path, size_t size, int* fd)
+{
+	*fd = open(path, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
+	size_t file_size = lseek(*fd, 0, SEEK_END);
+	if(file_size < size)
+	{
+		lseek(*fd, 0, SEEK_SET);
+		uint8_t* zeroes = malloc(size);
+		write(*fd, zeroes, size);
+	}
+	uint8_t* mem = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, *fd, 0);
+	close(*fd);
+	return mem;
+}
+
+volatile uint8_t* CAT_AQ_crisis_state_persist()
+{
+	if(AQ_crisis_state_fd == -1)
+		AQ_crisis_state_mmap = generate_persist("persist/AQ_crisis_state.dat", sizeof(CAT_AQ_crisis_state), &AQ_crisis_state_fd);
+	return AQ_crisis_state_mmap;
+}
+
+volatile uint8_t* CAT_pet_timing_state_persist()
+{
+	if(pet_timing_state_fd == -1)
+		pet_timing_state_mmap = generate_persist("persist/pet_timing_state.dat", sizeof(CAT_pet_timing_state), &pet_timing_state_fd);
+	return pet_timing_state_mmap;
+}
+

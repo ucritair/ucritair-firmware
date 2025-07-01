@@ -18,7 +18,7 @@
 #define BLACK_OUT_DURATION 1.0f
 #define NIBBLE_WAIT_MIN 1.5f
 #define NIBBLE_WAIT_MAX 3.5f
-#define VULN_FRAMES 5
+#define VULN_FRAMES 10
 #define BITE_CHANCE 5
 #define UNFOCUSED_SPEED 48
 #define FOCUSED_SPEED 64
@@ -233,7 +233,7 @@ static CAT_ivec2 point_on_pole(float t)
 
 static void render_pole()
 {
-	CAT_polyberry
+	CAT_draw_polyline
 	(
 		pole.center.x, pole.center.y,
 		pole.vertices, 10,
@@ -384,7 +384,8 @@ static struct
 	CAT_vec2 focus_heading;
 
 	bool nibble_trigger;
-	int nibble_timer_id;
+	float nibble_timer;
+	float nibble_time;
 
 	bool vuln_trigger;
 	int vuln_frame_counter;
@@ -392,10 +393,7 @@ static struct
 	float bite_timer;
 
 	bool race_trigger;
-} fish =
-{
-	.nibble_timer_id = -1
-};
+} fish;
 
 static int item_reward;
 static int focus_reward;
@@ -452,7 +450,7 @@ static void init_fish(CAT_vec2 lead_position, CAT_vec2 lead_heading, float lead_
 	fish.focus_trigger = false;
 
 	fish.nibble_trigger = false;
-	CAT_timer_reinit(&fish.nibble_timer_id, 3.0f);
+	fish.nibble_timer = 0;
 	
 	fish.vuln_trigger = false;
 	fish.vuln_frame_counter = 0;
@@ -583,7 +581,7 @@ static void fish_tick()
 	}
 	else if(fish.nibble_trigger)
 	{
-		if(CAT_timer_tick(fish.nibble_timer_id))
+		if(fish.nibble_timer >= fish.nibble_time)
 		{
 			if(draw_bite_probability())
 			{
@@ -596,16 +594,20 @@ static void fish_tick()
 			{
 				nibble_burst(CAT_rand_int(1, 3));
 			}
-			CAT_timer_reinit(&fish.nibble_timer_id, CAT_rand_float(NIBBLE_WAIT_MIN, NIBBLE_WAIT_MAX));
+
+			fish.nibble_timer = 0;
+			fish.nibble_time = CAT_rand_float(NIBBLE_WAIT_MIN, NIBBLE_WAIT_MAX);
 		}
+		fish.nibble_timer += CAT_get_delta_time_s();
 	}
 	else if(fish.focus_trigger)
 	{
 		float hook_arena_dist = sqrt(CAT_vec2_dist2((CAT_vec2){120, 160}, hook));
-		if(hook_arena_dist < ARENA_RADIUS && hook_align > 0.7 && hook_distance <= fish.radii[0])
+		if(hook_arena_dist < ARENA_RADIUS && hook_align > 0.7 && hook_distance <= (fish.radii[0] + 8))
 		{
 			fish.nibble_trigger = true;
-			CAT_timer_reinit(&fish.nibble_timer_id, CAT_rand_float(NIBBLE_WAIT_MIN, NIBBLE_WAIT_MAX));
+			fish.nibble_timer = 0;
+			fish.nibble_time = CAT_rand_float(NIBBLE_WAIT_MIN, NIBBLE_WAIT_MAX);
 		}
 
 		float fish_arena_dist = sqrt(CAT_vec2_dist2((CAT_vec2){120, 160}, fish.positions[0]));
@@ -637,6 +639,7 @@ static void render_fish(uint16_t colour)
 		CAT_discberry(fish.positions[i].x, fish.positions[i].y, fish.radii[i], colour);
 	for(int i = 1; i < 3; i++)
 		CAT_lineberry(fish.positions[i].x, fish.positions[i].y, fish.positions[i-1].x, fish.positions[i-1].y, colour);
+
 	CAT_vec2 left = CAT_vec2_unit((CAT_vec2) {fish.headings[0].y, -fish.headings[0].x});
 	CAT_vec2 right = CAT_vec2_mul(left, -1);
 	CAT_vec2 anchor = CAT_vec2_add(fish.positions[0], CAT_vec2_mul(fish.headings[0], -fish.radii[0] * 1.5f));
@@ -649,18 +652,19 @@ static void render_fish(uint16_t colour)
 static float arena_fade_timer;
 static CAT_ivec2 hook_jitter;
 
-static bool quit_trigger = false;
 static bool quit_popup()
 {
 	if (CAT_gui_popup_is_open())
 		return true;
+
 	if (CAT_input_pressed(CAT_BUTTON_B))
-		CAT_gui_open_popup("Quit fishing?\nYou will lose this\ncatch!\n", &quit_trigger);
-	if (quit_trigger)
+		CAT_gui_open_popup("Quit fishing?\nYou will lose this\ncatch!\n");
+	if (CAT_gui_consume_popup())
 	{
-		quit_trigger = false;
 		CAT_machine_transition(CAT_MS_room);
+		return true;
 	}
+
 	return false;
 }
 
@@ -798,12 +802,32 @@ static void render_MS_fish()
 		}
 	}
 
-	if(!fish.bite_trigger)
+	if(!fish.nibble_trigger)
 	{
-		CAT_set_draw_colour(CAT_WHITE);
-		CAT_set_draw_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
-		CAT_vec2 bobber = fish.nibble_trigger ? CAT_vec2_add(hook, CAT_iv2v(hook_jitter)) : hook;
-		CAT_draw_sprite(&gizmo_target_17x17_sprite, 0, bobber.x, bobber.y);
+		CAT_set_sprite_colour(CAT_WHITE);
+		CAT_set_sprite_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
+		CAT_draw_sprite(&gizmo_target_17x17_sprite, 0, hook.x, hook.y);
+
+		CAT_animator_reset(&fishing_bobber_set_sprite);
+	}
+	else if(!fish.bite_trigger)
+	{
+		CAT_set_sprite_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
+		if(CAT_animator_get_frame(&fishing_bobber_set_sprite) < fishing_bobber_set_sprite.frame_count-1)
+			CAT_draw_sprite(&fishing_bobber_set_sprite, -1, hook.x, hook.y);
+		else
+		{
+			//CAT_vec2 bobber = CAT_vec2_add(hook, CAT_iv2v(hook_jitter));
+			CAT_draw_sprite(&fishing_bobber_idle_sprite, -1, hook.x, hook.y);
+		}
+
+		CAT_animator_reset(&fishing_bobber_bite_sprite);
+	}
+	else
+	{
+		CAT_set_sprite_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
+		CAT_vec2 bobber = hook;
+		CAT_draw_sprite(&fishing_bobber_bite_sprite, -1, bobber.x, bobber.y);
 	}
 }
 
@@ -927,7 +951,7 @@ static CAT_ivec2 bar_jitter;
 
 static void render_bar()
 {
-	CAT_polyberry
+	CAT_draw_polyline
 	(
 		bar.center.x, bar.center.y,
 		bar.vertices, 10,
@@ -1043,8 +1067,8 @@ static void render_MS_catch()
 
 	if(!CAT_input_held(CAT_BUTTON_A, 0))
 	{
-		CAT_set_draw_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
-		CAT_set_draw_colour(CAT_RED);
+		CAT_set_sprite_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
+		CAT_set_sprite_colour(CAT_RED);
 		CAT_draw_sprite(&study_a_button_sprite, 0, 120, bar.center.y - 48);
 	}
 	CAT_set_text_colour(CAT_RED);
@@ -1086,6 +1110,25 @@ static void render_MS_fail()
 {
 	CAT_frameberry(CAT_BLACK);
 	render_fish(CAT_RGB24216(fail_colour));
+
+	if(fish.bite_trigger)
+	{
+		CAT_set_text_colour(CAT_RED);
+		CAT_set_text_scale(2);
+		CAT_draw_text(12, 12, "TOO LATE...");
+	}
+	else if(fish.nibble_trigger)
+	{
+		CAT_set_text_colour(CAT_RED);
+		CAT_set_text_scale(2);
+		CAT_draw_text(12, 12, "TOO EARLY...");
+	}
+	else
+	{
+		CAT_set_text_colour(CAT_RED);
+		CAT_set_text_scale(2);
+		CAT_draw_text(12, 12, "GOT AWAY...");
+	}
 }
 
 static CAT_RGB888 succeed_colour;
@@ -1179,8 +1222,8 @@ static void MS_summary(CAT_machine_signal signal)
 
 		case CAT_MACHINE_SIGNAL_EXIT:
 			CAT_inventory_add(item_rewards[fish.grade], 1);
-			pet.focus += focus_reward;
-			CAT_pet_gain_xp(xp_reward);
+			CAT_pet_change_focus(focus_reward);
+			CAT_pet_change_XP(xp_reward);
 		break;
 	}
 }
@@ -1195,7 +1238,7 @@ static void render_wave_buffer()
 		int i = (x - wave_phase + 240) % 240;
 
 		int y_f = 320 - (wave_buffer[i]);
-		y_f -= FRAMEBUFFER_ROW_OFFSET;
+		y_f -= CAT_LCD_FRAMEBUFFER_OFFSET;
 		if(y_f < 0)
 			y_f = 0;
 		if(y_f > CAT_LCD_FRAMEBUFFER_H)
@@ -1249,7 +1292,7 @@ static void render_MS_summary()
 		case FISH:
 		{		
 			render_wave_buffer();
-			CAT_draw_mesh2d(fish.type->mesh, 0, 232, CAT_WHITE);
+			CAT_draw_mesh2d(fish.type->mesh, 0, 208, CAT_WHITE);
 			
 			int cursor_y = 4;
 			render_page_markers(120, cursor_y);
@@ -1257,28 +1300,30 @@ static void render_MS_summary()
 			
 			CAT_set_text_colour(CAT_WHITE);
 			CAT_set_text_scale(2);
-			CAT_draw_text(12, cursor_y, fish.type->name);
-			cursor_y += 36;
+			cursor_y = CAT_draw_textf(12, cursor_y, "%s\n", fish.type->name);
+			cursor_y += 8;
 
 			CAT_set_text_colour(CAT_WHITE);
 			CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
-			cursor_y = CAT_draw_textf(12, cursor_y, fish.type->proverb) + 32;
+			CAT_set_text_mask(12, -1, CAT_LCD_SCREEN_W-12, -1);
+			cursor_y = CAT_draw_textf(12, cursor_y, "%s\n", fish.type->proverb);
+			cursor_y += 8;
 
 			CAT_set_text_colour(CAT_WHITE);
 			CAT_draw_textf(12, cursor_y, "Length: %0.0f cm", fish.length * 100);
-			cursor_y += 20;
-			render_score_line(12, cursor_y, CAT_LCD_SCREEN_W * 0.75, fish.length, fish.type->min_length, fish.type->max_length);
 			cursor_y += 16;
+			render_score_line(12, cursor_y, CAT_LCD_SCREEN_W * 0.75, fish.length, fish.type->min_length, fish.type->max_length);
+			cursor_y += 12;
 
 			CAT_set_text_colour(CAT_WHITE);
 			CAT_draw_textf(12, cursor_y, "Lustre: %0.2f", fish.lustre);
-			cursor_y += 20;
-			render_score_line(12, cursor_y, CAT_LCD_SCREEN_W * 0.75, fish.lustre, fish.type->min_lustre, fish.type->max_lustre);
 			cursor_y += 16;
+			render_score_line(12, cursor_y, CAT_LCD_SCREEN_W * 0.75, fish.lustre, fish.type->min_lustre, fish.type->max_lustre);
+			cursor_y += 12;
 
 			CAT_set_text_colour(CAT_WHITE);
 			CAT_draw_textf(12, cursor_y, "Wisdom: %0.2f", fish.wisdom);
-			cursor_y += 20;
+			cursor_y += 16;
 			render_score_line(12, cursor_y, CAT_LCD_SCREEN_W * 0.75, fish.wisdom, fish.type->min_wisdom, fish.type->max_wisdom);
 		}
 		break;
@@ -1318,12 +1363,12 @@ static void render_MS_summary()
 			render_plus_line(12, cursor_y, CAT_LCD_SCREEN_W * 0.75, 0, pet.xp, xp_reward, level_cutoffs[pet.level]);
 			cursor_y += 16;
 
-			CAT_set_draw_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
-			CAT_set_draw_scale(2);
+			CAT_set_sprite_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
+			CAT_set_sprite_scale(2);
 			if(CAT_input_held(CAT_BUTTON_A, 0))
 			{
-				CAT_set_draw_colour(CAT_RED);
-				CAT_set_draw_scale(3);
+				CAT_set_sprite_colour(CAT_RED);
+				CAT_set_sprite_scale(3);
 			}
 			CAT_draw_sprite(&study_a_button_sprite, 0, 120, 260);
 		}

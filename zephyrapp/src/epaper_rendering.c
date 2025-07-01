@@ -140,7 +140,7 @@ void epaper_render_test()
 		}
 	}
 
-	float score = CAT_aq_aggregate_score();
+	float score = CAT_AQ_aggregate_score();
 
 	if (score < 25)
 	{

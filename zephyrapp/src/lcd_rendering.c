@@ -16,6 +16,7 @@ LOG_MODULE_REGISTER(lcd_rendering, LOG_LEVEL_DBG);
 #include "cat_core.h"
 #include "cat_aqi.h"
 #include "item_assets.h"
+#include "cat_pet.h"
 
 #include "menu_system.h"
 
@@ -81,6 +82,7 @@ bool show_fps = false;
 bool cat_game_running = false;
 int last_button_pressed = 0;
 uint64_t slept_s = 0;
+uint64_t last_dump = 0;
 
 void lcd_keep_awake()
 {
@@ -92,7 +94,6 @@ void lcd_render_diag()
 {
 	int last_sensor_update = 0;
 	int last_flash_log = 0;
-	int last_eink_update = 0;
 
 #ifndef MINIMIZE_GAME_FOOTPRINT
 	slept_s = get_current_rtc_time() - went_to_sleep_at;
@@ -100,7 +101,6 @@ void lcd_render_diag()
 
 	LOG_INF("about to CAT_init(slept=%d)", slept_s);
 	
-	CAT_save_legacy fodder;
 	CAT_init();
 
 	cat_game_running = true;
@@ -198,18 +198,22 @@ void lcd_render_diag()
 
 		charging_last_frame = is_charging;
 
-		time_t current_moment = get_current_rtc_time();
-		uint32_t time_since = current_moment - aq_moving_scores_last_time;
-		if(time_since > 5 && CAT_is_AQ_initialized())
+		//////////////////////////////////////////////////////////
+		// AQ SPARKLINE STORE
+
+		uint64_t current_second = CAT_get_RTC_now();
+		uint64_t time_since = current_second - aq_last_moving_score_time;
+
+		if(time_since > 5 && CAT_AQ_sensors_initialized())
 		{
 			CAT_AQ_move_scores();
-			aq_moving_scores_last_time = current_moment;
+			aq_last_moving_score_time = current_second;
 		}
 		
-		time_since = current_moment - aq_score_last_time;
-		if(time_since > 86400 && CAT_is_AQ_initialized())
+		time_since = current_second - aq_last_buffered_score_time;
+		if(time_since > CAT_DAY_SECONDS && CAT_AQ_sensors_initialized())
 		{
-			if(aq_score_last_time == 0)
+			if(is_first_init)
 			{
 				for(int i = 0; i < 6; i++)
 				{
@@ -222,12 +226,37 @@ void lcd_render_diag()
 			volatile CAT_AQ_score_block* block = &aq_score_buffer[aq_score_head];
 			CAT_AQ_buffer_scores(block);
 			aq_score_head = (aq_score_head+1) % 7;
-			aq_score_last_time = current_moment;
+			aq_last_buffered_score_time = current_second;
+		}
+
+		//////////////////////////////////////////////////////////
+		// MISC. UPDATES
+
+		if((current_second - last_dump) >= 5)
+		{
+			CAT_printf("[GENERAL INFO]\n");
+			CAT_print_timestamp("NOW", current_second);
+			CAT_print_timestamp("MOVED", aq_last_moving_score_time);
+			CAT_print_timestamp("BUFFERED", aq_last_buffered_score_time);
+			CAT_printf("RTC REINIT: %s\n", is_first_init ? "TRUE" : "FALSE");
+			if(CAT_get_log_cell_count() >= 3)
+			{
+				CAT_log_cell last_cell;
+				CAT_read_log_cell_at_idx(CAT_get_log_cell_count()-1, &last_cell);
+				CAT_print_timestamp("LAST LOG", last_cell.timestamp);
+			}
+			CAT_print_timestamp("LAST LIFE", pet_timing_state.last_life_time);
+			CAT_print_timestamp("LAST STAT", pet_timing_state.last_stat_time);
+			if(CAT_AQ_is_crisis_ongoing())
+				CAT_print_timestamp("CRISIS START", aq_crisis_state.start_timestamp);
+
+			last_dump = current_second;
 		}
 
 		int lockmask = 0;
 
-		while (!write_done) {
+		while (!write_done)
+		{
 			lockmask |= 1<<(LCD_FRAMEBUFFER_SEGMENTS-1);
 			k_usleep(250);
 		} // TODO: Move things around to fit game logic before this
@@ -314,16 +343,11 @@ void lcd_render_diag()
 			// 	hack_after_blit-hack_before_blit, hack_cyc_after_data_write-hack_cyc_before_data_write, end_ms-start_ms);
 		}
 
-		/*if ((k_uptime_get() - last_eink_update) > epaper_update_rate && epaper_update_rate != -1)
-		{
-			epaper_render_test();
-			last_eink_update = k_uptime_get();
-		}*/
 		if(CAT_eink_needs_update())
 		{
 			CAT_set_eink_update_flag(false);
 			CAT_eink_update();
-			time_since_eink_update = 0;
+			last_eink_time = CAT_get_RTC_now();
 		}
 
 		if ((k_uptime_get() - last_flash_log) > (sensor_wakeup_rate*1000) && is_ready_for_aqi_logging())

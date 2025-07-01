@@ -11,6 +11,7 @@
 #include "cat_menu.h"
 #include "sprite_assets.h"
 #include "cat_gui.h"
+#include "cat_gizmos.h"
 
 static enum {ADD, MOD, REMOVE} mode = ADD;
 
@@ -28,8 +29,18 @@ static void control_cursor()
 		cursor.y += 1;
 	if(CAT_input_pulse(CAT_BUTTON_LEFT))
 		cursor.x -= 1;
-	cursor.x = clamp(cursor.x, 0, CAT_GRID_WIDTH-1);
-	cursor.y = clamp(cursor.y, 0, CAT_GRID_HEIGHT-1);
+
+	int col_w = 1;
+	int col_y = 1;
+	if(hold_id != -1)
+	{
+		CAT_item* item = CAT_item_get(hold_id);
+		col_w = item->prop_shape.x;
+		col_y = item->prop_shape.y;
+	}
+
+	cursor.x = clamp(cursor.x, 0, CAT_ROOM_GRID_W-col_w);
+	cursor.y = clamp(cursor.y, 0, CAT_ROOM_GRID_H-col_y);
 }
 
 static CAT_rect hold_rect()
@@ -96,7 +107,7 @@ void CAT_MS_deco(CAT_machine_signal signal)
 		{
 			if(!selecting)
 			{
-				if(CAT_input_pressed(CAT_BUTTON_B))
+				if(CAT_input_pressed(CAT_BUTTON_B) && hold_id == -1)
 					CAT_machine_back();
 			
 				if(CAT_input_pressed(CAT_BUTTON_SELECT))
@@ -131,7 +142,7 @@ void CAT_MS_deco(CAT_machine_signal signal)
 				{
 					if(hold_id != -1)
 					{
-						if(CAT_input_pressed(CAT_BUTTON_A) || (CAT_input_pressed(CAT_BUTTON_B)))
+						if(CAT_input_pressed(CAT_BUTTON_A))
 						{
 							if(can_place())
 							{
@@ -146,6 +157,10 @@ void CAT_MS_deco(CAT_machine_signal signal)
 								CAT_inventory_remove(hold_id, 1);
 								hold_id = -1;
 							}
+						}
+						else if(CAT_input_pressed(CAT_BUTTON_B))
+						{
+							hold_id = -1;
 						}
 					}
 					else if(hover_idx != -1)
@@ -219,10 +234,17 @@ void CAT_MS_deco(CAT_machine_signal signal)
 
 void CAT_render_deco()
 {
-	CAT_render_room();
+	CAT_room_draw_statics();
+	CAT_draw_corner_box(CAT_ROOM_X, CAT_ROOM_Y, CAT_ROOM_MAX_X, CAT_ROOM_MAX_Y, CAT_WHITE);
+	CAT_draw_dot_grid(CAT_ROOM_X, CAT_ROOM_Y, CAT_ROOM_GRID_W, CAT_ROOM_GRID_H, CAT_TILE_SIZE, RGB8882565(200,200,200));
+
+	if (CAT_get_render_cycle() == 0)
+		CAT_draw_queue_clear();
+	CAT_room_draw_props();
+	CAT_room_draw_pickups();
+	CAT_room_draw_pet();
 
 	CAT_ivec2 cursor_world = CAT_grid2world(cursor);
-
 	if(mode == ADD)
 	{
 		if(hold_id != -1)
@@ -280,4 +302,6 @@ void CAT_render_deco()
 			CAT_draw_queue_add(cursor_sprite, 0, 3, cursor_world.x, cursor_world.y, CAT_DRAW_FLAG_NONE);
 		}
 	}
+
+	CAT_draw_queue_submit();
 }

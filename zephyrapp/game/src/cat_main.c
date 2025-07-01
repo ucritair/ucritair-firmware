@@ -17,7 +17,6 @@
 #include "cat_gui.h"
 #include "cat_input.h"
 #include "cat_machine.h"
-
 #include "cat_room.h"
 #include "cat_pet.h"
 #include "cat_actions.h"
@@ -26,7 +25,7 @@
 #include "cat_deco.h"
 #include "cat_aqi.h"
 #include "cat_monitors.h"
-
+#include "cat_crisis.h"
 #include "cat_version.h"
 #include "theme_assets.h"
 #include "config.h"
@@ -45,13 +44,12 @@
 #pragma GCC diagnostic ignored "-Wunknown-pragmas"
 #endif
 
-const int eink_update_time_threshold = CAT_MIN_SECS;
-float time_since_eink_update = 0.0f;
+uint64_t last_eink_time;
 bool first_eink_update_complete = false;
 
 CAT_screen_orientation current_orientation;
 CAT_screen_orientation last_orientation;
-float time_since_reorient = 0.0f;
+uint64_t last_reorient_time;
 
 void CAT_force_save()
 {
@@ -60,10 +58,14 @@ void CAT_force_save()
 	CAT_initialize_save(save);
 
 	strcpy(save->pet.name, pet.name);
+
+	save->pet.lifespan = pet.lifespan;
+	save->pet.lifetime = pet.lifetime;
+	save->pet.incarnations = pet.incarnations;
+
 	save->pet.level = pet.level;
 	save->pet.xp = pet.xp;
-	save->pet.lifespan = 30;
-	save->pet.lifetime = pet.lifetime;
+
 	save->pet.vigour = pet.vigour;
 	save->pet.focus = pet.focus;
 	save->pet.spirit = pet.spirit;
@@ -90,18 +92,11 @@ void CAT_force_save()
 	save->highscores.mine = 0;
 	save->highscores.foursquares = 0;
 
-	save->timing.stat_timer = CAT_timer_get(pet.stat_timer_id);
-	save->timing.life_timer = CAT_timer_get(pet.life_timer_id);
-	save->timing.earn_timer = CAT_timer_get(room.earn_timer_id);
-	save->timing.petting_timer = CAT_timer_get(pet.petting_timer_id);
-	save->timing.petting_count = pet.times_pet;
-	save->timing.milking_count = pet.times_milked;
-
 	if(CAT_AQ_get_temperature_unit() == CAT_TEMPERATURE_UNIT_DEGREES_FAHRENHEIT)
-		CAT_set_config_flags(CAT_CONFIG_FLAG_USE_FAHRENHEIT);
+		CAT_raise_config_flags(CAT_CONFIG_FLAG_USE_FAHRENHEIT);
 	else
-		CAT_unset_config_flags(CAT_CONFIG_FLAG_USE_FAHRENHEIT);
-	save->config.flags = CAT_export_config_flags();
+		CAT_lower_config_flags(CAT_CONFIG_FLAG_USE_FAHRENHEIT);
+	save->config.flags = CAT_get_config_flags();
 
 	for(int i = 0; i < THEME_COUNT; i++)
 	{
@@ -113,25 +108,35 @@ void CAT_force_save()
 
 	CAT_finish_save(save);
 	CAT_printf("Save complete!\n");
+
+	CAT_printf("Persist save!\n");
+	CAT_AQ_export_crisis_state(CAT_AQ_crisis_state_persist());
+	CAT_pet_export_timing_state(CAT_pet_timing_state_persist());
 }
 
 void CAT_load_default()
 {
-	pet.vigour = 12;
-	pet.focus = 12;
-	pet.spirit = 12;
+	CAT_pet_init();
+	CAT_room_init();
 
 	CAT_inventory_clear();
-	CAT_inventory_add(prop_eth_farm_item, 1);
+	CAT_inventory_add(food_bread_item, 2);
+	CAT_inventory_add(food_milk_item, 2);
+	CAT_inventory_add(food_coffee_item, 1);
+	CAT_inventory_add(prop_succulent_item, 1);
 	CAT_inventory_add(toy_laser_pointer_item, 1);
-	CAT_inventory_add(coin_item, 10);
+	CAT_inventory_add(coin_item, 100);
+
+	CAT_room_init();
+	CAT_room_add_prop(prop_eth_farm_item, (CAT_ivec2) {2, 0});
+	CAT_room_add_prop(prop_table_mahogany_item, (CAT_ivec2) {6, 3});
+	CAT_room_add_prop(prop_chair_mahogany_item, (CAT_ivec2) {4, 3});
 }
 
 void CAT_load_turnkey()
 {
-	pet.vigour = 9;
-	pet.focus = 9;
-	pet.spirit = 9;
+	CAT_pet_init();
+	CAT_room_init();
 
 	CAT_inventory_clear();
 	CAT_inventory_add(book_1_item, 1);
@@ -147,7 +152,7 @@ void CAT_load_turnkey()
 	CAT_room_add_prop(prop_plant_plain_item, (CAT_ivec2) {0, 0});
 	CAT_room_add_prop(prop_eth_farm_item, (CAT_ivec2) {2, 0});
 	CAT_room_add_prop(prop_table_mahogany_item, (CAT_ivec2) {3, 3});
-	CAT_room_stack_prop(room.prop_count-1, prop_bowl_walnut_item);
+	CAT_room_stack_prop(room.prop_count-1, prop_xen_crystal_item);
 	CAT_room_add_prop(prop_chair_mahogany_item, (CAT_ivec2) {1, 3});
 	CAT_room_add_prop(prop_stool_wood_item, (CAT_ivec2) {7, 4});
 	CAT_room_add_prop(prop_bush_plain_item, (CAT_ivec2) {13, 2});
@@ -155,6 +160,10 @@ void CAT_load_turnkey()
 	CAT_room_add_prop(prop_table_sm_plastic_item, (CAT_ivec2) {13, 7});
 	CAT_room_stack_prop(room.prop_count-1, prop_coffeemaker_item);
 	CAT_room_add_prop(prop_plant_daisy_item, (CAT_ivec2) {0, 9});
+
+	CAT_inventory_add(prop_portal_orange_item, 1);
+	CAT_inventory_add(prop_portal_blue_item, 1);
+	CAT_inventory_add(prop_hoopy_item, 1);
 }
 
 void CAT_force_load()
@@ -192,6 +201,7 @@ void CAT_force_load()
 			CAT_printf("Invalid save header...\n");
 			CAT_initialize_save(save);
 			CAT_load_default();
+			CAT_inventory_add(save_reset_mark_item, 1);
 			CAT_force_save();
 			CAT_printf("Game state reset!\n");
 			return;
@@ -200,27 +210,35 @@ void CAT_force_load()
 		{
 			CAT_printf("Save requires migration...\n");
 			CAT_migrate_legacy_save(save);
-			CAT_set_config_flags(CAT_CONFIG_FLAG_MIGRATED);
+			CAT_raise_config_flags(CAT_CONFIG_FLAG_MIGRATED);
+			CAT_inventory_add(save_migrate_mark_item, 1);
 			CAT_printf("Save migrated!\n");
 		}
 		else if(save_status == CAT_SAVE_ERROR_SECTOR_MISSING)
 		{
 			CAT_printf("Save is missing sector...\n");
 			CAT_extend_save(save);
+			CAT_inventory_add(save_extend_mark_item, 1);
 			CAT_printf("Save extended!\n");
 		}
 	}
 
 	CAT_printf("Loading...\n");
 
-	if(strlen(save->pet.name) <= CAT_TEXT_INPUT_MAX)
-		strcpy(pet.name, save->pet.name);
+	if(strlen(save->pet.name) <= CAT_TEXT_INPUT_MAX_LENGTH)
+		strncpy(pet.name, save->pet.name, sizeof(pet.name));
+
+	if(save->pet.lifespan <= 30)
+		pet.lifespan = save->pet.lifespan;
+	pet.lifetime = min(save->pet.lifetime, 31);
+	if(save->pet.incarnations <= UINT16_MAX)
+		pet.incarnations = save->pet.incarnations;
+
 	if(save->pet.level < CAT_NUM_LEVELS)
 		pet.level = save->pet.level;
 	if(save->pet.xp < level_cutoffs[pet.level])
 		pet.xp = save->pet.xp;
-	if(pet.lifetime <= 365)
-		pet.lifetime = save->pet.lifetime;
+
 	if(save->pet.vigour <= 12)
 		pet.vigour = save->pet.vigour;
 	if(save->pet.focus <= 12)
@@ -239,99 +257,102 @@ void CAT_force_load()
 		CAT_item* prop = CAT_item_get(prop_id);
 		if(prop == NULL)
 			continue;
-		int child_id = save->deco.children[i] - 1;
-		CAT_item* child = CAT_item_get(child_id);
 
-		CAT_ivec2 position =
-		{
-			save->deco.positions[i*2+0],
-			save->deco.positions[i*2+1],
-		};
-		int prop_idx = CAT_room_add_prop(prop_id, position);
-
-		if(prop_idx == -1)
+		int prop_idx = -1;
+		if(prop->type != CAT_ITEM_TYPE_PROP)
 		{
 			CAT_inventory_add(prop_id, 1);
-			if(child != NULL)
-				CAT_inventory_add(child_id, 1);
 		}
 		else
 		{
-			if(child != NULL)
-				CAT_room_stack_prop(prop_idx, child_id);
+			CAT_ivec2 position =
+			{
+				save->deco.positions[i*2+0],
+				save->deco.positions[i*2+1],
+			};
+			prop_idx = CAT_room_add_prop(prop_id, position);
+			if(prop_idx == -1)
+				CAT_inventory_add(prop_id, 1);
+		}
+		
+		int child_id = save->deco.children[i] - 1;
+		CAT_item* child = CAT_item_get(child_id);
+		if(child == NULL)
+			continue;
+		if
+		(
+			child->type != CAT_ITEM_TYPE_PROP ||
+			child->prop_type != CAT_PROP_TYPE_TOP ||
+			prop_idx == -1 ||
+			prop->prop_type != CAT_PROP_TYPE_BOTTOM
+		)
+		{
+			CAT_inventory_add(child_id, 1);
+		}
+		else
+		{
+			CAT_room_stack_prop(prop_idx, child_id);
 		}
 	}
 
 	snake_high_score = save->highscores.snake;
-
-	CAT_timer_set(pet.stat_timer_id, save->timing.stat_timer);
-	CAT_timer_set(pet.life_timer_id, save->timing.life_timer);
-	CAT_timer_set(room.earn_timer_id, save->timing.earn_timer);
-	CAT_timer_set(pet.petting_timer_id, save->timing.petting_timer);
-	pet.times_pet = save->timing.petting_count;
-	pet.times_milked = save->timing.milking_count;
 
 	CAT_set_config_flags(save->config.flags);
 	if(save->config.flags & CAT_CONFIG_FLAG_USE_FAHRENHEIT)
 		CAT_AQ_set_temperature_unit(CAT_TEMPERATURE_UNIT_DEGREES_FAHRENHEIT);
 	else
 		CAT_AQ_set_temperature_unit(CAT_TEMPERATURE_UNIT_DEGREES_CELSIUS);
-
 	if(save->config.theme < THEME_COUNT)
 		room.theme = themes_list[save->config.theme];
 
 	CAT_printf("Load complete!\n");
-}
 
-void CAT_apply_sleep(int seconds)
-{
-	int stat_ticks = seconds / CAT_STAT_TICK_SECS;
-	int stat_remainder = seconds % CAT_STAT_TICK_SECS;
-	CAT_pet_stat(stat_ticks);
-	CAT_timer_add(pet.stat_timer_id, stat_remainder);
-
-	int life_ticks = seconds / CAT_LIFE_TICK_SECS;
-	int life_remainder = seconds % CAT_LIFE_TICK_SECS;
-	CAT_pet_life(life_ticks);
-	CAT_timer_add(pet.life_timer_id, life_remainder);
-
-	int earn_ticks = seconds / CAT_EARN_TICK_SECS;
-	int earn_remainder = seconds % CAT_EARN_TICK_SECS;
-	CAT_room_earn(earn_ticks);
-	CAT_timer_add(room.earn_timer_id, earn_remainder);
-
-	CAT_timer_add(pet.petting_timer_id, seconds);
-
-	time_since_eink_update += seconds;
+	CAT_printf("Persist load!\n");
+	CAT_AQ_import_crisis_state(CAT_AQ_crisis_state_persist());
+	CAT_pet_import_timing_state(CAT_pet_timing_state_persist());
 }
 
 void CAT_init()
 {
 	CAT_platform_init();
 	CAT_input_init();
-	CAT_sound_power(true);
 
-	CAT_timetable_init();
-	CAT_animator_init();
 	CAT_rand_seed();
+	CAT_animator_init();
 
-	CAT_room_init();
 	CAT_pet_init();
+	CAT_room_init();
 
 	CAT_force_load();
-	CAT_apply_sleep(CAT_get_slept_s());
 
 	if(CAT_check_config_flags(CAT_CONFIG_FLAG_AQ_FIRST))
 		CAT_machine_transition(CAT_MS_monitor);
 	else
 		CAT_machine_transition(CAT_MS_room);
 
-	if(CAT_is_AQ_initialized())
+	if(CAT_AQ_sensors_initialized())
 		CAT_set_eink_update_flag(true);
 }
 
+static uint64_t last_time;
+
 void CAT_tick_logic()
 {
+	uint64_t now = CAT_get_RTC_now();
+	int diff = now - last_time;
+	last_time = now;
+	if(diff < 0)
+	{
+		CAT_datetime a, b;
+		CAT_make_datetime(last_time, &a);
+		CAT_make_datetime(now, &b);
+		CAT_printf(
+			"%d/%d/%d %d:%d:%d -> %d/%d/%d %d:%d:%d",
+			a.year, a.month, a.day, a.hour, a.minute, a.second,
+			b.year, b.month, b.day, b.hour, b.minute, b.second
+		);
+	}
+	
 	if(CAT_check_load_flags(CAT_LOAD_FLAG_DIRTY))
 	{
 		CAT_force_load();
@@ -344,42 +365,45 @@ void CAT_tick_logic()
 
 	CAT_animator_tick();
 
+	CAT_AQ_tick();
+	CAT_AQ_crisis_tick();
+
 	CAT_room_tick();
 	CAT_pet_tick();
-
+	
 	CAT_machine_tick();
 
 	CAT_gui_io();
 
-	time_since_eink_update += CAT_get_delta_time_s();
 	if
 	(
 		(CAT_is_charging() &&
-		time_since_eink_update >= eink_update_time_threshold &&
-		CAT_input_time_since_last() >= eink_update_time_threshold) ||
-		(!first_eink_update_complete && CAT_is_AQ_initialized())
+		(now - last_eink_time) >= EINK_UPDATE_PERIOD &&
+		CAT_input_time_since_last() >= EINK_UPDATE_PERIOD) ||
+		(!first_eink_update_complete && CAT_AQ_sensors_initialized())
 	)
 	{
 		CAT_set_eink_update_flag(true);
 	}
 
-	time_since_reorient += CAT_get_delta_time_s();
 	last_orientation = current_orientation;
 	current_orientation = CAT_IMU_is_upside_down() ? CAT_SCREEN_ORIENTATION_DOWN : CAT_SCREEN_ORIENTATION_UP;
-	if(current_orientation != last_orientation && time_since_reorient >= 1.0f)
+	if(current_orientation != last_orientation && (now - last_reorient_time) >= 1)
 	{
 		CAT_set_screen_orientation(current_orientation);
-		time_since_reorient = 0;
+		last_reorient_time = now;
 
 		CAT_set_eink_update_flag(true);
 	}
 }
 
+void CAT_draw_eink_refresh_notice()
+{
+	CAT_draw_background(&eink_update_splash_sprite, 0, 0);
+}
+
 void CAT_tick_render()
 {
-	if (CAT_get_render_cycle() == 0)
-			CAT_draw_queue_clear();
-
 	CAT_render_callback render_callback = CAT_get_render_callback();
 	if(render_callback != NULL)
 	{
@@ -392,50 +416,22 @@ void CAT_tick_render()
 		His wings hold all creation in a weightless quiet,
 		steady as a hallucination in the streaming air.
 		*/
-		CAT_set_draw_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
+		CAT_set_sprite_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
 		CAT_draw_sprite(&null_sprite, 0, 120, 160);
 	}
 
-	CAT_draw_queue_submit();
 	CAT_gui_render();
 
 	if(CAT_eink_needs_update())
 	{
-		CAT_draw_sprite(&eink_refresh_splash_sprite, 0, 0, 0);
+		CAT_draw_eink_refresh_notice();
 		first_eink_update_complete = true;
 	}
 }
 
 #ifdef CAT_DESKTOP
-
-#include <inttypes.h>
-#include <arpa/inet.h>
-
-void readings_spoof()
-{
-	readings.lps22hh.uptime_last_updated = 0;
-	readings.lps22hh.temp = 20;
-	readings.lps22hh.pressure = 1013;
-
-	readings.sunrise.uptime_last_updated = 0;
-	readings.sunrise.ppm_filtered_compensated = 400;
-	readings.sunrise.ppm_filtered_uncompensated = 400;
-	readings.sunrise.temp = 20;
-
-	readings.sen5x.uptime_last_updated = 0;
-	readings.sen5x.pm2_5 = 9;
-	readings.sen5x.pm10_0 = 15;
-	readings.sen5x.humidity_rhpct = 40;
-
-	readings.sen5x.temp_degC = 20;
-	readings.sen5x.voc_index = 1;
-	readings.sen5x.nox_index = 100;
-}
-
 int main(int argc, char** argv)
 {
-	readings_spoof();
-
 	CAT_init();
 	
 	while (CAT_get_battery_pct() > 0)
@@ -454,15 +450,14 @@ int main(int argc, char** argv)
 		{
 			CAT_set_eink_update_flag(false);
 			CAT_eink_update();
-			time_since_eink_update = 0;
+			last_eink_time = CAT_get_RTC_now();
 		}
 
-		// 1 / FPS * 1_000_000 yields microseconds between frames at fixed FPS
-		usleep((1.0f / (float) 14) * 1000000);
+		// 1 / FPS * 1_000_000 yields microseconds between framebuffer updates at fixed FPS
+		usleep((1.0f / 14.0f) * 1000000);
 	}
 
 	CAT_force_save();
-
 	CAT_platform_cleanup();
 	return 0;
 }

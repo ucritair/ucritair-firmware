@@ -78,6 +78,8 @@ static enum
 	GRAPH_VIEW_MAX
 } graph_view = CO2;
 
+static bool load_graph = false;
+
 static int16_t graph_make_value(CAT_log_cell* cell)
 {
 #define LOG_CELL_HAS_FLAG(flag) (cell->flags & (flag))
@@ -172,7 +174,7 @@ static void graph_init()
 	uint64_t start_time = mktime(&target_tm);
 
 	search_direction = CAT_datecmp(&target, &target_last);
-	CAT_printf("Direction is %d. Starting from %d\n", search_direction, bookmark);
+	//CAT_printf("Direction is %d. Starting from %d\n", search_direction, bookmark);
 	CAT_log_cell cell;
 	if(bookmark == -1)
 	{
@@ -186,7 +188,7 @@ static void graph_init()
 			bookmark = CAT_read_log_cell_after_time(bookmark, start_time, &cell);
 	}
 	target_last = target;
-	CAT_printf("Filling from %d\n", bookmark);
+	//CAT_printf("Filling from %d\n", bookmark);
 
 	int memo = bookmark;
 	uint64_t sample_time = start_time;
@@ -313,6 +315,16 @@ void render_graph()
 	CAT_draw_textf(GRAPH_MAX_X - 10 * CAT_GLYPH_WIDTH, GRAPH_Y-14, "%.2d/%.2d/%.4d", target.month, target.day, target.year);
 
 	CAT_fillberry(GRAPH_X, GRAPH_Y, GRAPH_WIDTH, GRAPH_HEIGHT, GRAPH_BG_COLOUR);
+	if(load_graph)
+	{
+		center_textf(GRAPH_X + GRAPH_WIDTH/2, GRAPH_Y + GRAPH_HEIGHT/2, 3, CAT_MONITOR_BLUE, "Loading");
+		return;
+	}
+	else if(graph.value_min == -1 && graph.value_max == -1)
+	{
+		center_textf(GRAPH_X + GRAPH_WIDTH/2, GRAPH_Y + GRAPH_HEIGHT/2, 3, CAT_RED, "N/A");
+	}
+
 	CAT_CSCLIP_set_rect(GRAPH_X, GRAPH_Y, GRAPH_MAX_X, GRAPH_MAX_Y);
 	for(int i = 0; i < GRAPH_SAMPLE_COUNT-1; i++)
 	{
@@ -328,39 +340,32 @@ void render_graph()
 	}
 	CAT_strokeberry(GRAPH_X, GRAPH_Y, GRAPH_WIDTH, GRAPH_HEIGHT, CAT_WHITE);
 
-	if(graph.value_min == -1 && graph.value_max == -1)
+	if(graph_current_cell_idx != -1 && graph.values[graph.target != -1])
 	{
-		center_textf(GRAPH_X + GRAPH_WIDTH/2, GRAPH_Y + GRAPH_HEIGHT/2, 3, CAT_RED, "N/A");
+		CAT_circberry(graph_transform_x(graph.target), graph_transform_y(graph.values[graph.target]), 3, CAT_RED);
+
+		int16_t current_value = graph_make_value(&graph_current_cell);
+		uint64_t current_timestamp = graph_current_cell.timestamp;
+		struct tm current_datetime;
+		gmtime_r(&current_timestamp, &current_datetime);
+
+		CAT_set_text_colour(CAT_WHITE);
+		CAT_draw_textf(GRAPH_MAX_X-CAT_GLYPH_WIDTH*3, GRAPH_MAX_Y + 4, "%.2dx", graph.pps);
+		
+		CAT_set_text_colour(CAT_WHITE);
+		CAT_set_text_scale(2);
+		CAT_draw_textf(GRAPH_X, GRAPH_MAX_Y+4, "%s", graph_make_value_text(current_value));
+
+		CAT_set_text_colour(CAT_WHITE);
+		CAT_draw_textf(GRAPH_X, GRAPH_MAX_Y+32, "at %.2d:%.2d", current_datetime.tm_hour, current_datetime.tm_min);
 	}
 	else
 	{
-		if(graph_current_cell_idx != -1 && graph.values[graph.target != -1])
-		{
-			CAT_circberry(graph_transform_x(graph.target), graph_transform_y(graph.values[graph.target]), 3, CAT_RED);
+		CAT_circberry(graph_transform_x(graph.target), graph_transform_y(graph.center_y), 2, CAT_GREY);
 
-			int16_t current_value = graph_make_value(&graph_current_cell);
-			uint64_t current_timestamp = graph_current_cell.timestamp;
-			struct tm current_datetime;
-			gmtime_r(&current_timestamp, &current_datetime);
-
-			CAT_set_text_colour(CAT_WHITE);
-			CAT_draw_textf(GRAPH_MAX_X-CAT_GLYPH_WIDTH*3, GRAPH_MAX_Y + 4, "%.2dx", graph.pps);
-			
-			CAT_set_text_colour(CAT_WHITE);
-			CAT_set_text_scale(2);
-			CAT_draw_textf(GRAPH_X, GRAPH_MAX_Y+4, "%s", graph_make_value_text(current_value));
-
-			CAT_set_text_colour(CAT_WHITE);
-			CAT_draw_textf(GRAPH_X, GRAPH_MAX_Y+32, "at %.2d:%.2d", current_datetime.tm_hour, current_datetime.tm_min);
-		}
-		else
-		{
-			CAT_circberry(graph_transform_x(graph.target), graph_transform_y(graph.center_y), 2, CAT_GREY);
-
-			CAT_set_text_colour(CAT_WHITE);
-			CAT_draw_text(GRAPH_X, GRAPH_MAX_Y+4, "N/A");
-		}
-	}	
+		CAT_set_text_colour(CAT_WHITE);
+		CAT_draw_text(GRAPH_X, GRAPH_MAX_Y+4, "N/A");
+	}
 }
 
 #define DATE_Y 48
@@ -430,13 +435,15 @@ void calendar_logic()
 {
 	if(!focused)
 	{
-		if(CAT_input_pressed(CAT_BUTTON_START))
-			CAT_monitor_exit();
+		if(CAT_input_dismissal())
+			CAT_monitor_soft_exit();
 		if(CAT_input_pressed(CAT_BUTTON_LEFT))
 			CAT_monitor_retreat();
 		if(CAT_input_pressed(CAT_BUTTON_RIGHT))
 			CAT_monitor_advance();
 
+		if(!CAT_AQ_logs_initialized())
+			return;
 		if(CAT_input_released(CAT_BUTTON_A))
 			focused = true;
 	}
@@ -462,18 +469,26 @@ void calendar_logic()
 		target.year = clamp_date_part(YEAR, target.year, target.month, target.day);
 		target.month = clamp_date_part(MONTH, target.year, target.month, target.day);
 		
+		bool should_load = false;
 		if(CAT_input_touch_down())
 		{
 			int was = target.day;
 			target.day = get_day_cell(input.touch.x, input.touch.y);
 			if(target.day == was)
-			{
-				graph_init();
-				page = GRAPH;
-			}
+				should_load = true;
 		}
-
 		target.day = clamp_date_part(DAY, target.year, target.month, target.day);
+
+		if(!load_graph && should_load)
+		{
+			load_graph = true;
+		}
+		else if(load_graph)
+		{
+			page = GRAPH;
+			graph_init();
+			load_graph = false;
+		}
 	}
 }
 
@@ -484,8 +499,16 @@ void render_calendar()
 		int cursor_y = center_textf(120, 60, 2, CAT_WHITE, "Calendar");
 		cursor_y = underline(120, cursor_y, 2, CAT_WHITE, "Calendar");
 
-		CAT_fillberry(120 - 60, 160 - 20, 120, 40, RGB8882565(35, 157, 235));
-		center_textf(120, 160, CAT_input_held(CAT_BUTTON_A, 0) ? 3 : 2 ,CAT_WHITE, "Press A");
+		if(!CAT_AQ_logs_initialized())
+		{
+			CAT_fillberry(120 - 60, 160 - 20, 120, 40, RGB8882565(35, 157, 235));
+			center_textf(120, 160, CAT_input_held(CAT_BUTTON_A, 0) ? 3 : 2 ,CAT_WHITE, "No Logs");
+		}
+		else
+		{
+			CAT_fillberry(120 - 60, 160 - 20, 120, 40, RGB8882565(35, 157, 235));
+			center_textf(120, 160, CAT_input_held(CAT_BUTTON_A, 0) ? 3 : 2 ,CAT_WHITE, "Press A");
+		}		
 		return;
 	}
 
@@ -512,8 +535,18 @@ void render_calendar()
 				day <= days_in_month(target.year, target.month)
 			)
 			{
-				CAT_circberry(x + GRID_CELL_R, y + GRID_CELL_R, GRID_CELL_R, day == target.day ? CAT_RED : CAT_WHITE);
-				center_textf(x + GRID_CELL_R, y + GRID_CELL_R, 1, CAT_WHITE, "%d", day);
+				if(day == target.day)
+				{
+					CAT_discberry(x + GRID_CELL_R, y + GRID_CELL_R, GRID_CELL_R, CAT_WHITE);
+					CAT_circberry(x + GRID_CELL_R, y + GRID_CELL_R, GRID_CELL_R, CAT_WHITE);
+					center_textf(x + GRID_CELL_R, y + GRID_CELL_R, 1, CAT_MONITOR_BLUE, "%d", day);
+				}
+				else
+				{	
+					CAT_circberry(x + GRID_CELL_R, y + GRID_CELL_R, GRID_CELL_R, CAT_WHITE);
+					center_textf(x + GRID_CELL_R, y + GRID_CELL_R, 1, CAT_WHITE, "%d", day);
+				}
+				
 			}
 			else
 			{
@@ -567,7 +600,10 @@ void CAT_monitor_render_calendar()
 	switch (page)
 	{
 		case CALENDAR:
-			render_calendar();
+			if(!load_graph)
+				render_calendar();
+			else
+				render_graph();
 		break;
 		case GRAPH:
 			render_graph();

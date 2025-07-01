@@ -5,11 +5,12 @@ import json;
 import os;
 import pathlib as pl;
 
-if(len(sys.argv) != 3):
-	print("usage: canonize_ids.py {OPERAND} {CANON}");
+if(len(sys.argv) != 4):
+	print("usage: canonize_ids.py {OPERAND} {CANON} {MODE}");
 	exit();
 operand_path = sys.argv[1];
 canon_path = sys.argv[2];
+mode = sys.argv[3];
 
 canon_file = open(canon_path, "r");
 canon_data = json.load(canon_file);
@@ -21,8 +22,12 @@ operand_data = json.load(operand_file);
 operands = operand_data['entries'];
 
 canon_id_map = {};
-for entry in canon:
-	canon_id_map[entry["name"]] = entry["id"];
+for (idx, entry) in enumerate(canon):
+	match mode:
+		case "--use_id":
+			canon_id_map[entry["name"]] = entry["id"];
+		case "--use_order":
+			canon_id_map[entry["name"]] = idx;
 canon_id_set = set(canon_id_map.values());
 
 def take_free_id():

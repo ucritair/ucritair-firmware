@@ -1,6 +1,6 @@
 #pragma once
 
-#define FISH_COUNT 15
+#define FISH_COUNT 16
 
 #include "caring/cat_study.h"
 
@@ -19,5 +19,6 @@ extern const CAT_fish ruby_trout_fish;
 extern const CAT_fish skipjack_tuna_fish;
 extern const CAT_fish yellowtail_fish;
 extern const CAT_fish coelecanth_fish;
+extern const CAT_fish myaurr_fish;
 
 extern const CAT_fish* fish_list[];

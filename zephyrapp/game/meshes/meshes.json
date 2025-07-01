@@ -16,8 +16,8 @@
     },
     "entries": [
         {
-            "name": "eth",
-            "path": "eth.obj"
+            "name": "hedron",
+            "path": "hedron.obj"
         }
     ]
 }

@@ -82,86 +82,6 @@ const CAT_room_theme grass_theme =
 	},
 };
 
-const CAT_room_theme basic_ash_theme =
-{
-	.name = "Basic (Ash)",
-	.wall_tiles = &wall_base_tile_sprite,
-	.tile_wall = true,
-	.wall_map = (uint8_t[])
-	{
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-		2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-	},
-	.window_rect = (CAT_rect)
-	{
-		.min = {8, 8},
-		.max = {120, 72},
-	},
-	.floor_tiles = &floor_ash_tile_sprite,
-	.tile_floor = true,
-	.floor_map = (uint8_t[])
-	{
-		2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-		1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-		1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-		1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-		1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-		1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-		1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-		1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-		1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-		1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-		1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-		1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-	},
-};
-
-const CAT_room_theme basic_wood_theme =
-{
-	.name = "Basic (Wood)",
-	.wall_tiles = &wall_base_tile_sprite,
-	.tile_wall = true,
-	.wall_map = (uint8_t[])
-	{
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-		2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-	},
-	.window_rect = (CAT_rect)
-	{
-		.min = {8, 8},
-		.max = {120, 72},
-	},
-	.floor_tiles = &floor_wood_tile_sprite,
-	.tile_floor = true,
-	.floor_map = (uint8_t[])
-	{
-		5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,
-		3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
-		4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
-		4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
-		4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
-		4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
-		4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
-		4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
-		4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
-		4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
-		4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
-		4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
-		2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-	},
-};
-
 const CAT_room_theme stone_theme =
 {
 	.name = "Stone",
@@ -174,7 +94,7 @@ const CAT_room_theme stone_theme =
 		.min = {16, 12},
 		.max = {128, 60},
 	},
-	.floor_tiles = &floor_stone_sprite,
+	.floor_tiles = &floor_iron_sprite,
 	.tile_floor = false,
 	.floor_map = (uint8_t[])
 	{0},
@@ -193,24 +113,6 @@ const CAT_room_theme iron_theme =
 		.max = {128, 64},
 	},
 	.floor_tiles = &floor_iron_sprite,
-	.tile_floor = false,
-	.floor_map = (uint8_t[])
-	{0},
-};
-
-const CAT_room_theme redwood_theme =
-{
-	.name = "Redwood",
-	.wall_tiles = &wall_redwood_sprite,
-	.tile_wall = false,
-	.wall_map = (uint8_t[])
-	{0},
-	.window_rect = (CAT_rect)
-	{
-		.min = {16, 10},
-		.max = {128, 58},
-	},
-	.floor_tiles = &floor_redwood_sprite,
 	.tile_floor = false,
 	.floor_map = (uint8_t[])
 	{0},
@@ -254,10 +156,7 @@ const CAT_room_theme* themes_list[] =
 {
 	&basic_theme,
 	&grass_theme,
-	&basic_ash_theme,
-	&basic_wood_theme,
 	&stone_theme,
 	&iron_theme,
-	&redwood_theme,
 	&roof_theme,
 };

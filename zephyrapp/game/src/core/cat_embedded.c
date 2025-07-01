@@ -171,7 +171,7 @@ float CAT_get_delta_time_s()
 	return delta_t;
 }
 
-uint64_t CAT_get_rtc_now()
+uint64_t CAT_get_RTC_now()
 {
 	return get_current_rtc_time();
 }
@@ -294,6 +294,11 @@ CAT_AQ_score_block* CAT_AQ_get_score_buffer()
 	return aq_score_buffer;
 }
 
+int CAT_AQ_get_score_buffer_head()
+{
+	return aq_score_head;
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // IMU
@@ -327,4 +332,17 @@ void CAT_printf(const char* fmt, ...)
 	if(debug_print_buffer[printed-1] == '\n')
 		debug_print_buffer[printed-1] = '\0';
 	LOG_DBG("%s", debug_print_buffer);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// PERSISTENCE
+
+volatile uint8_t* CAT_AQ_crisis_state_persist()
+{
+	return &aq_crisis_state;
+}
+
+volatile uint8_t* CAT_pet_timing_state_persist()
+{
+	return &pet_timing_state;
 }

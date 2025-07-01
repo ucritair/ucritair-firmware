@@ -45,13 +45,13 @@ typedef struct
 
 static uint16_t piece_colours[7] =
 {
-	0x0617,
-	0x2ad8,
-	0xeca0,
-	0xdec1,
-	0x6de3,
-	0xaa7a,
-	0xd8e3,
+	0xFA08,
+	0xF385,
+	0xFCA3,
+	0xFE29,
+	0x95ED,
+	0x4551,
+	0x53B2,
 };
 
 static CAT_ivec2 jlstz_kick_offset_bases[5] =
@@ -591,13 +591,12 @@ void CAT_MS_foursquares(CAT_machine_signal signal)
 
 		case CAT_MACHINE_SIGNAL_TICK:
 		{
-			static bool quit = false;
 			if(CAT_input_pressed(CAT_BUTTON_START) || CAT_input_held(CAT_BUTTON_B, 0.5f))
-				CAT_gui_open_popup("Quit Foursquares?\n\nProgress will not\nbe saved!\n", &quit);
-			if(quit)
+				CAT_gui_open_popup("Quit Foursquares?\n\nProgress will not\nbe saved!\n");
+			else if(CAT_gui_consume_popup())
 			{
-				quit = false;
 				CAT_machine_back();
+				break;
 			}
 			if(CAT_gui_popup_is_open())
 				break;
@@ -656,10 +655,13 @@ void CAT_MS_foursquares(CAT_machine_signal signal)
 					{
 						lock_piece();
 						perform_reckoning();
+
+						int piece_type = access_seven_bag();
+						int collider_x_off = piece_type == CAT_FOURSQUARES_I ? collider_w+1 : collider_w;
 						spawn_piece
 						(
 							access_seven_bag(),
-							(CAT_ivec2) {CAT_rand_int(0, CAT_FOURSQUARES_GRID_WIDTH-collider_w), 0}
+							(CAT_ivec2) {CAT_rand_int(0, CAT_FOURSQUARES_GRID_WIDTH-collider_x_off), 0}
 						);
 						if(is_blocked_out())
 							CAT_machine_transition(MS_game_over);
@@ -677,7 +679,12 @@ void CAT_MS_foursquares(CAT_machine_signal signal)
 
 void CAT_render_foursquares()
 {
-	CAT_frameberry(0);
+	CAT_frameberry(CAT_BLACK);
+
+	for(int y = 1; y < CAT_FOURSQUARES_GRID_HEIGHT; y++)
+		CAT_lineberry(0, y*CAT_FOURSQUARES_TILE_SIZE, CAT_LCD_SCREEN_W-1, y*CAT_FOURSQUARES_TILE_SIZE, RGB8882565(32, 32, 32));
+	for(int x = 1; x < CAT_FOURSQUARES_GRID_WIDTH; x++)
+		CAT_lineberry(x*CAT_FOURSQUARES_TILE_SIZE, 0, x*CAT_FOURSQUARES_TILE_SIZE, CAT_LCD_SCREEN_H-1, RGB8882565(32, 32, 32));
 
 	for(int y = 0; y < CAT_FOURSQUARES_GRID_HEIGHT; y++)
 	{

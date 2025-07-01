@@ -431,46 +431,46 @@ int text_cursor(char* name, int index)
 
 void CAT_render_graph()
 {
-	CAT_gui_title(false, NULL, &icon_exit_sprite, "GRAPH");
+	CAT_gui_title(false, "GRAPH");
 	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
 
 	struct tm t;
 	gmtime_r(&graph_end_time, &t); 
 
 	CAT_gui_textf("%s: ", get_name());
-	CAT_gui_image(&icon_n_sprite, 1);
+	CAT_gui_image(&null_sprite, 1);
 	CAT_gui_textf("%d/%d/%d", t.tm_mon+1, t.tm_mday, t.tm_year);
-	CAT_gui_image(&icon_s_sprite, 1);
+	CAT_gui_image(&null_sprite, 1);
 	CAT_gui_line_break();
 
 	CAT_do_render_graph(graph_data, graph_max, GRAPH_PAD, gui.cursor.y, cursor_start, cursor_state>SEL_START?cursor_end:-1);
 
 	gui.cursor.y += GRAPH_H+GRAPH_PAD*2+GRAPH_MARGIN*2;
 
-	if (cursor_state == SEL_START) CAT_gui_image(&icon_w_sprite, 1);
+	if (cursor_state == SEL_START) CAT_gui_image(&null_sprite, 1);
 	text_cursor("Start:", cursor_start);
-	if (cursor_state == SEL_START) CAT_gui_image(&icon_e_sprite, 1);
+	if (cursor_state == SEL_START) CAT_gui_image(&null_sprite, 1);
 	CAT_gui_line_break();
 
 	int end_val = 0;
 
 	if (cursor_state == SEL_START)
 	{
-		CAT_gui_image(&icon_a_sprite, 1);
+		CAT_gui_image(&null_sprite, 1);
 		CAT_gui_text("to select start");
 	}
 
 	if (cursor_state > SEL_START)
 	{
-		if (cursor_state == SEL_END) CAT_gui_image(&icon_w_sprite, 1);
+		if (cursor_state == SEL_END) CAT_gui_image(&null_sprite, 1);
 		end_val = text_cursor("End  :", cursor_end);
-		if (cursor_state == SEL_END) CAT_gui_image(&icon_e_sprite, 1);
+		if (cursor_state == SEL_END) CAT_gui_image(&null_sprite, 1);
 		CAT_gui_line_break();
 	}
 
 	if (cursor_state == SEL_END)
 	{
-		CAT_gui_image(&icon_a_sprite, 1);
+		CAT_gui_image(&null_sprite, 1);
 		CAT_gui_text("to select end");
 	}
 
@@ -493,7 +493,7 @@ void CAT_render_graph()
 			}
 		}
 		CAT_gui_line_break();
-		CAT_gui_image(&icon_a_sprite, 1);
+		CAT_gui_image(&null_sprite, 1);
 		CAT_gui_text("to start over");
 
 		if (get_ach_mode() == ACH && end_val > 460)
@@ -508,12 +508,12 @@ void CAT_render_graph()
 	if (cursor_state == SEL_START)
 	{
 		CAT_gui_line_break();
-		CAT_gui_image(&icon_select_sprite, 1);
+		CAT_gui_image(&null_sprite, 1);
 		CAT_gui_text("to change scale");
 		CAT_gui_line_break();
 		CAT_gui_textf("(Currently %.1fh wide)", (double)(GRAPH_W*graph_step_time)/3600.);
 		CAT_gui_line_break();
-		CAT_gui_image(&icon_start_sprite, 1);
+		CAT_gui_image(&null_sprite, 1);
 		CAT_gui_text("to change parameter");
 	}
 
