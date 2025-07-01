@@ -199,7 +199,12 @@ void CAT_MS_play(CAT_machine_signal signal)
 
 void CAT_render_action()
 {
-	CAT_render_room();
+	CAT_room_draw_statics();
+	if (CAT_get_render_cycle() == 0)
+		CAT_draw_queue_clear();
+	CAT_room_draw_props();
+	CAT_room_draw_pickups();
+	CAT_room_draw_pet();
 
 	if (tool_id != -1)
 	{
@@ -220,6 +225,9 @@ void CAT_render_action()
 			CAT_draw_queue_add(item->sprite, -1, tool_layer, tool_anchor.x, tool_anchor.y, mode);
 		}
 	}
+
+	CAT_draw_queue_submit();
+	CAT_room_draw_gui();
 }
 
 static float laser_speed = 72.0f;
@@ -362,7 +370,7 @@ void CAT_render_laser()
 
 	CAT_item *item = CAT_item_get(toy_laser_pointer_item);
 	CAT_draw_flag flags = CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y;
-	CAT_draw_queue_add(item->tool_cursor, -1, 0, laser_pos.x, laser_pos.y, flags);
+	CAT_draw_queue_add(item->tool_cursor, -1, PROPS_LAYER, laser_pos.x, laser_pos.y, flags);
 
 	CAT_draw_queue_submit();
 	CAT_room_draw_gui();
