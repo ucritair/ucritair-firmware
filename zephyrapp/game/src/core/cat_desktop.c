@@ -247,11 +247,11 @@ void CAT_platform_tick()
 		
 		CAT_datetime t;
 		CAT_get_datetime(&t);
-		char path[strlen("screen_capture/####_##_##_##_##_##.ppm")+1];
+		char path[strlen("capture/####_##_##_##_##_##.ppm")+1];
 		snprintf
 		(
 			path, sizeof(path),
-			"screen_capture/%.4d_%.2d_%.2d_%.2d_%.2d_%.2d.ppm",
+			"capture/%.4d_%.2d_%.2d_%.2d_%.2d_%.2d.ppm",
 			t.year, t.month, t.day, t.hour, t.minute, t.second
 		);
 		write_screen_capture(path);
