@@ -1,660 +1,125 @@
 # Items
-There are 109 items in-game.
+There are 117 items in-game.
 All items belong to one of 3 overarching types: Key, Tool, or Prop.
 Many items are available for purchase through the vending machine, but some can only be obtained through other gameplay avenues.
-
-## Item List
-### The Disposessed
-Asset Name: book_1
-Item ID: 0
-Type: Tool
-Price: 20
-
-### We Are Legion
-Asset Name: book_2
-Item ID: 1
-Type: Tool
-Price: 20
-
-### The Forever War
-Asset Name: book_3
-Item ID: 2
-Type: Tool
-Price: 20
-
-### Ringworld
-Asset Name: book_4
-Item ID: 3
-Type: Tool
-Price: 20
-
-### The Machine Stops
-Asset Name: book_5
-Item ID: 4
-Type: Tool
-Price: 20
-
-### Metal Fever
-Asset Name: book_6
-Item ID: 5
-Type: Tool
-Price: 20
-
-### 1-Star Fish
-Asset Name: fish_grade_0
-Item ID: 106
-Type: Key
-_This item cannot be purchased._
-
-### 2-Star Fish
-Asset Name: fish_grade_1
-Item ID: 107
-Type: Key
-_This item cannot be purchased._
-
-### 3-Star Fish
-Asset Name: fish_grade_2
-Item ID: 108
-Type: Key
-_This item cannot be purchased._
-
-### Bagel
-Asset Name: food_bagel
-Item ID: 88
-Type: Tool
-Price: 5
-
-### Bananas
-Asset Name: food_bananas
-Item ID: 89
-Type: Tool
-Price: 2
-
-### Barley Tea
-Asset Name: food_barley_tea
-Item ID: 6
-Type: Tool
-Price: 3
-
-### Beef Noodles
-Asset Name: food_beef_noodles
-Item ID: 90
-Type: Tool
-Price: 10
-
-### Ebi-Ten Bento
-Asset Name: food_bento
-Item ID: 7
-Type: Tool
-Price: 15
-
-### Bread
-Asset Name: food_bread
-Item ID: 8
-Type: Tool
-Price: 5
-
-### Burger
-Asset Name: food_burger
-Item ID: 91
-Type: Tool
-Price: 7
-
-### Carrots
-Asset Name: food_carrots
-Item ID: 92
-Type: Tool
-Price: 3
-
-### Cigarettes
-Asset Name: food_cigs
-Item ID: 9
-Type: Tool
-Price: 10
-
-### Coffee
-Asset Name: food_coffee
-Item ID: 10
-Type: Tool
-Price: 2
-
-### Congee
-Asset Name: food_congee
-Item ID: 93
-Type: Tool
-Price: 3
-
-### Green Curry
-Asset Name: food_curry_green
-Item ID: 11
-Type: Tool
-Price: 15
-
-### Red Curry
-Asset Name: food_curry_red
-Item ID: 12
-Type: Tool
-Price: 15
-
-### Donut
-Asset Name: food_donut
-Item ID: 94
-Type: Tool
-Price: 5
-
-### Pork Dumplings
-Asset Name: food_dumplings
-Item ID: 95
-Type: Tool
-Price: 5
-
-### Egg
-Asset Name: food_egg
-Item ID: 96
-Type: Tool
-Price: 5
-
-### Beef Empanadas
-Asset Name: food_empanadas
-Item ID: 97
-Type: Tool
-Price: 7
-
-### Green Tea
-Asset Name: food_green_tea
-Item ID: 104
-Type: Tool
-Price: 3
-
-### Hotdog
-Asset Name: food_hotdog
-Item ID: 98
-Type: Tool
-Price: 5
-
-### Milk
-Asset Name: food_milk
-Item ID: 13
-Type: Tool
-Price: 3
-
-### Nasi Lemak
-Asset Name: food_nasi_lemak
-Item ID: 99
-Type: Tool
-Price: 10
-
-### Oranges
-Asset Name: food_oranges
-Item ID: 14
-Type: Tool
-Price: 3
-
-### Pad Ka Prow
-Asset Name: food_pad_ka_prow
-Item ID: 15
-Type: Tool
-Price: 15
-
-### Persimmons
-Asset Name: food_persimmons
-Item ID: 16
-Type: Tool
-Price: 5
-
-### Focus Seed
-Asset Name: food_pill_foc
-Item ID: 17
-Type: Tool
-Price: 3
-
-### Spirit Seed
-Asset Name: food_pill_spi
-Item ID: 18
-Type: Tool
-Price: 3
-
-### Vigour Seed
-Asset Name: food_pill_vig
-Item ID: 19
-Type: Tool
-Price: 3
-
-### Chashu Ramen
-Asset Name: food_ramen
-Item ID: 100
-Type: Tool
-Price: 10
-
-### Raw Meat
-Asset Name: food_raw_meat
-Item ID: 20
-Type: Tool
-Price: 8
-
-### Salad
-Asset Name: food_salad
-Item ID: 21
-Type: Tool
-Price: 5
-
-### Salmon
-Asset Name: food_salmon
-Item ID: 101
-Type: Tool
-Price: 8
-
-### Sausage
-Asset Name: food_sausage
-Item ID: 22
-Type: Tool
-Price: 7
-
-### Soda
-Asset Name: food_soda
-Item ID: 102
-Type: Tool
-Price: 3
-
-### Soup
-Asset Name: food_soup
-Item ID: 23
-Type: Tool
-Price: 5
-
-### Strange Meal
-Asset Name: food_strange_meal
-Item ID: 103
-Type: Tool
-Price: 10
-
-### Tuna
-Asset Name: food_tuna
-Item ID: 105
-Type: Tool
-Price: 8
-
-### Mask
-Asset Name: mask
-Item ID: 24
-Type: Key
-Price: 10
-
-### Gold Bowl
-Asset Name: prop_bowl_gold
-Item ID: 25
-Type: Prop
-Price: 20
-
-### Grey Bowl
-Asset Name: prop_bowl_grey
-Item ID: 26
-Type: Prop
-Price: 5
-
-### Mahogany Bowl
-Asset Name: prop_bowl_mahogany
-Item ID: 27
-Type: Prop
-Price: 7
-
-### Stone Bowl
-Asset Name: prop_bowl_stone
-Item ID: 28
-Type: Prop
-Price: 10
-
-### Walnut Bowl
-Asset Name: prop_bowl_walnut
-Item ID: 29
-Type: Prop
-Price: 7
-
-### Daisy Bush
-Asset Name: prop_bush_daisy
-Item ID: 30
-Type: Prop
-Price: 30
-
-### Lilac Bush
-Asset Name: prop_bush_lilac
-Item ID: 31
-Type: Prop
-Price: 30
-
-### Bush
-Asset Name: prop_bush_plain
-Item ID: 32
-Type: Prop
-Price: 10
-
-### Mahogany Chair
-Asset Name: prop_chair_mahogany
-Item ID: 33
-Type: Prop
-Price: 20
-
-### Plastic Chair
-Asset Name: prop_chair_plastic
-Item ID: 34
-Type: Prop
-Price: 10
-
-### Stone Chair
-Asset Name: prop_chair_stone
-Item ID: 35
-Type: Prop
-Price: 15
-
-### Chess Set
-Asset Name: prop_chess
-Item ID: 36
-Type: Prop
-Price: 40
-
-### Chicken
-Asset Name: prop_chicken
-Item ID: 37
-Type: Prop
-Price: 50
-
-### Coffee Machine
-Asset Name: prop_coffeemaker
-Item ID: 38
-Type: Prop
-Price: 40
-
-### Blue Crystal
-Asset Name: prop_crystal_blue
-Item ID: 39
-Type: Prop
-Price: 50
-
-### Green Crystal
-Asset Name: prop_crystal_green
-Item ID: 40
-Type: Prop
-Price: 50
-
-### Purple Crystal
-Asset Name: prop_crystal_purple
-Item ID: 41
-Type: Prop
-Price: 50
-
-### Blue Effigy
-Asset Name: prop_effigy_blue
-Item ID: 42
-Type: Prop
-Price: 40
-
-### Purple Effigy
-Asset Name: prop_effigy_purple
-Item ID: 43
-Type: Prop
-Price: 40
-
-### Sea Effigy
-Asset Name: prop_effigy_sea
-Item ID: 44
-Type: Prop
-Price: 60
-
-### Ethereum Farm
-Asset Name: prop_eth_farm
-Item ID: 45
-Type: Prop
-Price: 100
-
-### Classic Fan
-Asset Name: prop_fan_classic
-Item ID: 46
-Type: Prop
-Price: 20
-
-### Modern Fan
-Asset Name: prop_fan_modern
-Item ID: 47
-Type: Prop
-Price: 30
-
-### Smart Flower
-Asset Name: prop_foc_flower
-Item ID: 48
-Type: Prop
-Price: 40
-
-### Lantern
-Asset Name: prop_lantern
-Item ID: 49
-Type: Prop
-Price: 20
-
-### Laptop
-Asset Name: prop_laptop
-Item ID: 50
-Type: Prop
-Price: 80
-
-### Naval Mine
-Asset Name: prop_mine
-Item ID: 51
-Type: Prop
-Price: 50
-
-### Pad Ka Prop
-Asset Name: prop_padkaprow
-Item ID: 52
-Type: Prop
-Price: 30
-
-### Pixel
-Asset Name: prop_pixel
-Item ID: 53
-Type: Prop
-Price: 30
-
-### Corn Plant
-Asset Name: prop_plant_corn
-Item ID: 54
-Type: Prop
-Price: 30
-
-### Daisy Plant
-Asset Name: prop_plant_daisy
-Item ID: 55
-Type: Prop
-Price: 25
-
-### Lilac Plant
-Asset Name: prop_plant_lilac
-Item ID: 56
-Type: Prop
-Price: 25
-
-### Maroon Plant
-Asset Name: prop_plant_maroon
-Item ID: 57
-Type: Prop
-Price: 20
-
-### Plain Plant
-Asset Name: prop_plant_plain
-Item ID: 58
-Type: Prop
-Price: 20
-
-### Air Purifier
-Asset Name: prop_purifier
-Item ID: 59
-Type: Prop
-Price: 50
-
-### Happy Flower
-Asset Name: prop_spi_flower
-Item ID: 60
-Type: Prop
-Price: 40
-
-### Gold Stool
-Asset Name: prop_stool_gold
-Item ID: 61
-Type: Prop
-Price: 30
-
-### Plastic Stool
-Asset Name: prop_stool_plastic
-Item ID: 62
-Type: Prop
-Price: 5
-
-### Stone Stool
-Asset Name: prop_stool_stone
-Item ID: 63
-Type: Prop
-Price: 15
-
-### Wood Stool
-Asset Name: prop_stool_wood
-Item ID: 64
-Type: Prop
-Price: 10
-
-### Succulent
-Asset Name: prop_succulent
-Item ID: 65
-Type: Prop
-Price: 5
-
-### Mahogany Table
-Asset Name: prop_table_mahogany
-Item ID: 66
-Type: Prop
-Price: 20
-
-### Plastic Table A
-Asset Name: prop_table_plastic
-Item ID: 67
-Type: Prop
-Price: 20
-
-### Plastic Table B
-Asset Name: prop_table_plastic_alt
-Item ID: 68
-Type: Prop
-Price: 20
-
-### S. Mahogany Table
-Asset Name: prop_table_sm_mahogany
-Item ID: 69
-Type: Prop
-Price: 20
-
-### S. Plastic Table A
-Asset Name: prop_table_sm_plastic
-Item ID: 70
-Type: Prop
-Price: 10
-
-### S. Plastic Table B
-Asset Name: prop_table_sm_plastic_alt
-Item ID: 71
-Type: Prop
-Price: 10
-
-### S. Walnut Table A
-Asset Name: prop_table_sm_walnut
-Item ID: 72
-Type: Prop
-Price: 30
-
-### S. Walnut Table B
-Asset Name: prop_table_sm_walnut_alt
-Item ID: 73
-Type: Prop
-Price: 30
-
-### Walnut Table
-Asset Name: prop_table_walnut
-Item ID: 74
-Type: Prop
-Price: 20
-
-### UV Lamp
-Asset Name: prop_uv_lamp
-Item ID: 75
-Type: Prop
-Price: 50
-
-### Gold Vase
-Asset Name: prop_vase_gold
-Item ID: 76
-Type: Prop
-Price: 20
-
-### Grey Vase
-Asset Name: prop_vase_grey
-Item ID: 77
-Type: Prop
-Price: 5
-
-### Mahogany Vase
-Asset Name: prop_vase_mahogany
-Item ID: 78
-Type: Prop
-Price: 7
-
-### Stone Vase
-Asset Name: prop_vase_stone
-Item ID: 79
-Type: Prop
-Price: 7
-
-### Walnut Vase
-Asset Name: prop_vase_walnut
-Item ID: 80
-Type: Prop
-Price: 7
-
-### Healthy Flower
-Asset Name: prop_vig_flower
-Item ID: 81
-Type: Prop
-Price: 40
-
-### Baseball
-Asset Name: toy_baseball
-Item ID: 82
-Type: Tool
-Price: 20
-
-### Basketball
-Asset Name: toy_basketball
-Item ID: 83
-Type: Tool
-Price: 20
-
-### Ducky
-Asset Name: toy_duck
-Item ID: 84
-Type: Tool
-Price: 30
-
-### Golf Ball
-Asset Name: toy_golf
-Item ID: 85
-Type: Tool
-Price: 5
-
-### Laser Pointer
-Asset Name: toy_laser_pointer
-Item ID: 86
-Type: Tool
-Price: 10
-
-### Puzzle
-Asset Name: toy_puzzle
-Item ID: 87
-Type: Tool
-Price: 20
-
+A small subset of items can be sold.
+
+|Sprite|Display Name|Asset Name|Item Id|Type|Purchase Price|Sale Price|
+|-|-|-|-|-|-|-|
+|![](thumbnails/fish_tier_1_icon.png)|1-Star Fish|fish_grade_0|6|Key|N/A|3|
+|![](thumbnails/fish_tier_2_icon.png)|2-Star Fish|fish_grade_1|7|Key|N/A|7|
+|![](thumbnails/fish_tier_3_icon.png)|3-Star Fish|fish_grade_2|8|Key|N/A|15|
+|![](thumbnails/book_study_sprite.png)|A Wizard of Earthsea|book_2|1|Tool|7|N/A|
+|![](thumbnails/purifier_sprite.png)|Air Purifier|prop_purifier|80|Prop|50|N/A|
+|![](thumbnails/bagel_sprite.png)|Bagel|food_bagel|9|Tool|3|N/A|
+|![](thumbnails/banana_sprite.png)|Bananas|food_bananas|10|Tool|3|N/A|
+|![](thumbnails/barley_tea_sprite.png)|Barley Tea|food_barley_tea|11|Tool|3|N/A|
+|![](thumbnails/toy_baseball_sprite.png)|Baseball|toy_baseball|103|Tool|7|N/A|
+|![](thumbnails/toy_basketball_sprite.png)|Basketball|toy_basketball|104|Tool|14|N/A|
+|![](thumbnails/empanadas_sprite.png)|Beef Empanadas|food_empanadas|25|Tool|7|N/A|
+|![](thumbnails/beef_noodle_sprite.png)|Beef Noodles|food_beef_noodles|12|Tool|12|N/A|
+|![](thumbnails/crystal_blue_lg_sprite.png)|Blue Crystal|prop_crystal_blue|60|Prop|50|N/A|
+|![](thumbnails/effigy_blue_sprite.png)|Blue Effigy|prop_effigy_blue|63|Prop|40|N/A|
+|![](thumbnails/portal_blue_sprite.png)|Blue Portal|prop_portal_blue|111|Prop|N/A|N/A|
+|![](thumbnails/bread_sprite.png)|Bread|food_bread|14|Tool|3|N/A|
+|![](thumbnails/burger_sprite.png)|Burger|food_burger|15|Tool|7|N/A|
+|![](thumbnails/bush_plain_sprite.png)|Bush|prop_bush_plain|53|Prop|10|N/A|
+|![](thumbnails/carrot_sprite.png)|Carrots|food_carrots|16|Tool|3|N/A|
+|![](thumbnails/ramen_sprite.png)|Chashu Ramen|food_ramen|36|Tool|7|N/A|
+|![](thumbnails/chess_sprite.png)|Chess Set|prop_chess|57|Prop|40|N/A|
+|![](thumbnails/chicken_sprite.png)|Chicken|prop_chicken|58|Prop|50|N/A|
+|![](thumbnails/cigarette_sprite.png)|Cigarettes|food_cigs|17|Tool|N/A|N/A|
+|![](thumbnails/fan_a_sprite.png)|Classic Fan|prop_fan_classic|67|Prop|20|N/A|
+|![](thumbnails/coffee_sprite.png)|Coffee|food_coffee|18|Tool|3|N/A|
+|![](thumbnails/coffeemaker_sprite.png)|Coffee Machine|prop_coffeemaker|59|Prop|40|N/A|
+|![](thumbnails/coin_static_sprite.png)|Coin|coin|109|Key|N/A|N/A|
+|![](thumbnails/congee_sprite.png)|Congee|food_congee|19|Tool|3|N/A|
+|![](thumbnails/plant_corn_sprite.png)|Corn Plant|prop_plant_corn|75|Prop|30|N/A|
+|![](thumbnails/bush_daisy_sprite.png)|Daisy Bush|prop_bush_daisy|51|Prop|30|N/A|
+|![](thumbnails/plant_daisy_sprite.png)|Daisy Plant|prop_plant_daisy|76|Prop|25|N/A|
+|![](thumbnails/prop_crafter_sprite.png)|Defunct Crafting Station|prop_eth_farm|66|Prop|100|N/A|
+|![](thumbnails/donut_sprite.png)|Donut|food_donut|22|Tool|3|N/A|
+|![](thumbnails/toy_duck_sprite.png)|Ducky|toy_duck|105|Tool|21|N/A|
+|![](thumbnails/bento_sprite.png)|Ebi-Ten Bento|food_bento|13|Tool|7|N/A|
+|![](thumbnails/egg_sprite.png)|Egg|food_egg|24|Tool|3|N/A|
+|![](thumbnails/cursor_add_sprite.png)|Extension Mark|save_extend_mark|116|Key|N/A|N/A|
+|![](thumbnails/pill_foc_sprite.png)|Focus Seed|food_pill_foc|33|Tool|3|N/A|
+|![](thumbnails/bowl_gold_sprite.png)|Gold Bowl|prop_bowl_gold|46|Prop|20|N/A|
+|![](thumbnails/stool_gold_sprite.png)|Gold Stool|prop_stool_gold|82|Prop|30|N/A|
+|![](thumbnails/vase_gold_sprite.png)|Gold Vase|prop_vase_gold|97|Prop|20|N/A|
+|![](thumbnails/toy_golf_sprite.png)|Golf Ball|toy_golf|106|Tool|7|N/A|
+|![](thumbnails/crystal_green_lg_sprite.png)|Green Crystal|prop_crystal_green|61|Prop|50|N/A|
+|![](thumbnails/green_curry_sprite.png)|Green Curry|food_curry_green|20|Tool|12|N/A|
+|![](thumbnails/green_tea_sprite.png)|Green Tea|food_green_tea|26|Tool|3|N/A|
+|![](thumbnails/bowl_grey_sprite.png)|Grey Bowl|prop_bowl_grey|47|Prop|5|N/A|
+|![](thumbnails/vase_grey_sprite.png)|Grey Vase|prop_vase_grey|98|Prop|5|N/A|
+|![](thumbnails/flower_spi_sprite.png)|Happy Flower|prop_spi_flower|81|Prop|40|N/A|
+|![](thumbnails/flower_vig_sprite.png)|Healthy Flower|prop_vig_flower|102|Prop|40|N/A|
+|![](thumbnails/prop_hoopy_sprite.png)|Hoopy the Hoop|prop_hoopy|113|Prop|N/A|N/A|
+|![](thumbnails/hotdog_sprite.png)|Hotdog|food_hotdog|27|Tool|7|N/A|
+|![](thumbnails/book_study_sprite.png)|Kokoro|book_6|5|Tool|7|N/A|
+|![](thumbnails/lantern_sprite.png)|Lantern|prop_lantern|70|Prop|20|N/A|
+|![](thumbnails/laptop_sprite.png)|Laptop|prop_laptop|71|Prop|80|N/A|
+|![](thumbnails/laser_pointer_sprite.png)|Laser Pointer|toy_laser_pointer|107|Tool|21|N/A|
+|![](thumbnails/bush_lilac_sprite.png)|Lilac Bush|prop_bush_lilac|52|Prop|30|N/A|
+|![](thumbnails/plant_lilac_sprite.png)|Lilac Plant|prop_plant_lilac|77|Prop|25|N/A|
+|![](thumbnails/bowl_mahogany_sprite.png)|Mahogany Bowl|prop_bowl_mahogany|48|Prop|7|N/A|
+|![](thumbnails/chair_mahogany_sprite.png)|Mahogany Chair|prop_chair_mahogany|54|Prop|20|N/A|
+|![](thumbnails/table_mahogany_sprite.png)|Mahogany Table|prop_table_mahogany|87|Prop|20|N/A|
+|![](thumbnails/vase_mahogany_sprite.png)|Mahogany Vase|prop_vase_mahogany|99|Prop|7|N/A|
+|![](thumbnails/plant_maroon_sprite.png)|Maroon Plant|prop_plant_maroon|78|Prop|20|N/A|
+|![](thumbnails/icon_mask_sprite.png)|Mask|mask|45|Key|10|N/A|
+|![](thumbnails/cursor_flip_sprite.png)|Migration Mark|save_migrate_mark|114|Key|N/A|N/A|
+|![](thumbnails/milk_sprite.png)|Milk|food_milk|28|Tool|3|N/A|
+|![](thumbnails/fan_b_sprite.png)|Modern Fan|prop_fan_modern|68|Prop|30|N/A|
+|![](thumbnails/nasi_lemak_sprite.png)|Nasi Lemak|food_nasi_lemak|29|Tool|12|N/A|
+|![](thumbnails/prop_mine_sprite.png)|Naval Mine|prop_mine|72|Prop|50|N/A|
+|![](thumbnails/cursor_remove_sprite.png)|Oblivion Mark|save_reset_mark|115|Key|N/A|N/A|
+|![](thumbnails/portal_orange_sprite.png)|Orange Portal|prop_portal_orange|110|Prop|N/A|N/A|
+|![](thumbnails/orange_sprite.png)|Oranges|food_oranges|30|Tool|3|N/A|
+|![](thumbnails/padkaprop_sprite.png)|Pad Ka Prop|prop_padkaprow|73|Prop|30|N/A|
+|![](thumbnails/padkaprow_sprite.png)|Pad Ka Prow|food_pad_ka_prow|31|Tool|12|N/A|
+|![](thumbnails/persimmons_sprite.png)|Persimmons|food_persimmons|32|Tool|3|N/A|
+|![](thumbnails/pixel_sprite.png)|Pixel|prop_pixel|74|Prop|30|N/A|
+|![](thumbnails/plant_plain_sprite.png)|Plain Plant|prop_plant_plain|79|Prop|20|N/A|
+|![](thumbnails/chair_plastic_sprite.png)|Plastic Chair|prop_chair_plastic|55|Prop|10|N/A|
+|![](thumbnails/stool_plastic_sprite.png)|Plastic Stool|prop_stool_plastic|83|Prop|5|N/A|
+|![](thumbnails/table_plastic_sprite.png)|Plastic Table A|prop_table_plastic|88|Prop|20|N/A|
+|![](thumbnails/table_plastic_alt_sprite.png)|Plastic Table B|prop_table_plastic_alt|89|Prop|20|N/A|
+|![](thumbnails/dumplings_sprite.png)|Pork Dumplings|food_dumplings|23|Tool|7|N/A|
+|![](thumbnails/crystal_purple_lg_sprite.png)|Purple Crystal|prop_crystal_purple|62|Prop|50|N/A|
+|![](thumbnails/effigy_purple_sprite.png)|Purple Effigy|prop_effigy_purple|64|Prop|40|N/A|
+|![](thumbnails/toy_puzzle_sprite.png)|Puzzle|toy_puzzle|108|Tool|14|N/A|
+|![](thumbnails/meat_sprite.png)|Raw Meat|food_raw_meat|37|Tool|7|N/A|
+|![](thumbnails/red_curry_sprite.png)|Red Curry|food_curry_red|21|Tool|12|N/A|
+|![](thumbnails/table_sm_mahogany_sprite.png)|S. Mahogany Table|prop_table_sm_mahogany|90|Prop|20|N/A|
+|![](thumbnails/table_sm_plastic_sprite.png)|S. Plastic Table A|prop_table_sm_plastic|91|Prop|10|N/A|
+|![](thumbnails/table_sm_plastic_alt_sprite.png)|S. Plastic Table B|prop_table_sm_plastic_alt|92|Prop|10|N/A|
+|![](thumbnails/table_sm_walnut_sprite.png)|S. Walnut Table A|prop_table_sm_walnut|93|Prop|30|N/A|
+|![](thumbnails/table_sm_walnut_alt_sprite.png)|S. Walnut Table B|prop_table_sm_walnut_alt|94|Prop|30|N/A|
+|![](thumbnails/salad_sprite.png)|Salad|food_salad|38|Tool|3|N/A|
+|![](thumbnails/salmon_sprite.png)|Salmon|food_salmon|39|Tool|7|N/A|
+|![](thumbnails/sausage_sprite.png)|Sausage|food_sausage|40|Tool|3|N/A|
+|![](thumbnails/effigy_sea_sprite.png)|Sea Effigy|prop_effigy_sea|65|Prop|60|N/A|
+|![](thumbnails/flower_foc_sprite.png)|Smart Flower|prop_foc_flower|69|Prop|40|N/A|
+|![](thumbnails/soda_sprite.png)|Soda|food_soda|41|Tool|3|N/A|
+|![](thumbnails/soup_sprite.png)|Soup|food_soup|42|Tool|3|N/A|
+|![](thumbnails/pill_spi_sprite.png)|Spirit Seed|food_pill_spi|34|Tool|3|N/A|
+|![](thumbnails/bowl_stone_sprite.png)|Stone Bowl|prop_bowl_stone|49|Prop|10|N/A|
+|![](thumbnails/chair_stone_sprite.png)|Stone Chair|prop_chair_stone|56|Prop|15|N/A|
+|![](thumbnails/stool_stone_sprite.png)|Stone Stool|prop_stool_stone|84|Prop|15|N/A|
+|![](thumbnails/vase_stone_sprite.png)|Stone Vase|prop_vase_stone|100|Prop|7|N/A|
+|![](thumbnails/strange_meal_sprite.png)|Strange Meal|food_strange_meal|43|Tool|3|N/A|
+|![](thumbnails/book_study_sprite.png)|Structure and Interpretation of Computer Programs|book_5|4|Tool|7|N/A|
+|![](thumbnails/succulent_sprite.png)|Succulent|prop_succulent|86|Prop|5|N/A|
+|![](thumbnails/book_study_sprite.png)|The Beauty of Everyday Things|book_3|2|Tool|7|N/A|
+|![](thumbnails/book_study_sprite.png)|The Disposessed|book_1|0|Tool|7|N/A|
+|![](thumbnails/book_study_sprite.png)|The Uses of Disorder|book_4|3|Tool|7|N/A|
+|![](thumbnails/tuna_sprite.png)|Tuna|food_tuna|44|Tool|7|N/A|
+|![](thumbnails/uv_sprite.png)|UV Lamp|prop_uv_lamp|96|Prop|50|N/A|
+|![](thumbnails/pill_vig_sprite.png)|Vigour Seed|food_pill_vig|35|Tool|3|N/A|
+|![](thumbnails/bowl_walnut_sprite.png)|Walnut Bowl|prop_bowl_walnut|50|Prop|7|N/A|
+|![](thumbnails/table_walnut_sprite.png)|Walnut Table|prop_table_walnut|95|Prop|20|N/A|
+|![](thumbnails/vase_walnut_sprite.png)|Walnut Vase|prop_vase_walnut|101|Prop|7|N/A|
+|![](thumbnails/stool_wood_sprite.png)|Wood Stool|prop_stool_wood|85|Prop|10|N/A|
+|![](thumbnails/xen_crystal_sprite.png)|Xen Crystal|prop_xen_crystal|112|Prop|N/A|N/A|
