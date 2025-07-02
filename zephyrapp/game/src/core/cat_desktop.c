@@ -14,12 +14,22 @@
 #include "cat_main.h"
 #include "cat_math.h"
 #include "cat_aqi.h"
+#include <sys/mman.h>
+#include "cat_pet.h"
+#include "cat_crisis.h"
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // PLATFORM
+
+#define WINDOW_SCALE 2
+#ifdef CAT_MACOS
+#define RETINA_SCALE 2
+#else
+#define RETINA_SCALE 1
+#endif
 
 struct
 {
@@ -34,20 +44,7 @@ struct
 	uint64_t slept_s;
     float uptime_s;
     float delta_time_s;
-} simulator =
-{
-	.window = NULL,
-	.vao_id = 0,
-	.vbo_id = 0,
-	.tex_id = 0,
-	.prog_id = 0,
-	.tex_loc = 0,
-	.brightness_loc = 0,
-
-	.slept_s = 0,
-	.uptime_s = 0,
-	.delta_time_s = 0
-};
+} simulator = {0};
 
 void GLFW_error_callback(int error, const char* msg)
 {
@@ -118,7 +115,7 @@ void CAT_platform_init()
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
-	simulator.window = glfwCreateWindow(CAT_LCD_SCREEN_W, CAT_LCD_SCREEN_H, "μCritAir", NULL, NULL);
+	simulator.window = glfwCreateWindow(CAT_LCD_SCREEN_W*WINDOW_SCALE, CAT_LCD_SCREEN_H*WINDOW_SCALE, "μCritAir", NULL, NULL);
 	if(simulator.window == NULL)
 	{
 		CAT_printf("Failed to create window\n");
@@ -193,7 +190,41 @@ void CAT_platform_init()
 		simulator.slept_s = difftime(now, sleep_time);
 	}
 	simulator.uptime_s = glfwGetTime();
-	simulator.delta_time_s = 0;	
+	simulator.delta_time_s = 0;
+}
+
+#define SCREEN_CAPTURE_ROWS (CAT_LCD_SCREEN_H*RETINA_SCALE*WINDOW_SCALE)
+#define SCREEN_CAPTURE_COLS (CAT_LCD_SCREEN_W*RETINA_SCALE*WINDOW_SCALE)
+#define SCREEN_CAPTURE_ROW_SIZE (SCREEN_CAPTURE_COLS*3)
+#define SCREEN_CAPTURE_SIZE (SCREEN_CAPTURE_ROWS * SCREEN_CAPTURE_ROW_SIZE)
+uint8_t screen_capture[2][SCREEN_CAPTURE_SIZE];
+int screen_capture_buffer_idx = 0;
+
+void flip_screen_capture()
+{
+	int a_idx = screen_capture_buffer_idx;
+	int b_idx = (screen_capture_buffer_idx+1)%2;
+
+	for(int y = 0; y < SCREEN_CAPTURE_ROWS; y++)
+	{
+		int y_inv = SCREEN_CAPTURE_ROWS-y-1;
+		memcpy
+		(
+			&screen_capture[b_idx][y*SCREEN_CAPTURE_ROW_SIZE],
+			&screen_capture[a_idx][y_inv*SCREEN_CAPTURE_ROW_SIZE],
+			SCREEN_CAPTURE_ROW_SIZE
+		);
+	}
+
+	screen_capture_buffer_idx = b_idx;
+}
+
+void write_screen_capture(const char* path)
+{
+	FILE* file = fopen(path, "w");
+	fprintf(file, "%s\n%u %u\n%u\n", "P6", SCREEN_CAPTURE_COLS, SCREEN_CAPTURE_ROWS, 255);
+	fwrite(screen_capture[screen_capture_buffer_idx], sizeof(uint8_t), SCREEN_CAPTURE_SIZE, file);
+	fclose(file);
 }
 
 void CAT_platform_tick()
@@ -202,6 +233,29 @@ void CAT_platform_tick()
 
 	simulator.delta_time_s = glfwGetTime() - simulator.uptime_s;
 	simulator.uptime_s = glfwGetTime();
+
+	if(glfwGetKey(simulator.window, GLFW_KEY_ENTER))
+	{
+		glReadPixels
+		(
+			0, 0,
+			SCREEN_CAPTURE_COLS, SCREEN_CAPTURE_ROWS,
+			GL_RGB, GL_UNSIGNED_BYTE,
+			screen_capture[screen_capture_buffer_idx]
+		);
+		flip_screen_capture();
+		
+		CAT_datetime t;
+		CAT_get_datetime(&t);
+		char path[strlen("capture/####_##_##_##_##_##.ppm")+1];
+		snprintf
+		(
+			path, sizeof(path),
+			"capture/%.4d_%.2d_%.2d_%.2d_%.2d_%.2d.ppm",
+			t.year, t.month, t.day, t.hour, t.minute, t.second
+		);
+		write_screen_capture(path);
+	}
 }
 
 void CAT_platform_cleanup()
@@ -391,6 +445,8 @@ void CAT_get_touch(CAT_touch* touch)
 {
 	double x, y;
 	glfwGetCursorPos(simulator.window, &x, &y);
+	x /= WINDOW_SCALE;
+	y /= WINDOW_SCALE;
 	touch->x = x;
 	touch->y = y;
 	touch->pressure = glfwGetMouseButton(simulator.window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS;
@@ -415,22 +471,13 @@ float CAT_get_delta_time_s()
 	return simulator.delta_time_s;
 }
 
-uint64_t CAT_get_rtc_now()
-{
-	return CAT_get_uptime_ms();
-}
-
-void CAT_get_datetime(CAT_datetime* datetime)
+uint64_t CAT_get_RTC_now()
 {
 	time_t t = time(NULL);
-	struct tm* lt = localtime(&t);
-	
-	datetime->year = lt->tm_year;
-	datetime->month = lt->tm_mon;
-	datetime->day = lt->tm_mday;
-	datetime->hour = lt->tm_hour;
-	datetime->minute = lt->tm_min;
-	datetime->second = lt->tm_sec;
+	struct tm tm;
+	localtime_r(&t, &tm);
+	tm.tm_year += 1900;
+	return timegm(&tm);
 }
 
 
@@ -451,50 +498,78 @@ void CAT_free(void* ptr)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // SAVE
 
-CAT_save backing_save;
+uint8_t save_backing[0x0e000];
 
 CAT_save* CAT_start_save()
 {
-	return &backing_save;
+	return (CAT_save*) save_backing;
 }
 
 void CAT_finish_save(CAT_save* save)
 {
 	save->magic_number = CAT_SAVE_MAGIC;
 	int fd = open("save.dat", O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
-	uint8_t* buffer = CAT_malloc(sizeof(backing_save));
-	memcpy(buffer, &backing_save, sizeof(backing_save));
-	write(fd, buffer, sizeof(backing_save));
-	CAT_free(buffer);
+	write(fd, &save_backing, sizeof(save_backing));
 	close(fd);
 }
 
 CAT_save* CAT_start_load()
 {
 	int fd = open("save.dat", O_RDONLY);
-	read(fd, &backing_save, sizeof(backing_save));
+	read(fd, &save_backing, sizeof(save_backing));
 	close(fd);
-	return &backing_save;
-}
-
-void CAT_finish_load()
-{
-	return;
+	return (CAT_save*) &save_backing;
 }
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // LOGS
 
+CAT_log_cell log_cell =
+{
+	.flags = CAT_LOG_CELL_FLAG_HAS_CO2 | CAT_LOG_CELL_FLAG_HAS_TEMP_RH_PARTICLES,
+
+	.timestamp = 61686489600,
+	.temp_Cx1000 = 22700,
+	.pressure_hPax10 = 9760,
+
+	.rh_pctx100 = 4800,
+	.co2_ppmx1 = 644,
+	.pm_ugmx100 = {100, 110, 110, 110},
+	.pn_ugmx100 = {650, 720, 720, 720, 720},
+
+	.voc_index = 105,
+	.nox_index = 1,
+
+	.co2_uncomp_ppmx1 = 644
+};
+
 void CAT_read_log_cell_at_idx(int idx, CAT_log_cell* out)
 {
-	memset(out, 0, sizeof(CAT_log_cell));
+	memcpy(out, &log_cell, sizeof(CAT_log_cell));
 }
 
 int CAT_read_log_cell_before_time(int base_idx, uint64_t time, CAT_log_cell* out)
 {
-	CAT_read_log_cell_at_idx(-1, out);
-	return 0;
+	CAT_read_log_cell_at_idx(1, out);
+	return 1;
+}
+
+int CAT_read_log_cell_after_time(int base_idx, uint64_t time, CAT_log_cell* out)
+{
+	CAT_read_log_cell_at_idx(1, out);
+	return 1;
+}
+
+int CAT_read_first_calendar_cell(CAT_log_cell* cell)
+{
+	CAT_read_log_cell_at_idx(1, cell);
+	return 1;
+}
+
+int CAT_get_log_cell_count()
+{
+	return 1;
 }
 
 
@@ -525,73 +600,45 @@ void CAT_shutdown()
 
 void CAT_factory_reset()
 {
-	CAT_set_load_flag(CAT_LOAD_FLAG_DIRTY);
-	CAT_set_load_flag(CAT_LOAD_FLAG_RESET);
+	CAT_set_load_flags(CAT_LOAD_FLAG_DIRTY);
+	CAT_set_load_flags(CAT_LOAD_FLAG_DEFAULT);
 }
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // AIR QUALITY
 
-static CAT_AQ_moving_scores aq_moving_scores;
+static CAT_AQ_score_block aq_moving_scores =
+{
+	.CO2 = 777,
+	.VOC = 7,
+	.NOX = 77,
+	.PM2_5 = 77 * 100,
+	.temp = 7 * 1000,
+	.rh = 7 * 100,
+	.aggregate = 77,
+	.sample_count = 0
+};
+
 static CAT_AQ_score_block aq_score_buffer[7];
 
-void CAT_AQ_move_scores()
+CAT_AQ_score_block* CAT_AQ_get_moving_scores()
 {
-	float CO2 = CAT_co2_score(readings.sunrise.ppm_filtered_uncompensated);
-	float NOX = CAT_nox_score(readings.sen5x.nox_index);
-	float VOC = CAT_voc_score(readings.sen5x.voc_index);
-	float PM2_5 = CAT_pm25_score(readings.sen5x.pm2_5);
-	float temp = CAT_temperature_score(CAT_canonical_temp());
-	float rh = CAT_humidity_score(readings.sen5x.humidity_rhpct);
-	float aggregate = CAT_AQI_aggregate();
-
-#define MOVE_AVERAGE(x) (aq_moving_scores.x = (aq_moving_scores.x + (x - aq_moving_scores.x) / (float) aq_moving_scores.sample_count))
-	MOVE_AVERAGE(CO2);
-	MOVE_AVERAGE(NOX);
-	MOVE_AVERAGE(VOC);
-	MOVE_AVERAGE(PM2_5);
-	MOVE_AVERAGE(temp);
-	MOVE_AVERAGE(rh);
-	MOVE_AVERAGE(aggregate);
-
-	aq_moving_scores.sample_count += 1;
-
-	CAT_printf("[MOVING AVERAGES]\n");
-	CAT_printf("CO2: %f NOX: %f\n", aq_moving_scores.CO2, aq_moving_scores.NOX);
-	CAT_printf("VOC: %f PM2_5: %f\n", aq_moving_scores.VOC, aq_moving_scores.PM2_5);
-	CAT_printf("temp: %f\nRH: %f\n", aq_moving_scores.temp, aq_moving_scores.rh);
-	CAT_printf("aggregate: %f count: %d\n", aq_moving_scores.aggregate, aq_moving_scores.sample_count);		
+	return &aq_moving_scores;
 }
 
-void CAT_AQ_store_moving_scores(CAT_AQ_score_block* block)
+CAT_AQ_score_block* CAT_AQ_get_score_buffer()
 {
-#define STORE_SCORE(x, X) (block->x = round((aq_moving_scores.x / X) * 255.0f))
-	STORE_SCORE(CO2, 5.0f);
-	STORE_SCORE(NOX, 5.0f);
-	STORE_SCORE(VOC, 5.0f);
-	STORE_SCORE(PM2_5, 5.0f);
-	STORE_SCORE(temp, 5.0f);
-	STORE_SCORE(rh, 5.0f);
-	STORE_SCORE(aggregate, 100.0f);
+	for(int i = 0; i < 7; i++)
+		memcpy(&aq_score_buffer[i], &aq_moving_scores, sizeof(CAT_AQ_score_block));
+	return aq_score_buffer;
 }
 
-int CAT_AQ_get_stored_scores_count()
+int CAT_AQ_get_score_buffer_head()
 {
-	return 7;
+	0;
 }
 
-void CAT_AQ_read_stored_scores(int idx, CAT_AQ_score_block* out)
-{
-	if(idx < 0 || idx >= 7)
-		return;
-	memcpy(out, &aq_score_buffer[idx], sizeof(CAT_AQ_score_block));
-}
-
-void CAT_AQ_clear_stored_scores()
-{
-	return;
-}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // IMU
@@ -614,6 +661,44 @@ void CAT_printf(const char* fmt, ...)
 {
 	va_list args;
 	va_start(args, fmt);
-	vprintf(fmt, args);
+	vdprintf(STDOUT_FILENO, fmt, args);
 	va_end(args);
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// PERSISTENCE
+
+static int AQ_crisis_state_fd = -1;
+static uint8_t* AQ_crisis_state_mmap = NULL;
+static int pet_timing_state_fd = -1;
+static uint8_t* pet_timing_state_mmap = NULL;
+
+uint8_t* generate_persist(const char* path, size_t size, int* fd)
+{
+	*fd = open(path, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
+	size_t file_size = lseek(*fd, 0, SEEK_END);
+	if(file_size < size)
+	{
+		lseek(*fd, 0, SEEK_SET);
+		uint8_t* zeroes = malloc(size);
+		write(*fd, zeroes, size);
+	}
+	uint8_t* mem = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, *fd, 0);
+	close(*fd);
+	return mem;
+}
+
+volatile uint8_t* CAT_AQ_crisis_state_persist()
+{
+	if(AQ_crisis_state_fd == -1)
+		AQ_crisis_state_mmap = generate_persist("persist/AQ_crisis_state.dat", sizeof(CAT_AQ_crisis_state), &AQ_crisis_state_fd);
+	return AQ_crisis_state_mmap;
+}
+
+volatile uint8_t* CAT_pet_timing_state_persist()
+{
+	if(pet_timing_state_fd == -1)
+		pet_timing_state_mmap = generate_persist("persist/pet_timing_state.dat", sizeof(CAT_pet_timing_state), &pet_timing_state_fd);
+	return pet_timing_state_mmap;
+}
+

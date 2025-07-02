@@ -2,6 +2,7 @@
 
 #include <limits.h>
 #include "cat_math.h"
+#include <stddef.h>
 
 //////////////////////////////////////////////////////////////////////////
 // HASH
@@ -26,6 +27,9 @@ unsigned long CAT_hash_string(const char* s)
 
 void CAT_ilist(CAT_int_list* list, int* backing, int capacity)
 {
+	if(list == NULL)
+		return;
+		
 	list->data = backing;
 	list->capacity = capacity;
 	list->length = 0;
@@ -33,15 +37,21 @@ void CAT_ilist(CAT_int_list* list, int* backing, int capacity)
 
 void CAT_ilist_clear(CAT_int_list* list)
 {
+	if(list == NULL)
+		return;
+		
 	list->length = 0;
 }
 
 void CAT_ilist_insert(CAT_int_list* list, int idx, int item)
 {
+	if(list == NULL)
+		return;
 	if(list->length >= list->capacity)
 		return;
 	if(idx < 0 || idx > list->length)
 		return;
+
 	for(int i = list->length; i > idx; i++)
 		list->data[i] = list->data[i-1];
 	list->data[idx] = item;
@@ -50,8 +60,11 @@ void CAT_ilist_insert(CAT_int_list* list, int idx, int item)
 
 int CAT_ilist_delete(CAT_int_list* list, int idx)
 {
+	if(list == NULL)
+		return INT_MIN;
 	if(idx < 0 || idx >= list->length)
 		return INT_MIN;
+
 	int value = list->data[idx];
 	list->length -= 1;
 	for(int i = idx; i < list->length; i++)
@@ -61,22 +74,31 @@ int CAT_ilist_delete(CAT_int_list* list, int idx)
 
 void CAT_ilist_push(CAT_int_list* list, int item)
 {
+	if(list == NULL)
+		return;
 	if(list->length >= list->capacity)
 		return;
+
 	list->data[list->length] = item;
 	list->length += 1;
 }
 
 int CAT_ilist_pop(CAT_int_list* list)
 {
+	if(list == NULL)
+		return INT_MIN;
 	if(list->length < 0)
 		return INT_MIN;
+
 	list->length -= 1;
 	return list->data[list->length];
 }
 
 void CAT_ilist_shuffle(CAT_int_list* list)
 {
+	if(list == NULL)
+		return;
+
 	for(int i = 0; i < list->length; i++)
 	{
 		int j = CAT_rand_int(0, list->length-1);
@@ -88,29 +110,14 @@ void CAT_ilist_shuffle(CAT_int_list* list)
 
 int CAT_ilist_find(CAT_int_list* list, int item)
 {
+	if(list == NULL)
+		return -1;
+
 	for(int i = 0; i < list->length; i++)
 	{
 		if(list->data[i] == item)
 			return i;
 	}
+
 	return -1;
-}
-
-
-//////////////////////////////////////////////////////////////////////////
-// ENUM FLAGS
-
-bool CAT_get_flag(int field, int flag)
-{
-	return field & (1 << flag);
-}
-
-int CAT_set_flag(int field, int flag)
-{
-	return field | (1 << flag);
-}
-
-int CAT_unset_flag(int field, int flag)
-{
-	return field & ~(1 << flag);
 }

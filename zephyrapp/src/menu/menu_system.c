@@ -8,7 +8,7 @@
 #include "cat_version.h"
 #include "cat_menu.h"
 #include "cat_item.h"
-#include "cat_bag.h"
+#include "cat_item.h"
 
 #include "misc.h"
 #include "menu_time.h"
@@ -21,6 +21,7 @@
 #include "lcd_rendering.h"
 #include "batt.h"
 #include "sprite_assets.h"
+#include "item_assets.h"
 
 #include <zephyr/kernel.h>
 
@@ -184,7 +185,7 @@ void CAT_MS_system_menu(CAT_machine_signal signal)
 
 void CAT_render_system_menu()
 {
-	CAT_gui_title(false, &icon_enter_sprite, &icon_exit_sprite, co2_calibrating?"CO2 CALIBRATION ":"SYSTEM MENU ");
+	CAT_gui_title(false, co2_calibrating?"CO2 CALIBRATION ":"SYSTEM MENU ");
 	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
 
 	if (!co2_calibrating)
@@ -194,7 +195,7 @@ void CAT_render_system_menu()
 			CAT_gui_textf("\1 %s", system_entries[i].title);
 
 			if(i == system_menu_selector)
-				CAT_gui_image(&icon_pointer_sprite, 0);
+				CAT_gui_text("<");
 
 			CAT_gui_line_break();
 		}
@@ -245,13 +246,15 @@ void CAT_render_system_menu()
 			{
 				did_co2_cal = true;
 				force_abc_sunrise();
-				CAT_item_list_add(&bag, food_cigs_item, 1);
+				CAT_inventory_add(food_cigs_item, 1);
 			}
 		}
 		else
 		{
 			CAT_gui_text("Done. Thanks for waiting...\nHave some cigarettes as a\nreward: ");
 			CAT_gui_image(&cigarette_sprite, 0);
+			CAT_machine_back(); //Go back so we dont recal by mistake
+			CAT_machine_back(); //Go back so we dont recal by mistake
 		}
 	}
 }

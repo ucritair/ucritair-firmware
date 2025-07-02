@@ -1,9 +1,9 @@
 #include "cat_math.h"
 
-#include <time.h>
 #include <stdlib.h>
 #include <math.h>
 #include <stdio.h>
+#include "cat_core.h"
 
 //////////////////////////////////////////////////////////////////////////
 // BASICS
@@ -29,9 +29,7 @@ int quantize(float t, float range, int steps)
 
 void CAT_rand_seed()
 {
-#ifdef CAT_DESKTOP
-	srand(time(NULL));
-#endif
+	srand(CAT_get_RTC_now());
 }
 
 int CAT_rand_int(int a, int b)

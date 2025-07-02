@@ -117,9 +117,9 @@ void power_off(int for_ms, bool protected_sleeping)
 	if (cat_game_running)
 	{
 		went_to_sleep_at = get_current_rtc_time();
-		LOG_INF("Saving game...");
 		CAT_force_save();
 	}
+	
 	// fails if active
 	// struct net_if *iface = net_if_get_default();
 	// net_if_down(iface);

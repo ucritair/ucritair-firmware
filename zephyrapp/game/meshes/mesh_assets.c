@@ -1,6 +1,6 @@
 #include "mesh_assets.h"
 
-CAT_mesh eth_mesh =
+CAT_mesh hedron_mesh =
 {
 	.verts = (float[])
 	{

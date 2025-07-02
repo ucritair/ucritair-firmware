@@ -19,7 +19,8 @@ static enum
 	INPUT,
 	AQI,
 	LAST
-} page = SYSTEM;
+};
+int page = SYSTEM;
 
 void CAT_MS_debug(CAT_machine_signal signal)
 {
@@ -33,18 +34,11 @@ void CAT_MS_debug(CAT_machine_signal signal)
 				CAT_machine_back();
 
 			if(CAT_input_pulse(CAT_BUTTON_LEFT))
-			{
-				if(page == 0)
-					page = LAST-1;
-				else
-					page -= 1;
-			}
+				page -= 1;
 			if(CAT_input_pulse(CAT_BUTTON_RIGHT))
-			{
 				page += 1;
-				if(page >= LAST)
-					page = 0;
-			}	
+			page = (page+LAST)%LAST;
+
 			break;
 		case CAT_MACHINE_SIGNAL_EXIT:
 			break;
@@ -56,15 +50,14 @@ void CAT_render_debug()
 	switch(page)
 	{
 		case SYSTEM:
-			CAT_gui_title(true, NULL, &icon_exit_sprite, "SYSTEM");
+			CAT_gui_title(true, "SYSTEM");
 			CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
+			
 			CAT_gui_textf
 			(
-				"Game v%d.%d.%d.%d\nSave v%d.%d.%d.%d\n",
+				"Game v%d.%d.%d.%d\n",
 				CAT_VERSION_MAJOR, CAT_VERSION_MINOR,
-				CAT_VERSION_PATCH, CAT_VERSION_PUSH,
-				saved_version_major, saved_version_minor,
-				saved_version_patch, saved_version_push
+				CAT_VERSION_PATCH, CAT_VERSION_PUSH
 			);
 			
 #define TOSTRING_INNER(x) #x
@@ -75,34 +68,42 @@ void CAT_render_debug()
 			CAT_gui_text("EMBEDDED\n");
 #endif
 
-			if(CAT_check_save_flag(CAT_SAVE_FLAG_DEVELOPER_MODE))
+			if(CAT_check_config_flags(CAT_CONFIG_FLAG_DEVELOPER))
 				CAT_gui_text("DEVELOPER MODE\n");
+			if(CAT_check_config_flags(CAT_CONFIG_FLAG_MIGRATED))
+				CAT_gui_text("MIGRATED SAVE\n");
 		break;
+		
 		case TIME:
-			CAT_gui_title(true, NULL, &icon_exit_sprite, "TIME");
+			CAT_gui_title(true, "TIME");
 			CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
-			CAT_gui_textf("Slept: %ds\n", CAT_get_slept_s());
-			CAT_gui_textf("Life: %0.0fs/%0.0fs\n", CAT_timer_get(pet.life_timer_id), timetable.duration[pet.life_timer_id]);
-			CAT_gui_textf("Stat: %0.0fs/%0.0fs\n", CAT_timer_get(pet.stat_timer_id), timetable.duration[pet.stat_timer_id]);
-			CAT_gui_textf("Earn: %0.0fs/%0.0fs\n", CAT_timer_get(room.earn_timer_id), timetable.duration[room.earn_timer_id]);
-			CAT_gui_textf("Pet: %0.0fs/%0.0fs\n", CAT_timer_get(pet.petting_timer_id), timetable.duration[pet.petting_timer_id]);
-			CAT_gui_textf("Pets: %d/5\n", pet.times_pet);
-			CAT_gui_textf("Milks: %d/3\n", pet.times_milked);
-			CAT_gui_textf("E-Ink: %0.0fs/%0.0fs\n", time_since_eink_update, eink_update_time_threshold);
-			int active_timers = 0;
-			for(int i = 0; i < CAT_TIMETABLE_MAX_LENGTH; i++)
-			{
-				if(timetable.active[i])
-					active_timers += 1;
-			}
-			CAT_gui_textf("Timers: %d\n", active_timers);
+
+			uint64_t now = CAT_get_RTC_now();
+			CAT_datetime datetime;
+			CAT_make_datetime(now, &datetime);
+			CAT_gui_textf("%.2d/%.2d/%.4d %.2d:%.2d:%.2d\n", datetime.month, datetime.day, datetime.year, datetime.hour, datetime.minute, datetime.second);
+
+			CAT_pet_timing_state pet_timing;
+			CAT_pet_export_timing_state(&pet_timing);
+			
+			CAT_make_datetime(pet_timing.last_life_time, &datetime);
+			CAT_gui_textf("Life: %d/%d/%d %d:%d:%d\n", datetime.year, datetime.month, datetime.day, datetime.hour, datetime.minute, datetime.second);
+			CAT_make_datetime(pet_timing.last_stat_time, &datetime);
+			CAT_gui_textf("Stat: %d/%d/%d %d:%d:%d\n", datetime.year, datetime.month, datetime.day, datetime.hour, datetime.minute, datetime.second);
+
+			CAT_gui_textf("Since Life: %llus/%ds\n", now-pet_timing.last_life_time, CAT_LIFE_TICK_PERIOD);
+			CAT_gui_textf("Since Stat: %llus/%ds\n", now-pet_timing.last_stat_time, CAT_STAT_TICK_PERIOD);
+
+			CAT_gui_textf("Slept: %llus\n", CAT_get_slept_s());
+			CAT_gui_textf("E-Ink: %llus/%ds\n", now-last_eink_time, EINK_UPDATE_PERIOD);
 		break;
+
 		case DECO:
-			CAT_gui_title(true, NULL, &icon_exit_sprite, "DECO");
+			CAT_gui_title(true, "DECO");
 			CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
-			for(int y = 0; y < CAT_GRID_HEIGHT; y++)
+			for(int y = 0; y < CAT_ROOM_GRID_H; y++)
 			{
-				for(int x = 0; x < CAT_GRID_WIDTH; x++)
+				for(int x = 0; x < CAT_ROOM_GRID_W; x++)
 				{
 					if(CAT_is_grid_point_free((CAT_ivec2){x, y}))
 						CAT_strokeberry(gui.cursor.x, gui.cursor.y, 8, 8, CAT_BLACK);
@@ -114,9 +115,10 @@ void CAT_render_debug()
 				gui.cursor.y += 8;
 			}
 		break;
+
 		case INPUT:
 		{
-			CAT_gui_title(true, NULL, &icon_exit_sprite, "INPUT");
+			CAT_gui_title(true, "INPUT");
 			CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
 
 			CAT_gui_text("Mask: ");
@@ -132,27 +134,29 @@ void CAT_render_debug()
 			
 		}
 		break;
+
 		case AQI:
 		{
-			CAT_gui_title(true, NULL, &icon_exit_sprite, "AQI");
+			CAT_gui_title(true, "AQI");
 			CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
+
+			if(CAT_AQ_logs_initialized())
+				CAT_gui_textf("Logs initialized (%d)\n", CAT_get_log_cell_count());
+			if(CAT_AQ_sensors_initialized())
+				CAT_gui_text("Sensors initialized\n");
+
 			CAT_gui_textf("RH: %f\n", readings.sen5x.humidity_rhpct);
 			CAT_gui_textf("CO2: %f\n", readings.sunrise.ppm_filtered_compensated);
 			CAT_gui_textf("PM: %f\n", readings.sen5x.pm2_5);
 			CAT_gui_textf("NOX: %f\n", readings.sen5x.nox_index);
 			CAT_gui_textf("VOC: %f\n", readings.sen5x.voc_index);
 			CAT_gui_textf("TMP: %f%s\n", CAT_AQ_map_celsius(readings.lps22hh.temp), CAT_AQ_get_temperature_unit_string());
-			CAT_gui_textf("AQI: %f\n", CAT_AQI_aggregate());
+			CAT_gui_textf("AQI: %f\n", CAT_AQ_aggregate_score());
 		}
-		break;
+
 		default:
 		{
-			CAT_gui_title
-			(
-				true,
-				NULL, &icon_exit_sprite,
-				"LAST"
-			);
+			CAT_gui_title(true, "LAST");
 			CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
 			CAT_gui_set_flag(CAT_GUI_FLAG_WRAPPED);
 			CAT_gui_text("You shouldn't be here");

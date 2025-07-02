@@ -2,7 +2,7 @@
 
 #include <zephyr/kernel.h>
 
-#define SENSOR_LOG_LEVEL LOG_LEVEL_WRN
+#define SENSOR_LOG_LEVEL LOG_LEVEL_DBG
 
 /* Sensor definition.
  * 
@@ -41,6 +41,7 @@ void sensor_read_once();
 
 int update_pressure_sunrise(float pressure_hPa);
 int force_abc_sunrise();
+int force_abc_sunrise_target_ppm(uint16_t ppm);
 void force_fanclean_sen55();
 
 //eof

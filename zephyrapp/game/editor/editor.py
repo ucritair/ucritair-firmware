@@ -22,6 +22,7 @@ from stat import *;
 import wave;
 import numpy as np;
 from collections import OrderedDict;
+import math;
 
 
 #########################################################
@@ -57,6 +58,17 @@ imgui_io = imgui.get_io();
 imgui_io.config_windows_move_from_title_bar_only = True;
 imgui.style_colors_dark()
 impl = GlfwRenderer(handle);
+
+def get_clipboard_text(_ctx: imgui.internal.Context) -> str:
+	s = glfw.get_clipboard_string(handle);
+	return s.decode();
+
+def set_clipboard_text(_ctx: imgui.internal.Context, text: str) -> str:
+	glfw.set_clipboard_string(handle, text);
+
+platform_io = imgui.get_platform_io();
+platform_io.platform_get_clipboard_text_fn = get_clipboard_text;
+platform_io.platform_set_clipboard_text_fn = set_clipboard_text;
 
 time = glfw.get_time();
 delta_time = 0;
@@ -127,6 +139,8 @@ class AssetSchema:
 			return "";
 		elif t == "float":
 			return 0.0;
+		elif t == "ivec2":
+			return [0, 0];
 		elif "*" in t:
 			return "";
 		elif t in asset_types:
@@ -173,6 +187,42 @@ class AssetDocument:
 		self.type = self.data["type"];
 		self.schema = AssetSchema(self.data["schema"]);
 		self.entries = self.data["entries"];
+	
+		self.id_set = set();
+		if "id" in self.schema.keys():
+			for entry in self.entries:
+				self.id_set.add(entry["id"]);
+	
+	def take_free_id(self):
+		M = max(self.id_set);
+		i = 0;
+		while i <= M:
+			if not i in self.id_set:
+				self.id_set.add(i);
+				return i;
+			i += 1;
+		self.id_set.add(M+1);
+		return M+1;
+	
+	def spawn_new_entry(self):
+		new = {};
+		self.schema.prototype(new);
+		new["name"] = f"new_{document.type}";
+		if "id" in new:
+			new["id"] = self.take_free_id();
+		self.entries.append(new);
+	
+	def duplicate_entry(self, idx):
+		new = copy.deepcopy(self.entries[idx]);
+		if "id" in new:
+			new["id"] = self.take_free_id();
+		self.entries.append(new);
+	
+	def delete_entry(self, idx):
+		entry = self.entries[idx];
+		if "id" in entry:
+			self.id_set.remove(entry["id"]);
+		del self.entries[idx];
 	
 	def refresh(self):
 		for entry in self.entries:
@@ -763,11 +813,8 @@ class DocumentRenderer:
 				imgui.text(key);
 				imgui.same_line();
 				if writable:
-					try:
-						changed, output = imgui.input_text(get_id(node, key), str(node[key]));
-						node[key] = str(output);
-					except:
-						print("Something went wrong!");
+					_, output = imgui.input_text(get_id(node, key), node[key]);
+					node[key] = output;
 				else:
 					imgui.text(node[key]);
 
@@ -872,10 +919,7 @@ class DocumentRenderer:
 					popup_statuses[delete_popup_id] = True;
 					imgui.close_current_popup();
 				if imgui.menu_item_simple("Duplicate"):
-					dupe = copy.deepcopy(doc.entries[idx]);
-					if "id" in dupe:
-						dupe["id"] += 1;
-					doc.entries.append(dupe);
+					doc.duplicate_entry(idx);
 					imgui.close_current_popup();
 				imgui.end_popup();
 			
@@ -901,7 +945,7 @@ class DocumentRenderer:
 				imgui.tree_pop();
 
 			if delete_node:
-				del doc.entries[idx];
+				doc.delete_entry(idx);
 				idx -= 1;
 			idx += 1;
 
@@ -1151,6 +1195,8 @@ class ThemeEditor:
 					for x in range(15):
 						tile = preview_bank.get("sprite", self.theme["wall_tiles"]);
 						tile_frame = self.theme["wall_map"][y * 15 + x];
+						if tile_frame >= tile.frame_count:
+							tile_frame = tile.frame_count-1;
 						self.wall_canvas.draw_image(x * 16, y * 16, tile.frame_images[tile_frame]);
 				if(self.grid):
 					for y in range(1, 6):
@@ -1213,6 +1259,8 @@ class ThemeEditor:
 					for x in range(15):
 						tile = preview_bank.get("sprite", self.theme["floor_tiles"]);
 						tile_frame = self.theme["floor_map"][y * 15 + x];
+						if tile_frame >= tile.frame_count:
+							tile_frame = tile.frame_count-1;
 						self.floor_canvas.draw_image(x * 16, y * 16, tile.frame_images[tile_frame]);
 				if(self.grid):
 					for y in range(1, 14):
@@ -1270,6 +1318,7 @@ class Mesh2DEditor:
 
 		self.polyline = [];
 		self.edge_buffer = [];
+		self.trash = None;
 
 		self.canvas = Canvas(240, 120);
 		self.canvas_scale = 2;
@@ -1285,9 +1334,11 @@ class Mesh2DEditor:
 		self.show_grid = True;
 		self.show_verts = False;
 		
+		self.edit_mode = False;
 		self.was_left_click = False;
 		self.was_right_click = False;
 		self.last_edge_closed = True;
+		self.last_click = imgui.ImVec2(-1, -1);
 	
 		self.mesh_pool = asset_docs["mesh2d"].entries;
 		self.mesh = self.mesh_pool[0] if len(self.mesh_pool) > 0 else None;
@@ -1335,33 +1386,51 @@ class Mesh2DEditor:
 		for [v0, v1] in self.polyline:
 			v0 -= corner;
 			v1 -= corner;
+	def center(self):
+		tl = imgui.ImVec2(256, 256);
+		br = imgui.ImVec2(-1, -1);
+		for [v0, v1] in self.polyline:
+			tl.x = min(v0.x, v1.x, tl.x);
+			tl.y = min(v0.y, v1.y, tl.y);
+			br.x = max(v0.x, v1.x, br.x);
+			br.y = max(v0.y, v1.y, br.y);
+		middle = (tl+br)/2;
+		shift = imgui.ImVec2(120, 60) - middle;
+		for [v0, v1] in self.polyline:
+			v0 += shift;
+			v1 += shift;
+	def translate(self, delta):
+		for [v0, v1] in self.polyline:
+			v0 += delta;
+			v1 += delta;
+
+	def write_mesh(self):
+		polyline = [(v0, v1) for [v0, v1] in self.polyline];
+		polyline = list(set(polyline));
+		flat_polyline = [];
+		for p in polyline:
+			flat_polyline += p;
+		
+		vert_map = OrderedDict();
+		for v in flat_polyline:
+			if not v in vert_map:
+				vert_map[v] = len(vert_map);
+		
+		flat_edges = [];
+		for v in flat_polyline:
+			flat_edges.append(vert_map[v]);
+		flat_verts = [];
+		for v in vert_map.keys():
+			flat_verts += [int(v.x), int(v.y)];
+		
+		self.mesh['verts'] = flat_verts.copy();
+		self.mesh['vert_count'] = len(flat_verts) // 2;
+		self.mesh['edges'] = flat_edges.copy();
+		self.mesh['edge_count'] = len(flat_edges) // 2;
 	
 	def close_mesh(self):
 		if not self.mesh is None:
-			self.shunt();
-
-			polyline = [(v0, v1) for [v0, v1] in self.polyline];
-			polyline = list(set(polyline));
-			flat_polyline = [];
-			for p in polyline:
-				flat_polyline += p;
-			
-			vert_map = OrderedDict();
-			for v in flat_polyline:
-				if not v in vert_map:
-					vert_map[v] = len(vert_map);
-			
-			flat_edges = [];
-			for v in flat_polyline:
-				flat_edges.append(vert_map[v]);
-			flat_verts = [];
-			for v in vert_map.keys():
-				flat_verts += [int(v.x), int(v.y)];
-			
-			self.mesh['verts'] = flat_verts.copy();
-			self.mesh['vert_count'] = len(flat_verts) // 2;
-			self.mesh['edges'] = flat_edges.copy();
-			self.mesh['edge_count'] = len(flat_edges) // 2;
+			self.write_mesh();
 			self.mesh = None;
 	
 	def buffer_vertex(self, v):
@@ -1383,6 +1452,17 @@ class Mesh2DEditor:
 				del self.polyline[i];
 				i -= 1;
 			i += 1;
+	
+	def snap(self, p):
+		p.x /= self.grid_dist;
+		p.y /= self.grid_dist;
+		p.x = round(p.x);
+		p.y = round(p.y);
+		p.x *= self.grid_dist;
+		p.y *= self.grid_dist;
+		p.x = min(max(p.x, 0), self.canvas.width-1);
+		p.y = min(max(p.y, 0), self.canvas.height-1);
+		return p;
 
 	def render():
 		if Mesh2DEditor._ == None:
@@ -1406,39 +1486,58 @@ class Mesh2DEditor:
 			canvas_pos = imgui.get_cursor_screen_pos();
 			mouse_pos = imgui_io.mouse_pos;
 			brush_pos = mouse_pos - canvas_pos;
-			brush_pos /= self.canvas_scale; 
-			vertex = imgui.ImVec2((brush_pos.x // self.grid_dist) * self.grid_dist, (brush_pos.y // self.grid_dist) * self.grid_dist);
+			brush_pos /= self.canvas_scale;
 			in_bounds = self.in_bounds(brush_pos);
+			vertex = self.snap(brush_pos);
 
-			if in_bounds:
-				if imgui.is_mouse_down(0) and not self.was_left_click:
-					self.buffer_vertex(vertex);
-					self.was_left_click = True;
-				if not imgui.is_mouse_down(0):
-					self.was_left_click = False;
-				
-				if imgui.is_mouse_down(1) and not self.was_right_click:
-					self.delete_vertex(vertex);
-					self.was_right_click = True;
-				if not imgui.is_mouse_down(1):
-					self.was_right_click = False;
+			if self.edit_mode:
+				if self.last_click == imgui.ImVec2(-1, -1):
+					self.last_click = vertex;
+				if in_bounds:
+					if imgui.is_mouse_down(0) and not self.was_left_click:
+						if imgui_io.key_shift:
+							tl = imgui.ImVec2(256, 256);
+							br = imgui.ImVec2(-1, -1);
+							for [v0, v1] in self.polyline:
+								tl.x = min(v0.x, v1.x, tl.x);
+								tl.y = min(v0.y, v1.y, tl.y);
+								br.x = max(v0.x, v1.x, br.x);
+								br.y = max(v0.y, v1.y, br.y);
+							middle = (tl+br)/2;
+							delta = vertex - middle;
+							self.translate(delta);
+							self.last_click = vertex;
+						else:
+							self.buffer_vertex(vertex);
+							self.was_left_click = True;
+					if not imgui.is_mouse_down(0):
+						self.was_left_click = False;
+					
+					if imgui.is_mouse_down(1) and not self.was_right_click:
+						self.delete_vertex(vertex);
+						self.was_right_click = True;
+					if not imgui.is_mouse_down(1):
+						self.was_right_click = False;
 			
 			self.canvas.clear((0, 0, 0));
 			if self.show_grid:
-				for y in range(self.grid_dist, self.canvas.height, self.grid_dist):
-					for x in range(self.grid_dist, self.canvas.width, self.grid_dist):
+				for y in range(0, self.canvas.height, self.grid_dist):
+					for x in range(0, self.canvas.width, self.grid_dist):
 						self.canvas.draw_pixel(x, y, (128, 128, 128));
+				self.canvas.draw_rect(0, 0, self.canvas.width, self.canvas.height, (128, 128, 128));
 			
 			for [v0, v1] in self.polyline:
 				self.canvas.draw_line(v0.x, v0.y, v1.x, v1.y, (255, 255, 255));
 				if self.show_verts:
 					self.canvas.draw_circle(v0.x, v0.y, 1, (255, 255, 255));
 					self.canvas.draw_circle(v1.x, v1.y, 1, (255, 255, 255));
-			if len(self.edge_buffer) > 0:
-				last = self.edge_buffer[-1];
-				self.canvas.draw_line(last.x, last.y, vertex.x, vertex.y, (255, 255, 255));
-			self.canvas.draw_circle(vertex.x, vertex.y, 2, (255, 255, 255));
 			
+			if self.edit_mode:
+				if len(self.edge_buffer) > 0:
+					last = self.edge_buffer[-1];
+					self.canvas.draw_line(last.x, last.y, vertex.x, vertex.y, (255, 255, 255));
+				self.canvas.draw_circle(vertex.x, vertex.y, 2, (255, 255, 255));
+				
 			self.canvas.render(self.canvas_scale);
 			_, self.show_grid = imgui.checkbox("Show grid", self.show_grid);
 			imgui.same_line();
@@ -1447,12 +1546,23 @@ class Mesh2DEditor:
 			imgui.push_item_width(72);
 			_, self.grid_dist = imgui.input_int("Cell size", self.grid_dist);
 			imgui.pop_item_width();
-			if imgui.button("Clear"):
-				self.polyline = [];
-				self.edge_buffer = [];
-			imgui.same_line();
-			if imgui.button("Shunt"):
-				self.shunt();
+
+			_, self.edit_mode = imgui.checkbox("Edit Mode", self.edit_mode);
+			if self.edit_mode:
+				imgui.same_line();
+				if imgui.button("Shunt"):
+					self.shunt();
+				imgui.same_line();
+				if imgui.button("Center"):
+					self.center();
+				if imgui.button("Clear"):
+					self.trash = self.polyline, self.edge_buffer;
+					self.polyline = [];
+					self.edge_buffer = [];
+				imgui.same_line();
+				if imgui.button("Restore") and self.trash != None:
+					self.polyline, self.edge_buffer = self.trash;
+					self.trash = None;
 			
 			self.size = imgui.get_window_size();
 			imgui.end();
@@ -1460,6 +1570,111 @@ class Mesh2DEditor:
 		if not self.open:
 			self.close_mesh();
 			Mesh2DEditor._ = None;
+
+
+#########################################################
+## ITEM REFORMER
+
+class ItemReform:
+	def __init__(self, name, filt, path, values):
+		self.name = name;
+		self.filt = filt;
+		self.path = path;
+		self.values = values;
+	
+	def __path_assign(object, path, value):
+		match path:
+			case []:
+				return;
+			case [token]:
+				object[token] = value;
+			case head, *tail:
+				ItemReform.__path_assign(object[head], tail, value);
+
+	def apply(self, items):
+		operands = filter(self.filt, items);
+		for operand in operands:
+			ItemReform.__path_assign(operand, self.path, self.values[operand["tier"]]);
+
+class ItemReformer:
+	_ = None;
+
+	def __init__(self):
+		if ItemReformer._ != None:
+			return None;
+		ItemReformer._ = self;
+
+		self.canvas = Canvas(240, 128);
+		self.size = (640, 480);
+		self.scale = 240 / self.canvas.height;
+		window_flag_list = [
+			imgui.WindowFlags_.no_saved_settings,
+			imgui.WindowFlags_.no_collapse,
+		];
+		self.window_flags = foldl(lambda a, b : a | b, 0, window_flag_list);
+		self.open = True;
+		
+		self.items = asset_docs["item"].entries;
+		self.reforms = [
+			ItemReform (
+				"Food Prices",
+				lambda i: i["type"] == "tool" and i["tool_data"]["type"] == "food",
+				["price"],
+				[tier*3 for tier in range(4)]
+			),
+			ItemReform (
+				"Book and Toy Prices",
+				lambda i: i["type"] == "tool" and (i["tool_data"]["type"] == "book" or i["tool_data"]["type"] == "toy"),
+				["price"],
+				[tier*7 for tier in range(4)]
+			),
+			ItemReform (
+				"Food Power",
+				lambda i: i["type"] == "tool" and i["tool_data"]["type"] == "food",
+				["tool_data", "dv"],
+				[tier for tier in range(4)]
+			),
+			ItemReform (
+				"Book Power",
+				lambda i: i["type"] == "tool" and i["tool_data"]["type"] == "book",
+				["tool_data", "df"],
+				[tier for tier in range(4)]
+			),
+			ItemReform (
+				"Toy Power",
+				lambda i: i["type"] == "tool" and i["tool_data"]["type"] == "toy",
+				["tool_data", "ds"],
+				[tier for tier in range(4)]
+			),
+		];
+
+	def render():
+		if ItemReformer._ == None:
+			return;
+		self = ItemReformer._;
+
+		if self.open:
+			imgui.set_next_window_size(self.size);
+			_, self.open = imgui.begin(f"Item Reformer", self.open, flags=self.window_flags);
+
+			for reform in self.reforms:
+				imgui.push_id(str(id(reform)));
+				if imgui.collapsing_header(reform.name):
+					for tier in range(1, 4):
+						imgui.push_id(str(tier));
+						imgui.text(f"Tier {"I"*tier}:");
+						imgui.same_line();
+						_, reform.values[tier] = imgui.input_int("", reform.values[tier]);
+						imgui.pop_id();
+					if imgui.button("Apply"):
+						reform.apply(self.items);
+				imgui.pop_id();
+
+			self.size = imgui.get_window_size();
+			imgui.end();
+		
+		if not self.open:
+			ItemReformer._ = None;
 
 
 #########################################################
@@ -1486,6 +1701,21 @@ splash_flag_list = [
 ];
 splash_flags = foldl(lambda a, b : a | b, 0, splash_flag_list);
 
+input_states = {};
+
+def track_inputs():
+	for key in range(glfw.KEY_SPACE, glfw.KEY_LAST+1):
+		if not key in input_states:
+			input_states[key] = [glfw.get_key(handle, key), False];
+		else:
+			input_states[key] = [glfw.get_key(handle, key), input_states[key][0]];
+
+def is_held(key):
+	return input_states[key][0];
+
+def is_pressed(key):
+	return input_states[key][0] and not input_states[key][1];
+
 while not glfw.window_should_close(handle):
 	time_last = time;
 	time = glfw.get_time();
@@ -1493,6 +1723,13 @@ while not glfw.window_should_close(handle):
 
 	glfw.poll_events();
 	impl.process_inputs();
+
+	track_inputs();
+
+	if is_held(glfw.KEY_LEFT_SUPER) and is_pressed(glfw.KEY_S):
+		for doc in asset_docs.values():
+			print(f"Saving {doc.name}!");
+			doc.save();
 
 	glEnable(GL_PROGRAM_POINT_SIZE);
 	glClearColor(0, 0, 0, 1);
@@ -1511,10 +1748,9 @@ while not glfw.window_should_close(handle):
 					if imgui.menu_item_simple(str(doc.path), selected = document != None and doc.name == document.name):
 						document = doc;
 				imgui.end_menu();
-			if imgui.menu_item_simple("Save", enabled=document != None):
-				document.save();
-			if imgui.menu_item_simple("Save All"):
+			if imgui.menu_item_simple("Save"):
 				for doc in asset_docs.values():
+					print(f"Saving {doc.name}!");
 					doc.save();
 			if imgui.menu_item_simple("Close", enabled=document != None):
 				document = None;
@@ -1533,12 +1769,7 @@ while not glfw.window_should_close(handle):
 						document.entries.sort(key = lambda n: n[rank_keys[0]]);
 				imgui.end_menu();
 			if imgui.menu_item_simple("New"):
-				new_asset = {};
-				document.schema.prototype(new_asset);
-				new_asset["name"] = f"new_{document.type}";
-				if "id" in new_asset:
-					new_asset["id"] = len(document.entries);
-				document.entries.append(new_asset);
+				document.spawn_new_entry();
 			imgui.end_menu();
 		
 		if imgui.begin_menu("Tools"):
@@ -1549,7 +1780,9 @@ while not glfw.window_should_close(handle):
 			if imgui.menu_item_simple("Theme Editor"):
 				ThemeEditor();	
 			if imgui.menu_item_simple("Mesh2D Editor"):
-				Mesh2DEditor();	
+				Mesh2DEditor();
+			if imgui.menu_item_simple("Item Reformer"):
+				ItemReformer();	
 			imgui.end_menu();
 
 		imgui.end_main_menu_bar();
@@ -1569,6 +1802,8 @@ while not glfw.window_should_close(handle):
 		ThemeEditor.render();
 	if Mesh2DEditor._ != None:
 		Mesh2DEditor.render();
+	if ItemReformer._ != None:
+		ItemReformer.render();
 
 	imgui.end();
 	imgui.render();

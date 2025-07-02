@@ -124,9 +124,6 @@ void epaper_render_test()
 	struct epaper_image_asset* selected_unicorn = &epaper_image_unicorn_default;
 	struct epaper_image_asset* selected_cloud = &epaper_image_cloud_default;
 
-	int temp_idx, co2_idx, pm_idx, voc_idx, nox_idx;
-	CAT_AQI_quantize(&temp_idx, &co2_idx, &pm_idx, &voc_idx, &nox_idx);
-
 	if (guy_is_wearing_mask)
 	{
 		selected_unicorn = &epaper_image_unicorn_mask;
@@ -143,7 +140,7 @@ void epaper_render_test()
 		}
 	}
 
-	float score = CAT_AQI_aggregate();
+	float score = CAT_AQ_aggregate_score();
 
 	if (score < 25)
 	{
