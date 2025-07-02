@@ -14,5 +14,5 @@ for sprite in json_entries:
 
 	img = Image.open(in_path);
 	img = img.crop((0, 0, sprite["width"], sprite["height"]));
-	img.thumbnail((64, 64), Image.Resampling.LANCZOS);
+	img.thumbnail((128, 128));
 	img.save(out_path, "PNG");
