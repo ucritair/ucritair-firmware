@@ -83,10 +83,10 @@ int sen5x_init()
         if (current_offset != target_offset || current_slope != target_slope || current_tc != target_tc) {
             LOG_ERR("VERIFICATION FAILED: Wrote new parameters but read-back is incorrect!");
         } else {
-            LOG_INF("Verification successful. Parameters updated correctly. ✅");
+            LOG_INF("Verification successful. Parameters updated correctly.");
         }
     } else {
-        LOG_INF("Current parameters match target. No update needed. 👍");
+        LOG_INF("Current parameters match target. No update needed.");
     }
 
     CHK(sen5x_start_measurement());
