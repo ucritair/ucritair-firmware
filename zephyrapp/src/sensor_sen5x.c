@@ -57,7 +57,7 @@ int sen5x_init()
     // 1. Target calibration values per experiments by M Pang in Summer 2025.
     const int16_t target_offset = -1203;
     const int16_t target_slope = 1407;
-    const uint16_t target_tc = 10;
+    const uint16_t target_tc = 0;
 
     // 2. Read the sensor's current parameters.
     int16_t current_offset, current_slope;
