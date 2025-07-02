@@ -41,8 +41,7 @@ float interpolate(float value, const float *breakpoints, const float *scores, in
 
 float CAT_canonical_temp()
 {
-	//return (readings.sen5x.temp_degC - 2.75) ;
-    return (readings.sen5x.temp_degC) ; // This is done once in sensor_sex5x.c
+	return (readings.sen5x.temp_degC - 2.75) ;
 }
 
 /**
