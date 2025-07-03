@@ -1,3 +1,3 @@
 class MIME_wrapper:
-	def PNG(path):
+	def image(path):
 		return f"<img src=\"{path}\" />"

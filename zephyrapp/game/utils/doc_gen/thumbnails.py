@@ -10,7 +10,7 @@ json_entries = json_data["entries"];
 
 for sprite in json_entries:
 	in_path = f"sprites/{sprite["path"]}";
-	out_path = f"docs/thumbnails/{sprite["name"]}.png";
+	out_path = f"docs/images/thumbnails/{sprite["name"]}.png";
 
 	img = Image.open(in_path);
 	img = img.crop((0, 0, sprite["width"], sprite["height"]));

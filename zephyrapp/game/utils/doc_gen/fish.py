@@ -2,6 +2,7 @@
 
 import json;
 from html_writer import HTML_writer;
+import common;
 
 json_file = open("data/fish.json", "r");
 json_data = json.load(json_file);
@@ -12,7 +13,9 @@ json_entries.sort(key=lambda j: j['display_name']);
 html = HTML_writer("docs/fish.html");
 html.start(title="Fish", stylesheet="sakura.css");
 
-html.heading(3, "Fish");
+common.horizontal_selector(html);
+
+html.heading(1, "Fish");
 html.start_text_block();
 html.text(f"There are {len(json_entries)} fish in-game.");
 html.text("Fish belong to tiers. Higher tier fish are more rare and harder to catch.");

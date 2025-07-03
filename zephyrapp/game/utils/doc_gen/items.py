@@ -3,6 +3,7 @@
 import json;
 from html_writer import HTML_writer;
 from mime_wrapper import MIME_wrapper;
+import common;
 
 json_file = open("data/items.json", "r");
 json_data = json.load(json_file);
@@ -10,10 +11,12 @@ json_file.close();
 json_entries = json_data['entries'];
 json_entries.sort(key=lambda j: j['display_name']);
 
-html = HTML_writer("docs/test.html");
+html = HTML_writer("docs/items.html");
 html.start(title="Items", stylesheet="sakura.css");
 
-html.heading(3, "Items");
+common.horizontal_selector(html);
+
+html.heading(1, "Items");
 html.start_text_block();
 html.text(f"There are {len(json_entries)} items in-game.");
 html.text("All items belong to one of 3 overarching types: Key, Tool, or Prop.");
@@ -25,7 +28,7 @@ html.newline();
 html.start_table(["Sprite", "Display Name", "Asset Name", "Item ID", "Type", "Purchase Price", "Sale Price", "Description"]);
 for item in json_entries:
 	html.table_row([
-		MIME_wrapper.PNG(f"thumbnails/{item["sprite"]}.png"),
+		MIME_wrapper.image(f"images/thumbnails/{item["sprite"]}.png"),
 		item["display_name"],
 		item["name"],
 		item["id"],
