@@ -72,6 +72,8 @@ void CAT_render_debug()
 				CAT_gui_text("DEVELOPER MODE\n");
 			if(CAT_check_config_flags(CAT_CONFIG_FLAG_MIGRATED))
 				CAT_gui_text("MIGRATED SAVE\n");
+			if(CAT_was_persist_wiped())
+				CAT_gui_text("PERSIST RESET\n");
 		break;
 		
 		case TIME:

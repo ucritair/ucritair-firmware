@@ -702,3 +702,8 @@ volatile uint8_t* CAT_pet_timing_state_persist()
 	return pet_timing_state_mmap;
 }
 
+bool CAT_was_persist_wiped()
+{
+	return false;
+}
+

@@ -12,6 +12,8 @@
 #define CAT_MINUTE_SECONDS 60
 #define CAT_HOUR_SECONDS (60 * CAT_MINUTE_SECONDS)
 #define CAT_DAY_SECONDS (24 * CAT_HOUR_SECONDS)
+#define CAT_MONTH_SECONDS (30 * CAT_DAY_SECONDS)
+#define CAT_YEAR_SECONDS (365 * CAT_DAY_SECONDS + 6 * CAT_HOUR_SECONDS)
 #define CAT_DAY_ZERO 60904915200 // (2000/1/1 00:00:00)
 
 #define CAT_LCD_SCREEN_W 240
@@ -492,3 +494,7 @@ static inline void CAT_bonus_set(uint32_t value)
 
 volatile uint8_t* CAT_AQ_crisis_state_persist();
 volatile uint8_t* CAT_pet_timing_state_persist();
+bool CAT_was_persist_wiped();
+
+void CAT_stash(uint32_t x);
+uint32_t CAT_pop();

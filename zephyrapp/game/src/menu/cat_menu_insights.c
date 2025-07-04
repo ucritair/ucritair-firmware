@@ -99,6 +99,7 @@ int draw_grave_egg(int cursor_y)
 	CAT_set_text_mask(MARGIN, -1, CAT_LCD_SCREEN_W-MARGIN, -1);
 	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
 	cursor_y = CAT_draw_textf(MARGIN, cursor_y, "UNBOUND FROM LIFE, READY TO BE BORN\n", pet.level+1, pet.xp, level_cutoffs[pet.level]);
+	CAT_printf("%d\n", pet.lifetime);
 
 	CAT_set_sprite_scale(2);
 	CAT_draw_sprite(&grave_egg_sprite, 0, MARGIN, cursor_y);

@@ -208,9 +208,6 @@ void epaper_render_protected_off()
 	write_str(epaper_framebuffer, 132, 62, 1, "protected-off");
 	write_str(epaper_framebuffer, 160, 81, 1, "Press RESET");
 	write_str(epaper_framebuffer, 158, 91, 1, "to power on");
-	/*write_str(epaper_framebuffer, 186, 101, 1,  "SYS  v." SYS_FW_VERSION);
-	char buf[256] = {0};
-	fwrite_str(152, 116, 1, "GAME v.%d.%d.%d.%d", CAT_VERSION_MAJOR, CAT_VERSION_MINOR, CAT_VERSION_PATCH, CAT_VERSION_PUSH);*/
 
 	pc_set_mode(false);
 	cmd_turn_on_and_write(epaper_framebuffer);

@@ -198,12 +198,12 @@ void CAT_pet_change_XP(int delta)
 		return;
 
 	pet.xp += delta;
-	pet.xp = max(pet.xp, 0);
+	pet.xp = clamp(pet.xp + delta, 0, level_cutoffs[CAT_NUM_LEVELS-1]);
 
 	int cutoff = level_cutoffs[pet.level];
 	if(pet.xp >= cutoff)
 	{
-		pet.level += 1;
+		pet.level = min(pet.level+1, CAT_NUM_LEVELS-1);
 		pet.xp -= cutoff;
 	}
 }
@@ -274,11 +274,29 @@ void apply_stat_ticks(int ticks)
 	}
 }
 
+uint64_t last_time = 0;
+
 void CAT_pet_tick()
 {
 	uint64_t now = CAT_get_RTC_now();
-	uint32_t time_since;
-	uint32_t ticks;
+
+	// HANDLE FORWARD TIME TRAVEL BETWEEN FRAMES
+	if(last_time >  0 && (now - last_time) >= CAT_HOUR_SECONDS)
+	{
+		uint64_t jump = now - last_time;
+		timing_state.last_stat_time += jump;
+		timing_state.last_life_time += jump;
+		timing_state.last_milk_time += jump;
+	}
+	last_time = now;
+
+	// HANDLE BACKWARD TIME TRAVEL
+	timing_state.last_stat_time = min(now, timing_state.last_stat_time);
+	timing_state.last_life_time = min(now, timing_state.last_life_time);
+	timing_state.last_milk_time = min(now, timing_state.last_milk_time);
+
+	uint64_t time_since;
+	uint16_t ticks;
 	uint32_t remainder;
 
 	time_since = now - timing_state.last_stat_time;
@@ -286,7 +304,7 @@ void CAT_pet_tick()
 	remainder = time_since % CAT_STAT_TICK_PERIOD;
 	timing_state.last_stat_time = now - remainder;
 	apply_stat_ticks(ticks);
-		
+
 	time_since = now - timing_state.last_life_time;
 	ticks = time_since / CAT_LIFE_TICK_PERIOD;
 	remainder = time_since % CAT_LIFE_TICK_PERIOD;
@@ -396,6 +414,8 @@ void CAT_pet_reincarnate()
 
 	pet.incarnations = incarnation_backup + 1;
 	pet.level = level_backup;
+
+	snprintf(pet.name, sizeof(pet.name), "%s-%d", CAT_DEFAULT_PET_NAME, pet.incarnations);
 
 	AM_pet.state = &AS_idle;
 	AM_pet.next = NULL;

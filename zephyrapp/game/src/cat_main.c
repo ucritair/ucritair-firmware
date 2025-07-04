@@ -166,8 +166,17 @@ void CAT_load_turnkey()
 	CAT_inventory_add(prop_hoopy_item, 1);
 }
 
+void persist_load()
+{
+	CAT_printf("Persist load!\n");
+	CAT_AQ_import_crisis_state(CAT_AQ_crisis_state_persist());
+	CAT_pet_import_timing_state(CAT_pet_timing_state_persist());
+}
+
 void CAT_force_load()
 {
+	persist_load();
+	
 	CAT_printf("Load requested...\n");
 	
 	CAT_save* save = CAT_start_load();
@@ -306,10 +315,6 @@ void CAT_force_load()
 		room.theme = themes_list[save->config.theme];
 
 	CAT_printf("Load complete!\n");
-
-	CAT_printf("Persist load!\n");
-	CAT_AQ_import_crisis_state(CAT_AQ_crisis_state_persist());
-	CAT_pet_import_timing_state(CAT_pet_timing_state_persist());
 }
 
 void CAT_init()
@@ -352,6 +357,8 @@ void CAT_tick_logic()
 			b.year, b.month, b.day, b.hour, b.minute, b.second
 		);
 	}
+
+	CAT_printf("RTC MAGIC %x\n", CAT_pop());
 	
 	if(CAT_check_load_flags(CAT_LOAD_FLAG_DIRTY))
 	{

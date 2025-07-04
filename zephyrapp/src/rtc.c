@@ -110,7 +110,7 @@ PERSIST_RAM CAT_pet_timing_state pet_timing_state;
 // END PERSIST RAM
 //////////////////////////////////////////////////////////
 
-#define RTC_INIT_CHECK_MAGIC 0xb8870001
+#define RTC_INIT_CHECK_MAGIC 0xb887000F
 
 bool is_first_init = false;
 
@@ -150,11 +150,13 @@ void snapshot_rtc_for_reboot()
 	// wait to synchronize to tick
 	int c = nrf_rtc_counter_get(HW_RTC_CHOSEN);
 	while (nrf_rtc_counter_get(HW_RTC_CHOSEN) == c) {}
-	rtc_offset = rtc_offset + (uint64_t)nrf_rtc_counter_get(HW_RTC_CHOSEN) + 16; // as of SEA-1 we are 1.8945s - so 16 ticks (2.0) forward and then 105.5ms delay to get on time
+	rtc_offset = rtc_offset + (uint64_t) nrf_rtc_counter_get(HW_RTC_CHOSEN) + 16; // as of SEA-1 we are 1.8945s - so 16 ticks (2.0) forward and then 105.5ms delay to get on time
 } 
 
 void check_rtc_init()
 {
+	CAT_stash(rtc_init_check);
+
 	if (rtc_init_check != RTC_INIT_CHECK_MAGIC)
 	{
 		is_first_init = true;
@@ -164,8 +166,13 @@ void check_rtc_init()
 		nox_every_n_samples = 0;
 		nox_every_n_samples_counter = 0;
 		wakeup_is_from_timer = false;
-		zero_rtc_counter();
-		went_to_sleep_at = get_current_rtc_time();
+		if(next_log_cell_nr > 0)
+			continue_rtc_from_log();
+		else
+		{
+			zero_rtc_counter();
+			went_to_sleep_at = get_current_rtc_time();
+		}
 
 		guy_happiness = 1;
 		guy_is_wearing_mask = false;
@@ -196,7 +203,6 @@ void check_rtc_init()
 			.type = CAT_AQ_CRISIS_TYPE_NONE,
 			.severity = CAT_AQ_CRISIS_SEVERITY_NONE
 		};
-		CAT_AQ_import_crisis_state(&aq_crisis_state);
 
 		pet_timing_state = (CAT_pet_timing_state)
 		{
@@ -206,7 +212,6 @@ void check_rtc_init()
 			.milks_produced_today = 0,
 			.times_milked_since_producing = 0
 		};
-		CAT_pet_import_timing_state(&pet_timing_state);
 	}
 }
 
