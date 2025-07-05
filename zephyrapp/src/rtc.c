@@ -164,13 +164,8 @@ void check_rtc_init()
 		nox_every_n_samples = 0;
 		nox_every_n_samples_counter = 0;
 		wakeup_is_from_timer = false;
-		if(next_log_cell_nr > 0)
-			continue_rtc_from_log();
-		else
-		{
-			zero_rtc_counter();
-			went_to_sleep_at = get_current_rtc_time();
-		}
+		zero_rtc_counter();
+		went_to_sleep_at = get_current_rtc_time();
 
 		guy_happiness = 1;
 		guy_is_wearing_mask = false;
@@ -196,20 +191,8 @@ void check_rtc_init()
 		//////////////////////////////////////////////////////////
 		// MISC. STATE CHUNKS
 
-		aq_crisis_state = (CAT_AQ_crisis_state)
-		{
-			.type = CAT_AQ_CRISIS_TYPE_NONE,
-			.severity = CAT_AQ_CRISIS_SEVERITY_NONE
-		};
-
-		pet_timing_state = (CAT_pet_timing_state)
-		{
-			.last_life_time = CAT_get_RTC_now(),
-			.last_milk_time = CAT_get_RTC_now(),
-			.last_stat_time = CAT_get_RTC_now(),
-			.milks_produced_today = 0,
-			.times_milked_since_producing = 0
-		};
+		aq_crisis_state = (CAT_AQ_crisis_state) {0};
+		pet_timing_state = (CAT_pet_timing_state) {0};
 	}
 }
 

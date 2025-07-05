@@ -10,6 +10,7 @@
 #include <stdint.h>
 #include "cat_aqi.h"
 #include "sprite_assets.h"
+#include "cat_crisis.h"
 
 static enum
 {
@@ -18,6 +19,7 @@ static enum
 	DECO,
 	INPUT,
 	AQI,
+	PERSIST,
 	LAST
 };
 int page = SYSTEM;
@@ -37,7 +39,7 @@ void CAT_MS_debug(CAT_machine_signal signal)
 				page -= 1;
 			if(CAT_input_pulse(CAT_BUTTON_RIGHT))
 				page += 1;
-			page = (page+LAST)%LAST;
+			page = wrap(page, LAST);
 
 			break;
 		case CAT_MACHINE_SIGNAL_EXIT:
@@ -155,6 +157,23 @@ void CAT_render_debug()
 			CAT_gui_textf("TMP: %f%s\n", CAT_AQ_map_celsius(readings.lps22hh.temp), CAT_AQ_get_temperature_unit_string());
 			CAT_gui_textf("AQI: %f\n", CAT_AQ_aggregate_score());
 		}
+		break;
+
+		case PERSIST:
+		{
+			CAT_gui_title(true, "PERSIST");
+			CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
+
+			CAT_AQ_crisis_state crisis;
+			CAT_pet_timing_state timing;
+			memcpy(&crisis, CAT_AQ_crisis_state_persist(), sizeof(crisis));
+			memcpy(&timing, CAT_pet_timing_state_persist(), sizeof(timing));
+
+			CAT_datetime life;
+			CAT_make_datetime(timing.last_life_time, &life);
+			CAT_gui_textf("Life: %d %d %d\n", life.year, life.month, life.day);
+		}
+		break;
 
 		default:
 		{

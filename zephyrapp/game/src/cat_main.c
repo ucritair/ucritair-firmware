@@ -51,8 +51,17 @@ CAT_screen_orientation current_orientation;
 CAT_screen_orientation last_orientation;
 uint64_t last_reorient_time;
 
+void persist_save()
+{
+	CAT_printf("Persist save!\n");
+	CAT_AQ_export_crisis_state(CAT_AQ_crisis_state_persist());
+	CAT_pet_export_timing_state(CAT_pet_timing_state_persist());
+}
+
 void CAT_force_save()
 {
+	persist_save();
+	
 	CAT_printf("Saving...\n");
 	CAT_save* save = CAT_start_save();
 	CAT_initialize_save(save);
@@ -108,10 +117,6 @@ void CAT_force_save()
 
 	CAT_finish_save(save);
 	CAT_printf("Save complete!\n");
-
-	CAT_printf("Persist save!\n");
-	CAT_AQ_export_crisis_state(CAT_AQ_crisis_state_persist());
-	CAT_pet_export_timing_state(CAT_pet_timing_state_persist());
 }
 
 void CAT_load_default()

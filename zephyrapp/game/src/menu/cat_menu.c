@@ -234,8 +234,8 @@ void CAT_MS_menu(CAT_machine_signal signal)
 					if(CAT_gui_menu_item("SLEEP"))
 						CAT_sleep();
 
-					if(CAT_gui_menu_item("SHUTDOWN"))
-						CAT_gui_open_popup("Are you sure? A powered-down device must be reactivated via the reset button!\n");
+					if(CAT_gui_menu_item("PROTECTED OFF"))
+						CAT_gui_open_popup("The device must be powered on via the reset button! This will clear important settings. Proceed?\n");
 					if(CAT_gui_consume_popup())
 						CAT_shutdown();
 					
