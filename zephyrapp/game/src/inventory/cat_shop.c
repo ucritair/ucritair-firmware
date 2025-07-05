@@ -51,7 +51,7 @@ static struct
 {
 	const char* title;
 	CAT_item_filter filter;
-} item_tabs[] =
+} tabs[] =
 {
 	{"ALL", buy_filter},
 	{"DECORATIONS", prop_filter},
@@ -59,7 +59,7 @@ static struct
 	{"KEY ITEMS", key_filter},
 	{"SELL", sell_filter}
 };
-#define NUM_ITEM_TABS (sizeof(item_tabs)/sizeof(item_tabs[0]))
+#define NUM_TABS (sizeof(tabs)/sizeof(tabs[0]))
 
 static int checkout_id = -1;
 static int purchase_qty = 1;
@@ -353,15 +353,13 @@ void CAT_render_sale()
 	}
 }
 
-static int shop_tab_selector = 0;
-
-static void buy_action_proc(int item_id)
+static void buy_proc(int item_id)
 {
 	CAT_bind_checkout(item_id);
 	CAT_machine_transition(CAT_MS_checkout);
 }
 
-static void sell_action_proc(int item_id)
+static void sell_proc(int item_id)
 {
 	CAT_bind_sale(item_id);
 	CAT_machine_transition(CAT_MS_sale);
@@ -382,36 +380,15 @@ void CAT_MS_shop(CAT_machine_signal signal)
 			if(CAT_input_pressed(CAT_BUTTON_B))
 				CAT_machine_back();
 			
-			int delta = 0;
-			if(CAT_input_pulse(CAT_BUTTON_LEFT))
-				delta = -1;
-			if(CAT_input_pulse(CAT_BUTTON_RIGHT))
-				delta = 1;
-			shop_tab_selector = (shop_tab_selector + delta + NUM_ITEM_TABS) % NUM_ITEM_TABS;
-			if(delta != 0)
-				CAT_gui_item_grid_refresh();
-			
-			if(shop_tab_selector < NUM_ITEM_TABS)
+			CAT_gui_begin_item_grid();
+			for(int i = 0; i < NUM_TABS; i++)
+				CAT_gui_item_grid_add_tab(tabs[i].title, NULL, i == NUM_TABS-1 ? sell_proc : buy_proc);
+
+			for(int i = 0; i < item_table.length; i++)
 			{
-				CAT_gui_begin_item_grid
-				(
-					item_tabs[shop_tab_selector].title,
-					NULL,
-					shop_tab_selector < NUM_ITEM_TABS-1 ?
-					buy_action_proc : sell_action_proc
-				);
-				CAT_gui_item_grid_set_text
-				(
-					shop_tab_selector < NUM_ITEM_TABS-1 ?
-					"Nothing here to buy..." : "Nothing here to sell..."
-				);
-				CAT_gui_item_grid_set_flags(CAT_GUI_ITEM_GRID_FLAG_TABS);
-				for(int i = 0; i < item_table.length; i++)
-				{
-					if(!item_tabs[shop_tab_selector].filter(i))
-						continue;
-					CAT_gui_item_grid_cell(i);
-				}
+				if(!tabs[CAT_gui_item_grid_get_tab()].filter(i))
+					continue;
+				CAT_gui_item_grid_cell(i);
 			}
 			break;
 		}

@@ -102,15 +102,14 @@ static struct
 {
 	const char* title;
 	CAT_item_filter filter;
-} item_tabs[] =
+} tabs[] =
 {
 	{"ALL", buy_filter},
 	{"DECORATIONS", prop_filter},
 	{"CARE ITEMS", tool_filter},
 	{"KEY ITEMS", key_filter}
 };
-#define NUM_ITEM_TABS (sizeof(item_tabs)/sizeof(item_tabs[0]))
-static int inventory_tab_selector = 0;
+#define NUM_TABS (sizeof(tabs)/sizeof(tabs[0]))
 
 static int inspect_id = -1;
 
@@ -189,7 +188,7 @@ void CAT_render_inspector()
 	CAT_draw_sprite(item->sprite, 0, 120, cursor_y);
 }
 
-static void inventory_action_proc(int item_id)
+static void inspect_proc(int item_id)
 {
 	CAT_bind_inspector(item_id);
 	CAT_machine_transition(CAT_MS_inspector);
@@ -210,19 +209,15 @@ void CAT_MS_inventory(CAT_machine_signal signal)
 			if(CAT_input_pressed(CAT_BUTTON_B))
 				CAT_machine_back();
 			
-			if(CAT_input_pulse(CAT_BUTTON_LEFT))
-				inventory_tab_selector -= 1;
-			if(CAT_input_pulse(CAT_BUTTON_RIGHT))
-				inventory_tab_selector += 1;
-			inventory_tab_selector = (inventory_tab_selector + NUM_ITEM_TABS) % NUM_ITEM_TABS;
-			
-			CAT_gui_begin_item_grid(item_tabs[inventory_tab_selector].title, NULL, inventory_action_proc);
-			CAT_gui_item_grid_set_flags(CAT_GUI_ITEM_GRID_FLAG_TABS);
+			CAT_gui_begin_item_grid();
+			for(int i = 0; i < NUM_TABS; i++)
+				CAT_gui_item_grid_add_tab(tabs[i].title, NULL, inspect_proc);
+
 			for(int i = 0; i < item_table.length; i++)
 			{
 				if(item_table.counts[i] <= 0)
 					continue;
-				if(!item_tabs[inventory_tab_selector].filter(i))
+				if(!tabs[CAT_gui_item_grid_get_tab()].filter(i))
 					continue;
 				CAT_gui_item_grid_cell(i);
 			}

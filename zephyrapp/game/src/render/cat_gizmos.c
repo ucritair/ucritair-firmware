@@ -41,6 +41,14 @@ void CAT_draw_corner_box(int x0, int y0, int x1, int y1, uint16_t c)
 	draw_corner(x0, y1, 4, -4, c);
 }
 
+void draw_corner_box(int x0, int y0, int x1, int y1, int r, uint16_t c)
+{
+	draw_corner(x0, y0, r, r, c);
+	draw_corner(x1, y0, -r, r, c);
+	draw_corner(x1, y1, -r, -r, c);
+	draw_corner(x0, y1, r, -r, c);
+}
+
 void CAT_draw_progress_bar(int x, int y, int w, int h, uint16_t co, uint16_t ci, float t)
 {
 	CAT_strokeberry(x-w/2, y-h/2, w, h, co);
@@ -63,8 +71,8 @@ void CAT_draw_hexagon(int x, int y, int r, uint16_t c, float p)
 	t += dt;
 	for(int i = 1; i <= 6; i++)
 	{
-		int x1 = rh*cos(t);
-		int y1 = rh*sin(t);
+		x1 = rh*cos(t);
+		y1 = rh*sin(t);
 		CAT_lineberry(x+x0, y+y0, x+x1, y+y1, c);
 		x0 = x1;
 		y0 = y1;
@@ -84,5 +92,17 @@ void CAT_draw_dot_grid(int x, int y, int w, int h, int s, uint16_t c)
 		{
 			draw_cross(xw, yw, 1, c);
 		}
+	}
+}
+
+void CAT_draw_corner_explosion(int x, int y, int s1, int s2, uint16_t c, float t)
+{
+	draw_corner_box(x-(s2-s1), y-(s2-s1), x+s2, y+s2, 16, c);
+	for(int i = 0; i < 3; i++)
+	{
+		int s = lerp(s1, s2, i / 2.0f * t);
+		int off = s-s1;
+		int r = lerp(4, 16, i / 2.0f * t);
+		draw_corner_box(x-off, y-off, x+s, y+s, r, c);
 	}
 }

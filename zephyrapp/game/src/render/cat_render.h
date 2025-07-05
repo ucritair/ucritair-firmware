@@ -12,7 +12,7 @@
 
 #define RGB8882565(r, g, b) ((((r) & 0b11111000) << 8) | (((g) & 0b11111100) << 3) | ((b) >> 3))
 #define RGB5652BGR565(c) (((c) >> 8) | (((c) & 0xff) << 8))
-#define RGB888X2565(x) RGB8882565((x) >> 16, ((x) << 8) >> 16, ((x) << 16) >> 16)
+#define RGB5652888
 
 #ifdef CAT_DESKTOP
 #define CAT_LCD_FRAMEBUFFER_OFFSET (CAT_get_render_cycle() * CAT_LCD_FRAMEBUFFER_H)
