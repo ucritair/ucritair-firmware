@@ -13,6 +13,9 @@ The project automatically runs the docker image and tries to generate a binary. 
 
 > **Note:** Zephyr is huge—we are sorry. This Docker image is approximately 17GB. You will likely need to increase Docker Desktop's allowed storage space.
 
+> **Virtual Box:** If for some reason you take deep offense to Docker - we have prepared a Virtual Box appliance. It was created in June 2025 and may not be maintained.
+> 1) Install virtualbox : https://www.virtualbox.org/
+> 2) Download and use this appliance : https://drive.google.com/file/d/1EYs3Y8C-o1IHL3ThO1TJNrLBObdCGFpm/view?usp=sharing 
 ---
 
 ## Prerequisites
