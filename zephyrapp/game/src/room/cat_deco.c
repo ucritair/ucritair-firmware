@@ -100,7 +100,7 @@ void CAT_MS_deco(CAT_machine_signal signal)
 				cursor = CAT_largest_free_space();
 			cursor = CAT_nearest_free_space(cursor);
 
-			CAT_gui_begin_item_grid_context();
+			CAT_gui_begin_item_grid_context(false);
 			break;
 		}
 		case CAT_MACHINE_SIGNAL_TICK:
@@ -122,7 +122,8 @@ void CAT_MS_deco(CAT_machine_signal signal)
 			}
 			else
 			{
-				CAT_gui_begin_item_grid("SELECT PROP", NULL, choose_prop);
+				CAT_gui_begin_item_grid();
+				CAT_gui_item_grid_add_tab("", NULL, choose_prop);
 				for(int i = 0; i < item_table.length; i++)
 				{
 					if(item_table.counts[i] <= 0)
@@ -131,7 +132,6 @@ void CAT_MS_deco(CAT_machine_signal signal)
 						continue;
 					CAT_gui_item_grid_cell(i);
 				}
-
 				if(CAT_input_pressed(CAT_BUTTON_B))
 					selecting = false;
 			}

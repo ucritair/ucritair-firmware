@@ -38,7 +38,7 @@ void action_enter()
 	timer = 0;
 	cursor = CAT_nearest_free_space(cursor);
 	CAT_pet_settle();
-	CAT_gui_begin_item_grid_context();
+	CAT_gui_begin_item_grid_context(true);
 }
 
 static void control_cursor()
@@ -78,15 +78,8 @@ void action_tick()
 
 	if (tool_id == -1)
 	{
-		CAT_gui_begin_item_grid("SELECT TOY", NULL, choose_tool);
-		/*for(int i = 0; i < item_table.length; i++)
-		{
-			if(item_table.counts[i] <= 0)
-				continue;
-			if(item_table.data[i].type != CAT_ITEM_TYPE_TOOL || item_table.data[i].tool_type != tool_type)
-				continue;
-			CAT_gui_item_grid_cell(i);
-		}*/
+		CAT_gui_begin_item_grid();
+		CAT_gui_item_grid_add_tab("TOYS", NULL, choose_tool);
 		if(CAT_inventory_count(toy_laser_pointer_item) > 0)
 			CAT_gui_item_grid_cell(toy_laser_pointer_item);
 		return;

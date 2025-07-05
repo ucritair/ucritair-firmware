@@ -613,7 +613,7 @@ void CAT_MS_room(CAT_machine_signal signal)
 			CAT_pet_settle();
 			CAT_animator_reset(&prop_hoopy_sprite);
 			CAT_gui_dismiss_dialogue();
-			CAT_gui_clear_menu_context();
+			CAT_gui_reset_menu_context();
 			break;
 		}
 		case CAT_MACHINE_SIGNAL_TICK:

@@ -612,7 +612,6 @@ bool consume_click(uint16_t table_idx)
 	return value;
 }
 
-
 void CAT_gui_begin_menu_context()
 {
 	for(int i = 0; i < MENU_TABLE_SIZE; i++)
@@ -623,7 +622,7 @@ void CAT_gui_begin_menu_context()
 	}
 }
 
-void CAT_gui_clear_menu_context()
+void CAT_gui_reset_menu_context()
 {
 	for(int i = 0; i < MENU_TABLE_SIZE; i++)
 	{
@@ -749,6 +748,7 @@ void CAT_gui_menu_io()
 				*ticker = selected->ticker_data.min;
 		}
 		break;
+
 		default:
 		break;
 	}
@@ -758,9 +758,7 @@ void CAT_gui_menu_io()
 	if(CAT_input_pressed(CAT_BUTTON_B))
 	{
 		if(head->parent == -1)
-		{
 			CAT_machine_back();
-		}
 		else
 			head->clicked = false;
 	}
@@ -845,13 +843,14 @@ void CAT_gui_printf(uint16_t colour, const char* fmt, ...)
 
 #define ITEM_GRID_MARGIN 12
 #define ITEM_GRID_CELL_SIZE 64
+#define ITEM_GRID_PAD 8
 
-#define ITEM_GRID_COLS ((CAT_LCD_SCREEN_W-ITEM_GRID_MARGIN) / (ITEM_GRID_CELL_SIZE + ITEM_GRID_MARGIN))
-#define ITEM_GRID_ROWS ((CAT_LCD_SCREEN_H-ITEM_GRID_MARGIN) / (ITEM_GRID_CELL_SIZE + ITEM_GRID_MARGIN))
+#define ITEM_GRID_COLS ((CAT_LCD_SCREEN_W-ITEM_GRID_MARGIN) / (ITEM_GRID_CELL_SIZE + ITEM_GRID_PAD))
+#define ITEM_GRID_ROWS ((CAT_LCD_SCREEN_H-ITEM_GRID_MARGIN) / (ITEM_GRID_CELL_SIZE + ITEM_GRID_PAD))
 #define ITEM_GRID_CELLS (ITEM_GRID_ROWS * ITEM_GRID_COLS)
 
-#define ITEM_GRID_X ITEM_GRID_MARGIN
-#define ITEM_GRID_Y ((CAT_LCD_SCREEN_H+ITEM_GRID_MARGIN - (ITEM_GRID_CELL_SIZE + ITEM_GRID_MARGIN) * ITEM_GRID_ROWS)/2)
+#define ITEM_GRID_X ((CAT_LCD_SCREEN_W - (ITEM_GRID_COLS*ITEM_GRID_CELL_SIZE + (ITEM_GRID_COLS-1)*ITEM_GRID_PAD))/2)
+#define ITEM_GRID_Y ((CAT_LCD_SCREEN_H-ITEM_GRID_PAD) - (ITEM_GRID_ROWS*ITEM_GRID_CELL_SIZE + (ITEM_GRID_ROWS-1)*ITEM_GRID_PAD))
 
 #define ITEM_GRID_NAV_W CAT_LCD_SCREEN_W
 #define ITEM_GRID_NAV_H CAT_LCD_SCREEN_H / 4
@@ -864,6 +863,7 @@ void CAT_gui_printf(uint16_t colour, const char* fmt, ...)
 #define ITEM_GRID_ACTION_COLOUR RGB8882565(255 - 0, 255 - 141, 255 - 141)
 
 static bool item_grid_status = false;
+static bool item_grid_handle_exit = false;
 
 static int item_grid_pool_backing[CAT_ITEM_TABLE_CAPACITY];
 static CAT_int_list item_grid_pool;
@@ -892,7 +892,12 @@ int item_grid_get_page()
 	return item_grid_selector / ITEM_GRID_CELLS * ITEM_GRID_CELLS;
 }
 
-void CAT_gui_begin_item_grid_context()
+bool item_grid_is_empty()
+{
+	return item_grid_pool.length == 0;
+}
+
+void CAT_gui_begin_item_grid_context(bool handle_exit)
 {
 	item_grid_status = false;
 
@@ -903,6 +908,8 @@ void CAT_gui_begin_item_grid_context()
 	item_grid_focus = GRID;
 	item_grid_tab_count = 0;
 	//item_grid_tab_idx = 0;
+
+	item_grid_handle_exit = handle_exit;
 }
 
 void CAT_gui_begin_item_grid()
@@ -953,7 +960,7 @@ void CAT_gui_item_grid_io()
 				if(tab_delta != 0)
 					item_grid_selector = 0;
 
-				if(CAT_input_pressed(CAT_BUTTON_SELECT) || CAT_input_pressed(CAT_BUTTON_A))
+				if(CAT_input_pressed(CAT_BUTTON_A) || CAT_input_pressed(CAT_BUTTON_B) || CAT_input_pressed(CAT_BUTTON_DOWN))
 					item_grid_focus = GRID;
 			}
 		break;
@@ -965,7 +972,15 @@ void CAT_gui_item_grid_io()
 			if(CAT_input_pulse(CAT_BUTTON_RIGHT))
 				delta += 1;
 			if(CAT_input_pulse(CAT_BUTTON_UP))
-				delta += -ITEM_GRID_COLS;
+			{
+				if(item_grid_selector < 3 && item_grid_tab_count > 1)
+				{
+					item_grid_select_timer = 0;
+					item_grid_focus = NAV;
+				}
+				else
+					delta += -ITEM_GRID_COLS;
+			}
 			if(CAT_input_pulse(CAT_BUTTON_DOWN))
 				delta += ITEM_GRID_COLS;
 			item_grid_selector = clamp(item_grid_selector+delta, 0, item_grid_pool.length-1);
@@ -978,15 +993,16 @@ void CAT_gui_item_grid_io()
 
 			if(CAT_input_released(CAT_BUTTON_A))
 			{
-				if(item_grid_select_timer >= ITEM_GRID_SELECT_TIME)
+				if(!item_grid_is_empty() && item_grid_select_timer >= ITEM_GRID_SELECT_TIME)
 					item_grid_tab_list[item_grid_tab_idx].confirm_proc(item_grid_pool.data[item_grid_selector]);
 				item_grid_select_timer = 0;
 			}
 
-			if(CAT_input_pressed(CAT_BUTTON_SELECT))
+			if(CAT_input_pressed(CAT_BUTTON_B) && item_grid_handle_exit)
 			{
-				item_grid_select_timer = 0;
-				item_grid_focus = NAV;
+				item_grid_tab_idx = 0;
+				item_grid_selector = 0;
+				CAT_machine_back();
 			}
 		break;
 	}
@@ -1002,6 +1018,15 @@ void CAT_gui_item_grid()
 	item_grid_tab* tab = &item_grid_tab_list[item_grid_tab_idx];
 
 	CAT_frameberry(ITEM_GRID_BG_COLOUR);
+
+	CAT_set_text_colour(CAT_WHITE);
+	CAT_set_text_mask(4, 4, CAT_LCD_SCREEN_W-4, 4+26);
+	const char* item_name = !item_grid_is_empty() ? item_table.data[item_grid_pool.data[item_grid_selector]].name : "";
+	if(item_grid_tab_count > 1)
+		CAT_draw_textf(4, 8, ">>> %s/%s", tab->title, item_name);
+	else
+		CAT_draw_textf(4, 8, ">>> %s", item_name);
+	CAT_lineberry(4, 26, CAT_LCD_SCREEN_W-4, 26, CAT_WHITE);
 
 	int x = ITEM_GRID_X;
 	int y = ITEM_GRID_Y;
@@ -1044,21 +1069,21 @@ void CAT_gui_item_grid()
 
 					float select_progress = CAT_ease_inout_sine(item_grid_select_timer / ITEM_GRID_SELECT_TIME);
 					if (tab->confirm_proc != NULL && select_progress >= 0.05f)
-						CAT_draw_corner_explosion(x+7, y+7, 64-15, 64, item_grid_select_timer >= 1 ? ITEM_GRID_ACTION_COLOUR : CAT_WHITE, select_progress);
+						CAT_draw_corner_explosion(x+7, y+7, 64-15, 64, ITEM_GRID_ACTION_COLOUR, select_progress);
 				}
 
 				idx += 1;
-				x += ITEM_GRID_CELL_SIZE + ITEM_GRID_MARGIN;
+				x += ITEM_GRID_CELL_SIZE + ITEM_GRID_PAD;
 			}
 			x = ITEM_GRID_X;
-			y += ITEM_GRID_CELL_SIZE + ITEM_GRID_MARGIN;
+			y += ITEM_GRID_CELL_SIZE + ITEM_GRID_PAD;
 		}
 	}
 
-	if(item_grid_pool.length == 0)
+	if(item_grid_is_empty())
 	{
 		CAT_set_text_colour(CAT_WHITE);
-		CAT_draw_text(ITEM_GRID_MARGIN, ITEM_GRID_MARGIN, "There's nothing here...");
+		CAT_draw_text(4, y, "There's nothing here...");
 	}
 
 	if (item_grid_get_page() < (item_grid_pool.length-ITEM_GRID_CELLS))
@@ -1074,17 +1099,9 @@ void CAT_gui_item_grid()
 		CAT_set_text_scale(2);
 		CAT_set_text_flags(CAT_TEXT_FLAG_CENTER);
 		CAT_draw_text(CAT_LCD_SCREEN_W/2, ITEM_GRID_NAV_Y + ITEM_GRID_NAV_H/2 - 12, tab->title);
+		CAT_draw_arrows(CAT_LCD_SCREEN_W/2, ITEM_GRID_NAV_Y + ITEM_GRID_NAV_H/2, 12, ITEM_GRID_NAV_W - 48, CAT_WHITE);
+		CAT_draw_arrows(CAT_LCD_SCREEN_W/2, ITEM_GRID_NAV_Y + ITEM_GRID_NAV_H/2, 12, ITEM_GRID_NAV_W - 40, CAT_WHITE);
 		CAT_draw_arrows(CAT_LCD_SCREEN_W/2, ITEM_GRID_NAV_Y + ITEM_GRID_NAV_H/2, 12, ITEM_GRID_NAV_W - 32, CAT_WHITE);
-	}
-	else
-	{
-		if(item_grid_select_timer > 0)
-		{
-			CAT_fillberry(0, 0, CAT_LCD_SCREEN_W, 20, ITEM_GRID_NAV_COLOUR);
-			CAT_lineberry(0, 20, CAT_LCD_SCREEN_W, 20, CAT_WHITE);
-			CAT_set_text_colour(CAT_WHITE);
-			CAT_draw_textf(2, 4, "%s", item_table.data[item_grid_pool.data[item_grid_selector]].name);
-		}
 	}
 
 	if(CAT_is_last_render_cycle())

@@ -36,12 +36,15 @@ extern CAT_input input;
 void CAT_input_init();
 void CAT_input_tick();
 void CAT_input_clear();
+void CAT_input_swallow(int button);
 
 bool CAT_input_pressed(int button);
 bool CAT_input_released(int button);
 bool CAT_input_held(int button, float t);
 bool CAT_input_pulse(int button);
 float CAT_input_time(int button);
+
+bool CAT_input_dismissal();
 
 bool CAT_input_drag(int x, int y, float r);
 bool CAT_input_touch(int x, int y, float r);
@@ -59,5 +62,3 @@ void CAT_input_buffer_clear();
 bool CAT_input_spell(CAT_button* spell);
 
 float CAT_input_time_since_last();
-
-bool CAT_input_dismissal();

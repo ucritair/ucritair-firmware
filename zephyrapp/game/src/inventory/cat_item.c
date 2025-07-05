@@ -201,14 +201,11 @@ void CAT_MS_inventory(CAT_machine_signal signal)
 		case CAT_MACHINE_SIGNAL_ENTER:
 		{
 			CAT_set_render_callback(CAT_render_inventory);
-			CAT_gui_begin_item_grid_context();
+			CAT_gui_begin_item_grid_context(true);
 			break;
 		}
 		case CAT_MACHINE_SIGNAL_TICK:
-		{
-			if(CAT_input_pressed(CAT_BUTTON_B))
-				CAT_machine_back();
-			
+		{	
 			CAT_gui_begin_item_grid();
 			for(int i = 0; i < NUM_TABS; i++)
 				CAT_gui_item_grid_add_tab(tabs[i].title, NULL, inspect_proc);
