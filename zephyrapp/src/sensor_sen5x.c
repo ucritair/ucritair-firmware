@@ -53,9 +53,47 @@ int sen5x_init()
     LOG_INF("Hardware v%d.%d", state.hw_maj, state.hw_min);
     LOG_INF("Protocol v%d.%d", state.proto_maj, state.proto_min);
     CHK(sen5x_set_rht_acceleration_mode(2));
+
+    // 1. Target calibration values per experiments by M Pang in Summer 2025.
+    const int16_t target_offset = -1203;
+    const int16_t target_slope = 1407;
+    const uint16_t target_tc = 0;
+
+    // 2. Read the sensor's current parameters.
+    int16_t current_offset, current_slope;
+    uint16_t current_tc;
+    LOG_INF("Reading current calibration parameters...");
+    CHK(sen5x_get_temperature_offset_parameters(&current_offset, &current_slope, &current_tc));
+    LOG_INF("Current values: Offset=%d, Slope=%d, TimeConstant=%d",
+            current_offset, current_slope, current_tc);
+    LOG_INF("Target values:  Offset=%d, Slope=%d, TimeConstant=%d",
+            target_offset, target_slope, target_tc);
+
+    // 3. Compare current parameters to the target.
+    if (current_offset != target_offset || current_slope != target_slope || current_tc != target_tc) {
+        LOG_INF("Parameters differ from target. Writing new values...");
+        CHK(sen5x_set_temperature_offset_parameters(target_offset, target_slope, target_tc));
+
+        // Re-read to verify the write operation was successful.
+        LOG_INF("Verifying written parameters...");
+        CHK(sen5x_get_temperature_offset_parameters(&current_offset, &current_slope, &current_tc));
+        LOG_INF("Read back values: Offset=%d, Slope=%d, TimeConstant=%d",
+                current_offset, current_slope, current_tc);
+
+        if (current_offset != target_offset || current_slope != target_slope || current_tc != target_tc) {
+            LOG_ERR("VERIFICATION FAILED: Wrote new parameters but read-back is incorrect!");
+        } else {
+            LOG_INF("Verification successful. Parameters updated correctly.");
+        }
+    } else {
+        LOG_INF("Current parameters match target. No update needed.");
+    }
+
     CHK(sen5x_start_measurement());
     return 0;
 }
+
+
 
 int sen5x_is_ready(bool* is_ready)
 {
@@ -123,7 +161,6 @@ int sen5x_read()
     state.typical_particle_size_um = typical_particle_size / 1000.0;
     state.humidity = humidity / 100.0;
     state.temp_c = temp / 200.0;
-    state.temp_c -= 2.5; // per MP 10/11/24 21:38:43
     state.voc_index = voc_index / 10.0;
     state.nox_index = nox_index / 10.0;
 

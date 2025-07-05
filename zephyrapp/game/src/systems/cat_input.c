@@ -121,6 +121,12 @@ void CAT_input_clear()
 	}
 }
 
+void CAT_input_swallow(int button)
+{
+	input.mask[button] = false;
+	input.dirty[button] = true;
+}
+
 bool CAT_input_pressed(int button)
 {
 	return input.mask[button] && !input.last[button];
@@ -154,6 +160,13 @@ bool CAT_input_pulse(int button)
 float CAT_input_time(int button)
 {
 	return input.time[button];
+}
+
+bool CAT_input_dismissal()
+{
+	return
+	CAT_input_pressed(CAT_BUTTON_B) ||
+	CAT_input_pressed(CAT_BUTTON_START);
 }
 
 bool CAT_input_drag(int x, int y, float r)
@@ -257,11 +270,4 @@ bool CAT_input_spell(CAT_button* spell)
 float CAT_input_time_since_last()
 {
 	return time_since_last_input;
-}
-
-bool CAT_input_dismissal()
-{
-	return
-	CAT_input_pressed(CAT_BUTTON_B) ||
-	CAT_input_pressed(CAT_BUTTON_START);
 }

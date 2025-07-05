@@ -77,7 +77,7 @@ typedef enum
 } CAT_gui_toggle_style;
 
 void CAT_gui_begin_menu_context();
-void CAT_gui_clear_menu_context();
+void CAT_gui_reset_menu_context();
 bool CAT_gui_begin_menu(const char* title);
 bool CAT_gui_menu_is_open();
 bool CAT_gui_menu_item(const char* title);
@@ -98,19 +98,14 @@ void CAT_gui_printf(uint16_t colour, const char* fmt, ...);
 
 typedef void (*CAT_item_proc)(int item_id);
 
-typedef enum
-{
-	CAT_GUI_ITEM_GRID_FLAG_NONE = 0,
-	CAT_GUI_ITEM_GRID_FLAG_TABS = (1 << 0)
-} CAT_gui_item_grid_flag;
+void CAT_gui_begin_item_grid_context(bool handle_exit);
 
-void CAT_gui_begin_item_grid_context();
-void CAT_gui_begin_item_grid(const char* title, CAT_int_list* roster, CAT_item_proc action);
-void CAT_gui_item_grid_set_flags(int flags);
+void CAT_gui_begin_item_grid();
+void CAT_gui_item_grid_add_tab(const char* title, CAT_item_proc focus_proc, CAT_item_proc confirm_proc);
+int CAT_gui_item_grid_get_tab();
+
 void CAT_gui_item_grid_cell(int item_id);
 bool CAT_gui_item_grid_is_open();
-void CAT_gui_item_grid_refresh();
-void CAT_gui_item_grid_set_text(const char* text);
 
 
 //////////////////////////////////////////////////////////////////////////

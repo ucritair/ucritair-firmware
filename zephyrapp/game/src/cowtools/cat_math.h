@@ -23,7 +23,11 @@
 #endif
 
 #ifndef sgn
-#define sgn(a) ((a) < 0 ? -1 : 1)
+#define sgn(a) ((a) == 0 ? 0 : (a) > 0 ? 1 : -1)
+#endif
+
+#ifndef wrap
+#define wrap(v, l) (((v) + (l)) % (l))
 #endif
 
 float lerp(float a, float b, float t);
