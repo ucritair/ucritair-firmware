@@ -241,7 +241,7 @@ void draw_details_page()
 			MARGIN*2+MARGIN, cursor_y,
 			"With no intervention having occurred, the crisis is ongoing.\n"		
 			"\n"
-			"Return to the crisis report once crisis conditions have been alleviated.\n"
+			"To intervene in the crisis, enable the appropriate in game equipment or take action to improve conditions in the real world!\n"
 		);
 		CAT_draw_cross_box
 		(

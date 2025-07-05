@@ -269,7 +269,6 @@ void CAT_monitor_MS_gameplay(CAT_machine_signal signal)
 			exit_progress = clamp(exit_progress, 0, 1);
 			if(exit_progress >= 1.0f && input.time[CAT_BUTTON_A] >= 1.25f)
 			{
-				CAT_AQ_post_crisis_report();
 				CAT_monitor_exit();
 			}
 		break;
