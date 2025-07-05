@@ -279,9 +279,8 @@ uint64_t last_time = 0;
 void CAT_pet_tick()
 {
 	uint64_t now = CAT_get_RTC_now();
-
 	// HANDLE FORWARD TIME TRAVEL BETWEEN FRAMES
-	if(last_time >  0 && (now - last_time) >= CAT_HOUR_SECONDS)
+	if(last_time >  0 && (now - last_time) >= CAT_MINUTE_SECONDS)
 	{
 		uint64_t jump = now - last_time;
 		timing_state.last_stat_time += jump;
@@ -289,7 +288,6 @@ void CAT_pet_tick()
 		timing_state.last_milk_time += jump;
 	}
 	last_time = now;
-
 	// HANDLE BACKWARD TIME TRAVEL
 	timing_state.last_stat_time = min(now, timing_state.last_stat_time);
 	timing_state.last_life_time = min(now, timing_state.last_life_time);

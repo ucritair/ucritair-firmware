@@ -596,18 +596,3 @@ void CAT_print_timestamp(const char* title, uint64_t t)
 	CAT_print_datetime(title, &dt);
 }
 
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// PERSISTENCE
-
-static uint32_t stash;
-
-void CAT_stash(uint32_t x)
-{
-	stash = x;
-}
-
-uint32_t CAT_pop()
-{
-	return stash;
-}

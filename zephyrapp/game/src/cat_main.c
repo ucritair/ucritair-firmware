@@ -339,27 +339,8 @@ void CAT_init()
 		CAT_set_eink_update_flag(true);
 }
 
-static uint64_t last_time;
-
 void CAT_tick_logic()
-{
-	uint64_t now = CAT_get_RTC_now();
-	int diff = now - last_time;
-	last_time = now;
-	if(diff < 0)
-	{
-		CAT_datetime a, b;
-		CAT_make_datetime(last_time, &a);
-		CAT_make_datetime(now, &b);
-		CAT_printf(
-			"%d/%d/%d %d:%d:%d -> %d/%d/%d %d:%d:%d",
-			a.year, a.month, a.day, a.hour, a.minute, a.second,
-			b.year, b.month, b.day, b.hour, b.minute, b.second
-		);
-	}
-
-	CAT_printf("RTC MAGIC %x\n", CAT_pop());
-	
+{	
 	if(CAT_check_load_flags(CAT_LOAD_FLAG_DIRTY))
 	{
 		CAT_force_load();
@@ -381,6 +362,8 @@ void CAT_tick_logic()
 	CAT_machine_tick();
 
 	CAT_gui_io();
+
+	uint64_t now = CAT_get_RTC_now();
 
 	if
 	(

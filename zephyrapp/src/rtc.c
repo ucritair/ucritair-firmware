@@ -155,8 +155,6 @@ void snapshot_rtc_for_reboot()
 
 void check_rtc_init()
 {
-	CAT_stash(rtc_init_check);
-
 	if (rtc_init_check != RTC_INIT_CHECK_MAGIC)
 	{
 		is_first_init = true;

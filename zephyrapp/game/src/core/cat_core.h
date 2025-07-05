@@ -495,6 +495,3 @@ static inline void CAT_bonus_set(uint32_t value)
 volatile uint8_t* CAT_AQ_crisis_state_persist();
 volatile uint8_t* CAT_pet_timing_state_persist();
 bool CAT_was_persist_wiped();
-
-void CAT_stash(uint32_t x);
-uint32_t CAT_pop();
