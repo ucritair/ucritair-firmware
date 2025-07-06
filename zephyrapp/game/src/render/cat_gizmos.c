@@ -61,18 +61,17 @@ void CAT_draw_progress_bar(int x, int y, int w, int h, uint16_t co, uint16_t ci,
 
 void CAT_draw_hexagon(int x, int y, int r, uint16_t c, float p)
 {
-	int rh = r / (2 * sin(M_PI / 6));
 	float dt = 2 * M_PI / 6.0f;
 	float t = p;
 
 	int x0, y0, x1, y1;
-	x0 = rh*cos(t);
-	y0 = rh*sin(t);
+	x0 = r*cos(t);
+	y0 = r*sin(t);
 	t += dt;
 	for(int i = 1; i <= 6; i++)
 	{
-		x1 = rh*cos(t);
-		y1 = rh*sin(t);
+		x1 = r*cos(t);
+		y1 = r*sin(t);
 		CAT_lineberry(x+x0, y+y0, x+x1, y+y1, c);
 		x0 = x1;
 		y0 = y1;
@@ -105,4 +104,52 @@ void CAT_draw_corner_explosion(int x, int y, int s1, int s2, uint16_t c, float t
 		int r = lerp(4, 16, i / 2.0f * t);
 		draw_corner_box(x-off, y-off, x+s, y+s, r, c);
 	}
+}
+
+void CAT_draw_regular_polygon(int n, int x, int y, int r, float t, uint16_t c)
+{
+	t *= 2 * M_PI;
+	float dt = 2 * M_PI / (float) n;
+	int x0, y0, x1, y1;
+	x0 = r*cos(t);
+	y0 = r*sin(t);
+	t += dt;
+	for(int i = 1; i <= n; i++)
+	{
+		x1 = r*cos(t);
+		y1 = r*sin(t);
+		CAT_lineberry(x+x0, y+y0, x+x1, y+y1, c);
+		x0 = x1;
+		y0 = y1;
+		t += dt;
+	}
+}
+
+void CAT_draw_gizmo_primitive(CAT_gizmo_primitive primitive, int x, int y, int r, float t, uint16_t c)
+{
+	switch (primitive)
+	{
+		case CAT_GIZMO_PRIMITIVE_RING:
+			CAT_circberry(x, y, r, c);
+		break;
+
+		case CAT_GIZMO_PRIMITIVE_TRI:	
+			CAT_draw_regular_polygon(3, x, y, r, t, c);
+		break;
+
+		case CAT_GIZMO_PRIMITIVE_BOX:
+			CAT_draw_regular_polygon(4, x, y, r, t, c);
+		break;
+
+		case CAT_GIZMO_PRIMITIVE_HEX:
+			CAT_draw_regular_polygon(6, x, y, r, t, c);
+		break;
+	}
+}
+
+void CAT_draw_ripple(CAT_gizmo_primitive primitive, int x, int y, float r0, float r1, float p, float w, float t, float T, uint16_t c)
+{
+	float r = lerp(r0, r1, t/T);
+	float theta = p + w * t;
+	CAT_draw_gizmo_primitive(primitive, x, y, r, theta, c);
 }

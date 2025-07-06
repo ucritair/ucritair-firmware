@@ -10,18 +10,7 @@
 #include "cat_aqi.h"
 #include "cat_monitors.h"
 #include "cat_crisis.h"
-
-static void draw_diamond(int x, int y, int r)
-{
-	int x0 = x-r-1; int y0 = y-1;
-	int x1 = x-1; int y1 = y-r-1;
-	int x2 = x+r-1; int y2 = y-1;
-	int x3 = x-1; int y3 = y+r-1;
-	CAT_lineberry(x0+1, y0, x1, y1+1, CAT_RED);
-	CAT_lineberry(x1+1, y1+1, x2, y2, CAT_RED);
-	CAT_lineberry(x2, y2+1, x3+1, y3, CAT_RED);
-	CAT_lineberry(x3, y3, x0+1, y0+1, CAT_RED);
-}
+#include "cat_gizmos.h"
 
 static void draw_page_markers(int y, int pages, int page)
 {
@@ -35,7 +24,7 @@ static void draw_page_markers(int y, int pages, int page)
 				CAT_set_sprite_colour(CAT_RED);
 			CAT_draw_sprite(&ui_radio_button_diamond_sprite, page == i, x, y);
 			if(CAT_pulse(0.25f))
-				draw_diamond(x+8, y+8, 16);
+				CAT_draw_gizmo_primitive(CAT_GIZMO_PRIMITIVE_BOX, x+8, y+8, 16, 0.25f, CAT_RED);
 		}
 		else
 		{

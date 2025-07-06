@@ -18,6 +18,7 @@
 #include "cat_crisis.h"
 #include "cat_monitors.h"
 #include "cat_notices.h"
+#include "cat_gizmos.h"
 
 //////////////////////////////////////////////////////////////////////////
 // SPACE
@@ -789,6 +790,8 @@ void CAT_room_draw_statics()
 			CAT_draw_sprite_raw(&icon_low_battery_alt_sprite, 0, battery_x, battery_y);
 		}
 	}
+
+	CAT_draw_ripple(CAT_GIZMO_PRIMITIVE_RING, battery_x, battery_y, 24, 400, 0, 0, CAT_get_uptime_ms() / 1000.0f, 60, CAT_RED);
 }
 
 void CAT_room_draw_props()
