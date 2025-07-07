@@ -44,6 +44,9 @@ float CAT_canonical_temp()
     return (readings.sen5x.temp_degC) ; // This is now correct and no adjustments are needed Leaving here for compatibility 
 }
 
+// Formula for WBGT from https://en.wikipedia.org/wiki/Wet-bulb_globe_temperature
+// Approximation of T_w parameter from https://journals.ametsoc.org/view/journals/apme/50/11/jamc-d-11-0143.1.xml
+// Lacking an on-board measurement for T_g parameter, we assume black globe temperature is roughly equal to dry air temperature
 float CAT_wet_bulb_temp(float air_degc)
 {
 	float T_d = air_degc;
@@ -53,7 +56,8 @@ float CAT_wet_bulb_temp(float air_degc)
 	atan(T_d + rh) - atan(rh - 1.676331) +
 	(0.00391838 * pow(rh, 1.5f)) * atan(0.023101 * rh) -
 	4.686035;
-	return 0.7 * T_w + 0.1 * T_d + 0.2 * 100;
+	float T_g = T_d;
+	return 0.7 * T_w + 0.1 * T_d + 0.2 * T_g;
 }
 
 /**
