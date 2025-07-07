@@ -79,8 +79,7 @@ CAT_AQ_crisis_severity CAT_AQ_poll_crisis_severity(CAT_AQ_crisis_type type)
 
 			if(T_d >= T_w)
 				return CAT_AQ_CRISIS_SEVERITY_MODERATE;
-			else
-				return CAT_AQ_CRISIS_SEVERITY_NONE;
+			return CAT_AQ_CRISIS_SEVERITY_NONE;
 		}
 		break;
 
