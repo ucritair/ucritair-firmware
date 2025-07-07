@@ -966,6 +966,7 @@ void CAT_gui_item_grid_io()
 		break;
 	
 		case GRID:
+		{
 			int delta = 0;
 			if(CAT_input_pulse(CAT_BUTTON_LEFT))
 				delta += -1;
@@ -1004,6 +1005,7 @@ void CAT_gui_item_grid_io()
 				item_grid_selector = 0;
 				CAT_machine_back();
 			}
+		}
 		break;
 	}
 }
