@@ -47,10 +47,6 @@
 uint64_t last_eink_time;
 bool first_eink_update_complete = false;
 
-CAT_screen_orientation current_orientation;
-CAT_screen_orientation last_orientation;
-uint64_t last_reorient_time;
-
 void persist_save()
 {
 	CAT_printf("Persist save!\n");
@@ -381,13 +377,10 @@ void CAT_tick_logic()
 		CAT_set_eink_update_flag(true);
 	}
 
-	last_orientation = current_orientation;
-	current_orientation = CAT_IMU_is_upside_down() ? CAT_SCREEN_ORIENTATION_DOWN : CAT_SCREEN_ORIENTATION_UP;
-	if(current_orientation != last_orientation && (now - last_reorient_time) >= 1)
+	CAT_poll_screen_flip();
+	if(CAT_should_flip_screen())
 	{
-		CAT_set_screen_orientation(current_orientation);
-		last_reorient_time = now;
-
+		CAT_flip_screen();
 		CAT_set_eink_update_flag(true);
 	}
 }

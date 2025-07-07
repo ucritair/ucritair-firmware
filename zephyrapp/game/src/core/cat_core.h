@@ -92,6 +92,10 @@ typedef enum
 void CAT_set_screen_orientation(CAT_screen_orientation orientation);
 CAT_screen_orientation CAT_get_screen_orientation();
 
+void CAT_poll_screen_flip();
+bool CAT_should_flip_screen();
+void CAT_flip_screen();
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // LEDs

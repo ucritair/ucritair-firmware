@@ -63,6 +63,47 @@ CAT_screen_orientation CAT_get_screen_orientation()
 	return screen_orientation;
 }
 
+#define FLIP_BUFFER_SIZE 28
+bool flip_buffer[FLIP_BUFFER_SIZE];
+int flip_buffer_head = 0;
+bool flip_buffer_init = false;
+
+void CAT_poll_screen_flip()
+{
+	if(!flip_buffer_init)
+	{
+		for(int i = 0; i < FLIP_BUFFER_SIZE-1; i++)
+		{
+			flip_buffer[i] = CAT_IMU_is_upside_down();
+			flip_buffer_head += 1;
+		}
+		flip_buffer_init = true;
+	}
+	
+	flip_buffer[flip_buffer_head] = CAT_IMU_is_upside_down();
+	flip_buffer_head = wrap(flip_buffer_head+1, FLIP_BUFFER_SIZE);
+}
+
+bool CAT_should_flip_screen()
+{
+	int idx = flip_buffer_head;
+	int steps = 0;
+	int flips = 0;
+	while(steps < FLIP_BUFFER_SIZE)
+	{
+		if(flip_buffer[idx])
+			flips += 1;
+		idx = wrap(idx+1, FLIP_BUFFER_SIZE);
+		steps += 1;
+	}
+	return flips > (FLIP_BUFFER_SIZE * 0.75f);
+}
+
+void CAT_flip_screen()
+{
+	screen_orientation = !screen_orientation;
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // LEDs
