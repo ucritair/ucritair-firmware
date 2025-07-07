@@ -147,6 +147,14 @@ void CAT_MS_menu(CAT_machine_signal signal)
 							}
 							CAT_gui_end_menu();
 						}
+						if(CAT_gui_menu_toggle("PAUSE CRITTER CARE", CAT_check_config_flags(CAT_CONFIG_FLAG_PAUSE_CARE), CAT_GUI_TOGGLE_STYLE_CHECKBOX))
+						{
+							if(CAT_check_config_flags(CAT_CONFIG_FLAG_PAUSE_CARE))
+								CAT_lower_config_flags(CAT_CONFIG_FLAG_PAUSE_CARE);
+							else
+								CAT_raise_config_flags(CAT_CONFIG_FLAG_PAUSE_CARE);
+						}
+
 						CAT_gui_end_menu();
 					}
 					if(CAT_gui_begin_menu("COSMETICS"))

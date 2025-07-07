@@ -243,6 +243,8 @@ void apply_life_ticks(int ticks)
 {
 	if(CAT_pet_is_dead())
 		return;
+	if(CAT_check_config_flags(CAT_CONFIG_FLAG_PAUSE_CARE))
+		return;
 
 	pet.lifetime += ticks;
 	
@@ -258,6 +260,8 @@ void apply_life_ticks(int ticks)
 void apply_stat_ticks(int ticks)
 {
 	if(CAT_pet_is_dead())
+		return;
+	if(CAT_check_config_flags(CAT_CONFIG_FLAG_PAUSE_CARE))
 		return;
 
 	for(int i = 0; i < ticks; i++)

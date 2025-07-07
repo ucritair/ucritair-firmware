@@ -193,21 +193,24 @@ void CAT_AQ_stop_crisis(CAT_AQ_crisis_response_type response_type)
 	response_ratio < 2.0f ? CAT_AQ_CRISIS_RESPONSE_GRADE_INADEQUATE :
 	CAT_AQ_CRISIS_RESPONSE_GRADE_DISASTROUS;
 
-	if
-	(
-		crisis.peak_severity >= CAT_AQ_CRISIS_SEVERITY_EXTREME &&
-		crisis.response_grade < CAT_AQ_CRISIS_RESPONSE_GRADE_EXCELLENT
-	)
+	if(!CAT_check_config_flags(CAT_CONFIG_FLAG_PAUSE_CARE))
 	{
-		crisis.lifespan_damage += 1;
+		if
+		(
+			crisis.peak_severity >= CAT_AQ_CRISIS_SEVERITY_EXTREME &&
+			crisis.response_grade < CAT_AQ_CRISIS_RESPONSE_GRADE_EXCELLENT
+		)
+		{
+			crisis.lifespan_damage += 1;
+		}
+
+		crisis.lifespan_damage +=
+		crisis.response_grade <= CAT_AQ_CRISIS_RESPONSE_GRADE_DISASTROUS ? 2 :
+		crisis.response_grade <= CAT_AQ_CRISIS_RESPONSE_GRADE_INADEQUATE ? 1 :
+		0;
+
+		pet.lifespan -= crisis.lifespan_damage;
 	}
-
-	crisis.lifespan_damage +=
-	crisis.response_grade <= CAT_AQ_CRISIS_RESPONSE_GRADE_DISASTROUS ? 2 :
-	crisis.response_grade <= CAT_AQ_CRISIS_RESPONSE_GRADE_INADEQUATE ? 1 :
-	0;
-
-	pet.lifespan -= crisis.lifespan_damage;
 }
 
 CAT_AQ_crisis_type CAT_AQ_get_crisis_type()
