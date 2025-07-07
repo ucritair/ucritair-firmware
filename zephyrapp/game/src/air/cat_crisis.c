@@ -75,9 +75,10 @@ CAT_AQ_crisis_severity CAT_AQ_poll_crisis_severity(CAT_AQ_crisis_type type)
 		{
 			float T_d = CAT_AQ_get_raw_score(CAT_AQM_TEMP);
 			float rh = CAT_AQ_get_raw_score(CAT_AQM_RH);
-			float T_w = CAT_wet_bulb_temp(T_d);
+			float wb = CAT_wet_bulb_temp(T_d);
 
-			if(T_d >= T_w)
+			// Dangerous wet-bulb temps are roughly 32C and over
+			if(wb >= 32)
 				return CAT_AQ_CRISIS_SEVERITY_MODERATE;
 			return CAT_AQ_CRISIS_SEVERITY_NONE;
 		}
