@@ -149,6 +149,8 @@ void CAT_draw_gizmo_primitive(CAT_gizmo_primitive primitive, int x, int y, int r
 
 void CAT_draw_ripple(CAT_gizmo_primitive primitive, int x, int y, float r0, float r1, float p, float w, float t, float T, uint16_t c)
 {
+	if(t < 0)
+		return;
 	float r = lerp(r0, r1, t/T);
 	float theta = p + w * t;
 	CAT_draw_gizmo_primitive(primitive, x, y, r, theta, c);
