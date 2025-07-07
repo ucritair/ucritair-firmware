@@ -10,6 +10,7 @@ float CAT_VOC_score(float voc);
 float CAT_NOX_score(float nox);
 float CAT_PM2_5_score(float pm25);
 float CAT_canonical_temp();
+float CAT_wet_bulb_temp(float air_degc);
 float CAT_temp_score(float temp);
 float CAT_rh_score(float rh);
 float CAT_IAQ_score(float co2, float voc, float nox, float pm25, float temp, float rh);

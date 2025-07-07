@@ -44,6 +44,17 @@ float CAT_canonical_temp()
     return (readings.sen5x.temp_degC) ; // This is now correct and no adjustments are needed Leaving here for compatibility 
 }
 
+float CAT_wet_bulb_temp(float air_degc)
+{
+	float T_d = air_degc;
+	float rh = readings.sen5x.humidity_rhpct;
+	return
+	T_d * atan(0.151977 * pow(rh + 8.313659, 0.5f)) +
+	atan(T_d + rh) - atan(rh - 1.676331) +
+	(0.00391838 * pow(rh, 1.5f)) * atan(0.023101 * rh) -
+	4.686035;
+}
+
 /**
  * @brief Calculates the temperature score based on the temperature value.
  *

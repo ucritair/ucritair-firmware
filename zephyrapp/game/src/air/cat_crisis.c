@@ -75,11 +75,7 @@ CAT_AQ_crisis_severity CAT_AQ_poll_crisis_severity(CAT_AQ_crisis_type type)
 		{
 			float T_d = CAT_AQ_get_raw_score(CAT_AQM_TEMP);
 			float rh = CAT_AQ_get_raw_score(CAT_AQM_RH);
-			float T_w = 
-			T_d * atan(0.151977 * pow(rh + 8.313659, 0.5f)) +
-			atan(T_d + rh) - atan(rh - 1.676331) +
-			(0.00391838 * pow(rh, 1.5f)) * atan(0.023101 * rh) -
-			4.686035;
+			float T_w = CAT_wet_bulb_temp(T_d);
 
 			if(T_d >= T_w)
 				return CAT_AQ_CRISIS_SEVERITY_MODERATE;
