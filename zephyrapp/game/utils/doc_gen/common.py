@@ -1,13 +1,18 @@
 #!/usr/bin/env python3
 
-from html_writer import HTML_writer;
-from mime_wrapper import MIME_wrapper;
+from html_writer import HTMLWriter;
+import pages;
 
-def horizontal_selector(html: HTML_writer):
-	html.horizontal_selector([("Home", "index.html"), ("Hardware", "hardware.html"), ("Items", "items.html"), ("Fish", "fish.html")]);
+def navigator(html: HTMLWriter, node):
+	html.start_list();
+	for child in node.children:
+		html.list_item(f"<a href=/{child.rel_path}>{child.title}</a>");
+		if isinstance(child, pages.NodePage):
+			navigator(html, child);
+	html.end_list();
 
-def vertical_selector(html: HTML_writer):
-	html.vertical_selector([("Home", "index.html"), ("Hardware", "hardware.html"), ("Items", "items.html"), ("Fish", "fish.html")]);
-
-def banner(html: HTML_writer, path, height):
+def banner(html: HTMLWriter, path, height):
 	html.image(path, style=f"display: block; margin: auto; height: {height*100}vh;");
+
+def thumbnail(path):
+	return f"<img src=/images/thumbnails/{path}>";
