@@ -782,17 +782,22 @@ void CAT_room_draw_statics()
 		}
 	}
 
+	int alarm_x = window_width == 240 ?
+	80 : window_x+window_width/2;
+	int alarm_y = window_width == 240 ?
+	38 : window_y+window_height/2 - 2;
 	if(CAT_AQ_is_crisis_ongoing())
 	{
-		int alarm_x = window_width == 240 ?
-		78 : window_x+window_width/2;
-		int alarm_y = window_width == 240 ?
-		38 : window_y+window_height/2 - 2;
 		for(int i = 0; i < 3; i++)
 		{
 			float base_t = CAT_get_uptime_ms() / 1000.0f / 6.28;
 			CAT_draw_gizmo_primitive(CAT_GIZMO_PRIMITIVE_HEX, alarm_x, alarm_y, 24 + i * 4 + 4 * sin(base_t * 6.28 * 4), base_t - i * 0.15f, CAT_RED);
 		}
+	}
+	else
+	{
+		float base_t = CAT_get_uptime_ms() / 1000.0f / 6.28;
+		CAT_draw_gizmo_primitive(CAT_GIZMO_PRIMITIVE_HEX, alarm_x, alarm_y, 24, base_t * 0.15f, CAT_MONITOR_BLUE);
 	}
 }
 

@@ -62,7 +62,10 @@ void CAT_monitor_render_summary()
 		uint16_t dot_colour = colour_score(CAT_AQ_get_normalized_score(i));
 		CAT_discberry(x, y, DOT_D/4, dot_colour);
 
-		center_textf(x, y - 20, 1, CAT_WHITE, "%.0f", CAT_AQ_get_raw_score(i));
+		if(i == CAT_AQM_TEMP)
+			center_textf(x, y - 20, 1, CAT_WHITE, "%.0f", CAT_AQ_map_celsius(CAT_AQ_get_raw_score(i)));
+		else
+			center_textf(x, y - 20, 1, CAT_WHITE, "%.0f", CAT_AQ_get_raw_score(i));
 	}
 }
 

@@ -7,6 +7,7 @@
 #include "item_assets.h"
 #include "cat_room.h"
 #include "cat_pet.h"
+#include <math.h>
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // CRISIS
@@ -61,20 +62,43 @@ float get_crisis_score(CAT_AQ_crisis_type type)
 		case CAT_AQ_CRISIS_TYPE_CO2: return CAT_AQ_get_normalized_score(CAT_AQM_CO2);
 		case CAT_AQ_CRISIS_TYPE_PM2_5: return CAT_AQ_get_normalized_score(CAT_AQM_PM2_5);
 		case CAT_AQ_CRISIS_TYPE_NOX_VOC: return min(CAT_AQ_get_normalized_score(CAT_AQM_NOX), CAT_AQ_get_normalized_score(CAT_AQM_VOC));
-		case CAT_AQ_CRISIS_TYPE_TEMP_RH: return min(CAT_AQ_get_normalized_score(CAT_AQM_TEMP), CAT_AQ_get_normalized_score(CAT_AQM_RH));
+		case CAT_AQ_CRISIS_TYPE_TEMP_RH: return min(CAT_AQ_get_normalized_score(CAT_AQM_TEMP), CAT_AQ_get_normalized_score(CAT_AQM_TEMP));
 		default: return 1.0f;
 	}
 };
 
 CAT_AQ_crisis_severity CAT_AQ_poll_crisis_severity(CAT_AQ_crisis_type type)
 {	
-	float score = get_crisis_score(type);
-
-	for(int s = CAT_AQ_CRISIS_SEVERITY_EXTREME; s >= CAT_AQ_CRISIS_SEVERITY_NONE; s--)
+	switch(type)
 	{
-		float cutoff = crisis_severity_cutoffs[s];
-		if(score <= cutoff)
-			return s;
+		case CAT_AQ_CRISIS_TYPE_TEMP_RH:
+		{
+			float T_d = CAT_AQ_get_raw_score(CAT_AQM_TEMP);
+			float rh = CAT_AQ_get_raw_score(CAT_AQM_RH);
+			float T_w = 
+			T_d * atan(0.151977 * pow(rh + 8.313659, 0.5f)) +
+			atan(T_d + rh) - atan(rh - 1.676331) +
+			(0.00391838 * pow(rh, 1.5f)) * atan(0.023101 * rh) -
+			4.686035;
+
+			if(T_d >= T_w)
+				return CAT_AQ_CRISIS_SEVERITY_MODERATE;
+			else
+				return CAT_AQ_CRISIS_SEVERITY_NONE;
+		}
+		break;
+
+		default:
+		{
+			float score = get_crisis_score(type);
+			for(int s = CAT_AQ_CRISIS_SEVERITY_EXTREME; s >= CAT_AQ_CRISIS_SEVERITY_NONE; s--)
+			{
+				float cutoff = crisis_severity_cutoffs[s];
+				if(score <= cutoff)
+					return s;
+			}
+		}
+		break;
 	}
 	
 	return CAT_AQ_CRISIS_SEVERITY_NONE;
@@ -114,7 +138,16 @@ bool CAT_AQ_is_crisis_ongoing()
 
 int CAT_AQ_get_crisis_avoidance_window()
 {
-	return crisis_avoidance_windows[crisis.severity];
+	switch (crisis.type)
+	{
+		case CAT_AQ_CRISIS_TYPE_TEMP_RH:
+			return 2 * CAT_HOUR_SECONDS;
+		break;
+
+		default:
+			crisis_avoidance_windows[crisis.severity];
+		break;
+	}
 }
 
 int CAT_AQ_get_crisis_total_uptime()
