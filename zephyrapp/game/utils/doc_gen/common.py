@@ -14,5 +14,11 @@ def navigator(html: HTMLWriter, node):
 def banner(html: HTMLWriter, path, height):
 	html.image(path, style=f"display: block; margin: auto; height: {height*100}vh;");
 
-def thumbnail(path):
-	return f"<img src=/images/thumbnails/{path}>";
+def title(html: HTMLWriter, text):
+	html.heading(1, text, style="display:inline; padding-right:1rem");
+	html.open_tag("a", href="/");
+	html.image(
+		"/images/thumbnails/icon_menu_sprite.png",		
+		style="display:inline; vertical-align:bottom; margin-bottom:0.5rem;"
+	);
+	html.close_tag();

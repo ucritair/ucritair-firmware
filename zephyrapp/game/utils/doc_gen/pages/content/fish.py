@@ -13,7 +13,7 @@ def build(html: HTMLWriter):
 	json_entries = json_data['entries'];
 	json_entries.sort(key=lambda j: j['display_name']);
 
-	html.heading(1, "Fish");
+	common.title(html, "Fish");
 	html.start_text_block();
 	html.text(f"There are {len(json_entries)} fish in-game.");
 	html.text("Fish belong to tiers. Higher tier fish are more rare and harder to catch.");
