@@ -70,17 +70,20 @@ bool flip_buffer_init = false;
 
 void CAT_poll_screen_flip()
 {
+	bool flip = CAT_IMU_is_upside_down();
+	CAT_printf("FLIP %d\n", flip);
+
 	if(!flip_buffer_init)
 	{
 		for(int i = 0; i < FLIP_BUFFER_SIZE-1; i++)
 		{
-			flip_buffer[i] = CAT_IMU_is_upside_down();
+			flip_buffer[i] = flip;
 			flip_buffer_head += 1;
 		}
 		flip_buffer_init = true;
 	}
 	
-	flip_buffer[flip_buffer_head] = CAT_IMU_is_upside_down();
+	flip_buffer[flip_buffer_head] = flip;
 	flip_buffer_head = wrap(flip_buffer_head+1, FLIP_BUFFER_SIZE);
 }
 
@@ -89,19 +92,25 @@ bool CAT_should_flip_screen()
 	int idx = flip_buffer_head;
 	int steps = 0;
 	int flips = 0;
-	while(steps < FLIP_BUFFER_SIZE)
+	int jerks = 0;
+	while(steps < FLIP_BUFFER_SIZE-1)
 	{
-		if(flip_buffer[idx])
-			flips += 1;
-		idx = wrap(idx+1, FLIP_BUFFER_SIZE);
+		int a = idx; int b = wrap(idx+1, FLIP_BUFFER_SIZE);
+		if(flip_buffer[a])
+			flips++;
+		if(flip_buffer[b] != flip_buffer[a])
+			jerks += 1;
+		idx = b;
 		steps += 1;
 	}
-	return flips > (FLIP_BUFFER_SIZE * 0.75f);
+	return flips > (FLIP_BUFFER_SIZE/2) && jerks < (flips/2);
 }
 
 void CAT_flip_screen()
 {
 	screen_orientation = !screen_orientation;
+	for(int i = 0; i < FLIP_BUFFER_SIZE; i++)
+		flip_buffer[i] = false;
 }
 
 
@@ -259,6 +268,21 @@ void CAT_AQ_read_scores(int idx, CAT_AQ_score_block* out)
 		return;
 	idx = (CAT_AQ_get_score_buffer_head() + idx) % 7;
 	memcpy(out, &(CAT_AQ_get_score_buffer()[idx]), sizeof(CAT_AQ_score_block));
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// IMU
+
+bool CAT_IMU_is_upside_down()
+{
+	CAT_IMU_values imu;
+	CAT_IMU_export_normalized(&imu);
+	if(fabs(imu.x) > 0.2 || fabs(imu.z) > 0.2)
+		return false;
+	if(screen_orientation == CAT_SCREEN_ORIENTATION_UP)
+		return imu.y > 0.8;
+	return imu.y < -0.8;
 }
 
 

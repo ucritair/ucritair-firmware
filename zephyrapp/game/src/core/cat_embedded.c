@@ -303,14 +303,19 @@ int CAT_AQ_get_score_buffer_head()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // IMU
 
+void CAT_IMU_export_raw(CAT_IMU_values* out)
+{
+	memcpy(out, &imu_raw, sizeof(imu_raw));
+}
+
+void CAT_IMU_export_normalized(CAT_IMU_values* out)
+{
+	memcpy(out, &imu_normalized, sizeof(imu_normalized));
+}
+
 void CAT_IMU_tick()
 {
 	imu_update();
-}
-
-bool CAT_IMU_is_upside_down()
-{
-	return imu_recognized_upside_down;
 }
 
 

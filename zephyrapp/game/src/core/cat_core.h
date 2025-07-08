@@ -468,6 +468,20 @@ void CAT_AQ_read_scores(int idx, CAT_AQ_score_block* out);
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // IMU
 
+typedef union 
+{
+	struct
+	{
+		float x;
+		float y;
+		float z;
+	};
+
+	float data[3];
+} CAT_IMU_values;
+
+void CAT_IMU_export_raw(CAT_IMU_values* out);
+void CAT_IMU_export_normalized(CAT_IMU_values* out);
 void CAT_IMU_tick();
 bool CAT_IMU_is_upside_down();
 

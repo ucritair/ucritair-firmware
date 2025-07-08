@@ -18,7 +18,7 @@ LOG_MODULE_REGISTER(epaper_rendering, LOG_LEVEL_DBG);
 
 void write_px(uint8_t* image, int o_x, int o_y, bool val)
 {
-	if (imu_recognized_upside_down)
+	if (CAT_get_screen_orientation() == CAT_SCREEN_ORIENTATION_DOWN)
 	{
 		o_y = EPD_IMAGE_H - o_y;
 		o_x = EPD_IMAGE_W - o_x;
