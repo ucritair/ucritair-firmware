@@ -71,7 +71,6 @@ bool flip_buffer_init = false;
 void CAT_poll_screen_flip()
 {
 	bool flip = CAT_IMU_is_upside_down();
-	CAT_printf("FLIP %d\n", flip);
 
 	if(!flip_buffer_init)
 	{
