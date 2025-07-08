@@ -104,6 +104,11 @@ int sen5x_is_ready(bool* is_ready)
     return 0;
 }
 
+bool sen5x_is_faulted()
+{
+    return state.is_faulted;
+}
+
 int sen5x_read()
 {
      // If the sensor is in a faulted state, decide what to do.
@@ -222,11 +227,6 @@ int sen5x_read()
     readings.sen5x.uptime_last_updated = k_uptime_get();
 
     return 0;
-}
-
-bool sen5x_is_faulted()
-{
-    return state.is_faulted;
 }
 
 SENSOR_DEFINE(sen5x);
