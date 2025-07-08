@@ -109,7 +109,7 @@ int sen5x_read()
      // If the sensor is in a faulted state, decide what to do.
     if (sen5x_is_faulted()) {
         // SCENARIO 1: Sensor was never online. It's probably unplugged.
-        if (!g_sensor_has_been_online) {
+        if (!sen5x_has_been_online) {
             LOG_WRN("SEN5x never initialized, skipping read. Check connection.");
             return -ENODEV;
         }
