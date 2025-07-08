@@ -24,3 +24,4 @@ def title(html: HTMLWriter, text):
 	);
 	html.close_tag();
 	html.close_tag();
+	html.one_token("br");
