@@ -3,7 +3,7 @@
 # PAGE(Items)
 
 import json;
-from html_writer import HTMLWriter;
+from html_writer import HTMLWriter, HTMLMode;
 import common;
 
 def build(html: HTMLWriter):
@@ -13,7 +13,7 @@ def build(html: HTMLWriter):
 	json_entries = json_data['entries'];
 	json_entries.sort(key=lambda j: j['display_name']);
 
-	html.heading(1, "Items");
+	common.title(html, "Items");
 	html.start_text_block();
 	html.text(f"There are {len(json_entries)} items in-game.");
 	html.text("All items belong to one of 3 overarching types: Key, Tool, or Prop.");
@@ -25,7 +25,7 @@ def build(html: HTMLWriter):
 	html.start_table(["Sprite", "Display Name", "Asset Name", "Item ID", "Type", "Purchase Price", "Sale Price", "Description"]);
 	for item in json_entries:
 		html.table_row([
-			common.thumbnail(f"{item["sprite"]}.png"),
+			html.image(f"/images/thumbnails/{item["sprite"]}.png", mode=HTMLMode.INLINE),
 			item["display_name"],
 			item["name"],
 			item["id"],

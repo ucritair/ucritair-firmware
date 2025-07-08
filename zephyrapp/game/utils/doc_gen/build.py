@@ -8,9 +8,11 @@ import importlib;
 import sys;
 from html_writer import HTMLWriter;
 import common;
+import thumbnails;
 
 build_root = pages.out_root;
 
+thumbnails.load(Path("sprites"), build_root/Path("images/thumbnails"));
 pages.contruct_tree();
 
 def prepare_path():
@@ -27,8 +29,6 @@ def import_module(path):
 	spec.loader.exec_module(module);
 	return module;
 
-prepare_path();
-
 def build_tree(node):
 	if isinstance(node, pages.LeafPage):
 		print(f"Generating page {node.out_path} from {node.in_path}...");
@@ -44,7 +44,8 @@ def build_tree(node):
 			os.makedirs(os.path.dirname(node.out_path), exist_ok=True);
 			html = HTMLWriter(node.out_path/"index.html");
 			html.start(node.title);
-			html.heading(1, html.title);
+			html.image("/images/banner_1.png", style=f"height: 35vh;");
+			common.title(html, node.title);
 			common.navigator(html, node);
 			html.end();	
 		for child in node.children:

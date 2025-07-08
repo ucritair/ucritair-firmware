@@ -6,7 +6,7 @@ from html_writer import HTMLWriter;
 import common;
 
 def build(html: HTMLWriter):
-	html.heading(1, "Hardware");
+	common.title(html, "Hardware");
 	
 	common.banner(html, "/images/hardware.webp", 0.75);
 
