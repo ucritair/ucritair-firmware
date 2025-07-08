@@ -44,8 +44,8 @@ def build_tree(node):
 			os.makedirs(os.path.dirname(node.out_path), exist_ok=True);
 			html = HTMLWriter(node.out_path/"index.html");
 			html.start(node.title);
-			common.title(html, node.title);
 			html.image("/images/banner_1.png", style=f"height: 35vh;");
+			common.title(html, node.title);
 			common.navigator(html, node);
 			html.end();	
 		for child in node.children:
