@@ -10,6 +10,7 @@
 LOG_MODULE_REGISTER(sen5x, SENSOR_LOG_LEVEL);
 
 static const struct device* dev_i2c = DEVICE_DT_GET(DT_NODELABEL(arduino_i2c));
+static int g_consecutive_read_failures = 0;
 
 struct sen5x_state_t {
     char name[32];
