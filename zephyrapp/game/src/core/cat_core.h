@@ -394,6 +394,7 @@ int CAT_get_log_cell_count();
 // POWER
 
 #define CAT_CRITICAL_BATTERY_PCT 20
+#define CAT_SAFE_BATTERY_PCT 50
 
 int CAT_get_battery_pct();
 bool CAT_is_charging();
@@ -511,6 +512,17 @@ static inline void CAT_bonus_set(uint32_t value)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // PERSISTENCE
 
+typedef enum
+{
+	CAT_PERSIST_FLAG_BATTERY_ALERT = (1 << 0)
+} CAT_persist_flag;
+
 volatile uint8_t* CAT_AQ_crisis_state_persist();
 volatile uint8_t* CAT_pet_timing_state_persist();
 bool CAT_was_persist_wiped();
+
+uint64_t CAT_get_persist_flags();
+void CAT_set_persist_flags(uint64_t flags);
+bool CAT_get_persist_flag(uint64_t flags);
+void CAT_raise_persist_flag(uint64_t flags);
+void CAT_lower_persist_flag(uint64_t flags);
