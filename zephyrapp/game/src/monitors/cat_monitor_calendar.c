@@ -603,6 +603,7 @@ void CAT_monitor_MS_calendar(CAT_machine_signal signal)
 	switch (signal)
 	{
 		case CAT_MACHINE_SIGNAL_ENTER:
+		{
 			CAT_log_cell first;
 			CAT_read_first_calendar_cell(&first);
 			CAT_make_datetime(first.timestamp, &origin);
@@ -616,9 +617,11 @@ void CAT_monitor_MS_calendar(CAT_machine_signal signal)
 
 			page = GATE;
 			section = CELLS;
+		}
 		break;
 
 		case CAT_MACHINE_SIGNAL_TICK:
+		{
 			switch (page)
 			{
 				case GATE:
@@ -633,6 +636,7 @@ void CAT_monitor_MS_calendar(CAT_machine_signal signal)
 					graph_logic();
 				break;
 			}
+		}
 		break;
 
 		case CAT_MACHINE_SIGNAL_EXIT:
