@@ -356,3 +356,29 @@ bool CAT_was_persist_wiped()
 {
 	return is_first_init;
 }
+
+
+uint64_t CAT_get_persist_flags()
+{
+	return persist_flags;
+}
+
+void CAT_set_persist_flags(uint64_t flags)
+{
+	persist_flags = flags;
+}
+
+bool CAT_get_persist_flag(uint64_t flags)
+{
+	return persist_flags & flags;
+}
+
+void CAT_raise_persist_flag(uint64_t flags)
+{
+	persist_flags |= flags;
+}
+
+void CAT_lower_persist_flag(uint64_t flags)
+{
+	persist_flags &= ~flags;
+}

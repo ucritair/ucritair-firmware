@@ -2,13 +2,12 @@
 
 import os
 import os.path
-import subprocess
 import sys
 import pygame
 from dataclasses import dataclass
 import json
 from PIL import Image;
-import copy;
+from pathlib import Path;
 
 pygame.init()
 
@@ -145,18 +144,26 @@ def OLV_write_epaper_sprites(fd):
 	if '--noswap' not in sys.argv:
 		fd.write('#include "../../src/epaper_rendering.h"\n')
 		fd.write("\n")
-		eink_folder = "sprites/eink/"
-		for path in os.listdir(eink_folder):
-			texture = pygame.image.load(eink_folder+path)
-			width, height = texture.get_size()
-			e_width = width + (width % 8)
-			fd.write('struct epaper_image_asset epaper_image_'+path.split('.')[0]+" = {\n");
-			fd.write(f'\t.w = {width}, .h = {height}, .stride = {e_width},\n')
+		eink_folder = Path("sprites/eink");
+		for path in eink_folder.iterdir():
+			if path.suffix != ".png":
+				continue;
+
+			texture = pygame.image.load(path);
+			width, height = texture.get_size();
+			padded_width = width + (width % 8);
+			compatible = (padded_width*height)%8 == 0;
+			if not compatible:
+				print(f"[ERROR] {path} not compatible!");
+				continue;
+
+			fd.write('struct epaper_image_asset epaper_image_'+path.stem+" = {\n");
+			fd.write(f'\t.w = {width}, .h = {height}, .stride = {padded_width},\n')
 			fd.write(f'\t.bytes = {{\n\t\t')
 
 			pixels = []
 			for y in range(height):
-				for x in range(e_width):
+				for x in range(padded_width):
 					try:
 						px = texture.get_at((x, y))
 					except IndexError:
@@ -172,7 +179,7 @@ def OLV_write_epaper_sprites(fd):
 					w |= pixels.pop(0) << (7-i)
 				words.append(w)
 
-			assert len(words) == (e_width*height)//8
+			assert len(words) == (padded_width*height)//8
 
 			einksize += len(words)+2
 

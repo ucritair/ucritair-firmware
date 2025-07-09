@@ -719,3 +719,9 @@ bool CAT_was_persist_wiped()
 	return false;
 }
 
+uint64_t CAT_get_persist_flags() { return 0; }
+void CAT_set_persist_flags(uint64_t flags) { ; }
+bool CAT_get_persist_flag(uint64_t flags) { return false; }
+void CAT_raise_persist_flag(uint64_t flags) { ; }
+void CAT_lower_persist_flag(uint64_t flags) { ; }
+

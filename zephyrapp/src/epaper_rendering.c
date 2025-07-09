@@ -124,7 +124,11 @@ void epaper_render_test()
 	struct epaper_image_asset* selected_unicorn = &epaper_image_unicorn_default;
 	struct epaper_image_asset* selected_cloud = &epaper_image_cloud_default;
 
-	if (guy_is_wearing_mask)
+	if(CAT_get_persist_flag(CAT_PERSIST_FLAG_BATTERY_ALERT))
+	{	
+		selected_unicorn = &epaper_image_unicorn_low_battery;
+	}
+	else if (guy_is_wearing_mask)
 	{
 		selected_unicorn = &epaper_image_unicorn_mask;
 	}

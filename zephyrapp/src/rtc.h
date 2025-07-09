@@ -36,6 +36,7 @@ extern volatile uint64_t aq_last_buffered_score_time;
 
 extern volatile CAT_AQ_crisis_state aq_crisis_state;
 extern volatile CAT_pet_timing_state pet_timing_state;
+extern volatile uint64_t persist_flags;
 
 #include "cat_pet.h"
 _Static_assert(sizeof(guy_name) == sizeof(pet.name));
