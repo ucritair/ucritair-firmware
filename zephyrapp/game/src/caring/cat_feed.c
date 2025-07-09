@@ -748,14 +748,6 @@ void MS_feed_arrange(CAT_machine_signal signal)
 			feedback_timer = 0;
 		}
 
-		if(CAT_check_config_flags(CAT_CONFIG_FLAG_DEVELOPER))
-		{
-			if (CAT_input_pressed(CAT_BUTTON_RIGHT))
-				show_debug_text = !show_debug_text;
-			if (CAT_input_pressed(CAT_BUTTON_LEFT))
-				show_gizmos = !show_gizmos;
-		}
-
 		if (CAT_input_touch_down())
 		{
 			bool picked = false;

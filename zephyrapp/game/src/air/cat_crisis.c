@@ -352,7 +352,7 @@ static const char* crisis_type_strings[] =
 	"CARBON DIOXIDE",
 	"PARTICULATE MATTER",
 	"VOLATILE COMPOUNDS",
-	"TEMPERATURE"
+	"WET BULB"
 };
 
 static const char* crisis_severity_strings[] =

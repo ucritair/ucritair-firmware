@@ -1,3 +1,9 @@
+import enum;
+
+class HTMLMode(enum.Enum):
+	STANDARD = 0
+	INLINE = 1
+
 class HTMLWriter:
 	def __init__(self, path):
 		self.path = path;
@@ -59,8 +65,8 @@ class HTMLWriter:
 		self.close_tag();
 		self.file.close();
 	
-	def heading(self, tier, s):
-		self.one_line(f"h{tier}", s, id=s.lower());
+	def heading(self, tier, s, **kwargs):
+		self.one_line(f"h{tier}", s, id=s.lower(), **kwargs);
 
 	def newline(self):
 		self.one_token("br");
@@ -107,8 +113,12 @@ class HTMLWriter:
 		self.close_tag();
 		self.close_tag();
 
-	def image(self, path, **kwargs):
-		self.one_token("img", src=path, **kwargs);
+	def image(self, path, mode=HTMLMode.STANDARD, **kwargs):
+		match mode:
+			case HTMLMode.STANDARD:
+				self.one_token("img", src=path, **kwargs);
+			case HTMLMode.INLINE:
+				return f"<img src={path} {self.__make_args(kwargs)} />";
 
 	def start_div(self):
 		self.open_tag("div");
@@ -123,4 +133,10 @@ class HTMLWriter:
 		self.one_line("li", item);
 
 	def end_list(self):
+		self.close_tag();
+
+	def start_same_line(self):
+		self.open_tag("div", id="container", style="white-space:nowrap");
+	
+	def end_same_line(self):
 		self.close_tag();

@@ -12,6 +12,7 @@
 #define MARGIN_X 12
 
 static bool focused;
+static float focus_progress = 0;
 
 static int idx;
 static CAT_log_cell cell;
@@ -32,7 +33,14 @@ void CAT_monitor_render_logs()
 		else
 		{
 			CAT_fillberry(120 - 60, 160 - 20, 120, 40, RGB8882565(35, 157, 235));
-			center_textf(120, 160, CAT_input_held(CAT_BUTTON_A, 0) ? 3 : 2 ,CAT_WHITE, "Press A");
+			CAT_annulusberry(120, 200, 64, 56, CAT_WHITE, CAT_ease_inout_sine(focus_progress), 0.25);
+			CAT_circberry(120, 200, 56, CAT_WHITE);
+			CAT_circberry(120, 200, 64, CAT_WHITE);
+
+			CAT_set_text_flags(CAT_TEXT_FLAG_CENTER);
+			CAT_set_text_colour(CAT_WHITE);
+			CAT_set_text_scale(3);
+			CAT_draw_text(120, 200-18, "A");
 		}
 		return;
 	}
@@ -115,8 +123,17 @@ void CAT_monitor_MS_logs(CAT_machine_signal signal)
 				
 				if(!CAT_AQ_logs_initialized())
 					return;
+				
+				if(CAT_input_held(CAT_BUTTON_A, 0))
+					focus_progress += CAT_get_delta_time_s();
 				if(CAT_input_released(CAT_BUTTON_A))
+					focus_progress = 0;
+				focus_progress = clamp(focus_progress, 0, 1);
+				if(focus_progress >= 1)
+				{
+					focus_progress = 0;
 					focused = true;
+				}
 			}
 			else
 			{

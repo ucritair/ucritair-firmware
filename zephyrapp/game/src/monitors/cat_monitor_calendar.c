@@ -10,13 +10,21 @@
 #include <stdio.h>
 #include <time.h>
 
-static bool focused = false;
+enum
+{
+	GATE,
+	CALENDAR,
+	GRAPH
+};
+static int page = GATE;
+static float focus_progress = 0;
 
 static enum
 {
-	CALENDAR,
-	GRAPH
-} page = CALENDAR;
+	CELLS,
+	DATE
+};
+static int section = CELLS;
 
 enum
 {
@@ -369,7 +377,7 @@ void render_graph()
 }
 
 #define DATE_Y 48
-#define DATE_X 12
+#define DATE_X 120
 
 #define GRID_Y (DATE_Y + 48)
 #define GRID_COLS 7
@@ -422,36 +430,13 @@ static int clamp_date_part(int phase, int year, int month, int day)
 	return -1;
 }
 
-int get_day_cell(int x, int y)
-{
-	x -= GRID_X;
-	y -= GRID_Y;
-	x /= GRID_CELL_R * 2 + GRID_SPACING;
-	y /= GRID_CELL_R * 2 + GRID_SPACING;
-	return y * 7 + x + 1;
-}
-
 void calendar_logic()
 {
-	if(!focused)
-	{
-		if(CAT_input_dismissal())
-			CAT_monitor_soft_exit();
-		if(CAT_input_pressed(CAT_BUTTON_LEFT))
-			CAT_monitor_retreat();
-		if(CAT_input_pressed(CAT_BUTTON_RIGHT))
-			CAT_monitor_advance();
+	if(CAT_input_pressed(CAT_BUTTON_B))
+		page = GATE;
 
-		if(!CAT_AQ_logs_initialized())
-			return;
-		if(CAT_input_released(CAT_BUTTON_A))
-			focused = true;
-	}
-	else
+	if(section == DATE)
 	{
-		if(CAT_input_pressed(CAT_BUTTON_B))
-				focused = false;
-			
 		if(CAT_input_pulse(CAT_BUTTON_LEFT))
 			target.month -= 1;
 		if(CAT_input_pulse(CAT_BUTTON_RIGHT))
@@ -468,16 +453,36 @@ void calendar_logic()
 		}
 		target.year = clamp_date_part(YEAR, target.year, target.month, target.day);
 		target.month = clamp_date_part(MONTH, target.year, target.month, target.day);
-		
+
+		if(CAT_input_pressed(CAT_BUTTON_DOWN) || CAT_input_pressed(CAT_BUTTON_A))
+			section = CELLS;
+	}
+	else
+	{
+	
+		int was = target.day;
 		bool should_load = false;
-		if(CAT_input_touch_down())
+		int delta = 0;
+		if(CAT_input_pulse(CAT_BUTTON_LEFT))
+			delta += -1;
+		if(CAT_input_pulse(CAT_BUTTON_RIGHT))
+			delta += 1;
+		if(CAT_input_pulse(CAT_BUTTON_UP))
 		{
-			int was = target.day;
-			target.day = get_day_cell(input.touch.x, input.touch.y);
+			if(was <= 7)
+				section = DATE;
+			else
+				delta -= 7;
+		}
+		if(CAT_input_pulse(CAT_BUTTON_DOWN))
+			delta += 7;
+		target.day += delta;
+		target.day = clamp_date_part(DAY, target.year, target.month, target.day);
+		if(CAT_input_pressed(CAT_BUTTON_A))
+		{
 			if(target.day == was)
 				should_load = true;
 		}
-		target.day = clamp_date_part(DAY, target.year, target.month, target.day);
 
 		if(!load_graph && should_load)
 		{
@@ -494,27 +499,14 @@ void calendar_logic()
 
 void render_calendar()
 {
-	if(!focused)
-	{
-		int cursor_y = center_textf(120, 60, 2, CAT_WHITE, "Calendar");
-		cursor_y = underline(120, cursor_y, 2, CAT_WHITE, "Calendar");
-
-		if(!CAT_AQ_logs_initialized())
-		{
-			CAT_fillberry(120 - 60, 160 - 20, 120, 40, RGB8882565(35, 157, 235));
-			center_textf(120, 160, CAT_input_held(CAT_BUTTON_A, 0) ? 3 : 2 ,CAT_WHITE, "No Logs");
-		}
-		else
-		{
-			CAT_fillberry(120 - 60, 160 - 20, 120, 40, RGB8882565(35, 157, 235));
-			center_textf(120, 160, CAT_input_held(CAT_BUTTON_A, 0) ? 3 : 2 ,CAT_WHITE, "Press A");
-		}		
-		return;
-	}
-
 	CAT_set_text_scale(2);
 	CAT_set_text_colour(CAT_WHITE);
+	CAT_set_text_flags(CAT_TEXT_FLAG_CENTER);
 	CAT_draw_textf(DATE_X, DATE_Y, "%.2d/%.2d/%.4d", target.month, target.day, target.year);
+	int date_width = strlen("##/##/####") * CAT_GLYPH_WIDTH * 2;
+	CAT_draw_arrows(DATE_X, DATE_Y + CAT_GLYPH_HEIGHT, CAT_GLYPH_HEIGHT, date_width + 12, CAT_WHITE);
+	if(section == DATE)
+		CAT_draw_arrows(DATE_X, DATE_Y + CAT_GLYPH_HEIGHT, CAT_GLYPH_HEIGHT, date_width + 20, CAT_WHITE);
 
 	int day = 1;
 	for(int row = 0; row < 5; row++)
@@ -535,18 +527,18 @@ void render_calendar()
 				day <= days_in_month(target.year, target.month)
 			)
 			{
+				uint16_t colour = section == CELLS ? CAT_WHITE : CELL_GREY;
 				if(day == target.day)
 				{
-					CAT_discberry(x + GRID_CELL_R, y + GRID_CELL_R, GRID_CELL_R, CAT_WHITE);
-					CAT_circberry(x + GRID_CELL_R, y + GRID_CELL_R, GRID_CELL_R, CAT_WHITE);
+					CAT_discberry(x + GRID_CELL_R, y + GRID_CELL_R, GRID_CELL_R, colour);
+					CAT_circberry(x + GRID_CELL_R, y + GRID_CELL_R, GRID_CELL_R, colour);
 					center_textf(x + GRID_CELL_R, y + GRID_CELL_R, 1, CAT_MONITOR_BLUE, "%d", day);
 				}
 				else
 				{	
-					CAT_circberry(x + GRID_CELL_R, y + GRID_CELL_R, GRID_CELL_R, CAT_WHITE);
-					center_textf(x + GRID_CELL_R, y + GRID_CELL_R, 1, CAT_WHITE, "%d", day);
+					CAT_circberry(x + GRID_CELL_R, y + GRID_CELL_R, GRID_CELL_R, colour);
+					center_textf(x + GRID_CELL_R, y + GRID_CELL_R, 1, colour, "%d", day);
 				}
-				
 			}
 			else
 			{
@@ -555,9 +547,55 @@ void render_calendar()
 			day += 1;
 		}
 	}
+}
 
-	CAT_set_text_colour(CAT_WHITE);
-	CAT_draw_text(GRID_X, GRID_Y + (GRID_CELL_R * 2 + GRID_SPACING) * 5 + 20, "Double-tap to select a date");
+void gate_logic()
+{
+	if(CAT_input_dismissal())
+		CAT_monitor_soft_exit();
+	if(CAT_input_pressed(CAT_BUTTON_LEFT))
+		CAT_monitor_retreat();
+	if(CAT_input_pressed(CAT_BUTTON_RIGHT))
+		CAT_monitor_advance();
+
+	if(!CAT_AQ_logs_initialized())
+		return;
+
+	if(CAT_input_held(CAT_BUTTON_A, 0))
+		focus_progress += CAT_get_delta_time_s();
+	if(CAT_input_released(CAT_BUTTON_A))
+		focus_progress = 0;
+	focus_progress = clamp(focus_progress, 0, 1);
+	if(focus_progress >= 1)
+	{
+		focus_progress = 0;
+		page = CALENDAR;
+		section = CELLS;
+	}
+}
+
+void render_gate()
+{
+	int cursor_y = center_textf(120, 60, 2, CAT_WHITE, "Calendar");
+	cursor_y = underline(120, cursor_y, 2, CAT_WHITE, "Calendar");
+
+	if(!CAT_AQ_logs_initialized())
+	{
+		CAT_fillberry(120 - 60, 160 - 20, 120, 40, RGB8882565(35, 157, 235));
+		center_textf(120, 160, CAT_input_held(CAT_BUTTON_A, 0) ? 3 : 2 ,CAT_WHITE, "No Logs");
+	}
+	else
+	{
+		CAT_fillberry(120 - 60, 160 - 20, 120, 40, RGB8882565(35, 157, 235));
+		CAT_annulusberry(120, 200, 64, 56, CAT_WHITE, CAT_ease_inout_sine(focus_progress), 0.25);
+		CAT_circberry(120, 200, 56, CAT_WHITE);
+		CAT_circberry(120, 200, 64, CAT_WHITE);
+
+		CAT_set_text_flags(CAT_TEXT_FLAG_CENTER);
+		CAT_set_text_colour(CAT_WHITE);
+		CAT_set_text_scale(3);
+		CAT_draw_text(120, 200-18, "A");
+	}		
 }
 
 void CAT_monitor_MS_calendar(CAT_machine_signal signal)
@@ -565,8 +603,6 @@ void CAT_monitor_MS_calendar(CAT_machine_signal signal)
 	switch (signal)
 	{
 		case CAT_MACHINE_SIGNAL_ENTER:
-			focused = false;
-
 			CAT_log_cell first;
 			CAT_read_first_calendar_cell(&first);
 			CAT_make_datetime(first.timestamp, &origin);
@@ -577,14 +613,22 @@ void CAT_monitor_MS_calendar(CAT_machine_signal signal)
 			target_last = today;
 			bookmark = -1;
 			search_direction = -1;
+
+			page = GATE;
+			section = CELLS;
 		break;
 
 		case CAT_MACHINE_SIGNAL_TICK:
 			switch (page)
 			{
+				case GATE:
+					gate_logic();
+				break;
+
 				case CALENDAR:
 					calendar_logic();
 				break;
+
 				case GRAPH:
 					graph_logic();
 				break;
@@ -599,12 +643,17 @@ void CAT_monitor_render_calendar()
 {
 	switch (page)
 	{
+		case GATE:
+			render_gate();
+		break;
+
 		case CALENDAR:
 			if(!load_graph)
 				render_calendar();
 			else
 				render_graph();
 		break;
+
 		case GRAPH:
 			render_graph();
 		break;
