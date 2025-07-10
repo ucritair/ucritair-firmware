@@ -283,10 +283,15 @@ void power_off(int for_ms, bool protected_sleeping)
 		LOG_INF("Waking...");
 		// k_msleep(100);
 
-		snapshot_rtc_for_reboot();
-		nrf_gpio_pin_clear(NRF_GPIO_PIN_MAP(0, 2));
-		sys_reboot(SYS_REBOOT_WARM);
+		power_off_reboot();
 	}
+}
+
+void power_off_reboot()
+{
+	snapshot_rtc_for_reboot();
+	nrf_gpio_pin_clear(NRF_GPIO_PIN_MAP(0, 2));
+	sys_reboot(SYS_REBOOT_WARM);
 }
 
 #include <zephyr/init.h>
