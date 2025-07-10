@@ -67,7 +67,7 @@ void CAT_monitor_render_sparklines()
 	draw_subpage_markers(32, CAT_AQM_COUNT, view);
 
 	int cursor_y = center_textf(TITLE_X, TITLE_Y, 2, CAT_WHITE, CAT_AQM_titles[view]) + 2;
-	cursor_y = center_textf(TITLE_X, cursor_y, 1, CAT_WHITE, "Weekly Score Trend");
+	cursor_y = center_textf(TITLE_X, cursor_y, 1, CAT_WHITE, "Weekly Performance");
 
 	CAT_fillberry(SPARKLINE_X, SPARKLINE_Y, SPARKLINE_WIDTH, SPARKLINE_HEIGHT, SPARKLINE_BG_COLOUR);
 	CAT_CSCLIP_set_rect(SPARKLINE_X, SPARKLINE_Y, SPARKLINE_MAX_X, SPARKLINE_MAX_Y);
@@ -106,19 +106,16 @@ void CAT_monitor_render_sparklines()
 		last_score = score;
 	}
 	mean_score /= 7.0f;
+
+	const char* unit = CAT_get_AQM_unit_string(view);
 	
+	cursor_y = SPARKLINE_MAX_Y + 8;
 	CAT_set_text_colour(CAT_WHITE);
-	CAT_set_text_mask(SPARKLINE_X, -1, SPARKLINE_MAX_X, -1);
-	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
-	cursor_y = CAT_draw_textf
-	(
-		SPARKLINE_X, SPARKLINE_MAX_Y + 8,
-		"The last recorded score for this week is %.1f."
-		" Scores this week have ranged from %.1f to %.1f,"
-		" with a mean of %.1f."
-		,
-		last_score, min_score, max_score, mean_score
-	);
+	cursor_y = CAT_draw_textf(SPARKLINE_X, cursor_y, "Latest: %.1f %s\n", last_score, unit);
+	CAT_set_text_colour(CAT_WHITE);
+	cursor_y = CAT_draw_textf(SPARKLINE_X, cursor_y, "Range: [%.1f, %.1f] %s\n", min_score, max_score, unit);
+	CAT_set_text_colour(CAT_WHITE);
+	cursor_y = CAT_draw_textf(SPARKLINE_X, cursor_y, "Mean: %.1f %s\n", mean_score, unit);
 }
 
 void CAT_monitor_MS_sparklines(CAT_machine_signal signal)
