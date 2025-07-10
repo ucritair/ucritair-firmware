@@ -10,6 +10,7 @@
 LOG_MODULE_REGISTER(sen5x, SENSOR_LOG_LEVEL);
 
 static const struct device* dev_i2c = DEVICE_DT_GET(DT_NODELABEL(arduino_i2c));
+static int g_consecutive_read_failures = 0;
 
 struct sen5x_state_t {
     char name[32];
@@ -27,6 +28,8 @@ struct sen5x_state_t {
 };
 
 static struct sen5x_state_t state = {0,};
+
+bool sen5x_has_been_online = false;
 
 #define CHK(_ACT) do { \
     const int result = _ACT; \
@@ -84,6 +87,7 @@ int sen5x_init()
             LOG_ERR("VERIFICATION FAILED: Wrote new parameters but read-back is incorrect!");
         } else {
             LOG_INF("Verification successful. Parameters updated correctly.");
+            sen5x_has_been_online = true;
         }
     } else {
         LOG_INF("Current parameters match target. No update needed.");
@@ -101,8 +105,41 @@ int sen5x_is_ready(bool* is_ready)
     return 0;
 }
 
+bool sen5x_is_faulted()
+{
+    return state.is_faulted;
+}
+
 int sen5x_read()
 {
+     // If the sensor is in a faulted state, decide what to do.
+    if (sen5x_is_faulted()) {
+        // SCENARIO 1: Sensor was never online. It's probably unplugged.
+        if (!sen5x_has_been_online) {
+            LOG_WRN("SEN5x never initialized, skipping read. Check connection.");
+            return -ENODEV;
+        }
+
+        // SCENARIO 2: Sensor was online but has now failed (e.g., 36-hour bug).
+        g_consecutive_read_failures++;
+        LOG_WRN("SEN5x has faulted. Consecutive failure count: %d", g_consecutive_read_failures);
+
+        const int failure_threshold = 3; // Reboot after 3 consecutive failures.
+        if (g_consecutive_read_failures >= failure_threshold) {
+            LOG_ERR("SEN5x failure threshold reached. Rebooting to recover.");
+            k_msleep(100);
+            power_off_reboot();
+            return -EIO; // Should never be reached
+        }
+        
+        // Return an error but don't reboot yet.
+        return -EIO;
+    }
+
+    // If we are here, any previous fault has been cleared (e.g., by re-init).
+    // Or the sensor is working correctly. Reset the failure counter.
+    g_consecutive_read_failures = 0;
+
     uint32_t status;
     uint16_t mc_pm1p0, mc_pm2p5, mc_pm4p0, mc_pm10p0;
     uint16_t nc_pm0p5, nc_pm1p0, nc_pm2p5, nc_pm4p0, nc_pm10p0, typical_particle_size;
@@ -191,11 +228,6 @@ int sen5x_read()
     readings.sen5x.uptime_last_updated = k_uptime_get();
 
     return 0;
-}
-
-bool sen5x_is_faulted()
-{
-    return state.is_faulted;
 }
 
 SENSOR_DEFINE(sen5x);

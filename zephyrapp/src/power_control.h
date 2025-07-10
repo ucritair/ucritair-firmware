@@ -7,6 +7,7 @@ void set_3v3(bool on);
 void set_5v0(bool on);
 void set_leds(bool on);
 void power_off(int for_ms, bool protected);
+void power_off_reboot();
 void on_rtc_compare3();
 
 bool get_is_charging();
