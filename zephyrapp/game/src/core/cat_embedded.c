@@ -254,7 +254,7 @@ int CAT_get_log_cell_count()
 
 int CAT_get_battery_pct()
 {
-	return ((adc_get_voltage()-3.6)/(4.2-3.6))*100.;
+	return get_battery_pct();
 }
 
 bool CAT_is_charging()
