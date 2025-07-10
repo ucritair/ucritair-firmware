@@ -111,11 +111,11 @@ void CAT_monitor_render_sparklines()
 	
 	cursor_y = SPARKLINE_MAX_Y + 8;
 	CAT_set_text_colour(CAT_WHITE);
-	cursor_y = CAT_draw_textf(SPARKLINE_X, cursor_y, "Latest: %.1f %s\n", last_score, unit);
+	cursor_y = CAT_draw_textf(SPARKLINE_X, cursor_y, "Latest: %.1f %s\n", last_score, unit)+8;
 	CAT_set_text_colour(CAT_WHITE);
-	cursor_y = CAT_draw_textf(SPARKLINE_X, cursor_y, "Range: [%.1f, %.1f] %s\n", min_score, max_score, unit);
+	cursor_y = CAT_draw_textf(SPARKLINE_X, cursor_y, "  Range: [%.1f, %.1f] %s\n", min_score, max_score, unit)+8;
 	CAT_set_text_colour(CAT_WHITE);
-	cursor_y = CAT_draw_textf(SPARKLINE_X, cursor_y, "Mean: %.1f %s\n", mean_score, unit);
+	cursor_y = CAT_draw_textf(SPARKLINE_X, cursor_y, "    Mean: %.1f %s\n", mean_score, unit)+8;
 }
 
 void CAT_monitor_MS_sparklines(CAT_machine_signal signal)
