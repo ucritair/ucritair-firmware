@@ -49,7 +49,7 @@ static int search_direction = -1;
 #define GRAPH_MAX_X (GRAPH_X + GRAPH_WIDTH - 1)
 #define GRAPH_MAX_Y (GRAPH_Y + GRAPH_HEIGHT - 1)
 #define GRAPH_SAMPLE_COUNT GRAPH_WIDTH
-#define GRAPH_SAMPLE_DIST ((24 * 60 * 60) / GRAPH_SAMPLE_COUNT)
+#define GRAPH_SAMPLE_DIST (CAT_DAY_SECONDS / GRAPH_SAMPLE_COUNT)
 
 #define GRAPH_BG_COLOUR 0xe7bf
 #define GRAPH_FG_COLOUR 0x6b11
@@ -182,7 +182,6 @@ static void graph_init()
 	uint64_t start_time = mktime(&target_tm);
 
 	search_direction = CAT_datecmp(&target, &target_last);
-	//CAT_printf("Direction is %d. Starting from %d\n", search_direction, bookmark);
 	CAT_log_cell cell;
 	if(bookmark == -1)
 	{
@@ -196,7 +195,6 @@ static void graph_init()
 			bookmark = CAT_read_log_cell_after_time(bookmark, start_time, &cell);
 	}
 	target_last = target;
-	//CAT_printf("Filling from %d\n", bookmark);
 
 	int memo = bookmark;
 	uint64_t sample_time = start_time;
