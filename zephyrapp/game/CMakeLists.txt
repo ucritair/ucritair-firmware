@@ -148,6 +148,8 @@ target_sources(app PRIVATE
 	src/room/cat_death_report.c
 	src/room/cat_notices.c
 
+	src/world/cat_world.c
+
 	sounds/sound_assets.c
 	meshes/mesh_assets.c
 	meshes/mesh2d_assets.c
@@ -172,6 +174,7 @@ target_include_directories(app PRIVATE src/caring)
 target_include_directories(app PRIVATE src/air)
 target_include_directories(app PRIVATE src/systems)
 target_include_directories(app PRIVATE src/room)
+target_include_directories(app PRIVATE src/world)
 
 target_include_directories(app PRIVATE sounds/)
 target_include_directories(app PRIVATE meshes/)

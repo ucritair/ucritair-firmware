@@ -271,3 +271,17 @@ float CAT_input_time_since_last()
 {
 	return time_since_last_input;
 }
+
+CAT_button basic_spell[10] =
+{
+	CAT_BUTTON_UP,
+	CAT_BUTTON_UP,
+	CAT_BUTTON_DOWN,
+	CAT_BUTTON_DOWN,
+	CAT_BUTTON_LEFT,
+	CAT_BUTTON_RIGHT,
+	CAT_BUTTON_LEFT,
+	CAT_BUTTON_RIGHT,
+	CAT_BUTTON_B,
+	CAT_BUTTON_A
+};

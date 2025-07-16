@@ -20,6 +20,7 @@
 #include "cat_notices.h"
 #include "cat_gizmos.h"
 #include "cat_curves.h"
+#include "cat_world.h"
 
 //////////////////////////////////////////////////////////////////////////
 // THEME
@@ -452,7 +453,7 @@ static int mode_selector = 0;
 #define VENDING_MACHINE_W 56
 #define VENDING_MACHINE_H 96
 
-void mode_button_input()
+void screen_button_input()
 {
 	if(CAT_input_pressed(CAT_BUTTON_RIGHT))
 		mode_selector += 1;
@@ -478,10 +479,10 @@ void mode_button_input()
 	}
 }
 
-void world_button_input()
+void prop_button_input()
 {
 	if(CAT_input_touch_rect(VENDING_MACHINE_X, VENDING_MACHINE_Y, VENDING_MACHINE_W, VENDING_MACHINE_H))
-				CAT_machine_transition(CAT_MS_shop);
+		CAT_machine_transition(CAT_MS_shop);
 	else if(CAT_input_touch_rect(ARCADE_X, ARCADE_Y, ARCADE_W, ARCADE_H))
 		CAT_machine_transition(CAT_MS_arcade);
 	else if(CAT_input_touch_rect
@@ -540,6 +541,12 @@ void CAT_MS_room(CAT_machine_signal signal)
 				CAT_machine_transition(CAT_MS_death_report);
 				return;
 			}
+
+			if(CAT_input_spell(basic_spell))
+			{
+				CAT_machine_transition(CAT_MS_world);
+				break;
+			}
 				
 			if(CAT_input_pressed(CAT_BUTTON_START))
 				CAT_machine_transition(CAT_MS_menu);
@@ -551,13 +558,13 @@ void CAT_MS_room(CAT_machine_signal signal)
 					CAT_pet_reincarnate();
 				}
 
-				world_button_input();
+				prop_button_input();
 				pickup_input();
 			}
 			else
 			{
-				mode_button_input();
-				world_button_input();
+				screen_button_input();
+				prop_button_input();
 				pickup_input();
 
 				CAT_pet_update_animations();

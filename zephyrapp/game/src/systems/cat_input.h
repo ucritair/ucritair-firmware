@@ -62,3 +62,5 @@ void CAT_input_buffer_clear();
 bool CAT_input_spell(CAT_button* spell);
 
 float CAT_input_time_since_last();
+
+extern CAT_button basic_spell[10];
