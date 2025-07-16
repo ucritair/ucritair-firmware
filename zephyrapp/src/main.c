@@ -44,7 +44,7 @@ int main(void)
 	init_adc();
 
 	// LOG_INF("~Test speaker~");
-	set_3v3(true); Moved earlier 
+	set_3v3(true);
 
 	usb_enable(NULL);
 
