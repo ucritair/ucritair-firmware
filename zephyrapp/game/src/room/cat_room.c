@@ -382,7 +382,7 @@ CAT_pickup_list* CAT_room_get_pickups()
 
 int CAT_room_spawn_pickup(CAT_pickup pickup)
 {
-	if(pickup_list.length >= CAT_MAX_PICKUP_COUNT)
+	if(pickup_list.length >= CAT_ROOM_MAX_PICKUP_COUNT)
 		return -1;
 
 	int idx = pickup_list.length;

@@ -22,7 +22,7 @@
 #define CAT_ROOM_MAX_X (CAT_ROOM_X + CAT_ROOM_W-1)
 #define CAT_ROOM_MAX_Y (CAT_ROOM_Y + CAT_ROOM_H-1)
 
-#define CAT_MAX_PICKUP_COUNT 128
+#define CAT_ROOM_MAX_PICKUP_COUNT 64
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -66,7 +66,7 @@ typedef struct CAT_pickup
 
 typedef struct
 {
-	CAT_pickup data[CAT_MAX_PICKUP_COUNT];
+	CAT_pickup data[CAT_ROOM_MAX_PICKUP_COUNT];
 	int length;
 } CAT_pickup_list;
 
