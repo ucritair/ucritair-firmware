@@ -42,6 +42,10 @@ bool sen5x_has_been_online = false;
 
 int sen5x_init()
 {
+    //Clear the Fault on init.
+    state.is_faulted = false;
+    g_consecutive_read_failures = 0;
+
     sensirion_i2c_hal_init(dev_i2c);
     CHK(sen5x_device_reset());
     CHK(sen5x_get_product_name(state.name, sizeof(state.name)));
