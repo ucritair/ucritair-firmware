@@ -65,7 +65,7 @@ bool animator_is_finished(const CAT_sprite* sprite)
 	return cycle_complete[sprite->id];
 }
 
-void animator_reset(const CAT_sprite* sprite)
+void CAT_animator_reset(const CAT_sprite* sprite)
 {
 	if(sprite == NULL)
 		return;
@@ -101,7 +101,7 @@ void CAT_anim_tick(CAT_anim_machine* machine)
 		{
 			machine->state = machine->next;
 			machine->next = NULL;
-			animator_reset(machine->state->enter_sprite);
+			CAT_animator_reset(machine->state->enter_sprite);
 			machine->signal = ENTER;
 		}
 		else
@@ -112,7 +112,7 @@ void CAT_anim_tick(CAT_anim_machine* machine)
 	{
 		if(animator_is_finished(machine->state->enter_sprite))
 		{
-			animator_reset(machine->state->tick_sprite);
+			CAT_animator_reset(machine->state->tick_sprite);
 			machine->signal = TICK;
 		}
 	}
@@ -120,7 +120,7 @@ void CAT_anim_tick(CAT_anim_machine* machine)
 	{
 		if(machine->state->tick_sprite == NULL  || machine->next != NULL)
 		{
-			animator_reset(machine->state->exit_sprite);
+			CAT_animator_reset(machine->state->exit_sprite);
 			machine->signal = EXIT;
 		}
 	}

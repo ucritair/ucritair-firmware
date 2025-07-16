@@ -1,14 +1,11 @@
+#include "imu.h"
 
 #include <zephyr/drivers/i2c.h>
 
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(imu, LOG_LEVEL_ERR);
 
-float imu_x, imu_y, imu_z;
-bool imu_recognized_upside_down;
-
 static const struct device* dev_i2c = DEVICE_DT_GET(DT_NODELABEL(arduino_i2c));
-
 const int addr_lis3dh = 0x19;
 
 uint8_t read_lis3dh(uint8_t addr)
@@ -37,10 +34,10 @@ void write_lis3dh(uint8_t addr, uint8_t value)
 void lis3dh_calc_value(uint16_t raw_value, float *final_value, bool isAccel) {
     // Convert with respect to the value being temperature or acceleration reading 
     float scaling;
-    float senstivity = 0.004f; // g per unit
+    float sensitivity = 0.004f; // g per unit
 
     if (isAccel == true) {
-        scaling = 64 / senstivity;
+        scaling = 64 / sensitivity;
     } else {
         scaling = 64;
     }
@@ -62,14 +59,17 @@ void lis3dh_read_data(uint8_t reg, float *final_value, bool IsAccel) {
     lis3dh_calc_value(raw_accel, final_value, IsAccel);
 }
 
-bool ok = true;
-
 #define IMU_REG_CTRL_REG_1 0x20
 #define IMU_REG_CTRL_REG_4 0x23
 #define IMU_REG_CTRL_REG_5 0x24
 #define IMU_REG_TEMP_CFG_REG 0x1f
 
-bool did_post_imu = false;
+bool imu_ok = true;
+bool imu_posted = false;
+
+CAT_IMU_values imu_raw;
+float imu_magnitude;
+CAT_IMU_values imu_normalized;
 
 void imu_init()
 {
@@ -78,7 +78,7 @@ void imu_init()
 	if (whoami != 0x33) 
 	{
 		LOG_ERR("lis3dh whoami=%02x ???", whoami);
-		ok = false;
+		imu_ok = false;
 		return;
 	}
 
@@ -94,18 +94,21 @@ void imu_init()
 
     imu_update();
 
-    float sum_accel = sqrt(imu_x*imu_x + imu_y*imu_y + imu_z*imu_z);
-
-    did_post_imu = (sum_accel > 0.8) && (sum_accel < 1.2);
+    imu_posted = (imu_magnitude > 0.8) && (imu_magnitude < 1.2);
 }
 
 void imu_update()
 {
-	if (!ok) return;
+	if (!imu_ok) return;
 
-	lis3dh_read_data(0x28, &imu_x, true);
-    lis3dh_read_data(0x2A, &imu_y, true);
-    lis3dh_read_data(0x2C, &imu_z, true);
+	lis3dh_read_data(0x28, &imu_raw.x, true);
+    lis3dh_read_data(0x2A, &imu_raw.y, true);
+    lis3dh_read_data(0x2C, &imu_raw.z, true);
 
-    imu_recognized_upside_down = (imu_y > 0.8) && (fabs(imu_x) < 0.2) && (fabs(imu_z) < 0.2);
+	imu_magnitude = sqrt(imu_raw.x*imu_raw.x + imu_raw.y*imu_raw.y + imu_raw.z*imu_raw.z);
+	float inv_mag = 1.0f / imu_magnitude;
+
+	imu_normalized.x = imu_raw.x * inv_mag;
+	imu_normalized.y = imu_raw.y * inv_mag;
+	imu_normalized.z = imu_raw.z * inv_mag;
 }

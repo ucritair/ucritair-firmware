@@ -73,7 +73,7 @@
         {
             "name": "mackerel",
             "display_name": "King Mackerel",
-            "proverb": "When the game is done, the king and the pawn go in the same box.",
+            "proverb": "Man is most free when his tools are proportional to his needs.",
             "min_length": 0.15000000596046448,
             "max_length": 0.4000000059604645,
             "min_lustre": 0.5,
@@ -81,12 +81,12 @@
             "min_wisdom": 0.10000000149011612,
             "max_wisdom": 0.30000001192092896,
             "grade_constraint": 0,
-            "mesh": "horse_mackerel"
+            "mesh": "sardine"
         },
         {
             "name": "crucian_carp",
             "display_name": "Crucian Carp",
-            "proverb": "They also serve, who only stand and wait.",
+            "proverb": "We must not confuse admiration for the machine itself with an automatic satisfaction with its products.",
             "min_length": 0.15000000596046448,
             "max_length": 0.4000000059604645,
             "min_lustre": 0.5,
@@ -94,12 +94,12 @@
             "min_wisdom": 0.10000000149011612,
             "max_wisdom": 0.30000001192092896,
             "grade_constraint": 0,
-            "mesh": "horse_mackerel"
+            "mesh": "crucian_carp"
         },
         {
             "name": "sardine",
             "display_name": "Sardine",
-            "proverb": "The ant finds kingdoms in a foot of ground.",
+            "proverb": "What must be avoided at all costs is dishonest, distorted, and ornate work.",
             "min_length": 0.15000000596046448,
             "max_length": 0.4000000059604645,
             "min_lustre": 0.5,
@@ -107,7 +107,7 @@
             "min_wisdom": 0.10000000149011612,
             "max_wisdom": 0.30000001192092896,
             "grade_constraint": 0,
-            "mesh": "horse_mackerel"
+            "mesh": "sardine"
         },
         {
             "name": "cod",
@@ -120,12 +120,12 @@
             "min_wisdom": 0.10000000149011612,
             "max_wisdom": 0.30000001192092896,
             "grade_constraint": 0,
-            "mesh": "horse_mackerel"
+            "mesh": "cod"
         },
         {
             "name": "herring",
             "display_name": "Herring",
-            "proverb": "Here is the essence of North -- and it's autumn I've chosen as this year's friend.",
+            "proverb": "What must be sought is the natural, direct, simple, sturdy, and safe.",
             "min_length": 0.15000000596046448,
             "max_length": 0.4000000059604645,
             "min_lustre": 0.5,
@@ -133,12 +133,12 @@
             "min_wisdom": 0.10000000149011612,
             "max_wisdom": 0.30000001192092896,
             "grade_constraint": 0,
-            "mesh": "horse_mackerel"
+            "mesh": "herring"
         },
         {
             "name": "tilapia",
             "display_name": "Tilapia",
-            "proverb": "We are kept keen on the grindstone of pain and necessity.",
+            "proverb": "Words are not meant to stir the air only: they are capable of moving greater things.",
             "min_length": 0.15000000596046448,
             "max_length": 0.4000000059604645,
             "min_lustre": 0.5,
@@ -146,12 +146,12 @@
             "min_wisdom": 0.10000000149011612,
             "max_wisdom": 0.30000001192092896,
             "grade_constraint": 0,
-            "mesh": "horse_mackerel"
+            "mesh": "tilapia"
         },
         {
             "name": "crawfish",
             "display_name": "Crawfish",
-            "proverb": "Astacology is the study of crayfish, crawfish, or crawdads.",
+            "proverb": "It is certainly quite wrong to read a poem in a hurry, as if it were a telegram.",
             "min_length": 0.15000000596046448,
             "max_length": 0.4000000059604645,
             "min_lustre": 0.5,
@@ -159,7 +159,7 @@
             "min_wisdom": 0.10000000149011612,
             "max_wisdom": 0.30000001192092896,
             "grade_constraint": 0,
-            "mesh": "horse_mackerel"
+            "mesh": "crawfish"
         },
         {
             "name": "catfish",
@@ -172,12 +172,12 @@
             "min_wisdom": 0.10000000149011612,
             "max_wisdom": 0.30000001192092896,
             "grade_constraint": 1,
-            "mesh": "horse_mackerel"
+            "mesh": "catfish"
         },
         {
             "name": "eel",
             "display_name": "Eel",
-            "proverb": "A certain length is necessary, and a length which can be easily embraced by the memory.",
+            "proverb": "A cicada shell.\\nIt sang itself\\nutterly away.",
             "min_length": 0.15000000596046448,
             "max_length": 0.4000000059604645,
             "min_lustre": 0.5,
@@ -185,7 +185,7 @@
             "min_wisdom": 0.10000000149011612,
             "max_wisdom": 0.30000001192092896,
             "grade_constraint": 1,
-            "mesh": "horse_mackerel"
+            "mesh": "eel"
         },
         {
             "name": "salmon",
@@ -198,12 +198,12 @@
             "min_wisdom": 0.10000000149011612,
             "max_wisdom": 0.30000001192092896,
             "grade_constraint": 1,
-            "mesh": "horse_mackerel"
+            "mesh": "salmon"
         },
         {
             "name": "gindara",
             "display_name": "Gindara",
-            "proverb": "Seek wisdom like silver; search for it like hidden treasure.",
+            "proverb": "As they begin to rise again\\nChrysanthemums faintly smell\\nafter the flooding rain.",
             "min_length": 0.15000000596046448,
             "max_length": 0.4000000059604645,
             "min_lustre": 0.5,
@@ -211,12 +211,12 @@
             "min_wisdom": 0.10000000149011612,
             "max_wisdom": 0.30000001192092896,
             "grade_constraint": 1,
-            "mesh": "horse_mackerel"
+            "mesh": "gindara"
         },
         {
             "name": "ruby_trout",
             "display_name": "Ruby Trout",
-            "proverb": "Take thy rubies, pearls, and diamonds forth, and make thyself a constellation of them all.",
+            "proverb": "A rain drop from\\nthe roof\\nfell into my beer.",
             "min_length": 0.15000000596046448,
             "max_length": 0.4000000059604645,
             "min_lustre": 0.5,
@@ -224,7 +224,7 @@
             "min_wisdom": 0.10000000149011612,
             "max_wisdom": 0.30000001192092896,
             "grade_constraint": 1,
-            "mesh": "horse_mackerel"
+            "mesh": "ruby_trout"
         },
         {
             "name": "skipjack_tuna",
@@ -237,7 +237,7 @@
             "min_wisdom": 0.10000000149011612,
             "max_wisdom": 0.30000001192092896,
             "grade_constraint": 2,
-            "mesh": "horse_mackerel"
+            "mesh": "skipjack_tuna"
         },
         {
             "name": "yellowtail",
@@ -250,7 +250,7 @@
             "min_wisdom": 0.10000000149011612,
             "max_wisdom": 0.30000001192092896,
             "grade_constraint": 2,
-            "mesh": "horse_mackerel"
+            "mesh": "yellowtail"
         },
         {
             "name": "coelecanth",
@@ -263,7 +263,20 @@
             "min_wisdom": 0.10000000149011612,
             "max_wisdom": 0.30000001192092896,
             "grade_constraint": 2,
-            "mesh": "horse_mackerel"
+            "mesh": "coelecanth"
+        },
+        {
+            "name": "myaurr",
+            "display_name": "Myaurr",
+            "proverb": "Myaurr",
+            "grade_constraint": 2,
+            "min_length": 1.0,
+            "max_length": 100.0,
+            "min_lustre": 0.0,
+            "max_lustre": 1.0,
+            "min_wisdom": 0.800000011920929,
+            "max_wisdom": 1.0,
+            "mesh": "myaurr_guy"
         }
     ]
 }

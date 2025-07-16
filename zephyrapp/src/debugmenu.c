@@ -91,6 +91,16 @@ void menu_force_sunrise_abc(void* arg)
 	force_abc_sunrise();
 }
 
+void menu_force_sunrise_zero(void* arg)
+{
+	force_abc_sunrise_target_ppm(0);
+}
+
+void menu_force_sunrise_factory(void* arg)
+{
+	force_abc_sunrise_target_ppm(69);
+}
+
 char textf_buf[256];
 #define textfc(c, ...) snprintf(textf_buf, sizeof(textf_buf)-1, __VA_ARGS__); textc(textf_buf, c);
 #define textf(...) textfc(0xffff, __VA_ARGS__)
@@ -121,7 +131,9 @@ void menu_sensors()
 	textf("VOC: %.1f; NOX: %.1f", (double)readings.sen5x.voc_index, (double)readings.sen5x.nox_index);
 
 	text("");
-	selectable("Force Sunrise ABC", menu_force_sunrise_abc, NULL);
+	selectable("Cal CO2 Ambient", menu_force_sunrise_abc, NULL);
+	selectable("Cal CO2 Factory", menu_force_sunrise_factory, NULL);
+	selectable("Cal CO2 Zero (Nitrogen)", menu_force_sunrise_zero, NULL);
 	selectable("Back", goto_menu, menu_root);
 }
 
@@ -159,7 +171,7 @@ void menu_post()
 	textfc(c, "PM1.0: %.1f | PM2.5: %.1f", (double)readings.sen5x.pm1_0, (double)readings.sen5x.pm2_5);
 
 	text("");
-	textfc(did_post_imu?POST_GRN:POST_RED,         "IMU  %s", did_post_imu?"OK":"FAIL");
+	textfc(imu_posted?POST_GRN:POST_RED,         "IMU  %s", imu_posted?"OK":"FAIL");
 	textfc(did_post_flash?POST_GRN:POST_RED,       "W25Q %s", did_post_flash?"OK":"FAIL");
 	textfc(ble_ok?POST_GRN:POST_RED,               "BLE  %s", ble_ok?"OK":"FAIL");
 #ifdef CONFIG_WIFI
@@ -249,13 +261,16 @@ void menu_touch()
 
 void menu_imu()
 {
-	text("~~IMU MENU~~");
-	textf("X: %01.2f Y: %01.2f Z: %01.2f", (double)imu_x, (double)imu_y, (double)imu_z);
-	textf("Upside down: %s", imu_recognized_upside_down?"YES":"no");
+	CAT_IMU_values imu;
+	CAT_IMU_export_raw(&imu);
 
-	lcd_write_char(0xff00, 100, 150+(80*imu_x), 'X');
-	lcd_write_char(0x0ff0, 120, 150+(80*imu_y), 'Y');
-	lcd_write_char(0x00ff, 140, 150+(80*imu_z), 'Z');
+	text("~~IMU MENU~~");
+	textf("X: %01.2f Y: %01.2f Z: %01.2f", (double) imu.x, (double) imu.y, (double) imu.z);
+	textf("Upside down: %s", CAT_IMU_is_upside_down() ? "YES" : "no");
+
+	lcd_write_char(0xff00, 100, 150+(80*imu.x), 'X');
+	lcd_write_char(0x0ff0, 120, 150+(80*imu.y), 'Y');
+	lcd_write_char(0x00ff, 140, 150+(80*imu.z), 'Z');
 
 	text("");
 	selectable("Back", goto_menu, menu_root);
@@ -333,13 +348,6 @@ void do_populate_next(void* arg)
 	populate_next_log_cell();
 }
 
-
-#include "cat_bag.h"
-void menu_coins(void* arg)
-{
-	coins += 1000;
-}
-
 #include <hal/nrf_rtc.h>
 
 void menu_root()
@@ -358,7 +366,6 @@ void menu_root()
 	selectable("Power Off (for 10s)", menu_power_off, (void*)10000);
 	selectable("Power Off", menu_power_off, (void*)0);
 	selectable("Protected Power Off", menu_power_off_protected, NULL);
-	selectable("+1000 coins", menu_coins, NULL);
 
 	text("")
 	textf("Clock: %lld o=%lld", get_current_rtc_time(), rtc_offset);

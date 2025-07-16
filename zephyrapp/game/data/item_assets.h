@@ -109,3 +109,11 @@
 #define toy_golf_item 106
 #define toy_laser_pointer_item 107
 #define toy_puzzle_item 108
+#define coin_item 109
+#define prop_portal_orange_item 110
+#define prop_portal_blue_item 111
+#define prop_xen_crystal_item 112
+#define prop_hoopy_item 113
+#define save_migrate_mark_item 114
+#define save_reset_mark_item 115
+#define save_extend_mark_item 116

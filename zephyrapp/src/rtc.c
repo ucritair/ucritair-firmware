@@ -62,6 +62,8 @@ void configure_rtc_timer3(int for_ms)
 	nrfx_rtc_cc_set(&rtc_inst, 3, nrf_rtc_counter_get(HW_RTC_CHOSEN) + (for_ms/125), true);
 }
 
+//////////////////////////////////////////////////////////
+// BEGIN PERSIST RAM
 
 // epoch time seconds of RTC=0
 PERSIST_RAM uint64_t rtc_offset;
@@ -89,15 +91,27 @@ PERSIST_RAM uint8_t screen_brightness;
 PERSIST_RAM uint16_t dim_after_seconds;
 PERSIST_RAM uint16_t sleep_after_seconds;
 
-PERSIST_RAM CAT_AQ_moving_scores aq_moving_scores;
-PERSIST_RAM uint32_t aq_moving_scores_last_time;
+//////////////////////////////////////////////////////////
+// AQ SPARKLINE STORE
+
+PERSIST_RAM CAT_AQ_score_block aq_moving_scores;
+PERSIST_RAM uint64_t aq_last_moving_score_time;
 
 PERSIST_RAM CAT_AQ_score_block aq_score_buffer[7];
 PERSIST_RAM uint8_t aq_score_head;
-PERSIST_RAM uint8_t aq_score_count;
-PERSIST_RAM uint32_t aq_score_last_time;
+PERSIST_RAM uint64_t aq_last_buffered_score_time;
 
-#define RTC_INIT_CHECK_MAGIC 0xb8870008
+//////////////////////////////////////////////////////////
+// MISC. STATE CHUNKS
+
+PERSIST_RAM CAT_AQ_crisis_state aq_crisis_state;
+PERSIST_RAM CAT_pet_timing_state pet_timing_state;
+PERSIST_RAM uint64_t persist_flags;
+
+// END PERSIST RAM
+//////////////////////////////////////////////////////////
+
+#define RTC_INIT_CHECK_MAGIC 0xb8870010
 
 bool is_first_init = false;
 
@@ -105,7 +119,7 @@ _Static_assert(sizeof(time_t) == sizeof(uint64_t));
 
 time_t get_current_rtc_time()
 {
-	return ((uint64_t)nrf_rtc_counter_get(HW_RTC_CHOSEN) + rtc_offset) / 8;
+	return ((uint64_t) nrf_rtc_counter_get(HW_RTC_CHOSEN) + rtc_offset) / 8;
 }
 
 void set_rtc_counter_raw(uint64_t t)
@@ -137,7 +151,7 @@ void snapshot_rtc_for_reboot()
 	// wait to synchronize to tick
 	int c = nrf_rtc_counter_get(HW_RTC_CHOSEN);
 	while (nrf_rtc_counter_get(HW_RTC_CHOSEN) == c) {}
-	rtc_offset = rtc_offset + (uint64_t)nrf_rtc_counter_get(HW_RTC_CHOSEN) + 16; // as of SEA-1 we are 1.8945s - so 16 ticks (2.0) forward and then 105.5ms delay to get on time
+	rtc_offset = rtc_offset + (uint64_t) nrf_rtc_counter_get(HW_RTC_CHOSEN) + 16; // as of SEA-1 we are 1.8945s - so 16 ticks (2.0) forward and then 105.5ms delay to get on time
 } 
 
 void check_rtc_init()
@@ -157,31 +171,30 @@ void check_rtc_init()
 		guy_happiness = 1;
 		guy_is_wearing_mask = false;
 		guy_level = 0;
-		const char* waldo_str = "Waldo";
-		for(int i = 0; waldo_str[i] < 5; i++)
-			guy_name[i] = waldo_str[i];
+		const char* name_str = CAT_DEFAULT_PET_NAME;
+		for(int i = 0; name_str[i] < 5; i++)
+			guy_name[i] = name_str[i];
 		guy_name[5] = '\0';
 
 		screen_brightness = BACKLIGHT_FULL;
 		dim_after_seconds = 45;
 		sleep_after_seconds = 120;
+
+		//////////////////////////////////////////////////////////
+		// AQ SPARKLINE STORE
 		
-		aq_moving_scores = (CAT_AQ_moving_scores)
-		{
-			.CO2 = 0,
-			.NOX = 0,
-			.VOC = 0,
-			.PM2_5 = 0,
-			.temp = 0,
-			.rh = 0,
-			.aggregate = 100,
-			.sample_count = 1
-		};
-		aq_moving_scores_last_time = 0;
+		aq_moving_scores = (CAT_AQ_score_block) {0};
+		aq_last_moving_score_time = 0;
 
 		aq_score_head = 0;
-		aq_score_count = 0;
-		aq_score_last_time = 0;
+		aq_last_buffered_score_time = 0;
+
+		//////////////////////////////////////////////////////////
+		// MISC. STATE CHUNKS
+
+		aq_crisis_state = (CAT_AQ_crisis_state) {0};
+		pet_timing_state = (CAT_pet_timing_state) {0};
+		persist_flags = 0;
 	}
 }
 

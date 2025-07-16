@@ -117,9 +117,9 @@ void power_off(int for_ms, bool protected_sleeping)
 	if (cat_game_running)
 	{
 		went_to_sleep_at = get_current_rtc_time();
-		LOG_INF("Saving game...");
 		CAT_force_save();
 	}
+	
 	// fails if active
 	// struct net_if *iface = net_if_get_default();
 	// net_if_down(iface);
@@ -283,10 +283,15 @@ void power_off(int for_ms, bool protected_sleeping)
 		LOG_INF("Waking...");
 		// k_msleep(100);
 
-		snapshot_rtc_for_reboot();
-		nrf_gpio_pin_clear(NRF_GPIO_PIN_MAP(0, 2));
-		sys_reboot(SYS_REBOOT_WARM);
+		power_off_reboot();
 	}
+}
+
+void power_off_reboot()
+{
+	snapshot_rtc_for_reboot();
+	nrf_gpio_pin_clear(NRF_GPIO_PIN_MAP(0, 2));
+	sys_reboot(SYS_REBOOT_WARM);
 }
 
 #include <zephyr/init.h>

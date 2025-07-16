@@ -3,15 +3,11 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-extern uint8_t saved_version_major;
-extern uint8_t saved_version_minor;
-extern uint8_t saved_version_patch;
-extern uint8_t saved_version_push;
+#define EINK_UPDATE_PERIOD CAT_MINUTE_SECONDS
+extern uint64_t last_eink_time;
 
-extern float time_since_eink_update;
-extern const int eink_update_time_threshold;
-
-void CAT_load_reset();
+void CAT_load_default();
+void CAT_load_turnkey();
 void CAT_force_load();
 void CAT_force_save();
 

@@ -23,13 +23,14 @@
                 "write"
             ]
         },
-        "sprite": {
-            "type": "sprite",
+        "tier": {
+            "type": "int",
             "permissions": [
-                "write"
+                "write",
+                "rank"
             ]
         },
-        "icon": {
+        "sprite": {
             "type": "sprite",
             "permissions": [
                 "write"
@@ -43,6 +44,18 @@
         },
         "price": {
             "type": "int",
+            "permissions": [
+                "write"
+            ]
+        },
+        "can_buy": {
+            "type": "bool",
+            "permissions": [
+                "write"
+            ]
+        },
+        "can_sell": {
+            "type": "bool",
             "permissions": [
                 "write"
             ]
@@ -176,259 +189,16 @@
     "entries": [
         {
             "type": "tool",
-            "name": "book_1",
-            "display_name": "The Disposessed",
-            "sprite": "book_study_sprite",
-            "icon": "icon_item_book_sprite",
-            "text": "",
-            "price": 20,
-            "id": 0,
-            "tool_data": {
-                "cursor": "book_static_sprite",
-                "dv": 0,
-                "df": 3,
-                "ds": 0,
-                "type": "book"
-            },
-            "tier": 0
-        },
-        {
-            "type": "tool",
-            "name": "book_2",
-            "display_name": "We Are Legion",
-            "sprite": "book_study_sprite",
-            "icon": "icon_item_book_sprite",
-            "text": "",
-            "price": 20,
-            "id": 1,
-            "tool_data": {
-                "cursor": "book_static_sprite",
-                "dv": 0,
-                "df": 3,
-                "ds": 0,
-                "type": "book"
-            },
-            "tier": 0
-        },
-        {
-            "type": "tool",
-            "name": "book_3",
-            "display_name": "The Forever War",
-            "sprite": "book_study_sprite",
-            "icon": "icon_item_book_sprite",
-            "text": "",
-            "price": 20,
-            "id": 2,
-            "tool_data": {
-                "cursor": "book_static_sprite",
-                "dv": 0,
-                "df": 3,
-                "ds": 0,
-                "type": "book"
-            },
-            "tier": 0
-        },
-        {
-            "type": "tool",
-            "name": "book_4",
-            "display_name": "Ringworld",
-            "sprite": "book_study_sprite",
-            "icon": "icon_item_book_sprite",
-            "text": "",
-            "price": 20,
-            "id": 3,
-            "tool_data": {
-                "cursor": "book_static_sprite",
-                "dv": 0,
-                "df": 3,
-                "ds": 0,
-                "type": "book"
-            },
-            "tier": 0
-        },
-        {
-            "type": "tool",
-            "name": "book_5",
-            "display_name": "The Machine Stops",
-            "sprite": "book_study_sprite",
-            "icon": "icon_item_book_sprite",
-            "text": "",
-            "price": 20,
-            "id": 4,
-            "tool_data": {
-                "cursor": "book_static_sprite",
-                "dv": 0,
-                "df": 3,
-                "ds": 0,
-                "type": "book"
-            },
-            "tier": 0
-        },
-        {
-            "type": "tool",
-            "name": "book_6",
-            "display_name": "Metal Fever",
-            "sprite": "book_study_sprite",
-            "icon": "icon_item_book_sprite",
-            "text": "",
-            "price": 20,
-            "id": 5,
-            "tool_data": {
-                "cursor": "book_static_sprite",
-                "dv": 0,
-                "df": 3,
-                "ds": 0,
-                "type": "book"
-            },
-            "tier": 0
-        },
-        {
-            "type": "key",
-            "name": "fish_grade_0",
-            "display_name": "1-Star Fish",
-            "sprite": "salmon_sprite",
-            "icon": "icon_item_key_sprite",
-            "text": "",
-            "price": 0,
-            "id": 106
-        },
-        {
-            "type": "key",
-            "name": "fish_grade_1",
-            "display_name": "2-Star Fish",
-            "sprite": "salmon_sprite",
-            "icon": "icon_item_key_sprite",
-            "text": "",
-            "price": 0,
-            "id": 107
-        },
-        {
-            "type": "key",
-            "name": "fish_grade_2",
-            "display_name": "3-Star Fish",
-            "sprite": "tuna_sprite",
-            "icon": "icon_item_key_sprite",
-            "text": "",
-            "price": 0,
-            "id": 108
-        },
-        {
-            "type": "tool",
-            "name": "food_bagel",
-            "display_name": "Bagel",
-            "sprite": "bagel_sprite",
-            "icon": "icon_item_food_sprite",
-            "text": "",
-            "price": 5,
-            "id": 88,
-            "tool_data": {
-                "type": "food",
-                "cursor": "",
-                "dv": 0,
-                "df": 0,
-                "ds": 0,
-                "food_data": {
-                    "food_group": "starch",
-                    "food_role": "staple"
-                }
-            }
-        },
-        {
-            "type": "tool",
-            "name": "food_bananas",
-            "display_name": "Bananas",
-            "sprite": "banana_sprite",
-            "icon": "icon_item_food_sprite",
-            "text": "",
-            "price": 2,
-            "id": 89,
-            "tool_data": {
-                "type": "food",
-                "cursor": "",
-                "dv": 0,
-                "df": 0,
-                "ds": 0,
-                "food_data": {
-                    "food_group": "veg",
-                    "food_role": "side"
-                }
-            }
-        },
-        {
-            "type": "tool",
-            "name": "food_barley_tea",
-            "display_name": "Barley Tea",
-            "sprite": "barley_tea_sprite",
-            "icon": "icon_item_food_sprite",
-            "text": "",
-            "price": 3,
-            "id": 6,
-            "tool_data": {
-                "type": "food",
-                "cursor": "",
-                "dv": 0,
-                "df": 0,
-                "ds": 0,
-                "food_data": {
-                    "food_group": "misc",
-                    "food_role": "drink"
-                }
-            }
-        },
-        {
-            "type": "tool",
-            "name": "food_beef_noodles",
-            "display_name": "Beef Noodles",
-            "sprite": "beef_noodle_sprite",
-            "icon": "icon_item_food_sprite",
-            "text": "",
-            "price": 10,
-            "id": 90,
-            "tool_data": {
-                "type": "food",
-                "cursor": "",
-                "dv": 0,
-                "df": 0,
-                "ds": 0,
-                "food_data": {
-                    "food_group": "meat",
-                    "food_role": "main"
-                }
-            }
-        },
-        {
-            "type": "tool",
-            "name": "food_bento",
-            "display_name": "Ebi-Ten Bento",
-            "sprite": "bento_sprite",
-            "icon": "icon_item_food_sprite",
-            "text": "",
-            "price": 15,
-            "id": 7,
-            "tool_data": {
-                "type": "food",
-                "cursor": "",
-                "dv": 0,
-                "df": 0,
-                "ds": 0,
-                "food_data": {
-                    "food_group": "meat",
-                    "food_role": "main"
-                }
-            }
-        },
-        {
-            "type": "tool",
             "name": "food_bread",
             "display_name": "Bread",
             "sprite": "bread_sprite",
             "icon": "icon_item_food_sprite",
-            "text": "",
-            "price": 5,
-            "id": 8,
+            "text": "A freshly baked loaf of bread. It has a soft crust and a slightly cakey crumb.",
+            "price": 3,
+            "id": 14,
             "tool_data": {
                 "cursor": "bread_sprite",
-                "dv": 2,
+                "dv": 1,
                 "df": 0,
                 "ds": 0,
                 "type": "food",
@@ -437,71 +207,9 @@
                     "food_role": "staple"
                 }
             },
-            "tier": 0
-        },
-        {
-            "type": "tool",
-            "name": "food_burger",
-            "display_name": "Burger",
-            "sprite": "burger_sprite",
-            "icon": "icon_item_food_sprite",
-            "text": "",
-            "price": 7,
-            "id": 91,
-            "tool_data": {
-                "type": "food",
-                "cursor": "",
-                "dv": 0,
-                "df": 0,
-                "ds": 0,
-                "food_data": {
-                    "food_group": "meat",
-                    "food_role": "main"
-                }
-            }
-        },
-        {
-            "type": "tool",
-            "name": "food_carrots",
-            "display_name": "Carrots",
-            "sprite": "carrot_sprite",
-            "icon": "icon_item_food_sprite",
-            "text": "",
-            "price": 3,
-            "id": 92,
-            "tool_data": {
-                "type": "food",
-                "cursor": "",
-                "dv": 0,
-                "df": 0,
-                "ds": 0,
-                "food_data": {
-                    "food_group": "veg",
-                    "food_role": "side"
-                }
-            }
-        },
-        {
-            "type": "tool",
-            "name": "food_cigs",
-            "display_name": "Cigarettes",
-            "sprite": "cigarette_sprite",
-            "icon": "icon_item_food_sprite",
-            "text": "",
-            "price": 10,
-            "id": 9,
-            "tool_data": {
-                "cursor": "cigarette_sprite",
-                "dv": -1,
-                "df": 3,
-                "ds": 1,
-                "type": "food",
-                "food_data": {
-                    "food_group": "misc",
-                    "food_role": "vice"
-                }
-            },
-            "tier": 0
+            "tier": 1,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "tool",
@@ -509,9 +217,9 @@
             "display_name": "Coffee",
             "sprite": "coffee_sprite",
             "icon": "icon_item_food_sprite",
-            "text": "",
-            "price": 2,
-            "id": 10,
+            "text": "A hot cup of coffee. It's a dark roast with a chocolatey flavour. Some might think it almost tastes burnt.",
+            "price": 3,
+            "id": 18,
             "tool_data": {
                 "cursor": "coffee_sprite",
                 "dv": 1,
@@ -523,198 +231,9 @@
                     "food_role": "drink"
                 }
             },
-            "tier": 0
-        },
-        {
-            "type": "tool",
-            "name": "food_congee",
-            "display_name": "Congee",
-            "sprite": "congee_sprite",
-            "icon": "icon_item_food_sprite",
-            "text": "",
-            "price": 3,
-            "id": 93,
-            "tool_data": {
-                "type": "food",
-                "cursor": "",
-                "dv": 0,
-                "df": 0,
-                "ds": 0,
-                "food_data": {
-                    "food_group": "starch",
-                    "food_role": "staple"
-                }
-            }
-        },
-        {
-            "type": "tool",
-            "name": "food_curry_green",
-            "display_name": "Green Curry",
-            "sprite": "green_curry_sprite",
-            "icon": "icon_item_food_sprite",
-            "text": "",
-            "price": 15,
-            "id": 11,
-            "tool_data": {
-                "cursor": "green_curry_sprite",
-                "dv": 5,
-                "df": 0,
-                "ds": 0,
-                "type": "food",
-                "food_data": {
-                    "food_group": "veg",
-                    "food_role": "main"
-                }
-            },
-            "tier": 0
-        },
-        {
-            "type": "tool",
-            "name": "food_curry_red",
-            "display_name": "Red Curry",
-            "sprite": "red_curry_sprite",
-            "icon": "icon_item_food_sprite",
-            "text": "",
-            "price": 15,
-            "id": 12,
-            "tool_data": {
-                "cursor": "red_curry_sprite",
-                "dv": 5,
-                "df": 0,
-                "ds": 0,
-                "type": "food",
-                "food_data": {
-                    "food_group": "meat",
-                    "food_role": "main"
-                }
-            },
-            "tier": 0
-        },
-        {
-            "type": "tool",
-            "name": "food_donut",
-            "display_name": "Donut",
-            "sprite": "donut_sprite",
-            "icon": "icon_item_food_sprite",
-            "text": "",
-            "price": 5,
-            "id": 94,
-            "tool_data": {
-                "type": "food",
-                "cursor": "",
-                "dv": 0,
-                "df": 0,
-                "ds": 0,
-                "food_data": {
-                    "food_group": "starch",
-                    "food_role": "treat"
-                }
-            }
-        },
-        {
-            "type": "tool",
-            "name": "food_dumplings",
-            "display_name": "Pork Dumplings",
-            "sprite": "dumplings_sprite",
-            "icon": "icon_item_food_sprite",
-            "text": "",
-            "price": 5,
-            "id": 95,
-            "tool_data": {
-                "type": "food",
-                "cursor": "",
-                "dv": 0,
-                "df": 0,
-                "ds": 0,
-                "food_data": {
-                    "food_group": "meat",
-                    "food_role": "main"
-                }
-            }
-        },
-        {
-            "type": "tool",
-            "name": "food_egg",
-            "display_name": "Egg",
-            "sprite": "egg_sprite",
-            "icon": "icon_item_food_sprite",
-            "text": "",
-            "price": 5,
-            "id": 96,
-            "tool_data": {
-                "type": "food",
-                "cursor": "",
-                "dv": 0,
-                "df": 0,
-                "ds": 0,
-                "food_data": {
-                    "food_group": "dairy",
-                    "food_role": "side"
-                }
-            }
-        },
-        {
-            "type": "tool",
-            "name": "food_empanadas",
-            "display_name": "Beef Empanadas",
-            "sprite": "empanadas_sprite",
-            "icon": "icon_item_food_sprite",
-            "text": "",
-            "price": 7,
-            "id": 97,
-            "tool_data": {
-                "type": "food",
-                "cursor": "",
-                "dv": 0,
-                "df": 0,
-                "ds": 0,
-                "food_data": {
-                    "food_group": "meat",
-                    "food_role": "main"
-                }
-            }
-        },
-        {
-            "type": "tool",
-            "name": "food_green_tea",
-            "display_name": "Green Tea",
-            "sprite": "green_tea_sprite",
-            "icon": "icon_item_food_sprite",
-            "text": "",
-            "price": 3,
-            "id": 104,
-            "tool_data": {
-                "type": "food",
-                "cursor": "",
-                "dv": 0,
-                "df": 0,
-                "ds": 0,
-                "food_data": {
-                    "food_group": "misc",
-                    "food_role": "drink"
-                }
-            }
-        },
-        {
-            "type": "tool",
-            "name": "food_hotdog",
-            "display_name": "Hotdog",
-            "sprite": "hotdog_sprite",
-            "icon": "icon_item_food_sprite",
-            "text": "",
-            "price": 5,
-            "id": 98,
-            "tool_data": {
-                "type": "food",
-                "cursor": "",
-                "dv": 0,
-                "df": 0,
-                "ds": 0,
-                "food_data": {
-                    "food_group": "meat",
-                    "food_role": "main"
-                }
-            }
+            "tier": 1,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "tool",
@@ -722,9 +241,9 @@
             "display_name": "Milk",
             "sprite": "milk_sprite",
             "icon": "icon_item_food_sprite",
-            "text": "",
+            "text": "Fresh milk in a white paper carton. Somehow rich and refreshing all at once.",
             "price": 3,
-            "id": 13,
+            "id": 28,
             "tool_data": {
                 "cursor": "milk_sprite",
                 "dv": 1,
@@ -736,62 +255,70 @@
                     "food_role": "drink"
                 }
             },
-            "tier": 0
+            "tier": 1,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "tool",
-            "name": "food_nasi_lemak",
-            "display_name": "Nasi Lemak",
-            "sprite": "nasi_lemak_sprite",
+            "name": "food_soup",
+            "display_name": "Soup",
+            "sprite": "soup_sprite",
             "icon": "icon_item_food_sprite",
-            "text": "",
-            "price": 10,
-            "id": 99,
+            "text": "Piping hot soup. Excellent in sickness or in health.",
+            "price": 3,
+            "id": 42,
             "tool_data": {
-                "type": "food",
-                "cursor": "",
-                "dv": 0,
+                "cursor": "soup_sprite",
+                "dv": 1,
                 "df": 0,
                 "ds": 0,
+                "type": "food",
                 "food_data": {
                     "food_group": "veg",
-                    "food_role": "main"
+                    "food_role": "soup"
                 }
-            }
+            },
+            "tier": 1,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "tool",
-            "name": "food_oranges",
-            "display_name": "Oranges",
-            "sprite": "orange_sprite",
+            "name": "food_salad",
+            "display_name": "Salad",
+            "sprite": "salad_sprite",
             "icon": "icon_item_food_sprite",
-            "text": "",
+            "text": "A crisp fresh salad with just enough dressing. It's even got toasted pumpkin seeds.",
             "price": 3,
-            "id": 14,
+            "id": 38,
             "tool_data": {
-                "type": "food",
-                "cursor": "",
-                "dv": 0,
+                "cursor": "salad_sprite",
+                "dv": 1,
                 "df": 0,
                 "ds": 0,
+                "type": "food",
                 "food_data": {
                     "food_group": "veg",
                     "food_role": "side"
                 }
-            }
+            },
+            "tier": 1,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "tool",
-            "name": "food_pad_ka_prow",
-            "display_name": "Pad Ka Prow",
-            "sprite": "padkaprow_sprite",
+            "name": "food_sausage",
+            "display_name": "Sausage",
+            "sprite": "sausage_sprite",
             "icon": "icon_item_food_sprite",
-            "text": "",
-            "price": 15,
-            "id": 15,
+            "text": "Sausages grilled on a skewer. The casing is snappy and gives way to a meaty interior.",
+            "price": 3,
+            "id": 40,
             "tool_data": {
-                "cursor": "padkaprow_sprite",
-                "dv": 5,
+                "cursor": "sausage_sprite",
+                "dv": 1,
                 "df": 0,
                 "ds": 0,
                 "type": "food",
@@ -800,72 +327,81 @@
                     "food_role": "main"
                 }
             },
-            "tier": 0
+            "tier": 1,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "tool",
-            "name": "food_persimmons",
-            "display_name": "Persimmons",
-            "sprite": "persimmons_sprite",
+            "name": "food_curry_green",
+            "display_name": "Green Curry",
+            "sprite": "green_curry_sprite",
             "icon": "icon_item_food_sprite",
-            "text": "",
-            "price": 5,
-            "id": 16,
+            "text": "A hot curry that tastes of coconut and green chili.",
+            "price": 12,
+            "id": 20,
             "tool_data": {
-                "type": "food",
-                "cursor": "",
-                "dv": 0,
+                "cursor": "green_curry_sprite",
+                "dv": 3,
                 "df": 0,
                 "ds": 0,
+                "type": "food",
                 "food_data": {
                     "food_group": "veg",
-                    "food_role": "side"
+                    "food_role": "main"
                 }
-            }
+            },
+            "tier": 3,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "tool",
-            "name": "food_pill_foc",
-            "display_name": "Focus Seed",
-            "sprite": "pill_foc_sprite",
+            "name": "food_curry_red",
+            "display_name": "Red Curry",
+            "sprite": "red_curry_sprite",
             "icon": "icon_item_food_sprite",
-            "text": "",
-            "price": 3,
-            "id": 17,
+            "text": "A deep red curry with a warming heat behind it.",
+            "price": 12,
+            "id": 21,
             "tool_data": {
-                "cursor": "pill_foc_sprite",
-                "dv": 0,
-                "df": 1,
+                "cursor": "red_curry_sprite",
+                "dv": 3,
+                "df": 0,
                 "ds": 0,
                 "type": "food",
                 "food_data": {
-                    "food_group": "misc",
-                    "food_role": "vice"
+                    "food_group": "meat",
+                    "food_role": "main"
                 }
             },
-            "tier": 0
+            "tier": 3,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "tool",
-            "name": "food_pill_spi",
-            "display_name": "Spirit Seed",
-            "sprite": "pill_spi_sprite",
+            "name": "food_pad_ka_prow",
+            "display_name": "Pad Ka Prow",
+            "sprite": "padkaprow_sprite",
             "icon": "icon_item_food_sprite",
-            "text": "",
-            "price": 3,
-            "id": 18,
+            "text": "Perfectly browned ground meat with wisps of basil over rice. It's got everything, even an egg.",
+            "price": 12,
+            "id": 31,
             "tool_data": {
-                "cursor": "pill_spi_sprite",
-                "dv": 0,
+                "cursor": "padkaprow_sprite",
+                "dv": 3,
                 "df": 0,
-                "ds": 1,
+                "ds": 0,
                 "type": "food",
                 "food_data": {
-                    "food_group": "misc",
-                    "food_role": "vice"
+                    "food_group": "meat",
+                    "food_role": "main"
                 }
             },
-            "tier": 0
+            "tier": 3,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "tool",
@@ -873,9 +409,9 @@
             "display_name": "Vigour Seed",
             "sprite": "pill_vig_sprite",
             "icon": "icon_item_food_sprite",
-            "text": "",
+            "text": "A bitter pill that will reinvigorate you.",
             "price": 3,
-            "id": 19,
+            "id": 35,
             "tool_data": {
                 "cursor": "pill_vig_sprite",
                 "dv": 1,
@@ -887,199 +423,301 @@
                     "food_role": "vice"
                 }
             },
-            "tier": 0
+            "tier": 1,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "tool",
-            "name": "food_ramen",
-            "display_name": "Chashu Ramen",
-            "sprite": "ramen_sprite",
+            "name": "food_pill_foc",
+            "display_name": "Focus Seed",
+            "sprite": "pill_foc_sprite",
             "icon": "icon_item_food_sprite",
-            "text": "",
-            "price": 10,
-            "id": 100,
-            "tool_data": {
-                "type": "food",
-                "cursor": "",
-                "dv": 0,
-                "df": 0,
-                "ds": 0,
-                "food_data": {
-                    "food_group": "meat",
-                    "food_role": "main"
-                }
-            }
-        },
-        {
-            "type": "tool",
-            "name": "food_raw_meat",
-            "display_name": "Raw Meat",
-            "sprite": "meat_sprite",
-            "icon": "icon_item_food_sprite",
-            "text": "",
-            "price": 8,
-            "id": 20,
-            "tool_data": {
-                "type": "food",
-                "cursor": "",
-                "dv": 0,
-                "df": 0,
-                "ds": 0,
-                "food_data": {
-                    "food_group": "meat",
-                    "food_role": "treat"
-                }
-            }
-        },
-        {
-            "type": "tool",
-            "name": "food_salad",
-            "display_name": "Salad",
-            "sprite": "salad_sprite",
-            "icon": "icon_item_food_sprite",
-            "text": "",
-            "price": 5,
-            "id": 21,
-            "tool_data": {
-                "cursor": "salad_sprite",
-                "dv": 3,
-                "df": 0,
-                "ds": 0,
-                "type": "food",
-                "food_data": {
-                    "food_group": "veg",
-                    "food_role": "side"
-                }
-            },
-            "tier": 0
-        },
-        {
-            "type": "tool",
-            "name": "food_salmon",
-            "display_name": "Salmon",
-            "sprite": "salmon_sprite",
-            "icon": "icon_item_food_sprite",
-            "text": "",
-            "price": 8,
-            "id": 101,
-            "tool_data": {
-                "type": "food",
-                "cursor": "",
-                "dv": 0,
-                "df": 0,
-                "ds": 0,
-                "food_data": {
-                    "food_group": "meat",
-                    "food_role": "main"
-                }
-            }
-        },
-        {
-            "type": "tool",
-            "name": "food_sausage",
-            "display_name": "Sausage",
-            "sprite": "sausage_sprite",
-            "icon": "icon_item_food_sprite",
-            "text": "",
-            "price": 7,
-            "id": 22,
-            "tool_data": {
-                "cursor": "sausage_sprite",
-                "dv": 3,
-                "df": 0,
-                "ds": 0,
-                "type": "food",
-                "food_data": {
-                    "food_group": "meat",
-                    "food_role": "main"
-                }
-            },
-            "tier": 0
-        },
-        {
-            "type": "tool",
-            "name": "food_soda",
-            "display_name": "Soda",
-            "sprite": "soda_sprite",
-            "icon": "icon_item_food_sprite",
-            "text": "",
+            "text": "A bitter pill that will sharpen your focus.",
             "price": 3,
-            "id": 102,
+            "id": 33,
             "tool_data": {
-                "type": "food",
-                "cursor": "",
-                "dv": 0,
-                "df": 0,
+                "cursor": "pill_foc_sprite",
+                "dv": 1,
+                "df": 1,
                 "ds": 0,
+                "type": "food",
                 "food_data": {
                     "food_group": "misc",
-                    "food_role": "treat"
-                }
-            }
-        },
-        {
-            "type": "tool",
-            "name": "food_soup",
-            "display_name": "Soup",
-            "sprite": "soup_sprite",
-            "icon": "icon_item_food_sprite",
-            "text": "",
-            "price": 5,
-            "id": 23,
-            "tool_data": {
-                "cursor": "soup_sprite",
-                "dv": 3,
-                "df": 0,
-                "ds": 0,
-                "type": "food",
-                "food_data": {
-                    "food_group": "veg",
-                    "food_role": "soup"
+                    "food_role": "vice"
                 }
             },
-            "tier": 0
+            "tier": 1,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "tool",
-            "name": "food_strange_meal",
-            "display_name": "Strange Meal",
-            "sprite": "strange_meal_sprite",
+            "name": "food_pill_spi",
+            "display_name": "Spirit Seed",
+            "sprite": "pill_spi_sprite",
             "icon": "icon_item_food_sprite",
-            "text": "",
-            "price": 10,
-            "id": 103,
+            "text": "A bitter pill that will raise your spirits.",
+            "price": 3,
+            "id": 34,
             "tool_data": {
-                "type": "food",
-                "cursor": "",
-                "dv": 0,
+                "cursor": "pill_spi_sprite",
+                "dv": 1,
                 "df": 0,
-                "ds": 0,
+                "ds": 1,
+                "type": "food",
                 "food_data": {
                     "food_group": "misc",
-                    "food_role": "main"
+                    "food_role": "vice"
                 }
-            }
+            },
+            "tier": 1,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "tool",
-            "name": "food_tuna",
-            "display_name": "Tuna",
-            "sprite": "tuna_sprite",
+            "name": "food_cigs",
+            "display_name": "Cigarettes",
+            "sprite": "cigarette_sprite",
             "icon": "icon_item_food_sprite",
-            "text": "",
-            "price": 8,
+            "text": "They're awful for you. Where did you even find these?",
+            "price": 0,
+            "id": 17,
+            "tool_data": {
+                "cursor": "cigarette_sprite",
+                "dv": 0,
+                "df": 3,
+                "ds": 1,
+                "type": "food",
+                "food_data": {
+                    "food_group": "misc",
+                    "food_role": "vice"
+                }
+            },
+            "tier": 0,
+            "can_buy": false,
+            "can_sell": false
+        },
+        {
+            "type": "tool",
+            "name": "book_1",
+            "display_name": "The Disposessed",
+            "sprite": "book_study_sprite",
+            "icon": "icon_item_book_sprite",
+            "text": "Nothing is yours. It is to use. It is to share. If you will not share it, you cannot use it.",
+            "price": 7,
+            "id": 0,
+            "tool_data": {
+                "cursor": "book_static_sprite",
+                "dv": 0,
+                "df": 3,
+                "ds": 0,
+                "type": "book"
+            },
+            "tier": 1,
+            "can_buy": true,
+            "can_sell": false
+        },
+        {
+            "type": "tool",
+            "name": "book_2",
+            "display_name": "A Wizard of Earthsea",
+            "sprite": "book_study_sprite",
+            "icon": "icon_item_book_sprite",
+            "text": "Go to bed; tired is stupid.",
+            "price": 7,
+            "id": 1,
+            "tool_data": {
+                "cursor": "book_static_sprite",
+                "dv": 0,
+                "df": 3,
+                "ds": 0,
+                "type": "book"
+            },
+            "tier": 1,
+            "can_buy": true,
+            "can_sell": false
+        },
+        {
+            "type": "tool",
+            "name": "book_3",
+            "display_name": "The Beauty of Everyday Things",
+            "sprite": "book_study_sprite",
+            "icon": "icon_item_book_sprite",
+            "text": "There is no greater opportunity for appreciating beauty than through its use in our everyday lives.",
+            "price": 7,
+            "id": 2,
+            "tool_data": {
+                "cursor": "book_static_sprite",
+                "dv": 0,
+                "df": 3,
+                "ds": 0,
+                "type": "book"
+            },
+            "tier": 1,
+            "can_buy": true,
+            "can_sell": false
+        },
+        {
+            "type": "tool",
+            "name": "book_4",
+            "display_name": "The Uses of Disorder",
+            "sprite": "book_study_sprite",
+            "icon": "icon_item_book_sprite",
+            "text": "The desire for purified identity is a state of absolute bondage to the status quo.",
+            "price": 7,
+            "id": 3,
+            "tool_data": {
+                "cursor": "book_static_sprite",
+                "dv": 0,
+                "df": 3,
+                "ds": 0,
+                "type": "book"
+            },
+            "tier": 1,
+            "can_buy": true,
+            "can_sell": false
+        },
+        {
+            "type": "tool",
+            "name": "book_5",
+            "display_name": "Structure and Interpretation of Computer Programs",
+            "sprite": "book_study_sprite",
+            "icon": "icon_item_book_sprite",
+            "text": "The programmer must seek both perfection of part and adequacy of collection.",
+            "price": 7,
+            "id": 4,
+            "tool_data": {
+                "cursor": "book_static_sprite",
+                "dv": 0,
+                "df": 3,
+                "ds": 0,
+                "type": "book"
+            },
+            "tier": 1,
+            "can_buy": true,
+            "can_sell": false
+        },
+        {
+            "type": "tool",
+            "name": "book_6",
+            "display_name": "Kokoro",
+            "sprite": "book_study_sprite",
+            "icon": "icon_item_book_sprite",
+            "text": "Now I am going to destroy my heart myself, and pour my blood into your veins.",
+            "price": 7,
+            "id": 5,
+            "tool_data": {
+                "cursor": "book_static_sprite",
+                "dv": 0,
+                "df": 3,
+                "ds": 0,
+                "type": "book"
+            },
+            "tier": 1,
+            "can_buy": true,
+            "can_sell": false
+        },
+        {
+            "type": "tool",
+            "name": "toy_duck",
+            "display_name": "Ducky",
+            "sprite": "toy_duck_sprite",
+            "icon": "icon_item_toy_sprite",
+            "text": "A rubber ducky. Squeeze it to see if it makes a noise.",
+            "price": 21,
             "id": 105,
             "tool_data": {
-                "type": "food",
-                "cursor": "",
+                "cursor": "toy_duck_sprite",
                 "dv": 0,
                 "df": 0,
-                "ds": 0,
-                "food_data": {
-                    "food_group": "meat",
-                    "food_role": "main"
-                }
-            }
+                "ds": 3,
+                "type": "toy"
+            },
+            "tier": 3,
+            "can_buy": true,
+            "can_sell": false
+        },
+        {
+            "type": "tool",
+            "name": "toy_baseball",
+            "display_name": "Baseball",
+            "sprite": "toy_baseball_sprite",
+            "icon": "icon_item_toy_sprite",
+            "text": "White leather is pulled perfectly taut over its core. Its red stitching gleams softly.",
+            "price": 7,
+            "id": 103,
+            "tool_data": {
+                "cursor": "toy_baseball_sprite",
+                "dv": 0,
+                "df": 0,
+                "ds": 1,
+                "type": "toy"
+            },
+            "tier": 1,
+            "can_buy": true,
+            "can_sell": false
+        },
+        {
+            "type": "tool",
+            "name": "toy_basketball",
+            "display_name": "Basketball",
+            "sprite": "toy_basketball_sprite",
+            "icon": "icon_item_toy_sprite",
+            "text": "It bounces instantly up from the floor. The smell of fresh rubber.",
+            "price": 14,
+            "id": 104,
+            "tool_data": {
+                "cursor": "toy_basketball_sprite",
+                "dv": 0,
+                "df": 0,
+                "ds": 2,
+                "type": "toy"
+            },
+            "tier": 2,
+            "can_buy": true,
+            "can_sell": false
+        },
+        {
+            "type": "tool",
+            "name": "toy_golf",
+            "display_name": "Golf Ball",
+            "sprite": "toy_golf_sprite",
+            "icon": "icon_item_toy_sprite",
+            "text": "Just by looking at it you can hear the crack of the club's contact.",
+            "price": 7,
+            "id": 106,
+            "tool_data": {
+                "cursor": "toy_golf_sprite",
+                "dv": 0,
+                "df": 0,
+                "ds": 1,
+                "type": "toy"
+            },
+            "tier": 1,
+            "can_buy": true,
+            "can_sell": false
+        },
+        {
+            "type": "tool",
+            "name": "toy_puzzle",
+            "display_name": "Puzzle",
+            "sprite": "toy_puzzle_sprite",
+            "icon": "icon_item_toy_sprite",
+            "text": "If you touch it, you'll start looking for a place to put it.",
+            "price": 14,
+            "id": 108,
+            "tool_data": {
+                "cursor": "toy_puzzle_sprite",
+                "dv": 0,
+                "df": 0,
+                "ds": 2,
+                "type": "toy"
+            },
+            "tier": 2,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "key",
@@ -1087,120 +725,132 @@
             "display_name": "Mask",
             "sprite": "icon_mask_sprite",
             "icon": "icon_item_key_sprite",
-            "text": "",
+            "text": "This mask can protect you from some, but certainly not all, airborne risks.",
             "price": 10,
-            "id": 24,
-            "tier": 0
+            "id": 45,
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "prop",
-            "name": "prop_bowl_gold",
-            "display_name": "Gold Bowl",
-            "sprite": "bowl_gold_sprite",
+            "name": "prop_eth_farm",
+            "display_name": "Defunct Crafting Station",
+            "sprite": "prop_crafter_sprite",
             "icon": "icon_item_prop_sprite",
-            "text": "",
+            "text": "Though dormant now, it is clearly a fine machine. Nothing made so well can be useless for long.",
+            "price": 100,
+            "id": 66,
+            "prop_data": {
+                "shape": [
+                    3,
+                    1
+                ],
+                "animate": true,
+                "child_dy": 0,
+                "type": "default"
+            },
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
+        },
+        {
+            "type": "prop",
+            "name": "prop_uv_lamp",
+            "display_name": "UV Lamp",
+            "sprite": "uv_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "Its ghostly light will banish airborne pathogens.",
+            "price": 50,
+            "id": 96,
+            "prop_data": {
+                "shape": [
+                    1,
+                    1
+                ],
+                "animate": true,
+                "child_dy": 0,
+                "type": "top"
+            },
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
+        },
+        {
+            "type": "prop",
+            "name": "prop_purifier",
+            "display_name": "Air Purifier",
+            "sprite": "purifier_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "It processes the air around you, leaving it cleaner than before.",
+            "price": 50,
+            "id": 80,
+            "prop_data": {
+                "shape": [
+                    2,
+                    1
+                ],
+                "animate": true,
+                "child_dy": 0,
+                "type": "default"
+            },
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
+        },
+        {
+            "type": "prop",
+            "name": "prop_coffeemaker",
+            "display_name": "Coffee Machine",
+            "sprite": "coffeemaker_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "It is simple to use and produces serviceable coffee. Its gentle sound colours your mornings.",
+            "price": 40,
+            "id": 59,
+            "prop_data": {
+                "shape": [
+                    2,
+                    1
+                ],
+                "animate": true,
+                "child_dy": -6,
+                "type": "top"
+            },
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
+        },
+        {
+            "type": "prop",
+            "name": "prop_fan_classic",
+            "display_name": "Classic Fan",
+            "sprite": "fan_a_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "Not state of the art, but tried and true. A vision of relief in summer.",
             "price": 20,
-            "id": 25,
+            "id": 67,
             "prop_data": {
                 "shape": [
-                    1,
+                    2,
                     1
                 ],
                 "animate": true,
                 "child_dy": 0,
                 "type": "top"
             },
-            "tier": 0
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "prop",
-            "name": "prop_bowl_grey",
-            "display_name": "Grey Bowl",
-            "sprite": "bowl_grey_sprite",
+            "name": "prop_fan_modern",
+            "display_name": "Modern Fan",
+            "sprite": "fan_b_sprite",
             "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 5,
-            "id": 26,
-            "prop_data": {
-                "shape": [
-                    1,
-                    1
-                ],
-                "animate": true,
-                "child_dy": 0,
-                "type": "top"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_bowl_mahogany",
-            "display_name": "Mahogany Bowl",
-            "sprite": "bowl_mahogany_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 7,
-            "id": 27,
-            "prop_data": {
-                "shape": [
-                    1,
-                    1
-                ],
-                "animate": true,
-                "child_dy": 0,
-                "type": "top"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_bowl_stone",
-            "display_name": "Stone Bowl",
-            "sprite": "bowl_stone_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 10,
-            "id": 28,
-            "prop_data": {
-                "shape": [
-                    1,
-                    1
-                ],
-                "animate": true,
-                "child_dy": 0,
-                "type": "top"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_bowl_walnut",
-            "display_name": "Walnut Bowl",
-            "sprite": "bowl_walnut_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 7,
-            "id": 29,
-            "prop_data": {
-                "shape": [
-                    1,
-                    1
-                ],
-                "animate": true,
-                "child_dy": 0,
-                "type": "top"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_bush_daisy",
-            "display_name": "Daisy Bush",
-            "sprite": "bush_daisy_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
+            "text": "A rather advanced fan. Popular with those who seek to understand air.",
             "price": 30,
-            "id": 30,
+            "id": 68,
             "prop_data": {
                 "shape": [
                     2,
@@ -1208,109 +858,55 @@
                 ],
                 "animate": true,
                 "child_dy": 0,
-                "type": "default"
+                "type": "top"
             },
-            "tier": 0
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "prop",
-            "name": "prop_bush_lilac",
-            "display_name": "Lilac Bush",
-            "sprite": "bush_lilac_sprite",
+            "name": "prop_lantern",
+            "display_name": "Lantern",
+            "sprite": "lantern_sprite",
             "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 30,
-            "id": 31,
-            "prop_data": {
-                "shape": [
-                    2,
-                    1
-                ],
-                "animate": true,
-                "child_dy": 0,
-                "type": "default"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_bush_plain",
-            "display_name": "Bush",
-            "sprite": "bush_plain_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 10,
-            "id": 32,
-            "prop_data": {
-                "shape": [
-                    2,
-                    1
-                ],
-                "animate": true,
-                "child_dy": 0,
-                "type": "default"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_chair_mahogany",
-            "display_name": "Mahogany Chair",
-            "sprite": "chair_mahogany_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
+            "text": "A sturdy but finely wrought lantern. Its light spills over its metalwork.",
             "price": 20,
-            "id": 33,
+            "id": 70,
             "prop_data": {
                 "shape": [
-                    2,
-                    2
+                    1,
+                    1
                 ],
-                "animate": false,
+                "animate": true,
                 "child_dy": 0,
-                "type": "default"
+                "type": "top"
             },
-            "tier": 0
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "prop",
-            "name": "prop_chair_plastic",
-            "display_name": "Plastic Chair",
-            "sprite": "chair_plastic_sprite",
+            "name": "prop_laptop",
+            "display_name": "Laptop",
+            "sprite": "laptop_sprite",
             "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 10,
-            "id": 34,
+            "text": "A surprisingly sturdy laptop. It invites you to fill it with software.",
+            "price": 80,
+            "id": 71,
             "prop_data": {
                 "shape": [
                     2,
-                    2
+                    1
                 ],
-                "animate": false,
-                "child_dy": 0,
-                "type": "default"
+                "animate": true,
+                "child_dy": -8,
+                "type": "top"
             },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_chair_stone",
-            "display_name": "Stone Chair",
-            "sprite": "chair_stone_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 15,
-            "id": 35,
-            "prop_data": {
-                "shape": [
-                    2,
-                    2
-                ],
-                "animate": false,
-                "child_dy": 0,
-                "type": "default"
-            },
-            "tier": 0
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "prop",
@@ -1318,9 +914,9 @@
             "display_name": "Chess Set",
             "sprite": "chess_sprite",
             "icon": "icon_item_prop_sprite",
-            "text": "",
+            "text": "A beautiful chess set with polished pieces. Your critter is smart, but can it really use this?",
             "price": 40,
-            "id": 36,
+            "id": 57,
             "prop_data": {
                 "shape": [
                     2,
@@ -1330,256 +926,348 @@
                 "child_dy": -16,
                 "type": "top"
             },
-            "tier": 0
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "prop",
-            "name": "prop_chicken",
-            "display_name": "Chicken",
-            "sprite": "chicken_sprite",
+            "name": "prop_table_mahogany",
+            "display_name": "Mahogany Table",
+            "sprite": "table_mahogany_sprite",
             "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 50,
-            "id": 37,
-            "prop_data": {
-                "shape": [
-                    2,
-                    1
-                ],
-                "animate": true,
-                "child_dy": -6,
-                "type": "top"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_coffeemaker",
-            "display_name": "Coffee Machine",
-            "sprite": "coffeemaker_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 40,
-            "id": 38,
-            "prop_data": {
-                "shape": [
-                    2,
-                    1
-                ],
-                "animate": true,
-                "child_dy": -6,
-                "type": "top"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_crystal_blue",
-            "display_name": "Blue Crystal",
-            "sprite": "crystal_blue_lg_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 50,
-            "id": 39,
-            "prop_data": {
-                "shape": [
-                    2,
-                    1
-                ],
-                "animate": true,
-                "child_dy": 0,
-                "type": "default"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_crystal_green",
-            "display_name": "Green Crystal",
-            "sprite": "crystal_green_lg_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 50,
-            "id": 40,
-            "prop_data": {
-                "shape": [
-                    2,
-                    1
-                ],
-                "animate": true,
-                "child_dy": 0,
-                "type": "default"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_crystal_purple",
-            "display_name": "Purple Crystal",
-            "sprite": "crystal_purple_lg_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 50,
-            "id": 41,
-            "prop_data": {
-                "shape": [
-                    2,
-                    1
-                ],
-                "animate": true,
-                "child_dy": 0,
-                "type": "default"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_effigy_blue",
-            "display_name": "Blue Effigy",
-            "sprite": "effigy_blue_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 40,
-            "id": 42,
-            "prop_data": {
-                "shape": [
-                    3,
-                    1
-                ],
-                "animate": true,
-                "child_dy": 0,
-                "type": "default"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_effigy_purple",
-            "display_name": "Purple Effigy",
-            "sprite": "effigy_purple_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 40,
-            "id": 43,
-            "prop_data": {
-                "shape": [
-                    3,
-                    1
-                ],
-                "animate": true,
-                "child_dy": 0,
-                "type": "default"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_effigy_sea",
-            "display_name": "Sea Effigy",
-            "sprite": "effigy_sea_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 60,
-            "id": 44,
-            "prop_data": {
-                "shape": [
-                    3,
-                    1
-                ],
-                "animate": true,
-                "child_dy": 0,
-                "type": "default"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_eth_farm",
-            "display_name": "Ethereum Farm",
-            "sprite": "gpu_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 100,
-            "id": 45,
-            "prop_data": {
-                "shape": [
-                    3,
-                    1
-                ],
-                "animate": true,
-                "child_dy": 0,
-                "type": "default"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_fan_classic",
-            "display_name": "Classic Fan",
-            "sprite": "fan_a_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
+            "text": "A sturdy table. Its top looks like it can stand up to anything.",
             "price": 20,
-            "id": 46,
+            "id": 87,
             "prop_data": {
                 "shape": [
-                    2,
-                    1
+                    4,
+                    2
                 ],
                 "animate": true,
                 "child_dy": 0,
-                "type": "top"
+                "type": "bottom"
             },
-            "tier": 0
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "prop",
-            "name": "prop_fan_modern",
-            "display_name": "Modern Fan",
-            "sprite": "fan_b_sprite",
+            "name": "prop_table_walnut",
+            "display_name": "Walnut Table",
+            "sprite": "table_walnut_sprite",
             "icon": "icon_item_prop_sprite",
-            "text": "",
+            "text": "A sturdy table. Its top looks like it can stand up to anything.",
+            "price": 20,
+            "id": 95,
+            "prop_data": {
+                "shape": [
+                    4,
+                    2
+                ],
+                "animate": true,
+                "child_dy": 0,
+                "type": "bottom"
+            },
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
+        },
+        {
+            "type": "prop",
+            "name": "prop_table_plastic",
+            "display_name": "Plastic Table A",
+            "sprite": "table_plastic_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "Perfect for a lawn party or a snack spread.",
+            "price": 20,
+            "id": 88,
+            "prop_data": {
+                "shape": [
+                    4,
+                    2
+                ],
+                "animate": true,
+                "child_dy": 0,
+                "type": "bottom"
+            },
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
+        },
+        {
+            "type": "prop",
+            "name": "prop_table_plastic_alt",
+            "display_name": "Plastic Table B",
+            "sprite": "table_plastic_alt_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "Its shape is imposing.",
+            "price": 20,
+            "id": 89,
+            "prop_data": {
+                "shape": [
+                    4,
+                    2
+                ],
+                "animate": true,
+                "child_dy": 0,
+                "type": "bottom"
+            },
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
+        },
+        {
+            "type": "prop",
+            "name": "prop_table_sm_mahogany",
+            "display_name": "S. Mahogany Table",
+            "sprite": "table_sm_mahogany_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "A sturdy little table. It would make for a good nightstand.",
+            "price": 20,
+            "id": 90,
+            "prop_data": {
+                "shape": [
+                    2,
+                    2
+                ],
+                "animate": true,
+                "child_dy": 0,
+                "type": "bottom"
+            },
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
+        },
+        {
+            "type": "prop",
+            "name": "prop_table_sm_walnut",
+            "display_name": "S. Walnut Table A",
+            "sprite": "table_sm_walnut_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "A sturdy little table. It would make for a good nightstand.",
             "price": 30,
-            "id": 47,
+            "id": 93,
             "prop_data": {
                 "shape": [
                     2,
-                    1
+                    2
                 ],
                 "animate": true,
                 "child_dy": 0,
-                "type": "top"
+                "type": "bottom"
             },
-            "tier": 0
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "prop",
-            "name": "prop_foc_flower",
-            "display_name": "Smart Flower",
-            "sprite": "flower_foc_sprite",
+            "name": "prop_table_sm_walnut_alt",
+            "display_name": "S. Walnut Table B",
+            "sprite": "table_sm_walnut_alt_sprite",
             "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 40,
-            "id": 48,
+            "text": "A sturdy little table. It would make for a good nightstand.",
+            "price": 30,
+            "id": 94,
             "prop_data": {
                 "shape": [
                     2,
-                    1
+                    2
+                ],
+                "animate": true,
+                "child_dy": 0,
+                "type": "bottom"
+            },
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
+        },
+        {
+            "type": "prop",
+            "name": "prop_table_sm_plastic",
+            "display_name": "S. Plastic Table A",
+            "sprite": "table_sm_plastic_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "A sturdy little table. It would make for a good nightstand.",
+            "price": 10,
+            "id": 91,
+            "prop_data": {
+                "shape": [
+                    2,
+                    2
+                ],
+                "animate": true,
+                "child_dy": 0,
+                "type": "bottom"
+            },
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
+        },
+        {
+            "type": "prop",
+            "name": "prop_table_sm_plastic_alt",
+            "display_name": "S. Plastic Table B",
+            "sprite": "table_sm_plastic_alt_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "A sturdy little table. It would make for a good nightstand.",
+            "price": 10,
+            "id": 92,
+            "prop_data": {
+                "shape": [
+                    2,
+                    2
+                ],
+                "animate": true,
+                "child_dy": 0,
+                "type": "bottom"
+            },
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
+        },
+        {
+            "type": "prop",
+            "name": "prop_chair_mahogany",
+            "display_name": "Mahogany Chair",
+            "sprite": "chair_mahogany_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "It can support the critter's whole weight. And surprisingly, it's really comfortable.",
+            "price": 20,
+            "id": 54,
+            "prop_data": {
+                "shape": [
+                    2,
+                    2
                 ],
                 "animate": false,
                 "child_dy": 0,
                 "type": "default"
             },
-            "tier": 0
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "prop",
-            "name": "prop_lantern",
-            "display_name": "Lantern",
-            "sprite": "lantern_sprite",
+            "name": "prop_chair_stone",
+            "display_name": "Stone Chair",
+            "sprite": "chair_stone_sprite",
             "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 20,
+            "text": "It can support the critter's whole weight. And surprisingly, it's really comfortable.",
+            "price": 15,
+            "id": 56,
+            "prop_data": {
+                "shape": [
+                    2,
+                    2
+                ],
+                "animate": false,
+                "child_dy": 0,
+                "type": "default"
+            },
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
+        },
+        {
+            "type": "prop",
+            "name": "prop_stool_plastic",
+            "display_name": "Plastic Stool",
+            "sprite": "stool_plastic_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "Good for standing on if you need to get snacks out of the cabinet.",
+            "price": 5,
+            "id": 83,
+            "prop_data": {
+                "shape": [
+                    2,
+                    1
+                ],
+                "animate": true,
+                "child_dy": 0,
+                "type": "default"
+            },
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
+        },
+        {
+            "type": "prop",
+            "name": "prop_stool_wood",
+            "display_name": "Wood Stool",
+            "sprite": "stool_wood_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "Good for standing on if you need to get snacks out of the cabinet.",
+            "price": 10,
+            "id": 85,
+            "prop_data": {
+                "shape": [
+                    2,
+                    1
+                ],
+                "animate": true,
+                "child_dy": 0,
+                "type": "default"
+            },
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
+        },
+        {
+            "type": "prop",
+            "name": "prop_stool_stone",
+            "display_name": "Stone Stool",
+            "sprite": "stool_stone_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "Good for standing on if you need to get snacks out of the cabinet.",
+            "price": 15,
+            "id": 84,
+            "prop_data": {
+                "shape": [
+                    2,
+                    1
+                ],
+                "animate": true,
+                "child_dy": 0,
+                "type": "default"
+            },
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
+        },
+        {
+            "type": "prop",
+            "name": "prop_stool_gold",
+            "display_name": "Gold Stool",
+            "sprite": "stool_gold_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "Good for standing on if you need to get snacks out of the cabinet. And it's gold.",
+            "price": 30,
+            "id": 82,
+            "prop_data": {
+                "shape": [
+                    2,
+                    1
+                ],
+                "animate": true,
+                "child_dy": 0,
+                "type": "bottom"
+            },
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
+        },
+        {
+            "type": "prop",
+            "name": "prop_bowl_stone",
+            "display_name": "Stone Bowl",
+            "sprite": "bowl_stone_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "A smooth bowl with decent heft. It will keep your meal standing still.",
+            "price": 10,
             "id": 49,
             "prop_data": {
                 "shape": [
@@ -1590,36 +1278,194 @@
                 "child_dy": 0,
                 "type": "top"
             },
-            "tier": 0
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "prop",
-            "name": "prop_laptop",
-            "display_name": "Laptop",
-            "sprite": "laptop_sprite",
+            "name": "prop_bowl_gold",
+            "display_name": "Gold Bowl",
+            "sprite": "bowl_gold_sprite",
             "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 80,
-            "id": 50,
+            "text": "A smooth bowl with decent heft. It will keep your meal standing still.",
+            "price": 20,
+            "id": 46,
+            "prop_data": {
+                "shape": [
+                    1,
+                    1
+                ],
+                "animate": true,
+                "child_dy": 0,
+                "type": "top"
+            },
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
+        },
+        {
+            "type": "prop",
+            "name": "prop_vase_stone",
+            "display_name": "Stone Vase",
+            "sprite": "vase_stone_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "It can hold a lot more than flowers. Why not put oil or wax in it?",
+            "price": 7,
+            "id": 100,
+            "prop_data": {
+                "shape": [
+                    1,
+                    1
+                ],
+                "animate": true,
+                "child_dy": 0,
+                "type": "top"
+            },
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
+        },
+        {
+            "type": "prop",
+            "name": "prop_vase_gold",
+            "display_name": "Gold Vase",
+            "sprite": "vase_gold_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "It can hold a lot more than flowers. Why not put oil or wax in it?",
+            "price": 20,
+            "id": 97,
+            "prop_data": {
+                "shape": [
+                    1,
+                    1
+                ],
+                "animate": true,
+                "child_dy": 0,
+                "type": "top"
+            },
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
+        },
+        {
+            "type": "prop",
+            "name": "prop_vase_grey",
+            "display_name": "Grey Vase",
+            "sprite": "vase_grey_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "It can hold a lot more than flowers. Why not put oil or wax in it?",
+            "price": 5,
+            "id": 98,
+            "prop_data": {
+                "shape": [
+                    1,
+                    1
+                ],
+                "animate": true,
+                "child_dy": 0,
+                "type": "top"
+            },
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
+        },
+        {
+            "type": "prop",
+            "name": "prop_vase_mahogany",
+            "display_name": "Mahogany Vase",
+            "sprite": "vase_mahogany_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "It can hold a lot more than flowers. Why not put oil or wax in it?",
+            "price": 7,
+            "id": 99,
+            "prop_data": {
+                "shape": [
+                    1,
+                    1
+                ],
+                "animate": true,
+                "child_dy": 0,
+                "type": "top"
+            },
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
+        },
+        {
+            "type": "prop",
+            "name": "prop_vase_walnut",
+            "display_name": "Walnut Vase",
+            "sprite": "vase_walnut_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "It can hold a lot more than flowers. Why not put oil or wax in it?",
+            "price": 7,
+            "id": 101,
+            "prop_data": {
+                "shape": [
+                    1,
+                    1
+                ],
+                "animate": true,
+                "child_dy": 0,
+                "type": "top"
+            },
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
+        },
+        {
+            "type": "prop",
+            "name": "prop_succulent",
+            "display_name": "Succulent",
+            "sprite": "succulent_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "Small but lively, this succulent does a surprising amount for the atmosphere of your living space.",
+            "price": 5,
+            "id": 86,
+            "prop_data": {
+                "shape": [
+                    1,
+                    1
+                ],
+                "animate": false,
+                "child_dy": 0,
+                "type": "top"
+            },
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
+        },
+        {
+            "type": "prop",
+            "name": "prop_bush_plain",
+            "display_name": "Bush",
+            "sprite": "bush_plain_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "A classic bush. It's quite green.",
+            "price": 10,
+            "id": 53,
             "prop_data": {
                 "shape": [
                     2,
                     1
                 ],
                 "animate": true,
-                "child_dy": -8,
-                "type": "top"
+                "child_dy": 0,
+                "type": "default"
             },
-            "tier": 0
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "prop",
-            "name": "prop_mine",
-            "display_name": "Naval Mine",
-            "sprite": "prop_mine_sprite",
+            "name": "prop_bush_daisy",
+            "display_name": "Daisy Bush",
+            "sprite": "bush_daisy_sprite",
             "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 50,
+            "text": "A floral take on the classic bush. Its white accents are eye-catching.",
+            "price": 30,
             "id": 51,
             "prop_data": {
                 "shape": [
@@ -1630,15 +1476,17 @@
                 "child_dy": 0,
                 "type": "default"
             },
-            "tier": 0
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "prop",
-            "name": "prop_padkaprow",
-            "display_name": "Pad Ka Prop",
-            "sprite": "padkaprop_sprite",
+            "name": "prop_bush_lilac",
+            "display_name": "Lilac Bush",
+            "sprite": "bush_lilac_sprite",
             "icon": "icon_item_prop_sprite",
-            "text": "",
+            "text": "A floral take on the classic bush. Its purple accents are eye-catching.",
             "price": 30,
             "id": 52,
             "prop_data": {
@@ -1650,107 +1498,9 @@
                 "child_dy": 0,
                 "type": "default"
             },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_pixel",
-            "display_name": "Pixel",
-            "sprite": "pixel_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 30,
-            "id": 53,
-            "prop_data": {
-                "shape": [
-                    1,
-                    1
-                ],
-                "animate": true,
-                "child_dy": 0,
-                "type": "top"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_plant_corn",
-            "display_name": "Corn Plant",
-            "sprite": "plant_corn_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 30,
-            "id": 54,
-            "prop_data": {
-                "shape": [
-                    2,
-                    1
-                ],
-                "animate": true,
-                "child_dy": 0,
-                "type": "default"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_plant_daisy",
-            "display_name": "Daisy Plant",
-            "sprite": "plant_daisy_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 25,
-            "id": 55,
-            "prop_data": {
-                "shape": [
-                    2,
-                    1
-                ],
-                "animate": true,
-                "child_dy": 0,
-                "type": "default"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_plant_lilac",
-            "display_name": "Lilac Plant",
-            "sprite": "plant_lilac_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 25,
-            "id": 56,
-            "prop_data": {
-                "shape": [
-                    2,
-                    1
-                ],
-                "animate": true,
-                "child_dy": 0,
-                "type": "default"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_plant_maroon",
-            "display_name": "Maroon Plant",
-            "sprite": "plant_maroon_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 20,
-            "id": 57,
-            "prop_data": {
-                "shape": [
-                    2,
-                    1
-                ],
-                "animate": true,
-                "child_dy": 0,
-                "type": "default"
-            },
-            "tier": 0
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "prop",
@@ -1758,459 +1508,87 @@
             "display_name": "Plain Plant",
             "sprite": "plant_plain_sprite",
             "icon": "icon_item_prop_sprite",
-            "text": "",
+            "text": "It stands tall and proud for something that cannot live past the edges of a pot.",
             "price": 20,
-            "id": 58,
-            "prop_data": {
-                "shape": [
-                    2,
-                    1
-                ],
-                "animate": true,
-                "child_dy": 0,
-                "type": "default"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_purifier",
-            "display_name": "Air Purifier",
-            "sprite": "purifier_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 50,
-            "id": 59,
-            "prop_data": {
-                "shape": [
-                    2,
-                    1
-                ],
-                "animate": true,
-                "child_dy": 0,
-                "type": "default"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_spi_flower",
-            "display_name": "Happy Flower",
-            "sprite": "flower_spi_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 40,
-            "id": 60,
-            "prop_data": {
-                "shape": [
-                    2,
-                    1
-                ],
-                "animate": false,
-                "child_dy": 0,
-                "type": "default"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_stool_gold",
-            "display_name": "Gold Stool",
-            "sprite": "stool_gold_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 30,
-            "id": 61,
-            "prop_data": {
-                "shape": [
-                    2,
-                    1
-                ],
-                "animate": true,
-                "child_dy": 0,
-                "type": "bottom"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_stool_plastic",
-            "display_name": "Plastic Stool",
-            "sprite": "stool_plastic_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 5,
-            "id": 62,
-            "prop_data": {
-                "shape": [
-                    2,
-                    1
-                ],
-                "animate": true,
-                "child_dy": 0,
-                "type": "default"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_stool_stone",
-            "display_name": "Stone Stool",
-            "sprite": "stool_stone_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 15,
-            "id": 63,
-            "prop_data": {
-                "shape": [
-                    2,
-                    1
-                ],
-                "animate": true,
-                "child_dy": 0,
-                "type": "default"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_stool_wood",
-            "display_name": "Wood Stool",
-            "sprite": "stool_wood_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 10,
-            "id": 64,
-            "prop_data": {
-                "shape": [
-                    2,
-                    1
-                ],
-                "animate": true,
-                "child_dy": 0,
-                "type": "default"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_succulent",
-            "display_name": "Succulent",
-            "sprite": "succulent_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 5,
-            "id": 65,
-            "prop_data": {
-                "shape": [
-                    1,
-                    1
-                ],
-                "animate": false,
-                "child_dy": 0,
-                "type": "top"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_table_mahogany",
-            "display_name": "Mahogany Table",
-            "sprite": "table_mahogany_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 20,
-            "id": 66,
-            "prop_data": {
-                "shape": [
-                    4,
-                    2
-                ],
-                "animate": true,
-                "child_dy": 0,
-                "type": "bottom"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_table_plastic",
-            "display_name": "Plastic Table A",
-            "sprite": "table_plastic_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 20,
-            "id": 67,
-            "prop_data": {
-                "shape": [
-                    4,
-                    2
-                ],
-                "animate": true,
-                "child_dy": 0,
-                "type": "bottom"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_table_plastic_alt",
-            "display_name": "Plastic Table B",
-            "sprite": "table_plastic_alt_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 20,
-            "id": 68,
-            "prop_data": {
-                "shape": [
-                    4,
-                    2
-                ],
-                "animate": true,
-                "child_dy": 0,
-                "type": "bottom"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_table_sm_mahogany",
-            "display_name": "S. Mahogany Table",
-            "sprite": "table_sm_mahogany_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 20,
-            "id": 69,
-            "prop_data": {
-                "shape": [
-                    2,
-                    2
-                ],
-                "animate": true,
-                "child_dy": 0,
-                "type": "bottom"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_table_sm_plastic",
-            "display_name": "S. Plastic Table A",
-            "sprite": "table_sm_plastic_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 10,
-            "id": 70,
-            "prop_data": {
-                "shape": [
-                    2,
-                    2
-                ],
-                "animate": true,
-                "child_dy": 0,
-                "type": "bottom"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_table_sm_plastic_alt",
-            "display_name": "S. Plastic Table B",
-            "sprite": "table_sm_plastic_alt_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 10,
-            "id": 71,
-            "prop_data": {
-                "shape": [
-                    2,
-                    2
-                ],
-                "animate": true,
-                "child_dy": 0,
-                "type": "bottom"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_table_sm_walnut",
-            "display_name": "S. Walnut Table A",
-            "sprite": "table_sm_walnut_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 30,
-            "id": 72,
-            "prop_data": {
-                "shape": [
-                    2,
-                    2
-                ],
-                "animate": true,
-                "child_dy": 0,
-                "type": "bottom"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_table_sm_walnut_alt",
-            "display_name": "S. Walnut Table B",
-            "sprite": "table_sm_walnut_alt_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 30,
-            "id": 73,
-            "prop_data": {
-                "shape": [
-                    2,
-                    2
-                ],
-                "animate": true,
-                "child_dy": 0,
-                "type": "bottom"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_table_walnut",
-            "display_name": "Walnut Table",
-            "sprite": "table_walnut_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 20,
-            "id": 74,
-            "prop_data": {
-                "shape": [
-                    4,
-                    2
-                ],
-                "animate": true,
-                "child_dy": 0,
-                "type": "bottom"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_uv_lamp",
-            "display_name": "UV Lamp",
-            "sprite": "uv_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 50,
-            "id": 75,
-            "prop_data": {
-                "shape": [
-                    1,
-                    1
-                ],
-                "animate": true,
-                "child_dy": 0,
-                "type": "top"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_vase_gold",
-            "display_name": "Gold Vase",
-            "sprite": "vase_gold_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 20,
-            "id": 76,
-            "prop_data": {
-                "shape": [
-                    1,
-                    1
-                ],
-                "animate": true,
-                "child_dy": 0,
-                "type": "top"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_vase_grey",
-            "display_name": "Grey Vase",
-            "sprite": "vase_grey_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 5,
-            "id": 77,
-            "prop_data": {
-                "shape": [
-                    1,
-                    1
-                ],
-                "animate": true,
-                "child_dy": 0,
-                "type": "top"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_vase_mahogany",
-            "display_name": "Mahogany Vase",
-            "sprite": "vase_mahogany_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 7,
-            "id": 78,
-            "prop_data": {
-                "shape": [
-                    1,
-                    1
-                ],
-                "animate": true,
-                "child_dy": 0,
-                "type": "top"
-            },
-            "tier": 0
-        },
-        {
-            "type": "prop",
-            "name": "prop_vase_stone",
-            "display_name": "Stone Vase",
-            "sprite": "vase_stone_sprite",
-            "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 7,
             "id": 79,
             "prop_data": {
                 "shape": [
-                    1,
+                    2,
                     1
                 ],
                 "animate": true,
                 "child_dy": 0,
-                "type": "top"
+                "type": "default"
             },
-            "tier": 0
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "prop",
-            "name": "prop_vase_walnut",
-            "display_name": "Walnut Vase",
-            "sprite": "vase_walnut_sprite",
+            "name": "prop_plant_maroon",
+            "display_name": "Maroon Plant",
+            "sprite": "plant_maroon_sprite",
             "icon": "icon_item_prop_sprite",
-            "text": "",
-            "price": 7,
-            "id": 80,
+            "text": "Look closely at the vivid colour of its trunk. It is subtle but striking.",
+            "price": 20,
+            "id": 78,
             "prop_data": {
                 "shape": [
-                    1,
+                    2,
                     1
                 ],
                 "animate": true,
                 "child_dy": 0,
-                "type": "top"
+                "type": "default"
             },
-            "tier": 0
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
+        },
+        {
+            "type": "prop",
+            "name": "prop_plant_lilac",
+            "display_name": "Lilac Plant",
+            "sprite": "plant_lilac_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "Its purple flowers are a welcome pop of colour at any time of year.",
+            "price": 25,
+            "id": 77,
+            "prop_data": {
+                "shape": [
+                    2,
+                    1
+                ],
+                "animate": true,
+                "child_dy": 0,
+                "type": "default"
+            },
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
+        },
+        {
+            "type": "prop",
+            "name": "prop_plant_daisy",
+            "display_name": "Daisy Plant",
+            "sprite": "plant_daisy_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "Its bright white flowers are oddly dazzling. They almost don't belong inside.",
+            "price": 25,
+            "id": 76,
+            "prop_data": {
+                "shape": [
+                    2,
+                    1
+                ],
+                "animate": true,
+                "child_dy": 0,
+                "type": "default"
+            },
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "prop",
@@ -2218,7 +1596,51 @@
             "display_name": "Healthy Flower",
             "sprite": "flower_vig_sprite",
             "icon": "icon_item_prop_sprite",
-            "text": "",
+            "text": "This flower is a symbol of strength. It blooms full when times are good.",
+            "price": 40,
+            "id": 102,
+            "prop_data": {
+                "shape": [
+                    2,
+                    1
+                ],
+                "animate": false,
+                "child_dy": 0,
+                "type": "default"
+            },
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
+        },
+        {
+            "type": "prop",
+            "name": "prop_foc_flower",
+            "display_name": "Smart Flower",
+            "sprite": "flower_foc_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "This flower is a symbol of wisdom. It blooms full when times are good.",
+            "price": 40,
+            "id": 69,
+            "prop_data": {
+                "shape": [
+                    2,
+                    1
+                ],
+                "animate": false,
+                "child_dy": 0,
+                "type": "default"
+            },
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
+        },
+        {
+            "type": "prop",
+            "name": "prop_spi_flower",
+            "display_name": "Happy Flower",
+            "sprite": "flower_spi_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "This flower is a symbol of fulfillment. It blooms full when times are good.",
             "price": 40,
             "id": 81,
             "prop_data": {
@@ -2230,79 +1652,339 @@
                 "child_dy": 0,
                 "type": "default"
             },
-            "tier": 0
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
         },
         {
-            "type": "tool",
-            "name": "toy_baseball",
-            "display_name": "Baseball",
-            "sprite": "toy_baseball_sprite",
-            "icon": "icon_item_toy_sprite",
-            "text": "",
-            "price": 20,
-            "id": 82,
-            "tool_data": {
-                "cursor": "toy_baseball_sprite",
-                "dv": 0,
-                "df": 0,
-                "ds": 3,
-                "type": "toy"
+            "type": "prop",
+            "name": "prop_crystal_blue",
+            "display_name": "Blue Crystal",
+            "sprite": "crystal_blue_lg_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "Nobody is quite sure of this crystal's rarity. Its value comes purely from its beauty.",
+            "price": 50,
+            "id": 60,
+            "prop_data": {
+                "shape": [
+                    2,
+                    1
+                ],
+                "animate": true,
+                "child_dy": 0,
+                "type": "default"
             },
-            "tier": 0
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
         },
         {
-            "type": "tool",
-            "name": "toy_basketball",
-            "display_name": "Basketball",
-            "sprite": "toy_basketball_sprite",
-            "icon": "icon_item_toy_sprite",
-            "text": "",
-            "price": 20,
-            "id": 83,
-            "tool_data": {
-                "cursor": "toy_basketball_sprite",
-                "dv": 0,
-                "df": 0,
-                "ds": 3,
-                "type": "toy"
+            "type": "prop",
+            "name": "prop_crystal_green",
+            "display_name": "Green Crystal",
+            "sprite": "crystal_green_lg_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "Nobody is quite sure of this crystal's rarity. Its value comes purely from its beauty.",
+            "price": 50,
+            "id": 61,
+            "prop_data": {
+                "shape": [
+                    2,
+                    1
+                ],
+                "animate": true,
+                "child_dy": 0,
+                "type": "default"
             },
-            "tier": 0
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
         },
         {
-            "type": "tool",
-            "name": "toy_duck",
-            "display_name": "Ducky",
-            "sprite": "toy_duck_sprite",
-            "icon": "icon_item_toy_sprite",
-            "text": "",
+            "type": "prop",
+            "name": "prop_crystal_purple",
+            "display_name": "Purple Crystal",
+            "sprite": "crystal_purple_lg_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "Nobody is quite sure of this crystal's rarity. Its value comes purely from its beauty.",
+            "price": 50,
+            "id": 62,
+            "prop_data": {
+                "shape": [
+                    2,
+                    1
+                ],
+                "animate": true,
+                "child_dy": 0,
+                "type": "default"
+            },
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
+        },
+        {
+            "type": "prop",
+            "name": "prop_effigy_blue",
+            "display_name": "Blue Effigy",
+            "sprite": "effigy_blue_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "Art wrought by some unknown civilization, not of the past but of the future.",
+            "price": 40,
+            "id": 63,
+            "prop_data": {
+                "shape": [
+                    3,
+                    1
+                ],
+                "animate": true,
+                "child_dy": 0,
+                "type": "default"
+            },
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
+        },
+        {
+            "type": "prop",
+            "name": "prop_effigy_purple",
+            "display_name": "Purple Effigy",
+            "sprite": "effigy_purple_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "Art wrought by some unknown civilization, not of the past but of the future.",
+            "price": 40,
+            "id": 64,
+            "prop_data": {
+                "shape": [
+                    3,
+                    1
+                ],
+                "animate": true,
+                "child_dy": 0,
+                "type": "default"
+            },
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
+        },
+        {
+            "type": "prop",
+            "name": "prop_effigy_sea",
+            "display_name": "Sea Effigy",
+            "sprite": "effigy_sea_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "Art wrought by some unknown civilization, not of the past but of the future.",
+            "price": 60,
+            "id": 65,
+            "prop_data": {
+                "shape": [
+                    3,
+                    1
+                ],
+                "animate": true,
+                "child_dy": 0,
+                "type": "default"
+            },
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
+        },
+        {
+            "type": "prop",
+            "name": "prop_pixel",
+            "display_name": "Pixel",
+            "sprite": "pixel_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "Pixel 63118 of 76800. Rank: Sergeant First Class.",
             "price": 30,
-            "id": 84,
-            "tool_data": {
-                "cursor": "toy_duck_sprite",
-                "dv": 0,
-                "df": 0,
-                "ds": 5,
-                "type": "toy"
+            "id": 74,
+            "prop_data": {
+                "shape": [
+                    1,
+                    1
+                ],
+                "animate": true,
+                "child_dy": 0,
+                "type": "top"
             },
-            "tier": 0
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
         },
         {
-            "type": "tool",
-            "name": "toy_golf",
-            "display_name": "Golf Ball",
-            "sprite": "toy_golf_sprite",
-            "icon": "icon_item_toy_sprite",
-            "text": "",
-            "price": 5,
-            "id": 85,
-            "tool_data": {
-                "cursor": "toy_golf_sprite",
-                "dv": 0,
-                "df": 0,
-                "ds": 1,
-                "type": "toy"
+            "type": "prop",
+            "name": "prop_padkaprow",
+            "display_name": "Pad Ka Prop",
+            "sprite": "padkaprop_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "A feast for the eyes, but nothing more.",
+            "price": 30,
+            "id": 73,
+            "prop_data": {
+                "shape": [
+                    2,
+                    1
+                ],
+                "animate": true,
+                "child_dy": 0,
+                "type": "default"
             },
-            "tier": 0
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
+        },
+        {
+            "type": "prop",
+            "name": "prop_bowl_grey",
+            "display_name": "Grey Bowl",
+            "sprite": "bowl_grey_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "A smooth bowl with decent heft. It will keep your meal standing still.",
+            "price": 5,
+            "id": 47,
+            "prop_data": {
+                "shape": [
+                    1,
+                    1
+                ],
+                "animate": true,
+                "child_dy": 0,
+                "type": "top"
+            },
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
+        },
+        {
+            "type": "prop",
+            "name": "prop_bowl_mahogany",
+            "display_name": "Mahogany Bowl",
+            "sprite": "bowl_mahogany_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "A smooth bowl with decent heft. It will keep your meal standing still.",
+            "price": 7,
+            "id": 48,
+            "prop_data": {
+                "shape": [
+                    1,
+                    1
+                ],
+                "animate": true,
+                "child_dy": 0,
+                "type": "top"
+            },
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
+        },
+        {
+            "type": "prop",
+            "name": "prop_bowl_walnut",
+            "display_name": "Walnut Bowl",
+            "sprite": "bowl_walnut_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "A smooth bowl with decent heft. It will keep your meal standing still.",
+            "price": 7,
+            "id": 50,
+            "prop_data": {
+                "shape": [
+                    1,
+                    1
+                ],
+                "animate": true,
+                "child_dy": 0,
+                "type": "top"
+            },
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
+        },
+        {
+            "type": "prop",
+            "name": "prop_chair_plastic",
+            "display_name": "Plastic Chair",
+            "sprite": "chair_plastic_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "It can support the critter's whole weight. And surprisingly, it's really comfortable.",
+            "price": 10,
+            "id": 55,
+            "prop_data": {
+                "shape": [
+                    2,
+                    2
+                ],
+                "animate": false,
+                "child_dy": 0,
+                "type": "default"
+            },
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
+        },
+        {
+            "type": "prop",
+            "name": "prop_plant_corn",
+            "display_name": "Corn Plant",
+            "sprite": "plant_corn_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "Though it doesn't yet produce vegetables, it may still be handy to keep around.",
+            "price": 30,
+            "id": 75,
+            "prop_data": {
+                "shape": [
+                    2,
+                    1
+                ],
+                "animate": true,
+                "child_dy": 0,
+                "type": "default"
+            },
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
+        },
+        {
+            "type": "prop",
+            "name": "prop_chicken",
+            "display_name": "Chicken",
+            "sprite": "chicken_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "An exceptionally round bird. Not food, but a dear friend.",
+            "price": 50,
+            "id": 58,
+            "prop_data": {
+                "shape": [
+                    2,
+                    1
+                ],
+                "animate": true,
+                "child_dy": -6,
+                "type": "top"
+            },
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
+        },
+        {
+            "type": "prop",
+            "name": "prop_mine",
+            "display_name": "Naval Mine",
+            "sprite": "prop_mine_sprite",
+            "icon": "icon_item_prop_sprite",
+            "text": "You disarmed this one yourself. Good work.",
+            "price": 50,
+            "id": 72,
+            "prop_data": {
+                "shape": [
+                    2,
+                    1
+                ],
+                "animate": true,
+                "child_dy": 0,
+                "type": "default"
+            },
+            "tier": 0,
+            "can_buy": true,
+            "can_sell": false
         },
         {
             "type": "tool",
@@ -2310,35 +1992,750 @@
             "display_name": "Laser Pointer",
             "sprite": "laser_pointer_sprite",
             "icon": "icon_item_key_sprite",
-            "text": "",
-            "price": 10,
-            "id": 86,
-            "tier": 0,
+            "text": "All CATs love to chase a laser pointer.",
+            "price": 21,
+            "id": 107,
+            "tier": 3,
             "tool_data": {
                 "type": "toy",
                 "cursor": "laser_marker_sprite",
                 "dv": 0,
                 "df": 0,
-                "ds": 0
-            }
+                "ds": 3
+            },
+            "can_buy": true,
+            "can_sell": false
+        },
+        {
+            "type": "key",
+            "name": "fish_grade_0",
+            "display_name": "1-Star Fish",
+            "sprite": "fish_tier_1_icon",
+            "icon": "icon_item_key_sprite",
+            "text": "A fish of decent but unremarkable quality.",
+            "price": 3,
+            "id": 6,
+            "tier": 0,
+            "can_buy": false,
+            "can_sell": true
+        },
+        {
+            "type": "key",
+            "name": "fish_grade_1",
+            "display_name": "2-Star Fish",
+            "sprite": "fish_tier_2_icon",
+            "icon": "icon_item_key_sprite",
+            "text": "A fish of notable quality.",
+            "price": 7,
+            "id": 7,
+            "tier": 0,
+            "can_buy": false,
+            "can_sell": true
+        },
+        {
+            "type": "key",
+            "name": "fish_grade_2",
+            "display_name": "3-Star Fish",
+            "sprite": "fish_tier_3_icon",
+            "icon": "icon_item_key_sprite",
+            "text": "An astounding catch.",
+            "price": 15,
+            "id": 8,
+            "tier": 0,
+            "can_buy": false,
+            "can_sell": true
         },
         {
             "type": "tool",
-            "name": "toy_puzzle",
-            "display_name": "Puzzle",
-            "sprite": "toy_puzzle_sprite",
-            "icon": "icon_item_toy_sprite",
-            "text": "",
-            "price": 20,
-            "id": 87,
+            "name": "food_bagel",
+            "display_name": "Bagel",
+            "sprite": "bagel_sprite",
+            "icon": "icon_item_food_sprite",
+            "text": "Perfectly chewy with a slightly glossy exterior.",
+            "price": 3,
+            "id": 9,
             "tool_data": {
-                "cursor": "toy_puzzle_sprite",
-                "dv": 0,
+                "type": "food",
+                "cursor": "",
+                "dv": 1,
                 "df": 0,
-                "ds": 3,
-                "type": "toy"
+                "ds": 0,
+                "food_data": {
+                    "food_group": "starch",
+                    "food_role": "staple"
+                }
             },
-            "tier": 0
+            "tier": 1,
+            "can_buy": true,
+            "can_sell": false
+        },
+        {
+            "type": "tool",
+            "name": "food_bananas",
+            "display_name": "Bananas",
+            "sprite": "banana_sprite",
+            "icon": "icon_item_food_sprite",
+            "text": "Nature's perfect dessert. And packed with potassium to boot!",
+            "price": 3,
+            "id": 10,
+            "tool_data": {
+                "type": "food",
+                "cursor": "",
+                "dv": 1,
+                "df": 0,
+                "ds": 0,
+                "food_data": {
+                    "food_group": "veg",
+                    "food_role": "side"
+                }
+            },
+            "tier": 1,
+            "can_buy": true,
+            "can_sell": false
+        },
+        {
+            "type": "tool",
+            "name": "food_barley_tea",
+            "display_name": "Barley Tea",
+            "sprite": "barley_tea_sprite",
+            "icon": "icon_item_food_sprite",
+            "text": "More delicious than water and more refreshing than coffee.",
+            "price": 3,
+            "id": 11,
+            "tool_data": {
+                "type": "food",
+                "cursor": "",
+                "dv": 1,
+                "df": 0,
+                "ds": 0,
+                "food_data": {
+                    "food_group": "misc",
+                    "food_role": "drink"
+                }
+            },
+            "tier": 1,
+            "can_buy": true,
+            "can_sell": false
+        },
+        {
+            "type": "tool",
+            "name": "food_carrots",
+            "display_name": "Carrots",
+            "sprite": "carrot_sprite",
+            "icon": "icon_item_food_sprite",
+            "text": "The critter has the shape of an animal that would love carrots.",
+            "price": 3,
+            "id": 16,
+            "tool_data": {
+                "type": "food",
+                "cursor": "",
+                "dv": 1,
+                "df": 0,
+                "ds": 0,
+                "food_data": {
+                    "food_group": "veg",
+                    "food_role": "side"
+                }
+            },
+            "tier": 1,
+            "can_buy": true,
+            "can_sell": false
+        },
+        {
+            "type": "tool",
+            "name": "food_congee",
+            "display_name": "Congee",
+            "sprite": "congee_sprite",
+            "icon": "icon_item_food_sprite",
+            "text": "An strong foundation of rice porridge loaded with flavourful add-ons.",
+            "price": 3,
+            "id": 19,
+            "tool_data": {
+                "type": "food",
+                "cursor": "",
+                "dv": 1,
+                "df": 0,
+                "ds": 0,
+                "food_data": {
+                    "food_group": "starch",
+                    "food_role": "staple"
+                }
+            },
+            "tier": 1,
+            "can_buy": true,
+            "can_sell": false
+        },
+        {
+            "type": "tool",
+            "name": "food_donut",
+            "display_name": "Donut",
+            "sprite": "donut_sprite",
+            "icon": "icon_item_food_sprite",
+            "text": "Dough fried golden brown, topped with sweet crackling icing. Cake or classic, take your pick.",
+            "price": 3,
+            "id": 22,
+            "tool_data": {
+                "type": "food",
+                "cursor": "",
+                "dv": 1,
+                "df": 0,
+                "ds": 0,
+                "food_data": {
+                    "food_group": "starch",
+                    "food_role": "treat"
+                }
+            },
+            "tier": 1,
+            "can_buy": true,
+            "can_sell": false
+        },
+        {
+            "type": "tool",
+            "name": "food_egg",
+            "display_name": "Egg",
+            "sprite": "egg_sprite",
+            "icon": "icon_item_food_sprite",
+            "text": "An egg.",
+            "price": 3,
+            "id": 24,
+            "tool_data": {
+                "type": "food",
+                "cursor": "",
+                "dv": 1,
+                "df": 0,
+                "ds": 0,
+                "food_data": {
+                    "food_group": "dairy",
+                    "food_role": "side"
+                }
+            },
+            "tier": 1,
+            "can_buy": true,
+            "can_sell": false
+        },
+        {
+            "type": "tool",
+            "name": "food_green_tea",
+            "display_name": "Green Tea",
+            "sprite": "green_tea_sprite",
+            "icon": "icon_item_food_sprite",
+            "text": "It's somehow always the right temperature. Perfectly bitter.",
+            "price": 3,
+            "id": 26,
+            "tool_data": {
+                "type": "food",
+                "cursor": "",
+                "dv": 1,
+                "df": 0,
+                "ds": 0,
+                "food_data": {
+                    "food_group": "misc",
+                    "food_role": "drink"
+                }
+            },
+            "tier": 1,
+            "can_buy": true,
+            "can_sell": false
+        },
+        {
+            "type": "tool",
+            "name": "food_oranges",
+            "display_name": "Oranges",
+            "sprite": "orange_sprite",
+            "icon": "icon_item_food_sprite",
+            "text": "The smell of citrus wafts off of them. You can tell they are sweet just at a glance.",
+            "price": 3,
+            "id": 30,
+            "tool_data": {
+                "type": "food",
+                "cursor": "",
+                "dv": 1,
+                "df": 0,
+                "ds": 0,
+                "food_data": {
+                    "food_group": "veg",
+                    "food_role": "side"
+                }
+            },
+            "tier": 1,
+            "can_buy": true,
+            "can_sell": false
+        },
+        {
+            "type": "tool",
+            "name": "food_persimmons",
+            "display_name": "Persimmons",
+            "sprite": "persimmons_sprite",
+            "icon": "icon_item_food_sprite",
+            "text": "Just ripe enough to eat, and sweet as candy. Don't eat too many or you'll get a bezoar.",
+            "price": 3,
+            "id": 32,
+            "tool_data": {
+                "type": "food",
+                "cursor": "",
+                "dv": 1,
+                "df": 0,
+                "ds": 0,
+                "food_data": {
+                    "food_group": "veg",
+                    "food_role": "side"
+                }
+            },
+            "tier": 1,
+            "can_buy": true,
+            "can_sell": false
+        },
+        {
+            "type": "tool",
+            "name": "food_soda",
+            "display_name": "Soda",
+            "sprite": "soda_sprite",
+            "icon": "icon_item_food_sprite",
+            "text": "Sugary and fizzy and strongly flavoured. Drink it cold on a hot day.",
+            "price": 3,
+            "id": 41,
+            "tool_data": {
+                "type": "food",
+                "cursor": "",
+                "dv": 1,
+                "df": 0,
+                "ds": 0,
+                "food_data": {
+                    "food_group": "misc",
+                    "food_role": "treat"
+                }
+            },
+            "tier": 1,
+            "can_buy": true,
+            "can_sell": false
+        },
+        {
+            "type": "tool",
+            "name": "food_strange_meal",
+            "display_name": "Strange Meal",
+            "sprite": "strange_meal_sprite",
+            "icon": "icon_item_food_sprite",
+            "text": "What could this possibly be? Do you think it tastes good?",
+            "price": 3,
+            "id": 43,
+            "tool_data": {
+                "type": "food",
+                "cursor": "",
+                "dv": 1,
+                "df": 0,
+                "ds": 0,
+                "food_data": {
+                    "food_group": "misc",
+                    "food_role": "main"
+                }
+            },
+            "tier": 1,
+            "can_buy": true,
+            "can_sell": false
+        },
+        {
+            "type": "tool",
+            "name": "food_bento",
+            "display_name": "Ebi-Ten Bento",
+            "sprite": "bento_sprite",
+            "icon": "icon_item_food_sprite",
+            "text": "Crispy fried shrimp with a moderate helping of rice and a variety of sides.",
+            "price": 7,
+            "id": 13,
+            "tool_data": {
+                "type": "food",
+                "cursor": "",
+                "dv": 2,
+                "df": 0,
+                "ds": 0,
+                "food_data": {
+                    "food_group": "meat",
+                    "food_role": "main"
+                }
+            },
+            "tier": 2,
+            "can_buy": true,
+            "can_sell": false
+        },
+        {
+            "type": "tool",
+            "name": "food_burger",
+            "display_name": "Burger",
+            "sprite": "burger_sprite",
+            "icon": "icon_item_food_sprite",
+            "text": "It's as classic as can be. The toppings and the bun don't outshine the patty itself.",
+            "price": 7,
+            "id": 15,
+            "tool_data": {
+                "type": "food",
+                "cursor": "",
+                "dv": 2,
+                "df": 0,
+                "ds": 0,
+                "food_data": {
+                    "food_group": "meat",
+                    "food_role": "main"
+                }
+            },
+            "tier": 2,
+            "can_buy": true,
+            "can_sell": false
+        },
+        {
+            "type": "tool",
+            "name": "food_dumplings",
+            "display_name": "Pork Dumplings",
+            "sprite": "dumplings_sprite",
+            "icon": "icon_item_food_sprite",
+            "text": "Steamed dumplings filled with minced pork and aromatic vegetables. The skin's texture is ideal.",
+            "price": 7,
+            "id": 23,
+            "tool_data": {
+                "type": "food",
+                "cursor": "",
+                "dv": 2,
+                "df": 0,
+                "ds": 0,
+                "food_data": {
+                    "food_group": "meat",
+                    "food_role": "main"
+                }
+            },
+            "tier": 2,
+            "can_buy": true,
+            "can_sell": false
+        },
+        {
+            "type": "tool",
+            "name": "food_empanadas",
+            "display_name": "Beef Empanadas",
+            "sprite": "empanadas_sprite",
+            "icon": "icon_item_food_sprite",
+            "text": "Toasty flaky dough covering a richly spiced meat filling. It's hard to stop at a couple.",
+            "price": 7,
+            "id": 25,
+            "tool_data": {
+                "type": "food",
+                "cursor": "",
+                "dv": 2,
+                "df": 0,
+                "ds": 0,
+                "food_data": {
+                    "food_group": "meat",
+                    "food_role": "main"
+                }
+            },
+            "tier": 2,
+            "can_buy": true,
+            "can_sell": false
+        },
+        {
+            "type": "tool",
+            "name": "food_hotdog",
+            "display_name": "Hotdog",
+            "sprite": "hotdog_sprite",
+            "icon": "icon_item_food_sprite",
+            "text": "It's something you might get at a backyard BBQ. It's got the right amount of char.",
+            "price": 7,
+            "id": 27,
+            "tool_data": {
+                "type": "food",
+                "cursor": "",
+                "dv": 2,
+                "df": 0,
+                "ds": 0,
+                "food_data": {
+                    "food_group": "meat",
+                    "food_role": "main"
+                }
+            },
+            "tier": 2,
+            "can_buy": true,
+            "can_sell": false
+        },
+        {
+            "type": "tool",
+            "name": "food_ramen",
+            "display_name": "Chashu Ramen",
+            "sprite": "ramen_sprite",
+            "icon": "icon_item_food_sprite",
+            "text": "Hot rich broth and just barely toothsome noodles. You look forward to it after a long night.",
+            "price": 7,
+            "id": 36,
+            "tool_data": {
+                "type": "food",
+                "cursor": "",
+                "dv": 2,
+                "df": 0,
+                "ds": 0,
+                "food_data": {
+                    "food_group": "meat",
+                    "food_role": "main"
+                }
+            },
+            "tier": 2,
+            "can_buy": true,
+            "can_sell": false
+        },
+        {
+            "type": "tool",
+            "name": "food_raw_meat",
+            "display_name": "Raw Meat",
+            "sprite": "meat_sprite",
+            "icon": "icon_item_food_sprite",
+            "text": "It's good meat, no more and no less. Don't forget that your critter is an animal.",
+            "price": 7,
+            "id": 37,
+            "tool_data": {
+                "type": "food",
+                "cursor": "",
+                "dv": 2,
+                "df": 0,
+                "ds": 0,
+                "food_data": {
+                    "food_group": "meat",
+                    "food_role": "treat"
+                }
+            },
+            "tier": 2,
+            "can_buy": true,
+            "can_sell": false
+        },
+        {
+            "type": "tool",
+            "name": "food_salmon",
+            "display_name": "Salmon",
+            "sprite": "salmon_sprite",
+            "icon": "icon_item_food_sprite",
+            "text": "A beautiful salmon. Its eyes are bright and clear and its scales glitter.",
+            "price": 7,
+            "id": 39,
+            "tool_data": {
+                "type": "food",
+                "cursor": "",
+                "dv": 2,
+                "df": 0,
+                "ds": 0,
+                "food_data": {
+                    "food_group": "meat",
+                    "food_role": "main"
+                }
+            },
+            "tier": 2,
+            "can_buy": true,
+            "can_sell": false
+        },
+        {
+            "type": "tool",
+            "name": "food_tuna",
+            "display_name": "Tuna",
+            "sprite": "tuna_sprite",
+            "icon": "icon_item_food_sprite",
+            "text": "Catafalqued king of my own ocean.",
+            "price": 7,
+            "id": 44,
+            "tool_data": {
+                "type": "food",
+                "cursor": "",
+                "dv": 2,
+                "df": 0,
+                "ds": 0,
+                "food_data": {
+                    "food_group": "meat",
+                    "food_role": "main"
+                }
+            },
+            "tier": 2,
+            "can_buy": true,
+            "can_sell": false
+        },
+        {
+            "type": "tool",
+            "name": "food_beef_noodles",
+            "display_name": "Beef Noodles",
+            "sprite": "beef_noodle_sprite",
+            "icon": "icon_item_food_sprite",
+            "text": "Chewy noodles loaded with tender beef. The smell is divine.",
+            "price": 12,
+            "id": 12,
+            "tool_data": {
+                "type": "food",
+                "cursor": "",
+                "dv": 3,
+                "df": 0,
+                "ds": 0,
+                "food_data": {
+                    "food_group": "meat",
+                    "food_role": "main"
+                }
+            },
+            "tier": 3,
+            "can_buy": true,
+            "can_sell": false
+        },
+        {
+            "type": "tool",
+            "name": "food_nasi_lemak",
+            "display_name": "Nasi Lemak",
+            "sprite": "nasi_lemak_sprite",
+            "icon": "icon_item_food_sprite",
+            "text": "The smell of coconut and pandan entices you to have a bite of rice loaded with sides.",
+            "price": 12,
+            "id": 29,
+            "tool_data": {
+                "type": "food",
+                "cursor": "",
+                "dv": 3,
+                "df": 0,
+                "ds": 0,
+                "food_data": {
+                    "food_group": "veg",
+                    "food_role": "main"
+                }
+            },
+            "tier": 3,
+            "can_buy": true,
+            "can_sell": false
+        },
+        {
+            "type": "key",
+            "name": "coin",
+            "display_name": "Coin",
+            "tier": 1,
+            "sprite": "coin_static_sprite",
+            "icon": "icon_item_key_sprite",
+            "text": "A gleaming golden coin. The possibilities for its use are endless.",
+            "price": 0,
+            "id": 109,
+            "can_buy": false,
+            "can_sell": false
+        },
+        {
+            "type": "prop",
+            "name": "prop_portal_orange",
+            "display_name": "Orange Portal",
+            "tier": 0,
+            "sprite": "portal_orange_sprite",
+            "text": "If you enter this one...",
+            "price": 0,
+            "id": 110,
+            "prop_data": {
+                "type": "default",
+                "shape": [
+                    2,
+                    1
+                ],
+                "animate": true,
+                "child_dy": 0
+            },
+            "icon": "item_icon_key_sprite",
+            "can_buy": false,
+            "can_sell": false
+        },
+        {
+            "type": "prop",
+            "name": "prop_portal_blue",
+            "display_name": "Blue Portal",
+            "tier": 0,
+            "sprite": "portal_blue_sprite",
+            "text": "...you'll come out the other side!",
+            "price": 0,
+            "id": 111,
+            "prop_data": {
+                "type": "default",
+                "shape": [
+                    2,
+                    1
+                ],
+                "animate": true,
+                "child_dy": 0
+            },
+            "icon": "item_icon_key_sprite",
+            "can_buy": false,
+            "can_sell": false
+        },
+        {
+            "type": "prop",
+            "name": "prop_xen_crystal",
+            "display_name": "Xen Crystal",
+            "tier": 0,
+            "sprite": "xen_crystal_sprite",
+            "text": "Its label says GG-3883. Can't hurt to keep it around for now.",
+            "price": 0,
+            "id": 112,
+            "prop_data": {
+                "type": "top",
+                "shape": [
+                    1,
+                    1
+                ],
+                "animate": false,
+                "child_dy": -3
+            },
+            "icon": "item_icon_key_sprite",
+            "can_buy": false,
+            "can_sell": false
+        },
+        {
+            "type": "prop",
+            "name": "prop_hoopy",
+            "display_name": "Hoopy the Hoop",
+            "tier": 0,
+            "sprite": "prop_hoopy_sprite",
+            "text": "Does this one look like glados_debris_05 or glados_gib_10 to you?",
+            "price": 0,
+            "id": 113,
+            "prop_data": {
+                "type": "default",
+                "shape": [
+                    2,
+                    1
+                ],
+                "animate": true,
+                "child_dy": 0
+            },
+            "icon": "item_icon_key_sprite",
+            "can_buy": false,
+            "can_sell": false
+        },
+        {
+            "type": "key",
+            "name": "save_migrate_mark",
+            "display_name": "Migration Mark",
+            "tier": 0,
+            "sprite": "cursor_flip_sprite",
+            "text": "Commemorates a great leap forward.",
+            "price": 0,
+            "id": 114,
+            "icon": "item_icon_key_sprite",
+            "can_buy": false,
+            "can_sell": false
+        },
+        {
+            "type": "key",
+            "name": "save_reset_mark",
+            "display_name": "Oblivion Mark",
+            "tier": 0,
+            "sprite": "cursor_remove_sprite",
+            "text": "Commemorates starting over fresh.",
+            "price": 0,
+            "id": 115,
+            "icon": "item_icon_key_sprite",
+            "can_buy": false,
+            "can_sell": false
+        },
+        {
+            "type": "key",
+            "name": "save_extend_mark",
+            "display_name": "Extension Mark",
+            "tier": 0,
+            "sprite": "cursor_add_sprite",
+            "text": "Commemorates incremental progress.",
+            "price": 0,
+            "id": 116,
+            "icon": "item_icon_key_sprite",
+            "can_buy": false,
+            "can_sell": false
         }
     ]
 }

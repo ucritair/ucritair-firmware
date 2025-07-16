@@ -10,23 +10,17 @@
 //////////////////////////////////////////////////////////////////////////
 // CONSTANTS AND MACROS
 
-#define CAT_TILE_SIZE 16
-#define CAT_GLYPH_WIDTH 8
-#define CAT_GLYPH_HEIGHT 12
-
-#define CAT_DRAW_QUEUE_MAX_LENGTH 512
-#define CAT_ANIM_TABLE_MAX_LENGTH 512
-
 #define RGB8882565(r, g, b) ((((r) & 0b11111000) << 8) | (((g) & 0b11111100) << 3) | ((b) >> 3))
 #define RGB5652BGR565(c) (((c) >> 8) | (((c) & 0xff) << 8))
+#define RGB5652888
 
 #ifdef CAT_DESKTOP
-#define FRAMEBUFFER_ROW_OFFSET (CAT_get_render_cycle() * CAT_LCD_FRAMEBUFFER_H)
+#define CAT_LCD_FRAMEBUFFER_OFFSET (CAT_get_render_cycle() * CAT_LCD_FRAMEBUFFER_H)
 
 #define ADAPT_DESKTOP_COLOUR(c) c
 #define ADAPT_EMBEDDED_COLOUR(c) RGB5652BGR565(c)
 #else
-#define FRAMEBUFFER_ROW_OFFSET framebuffer_offset_h
+#define CAT_LCD_FRAMEBUFFER_OFFSET framebuffer_offset_h
 
 #define ADAPT_DESKTOP_COLOUR(c) RGB5652BGR565(c)
 #define ADAPT_EMBEDDED_COLOUR(c) c
@@ -42,6 +36,16 @@
 #define CAT_PURPLE 0b1111100000011111
 #define CAT_PAPER 0xEF39
 #define CAT_GREY 0x8410
+
+#define CAT_CRISIS_RED 0xea01
+#define CAT_CRISIS_YELLOW 0xfd45
+#define CAT_CRISIS_GREEN 0x5d6d
+
+#define CAT_MONITOR_BLUE RGB8882565(35, 157, 235)
+
+#define CAT_VIGOUR_ORANGE RGB8882565(223, 64, 47)
+#define CAT_FOCUS_BLUE RGB8882565(102, 181, 179)
+#define CAT_SPIRIT_PURPLE RGB8882565(129, 91, 152)
 
 //////////////////////////////////////////////////////////////////////////
 // COLOUR
@@ -118,41 +122,43 @@ typedef struct
 typedef enum
 {
 	CAT_DRAW_FLAG_NONE = 0,
-	CAT_DRAW_FLAG_BOTTOM = 1,
-	CAT_DRAW_FLAG_CENTER_X = 2,
-	CAT_DRAW_FLAG_CENTER_Y = 4,
-	CAT_DRAW_FLAG_REFLECT_X = 8
+	CAT_DRAW_FLAG_BOTTOM = (1 << 0),
+	CAT_DRAW_FLAG_CENTER_X = (1 << 1),
+	CAT_DRAW_FLAG_CENTER_Y = (1 << 2),
+	CAT_DRAW_FLAG_REFLECT_X = (1 << 3)
 } CAT_draw_flag;
 
-void CAT_set_draw_flags(int flags);
-void CAT_set_draw_colour(uint16_t colour);
-void CAT_set_draw_scale(uint8_t scale);
-void CAT_set_draw_mask(int x0, int y0, int x1, int y1);
+typedef enum
+{
+	CAT_SPRITE_OVERRIDE_NONE = 0,
+	CAT_SPRITE_OVERRIDE_FLAGS = (1 << 0),
+	CAT_SPRITE_OVERRIDE_COLOUR = (1 << 1),
+	CAT_SPRITE_OVERRIDE_SCALE = (1 << 2),
+	CAT_SPRITE_OVERRIDE_MASK = (1 << 3)
+} CAT_sprite_override;
+
+void CAT_set_sprite_flags(uint64_t flags);
+void CAT_set_sprite_colour(uint16_t colour);
+void CAT_set_sprite_scale(uint8_t scale);
+void CAT_set_sprite_mask(int x0, int y0, int x1, int y1);
 
 void CAT_draw_sprite(const CAT_sprite* sprite, int frame_idx, int x, int y);
+void CAT_draw_sprite_raw(const CAT_sprite* sprite, int frame_idx, int x, int y);
+void CAT_draw_background(const CAT_sprite* sprite, int frame_idx, int y);
+void CAT_draw_tile(const CAT_sprite* sprite, int frame_idx, int x, int y);
+void CAT_draw_tile_alpha(const CAT_sprite* sprite, int frame_idx, int x, int y);
 
 //////////////////////////////////////////////////////////////////////////
 // THE BERRIER
 
-typedef enum
-{
-	CAT_POLY_MODE_LINES,
-	CAT_POLY_MODE_LINE_STRIP,
-	CAT_POLY_MODE_LINE_LOOP
-} CAT_poly_mode;
-
-void CAT_greenberry(int xi, int w, int yi, int h, float t);
 void CAT_frameberry(uint16_t c);
-void CAT_greyberry(int xi, int w, int yi, int h);
 void CAT_lineberry(int xi, int yi, int xf, int yf, uint16_t c);
 void CAT_fillberry(int xi, int yi, int w, int h, uint16_t c);
 void CAT_strokeberry(int xi, int yi, int w, int h, uint16_t c);
-void CAT_rowberry(int x, int y, int w, uint16_t c);
 void CAT_pixberry(int x, int y, uint16_t c);
 void CAT_circberry(int x, int y, int r, uint16_t c);
 void CAT_discberry(int x, int y, int r, uint16_t c);
-void CAT_ringberry(int x, int y, int R, int r, uint16_t c, float t, float shift);
-void CAT_polyberry(int x, int y, int16_t* poly, int count, uint16_t c, CAT_poly_mode mode);
+void CAT_annulusberry(int x, int y, int R, int r, uint16_t c, float t, float shift);
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -161,6 +167,7 @@ void CAT_polyberry(int x, int y, int16_t* poly, int count, uint16_t c, CAT_poly_
 void CAT_animator_init();
 void CAT_animator_tick();
 int CAT_animator_get_frame(const CAT_sprite* sprite);
+void CAT_animator_reset(const CAT_sprite* sprite);
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -196,6 +203,8 @@ bool CAT_anim_is_ending(CAT_anim_machine* machine);
 //////////////////////////////////////////////////////////////////////////
 // DRAW QUEUE
 
+#define CAT_DRAW_QUEUE_MAX_LENGTH 256
+
 enum CAT_sprite_layers
 {
 	BG_LAYER,
@@ -221,7 +230,7 @@ void CAT_draw_queue_submit();
 
 
 //////////////////////////////////////////////////////////////////////////
-// MESHES
+// MESHES AND POLYLINES
 
 typedef struct
 {
@@ -234,12 +243,21 @@ typedef struct
 typedef struct
 {
 	uint8_t* verts;
-	uint8_t vert_count;
-	uint8_t* edges;
+	uint16_t vert_count;
+	uint16_t* edges;
 	uint16_t edge_count;
 } CAT_mesh2d;
 
 void CAT_draw_mesh2d(const CAT_mesh2d* mesh, int x, int y, uint16_t c);
+
+typedef enum
+{
+	CAT_POLY_MODE_LINES,
+	CAT_POLY_MODE_LINE_STRIP,
+	CAT_POLY_MODE_LINE_LOOP
+} CAT_poly_mode;
+
+void CAT_draw_polyline(int x, int y, int16_t* poly, int count, uint16_t c, CAT_poly_mode mode);
 
 
 //////////////////////////////////////////////////////////////////////////

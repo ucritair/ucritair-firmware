@@ -19,10 +19,11 @@ extern int next_log_cell_nr;
 void populate_next_log_cell();
 void flash_get_cell_by_nr(int nr, CAT_log_cell* out);
 int flash_get_first_cell_before_time(int memo_start_before, uint64_t t, CAT_log_cell* cell);
+int flash_get_first_cell_after_time(int memo_start_after, uint64_t t, CAT_log_cell* cell);
+int flash_get_first_calendar_cell(CAT_log_cell* cell);
 void populate_log_cell(CAT_log_cell* cell);
 void flash_erase_all_cells();
 bool is_ready_for_aqi_logging();
-void do_aqi_log();
 
 float get_hours_of_logging_at_rate(int rate);
 

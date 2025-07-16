@@ -7,6 +7,35 @@
 #include <string.h>
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// MISCELLANY
+
+#define CAT_MINUTE_SECONDS 60
+#define CAT_HOUR_SECONDS (60 * CAT_MINUTE_SECONDS)
+#define CAT_DAY_SECONDS (24 * CAT_HOUR_SECONDS)
+#define CAT_MONTH_SECONDS (30 * CAT_DAY_SECONDS)
+#define CAT_YEAR_SECONDS (365 * CAT_DAY_SECONDS + 6 * CAT_HOUR_SECONDS)
+#define CAT_DAY_ZERO 60904915200 // (2000/1/1 00:00:00)
+
+#define CAT_LCD_SCREEN_W 240
+#define CAT_LCD_SCREEN_H 320
+
+#define EINK_SCREEN_W 212
+#define EINK_SCREEN_H 104
+
+#define CAT_TILE_SIZE 16
+#define CAT_GLYPH_WIDTH 8
+#define CAT_GLYPH_HEIGHT 12
+#define CAT_LEADING 2
+
+#define CAT_SCREEN_GRID_W (CAT_LCD_SCREEN_W / CAT_TILE_SIZE)
+#define CAT_SCREEN_GRID_H (CAT_LCD_SCREEN_H / CAT_TILE_SIZE)
+
+#define CAT_DEFAULT_PET_NAME "Aura"
+
+#define CAT_TEXT_INPUT_MAX_LENGTH 24
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // PLATFORM
 
 void CAT_platform_init();
@@ -16,9 +45,6 @@ void CAT_platform_cleanup();
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // LCD SCREEN
-
-#define CAT_LCD_SCREEN_W 240
-#define CAT_LCD_SCREEN_H 320
 
 #define CAT_LCD_FRAMEBUFFER_SEGMENTS 2
 #define CAT_LCD_FRAMEBUFFER_W CAT_LCD_SCREEN_W
@@ -46,9 +72,6 @@ int* CAT_LCD_brightness_pointer();
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // EINK SCREEN
 
-#define EINK_SCREEN_W 212
-#define EINK_SCREEN_H 104
-
 void CAT_eink_post(uint8_t* buffer);
 bool CAT_eink_is_posted();
 void CAT_eink_update();
@@ -68,6 +91,10 @@ typedef enum
 
 void CAT_set_screen_orientation(CAT_screen_orientation orientation);
 CAT_screen_orientation CAT_get_screen_orientation();
+
+void CAT_poll_screen_flip();
+bool CAT_should_flip_screen();
+void CAT_flip_screen();
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -113,14 +140,29 @@ void CAT_get_touch(CAT_touch* touch);
 uint64_t CAT_get_slept_s();
 uint64_t CAT_get_uptime_ms();
 float CAT_get_delta_time_s();
-uint64_t CAT_get_rtc_now();
+uint64_t CAT_get_RTC_now();
 
-typedef struct CAT_datetime
+typedef union CAT_datetime
 {
-    int year, month, day, hour, minute, second;
+	struct
+	{
+		int
+		year, // [0, INF)
+		month, // [1, 12]
+		day, // [1, 31]
+		hour, // [0, 24)
+		minute, // [0, 60)
+		second; // [0, 60)
+	};
+	
+   	int data[6];
 } CAT_datetime;
 
 void CAT_get_datetime(CAT_datetime* datetime);
+int CAT_datecmp(CAT_datetime* a, CAT_datetime* b);
+int CAT_timecmp(CAT_datetime* a, CAT_datetime* b);
+void CAT_make_datetime(uint64_t timestamp, CAT_datetime* datetime);
+uint64_t CAT_make_timestamp(CAT_datetime* datetime);
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -134,21 +176,6 @@ void CAT_free(void* ptr);
 // SAVE
 
 #define CAT_SAVE_MAGIC 0xaabbccde
-
-typedef enum
-{
-	CAT_SAVE_FLAG_NONE = 0,
-	CAT_SAVE_FLAG_DEVELOPER_MODE = 1,
-	CAT_SAVE_FLAG_AQ_FIRST = 2
-} CAT_save_flag;
-
-typedef enum
-{
-	CAT_LOAD_FLAG_NONE = 0,
-	CAT_LOAD_FLAG_DIRTY = 1,
-	CAT_LOAD_FLAG_RESET = 2,
-	CAT_LOAD_FLAG_OVERRIDE = 4
-} CAT_load_flag;
 
 typedef struct __attribute__((__packed__))
 {
@@ -197,33 +224,133 @@ typedef struct __attribute__((__packed__))
 	uint8_t temperature_unit;
 
 	int save_flags;
+} CAT_save_legacy;
+
+typedef enum
+{
+	CAT_CONFIG_FLAG_NONE = 0,
+	CAT_CONFIG_FLAG_DEVELOPER = (1 << 0),
+	CAT_CONFIG_FLAG_USE_FAHRENHEIT = (1 << 1),
+	CAT_CONFIG_FLAG_AQ_FIRST = (1 << 2),
+	CAT_CONFIG_FLAG_MIGRATED = (1 << 3),
+	CAT_CONFIG_FLAG_PAUSE_CARE = (1 << 4)
+} CAT_config_flag;
+
+typedef enum
+{
+	CAT_SAVE_SECTOR_PET,
+	CAT_SAVE_SECTOR_INVENTORY,
+	CAT_SAVE_SECTOR_DECO,
+	CAT_SAVE_SECTOR_HIGHSCORES,
+	CAT_SAVE_SECTOR_CONFIG,
+	CAT_SAVE_SECTOR_FOOTER,
+} CAT_save_sector;
+
+typedef struct __attribute__((__packed__))
+{
+	uint8_t label;
+	uint16_t size;
+} CAT_save_sector_header;
+
+typedef struct __attribute__((__packed__))
+{
+	// HEADER : MAGIC NUMBER
+	uint32_t magic_number;
+
+	// HEADER : VERSION
+	uint8_t version_major;
+	uint8_t version_minor;
+	uint8_t version_patch;
+	uint8_t version_push;
+
+	// SECTOR : PET
+	struct __attribute__((__packed__))
+	{
+		CAT_save_sector_header header;
+		char name[24];
+		uint8_t lifespan;
+		uint8_t lifetime;
+		uint16_t incarnations;
+		uint8_t level;
+		uint32_t xp;
+		uint8_t vigour;
+		uint8_t focus;
+		uint8_t spirit;
+	} pet;
+
+	// SECTOR : INVENTORY
+	struct __attribute__((__packed__))
+	{
+		CAT_save_sector_header header;
+		uint16_t counts[256];
+	} inventory;
+
+	// SECTOR : DECO
+	struct __attribute__((__packed__))
+	{
+		CAT_save_sector_header header;
+		uint8_t props[150];
+		uint8_t positions[150*2];
+		uint8_t overrides[150];
+		uint8_t children[150];
+	} deco;
+	
+	// SECTOR : HIGHSCORES
+	struct __attribute__((__packed__))
+	{
+		CAT_save_sector_header header;
+		uint16_t snake;
+		uint16_t mine;
+		uint16_t foursquares;
+	} highscores;
+
+	// SECTOR : CONFIG
+	struct __attribute__((__packed__))
+	{
+		CAT_save_sector_header header;
+		uint64_t flags;
+		uint8_t theme;
+	} config;
+
+	// FOOTER
+	CAT_save_sector_header footer;
 } CAT_save;
 
-// Call to start saving, then populate the returned CAT_save*
-CAT_save* CAT_start_save();
-// then call with the CAT_save* to finish saving
-void CAT_finish_save(CAT_save*);
-
-// Call to start loading, then load from the returned CAT_save*
-CAT_save* CAT_start_load();
-// then call once done loading
-void CAT_finish_load();
-
-static inline bool CAT_check_save(CAT_save* save)
+typedef enum
 {
-	return save->magic_number == CAT_SAVE_MAGIC;
-}
+	CAT_SAVE_ERROR_NONE,
+	CAT_SAVE_ERROR_MAGIC,
+	CAT_SAVE_ERROR_SECTOR_CORRUPT,
+	CAT_SAVE_ERROR_SECTOR_MISSING
+} CAT_save_error;
 
-int CAT_export_save_flags();
-void CAT_import_save_flags(int flags);
-void CAT_set_save_flag(CAT_save_flag flag);
-void CAT_clear_save_flag(CAT_save_flag flag);
-bool CAT_check_save_flag(CAT_save_flag flag);
-void CAT_clear_save_flags();
+void CAT_initialize_save(CAT_save* save);
+void CAT_migrate_legacy_save(void* save);
+void CAT_extend_save(CAT_save* save);
+CAT_save_error CAT_verify_save_structure(CAT_save* save);
 
-void CAT_set_load_flag(CAT_load_flag flag);
-void CAT_clear_load_flag(CAT_load_flag flag);
-bool CAT_check_load_flag(CAT_load_flag flag);
+CAT_save* CAT_start_save();
+void CAT_finish_save(CAT_save* save);
+CAT_save* CAT_start_load();
+
+uint64_t CAT_get_config_flags();
+void CAT_set_config_flags(uint64_t flags);
+
+void CAT_raise_config_flags(uint64_t flags);
+void CAT_lower_config_flags(uint64_t flags);
+bool CAT_check_config_flags(uint64_t flags);
+
+typedef enum
+{
+	CAT_LOAD_FLAG_NONE = 0,
+	CAT_LOAD_FLAG_DIRTY = 1,
+	CAT_LOAD_FLAG_DEFAULT = 2,
+	CAT_LOAD_FLAG_TURNKEY = 4
+} CAT_load_flag;
+
+void CAT_set_load_flags(uint64_t flags);
+void CAT_unset_load_flags(uint64_t flags);
+bool CAT_check_load_flags(uint64_t flags);
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -257,13 +384,17 @@ typedef enum
 } CAT_log_cell_flag;
 
 void CAT_read_log_cell_at_idx(int idx, CAT_log_cell* out);
-int CAT_read_log_cell_before_time(int base_idx, uint64_t time, CAT_log_cell* out);
+int CAT_read_log_cell_before_time(int bookmark, uint64_t time, CAT_log_cell* out);
+int CAT_read_log_cell_after_time(int bookmark, uint64_t time, CAT_log_cell* out);
+int CAT_read_first_calendar_cell(CAT_log_cell* cell);
+int CAT_get_log_cell_count();
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // POWER
 
 #define CAT_CRITICAL_BATTERY_PCT 20
+#define CAT_SAFE_BATTERY_PCT 50
 
 int CAT_get_battery_pct();
 bool CAT_is_charging();
@@ -300,7 +431,8 @@ typedef struct
 } CAT_AQ_readings;
 extern CAT_AQ_readings readings;
 
-bool CAT_is_AQ_initialized();
+bool CAT_AQ_logs_initialized();
+bool CAT_AQ_sensors_initialized();
 
 typedef enum
 {
@@ -315,39 +447,42 @@ const char* CAT_AQ_get_temperature_unit_string();
 
 typedef struct __attribute__((__packed__))
 {
-	uint8_t CO2;
-	uint8_t VOC;
-	uint8_t NOX;
-	uint8_t PM2_5;
-	uint8_t temp;
-	uint8_t rh;
-	uint8_t aggregate;
+	uint16_t CO2; // ppm x1
+	uint8_t VOC; // index x1
+	uint8_t NOX; // index x1
+	uint16_t PM2_5; // ug/m3 x100
+	int32_t temp; // degC x1000
+	uint16_t rh; // % x100
+	uint8_t aggregate; // score x1
+	uint64_t sample_count;
 } CAT_AQ_score_block;
 
-typedef struct __attribute__((__packed__))
-{
-	float CO2;
-	float VOC;
-	float NOX;
-	float PM2_5;
-	float temp;
-	float rh;
-	float aggregate;
-	uint64_t sample_count;
-} CAT_AQ_moving_scores;
+CAT_AQ_score_block* CAT_AQ_get_moving_scores();
+CAT_AQ_score_block* CAT_AQ_get_score_buffer();
+int CAT_AQ_get_score_buffer_head();
 
 void CAT_AQ_move_scores();
-void CAT_AQ_store_moving_scores(CAT_AQ_score_block* block);
-
-int CAT_AQ_get_stored_scores_count();
-void CAT_AQ_read_stored_scores(int idx, CAT_AQ_score_block* out);
-
-void CAT_AQ_clear_stored_scores();
+void CAT_AQ_buffer_scores(CAT_AQ_score_block* block);
+void CAT_AQ_read_scores(int idx, CAT_AQ_score_block* out);
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // IMU
 
+typedef union 
+{
+	struct
+	{
+		float x;
+		float y;
+		float z;
+	};
+
+	float data[3];
+} CAT_IMU_values;
+
+void CAT_IMU_export_raw(CAT_IMU_values* out);
+void CAT_IMU_export_normalized(CAT_IMU_values* out);
 void CAT_IMU_tick();
 bool CAT_IMU_is_upside_down();
 
@@ -356,6 +491,8 @@ bool CAT_IMU_is_upside_down();
 // DEBUG
 
 void CAT_printf(const char* fmt, ...);
+void CAT_print_datetime(const char* title, CAT_datetime* t);
+void CAT_print_timestamp(const char* title, uint64_t t);
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -370,3 +507,22 @@ static inline void CAT_bonus_set(uint32_t value)
 {
 	;
 }
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// PERSISTENCE
+
+typedef enum
+{
+	CAT_PERSIST_FLAG_BATTERY_ALERT = (1 << 0)
+} CAT_persist_flag;
+
+volatile uint8_t* CAT_AQ_crisis_state_persist();
+volatile uint8_t* CAT_pet_timing_state_persist();
+bool CAT_was_persist_wiped();
+
+uint64_t CAT_get_persist_flags();
+void CAT_set_persist_flags(uint64_t flags);
+bool CAT_get_persist_flag(uint64_t flags);
+void CAT_raise_persist_flag(uint64_t flags);
+void CAT_lower_persist_flag(uint64_t flags);

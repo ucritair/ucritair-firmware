@@ -18,7 +18,7 @@ LOG_MODULE_REGISTER(epaper_rendering, LOG_LEVEL_DBG);
 
 void write_px(uint8_t* image, int o_x, int o_y, bool val)
 {
-	if (imu_recognized_upside_down)
+	if (CAT_get_screen_orientation() == CAT_SCREEN_ORIENTATION_DOWN)
 	{
 		o_y = EPD_IMAGE_H - o_y;
 		o_x = EPD_IMAGE_W - o_x;
@@ -124,10 +124,11 @@ void epaper_render_test()
 	struct epaper_image_asset* selected_unicorn = &epaper_image_unicorn_default;
 	struct epaper_image_asset* selected_cloud = &epaper_image_cloud_default;
 
-	int temp_idx, co2_idx, pm_idx, voc_idx, nox_idx;
-	CAT_AQI_quantize(&temp_idx, &co2_idx, &pm_idx, &voc_idx, &nox_idx);
-
-	if (guy_is_wearing_mask)
+	if(CAT_get_persist_flag(CAT_PERSIST_FLAG_BATTERY_ALERT))
+	{	
+		selected_unicorn = &epaper_image_unicorn_low_battery;
+	}
+	else if (guy_is_wearing_mask)
 	{
 		selected_unicorn = &epaper_image_unicorn_mask;
 	}
@@ -143,7 +144,7 @@ void epaper_render_test()
 		}
 	}
 
-	float score = CAT_AQI_aggregate();
+	float score = CAT_AQ_aggregate_score();
 
 	if (score < 25)
 	{
@@ -211,9 +212,6 @@ void epaper_render_protected_off()
 	write_str(epaper_framebuffer, 132, 62, 1, "protected-off");
 	write_str(epaper_framebuffer, 160, 81, 1, "Press RESET");
 	write_str(epaper_framebuffer, 158, 91, 1, "to power on");
-	/*write_str(epaper_framebuffer, 186, 101, 1,  "SYS  v." SYS_FW_VERSION);
-	char buf[256] = {0};
-	fwrite_str(152, 116, 1, "GAME v.%d.%d.%d.%d", CAT_VERSION_MAJOR, CAT_VERSION_MINOR, CAT_VERSION_PATCH, CAT_VERSION_PUSH);*/
 
 	pc_set_mode(false);
 	cmd_turn_on_and_write(epaper_framebuffer);

@@ -1,129 +1,141 @@
-
 #include <stdio.h>
 #include <string.h>
 #include <zephyr/drivers/adc.h>
+#include <hal/nrf_saadc.h>
+
+/* ─────────────────────────── ADC configuration ─────────────────────────── */
+#define ADC_RESOLUTION          10
+#define ADC_GAIN                ADC_GAIN_1_4
+#define ADC_REFERENCE           ADC_REF_INTERNAL
+#define ADC_ACQUISITION_TIME    ADC_ACQ_TIME(ADC_ACQ_TIME_MICROSECONDS, 40)
+
+#define ADC_1ST_CHANNEL_ID      0
+#define ADC_1ST_CHANNEL_INPUT   NRF_SAADC_INPUT_AIN0
+
+#define VREF_MV                 600U   /* Internal reference */
+#define ADC_MAX_VALUE           1023U  /* 10‑bit full‑scale */
+#define DIVIDER_RATIO_NUM       2U     /* undo 1∕2 divider  */
+#define DIVIDER_RATIO_DEN       1U
+#define GAIN_NUM                4U     /* undo 1∕4 gain     */
+#define GAIN_DEN                1U
+
+/* Low‑battery annunciation threshold */
+#define BATTERY_LOW_PCT         20
 
 const struct device *adc_dev = DEVICE_DT_GET(DT_NODELABEL(adc));
 
-#include <hal/nrf_saadc.h>
-#define ADC_DEVICE_NAME DT_ADC_0_NAME
-#define ADC_RESOLUTION 10
-#define ADC_GAIN ADC_GAIN_1_4
-#define ADC_REFERENCE ADC_REF_INTERNAL
-#define ADC_ACQUISITION_TIME ADC_ACQ_TIME(ADC_ACQ_TIME_MICROSECONDS, 10)
-#define ADC_1ST_CHANNEL_ID 0
-#define ADC_1ST_CHANNEL_INPUT NRF_SAADC_INPUT_AIN0
-#define ADC_2ND_CHANNEL_ID 2
-#define ADC_2ND_CHANNEL_INPUT NRF_SAADC_INPUT_AIN2
-
 static const struct adc_channel_cfg m_1st_channel_cfg = {
-	.gain = ADC_GAIN,
-	.reference = ADC_REFERENCE,
-	.acquisition_time = ADC_ACQUISITION_TIME,
-	.channel_id = ADC_1ST_CHANNEL_ID,
+    .gain             = ADC_GAIN,
+    .reference        = ADC_REFERENCE,
+    .acquisition_time = ADC_ACQUISITION_TIME,
+    .channel_id       = ADC_1ST_CHANNEL_ID,
 #if defined(CONFIG_ADC_CONFIGURABLE_INPUTS)
-	.input_positive = ADC_1ST_CHANNEL_INPUT,
+    .input_positive   = ADC_1ST_CHANNEL_INPUT,
 #endif
 };
 
-#define BUFFER_SIZE 8
+#define BUFFER_SIZE 1
 static int16_t m_sample_buffer[BUFFER_SIZE];
 
-const struct adc_sequence_options sequence_opts = {
-	.interval_us = 0,
-	.callback = NULL,
-	.user_data = NULL,
-	.extra_samplings = 7,
+/* ── Voltage → SoC lookup (5 % … 95 % + explicit 20 %) ───────────────────── */
+typedef struct {
+    uint16_t mv;  /* cell voltage in mV */
+    uint8_t  soc; /* associated SoC %  */
+} soc_point_t;
+
+static const soc_point_t soc_lut[] = {
+    {3414,  5}, {3503, 15}, {3535, 20}, {3560, 25}, {3602, 35},
+    {3642, 45}, {3698, 55}, {3783, 65}, {3871, 75}, {3963, 85},
+    {4065, 95}
 };
+//This LUT comes from characterization of the battery on an NGM 202 . It was only a one-off but should be a reasonable first approximation.
 
-int adc_sample(void)
+#define LUT_LEN (sizeof soc_lut / sizeof soc_lut[0])
+
+/* ────────────────────────── Helper functions ───────────────────────────── */
+static uint16_t adc_raw_to_batt_mv(int16_t raw)
 {
-	int ret;
-
-	const struct adc_sequence sequence = {
-		.options = &sequence_opts,
-		.channels = BIT(ADC_1ST_CHANNEL_ID),
-		.buffer = m_sample_buffer,
-		.buffer_size = sizeof(m_sample_buffer),
-		.resolution = ADC_RESOLUTION,
-	};
-
-	if (!adc_dev) {
-		return -1;
-	}
-
-	ret = adc_read(adc_dev, &sequence);
-	if (ret)
-	{
-		printk("ADC read err: %d\n", ret);
-	}
-
-	// printk("Sample: %d\n", m_sample_buffer[0]);
-
-	// /* Print the AIN0 values */
-	// printk("ADC raw value: ");
-	// for (int i = 0; i < BUFFER_SIZE; i++) {
-	// 	printk("%03x ", m_sample_buffer[i]);
-	// }
-
-	// printf("\n");
-	
-	// printf("\n Measured voltage: ");
-	// for (int i = 0; i < BUFFER_SIZE; i++) {
-	// 	float adc_voltage = 0;
-	// 	adc_voltage = (float)(((float)m_sample_buffer[i] / 1023.0f) *
-	// 			      3600.0f);
-	// 	printk("%f ",adc_voltage);
-	// }
-	// printk("\n");
-
-
-	return m_sample_buffer[0];
+    uint32_t mv = (uint32_t)raw * VREF_MV * GAIN_NUM * DIVIDER_RATIO_NUM;
+    mv /= (ADC_MAX_VALUE * GAIN_DEN * DIVIDER_RATIO_DEN);
+    return (uint16_t)mv;
 }
 
-float adc_get_voltage()
+static uint8_t mv_to_soc(uint16_t mv)
 {
-	return 3. + (((float)(adc_sample() - 610))/210.);
+    if (mv <= soc_lut[0].mv)            return 0;
+    if (mv >= soc_lut[LUT_LEN - 1].mv)  return 100;
+
+    for (size_t i = 1; i < LUT_LEN; ++i) {
+        if (mv < soc_lut[i].mv) {
+            uint16_t mv_lo  = soc_lut[i - 1].mv;
+            uint16_t mv_hi  = soc_lut[i].mv;
+            uint8_t  soc_lo = soc_lut[i - 1].soc;
+            uint8_t  soc_hi = soc_lut[i].soc;
+            return soc_lo + (uint32_t)(mv - mv_lo) *
+                             (soc_hi - soc_lo) / (mv_hi - mv_lo);
+        }
+    }
+    return 100; /* shouldn’t hit */
+}
+
+/* ────────────────────────── SAADC wrappers ─────────────────────────────── */
+int adc_sample(void)
+{
+    const struct adc_sequence sequence = {
+        .channels    = BIT(ADC_1ST_CHANNEL_ID),
+        .buffer      = m_sample_buffer,
+        .buffer_size = sizeof(m_sample_buffer),
+        .resolution  = ADC_RESOLUTION,
+    };
+
+    int ret = adc_read(adc_dev, &sequence);
+    if (ret) {
+        printk("ADC read err: %d\n", ret);
+        return -1;
+    }
+    return m_sample_buffer[0];
+}
+
+/* Restored to match original interface. */
+float adc_get_voltage(void)
+{
+    return adc_raw_to_batt_mv(adc_sample()) / 1000.0f;
+}
+
+uint16_t adc_get_battery_mv(void)
+{
+    int16_t raw = adc_sample();
+    if (raw < 0) {
+        return 0;
+    }
+    return adc_raw_to_batt_mv(raw);
+}
+
+/* ────────────────────────── Public API ─────────────────────────────────── */
+int get_battery_pct(void)
+{
+    return (int)mv_to_soc(adc_get_battery_mv());
 }
 
 int init_adc(void)
 {
-	int err;
+    printk("nRF53 SAADC battery monitor init\n");
 
-	printk("nRF53 SAADC sampling AIN0 (P0.13)\n");
+    if (!device_is_ready(adc_dev)) {
+        printk("ADC device not ready\n");
+        return -ENODEV;
+    }
 
-	// adc_dev = device_get_binding("ADC_0");
-	if (!device_is_ready(adc_dev)) {
-		while (1)
-		{
-			printk("device_get_binding ADC_0 failed\n");
-			k_msleep(1000);
-		}
-	}
-	err = adc_channel_setup(adc_dev, &m_1st_channel_cfg);
-	if (err) {
-		while (1)
-		{
-			k_msleep(1000);
-			printk("Error in adc setup: %d\n", err);
-		}
-		
-	}
+    int err = adc_channel_setup(adc_dev, &m_1st_channel_cfg);
+    if (err) {
+        printk("ADC channel setup failed (%d)\n", err);
+        return err;
+    }
 
-	/* Trigger offset calibration
-	 * As this generates a _DONE and _RESULT event
-	 * the first result will be incorrect.
-	 */
-	NRF_SAADC_S->TASKS_CALIBRATEOFFSET = 1;
-	adc_get_voltage();
-	adc_get_voltage();
-	adc_get_voltage();
-}
+    /* Offset calibration; discard first sample */
+    NRF_SAADC_S->TASKS_CALIBRATEOFFSET = 1;
+    k_msleep(2);
+    (void)adc_sample();
 
-int get_battery_pct()
-{
-	int pct = ((adc_get_voltage()-3.6)/(4.2-3.6))*100.;
-	pct -= pct % 5;
-	if (pct>100) pct=100;
-	return pct;
+    return 0;
 }
