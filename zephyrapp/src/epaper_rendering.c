@@ -182,6 +182,9 @@ void epaper_render_test()
 
 	fwrite_str(0, EPD_IMAGE_H-8, 1, " %s LV%d", guy_name, guy_level+1);
 
+	if(CAT_get_battery_pct() <= 10)
+		epaper_render_protected_off();
+
 	imu_update();
 
 	pc_set_mode(false);
@@ -210,8 +213,12 @@ void epaper_render_protected_off()
 
 	write_str(epaper_framebuffer, 128, 52, 1, "Device is");
 	write_str(epaper_framebuffer, 132, 62, 1, "protected-off");
+
 	write_str(epaper_framebuffer, 160, 81, 1, "Press RESET");
 	write_str(epaper_framebuffer, 158, 91, 1, "to power on");
+
+	write_str(epaper_framebuffer, 146, 109, 1, "Please charge");
+	write_str(epaper_framebuffer, 142, 119, 1, "device!");
 
 	pc_set_mode(false);
 	cmd_turn_on_and_write(epaper_framebuffer);
