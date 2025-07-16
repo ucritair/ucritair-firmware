@@ -32,7 +32,9 @@ void CAT_world_move_by(int dx, int dy);
 
 typedef struct
 {
+	const char* name;
 	uint16_t x, y, w, h;
+	int8_t tx, ty;
 	const CAT_sprite* sprite;
 	void (*proc) (void);
 } CAT_interactable;
