@@ -17,6 +17,8 @@
 #define CAT_WORLD_CENTER_X (CAT_WORLD_X + CAT_WORLD_W/2)
 #define CAT_WORLD_CENTER_Y (CAT_WORLD_Y + CAT_WORLD_H/2)
 
+#define CAT_WORLD_MAX_INTERACTABLE_COUNT 32
+
 
 //////////////////////////////////////////////////////////////////////////
 // MOVEMENT
@@ -35,7 +37,14 @@ typedef struct
 	void (*proc) (void);
 } CAT_interactable;
 
+typedef struct
+{
+	CAT_interactable data[CAT_WORLD_MAX_INTERACTABLE_COUNT];
+	int length;
+} CAT_interactable_list;
 
+CAT_interactable_list* CAT_world_get_interactables();
+int CAT_world_place_interactable(CAT_interactable interactable);
 
 
 //////////////////////////////////////////////////////////////////////////

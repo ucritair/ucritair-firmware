@@ -2,6 +2,8 @@
 
 #include "cat_render.h"
 #include "cat_input.h"
+#include "sprite_assets.h"
+#include "cat_gui.h"
 
 //////////////////////////////////////////////////////////////////////////
 // MOVEMENT
@@ -27,6 +29,32 @@ void CAT_world_move_by(int dx, int dy)
 	player_dy += dy;
 }
 
+
+//////////////////////////////////////////////////////////////////////////
+// INTERACTION
+
+static CAT_interactable_list interactables;
+
+CAT_interactable_list* CAT_world_get_interactables()
+{
+	return &interactables;
+}
+
+int CAT_world_place_interactable(CAT_interactable interactable)
+{
+	if(interactables.length >= CAT_WORLD_MAX_INTERACTABLE_COUNT)
+		return -1;
+	int idx = interactables.length;
+	interactables.data[idx] = interactable;
+	interactables.length += 1;
+	return idx;
+}
+
+void dummy_interact_proc()
+{
+	CAT_gui_open_dialogue("Hello, world!\n", 2);
+}
+
 void CAT_MS_world(CAT_machine_signal signal)
 {
 	switch(signal)
@@ -37,6 +65,19 @@ void CAT_MS_world(CAT_machine_signal signal)
 
 			player_x = CAT_WORLD_CENTER_X;
 			player_y = CAT_WORLD_CENTER_Y;
+
+			CAT_world_place_interactable
+			(
+				(CAT_interactable)
+				{
+					.x = 64,
+					.y = 64,
+					.w = 24,
+					.h = 48,
+					.sprite = &null_sprite,
+					.proc = dummy_interact_proc,
+				}
+			);
 		}
 		break;
 
@@ -72,6 +113,12 @@ void CAT_render_world()
 {
 	CAT_frameberry(CAT_BLACK);
 	CAT_strokeberry(CAT_WORLD_X, CAT_WORLD_Y, CAT_WORLD_W, CAT_WORLD_H, CAT_WHITE);
+
+	for(int i = 0; i < interactables.length; i++)
+	{
+		CAT_interactable I = interactables.data[i];
+		CAT_strokeberry(I.x - I.w/2, I.y - I.h, I.w, I.h, CAT_BLUE);
+	}
 
 	CAT_circberry(player_x, player_y, 2, CAT_RED);
 	CAT_strokeberry(player_x - PLAYER_W/2, player_y - PLAYER_H, PLAYER_W, PLAYER_H, CAT_RED);
