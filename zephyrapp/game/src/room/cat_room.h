@@ -42,10 +42,21 @@ typedef struct CAT_room_theme
 	uint8_t* floor_map;
 } CAT_room_theme;
 
+typedef struct
+{
+	struct prop_list_item
+	{
+		int prop;
+		uint8_t x0, y0, x1, y1;
+		int override;
+		int child;
+	} data[CAT_ROOM_GRID_SIZE];
+	int length;
+} CAT_prop_list;
+
 typedef struct CAT_pickup
 {
-	CAT_ivec2 origin;
-	CAT_ivec2 place;
+	uint8_t x0, y0, x1, y1;
 
 	const CAT_sprite* sprite;
 	void (*proc)();
@@ -53,52 +64,54 @@ typedef struct CAT_pickup
 	float timer;
 } CAT_pickup;
 
-typedef struct CAT_room
+typedef struct
 {
-	const CAT_room_theme* theme;
+	CAT_pickup data[CAT_MAX_PICKUP_COUNT];
+	int length;
+} CAT_pickup_list;
 
-	int prop_ids[CAT_ROOM_GRID_SIZE];
-	CAT_rect prop_rects[CAT_ROOM_GRID_SIZE];
-	int prop_overrides[CAT_ROOM_GRID_SIZE];
-	int prop_children[CAT_ROOM_GRID_SIZE];
-	int prop_count;
+void CAT_room_set_theme(CAT_room_theme* theme);
+CAT_room_theme* CAT_room_get_theme();
 
-	CAT_pickup pickups[CAT_MAX_PICKUP_COUNT];
-	int pickup_count;
-} CAT_room;
-extern CAT_room room;
+void CAT_room_point2cell(int x, int y, int* x_out, int* y_out);
+void CAT_room_cell2point(int x, int y, int* x_out, int* y_out);
+bool CAT_room_in_bounds(int x, int y);
+bool CAT_room_in_grid_bounds(int x, int y);
+
+bool CAT_room_is_point_free(int x, int y);
+bool CAT_room_is_cell_free(int x, int y);
+bool CAT_room_is_block_free(int x, int y, int w, int h);
+void CAT_room_set_block(int x, int y, int w, int h, int item_id);
+
+bool CAT_room_has_free_cell();
+void CAT_room_nearest_free_cell(int x, int y, int* x_out, int* y_out);
+void CAT_room_random_free_cell(int* x_out, int* y_out);
+
+CAT_prop_list* CAT_room_get_props();
+int CAT_room_prop_lookup(int item_id);
+int CAT_room_cell_lookup(int x, int y);
+
+bool CAT_room_fits_prop(int x, int y, int item_id);
+int CAT_room_place_prop(int x, int y, int item_id);
+int CAT_room_remove_prop(int idx);
+
+bool CAT_room_prop_has_child(int idx);
+bool CAT_room_stack_prop(int idx, int item_id);
+int CAT_room_unstack_prop(int idx);
+int CAT_room_alter_prop(int idx);
+
+CAT_pickup_list* CAT_room_get_pickups();
+int CAT_room_spawn_pickup(CAT_pickup pickup);
+void CAT_room_consume_pickup(int idx);
+
+
+//////////////////////////////////////////////////////////////////////////
+// ROOM
 
 void CAT_room_init();
-
-CAT_ivec2 CAT_grid2world(CAT_ivec2 grid);
-CAT_ivec2 CAT_world2grid(CAT_ivec2 world);
-
-bool CAT_is_grid_point_free(CAT_ivec2 point);
-bool CAT_is_world_point_free(CAT_vec2 point);
-bool CAT_is_block_free(CAT_rect block);
-void CAT_toggle_block(CAT_rect block, bool value);
-
-bool CAT_has_free_space();
-CAT_ivec2 CAT_first_free_space();
-CAT_ivec2 CAT_rand_free_space();
-CAT_ivec2 CAT_nearest_free_space(CAT_ivec2 cell);
-CAT_ivec2 CAT_largest_free_space();
-
-int CAT_room_find(int item_id);
-int CAT_room_find_spatial(CAT_ivec2 place);
-bool CAT_prop_fits(int item_id, CAT_ivec2 place);
-
-int CAT_room_add_prop(int item_id, CAT_ivec2 place);
-void CAT_room_stack_prop(int idx, int item_id);
-void CAT_room_unstack_prop(int idx);
-void CAT_room_remove_prop(int idx);
-void CAT_room_flip_prop(int idx);
-
-int CAT_spawn_pickup(CAT_ivec2 origin, CAT_ivec2 place, const CAT_sprite* sprite, void (*proc)());
-void CAT_despawn_pickup(int idx);
-
 void CAT_room_tick();
 void CAT_MS_room(CAT_machine_signal signal);
+
 void CAT_room_draw_statics();
 void CAT_room_draw_props();
 void CAT_room_draw_pickups();

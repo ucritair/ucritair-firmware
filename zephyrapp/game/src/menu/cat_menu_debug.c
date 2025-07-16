@@ -109,7 +109,7 @@ void CAT_render_debug()
 			{
 				for(int x = 0; x < CAT_ROOM_GRID_W; x++)
 				{
-					if(CAT_is_grid_point_free((CAT_ivec2){x, y}))
+					if(CAT_room_is_cell_free(x, y))
 						CAT_strokeberry(gui.cursor.x, gui.cursor.y, 8, 8, CAT_BLACK);
 					else
 						CAT_fillberry(gui.cursor.x, gui.cursor.y, 8, 8, CAT_BLACK);

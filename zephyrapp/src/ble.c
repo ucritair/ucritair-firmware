@@ -180,8 +180,8 @@ static ssize_t read_stats(struct bt_conn *conn, const struct bt_gatt_attr *attr,
 		.age = pet.lifetime,
 
 		.interventions = ((item_table.counts[mask_item] > 0) << 0) | \
-		                 ((CAT_room_find(prop_purifier_item) != -1) << 1) | \
-		                 ((CAT_room_find(prop_uv_lamp_item) != -1) << 2)
+		                 ((CAT_room_prop_lookup(prop_purifier_item) != -1) << 1) | \
+		                 ((CAT_room_prop_lookup(prop_uv_lamp_item) != -1) << 2)
 	};
 
 	return bt_gatt_attr_read(conn, attr, buf, len, offset, &readout, sizeof(readout));
@@ -202,7 +202,7 @@ static ssize_t read_items(struct bt_conn *conn, const struct bt_gatt_attr *attr,
 
 		if (looking_for_placed)
 		{
-			found = CAT_room_find(i) != -1;
+			found = CAT_room_prop_lookup(i) != -1;
 		}
 		else
 		{

@@ -36,7 +36,7 @@ static float timer = 0;
 void action_enter()
 {
 	timer = 0;
-	cursor = CAT_nearest_free_space(cursor);
+	CAT_room_nearest_free_cell(cursor.x, cursor.y, &cursor.x, &cursor.y);
 	CAT_pet_settle();
 	CAT_gui_begin_item_grid_context(true);
 }
@@ -97,14 +97,16 @@ void action_tick()
 
 		if (CAT_input_pressed(CAT_BUTTON_A))
 		{
-			CAT_rect action_rect = CAT_rect_place(cursor, (CAT_ivec2){1, 1});
-			if (CAT_is_block_free(action_rect))
+			if(CAT_room_is_block_free(cursor.x, cursor.y, 1, 1))
 			{
-				CAT_ivec2 world_cursor = CAT_grid2world(cursor);
-				tool_anchor = (CAT_vec2){world_cursor.x + 8, world_cursor.y + 16};
-				pet_anchor = (CAT_vec2){
+				int x, y;
+				CAT_room_cell2point(cursor.x, cursor.y, &x, &y);
+				tool_anchor = (CAT_vec2){x + 8, y + 16};
+				pet_anchor = (CAT_vec2)
+				{
 					tool_anchor.x > pet.pos.x ? tool_anchor.x - 24 : tool_anchor.x + 24,
-					tool_anchor.y};
+					tool_anchor.y
+				};
 
 				action_confirmed = true;
 				CAT_anim_transition(&AM_pet, &AS_walk);
@@ -207,9 +209,10 @@ void CAT_render_action()
 		if (!action_confirmed)
 		{
 			int mode = CAT_DRAW_FLAG_BOTTOM;
-			CAT_ivec2 place = CAT_grid2world(cursor);
-			CAT_draw_queue_add(item->tool_cursor, 0, PROPS_LAYER, place.x, place.y + 16, mode);
-			CAT_draw_queue_add(&tile_hl_sprite, 0, GUI_LAYER, place.x, place.y + 16, mode);
+			int x, y;
+			CAT_room_cell2point(cursor.x, cursor.y, &x, &y);
+			CAT_draw_queue_add(item->tool_cursor, 0, PROPS_LAYER, x, y + 16, mode);
+			CAT_draw_queue_add(&tile_hl_sprite, 0, GUI_LAYER, x, y + 16, mode);
 		}
 		else if (!action_complete)
 		{

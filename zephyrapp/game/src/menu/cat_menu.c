@@ -167,8 +167,9 @@ void CAT_MS_menu(CAT_machine_signal signal)
 						{
 							for(int i = 0; i < THEME_COUNT; i++)
 							{		
-								if(CAT_gui_menu_toggle(themes_list[i]->name, themes_list[i] == room.theme, CAT_GUI_TOGGLE_STYLE_RADIO_BUTTON))
-									room.theme = themes_list[i];
+								bool this_theme = CAT_room_get_theme() == themes_list[i];
+								if(CAT_gui_menu_toggle(themes_list[i]->name, this_theme, CAT_GUI_TOGGLE_STYLE_RADIO_BUTTON))
+									CAT_room_set_theme(themes_list[i]);
 							}
 							CAT_gui_end_menu();
 						}

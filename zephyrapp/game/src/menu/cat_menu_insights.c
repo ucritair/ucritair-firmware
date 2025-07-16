@@ -121,12 +121,12 @@ int draw_defenses(int cursor_y)
 		CAT_draw_sprite(&icon_mask_sprite, 0, cursor_x, cursor_y);
 		cursor_x += icon_mask_sprite.width + 4;
 	}
-	if(CAT_room_find(prop_uv_lamp_item) > -1)
+	if(CAT_room_prop_lookup(prop_uv_lamp_item) > -1)
 	{
 		CAT_draw_sprite(&icon_uv_sprite, 0, cursor_x, cursor_y);
 		cursor_x += icon_uv_sprite.width + 4;
 	}
-	if(CAT_room_find(prop_purifier_item) > -1)
+	if(CAT_room_prop_lookup(prop_purifier_item) > -1)
 	{
 		CAT_draw_sprite(&icon_pure_sprite, 0, cursor_x, cursor_y);
 		cursor_x += icon_pure_sprite.width + 4;

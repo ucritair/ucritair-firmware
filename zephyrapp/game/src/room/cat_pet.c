@@ -328,11 +328,13 @@ void CAT_pet_walk()
 	{
 		if(CAT_anim_is_in(&AM_pet, &AS_idle) && CAT_anim_is_ticking(&AM_pet))
 		{	
-			if(walk_timer >= WALK_COOLDOWN && CAT_has_free_space())
+			if(walk_timer >= WALK_COOLDOWN && CAT_room_has_free_cell())
 			{
-				CAT_ivec2 grid_dest = CAT_rand_free_space();
-				CAT_ivec2 world_dest = CAT_grid2world(grid_dest);
-				destination = (CAT_vec2) {world_dest.x + 8, world_dest.y + 8};
+				int x, y;
+				CAT_room_random_free_cell(&x, &y);
+				CAT_room_cell2point(x, y, &x, &y);
+				destination = (CAT_vec2) {x + 8, y + 8};
+
 				CAT_anim_transition(&AM_pet, &AS_walk);
 				walk_timer = 0;
 			}
@@ -375,16 +377,22 @@ void CAT_pet_react()
 
 				if(timing_state.times_milked_since_producing >= 5)
 				{
-					CAT_ivec2 place_grid = CAT_rand_free_space();
-					CAT_ivec2 place_world = CAT_grid2world(place_grid);
-					CAT_ivec2 place = {place_world.x, place_world.y};
+					int x, y;
+					CAT_room_random_free_cell(&x, &y);
+					CAT_room_cell2point(x, y, &x, &y);
 
-					CAT_spawn_pickup
+					CAT_room_spawn_pickup
 					(
-						CAT_v2iv(pet.pos),
-						place,
-						&milk_sprite,
-						milk_proc
+						(CAT_pickup)
+						{
+							.x0 = pet.pos.x,
+							.y0 = pet.pos.y,
+							.x1 = x,
+							.y1 = y,
+							.sprite = &milk_sprite,
+							.proc = milk_proc,
+							.timer = 0
+						}
 					);
 
 					timing_state.milks_produced_today += 1;

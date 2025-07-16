@@ -75,22 +75,25 @@ void CAT_force_save()
 	save->pet.focus = pet.focus;
 	save->pet.spirit = pet.spirit;
 
-	for(int i = 0; i < room.pickup_count; i++)
+	CAT_pickup_list* pickups = CAT_room_get_pickups();
+	for(int i = 0; i < pickups->length; i++)
 	{
-		room.pickups[i].proc();
+		CAT_room_consume_pickup(i);
 	}
 	for(int i = 0; i < item_table.length; i++)
 	{
 		save->inventory.counts[i] = item_table.counts[i];
 	}
 
-	for(int i = 0; i < room.prop_count; i++)
+	CAT_prop_list* props = CAT_room_get_props();
+	for(int i = 0; i < props->length; i++)
 	{
-		save->deco.props[i] = room.prop_ids[i] + 1;
-		save->deco.positions[i*2+0] = room.prop_rects[i].min.x;
-		save->deco.positions[i*2+1] = room.prop_rects[i].min.y;
-		save->deco.overrides[i] = room.prop_overrides[i];
-		save->deco.children[i] = room.prop_children[i] + 1;
+		struct prop_list_item* item = &props->data[i];
+		save->deco.props[i] = item->prop + 1;
+		save->deco.positions[i*2+0] = item->x0;
+		save->deco.positions[i*2+1] = item->y0;
+		save->deco.overrides[i] = item->override;
+		save->deco.children[i] = item->child + 1;
 	}
 
 	save->highscores.snake = snake_high_score;
@@ -105,7 +108,7 @@ void CAT_force_save()
 
 	for(int i = 0; i < THEME_COUNT; i++)
 	{
-		if(themes_list[i] == room.theme)
+		if(themes_list[i] == CAT_room_get_theme())
 		{
 			save->config.theme = i;
 		}
@@ -129,9 +132,9 @@ void CAT_load_default()
 	CAT_inventory_add(coin_item, 100);
 
 	CAT_room_init();
-	CAT_room_add_prop(prop_eth_farm_item, (CAT_ivec2) {2, 0});
-	CAT_room_add_prop(prop_table_mahogany_item, (CAT_ivec2) {6, 3});
-	CAT_room_add_prop(prop_chair_mahogany_item, (CAT_ivec2) {4, 3});
+	CAT_room_place_prop(2, 0, prop_eth_farm_item);
+	CAT_room_place_prop(6, 3, prop_table_mahogany_item);
+	CAT_room_place_prop(4, 3, prop_chair_mahogany_item);
 }
 
 void CAT_load_turnkey()
@@ -148,23 +151,22 @@ void CAT_load_turnkey()
 	CAT_inventory_add(toy_baseball_item, 1);
 	CAT_inventory_add(toy_laser_pointer_item, 1);
 	CAT_inventory_add(coin_item, 100);
-
-	CAT_room_init();
-	CAT_room_add_prop(prop_plant_plain_item, (CAT_ivec2) {0, 0});
-	CAT_room_add_prop(prop_eth_farm_item, (CAT_ivec2) {2, 0});
-	CAT_room_add_prop(prop_table_mahogany_item, (CAT_ivec2) {3, 3});
-	CAT_room_stack_prop(room.prop_count-1, prop_xen_crystal_item);
-	CAT_room_add_prop(prop_chair_mahogany_item, (CAT_ivec2) {1, 3});
-	CAT_room_add_prop(prop_stool_wood_item, (CAT_ivec2) {7, 4});
-	CAT_room_add_prop(prop_bush_plain_item, (CAT_ivec2) {13, 2});
-	CAT_room_add_prop(prop_bush_plain_item, (CAT_ivec2) {13, 3});
-	CAT_room_add_prop(prop_table_sm_plastic_item, (CAT_ivec2) {13, 7});
-	CAT_room_stack_prop(room.prop_count-1, prop_coffeemaker_item);
-	CAT_room_add_prop(prop_plant_daisy_item, (CAT_ivec2) {0, 9});
-
 	CAT_inventory_add(prop_portal_orange_item, 1);
 	CAT_inventory_add(prop_portal_blue_item, 1);
 	CAT_inventory_add(prop_hoopy_item, 1);
+
+	CAT_room_init();
+	CAT_room_place_prop(0, 0, prop_plant_plain_item);
+	CAT_room_place_prop(2, 0, prop_eth_farm_item);
+	CAT_room_place_prop(3, 3, prop_table_mahogany_item);
+	CAT_room_stack_prop(CAT_room_get_props()->length-1, prop_xen_crystal_item);
+	CAT_room_place_prop(1, 3, prop_chair_mahogany_item);
+	CAT_room_place_prop(7, 4, prop_stool_wood_item);
+	CAT_room_place_prop(13, 2, prop_bush_plain_item);
+	CAT_room_place_prop(13, 3, prop_bush_plain_item);
+	CAT_room_place_prop(13, 7, prop_table_sm_plastic_item);
+	CAT_room_stack_prop(CAT_room_get_props()->length-1, prop_coffeemaker_item);
+	CAT_room_place_prop(0, 9, prop_plant_daisy_item);
 }
 
 void persist_load()
@@ -275,12 +277,12 @@ void CAT_force_load()
 		}
 		else
 		{
-			CAT_ivec2 position =
-			{
+			prop_idx = CAT_room_place_prop
+			(
 				save->deco.positions[i*2+0],
 				save->deco.positions[i*2+1],
-			};
-			prop_idx = CAT_room_add_prop(prop_id, position);
+				prop_id
+			);
 			if(prop_idx == -1)
 				CAT_inventory_add(prop_id, 1);
 		}
@@ -313,7 +315,7 @@ void CAT_force_load()
 	else
 		CAT_AQ_set_temperature_unit(CAT_TEMPERATURE_UNIT_DEGREES_CELSIUS);
 	if(save->config.theme < THEME_COUNT)
-		room.theme = themes_list[save->config.theme];
+		CAT_room_set_theme(themes_list[save->config.theme]);
 
 	CAT_printf("Load complete!\n");
 }

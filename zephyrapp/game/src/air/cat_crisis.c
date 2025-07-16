@@ -300,7 +300,7 @@ void CAT_AQ_crisis_tick()
 		// ITEM ASSISTED RESPONSES
 		if(crisis.type == CAT_AQ_CRISIS_TYPE_CO2)
 		{
-			int uv_idx = CAT_room_find(prop_uv_lamp_item);
+			int uv_idx = CAT_room_prop_lookup(prop_uv_lamp_item);
 			if(CAT_get_machine_state() == &CAT_MS_room && uv_idx != -1)
 			{
 				CAT_room_remove_prop(uv_idx);
@@ -319,7 +319,7 @@ void CAT_AQ_crisis_tick()
 			}
 			else
 			{
-				int pure_idx = CAT_room_find(prop_purifier_item);
+				int pure_idx = CAT_room_prop_lookup(prop_purifier_item);
 				if(CAT_get_machine_state() == &CAT_MS_room && pure_idx != -1)
 				{
 					CAT_room_remove_prop(pure_idx);

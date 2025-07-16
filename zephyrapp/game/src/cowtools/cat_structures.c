@@ -87,7 +87,7 @@ int CAT_ilist_pop(CAT_int_list* list)
 {
 	if(list == NULL)
 		return INT_MIN;
-	if(list->length < 0)
+	if(list->length <= 0)
 		return INT_MIN;
 
 	list->length -= 1;
@@ -120,4 +120,16 @@ int CAT_ilist_find(CAT_int_list* list, int item)
 	}
 
 	return -1;
+}
+
+int CAT_ilist_dequeue(CAT_int_list* list)
+{
+	if(list == NULL)
+		return INT_MIN;
+	if(list->length <= 0)
+		return INT_MIN;
+
+	int item = list->data[0];
+	CAT_ilist_delete(list, 0);
+	return item;
 }

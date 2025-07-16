@@ -151,3 +151,11 @@ void CAT_CSCLIP_set_rect(int x0, int y0, int x1, int y1);
 int CAT_CSCLIP_get_flags(int x, int y);
 bool CAT_CSCLIP(int* x0, int* y0, int* x1, int* y1);
 
+
+//////////////////////////////////////////////////////////////////////////
+// STRUCT-FREE
+
+bool CAT_int4_int4(int x00, int y00, int x01, int y01, int x10, int y10, int x11, int y11);
+bool CAT_int4_int2(int x0, int y0, int x1, int y1, int x, int y);
+
+

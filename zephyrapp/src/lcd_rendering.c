@@ -127,7 +127,7 @@ void lcd_render_diag()
 		ble_update();
 
 		guy_is_wearing_mask = item_table.counts[mask_item] > 0;
-		if (CAT_room_find(prop_purifier_item) != -1 && CAT_room_find(prop_uv_lamp_item) != -1)
+		if (CAT_room_prop_lookup(prop_purifier_item) != -1 && CAT_room_prop_lookup(prop_uv_lamp_item) != -1)
 		{
 			guy_happiness = 2;
 		}

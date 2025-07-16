@@ -26,3 +26,4 @@ void CAT_ilist_push(CAT_int_list* list, int item);
 int CAT_ilist_pop(CAT_int_list* list);
 void CAT_ilist_shuffle(CAT_int_list* list);
 int CAT_ilist_find(CAT_int_list* list, int item);
+int CAT_ilist_dequeue(CAT_int_list* list);
