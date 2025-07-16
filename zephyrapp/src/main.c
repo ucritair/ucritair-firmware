@@ -41,17 +41,10 @@ int main(void)
 
 	init_power_control();
 	check_rtc_init();
-
 	init_adc();
 
-	if (adc_get_voltage() > 0.2 && adc_get_voltage() < 3.6 && !get_is_charging())
-	{
-		LOG_INF("Emergency power off");
-		power_off(0, true);
-	}
-
 	// LOG_INF("~Test speaker~");
-	set_3v3(true);
+	set_3v3(true); Moved earlier 
 
 	usb_enable(NULL);
 

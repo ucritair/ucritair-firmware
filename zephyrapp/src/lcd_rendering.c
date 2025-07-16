@@ -151,12 +151,6 @@ void lcd_render_diag()
 
 		bool is_charging = get_is_charging();
 
-		if (adc_get_voltage() > 0.2 && adc_get_voltage() < 3.6 && !get_is_charging())
-		{
-			LOG_INF("lcd_rendering batt voltage poweroff");
-			power_off(0, true);
-		}
-
 		if (current_buttons == (CAT_BTN_MASK_SELECT|CAT_BTN_MASK_START|CAT_BTN_MASK_UP))
 		{
 			in_debug_menu = true;
