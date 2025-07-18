@@ -70,8 +70,8 @@ typedef struct
 	int length;
 } CAT_pickup_list;
 
-void CAT_room_set_theme(CAT_room_theme* theme);
-CAT_room_theme* CAT_room_get_theme();
+void CAT_room_set_theme(const CAT_room_theme* theme);
+const CAT_room_theme* CAT_room_get_theme();
 
 void CAT_room_point2cell(int x, int y, int* x_out, int* y_out);
 void CAT_room_cell2point(int x, int y, int* x_out, int* y_out);

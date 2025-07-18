@@ -90,6 +90,14 @@ add_custom_command(
 	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../data/fish.json
 )
 
+add_custom_command(
+	OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/../data/dialogue_assets.h ${CMAKE_CURRENT_BINARY_DIR}/../data/dialogue_assets.c
+	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../
+	COMMAND ${CMAKE_CURRENT_BINARY_DIR}/../utils/asset_gen/dialoguegen.py
+	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../utils/asset_gen/dialoguegen.py
+	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../data/dialogue.json
+)
+
 target_sources(app PRIVATE
 	src/core/cat_common.c
 
@@ -149,6 +157,7 @@ target_sources(app PRIVATE
 	src/room/cat_notices.c
 
 	src/world/cat_world.c
+	src/world/cat_dialogue.c
 
 	sounds/sound_assets.c
 	meshes/mesh_assets.c
@@ -158,6 +167,7 @@ target_sources(app PRIVATE
 	data/theme_assets.c
 	data/config.c
 	data/fish_assets.c
+	data/dialogue_assets.c
 
 	src/cat_main.c)
 

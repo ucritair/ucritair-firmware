@@ -5,6 +5,8 @@
 #include "sprite_assets.h"
 #include "cat_gui.h"
 #include "cat_room.h"
+#include "cat_dialogue.h"
+#include "dialogue_assets.h"
 
 //////////////////////////////////////////////////////////////////////////
 // MOVEMENT
@@ -83,12 +85,12 @@ bool touching_interactable(CAT_interactable* I)
 	);
 }
 
-void dummy_interact_proc()
+void npc_interact_proc()
 {
-	CAT_gui_open_dialogue("Hello, world!\n", 2);
+	CAT_enter_dialogue(&dialogue_test_a);
 }
 
-void exit_door_interact_proc()
+void door_interact_proc()
 {
 	CAT_machine_transition(CAT_MS_room);
 }
@@ -117,7 +119,7 @@ void CAT_MS_world(CAT_machine_signal signal)
 					.w = 24, .h = 48,
 					.tx = 0, .ty = 1,
 					.sprite = &null_sprite,
-					.proc = dummy_interact_proc,
+					.proc = npc_interact_proc,
 				}
 			);
 			CAT_world_place_interactable
@@ -129,7 +131,7 @@ void CAT_MS_world(CAT_machine_signal signal)
 					.w = 24, .h = 48,
 					.tx = 0, .ty = -1,
 					.sprite = &null_sprite,
-					.proc = exit_door_interact_proc,
+					.proc = door_interact_proc,
 				}
 			);
 			candidate_interactable = NULL;
@@ -138,6 +140,12 @@ void CAT_MS_world(CAT_machine_signal signal)
 
 		case CAT_MACHINE_SIGNAL_TICK:
 		{
+			if(CAT_in_dialogue())
+			{
+				CAT_dialogue_io();
+				break;
+			}
+
 			if(CAT_input_held(CAT_BUTTON_UP, 0))
 				CAT_world_move_by(0, -PLAYER_SPEED * CAT_get_delta_time_s());
 			if(CAT_input_held(CAT_BUTTON_DOWN, 0))
@@ -200,4 +208,9 @@ void CAT_render_world()
 	CAT_circberry(player_x, player_y, 2, CAT_RED);
 	CAT_strokeberry(player_x - PLAYER_W/2, player_y - PLAYER_H, PLAYER_W, PLAYER_H, CAT_RED);
 	CAT_lineberry(player_x, player_y, player_x + player_tx * 16, player_y + player_ty * 16, CAT_GREEN);
+
+	if(CAT_in_dialogue())
+	{
+		CAT_render_dialogue();
+	}
 }

@@ -131,7 +131,9 @@ class AssetSchema:
 		return "rank" in perms;
 
 	def __default(t):
-		if t == "int":
+		if t == None:
+			return None;
+		elif t == "int":
 			return 0;
 		elif t == "bool":
 			return False;
@@ -1678,6 +1680,108 @@ class ItemReformer:
 
 
 #########################################################
+## ITEM REFORMER
+
+class DialogueEditor:
+	_ = None;
+
+	def __init__(self):
+		if DialogueEditor._ != None:
+			return None;
+		DialogueEditor._ = self;
+
+		self.size = (1000, 600);
+		window_flag_list = [
+			imgui.WindowFlags_.no_saved_settings,
+			imgui.WindowFlags_.no_collapse,
+		];
+		self.window_flags = foldl(lambda a, b : a | b, 0, window_flag_list);
+		self.open = True;
+		
+		self.nodes = asset_docs["dialogue"].entries;
+		self.node = None;
+	
+	def node_selector(self):
+		if imgui.begin_combo(f"Dialogue", self.node["name"] if not self.node is None else "None"):
+			for node in self.nodes:
+				selected = node == self.node;
+				if imgui.selectable(node["name"], selected)[0]:
+					self.node = node;
+				if selected:
+					imgui.set_item_default_focus();
+			imgui.end_combo();
+
+	def verify_node_integrity(self):
+		if not "lines" in self.node or self.node["lines"] == None:
+			self.node["lines"] = [];
+		if not "edges" in self.node or self.node["edges"] == None:
+			self.node["edges"] = [];
+	
+	def verify_edge_integrity(self, edge):
+		if not "text" in edge:
+			edge["text"] = "Maybe";
+		if not "type" in edge or edge["type"] not in ["node", "proc"]:
+			edge["type"] = "node";
+		if not "link" in edge or edge["link"] == None:
+			edge["link"] = "";
+
+	def render():
+		if DialogueEditor._ == None:
+			return;
+		self = DialogueEditor._;
+
+		if self.open:
+			imgui.set_next_window_size(self.size);
+			_, self.open = imgui.begin(f"Dialogue Editor", self.open, flags=self.window_flags);
+
+			self.node_selector();
+
+			if self.node != None:
+				self.verify_node_integrity();
+
+				if imgui.collapsing_header("Lines"):
+					for idx in range(len(self.node["lines"])):
+						_, self.node["lines"][idx] = imgui.input_text(str(idx), self.node["lines"][idx]);
+					if imgui.button("New##line"):
+						self.node["lines"].append("Hello, world!");
+
+				if imgui.collapsing_header("Edges"):
+					for (idx, edge) in enumerate(self.node["edges"]):
+						self.verify_edge_integrity(edge);
+						imgui.push_id(idx);
+						if imgui.collapsing_header(f"{edge["text"]}####{idx}"):
+							_, edge["text"] = imgui.input_text("Text", edge["text"]);
+							if imgui.begin_combo("Type", edge["type"]):
+								for option in ["node", "proc"]:
+									selected = edge["type"] == option;
+									if imgui.selectable(option, selected)[0]:
+										edge["type"] = option;
+									if selected:
+										imgui.set_item_default_focus();
+								imgui.end_combo();
+							if edge["type"] == "node":
+								if imgui.begin_combo("Link", edge["link"]):
+									for node in self.nodes:
+										selected = node["name"] == edge["link"];
+										if imgui.selectable(node["name"], selected)[0]:
+											edge["link"] = node["name"];
+										if selected:
+											imgui.set_item_default_focus();
+									imgui.end_combo();
+							elif edge["type"] == "proc":
+								_, edge["link"] = imgui.input_text("Link", edge["link"]);
+						imgui.pop_id();
+					if imgui.button("New##edge"):
+						self.node["edges"].append({});
+
+			self.size = imgui.get_window_size();
+			imgui.end();
+		
+		if not self.open:
+			DialogueEditor._ = None;
+
+
+#########################################################
 ## EDITOR GUI
 
 splash_img = Image.open("editor/splash.png");
@@ -1783,6 +1887,8 @@ while not glfw.window_should_close(handle):
 				Mesh2DEditor();
 			if imgui.menu_item_simple("Item Reformer"):
 				ItemReformer();	
+			if imgui.menu_item_simple("Dialogue Editor"):
+				DialogueEditor();
 			imgui.end_menu();
 
 		imgui.end_main_menu_bar();
@@ -1804,6 +1910,8 @@ while not glfw.window_should_close(handle):
 		Mesh2DEditor.render();
 	if ItemReformer._ != None:
 		ItemReformer.render();
+	if DialogueEditor._ != None:
+		DialogueEditor.render();
 
 	imgui.end();
 	imgui.render();
