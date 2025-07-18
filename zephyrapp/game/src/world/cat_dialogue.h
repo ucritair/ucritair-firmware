@@ -30,7 +30,7 @@ typedef struct
 } CAT_dialogue_node;
 
 void CAT_enter_dialogue(CAT_dialogue_node* node);
-void CAT_change_dialogue_response();
+void CAT_change_dialogue_response(int dir);
 void CAT_progress_dialogue();
 void CAT_exit_dialogue();
 bool CAT_in_dialogue();

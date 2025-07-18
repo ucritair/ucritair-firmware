@@ -19,9 +19,9 @@ void CAT_enter_dialogue(CAT_dialogue_node* node)
 	in_dialogue = true;
 }
 
-void CAT_change_dialogue_response()
+void CAT_change_dialogue_response(int dir)
 {
-	edge_idx = wrap(edge_idx+1, current->edge_count);
+	edge_idx = wrap(edge_idx+dir, current->edge_count);
 }
 
 void CAT_progress_dialogue()
@@ -98,7 +98,9 @@ void CAT_dialogue_io()
 	if(CAT_dialogue_needs_response())
 	{
 		if(CAT_input_pressed(CAT_BUTTON_DOWN))
-			CAT_change_dialogue_response();
+			CAT_change_dialogue_response(1);
+		if(CAT_input_pressed(CAT_BUTTON_UP))
+			CAT_change_dialogue_response(-1);
 	}
 }
 
