@@ -69,6 +69,30 @@
                 },
                 {
                     "text": "What?",
+                    "node": "test_d",
+                    "proc": ""
+                },
+                {
+                    "text": "No",
+                    "node": "",
+                    "proc": ""
+                }
+            ]
+        },
+        {
+            "name": "test_d",
+            "lines": [
+                "A carrot. It's a type of vegetable.",
+                "Orange, green on top, sweet and crunchy."
+            ],
+            "edges": [
+                {
+                    "text": "I see",
+                    "node": "test_c",
+                    "proc": ""
+                },
+                {
+                    "text": "Nevermind",
                     "node": "",
                     "proc": ""
                 }

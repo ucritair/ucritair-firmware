@@ -8,7 +8,7 @@ typedef void (*CAT_dialogue_proc) ();
 typedef struct
 {
 	const char* text;
-	struct CAT_dialogue_node* node;
+	const struct CAT_dialogue_node* node;
 	CAT_dialogue_proc proc;
 } CAT_dialogue_edge;
 
@@ -21,7 +21,7 @@ typedef struct
 	int8_t edge_count;
 } CAT_dialogue_node;
 
-void CAT_enter_dialogue(CAT_dialogue_node* node);
+void CAT_enter_dialogue(const CAT_dialogue_node* node);
 void CAT_change_dialogue_response(int dir);
 void CAT_progress_dialogue();
 void CAT_exit_dialogue();

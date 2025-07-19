@@ -6,12 +6,12 @@
 #include "cat_gui.h"
 #include "cat_input.h"
 
-static CAT_dialogue_node* current = NULL;
+static const CAT_dialogue_node* current = NULL;
 static uint8_t line_idx = 0;
 static uint8_t edge_idx = 0;
 static bool in_dialogue = false;
 
-void CAT_enter_dialogue(CAT_dialogue_node* node)
+void CAT_enter_dialogue(const CAT_dialogue_node* node)
 {
 	current = node;
 	line_idx = 0;

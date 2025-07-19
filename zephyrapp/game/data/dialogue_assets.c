@@ -62,6 +62,35 @@ const CAT_dialogue_node dialogue_test_c =
 		},
 		{
 			.text = "What?",
+			.node = &dialogue_test_d,
+			.proc = NULL,
+		},
+		{
+			.text = "No",
+			.node = NULL,
+			.proc = NULL,
+		},
+	},
+	.edge_count = 3,
+};
+
+const CAT_dialogue_node dialogue_test_d =
+{
+	.lines = (const char*[])
+	{
+		"A carrot. It's a type of vegetable.",
+		"Orange, green on top, sweet and crunchy.",
+	},
+	.line_count = 2,
+	.edges = (CAT_dialogue_edge[])
+	{
+		{
+			.text = "I see",
+			.node = &dialogue_test_c,
+			.proc = NULL,
+		},
+		{
+			.text = "Nevermind",
 			.node = NULL,
 			.proc = NULL,
 		},
