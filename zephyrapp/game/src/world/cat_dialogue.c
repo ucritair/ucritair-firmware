@@ -31,25 +31,15 @@ void CAT_progress_dialogue()
 		if(edge_idx < current->edge_count)
 		{
 			CAT_dialogue_edge* edge = &current->edges[edge_idx];
-			if(edge->type == CAT_DIALOGUE_EDGE_TYPE_NODE)
+			if(edge->proc != NULL)
+				edge->proc();
+			if(edge->node != NULL)
 			{
-				if(edge->node == NULL)
-					CAT_exit_dialogue();
-				else
-					CAT_enter_dialogue(edge->node);
-			}
-			else
-			{
-				if(edge->proc == NULL)
-					CAT_exit_dialogue();
-				else
-					edge->proc(edge->text);
+				CAT_enter_dialogue(edge->node);
+				return;
 			}
 		}
-		else
-		{
-			CAT_exit_dialogue();
-		}
+		CAT_exit_dialogue();
 	}
 	else
 	{

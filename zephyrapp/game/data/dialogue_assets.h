@@ -1,9 +1,10 @@
 #pragma once
 
-#define DIALOGUE_COUNT 2
+#define DIALOGUE_COUNT 3
 
-#include "world/cat_dialogue.h"
+#include "cat_dialogue.h"
 #include <stddef.h>
 
 extern const CAT_dialogue_node dialogue_test_a;
 extern const CAT_dialogue_node dialogue_test_b;
+extern const CAT_dialogue_node dialogue_test_c;

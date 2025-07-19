@@ -15,7 +15,7 @@ header.write("#pragma once\n");
 header.write("\n");
 header.write(f"#define DIALOGUE_COUNT {len(json_entries)}\n");
 header.write("\n");
-header.write("#include \"world/cat_dialogue.h\"\n");
+header.write("#include \"cat_dialogue.h\"\n");
 header.write("#include <stddef.h>\n");
 header.write("\n");
 for (idx, node) in enumerate(json_entries):
@@ -24,6 +24,7 @@ header.close();
 
 source = open("data/dialogue_assets.c", "w");
 source.write("#include \"dialogue_assets.h\"\n");
+source.write("#include \"cat_dialogue_procs.h\"\n");
 source.write("\n");
 for (idx, node) in enumerate(json_entries):
 	source.write(f"const CAT_dialogue_node dialogue_{node['name']} =\n");
@@ -41,14 +42,14 @@ for (idx, node) in enumerate(json_entries):
 	for edge in node["edges"]:
 		source.write("\t\t{\n");
 		source.write(f"\t\t\t.text = \"{edge["text"]}\",\n");
-		source.write(f"\t\t\t.type = CAT_DIALOGUE_EDGE_TYPE_{edge["type"].upper()},\n");
-		if edge["type"] == "node":
-			source.write(f"\t\t\t.node = &dialogue_{edge["link"]},\n");
+		if edge["node"] == "":
+			source.write(f"\t\t\t.node = NULL,\n");
 		else:
-			if edge["link"] == "":
-				source.write(f"\t\t\t.proc = NULL,\n");
-			else:
-				source.write(f"\t\t\t.proc = {edge["link"]},\n");
+			source.write(f"\t\t\t.node = &dialogue_{edge["node"]},\n");
+		if edge["proc"] == "":
+			source.write(f"\t\t\t.proc = NULL,\n");
+		else:
+			source.write(f"\t\t\t.proc = dialogue_proc_{edge["proc"]},\n");
 		source.write("\t\t},\n");
 	source.write("\t},\n");
 	source.write(f"\t.edge_count = {len(node["edges"])},\n");

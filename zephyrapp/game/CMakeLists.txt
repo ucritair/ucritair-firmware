@@ -158,6 +158,7 @@ target_sources(app PRIVATE
 
 	src/world/cat_world.c
 	src/world/cat_dialogue.c
+	src/world/cat_dialogue_procs.c
 
 	sounds/sound_assets.c
 	meshes/mesh_assets.c

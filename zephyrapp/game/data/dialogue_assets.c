@@ -1,4 +1,5 @@
 #include "dialogue_assets.h"
+#include "cat_dialogue_procs.h"
 
 const CAT_dialogue_node dialogue_test_a =
 {
@@ -13,12 +14,12 @@ const CAT_dialogue_node dialogue_test_a =
 	{
 		{
 			.text = "Yes",
-			.type = CAT_DIALOGUE_EDGE_TYPE_NODE,
 			.node = &dialogue_test_b,
+			.proc = NULL,
 		},
 		{
 			.text = "No",
-			.type = CAT_DIALOGUE_EDGE_TYPE_PROC,
+			.node = NULL,
 			.proc = NULL,
 		},
 	},
@@ -35,8 +36,37 @@ const CAT_dialogue_node dialogue_test_b =
 	.line_count = 2,
 	.edges = (CAT_dialogue_edge[])
 	{
+		{
+			.text = "Okay",
+			.node = &dialogue_test_c,
+			.proc = NULL,
+		},
 	},
-	.edge_count = 0,
+	.edge_count = 1,
+};
+
+const CAT_dialogue_node dialogue_test_c =
+{
+	.lines = (const char*[])
+	{
+		"Okay then, how about this:",
+		"Do you want a carrot?",
+	},
+	.line_count = 2,
+	.edges = (CAT_dialogue_edge[])
+	{
+		{
+			.text = "Yes",
+			.node = NULL,
+			.proc = dialogue_proc_give_carrot,
+		},
+		{
+			.text = "What?",
+			.node = NULL,
+			.proc = NULL,
+		},
+	},
+	.edge_count = 2,
 };
 
 

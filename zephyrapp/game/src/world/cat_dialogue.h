@@ -3,21 +3,13 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+typedef void (*CAT_dialogue_proc) ();
+
 typedef struct
 {
 	const char* text;
-
-	enum
-	{
-		CAT_DIALOGUE_EDGE_TYPE_NODE,
-		CAT_DIALOGUE_EDGE_TYPE_PROC
-	} type;
-
-	union
-	{
-		struct CAT_dialogue_node* node;
-		void (*proc) (const char*);
-	};
+	struct CAT_dialogue_node* node;
+	CAT_dialogue_proc proc;
 } CAT_dialogue_edge;
 
 typedef struct

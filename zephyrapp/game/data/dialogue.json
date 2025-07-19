@@ -31,13 +31,13 @@
             "edges": [
                 {
                     "text": "Yes",
-                    "type": "node",
-                    "link": "test_b"
+                    "node": "test_b",
+                    "proc": ""
                 },
                 {
                     "text": "No",
-                    "type": "proc",
-                    "link": ""
+                    "node": "",
+                    "proc": ""
                 }
             ]
         },
@@ -47,7 +47,32 @@
                 "Well, that's sweet of you.",
                 "I don't have much left to say though..."
             ],
-            "edges": []
+            "edges": [
+                {
+                    "text": "Okay",
+                    "node": "test_c",
+                    "proc": ""
+                }
+            ]
+        },
+        {
+            "name": "test_c",
+            "lines": [
+                "Okay then, how about this:",
+                "Do you want a carrot?"
+            ],
+            "edges": [
+                {
+                    "text": "Yes",
+                    "node": "",
+                    "proc": "give_carrot"
+                },
+                {
+                    "text": "What?",
+                    "node": "",
+                    "proc": ""
+                }
+            ]
         }
     ]
 }

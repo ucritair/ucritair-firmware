@@ -1720,10 +1720,15 @@ class DialogueEditor:
 	def verify_edge_integrity(self, edge):
 		if not "text" in edge:
 			edge["text"] = "Maybe";
-		if not "type" in edge or edge["type"] not in ["node", "proc"]:
-			edge["type"] = "node";
-		if not "link" in edge or edge["link"] == None:
-			edge["link"] = "";
+		if not "node" in edge or edge["node"] == None:
+			edge["node"] = "";
+		if not "proc" in edge or edge["proc"] == None:
+			edge["proc"] = "";
+	
+		if "type" in edge:
+			del edge["type"];
+		if "link" in edge:
+			del edge["link"];
 
 	def render():
 		if DialogueEditor._ == None:
@@ -1751,25 +1756,15 @@ class DialogueEditor:
 						imgui.push_id(idx);
 						if imgui.collapsing_header(f"{edge["text"]}####{idx}"):
 							_, edge["text"] = imgui.input_text("Text", edge["text"]);
-							if imgui.begin_combo("Type", edge["type"]):
-								for option in ["node", "proc"]:
-									selected = edge["type"] == option;
-									if imgui.selectable(option, selected)[0]:
-										edge["type"] = option;
+							if imgui.begin_combo("Node", edge["node"]):
+								for node in self.nodes:
+									selected = node["name"] == edge["node"];
+									if imgui.selectable(node["name"], selected)[0]:
+										edge["node"] = node["name"];
 									if selected:
 										imgui.set_item_default_focus();
 								imgui.end_combo();
-							if edge["type"] == "node":
-								if imgui.begin_combo("Link", edge["link"]):
-									for node in self.nodes:
-										selected = node["name"] == edge["link"];
-										if imgui.selectable(node["name"], selected)[0]:
-											edge["link"] = node["name"];
-										if selected:
-											imgui.set_item_default_focus();
-									imgui.end_combo();
-							elif edge["type"] == "proc":
-								_, edge["link"] = imgui.input_text("Link", edge["link"]);
+							_, edge["proc"] = imgui.input_text("Proc", edge["proc"]);
 						imgui.pop_id();
 					if imgui.button("New##edge"):
 						self.node["edges"].append({});
