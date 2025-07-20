@@ -7,12 +7,13 @@
 #include "cat_room.h"
 #include "cat_dialogue.h"
 #include "dialogue_assets.h"
+#include "cat_combat.h"
 
 //////////////////////////////////////////////////////////////////////////
 // MOVEMENT
 
-#define PLAYER_W 64
-#define PLAYER_H 48
+#define PLAYER_W 32
+#define PLAYER_H 32
 #define PLAYER_SPEED 64
 
 static int player_x = CAT_WORLD_CENTER_X;
@@ -135,6 +136,11 @@ void CAT_MS_world(CAT_machine_signal signal)
 				}
 			);
 			candidate_interactable = NULL;
+
+			for(int i = 0; i < 5; i++)
+			{
+				CAT_spawn_enemy(CAT_rand_int(CAT_WORLD_X, CAT_WORLD_MAX_X), CAT_rand_int(CAT_WORLD_Y, CAT_WORLD_MAX_Y));
+			}
 		}
 		break;
 
@@ -179,7 +185,18 @@ void CAT_MS_world(CAT_machine_signal signal)
 			{
 				if(candidate_interactable != NULL)
 					candidate_interactable->proc();
+				else
+				{
+					CAT_attack_bullet(player_x, player_y, player_tx, player_ty, 180);
+				}
 			}
+			if(CAT_input_pressed(CAT_BUTTON_B))
+			{
+				CAT_attack_swipe(player_x, player_y, player_tx, player_ty);
+			}
+
+			CAT_tick_enemies();
+			CAT_tick_attacks();
 		}
 		break;
 
@@ -209,8 +226,11 @@ void CAT_render_world()
 	CAT_strokeberry(player_x - PLAYER_W/2, player_y - PLAYER_H, PLAYER_W, PLAYER_H, CAT_RED);
 	CAT_lineberry(player_x, player_y, player_x + player_tx * 16, player_y + player_ty * 16, CAT_GREEN);
 
+	CAT_render_enemies();
+	CAT_render_attacks();
+
 	if(CAT_in_dialogue())
 	{
 		CAT_render_dialogue();
-	}
+	}	
 }
