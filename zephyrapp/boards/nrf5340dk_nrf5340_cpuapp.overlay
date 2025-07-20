@@ -247,3 +247,8 @@
 		};
 	};
 };
+
+/* ——— force the NFCT pins to behave like GPIOs ——— */
+&uicr {
+	nfct-pins-as-gpios;
+};
