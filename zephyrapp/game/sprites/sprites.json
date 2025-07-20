@@ -2378,6 +2378,26 @@
             "height": 320,
             "loop": false,
             "reverse": false
+        },
+        {
+            "id": 233,
+            "name": "pet_world_walk_sprite",
+            "path": "gameplay/overworld/unicorn_a1.png",
+            "frames": 8,
+            "width": 32,
+            "height": 32,
+            "loop": false,
+            "reverse": false
+        },
+        {
+            "id": 234,
+            "name": "npc_reed_sprite",
+            "path": "gameplay/overworld/npc/reed_a1.png",
+            "frames": 2,
+            "width": 32,
+            "height": 32,
+            "loop": true,
+            "reverse": false
         }
     ]
 }

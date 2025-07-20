@@ -36,7 +36,7 @@ typedef struct
 	uint16_t x, y, w, h;
 	int8_t tx, ty;
 	const CAT_sprite* sprite;
-	void (*proc) (void);
+	void (*proc) ();
 } CAT_interactable;
 
 typedef struct
@@ -46,7 +46,7 @@ typedef struct
 } CAT_interactable_list;
 
 CAT_interactable_list* CAT_world_get_interactables();
-int CAT_world_place_interactable(CAT_interactable interactable);
+int CAT_world_place_interactable(const char* name, const CAT_sprite* sprite, int x, int y, int tx, int ty, void (*proc)());
 
 
 //////////////////////////////////////////////////////////////////////////

@@ -10,37 +10,6 @@
 #include "cat_combat.h"
 
 //////////////////////////////////////////////////////////////////////////
-// MOVEMENT
-
-#define PLAYER_W 32
-#define PLAYER_H 32
-#define PLAYER_SPEED 64
-
-static int player_x = CAT_WORLD_CENTER_X;
-static int player_y = CAT_WORLD_CENTER_Y;
-static int player_dx = 0;
-static int player_dy = 0;
-static int player_tx = 0;
-static int player_ty = 1;
-
-void CAT_world_move_to(int x, int y)
-{
-	player_dx = x - player_x;
-	player_dx = y - player_y;
-	player_tx = sgn(player_dx);
-	player_ty = sgn(player_dy);
-}
-
-void CAT_world_move_by(int dx, int dy)
-{
-	player_dx += dx;
-	player_dy += dy;
-	player_tx = sgn(player_dx);
-	player_ty = sgn(player_dy);
-}
-
-
-//////////////////////////////////////////////////////////////////////////
 // INTERACTION
 
 static CAT_interactable_list interactables;
@@ -51,14 +20,67 @@ CAT_interactable_list* CAT_world_get_interactables()
 	return &interactables;
 }
 
-int CAT_world_place_interactable(CAT_interactable interactable)
+int CAT_world_place_interactable(const char* name, const CAT_sprite* sprite, int x, int y, int tx, int ty, void (*proc)())
 {
 	if(interactables.length >= CAT_WORLD_MAX_INTERACTABLE_COUNT)
 		return -1;
 	int idx = interactables.length;
-	interactables.data[idx] = interactable;
+	interactables.data[idx] = (CAT_interactable)
+	{
+		.name = name,
+		.sprite = sprite,
+		.x = clamp(x, 0, UINT16_MAX), .y =clamp(y, 0, UINT16_MAX),
+		.w = sprite->width, .h = sprite->height,
+		.tx = tx, .ty = ty,
+		.proc = proc
+	};
 	interactables.length += 1;
 	return idx;
+}
+
+void draw_interactables()
+{
+	for(int i = 0; i < interactables.length; i++)
+	{
+		CAT_interactable* I = &interactables.data[i];
+
+		CAT_set_sprite_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_BOTTOM);
+		CAT_draw_sprite(I->sprite, -1, I->x, I->y);
+
+		CAT_strokeberry(I->x - I->w/2, I->y - I->h, I->w, I->h, candidate_interactable == I ? CAT_BLUE : CAT_GREY);
+		CAT_lineberry(I->x, I->y, I->x + I->tx * 16, I->y + I->ty * 16, CAT_GREEN);
+		CAT_set_text_colour(CAT_WHITE);
+		CAT_draw_text(I->x + I->w/2 + 2, I->y - I->h, I->name);
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////
+// PLAYER
+
+#define PLAYER_W (pet_world_walk_sprite.width)
+#define PLAYER_H (pet_world_walk_sprite.height)
+#define PLAYER_SPEED 64
+
+static int player_x = CAT_WORLD_CENTER_X;
+static int player_y = CAT_WORLD_CENTER_Y;
+static int player_dx = 0;
+static int player_dy = 0;
+static int player_tx = 0;
+static int player_ty = 1;
+
+static uint8_t player_walk_row = 0;
+static uint8_t player_walk_frame = 0;
+
+void CAT_world_move_to(int x, int y)
+{
+	player_dx = x - player_x;
+	player_dx = y - player_y;
+}
+
+void CAT_world_move_by(int dx, int dy)
+{
+	player_dx += dx;
+	player_dy += dy;
 }
 
 bool facing_interactable(CAT_interactable* I)
@@ -79,11 +101,97 @@ bool touching_interactable(CAT_interactable* I)
 	return
 	CAT_int4_int4_intersects
 	(
-		I->x, I->y,
-		I->x + I->w, I->y + I->h,
-		player_x, player_y,
-		player_x + PLAYER_W, player_y + PLAYER_H
+		I->x, I->y-I->h,
+		I->x + I->w, I->y,
+		player_x, player_y-PLAYER_H,
+		player_x + PLAYER_W, player_y
 	);
+}
+
+void init_player()
+{
+	player_x = CAT_WORLD_CENTER_X;
+	player_y = CAT_WORLD_CENTER_Y;
+	player_dx = 0;
+	player_dy = 0;
+	player_tx = 0;
+	player_ty = 1;
+
+	player_walk_row = 0;
+	player_walk_frame = 0;
+}
+
+void tick_player()
+{
+	if(CAT_input_held(CAT_BUTTON_UP, 0))
+		CAT_world_move_by(0, -PLAYER_SPEED * CAT_get_delta_time_s());
+	if(CAT_input_held(CAT_BUTTON_DOWN, 0))
+		CAT_world_move_by(0, PLAYER_SPEED * CAT_get_delta_time_s());
+	if(CAT_input_held(CAT_BUTTON_LEFT, 0))
+		CAT_world_move_by(-PLAYER_SPEED * CAT_get_delta_time_s(), 0);
+	if(CAT_input_held(CAT_BUTTON_RIGHT, 0))
+		CAT_world_move_by(PLAYER_SPEED  * CAT_get_delta_time_s(), 0);
+
+	player_x += player_dx;
+	player_y += player_dy;
+	player_x = clamp(player_x, CAT_WORLD_X+PLAYER_W/2, CAT_WORLD_MAX_X-PLAYER_W/2);
+	player_y = clamp(player_y, CAT_WORLD_Y+PLAYER_H, CAT_WORLD_MAX_Y);
+
+	if(player_dx != 0 || player_dy != 0)
+	{
+		player_tx = sgn(player_dx);
+		player_ty = sgn(player_dy);
+
+		if(player_tx == -1)
+			player_walk_row = 0;
+		else if(player_tx == 1)
+			player_walk_row = 2;
+		else if(player_ty == -1)
+			player_walk_row = 1;
+		else if(player_ty == 1)
+			player_walk_row = 3;
+		player_walk_frame = wrap(player_walk_frame+1, pet_world_walk_sprite.frame_count / 4);
+	}
+
+	player_dx = 0;
+	player_dy = 0;
+
+	candidate_interactable = NULL;
+	for(int i = 0; i < interactables.length; i++)
+	{
+		CAT_interactable* I = &interactables.data[i];
+
+		if(!facing_interactable(I))
+			continue;
+		if(!touching_interactable(I))
+			continue;
+
+		candidate_interactable = I;
+	}
+
+	if(CAT_input_pressed(CAT_BUTTON_A))
+	{
+		if(candidate_interactable != NULL)
+			candidate_interactable->proc();
+		else
+		{
+			CAT_attack_bullet(player_x, player_y, player_tx, player_ty, 180);
+		}
+	}
+	if(CAT_input_pressed(CAT_BUTTON_B))
+	{
+		CAT_attack_swipe(player_x, player_y, player_tx, player_ty);
+	}
+}
+
+void draw_player()
+{
+	CAT_set_sprite_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_BOTTOM);
+	CAT_draw_sprite(&pet_world_walk_sprite, player_walk_row * 2 + player_walk_frame, player_x, player_y);
+
+	CAT_circberry(player_x, player_y, 2, CAT_RED);
+	CAT_strokeberry(player_x - PLAYER_W/2, player_y - PLAYER_H, PLAYER_W, PLAYER_H, CAT_RED);
+	CAT_lineberry(player_x, player_y, player_x + player_tx * 16, player_y + player_ty * 16, CAT_GREEN);
 }
 
 void npc_interact_proc()
@@ -104,36 +212,23 @@ void CAT_MS_world(CAT_machine_signal signal)
 		{
 			CAT_set_render_callback(CAT_render_world);
 
-			player_x = CAT_WORLD_CENTER_X;
-			player_y = CAT_WORLD_CENTER_Y;
-			player_dx = 0;
-			player_dy = 0;
-			player_tx = 0;
-			player_ty = 1;
+			init_player();
 
 			CAT_world_place_interactable
 			(
-				(CAT_interactable)
-				{
-					"Skorkus",
-					.x = 64, .y = 64,
-					.w = 24, .h = 48,
-					.tx = 0, .ty = 1,
-					.sprite = &null_sprite,
-					.proc = npc_interact_proc,
-				}
+				"Inspector Reed",
+				&npc_reed_sprite,
+				64, 64,
+				0, 1,
+				npc_interact_proc
 			);
 			CAT_world_place_interactable
 			(
-				(CAT_interactable)
-				{
-					"Exit Door",
-					.x = 128, .y = 228,
-					.w = 24, .h = 48,
-					.tx = 0, .ty = -1,
-					.sprite = &null_sprite,
-					.proc = door_interact_proc,
-				}
+				"Exit Door",
+				&null_sprite,
+				128, 228,
+				0, -1,
+				door_interact_proc
 			);
 			candidate_interactable = NULL;
 
@@ -152,49 +247,7 @@ void CAT_MS_world(CAT_machine_signal signal)
 				break;
 			}
 
-			if(CAT_input_held(CAT_BUTTON_UP, 0))
-				CAT_world_move_by(0, -PLAYER_SPEED * CAT_get_delta_time_s());
-			if(CAT_input_held(CAT_BUTTON_DOWN, 0))
-				CAT_world_move_by(0, PLAYER_SPEED * CAT_get_delta_time_s());
-			if(CAT_input_held(CAT_BUTTON_LEFT, 0))
-				CAT_world_move_by(-PLAYER_SPEED * CAT_get_delta_time_s(), 0);
-			if(CAT_input_held(CAT_BUTTON_RIGHT, 0))
-				CAT_world_move_by(PLAYER_SPEED  * CAT_get_delta_time_s(), 0);
-
-			player_x += player_dx;
-			player_y += player_dy;
-			player_x = clamp(player_x, CAT_WORLD_X+PLAYER_W/2, CAT_WORLD_MAX_X-PLAYER_W/2);
-			player_y = clamp(player_y, CAT_WORLD_Y+PLAYER_H, CAT_WORLD_MAX_Y);
-			player_dx = 0;
-			player_dy = 0;
-
-			candidate_interactable = NULL;
-			for(int i = 0; i < interactables.length; i++)
-			{
-				CAT_interactable* I = &interactables.data[i];
-
-				if(!facing_interactable(I))
-					continue;
-				if(!touching_interactable(I))
-					continue;
-
-				candidate_interactable = I;
-			}
-
-			if(CAT_input_pressed(CAT_BUTTON_A))
-			{
-				if(candidate_interactable != NULL)
-					candidate_interactable->proc();
-				else
-				{
-					CAT_attack_bullet(player_x, player_y, player_tx, player_ty, 180);
-				}
-			}
-			if(CAT_input_pressed(CAT_BUTTON_B))
-			{
-				CAT_attack_swipe(player_x, player_y, player_tx, player_ty);
-			}
-
+			tick_player();
 			CAT_tick_enemies();
 			CAT_tick_attacks();
 		}
@@ -210,21 +263,11 @@ void CAT_MS_world(CAT_machine_signal signal)
 
 void CAT_render_world()
 {
-	CAT_frameberry(CAT_BLACK);
+	CAT_frameberry(CAT_GREY);
 	CAT_strokeberry(CAT_WORLD_X, CAT_WORLD_Y, CAT_WORLD_W, CAT_WORLD_H, CAT_WHITE);
 
-	for(int i = 0; i < interactables.length; i++)
-	{
-		CAT_interactable* I = &interactables.data[i];
-		CAT_strokeberry(I->x - I->w/2, I->y - I->h, I->w, I->h, candidate_interactable == I ? CAT_BLUE : CAT_GREY);
-		CAT_lineberry(I->x, I->y, I->x + I->tx * 16, I->y + I->ty * 16, CAT_GREEN);
-		CAT_set_text_colour(CAT_WHITE);
-		CAT_draw_text(I->x + I->w/2 + 2, I->y - I->h, I->name);
-	}
-
-	CAT_circberry(player_x, player_y, 2, CAT_RED);
-	CAT_strokeberry(player_x - PLAYER_W/2, player_y - PLAYER_H, PLAYER_W, PLAYER_H, CAT_RED);
-	CAT_lineberry(player_x, player_y, player_x + player_tx * 16, player_y + player_ty * 16, CAT_GREEN);
+	draw_interactables();
+	draw_player();
 
 	CAT_render_enemies();
 	CAT_render_attacks();
