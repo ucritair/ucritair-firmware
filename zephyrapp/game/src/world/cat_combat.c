@@ -64,7 +64,7 @@ void hit_enemy(int idx)
 {
 	if(!enemy_hit[idx])
 	{
-		enemy_health[idx] -= 1;
+		enemy_health[idx] = clamp(enemy_health[idx]-1, 0, ENEMY_HEALTH);
 		enemy_vuln[idx] = ENEMY_VULN_FRAMES;
 	}
 	enemy_hit[idx] = true;
@@ -76,19 +76,25 @@ void kill_enemy(int idx)
 	enemy_swap(enemy_count, idx);
 }
 
+bool is_enemy_alive(int idx)
+{
+	return enemy_health[idx] > 0;
+}
+
 void CAT_tick_enemies()
 {
 	for(int i = 0; i < enemy_count; i++)
 	{
 		if
 		(
-			!CAT_int4_int2_contains
+			(!CAT_int4_int2_contains
 			(
 				0, 0,
 				CAT_LCD_SCREEN_W, CAT_LCD_SCREEN_H,
 				enemy_x[i], enemy_y[i]
 			) ||
-			enemy_health[i] <= 0
+			enemy_health[i] <= 0) &&
+			enemy_vuln[i] <= 0
 		)
 		{
 			kill_enemy(i);
@@ -101,7 +107,7 @@ void CAT_tick_enemies()
 		enemy_tx[i] = sgn(player_x - enemy_x[i]);
 		enemy_ty[i] = sgn(player_y - enemy_y[i]);
 
-		if(!enemy_hit[i] || (ENEMY_VULN_FRAMES - enemy_vuln[i]) > ENEMY_HITSTOP_FRAMES)
+		if(enemy_health[i] > 0 && (!enemy_hit[i] || (ENEMY_VULN_FRAMES - enemy_vuln[i]) > ENEMY_HITSTOP_FRAMES))
 		{
 			float dt = CAT_get_delta_time_s();
 			enemy_x[i] += enemy_tx[i] * ENEMY_SPEED * dt;
