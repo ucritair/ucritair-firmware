@@ -83,6 +83,12 @@ void CAT_world_move_by(int dx, int dy)
 	player_dy += dy;
 }
 
+void CAT_world_get_position(int* x, int* y)
+{
+	*x = player_x;
+	*y = player_y;
+}
+
 bool facing_interactable(CAT_interactable* I)
 {
 	if(I->ty != 0 && sgn(player_ty) != -sgn(I->ty))

@@ -5,6 +5,133 @@
 #include "cat_core.h"
 #include "cat_render.h"
 #include <math.h>
+#include "cat_gui.h"
+#include "cat_world.h"
+
+#define ENEMY_CAPACITY 64
+#define ENEMY_HEALTH 3
+#define ENEMY_SPEED 24
+#define ENEMY_SIZE 24
+#define ENEMY_VULN_FRAMES 3
+#define ENEMY_HITSTOP_FRAMES 2
+
+static int enemy_x[ENEMY_CAPACITY];
+static int enemy_y[ENEMY_CAPACITY];
+static int8_t enemy_tx[ENEMY_CAPACITY];
+static int8_t enemy_ty[ENEMY_CAPACITY];
+static uint8_t enemy_health[ENEMY_CAPACITY];
+static bool enemy_hit[ENEMY_CAPACITY];
+static uint8_t enemy_vuln[ENEMY_CAPACITY];
+static uint8_t enemy_count = 0;
+
+void enemy_swap(int i, int j)
+{
+	int temp = enemy_x[i];
+	enemy_x[i] = enemy_x[j];
+	enemy_x[j] = temp;
+	temp = enemy_y[i];
+	enemy_y[i] = enemy_y[j];
+	enemy_y[j] = temp;
+	temp = enemy_tx[i];
+	enemy_tx[i] = enemy_tx[j];
+	enemy_tx[j] = temp;
+	temp = enemy_ty[i];
+	enemy_ty[i] = enemy_ty[j];
+	enemy_ty[j] = temp;
+	temp = enemy_health[i];
+	enemy_health[i] = enemy_health[j];
+	enemy_health[j] = temp;
+	temp = enemy_hit[i];
+	enemy_hit[i] = enemy_hit[j];
+	enemy_hit[j] = temp;
+}
+
+void CAT_spawn_enemy(int x, int y)
+{
+	if(enemy_count >= ENEMY_CAPACITY)
+		return;
+	int idx = enemy_count;
+	enemy_x[idx] = x;
+	enemy_y[idx] = y;
+	enemy_tx[idx] = CAT_rand_int(-1, 1);
+	enemy_ty[idx] = CAT_rand_int(-1, 1);
+	enemy_health[idx] = ENEMY_HEALTH;
+	enemy_hit[idx] = false;
+	enemy_count += 1;
+}
+
+void hit_enemy(int idx)
+{
+	if(!enemy_hit[idx])
+	{
+		enemy_health[idx] -= 1;
+		enemy_vuln[idx] = ENEMY_VULN_FRAMES;
+	}
+	enemy_hit[idx] = true;
+}
+
+void kill_enemy(int idx)
+{
+	enemy_count -= 1;
+	enemy_swap(enemy_count, idx);
+}
+
+void CAT_tick_enemies()
+{
+	for(int i = 0; i < enemy_count; i++)
+	{
+		if
+		(
+			!CAT_int4_int2_contains
+			(
+				0, 0,
+				CAT_LCD_SCREEN_W, CAT_LCD_SCREEN_H,
+				enemy_x[i], enemy_y[i]
+			) ||
+			enemy_health[i] <= 0
+		)
+		{
+			kill_enemy(i);
+			i -= 1;
+			continue;
+		}
+
+		int player_x, player_y;
+		CAT_world_get_position(&player_x, &player_y);
+		enemy_tx[i] = sgn(player_x - enemy_x[i]);
+		enemy_ty[i] = sgn(player_y - enemy_y[i]);
+
+		if(!enemy_hit[i] || (ENEMY_VULN_FRAMES - enemy_vuln[i]) > ENEMY_HITSTOP_FRAMES)
+		{
+			float dt = CAT_get_delta_time_s();
+			enemy_x[i] += enemy_tx[i] * ENEMY_SPEED * dt;
+			enemy_y[i] += enemy_ty[i] * ENEMY_SPEED * dt;
+		}
+
+		if(enemy_hit[i])
+		{
+			if(enemy_vuln[i] == 0)
+				enemy_hit[i] = false;
+			else
+				enemy_vuln[i] -= 1;
+		}
+	}
+}
+
+void CAT_render_enemies()
+{
+	for(int i = 0; i < enemy_count; i++)
+	{
+		CAT_circberry(enemy_x[i], enemy_y[i], 4, CAT_RED);
+		
+		CAT_fillberry(enemy_x[i]-ENEMY_SIZE/2, enemy_y[i]-ENEMY_SIZE/2-3, ENEMY_SIZE * enemy_health[i] / (float) ENEMY_HEALTH, 2, CAT_GREEN);
+		bool flash = enemy_hit[i] && (enemy_vuln[i] & 1);
+		CAT_strokeberry(enemy_x[i]-ENEMY_SIZE/2, enemy_y[i]-ENEMY_SIZE/2, ENEMY_SIZE, ENEMY_SIZE, flash ? CAT_RED : CAT_BLACK);
+
+		CAT_set_text_colour(CAT_WHITE);
+		CAT_draw_textf(enemy_x[i] + ENEMY_SIZE/2 + 2, enemy_y[i] - ENEMY_SIZE/2, "%.2d/%.2d", i, enemy_count);
+	}
+}
 
 #define BULLET_CAPACITY 128
 #define BULLET_R 4
@@ -48,6 +175,12 @@ void CAT_attack_bullet(int x, int y, int tx, int ty, int speed)
 	bullet_count += 1;
 }
 
+void kill_bullet(int idx)
+{
+	bullet_count -= 1;
+	bullet_swap(bullet_count, idx);
+}
+
 void tick_bullets()
 {
 	for(int i = 0; i < bullet_count; i++)
@@ -58,8 +191,7 @@ void tick_bullets()
 			bullet_x[i], bullet_y[i]
 		))
 		{
-			bullet_count -= 1;
-			bullet_swap(bullet_count, i);
+			kill_bullet(i);
 			i -= 1;
 			continue;
 		}
@@ -67,6 +199,26 @@ void tick_bullets()
 		float dt = CAT_get_delta_time_s();
 		bullet_x[i] += bullet_tx[i] * bullet_speed[i] * dt;
 		bullet_y[i] += bullet_ty[i] * bullet_speed[i] * dt;
+
+		bool hit = false;
+		for(int j = 0; j < enemy_count; j++)
+		{
+			if(CAT_int4_int2_contains(
+				enemy_x[j]-ENEMY_SIZE/2, enemy_y[j]-ENEMY_SIZE/2,
+				enemy_x[j]+ENEMY_SIZE/2, enemy_y[j]+ENEMY_SIZE/2,
+				bullet_x[i], bullet_y[i]
+			))
+			{
+				hit_enemy(j);
+				hit = true;
+				break;
+			}
+		}
+		if(hit)
+		{
+			kill_bullet(i);
+			i -= 1;
+		}
 	}
 }
 
@@ -159,130 +311,4 @@ void CAT_render_attacks()
 {
 	render_bullets();
 	render_swipe();
-}
-
-#define ENEMY_CAPACITY 64
-#define ENEMY_HEALTH 3
-#define ENEMY_SPEED 24
-#define ENEMY_SIZE 24
-
-static int enemy_x[ENEMY_CAPACITY];
-static int enemy_y[ENEMY_CAPACITY];
-static int8_t enemy_tx[ENEMY_CAPACITY];
-static int8_t enemy_ty[ENEMY_CAPACITY];
-static uint8_t enemy_health[ENEMY_CAPACITY];
-static bool enemy_hit[ENEMY_CAPACITY];
-static uint8_t enemy_count = 0;
-
-void enemy_swap(int i, int j)
-{
-	int temp = enemy_x[i];
-	enemy_x[i] = enemy_x[j];
-	enemy_x[j] = temp;
-	temp = enemy_y[i];
-	enemy_y[i] = enemy_y[j];
-	enemy_y[j] = temp;
-	temp = enemy_tx[i];
-	enemy_tx[i] = enemy_tx[j];
-	enemy_tx[j] = temp;
-	temp = enemy_ty[i];
-	enemy_ty[i] = enemy_ty[j];
-	enemy_ty[j] = temp;
-	temp = enemy_health[i];
-	enemy_health[i] = enemy_health[j];
-	enemy_health[j] = temp;
-	temp = enemy_hit[i];
-	enemy_hit[i] = enemy_hit[j];
-	enemy_hit[j] = temp;
-}
-
-void CAT_spawn_enemy(int x, int y)
-{
-	if(enemy_count >= ENEMY_CAPACITY)
-		return;
-	int idx = enemy_count;
-	enemy_x[idx] = x;
-	enemy_y[idx] = y;
-	enemy_tx[idx] = CAT_rand_int(-1, 1);
-	enemy_ty[idx] = CAT_rand_int(-1, 1);
-	enemy_health[idx] = ENEMY_HEALTH;
-	enemy_hit[idx] = false;
-	enemy_count += 1;
-}
-
-void CAT_tick_enemies()
-{
-	for(int i = 0; i < enemy_count; i++)
-	{
-		if
-		(
-			!CAT_int4_int2_contains
-			(
-				0, 0,
-				CAT_LCD_SCREEN_W, CAT_LCD_SCREEN_H,
-				enemy_x[i], enemy_y[i]
-			) ||
-			enemy_health[i] <= 0
-		)
-		{
-			enemy_count -= 1;
-			enemy_swap(enemy_count, i);
-			i -= 1;
-			continue;
-		}
-
-		float dt = CAT_get_delta_time_s();
-		enemy_x[i] += enemy_tx[i] * ENEMY_SPEED * dt;
-		enemy_y[i] += enemy_ty[i] * ENEMY_SPEED * dt;
-	}
-
-	for(int i = 0; i < enemy_count; i++)
-	{
-		bool hit_this_frame = false;
-
-		for(int j = 0; j < bullet_count; j++)
-		{
-			if(CAT_int4_int2_contains(
-				enemy_x[i]-ENEMY_SIZE/2, enemy_y[i]-ENEMY_SIZE/2,
-				enemy_x[i]+ENEMY_SIZE/2, enemy_x[i]+ENEMY_SIZE/2,
-				bullet_x[j], bullet_y[j]
-			))
-			{
-				hit_this_frame = true;
-				break;
-			}
-		}
-
-		if(hit_this_frame)
-		{
-			if(!enemy_hit[i])
-				enemy_health[i] -= 1;
-		}
-		else
-		{
-			enemy_hit[i] = false;
-		}
-	}
-}
-
-static bool enemy_flash = false;
-
-void CAT_render_enemies()
-{
-	for(int i = 0; i < enemy_count; i++)
-	{
-		CAT_circberry(enemy_x[i], enemy_y[i], 4, CAT_RED);
-		
-		if(!enemy_hit[i])
-			CAT_strokeberry(enemy_x[i]-ENEMY_SIZE/2, enemy_y[i]-ENEMY_SIZE/2, ENEMY_SIZE, ENEMY_SIZE, CAT_RED);
-		else if(enemy_flash)
-		{
-			CAT_strokeberry(enemy_x[i]-ENEMY_SIZE/2, enemy_y[i]-ENEMY_SIZE/2, ENEMY_SIZE, ENEMY_SIZE, CAT_RED);
-			enemy_flash = false;
-		}
-		else
-		{
-			enemy_flash = true;
-		}
-	}
 }
