@@ -70,7 +70,7 @@ static bool can_stack_held()
 		return
 		hover_item->prop_type == CAT_PROP_TYPE_BOTTOM &&
 		hold_item->prop_type == CAT_PROP_TYPE_TOP &&
-		CAT_int4_int4_contains
+		CAT_rect_contains_rect
 		(
 			hover_x0, hover_y0,
 			hover_x1, hover_y1,

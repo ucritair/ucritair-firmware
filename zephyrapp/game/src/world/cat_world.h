@@ -26,6 +26,7 @@
 void CAT_world_move_to(int x, int y);
 void CAT_world_move_by(int dx, int dy);
 void CAT_world_get_position(int* x, int* y);
+void CAT_world_get_eye(int* x, int* y);
 
 
 //////////////////////////////////////////////////////////////////////////

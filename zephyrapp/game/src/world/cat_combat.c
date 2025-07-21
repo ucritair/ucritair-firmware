@@ -9,7 +9,7 @@
 #include "cat_world.h"
 
 #define ENEMY_CAPACITY 64
-#define ENEMY_HEALTH 3
+#define ENEMY_HEALTH 10
 #define ENEMY_SPEED 24
 #define ENEMY_SIZE 24
 #define ENEMY_VULN_FRAMES 3
@@ -87,7 +87,7 @@ void CAT_tick_enemies()
 	{
 		if
 		(
-			(!CAT_int4_int2_contains
+			(!CAT_rect_point_intersect
 			(
 				0, 0,
 				CAT_LCD_SCREEN_W, CAT_LCD_SCREEN_H,
@@ -191,7 +191,7 @@ void tick_bullets()
 {
 	for(int i = 0; i < bullet_count; i++)
 	{
-		if(!CAT_int4_int2_contains(
+		if(!CAT_rect_point_intersect(
 			0, 0,
 			CAT_LCD_SCREEN_W, CAT_LCD_SCREEN_H,
 			bullet_x[i], bullet_y[i]
@@ -209,7 +209,7 @@ void tick_bullets()
 		bool hit = false;
 		for(int j = 0; j < enemy_count; j++)
 		{
-			if(CAT_int4_int2_contains(
+			if(CAT_rect_point_intersect(
 				enemy_x[j]-ENEMY_SIZE/2, enemy_y[j]-ENEMY_SIZE/2,
 				enemy_x[j]+ENEMY_SIZE/2, enemy_y[j]+ENEMY_SIZE/2,
 				bullet_x[i], bullet_y[i]
@@ -236,7 +236,7 @@ void render_bullets()
 	}
 }
 
-#define SWIPE_ARC (M_PI * 0.25)
+#define SWIPE_ARC (M_PI * 0.35)
 #define SWIPE_R 48
 #define SWIPE_DURATION 1
 #define SWIPE_COOLDOWN 1
@@ -247,6 +247,20 @@ static int8_t swipe_tx = 0;
 static int8_t swipe_ty = 0;
 static bool swiping = false;
 static uint8_t swipe_frames = 0;
+
+// tx+1, ty+1
+static float swipe_angles[] =
+{
+	M_PI + M_PI / 4, // -1, -1 (SW)
+	M_PI, // -1, 0 (W)
+	M_PI / 2 + M_PI / 4, // -1, 1 (NW)
+	3 * M_PI / 2, // 0, -1 (S)
+	0, // 0, 0 (None)
+	M_PI / 2, // 0, 1 (N)
+	3 * M_PI / 2 + M_PI / 4, // 1, -1 (SE)
+	0, // 1, 0  (E)
+	M_PI / 4, // 1, 1 (NE)
+};
 
 void CAT_attack_swipe(int x, int y, int tx, int ty)
 {
@@ -260,6 +274,36 @@ void CAT_attack_swipe(int x, int y, int tx, int ty)
 	swipe_ty = clamp(ty, -127, 127);
 	swiping = true;
 	swipe_frames = 0;
+
+	for(int i = 0; i < enemy_count; i++)
+	{
+		if(CAT_rect_point_intersect(
+			enemy_x[i] - ENEMY_SIZE/2, enemy_y[i] - ENEMY_SIZE/2,
+			enemy_x[i] + ENEMY_SIZE/2, enemy_y[i] + ENEMY_SIZE/2,
+			swipe_x, swipe_y
+		))
+		{
+			hit_enemy(i);
+			return;
+		}
+
+		int d_x = enemy_x[i] - swipe_x;
+		int d_y = enemy_y[i] - swipe_y;
+		int d2 = CAT_i2_cross(d_x, d_y, d_x, d_y);
+		if(d2 > SWIPE_R*SWIPE_R)
+			continue;
+		
+		int angle_idx = (swipe_tx+1) * 3 + (swipe_ty+1);
+		float t_s = swipe_angles[angle_idx];
+		float t_e = atan2(d_y, d_x);
+		if(t_e < 0)
+			t_e += 2 * M_PI;
+		float d_t = fabs(t_e - t_s);
+		if(d_t > SWIPE_ARC)
+			continue;
+
+		hit_enemy(i);
+	}
 }
 
 void tick_swipe()
@@ -275,20 +319,6 @@ void tick_swipe()
 		}
 	}
 }
-
-// tx+1, ty+1
-float swipe_angles[] =
-{
-	M_PI + M_PI / 4, // -1, -1 (SW)
-	M_PI, // -1, 0 (W)
-	M_PI / 2 + M_PI / 4, // -1, 1 (NW)
-	3 * M_PI / 2, // 0, -1 (S)
-	0, // 0, 0 (None)
-	M_PI / 2, // 0, 1 (N)
-	3 * M_PI / 2 + M_PI / 4, // 1, -1 (SE)
-	0, // 1, 0  (E)
-	M_PI / 4, // 1, 1 (NE)
-};
 
 void render_swipe()
 {

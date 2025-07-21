@@ -89,6 +89,17 @@ void CAT_world_get_position(int* x, int* y)
 	*y = player_y;
 }
 
+void CAT_world_get_eye(int* x, int* y)
+{
+	*x = player_x + player_tx * PLAYER_W/2;
+	if(player_ty == 0)
+		*y = player_y - PLAYER_H/2;
+	else if(player_ty == 1)
+		*y = player_y;
+	else
+		*y = player_y - PLAYER_H;
+}
+
 bool facing_interactable(CAT_interactable* I)
 {
 	if(I->ty != 0 && sgn(player_ty) != -sgn(I->ty))
@@ -105,7 +116,7 @@ bool facing_interactable(CAT_interactable* I)
 bool touching_interactable(CAT_interactable* I)
 {
 	return
-	CAT_int4_int4_intersects
+	CAT_rect_rect_intersect
 	(
 		I->x, I->y-I->h,
 		I->x + I->w, I->y,
@@ -186,7 +197,9 @@ void tick_player()
 	}
 	if(CAT_input_pressed(CAT_BUTTON_B))
 	{
-		CAT_attack_swipe(player_x, player_y, player_tx, player_ty);
+		int eye_x, eye_y;
+		CAT_world_get_eye(&eye_x, &eye_y);
+		CAT_attack_swipe(eye_x, eye_y, player_tx, player_ty);
 	}
 }
 
@@ -238,7 +251,7 @@ void CAT_MS_world(CAT_machine_signal signal)
 			);
 			candidate_interactable = NULL;
 
-			for(int i = 0; i < 5; i++)
+			for(int i = 0; i < 1; i++)
 			{
 				CAT_spawn_enemy(CAT_rand_int(CAT_WORLD_X, CAT_WORLD_MAX_X), CAT_rand_int(CAT_WORLD_Y, CAT_WORLD_MAX_Y));
 			}
