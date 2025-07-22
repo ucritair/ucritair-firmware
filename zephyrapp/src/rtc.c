@@ -44,7 +44,7 @@ static int board_cat_init_rtc(void)
     nrfx_rtc_init(&rtc_inst, &config, &rtc_irq_handler);
     nrfx_rtc_tick_enable(&rtc_inst, true);
 
-    nrfx_coredep_delay_us(101000); // as of SEA-1 we are 1.8945s - so 16 ticks (2.0) forward and then 105.5ms delay to get on time
+    nrfx_coredep_delay_us(84156); // As of July 17, 2025
 
     nrf_rtc_task_trigger(HW_RTC_CHOSEN, NRF_RTC_TASK_STOP);
     nrf_rtc_task_trigger(HW_RTC_CHOSEN, NRF_RTC_TASK_CLEAR);
