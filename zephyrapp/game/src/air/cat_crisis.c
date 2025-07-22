@@ -84,6 +84,12 @@ CAT_AQ_crisis_severity CAT_AQ_poll_crisis_severity(CAT_AQ_crisis_type type)
 		}
 		break;
 
+		case CAT_AQ_CRISIS_TYPE_NOX_VOC:
+		{
+			return CAT_AQ_CRISIS_SEVERITY_NONE;
+		}
+		break;
+
 		default:
 		{
 			float score = get_crisis_score(type);
