@@ -12,17 +12,45 @@ static const char** notice_pool[CAT_NOTICE_TYPE_COUNT] =
 {
 	[CAT_NOTICE_TYPE_AQ_GOOD] = (const char*[])
 	{
-		"A fresh cool breeze blows",
+		"A fresh breeze blows",
 		"The critter breathes gently",
-		"There is a faint scent of flowers on the air",
+		"There is the faintest scent of flowers on the air",
 		NULL,
 	},
-	[CAT_NOTICE_TYPE_AQ_BAD] = (const char*[])
+	[CAT_NOTICE_TYPE_CO2_BAD] = (const char*[])
 	{
-		"An acrid wind blows",
-		"The critter gasps for air",
-		"A chemical smell permeates the air",
-		NULL
+		"The critter look dazed",
+		"The critter takes an uneasy breath",
+		"A stagnant atmosphere hangs",
+		NULL,
+	},
+	[CAT_NOTICE_TYPE_PM_BAD] = (const char*[])
+	{
+		"A thick haze hangs",
+		"The critter wheezes",
+		"The critter's eyes water",
+		NULL,
+	},
+	[CAT_NOTICE_TYPE_NOX_VOC_BAD] = (const char*[])
+	{
+		"A gaseous smell wafts by",
+		"Fumes, perhaps from burning fuel",
+		"The creature sniffs at something chemical",
+		NULL,
+	},
+	[CAT_NOTICE_TYPE_TEMP_BAD] = (const char*[])
+	{
+		"The critter pants rapidly",
+		"A wave of intense heat rolls by",
+		"An egg sizzles on pavement",
+		NULL,
+	},
+	[CAT_NOTICE_TYPE_RH_BAD] = (const char*[])
+	{
+		"Mosquitos swarm the muggy air",
+		"The walls almost feel damp",
+		"The critter wishes it could sweat",
+		NULL,
 	},
 	[CAT_NOTICE_TYPE_STATS_GOOD] = (const char*[])
 	{
