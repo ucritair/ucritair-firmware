@@ -1680,7 +1680,7 @@ class ItemReformer:
 
 
 #########################################################
-## ITEM REFORMER
+## DIALOGUE EDITOR
 
 class DialogueEditor:
 	_ = None;

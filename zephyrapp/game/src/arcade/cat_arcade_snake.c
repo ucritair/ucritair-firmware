@@ -20,9 +20,9 @@ static bool is_high_score = false;
 
 static struct
 {
-	int xs[SNAKE_MAX_LENGTH];
-	int ys[SNAKE_MAX_LENGTH];
-	int length;
+	uint8_t xs[SNAKE_MAX_LENGTH];
+	uint8_t ys[SNAKE_MAX_LENGTH];
+	uint8_t length;
 
 	int ldx;
 	int ldy;

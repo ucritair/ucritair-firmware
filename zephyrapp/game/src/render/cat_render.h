@@ -47,6 +47,7 @@
 #define CAT_FOCUS_BLUE RGB8882565(102, 181, 179)
 #define CAT_SPIRIT_PURPLE RGB8882565(129, 91, 152)
 
+
 //////////////////////////////////////////////////////////////////////////
 // COLOUR
 
@@ -147,6 +148,7 @@ void CAT_draw_sprite_raw(const CAT_sprite* sprite, int frame_idx, int x, int y);
 void CAT_draw_background(const CAT_sprite* sprite, int frame_idx, int y);
 void CAT_draw_tile(const CAT_sprite* sprite, int frame_idx, int x, int y);
 void CAT_draw_tile_alpha(const CAT_sprite* sprite, int frame_idx, int x, int y);
+
 
 //////////////////////////////////////////////////////////////////////////
 // THE BERRIER

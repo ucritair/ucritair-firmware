@@ -8,7 +8,7 @@
             ]
         },
         "lines": {
-            "type": "[string]",
+            "type": null,
             "permissions": [
                 "read"
             ]
