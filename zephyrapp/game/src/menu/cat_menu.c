@@ -191,14 +191,21 @@ void CAT_MS_menu(CAT_machine_signal signal)
 							CAT_set_eink_update_flag(true);
 						}
 
-						if(CAT_gui_menu_item("FLIP SCREEN"))
+						if(CAT_gui_menu_toggle("AUTO-FLIP SCREEN", !CAT_get_persist_flag(CAT_PERSIST_FLAG_MANUAL_ORIENT), CAT_GUI_TOGGLE_STYLE_CHECKBOX))
 						{
-							CAT_set_screen_orientation
-							(
-								CAT_get_screen_orientation() == CAT_SCREEN_ORIENTATION_UP ?
-								CAT_SCREEN_ORIENTATION_DOWN :
-								CAT_SCREEN_ORIENTATION_UP
-							);
+							if(CAT_get_persist_flag(CAT_PERSIST_FLAG_MANUAL_ORIENT))
+								CAT_lower_persist_flag(CAT_PERSIST_FLAG_MANUAL_ORIENT);
+							else
+								CAT_raise_persist_flag(CAT_PERSIST_FLAG_MANUAL_ORIENT);
+						}
+
+						if(CAT_get_persist_flag(CAT_PERSIST_FLAG_MANUAL_ORIENT))
+						{
+							if(CAT_gui_menu_item("FLIP SCREEN"))
+							{
+								CAT_flip_screen();
+								CAT_set_eink_update_flag(true);
+							}
 						}
 						CAT_gui_end_menu();
 					}

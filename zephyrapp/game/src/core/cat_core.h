@@ -514,7 +514,8 @@ static inline void CAT_bonus_set(uint32_t value)
 
 typedef enum
 {
-	CAT_PERSIST_FLAG_BATTERY_ALERT = (1 << 0)
+	CAT_PERSIST_FLAG_BATTERY_ALERT = (1 << 0),
+	CAT_PERSIST_FLAG_MANUAL_ORIENT = (1 << 1)
 } CAT_persist_flag;
 
 volatile uint8_t* CAT_AQ_crisis_state_persist();

@@ -636,7 +636,7 @@ CAT_AQ_score_block* CAT_AQ_get_score_buffer()
 
 int CAT_AQ_get_score_buffer_head()
 {
-	0;
+	return 0;
 }
 
 
@@ -684,6 +684,8 @@ static int AQ_crisis_state_fd = -1;
 static uint8_t* AQ_crisis_state_mmap = NULL;
 static int pet_timing_state_fd = -1;
 static uint8_t* pet_timing_state_mmap = NULL;
+static int persist_flags_fd = -1;
+static uint64_t* persist_flags_mmap = NULL;
 
 uint8_t* generate_persist(const char* path, size_t size, int* fd)
 {
@@ -719,9 +721,39 @@ bool CAT_was_persist_wiped()
 	return false;
 }
 
-uint64_t CAT_get_persist_flags() { return 0; }
-void CAT_set_persist_flags(uint64_t flags) { ; }
-bool CAT_get_persist_flag(uint64_t flags) { return false; }
-void CAT_raise_persist_flag(uint64_t flags) { ; }
-void CAT_lower_persist_flag(uint64_t flags) { ; }
+void load_persist_flags()
+{
+	if(persist_flags_fd == -1)
+		persist_flags_mmap = (uint64_t*) generate_persist("persist/persist_flags.dat", sizeof(uint64_t), &persist_flags_fd);
+}
+
+uint64_t CAT_get_persist_flags()
+{
+	load_persist_flags();
+	return *persist_flags_mmap;
+}
+
+void CAT_set_persist_flags(uint64_t flags)
+{
+	load_persist_flags();
+	*persist_flags_mmap = flags;
+}
+
+bool CAT_get_persist_flag(uint64_t flags)
+{
+	load_persist_flags();
+	return *persist_flags_mmap & flags;
+}
+
+void CAT_raise_persist_flag(uint64_t flags)
+{
+	load_persist_flags();
+	*persist_flags_mmap |= flags;
+}
+
+void CAT_lower_persist_flag(uint64_t flags)
+{
+	load_persist_flags();
+	*persist_flags_mmap &= ~flags;
+}
 

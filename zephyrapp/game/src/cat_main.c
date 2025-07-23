@@ -379,11 +379,14 @@ void CAT_tick_logic()
 		CAT_set_eink_update_flag(true);
 	}
 
-	CAT_poll_screen_flip();
-	if(CAT_should_flip_screen())
+	if(!CAT_get_persist_flag(CAT_PERSIST_FLAG_MANUAL_ORIENT))
 	{
-		CAT_flip_screen();
-		CAT_set_eink_update_flag(true);
+		CAT_poll_screen_flip();
+		if(CAT_should_flip_screen())
+		{
+			CAT_flip_screen();
+			CAT_set_eink_update_flag(true);
+		}
 	}
 }
 
