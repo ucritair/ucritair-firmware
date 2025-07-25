@@ -8,6 +8,13 @@
 #define CAT_STAT_TICK_PERIOD (CAT_DAY_SECONDS / 4)
 #define CAT_PET_MILK_COOLDOWN (CAT_MINUTE_SECONDS)
 
+#define CAT_NUM_LEVELS 50
+static const int level_cutoffs[] =
+{
+	500, 514, 528, 542, 556, 570, 584, 598, 612, 626, 640, 654, 668, 682, 696, 710, 724, 738, 752, 766, 780, 794, 808, 822, 836, 
+	1092, 1299, 1515, 1738, 1969, 2209, 2457, 2714, 2980, 3254, 3537, 3829, 4131, 4441, 4762, 5091, 5430, 5779, 6138, 6507, 6886, 7275, 7675, 8085, 8506, 
+};
+
 typedef struct __attribute__((__packed__))
 {
 	uint64_t last_stat_time;

@@ -23,6 +23,7 @@ import wave;
 import numpy as np;
 from collections import OrderedDict;
 import math;
+import re;
 
 
 #########################################################
@@ -133,24 +134,27 @@ class AssetSchema:
 	def __default(t):
 		if t == None:
 			return None;
-		elif t == "int":
+		elif isinstance(t, str) and t == "int":
 			return 0;
-		elif t == "bool":
+		elif isinstance(t, str) and t == "bool":
 			return False;
-		elif t == "string":
+		elif isinstance(t, str) and t == "string":
 			return "";
-		elif t == "float":
+		elif isinstance(t, str) and t == "float":
 			return 0.0;
-		elif t == "ivec2":
+		elif isinstance(t, str) and t == "ivec2":
 			return [0, 0];
-		elif "*" in t:
+		elif isinstance(t, str) and "*" in t:
 			return "";
-		elif t in asset_types:
+		elif isinstance(t, str) and t in asset_types:
 			return "";
+		elif isinstance(t, str) and t.startswith("enum("):
+			tokens = re.split(r"[\(, \, \)]+", t)[1:-1];
+			return tokens[0];
 		elif isinstance(t, list):
-			return t[0];
-		elif t[0] == "[" and t[-1] == "]":
-			return [];
+			return [AssetSchema.__default(t[0])];
+		elif isinstance(t, dict):
+			return {};
 		else:
 			return None;
 	
@@ -791,11 +795,8 @@ class DocumentRenderer:
 			writable = doc.schema.is_writable(key);
 			if not readable:
 				continue;
-
-			if key_type is None:
-				imgui.text(key);
 			
-			elif key_type == "int":
+			if isinstance(key_type, str) and key_type == "int":
 				imgui.text(key);
 				imgui.same_line();
 				if writable:
@@ -803,7 +804,7 @@ class DocumentRenderer:
 				else:
 					imgui.text(str(node[key]));
 
-			elif key_type == "float":
+			elif isinstance(key_type, str) and key_type == "float":
 				imgui.text(key);
 				imgui.same_line();
 				if writable:
@@ -811,7 +812,7 @@ class DocumentRenderer:
 				else:
 					imgui.text(str(node[key]));
 
-			elif key_type == "string":
+			elif isinstance(key_type, str) and key_type == "string":
 				imgui.text(key);
 				imgui.same_line();
 				if writable:
@@ -820,7 +821,7 @@ class DocumentRenderer:
 				else:
 					imgui.text(node[key]);
 
-			elif key_type == "bool":
+			elif isinstance(key_type, str) and key_type == "bool":
 				imgui.text(key);
 				imgui.same_line();
 				if writable:
@@ -828,16 +829,17 @@ class DocumentRenderer:
 				else:
 					imgui.text(str(node(key)));
 			
-			elif key_type == "ivec2":
+			elif isinstance(key_type, str) and key_type == "ivec2":
 				imgui.text(key);
 				imgui.same_line();
 				_, node[key] = imgui.input_int2(get_id(node, key), node[key]);
 			
-			elif isinstance(key_type, list):
+			elif isinstance(key_type, str) and key_type.startswith("enum"):
 				imgui.text(key);
 				imgui.same_line();
+				tokens = re.split(r"[\(, \, \)]+", key_type)[1:-1];
 				if imgui.begin_combo(get_id(node, key), str(node[key])):
-					for value in key_type:
+					for value in tokens:
 						selected = value == node[key];
 						if imgui.selectable(value, selected)[0]:
 							node[key] = value;
@@ -845,7 +847,7 @@ class DocumentRenderer:
 							imgui.set_item_default_focus();	
 					imgui.end_combo();
 
-			elif "*" in key_type:
+			elif isinstance(key_type, str) and "*" in key_type:
 				imgui.text(key);
 				imgui.same_line();
 				if writable:
@@ -898,7 +900,7 @@ class DocumentRenderer:
 					imgui.tree_pop();
 			
 			else:
-				imgui.text(f"[UNSUPPORTED TYPE \"{key_type}\"]");
+				imgui.text(f"{key} : {key_type}");
 	
 	def render(doc):
 		global search_term;

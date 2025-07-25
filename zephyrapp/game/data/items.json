@@ -2,11 +2,7 @@
     "type": "item",
     "schema": {
         "type": {
-            "type": [
-                "key",
-                "tool",
-                "prop"
-            ],
+            "type": "enum(key, tool, prop)",
             "permissions": [
                 "write"
             ]
@@ -67,11 +63,7 @@
         "tool_data": {
             "type": {
                 "type": {
-                    "type": [
-                        "food",
-                        "book",
-                        "toy"
-                    ],
+                    "type": "enum(food, book, toy)",
                     "permissions": [
                         "write"
                     ]
@@ -103,27 +95,13 @@
                 "food_data": {
                     "type": {
                         "food_group": {
-                            "type": [
-                                "veg",
-                                "starch",
-                                "meat",
-                                "dairy",
-                                "misc"
-                            ],
+                            "type": "enum(veg, starch, meat, dairy, misc)",
                             "permissions": [
                                 "write"
                             ]
                         },
                         "food_role": {
-                            "type": [
-                                "staple",
-                                "main",
-                                "side",
-                                "soup",
-                                "drink",
-                                "treat",
-                                "vice"
-                            ],
+                            "type": "enum(staple, main, side, soup, drink, treat, vice)",
                             "permissions": [
                                 "write"
                             ]
@@ -149,11 +127,7 @@
         "prop_data": {
             "type": {
                 "type": {
-                    "type": [
-                        "default",
-                        "bottom",
-                        "top"
-                    ],
+                    "type": "enum(default, bottom, top)",
                     "permissions": [
                         "write"
                     ]

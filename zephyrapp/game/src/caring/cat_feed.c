@@ -15,7 +15,6 @@
 #include <stdio.h>
 #include <string.h>
 #include "cat_room.h"
-#include "config.h"
 #include "cat_gizmos.h"
 
 static void MS_feed_arrange(CAT_machine_signal signal);

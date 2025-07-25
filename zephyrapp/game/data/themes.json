@@ -26,7 +26,11 @@
             ]
         },
         "wall_map": {
-            "type": "[int]",
+            "type": [
+                [
+                    "int"
+                ]
+            ],
             "permissions": []
         },
         "floor_tiles": {
@@ -42,11 +46,17 @@
             ]
         },
         "floor_map": {
-            "type": "[int]",
+            "type": [
+                [
+                    "int"
+                ]
+            ],
             "permissions": []
         },
         "window_rect": {
-            "type": "[int]",
+            "type": [
+                "int"
+            ],
             "permissions": [
                 "write"
             ]
@@ -1248,6 +1258,27 @@
                 0,
                 240,
                 96
+            ]
+        },
+        {
+            "name": "test_empty_theme",
+            "display_name": "",
+            "wall_tiles": "",
+            "tile_wall": false,
+            "wall_map": [
+                [
+                    0
+                ]
+            ],
+            "floor_tiles": "",
+            "tile_floor": false,
+            "floor_map": [
+                [
+                    0
+                ]
+            ],
+            "window_rect": [
+                0
             ]
         }
     ]

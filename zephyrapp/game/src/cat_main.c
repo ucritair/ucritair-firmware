@@ -28,7 +28,6 @@
 #include "cat_crisis.h"
 #include "cat_version.h"
 #include "theme_assets.h"
-#include "config.h"
 #include "sprite_assets.h"
 #include "item_assets.h"
 

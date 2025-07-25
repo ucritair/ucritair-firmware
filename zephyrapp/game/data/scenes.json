@@ -1,0 +1,103 @@
+{
+    "type": "scene",
+    "schema": {
+        "name": {
+            "type": "string",
+            "permissions": [
+                "write"
+            ]
+        },
+        "display_name": {
+            "type": "string",
+            "permissions": [
+                "write"
+            ]
+        },
+        "palette": {
+            "type": [
+                "sprite"
+            ],
+            "permissions": [
+                "write"
+            ]
+        },
+        "layers": {
+            "type": [
+                {
+                    "singles": {
+                        "type": [
+                            {
+                                "idx": {
+                                    "type": "int",
+                                    "permissions": [
+                                        "write"
+                                    ]
+                                },
+                                "position": {
+                                    "type": [
+                                        "int"
+                                    ],
+                                    "permissions": [
+                                        "write"
+                                    ]
+                                }
+                            }
+                        ],
+                        "permissions": [
+                            "write"
+                        ]
+                    },
+                    "regions": {
+                        "type": [
+                            {
+                                "idx": {
+                                    "type": "int",
+                                    "permissions": [
+                                        "write"
+                                    ]
+                                },
+                                "rectangle": {
+                                    "type": [
+                                        "int"
+                                    ],
+                                    "permissions": [
+                                        "write"
+                                    ]
+                                }
+                            }
+                        ],
+                        "permissions": [
+                            "write"
+                        ]
+                    }
+                }
+            ],
+            "permissions": [
+                "write"
+            ]
+        },
+        "skybox": {
+            "type": [
+                "int"
+            ],
+            "permissions": [
+                "write"
+            ]
+        }
+    },
+    "entries": [
+        {
+            "name": "test_scene",
+            "display_name": "Scene",
+            "palette": [
+                ""
+            ],
+            "layers": [
+                null
+            ],
+            "skybox": [
+                0
+            ]
+        }
+    ]
+}

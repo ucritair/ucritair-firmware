@@ -8,7 +8,9 @@
             ]
         },
         "verts": {
-            "type": "[int]",
+            "type": [
+                "int"
+            ],
             "permissions": []
         },
         "vert_count": {
@@ -18,7 +20,9 @@
             ]
         },
         "edges": {
-            "type": "[int]",
+            "type": [
+                "int"
+            ],
             "permissions": []
         },
         "edge_count": {
