@@ -24,6 +24,7 @@ import numpy as np;
 from collections import OrderedDict;
 import math;
 import re;
+import typist;
 
 
 #########################################################
@@ -96,92 +97,6 @@ def foldr(f, acc, xs):
 #########################################################
 ## DOCUMENT MODEL
 
-class AssetSchema:
-	def __init__(self, schema):
-		self.root = copy.deepcopy(schema);
-		self.path = [self.root];
-
-	def reset(self):
-		self.path = [self.root];
-
-	def push(self, key):
-		self.path.append(self.path[-1][key]["type"]);
-	
-	def pop(self):
-		self.path.pop();
-
-	def keys(self):
-		return [k for k in self.path[-1].keys()];
-	
-	def is_valid(self, key):
-		return key in self.path[-1];
-
-	def get_type(self, key):
-		return self.path[-1][key]["type"];
-	
-	def is_readable(self, key):
-		perms = self.path[-1][key]["permissions"];
-		return "read" in perms or "write" in perms;
-
-	def is_writable(self, key):
-		perms = self.path[-1][key]["permissions"];
-		return "write" in perms;
-
-	def is_ranked(self, key):
-		perms = self.path[-1][key]["permissions"];
-		return "rank" in perms;
-
-	def __default(t):
-		if t == None:
-			return None;
-		elif isinstance(t, str) and t == "int":
-			return 0;
-		elif isinstance(t, str) and t == "bool":
-			return False;
-		elif isinstance(t, str) and t == "string":
-			return "";
-		elif isinstance(t, str) and t == "float":
-			return 0.0;
-		elif isinstance(t, str) and t == "ivec2":
-			return [0, 0];
-		elif isinstance(t, str) and "*" in t:
-			return "";
-		elif isinstance(t, str) and t in asset_types:
-			return "";
-		elif isinstance(t, str) and t.startswith("enum("):
-			tokens = re.split(r"[\(, \, \)]+", t)[1:-1];
-			return tokens[0];
-		elif isinstance(t, list):
-			return [AssetSchema.__default(t[0])];
-		elif isinstance(t, dict):
-			return {};
-		else:
-			return None;
-	
-	def prototype(self, node):
-		parent = self.path[-1];
-		for key in parent:
-			child = parent[key];
-
-			if "constraint" in child:
-				ckey = child["constraint"]["key"];
-				cval = child["constraint"]["value"];
-				if node[ckey] != cval:
-					if key in node:
-						del node[key];
-					continue;
-
-			if isinstance(child["type"], dict):
-				self.push(key);
-				if not key in node:
-					node[key] = {};
-				self.prototype(node[key]);
-				self.pop();
-				
-			if not key in node:
-				node[key] = AssetSchema.__default(child["type"]);
-				
-
 class AssetDocument:
 	def __init__(self, path):
 		self.path = path;
@@ -191,8 +106,11 @@ class AssetDocument:
 
 		self.data = json.load(self.file);
 		self.type = self.data["type"];
-		self.schema = AssetSchema(self.data["schema"]);
+		self.schema = self.data["schema"];
 		self.entries = self.data["entries"];
+
+		self.typist = typist.Typist(self.schema);
+		self.type_explorer = typist.TypeExplorer(self.schema);
 	
 		self.id_set = set();
 		if "id" in self.schema.keys():
@@ -211,8 +129,7 @@ class AssetDocument:
 		return M+1;
 	
 	def spawn_new_entry(self):
-		new = {};
-		self.schema.prototype(new);
+		new = self.typist.spawn();
 		new["name"] = f"new_{document.type}";
 		if "id" in new:
 			new["id"] = self.take_free_id();
@@ -231,8 +148,8 @@ class AssetDocument:
 		del self.entries[idx];
 	
 	def refresh(self):
-		for entry in self.entries:
-			self.schema.prototype(entry);
+		for i in range(len(self.entries)):
+			self.typist.validate(self.entries[i]);
 	
 	def save(self):
 		self.file.seek(0);
@@ -779,128 +696,98 @@ class Preview:
 popup_statuses = {};
 search_term = "";
 
-class DocumentRenderer:	
-	def __render(doc, node):
-		imgui.separator();
+class DocumentRenderer:
+	def __leaf_input(doc, type, id, value):
+		result = value;
+
+		if typist.is_primitive(type):
+			match type:
+				case "int":
+					_, result = imgui.input_int(id, value);
+					return result;
+				case "float":
+					_, result = imgui.input_float(id, value);
+					return result;
+				case "bool":
+					return imgui.checkbox(id, value)[1];
+				case "string":
+					_, result = imgui.input_text(id, value);
+					return result;
+				case _:
+					pass;
 		
-		if "name" in node:
-			Preview.render(doc.type, node["name"]);
-
-		for key in node:
-			if not doc.schema.is_valid(key):
-				continue;
-			
-			key_type = doc.schema.get_type(key);
-			readable = doc.schema.is_readable(key);
-			writable = doc.schema.is_writable(key);
-			if not readable:
-				continue;
-			
-			if isinstance(key_type, str) and key_type == "int":
-				imgui.text(key);
-				imgui.same_line();
-				if writable:
-					_, node[key] = imgui.input_int(get_id(node, key), node[key]);
-				else:
-					imgui.text(str(node[key]));
-
-			elif isinstance(key_type, str) and key_type == "float":
-				imgui.text(key);
-				imgui.same_line();
-				if writable:
-					_, node[key] = imgui.input_float(get_id(node, key), node[key]);
-				else:
-					imgui.text(str(node[key]));
-
-			elif isinstance(key_type, str) and key_type == "string":
-				imgui.text(key);
-				imgui.same_line();
-				if writable:
-					_, output = imgui.input_text(get_id(node, key), node[key]);
-					node[key] = output;
-				else:
-					imgui.text(node[key]);
-
-			elif isinstance(key_type, str) and key_type == "bool":
-				imgui.text(key);
-				imgui.same_line();
-				if writable:
-					node[key] = imgui.checkbox(get_id(node, key), node[key])[1];
-				else:
-					imgui.text(str(node(key)));
-			
-			elif isinstance(key_type, str) and key_type == "ivec2":
-				imgui.text(key);
-				imgui.same_line();
-				_, node[key] = imgui.input_int2(get_id(node, key), node[key]);
-			
-			elif isinstance(key_type, str) and key_type.startswith("enum"):
-				imgui.text(key);
-				imgui.same_line();
-				tokens = re.split(r"[\(, \, \)]+", key_type)[1:-1];
-				if imgui.begin_combo(get_id(node, key), str(node[key])):
-					for value in tokens:
-						selected = value == node[key];
-						if imgui.selectable(value, selected)[0]:
-							node[key] = value;
-						if selected:
-							imgui.set_item_default_focus();	
-					imgui.end_combo();
-
-			elif isinstance(key_type, str) and "*" in key_type:
-				imgui.text(key);
-				imgui.same_line();
-				if writable:
-					_, node[key] = imgui.input_text(get_id(node, key), node[key]);
+		elif typist.is_enum(type):
+			enum = typist.parse_enum(type);
+			if imgui.begin_combo(id, result):
+				for item in enum:
+					selected = result == item;
+					if imgui.selectable(item, selected)[0]:
+						result = item;
+					if selected:
+						imgui.set_item_default_focus();	
+				imgui.end_combo();
+			return result;
+		
+		elif typist.is_filetype(type):
+			_, result = imgui.input_text(id, value);
+			imgui.same_line();
+			if imgui.button(f"...{id}"):
+				FileExplorer(id, doc.parent, type);
+			if FileExplorer.is_active(id):
+				FileExplorer.render();
+				ready, output = FileExplorer.harvest();
+				result = output if ready else result;
+			return result;
+	
+		elif isinstance(type, str) and type in asset_types:
+			match type:
+				case "sprite":
+					_, result = imgui.input_text(id, value);
 					imgui.same_line();
-					ident = get_id(node, key);
-					if imgui.button(f"...{ident}"):
-						FileExplorer(ident, document.parent, key_type);
-					if FileExplorer.is_active(ident):
-						FileExplorer.render();
-						ready, result = FileExplorer.harvest();
-						node[key] = str(result) if ready else node[key];
-				else:
-					imgui.text(node[key]);
-
-			elif key_type in asset_types:
-				Preview.render(key_type, node[key]);
-				imgui.text(key);
-				imgui.same_line();
-
-				if key_type == "sprite":
-					if writable:
-						_, node[key] = imgui.input_text(get_id(node, key), node[key]);
-						imgui.same_line();
-						ident = get_id(node, key);
-						if imgui.button(f"...{ident}"):
-							SpriteExplorer(ident);
-						if SpriteExplorer.is_active(ident):
-							SpriteExplorer.render();
-							ready, result = SpriteExplorer.harvest();
-							node[key] = result if ready else node[key];
-					else:
-						imgui.text(node[key]);
-				else:
-					if imgui.begin_combo(get_id(node, key), str(node[key])):
-						assets = asset_docs[key_type].entries;
+					if imgui.button(f"...{id}"):
+						SpriteExplorer(id);
+					if SpriteExplorer.is_active(id):
+						SpriteExplorer.render();
+						ready, output = SpriteExplorer.harvest();
+						result = output if ready else result;
+					return result;
+				case _:
+					if imgui.begin_combo(id, value):
+						assets = asset_docs[type].entries;
 						for asset in assets:
-							selected = asset["name"] == node[key];
+							selected = result == asset["name"];
 							if imgui.selectable(asset["name"], selected)[0]:
-								node[key] = asset["name"];
+								result = asset["name"];
 							if selected:
 								imgui.set_item_default_focus();
 						imgui.end_combo();
-				
-			elif isinstance(key_type, dict):
-				if imgui.tree_node(key):
-					doc.schema.push(key);
-					DocumentRenderer.__render(doc, node[key]);
-					doc.schema.pop();
-					imgui.tree_pop();
-			
-			else:
-				imgui.text(f"{key} : {key_type}");
+					return result;
+		return result;
+
+
+	def __render_node(doc, type, id, node, key):
+		if (
+			doc.type_explorer.has_permission("write") and
+			typist.is_primitive(type) or
+	  		typist.is_enum(type) or
+			typist.is_filetype(type) or
+			(isinstance(type, str) and type in asset_types)
+		):
+			node[key] = DocumentRenderer.__leaf_input(doc, type, f"####{id(node)}{key}");
+		
+		if isinstance(type, dict):
+			if imgui.tree_node(f"{key} ####{id(node)}{doc.type_explorer.get_path()}"):
+				for (ckey, cnode) in node[key].items():
+					doc.type_explorer.navigate_to(ckey);
+					cT = doc.type_explorer.get_type();
+					DocumentRenderer.__render_node(doc, cT, f"{id}{}cnode, ckey, cT);
+					doc.type_explorer.back();
+				imgui.tree_pop();
+	
+		elif isinstance(T, list):
+			if imgui.tree_node(f"{key} ####{id(node)}{doc.type_explorer.get_path()}"):
+				for (idx, child) in enumerate(node):
+					DocumentRenderer.__render_node(doc, child, idx, T[0]);
 	
 	def render(doc):
 		global search_term;
@@ -908,13 +795,14 @@ class DocumentRenderer:
 
 		idx = 0;
 		while idx < len(doc.entries):
-			node = doc.entries[idx];
-			if len(search_term) > 0 and search_term not in node['name']:
+			entry = doc.entries[idx];
+			if len(search_term) > 0 and search_term not in entry['name']:
 				idx += 1;
 				continue;
-			node_open = imgui.tree_node(f"{get_name(node)} {get_number(node)}####{str(id(node))}");
+			
+			is_open = imgui.tree_node(f"{get_name(entry)} {get_number(entry)}####{str(id(entry))}");
 		
-			delete_popup_id = f"delete_popup####{id(node)}";
+			delete_popup_id = f"delete_popup####{id(entry)}";
 			popup_statuses[delete_popup_id] = False;
 			imgui.push_id(delete_popup_id);
 
@@ -931,24 +819,28 @@ class DocumentRenderer:
 				imgui.open_popup(delete_popup_id);
 				popup_statuses[delete_popup_id] = False;
 
-			delete_node = False;
+			should_delete = False;
 			if imgui.begin_popup(delete_popup_id):
-				imgui.text(f"Delete {get_name(node)}?");
+				imgui.text(f"Delete {get_name(entry)}?");
 				if imgui.button("Cancel"):
 					imgui.close_current_popup();
 				imgui.same_line();
 				if imgui.button("Delete##confirm"):
-					delete_node = True;
+					should_delete = True;
 					imgui.close_current_popup();
 				imgui.end_popup();
 
 			imgui.pop_id();
 
-			if node_open:
-				DocumentRenderer.__render(doc, node);
+			if is_open:
+				doc.type_explorer.navigate_to("/");
+				for key in entry:
+					doc.type_explorer.navigate_to(key);
+					DocumentRenderer.__render_node(doc, entry, key, doc.type_explorer.get_type());
+					doc.type_explorer.back();
 				imgui.tree_pop();
 
-			if delete_node:
+			if should_delete:
 				doc.delete_entry(idx);
 				idx -= 1;
 			idx += 1;

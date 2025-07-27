@@ -1,0 +1,108 @@
+{
+	"item": {
+		"type" : {
+			"type": {
+				"type": "enum(key, tool, prop)"
+			},
+			"name": {
+				"type": "string"
+			},
+			"display_name": {
+				"type": "string"
+			},
+			"tier": {
+				"type": "int",
+				"attributes": [
+					"rank"
+				]
+			},
+			"sprite": {
+				"type": "sprite"
+			},
+			"text": {
+				"type": "string"
+			},
+			"price": {
+				"type": "int"
+			},
+			"can_buy": {
+				"type": "bool"
+			},
+			"can_sell": {
+				"type": "bool"
+			},
+			"id": {
+				"type": "int",
+				"attributes": [
+					"read-only"
+				]
+			},
+			"tool_data": {
+				"type": {
+					"type": {
+						"type": "enum(food, book, toy)"
+					},
+					"cursor": {
+						"type": "sprite"
+					},
+					"dv": {
+						"type": "int"
+					},
+					"df": {
+						"type": "int"
+					},
+					"ds": {
+						"type": "int"
+					},
+					"food_data": {
+						"type": {
+							"food_group": {
+								"type": "enum(veg, starch, meat, dairy, misc)"
+							},
+							"food_role": {
+								"type": "enum(staple, main, side, soup, drink, treat, vice)"
+							}
+						},
+						"conditions": [
+							{
+								"key" : "/tool_data/type",
+								"value" : "food"
+							}
+						]
+					}
+				},
+				"conditions": [
+					{
+						"key" : "/type",
+						"value" : "tool"
+					}
+				]
+			},
+			"prop_data": {
+				"type": {
+					"type": {
+						"type": "enum(default, bottom, top)"
+					},
+					"shape": {
+						"type": "ivec2"
+					},
+					"animate": {
+						"type": "bool"
+					},
+					"child_dy": {
+						"type": "int"
+					}
+				},
+				"conditions": [
+					{
+						"key" : "/type",
+						"value" : "prop"
+					}
+				]
+			}
+		}
+    },
+	"instances" : [
+
+	]
+}
