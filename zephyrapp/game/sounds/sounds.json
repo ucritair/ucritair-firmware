@@ -1,13 +1,13 @@
 {
-	"sound" : {
-		"type": {
-			"name": {
-				"type": "string"
-			},
-			"path": {
-				"type": "*.wav"
-			}
-		}
-	},
+    "sound": {
+        "type": {
+            "name": {
+                "type": "string"
+            },
+            "path": {
+                "type": "*.wav"
+            }
+        }
+    },
     "instances": []
 }

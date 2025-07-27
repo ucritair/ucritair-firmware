@@ -1,64 +1,65 @@
 {
     "scene": {
-		"type": {
-			"name": {
-				"type": "string"
-			},
-			"display_name": {
-				"type": "string"
-			},
-			"palette": {
-				"type": ["sprite"]
-			},
-			"layers": {
-				"type": [
-					{
-						"singles": {
-							"type": [
-								{
-									"idx": {
-										"type": "int"
-									},
-									"position": {
-										"type": ["int"]
-									}
-								}
-							]
-						},
-						"regions": {
-							"type": [
-								{
-									"idx": {
-										"type": "int"
-									},
-									"rectangle": {
-										"type": [
-											"int"
-										]
-									}
-								}
-							]
-						}
-					}
-				]
-			},
-			"skybox": {
-				"type": [
-					"int"
-				]
-			}
-		}
+        "type": {
+            "name": {
+                "type": "string"
+            },
+            "display_name": {
+                "type": "string"
+            },
+            "palette": {
+                "type": [
+                    "sprite"
+                ]
+            },
+            "layers": {
+                "type": [
+                    {
+                        "singles": {
+                            "type": [
+                                {
+                                    "idx": {
+                                        "type": "int"
+                                    },
+                                    "position": {
+                                        "type": [
+                                            "int"
+                                        ]
+                                    }
+                                }
+                            ]
+                        },
+                        "regions": {
+                            "type": [
+                                {
+                                    "idx": {
+                                        "type": "int"
+                                    },
+                                    "rectangle": {
+                                        "type": [
+                                            "int"
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            },
+            "skybox": {
+                "type": [
+                    "int"
+                ]
+            }
+        }
     },
     "instances": [
         {
             "name": "test_scene",
             "display_name": "Scene",
-            "palette": [
-            ],
-            "layers": [
-            ],
-            "skybox": [
-            ]
+            "palette": [],
+            "layers": [],
+            "skybox": []
         }
     ]
 }

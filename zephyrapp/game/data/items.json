@@ -126,7 +126,8 @@
             },
             "tier": 1,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "tool",
@@ -149,7 +150,8 @@
             },
             "tier": 1,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "tool",
@@ -172,7 +174,8 @@
             },
             "tier": 1,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "tool",
@@ -195,7 +198,8 @@
             },
             "tier": 1,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "tool",
@@ -218,7 +222,8 @@
             },
             "tier": 1,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "tool",
@@ -241,7 +246,8 @@
             },
             "tier": 1,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "tool",
@@ -264,7 +270,8 @@
             },
             "tier": 3,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "tool",
@@ -287,7 +294,8 @@
             },
             "tier": 3,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "tool",
@@ -310,7 +318,8 @@
             },
             "tier": 3,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "tool",
@@ -333,7 +342,8 @@
             },
             "tier": 1,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "tool",
@@ -356,7 +366,8 @@
             },
             "tier": 1,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "tool",
@@ -379,7 +390,8 @@
             },
             "tier": 1,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "tool",
@@ -402,7 +414,8 @@
             },
             "tier": 0,
             "can_buy": false,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "tool",
@@ -421,7 +434,8 @@
             },
             "tier": 1,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "tool",
@@ -440,7 +454,8 @@
             },
             "tier": 1,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "tool",
@@ -459,7 +474,8 @@
             },
             "tier": 1,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "tool",
@@ -478,7 +494,8 @@
             },
             "tier": 1,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "tool",
@@ -497,7 +514,8 @@
             },
             "tier": 1,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "tool",
@@ -516,7 +534,8 @@
             },
             "tier": 1,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "tool",
@@ -535,7 +554,8 @@
             },
             "tier": 3,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "tool",
@@ -554,7 +574,8 @@
             },
             "tier": 1,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "tool",
@@ -573,7 +594,8 @@
             },
             "tier": 2,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "tool",
@@ -592,7 +614,8 @@
             },
             "tier": 1,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "tool",
@@ -611,7 +634,8 @@
             },
             "tier": 2,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "key",
@@ -623,7 +647,8 @@
             "id": 45,
             "tier": 0,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "prop",
@@ -644,7 +669,8 @@
             },
             "tier": 0,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "prop",
@@ -665,7 +691,8 @@
             },
             "tier": 0,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "prop",
@@ -686,7 +713,8 @@
             },
             "tier": 0,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "prop",
@@ -707,7 +735,8 @@
             },
             "tier": 0,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "prop",
@@ -728,7 +757,8 @@
             },
             "tier": 0,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "prop",
@@ -749,7 +779,8 @@
             },
             "tier": 0,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "prop",
@@ -770,7 +801,8 @@
             },
             "tier": 0,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "prop",
@@ -791,7 +823,8 @@
             },
             "tier": 0,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "prop",
@@ -812,7 +845,8 @@
             },
             "tier": 0,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "prop",
@@ -833,7 +867,8 @@
             },
             "tier": 0,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "prop",
@@ -854,7 +889,8 @@
             },
             "tier": 0,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "prop",
@@ -875,7 +911,8 @@
             },
             "tier": 0,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "prop",
@@ -896,7 +933,8 @@
             },
             "tier": 0,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "prop",
@@ -917,7 +955,8 @@
             },
             "tier": 0,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "prop",
@@ -938,7 +977,8 @@
             },
             "tier": 0,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "prop",
@@ -959,7 +999,8 @@
             },
             "tier": 0,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "prop",
@@ -980,7 +1021,8 @@
             },
             "tier": 0,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "prop",
@@ -1001,7 +1043,8 @@
             },
             "tier": 0,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "prop",
@@ -1022,7 +1065,8 @@
             },
             "tier": 0,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "prop",
@@ -1043,7 +1087,8 @@
             },
             "tier": 0,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "prop",
@@ -1064,7 +1109,8 @@
             },
             "tier": 0,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "prop",
@@ -1085,7 +1131,8 @@
             },
             "tier": 0,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "prop",
@@ -1106,7 +1153,8 @@
             },
             "tier": 0,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "prop",
@@ -1127,7 +1175,8 @@
             },
             "tier": 0,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "prop",
@@ -1148,7 +1197,8 @@
             },
             "tier": 0,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "prop",
@@ -1169,7 +1219,8 @@
             },
             "tier": 0,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "prop",
@@ -1190,7 +1241,8 @@
             },
             "tier": 0,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "prop",
@@ -1211,7 +1263,8 @@
             },
             "tier": 0,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "prop",
@@ -1232,7 +1285,8 @@
             },
             "tier": 0,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "prop",
@@ -1253,7 +1307,8 @@
             },
             "tier": 0,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "prop",
@@ -1274,7 +1329,8 @@
             },
             "tier": 0,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "prop",
@@ -1295,7 +1351,8 @@
             },
             "tier": 0,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "prop",
@@ -1316,7 +1373,8 @@
             },
             "tier": 0,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "prop",
@@ -1337,7 +1395,8 @@
             },
             "tier": 0,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "prop",
@@ -1358,7 +1417,8 @@
             },
             "tier": 0,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "prop",
@@ -1379,7 +1439,8 @@
             },
             "tier": 0,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "prop",
@@ -1400,7 +1461,8 @@
             },
             "tier": 0,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "prop",
@@ -1421,7 +1483,8 @@
             },
             "tier": 0,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "prop",
@@ -1442,7 +1505,8 @@
             },
             "tier": 0,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "prop",
@@ -1463,7 +1527,8 @@
             },
             "tier": 0,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "prop",
@@ -1484,7 +1549,8 @@
             },
             "tier": 0,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "prop",
@@ -1505,7 +1571,8 @@
             },
             "tier": 0,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "prop",
@@ -1526,7 +1593,8 @@
             },
             "tier": 0,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "prop",
@@ -1547,7 +1615,8 @@
             },
             "tier": 0,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "prop",
@@ -1568,7 +1637,8 @@
             },
             "tier": 0,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "prop",
@@ -1589,7 +1659,8 @@
             },
             "tier": 0,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "prop",
@@ -1610,7 +1681,8 @@
             },
             "tier": 0,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "prop",
@@ -1631,7 +1703,8 @@
             },
             "tier": 0,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "prop",
@@ -1652,7 +1725,8 @@
             },
             "tier": 0,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "prop",
@@ -1673,7 +1747,8 @@
             },
             "tier": 0,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "prop",
@@ -1694,7 +1769,8 @@
             },
             "tier": 0,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "prop",
@@ -1715,7 +1791,8 @@
             },
             "tier": 0,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "prop",
@@ -1736,7 +1813,8 @@
             },
             "tier": 0,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "prop",
@@ -1757,7 +1835,8 @@
             },
             "tier": 0,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "prop",
@@ -1778,7 +1857,8 @@
             },
             "tier": 0,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "prop",
@@ -1799,7 +1879,8 @@
             },
             "tier": 0,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "prop",
@@ -1820,7 +1901,8 @@
             },
             "tier": 0,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "tool",
@@ -1839,7 +1921,8 @@
                 "ds": 3
             },
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "key",
@@ -1851,7 +1934,8 @@
             "id": 6,
             "tier": 0,
             "can_buy": false,
-            "can_sell": true
+            "can_sell": true,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "key",
@@ -1863,7 +1947,8 @@
             "id": 7,
             "tier": 0,
             "can_buy": false,
-            "can_sell": true
+            "can_sell": true,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "key",
@@ -1875,7 +1960,8 @@
             "id": 8,
             "tier": 0,
             "can_buy": false,
-            "can_sell": true
+            "can_sell": true,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "tool",
@@ -1898,7 +1984,8 @@
             },
             "tier": 1,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "tool",
@@ -1921,7 +2008,8 @@
             },
             "tier": 1,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "tool",
@@ -1944,7 +2032,8 @@
             },
             "tier": 1,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "tool",
@@ -1967,7 +2056,8 @@
             },
             "tier": 1,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "tool",
@@ -1990,7 +2080,8 @@
             },
             "tier": 1,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "tool",
@@ -2013,7 +2104,8 @@
             },
             "tier": 1,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "tool",
@@ -2036,7 +2128,8 @@
             },
             "tier": 1,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "tool",
@@ -2059,7 +2152,8 @@
             },
             "tier": 1,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "tool",
@@ -2082,7 +2176,8 @@
             },
             "tier": 1,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "tool",
@@ -2105,7 +2200,8 @@
             },
             "tier": 1,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "tool",
@@ -2128,7 +2224,8 @@
             },
             "tier": 1,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "tool",
@@ -2151,7 +2248,8 @@
             },
             "tier": 1,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "tool",
@@ -2174,7 +2272,8 @@
             },
             "tier": 2,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "tool",
@@ -2197,7 +2296,8 @@
             },
             "tier": 2,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "tool",
@@ -2220,7 +2320,8 @@
             },
             "tier": 2,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "tool",
@@ -2243,7 +2344,8 @@
             },
             "tier": 2,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "tool",
@@ -2266,7 +2368,8 @@
             },
             "tier": 2,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "tool",
@@ -2289,7 +2392,8 @@
             },
             "tier": 2,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "tool",
@@ -2312,7 +2416,8 @@
             },
             "tier": 2,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "tool",
@@ -2335,7 +2440,8 @@
             },
             "tier": 2,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "tool",
@@ -2358,7 +2464,8 @@
             },
             "tier": 2,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "tool",
@@ -2381,7 +2488,8 @@
             },
             "tier": 3,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "tool",
@@ -2404,7 +2512,8 @@
             },
             "tier": 3,
             "can_buy": true,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "key",
@@ -2416,7 +2525,8 @@
             "price": 0,
             "id": 109,
             "can_buy": false,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "prop",
@@ -2437,7 +2547,8 @@
                 "child_dy": 0
             },
             "can_buy": false,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "prop",
@@ -2458,7 +2569,8 @@
                 "child_dy": 0
             },
             "can_buy": false,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "prop",
@@ -2479,7 +2591,8 @@
                 "child_dy": -3
             },
             "can_buy": false,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "prop",
@@ -2500,7 +2613,8 @@
                 "child_dy": 0
             },
             "can_buy": false,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "key",
@@ -2512,7 +2626,8 @@
             "price": 0,
             "id": 114,
             "can_buy": false,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "key",
@@ -2524,7 +2639,8 @@
             "price": 0,
             "id": 115,
             "can_buy": false,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         },
         {
             "type": "key",
@@ -2536,7 +2652,8 @@
             "price": 0,
             "id": 116,
             "can_buy": false,
-            "can_sell": false
+            "can_sell": false,
+            "icon": "item_icon_key_sprite"
         }
     ]
 }

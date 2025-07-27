@@ -1,43 +1,43 @@
 {
     "fish": {
-		"type": {
-			"name": {
-				"type": "string"
-			},
-			"display_name": {
-				"type": "string"
-			},
-			"proverb": {
-				"type": "string"
-			},
-			"grade_constraint": {
-				"type": "int",
-				"attributes" : [
-					"rank"
-				]
-			},
-			"min_length": {
-				"type": "float"
-			},
-			"max_length": {
-				"type": "float"
-			},
-			"min_lustre": {
-				"type": "float"
-			},
-			"max_lustre": {
-				"type": "float"
-			},
-			"min_wisdom": {
-				"type": "float"
-			},
-			"max_wisdom": {
-				"type": "float"
-			},
-			"mesh": {
-				"type": "mesh2d"
-			}
-		}
+        "type": {
+            "name": {
+                "type": "string"
+            },
+            "display_name": {
+                "type": "string"
+            },
+            "proverb": {
+                "type": "string"
+            },
+            "grade_constraint": {
+                "type": "int",
+                "attributes": [
+                    "rank"
+                ]
+            },
+            "min_length": {
+                "type": "float"
+            },
+            "max_length": {
+                "type": "float"
+            },
+            "min_lustre": {
+                "type": "float"
+            },
+            "max_lustre": {
+                "type": "float"
+            },
+            "min_wisdom": {
+                "type": "float"
+            },
+            "max_wisdom": {
+                "type": "float"
+            },
+            "mesh": {
+                "type": "mesh2d"
+            }
+        }
     },
     "instances": [
         {

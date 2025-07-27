@@ -1,37 +1,37 @@
 {
     "sprite": {
-		"type" : {
-			"id": {
-				"type": "int"
-			},
-			"name": {
-				"type": "string"
-			},
-			"path": {
-				"type": "*.png"
-			},
-			"frames": {
-				"type": "int"
-			},
-			"width": {
-				"type": "int",
-				"attributes": [
-					"read-only"
-				]
-			},
-			"height": {
-				"type": "int",
-				"attributes": [
-					"read-only"
-				]
-			},
-			"loop": {
-				"type": "bool"
-			},
-			"reverse": {
-				"type": "bool"
-			}
-		}
+        "type": {
+            "id": {
+                "type": "int"
+            },
+            "name": {
+                "type": "string"
+            },
+            "path": {
+                "type": "*.png"
+            },
+            "frames": {
+                "type": "int"
+            },
+            "width": {
+                "type": "int",
+                "attributes": [
+                    "read-only"
+                ]
+            },
+            "height": {
+                "type": "int",
+                "attributes": [
+                    "read-only"
+                ]
+            },
+            "loop": {
+                "type": "bool"
+            },
+            "reverse": {
+                "type": "bool"
+            }
+        }
     },
     "instances": [
         {

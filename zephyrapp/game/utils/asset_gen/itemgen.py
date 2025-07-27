@@ -43,7 +43,7 @@ prop_type_enum_map = {
 
 json_file = open("data/items.json", "r+");
 json_data = json.load(json_file);
-json_entries = json_data['entries'];
+json_entries = json_data['instances'];
 
 tool_types = ['food", "book", "toy'];
 prop_types = ['prop", "bottom", "top'];

@@ -1,13 +1,13 @@
 {
     "mesh": {
-		"type" : {
-			"name": {
-				"type": "string"
-			},
-			"path": {
-				"type": "*.obj"
-			}
-		}
+        "type": {
+            "name": {
+                "type": "string"
+            },
+            "path": {
+                "type": "*.obj"
+            }
+        }
     },
     "instances": [
         {

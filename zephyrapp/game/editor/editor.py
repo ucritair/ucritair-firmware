@@ -151,10 +151,9 @@ class AssetDocument:
 			self.type_helper.rectify(self.entries[i]);
 	
 	def save(self):
-		#self.file.seek(0);
-		#self.file.truncate();
-		#self.file.write(json.dumps(self.data, indent=4));
-		pass;
+		self.file.seek(0);
+		self.file.truncate();
+		self.file.write(json.dumps(self.data, indent=4));
 
 def get_name(node):
 	if "name" in node:
@@ -1617,7 +1616,7 @@ class DialogueEditor:
 					for (idx, edge) in enumerate(self.node["edges"]):
 						self.verify_edge_integrity(edge);
 						imgui.push_id(idx);
-						if imgui.collapsing_header(f"{edge["text"]}####{idx}"):
+						if imgui.tree_node(f"{edge["text"]}####{idx}"):
 							_, edge["text"] = imgui.input_text("Text", edge["text"]);
 							if imgui.begin_combo("Node", edge["node"]):
 								for node in self.nodes:
@@ -1628,6 +1627,7 @@ class DialogueEditor:
 										imgui.set_item_default_focus();
 								imgui.end_combo();
 							_, edge["proc"] = imgui.input_text("Proc", edge["proc"]);
+							imgui.tree_pop();
 						imgui.pop_id();
 					if imgui.button("New##edge"):
 						self.node["edges"].append({});

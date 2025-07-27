@@ -1,26 +1,30 @@
 {
     "dialogue": {
-		"type": {
-			"name": {
-				"type": "string"
-			},
-			"lines": {
-				"type": ["string"]
-			},
-			"edges": {
-				"type": [{
-					"text" : {
-						"type" : "string"
-					},
-					"node" : {
-						"type" : "dialogue"
-					},
-					"proc" : {
-						"type" : "string"
-					}
-				}]
-			}
-		}
+        "type": {
+            "name": {
+                "type": "string"
+            },
+            "lines": {
+                "type": [
+                    "string"
+                ]
+            },
+            "edges": {
+                "type": [
+                    {
+                        "text": {
+                            "type": "string"
+                        },
+                        "node": {
+                            "type": "dialogue"
+                        },
+                        "proc": {
+                            "type": "string"
+                        }
+                    }
+                ]
+            }
+        }
     },
     "instances": [
         {

@@ -9,7 +9,7 @@ import subprocess as sp;
 json_path = os.path.join("sounds", "sounds.json");
 json_file = open(json_path, "r");
 json_data = json.load(json_file);
-json_entries = json_data['entries'];
+json_entries = json_data['instances'];
 json_file.close();
 
 header_path = os.path.join("sounds", "sound_assets.h");

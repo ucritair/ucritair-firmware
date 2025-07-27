@@ -7,7 +7,7 @@ import pathlib as pl;
 
 json_file = open("data/dialogue.json", "r");
 json_data = json.load(json_file);
-json_entries = json_data['entries'];
+json_entries = json_data['instances'];
 json_file.close();
 
 header = open("data/dialogue_assets.h", "w");
