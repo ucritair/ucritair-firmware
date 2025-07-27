@@ -129,7 +129,7 @@ class AssetDocument:
 	
 	def spawn_new_entry(self):
 		new = self.type_helper.prototype();
-		new["name"] = f"new_{document.type}";
+		new["name"] = f"new_{self.type}";
 		if "id" in new:
 			new["id"] = self.take_free_id();
 		self.entries.append(new);
@@ -155,19 +155,41 @@ class AssetDocument:
 		self.file.truncate();
 		self.file.write(json.dumps(self.data, indent=4));
 
-def get_name(node):
-	if "name" in node:
-		return node["name"];
-	elif "path" in node:
-		return node["path"];
-	elif "id" in node:
-		return node["id"];
-	return "Node";
+class DocumentHelper:
+	def get_name(doc, idx):
+		node = doc.entries[idx];
+		if "name" in node:
+			return node["name"];
+		elif "path" in node:
+			return node["path"];
+		elif "id" in node:
+			return node["id"];
+		return str(id(node));
 
-def get_number(node):
-	if "id" in node:
-		return node["id"];
-	return id(node);
+	def get_number(doc, idx):
+		node = doc.entries[idx];
+		if "id" in node:
+			return node["id"];
+		return id(node);
+
+	def get_rank(doc, idx):
+		node = doc.entries[idx];
+		data = doc.type_helper.collect(node);
+		for (path, value) in data:
+			element = doc.typist.search(path);
+			if element.has_attribute("rank"):
+				return value;
+		return 0;
+
+	def _sort_by(doc, f):
+		sorted_entries = [node for (idx, node) in sorted(enumerate(doc.entries), key = lambda x: f(doc, x[0]))];
+		doc.entries = sorted_entries;
+	def sort_by_name(doc):
+		DocumentHelper._sort_by(doc, DocumentHelper.get_name);
+	def sort_by_number(doc):
+		DocumentHelper._sort_by(doc, DocumentHelper.get_number);
+	def sort_by_rank(doc):
+		DocumentHelper._sort_by(doc, DocumentHelper.get_rank);
 
 asset_dirs = [Path("sprites"), Path("sounds"), Path("meshes"), Path("data")];
 asset_types = [];
@@ -693,10 +715,11 @@ class Preview:
 #########################################################
 ## DOCUMENT GUI
 
-search_term = "";
-
 class DocumentRenderer:
-	def _render_node(doc : AssetDocument, title, T : ee_types.Type, node, identifier):
+	_search_term = "";
+	_topmost_id = None;
+	
+	def _render_node(title, T, node, identifier):
 		identifier = str(identifier)+title;
 
 		if isinstance(T, ee_types.Object):
@@ -704,9 +727,10 @@ class DocumentRenderer:
 			if imgui.tree_node(title):
 				for e in T.elements:
 					if e.name in node:
-						node[e.name] = DocumentRenderer._render_node(doc, e.name, e.T, node[e.name], id(node));
+						node[e.name] = DocumentRenderer._render_node(e.name, e.T, node[e.name], id(node));
 				imgui.tree_pop();
 			imgui.pop_id();
+			DocumentRenderer._topmost_id = identifier;
 			return node;
 		
 		elif isinstance(T, ee_types.List):
@@ -714,7 +738,7 @@ class DocumentRenderer:
 			if imgui.tree_node(title):
 				for i in range(len(node)):
 					imgui.push_id(i);
-					node[i] = DocumentRenderer._render_node(doc, f"{title}[{i}]", T.T, node[i], id(node));
+					node[i] = DocumentRenderer._render_node(f"{title}[{i}]", T.T, node[i], id(node));
 					imgui.pop_id();
 				imgui.tree_pop();
 			imgui.pop_id();
@@ -803,15 +827,26 @@ class DocumentRenderer:
 				case ee_types.String:
 					_, result = imgui.input_text(f"##{identifier}", node);
 					return result;
+
+	def _context_popup(doc : AssetDocument, idx):
+		if imgui.begin_popup_context_item(DocumentRenderer._topmost_id):
+			if imgui.menu_item_simple("Delete"):
+				doc.delete_entry(idx);
+			if imgui.menu_item_simple("Duplicate"):
+				doc.duplicate_entry(idx);
+			imgui.end_popup();
 	
 	def render(doc : AssetDocument):
-		global search_term;
-		_, search_term = imgui.input_text("Search", search_term);
-		subset = list(filter(lambda e: len(search_term) == 0 or search_term in e["name"], doc.entries));
+		_, DocumentRenderer._search_term = imgui.input_text("Search", DocumentRenderer._search_term);
+		subset = list(filter(lambda e: len(DocumentRenderer._search_term) == 0 or DocumentRenderer._search_term in e["name"], doc.entries));
 
-		for entry in subset:
-			root = doc.typist.root();
-			DocumentRenderer._render_node(doc, f"{get_name(entry)} {get_number(entry)}####{id(entry)}", root.T, entry, id(entry));
+		for (idx, entry) in enumerate(doc.entries):
+			if entry in subset:
+				root = doc.typist.root();
+				name = DocumentHelper.get_name(doc, idx);
+				number = DocumentHelper.get_number(doc, idx);
+				DocumentRenderer._render_node(f"{name} {number}####{id(entry)}", root.T, entry, id(entry));
+				DocumentRenderer._context_popup(doc, idx);
 
 
 #########################################################
@@ -966,7 +1001,7 @@ class AnimationViewer:
 				else:
 					_, self.frame = imgui.slider_int("Frame", self.frame, 0, preview.frame_count-1);
 			
-			show_AABB_changed, self.show_AABB = imgui.checkbox("Show AABB", self.show_AABB);
+			_, self.show_AABB = imgui.checkbox("Show AABB", self.show_AABB);
 
 			if imgui.begin_combo(f"Sprite", sprite["name"]):
 				for (idx, entry) in enumerate(self.sprites):
@@ -1573,25 +1608,6 @@ class DialogueEditor:
 					imgui.set_item_default_focus();
 			imgui.end_combo();
 
-	def verify_node_integrity(self):
-		if not "lines" in self.node or self.node["lines"] == None:
-			self.node["lines"] = [];
-		if not "edges" in self.node or self.node["edges"] == None:
-			self.node["edges"] = [];
-	
-	def verify_edge_integrity(self, edge):
-		if not "text" in edge:
-			edge["text"] = "Maybe";
-		if not "node" in edge or edge["node"] == None:
-			edge["node"] = "";
-		if not "proc" in edge or edge["proc"] == None:
-			edge["proc"] = "";
-	
-		if "type" in edge:
-			del edge["type"];
-		if "link" in edge:
-			del edge["link"];
-
 	def render():
 		if DialogueEditor._ == None:
 			return;
@@ -1604,8 +1620,6 @@ class DialogueEditor:
 			self.node_selector();
 
 			if self.node != None:
-				self.verify_node_integrity();
-
 				if imgui.collapsing_header("Lines"):
 					for idx in range(len(self.node["lines"])):
 						_, self.node["lines"][idx] = imgui.input_text(str(idx), self.node["lines"][idx]);
@@ -1614,7 +1628,6 @@ class DialogueEditor:
 
 				if imgui.collapsing_header("Edges"):
 					for (idx, edge) in enumerate(self.node["edges"]):
-						self.verify_edge_integrity(edge);
 						imgui.push_id(idx);
 						if imgui.tree_node(f"{edge["text"]}####{idx}"):
 							_, edge["text"] = imgui.input_text("Text", edge["text"]);
@@ -1630,7 +1643,8 @@ class DialogueEditor:
 							imgui.tree_pop();
 						imgui.pop_id();
 					if imgui.button("New##edge"):
-						self.node["edges"].append({});
+						new = asset_docs["dialogue"].type_helper.prototype("/edges", True);
+						self.node["edges"].append(new);
 
 			self.size = imgui.get_window_size();
 			imgui.end();
@@ -1664,17 +1678,14 @@ splash_flag_list = [
 splash_flags = foldl(lambda a, b : a | b, 0, splash_flag_list);
 
 input_states = {};
-
 def track_inputs():
 	for key in range(glfw.KEY_SPACE, glfw.KEY_LAST+1):
 		if not key in input_states:
 			input_states[key] = [glfw.get_key(handle, key), False];
 		else:
 			input_states[key] = [glfw.get_key(handle, key), input_states[key][0]];
-
 def is_held(key):
 	return input_states[key][0];
-
 def is_pressed(key):
 	return input_states[key][0] and not input_states[key][1];
 
@@ -1692,6 +1703,9 @@ while not glfw.window_should_close(handle):
 		for doc in asset_docs.values():
 			print(f"Saving {doc.name}!");
 			doc.save();
+	
+	if document != None:
+		document.refresh();
 
 	glEnable(GL_PROGRAM_POINT_SIZE);
 	glClearColor(0, 0, 0, 1);
@@ -1721,14 +1735,11 @@ while not glfw.window_should_close(handle):
 		if imgui.begin_menu("Assets", enabled=document != None):
 			if imgui.begin_menu("Sort", enabled=document != None):
 				if imgui.menu_item_simple("Name"):
-					document.entries.sort(key = lambda n: get_name(n));
+					DocumentHelper.sort_by_name(document);
 				if imgui.menu_item_simple("Number"):
-					document.entries.sort(key = lambda n: get_number(n));
+					DocumentHelper.sort_by_number(document);
 				if imgui.menu_item_simple("Rank"):
-					all_keys = document.schema.keys();
-					rank_keys = [k for k in all_keys if document.schema.is_ranked(k)];
-					if len(rank_keys) > 0:
-						document.entries.sort(key = lambda n: n[rank_keys[0]]);
+					DocumentHelper.sort_by_rank(document);
 				imgui.end_menu();
 			if imgui.menu_item_simple("New"):
 				document.spawn_new_entry();
@@ -1748,16 +1759,15 @@ while not glfw.window_should_close(handle):
 			if imgui.menu_item_simple("Dialogue Editor"):
 				DialogueEditor();
 			imgui.end_menu();
-
 		imgui.end_main_menu_bar();
 	
-	if document != None:
-		document.refresh();
-		DocumentRenderer.render(document);
-	else:
+	if document == None:
 		imgui.set_scroll_x(0);
 		imgui.set_scroll_y(0);
 		imgui.image(splash_tex, (splash_img.width, splash_img.height));
+	else:
+		DocumentRenderer.render(document);
+	
 	if PropViewer._ != None:
 		PropViewer.render();
 	if AnimationViewer._ != None:

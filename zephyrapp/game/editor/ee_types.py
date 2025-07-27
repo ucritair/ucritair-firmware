@@ -167,8 +167,9 @@ class Typist:
 		T = element.T;
 		while isinstance(T, List):
 			T = T.T;
-		next_element = next(e for e in T.elements if e.name == token);
-		return self._search(next_element, path_tokens[1:]);
+		if isinstance(T, Object):
+			next_element = next(e for e in T.elements if e.name == token);
+			return self._search(next_element, path_tokens[1:]);
 
 	def search(self, path_str) -> Element:
 		path_tokens = re.split(r"/", path_str);
@@ -211,6 +212,17 @@ class Typist:
 		for p in self.path:
 			path_str += f"{p.name}/";
 		return path_str;
+
+	def _get_all_paths(self, element, accumulator, tracker):
+		tracker.append(accumulator);
+		if isinstance(element.T, Object):
+			for e in element.T.elements:
+				self._get_all_paths(e, accumulator + f"{e.name}/", tracker);
+	
+	def get_all_paths(self):
+		paths = [];
+		self._get_all_paths(self._root, "/", paths);
+		return paths;
 
 	def _construct_type(self, expr) -> Type:
 		if isinstance(expr, list):
@@ -306,11 +318,11 @@ class TypeHelper:
 	
 		for e in element.T.elements:
 			if e.name in node:
-				self._rectify(instance, node[e.name], e);			
+				self._rectify(instance, node[e.name], e);		
 
-	def prototype(self):
-		root = self.typist.search("/");
-		return root.prototype();
+	def prototype(self, path="/", inner=False):
+		root = self.typist.search(path);
+		return root.prototype(inner);
 
 	def validate(self, instance) -> bool:
 		root = self.typist.search("/");
@@ -319,3 +331,9 @@ class TypeHelper:
 	def rectify(self, instance):
 		root = self.typist.search("/");
 		self._rectify(instance, instance, root);
+
+	def collect(self, instance):
+		paths = self.typist.get_all_paths();
+		values = [self._search(instance, p) for p in paths];
+		paths = [p for (idx, p) in enumerate(paths) if values[idx] != None];
+		return [(p, values[idx]) for (idx, p) in enumerate(paths)];
