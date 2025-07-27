@@ -24,7 +24,7 @@ import numpy as np;
 from collections import OrderedDict;
 import math;
 import re;
-import typist;
+import ee_types;
 
 
 #########################################################
@@ -91,7 +91,7 @@ def foldr(f, acc, xs):
 		return acc;
 	else:
 		h, t = xs[0], xs[1:];
-		return f(head, foldr(f, acc, t));
+		return f(h, foldr(f, acc, t));
 
 
 #########################################################
@@ -105,15 +105,14 @@ class AssetDocument:
 		self.file = open(path, "r+");
 
 		self.data = json.load(self.file);
-		self.type = self.data["type"];
-		self.schema = self.data["schema"];
-		self.entries = self.data["entries"];
-
-		self.typist = typist.Typist(self.schema);
-		self.type_explorer = typist.TypeExplorer(self.schema);
+		keys = self.data.keys();
+		self.type = next(k for k in keys if k != "instances");
+		self.typist = ee_types.Typist(self.type, self.data[self.type]);
+		self.type_helper = ee_types.TypeHelper(self.typist);
+		self.entries = self.data["instances"];
 	
 		self.id_set = set();
-		if "id" in self.schema.keys():
+		if "id" in self.typist.root().T.keys():
 			for entry in self.entries:
 				self.id_set.add(entry["id"]);
 	
@@ -129,7 +128,7 @@ class AssetDocument:
 		return M+1;
 	
 	def spawn_new_entry(self):
-		new = self.typist.spawn();
+		new = self.type_helper.prototype();
 		new["name"] = f"new_{document.type}";
 		if "id" in new:
 			new["id"] = self.take_free_id();
@@ -149,13 +148,13 @@ class AssetDocument:
 	
 	def refresh(self):
 		for i in range(len(self.entries)):
-			self.typist.validate(self.entries[i]);
+			self.type_helper.rectify(self.entries[i]);
 	
 	def save(self):
-		self.file.seek(0);
-		self.file.truncate();
-		self.file.write(json.dumps(self.data, indent=4));
-
+		#self.file.seek(0);
+		#self.file.truncate();
+		#self.file.write(json.dumps(self.data, indent=4));
+		pass;
 
 def get_name(node):
 	if "name" in node:
@@ -171,9 +170,6 @@ def get_number(node):
 		return node["id"];
 	return id(node);
 
-def get_id(node, key):
-	return f"##{id(node)}{id(key)}";
-
 asset_dirs = [Path("sprites"), Path("sounds"), Path("meshes"), Path("data")];
 asset_types = [];
 asset_docs = {};
@@ -184,12 +180,11 @@ for folder in asset_dirs:
 		if ext == ".json":
 			try:
 				doc = AssetDocument(entry);
-				asset_type = doc.type;
-				if not asset_type in asset_types:
-					asset_types.append(asset_type);
-				asset_docs[asset_type] = doc;
-			except:
-				print(f"Failed to load {entry} as asset document!");
+				if not doc.type in asset_types:
+					asset_types.append(doc.type);
+				asset_docs[doc.type] = doc;
+			except Exception as e:
+				print(f"Failed to load {entry} as asset document! ({e})");
 
 document = None;
 
@@ -511,7 +506,7 @@ class SpriteExplorer:
 			imgui.set_next_window_size(self.size);
 			_, self.open = imgui.begin(f"Sprite Explorer", self.open, flags=self.window_flags);
 			for item in listings:
-				Preview.thumbnail("sprite", item);
+				Preview.thumbnail(item);
 				if imgui.menu_item_simple(item):
 					SpriteExplorer.result = item;
 					SpriteExplorer._ = None;
@@ -631,8 +626,12 @@ class PreviewBank:
 			match asset_type:
 				case "sprite":
 					self.entries[asset_type][name] = PreviewSprite(asset);
+					self.entries[asset_type][asset["path"]] = self.entries[asset_type][name];
 				case "sound":
 					self.entries[asset_type][name] = PreviewSound(asset);
+					self.entries[asset_type][asset["path"]] = self.entries[asset_type][name];
+				case _:
+					self.entries[asset_type][name] = None;
 		except:
 			self.entries[asset_type][name] = None;
 		return self.entries[asset_type][name];
@@ -643,6 +642,10 @@ class PreviewBank:
 		return self.entries[asset_type][name];
 		
 preview_bank = PreviewBank();
+for asset_type in asset_types:
+	asset_doc = asset_docs[asset_type];
+	for entry in asset_doc.entries:
+		preview_bank.init(asset_doc.type, entry["name"]);
 
 class Preview:	
 	def render_sprite(name):
@@ -677,49 +680,106 @@ class Preview:
 		if imgui.button(f"Refresh##{name}"):
 			preview_bank.init("sound", name);
 	
-	def render(asset_type, name):
-		match asset_type:
-			case "sprite":
-				Preview.render_sprite(name);
-			case "sound":
-				Preview.render_sound(name);	
+	def render(name):
+		if preview_bank.get("sprite", name) != None:
+			Preview.render_sprite(name);
+		elif preview_bank.get("sound", name) != None:
+			Preview.render_sound(name);
 
-	def thumbnail(asset_type, name):
-		match asset_type:
-			case "sprite":
-				Preview.thumbnail_sprite(name);
+	def thumbnail(name):
+		if preview_bank.get("sprite", name) != None:
+			Preview.thumbnail_sprite(name);
 
 
 #########################################################
 ## DOCUMENT GUI
 
-popup_statuses = {};
 search_term = "";
 
 class DocumentRenderer:
-	def __leaf_input(doc, type, id, value):
-		result = value;
+	def _render_node(doc : AssetDocument, title, T : ee_types.Type, node, identifier):
+		identifier = str(identifier)+title;
 
-		if typist.is_primitive(type):
-			match type:
-				case "int":
-					_, result = imgui.input_int(id, value);
-					return result;
-				case "float":
-					_, result = imgui.input_float(id, value);
-					return result;
-				case "bool":
-					return imgui.checkbox(id, value)[1];
-				case "string":
-					_, result = imgui.input_text(id, value);
-					return result;
-				case _:
-					pass;
+		if isinstance(T, ee_types.Object):
+			imgui.push_id(identifier);
+			if imgui.tree_node(title):
+				for e in T.elements:
+					if e.name in node:
+						node[e.name] = DocumentRenderer._render_node(doc, e.name, e.T, node[e.name], id(node));
+				imgui.tree_pop();
+			imgui.pop_id();
+			return node;
 		
-		elif typist.is_enum(type):
-			enum = typist.parse_enum(type);
-			if imgui.begin_combo(id, result):
-				for item in enum:
+		elif isinstance(T, ee_types.List):
+			imgui.push_id(identifier);
+			if imgui.tree_node(title):
+				for i in range(len(node)):
+					imgui.push_id(i);
+					node[i] = DocumentRenderer._render_node(doc, f"{title}[{i}]", T.T, node[i], id(node));
+					imgui.pop_id();
+				imgui.tree_pop();
+			imgui.pop_id();
+			return node;
+		
+		elif isinstance(T, ee_types.Asset):
+			if T.name in asset_types:
+				Preview.render(node);
+
+				imgui.text(title);
+				imgui.same_line();
+				
+				match T.name:
+					case "sprite":
+						_, result = imgui.input_text(f"##{identifier}", node);
+						imgui.same_line();
+						if imgui.button(f"...##{identifier}"):
+							SpriteExplorer(identifier);
+						if SpriteExplorer.is_active(identifier):
+							SpriteExplorer.render();
+							ready, output = SpriteExplorer.harvest();
+							result = output if ready else result;
+						return result;
+					case _:
+						result = node;
+						if imgui.begin_combo(f"##{identifier}", node):
+							assets = asset_docs[type].entries;
+							for asset in assets:
+								selected = result == asset["name"];
+								if imgui.selectable(asset["name"], selected)[0]:
+									result = asset["name"];
+								if selected:
+									imgui.set_item_default_focus();
+							imgui.end_combo();
+						return result;
+			else:
+				imgui.text(title);
+				imgui.same_line();
+				_, result = imgui.input_text(f"##{identifier}", str(node));
+				return result;
+		
+		elif isinstance(T, ee_types.File):
+			Preview.render(node);
+
+			imgui.text(title);
+			imgui.same_line();
+
+			_, result = imgui.input_text(f"##{identifier}", node);
+			imgui.same_line();
+			if imgui.button(f"...##{identifier}"):
+				FileExplorer(identifier, doc.parent, T.pattern);
+			if FileExplorer.is_active(identifier):
+				FileExplorer.render();
+				ready, output = FileExplorer.harvest();
+				result = output if ready else result;
+			return result;
+
+		elif isinstance(T, ee_types.Enum):
+			imgui.text(title);
+			imgui.same_line();
+
+			result = node;
+			if imgui.begin_combo(f"##{identifier}", result):
+				for item in T.values:
 					selected = result == item;
 					if imgui.selectable(item, selected)[0]:
 						result = item;
@@ -727,123 +787,32 @@ class DocumentRenderer:
 						imgui.set_item_default_focus();	
 				imgui.end_combo();
 			return result;
-		
-		elif typist.is_filetype(type):
-			_, result = imgui.input_text(id, value);
+
+		elif isinstance(T, ee_types.Primitive):
+			imgui.text(title);
 			imgui.same_line();
-			if imgui.button(f"...{id}"):
-				FileExplorer(id, doc.parent, type);
-			if FileExplorer.is_active(id):
-				FileExplorer.render();
-				ready, output = FileExplorer.harvest();
-				result = output if ready else result;
-			return result;
-	
-		elif isinstance(type, str) and type in asset_types:
-			match type:
-				case "sprite":
-					_, result = imgui.input_text(id, value);
-					imgui.same_line();
-					if imgui.button(f"...{id}"):
-						SpriteExplorer(id);
-					if SpriteExplorer.is_active(id):
-						SpriteExplorer.render();
-						ready, output = SpriteExplorer.harvest();
-						result = output if ready else result;
-					return result;
-				case _:
-					if imgui.begin_combo(id, value):
-						assets = asset_docs[type].entries;
-						for asset in assets:
-							selected = result == asset["name"];
-							if imgui.selectable(asset["name"], selected)[0]:
-								result = asset["name"];
-							if selected:
-								imgui.set_item_default_focus();
-						imgui.end_combo();
-					return result;
-		return result;
 
-
-	def __render_node(doc, type, id, node, key):
-		if (
-			doc.type_explorer.has_permission("write") and
-			typist.is_primitive(type) or
-	  		typist.is_enum(type) or
-			typist.is_filetype(type) or
-			(isinstance(type, str) and type in asset_types)
-		):
-			node[key] = DocumentRenderer.__leaf_input(doc, type, f"####{id(node)}{key}");
-		
-		if isinstance(type, dict):
-			if imgui.tree_node(f"{key} ####{id(node)}{doc.type_explorer.get_path()}"):
-				for (ckey, cnode) in node[key].items():
-					doc.type_explorer.navigate_to(ckey);
-					cT = doc.type_explorer.get_type();
-					DocumentRenderer.__render_node(doc, cT, f"{id}{}cnode, ckey, cT);
-					doc.type_explorer.back();
-				imgui.tree_pop();
+			match type(T):
+				case ee_types.Int:
+					_, result = imgui.input_int(f"##{identifier}", node);
+					return result;
+				case ee_types.Float:
+					_, result = imgui.input_float(f"##{identifier}", node);
+					return result;
+				case ee_types.Bool:
+					return imgui.checkbox(f"##{identifier}", node)[1];
+				case ee_types.String:
+					_, result = imgui.input_text(f"##{identifier}", node);
+					return result;
 	
-		elif isinstance(T, list):
-			if imgui.tree_node(f"{key} ####{id(node)}{doc.type_explorer.get_path()}"):
-				for (idx, child) in enumerate(node):
-					DocumentRenderer.__render_node(doc, child, idx, T[0]);
-	
-	def render(doc):
+	def render(doc : AssetDocument):
 		global search_term;
 		_, search_term = imgui.input_text("Search", search_term);
+		subset = list(filter(lambda e: len(search_term) == 0 or search_term in e["name"], doc.entries));
 
-		idx = 0;
-		while idx < len(doc.entries):
-			entry = doc.entries[idx];
-			if len(search_term) > 0 and search_term not in entry['name']:
-				idx += 1;
-				continue;
-			
-			is_open = imgui.tree_node(f"{get_name(entry)} {get_number(entry)}####{str(id(entry))}");
-		
-			delete_popup_id = f"delete_popup####{id(entry)}";
-			popup_statuses[delete_popup_id] = False;
-			imgui.push_id(delete_popup_id);
-
-			if imgui.begin_popup_context_item():	
-				if imgui.menu_item_simple("Delete##init"):
-					popup_statuses[delete_popup_id] = True;
-					imgui.close_current_popup();
-				if imgui.menu_item_simple("Duplicate"):
-					doc.duplicate_entry(idx);
-					imgui.close_current_popup();
-				imgui.end_popup();
-			
-			if popup_statuses[delete_popup_id]:
-				imgui.open_popup(delete_popup_id);
-				popup_statuses[delete_popup_id] = False;
-
-			should_delete = False;
-			if imgui.begin_popup(delete_popup_id):
-				imgui.text(f"Delete {get_name(entry)}?");
-				if imgui.button("Cancel"):
-					imgui.close_current_popup();
-				imgui.same_line();
-				if imgui.button("Delete##confirm"):
-					should_delete = True;
-					imgui.close_current_popup();
-				imgui.end_popup();
-
-			imgui.pop_id();
-
-			if is_open:
-				doc.type_explorer.navigate_to("/");
-				for key in entry:
-					doc.type_explorer.navigate_to(key);
-					DocumentRenderer.__render_node(doc, entry, key, doc.type_explorer.get_type());
-					doc.type_explorer.back();
-				imgui.tree_pop();
-
-			if should_delete:
-				doc.delete_entry(idx);
-				idx -= 1;
-			idx += 1;
+		for entry in subset:
+			root = doc.typist.root();
+			DocumentRenderer._render_node(doc, f"{get_name(entry)} {get_number(entry)}####{id(entry)}", root.T, entry, id(entry));
 
 
 #########################################################

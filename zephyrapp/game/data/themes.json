@@ -1,68 +1,48 @@
 {
-    "type": "theme",
-    "schema": {
-        "name": {
-            "type": "string",
-            "permissions": [
-                "write"
-            ]
-        },
-        "display_name": {
-            "type": "string",
-            "permissions": [
-                "write"
-            ]
-        },
-        "wall_tiles": {
-            "type": "sprite",
-            "permissions": [
-                "write"
-            ]
-        },
-        "tile_wall": {
-            "type": "bool",
-            "permissions": [
-                "write"
-            ]
-        },
-        "wall_map": {
-            "type": [
-                [
-                    "int"
-                ]
-            ],
-            "permissions": []
-        },
-        "floor_tiles": {
-            "type": "sprite",
-            "permissions": [
-                "write"
-            ]
-        },
-        "tile_floor": {
-            "type": "bool",
-            "permissions": [
-                "write"
-            ]
-        },
-        "floor_map": {
-            "type": [
-                [
-                    "int"
-                ]
-            ],
-            "permissions": []
-        },
-        "window_rect": {
-            "type": [
-                "int"
-            ],
-            "permissions": [
-                "write"
-            ]
-        }
+    "theme": {
+		"type" : {
+			"name": {
+				"type": "string"
+			},
+			"display_name": {
+				"type": "string"
+			},
+			"wall_tiles": {
+				"type": "sprite"
+			},
+			"tile_wall": {
+				"type": "bool"
+			},
+			"wall_map": {
+				"type": [
+					"int"
+				],
+				"attributes" : [
+					"read-only"
+				]
+			},
+			"floor_tiles": {
+				"type": "sprite"
+			},
+			"tile_floor": {
+				"type": "bool"
+			},
+			"floor_map": {
+				"type": [
+					"int"
+				],
+				"attributes" : [
+					"read-only"
+				]
+			},
+			"window_rect": {
+				"type": [
+					"int"
+				]
+			}
+		}
     },
-    "entries": [
+    "instances": [
         {
             "name": "basic",
             "display_name": "Basic",

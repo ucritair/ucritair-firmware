@@ -10,36 +10,36 @@ class Type(abc.ABC):
 	def prototype(self):
 		pass;
 	@abc.abstractmethod
-	def validate(self, value):
+	def validate(self, value) -> bool:
 		pass;
 
 class Primitive(Type):
 	pass;
 class Int(Primitive):
-	def prototype(self):
+	def prototype(self) -> int:
 		return 0;
-	def validate(self, value):
+	def validate(self, value) -> bool:
 		return isinstance(value, int);
 	def __repr__(self):
 		return "Int";
 class Float(Primitive):
-	def prototype(self):
+	def prototype(self) -> float:
 		return 0;
-	def validate(self, value):
+	def validate(self, value) -> bool:
 		return isinstance(value, float);
 	def __repr__(self):
 		return "Float";
 class Bool(Primitive):
-	def prototype(self):
+	def prototype(self) -> bool:
 		return False;
-	def validate(self, value):
+	def validate(self, value) -> bool:
 		return isinstance(value, bool);
 	def __repr__(self):
 		return "Bool";
 class String(Primitive):
-	def prototype(self):
+	def prototype(self) -> str:
 		return "";
-	def validate(self, value):
+	def validate(self, value) -> bool:
 		return isinstance(value, str);
 	def __repr__(self):
 		return "String";
@@ -50,9 +50,9 @@ class Enum(Type):
 		values = re.split(parse_regex, expression);
 		values = [v for v in values if len(v) > 0];
 		self.values = values;
-	def prototype(self):
+	def prototype(self) -> str:
 		return self.values[0];
-	def validate(self, value):
+	def validate(self, value) -> bool:
 		return value in self.values;
 	def __repr__(self):
 		return f"Enum({", ".join(self.values)})";
@@ -61,9 +61,9 @@ class File(Type):
 	def __init__(self, pattern):
 		self.pattern = pattern;
 		self.regex = glob.translate(self.pattern);
-	def prototype(self):
+	def prototype(self) -> str:
 		return "";
-	def validate(self, value):
+	def validate(self, value) -> bool:
 		return re.match(self.regex, value);
 	def __repr__(self):
 		return f"File({self.pattern})";
@@ -71,9 +71,9 @@ class File(Type):
 class Asset(Type):
 	def __init__(self, name):
 		self.name = name;
-	def prototype(self):
+	def prototype(self) -> str:
 		return "";
-	def validate(self, value):
+	def validate(self, value) -> bool:
 		return isinstance(value, str);
 	def __repr__(self):
 		return f"Asset({self.name})";
@@ -81,12 +81,12 @@ class Asset(Type):
 class List(Type):
 	def __init__(self, T):
 		self.T = T;
-	def prototype(self):
+	def prototype(self) -> list:
 		if isinstance(self.T, List):
 			return [self.T.prototype()];
 		else:
 			return [];
-	def validate(self, value):
+	def validate(self, value) -> bool:
 		if not isinstance(value, list):
 			return False;
 		valid = True;
@@ -99,13 +99,14 @@ class List(Type):
 class Object(Type):
 	def __init__(self, elements):
 		self.elements = elements;
-	def prototype(self):
+	
+	def prototype(self) -> dict:
 		instance = {};
 		for element in self.elements:
 			instance[element.name] = element.T.prototype();
 		return instance;
 
-	def validate(self, value):
+	def validate(self, value) -> bool:
 		if not isinstance(value, dict):
 			return False;
 	
@@ -127,6 +128,9 @@ class Object(Type):
 	def __repr__(self):
 		return f"Object({", ".join([str(e.T) for e in self.elements])})";
 
+	def keys(self) -> list[str]:
+		return [e.name for e in self.elements];
+
 class Element:
 	def __init__(self, name, T, attributes = [], conditions = []):
 		self.name = name;
@@ -136,10 +140,10 @@ class Element:
 	def __repr__(self):
 		return f"Element({self.name}, {self.T})";
 
-	def get_type(self):
+	def get_type(self) -> Type:
 		return self.T;
 
-	def has_attribute(self, attribute):
+	def has_attribute(self, attribute) -> bool:
 		return attribute in self.attributes;
 
 	def prototype(self, inner = False):
@@ -149,11 +153,14 @@ class Element:
 				T = T.T;
 		return T.prototype();
 
-	def validate(self, value):
+	def validate(self, value) -> bool:
 		return self.T.validate(value);
 			
 class Typist:
-	def _search(self, element, path_tokens):
+	def root(self):
+		return self._root;
+
+	def _search(self, element, path_tokens) -> Element:
 		if path_tokens == []:
 			return element;
 		token = path_tokens[0];
@@ -163,16 +170,16 @@ class Typist:
 		next_element = next(e for e in T.elements if e.name == token);
 		return self._search(next_element, path_tokens[1:]);
 
-	def search(self, path_str):
+	def search(self, path_str) -> Element:
 		path_tokens = re.split(r"/", path_str);
 		path_tokens = [t for t in path_tokens if t != ""];
-		return self._search(self.root, path_tokens);
+		return self._search(self._root, path_tokens);
 
-	def _head(self):
+	def head(self) -> Element:
 		return self.path[-1];
 
 	def _push(self, key):
-		T = self._head().T;
+		T = self.head().T;
 		while isinstance(T, List):
 			T = T.T;
 		matches = [e for e in T.elements if e.name == key];
@@ -182,11 +189,11 @@ class Typist:
 		self.path.pop(-1);
 	
 	def _reset(self):
-		self.path = [self.root];
+		self.path = [self._root];
 	
 	def _navigate(self, path_tokens):
 		if path_tokens == []:
-			return self._head();
+			return self.head();
 		next = path_tokens[0];
 		self._push(next);
 		self._navigate(path_tokens[1:]);
@@ -199,16 +206,13 @@ class Typist:
 		path_tokens = [t for t in path_tokens if t != ""];
 		self._navigate(path_tokens);
 	
-	def get_head(self):
-		return self._head();
-	
-	def get_path(self):
+	def get_path(self) -> str:
 		path_str = "/";
 		for p in self.path:
 			path_str += f"{p.name}/";
 		return path_str;
 
-	def _construct_type(self, expr):
+	def _construct_type(self, expr) -> Type:
 		if isinstance(expr, list):
 			return List(self._construct_type(expr[0]));
 	
@@ -238,15 +242,15 @@ class Typist:
 
 		return Asset(expr);
 
-	def _construct_element(self, name, expr):
+	def _construct_element(self, name, expr) -> Element:
 		T = self._construct_type(expr["type"]);
 		attributes = expr["attributes"] if "attributes" in expr else [];
 		conditions = expr["conditions"] if "conditions" in expr else [];
 		return Element(name, T, attributes, conditions);
 
 	def __init__(self, name, expr):
-		self.root = self._construct_element(name, expr);
-		self.path = [self.root];
+		self._root = self._construct_element(name, expr);
+		self.path = [self._root];
 
 class TypeHelper:
 	def __init__(self, typist):
@@ -261,7 +265,7 @@ class TypeHelper:
 			node = node[next_key];
 		return node;
 
-	def _evaluate_conditions(self, instance, element):
+	def _evaluate_conditions(self, instance, element) -> bool:
 		conditions = element.conditions;
 		evaluation = True;
 		for condition in conditions:
@@ -308,23 +312,10 @@ class TypeHelper:
 		root = self.typist.search("/");
 		return root.prototype();
 
-	def validate(self, instance):
+	def validate(self, instance) -> bool:
 		root = self.typist.search("/");
 		return root.validate(instance);
 
 	def rectify(self, instance):
 		root = self.typist.search("/");
 		self._rectify(instance, instance, root);
-
-file = open("editor/type.json", "r");
-json_data = json.load(file);
-file.close();
-type_name = next(n for n in json_data.keys() if n != "instances");
-typist = Typist(type_name, json_data[type_name]);
-helper = TypeHelper(typist);
-instance = helper.prototype();
-print(instance);
-print(helper.validate(instance));
-print(helper.validate({}));
-helper.rectify(instance)
-print(instance);

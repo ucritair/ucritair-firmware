@@ -1,38 +1,40 @@
 {
-    "type": "mesh2d",
-    "schema": {
-        "name": {
-            "type": "string",
-            "permissions": [
-                "write"
-            ]
-        },
-        "verts": {
-            "type": [
-                "int"
-            ],
-            "permissions": []
-        },
-        "vert_count": {
-            "type": "int",
-            "permissions": [
-                "read"
-            ]
-        },
-        "edges": {
-            "type": [
-                "int"
-            ],
-            "permissions": []
-        },
-        "edge_count": {
-            "type": "int",
-            "permissions": [
-                "read"
-            ]
-        }
+    "mesh2d": {
+		"type": {
+			"name": {
+				"type": "string"
+			},
+			"verts": {
+				"type": [
+					"int"
+				],
+				"attributes" : [
+					"read-only"
+				]
+			},
+			"vert_count": {
+				"type": "int",
+				"attributes" : [
+					"read-only"
+				]
+			},
+			"edges": {
+				"type": [
+					"int"
+				],
+				"attributes" : [
+					"read-only"
+				]
+			},
+			"edge_count": {
+				"type": "int",
+				"attributes" : [
+					"read-only"
+				]
+			}
+		}
     },
-    "entries": [
+    "instances": [
         {
             "name": "horse_mackerel",
             "verts": [

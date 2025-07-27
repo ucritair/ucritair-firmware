@@ -1,20 +1,15 @@
 {
-    "type": "mesh",
-    "schema": {
-        "name": {
-            "type": "string",
-            "permissions": [
-                "write"
-            ]
-        },
-        "path": {
-            "type": "*.obj",
-            "permissions": [
-                "write"
-            ]
-        }
+    "mesh": {
+		"type" : {
+			"name": {
+				"type": "string"
+			},
+			"path": {
+				"type": "*.obj"
+			}
+		}
     },
-    "entries": [
+    "instances": [
         {
             "name": "hedron",
             "path": "hedron.obj"

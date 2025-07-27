@@ -84,7 +84,7 @@
 						"type": "enum(default, bottom, top)"
 					},
 					"shape": {
-						"type": "ivec2"
+						"type":["int"]
 					},
 					"animate": {
 						"type": "bool"

@@ -1,18 +1,13 @@
 {
-    "type": "sound",
-    "schema": {
-        "name": {
-            "type": "string",
-            "permissions": [
-                "write"
-            ]
-        },
-        "path": {
-            "type": "*.wav",
-            "permissions": [
-                "write"
-            ]
-        }
-    },
-    "entries": []
+	"sound" : {
+		"type": {
+			"name": {
+				"type": "string"
+			},
+			"path": {
+				"type": "*.wav"
+			}
+		}
+	},
+    "instances": []
 }

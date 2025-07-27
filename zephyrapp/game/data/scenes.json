@@ -1,102 +1,63 @@
 {
-    "type": "scene",
-    "schema": {
-        "name": {
-            "type": "string",
-            "permissions": [
-                "write"
-            ]
-        },
-        "display_name": {
-            "type": "string",
-            "permissions": [
-                "write"
-            ]
-        },
-        "palette": {
-            "type": [
-                "sprite"
-            ],
-            "permissions": [
-                "write"
-            ]
-        },
-        "layers": {
-            "type": [
-                {
-                    "singles": {
-                        "type": [
-                            {
-                                "idx": {
-                                    "type": "int",
-                                    "permissions": [
-                                        "write"
-                                    ]
-                                },
-                                "position": {
-                                    "type": [
-                                        "int"
-                                    ],
-                                    "permissions": [
-                                        "write"
-                                    ]
-                                }
-                            }
-                        ],
-                        "permissions": [
-                            "write"
-                        ]
-                    },
-                    "regions": {
-                        "type": [
-                            {
-                                "idx": {
-                                    "type": "int",
-                                    "permissions": [
-                                        "write"
-                                    ]
-                                },
-                                "rectangle": {
-                                    "type": [
-                                        "int"
-                                    ],
-                                    "permissions": [
-                                        "write"
-                                    ]
-                                }
-                            }
-                        ],
-                        "permissions": [
-                            "write"
-                        ]
-                    }
-                }
-            ],
-            "permissions": [
-                "write"
-            ]
-        },
-        "skybox": {
-            "type": [
-                "int"
-            ],
-            "permissions": [
-                "write"
-            ]
-        }
+    "scene": {
+		"type": {
+			"name": {
+				"type": "string"
+			},
+			"display_name": {
+				"type": "string"
+			},
+			"palette": {
+				"type": ["sprite"]
+			},
+			"layers": {
+				"type": [
+					{
+						"singles": {
+							"type": [
+								{
+									"idx": {
+										"type": "int"
+									},
+									"position": {
+										"type": ["int"]
+									}
+								}
+							]
+						},
+						"regions": {
+							"type": [
+								{
+									"idx": {
+										"type": "int"
+									},
+									"rectangle": {
+										"type": [
+											"int"
+										]
+									}
+								}
+							]
+						}
+					}
+				]
+			},
+			"skybox": {
+				"type": [
+					"int"
+				]
+			}
+		}
     },
-    "entries": [
+    "instances": [
         {
             "name": "test_scene",
             "display_name": "Scene",
             "palette": [
-                ""
             ],
             "layers": [
-                null
             ],
             "skybox": [
-                0
             ]
         }
     ]

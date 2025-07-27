@@ -1,75 +1,45 @@
 {
-    "type": "fish",
-    "schema": {
-        "name": {
-            "type": "string",
-            "permissions": [
-                "write"
-            ]
-        },
-        "display_name": {
-            "type": "string",
-            "permissions": [
-                "write"
-            ]
-        },
-        "proverb": {
-            "type": "string",
-            "permissions": [
-                "write"
-            ]
-        },
-        "grade_constraint": {
-            "type": "int",
-            "permissions": [
-                "write",
-                "rank"
-            ]
-        },
-        "min_length": {
-            "type": "float",
-            "permissions": [
-                "write"
-            ]
-        },
-        "max_length": {
-            "type": "float",
-            "permissions": [
-                "write"
-            ]
-        },
-        "min_lustre": {
-            "type": "float",
-            "permissions": [
-                "write"
-            ]
-        },
-        "max_lustre": {
-            "type": "float",
-            "permissions": [
-                "write"
-            ]
-        },
-        "min_wisdom": {
-            "type": "float",
-            "permissions": [
-                "write"
-            ]
-        },
-        "max_wisdom": {
-            "type": "float",
-            "permissions": [
-                "write"
-            ]
-        },
-        "mesh": {
-            "type": "mesh2d",
-            "permissions": [
-                "write"
-            ]
-        }
+    "fish": {
+		"type": {
+			"name": {
+				"type": "string"
+			},
+			"display_name": {
+				"type": "string"
+			},
+			"proverb": {
+				"type": "string"
+			},
+			"grade_constraint": {
+				"type": "int",
+				"attributes" : [
+					"rank"
+				]
+			},
+			"min_length": {
+				"type": "float"
+			},
+			"max_length": {
+				"type": "float"
+			},
+			"min_lustre": {
+				"type": "float"
+			},
+			"max_lustre": {
+				"type": "float"
+			},
+			"min_wisdom": {
+				"type": "float"
+			},
+			"max_wisdom": {
+				"type": "float"
+			},
+			"mesh": {
+				"type": "mesh2d"
+			}
+		}
     },
-    "entries": [
+    "instances": [
         {
             "name": "mackerel",
             "display_name": "King Mackerel",

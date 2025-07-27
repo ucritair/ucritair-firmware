@@ -1,54 +1,39 @@
 {
-    "type": "sprite",
-    "schema": {
-        "id": {
-            "type": "int",
-            "permissions": []
-        },
-        "name": {
-            "type": "string",
-            "permissions": [
-                "write"
-            ]
-        },
-        "path": {
-            "type": "*.png",
-            "permissions": [
-                "write"
-            ]
-        },
-        "frames": {
-            "type": "int",
-            "permissions": [
-                "write"
-            ]
-        },
-        "width": {
-            "type": "int",
-            "permissions": [
-                "read"
-            ]
-        },
-        "height": {
-            "type": "int",
-            "permissions": [
-                "read"
-            ]
-        },
-        "loop": {
-            "type": "bool",
-            "permissions": [
-                "write"
-            ]
-        },
-        "reverse": {
-            "type": "bool",
-            "permissions": [
-                "write"
-            ]
-        }
+    "sprite": {
+		"type" : {
+			"id": {
+				"type": "int"
+			},
+			"name": {
+				"type": "string"
+			},
+			"path": {
+				"type": "*.png"
+			},
+			"frames": {
+				"type": "int"
+			},
+			"width": {
+				"type": "int",
+				"attributes": [
+					"read-only"
+				]
+			},
+			"height": {
+				"type": "int",
+				"attributes": [
+					"read-only"
+				]
+			},
+			"loop": {
+				"type": "bool"
+			},
+			"reverse": {
+				"type": "bool"
+			}
+		}
     },
-    "entries": [
+    "instances": [
         {
             "id": 0,
             "name": "arcade_sprite",

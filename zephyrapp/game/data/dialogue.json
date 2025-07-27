@@ -1,26 +1,28 @@
 {
-    "type": "dialogue",
-    "schema": {
-        "name": {
-            "type": "string",
-            "permissions": [
-                "write"
-            ]
-        },
-        "lines": {
-            "type": null,
-            "permissions": [
-                "read"
-            ]
-        },
-        "edges": {
-            "type": null,
-            "permissions": [
-                "read"
-            ]
-        }
+    "dialogue": {
+		"type": {
+			"name": {
+				"type": "string"
+			},
+			"lines": {
+				"type": ["string"]
+			},
+			"edges": {
+				"type": [{
+					"text" : {
+						"type" : "string"
+					},
+					"node" : {
+						"type" : "dialogue"
+					},
+					"proc" : {
+						"type" : "string"
+					}
+				}]
+			}
+		}
     },
-    "entries": [
+    "instances": [
         {
             "name": "test_a",
             "lines": [
