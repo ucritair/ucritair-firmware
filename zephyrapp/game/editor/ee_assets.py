@@ -100,30 +100,36 @@ class DocumentHelper:
 		DocumentHelper._sort_by(doc, DocumentHelper.get_rank);
 
 class AssetManager:
-	def __init__(self, directories):
-		self.directories = [Path(d) for d in directories];
-		self.documents = [];
+	directories = [];
+	documents = [];
+	active_document = None;
 
-		for directory in self.directories:
+	def Initialize(directories):
+		AssetManager.directories = [Path(d) for d in directories];
+		AssetManager.documents = [];
+
+		for directory in AssetManager.directories:
 			for filepath in directory.iterdir():
 				ext = filepath.suffix;
 				if ext == ".json":
 					try:
 						document = AssetDocument(filepath);
-						self.documents.append(document);
+						AssetManager.documents.append(document);
 						print(f"[AssetManager] Loaded {filepath}");
 					except Exception as e:
 						print(f"[AssetManager] Failed to load {filepath}!\n\t({e})");
 	
-	def types(self):
-		return [document.type for document in self.documents];
-	def has_type(self, name):
-		return name in [document.type for document in self.documents];
+	def types():
+		return [document.type for document in AssetManager.documents];
+	def has_type(name):
+		return name in [document.type for document in AssetManager.documents];
 
-	def get_document(self, name):
-		return next(document for document in self.documents if document.type == name);
+	def get_document(name):
+		return next(document for document in AssetManager.documents if document.type == name);
 
-	def get_assets(self, asset_type):
-		return next(document.entries for document in self.documents if document.type == asset_type);
-	def search(self, asset_type, asset_name):
-		return next(asset for asset in self.get_assets(asset_type) if asset["name"] == asset_name);
+	def get_assets(asset_type):
+		return next(document.entries for document in AssetManager.documents if document.type == asset_type);
+	def search(asset_type, asset_name):
+		return next(asset for asset in AssetManager.get_assets(asset_type) if asset["name"] == asset_name);
+
+	

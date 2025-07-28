@@ -29,6 +29,8 @@ from ee_cowtools import *;
 from ee_canvas import Canvas;
 from ee_assets import *;
 
+from ee_scene_editor import SceneEditor;
+
 #########################################################
 ## CONTEXT
 
@@ -77,9 +79,7 @@ platform_io.platform_set_clipboard_text_fn = set_clipboard_text;
 time = glfw.get_time();
 delta_time = 0;
 
-asset_manager = AssetManager(["sprites", "sounds", "meshes", "data"]);
-active_document = None;
-
+AssetManager.Initialize(["sprites", "sounds", "meshes", "data"]);
 
 #########################################################
 ## FILE EXPLORER
@@ -297,12 +297,12 @@ class PreviewSound:
 class PreviewBank:
 	def __init__(self):
 		self.entries = {};
-		for asset_type in asset_manager.types():
+		for asset_type in AssetManager.types():
 			self.entries[asset_type] = {};
 	
 	def init(self, asset_type, name):
 		try:
-			asset = asset_manager.search(asset_type, name);
+			asset = AssetManager.search(asset_type, name);
 			match asset_type:
 				case "sprite":
 					self.entries[asset_type][name] = PreviewSprite(asset);
@@ -322,8 +322,8 @@ class PreviewBank:
 		return self.entries[asset_type][name];
 		
 preview_bank = PreviewBank();
-for asset_type in asset_manager.types():
-	for asset in asset_manager.get_assets(asset_type):
+for asset_type in AssetManager.types():
+	for asset in AssetManager.get_assets(asset_type):
 		preview_bank.init(asset_type, asset["name"]);
 
 class Preview:	
@@ -529,7 +529,7 @@ class PropViewer:
 		self.window_flags = foldl(lambda a, b : a | b, 0, window_flag_list);
 		self.open = True;
 
-		self.props = list(filter(lambda x: x["type"] == "prop", asset_manager.get_assets("item")));
+		self.props = list(filter(lambda x: x["type"] == "prop", AssetManager.get_assets("item")));
 		self.parent_prop = self.props[0];
 		self.child_prop = self.parent_prop;
 
@@ -617,7 +617,7 @@ class AnimationViewer:
 		self.window_flags = foldl(lambda a, b : a | b, 0, window_flag_list);
 		self.open = True;
 
-		self.sprites = asset_manager.get_assets("sprite");
+		self.sprites = AssetManager.get_assets("sprite");
 		self.sprite_idx = 0;
 		self.frame = 0;
 		
@@ -700,7 +700,7 @@ class ThemeEditor:
 
 		self.grid = False;
 
-		self.themes = asset_manager.get_assets("theme");
+		self.themes = AssetManager.get_assets("theme");
 		self.theme = self.themes[0];
 
 		self.wall_canvas = self.wall_canvas = Canvas(240, 96);
@@ -899,7 +899,7 @@ class Mesh2DEditor:
 		self.last_edge_closed = True;
 		self.last_click = imgui.ImVec2(-1, -1);
 	
-		self.mesh_pool = asset_manager.get_assets("mesh2d");
+		self.mesh_pool = AssetManager.get_assets("mesh2d");
 		self.mesh = self.mesh_pool[0] if len(self.mesh_pool) > 0 else None;
 		if(not self.mesh is None):
 			self.open_mesh(self.mesh);
@@ -1173,7 +1173,7 @@ class ItemReformer:
 		self.window_flags = foldl(lambda a, b : a | b, 0, window_flag_list);
 		self.open = True;
 		
-		self.items = asset_manager.get_assets("item");
+		self.items = AssetManager.get_assets("item");
 		self.reforms = [
 			ItemReform (
 				"Food Prices",
@@ -1255,7 +1255,7 @@ class DialogueEditor:
 		self.window_flags = foldl(lambda a, b : a | b, 0, window_flag_list);
 		self.open = True;
 		
-		self.nodes = asset_manager.get_assets("dialogue");
+		self.nodes = AssetManager.get_assets("dialogue");
 		self.node = None;
 	
 	def node_selector(self):
@@ -1364,8 +1364,8 @@ while not glfw.window_should_close(handle):
 			print(f"Saving {doc.name}!");
 			doc.save();
 	
-	if active_document != None:
-		active_document.refresh();
+	if AssetManager.active_document != None:
+		AssetManager.active_document.refresh();
 
 	glEnable(GL_PROGRAM_POINT_SIZE);
 	glClearColor(0, 0, 0, 1);
@@ -1375,35 +1375,35 @@ while not glfw.window_should_close(handle):
 
 	imgui.set_next_window_pos((0, 0));
 	imgui.set_next_window_size((window_width, window_height));
-	imgui.begin("Editor", flags=window_flags | (splash_flags if active_document == None else 0));
+	imgui.begin("Editor", flags=window_flags | (splash_flags if AssetManager.active_document == None else 0));
 
 	if imgui.begin_main_menu_bar():
 		if imgui.begin_menu("File"):
 			if imgui.begin_menu("Open"):
-				for document in asset_manager.documents:
-					selected = document == active_document;
+				for document in AssetManager.documents:
+					selected = document == AssetManager.active_document;
 					if imgui.menu_item_simple(str(document.path), selected = selected):
-						active_document = document;
+						AssetManager.active_document = document;
 				imgui.end_menu();
 			if imgui.menu_item_simple("Save"):
-				for document in asset_manager.documents:
+				for document in AssetManager.documents:
 					print(f"Saving {document.path}!");
 					document.save();
-			if imgui.menu_item_simple("Close", enabled=active_document != None):
-				active_document = None;
+			if imgui.menu_item_simple("Close", enabled=AssetManager.active_document != None):
+				AssetManager.active_document = None;
 			imgui.end_menu();
 
-		if imgui.begin_menu("Assets", enabled=active_document != None):
-			if imgui.begin_menu("Sort", enabled=active_document != None):
+		if imgui.begin_menu("Assets", enabled=AssetManager.active_document != None):
+			if imgui.begin_menu("Sort", enabled=AssetManager.active_document != None):
 				if imgui.menu_item_simple("Name"):
-					DocumentHelper.sort_by_name(active_document);
+					DocumentHelper.sort_by_name(AssetManager.active_document);
 				if imgui.menu_item_simple("Number"):
-					DocumentHelper.sort_by_number(active_document);
+					DocumentHelper.sort_by_number(AssetManager.active_document);
 				if imgui.menu_item_simple("Rank"):
-					DocumentHelper.sort_by_rank(active_document);
+					DocumentHelper.sort_by_rank(AssetManager.active_document);
 				imgui.end_menu();
 			if imgui.menu_item_simple("New"):
-				active_document.spawn_new_entry();
+				AssetManager.active_document.spawn_new_entry();
 			imgui.end_menu();
 		
 		if imgui.begin_menu("Tools"):
@@ -1419,15 +1419,17 @@ while not glfw.window_should_close(handle):
 				ItemReformer();	
 			if imgui.menu_item_simple("Dialogue Editor"):
 				DialogueEditor();
+			if imgui.menu_item_simple("Scene Editor"):
+				SceneEditor();
 			imgui.end_menu();
 		imgui.end_main_menu_bar();
 	
-	if active_document == None:
+	if AssetManager.active_document == None:
 		imgui.set_scroll_x(0);
 		imgui.set_scroll_y(0);
 		imgui.image(splash_tex, (splash_img.width, splash_img.height));
 	else:
-		DocumentRenderer.render(active_document);
+		DocumentRenderer.render(AssetManager.active_document);
 	
 	if PropViewer._ != None:
 		PropViewer.render();
@@ -1441,6 +1443,8 @@ while not glfw.window_should_close(handle):
 		ItemReformer.render();
 	if DialogueEditor._ != None:
 		DialogueEditor.render();
+	if SceneEditor._ != None:
+		SceneEditor.render();
 
 	imgui.end();
 	imgui.render();
