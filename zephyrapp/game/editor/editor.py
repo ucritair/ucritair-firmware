@@ -504,7 +504,8 @@ class DocumentRenderer:
 			if imgui.tree_node(title):
 				for e in T.elements:
 					if e.name in node:
-						node[e.name] = DocumentRenderer._render_node(e.name, e.T, node[e.name], id(node));
+						if not e.has_attribute("read-only"):
+							node[e.name] = DocumentRenderer._render_node(e.name, e.T, node[e.name], id(node));
 				imgui.tree_pop();
 			imgui.pop_id();
 			DocumentRenderer._topmost_id = identifier;
@@ -857,6 +858,9 @@ class ThemeEditor:
 			elif self.floor_canvas.height != 224:
 				self.floor_canvas = Canvas(240, 224);
 			
+			if self.theme["tile_wall"] or self.theme["tile_floor"]:
+				_, self.grid = imgui.checkbox("Show grid", self.grid);
+			
 			if self.theme['tile_wall']:
 				wall_len = len(self.theme["wall_map"]);
 				deviation = (15 * 6) - wall_len;
@@ -876,9 +880,9 @@ class ThemeEditor:
 						self.wall_canvas.draw_image(x * 16, y * 16, tile.frame_images[tile_frame]);
 				if(self.grid):
 					for y in range(1, 6):
-						self.wall_canvas.draw_hline(y * 16, (255, 255, 255));
+						self.wall_canvas.draw_line(0, y*16, self.wall_canvas.width-1, y*16, (255, 255, 255));
 					for x in range(1, 15):
-						self.wall_canvas.draw_vline(x * 16, (255, 255, 255));
+						self.wall_canvas.draw_line(x*16, 0, x*16, self.wall_canvas.height-1, (255, 255, 255));
 
 				mouse_pos = imgui_io.mouse_pos;
 				brush_pos = mouse_pos - canvas_pos;
@@ -894,8 +898,6 @@ class ThemeEditor:
 					self.wall_canvas.draw_rect(window_rect[0], window_rect[1], window_rect[2], window_rect[3], (0, 0, 255));
 
 				self.wall_canvas.render(1);
-				imgui.same_line();
-				_, self.grid = imgui.checkbox("Show grid", self.grid);	
 
 				wall_tiles = preview_bank.get("sprite", self.theme["wall_tiles"]);
 				per_line = 0;
@@ -940,9 +942,9 @@ class ThemeEditor:
 						self.floor_canvas.draw_image(x * 16, y * 16, tile.frame_images[tile_frame]);
 				if(self.grid):
 					for y in range(1, 14):
-						self.floor_canvas.draw_hline(y * 16, (255, 255, 255));
+						self.floor_canvas.draw_line(0, y*16, self.floor_canvas.width-1, y*16, (255, 255, 255));
 					for x in range(1, 15):
-						self.floor_canvas.draw_vline(x * 16, (255, 255, 255));
+						self.floor_canvas.draw_line(x*16, 0, x*16, self.floor_canvas.height-1, (255, 255, 255));
 				
 				mouse_pos = imgui_io.mouse_pos;
 				brush_pos = mouse_pos - canvas_pos;
