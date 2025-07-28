@@ -184,7 +184,7 @@ class SpriteExplorer:
 
 		self = SpriteExplorer._;
 		if self.open:
-			listings = [s["name"] for s in asset_docs["sprite"].entries];
+			listings = [s["name"] for s in AssetManager.get_assets("sprite")];
 			listings.sort();
 			
 			imgui.set_next_window_size(self.size);
@@ -408,7 +408,7 @@ class DocumentRenderer:
 			return node;
 		
 		elif isinstance(T, ee_types.Asset):
-			if T.name in asset_types:
+			if T.name in AssetManager.types():
 				Preview.render(node);
 
 				imgui.text(title);
@@ -428,7 +428,7 @@ class DocumentRenderer:
 					case _:
 						result = node;
 						if imgui.begin_combo(f"##{identifier}", node):
-							assets = asset_docs[type].entries;
+							assets = AssetManager.get_assets(T.name);
 							for asset in assets:
 								selected = result == asset["name"];
 								if imgui.selectable(asset["name"], selected)[0]:
@@ -452,7 +452,7 @@ class DocumentRenderer:
 			_, result = imgui.input_text(f"##{identifier}", node);
 			imgui.same_line();
 			if imgui.button(f"...##{identifier}"):
-				FileExplorer(identifier, doc.parent, T.pattern);
+				FileExplorer(identifier, AssetManager.active_document.directory, T.pattern);
 			if FileExplorer.is_active(identifier):
 				FileExplorer.render();
 				ready, output = FileExplorer.harvest();
