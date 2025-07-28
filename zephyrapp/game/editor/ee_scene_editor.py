@@ -259,8 +259,6 @@ class SceneEditor:
 			_, self.open = imgui.begin(f"Scene Editor", self.open, flags=self.window_flags);
 
 			self.scene.update();
-			
-			self.cursor_io(imgui.get_cursor_screen_pos());
 			self.selection_io();
 
 			if self.is_scene_loaded():
@@ -270,6 +268,8 @@ class SceneEditor:
 			self.canvas_draw_layers();
 			self.canvas_draw_selection();
 			self.canvas_draw_viewport();
+			# Cursor IO has to come right before canvas draw
+			self.cursor_io(imgui.get_cursor_screen_pos());
 			self.canvas.render(1);
 
 			if self.is_scene_loaded():
