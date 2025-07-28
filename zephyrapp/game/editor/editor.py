@@ -27,6 +27,7 @@ import re;
 import ee_types;
 from ee_cowtools import *;
 from ee_canvas import Canvas;
+from ee_assets import *;
 
 #########################################################
 ## CONTEXT
@@ -76,127 +77,8 @@ platform_io.platform_set_clipboard_text_fn = set_clipboard_text;
 time = glfw.get_time();
 delta_time = 0;
 
-
-#########################################################
-## DOCUMENT MODEL
-
-class AssetDocument:
-	def __init__(self, path):
-		self.path = path;
-		self.parent, entry = os.path.split(path);
-		self.name, _ = os.path.splitext(entry);
-		self.file = open(path, "r+");
-
-		self.data = json.load(self.file);
-		keys = self.data.keys();
-		self.type = next(k for k in keys if k != "instances");
-		self.typist = ee_types.Typist(self.type, self.data[self.type]);
-		self.type_helper = ee_types.TypeHelper(self.typist);
-		self.entries = self.data["instances"];
-	
-		self.id_set = set();
-		if "id" in self.typist.root().T.keys():
-			for entry in self.entries:
-				self.id_set.add(entry["id"]);
-	
-	def take_free_id(self):
-		M = max(self.id_set);
-		i = 0;
-		while i <= M:
-			if not i in self.id_set:
-				self.id_set.add(i);
-				return i;
-			i += 1;
-		self.id_set.add(M+1);
-		return M+1;
-	
-	def spawn_new_entry(self):
-		new = self.type_helper.prototype();
-		new["name"] = f"new_{self.type}";
-		if "id" in new:
-			new["id"] = self.take_free_id();
-		self.entries.append(new);
-	
-	def duplicate_entry(self, idx):
-		new = copy.deepcopy(self.entries[idx]);
-		if "id" in new:
-			new["id"] = self.take_free_id();
-		self.entries.append(new);
-	
-	def delete_entry(self, idx):
-		entry = self.entries[idx];
-		if "id" in entry:
-			self.id_set.remove(entry["id"]);
-		del self.entries[idx];
-	
-	def refresh(self):
-		for i in range(len(self.entries)):
-			self.type_helper.rectify(self.entries[i]);
-	
-	def save(self):
-		self.file.seek(0);
-		self.file.truncate();
-		self.file.write(json.dumps(self.data, indent=4));
-
-class DocumentHelper:
-	def get_name(doc, idx):
-		node = doc.entries[idx];
-		if "name" in node:
-			return node["name"];
-		elif "path" in node:
-			return node["path"];
-		elif "id" in node:
-			return node["id"];
-		return str(id(node));
-
-	def get_number(doc, idx):
-		node = doc.entries[idx];
-		if "id" in node:
-			return node["id"];
-		return id(node);
-
-	def get_rank(doc, idx):
-		node = doc.entries[idx];
-		data = doc.type_helper.collect(node);
-		for (path, value) in data:
-			element = doc.typist.search(path);
-			if element.has_attribute("rank"):
-				return value;
-		return 0;
-
-	def _sort_by(doc, f):
-		sorted_entries = [node for (idx, node) in sorted(enumerate(doc.entries), key = lambda x: f(doc, x[0]))];
-		doc.entries = sorted_entries;
-	def sort_by_name(doc):
-		DocumentHelper._sort_by(doc, DocumentHelper.get_name);
-	def sort_by_number(doc):
-		DocumentHelper._sort_by(doc, DocumentHelper.get_number);
-	def sort_by_rank(doc):
-		DocumentHelper._sort_by(doc, DocumentHelper.get_rank);
-
-asset_dirs = [Path("sprites"), Path("sounds"), Path("meshes"), Path("data")];
-asset_types = [];
-asset_docs = {};
-
-for folder in asset_dirs:
-	for entry in folder.iterdir():
-		name, ext = os.path.splitext(entry);
-		if ext == ".json":
-			try:
-				doc = AssetDocument(entry);
-				if not doc.type in asset_types:
-					asset_types.append(doc.type);
-				asset_docs[doc.type] = doc;
-			except Exception as e:
-				print(f"Failed to load {entry} as asset document! ({e})");
-
-document = None;
-
-def find_asset(asset_type, name):
-	for asset in asset_docs[asset_type].entries:
-		if asset["name"] == name:
-			return asset;
-	return None;
+asset_manager = AssetManager(["sprites", "sounds", "meshes", "data"]);
+active_document = None;
 
 
 #########################################################
@@ -415,12 +297,12 @@ class PreviewSound:
 class PreviewBank:
 	def __init__(self):
 		self.entries = {};
-		for asset_type in asset_types:
+		for asset_type in asset_manager.types():
 			self.entries[asset_type] = {};
 	
 	def init(self, asset_type, name):
 		try:
-			asset = find_asset(asset_type, name);
+			asset = asset_manager.search(asset_type, name);
 			match asset_type:
 				case "sprite":
 					self.entries[asset_type][name] = PreviewSprite(asset);
@@ -440,10 +322,9 @@ class PreviewBank:
 		return self.entries[asset_type][name];
 		
 preview_bank = PreviewBank();
-for asset_type in asset_types:
-	asset_doc = asset_docs[asset_type];
-	for entry in asset_doc.entries:
-		preview_bank.init(asset_doc.type, entry["name"]);
+for asset_type in asset_manager.types():
+	for asset in asset_manager.get_assets(asset_type):
+		preview_bank.init(asset_type, asset["name"]);
 
 class Preview:	
 	def render_sprite(name):
@@ -648,7 +529,7 @@ class PropViewer:
 		self.window_flags = foldl(lambda a, b : a | b, 0, window_flag_list);
 		self.open = True;
 
-		self.props = list(filter(lambda i: i["type"] == "prop", asset_docs["item"].entries));
+		self.props = list(filter(lambda x: x["type"] == "prop", asset_manager.get_assets("item")));
 		self.parent_prop = self.props[0];
 		self.child_prop = self.parent_prop;
 
@@ -736,7 +617,7 @@ class AnimationViewer:
 		self.window_flags = foldl(lambda a, b : a | b, 0, window_flag_list);
 		self.open = True;
 
-		self.sprites = asset_docs["sprite"].entries;
+		self.sprites = asset_manager.get_assets("sprite");
 		self.sprite_idx = 0;
 		self.frame = 0;
 		
@@ -819,7 +700,7 @@ class ThemeEditor:
 
 		self.grid = False;
 
-		self.themes = asset_docs["theme"].entries;
+		self.themes = asset_manager.get_assets("theme");
 		self.theme = self.themes[0];
 
 		self.wall_canvas = self.wall_canvas = Canvas(240, 96);
@@ -1018,7 +899,7 @@ class Mesh2DEditor:
 		self.last_edge_closed = True;
 		self.last_click = imgui.ImVec2(-1, -1);
 	
-		self.mesh_pool = asset_docs["mesh2d"].entries;
+		self.mesh_pool = asset_manager.get_assets("mesh2d");
 		self.mesh = self.mesh_pool[0] if len(self.mesh_pool) > 0 else None;
 		if(not self.mesh is None):
 			self.open_mesh(self.mesh);
@@ -1292,7 +1173,7 @@ class ItemReformer:
 		self.window_flags = foldl(lambda a, b : a | b, 0, window_flag_list);
 		self.open = True;
 		
-		self.items = asset_docs["item"].entries;
+		self.items = asset_manager.get_assets("item");
 		self.reforms = [
 			ItemReform (
 				"Food Prices",
@@ -1374,7 +1255,7 @@ class DialogueEditor:
 		self.window_flags = foldl(lambda a, b : a | b, 0, window_flag_list);
 		self.open = True;
 		
-		self.nodes = asset_docs["dialogue"].entries;
+		self.nodes = asset_manager.get_assets("dialogue");
 		self.node = None;
 	
 	def node_selector(self):
@@ -1483,8 +1364,8 @@ while not glfw.window_should_close(handle):
 			print(f"Saving {doc.name}!");
 			doc.save();
 	
-	if document != None:
-		document.refresh();
+	if active_document != None:
+		active_document.refresh();
 
 	glEnable(GL_PROGRAM_POINT_SIZE);
 	glClearColor(0, 0, 0, 1);
@@ -1494,34 +1375,35 @@ while not glfw.window_should_close(handle):
 
 	imgui.set_next_window_pos((0, 0));
 	imgui.set_next_window_size((window_width, window_height));
-	imgui.begin("Editor", flags=window_flags | (splash_flags if document == None else 0));
+	imgui.begin("Editor", flags=window_flags | (splash_flags if active_document == None else 0));
 
 	if imgui.begin_main_menu_bar():
 		if imgui.begin_menu("File"):
 			if imgui.begin_menu("Open"):
-				for doc in asset_docs.values():
-					if imgui.menu_item_simple(str(doc.path), selected = document != None and doc.name == document.name):
-						document = doc;
+				for document in asset_manager.documents:
+					selected = document == active_document;
+					if imgui.menu_item_simple(str(document.path), selected = selected):
+						active_document = document;
 				imgui.end_menu();
 			if imgui.menu_item_simple("Save"):
-				for doc in asset_docs.values():
-					print(f"Saving {doc.name}!");
-					doc.save();
-			if imgui.menu_item_simple("Close", enabled=document != None):
-				document = None;
+				for document in asset_manager.documents:
+					print(f"Saving {document.path}!");
+					document.save();
+			if imgui.menu_item_simple("Close", enabled=active_document != None):
+				active_document = None;
 			imgui.end_menu();
 
-		if imgui.begin_menu("Assets", enabled=document != None):
-			if imgui.begin_menu("Sort", enabled=document != None):
+		if imgui.begin_menu("Assets", enabled=active_document != None):
+			if imgui.begin_menu("Sort", enabled=active_document != None):
 				if imgui.menu_item_simple("Name"):
-					DocumentHelper.sort_by_name(document);
+					DocumentHelper.sort_by_name(active_document);
 				if imgui.menu_item_simple("Number"):
-					DocumentHelper.sort_by_number(document);
+					DocumentHelper.sort_by_number(active_document);
 				if imgui.menu_item_simple("Rank"):
-					DocumentHelper.sort_by_rank(document);
+					DocumentHelper.sort_by_rank(active_document);
 				imgui.end_menu();
 			if imgui.menu_item_simple("New"):
-				document.spawn_new_entry();
+				active_document.spawn_new_entry();
 			imgui.end_menu();
 		
 		if imgui.begin_menu("Tools"):
@@ -1540,12 +1422,12 @@ while not glfw.window_should_close(handle):
 			imgui.end_menu();
 		imgui.end_main_menu_bar();
 	
-	if document == None:
+	if active_document == None:
 		imgui.set_scroll_x(0);
 		imgui.set_scroll_y(0);
 		imgui.image(splash_tex, (splash_img.width, splash_img.height));
 	else:
-		DocumentRenderer.render(document);
+		DocumentRenderer.render(active_document);
 	
 	if PropViewer._ != None:
 		PropViewer.render();
