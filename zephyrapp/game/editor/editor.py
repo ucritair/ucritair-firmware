@@ -30,6 +30,8 @@ from ee_canvas import Canvas;
 from ee_assets import *;
 
 from ee_scene_editor import SceneEditor;
+from ee_sprites import SpriteBank;
+from ee_input import InputManager;
 
 #########################################################
 ## CONTEXT
@@ -79,7 +81,9 @@ platform_io.platform_set_clipboard_text_fn = set_clipboard_text;
 time = glfw.get_time();
 delta_time = 0;
 
-AssetManager.Initialize(["sprites", "sounds", "meshes", "data"]);
+AssetManager.initialize(["sprites", "sounds", "meshes", "data"]);
+SpriteBank.initialize();
+InputManager.initialize(handle, impl);
 
 #########################################################
 ## FILE EXPLORER
@@ -540,7 +544,7 @@ class PropViewer:
 		self.canvas.draw_flags = Canvas.DrawFlags(0);
 		for sy in range(shape[1]):
 			for sx in range(shape[0]):
-				self.canvas.draw_rect(tlx + sx * 16, tly + sy * 16, 16, 16, (255, 0, 0));
+				self.canvas.draw_rect_old(tlx + sx * 16, tly + sy * 16, 16, 16, (255, 0, 0));
 
 		self.canvas.draw_flags = Canvas.DrawFlags.CENTER_X | Canvas.DrawFlags.BOTTOM;
 		sprite = preview_bank.get("sprite", prop["sprite"]);
@@ -643,7 +647,7 @@ class AnimationViewer:
 			self.canvas.draw_flags = Canvas.DrawFlags.CENTER_X | Canvas.DrawFlags.CENTER_Y;
 			self.canvas.draw_image(draw_x, draw_y, preview.frame_images[self.frame]);
 			if self.show_AABB:
-				self.canvas.draw_rect(draw_x, draw_y, preview.width, preview.height/preview.frame_count, (255, 0, 0));
+				self.canvas.draw_rect_old(draw_x, draw_y, preview.width, preview.height/preview.frame_count, (255, 0, 0));
 			self.canvas.render(self.scale);
 
 			if preview.frame_count > 1:	
@@ -772,11 +776,11 @@ class ThemeEditor:
 					if imgui.is_mouse_down(0):
 						idx = self.wall_cursor[1] * 15 + self.wall_cursor[0];
 						self.theme["wall_map"][idx] = self.wall_brush;
-					self.wall_canvas.draw_rect(self.wall_cursor[0] * 16, self.wall_cursor[1] * 16, 16, 16, (255, 0, 0));
+					self.wall_canvas.draw_rect_old(self.wall_cursor[0] * 16, self.wall_cursor[1] * 16, 16, 16, (255, 0, 0));
 				
 				window_rect = self.theme['window_rect']
 				if len(window_rect) == 4:
-					self.wall_canvas.draw_rect(window_rect[0], window_rect[1], window_rect[2], window_rect[3], (0, 0, 255));
+					self.wall_canvas.draw_rect_old(window_rect[0], window_rect[1], window_rect[2], window_rect[3], (0, 0, 255));
 
 				self.wall_canvas.render(1);
 
@@ -800,7 +804,7 @@ class ThemeEditor:
 
 				window_rect = self.theme['window_rect']
 				if len(window_rect) == 4:
-					self.wall_canvas.draw_rect(window_rect[0], window_rect[1], window_rect[2], window_rect[3], (0, 0, 255));
+					self.wall_canvas.draw_rect_old(window_rect[0], window_rect[1], window_rect[2], window_rect[3], (0, 0, 255));
 				
 				self.wall_canvas.render(1);
 			
@@ -834,7 +838,7 @@ class ThemeEditor:
 					if imgui.is_mouse_down(0):
 						idx = self.floor_cursor[1] * 15 + self.floor_cursor[0];
 						self.theme["floor_map"][idx] = self.floor_brush;
-					self.floor_canvas.draw_rect(self.floor_cursor[0] * 16, self.floor_cursor[1] * 16, 16, 16, (255, 0, 0));
+					self.floor_canvas.draw_rect_old(self.floor_cursor[0] * 16, self.floor_cursor[1] * 16, 16, 16, (255, 0, 0));
 
 				self.floor_canvas.render(1);
 
@@ -1083,7 +1087,7 @@ class Mesh2DEditor:
 				for y in range(0, self.canvas.height, self.grid_dist):
 					for x in range(0, self.canvas.width, self.grid_dist):
 						self.canvas.draw_pixel(x, y, (128, 128, 128));
-				self.canvas.draw_rect(0, 0, self.canvas.width, self.canvas.height, (128, 128, 128));
+				self.canvas.draw_rect_old(0, 0, self.canvas.width, self.canvas.height, (128, 128, 128));
 			
 			for [v0, v1] in self.polyline:
 				self.canvas.draw_line(v0.x, v0.y, v1.x, v1.y, (255, 255, 255));
@@ -1337,18 +1341,6 @@ splash_flag_list = [
 ];
 splash_flags = foldl(lambda a, b : a | b, 0, splash_flag_list);
 
-input_states = {};
-def track_inputs():
-	for key in range(glfw.KEY_SPACE, glfw.KEY_LAST+1):
-		if not key in input_states:
-			input_states[key] = [glfw.get_key(handle, key), False];
-		else:
-			input_states[key] = [glfw.get_key(handle, key), input_states[key][0]];
-def is_held(key):
-	return input_states[key][0];
-def is_pressed(key):
-	return input_states[key][0] and not input_states[key][1];
-
 while not glfw.window_should_close(handle):
 	time_last = time;
 	time = glfw.get_time();
@@ -1357,12 +1349,12 @@ while not glfw.window_should_close(handle):
 	glfw.poll_events();
 	impl.process_inputs();
 
-	track_inputs();
+	InputManager.update();
 
-	if is_held(glfw.KEY_LEFT_SUPER) and is_pressed(glfw.KEY_S):
-		for doc in asset_docs.values():
-			print(f"Saving {doc.name}!");
-			doc.save();
+	if InputManager.is_held(glfw.KEY_LEFT_SUPER) and InputManager.is_pressed(glfw.KEY_S):
+		for document in AssetManager.documents:
+			print(f"Saving {document.path}!");
+			document.save();
 	
 	if AssetManager.active_document != None:
 		AssetManager.active_document.refresh();

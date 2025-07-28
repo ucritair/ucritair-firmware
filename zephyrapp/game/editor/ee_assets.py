@@ -104,7 +104,7 @@ class AssetManager:
 	documents = [];
 	active_document = None;
 
-	def Initialize(directories):
+	def initialize(directories):
 		AssetManager.directories = [Path(d) for d in directories];
 		AssetManager.documents = [];
 

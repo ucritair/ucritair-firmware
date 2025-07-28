@@ -24,7 +24,7 @@ class Canvas:
 	def draw_pixel(self, x, y, c):
 		self.draw.point((x, y), fill=c);
 
-	def draw_rect(self, x, y, w, h, c):
+	def draw_rect_old(self, x, y, w, h, c):
 		if Canvas.DrawFlags.CENTER_X in self.draw_flags:
 			x -= w // 2;
 		if Canvas.DrawFlags.CENTER_Y in self.draw_flags:
@@ -32,6 +32,17 @@ class Canvas:
 		elif Canvas.DrawFlags.BOTTOM in self.draw_flags:
 			y -= h;
 		self.draw.rectangle((x, y, x+w-1, y+h-1), outline=c);
+	
+	def draw_aabb(self, aabb, c):
+		x0, y0, x1, y1 = aabb;
+		w, h = x1-x0, y1-y0;
+		if Canvas.DrawFlags.CENTER_X in self.draw_flags:
+			x0 -= w // 2;
+		if Canvas.DrawFlags.CENTER_Y in self.draw_flags:
+			y0 -= h // 2;
+		elif Canvas.DrawFlags.BOTTOM in self.draw_flags:
+			y0 -= h;
+		self.draw.rectangle((x0, y0, x1, y1), outline=c);
 
 	def draw_line(self, xi, yi, xf, yf, c):
 		self.draw.line((xi, yi, xf, yf), fill=c);

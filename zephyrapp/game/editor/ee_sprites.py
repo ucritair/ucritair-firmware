@@ -33,7 +33,7 @@ class EditorSprite:
 class SpriteBank:
 	mapping = {};
 
-	def Initialize():
+	def initialize():
 		SpriteBank.mapping = {};
 		sprites = AssetManager.get_assets("sprite");
 		for sprite in sprites:

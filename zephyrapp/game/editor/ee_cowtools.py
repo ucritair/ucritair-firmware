@@ -23,3 +23,12 @@ def make_texture(buffer, width, height):
 	glTexParameteri(GL_TEXTURE_2D, 	GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
 	return texture;
+
+def aabb_point_intersect(aabb, point):
+	x0, y0, x1, y1 = aabb;
+	x, y = point;
+	if x < x0 or x > x1:
+		return False;
+	if y < y0 or y > y1:
+		return False;
+	return True;
