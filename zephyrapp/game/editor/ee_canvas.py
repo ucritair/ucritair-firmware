@@ -59,6 +59,9 @@ class Canvas:
 			y -= image.height;
 		self.image.paste(image, (int(x), int(y)), mask=image);
 	
+	def draw_text(self, xy, text, s, c):
+		self.draw.text(xy, text, font_size=s, stroke_fill=c);
+	
 	def render(self, scale):
 		glBindTexture(GL_TEXTURE_2D, self.texture);
 		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, self.width, self.height, GL_RGBA, GL_UNSIGNED_BYTE, self.image.tobytes());

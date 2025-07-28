@@ -35,3 +35,6 @@ class InputManager:
 
 	def is_pressed(key):
 		return InputManager._glfw_io[key][0] and not InputManager._glfw_io[key][1];
+
+	def is_released(key):
+		return InputManager._glfw_io[key][1] and not InputManager._glfw_io[key][0];

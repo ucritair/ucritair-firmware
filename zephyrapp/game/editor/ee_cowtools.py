@@ -32,3 +32,8 @@ def aabb_point_intersect(aabb, point):
 	if y < y0 or y > y1:
 		return False;
 	return True;
+
+def move_aabb(aabb, delta):
+	x0, y0, x1, y1 = aabb;
+	dx, dy = delta;
+	return x0+dx, y0+dy, x1+dx, y1+dy;
