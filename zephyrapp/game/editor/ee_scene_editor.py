@@ -46,15 +46,15 @@ class SceneEditor:
 		];
 		self.window_flags = foldl(lambda a, b : a | b, 0, window_flag_list);
 		self.open = True;
+		self.canvas = Canvas(self.size[0], self.size[1]);
 
 		self.scenes = AssetManager.get_assets("scene");
 		self.scene = None;
 
-		self.origin = [self.size[0]//2-120, self.size[1]//2-160];
+		self.origin = [self.canvas.width//2-120, self.canvas.height//2-160];
 		self.layers = [];
 		self.selected_prop = None;
-
-		self.canvas = Canvas(self.size[0], self.size[1]);
+		
 		self.show_viewport = True;
 		self.show_axes = True;
 
@@ -102,28 +102,32 @@ class SceneEditor:
 			imgui.end_combo();
 		return result;
 	
-	def _inspector_render_prop(self, prop):
-		if imgui.tree_node(f"{prop.name} ({id(prop)})"):
+	def gui_draw_prop(self, prop):
+		if imgui.tree_node(f"{prop.name} ({id(prop)})####({id(prop)})"):
+			_, prop.name = imgui.input_text("Name", prop.name);
 			prop.sprite = self._inspector_asset_combo(id(prop), "sprite", prop.sprite);
+			_, prop.position = imgui.input_float2("XY", prop.position);
 			imgui.tree_pop();
 	
-	def _canvas_render_prop(self, prop):
+	def canvas_draw_prop(self, prop):
 		self.canvas.draw_image(prop.position[0], prop.position[1], prop.esprite.frame_images[0]);
 	
-	def _canvas_render_layers(self):
+	def canvas_draw_layers(self):
 		for layer in self.layers:
 			for prop in layer.props:
-				self._canvas_render_prop(prop);
+				self.canvas_draw_prop(prop);
 	
-	def _canvas_render_gizmos(self):
+	def canvas_draw_axes(self):
 		if self.show_axes:
-			self.canvas.draw_line(self.size[0]/2, 0, self.size[0]/2, self.size[1], (64, 64, 64));
-			self.canvas.draw_line(0, self.size[1]/2, self.size[0], self.size[1]/2, (64, 64, 64));
+			self.canvas.draw_line(self.canvas.width/2, 0, self.canvas.width/2, self.canvas.height, (64, 64, 64));
+			self.canvas.draw_line(0, self.canvas.height/2, self.canvas.width, self.canvas.height/2, (64, 64, 64));
 
+	def canvas_draw_selection(self):
 		if self.selected_prop != None:
 			sel_aabb = self.selected_prop.get_aabb();
 			self.canvas.draw_aabb(sel_aabb, (255, 0, 0));
 	
+	def canvas_draw_viewport(self):
 		if self.show_viewport:
 			x0, y0 = self.origin;
 			x1, y1 = x0+240-1, y0+320-1;
@@ -149,8 +153,10 @@ class SceneEditor:
 			self._move_selection();
 
 			self.canvas.clear((128, 128, 128));
-			self._canvas_render_layers();
-			self._canvas_render_gizmos();
+			self.canvas_draw_axes();
+			self.canvas_draw_layers();
+			self.canvas_draw_selection();
+			self.canvas_draw_viewport();
 			self.canvas.render(1);
 
 			_, self.show_axes = imgui.checkbox("Show axes", self.show_axes);
@@ -161,7 +167,7 @@ class SceneEditor:
 				for (idx, layer) in enumerate(self.layers):
 					if imgui.tree_node(f"Layer {idx}"):
 						for prop in layer.props:
-								self._inspector_render_prop(prop)
+								self.gui_draw_prop(prop)
 						if imgui.button("+"):
 							prop = Prop([0, 0], f"Prop", "null_sprite");
 							layer.add_prop(prop);
