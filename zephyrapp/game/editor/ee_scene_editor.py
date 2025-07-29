@@ -128,7 +128,7 @@ class SceneEditor:
 				frame_dx, frame_dy = cx - x0, cy - y0;
 				dx, dy = self.selection_delta;
 				ddx, ddy = frame_dx - dx, frame_dy - dy;
-				self.selection["position"] = [x0+ddx, y0+ddy];
+				self.selection["position"] = [int(x0+ddx), int(y0+ddy)];
 	
 	def gui_asset_combo(self, identifier, asset_type, value):
 		result = value;
@@ -166,7 +166,7 @@ class SceneEditor:
 	def gui_draw_prop(self, prop):
 		if imgui.tree_node(f"{prop["prop"]} ({id(prop)})####({id(prop)})"):
 			prop["prop"] = self.gui_asset_name_combo(id(prop), "prop", prop["prop"]);
-			_, prop["position"] = imgui.input_float2("XY", prop["position"]);
+			_, prop["position"] = imgui.input_int2("XY", prop["position"]);
 
 			prop_asset = PropHelper.get_prop_asset(prop);
 			prop_asset["sprite"] = self.gui_asset_name_combo(id(prop_asset), "sprite", prop_asset["sprite"]);

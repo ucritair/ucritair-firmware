@@ -16,3 +16,19 @@ typedef struct
 	}* triggers;
 	uint8_t trigger_count;
 } CAT_prop;
+
+typedef struct
+{
+	int16_t origin_x, origin_y;
+	
+	struct layer
+	{
+		struct prop
+		{
+			const CAT_prop* prop;
+			int16_t position_x, position_y;
+		}* props;
+		uint8_t prop_count;
+	}* layers;
+	uint8_t layer_count;
+} CAT_scene;

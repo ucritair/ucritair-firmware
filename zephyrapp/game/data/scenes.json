@@ -11,16 +11,18 @@
             },
             "layers": {
                 "type": [
-                    {
-                        "prop": {
-                            "type": "prop"
-                        },
-                        "position": {
-                            "type": [
-                                "int"
-                            ]
+                    [
+                        {
+                            "prop": {
+                                "type": "prop"
+                            },
+                            "position": {
+                                "type": [
+                                    "int"
+                                ]
+                            }
                         }
-                    }
+                    ]
                 ]
             }
         }
@@ -37,8 +39,8 @@
                     {
                         "prop": "null_prop",
                         "position": [
-                            544.0,
-                            438.0
+                            565,
+                            470
                         ]
                     }
                 ]
