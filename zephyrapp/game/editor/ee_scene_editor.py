@@ -197,7 +197,7 @@ class SceneEditor:
 			if imgui.tree_node("Triggers"):
 				for trigger in prop_asset["triggers"]:
 					imgui.push_id(str(id(trigger)));
-					trigger.aabb = self.gui_aabb_input(trigger.aabb);
+					trigger["aabb"] = self.gui_aabb_input(trigger["aabb"]);
 					imgui.separator();
 					imgui.pop_id();
 				if imgui.button("+"):

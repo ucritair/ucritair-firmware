@@ -16,8 +16,12 @@ const CAT_prop reed_prop = {
 	},
 	.blocker_count = 0,
 	.triggers = (struct trigger[]) {
+		{
+			.aabb = {0,16,31,31,},
+			.proc = NULL,
+		},
 	},
-	.trigger_count = 0,
+	.trigger_count = 1,
 };
 const CAT_prop clouds_prop = {
 	.sprite = &monitor_clouds_sprite,

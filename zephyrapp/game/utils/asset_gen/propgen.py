@@ -27,16 +27,16 @@ for instance in trp.instances:
 	trp.source_indent();
 	for trigger in instance["triggers"]:
 		trp.swrite("{\n");
-
-		trp.swrite(".aabb = {\n");
 		trp.source_indent();
+
+		trp.swrite(".aabb = {");
 		for element in trigger["aabb"]:
-			trp.swrite(f"{element},");
+			trp.swrite(f"{element},", no_indent=True);
+		trp.swrite("},\n", no_indent=True);
+
+		trp.swrite(f".proc = {trigger["proc"] if trigger["proc"] != "" else "NULL"},\n");
+
 		trp.source_unindent();
-		trp.swrite("},\n");
-
-		trp.swrite(f".proc = {trigger["proc"]},");
-
 		trp.swrite("},\n");
 	trp.source_unindent();
 	trp.swrite("},\n");

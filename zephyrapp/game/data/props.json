@@ -40,7 +40,17 @@
         {
             "name": "reed_prop",
             "blockers": [],
-            "triggers": [],
+            "triggers": [
+                {
+                    "aabb": [
+                        0,
+                        16,
+                        31,
+                        31
+                    ],
+                    "proc": ""
+                }
+            ],
             "sprite": "npc_reed_sprite"
         },
         {

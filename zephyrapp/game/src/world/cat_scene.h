@@ -12,6 +12,7 @@ typedef struct
 	struct trigger
 	{
 		int16_t aabb[4];
+		int8_t tx, ty;
 		void (*proc) ();
 	}* triggers;
 	uint8_t trigger_count;
