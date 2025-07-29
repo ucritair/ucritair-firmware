@@ -1,4 +1,4 @@
-#include "cat_dialogue_procs.h"
+#include "cat_procs.h"
 
 #include "cat_item.h"
 #include "item_assets.h"

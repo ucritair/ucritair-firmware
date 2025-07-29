@@ -90,6 +90,23 @@ add_custom_command(
 	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../data/dialogue.json
 )
 
+add_custom_command(
+	OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/../data/prop_assets.h ${CMAKE_CURRENT_BINARY_DIR}/../data/prop_assets.c
+	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../
+	COMMAND ${CMAKE_CURRENT_BINARY_DIR}/../utils/asset_gen/propgen.py
+	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../utils/asset_gen/propgen.py
+	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../data/props.json
+)
+
+add_custom_command(
+	OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/../data/scene_assets.h ${CMAKE_CURRENT_BINARY_DIR}/../data/scene_assets.c
+	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../
+	COMMAND ${CMAKE_CURRENT_BINARY_DIR}/../utils/asset_gen/scenegen.py
+	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../utils/asset_gen/scenegen.py
+	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../data/scenes.json
+	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../data/props.json
+)
+
 target_sources(app PRIVATE
 	src/core/cat_common.c
 
@@ -150,8 +167,9 @@ target_sources(app PRIVATE
 
 	src/world/cat_world.c
 	src/world/cat_dialogue.c
-	src/world/cat_dialogue_procs.c
+	src/world/procs/cat_procs.c
 	src/world/cat_combat.c
+	src/world/cat_scene.c
 
 	sounds/sound_assets.c
 	meshes/mesh_assets.c
@@ -161,6 +179,8 @@ target_sources(app PRIVATE
 	data/theme_assets.c
 	data/fish_assets.c
 	data/dialogue_assets.c
+	data/prop_assets.c
+	data/scene_assets.c
 
 	src/cat_main.c)
 
@@ -178,6 +198,7 @@ target_include_directories(app PRIVATE src/air)
 target_include_directories(app PRIVATE src/systems)
 target_include_directories(app PRIVATE src/room)
 target_include_directories(app PRIVATE src/world)
+target_include_directories(app PRIVATE src/world/procs)
 
 target_include_directories(app PRIVATE sounds/)
 target_include_directories(app PRIVATE meshes/)

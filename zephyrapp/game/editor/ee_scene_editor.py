@@ -65,7 +65,17 @@ class PropHelper:
 		prop_asset = PropHelper.get_prop_asset(self);
 		trigger = SpawnHelper.spawn_trigger([x0, y0, x0+w-1, y0+h-1], "");
 		prop_asset["triggers"].append(trigger);
-		
+
+class CanvasHelper:
+	def transform_point(canvas, point):
+		x, y = point;
+		return x + canvas.width/2, y + canvas.height/2;
+
+	def transform_aabb(canvas, aabb):
+		x0, y0, x1, y1 = aabb;
+		x0, y0 = CanvasHelper.transform_point(canvas, [x0, y0]);
+		x1, y1 = CanvasHelper.transform_point(canvas, [x1, y1]);
+		return x0, y0, x1, y1;	
 
 class SceneEditor:
 	_ = None;
@@ -91,6 +101,7 @@ class SceneEditor:
 		self.show_axes = True;
 
 		self.canvas_cursor = None;
+		self.world_cursor = None;
 		self.selection = None;
 		self.highlight = None;
 		self.selection_delta = None;
@@ -102,6 +113,8 @@ class SceneEditor:
 		cursor = InputManager.get_imgui_cursor();
 		x, y = cursor - canvas_pos;
 		self.canvas_cursor = int(x), int(y);
+		x, y = x - self.canvas.width/2, y - self.canvas.height/2;
+		self.world_cursor = int(x), int(y);  
 	
 	def selection_io(self):
 		if InputManager.is_pressed(glfw.MOUSE_BUTTON_LEFT):
@@ -110,11 +123,11 @@ class SceneEditor:
 			for idx in range(len(self.scene["layers"])):
 				layer = self.scene["layers"][len(self.scene["layers"])-idx-1];
 				for prop in layer:
-					if aabb_point_intersect(PropHelper.get_aabb(prop), self.canvas_cursor):
+					if aabb_point_intersect(PropHelper.get_aabb(prop), self.world_cursor):
 						self.selection = prop;
 						self.highlight = prop;
 						x0, y0, x1, y1 = PropHelper.get_aabb(self.selection);
-						cx, cy = self.canvas_cursor;
+						cx, cy = self.world_cursor;
 						dx, dy = cx - x0, cy - y0;
 						self.selection_delta = (dx, dy);
 						return;
@@ -124,7 +137,7 @@ class SceneEditor:
 		if self.selection != None:
 			if InputManager.is_held(glfw.MOUSE_BUTTON_LEFT):
 				x0, y0, x1, y1 = PropHelper.get_aabb(self.selection);
-				cx, cy = self.canvas_cursor;
+				cx, cy = self.world_cursor;
 				frame_dx, frame_dy = cx - x0, cy - y0;
 				dx, dy = self.selection_delta;
 				ddx, ddy = frame_dx - dx, frame_dy - dy;
@@ -213,24 +226,29 @@ class SceneEditor:
 
 		if show_sprite:
 			frame = esprite.frame_images[0];
-			self.canvas.draw_image(prop["position"][0], prop["position"][1], frame);
+			x, y = CanvasHelper.transform_point(self.canvas, prop["position"]);
+			self.canvas.draw_image(x, y, frame);
 		
 		if show_aabb:
 			aabb = PropHelper.get_aabb(prop);
+			aabb = CanvasHelper.transform_aabb(self.canvas, aabb);
 			self.canvas.draw_aabb(aabb, (255, 255, 255));
 	
 		if show_blockers:
 			for blocker in prop_asset["blockers"]:
 				aabb = move_aabb(blocker, prop["position"]);
+				aabb = CanvasHelper.transform_aabb(self.canvas, aabb);
 				self.canvas.draw_aabb(aabb, (255, 0, 0));
 	
 		if show_triggers:
 			for trigger in prop_asset["triggers"]:
 				aabb = move_aabb(trigger["aabb"], prop["position"]);
+				aabb = CanvasHelper.transform_aabb(self.canvas, aabb);
 				self.canvas.draw_aabb(aabb, (0, 255, 0));
 	
 		if show_name:
 			aabb = PropHelper.get_aabb(prop);
+			aabb = CanvasHelper.transform_aabb(self.canvas, aabb);
 			x0, y0, x1, y1 = aabb;
 			self.canvas.draw_text((x1 + 2, y0), prop_asset["name"], 10, (255, 255, 255));
 	
@@ -241,8 +259,7 @@ class SceneEditor:
 	
 	def canvas_draw_axes(self):
 		if self.show_axes:
-			x, y = self.scene["origin"];
-			x, y = x + self.canvas.width/2, y + self.canvas.height/2;
+			x, y = self.canvas.width/2, self.canvas.height/2;
 			self.canvas.draw_line(x, 0, x, self.canvas.height, (64, 64, 64));
 			self.canvas.draw_line(0, y, self.canvas.width, y, (64, 64, 64));
 
@@ -254,8 +271,8 @@ class SceneEditor:
 
 	def canvas_draw_viewport(self):
 		if self.show_viewport:
-			x0, y0 = self.scene["origin"];
-			x0, y0 = x0 + self.canvas.width/2 - 120, y0 + self.canvas.height/2 - 160;
+			x0, y0 = self.canvas.width/2, self.canvas.height/2;
+			x0, y0 = x0 - 120, y0 - 160;
 			x1, y1 = x0+240-1, y0+320-1;
 			self.canvas.draw_aabb((x0, y0, x1, y1), (0, 0, 255));
 

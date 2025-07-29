@@ -1,5 +1,5 @@
 #include "dialogue_assets.h"
-#include "cat_dialogue_procs.h"
+#include "cat_procs.h"
 
 const CAT_dialogue_node dialogue_test_a =
 {

@@ -24,7 +24,7 @@ header.close();
 
 source = open("data/dialogue_assets.c", "w");
 source.write("#include \"dialogue_assets.h\"\n");
-source.write("#include \"cat_dialogue_procs.h\"\n");
+source.write("#include \"cat_procs.h\"\n");
 source.write("\n");
 for (idx, node) in enumerate(json_entries):
 	source.write(f"const CAT_dialogue_node dialogue_{node['name']} =\n");

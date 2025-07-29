@@ -10,9 +10,6 @@ trp.source_intro(["\"prop_assets.h\""]);
 for instance in trp.instances:
 	trp.begin_asset_def(instance);
 
-	trp.swrite(f".origin_x = {instance["origin"][0]},\n");
-	trp.swrite(f".origin_y = {instance["origin"][1]},\n");
-
 	trp.swrite(".layers = (struct layer[]) {\n");
 	trp.source_indent();
 	for layer in instance["layers"]:

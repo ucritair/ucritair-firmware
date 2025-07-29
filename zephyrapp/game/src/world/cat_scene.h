@@ -19,8 +19,6 @@ typedef struct
 
 typedef struct
 {
-	int16_t origin_x, origin_y;
-	
 	struct layer
 	{
 		struct prop
@@ -32,3 +30,5 @@ typedef struct
 	}* layers;
 	uint8_t layer_count;
 } CAT_scene;
+
+void CAT_render_scene(CAT_scene* scene, int eye_x, int eye_y);

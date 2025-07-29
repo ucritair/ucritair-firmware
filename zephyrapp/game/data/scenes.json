@@ -4,11 +4,6 @@
             "name": {
                 "type": "string"
             },
-            "origin": {
-                "type": [
-                    "int"
-                ]
-            },
             "layers": {
                 "type": [
                     [
@@ -31,16 +26,23 @@
         {
             "name": "test_scene",
             "origin": [
-                0,
-                0
+                512,
+                512
             ],
             "layers": [
                 [
                     {
-                        "prop": "null_prop",
+                        "prop": "clouds_prop",
                         "position": [
-                            565,
-                            470
+                            -120,
+                            63
+                        ]
+                    },
+                    {
+                        "prop": "reed_prop",
+                        "position": [
+                            31,
+                            -110
                         ]
                     }
                 ]
