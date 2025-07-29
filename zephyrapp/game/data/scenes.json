@@ -4,51 +4,23 @@
             "name": {
                 "type": "string"
             },
-            "display_name": {
-                "type": "string"
-            },
-            "palette": {
+            "origin": {
                 "type": [
-                    "sprite"
+                    "int"
                 ]
             },
             "layers": {
                 "type": [
                     {
-                        "singles": {
-                            "type": [
-                                {
-                                    "idx": {
-                                        "type": "int"
-                                    },
-                                    "position": {
-                                        "type": [
-                                            "int"
-                                        ]
-                                    }
-                                }
-                            ]
+                        "prop": {
+                            "type": "prop"
                         },
-                        "regions": {
+                        "position": {
                             "type": [
-                                {
-                                    "idx": {
-                                        "type": "int"
-                                    },
-                                    "rectangle": {
-                                        "type": [
-                                            "int"
-                                        ]
-                                    }
-                                }
+                                "int"
                             ]
                         }
                     }
-                ]
-            },
-            "skybox": {
-                "type": [
-                    "int"
                 ]
             }
         }
@@ -56,10 +28,21 @@
     "instances": [
         {
             "name": "test_scene",
-            "display_name": "Scene",
-            "palette": [],
-            "layers": [],
-            "skybox": []
+            "origin": [
+                0,
+                0
+            ],
+            "layers": [
+                [
+                    {
+                        "prop": "null_prop",
+                        "position": [
+                            544.0,
+                            438.0
+                        ]
+                    }
+                ]
+            ]
         }
     ]
 }

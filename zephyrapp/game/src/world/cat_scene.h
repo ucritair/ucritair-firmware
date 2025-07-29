@@ -4,33 +4,15 @@
 
 typedef struct
 {
-	struct scene_single
-	{
-		uint8_t idx;
-		uint16_t x, y;
-	}* singles;
-	uint8_t single_count;
+	const CAT_sprite* sprite;
 
-	struct scene_region
-	{
-		uint8_t idx;
-		uint16_t x0, y0, x1, y1;
-	}* regions;
-	uint8_t region_count;
-} CAT_scene_layer;
-
-typedef struct
-{
-	const char* name;
+	int16_t** blockers;
+	uint8_t blocker_count;
 	
-	const CAT_sprite** palette;
-	uint8_t palette_length;
-
-	CAT_scene_layer* layers;
-	uint8_t layer_count;
-
-	struct
+	struct trigger
 	{
-		uint16_t x, y, w, h;
-	} skybox;
-} CAT_scene;
+		int16_t aabb[4];
+		void (*proc) ();
+	}* triggers;
+	uint8_t trigger_count;
+} CAT_prop;

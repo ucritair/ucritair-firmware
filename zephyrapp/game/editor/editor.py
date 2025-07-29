@@ -1395,7 +1395,7 @@ while not glfw.window_should_close(handle):
 					DocumentHelper.sort_by_rank(AssetManager.active_document);
 				imgui.end_menu();
 			if imgui.menu_item_simple("New"):
-				AssetManager.active_document.spawn_new_entry();
+				AssetManager.active_document.spawn_entry();
 			imgui.end_menu();
 		
 		if imgui.begin_menu("Tools"):

@@ -1,0 +1,41 @@
+{
+    "prop": {
+        "type": {
+            "name": {
+                "type": "string"
+            },
+            "sprite": {
+                "type": "sprite"
+            },
+            "blockers": {
+                "type": [
+                    [
+                        "int"
+                    ]
+                ]
+            },
+            "triggers": {
+                "type": [
+                    {
+                        "aabb": {
+                            "type": [
+                                "int"
+                            ]
+                        },
+                        "proc": {
+                            "type": "string"
+                        }
+                    }
+                ]
+            }
+        }
+    },
+    "instances": [
+        {
+            "name": "null_prop",
+            "blockers": [],
+            "triggers": [],
+            "sprite": "null_sprite"
+        }
+    ]
+}
