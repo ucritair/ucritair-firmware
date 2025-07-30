@@ -5,7 +5,7 @@ import assetgen;
 trp = assetgen.Triptych("data/props.json");
 
 trp.header_intro(["\"cat_scene.h\""]);
-trp.source_intro(["\"sprite_assets.h\""]);
+trp.source_intro(["\"sprite_assets.h\"", "\"cat_procs.h\""]);
 
 for instance in trp.instances:
 	trp.begin_asset_def(instance);
@@ -33,6 +33,9 @@ for instance in trp.instances:
 		for element in trigger["aabb"]:
 			trp.swrite(f"{element},", no_indent=True);
 		trp.swrite("},\n", no_indent=True);
+
+		trp.swrite(f".tx = {trigger["direction"][0]},\n");
+		trp.swrite(f".ty = {trigger["direction"][1]},\n");
 
 		trp.swrite(f".proc = {trigger["proc"] if trigger["proc"] != "" else "NULL"},\n");
 

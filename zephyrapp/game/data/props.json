@@ -20,6 +20,21 @@
                         "aabb": {
                             "type": [
                                 "int"
+                            ],
+                            "attributes": [
+                                {
+                                    "fixed-length": 4
+                                }
+                            ]
+                        },
+                        "direction": {
+                            "type": [
+                                "int"
+                            ],
+                            "attributes": [
+                                {
+                                    "fixed-length": 2
+                                }
                             ]
                         },
                         "proc": {
@@ -48,7 +63,11 @@
                         31,
                         31
                     ],
-                    "proc": ""
+                    "proc": "interact_proc_reed",
+                    "direction": [
+                        0,
+                        1
+                    ]
                 }
             ],
             "sprite": "npc_reed_sprite"

@@ -1,5 +1,6 @@
 #include "prop_assets.h"
 #include "sprite_assets.h"
+#include "cat_procs.h"
 
 const CAT_prop null_prop = {
 	.sprite = &null_sprite,
@@ -18,7 +19,9 @@ const CAT_prop reed_prop = {
 	.triggers = (struct trigger[]) {
 		{
 			.aabb = {0,16,31,31,},
-			.proc = NULL,
+			.tx = 0,
+			.ty = 1,
+			.proc = interact_proc_reed,
 		},
 	},
 	.trigger_count = 1,

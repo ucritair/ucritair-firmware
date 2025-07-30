@@ -143,14 +143,23 @@ class Element:
 	def get_type(self) -> Type:
 		return self.T;
 
-	def has_attribute(self, attribute) -> bool:
-		return attribute in self.attributes;
+	def get_attribute(self, attribute) -> bool:
+		if attribute in self.attributes:
+			return True;
+		for a in self.attributes:
+			if isinstance(a, dict) and attribute in a:
+				return a[attribute];
+		return False;
 
 	def prototype(self, inner = False):
 		T = self.T;
 		if inner:
 			while isinstance(T, List):
 				T = T.T;
+		else:
+			fixed_length = self.get_attribute("fixed-length");
+			if fixed_length != False:
+				return [T.T.prototype() for i in range(fixed_length)];
 		return T.prototype();
 
 	def validate(self, value) -> bool:
@@ -293,32 +302,35 @@ class TypeHelper:
 			node = node[next_key];
 		del node[path_tokens[0]];
 	
-	def _rectify(self, instance, node, element):
-		if not isinstance(element.T, Object):
+	def _rectify(self, instance, node, T):
+		if not isinstance(T, Object):
+			if isinstance(T, List):
+				for child in node:
+					self._rectify(instance, child, T.T);
 			return;
-	
-		for e in element.T.elements:
+
+		for e in T.elements:
 			if not e.name in node:
 				node[e.name] = e.prototype();
 		
 		violations = [];
-		for e in element.T.elements:
+		for e in T.elements:
 			if not self._evaluate_conditions(instance, e):
 				violations.append(e.name);
 		for key in violations:
 			del node[key];
 
 		violations = [];
-		canon_keys = [e.name for e in element.T.elements];
+		canon_keys = [e.name for e in T.elements];
 		for key in node:
 			if not key in canon_keys:
 				violations.append(key);
 		for key in violations:
 			del node[key];
 	
-		for e in element.T.elements:
+		for e in T.elements:
 			if e.name in node:
-				self._rectify(instance, node[e.name], e);		
+				self._rectify(instance, node[e.name], e.T);		
 
 	def prototype(self, path="/", inner=False):
 		root = self.typist.search(path);
@@ -330,7 +342,7 @@ class TypeHelper:
 
 	def rectify(self, instance):
 		root = self.typist.search("/");
-		self._rectify(instance, instance, root);
+		self._rectify(instance, instance, root.T);
 
 	def collect(self, instance):
 		paths = self.typist.get_all_paths();

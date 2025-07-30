@@ -96,15 +96,16 @@ class SceneEditor:
 		self.canvas = Canvas(self.canvas_size[0], self.canvas_size[1]);
 
 		self.scene = None;
-		
-		self.show_viewport = True;
-		self.show_axes = True;
 
 		self.canvas_cursor = None;
 		self.world_cursor = None;
 		self.selection = None;
 		self.highlight = None;
 		self.selection_delta = None;
+	
+		self.show_viewport = True;
+		self.show_axes = True;
+		self.show_gizmos = False;
 	
 	def is_scene_loaded(self):
 		return self.scene in AssetManager.get_assets("scene");
@@ -198,6 +199,7 @@ class SceneEditor:
 				for trigger in prop_asset["triggers"]:
 					imgui.push_id(str(id(trigger)));
 					trigger["aabb"] = self.gui_aabb_input(trigger["aabb"]);
+					_, trigger["direction"] = imgui.input_int2("direction", trigger["direction"]);
 					imgui.separator();
 					imgui.pop_id();
 				if imgui.button("+"):
@@ -245,6 +247,12 @@ class SceneEditor:
 				aabb = move_aabb(trigger["aabb"], prop["position"]);
 				aabb = CanvasHelper.transform_aabb(self.canvas, aabb);
 				self.canvas.draw_aabb(aabb, (0, 255, 0));
+
+				x0, y0, x1, y1 = aabb;
+				w, h = x1-x0, y1-y0;
+				cx, cy = x0+w/2, y0+h/2;
+				tx, ty = trigger["direction"];
+				self.canvas.draw_line(cx, cy, cx+tx*16, cy+ty*16, (0, 255, 0));
 	
 		if show_name:
 			aabb = PropHelper.get_aabb(prop);
@@ -255,7 +263,7 @@ class SceneEditor:
 	def canvas_draw_layers(self):
 		for layer in self.scene["layers"]:
 			for prop in layer:
-				self.canvas_draw_prop(prop);
+				self.canvas_draw_prop(prop, show_blockers=self.show_gizmos, show_triggers = self.show_gizmos);
 	
 	def canvas_draw_axes(self):
 		if self.show_axes:
@@ -301,6 +309,8 @@ class SceneEditor:
 				_, self.show_axes = imgui.checkbox("Show axes", self.show_axes);
 				imgui.same_line();
 				_, self.show_viewport = imgui.checkbox("Show viewport", self.show_viewport);
+				imgui.same_line();
+				_, self.show_gizmos = imgui.checkbox("Show gizmos", self.show_gizmos);
 			
 				self.gui_draw_scene();
 			else:

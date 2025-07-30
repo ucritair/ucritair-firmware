@@ -2,6 +2,10 @@
 
 #include "cat_render.h"
 
+typedef int16_t CAT_scene_point[2];
+typedef CAT_scene_point CAT_scene_vector;
+typedef int16_t CAT_scene_AABB[2];
+
 typedef struct
 {
 	const CAT_sprite* sprite;
@@ -31,5 +35,20 @@ typedef struct
 	}* layers;
 	uint8_t layer_count;
 } CAT_scene;
+
+typedef struct
+{
+	enum {BLOCKER, TRIGGER} leaf;
+	uint8_t layer;
+	uint8_t prop;
+	uint8_t blocker;
+	uint8_t trigger;
+} CAT_scene_index;
+
+void CAT_scene_get_position(CAT_scene* scene, CAT_scene_index* index, CAT_scene_point out);
+void CAT_scene_get_AABB(CAT_scene* scene, CAT_scene_index* index, CAT_scene_AABB out);
+void CAT_scene_get_direction(CAT_scene* scene, CAT_scene_index* index, CAT_scene_vector out);
+
+CAT_scene_index* CAT_detect_collisions(CAT_scene* scene, int x0, int y0, int x1, int y1, int* count);
 
 void CAT_render_scene(CAT_scene* scene, int eye_x, int eye_y);

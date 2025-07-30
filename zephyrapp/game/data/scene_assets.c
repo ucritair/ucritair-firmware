@@ -12,8 +12,8 @@ const CAT_scene test_scene = {
 				},
 				{
 					.prop = &reed_prop,
-					.position_x = 31,
-					.position_y = -110,
+					.position_x = 33,
+					.position_y = -102,
 				},
 			},
 			.prop_count = 2,

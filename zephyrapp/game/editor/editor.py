@@ -389,7 +389,7 @@ class DocumentRenderer:
 			if imgui.tree_node(title):
 				for e in T.elements:
 					if e.name in node:
-						if not e.has_attribute("read-only"):
+						if not e.get_attribute("read-only"):
 							node[e.name] = DocumentRenderer._render_node(e.name, e.T, node[e.name], id(node));
 				imgui.tree_pop();
 			imgui.pop_id();

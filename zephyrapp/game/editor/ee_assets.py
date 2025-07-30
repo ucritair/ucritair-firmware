@@ -85,7 +85,7 @@ class DocumentHelper:
 		data = doc.type_helper.collect(node);
 		for (path, value) in data:
 			element = doc.typist.search(path);
-			if element.has_attribute("rank"):
+			if element.get_attribute("rank"):
 				return value;
 		return 0;
 
