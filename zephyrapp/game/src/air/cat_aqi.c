@@ -2,9 +2,8 @@
 
 #include <stdio.h>
 #include <math.h>
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// CRISES
+#include "cat_curves.h"
+#include "cat_render.h"
 
 /**
  * @brief Performs linear interpolation to calculate the score for a parameter.
@@ -229,7 +228,33 @@ float CAT_AQ_aggregate_score()
     return ((5.0f - score) / 5.0f) * 100.0f;
 }
 
-const char* CAT_get_AQM_unit_string(int aqm)
+static const char* CAT_AQM_titles[] =
+{
+	[CAT_AQM_CO2] = "CO2",
+	[CAT_AQM_PM2_5] = "PM2.5",
+	[CAT_AQM_NOX] = "NOX",
+	[CAT_AQM_VOC] = "VOC",
+	[CAT_AQM_TEMP] = "TEMP",
+	[CAT_AQM_RH] = "RH",
+	[CAT_AQM_AGGREGATE] = "\4CritAQ Score"
+};
+
+const char* CAT_AQ_get_title_string(int aqm)
+{
+	switch(aqm)
+	{
+		case CAT_AQM_CO2: return "CO2";
+		case CAT_AQM_PM2_5: return "PM2.5";
+		case CAT_AQM_NOX: return "NOX";
+		case CAT_AQM_VOC: return "VOC";
+		case CAT_AQM_TEMP: return "TEMP";
+		case CAT_AQM_RH: return "RH";
+		case CAT_AQM_AGGREGATE: return "\4CritAQ Score";
+		default: return "";
+	}
+}
+
+const char* CAT_AQ_get_unit_string(int aqm)
 {
 	switch(aqm)
 	{
@@ -241,17 +266,60 @@ const char* CAT_get_AQM_unit_string(int aqm)
 	}
 }
 
-float raw_scores[CAT_AQM_COUNT];
-
-float CAT_AQ_get_raw_score(int aqm)
+const char* CAT_AQ_get_grade_string(float score)
 {
-	return raw_scores[aqm];
+	if(score >= 0.95)
+		return "A";
+	else if(score >= 0.9)
+		return "A-";
+	else if(score >= 0.85)
+		return "B";
+	else if(score >= 0.8)
+		return "B-";
+	else if(score >= 0.75)
+		return "C";
+	else if(score >= 0.7)
+		return "C-";
+	else if(score >= 0.65)
+		return "D";
+	else if(score >= 0.6)
+		return "D-";
+	return "F";
 }
 
-bool CAT_AQ_load_fallback()
+uint16_t CAT_AQ_get_grade_colour(float score)
+{
+	uint16_t colours[3] =
+	{
+		0xb985, // BAD
+		0xf5aa, // MID
+		0xd742, // GOOD
+	};
+
+	score = CAT_ease_inout_quad(score);
+	float x = score * 2;
+	int idx = (int) x;
+	float frac = x - idx;
+	uint16_t colour = CAT_RGB24216
+	(
+		CAT_RGB24_lerp
+		(
+			CAT_RGB16224(colours[idx]),
+			CAT_RGB16224(colours[idx+1]),
+			frac
+		)
+	);
+
+	return colour;
+}
+
+float raw_scores[CAT_AQM_COUNT];
+float normalized_scores[CAT_AQM_COUNT];
+
+void store_fallback()
 {
 	if(!CAT_AQ_logs_initialized())
-		return false;
+		return;
 
 	CAT_log_cell last_cell;
 	CAT_read_log_cell_at_idx(CAT_get_log_cell_count()-1, &last_cell);
@@ -275,26 +343,23 @@ bool CAT_AQ_load_fallback()
 	raw_scores[CAT_AQM_AGGREGATE] = ((5.0f - iaq) / 5.0f) * 100.0f;
 }
 
-void CAT_AQ_store_raw_scores()
+void CAT_AQ_store_live_scores()
 {
-	raw_scores[CAT_AQM_CO2] = readings.sunrise.ppm_filtered_compensated;
-	raw_scores[CAT_AQM_PM2_5] = readings.sen5x.pm2_5;
-	raw_scores[CAT_AQM_VOC] = readings.sen5x.voc_index;
-	raw_scores[CAT_AQM_NOX] = readings.sen5x.nox_index;
-	raw_scores[CAT_AQM_TEMP] = CAT_canonical_temp();
-	raw_scores[CAT_AQM_RH] = readings.sen5x.humidity_rhpct;
-	raw_scores[CAT_AQM_AGGREGATE] = CAT_AQ_aggregate_score();
-}
+	if(!CAT_AQ_sensors_initialized() && CAT_AQ_logs_initialized())
+	{
+		store_fallback();
+	}
+	else
+	{
+		raw_scores[CAT_AQM_CO2] = readings.sunrise.ppm_filtered_compensated;
+		raw_scores[CAT_AQM_PM2_5] = readings.sen5x.pm2_5;
+		raw_scores[CAT_AQM_VOC] = readings.sen5x.voc_index;
+		raw_scores[CAT_AQM_NOX] = readings.sen5x.nox_index;
+		raw_scores[CAT_AQM_TEMP] = CAT_canonical_temp();
+		raw_scores[CAT_AQM_RH] = readings.sen5x.humidity_rhpct;
+		raw_scores[CAT_AQM_AGGREGATE] = CAT_AQ_aggregate_score();
+	}
 
-float normalized_scores[CAT_AQM_COUNT];
-
-float CAT_AQ_get_normalized_score(int aqm)
-{
-	return normalized_scores[aqm];
-}
-
-void CAT_AQ_normalize_scores()
-{
 	normalized_scores[CAT_AQM_CO2] = CAT_CO2_score(raw_scores[CAT_AQM_CO2]);
 	normalized_scores[CAT_AQM_PM2_5] = CAT_PM2_5_score(raw_scores[CAT_AQM_PM2_5]);
 	normalized_scores[CAT_AQM_VOC] = CAT_VOC_score(raw_scores[CAT_AQM_VOC]);
@@ -303,15 +368,50 @@ void CAT_AQ_normalize_scores()
 	normalized_scores[CAT_AQM_RH] = CAT_rh_score(raw_scores[CAT_AQM_RH]);
 	for(int i = 0; i < CAT_AQM_AGGREGATE; i++)
 		normalized_scores[i] = inv_lerp(normalized_scores[i], 5, 0);
-
 	normalized_scores[CAT_AQM_AGGREGATE] = raw_scores[CAT_AQM_AGGREGATE] / 100.0f;	
+}
+
+float CAT_AQ_live_score_raw(int aqm)
+{
+	return raw_scores[aqm];
+}
+
+float CAT_AQ_live_score_normalized(int aqm)
+{
+	return normalized_scores[aqm];
 }
 
 void CAT_AQ_tick()
 {
-	if(!CAT_AQ_sensors_initialized() && CAT_AQ_logs_initialized())
-		CAT_AQ_load_fallback();
-	else
-		CAT_AQ_store_raw_scores();
-	CAT_AQ_normalize_scores();
+	CAT_AQ_store_live_scores();
+}
+
+float CAT_AQ_block_score_raw(CAT_AQ_score_block* block, int aqm)
+{
+	switch(aqm)
+	{
+		case CAT_AQM_CO2: return block->CO2;
+		case CAT_AQM_PM2_5: return block->PM2_5 / 100.0f;
+		case CAT_AQM_NOX: return block->NOX;
+		case CAT_AQM_VOC: return block->VOC;
+		case CAT_AQM_TEMP: return block->temp / 1000.0f;
+		case CAT_AQM_RH : return block->rh / 100.0f;
+		case CAT_AQM_AGGREGATE: return block->aggregate;
+		default: return 0;
+	}
+}
+
+float CAT_AQ_block_score_normalized(CAT_AQ_score_block* block, int aqm)
+{
+	switch(aqm)
+	{
+		case CAT_AQM_CO2: return inv_lerp(CAT_CO2_score(block->CO2), 5, 0);
+		case CAT_AQM_PM2_5: return inv_lerp(CAT_PM2_5_score(block->PM2_5 / 100.0f), 5, 0);
+		case CAT_AQM_NOX: return inv_lerp(CAT_NOX_score(block->NOX), 5, 0);
+		case CAT_AQM_VOC: return inv_lerp(CAT_VOC_score(block->VOC), 5, 0);
+		case CAT_AQM_TEMP: return inv_lerp(CAT_temp_score(block->temp / 1000.0f), 5, 0);
+		case CAT_AQM_RH : return inv_lerp(CAT_rh_score(block->rh / 100.0f), 5, 0);
+		case CAT_AQM_AGGREGATE: return block->aggregate / 100.0f;
+		default: return 0;
+	}
 }

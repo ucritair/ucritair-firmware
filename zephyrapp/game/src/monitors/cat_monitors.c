@@ -36,11 +36,6 @@ static struct
 		.state = CAT_monitor_MS_calendar,
 		.render = CAT_monitor_render_calendar
 	},
-	[CAT_MONITOR_PAGE_LOGS] =
-	{
-		.state = CAT_monitor_MS_logs,
-		.render = CAT_monitor_render_logs
-	},
 	[CAT_MONITOR_PAGE_CLOCK] =
 	{
 		.state = CAT_monitor_MS_clock,

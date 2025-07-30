@@ -15,11 +15,11 @@ void CAT_monitor_render_details()
 	cursor_y = center_textf(120, cursor_y, 1, CAT_WHITE, "Details");
 	cursor_y = underline(120, cursor_y, 1, CAT_WHITE, "Details") + 44;
 
-	cursor_y = labeled_scoref(12, cursor_y, CAT_WHITE, CAT_AQM_CO2, "%.0f", CAT_AQ_get_raw_score(CAT_AQM_CO2));
-	cursor_y = labeled_scoref(12, cursor_y, CAT_WHITE, CAT_AQM_PM2_5, "%.0f", CAT_AQ_get_raw_score(CAT_AQM_PM2_5));
-	cursor_y = labeled_scoref(12, cursor_y, CAT_WHITE, CAT_AQM_NOX, "%.0f", CAT_AQ_get_raw_score(CAT_AQM_NOX));
-	cursor_y = labeled_scoref(12, cursor_y, CAT_WHITE, CAT_AQM_VOC, "%.0f", CAT_AQ_get_raw_score(CAT_AQM_VOC));
-	cursor_y = labeled_scoref(12, cursor_y, CAT_WHITE, CAT_AQM_TEMP, "%.0f", CAT_AQ_map_celsius(CAT_AQ_get_raw_score(CAT_AQM_TEMP)));
+	cursor_y = labeled_scoref(12, cursor_y, CAT_WHITE, CAT_AQM_CO2, "%.0f", CAT_AQ_live_score_raw(CAT_AQM_CO2));
+	cursor_y = labeled_scoref(12, cursor_y, CAT_WHITE, CAT_AQM_PM2_5, "%.0f", CAT_AQ_live_score_raw(CAT_AQM_PM2_5));
+	cursor_y = labeled_scoref(12, cursor_y, CAT_WHITE, CAT_AQM_NOX, "%.0f", CAT_AQ_live_score_raw(CAT_AQM_NOX));
+	cursor_y = labeled_scoref(12, cursor_y, CAT_WHITE, CAT_AQM_VOC, "%.0f", CAT_AQ_live_score_raw(CAT_AQM_VOC));
+	cursor_y = labeled_scoref(12, cursor_y, CAT_WHITE, CAT_AQM_TEMP, "%.0f", CAT_AQ_map_celsius(CAT_AQ_live_score_raw(CAT_AQM_TEMP)));
 	cursor_y = labeled_scoref(12, cursor_y, CAT_WHITE, CAT_AQM_RH, "%.0f", readings.sen5x.humidity_rhpct);
 
 	float pct_rebreathed = ((((double) readings.sunrise.ppm_filtered_compensated)-420.)/38000.)*100.;

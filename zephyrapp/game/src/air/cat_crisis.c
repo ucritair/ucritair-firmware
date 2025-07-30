@@ -35,7 +35,7 @@ CAT_AQ_crisis_type CAT_AQ_poll_crisis_type()
 	float worst_score = __FLT_MAX__;
 	for(int i = 0; i < CAT_AQM_AGGREGATE; i++)
 	{
-		float score = CAT_AQ_get_normalized_score(i);
+		float score = CAT_AQ_live_score_normalized(i);
 		if(score < 0.5f && score < worst_score)
 		{
 			worst_aqm = i;
@@ -59,10 +59,10 @@ float get_crisis_score(CAT_AQ_crisis_type type)
 {
 	switch(type)
 	{
-		case CAT_AQ_CRISIS_TYPE_CO2: return CAT_AQ_get_normalized_score(CAT_AQM_CO2);
-		case CAT_AQ_CRISIS_TYPE_PM2_5: return CAT_AQ_get_normalized_score(CAT_AQM_PM2_5);
-		case CAT_AQ_CRISIS_TYPE_NOX_VOC: return min(CAT_AQ_get_normalized_score(CAT_AQM_NOX), CAT_AQ_get_normalized_score(CAT_AQM_VOC));
-		case CAT_AQ_CRISIS_TYPE_TEMP_RH: return min(CAT_AQ_get_normalized_score(CAT_AQM_TEMP), CAT_AQ_get_normalized_score(CAT_AQM_TEMP));
+		case CAT_AQ_CRISIS_TYPE_CO2: return CAT_AQ_live_score_normalized(CAT_AQM_CO2);
+		case CAT_AQ_CRISIS_TYPE_PM2_5: return CAT_AQ_live_score_normalized(CAT_AQM_PM2_5);
+		case CAT_AQ_CRISIS_TYPE_NOX_VOC: return min(CAT_AQ_live_score_normalized(CAT_AQM_NOX), CAT_AQ_live_score_normalized(CAT_AQM_VOC));
+		case CAT_AQ_CRISIS_TYPE_TEMP_RH: return min(CAT_AQ_live_score_normalized(CAT_AQM_TEMP), CAT_AQ_live_score_normalized(CAT_AQM_TEMP));
 		default: return 1.0f;
 	}
 };
@@ -73,8 +73,8 @@ CAT_AQ_crisis_severity CAT_AQ_poll_crisis_severity(CAT_AQ_crisis_type type)
 	{
 		case CAT_AQ_CRISIS_TYPE_TEMP_RH:
 		{
-			float T_d = CAT_AQ_get_raw_score(CAT_AQM_TEMP);
-			float rh = CAT_AQ_get_raw_score(CAT_AQM_RH);
+			float T_d = CAT_AQ_live_score_raw(CAT_AQM_TEMP);
+			float rh = CAT_AQ_live_score_raw(CAT_AQM_RH);
 			float wb = CAT_wet_bulb_temp(T_d);
 
 			// Dangerous wet-bulb temps are roughly 32C and over

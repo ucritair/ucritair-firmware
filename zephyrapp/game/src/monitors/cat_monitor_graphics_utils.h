@@ -51,32 +51,6 @@ static void draw_subpage_markers(int y, int pages, int page)
 	}
 }
 
-static uint16_t score_colours[3] =
-{
-	0xb985, // BAD
-	0xf5aa, // MID
-	0xd742, // GOOD
-};
-
-static uint16_t colour_score(float t)
-{
-	t = CAT_ease_inout_quad(t);
-
-	float x = t * 2;
-	int idx = (int) x;
-	float frac = x - idx;
-	uint16_t colour = CAT_RGB24216
-	(
-		CAT_RGB24_lerp
-		(
-			CAT_RGB16224(score_colours[idx]),
-			CAT_RGB16224(score_colours[idx+1]),
-			frac
-		)
-	);
-	return colour;
-}
-
 static char textf_buf[32];
 
 static int center_textf(int x, int y, int scale, uint16_t c, const char* fmt, ...)
@@ -133,10 +107,10 @@ static int underline(int x, int y, int scale, uint16_t c, const char* fmt, ...)
 
 static void score_bar(int x, int y, int aqm)
 {
-	float subscore = 1-CAT_AQ_get_normalized_score(aqm);
+	float subscore = 1-CAT_AQ_live_score_normalized(aqm);
 	int total_width = 16*4;
 	int filled_width = total_width * subscore;
-	uint16_t colour = colour_score(1-subscore);
+	uint16_t colour = CAT_AQ_get_grade_colour(1-subscore);
 
 	CAT_discberry(x, y, 4, colour);
 	CAT_lineberry(x+4, y, x+4+filled_width, y, colour);
@@ -151,16 +125,17 @@ static int labeled_scoref(int x, int y, uint16_t c, int aqm, const char* fmt, ..
 	vsnprintf(textf_buf, 32, fmt, args);
 	va_end(args);
 
+	const char* title = CAT_AQ_get_title_string(aqm);
 	CAT_set_text_colour(c);
-	CAT_draw_text(x, y-CAT_GLYPH_HEIGHT, CAT_AQM_titles[aqm]);
-	x += strlen(CAT_AQM_titles[aqm]) * CAT_GLYPH_WIDTH + 8;
+	CAT_draw_text(x, y-CAT_GLYPH_HEIGHT, title);
+	x += strlen(title) * CAT_GLYPH_WIDTH + 8;
 
 	CAT_set_text_scale(2);
 	CAT_set_text_colour(c);
 	CAT_draw_text(x, y-CAT_GLYPH_HEIGHT*2, textf_buf);
 	x += strlen(textf_buf) * CAT_GLYPH_WIDTH*2 + 8;
 
-	const char* unit = CAT_get_AQM_unit_string(aqm);
+	const char* unit = CAT_AQ_get_unit_string(aqm);
 	CAT_set_text_colour(c);
 	CAT_draw_text(x, y-CAT_GLYPH_HEIGHT, unit);
 	x += strlen(unit) == 0 ? 4 : strlen(unit) * CAT_GLYPH_WIDTH + 12;

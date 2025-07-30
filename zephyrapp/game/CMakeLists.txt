@@ -125,7 +125,6 @@ target_sources(app PRIVATE
 	src/monitors/cat_monitor_details.c
 	src/monitors/cat_monitor_sparklines.c
 	src/monitors/cat_monitor_calendar.c
-	src/monitors/cat_monitor_logs.c
 	src/monitors/cat_monitor_gameplay.c
 	src/monitors/cat_monitor_clock.c
 
@@ -134,6 +133,7 @@ target_sources(app PRIVATE
 
 	src/gui/cat_gui.c
 	src/gui/cat_text.c
+	src/gui/cat_graph.c
 
 	src/air/cat_aqi.c
 	src/air/cat_crisis.c

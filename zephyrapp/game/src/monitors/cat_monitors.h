@@ -9,7 +9,6 @@ typedef enum
 	CAT_MONITOR_PAGE_DETAILS,
 	CAT_MONITOR_PAGE_SPARKLINES,
 	CAT_MONITOR_PAGE_CALENDAR,
-	CAT_MONITOR_PAGE_LOGS,
 	CAT_MONITOR_PAGE_CLOCK,
 	CAT_MONITOR_PAGE_GAMEPLAY,
 	CAT_MONITOR_PAGE_COUNT
@@ -37,9 +36,6 @@ void CAT_monitor_render_sparklines();
 
 void CAT_monitor_MS_calendar(CAT_machine_signal signal);
 void CAT_monitor_render_calendar();
-
-void CAT_monitor_MS_logs(CAT_machine_signal signal);
-void CAT_monitor_render_logs();
 
 void CAT_monitor_MS_clock(CAT_machine_signal signal);
 void CAT_monitor_render_clock();
