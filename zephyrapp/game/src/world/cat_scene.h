@@ -2,9 +2,9 @@
 
 #include "cat_render.h"
 
-typedef int16_t CAT_scene_point[2];
-typedef CAT_scene_point CAT_scene_vector;
-typedef int16_t CAT_scene_AABB[2];
+typedef int16_t CAT_scene_vector[2];
+typedef CAT_scene_vector CAT_scene_point;
+typedef int16_t CAT_scene_AABB[4];
 
 typedef struct
 {
