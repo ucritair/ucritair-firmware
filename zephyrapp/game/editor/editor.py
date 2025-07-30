@@ -449,7 +449,7 @@ class DocumentRenderer:
 			imgui.text(title);
 			imgui.same_line();
 
-			_, result = imgui.input_text(f"##{identifier}", node);
+			_, result = imgui.input_text(f"##{identifier}", str(node));
 			imgui.same_line();
 			if imgui.button(f"...##{identifier}"):
 				FileExplorer(identifier, AssetManager.active_document.directory, T.pattern);
