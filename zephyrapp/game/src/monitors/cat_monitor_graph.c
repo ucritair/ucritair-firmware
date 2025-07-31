@@ -6,6 +6,7 @@
 #include "cat_render.h"
 #include "cat_gui.h"
 #include "cat_monitor_graphics_utils.h"
+#include "cat_monitor_ach.h"
 
 typedef enum
 {
@@ -363,5 +364,9 @@ void CAT_monitor_graph_render()
 		CAT_set_text_colour(CAT_WHITE);
 		CAT_draw_textf(WINDOW_X0, WINDOW_Y1+32, "at %.2d:%.2d", reticle_date.hour, reticle_date.minute);
 	}
+
+	float ach = CAT_monitor_graph_calculate_ACH(view, values, indices, 0, SAMPLE_COUNT-1);
+	CAT_set_text_colour(CAT_WHITE);
+	CAT_draw_textf(WINDOW_X0, WINDOW_Y1+32+16, "ACH: %.2f\n", ach);
 }
 

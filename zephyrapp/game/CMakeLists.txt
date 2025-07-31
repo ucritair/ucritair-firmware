@@ -127,6 +127,7 @@ target_sources(app PRIVATE
 	src/monitors/cat_monitor_gameplay.c
 	src/monitors/cat_monitor_clock.c
 	src/monitors/cat_monitor_graph.c
+	src/monitors/cat_monitor_ach.c
 
 	src/inventory/cat_item.c
 	src/inventory/cat_shop.c
