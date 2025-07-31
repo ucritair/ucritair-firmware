@@ -97,7 +97,6 @@ target_sources(app PRIVATE
 	src/render/cat_spriter.c
 	src/render/cat_draw_queue.c
 	src/render/cat_animation.c
-	src/render/cat_gizmos.c
 	src/render/cat_poly.c
 
 	src/menu/cat_menu.c
@@ -134,6 +133,7 @@ target_sources(app PRIVATE
 	src/gui/cat_gui.c
 	src/gui/cat_text.c
 	src/gui/cat_graph.c
+	src/gui/cat_gizmos.c
 
 	src/air/cat_aqi.c
 	src/air/cat_crisis.c

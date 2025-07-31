@@ -67,7 +67,9 @@ void CAT_graph_draw(float* values, uint16_t* colours, uint16_t count)
 	float wdw_h = wdw_y1 - wdw_y0 + 1;
 
 	if(bg_colour != CAT_TRANSPARENT)
+	{
 		CAT_fillberry(wdw_x0, wdw_y0, wdw_w, wdw_h, bg_colour);
+	}
 
 	if(auto_viewport)
 	{
@@ -81,18 +83,20 @@ void CAT_graph_draw(float* values, uint16_t* colours, uint16_t count)
 		}
 	}
 	float range = (vp_y1-vp_y0);
+	float mid_range = (vp_y0+vp_y1)/2;
 
-	float mid_y = wdw_y0 + wdw_h/2;
-	float dx_dsx = wdw_w / (float) (count-1);
-	float dy_dsy = range > 0 ? wdw_h / range : 0;
+	float mid_y = (wdw_y0+wdw_y1)/2;
+	float y_scale = range > 0 ? -wdw_h / range : 0;
+	float x_scale = wdw_w / (float) (count-1);
+	x_scale = max(x_scale, 1);
 
-	CAT_CSCLIP_set_rect(wdw_x0, wdw_y0, wdw_x1, wdw_y1);
+	CAT_CSCLIP_set_rect(wdw_x0, wdw_y0-1, wdw_x1, wdw_y1+1);
 	float x0 = wdw_x0;
-	float y0 = mid_y + values[0] * dy_dsy;
+	float y0 = mid_y + (values[0]-mid_range) * y_scale;
 	for(int i = 1; i < count; i++)
 	{
-		float x1 = x0 + dx_dsx;
-		float y1 = mid_y + values[i] * dy_dsy;
+		float x1 = x0 + x_scale;
+		float y1 = mid_y + (values[i]-mid_range) * y_scale;
 		
 		int x0i = x0; int y0i = y0; int x1i = x1; int y1i = y1;
 		if(CAT_CSCLIP(&x0i, &y0i, &x1i, &y1i))

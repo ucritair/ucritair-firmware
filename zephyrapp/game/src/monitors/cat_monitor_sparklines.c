@@ -44,6 +44,8 @@ void CAT_monitor_render_sparklines()
 		CAT_AQ_score_block block;
 		CAT_AQ_read_scores(i, &block);
 		float score = CAT_AQ_block_score_normalized(&block, view);
+		if(fabs(score) <= __FLT_EPSILON__)
+			score = 0;
 		samples[i] = score;
 		colours[i] = CAT_AQ_get_grade_colour(score);
 
@@ -57,18 +59,18 @@ void CAT_monitor_render_sparklines()
 	CAT_graph_set_background(SPARKLINE_BG_COLOUR);
 	CAT_graph_set_foreground(SPARKLINE_FG_COLOUR);
 	CAT_graph_set_window(SPARKLINE_X, SPARKLINE_Y, SPARKLINE_MAX_X, SPARKLINE_MAX_Y);
-	CAT_graph_set_auto_viewport(true);
+	CAT_graph_set_viewport(0, 0, 1, 1);
 	CAT_graph_set_point_size(2);
 	CAT_graph_set_point_fill(true);
 	CAT_graph_draw(samples, colours, 7);
 
 	cursor_y = SPARKLINE_MAX_Y + 8;
 	CAT_set_text_colour(CAT_WHITE);
-	cursor_y = CAT_draw_textf(SPARKLINE_X, cursor_y, "Max score: %s (%.1f)\n", CAT_AQ_get_grade_string(max_score), max_score)+8;
+	cursor_y = CAT_draw_textf(SPARKLINE_X, cursor_y, "Max score: %s \1 %.0f/100\n", CAT_AQ_get_grade_string(max_score), max_score*100)+8;
 	CAT_set_text_colour(CAT_WHITE);
-	cursor_y = CAT_draw_textf(SPARKLINE_X, cursor_y, "  Mean score: %s (%.1f)\n", CAT_AQ_get_grade_string(max_score), mean_score)+8;
+	cursor_y = CAT_draw_textf(SPARKLINE_X, cursor_y, "  Mean score: %s \1 %.0f/100\n", CAT_AQ_get_grade_string(max_score), mean_score*100)+8;
 	CAT_set_text_colour(CAT_WHITE);
-	cursor_y = CAT_draw_textf(SPARKLINE_X, cursor_y, "    Min score: %s (%.1f)\n", CAT_AQ_get_grade_string(max_score), min_score)+8;
+	cursor_y = CAT_draw_textf(SPARKLINE_X, cursor_y, "    Min score: %s \1 %.0f/100\n", CAT_AQ_get_grade_string(max_score), min_score*100)+8;
 }
 
 void CAT_monitor_MS_sparklines(CAT_machine_signal signal)

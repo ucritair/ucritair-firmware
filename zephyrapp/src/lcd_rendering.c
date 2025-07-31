@@ -205,7 +205,7 @@ void lcd_render_diag()
 		}
 		
 		time_since = current_second - aq_last_buffered_score_time;
-		if(time_since > CAT_DAY_SECONDS && CAT_AQ_sensors_initialized())
+		if(time_since > CAT_AQ_SPARKLINE_SAMPLE_PERIOD && CAT_AQ_sensors_initialized())
 		{
 			if(is_first_init)
 			{

@@ -11,6 +11,7 @@
 #include "cat_monitors.h"
 #include "cat_crisis.h"
 #include "cat_gizmos.h"
+#include "cat_graph.h"
 
 static void draw_page_markers(int y, int pages, int page)
 {
@@ -103,45 +104,4 @@ static int underline(int x, int y, int scale, uint16_t c, const char* fmt, ...)
 	CAT_discberry(right_x, y, 2, c);
 
 	return y + 4;
-}
-
-static void score_bar(int x, int y, int aqm)
-{
-	float subscore = 1-CAT_AQ_live_score_normalized(aqm);
-	int total_width = 16*4;
-	int filled_width = total_width * subscore;
-	uint16_t colour = CAT_AQ_get_grade_colour(1-subscore);
-
-	CAT_discberry(x, y, 4, colour);
-	CAT_lineberry(x+4, y, x+4+filled_width, y, colour);
-	CAT_lineberry(x+4+filled_width, y, x+4+total_width, y, CAT_WHITE);
-	CAT_discberry(x+4+total_width+4, y, 4, colour);
-}
-
-static int labeled_scoref(int x, int y, uint16_t c, int aqm, const char* fmt, ...)
-{
-	va_list args;
-	va_start(args, fmt);
-	vsnprintf(textf_buf, 32, fmt, args);
-	va_end(args);
-
-	const char* title = CAT_AQ_get_title_string(aqm);
-	CAT_set_text_colour(c);
-	CAT_draw_text(x, y-CAT_GLYPH_HEIGHT, title);
-	x += strlen(title) * CAT_GLYPH_WIDTH + 8;
-
-	CAT_set_text_scale(2);
-	CAT_set_text_colour(c);
-	CAT_draw_text(x, y-CAT_GLYPH_HEIGHT*2, textf_buf);
-	x += strlen(textf_buf) * CAT_GLYPH_WIDTH*2 + 8;
-
-	const char* unit = CAT_AQ_get_unit_string(aqm);
-	CAT_set_text_colour(c);
-	CAT_draw_text(x, y-CAT_GLYPH_HEIGHT, unit);
-	x += strlen(unit) == 0 ? 4 : strlen(unit) * CAT_GLYPH_WIDTH + 12;
-
-	int y_off = strlen(unit) == 0 ? -CAT_GLYPH_HEIGHT : -CAT_GLYPH_HEIGHT/2;
-	score_bar(x, y+y_off, aqm);
-
-	return y + CAT_GLYPH_HEIGHT*2 + 6;
 }

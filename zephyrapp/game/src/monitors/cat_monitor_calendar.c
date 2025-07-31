@@ -638,6 +638,7 @@ void CAT_monitor_MS_calendar(CAT_machine_signal signal)
 		break;
 
 		case CAT_MACHINE_SIGNAL_EXIT:
+			focus_progress = 0;
 		break;
 	}
 }
