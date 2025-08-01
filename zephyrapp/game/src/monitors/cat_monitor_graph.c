@@ -10,18 +10,17 @@
 
 typedef enum
 {
-	MODE_PRIMED,
 	MODE_LOADING,
 	MODE_VIEWING,
 	MODE_CALCULATING,
 	MODE_EXIT
 } graph_mode;
-static int mode = MODE_PRIMED;
+static int mode = MODE_LOADING;
 
-static CAT_datetime start_date;
-static CAT_datetime start_date_last;
-static int seek_bookmark;
-static int seek_direction;
+static CAT_datetime start_date = {0};
+static CAT_datetime start_date_last = {0};
+static int seek_bookmark = -1;
+static int seek_direction = -1;
 
 #define MARGIN 12
 #define WINDOW_X0 MARGIN
@@ -35,6 +34,7 @@ static int seek_direction;
 #define SAMPLE_PERIOD (CAT_DAY_SECONDS / SAMPLE_COUNT)
 
 static int16_t values[SAMPLE_COUNT];
+static uint64_t timestamps[SAMPLE_COUNT];
 static int32_t indices[SAMPLE_COUNT];
 static int16_t value_min;
 static uint16_t value_min_idx;
@@ -59,6 +59,8 @@ typedef enum
 	VIEW_MAX
 } graph_view;
 static int view = VIEW_CO2;
+
+static float ach = -1;
 
 static int16_t make_value(CAT_log_cell* cell, int view)
 {
@@ -90,8 +92,14 @@ static int16_t make_value(CAT_log_cell* cell, int view)
 
 static void load_graph_data()
 {
-	uint64_t start_time = CAT_make_timestamp(&start_date);
 	seek_direction = CAT_datecmp(&start_date, &start_date_last);
+	start_date_last = start_date;
+
+	struct tm start_tm = {0};
+	start_tm.tm_year = start_date.year;
+	start_tm.tm_mon = start_date.month-1;
+	start_tm.tm_mday = start_date.day;
+	uint64_t start_time = mktime(&start_tm);
 	
 	CAT_log_cell cell;
 	if(seek_bookmark == -1)
@@ -105,7 +113,6 @@ static void load_graph_data()
 		else if(seek_direction == 1)
 			seek_bookmark = CAT_read_log_cell_after_time(seek_bookmark, start_time, &cell);
 	}
-	start_date_last = start_date;
 
 	uint64_t sample_time = start_time;
 	int sample_bookmark = seek_bookmark;
@@ -120,6 +127,7 @@ static void load_graph_data()
 		if(sample_bookmark > 0)
 		{
 			values[i] = make_value(&cell, view);
+			timestamps[i] = cell.timestamp;
 			if(values[i] != -1)
 				indices[i] = sample_bookmark;
 
@@ -152,16 +160,13 @@ static void load_graph_data()
 void CAT_monitor_graph_load_date(CAT_datetime date)
 {
 	start_date = date;
-	mode = MODE_PRIMED;
+	mode = MODE_LOADING;
+	if(start_date_last.year == 0)
+		start_date_last = date;
 }
 
 void CAT_monitor_graph_logic()
 {
-	if(mode == MODE_PRIMED)
-	{
-		mode = MODE_LOADING;
-		return;
-	}
 	if(mode == MODE_LOADING)
 	{
 		load_graph_data();
@@ -171,7 +176,7 @@ void CAT_monitor_graph_logic()
 	if(CAT_input_touch_rect(WINDOW_X0, WINDOW_Y0, WINDOW_W, WINDOW_H))
 	{
 		view = (view+1) % VIEW_MAX;
-		mode = MODE_PRIMED;
+		mode = MODE_LOADING;
 	}
 
 	if(CAT_input_pressed(CAT_BUTTON_A))
@@ -198,6 +203,11 @@ void CAT_monitor_graph_logic()
 	reticle_value_idx += dx;
 	reticle_value_idx = clamp(reticle_value_idx, 0, SAMPLE_COUNT-1);
 
+	if(CAT_input_pressed(CAT_BUTTON_SELECT))
+	{
+		ach = CAT_monitor_graph_calculate_ACH(view, values, timestamps, indices, value_min_idx, value_max_idx);
+	}
+
 	int scaled_halfwidth = (WINDOW_W/2) / pps;
 	center_x = clamp(reticle_value_idx, scaled_halfwidth, WINDOW_W-scaled_halfwidth);
 	if(pps > 1)
@@ -208,23 +218,12 @@ void CAT_monitor_graph_logic()
 
 bool CAT_monitor_graph_is_loading()
 {
-	return mode == MODE_PRIMED;
+	return mode == MODE_LOADING;
 }
 
 bool CAT_monitor_graph_should_exit()
 {
 	return mode == MODE_EXIT;
-}
-
-static bool load_reticle_cell(CAT_log_cell* cell)
-{
-	int idx = indices[reticle_value_idx];
-	if(idx != -1)
-	{
-		CAT_read_log_cell_at_idx(idx, cell);
-		return true;
-	}
-	return false;
 }
 
 static int window_x(int x)
@@ -319,7 +318,7 @@ void CAT_monitor_graph_render()
 	CAT_fillberry(WINDOW_X0, WINDOW_Y0, WINDOW_W, WINDOW_H, BG_COLOUR);
 	CAT_strokeberry(WINDOW_X0, WINDOW_Y0, WINDOW_W, WINDOW_H, CAT_WHITE);
 
-	if(mode == MODE_PRIMED)
+	if(mode == MODE_LOADING)
 	{
 		center_textf(WINDOW_X0 + WINDOW_W/2, WINDOW_Y0 + WINDOW_H/2, 3, CAT_MONITOR_BLUE, "Loading");
 		return;
@@ -344,15 +343,13 @@ void CAT_monitor_graph_render()
 			CAT_lineberry(x0, y0, x1, y1, FG_COLOUR);
 	}
 
-	CAT_log_cell reticle_cell;
-	if(load_reticle_cell(&reticle_cell))
+	if(indices[reticle_value_idx] > 0)
 	{
 		CAT_circberry(window_x(reticle_value_idx), window_y(values[reticle_value_idx]), 3, CAT_RED);
 
-		int16_t reticle_value = make_value(&reticle_cell, view);
-		uint64_t reticle_time= reticle_cell.timestamp;
+		int16_t reticle_value = values[reticle_value_idx];
 		CAT_datetime reticle_date;
-		CAT_make_datetime(reticle_cell.timestamp, &reticle_date);
+		CAT_make_datetime(timestamps[reticle_value_idx], &reticle_date);
 
 		CAT_set_text_colour(CAT_WHITE);
 		CAT_draw_textf(WINDOW_X1-CAT_GLYPH_WIDTH*3, WINDOW_Y1 + 4, "%.2dx", pps);
@@ -364,9 +361,17 @@ void CAT_monitor_graph_render()
 		CAT_set_text_colour(CAT_WHITE);
 		CAT_draw_textf(WINDOW_X0, WINDOW_Y1+32, "at %.2d:%.2d", reticle_date.hour, reticle_date.minute);
 	}
+	else
+	{
+		CAT_set_text_colour(CAT_WHITE);
+		CAT_set_text_scale(1);
+		CAT_draw_textf(WINDOW_X0, WINDOW_Y1+4, "%d %d %d\n", reticle_value_idx, indices[reticle_value_idx], value_max_idx);
+	}
 
-	float ach = CAT_monitor_graph_calculate_ACH(view, values, indices, 0, SAMPLE_COUNT-1);
-	CAT_set_text_colour(CAT_WHITE);
-	CAT_draw_textf(WINDOW_X0, WINDOW_Y1+32+16, "ACH: %.2f\n", ach);
+	if(ach != -1)
+	{
+		CAT_set_text_colour(CAT_WHITE);
+		CAT_draw_textf(WINDOW_X0, WINDOW_Y1+32+16, "ACH: %.2f\n", ach);
+	}
 }
 

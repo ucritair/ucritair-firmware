@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include "cat_core.h"
 #include <math.h>
+#include "cat_math.h"
 
 #define VIEW_CO2 0
 #define VIEW_PN_10_0 1
@@ -13,7 +14,7 @@ struct dp
 	int ppm;
 };
 
-float CAT_monitor_graph_calculate_ACH(int view, int16_t* values, int32_t* indices, int start, int end)
+float CAT_monitor_graph_calculate_ACH(int view, int16_t* values, uint64_t* timestamps, int32_t* indices, int start, int end)
 {
 	int cursor_start = start;
 	int cursor_end = end;
@@ -22,13 +23,10 @@ float CAT_monitor_graph_calculate_ACH(int view, int16_t* values, int32_t* indice
 	
 	for (int cursor = start; cursor <= end; cursor++)
 	{
-		CAT_log_cell cell;
 		int idx = indices[cursor];
-		if (idx != -1)
-			CAT_read_log_cell_at_idx(idx, &cell);
-		else
+		if (idx == -1)
 			continue;
-		struct dp here = {.time = cell.timestamp, .ppm = values[cursor]};
+		struct dp here = {.time = timestamps[cursor], .ppm = values[cursor]};
 
 		if(here.ppm > max.ppm)
 		{
@@ -49,16 +47,13 @@ float CAT_monitor_graph_calculate_ACH(int view, int16_t* values, int32_t* indice
 	uint64_t decay_time = 0;
 	for (int cursor = cursor_start; cursor <= cursor_end; cursor++)
 	{
-		CAT_log_cell cell;
 		int idx = indices[cursor];
-		if (idx != -1)
-			CAT_read_log_cell_at_idx(idx, &cell);
-		else
+		if (idx == -1)
 			continue;
 
 		if (values[idx] < decay_concentration)
 		{
-			decay_time = cell.timestamp;
+			decay_time = timestamps[cursor];
 			break;
 		}
 	}

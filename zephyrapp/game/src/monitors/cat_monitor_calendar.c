@@ -34,11 +34,9 @@ enum
 	DAY
 };
 
-static CAT_datetime start_time;
+static CAT_datetime earliest;
 static CAT_datetime today;
-
 static CAT_datetime target;
-static CAT_datetime target_last;
 
 #define DATE_Y 48
 #define DATE_X 120
@@ -68,15 +66,15 @@ static int clamp_date_part(int phase, int year, int month, int day)
 	{
 		case YEAR:
 		{
-			return clamp(year, start_time.year, today.year);
+			return clamp(year, earliest.year, today.year);
 		}
 
 		case MONTH:
 		{
 			int min_month = 1;
 			int max_month = 12;
-			if(year == start_time.year)
-				min_month = start_time.month;
+			if(year == earliest.year)
+				min_month = earliest.month;
 			if(year == today.year)
 				max_month = today.month;
 			return clamp(month, min_month, max_month);
@@ -85,7 +83,7 @@ static int clamp_date_part(int phase, int year, int month, int day)
 		case DAY:
 		{
 			int days = days_in_month(year, month);
-			int min_days = (year == start_time.year && month == start_time.month) ? start_time.day : 1;
+			int min_days = (year == earliest.year && month == earliest.month) ? earliest.day : 1;
 			int max_days = (year == today.year && month == today.month) ? today.day : days;
 			return clamp(day, min_days, max_days);
 		}
@@ -177,7 +175,7 @@ void render_calendar()
 			date.day = day;
 			if
 			(
-				CAT_datecmp(&date, &start_time) >= 0 &&
+				CAT_datecmp(&date, &earliest) >= 0 &&
 				CAT_datecmp(&date, &today) <= 0 &&
 				day <= days_in_month(target.year, target.month)
 			)
@@ -261,11 +259,10 @@ void CAT_monitor_MS_calendar(CAT_machine_signal signal)
 		{
 			CAT_log_cell first;
 			CAT_read_first_calendar_cell(&first);
-			CAT_make_datetime(first.timestamp, &start_time);
+			CAT_make_datetime(first.timestamp, &earliest);
 
 			CAT_get_datetime(&today);
 			target = today;
-			target_last = today;
 
 			page = GATE;
 			section = CELLS;
