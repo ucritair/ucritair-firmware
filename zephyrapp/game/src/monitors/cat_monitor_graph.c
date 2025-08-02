@@ -205,7 +205,19 @@ void CAT_monitor_graph_logic()
 
 	if(CAT_input_pressed(CAT_BUTTON_SELECT))
 	{
-		ach = CAT_monitor_graph_calculate_ACH(view, values, timestamps, indices, value_min_idx, value_max_idx);
+		uint16_t post_max_min_idx = value_max_idx+1;
+		int16_t post_max_min = values[post_max_min_idx];
+		
+		for(int i = post_max_min_idx; i < SAMPLE_COUNT; i++)
+		{
+			int16_t candidate = values[i];
+			if(candidate < post_max_min)
+			{
+				post_max_min = candidate;
+				post_max_min_idx = i;
+			}
+		}
+		ach = CAT_monitor_graph_calculate_ACH(view, values, timestamps, indices, value_max_idx, post_max_min_idx);
 	}
 
 	int scaled_halfwidth = (WINDOW_W/2) / pps;

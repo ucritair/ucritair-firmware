@@ -18,8 +18,8 @@ float CAT_monitor_graph_calculate_ACH(int view, int16_t* values, uint64_t* times
 {
 	int cursor_start = start;
 	int cursor_end = end;
-	struct dp max = {0};
-	struct dp min = {.ppm=99999};
+	struct dp max = {.ppm=INT16_MIN};
+	struct dp min = {.ppm=INT16_MAX};
 	
 	for (int cursor = start; cursor <= end; cursor++)
 	{
@@ -28,7 +28,7 @@ float CAT_monitor_graph_calculate_ACH(int view, int16_t* values, uint64_t* times
 			continue;
 		struct dp here = {.time = timestamps[cursor], .ppm = values[cursor]};
 
-		if(here.ppm > max.ppm)
+		if (here.ppm > max.ppm)
 		{
 			max = here;
 			cursor_start = cursor;
@@ -39,7 +39,7 @@ float CAT_monitor_graph_calculate_ACH(int view, int16_t* values, uint64_t* times
 			cursor_end = cursor;
 		}
 	}
-	double decay_concentration = (double)min.ppm + ((double)max.ppm - (double)min.ppm) / M_E;
+	double decay_concentration = (double) min.ppm + ((double) max.ppm - (double) min.ppm) / M_E;
     
     // Decay time (Assume for simplicity it's between max and baseline times)
    // <A FUNCTION THAT GIVES ME THE TIME that the concentration dropped below decay_concentration and returns decay_time)
@@ -51,7 +51,7 @@ float CAT_monitor_graph_calculate_ACH(int view, int16_t* values, uint64_t* times
 		if (idx == -1)
 			continue;
 
-		if (values[idx] < decay_concentration)
+		if(values[cursor] < decay_concentration)
 		{
 			decay_time = timestamps[cursor];
 			break;
@@ -59,8 +59,11 @@ float CAT_monitor_graph_calculate_ACH(int view, int16_t* values, uint64_t* times
 	}
 
 	if (decay_time == 0 || decay_time==max.time || max.ppm == min.ppm || max.ppm == 0 || min.ppm == 99999)
+	{
 		return -1;
+	}
 
     // Calculate ACH
-    return 1.0 / ((double)(decay_time - max.time) / 3600.0);  // Convert to hours
+    float ach = 1.0 / ((double)(decay_time - max.time) / 3600.0);  // Convert to hours
+	return ach;
 }
