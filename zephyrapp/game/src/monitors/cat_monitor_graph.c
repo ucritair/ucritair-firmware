@@ -12,7 +12,9 @@ typedef enum
 {
 	MODE_LOADING,
 	MODE_VIEWING,
-	MODE_CALCULATING,
+	MODE_ACH_START,
+	MODE_ACH_END,
+	MODE_ACH_CALC,
 	MODE_EXIT
 } graph_mode;
 static int mode = MODE_LOADING;
@@ -40,6 +42,7 @@ static int16_t value_min;
 static uint16_t value_min_idx;
 static int16_t value_max;
 static uint16_t value_max_idx;
+static uint16_t last_valid_idx;
 
 static int center_x;
 static int center_y;
@@ -60,7 +63,9 @@ typedef enum
 } graph_view;
 static int view = VIEW_CO2;
 
-static float ach = -1;
+static float ach_cache[VIEW_MAX];
+static int ach_start_idx;
+static int ach_end_idx;
 
 static int16_t make_value(CAT_log_cell* cell, int view)
 {
@@ -118,6 +123,7 @@ static void load_graph_data()
 	int sample_bookmark = seek_bookmark;
 	value_max = INT16_MIN;
 	value_min = INT16_MAX;
+	last_valid_idx = 0;
 
 	for(int i = 0; i < SAMPLE_COUNT; i++)
 	{
@@ -128,8 +134,14 @@ static void load_graph_data()
 		{
 			values[i] = make_value(&cell, view);
 			timestamps[i] = cell.timestamp;
-			if(values[i] != -1)
+
+			CAT_datetime sample_date;
+			CAT_make_datetime(cell.timestamp, &sample_date);
+			if(values[i] != -1 && sample_date.day == start_date.day)
+			{
 				indices[i] = sample_bookmark;
+				last_valid_idx = i;
+			}
 
 			if(values[i] > value_max)
 			{
@@ -155,6 +167,19 @@ static void load_graph_data()
 	center_x = WINDOW_W/2;
 	center_y = (value_min + value_max) / 2;
 	reticle_value_idx = value_max_idx;
+
+	for(int i = 0; i < VIEW_MAX; i++)
+		ach_cache[i] = -1;
+}
+
+bool is_graph_valid()
+{
+	return last_valid_idx > 0;
+}
+
+bool is_ach_possible()
+{
+	return is_graph_valid() && view == VIEW_CO2 || view == VIEW_PN_10_0;
 }
 
 void CAT_monitor_graph_load_date(CAT_datetime date)
@@ -165,32 +190,8 @@ void CAT_monitor_graph_load_date(CAT_datetime date)
 		start_date_last = date;
 }
 
-void CAT_monitor_graph_logic()
+int move_cursor(int cursor, int left, int right)
 {
-	if(mode == MODE_LOADING)
-	{
-		load_graph_data();
-		mode = MODE_VIEWING;
-	}
-
-	if(CAT_input_touch_rect(WINDOW_X0, WINDOW_Y0, WINDOW_W, WINDOW_H))
-	{
-		view = (view+1) % VIEW_MAX;
-		mode = MODE_LOADING;
-	}
-
-	if(CAT_input_pressed(CAT_BUTTON_A))
-		pps += 1;
-	if(CAT_input_pressed(CAT_BUTTON_B))
-	{
-		pps -= 1;
-		if(pps == 0)
-		{
-			mode = MODE_EXIT;
-		}
-	}
-	pps = clamp(pps, 1, 16);
-
 	int dx = 0;
 	if(CAT_input_held(CAT_BUTTON_LEFT, 0))
 		dx -= 1;
@@ -200,32 +201,72 @@ void CAT_monitor_graph_logic()
 		dx += 1;
 	if(CAT_input_held(CAT_BUTTON_RIGHT, 1))
 		dx += 3;
-	reticle_value_idx += dx;
-	reticle_value_idx = clamp(reticle_value_idx, 0, SAMPLE_COUNT-1);
+	cursor += dx;
+	return clamp(cursor, left, right);
+}
 
-	if(CAT_input_pressed(CAT_BUTTON_SELECT))
+void CAT_monitor_graph_logic()
+{
+	if(mode == MODE_LOADING)
 	{
-		uint16_t post_max_min_idx = value_max_idx+1;
-		int16_t post_max_min = values[post_max_min_idx];
-		
-		for(int i = post_max_min_idx; i < SAMPLE_COUNT; i++)
+		load_graph_data();
+		mode = MODE_VIEWING;
+	}
+	else if(mode == MODE_VIEWING)
+	{
+		if(CAT_input_touch_rect(WINDOW_X0, WINDOW_Y0, WINDOW_W, WINDOW_H))
 		{
-			int16_t candidate = values[i];
-			if(candidate < post_max_min)
+			view = (view+1) % VIEW_MAX;
+			mode = MODE_LOADING;
+		}
+
+		if(CAT_input_pressed(CAT_BUTTON_A))
+			pps += 1;
+		if(CAT_input_pressed(CAT_BUTTON_B))
+		{
+			pps -= 1;
+			if(pps == 0)
 			{
-				post_max_min = candidate;
-				post_max_min_idx = i;
+				mode = MODE_EXIT;
 			}
 		}
-		ach = CAT_monitor_graph_calculate_ACH(view, values, timestamps, indices, value_max_idx, post_max_min_idx);
-	}
+		pps = clamp(pps, 1, 16);
 
-	int scaled_halfwidth = (WINDOW_W/2) / pps;
-	center_x = clamp(reticle_value_idx, scaled_halfwidth, WINDOW_W-scaled_halfwidth);
-	if(pps > 1)
-		center_y = values[reticle_value_idx];
-	else
-		center_y = (value_min + value_max) / 2;
+		if(CAT_input_pressed(CAT_BUTTON_SELECT) && is_ach_possible() && pps == 1)
+		{
+			CAT_monitor_graph_set_ACH_data(view, values, timestamps, indices, SAMPLE_COUNT);
+			CAT_monitor_graph_auto_ACH_cursors(&ach_start_idx, &ach_end_idx);
+			mode = MODE_ACH_START;
+			ach_cache[view] = CAT_monitor_graph_get_ACH(ach_start_idx, ach_end_idx);
+		}
+
+		reticle_value_idx = move_cursor(reticle_value_idx, 0, SAMPLE_COUNT-1);
+		int scaled_halfwidth = (WINDOW_W/2) / pps;
+		center_x = clamp(reticle_value_idx, scaled_halfwidth, WINDOW_W-scaled_halfwidth);
+		if(pps > 1)
+			center_y = values[reticle_value_idx];
+		else
+			center_y = (value_min + value_max) / 2;
+	}
+	else if(mode == MODE_ACH_START)
+	{
+		ach_start_idx = move_cursor(ach_start_idx, 0, SAMPLE_COUNT-1);
+
+		if(CAT_input_pressed(CAT_BUTTON_A) && indices[ach_start_idx] != -1)
+			mode = MODE_ACH_END;
+	}
+	else if(mode == MODE_ACH_END)
+	{
+		ach_end_idx = move_cursor(ach_end_idx, ach_start_idx, SAMPLE_COUNT-1);
+
+		if(CAT_input_pressed(CAT_BUTTON_A) && indices[ach_end_idx] != -1)
+			mode = MODE_ACH_CALC;
+	}
+	if(mode == MODE_ACH_CALC)
+	{
+		ach_cache[view] = CAT_monitor_graph_get_ACH(ach_start_idx+1, ach_end_idx);
+		mode = MODE_VIEWING;
+	}
 }
 
 bool CAT_monitor_graph_is_loading()
@@ -318,6 +359,8 @@ static char* make_value_string(int view, int16_t value)
 	return buf;
 }
 
+#define ACH_Y (WINDOW_Y1+4+28+14+8)
+
 void CAT_monitor_graph_render()
 {
 	draw_subpage_markers(32, VIEW_MAX, view);
@@ -333,11 +376,15 @@ void CAT_monitor_graph_render()
 	if(mode == MODE_LOADING)
 	{
 		center_textf(WINDOW_X0 + WINDOW_W/2, WINDOW_Y0 + WINDOW_H/2, 3, CAT_MONITOR_BLUE, "Loading");
+		CAT_set_text_colour(CAT_WHITE);
+		CAT_draw_textf(WINDOW_X0, WINDOW_Y1+4, "Please wait...");
 		return;
 	}
-	if(value_min == value_max && indices[0] == -1)
+	if(last_valid_idx == 0)
 	{
 		center_textf(WINDOW_X0 + WINDOW_W/2, WINDOW_Y0 + WINDOW_H/2, 3, CAT_RED, "N/A");
+		CAT_set_text_colour(CAT_WHITE);
+		CAT_draw_textf(WINDOW_X0, WINDOW_Y1+4, "Insufficient data found\nfor this date!");
 		return;
 	}
 
@@ -355,35 +402,76 @@ void CAT_monitor_graph_render()
 			CAT_lineberry(x0, y0, x1, y1, FG_COLOUR);
 	}
 
-	if(indices[reticle_value_idx] > 0)
+	if(mode == MODE_VIEWING)
 	{
 		CAT_circberry(window_x(reticle_value_idx), window_y(values[reticle_value_idx]), 3, CAT_RED);
+	}
+	else if(mode == MODE_ACH_START || mode == MODE_ACH_END)
+	{
+		CAT_lineberry(WINDOW_X0+ach_start_idx, WINDOW_Y0, WINDOW_X0+ach_start_idx, WINDOW_Y1, CAT_GREEN);
+		CAT_lineberry(WINDOW_X0+ach_end_idx, WINDOW_Y0, WINDOW_X0+ach_end_idx, WINDOW_Y1, CAT_RED);
+	}
 
-		int16_t reticle_value = values[reticle_value_idx];
-		CAT_datetime reticle_date;
-		CAT_make_datetime(timestamps[reticle_value_idx], &reticle_date);
+	int cursor = reticle_value_idx;
+	if(mode == MODE_ACH_START)
+		cursor = ach_start_idx;
+	if(mode == MODE_ACH_END || mode == MODE_ACH_CALC)
+		cursor = ach_end_idx;
+	if(indices[cursor] > 0)
+	{
+		int16_t cursor_value = values[cursor];
+		CAT_datetime cursor_date;
+		CAT_make_datetime(timestamps[cursor], &cursor_date);
 
 		CAT_set_text_colour(CAT_WHITE);
 		CAT_draw_textf(WINDOW_X1-CAT_GLYPH_WIDTH*3, WINDOW_Y1 + 4, "%.2dx", pps);
 		
 		CAT_set_text_colour(CAT_WHITE);
 		CAT_set_text_scale(2);
-		CAT_draw_textf(WINDOW_X0, WINDOW_Y1+4, "%s", make_value_string(view, reticle_value));
+		CAT_draw_textf(WINDOW_X0, WINDOW_Y1+4, "%s", make_value_string(view, cursor_value));
 
 		CAT_set_text_colour(CAT_WHITE);
-		CAT_draw_textf(WINDOW_X0, WINDOW_Y1+32, "at %.2d:%.2d", reticle_date.hour, reticle_date.minute);
+		CAT_draw_textf(WINDOW_X0, WINDOW_Y1+4+28, "at %.2d:%.2d on %.2d/%.2d/%.4d", cursor_date.hour, cursor_date.minute, cursor_date.month, cursor_date.day, cursor_date.year);
+
+		switch(mode)
+		{
+			case MODE_ACH_START:
+				CAT_set_text_colour(CAT_WHITE);
+				CAT_draw_textf(WINDOW_X0, ACH_Y, "[A] to confirm start\n");
+			break;
+			case MODE_ACH_END:
+				CAT_set_text_colour(CAT_WHITE);
+				CAT_draw_textf(WINDOW_X0, ACH_Y, "[A] to confirm end\n");
+			break;
+			case MODE_ACH_CALC:
+				CAT_set_text_colour(CAT_WHITE);
+				CAT_draw_textf(WINDOW_X0, ACH_Y, "[A] to calculate\n");
+			break;
+		}
 	}
 	else
 	{
 		CAT_set_text_colour(CAT_WHITE);
 		CAT_set_text_scale(1);
-		CAT_draw_textf(WINDOW_X0, WINDOW_Y1+4, "%d %d %d\n", reticle_value_idx, indices[reticle_value_idx], value_max_idx);
+		CAT_draw_textf(WINDOW_X0, WINDOW_Y1+4, "INVALID\n");
 	}
 
-	if(ach != -1)
-	{
+	if(mode == MODE_VIEWING && is_ach_possible())
+	{	
+		if(pps == 1)
+		{
+			CAT_set_text_colour(CAT_WHITE);
+			CAT_draw_textf(WINDOW_X0, ACH_Y, ach_cache[view] == -1 ? "[SELECT] for e/ACH" : "ACH:");
+		}
+		if(ach_cache[view] != -1)
+		{
+			CAT_set_text_scale(2);
+			CAT_set_text_colour(CAT_WHITE);
+			CAT_draw_textf(WINDOW_X0, ACH_Y+14, "%.2f\n", ach_cache[view]);
+		}
+
 		CAT_set_text_colour(CAT_WHITE);
-		CAT_draw_textf(WINDOW_X0, WINDOW_Y1+32+16, "ACH: %.2f\n", ach);
+		CAT_draw_textf(WINDOW_X0, CAT_LCD_SCREEN_H-24, "Tap graph to change view");
 	}
 }
 

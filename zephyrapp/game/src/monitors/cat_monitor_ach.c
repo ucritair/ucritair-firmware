@@ -5,50 +5,77 @@
 #include <math.h>
 #include "cat_math.h"
 
-#define VIEW_CO2 0
-#define VIEW_PN_10_0 1
+static int view;
+static int16_t* values;
+static uint64_t* timestamps;
+static int32_t* indices;
+static int extent;
 
-struct dp
-{
-	uint64_t time;
-	int ppm;
-};
+static int cursor_start;
+static int cursor_end;
 
-float CAT_monitor_graph_calculate_ACH(int view, int16_t* values, uint64_t* timestamps, int32_t* indices, int start, int end)
+void CAT_monitor_graph_set_ACH_data(int _view, int16_t* _values, uint64_t* _timestamps, int32_t* _indices, int _extent)
 {
-	int cursor_start = start;
-	int cursor_end = end;
-	struct dp max = {.ppm=INT16_MIN};
-	struct dp min = {.ppm=INT16_MAX};
-	
-	for (int cursor = start; cursor <= end; cursor++)
+	view = _view;
+	values = _values;
+	timestamps = _timestamps;
+	indices = _indices;
+	extent = _extent;
+}
+
+void CAT_monitor_graph_auto_ACH_cursors(int* start, int* end)
+{
+	int16_t peak = INT16_MIN;
+	int peak_idx = -1;
+	for(int i = 0; i < extent; i++)
 	{
-		int idx = indices[cursor];
-		if (idx == -1)
+		if(indices[i] == -1)
 			continue;
-		struct dp here = {.time = timestamps[cursor], .ppm = values[cursor]};
 
-		if (here.ppm > max.ppm)
+		int16_t value = values[i];
+		if(value > peak)
 		{
-			max = here;
-			cursor_start = cursor;
-		}
-		if (here.ppm < min.ppm)
-		{
-			min = here;
-			cursor_end = cursor;
+			peak = value;
+			peak_idx = i;
 		}
 	}
-	double decay_concentration = (double) min.ppm + ((double) max.ppm - (double) min.ppm) / M_E;
-    
+	*start = peak_idx;
+
+	int trough_idx = peak_idx;
+	int16_t trough = values[trough_idx];
+	for(int i = trough_idx; i < extent; i++)
+	{
+		if(indices[i] == -1)
+			continue;
+
+		int16_t value = values[i];
+		if(value < trough)
+		{
+			trough = value;
+			trough_idx = i;
+		}
+	}
+	*end = trough_idx;
+}
+
+float CAT_monitor_graph_get_ACH(int start, int end)
+{
+	if(start == end)
+		return -1;
+	if(values[start] == values[end])
+		return -1;
+
+	int16_t max_ppm = values[start];
+	int16_t min_ppm = values[end];
+	float decay_concentration = min_ppm + (float) (max_ppm - min_ppm) / (float) M_E;
+	
     // Decay time (Assume for simplicity it's between max and baseline times)
    // <A FUNCTION THAT GIVES ME THE TIME that the concentration dropped below decay_concentration and returns decay_time)
 
 	uint64_t decay_time = 0;
-	for (int cursor = cursor_start; cursor <= cursor_end; cursor++)
+	for (int cursor = start; cursor <= end; cursor++)
 	{
-		int idx = indices[cursor];
-		if (idx == -1)
+		if (indices[cursor] == -1)
 			continue;
 
 		if(values[cursor] < decay_concentration)
@@ -57,13 +84,10 @@ float CAT_monitor_graph_calculate_ACH(int view, int16_t* values, uint64_t* times
 			break;
 		}
 	}
-
-	if (decay_time == 0 || decay_time==max.time || max.ppm == min.ppm || max.ppm == 0 || min.ppm == 99999)
-	{
+	if(decay_time == 0)
 		return -1;
-	}
 
     // Calculate ACH
-    float ach = 1.0 / ((double)(decay_time - max.time) / 3600.0);  // Convert to hours
+    float ach = 1.0 / ((float) (decay_time - timestamps[start]) / 3600.0);  // Convert to hours
 	return ach;
 }
