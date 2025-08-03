@@ -77,12 +77,12 @@ void player_motion_input()
 		player_move_by(PLAYER_SPEED  * CAT_get_delta_time_s(), 0);
 }
 
-void player_get_trigger(int* x0, int* y0, int* x1, int* y1)
+void player_get_aabb(int* x0, int* y0, int* x1, int* y1)
 {
-	*x0 = player_x - PLAYER_W/2;
-	*y0 = player_y - PLAYER_H/2;
-	*x1 = player_x + PLAYER_W/2;
-	*y1 = player_y + PLAYER_H/2;
+	*x0 = player_x - PLAYER_W/4;
+	*y0 = player_y - PLAYER_H/4;
+	*x1 = player_x + PLAYER_W/4;
+	*y1 = player_y + PLAYER_H/4;
 }
 
 void player_hand(int* x, int* y)
@@ -126,7 +126,7 @@ void player_collision()
 	interactable = NULL;
 
 	int x0, y0, x1, y1;
-	player_get_trigger(&x0, &y0, &x1, &y1);
+	player_get_aabb(&x0, &y0, &x1, &y1);
 	collisions = CAT_detect_collisions(&test_scene, x0, y0, x1, y1, &collision_count);
 
 	for(int i = 0; i < collision_count; i++)
@@ -147,7 +147,7 @@ void player_collision()
 				if(abs(sep_x) > abs(sep_y))
 				{
 					player_y += sep_y * sgn(player_dy);
-					player_get_trigger(&x0, &y0, &x1, &y1);
+					player_get_aabb(&x0, &y0, &x1, &y1);
 					if
 					(
 						CAT_rect_rect_intersecting
@@ -163,7 +163,7 @@ void player_collision()
 				else
 				{				
 					player_x += sep_x * sgn(player_dx);
-					player_get_trigger(&x0, &y0, &x1, &y1);
+					player_get_aabb(&x0, &y0, &x1, &y1);
 					if
 					(
 						CAT_rect_rect_intersecting
@@ -206,25 +206,6 @@ bool facing_interactable()
 	return true;
 }
 
-bool touching_interactable()
-{
-	if(interactable == NULL)
-		return false;
-
-	CAT_scene_AABB aabb;
-	CAT_scene_get_AABB(&test_scene, interactable, aabb);
-	int x0, y0, x1, y1;
-	player_get_trigger(&x0, &y0, &x1, &y1);
-
-	return
-	CAT_rect_rect_touching
-	(
-		aabb[0], aabb[1],
-		aabb[2], aabb[3],
-		x0, y0, x1, y1
-	);
-}
-
 void player_interaction_logic()
 {
 	if(interactable == NULL)
@@ -232,7 +213,7 @@ void player_interaction_logic()
 
 	if(CAT_input_pressed(CAT_BUTTON_A))
 	{
-		if(facing_interactable() && touching_interactable())
+		if(facing_interactable())
 		{
 			CAT_prop* prop = test_scene.layers[interactable->layer].props[interactable->prop].prop;
 			void (*proc)() = prop->triggers[interactable->trigger].proc;
@@ -255,9 +236,10 @@ void draw_player()
 	int view_x = CAT_LCD_SCREEN_W/2;
 	int view_y = CAT_LCD_SCREEN_H/2;
 
-	CAT_strokeberry(view_x - PLAYER_W/2, view_y - PLAYER_H/2, PLAYER_W, PLAYER_H, CAT_WHITE);
-	CAT_lineberry(view_x, view_y, view_x + player_tx * 16, view_y + player_ty * 16, CAT_GREEN);
-
+	int x0, y0, x1, y1;
+	player_get_aabb(&x0, &y0, &x1, &y1);
+	CAT_strokeberry(x0-player_x+view_x, y0-player_y+view_y, x1-x0, y1-y0, CAT_WHITE);
+	
 	CAT_set_sprite_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
 	CAT_draw_sprite(&pet_world_walk_sprite, player_walk_row * 2 + player_walk_frame, view_x, view_y);	
 }
