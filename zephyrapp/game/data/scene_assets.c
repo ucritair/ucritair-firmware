@@ -6,14 +6,14 @@ const CAT_scene test_scene = {
 		{
 			.props = (struct prop[]) {
 				{
-					.prop = &reed_prop,
-					.position_x = 29,
-					.position_y = -86,
-				},
-				{
 					.prop = &reed_house_prop,
 					.position_x = -37,
 					.position_y = -160,
+				},
+				{
+					.prop = &reed_prop,
+					.position_x = 29,
+					.position_y = -86,
 				},
 			},
 			.prop_count = 2,

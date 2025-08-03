@@ -2,6 +2,32 @@ import json;
 from pathlib import Path;
 import copy;
 
+class Database:
+	def __init__(self):
+		self.bank = {};
+
+	def add_document(self, path):
+		path = Path(path);
+		file = open(path, "r");
+
+		data = json.load(file);
+		keys = data.keys();
+		type = next(k for k in keys if k != "instances");
+		instances = data["instances"];
+
+		self.bank[type] = {};
+		for instance in instances:
+			self.bank[type][instance["name"]] = instance;
+
+	def _search(self, node, path):
+		if path == []:
+			return node;
+		return self._search(node[path[0]], path[1:]);
+		
+	def search(self, path):
+		path = path.split("/");
+		return self._search(self.bank, path);
+
 class Triptych:
 	def __init__(self, path):
 		path = Path(path);

@@ -493,9 +493,9 @@ class DocumentRenderer:
 	
 	def render(doc : AssetDocument):
 		_, DocumentRenderer._search_term = imgui.input_text("Search", DocumentRenderer._search_term);
-		subset = list(filter(lambda e: len(DocumentRenderer._search_term) == 0 or DocumentRenderer._search_term in e["name"], doc.entries));
+		subset = list(filter(lambda e: len(DocumentRenderer._search_term) == 0 or DocumentRenderer._search_term in e["name"], doc.instances));
 
-		for (idx, entry) in enumerate(doc.entries):
+		for (idx, entry) in enumerate(doc.instances):
 			if entry in subset:
 				root = doc.typist.root();
 				name = DocumentHelper.get_name(doc, idx);

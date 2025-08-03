@@ -292,13 +292,57 @@ void CAT_MS_world(CAT_machine_signal signal)
 
 #define GRASS_COLOUR RGB8882565(122, 146, 57)
 
+static void viewport_transform(int x, int y, int eye_x, int eye_y, int view_w, int view_h, int* x_out, int* y_out)
+{
+	*x_out = x - eye_x + CAT_LCD_SCREEN_W/2;
+	*y_out = y - eye_y + CAT_LCD_SCREEN_H/2;
+}
+
+static int bottom_y(const CAT_sprite* sprite, int x, int y)
+{
+	return y + sprite->height;
+}
+
+static int prop_bottom_y(int i, int j)
+{
+	struct layer* layer = &test_scene.layers[i];
+	struct prop* prop = &layer->props[j];
+	if(j == -1)
+		return INT16_MIN;
+	if(j == layer->prop_count)
+		return INT16_MAX;
+	return bottom_y(prop->prop->sprite, prop->position_x, prop->position_y);
+}
+
 void CAT_render_world()
 {
 	CAT_frameberry(GRASS_COLOUR);
 
-	CAT_render_scene(&test_scene, player_x, player_y);
+	bool drew_player = false;
+	for(int i = 0; i < test_scene.layer_count; i++)
+	{
+		struct layer* layer = &test_scene.layers[i];
+		for(int j = 0; j < layer->prop_count; j++)
+		{
+			if(!drew_player)
+			{
+				int player_by = bottom_y(&pet_world_walk_sprite, player_x-PLAYER_W/2, player_y-PLAYER_H/2);
+				int prop_by = prop_bottom_y(i, j);
+				if(player_by < prop_by)
+				{
+					draw_player();
+					drew_player = true;
+				}
+			}
 
-	draw_player();
+			int x0, y0, x1, y1;
+			struct prop* prop = &layer->props[j];
+			viewport_transform(prop->position_x, prop->position_y, player_x, player_y, CAT_LCD_SCREEN_W, CAT_LCD_SCREEN_H, &x0, &y0);
+			CAT_draw_sprite_raw(prop->prop->sprite, -1, x0, y0);
+		}
+	}
+	if(!drew_player)
+		draw_player();
 
 	if(CAT_in_dialogue())
 	{

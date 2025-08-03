@@ -11,18 +11,19 @@ class AssetDocument:
 	def __init__(self, path):
 		self.path = Path(path);
 		self.directory = self.path.parent;
-		self.file = open(path, "r+");
-
+		self.file = open(path, "r");
 		self.data = json.load(self.file);
+		self.file.close();
+		
 		keys = self.data.keys();
 		self.type = next(k for k in keys if k != "instances");
 		self.typist = ee_types.Typist(self.type, self.data[self.type]);
 		self.type_helper = ee_types.TypeHelper(self.typist);
-		self.entries = self.data["instances"];
+		self.instances = self.data["instances"];
 	
 		self.id_set = set();
 		if "id" in self.typist.root().T.keys():
-			for entry in self.entries:
+			for entry in self.instances:
 				self.id_set.add(entry["id"]);
 	
 	def take_free_id(self):
@@ -41,23 +42,23 @@ class AssetDocument:
 		new["name"] = f"new_{self.type}";
 		if "id" in new:
 			new["id"] = self.take_free_id();
-		self.entries.append(new);
+		self.instances.append(new);
 	
 	def duplicate_entry(self, idx):
-		new = copy.deepcopy(self.entries[idx]);
+		new = copy.deepcopy(self.instances[idx]);
 		if "id" in new:
 			new["id"] = self.take_free_id();
-		self.entries.append(new);
+		self.instances.append(new);
 	
 	def delete_entry(self, idx):
-		entry = self.entries[idx];
+		entry = self.instances[idx];
 		if "id" in entry:
 			self.id_set.remove(entry["id"]);
-		del self.entries[idx];
+		del self.instances[idx];
 	
 	def refresh(self):
-		for i in range(len(self.entries)):
-			self.type_helper.rectify(self.entries[i]);
+		for i in range(len(self.instances)):
+			self.type_helper.rectify(self.instances[i]);
 	
 	def save(self):
 		self.file.seek(0);

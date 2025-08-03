@@ -119,7 +119,7 @@ CAT_scene_index* CAT_detect_collisions(CAT_scene* scene, int x0, int y0, int x1,
 	return collision_buffer;
 }
 
-void viewport_transform(int x, int y, int eye_x, int eye_y, int view_w, int view_h, int* x_out, int* y_out)
+static void viewport_transform(int x, int y, int eye_x, int eye_y, int view_w, int view_h, int* x_out, int* y_out)
 {
 	*x_out = x - eye_x + CAT_LCD_SCREEN_W/2;
 	*y_out = y - eye_y + CAT_LCD_SCREEN_H/2;
