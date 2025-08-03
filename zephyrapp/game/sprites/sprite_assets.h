@@ -239,6 +239,8 @@ extern const CAT_sprite ui_checkbox_sprite;
 extern const CAT_sprite eink_update_splash_sprite;
 extern const CAT_sprite pet_world_walk_sprite;
 extern const CAT_sprite npc_reed_sprite;
+extern const CAT_sprite stable_sprite;
+extern const CAT_sprite reed_house_sprite;
 
 extern const CAT_sprite* sprite_list[];
-#define CAT_SPRITE_LIST_LENGTH 235
+#define CAT_SPRITE_LIST_LENGTH 237

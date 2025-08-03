@@ -102,6 +102,7 @@ class SceneEditor:
 		self.selection = None;
 		self.highlight = None;
 		self.selection_delta = None;
+		self.trash = [];
 	
 		self.show_viewport = True;
 		self.show_axes = True;
@@ -109,6 +110,13 @@ class SceneEditor:
 	
 	def is_scene_loaded(self):
 		return self.scene in AssetManager.get_assets("scene");
+
+	def hygiene_pass(self):
+		if self.is_scene_loaded():
+			for layer in self.scene["layers"]:
+				for prop in layer:
+					if AssetManager.search("prop", prop["prop"]) == None:
+						prop["prop"] = "null_prop";
 	
 	def cursor_io(self, canvas_pos):
 		cursor = InputManager.get_imgui_cursor();
@@ -205,9 +213,14 @@ class SceneEditor:
 				if imgui.button("+"):
 					PropHelper.add_trigger(prop);
 				imgui.tree_pop();
+			
+			if imgui.button("Delete"):
+				self.trash.append(prop);
 			imgui.tree_pop();
 	
 	def gui_draw_scene(self):
+		self.trash = [];
+
 		if imgui.collapsing_header(f"Layers"):
 			for (idx, layer) in enumerate(self.scene["layers"]):
 				imgui.push_id(str(idx));			
@@ -221,6 +234,11 @@ class SceneEditor:
 				imgui.pop_id();
 			if imgui.button("+"):
 				self.scene["layers"].append(SpawnHelper.spawn_layer());
+	
+		for prop in self.trash:
+			for layer in self.scene["layers"]:
+				if prop in self.trash:
+					layer.remove(prop);
 	
 	def canvas_draw_prop(self, prop, show_sprite=True, show_aabb=False, show_blockers=False, show_triggers=False, show_name=False):
 		prop_asset = PropHelper.get_prop_asset(prop);
@@ -294,6 +312,8 @@ class SceneEditor:
 			_, self.open = imgui.begin(f"Scene Editor", self.open, flags=self.window_flags);
 
 			if self.is_scene_loaded():
+				self.hygiene_pass();
+
 				self.selection_io();
 
 				self.canvas.clear((128, 128, 128));

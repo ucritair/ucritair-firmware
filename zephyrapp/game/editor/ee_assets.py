@@ -2,6 +2,7 @@ from pathlib import Path;
 import json;
 import ee_types;
 import copy;
+import shutil;
 
 #########################################################
 ## DOCUMENT MODEL
@@ -116,6 +117,7 @@ class AssetManager:
 						document = AssetDocument(filepath);
 						AssetManager.documents.append(document);
 						print(f"[AssetManager] Loaded {filepath}");
+						shutil.copyfile(filepath, f"editor/backups/{filepath.name}");
 					except Exception as e:
 						print(f"[AssetManager] Failed to load {filepath}!\n\t({e})");
 	
@@ -130,6 +132,9 @@ class AssetManager:
 	def get_assets(asset_type):
 		return next(document.entries for document in AssetManager.documents if document.type == asset_type);
 	def search(asset_type, asset_name):
-		return next(asset for asset in AssetManager.get_assets(asset_type) if asset["name"] == asset_name);
+		try:
+			return next(asset for asset in AssetManager.get_assets(asset_type) if asset["name"] == asset_name);
+		except:
+			return None;
 
 	

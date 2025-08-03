@@ -1,0 +1,252 @@
+{
+    "fish": {
+        "type": {
+            "name": {
+                "type": "string"
+            },
+            "display_name": {
+                "type": "string"
+            },
+            "proverb": {
+                "type": "string"
+            },
+            "grade_constraint": {
+                "type": "int",
+                "attributes": [
+                    "rank"
+                ]
+            },
+            "min_length": {
+                "type": "float"
+            },
+            "max_length": {
+                "type": "float"
+            },
+            "min_lustre": {
+                "type": "float"
+            },
+            "max_lustre": {
+                "type": "float"
+            },
+            "min_wisdom": {
+                "type": "float"
+            },
+            "max_wisdom": {
+                "type": "float"
+            },
+            "mesh": {
+                "type": "mesh2d"
+            }
+        }
+    },
+    "instances": [
+        {
+            "name": "mackerel",
+            "display_name": "King Mackerel",
+            "proverb": "Man is most free when his tools are proportional to his needs.",
+            "min_length": 0.15000000596046448,
+            "max_length": 0.4000000059604645,
+            "min_lustre": 0.5,
+            "max_lustre": 0.800000011920929,
+            "min_wisdom": 0.10000000149011612,
+            "max_wisdom": 0.30000001192092896,
+            "grade_constraint": 0,
+            "mesh": "sardine"
+        },
+        {
+            "name": "crucian_carp",
+            "display_name": "Crucian Carp",
+            "proverb": "We must not confuse admiration for the machine itself with an automatic satisfaction with its products.",
+            "min_length": 0.15000000596046448,
+            "max_length": 0.4000000059604645,
+            "min_lustre": 0.5,
+            "max_lustre": 0.800000011920929,
+            "min_wisdom": 0.10000000149011612,
+            "max_wisdom": 0.30000001192092896,
+            "grade_constraint": 0,
+            "mesh": "crucian_carp"
+        },
+        {
+            "name": "sardine",
+            "display_name": "Sardine",
+            "proverb": "What must be avoided at all costs is dishonest, distorted, and ornate work.",
+            "min_length": 0.15000000596046448,
+            "max_length": 0.4000000059604645,
+            "min_lustre": 0.5,
+            "max_lustre": 0.800000011920929,
+            "min_wisdom": 0.10000000149011612,
+            "max_wisdom": 0.30000001192092896,
+            "grade_constraint": 0,
+            "mesh": "sardine"
+        },
+        {
+            "name": "cod",
+            "display_name": "Cod",
+            "proverb": "The world of utility and the world of beauty are not separate realms.",
+            "min_length": 0.15000000596046448,
+            "max_length": 0.4000000059604645,
+            "min_lustre": 0.5,
+            "max_lustre": 0.800000011920929,
+            "min_wisdom": 0.10000000149011612,
+            "max_wisdom": 0.30000001192092896,
+            "grade_constraint": 0,
+            "mesh": "cod"
+        },
+        {
+            "name": "herring",
+            "display_name": "Herring",
+            "proverb": "What must be sought is the natural, direct, simple, sturdy, and safe.",
+            "min_length": 0.15000000596046448,
+            "max_length": 0.4000000059604645,
+            "min_lustre": 0.5,
+            "max_lustre": 0.800000011920929,
+            "min_wisdom": 0.10000000149011612,
+            "max_wisdom": 0.30000001192092896,
+            "grade_constraint": 0,
+            "mesh": "herring"
+        },
+        {
+            "name": "tilapia",
+            "display_name": "Tilapia",
+            "proverb": "Words are not meant to stir the air only: they are capable of moving greater things.",
+            "min_length": 0.15000000596046448,
+            "max_length": 0.4000000059604645,
+            "min_lustre": 0.5,
+            "max_lustre": 0.800000011920929,
+            "min_wisdom": 0.10000000149011612,
+            "max_wisdom": 0.30000001192092896,
+            "grade_constraint": 0,
+            "mesh": "tilapia"
+        },
+        {
+            "name": "crawfish",
+            "display_name": "Crawfish",
+            "proverb": "It is certainly quite wrong to read a poem in a hurry, as if it were a telegram.",
+            "min_length": 0.15000000596046448,
+            "max_length": 0.4000000059604645,
+            "min_lustre": 0.5,
+            "max_lustre": 0.800000011920929,
+            "min_wisdom": 0.10000000149011612,
+            "max_wisdom": 0.30000001192092896,
+            "grade_constraint": 0,
+            "mesh": "crawfish"
+        },
+        {
+            "name": "catfish",
+            "display_name": "Catfish",
+            "proverb": "The world is mud-luscious and puddle-wonderful.",
+            "min_length": 0.15000000596046448,
+            "max_length": 0.4000000059604645,
+            "min_lustre": 0.5,
+            "max_lustre": 0.800000011920929,
+            "min_wisdom": 0.10000000149011612,
+            "max_wisdom": 0.30000001192092896,
+            "grade_constraint": 1,
+            "mesh": "catfish"
+        },
+        {
+            "name": "eel",
+            "display_name": "Eel",
+            "proverb": "A cicada shell.\\nIt sang itself\\nutterly away.",
+            "min_length": 0.15000000596046448,
+            "max_length": 0.4000000059604645,
+            "min_lustre": 0.5,
+            "max_lustre": 0.800000011920929,
+            "min_wisdom": 0.10000000149011612,
+            "max_wisdom": 0.30000001192092896,
+            "grade_constraint": 1,
+            "mesh": "eel"
+        },
+        {
+            "name": "salmon",
+            "display_name": "Salmon",
+            "proverb": "Passing spring. Birds cry, and tears in the eyes of fish.",
+            "min_length": 0.15000000596046448,
+            "max_length": 0.4000000059604645,
+            "min_lustre": 0.5,
+            "max_lustre": 0.800000011920929,
+            "min_wisdom": 0.10000000149011612,
+            "max_wisdom": 0.30000001192092896,
+            "grade_constraint": 1,
+            "mesh": "salmon"
+        },
+        {
+            "name": "gindara",
+            "display_name": "Gindara",
+            "proverb": "As they begin to rise again\\nChrysanthemums faintly smell\\nafter the flooding rain.",
+            "min_length": 0.15000000596046448,
+            "max_length": 0.4000000059604645,
+            "min_lustre": 0.5,
+            "max_lustre": 0.800000011920929,
+            "min_wisdom": 0.10000000149011612,
+            "max_wisdom": 0.30000001192092896,
+            "grade_constraint": 1,
+            "mesh": "gindara"
+        },
+        {
+            "name": "ruby_trout",
+            "display_name": "Ruby Trout",
+            "proverb": "A rain drop from\\nthe roof\\nfell into my beer.",
+            "min_length": 0.15000000596046448,
+            "max_length": 0.4000000059604645,
+            "min_lustre": 0.5,
+            "max_lustre": 0.800000011920929,
+            "min_wisdom": 0.10000000149011612,
+            "max_wisdom": 0.30000001192092896,
+            "grade_constraint": 1,
+            "mesh": "ruby_trout"
+        },
+        {
+            "name": "skipjack_tuna",
+            "display_name": "Skipjack Tuna",
+            "proverb": "True machine of the sea: unflawed, undefiled, navigating now the waters of death.",
+            "min_length": 0.15000000596046448,
+            "max_length": 0.4000000059604645,
+            "min_lustre": 0.5,
+            "max_lustre": 0.800000011920929,
+            "min_wisdom": 0.10000000149011612,
+            "max_wisdom": 0.30000001192092896,
+            "grade_constraint": 2,
+            "mesh": "skipjack_tuna"
+        },
+        {
+            "name": "yellowtail",
+            "display_name": "Yellowtail",
+            "proverb": "It glistens with various yellows, citrons, oranges and greens flowering over the skin.",
+            "min_length": 0.15000000596046448,
+            "max_length": 0.4000000059604645,
+            "min_lustre": 0.5,
+            "max_lustre": 0.800000011920929,
+            "min_wisdom": 0.10000000149011612,
+            "max_wisdom": 0.30000001192092896,
+            "grade_constraint": 2,
+            "mesh": "yellowtail"
+        },
+        {
+            "name": "coelecanth",
+            "display_name": "Coelecanth",
+            "proverb": "Gray hair is a crown of glory; it is gained in a righteous life.",
+            "min_length": 0.15000000596046448,
+            "max_length": 0.4000000059604645,
+            "min_lustre": 0.5,
+            "max_lustre": 0.800000011920929,
+            "min_wisdom": 0.10000000149011612,
+            "max_wisdom": 0.30000001192092896,
+            "grade_constraint": 2,
+            "mesh": "coelecanth"
+        },
+        {
+            "name": "myaurr",
+            "display_name": "Myaurr",
+            "proverb": "Myaurr",
+            "grade_constraint": 2,
+            "min_length": 1.0,
+            "max_length": 100.0,
+            "min_lustre": 0.0,
+            "max_lustre": 1.0,
+            "min_wisdom": 0.800000011920929,
+            "max_wisdom": 1.0,
+            "mesh": "myaurr_guy"
+        }
+    ]
+}

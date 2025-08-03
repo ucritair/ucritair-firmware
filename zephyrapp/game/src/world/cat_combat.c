@@ -78,7 +78,7 @@ void CAT_tick_enemies()
 	{
 		if
 		(
-			(!CAT_rect_point_intersect
+			(!CAT_rect_point_touching
 			(
 				0, 0,
 				CAT_LCD_SCREEN_W, CAT_LCD_SCREEN_H,
@@ -171,7 +171,7 @@ void tick_bullets()
 {
 	for(int i = 0; i < bullet_count; i++)
 	{
-		if(!CAT_rect_point_intersect(
+		if(!CAT_rect_point_touching(
 			0, 0,
 			CAT_LCD_SCREEN_W, CAT_LCD_SCREEN_H,
 			bullets[i].x, bullets[i].y
@@ -189,7 +189,7 @@ void tick_bullets()
 		bool hit = false;
 		for(int j = 0; j < enemy_count; j++)
 		{
-			if(CAT_rect_point_intersect(
+			if(CAT_rect_point_touching(
 				enemies[j].x-ENEMY_SIZE/2, enemies[j].y-ENEMY_SIZE/2,
 				enemies[j].x+ENEMY_SIZE/2, enemies[j].y+ENEMY_SIZE/2,
 				bullets[i].x, bullets[i].y
@@ -257,7 +257,7 @@ void CAT_attack_swipe(int x, int y, int tx, int ty)
 
 	for(int i = 0; i < enemy_count; i++)
 	{
-		if(CAT_rect_point_intersect(
+		if(CAT_rect_point_touching(
 			enemies[i].x - ENEMY_SIZE/2, enemies[i].y - ENEMY_SIZE/2,
 			enemies[i].x + ENEMY_SIZE/2, enemies[i].y + ENEMY_SIZE/2,
 			swipe_x, swipe_y

@@ -33,6 +33,11 @@ class EditorSprite:
 class SpriteBank:
 	mapping = {};
 
+	def _initialize(name):
+		esprite = EditorSprite(name);
+		SpriteBank.mapping[name] = esprite;
+		SpriteBank.mapping[name] = esprite;
+
 	def initialize():
 		SpriteBank.mapping = {};
 		sprites = AssetManager.get_assets("sprite");
@@ -42,4 +47,6 @@ class SpriteBank:
 			SpriteBank.mapping[sprite["path"]] = esprite;
 
 	def get(name):
+		if not name in SpriteBank.mapping:
+			SpriteBank._initialize(name);
 		return SpriteBank.mapping[name];

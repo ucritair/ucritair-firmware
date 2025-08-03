@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-import csv;
 import configparser;
 import os;
 import OpenGL;
@@ -8,21 +7,14 @@ OpenGL.FULL_LOGGING = True;
 from OpenGL.GL import *;
 import glfw;
 from imgui_bundle import imgui;
-import json;
-import ctypes;
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer;
-import copy;
-import glob;
 from pathlib import Path;
 from PIL import Image;
 from playsound3 import playsound;
-import subprocess as sp;
 from stat import *;
 import wave;
 import numpy as np;
 from collections import OrderedDict;
-import math;
-import re;
 
 import ee_types;
 from ee_cowtools import *;

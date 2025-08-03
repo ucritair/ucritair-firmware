@@ -245,7 +245,7 @@ int CAT_room_cell_lookup(int x, int y)
 		int y0 = prop_list.data[i].y0;
 		int x1 = prop_list.data[i].x1;
 		int y1 = prop_list.data[i].y1;
-		if(CAT_rect_point_intersect(x0, y0, x1-1, y1-1, x, y))
+		if(CAT_rect_point_touching(x0, y0, x1-1, y1-1, x, y))
 			return i;
 	}
 	return -1;

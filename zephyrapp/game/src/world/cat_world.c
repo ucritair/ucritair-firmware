@@ -10,6 +10,7 @@
 #include "cat_combat.h"
 #include "cat_scene.h"
 #include "scene_assets.h"
+#include "cat_menu.h"
 
 //////////////////////////////////////////////////////////////////////////
 // PLAYER
@@ -27,9 +28,6 @@ static int player_ty = 1;
 
 static uint8_t player_walk_row = 0;
 static uint8_t player_walk_frame = 0;
-
-static int eye_x;
-static int eye_y;
 
 static CAT_scene_index* interactable = NULL;
 
@@ -62,13 +60,13 @@ void player_init()
 
 	player_walk_row = 0;
 	player_walk_frame = 0;	
-	
-	eye_x = 0;
-	eye_y = 0;
 }
 
 void player_motion_input()
 {
+	player_dx = 0;
+	player_dy = 0;
+
 	if(CAT_input_held(CAT_BUTTON_UP, 0))
 		player_move_by(0, -PLAYER_SPEED * CAT_get_delta_time_s());
 	if(CAT_input_held(CAT_BUTTON_DOWN, 0))
@@ -79,7 +77,7 @@ void player_motion_input()
 		player_move_by(PLAYER_SPEED  * CAT_get_delta_time_s(), 0);
 }
 
-void player_aabb(int* x0, int* y0, int* x1, int* y1)
+void player_get_trigger(int* x0, int* y0, int* x1, int* y1)
 {
 	*x0 = player_x - PLAYER_W/2;
 	*y0 = player_y - PLAYER_H/2;
@@ -96,24 +94,6 @@ void player_hand(int* x, int* y)
 		*y = player_y;
 	else
 		*y = player_y - PLAYER_H;
-}
-
-void player_collision()
-{
-	interactable = NULL;
-
-	int x0, y0, x1, y1;
-	player_aabb(&x0, &y0, &x1, &y1);
-	int col_count;
-	CAT_scene_index* cols = CAT_detect_collisions(&test_scene, x0, y0, x1, y1, &col_count);
-
-	for(int i = 0; i < col_count; i++)
-	{
-		CAT_scene_index* col = &cols[i];
-		
-		if(col->leaf == TRIGGER)
-			interactable = col;
-	}
 }
 
 void player_motion_logic()
@@ -133,15 +113,73 @@ void player_motion_logic()
 		else if(player_ty == -1)
 			player_walk_row = 1;
 		else if(player_ty == 1)
-			player_walk_row = 3;
+			player_walk_row = 3;		
 		player_walk_frame = wrap(player_walk_frame+1, pet_world_walk_sprite.frame_count / 4);
 	}
+}
 
-	player_dx = 0;
-	player_dy = 0;
+static CAT_scene_index* collisions;
+static int collision_count = 0;
 
-	eye_x = player_x;
-	eye_y = player_y;
+void player_collision()
+{
+	interactable = NULL;
+
+	int x0, y0, x1, y1;
+	player_get_trigger(&x0, &y0, &x1, &y1);
+	collisions = CAT_detect_collisions(&test_scene, x0, y0, x1, y1, &collision_count);
+
+	for(int i = 0; i < collision_count; i++)
+	{
+		CAT_scene_index* col = &collisions[i];
+		
+		if(col->leaf == TRIGGER)
+			interactable = col;
+
+		if(col->leaf == BLOCKER)
+		{
+			CAT_scene_AABB aabb;
+			CAT_scene_get_AABB(&test_scene, col, aabb);
+			int sep_x = max(x0, aabb[0]) - min(x1, aabb[2]);
+			int sep_y = max(y0, aabb[1]) - min(y1, aabb[3]);
+			if(sep_x != 0 && sep_y != 0)
+			{
+				if(abs(sep_x) > abs(sep_y))
+				{
+					player_y += sep_y * sgn(player_dy);
+					player_get_trigger(&x0, &y0, &x1, &y1);
+					if
+					(
+						CAT_rect_rect_intersecting
+						(
+							aabb[0], aabb[1], aabb[2], aabb[3],
+							x0, y0, x1, y1
+						)
+					)
+					{
+						player_x += sep_x * sgn(player_dx);
+					}
+				}
+				else
+				{				
+					player_x += sep_x * sgn(player_dx);
+					player_get_trigger(&x0, &y0, &x1, &y1);
+					if
+					(
+						CAT_rect_rect_intersecting
+						(
+							aabb[0], aabb[1], aabb[2], aabb[3],
+							x0, y0, x1, y1
+						)
+					)
+					{
+						player_y += sep_y * sgn(player_dy);
+					}
+				}
+				
+			}
+		}
+	}
 }
 
 bool facing_interactable()
@@ -176,10 +214,10 @@ bool touching_interactable()
 	CAT_scene_AABB aabb;
 	CAT_scene_get_AABB(&test_scene, interactable, aabb);
 	int x0, y0, x1, y1;
-	player_aabb(&x0, &y0, &x1, &y1);
+	player_get_trigger(&x0, &y0, &x1, &y1);
 
 	return
-	CAT_rect_rect_intersect
+	CAT_rect_rect_touching
 	(
 		aabb[0], aabb[1],
 		aabb[2], aabb[3],
@@ -207,15 +245,15 @@ void player_interaction_logic()
 void tick_player()
 {
 	player_motion_input();
-	player_collision();
 	player_motion_logic();
+	player_collision();
 	player_interaction_logic();
 }
 
 void draw_player()
 {
-	int view_x = player_x - eye_x + CAT_LCD_SCREEN_W/2;
-	int view_y = player_y - eye_y + CAT_LCD_SCREEN_H/2;
+	int view_x = CAT_LCD_SCREEN_W/2;
+	int view_y = CAT_LCD_SCREEN_H/2;
 
 	CAT_strokeberry(view_x - PLAYER_W/2, view_y - PLAYER_H/2, PLAYER_W, PLAYER_H, CAT_WHITE);
 	CAT_lineberry(view_x, view_y, view_x + player_tx * 16, view_y + player_ty * 16, CAT_GREEN);
@@ -256,6 +294,9 @@ void CAT_MS_world(CAT_machine_signal signal)
 			tick_player();
 			CAT_tick_enemies();
 			CAT_tick_attacks();
+
+			if(CAT_input_pressed(CAT_BUTTON_START))
+				CAT_machine_transition(CAT_MS_menu);
 		}
 		break;
 
@@ -267,11 +308,13 @@ void CAT_MS_world(CAT_machine_signal signal)
 	}
 }
 
+#define GRASS_COLOUR RGB8882565(122, 146, 57)
+
 void CAT_render_world()
 {
-	CAT_frameberry(CAT_GREY);
+	CAT_frameberry(GRASS_COLOUR);
 
-	CAT_render_scene(&test_scene, eye_x, eye_y);
+	CAT_render_scene(&test_scene, player_x, player_y);
 
 	draw_player();
 

@@ -1,0 +1,13 @@
+{
+    "sound": {
+        "type": {
+            "name": {
+                "type": "string"
+            },
+            "path": {
+                "type": "*.wav"
+            }
+        }
+    },
+    "instances": []
+}

@@ -398,7 +398,7 @@ bool CAT_rect_contains_rect(int x00, int y00, int x01, int y01, int x10, int y10
 	return true;
 }
 
-bool CAT_rect_rect_intersect(int x00, int y00, int x01, int y01, int x10, int y10, int x11, int y11)
+bool CAT_rect_rect_touching(int x00, int y00, int x01, int y01, int x10, int y10, int x11, int y11)
 {
 	if(x10 > x01 || x11 < x00)
 		return false;
@@ -407,7 +407,16 @@ bool CAT_rect_rect_intersect(int x00, int y00, int x01, int y01, int x10, int y1
 	return true;
 }
 
-bool CAT_rect_point_intersect(int x0, int y0, int x1, int y1, int x, int y)
+bool CAT_rect_rect_intersecting(int x00, int y00, int x01, int y01, int x10, int y10, int x11, int y11)
+{
+	if(x10 >= x01 || x11 <= x00)
+		return false;
+	if(y10 >= y01 || y11 <= y00)
+		return false;
+	return true;
+}
+
+bool CAT_rect_point_touching(int x0, int y0, int x1, int y1, int x, int y)
 {
 	if(x < x0 || x > x1)
 		return false;

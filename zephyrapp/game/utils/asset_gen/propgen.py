@@ -15,10 +15,10 @@ for instance in trp.instances:
 	trp.swrite(".blockers = (int16_t*[]) {\n");
 	trp.source_indent();
 	for blocker in instance["blockers"]:
-		trp.swrite("{");
+		trp.swrite("(int16_t[]) {");
 		for element in blocker:
-			trp.swrite(f"{element},");
-		trp.swrite("},\n");
+			trp.swrite(f"{int(element)},", no_indent=True);
+		trp.swrite("},\n", no_indent=True);
 	trp.source_unindent();
 	trp.swrite("},\n");
 	trp.swrite(f".blocker_count = {len(instance["blockers"])},\n");

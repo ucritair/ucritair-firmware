@@ -54,14 +54,7 @@
         },
         {
             "name": "reed_prop",
-            "blockers": [
-                [
-                    0,
-                    16.0,
-                    31,
-                    31.0
-                ]
-            ],
+            "blockers": [],
             "triggers": [
                 {
                     "aabb": [
@@ -87,14 +80,7 @@
         },
         {
             "name": "reed_house_prop",
-            "blockers": [
-                [
-                    0,
-                    40.0,
-                    63,
-                    79.0
-                ]
-            ],
+            "blockers": [],
             "triggers": [],
             "sprite": "reed_house_sprite"
         },

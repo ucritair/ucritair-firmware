@@ -1,0 +1,108 @@
+{
+    "dialogue": {
+        "type": {
+            "name": {
+                "type": "string"
+            },
+            "lines": {
+                "type": [
+                    "string"
+                ]
+            },
+            "edges": {
+                "type": [
+                    {
+                        "text": {
+                            "type": "string"
+                        },
+                        "node": {
+                            "type": "dialogue"
+                        },
+                        "proc": {
+                            "type": "string"
+                        }
+                    }
+                ]
+            }
+        }
+    },
+    "instances": [
+        {
+            "name": "test_a",
+            "lines": [
+                "Hello, player!",
+                "It's time I asked you a question...",
+                "Do you want to keep talking to me?"
+            ],
+            "edges": [
+                {
+                    "text": "Yes",
+                    "node": "test_b",
+                    "proc": ""
+                },
+                {
+                    "text": "No",
+                    "node": "",
+                    "proc": ""
+                }
+            ]
+        },
+        {
+            "name": "test_b",
+            "lines": [
+                "Well, that's sweet of you.",
+                "I don't have much left to say though..."
+            ],
+            "edges": [
+                {
+                    "text": "Okay",
+                    "node": "test_c",
+                    "proc": ""
+                }
+            ]
+        },
+        {
+            "name": "test_c",
+            "lines": [
+                "Okay then, how about this:",
+                "Do you want a carrot?"
+            ],
+            "edges": [
+                {
+                    "text": "Yes",
+                    "node": "",
+                    "proc": "give_carrot"
+                },
+                {
+                    "text": "What?",
+                    "node": "test_d",
+                    "proc": ""
+                },
+                {
+                    "text": "No",
+                    "node": "",
+                    "proc": ""
+                }
+            ]
+        },
+        {
+            "name": "test_d",
+            "lines": [
+                "A carrot. It's a type of vegetable.",
+                "Orange, green on top, sweet and crunchy."
+            ],
+            "edges": [
+                {
+                    "text": "I see",
+                    "node": "test_c",
+                    "proc": ""
+                },
+                {
+                    "text": "Nevermind",
+                    "node": "",
+                    "proc": ""
+                }
+            ]
+        }
+    ]
+}

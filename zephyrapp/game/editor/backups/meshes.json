@@ -1,0 +1,18 @@
+{
+    "mesh": {
+        "type": {
+            "name": {
+                "type": "string"
+            },
+            "path": {
+                "type": "*.obj"
+            }
+        }
+    },
+    "instances": [
+        {
+            "name": "hedron",
+            "path": "hedron.obj"
+        }
+    ]
+}
