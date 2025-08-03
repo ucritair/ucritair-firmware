@@ -74,7 +74,7 @@ static int center_textf(int x, int y, int scale, uint16_t c, const char* fmt, ..
 	return y + text_height;
 }
 
-static void vert_text(int x, int y, uint16_t c, const char* text)
+static int vert_text(int x, int y, uint16_t c, const char* text)
 {
 	const char* g = text;
 	x -= CAT_GLYPH_WIDTH/2;
@@ -86,6 +86,8 @@ static void vert_text(int x, int y, uint16_t c, const char* text)
 		g++;
 		y += CAT_GLYPH_HEIGHT + 1;
 	}
+
+	return y + CAT_TEXT_LINE_HEIGHT;
 }
 
 static int underline(int x, int y, int scale, uint16_t c, const char* fmt, ...)
@@ -104,4 +106,12 @@ static int underline(int x, int y, int scale, uint16_t c, const char* fmt, ...)
 	CAT_discberry(right_x, y, 2, c);
 
 	return y + 4;
+}
+
+static void draw_delta_arrow(int x, int y, bool up, uint16_t c)
+{
+	int y0 = up ? y-12 : y;
+	int y1 = up ? y : y-12;
+	CAT_lineberry(x, y0, x+6, y1, c);
+	CAT_lineberry(x+6, y1, x+12, y0, c);
 }

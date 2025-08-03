@@ -16,9 +16,7 @@
 
 #define TITLE_Y 44
 
-#define SCORE_R1 40
-#define SCORE_W 6
-#define SCORE_R0 (SCORE_R1 - SCORE_W)
+#define SCORE_R 40
 
 #define BAR_MARGIN 12
 #define BAR_W (CAT_LCD_SCREEN_W - BAR_MARGIN*2)
@@ -32,35 +30,35 @@ void CAT_monitor_render_summary()
 	int cursor_y = TITLE_Y;
 	cursor_y = center_textf(120, cursor_y, 1, CAT_WHITE, "Summary");
 	cursor_y = underline(120, cursor_y, 1, CAT_WHITE, "Summary");
+	cursor_y += 48;
 
-	cursor_y += 56;
+	float score = CAT_AQ_live_score_normalized(CAT_AQM_AGGREGATE);
+	uint16_t colour = CAT_AQ_get_grade_colour(score);
+	CAT_discberry(120, cursor_y, SCORE_R, colour);
+	CAT_circberry(120, cursor_y, SCORE_R, colour);
+	CAT_circberry(120, cursor_y, SCORE_R+4, colour);
+	const char* grade = CAT_AQ_get_grade_string(score);
+	cursor_y = center_textf(120 + ((strlen(grade) == 1) ? 0 : 4), cursor_y, 3, CAT_WHITE, "%s", grade);
+	cursor_y += 20;
 
-	float agg_score_norm = CAT_AQ_live_score_normalized(CAT_AQM_AGGREGATE);
-	CAT_circberry(120, cursor_y, SCORE_R0, CAT_AQ_get_grade_colour(agg_score_norm));
-	CAT_circberry(120, cursor_y, SCORE_R1, CAT_AQ_get_grade_colour(agg_score_norm));
-	CAT_annulusberry
-	(
-		120, cursor_y,
-		SCORE_R1, SCORE_R0,
-		CAT_AQ_get_grade_colour(agg_score_norm),
-		agg_score_norm,
-		1.25f-agg_score_norm*0.5f
-	);
-	cursor_y = center_textf(120, cursor_y, 3, CAT_WHITE, "%.0f", CAT_AQ_aggregate_score());
-	cursor_y += 16;
 	cursor_y = center_textf(120, cursor_y, 1, CAT_WHITE, "\4CritAQ Score");
-	
-	cursor_y += 32;
+	cursor_y += 24;
 
 	for(int i = 0; i < CAT_AQM_AGGREGATE; i++)
 	{
+		score = CAT_AQ_live_score_normalized(i);
+		colour = CAT_AQ_get_grade_colour(score);
+
 		int x = BAR_MARGIN + (DOT_D + DOT_MARGIN) * i + DOT_D/2;
 		int y = cursor_y + DOT_D/2;
-		CAT_circberry(x, y, DOT_D/3, CAT_WHITE);
-		vert_text(x, cursor_y+DOT_D-1, CAT_WHITE, CAT_AQ_get_title_string(i));
+		
+		int low_y = vert_text(x, cursor_y+DOT_D-1, CAT_WHITE, CAT_AQ_get_title_string(i));
+		CAT_set_text_colour(colour);
+		CAT_draw_text(x-4, low_y-6, CAT_AQ_get_grade_string(score));
 
-		uint16_t dot_colour = CAT_AQ_get_grade_colour(CAT_AQ_live_score_normalized(i));
-		CAT_discberry(x, y, DOT_D/4, dot_colour);
+		CAT_discberry(x, y, 8, colour);
+		CAT_circberry(x, y, 8, colour);
+		CAT_circberry(x, y, 10, colour);
 
 		if(i == CAT_AQM_TEMP)
 			center_textf(x, y - 20, 1, CAT_WHITE, "%.0f", CAT_AQ_map_celsius(CAT_AQ_live_score_raw(i)));

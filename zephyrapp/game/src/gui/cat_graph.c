@@ -20,6 +20,25 @@ static uint16_t fg_colour = CAT_WHITE;
 static uint8_t pt_size = 0;
 static bool pt_fill = false;
 
+void CAT_graph_reset()
+{
+	wdw_x0 = 0;
+	wdw_y0 = 0;
+	wdw_x1 = CAT_LCD_SCREEN_W-1;
+	wdw_y1 = CAT_LCD_SCREEN_H-1;
+	
+	vp_x0 = 0;
+	vp_y0 = 0;
+	vp_x1 = 1;
+	vp_y1 = 1;
+
+	auto_viewport = false;
+	bg_colour = CAT_TRANSPARENT;
+	fg_colour = CAT_WHITE;
+	pt_size = 0;
+	pt_fill = false;
+}
+
 void CAT_graph_set_window(int x0, int y0, int x1, int y1)
 {
 	wdw_x0 = x0;

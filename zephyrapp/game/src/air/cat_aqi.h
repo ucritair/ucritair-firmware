@@ -38,10 +38,12 @@ const char* CAT_AQ_get_title_string(int aqm);
 const char* CAT_AQ_get_unit_string(int aqm);
 const char* CAT_AQ_get_grade_string(float score);
 uint16_t CAT_AQ_get_grade_colour(float score);
+int CAT_AQ_get_good_delta_sign(int aqm);
 
 void CAT_AQ_store_live_scores();
 float CAT_AQ_live_score_raw(int aqm);
 float CAT_AQ_live_score_normalized(int aqm);
+float CAT_AQ_live_score_delta(int aqm);
 
 void CAT_AQ_tick();
 

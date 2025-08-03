@@ -228,10 +228,10 @@ float CAT_AQ_aggregate_score()
     return ((5.0f - score) / 5.0f) * 100.0f;
 }
 
-static const char* CAT_AQM_titles[] =
+static const char* title_strings[] =
 {
 	[CAT_AQM_CO2] = "CO2",
-	[CAT_AQM_PM2_5] = "PM2.5",
+	[CAT_AQM_PM2_5] = "PM",
 	[CAT_AQM_NOX] = "NOX",
 	[CAT_AQM_VOC] = "VOC",
 	[CAT_AQM_TEMP] = "TEMP",
@@ -241,17 +241,7 @@ static const char* CAT_AQM_titles[] =
 
 const char* CAT_AQ_get_title_string(int aqm)
 {
-	switch(aqm)
-	{
-		case CAT_AQM_CO2: return "CO2";
-		case CAT_AQM_PM2_5: return "PM2.5";
-		case CAT_AQM_NOX: return "NOX";
-		case CAT_AQM_VOC: return "VOC";
-		case CAT_AQM_TEMP: return "TEMP";
-		case CAT_AQM_RH: return "RH";
-		case CAT_AQM_AGGREGATE: return "\4CritAQ Score";
-		default: return "";
-	}
+	return title_strings[aqm];
 }
 
 const char* CAT_AQ_get_unit_string(int aqm)
@@ -266,55 +256,64 @@ const char* CAT_AQ_get_unit_string(int aqm)
 	}
 }
 
+static const char* grade_strings[] =
+{
+	"F",
+	"D-",
+	"D",
+	"D+",
+	"C-",
+	"C",
+	"C+",
+	"B-",
+	"B",
+	"B+",
+	"A-",
+	"A",
+	"A+"
+};
+
 const char* CAT_AQ_get_grade_string(float score)
 {
-	if(score >= 0.95)
-		return "A";
-	else if(score >= 0.9)
-		return "A-";
-	else if(score >= 0.85)
-		return "B";
-	else if(score >= 0.8)
-		return "B-";
-	else if(score >= 0.75)
-		return "C";
-	else if(score >= 0.7)
-		return "C-";
-	else if(score >= 0.65)
-		return "D";
-	else if(score >= 0.6)
-		return "D-";
-	return "F";
+	int grades = sizeof(grade_strings)/sizeof(grade_strings[0]);
+	int index = quantize(score, 1, grades);
+	return grade_strings[index];
 }
 
 uint16_t CAT_AQ_get_grade_colour(float score)
 {
-	uint16_t colours[3] =
+	uint16_t colours[] =
 	{
-		0xb985, // BAD
-		0xf5aa, // MID
-		0xd742, // GOOD
+		0xf0a1, // F
+		0xfaa1, // D
+		0xfd81, // C
+		0xd622, // B
+		0x7762, // A
 	};
 
-	score = CAT_ease_inout_quad(score);
-	float x = score * 2;
-	int idx = (int) x;
-	float frac = x - idx;
-	uint16_t colour = CAT_RGB24216
-	(
-		CAT_RGB24_lerp
-		(
-			CAT_RGB16224(colours[idx]),
-			CAT_RGB16224(colours[idx+1]),
-			frac
-		)
-	);
+	int idx = quantize(score, 1, sizeof(colours)/sizeof(colours[0]));
+	return colours[idx];
+}
 
-	return colour;
+static int good_delta_signs[] =
+{
+	[CAT_AQM_CO2] = -1,
+	[CAT_AQM_PM2_5] = -1,
+	[CAT_AQM_NOX] = -1,
+	[CAT_AQM_VOC] = -1,
+	[CAT_AQM_TEMP] = -1,
+	[CAT_AQM_RH] = -1,
+	[CAT_AQM_AGGREGATE] = 1
+};
+
+int CAT_AQ_get_good_delta_sign(int aqm)
+{
+	return good_delta_signs[aqm];
 }
 
 float raw_scores[CAT_AQM_COUNT];
 float normalized_scores[CAT_AQM_COUNT];
+float deltas[CAT_AQM_COUNT];
 
 void store_fallback()
 {
@@ -324,12 +323,26 @@ void store_fallback()
 	CAT_log_cell last_cell;
 	CAT_read_log_cell_at_idx(CAT_get_log_cell_count()-1, &last_cell);
 
-	raw_scores[CAT_AQM_CO2] = (float) last_cell.co2_ppmx1 * 1.0f;
-	raw_scores[CAT_AQM_PM2_5] = (float) last_cell.pm_ugmx100[1] / 100.0f;
-	raw_scores[CAT_AQM_VOC] = (float) last_cell.voc_index;
-	raw_scores[CAT_AQM_NOX] = (float) last_cell.nox_index;
-	raw_scores[CAT_AQM_TEMP] = (float) last_cell.temp_Cx1000 / 1000.0f;
-	raw_scores[CAT_AQM_RH] = (float) last_cell.rh_pctx100 / 100.0f;
+	float this_co2 = last_cell.co2_ppmx1 * 1.0f;
+	float this_pm = last_cell.pm_ugmx100[1] / 100.0f;
+	float this_voc = last_cell.voc_index;
+	float this_nox = last_cell.nox_index;
+	float this_temp = last_cell.temp_Cx1000 / 1000.0f;
+	float this_rh = last_cell.rh_pctx100 / 100.0f;
+
+	deltas[CAT_AQM_CO2] = this_co2 - raw_scores[CAT_AQM_CO2];
+	deltas[CAT_AQM_PM2_5] = this_pm - raw_scores[CAT_AQM_PM2_5];
+	deltas[CAT_AQM_VOC] = this_voc - raw_scores[CAT_AQM_VOC];
+	deltas[CAT_AQM_NOX] = this_nox - raw_scores[CAT_AQM_NOX];
+	deltas[CAT_AQM_TEMP] = this_temp - raw_scores[CAT_AQM_TEMP];
+	deltas[CAT_AQM_RH] = this_rh - raw_scores[CAT_AQM_RH];
+
+	raw_scores[CAT_AQM_CO2] = this_co2;
+	raw_scores[CAT_AQM_PM2_5] = this_pm;
+	raw_scores[CAT_AQM_VOC] = this_voc;
+	raw_scores[CAT_AQM_NOX] = this_nox;
+	raw_scores[CAT_AQM_TEMP] = this_temp;
+	raw_scores[CAT_AQM_RH] = this_rh;
 
 	float iaq = CAT_IAQ_score
 	(
@@ -379,6 +392,11 @@ float CAT_AQ_live_score_raw(int aqm)
 float CAT_AQ_live_score_normalized(int aqm)
 {
 	return normalized_scores[aqm];
+}
+
+float CAT_AQ_live_score_delta(int aqm)
+{
+	return deltas[aqm];
 }
 
 void CAT_AQ_tick()
