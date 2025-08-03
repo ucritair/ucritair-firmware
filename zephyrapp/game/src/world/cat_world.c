@@ -215,7 +215,7 @@ void player_interaction_logic()
 	{
 		if(facing_interactable())
 		{
-			CAT_prop* prop = test_scene.layers[interactable->layer].props[interactable->prop].prop;
+			const CAT_prop* prop = test_scene.layers[interactable->layer].props[interactable->prop].prop;
 			void (*proc)() = prop->triggers[interactable->trigger].proc;
 			if (proc != NULL)
 				proc();
@@ -236,9 +236,9 @@ void draw_player()
 	int view_x = CAT_LCD_SCREEN_W/2;
 	int view_y = CAT_LCD_SCREEN_H/2;
 
-	int x0, y0, x1, y1;
+	/*int x0, y0, x1, y1;
 	player_get_aabb(&x0, &y0, &x1, &y1);
-	CAT_strokeberry(x0-player_x+view_x, y0-player_y+view_y, x1-x0, y1-y0, CAT_WHITE);
+	CAT_strokeberry(x0-player_x+view_x, y0-player_y+view_y, x1-x0, y1-y0, CAT_WHITE);*/
 	
 	CAT_set_sprite_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
 	CAT_draw_sprite(&pet_world_walk_sprite, player_walk_row * 2 + player_walk_frame, view_x, view_y);	
@@ -298,22 +298,6 @@ static void viewport_transform(int x, int y, int eye_x, int eye_y, int view_w, i
 	*y_out = y - eye_y + CAT_LCD_SCREEN_H/2;
 }
 
-static int bottom_y(const CAT_sprite* sprite, int x, int y)
-{
-	return y + sprite->height;
-}
-
-static int prop_bottom_y(int i, int j)
-{
-	struct layer* layer = &test_scene.layers[i];
-	struct prop* prop = &layer->props[j];
-	if(j == -1)
-		return INT16_MIN;
-	if(j == layer->prop_count)
-		return INT16_MAX;
-	return bottom_y(prop->prop->sprite, prop->position_x, prop->position_y);
-}
-
 void CAT_render_world()
 {
 	CAT_frameberry(GRASS_COLOUR);
@@ -324,10 +308,12 @@ void CAT_render_world()
 		struct layer* layer = &test_scene.layers[i];
 		for(int j = 0; j < layer->prop_count; j++)
 		{
+			struct prop* prop = &layer->props[j];
+
 			if(!drew_player)
 			{
-				int player_by = bottom_y(&pet_world_walk_sprite, player_x-PLAYER_W/2, player_y-PLAYER_H/2);
-				int prop_by = prop_bottom_y(i, j);
+				int player_by = player_y-PLAYER_H/2 + pet_world_walk_sprite.height;
+				int prop_by = prop->position_y + prop->prop->sprite->height;
 				if(player_by < prop_by)
 				{
 					draw_player();
@@ -335,10 +321,9 @@ void CAT_render_world()
 				}
 			}
 
-			int x0, y0, x1, y1;
-			struct prop* prop = &layer->props[j];
-			viewport_transform(prop->position_x, prop->position_y, player_x, player_y, CAT_LCD_SCREEN_W, CAT_LCD_SCREEN_H, &x0, &y0);
-			CAT_draw_sprite_raw(prop->prop->sprite, -1, x0, y0);
+			int x, y;
+			viewport_transform(prop->position_x, prop->position_y, player_x, player_y, CAT_LCD_SCREEN_W, CAT_LCD_SCREEN_H, &x, &y);
+			CAT_draw_sprite_raw(prop->prop->sprite, -1, x, y);
 		}
 	}
 	if(!drew_player)

@@ -2,7 +2,7 @@
 #include "cat_gui.h"
 #include "cat_math.h"
 
-void CAT_scene_get_position(CAT_scene* scene, CAT_scene_index* index, CAT_scene_point out)
+void CAT_scene_get_position(const CAT_scene* scene, CAT_scene_index* index, CAT_scene_point out)
 {
 	struct layer* layer = &scene->layers[index->layer];
 	struct prop* prop = &layer->props[index->prop];
@@ -10,7 +10,7 @@ void CAT_scene_get_position(CAT_scene* scene, CAT_scene_index* index, CAT_scene_
 	out[1] = prop->position_y;
 }
 
-void CAT_scene_get_AABB(CAT_scene* scene, CAT_scene_index* index, CAT_scene_AABB out)
+void CAT_scene_get_AABB(const CAT_scene* scene, CAT_scene_index* index, CAT_scene_AABB out)
 {
 	struct layer* layer = &scene->layers[index->layer];
 	struct prop* prop = &layer->props[index->prop];
@@ -36,7 +36,7 @@ void CAT_scene_get_AABB(CAT_scene* scene, CAT_scene_index* index, CAT_scene_AABB
 	}
 }
 
-void CAT_scene_get_direction(CAT_scene* scene, CAT_scene_index* index, CAT_scene_vector out)
+void CAT_scene_get_direction(const CAT_scene* scene, CAT_scene_index* index, CAT_scene_vector out)
 {
 	if(index->leaf != TRIGGER)
 		return;
@@ -59,7 +59,7 @@ void push_collision(int layer_idx, int prop_idx, int blocker_idx, int trigger_id
 	if(collision_head == 255)
 		return;
 
-	collision_buffer[collision_head] = (CAT_scene_index) {
+	collision_buffer[collision_head] = (const CAT_scene_index) {
 		.leaf = blocker_idx != -1 ? BLOCKER : TRIGGER,
 		.prop = prop_idx,
 		.blocker = blocker_idx,
@@ -68,7 +68,7 @@ void push_collision(int layer_idx, int prop_idx, int blocker_idx, int trigger_id
 	collision_head += 1;
 }
 
-CAT_scene_index* CAT_detect_collisions(CAT_scene* scene, int x0, int y0, int x1, int y1, int* count)
+CAT_scene_index* CAT_detect_collisions(const CAT_scene* scene, int x0, int y0, int x1, int y1, int* count)
 {
 	clear_collisions();
 
@@ -117,52 +117,4 @@ CAT_scene_index* CAT_detect_collisions(CAT_scene* scene, int x0, int y0, int x1,
 
 	*count = collision_head;
 	return collision_buffer;
-}
-
-static void viewport_transform(int x, int y, int eye_x, int eye_y, int view_w, int view_h, int* x_out, int* y_out)
-{
-	*x_out = x - eye_x + CAT_LCD_SCREEN_W/2;
-	*y_out = y - eye_y + CAT_LCD_SCREEN_H/2;
-}
-
-void CAT_render_scene(CAT_scene* scene, int eye_x, int eye_y)
-{
-	for(int i = 0; i < scene->layer_count; i++)
-	{
-		struct layer* layer = &scene->layers[i];
-		for(int j = 0; j < layer->prop_count; j++)
-		{
-			int x0, y0, x1, y1;
-			struct prop* prop = &layer->props[j];
-
-			for(int k = 0; k < prop->prop->blocker_count; k++)
-			{
-				x0 = prop->prop->blockers[k][0] + prop->position_x;
-				y0 = prop->prop->blockers[k][1] + prop->position_y;
-				x1 = prop->prop->blockers[k][2] + prop->position_x;
-				y1 = prop->prop->blockers[k][3] + prop->position_y;
-				viewport_transform(x0, y0, eye_x, eye_y, CAT_LCD_SCREEN_W, CAT_LCD_SCREEN_H, &x0, &y0);
-				viewport_transform(x1, y1, eye_x, eye_y, CAT_LCD_SCREEN_W, CAT_LCD_SCREEN_H, &x1, &y1);
-				CAT_strokeberry(x0, y0, x1-x0, y1-y0, CAT_RED);
-			}
-
-			for(int k = 0; k < prop->prop->trigger_count; k++)
-			{
-				x0 = prop->prop->triggers[k].aabb[0] + prop->position_x;
-				y0 = prop->prop->triggers[k].aabb[1] + prop->position_y;
-				x1 = prop->prop->triggers[k].aabb[2] + prop->position_x;
-				y1 = prop->prop->triggers[k].aabb[3] + prop->position_y;
-				viewport_transform(x0, y0, eye_x, eye_y, CAT_LCD_SCREEN_W, CAT_LCD_SCREEN_H, &x0, &y0);
-				viewport_transform(x1, y1, eye_x, eye_y, CAT_LCD_SCREEN_W, CAT_LCD_SCREEN_H, &x1, &y1);
-				CAT_strokeberry(x0, y0, x1-x0, y1-y0, CAT_GREEN);
-				
-				x0 = (x0 + x1) / 2;
-				y0 = (y0 + y1) / 2;
-				CAT_lineberry(x0, y0, x0 + prop->prop->triggers[k].tx * 16, y0 + prop->prop->triggers[k].ty * 16, CAT_GREEN);
-			}
-
-			viewport_transform(prop->position_x, prop->position_y, eye_x, eye_y, CAT_LCD_SCREEN_W, CAT_LCD_SCREEN_H, &x0, &y0);
-			CAT_draw_sprite_raw(prop->prop->sprite, -1, x0, y0);
-		}
-	}
 }

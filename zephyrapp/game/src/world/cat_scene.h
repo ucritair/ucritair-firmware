@@ -45,10 +45,8 @@ typedef struct
 	uint8_t trigger;
 } CAT_scene_index;
 
-void CAT_scene_get_position(CAT_scene* scene, CAT_scene_index* index, CAT_scene_point out);
-void CAT_scene_get_AABB(CAT_scene* scene, CAT_scene_index* index, CAT_scene_AABB out);
-void CAT_scene_get_direction(CAT_scene* scene, CAT_scene_index* index, CAT_scene_vector out);
+void CAT_scene_get_position(const CAT_scene* scene, CAT_scene_index* index, CAT_scene_point out);
+void CAT_scene_get_AABB(const CAT_scene* scene, CAT_scene_index* index, CAT_scene_AABB out);
+void CAT_scene_get_direction(const CAT_scene* scene, CAT_scene_index* index, CAT_scene_vector out);
 
-CAT_scene_index* CAT_detect_collisions(CAT_scene* scene, int x0, int y0, int x1, int y1, int* count);
-
-void CAT_render_scene(CAT_scene* scene, int eye_x, int eye_y);
+CAT_scene_index* CAT_detect_collisions(const CAT_scene* scene, int x0, int y0, int x1, int y1, int* count);
