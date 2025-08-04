@@ -5,7 +5,7 @@
 #include "cat_gui.h"
 #include <math.h>
 
-#define PALETTE_SIZE 7
+#define PALETTE_SIZE 8
 
 static int palette[PALETTE_SIZE+1][3];
 static int colour_idx = 0;
@@ -97,8 +97,8 @@ void CAT_render_palette_picker()
 
 		case CHANNELS:
 		{
-			int cursor_y = 80;
-			CAT_fillberry(120-48, cursor_y - 24, 96, 96, CAT_WHITE);
+			int cursor_y = 160-96/2+14;
+			CAT_fillberry(120-48, cursor_y - 28, 96, 96, CAT_WHITE);
 			for(int i = 0; i < 3; i++)
 			{
 				const char* fmt = i == channel_idx ? "< %.3d >\n" : "%.3d\n";
