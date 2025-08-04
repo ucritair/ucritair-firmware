@@ -144,7 +144,7 @@ void calendar_logic()
 			if(target.day == was)
 			{
 				page = GRAPH;
-				CAT_monitor_graph_load_date(target);
+				CAT_monitor_graph_enter(target);
 			}
 		}
 	}
@@ -235,7 +235,7 @@ void render_gate()
 	if(!CAT_AQ_logs_initialized())
 	{
 		CAT_fillberry(120 - 60, 160 - 20, 120, 40, RGB8882565(35, 157, 235));
-		center_textf(120, 160, CAT_input_held(CAT_BUTTON_A, 0) ? 3 : 2 ,CAT_WHITE, "No Logs");
+		center_textf(120, 160, CAT_input_held(CAT_BUTTON_A, 0) ? 3 : 2, CAT_WHITE, "No Logs");
 	}
 	else
 	{
