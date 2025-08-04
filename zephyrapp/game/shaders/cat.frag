@@ -10,5 +10,8 @@ void main()
 {
 	vec2 flipped = uv;
 	flipped.y = 1.0-uv.y;
-	col = smoothstep(-40, 75, brightness) * texture(tex, flipped);
+	col = texture(tex, flipped);
+	col *= smoothstep(-40, 75, brightness);
+	vec4 gamma = vec4(1.2, 1.2, 1.6, 1.0);
+	col = pow(col, vec4(1.0)/gamma);
 }

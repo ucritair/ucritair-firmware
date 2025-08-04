@@ -105,6 +105,8 @@ void CAT_MS_menu(CAT_machine_signal signal)
 
 						if(CAT_gui_menu_item("COLOUR PICKER"))
 							CAT_machine_transition(CAT_MS_colour_picker);
+						if(CAT_gui_menu_item("PALETTE PICKER"))
+							CAT_machine_transition(CAT_MS_palette_picker);
 						
 						if(CAT_gui_begin_menu("AQ CONTROL PANEL"))
 						{

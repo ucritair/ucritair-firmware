@@ -31,8 +31,8 @@ void CAT_render_hedron();
 void CAT_MS_debug(CAT_machine_signal signal);
 void CAT_render_debug();
 
-void CAT_MS_graph_spoof(CAT_machine_signal signal);
-void CAT_render_graph_spoof();
-
 void CAT_MS_colour_picker(CAT_machine_signal signal);
 void CAT_render_colour_picker();
+
+void CAT_MS_palette_picker(CAT_machine_signal signal);
+void CAT_render_palette_picker();

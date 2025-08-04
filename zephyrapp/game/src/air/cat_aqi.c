@@ -286,8 +286,8 @@ uint16_t CAT_AQ_get_grade_colour(float score)
 	{
 		0xf0a1, // F
 		0xfaa1, // D
-		0xfd81, // C
-		0xd622, // B
+		0xfc81, // C
+		0xfee0, // B
 		0x7762, // A
 	};
 
