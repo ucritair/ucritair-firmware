@@ -89,11 +89,11 @@ int draw_notice(int x, int y, int aqm)
 int draw_delta(int x, int y, int aqm)
 {
 	float delta = CAT_AQ_live_score_delta(aqm);
-	if(delta != 0)	
+	if(delta != 0)
 	{
 		int good_sign = CAT_AQ_get_good_delta_sign(aqm);
 		int sign = sgn(delta);
-		uint16_t c = sign == 0 ? CAT_WHITE : CAT_AQ_get_grade_colour(sign == good_sign);
+		uint16_t c = sign == good_sign ? 0xbf28 : 0xe1e3;
 		draw_delta_arrow(x, y-4, sign != 1, c);
 	}	
 	return y + CAT_GLYPH_HEIGHT*2 + 6;

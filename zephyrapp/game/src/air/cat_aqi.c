@@ -312,6 +312,7 @@ int CAT_AQ_get_good_delta_sign(int aqm)
 }
 
 float raw_scores[CAT_AQM_COUNT];
+float raw_scores_last[CAT_AQM_COUNT];
 float normalized_scores[CAT_AQM_COUNT];
 float deltas[CAT_AQM_COUNT];
 
@@ -323,26 +324,14 @@ void store_fallback()
 	CAT_log_cell last_cell;
 	CAT_read_log_cell_at_idx(CAT_get_log_cell_count()-1, &last_cell);
 
-	float this_co2 = last_cell.co2_ppmx1 * 1.0f;
-	float this_pm = last_cell.pm_ugmx100[1] / 100.0f;
-	float this_voc = last_cell.voc_index;
-	float this_nox = last_cell.nox_index;
-	float this_temp = last_cell.temp_Cx1000 / 1000.0f;
-	float this_rh = last_cell.rh_pctx100 / 100.0f;
+	memset(deltas, 0, sizeof(deltas));
 
-	deltas[CAT_AQM_CO2] = this_co2 - raw_scores[CAT_AQM_CO2];
-	deltas[CAT_AQM_PM2_5] = this_pm - raw_scores[CAT_AQM_PM2_5];
-	deltas[CAT_AQM_VOC] = this_voc - raw_scores[CAT_AQM_VOC];
-	deltas[CAT_AQM_NOX] = this_nox - raw_scores[CAT_AQM_NOX];
-	deltas[CAT_AQM_TEMP] = this_temp - raw_scores[CAT_AQM_TEMP];
-	deltas[CAT_AQM_RH] = this_rh - raw_scores[CAT_AQM_RH];
-
-	raw_scores[CAT_AQM_CO2] = this_co2;
-	raw_scores[CAT_AQM_PM2_5] = this_pm;
-	raw_scores[CAT_AQM_VOC] = this_voc;
-	raw_scores[CAT_AQM_NOX] = this_nox;
-	raw_scores[CAT_AQM_TEMP] = this_temp;
-	raw_scores[CAT_AQM_RH] = this_rh;
+	raw_scores[CAT_AQM_CO2] = last_cell.co2_ppmx1 * 1.0f;
+	raw_scores[CAT_AQM_PM2_5] = last_cell.pm_ugmx100[1] / 100.0f;
+	raw_scores[CAT_AQM_VOC] = last_cell.voc_index;
+	raw_scores[CAT_AQM_NOX] = last_cell.nox_index;
+	raw_scores[CAT_AQM_TEMP] = last_cell.temp_Cx1000 / 1000.0f;
+	raw_scores[CAT_AQM_RH] = last_cell.rh_pctx100 / 100.0f;
 
 	float iaq = CAT_IAQ_score
 	(
@@ -364,6 +353,8 @@ void CAT_AQ_store_live_scores()
 	}
 	else
 	{
+		memcpy(raw_scores_last, raw_scores, sizeof(raw_scores));
+
 		raw_scores[CAT_AQM_CO2] = readings.sunrise.ppm_filtered_compensated;
 		raw_scores[CAT_AQM_PM2_5] = readings.sen5x.pm2_5;
 		raw_scores[CAT_AQM_VOC] = readings.sen5x.voc_index;
@@ -371,6 +362,13 @@ void CAT_AQ_store_live_scores()
 		raw_scores[CAT_AQM_TEMP] = CAT_canonical_temp();
 		raw_scores[CAT_AQM_RH] = readings.sen5x.humidity_rhpct;
 		raw_scores[CAT_AQM_AGGREGATE] = CAT_AQ_aggregate_score();
+
+		for(int i = 0; i <= CAT_AQM_AGGREGATE; i++)
+		{
+			float delta = raw_scores[i] - raw_scores_last[i];
+			if(delta != 0)
+				deltas[i] = delta;
+		}
 	}
 
 	normalized_scores[CAT_AQM_CO2] = CAT_CO2_score(raw_scores[CAT_AQM_CO2]);
