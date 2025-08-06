@@ -21,10 +21,6 @@
 
 static int player_x = 0;
 static int player_y = 0;
-static int player_dx = 0;
-static int player_dy = 0;
-static int player_tx = 0;
-static int player_ty = 1;
 
 static CAT_button movement_buttons[4] =
 {
@@ -47,7 +43,13 @@ static enum
 	SOUTH,
 	WEST
 } player_direction = WEST;
-static int player_step = 0;
+
+static int player_dx = 0;
+static int player_dy = 0;
+static int player_x_remainder = 0;
+static int player_y_remainder = 0;
+
+static int player_step_frame = 0;
 static int step_frame_counter = 0;
 
 static CAT_scene_index* interactable = NULL;
@@ -62,19 +64,26 @@ void player_init()
 {
 	player_x = 0;
 	player_y = 0;
-	player_dx = 0;
-	player_dy = 0;
-	player_tx = 0;
-	player_ty = 1;
 
 	player_direction = WEST;
+	player_dx = 0;
+	player_dy = 0;
+	player_x_remainder = 0;
+	player_y_remainder = 0;
+
+	player_step_frame = 0;
+	step_frame_counter = 0;
+}
+
+bool is_walking()
+{
+	return player_x_remainder != 0 || player_y_remainder != 0;
 }
 
 void player_motion_input()
 {
-	player_dx = 0;
-	player_dy = 0;
-	float jump = PLAYER_SPEED * CAT_get_delta_time_s();
+	int direction_last = player_direction;
+	int frames = CAT_input_frames(movement_buttons[player_direction]);
 
 	for(int i = 0; i < 4; i++)
 	{
@@ -82,35 +91,39 @@ void player_motion_input()
 		{
 			if(i != player_direction)
 			{
-				float time_current = CAT_input_time(movement_buttons[player_direction]);
-				float time_candidate = CAT_input_time(movement_buttons[i]);
-				bool newer = time_current == 0 || time_candidate < time_current;
+				int frames_current = CAT_input_frames(movement_buttons[player_direction]);
+				int frames_candidate = CAT_input_frames(movement_buttons[i]);
+				bool newer = frames_current == 0 || frames_candidate < frames_current;
 				if(!newer)
 					continue;
+				player_direction = i;
+				player_dx = movement_deltas[i][0];
+				player_dy = movement_deltas[i][1];
+				frames = frames_candidate;
 			}
-
-			player_dx = movement_deltas[i][0] * jump;
-			player_dy = movement_deltas[i][1] * jump;
-			player_direction = i;
-			
-			if(step_frame_counter == 4)
-			{
-				player_step = !player_step;
-				step_frame_counter = 0;
-			}
-			step_frame_counter += 1;
 		}
 	}
 
-	if(CAT_input_pressed(movement_buttons[player_direction]))
+	if(frames == 1)
 	{
-		player_step = !player_step;
-		step_frame_counter = 0;
+		if(player_direction != direction_last)
+			player_step_frame = !player_step_frame;
+		step_frame_counter = 2;
 	}
-	else if(CAT_input_released(movement_buttons[player_direction]))
+	else if(frames >= 2 && !is_walking())
 	{
-		player_step = 0;
-		step_frame_counter = 0;
+		player_x_remainder = abs(player_dx) * 8;
+		player_y_remainder = abs(player_dy) * 8;
+	}
+
+	if(is_walking())
+	{
+		if(step_frame_counter == 2)
+		{
+			player_step_frame = !player_step_frame;
+			step_frame_counter = 0;
+		}
+		step_frame_counter += 1;
 	}
 }
 
@@ -124,15 +137,18 @@ void player_get_aabb(int* x0, int* y0, int* x1, int* y1)
 
 void player_motion_logic()
 {
-	player_x += player_dx;
-	player_y += player_dy;
-
-	if(player_dx != 0 || player_dy != 0)
+	if(player_x_remainder > 0)
 	{
-		player_tx = sgn(player_dx);
-		player_ty = sgn(player_dy);
+		player_x += player_dx * 4;
+		player_x_remainder = max(player_x_remainder-4, 0);
+	}
+	if(player_y_remainder > 0)
+	{
+		player_y += player_dy * 4;
+		player_y_remainder = max(player_y_remainder-4, 0);
 	}
 }
+	
 
 static CAT_scene_index* collisions;
 static int collision_count = 0;
@@ -211,11 +227,11 @@ bool facing_interactable()
 	int center_x = (aabb[0]+aabb[2])/2;
 	int center_y = (aabb[1]+aabb[3])/2;
 
-	if(direction[1] != 0 && sgn(player_ty) != -sgn(direction[1]))
+	if(direction[1] != 0 && sgn(player_dy) != -sgn(direction[1]))
 		return false;
 	if(direction[1] != 0 && sgn(player_y - center_y) != sgn(direction[1]))
 		return false;
-	if(direction[0] != 0 && sgn(player_tx) != -sgn(direction[0]))
+	if(direction[0] != 0 && sgn(player_dx) != -sgn(direction[0]))
 		return false;
 	if(direction[0] != 0 && sgn(player_x - center_x) != sgn(direction[0]))
 		return false;
@@ -267,7 +283,7 @@ void draw_player()
 	player_get_aabb(&x0, &y0, &x1, &y1);
 	CAT_strokeberry(x0-player_x+view_x, y0-player_y+view_y, x1-x0, y1-y0, CAT_WHITE);
 
-	int frame = player_get_walk_frame() + player_step;
+	int frame = player_get_walk_frame() + player_step_frame;
 	CAT_set_sprite_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
 	CAT_draw_sprite(&world_walk_sprite, frame, view_x, view_y);	
 }
