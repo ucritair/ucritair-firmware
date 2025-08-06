@@ -35,39 +35,126 @@ void CAT_monitor_ACH_set_data(int16_t* _values, uint64_t* _timestamps, int32_t* 
 	extent = _extent;
 }
 
-void CAT_monitor_ACH_auto_cursors()
+void find_range(int* min_idx_out, int* max_idx_out)
 {
-	int16_t peak = INT16_MIN;
-	int peak_idx = -1;
+	int min_value = INT16_MAX;
+	int min_idx = 0;
+	int max_value = INT16_MIN;
+	int max_idx = 0;
 	for(int i = 0; i < extent; i++)
 	{
-		if(indices[i] == -1)
-			continue;
-
 		int16_t value = values[i];
-		if(value > peak)
+		if(value < min_value)
 		{
-			peak = value;
-			peak_idx = i;
+			min_value = value;
+			min_idx = i;
+		}
+		if(value > max_value)
+		{
+			max_value = value;
+			max_idx = i;
 		}
 	}
-	start = peak_idx;
+	*min_idx_out = min_idx;
+	*max_idx_out = max_idx;
+}
 
-	int trough_idx = peak_idx;
-	int16_t trough = values[trough_idx];
-	for(int i = trough_idx; i < extent; i++)
+float find_stddev()
+{
+	float mean = 0;
+	for(int i = 0; i < extent; i++)
+		mean =+ values[i];
+	mean /= extent;
+
+	float sum = 0;
+	for(int i = 0; i < extent; i++)
+		sum += (values[i] - mean) * (values[i] - mean);
+	sum /= (extent-1);
+
+	return sqrt(sum);
+}
+
+int find_peak_from_trough(int trough_idx, unsigned int dip_threshold)
+{
+	int16_t trough_value = values[trough_idx];
+
+	int16_t peak_idx = trough_idx;
+	int16_t peak_value = values[peak_idx];
+	
+	for(int i = trough_idx-1; i >= 0; i--)
 	{
-		if(indices[i] == -1)
-			continue;
-
 		int16_t value = values[i];
-		if(value < trough)
+		int diff = value - values[i+1];
+
+		if(diff >= 0)
 		{
-			trough = value;
-			trough_idx = i;
+			if(value > peak_value)
+			{
+				peak_value = value;
+				peak_idx = i;
+			}
+		}
+		else
+		{
+			if(abs(diff) > dip_threshold)
+				break;
 		}
 	}
-	end = trough_idx;
+
+	return peak_idx;
+}
+
+int find_trough_from_peak(int peak_idx, float spike_threshold)
+{
+	int16_t peak_value = values[peak_idx];
+
+	int16_t trough_idx = peak_idx;
+	int16_t trough_value = values[trough_idx];
+
+	for(int i = peak_idx+1; i < extent; i++)
+	{
+		int16_t value = values[i];
+		int diff = value - values[i+1];
+
+		if(diff <= 0)
+		{
+			if(value < trough_value)
+			{
+				trough_value = value;
+				trough_idx = i;
+			}
+		}
+		else
+		{
+			if(abs(diff) > spike_threshold)
+				break;
+		}
+	}
+
+	return trough_idx;
+}
+
+void CAT_monitor_ACH_auto_cursors()
+{
+	int min_idx, max_idx;
+	find_range(&min_idx, &max_idx);
+	int16_t range = values[max_idx] - values[min_idx];
+	float thresh = find_stddev();
+	if(thresh > range/4)
+		thresh = range/6;
+	else if(thresh < range/8)
+		thresh *= 2;
+
+	if(view == CAT_MONITOR_GRAPH_VIEW_CO2)
+	{	
+		start = find_peak_from_trough(min_idx, thresh);
+		end = min_idx;
+	}
+	else
+	{
+		start = max_idx;
+		end = find_trough_from_peak(max_idx, thresh);
+	}
 }
 
 void CAT_monitor_ACH_set_cursors(int _start, int _end)
