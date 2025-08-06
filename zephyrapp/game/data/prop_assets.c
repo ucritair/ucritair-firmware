@@ -12,7 +12,7 @@ const CAT_prop null_prop = {
 	.trigger_count = 0,
 };
 const CAT_prop reed_prop = {
-	.sprite = &npc_reed_sprite,
+	.sprite = &world_reed_sprite,
 	.blockers = (int16_t*[]) {
 		(int16_t[]) {0,16,31,31,},
 	},
@@ -27,19 +27,10 @@ const CAT_prop reed_prop = {
 	},
 	.trigger_count = 1,
 };
-const CAT_prop clouds_prop = {
-	.sprite = &monitor_clouds_sprite,
-	.blockers = (int16_t*[]) {
-	},
-	.blocker_count = 0,
-	.triggers = (struct trigger[]) {
-	},
-	.trigger_count = 0,
-};
 const CAT_prop reed_house_prop = {
-	.sprite = &reed_house_sprite,
+	.sprite = &world_reed_house_sprite,
 	.blockers = (int16_t*[]) {
-		(int16_t[]) {0,40,63,79,},
+		(int16_t[]) {0,56,63,79,},
 	},
 	.blocker_count = 1,
 	.triggers = (struct trigger[]) {
@@ -47,10 +38,41 @@ const CAT_prop reed_house_prop = {
 	.trigger_count = 0,
 };
 const CAT_prop statue_prop = {
-	.sprite = &reed_house_sprite,
+	.sprite = &world_statue_sprite,
 	.blockers = (int16_t*[]) {
+		(int16_t[]) {16,32,32,40,},
 	},
-	.blocker_count = 0,
+	.blocker_count = 1,
+	.triggers = (struct trigger[]) {
+	},
+	.trigger_count = 0,
+};
+const CAT_prop bldg_sm_prop = {
+	.sprite = &world_bldg_sm_sprite,
+	.blockers = (int16_t*[]) {
+		(int16_t[]) {0,56,32,80,},
+	},
+	.blocker_count = 1,
+	.triggers = (struct trigger[]) {
+	},
+	.trigger_count = 0,
+};
+const CAT_prop bldg_md_prop = {
+	.sprite = &world_bldg_md_sprite,
+	.blockers = (int16_t*[]) {
+		(int16_t[]) {0,56,40,80,},
+	},
+	.blocker_count = 1,
+	.triggers = (struct trigger[]) {
+	},
+	.trigger_count = 0,
+};
+const CAT_prop bldg_lg_prop = {
+	.sprite = &world_bldg_lg_sprite,
+	.blockers = (int16_t*[]) {
+		(int16_t[]) {0,56,48,80,},
+	},
+	.blocker_count = 1,
 	.triggers = (struct trigger[]) {
 	},
 	.trigger_count = 0,

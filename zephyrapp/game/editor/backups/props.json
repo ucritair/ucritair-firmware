@@ -54,7 +54,14 @@
         },
         {
             "name": "reed_prop",
-            "blockers": [],
+            "blockers": [
+                [
+                    0,
+                    16.0,
+                    31,
+                    31.0
+                ]
+            ],
             "triggers": [
                 {
                     "aabb": [
@@ -70,25 +77,72 @@
                     ]
                 }
             ],
-            "sprite": "npc_reed_sprite"
-        },
-        {
-            "name": "clouds_prop",
-            "blockers": [],
-            "triggers": [],
-            "sprite": "monitor_clouds_sprite"
+            "sprite": "world_reed_sprite"
         },
         {
             "name": "reed_house_prop",
-            "blockers": [],
+            "blockers": [
+                [
+                    0,
+                    56.0,
+                    63,
+                    79.0
+                ]
+            ],
             "triggers": [],
-            "sprite": "reed_house_sprite"
+            "sprite": "world_reed_house_sprite"
         },
         {
             "name": "statue_prop",
-            "blockers": [],
+            "blockers": [
+                [
+                    16,
+                    32,
+                    32,
+                    40
+                ]
+            ],
             "triggers": [],
-            "sprite": "reed_house_sprite"
+            "sprite": "world_statue_sprite"
+        },
+        {
+            "name": "bldg_sm_prop",
+            "blockers": [
+                [
+                    0,
+                    56,
+                    32,
+                    80
+                ]
+            ],
+            "triggers": [],
+            "sprite": "world_bldg_sm_sprite"
+        },
+        {
+            "name": "bldg_md_prop",
+            "blockers": [
+                [
+                    0,
+                    56,
+                    40,
+                    80
+                ]
+            ],
+            "triggers": [],
+            "sprite": "world_bldg_md_sprite"
+        },
+        {
+            "name": "bldg_lg_prop",
+            "blockers": [
+                [
+                    0,
+                    56,
+                    48,
+                    80
+                ]
+            ],
+            "triggers": [],
+            "sprite": "world_bldg_lg_sprite"
         }
     ]
 }

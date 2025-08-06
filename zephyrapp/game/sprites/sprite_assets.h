@@ -237,10 +237,19 @@ extern const CAT_sprite grave_egg_sprite;
 extern const CAT_sprite ui_radio_button_circle_sprite;
 extern const CAT_sprite ui_checkbox_sprite;
 extern const CAT_sprite eink_update_splash_sprite;
-extern const CAT_sprite pet_world_walk_sprite;
-extern const CAT_sprite npc_reed_sprite;
-extern const CAT_sprite stable_sprite;
-extern const CAT_sprite reed_house_sprite;
+extern const CAT_sprite world_walk_sprite;
+extern const CAT_sprite world_reed_sprite;
+extern const CAT_sprite world_stable_sprite;
+extern const CAT_sprite world_reed_house_sprite;
+extern const CAT_sprite world_arcade_sprite;
+extern const CAT_sprite world_depot_sprite;
+extern const CAT_sprite world_dumpster_sprite;
+extern const CAT_sprite world_market_sprite;
+extern const CAT_sprite world_statue_sprite;
+extern const CAT_sprite world_trash_sprite;
+extern const CAT_sprite world_bldg_sm_sprite;
+extern const CAT_sprite world_bldg_md_sprite;
+extern const CAT_sprite world_bldg_lg_sprite;
 
 extern const CAT_sprite* sprite_list[];
-#define CAT_SPRITE_LIST_LENGTH 237
+#define CAT_SPRITE_LIST_LENGTH 246

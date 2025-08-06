@@ -24,6 +24,7 @@ from ee_assets import *;
 from ee_scene_editor import SceneEditor;
 from ee_sprites import SpriteBank;
 from ee_input import InputManager;
+from ee_prop_editor import PropEditor;
 
 #########################################################
 ## CONTEXT
@@ -182,7 +183,7 @@ class SpriteExplorer:
 			imgui.set_next_window_size(self.size);
 			_, self.open = imgui.begin(f"Sprite Explorer", self.open, flags=self.window_flags);
 			for item in listings:
-				Preview.thumbnail(item);
+				Preview.thumbnail("sprite", item);
 				if imgui.menu_item_simple(item):
 					SpriteExplorer.result = item;
 					SpriteExplorer._ = None;
@@ -302,10 +303,8 @@ class PreviewBank:
 			match asset_type:
 				case "sprite":
 					self.entries[asset_type][name] = PreviewSprite(asset);
-					self.entries[asset_type][asset["path"]] = self.entries[asset_type][name];
 				case "sound":
 					self.entries[asset_type][name] = PreviewSound(asset);
-					self.entries[asset_type][asset["path"]] = self.entries[asset_type][name];
 				case _:
 					self.entries[asset_type][name] = None;
 		except:
@@ -330,8 +329,6 @@ class Preview:
 				preview_bank.init("sprite", name);
 			imgui.same_line();
 			imgui.image(sprite.preview_texture, (sprite.preview_image.width * 2, sprite.preview_image.height * 2));
-		else:
-			preview_bank.init("sprite", name);
 
 	def thumbnail_sprite(name):
 		sprite = preview_bank.get("sprite", name);
@@ -342,6 +339,9 @@ class Preview:
 	def render_sound(name):
 		sound = preview_bank.get("sound", name);
 		if sound != None:
+			if imgui.button(f"!##{name}"):
+				preview_bank.init("sound", name);
+			imgui.same_line();
 			for i in range(sound.frames.shape[0]):
 				half_range = (1 << ((sound.meta.sampwidth*8)-1)) - 1;
 				plot_min = -half_range;
@@ -351,18 +351,15 @@ class Preview:
 				imgui.plot_lines(f"####{id(sound.frames[i])}", sound.frames[i], scale_min=plot_min, scale_max=plot_max, graph_size=(plot_width, plot_height));
 			if imgui.button(f"Play##{name}"):
 				playsound(sound.path, block=False);
-			imgui.same_line();
-		if imgui.button(f"Refresh##{name}"):
-			preview_bank.init("sound", name);
 	
-	def render(name):
-		if preview_bank.get("sprite", name) != None:
+	def render(asset_type, name):
+		if asset_type == "sprite":
 			Preview.render_sprite(name);
-		elif preview_bank.get("sound", name) != None:
+		elif asset_type == "sound":
 			Preview.render_sound(name);
 
-	def thumbnail(name):
-		if preview_bank.get("sprite", name) != None:
+	def thumbnail(asset_type, name):
+		if asset_type == "sprite":
 			Preview.thumbnail_sprite(name);
 
 
@@ -379,6 +376,8 @@ class DocumentRenderer:
 		if isinstance(T, ee_types.Object):
 			imgui.push_id(identifier);
 			if imgui.tree_node(title):
+				if AssetManager.active_document.type == "sprite":
+					Preview.render("sprite", node["name"]);
 				for e in T.elements:
 					if e.name in node:
 						if not e.get_attribute("read-only"):
@@ -396,12 +395,14 @@ class DocumentRenderer:
 					node[i] = DocumentRenderer._render_node(f"{title}[{i}]", T.T, node[i], id(node));
 					imgui.pop_id();
 				imgui.tree_pop();
+				if imgui.button("+"):
+					node.append(T.T.prototype());
 			imgui.pop_id();
 			return node;
 		
 		elif isinstance(T, ee_types.Asset):
 			if T.name in AssetManager.types():
-				Preview.render(node);
+				Preview.render(T.name, node);
 
 				imgui.text(title);
 				imgui.same_line();
@@ -436,8 +437,9 @@ class DocumentRenderer:
 				return result;
 		
 		elif isinstance(T, ee_types.File):
-			Preview.render(node);
-
+			if T.pattern == "*.png":
+				Preview.render("sprite", node);
+			
 			imgui.text(title);
 			imgui.same_line();
 
@@ -1299,7 +1301,7 @@ class DialogueEditor:
 							imgui.tree_pop();
 						imgui.pop_id();
 					if imgui.button("New##edge"):
-						new = asset_docs["dialogue"].type_helper.prototype("/edges", True);
+						new = AssetManager.get_document("dialogue").type_helper.prototype("/edges", True);
 						self.node["edges"].append(new);
 
 			self.size = imgui.get_window_size();
@@ -1358,7 +1360,6 @@ while not glfw.window_should_close(handle):
 	imgui.new_frame();
 
 	imgui.set_next_window_pos((0, 0));
-	imgui.set_next_window_size((window_width, window_height));
 	imgui.begin("Editor", flags=window_flags | (splash_flags if AssetManager.active_document == None else 0));
 
 	if imgui.begin_main_menu_bar():
@@ -1405,6 +1406,8 @@ while not glfw.window_should_close(handle):
 				DialogueEditor();
 			if imgui.menu_item_simple("Scene Editor"):
 				SceneEditor();
+			if imgui.menu_item_simple("Prop Editor"):
+				PropEditor();
 			imgui.end_menu();
 		imgui.end_main_menu_bar();
 	
@@ -1429,8 +1432,11 @@ while not glfw.window_should_close(handle):
 		DialogueEditor.render();
 	if SceneEditor._ != None:
 		SceneEditor.render();
+	if PropEditor._ != None:
+		PropEditor.render();
 
 	imgui.end();
+
 	imgui.render();
 	impl.render(imgui.get_draw_data());
 	imgui.end_frame();

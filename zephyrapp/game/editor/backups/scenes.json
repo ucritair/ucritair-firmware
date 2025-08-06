@@ -32,17 +32,45 @@
             "layers": [
                 [
                     {
-                        "prop": "reed_prop",
+                        "prop": "bldg_lg_prop",
                         "position": [
-                            29,
-                            -86
+                            -120,
+                            -160
+                        ]
+                    },
+                    {
+                        "prop": "bldg_md_prop",
+                        "position": [
+                            -72,
+                            -160
+                        ]
+                    },
+                    {
+                        "prop": "bldg_sm_prop",
+                        "position": [
+                            -32,
+                            -160
                         ]
                     },
                     {
                         "prop": "reed_house_prop",
                         "position": [
-                            -37,
+                            0,
                             -160
+                        ]
+                    },
+                    {
+                        "prop": "reed_prop",
+                        "position": [
+                            64,
+                            -112
+                        ]
+                    },
+                    {
+                        "prop": "statue_prop",
+                        "position": [
+                            -24,
+                            -40
                         ]
                     }
                 ]

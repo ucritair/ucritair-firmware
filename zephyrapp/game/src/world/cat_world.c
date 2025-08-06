@@ -15,8 +15,8 @@
 //////////////////////////////////////////////////////////////////////////
 // PLAYER
 
-#define PLAYER_W (pet_world_walk_sprite.width)
-#define PLAYER_H (pet_world_walk_sprite.height)
+#define PLAYER_W (world_walk_sprite.width)
+#define PLAYER_H (world_walk_sprite.height)
 #define PLAYER_SPEED 64
 
 static int player_x = 0;
@@ -26,22 +26,31 @@ static int player_dy = 0;
 static int player_tx = 0;
 static int player_ty = 1;
 
-static uint8_t player_walk_row = 0;
-static uint8_t player_walk_frame = 0;
+static CAT_button movement_buttons[4] =
+{
+	CAT_BUTTON_UP,
+	CAT_BUTTON_RIGHT,
+	CAT_BUTTON_DOWN,
+	CAT_BUTTON_LEFT
+};
+static int movement_deltas[4][2] =
+{
+	{0, -1},
+	{1, 0},
+	{0, 1},
+	{-1, 0}
+};
+static enum
+{
+	NORTH,
+	EAST,
+	SOUTH,
+	WEST
+} player_direction = WEST;
+static int player_step = 0;
+static int step_frame_counter = 0;
 
 static CAT_scene_index* interactable = NULL;
-
-void player_move_to(int x, int y)
-{
-	player_dx = x - player_x;
-	player_dx = y - player_y;
-}
-
-void player_move_by(int dx, int dy)
-{
-	player_dx += dx;
-	player_dy += dy;
-}
 
 void CAT_world_get_position(int* x, int* y)
 {
@@ -58,42 +67,59 @@ void player_init()
 	player_tx = 0;
 	player_ty = 1;
 
-	player_walk_row = 0;
-	player_walk_frame = 0;	
+	player_direction = WEST;
 }
 
 void player_motion_input()
 {
 	player_dx = 0;
 	player_dy = 0;
+	float jump = PLAYER_SPEED * CAT_get_delta_time_s();
 
-	if(CAT_input_held(CAT_BUTTON_UP, 0))
-		player_move_by(0, -PLAYER_SPEED * CAT_get_delta_time_s());
-	if(CAT_input_held(CAT_BUTTON_DOWN, 0))
-		player_move_by(0, PLAYER_SPEED * CAT_get_delta_time_s());
-	if(CAT_input_held(CAT_BUTTON_LEFT, 0))
-		player_move_by(-PLAYER_SPEED * CAT_get_delta_time_s(), 0);
-	if(CAT_input_held(CAT_BUTTON_RIGHT, 0))
-		player_move_by(PLAYER_SPEED  * CAT_get_delta_time_s(), 0);
+	for(int i = 0; i < 4; i++)
+	{
+		if(CAT_input_held(movement_buttons[i], 0.0f))
+		{
+			if(i != player_direction)
+			{
+				float time_current = CAT_input_time(movement_buttons[player_direction]);
+				float time_candidate = CAT_input_time(movement_buttons[i]);
+				bool newer = time_current == 0 || time_candidate < time_current;
+				if(!newer)
+					continue;
+			}
+
+			player_dx = movement_deltas[i][0] * jump;
+			player_dy = movement_deltas[i][1] * jump;
+			player_direction = i;
+			
+			if(step_frame_counter == 4)
+			{
+				player_step = !player_step;
+				step_frame_counter = 0;
+			}
+			step_frame_counter += 1;
+		}
+	}
+
+	if(CAT_input_pressed(movement_buttons[player_direction]))
+	{
+		player_step = !player_step;
+		step_frame_counter = 0;
+	}
+	else if(CAT_input_released(movement_buttons[player_direction]))
+	{
+		player_step = 0;
+		step_frame_counter = 0;
+	}
 }
 
 void player_get_aabb(int* x0, int* y0, int* x1, int* y1)
 {
 	*x0 = player_x - PLAYER_W/4;
-	*y0 = player_y - PLAYER_H/4;
+	*y0 = player_y;
 	*x1 = player_x + PLAYER_W/4;
-	*y1 = player_y + PLAYER_H/4;
-}
-
-void player_hand(int* x, int* y)
-{
-	*x = player_x + player_tx * PLAYER_W/2;
-	if(player_ty == 0)
-		*y = player_y - PLAYER_H/2;
-	else if(player_ty == 1)
-		*y = player_y;
-	else
-		*y = player_y - PLAYER_H;
+	*y1 = player_y + PLAYER_W/2;
 }
 
 void player_motion_logic()
@@ -105,16 +131,6 @@ void player_motion_logic()
 	{
 		player_tx = sgn(player_dx);
 		player_ty = sgn(player_dy);
-
-		if(player_tx == -1)
-			player_walk_row = 0;
-		else if(player_tx == 1)
-			player_walk_row = 2;
-		else if(player_ty == -1)
-			player_walk_row = 1;
-		else if(player_ty == 1)
-			player_walk_row = 3;		
-		player_walk_frame = wrap(player_walk_frame+1, pet_world_walk_sprite.frame_count / 4);
 	}
 }
 
@@ -231,17 +247,29 @@ void tick_player()
 	player_interaction_logic();
 }
 
+int player_get_walk_frame()
+{
+	switch (player_direction)
+	{
+		case NORTH: return 2;
+		case EAST: return 4;
+		case SOUTH: return 6;
+		case WEST: return 0; 
+	}
+}
+
 void draw_player()
 {
 	int view_x = CAT_LCD_SCREEN_W/2;
 	int view_y = CAT_LCD_SCREEN_H/2;
 
-	/*int x0, y0, x1, y1;
+	int x0, y0, x1, y1;
 	player_get_aabb(&x0, &y0, &x1, &y1);
-	CAT_strokeberry(x0-player_x+view_x, y0-player_y+view_y, x1-x0, y1-y0, CAT_WHITE);*/
-	
+	CAT_strokeberry(x0-player_x+view_x, y0-player_y+view_y, x1-x0, y1-y0, CAT_WHITE);
+
+	int frame = player_get_walk_frame() + player_step;
 	CAT_set_sprite_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
-	CAT_draw_sprite(&pet_world_walk_sprite, player_walk_row * 2 + player_walk_frame, view_x, view_y);	
+	CAT_draw_sprite(&world_walk_sprite, frame, view_x, view_y);	
 }
 
 void npc_interact_proc()
@@ -312,7 +340,7 @@ void CAT_render_world()
 
 			if(!drew_player)
 			{
-				int player_by = player_y-PLAYER_H/2 + pet_world_walk_sprite.height;
+				int player_by = player_y-PLAYER_H/2 + world_walk_sprite.height;
 				int prop_by = prop->position_y + prop->prop->sprite->height;
 				if(player_by < prop_by)
 				{

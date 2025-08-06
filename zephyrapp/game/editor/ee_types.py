@@ -151,7 +151,7 @@ class Element:
 				return a[attribute];
 		return False;
 
-	def prototype(self, inner = False):
+	def prototype(self, inner=False):
 		T = self.T;
 		if inner:
 			while isinstance(T, List):

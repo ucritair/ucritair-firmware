@@ -14,6 +14,7 @@ void CAT_input_init()
 		input.time[i] = 0;
 		input.since[i] = 0;
 		input.pulse[i] = 0;
+		input.frames[i] = 0;
 		input.dirty[i] = false;
 	}
 
@@ -71,6 +72,7 @@ void CAT_input_tick()
 			input.time[i] = 0;
 			input.since[i] += dt;
 			input.pulse[i] = 0;
+			input.frames[i] = 0;
 		}
 		else
 		{
@@ -79,6 +81,7 @@ void CAT_input_tick()
 			input.pulse[i] += dt;
 			if(input.pulse[i] >= 0.1f)
 				input.pulse[i] = 0;
+			input.frames[i] += 1;
 		}
 
 		if(input.mask[i] && !input.last[i])
@@ -160,6 +163,11 @@ bool CAT_input_pulse(int button)
 float CAT_input_time(int button)
 {
 	return input.time[button];
+}
+
+int CAT_input_frames(int button)
+{
+	return input.frames[button];
 }
 
 bool CAT_input_dismissal()

@@ -2366,7 +2366,7 @@
         },
         {
             "id": 233,
-            "name": "pet_world_walk_sprite",
+            "name": "world_walk_sprite",
             "path": "gameplay/overworld/unicorn_a1.png",
             "frames": 8,
             "width": 32,
@@ -2376,7 +2376,7 @@
         },
         {
             "id": 234,
-            "name": "npc_reed_sprite",
+            "name": "world_reed_sprite",
             "path": "gameplay/overworld/npc/reed_a1.png",
             "frames": 2,
             "width": 32,
@@ -2386,7 +2386,7 @@
         },
         {
             "id": 235,
-            "name": "stable_sprite",
+            "name": "world_stable_sprite",
             "path": "gameplay/overworld/stable.png",
             "frames": 1,
             "width": 128,
@@ -2396,10 +2396,100 @@
         },
         {
             "id": 236,
-            "name": "reed_house_sprite",
+            "name": "world_reed_house_sprite",
             "path": "gameplay/overworld/reed.png",
             "frames": 1,
             "width": 64,
+            "height": 80,
+            "loop": false,
+            "reverse": false
+        },
+        {
+            "id": 237,
+            "name": "world_arcade_sprite",
+            "path": "gameplay/overworld/arcade.png",
+            "frames": 1,
+            "width": 96,
+            "height": 80,
+            "loop": false,
+            "reverse": false
+        },
+        {
+            "id": 238,
+            "name": "world_depot_sprite",
+            "path": "gameplay/overworld/building_depot.png",
+            "frames": 1,
+            "width": 48,
+            "height": 64,
+            "loop": false,
+            "reverse": false
+        },
+        {
+            "id": 239,
+            "name": "world_dumpster_sprite",
+            "path": "gameplay/overworld/dumpster.png",
+            "frames": 1,
+            "width": 16,
+            "height": 32,
+            "loop": false,
+            "reverse": false
+        },
+        {
+            "id": 240,
+            "name": "world_market_sprite",
+            "path": "gameplay/overworld/market.png",
+            "frames": 1,
+            "width": 48,
+            "height": 64,
+            "loop": false,
+            "reverse": false
+        },
+        {
+            "id": 241,
+            "name": "world_statue_sprite",
+            "path": "gameplay/overworld/statue.png",
+            "frames": 1,
+            "width": 48,
+            "height": 48,
+            "loop": false,
+            "reverse": false
+        },
+        {
+            "id": 242,
+            "name": "world_trash_sprite",
+            "path": "gameplay/overworld/trash.png",
+            "frames": 1,
+            "width": 16,
+            "height": 16,
+            "loop": false,
+            "reverse": false
+        },
+        {
+            "id": 243,
+            "name": "world_bldg_sm_sprite",
+            "path": "gameplay/overworld/building_sm.png",
+            "frames": 1,
+            "width": 32,
+            "height": 80,
+            "loop": false,
+            "reverse": false
+        },
+        {
+            "id": 244,
+            "name": "world_bldg_md_sprite",
+            "path": "gameplay/overworld/building_md.png",
+            "frames": 1,
+            "width": 48,
+            "height": 80,
+            "loop": false,
+            "reverse": false
+        },
+        {
+            "id": 245,
+            "name": "world_bldg_lg_sprite",
+            "path": "gameplay/overworld/building_lg.png",
+            "frames": 1,
+            "width": 48,
             "height": 80,
             "loop": false,
             "reverse": false

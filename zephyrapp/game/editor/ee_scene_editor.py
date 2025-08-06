@@ -21,17 +21,6 @@ class SpawnHelper:
 			"position" : [x, y]
 		};
 
-	def spawn_blocker(aabb):
-		x0, y0, x1, y1 = aabb;
-		return [x0, y0, x1, y1];
-
-	def spawn_trigger(aabb, proc):
-		x0, y0, x1, y1 = aabb;
-		return {
-			"aabb" : [x0, y0, x1, y1],
-			"proc" : proc
-		};
-
 class PropHelper:
 	def get_prop_asset(self):
 		return AssetManager.search("prop", self["prop"]);
@@ -45,26 +34,6 @@ class PropHelper:
 		x0, y0 = self["position"];
 		w, h = esprite.frame_width, esprite.frame_height;
 		return [x0, y0, x0+w-1, y0+h-1];
-
-	def add_blocker(self):
-		esprite = PropHelper.get_editor_sprite(self);
-		w, h = esprite.frame_width, esprite.frame_height/2;
-		x0, y0 = 0, 0;
-		y0 = y0 + esprite.frame_height - h;
-
-		prop_asset = PropHelper.get_prop_asset(self);
-		blocker = SpawnHelper.spawn_blocker([x0, y0, x0+w-1, y0+h-1]);
-		prop_asset["blockers"].append(blocker);
-
-	def add_trigger(self):
-		esprite = PropHelper.get_editor_sprite(self);
-		w, h = esprite.frame_width, esprite.frame_height/2;
-		x0, y0 = 0, 0;
-		y0 = y0 + esprite.frame_height - h;
-
-		prop_asset = PropHelper.get_prop_asset(self);
-		trigger = SpawnHelper.spawn_trigger([x0, y0, x0+w-1, y0+h-1], "");
-		prop_asset["triggers"].append(trigger);
 
 class CanvasHelper:
 	def transform_point(canvas, point):
@@ -107,6 +76,7 @@ class SceneEditor:
 		self.show_viewport = True;
 		self.show_axes = True;
 		self.show_gizmos = False;
+		self.snap = True;
 	
 	def is_scene_loaded(self):
 		return self.scene in AssetManager.get_assets("scene");
@@ -151,6 +121,10 @@ class SceneEditor:
 				dx, dy = self.selection_delta;
 				ddx, ddy = frame_dx - dx, frame_dy - dy;
 				self.selection["position"] = [int(x0+ddx), int(y0+ddy)];
+				if self.snap:
+					x, y = self.selection["position"];
+					snap_x, snap_y = round(x / 8) * 8, round(y / 8) * 8;
+					self.selection["position"] = [snap_x, snap_y];
 	
 	def gui_asset_combo(self, identifier, asset_type, value):
 		result = value;
@@ -189,32 +163,7 @@ class SceneEditor:
 		if imgui.tree_node(f"{prop["prop"]} ({id(prop)})####({id(prop)})"):
 			prop["prop"] = self.gui_asset_name_combo(id(prop), "prop", prop["prop"]);
 			_, prop["position"] = imgui.input_int2("XY", prop["position"]);
-
-			prop_asset = PropHelper.get_prop_asset(prop);
-			prop_asset["sprite"] = self.gui_asset_name_combo(id(prop_asset), "sprite", prop_asset["sprite"]);
-
-			if imgui.tree_node("Blockers"):
-				for blocker in prop_asset["blockers"]:
-					imgui.push_id(str(id(blocker)));
-					blocker = self.gui_aabb_input(blocker);
-					imgui.separator();
-					imgui.pop_id();
-				if imgui.button("+"):
-					PropHelper.add_blocker(prop);
-				imgui.tree_pop();
-			
-			if imgui.tree_node("Triggers"):
-				for trigger in prop_asset["triggers"]:
-					imgui.push_id(str(id(trigger)));
-					trigger["aabb"] = self.gui_aabb_input(trigger["aabb"]);
-					_, trigger["direction"] = imgui.input_int2("direction", trigger["direction"]);
-					imgui.separator();
-					imgui.pop_id();
-				if imgui.button("+"):
-					PropHelper.add_trigger(prop);
-				imgui.tree_pop();
-			
-			if imgui.button("Delete"):
+			if imgui.button("-"):
 				self.trash.append(prop);
 			imgui.tree_pop();
 	
@@ -230,29 +179,23 @@ class SceneEditor:
 					if imgui.button("+"):
 						prop = SpawnHelper.spawn_prop("null_prop", [0, 0]);
 						layer.append(prop);
+					if imgui.button("-"):
+						self.trash.append(layer);
 					imgui.tree_pop();
 				imgui.pop_id();
 			if imgui.button("+"):
 				self.scene["layers"].append(SpawnHelper.spawn_layer());
 	
-		for prop in self.trash:
-			for layer in self.scene["layers"]:
-				if prop in self.trash:
-					layer.remove(prop);
+		for thing in self.trash:
+			if isinstance(thing, dict):
+				for layer in self.scene["layers"]:
+					layer.remove(thing);
+			if isinstance(thing, list):
+				self.scene["layers"].remove(thing);
 	
 	def canvas_draw_prop(self, prop, show_sprite=True, show_aabb=False, show_blockers=False, show_triggers=False, show_name=False):
 		prop_asset = PropHelper.get_prop_asset(prop);
 		esprite = PropHelper.get_editor_sprite(prop);
-
-		if show_sprite:
-			frame = esprite.frame_images[0];
-			x, y = CanvasHelper.transform_point(self.canvas, prop["position"]);
-			self.canvas.draw_image(x, y, frame);
-		
-		if show_aabb:
-			aabb = PropHelper.get_aabb(prop);
-			aabb = CanvasHelper.transform_aabb(self.canvas, aabb);
-			self.canvas.draw_aabb(aabb, (255, 255, 255));
 	
 		if show_blockers:
 			for blocker in prop_asset["blockers"]:
@@ -271,6 +214,16 @@ class SceneEditor:
 				cx, cy = x0+w/2, y0+h/2;
 				tx, ty = trigger["direction"];
 				self.canvas.draw_line(cx, cy, cx+tx*16, cy+ty*16, (0, 255, 0));
+		
+		if show_sprite:
+			frame = esprite.frame_images[0];
+			x, y = CanvasHelper.transform_point(self.canvas, prop["position"]);
+			self.canvas.draw_image(x, y, frame);
+		
+		if show_aabb:
+			aabb = PropHelper.get_aabb(prop);
+			aabb = CanvasHelper.transform_aabb(self.canvas, aabb);
+			self.canvas.draw_aabb(aabb, (255, 255, 255));
 	
 		if show_name:
 			aabb = PropHelper.get_aabb(prop);
@@ -331,6 +284,8 @@ class SceneEditor:
 				_, self.show_viewport = imgui.checkbox("Show viewport", self.show_viewport);
 				imgui.same_line();
 				_, self.show_gizmos = imgui.checkbox("Show gizmos", self.show_gizmos);
+				imgui.same_line();
+				_, self.snap = imgui.checkbox("Snap", self.snap);
 			
 				self.gui_draw_scene();
 			else:
