@@ -24,6 +24,7 @@ class SpawnHelper:
 		x0, y0, x1, y1 = aabb;
 		return {
 			"aabb" : [x0, y0, x1, y1],
+			"direction" : [0, 1],
 			"proc" : proc
 		};
 
@@ -70,6 +71,7 @@ class PropEditor:
 	
 		self.show_sprite = True;
 		self.show_aabb = False;
+		self.variant = 0;
 	
 	def gui_prop_selector(self):
 		if imgui.begin_combo(f"##{id(self.prop)}", self.prop["name"] if self.prop != None else "None"):
@@ -112,15 +114,33 @@ class PropEditor:
 				imgui.end_combo();
 	
 	def gui_addition_panel(self):
+		trash = [];
+
 		if self.prop == None:
 			return;
 	
 		if imgui.collapsing_header("Blockers"):
-			if imgui.button("+"):
+			for (idx, blocker) in enumerate(self.prop["blockers"]):
+				imgui.text(f"X0: {blocker[0]}, Y0: {blocker[1]}, X1: {blocker[2]}, Y1: {blocker[3]}");
+				imgui.same_line();
+				if imgui.button(f"-##{id(blocker)}"):
+					trash.append(("blockers", idx));
+			if imgui.button("+##blocker"):
 				self.prop["blockers"].append(SpawnHelper.spawn_blocker());
+		
 		if imgui.collapsing_header("Triggers"):
-			if imgui.button("+"):
+			for (idx, trigger) in enumerate(self.prop["triggers"]):
+				imgui.text(f"X0: {trigger["aabb"][0]}, Y0: {trigger["aabb"][1]}, X1: {trigger["aabb"][2]}, Y1: {trigger["aabb"][3]}");
+				imgui.same_line();
+				if imgui.button(f"-##{id(trigger)}"):
+					trash.append(("triggers", idx));
+				_, trigger["direction"] = imgui.input_int2(f"Direction##{id(trigger)}", trigger["direction"]);
+				_, trigger["proc"] = imgui.input_text(f"Proc##{id(trigger)}", trigger["proc"]);
+			if imgui.button("+##trigger"):
 				self.prop["triggers"].append(SpawnHelper.spawn_trigger());
+	
+		for key, idx in trash:
+			del self.prop[key][idx];
 	
 	def canvas_snap(self, position):
 		x, y = position;
@@ -184,7 +204,7 @@ class PropEditor:
 		sprite_position = self.canvas_snap([-sprite.frame_width/2, -sprite.frame_height]);
 
 		if show_sprite:
-			frame = sprite.frame_images[0];
+			frame = sprite.frame_images[self.variant];
 			aabb = CanvasHelper.transform_aabb(self.canvas, move_aabb(sprite_aabb, sprite_position));
 			self.canvas.draw_image(aabb[0], aabb[1], frame);
 		
@@ -237,6 +257,9 @@ class PropEditor:
 			_, self.show_sprite = imgui.checkbox("Show sprite", self.show_sprite);
 			imgui.same_line();
 			_, self.show_aabb = imgui.checkbox("Show AABB", self.show_aabb);
+
+			if self.prop != None and self.prop["palette"]:
+				_, self.variant = imgui.slider_int("Variant", self.variant, 0, SpriteBank.get(self.prop["sprite"]).frame_count-1);
 
 			self.gui_addition_panel();
 			

@@ -9,6 +9,7 @@ typedef int16_t CAT_scene_AABB[4];
 typedef struct
 {
 	const CAT_sprite* sprite;
+	bool palette;
 
 	int16_t** blockers;
 	uint8_t blocker_count;
@@ -30,6 +31,7 @@ typedef struct
 		{
 			const CAT_prop* prop;
 			int16_t position_x, position_y;
+			int16_t variant;
 		}* props;
 		uint8_t prop_count;
 	}* layers;

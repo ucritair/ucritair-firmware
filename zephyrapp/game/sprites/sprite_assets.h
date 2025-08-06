@@ -250,6 +250,8 @@ extern const CAT_sprite world_trash_sprite;
 extern const CAT_sprite world_bldg_sm_sprite;
 extern const CAT_sprite world_bldg_md_sprite;
 extern const CAT_sprite world_bldg_lg_sprite;
+extern const CAT_sprite world_bench_tile_sprite;
+extern const CAT_sprite world_track_sprite;
 
 extern const CAT_sprite* sprite_list[];
-#define CAT_SPRITE_LIST_LENGTH 246
+#define CAT_SPRITE_LIST_LENGTH 248

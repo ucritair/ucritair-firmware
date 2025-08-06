@@ -18,7 +18,8 @@ class SpawnHelper:
 		x, y = position;
 		return {
 			"prop" : prop,
-			"position" : [x, y]
+			"position" : [x, y],
+			"variant" : -1
 		};
 
 class PropHelper:
@@ -70,10 +71,13 @@ class SceneEditor:
 
 		self.canvas_cursor = None;
 		self.world_cursor = None;
+		self.tile_cursor = None;
 		self.selection = None;
 		self.highlight = None;
 		self.selection_delta = None;
 		self.trash = [];
+		self.copied = None;
+		self.active_layer = None;
 	
 		self.show_viewport = True;
 		self.show_axes = True;
@@ -85,19 +89,43 @@ class SceneEditor:
 
 	def hygiene_pass(self):
 		if self.is_scene_loaded():
+			for thing in self.trash:
+				for layer in self.scene["layers"]:
+					if thing in layer:
+						layer.remove(thing);
+			self.trash = [];
+
+			for layer in self.scene["layers"]:
+				layer.sort(key = lambda p: p["position"][1] + AssetManager.search("sprite", AssetManager.search("prop", p["prop"])["sprite"])["height"]);
+			
 			for layer in self.scene["layers"]:
 				for prop in layer:
 					if AssetManager.search("prop", prop["prop"]) == None:
 						prop["prop"] = "null_prop";
+					enforce_key(prop, "variant", -1);
+					if not PropHelper.get_prop_asset(prop)["palette"]:
+						prop["variant"] = -1;
+	
+	def snap_position(self, xy):
+		x, y = xy;
+		return [round(x / self.tile_size) * self.tile_size, round(y / self.tile_size) * self.tile_size];
 	
 	def cursor_io(self, canvas_pos):
 		cursor = InputManager.get_imgui_cursor();
 		x, y = cursor - canvas_pos;
 		self.canvas_cursor = int(x), int(y);
 		x, y = x - self.canvas.width/2, y - self.canvas.height/2;
-		self.world_cursor = int(x), int(y);  
+		self.world_cursor = int(x), int(y); 
+		self.tile_cursor = self.snap_position(self.world_cursor);
 	
 	def selection_io(self):
+		if self.canvas_cursor == None:
+			return;
+		if self.canvas_cursor[0] < 0 or self.canvas_cursor[0] >= self.canvas_size[0]:
+			return;
+		if self.canvas_cursor[1] < 0 or self.canvas_cursor[1] >= self.canvas_size[1]:
+			return;
+	
 		if InputManager.is_pressed(glfw.MOUSE_BUTTON_LEFT):
 			self.selection = None;
 			self.highlight = None;
@@ -127,6 +155,14 @@ class SceneEditor:
 					x, y = self.selection["position"];
 					snap_x, snap_y = round(x / self.tile_size) * self.tile_size, round(y / self.tile_size) * self.tile_size;
 					self.selection["position"] = [snap_x, snap_y];
+	
+		if InputManager.is_held(glfw.KEY_LEFT_SUPER) and InputManager.is_pressed(glfw.KEY_C):
+			self.copied = self.highlight;
+		if InputManager.is_held(glfw.KEY_LEFT_SUPER) and InputManager.is_pressed(glfw.KEY_V):
+			if self.active_layer != None and self.copied != None:
+				dupe = copy.deepcopy(self.copied);
+				dupe["position"] = self.tile_cursor;
+				self.active_layer.append(dupe);
 	
 	def gui_asset_combo(self, identifier, asset_type, value):
 		result = value;
@@ -162,38 +198,43 @@ class SceneEditor:
 		return x0, y0, x0+w, y0+h;
 	
 	def gui_draw_prop(self, prop):
+		imgui.set_next_item_open(prop == self.highlight);
 		if imgui.tree_node(f"{prop["prop"]} ({id(prop)})####({id(prop)})"):
+			self.highlight = prop;
 			prop["prop"] = self.gui_asset_name_combo(id(prop), "prop", prop["prop"]);
-			_, prop["position"] = imgui.input_int2("XY", prop["position"]);
+			if PropHelper.get_prop_asset(prop)["palette"]:
+				_, prop["variant"] = imgui.slider_int("Variant", prop["variant"], 0, PropHelper.get_editor_sprite(prop).frame_count-1);
 			if imgui.button("-"):
 				self.trash.append(prop);
 			imgui.tree_pop();
 	
+	def swap_layers(self, i, j):
+		if i < 0 or j < 0:
+			return;
+		if i >= len(self.scene["layers"]) or j >= len(self.scene["layers"]):
+			return;
+		self.scene["layers"][i], self.scene["layers"][j] = self.scene["layers"][j], self.scene["layers"][i];
+	
 	def gui_draw_scene(self):
-		self.trash = [];
-
+		self.active_layer = None;
 		if imgui.collapsing_header(f"Layers"):
 			for (idx, layer) in enumerate(self.scene["layers"]):
-				imgui.push_id(str(idx));			
+				imgui.push_id(str(idx));	
 				if imgui.tree_node(f"Layer {idx}"):
+					self.active_layer = layer;
 					for prop in layer:
 							self.gui_draw_prop(prop);
 					if imgui.button("+"):
 						prop = SpawnHelper.spawn_prop("null_prop", [0, 0]);
 						layer.append(prop);
-					if imgui.button("-"):
-						self.trash.append(layer);
+					if imgui.button("Up"):
+						self.swap_layers(idx, idx-1);
+					if imgui.button("Down"):
+						self.swap_layers(idx, idx+1);
 					imgui.tree_pop();
 				imgui.pop_id();
 			if imgui.button("+"):
 				self.scene["layers"].append(SpawnHelper.spawn_layer());
-	
-		for thing in self.trash:
-			if isinstance(thing, dict):
-				for layer in self.scene["layers"]:
-					layer.remove(thing);
-			if isinstance(thing, list):
-				self.scene["layers"].remove(thing);
 	
 	def canvas_draw_prop(self, prop, show_sprite=True, show_aabb=False, show_blockers=False, show_triggers=False, show_name=False):
 		prop_asset = PropHelper.get_prop_asset(prop);
@@ -218,7 +259,7 @@ class SceneEditor:
 				self.canvas.draw_line(cx, cy, cx+tx*16, cy+ty*16, (0, 255, 0));
 		
 		if show_sprite:
-			frame = esprite.frame_images[0];
+			frame = esprite.frame_images[0 if prop["variant"] == -1 else prop["variant"]];
 			x, y = CanvasHelper.transform_point(self.canvas, prop["position"]);
 			self.canvas.draw_image(x, y, frame);
 		
@@ -266,9 +307,9 @@ class SceneEditor:
 			imgui.set_next_window_size(self.size);
 			_, self.open = imgui.begin(f"Scene Editor", self.open, flags=self.window_flags);
 
-			if self.is_scene_loaded():
-				self.hygiene_pass();
+			self.hygiene_pass();
 
+			if self.is_scene_loaded():
 				self.selection_io();
 
 				self.canvas.clear((128, 128, 128));

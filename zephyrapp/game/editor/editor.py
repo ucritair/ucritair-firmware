@@ -507,15 +507,15 @@ class DocumentRenderer:
 
 
 #########################################################
-## PROP VIEWER
+## Decoration Viewer
 
-class PropViewer:
+class DecorationViewer:
 	_ = None;
 
 	def __init__(self):
-		if PropViewer._ != None:
+		if DecorationViewer._ != None:
 			return None;
-		PropViewer._ = self;
+		DecorationViewer._ = self;
 
 		self.canvas = Canvas(240, 128);
 		self.size = (640, 480);
@@ -545,13 +545,13 @@ class PropViewer:
 		self.canvas.draw_image(x, y, sprite.frame_images[0]);
 		
 	def render():
-		if PropViewer._ == None:
+		if DecorationViewer._ == None:
 			return;
-		self = PropViewer._;
+		self = DecorationViewer._;
 
 		if self.open:
 			imgui.set_next_window_size(self.size);
-			_, self.open = imgui.begin(f"Prop Viewer", self.open, flags=self.window_flags);
+			_, self.open = imgui.begin(f"Decoration Viewer", self.open, flags=self.window_flags);
 
 			self.canvas.clear((128, 128, 128));
 			draw_x = self.canvas.width/2;
@@ -591,7 +591,7 @@ class PropViewer:
 			imgui.end();
 		
 		if not self.open:
-			PropViewer._ = None;
+			DecorationViewer._ = None;
 
 
 #########################################################
@@ -1256,6 +1256,8 @@ class DialogueEditor:
 		self.nodes = AssetManager.get_assets("dialogue");
 		self.node = None;
 	
+		self.trash = [];
+	
 	def node_selector(self):
 		if imgui.begin_combo(f"Dialogue", self.node["name"] if not self.node is None else "None"):
 			for node in self.nodes:
@@ -1272,6 +1274,10 @@ class DialogueEditor:
 		self = DialogueEditor._;
 
 		if self.open:
+			for key, idx in self.trash:
+				del self.node[key][idx];
+			self.trash = [];
+
 			imgui.set_next_window_size(self.size);
 			_, self.open = imgui.begin(f"Dialogue Editor", self.open, flags=self.window_flags);
 
@@ -1281,6 +1287,9 @@ class DialogueEditor:
 				if imgui.collapsing_header("Lines"):
 					for idx in range(len(self.node["lines"])):
 						_, self.node["lines"][idx] = imgui.input_text(str(idx), self.node["lines"][idx]);
+						imgui.same_line();
+						if imgui.button(f"Delete##line{idx}"):
+							self.trash.append(("lines", idx));
 					if imgui.button("New##line"):
 						self.node["lines"].append("Hello, world!");
 
@@ -1300,6 +1309,8 @@ class DialogueEditor:
 							_, edge["proc"] = imgui.input_text("Proc", edge["proc"]);
 							imgui.tree_pop();
 						imgui.pop_id();
+						if imgui.button(f"Delete##edge{idx}"):
+							self.trash.append(("edges", idx));
 					if imgui.button("New##edge"):
 						new = AssetManager.get_document("dialogue").type_helper.prototype("/edges", True);
 						self.node["edges"].append(new);
@@ -1392,8 +1403,8 @@ while not glfw.window_should_close(handle):
 			imgui.end_menu();
 		
 		if imgui.begin_menu("Tools"):
-			if imgui.menu_item_simple("Prop Viewer"):
-				PropViewer();
+			if imgui.menu_item_simple("Decoration Viewer"):
+				DecorationViewer();
 			if imgui.menu_item_simple("Animation Viewer"):
 				AnimationViewer();
 			if imgui.menu_item_simple("Theme Editor"):
@@ -1404,10 +1415,10 @@ while not glfw.window_should_close(handle):
 				ItemReformer();	
 			if imgui.menu_item_simple("Dialogue Editor"):
 				DialogueEditor();
-			if imgui.menu_item_simple("Scene Editor"):
-				SceneEditor();
 			if imgui.menu_item_simple("Prop Editor"):
 				PropEditor();
+			if imgui.menu_item_simple("Scene Editor"):
+				SceneEditor();
 			imgui.end_menu();
 		imgui.end_main_menu_bar();
 	
@@ -1418,8 +1429,8 @@ while not glfw.window_should_close(handle):
 	else:
 		DocumentRenderer.render(AssetManager.active_document);
 	
-	if PropViewer._ != None:
-		PropViewer.render();
+	if DecorationViewer._ != None:
+		DecorationViewer.render();
 	if AnimationViewer._ != None:
 		AnimationViewer.render();
 	if ThemeEditor._ != None:

@@ -59,7 +59,7 @@ bool CAT_in_dialogue()
 
 bool CAT_dialogue_needs_response()
 {
-	return line_idx == current->line_count-1;
+	return current->edge_count > 0 && line_idx == current->line_count-1;
 }
 
 const char* CAT_get_dialogue_line()
@@ -98,7 +98,7 @@ void CAT_dialogue_io()
 #define BOX_W CAT_LCD_SCREEN_W
 #define BOX_H (CAT_LCD_SCREEN_H / 4)
 #define BOX_Y (CAT_LCD_SCREEN_H - BOX_H)
-#define BOX_MARGIN 4
+#define BOX_MARGIN 8
 
 void CAT_render_dialogue()
 {

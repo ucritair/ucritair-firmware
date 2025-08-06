@@ -45,7 +45,7 @@ static enum
 	EAST,
 	SOUTH,
 	WEST
-} player_direction = WEST;
+} player_direction = SOUTH;
 
 static int player_dx = 0;
 static int player_dy = 0;
@@ -68,13 +68,12 @@ void player_init()
 	player_x = 0;
 	player_y = 0;
 
-	player_direction = WEST;
+	player_direction = SOUTH;
 	player_dx = 0;
 	player_dy = 0;
 	player_x_remainder = 0;
 	player_y_remainder = 0;
 
-	player_step_frame = 0;
 	step_frame_counter = 0;
 }
 
@@ -346,15 +345,16 @@ void draw_player()
 {
 	player_get_center(&eye_x, &eye_y);
 
-	int x0, y0, x1, y1;
-	player_get_aabb(&x0, &y0, &x1, &y1);
-	view_transform_AABB(x0, y0, x1, y1, &x0, &y0, &x1, &y1);
-	CAT_strokeberry(x0, y0, x1-x0, y1-y0, CAT_WHITE);
-
+	int x, y;
 	int frame = player_get_walk_frame() + player_step_frame;
 	CAT_set_sprite_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
-	view_transform_point(player_x + (PLAYER_TILE_W * CAT_TILE_SIZE)/2, player_y, &x0, &y0);
-	CAT_draw_sprite(&world_walk_sprite, frame, x0, y0);
+	view_transform_point(player_x + (PLAYER_TILE_W * CAT_TILE_SIZE)/2, player_y, &x, &y);
+	CAT_draw_sprite(&world_walk_sprite, frame, x, y);
+
+	/*int x0, y0, x1, y1;
+	player_get_aabb(&x0, &y0, &x1, &y1);
+	view_transform_AABB(x0, y0, x1, y1, &x0, &y0, &x1, &y1);
+	CAT_strokeberry(x0, y0, x1-x0, y1-y0, CAT_WHITE);*/
 }
 
 void CAT_render_world()
@@ -371,7 +371,7 @@ void CAT_render_world()
 		{
 			struct prop* prop = &layer->props[j];
 
-			if(!drew_player)
+			if(!drew_player && i == 1)
 			{
 				int player_by = player_y + PLAYER_TILE_H * CAT_TILE_SIZE;
 				int prop_by = prop->position_y + prop->prop->sprite->height;
@@ -384,9 +384,9 @@ void CAT_render_world()
 
 			int x, y;
 			view_transform_point(prop->position_x, prop->position_y, &x, &y);
-			CAT_draw_sprite_raw(prop->prop->sprite, -1, x, y);
+			CAT_draw_sprite_raw(prop->prop->sprite, prop->variant, x, y);
 			
-			for(int k = 0; k < prop->prop->blocker_count; k++)
+			/*for(int k = 0; k < prop->prop->blocker_count; k++)
 			{
 				CAT_scene_AABB blocker;
 				CAT_scene_index index = {.leaf = BLOCKER, .layer = i, .prop = j, .blocker = k};
@@ -395,11 +395,11 @@ void CAT_render_world()
 				int x0, y0, x1, y1;
 				view_transform_AABB(blocker[0], blocker[1], blocker[2], blocker[3], &x0, &y0, &x1, &y1);
 				CAT_strokeberry(x0, y0, x1-x0, y1-y0, CAT_RED);
-			}
+			}*/
 		}
+		if(!drew_player && i == 1)
+			draw_player();
 	}
-	if(!drew_player)
-		draw_player();
 
 	if(CAT_in_dialogue())
 	{

@@ -14,10 +14,13 @@ void CAT_scene_get_AABB(const CAT_scene* scene, CAT_scene_index* index, CAT_scen
 {
 	struct layer* layer = &scene->layers[index->layer];
 	struct prop* prop = &layer->props[index->prop];
+
 	switch(index->leaf)
 	{
 		case BLOCKER:
 		{
+			if(index->blocker < 0 || index->blocker >= prop->prop->blocker_count)
+				return;
 			out[0] = prop->prop->blockers[index->blocker][0] + prop->position_x;
 			out[1] = prop->prop->blockers[index->blocker][1] + prop->position_y;
 			out[2] = prop->prop->blockers[index->blocker][2] + prop->position_x;
@@ -27,6 +30,8 @@ void CAT_scene_get_AABB(const CAT_scene* scene, CAT_scene_index* index, CAT_scen
 
 		case TRIGGER:
 		{
+			if(index->trigger < 0 || index->trigger >= prop->prop->trigger_count)
+				return;
 			out[0] = prop->prop->triggers[index->trigger].aabb[0] + prop->position_x;
 			out[1] = prop->prop->triggers[index->trigger].aabb[1] + prop->position_y;
 			out[2] = prop->prop->triggers[index->trigger].aabb[2] + prop->position_x;
@@ -61,6 +66,7 @@ void push_collision(int layer_idx, int prop_idx, int blocker_idx, int trigger_id
 
 	collision_buffer[collision_head] = (const CAT_scene_index) {
 		.leaf = blocker_idx != -1 ? BLOCKER : TRIGGER,
+		.layer = layer_idx,
 		.prop = prop_idx,
 		.blocker = blocker_idx,
 		.trigger = trigger_idx,

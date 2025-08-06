@@ -37,3 +37,7 @@ def move_aabb(aabb, delta):
 	x0, y0, x1, y1 = aabb;
 	dx, dy = delta;
 	return x0+dx, y0+dy, x1+dx, y1+dy;
+
+def enforce_key(dict, key, default_value):
+	if not key in dict:
+		dict[key] = default_value;

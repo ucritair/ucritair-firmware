@@ -1,4 +1,5 @@
 #pragma once
 
 void interact_proc_reed();
-void dialogue_proc_give_carrot();
+void interact_proc_reed_house();
+void interact_proc_statue();
