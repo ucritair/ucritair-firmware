@@ -34,14 +34,14 @@
                     {
                         "prop": "bldg_lg_prop",
                         "position": [
-                            -120,
+                            -128,
                             -160
                         ]
                     },
                     {
                         "prop": "bldg_md_prop",
                         "position": [
-                            -72,
+                            -80,
                             -160
                         ]
                     },
@@ -60,17 +60,17 @@
                         ]
                     },
                     {
+                        "prop": "statue_prop",
+                        "position": [
+                            -32,
+                            -48
+                        ]
+                    },
+                    {
                         "prop": "reed_prop",
                         "position": [
                             64,
                             -112
-                        ]
-                    },
-                    {
-                        "prop": "statue_prop",
-                        "position": [
-                            -24,
-                            -40
                         ]
                     }
                 ]

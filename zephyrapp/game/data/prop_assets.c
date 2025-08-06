@@ -30,7 +30,7 @@ const CAT_prop reed_prop = {
 const CAT_prop reed_house_prop = {
 	.sprite = &world_reed_house_sprite,
 	.blockers = (int16_t*[]) {
-		(int16_t[]) {0,56,63,80,},
+		(int16_t[]) {0,48,64,80,},
 	},
 	.blocker_count = 1,
 	.triggers = (struct trigger[]) {
@@ -40,7 +40,7 @@ const CAT_prop reed_house_prop = {
 const CAT_prop statue_prop = {
 	.sprite = &world_statue_sprite,
 	.blockers = (int16_t*[]) {
-		(int16_t[]) {16,32,32,40,},
+		(int16_t[]) {16,32,32,48,},
 	},
 	.blocker_count = 1,
 	.triggers = (struct trigger[]) {
@@ -50,7 +50,7 @@ const CAT_prop statue_prop = {
 const CAT_prop bldg_sm_prop = {
 	.sprite = &world_bldg_sm_sprite,
 	.blockers = (int16_t*[]) {
-		(int16_t[]) {0,56,32,80,},
+		(int16_t[]) {0,48,32,80,},
 	},
 	.blocker_count = 1,
 	.triggers = (struct trigger[]) {
@@ -60,7 +60,7 @@ const CAT_prop bldg_sm_prop = {
 const CAT_prop bldg_md_prop = {
 	.sprite = &world_bldg_md_sprite,
 	.blockers = (int16_t*[]) {
-		(int16_t[]) {0,56,40,80,},
+		(int16_t[]) {0,48,48,80,},
 	},
 	.blocker_count = 1,
 	.triggers = (struct trigger[]) {
@@ -70,7 +70,7 @@ const CAT_prop bldg_md_prop = {
 const CAT_prop bldg_lg_prop = {
 	.sprite = &world_bldg_lg_sprite,
 	.blockers = (int16_t*[]) {
-		(int16_t[]) {0,56,48,80,},
+		(int16_t[]) {0,48,48,80,},
 	},
 	.blocker_count = 1,
 	.triggers = (struct trigger[]) {

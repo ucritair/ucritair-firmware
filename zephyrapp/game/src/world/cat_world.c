@@ -97,7 +97,7 @@ void player_motion_input()
 				int frames_current = CAT_input_frames(movement_buttons[player_direction]);
 				int frames_candidate = CAT_input_frames(movement_buttons[i]);
 				bool newer = frames_current == 0 || frames_candidate < frames_current;
-				if(!newer)
+				if(!newer || is_walking())
 					continue;
 				player_direction = i;
 				player_dx = movement_deltas[i][0];
@@ -373,7 +373,7 @@ void CAT_render_world()
 
 			if(!drew_player)
 			{
-				int player_by = player_y + PLAYER_SPRITE_H;
+				int player_by = player_y + PLAYER_TILE_H * CAT_TILE_SIZE;
 				int prop_by = prop->position_y + prop->prop->sprite->height;
 				if(player_by < prop_by)
 				{

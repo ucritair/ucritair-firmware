@@ -7,12 +7,12 @@ const CAT_scene test_scene = {
 			.props = (struct prop[]) {
 				{
 					.prop = &bldg_lg_prop,
-					.position_x = -120,
+					.position_x = -128,
 					.position_y = -160,
 				},
 				{
 					.prop = &bldg_md_prop,
-					.position_x = -72,
+					.position_x = -80,
 					.position_y = -160,
 				},
 				{
@@ -32,8 +32,8 @@ const CAT_scene test_scene = {
 				},
 				{
 					.prop = &statue_prop,
-					.position_x = -24,
-					.position_y = -40,
+					.position_x = -32,
+					.position_y = -48,
 				},
 			},
 			.prop_count = 6,

@@ -16,11 +16,11 @@ class EditMode(Enum):
 	TRIGGERS=1
 
 class SpawnHelper:
-	def spawn_blocker(aabb = [0, 0, 8, 8]):
+	def spawn_blocker(aabb = [0, 0, 16, 16]):
 		x0, y0, x1, y1 = aabb;
 		return [x0, y0, x1, y1];
 
-	def spawn_trigger(aabb = [0, 0, 8, 8], proc=""):
+	def spawn_trigger(aabb = [0, 0, 16, 16], proc=""):
 		x0, y0, x1, y1 = aabb;
 		return {
 			"aabb" : [x0, y0, x1, y1],
@@ -63,8 +63,10 @@ class PropEditor:
 		self.editee = None;
 		self.edit_context = None;
 
-		self.canvas_cursor = [0, 0];
-		self.canvas_cursor_delta = [0, 0];
+		self.tile_size = 16;
+		self.world_cursor = [0, 0];
+		self.tile_cursor = [0, 0];
+		self.tile_cursor_delta = [0, 0];
 	
 		self.show_sprite = True;
 		self.show_aabb = False;
@@ -120,13 +122,19 @@ class PropEditor:
 			if imgui.button("+"):
 				self.prop["triggers"].append(SpawnHelper.spawn_trigger());
 	
+	def canvas_snap(self, position):
+		x, y = position;
+		return [round(x/self.tile_size)*self.tile_size, round(y/self.tile_size)*self.tile_size];
+	
 	def canvas_cursor_io(self, canvas_pos):
 		cursor = InputManager.get_imgui_cursor();
 		x, y = cursor - canvas_pos;
-		canvas_cursor = [int(x)/self.canvas_scale, int(y)/self.canvas_scale];
-		canvas_cursor = [round(canvas_cursor[0]/8)*8, round(canvas_cursor[1]/8)*8]
-		self.canvas_cursor_delta = [canvas_cursor[0] - self.canvas_cursor[0], canvas_cursor[1] - self.canvas_cursor[1]];
-		self.canvas_cursor = canvas_cursor;
+
+		self.world_cursor = [int(x)/self.canvas_scale, int(y)/self.canvas_scale];
+
+		tile_cursor = self.canvas_snap(self.world_cursor);
+		self.tile_cursor_delta = [tile_cursor[0] - self.tile_cursor[0], tile_cursor[1] - self.tile_cursor[1]];
+		self.tile_cursor = tile_cursor;
 	
 	def is_editing(self):
 		return self.editee != None and self.edit_context != None;
@@ -139,7 +147,7 @@ class PropEditor:
 	
 		sprite = SpriteBank.get(self.prop["sprite"]);
 		sprite_aabb = [0, 0, sprite.frame_width-1, sprite.frame_height-1];
-		sprite_position = [-sprite.frame_width/2, -sprite.frame_height];
+		sprite_position = self.canvas_snap([-sprite.frame_width/2, -sprite.frame_height]);
 		sprite_aabb = move_aabb(sprite_aabb, sprite_position);
 
 		aabb = move_aabb(self.editee, sprite_position);
@@ -148,22 +156,24 @@ class PropEditor:
 		if InputManager.is_pressed(glfw.MOUSE_BUTTON_LEFT) and not self.is_editing():	
 			for i in range(4):
 				cursor_part = 0 if i % 2 == 0 else 1;
-				if abs(self.canvas_cursor[cursor_part] - aabb[i]) <= 1:
+				if abs(self.world_cursor[cursor_part] - aabb[i]) <= 1:
 					self.edit_context = {"aabb_edge" : i};
 					break;
 		if self.is_editing():
 			edge = self.edit_context["aabb_edge"];
-			delta = self.canvas_cursor_delta[edge % 2];
+			delta = self.tile_cursor_delta[edge % 2];
+			print(edge, delta);
 			self.editee[edge] += delta;
 			self.editee[2] = max(self.editee[2], self.editee[0]);
 			self.editee[3] = max(self.editee[3], self.editee[1]);
 			if InputManager.is_released(glfw.MOUSE_BUTTON_LEFT):
 				self.edit_context = None;
 
-	def canvas_draw_axes(self):
-		x, y = self.canvas.width/2, self.canvas.height/2;
-		self.canvas.draw_line(x, 0, x, self.canvas.height, (64, 64, 64));
-		self.canvas.draw_line(0, y, self.canvas.width, y, (64, 64, 64));
+	def canvas_draw_grid(self):
+		for y in range(self.tile_size, self.canvas.height, self.tile_size):
+			self.canvas.draw_line(0, y, self.canvas.width, y, (64, 64, 64));
+		for x in range(self.tile_size, self.canvas.width, self.tile_size):
+			self.canvas.draw_line(x, 0, x, self.canvas.height, (64, 64, 64));
 
 	def canvas_draw_prop(self, show_sprite=True, show_aabb=False, show_blockers=False, show_triggers=False):
 		if self.prop == None:
@@ -171,7 +181,7 @@ class PropEditor:
 
 		sprite = SpriteBank.get(self.prop["sprite"]);
 		sprite_aabb = [0, 0, sprite.frame_width-1, sprite.frame_height-1];
-		sprite_position = [-sprite.frame_width/2, -sprite.frame_height];
+		sprite_position = self.canvas_snap([-sprite.frame_width/2, -sprite.frame_height]);
 
 		if show_sprite:
 			frame = sprite.frame_images[0];
@@ -212,7 +222,7 @@ class PropEditor:
 			self.gui_editee_selector();
 
 			self.canvas.clear((128, 128, 128));
-			self.canvas_draw_axes();
+			self.canvas_draw_grid();
 			self.canvas_draw_prop(
 				show_sprite=self.show_sprite,
 				show_aabb=self.show_aabb,

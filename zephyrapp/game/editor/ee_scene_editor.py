@@ -61,8 +61,10 @@ class SceneEditor:
 		];
 		self.window_flags = foldl(lambda a, b : a | b, 0, window_flag_list);
 		self.open = True;
+
 		self.canvas_size = (1024, 1024);
 		self.canvas = Canvas(self.canvas_size[0], self.canvas_size[1]);
+		self.tile_size = 16;
 
 		self.scene = None;
 
@@ -123,7 +125,7 @@ class SceneEditor:
 				self.selection["position"] = [int(x0+ddx), int(y0+ddy)];
 				if self.snap:
 					x, y = self.selection["position"];
-					snap_x, snap_y = round(x / 8) * 8, round(y / 8) * 8;
+					snap_x, snap_y = round(x / self.tile_size) * self.tile_size, round(y / self.tile_size) * self.tile_size;
 					self.selection["position"] = [snap_x, snap_y];
 	
 	def gui_asset_combo(self, identifier, asset_type, value):
