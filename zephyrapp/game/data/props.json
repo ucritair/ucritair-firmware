@@ -57,18 +57,18 @@
             "blockers": [
                 [
                     0,
-                    16.0,
-                    31,
-                    31.0
+                    16,
+                    32,
+                    32
                 ]
             ],
             "triggers": [
                 {
                     "aabb": [
-                        0,
                         16,
-                        31,
-                        31
+                        16,
+                        32,
+                        32
                     ],
                     "proc": "interact_proc_reed",
                     "direction": [
@@ -84,9 +84,9 @@
             "blockers": [
                 [
                     0,
-                    56.0,
+                    56,
                     63,
-                    79.0
+                    80
                 ]
             ],
             "triggers": [],

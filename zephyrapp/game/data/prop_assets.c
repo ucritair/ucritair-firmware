@@ -14,12 +14,12 @@ const CAT_prop null_prop = {
 const CAT_prop reed_prop = {
 	.sprite = &world_reed_sprite,
 	.blockers = (int16_t*[]) {
-		(int16_t[]) {0,16,31,31,},
+		(int16_t[]) {0,16,32,32,},
 	},
 	.blocker_count = 1,
 	.triggers = (struct trigger[]) {
 		{
-			.aabb = {0,16,31,31,},
+			.aabb = {16,16,32,32,},
 			.tx = 0,
 			.ty = 1,
 			.proc = interact_proc_reed,
@@ -30,7 +30,7 @@ const CAT_prop reed_prop = {
 const CAT_prop reed_house_prop = {
 	.sprite = &world_reed_house_sprite,
 	.blockers = (int16_t*[]) {
-		(int16_t[]) {0,56,63,79,},
+		(int16_t[]) {0,56,63,80,},
 	},
 	.blocker_count = 1,
 	.triggers = (struct trigger[]) {

@@ -474,15 +474,15 @@ class DocumentRenderer:
 
 			match type(T):
 				case ee_types.Int:
-					_, result = imgui.input_int(f"##{identifier}", node);
+					_, result = imgui.input_int(f"##{identifier}", int(node));
 					return result;
 				case ee_types.Float:
-					_, result = imgui.input_float(f"##{identifier}", node);
+					_, result = imgui.input_float(f"##{identifier}", float(node));
 					return result;
 				case ee_types.Bool:
-					return imgui.checkbox(f"##{identifier}", node)[1];
+					return imgui.checkbox(f"##{identifier}", bool(node))[1];
 				case ee_types.String:
-					_, result = imgui.input_text(f"##{identifier}", node);
+					_, result = imgui.input_text(f"##{identifier}", str(node));
 					return result;
 
 	def _context_popup(doc : AssetDocument, idx):

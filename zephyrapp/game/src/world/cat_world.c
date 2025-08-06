@@ -15,9 +15,12 @@
 //////////////////////////////////////////////////////////////////////////
 // PLAYER
 
-#define PLAYER_W (world_walk_sprite.width)
-#define PLAYER_H (world_walk_sprite.height)
-#define PLAYER_SPEED 64
+#define PLAYER_SPRITE_W (world_walk_sprite.width)
+#define PLAYER_SPRITE_H (world_walk_sprite.height)
+#define PLAYER_TILE_W 1
+#define PLAYER_TILE_H 1
+#define FRAME_STEP_SIZE (CAT_TILE_SIZE/2)
+#define WALK_FRAME_PERIOD 2
 
 static int player_x = 0;
 static int player_y = 0;
@@ -108,17 +111,17 @@ void player_motion_input()
 	{
 		if(player_direction != direction_last)
 			player_step_frame = !player_step_frame;
-		step_frame_counter = 2;
+		step_frame_counter = WALK_FRAME_PERIOD;
 	}
 	else if(frames >= 2 && !is_walking())
 	{
-		player_x_remainder = abs(player_dx) * 8;
-		player_y_remainder = abs(player_dy) * 8;
+		player_x_remainder = abs(player_dx) * CAT_TILE_SIZE;
+		player_y_remainder = abs(player_dy) * CAT_TILE_SIZE;
 	}
 
 	if(is_walking())
 	{
-		if(step_frame_counter == 2)
+		if(step_frame_counter == WALK_FRAME_PERIOD)
 		{
 			player_step_frame = !player_step_frame;
 			step_frame_counter = 0;
@@ -129,10 +132,22 @@ void player_motion_input()
 
 void player_get_aabb(int* x0, int* y0, int* x1, int* y1)
 {
-	*x0 = player_x - PLAYER_W/4;
+	*x0 = player_x;
 	*y0 = player_y;
-	*x1 = player_x + PLAYER_W/4;
-	*y1 = player_y + PLAYER_W/2;
+	*x1 = player_x + (PLAYER_TILE_W * CAT_TILE_SIZE);
+	*y1 = player_y + (PLAYER_TILE_H * CAT_TILE_SIZE);
+}
+
+void player_get_center(int* x, int* y)
+{
+	*x = player_x + (PLAYER_TILE_W * CAT_TILE_SIZE) / 2;
+	*y = player_y + (PLAYER_TILE_H * CAT_TILE_SIZE) / 2;
+}
+
+void player_get_bottom(int* x, int* y)
+{
+	*x = player_x + (PLAYER_TILE_W * CAT_TILE_SIZE) / 2;
+	*y = player_y + (PLAYER_TILE_H * CAT_TILE_SIZE);
 }
 
 void player_motion_logic()
@@ -274,30 +289,6 @@ int player_get_walk_frame()
 	}
 }
 
-void draw_player()
-{
-	int view_x = CAT_LCD_SCREEN_W/2;
-	int view_y = CAT_LCD_SCREEN_H/2;
-
-	int x0, y0, x1, y1;
-	player_get_aabb(&x0, &y0, &x1, &y1);
-	CAT_strokeberry(x0-player_x+view_x, y0-player_y+view_y, x1-x0, y1-y0, CAT_WHITE);
-
-	int frame = player_get_walk_frame() + player_step_frame;
-	CAT_set_sprite_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
-	CAT_draw_sprite(&world_walk_sprite, frame, view_x, view_y);	
-}
-
-void npc_interact_proc()
-{
-	CAT_enter_dialogue(&dialogue_test_a);
-}
-
-void door_interact_proc()
-{
-	CAT_machine_transition(CAT_MS_room);
-}
-
 void CAT_MS_world(CAT_machine_signal signal)
 {
 	switch(signal)
@@ -336,14 +327,40 @@ void CAT_MS_world(CAT_machine_signal signal)
 
 #define GRASS_COLOUR RGB8882565(122, 146, 57)
 
-static void viewport_transform(int x, int y, int eye_x, int eye_y, int view_w, int view_h, int* x_out, int* y_out)
+static int eye_x;
+static int eye_y;
+
+static void view_transform_point(int x, int y, int* x_out, int* y_out)
 {
 	*x_out = x - eye_x + CAT_LCD_SCREEN_W/2;
 	*y_out = y - eye_y + CAT_LCD_SCREEN_H/2;
 }
 
+static void view_transform_AABB(int x0, int y0, int x1, int y1, int* x0_out, int* y0_out, int* x1_out, int* y1_out)
+{
+	view_transform_point(x0, y0, x0_out, y0_out);
+	view_transform_point(x1, y1, x1_out, y1_out);
+}
+
+void draw_player()
+{
+	player_get_center(&eye_x, &eye_y);
+
+	int x0, y0, x1, y1;
+	player_get_aabb(&x0, &y0, &x1, &y1);
+	view_transform_AABB(x0, y0, x1, y1, &x0, &y0, &x1, &y1);
+	CAT_strokeberry(x0, y0, x1-x0, y1-y0, CAT_WHITE);
+
+	int frame = player_get_walk_frame() + player_step_frame;
+	CAT_set_sprite_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
+	view_transform_point(player_x + (PLAYER_TILE_W * CAT_TILE_SIZE)/2, player_y, &x0, &y0);
+	CAT_draw_sprite(&world_walk_sprite, frame, x0, y0);
+}
+
 void CAT_render_world()
 {
+	player_get_center(&eye_x, &eye_y);
+
 	CAT_frameberry(GRASS_COLOUR);
 
 	bool drew_player = false;
@@ -356,7 +373,7 @@ void CAT_render_world()
 
 			if(!drew_player)
 			{
-				int player_by = player_y-PLAYER_H/2 + world_walk_sprite.height;
+				int player_by = player_y + PLAYER_SPRITE_H;
 				int prop_by = prop->position_y + prop->prop->sprite->height;
 				if(player_by < prop_by)
 				{
@@ -366,8 +383,19 @@ void CAT_render_world()
 			}
 
 			int x, y;
-			viewport_transform(prop->position_x, prop->position_y, player_x, player_y, CAT_LCD_SCREEN_W, CAT_LCD_SCREEN_H, &x, &y);
+			view_transform_point(prop->position_x, prop->position_y, &x, &y);
 			CAT_draw_sprite_raw(prop->prop->sprite, -1, x, y);
+			
+			for(int k = 0; k < prop->prop->blocker_count; k++)
+			{
+				CAT_scene_AABB blocker;
+				CAT_scene_index index = {.leaf = BLOCKER, .layer = i, .prop = j, .blocker = k};
+				CAT_scene_get_AABB(&test_scene, &index, blocker);
+
+				int x0, y0, x1, y1;
+				view_transform_AABB(blocker[0], blocker[1], blocker[2], blocker[3], &x0, &y0, &x1, &y1);
+				CAT_strokeberry(x0, y0, x1-x0, y1-y0, CAT_RED);
+			}
 		}
 	}
 	if(!drew_player)
