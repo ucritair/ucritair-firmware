@@ -115,6 +115,8 @@ void lcd_render_diag()
 
 	bool charging_last_frame = false;
 
+	CAT_LCD_set_brightness(screen_brightness);
+
 	while (1)
 	{
 #ifndef MINIMIZE_GAME_FOOTPRINT
