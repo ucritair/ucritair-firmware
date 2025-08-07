@@ -231,6 +231,20 @@ void switch_and_reload()
 	mode = MODE_INIT;
 }
 
+int move_cursor(int cursor, int l, int r)
+{
+	int dx = 0;
+	if(CAT_input_held(CAT_BUTTON_LEFT, 0))
+		dx -= 1;
+	if(CAT_input_held(CAT_BUTTON_LEFT, 1))
+		dx -= 3;
+	if(CAT_input_held(CAT_BUTTON_RIGHT, 0))
+		dx += 1;
+	if(CAT_input_held(CAT_BUTTON_RIGHT, 1))
+		dx += 3;
+	return clamp(cursor+dx, l, r);
+}
+
 void CAT_monitor_MS_ACH(CAT_machine_signal signal)
 {
 	switch(signal)
@@ -278,10 +292,7 @@ void CAT_monitor_MS_ACH(CAT_machine_signal signal)
 
 				case MODE_START:
 				{
-					if(CAT_input_pulse(CAT_BUTTON_LEFT))
-						start -= 1;
-					if(CAT_input_pulse(CAT_BUTTON_RIGHT))
-						start += 1;
+					start = move_cursor(start, 0, extent-1);
 					CAT_monitor_ACH_set_cursors(start, end);
 
 					if(CAT_input_pressed(CAT_BUTTON_A))
@@ -298,10 +309,7 @@ void CAT_monitor_MS_ACH(CAT_machine_signal signal)
 
 				case MODE_END:
 				{
-					if(CAT_input_pulse(CAT_BUTTON_LEFT))
-						end -= 1;
-					if(CAT_input_pulse(CAT_BUTTON_RIGHT))
-						end += 1;
+					end = move_cursor(end, start+1, extent-1);
 					CAT_monitor_ACH_set_cursors(start, end);
 
 					if(CAT_input_pressed(CAT_BUTTON_A))
