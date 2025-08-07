@@ -29,7 +29,7 @@ static uint16_t colours[7];
 
 void CAT_monitor_render_sparklines()
 {
-	draw_subpage_markers(32, CAT_AQM_COUNT, view);
+	CAT_draw_subpage_markers(32, CAT_AQM_COUNT, view, CAT_WHITE);
 
 	const char* title = CAT_AQ_get_title_string(view);
 	int cursor_y = center_textf(TITLE_X, TITLE_Y, 2, CAT_WHITE, title) + 2;
@@ -57,8 +57,8 @@ void CAT_monitor_render_sparklines()
 	mean_score /= 7.0f;
 
 	CAT_graph_reset();
-	CAT_graph_set_background(SPARKLINE_BG_COLOUR);
-	CAT_graph_set_foreground(SPARKLINE_FG_COLOUR);
+	CAT_graph_set_background(CAT_GRAPH_BG);
+	CAT_graph_set_foreground(CAT_GRAPH_FG);
 	CAT_graph_set_window(SPARKLINE_X, SPARKLINE_Y, SPARKLINE_MAX_X, SPARKLINE_MAX_Y);
 	CAT_graph_set_viewport(0, -0.25, 1, 1.25);
 	CAT_graph_set_point_size(3);
@@ -83,7 +83,7 @@ void CAT_monitor_MS_sparklines(CAT_machine_signal signal)
 
 		case CAT_MACHINE_SIGNAL_TICK:
 			if(CAT_input_dismissal())
-				CAT_monitor_soft_exit();
+				CAT_monitor_dismiss();
 			if(CAT_input_pressed(CAT_BUTTON_LEFT))
 				CAT_monitor_retreat();
 			if(CAT_input_pressed(CAT_BUTTON_RIGHT))

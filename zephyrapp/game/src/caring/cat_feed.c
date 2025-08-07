@@ -1350,7 +1350,7 @@ static void render_plus_line(int x, int y, int w, float min, float base, float p
 
 static void render_summary()
 {
-	CAT_frameberry(CAT_PAPER);
+	CAT_frameberry(CAT_PAPER_CREAM);
 
 	const char *title = "N/A";
 	int grade = 0;

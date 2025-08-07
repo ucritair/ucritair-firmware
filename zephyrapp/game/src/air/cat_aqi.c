@@ -284,11 +284,11 @@ uint16_t CAT_AQ_get_grade_colour(float score)
 {
 	uint16_t colours[] =
 	{
-		0xf0a1, // F
-		0xfaa1, // D
-		0xfee0, // C
-		0xb725, // B
-		0x76e1, // A
+		CAT_GRADE_COLOUR_F,
+		CAT_GRADE_COLOUR_D,
+		CAT_GRADE_COLOUR_C,
+		CAT_GRADE_COLOUR_B,
+		CAT_GRADE_COLOUR_A,
 	};
 
 	int idx = quantize(score, 1, sizeof(colours)/sizeof(colours[0]));

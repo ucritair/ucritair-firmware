@@ -64,18 +64,27 @@ static void draw_uninit_warning()
 	CAT_draw_text(12, 64, "Air quality sensors are coming online.");
 }
 
-static uint16_t bg_colour = CAT_MONITOR_BLUE;
-static uint16_t fg_colour = CAT_WHITE;
+#define PAGE_MARKER_Y 8
 
 static void render_monitor()
-{
-	if(page != CAT_MONITOR_PAGE_GAMEPLAY)
-		bg_colour = CAT_MONITOR_BLUE;
-	if(page != CAT_MONITOR_PAGE_GAMEPLAY)
-		fg_colour = CAT_WHITE;
-		
-	CAT_frameberry(bg_colour);
-	draw_page_markers(8, CAT_MONITOR_PAGE_COUNT, page);
+{	
+	uint16_t bg = CAT_BLACK;
+	uint16_t fg = CAT_WHITE;
+	switch (page)
+	{
+		case CAT_MONITOR_PAGE_CLOCK:
+			bg = CAT_SKY_BLUE;
+		break;
+		case CAT_MONITOR_PAGE_GAMEPLAY:
+			fg = CAT_CRISIS_YELLOW;
+		break;
+		default:
+		break;
+	}
+	CAT_frameberry(bg);
+	CAT_draw_page_markers(PAGE_MARKER_Y, CAT_MONITOR_PAGE_COUNT, CAT_monitor_tell(), fg);
+	if(CAT_AQ_is_crisis_ongoing())
+		CAT_draw_page_alert(PAGE_MARKER_Y, CAT_MONITOR_PAGE_COUNT, CAT_MONITOR_PAGE_GAMEPLAY, CAT_RED);
 
 	if
 	(
@@ -123,29 +132,9 @@ void CAT_monitor_exit()
 		CAT_machine_transition(CAT_MS_room);
 }
 
-void CAT_monitor_soft_exit()
+void CAT_monitor_dismiss()
 {
 	CAT_monitor_seek(CAT_MONITOR_PAGE_GAMEPLAY);
-}
-
-void CAT_monitor_colour_bg(uint16_t colour)
-{
-	bg_colour = colour;
-}
-
-void CAT_monitor_colour_fg(uint16_t colour)
-{
-	fg_colour = colour;
-}
-
-uint16_t CAT_monitor_bg_colour()
-{
-	return bg_colour;
-}
-
-uint16_t CAT_monitor_fg_colour()
-{
-	return fg_colour;
 }
 
 void CAT_MS_monitor(CAT_machine_signal signal)

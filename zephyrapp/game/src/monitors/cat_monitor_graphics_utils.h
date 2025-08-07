@@ -13,45 +13,6 @@
 #include "cat_gizmos.h"
 #include "cat_graph.h"
 
-static void draw_page_markers(int y, int pages, int page)
-{
-	int start_x = 120 - ((16 + 2) * pages) / 2;
-	for(int i = 0; i < pages; i++)
-	{
-		int x = start_x + i * (16 + 2);
-		if(i == CAT_MONITOR_PAGE_GAMEPLAY && CAT_AQ_is_crisis_ongoing())
-		{				
-			if(page == CAT_MONITOR_PAGE_GAMEPLAY)		
-				CAT_set_sprite_colour(CAT_RED);
-			CAT_draw_sprite(&ui_radio_button_diamond_sprite, page == i, x, y);
-			if(CAT_pulse(0.25f))
-				CAT_draw_gizmo_primitive(CAT_GIZMO_PRIMITIVE_BOX, x+8, y+8, 16, 0.25f, CAT_RED);
-		}
-		else
-		{
-			CAT_set_sprite_colour(CAT_monitor_fg_colour());
-			CAT_draw_sprite(&ui_radio_button_diamond_sprite, page == i, x, y);
-		}
-	}
-}
-
-static void draw_subpage_markers(int y, int pages, int page)
-{
-	int r = 2;
-	int pad = 8;
-	int start_x = 120 - (((2*r) * pages) + (pad * (pages-1))) / 2;
-	int x = start_x;
-
-	for(int i = 0; i < pages; i++)
-	{
-		if(i == page)
-			CAT_discberry(x, y, r, CAT_WHITE);
-		else
-			CAT_circberry(x, y, r, CAT_WHITE);
-		x += 2 * r + pad;
-	}
-}
-
 static char textf_buf[32];
 
 static int center_textf(int x, int y, int scale, uint16_t c, const char* fmt, ...)
@@ -106,12 +67,4 @@ static int underline(int x, int y, int scale, uint16_t c, const char* fmt, ...)
 	CAT_discberry(right_x, y, 2, c);
 
 	return y + 4;
-}
-
-static void draw_delta_arrow(int x, int y, bool up, uint16_t c)
-{
-	int y0 = up ? y-12 : y;
-	int y1 = up ? y : y-12;
-	CAT_lineberry(x, y0, x+6, y1, c);
-	CAT_lineberry(x+6, y1, x+12, y0, c);
 }

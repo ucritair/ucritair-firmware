@@ -19,13 +19,9 @@ void CAT_monitor_advance();
 void CAT_monitor_retreat();
 void CAT_monitor_seek(int target);
 int CAT_monitor_tell();
-void CAT_monitor_exit();
-void CAT_monitor_soft_exit();
 
-void CAT_monitor_colour_bg(uint16_t colour);
-void CAT_monitor_colour_fg(uint16_t colour);
-uint16_t CAT_monitor_bg_colour();
-uint16_t CAT_monitor_fg_colour();
+void CAT_monitor_exit();
+void CAT_monitor_dismiss();
 
 void CAT_monitor_MS_summary(CAT_machine_signal signal);
 void CAT_monitor_render_summary();

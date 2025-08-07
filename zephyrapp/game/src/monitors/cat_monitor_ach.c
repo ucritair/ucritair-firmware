@@ -337,7 +337,7 @@ void CAT_monitor_MS_ACH(CAT_machine_signal signal)
 				case MODE_OUTCOME:
 				{
 					if(CAT_input_dismissal())
-						CAT_monitor_soft_exit();
+						CAT_monitor_dismiss();
 					if(CAT_input_pressed(CAT_BUTTON_LEFT))
 						CAT_monitor_retreat();
 					if(CAT_input_pressed(CAT_BUTTON_RIGHT))
@@ -384,7 +384,7 @@ static char* make_value_string(int view, int16_t value)
 }
 
 void CAT_monitor_render_ACH()
-{
+{	
 	if(mode == MODE_OUTCOME)
 	{
 		int cursor_y = center_textf(120, 60, 2, CAT_WHITE, "ACH Viewer");
@@ -427,7 +427,7 @@ void CAT_monitor_render_ACH()
 	}
 	else if(!(mode == MODE_INIT && should_reload))
 	{
-		draw_subpage_markers(32, 2, view);
+		CAT_draw_subpage_markers(32, 2, view, CAT_WHITE);
 
 		CAT_set_text_colour(CAT_WHITE);
 		CAT_draw_textf(12, WINDOW_Y0-14, "%s", get_title_string(view));

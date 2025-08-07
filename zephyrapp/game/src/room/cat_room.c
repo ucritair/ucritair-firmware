@@ -714,7 +714,7 @@ void CAT_room_draw_statics()
 	else
 	{
 		float base_t = CAT_get_uptime_ms() / 1000.0f / 6.28;
-		CAT_draw_gizmo_primitive(CAT_GIZMO_PRIMITIVE_HEX, alarm_x, alarm_y, 24, base_t * 0.15f, CAT_MONITOR_BLUE);
+		CAT_draw_gizmo_primitive(CAT_GIZMO_PRIMITIVE_HEX, alarm_x, alarm_y, 24, base_t * 0.15f, CAT_SKY_BLUE);
 	}
 }
 

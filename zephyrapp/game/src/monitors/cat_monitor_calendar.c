@@ -185,7 +185,7 @@ void render_calendar()
 				{
 					CAT_discberry(x + GRID_CELL_R, y + GRID_CELL_R, GRID_CELL_R, colour);
 					CAT_circberry(x + GRID_CELL_R, y + GRID_CELL_R, GRID_CELL_R, colour);
-					center_textf(x + GRID_CELL_R, y + GRID_CELL_R, 1, CAT_MONITOR_BLUE, "%d", day);
+					center_textf(x + GRID_CELL_R, y + GRID_CELL_R, 1, CAT_BLACK, "%d", day);
 				}
 				else
 				{	
@@ -205,7 +205,7 @@ void render_calendar()
 void gate_logic()
 {
 	if(CAT_input_dismissal())
-		CAT_monitor_soft_exit();
+		CAT_monitor_dismiss();
 	if(CAT_input_pressed(CAT_BUTTON_LEFT))
 		CAT_monitor_retreat();
 	if(CAT_input_pressed(CAT_BUTTON_RIGHT))
@@ -234,12 +234,10 @@ void render_gate()
 
 	if(!CAT_AQ_logs_initialized())
 	{
-		CAT_fillberry(120 - 60, 160 - 20, 120, 40, RGB8882565(35, 157, 235));
 		center_textf(120, 160, CAT_input_held(CAT_BUTTON_A, 0) ? 3 : 2, CAT_WHITE, "No Logs");
 	}
 	else
 	{
-		CAT_fillberry(120 - 60, 160 - 20, 120, 40, RGB8882565(35, 157, 235));
 		CAT_annulusberry(120, 200, 64, 56, CAT_WHITE, CAT_ease_inout_sine(focus_progress), 0.25);
 		CAT_circberry(120, 200, 56, CAT_WHITE);
 		CAT_circberry(120, 200, 64, CAT_WHITE);
@@ -296,7 +294,7 @@ void CAT_monitor_MS_calendar(CAT_machine_signal signal)
 	}
 }
 void CAT_monitor_render_calendar()
-{
+{	
 	switch (page)
 	{
 		case GATE:

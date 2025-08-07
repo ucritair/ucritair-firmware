@@ -195,9 +195,6 @@ void CAT_monitor_graph_tick()
 	}
 }
 
-#define BG_COLOUR 0xe7bf
-#define FG_COLOUR 0x6b11
-
 static int window_x;
 static int window_y;
 static int window_h;
@@ -248,12 +245,11 @@ void CAT_monitor_graph_draw(int x, int y, int h)
 	window_y = y;
 	window_h = h;
 
-	CAT_fillberry(window_x, window_y, sample_count, window_h, BG_COLOUR);
-	CAT_strokeberry(window_x, window_y, sample_count, window_h, CAT_WHITE);
+	CAT_fillberry(window_x, window_y, sample_count, window_h, CAT_GRAPH_BG);
 
 	if(mode == MODE_LOADING)
 	{
-		center_textf(window_x + sample_count/2, window_y + window_h/2, 3, CAT_MONITOR_BLUE, "Loading");
+		center_textf(window_x + sample_count/2, window_y + window_h/2, 3, CAT_GRAPH_FG, "Loading");
 		CAT_set_text_colour(CAT_WHITE);
 		return;
 	}
@@ -282,7 +278,7 @@ void CAT_monitor_graph_draw(int x, int y, int h)
 		int x1 = window_transform_x(i+1);
 		int y1 = window_transform_y(values[i+1]);
 		if(CAT_CSCLIP(&x0, &y0, &x1, &y1))
-			CAT_lineberry(x0, y0, x1, y1, FG_COLOUR);
+			CAT_lineberry(x0, y0, x1, y1, CAT_GRAPH_FG);
 	}
 }
 
@@ -423,7 +419,7 @@ static char* make_value_string(int view, int16_t value)
 
 void CAT_monitor_graph_render()
 {
-	draw_subpage_markers(32, CAT_MONITOR_GRAPH_VIEW_MAX, view);
+	CAT_draw_subpage_markers(32, CAT_MONITOR_GRAPH_VIEW_MAX, view, CAT_WHITE);
 
 	CAT_set_text_colour(CAT_WHITE);
 	CAT_draw_textf(12, WINDOW_Y0-14, "%s", get_title_string(view));
