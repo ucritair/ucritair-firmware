@@ -108,10 +108,15 @@ PERSIST_RAM CAT_AQ_crisis_state aq_crisis_state;
 PERSIST_RAM CAT_pet_timing_state pet_timing_state;
 PERSIST_RAM uint64_t persist_flags;
 
+//////////////////////////////////////////////////////////
+// LED BRIGHTNESS
+
+PERSIST_RAM uint8_t led_brightness;
+
 // END PERSIST RAM
 //////////////////////////////////////////////////////////
 
-#define RTC_INIT_CHECK_MAGIC 0xb8870010
+#define RTC_INIT_CHECK_MAGIC 0xb8870011
 
 bool is_first_init = false;
 
@@ -195,6 +200,11 @@ void check_rtc_init()
 		aq_crisis_state = (CAT_AQ_crisis_state) {0};
 		pet_timing_state = (CAT_pet_timing_state) {0};
 		persist_flags = 0;
+
+		//////////////////////////////////////////////////////////
+		// LED BRIGHTNESS
+
+		led_brightness = 100;
 	}
 }
 

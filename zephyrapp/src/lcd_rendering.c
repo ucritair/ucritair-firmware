@@ -116,6 +116,7 @@ void lcd_render_diag()
 	bool charging_last_frame = false;
 
 	CAT_LCD_set_brightness(screen_brightness);
+	CAT_LED_set_brightness(led_brightness);
 
 	while (1)
 	{
@@ -163,6 +164,7 @@ void lcd_render_diag()
 		last_ms = now;
 
 		screen_brightness = CAT_LCD_get_brightness();
+		led_brightness = CAT_LED_get_brightness();
 
 		if (current_buttons || touch_pressure || co2_calibrating || (charging_last_frame != is_charging))
 		{
