@@ -14,6 +14,7 @@
 #define ADAPT_DESKTOP_COLOUR(c) c
 #define ADAPT_EMBEDDED_COLOUR(c) RGB5652BGR565(c)
 #else
+#include "lcd_driver.h"
 #define CAT_LCD_FRAMEBUFFER_OFFSET framebuffer_offset_h
 
 #define ADAPT_DESKTOP_COLOUR(c) RGB5652BGR565(c)

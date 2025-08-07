@@ -224,9 +224,9 @@ static CAT_datetime today;
 static float ach[2] = {-1, -1};
 static bool should_reload;
 
-void switch_and_reload()
+void switch_and_reload(int _view)
 {
-	view = view == CAT_MONITOR_GRAPH_VIEW_CO2 ? CAT_MONITOR_GRAPH_VIEW_PN_10_0 : CAT_MONITOR_GRAPH_VIEW_CO2;
+	view = _view;
 	should_reload = true;
 	mode = MODE_INIT;
 }
@@ -300,7 +300,7 @@ void CAT_monitor_MS_ACH(CAT_machine_signal signal)
 					if(CAT_input_pressed(CAT_BUTTON_B))
 					{
 						if(view == CAT_MONITOR_GRAPH_VIEW_PN_10_0)
-							switch_and_reload();
+							switch_and_reload(CAT_MONITOR_GRAPH_VIEW_CO2);
 						else
 							mode = MODE_OUTCOME;
 					}
@@ -316,7 +316,7 @@ void CAT_monitor_MS_ACH(CAT_machine_signal signal)
 					{
 						ach[view] = CAT_monitor_ACH_calculate();
 						if(view == CAT_MONITOR_GRAPH_VIEW_CO2)
-							switch_and_reload();
+							switch_and_reload(CAT_MONITOR_GRAPH_VIEW_PN_10_0);
 						else
 							mode = MODE_OUTCOME;
 					}
@@ -344,7 +344,7 @@ void CAT_monitor_MS_ACH(CAT_machine_signal signal)
 						CAT_monitor_advance();	
 
 					if(CAT_input_pressed(CAT_BUTTON_A))
-						switch_and_reload();
+						switch_and_reload(CAT_MONITOR_GRAPH_VIEW_CO2);
 				}
 				break;
 			}
