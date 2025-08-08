@@ -182,6 +182,7 @@ target_sources(app PRIVATE
 	data/prop_assets.c
 	data/scene_assets.c
 
+	src/cat_save.c
 	src/cat_main.c)
 
 target_include_directories(app PRIVATE src/)
