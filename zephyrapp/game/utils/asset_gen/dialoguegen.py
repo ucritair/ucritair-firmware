@@ -49,7 +49,7 @@ for (idx, node) in enumerate(json_entries):
 		if edge["proc"] == "":
 			source.write(f"\t\t\t.proc = NULL,\n");
 		else:
-			source.write(f"\t\t\t.proc = dialogue_proc_{edge["proc"]},\n");
+			source.write(f"\t\t\t.proc = {edge["proc"]},\n");
 		source.write("\t\t},\n");
 	source.write("\t},\n");
 	source.write(f"\t.edge_count = {len(node["edges"])},\n");

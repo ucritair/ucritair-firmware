@@ -38,14 +38,24 @@ const CAT_dialogue_node dialogue_statue_default =
 {
 	.lines = (const char*[])
 	{
-		"[The brand-new plaque gleams in the sunlight]",
 		"Welcome to Wetterstrom, Founded 2025",
+		"[Return to the apartment?]",
 	},
 	.line_count = 2,
 	.edges = (CAT_dialogue_edge[])
 	{
+		{
+			.text = "Yes",
+			.node = NULL,
+			.proc = proc_coc_innerworld,
+		},
+		{
+			.text = "No",
+			.node = NULL,
+			.proc = NULL,
+		},
 	},
-	.edge_count = 0,
+	.edge_count = 2,
 };
 
 const CAT_dialogue_node dialogue_statue_chirp =

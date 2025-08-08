@@ -5,6 +5,8 @@
 #include "cat_dialogue.h"
 #include "dialogue_assets.h"
 #include "cat_math.h"
+#include "cat_machine.h"
+#include "cat_room.h"
 
 void interact_proc_reed()
 {
@@ -14,6 +16,11 @@ void interact_proc_reed()
 void interact_proc_reed_house()
 {
 	CAT_enter_dialogue(&dialogue_reed_house);
+}
+
+void proc_coc_innerworld()
+{
+	CAT_machine_transition(CAT_MS_room);
 }
 
 void interact_proc_statue()

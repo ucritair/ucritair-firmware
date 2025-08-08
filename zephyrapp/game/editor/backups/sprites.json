@@ -2326,16 +2326,6 @@
         },
         {
             "id": 229,
-            "name": "eink_update_splash_sprite",
-            "path": "screen/measuring.png",
-            "frames": 1,
-            "width": 240,
-            "height": 320,
-            "loop": false,
-            "reverse": false
-        },
-        {
-            "id": 230,
             "name": "world_walk_sprite",
             "path": "gameplay/overworld/unicorn_a1.png",
             "frames": 8,
@@ -2345,7 +2335,7 @@
             "reverse": false
         },
         {
-            "id": 231,
+            "id": 230,
             "name": "world_reed_sprite",
             "path": "gameplay/overworld/npc/reed_a1.png",
             "frames": 2,
@@ -2355,7 +2345,7 @@
             "reverse": false
         },
         {
-            "id": 232,
+            "id": 231,
             "name": "world_reed_house_sprite",
             "path": "gameplay/overworld/reed.png",
             "frames": 1,
@@ -2365,7 +2355,7 @@
             "reverse": false
         },
         {
-            "id": 233,
+            "id": 232,
             "name": "world_arcade_sprite",
             "path": "gameplay/overworld/arcade.png",
             "frames": 1,
@@ -2375,7 +2365,7 @@
             "reverse": false
         },
         {
-            "id": 234,
+            "id": 233,
             "name": "world_depot_sprite",
             "path": "gameplay/overworld/building_depot.png",
             "frames": 1,
@@ -2385,7 +2375,7 @@
             "reverse": false
         },
         {
-            "id": 235,
+            "id": 234,
             "name": "world_dumpster_sprite",
             "path": "gameplay/overworld/dumpster.png",
             "frames": 1,
@@ -2395,7 +2385,7 @@
             "reverse": false
         },
         {
-            "id": 236,
+            "id": 235,
             "name": "world_market_sprite",
             "path": "gameplay/overworld/market.png",
             "frames": 1,
@@ -2405,7 +2395,7 @@
             "reverse": false
         },
         {
-            "id": 237,
+            "id": 236,
             "name": "world_statue_sprite",
             "path": "gameplay/overworld/statue.png",
             "frames": 1,
@@ -2415,7 +2405,7 @@
             "reverse": false
         },
         {
-            "id": 238,
+            "id": 237,
             "name": "world_trash_sprite",
             "path": "gameplay/overworld/trash.png",
             "frames": 1,
@@ -2425,7 +2415,7 @@
             "reverse": false
         },
         {
-            "id": 239,
+            "id": 238,
             "name": "world_bldg_sm_sprite",
             "path": "gameplay/overworld/building_sm.png",
             "frames": 1,
@@ -2435,7 +2425,7 @@
             "reverse": false
         },
         {
-            "id": 240,
+            "id": 239,
             "name": "world_bldg_md_sprite",
             "path": "gameplay/overworld/building_md.png",
             "frames": 1,
@@ -2445,7 +2435,7 @@
             "reverse": false
         },
         {
-            "id": 241,
+            "id": 240,
             "name": "world_bldg_lg_sprite",
             "path": "gameplay/overworld/building_lg.png",
             "frames": 1,
@@ -2455,7 +2445,7 @@
             "reverse": false
         },
         {
-            "id": 242,
+            "id": 241,
             "name": "world_bench_tile_sprite",
             "path": "gameplay/overworld/bench_tile.png",
             "frames": 4,
@@ -2465,7 +2455,7 @@
             "reverse": false
         },
         {
-            "id": 243,
+            "id": 242,
             "name": "eink_update_machine_sprite",
             "path": "screen/measuring_machine.png",
             "frames": 1,
@@ -2475,7 +2465,7 @@
             "reverse": false
         },
         {
-            "id": 244,
+            "id": 243,
             "name": "eink_update_clipboard_sprite",
             "path": "screen/measuring_clipboard.png",
             "frames": 1,
@@ -2485,7 +2475,7 @@
             "reverse": false
         },
         {
-            "id": 245,
+            "id": 244,
             "name": "eink_update_pen_sprite",
             "path": "screen/measuring_pen.png",
             "frames": 1,

@@ -52,10 +52,21 @@
         {
             "name": "statue_default",
             "lines": [
-                "[The brand-new plaque gleams in the sunlight]",
-                "Welcome to Wetterstrom, Founded 2025"
+                "Welcome to Wetterstrom, Founded 2025",
+                "[Return to the apartment?]"
             ],
-            "edges": []
+            "edges": [
+                {
+                    "text": "Yes",
+                    "node": "",
+                    "proc": "proc_coc_innerworld"
+                },
+                {
+                    "text": "No",
+                    "node": "",
+                    "proc": ""
+                }
+            ]
         },
         {
             "name": "statue_chirp",

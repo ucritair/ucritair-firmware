@@ -324,8 +324,6 @@ void CAT_MS_world(CAT_machine_signal signal)
 	}
 }
 
-#define GRASS_COLOUR RGB8882565(122, 146, 57)
-
 static int eye_x;
 static int eye_y;
 
@@ -351,6 +349,8 @@ void draw_player()
 	view_transform_point(player_x + (PLAYER_TILE_W * CAT_TILE_SIZE)/2, player_y, &x, &y);
 	CAT_draw_sprite(&world_walk_sprite, frame, x, y);
 
+	//CAT_circberry(x, y, 2, CAT_RED);
+
 	/*int x0, y0, x1, y1;
 	player_get_aabb(&x0, &y0, &x1, &y1);
 	view_transform_AABB(x0, y0, x1, y1, &x0, &y0, &x1, &y1);
@@ -361,7 +361,7 @@ void CAT_render_world()
 {
 	player_get_center(&eye_x, &eye_y);
 
-	CAT_frameberry(GRASS_COLOUR);
+	CAT_frameberry(ADAPT_EMBEDDED_COLOUR(0x308d));
 
 	bool drew_player = false;
 	for(int i = 0; i < test_scene.layer_count; i++)
@@ -371,10 +371,21 @@ void CAT_render_world()
 		{
 			struct prop* prop = &layer->props[j];
 
+			const CAT_sprite* sprite = prop->prop->sprite;
+			if(!CAT_rect_rect_intersecting(
+				eye_x-CAT_LCD_SCREEN_W/2, eye_y-CAT_LCD_SCREEN_H/2,
+				eye_x+CAT_LCD_SCREEN_W/2, eye_y+CAT_LCD_SCREEN_H/2,
+				prop->position_x, prop->position_y,
+				prop->position_x + sprite->width, prop->position_y + sprite->height
+			))
+			{
+				continue;
+			}
+
 			if(!drew_player && i == 1)
 			{
-				int player_by = player_y + PLAYER_TILE_H * CAT_TILE_SIZE;
-				int prop_by = prop->position_y + prop->prop->sprite->height;
+				int player_by = player_y + world_walk_sprite.height/2-5;
+				int prop_by = prop->position_y + sprite->height;
 				if(player_by < prop_by)
 				{
 					draw_player();
@@ -384,7 +395,7 @@ void CAT_render_world()
 
 			int x, y;
 			view_transform_point(prop->position_x, prop->position_y, &x, &y);
-			CAT_draw_sprite_raw(prop->prop->sprite, prop->variant, x, y);
+			CAT_draw_sprite_raw(sprite, prop->variant, x, y);
 			
 			/*for(int k = 0; k < prop->prop->blocker_count; k++)
 			{
