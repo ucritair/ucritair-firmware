@@ -66,6 +66,14 @@
                     {
                         "prop": "track_prop",
                         "position": [
+                            -128,
+                            -160
+                        ],
+                        "variant": 17
+                    },
+                    {
+                        "prop": "track_prop",
+                        "position": [
                             112,
                             -144
                         ],
@@ -202,10 +210,26 @@
                     {
                         "prop": "track_prop",
                         "position": [
+                            -160,
+                            -144
+                        ],
+                        "variant": 17
+                    },
+                    {
+                        "prop": "track_prop",
+                        "position": [
                             112,
                             -128
                         ],
                         "variant": 4
+                    },
+                    {
+                        "prop": "track_prop",
+                        "position": [
+                            96,
+                            -128
+                        ],
+                        "variant": 17
                     },
                     {
                         "prop": "track_prop",
@@ -252,6 +276,22 @@
                         "position": [
                             112,
                             -32
+                        ],
+                        "variant": 4
+                    },
+                    {
+                        "prop": "track_prop",
+                        "position": [
+                            96,
+                            -32
+                        ],
+                        "variant": 17
+                    },
+                    {
+                        "prop": "track_prop",
+                        "position": [
+                            16,
+                            -16
                         ],
                         "variant": 4
                     },
@@ -314,18 +354,10 @@
                     {
                         "prop": "track_prop",
                         "position": [
-                            16,
+                            -16,
                             -16
                         ],
-                        "variant": 4
-                    },
-                    {
-                        "prop": "track_prop",
-                        "position": [
-                            -16,
-                            0
-                        ],
-                        "variant": 4
+                        "variant": 17
                     },
                     {
                         "prop": "track_prop",
@@ -354,10 +386,34 @@
                     {
                         "prop": "track_prop",
                         "position": [
+                            16,
+                            0
+                        ],
+                        "variant": 17
+                    },
+                    {
+                        "prop": "track_prop",
+                        "position": [
                             0,
                             0
                         ],
                         "variant": 4
+                    },
+                    {
+                        "prop": "track_prop",
+                        "position": [
+                            -16,
+                            0
+                        ],
+                        "variant": 4
+                    },
+                    {
+                        "prop": "track_prop",
+                        "position": [
+                            -80,
+                            0
+                        ],
+                        "variant": 17
                     },
                     {
                         "prop": "track_prop",
@@ -430,6 +486,22 @@
                             16
                         ],
                         "variant": 4
+                    },
+                    {
+                        "prop": "track_prop",
+                        "position": [
+                            -16,
+                            16
+                        ],
+                        "variant": 17
+                    },
+                    {
+                        "prop": "track_prop",
+                        "position": [
+                            -48,
+                            16
+                        ],
+                        "variant": 17
                     },
                     {
                         "prop": "track_prop",

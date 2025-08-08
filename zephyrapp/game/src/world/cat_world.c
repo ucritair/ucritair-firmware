@@ -361,7 +361,7 @@ void CAT_render_world()
 {
 	player_get_center(&eye_x, &eye_y);
 
-	CAT_frameberry(ADAPT_EMBEDDED_COLOUR(0x308d));
+	CAT_frameberry(RGB5652BGR565(0x308d));
 
 	bool drew_player = false;
 	for(int i = 0; i < test_scene.layer_count; i++)

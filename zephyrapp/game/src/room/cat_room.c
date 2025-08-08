@@ -543,12 +543,6 @@ void CAT_MS_room(CAT_machine_signal signal)
 				CAT_machine_transition(CAT_MS_death_report);
 				return;
 			}
-
-			if(CAT_input_spell(basic_spell))
-			{
-				CAT_machine_transition(CAT_MS_world);
-				break;
-			}
 				
 			if(CAT_input_pressed(CAT_BUTTON_START))
 				CAT_machine_transition(CAT_MS_menu);

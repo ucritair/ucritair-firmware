@@ -72,20 +72,18 @@ class SceneEditor:
 		self.canvas_cursor = None;
 		self.world_cursor = None;
 		self.tile_cursor = None;
+		self.selection_delta = None;
+
 		self.selection = None;
 		self.highlight = None;
-		self.selection_delta = None;
-		self.trash = [];
-		self.copied = None;
 		self.active_layer = None;
+		self.copied = None;
+		self.trash = [];
 	
 		self.show_viewport = True;
 		self.show_axes = True;
 		self.show_gizmos = False;
 		self.snap = True;
-
-		self.windowed_variant = None;
-		self.show_variant_window = False;
 	
 	def is_scene_loaded(self):
 		return self.scene in AssetManager.get_assets("scene");
@@ -132,12 +130,14 @@ class SceneEditor:
 		if InputManager.is_pressed(glfw.MOUSE_BUTTON_LEFT):
 			self.selection = None;
 			self.highlight = None;
+			self.active_layer = None;
 			for idx in range(len(self.scene["layers"])):
 				layer = self.scene["layers"][len(self.scene["layers"])-idx-1];
 				for prop in layer:
 					if aabb_point_intersect(PropHelper.get_aabb(prop), self.world_cursor):
 						self.selection = prop;
 						self.highlight = prop;
+						self.active_layer = layer;
 						x0, y0, x1, y1 = PropHelper.get_aabb(self.selection);
 						cx, cy = self.world_cursor;
 						dx, dy = cx - x0, cy - y0;
@@ -166,10 +166,6 @@ class SceneEditor:
 				dupe = copy.deepcopy(self.copied);
 				dupe["position"] = self.tile_cursor;
 				self.active_layer.append(dupe);
-	
-		if InputManager.is_pressed(glfw.KEY_F) and self.highlight != None and PropHelper.get_prop_asset(self.highlight)["palette"]:
-			self.windowed_variant = self.highlight;
-			self.show_variant_window = True;
 	
 	def gui_asset_combo(self, identifier, asset_type, value):
 		result = value;
@@ -223,12 +219,13 @@ class SceneEditor:
 		self.scene["layers"][i], self.scene["layers"][j] = self.scene["layers"][j], self.scene["layers"][i];
 	
 	def gui_draw_scene(self):
-		self.active_layer = None;
 		if imgui.collapsing_header(f"Layers"):
 			for (idx, layer) in enumerate(self.scene["layers"]):
-				imgui.push_id(str(idx));	
+				imgui.push_id(str(idx));
+				imgui.set_next_item_open(self.active_layer == layer);
 				if imgui.tree_node(f"Layer {idx}"):
-					self.active_layer = layer;
+					if self.active_layer == None:
+						self.active_layer = layer;
 					for prop in layer:
 							self.gui_draw_prop(prop);
 					if imgui.button("+"):
@@ -242,14 +239,6 @@ class SceneEditor:
 				imgui.pop_id();
 			if imgui.button("+"):
 				self.scene["layers"].append(SpawnHelper.spawn_layer());
-	
-	def gui_draw_variant_window(self):
-		imgui.set_next_window_size((240, 240));
-		imgui.set_next_window_focus();
-		_, self.show_variant_window = imgui.begin(f"Variant Editor", self.show_variant_window, flags=self.window_flags);
-		imgui.push_item_width(120);
-		_, self.windowed_variant["variant"] = imgui.slider_int("Variant", self.windowed_variant["variant"], 0, PropHelper.get_editor_sprite(self.windowed_variant).frame_count-1);
-		imgui.end();
 	
 	def canvas_draw_prop(self, prop, show_sprite=True, show_aabb=False, show_blockers=False, show_triggers=False, show_name=False):
 		prop_asset = PropHelper.get_prop_asset(prop);
@@ -319,10 +308,10 @@ class SceneEditor:
 		self = SceneEditor._;
 
 		if self.open:
-			imgui.set_next_window_size(self.size);
-			_, self.open = imgui.begin(f"Scene Editor", self.open, flags=self.window_flags);
-
 			self.hygiene_pass();
+
+			imgui.set_next_window_size(self.size);
+			_, self.open = imgui.begin(f"Scene Canvas", self.open, flags=self.window_flags);
 
 			if self.is_scene_loaded():
 				self.selection_io();
@@ -344,16 +333,17 @@ class SceneEditor:
 				_, self.show_gizmos = imgui.checkbox("Show gizmos", self.show_gizmos);
 				imgui.same_line();
 				_, self.snap = imgui.checkbox("Snap", self.snap);
-			
-				self.gui_draw_scene();
-			
-				if self.show_variant_window:
-					self.gui_draw_variant_window();
 			else:
 				self.scene = self.gui_asset_combo(id(self.scene), "scene", self.scene);
 			
 			self.size = imgui.get_window_size();
 			imgui.end();
+
+			if self.is_scene_loaded():
+				imgui.set_next_window_size((256, 680));
+				imgui.begin(f"Scene Data", self.open, flags=self.window_flags);
+				self.gui_draw_scene();
+				imgui.end();
 		
 		if not self.open:
 			SceneEditor._ = None;
