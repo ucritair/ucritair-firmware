@@ -83,6 +83,9 @@ class SceneEditor:
 		self.show_axes = True;
 		self.show_gizmos = False;
 		self.snap = True;
+
+		self.windowed_variant = None;
+		self.show_variant_window = False;
 	
 	def is_scene_loaded(self):
 		return self.scene in AssetManager.get_assets("scene");
@@ -164,6 +167,10 @@ class SceneEditor:
 				dupe["position"] = self.tile_cursor;
 				self.active_layer.append(dupe);
 	
+		if InputManager.is_pressed(glfw.KEY_F) and self.highlight != None and PropHelper.get_prop_asset(self.highlight)["palette"]:
+			self.windowed_variant = self.highlight;
+			self.show_variant_window = True;
+	
 	def gui_asset_combo(self, identifier, asset_type, value):
 		result = value;
 		if imgui.begin_combo(f"##{identifier}", result if result != None else "None"):
@@ -235,6 +242,14 @@ class SceneEditor:
 				imgui.pop_id();
 			if imgui.button("+"):
 				self.scene["layers"].append(SpawnHelper.spawn_layer());
+	
+	def gui_draw_variant_window(self):
+		imgui.set_next_window_size((240, 240));
+		imgui.set_next_window_focus();
+		_, self.show_variant_window = imgui.begin(f"Variant Editor", self.show_variant_window, flags=self.window_flags);
+		imgui.push_item_width(120);
+		_, self.windowed_variant["variant"] = imgui.slider_int("Variant", self.windowed_variant["variant"], 0, PropHelper.get_editor_sprite(self.windowed_variant).frame_count-1);
+		imgui.end();
 	
 	def canvas_draw_prop(self, prop, show_sprite=True, show_aabb=False, show_blockers=False, show_triggers=False, show_name=False):
 		prop_asset = PropHelper.get_prop_asset(prop);
@@ -331,6 +346,9 @@ class SceneEditor:
 				_, self.snap = imgui.checkbox("Snap", self.snap);
 			
 				self.gui_draw_scene();
+			
+				if self.show_variant_window:
+					self.gui_draw_variant_window();
 			else:
 				self.scene = self.gui_asset_combo(id(self.scene), "scene", self.scene);
 			

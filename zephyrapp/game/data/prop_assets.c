@@ -92,10 +92,9 @@ const CAT_prop bldg_lg_prop = {
 const CAT_prop arcade_prop = {
 	.sprite = &world_arcade_sprite,
 	.blockers = (int16_t*[]) {
-		(int16_t[]) {0,48,80,80,},
-		(int16_t[]) {80,48,96,64,},
+		(int16_t[]) {0,48,96,80,},
 	},
-	.blocker_count = 2,
+	.blocker_count = 1,
 	.triggers = (struct trigger[]) {
 	},
 	.trigger_count = 0,
