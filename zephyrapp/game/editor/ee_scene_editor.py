@@ -63,30 +63,26 @@ class FloorPainter:
 
 		self.open = True;
 	
-	def spatial_collision_pass(self):
+	def spatial_collision_pass(self, prop):
 		layer = self.parent.active_layer;
 		trash = [];
+		a = PropHelper.get_aabb(prop);
 		for i in range(len(layer)):
-			for j in range(len(layer)):
-				if i != j:
-					a = PropHelper.get_aabb(layer[i]);
-					b = PropHelper.get_aabb(layer[j]);
-					if aabb_equals(a, b):
-						trash.append(layer[j]);
-		for p in trash:
-			if p in layer:
-				layer.remove(p);
+			b = PropHelper.get_aabb(layer[i]);
+			if aabb_equals(a, b):
+				return False;
+		return True;
 	
 	def io(self):
 		if not self.parent.cursor_in_bounds:
 			return;
 	
-		if InputManager.is_pressed(glfw.MOUSE_BUTTON_LEFT):
+		if InputManager.is_held(glfw.MOUSE_BUTTON_LEFT):
 			dupe = copy.deepcopy(self.palette);
 			dupe["position"] = self.parent.tile_cursor;
 			dupe["variant"] = self.palette_idx;
-			self.parent.active_layer.append(dupe);
-			self.spatial_collision_pass();
+			if self.spatial_collision_pass(dupe):
+				self.parent.active_layer.append(dupe);
 	
 	def render(self):
 		palette_sprite = PropHelper.get_editor_sprite(self.palette);
@@ -248,6 +244,9 @@ class SceneEditor:
 	
 		if InputManager.is_pressed(glfw.KEY_F) and self.highlight != None and PropHelper.get_prop_asset(self.highlight)["palette"]:
 			self.floor_painter = FloorPainter(self, self.highlight);
+	
+		if InputManager.is_pressed(glfw.KEY_BACKSPACE) and self.highlight != None:
+			self.trash.append(self.highlight);
 	
 	def gui_asset_combo(self, identifier, asset_type, value):
 		result = value;

@@ -1,6 +1,7 @@
 #include "cat_scene.h"
 #include "cat_gui.h"
 #include "cat_math.h"
+#include "prop_assets.h"
 
 void CAT_scene_get_position(const CAT_scene* scene, CAT_scene_index* index, CAT_scene_point out)
 {
@@ -10,9 +11,17 @@ void CAT_scene_get_position(const CAT_scene* scene, CAT_scene_index* index, CAT_
 	out[1] = prop->position_y;
 }
 
-void CAT_scene_get_AABB(const CAT_scene* scene, CAT_scene_index* index, CAT_scene_AABB out)
+bool CAT_scene_get_AABB(const CAT_scene* scene, CAT_scene_index* index, CAT_scene_AABB out)
 {
+	if(index->layer < 0 || index->layer >= scene->layer_count)
+	{
+		return false;
+	}
 	struct layer* layer = &scene->layers[index->layer];
+	if(index->prop < 0 || index->prop >= layer->prop_count)
+	{
+		return false;
+	}
 	struct prop* prop = &layer->props[index->prop];
 
 	switch(index->leaf)
@@ -20,7 +29,9 @@ void CAT_scene_get_AABB(const CAT_scene* scene, CAT_scene_index* index, CAT_scen
 		case BLOCKER:
 		{
 			if(index->blocker < 0 || index->blocker >= prop->prop->blocker_count)
-				return;
+			{
+				return false;
+			}
 			out[0] = prop->prop->blockers[index->blocker][0] + prop->position_x;
 			out[1] = prop->prop->blockers[index->blocker][1] + prop->position_y;
 			out[2] = prop->prop->blockers[index->blocker][2] + prop->position_x;
@@ -31,7 +42,9 @@ void CAT_scene_get_AABB(const CAT_scene* scene, CAT_scene_index* index, CAT_scen
 		case TRIGGER:
 		{
 			if(index->trigger < 0 || index->trigger >= prop->prop->trigger_count)
-				return;
+			{
+				return false;
+			}
 			out[0] = prop->prop->triggers[index->trigger].aabb[0] + prop->position_x;
 			out[1] = prop->prop->triggers[index->trigger].aabb[1] + prop->position_y;
 			out[2] = prop->prop->triggers[index->trigger].aabb[2] + prop->position_x;
@@ -39,6 +52,8 @@ void CAT_scene_get_AABB(const CAT_scene* scene, CAT_scene_index* index, CAT_scen
 		}
 		break;
 	}
+
+	return true;
 }
 
 void CAT_scene_get_direction(const CAT_scene* scene, CAT_scene_index* index, CAT_scene_vector out)
@@ -49,6 +64,23 @@ void CAT_scene_get_direction(const CAT_scene* scene, CAT_scene_index* index, CAT
 	struct prop* prop = &layer->props[index->prop];
 	out[0] = prop->prop->triggers[index->trigger].tx;
 	out[1] = prop->prop->triggers[index->trigger].ty;
+}
+
+bool CAT_scene_get_prop_asset(const CAT_scene* scene, CAT_scene_index* index, const CAT_prop** out)
+{
+	if(index->layer < 0 || index->layer >= scene->layer_count)
+	{
+		return false;
+	}
+	struct layer* layer = &scene->layers[index->layer];
+	if(index->prop < 0 || index->prop >= layer->prop_count)
+	{
+		return false;
+	}
+
+	struct prop* prop = &layer->props[index->prop];
+	*out = prop->prop;
+	return true;
 }
 
 CAT_scene_index collision_buffer[256];
@@ -64,7 +96,7 @@ void push_collision(int layer_idx, int prop_idx, int blocker_idx, int trigger_id
 	if(collision_head == 255)
 		return;
 
-	collision_buffer[collision_head] = (const CAT_scene_index) {
+	collision_buffer[collision_head] = (CAT_scene_index) {
 		.leaf = blocker_idx != -1 ? BLOCKER : TRIGGER,
 		.layer = layer_idx,
 		.prop = prop_idx,

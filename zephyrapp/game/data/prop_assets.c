@@ -158,3 +158,13 @@ const CAT_prop track_prop = {
 	},
 	.trigger_count = 0,
 };
+const CAT_prop fence_prop = {
+	.sprite = &floor_grass_tile_sprite,
+	.blockers = (int16_t*[]) {
+		(int16_t[]) {0,0,16,16,},
+	},
+	.blocker_count = 1,
+	.triggers = (struct trigger[]) {
+	},
+	.trigger_count = 0,
+};

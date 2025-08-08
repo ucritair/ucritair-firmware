@@ -11,6 +11,7 @@
 #include "cat_scene.h"
 #include "scene_assets.h"
 #include "cat_menu.h"
+#include "prop_assets.h"
 
 //////////////////////////////////////////////////////////////////////////
 // PLAYER
@@ -177,7 +178,7 @@ void player_collision()
 
 	for(int i = 0; i < collision_count; i++)
 	{
-		CAT_scene_index* col = &collisions[i];
+		CAT_scene_index* col = &collisions[i];	
 		
 		if(col->leaf == TRIGGER)
 			interactable = col;
@@ -186,43 +187,15 @@ void player_collision()
 		{
 			CAT_scene_AABB aabb;
 			CAT_scene_get_AABB(&test_scene, col, aabb);
+
 			int sep_x = max(x0, aabb[0]) - min(x1, aabb[2]);
 			int sep_y = max(y0, aabb[1]) - min(y1, aabb[3]);
 			if(sep_x != 0 && sep_y != 0)
 			{
-				if(abs(sep_x) > abs(sep_y))
-				{
-					player_y += sep_y * sgn(player_dy);
-					player_get_aabb(&x0, &y0, &x1, &y1);
-					if
-					(
-						CAT_rect_rect_intersecting
-						(
-							aabb[0], aabb[1], aabb[2], aabb[3],
-							x0, y0, x1, y1
-						)
-					)
-					{
-						player_x += sep_x * sgn(player_dx);
-					}
-				}
-				else
-				{				
+				if(player_dx != 0)
 					player_x += sep_x * sgn(player_dx);
-					player_get_aabb(&x0, &y0, &x1, &y1);
-					if
-					(
-						CAT_rect_rect_intersecting
-						(
-							aabb[0], aabb[1], aabb[2], aabb[3],
-							x0, y0, x1, y1
-						)
-					)
-					{
-						player_y += sep_y * sgn(player_dy);
-					}
-				}
-				
+				else if(player_dy != 0)
+					player_y += sep_y * sgn(player_dy);
 			}
 		}
 	}

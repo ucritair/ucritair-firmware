@@ -2483,6 +2483,16 @@
             "height": 22,
             "loop": false,
             "reverse": false
+        },
+        {
+            "id": 245,
+            "name": "ui_aq_notice_icons",
+            "path": "ui/aq_notice_icons.png",
+            "frames": 2,
+            "width": 16,
+            "height": 16,
+            "loop": false,
+            "reverse": false
         }
     ]
 }

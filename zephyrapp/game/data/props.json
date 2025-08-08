@@ -272,6 +272,20 @@
             "triggers": [],
             "sprite": "floor_grass_tile_sprite",
             "palette": true
+        },
+        {
+            "name": "fence_prop",
+            "blockers": [
+                [
+                    0,
+                    0,
+                    16,
+                    16
+                ]
+            ],
+            "triggers": [],
+            "sprite": "floor_grass_tile_sprite",
+            "palette": true
         }
     ]
 }
