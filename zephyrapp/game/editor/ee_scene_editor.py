@@ -4,7 +4,7 @@ import glfw;
 from ee_cowtools import *;
 from ee_canvas import Canvas;
 from ee_assets import *;
-from ee_sprites import SpriteBank;
+from ee_sprites import SpriteBank, EditorSprite;
 from ee_input import InputManager;
 
 #########################################################
@@ -26,7 +26,7 @@ class PropHelper:
 	def get_prop_asset(self):
 		return AssetManager.search("prop", self["prop"]);
 
-	def get_editor_sprite(self):
+	def get_editor_sprite(self) -> EditorSprite:
 		prop_asset = PropHelper.get_prop_asset(self);
 		return SpriteBank.get(prop_asset["sprite"]);
 
@@ -45,7 +45,70 @@ class CanvasHelper:
 		x0, y0, x1, y1 = aabb;
 		x0, y0 = CanvasHelper.transform_point(canvas, [x0, y0]);
 		x1, y1 = CanvasHelper.transform_point(canvas, [x1, y1]);
-		return x0, y0, x1, y1;	
+		return x0, y0, x1, y1;
+
+class FloorPainter:
+	def __init__(self, parent, palette):
+		self.parent = parent;
+
+		self.palette = palette;
+		self.palette_idx = 0;
+
+		self.size = (256, 512);
+		window_flag_list = [
+			imgui.WindowFlags_.no_saved_settings,
+			imgui.WindowFlags_.no_collapse,
+		];
+		self.window_flags = foldl(lambda a, b : a | b, 0, window_flag_list);
+
+		self.open = True;
+	
+	def spatial_collision_pass(self):
+		layer = self.parent.active_layer;
+		trash = [];
+		for i in range(len(layer)):
+			for j in range(len(layer)):
+				if i != j:
+					a = PropHelper.get_aabb(layer[i]);
+					b = PropHelper.get_aabb(layer[j]);
+					if aabb_equals(a, b):
+						trash.append(layer[j]);
+		for p in trash:
+			if p in layer:
+				layer.remove(p);
+	
+	def io(self):
+		if not self.parent.cursor_in_bounds:
+			return;
+	
+		if InputManager.is_pressed(glfw.MOUSE_BUTTON_LEFT):
+			dupe = copy.deepcopy(self.palette);
+			dupe["position"] = self.parent.tile_cursor;
+			dupe["variant"] = self.palette_idx;
+			self.parent.active_layer.append(dupe);
+			self.spatial_collision_pass();
+	
+	def render(self):
+		palette_sprite = PropHelper.get_editor_sprite(self.palette);
+
+		imgui.set_next_window_size(self.size);
+		if self.open:
+			imgui.push_id(str(id(self.palette)));
+			_, self.open = imgui.begin("Floor Painter", self.open, flags=self.window_flags);
+
+			for i in range(palette_sprite.frame_count):
+				imgui.push_id(str(i));
+				frame = palette_sprite.frame_textures[i];
+
+				tint = (0.5, 0.5, 0.5, 1) if i == self.palette_idx else (1, 1, 1, 1);
+				if imgui.image_button(f"##{i}", frame, (32, 32), tint_col=tint):
+					self.palette_idx = i;
+
+				imgui.pop_id();
+			self.size = imgui.get_window_size();
+			imgui.end();
+			imgui.pop_id();
+
 
 class SceneEditor:
 	_ = None;
@@ -67,12 +130,15 @@ class SceneEditor:
 		self.canvas = Canvas(self.canvas_size[0], self.canvas_size[1]);
 		self.tile_size = 16;
 
+		self.floor_painter = None;
+
 		self.scene = None;
 
 		self.canvas_cursor = None;
 		self.world_cursor = None;
 		self.tile_cursor = None;
 		self.selection_delta = None;
+		self.cursor_in_bounds = False;
 
 		self.selection = None;
 		self.highlight = None;
@@ -88,16 +154,17 @@ class SceneEditor:
 	def is_scene_loaded(self):
 		return self.scene in AssetManager.get_assets("scene");
 
-	def hygiene_pass(self):
+	def y_sort_pass(self):
+		for layer in self.scene["layers"]:
+				layer.sort(key = lambda p: p["position"][1] + AssetManager.search("sprite", AssetManager.search("prop", p["prop"])["sprite"])["height"]);
+
+	def hygiene_pass(self):	
 		if self.is_scene_loaded():
 			for thing in self.trash:
 				for layer in self.scene["layers"]:
 					if thing in layer:
 						layer.remove(thing);
 			self.trash = [];
-
-			for layer in self.scene["layers"]:
-				layer.sort(key = lambda p: p["position"][1] + AssetManager.search("sprite", AssetManager.search("prop", p["prop"])["sprite"])["height"]);
 			
 			for layer in self.scene["layers"]:
 				for prop in layer:
@@ -107,24 +174,38 @@ class SceneEditor:
 					if not PropHelper.get_prop_asset(prop)["palette"]:
 						prop["variant"] = -1;
 	
+			self.y_sort_pass();
+
+		if self.floor_painter != None and not self.floor_painter.open:
+			self.floor_painter = None;
+	
 	def snap_position(self, xy):
 		x, y = xy;
-		return [round(x / self.tile_size) * self.tile_size, round(y / self.tile_size) * self.tile_size];
+		return [(x // self.tile_size) * self.tile_size, (y // self.tile_size) * self.tile_size];
 	
 	def cursor_io(self, canvas_pos):
 		cursor = InputManager.get_imgui_cursor();
 		x, y = cursor - canvas_pos;
+		if x < 0 or x >= self.canvas_size[0] or y < 0 or y >= self.canvas_size[1]:
+			self.cursor_in_bounds = False;
+		else:
+			self.cursor_in_bounds = True;
+		x, y = clamp(x, 0, self.canvas_size[0]), clamp(y, 0, self.canvas_size[1]);
 		self.canvas_cursor = int(x), int(y);
 		x, y = x - self.canvas.width/2, y - self.canvas.height/2;
-		self.world_cursor = int(x), int(y); 
+		self.world_cursor = int(x), int(y);
 		self.tile_cursor = self.snap_position(self.world_cursor);
 	
+	def copy_prop(self, prop):
+		self.copied = prop;
+	
+	def paste_prop(self, layer, position):
+		dupe = copy.deepcopy(self.copied);
+		dupe["position"] = position;
+		layer.append(dupe);
+	
 	def selection_io(self):
-		if self.canvas_cursor == None:
-			return;
-		if self.canvas_cursor[0] < 0 or self.canvas_cursor[0] >= self.canvas_size[0]:
-			return;
-		if self.canvas_cursor[1] < 0 or self.canvas_cursor[1] >= self.canvas_size[1]:
+		if not self.cursor_in_bounds:
 			return;
 	
 		if InputManager.is_pressed(glfw.MOUSE_BUTTON_LEFT):
@@ -160,12 +241,13 @@ class SceneEditor:
 					self.selection["position"] = [snap_x, snap_y];
 	
 		if InputManager.is_held(glfw.KEY_LEFT_SUPER) and InputManager.is_pressed(glfw.KEY_C):
-			self.copied = self.highlight;
+			self.copy_prop(self.highlight);
 		if InputManager.is_held(glfw.KEY_LEFT_SUPER) and InputManager.is_pressed(glfw.KEY_V):
 			if self.active_layer != None and self.copied != None:
-				dupe = copy.deepcopy(self.copied);
-				dupe["position"] = self.tile_cursor;
-				self.active_layer.append(dupe);
+				self.paste_prop(self.active_layer, self.tile_cursor);
+	
+		if InputManager.is_pressed(glfw.KEY_F) and self.highlight != None and PropHelper.get_prop_asset(self.highlight)["palette"]:
+			self.floor_painter = FloorPainter(self, self.highlight);
 	
 	def gui_asset_combo(self, identifier, asset_type, value):
 		result = value;
@@ -314,7 +396,16 @@ class SceneEditor:
 			_, self.open = imgui.begin(f"Scene Canvas", self.open, flags=self.window_flags);
 
 			if self.is_scene_loaded():
-				self.selection_io();
+
+				imgui.set_next_window_size((256, 680));
+				imgui.begin(f"Scene Data", self.open, flags=self.window_flags);
+				self.gui_draw_scene();
+				imgui.end();
+
+				if self.floor_painter != None:
+					self.floor_painter.io();
+				else:
+					self.selection_io();
 
 				self.canvas.clear((128, 128, 128));
 				self.canvas_draw_axes();
@@ -338,12 +429,9 @@ class SceneEditor:
 			
 			self.size = imgui.get_window_size();
 			imgui.end();
-
-			if self.is_scene_loaded():
-				imgui.set_next_window_size((256, 680));
-				imgui.begin(f"Scene Data", self.open, flags=self.window_flags);
-				self.gui_draw_scene();
-				imgui.end();
+		
+			if self.floor_painter != None:
+				self.floor_painter.render();
 		
 		if not self.open:
 			SceneEditor._ = None;

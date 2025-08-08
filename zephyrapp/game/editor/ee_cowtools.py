@@ -41,3 +41,25 @@ def move_aabb(aabb, delta):
 def enforce_key(dict, key, default_value):
 	if not key in dict:
 		dict[key] = default_value;
+
+def clamp(v, a, b):
+	return min(max(v, a), b);
+
+def aabb_contains(aabb_0, aabb_1):
+	x0, y0, x1, y1 = aabb_1;
+	a = x0, y0;
+	b = x1, y0;
+	c = x1, y1;
+	d = x0, y1;
+	return (
+		aabb_point_intersect(aabb_0, a) and
+		aabb_point_intersect(aabb_0, b) and
+		aabb_point_intersect(aabb_0, c) and
+		aabb_point_intersect(aabb_0, d)
+	);
+
+def aabb_equals(a, b):
+	for i in range(4):
+		if a[i] != b[i]:
+			return False;
+	return True;

@@ -144,7 +144,7 @@ class PropEditor:
 	
 	def canvas_snap(self, position):
 		x, y = position;
-		return [round(x/self.tile_size)*self.tile_size, round(y/self.tile_size)*self.tile_size];
+		return [(x // self.tile_size) * self.tile_size, (y // self.tile_size) * self.tile_size];
 	
 	def canvas_cursor_io(self, canvas_pos):
 		cursor = InputManager.get_imgui_cursor();
