@@ -336,7 +336,7 @@ struct dp {
 	int ppm;
 };
 
-float ach = -1;
+float ach_cache = -1;
 void calc_ach()
 {
 	struct dp max = {0};
@@ -399,13 +399,13 @@ void calc_ach()
 	if (decay_time == 0 || decay_time==max.time || max.ppm == min.ppm || max.ppm == 0 || min.ppm == 99999)
 	{
 		LOG_WRN("ACH->-1");
-		ach = -1;
+		ach_cache = -1;
 		return;
 	}
 
     // Calculate ACH
-    ach = 1.0 / ((double)(decay_time - max.time) / 3600.0);  // Convert to hours
-    LOG_DBG("ach = %.2f", ach);
+    ach_cache = 1.0 / ((double)(decay_time - max.time) / 3600.0);  // Convert to hours
+    LOG_DBG("ach = %.2f", ach_cache);
 }
 
 int text_cursor(char* name, int index)
@@ -483,9 +483,9 @@ void CAT_render_graph()
 		}
 		else
 		{
-			if (ach != -1)
+			if (ach_cache != -1)
 			{
-				CAT_gui_textf("%s: %.1f", (get_ach_mode()==EACH)?"eACH":"ACH", (double)ach);
+				CAT_gui_textf("%s: %.1f", (get_ach_mode()==EACH)?"eACH":"ACH", (double)ach_cache);
 			}
 			else
 			{

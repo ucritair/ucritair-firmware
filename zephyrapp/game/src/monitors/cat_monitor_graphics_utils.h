@@ -11,71 +11,7 @@
 #include "cat_monitors.h"
 #include "cat_crisis.h"
 #include "cat_gizmos.h"
-
-static void draw_page_markers(int y, int pages, int page)
-{
-	int start_x = 120 - ((16 + 2) * pages) / 2;
-	for(int i = 0; i < pages; i++)
-	{
-		int x = start_x + i * (16 + 2);
-		if(i == CAT_MONITOR_PAGE_GAMEPLAY && CAT_AQ_is_crisis_ongoing())
-		{				
-			if(page == CAT_MONITOR_PAGE_GAMEPLAY)		
-				CAT_set_sprite_colour(CAT_RED);
-			CAT_draw_sprite(&ui_radio_button_diamond_sprite, page == i, x, y);
-			if(CAT_pulse(0.25f))
-				CAT_draw_gizmo_primitive(CAT_GIZMO_PRIMITIVE_BOX, x+8, y+8, 16, 0.25f, CAT_RED);
-		}
-		else
-		{
-			CAT_set_sprite_colour(CAT_monitor_fg_colour());
-			CAT_draw_sprite(&ui_radio_button_diamond_sprite, page == i, x, y);
-		}
-	}
-}
-
-static void draw_subpage_markers(int y, int pages, int page)
-{
-	int r = 2;
-	int pad = 8;
-	int start_x = 120 - (((2*r) * pages) + (pad * (pages-1))) / 2;
-	int x = start_x;
-
-	for(int i = 0; i < pages; i++)
-	{
-		if(i == page)
-			CAT_discberry(x, y, r, CAT_WHITE);
-		else
-			CAT_circberry(x, y, r, CAT_WHITE);
-		x += 2 * r + pad;
-	}
-}
-
-static uint16_t score_colours[3] =
-{
-	0xb985, // BAD
-	0xf5aa, // MID
-	0xd742, // GOOD
-};
-
-static uint16_t colour_score(float t)
-{
-	t = CAT_ease_inout_quad(t);
-
-	float x = t * 2;
-	int idx = (int) x;
-	float frac = x - idx;
-	uint16_t colour = CAT_RGB24216
-	(
-		CAT_RGB24_lerp
-		(
-			CAT_RGB16224(score_colours[idx]),
-			CAT_RGB16224(score_colours[idx+1]),
-			frac
-		)
-	);
-	return colour;
-}
+#include "cat_graph.h"
 
 static char textf_buf[32];
 
@@ -99,7 +35,7 @@ static int center_textf(int x, int y, int scale, uint16_t c, const char* fmt, ..
 	return y + text_height;
 }
 
-static void vert_text(int x, int y, uint16_t c, const char* text)
+static int vert_text(int x, int y, uint16_t c, const char* text)
 {
 	const char* g = text;
 	x -= CAT_GLYPH_WIDTH/2;
@@ -111,6 +47,8 @@ static void vert_text(int x, int y, uint16_t c, const char* text)
 		g++;
 		y += CAT_GLYPH_HEIGHT + 1;
 	}
+
+	return y + CAT_TEXT_LINE_HEIGHT;
 }
 
 static int underline(int x, int y, int scale, uint16_t c, const char* fmt, ...)
@@ -129,44 +67,4 @@ static int underline(int x, int y, int scale, uint16_t c, const char* fmt, ...)
 	CAT_discberry(right_x, y, 2, c);
 
 	return y + 4;
-}
-
-static void score_bar(int x, int y, int aqm)
-{
-	float subscore = 1-CAT_AQ_get_normalized_score(aqm);
-	int total_width = 16*4;
-	int filled_width = total_width * subscore;
-	uint16_t colour = colour_score(1-subscore);
-
-	CAT_discberry(x, y, 4, colour);
-	CAT_lineberry(x+4, y, x+4+filled_width, y, colour);
-	CAT_lineberry(x+4+filled_width, y, x+4+total_width, y, CAT_WHITE);
-	CAT_discberry(x+4+total_width+4, y, 4, colour);
-}
-
-static int labeled_scoref(int x, int y, uint16_t c, int aqm, const char* fmt, ...)
-{
-	va_list args;
-	va_start(args, fmt);
-	vsnprintf(textf_buf, 32, fmt, args);
-	va_end(args);
-
-	CAT_set_text_colour(c);
-	CAT_draw_text(x, y-CAT_GLYPH_HEIGHT, CAT_AQM_titles[aqm]);
-	x += strlen(CAT_AQM_titles[aqm]) * CAT_GLYPH_WIDTH + 8;
-
-	CAT_set_text_scale(2);
-	CAT_set_text_colour(c);
-	CAT_draw_text(x, y-CAT_GLYPH_HEIGHT*2, textf_buf);
-	x += strlen(textf_buf) * CAT_GLYPH_WIDTH*2 + 8;
-
-	const char* unit = CAT_get_AQM_unit_string(aqm);
-	CAT_set_text_colour(c);
-	CAT_draw_text(x, y-CAT_GLYPH_HEIGHT, unit);
-	x += strlen(unit) == 0 ? 4 : strlen(unit) * CAT_GLYPH_WIDTH + 12;
-
-	int y_off = strlen(unit) == 0 ? -CAT_GLYPH_HEIGHT : -CAT_GLYPH_HEIGHT/2;
-	score_bar(x, y+y_off, aqm);
-
-	return y + CAT_GLYPH_HEIGHT*2 + 6;
 }

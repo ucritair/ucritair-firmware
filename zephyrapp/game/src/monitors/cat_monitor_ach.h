@@ -1,0 +1,10 @@
+#include "cat_monitors.h"
+
+#include <stdint.h>
+
+void CAT_monitor_ACH_set_view(int view);
+void CAT_monitor_ACH_set_data(int16_t* values, uint64_t* timestamps, int32_t* indices, int extent);
+void CAT_monitor_ACH_auto_cursors();
+void CAT_monitor_ACH_set_cursors(int start, int end);
+void CAT_monitor_ACH_get_cursors(int* start, int* end);
+float CAT_monitor_ACH_calculate();

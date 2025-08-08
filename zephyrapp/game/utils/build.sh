@@ -28,6 +28,10 @@ if [[ $1 == "--embedded" ]]; then
 	west sign --tool imgtool
 	cd ../game
 else
+	if [[ $1 == "--clean" ]]; then
+		trash *.dat
+		trash persist/*.dat
+	fi
 	build/app
 fi
 

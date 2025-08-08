@@ -29,7 +29,7 @@ void menu_root();
 void menu_post();
 
 menu_t current_menu = &menu_post;
-int draw_y = 0;
+int window_y = 0;
 int curr_idx = 0;
 int selected_idx = -1;
 
@@ -43,24 +43,24 @@ extern bool in_debug_menu, show_fps;
 
 static void textc(char* text, uint16_t color)
 {
-	lcd_write_str(color, 0, draw_y, text);
-	draw_y += 8;
+	lcd_write_str(color, 0, window_y, text);
+	window_y += 8;
 }
 
 #define text(x) textc(x, 0xffff);
 
 static void selectable(char* text, menu_op_t op, void* arg)
 {
-	lcd_write_str(0xffe0, 0, draw_y, text);
+	lcd_write_str(0xffe0, 0, window_y, text);
 	if (selected_idx == curr_idx)
 	{
-		lcd_write_str(0x001f, strlen(text)*8 + 8, draw_y, "<");
+		lcd_write_str(0x001f, strlen(text)*8 + 8, window_y, "<");
 		if (selected && op)
 		{
 			op(arg);
 		}
 	}
-	draw_y += 8;
+	window_y += 8;
 	curr_idx += 1;
 }
 
@@ -388,7 +388,7 @@ void menu_root()
 
 void draw_debug_menu()
 {
-	draw_y = 0;
+	window_y = 0;
 	curr_idx = 0;
 	selected = false;
 

@@ -3,6 +3,12 @@
 #include "cat_core.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// CONSTANTS
+
+#define CAT_AQ_SPARKLINE_SAMPLE_PERIOD (10)
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // SCORING
 
 float CAT_CO2_score(float co2);
@@ -28,23 +34,18 @@ typedef enum
 	CAT_AQM_COUNT,
 } CAT_AQM;
 
-static const char* CAT_AQM_titles[] =
-{
-	[CAT_AQM_CO2] = "CO2",
-	[CAT_AQM_PM2_5] = "PM2.5",
-	[CAT_AQM_NOX] = "NOX",
-	[CAT_AQM_VOC] = "VOC",
-	[CAT_AQM_TEMP] = "TEMP",
-	[CAT_AQM_RH] = "RH",
-	[CAT_AQM_AGGREGATE] = "\4CritAQ Score"
-};
+const char* CAT_AQ_get_title_string(int aqm);
+const char* CAT_AQ_get_unit_string(int aqm);
+const char* CAT_AQ_get_grade_string(float score);
+uint16_t CAT_AQ_get_grade_colour(float score);
+int CAT_AQ_get_good_delta_sign(int aqm);
 
-const char* CAT_get_AQM_unit_string(int aqm);
-
-float CAT_AQ_get_raw_score(int aqm);
-void CAT_AQ_store_raw_scores();
-
-float CAT_AQ_get_normalized_score(int aqm);
-void CAT_AQ_normalize_scores();
+void CAT_AQ_store_live_scores();
+float CAT_AQ_live_score_raw(int aqm);
+float CAT_AQ_live_score_normalized(int aqm);
+float CAT_AQ_live_score_delta(int aqm);
 
 void CAT_AQ_tick();
+
+float CAT_AQ_block_score_raw(CAT_AQ_score_block* block, int aqm);
+float CAT_AQ_block_score_normalized(CAT_AQ_score_block* block, int aqm);

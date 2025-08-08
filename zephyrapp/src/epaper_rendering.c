@@ -104,7 +104,6 @@ void blit_image(uint8_t* target, struct epaper_image_asset* src, int x, int y)
 	}
 }
 
-
 PERSIST_RAM uint8_t epaper_framebuffer[EPD_IMAGE_BYTES];
 PERSIST_RAM uint8_t old_epaper_framebuffer[EPD_IMAGE_BYTES];
 PERSIST_RAM uint8_t framebuffer_fast_update_count;

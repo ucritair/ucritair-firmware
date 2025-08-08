@@ -3,16 +3,10 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "cat_core.h"
-#ifdef CAT_EMBEDDED
-#include "lcd_driver.h"
-#endif
+#include "cat_colours.h"
 
 //////////////////////////////////////////////////////////////////////////
 // CONSTANTS AND MACROS
-
-#define RGB8882565(r, g, b) ((((r) & 0b11111000) << 8) | (((g) & 0b11111100) << 3) | ((b) >> 3))
-#define RGB5652BGR565(c) (((c) >> 8) | (((c) & 0xff) << 8))
-#define RGB5652888
 
 #ifdef CAT_DESKTOP
 #define CAT_LCD_FRAMEBUFFER_OFFSET (CAT_get_render_cycle() * CAT_LCD_FRAMEBUFFER_H)
@@ -20,32 +14,12 @@
 #define ADAPT_DESKTOP_COLOUR(c) c
 #define ADAPT_EMBEDDED_COLOUR(c) RGB5652BGR565(c)
 #else
+#include "lcd_driver.h"
 #define CAT_LCD_FRAMEBUFFER_OFFSET framebuffer_offset_h
 
 #define ADAPT_DESKTOP_COLOUR(c) RGB5652BGR565(c)
 #define ADAPT_EMBEDDED_COLOUR(c) c
 #endif
-
-#define CAT_TRANSPARENT 0xDEAD
-#define CAT_BLACK 0x0000
-#define CAT_WHITE 0xFFFF
-#define CAT_RED 0b1111100000000000
-#define CAT_GREEN 0b0000011111100000
-#define CAT_BLUE 0b0000000000011111
-#define CAT_YELLOW 0b1111111111100000
-#define CAT_PURPLE 0b1111100000011111
-#define CAT_PAPER 0xEF39
-#define CAT_GREY 0x8410
-
-#define CAT_CRISIS_RED 0xea01
-#define CAT_CRISIS_YELLOW 0xfd45
-#define CAT_CRISIS_GREEN 0x5d6d
-
-#define CAT_MONITOR_BLUE RGB8882565(35, 157, 235)
-
-#define CAT_VIGOUR_ORANGE RGB8882565(223, 64, 47)
-#define CAT_FOCUS_BLUE RGB8882565(102, 181, 179)
-#define CAT_SPIRIT_PURPLE RGB8882565(129, 91, 152)
 
 //////////////////////////////////////////////////////////////////////////
 // COLOUR

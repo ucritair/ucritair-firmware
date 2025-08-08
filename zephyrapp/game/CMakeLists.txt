@@ -97,7 +97,6 @@ target_sources(app PRIVATE
 	src/render/cat_spriter.c
 	src/render/cat_draw_queue.c
 	src/render/cat_animation.c
-	src/render/cat_gizmos.c
 	src/render/cat_poly.c
 
 	src/menu/cat_menu.c
@@ -107,6 +106,7 @@ target_sources(app PRIVATE
 	src/menu/cat_menu_hedron.c
 	src/menu/cat_menu_debug.c
 	src/menu/cat_menu_colour_picker.c
+	src/menu/cat_menu_palette_picker.c
 
 	src/cowtools/cat_structures.c
 	src/cowtools/cat_math.c
@@ -125,15 +125,18 @@ target_sources(app PRIVATE
 	src/monitors/cat_monitor_details.c
 	src/monitors/cat_monitor_sparklines.c
 	src/monitors/cat_monitor_calendar.c
-	src/monitors/cat_monitor_logs.c
 	src/monitors/cat_monitor_gameplay.c
 	src/monitors/cat_monitor_clock.c
+	src/monitors/cat_monitor_graph.c
+	src/monitors/cat_monitor_ach.c
 
 	src/inventory/cat_item.c
 	src/inventory/cat_shop.c
 
 	src/gui/cat_gui.c
 	src/gui/cat_text.c
+	src/gui/cat_graph.c
+	src/gui/cat_gizmos.c
 
 	src/air/cat_aqi.c
 	src/air/cat_crisis.c

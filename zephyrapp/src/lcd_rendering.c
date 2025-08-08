@@ -115,6 +115,9 @@ void lcd_render_diag()
 
 	bool charging_last_frame = false;
 
+	CAT_LCD_set_brightness(screen_brightness);
+	CAT_LED_set_brightness(led_brightness);
+
 	while (1)
 	{
 #ifndef MINIMIZE_GAME_FOOTPRINT
@@ -161,6 +164,7 @@ void lcd_render_diag()
 		last_ms = now;
 
 		screen_brightness = CAT_LCD_get_brightness();
+		led_brightness = CAT_LED_get_brightness();
 
 		if (current_buttons || touch_pressure || co2_calibrating || (charging_last_frame != is_charging))
 		{
@@ -205,7 +209,7 @@ void lcd_render_diag()
 		}
 		
 		time_since = current_second - aq_last_buffered_score_time;
-		if(time_since > CAT_DAY_SECONDS && CAT_AQ_sensors_initialized())
+		if(time_since > CAT_AQ_SPARKLINE_SAMPLE_PERIOD && CAT_AQ_sensors_initialized())
 		{
 			if(is_first_init)
 			{

@@ -8,6 +8,7 @@
 #include <time.h>
 #include <math.h>
 #include "sprite_assets.h"
+#include "cat_gizmos.h"
 
 #define M_PI_6 0.52359877559
 
@@ -85,7 +86,7 @@ void CAT_monitor_MS_clock(CAT_machine_signal signal)
 
 		case CAT_MACHINE_SIGNAL_TICK:
 			if(CAT_input_dismissal())
-				CAT_monitor_soft_exit();
+				CAT_monitor_dismiss();
 			if(CAT_input_pressed(CAT_BUTTON_LEFT))
 				CAT_monitor_retreat();
 			if(CAT_input_pressed(CAT_BUTTON_RIGHT))

@@ -24,9 +24,6 @@ static float exit_progress = 0;
 
 void draw_ongoing_crisis()
 {
-	CAT_monitor_colour_bg(CAT_BLACK);
-	CAT_monitor_colour_fg(CAT_CRISIS_YELLOW);
-
 	int cursor_y = 44;
 
 	CAT_set_text_mask(MARGIN, -1, CAT_LCD_SCREEN_W-MARGIN, -1);
@@ -111,9 +108,6 @@ void draw_ongoing_crisis()
 
 void draw_waiting_crisis()
 {
-	CAT_monitor_colour_bg(CAT_BLACK);
-	CAT_monitor_colour_fg(CAT_CRISIS_YELLOW);
-
 	int cursor_y = 44;
 
 	CAT_set_text_mask(MARGIN, -1, CAT_LCD_SCREEN_W-MARGIN, -1);
@@ -178,9 +172,6 @@ void draw_waiting_crisis()
 
 void draw_all_clear()
 {
-	CAT_monitor_colour_bg(CAT_BLACK);
-	CAT_monitor_colour_fg(CAT_CRISIS_YELLOW);
-
 	int cursor_y = 44;
 
 	CAT_set_text_mask(MARGIN, -1, CAT_LCD_SCREEN_W-MARGIN, -1);

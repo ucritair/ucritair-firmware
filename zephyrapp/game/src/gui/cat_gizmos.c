@@ -1,6 +1,7 @@
 #include "cat_gizmos.h"
 
 #include "cat_curves.h"
+#include "sprite_assets.h"
 
 void CAT_draw_arrows(int x, int y, int size, int dist, uint16_t c)
 {
@@ -154,4 +155,58 @@ void CAT_draw_ripple(CAT_gizmo_primitive primitive, int x, int y, float r0, floa
 	float r = lerp(r0, r1, t/T);
 	float theta = p + w * t;
 	CAT_draw_gizmo_primitive(primitive, x, y, r, theta, c);
+}
+
+#define PAGE_MARKER_SIZE 16
+#define PAGE_MARKER_PADDING 2
+
+void CAT_draw_page_markers(int y, int pages, int page, uint16_t c)
+{
+	int x0 = (CAT_LCD_SCREEN_W - ((PAGE_MARKER_SIZE + PAGE_MARKER_PADDING) * pages)) / 2;
+	for(int i = 0; i < pages; i++)
+	{
+		int x = x0 + i * PAGE_MARKER_SIZE + PAGE_MARKER_PADDING;
+		CAT_set_sprite_colour(c);
+		CAT_draw_sprite(&ui_radio_button_diamond_sprite, page == i, x, y);
+	}
+}
+
+void CAT_draw_page_alert(int y, int pages, int page, uint16_t c)
+{
+	int x0 = (CAT_LCD_SCREEN_W - ((PAGE_MARKER_SIZE + PAGE_MARKER_PADDING) * pages)) / 2;
+	int x = x0 + page * PAGE_MARKER_SIZE + PAGE_MARKER_PADDING;
+	CAT_set_sprite_colour(c);
+	CAT_draw_sprite(&ui_radio_button_diamond_sprite, 0, x, y);
+	if(CAT_pulse(0.25f))
+	{
+		CAT_set_sprite_colour(c);
+		CAT_draw_sprite(&ui_radio_button_diamond_sprite, 1, x, y);
+		CAT_draw_gizmo_primitive(CAT_GIZMO_PRIMITIVE_BOX, x+8, y+8, 16, 0.25f, CAT_RED);
+	}
+}
+
+#define SUBPAGE_MARKER_R 2
+#define SUBPAGE_MARKER_PADDING 8
+
+void CAT_draw_subpage_markers(int y, int pages, int page, uint16_t c)
+{
+	int start_x = CAT_LCD_SCREEN_W/2 - (((2*SUBPAGE_MARKER_R) * pages) + (SUBPAGE_MARKER_PADDING * (pages-1))) / 2;
+	int x = start_x;
+
+	for(int i = 0; i < pages; i++)
+	{
+		if(i == page)
+			CAT_discberry(x, y, SUBPAGE_MARKER_R, CAT_WHITE);
+		else
+			CAT_circberry(x, y, SUBPAGE_MARKER_R, CAT_WHITE);
+		x += 2 * SUBPAGE_MARKER_R + SUBPAGE_MARKER_PADDING;
+	}
+}
+
+void CAT_draw_delta_arrow(int x, int y, bool up, uint16_t c)
+{
+	int y0 = up ? y-12 : y;
+	int y1 = up ? y : y-12;
+	CAT_lineberry(x, y0, x+8, y1, c);
+	CAT_lineberry(x+8, y1, x+16, y0, c);
 }

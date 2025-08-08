@@ -237,6 +237,7 @@ extern const CAT_sprite grave_egg_sprite;
 extern const CAT_sprite ui_radio_button_circle_sprite;
 extern const CAT_sprite ui_checkbox_sprite;
 extern const CAT_sprite eink_update_splash_sprite;
+extern const CAT_sprite ui_aq_notice_icons;
 
 extern const CAT_sprite* sprite_list[];
-#define CAT_SPRITE_LIST_LENGTH 233
+#define CAT_SPRITE_LIST_LENGTH 234
