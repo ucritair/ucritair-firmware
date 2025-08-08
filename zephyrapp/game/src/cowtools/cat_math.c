@@ -389,7 +389,7 @@ bool CAT_CSCLIP(int* x0, int* y0, int* x1, int* y1)
 //////////////////////////////////////////////////////////////////////////
 // STRUCT-FREE
 
-bool CAT_int4_int4(int x00, int y00, int x01, int y01, int x10, int y10, int x11, int y11)
+bool CAT_rect_contains_rect(int x00, int y00, int x01, int y01, int x10, int y10, int x11, int y11)
 {
 	if(x10 < x00 || x11 > x01)
 		return false;
@@ -398,11 +398,39 @@ bool CAT_int4_int4(int x00, int y00, int x01, int y01, int x10, int y10, int x11
 	return true;
 }
 
-bool CAT_int4_int2(int x0, int y0, int x1, int y1, int x, int y)
+bool CAT_rect_rect_touching(int x00, int y00, int x01, int y01, int x10, int y10, int x11, int y11)
+{
+	if(x10 > x01 || x11 < x00)
+		return false;
+	if(y10 > y01 || y11 < y00)
+		return false;
+	return true;
+}
+
+bool CAT_rect_rect_intersecting(int x00, int y00, int x01, int y01, int x10, int y10, int x11, int y11)
+{
+	if(x10 >= x01 || x11 <= x00)
+		return false;
+	if(y10 >= y01 || y11 <= y00)
+		return false;
+	return true;
+}
+
+bool CAT_rect_point_touching(int x0, int y0, int x1, int y1, int x, int y)
 {
 	if(x < x0 || x > x1)
 		return false;
 	if(y < y0 || y > y1)
 		return false;
 	return true;
+}
+
+int CAT_i2_dot(int ax, int ay, int bx, int by)
+{
+	return ax*bx + ay*by;
+}
+
+int CAT_i2_cross(int ax, int ay, int bx, int by)
+{
+	return ax*by - ay*bx;
 }

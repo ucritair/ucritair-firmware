@@ -20,9 +20,9 @@ static bool is_high_score = false;
 
 static struct
 {
-	int xs[SNAKE_MAX_LENGTH];
-	int ys[SNAKE_MAX_LENGTH];
-	int length;
+	uint8_t xs[SNAKE_MAX_LENGTH];
+	uint8_t ys[SNAKE_MAX_LENGTH];
+	uint8_t length;
 
 	int ldx;
 	int ldy;
@@ -243,7 +243,7 @@ void CAT_render_snake()
 		CAT_frameberry(RGB8882565(122, 146, 57));
 		for(int y = 0; y < 20; y += 2)
 		{
-			CAT_draw_tile_alpha(&floor_grass_tile_sprite, 17, grasses[y/2]*16, y*16);
+			CAT_draw_tile(&floor_grass_tile_sprite, 17, grasses[y/2]*16, y*16);
 		}
 
 		int dx = snake.xs[0] - snake.xs[1];

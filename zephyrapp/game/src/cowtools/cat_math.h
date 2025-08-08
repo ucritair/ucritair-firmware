@@ -34,6 +34,9 @@
 #define wrap(v, l) (((v) + (l)) % (l))
 #endif
 
+#define CAT_RAD2DEG (180.0 / M_PI)
+#define CAT_DEG2RAD (M_PI / 180.0)
+
 float lerp(float a, float b, float t);
 float inv_lerp(float t, float a, float b);
 int quantize(float t, float range, int steps);
@@ -159,7 +162,10 @@ bool CAT_CSCLIP(int* x0, int* y0, int* x1, int* y1);
 //////////////////////////////////////////////////////////////////////////
 // STRUCT-FREE
 
-bool CAT_int4_int4(int x00, int y00, int x01, int y01, int x10, int y10, int x11, int y11);
-bool CAT_int4_int2(int x0, int y0, int x1, int y1, int x, int y);
+bool CAT_rect_contains_rect(int x00, int y00, int x01, int y01, int x10, int y10, int x11, int y11);
+bool CAT_rect_rect_touching(int x00, int y00, int x01, int y01, int x10, int y10, int x11, int y11);
+bool CAT_rect_rect_intersecting(int x00, int y00, int x01, int y01, int x10, int y10, int x11, int y11);
+bool CAT_rect_point_touching(int x0, int y0, int x1, int y1, int x, int y);
 
-
+int CAT_i2_dot(int ax, int ay, int bx, int by);
+int CAT_i2_cross(int ax, int ay, int bx, int by);

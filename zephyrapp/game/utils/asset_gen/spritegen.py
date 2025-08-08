@@ -13,7 +13,7 @@ pygame.init()
 
 json_file = open("sprites/sprites.json", "r+");
 json_data = json.load(json_file);
-json_entries = json_data['entries'];
+json_entries = json_data['instances'];
 
 for (i, sprite) in enumerate(json_entries):
 	# Ensure correct JSON

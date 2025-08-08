@@ -122,6 +122,7 @@ void CAT_draw_background(const CAT_sprite* sprite, int frame_idx, int y);
 void CAT_draw_tile(const CAT_sprite* sprite, int frame_idx, int x, int y);
 void CAT_draw_tile_alpha(const CAT_sprite* sprite, int frame_idx, int x, int y);
 
+
 //////////////////////////////////////////////////////////////////////////
 // THE BERRIER
 

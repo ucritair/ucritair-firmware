@@ -10,7 +10,7 @@ def build(html: HTMLWriter):
 	json_file = open("data/fish.json", "r");
 	json_data = json.load(json_file);
 	json_file.close();
-	json_entries = json_data['entries'];
+	json_entries = json_data['instances'];
 	json_entries.sort(key=lambda j: j['display_name']);
 
 	common.title(html, "Fish");

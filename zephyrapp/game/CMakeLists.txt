@@ -75,19 +75,36 @@ add_custom_command(
 )
 
 add_custom_command(
-	OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/../data/config.h ${CMAKE_CURRENT_BINARY_DIR}/../data/config.c
-	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../
-	COMMAND ${CMAKE_CURRENT_BINARY_DIR}/../utils/asset_gen/configgen.py
-	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../utils/asset_gen/configgen.py
-	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../data/config.json
-)
-
-add_custom_command(
 	OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/../data/fish_assets.h ${CMAKE_CURRENT_BINARY_DIR}/../data/fish_assets.c
 	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../
 	COMMAND ${CMAKE_CURRENT_BINARY_DIR}/../utils/asset_gen/fishgen.py
 	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../utils/asset_gen/fishgen.py
 	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../data/fish.json
+)
+
+add_custom_command(
+	OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/../data/dialogue_assets.h ${CMAKE_CURRENT_BINARY_DIR}/../data/dialogue_assets.c
+	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../
+	COMMAND ${CMAKE_CURRENT_BINARY_DIR}/../utils/asset_gen/dialoguegen.py
+	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../utils/asset_gen/dialoguegen.py
+	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../data/dialogue.json
+)
+
+add_custom_command(
+	OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/../data/prop_assets.h ${CMAKE_CURRENT_BINARY_DIR}/../data/prop_assets.c
+	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../
+	COMMAND ${CMAKE_CURRENT_BINARY_DIR}/../utils/asset_gen/propgen.py
+	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../utils/asset_gen/propgen.py
+	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../data/props.json
+)
+
+add_custom_command(
+	OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/../data/scene_assets.h ${CMAKE_CURRENT_BINARY_DIR}/../data/scene_assets.c
+	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../
+	COMMAND ${CMAKE_CURRENT_BINARY_DIR}/../utils/asset_gen/scenegen.py
+	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../utils/asset_gen/scenegen.py
+	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../data/scenes.json
+	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../data/props.json
 )
 
 target_sources(app PRIVATE
@@ -151,15 +168,24 @@ target_sources(app PRIVATE
 	src/room/cat_death_report.c
 	src/room/cat_notices.c
 
+	src/world/cat_world.c
+	src/world/cat_dialogue.c
+	src/world/procs/cat_procs.c
+	src/world/cat_combat.c
+	src/world/cat_scene.c
+
 	sounds/sound_assets.c
 	meshes/mesh_assets.c
 	meshes/mesh2d_assets.c
 	sprites/sprite_assets.c
 	data/item_assets.c
 	data/theme_assets.c
-	data/config.c
 	data/fish_assets.c
+	data/dialogue_assets.c
+	data/prop_assets.c
+	data/scene_assets.c
 
+	src/cat_save.c
 	src/cat_main.c)
 
 target_include_directories(app PRIVATE src/)
@@ -175,6 +201,8 @@ target_include_directories(app PRIVATE src/caring)
 target_include_directories(app PRIVATE src/air)
 target_include_directories(app PRIVATE src/systems)
 target_include_directories(app PRIVATE src/room)
+target_include_directories(app PRIVATE src/world)
+target_include_directories(app PRIVATE src/world/procs)
 
 target_include_directories(app PRIVATE sounds/)
 target_include_directories(app PRIVATE meshes/)

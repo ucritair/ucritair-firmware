@@ -21,18 +21,19 @@
 #include "cat_gizmos.h"
 #include "cat_curves.h"
 #include "cat_graph.h"
+#include "cat_world.h"
 
 //////////////////////////////////////////////////////////////////////////
 // THEME
 
-static CAT_room_theme* theme = &basic_theme;
+static const CAT_room_theme* theme = &basic_theme;
 
-void CAT_room_set_theme(CAT_room_theme* _theme)
+void CAT_room_set_theme(const CAT_room_theme* _theme)
 {
 	theme = _theme;
 }
 
-CAT_room_theme* CAT_room_get_theme()
+const CAT_room_theme* CAT_room_get_theme()
 {
 	return theme;
 }
@@ -166,7 +167,7 @@ void CAT_room_nearest_free_cell(int x, int y, int* x_out, int* y_out)
 	for(int i = 0; i < CAT_ROOM_GRID_SIZE; i++)
 		visit_mask[i] = false;
 
-	while(!idx_queue.length == 0)
+	while(idx_queue.length != 0)
 	{
 		int idx = CAT_ilist_dequeue(&idx_queue);
 		if(idx < 0 || idx >= CAT_ROOM_GRID_SIZE)
@@ -245,7 +246,7 @@ int CAT_room_cell_lookup(int x, int y)
 		int y0 = prop_list.data[i].y0;
 		int x1 = prop_list.data[i].x1;
 		int y1 = prop_list.data[i].y1;
-		if(CAT_int4_int2(x0, y0, x1-1, y1-1, x, y))
+		if(CAT_rect_point_touching(x0, y0, x1-1, y1-1, x, y))
 			return i;
 	}
 	return -1;
@@ -316,6 +317,7 @@ bool CAT_room_prop_has_child(int idx)
 		return false;
 	if(prop_list.data[idx].child == -1)
 		return false;
+	return true;
 }
 
 bool CAT_room_stack_prop(int idx, int item_id)
@@ -365,6 +367,7 @@ int CAT_room_alter_prop(int idx)
 
 	int variations = item->sprite->frame_count;
 	prop_list.data[idx].override = wrap(prop_list.data[idx].override+1, variations);
+	return prop_list.data[idx].override;
 }
 
 
@@ -453,7 +456,7 @@ static int mode_selector = 0;
 #define VENDING_MACHINE_W 56
 #define VENDING_MACHINE_H 96
 
-void mode_button_input()
+void screen_button_input()
 {
 	if(CAT_input_pressed(CAT_BUTTON_RIGHT))
 		mode_selector += 1;
@@ -479,10 +482,10 @@ void mode_button_input()
 	}
 }
 
-void world_button_input()
+void prop_button_input()
 {
 	if(CAT_input_touch_rect(VENDING_MACHINE_X, VENDING_MACHINE_Y, VENDING_MACHINE_W, VENDING_MACHINE_H))
-				CAT_machine_transition(CAT_MS_shop);
+		CAT_machine_transition(CAT_MS_shop);
 	else if(CAT_input_touch_rect(ARCADE_X, ARCADE_Y, ARCADE_W, ARCADE_H))
 		CAT_machine_transition(CAT_MS_arcade);
 	else if(CAT_input_touch_rect
@@ -552,13 +555,13 @@ void CAT_MS_room(CAT_machine_signal signal)
 					CAT_pet_reincarnate();
 				}
 
-				world_button_input();
+				prop_button_input();
 				pickup_input();
 			}
 			else
 			{
-				mode_button_input();
-				world_button_input();
+				screen_button_input();
+				prop_button_input();
 				pickup_input();
 
 				CAT_pet_update_animations();

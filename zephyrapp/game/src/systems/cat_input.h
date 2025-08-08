@@ -22,6 +22,7 @@ typedef struct CAT_input
 	float time[CAT_BUTTON_LAST];
 	float since[CAT_BUTTON_LAST];
 	float pulse[CAT_BUTTON_LAST];
+	int frames[CAT_BUTTON_LAST];
 	bool dirty[CAT_BUTTON_LAST];
 
 	CAT_touch touch;
@@ -43,6 +44,7 @@ bool CAT_input_released(int button);
 bool CAT_input_held(int button, float t);
 bool CAT_input_pulse(int button);
 float CAT_input_time(int button);
+int CAT_input_frames(int button);
 
 bool CAT_input_dismissal();
 
@@ -62,3 +64,5 @@ void CAT_input_buffer_clear();
 bool CAT_input_spell(CAT_button* spell);
 
 float CAT_input_time_since_last();
+
+extern CAT_button basic_spell[10];

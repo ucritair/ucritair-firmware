@@ -1,0 +1,86 @@
+{
+    "dialogue": {
+        "type": {
+            "name": {
+                "type": "string"
+            },
+            "lines": {
+                "type": [
+                    "string"
+                ]
+            },
+            "edges": {
+                "type": [
+                    {
+                        "text": {
+                            "type": "string"
+                        },
+                        "node": {
+                            "type": "dialogue"
+                        },
+                        "proc": {
+                            "type": "string"
+                        }
+                    }
+                ]
+            }
+        }
+    },
+    "instances": [
+        {
+            "name": "reed_default",
+            "lines": [
+                "Hey...",
+                "Eaten anything good lately?"
+            ],
+            "edges": [
+                {
+                    "text": "...",
+                    "node": "ellipsis",
+                    "proc": ""
+                }
+            ]
+        },
+        {
+            "name": "reed_house",
+            "lines": [
+                "[It's Inspector Reed's house]",
+                "[The doors are locked tight]"
+            ],
+            "edges": []
+        },
+        {
+            "name": "statue_default",
+            "lines": [
+                "Welcome to Wetterstrom, Founded 2025",
+                "[Return to the apartment?]"
+            ],
+            "edges": [
+                {
+                    "text": "Yes",
+                    "node": "",
+                    "proc": "proc_coc_innerworld"
+                },
+                {
+                    "text": "No",
+                    "node": "",
+                    "proc": ""
+                }
+            ]
+        },
+        {
+            "name": "statue_chirp",
+            "lines": [
+                "\\1 Cheep Cheep \\1"
+            ],
+            "edges": []
+        },
+        {
+            "name": "ellipsis",
+            "lines": [
+                "..."
+            ],
+            "edges": []
+        }
+    ]
+}

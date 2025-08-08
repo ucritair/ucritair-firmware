@@ -1,0 +1,277 @@
+{
+    "prop": {
+        "type": {
+            "name": {
+                "type": "string"
+            },
+            "sprite": {
+                "type": "sprite"
+            },
+            "palette": {
+                "type": "bool"
+            },
+            "blockers": {
+                "type": [
+                    [
+                        "int"
+                    ]
+                ]
+            },
+            "triggers": {
+                "type": [
+                    {
+                        "aabb": {
+                            "type": [
+                                "int"
+                            ],
+                            "attributes": [
+                                {
+                                    "fixed-length": 4
+                                }
+                            ]
+                        },
+                        "direction": {
+                            "type": [
+                                "int"
+                            ],
+                            "attributes": [
+                                {
+                                    "fixed-length": 2
+                                }
+                            ]
+                        },
+                        "proc": {
+                            "type": "string"
+                        }
+                    }
+                ]
+            }
+        }
+    },
+    "instances": [
+        {
+            "name": "null_prop",
+            "blockers": [],
+            "triggers": [],
+            "sprite": "null_sprite",
+            "palette": false
+        },
+        {
+            "name": "reed_prop",
+            "blockers": [
+                [
+                    0,
+                    16,
+                    32,
+                    32
+                ]
+            ],
+            "triggers": [
+                {
+                    "aabb": [
+                        0,
+                        16,
+                        32,
+                        32
+                    ],
+                    "proc": "interact_proc_reed",
+                    "direction": [
+                        0,
+                        1
+                    ]
+                }
+            ],
+            "sprite": "world_reed_sprite",
+            "palette": false
+        },
+        {
+            "name": "reed_house_prop",
+            "blockers": [
+                [
+                    0,
+                    48,
+                    64,
+                    80
+                ]
+            ],
+            "triggers": [
+                {
+                    "aabb": [
+                        0,
+                        64,
+                        32,
+                        80
+                    ],
+                    "direction": [
+                        0,
+                        1
+                    ],
+                    "proc": "interact_proc_reed_house"
+                }
+            ],
+            "sprite": "world_reed_house_sprite",
+            "palette": false
+        },
+        {
+            "name": "statue_prop",
+            "blockers": [
+                [
+                    16,
+                    32,
+                    32,
+                    48
+                ]
+            ],
+            "triggers": [
+                {
+                    "aabb": [
+                        16,
+                        32,
+                        32,
+                        48
+                    ],
+                    "direction": [
+                        1,
+                        0
+                    ],
+                    "proc": "interact_proc_statue"
+                }
+            ],
+            "sprite": "world_statue_sprite",
+            "palette": false
+        },
+        {
+            "name": "bldg_sm_prop",
+            "blockers": [
+                [
+                    0,
+                    48,
+                    32,
+                    80
+                ]
+            ],
+            "triggers": [],
+            "sprite": "world_bldg_sm_sprite",
+            "palette": false
+        },
+        {
+            "name": "bldg_md_prop",
+            "blockers": [
+                [
+                    0,
+                    48,
+                    48,
+                    80
+                ]
+            ],
+            "triggers": [],
+            "sprite": "world_bldg_md_sprite",
+            "palette": false
+        },
+        {
+            "name": "bldg_lg_prop",
+            "blockers": [
+                [
+                    0,
+                    48,
+                    48,
+                    80
+                ]
+            ],
+            "triggers": [],
+            "sprite": "world_bldg_lg_sprite",
+            "palette": false
+        },
+        {
+            "name": "arcade_prop",
+            "blockers": [
+                [
+                    0,
+                    48,
+                    96,
+                    80
+                ]
+            ],
+            "triggers": [],
+            "sprite": "world_arcade_sprite",
+            "palette": false
+        },
+        {
+            "name": "market_prop",
+            "blockers": [
+                [
+                    0,
+                    32,
+                    48,
+                    64
+                ]
+            ],
+            "triggers": [],
+            "sprite": "world_market_sprite",
+            "palette": false
+        },
+        {
+            "name": "depot_prop",
+            "blockers": [
+                [
+                    0,
+                    32,
+                    48,
+                    64
+                ]
+            ],
+            "triggers": [],
+            "sprite": "world_depot_sprite",
+            "palette": false
+        },
+        {
+            "name": "dumpster_prop",
+            "blockers": [
+                [
+                    0,
+                    16,
+                    16,
+                    32
+                ]
+            ],
+            "triggers": [],
+            "sprite": "world_dumpster_sprite",
+            "palette": false
+        },
+        {
+            "name": "trash_prop",
+            "blockers": [
+                [
+                    0,
+                    0,
+                    16,
+                    16
+                ]
+            ],
+            "triggers": [],
+            "sprite": "world_trash_sprite",
+            "palette": false
+        },
+        {
+            "name": "bench_prop",
+            "blockers": [
+                [
+                    0,
+                    0,
+                    16,
+                    16
+                ]
+            ],
+            "triggers": [],
+            "sprite": "world_bench_tile_sprite",
+            "palette": true
+        },
+        {
+            "name": "track_prop",
+            "blockers": [],
+            "triggers": [],
+            "sprite": "floor_grass_tile_sprite",
+            "palette": true
+        }
+    ]
+}

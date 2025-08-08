@@ -6,7 +6,6 @@
 #include "cat_main.h"
 #include "cat_pet.h"
 #include "cat_room.h"
-#include "config.h"
 #include <stdint.h>
 #include "cat_aqi.h"
 #include "sprite_assets.h"

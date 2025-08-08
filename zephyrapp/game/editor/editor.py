@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-import csv;
 import configparser;
 import os;
 import OpenGL;
@@ -8,22 +7,24 @@ OpenGL.FULL_LOGGING = True;
 from OpenGL.GL import *;
 import glfw;
 from imgui_bundle import imgui;
-import json;
-from enum import Enum, Flag, auto;
-import ctypes;
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer;
-import copy;
-import glob;
 from pathlib import Path;
 from PIL import Image;
 from playsound3 import playsound;
-import subprocess as sp;
 from stat import *;
 import wave;
 import numpy as np;
 from collections import OrderedDict;
-import math;
 
+import ee_types;
+from ee_cowtools import *;
+from ee_canvas import Canvas;
+from ee_assets import *;
+
+from ee_scene_editor import SceneEditor;
+from ee_sprites import SpriteBank;
+from ee_input import InputManager;
+from ee_prop_editor import PropEditor;
 
 #########################################################
 ## CONTEXT
@@ -73,415 +74,9 @@ platform_io.platform_set_clipboard_text_fn = set_clipboard_text;
 time = glfw.get_time();
 delta_time = 0;
 
-
-#########################################################
-## COW TOOLS
-
-def foldl(f, acc, xs):
-	if len(xs) == 0:
-		return acc;
-	else:
-		h, t = xs[0], xs[1:];
-		return foldl(f, f(acc, h), t);
-
-def foldr(f, acc, xs):
-	if len(xs) == 0:
-		return acc;
-	else:
-		h, t = xs[0], xs[1:];
-		return f(head, foldr(f, acc, t));
-
-
-#########################################################
-## DOCUMENT MODEL
-
-class AssetSchema:
-	def __init__(self, schema):
-		self.root = copy.deepcopy(schema);
-		self.path = [self.root];
-
-	def reset(self):
-		self.path = [self.root];
-
-	def push(self, key):
-		self.path.append(self.path[-1][key]["type"]);
-	
-	def pop(self):
-		self.path.pop();
-
-	def keys(self):
-		return [k for k in self.path[-1].keys()];
-	
-	def is_valid(self, key):
-		return key in self.path[-1];
-
-	def get_type(self, key):
-		return self.path[-1][key]["type"];
-	
-	def is_readable(self, key):
-		perms = self.path[-1][key]["permissions"];
-		return "read" in perms or "write" in perms;
-
-	def is_writable(self, key):
-		perms = self.path[-1][key]["permissions"];
-		return "write" in perms;
-
-	def is_ranked(self, key):
-		perms = self.path[-1][key]["permissions"];
-		return "rank" in perms;
-
-	def __default(t):
-		if t == "int":
-			return 0;
-		elif t == "bool":
-			return False;
-		elif t == "string":
-			return "";
-		elif t == "float":
-			return 0.0;
-		elif t == "ivec2":
-			return [0, 0];
-		elif "*" in t:
-			return "";
-		elif t in asset_types:
-			return "";
-		elif isinstance(t, list):
-			return t[0];
-		elif t[0] == "[" and t[-1] == "]":
-			return [];
-		else:
-			return None;
-	
-	def prototype(self, node):
-		parent = self.path[-1];
-		for key in parent:
-			child = parent[key];
-
-			if "constraint" in child:
-				ckey = child["constraint"]["key"];
-				cval = child["constraint"]["value"];
-				if node[ckey] != cval:
-					if key in node:
-						del node[key];
-					continue;
-
-			if isinstance(child["type"], dict):
-				self.push(key);
-				if not key in node:
-					node[key] = {};
-				self.prototype(node[key]);
-				self.pop();
-				
-			if not key in node:
-				node[key] = AssetSchema.__default(child["type"]);
-				
-
-class AssetDocument:
-	def __init__(self, path):
-		self.path = path;
-		self.parent, entry = os.path.split(path);
-		self.name, _ = os.path.splitext(entry);
-		self.file = open(path, "r+");
-
-		self.data = json.load(self.file);
-		self.type = self.data["type"];
-		self.schema = AssetSchema(self.data["schema"]);
-		self.entries = self.data["entries"];
-	
-		self.id_set = set();
-		if "id" in self.schema.keys():
-			for entry in self.entries:
-				self.id_set.add(entry["id"]);
-	
-	def take_free_id(self):
-		M = max(self.id_set);
-		i = 0;
-		while i <= M:
-			if not i in self.id_set:
-				self.id_set.add(i);
-				return i;
-			i += 1;
-		self.id_set.add(M+1);
-		return M+1;
-	
-	def spawn_new_entry(self):
-		new = {};
-		self.schema.prototype(new);
-		new["name"] = f"new_{document.type}";
-		if "id" in new:
-			new["id"] = self.take_free_id();
-		self.entries.append(new);
-	
-	def duplicate_entry(self, idx):
-		new = copy.deepcopy(self.entries[idx]);
-		if "id" in new:
-			new["id"] = self.take_free_id();
-		self.entries.append(new);
-	
-	def delete_entry(self, idx):
-		entry = self.entries[idx];
-		if "id" in entry:
-			self.id_set.remove(entry["id"]);
-		del self.entries[idx];
-	
-	def refresh(self):
-		for entry in self.entries:
-			self.schema.prototype(entry);
-	
-	def save(self):
-		self.file.seek(0);
-		self.file.truncate();
-		self.file.write(json.dumps(self.data, indent=4));
-
-
-def get_name(node):
-	if "name" in node:
-		return node["name"];
-	elif "path" in node:
-		return node["path"];
-	elif "id" in node:
-		return node["id"];
-	return "Node";
-
-def get_number(node):
-	if "id" in node:
-		return node["id"];
-	return id(node);
-
-def get_id(node, key):
-	return f"##{id(node)}{id(key)}";
-
-asset_dirs = [Path("sprites"), Path("sounds"), Path("meshes"), Path("data")];
-asset_types = [];
-asset_docs = {};
-
-for folder in asset_dirs:
-	for entry in folder.iterdir():
-		name, ext = os.path.splitext(entry);
-		if ext == ".json":
-			try:
-				doc = AssetDocument(entry);
-				asset_type = doc.type;
-				if not asset_type in asset_types:
-					asset_types.append(asset_type);
-				asset_docs[asset_type] = doc;
-			except:
-				print(f"Failed to load {entry} as asset document!");
-
-document = None;
-
-def find_asset(asset_type, name):
-	for asset in asset_docs[asset_type].entries:
-		if asset["name"] == name:
-			return asset;
-	return None;
-
-
-#########################################################
-## RENDERING
-
-def make_texture(buffer, width, height):
-	texture = glGenTextures(1);
-	glBindTexture(GL_TEXTURE_2D, texture);
-	glTexParameteri(GL_TEXTURE_2D, 	GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, 	GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
-	return texture;
-
-class DrawFlags(Flag):
-	CENTER_X = auto()
-	CENTER_Y = auto()
-	BOTTOM = auto()
-
-class Canvas:
-	def __init__(self, width, height):
-		self.width = width;
-		self.height = height;
-		self.buffer = bytearray(bytes(width * height * 4));
-		self.texture = make_texture(self.buffer, width, height);
-		self.draw_flags = ();
-
-	def clear(self, c):
-		for y in range(self.height):
-			for x in range(self.width):
-				i = (y * self.width + x) * 4;
-				self.buffer[i+0] = c[0];
-				self.buffer[i+1] = c[1];
-				self.buffer[i+2] = c[2];
-				self.buffer[i+3] = 255;
-
-	def draw_pixel(self, x, y, c):
-		x = int(x);
-		y = int(y);
-
-		if x < 0 or x >= self.width:
-			return;
-		if y < 0 or y >= self.height:
-			return;
-
-		i = (y * self.width + x) * 4;
-		self.buffer[i+0] = c[0];
-		self.buffer[i+1] = c[1];
-		self.buffer[i+2] = c[2];
-	
-	def draw_hline(self, y, c):
-		for x in range(self.width):
-			self.draw_pixel(x, y, c);
-	
-	def draw_vline(self, x, c):
-		for y in range(self.height):
-			self.draw_pixel(x, y, c);
-
-	def draw_rect(self, x, y, w, h, c):
-		x = int(x);
-		y = int(y);
-		w = int(w);
-		h = int(h);
-
-		if DrawFlags.CENTER_X in self.draw_flags:
-			x -= w // 2;
-		if DrawFlags.CENTER_Y in self.draw_flags:
-			y -= h // 2;
-		elif DrawFlags.BOTTOM in self.draw_flags:
-			y -= h;
-
-		for dy in range(y, y+h):
-			self.draw_pixel(x, dy, c);
-			self.draw_pixel(x+w-1, dy, c);
-		for dx in range(x, x+w):
-			self.draw_pixel(dx, y, c);
-			self.draw_pixel(dx, y+h-1, c);
-
-	def draw_line(self, xi, yi, xf, yf, c):
-		xi = int(xi);
-		yi = int(yi);
-		xf = int(xf);
-		yf = int(yf);
-	
-		steep = abs(yf-yi) > abs(xf-xi);
-		if steep:
-			temp = xi;
-			xi = yi;
-			yi = temp;
-
-			temp = xf;
-			xf = yf;
-			yf = temp;
-
-		# if the line heads left, swap its start and end points
-		leftward = xi > xf;
-		if leftward:
-			temp = xi;
-			xi = xf;
-			xf = temp;
-
-			temp = yi;
-			yi = yf;
-			yf = temp;
-		
-		dx = xf - xi;
-		dy = yf - yi;
-
-		# account for line heading up or down
-		y_step = 1 if (yf > yi) else -1;
-		y = yi;
-		
-		# approximate d_err as abs(dy) / (dx ~= 0.5)
-		d_err = abs(dy) * 2;
-		err = 0;
-
-		# if line is steep, we swap x,y in the draw call to undo our earlier transposition
-		# we employ a branch between two for loops to avoid branching within one loop
-		if steep:
-			for x in range(xi, xf):
-				xw = x;
-				if y >= 0 and y < self.width and xw >= 0 and xw < self.height:
-					self.draw_pixel(y, xw, c);
-
-				err += d_err;
-				if err > dx:
-					y += y_step;
-					err -= 2*dx;
-		else:
-			for x in range(xi, xf):
-				yw = y;
-				if x >= 0 and x < self.width and yw >= 0 and yw < self.height:
-					self.draw_pixel(x, yw, c);
-
-				err += d_err;
-				if err > dx:
-					y += y_step;
-					err -= dx*2;
-
-	def draw_circle(self, x, y, r, c):
-		x = int(x);
-		y = int(y);
-		r = int(r);
-	
-		f = 1 - r;
-		ddfx = 0;
-		ddfy = -2 * r;
-		dx = 0;
-		dy = r;
-
-		self.draw_pixel(x, y + r, c);
-		self.draw_pixel(x, y - r, c);
-		self.draw_pixel(x + r, y, c);
-		self.draw_pixel(x - r, y, c);
-
-		while dx < dy:
-			if f >= 0:
-				dy -= 1;
-				ddfy += 2;
-				f += ddfy;
-
-			dx += 1;
-			ddfx += 2;
-			f += ddfx + 1;
-
-			self.draw_pixel(x + dx, y + dy, c);
-			self.draw_pixel(x - dx, y + dy, c);
-			self.draw_pixel(x + dx, y - dy, c);
-			self.draw_pixel(x - dx, y - dy, c);
-			self.draw_pixel(x + dy, y + dx, c);
-			self.draw_pixel(x - dy, y + dx, c);
-			self.draw_pixel(x + dy, y - dx, c);
-			self.draw_pixel(x - dy, y - dx, c);
-	
-	def draw_image(self, x, y, image):
-		x = int(x);
-		y = int(y);
-
-		if DrawFlags.CENTER_X in self.draw_flags:
-			x -= image.width // 2;
-		if DrawFlags.CENTER_Y in self.draw_flags:
-			y -= image.height // 2;
-		elif DrawFlags.BOTTOM in self.draw_flags:
-			y -= image.height;
-
-		pixels = image.load();
-		for yr in range(0, image.height):
-			yw = y+yr;
-			if yw < 0 or yw >= self.height:
-				continue;
-			for xr in range(0, image.width):
-				xw = x+xr;
-				if xw < 0 or xw >= self.width:
-					continue;
-				c = pixels[xr, yr];
-				if c[3] < 128:
-					continue;
-
-				i = (yw * self.width + xw) * 4;
-				self.buffer[i+0] = c[0];
-				self.buffer[i+1] = c[1];
-				self.buffer[i+2] = c[2];
-	
-	def render(self, scale):
-		glBindTexture(GL_TEXTURE_2D, self.texture);
-		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, self.width, self.height, GL_RGBA, GL_UNSIGNED_BYTE, self.buffer);
-		imgui.image(self.texture, (self.width * scale, self.height * scale));
-
+AssetManager.initialize(["sprites", "sounds", "meshes", "data"]);
+SpriteBank.initialize();
+InputManager.initialize(handle, impl);
 
 #########################################################
 ## FILE EXPLORER
@@ -582,7 +177,7 @@ class SpriteExplorer:
 
 		self = SpriteExplorer._;
 		if self.open:
-			listings = [s["name"] for s in asset_docs["sprite"].entries];
+			listings = [s["name"] for s in AssetManager.get_assets("sprite")];
 			listings.sort();
 			
 			imgui.set_next_window_size(self.size);
@@ -699,17 +294,19 @@ class PreviewSound:
 class PreviewBank:
 	def __init__(self):
 		self.entries = {};
-		for asset_type in asset_types:
+		for asset_type in AssetManager.types():
 			self.entries[asset_type] = {};
 	
 	def init(self, asset_type, name):
 		try:
-			asset = find_asset(asset_type, name);
+			asset = AssetManager.search(asset_type, name);
 			match asset_type:
 				case "sprite":
 					self.entries[asset_type][name] = PreviewSprite(asset);
 				case "sound":
 					self.entries[asset_type][name] = PreviewSound(asset);
+				case _:
+					self.entries[asset_type][name] = None;
 		except:
 			self.entries[asset_type][name] = None;
 		return self.entries[asset_type][name];
@@ -720,6 +317,9 @@ class PreviewBank:
 		return self.entries[asset_type][name];
 		
 preview_bank = PreviewBank();
+for asset_type in AssetManager.types():
+	for asset in AssetManager.get_assets(asset_type):
+		preview_bank.init(asset_type, asset["name"]);
 
 class Preview:	
 	def render_sprite(name):
@@ -729,8 +329,6 @@ class Preview:
 				preview_bank.init("sprite", name);
 			imgui.same_line();
 			imgui.image(sprite.preview_texture, (sprite.preview_image.width * 2, sprite.preview_image.height * 2));
-		else:
-			preview_bank.init("sprite", name);
 
 	def thumbnail_sprite(name):
 		sprite = preview_bank.get("sprite", name);
@@ -741,6 +339,9 @@ class Preview:
 	def render_sound(name):
 		sound = preview_bank.get("sound", name);
 		if sound != None:
+			if imgui.button(f"!##{name}"):
+				preview_bank.init("sound", name);
+			imgui.same_line();
 			for i in range(sound.frames.shape[0]):
 				half_range = (1 << ((sound.meta.sampwidth*8)-1)) - 1;
 				plot_min = -half_range;
@@ -750,216 +351,171 @@ class Preview:
 				imgui.plot_lines(f"####{id(sound.frames[i])}", sound.frames[i], scale_min=plot_min, scale_max=plot_max, graph_size=(plot_width, plot_height));
 			if imgui.button(f"Play##{name}"):
 				playsound(sound.path, block=False);
-			imgui.same_line();
-		if imgui.button(f"Refresh##{name}"):
-			preview_bank.init("sound", name);
 	
 	def render(asset_type, name):
-		match asset_type:
-			case "sprite":
-				Preview.render_sprite(name);
-			case "sound":
-				Preview.render_sound(name);	
+		if asset_type == "sprite":
+			Preview.render_sprite(name);
+		elif asset_type == "sound":
+			Preview.render_sound(name);
 
 	def thumbnail(asset_type, name):
-		match asset_type:
-			case "sprite":
-				Preview.thumbnail_sprite(name);
+		if asset_type == "sprite":
+			Preview.thumbnail_sprite(name);
 
 
 #########################################################
 ## DOCUMENT GUI
 
-popup_statuses = {};
-search_term = "";
-
-class DocumentRenderer:	
-	def __render(doc, node):
-		imgui.separator();
-		
-		if "name" in node:
-			Preview.render(doc.type, node["name"]);
-
-		for key in node:
-			if not doc.schema.is_valid(key):
-				continue;
-			
-			key_type = doc.schema.get_type(key);
-			readable = doc.schema.is_readable(key);
-			writable = doc.schema.is_writable(key);
-			if not readable:
-				continue;
-
-			if key_type is None:
-				imgui.text(key);
-			
-			elif key_type == "int":
-				imgui.text(key);
-				imgui.same_line();
-				if writable:
-					_, node[key] = imgui.input_int(get_id(node, key), node[key]);
-				else:
-					imgui.text(str(node[key]));
-
-			elif key_type == "float":
-				imgui.text(key);
-				imgui.same_line();
-				if writable:
-					_, node[key] = imgui.input_float(get_id(node, key), node[key]);
-				else:
-					imgui.text(str(node[key]));
-
-			elif key_type == "string":
-				imgui.text(key);
-				imgui.same_line();
-				if writable:
-					_, output = imgui.input_text(get_id(node, key), node[key]);
-					node[key] = output;
-				else:
-					imgui.text(node[key]);
-
-			elif key_type == "bool":
-				imgui.text(key);
-				imgui.same_line();
-				if writable:
-					node[key] = imgui.checkbox(get_id(node, key), node[key])[1];
-				else:
-					imgui.text(str(node(key)));
-			
-			elif key_type == "ivec2":
-				imgui.text(key);
-				imgui.same_line();
-				_, node[key] = imgui.input_int2(get_id(node, key), node[key]);
-			
-			elif isinstance(key_type, list):
-				imgui.text(key);
-				imgui.same_line();
-				if imgui.begin_combo(get_id(node, key), str(node[key])):
-					for value in key_type:
-						selected = value == node[key];
-						if imgui.selectable(value, selected)[0]:
-							node[key] = value;
-						if selected:
-							imgui.set_item_default_focus();	
-					imgui.end_combo();
-
-			elif "*" in key_type:
-				imgui.text(key);
-				imgui.same_line();
-				if writable:
-					_, node[key] = imgui.input_text(get_id(node, key), node[key]);
-					imgui.same_line();
-					ident = get_id(node, key);
-					if imgui.button(f"...{ident}"):
-						FileExplorer(ident, document.parent, key_type);
-					if FileExplorer.is_active(ident):
-						FileExplorer.render();
-						ready, result = FileExplorer.harvest();
-						node[key] = str(result) if ready else node[key];
-				else:
-					imgui.text(node[key]);
-
-			elif key_type in asset_types:
-				Preview.render(key_type, node[key]);
-				imgui.text(key);
-				imgui.same_line();
-
-				if key_type == "sprite":
-					if writable:
-						_, node[key] = imgui.input_text(get_id(node, key), node[key]);
-						imgui.same_line();
-						ident = get_id(node, key);
-						if imgui.button(f"...{ident}"):
-							SpriteExplorer(ident);
-						if SpriteExplorer.is_active(ident):
-							SpriteExplorer.render();
-							ready, result = SpriteExplorer.harvest();
-							node[key] = result if ready else node[key];
-					else:
-						imgui.text(node[key]);
-				else:
-					if imgui.begin_combo(get_id(node, key), str(node[key])):
-						assets = asset_docs[key_type].entries;
-						for asset in assets:
-							selected = asset["name"] == node[key];
-							if imgui.selectable(asset["name"], selected)[0]:
-								node[key] = asset["name"];
-							if selected:
-								imgui.set_item_default_focus();
-						imgui.end_combo();
-				
-			elif isinstance(key_type, dict):
-				if imgui.tree_node(key):
-					doc.schema.push(key);
-					DocumentRenderer.__render(doc, node[key]);
-					doc.schema.pop();
-					imgui.tree_pop();
-			
-			else:
-				imgui.text(f"[UNSUPPORTED TYPE \"{key_type}\"]");
+class DocumentRenderer:
+	_search_term = "";
+	_topmost_id = None;
 	
-	def render(doc):
-		global search_term;
-		_, search_term = imgui.input_text("Search", search_term);
+	def _render_node(title, T, node, identifier):
+		identifier = str(identifier)+title;
 
-		idx = 0;
-		while idx < len(doc.entries):
-			node = doc.entries[idx];
-			if len(search_term) > 0 and search_term not in node['name']:
-				idx += 1;
-				continue;
-			node_open = imgui.tree_node(f"{get_name(node)} {get_number(node)}####{str(id(node))}");
-		
-			delete_popup_id = f"delete_popup####{id(node)}";
-			popup_statuses[delete_popup_id] = False;
-			imgui.push_id(delete_popup_id);
-
-			if imgui.begin_popup_context_item():	
-				if imgui.menu_item_simple("Delete##init"):
-					popup_statuses[delete_popup_id] = True;
-					imgui.close_current_popup();
-				if imgui.menu_item_simple("Duplicate"):
-					doc.duplicate_entry(idx);
-					imgui.close_current_popup();
-				imgui.end_popup();
-			
-			if popup_statuses[delete_popup_id]:
-				imgui.open_popup(delete_popup_id);
-				popup_statuses[delete_popup_id] = False;
-
-			delete_node = False;
-			if imgui.begin_popup(delete_popup_id):
-				imgui.text(f"Delete {get_name(node)}?");
-				if imgui.button("Cancel"):
-					imgui.close_current_popup();
-				imgui.same_line();
-				if imgui.button("Delete##confirm"):
-					delete_node = True;
-					imgui.close_current_popup();
-				imgui.end_popup();
-
-			imgui.pop_id();
-
-			if node_open:
-				DocumentRenderer.__render(doc, node);
+		if isinstance(T, ee_types.Object):
+			imgui.push_id(identifier);
+			if imgui.tree_node(title):
+				if AssetManager.active_document.type == "sprite":
+					Preview.render("sprite", node["name"]);
+				for e in T.elements:
+					if e.name in node:
+						if not e.get_attribute("read-only"):
+							node[e.name] = DocumentRenderer._render_node(e.name, e.T, node[e.name], id(node));
 				imgui.tree_pop();
+			imgui.pop_id();
+			DocumentRenderer._topmost_id = identifier;
+			return node;
+		
+		elif isinstance(T, ee_types.List):
+			imgui.push_id(identifier);
+			if imgui.tree_node(title):
+				for i in range(len(node)):
+					imgui.push_id(i);
+					node[i] = DocumentRenderer._render_node(f"{title}[{i}]", T.T, node[i], id(node));
+					imgui.pop_id();
+				imgui.tree_pop();
+				if imgui.button("+"):
+					node.append(T.T.prototype());
+			imgui.pop_id();
+			return node;
+		
+		elif isinstance(T, ee_types.Asset):
+			if T.name in AssetManager.types():
+				Preview.render(T.name, node);
 
-			if delete_node:
+				imgui.text(title);
+				imgui.same_line();
+				
+				match T.name:
+					case "sprite":
+						_, result = imgui.input_text(f"##{identifier}", node);
+						imgui.same_line();
+						if imgui.button(f"...##{identifier}"):
+							SpriteExplorer(identifier);
+						if SpriteExplorer.is_active(identifier):
+							SpriteExplorer.render();
+							ready, output = SpriteExplorer.harvest();
+							result = output if ready else result;
+						return result;
+					case _:
+						result = node;
+						if imgui.begin_combo(f"##{identifier}", node):
+							assets = AssetManager.get_assets(T.name);
+							for asset in assets:
+								selected = result == asset["name"];
+								if imgui.selectable(asset["name"], selected)[0]:
+									result = asset["name"];
+								if selected:
+									imgui.set_item_default_focus();
+							imgui.end_combo();
+						return result;
+			else:
+				imgui.text(title);
+				imgui.same_line();
+				_, result = imgui.input_text(f"##{identifier}", str(node));
+				return result;
+		
+		elif isinstance(T, ee_types.File):
+			if T.pattern == "*.png":
+				Preview.render("sprite", node);
+			
+			imgui.text(title);
+			imgui.same_line();
+
+			_, result = imgui.input_text(f"##{identifier}", str(node));
+			imgui.same_line();
+			if imgui.button(f"...##{identifier}"):
+				FileExplorer(identifier, AssetManager.active_document.directory, T.pattern);
+			if FileExplorer.is_active(identifier):
+				FileExplorer.render();
+				ready, output = FileExplorer.harvest();
+				result = output if ready else result;
+			return result;
+
+		elif isinstance(T, ee_types.Enum):
+			imgui.text(title);
+			imgui.same_line();
+
+			result = node;
+			if imgui.begin_combo(f"##{identifier}", result):
+				for item in T.values:
+					selected = result == item;
+					if imgui.selectable(item, selected)[0]:
+						result = item;
+					if selected:
+						imgui.set_item_default_focus();	
+				imgui.end_combo();
+			return result;
+
+		elif isinstance(T, ee_types.Primitive):
+			imgui.text(title);
+			imgui.same_line();
+
+			match type(T):
+				case ee_types.Int:
+					_, result = imgui.input_int(f"##{identifier}", int(node));
+					return result;
+				case ee_types.Float:
+					_, result = imgui.input_float(f"##{identifier}", float(node));
+					return result;
+				case ee_types.Bool:
+					return imgui.checkbox(f"##{identifier}", bool(node))[1];
+				case ee_types.String:
+					_, result = imgui.input_text(f"##{identifier}", str(node));
+					return result;
+
+	def _context_popup(doc : AssetDocument, idx):
+		if imgui.begin_popup_context_item(DocumentRenderer._topmost_id):
+			if imgui.menu_item_simple("Delete"):
 				doc.delete_entry(idx);
-				idx -= 1;
-			idx += 1;
+			if imgui.menu_item_simple("Duplicate"):
+				doc.duplicate_entry(idx);
+			imgui.end_popup();
+	
+	def render(doc : AssetDocument):
+		_, DocumentRenderer._search_term = imgui.input_text("Search", DocumentRenderer._search_term);
+		subset = list(filter(lambda e: len(DocumentRenderer._search_term) == 0 or DocumentRenderer._search_term in e["name"], doc.instances));
+
+		for (idx, entry) in enumerate(doc.instances):
+			if entry in subset:
+				root = doc.typist.root();
+				name = DocumentHelper.get_name(doc, idx);
+				number = DocumentHelper.get_number(doc, idx);
+				DocumentRenderer._render_node(f"{name} {number}####{id(entry)}", root.T, entry, id(entry));
+				DocumentRenderer._context_popup(doc, idx);
 
 
 #########################################################
-## PROP VIEWER
+## Decoration Viewer
 
-class PropViewer:
+class DecorationViewer:
 	_ = None;
 
 	def __init__(self):
-		if PropViewer._ != None:
+		if DecorationViewer._ != None:
 			return None;
-		PropViewer._ = self;
+		DecorationViewer._ = self;
 
 		self.canvas = Canvas(240, 128);
 		self.size = (640, 480);
@@ -971,7 +527,7 @@ class PropViewer:
 		self.window_flags = foldl(lambda a, b : a | b, 0, window_flag_list);
 		self.open = True;
 
-		self.props = list(filter(lambda i: i["type"] == "prop", asset_docs["item"].entries));
+		self.props = list(filter(lambda x: x["type"] == "prop", AssetManager.get_assets("item")));
 		self.parent_prop = self.props[0];
 		self.child_prop = self.parent_prop;
 
@@ -979,23 +535,23 @@ class PropViewer:
 		shape = prop["prop_data"]["shape"];
 		tlx = x - (shape[0] * 16) // 2;
 		tly = y - (shape[1] * 16);
-		self.canvas.draw_flags = DrawFlags(0);
+		self.canvas.draw_flags = Canvas.DrawFlags(0);
 		for sy in range(shape[1]):
 			for sx in range(shape[0]):
-				self.canvas.draw_rect(tlx + sx * 16, tly + sy * 16, 16, 16, (255, 0, 0));
+				self.canvas.draw_rect_old(tlx + sx * 16, tly + sy * 16, 16, 16, (255, 0, 0));
 
-		self.canvas.draw_flags = DrawFlags.CENTER_X | DrawFlags.BOTTOM;
+		self.canvas.draw_flags = Canvas.DrawFlags.CENTER_X | Canvas.DrawFlags.BOTTOM;
 		sprite = preview_bank.get("sprite", prop["sprite"]);
 		self.canvas.draw_image(x, y, sprite.frame_images[0]);
 		
 	def render():
-		if PropViewer._ == None:
+		if DecorationViewer._ == None:
 			return;
-		self = PropViewer._;
+		self = DecorationViewer._;
 
 		if self.open:
 			imgui.set_next_window_size(self.size);
-			_, self.open = imgui.begin(f"Prop Viewer", self.open, flags=self.window_flags);
+			_, self.open = imgui.begin(f"Decoration Viewer", self.open, flags=self.window_flags);
 
 			self.canvas.clear((128, 128, 128));
 			draw_x = self.canvas.width/2;
@@ -1035,7 +591,7 @@ class PropViewer:
 			imgui.end();
 		
 		if not self.open:
-			PropViewer._ = None;
+			DecorationViewer._ = None;
 
 
 #########################################################
@@ -1059,7 +615,7 @@ class AnimationViewer:
 		self.window_flags = foldl(lambda a, b : a | b, 0, window_flag_list);
 		self.open = True;
 
-		self.sprites = asset_docs["sprite"].entries;
+		self.sprites = AssetManager.get_assets("sprite");
 		self.sprite_idx = 0;
 		self.frame = 0;
 		
@@ -1082,10 +638,10 @@ class AnimationViewer:
 			self.canvas.clear((128, 128, 128));
 			draw_x = self.canvas.width/2;
 			draw_y = self.canvas.height/2;
-			self.canvas.draw_flags = DrawFlags.CENTER_X | DrawFlags.CENTER_Y;
+			self.canvas.draw_flags = Canvas.DrawFlags.CENTER_X | Canvas.DrawFlags.CENTER_Y;
 			self.canvas.draw_image(draw_x, draw_y, preview.frame_images[self.frame]);
 			if self.show_AABB:
-				self.canvas.draw_rect(draw_x, draw_y, preview.width, preview.height/preview.frame_count, (255, 0, 0));
+				self.canvas.draw_rect_old(draw_x, draw_y, preview.width, preview.height/preview.frame_count, (255, 0, 0));
 			self.canvas.render(self.scale);
 
 			if preview.frame_count > 1:	
@@ -1102,7 +658,7 @@ class AnimationViewer:
 				else:
 					_, self.frame = imgui.slider_int("Frame", self.frame, 0, preview.frame_count-1);
 			
-			show_AABB_changed, self.show_AABB = imgui.checkbox("Show AABB", self.show_AABB);
+			_, self.show_AABB = imgui.checkbox("Show AABB", self.show_AABB);
 
 			if imgui.begin_combo(f"Sprite", sprite["name"]):
 				for (idx, entry) in enumerate(self.sprites):
@@ -1142,7 +698,7 @@ class ThemeEditor:
 
 		self.grid = False;
 
-		self.themes = asset_docs["theme"].entries;
+		self.themes = AssetManager.get_assets("theme");
 		self.theme = self.themes[0];
 
 		self.wall_canvas = self.wall_canvas = Canvas(240, 96);
@@ -1181,6 +737,9 @@ class ThemeEditor:
 			elif self.floor_canvas.height != 224:
 				self.floor_canvas = Canvas(240, 224);
 			
+			if self.theme["tile_wall"] or self.theme["tile_floor"]:
+				_, self.grid = imgui.checkbox("Show grid", self.grid);
+			
 			if self.theme['tile_wall']:
 				wall_len = len(self.theme["wall_map"]);
 				deviation = (15 * 6) - wall_len;
@@ -1200,9 +759,9 @@ class ThemeEditor:
 						self.wall_canvas.draw_image(x * 16, y * 16, tile.frame_images[tile_frame]);
 				if(self.grid):
 					for y in range(1, 6):
-						self.wall_canvas.draw_hline(y * 16, (255, 255, 255));
+						self.wall_canvas.draw_line(0, y*16, self.wall_canvas.width-1, y*16, (255, 255, 255));
 					for x in range(1, 15):
-						self.wall_canvas.draw_vline(x * 16, (255, 255, 255));
+						self.wall_canvas.draw_line(x*16, 0, x*16, self.wall_canvas.height-1, (255, 255, 255));
 
 				mouse_pos = imgui_io.mouse_pos;
 				brush_pos = mouse_pos - canvas_pos;
@@ -1211,15 +770,13 @@ class ThemeEditor:
 					if imgui.is_mouse_down(0):
 						idx = self.wall_cursor[1] * 15 + self.wall_cursor[0];
 						self.theme["wall_map"][idx] = self.wall_brush;
-					self.wall_canvas.draw_rect(self.wall_cursor[0] * 16, self.wall_cursor[1] * 16, 16, 16, (255, 0, 0));
+					self.wall_canvas.draw_rect_old(self.wall_cursor[0] * 16, self.wall_cursor[1] * 16, 16, 16, (255, 0, 0));
 				
 				window_rect = self.theme['window_rect']
 				if len(window_rect) == 4:
-					self.wall_canvas.draw_rect(window_rect[0], window_rect[1], window_rect[2], window_rect[3], (0, 0, 255));
+					self.wall_canvas.draw_rect_old(window_rect[0], window_rect[1], window_rect[2], window_rect[3], (0, 0, 255));
 
 				self.wall_canvas.render(1);
-				imgui.same_line();
-				_, self.grid = imgui.checkbox("Show grid", self.grid);	
 
 				wall_tiles = preview_bank.get("sprite", self.theme["wall_tiles"]);
 				per_line = 0;
@@ -1241,7 +798,7 @@ class ThemeEditor:
 
 				window_rect = self.theme['window_rect']
 				if len(window_rect) == 4:
-					self.wall_canvas.draw_rect(window_rect[0], window_rect[1], window_rect[2], window_rect[3], (0, 0, 255));
+					self.wall_canvas.draw_rect_old(window_rect[0], window_rect[1], window_rect[2], window_rect[3], (0, 0, 255));
 				
 				self.wall_canvas.render(1);
 			
@@ -1264,9 +821,9 @@ class ThemeEditor:
 						self.floor_canvas.draw_image(x * 16, y * 16, tile.frame_images[tile_frame]);
 				if(self.grid):
 					for y in range(1, 14):
-						self.floor_canvas.draw_hline(y * 16, (255, 255, 255));
+						self.floor_canvas.draw_line(0, y*16, self.floor_canvas.width-1, y*16, (255, 255, 255));
 					for x in range(1, 15):
-						self.floor_canvas.draw_vline(x * 16, (255, 255, 255));
+						self.floor_canvas.draw_line(x*16, 0, x*16, self.floor_canvas.height-1, (255, 255, 255));
 				
 				mouse_pos = imgui_io.mouse_pos;
 				brush_pos = mouse_pos - canvas_pos;
@@ -1275,7 +832,7 @@ class ThemeEditor:
 					if imgui.is_mouse_down(0):
 						idx = self.floor_cursor[1] * 15 + self.floor_cursor[0];
 						self.theme["floor_map"][idx] = self.floor_brush;
-					self.floor_canvas.draw_rect(self.floor_cursor[0] * 16, self.floor_cursor[1] * 16, 16, 16, (255, 0, 0));
+					self.floor_canvas.draw_rect_old(self.floor_cursor[0] * 16, self.floor_cursor[1] * 16, 16, 16, (255, 0, 0));
 
 				self.floor_canvas.render(1);
 
@@ -1340,7 +897,7 @@ class Mesh2DEditor:
 		self.last_edge_closed = True;
 		self.last_click = imgui.ImVec2(-1, -1);
 	
-		self.mesh_pool = asset_docs["mesh2d"].entries;
+		self.mesh_pool = AssetManager.get_assets("mesh2d");
 		self.mesh = self.mesh_pool[0] if len(self.mesh_pool) > 0 else None;
 		if(not self.mesh is None):
 			self.open_mesh(self.mesh);
@@ -1524,7 +1081,7 @@ class Mesh2DEditor:
 				for y in range(0, self.canvas.height, self.grid_dist):
 					for x in range(0, self.canvas.width, self.grid_dist):
 						self.canvas.draw_pixel(x, y, (128, 128, 128));
-				self.canvas.draw_rect(0, 0, self.canvas.width, self.canvas.height, (128, 128, 128));
+				self.canvas.draw_rect_old(0, 0, self.canvas.width, self.canvas.height, (128, 128, 128));
 			
 			for [v0, v1] in self.polyline:
 				self.canvas.draw_line(v0.x, v0.y, v1.x, v1.y, (255, 255, 255));
@@ -1614,7 +1171,7 @@ class ItemReformer:
 		self.window_flags = foldl(lambda a, b : a | b, 0, window_flag_list);
 		self.open = True;
 		
-		self.items = asset_docs["item"].entries;
+		self.items = AssetManager.get_assets("item");
 		self.reforms = [
 			ItemReform (
 				"Food Prices",
@@ -1678,6 +1235,94 @@ class ItemReformer:
 
 
 #########################################################
+## DIALOGUE EDITOR
+
+class DialogueEditor:
+	_ = None;
+
+	def __init__(self):
+		if DialogueEditor._ != None:
+			return None;
+		DialogueEditor._ = self;
+
+		self.size = (1000, 600);
+		window_flag_list = [
+			imgui.WindowFlags_.no_saved_settings,
+			imgui.WindowFlags_.no_collapse,
+		];
+		self.window_flags = foldl(lambda a, b : a | b, 0, window_flag_list);
+		self.open = True;
+		
+		self.nodes = AssetManager.get_assets("dialogue");
+		self.node = None;
+	
+		self.trash = [];
+	
+	def node_selector(self):
+		if imgui.begin_combo(f"Dialogue", self.node["name"] if not self.node is None else "None"):
+			for node in self.nodes:
+				selected = node == self.node;
+				if imgui.selectable(node["name"], selected)[0]:
+					self.node = node;
+				if selected:
+					imgui.set_item_default_focus();
+			imgui.end_combo();
+
+	def render():
+		if DialogueEditor._ == None:
+			return;
+		self = DialogueEditor._;
+
+		if self.open:
+			for key, idx in self.trash:
+				del self.node[key][idx];
+			self.trash = [];
+
+			imgui.set_next_window_size(self.size);
+			_, self.open = imgui.begin(f"Dialogue Editor", self.open, flags=self.window_flags);
+
+			self.node_selector();
+
+			if self.node != None:
+				if imgui.collapsing_header("Lines"):
+					for idx in range(len(self.node["lines"])):
+						_, self.node["lines"][idx] = imgui.input_text(str(idx), self.node["lines"][idx]);
+						imgui.same_line();
+						if imgui.button(f"Delete##line{idx}"):
+							self.trash.append(("lines", idx));
+					if imgui.button("New##line"):
+						self.node["lines"].append("Hello, world!");
+
+				if imgui.collapsing_header("Edges"):
+					for (idx, edge) in enumerate(self.node["edges"]):
+						imgui.push_id(idx);
+						if imgui.tree_node(f"{edge["text"]}####{idx}"):
+							_, edge["text"] = imgui.input_text("Text", edge["text"]);
+							if imgui.begin_combo("Node", edge["node"]):
+								for node in self.nodes:
+									selected = node["name"] == edge["node"];
+									if imgui.selectable(node["name"], selected)[0]:
+										edge["node"] = node["name"];
+									if selected:
+										imgui.set_item_default_focus();
+								imgui.end_combo();
+							_, edge["proc"] = imgui.input_text("Proc", edge["proc"]);
+							imgui.tree_pop();
+						imgui.pop_id();
+						if imgui.button(f"Delete##edge{idx}"):
+							self.trash.append(("edges", idx));
+					if imgui.button("New##edge"):
+						new = AssetManager.get_document("dialogue").type_helper.prototype("/edges", True);
+						self.node["edges"].append(new);
+
+			self.size = imgui.get_window_size();
+			imgui.end();
+		
+		if not self.open:
+			DialogueEditor._ = None;
+
+
+#########################################################
 ## EDITOR GUI
 
 splash_img = Image.open("editor/splash.png");
@@ -1701,21 +1346,6 @@ splash_flag_list = [
 ];
 splash_flags = foldl(lambda a, b : a | b, 0, splash_flag_list);
 
-input_states = {};
-
-def track_inputs():
-	for key in range(glfw.KEY_SPACE, glfw.KEY_LAST+1):
-		if not key in input_states:
-			input_states[key] = [glfw.get_key(handle, key), False];
-		else:
-			input_states[key] = [glfw.get_key(handle, key), input_states[key][0]];
-
-def is_held(key):
-	return input_states[key][0];
-
-def is_pressed(key):
-	return input_states[key][0] and not input_states[key][1];
-
 while not glfw.window_should_close(handle):
 	time_last = time;
 	time = glfw.get_time();
@@ -1724,12 +1354,15 @@ while not glfw.window_should_close(handle):
 	glfw.poll_events();
 	impl.process_inputs();
 
-	track_inputs();
+	InputManager.update();
 
-	if is_held(glfw.KEY_LEFT_SUPER) and is_pressed(glfw.KEY_S):
-		for doc in asset_docs.values():
-			print(f"Saving {doc.name}!");
-			doc.save();
+	if InputManager.is_held(glfw.KEY_LEFT_SUPER) and InputManager.is_pressed(glfw.KEY_S):
+		for document in AssetManager.documents:
+			print(f"Saving {document.path}!");
+			document.save();
+	
+	if AssetManager.active_document != None:
+		AssetManager.active_document.refresh();
 
 	glEnable(GL_PROGRAM_POINT_SIZE);
 	glClearColor(0, 0, 0, 1);
@@ -1738,43 +1371,40 @@ while not glfw.window_should_close(handle):
 	imgui.new_frame();
 
 	imgui.set_next_window_pos((0, 0));
-	imgui.set_next_window_size((window_width, window_height));
-	imgui.begin("Editor", flags=window_flags | (splash_flags if document == None else 0));
+	imgui.begin("Editor", flags=window_flags | (splash_flags if AssetManager.active_document == None else 0));
 
 	if imgui.begin_main_menu_bar():
 		if imgui.begin_menu("File"):
 			if imgui.begin_menu("Open"):
-				for doc in asset_docs.values():
-					if imgui.menu_item_simple(str(doc.path), selected = document != None and doc.name == document.name):
-						document = doc;
+				for document in AssetManager.documents:
+					selected = document == AssetManager.active_document;
+					if imgui.menu_item_simple(str(document.path), selected = selected):
+						AssetManager.active_document = document;
 				imgui.end_menu();
 			if imgui.menu_item_simple("Save"):
-				for doc in asset_docs.values():
-					print(f"Saving {doc.name}!");
-					doc.save();
-			if imgui.menu_item_simple("Close", enabled=document != None):
-				document = None;
+				for document in AssetManager.documents:
+					print(f"Saving {document.path}!");
+					document.save();
+			if imgui.menu_item_simple("Close", enabled=AssetManager.active_document != None):
+				AssetManager.active_document = None;
 			imgui.end_menu();
 
-		if imgui.begin_menu("Assets", enabled=document != None):
-			if imgui.begin_menu("Sort", enabled=document != None):
+		if imgui.begin_menu("Assets", enabled=AssetManager.active_document != None):
+			if imgui.begin_menu("Sort", enabled=AssetManager.active_document != None):
 				if imgui.menu_item_simple("Name"):
-					document.entries.sort(key = lambda n: get_name(n));
+					DocumentHelper.sort_by_name(AssetManager.active_document);
 				if imgui.menu_item_simple("Number"):
-					document.entries.sort(key = lambda n: get_number(n));
+					DocumentHelper.sort_by_number(AssetManager.active_document);
 				if imgui.menu_item_simple("Rank"):
-					all_keys = document.schema.keys();
-					rank_keys = [k for k in all_keys if document.schema.is_ranked(k)];
-					if len(rank_keys) > 0:
-						document.entries.sort(key = lambda n: n[rank_keys[0]]);
+					DocumentHelper.sort_by_rank(AssetManager.active_document);
 				imgui.end_menu();
 			if imgui.menu_item_simple("New"):
-				document.spawn_new_entry();
+				AssetManager.active_document.spawn_entry();
 			imgui.end_menu();
 		
 		if imgui.begin_menu("Tools"):
-			if imgui.menu_item_simple("Prop Viewer"):
-				PropViewer();
+			if imgui.menu_item_simple("Decoration Viewer"):
+				DecorationViewer();
 			if imgui.menu_item_simple("Animation Viewer"):
 				AnimationViewer();
 			if imgui.menu_item_simple("Theme Editor"):
@@ -1783,19 +1413,24 @@ while not glfw.window_should_close(handle):
 				Mesh2DEditor();
 			if imgui.menu_item_simple("Item Reformer"):
 				ItemReformer();	
+			if imgui.menu_item_simple("Dialogue Editor"):
+				DialogueEditor();
+			if imgui.menu_item_simple("Prop Editor"):
+				PropEditor();
+			if imgui.menu_item_simple("Scene Editor"):
+				SceneEditor();
 			imgui.end_menu();
-
 		imgui.end_main_menu_bar();
 	
-	if document != None:
-		document.refresh();
-		DocumentRenderer.render(document);
-	else:
+	if AssetManager.active_document == None:
 		imgui.set_scroll_x(0);
 		imgui.set_scroll_y(0);
 		imgui.image(splash_tex, (splash_img.width, splash_img.height));
-	if PropViewer._ != None:
-		PropViewer.render();
+	else:
+		DocumentRenderer.render(AssetManager.active_document);
+	
+	if DecorationViewer._ != None:
+		DecorationViewer.render();
 	if AnimationViewer._ != None:
 		AnimationViewer.render();
 	if ThemeEditor._ != None:
@@ -1804,8 +1439,15 @@ while not glfw.window_should_close(handle):
 		Mesh2DEditor.render();
 	if ItemReformer._ != None:
 		ItemReformer.render();
+	if DialogueEditor._ != None:
+		DialogueEditor.render();
+	if SceneEditor._ != None:
+		SceneEditor.render();
+	if PropEditor._ != None:
+		PropEditor.render();
 
 	imgui.end();
+
 	imgui.render();
 	impl.render(imgui.get_draw_data());
 	imgui.end_frame();
