@@ -49,6 +49,9 @@ static CAT_datetime target;
 #define GRID_CELL_R (((CAT_LCD_SCREEN_W - (GRID_MARGIN * 2) - (GRID_SPACING * (GRID_COLS-1))) / GRID_COLS) / 2)
 
 #define CELL_GREY RGB8882565(164, 164, 164)
+#define CELL_PLACEHOLDER RGB8882565(64, 64, 64)    // outside this month (faint ring, no number)
+#define CELL_DISABLED    RGB8882565(120, 120, 120) // in-month but outside [earliest..today]
+
 
 bool is_leap_year(int year)
 {
@@ -58,6 +61,16 @@ bool is_leap_year(int year)
 int days_in_month(int year, int month)
 {
 	return month == 2 ? (28 + is_leap_year(year)) : 31 - (month-1) % 7 % 2;
+}
+
+static int weekday_sun0(int year, int month, int day)
+{
+    // Sakamoto's algorithm (Gregorian)
+    static const int t[] = {0,3,2,5,0,3,5,1,4,6,2,4};
+    year -= month < 3; // make Jan/Feb part of previous year for leap-day handling
+    int w = (year + year/4 - year/100 + year/400 + t[month-1] + day) % 7;
+    if (w < 0) w += 7;
+    return w;
 }
 
 static int clamp_date_part(int phase, int year, int month, int day)
