@@ -127,36 +127,56 @@ void calendar_logic()
             target.month = 1;
         }
 
-        // clamp all three parts so target always points to a valid date
+        // keep all three parts valid after month/year changes
         target.year  = clamp_date_part(YEAR,  target.year, target.month, target.day);
         target.month = clamp_date_part(MONTH, target.year, target.month, target.day);
-        target.day   = clamp_date_part(DAY,   target.year, target.month, target.day); // NEW
+        target.day   = clamp_date_part(DAY,   target.year, target.month, target.day);
 
         if(CAT_input_pressed(CAT_BUTTON_DOWN) || CAT_input_pressed(CAT_BUTTON_A))
             section = CELLS;
     }
-    else // CELLS
+    else // --- CELLS ---
     {
         int was = target.day;
         int delta = 0;
 
-        int dim = days_in_month(target.year, target.month);
+        int dim       = days_in_month(target.year, target.month);
         int first_dow = weekday_sun0(target.year, target.month, 1); // 0=Sun..6=Sat
-        int day_index = first_dow + target.day - 1;                 // 0-based cell index within grid
 
+        // compute selectable range for this month
+        int min_day = (target.year == earliest.year && target.month == earliest.month) ? earliest.day : 1;
+        int max_day = (target.year == today.year    && target.month == today.month)    ? today.day    : dim;
+
+        // horizontal moves (will be clamped after)
         if(CAT_input_pulse(CAT_BUTTON_LEFT))  delta -= 1;
         if(CAT_input_pulse(CAT_BUTTON_RIGHT)) delta += 1;
 
+        // UP: if "one week up" would go before the first selectable day, jump to DATE header
         if(CAT_input_pulse(CAT_BUTTON_UP))
         {
-            if(day_index < 7)    // already on first row
-                section = DATE;  // move focus to month header
+            // Going up a week would land at:
+            int candidate = target.day - 7;
+
+            // Also allow the classic behavior when you're visually in the first in-month row
+            int day_index = first_dow + target.day - 1; // 0-based cell index
+            bool in_first_visual_row = (day_index < GRID_COLS);
+
+            if(candidate < min_day || in_first_visual_row)
+            {
+                section = DATE;
+                return; // don’t apply deltas/clamps; we’ve moved focus to the header
+            }
             else
+            {
                 delta -= 7;
+            }
         }
+
+        // DOWN: normal week jump (kept symmetrical; clamp will cap it)
         if(CAT_input_pulse(CAT_BUTTON_DOWN))
             delta += 7;
 
+        // apply movement and clamp to the valid [min_day..max_day] for this month
         target.day += delta;
         target.day = clamp_date_part(DAY, target.year, target.month, target.day);
 
@@ -173,54 +193,65 @@ void calendar_logic()
 
 void render_calendar()
 {
-    // date line + arrows
+    /* ---- declarations up front (C89‑friendly) ---- */
+    int date_width;
+    static const char* DOW[7] = {"S","M","T","W","T","F","S"};
+    int header_y;
+    int first_dow, dim, total, rows;
+    int row, col;
+    int x, y, cell, day;
+    CAT_datetime date;
+    uint16_t colour;
+    bool in_logs_window;
+
+    /* ---- date line + arrows ---- */
     CAT_set_text_scale(2);
     CAT_set_text_colour(CAT_WHITE);
     CAT_set_text_flags(CAT_TEXT_FLAG_CENTER);
     CAT_draw_textf(DATE_X, DATE_Y, "%.2d/%.2d/%.4d", target.month, target.day, target.year);
 
-    int date_width = strlen("##/##/####") * CAT_GLYPH_WIDTH * 2;
+    date_width = (int)strlen("##/##/####") * CAT_GLYPH_WIDTH * 2;
     CAT_draw_arrows(DATE_X, DATE_Y + CAT_GLYPH_HEIGHT, CAT_GLYPH_HEIGHT, date_width + 12, CAT_WHITE);
-    if(section == DATE)
+    if (section == DATE)
         CAT_draw_arrows(DATE_X, DATE_Y + CAT_GLYPH_HEIGHT, CAT_GLYPH_HEIGHT, date_width + 20, CAT_WHITE);
 
-    // day-of-week header (S M T W T F S)
-    static const char* DOW[7] = {"S","M","T","W","T","F","S"};
-    int header_y = GRID_Y - (CAT_GLYPH_HEIGHT + 6);
-    for (int c = 0; c < GRID_COLS; ++c)
+    /* ---- day-of-week header (S M T W T F S) ---- */
+    header_y = GRID_Y - (CAT_GLYPH_HEIGHT / 2 );
+    for (col = 0; col < GRID_COLS; ++col)
     {
-        int hx = GRID_X + ((GRID_CELL_R * 2) + GRID_SPACING) * c + GRID_CELL_R;
-        center_textf(hx, header_y, 1, CAT_WHITE, "%s", DOW[c]);
+        int hx = GRID_X + ((GRID_CELL_R * 2) + GRID_SPACING) * col + GRID_CELL_R;
+        center_textf(hx, header_y, 1, CAT_WHITE, "%s", DOW[col]);
     }
 
-    // calendar math (Sun=0..Sat=6)
-    const int first_dow = weekday_sun0(target.year, target.month, 1);
-    const int dim       = days_in_month(target.year, target.month);
-    const int total     = first_dow + dim;
-    const int rows      = (total + GRID_COLS - 1) / GRID_COLS; // 4..6 rows
+    /* ---- calendar math (Sun=0..Sat=6) ---- */
+    first_dow = weekday_sun0(target.year, target.month, 1);
+    dim       = days_in_month(target.year, target.month);
+    total     = first_dow + dim;
+    rows      = (total + GRID_COLS - 1) / GRID_COLS; /* 4..6 rows */
 
-    for (int row = 0; row < rows; ++row)
+    /* ---- draw cells ---- */
+    for (row = 0; row < rows; ++row)
     {
-        int y = GRID_Y + ((GRID_CELL_R * 2) + GRID_SPACING) * row;
+        y = GRID_Y + ((GRID_CELL_R * 2) + GRID_SPACING) * row;
 
-        for (int col = 0; col < GRID_COLS; ++col)
+        for (col = 0; col < GRID_COLS; ++col)
         {
-            int x = GRID_X + ((GRID_CELL_R * 2) + GRID_SPACING) * col;
-            int cell = row * GRID_COLS + col;
-            int day  = cell - first_dow + 1; // 1..dim for in-month days
+            x    = GRID_X + ((GRID_CELL_R * 2) + GRID_SPACING) * col;
+            cell = row * GRID_COLS + col;
+            day  = cell - first_dow + 1; /* 1..dim for in-month days */
 
             if (day >= 1 && day <= dim)
             {
-                CAT_datetime date = target;
+                date = target;
                 date.day = day;
 
-                bool in_logs_window =
-                    CAT_datecmp(&date, &earliest) >= 0 &&
-                    CAT_datecmp(&date, &today)    <= 0;
+                in_logs_window =
+                    (CAT_datecmp(&date, &earliest) >= 0) &&
+                    (CAT_datecmp(&date, &today)    <= 0);
 
                 if (in_logs_window)
                 {
-                    uint16_t colour = (section == CELLS) ? CAT_WHITE : CELL_GREY;
+                    colour = (section == CELLS) ? CAT_WHITE : CELL_GREY;
 
                     if (day == target.day)
                     {
@@ -236,14 +267,14 @@ void render_calendar()
                 }
                 else
                 {
-                    // in this month, but outside [earliest..today]
+                    /* in this month, but outside [earliest..today] */
                     CAT_circberry(x + GRID_CELL_R, y + GRID_CELL_R, GRID_CELL_R, CELL_DISABLED);
                     center_textf(x + GRID_CELL_R, y + GRID_CELL_R, 1, CELL_DISABLED, "%d", day);
                 }
             }
             else
             {
-                // leading/trailing placeholders (outside this month)
+                /* leading/trailing placeholders (outside this month) */
                 CAT_circberry(x + GRID_CELL_R, y + GRID_CELL_R, GRID_CELL_R, CELL_PLACEHOLDER);
             }
         }
