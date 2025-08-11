@@ -425,16 +425,8 @@ float CAT_AQ_block_score_normalized(CAT_AQ_score_block* block, int aqm)
 		case CAT_AQM_PM2_5: return inv_lerp(CAT_PM2_5_score(block->PM2_5 / 100.0f), 5, 0);
 		case CAT_AQM_NOX: return inv_lerp(CAT_NOX_score(block->NOX), 5, 0);
 		case CAT_AQM_VOC: return inv_lerp(CAT_VOC_score(block->VOC), 5, 0);
-		case CAT_AQM_TEMP:  
-		{ 
-			float badness = CAT_temp_score(block->temp / 1000.0f);
-			return 1.0f - (badness / 5.0f); 
-			}
-		case CAT_AQM_RH: 
-		{
-			float badness = CAT_rh_score(block->rh / 100.0f);
-			return 1.0f - (badness / 5.0f);
-			}
+		case CAT_AQM_TEMP: return inv_lerp(CAT_temp_score(block->temp / 1000.0f), 5, 0);
+		case CAT_AQM_RH : return inv_lerp(CAT_rh_score(block->rh / 100.0f), 5, 0);
 		case CAT_AQM_AGGREGATE: return block->aggregate / 100.0f;
 		default: return 0;
 	}
