@@ -76,7 +76,7 @@ static int weekday_sun0(int year, int month, int day)
 static int get_min_year() { return earliest.year; }
 static int get_max_year() { return today.year; }
 static int get_min_month(int year) { return year == earliest.year ? earliest.month : 1; }
-static int get_max_month(int year) { return year == today.year ? today.month : 1; }
+static int get_max_month(int year) { return year == today.year ? today.month : 12; }
 static int get_min_day(int year, int month) { return (year == earliest.year && month == earliest.month) ? earliest.day : 1; }
 static int get_max_day(int year, int month) { return (year == today.year && month == today.month) ? today.day : days_in_month(year, month); }
 
@@ -97,9 +97,9 @@ void calendar_logic()
     {
 		if
 		(
-			(CAT_input_pressed(CAT_BUTTON_LEFT) && target.month == get_min_month(target.year)) ||
-			(CAT_input_pressed(CAT_BUTTON_RIGHT) && target.month == get_max_month(target.year)) ||
-			CAT_input_pressed(CAT_BUTTON_A) || CAT_input_pressed(CAT_BUTTON_B) || CAT_input_pressed(CAT_BUTTON_DOWN)
+			CAT_input_pressed(CAT_BUTTON_A) ||
+			CAT_input_pressed(CAT_BUTTON_B) ||
+			CAT_input_pressed(CAT_BUTTON_DOWN)
 		)
 		{
 			section = CELLS;
@@ -152,7 +152,7 @@ void calendar_logic()
 		
 		if(delta < min_delta || delta > max_delta)
 		{
-			if((target.day == min_day && target.month != get_min_month(target.year)) || (target.day == max_day && target.month != get_max_month(target.year)))
+			if(target.day == min_day || target.day == max_day)
 			{
 				section = DATE;
 				return;
