@@ -63,7 +63,7 @@ float find_stddev()
 {
 	float mean = 0;
 	for(int i = 0; i < extent; i++)
-		mean =+ values[i];
+		mean += values[i];
 	mean /= extent;
 
 	float sum = 0;
@@ -74,7 +74,7 @@ float find_stddev()
 	return sqrt(sum);
 }
 
-int find_peak_from_trough(int trough_idx, unsigned int dip_threshold)
+int find_peak_before_trough(int trough_idx, unsigned int dip_threshold)
 {
 	int16_t trough_value = values[trough_idx];
 
@@ -104,7 +104,7 @@ int find_peak_from_trough(int trough_idx, unsigned int dip_threshold)
 	return peak_idx;
 }
 
-int find_trough_from_peak(int peak_idx, float spike_threshold)
+int find_trough_after_peak(int peak_idx, float spike_threshold)
 {
 	int16_t peak_value = values[peak_idx];
 
@@ -114,7 +114,7 @@ int find_trough_from_peak(int peak_idx, float spike_threshold)
 	for(int i = peak_idx+1; i < extent; i++)
 	{
 		int16_t value = values[i];
-		int diff = value - values[i+1];
+		int diff = values[i+1] - value;
 
 		if(diff <= 0)
 		{
@@ -147,13 +147,13 @@ void CAT_monitor_ACH_auto_cursors()
 
 	if(view == CAT_MONITOR_GRAPH_VIEW_CO2)
 	{	
-		start = find_peak_from_trough(min_idx, thresh);
+		start = find_peak_before_trough(min_idx, thresh);
 		end = min_idx;
 	}
 	else
 	{
 		start = max_idx;
-		end = find_trough_from_peak(max_idx, thresh);
+		end = find_trough_after_peak(max_idx, thresh);
 	}
 }
 

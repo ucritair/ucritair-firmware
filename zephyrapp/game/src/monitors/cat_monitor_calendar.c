@@ -99,7 +99,7 @@ void calendar_logic()
 		(
 			(CAT_input_pressed(CAT_BUTTON_LEFT) && target.month == get_min_month(target.year)) ||
 			(CAT_input_pressed(CAT_BUTTON_RIGHT) && target.month == get_max_month(target.year)) ||
-			CAT_input_pressed(CAT_BUTTON_A) || CAT_input_pressed(CAT_BUTTON_B)
+			CAT_input_pressed(CAT_BUTTON_A) || CAT_input_pressed(CAT_BUTTON_B) || CAT_input_pressed(CAT_BUTTON_DOWN)
 		)
 		{
 			section = CELLS;
