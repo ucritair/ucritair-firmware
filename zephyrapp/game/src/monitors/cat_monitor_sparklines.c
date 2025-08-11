@@ -41,9 +41,8 @@ void CAT_monitor_render_sparklines()
 	float last_score = 0;
 	for(int i = 0; i < 7; i++)
 	{
-		CAT_AQ_score_block block;
-		CAT_AQ_read_scores(i, &block);
-		float score = CAT_AQ_block_score_normalized(&block, view);
+		CAT_AQ_score_block* block = CAT_AQ_score_buffer_get(i);
+		float score = CAT_AQ_block_score_normalized(block, view);
 		if(fabs(score) <= __FLT_EPSILON__)
 			score = 0;
 		samples[i] = score;

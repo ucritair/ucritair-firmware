@@ -93,17 +93,12 @@ static int clamp_date_part(int phase, int year, int month, int day)
 
 void calendar_logic()
 {
-    if(CAT_input_pressed(CAT_BUTTON_B))
-        page = GATE;
-
     if(section == DATE)
     {
 		if
 		(
 			(CAT_input_pressed(CAT_BUTTON_LEFT) && target.month == get_min_month(target.year)) ||
 			(CAT_input_pressed(CAT_BUTTON_RIGHT) && target.month == get_max_month(target.year)) ||
-			(CAT_input_pressed(CAT_BUTTON_DOWN) && target.day == get_min_day(target.year, target.month)) ||
-			(CAT_input_pressed(CAT_BUTTON_UP) && target.day == get_max_day(target.year, target.month)) ||
 			CAT_input_pressed(CAT_BUTTON_A) || CAT_input_pressed(CAT_BUTTON_B)
 		)
 		{
@@ -133,6 +128,9 @@ void calendar_logic()
     }
     else // --- CELLS ---
     {
+		if(CAT_input_pressed(CAT_BUTTON_B))
+        	page = GATE;
+
         int was = target.day;
         int delta = 0;
 
@@ -151,10 +149,10 @@ void calendar_logic()
 
 		int min_delta = min_day - target.day;
 		int max_delta = max_day - target.day;
-
+		
 		if(delta < min_delta || delta > max_delta)
 		{
-			if(target.day == min_day || target.day == max_day)
+			if((target.day == min_day && target.month != get_min_month(target.year)) || (target.day == max_day && target.month != get_max_month(target.year)))
 			{
 				section = DATE;
 				return;

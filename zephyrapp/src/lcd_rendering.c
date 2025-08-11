@@ -204,7 +204,7 @@ void lcd_render_diag()
 
 		if(time_since > 5 && CAT_AQ_sensors_initialized())
 		{
-			CAT_AQ_move_scores();
+			CAT_AQ_update_moving_scores();
 			aq_last_moving_score_time = current_second;
 		}
 		
@@ -213,17 +213,10 @@ void lcd_render_diag()
 		{
 			if(is_first_init)
 			{
-				for(int i = 0; i < 6; i++)
-				{
-					volatile CAT_AQ_score_block* block = &aq_score_buffer[i];
-					CAT_AQ_buffer_scores(block);
-					aq_score_head += 1;
-				}
+				CAT_AQ_score_buffer_reset();
 			}
 
-			volatile CAT_AQ_score_block* block = &aq_score_buffer[aq_score_head];
-			CAT_AQ_buffer_scores(block);
-			aq_score_head = (aq_score_head+1) % 7;
+			CAT_AQ_score_buffer_push(CAT_AQ_get_moving_scores());
 			aq_last_buffered_score_time = current_second;
 		}
 
