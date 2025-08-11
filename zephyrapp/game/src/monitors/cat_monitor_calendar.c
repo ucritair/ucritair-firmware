@@ -99,7 +99,8 @@ void calendar_logic()
 		(
 			CAT_input_pressed(CAT_BUTTON_A) ||
 			CAT_input_pressed(CAT_BUTTON_B) ||
-			CAT_input_pressed(CAT_BUTTON_DOWN)
+			CAT_input_pressed(CAT_BUTTON_DOWN) ||
+			CAT_input_pressed(CAT_BUTTON_UP)
 		)
 		{
 			section = CELLS;
@@ -142,22 +143,31 @@ void calendar_logic()
         int max_day = (target.year == today.year    && target.month == today.month)    ? today.day    : dim;
 
         // horizontal moves (will be clamped after)
-        if(CAT_input_pulse(CAT_BUTTON_LEFT))  delta -= 1;
+        if(CAT_input_pulse(CAT_BUTTON_LEFT)) delta -= 1;
         if(CAT_input_pulse(CAT_BUTTON_RIGHT)) delta += 1;
 		if(CAT_input_pulse(CAT_BUTTON_UP)) delta -= 7;
 		if(CAT_input_pulse(CAT_BUTTON_DOWN)) delta += 7;
 
 		int min_delta = min_day - target.day;
 		int max_delta = max_day - target.day;
-		
-		if(delta < min_delta || delta > max_delta)
+
+		if(delta < min_delta)
 		{
-			if(target.day == min_day || target.day == max_day)
+			if(target.day == min_day)
 			{
 				section = DATE;
 				return;
 			}
-			delta = clamp(delta, min_delta, max_delta);
+			delta = min_delta;
+		}
+		if(delta > max_delta)
+		{
+			if(target.day == max_day)
+			{
+				section = DATE;
+				return;
+			}
+			delta = max_delta;
 		}
 
         // apply movement and clamp to the valid [min_day..max_day] for this month
