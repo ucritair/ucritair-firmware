@@ -347,7 +347,7 @@ void store_fallback()
 
 void CAT_AQ_store_live_scores()
 {
-	if(!CAT_AQ_sensors_initialized() && CAT_AQ_logs_initialized())
+	if(!CAT_AQ_sensors_initialized())
 	{
 		store_fallback();
 	}

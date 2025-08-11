@@ -29,6 +29,7 @@ static int16_t value_min;
 static uint16_t value_min_idx;
 static int16_t value_max;
 static uint16_t value_max_idx;
+static int first_valid_idx = -1;
 static int last_valid_idx = -1;
 
 static CAT_datetime start_date = {0};
@@ -105,41 +106,48 @@ static void load_graph_data()
 	int sample_bookmark = seek_bookmark;
 	value_max = INT16_MIN;
 	value_min = INT16_MAX;
+	first_valid_idx = -1;
 	last_valid_idx = -1;
 
 	for(int i = 0; i < sample_count; i++)
 	{
+		values[i] = -1;
+		indices[i] = -1;
+
 		CAT_log_cell cell;
+		int last_sample_bookmark = sample_bookmark;
 		sample_bookmark = CAT_read_log_cell_after_time(sample_bookmark, sample_time, &cell);
 
-		if(sample_bookmark > 0)
+		if(sample_bookmark > 0 && sample_bookmark != last_sample_bookmark)
 		{
-			values[i] = make_value(&cell, view);
-			timestamps[i] = cell.timestamp;
+			int16_t value = make_value(&cell, view);
+			if(value < 0 && view != CAT_MONITOR_GRAPH_VIEW_TEMP)
+				value = -1;
 
+			timestamps[i] = cell.timestamp;
 			CAT_datetime sample_date;
 			CAT_make_datetime(cell.timestamp, &sample_date);
-			if(values[i] != -1 && sample_date.day == start_date.day)
+			
+			if(value != -1 && sample_date.day == start_date.day)
 			{
+				values[i] = value;
 				indices[i] = sample_bookmark;
+				
+				if(first_valid_idx == -1)
+					first_valid_idx = i;
 				last_valid_idx = i;
-			}
 
-			if(values[i] > value_max)
-			{
-				value_max = values[i];
-				value_max_idx = i;
+				if(value > value_max)
+				{
+					value_max = values[i];
+					value_max_idx = i;
+				}
+				if(value < value_min)
+				{
+					value_min = values[i];
+					value_min_idx = i;
+				}
 			}
-			if(values[i] < value_min)
-			{
-				value_min = values[i];
-				value_min_idx = i;
-			}
-		}
-		else
-		{
-			values[i] = -1;
-			indices[i] = -1;
 		}
 
 		sample_time += sample_period;
@@ -181,7 +189,12 @@ int32_t* CAT_monitor_graph_get_indices()
 	return indices;
 }
 
-int CAT_monitor_graph_get_extent()
+int CAT_monitor_graph_get_first_idx()
+{
+	return first_valid_idx;
+}
+
+int CAT_monitor_graph_get_last_idx()
 {
 	return last_valid_idx;
 }
@@ -205,7 +218,7 @@ static int center_y = 0;
 
 void CAT_monitor_graph_set_focus(int idx)
 {
-	focus_idx = clamp(idx, 0, sample_count-1);
+	focus_idx = clamp(idx, first_valid_idx, last_valid_idx);
 }
 
 void CAT_monitor_graph_set_scale(int scale)
@@ -268,7 +281,7 @@ void CAT_monitor_graph_draw(int x, int y, int h)
 		center_y = (value_min + value_max) / 2;
 
 	CAT_CSCLIP_set_rect(window_x, window_y, window_x+sample_count, window_y+window_h);
-	for(int i = 0; i < sample_count-1; i++)
+	for(int i = 0; i < last_valid_idx; i++)
 	{
 		if(values[i] == -1 || values[i+1] == -1)
 			continue;
@@ -280,16 +293,6 @@ void CAT_monitor_graph_draw(int x, int y, int h)
 		if(CAT_CSCLIP(&x0, &y0, &x1, &y1))
 			CAT_lineberry(x0, y0, x1, y1, CAT_GRAPH_FG);
 	}
-}
-
-void CAT_monitor_graph_draw_reticle(int x, uint16_t c)
-{
-	CAT_circberry
-	(
-		window_transform_x(focus_idx),
-		window_transform_y(values[focus_idx]),
-		3, c
-	);
 }
 
 void CAT_monitor_graph_draw_cursor(int x, uint16_t c)
@@ -430,10 +433,10 @@ void CAT_monitor_graph_render()
 
 	if(mode == MODE_VIEWING && CAT_monitor_graph_did_load_succeed())
 	{
-		CAT_monitor_graph_draw_reticle(focus_idx, CAT_RED);
-
 		if(indices[focus_idx] > 0)
 		{
+			CAT_circberry(window_transform_x(focus_idx), window_transform_y(values[focus_idx]), 2, CAT_RED);
+			
 			int16_t cursor_value = values[focus_idx];
 			CAT_datetime cursor_date;
 			CAT_make_datetime(timestamps[focus_idx], &cursor_date);

@@ -13,9 +13,11 @@ static int16_t* values;
 static uint64_t* timestamps;
 static int32_t* indices;
 
+static int first_idx;
+static int last_idx;
 static int start;
 static int end;
-static int extent;
+
 
 void CAT_monitor_ACH_set_view(int _view)
 {
@@ -24,25 +26,29 @@ void CAT_monitor_ACH_set_view(int _view)
 		view = CAT_MONITOR_GRAPH_VIEW_CO2;
 }
 
-void CAT_monitor_ACH_set_data(int16_t* _values, uint64_t* _timestamps, int32_t* _indices, int _extent)
+void CAT_monitor_ACH_set_data(int16_t* _values, uint64_t* _timestamps, int32_t* _indices, int _first_idx, int _last_idx)
 {
 	values = _values;
 	timestamps = _timestamps;
 	indices = _indices;
 
-	start = 0;
-	end = _extent;
-	extent = _extent;
+	first_idx = _first_idx;
+	last_idx = _last_idx;
+	start = _first_idx;
+	end = _last_idx;
 }
 
 void find_range(int* min_idx_out, int* max_idx_out)
 {
 	int min_value = INT16_MAX;
-	int min_idx = 0;
+	int min_idx = first_idx;
 	int max_value = INT16_MIN;
-	int max_idx = 0;
-	for(int i = 0; i < extent; i++)
+	int max_idx = last_idx;
+	for(int i = first_idx; i < last_idx; i++)
 	{
+		if(indices[i] == -1)
+			continue;
+
 		int16_t value = values[i];
 		if(value < min_value)
 		{
@@ -62,14 +68,14 @@ void find_range(int* min_idx_out, int* max_idx_out)
 float find_stddev()
 {
 	float mean = 0;
-	for(int i = 0; i < extent; i++)
+	for(int i = first_idx; i < last_idx; i++)
 		mean += values[i];
-	mean /= extent;
+	mean /= last_idx;
 
 	float sum = 0;
-	for(int i = 0; i < extent; i++)
+	for(int i = 0; i < last_idx; i++)
 		sum += (values[i] - mean) * (values[i] - mean);
-	sum /= (extent-1);
+	sum /= (last_idx-1);
 
 	return sqrt(sum);
 }
@@ -77,12 +83,14 @@ float find_stddev()
 int find_peak_before_trough(int trough_idx, unsigned int dip_threshold)
 {
 	int16_t trough_value = values[trough_idx];
-
 	int16_t peak_idx = trough_idx;
 	int16_t peak_value = values[peak_idx];
 	
-	for(int i = trough_idx-1; i >= 0; i--)
+	for(int i = trough_idx-1; i >= first_idx; i--)
 	{
+		if(indices[i] == -1 || indices[i+1] == -1)
+			continue;
+
 		int16_t value = values[i];
 		int diff = value - values[i+1];
 
@@ -107,12 +115,14 @@ int find_peak_before_trough(int trough_idx, unsigned int dip_threshold)
 int find_trough_after_peak(int peak_idx, float spike_threshold)
 {
 	int16_t peak_value = values[peak_idx];
-
 	int16_t trough_idx = peak_idx;
 	int16_t trough_value = values[trough_idx];
 
-	for(int i = peak_idx+1; i < extent; i++)
+	for(int i = peak_idx+1; i < last_idx; i++)
 	{
+		if(indices[i] == -1 || indices[i+1] == -1)
+			continue;
+
 		int16_t value = values[i];
 		int diff = values[i+1] - value;
 
@@ -159,8 +169,8 @@ void CAT_monitor_ACH_auto_cursors()
 
 void CAT_monitor_ACH_set_cursors(int _start, int _end)
 {
-	start = clamp(_start, 0, extent);
-	end = clamp(_end, start, extent);
+	start = clamp(_start, first_idx, last_idx);
+	end = clamp(_end, start, last_idx);
 }
 
 void CAT_monitor_ACH_get_cursors(int* _start, int* _end)
@@ -173,11 +183,12 @@ float CAT_monitor_ACH_calculate()
 {
 	if(start == end)
 		return -1;
-	if(values[start] == values[end])
-		return -1;
 
 	int16_t max_ppm = values[start];
 	int16_t min_ppm = values[end];
+	if(min_ppm >= max_ppm)
+		return -1;
+	
 	float decay_concentration = min_ppm + (float) (max_ppm - min_ppm) / (float) M_E;
 	
     // Decay time (Assume for simplicity it's between max and baseline times)
@@ -280,7 +291,8 @@ void CAT_monitor_MS_ACH(CAT_machine_signal signal)
 							CAT_monitor_graph_get_values(),
 							CAT_monitor_graph_get_timestamps(),
 							CAT_monitor_graph_get_indices(),
-							CAT_monitor_graph_get_extent()
+							CAT_monitor_graph_get_first_idx(),
+							CAT_monitor_graph_get_last_idx()
 						);
 						CAT_monitor_ACH_auto_cursors();
 						mode = MODE_START;
@@ -292,11 +304,14 @@ void CAT_monitor_MS_ACH(CAT_machine_signal signal)
 
 				case MODE_START:
 				{
-					start = move_cursor(start, 0, extent-1);
+					start = move_cursor(start, first_idx, last_idx);
 					CAT_monitor_ACH_set_cursors(start, end);
 
 					if(CAT_input_pressed(CAT_BUTTON_A))
-						mode = MODE_END;
+					{
+						if(indices[start] != -1)
+							mode = MODE_END;
+					}
 					if(CAT_input_pressed(CAT_BUTTON_B))
 					{
 						if(view == CAT_MONITOR_GRAPH_VIEW_PN_10_0)
@@ -309,16 +324,19 @@ void CAT_monitor_MS_ACH(CAT_machine_signal signal)
 
 				case MODE_END:
 				{
-					end = move_cursor(end, start+1, extent-1);
+					end = move_cursor(end, start+1, last_idx);
 					CAT_monitor_ACH_set_cursors(start, end);
 
 					if(CAT_input_pressed(CAT_BUTTON_A))
 					{
-						ach[view] = CAT_monitor_ACH_calculate();
-						if(view == CAT_MONITOR_GRAPH_VIEW_CO2)
-							switch_and_reload(CAT_MONITOR_GRAPH_VIEW_PN_10_0);
-						else
-							mode = MODE_OUTCOME;
+						if(indices[end] != -1)
+						{
+							ach[view] = CAT_monitor_ACH_calculate();
+							if(view == CAT_MONITOR_GRAPH_VIEW_CO2)
+								switch_and_reload(CAT_MONITOR_GRAPH_VIEW_PN_10_0);
+							else
+								mode = MODE_OUTCOME;
+						}
 					}
 					if(CAT_input_pressed(CAT_BUTTON_B))
 					{
@@ -442,18 +460,24 @@ void CAT_monitor_render_ACH()
 			CAT_monitor_graph_draw_cursor(start, mode == MODE_START ? CAT_GREEN : CAT_GREY);
 			CAT_monitor_graph_draw_cursor(end, mode == MODE_END ? CAT_RED : CAT_GREY);
 
+			int32_t index = indices[cursor];
 			int16_t value = values[cursor];
 			CAT_datetime date;
 			CAT_make_datetime(timestamps[cursor], &date);
 			
 			CAT_set_text_scale(2);
 			CAT_set_text_colour(CAT_WHITE);
-			int cursor_y = CAT_draw_textf(WINDOW_X0, WINDOW_Y1+4, value != -1 ? make_value_string(view, value) : "INVALID", value);
+			int cursor_y = CAT_draw_textf(WINDOW_X0, WINDOW_Y1+4, index != -1 ? make_value_string(view, value) : "INVALID\n", value);
 			CAT_set_text_colour(CAT_WHITE);
 			cursor_y = CAT_draw_textf(WINDOW_X0, cursor_y, "at %.2d:%.2d\n", date.hour, date.minute) + 4;
 
+			if(index != -1)
+			{
+				CAT_set_text_colour(CAT_WHITE);
+				cursor_y = CAT_draw_textf(WINDOW_X0, cursor_y, "Press [A] to confirm %s\n", mode == MODE_START ? "start" : "end");
+			}
 			CAT_set_text_colour(CAT_WHITE);
-			cursor_y = CAT_draw_textf(WINDOW_X0, cursor_y, "Press [A] to confirm %s\nPress[B] to go back", mode == MODE_START ? "start" : "end");
+			cursor_y = CAT_draw_textf(WINDOW_X0, cursor_y, "Press[B] to go back\n");
 		}
 	}
 }

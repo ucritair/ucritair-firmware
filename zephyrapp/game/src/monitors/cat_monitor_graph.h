@@ -26,14 +26,14 @@ bool CAT_monitor_graph_did_load_succeed();
 int16_t* CAT_monitor_graph_get_values();
 uint64_t* CAT_monitor_graph_get_timestamps();
 int32_t* CAT_monitor_graph_get_indices();
-int CAT_monitor_graph_get_extent();
+int CAT_monitor_graph_get_first_idx();
+int CAT_monitor_graph_get_last_idx();
 
 void CAT_monitor_graph_tick();
 
 void CAT_monitor_graph_set_focus(int idx);
 void CAT_monitor_graph_set_scale(int scale);
 void CAT_monitor_graph_draw(int x, int y, int h);
-void CAT_monitor_graph_draw_reticle(int x, uint16_t c);
 void CAT_monitor_graph_draw_cursor(int x, uint16_t c);
 
 void CAT_monitor_graph_enter(CAT_datetime date);
