@@ -38,7 +38,7 @@ static CAT_datetime earliest;
 static CAT_datetime today;
 static CAT_datetime target;
 
-#define DATE_Y 48
+#define DATE_Y 60
 #define DATE_X 120
 
 #define GRID_Y (DATE_Y + 48)
@@ -73,35 +73,21 @@ static int weekday_sun0(int year, int month, int day)
     return w;
 }
 
+static int get_min_year() { return earliest.year; }
+static int get_max_year() { return today.year; }
+static int get_min_month(int year) { return year == earliest.year ? earliest.month : 1; }
+static int get_max_month(int year) { return year == today.year ? today.month : 1; }
+static int get_min_day(int year, int month) { return (year == earliest.year && month == earliest.month) ? earliest.day : 1; }
+static int get_max_day(int year, int month) { return (year == today.year && month == today.month) ? today.day : days_in_month(year, month); }
+
 static int clamp_date_part(int phase, int year, int month, int day)
 {
 	switch(phase)
 	{
-		case YEAR:
-		{
-			return clamp(year, earliest.year, today.year);
-		}
-
-		case MONTH:
-		{
-			int min_month = 1;
-			int max_month = 12;
-			if(year == earliest.year)
-				min_month = earliest.month;
-			if(year == today.year)
-				max_month = today.month;
-			return clamp(month, min_month, max_month);
-		}
-
-		case DAY:
-		{
-			int days = days_in_month(year, month);
-			int min_days = (year == earliest.year && month == earliest.month) ? earliest.day : 1;
-			int max_days = (year == today.year && month == today.month) ? today.day : days;
-			return clamp(day, min_days, max_days);
-		}
+		case YEAR: return clamp(year, get_min_year(), get_max_year());
+		case MONTH: return clamp(month, get_min_month(year), get_max_month(year));
+		case DAY: return clamp(day, get_min_day(year, month), get_max_day(year, month));
 	}
-	
 	return -1;
 }
 
@@ -112,6 +98,19 @@ void calendar_logic()
 
     if(section == DATE)
     {
+		if
+		(
+			(CAT_input_pressed(CAT_BUTTON_LEFT) && target.month == get_min_month(target.year)) ||
+			(CAT_input_pressed(CAT_BUTTON_RIGHT) && target.month == get_max_month(target.year)) ||
+			(CAT_input_pressed(CAT_BUTTON_DOWN) && target.day == get_min_day(target.year, target.month)) ||
+			(CAT_input_pressed(CAT_BUTTON_UP) && target.day == get_max_day(target.year, target.month)) ||
+			CAT_input_pressed(CAT_BUTTON_A) || CAT_input_pressed(CAT_BUTTON_B)
+		)
+		{
+			section = CELLS;
+			return;
+		}
+
         if(CAT_input_pulse(CAT_BUTTON_LEFT))
             target.month -= 1;
         if(CAT_input_pulse(CAT_BUTTON_RIGHT))
@@ -130,10 +129,7 @@ void calendar_logic()
         // keep all three parts valid after month/year changes
         target.year  = clamp_date_part(YEAR,  target.year, target.month, target.day);
         target.month = clamp_date_part(MONTH, target.year, target.month, target.day);
-        target.day   = clamp_date_part(DAY,   target.year, target.month, target.day);
-
-        if(CAT_input_pressed(CAT_BUTTON_DOWN) || CAT_input_pressed(CAT_BUTTON_A))
-            section = CELLS;
+        target.day   = clamp_date_part(DAY,   target.year, target.month, target.day);    
     }
     else // --- CELLS ---
     {
@@ -150,31 +146,21 @@ void calendar_logic()
         // horizontal moves (will be clamped after)
         if(CAT_input_pulse(CAT_BUTTON_LEFT))  delta -= 1;
         if(CAT_input_pulse(CAT_BUTTON_RIGHT)) delta += 1;
+		if(CAT_input_pulse(CAT_BUTTON_UP)) delta -= 7;
+		if(CAT_input_pulse(CAT_BUTTON_DOWN)) delta += 7;
 
-        // UP: if "one week up" would go before the first selectable day, jump to DATE header
-        if(CAT_input_pulse(CAT_BUTTON_UP))
-        {
-            // Going up a week would land at:
-            int candidate = target.day - 7;
+		int min_delta = min_day - target.day;
+		int max_delta = max_day - target.day;
 
-            // Also allow the classic behavior when you're visually in the first in-month row
-            int day_index = first_dow + target.day - 1; // 0-based cell index
-            bool in_first_visual_row = (day_index < GRID_COLS);
-
-            if(candidate < min_day || in_first_visual_row)
-            {
-                section = DATE;
-                return; // don’t apply deltas/clamps; we’ve moved focus to the header
-            }
-            else
-            {
-                delta -= 7;
-            }
-        }
-
-        // DOWN: normal week jump (kept symmetrical; clamp will cap it)
-        if(CAT_input_pulse(CAT_BUTTON_DOWN))
-            delta += 7;
+		if(delta < min_delta || delta > max_delta)
+		{
+			if(target.day == min_day || target.day == max_day)
+			{
+				section = DATE;
+				return;
+			}
+			delta = clamp(delta, min_delta, max_delta);
+		}
 
         // apply movement and clamp to the valid [min_day..max_day] for this month
         target.day += delta;
@@ -210,13 +196,16 @@ void render_calendar()
     CAT_set_text_flags(CAT_TEXT_FLAG_CENTER);
     CAT_draw_textf(DATE_X, DATE_Y, "%.2d/%.2d/%.4d", target.month, target.day, target.year);
 
-    date_width = (int)strlen("##/##/####") * CAT_GLYPH_WIDTH * 2;
+    date_width = (int) strlen("##/##/####") * CAT_GLYPH_WIDTH * 2;
     CAT_draw_arrows(DATE_X, DATE_Y + CAT_GLYPH_HEIGHT, CAT_GLYPH_HEIGHT, date_width + 12, CAT_WHITE);
     if (section == DATE)
+	{
         CAT_draw_arrows(DATE_X, DATE_Y + CAT_GLYPH_HEIGHT, CAT_GLYPH_HEIGHT, date_width + 20, CAT_WHITE);
+		center_textf(120, DATE_Y - CAT_TEXT_LINE_HEIGHT, 1, CAT_WHITE, "<< CHANGE MONTH >>\n");
+	}
 
     /* ---- day-of-week header (S M T W T F S) ---- */
-    header_y = GRID_Y - (CAT_GLYPH_HEIGHT / 2 );
+    header_y = GRID_Y - (CAT_GLYPH_HEIGHT / 2 ) - 4;
     for (col = 0; col < GRID_COLS; ++col)
     {
         int hx = GRID_X + ((GRID_CELL_R * 2) + GRID_SPACING) * col + GRID_CELL_R;
