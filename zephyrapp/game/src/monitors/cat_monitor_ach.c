@@ -488,7 +488,7 @@ void CAT_monitor_render_ACH()
 			cursor_y = CAT_draw_textf(120, cursor_y, "Total: %.2f\n", ach[0] + ach[1]);
 		}
 
-		cursor_y = center_textf(120, cursor_y + 20, 1, CAT_WHITE, "Press [A] to calculate\n");
+		cursor_y = center_textf(120, cursor_y + 20, 1, CAT_WHITE, "Press [A] to return\n");
 	}
 	else if(mode == MODE_INVALID)
 	{
