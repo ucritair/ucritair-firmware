@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <time.h>
 #include "cat_monitor_graph.h"
+#include "cat_time.h"
 
 enum
 {
@@ -26,13 +27,6 @@ static enum
 	DATE
 };
 static int section = CELLS;
-
-enum
-{
-	YEAR,
-	MONTH,
-	DAY
-};
 
 static CAT_datetime earliest;
 static CAT_datetime today;
@@ -51,45 +45,6 @@ static CAT_datetime target;
 #define CELL_GREY RGB8882565(164, 164, 164)
 #define CELL_PLACEHOLDER RGB8882565(64, 64, 64)    // outside this month (faint ring, no number)
 #define CELL_DISABLED    RGB8882565(120, 120, 120) // in-month but outside [earliest..today]
-
-
-bool is_leap_year(int year)
-{
-	return (year % 4) || ((year % 100 == 0) && (year % 400)) ? 0 : 1;
-}
-
-int days_in_month(int year, int month)
-{
-	return month == 2 ? (28 + is_leap_year(year)) : 31 - (month-1) % 7 % 2;
-}
-
-static int weekday_sun0(int year, int month, int day)
-{
-    // Sakamoto's algorithm (Gregorian)
-    static const int t[] = {0,3,2,5,0,3,5,1,4,6,2,4};
-    year -= month < 3; // make Jan/Feb part of previous year for leap-day handling
-    int w = (year + year/4 - year/100 + year/400 + t[month-1] + day) % 7;
-    if (w < 0) w += 7;
-    return w;
-}
-
-static int get_min_year() { return earliest.year; }
-static int get_max_year() { return today.year; }
-static int get_min_month(int year) { return year == earliest.year ? earliest.month : 1; }
-static int get_max_month(int year) { return year == today.year ? today.month : 12; }
-static int get_min_day(int year, int month) { return (year == earliest.year && month == earliest.month) ? earliest.day : 1; }
-static int get_max_day(int year, int month) { return (year == today.year && month == today.month) ? today.day : days_in_month(year, month); }
-
-static int clamp_date_part(int phase, int year, int month, int day)
-{
-	switch(phase)
-	{
-		case YEAR: return clamp(year, get_min_year(), get_max_year());
-		case MONTH: return clamp(month, get_min_month(year), get_max_month(year));
-		case DAY: return clamp(day, get_min_day(year, month), get_max_day(year, month));
-	}
-	return -1;
-}
 
 void calendar_logic()
 {
@@ -123,9 +78,9 @@ void calendar_logic()
         }
 
         // keep all three parts valid after month/year changes
-        target.year  = clamp_date_part(YEAR,  target.year, target.month, target.day);
-        target.month = clamp_date_part(MONTH, target.year, target.month, target.day);
-        target.day   = clamp_date_part(DAY,   target.year, target.month, target.day);    
+        target.year  = CAT_clamp_date_part(CAT_DATE_PART_YEAR,  target.year, target.month, target.day);
+        target.month = CAT_clamp_date_part(CAT_DATE_PART_MONTH, target.year, target.month, target.day);
+        target.day   = CAT_clamp_date_part(CAT_DATE_PART_DAY,   target.year, target.month, target.day);    
     }
     else // --- CELLS ---
     {
@@ -135,8 +90,8 @@ void calendar_logic()
         int was = target.day;
         int delta = 0;
 
-        int dim       = days_in_month(target.year, target.month);
-        int first_dow = weekday_sun0(target.year, target.month, 1); // 0=Sun..6=Sat
+        int dim       = CAT_days_in_month(target.year, target.month);
+        int first_dow = CAT_sakamoto_weekday(target.year, target.month, 1); // 0=Sun..6=Sat
 
         // compute selectable range for this month
         int min_day = (target.year == earliest.year && target.month == earliest.month) ? earliest.day : 1;
@@ -172,7 +127,7 @@ void calendar_logic()
 
         // apply movement and clamp to the valid [min_day..max_day] for this month
         target.day += delta;
-        target.day = clamp_date_part(DAY, target.year, target.month, target.day);
+        target.day = CAT_clamp_date_part(CAT_DATE_PART_DAY, target.year, target.month, target.day);
 
         if(CAT_input_pressed(CAT_BUTTON_A))
         {
@@ -221,8 +176,8 @@ void render_calendar()
     }
 
     /* ---- calendar math (Sun=0..Sat=6) ---- */
-    first_dow = weekday_sun0(target.year, target.month, 1);
-    dim       = days_in_month(target.year, target.month);
+    first_dow = CAT_sakamoto_weekday(target.year, target.month, 1);
+    dim       = CAT_days_in_month(target.year, target.month);
     total     = first_dow + dim;
     rows      = (total + GRID_COLS - 1) / GRID_COLS; /* 4..6 rows */
 

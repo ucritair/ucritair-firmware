@@ -7,6 +7,8 @@
 #include "cat_monitor_graphics_utils.h"
 #include "cat_monitor_graph.h"
 #include "cat_input.h"
+#include "cat_monitor_utils.h"
+#include "cat_time.h"
 
 static int view;
 static int16_t* values;
@@ -17,7 +19,6 @@ static int first_idx;
 static int last_idx;
 static int start;
 static int end;
-
 
 void CAT_monitor_ACH_set_view(int _view)
 {
@@ -224,6 +225,8 @@ float CAT_monitor_ACH_calculate()
 
 enum mode
 {
+	MODE_GATE,
+	MODE_DATE_SELECT,
 	MODE_INIT,
 	MODE_START,
 	MODE_END,
@@ -231,11 +234,20 @@ enum mode
 	MODE_OUTCOME,
 };
 static int mode = MODE_OUTCOME;
-static CAT_datetime today;
+
+static CAT_datetime target;
+static int target_part = CAT_DATE_PART_DAY;
+
 static float ach[2] = {-1, -1};
 static bool should_reload;
 
-void switch_and_reload(int _view)
+void go_to_gate()
+{
+	CAT_monitor_gate_lock();
+	mode = MODE_GATE;
+}
+
+void load_view(int _view)
 {
 	view = _view;
 	should_reload = true;
@@ -263,7 +275,10 @@ void CAT_monitor_MS_ACH(CAT_machine_signal signal)
 		case CAT_MACHINE_SIGNAL_ENTER:
 		{
 			view = CAT_MONITOR_GRAPH_VIEW_PN_10_0;
-			CAT_get_datetime(&today);
+			CAT_get_datetime(&target);
+
+			CAT_monitor_gate_init("ACH Viewer");
+			mode = MODE_GATE;
 		}
 		break;
 
@@ -273,13 +288,47 @@ void CAT_monitor_MS_ACH(CAT_machine_signal signal)
 
 			switch(mode)
 			{
+				case MODE_GATE:
+				{
+					CAT_monitor_gate_logic();
+					if(!CAT_monitor_gate_is_locked())
+					{
+						target_part = CAT_DATE_PART_DAY;
+						mode = MODE_DATE_SELECT;
+					}
+				}
+				break;
+
+				case MODE_DATE_SELECT:
+				{
+					if(CAT_input_pressed(CAT_BUTTON_LEFT))
+						target_part -= 1;
+					if(CAT_input_pressed(CAT_BUTTON_RIGHT))
+						target_part += 1;
+					target_part = wrap(target_part, 3);
+
+					if(CAT_input_pressed(CAT_BUTTON_UP))
+						target.data[target_part] -= 1;
+					if(CAT_input_pressed(CAT_BUTTON_DOWN))
+						target.data[target_part] += 1;
+					target.data[CAT_DATE_PART_YEAR] = CAT_clamp_date_part(CAT_DATE_PART_YEAR, target.year, target.month, target.day);
+					target.data[CAT_DATE_PART_MONTH] = CAT_clamp_date_part(CAT_DATE_PART_MONTH, target.year, target.month, target.day);
+					target.data[CAT_DATE_PART_DAY] = CAT_clamp_date_part(CAT_DATE_PART_DAY, target.year, target.month, target.day);
+
+					if(CAT_input_pressed(CAT_BUTTON_B))
+						go_to_gate();
+					if(CAT_input_pressed(CAT_BUTTON_A))
+						load_view(CAT_MONITOR_GRAPH_VIEW_CO2);
+				}
+				break;
+
 				case MODE_INIT:
 				{
 					if(should_reload)
 					{	
 						CAT_monitor_graph_set_view(view);
 						CAT_monitor_graph_set_sample_count(WINDOW_W);
-						CAT_monitor_graph_load_date(today);
+						CAT_monitor_graph_load_date(target);
 						should_reload = false;
 						break;
 					}
@@ -315,9 +364,9 @@ void CAT_monitor_MS_ACH(CAT_machine_signal signal)
 					if(CAT_input_pressed(CAT_BUTTON_B))
 					{
 						if(view == CAT_MONITOR_GRAPH_VIEW_PN_10_0)
-							switch_and_reload(CAT_MONITOR_GRAPH_VIEW_CO2);
+							load_view(CAT_MONITOR_GRAPH_VIEW_CO2);
 						else
-							mode = MODE_OUTCOME;
+							go_to_gate();
 					}
 				}
 				break;
@@ -333,7 +382,7 @@ void CAT_monitor_MS_ACH(CAT_machine_signal signal)
 						{
 							ach[view] = CAT_monitor_ACH_calculate();
 							if(view == CAT_MONITOR_GRAPH_VIEW_CO2)
-								switch_and_reload(CAT_MONITOR_GRAPH_VIEW_PN_10_0);
+								load_view(CAT_MONITOR_GRAPH_VIEW_PN_10_0);
 							else
 								mode = MODE_OUTCOME;
 						}
@@ -346,23 +395,10 @@ void CAT_monitor_MS_ACH(CAT_machine_signal signal)
 				break;
 
 				case MODE_INVALID:
-				{
-					if(CAT_input_pressed(CAT_BUTTON_A) || CAT_input_pressed(CAT_BUTTON_B))
-						mode = MODE_OUTCOME;
-				}
-				break;
-
 				case MODE_OUTCOME:
 				{
-					if(CAT_input_dismissal())
-						CAT_monitor_dismiss();
-					if(CAT_input_pressed(CAT_BUTTON_LEFT))
-						CAT_monitor_retreat();
-					if(CAT_input_pressed(CAT_BUTTON_RIGHT))
-						CAT_monitor_advance();	
-
-					if(CAT_input_pressed(CAT_BUTTON_A))
-						switch_and_reload(CAT_MONITOR_GRAPH_VIEW_CO2);
+					if(CAT_input_pressed(CAT_BUTTON_A) || CAT_input_pressed(CAT_BUTTON_B))
+						go_to_gate();
 				}
 				break;
 			}
@@ -403,7 +439,29 @@ static char* make_value_string(int view, int16_t value)
 
 void CAT_monitor_render_ACH()
 {	
-	if(mode == MODE_OUTCOME)
+	if(mode == MODE_GATE)
+	{
+		CAT_monitor_gate_render();
+	}
+	else if(mode == MODE_DATE_SELECT)
+	{
+		const char* format = "%.2d %.2d %.4d";
+		int width = strlen(format) * CAT_GLYPH_WIDTH * 2;
+		int cursor_y = center_textf(120, 80, 2, CAT_WHITE, " Select Date:") + 32;
+		cursor_y = center_textf(120, cursor_y, 2, CAT_WHITE, format, target.month, target.day, target.year);
+		
+		int under_offset =
+		target_part == CAT_DATE_PART_YEAR ? CAT_GLYPH_WIDTH*2*6 :
+		target_part == CAT_DATE_PART_MONTH ? 0 :
+		CAT_GLYPH_WIDTH*2*3;
+		int under_x = 120-width/2 + CAT_GLYPH_WIDTH*2*2 + under_offset; 
+		int under_width = 
+		target_part == CAT_DATE_PART_YEAR ? CAT_GLYPH_WIDTH*2*4 :
+		CAT_GLYPH_WIDTH*2*2;
+		
+		CAT_lineberry(under_x, cursor_y-4, under_x + under_width, cursor_y-4, CAT_WHITE);
+	}
+	else if(mode == MODE_OUTCOME)
 	{
 		int cursor_y = center_textf(120, 60, 2, CAT_WHITE, "ACH Viewer");
 		cursor_y = underline(120, cursor_y, 2, CAT_WHITE, "ACH Viewer") + 20;
@@ -450,7 +508,7 @@ void CAT_monitor_render_ACH()
 		CAT_set_text_colour(CAT_WHITE);
 		CAT_draw_textf(12, WINDOW_Y0-14, "%s", get_title_string(view));
 		CAT_set_text_colour(CAT_WHITE);
-		CAT_draw_textf(WINDOW_X1 - 10 * CAT_GLYPH_WIDTH, WINDOW_Y0-14, "%.2d/%.2d/%.4d", today.month, today.day, today.year);
+		CAT_draw_textf(WINDOW_X1 - 10 * CAT_GLYPH_WIDTH, WINDOW_Y0-14, "%.2d/%.2d/%.4d", target.month, target.day, target.year);
 
 		CAT_monitor_graph_draw(WINDOW_X0, WINDOW_Y0, WINDOW_Y1-WINDOW_Y0);
 		if(CAT_monitor_graph_did_load_succeed())
@@ -479,5 +537,34 @@ void CAT_monitor_render_ACH()
 			CAT_set_text_colour(CAT_WHITE);
 			cursor_y = CAT_draw_textf(WINDOW_X0, cursor_y, "Press[B] to go back\n");
 		}
+	}
+	else if(mode == MODE_OUTCOME)
+	{
+		int cursor_y = center_textf(120, 60, 2, CAT_WHITE, "ACH Viewer");
+		cursor_y = underline(120, cursor_y, 2, CAT_WHITE, "ACH Viewer") + 20;
+
+		if(ach[0] != -1)
+		{
+			CAT_set_text_colour(CAT_WHITE);
+			CAT_set_text_flags(CAT_TEXT_FLAG_CENTER);
+			CAT_set_text_scale(2);
+			cursor_y = CAT_draw_textf(120, cursor_y, "ACH: %.2f\n", ach[0]);
+		}
+		if(ach[1] != -1)
+		{
+			CAT_set_text_colour(CAT_WHITE);
+			CAT_set_text_flags(CAT_TEXT_FLAG_CENTER);
+			CAT_set_text_scale(2);
+			cursor_y = CAT_draw_textf(120, cursor_y, "eACH: %.2f\n", ach[1]);
+		}
+		if(ach[0] != -1 && ach[1] != -1)
+		{
+			CAT_set_text_colour(CAT_WHITE);
+			CAT_set_text_flags(CAT_TEXT_FLAG_CENTER);
+			CAT_set_text_scale(2);
+			cursor_y = CAT_draw_textf(120, cursor_y, "Total: %.2f\n", ach[0] + ach[1]);
+		}
+
+		cursor_y = center_textf(120, cursor_y + 20, 1, CAT_WHITE, "Press [A] to calculate\n");
 	}
 }
