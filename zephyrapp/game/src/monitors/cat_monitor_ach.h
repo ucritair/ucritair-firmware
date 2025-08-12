@@ -8,3 +8,5 @@ void CAT_monitor_ACH_auto_cursors();
 void CAT_monitor_ACH_set_cursors(int start, int end);
 void CAT_monitor_ACH_get_cursors(int* start, int* end);
 float CAT_monitor_ACH_calculate();
+
+void CAT_monitor_ACH_enter(CAT_datetime date);

@@ -32,6 +32,8 @@ static CAT_datetime earliest;
 static CAT_datetime today;
 static CAT_datetime target;
 
+static bool should_fast_forward = false;
+
 #define DATE_Y 60
 #define DATE_X 120
 
@@ -280,6 +282,14 @@ void render_gate()
 	}		
 }
 
+void CAT_monitor_calendar_enter(CAT_datetime date)
+{
+	CAT_monitor_graph_enter(date);
+	target = date;
+	should_fast_forward = true;
+	CAT_monitor_seek(CAT_MONITOR_PAGE_CALENDAR);
+}
+
 void CAT_monitor_MS_calendar(CAT_machine_signal signal)
 {
 	switch (signal)
@@ -289,11 +299,19 @@ void CAT_monitor_MS_calendar(CAT_machine_signal signal)
 			CAT_log_cell first;
 			CAT_read_first_calendar_cell(&first);
 			CAT_make_datetime(first.timestamp, &earliest);
-
 			CAT_get_datetime(&today);
-			target = today;
 
-			page = GATE;
+			if(should_fast_forward)
+			{
+				page = GRAPH;
+				should_fast_forward = false;
+			}
+			else
+			{
+				target = today;
+				page = GATE;
+			}
+			
 			section = CELLS;
 		}
 		break;

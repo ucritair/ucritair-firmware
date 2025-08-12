@@ -9,6 +9,7 @@
 #include "cat_input.h"
 #include "cat_monitor_utils.h"
 #include "cat_time.h"
+#include "cat_monitor_calendar.h"
 
 static int view;
 static int16_t* values;
@@ -239,7 +240,16 @@ static CAT_datetime target;
 static int target_part = CAT_DATE_PART_DAY;
 
 static float ach[2] = {-1, -1};
+
 static bool should_reload;
+static bool should_fast_forward = false;
+
+void CAT_monitor_ACH_enter(CAT_datetime date)
+{
+	target = date;
+	should_fast_forward = true;
+	CAT_monitor_seek(CAT_MONITOR_PAGE_ACH);
+}
 
 void go_to_gate()
 {
@@ -252,6 +262,18 @@ void load_view(int _view)
 	view = _view;
 	should_reload = true;
 	mode = MODE_INIT;
+}
+
+void quit()
+{
+	if(should_fast_forward)
+	{
+		CAT_monitor_calendar_enter(target);
+	}		
+	else
+	{
+		go_to_gate();
+	}
 }
 
 int move_cursor(int cursor, int l, int r)
@@ -274,11 +296,18 @@ void CAT_monitor_MS_ACH(CAT_machine_signal signal)
 	{
 		case CAT_MACHINE_SIGNAL_ENTER:
 		{
-			view = CAT_MONITOR_GRAPH_VIEW_PN_10_0;
-			CAT_get_datetime(&target);
-
 			CAT_monitor_gate_init("ACH Viewer");
-			mode = MODE_GATE;
+
+			if(should_fast_forward)
+			{
+				load_view(CAT_MONITOR_GRAPH_VIEW_CO2);
+			}
+			else
+			{
+				CAT_get_datetime(&target);
+				mode = MODE_GATE;
+				view = CAT_MONITOR_GRAPH_VIEW_PN_10_0;
+			}
 		}
 		break;
 
@@ -316,7 +345,7 @@ void CAT_monitor_MS_ACH(CAT_machine_signal signal)
 					target.data[CAT_DATE_PART_DAY] = CAT_clamp_date_part(CAT_DATE_PART_DAY, target.year, target.month, target.day);
 
 					if(CAT_input_pressed(CAT_BUTTON_B))
-						go_to_gate();
+						quit();
 					if(CAT_input_pressed(CAT_BUTTON_A))
 						load_view(CAT_MONITOR_GRAPH_VIEW_CO2);
 				}
@@ -398,7 +427,7 @@ void CAT_monitor_MS_ACH(CAT_machine_signal signal)
 				case MODE_OUTCOME:
 				{
 					if(CAT_input_pressed(CAT_BUTTON_A) || CAT_input_pressed(CAT_BUTTON_B))
-						go_to_gate();
+						quit();				
 				}
 				break;
 			}
@@ -407,7 +436,7 @@ void CAT_monitor_MS_ACH(CAT_machine_signal signal)
 
 		case CAT_MACHINE_SIGNAL_EXIT:
 		{
-
+			should_fast_forward = false;
 		}
 		break;
 	}

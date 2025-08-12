@@ -317,9 +317,10 @@ static bool should_exit = false;
 
 void CAT_monitor_graph_enter(CAT_datetime date)
 {
-	should_exit = false;
+	view = CAT_MONITOR_GRAPH_VIEW_CO2;
 	CAT_monitor_graph_set_sample_count(WINDOW_W);
 	CAT_monitor_graph_load_date(date);
+	should_exit = false;
 }
 
 void CAT_monitor_graph_logic()
@@ -355,6 +356,12 @@ void CAT_monitor_graph_logic()
 					should_exit = true;
 				else
 					CAT_monitor_graph_set_scale(pps-1);
+			}
+			
+			if(view == CAT_MONITOR_GRAPH_VIEW_CO2 || view == CAT_MONITOR_GRAPH_VIEW_PN_10_0)
+			{
+				if(CAT_input_pressed(CAT_BUTTON_SELECT))
+					CAT_monitor_ACH_enter(start_date);
 			}
 		}
 		else
@@ -450,6 +457,12 @@ void CAT_monitor_graph_render()
 
 			CAT_set_text_colour(CAT_WHITE);
 			CAT_draw_textf(window_x, WINDOW_Y1+4+28, "at %.2d:%.2d on %.2d/%.2d/%.4d", cursor_date.hour, cursor_date.minute, cursor_date.month, cursor_date.day, cursor_date.year);
+			
+			if(view == CAT_MONITOR_GRAPH_VIEW_CO2 || view == CAT_MONITOR_GRAPH_VIEW_PN_10_0)
+			{
+				CAT_set_text_colour(CAT_WHITE);
+				CAT_draw_textf(window_x, WINDOW_Y1+4+28+28, "[SELECT] to go to\nACH calculator\n");
+			}
 		}
 		else
 		{
