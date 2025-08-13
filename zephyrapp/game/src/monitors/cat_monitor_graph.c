@@ -224,6 +224,7 @@ void CAT_monitor_graph_set_focus(int idx)
 void CAT_monitor_graph_set_scale(int scale)
 {
 	pps = clamp(scale, 1, 16);
+	CAT_printf("%d <-> %d\n", pps, scale);
 }
 
 static int window_transform_x(int x)
@@ -317,9 +318,10 @@ static bool should_exit = false;
 
 void CAT_monitor_graph_enter(CAT_datetime date)
 {
-	view = CAT_MONITOR_GRAPH_VIEW_CO2;
+	CAT_monitor_graph_set_view(CAT_MONITOR_GRAPH_VIEW_CO2);
 	CAT_monitor_graph_set_sample_count(WINDOW_W);
 	CAT_monitor_graph_load_date(date);
+	CAT_monitor_graph_set_scale(1);
 	should_exit = false;
 }
 

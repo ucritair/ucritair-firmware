@@ -267,12 +267,25 @@ void load_view(int _view)
 void quit()
 {
 	if(should_fast_forward)
-	{
-		CAT_monitor_calendar_enter(target);
-	}		
+		CAT_monitor_calendar_enter(target);	
 	else
-	{
 		go_to_gate();
+}
+
+void back()
+{
+	if(mode == MODE_DATE_SELECT)
+		quit();
+	else if(mode == MODE_START || mode == MODE_END)
+	{
+		if(view == CAT_MONITOR_GRAPH_VIEW_CO2)
+			quit();
+		else
+			load_view(CAT_MONITOR_GRAPH_VIEW_CO2);
+	}
+	else if(mode == MODE_OUTCOME)
+	{
+		load_view(CAT_MONITOR_GRAPH_VIEW_PN_10_0);
 	}
 }
 
@@ -345,7 +358,7 @@ void CAT_monitor_MS_ACH(CAT_machine_signal signal)
 					target.data[CAT_DATE_PART_DAY] = CAT_clamp_date_part(CAT_DATE_PART_DAY, target.year, target.month, target.day);
 
 					if(CAT_input_pressed(CAT_BUTTON_B))
-						quit();
+						back();
 					if(CAT_input_pressed(CAT_BUTTON_A))
 						load_view(CAT_MONITOR_GRAPH_VIEW_CO2);
 				}
@@ -358,6 +371,7 @@ void CAT_monitor_MS_ACH(CAT_machine_signal signal)
 						CAT_monitor_graph_set_view(view);
 						CAT_monitor_graph_set_sample_count(WINDOW_W);
 						CAT_monitor_graph_load_date(target);
+						CAT_monitor_graph_set_scale(1);
 						should_reload = false;
 						break;
 					}
@@ -392,10 +406,7 @@ void CAT_monitor_MS_ACH(CAT_machine_signal signal)
 					}
 					if(CAT_input_pressed(CAT_BUTTON_B))
 					{
-						if(view == CAT_MONITOR_GRAPH_VIEW_PN_10_0)
-							load_view(CAT_MONITOR_GRAPH_VIEW_CO2);
-						else
-							go_to_gate();
+						back();
 					}
 				}
 				break;
@@ -424,9 +435,15 @@ void CAT_monitor_MS_ACH(CAT_machine_signal signal)
 				break;
 
 				case MODE_INVALID:
-				case MODE_OUTCOME:
 				{
 					if(CAT_input_pressed(CAT_BUTTON_A) || CAT_input_pressed(CAT_BUTTON_B))
+						quit();		
+				}
+				case MODE_OUTCOME:
+				{
+					if(CAT_input_pressed(CAT_BUTTON_B))
+						back();
+					if(CAT_input_pressed(CAT_BUTTON_A))
 						quit();				
 				}
 				break;
