@@ -133,3 +133,37 @@ int CAT_ilist_dequeue(CAT_int_list* list)
 	CAT_ilist_delete(list, 0);
 	return item;
 }
+
+int CAT_ilist_sort(CAT_int_list* list)
+{
+	int i = 1;
+	while(i < list->length)
+	{
+		int key = list->data[i];
+		int j = i;
+		while(j > 0 && list->data[j-1] > key)
+		{
+			list->data[j] = list->data[j-1];
+			j -= 1;
+		}
+		list->data[j] = key;
+		i += 1;
+	}
+}
+
+int CAT_ilist_sort_by_proc(CAT_int_list* list, int (*cmp) (int, int))
+{
+	int i = 1;
+	while(i < list->length)
+	{
+		int key = list->data[i];
+		int j = i;
+		while(j > 0 && cmp(list->data[j-1], key) > 1)
+		{
+			list->data[j] = list->data[j-1];
+			j -= 1;
+		}
+		list->data[j] = key;
+		i += 1;
+	}
+}

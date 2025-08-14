@@ -1,0 +1,55 @@
+{
+    "dialogue": {
+        "type": {
+            "name": {
+                "type": "string"
+            },
+            "entries": {
+                "type": [
+                    {
+                        "node": {
+                            "type": "dialogue"
+                        },
+                        "is_active_proc": {
+                            "type": "proc"
+                        },
+                        "weight": {
+                            "type": "int"
+                        }
+                    }
+                ]
+            },
+            "mandatory_node": {
+                "type": "dialogue"
+            },
+            "opener_probability": {
+                "type": "float"
+            }
+        }
+    },
+    "instances": [
+        {
+            "name": "reed",
+            "entries": [],
+            "mandatory_node": "reed_default",
+            "opener_probability": 0.0
+        },
+        {
+            "name": "bird_statue",
+            "entries": [
+                {
+                    "node": "statue_default",
+                    "is_active_proc": "",
+                    "weight": 1
+                },
+                {
+                    "node": "statue_chirp",
+                    "is_active_proc": "",
+                    "weight": 32
+                }
+            ],
+            "mandatory_node": "reed_default",
+            "opener_probability": 0.0
+        }
+    ]
+}

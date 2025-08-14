@@ -25,6 +25,7 @@ from ee_scene_editor import SceneEditor;
 from ee_sprites import SpriteBank;
 from ee_input import InputManager;
 from ee_prop_editor import PropEditor;
+from ee_procs import ProcExplorer, ProcRegistry;
 
 #########################################################
 ## CONTEXT
@@ -401,40 +402,49 @@ class DocumentRenderer:
 			return node;
 		
 		elif isinstance(T, ee_types.Asset):
-			if T.name in AssetManager.types():
-				Preview.render(T.name, node);
+			Preview.render(T.name, node);
 
-				imgui.text(title);
-				imgui.same_line();
+			imgui.text(title);
+			imgui.same_line();
+			
+			match T.name:
+				case "sprite":
+					_, result = imgui.input_text(f"##{identifier}", node);
+					imgui.same_line();
+					if imgui.button(f"...##{identifier}"):
+						SpriteExplorer(identifier);
+					if SpriteExplorer.is_active(identifier):
+						SpriteExplorer.render();
+						ready, output = SpriteExplorer.harvest();
+						result = output if ready else result;
+					return result;
 				
-				match T.name:
-					case "sprite":
-						_, result = imgui.input_text(f"##{identifier}", node);
-						imgui.same_line();
-						if imgui.button(f"...##{identifier}"):
-							SpriteExplorer(identifier);
-						if SpriteExplorer.is_active(identifier):
-							SpriteExplorer.render();
-							ready, output = SpriteExplorer.harvest();
-							result = output if ready else result;
-						return result;
-					case _:
+				case "proc":
+					_, result = imgui.input_text(f"##{identifier}", str(node));
+					imgui.same_line();
+					if imgui.button(f"...##{identifier}"):
+						ProcExplorer("src/procs");
+					result = ProcExplorer.render(node) if ProcExplorer.live() else result;
+					return result;
+				
+				case _:
+					if T.name in AssetManager.types():
 						result = node;
 						if imgui.begin_combo(f"##{identifier}", node):
-							assets = AssetManager.get_assets(T.name);
+							assets = AssetManager.get_assets(T.name).copy();
+							assets.append(None);
 							for asset in assets:
-								selected = result == asset["name"];
-								if imgui.selectable(asset["name"], selected)[0]:
-									result = asset["name"];
+								name = asset["name"] if asset != None else "##";
+								selected = result == name;
+								if imgui.selectable(name, selected)[0]:
+									result = name
 								if selected:
 									imgui.set_item_default_focus();
 							imgui.end_combo();
 						return result;
-			else:
-				imgui.text(title);
-				imgui.same_line();
-				_, result = imgui.input_text(f"##{identifier}", str(node));
-				return result;
+					else:
+						_, result = imgui.input_text(f"##{identifier}", str(node));
+						return result;
 		
 		elif isinstance(T, ee_types.File):
 			if T.pattern == "*.png":
@@ -1306,7 +1316,16 @@ class DialogueEditor:
 									if selected:
 										imgui.set_item_default_focus();
 								imgui.end_combo();
-							_, edge["proc"] = imgui.input_text("Proc", edge["proc"]);
+							
+							imgui.text(f"proc");
+							imgui.same_line();
+							_, edge["proc"] = imgui.input_text("##", str(edge["proc"]));
+							imgui.same_line();
+							if imgui.button("..."):
+								ProcExplorer("src/procs");
+							if ProcExplorer.live():
+								edge["proc"] = ProcExplorer.render(edge["proc"]);
+
 							imgui.tree_pop();
 						imgui.pop_id();
 						if imgui.button(f"Delete##edge{idx}"):

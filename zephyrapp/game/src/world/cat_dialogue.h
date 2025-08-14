@@ -3,13 +3,11 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-typedef void (*CAT_dialogue_proc) ();
-
 typedef struct
 {
 	const char* text;
 	const struct CAT_dialogue_node* node;
-	CAT_dialogue_proc proc;
+	void (*proc) ();
 } CAT_dialogue_edge;
 
 typedef struct
@@ -34,3 +32,22 @@ const char* CAT_get_dialogue_response(int idx);
 
 void CAT_dialogue_io();
 void CAT_render_dialogue();
+
+typedef struct 
+{
+	const CAT_dialogue_node* node;
+	bool (*is_active_proc) ();
+	uint8_t weight;
+} CAT_dialogue_profile_entry;
+
+typedef struct
+{
+	CAT_dialogue_profile_entry* entries;
+	uint8_t entry_count;
+
+	const CAT_dialogue_node* mandatory_node;
+	float opener_probability;
+} CAT_dialogue_profile;
+
+void CAT_activate_dialogue_profile(CAT_dialogue_profile* profile);
+const CAT_dialogue_node* CAT_poll_dialogue_profile();

@@ -19,7 +19,7 @@
                             "type": "dialogue"
                         },
                         "proc": {
-                            "type": "string"
+                            "type": "proc"
                         }
                     }
                 ]

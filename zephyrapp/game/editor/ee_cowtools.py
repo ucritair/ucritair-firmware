@@ -63,3 +63,6 @@ def aabb_equals(a, b):
 		if a[i] != b[i]:
 			return False;
 	return True;
+
+def value_with_effect(value, effect_expr):
+	return value;

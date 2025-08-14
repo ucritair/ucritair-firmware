@@ -123,3 +123,72 @@ void CAT_render_dialogue()
 		}
 	}
 }
+
+static const CAT_dialogue_profile* active_profile;
+
+static int entry_indices_backing[64];
+static CAT_int_list entry_indices;
+static int weight_max;
+
+static bool deliver_opener = false;
+
+int weight_cmp(int i, int j)
+{
+	return sgn(active_profile->entries[i].weight - active_profile->entries[j].weight);
+}
+
+void CAT_activate_dialogue_profile(CAT_dialogue_profile* profile)
+{
+	active_profile = profile;
+	
+	CAT_ilist(&entry_indices, entry_indices_backing, 64);
+	weight_max = -1;
+
+	for(int i = 0; i < active_profile->entry_count; i++)
+	{
+		CAT_dialogue_profile_entry* entry = &active_profile->entries[i];
+		if(entry->is_active_proc == NULL || entry->is_active_proc())
+		{
+			CAT_ilist_push(&entry_indices, i);
+			weight_max = max(weight_max, entry->weight);
+		}
+	}
+	CAT_ilist_shuffle(&entry_indices);
+	CAT_ilist_sort_by_proc(&entry_indices, weight_cmp);
+
+	deliver_opener = CAT_rand_float(0, 1) < active_profile->opener_probability;
+}
+
+CAT_dialogue_node* pick_entry()
+{
+	int weight = CAT_rand_int(0, weight_max);
+	for(int i = 0; i < entry_indices.length; i++)
+	{
+		int idx = entry_indices.data[i];
+		CAT_dialogue_profile_entry* entry = &active_profile->entries[idx];
+		if(weight <= entry->weight)
+			return active_profile->entries[idx].node;
+	}
+	return NULL;
+}
+
+const CAT_dialogue_node* CAT_poll_dialogue_profile()
+{
+	if(active_profile->mandatory_node != NULL)
+	{
+		if(deliver_opener)
+		{
+			deliver_opener = false;
+			CAT_dialogue_node* opener = pick_entry(active_profile);
+			if(opener != NULL)
+				return opener;
+		}
+		return active_profile->mandatory_node;
+	}
+	else
+	{
+		return pick_entry(active_profile);
+	}
+
+	return NULL;
+}
