@@ -458,12 +458,11 @@ typedef struct __attribute__((__packed__))
 } CAT_AQ_score_block;
 
 CAT_AQ_score_block* CAT_AQ_get_moving_scores();
-CAT_AQ_score_block* CAT_AQ_get_score_buffer();
-int CAT_AQ_get_score_buffer_head();
+void CAT_AQ_update_moving_scores();
 
-void CAT_AQ_move_scores();
-void CAT_AQ_buffer_scores(CAT_AQ_score_block* block);
-void CAT_AQ_read_scores(int idx, CAT_AQ_score_block* out);
+void CAT_AQ_score_buffer_reset();
+void CAT_AQ_score_buffer_push(CAT_AQ_score_block* in);
+CAT_AQ_score_block* CAT_AQ_score_buffer_get(int idx);
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

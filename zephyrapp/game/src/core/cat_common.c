@@ -223,7 +223,7 @@ int move_average(int x_bar, int samples, float x, float scale_factor)
 	return float2int(x_bar_f, scale_factor);
 }
 
-void CAT_AQ_move_scores()
+void CAT_AQ_update_moving_scores()
 {
 	CAT_AQ_score_block* block = CAT_AQ_get_moving_scores();
 	if(block->sample_count > 0)
@@ -232,7 +232,7 @@ void CAT_AQ_move_scores()
 		block->NOX = move_average(block->NOX, block->sample_count, readings.sen5x.nox_index, 1);
 		block->VOC = move_average(block->VOC, block->sample_count, readings.sen5x.voc_index, 1);
 		block->PM2_5 = move_average(block->PM2_5, block->sample_count, readings.sen5x.pm2_5, 100);
-		block->temp = move_average(block->temp, block->sample_count, CAT_canonical_temp(), 1);
+		block->temp = move_average(block->temp, block->sample_count, CAT_canonical_temp(), 1000);
 		block->rh = move_average(block->rh, block->sample_count, readings.sen5x.humidity_rhpct, 100);
 		block->aggregate = move_average(block->aggregate, block->sample_count, CAT_AQ_aggregate_score(), 1);
 	}
@@ -253,20 +253,6 @@ void CAT_AQ_move_scores()
 	CAT_printf("VOC: %f PM2_5: %f\n", int2float(block->VOC, 1), int2float(block->PM2_5, 100));
 	CAT_printf("temp: %f RH: %f\n", int2float(block->temp, 1000), int2float(block->rh, 100));
 	CAT_printf("aggregate: %f count: %d\n", int2float(block->aggregate, 1), block->sample_count);		
-}
-
-void CAT_AQ_buffer_scores(CAT_AQ_score_block* block)
-{
-	memcpy(block, CAT_AQ_get_moving_scores(), sizeof(CAT_AQ_score_block));
-	block->sample_count = 0;
-}
-
-void CAT_AQ_read_scores(int idx, CAT_AQ_score_block* out)
-{
-	if(idx < 0 || idx >= 7)
-		return;
-	idx = (CAT_AQ_get_score_buffer_head() + idx) % 7;
-	memcpy(out, &(CAT_AQ_get_score_buffer()[idx]), sizeof(CAT_AQ_score_block));
 }
 
 

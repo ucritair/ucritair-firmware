@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <time.h>
 #include "cat_monitor_graph.h"
+#include "cat_time.h"
 
 enum
 {
@@ -27,18 +28,13 @@ static enum
 };
 static int section = CELLS;
 
-enum
-{
-	YEAR,
-	MONTH,
-	DAY
-};
-
 static CAT_datetime earliest;
 static CAT_datetime today;
 static CAT_datetime target;
 
-#define DATE_Y 48
+static bool should_fast_forward = false;
+
+#define DATE_Y 60
 #define DATE_X 120
 
 #define GRID_Y (DATE_Y + 48)
@@ -49,157 +45,194 @@ static CAT_datetime target;
 #define GRID_CELL_R (((CAT_LCD_SCREEN_W - (GRID_MARGIN * 2) - (GRID_SPACING * (GRID_COLS-1))) / GRID_COLS) / 2)
 
 #define CELL_GREY RGB8882565(164, 164, 164)
-
-bool is_leap_year(int year)
-{
-	return (year % 4) || ((year % 100 == 0) && (year % 400)) ? 0 : 1;
-}
-
-int days_in_month(int year, int month)
-{
-	return month == 2 ? (28 + is_leap_year(year)) : 31 - (month-1) % 7 % 2;
-}
-
-static int clamp_date_part(int phase, int year, int month, int day)
-{
-	switch(phase)
-	{
-		case YEAR:
-		{
-			return clamp(year, earliest.year, today.year);
-		}
-
-		case MONTH:
-		{
-			int min_month = 1;
-			int max_month = 12;
-			if(year == earliest.year)
-				min_month = earliest.month;
-			if(year == today.year)
-				max_month = today.month;
-			return clamp(month, min_month, max_month);
-		}
-
-		case DAY:
-		{
-			int days = days_in_month(year, month);
-			int min_days = (year == earliest.year && month == earliest.month) ? earliest.day : 1;
-			int max_days = (year == today.year && month == today.month) ? today.day : days;
-			return clamp(day, min_days, max_days);
-		}
-	}
-	
-	return -1;
-}
+#define CELL_PLACEHOLDER RGB8882565(64, 64, 64)    // outside this month (faint ring, no number)
+#define CELL_DISABLED    RGB8882565(120, 120, 120) // in-month but outside [earliest..today]
 
 void calendar_logic()
 {
-	if(CAT_input_pressed(CAT_BUTTON_B))
-		page = GATE;
-
-	if(section == DATE)
-	{
-		if(CAT_input_pulse(CAT_BUTTON_LEFT))
-			target.month -= 1;
-		if(CAT_input_pulse(CAT_BUTTON_RIGHT))
-			target.month += 1;
-		if(target.month < 1)
+    if(section == DATE)
+    {
+		if
+		(
+			CAT_input_pressed(CAT_BUTTON_A) ||
+			CAT_input_pressed(CAT_BUTTON_B) ||
+			CAT_input_pressed(CAT_BUTTON_DOWN) ||
+			CAT_input_pressed(CAT_BUTTON_UP)
+		)
 		{
-			target.year -= 1;
-			target.month = 12;
-		}
-		if(target.month > 12)
-		{
-			target.year += 1;
-			target.month = 1;
-		}
-		target.year = clamp_date_part(YEAR, target.year, target.month, target.day);
-		target.month = clamp_date_part(MONTH, target.year, target.month, target.day);
-
-		if(CAT_input_pressed(CAT_BUTTON_DOWN) || CAT_input_pressed(CAT_BUTTON_A))
 			section = CELLS;
-	}
-	else
-	{
-		int was = target.day;
-		int delta = 0;
-		if(CAT_input_pulse(CAT_BUTTON_LEFT))
-			delta += -1;
-		if(CAT_input_pulse(CAT_BUTTON_RIGHT))
-			delta += 1;
-		if(CAT_input_pulse(CAT_BUTTON_UP))
-		{
-			if(was <= 7)
-				section = DATE;
-			else
-				delta -= 7;
+			return;
 		}
-		if(CAT_input_pulse(CAT_BUTTON_DOWN))
-			delta += 7;
-		target.day += delta;
-		target.day = clamp_date_part(DAY, target.year, target.month, target.day);
 
-		if(CAT_input_pressed(CAT_BUTTON_A))
+        if(CAT_input_pulse(CAT_BUTTON_LEFT))
+            target.month -= 1;
+        if(CAT_input_pulse(CAT_BUTTON_RIGHT))
+            target.month += 1;
+        if(target.month < 1)
+        {
+            target.year -= 1;
+            target.month = 12;
+        }
+        if(target.month > 12)
+        {
+            target.year += 1;
+            target.month = 1;
+        }
+
+        // keep all three parts valid after month/year changes
+        target.year  = CAT_clamp_date_part(CAT_DATE_PART_YEAR,  target.year, target.month, target.day);
+        target.month = CAT_clamp_date_part(CAT_DATE_PART_MONTH, target.year, target.month, target.day);
+        target.day   = CAT_clamp_date_part(CAT_DATE_PART_DAY,   target.year, target.month, target.day);    
+    }
+    else // --- CELLS ---
+    {
+		if(CAT_input_pressed(CAT_BUTTON_B))
+        	page = GATE;
+
+        int was = target.day;
+        int delta = 0;
+
+        int dim       = CAT_days_in_month(target.year, target.month);
+        int first_dow = CAT_sakamoto_weekday(target.year, target.month, 1); // 0=Sun..6=Sat
+
+        // compute selectable range for this month
+        int min_day = (target.year == earliest.year && target.month == earliest.month) ? earliest.day : 1;
+        int max_day = (target.year == today.year    && target.month == today.month)    ? today.day    : dim;
+
+        // horizontal moves (will be clamped after)
+        if(CAT_input_pulse(CAT_BUTTON_LEFT)) delta -= 1;
+        if(CAT_input_pulse(CAT_BUTTON_RIGHT)) delta += 1;
+		if(CAT_input_pulse(CAT_BUTTON_UP)) delta -= 7;
+		if(CAT_input_pulse(CAT_BUTTON_DOWN)) delta += 7;
+
+		int min_delta = min_day - target.day;
+		int max_delta = max_day - target.day;
+
+		if(delta < min_delta)
 		{
-			if(target.day == was)
+			if(target.day == min_day)
 			{
-				page = GRAPH;
-				CAT_monitor_graph_enter(target);
+				section = DATE;
+				return;
 			}
+			delta = min_delta;
 		}
-	}
+		if(delta > max_delta)
+		{
+			if(target.day == max_day)
+			{
+				section = DATE;
+				return;
+			}
+			delta = max_delta;
+		}
+
+        // apply movement and clamp to the valid [min_day..max_day] for this month
+        target.day += delta;
+        target.day = CAT_clamp_date_part(CAT_DATE_PART_DAY, target.year, target.month, target.day);
+
+        if(CAT_input_pressed(CAT_BUTTON_A))
+        {
+            if(target.day == was)
+            {
+                page = GRAPH;
+                CAT_monitor_graph_enter(target);
+            }
+        }
+    }
 }
 
 void render_calendar()
 {
-	CAT_set_text_scale(2);
-	CAT_set_text_colour(CAT_WHITE);
-	CAT_set_text_flags(CAT_TEXT_FLAG_CENTER);
-	CAT_draw_textf(DATE_X, DATE_Y, "%.2d/%.2d/%.4d", target.month, target.day, target.year);
-	int date_width = strlen("##/##/####") * CAT_GLYPH_WIDTH * 2;
-	CAT_draw_arrows(DATE_X, DATE_Y + CAT_GLYPH_HEIGHT, CAT_GLYPH_HEIGHT, date_width + 12, CAT_WHITE);
-	if(section == DATE)
-		CAT_draw_arrows(DATE_X, DATE_Y + CAT_GLYPH_HEIGHT, CAT_GLYPH_HEIGHT, date_width + 20, CAT_WHITE);
+    /* ---- declarations up front (C89‑friendly) ---- */
+    int date_width;
+    static const char* DOW[7] = {"S","M","T","W","T","F","S"};
+    int header_y;
+    int first_dow, dim, total, rows;
+    int row, col;
+    int x, y, cell, day;
+    CAT_datetime date;
+    uint16_t colour;
+    bool in_logs_window;
 
-	int day = 1;
-	for(int row = 0; row < 5; row++)
+    /* ---- date line + arrows ---- */
+    CAT_set_text_scale(2);
+    CAT_set_text_colour(CAT_WHITE);
+    CAT_set_text_flags(CAT_TEXT_FLAG_CENTER);
+    CAT_draw_textf(DATE_X, DATE_Y, "%.2d/%.2d/%.4d", target.month, target.day, target.year);
+
+    date_width = (int) strlen("##/##/####") * CAT_GLYPH_WIDTH * 2;
+    CAT_draw_arrows(DATE_X, DATE_Y + CAT_GLYPH_HEIGHT, CAT_GLYPH_HEIGHT, date_width + 12, CAT_WHITE);
+    if (section == DATE)
 	{
-		int y = GRID_Y + ((GRID_CELL_R * 2) + GRID_SPACING) * row;
-		int cols = row == 4 ? 3 : 7;
-
-		for(int col = 0; col < cols; col++)
-		{
-			int x = GRID_X + ((GRID_CELL_R * 2) + GRID_SPACING) * col;
-
-			CAT_datetime date = target;
-			date.day = day;
-			if
-			(
-				CAT_datecmp(&date, &earliest) >= 0 &&
-				CAT_datecmp(&date, &today) <= 0 &&
-				day <= days_in_month(target.year, target.month)
-			)
-			{
-				uint16_t colour = section == CELLS ? CAT_WHITE : CELL_GREY;
-				if(day == target.day)
-				{
-					CAT_discberry(x + GRID_CELL_R, y + GRID_CELL_R, GRID_CELL_R, colour);
-					CAT_circberry(x + GRID_CELL_R, y + GRID_CELL_R, GRID_CELL_R, colour);
-					center_textf(x + GRID_CELL_R, y + GRID_CELL_R, 1, CAT_BLACK, "%d", day);
-				}
-				else
-				{	
-					CAT_circberry(x + GRID_CELL_R, y + GRID_CELL_R, GRID_CELL_R, colour);
-					center_textf(x + GRID_CELL_R, y + GRID_CELL_R, 1, colour, "%d", day);
-				}
-			}
-			else
-			{
-				CAT_circberry(x + GRID_CELL_R, y + GRID_CELL_R, GRID_CELL_R, CELL_GREY);
-			}
-			day += 1;
-		}
+        CAT_draw_arrows(DATE_X, DATE_Y + CAT_GLYPH_HEIGHT, CAT_GLYPH_HEIGHT, date_width + 20, CAT_WHITE);
+		center_textf(120, DATE_Y - CAT_TEXT_LINE_HEIGHT, 1, CAT_WHITE, "<< CHANGE MONTH >>\n");
 	}
+
+    /* ---- day-of-week header (S M T W T F S) ---- */
+    header_y = GRID_Y - (CAT_GLYPH_HEIGHT / 2 ) - 4;
+    for (col = 0; col < GRID_COLS; ++col)
+    {
+        int hx = GRID_X + ((GRID_CELL_R * 2) + GRID_SPACING) * col + GRID_CELL_R;
+        center_textf(hx, header_y, 1, CAT_WHITE, "%s", DOW[col]);
+    }
+
+    /* ---- calendar math (Sun=0..Sat=6) ---- */
+    first_dow = CAT_sakamoto_weekday(target.year, target.month, 1);
+    dim       = CAT_days_in_month(target.year, target.month);
+    total     = first_dow + dim;
+    rows      = (total + GRID_COLS - 1) / GRID_COLS; /* 4..6 rows */
+
+    /* ---- draw cells ---- */
+    for (row = 0; row < rows; ++row)
+    {
+        y = GRID_Y + ((GRID_CELL_R * 2) + GRID_SPACING) * row;
+
+        for (col = 0; col < GRID_COLS; ++col)
+        {
+            x    = GRID_X + ((GRID_CELL_R * 2) + GRID_SPACING) * col;
+            cell = row * GRID_COLS + col;
+            day  = cell - first_dow + 1; /* 1..dim for in-month days */
+
+            if (day >= 1 && day <= dim)
+            {
+                date = target;
+                date.day = day;
+
+                in_logs_window =
+                    (CAT_datecmp(&date, &earliest) >= 0) &&
+                    (CAT_datecmp(&date, &today)    <= 0);
+
+                if (in_logs_window)
+                {
+                    colour = (section == CELLS) ? CAT_WHITE : CELL_GREY;
+
+                    if (day == target.day)
+                    {
+                        CAT_discberry(x + GRID_CELL_R, y + GRID_CELL_R, GRID_CELL_R, colour);
+                        CAT_circberry(x + GRID_CELL_R, y + GRID_CELL_R, GRID_CELL_R, colour);
+                        center_textf(x + GRID_CELL_R, y + GRID_CELL_R, 1, CAT_BLACK, "%d", day);
+                    }
+                    else
+                    {
+                        CAT_circberry(x + GRID_CELL_R, y + GRID_CELL_R, GRID_CELL_R, colour);
+                        center_textf(x + GRID_CELL_R, y + GRID_CELL_R, 1, colour, "%d", day);
+                    }
+                }
+                else
+                {
+                    /* in this month, but outside [earliest..today] */
+                    CAT_circberry(x + GRID_CELL_R, y + GRID_CELL_R, GRID_CELL_R, CELL_DISABLED);
+                    center_textf(x + GRID_CELL_R, y + GRID_CELL_R, 1, CELL_DISABLED, "%d", day);
+                }
+            }
+            else
+            {
+                /* leading/trailing placeholders (outside this month) */
+                CAT_circberry(x + GRID_CELL_R, y + GRID_CELL_R, GRID_CELL_R, CELL_PLACEHOLDER);
+            }
+        }
+    }
 }
 
 void gate_logic()
@@ -249,6 +282,14 @@ void render_gate()
 	}		
 }
 
+void CAT_monitor_calendar_enter(CAT_datetime date)
+{
+	CAT_monitor_graph_enter(date);
+	target = date;
+	should_fast_forward = true;
+	CAT_monitor_seek(CAT_MONITOR_PAGE_CALENDAR);
+}
+
 void CAT_monitor_MS_calendar(CAT_machine_signal signal)
 {
 	switch (signal)
@@ -258,11 +299,19 @@ void CAT_monitor_MS_calendar(CAT_machine_signal signal)
 			CAT_log_cell first;
 			CAT_read_first_calendar_cell(&first);
 			CAT_make_datetime(first.timestamp, &earliest);
-
 			CAT_get_datetime(&today);
-			target = today;
 
-			page = GATE;
+			if(should_fast_forward)
+			{
+				page = GRAPH;
+				should_fast_forward = false;
+			}
+			else
+			{
+				target = today;
+				page = GATE;
+			}
+			
 			section = CELLS;
 		}
 		break;

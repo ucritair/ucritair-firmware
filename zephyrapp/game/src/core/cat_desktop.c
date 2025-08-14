@@ -610,33 +610,44 @@ void CAT_factory_reset()
 
 static CAT_AQ_score_block aq_moving_scores =
 {
-	.CO2 = 777,
-	.VOC = 7,
-	.NOX = 77,
-	.PM2_5 = 77 * 100,
-	.temp = 7 * 1000,
-	.rh = 7 * 100,
-	.aggregate = 77,
+	.CO2 = 450,
+	.VOC = 1,
+	.NOX = 100,
+	.PM2_5 = 9 * 100,
+	.temp = 23 * 1000,
+	.rh = 40 * 100,
+	.aggregate = 75,
 	.sample_count = 0
 };
 
 static CAT_AQ_score_block aq_score_buffer[7];
+static int aq_score_head = 0;
 
 CAT_AQ_score_block* CAT_AQ_get_moving_scores()
 {
 	return &aq_moving_scores;
 }
 
-CAT_AQ_score_block* CAT_AQ_get_score_buffer()
+void CAT_AQ_score_buffer_reset()
 {
 	for(int i = 0; i < 7; i++)
+	{
 		memcpy(&aq_score_buffer[i], &aq_moving_scores, sizeof(CAT_AQ_score_block));
-	return aq_score_buffer;
+	}
+	aq_score_head = 0;
 }
 
-int CAT_AQ_get_score_buffer_head()
+void CAT_AQ_score_buffer_push(CAT_AQ_score_block* in)
 {
-	return 0;
+	CAT_AQ_score_block* block = &aq_score_buffer[aq_score_head];
+	memcpy(block, in, sizeof(CAT_AQ_score_block));
+	aq_score_head = (aq_score_head+1) % 7;
+}
+
+CAT_AQ_score_block* CAT_AQ_score_buffer_get(int idx)
+{
+	idx = (aq_score_head+idx) % 7;
+	return &aq_score_buffer[idx];
 }
 
 

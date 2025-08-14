@@ -146,6 +146,7 @@ target_sources(app PRIVATE
 	src/monitors/cat_monitor_clock.c
 	src/monitors/cat_monitor_graph.c
 	src/monitors/cat_monitor_ach.c
+	src/monitors/cat_monitor_utils.c
 
 	src/inventory/cat_item.c
 	src/inventory/cat_shop.c
@@ -161,6 +162,7 @@ target_sources(app PRIVATE
 
 	src/systems/cat_input.c
 	src/systems/cat_machine.c
+	src/systems/cat_time.c
 
 	src/room/cat_deco.c
 	src/room/cat_room.c
