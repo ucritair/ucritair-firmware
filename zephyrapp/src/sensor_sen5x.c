@@ -61,9 +61,9 @@ int sen5x_init()
     LOG_INF("Protocol v%d.%d", state.proto_maj, state.proto_min);
     CHK(sen5x_set_rht_acceleration_mode(2));
 
-    // 1. Target calibration values per experiments by M Pang in Summer 2025.
-    const int16_t target_offset = -1203;
-    const int16_t target_slope = 1407;
+    // 1. Target calibration values per experiments by M Pang - Updated Aug 15, 2025 based on a ~ room temp fit. Waiting for thermal chamber testing :) 
+    const int16_t target_offset = -600;
+    const int16_t target_slope = 300;
     const uint16_t target_tc = 0;
 
     // 2. Read the sensor's current parameters.
