@@ -110,11 +110,24 @@ PERSIST_RAM uint8_t framebuffer_fast_update_count;
 
 void epaper_render_test()
 {
+
+	int batt_pct = CAT_get_battery_pct();
+
+    // Low battery paths first — do no extra work.
+    if (batt_pct == 0) {
+        epaper_render_protected_off();
+        CAT_shutdown();
+        return;
+    } else if (batt_pct <= 10) {
+        epaper_render_protected_off();
+        return;
+    }
+
 	memset(epaper_framebuffer, 0, sizeof(epaper_framebuffer));
 
 	char buf[256] = {0};
 
-#define fwrite_str(x, y, s, str, ...) snprintf(buf, sizeof(buf), str, ##__VA_ARGS__); write_str(epaper_framebuffer, x, y, s, buf);
+	#define fwrite_str(x, y, s, str, ...) snprintf(buf, sizeof(buf), str, ##__VA_ARGS__); write_str(epaper_framebuffer, x, y, s, buf);
 
 	struct tm t;
 	time_t now = get_current_rtc_time();
@@ -181,9 +194,6 @@ void epaper_render_test()
 
 	fwrite_str(0, EPD_IMAGE_H-8, 1, " %s LV%d", guy_name, guy_level+1);
 
-	if(CAT_get_battery_pct() <= 10)
-		epaper_render_protected_off();
-
 	imu_update();
 
 	pc_set_mode(false);
@@ -222,4 +232,8 @@ void epaper_render_protected_off()
 	pc_set_mode(false);
 	cmd_turn_on_and_write(epaper_framebuffer);
 	pc_set_mode(true);
+
+	memcpy(old_epaper_framebuffer, epaper_framebuffer, sizeof(epaper_framebuffer));
+    is_first_init = true;
+    framebuffer_fast_update_count = 0;
 }
