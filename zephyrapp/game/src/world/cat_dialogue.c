@@ -9,23 +9,27 @@
 static const CAT_dialogue_node* current = NULL;
 static uint8_t line_idx = 0;
 static uint8_t edge_idx = 0;
-static bool in_dialogue = false;
 
 void CAT_enter_dialogue(const CAT_dialogue_node* node)
 {
 	current = node;
 	line_idx = 0;
 	edge_idx = 0;
-	in_dialogue = true;
 }
 
 void CAT_change_dialogue_response(int dir)
 {
+	if(current == NULL)
+		return;
+
 	edge_idx = wrap(edge_idx+dir, current->edge_count);
 }
 
 void CAT_progress_dialogue()
 {
+	if(current == NULL)
+		return;
+
 	if(line_idx >= current->line_count-1)
 	{
 		if(edge_idx < current->edge_count)
@@ -49,31 +53,43 @@ void CAT_progress_dialogue()
 
 void CAT_exit_dialogue()
 {
-	in_dialogue = false;
+	current = NULL;
 }
 
 bool CAT_in_dialogue()
 {
-	return in_dialogue;
+	return current != NULL;
 }
 
 bool CAT_dialogue_needs_response()
 {
+	if(current == NULL)
+		return false;
+
 	return current->edge_count > 0 && line_idx == current->line_count-1;
 }
 
 const char* CAT_get_dialogue_line()
 {
+	if(current == NULL)
+		return "";
+
 	return current->lines[line_idx];
 }
 
 int CAT_get_dialogue_response_count()
 {
+	if(current == NULL)
+		return 0;
+
 	return current->edge_count;
 }
 
 const char* CAT_get_dialogue_response(int idx)
 {
+	if(current == NULL)
+		return "";
+
 	return current->edges[idx].text;
 }
 
@@ -102,6 +118,9 @@ void CAT_dialogue_io()
 
 void CAT_render_dialogue()
 {
+	if(current == NULL)
+		return;
+
 	CAT_fillberry(BOX_X, BOX_Y, BOX_W, BOX_H, CAT_WHITE);
 	CAT_strokeberry(BOX_X, BOX_Y, BOX_W, BOX_H, CAT_BLACK);
 
@@ -124,7 +143,7 @@ void CAT_render_dialogue()
 	}
 }
 
-static const CAT_dialogue_profile* active_profile;
+static const CAT_dialogue_profile* active_profile = NULL;
 
 static int entry_indices_backing[64];
 static CAT_int_list entry_indices;
@@ -161,33 +180,40 @@ void CAT_activate_dialogue_profile(CAT_dialogue_profile* profile)
 
 CAT_dialogue_node* pick_entry()
 {
-	int weight = CAT_rand_int(0, weight_max);
-	for(int i = 0; i < entry_indices.length; i++)
+	if(active_profile != NULL)
 	{
-		int idx = entry_indices.data[i];
-		CAT_dialogue_profile_entry* entry = &active_profile->entries[idx];
-		if(weight >= entry->weight)
-			return active_profile->entries[idx].node;
+		int weight = CAT_rand_int(0, weight_max);
+		for(int i = 0; i < entry_indices.length; i++)
+		{
+			int idx = entry_indices.data[i];
+			CAT_dialogue_profile_entry* entry = &active_profile->entries[idx];
+			if(weight >= entry->weight)
+				return active_profile->entries[idx].node;
+		}
 	}
+
 	return NULL;
 }
 
 const CAT_dialogue_node* CAT_poll_dialogue_profile()
 {
-	if(active_profile->mandatory_node != NULL)
+	if(active_profile != NULL)
 	{
-		if(deliver_opener)
+		if(active_profile->mandatory_node != NULL)
 		{
-			deliver_opener = false;
-			CAT_dialogue_node* opener = pick_entry(active_profile);
-			if(opener != NULL)
-				return opener;
+			if(deliver_opener)
+			{
+				deliver_opener = false;
+				CAT_dialogue_node* opener = pick_entry(active_profile);
+				if(opener != NULL)
+					return opener;
+			}
+			return active_profile->mandatory_node;
 		}
-		return active_profile->mandatory_node;
-	}
-	else
-	{
-		return pick_entry(active_profile);
+		else
+		{
+			return pick_entry(active_profile);
+		}
 	}
 
 	return NULL;
