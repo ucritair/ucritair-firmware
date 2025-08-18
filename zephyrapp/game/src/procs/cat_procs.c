@@ -7,10 +7,12 @@
 #include "cat_math.h"
 #include "cat_machine.h"
 #include "cat_room.h"
+#include "dialogue_profile_assets.h"
 
 void interact_proc_reed()
 {
-	CAT_enter_dialogue(&dialogue_reed_default);
+	CAT_activate_dialogue_profile(&dialogue_profile_reed);
+	CAT_enter_dialogue(CAT_poll_dialogue_profile());
 }
 
 void interact_proc_reed_house()
@@ -25,8 +27,6 @@ void proc_coc_innerworld()
 
 void interact_proc_statue()
 {
-	if(CAT_rand_chance(32))
-		CAT_enter_dialogue(&dialogue_statue_chirp);
-	else
-		CAT_enter_dialogue(&dialogue_statue_default);
+	CAT_activate_dialogue_profile(&dialogue_profile_bird_statue);
+	CAT_enter_dialogue(CAT_poll_dialogue_profile());
 }

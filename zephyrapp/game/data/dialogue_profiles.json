@@ -1,5 +1,5 @@
 {
-    "dialogue": {
+    "dialogue_profile": {
         "type": {
             "name": {
                 "type": "string"
@@ -29,7 +29,7 @@
     },
     "instances": [
         {
-            "name": "reed",
+            "name": "dialogue_profile_reed",
             "entries": [
                 {
                     "node": "reed_default",
@@ -41,7 +41,7 @@
             "opener_probability": 0.0
         },
         {
-            "name": "bird_statue",
+            "name": "dialogue_profile_bird_statue",
             "entries": [
                 {
                     "node": "statue_default",

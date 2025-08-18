@@ -118,7 +118,7 @@ class SceneEditor:
 			return None;
 		SceneEditor._ = self;
 
-		self.size = (1024, 680);
+		self.size = (1280, 720);
 		window_flag_list = [
 			imgui.WindowFlags_.no_saved_settings,
 			imgui.WindowFlags_.no_collapse,
@@ -396,16 +396,12 @@ class SceneEditor:
 			_, self.open = imgui.begin(f"Scene Canvas", self.open, flags=self.window_flags);
 
 			if self.is_scene_loaded():
-
-				imgui.set_next_window_size((256, 680));
-				imgui.begin(f"Scene Data", self.open, flags=self.window_flags);
-				self.gui_draw_scene();
-				imgui.end();
-
 				if self.floor_painter != None:
 					self.floor_painter.io();
 				else:
 					self.selection_io();
+
+				imgui.begin_group();
 
 				self.canvas.clear((128, 128, 128));
 				self.canvas_draw_axes();
@@ -424,6 +420,14 @@ class SceneEditor:
 				_, self.show_gizmos = imgui.checkbox("Show gizmos", self.show_gizmos);
 				imgui.same_line();
 				_, self.snap = imgui.checkbox("Snap", self.snap);
+			
+				imgui.end_group();
+				imgui.same_line();
+				imgui.begin_group();
+			
+				self.gui_draw_scene();
+			
+				imgui.end_group();
 			else:
 				self.scene = self.gui_asset_combo(id(self.scene), "scene", self.scene);
 			

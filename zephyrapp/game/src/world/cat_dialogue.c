@@ -166,7 +166,7 @@ CAT_dialogue_node* pick_entry()
 	{
 		int idx = entry_indices.data[i];
 		CAT_dialogue_profile_entry* entry = &active_profile->entries[idx];
-		if(weight <= entry->weight)
+		if(weight >= entry->weight)
 			return active_profile->entries[idx].node;
 	}
 	return NULL;

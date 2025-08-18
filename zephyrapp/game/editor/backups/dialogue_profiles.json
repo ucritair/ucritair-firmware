@@ -1,5 +1,5 @@
 {
-    "dialogue": {
+    "dialogue_profile": {
         "type": {
             "name": {
                 "type": "string"
@@ -29,13 +29,19 @@
     },
     "instances": [
         {
-            "name": "reed",
-            "entries": [],
-            "mandatory_node": "reed_default",
+            "name": "dialogue_profile_reed",
+            "entries": [
+                {
+                    "node": "reed_default",
+                    "is_active_proc": "",
+                    "weight": 0
+                }
+            ],
+            "mandatory_node": "##",
             "opener_probability": 0.0
         },
         {
-            "name": "bird_statue",
+            "name": "dialogue_profile_bird_statue",
             "entries": [
                 {
                     "node": "statue_default",
@@ -48,7 +54,7 @@
                     "weight": 32
                 }
             ],
-            "mandatory_node": "reed_default",
+            "mandatory_node": "##",
             "opener_probability": 0.0
         }
     ]

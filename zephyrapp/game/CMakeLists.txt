@@ -182,6 +182,7 @@ target_sources(app PRIVATE
 	data/dialogue_assets.c
 	data/prop_assets.c
 	data/scene_assets.c
+	data/dialogue_profile_assets.c
 
 	src/cat_save.c
 	src/cat_main.c)
@@ -200,7 +201,7 @@ target_include_directories(app PRIVATE src/air)
 target_include_directories(app PRIVATE src/systems)
 target_include_directories(app PRIVATE src/room)
 target_include_directories(app PRIVATE src/world)
-target_include_directories(app PRIVATE src/world/procs)
+target_include_directories(app PRIVATE src/procs)
 
 target_include_directories(app PRIVATE sounds/)
 target_include_directories(app PRIVATE meshes/)

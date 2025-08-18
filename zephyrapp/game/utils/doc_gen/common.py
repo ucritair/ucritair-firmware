@@ -25,3 +25,11 @@ def title(html: HTMLWriter, text):
 	html.close_tag();
 	html.close_tag();
 	html.one_token("br");
+
+def gallery(html: HTMLWriter, images):
+	html.open_tag("div", _class="image_row");
+	for image in images:
+		html.open_tag("div", _class="image_column");
+		html.one_tag("img", src=image, style="width:100%");
+		html.close_tag();
+	html.close_tag();

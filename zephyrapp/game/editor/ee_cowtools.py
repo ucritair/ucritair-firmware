@@ -66,3 +66,13 @@ def aabb_equals(a, b):
 
 def value_with_effect(value, effect_expr):
 	return value;
+
+class EEID:
+	def __iter__(self):
+		self.eeid = 0;
+		return self;
+
+	def __next__(self):
+		result = self.eeid;
+		self.eeid += 1;
+		return result;

@@ -7,42 +7,40 @@ trp = assetgen.Triptych("data/dialogue_profiles.json");
 trp.header_intro(["\"cat_dialogue.h\""]);
 trp.source_intro(["\"dialogue_assets.h\"", "\"cat_procs.h\""]);
 
+def transform_dialogue_name(s):
+	s = s.replace("##", "");
+	if len(s) == 0 or s.isspace():
+		return "NULL";
+	return f"&dialogue_{s}";
+
+def transform_proc_name(s):
+	s.replace("##", "");
+	if len(s) == 0 or s.isspace():
+		return "NULL";
+	return s;
+
 for instance in trp.instances:
 	trp.begin_asset_def(instance);
 
-	trp.swrite(f".sprite = &{instance["sprite"]},\n");
-
-	trp.swrite(".blockers = (int16_t*[]) {\n");
+	trp.swrite(".entries = (CAT_dialogue_profile_entry[]) {\n");
 	trp.source_indent();
-	for blocker in instance["blockers"]:
-		trp.swrite("(int16_t[]) {");
-		for element in blocker:
-			trp.swrite(f"{int(element)},", no_indent=True);
-		trp.swrite("},\n", no_indent=True);
-	trp.source_unindent();
-	trp.swrite("},\n");
-	trp.swrite(f".blocker_count = {len(instance["blockers"])},\n");
+	for entry in instance["entries"]:
 
-	trp.swrite(".triggers = (struct trigger[]) {\n");
-	trp.source_indent();
-	for trigger in instance["triggers"]:
-		trp.swrite("{\n");
+		trp.swrite("(CAT_dialogue_profile_entry) {\n");
 		trp.source_indent();
-
-		trp.swrite(".aabb = {");
-		for element in trigger["aabb"]:
-			trp.swrite(f"{element},", no_indent=True);
-		trp.swrite("},\n", no_indent=True);
-
-		trp.swrite(f".tx = {trigger["direction"][0]},\n");
-		trp.swrite(f".ty = {trigger["direction"][1]},\n");
-
-		trp.swrite(f".proc = {trigger["proc"] if trigger["proc"] != "" else "NULL"},\n");
-
+		trp.swrite(f".node = {transform_dialogue_name(entry["node"])},\n");
+		trp.swrite(f".is_active_proc = {transform_proc_name(entry["is_active_proc"])},\n");
+		trp.swrite(f".weight = {int(entry["weight"])},\n");
 		trp.source_unindent();
 		trp.swrite("},\n");
+	
 	trp.source_unindent();
 	trp.swrite("},\n");
-	trp.swrite(f".trigger_count = {len(instance["triggers"])},\n");
+	trp.swrite(f".entry_count = {len(instance["entries"])},\n");
+	
+	trp.swrite();
+
+	trp.swrite(f".mandatory_node = {transform_dialogue_name(instance["mandatory_node"])},\n");
+	trp.swrite(f".opener_probability = {instance["opener_probability"]},\n");
 
 	trp.end_asset_def();

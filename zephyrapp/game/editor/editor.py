@@ -25,7 +25,8 @@ from ee_scene_editor import SceneEditor;
 from ee_sprites import SpriteBank;
 from ee_input import InputManager;
 from ee_prop_editor import PropEditor;
-from ee_procs import ProcExplorer, ProcRegistry;
+from ee_procs import ProcExplorer;
+from ee_dialogue import DialogueGraph;
 
 #########################################################
 ## CONTEXT
@@ -1438,6 +1439,8 @@ while not glfw.window_should_close(handle):
 				PropEditor();
 			if imgui.menu_item_simple("Scene Editor"):
 				SceneEditor();
+			if imgui.menu_item_simple("Dialogue Graph"):
+				DialogueGraph();
 			imgui.end_menu();
 		imgui.end_main_menu_bar();
 	
@@ -1464,6 +1467,7 @@ while not glfw.window_should_close(handle):
 		SceneEditor.render();
 	if PropEditor._ != None:
 		PropEditor.render();
+	DialogueGraph.render();
 
 	imgui.end();
 

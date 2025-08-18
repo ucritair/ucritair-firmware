@@ -45,7 +45,7 @@ class ProcExplorer:
 	def render(current):
 		self = ProcExplorer._;
 		if self == None:
-			return current
+			return current;
 		
 		listings = [s for s in self.registry.signatures];
 		listings.sort();
@@ -69,6 +69,4 @@ class ProcExplorer:
 			ProcExplorer._ = None;
 		
 		return result;
-
-pr = ProcRegistry("src/procs");
 		
