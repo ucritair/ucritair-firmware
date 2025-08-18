@@ -13,7 +13,7 @@ const CAT_dialogue_node dialogue_reed_default =
 	{
 		{
 			.text = "...",
-			.node = &dialogue_ellipsis,
+			.node = &dialogue_reed_house,
 			.proc = NULL,
 		},
 	},
