@@ -121,24 +121,34 @@ void CAT_render_dialogue()
 	if(current == NULL)
 		return;
 
-	CAT_fillberry(BOX_X, BOX_Y, BOX_W, BOX_H, CAT_WHITE);
-	CAT_strokeberry(BOX_X, BOX_Y, BOX_W, BOX_H, CAT_BLACK);
-
 	int cursor_y = BOX_Y + BOX_MARGIN;
-	CAT_set_text_mask(BOX_X+BOX_MARGIN, -1, BOX_X+BOX_W-BOX_MARGIN, -1);
+	int max_response_len = 0;
+	if(CAT_dialogue_needs_response())
+	{
+		for(int i = 0; i < CAT_get_dialogue_response_count(); i++)
+		{
+			max_response_len = max(max_response_len, strlen(CAT_get_dialogue_response(i)));
+		}
+	}
+	int text_start_x = BOX_X + BOX_MARGIN;
+	int response_start_x = BOX_X + BOX_W - ((max_response_len + 2) * CAT_GLYPH_WIDTH) - BOX_MARGIN;
+
+	CAT_fillberry(BOX_X, BOX_Y, BOX_W, BOX_H, CAT_BLACK);
+
+	CAT_set_text_mask(text_start_x, -1, response_start_x-BOX_MARGIN, -1);
 	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
-	cursor_y = CAT_draw_textf(BOX_X + BOX_MARGIN, cursor_y, "%s\n", current->lines[line_idx]);
+	CAT_set_text_colour(CAT_WHITE);
+	CAT_draw_textf(text_start_x, cursor_y, "%s\n", current->lines[line_idx]);
 
 	if(CAT_dialogue_needs_response())
 	{
-		cursor_y += 4;
-		CAT_lineberry(BOX_X + BOX_MARGIN, cursor_y, BOX_X+BOX_W-BOX_MARGIN, cursor_y, CAT_GREY);
-		cursor_y += 8;
+		CAT_lineberry(response_start_x-BOX_MARGIN, BOX_Y + BOX_MARGIN, response_start_x-BOX_MARGIN, BOX_Y + BOX_H - BOX_MARGIN, CAT_WHITE);
 
 		for(int i = 0; i < CAT_get_dialogue_response_count(); i++)
 		{
 			const char* fmt = i == edge_idx ? "%s <\n" : "%s\n";
-			cursor_y = CAT_draw_textf(BOX_X+BOX_MARGIN, cursor_y, fmt, current->edges[i].text);
+			CAT_set_text_colour(CAT_WHITE);
+			cursor_y = CAT_draw_textf(response_start_x, cursor_y, fmt, current->edges[i].text);
 		}
 	}
 }
