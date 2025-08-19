@@ -192,7 +192,21 @@
                     80
                 ]
             ],
-            "triggers": [],
+            "triggers": [
+                {
+                    "aabb": [
+                        0.0,
+                        64.0,
+                        32.0,
+                        80.0
+                    ],
+                    "direction": [
+                        0,
+                        1
+                    ],
+                    "proc": "interact_proc_arcade"
+                }
+            ],
             "sprite": "world_arcade_sprite",
             "palette": false
         },
@@ -206,7 +220,21 @@
                     64
                 ]
             ],
-            "triggers": [],
+            "triggers": [
+                {
+                    "aabb": [
+                        16.0,
+                        48.0,
+                        48.0,
+                        64.0
+                    ],
+                    "direction": [
+                        0,
+                        1
+                    ],
+                    "proc": "interact_proc_market"
+                }
+            ],
             "sprite": "world_market_sprite",
             "palette": false
         },

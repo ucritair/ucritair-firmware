@@ -9,8 +9,13 @@ const CAT_dialogue_profile dialogue_profile_reed = {
 			.is_active_proc = NULL,
 			.weight = 0,
 		},
+		(CAT_dialogue_profile_entry) {
+			.node = &dialogue_reed_question_fish,
+			.is_active_proc = NULL,
+			.weight = 0,
+		},
 	},
-	.entry_count = 1,
+	.entry_count = 2,
 	
 	.mandatory_node = NULL,
 	.opener_probability = 0.0,

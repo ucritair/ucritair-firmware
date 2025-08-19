@@ -107,6 +107,22 @@ add_custom_command(
 	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../data/props.json
 )
 
+add_custom_command(
+	OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/../data/dialogue_assets.h ${CMAKE_CURRENT_BINARY_DIR}/../data/dialogue_assets.c
+	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../
+	COMMAND ${CMAKE_CURRENT_BINARY_DIR}/../utils/asset_gen/dialoguegen.py
+	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../utils/asset_gen/dialoguegen.py
+	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../data/dialogue.json
+)
+
+add_custom_command(
+	OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/../data/dialogue_profile_assets.h ${CMAKE_CURRENT_BINARY_DIR}/../data/dialogue_profile_assets.c
+	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../
+	COMMAND ${CMAKE_CURRENT_BINARY_DIR}/../utils/asset_gen/dialogueprofilegen.py
+	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../utils/asset_gen/dialogueprofilegen.py
+	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../data/dialogue_profiles.json
+)
+
 target_sources(app PRIVATE
 	src/core/cat_common.c
 

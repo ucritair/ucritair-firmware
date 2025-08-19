@@ -7,6 +7,7 @@ from ee_canvas import Canvas;
 from ee_assets import *;
 from ee_sprites import SpriteBank;
 from ee_input import InputManager;
+from ee_procs import ProcExplorer;
 
 #########################################################
 ## PROP EDITOR
@@ -136,6 +137,10 @@ class PropEditor:
 					trash.append(("triggers", idx));
 				_, trigger["direction"] = imgui.input_int2(f"Direction##{id(trigger)}", trigger["direction"]);
 				_, trigger["proc"] = imgui.input_text(f"Proc##{id(trigger)}", trigger["proc"]);
+				imgui.same_line();
+				if imgui.button(f"...##{id(trigger)}"):
+					ProcExplorer("src/procs");
+				trigger["proc"] = ProcExplorer.render(trigger["proc"]) if ProcExplorer.live() else trigger["proc"];
 			if imgui.button("+##trigger"):
 				self.prop["triggers"].append(SpawnHelper.spawn_trigger());
 	

@@ -96,8 +96,14 @@ const CAT_prop arcade_prop = {
 	},
 	.blocker_count = 1,
 	.triggers = (struct trigger[]) {
+		{
+			.aabb = {0.0,64.0,32.0,80.0,},
+			.tx = 0,
+			.ty = 1,
+			.proc = interact_proc_arcade,
+		},
 	},
-	.trigger_count = 0,
+	.trigger_count = 1,
 };
 const CAT_prop market_prop = {
 	.sprite = &world_market_sprite,
@@ -106,8 +112,14 @@ const CAT_prop market_prop = {
 	},
 	.blocker_count = 1,
 	.triggers = (struct trigger[]) {
+		{
+			.aabb = {16.0,48.0,48.0,64.0,},
+			.tx = 0,
+			.ty = 1,
+			.proc = interact_proc_market,
+		},
 	},
-	.trigger_count = 0,
+	.trigger_count = 1,
 };
 const CAT_prop depot_prop = {
 	.sprite = &world_depot_sprite,

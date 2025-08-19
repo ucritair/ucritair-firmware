@@ -40,34 +40,63 @@ class GraphNode:
 
 	def draw(self):
 		imnodes.begin_node(self.node_id);
+		imgui.push_id(str(id(self.asset)));
 		
 		imnodes.begin_pin(self.in_pin_id, imnodes.PinKind.input);
-		imgui.text(">");
+		imgui.text("[]");
 		imnodes.end_pin();
 
 		imgui.same_line();
 
 		imgui.text(self.asset["name"]);
-		max_line_width = max(len(self.asset["name"]), max(len(s) for s in self.asset["lines"]))+3;
-		imgui.text("-"*max_line_width);
-		for (idx, line) in enumerate(self.asset["lines"]):
-			imgui.text(f"{idx}: {line}");
-		imgui.text("-"*max_line_width);
 
+		max_line_chars = max(len(self.asset["name"]), max(len(s) for s in self.asset["lines"]) if len(self.asset["lines"]) > 0 else 0)+3;
+		max_line_width = max_line_chars * 8;
+
+		trash = [];
+		for (idx, line) in enumerate(self.asset["lines"]):
+			imgui.set_next_item_width(max_line_width);
+			_, self.asset["lines"][idx] = imgui.input_text(f"##line{idx}", self.asset["lines"][idx]);
+			imgui.same_line();
+			if imgui.button(f"-##line{idx}"):
+				trash.append(idx);
+		imgui.dummy((max_line_width, 0));
+		imgui.same_line();
+		if imgui.button("+##line"):
+			self.asset["lines"].append("");
+		for idx in trash:
+			del self.asset["lines"][idx];
+		
+		imgui.new_line();
+
+		trash = [];
 		imgui.begin_group();
 		for (idx, edge) in enumerate(self.asset["edges"]):
-			imgui.text(" " * (max_line_width - 2 - len(edge["text"])));
+			imgui.dummy((max_line_width-len(edge["text"])*8-36, 0));
+			imgui.same_line();
+			if imgui.button(f"-##edge{idx}"):
+				trash.append(idx);
 			imgui.same_line();
 			if edge["proc"] == "":
+				imgui.set_next_item_width((len(edge["text"])+1) * 8);
+				_, edge["text"] = imgui.input_text(f"##edge{idx}", edge["text"]);
+				imgui.same_line();
 				imnodes.begin_pin(self.out_pin_ids[idx], imnodes.PinKind.output);
-				imgui.text(edge["text"]);
+				imgui.text("[]");
 				imnodes.end_pin();
 			else:
 				imgui.push_style_color(imgui.Col_.text, (0.75, 0.75, 0.75, 0.75));
 				imgui.text(edge["text"]);
 				imgui.pop_style_color();
+		imgui.dummy((max_line_width, 0));
+		imgui.same_line();
+		if imgui.button("+##edge"):
+			self.asset["edges"].append({"text" : "", "proc" : "", "node" : ""});
+		for idx in trash:
+			del self.asset["edges"][idx];
 		imgui.end_group();
 
+		imgui.pop_id();
 		imnodes.end_node();
 
 class GraphEdge:
@@ -110,6 +139,21 @@ class GraphRegistry:
 	def search_by_link_id(self, link_id):
 		return self.by_link_id[link_id.id()];
 
+def make_verdant(first_tree):
+	forest = [];
+	stack = [first_tree];
+	visited = set();
+
+	while len(stack) > 0:
+		head = stack.pop(-1);
+		forest.append(head);
+		visited.add(id(head));
+		for edge in head["edges"]:
+			next_node = AssetManager.search("dialogue", edge["node"]);
+			if next_node != None and not id(next_node) in visited:
+				stack.append(next_node);
+	
+	return forest;
 
 class DialogueGraph:
 	_ = None;
@@ -119,7 +163,7 @@ class DialogueGraph:
 			return None;
 		DialogueGraph._ = self;
 
-		self.size = (640, 480);
+		self.size = (1280, 720);
 		window_flag_list = [
 			imgui.WindowFlags_.no_saved_settings,
 			imgui.WindowFlags_.no_collapse,
@@ -128,8 +172,11 @@ class DialogueGraph:
 
 		self.context = imnodes.create_editor();
 
-		self.node_assets = AssetManager.get_assets("dialogue");
+		self.node_bank = AssetManager.get_assets("dialogue");
+		self.node_assets = [];
 		self.links = [];
+	
+		self.node_buffer = None;
 	
 	def __del__(self):
 		imnodes.destroy_editor(self.context);
@@ -146,6 +193,32 @@ class DialogueGraph:
 		
 		imgui.set_next_window_size(self.size);
 		_, open = imgui.begin("Dialogue Graph", self != None, flags=self.window_flags);
+		
+		imgui.begin_group();
+		imgui.set_next_item_width(self.size[0]/8);
+		if imgui.begin_combo(f"##{id(self.node_buffer)}", self.node_buffer["name"] if self.node_buffer != None else ""):
+			for asset in self.node_bank:
+				selected = self.node_buffer != None and asset == self.node_buffer;
+				if imgui.selectable(asset["name"], selected)[0]:
+					self.node_buffer = asset;
+				if selected:
+					imgui.set_item_default_focus();
+			imgui.end_combo();
+		imgui.same_line();
+		if imgui.button(f"+##{id(self.node_buffer)}"):
+			forest = make_verdant(self.node_buffer);
+			for tree in forest:
+				if not tree in self.node_assets:
+					self.node_assets.append(tree);
+
+		trash = []
+		for node in self.node_assets:
+			if imgui.button(f"{node["name"]} x"):
+				trash.append(node);
+		self.node_assets = [n for n in self.node_assets if not n in trash];
+
+		imgui.end_group();
+		imgui.same_line();
 
 		imnodes.set_current_editor(self.context);
 		imnodes.begin(str(next(nid)), imgui.ImVec2(0, 0));
@@ -191,6 +264,7 @@ class DialogueGraph:
 			imnodes.end_delete();
 
 		imnodes.end();
+
 		self.size = imgui.get_window_size();
 		imgui.end();
 
