@@ -411,7 +411,7 @@ class SceneEditor:
 
 				# Cursor IO has to come right before canvas draw
 				self.cursor_io(imgui.get_cursor_screen_pos());
-				self.canvas.render(1);
+				self.canvas.render();
 			
 				_, self.show_axes = imgui.checkbox("Show axes", self.show_axes);
 				imgui.same_line();

@@ -528,7 +528,7 @@ class DecorationViewer:
 			return None;
 		DecorationViewer._ = self;
 
-		self.canvas = Canvas(240, 128);
+		self.canvas = Canvas(240, 128, 2);
 		self.size = (640, 480);
 		self.scale = 240 / self.canvas.height;
 		window_flag_list = [
@@ -574,7 +574,7 @@ class DecorationViewer:
 				child_y = parent_shape[1] * 16;
 				off_y = self.child_prop["prop_data"]["child_dy"];
 				self.__draw_prop(draw_x, draw_y - child_y - off_y, self.child_prop);
-			self.canvas.render(self.scale);
+			self.canvas.render();
 
 			if imgui.begin_combo(f"Parent", self.parent_prop["name"]):
 				for prop in self.props:
@@ -616,7 +616,7 @@ class AnimationViewer:
 			return None;
 		AnimationViewer._ = self;
 
-		self.canvas = Canvas(240, 128);
+		self.canvas = Canvas(240, 128, 2);
 		self.size = (640, 480);
 		self.scale = 240 / self.canvas.height;
 		window_flag_list = [
@@ -653,7 +653,7 @@ class AnimationViewer:
 			self.canvas.draw_image(draw_x, draw_y, preview.frame_images[self.frame]);
 			if self.show_AABB:
 				self.canvas.draw_rect_old(draw_x, draw_y, preview.width, preview.height/preview.frame_count, (255, 0, 0));
-			self.canvas.render(self.scale);
+			self.canvas.render();
 
 			if preview.frame_count > 1:	
 				animate_changed, self.animate = imgui.checkbox("Animate", self.animate);
@@ -787,7 +787,7 @@ class ThemeEditor:
 				if len(window_rect) == 4:
 					self.wall_canvas.draw_rect_old(window_rect[0], window_rect[1], window_rect[2], window_rect[3], (0, 0, 255));
 
-				self.wall_canvas.render(1);
+				self.wall_canvas.render();
 
 				wall_tiles = preview_bank.get("sprite", self.theme["wall_tiles"]);
 				per_line = 0;
@@ -811,7 +811,7 @@ class ThemeEditor:
 				if len(window_rect) == 4:
 					self.wall_canvas.draw_rect_old(window_rect[0], window_rect[1], window_rect[2], window_rect[3], (0, 0, 255));
 				
-				self.wall_canvas.render(1);
+				self.wall_canvas.render();
 			
 			if self.theme['tile_floor']:
 				floor_len = len(self.theme["floor_map"]);
@@ -845,7 +845,7 @@ class ThemeEditor:
 						self.theme["floor_map"][idx] = self.floor_brush;
 					self.floor_canvas.draw_rect_old(self.floor_cursor[0] * 16, self.floor_cursor[1] * 16, 16, 16, (255, 0, 0));
 
-				self.floor_canvas.render(1);
+				self.floor_canvas.render();
 
 				floor_tiles = preview_bank.get("sprite", self.theme["floor_tiles"]);
 				per_line = 0;
@@ -888,7 +888,7 @@ class Mesh2DEditor:
 		self.edge_buffer = [];
 		self.trash = None;
 
-		self.canvas = Canvas(240, 120);
+		self.canvas = Canvas(240, 120, 2);
 		self.canvas_scale = 2;
 		self.size = (720, 720);
 		window_flag_list = [
@@ -1106,7 +1106,7 @@ class Mesh2DEditor:
 					self.canvas.draw_line(last.x, last.y, vertex.x, vertex.y, (255, 255, 255));
 				self.canvas.draw_circle(vertex.x, vertex.y, 2, (255, 255, 255));
 				
-			self.canvas.render(self.canvas_scale);
+			self.canvas.render();
 			_, self.show_grid = imgui.checkbox("Show grid", self.show_grid);
 			imgui.same_line();
 			_, self.show_verts = imgui.checkbox("Show verts", self.show_verts);

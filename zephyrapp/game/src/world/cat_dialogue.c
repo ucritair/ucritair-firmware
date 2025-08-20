@@ -166,7 +166,7 @@ int weight_cmp(int i, int j)
 	return sgn(active_profile->entries[i].weight - active_profile->entries[j].weight);
 }
 
-void CAT_activate_dialogue_profile(CAT_dialogue_profile* profile)
+void CAT_activate_dialogue_profile(const CAT_dialogue_profile* profile)
 {
 	active_profile = profile;
 	

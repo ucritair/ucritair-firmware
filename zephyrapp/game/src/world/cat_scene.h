@@ -25,6 +25,19 @@ typedef struct
 
 typedef struct
 {
+	struct background
+	{
+		uint16_t colour;
+		const CAT_sprite* sprite;
+		struct tile
+		{
+			uint8_t x;
+			uint8_t y;
+			uint8_t frame;
+		}* tiles;
+		uint16_t tile_count;
+	} background;
+
 	struct layer
 	{
 		struct prop

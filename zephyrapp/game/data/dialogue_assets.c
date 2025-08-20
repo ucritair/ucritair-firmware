@@ -10,7 +10,7 @@ const CAT_dialogue_node dialogue_reed_default =
 		"Have you eaten anything good lately?",
 	},
 	.line_count = 3,
-	.edges = (CAT_dialogue_edge[])
+	.edges = (const CAT_dialogue_edge[])
 	{
 		{
 			.text = "Yes",
@@ -34,7 +34,7 @@ const CAT_dialogue_node dialogue_reed_house =
 		"You think Inpsector Reed lives here.",
 	},
 	.line_count = 2,
-	.edges = (CAT_dialogue_edge[])
+	.edges = (const CAT_dialogue_edge[])
 	{
 	},
 	.edge_count = 0,
@@ -48,7 +48,7 @@ const CAT_dialogue_node dialogue_statue_default =
 		"Return to the apartment?",
 	},
 	.line_count = 2,
-	.edges = (CAT_dialogue_edge[])
+	.edges = (const CAT_dialogue_edge[])
 	{
 		{
 			.text = "Yes",
@@ -71,7 +71,7 @@ const CAT_dialogue_node dialogue_statue_chirp =
 		"\1 Cheep Cheep \1",
 	},
 	.line_count = 1,
-	.edges = (CAT_dialogue_edge[])
+	.edges = (const CAT_dialogue_edge[])
 	{
 	},
 	.edge_count = 0,
@@ -84,7 +84,7 @@ const CAT_dialogue_node dialogue_ellipsis =
 		"...",
 	},
 	.line_count = 1,
-	.edges = (CAT_dialogue_edge[])
+	.edges = (const CAT_dialogue_edge[])
 	{
 	},
 	.edge_count = 0,
@@ -99,7 +99,7 @@ const CAT_dialogue_node dialogue_reed_admonish_no_food =
 		"Eating is the privilege of the living!",
 	},
 	.line_count = 3,
-	.edges = (CAT_dialogue_edge[])
+	.edges = (const CAT_dialogue_edge[])
 	{
 	},
 	.edge_count = 0,
@@ -114,7 +114,7 @@ const CAT_dialogue_node dialogue_reed_congratulate_food =
 		"I want... roman gnocchi. Or mashed potatoes.",
 	},
 	.line_count = 3,
-	.edges = (CAT_dialogue_edge[])
+	.edges = (const CAT_dialogue_edge[])
 	{
 	},
 	.edge_count = 0,
@@ -129,7 +129,7 @@ const CAT_dialogue_node dialogue_reed_question_fish =
 		"Are you partial to any particular fish?",
 	},
 	.line_count = 3,
-	.edges = (CAT_dialogue_edge[])
+	.edges = (const CAT_dialogue_edge[])
 	{
 		{
 			.text = "Mackerel",
@@ -157,7 +157,7 @@ const CAT_dialogue_node dialogue_admonish_1 =
 		"What's wrong with you?",
 	},
 	.line_count = 1,
-	.edges = (CAT_dialogue_edge[])
+	.edges = (const CAT_dialogue_edge[])
 	{
 	},
 	.edge_count = 0,
@@ -172,7 +172,7 @@ const CAT_dialogue_node dialogue_reed_congratulate_fish =
 		"You might have good taste.",
 	},
 	.line_count = 3,
-	.edges = (CAT_dialogue_edge[])
+	.edges = (const CAT_dialogue_edge[])
 	{
 	},
 	.edge_count = 0,
@@ -186,7 +186,7 @@ const CAT_dialogue_node dialogue_reed_amused_fish =
 		"Can you taste how rare they are or something?",
 	},
 	.line_count = 2,
-	.edges = (CAT_dialogue_edge[])
+	.edges = (const CAT_dialogue_edge[])
 	{
 	},
 	.edge_count = 0,
@@ -201,7 +201,7 @@ const CAT_dialogue_node dialogue_market_default =
 		"You recall the time you bought 200 packets of P-cari Sweat drink mix.",
 	},
 	.line_count = 3,
-	.edges = (CAT_dialogue_edge[])
+	.edges = (const CAT_dialogue_edge[])
 	{
 	},
 	.edge_count = 0,
@@ -215,7 +215,7 @@ const CAT_dialogue_node dialogue_arcade_default =
 		"You could swear you heard an employee practicing one of the drumming games.",
 	},
 	.line_count = 2,
-	.edges = (CAT_dialogue_edge[])
+	.edges = (const CAT_dialogue_edge[])
 	{
 	},
 	.edge_count = 0,

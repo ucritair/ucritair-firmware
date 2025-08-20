@@ -34,48 +34,48 @@
                     {
                         "prop": "track_prop",
                         "position": [
-                            96,
-                            -160
+                            6,
+                            -10
                         ],
                         "variant": 13
                     },
                     {
                         "prop": "track_prop",
                         "position": [
-                            80,
-                            -160
+                            5,
+                            -10
                         ],
                         "variant": 13
                     },
                     {
                         "prop": "track_prop",
                         "position": [
-                            64,
-                            -160
+                            4,
+                            -10
                         ],
                         "variant": 13
                     },
                     {
                         "prop": "track_prop",
                         "position": [
-                            48,
-                            -160
+                            3,
+                            -10
                         ],
                         "variant": 13
                     },
                     {
                         "prop": "track_prop",
                         "position": [
-                            32,
-                            -160
+                            2,
+                            -10
                         ],
                         "variant": 13
                     },
                     {
                         "prop": "track_prop",
                         "position": [
-                            16,
-                            -160
+                            1,
+                            -10
                         ],
                         "variant": 13
                     },
@@ -83,231 +83,231 @@
                         "prop": "track_prop",
                         "position": [
                             0,
-                            -160
+                            -10
                         ],
                         "variant": 13
                     },
                     {
                         "prop": "track_prop",
                         "position": [
-                            -16,
-                            -160
+                            -1,
+                            -10
                         ],
                         "variant": 13
                     },
                     {
                         "prop": "track_prop",
                         "position": [
-                            -32,
-                            -160
+                            -2,
+                            -10
                         ],
                         "variant": 13
                     },
                     {
                         "prop": "track_prop",
                         "position": [
-                            -48,
-                            -160
+                            -3,
+                            -10
                         ],
                         "variant": 13
                     },
                     {
                         "prop": "track_prop",
                         "position": [
-                            -80,
-                            -160
+                            -5,
+                            -10
                         ],
                         "variant": 13
                     },
                     {
                         "prop": "track_prop",
                         "position": [
-                            -64,
-                            -160
+                            -4,
+                            -10
                         ],
                         "variant": 13
                     },
                     {
                         "prop": "track_prop",
                         "position": [
-                            -96,
-                            -160
+                            -6,
+                            -10
                         ],
                         "variant": 13
                     },
                     {
                         "prop": "track_prop",
                         "position": [
-                            -112,
-                            -160
+                            -7,
+                            -10
                         ],
                         "variant": 13
                     },
                     {
                         "prop": "track_prop",
                         "position": [
-                            -128,
-                            -160
+                            -8,
+                            -10
                         ],
                         "variant": 13
                     },
                     {
                         "prop": "track_prop",
                         "position": [
-                            -144,
-                            -160
+                            -9,
+                            -10
                         ],
                         "variant": 13
                     },
                     {
                         "prop": "track_prop",
                         "position": [
-                            -160,
-                            -160
+                            -10,
+                            -10
                         ],
                         "variant": 13
                     },
                     {
                         "prop": "track_prop",
                         "position": [
-                            -176,
-                            -160
+                            -11,
+                            -10
                         ],
                         "variant": 13
                     },
                     {
                         "prop": "track_prop",
                         "position": [
-                            -192,
-                            -160
+                            -12,
+                            -10
                         ],
                         "variant": 13
                     },
                     {
                         "prop": "track_prop",
                         "position": [
-                            -208,
-                            -160
+                            -13,
+                            -10
                         ],
                         "variant": 13
                     },
                     {
                         "prop": "track_prop",
                         "position": [
-                            112,
-                            -160
+                            7,
+                            -10
                         ],
                         "variant": 2
                     },
                     {
                         "prop": "track_prop",
                         "position": [
-                            -224,
-                            -160
+                            -14,
+                            -10
                         ],
                         "variant": 0
                     },
                     {
                         "prop": "track_prop",
                         "position": [
-                            -208,
-                            -144
+                            -13,
+                            -9
                         ],
                         "variant": 15
                     },
                     {
                         "prop": "track_prop",
                         "position": [
-                            -192,
-                            -144
+                            -12,
+                            -9
                         ],
                         "variant": 15
                     },
                     {
                         "prop": "track_prop",
                         "position": [
-                            -176,
-                            -144
+                            -11,
+                            -9
                         ],
                         "variant": 15
                     },
                     {
                         "prop": "track_prop",
                         "position": [
-                            -160,
-                            -144
+                            -10,
+                            -9
                         ],
                         "variant": 15
                     },
                     {
                         "prop": "track_prop",
                         "position": [
-                            -144,
-                            -144
+                            -9,
+                            -9
                         ],
                         "variant": 15
                     },
                     {
                         "prop": "track_prop",
                         "position": [
-                            -128,
-                            -144
+                            -8,
+                            -9
                         ],
                         "variant": 15
                     },
                     {
                         "prop": "track_prop",
                         "position": [
-                            -112,
-                            -144
+                            -7,
+                            -9
                         ],
                         "variant": 15
                     },
                     {
                         "prop": "track_prop",
                         "position": [
-                            -80,
-                            -144
+                            -5,
+                            -9
                         ],
                         "variant": 15
                     },
                     {
                         "prop": "track_prop",
                         "position": [
-                            -96,
-                            -144
+                            -6,
+                            -9
                         ],
                         "variant": 15
                     },
                     {
                         "prop": "track_prop",
                         "position": [
-                            -64,
-                            -144
+                            -4,
+                            -9
                         ],
                         "variant": 15
                     },
                     {
                         "prop": "track_prop",
                         "position": [
-                            -48,
-                            -144
+                            -3,
+                            -9
                         ],
                         "variant": 15
                     },
                     {
                         "prop": "track_prop",
                         "position": [
-                            -32,
-                            -144
+                            -2,
+                            -9
                         ],
                         "variant": 15
                     },
                     {
                         "prop": "track_prop",
                         "position": [
-                            -16,
-                            -144
+                            -1,
+                            -9
                         ],
                         "variant": 15
                     },
@@ -315,223 +315,223 @@
                         "prop": "track_prop",
                         "position": [
                             0,
-                            -144
+                            -9
                         ],
                         "variant": 15
                     },
                     {
                         "prop": "track_prop",
                         "position": [
-                            16,
-                            -144
+                            1,
+                            -9
                         ],
                         "variant": 15
                     },
                     {
                         "prop": "track_prop",
                         "position": [
-                            32,
-                            -144
+                            2,
+                            -9
                         ],
                         "variant": 15
                     },
                     {
                         "prop": "track_prop",
                         "position": [
-                            48,
-                            -144
+                            3,
+                            -9
                         ],
                         "variant": 15
                     },
                     {
                         "prop": "track_prop",
                         "position": [
-                            64,
-                            -144
+                            4,
+                            -9
                         ],
                         "variant": 15
                     },
                     {
                         "prop": "track_prop",
                         "position": [
-                            80,
-                            -144
+                            5,
+                            -9
                         ],
                         "variant": 15
                     },
                     {
                         "prop": "track_prop",
                         "position": [
-                            112,
-                            -144
+                            7,
+                            -9
                         ],
                         "variant": 16
                     },
                     {
                         "prop": "track_prop",
                         "position": [
-                            96,
-                            -144
+                            6,
+                            -9
                         ],
                         "variant": 12
                     },
                     {
                         "prop": "track_prop",
                         "position": [
-                            -224,
-                            -144
+                            -14,
+                            -9
                         ],
                         "variant": 6
                     },
                     {
                         "prop": "track_prop",
                         "position": [
-                            96,
-                            -128
+                            6,
+                            -8
                         ],
                         "variant": 14
                     },
                     {
                         "prop": "track_prop",
                         "position": [
-                            112,
-                            -128
+                            7,
+                            -8
                         ],
                         "variant": 16
                     },
                     {
                         "prop": "track_prop",
                         "position": [
-                            96,
-                            -112
+                            6,
+                            -7
                         ],
                         "variant": 14
                     },
                     {
                         "prop": "track_prop",
                         "position": [
-                            112,
-                            -112
+                            7,
+                            -7
                         ],
                         "variant": 16
                     },
                     {
                         "prop": "track_prop",
                         "position": [
-                            96,
-                            -96
+                            6,
+                            -6
                         ],
                         "variant": 14
                     },
                     {
                         "prop": "track_prop",
                         "position": [
-                            112,
-                            -96
+                            7,
+                            -6
                         ],
                         "variant": 16
                     },
                     {
                         "prop": "track_prop",
                         "position": [
-                            96,
-                            -80
+                            6,
+                            -5
                         ],
                         "variant": 14
                     },
                     {
                         "prop": "track_prop",
                         "position": [
-                            112,
-                            -80
+                            7,
+                            -5
                         ],
                         "variant": 16
                     },
                     {
                         "prop": "track_prop",
                         "position": [
-                            96,
-                            -64
+                            6,
+                            -4
                         ],
                         "variant": 14
                     },
                     {
                         "prop": "track_prop",
                         "position": [
-                            112,
-                            -64
+                            7,
+                            -4
                         ],
                         "variant": 16
                     },
                     {
                         "prop": "track_prop",
                         "position": [
-                            96,
-                            -48
+                            6,
+                            -3
                         ],
                         "variant": 14
                     },
                     {
                         "prop": "track_prop",
                         "position": [
-                            112,
-                            -48
+                            7,
+                            -3
                         ],
                         "variant": 16
                     },
                     {
                         "prop": "track_prop",
                         "position": [
-                            96,
-                            -32
+                            6,
+                            -2
                         ],
                         "variant": 14
                     },
                     {
                         "prop": "track_prop",
                         "position": [
-                            112,
-                            -32
+                            7,
+                            -2
                         ],
                         "variant": 16
                     },
                     {
                         "prop": "track_prop",
                         "position": [
-                            16,
-                            -16
+                            1,
+                            -1
                         ],
                         "variant": 13
                     },
                     {
                         "prop": "track_prop",
                         "position": [
-                            32,
-                            -16
+                            2,
+                            -1
                         ],
                         "variant": 13
                     },
                     {
                         "prop": "track_prop",
                         "position": [
-                            48,
-                            -16
+                            3,
+                            -1
                         ],
                         "variant": 13
                     },
                     {
                         "prop": "track_prop",
                         "position": [
-                            64,
-                            -16
+                            4,
+                            -1
                         ],
                         "variant": 13
                     },
                     {
                         "prop": "track_prop",
                         "position": [
-                            80,
-                            -16
+                            5,
+                            -1
                         ],
                         "variant": 13
                     },
@@ -539,62 +539,62 @@
                         "prop": "track_prop",
                         "position": [
                             0,
-                            -16
+                            -1
                         ],
                         "variant": 13
                     },
                     {
                         "prop": "track_prop",
                         "position": [
-                            -16,
-                            -16
+                            -1,
+                            -1
                         ],
                         "variant": 13
                     },
                     {
                         "prop": "track_prop",
                         "position": [
-                            -48,
-                            -16
+                            -3,
+                            -1
                         ],
                         "variant": 13
                     },
                     {
                         "prop": "track_prop",
                         "position": [
-                            -32,
-                            -16
+                            -2,
+                            -1
                         ],
                         "variant": 13
                     },
                     {
                         "prop": "track_prop",
                         "position": [
-                            112,
-                            -16
+                            7,
+                            -1
                         ],
                         "variant": 16
                     },
                     {
                         "prop": "track_prop",
                         "position": [
-                            96,
-                            -16
+                            6,
+                            -1
                         ],
                         "variant": 10
                     },
                     {
                         "prop": "track_prop",
                         "position": [
-                            -64,
-                            -16
+                            -4,
+                            -1
                         ],
                         "variant": 0
                     },
                     {
                         "prop": "track_prop",
                         "position": [
-                            16,
+                            1,
                             0
                         ],
                         "variant": 15
@@ -602,7 +602,7 @@
                     {
                         "prop": "track_prop",
                         "position": [
-                            48,
+                            3,
                             0
                         ],
                         "variant": 15
@@ -610,7 +610,7 @@
                     {
                         "prop": "track_prop",
                         "position": [
-                            32,
+                            2,
                             0
                         ],
                         "variant": 15
@@ -618,7 +618,7 @@
                     {
                         "prop": "track_prop",
                         "position": [
-                            64,
+                            4,
                             0
                         ],
                         "variant": 15
@@ -626,7 +626,7 @@
                     {
                         "prop": "track_prop",
                         "position": [
-                            80,
+                            5,
                             0
                         ],
                         "variant": 15
@@ -634,7 +634,7 @@
                     {
                         "prop": "track_prop",
                         "position": [
-                            96,
+                            6,
                             0
                         ],
                         "variant": 15
@@ -642,7 +642,7 @@
                     {
                         "prop": "track_prop",
                         "position": [
-                            -160,
+                            -10,
                             0
                         ],
                         "variant": 13
@@ -650,7 +650,7 @@
                     {
                         "prop": "track_prop",
                         "position": [
-                            -144,
+                            -9,
                             0
                         ],
                         "variant": 13
@@ -658,7 +658,7 @@
                     {
                         "prop": "track_prop",
                         "position": [
-                            -128,
+                            -8,
                             0
                         ],
                         "variant": 13
@@ -666,7 +666,7 @@
                     {
                         "prop": "track_prop",
                         "position": [
-                            -80,
+                            -5,
                             0
                         ],
                         "variant": 13
@@ -674,7 +674,7 @@
                     {
                         "prop": "track_prop",
                         "position": [
-                            -96,
+                            -6,
                             0
                         ],
                         "variant": 13
@@ -682,7 +682,7 @@
                     {
                         "prop": "track_prop",
                         "position": [
-                            -112,
+                            -7,
                             0
                         ],
                         "variant": 13
@@ -690,7 +690,7 @@
                     {
                         "prop": "track_prop",
                         "position": [
-                            112,
+                            7,
                             0
                         ],
                         "variant": 8
@@ -698,7 +698,7 @@
                     {
                         "prop": "track_prop",
                         "position": [
-                            -32,
+                            -2,
                             0
                         ],
                         "variant": 15
@@ -706,7 +706,7 @@
                     {
                         "prop": "track_prop",
                         "position": [
-                            -64,
+                            -4,
                             0
                         ],
                         "variant": 10
@@ -714,7 +714,7 @@
                     {
                         "prop": "track_prop",
                         "position": [
-                            -48,
+                            -3,
                             0
                         ],
                         "variant": 11
@@ -722,7 +722,7 @@
                     {
                         "prop": "track_prop",
                         "position": [
-                            -16,
+                            -1,
                             0
                         ],
                         "variant": 12
@@ -730,7 +730,7 @@
                     {
                         "prop": "track_prop",
                         "position": [
-                            -176,
+                            -11,
                             0
                         ],
                         "variant": 0
@@ -746,8 +746,8 @@
                     {
                         "prop": "track_prop",
                         "position": [
-                            -16,
-                            16
+                            -1,
+                            1
                         ],
                         "variant": 14
                     },
@@ -755,87 +755,87 @@
                         "prop": "track_prop",
                         "position": [
                             0,
-                            16
+                            1
                         ],
                         "variant": 16
                     },
                     {
                         "prop": "track_prop",
                         "position": [
-                            -64,
-                            16
+                            -4,
+                            1
                         ],
                         "variant": 15
                     },
                     {
                         "prop": "track_prop",
                         "position": [
-                            -80,
-                            16
+                            -5,
+                            1
                         ],
                         "variant": 15
                     },
                     {
                         "prop": "track_prop",
                         "position": [
-                            -96,
-                            16
+                            -6,
+                            1
                         ],
                         "variant": 15
                     },
                     {
                         "prop": "track_prop",
                         "position": [
-                            -112,
-                            16
+                            -7,
+                            1
                         ],
                         "variant": 15
                     },
                     {
                         "prop": "track_prop",
                         "position": [
-                            -128,
-                            16
+                            -8,
+                            1
                         ],
                         "variant": 15
                     },
                     {
                         "prop": "track_prop",
                         "position": [
-                            -144,
-                            16
+                            -9,
+                            1
                         ],
                         "variant": 15
                     },
                     {
                         "prop": "track_prop",
                         "position": [
-                            -160,
-                            16
+                            -10,
+                            1
                         ],
                         "variant": 15
                     },
                     {
                         "prop": "track_prop",
                         "position": [
-                            -48,
-                            16
+                            -3,
+                            1
                         ],
                         "variant": 8
                     },
                     {
                         "prop": "track_prop",
                         "position": [
-                            -176,
-                            16
+                            -11,
+                            1
                         ],
                         "variant": 6
                     },
                     {
                         "prop": "track_prop",
                         "position": [
-                            -16,
-                            32
+                            -1,
+                            2
                         ],
                         "variant": 14
                     },
@@ -843,15 +843,15 @@
                         "prop": "track_prop",
                         "position": [
                             0,
-                            32
+                            2
                         ],
                         "variant": 16
                     },
                     {
                         "prop": "track_prop",
                         "position": [
-                            -16,
-                            48
+                            -1,
+                            3
                         ],
                         "variant": 14
                     },
@@ -859,7 +859,7 @@
                         "prop": "track_prop",
                         "position": [
                             0,
-                            48
+                            3
                         ],
                         "variant": 16
                     },
@@ -867,15 +867,15 @@
                         "prop": "track_prop",
                         "position": [
                             0,
-                            64
+                            4
                         ],
                         "variant": 8
                     },
                     {
                         "prop": "track_prop",
                         "position": [
-                            -16,
-                            64
+                            -1,
+                            4
                         ],
                         "variant": 6
                     }
@@ -884,200 +884,200 @@
                     {
                         "prop": "bldg_sm_prop",
                         "position": [
-                            112,
-                            -288
+                            7,
+                            -18
                         ],
                         "variant": -1
                     },
                     {
                         "prop": "bldg_lg_prop",
                         "position": [
-                            -64,
-                            -272
+                            -4,
+                            -17
                         ],
                         "variant": -1
                     },
                     {
                         "prop": "bldg_sm_prop",
                         "position": [
-                            -16,
-                            -272
+                            -1,
+                            -17
                         ],
                         "variant": -1
                     },
                     {
                         "prop": "bldg_lg_prop",
                         "position": [
-                            64,
-                            -256
+                            4,
+                            -16
                         ],
                         "variant": -1
                     },
                     {
                         "prop": "bldg_md_prop",
                         "position": [
-                            -112,
-                            -256
+                            -7,
+                            -16
                         ],
                         "variant": -1
                     },
                     {
                         "prop": "bldg_sm_prop",
                         "position": [
-                            -144,
-                            -256
+                            -9,
+                            -16
                         ],
                         "variant": -1
                     },
                     {
                         "prop": "bldg_md_prop",
                         "position": [
-                            16,
-                            -256
+                            1,
+                            -16
                         ],
                         "variant": -1
                     },
                     {
                         "prop": "market_prop",
                         "position": [
-                            -64,
-                            -224
+                            -4,
+                            -14
                         ],
                         "variant": -1
                     },
                     {
                         "prop": "depot_prop",
                         "position": [
-                            -16,
-                            -224
+                            -1,
+                            -14
                         ],
                         "variant": -1
                     },
                     {
                         "prop": "bldg_lg_prop",
                         "position": [
-                            -192,
-                            -240
+                            -12,
+                            -15
                         ],
                         "variant": -1
                     },
                     {
                         "prop": "reed_prop",
                         "position": [
-                            -128,
-                            -192
+                            -8,
+                            -12
                         ],
                         "variant": -1
                     },
                     {
                         "prop": "reed_house_prop",
                         "position": [
-                            32,
-                            -128
+                            2,
+                            -8
                         ],
                         "variant": -1
                     },
                     {
                         "prop": "bldg_md_prop",
                         "position": [
-                            -160,
-                            -128
+                            -10,
+                            -8
                         ],
                         "variant": -1
                     },
                     {
                         "prop": "bldg_sm_prop",
                         "position": [
-                            -192,
-                            -128
+                            -12,
+                            -8
                         ],
                         "variant": -1
                     },
                     {
                         "prop": "bldg_lg_prop",
                         "position": [
-                            -112,
-                            -112
+                            -7,
+                            -7
                         ],
                         "variant": -1
                     },
                     {
                         "prop": "arcade_prop",
                         "position": [
-                            -64,
-                            -112
+                            -4,
+                            -7
                         ],
                         "variant": -1
                     },
                     {
                         "prop": "bench_prop",
                         "position": [
-                            -160,
-                            -16
+                            -10,
+                            -1
                         ],
                         "variant": 0
                     },
                     {
                         "prop": "bench_prop",
                         "position": [
-                            -144,
-                            -16
+                            -9,
+                            -1
                         ],
                         "variant": 1
                     },
                     {
                         "prop": "bench_prop",
                         "position": [
-                            -112,
-                            -16
+                            -7,
+                            -1
                         ],
                         "variant": 0
                     },
                     {
                         "prop": "bench_prop",
                         "position": [
-                            -96,
-                            -16
+                            -6,
+                            -1
                         ],
                         "variant": 1
                     },
                     {
                         "prop": "statue_prop",
                         "position": [
-                            -208,
-                            -16
+                            -13,
+                            -1
                         ],
                         "variant": -1
                     },
                     {
                         "prop": "bench_prop",
                         "position": [
-                            -160,
-                            32
+                            -10,
+                            2
                         ],
                         "variant": 2
                     },
                     {
                         "prop": "bench_prop",
                         "position": [
-                            -144,
-                            32
+                            -9,
+                            2
                         ],
                         "variant": 3
                     },
                     {
                         "prop": "bench_prop",
                         "position": [
-                            -112,
-                            32
+                            -7,
+                            2
                         ],
                         "variant": 2
                     },
                     {
                         "prop": "bench_prop",
                         "position": [
-                            -96,
-                            32
+                            -6,
+                            2
                         ],
                         "variant": 3
                     }

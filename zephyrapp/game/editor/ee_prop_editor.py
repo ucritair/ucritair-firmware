@@ -3,7 +3,7 @@ import glfw;
 from enum import Enum;
 
 from ee_cowtools import *;
-from ee_canvas import Canvas;
+from ee_canvas import Canvas, CanvasGrid, CanvasIO;
 from ee_assets import *;
 from ee_sprites import SpriteBank;
 from ee_input import InputManager;
@@ -15,30 +15,6 @@ from ee_procs import ProcExplorer;
 class EditMode(Enum):
 	BLOCKERS=0,
 	TRIGGERS=1
-
-class SpawnHelper:
-	def spawn_blocker(aabb = [0, 0, 16, 16]):
-		x0, y0, x1, y1 = aabb;
-		return [x0, y0, x1, y1];
-
-	def spawn_trigger(aabb = [0, 0, 16, 16], proc=""):
-		x0, y0, x1, y1 = aabb;
-		return {
-			"aabb" : [x0, y0, x1, y1],
-			"direction" : [0, 1],
-			"proc" : proc
-		};
-
-class CanvasHelper:
-	def transform_point(canvas, point):
-		x, y = point;
-		return x + canvas.width/2, y + canvas.height/2;
-
-	def transform_aabb(canvas, aabb):
-		x0, y0, x1, y1 = aabb;
-		x0, y0 = CanvasHelper.transform_point(canvas, [x0, y0]);
-		x1, y1 = CanvasHelper.transform_point(canvas, [x1, y1]);
-		return x0, y0, x1, y1;
 
 class PropEditor:
 	_ = None;
@@ -57,62 +33,42 @@ class PropEditor:
 		self.open = True;
 
 		self.canvas_size = (256, 256);
-		self.canvas_scale = 2;
-		self.canvas = Canvas(self.canvas_size[0], self.canvas_size[1]);
+		self.tile_size = 16;
+
+		self.canvas = Canvas(self.canvas_size[0], self.canvas_size[1], scale=2);
+		self.canvas_io = CanvasIO(self.canvas);
+		self.canvas_grid = CanvasGrid(
+			self.canvas,
+			((self.canvas_size[0]//self.tile_size)//2, (self.canvas_size[1]//self.tile_size)//2),
+			self.tile_size
+		);
 	
 		self.prop = None;
+		
 		self.edit_mode = EditMode.BLOCKERS;
 		self.editee = None;
 		self.edit_context = None;
-
-		self.tile_size = 16;
-		self.world_cursor = [0, 0];
-		self.tile_cursor = [0, 0];
-		self.tile_cursor_delta = [0, 0];
 	
 		self.show_sprite = True;
 		self.show_aabb = False;
 		self.variant = 0;
 	
-	def gui_prop_selector(self):
-		if imgui.begin_combo(f"##{id(self.prop)}", self.prop["name"] if self.prop != None else "None"):
-			assets = AssetManager.get_assets("prop");
-			for asset in assets:
-				selected = self.prop == asset;
-				if imgui.selectable(asset["name"], selected)[0]:
-					self.prop = asset;
-				if selected:
-					imgui.set_item_default_focus();
-			imgui.end_combo();
-	
-	def gui_edit_mode_selector(self):
-		if self.prop == None:
-			return;
-	
-		if imgui.begin_combo(f"##{id(self.edit_mode)}", self.edit_mode.name):
-			for mode in EditMode:
-				selected = self.edit_mode == mode;
-				if imgui.selectable(mode.name, selected)[0]:
-					self.edit_mode = mode;
-				if selected:
-					imgui.set_item_default_focus();
-			imgui.end_combo();
-	
 	def gui_editee_selector(self):
 		if self.prop == None:
 			return;
-	
-		if self.edit_mode == EditMode.BLOCKERS or self.edit_mode == EditMode.TRIGGERS:
-			options = self.prop["blockers"] if self.edit_mode == EditMode.BLOCKERS else [t["aabb"] for t in self.prop["triggers"]];
-			selected_idx = options.index(self.editee) if self.editee in options else -1;
-			if imgui.begin_combo(f"##{id(self.editee)}", str(selected_idx) if selected_idx != -1 else "None"):
-				for idx in range(len(options)):
-					selected = idx == selected_idx;
-					if imgui.selectable(str(idx), selected)[0]:
-						self.editee = options[idx];
-					if selected:
-						imgui.set_item_default_focus();
-				imgui.end_combo();
+
+		candidates = [];
+		match self.edit_mode:
+			case EditMode.BLOCKERS:
+				candidates = self.prop["blockers"];
+			case EditMode.TRIGGERS:
+				candidates = [t["aabb"] for t in self.prop["triggers"]];
+		
+		self.editee = imgui_selector(
+			id(self.editee),
+			candidates, self.editee,
+			lambda x: str(candidates.index(x)) if x in candidates else "None"
+		);
 	
 	def gui_addition_panel(self):
 		trash = [];
@@ -127,7 +83,7 @@ class PropEditor:
 				if imgui.button(f"-##{id(blocker)}"):
 					trash.append(("blockers", idx));
 			if imgui.button("+##blocker"):
-				self.prop["blockers"].append(SpawnHelper.spawn_blocker());
+				self.prop["blockers"].append([0, 0, 1, 1]);
 		
 		if imgui.collapsing_header("Triggers"):
 			for (idx, trigger) in enumerate(self.prop["triggers"]):
@@ -142,24 +98,14 @@ class PropEditor:
 					ProcExplorer("src/procs");
 				trigger["proc"] = ProcExplorer.render(trigger["proc"]) if ProcExplorer.live() else trigger["proc"];
 			if imgui.button("+##trigger"):
-				self.prop["triggers"].append(SpawnHelper.spawn_trigger());
+				self.prop["triggers"].append({
+					"aabb" : [0, 0, 1, 1],
+					"direction" : [0, 1],
+					"proc" : ""
+				});
 	
 		for key, idx in trash:
 			del self.prop[key][idx];
-	
-	def canvas_snap(self, position):
-		x, y = position;
-		return [(x // self.tile_size) * self.tile_size, (y // self.tile_size) * self.tile_size];
-	
-	def canvas_cursor_io(self, canvas_pos):
-		cursor = InputManager.get_imgui_cursor();
-		x, y = cursor - canvas_pos;
-
-		self.world_cursor = [int(x)/self.canvas_scale, int(y)/self.canvas_scale];
-
-		tile_cursor = self.canvas_snap(self.world_cursor);
-		self.tile_cursor_delta = [tile_cursor[0] - self.tile_cursor[0], tile_cursor[1] - self.tile_cursor[1]];
-		self.tile_cursor = tile_cursor;
 	
 	def is_editing(self):
 		return self.editee != None and self.edit_context != None;
@@ -167,71 +113,59 @@ class PropEditor:
 	def canvas_aabb_edit_io(self):
 		if self.prop == None:
 			return;
-		if (self.edit_mode != EditMode.BLOCKERS and self.edit_mode != EditMode.TRIGGERS) or self.editee == None:
+		if self.editee == None:
 			return;
 	
-		sprite = SpriteBank.get(self.prop["sprite"]);
-		sprite_aabb = [0, 0, sprite.frame_width-1, sprite.frame_height-1];
-		sprite_position = self.canvas_snap([-sprite.frame_width/2, -sprite.frame_height]);
-		sprite_aabb = move_aabb(sprite_aabb, sprite_position);
-
-		aabb = move_aabb(self.editee, sprite_position);
-		aabb = CanvasHelper.transform_aabb(self.canvas, aabb);
+		aabb = self.canvas_grid.untransform_aabb(self.editee);
 
 		if InputManager.is_pressed(glfw.MOUSE_BUTTON_LEFT) and not self.is_editing():	
 			for i in range(4):
-				cursor_part = 0 if i % 2 == 0 else 1;
-				if abs(self.world_cursor[cursor_part] - aabb[i]) <= 1:
-					self.edit_context = {"aabb_edge" : i};
+				if abs(self.canvas_io.cursor[i % 2] - aabb[i]) <= 1:
+					self.edit_context = {"edge_idx" : i};
 					break;
 		if self.is_editing():
-			edge = self.edit_context["aabb_edge"];
-			delta = self.tile_cursor_delta[edge % 2];
-			print(edge, delta);
-			self.editee[edge] += delta;
+			edge_idx = self.edit_context["edge_idx"];
+			delta = self.canvas_io.cursor[edge_idx % 2] - self.canvas_grid.untransform_aabb(self.editee)[edge_idx];
+			delta //= self.tile_size;
+
+			self.editee[edge_idx] += delta;
 			self.editee[2] = max(self.editee[2], self.editee[0]);
 			self.editee[3] = max(self.editee[3], self.editee[1]);
+
 			if InputManager.is_released(glfw.MOUSE_BUTTON_LEFT):
 				self.edit_context = None;
-
-	def canvas_draw_grid(self):
-		for y in range(self.tile_size, self.canvas.height, self.tile_size):
-			self.canvas.draw_line(0, y, self.canvas.width, y, (64, 64, 64));
-		for x in range(self.tile_size, self.canvas.width, self.tile_size):
-			self.canvas.draw_line(x, 0, x, self.canvas.height, (64, 64, 64));
 
 	def canvas_draw_prop(self, show_sprite=True, show_aabb=False, show_blockers=False, show_triggers=False):
 		if self.prop == None:
 			return;
 
 		sprite = SpriteBank.get(self.prop["sprite"]);
-		sprite_aabb = [0, 0, sprite.frame_width-1, sprite.frame_height-1];
-		sprite_position = self.canvas_snap([-sprite.frame_width/2, -sprite.frame_height]);
+		position = self.canvas_grid.untransform_point((0, 0));
+		x, y = position;
 
 		if show_sprite:
 			frame = sprite.frame_images[self.variant];
-			aabb = CanvasHelper.transform_aabb(self.canvas, move_aabb(sprite_aabb, sprite_position));
-			self.canvas.draw_image(aabb[0], aabb[1], frame);
+			self.canvas.draw_image(x, y, frame);
 		
 		if show_aabb:
-			aabb = CanvasHelper.transform_aabb(self.canvas, move_aabb(sprite_aabb, sprite_position));
+			aabb = [x, y, x+sprite.frame_width-1, y+sprite.frame_height-1];
 			self.canvas.draw_aabb(aabb, (255, 255, 255));
 	
 		if show_blockers:
 			for blocker in self.prop["blockers"]:
-				aabb = CanvasHelper.transform_aabb(self.canvas, move_aabb(blocker, sprite_position));
+				aabb = self.canvas_grid.untransform_aabb(blocker);
 				self.canvas.draw_aabb(aabb, (255, 0, 0));
 	
 		if show_triggers:
 			for trigger in self.prop["triggers"]:
-				aabb = CanvasHelper.transform_aabb(self.canvas, move_aabb(trigger["aabb"], sprite_position));
+				aabb = self.canvas_grid.untransform_aabb(trigger["aabb"]);
 				self.canvas.draw_aabb(aabb, (0, 255, 0));
 
 				x0, y0, x1, y1 = aabb;
 				w, h = x1-x0, y1-y0;
 				cx, cy = x0+w/2, y0+h/2;
 				tx, ty = trigger["direction"];
-				self.canvas.draw_line(cx, cy, cx+tx*16, cy+ty*16, (0, 255, 0));
+				self.canvas.draw_line(cx, cy, cx+tx*self.tile_size, cy+ty*self.tile_size, (0, 255, 0));
 
 	def render():
 		if PropEditor._ == None:
@@ -242,22 +176,22 @@ class PropEditor:
 			imgui.set_next_window_size(self.window_size);
 			_, self.open = imgui.begin(f"Prop Editor", self.open, flags=self.window_flags);
 
-			self.gui_prop_selector();
-			self.gui_edit_mode_selector();
+			self.prop = imgui_asset_selector("prop", self.prop);
+			self.edit_mode = imgui_enum_selector(id(self.edit_mode), EditMode, self.edit_mode);
 			self.gui_editee_selector();
 
 			self.canvas.clear((128, 128, 128));
-			self.canvas_draw_grid();
+			self.canvas_grid.draw_lines((64, 64, 64));
 			self.canvas_draw_prop(
 				show_sprite=self.show_sprite,
 				show_aabb=self.show_aabb,
 				show_blockers=self.edit_mode == EditMode.BLOCKERS and self.editee != None,
 				show_triggers=self.edit_mode == EditMode.TRIGGERS and self.editee != None
 			);
-			# Cursor IO has to come right before canvas draw
-			self.canvas_cursor_io(imgui.get_cursor_screen_pos());
+			self.canvas.render();
+
+			self.canvas_io.tick();
 			self.canvas_aabb_edit_io();
-			self.canvas.render(self.canvas_scale);
 
 			_, self.show_sprite = imgui.checkbox("Show sprite", self.show_sprite);
 			imgui.same_line();

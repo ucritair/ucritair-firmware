@@ -22,11 +22,11 @@ def transform_proc_name(s):
 for instance in trp.instances:
 	trp.begin_asset_def(instance);
 
-	trp.swrite(".entries = (CAT_dialogue_profile_entry[]) {\n");
+	trp.swrite(".entries = (const CAT_dialogue_profile_entry[]) {\n");
 	trp.source_indent();
 	for entry in instance["entries"]:
 
-		trp.swrite("(CAT_dialogue_profile_entry) {\n");
+		trp.swrite("{\n");
 		trp.source_indent();
 		trp.swrite(f".node = {transform_dialogue_name(entry["node"])},\n");
 		trp.swrite(f".is_active_proc = {transform_proc_name(entry["is_active_proc"])},\n");

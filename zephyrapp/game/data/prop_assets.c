@@ -14,12 +14,12 @@ const CAT_prop null_prop = {
 const CAT_prop reed_prop = {
 	.sprite = &world_reed_sprite,
 	.blockers = (int16_t*[]) {
-		(int16_t[]) {0,16,32,32,},
+		(int16_t[]) {0,1,2,2,},
 	},
 	.blocker_count = 1,
 	.triggers = (struct trigger[]) {
 		{
-			.aabb = {0,16,32,32,},
+			.aabb = {0,1,2,2,},
 			.tx = 0,
 			.ty = 1,
 			.proc = interact_proc_reed,
@@ -30,12 +30,12 @@ const CAT_prop reed_prop = {
 const CAT_prop reed_house_prop = {
 	.sprite = &world_reed_house_sprite,
 	.blockers = (int16_t*[]) {
-		(int16_t[]) {0,48,64,80,},
+		(int16_t[]) {0,3,4,5,},
 	},
 	.blocker_count = 1,
 	.triggers = (struct trigger[]) {
 		{
-			.aabb = {0,64,32,80,},
+			.aabb = {0,4,2,5,},
 			.tx = 0,
 			.ty = 1,
 			.proc = interact_proc_reed_house,
@@ -46,12 +46,12 @@ const CAT_prop reed_house_prop = {
 const CAT_prop statue_prop = {
 	.sprite = &world_statue_sprite,
 	.blockers = (int16_t*[]) {
-		(int16_t[]) {16,32,32,48,},
+		(int16_t[]) {1,2,2,3,},
 	},
 	.blocker_count = 1,
 	.triggers = (struct trigger[]) {
 		{
-			.aabb = {16,32,32,48,},
+			.aabb = {1,2,2,3,},
 			.tx = 1,
 			.ty = 0,
 			.proc = interact_proc_statue,
@@ -62,7 +62,7 @@ const CAT_prop statue_prop = {
 const CAT_prop bldg_sm_prop = {
 	.sprite = &world_bldg_sm_sprite,
 	.blockers = (int16_t*[]) {
-		(int16_t[]) {0,48,32,80,},
+		(int16_t[]) {0,3,2,5,},
 	},
 	.blocker_count = 1,
 	.triggers = (struct trigger[]) {
@@ -72,7 +72,7 @@ const CAT_prop bldg_sm_prop = {
 const CAT_prop bldg_md_prop = {
 	.sprite = &world_bldg_md_sprite,
 	.blockers = (int16_t*[]) {
-		(int16_t[]) {0,48,48,80,},
+		(int16_t[]) {0,3,3,5,},
 	},
 	.blocker_count = 1,
 	.triggers = (struct trigger[]) {
@@ -82,7 +82,7 @@ const CAT_prop bldg_md_prop = {
 const CAT_prop bldg_lg_prop = {
 	.sprite = &world_bldg_lg_sprite,
 	.blockers = (int16_t*[]) {
-		(int16_t[]) {0,48,48,80,},
+		(int16_t[]) {0,3,3,5,},
 	},
 	.blocker_count = 1,
 	.triggers = (struct trigger[]) {
@@ -92,12 +92,12 @@ const CAT_prop bldg_lg_prop = {
 const CAT_prop arcade_prop = {
 	.sprite = &world_arcade_sprite,
 	.blockers = (int16_t*[]) {
-		(int16_t[]) {0,48,96,80,},
+		(int16_t[]) {0,3,6,5,},
 	},
 	.blocker_count = 1,
 	.triggers = (struct trigger[]) {
 		{
-			.aabb = {0.0,64.0,32.0,80.0,},
+			.aabb = {0,4,2,5,},
 			.tx = 0,
 			.ty = 1,
 			.proc = interact_proc_arcade,
@@ -108,12 +108,12 @@ const CAT_prop arcade_prop = {
 const CAT_prop market_prop = {
 	.sprite = &world_market_sprite,
 	.blockers = (int16_t*[]) {
-		(int16_t[]) {0,32,48,64,},
+		(int16_t[]) {0,2,3,4,},
 	},
 	.blocker_count = 1,
 	.triggers = (struct trigger[]) {
 		{
-			.aabb = {16.0,48.0,48.0,64.0,},
+			.aabb = {1,3,3,4,},
 			.tx = 0,
 			.ty = 1,
 			.proc = interact_proc_market,
@@ -124,7 +124,7 @@ const CAT_prop market_prop = {
 const CAT_prop depot_prop = {
 	.sprite = &world_depot_sprite,
 	.blockers = (int16_t*[]) {
-		(int16_t[]) {0,32,48,64,},
+		(int16_t[]) {0,2,3,4,},
 	},
 	.blocker_count = 1,
 	.triggers = (struct trigger[]) {
@@ -134,7 +134,7 @@ const CAT_prop depot_prop = {
 const CAT_prop dumpster_prop = {
 	.sprite = &world_dumpster_sprite,
 	.blockers = (int16_t*[]) {
-		(int16_t[]) {0,16,16,32,},
+		(int16_t[]) {0,1,1,2,},
 	},
 	.blocker_count = 1,
 	.triggers = (struct trigger[]) {
@@ -144,7 +144,7 @@ const CAT_prop dumpster_prop = {
 const CAT_prop trash_prop = {
 	.sprite = &world_trash_sprite,
 	.blockers = (int16_t*[]) {
-		(int16_t[]) {0,0,16,16,},
+		(int16_t[]) {0,0,1,1,},
 	},
 	.blocker_count = 1,
 	.triggers = (struct trigger[]) {
@@ -154,7 +154,7 @@ const CAT_prop trash_prop = {
 const CAT_prop bench_prop = {
 	.sprite = &world_bench_tile_sprite,
 	.blockers = (int16_t*[]) {
-		(int16_t[]) {0,0,16,16,},
+		(int16_t[]) {0,0,1,1,},
 	},
 	.blocker_count = 1,
 	.triggers = (struct trigger[]) {
