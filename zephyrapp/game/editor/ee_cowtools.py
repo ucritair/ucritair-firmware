@@ -90,9 +90,9 @@ def imgui_selector(ident, candidates, value, name_f = lambda x: x):
 		imgui.end_combo();
 	return value;
 
-def imgui_asset_selector(asset_type, asset):
+def imgui_asset_selector(ident, asset_type, asset):
 	return imgui_selector(
-		id(asset),
+		ident,
 		AssetManager.get_assets(asset_type), asset,
 		lambda x: x["name"] if x != None else "None"
 	);

@@ -96,7 +96,7 @@ class CanvasGrid:
 
 	def transform_point(self, point):
 		x, y = point;
-		x, y = x / self.size, y / self.size;
+		x, y = x // self.size, y // self.size;
 		x, y = x - self.origin[0], y - self.origin[1];
 		return x, y;
 

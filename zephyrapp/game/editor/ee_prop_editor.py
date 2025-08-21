@@ -176,7 +176,7 @@ class PropEditor:
 			imgui.set_next_window_size(self.window_size);
 			_, self.open = imgui.begin(f"Prop Editor", self.open, flags=self.window_flags);
 
-			self.prop = imgui_asset_selector("prop", self.prop);
+			self.prop = imgui_asset_selector(id(self.prop), "prop", self.prop);
 			self.edit_mode = imgui_enum_selector(id(self.edit_mode), EditMode, self.edit_mode);
 			self.gui_editee_selector();
 

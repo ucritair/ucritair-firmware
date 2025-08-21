@@ -11,12 +11,12 @@ typedef struct
 	const CAT_sprite* sprite;
 	bool palette;
 
-	int16_t** blockers;
+	int8_t** blockers;
 	uint8_t blocker_count;
 	
 	struct trigger
 	{
-		int16_t aabb[4];
+		int8_t aabb[4];
 		int8_t tx, ty;
 		void (*proc) ();
 	}* triggers;
@@ -25,7 +25,7 @@ typedef struct
 
 typedef struct
 {
-	struct background
+	/*struct background
 	{
 		uint16_t colour;
 		const CAT_sprite* sprite;
@@ -36,15 +36,15 @@ typedef struct
 			uint8_t frame;
 		}* tiles;
 		uint16_t tile_count;
-	} background;
+	} background;*/
 
 	struct layer
 	{
 		struct prop
 		{
 			const CAT_prop* prop;
-			int16_t position_x, position_y;
-			int16_t variant;
+			int8_t position_x, position_y;
+			int8_t variant;
 		}* props;
 		uint8_t prop_count;
 	}* layers;

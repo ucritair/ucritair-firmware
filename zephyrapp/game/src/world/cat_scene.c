@@ -93,7 +93,7 @@ CAT_scene_index* CAT_detect_collisions(const CAT_scene* scene, int x0, int y0, i
 				int by1 = prop->prop->blockers[k][3] + prop->position_y;
 
 				bool collision = 
-				CAT_rect_rect_touching
+				CAT_rect_rect_intersecting
 				(
 					x0, y0, x1, y1,
 					bx0, by0, bx1, by1

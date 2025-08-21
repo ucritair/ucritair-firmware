@@ -2,7 +2,7 @@ from imgui_bundle import imgui;
 import glfw;
 
 from ee_cowtools import *;
-from ee_canvas import Canvas;
+from ee_canvas import Canvas, CanvasGrid, CanvasIO;
 from ee_assets import *;
 from ee_sprites import SpriteBank, EditorSprite;
 from ee_input import InputManager;
@@ -35,17 +35,6 @@ class PropHelper:
 		x0, y0 = self["position"];
 		w, h = esprite.frame_width, esprite.frame_height;
 		return [x0, y0, x0+w-1, y0+h-1];
-
-class CanvasHelper:
-	def transform_point(canvas, point):
-		x, y = point;
-		return x + canvas.width/2, y + canvas.height/2;
-
-	def transform_aabb(canvas, aabb):
-		x0, y0, x1, y1 = aabb;
-		x0, y0 = CanvasHelper.transform_point(canvas, [x0, y0]);
-		x1, y1 = CanvasHelper.transform_point(canvas, [x1, y1]);
-		return x0, y0, x1, y1;
 
 class FloorPainter:
 	def __init__(self, parent, palette):
@@ -127,16 +116,19 @@ class SceneEditor:
 		self.open = True;
 
 		self.canvas_size = (1024, 1024);
-		self.canvas = Canvas(self.canvas_size[0], self.canvas_size[1]);
 		self.tile_size = 16;
+		self.canvas = Canvas(self.canvas_size[0], self.canvas_size[1]);
+		self.canvas_io = CanvasIO(self.canvas);
+		self.canvas_grid = CanvasGrid(
+			self.canvas,
+			((self.canvas_size[0]//self.tile_size)//2, (self.canvas_size[1]//self.tile_size)//2),
+			self.tile_size
+		);
 
 		self.floor_painter = None;
 
 		self.scene = None;
 
-		self.canvas_cursor = None;
-		self.world_cursor = None;
-		self.tile_cursor = None;
 		self.selection_delta = None;
 		self.cursor_in_bounds = False;
 
@@ -149,16 +141,22 @@ class SceneEditor:
 		self.show_viewport = True;
 		self.show_axes = True;
 		self.show_gizmos = False;
-		self.snap = True;
 	
 	def is_scene_loaded(self):
 		return self.scene in AssetManager.get_assets("scene");
 
 	def y_sort_pass(self):
-		for layer in self.scene["layers"]:
-				layer.sort(key = lambda p: p["position"][1] + AssetManager.search("sprite", AssetManager.search("prop", p["prop"])["sprite"])["height"]);
+		def y_key(p):
+			x, y = self.canvas_grid.untransform_point(p["position"]);
+			prop = AssetManager.search("prop", p["prop"]);
+			sprite = AssetManager.search("sprite", prop["sprite"]);
+			yf = y + sprite["height"];
+			return yf;
 
-	def hygiene_pass(self):	
+		for layer in self.scene["layers"]:
+				layer.sort(key = lambda p: y_key(p));
+
+	def hygiene_pass(self):
 		if self.is_scene_loaded():
 			for thing in self.trash:
 				for layer in self.scene["layers"]:
@@ -184,17 +182,11 @@ class SceneEditor:
 		return [(x // self.tile_size) * self.tile_size, (y // self.tile_size) * self.tile_size];
 	
 	def cursor_io(self, canvas_pos):
-		cursor = InputManager.get_imgui_cursor();
-		x, y = cursor - canvas_pos;
+		x, y = self.canvas_io.cursor;
 		if x < 0 or x >= self.canvas_size[0] or y < 0 or y >= self.canvas_size[1]:
 			self.cursor_in_bounds = False;
 		else:
 			self.cursor_in_bounds = True;
-		x, y = clamp(x, 0, self.canvas_size[0]), clamp(y, 0, self.canvas_size[1]);
-		self.canvas_cursor = int(x), int(y);
-		x, y = x - self.canvas.width/2, y - self.canvas.height/2;
-		self.world_cursor = int(x), int(y);
-		self.tile_cursor = self.snap_position(self.world_cursor);
 	
 	def copy_prop(self, prop):
 		self.copied = prop;
@@ -212,15 +204,19 @@ class SceneEditor:
 			self.selection = None;
 			self.highlight = None;
 			self.active_layer = None;
+
 			for idx in range(len(self.scene["layers"])):
 				layer = self.scene["layers"][len(self.scene["layers"])-idx-1];
 				for prop in layer:
-					if aabb_point_intersect(PropHelper.get_aabb(prop), self.world_cursor):
+					aabb = PropHelper.get_aabb(prop);
+					aabb = self.canvas_grid.untransform_aabb(aabb);
+					if aabb_point_intersect(aabb, self.canvas_io.cursor):
 						self.selection = prop;
 						self.highlight = prop;
 						self.active_layer = layer;
-						x0, y0, x1, y1 = PropHelper.get_aabb(self.selection);
-						cx, cy = self.world_cursor;
+
+						x0, y0, x1, y1 = aabb;
+						cx, cy = self.canvas_io.cursor;
 						dx, dy = cx - x0, cy - y0;
 						self.selection_delta = (dx, dy);
 						return;
@@ -229,51 +225,23 @@ class SceneEditor:
 	
 		if self.selection != None:
 			if InputManager.is_held(glfw.MOUSE_BUTTON_LEFT):
-				x0, y0, x1, y1 = PropHelper.get_aabb(self.selection);
-				cx, cy = self.world_cursor;
-				frame_dx, frame_dy = cx - x0, cy - y0;
-				dx, dy = self.selection_delta;
-				ddx, ddy = frame_dx - dx, frame_dy - dy;
-				self.selection["position"] = [int(x0+ddx), int(y0+ddy)];
-				if self.snap:
-					x, y = self.selection["position"];
-					snap_x, snap_y = round(x / self.tile_size) * self.tile_size, round(y / self.tile_size) * self.tile_size;
-					self.selection["position"] = [snap_x, snap_y];
+				aabb = PropHelper.get_aabb(self.selection);
+				x0, y0, x1, y1 = self.canvas_grid.untransform_aabb(aabb);
+				sdx, sdy = self.selection_delta;
+				x0, y0 = x0 + sdx, y0 + sdy;
+
+				cx, cy = self.canvas_io.cursor;
+				cdx, cdy = cx - x0, cy - y0;
+				self.selection["position"] = self.canvas_grid.transform_point((x0+cdx, y0+cdy));
 	
 		if InputManager.is_held(glfw.KEY_LEFT_SUPER) and InputManager.is_pressed(glfw.KEY_C):
 			self.copy_prop(self.highlight);
 		if InputManager.is_held(glfw.KEY_LEFT_SUPER) and InputManager.is_pressed(glfw.KEY_V):
 			if self.active_layer != None and self.copied != None:
-				self.paste_prop(self.active_layer, self.tile_cursor);
+				self.paste_prop(self.active_layer, self.canvas_grid.transform_point(self.canvas_io.cursor));
 	
 		if InputManager.is_pressed(glfw.KEY_F) and self.highlight != None and PropHelper.get_prop_asset(self.highlight)["palette"]:
 			self.floor_painter = FloorPainter(self, self.highlight);
-	
-	def gui_asset_combo(self, identifier, asset_type, value):
-		result = value;
-		if imgui.begin_combo(f"##{identifier}", result if result != None else "None"):
-			assets = AssetManager.get_assets(asset_type);
-			for asset in assets:
-				selected = result != None and result == asset["name"];
-				if imgui.selectable(asset["name"], selected)[0]:
-					result = asset;
-				if selected:
-					imgui.set_item_default_focus();
-			imgui.end_combo();
-		return result;
-	
-	def gui_asset_name_combo(self, identifier, asset_type, value):
-		result = str(value);
-		if imgui.begin_combo(f"##{identifier}", result):
-			assets = AssetManager.get_assets(asset_type);
-			for asset in assets:
-				selected = result == asset["name"];
-				if imgui.selectable(asset["name"], selected)[0]:
-					result = asset["name"];
-				if selected:
-					imgui.set_item_default_focus();
-			imgui.end_combo();
-		return result;
 
 	def gui_aabb_input(self, aabb):
 		x0, y0, x1, y1 = aabb;
@@ -329,34 +297,34 @@ class SceneEditor:
 		if show_blockers:
 			for blocker in prop_asset["blockers"]:
 				aabb = move_aabb(blocker, prop["position"]);
-				aabb = CanvasHelper.transform_aabb(self.canvas, aabb);
+				aabb = self.canvas_grid.untransform_aabb(aabb);
 				self.canvas.draw_aabb(aabb, (255, 0, 0));
 	
 		if show_triggers:
 			for trigger in prop_asset["triggers"]:
 				aabb = move_aabb(trigger["aabb"], prop["position"]);
-				aabb = CanvasHelper.transform_aabb(self.canvas, aabb);
+				aabb = self.canvas_grid.untransform_aabb(aabb);
 				self.canvas.draw_aabb(aabb, (0, 255, 0));
 
 				x0, y0, x1, y1 = aabb;
 				w, h = x1-x0, y1-y0;
 				cx, cy = x0+w/2, y0+h/2;
 				tx, ty = trigger["direction"];
-				self.canvas.draw_line(cx, cy, cx+tx*16, cy+ty*16, (0, 255, 0));
+				self.canvas.draw_line(cx, cy, cx+tx*self.tile_size, cy+ty*self.tile_size, (0, 255, 0));
 		
 		if show_sprite:
 			frame = esprite.frame_images[0 if prop["variant"] == -1 else prop["variant"]];
-			x, y = CanvasHelper.transform_point(self.canvas, prop["position"]);
+			x, y = self.canvas_grid.untransform_point(prop["position"]);
 			self.canvas.draw_image(x, y, frame);
 		
 		if show_aabb:
 			aabb = PropHelper.get_aabb(prop);
-			aabb = CanvasHelper.transform_aabb(self.canvas, aabb);
+			aabb = self.canvas_grid.untransform_aabb(aabb);
 			self.canvas.draw_aabb(aabb, (255, 255, 255));
 	
 		if show_name:
 			aabb = PropHelper.get_aabb(prop);
-			aabb = CanvasHelper.transform_aabb(self.canvas, aabb);
+			aabb = self.canvas_grid.untransform_aabb(aabb);
 			x0, y0, x1, y1 = aabb;
 			self.canvas.draw_text((x1 + 2, y0), prop_asset["name"], 10, (255, 255, 255));
 	
@@ -410,16 +378,15 @@ class SceneEditor:
 				self.canvas_draw_viewport();
 
 				# Cursor IO has to come right before canvas draw
-				self.cursor_io(imgui.get_cursor_screen_pos());
 				self.canvas.render();
+				self.canvas_io.tick();
+				self.cursor_io(imgui.get_cursor_screen_pos());
 			
 				_, self.show_axes = imgui.checkbox("Show axes", self.show_axes);
 				imgui.same_line();
 				_, self.show_viewport = imgui.checkbox("Show viewport", self.show_viewport);
 				imgui.same_line();
 				_, self.show_gizmos = imgui.checkbox("Show gizmos", self.show_gizmos);
-				imgui.same_line();
-				_, self.snap = imgui.checkbox("Snap", self.snap);
 			
 				imgui.end_group();
 				imgui.same_line();
@@ -429,7 +396,7 @@ class SceneEditor:
 			
 				imgui.end_group();
 			else:
-				self.scene = self.gui_asset_combo(id(self.scene), "scene", self.scene);
+				self.scene = imgui_asset_selector(id(self.scene), "scene", self.scene);
 			
 			self.size = imgui.get_window_size();
 			imgui.end();
