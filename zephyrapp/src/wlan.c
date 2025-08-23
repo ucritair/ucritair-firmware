@@ -7,7 +7,7 @@
 
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(wlan, LOG_LEVEL_DBG);
-
+/* #Get rid of all of wlan
 bool did_post_wifi = false;
 
 static struct net_mgmt_event_callback wifi_shell_mgmt_cb;
@@ -133,3 +133,4 @@ void set_mac()
 #endif
 }
 
+*/
