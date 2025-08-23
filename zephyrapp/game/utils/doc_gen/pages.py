@@ -3,16 +3,22 @@
 from pathlib import Path;
 import re;
 
-in_root = Path("utils/doc_gen/pages").absolute();
-out_root = Path("docs/").absolute();
+_in_root = None;
+_out_root = None;
+
+def set_io_paths(in_root, out_root):
+	global _in_root;
+	global _out_root;
+	_in_root = in_root;
+	_out_root = out_root;
 
 class LeafPage:
 	def __init__(self, path):
 		self.in_path = path;
-		parent = path.relative_to(in_root).parent;
+		parent = path.relative_to(_in_root).parent;
 		name = path.stem;
-		self.out_path = (out_root/parent/name).with_suffix(".html");
-		self.rel_path = self.out_path.relative_to(out_root);
+		self.out_path = (_out_root/parent/name).with_suffix(".html");
+		self.rel_path = self.out_path.relative_to(_out_root);
 
 		text = path.read_text();
 		line = re.search(r"#\s*PAGE\s*\(.*\)\n", text).group();
@@ -24,8 +30,8 @@ class LeafPage:
 class NodePage:
 	def __init__(self, path):
 		self.in_path = path;
-		self.rel_path = path.relative_to(in_root);
-		self.out_path = out_root/self.rel_path;
+		self.rel_path = path.relative_to(_in_root);
+		self.out_path = _out_root/self.rel_path;
 		self.children = [];
 	
 		self.title = self.rel_path.stem.title();
@@ -39,17 +45,20 @@ class NodePage:
 				return True;
 		return False;
 
-tree = NodePage(in_root);
-
-def __construct_tree(node, path):
+def _construct_tree(node, path):
 	for child_path in path.iterdir():
 		if not child_path.is_dir() and child_path.suffix == ".py":
 			node.add_child(LeafPage(child_path));
 	for child_path in path.iterdir():
 		if child_path.is_dir() and not child_path.stem.startswith("__"):
 			child_node = NodePage(child_path);
-			node.add_child(child_node);
-			__construct_tree(child_node, child_path);
+			_construct_tree(child_node, child_path);
+			if len(child_node.children) > 0:
+				node.add_child(child_node);
+
+tree = None;
 
 def contruct_tree():
-	__construct_tree(tree, in_root);
+	global tree;
+	tree = NodePage(_in_root);
+	_construct_tree(tree, _in_root);

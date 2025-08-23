@@ -25,6 +25,8 @@ from ee_scene_editor import SceneEditor;
 from ee_sprites import SpriteBank;
 from ee_input import InputManager;
 from ee_prop_editor import PropEditor;
+from ee_procs import ProcExplorer;
+from ee_dialogue import DialogueGraph;
 
 #########################################################
 ## CONTEXT
@@ -401,40 +403,49 @@ class DocumentRenderer:
 			return node;
 		
 		elif isinstance(T, ee_types.Asset):
-			if T.name in AssetManager.types():
-				Preview.render(T.name, node);
+			Preview.render(T.name, node);
 
-				imgui.text(title);
-				imgui.same_line();
+			imgui.text(title);
+			imgui.same_line();
+			
+			match T.name:
+				case "sprite":
+					_, result = imgui.input_text(f"##{identifier}", node);
+					imgui.same_line();
+					if imgui.button(f"...##{identifier}"):
+						SpriteExplorer(identifier);
+					if SpriteExplorer.is_active(identifier):
+						SpriteExplorer.render();
+						ready, output = SpriteExplorer.harvest();
+						result = output if ready else result;
+					return result;
 				
-				match T.name:
-					case "sprite":
-						_, result = imgui.input_text(f"##{identifier}", node);
-						imgui.same_line();
-						if imgui.button(f"...##{identifier}"):
-							SpriteExplorer(identifier);
-						if SpriteExplorer.is_active(identifier):
-							SpriteExplorer.render();
-							ready, output = SpriteExplorer.harvest();
-							result = output if ready else result;
-						return result;
-					case _:
+				case "proc":
+					_, result = imgui.input_text(f"##{identifier}", str(node));
+					imgui.same_line();
+					if imgui.button(f"...##{identifier}"):
+						ProcExplorer("src/procs");
+					result = ProcExplorer.render(node) if ProcExplorer.live() else result;
+					return result;
+				
+				case _:
+					if T.name in AssetManager.types():
 						result = node;
 						if imgui.begin_combo(f"##{identifier}", node):
-							assets = AssetManager.get_assets(T.name);
+							assets = AssetManager.get_assets(T.name).copy();
+							assets.append(None);
 							for asset in assets:
-								selected = result == asset["name"];
-								if imgui.selectable(asset["name"], selected)[0]:
-									result = asset["name"];
+								name = asset["name"] if asset != None else "##";
+								selected = result == name;
+								if imgui.selectable(name, selected)[0]:
+									result = name
 								if selected:
 									imgui.set_item_default_focus();
 							imgui.end_combo();
 						return result;
-			else:
-				imgui.text(title);
-				imgui.same_line();
-				_, result = imgui.input_text(f"##{identifier}", str(node));
-				return result;
+					else:
+						_, result = imgui.input_text(f"##{identifier}", str(node));
+						return result;
 		
 		elif isinstance(T, ee_types.File):
 			if T.pattern == "*.png":
@@ -517,7 +528,7 @@ class DecorationViewer:
 			return None;
 		DecorationViewer._ = self;
 
-		self.canvas = Canvas(240, 128);
+		self.canvas = Canvas(240, 128, 2);
 		self.size = (640, 480);
 		self.scale = 240 / self.canvas.height;
 		window_flag_list = [
@@ -563,7 +574,7 @@ class DecorationViewer:
 				child_y = parent_shape[1] * 16;
 				off_y = self.child_prop["prop_data"]["child_dy"];
 				self.__draw_prop(draw_x, draw_y - child_y - off_y, self.child_prop);
-			self.canvas.render(self.scale);
+			self.canvas.render();
 
 			if imgui.begin_combo(f"Parent", self.parent_prop["name"]):
 				for prop in self.props:
@@ -605,7 +616,7 @@ class AnimationViewer:
 			return None;
 		AnimationViewer._ = self;
 
-		self.canvas = Canvas(240, 128);
+		self.canvas = Canvas(240, 128, 2);
 		self.size = (640, 480);
 		self.scale = 240 / self.canvas.height;
 		window_flag_list = [
@@ -642,7 +653,7 @@ class AnimationViewer:
 			self.canvas.draw_image(draw_x, draw_y, preview.frame_images[self.frame]);
 			if self.show_AABB:
 				self.canvas.draw_rect_old(draw_x, draw_y, preview.width, preview.height/preview.frame_count, (255, 0, 0));
-			self.canvas.render(self.scale);
+			self.canvas.render();
 
 			if preview.frame_count > 1:	
 				animate_changed, self.animate = imgui.checkbox("Animate", self.animate);
@@ -776,7 +787,7 @@ class ThemeEditor:
 				if len(window_rect) == 4:
 					self.wall_canvas.draw_rect_old(window_rect[0], window_rect[1], window_rect[2], window_rect[3], (0, 0, 255));
 
-				self.wall_canvas.render(1);
+				self.wall_canvas.render();
 
 				wall_tiles = preview_bank.get("sprite", self.theme["wall_tiles"]);
 				per_line = 0;
@@ -800,7 +811,7 @@ class ThemeEditor:
 				if len(window_rect) == 4:
 					self.wall_canvas.draw_rect_old(window_rect[0], window_rect[1], window_rect[2], window_rect[3], (0, 0, 255));
 				
-				self.wall_canvas.render(1);
+				self.wall_canvas.render();
 			
 			if self.theme['tile_floor']:
 				floor_len = len(self.theme["floor_map"]);
@@ -834,7 +845,7 @@ class ThemeEditor:
 						self.theme["floor_map"][idx] = self.floor_brush;
 					self.floor_canvas.draw_rect_old(self.floor_cursor[0] * 16, self.floor_cursor[1] * 16, 16, 16, (255, 0, 0));
 
-				self.floor_canvas.render(1);
+				self.floor_canvas.render();
 
 				floor_tiles = preview_bank.get("sprite", self.theme["floor_tiles"]);
 				per_line = 0;
@@ -877,7 +888,7 @@ class Mesh2DEditor:
 		self.edge_buffer = [];
 		self.trash = None;
 
-		self.canvas = Canvas(240, 120);
+		self.canvas = Canvas(240, 120, 2);
 		self.canvas_scale = 2;
 		self.size = (720, 720);
 		window_flag_list = [
@@ -1095,7 +1106,7 @@ class Mesh2DEditor:
 					self.canvas.draw_line(last.x, last.y, vertex.x, vertex.y, (255, 255, 255));
 				self.canvas.draw_circle(vertex.x, vertex.y, 2, (255, 255, 255));
 				
-			self.canvas.render(self.canvas_scale);
+			self.canvas.render();
 			_, self.show_grid = imgui.checkbox("Show grid", self.show_grid);
 			imgui.same_line();
 			_, self.show_verts = imgui.checkbox("Show verts", self.show_verts);
@@ -1306,7 +1317,16 @@ class DialogueEditor:
 									if selected:
 										imgui.set_item_default_focus();
 								imgui.end_combo();
-							_, edge["proc"] = imgui.input_text("Proc", edge["proc"]);
+							
+							imgui.text(f"proc");
+							imgui.same_line();
+							_, edge["proc"] = imgui.input_text("##", str(edge["proc"]));
+							imgui.same_line();
+							if imgui.button("..."):
+								ProcExplorer("src/procs");
+							if ProcExplorer.live():
+								edge["proc"] = ProcExplorer.render(edge["proc"]);
+
 							imgui.tree_pop();
 						imgui.pop_id();
 						if imgui.button(f"Delete##edge{idx}"):
@@ -1419,6 +1439,8 @@ while not glfw.window_should_close(handle):
 				PropEditor();
 			if imgui.menu_item_simple("Scene Editor"):
 				SceneEditor();
+			if imgui.menu_item_simple("Dialogue Graph"):
+				DialogueGraph();
 			imgui.end_menu();
 		imgui.end_main_menu_bar();
 	
@@ -1445,6 +1467,7 @@ while not glfw.window_should_close(handle):
 		SceneEditor.render();
 	if PropEditor._ != None:
 		PropEditor.render();
+	DialogueGraph.render();
 
 	imgui.end();
 

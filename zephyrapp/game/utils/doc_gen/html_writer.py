@@ -1,7 +1,7 @@
 import enum;
 
 class HTMLMode(enum.Enum):
-	STANDARD = 0
+	DEFAULT = 0
 	INLINE = 1
 
 class HTMLWriter:
@@ -12,10 +12,10 @@ class HTMLWriter:
 	
 # PRIVATE
 	
-	def __make_tabs(self):
+	def _make_tabs(self):
 		return '\t'*len(self.stack);
 
-	def __make_args(self, kwargs):
+	def _make_args(self, kwargs):
 		arg_string = "";
 		for key, value in kwargs.items():
 			if key.startswith("_"):
@@ -30,21 +30,21 @@ class HTMLWriter:
 		self.file.write(f"{s}\n");
 
 	def open_tag(self, tag, **kwargs):
-		self.file.write(f"{self.__make_tabs()}<{tag}{self.__make_args(kwargs)}>\n");
+		self.file.write(f"{self._make_tabs()}<{tag}{self._make_args(kwargs)}>\n");
 		self.stack.append((tag, kwargs));
 	
 	def close_tag(self):
 		tag, kwargs = self.stack.pop();
-		self.file.write(f"{self.__make_tabs()}</{tag}>\n");
+		self.file.write(f"{self._make_tabs()}</{tag}>\n");
 	
 	def one_line(self, key, value, **kwargs):
-		self.file.write(f"{self.__make_tabs()}<{key}{self.__make_args(kwargs)}>{value}</{key}>\n");
+		self.file.write(f"{self._make_tabs()}<{key}{self._make_args(kwargs)}>{value}</{key}>\n");
 	
 	def one_tag(self, tag, **kwargs):
-		self.file.write(f"{self.__make_tabs()}<{tag}{self.__make_args(kwargs)} />\n");
+		self.file.write(f"{self._make_tabs()}<{tag}{self._make_args(kwargs)} />\n");
 	
 	def one_token(self, tag, **kwargs):
-		self.file.write(f"{self.__make_tabs()}<{tag}{self.__make_args(kwargs)}>\n");
+		self.file.write(f"{self._make_tabs()}<{tag}{self._make_args(kwargs)}>\n");
 	
 # PUBLIC
 	
@@ -74,12 +74,17 @@ class HTMLWriter:
 	def start_text_block(self,):
 		self.open_tag("div", data_text_block=True);
 
-	def text(self, s):
-		head = self.stack[-1] if len(self.stack) > 0 else None;
-		if head != None and "data_text_block" in head[1]:
-			self.plain(f"{self.__make_tabs()}{s}");
-		else:
-			self.one_line("p", s);
+	def text(self, s, mode=HTMLMode.DEFAULT, **kwargs):
+		s = s.replace("\\n", "<br>");
+		match mode:
+			case HTMLMode.DEFAULT:
+				head = self.stack[-1] if len(self.stack) > 0 else None;
+				if head != None and "data_text_block" in head[1]:
+					self.plain(f"{self._make_tabs()}{s}");
+				else:
+					self.one_line("p", s);
+			case HTMLMode.INLINE:
+				return f"<p {self._make_args(kwargs)}>{s}</p>";
 	
 	def end_text_block(self):
 		self.close_tag();
@@ -103,8 +108,11 @@ class HTMLWriter:
 	
 		self.open_tag("tbody");
 
-	def table_row(self, columns):
-		self.open_tag("tr");
+	def table_row(self, columns, row_id=None):
+		if row_id != None:
+			self.open_tag("tr", _id=row_id);
+		else:
+			self.open_tag("tr");
 		for column in columns:
 			self.one_line("td", column);
 		self.close_tag();
@@ -113,12 +121,12 @@ class HTMLWriter:
 		self.close_tag();
 		self.close_tag();
 
-	def image(self, path, mode=HTMLMode.STANDARD, **kwargs):
+	def image(self, path, mode=HTMLMode.DEFAULT, **kwargs):
 		match mode:
-			case HTMLMode.STANDARD:
+			case HTMLMode.DEFAULT:
 				self.one_token("img", src=path, **kwargs);
 			case HTMLMode.INLINE:
-				return f"<img src={path} {self.__make_args(kwargs)} />";
+				return f"<img src={path} {self._make_args(kwargs)}>";
 
 	def start_div(self):
 		self.open_tag("div");

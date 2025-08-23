@@ -61,18 +61,18 @@
             "blockers": [
                 [
                     0,
-                    16,
-                    32,
-                    32
+                    1,
+                    2,
+                    2
                 ]
             ],
             "triggers": [
                 {
                     "aabb": [
                         0,
-                        16,
-                        32,
-                        32
+                        1,
+                        2,
+                        2
                     ],
                     "proc": "interact_proc_reed",
                     "direction": [
@@ -89,18 +89,18 @@
             "blockers": [
                 [
                     0,
-                    48,
-                    64,
-                    80
+                    3,
+                    4,
+                    5
                 ]
             ],
             "triggers": [
                 {
                     "aabb": [
                         0,
-                        64,
-                        32,
-                        80
+                        4,
+                        2,
+                        5
                     ],
                     "direction": [
                         0,
@@ -116,19 +116,19 @@
             "name": "statue_prop",
             "blockers": [
                 [
-                    16,
-                    32,
-                    32,
-                    48
+                    1,
+                    2,
+                    2,
+                    3
                 ]
             ],
             "triggers": [
                 {
                     "aabb": [
-                        16,
-                        32,
-                        32,
-                        48
+                        1,
+                        2,
+                        2,
+                        3
                     ],
                     "direction": [
                         1,
@@ -145,9 +145,9 @@
             "blockers": [
                 [
                     0,
-                    48,
-                    32,
-                    80
+                    3,
+                    2,
+                    5
                 ]
             ],
             "triggers": [],
@@ -159,9 +159,9 @@
             "blockers": [
                 [
                     0,
-                    48,
-                    48,
-                    80
+                    3,
+                    3,
+                    5
                 ]
             ],
             "triggers": [],
@@ -173,9 +173,9 @@
             "blockers": [
                 [
                     0,
-                    48,
-                    48,
-                    80
+                    3,
+                    3,
+                    5
                 ]
             ],
             "triggers": [],
@@ -187,12 +187,26 @@
             "blockers": [
                 [
                     0,
-                    48,
-                    96,
-                    80
+                    3,
+                    6,
+                    5
                 ]
             ],
-            "triggers": [],
+            "triggers": [
+                {
+                    "aabb": [
+                        0,
+                        4,
+                        2,
+                        5
+                    ],
+                    "direction": [
+                        0,
+                        1
+                    ],
+                    "proc": "interact_proc_arcade"
+                }
+            ],
             "sprite": "world_arcade_sprite",
             "palette": false
         },
@@ -201,12 +215,26 @@
             "blockers": [
                 [
                     0,
-                    32,
-                    48,
-                    64
+                    2,
+                    3,
+                    4
                 ]
             ],
-            "triggers": [],
+            "triggers": [
+                {
+                    "aabb": [
+                        1,
+                        3,
+                        3,
+                        4
+                    ],
+                    "direction": [
+                        0,
+                        1
+                    ],
+                    "proc": "interact_proc_market"
+                }
+            ],
             "sprite": "world_market_sprite",
             "palette": false
         },
@@ -215,9 +243,9 @@
             "blockers": [
                 [
                     0,
-                    32,
-                    48,
-                    64
+                    2,
+                    3,
+                    4
                 ]
             ],
             "triggers": [],
@@ -229,9 +257,9 @@
             "blockers": [
                 [
                     0,
-                    16,
-                    16,
-                    32
+                    1,
+                    1,
+                    2
                 ]
             ],
             "triggers": [],
@@ -244,8 +272,8 @@
                 [
                     0,
                     0,
-                    16,
-                    16
+                    1,
+                    1
                 ]
             ],
             "triggers": [],
@@ -258,8 +286,8 @@
                 [
                     0,
                     0,
-                    16,
-                    16
+                    1,
+                    1
                 ]
             ],
             "triggers": [],

@@ -3,7 +3,6 @@
 import abc;
 import re;
 import glob;
-import json;
 
 class Type(abc.ABC):
 	@abc.abstractmethod

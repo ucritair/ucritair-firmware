@@ -3,7 +3,7 @@
 # PAGE(Fish)
 
 import json;
-from html_writer import HTMLWriter;
+from html_writer import HTMLWriter, HTMLMode;
 import common;
 
 def build(html: HTMLWriter):
@@ -27,8 +27,10 @@ def build(html: HTMLWriter):
 			item["display_name"],
 			item["name"],
 			item["grade_constraint"]+1,
-			item["proverb"]
-		]);
+			html.text(item["proverb"],  mode=HTMLMode.INLINE, _class="table_text")
+		],
+		row_id=item["name"]
+		);
 	html.end_table();
 
 

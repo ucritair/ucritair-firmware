@@ -12,10 +12,10 @@ for instance in trp.instances:
 
 	trp.swrite(f".sprite = &{instance["sprite"]},\n");
 
-	trp.swrite(".blockers = (int16_t*[]) {\n");
+	trp.swrite(".blockers = (int8_t*[]) {\n");
 	trp.source_indent();
 	for blocker in instance["blockers"]:
-		trp.swrite("(int16_t[]) {");
+		trp.swrite("(int8_t[]) {");
 		for element in blocker:
 			trp.swrite(f"{int(element)},", no_indent=True);
 		trp.swrite("},\n", no_indent=True);

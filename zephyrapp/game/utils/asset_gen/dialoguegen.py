@@ -37,7 +37,7 @@ for (idx, node) in enumerate(json_entries):
 	source.write("\t},\n");
 	source.write(f"\t.line_count = {len(node["lines"])},\n");
 
-	source.write(f"\t.edges = (CAT_dialogue_edge[])\n");
+	source.write(f"\t.edges = (const CAT_dialogue_edge[])\n");
 	source.write("\t{\n");
 	for edge in node["edges"]:
 		source.write("\t\t{\n");

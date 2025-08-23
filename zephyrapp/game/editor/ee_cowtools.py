@@ -1,6 +1,8 @@
 import OpenGL;
 OpenGL.FULL_LOGGING = True;
 from OpenGL.GL import *;
+from imgui_bundle import imgui;
+from ee_assets import AssetManager;
 
 def foldl(f, acc, xs):
 	if len(xs) == 0:
@@ -63,3 +65,54 @@ def aabb_equals(a, b):
 		if a[i] != b[i]:
 			return False;
 	return True;
+
+def value_with_effect(value, effect_expr):
+	return value;
+
+class EEID:
+	def __iter__(self):
+		self.eeid = 0;
+		return self;
+
+	def __next__(self):
+		result = self.eeid;
+		self.eeid += 1;
+		return result;
+
+def imgui_selector(ident, candidates, value, name_f = lambda x: x):
+	if imgui.begin_combo(f"##{ident}", name_f(value)):
+		for candidate in candidates:
+			selected = candidate == value;
+			if imgui.selectable(name_f(candidate), selected)[0]:
+				value = candidate;
+			if selected:
+				imgui.set_item_default_focus();
+		imgui.end_combo();
+	return value;
+
+def imgui_asset_selector(ident, asset_type, asset):
+	return imgui_selector(
+		ident,
+		AssetManager.get_assets(asset_type), asset,
+		lambda x: x["name"] if x != None else "None"
+	);
+
+def imgui_enum_selector(ident, enum_type, value):
+	return imgui_selector(
+		ident,
+		enum_type, value,
+		lambda x: x.name
+	);
+
+def imgui_aabb_xywh(ident, aabb):
+	x0, y0, x1, y1 = aabb;
+	w, h = x1-x0, y1-y0;
+	x0, y0 = imgui.input_int2(f"X Y##{ident}", [int(x0), int(y0)])[1];
+	w, h = imgui.input_int2(f"W H##{ident}", [int(w), int(h)])[1];
+	return x0, y0, x0+w, y0+h;
+
+def imgui_aabb_xyxy(ident, aabb):
+	x0, y0, x1, y1 = aabb;
+	x0, y0 = imgui.input_int2(f"X0 Y0##{ident}", [int(x0), int(y0)])[1];
+	x1, y1 = imgui.input_int2(f"X1 Y1##{ident}", [int(x1), int(y1)])[1];
+	return x0, y0, x1, y1;

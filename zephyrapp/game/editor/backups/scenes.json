@@ -4,6 +4,52 @@
             "name": {
                 "type": "string"
             },
+            "bounds": {
+                "type": [
+                    "int"
+                ],
+                "attributes": [
+                    {
+                        "fixed-length": 4
+                    }
+                ]
+            },
+            "background": {
+                "type": {
+                    "colour": {
+                        "type": [
+                            "int"
+                        ],
+                        "attributes": [
+                            {
+                                "fixed-length": 4
+                            }
+                        ]
+                    },
+                    "palette": {
+                        "type": "sprite"
+                    },
+                    "tiles": {
+                        "type": [
+                            {
+                                "position": {
+                                    "type": [
+                                        "int"
+                                    ],
+                                    "attributes": [
+                                        {
+                                            "fixed_length": 2
+                                        }
+                                    ]
+                                },
+                                "frame": {
+                                    "type": "int"
+                                }
+                            }
+                        ]
+                    }
+                }
+            },
             "layers": {
                 "type": [
                     [
@@ -14,6 +60,11 @@
                             "position": {
                                 "type": [
                                     "int"
+                                ],
+                                "attributes": [
+                                    {
+                                        "fixed-length": 2
+                                    }
                                 ]
                             }
                         }
@@ -25,13 +76,10 @@
     "instances": [
         {
             "name": "test_scene",
-            "origin": [
-                512,
-                512
-            ],
             "layers": [
                 [
                     {
+<<<<<<< HEAD
                         "prop": "fence_prop",
                         "position": [
                             -256,
@@ -2866,206 +2914,1156 @@
                 ],
                 [
                     {
+=======
+>>>>>>> feature-world
                         "prop": "bldg_sm_prop",
                         "position": [
-                            112,
-                            -288
+                            7,
+                            -18
                         ],
                         "variant": -1
                     },
                     {
                         "prop": "bldg_lg_prop",
                         "position": [
-                            -64,
-                            -272
+                            -4,
+                            -17
                         ],
                         "variant": -1
                     },
                     {
                         "prop": "bldg_sm_prop",
                         "position": [
-                            -16,
-                            -272
+                            -1,
+                            -17
                         ],
                         "variant": -1
                     },
                     {
                         "prop": "bldg_lg_prop",
                         "position": [
-                            64,
-                            -256
+                            4,
+                            -16
                         ],
                         "variant": -1
                     },
                     {
                         "prop": "bldg_md_prop",
                         "position": [
-                            -112,
-                            -256
+                            -7,
+                            -16
                         ],
                         "variant": -1
                     },
                     {
                         "prop": "bldg_sm_prop",
                         "position": [
-                            -144,
-                            -256
+                            -9,
+                            -16
                         ],
                         "variant": -1
                     },
                     {
                         "prop": "bldg_md_prop",
                         "position": [
-                            16,
-                            -256
+                            1,
+                            -16
                         ],
                         "variant": -1
                     },
                     {
                         "prop": "market_prop",
                         "position": [
-                            -64,
-                            -224
+                            -4,
+                            -14
                         ],
                         "variant": -1
                     },
                     {
                         "prop": "depot_prop",
                         "position": [
-                            -16,
-                            -224
+                            -1,
+                            -14
                         ],
                         "variant": -1
                     },
                     {
                         "prop": "bldg_lg_prop",
                         "position": [
-                            -192,
-                            -240
+                            -12,
+                            -15
                         ],
                         "variant": -1
                     },
                     {
                         "prop": "reed_prop",
                         "position": [
-                            -128,
-                            -192
-                        ],
-                        "variant": -1
-                    },
-                    {
-                        "prop": "reed_house_prop",
-                        "position": [
-                            32,
-                            -128
+                            -8,
+                            -12
                         ],
                         "variant": -1
                     },
                     {
                         "prop": "bldg_md_prop",
                         "position": [
-                            -160,
-                            -128
+                            -10,
+                            -8
                         ],
                         "variant": -1
                     },
                     {
                         "prop": "bldg_sm_prop",
                         "position": [
-                            -192,
-                            -128
+                            -12,
+                            -8
+                        ],
+                        "variant": -1
+                    },
+                    {
+                        "prop": "reed_house_prop",
+                        "position": [
+                            2.0,
+                            -8.0
                         ],
                         "variant": -1
                     },
                     {
                         "prop": "bldg_lg_prop",
                         "position": [
-                            -112,
-                            -112
+                            -7,
+                            -7
                         ],
                         "variant": -1
                     },
                     {
                         "prop": "arcade_prop",
                         "position": [
-                            -64,
-                            -112
+                            -4,
+                            -7
                         ],
                         "variant": -1
                     },
                     {
                         "prop": "bench_prop",
                         "position": [
-                            -160,
-                            -16
+                            -10.0,
+                            -1.0
                         ],
                         "variant": 0
                     },
                     {
                         "prop": "bench_prop",
                         "position": [
-                            -144,
-                            -16
+                            -9.0,
+                            -1.0
                         ],
                         "variant": 1
                     },
                     {
                         "prop": "bench_prop",
                         "position": [
-                            -112,
-                            -16
+                            -7,
+                            -1
                         ],
-                        "variant": 0
+                        "variant": -1
                     },
                     {
                         "prop": "bench_prop",
                         "position": [
-                            -96,
-                            -16
+                            -6.0,
+                            -1.0
                         ],
                         "variant": 1
                     },
                     {
                         "prop": "statue_prop",
                         "position": [
-                            -208,
-                            -16
+                            -13,
+                            -1
                         ],
                         "variant": -1
                     },
                     {
                         "prop": "bench_prop",
                         "position": [
-                            -160,
-                            32
+                            -10.0,
+                            2.0
                         ],
                         "variant": 2
                     },
                     {
                         "prop": "bench_prop",
                         "position": [
-                            -144,
-                            32
+                            -9,
+                            2
                         ],
                         "variant": 3
                     },
                     {
                         "prop": "bench_prop",
                         "position": [
-                            -112,
-                            32
+                            -7.0,
+                            2.0
                         ],
                         "variant": 2
                     },
                     {
                         "prop": "bench_prop",
                         "position": [
-                            -96,
-                            32
+                            -6.0,
+                            2.0
                         ],
                         "variant": 3
                     }
                 ]
+            ],
+            "background": {
+                "colour": [
+                    146,
+                    169,
+                    132,
+                    255
+                ],
+                "palette": "floor_grass_tile_sprite",
+                "tiles": [
+                    {
+                        "position": [
+                            -11.0,
+                            0.0
+                        ],
+                        "frame": 0
+                    },
+                    {
+                        "position": [
+                            -11.0,
+                            1.0
+                        ],
+                        "frame": 6
+                    },
+                    {
+                        "position": [
+                            -10.0,
+                            0.0
+                        ],
+                        "frame": 13
+                    },
+                    {
+                        "position": [
+                            -9.0,
+                            0.0
+                        ],
+                        "frame": 13
+                    },
+                    {
+                        "position": [
+                            -8.0,
+                            0.0
+                        ],
+                        "frame": 13
+                    },
+                    {
+                        "position": [
+                            -7.0,
+                            0.0
+                        ],
+                        "frame": 13
+                    },
+                    {
+                        "position": [
+                            -6.0,
+                            0.0
+                        ],
+                        "frame": 13
+                    },
+                    {
+                        "position": [
+                            -5.0,
+                            0.0
+                        ],
+                        "frame": 13
+                    },
+                    {
+                        "position": [
+                            -4.0,
+                            0.0
+                        ],
+                        "frame": 13
+                    },
+                    {
+                        "position": [
+                            -3.0,
+                            0.0
+                        ],
+                        "frame": 13
+                    },
+                    {
+                        "position": [
+                            -2.0,
+                            0.0
+                        ],
+                        "frame": 13
+                    },
+                    {
+                        "position": [
+                            -11.0,
+                            -10.0
+                        ],
+                        "frame": 13
+                    },
+                    {
+                        "position": [
+                            -9.0,
+                            -10.0
+                        ],
+                        "frame": 13
+                    },
+                    {
+                        "position": [
+                            -10.0,
+                            -10.0
+                        ],
+                        "frame": 13
+                    },
+                    {
+                        "position": [
+                            -8.0,
+                            -10.0
+                        ],
+                        "frame": 13
+                    },
+                    {
+                        "position": [
+                            -7.0,
+                            -10.0
+                        ],
+                        "frame": 13
+                    },
+                    {
+                        "position": [
+                            -6.0,
+                            -10.0
+                        ],
+                        "frame": 13
+                    },
+                    {
+                        "position": [
+                            -5.0,
+                            -10.0
+                        ],
+                        "frame": 13
+                    },
+                    {
+                        "position": [
+                            -3.0,
+                            -10.0
+                        ],
+                        "frame": 13
+                    },
+                    {
+                        "position": [
+                            -4.0,
+                            -10.0
+                        ],
+                        "frame": 13
+                    },
+                    {
+                        "position": [
+                            -2.0,
+                            -10.0
+                        ],
+                        "frame": 13
+                    },
+                    {
+                        "position": [
+                            -1.0,
+                            -10.0
+                        ],
+                        "frame": 13
+                    },
+                    {
+                        "position": [
+                            -1.0,
+                            -10.0
+                        ],
+                        "frame": 13
+                    },
+                    {
+                        "position": [
+                            0.0,
+                            -10.0
+                        ],
+                        "frame": 13
+                    },
+                    {
+                        "position": [
+                            1.0,
+                            -10.0
+                        ],
+                        "frame": 13
+                    },
+                    {
+                        "position": [
+                            1.0,
+                            -10.0
+                        ],
+                        "frame": 13
+                    },
+                    {
+                        "position": [
+                            2.0,
+                            -10.0
+                        ],
+                        "frame": 13
+                    },
+                    {
+                        "position": [
+                            3.0,
+                            -10.0
+                        ],
+                        "frame": 13
+                    },
+                    {
+                        "position": [
+                            3.0,
+                            -10.0
+                        ],
+                        "frame": 13
+                    },
+                    {
+                        "position": [
+                            4.0,
+                            -10.0
+                        ],
+                        "frame": 13
+                    },
+                    {
+                        "position": [
+                            5.0,
+                            -10.0
+                        ],
+                        "frame": 13
+                    },
+                    {
+                        "position": [
+                            6.0,
+                            -10.0
+                        ],
+                        "frame": 13
+                    },
+                    {
+                        "position": [
+                            -1.0,
+                            0.0
+                        ],
+                        "frame": 13
+                    },
+                    {
+                        "position": [
+                            1.0,
+                            0.0
+                        ],
+                        "frame": 13
+                    },
+                    {
+                        "position": [
+                            0.0,
+                            0.0
+                        ],
+                        "frame": 13
+                    },
+                    {
+                        "position": [
+                            2.0,
+                            0.0
+                        ],
+                        "frame": 13
+                    },
+                    {
+                        "position": [
+                            3.0,
+                            0.0
+                        ],
+                        "frame": 13
+                    },
+                    {
+                        "position": [
+                            3.0,
+                            0.0
+                        ],
+                        "frame": 13
+                    },
+                    {
+                        "position": [
+                            4.0,
+                            0.0
+                        ],
+                        "frame": 13
+                    },
+                    {
+                        "position": [
+                            5.0,
+                            0.0
+                        ],
+                        "frame": 13
+                    },
+                    {
+                        "position": [
+                            6.0,
+                            0.0
+                        ],
+                        "frame": 13
+                    },
+                    {
+                        "position": [
+                            -11.0,
+                            -9.0
+                        ],
+                        "frame": 15
+                    },
+                    {
+                        "position": [
+                            -10.0,
+                            -9.0
+                        ],
+                        "frame": 15
+                    },
+                    {
+                        "position": [
+                            -9.0,
+                            -9.0
+                        ],
+                        "frame": 15
+                    },
+                    {
+                        "position": [
+                            -8.0,
+                            -9.0
+                        ],
+                        "frame": 15
+                    },
+                    {
+                        "position": [
+                            -7.0,
+                            -9.0
+                        ],
+                        "frame": 15
+                    },
+                    {
+                        "position": [
+                            -6.0,
+                            -9.0
+                        ],
+                        "frame": 15
+                    },
+                    {
+                        "position": [
+                            -5.0,
+                            -9.0
+                        ],
+                        "frame": 15
+                    },
+                    {
+                        "position": [
+                            -4.0,
+                            -9.0
+                        ],
+                        "frame": 15
+                    },
+                    {
+                        "position": [
+                            -3.0,
+                            -9.0
+                        ],
+                        "frame": 15
+                    },
+                    {
+                        "position": [
+                            -2.0,
+                            -9.0
+                        ],
+                        "frame": 15
+                    },
+                    {
+                        "position": [
+                            -1.0,
+                            -9.0
+                        ],
+                        "frame": 15
+                    },
+                    {
+                        "position": [
+                            0.0,
+                            -9.0
+                        ],
+                        "frame": 15
+                    },
+                    {
+                        "position": [
+                            1.0,
+                            -9.0
+                        ],
+                        "frame": 15
+                    },
+                    {
+                        "position": [
+                            2.0,
+                            -9.0
+                        ],
+                        "frame": 15
+                    },
+                    {
+                        "position": [
+                            3.0,
+                            -9.0
+                        ],
+                        "frame": 15
+                    },
+                    {
+                        "position": [
+                            4.0,
+                            -9.0
+                        ],
+                        "frame": 15
+                    },
+                    {
+                        "position": [
+                            5.0,
+                            -9.0
+                        ],
+                        "frame": 15
+                    },
+                    {
+                        "position": [
+                            6.0,
+                            -9.0
+                        ],
+                        "frame": 15
+                    },
+                    {
+                        "position": [
+                            -10.0,
+                            1.0
+                        ],
+                        "frame": 15
+                    },
+                    {
+                        "position": [
+                            -9.0,
+                            1.0
+                        ],
+                        "frame": 15
+                    },
+                    {
+                        "position": [
+                            -8.0,
+                            1.0
+                        ],
+                        "frame": 15
+                    },
+                    {
+                        "position": [
+                            -7.0,
+                            1.0
+                        ],
+                        "frame": 15
+                    },
+                    {
+                        "position": [
+                            -6.0,
+                            1.0
+                        ],
+                        "frame": 15
+                    },
+                    {
+                        "position": [
+                            -5.0,
+                            1.0
+                        ],
+                        "frame": 15
+                    },
+                    {
+                        "position": [
+                            -4.0,
+                            1.0
+                        ],
+                        "frame": 15
+                    },
+                    {
+                        "position": [
+                            -3.0,
+                            1.0
+                        ],
+                        "frame": 15
+                    },
+                    {
+                        "position": [
+                            -2.0,
+                            1.0
+                        ],
+                        "frame": 15
+                    },
+                    {
+                        "position": [
+                            -1.0,
+                            1.0
+                        ],
+                        "frame": 15
+                    },
+                    {
+                        "position": [
+                            0.0,
+                            1.0
+                        ],
+                        "frame": 15
+                    },
+                    {
+                        "position": [
+                            1.0,
+                            1.0
+                        ],
+                        "frame": 15
+                    },
+                    {
+                        "position": [
+                            2.0,
+                            1.0
+                        ],
+                        "frame": 15
+                    },
+                    {
+                        "position": [
+                            3.0,
+                            1.0
+                        ],
+                        "frame": 15
+                    },
+                    {
+                        "position": [
+                            4.0,
+                            1.0
+                        ],
+                        "frame": 15
+                    },
+                    {
+                        "position": [
+                            4.0,
+                            1.0
+                        ],
+                        "frame": 15
+                    },
+                    {
+                        "position": [
+                            5.0,
+                            1.0
+                        ],
+                        "frame": 15
+                    },
+                    {
+                        "position": [
+                            6.0,
+                            1.0
+                        ],
+                        "frame": 15
+                    },
+                    {
+                        "position": [
+                            -12.0,
+                            -10.0
+                        ],
+                        "frame": 0
+                    },
+                    {
+                        "position": [
+                            -12.0,
+                            -9.0
+                        ],
+                        "frame": 6
+                    },
+                    {
+                        "position": [
+                            7.0,
+                            -10.0
+                        ],
+                        "frame": 2
+                    },
+                    {
+                        "position": [
+                            7.0,
+                            -9.0
+                        ],
+                        "frame": 12
+                    },
+                    {
+                        "position": [
+                            7.0,
+                            -8.0
+                        ],
+                        "frame": 14
+                    },
+                    {
+                        "position": [
+                            7.0,
+                            -7.0
+                        ],
+                        "frame": 14
+                    },
+                    {
+                        "position": [
+                            7.0,
+                            -6.0
+                        ],
+                        "frame": 14
+                    },
+                    {
+                        "position": [
+                            7.0,
+                            -5.0
+                        ],
+                        "frame": 14
+                    },
+                    {
+                        "position": [
+                            7.0,
+                            -4.0
+                        ],
+                        "frame": 14
+                    },
+                    {
+                        "position": [
+                            7.0,
+                            -3.0
+                        ],
+                        "frame": 14
+                    },
+                    {
+                        "position": [
+                            7.0,
+                            -2.0
+                        ],
+                        "frame": 14
+                    },
+                    {
+                        "position": [
+                            7.0,
+                            -1.0
+                        ],
+                        "frame": 14
+                    },
+                    {
+                        "position": [
+                            7.0,
+                            0.0
+                        ],
+                        "frame": 10
+                    },
+                    {
+                        "position": [
+                            7.0,
+                            -10.0
+                        ],
+                        "frame": 13
+                    },
+                    {
+                        "position": [
+                            7.0,
+                            -10.0
+                        ],
+                        "frame": 9
+                    },
+                    {
+                        "position": [
+                            7.0,
+                            -10.0
+                        ],
+                        "frame": 13
+                    },
+                    {
+                        "position": [
+                            8.0,
+                            -10.0
+                        ],
+                        "frame": 2
+                    },
+                    {
+                        "position": [
+                            8.0,
+                            -9.0
+                        ],
+                        "frame": 16
+                    },
+                    {
+                        "position": [
+                            8.0,
+                            -7.0
+                        ],
+                        "frame": 16
+                    },
+                    {
+                        "position": [
+                            8.0,
+                            -8.0
+                        ],
+                        "frame": 16
+                    },
+                    {
+                        "position": [
+                            8.0,
+                            -6.0
+                        ],
+                        "frame": 16
+                    },
+                    {
+                        "position": [
+                            8.0,
+                            -5.0
+                        ],
+                        "frame": 16
+                    },
+                    {
+                        "position": [
+                            8.0,
+                            -4.0
+                        ],
+                        "frame": 16
+                    },
+                    {
+                        "position": [
+                            8.0,
+                            -3.0
+                        ],
+                        "frame": 16
+                    },
+                    {
+                        "position": [
+                            8.0,
+                            -2.0
+                        ],
+                        "frame": 16
+                    },
+                    {
+                        "position": [
+                            8.0,
+                            -1.0
+                        ],
+                        "frame": 16
+                    },
+                    {
+                        "position": [
+                            8.0,
+                            0.0
+                        ],
+                        "frame": 16
+                    },
+                    {
+                        "position": [
+                            8.0,
+                            1.0
+                        ],
+                        "frame": 8
+                    },
+                    {
+                        "position": [
+                            7.0,
+                            1.0
+                        ],
+                        "frame": 15
+                    },
+                    {
+                        "position": [
+                            2.0,
+                            -1.0
+                        ],
+                        "frame": 10
+                    },
+                    {
+                        "position": [
+                            2.0,
+                            0.0
+                        ],
+                        "frame": 10
+                    },
+                    {
+                        "position": [
+                            3.0,
+                            0.0
+                        ],
+                        "frame": 9
+                    },
+                    {
+                        "position": [
+                            2.0,
+                            -3.0
+                        ],
+                        "frame": 0
+                    },
+                    {
+                        "position": [
+                            3.0,
+                            -3.0
+                        ],
+                        "frame": 2
+                    },
+                    {
+                        "position": [
+                            3.0,
+                            -2.0
+                        ],
+                        "frame": 16
+                    },
+                    {
+                        "position": [
+                            3.0,
+                            -1.0
+                        ],
+                        "frame": 16
+                    },
+                    {
+                        "position": [
+                            2.0,
+                            -2.0
+                        ],
+                        "frame": 14
+                    },
+                    {
+                        "position": [
+                            2.0,
+                            -1.0
+                        ],
+                        "frame": 14
+                    },
+                    {
+                        "position": [
+                            0.0,
+                            1.0
+                        ],
+                        "frame": 11
+                    },
+                    {
+                        "position": [
+                            -1.0,
+                            1.0
+                        ],
+                        "frame": 12
+                    },
+                    {
+                        "position": [
+                            0.0,
+                            2.0
+                        ],
+                        "frame": 16
+                    },
+                    {
+                        "position": [
+                            0.0,
+                            3.0
+                        ],
+                        "frame": 16
+                    },
+                    {
+                        "position": [
+                            0.0,
+                            4.0
+                        ],
+                        "frame": 16
+                    },
+                    {
+                        "position": [
+                            0.0,
+                            5.0
+                        ],
+                        "frame": 16
+                    },
+                    {
+                        "position": [
+                            0.0,
+                            6.0
+                        ],
+                        "frame": 16
+                    },
+                    {
+                        "position": [
+                            0.0,
+                            7.0
+                        ],
+                        "frame": 16
+                    },
+                    {
+                        "position": [
+                            0.0,
+                            8.0
+                        ],
+                        "frame": 16
+                    },
+                    {
+                        "position": [
+                            -1.0,
+                            9.0
+                        ],
+                        "frame": 6
+                    },
+                    {
+                        "position": [
+                            0.0,
+                            9.0
+                        ],
+                        "frame": 8
+                    },
+                    {
+                        "position": [
+                            -1.0,
+                            2.0
+                        ],
+                        "frame": 14
+                    },
+                    {
+                        "position": [
+                            -1.0,
+                            3.0
+                        ],
+                        "frame": 14
+                    },
+                    {
+                        "position": [
+                            -1.0,
+                            4.0
+                        ],
+                        "frame": 14
+                    },
+                    {
+                        "position": [
+                            -1.0,
+                            5.0
+                        ],
+                        "frame": 14
+                    },
+                    {
+                        "position": [
+                            -1.0,
+                            6.0
+                        ],
+                        "frame": 14
+                    },
+                    {
+                        "position": [
+                            -1.0,
+                            7.0
+                        ],
+                        "frame": 14
+                    },
+                    {
+                        "position": [
+                            -1.0,
+                            8.0
+                        ],
+                        "frame": 14
+                    }
+                ]
+            },
+            "bounds": [
+                -24,
+                -24,
+                24,
+                24
             ]
         }
     ]

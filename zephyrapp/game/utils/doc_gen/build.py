@@ -9,10 +9,23 @@ import sys;
 from html_writer import HTMLWriter;
 import common;
 import thumbnails;
+import shutil;
 
-build_root = pages.out_root;
+src_root = Path("utils/doc_gen/pages").absolute();
+build_root = Path("docs/").absolute();
+style_path = Path("sakura.css");
 
-thumbnails.load(Path("sprites"), build_root/Path("images/thumbnails"));
+pages.set_io_paths(
+	src_root,
+	build_root
+);
+pages.contruct_tree();
+
+thumbnails.load(Path("sprites"), src_root/Path("images/thumbnails"));
+shutil.copytree(src_root/Path("images"), build_root/Path("images"), dirs_exist_ok=True);
+
+shutil.copy(src_root/style_path, build_root/style_path);
+
 pages.contruct_tree();
 
 def prepare_path():

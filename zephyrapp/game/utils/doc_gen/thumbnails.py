@@ -7,7 +7,7 @@ def load(in_root, out_root):
 	json_file = open(in_root/"sprites.json", "r");
 	json_data = json.load(json_file);
 	json_file.close();
-	json_entries = json_data["entries"];
+	json_entries = json_data["instances"];
 
 	for sprite in json_entries:
 		in_path = in_root/f"{sprite["path"]}";

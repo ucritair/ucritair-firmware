@@ -25,13 +25,15 @@ def build(html: HTMLWriter):
 	html.start_table(["Sprite", "Display Name", "Asset Name", "Item ID", "Type", "Purchase Price", "Sale Price", "Description"]);
 	for item in json_entries:
 		html.table_row([
-			html.image(f"/images/thumbnails/{item["sprite"]}.png", mode=HTMLMode.INLINE),
+			html.image(f"/images/thumbnails/{item["sprite"]}.png", mode=HTMLMode.INLINE, _class="table_thumbnail"),
 			item["display_name"],
 			item["name"],
 			item["id"],
 			item["type"].title(),
 			item["price"] if item["can_buy"] else "N/A",
 			item["price"] if item["can_sell"] else "N/A",
-			item["text"] if len(item["text"]) > 0 else "N/A"
-		]);
+			html.text(item["text"] if len(item["text"]) > 0 else "N/A", mode=HTMLMode.INLINE, _class="table_text")
+		],
+		row_id=item["name"]
+		);
 	html.end_table();

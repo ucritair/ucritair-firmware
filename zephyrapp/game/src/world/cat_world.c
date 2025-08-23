@@ -18,9 +18,8 @@
 
 #define PLAYER_SPRITE_W (world_walk_sprite.width)
 #define PLAYER_SPRITE_H (world_walk_sprite.height)
-#define PLAYER_TILE_W 1
-#define PLAYER_TILE_H 1
-#define FRAME_STEP_SIZE (CAT_TILE_SIZE/2)
+#define PLAYER_W 1
+#define PLAYER_H 1
 #define WALK_FRAME_PERIOD 2
 
 static int player_x = 0;
@@ -50,13 +49,14 @@ static enum
 
 static int player_dx = 0;
 static int player_dy = 0;
-static int player_x_remainder = 0;
-static int player_y_remainder = 0;
+static int player_x_slide = 0;
+static int player_y_slide = 0;
 
 static int player_step_frame = 0;
 static int step_frame_counter = 0;
 
 static CAT_scene_index* interactable = NULL;
+static CAT_scene_index* blocker = NULL;
 
 void CAT_world_get_position(int* x, int* y)
 {
@@ -72,15 +72,48 @@ void player_init()
 	player_direction = SOUTH;
 	player_dx = 0;
 	player_dy = 0;
-	player_x_remainder = 0;
-	player_y_remainder = 0;
+	player_x_slide = 0;
+	player_y_slide = 0;
 
 	step_frame_counter = 0;
 }
 
+void player_get_aabb(int* x0, int* y0, int* x1, int* y1)
+{
+	*x0 = player_x;
+	*y0 = player_y;
+	*x1 = player_x + PLAYER_W;
+	*y1 = player_y + PLAYER_H;
+}
+
+void player_get_forward_aabb(int* x0, int* y0, int* x1, int* y1)
+{
+	*x0 = player_x + player_dx;
+	*y0 = player_y + player_dy;
+	*x1 = player_x + PLAYER_W + player_dx;
+	*y1 = player_y + PLAYER_H + player_dy;
+}
+
 bool is_walking()
 {
-	return player_x_remainder != 0 || player_y_remainder != 0;
+	return player_x_slide != 0 || player_y_slide != 0;
+}
+
+bool is_blocked()
+{
+	if(blocker != NULL)
+		return true;
+	int x0, y0, x1, y1;
+	player_get_forward_aabb(&x0, &y0, &x1, &y1);
+	if(x0 <= test_scene.bounds[0])
+		return true;
+	if(y0 <= test_scene.bounds[1])
+		return true;
+	if(x1 > test_scene.bounds[2])
+		return true;
+	if(y1 > test_scene.bounds[3])
+		return true;
+	return false;
 }
 
 void player_motion_input()
@@ -103,6 +136,7 @@ void player_motion_input()
 				player_dx = movement_deltas[i][0];
 				player_dy = movement_deltas[i][1];
 				frames = frames_candidate;
+				return;
 			}
 		}
 	}
@@ -113,10 +147,10 @@ void player_motion_input()
 			player_step_frame = !player_step_frame;
 		step_frame_counter = WALK_FRAME_PERIOD;
 	}
-	else if(frames >= 2 && !is_walking())
+	else if(frames >= 2 && !is_walking() && !is_blocked())
 	{
-		player_x_remainder = abs(player_dx) * CAT_TILE_SIZE;
-		player_y_remainder = abs(player_dy) * CAT_TILE_SIZE;
+		player_x_slide = abs(player_dx) * CAT_TILE_SIZE;
+		player_y_slide = abs(player_dy) * CAT_TILE_SIZE;
 	}
 
 	if(is_walking())
@@ -130,37 +164,19 @@ void player_motion_input()
 	}
 }
 
-void player_get_aabb(int* x0, int* y0, int* x1, int* y1)
-{
-	*x0 = player_x;
-	*y0 = player_y;
-	*x1 = player_x + (PLAYER_TILE_W * CAT_TILE_SIZE);
-	*y1 = player_y + (PLAYER_TILE_H * CAT_TILE_SIZE);
-}
-
-void player_get_center(int* x, int* y)
-{
-	*x = player_x + (PLAYER_TILE_W * CAT_TILE_SIZE) / 2;
-	*y = player_y + (PLAYER_TILE_H * CAT_TILE_SIZE) / 2;
-}
-
-void player_get_bottom(int* x, int* y)
-{
-	*x = player_x + (PLAYER_TILE_W * CAT_TILE_SIZE) / 2;
-	*y = player_y + (PLAYER_TILE_H * CAT_TILE_SIZE);
-}
-
 void player_motion_logic()
 {
-	if(player_x_remainder > 0)
+	if(player_x_slide > 0)
 	{
-		player_x += player_dx * 4;
-		player_x_remainder = max(player_x_remainder-4, 0);
+		player_x_slide = max(player_x_slide-4, 0);
+		if(player_x_slide == 0)
+			player_x += player_dx;
 	}
-	if(player_y_remainder > 0)
+	if(player_y_slide > 0)
 	{
-		player_y += player_dy * 4;
-		player_y_remainder = max(player_y_remainder-4, 0);
+		player_y_slide = max(player_y_slide-4, 0);
+		if(player_y_slide == 0)
+			player_y += player_dy;
 	}
 }
 	
@@ -171,9 +187,10 @@ static int collision_count = 0;
 void player_collision()
 {
 	interactable = NULL;
+	blocker = NULL;
 
 	int x0, y0, x1, y1;
-	player_get_aabb(&x0, &y0, &x1, &y1);
+	player_get_forward_aabb(&x0, &y0, &x1, &y1);
 	collisions = CAT_detect_collisions(&test_scene, x0, y0, x1, y1, &collision_count);
 
 	for(int i = 0; i < collision_count; i++)
@@ -182,22 +199,8 @@ void player_collision()
 		
 		if(col->leaf == TRIGGER)
 			interactable = col;
-
 		if(col->leaf == BLOCKER)
-		{
-			CAT_scene_AABB aabb;
-			CAT_scene_get_AABB(&test_scene, col, aabb);
-
-			int sep_x = max(x0, aabb[0]) - min(x1, aabb[2]);
-			int sep_y = max(y0, aabb[1]) - min(y1, aabb[3]);
-			if(sep_x != 0 && sep_y != 0)
-			{
-				if(player_dx != 0)
-					player_x += sep_x * sgn(player_dx);
-				else if(player_dy != 0)
-					player_y += sep_y * sgn(player_dy);
-			}
-		}
+			blocker = col;
 	}
 }
 
@@ -206,21 +209,12 @@ bool facing_interactable()
 	if(interactable == NULL)
 		return false;
 
-	CAT_scene_AABB aabb;
-	CAT_scene_get_AABB(&test_scene, interactable, aabb);
 	CAT_scene_vector direction;
 	CAT_scene_get_direction(&test_scene, interactable, direction);
 
-	int center_x = (aabb[0]+aabb[2])/2;
-	int center_y = (aabb[1]+aabb[3])/2;
-
-	if(direction[1] != 0 && sgn(player_dy) != -sgn(direction[1]))
+	if(player_dx != 0 && player_dx != -direction[0])
 		return false;
-	if(direction[1] != 0 && sgn(player_y - center_y) != sgn(direction[1]))
-		return false;
-	if(direction[0] != 0 && sgn(player_dx) != -sgn(direction[0]))
-		return false;
-	if(direction[0] != 0 && sgn(player_x - center_x) != sgn(direction[0]))
+	if(player_dy != 0 && player_dy != -direction[1])
 		return false;
 	return true;
 }
@@ -244,9 +238,9 @@ void player_interaction_logic()
 
 void tick_player()
 {
+	player_collision();
 	player_motion_input();
 	player_motion_logic();
-	player_collision();
 	player_interaction_logic();
 }
 
@@ -300,10 +294,21 @@ void CAT_MS_world(CAT_machine_signal signal)
 static int eye_x;
 static int eye_y;
 
+static void position_eye()
+{
+	eye_x = player_x * CAT_TILE_SIZE + CAT_TILE_SIZE/2;
+	eye_y = player_y * CAT_TILE_SIZE + CAT_TILE_SIZE/2;
+	if(is_walking())
+	{
+		eye_x += (CAT_TILE_SIZE - player_x_slide) * player_dx;
+		eye_y += (CAT_TILE_SIZE - player_y_slide) * player_dy;
+	}
+}
+
 static void view_transform_point(int x, int y, int* x_out, int* y_out)
 {
-	*x_out = x - eye_x + CAT_LCD_SCREEN_W/2;
-	*y_out = y - eye_y + CAT_LCD_SCREEN_H/2;
+	*x_out = x * CAT_TILE_SIZE - eye_x + CAT_LCD_SCREEN_W/2;
+	*y_out = y * CAT_TILE_SIZE- eye_y + CAT_LCD_SCREEN_H/2;
 }
 
 static void view_transform_AABB(int x0, int y0, int x1, int y1, int* x0_out, int* y0_out, int* x1_out, int* y1_out)
@@ -314,27 +319,30 @@ static void view_transform_AABB(int x0, int y0, int x1, int y1, int* x0_out, int
 
 void draw_player()
 {
-	player_get_center(&eye_x, &eye_y);
-
-	int x, y;
 	int frame = player_get_walk_frame() + player_step_frame;
 	CAT_set_sprite_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
-	view_transform_point(player_x + (PLAYER_TILE_W * CAT_TILE_SIZE)/2, player_y, &x, &y);
-	CAT_draw_sprite(&world_walk_sprite, frame, x, y);
-
-	//CAT_circberry(x, y, 2, CAT_RED);
+	CAT_draw_sprite(&world_walk_sprite, frame, CAT_LCD_SCREEN_W/2, CAT_LCD_SCREEN_H/2);
 
 	/*int x0, y0, x1, y1;
 	player_get_aabb(&x0, &y0, &x1, &y1);
 	view_transform_AABB(x0, y0, x1, y1, &x0, &y0, &x1, &y1);
-	CAT_strokeberry(x0, y0, x1-x0, y1-y0, CAT_WHITE);*/
+	CAT_strokeberry(x0, y0, x1-x0, y1-y0, CAT_WHITE);
+	CAT_circberry(CAT_LCD_SCREEN_W/2, CAT_LCD_SCREEN_H/2, 2, CAT_RED);*/
 }
 
 void CAT_render_world()
 {
-	player_get_center(&eye_x, &eye_y);
+	position_eye();
 
-	CAT_frameberry(RGB5652BGR565(0x308d));
+	CAT_frameberry(test_scene.background.colour);
+
+	for(int i = 0; i < test_scene.background.tile_count; i++)
+	{
+		struct tile* tile = &test_scene.background.tiles[i];
+		int x, y;
+		view_transform_point(tile->x, tile->y, &x, &y);
+		CAT_draw_sprite_raw(test_scene.background.palette, tile->frame, x, y);
+	}
 
 	bool drew_player = false;
 	for(int i = 0; i < test_scene.layer_count; i++)
@@ -348,17 +356,17 @@ void CAT_render_world()
 			if(!CAT_rect_rect_intersecting(
 				eye_x-CAT_LCD_SCREEN_W/2, eye_y-CAT_LCD_SCREEN_H/2,
 				eye_x+CAT_LCD_SCREEN_W/2, eye_y+CAT_LCD_SCREEN_H/2,
-				prop->position_x, prop->position_y,
-				prop->position_x + sprite->width, prop->position_y + sprite->height
+				prop->position_x*CAT_TILE_SIZE, prop->position_y*CAT_TILE_SIZE,
+				prop->position_x*CAT_TILE_SIZE + sprite->width, prop->position_y*CAT_TILE_SIZE + sprite->height
 			))
 			{
 				continue;
 			}
 
-			if(!drew_player && i == 1)
+			if(!drew_player && i == 0)
 			{
-				int player_by = player_y + world_walk_sprite.height/2-5;
-				int prop_by = prop->position_y + sprite->height;
+				int player_by = eye_y + world_walk_sprite.height/2-5;
+				int prop_by = (prop->position_y * CAT_TILE_SIZE) + sprite->height;
 				if(player_by < prop_by)
 				{
 					draw_player();
@@ -381,7 +389,7 @@ void CAT_render_world()
 				CAT_strokeberry(x0, y0, x1-x0, y1-y0, CAT_RED);
 			}*/
 		}
-		if(!drew_player && i == 1)
+		if(!drew_player && i == 0)
 			draw_player();
 	}
 
