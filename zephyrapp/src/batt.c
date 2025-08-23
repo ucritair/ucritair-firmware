@@ -44,12 +44,12 @@ typedef struct {
 } soc_point_t;
 
 static const soc_point_t soc_lut[] = {
+    {3300,  0},           // empty cutoff 
     {3414,  5}, {3503, 15}, {3535, 20}, {3560, 25}, {3602, 35},
     {3642, 45}, {3698, 55}, {3783, 65}, {3871, 75}, {3963, 85},
-    {4065, 95}
+    {4065, 95},
+    {4200, 100}           //Pretty full
 };
-//This LUT comes from characterization of the battery on an NGM 202 . It was only a one-off but should be a reasonable first approximation.
-
 #define LUT_LEN (sizeof soc_lut / sizeof soc_lut[0])
 
 /* ────────────────────────── Helper functions ───────────────────────────── */
@@ -62,20 +62,29 @@ static uint16_t adc_raw_to_batt_mv(int16_t raw)
 
 static uint8_t mv_to_soc(uint16_t mv)
 {
-    if (mv <= soc_lut[0].mv)            return 0;
-    if (mv >= soc_lut[LUT_LEN - 1].mv)  return 100;
+    const size_t last = LUT_LEN - 1;
 
-    for (size_t i = 1; i < LUT_LEN; ++i) {
-        if (mv < soc_lut[i].mv) {
+    if (mv < soc_lut[0].mv)   return 0;     // below first anchor
+    if (mv > soc_lut[last].mv) return 100;  // above last anchor
+
+    for (size_t i = 1; i <= last; ++i) {
+        if (mv <= soc_lut[i].mv) {
             uint16_t mv_lo  = soc_lut[i - 1].mv;
             uint16_t mv_hi  = soc_lut[i].mv;
             uint8_t  soc_lo = soc_lut[i - 1].soc;
             uint8_t  soc_hi = soc_lut[i].soc;
-            return soc_lo + (uint32_t)(mv - mv_lo) *
-                             (soc_hi - soc_lo) / (mv_hi - mv_lo);
+
+            uint16_t delta_mv = (uint16_t)(mv_hi - mv_lo);
+            if (delta_mv == 0) return soc_hi;  // should not happen if LUT is sane
+
+            // Rounded linear interpolation
+            uint32_t num = (uint32_t)(mv - mv_lo) * (uint32_t)(soc_hi - soc_lo);
+            num += delta_mv / 2; // for rounding instead of truncation
+            return (uint8_t)(soc_lo + (num / delta_mv));
         }
     }
-    return 100; /* shouldn’t hit */
+
+    return 100; // shouldn't hit
 }
 
 /* ────────────────────────── SAADC wrappers ─────────────────────────────── */
