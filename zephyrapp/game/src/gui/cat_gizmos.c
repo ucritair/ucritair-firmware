@@ -66,13 +66,13 @@ void CAT_draw_hexagon(int x, int y, int r, uint16_t c, float p)
 	float t = p;
 
 	int x0, y0, x1, y1;
-	x0 = r*cos(t);
-	y0 = r*sin(t);
+	x0 = r*cosf(t);
+	y0 = r*sinf(t);
 	t += dt;
 	for(int i = 1; i <= 6; i++)
 	{
-		x1 = r*cos(t);
-		y1 = r*sin(t);
+		x1 = r*cosf(t);
+		y1 = r*sinf(t);
 		CAT_lineberry(x+x0, y+y0, x+x1, y+y1, c);
 		x0 = x1;
 		y0 = y1;
@@ -112,13 +112,13 @@ void CAT_draw_regular_polygon(int n, int x, int y, int r, float t, uint16_t c)
 	t *= 2 * M_PI;
 	float dt = 2 * M_PI / (float) n;
 	int x0, y0, x1, y1;
-	x0 = r*cos(t);
-	y0 = r*sin(t);
+	x0 = r*cosf(t);
+	y0 = r*sinf(t);
 	t += dt;
 	for(int i = 1; i <= n; i++)
 	{
-		x1 = r*cos(t);
-		y1 = r*sin(t);
+		x1 = r*cosf(t);
+		y1 = r*sinf(t);
 		CAT_lineberry(x+x0, y+y0, x+x1, y+y1, c);
 		x0 = x1;
 		y0 = y1;

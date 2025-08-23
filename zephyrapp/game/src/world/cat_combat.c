@@ -308,10 +308,10 @@ void render_swipe()
 	float t = swipe_angles[angle_idx];
 	float t_l = t - SWIPE_ARC / 2;
 	float t_r = t + SWIPE_ARC / 2;
-	int x_l = swipe_x + SWIPE_R * cos(t_l);
-	int y_l = swipe_y + SWIPE_R * sin(t_l);
-	int x_r = swipe_x + SWIPE_R * cos(t_r);
-	int y_r = swipe_y + SWIPE_R * sin(t_r);
+	int x_l = swipe_x + SWIPE_R * cosf(t_l);
+	int y_l = swipe_y + SWIPE_R * sinf(t_l);
+	int x_r = swipe_x + SWIPE_R * cosf(t_r);
+	int y_r = swipe_y + SWIPE_R * sinf(t_r);
 	CAT_lineberry(swipe_x, swipe_y, x_l, y_l, CAT_WHITE);
 	CAT_lineberry(swipe_x, swipe_y, x_r, y_r, CAT_WHITE);
 	CAT_lineberry(x_l, y_l, x_r, y_r, CAT_WHITE);

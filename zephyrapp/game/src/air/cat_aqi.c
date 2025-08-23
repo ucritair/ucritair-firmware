@@ -51,9 +51,9 @@ float CAT_wet_bulb_temp(float air_degc)
 	float T_d = air_degc;
 	float rh = readings.sen5x.humidity_rhpct;
 	float T_w =
-	T_d * atan(0.151977 * pow(rh + 8.313659, 0.5f)) +
+	T_d * atan(0.151977 * powf(rh + 8.313659, 0.5f)) +
 	atan(T_d + rh) - atan(rh - 1.676331) +
-	(0.00391838 * pow(rh, 1.5f)) * atan(0.023101 * rh) -
+	(0.00391838 * powf(rh, 1.5f)) * atan(0.023101 * rh) -
 	4.686035;
 	float T_g = T_d;
 	return 0.7 * T_w + 0.1 * T_d + 0.2 * T_g;

@@ -30,6 +30,7 @@ else()
 	target_compile_definitions(app PRIVATE CAT_EMBEDDED=1)
 	target_compile_definitions(app PRIVATE CAT_DEBUG=1)
 	
+	target_compile_options(app PRIVATE -fsingle-precision-constant)
 	target_sources(app PRIVATE src/core/cat_embedded.c)
 endif()
 

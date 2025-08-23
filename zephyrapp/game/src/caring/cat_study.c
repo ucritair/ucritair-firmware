@@ -476,7 +476,7 @@ static void fish_pbd_waggle()
 	for(int i = 1; i < 3; i++)
 	{
 		CAT_vec2 heading = fish.headings[i-1];
-		float amplitude = 0.5f * sin(CAT_get_uptime_ms() / 1000.0f + (2-i));
+		float amplitude = 0.5f * sinf(CAT_get_uptime_ms() / 1000.0f + (2-i));
 		heading = CAT_vec2_rotate(heading, amplitude);
 		float interspace = fish.radii[i-1] + fish.radii[0] / 2 + fish.radii[i];
 		CAT_vec2 position = CAT_vec2_add(fish.positions[i-1], CAT_vec2_mul(heading, -interspace));
@@ -504,8 +504,8 @@ static CAT_vec2 fish_ellipse_position(float t)
 	t = t * 2 * M_PI;
 	return (CAT_vec2)
 	{
-		(120 - ELLIPSE_MARGIN) * cos(t) + 120,
-		(160 - ELLIPSE_MARGIN) * sin(t) + 160
+		(120 - ELLIPSE_MARGIN) * cosf(t) + 120,
+		(160 - ELLIPSE_MARGIN) * sinf(t) + 160
 	};
 }
 
@@ -514,8 +514,8 @@ static CAT_vec2 fish_ellipse_heading(float t)
 	t = t * 2 * M_PI;
 	return CAT_vec2_unit((CAT_vec2) 
 	{
-		-(120 - ELLIPSE_MARGIN) * sin(t),
-		(160 - ELLIPSE_MARGIN) * cos(t)
+		-(120 - ELLIPSE_MARGIN) * sinf(t),
+		(160 - ELLIPSE_MARGIN) * cosf(t)
 	});
 }
 
@@ -1181,8 +1181,8 @@ static void init_wave_buffer()
 	for(int x = 0; x < 240; x++)
 	{
 		wave_buffer[x] = round(
-		20.0f / 3.0f * sin(M_PI * x / 20.0f + 2.2f) +
-		sin(2.0f * M_PI * x / 20.0f + 2.2f) +
+		20.0f / 3.0f * sinf(M_PI * x / 20.0f + 2.2f) +
+		sinf(2.0f * M_PI * x / 20.0f + 2.2f) +
 		100.0f);
 	}
 

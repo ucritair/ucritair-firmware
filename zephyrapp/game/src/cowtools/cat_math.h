@@ -7,11 +7,11 @@
 // BASICS
 
 #ifndef M_PI
-#define M_PI 3.14159265358979323846264338327950288
+#define M_PI 3.14159265358979323846264338327950288f
 #endif
 
 #ifndef M_E
-#define M_E 2.71828182845904523536028747135266250
+#define M_E 2.71828182845904523536028747135266250f
 #endif
 
 #ifndef max
@@ -34,8 +34,8 @@
 #define wrap(v, l) (((v) + (l)) % (l))
 #endif
 
-#define CAT_RAD2DEG (180.0 / M_PI)
-#define CAT_DEG2RAD (M_PI / 180.0)
+#define CAT_RAD2DEG (180.0f / M_PI)
+#define CAT_DEG2RAD (M_PI / 180.0f)
 
 float lerp(float a, float b, float t);
 float inv_lerp(float t, float a, float b);
