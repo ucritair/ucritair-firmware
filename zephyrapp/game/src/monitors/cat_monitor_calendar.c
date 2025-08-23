@@ -179,7 +179,7 @@ static void graph_init()
 	target_tm.tm_year = target.year;
 	target_tm.tm_mon = target.month-1;
 	target_tm.tm_mday = target.day;
-	uint64_t start_time = mktime(&target_tm);
+	uint64_t start_time = timegm(&target_tm);
 
 	search_direction = CAT_datecmp(&target, &target_last);
 	CAT_log_cell cell;

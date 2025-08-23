@@ -91,4 +91,12 @@ class Triptych:
 		self.source_unindent();
 		self.swrite("};\n");
 
+def TOS_RGBA88882RGB565(c):
+	if len(c) == 4 and c[3] < 128:
+		return 0xdead;
+	r = int((c[0] / 255) * 31);
+	g = int((c[1] / 255) * 63);
+	b = int((c[2] / 255) * 31);
+	return (r << 11) | (g << 5) | b;
+
 	

@@ -25,18 +25,20 @@ typedef struct
 
 typedef struct
 {
-	/*struct background
+	int8_t bounds[4];
+
+	struct background
 	{
 		uint16_t colour;
-		const CAT_sprite* sprite;
+		const CAT_sprite* palette;
 		struct tile
 		{
-			uint8_t x;
-			uint8_t y;
+			int8_t x;
+			int8_t y;
 			uint8_t frame;
 		}* tiles;
 		uint16_t tile_count;
-	} background;*/
+	} background;
 
 	struct layer
 	{

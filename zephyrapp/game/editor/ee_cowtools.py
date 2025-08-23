@@ -103,3 +103,16 @@ def imgui_enum_selector(ident, enum_type, value):
 		enum_type, value,
 		lambda x: x.name
 	);
+
+def imgui_aabb_xywh(ident, aabb):
+	x0, y0, x1, y1 = aabb;
+	w, h = x1-x0, y1-y0;
+	x0, y0 = imgui.input_int2(f"X Y##{ident}", [int(x0), int(y0)])[1];
+	w, h = imgui.input_int2(f"W H##{ident}", [int(w), int(h)])[1];
+	return x0, y0, x0+w, y0+h;
+
+def imgui_aabb_xyxy(ident, aabb):
+	x0, y0, x1, y1 = aabb;
+	x0, y0 = imgui.input_int2(f"X0 Y0##{ident}", [int(x0), int(y0)])[1];
+	x1, y1 = imgui.input_int2(f"X1 Y1##{ident}", [int(x1), int(y1)])[1];
+	return x0, y0, x1, y1;
