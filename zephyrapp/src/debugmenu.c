@@ -113,22 +113,22 @@ void menu_sensors()
 
 	text("");
 	textf("LPS22HH @ %lldms", readings.lps22hh.uptime_last_updated);
-	textf("Temp: %.1fC; Pressure: %.1f?", (double)readings.lps22hh.temp, (double)readings.lps22hh.pressure);
+	textf("Temp: %.1fC; Pressure: %.1f?", readings.lps22hh.temp, readings.lps22hh.pressure);
 
 	text("");
 	textf("Sunrise @ %lldms", readings.sunrise.uptime_last_updated);
-	textf("CO2: %.0fppm", (double)readings.sunrise.ppm_filtered_compensated);
-	textf("Temp: %.1fC", (double)readings.sunrise.temp);
+	textf("CO2: %.0fppm", readings.sunrise.ppm_filtered_compensated);
+	textf("Temp: %.1fC", readings.sunrise.temp);
 
 	text("");
 	textf("SEN5x @ %lldms", readings.sen5x.uptime_last_updated);
-	textf("PM1.0: %.1f | PM2.5: %.1f", (double)readings.sen5x.pm1_0, (double)readings.sen5x.pm2_5);
-	textf("PM4.0: %.1f | PM10.0: %.1f", (double)readings.sen5x.pm4_0, (double)readings.sen5x.pm10_0);
-	textf("PN0.5: %.1f", (double)readings.sen5x.nc0_5);
-	textf("PN1.0: %.1f | PN2.5: %.1f", (double)readings.sen5x.nc1_0, (double)readings.sen5x.nc2_5);
-	textf("PN4.0: %.1f | PN10.0: %.1f", (double)readings.sen5x.nc4_0, (double)readings.sen5x.nc10_0);
-	textf("Humidity: %.1f%%RH; Temp: %.1fC", (double)readings.sen5x.humidity_rhpct, (double)readings.sen5x.temp_degC);
-	textf("VOC: %.1f; NOX: %.1f", (double)readings.sen5x.voc_index, (double)readings.sen5x.nox_index);
+	textf("PM1.0: %.1f | PM2.5: %.1f", readings.sen5x.pm1_0, readings.sen5x.pm2_5);
+	textf("PM4.0: %.1f | PM10.0: %.1f", readings.sen5x.pm4_0, readings.sen5x.pm10_0);
+	textf("PN0.5: %.1f", readings.sen5x.nc0_5);
+	textf("PN1.0: %.1f | PN2.5: %.1f", readings.sen5x.nc1_0, readings.sen5x.nc2_5);
+	textf("PN4.0: %.1f | PN10.0: %.1f", readings.sen5x.nc4_0, readings.sen5x.nc10_0);
+	textf("Humidity: %.1f%%RH; Temp: %.1fC", readings.sen5x.humidity_rhpct, readings.sen5x.temp_degC);
+	textf("VOC: %.1f; NOX: %.1f", readings.sen5x.voc_index, readings.sen5x.nox_index);
 
 	text("");
 	selectable("Cal CO2 Ambient", menu_force_sunrise_abc, NULL);
@@ -158,17 +158,17 @@ void menu_post()
 	text("");
 	uint16_t c = readings.lps22hh.uptime_last_updated==0?POST_RED:POST_GRN;
 	textfc(c, "LPS22HH @ %lldms", readings.lps22hh.uptime_last_updated);
-	textfc(c, "Temp: %.1fC; Pressure: %.1f?", (double)readings.lps22hh.temp, (double)readings.lps22hh.pressure);
+	textfc(c, "Temp: %.1fC; Pressure: %.1f?", readings.lps22hh.temp, readings.lps22hh.pressure);
 
 	text("");
 	c = readings.sunrise.uptime_last_updated==0?POST_RED:POST_GRN;
 	textfc(c, "Sunrise @ %lldms", readings.sunrise.uptime_last_updated);
-	textfc(c, "CO2: %.0fppm", (double)readings.sunrise.ppm_filtered_compensated);
+	textfc(c, "CO2: %.0fppm", readings.sunrise.ppm_filtered_compensated);
 
 	text("");
 	c = readings.sen5x.uptime_last_updated==0?POST_RED:POST_GRN;
 	textfc(c, "SEN5x @ %lldms", readings.sen5x.uptime_last_updated);
-	textfc(c, "PM1.0: %.1f | PM2.5: %.1f", (double)readings.sen5x.pm1_0, (double)readings.sen5x.pm2_5);
+	textfc(c, "PM1.0: %.1f | PM2.5: %.1f", readings.sen5x.pm1_0, readings.sen5x.pm2_5);
 
 	text("");
 	textfc(imu_posted?POST_GRN:POST_RED,         "IMU  %s", imu_posted?"OK":"FAIL");
@@ -265,7 +265,7 @@ void menu_imu()
 	CAT_IMU_export_raw(&imu);
 
 	text("~~IMU MENU~~");
-	textf("X: %01.2f Y: %01.2f Z: %01.2f", (double) imu.x, (double) imu.y, (double) imu.z);
+	textf("X: %01.2f Y: %01.2f Z: %01.2f",  imu.x,  imu.y,  imu.z);
 	textf("Upside down: %s", CAT_IMU_is_upside_down() ? "YES" : "no");
 
 	lcd_write_char(0xff00, 100, 150+(80*imu.x), 'X');

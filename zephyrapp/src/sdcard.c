@@ -252,7 +252,7 @@ enum sdcard_result write_log_to_sdcard()
 		CAT_log_cell cell;
 		flash_get_cell_by_nr(nr, &cell);
 
-#define UG(x) (((double)x)/100.)
+#define UG(x) (x/100.)
 
 		len = snprintf(buf, sizeof(buf), "%lld,%d,%d,%d,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.2f,%.1f,%d,%d,%d\n",
 			RTC_TIME_TO_EPOCH_TIME(cell.timestamp),
@@ -268,8 +268,8 @@ enum sdcard_result write_log_to_sdcard()
 			UG(cell.pn_ugmx100[2]),
 			UG(cell.pn_ugmx100[3]),
 			UG(cell.pn_ugmx100[4]),
-			(((double)cell.temp_Cx1000)/1000.),
-			(((double)cell.rh_pctx100)/100.),
+			cell.temp_Cx1000/1000.,
+			cell.rh_pctx100/100.,
 			cell.voc_index,
 			cell.nox_index,
 			cell.pressure_hPax10/10

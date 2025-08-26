@@ -174,20 +174,20 @@ void epaper_render_test()
 	blit_image(epaper_framebuffer, selected_unicorn, 0, 0);
 	blit_image(epaper_framebuffer, selected_cloud, 0, selected_unicorn->h);
 
-	fwrite_str(128, 20, 2, "%.0f", (double) readings.sunrise.ppm_filtered_compensated);
+	fwrite_str(128, 20, 2, "%.0f", readings.sunrise.ppm_filtered_compensated);
 	fwrite_str(EPD_IMAGE_W-(8*3), 20, 1, "ppm\nCO2");
-	fwrite_str(128, 40, 2, "%.1f", (double) readings.sen5x.pm2_5);
+	fwrite_str(128, 40, 2, "%.1f", readings.sen5x.pm2_5);
 	fwrite_str(EPD_IMAGE_W-(8*5), 40, 1, "ug/m3\nPM2.5");
 
 	if (readings.sen5x.nox_index && readings.sen5x.voc_index)
 	{
-		fwrite_str(128, 60, 1, "%.0f NOX / %.0f VOC", (double) readings.sen5x.nox_index, (double) readings.sen5x.voc_index);
+		fwrite_str(128, 60, 1, "%.0f NOX / %.0f VOC", readings.sen5x.nox_index, readings.sen5x.voc_index);
 	}
 	
-	double deg_c = readings.sen5x.temp_degC;
-	double deg_mapped = CAT_AQ_map_celsius(deg_c);
-	fwrite_str(128, 70, 1, "%.0f %s / %.0f%% RH", deg_mapped, CAT_AQ_get_temperature_unit_string(), (double) readings.sen5x.humidity_rhpct);
-	fwrite_str(128, 80, 1, "%.1f%% rebreathed", ((((double) readings.sunrise.ppm_filtered_compensated)-420.)/38000.)*100.);
+	float deg_c = readings.sen5x.temp_degC;
+	float deg_mapped = CAT_AQ_map_celsius(deg_c);
+	fwrite_str(128, 70, 1, "%.0f %s / %.0f%% RH", deg_mapped, CAT_AQ_get_temperature_unit_string(), readings.sen5x.humidity_rhpct);
+	fwrite_str(128, 80, 1, "%.1f%% rebreathed", (((readings.sunrise.ppm_filtered_compensated)-420.)/38000.)*100.);
 	fwrite_str(128, 90, 1, "uCritAQI %.1f%%", score);
 	fwrite_str(128, 100, 1, "at %2d:%02d:%02d", t.tm_hour, t.tm_min, t.tm_sec);
 	fwrite_str(128, 110, 1, "%d%% battery", get_battery_pct());

@@ -119,7 +119,7 @@ void CAT_monitor_render_details()
 
 	cursor_y = draw_typical(cursor_y, CAT_AQM_CO2);
 
-	float rebreathed = ((((double) readings.sunrise.ppm_filtered_compensated)-420.)/38000.);
+	float rebreathed = (((readings.sunrise.ppm_filtered_compensated)-420.)/38000.);
 	int cursor_x = 12;
 	uint16_t c = CAT_AQ_get_grade_colour(1.0f-rebreathed);
 	cursor_x = draw_value(cursor_x, cursor_y, c, "%.0f%%", rebreathed * 100);

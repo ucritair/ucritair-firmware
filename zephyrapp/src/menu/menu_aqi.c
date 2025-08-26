@@ -145,7 +145,7 @@ void CAT_render_aqi()
 	if (view_cell.flags & CAT_LOG_CELL_FLAG_HAS_CO2)
 	{
 		CAT_gui_textf("CO2: %dppm\n", (int)view_cell.co2_ppmx1);
-		CAT_gui_textf("    (%.1f%% rebreathed air)\n", ((((double)view_cell.co2_ppmx1)-420.)/38000.)*100.);
+		CAT_gui_textf("    (%.1f%% rebreathed air)\n", (view_cell.co2_ppmx1-420.)/38000.*100.);
 	}
 	else
 	{
@@ -158,18 +158,18 @@ void CAT_render_aqi()
 	{
 		if (view_pn)
 		{
-			CAT_gui_textf("PN0.5: % 2.01f #/cm\5\n", ((double)view_cell.pn_ugmx100[0])/100.);
-			CAT_gui_textf("PN1.0: % 2.01f #/cm\5\n", ((double)view_cell.pn_ugmx100[1])/100.);
-			CAT_gui_textf("PN2.5: % 2.01f #/cm\5\n", ((double)view_cell.pn_ugmx100[2])/100.);
-			CAT_gui_textf("PN4.0: % 2.01f #/cm\5\n", ((double)view_cell.pn_ugmx100[3])/100.);
-			CAT_gui_textf("PN10 : % 2.01f #/cm\5\n", ((double)view_cell.pn_ugmx100[4])/100.);
+			CAT_gui_textf("PN0.5: % 2.01f #/cm\5\n", (view_cell.pn_ugmx100[0])/100.);
+			CAT_gui_textf("PN1.0: % 2.01f #/cm\5\n", (view_cell.pn_ugmx100[1])/100.);
+			CAT_gui_textf("PN2.5: % 2.01f #/cm\5\n", (view_cell.pn_ugmx100[2])/100.);
+			CAT_gui_textf("PN4.0: % 2.01f #/cm\5\n", (view_cell.pn_ugmx100[3])/100.);
+			CAT_gui_textf("PN10 : % 2.01f #/cm\5\n", (view_cell.pn_ugmx100[4])/100.);
 		}
 		else
 		{
-			CAT_gui_textf("PM1.0: % 2.01f \4g/m\5\n", ((double)view_cell.pm_ugmx100[0])/100.);
-			CAT_gui_textf("PM2.5: % 2.01f \4g/m\5\n", ((double)view_cell.pm_ugmx100[1])/100.);
-			CAT_gui_textf("PM4.0: % 2.01f \4g/m\5\n", ((double)view_cell.pm_ugmx100[2])/100.);
-			CAT_gui_textf("PM10 : % 2.01f \4g/m\5\n", ((double)view_cell.pm_ugmx100[3])/100.);
+			CAT_gui_textf("PM1.0: % 2.01f \4g/m\5\n", (view_cell.pm_ugmx100[0])/100.);
+			CAT_gui_textf("PM2.5: % 2.01f \4g/m\5\n", (view_cell.pm_ugmx100[1])/100.);
+			CAT_gui_textf("PM4.0: % 2.01f \4g/m\5\n", (view_cell.pm_ugmx100[2])/100.);
+			CAT_gui_textf("PM10 : % 2.01f \4g/m\5\n", (view_cell.pm_ugmx100[3])/100.);
 			CAT_gui_line_break();
 		}
 
@@ -190,17 +190,17 @@ void CAT_render_aqi()
 		if (view_cell.pressure_hPax10 != 0)
 		{
 			CAT_gui_textf("%2.1f%s    %2.0f%%RH    %.0fhPa\n", 
-				CAT_AQ_map_celsius(((double)view_cell.temp_Cx1000)/1000.),
+				CAT_AQ_map_celsius(view_cell.temp_Cx1000/1000.),
 				CAT_AQ_get_temperature_unit_string(),
-				((double)view_cell.rh_pctx100)/100.,
-				((double)view_cell.pressure_hPax10)/10.);
+				view_cell.rh_pctx100/100.,
+				view_cell.pressure_hPax10/10.);
 		}
 		else
 		{
 			CAT_gui_textf("%2.1f%s    %2.0f%%RH\n", 
-				CAT_AQ_map_celsius(((double)view_cell.temp_Cx1000)/1000.),
+				CAT_AQ_map_celsius(view_cell.temp_Cx1000/1000.),
 				CAT_AQ_get_temperature_unit_string(),
-				((double)view_cell.rh_pctx100)/100.);
+				view_cell.rh_pctx100/100.);
 		}
 	}
 	else
@@ -211,7 +211,7 @@ void CAT_render_aqi()
 	
 	if (view_cell.nox_index && view_cell.voc_index)
 	{
-		CAT_gui_textf("VOC %3.0f    NOX %3.0f\n", (double)view_cell.voc_index, (double)view_cell.nox_index);
+		CAT_gui_textf("VOC %3.0f    NOX %3.0f\n", view_cell.voc_index, view_cell.nox_index);
 	}
 	else
 	{

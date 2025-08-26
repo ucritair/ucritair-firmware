@@ -94,19 +94,19 @@ char* get_string(int16_t graph_data)
 			snprintf(buf, sizeof(buf), "%dppm", graph_data);
 			break;
 		case PM2_5:
-			snprintf(buf, sizeof(buf), "%.1f\4g/m\5", ((double)graph_data)/100.);
+			snprintf(buf, sizeof(buf), "%.1f\4g/m\5", graph_data/100.);
 			break;
 		case PN10_0:
-			snprintf(buf, sizeof(buf), "%.1f#/cm\5", ((double)graph_data)/100.);
+			snprintf(buf, sizeof(buf), "%.1f#/cm\5", graph_data/100.);
 			break;
 		case TEMP:
-			snprintf(buf, sizeof(buf), "%.1f%s", CAT_AQ_map_celsius(((double)graph_data)/100.), CAT_AQ_get_temperature_unit_string());
+			snprintf(buf, sizeof(buf), "%.1f%s", CAT_AQ_map_celsius(graph_data/100.), CAT_AQ_get_temperature_unit_string());
 			break;
 		case RH:
-			snprintf(buf, sizeof(buf), "%.1f%%RH", ((double)graph_data)/100.);
+			snprintf(buf, sizeof(buf), "%.1f%%RH", graph_data/100.);
 			break;
 		case PRESS:
-			snprintf(buf, sizeof(buf), "%.1fhPa", ((double)graph_data)/10.);
+			snprintf(buf, sizeof(buf), "%.1fhPa", graph_data/10.);
 			break;
 		case VOC:
 		case NOX:
@@ -370,7 +370,7 @@ void calc_ach()
 	LOG_DBG("max.time = %lld, max.ppm = %d", max.time, max.ppm);
 	LOG_DBG("min.time = %lld, min.ppm = %d", min.time, min.ppm);
 
-	double decay_concentration = (double)min.ppm + ((double)max.ppm - (double)min.ppm) / M_E;
+	float decay_concentration = min.ppm + (max.ppm - min.ppm) / M_E;
 
 	LOG_DBG("decay_concentration = %.2f", decay_concentration);
     
@@ -404,7 +404,7 @@ void calc_ach()
 	}
 
     // Calculate ACH
-    ach_cache = 1.0 / ((double)(decay_time - max.time) / 3600.0);  // Convert to hours
+    ach_cache = 1.0 / ((decay_time - max.time) / 3600.0);  // Convert to hours
     LOG_DBG("ach = %.2f", ach_cache);
 }
 
@@ -485,7 +485,7 @@ void CAT_render_graph()
 		{
 			if (ach_cache != -1)
 			{
-				CAT_gui_textf("%s: %.1f", (get_ach_mode()==EACH)?"eACH":"ACH", (double)ach_cache);
+				CAT_gui_textf("%s: %.1f", (get_ach_mode()==EACH)?"eACH":"ACH", ach_cache);
 			}
 			else
 			{
@@ -511,7 +511,7 @@ void CAT_render_graph()
 		CAT_gui_image(&null_sprite, 1);
 		CAT_gui_text("to change scale");
 		CAT_gui_line_break();
-		CAT_gui_textf("(Currently %.1fh wide)", (double)(GRAPH_W*graph_step_time)/3600.);
+		CAT_gui_textf("(Currently %.1fh wide)", (GRAPH_W*graph_step_time)/3600.);
 		CAT_gui_line_break();
 		CAT_gui_image(&null_sprite, 1);
 		CAT_gui_text("to change parameter");

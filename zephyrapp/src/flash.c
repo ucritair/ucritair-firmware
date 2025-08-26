@@ -231,7 +231,7 @@ int flash_get_first_calendar_cell(CAT_log_cell* cell)
 float get_hours_of_logging_at_rate(int rate)
 {
 	int left = MAX_LOG_CELL_COUNT - next_log_cell_nr;
-	return ((double)(rate*left))/3600.;
+	return (rate*left)/3600.;
 }
 
 void populate_log_cell(CAT_log_cell* cell)
