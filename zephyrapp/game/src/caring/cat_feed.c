@@ -164,7 +164,7 @@ static void refresh_food_states()
 			continue;
 
 		CAT_ivec2 spoke = CAT_ivec2_sub(food_list[i].position, active_food_centroid);
-		float angle = atan2(-spoke.y, spoke.x);
+		float angle = atan2f(-spoke.y, spoke.x);
 		if (angle < 0)
 			angle += M_PI * 2;
 		food_list[i].angle = angle;

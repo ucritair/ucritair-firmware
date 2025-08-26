@@ -18,11 +18,11 @@ struct sen5x_state_t {
     uint8_t fw_maj, fw_min, hw_maj, hw_min, proto_maj, proto_min;
     bool fw_debug;
 
-    double mc_pm1p0, mc_pm2p5, mc_pm4p0, mc_pm10p0;
-    double nc_pm0p5, nc_pm1p0, nc_pm2p5, nc_pm4p0, nc_pm10p0;
-    double typical_particle_size_um;
-    double humidity, temp_c;
-    double voc_index, nox_index;
+    float mc_pm1p0, mc_pm2p5, mc_pm4p0, mc_pm10p0;
+    float nc_pm0p5, nc_pm1p0, nc_pm2p5, nc_pm4p0, nc_pm10p0;
+    float typical_particle_size_um;
+    float humidity, temp_c;
+    float voc_index, nox_index;
     uint32_t status;
     bool is_faulted;
 };

@@ -275,7 +275,7 @@ void CAT_attack_swipe(int x, int y, int tx, int ty)
 		
 		int angle_idx = (swipe_tx+1) * 3 + (swipe_ty+1);
 		float t_s = swipe_angles[angle_idx];
-		float t_e = atan2(d_y, d_x);
+		float t_e = atan2f(d_y, d_x);
 		if(t_e < 0)
 			t_e += 2 * M_PI;
 		float d_t = fabs(t_e - t_s);
