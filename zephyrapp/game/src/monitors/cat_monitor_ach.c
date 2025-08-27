@@ -79,7 +79,7 @@ float find_stddev()
 		sum += (values[i] - mean) * (values[i] - mean);
 	sum /= (last_idx-1);
 
-	return sqrt(sum);
+	return sqrtf(sum);
 }
 
 int find_peak_before_trough(int trough_idx, unsigned int dip_threshold)

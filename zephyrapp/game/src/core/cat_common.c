@@ -207,7 +207,7 @@ const char* CAT_AQ_get_temperature_unit_string()
 
 int float2int(float f, int scale_factor)
 {
-	return round(f * scale_factor);
+	return roundf(f * scale_factor);
 }
 
 float int2float(int i, float scale_factor)

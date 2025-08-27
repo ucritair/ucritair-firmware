@@ -563,7 +563,7 @@ static void nibble_burst(int n)
 static void fish_tick()
 {
 	CAT_vec2 hook_beeline = CAT_vec2_sub(hook, fish.positions[0]);
-	float hook_distance = sqrt(CAT_vec2_mag2(hook_beeline));
+	float hook_distance = sqrtf(CAT_vec2_mag2(hook_beeline));
 	CAT_vec2 hook_heading = CAT_vec2_div(hook_beeline, hook_distance);
 	float hook_align = CAT_vec2_dot(fish.headings[0], hook_heading);
 
@@ -601,7 +601,7 @@ static void fish_tick()
 	}
 	else if(fish.focus_trigger)
 	{
-		float hook_arena_dist = sqrt(CAT_vec2_dist2((CAT_vec2){120, 160}, hook));
+		float hook_arena_dist = sqrtf(CAT_vec2_dist2((CAT_vec2){120, 160}, hook));
 		if(hook_arena_dist < ARENA_RADIUS && hook_align > 0.7 && hook_distance <= (fish.radii[0] + 8))
 		{
 			fish.nibble_trigger = true;
@@ -609,7 +609,7 @@ static void fish_tick()
 			fish.nibble_time = CAT_rand_float(NIBBLE_WAIT_MIN, NIBBLE_WAIT_MAX);
 		}
 
-		float fish_arena_dist = sqrt(CAT_vec2_dist2((CAT_vec2){120, 160}, fish.positions[0]));
+		float fish_arena_dist = sqrtf(CAT_vec2_dist2((CAT_vec2){120, 160}, fish.positions[0]));
 		if(fish_arena_dist < (ARENA_RADIUS + fish.radii[0]))
 			fish.race_trigger = true;
 		if(fish.race_trigger && fish_arena_dist > (ARENA_RADIUS + fish.radii[0]))
@@ -1173,17 +1173,16 @@ static enum {
 	SUMMARY_PAGE_MAX
 } summary_page = FISH;
 
-static int wave_buffer[240];
+static int8_t wave_buffer[48];
 static int wave_phase = 0;
 
 static void init_wave_buffer()
 {
-	for(int x = 0; x < 240; x++)
+	for(int x = 0; x < 48; x++)
 	{
-		wave_buffer[x] = round(
+		wave_buffer[x] = roundf(
 		20.0f / 3.0f * sinf(M_PI * x / 20.0f + 2.2f) +
-		sinf(2.0f * M_PI * x / 20.0f + 2.2f) +
-		100.0f);
+		sinf(2.0f * M_PI * x / 20.0f + 2.2f));
 	}
 
 	wave_phase = 0;
@@ -1236,7 +1235,7 @@ static void render_wave_buffer()
 	{
 		int i = (x - wave_phase + 240) % 240;
 
-		int y_f = 320 - (wave_buffer[i]);
+		int y_f = 320 - (wave_buffer[i % 48] + 100);
 		y_f -= CAT_LCD_FRAMEBUFFER_OFFSET;
 		if(y_f < 0)
 			y_f = 0;

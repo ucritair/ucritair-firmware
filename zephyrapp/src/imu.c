@@ -105,7 +105,7 @@ void imu_update()
     lis3dh_read_data(0x2A, &imu_raw.y, true);
     lis3dh_read_data(0x2C, &imu_raw.z, true);
 
-	imu_magnitude = sqrt(imu_raw.x*imu_raw.x + imu_raw.y*imu_raw.y + imu_raw.z*imu_raw.z);
+	imu_magnitude = sqrtf(imu_raw.x*imu_raw.x + imu_raw.y*imu_raw.y + imu_raw.z*imu_raw.z);
 	float inv_mag = 1.0f / imu_magnitude;
 
 	imu_normalized.x = imu_raw.x * inv_mag;

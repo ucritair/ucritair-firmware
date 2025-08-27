@@ -18,7 +18,7 @@ typedef struct grid_cell
 {
 	int x;
 	int y;
-	int idx;
+	uint16_t idx;
 
 	bool mine;
 	bool seen;
@@ -48,10 +48,10 @@ static bool is_cell_clean(int x, int y)
 		return false;
 	return !cell->visited && !cell->seen;
 }
-static int idx_queue[GRID_SIZE];
+static uint16_t idx_queue[GRID_SIZE];
 static int idx_queue_length = 0;
 
-static void idx_enqueue(int idx)
+static void idx_enqueue(uint16_t idx)
 {
 	if(idx_queue_length >= GRID_SIZE)
 		return;
@@ -60,12 +60,12 @@ static void idx_enqueue(int idx)
 	idx_queue_length += 1;
 }
 
-static int idx_dequeue()
+static uint16_t idx_dequeue()
 {
 	if(idx_queue_length <= 0)
 		return -1;
 
-	int idx = idx_queue[0];
+	uint16_t idx = idx_queue[0];
 	idx_queue_length -= 1;
 	for(int i = 0; i < idx_queue_length; i++)
 	{
@@ -107,7 +107,7 @@ void init_grid()
 	{
 		for(int x = 0; x < GRID_WIDTH; x++)
 		{
-			int idx = y * GRID_WIDTH + x;
+			uint16_t idx = y * GRID_WIDTH + x;
 			grid[idx] = (grid_cell)
 			{
 				.x = x,
@@ -128,7 +128,7 @@ void init_grid()
 	}
 
 	idx_queue_length = 0;
-	for(int i = 0; i < GRID_SIZE; i++)
+	for(uint16_t i = 0; i < GRID_SIZE; i++)
 		idx_enqueue(i);
 	for(int i = 0; i < idx_queue_length; i++)
 	{
@@ -168,7 +168,7 @@ void flood_reveal(int x, int y)
 			{
 				if(dx == 0 && dy == 0)
 					continue;
-				int nidx = (c->y+dy) * CAT_ROOM_GRID_W + (c->x+dx);
+				uint16_t nidx = (c->y+dy) * CAT_ROOM_GRID_W + (c->x+dx);
 				if(is_cell_clean(c->x+dx, c->y+dy))
 				{
 					grid[nidx].visited = true;
@@ -306,7 +306,7 @@ void CAT_MS_mines(CAT_machine_signal signal)
 			{
 				if(!reveal_complete)
 				{
-					if(CAT_input_dismissal())
+					if(CAT_input_dismissal() || CAT_input_pressed(CAT_BUTTON_A))
 						reveal_complete = true;
 
 					for(int i = last_revealed; i < GRID_SIZE; i++)
@@ -323,7 +323,7 @@ void CAT_MS_mines(CAT_machine_signal signal)
 				}
 				else
 				{
-					if(CAT_input_dismissal())
+					if(CAT_input_dismissal() || CAT_input_pressed(CAT_BUTTON_A))
 					{
 						if(state == WIN)
 							CAT_inventory_add(prop_mine_item, 1);

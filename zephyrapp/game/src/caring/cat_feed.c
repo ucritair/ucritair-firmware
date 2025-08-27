@@ -630,11 +630,11 @@ static float score_evenness()
 			continue;
 
 		CAT_ivec2 this_pos = food_list[i].position;
-		spokes[i] = sqrt(CAT_ivec2_dist2(active_food_centroid, this_pos));
+		spokes[i] = sqrtf(CAT_ivec2_dist2(active_food_centroid, this_pos));
 		spoke_mean += spokes[i];
 
 		CAT_ivec2 neighbour_pos = food_list[food_list[i].neighbour].position;
-		edges[i] = sqrt(CAT_ivec2_dist2(neighbour_pos, this_pos));
+		edges[i] = sqrtf(CAT_ivec2_dist2(neighbour_pos, this_pos));
 		edge_mean += edges[i];
 	}
 	spoke_mean /= (float)surrounding_count;
@@ -650,8 +650,8 @@ static float score_evenness()
 		spoke_stddev += (spokes[i] - spoke_mean) * (spokes[i] - spoke_mean);
 		edge_stddev += (edges[i] - edge_mean) * (edges[i] - edge_mean);
 	}
-	spoke_stddev = sqrt(spoke_stddev / (float)(surrounding_count - 1));
-	edge_stddev = sqrt(edge_stddev / (float)(surrounding_count - 1));
+	spoke_stddev = sqrtf(spoke_stddev / (float)(surrounding_count - 1));
+	edge_stddev = sqrtf(edge_stddev / (float)(surrounding_count - 1));
 
 	float evenness = CAT_ease_in_sine(
 		1.0f -
@@ -698,7 +698,7 @@ static void refresh_scores()
 	score_object.aggregate = clamp(score_object.aggregate, 0, 1.0f);
 	score_object.aggregate = CAT_ease_in_sine(score_object.aggregate);
 
-	score_object.grade = round(score_object.aggregate * 6.0f);
+	score_object.grade = roundf(score_object.aggregate * 6.0f);
 }
 
 static void init_scores()
@@ -1362,15 +1362,15 @@ static void render_summary()
 		break;
 	case VARIETY:
 		title = "Variety";
-		grade = round(score_object.variety * 5);
+		grade = roundf(score_object.variety * 5);
 		break;
 	case PROPRIETY:
 		title = "Nutrition";
-		grade = round(score_object.propriety * 5);
+		grade = roundf(score_object.propriety * 5);
 		break;
 	case LAYOUT:
 		title = "Layout";
-		grade = round((score_object.spacing + score_object.evenness) * 0.5f * 5);
+		grade = roundf((score_object.spacing + score_object.evenness) * 0.5f * 5);
 		break;
 	case NOTES:
 		title = "Notes";

@@ -116,20 +116,20 @@ static inline float CAT_ease_inout_expo(float t)
 
 static inline float CAT_ease_in_circ(float t)
 {
-	return 1 - sqrt(1 - t*t);
+	return 1 - sqrtf(1 - t*t);
 }
 
 static inline float CAT_ease_out_circ(float t)
 {
-	return sqrt(1 - (t-1)*(t-1));
+	return sqrtf(1 - (t-1)*(t-1));
 }
 
 static inline float CAT_ease_inout_circ(float t)
 {
 	return
 	t < 0.5f ?
-	(1 - sqrt(1 - (2*t)*(2*t))) * 0.5f :
-	(sqrt(1 - (-2*t+2)*(-2*t+2)) + 1) * 0.5f;
+	(1 - sqrtf(1 - (2*t)*(2*t))) * 0.5f :
+	(sqrtf(1 - (-2*t+2)*(-2*t+2)) + 1) * 0.5f;
 }
 
 static inline float CAT_ease_in_back(float t)

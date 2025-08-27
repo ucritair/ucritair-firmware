@@ -297,7 +297,7 @@ void CAT_MS_laser(CAT_machine_signal signal)
 			else
 			{
 				CAT_vec2 seek_ray = CAT_vec2_sub(laser_pos, pet.pos);
-				seek_dist = sqrt(CAT_vec2_mag2(seek_ray));
+				seek_dist = sqrtf(CAT_vec2_mag2(seek_ray));
 				if(seek_dist < 32)
 				{
 					if(CAT_pet_seek(laser_pos))

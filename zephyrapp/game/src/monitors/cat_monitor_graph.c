@@ -87,7 +87,7 @@ static void load_graph_data()
 	start_tm.tm_year = start_date.year;
 	start_tm.tm_mon = start_date.month-1;
 	start_tm.tm_mday = start_date.day;
-	uint64_t start_time = mktime(&start_tm);
+	uint64_t start_time = timegm(&start_tm);
 	
 	CAT_log_cell cell;
 	if(seek_bookmark == -1)
