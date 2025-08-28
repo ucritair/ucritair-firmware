@@ -157,3 +157,9 @@ void CAT_set_text_mask(int x0, int y0, int x1, int y1);
 int CAT_draw_text(int x, int y, const char* text);
 int CAT_draw_textf(int x, int y, const char* fmt, ...);
 
+/*#define CAT_FLOAT_FMT "%d.%2.2u"
+#define CAT_FMT_FLOAT(f) (int) (f), ((unsigned)(100 * ((f) - (int) (f))) % 100)*/
+const char* CAT_fmt_float(float f);
+#define CAT_FLOAT_FMT "%s"
+#define CAT_FMT_FLOAT(f) CAT_fmt_float(f)
+

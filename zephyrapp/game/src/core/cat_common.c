@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <time.h>
 #include "item_assets.h"
+#include "cat_gui.h"
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -247,12 +248,6 @@ void CAT_AQ_update_moving_scores()
 		block->aggregate = float2int(CAT_AQ_aggregate_score(), 1);	
 	}
 	block->sample_count += 1;
-
-	CAT_printf("[MOVING AVERAGES]\n");
-	CAT_printf("CO2: %f NOX: %f\n", int2float(block->CO2, 1), int2float(block->NOX, 1));
-	CAT_printf("VOC: %f PM2_5: %f\n", int2float(block->VOC, 1), int2float(block->PM2_5, 100));
-	CAT_printf("temp: %f RH: %f\n", int2float(block->temp, 1000), int2float(block->rh, 100));
-	CAT_printf("aggregate: %f count: %d\n", int2float(block->aggregate, 1), block->sample_count);		
 }
 
 

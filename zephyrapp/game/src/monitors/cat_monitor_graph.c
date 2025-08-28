@@ -404,19 +404,19 @@ static char* make_value_string(int view, int16_t value)
 			snprintf(buf, sizeof(buf), "%d ppm", value);
 		break;
 		case CAT_MONITOR_GRAPH_VIEW_PM_2_5:
-			snprintf(buf, sizeof(buf), "%.1f\4 g/m\5", (float) value / 100.0f);
+			snprintf(buf, sizeof(buf), "" CAT_FLOAT_FMT "\4 g/m\5", CAT_FMT_FLOAT(value / 100.0f));
 		break;
 		case CAT_MONITOR_GRAPH_VIEW_PN_10_0:
-			snprintf(buf, sizeof(buf), "%.1f #/cm\5", (float) value / 100.0f);
+			snprintf(buf, sizeof(buf), "" CAT_FLOAT_FMT " #/cm\5", CAT_FMT_FLOAT(value / 100.0f));
 		break;
 		case CAT_MONITOR_GRAPH_VIEW_TEMP:
-			snprintf(buf, sizeof(buf), "%.1f %s", CAT_AQ_map_celsius((float) value / 100.0f), CAT_AQ_get_temperature_unit_string());
+			snprintf(buf, sizeof(buf), "" CAT_FLOAT_FMT " %s", CAT_FMT_FLOAT(CAT_AQ_map_celsius((float) value / 100.0f)), CAT_AQ_get_temperature_unit_string());
 		break;
 		case CAT_MONITOR_GRAPH_VIEW_RH:
-			snprintf(buf, sizeof(buf), "%.1f%% RH", (float) value / 100.0f);
+			snprintf(buf, sizeof(buf), "" CAT_FLOAT_FMT "%% RH", CAT_FMT_FLOAT(value / 100.0f));
 		break;
 		case CAT_MONITOR_GRAPH_VIEW_PRESS:
-			snprintf(buf, sizeof(buf), "%.1f hPa", (float) value / 10.0f);
+			snprintf(buf, sizeof(buf), "" CAT_FLOAT_FMT " hPa", CAT_FMT_FLOAT(value / 10.0f));
 		break;
 		case CAT_MONITOR_GRAPH_VIEW_VOC:
 		case CAT_MONITOR_GRAPH_VIEW_NOX:

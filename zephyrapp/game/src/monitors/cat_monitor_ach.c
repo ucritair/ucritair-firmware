@@ -477,7 +477,7 @@ static char* make_value_string(int view, int16_t value)
 			snprintf(buf, sizeof(buf), "%d ppm\n", value);
 		break;
 		case CAT_MONITOR_GRAPH_VIEW_PN_10_0:
-			snprintf(buf, sizeof(buf), "%.1f #/cm\5\n", (float) value / 100.0f);
+			snprintf(buf, sizeof(buf), "" CAT_FLOAT_FMT " #/cm\5\n", CAT_FMT_FLOAT(value / 100.0f));
 		break;
 	}
 	return buf;
@@ -517,21 +517,21 @@ void CAT_monitor_render_ACH()
 			CAT_set_text_colour(CAT_WHITE);
 			CAT_set_text_flags(CAT_TEXT_FLAG_CENTER);
 			CAT_set_text_scale(2);
-			cursor_y = CAT_draw_textf(120, cursor_y, "ACH: %.2f\n", ach[0]);
+			cursor_y = CAT_draw_textf(120, cursor_y, "ACH: " CAT_FLOAT_FMT "\n", CAT_FMT_FLOAT(ach[0]));
 		}
 		if(ach[1] != -1)
 		{
 			CAT_set_text_colour(CAT_WHITE);
 			CAT_set_text_flags(CAT_TEXT_FLAG_CENTER);
 			CAT_set_text_scale(2);
-			cursor_y = CAT_draw_textf(120, cursor_y, "eACH: %.2f\n", ach[1]);
+			cursor_y = CAT_draw_textf(120, cursor_y, "eACH: " CAT_FLOAT_FMT "\n", CAT_FMT_FLOAT(ach[1]));
 		}
 		if(ach[0] != -1 && ach[1] != -1)
 		{
 			CAT_set_text_colour(CAT_WHITE);
 			CAT_set_text_flags(CAT_TEXT_FLAG_CENTER);
 			CAT_set_text_scale(2);
-			cursor_y = CAT_draw_textf(120, cursor_y, "Total: %.2f\n", ach[0] + ach[1]);
+			cursor_y = CAT_draw_textf(120, cursor_y, "Total: " CAT_FLOAT_FMT "\n", CAT_FMT_FLOAT(ach[0] + ach[1]));
 		}
 
 		cursor_y = center_textf(120, cursor_y + 20, 1, CAT_WHITE, "Press [A] to return\n");
@@ -594,21 +594,21 @@ void CAT_monitor_render_ACH()
 			CAT_set_text_colour(CAT_WHITE);
 			CAT_set_text_flags(CAT_TEXT_FLAG_CENTER);
 			CAT_set_text_scale(2);
-			cursor_y = CAT_draw_textf(120, cursor_y, "ACH: %.2f\n", ach[0]);
+			cursor_y = CAT_draw_textf(120, cursor_y, "ACH: " CAT_FLOAT_FMT "\n", CAT_FMT_FLOAT(ach[0]));
 		}
 		if(ach[1] != -1)
 		{
 			CAT_set_text_colour(CAT_WHITE);
 			CAT_set_text_flags(CAT_TEXT_FLAG_CENTER);
 			CAT_set_text_scale(2);
-			cursor_y = CAT_draw_textf(120, cursor_y, "eACH: %.2f\n", ach[1]);
+			cursor_y = CAT_draw_textf(120, cursor_y, "eACH: " CAT_FLOAT_FMT "\n", CAT_FMT_FLOAT(ach[1]));
 		}
 		if(ach[0] != -1 && ach[1] != -1)
 		{
 			CAT_set_text_colour(CAT_WHITE);
 			CAT_set_text_flags(CAT_TEXT_FLAG_CENTER);
 			CAT_set_text_scale(2);
-			cursor_y = CAT_draw_textf(120, cursor_y, "Total: %.2f\n", ach[0] + ach[1]);
+			cursor_y = CAT_draw_textf(120, cursor_y, "Total: " CAT_FLOAT_FMT "\n", CAT_FMT_FLOAT(ach[0] + ach[1]));
 		}
 
 		cursor_y = center_textf(120, cursor_y + 20, 1, CAT_WHITE, "Press [A] to calculate\n");

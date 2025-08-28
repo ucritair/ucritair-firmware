@@ -60,9 +60,9 @@ void CAT_monitor_render_summary()
 		CAT_draw_text(x - (strlen(grade) == 1 ? 4 : 6), y-6, CAT_AQ_get_grade_string(score));
 
 		if(i == CAT_AQM_TEMP)
-			center_textf(x, y - 20 - DOT_MARGIN, 1, CAT_WHITE, "%.0f", CAT_AQ_map_celsius(CAT_AQ_live_score_raw(i)));
+			center_textf(x, y - 20 - DOT_MARGIN, 1, CAT_WHITE, "%d", (int)(CAT_AQ_map_celsius(CAT_AQ_live_score_raw(i))));
 		else
-			center_textf(x, y - 20 - DOT_MARGIN, 1, CAT_WHITE, "%.0f", CAT_AQ_live_score_raw(i));
+			center_textf(x, y - 20 - DOT_MARGIN, 1, CAT_WHITE, "%d", (int)(CAT_AQ_live_score_raw(i)));
 	}
 }
 

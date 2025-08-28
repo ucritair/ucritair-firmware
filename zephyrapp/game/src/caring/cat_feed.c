@@ -927,7 +927,7 @@ static void render_arrange()
 				(
 					food_list[i].position.x - FOOD_COLLISION_W / 2,
 					food_list[i].position.y - FOOD_COLLISION_H / 2 - 14,
-					"%d: %0.2f", i, food_list[i].angle
+					"%d: " CAT_FLOAT_FMT, i, CAT_FMT_FLOAT(food_list[i].angle)
 				);
 			}
 		}
@@ -954,12 +954,12 @@ static void render_arrange()
 
 	if (show_debug_text)
 	{
-		CAT_gui_printf(CAT_WHITE, "variety: %0.2f", score_object.variety);
-		CAT_gui_printf(CAT_WHITE, "propriety: %0.2f", score_object.propriety);
-		CAT_gui_printf(CAT_WHITE, "ichisan: %0.2f", score_object.ichiju_sansai);
-		CAT_gui_printf(CAT_WHITE, "spacing: %0.2f", score_object.spacing);
-		CAT_gui_printf(CAT_WHITE, "evenness: %0.2f", score_object.evenness);
-		CAT_gui_printf(CAT_WHITE, "aggregate: %0.2f", score_object.aggregate);
+		CAT_gui_printf(CAT_WHITE, "variety: " CAT_FLOAT_FMT, CAT_FMT_FLOAT(score_object.variety));
+		CAT_gui_printf(CAT_WHITE, "propriety: " CAT_FLOAT_FMT, CAT_FMT_FLOAT(score_object.propriety));
+		CAT_gui_printf(CAT_WHITE, "ichisan: " CAT_FLOAT_FMT, CAT_FMT_FLOAT(score_object.ichiju_sansai));
+		CAT_gui_printf(CAT_WHITE, "spacing: " CAT_FLOAT_FMT, CAT_FMT_FLOAT(score_object.spacing));
+		CAT_gui_printf(CAT_WHITE, "evenness: " CAT_FLOAT_FMT, CAT_FMT_FLOAT(score_object.evenness));
+		CAT_gui_printf(CAT_WHITE, "aggregate: " CAT_FLOAT_FMT, CAT_FMT_FLOAT(score_object.aggregate));
 		CAT_gui_printf(CAT_WHITE, "level: %d", score_object.grade);
 	}
 }

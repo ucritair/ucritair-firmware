@@ -205,7 +205,7 @@ int sen5x_read()
     state.voc_index = voc_index / 10.0;
     state.nox_index = nox_index / 10.0;
 
-    LOG_INF("PM(ug/m3): 1.0=%.1f  2.5=%.1f  4.0=%.1f  10.0=%.1f",
+    /*LOG_INF("PM(ug/m3): 1.0=%.1f  2.5=%.1f  4.0=%.1f  10.0=%.1f",
         state.mc_pm1p0, state.mc_pm2p5, state.mc_pm4p0, state.mc_pm10p0);
     LOG_INF("PM(#/m3): 0.5=%.1f  1.0=%.1f  2.5=%.1f  4.0=%.1f  10.0=%.1f",
         state.nc_pm0p5, state.nc_pm1p0, state.nc_pm2p5, state.nc_pm4p0, state.nc_pm10p0);
@@ -213,7 +213,7 @@ int sen5x_read()
     LOG_INF("humidity=%.2f %%RH", state.humidity);
     LOG_INF("temp=%.3f C", state.temp_c);
     LOG_INF("voc_index=%.1f", state.voc_index);
-    LOG_INF("nox_index=%.1f", state.nox_index);
+    LOG_INF("nox_index=%.1f", state.nox_index);*/
 
     readings.sen5x.pm1_0 = state.mc_pm1p0;
     readings.sen5x.pm2_5 = state.mc_pm2p5;

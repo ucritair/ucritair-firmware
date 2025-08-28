@@ -38,9 +38,7 @@ target_sources(app PRIVATE
 	src/wlan.c
 
 	src/menu/menu_time.c
-	src/menu/menu_aqi.c
 	src/menu/menu_system.c
-	src/menu/menu_graph.c
 )
 
 target_include_directories(app PRIVATE src/ src/menu/)

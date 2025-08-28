@@ -33,9 +33,7 @@
 
 #ifdef CAT_EMBEDDED
 #include "menu_time.h"
-#include "menu_aqi.h"
 #include "menu_system.h"
-#include "menu_graph.h"
 #endif
 
 #ifdef __GNUC__

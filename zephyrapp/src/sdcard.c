@@ -11,6 +11,7 @@ LOG_MODULE_REGISTER(sdcard, LOG_LEVEL_DBG);
 #include "sdcard.h"
 #include "rtc.h"
 #include "flash.h"
+#include "cat_gui.h"
 
 /*
  *  Note the fatfs library is able to mount only strings inside _VOLUME_STRS
@@ -252,9 +253,9 @@ enum sdcard_result write_log_to_sdcard()
 		CAT_log_cell cell;
 		flash_get_cell_by_nr(nr, &cell);
 
-#define UG(x) (x/100.)
+#define UG(x) CAT_FMT_FLOAT(x/100.)
 
-		len = snprintf(buf, sizeof(buf), "%lld,%d,%d,%d,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.2f,%.1f,%d,%d,%d\n",
+		len = snprintf(buf, sizeof(buf), "%lld,%d,%d,%d," CAT_FLOAT_FMT "," CAT_FLOAT_FMT "," CAT_FLOAT_FMT "," CAT_FLOAT_FMT "," CAT_FLOAT_FMT "," CAT_FLOAT_FMT "," CAT_FLOAT_FMT "," CAT_FLOAT_FMT "," CAT_FLOAT_FMT "," CAT_FLOAT_FMT "," CAT_FLOAT_FMT ",%d,%d,%d\n",
 			RTC_TIME_TO_EPOCH_TIME(cell.timestamp),
 			cell.flags,
 			cell.co2_ppmx1,
@@ -268,8 +269,8 @@ enum sdcard_result write_log_to_sdcard()
 			UG(cell.pn_ugmx100[2]),
 			UG(cell.pn_ugmx100[3]),
 			UG(cell.pn_ugmx100[4]),
-			cell.temp_Cx1000/1000.,
-			cell.rh_pctx100/100.,
+			CAT_FMT_FLOAT(cell.temp_Cx1000/1000.),
+			CAT_FMT_FLOAT(cell.rh_pctx100/100.),
 			cell.voc_index,
 			cell.nox_index,
 			cell.pressure_hPax10/10

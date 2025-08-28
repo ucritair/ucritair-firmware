@@ -132,9 +132,6 @@ void CAT_render_debug()
 				CAT_gui_textf("%d", state);
 			}
 			CAT_gui_line_break();
-
-			CAT_gui_textf("Downtime: %0.1f\n", CAT_input_time_since_last());
-			
 		}
 		break;
 
@@ -148,13 +145,13 @@ void CAT_render_debug()
 			if(CAT_AQ_sensors_initialized())
 				CAT_gui_text("Sensors initialized\n");
 
-			CAT_gui_textf("RH: %f\n", readings.sen5x.humidity_rhpct);
-			CAT_gui_textf("CO2: %f\n", readings.sunrise.ppm_filtered_compensated);
-			CAT_gui_textf("PM: %f\n", readings.sen5x.pm2_5);
-			CAT_gui_textf("NOX: %f\n", readings.sen5x.nox_index);
-			CAT_gui_textf("VOC: %f\n", readings.sen5x.voc_index);
-			CAT_gui_textf("TMP: %f%s\n", CAT_AQ_map_celsius(readings.lps22hh.temp), CAT_AQ_get_temperature_unit_string());
-			CAT_gui_textf("AQI: %f\n", CAT_AQ_aggregate_score());
+			CAT_gui_textf("RH: " CAT_FLOAT_FMT "\n", CAT_FMT_FLOAT(readings.sen5x.humidity_rhpct));
+			CAT_gui_textf("CO2: " CAT_FLOAT_FMT "\n", CAT_FMT_FLOAT(readings.sunrise.ppm_filtered_compensated));
+			CAT_gui_textf("PM: " CAT_FLOAT_FMT "\n", CAT_FMT_FLOAT(readings.sen5x.pm2_5));
+			CAT_gui_textf("NOX: " CAT_FLOAT_FMT "\n", CAT_FMT_FLOAT(readings.sen5x.nox_index));
+			CAT_gui_textf("VOC: " CAT_FLOAT_FMT "\n", CAT_FMT_FLOAT(readings.sen5x.voc_index));
+			CAT_gui_textf("TMP: " CAT_FLOAT_FMT "%s\n", CAT_FMT_FLOAT(CAT_AQ_map_celsius(readings.lps22hh.temp)), CAT_AQ_get_temperature_unit_string());
+			CAT_gui_textf("AQI: " CAT_FLOAT_FMT "\n", CAT_FMT_FLOAT(CAT_AQ_aggregate_score()));
 		}
 		break;
 

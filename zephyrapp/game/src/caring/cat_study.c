@@ -1071,7 +1071,8 @@ static void render_MS_catch()
 		CAT_draw_sprite(&study_a_button_sprite, 0, 120, bar.center.y - 48);
 	}
 	CAT_set_text_colour(CAT_RED);
-	CAT_draw_textf(120-8*2+4, bar.center.y - 26, "%.1f%%", bar.progress * 100);
+
+	CAT_draw_textf(120-8*2+4, bar.center.y - 26, "%d%%", (int)(bar.progress * 100));
 }
 
 static CAT_RGB888 fail_colour;
@@ -1308,19 +1309,19 @@ static void render_MS_summary()
 			cursor_y += 8;
 
 			CAT_set_text_colour(CAT_WHITE);
-			CAT_draw_textf(12, cursor_y, "Length: %0.0f cm", fish.length * 100);
+			CAT_draw_textf(12, cursor_y, "Length: %d cm", (int)(fish.length * 100));
 			cursor_y += 16;
 			render_score_line(12, cursor_y, CAT_LCD_SCREEN_W * 0.75, fish.length, fish.type->min_length, fish.type->max_length);
 			cursor_y += 12;
 
 			CAT_set_text_colour(CAT_WHITE);
-			CAT_draw_textf(12, cursor_y, "Lustre: %0.2f", fish.lustre);
+			CAT_draw_textf(12, cursor_y, "Lustre: " CAT_FLOAT_FMT, CAT_FMT_FLOAT(fish.lustre));
 			cursor_y += 16;
 			render_score_line(12, cursor_y, CAT_LCD_SCREEN_W * 0.75, fish.lustre, fish.type->min_lustre, fish.type->max_lustre);
 			cursor_y += 12;
 
 			CAT_set_text_colour(CAT_WHITE);
-			CAT_draw_textf(12, cursor_y, "Wisdom: %0.2f", fish.wisdom);
+			CAT_draw_textf(12, cursor_y, "Wisdom: " CAT_FLOAT_FMT, CAT_FMT_FLOAT(fish.wisdom));
 			cursor_y += 16;
 			render_score_line(12, cursor_y, CAT_LCD_SCREEN_W * 0.75, fish.wisdom, fish.type->min_wisdom, fish.type->max_wisdom);
 		}
