@@ -52,6 +52,6 @@ Mkfile.old
 dkms.conf
 
 # Tomas' Stuff
-**/.DS_Store
-**/.vscode/
-**/__pycache__
+.DS_Store
+.vscode/
+__pycache__/
