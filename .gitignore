@@ -54,3 +54,4 @@ dkms.conf
 # Tomas' Stuff
 **/.DS_Store
 **/.vscode/
+**/__pycache__
