@@ -148,3 +148,14 @@ class HTMLWriter:
 	
 	def end_same_line(self):
 		self.close_tag();
+
+	def link(self, text, link, mode=HTMLMode.DEFAULT, **kwargs):
+		match mode:
+			case HTMLMode.DEFAULT:
+				self.one_line("a", text, href=link, **kwargs);
+			case HTMLMode.INLINE:
+				return f"<a href={link} {self._make_args(kwargs)}>{text}</a>";
+
+	def line(self, s, **kwargs):
+		self.text(s, **kwargs);
+		self.one_token("br");

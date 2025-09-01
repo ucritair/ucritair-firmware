@@ -2,6 +2,7 @@
 
 from pathlib import Path;
 import re;
+import inspect;
 
 _in_root = None;
 _out_root = None;
@@ -13,7 +14,9 @@ def set_io_paths(in_root, out_root):
 	_out_root = out_root;
 
 class LeafPage:
-	def __init__(self, path):
+	def __init__(self, parent, path):
+		self.parent = parent;
+
 		self.in_path = path;
 		parent = path.relative_to(_in_root).parent;
 		name = path.stem;
@@ -25,16 +28,18 @@ class LeafPage:
 		expr = re.search(r"PAGE\s*\(.*\)", line).group();
 		tokens = re.split(r"\s|\(|\)", expr);
 		tokens = [t for t in tokens if len(t) > 0];
-		self.title = tokens[1];
+		self.title = " ".join(tokens[1:]);
 
 class NodePage:
-	def __init__(self, path):
+	def __init__(self, parent, path):
+		self.parent = parent;
+
 		self.in_path = path;
 		self.rel_path = path.relative_to(_in_root);
 		self.out_path = _out_root/self.rel_path;
 		self.children = [];
 	
-		self.title = self.rel_path.stem.title();
+		self.title = self.rel_path.stem.title().replace("_", " ");
 
 	def add_child(self, child):
 		self.children.append(child);
@@ -48,10 +53,10 @@ class NodePage:
 def _construct_tree(node, path):
 	for child_path in path.iterdir():
 		if not child_path.is_dir() and child_path.suffix == ".py":
-			node.add_child(LeafPage(child_path));
+			node.add_child(LeafPage(node, child_path));
 	for child_path in path.iterdir():
 		if child_path.is_dir() and not child_path.stem.startswith("__"):
-			child_node = NodePage(child_path);
+			child_node = NodePage(node, child_path);
 			_construct_tree(child_node, child_path);
 			if len(child_node.children) > 0:
 				node.add_child(child_node);
@@ -60,5 +65,19 @@ tree = None;
 
 def contruct_tree():
 	global tree;
-	tree = NodePage(_in_root);
+	tree = NodePage(None, _in_root);
 	_construct_tree(tree, _in_root);
+
+def _here(node, path):
+	if str(node.in_path) == str(path):
+		return node.parent;
+	if isinstance(node, NodePage):
+		for child in node.children:
+			result = _here(child, path);
+			if result != None:
+				return result;
+	return None;
+
+def here():
+	calling = inspect.stack()[1];
+	return _here(tree, calling.filename);

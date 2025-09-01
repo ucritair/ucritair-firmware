@@ -2,7 +2,7 @@
 
 # PAGE(Home)
 
-from html_writer import HTMLWriter;
+from html_writer import HTMLWriter, HTMLMode;
 import common;
 import pages;
 
@@ -11,9 +11,12 @@ def build(html: HTMLWriter):
 
 	common.title(html, "Home");
 	html.start_text_block();
-	html.text("Welcome to the uCritAir documentation.");
-	html.text("From here, you can explore a variety of documents relating to the uCritAir hardware, firmware, and software.");
+	html.line("Welcome to the uCritAir documentation.");
+	html.line("The uCritAir is an air quality sensor and tracker and a richly interactive virtual pet in one device.");
+	html.line("Every aspect of the uCritAir is actively in development, with firmware updates releasing frequently.");
+	html.line("This website serves as documentation for all things uCritAir.");
+	html.line(f"Other uCritAir related sites are the {html.link("main page", "https://www.ucritter.com/", mode=HTMLMode.INLINE)} and the {html.link("source code", "https://github.com/ucritair/ucritair-firmware", mode=HTMLMode.INLINE)}.");
 	html.end_text_block();
 	html.newline();
 
-	common.navigator(html, pages.tree);
+	common.navigator(html, pages.here());

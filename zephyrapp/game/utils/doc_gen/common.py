@@ -6,9 +6,9 @@ import pages;
 def navigator(html: HTMLWriter, node):
 	html.start_list();
 	for child in node.children:
+		if child.in_path.name == "index.py":
+			continue;
 		html.list_item(f"<a href=/{child.rel_path}>{child.title}</a>");
-		if isinstance(child, pages.NodePage):
-			navigator(html, child);
 	html.end_list();
 
 def banner(html: HTMLWriter, path, height):
@@ -33,3 +33,6 @@ def gallery(html: HTMLWriter, images):
 		html.one_tag("img", src=image, style="width:100%");
 		html.close_tag();
 	html.close_tag();
+
+def index_banner(html: HTMLWriter):
+	html.image("/images/banner_1.png", style=f"height: 35vh;");
