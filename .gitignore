@@ -55,7 +55,3 @@ dkms.conf
 .DS_Store
 .vscode/
 __pycache__/
-
-cmake_install.cmake
-CMakeCache.txt
-CMakeFiles/
