@@ -6,7 +6,7 @@ from html_writer import HTMLWriter, HTMLMode;
 import common;
 import pages;
 
-def build(html: HTMLWriter):
+def build(here, html: HTMLWriter):
 	common.banner(html, "/images/banner_2.png", 0.5);
 
 	common.title(html, "Home");
@@ -19,4 +19,4 @@ def build(html: HTMLWriter):
 	html.end_text_block();
 	html.newline();
 
-	common.navigator(html, pages.here());
+	common.navigator(html, here.parent);

@@ -2,7 +2,6 @@
 
 from pathlib import Path;
 import re;
-import inspect;
 
 _in_root = None;
 _out_root = None;
@@ -55,7 +54,7 @@ def _construct_tree(node, path):
 		if not child_path.is_dir() and child_path.suffix == ".py":
 			node.add_child(LeafPage(node, child_path));
 	for child_path in path.iterdir():
-		if child_path.is_dir() and not child_path.stem.startswith("__"):
+		if child_path.is_dir() and not child_path.stem.startswith("_"):
 			child_node = NodePage(node, child_path);
 			_construct_tree(child_node, child_path);
 			if len(child_node.children) > 0:
@@ -67,17 +66,3 @@ def contruct_tree():
 	global tree;
 	tree = NodePage(None, _in_root);
 	_construct_tree(tree, _in_root);
-
-def _here(node, path):
-	if str(node.in_path) == str(path):
-		return node.parent;
-	if isinstance(node, NodePage):
-		for child in node.children:
-			result = _here(child, path);
-			if result != None:
-				return result;
-	return None;
-
-def here():
-	calling = inspect.stack()[1];
-	return _here(tree, calling.filename);

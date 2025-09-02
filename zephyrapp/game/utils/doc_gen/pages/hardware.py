@@ -5,27 +5,68 @@
 from html_writer import HTMLWriter;
 import common;
 
-def build(html: HTMLWriter):
+def build(here, html: HTMLWriter):
 	common.title(html, "Hardware");
 	
 	common.banner(html, "/images/hardware.webp", 0.75);
 
-	html.heading(2, "Power-On");
-	html.text("The uCritAir ships in a protected power-off mode, to prevent draining the battery before it arrives. To turn it on for the first time, simply press the reset button with a small object such as a paperclip, and wait a moment.");
+	html.heading(1, "Top-to-Bottom");
 
-	html.heading(2, "Displays");
-	html.heading(3, "E-Ink");
-	html.text("The uCritAir's topmost display is a non-interacive e-ink display which is used to communicate device status, air quality, gameplay metrics, and more. The e-ink display can be manually updated from the system menu.");
-	html.text("When the device is flipped upside-down, the e-ink display will flip its orientation to match.");
-	html.heading(3, "LCD");
-	html.text("The main display is a touchscreen LCD which is constantly updated in real time. It is where the action happens. All air quality and gameplay features are controlled through interfaces that appear on the LCD.");
+	html.heading(2, "E-Ink Display");
+	html.start_text_block();
+	html.text("The e-ink display is used to communicate device status, air quality conditions, and pet information.");
+	html.text("Intervals between e-ink updates are relatively long, as updating the e-ink necessarily halts other device functions.");
+	html.text("The e-ink display is non-interactive");
+	html.end_text_block();
+
+	html.heading(2, "LCD Display");
+	html.start_text_block();
+	html.text("The LCD display is the device's primary display.");
+	html.text("It updates many times per second and is used for all real-time gameplay.");
+	html.text("The LCD display supports touch input, but with relatively low precision.");
+	html.text("Some but not all gameplay takes advantage of touch support. There is typically a non-touch way to perform any action that can be performed with touches.");
+	html.end_text_block();
+
+	html.heading(3, "A Note on Display Orientation and the IMU");
+	html.start_text_block();
+	html.text("The device has an on-board IMU for detecting orientation.");
+	html.text("When the device's orientation is determined to be right-side-up or upside-down, the LCD and E-Ink are reoriented to match.");
+	html.text("Device input logic is also reoriented to match the display.");
+	html.end_text_block();
+
+	html.heading(2, "Reset Button");
+	html.start_text_block();
+	html.text("The device's reset button is situated at the back of a small aperture above the D-pad.");
+	html.text("Pressing the reset button resets critical device state and prompts the device to restart itself.");
+	html.text("As such, it is essential for recovering from crashes and other issues which may interfere with device logic.");
+	html.text("More commonly, it is useful for waking from low-power sleep and DFU mode.");
+	html.end_text_block();
 
 	html.heading(2, "Face Buttons");
-	html.text("The D-pad, A/B buttons, and start/select buttons are used to control the uCritAir's software in a manner that will be familiar to anyone who has used a gamepad. That is, in general: D-pad is for navigation, A/B are for confirm and cancel respectively, start is for entering or exiting some overarching context, and select is for changing modes within a context.");
+	html.start_text_block();
+	html.text("The device sports 4 face buttons: Start, Select, A, and B.");
+	html.text("These buttons roughly adhere to their expected functions within video games.");
+	html.text("Start and select are used for various modifications of the game context with select being more or less auxiliary to start.");
+	html.text("A is used for positive action or confirmation, and B for retreat or cancellation.");
+	html.end_text_block();
+	
+	html.heading(2, "D-Pad");
+	html.start_text_block();
+	html.text("The D-pad is the main set of inputs for in-game navigation.");
+	html.text("As such, most navigation is 4-directional.");
+	html.end_text_block();
+	
+	html.heading(3, "A Note on Special Input Combinations");
+	html.start_text_block();
+	html.line("Select + Start + Down while system is asleep: enter DFU mode.");
+	html.line("Select + Start + Up: enter debug menu.");
+	html.end_text_block();
 
 	html.heading(2, "USB-C Port");
-	html.text("Connecting the μCritAir to a power source via the USB-C port will refill its battery.");
-	html.text("New builds of the system software are flashed to the μCritAir over the USB-C port.");
+	html.start_text_block();
+	html.text("Connecting the uCritAir to a power source via the USB-C port will refill its battery.");
+	html.text("New builds of the system software are flashed to the uCritAir over the USB-C port.");
+	html.end_text_block();
 
 
 

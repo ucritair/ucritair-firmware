@@ -49,7 +49,7 @@ def build_tree(node):
 		os.makedirs(os.path.dirname(node.out_path), exist_ok=True);
 		html = HTMLWriter(node.out_path);
 		html.start(node.title);
-		module.build(html);
+		module.build(node, html);
 		html.end();
 	
 	elif isinstance(node, pages.NodePage):

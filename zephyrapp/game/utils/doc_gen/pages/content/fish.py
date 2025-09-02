@@ -6,7 +6,7 @@ import json;
 from html_writer import HTMLWriter, HTMLMode;
 import common;
 
-def build(html: HTMLWriter):
+def build(here, html: HTMLWriter):
 	json_file = open("data/fish.json", "r");
 	json_data = json.load(json_file);
 	json_file.close();
