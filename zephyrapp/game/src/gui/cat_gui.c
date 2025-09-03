@@ -868,7 +868,9 @@ static bool item_grid_handle_exit = false;
 static int item_grid_pool_backing[CAT_ITEM_TABLE_CAPACITY];
 static CAT_int_list item_grid_pool;
 static int item_grid_selector;
-static float item_grid_select_timer;
+
+static int item_grid_confirmed = false;
+static int item_grid_confirm_frame = 0;
 
 enum
 {
@@ -903,7 +905,8 @@ void CAT_gui_begin_item_grid_context(bool handle_exit)
 
 	CAT_ilist(&item_grid_pool, item_grid_pool_backing, CAT_ITEM_TABLE_CAPACITY);
 	//item_grid_selector = 0;
-	item_grid_select_timer = 0;
+	item_grid_confirmed = false;
+	item_grid_confirm_frame = 0;
 
 	item_grid_focus = GRID;
 	item_grid_tab_count = 0;
@@ -967,36 +970,34 @@ void CAT_gui_item_grid_io()
 	
 		case GRID:
 		{
-			int delta = 0;
-			if(CAT_input_pulse(CAT_BUTTON_LEFT))
-				delta += -1;
-			if(CAT_input_pulse(CAT_BUTTON_RIGHT))
-				delta += 1;
-			if(CAT_input_pulse(CAT_BUTTON_UP))
+			if(!item_grid_confirmed)
 			{
-				if(item_grid_selector < 3 && item_grid_tab_count > 1)
+				int delta = 0;
+				if(CAT_input_pulse(CAT_BUTTON_LEFT))
+					delta += -1;
+				if(CAT_input_pulse(CAT_BUTTON_RIGHT))
+					delta += 1;
+				if(CAT_input_pulse(CAT_BUTTON_UP))
 				{
-					item_grid_select_timer = 0;
-					item_grid_focus = NAV;
+					if(item_grid_selector < 3 && item_grid_tab_count > 1)
+						item_grid_focus = NAV;
+					else
+						delta += -ITEM_GRID_COLS;
 				}
-				else
-					delta += -ITEM_GRID_COLS;
+				if(CAT_input_pulse(CAT_BUTTON_DOWN))
+					delta += ITEM_GRID_COLS;
+				item_grid_selector = clamp(item_grid_selector+delta, 0, item_grid_pool.length-1);
+
+				if(CAT_input_pressed(CAT_BUTTON_A))
+					item_grid_confirmed = true;
 			}
-			if(CAT_input_pulse(CAT_BUTTON_DOWN))
-				delta += ITEM_GRID_COLS;
-			item_grid_selector = clamp(item_grid_selector+delta, 0, item_grid_pool.length-1);
-
-			if(delta != 0)
-				item_grid_select_timer = 0;
-			if(CAT_input_held(CAT_BUTTON_A, CAT_get_delta_time_s() * 2))
-				item_grid_select_timer += CAT_get_delta_time_s();
-			item_grid_select_timer = clamp(item_grid_select_timer, 0, ITEM_GRID_SELECT_TIME);
-
-			if(CAT_input_released(CAT_BUTTON_A))
+			else if(item_grid_confirm_frame < 3)
+				item_grid_confirm_frame += 1;
+			else if(!item_grid_is_empty())
 			{
-				if(!item_grid_is_empty() && item_grid_select_timer >= ITEM_GRID_SELECT_TIME)
-					item_grid_tab_list[item_grid_tab_idx].confirm_proc(item_grid_pool.data[item_grid_selector]);
-				item_grid_select_timer = 0;
+				item_grid_tab_list[item_grid_tab_idx].confirm_proc(item_grid_pool.data[item_grid_selector]);
+				item_grid_confirmed = false;
+				item_grid_confirm_frame = 0;
 			}
 
 			if(CAT_input_pressed(CAT_BUTTON_B) && item_grid_handle_exit)
@@ -1043,7 +1044,7 @@ void CAT_gui_item_grid()
 			{
 				CAT_draw_sprite(&ui_item_frame_bg_sprite, 0, x, y);
 
-				CAT_item* item = CAT_item_get(item_grid_pool.data[idx]);
+				CAT_item* item = CAT_get_item(item_grid_pool.data[idx]);
 				float aspect = item->sprite->height / (float) item->sprite->width;
 				int major_axis = max(item->sprite->width, item->sprite->height);
 
@@ -1067,11 +1068,8 @@ void CAT_gui_item_grid()
 				
 				if(idx == item_grid_selector)
 				{
-					CAT_draw_sprite(&ui_item_frame_fg_sprite, 0, x, y);
-
-					float select_progress = CAT_ease_inout_sine(item_grid_select_timer / ITEM_GRID_SELECT_TIME);
-					if (tab->confirm_proc != NULL && select_progress >= 0.05f)
-						CAT_draw_corner_explosion(x+7, y+7, 64-15, 64, ITEM_GRID_ACTION_COLOUR, select_progress);
+					if(!item_grid_confirmed ||item_grid_confirm_frame & 1 || tab->confirm_proc == NULL)
+						CAT_draw_sprite(&ui_item_frame_fg_sprite, 0, x, y);
 				}
 
 				idx += 1;

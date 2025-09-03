@@ -14,20 +14,11 @@
 //////////////////////////////////////////////////////////////////////////
 // ITEM TABLE
 
-CAT_item* CAT_item_get(int item_id)
+CAT_item* CAT_get_item(int item_id)
 {
 	if(item_id < 0 || item_id >= item_table.length)
 		return NULL;
 	return &item_table.data[item_id];
-}
-
-void CAT_filter_item_table(CAT_item_filter filter, CAT_int_list* list)
-{
-	for(int i = 0; i < item_table.length; i++)
-	{
-		if(filter == NULL || filter(i))
-			CAT_ilist_push(list, i);
-	}
 }
 
 
@@ -145,7 +136,7 @@ void CAT_MS_inspector(CAT_machine_signal signal)
 
 void CAT_render_inspector()
 {
-	CAT_item* item = CAT_item_get(inspect_id);
+	CAT_item* item = CAT_get_item(inspect_id);
 
 	CAT_frameberry(INSPECTOR_BG_COLOUR);
 

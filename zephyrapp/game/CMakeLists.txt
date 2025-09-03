@@ -193,6 +193,8 @@ target_sources(app PRIVATE
 
 	src/procs/cat_procs.c
 
+	src/crafting/cat_crafting.c
+
 	sounds/sound_assets.c
 	meshes/mesh_assets.c
 	meshes/mesh2d_assets.c
@@ -223,6 +225,7 @@ target_include_directories(app PRIVATE src/systems)
 target_include_directories(app PRIVATE src/room)
 target_include_directories(app PRIVATE src/world)
 target_include_directories(app PRIVATE src/procs)
+target_include_directories(app PRIVATE src/crafting)
 
 target_include_directories(app PRIVATE sounds/)
 target_include_directories(app PRIVATE meshes/)

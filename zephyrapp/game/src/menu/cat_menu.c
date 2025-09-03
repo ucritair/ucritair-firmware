@@ -18,6 +18,7 @@
 #include "cat_monitors.h"
 #include "item_assets.h"
 #include "cat_world.h"
+#include "cat_crafting.h"
 
 #ifdef CAT_EMBEDDED
 #include "menu_system.h"
@@ -48,6 +49,8 @@ void CAT_MS_menu(CAT_machine_signal signal)
 					CAT_machine_transition(CAT_MS_arcade);
 				if(CAT_gui_menu_item("EXPLORE"))
 					CAT_machine_transition(CAT_MS_world);
+				if(CAT_gui_menu_item("CRAFTING"))
+					CAT_machine_transition(CAT_MS_crafting);
 				if(CAT_gui_menu_item("DASHBOARD"))
 					CAT_machine_transition(CAT_MS_monitor);				
 					

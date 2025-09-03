@@ -314,7 +314,7 @@ static void food_despawn(int list_idx)
 
 static CAT_item *food_lookup(int list_idx)
 {
-	return CAT_item_get(food_pool.data[food_list[list_idx].pool_idx]);
+	return CAT_get_item(food_pool.data[food_list[list_idx].pool_idx]);
 }
 
 static void init_food_list()
@@ -1151,7 +1151,7 @@ static void render_select()
 		{
 			CAT_draw_sprite(&ui_item_frame_bg_sprite, 0, x, y);
 
-			CAT_item *food = CAT_item_get(food_pool.data[idx]);
+			CAT_item *food = CAT_get_item(food_pool.data[idx]);
 			CAT_set_sprite_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
 			CAT_set_sprite_scale(2);
 			CAT_draw_sprite(food->sprite, 0, x + 32, y + 32);
@@ -1214,7 +1214,7 @@ static void render_inspect()
 {
 	CAT_frameberry(RGB8882565(142, 171, 174));
 
-	CAT_item *inspectee = CAT_item_get(food_pool.data[inspect_idx]);
+	CAT_item *inspectee = CAT_get_item(food_pool.data[inspect_idx]);
 	if (inspectee == NULL)
 		return;
 

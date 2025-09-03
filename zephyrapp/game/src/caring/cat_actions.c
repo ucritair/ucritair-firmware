@@ -57,7 +57,7 @@ static void control_cursor()
 
 void apply_tool()
 {
-	CAT_item *tool = CAT_item_get(tool_id);
+	CAT_item *tool = CAT_get_item(tool_id);
 	if (tool == NULL)
 		return;
 
@@ -127,7 +127,7 @@ void action_tick()
 		{
 			apply_tool();
 
-			CAT_item *item = CAT_item_get(tool_id);
+			CAT_item *item = CAT_get_item(tool_id);
 			if (item->tool_type == CAT_TOOL_TYPE_FOOD)
 				CAT_inventory_remove(tool_id, 1);
 			action_complete = true;
@@ -205,7 +205,7 @@ void CAT_render_action()
 
 	if (tool_id != -1)
 	{
-		CAT_item *item = CAT_item_get(tool_id);
+		CAT_item *item = CAT_get_item(tool_id);
 		if (!action_confirmed)
 		{
 			int mode = CAT_DRAW_FLAG_BOTTOM;
@@ -383,7 +383,7 @@ void CAT_render_laser()
 	CAT_room_draw_pickups();
 	CAT_room_draw_pet();
 
-	CAT_item *item = CAT_item_get(toy_laser_pointer_item);
+	CAT_item *item = CAT_get_item(toy_laser_pointer_item);
 	CAT_draw_flag flags = CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y;
 	CAT_draw_queue_add(item->tool_cursor, -1, PROPS_LAYER, laser_pos.x, laser_pos.y, flags);
 

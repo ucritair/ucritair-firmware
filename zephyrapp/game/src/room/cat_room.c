@@ -257,7 +257,7 @@ bool CAT_room_fits_prop(int x, int y, int item_id)
 	if(prop_list.length >= CAT_ROOM_GRID_SIZE)
 		return false;
 
-	CAT_item* item = CAT_item_get(item_id);
+	CAT_item* item = CAT_get_item(item_id);
 	if(item == NULL)
 		return false;
 	if(item->type != CAT_ITEM_TYPE_PROP)
@@ -273,7 +273,7 @@ int CAT_room_place_prop(int x, int y, int item_id)
 	if(!CAT_room_fits_prop(x, y, item_id))
 		return -1;
 	
-	CAT_item* item = CAT_item_get(item_id);
+	CAT_item* item = CAT_get_item(item_id);
 	int w = item->prop_shape.x;
 	int h = item->prop_shape.y;
 	CAT_room_set_block(x, y, w, h, item_id);
@@ -328,13 +328,13 @@ bool CAT_room_stack_prop(int idx, int item_id)
 		return false;
 
 	int parent_id = prop_list.data[idx].prop;
-	CAT_item* parent = CAT_item_get(parent_id);
+	CAT_item* parent = CAT_get_item(parent_id);
 	if(parent == NULL)
 		return false;
 	if(parent->type != CAT_ITEM_TYPE_PROP || parent->prop_type != CAT_PROP_TYPE_BOTTOM)
 		return false;
 	
-	CAT_item* child = CAT_item_get(item_id);
+	CAT_item* child = CAT_get_item(item_id);
 	if(child == NULL)
 		return false;
 	if(child->type != CAT_ITEM_TYPE_PROP || child->prop_type != CAT_PROP_TYPE_TOP)
@@ -359,7 +359,7 @@ int CAT_room_alter_prop(int idx)
 		return -1;
 	int item_id = prop_list.data[idx].prop;
 
-	CAT_item* item = CAT_item_get(item_id);
+	CAT_item* item = CAT_get_item(item_id);
 	if(item == NULL)
 		return -1;
 	if(item->type != CAT_ITEM_TYPE_PROP || item->prop_animated)
@@ -756,7 +756,7 @@ void CAT_room_draw_props()
 	for(int i = 0; i < prop_list.length; i++)
 	{
 		int prop_id = prop_list.data[i].prop;
-		CAT_item* prop = CAT_item_get(prop_id);
+		CAT_item* prop = CAT_get_item(prop_id);
 		int x0 = prop_list.data[i].x0;
 		int y0 = prop_list.data[i].y0;
 		int x1 = prop_list.data[i].x1;
@@ -779,7 +779,7 @@ void CAT_room_draw_props()
 		CAT_draw_queue_add(prop->sprite, -1, PROPS_LAYER, draw_x, draw_y, flags) :
 		CAT_draw_queue_add(prop->sprite, frame_idx, PROPS_LAYER, draw_x, draw_y, flags);
 		
-		CAT_item* child = CAT_item_get(prop_list.data[i].child);
+		CAT_item* child = CAT_get_item(prop_list.data[i].child);
 		if(child != NULL)
 		{
 			flags = CAT_DRAW_FLAG_BOTTOM | CAT_DRAW_FLAG_CENTER_X;

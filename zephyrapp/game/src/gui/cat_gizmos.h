@@ -7,7 +7,6 @@ void CAT_draw_cross_box(int x0, int y0, int x1, int y1, uint16_t c);
 void CAT_draw_corner_box(int x0, int y0, int x1, int y1, uint16_t c);
 void CAT_draw_progress_bar(int x, int y, int w, int h, uint16_t co, uint16_t ci, float t);
 void CAT_draw_dot_grid(int x, int y, int w, int h, int s, uint16_t c);
-void CAT_draw_corner_explosion(int x, int y, int s1, int s2, uint16_t c, float t);
 
 typedef enum
 {

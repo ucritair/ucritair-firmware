@@ -144,7 +144,7 @@ void CAT_MS_checkout(CAT_machine_signal signal)
 
 void CAT_render_checkout()
 {
-	CAT_item* item = CAT_item_get(checkout_id);
+	CAT_item* item = CAT_get_item(checkout_id);
 
 	CAT_frameberry(INSPECTOR_BG_COLOUR);
 
@@ -288,7 +288,7 @@ void CAT_MS_sale(CAT_machine_signal signal)
 
 void CAT_render_sale()
 {
-	CAT_item* item = CAT_item_get(sale_id);
+	CAT_item* item = CAT_get_item(sale_id);
 
 	CAT_frameberry(INSPECTOR_BG_COLOUR);
 

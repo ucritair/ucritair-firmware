@@ -50,14 +50,14 @@ typedef enum
 	CAT_FOOD_ROLE_VICE
 } CAT_food_role;
 
-typedef enum CAT_prop_type
+typedef enum
 {
 	CAT_PROP_TYPE_DEFAULT,
 	CAT_PROP_TYPE_BOTTOM,
 	CAT_PROP_TYPE_TOP
 } CAT_prop_type;
 
-typedef struct CAT_item
+typedef struct
 {
 	CAT_item_type type;
 
@@ -99,18 +99,22 @@ typedef struct CAT_item
 	};
 } CAT_item;
 
-typedef struct CAT_item_table
+typedef struct
 {
 	CAT_item data[CAT_ITEM_TABLE_CAPACITY];
 	uint16_t counts[CAT_ITEM_TABLE_CAPACITY];
 	uint16_t length;
 } CAT_item_table;
 extern CAT_item_table item_table;
-
-CAT_item* CAT_item_get(int item_id);
+CAT_item* CAT_get_item(int item_id);
 
 typedef bool (*CAT_item_filter)(int item_id);
-void CAT_filter_item_table(CAT_item_filter filter, CAT_int_list* list);
+
+typedef struct
+{
+	int item;
+	uint16_t count;
+} CAT_item_bundle;
 
 
 //////////////////////////////////////////////////////////////////////////

@@ -95,18 +95,6 @@ void CAT_draw_dot_grid(int x, int y, int w, int h, int s, uint16_t c)
 	}
 }
 
-void CAT_draw_corner_explosion(int x, int y, int s1, int s2, uint16_t c, float t)
-{
-	draw_corner_box(x-(s2-s1), y-(s2-s1), x+s2, y+s2, 16, c);
-	for(int i = 0; i < 3; i++)
-	{
-		int s = lerp(s1, s2, i / 2.0f * t);
-		int off = s-s1;
-		int r = lerp(4, 16, i / 2.0f * t);
-		draw_corner_box(x-off, y-off, x+s, y+s, r, c);
-	}
-}
-
 void CAT_draw_regular_polygon(int n, int x, int y, int r, float t, uint16_t c)
 {
 	t *= 2 * M_PI;

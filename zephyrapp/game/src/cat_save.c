@@ -229,7 +229,7 @@ void CAT_force_load()
 	for(int i = 0; i < 150; i++)
 	{
 		int prop_id = save->deco.props[i] - 1;
-		CAT_item* prop = CAT_item_get(prop_id);
+		CAT_item* prop = CAT_get_item(prop_id);
 		if(prop == NULL)
 			continue;
 
@@ -251,7 +251,7 @@ void CAT_force_load()
 		}
 		
 		int child_id = save->deco.children[i] - 1;
-		CAT_item* child = CAT_item_get(child_id);
+		CAT_item* child = CAT_get_item(child_id);
 		if(child == NULL)
 			continue;
 		if
