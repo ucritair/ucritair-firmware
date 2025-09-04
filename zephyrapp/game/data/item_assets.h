@@ -66,7 +66,7 @@
 #define prop_effigy_blue_item 63
 #define prop_effigy_purple_item 64
 #define prop_effigy_sea_item 65
-#define prop_eth_farm_item 66
+#define prop_crafter_item 66
 #define prop_fan_classic_item 67
 #define prop_fan_modern_item 68
 #define prop_foc_flower_item 69

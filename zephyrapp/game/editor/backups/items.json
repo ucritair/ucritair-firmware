@@ -652,7 +652,7 @@
         },
         {
             "type": "prop",
-            "name": "prop_eth_farm",
+            "name": "prop_crafter",
             "display_name": "Defunct Crafting Station",
             "sprite": "prop_crafter_sprite",
             "text": "Though dormant now, it is clearly a fine machine. Nothing made so well can be useless for long.",

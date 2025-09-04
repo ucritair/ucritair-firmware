@@ -95,7 +95,7 @@ void CAT_load_default()
 	CAT_inventory_add(coin_item, 100);
 
 	CAT_room_init();
-	CAT_room_place_prop(2, 0, prop_eth_farm_item);
+	CAT_room_place_prop(2, 0, prop_crafter_item);
 	CAT_room_place_prop(6, 3, prop_table_mahogany_item);
 	CAT_room_place_prop(4, 3, prop_chair_mahogany_item);
 }
@@ -120,7 +120,7 @@ void CAT_load_turnkey()
 
 	CAT_room_init();
 	CAT_room_place_prop(0, 0, prop_plant_plain_item);
-	CAT_room_place_prop(2, 0, prop_eth_farm_item);
+	CAT_room_place_prop(2, 0, prop_crafter_item);
 	CAT_room_place_prop(3, 3, prop_table_mahogany_item);
 	CAT_room_stack_prop(CAT_room_get_props()->length-1, prop_xen_crystal_item);
 	CAT_room_place_prop(1, 3, prop_chair_mahogany_item);

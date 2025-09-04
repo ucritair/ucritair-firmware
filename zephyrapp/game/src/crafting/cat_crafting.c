@@ -6,6 +6,7 @@
 #include "cat_gizmos.h"
 #include "item_assets.h"
 #include "sprite_assets.h"
+#include "mesh2d_assets.h"
 
 bool incl_excl_pass(const CAT_recipe* recipe, CAT_item_bundle* inputs)
 {
@@ -147,6 +148,7 @@ bool decrease_count(int idx)
 static int selector = 0;
 static bool focused = false;
 static bool selecting = false;
+static bool collecting = false;
 
 void select_proc(int item_id)
 {
@@ -228,6 +230,11 @@ void CAT_MS_crafting(CAT_machine_signal signal)
 					if(CAT_input_pressed(CAT_BUTTON_DOWN))
 						decrease_count(selector);
 				}
+				else if(collecting)
+				{
+					if(CAT_input_pressed(CAT_BUTTON_DOWN) || CAT_input_pressed(CAT_BUTTON_B))
+						collecting = false;
+				}
 				else
 				{
 					if(CAT_input_pressed(CAT_BUTTON_UP) && selector > 2)
@@ -254,6 +261,9 @@ void CAT_MS_crafting(CAT_machine_signal signal)
 						else
 							inputs[selector].item = NULL_ITEM;
 					}
+
+					if(CAT_input_pressed(CAT_BUTTON_UP) && selector <= 2)
+						collecting = true;
 				}
 			}
 		}
@@ -310,6 +320,13 @@ void CAT_render_crafting()
 		y += CELL_SIZE;
 	}
 
+	CAT_strokeberry(OUTPUT_X, OUTPUT_Y, CELL_SIZE, CELL_SIZE, CAT_GREY);
+	if(recipe_validate(&recipe, inputs))
+	{
+		CAT_set_sprite_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
+		CAT_draw_sprite(CAT_get_item(recipe.output)->sprite, 0, OUTPUT_X+CELL_SIZE/2, OUTPUT_Y+CELL_SIZE/2);
+	}
+
 	int r = selector / 3;
 	int c = selector % 3;
 	int select_x = GRID_X + c * CELL_SIZE-1;
@@ -318,8 +335,17 @@ void CAT_render_crafting()
 	{
 		CAT_draw_corner_box
 		(
-			select_x+2, select_y+2,
+			select_x + 2, select_y + 2,
 			select_x + CELL_SIZE - 2, select_y + CELL_SIZE - 2,
+			CAT_WHITE
+		);
+	}
+	else if(collecting)
+	{
+		CAT_strokeberry
+		(
+			OUTPUT_X - 2, OUTPUT_Y - 2,
+			CELL_SIZE + 4, CELL_SIZE + 4,
 			CAT_WHITE
 		);
 	}
@@ -337,13 +363,5 @@ void CAT_render_crafting()
 			select_x + CELL_SIZE + 3, select_y + CELL_SIZE + 3,
 			CAT_WHITE
 		);
-	}
-	
-
-	CAT_strokeberry(OUTPUT_X, OUTPUT_Y, CELL_SIZE, CELL_SIZE, CAT_GREY);
-	if(recipe_validate(&recipe, inputs))
-	{
-		CAT_set_sprite_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
-		CAT_draw_sprite(CAT_get_item(recipe.output)->sprite, 0, OUTPUT_X+CELL_SIZE/2, OUTPUT_Y+CELL_SIZE/2);
 	}
 }

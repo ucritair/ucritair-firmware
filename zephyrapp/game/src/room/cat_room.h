@@ -104,6 +104,8 @@ CAT_pickup_list* CAT_room_get_pickups();
 int CAT_room_spawn_pickup(CAT_pickup pickup);
 void CAT_room_consume_pickup(int idx);
 
+int CAT_room_touch_query();
+
 
 //////////////////////////////////////////////////////////////////////////
 // ROOM

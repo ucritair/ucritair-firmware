@@ -22,6 +22,7 @@
 #include "cat_curves.h"
 #include "cat_graph.h"
 #include "cat_world.h"
+#include "cat_crafting.h"
 
 //////////////////////////////////////////////////////////////////////////
 // THEME
@@ -405,6 +406,35 @@ void CAT_room_consume_pickup(int idx)
 		pickup_list.data[i] = pickup_list.data[i+1];
 }
 
+int CAT_room_touch_query()
+{
+	int max_y = CAT_ROOM_Y;
+	int idx = -1;
+	for(int i = 0; i < prop_list.length; i++)
+	{
+		int x0 = CAT_ROOM_X + prop_list.data[i].x0 * CAT_TILE_SIZE;
+		int y0 = CAT_ROOM_Y + prop_list.data[i].y0 * CAT_TILE_SIZE;
+		int x1 = CAT_ROOM_X + prop_list.data[i].x1 * CAT_TILE_SIZE;
+		int y1 = CAT_ROOM_Y + prop_list.data[i].y1 * CAT_TILE_SIZE;
+		
+		CAT_item* item = CAT_get_item(prop_list.data[i].prop);
+		int xc = (x0+x1)/2;
+		x0 = xc - item->sprite->width/2;
+		x1 = xc + item->sprite->width/2;
+		y0 = y1 - item->sprite->height;
+
+		if(CAT_input_touch_rect(x0, y0, x1-x0, y1-y0))
+		{
+			if(y1 > max_y)
+			{
+				max_y = y1;
+				idx = i;
+			}
+		}
+	}
+	return idx;
+}
+
 
 //////////////////////////////////////////////////////////////////////////
 // ROOM
@@ -497,6 +527,16 @@ void prop_button_input()
 	))
 	{
 		CAT_machine_transition(CAT_MS_monitor);
+	}
+
+	int touched_prop = CAT_room_touch_query();
+	if(touched_prop != -1)
+	{
+		int touched_item = CAT_room_get_props()->data[touched_prop].prop;
+		if(touched_item == prop_crafter_item)
+		{
+			CAT_machine_transition(CAT_MS_crafting);
+		}
 	}
 }
 

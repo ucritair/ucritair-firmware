@@ -671,7 +671,7 @@
         },
         {
             "type": "prop",
-            "name": "prop_eth_farm",
+            "name": "prop_crafter",
             "display_name": "Ethereum Farm",
             "sprite": "gpu_sprite",
             "icon": "icon_item_prop_sprite",
