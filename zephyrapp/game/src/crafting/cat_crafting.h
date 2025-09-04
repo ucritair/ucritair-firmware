@@ -4,15 +4,19 @@
 #include "cat_item.h"
 #include <stdbool.h>
 
+typedef enum
+{
+	CAT_RECIPE_FLAG_NONE = 0,
+	CAT_RECIPE_FLAG_SHAPELESS = (1 << 0),
+	CAT_RECIPE_FLAG_KNOWN = (1 << 1),
+	CAT_RECIPE_FLAG_MASTERED = (1 << 2)
+} CAT_recipe_flag;
+
 typedef struct
 {
-	CAT_item_bundle inputs[9];
+	int inputs[9];
 	int output;
-
-	bool shapeless;
-
-	bool known;
-	bool mastered;
+	uint16_t flags;
 } CAT_recipe;
 
 void CAT_MS_crafting(CAT_machine_signal signal);

@@ -99,6 +99,8 @@ typedef struct
 	};
 } CAT_item;
 
+#define NULL_ITEM -1
+
 typedef struct
 {
 	CAT_item data[CAT_ITEM_TABLE_CAPACITY];

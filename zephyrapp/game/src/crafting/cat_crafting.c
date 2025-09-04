@@ -4,49 +4,50 @@
 #include "cat_gui.h"
 #include "cat_render.h"
 #include "cat_gizmos.h"
+#include "item_assets.h"
+#include "sprite_assets.h"
+
+bool is_shapeless(const CAT_recipe* recipe)
+{
+	return (recipe->flags & CAT_RECIPE_FLAG_SHAPELESS);
+}
 
 bool incl_excl_pass(const CAT_recipe* recipe, CAT_item_bundle* inputs)
 {
 	int recipe_count = 0;
 	for(int i = 0; i < 9; i++)
-		recipe_count += recipe->inputs[i].item != -1 ? 1 : 0;
+		recipe_count += recipe->inputs[i] != NULL_ITEM ? 1 : 0;
 	int input_count = 0;
 	for(int i = 0; i < 9; i++)
-		input_count += inputs[i].item != -1 ? 1 : 0;
+		input_count += inputs[i].item != NULL_ITEM ? inputs[i].count : 0;
 	if(input_count != recipe_count)
+	{
 		return false;
+	}
 
 	for(int i = 0; i < 9; i++)
 	{
-		CAT_item_bundle* a = &recipe->inputs[i];
+		int a = recipe->inputs[i];
+		bool found = false;
 		for(int j = 0; j < 9; j++)
 		{
 			CAT_item_bundle* b = &inputs[j];
-			if(b->item != a->item)
-				return false;
+			if(b->item == a)
+			{
+				found = true;
+				break;
+			}
 		}
+		if(!found)
+			return false;
 	}
 
 	return true;
 }
 
-bool count_pass(const CAT_recipe* recipe, CAT_item_bundle* inputs)
-{
-	for(int i = 0; i < 9; i++)
-	{
-		CAT_item_bundle* a = &recipe->inputs[i];
-		for(int j = 0; j < 9; j++)
-		{
-			CAT_item_bundle* b = &inputs[j];
-			if(b->item == a->item && b->count < a->count)
-				return false;
-		}
-	}
-	return false;
-}
-
 void get_bounding_box
 (
+	CAT_recipe* recipe,
 	CAT_item_bundle* inputs,
 	int* r0_out, int* c0_out, int* r1_out, int* c1_out
 )
@@ -61,13 +62,13 @@ void get_bounding_box
 		for(int c = 0; c < 3; c++)
 		{
 			int i = r * 3 + c;
-			CAT_item_bundle* a = &inputs[i];
-			if(a->item != -1)
+			int item_id = (recipe == NULL) ? inputs[i].item : recipe->inputs[i];
+			if(item_id != NULL_ITEM)
 			{
-				*r0_out = min(*r0_out, r);
-				*c0_out = min(*c0_out, c);
-				*r1_out = max(*r1_out, r);
-				*c1_out = max(*c1_out, c);
+				*r0_out = min(max(*r0_out, 0), r);
+				*c0_out = min(max(*c0_out, 0), c);
+				*r1_out = max(max(*r1_out, 0), r);
+				*c1_out = max(max(*c1_out, 0), c);
 			}
 		}
 	}
@@ -76,11 +77,11 @@ void get_bounding_box
 bool shape_pass(const CAT_recipe* recipe, CAT_item_bundle* inputs)
 {
 	int r0_r, c0_r, r1_r, c1_r;
-	get_bounding_box(recipe->inputs, &r0_r, &c0_r, &r1_r, &c1_r);
+	get_bounding_box(recipe, NULL, &r0_r, &c0_r, &r1_r, &c1_r);
 	if(r0_r == -1 || c0_r == -1 || r1_r == -1 || c1_r == -1)
 		return false;
 	int r0_i, c0_i, r1_i, c1_i;
-	get_bounding_box(inputs, &r0_i, &c0_i, &r1_i, &c1_i);
+	get_bounding_box(NULL, inputs, &r0_i, &c0_i, &r1_i, &c1_i);
 	if(r0_i == -1 || c0_i == -1 || r1_i == -1 || c1_i == -1)
 		return false;
 
@@ -89,7 +90,7 @@ bool shape_pass(const CAT_recipe* recipe, CAT_item_bundle* inputs)
 	if(h_i != h_r)
 		return false;
 	int w_r = c1_r-c0_r+1;
-	int w_i = c1_i-c1_i+1;
+	int w_i = c1_i-c0_i+1;
 	if(w_i != w_r)
 		return false;
 
@@ -99,23 +100,21 @@ bool shape_pass(const CAT_recipe* recipe, CAT_item_bundle* inputs)
 		{
 			int i_r = (r0_r+dr) * 3 + (c0_r+dc);
 			int i_i = (r0_i+dr) * 3 + (c0_i+dc);
-			CAT_item_bundle* a = &recipe->inputs[i_r];
-			CAT_item_bundle* b = &inputs[i_i];
-			if(b->item != a->item)
+			int a = recipe->inputs[i_r];
+			int b = inputs[i_i].item;
+			if(b != a)
 				return false;
 		}
 	}
 
-	return false;
+	return true;
 }
 
 bool recipe_validate(const CAT_recipe* recipe, CAT_item_bundle* inputs)
 {
 	if(!incl_excl_pass(recipe, inputs))
 		return false;
-	if(!count_pass(recipe, inputs))
-		return false;
-	if(!recipe->shapeless)
+	if(!is_shapeless(recipe))
 	{
 		if(!shape_pass(recipe, inputs))
 			return false;
@@ -165,6 +164,8 @@ void select_proc(int item_id)
 	selecting = false;
 }
 
+CAT_recipe recipe;
+
 void CAT_MS_crafting(CAT_machine_signal signal)
 {
 	switch(signal)
@@ -178,15 +179,33 @@ void CAT_MS_crafting(CAT_machine_signal signal)
 			{
 				inputs[i] = (CAT_item_bundle)
 				{
-					.item = -1,
+					.item = NULL_ITEM,
 					.count = 0
 				};
 			}
+
+			for(int r = 0; r < 3; r++)
+			{
+				for(int c = 0; c < 3; c++)
+				{
+					int i = r * 3 + c;
+					if(i != 4)
+					{
+						recipe.inputs[i] = coin_item;
+					}
+					else
+					{
+						recipe.inputs[r * 3 + c] = -1;
+					}
+				}
+			}
+			recipe.output = food_salmon_item;
+			recipe.flags = CAT_RECIPE_FLAG_SHAPELESS;
 		}
 		break;
 
 		case CAT_MACHINE_SIGNAL_TICK:
-		{	
+		{
 			if(selecting)
 			{
 				CAT_gui_begin_item_grid();
@@ -216,14 +235,14 @@ void CAT_MS_crafting(CAT_machine_signal signal)
 
 				if(CAT_input_pressed(CAT_BUTTON_A))
 				{
-					if(inputs[selector].item != -1)
+					if(inputs[selector].item != NULL_ITEM)
 						increase_count(selector);
 					else
 						selecting = true;
 				}
 				if(CAT_input_pressed(CAT_BUTTON_B))
 				{
-					if(inputs[selector].item != -1)
+					if(inputs[selector].item != NULL_ITEM)
 						decrease_count(selector);
 					else
 						CAT_machine_back();
@@ -293,4 +312,9 @@ void CAT_render_crafting()
 	);
 
 	CAT_strokeberry(OUTPUT_X, OUTPUT_Y, CELL_SIZE, CELL_SIZE, CAT_GREY);
+	if(recipe_validate(&recipe, inputs))
+	{
+		CAT_set_sprite_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
+		CAT_draw_sprite(CAT_get_item(recipe.output)->sprite, 0, OUTPUT_X+CELL_SIZE/2, OUTPUT_Y+CELL_SIZE/2);
+	}
 }
