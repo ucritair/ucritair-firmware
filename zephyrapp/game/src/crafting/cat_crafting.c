@@ -8,6 +8,14 @@
 #include "sprite_assets.h"
 #include "mesh2d_assets.h"
 
+static CAT_item_bundle inputs[9];
+static int output = -1;
+
+static int selector = 0;
+static bool focused = false;
+static bool selecting = false;
+static bool collecting = false;
+
 bool incl_excl_pass(const CAT_recipe* recipe, CAT_item_bundle* inputs)
 {
 	int recipe_count = 0;
@@ -113,8 +121,6 @@ bool recipe_validate(const CAT_recipe* recipe, CAT_item_bundle* inputs)
 	return true;
 }
 
-static CAT_item_bundle inputs[9];
-
 int get_total(int item_id)
 {
 	int total = 0;
@@ -145,11 +151,6 @@ bool decrease_count(int idx)
 	return false;
 }
 
-static int selector = 0;
-static bool focused = false;
-static bool selecting = false;
-static bool collecting = false;
-
 void select_proc(int item_id)
 {
 	inputs[selector] = (CAT_item_bundle)
@@ -158,6 +159,18 @@ void select_proc(int item_id)
 		.count = 1
 	};
 	selecting = false;
+}
+
+void equivalent_exchange(const CAT_recipe* recipe)
+{
+	for(int i = 0; i < 9; i++)
+	{
+		int item_id = recipe->inputs[i];
+		inputs[i].count -= 1;
+		CAT_inventory_remove(item_id, 1);
+	}
+	CAT_inventory_add(output, 1);
+	output = NULL_ITEM;
 }
 
 CAT_recipe recipe;
@@ -234,6 +247,8 @@ void CAT_MS_crafting(CAT_machine_signal signal)
 				{
 					if(CAT_input_pressed(CAT_BUTTON_DOWN) || CAT_input_pressed(CAT_BUTTON_B))
 						collecting = false;
+					if(CAT_input_pressed(CAT_BUTTON_A))
+						equivalent_exchange(&recipe);
 				}
 				else
 				{
@@ -266,6 +281,16 @@ void CAT_MS_crafting(CAT_machine_signal signal)
 						collecting = true;
 				}
 			}
+
+			for(int i = 0; i < 9; i++)
+			{
+				if(inputs[i].count <= 0)
+					inputs[i].item = NULL_ITEM;
+			}
+			if(recipe_validate(&recipe, inputs))
+				output = recipe.output;
+			else
+				output = NULL_ITEM;
 		}
 		break;
 
@@ -321,10 +346,10 @@ void CAT_render_crafting()
 	}
 
 	CAT_strokeberry(OUTPUT_X, OUTPUT_Y, CELL_SIZE, CELL_SIZE, CAT_GREY);
-	if(recipe_validate(&recipe, inputs))
+	if(output != NULL_ITEM)
 	{
 		CAT_set_sprite_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
-		CAT_draw_sprite(CAT_get_item(recipe.output)->sprite, 0, OUTPUT_X+CELL_SIZE/2, OUTPUT_Y+CELL_SIZE/2);
+		CAT_draw_sprite(CAT_get_item(output)->sprite, 0, OUTPUT_X+CELL_SIZE/2, OUTPUT_Y+CELL_SIZE/2);
 	}
 
 	int r = selector / 3;
