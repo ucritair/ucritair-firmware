@@ -7,11 +7,6 @@
 #include "item_assets.h"
 #include "sprite_assets.h"
 
-bool is_shapeless(const CAT_recipe* recipe)
-{
-	return (recipe->flags & CAT_RECIPE_FLAG_SHAPELESS);
-}
-
 bool incl_excl_pass(const CAT_recipe* recipe, CAT_item_bundle* inputs)
 {
 	int recipe_count = 0;
@@ -19,11 +14,9 @@ bool incl_excl_pass(const CAT_recipe* recipe, CAT_item_bundle* inputs)
 		recipe_count += recipe->inputs[i] != NULL_ITEM ? 1 : 0;
 	int input_count = 0;
 	for(int i = 0; i < 9; i++)
-		input_count += inputs[i].item != NULL_ITEM ? inputs[i].count : 0;
-	if(input_count != recipe_count)
-	{
+		input_count += inputs[i].item != NULL_ITEM ? 1 : 0;
+	if(input_count < recipe_count)
 		return false;
-	}
 
 	for(int i = 0; i < 9; i++)
 	{
@@ -114,11 +107,8 @@ bool recipe_validate(const CAT_recipe* recipe, CAT_item_bundle* inputs)
 {
 	if(!incl_excl_pass(recipe, inputs))
 		return false;
-	if(!is_shapeless(recipe))
-	{
-		if(!shape_pass(recipe, inputs))
+	if(!shape_pass(recipe, inputs))
 			return false;
-	}
 	return true;
 }
 
@@ -132,26 +122,30 @@ int get_total(int item_id)
 	return total;
 }
 
-void increase_count(int idx)
+bool increase_count(int idx)
 {
 	int item = inputs[idx].item;
 	int total = get_total(item);
 	if(inputs[idx].count < 99 && total < item_table.counts[item])
+	{
 		inputs[idx].count += 1;
+		return true;
+	}
+	return false;
 }
 
-void decrease_count(int idx)
+bool decrease_count(int idx)
 {
 	if(inputs[idx].count > 1)
-		inputs[idx].count -= 1;
-	else
 	{
-		inputs[idx].item = -1;
-		inputs[idx].count = 0;
+		inputs[idx].count -= 1;
+		return true;
 	}
+	return false;
 }
 
 static int selector = 0;
+static bool focused = false;
 static bool selecting = false;
 
 void select_proc(int item_id)
@@ -200,7 +194,6 @@ void CAT_MS_crafting(CAT_machine_signal signal)
 				}
 			}
 			recipe.output = food_salmon_item;
-			recipe.flags = CAT_RECIPE_FLAG_SHAPELESS;
 		}
 		break;
 
@@ -223,29 +216,44 @@ void CAT_MS_crafting(CAT_machine_signal signal)
 			}
 			else
 			{
-				if(CAT_input_pressed(CAT_BUTTON_UP))
-					selector -= 3;
-				if(CAT_input_pressed(CAT_BUTTON_DOWN))
-					selector += 3;
-				if(CAT_input_pressed(CAT_BUTTON_LEFT))
-					selector -= 1;
-				if(CAT_input_pressed(CAT_BUTTON_RIGHT))
-					selector += 1;
-				selector = clamp(selector, 0, 8);
-
-				if(CAT_input_pressed(CAT_BUTTON_A))
+				if(focused)
 				{
-					if(inputs[selector].item != NULL_ITEM)
-						increase_count(selector);
-					else
+					if(CAT_input_pressed(CAT_BUTTON_A))
 						selecting = true;
-				}
-				if(CAT_input_pressed(CAT_BUTTON_B))
-				{
-					if(inputs[selector].item != NULL_ITEM)
+					if(CAT_input_pressed(CAT_BUTTON_B))
+						focused = false;
+
+					if(CAT_input_pressed(CAT_BUTTON_UP))
+						increase_count(selector);
+					if(CAT_input_pressed(CAT_BUTTON_DOWN))
 						decrease_count(selector);
-					else
-						CAT_machine_back();
+				}
+				else
+				{
+					if(CAT_input_pressed(CAT_BUTTON_UP) && selector > 2)
+						selector -= 3;
+					if(CAT_input_pressed(CAT_BUTTON_DOWN) && selector < 6)
+						selector += 3;
+					if(CAT_input_pressed(CAT_BUTTON_LEFT) && (selector % 3) != 0)
+						selector -= 1;
+					if(CAT_input_pressed(CAT_BUTTON_RIGHT) && (selector % 3) != 2)
+						selector += 1;
+					selector = clamp(selector, 0, 8);
+
+					if(CAT_input_pressed(CAT_BUTTON_A))
+					{
+						if(inputs[selector].item == NULL_ITEM)
+							selecting = true;
+						else
+							focused = true;
+					}	
+					if(CAT_input_pressed(CAT_BUTTON_B))
+					{
+						if(inputs[selector].item == NULL_ITEM)
+							CAT_machine_back();
+						else
+							inputs[selector].item = NULL_ITEM;
+					}
 				}
 			}
 		}
@@ -293,7 +301,7 @@ void CAT_render_crafting()
 				
 				int count = inputs[i].count;
 				int width = CAT_GLYPH_WIDTH * ((count > 9) ? 2 : 1);
-				CAT_set_text_colour(CAT_WHITE);
+				CAT_set_text_colour(CAT_LIGHT_GREY);
 				CAT_draw_textf(x + CELL_SIZE-width-2, y+CELL_SIZE-CAT_GLYPH_HEIGHT-3, "%d", count);
 			}
 
@@ -304,12 +312,33 @@ void CAT_render_crafting()
 
 	int r = selector / 3;
 	int c = selector % 3;
-	CAT_strokeberry
-	(
-		GRID_X + c * CELL_SIZE-1, GRID_Y + r * CELL_SIZE-1,
-		CELL_SIZE+1, CELL_SIZE+1,
-		CAT_WHITE
-	);
+	int select_x = GRID_X + c * CELL_SIZE-1;
+	int select_y = GRID_Y + r * CELL_SIZE-1;
+	if(focused)
+	{
+		CAT_draw_corner_box
+		(
+			select_x+2, select_y+2,
+			select_x + CELL_SIZE - 2, select_y + CELL_SIZE - 2,
+			CAT_WHITE
+		);
+	}
+	else
+	{
+		CAT_draw_corner_box
+		(
+			select_x - 1, select_y - 1,
+			select_x + CELL_SIZE + 1, select_y + CELL_SIZE + 1,
+			CAT_LIGHT_GREY
+		);
+		CAT_draw_corner_box
+		(
+			select_x - 3, select_y - 3,
+			select_x + CELL_SIZE + 3, select_y + CELL_SIZE + 3,
+			CAT_WHITE
+		);
+	}
+	
 
 	CAT_strokeberry(OUTPUT_X, OUTPUT_Y, CELL_SIZE, CELL_SIZE, CAT_GREY);
 	if(recipe_validate(&recipe, inputs))

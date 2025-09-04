@@ -7,9 +7,8 @@
 typedef enum
 {
 	CAT_RECIPE_FLAG_NONE = 0,
-	CAT_RECIPE_FLAG_SHAPELESS = (1 << 0),
-	CAT_RECIPE_FLAG_KNOWN = (1 << 1),
-	CAT_RECIPE_FLAG_MASTERED = (1 << 2)
+	CAT_RECIPE_FLAG_KNOWN = (1 << 0),
+	CAT_RECIPE_FLAG_MASTERED = (1 << 1)
 } CAT_recipe_flag;
 
 typedef struct
