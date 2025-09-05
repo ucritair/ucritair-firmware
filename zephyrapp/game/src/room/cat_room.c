@@ -49,10 +49,6 @@ struct
 	int prop;
 } cells[CAT_ROOM_GRID_SIZE];
 
-int idx_queue_backing[CAT_ROOM_GRID_SIZE];
-CAT_int_list idx_queue;
-bool visit_mask[CAT_ROOM_GRID_SIZE];
-
 static void init_grid()
 {
 	for(int y = 0; y < CAT_ROOM_GRID_H; y++)
@@ -62,13 +58,9 @@ static void init_grid()
 			int idx = y * CAT_ROOM_GRID_W + x;
 			cells[idx].x = x;
 			cells[idx].y = y;
-			cells[idx].prop = -1;
+			cells[idx].prop = NULL_ITEM;
 		}
 	}
-
-	CAT_ilist(&idx_queue, idx_queue_backing, CAT_ROOM_GRID_SIZE);
-	for(int i = 0; i < CAT_ROOM_GRID_SIZE; i++)
-		visit_mask[i] = false;
 }
 
 void CAT_room_point2cell(int x, int y, int* x_out, int* y_out)
@@ -107,14 +99,14 @@ bool CAT_room_is_point_free(int x, int y)
 		return false;
 	int cell_x, cell_y;
 	CAT_room_point2cell(x, y, &cell_x, &cell_y);
-	return cells[cell_y * CAT_ROOM_GRID_W + cell_x].prop == -1;
+	return cells[cell_y * CAT_ROOM_GRID_W + cell_x].prop == NULL_ITEM;
 }
 
 bool CAT_room_is_cell_free(int x, int y)
 {
 	if(!CAT_room_in_grid_bounds(x, y))
 		return false;
-	return cells[y * CAT_ROOM_GRID_W + x].prop == -1;
+	return cells[y * CAT_ROOM_GRID_W + x].prop == NULL_ITEM;
 }
 
 bool CAT_room_is_block_free(int x, int y, int w, int h)
@@ -153,7 +145,7 @@ bool CAT_room_has_free_cell()
 {
 	for(int i = 0; i < CAT_ROOM_GRID_SIZE; i++)
 	{
-		if(cells[i].prop == -1)
+		if(cells[i].prop == NULL_ITEM)
 			return true;
 	}
 	return false;
@@ -161,56 +153,42 @@ bool CAT_room_has_free_cell()
 
 void CAT_room_nearest_free_cell(int x, int y, int* x_out, int* y_out)
 {
-	CAT_ilist_clear(&idx_queue);
-	int start = y * CAT_ROOM_GRID_W + x;
-	CAT_ilist_push(&idx_queue, start);
-
-	for(int i = 0; i < CAT_ROOM_GRID_SIZE; i++)
-		visit_mask[i] = false;
-
-	while(idx_queue.length != 0)
-	{
-		int idx = CAT_ilist_dequeue(&idx_queue);
-		if(idx < 0 || idx >= CAT_ROOM_GRID_SIZE)
-			continue;
-		if(visit_mask[idx])
-			continue;
-
-		if(cells[idx].prop == -1)
-		{
-			*x_out = cells[idx].x;
-			*y_out = cells[idx].y;
-			return;
-		}
-
-		visit_mask[idx] = true;		
-
-		int N = (cells[idx].y-1) * CAT_ROOM_GRID_W + cells[idx].x;
-		int E = cells[idx].y * CAT_ROOM_GRID_W + (cells[idx].x+1);
-		int S = (cells[idx].y+1) * CAT_ROOM_GRID_W + cells[idx].x;
-		int W = cells[idx].y * CAT_ROOM_GRID_W + (cells[idx].x-1);
-		CAT_ilist_push(&idx_queue, N);
-		CAT_ilist_push(&idx_queue, E);
-		CAT_ilist_push(&idx_queue, S);
-		CAT_ilist_push(&idx_queue, W);
-	}
-
 	*x_out = -1;
 	*y_out = -1;
-	return;
+
+	int half_span = max(CAT_ROOM_GRID_H, CAT_ROOM_GRID_W)/2;
+	static int snew[4][2];
+
+	for(int d = 0; d < half_span; d++)
+	{
+		snew[0][0] = x; // S
+		snew[0][1] = y+d;
+		snew[1][0] = x; // N
+		snew[1][1] = y-d;
+		snew[2][0] = x+d; // E
+		snew[2][1] = y;
+		snew[3][0] = x-d; // W
+		snew[3][1] = y;
+
+		for(int i = 0; i < 4; i++)
+		{
+			int xp = snew[i][0];
+			int yp = snew[i][1];
+			if(CAT_room_is_cell_free(xp, yp))
+			{
+				*x_out = xp;
+				*y_out = yp;
+				return;
+			}
+		}
+	}
 }
 
 void CAT_room_random_free_cell(int* x_out, int* y_out)
 {
-	CAT_ilist_clear(&idx_queue);
-	for(int i = 0; i < CAT_ROOM_GRID_SIZE; i++)
-	{
-		if(cells[i].prop == -1)
-			CAT_ilist_push(&idx_queue, i);
-	}
-	int idx = idx_queue.data[CAT_rand_int(0, idx_queue.length-1)];
-	*x_out = cells[idx].x;
-	*y_out = cells[idx].y;
+	int x = CAT_rand_int(0, CAT_ROOM_GRID_W-1);
+	int y = CAT_rand_int(0, CAT_ROOM_GRID_H-1);
+	CAT_room_nearest_free_cell(x, y, x_out, y_out);
 }
 
 
