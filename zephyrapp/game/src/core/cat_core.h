@@ -233,7 +233,8 @@ typedef enum
 	CAT_CONFIG_FLAG_USE_FAHRENHEIT = (1 << 1),
 	CAT_CONFIG_FLAG_AQ_FIRST = (1 << 2),
 	CAT_CONFIG_FLAG_MIGRATED = (1 << 3),
-	CAT_CONFIG_FLAG_PAUSE_CARE = (1 << 4)
+	CAT_CONFIG_FLAG_PAUSE_CARE = (1 << 4),
+	CAT_CONFIG_FLAG_KALI_YUGA = (1 << 5)
 } CAT_config_flag;
 
 typedef enum
