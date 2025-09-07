@@ -15,11 +15,11 @@
 #include "item_assets.h"
 
 static CAT_pet_timing_state timing_state = {0};
-void CAT_pet_export_timing_state(volatile CAT_pet_timing_state* out)
+void CAT_pet_export_timing_state(CAT_pet_timing_state* out)
 {
 	memcpy(out, &timing_state, sizeof(CAT_pet_timing_state));
 }
-void CAT_pet_import_timing_state(volatile CAT_pet_timing_state* in)
+void CAT_pet_import_timing_state(CAT_pet_timing_state* in)
 {
 	memcpy(&timing_state, in, sizeof(CAT_pet_timing_state));
 }

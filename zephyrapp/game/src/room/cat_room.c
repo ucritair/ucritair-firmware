@@ -23,6 +23,7 @@
 #include "cat_graph.h"
 #include "cat_world.h"
 #include "cat_crafting.h"
+#include "cat_effects.h"
 
 //////////////////////////////////////////////////////////////////////////
 // THEME
@@ -438,7 +439,7 @@ void CAT_room_tick()
 	}
 }
 
-static CAT_machine_state button_modes[5] =
+static CAT_FSM_state button_modes[5] =
 {
 	CAT_MS_feed,
 	CAT_MS_study,
@@ -472,7 +473,7 @@ void screen_button_input()
 		mode_selector -= 1;
 	mode_selector = (mode_selector + MODE_BUTTON_COUNT) % MODE_BUTTON_COUNT;
 	if(CAT_input_pressed(CAT_BUTTON_A))
-		CAT_machine_transition(button_modes[mode_selector]);
+		CAT_pushdown_transition(button_modes[mode_selector]);
 	
 	for(int i = 0; i < MODE_BUTTON_COUNT; i++)
 	{
@@ -484,7 +485,7 @@ void screen_button_input()
 		))
 		{
 			if(i == mode_selector)
-				CAT_machine_transition(button_modes[mode_selector]);
+				CAT_pushdown_transition(button_modes[mode_selector]);
 			mode_selector = i;
 		}
 	}
@@ -493,9 +494,9 @@ void screen_button_input()
 void prop_button_input()
 {
 	if(CAT_input_touch_rect(VENDING_MACHINE_X, VENDING_MACHINE_Y, VENDING_MACHINE_W, VENDING_MACHINE_H))
-		CAT_machine_transition(CAT_MS_shop);
+		CAT_pushdown_transition(CAT_MS_shop);
 	else if(CAT_input_touch_rect(ARCADE_X, ARCADE_Y, ARCADE_W, ARCADE_H))
-		CAT_machine_transition(CAT_MS_arcade);
+		CAT_pushdown_transition(CAT_MS_arcade);
 	else if(CAT_input_touch_rect
 	(
 		theme->window_rect.min.x+4,
@@ -504,16 +505,16 @@ void prop_button_input()
 		theme->window_rect.max.y-theme->window_rect.min.y-8
 	))
 	{
-		CAT_machine_transition(CAT_MS_monitor);
+		CAT_pushdown_transition(CAT_MS_monitor);
 	}
 
 	int touched_prop = CAT_room_touch_query();
 	if(touched_prop != -1)
 	{
-		int touched_item = CAT_room_get_props()->data[touched_prop].prop;
+		int touched_item = prop_list.data[touched_prop].prop;
 		if(touched_item == prop_crafter_item)
 		{
-			CAT_machine_transition(CAT_MS_crafting);
+			CAT_pushdown_transition(CAT_MS_crafting);
 		}
 	}
 }
@@ -535,11 +536,11 @@ void pickup_input()
 	}
 }
 
-void CAT_MS_room(CAT_machine_signal signal)
+void CAT_MS_room(CAT_FSM_signal signal)
 {
 	switch(signal)
 	{
-		case CAT_MACHINE_SIGNAL_ENTER:
+		case CAT_FSM_SIGNAL_ENTER:
 		{
 			CAT_set_render_callback(CAT_render_room);
 			CAT_pet_settle();
@@ -548,23 +549,23 @@ void CAT_MS_room(CAT_machine_signal signal)
 			CAT_gui_reset_menu_context();
 			break;
 		}
-		case CAT_MACHINE_SIGNAL_TICK:
+		case CAT_FSM_SIGNAL_TICK:
 		{
 			CAT_get_datetime(&datetime);
 
 			if(CAT_AQ_is_crisis_report_posted())
 			{
-				CAT_machine_transition(CAT_MS_crisis_report);
+				CAT_pushdown_transition(CAT_MS_crisis_report);
 				return;
 			}
 			if(CAT_pet_is_death_report_posted())
 			{
-				CAT_machine_transition(CAT_MS_death_report);
+				CAT_pushdown_transition(CAT_MS_death_report);
 				return;
 			}
 				
 			if(CAT_input_pressed(CAT_BUTTON_START))
-				CAT_machine_transition(CAT_MS_menu);
+				CAT_pushdown_transition(CAT_MS_menu);
 
 			if(CAT_pet_is_dead())
 			{
@@ -636,7 +637,7 @@ void CAT_MS_room(CAT_machine_signal signal)
 			}
 			break;
 		}
-		case CAT_MACHINE_SIGNAL_EXIT:
+		case CAT_FSM_SIGNAL_EXIT:
 		{
 			CAT_gui_dismiss_dialogue();
 			break;

@@ -546,29 +546,29 @@ void render_game_over()
 	CAT_draw_text(12, cursor_y, "... for the rectilinear belongs only to Geometry and not to Nature and Life.");
 }
 
-void MS_game_over(CAT_machine_signal signal)
+void MS_game_over(CAT_FSM_signal signal)
 {
 	switch(signal)
 	{
-		case CAT_MACHINE_SIGNAL_ENTER:
+		case CAT_FSM_SIGNAL_ENTER:
 			CAT_set_render_callback(render_game_over);
 		break;
 
-		case CAT_MACHINE_SIGNAL_TICK:
+		case CAT_FSM_SIGNAL_TICK:
 			if(CAT_input_pressed(CAT_BUTTON_A) || CAT_input_pressed(CAT_BUTTON_B) || CAT_input_pressed(CAT_BUTTON_START))
-				CAT_machine_transition(CAT_MS_room);
+				CAT_pushdown_transition(CAT_MS_room);
 		break;
 
-		case CAT_MACHINE_SIGNAL_EXIT:
+		case CAT_FSM_SIGNAL_EXIT:
 		break;
 	}
 }
 
-void CAT_MS_foursquares(CAT_machine_signal signal)
+void CAT_MS_foursquares(CAT_FSM_signal signal)
 {
 	switch(signal)
 	{
-		case CAT_MACHINE_SIGNAL_ENTER:
+		case CAT_FSM_SIGNAL_ENTER:
 			CAT_set_render_callback(CAT_render_foursquares);
 
 			score = 0;
@@ -589,13 +589,13 @@ void CAT_MS_foursquares(CAT_machine_signal signal)
 			);
 		break;
 
-		case CAT_MACHINE_SIGNAL_TICK:
+		case CAT_FSM_SIGNAL_TICK:
 		{
 			if(CAT_input_pressed(CAT_BUTTON_START) || CAT_input_held(CAT_BUTTON_B, 0.5f))
 				CAT_gui_open_popup("Quit Foursquares?\n\nProgress will not\nbe saved!\n");
 			else if(CAT_gui_consume_popup())
 			{
-				CAT_machine_back();
+				CAT_pushdown_back();
 				break;
 			}
 			if(CAT_gui_popup_is_open())
@@ -664,7 +664,7 @@ void CAT_MS_foursquares(CAT_machine_signal signal)
 							(CAT_ivec2) {CAT_rand_int(0, CAT_FOURSQUARES_GRID_WIDTH-collider_x_off), 0}
 						);
 						if(is_blocked_out())
-							CAT_machine_transition(MS_game_over);
+							CAT_pushdown_transition(MS_game_over);
 					}
 					reset_buffers();
 				}		
@@ -672,7 +672,7 @@ void CAT_MS_foursquares(CAT_machine_signal signal)
 		break;
 		}
 
-		case CAT_MACHINE_SIGNAL_EXIT:
+		case CAT_FSM_SIGNAL_EXIT:
 		break;
 	}
 }

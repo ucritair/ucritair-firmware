@@ -77,14 +77,14 @@ static void clock_tick()
 	second_arc = arc_base - sec_t * (2 * M_PI);
 }
 
-void CAT_monitor_MS_clock(CAT_machine_signal signal)
+void CAT_monitor_MS_clock(CAT_FSM_signal signal)
 {
 	switch (signal)
 	{
-		case CAT_MACHINE_SIGNAL_ENTER:
+		case CAT_FSM_SIGNAL_ENTER:
 		break;
 
-		case CAT_MACHINE_SIGNAL_TICK:
+		case CAT_FSM_SIGNAL_TICK:
 			if(CAT_input_dismissal())
 				CAT_monitor_dismiss();
 			if(CAT_input_pressed(CAT_BUTTON_LEFT))
@@ -95,7 +95,7 @@ void CAT_monitor_MS_clock(CAT_machine_signal signal)
 			clock_tick();
 		break;
 
-		case CAT_MACHINE_SIGNAL_EXIT:
+		case CAT_FSM_SIGNAL_EXIT:
 		break;
 	}
 }

@@ -18,47 +18,48 @@
 #include "cat_monitors.h"
 #include "item_assets.h"
 #include "cat_world.h"
+#include "cat_effects.h"
 
 #ifdef CAT_EMBEDDED
 #include "menu_system.h"
 #endif
 
-void CAT_MS_menu(CAT_machine_signal signal)
+void CAT_MS_menu(CAT_FSM_signal signal)
 {
 	switch(signal)
 	{
-		case CAT_MACHINE_SIGNAL_ENTER:
+		case CAT_FSM_SIGNAL_ENTER:
 			CAT_set_render_callback(CAT_render_menu);
 			CAT_gui_begin_menu_context();
 			break;
-		case CAT_MACHINE_SIGNAL_TICK:
+		case CAT_FSM_SIGNAL_TICK:
 		{
 			if(CAT_input_pressed(CAT_BUTTON_START))
-				CAT_machine_back();
+				CAT_pushdown_back();
 
 			if(CAT_gui_begin_menu("MENU"))
 			{
 				if(CAT_gui_menu_item("INSIGHTS"))
-					CAT_machine_transition(CAT_MS_insights);
+					CAT_pushdown_transition(CAT_MS_insights);
 				if(CAT_gui_menu_item("INVENTORY"))
-					CAT_machine_transition(CAT_MS_inventory);
+					CAT_pushdown_transition(CAT_MS_inventory);
 				if(CAT_gui_menu_item("VENDING MACHINE"))
-					CAT_machine_transition(CAT_MS_shop);
+					CAT_pushdown_transition(CAT_MS_shop);
 				if(CAT_gui_menu_item("ARCADE"))
-					CAT_machine_transition(CAT_MS_arcade);
+					CAT_pushdown_transition(CAT_MS_arcade);
 				if(CAT_gui_menu_item("EXPLORE"))
-					CAT_machine_transition(CAT_MS_world);
+					CAT_pushdown_transition(CAT_MS_world);
 				if(CAT_gui_menu_item("DASHBOARD"))
-					CAT_machine_transition(CAT_MS_monitor);				
+					CAT_pushdown_transition(CAT_MS_monitor);				
 					
 				if(CAT_gui_menu_item("MAGIC"))
-					CAT_machine_transition(CAT_MS_magic);
+					CAT_pushdown_transition(CAT_MS_magic);
 				if(CAT_check_config_flags(CAT_CONFIG_FLAG_DEVELOPER))
 				{
 					if(CAT_gui_begin_menu("DEVELOPER"))
 					{
 						if(CAT_gui_menu_item("INFO"))
-							CAT_machine_transition(CAT_MS_debug);
+							CAT_pushdown_transition(CAT_MS_debug);
 							
 						if(CAT_gui_begin_menu("CHEATS"))
 						{
@@ -107,9 +108,9 @@ void CAT_MS_menu(CAT_machine_signal signal)
 						}
 
 						if(CAT_gui_menu_item("COLOUR PICKER"))
-							CAT_machine_transition(CAT_MS_colour_picker);
+							CAT_pushdown_transition(CAT_MS_colour_picker);
 						if(CAT_gui_menu_item("PALETTE PICKER"))
-							CAT_machine_transition(CAT_MS_palette_picker);
+							CAT_pushdown_transition(CAT_MS_palette_picker);
 						
 						if(CAT_gui_begin_menu("AQ CONTROL PANEL"))
 						{
@@ -229,7 +230,7 @@ void CAT_MS_menu(CAT_machine_signal signal)
 					if(CAT_gui_menu_item("SYSTEM"))
 					{
 #ifdef CAT_EMBEDDED
-						CAT_machine_transition(CAT_MS_system_menu);
+						CAT_pushdown_transition(CAT_MS_system_menu);
 #endif
 					}
 					if(CAT_gui_begin_menu("DANGER ZONE"))
@@ -249,7 +250,7 @@ void CAT_MS_menu(CAT_machine_signal signal)
 					CAT_gui_end_menu();
 				}
 				if(CAT_gui_menu_item("ABOUT"))
-					CAT_machine_transition(CAT_MS_manual);
+					CAT_pushdown_transition(CAT_MS_manual);
 				if(CAT_gui_begin_menu("POWER"))
 				{
 					if(CAT_gui_menu_item("SLEEP"))
@@ -267,7 +268,7 @@ void CAT_MS_menu(CAT_machine_signal signal)
 			break;
 		}
 
-		case CAT_MACHINE_SIGNAL_EXIT:
+		case CAT_FSM_SIGNAL_EXIT:
 		break;
 	}
 }

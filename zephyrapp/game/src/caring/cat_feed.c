@@ -17,13 +17,13 @@
 #include "cat_room.h"
 #include "cat_gizmos.h"
 
-static void MS_feed_arrange(CAT_machine_signal signal);
+static void MS_feed_arrange(CAT_FSM_signal signal);
 static void render_arrange();
-static void MS_feed_select(CAT_machine_signal signal);
+static void MS_feed_select(CAT_FSM_signal signal);
 static void render_select();
-static void MS_feed_inspect(CAT_machine_signal signal);
+static void MS_feed_inspect(CAT_FSM_signal signal);
 static void render_inspect();
-static void MS_feed_summary(CAT_machine_signal signal);
+static void MS_feed_summary(CAT_FSM_signal signal);
 static void render_summary();
 
 #define FOOD_SCALE 2
@@ -714,32 +714,32 @@ static float feedback_timer = 0;
 static bool show_gizmos = false;
 static bool show_debug_text = false;
 
-void MS_feed_arrange(CAT_machine_signal signal)
+void MS_feed_arrange(CAT_FSM_signal signal)
 {
 	switch (signal)
 	{
-	case CAT_MACHINE_SIGNAL_ENTER:
+	case CAT_FSM_SIGNAL_ENTER:
 		CAT_set_render_callback(render_arrange);
 		pick_idx = -1;
 		feedback_timer = 0;
 		show_feedback = false;
 		break;
 
-	case CAT_MACHINE_SIGNAL_TICK:
+	case CAT_FSM_SIGNAL_TICK:
 		if (CAT_gui_popup_is_open())
 			break;
 		if (CAT_input_pressed(CAT_BUTTON_A))
 			CAT_gui_open_popup("Submit this meal?\nFood items on table\nwill be consumed!\n");
 		if (CAT_gui_consume_popup())
 		{
-			CAT_machine_transition(MS_feed_summary);
+			CAT_pushdown_transition(MS_feed_summary);
 			break;
 		}
 
 		if (CAT_input_pressed(CAT_BUTTON_B))
-			CAT_machine_transition(CAT_MS_room);
+			CAT_pushdown_transition(CAT_MS_room);
 		if (CAT_input_pressed(CAT_BUTTON_SELECT) && food_pool.length > 0)
-			CAT_machine_transition(MS_feed_select);
+			CAT_pushdown_transition(MS_feed_select);
 
 		if (CAT_input_touch_rect(85, 240, 64, 64) && !show_feedback)
 		{
@@ -770,7 +770,7 @@ void MS_feed_arrange(CAT_machine_signal signal)
 			}
 			
 			if(!picked && CAT_input_touch_rect(COUNTER_X, COUNTER_Y, COUNTER_W, COUNTER_H) && food_pool.length > 0)
-				CAT_machine_transition(MS_feed_select);
+				CAT_pushdown_transition(MS_feed_select);
 		}
 		else if (CAT_input_touch_up())
 		{
@@ -794,7 +794,7 @@ void MS_feed_arrange(CAT_machine_signal signal)
 		}
 		break;
 
-	case CAT_MACHINE_SIGNAL_EXIT:
+	case CAT_FSM_SIGNAL_EXIT:
 		break;
 	}
 }
@@ -1030,11 +1030,11 @@ static int get_max_scroll_y()
 	return pool_size > 0 ? pool_size : SELECT_GRID_MARGIN;
 }
 
-static void MS_feed_select(CAT_machine_signal signal)
+static void MS_feed_select(CAT_FSM_signal signal)
 {
 	switch (signal)
 	{
-	case CAT_MACHINE_SIGNAL_ENTER:
+	case CAT_FSM_SIGNAL_ENTER:
 		CAT_set_render_callback(render_select);
 		scroll_y_anchor = 0;
 		scroll_y_delta = 0;
@@ -1043,9 +1043,9 @@ static void MS_feed_select(CAT_machine_signal signal)
 		inspect_idx = -1;
 		break;
 
-	case CAT_MACHINE_SIGNAL_TICK:
+	case CAT_FSM_SIGNAL_TICK:
 		if (CAT_input_pressed(CAT_BUTTON_B) || CAT_input_pressed(CAT_BUTTON_SELECT))
-			CAT_machine_transition(MS_feed_arrange);
+			CAT_pushdown_transition(MS_feed_arrange);
 
 		if (CAT_input_touching())
 		{
@@ -1088,7 +1088,7 @@ static void MS_feed_select(CAT_machine_signal signal)
 					if(inspect_timer >= 1.0f)
 					{
 						inspect_idx = last_clicked_idx;
-						CAT_machine_transition(MS_feed_inspect);
+						CAT_pushdown_transition(MS_feed_inspect);
 						inspect_timer = 0;
 					}
 					inspect_timer += CAT_get_delta_time_s();
@@ -1133,7 +1133,7 @@ static void MS_feed_select(CAT_machine_signal signal)
 		scroll_y_delta = -clamp(-scroll_y_delta, get_min_scroll_y(), get_max_scroll_y());
 		break;
 
-	case CAT_MACHINE_SIGNAL_EXIT:
+	case CAT_FSM_SIGNAL_EXIT:
 		break;
 	}
 }
@@ -1184,19 +1184,19 @@ static void render_select()
 	}
 }
 
-static void MS_feed_inspect(CAT_machine_signal signal)
+static void MS_feed_inspect(CAT_FSM_signal signal)
 {
 	switch (signal)
 	{
-	case CAT_MACHINE_SIGNAL_ENTER:
+	case CAT_FSM_SIGNAL_ENTER:
 		CAT_set_render_callback(render_inspect);
 		break;
 
-	case CAT_MACHINE_SIGNAL_TICK:
+	case CAT_FSM_SIGNAL_TICK:
 		if (CAT_input_pressed(CAT_BUTTON_B))
-			CAT_machine_transition(MS_feed_select);
+			CAT_pushdown_transition(MS_feed_select);
 		else if (CAT_input_pressed(CAT_BUTTON_SELECT))
-			CAT_machine_transition(MS_feed_arrange);
+			CAT_pushdown_transition(MS_feed_arrange);
 
 		if (CAT_input_pressed(CAT_BUTTON_RIGHT))
 			inspect_idx += 1;
@@ -1205,7 +1205,7 @@ static void MS_feed_inspect(CAT_machine_signal signal)
 		inspect_idx = (inspect_idx + food_pool.length) % food_pool.length;
 		break;
 
-	case CAT_MACHINE_SIGNAL_EXIT:
+	case CAT_FSM_SIGNAL_EXIT:
 		break;
 	}
 }
@@ -1255,19 +1255,19 @@ static const int xp_rewards[] =
 
 static int xp_reward;
 
-static void MS_feed_summary(CAT_machine_signal signal)
+static void MS_feed_summary(CAT_FSM_signal signal)
 {
 	switch (signal)
 	{
-	case CAT_MACHINE_SIGNAL_ENTER:
+	case CAT_FSM_SIGNAL_ENTER:
 		CAT_set_render_callback(render_summary);
 		summary_page = PERFORMANCE;
 		xp_reward = CAT_rand_int(xp_rewards[score_object.grade*2+0], xp_rewards[score_object.grade*2+1]);
 		break;
 
-	case CAT_MACHINE_SIGNAL_TICK:
+	case CAT_FSM_SIGNAL_TICK:
 		if (CAT_input_pressed(CAT_BUTTON_A) || CAT_input_pressed(CAT_BUTTON_B))
-			CAT_machine_transition(CAT_MS_room);
+			CAT_pushdown_transition(CAT_MS_room);
 
 		// enum = (enum + ENUM_MAX) % ENUM_MAX doesn't work on embedded
 		int summary_page_proxy = summary_page;
@@ -1278,7 +1278,7 @@ static void MS_feed_summary(CAT_machine_signal signal)
 		summary_page = (summary_page_proxy + SUMMARY_PAGE_MAX) % SUMMARY_PAGE_MAX;
 		break;
 
-	case CAT_MACHINE_SIGNAL_EXIT:
+	case CAT_FSM_SIGNAL_EXIT:
 			for (int i = 0; i < food_count; i++)
 			{
 				if (food_list[i].active)
@@ -1435,11 +1435,11 @@ static void render_summary()
 	}
 }
 
-void CAT_MS_feed(CAT_machine_signal signal)
+void CAT_MS_feed(CAT_FSM_signal signal)
 {
 	switch (signal)
 	{
-	case CAT_MACHINE_SIGNAL_ENTER:
+	case CAT_FSM_SIGNAL_ENTER:
 	{
 		init_spawn_rects();
 		init_item_id_pool();
@@ -1451,11 +1451,11 @@ void CAT_MS_feed(CAT_machine_signal signal)
 	}
 	break;
 
-	case CAT_MACHINE_SIGNAL_TICK:
-		CAT_machine_transition(MS_feed_arrange);
+	case CAT_FSM_SIGNAL_TICK:
+		CAT_pushdown_transition(MS_feed_arrange);
 		break;
 
-	case CAT_MACHINE_SIGNAL_EXIT:
+	case CAT_FSM_SIGNAL_EXIT:
 		break;
 	}
 }

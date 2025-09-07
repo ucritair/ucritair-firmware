@@ -214,11 +214,11 @@ void shuffle_about(int x, int y)
 	}
 }
 
-void CAT_MS_mines(CAT_machine_signal signal)
+void CAT_MS_mines(CAT_FSM_signal signal)
 {
 	switch(signal)
 	{
-		case CAT_MACHINE_SIGNAL_ENTER:
+		case CAT_FSM_SIGNAL_ENTER:
 		{		
 			CAT_set_render_callback(CAT_render_mines);
 
@@ -233,7 +233,7 @@ void CAT_MS_mines(CAT_machine_signal signal)
 			reveal_complete = false;
 			break;
 		}
-		case CAT_MACHINE_SIGNAL_TICK:
+		case CAT_FSM_SIGNAL_TICK:
 		{	
 			if(state == PLAY)
 			{
@@ -241,7 +241,7 @@ void CAT_MS_mines(CAT_machine_signal signal)
 						CAT_gui_open_popup("Quit Sweep?\n\nProgress will not be saved!\n\n");
 				else if(CAT_gui_consume_popup())
 				{
-					CAT_machine_back();
+					CAT_pushdown_back();
 					break;
 				}
 				if(CAT_gui_popup_is_open())
@@ -327,7 +327,7 @@ void CAT_MS_mines(CAT_machine_signal signal)
 					{
 						if(state == WIN)
 							CAT_inventory_add(prop_mine_item, 1);
-						CAT_machine_back();
+						CAT_pushdown_back();
 					}
 				}
 				break;
@@ -335,7 +335,7 @@ void CAT_MS_mines(CAT_machine_signal signal)
 
 			break;
 		}
-		case CAT_MACHINE_SIGNAL_EXIT:
+		case CAT_FSM_SIGNAL_EXIT:
 		{
 			break;
 		}

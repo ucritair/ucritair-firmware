@@ -66,14 +66,14 @@ void CAT_monitor_render_summary()
 	}
 }
 
-void CAT_monitor_MS_summary(CAT_machine_signal signal)
+void CAT_monitor_MS_summary(CAT_FSM_signal signal)
 {
 	switch (signal)
 	{
-		case CAT_MACHINE_SIGNAL_ENTER:
+		case CAT_FSM_SIGNAL_ENTER:
 		break;
 
-		case CAT_MACHINE_SIGNAL_TICK:
+		case CAT_FSM_SIGNAL_TICK:
 			if(CAT_input_dismissal())
 				CAT_monitor_dismiss();
 			if(CAT_input_pressed(CAT_BUTTON_LEFT))
@@ -83,7 +83,7 @@ void CAT_monitor_MS_summary(CAT_machine_signal signal)
 
 		break;
 
-		case CAT_MACHINE_SIGNAL_EXIT:
+		case CAT_FSM_SIGNAL_EXIT:
 		break;
 	}
 }

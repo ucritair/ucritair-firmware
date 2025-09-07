@@ -132,10 +132,10 @@ int CAT_inventory_count(int item_id);
 // INVENTORY
 
 void CAT_bind_inspector(int item_id);
-void CAT_MS_inspector(CAT_machine_signal signal);
+void CAT_MS_inspector(CAT_FSM_signal signal);
 void CAT_render_inspector();
 
-void CAT_MS_inventory(CAT_machine_signal signal);
+void CAT_MS_inventory(CAT_FSM_signal signal);
 void CAT_render_inventory();
 
 
@@ -143,13 +143,13 @@ void CAT_render_inventory();
 // SHOP
 
 void CAT_bind_checkout(int item_id);
-void CAT_MS_checkout(CAT_machine_signal signal);
+void CAT_MS_checkout(CAT_FSM_signal signal);
 void CAT_render_checkout();
 
 void CAT_bind_sale(int item_id);
-void CAT_MS_sale(CAT_machine_signal signal);
+void CAT_MS_sale(CAT_FSM_signal signal);
 void CAT_render_sale();
 
-void CAT_MS_shop(CAT_machine_signal signal);
+void CAT_MS_shop(CAT_FSM_signal signal);
 void CAT_render_shop();
 

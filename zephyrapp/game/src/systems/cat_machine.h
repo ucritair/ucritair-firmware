@@ -6,19 +6,19 @@
 // MACHINE
 
 /* PROTOTYPE
-void CAT_MS_example(CAT_machine_signal signal)
+void CAT_MS_example(CAT_FSM_signal signal)
 {
 	switch(signal)
 	{
-		case CAT_MACHINE_SIGNAL_ENTER:
+		case CAT_FSM_SIGNAL_ENTER:
 		{
 			break;
 		}
-		case CAT_MACHINE_SIGNAL_TICK:
+		case CAT_FSM_SIGNAL_TICK:
 		{
 			break;
 		}
-		case CAT_MACHINE_SIGNAL_EXIT:
+		case CAT_FSM_SIGNAL_EXIT:
 		{
 			break;
 		}
@@ -26,22 +26,31 @@ void CAT_MS_example(CAT_machine_signal signal)
 }
 */
 
-typedef enum CAT_machine_signal
+typedef enum
 {
-	CAT_MACHINE_SIGNAL_ENTER,
-	CAT_MACHINE_SIGNAL_TICK,
-	CAT_MACHINE_SIGNAL_EXIT
-} CAT_machine_signal;
+	CAT_FSM_SIGNAL_ENTER,
+	CAT_FSM_SIGNAL_TICK,
+	CAT_FSM_SIGNAL_EXIT
+} CAT_FSM_signal;
 
-typedef void (*CAT_machine_state)(CAT_machine_signal);
+typedef void (*CAT_FSM_state)(CAT_FSM_signal);
+
+typedef struct
+{
+	CAT_FSM_state state;
+} CAT_FSM;
+void CAT_FSM_transition(CAT_FSM* machine, CAT_FSM_state state);
+void CAT_FSM_tick(CAT_FSM* machine);
+
+void CAT_pushdown_transition(CAT_FSM_state state);
+void CAT_pushdown_tick();
+void CAT_pushdown_back();
+CAT_FSM_state CAT_pushdown_peek();
+
 typedef void (*CAT_render_callback)(void);
-
-void CAT_machine_transition(CAT_machine_state state);
-void CAT_machine_tick();
-void CAT_machine_back();
-CAT_machine_state CAT_get_machine_state();
-
 void CAT_set_render_callback(CAT_render_callback callback);
 CAT_render_callback CAT_get_render_callback();
+
+
 
 

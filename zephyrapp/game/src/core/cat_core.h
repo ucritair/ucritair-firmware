@@ -518,8 +518,8 @@ typedef enum
 	CAT_PERSIST_FLAG_MANUAL_ORIENT = (1 << 1)
 } CAT_persist_flag;
 
-volatile uint8_t* CAT_AQ_crisis_state_persist();
-volatile uint8_t* CAT_pet_timing_state_persist();
+uint8_t* CAT_AQ_crisis_state_persist();
+uint8_t* CAT_pet_timing_state_persist();
 bool CAT_was_persist_wiped();
 
 uint64_t CAT_get_persist_flags();

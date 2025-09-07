@@ -18,7 +18,6 @@ typedef enum
 
 void CAT_draw_regular_polygon(int n, int x, int y, int r, float t, uint16_t c);
 void CAT_draw_gizmo_primitive(CAT_gizmo_primitive primitive, int x, int y, int r, float t, uint16_t c);
-void CAT_draw_ripple(CAT_gizmo_primitive primitive, int x, int y, float r0, float r1, float p, float w, float t, float T, uint16_t c);
 
 void CAT_draw_page_markers(int y, int pages, int page, uint16_t c);
 void CAT_draw_page_alert(int y, int pages, int page, uint16_t c);

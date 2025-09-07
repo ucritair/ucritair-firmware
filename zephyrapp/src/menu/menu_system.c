@@ -42,12 +42,12 @@ typedef void (*menu_t)();
 
 void menu_t_back()
 {
-	CAT_machine_back();
+	CAT_pushdown_back();
 }
 
 void menu_t_go_time()
 {
-	CAT_machine_transition(CAT_MS_time);
+	CAT_pushdown_transition(CAT_MS_time);
 }
 
 void menu_t_go_co2()
@@ -140,15 +140,15 @@ struct entry
 };
 #define NUM_MENU_ITEMS (sizeof(system_entries)/sizeof(system_entries[0]))
 
-void CAT_MS_system_menu(CAT_machine_signal signal)
+void CAT_MS_system_menu(CAT_FSM_signal signal)
 {
 	switch(signal)
 	{
-		case CAT_MACHINE_SIGNAL_ENTER:
+		case CAT_FSM_SIGNAL_ENTER:
 			CAT_set_render_callback(CAT_render_system_menu);
 			system_menu_note = "Some items take time";
 			break;
-		case CAT_MACHINE_SIGNAL_TICK:
+		case CAT_FSM_SIGNAL_TICK:
 		{
 			if(CAT_input_pulse(CAT_BUTTON_UP))
 				system_menu_selector -= 1;
@@ -165,7 +165,7 @@ void CAT_MS_system_menu(CAT_machine_signal signal)
 			{
 				if (!co2_calibrating)
 				{
-					CAT_machine_back();
+					CAT_pushdown_back();
 				}
 				else
 				{
@@ -174,7 +174,7 @@ void CAT_MS_system_menu(CAT_machine_signal signal)
 			}
 			break;
 		}
-		case CAT_MACHINE_SIGNAL_EXIT:
+		case CAT_FSM_SIGNAL_EXIT:
 			if (co2_calibrating)
 			{
 				co2_calibrating = false;
@@ -253,8 +253,8 @@ void CAT_render_system_menu()
 		{
 			CAT_gui_text("Done. Thanks for waiting...\nHave some cigarettes as a\nreward: ");
 			CAT_gui_image(&cigarette_sprite, 0);
-			CAT_machine_back(); //Go back so we dont recal by mistake
-			CAT_machine_back(); //Go back so we dont recal by mistake
+			CAT_pushdown_back(); //Go back so we dont recal by mistake
+			CAT_pushdown_back(); //Go back so we dont recal by mistake
 		}
 	}
 }

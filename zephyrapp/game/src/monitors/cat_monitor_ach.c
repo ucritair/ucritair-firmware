@@ -303,11 +303,11 @@ int move_cursor(int cursor, int l, int r)
 	return clamp(cursor+dx, l, r);
 }
 
-void CAT_monitor_MS_ACH(CAT_machine_signal signal)
+void CAT_monitor_MS_ACH(CAT_FSM_signal signal)
 {
 	switch(signal)
 	{
-		case CAT_MACHINE_SIGNAL_ENTER:
+		case CAT_FSM_SIGNAL_ENTER:
 		{
 			CAT_monitor_gate_init("ACH Viewer");
 
@@ -324,7 +324,7 @@ void CAT_monitor_MS_ACH(CAT_machine_signal signal)
 		}
 		break;
 
-		case CAT_MACHINE_SIGNAL_TICK:
+		case CAT_FSM_SIGNAL_TICK:
 		{
 			CAT_monitor_graph_tick();
 
@@ -451,7 +451,7 @@ void CAT_monitor_MS_ACH(CAT_machine_signal signal)
 		}
 		break;
 
-		case CAT_MACHINE_SIGNAL_EXIT:
+		case CAT_FSM_SIGNAL_EXIT:
 		{
 			should_fast_forward = false;
 		}

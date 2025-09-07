@@ -58,16 +58,16 @@ void HSV2RGB(uint16_t H, uint8_t S, uint8_t V, uint8_t* R_out, uint8_t* G_out, u
 	}
 }
 
-void CAT_MS_colour_picker(CAT_machine_signal signal)
+void CAT_MS_colour_picker(CAT_FSM_signal signal)
 {
 	switch (signal)
 	{
-		case CAT_MACHINE_SIGNAL_ENTER:
+		case CAT_FSM_SIGNAL_ENTER:
 			CAT_set_render_callback(CAT_render_colour_picker);
 			break;
-		case CAT_MACHINE_SIGNAL_TICK:
+		case CAT_FSM_SIGNAL_TICK:
 			if(CAT_input_pressed(CAT_BUTTON_START))
-				CAT_machine_back();
+				CAT_pushdown_back();
 
 			if(CAT_input_held(CAT_BUTTON_A, 0))
 				V += 4;
@@ -96,7 +96,7 @@ void CAT_MS_colour_picker(CAT_machine_signal signal)
 				show_details = !show_details;			
 			
 			break;
-		case CAT_MACHINE_SIGNAL_EXIT:
+		case CAT_FSM_SIGNAL_EXIT:
 			break;
 	}
 }

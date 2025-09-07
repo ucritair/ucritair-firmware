@@ -239,15 +239,15 @@ void CAT_monitor_render_gameplay()
 	}
 }
 
-void CAT_monitor_MS_gameplay(CAT_machine_signal signal)
+void CAT_monitor_MS_gameplay(CAT_FSM_signal signal)
 {
 	switch (signal)
 	{
-		case CAT_MACHINE_SIGNAL_ENTER:
+		case CAT_FSM_SIGNAL_ENTER:
 			exit_progress = 0;
 		break;
 
-		case CAT_MACHINE_SIGNAL_TICK:
+		case CAT_FSM_SIGNAL_TICK:
 			if(CAT_input_pressed(CAT_BUTTON_LEFT))
 				CAT_monitor_retreat();
 			if(CAT_input_pressed(CAT_BUTTON_RIGHT))
@@ -264,7 +264,7 @@ void CAT_monitor_MS_gameplay(CAT_machine_signal signal)
 			}
 		break;
 
-		case CAT_MACHINE_SIGNAL_EXIT:
+		case CAT_FSM_SIGNAL_EXIT:
 		break;
 	}
 }

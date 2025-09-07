@@ -290,11 +290,11 @@ void CAT_monitor_calendar_enter(CAT_datetime date)
 	CAT_monitor_seek(CAT_MONITOR_PAGE_CALENDAR);
 }
 
-void CAT_monitor_MS_calendar(CAT_machine_signal signal)
+void CAT_monitor_MS_calendar(CAT_FSM_signal signal)
 {
 	switch (signal)
 	{
-		case CAT_MACHINE_SIGNAL_ENTER:
+		case CAT_FSM_SIGNAL_ENTER:
 		{
 			CAT_log_cell first;
 			CAT_read_first_calendar_cell(&first);
@@ -316,7 +316,7 @@ void CAT_monitor_MS_calendar(CAT_machine_signal signal)
 		}
 		break;
 
-		case CAT_MACHINE_SIGNAL_TICK:
+		case CAT_FSM_SIGNAL_TICK:
 		{
 			switch (page)
 			{
@@ -337,7 +337,7 @@ void CAT_monitor_MS_calendar(CAT_machine_signal signal)
 		}
 		break;
 
-		case CAT_MACHINE_SIGNAL_EXIT:
+		case CAT_FSM_SIGNAL_EXIT:
 			focus_progress = 0;
 		break;
 	}

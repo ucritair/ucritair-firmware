@@ -76,19 +76,19 @@ void CAT_bind_checkout(int item_id)
 	purchase_lock = false;
 }
 
-void CAT_MS_checkout(CAT_machine_signal signal)
+void CAT_MS_checkout(CAT_FSM_signal signal)
 {
 	switch(signal)
 	{
-		case CAT_MACHINE_SIGNAL_ENTER:
+		case CAT_FSM_SIGNAL_ENTER:
 		{
 			CAT_set_render_callback(CAT_render_checkout);
 			break;
 		}
-		case CAT_MACHINE_SIGNAL_TICK:
+		case CAT_FSM_SIGNAL_TICK:
 		{
 			if(CAT_input_pressed(CAT_BUTTON_B))
-				CAT_machine_back();
+				CAT_pushdown_back();
 
 			if(CAT_input_pulse(CAT_BUTTON_LEFT))
 				purchase_qty -= 1;
@@ -133,7 +133,7 @@ void CAT_MS_checkout(CAT_machine_signal signal)
 
 			break;
 		}
-		case CAT_MACHINE_SIGNAL_EXIT:
+		case CAT_FSM_SIGNAL_EXIT:
 		{
 			break;
 		}
@@ -224,19 +224,19 @@ void CAT_bind_sale(int item_id)
 	sale_lock = false;
 }
 
-void CAT_MS_sale(CAT_machine_signal signal)
+void CAT_MS_sale(CAT_FSM_signal signal)
 {
 	switch(signal)
 	{
-		case CAT_MACHINE_SIGNAL_ENTER:
+		case CAT_FSM_SIGNAL_ENTER:
 		{
 			CAT_set_render_callback(CAT_render_sale);
 			break;
 		}
-		case CAT_MACHINE_SIGNAL_TICK:
+		case CAT_FSM_SIGNAL_TICK:
 		{
 			if(CAT_input_pressed(CAT_BUTTON_B))
-				CAT_machine_back();
+				CAT_pushdown_back();
 
 			if(CAT_inventory_count(sale_id) > 0)
 			{
@@ -279,7 +279,7 @@ void CAT_MS_sale(CAT_machine_signal signal)
 
 			break;
 		}
-		case CAT_MACHINE_SIGNAL_EXIT:
+		case CAT_FSM_SIGNAL_EXIT:
 		{
 			break;
 		}
@@ -356,26 +356,26 @@ void CAT_render_sale()
 static void buy_proc(int item_id)
 {
 	CAT_bind_checkout(item_id);
-	CAT_machine_transition(CAT_MS_checkout);
+	CAT_pushdown_transition(CAT_MS_checkout);
 }
 
 static void sell_proc(int item_id)
 {
 	CAT_bind_sale(item_id);
-	CAT_machine_transition(CAT_MS_sale);
+	CAT_pushdown_transition(CAT_MS_sale);
 }
 
-void CAT_MS_shop(CAT_machine_signal signal)
+void CAT_MS_shop(CAT_FSM_signal signal)
 {
 	switch(signal)
 	{
-		case CAT_MACHINE_SIGNAL_ENTER:
+		case CAT_FSM_SIGNAL_ENTER:
 		{
 			CAT_set_render_callback(CAT_render_shop);
 			CAT_gui_begin_item_grid_context(true);
 			break;
 		}
-		case CAT_MACHINE_SIGNAL_TICK:
+		case CAT_FSM_SIGNAL_TICK:
 		{			
 			CAT_gui_begin_item_grid();
 			for(int i = 0; i < NUM_TABS; i++)
@@ -390,7 +390,7 @@ void CAT_MS_shop(CAT_machine_signal signal)
 			break;
 		}
 
-		case CAT_MACHINE_SIGNAL_EXIT:
+		case CAT_FSM_SIGNAL_EXIT:
 		break;
 	}
 }

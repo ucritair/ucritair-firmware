@@ -758,7 +758,7 @@ void CAT_gui_menu_io()
 	if(CAT_input_pressed(CAT_BUTTON_B))
 	{
 		if(head->parent == -1)
-			CAT_machine_back();
+			CAT_pushdown_back();
 		else
 			head->clicked = false;
 	}
@@ -1004,7 +1004,7 @@ void CAT_gui_item_grid_io()
 			{
 				item_grid_tab_idx = 0;
 				item_grid_selector = 0;
-				CAT_machine_back();
+				CAT_pushdown_back();
 			}
 		}
 		break;

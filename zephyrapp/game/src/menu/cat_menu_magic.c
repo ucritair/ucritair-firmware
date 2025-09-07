@@ -6,25 +6,25 @@
 #include "sprite_assets.h"
 #include "cat_main.h"
 
-void CAT_MS_magic(CAT_machine_signal signal)
+void CAT_MS_magic(CAT_FSM_signal signal)
 {
 	switch (signal)
 	{
-		case CAT_MACHINE_SIGNAL_ENTER:
+		case CAT_FSM_SIGNAL_ENTER:
 			CAT_set_render_callback(CAT_render_magic);
 			CAT_input_buffer_clear();
 			break;
-		case CAT_MACHINE_SIGNAL_TICK:
+		case CAT_FSM_SIGNAL_TICK:
 			if(CAT_input_held(CAT_BUTTON_B, 0.5f))
-				CAT_machine_back();
+				CAT_pushdown_back();
 
 			if(CAT_input_spell(basic_spell))
 			{
 				CAT_raise_config_flags(CAT_CONFIG_FLAG_DEVELOPER);
-				CAT_machine_transition(CAT_MS_hedron);
+				CAT_pushdown_transition(CAT_MS_hedron);
 			}		
 			break;
-		case CAT_MACHINE_SIGNAL_EXIT:
+		case CAT_FSM_SIGNAL_EXIT:
 			break;
 	}
 }

@@ -30,6 +30,7 @@
 #include "sprite_assets.h"
 #include "item_assets.h"
 #include "cat_colours.h"
+#include "cat_effects.h"
 
 #ifdef CAT_EMBEDDED
 #include "menu_time.h"
@@ -60,9 +61,9 @@ void CAT_init()
 	CAT_force_load();
 
 	if(CAT_check_config_flags(CAT_CONFIG_FLAG_AQ_FIRST))
-		CAT_machine_transition(CAT_MS_monitor);
+		CAT_pushdown_transition(CAT_MS_monitor);
 	else
-		CAT_machine_transition(CAT_MS_room);
+		CAT_pushdown_transition(CAT_MS_room);
 
 	if(CAT_AQ_sensors_initialized())
 		CAT_set_eink_update_flag(true);
@@ -88,8 +89,9 @@ void CAT_tick_logic()
 	CAT_room_tick();
 	CAT_pet_tick();
 	
-	CAT_machine_tick();
+	CAT_pushdown_tick();
 
+	CAT_effects_tick();
 	CAT_gui_io();
 
 	uint64_t now = CAT_get_RTC_now();
@@ -163,6 +165,7 @@ void CAT_tick_render()
 		CAT_draw_sprite(&null_sprite, 0, 120, 160);
 	}
 
+	CAT_effects_render();
 	CAT_gui_render();
 
 	if(CAT_eink_needs_update())

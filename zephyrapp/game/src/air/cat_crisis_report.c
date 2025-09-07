@@ -18,17 +18,17 @@ static int page = INTRO;
 
 static float exit_progress = 0;
 
-void CAT_MS_crisis_report(CAT_machine_signal signal)
+void CAT_MS_crisis_report(CAT_FSM_signal signal)
 {
 	switch (signal)
 	{
-		case CAT_MACHINE_SIGNAL_ENTER:
+		case CAT_FSM_SIGNAL_ENTER:
 			CAT_set_render_callback(CAT_render_crisis_report);
 			page = INTRO;
 			exit_progress = 0;
 		break;
 
-		case CAT_MACHINE_SIGNAL_TICK:
+		case CAT_FSM_SIGNAL_TICK:
 			if(CAT_input_dismissal())
 				page = OUTCOMES;
 				
@@ -48,12 +48,12 @@ void CAT_MS_crisis_report(CAT_machine_signal signal)
 				if(exit_progress >= 1.0f && input.time[CAT_BUTTON_A] >= 1.25f)
 				{
 					CAT_AQ_dismiss_crisis_report();
-					CAT_machine_transition(CAT_MS_room);
+					CAT_pushdown_transition(CAT_MS_room);
 				}
 			}
 		break;
 
-		case CAT_MACHINE_SIGNAL_EXIT:
+		case CAT_FSM_SIGNAL_EXIT:
 		break;
 	}
 }

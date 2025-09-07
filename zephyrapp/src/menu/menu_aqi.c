@@ -32,23 +32,23 @@ bool view_pn = false;
 
 void CAT_render_aqi();
 
-void CAT_MS_aqi(CAT_machine_signal signal)
+void CAT_MS_aqi(CAT_FSM_signal signal)
 {
 	switch(signal)
 	{
-		case CAT_MACHINE_SIGNAL_ENTER:
+		case CAT_FSM_SIGNAL_ENTER:
 		{
 			CAT_set_render_callback(CAT_render_aqi);
 			reset_aqi_view_cell();
 			break;
 		}
-		case CAT_MACHINE_SIGNAL_TICK:
+		case CAT_FSM_SIGNAL_TICK:
 		{
 			if(CAT_input_pressed(CAT_BUTTON_B))
-				CAT_machine_back();
+				CAT_pushdown_back();
 
 			if(CAT_input_pressed(CAT_BUTTON_A))
-				CAT_machine_transition(CAT_MS_graph);
+				CAT_pushdown_transition(CAT_MS_graph);
 
 			if (CAT_input_pressed(CAT_BUTTON_SELECT))
 				view_pn = !view_pn;
@@ -76,7 +76,7 @@ void CAT_MS_aqi(CAT_machine_signal signal)
 
 			break;
 		}
-		case CAT_MACHINE_SIGNAL_EXIT:
+		case CAT_FSM_SIGNAL_EXIT:
 			break;
 	}
 }

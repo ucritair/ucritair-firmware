@@ -175,11 +175,11 @@ void equivalent_exchange(const CAT_recipe* recipe)
 
 CAT_recipe recipe;
 
-void CAT_MS_crafting(CAT_machine_signal signal)
+void CAT_MS_crafting(CAT_FSM_signal signal)
 {
 	switch(signal)
 	{
-		case CAT_MACHINE_SIGNAL_ENTER:
+		case CAT_FSM_SIGNAL_ENTER:
 		{
 			CAT_set_render_callback(CAT_render_crafting);
 			CAT_gui_begin_item_grid_context(false);
@@ -212,7 +212,7 @@ void CAT_MS_crafting(CAT_machine_signal signal)
 		}
 		break;
 
-		case CAT_MACHINE_SIGNAL_TICK:
+		case CAT_FSM_SIGNAL_TICK:
 		{
 			if(selecting)
 			{
@@ -272,7 +272,7 @@ void CAT_MS_crafting(CAT_machine_signal signal)
 					if(CAT_input_pressed(CAT_BUTTON_B))
 					{
 						if(inputs[selector].item == NULL_ITEM)
-							CAT_machine_back();
+							CAT_pushdown_back();
 						else
 							inputs[selector].item = NULL_ITEM;
 					}
@@ -294,7 +294,7 @@ void CAT_MS_crafting(CAT_machine_signal signal)
 		}
 		break;
 
-		case CAT_MACHINE_SIGNAL_EXIT:
+		case CAT_FSM_SIGNAL_EXIT:
 		{
 
 		}

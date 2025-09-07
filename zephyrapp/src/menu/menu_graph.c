@@ -204,11 +204,11 @@ int step_time_index = 0;
 
 int day_scroll_accel = 1;
 
-void CAT_MS_graph(CAT_machine_signal signal)
+void CAT_MS_graph(CAT_FSM_signal signal)
 {
 	switch(signal)
 	{
-		case CAT_MACHINE_SIGNAL_ENTER:
+		case CAT_FSM_SIGNAL_ENTER:
 		{
 			CAT_set_render_callback(CAT_render_graph);
 			graph_end_time = get_current_rtc_time();
@@ -220,10 +220,10 @@ void CAT_MS_graph(CAT_machine_signal signal)
 			update_graph();
 			break;
 		}
-		case CAT_MACHINE_SIGNAL_TICK:
+		case CAT_FSM_SIGNAL_TICK:
 		{
 			if(CAT_input_pressed(CAT_BUTTON_B))
-				CAT_machine_back();
+				CAT_pushdown_back();
 
 			if(CAT_input_pressed(CAT_BUTTON_A))
 			{
@@ -323,7 +323,7 @@ void CAT_MS_graph(CAT_machine_signal signal)
 
 			break;
 		}
-		case CAT_MACHINE_SIGNAL_EXIT:
+		case CAT_FSM_SIGNAL_EXIT:
 			break;
 	}
 }

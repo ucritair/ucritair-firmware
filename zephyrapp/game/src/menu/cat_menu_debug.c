@@ -23,16 +23,16 @@ static enum
 };
 int page = SYSTEM;
 
-void CAT_MS_debug(CAT_machine_signal signal)
+void CAT_MS_debug(CAT_FSM_signal signal)
 {
 	switch (signal)
 	{
-		case CAT_MACHINE_SIGNAL_ENTER:
+		case CAT_FSM_SIGNAL_ENTER:
 			CAT_set_render_callback(CAT_render_debug);
 			break;
-		case CAT_MACHINE_SIGNAL_TICK:
+		case CAT_FSM_SIGNAL_TICK:
 			if(CAT_input_pressed(CAT_BUTTON_B) || CAT_input_pressed(CAT_BUTTON_START))
-				CAT_machine_back();
+				CAT_pushdown_back();
 
 			if(CAT_input_pulse(CAT_BUTTON_LEFT))
 				page -= 1;
@@ -41,7 +41,7 @@ void CAT_MS_debug(CAT_machine_signal signal)
 			page = wrap(page, LAST);
 
 			break;
-		case CAT_MACHINE_SIGNAL_EXIT:
+		case CAT_FSM_SIGNAL_EXIT:
 			break;
 	}
 }

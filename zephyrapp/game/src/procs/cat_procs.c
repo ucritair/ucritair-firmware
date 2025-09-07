@@ -38,6 +38,6 @@ void interact_proc_arcade()
 
 void proc_coc_innerworld()
 {
-	CAT_machine_transition(CAT_MS_room);
+	CAT_pushdown_transition(CAT_MS_room);
 }
 

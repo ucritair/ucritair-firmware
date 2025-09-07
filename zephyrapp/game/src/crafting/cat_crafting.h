@@ -18,5 +18,5 @@ typedef struct
 	uint16_t flags;
 } CAT_recipe;
 
-void CAT_MS_crafting(CAT_machine_signal signal);
+void CAT_MS_crafting(CAT_FSM_signal signal);
 void CAT_render_crafting();

@@ -9,39 +9,54 @@
 //////////////////////////////////////////////////////////////////////////
 // MACHINE
 
-CAT_machine_state current = NULL;
-CAT_machine_state next = NULL;
-CAT_machine_state machine_stack[64];
+void CAT_FSM_transition(CAT_FSM* machine, CAT_FSM_state state)
+{
+	if(machine == NULL || state == NULL)
+		return;
+
+	if(machine->state != NULL)
+		(*machine->state)(CAT_FSM_SIGNAL_EXIT);
+
+	machine->state = state;
+	(*machine->state)(CAT_FSM_SIGNAL_ENTER);
+}
+
+void CAT_FSM_tick(CAT_FSM* machine)
+{
+	(*machine->state)(CAT_FSM_SIGNAL_TICK);
+}
+
+CAT_FSM_state next = NULL;
+CAT_FSM_state machine_stack[64];
 int machine_depth = 0;
 
-static void push(CAT_machine_state s)
+static void push(CAT_FSM_state s)
 {
 	machine_stack[machine_depth] = s;
 	machine_depth += 1;
 }
 
-static CAT_machine_state pop()
+static CAT_FSM_state pop()
 {
 	machine_depth -= 1;
 	return machine_stack[machine_depth];
 }
 
-static CAT_machine_state peek()
+static CAT_FSM_state peek()
 {
+	if(machine_depth < 1)
+		return NULL;
 	return machine_stack[machine_depth-1];
 }
 
-void complete_transition(CAT_machine_state state)
+void complete_transition(CAT_FSM_state state)
 {
 	if(state == NULL)
-	{
-		CAT_printf("[ERROR] machine transition to NULL state\n");
 		return;
-	}
 
-	if(current != NULL)
+	if(peek() != NULL)
 	{
-		(current)(CAT_MACHINE_SIGNAL_EXIT);
+		(peek())(CAT_FSM_SIGNAL_EXIT);
 	}
 
 	bool loop_back = false;
@@ -57,38 +72,37 @@ void complete_transition(CAT_machine_state state)
 	if(!loop_back)
 		push(state);
 
-	current = state;
-	(current)(CAT_MACHINE_SIGNAL_ENTER);
+	(peek())(CAT_FSM_SIGNAL_ENTER);
 }
 
-void CAT_machine_transition(CAT_machine_state state)
+void CAT_pushdown_transition(CAT_FSM_state state)
 {
 	next = state;
 }
 
-void CAT_machine_tick()
+void CAT_pushdown_tick()
 {
 	if(next != NULL)
 	{
 		complete_transition(next);
 		next = NULL;
 	}
-	if(current != NULL)
-		(current)(CAT_MACHINE_SIGNAL_TICK);
+	if(peek() != NULL)
+		(peek())(CAT_FSM_SIGNAL_TICK);
 }
 
-void CAT_machine_back()
+void CAT_pushdown_back()
 {
 	if(machine_depth > 1)
 	{
 		pop();
-		CAT_machine_transition(peek());
+		CAT_pushdown_transition(peek());
 	}
 }
 
-CAT_machine_state CAT_get_machine_state()
+CAT_FSM_state CAT_pushdown_peek()
 {
-	return current;
+	return peek();
 }
 
 CAT_render_callback render_callback;

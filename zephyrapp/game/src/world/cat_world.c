@@ -255,18 +255,18 @@ int player_get_walk_frame()
 	}
 }
 
-void CAT_MS_world(CAT_machine_signal signal)
+void CAT_MS_world(CAT_FSM_signal signal)
 {
 	switch(signal)
 	{
-		case CAT_MACHINE_SIGNAL_ENTER:
+		case CAT_FSM_SIGNAL_ENTER:
 		{
 			CAT_set_render_callback(CAT_render_world);
 			player_init();
 		}
 		break;
 
-		case CAT_MACHINE_SIGNAL_TICK:
+		case CAT_FSM_SIGNAL_TICK:
 		{
 			if(CAT_in_dialogue())
 			{
@@ -279,11 +279,11 @@ void CAT_MS_world(CAT_machine_signal signal)
 			CAT_tick_attacks();
 
 			if(CAT_input_pressed(CAT_BUTTON_START))
-				CAT_machine_transition(CAT_MS_menu);
+				CAT_pushdown_transition(CAT_MS_menu);
 		}
 		break;
 
-		case CAT_MACHINE_SIGNAL_EXIT:
+		case CAT_FSM_SIGNAL_EXIT:
 		{
 
 		}

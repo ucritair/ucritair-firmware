@@ -87,11 +87,11 @@ static void select_proc(int item_id)
 	selecting = false;
 }
 
-void CAT_MS_deco(CAT_machine_signal signal)
+void CAT_MS_deco(CAT_FSM_signal signal)
 {
 	switch(signal)
 	{
-		case CAT_MACHINE_SIGNAL_ENTER:
+		case CAT_FSM_SIGNAL_ENTER:
 		{
 			CAT_set_render_callback(CAT_render_deco);
 			CAT_pet_settle();
@@ -107,7 +107,7 @@ void CAT_MS_deco(CAT_machine_signal signal)
 			CAT_gui_begin_item_grid_context(false);
 			break;
 		}
-		case CAT_MACHINE_SIGNAL_TICK:
+		case CAT_FSM_SIGNAL_TICK:
 		{
 			if(selecting)
 			{
@@ -131,7 +131,7 @@ void CAT_MS_deco(CAT_machine_signal signal)
 			else
 			{	
 				if(CAT_input_pressed(CAT_BUTTON_B) && hold_id == -1)
-					CAT_machine_back();
+					CAT_pushdown_back();
 			
 				if(CAT_input_pressed(CAT_BUTTON_SELECT))
 				{
@@ -258,7 +258,7 @@ void CAT_MS_deco(CAT_machine_signal signal)
 
 			break;
 		}
-		case CAT_MACHINE_SIGNAL_EXIT:
+		case CAT_FSM_SIGNAL_EXIT:
 		{
 			hold_id = -1;
 			hover_idx = -1;

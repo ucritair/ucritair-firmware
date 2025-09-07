@@ -17,7 +17,7 @@
 
 static CAT_tool_type tool_type;
 
-static CAT_machine_state action_MS;
+static CAT_FSM_state action_MS;
 static CAT_anim_state *action_AS;
 static CAT_anim_state *result_AS;
 
@@ -74,7 +74,7 @@ void choose_tool(int item_id)
 void action_tick()
 {
 	if (CAT_input_pressed(CAT_BUTTON_B))
-		CAT_machine_transition(CAT_MS_room);
+		CAT_pushdown_transition(CAT_MS_room);
 
 	if (tool_id == -1)
 	{
@@ -87,7 +87,7 @@ void action_tick()
 
 	if (tool_id == toy_laser_pointer_item)
 	{
-		CAT_machine_transition(CAT_MS_laser);
+		CAT_pushdown_transition(CAT_MS_laser);
 		return;
 	}
 
@@ -151,7 +151,7 @@ void action_tick()
 	}
 	if (CAT_anim_is_in(&AM_pet, &AS_idle))
 	{
-		CAT_machine_transition(CAT_MS_room);
+		CAT_pushdown_transition(CAT_MS_room);
 	}
 }
 
@@ -164,11 +164,11 @@ void action_exit()
 	CAT_set_LEDs(0, 0, 0);
 }
 
-void CAT_MS_play(CAT_machine_signal signal)
+void CAT_MS_play(CAT_FSM_signal signal)
 {
 	switch (signal)
 	{
-		case CAT_MACHINE_SIGNAL_ENTER:
+		case CAT_FSM_SIGNAL_ENTER:
 		{
 			CAT_set_render_callback(CAT_render_action);
 			tool_type = CAT_TOOL_TYPE_TOY;
@@ -181,12 +181,12 @@ void CAT_MS_play(CAT_machine_signal signal)
 			action_enter();
 			break;
 		}
-		case CAT_MACHINE_SIGNAL_TICK:
+		case CAT_FSM_SIGNAL_TICK:
 		{
 			action_tick();
 			break;
 		}
-		case CAT_MACHINE_SIGNAL_EXIT:
+		case CAT_FSM_SIGNAL_EXIT:
 		{
 			action_exit();
 			break;
@@ -247,19 +247,19 @@ enum
 	HAPPY,
 } laser_state = BORED;
 
-void CAT_MS_laser(CAT_machine_signal signal)
+void CAT_MS_laser(CAT_FSM_signal signal)
 {
 	switch (signal)
 	{
-	case CAT_MACHINE_SIGNAL_ENTER:
+	case CAT_FSM_SIGNAL_ENTER:
 		CAT_set_render_callback(CAT_render_laser);
 		CAT_pet_settle();
 		play_timer = 0;
 		play_duration = CAT_rand_float(1.5f, 3.0f);
 		break;
-	case CAT_MACHINE_SIGNAL_TICK:
+	case CAT_FSM_SIGNAL_TICK:
 		if (CAT_input_pressed(CAT_BUTTON_B))
-			CAT_machine_transition(CAT_MS_room);
+			CAT_pushdown_transition(CAT_MS_room);
 		if (CAT_input_touching())
 		{
 			CAT_touch touch;
@@ -369,7 +369,7 @@ void CAT_MS_laser(CAT_machine_signal signal)
 			}
 		}
 		break;
-	case CAT_MACHINE_SIGNAL_EXIT:
+	case CAT_FSM_SIGNAL_EXIT:
 		break;
 	}
 }
