@@ -331,7 +331,7 @@ int CAT_timecmp(CAT_datetime* a, CAT_datetime* b)
 
 void CAT_make_datetime(uint64_t timestamp, CAT_datetime* datetime)
 {
-	struct tm t;
+	struct tm t = {0};
 	gmtime_r(&timestamp, &t);
 	datetime->year = t.tm_year;
 	datetime->month = t.tm_mon+1;
@@ -343,7 +343,7 @@ void CAT_make_datetime(uint64_t timestamp, CAT_datetime* datetime)
 
 uint64_t CAT_make_timestamp(CAT_datetime* datetime)
 {
-	struct tm t;
+	struct tm t = {0};
 	t.tm_year = datetime->year;
 	t.tm_mon = datetime->month-1;
 	t.tm_mday = datetime->day;

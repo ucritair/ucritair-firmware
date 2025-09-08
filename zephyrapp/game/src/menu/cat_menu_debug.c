@@ -19,6 +19,7 @@ static enum
 	INPUT,
 	AQI,
 	PERSIST,
+	LOGS,
 	LAST
 };
 int page = SYSTEM;
@@ -168,6 +169,23 @@ void CAT_render_debug()
 			CAT_datetime life;
 			CAT_make_datetime(timing.last_life_time, &life);
 			CAT_gui_textf("Life: %d %d %d\n", life.year, life.month, life.day);
+		}
+		break;
+
+		case LOGS:
+		{
+			CAT_gui_title(true, "LOGS");
+			CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
+
+			CAT_gui_textf("Next log index: %d\n", CAT_get_log_cell_count());
+			
+			CAT_log_cell cell;
+			int cell_idx = CAT_read_first_calendar_cell(&cell);
+			CAT_gui_textf("First valid log index: %d\n", cell_idx);
+			CAT_datetime cell_time;
+			CAT_make_datetime(cell.timestamp, &cell_time);
+			CAT_gui_textf("(%.4d/%.2d/%.2d)\n", cell_time.year, cell_time.month, cell_time.day);
+			CAT_gui_textf("%d %d %d %d\n", cell.temp_Cx1000/1000, cell.co2_ppmx1, cell.voc_index, cell.nox_index);
 		}
 		break;
 

@@ -1,6 +1,7 @@
 #include <zephyr/kernel.h>
 #include <zephyr/drivers/flash.h>
 #include <stdint.h>
+
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(cat_flash, LOG_LEVEL_DBG);
 
@@ -341,13 +342,12 @@ void flash_erase_all_cells()
 bool is_ready_for_aqi_logging()
 {
 	return 
-			// readings.lps22hh.uptime_last_updated &&
-		   readings.sunrise.uptime_last_updated &&
-		   readings.sen5x.uptime_last_updated;
+	// readings.lps22hh.uptime_last_updated &&
+	readings.sunrise.uptime_last_updated &&
+	readings.sen5x.uptime_last_updated;
 }
 
-
-#include <zephyr/shell/shell.h>
+/* #include <zephyr/shell/shell.h>
 
 static int sh_retrieve_cell(const struct shell *sh, size_t argc,
 				   char **argv)
@@ -428,8 +428,8 @@ SHELL_STATIC_SUBCMD_SET_CREATE(sub_log,
 	SHELL_CMD_ARG(erasegame, NULL,
 		"Erase game state",
 		sh_erasegame, 1, 0),
-	SHELL_SUBCMD_SET_END /* Array terminated. */
+	SHELL_SUBCMD_SET_END // Array terminated
 );
 
-SHELL_CMD_REGISTER(log, &sub_log, "Flash logs", NULL);
+SHELL_CMD_REGISTER(log, &sub_log, "Flash logs", NULL); */
 
