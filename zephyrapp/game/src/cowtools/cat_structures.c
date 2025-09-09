@@ -2,7 +2,8 @@
 
 #include <limits.h>
 #include "cat_math.h"
-#include <stddef.h>
+#include <string.h>
+#include "assert.h"
 
 //////////////////////////////////////////////////////////////////////////
 // HASH
@@ -134,7 +135,7 @@ int CAT_ilist_dequeue(CAT_int_list* list)
 	return item;
 }
 
-int CAT_ilist_sort(CAT_int_list* list)
+void CAT_ilist_sort(CAT_int_list* list)
 {
 	int i = 1;
 	while(i < list->length)
@@ -151,7 +152,7 @@ int CAT_ilist_sort(CAT_int_list* list)
 	}
 }
 
-int CAT_ilist_sort_by_proc(CAT_int_list* list, int (*cmp) (int, int))
+void CAT_ilist_sort_by_proc(CAT_int_list* list, int (*cmp) (int, int))
 {
 	int i = 1;
 	while(i < list->length)
@@ -167,3 +168,107 @@ int CAT_ilist_sort_by_proc(CAT_int_list* list, int (*cmp) (int, int))
 		i += 1;
 	}
 }
+
+typedef struct
+{
+	void* backing;
+	uint16_t backing_size;
+	uint8_t item_size;
+
+	uint16_t item_capacity;
+	uint16_t item_count;
+} CAT_list;
+
+#define LIST_MAX_ITEM_SIZE 64
+
+void CAT_list_init(CAT_list* list, void* backing, uint16_t backing_size, uint8_t item_size)
+{
+	list->backing = backing;
+	list->backing_size = backing_size;
+	list->item_size = min(item_size, LIST_MAX_ITEM_SIZE);
+	
+	list->item_capacity = list->backing_size/list->item_size;
+	list->item_count = 0;
+}
+
+void CAT_list_clear(CAT_list* list)
+{
+	list->item_count = 0;
+}
+
+#define LIST_GET(l, i) (l->backing + l->item_size * (i))
+#define LIST_READ(l, i, dst) memcpy((dst), LIST_GET((l), (i)), l->item_size)
+#define LIST_WRITE(l, i, src) memcpy(LIST_GET((l), (i)), (src), l->item_size)
+#define LIST_COPY(l, i, j) memcpy(LIST_GET((l), (i)), LIST_GET((l), (j)), l->item_size)
+
+bool CAT_list_insert(CAT_list* list, int idx, void* src)
+{
+	if(list->item_count >= list->item_capacity)
+		return false;
+	if(idx < 0 || idx > list->item_count)
+		return false;
+	for(int i = list->item_count; i > idx; i--)
+		LIST_COPY(list, i, i-1);
+	LIST_WRITE(list, idx, src);
+	list->item_count += 1;
+	return true;
+}
+
+bool CAT_list_delete(CAT_list* list, int idx, void* dst)
+{
+	if(idx < 0 || idx >= list->item_count)
+		return false;
+	list->item_count -= 1;
+	for(int i = idx; i < list->item_count; i++)
+		LIST_COPY(list, i, i+1);
+	LIST_READ(list, idx, dst);
+	return true;
+}
+
+uint8_t list_temp_buffer[LIST_MAX_ITEM_SIZE];
+bool CAT_list_swap(CAT_list* list, int i, int j)
+{
+	if(i < 0 || i >= list->item_count)
+		return false;
+	if(j < 0 || j >= list->item_count)
+		return false;
+	uint8_t* temp[list->item_size];
+	LIST_READ(list, i, temp);
+	LIST_COPY(list, i, j);
+	LIST_WRITE(list, j, temp);
+	return true;
+}
+
+void CAT_list_shuffle(CAT_list* list)
+{
+	for(int i = 0; i < list->item_count; i++)
+	{
+		int j = CAT_rand_int(0, list->item_count-1);
+		CAT_list_swap(list, i, j);
+	}
+}
+
+int CAT_list_push(CAT_list* list, void* src)
+{
+	int idx = list->item_count;
+	if(CAT_list_insert(list, idx, src))
+		return idx;
+	return -1;
+}
+
+bool CAT_list_pop(CAT_list* list, void* dst)
+{
+	return CAT_list_delete(list, list->item_count-1, dst);
+}
+
+bool CAT_list_enqueue(CAT_list* list, void* src)
+{
+	return CAT_list_insert(list, 0, src);
+}
+
+bool CAT_list_dequeue(CAT_list* list, void* dst)
+{
+	return CAT_list_delete(list, 0, dst);
+}
+
+

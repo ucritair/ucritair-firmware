@@ -164,7 +164,7 @@ static void refresh_food_states()
 			continue;
 
 		CAT_ivec2 spoke = CAT_ivec2_sub(food_list[i].position, active_food_centroid);
-		float angle = atan2(-spoke.y, spoke.x);
+		float angle = atan2f(-spoke.y, spoke.x);
 		if (angle < 0)
 			angle += M_PI * 2;
 		food_list[i].angle = angle;
@@ -630,11 +630,11 @@ static float score_evenness()
 			continue;
 
 		CAT_ivec2 this_pos = food_list[i].position;
-		spokes[i] = sqrt(CAT_ivec2_dist2(active_food_centroid, this_pos));
+		spokes[i] = sqrtf(CAT_ivec2_dist2(active_food_centroid, this_pos));
 		spoke_mean += spokes[i];
 
 		CAT_ivec2 neighbour_pos = food_list[food_list[i].neighbour].position;
-		edges[i] = sqrt(CAT_ivec2_dist2(neighbour_pos, this_pos));
+		edges[i] = sqrtf(CAT_ivec2_dist2(neighbour_pos, this_pos));
 		edge_mean += edges[i];
 	}
 	spoke_mean /= (float)surrounding_count;
@@ -650,8 +650,8 @@ static float score_evenness()
 		spoke_stddev += (spokes[i] - spoke_mean) * (spokes[i] - spoke_mean);
 		edge_stddev += (edges[i] - edge_mean) * (edges[i] - edge_mean);
 	}
-	spoke_stddev = sqrt(spoke_stddev / (float)(surrounding_count - 1));
-	edge_stddev = sqrt(edge_stddev / (float)(surrounding_count - 1));
+	spoke_stddev = sqrtf(spoke_stddev / (float)(surrounding_count - 1));
+	edge_stddev = sqrtf(edge_stddev / (float)(surrounding_count - 1));
 
 	float evenness = CAT_ease_in_sine(
 		1.0f -
@@ -698,7 +698,7 @@ static void refresh_scores()
 	score_object.aggregate = clamp(score_object.aggregate, 0, 1.0f);
 	score_object.aggregate = CAT_ease_in_sine(score_object.aggregate);
 
-	score_object.grade = round(score_object.aggregate * 6.0f);
+	score_object.grade = roundf(score_object.aggregate * 6.0f);
 }
 
 static void init_scores()
@@ -927,7 +927,7 @@ static void render_arrange()
 				(
 					food_list[i].position.x - FOOD_COLLISION_W / 2,
 					food_list[i].position.y - FOOD_COLLISION_H / 2 - 14,
-					"%d: %0.2f", i, food_list[i].angle
+					"%d: " CAT_FLOAT_FMT, i, CAT_FMT_FLOAT(food_list[i].angle)
 				);
 			}
 		}
@@ -954,12 +954,12 @@ static void render_arrange()
 
 	if (show_debug_text)
 	{
-		CAT_gui_printf(CAT_WHITE, "variety: %0.2f", score_object.variety);
-		CAT_gui_printf(CAT_WHITE, "propriety: %0.2f", score_object.propriety);
-		CAT_gui_printf(CAT_WHITE, "ichisan: %0.2f", score_object.ichiju_sansai);
-		CAT_gui_printf(CAT_WHITE, "spacing: %0.2f", score_object.spacing);
-		CAT_gui_printf(CAT_WHITE, "evenness: %0.2f", score_object.evenness);
-		CAT_gui_printf(CAT_WHITE, "aggregate: %0.2f", score_object.aggregate);
+		CAT_gui_printf(CAT_WHITE, "variety: " CAT_FLOAT_FMT, CAT_FMT_FLOAT(score_object.variety));
+		CAT_gui_printf(CAT_WHITE, "propriety: " CAT_FLOAT_FMT, CAT_FMT_FLOAT(score_object.propriety));
+		CAT_gui_printf(CAT_WHITE, "ichisan: " CAT_FLOAT_FMT, CAT_FMT_FLOAT(score_object.ichiju_sansai));
+		CAT_gui_printf(CAT_WHITE, "spacing: " CAT_FLOAT_FMT, CAT_FMT_FLOAT(score_object.spacing));
+		CAT_gui_printf(CAT_WHITE, "evenness: " CAT_FLOAT_FMT, CAT_FMT_FLOAT(score_object.evenness));
+		CAT_gui_printf(CAT_WHITE, "aggregate: " CAT_FLOAT_FMT, CAT_FMT_FLOAT(score_object.aggregate));
 		CAT_gui_printf(CAT_WHITE, "level: %d", score_object.grade);
 	}
 }
@@ -1362,15 +1362,15 @@ static void render_summary()
 		break;
 	case VARIETY:
 		title = "Variety";
-		grade = round(score_object.variety * 5);
+		grade = roundf(score_object.variety * 5);
 		break;
 	case PROPRIETY:
 		title = "Nutrition";
-		grade = round(score_object.propriety * 5);
+		grade = roundf(score_object.propriety * 5);
 		break;
 	case LAYOUT:
 		title = "Layout";
-		grade = round((score_object.spacing + score_object.evenness) * 0.5f * 5);
+		grade = roundf((score_object.spacing + score_object.evenness) * 0.5f * 5);
 		break;
 	case NOTES:
 		title = "Notes";

@@ -18,6 +18,7 @@
 #include "ble.h"
 #include "rtc.h"
 #include "batt.h"
+#include "cat_gui.h"
 
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(debugmenu, LOG_LEVEL_DBG);
@@ -113,22 +114,22 @@ void menu_sensors()
 
 	text("");
 	textf("LPS22HH @ %lldms", readings.lps22hh.uptime_last_updated);
-	textf("Temp: %.1fC; Pressure: %.1f?", (double)readings.lps22hh.temp, (double)readings.lps22hh.pressure);
+	textf("Temp: %dC; Pressure: %d?", (int) readings.lps22hh.temp, (int) readings.lps22hh.pressure);
 
 	text("");
 	textf("Sunrise @ %lldms", readings.sunrise.uptime_last_updated);
-	textf("CO2: %.0fppm", (double)readings.sunrise.ppm_filtered_compensated);
-	textf("Temp: %.1fC", (double)readings.sunrise.temp);
+	textf("CO2: %dppm", (int) readings.sunrise.ppm_filtered_compensated);
+	textf("Temp: %dC", (int) readings.sunrise.temp);
 
 	text("");
 	textf("SEN5x @ %lldms", readings.sen5x.uptime_last_updated);
-	textf("PM1.0: %.1f | PM2.5: %.1f", (double)readings.sen5x.pm1_0, (double)readings.sen5x.pm2_5);
-	textf("PM4.0: %.1f | PM10.0: %.1f", (double)readings.sen5x.pm4_0, (double)readings.sen5x.pm10_0);
-	textf("PN0.5: %.1f", (double)readings.sen5x.nc0_5);
-	textf("PN1.0: %.1f | PN2.5: %.1f", (double)readings.sen5x.nc1_0, (double)readings.sen5x.nc2_5);
-	textf("PN4.0: %.1f | PN10.0: %.1f", (double)readings.sen5x.nc4_0, (double)readings.sen5x.nc10_0);
-	textf("Humidity: %.1f%%RH; Temp: %.1fC", (double)readings.sen5x.humidity_rhpct, (double)readings.sen5x.temp_degC);
-	textf("VOC: %.1f; NOX: %.1f", (double)readings.sen5x.voc_index, (double)readings.sen5x.nox_index);
+	textf("PM1.0: %d | PM2.5: %d", (int) readings.sen5x.pm1_0, (int) readings.sen5x.pm2_5);
+	textf("PM4.0: %d | PM10.0: %d", (int) readings.sen5x.pm4_0, (int) readings.sen5x.pm10_0);
+	textf("PN0.5: %d", (int) readings.sen5x.nc0_5);
+	textf("PN1.0: %d | PN2.5: %d", (int) readings.sen5x.nc1_0, (int) readings.sen5x.nc2_5);
+	textf("PN4.0: %d | PN10.0: %d", (int) readings.sen5x.nc4_0, (int) readings.sen5x.nc10_0);
+	textf("Humidity: %d%%RH; Temp: %dC", (int) readings.sen5x.humidity_rhpct, (int) readings.sen5x.temp_degC);
+	textf("VOC: %d; NOX: %d", (int) readings.sen5x.voc_index, (int) readings.sen5x.nox_index);
 
 	text("");
 	selectable("Cal CO2 Ambient", menu_force_sunrise_abc, NULL);
@@ -158,17 +159,17 @@ void menu_post()
 	text("");
 	uint16_t c = readings.lps22hh.uptime_last_updated==0?POST_RED:POST_GRN;
 	textfc(c, "LPS22HH @ %lldms", readings.lps22hh.uptime_last_updated);
-	textfc(c, "Temp: %.1fC; Pressure: %.1f?", (double)readings.lps22hh.temp, (double)readings.lps22hh.pressure);
+	textfc(c, "Temp: %dC; Pressure: %d?", (int) readings.lps22hh.temp, (int) readings.lps22hh.pressure);
 
 	text("");
 	c = readings.sunrise.uptime_last_updated==0?POST_RED:POST_GRN;
 	textfc(c, "Sunrise @ %lldms", readings.sunrise.uptime_last_updated);
-	textfc(c, "CO2: %.0fppm", (double)readings.sunrise.ppm_filtered_compensated);
+	textfc(c, "CO2: %dppm", (int) readings.sunrise.ppm_filtered_compensated);
 
 	text("");
 	c = readings.sen5x.uptime_last_updated==0?POST_RED:POST_GRN;
 	textfc(c, "SEN5x @ %lldms", readings.sen5x.uptime_last_updated);
-	textfc(c, "PM1.0: %.1f | PM2.5: %.1f", (double)readings.sen5x.pm1_0, (double)readings.sen5x.pm2_5);
+	textfc(c, "PM1.0: %d | PM2.5: %d", (int) readings.sen5x.pm1_0, (int) readings.sen5x.pm2_5);
 
 	text("");
 	textfc(imu_posted?POST_GRN:POST_RED,         "IMU  %s", imu_posted?"OK":"FAIL");
@@ -265,7 +266,7 @@ void menu_imu()
 	CAT_IMU_export_raw(&imu);
 
 	text("~~IMU MENU~~");
-	textf("X: %01.2f Y: %01.2f Z: %01.2f", (double) imu.x, (double) imu.y, (double) imu.z);
+	textf("X: " CAT_FLOAT_FMT " Y: " CAT_FLOAT_FMT " Z: " CAT_FLOAT_FMT,  CAT_FMT_FLOAT(imu.x),  CAT_FMT_FLOAT(imu.y),  CAT_FMT_FLOAT(imu.z));
 	textf("Upside down: %s", CAT_IMU_is_upside_down() ? "YES" : "no");
 
 	lcd_write_char(0xff00, 100, 150+(80*imu.x), 'X');
@@ -377,7 +378,7 @@ void menu_root()
 	selectable("populate_next_log_cell", do_populate_next, NULL);
 
 	text("");
-	textf("ADC: %d / %.2fV", adc_sample(), adc_get_voltage());
+	textf("ADC: %d / " CAT_FLOAT_FMT "V", adc_sample(), CAT_FMT_FLOAT(adc_get_voltage()));
 	textf("VBUS: %d", NRF_USBREGULATOR->USBREGSTATUS & 1);
 
 	text("");

@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <time.h>
 #include "item_assets.h"
+#include "cat_gui.h"
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -207,7 +208,7 @@ const char* CAT_AQ_get_temperature_unit_string()
 
 int float2int(float f, int scale_factor)
 {
-	return round(f * scale_factor);
+	return roundf(f * scale_factor);
 }
 
 float int2float(int i, float scale_factor)
@@ -247,12 +248,6 @@ void CAT_AQ_update_moving_scores()
 		block->aggregate = float2int(CAT_AQ_aggregate_score(), 1);	
 	}
 	block->sample_count += 1;
-
-	CAT_printf("[MOVING AVERAGES]\n");
-	CAT_printf("CO2: %f NOX: %f\n", int2float(block->CO2, 1), int2float(block->NOX, 1));
-	CAT_printf("VOC: %f PM2_5: %f\n", int2float(block->VOC, 1), int2float(block->PM2_5, 100));
-	CAT_printf("temp: %f RH: %f\n", int2float(block->temp, 1000), int2float(block->rh, 100));
-	CAT_printf("aggregate: %f count: %d\n", int2float(block->aggregate, 1), block->sample_count);		
 }
 
 
@@ -336,7 +331,7 @@ int CAT_timecmp(CAT_datetime* a, CAT_datetime* b)
 
 void CAT_make_datetime(uint64_t timestamp, CAT_datetime* datetime)
 {
-	struct tm t;
+	struct tm t = {0};
 	gmtime_r(&timestamp, &t);
 	datetime->year = t.tm_year;
 	datetime->month = t.tm_mon+1;
@@ -348,14 +343,14 @@ void CAT_make_datetime(uint64_t timestamp, CAT_datetime* datetime)
 
 uint64_t CAT_make_timestamp(CAT_datetime* datetime)
 {
-	struct tm t;
+	struct tm t = {0};
 	t.tm_year = datetime->year;
 	t.tm_mon = datetime->month-1;
 	t.tm_mday = datetime->day;
 	t.tm_hour = datetime->hour;
 	t.tm_min = datetime->minute;
 	t.tm_sec = datetime->second;
-	return timegm(&t);
+	return timegm(&t) + CAT_get_RTC_offset();
 }
 
 

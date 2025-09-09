@@ -26,8 +26,8 @@ static float second_arc;
 
 static CAT_vec2 radial_point(float t, float r)
 {
-	float dx = cos(t) * r;
-	float dy = sin(t) * r;
+	float dx = cosf(t) * r;
+	float dy = sinf(t) * r;
 	float x = CLOCK_X + dx;
 	float y = CLOCK_Y - dy;
 	return (CAT_vec2) {x, y};

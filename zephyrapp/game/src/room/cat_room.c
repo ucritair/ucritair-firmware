@@ -760,7 +760,7 @@ void CAT_room_draw_statics()
 		for(int i = 0; i < 3; i++)
 		{
 			float base_t = CAT_get_uptime_ms() / 1000.0f / 6.28;
-			CAT_draw_gizmo_primitive(CAT_GIZMO_PRIMITIVE_HEX, alarm_x, alarm_y, 24 + i * 4 + 4 * sin(base_t * 6.28 * 4), base_t - i * 0.15f, CAT_RED);
+			CAT_draw_gizmo_primitive(CAT_GIZMO_PRIMITIVE_HEX, alarm_x, alarm_y, 24 + i * 4 + 4 * sinf(base_t * 6.28 * 4), base_t - i * 0.15f, CAT_RED);
 		}
 	}
 	else

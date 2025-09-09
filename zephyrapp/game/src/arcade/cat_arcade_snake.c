@@ -240,7 +240,8 @@ void CAT_render_snake()
 {
 	if(!snake.dead)
 	{
-		CAT_frameberry(RGB8882565(122, 146, 57));
+		CAT_frameberry(CAT_GRASS_GREEN);
+
 		for(int y = 0; y < 20; y += 2)
 		{
 			CAT_draw_tile(&floor_grass_tile_sprite, 17, grasses[y/2]*16, y*16);

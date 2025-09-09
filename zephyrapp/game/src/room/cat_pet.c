@@ -165,7 +165,7 @@ void CAT_pet_settle()
 bool CAT_pet_seek(CAT_vec2 targ)
 {
 	CAT_vec2 line = CAT_vec2_sub(targ, pet.pos);
-	float dist = sqrt(CAT_vec2_mag2(line));
+	float dist = sqrtf(CAT_vec2_mag2(line));
 	CAT_vec2 dir = CAT_vec2_mul(line, 1.0f/dist);
 
 	float speed = 48.0f;
@@ -249,7 +249,7 @@ void apply_life_ticks(int ticks)
 	
 	for(int i = 0; i < ticks; i++)
 	{
-		int xp_delta = round(((pet.vigour + pet.focus + pet.spirit) / 3.0f) * 50.0f);
+		int xp_delta = roundf(((pet.vigour + pet.focus + pet.spirit) / 3.0f) * 50.0f);
 		CAT_pet_change_XP(xp_delta);
 
 		timing_state.times_milked_since_producing = 0;
@@ -271,7 +271,7 @@ void apply_stat_ticks(int ticks)
 
 		if(pet.vigour <= 0 || pet.focus <= 0 || pet.spirit <= 0)
 		{
-			int xp_delta = round(level_cutoffs[pet.level] * 0.1f);
+			int xp_delta = roundf(level_cutoffs[pet.level] * 0.1f);
 			CAT_pet_change_XP(xp_delta);
 		}			
 	}

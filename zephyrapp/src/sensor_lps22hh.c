@@ -78,7 +78,7 @@ int lps22hh_read()
     float temp, pressure;
     CHK(LPS22HH_TEMP_GetTemperature(&obj, &temp));
     CHK(LPS22HH_PRESS_GetPressure(&obj, &pressure));
-    LOG_INF("temp=%.2f  pressure=%.2f", (double)temp, (double)pressure);
+    // LOG_INF("temp=%.2f  pressure=%.2f", temp, pressure);
     
     readings.lps22hh.temp = temp;
     readings.lps22hh.pressure = pressure;

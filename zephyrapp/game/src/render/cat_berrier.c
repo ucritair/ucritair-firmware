@@ -276,9 +276,8 @@ void CAT_annulusberry(int x, int y, int R, int r, uint16_t c, float t, float shi
 	t *= 2 * M_PI;
 	shift *= 2 * M_PI;
 
-	float cos_s, sin_s;
-	cos_s = cos(shift);
-	sin_s = sin(shift);
+	float cos_s = cosf(shift);
+	float sin_s = sinf(shift);
 
 	for(int dy = -R; dy <= R; dy++)
 	{

@@ -19,6 +19,7 @@ static enum
 	INPUT,
 	AQI,
 	PERSIST,
+	LOGS,
 	LAST
 };
 int page = SYSTEM;
@@ -132,9 +133,6 @@ void CAT_render_debug()
 				CAT_gui_textf("%d", state);
 			}
 			CAT_gui_line_break();
-
-			CAT_gui_textf("Downtime: %0.1f\n", CAT_input_time_since_last());
-			
 		}
 		break;
 
@@ -148,13 +146,13 @@ void CAT_render_debug()
 			if(CAT_AQ_sensors_initialized())
 				CAT_gui_text("Sensors initialized\n");
 
-			CAT_gui_textf("RH: %f\n", readings.sen5x.humidity_rhpct);
-			CAT_gui_textf("CO2: %f\n", readings.sunrise.ppm_filtered_compensated);
-			CAT_gui_textf("PM: %f\n", readings.sen5x.pm2_5);
-			CAT_gui_textf("NOX: %f\n", readings.sen5x.nox_index);
-			CAT_gui_textf("VOC: %f\n", readings.sen5x.voc_index);
-			CAT_gui_textf("TMP: %f%s\n", CAT_AQ_map_celsius(readings.lps22hh.temp), CAT_AQ_get_temperature_unit_string());
-			CAT_gui_textf("AQI: %f\n", CAT_AQ_aggregate_score());
+			CAT_gui_textf("RH: " CAT_FLOAT_FMT "\n", CAT_FMT_FLOAT(readings.sen5x.humidity_rhpct));
+			CAT_gui_textf("CO2: " CAT_FLOAT_FMT "\n", CAT_FMT_FLOAT(readings.sunrise.ppm_filtered_compensated));
+			CAT_gui_textf("PM: " CAT_FLOAT_FMT "\n", CAT_FMT_FLOAT(readings.sen5x.pm2_5));
+			CAT_gui_textf("NOX: " CAT_FLOAT_FMT "\n", CAT_FMT_FLOAT(readings.sen5x.nox_index));
+			CAT_gui_textf("VOC: " CAT_FLOAT_FMT "\n", CAT_FMT_FLOAT(readings.sen5x.voc_index));
+			CAT_gui_textf("TMP: " CAT_FLOAT_FMT "%s\n", CAT_FMT_FLOAT(CAT_AQ_map_celsius(readings.lps22hh.temp)), CAT_AQ_get_temperature_unit_string());
+			CAT_gui_textf("AQI: " CAT_FLOAT_FMT "\n", CAT_FMT_FLOAT(CAT_AQ_aggregate_score()));
 		}
 		break;
 
@@ -171,6 +169,23 @@ void CAT_render_debug()
 			CAT_datetime life;
 			CAT_make_datetime(timing.last_life_time, &life);
 			CAT_gui_textf("Life: %d %d %d\n", life.year, life.month, life.day);
+		}
+		break;
+
+		case LOGS:
+		{
+			CAT_gui_title(true, "LOGS");
+			CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
+
+			CAT_gui_textf("Next log index: %d\n", CAT_get_log_cell_count());
+			
+			CAT_log_cell cell;
+			int cell_idx = CAT_read_first_calendar_cell(&cell);
+			CAT_gui_textf("First valid log index: %d\n", cell_idx);
+			CAT_datetime cell_time;
+			CAT_make_datetime(cell.timestamp, &cell_time);
+			CAT_gui_textf("(%.4d/%.2d/%.2d)\n", cell_time.year, cell_time.month, cell_time.day);
+			CAT_gui_textf("%d %d %d %d\n", cell.temp_Cx1000/1000, cell.co2_ppmx1, cell.voc_index, cell.nox_index);
 		}
 		break;
 

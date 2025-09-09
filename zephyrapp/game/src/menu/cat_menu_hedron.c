@@ -47,7 +47,7 @@ void CAT_MS_hedron(CAT_FSM_signal signal)
 			float n = 0.01f;
 			float f = 100.0f;
 			float hfov = 1.57079632679 * 0.5f;
-			float width = 2 * n * tan(hfov / 2);
+			float width = 2 * n * tanf(hfov / 2);
 			float asp = ((float) CAT_LCD_SCREEN_W / (float) CAT_LCD_SCREEN_H);
 			float height = width / asp;
 			P = (CAT_mat4)

@@ -476,7 +476,7 @@ static void fish_pbd_waggle()
 	for(int i = 1; i < 3; i++)
 	{
 		CAT_vec2 heading = fish.headings[i-1];
-		float amplitude = 0.5f * sin(CAT_get_uptime_ms() / 1000.0f + (2-i));
+		float amplitude = 0.5f * sinf(CAT_get_uptime_ms() / 1000.0f + (2-i));
 		heading = CAT_vec2_rotate(heading, amplitude);
 		float interspace = fish.radii[i-1] + fish.radii[0] / 2 + fish.radii[i];
 		CAT_vec2 position = CAT_vec2_add(fish.positions[i-1], CAT_vec2_mul(heading, -interspace));
@@ -504,8 +504,8 @@ static CAT_vec2 fish_ellipse_position(float t)
 	t = t * 2 * M_PI;
 	return (CAT_vec2)
 	{
-		(120 - ELLIPSE_MARGIN) * cos(t) + 120,
-		(160 - ELLIPSE_MARGIN) * sin(t) + 160
+		(120 - ELLIPSE_MARGIN) * cosf(t) + 120,
+		(160 - ELLIPSE_MARGIN) * sinf(t) + 160
 	};
 }
 
@@ -514,8 +514,8 @@ static CAT_vec2 fish_ellipse_heading(float t)
 	t = t * 2 * M_PI;
 	return CAT_vec2_unit((CAT_vec2) 
 	{
-		-(120 - ELLIPSE_MARGIN) * sin(t),
-		(160 - ELLIPSE_MARGIN) * cos(t)
+		-(120 - ELLIPSE_MARGIN) * sinf(t),
+		(160 - ELLIPSE_MARGIN) * cosf(t)
 	});
 }
 
@@ -563,7 +563,7 @@ static void nibble_burst(int n)
 static void fish_tick()
 {
 	CAT_vec2 hook_beeline = CAT_vec2_sub(hook, fish.positions[0]);
-	float hook_distance = sqrt(CAT_vec2_mag2(hook_beeline));
+	float hook_distance = sqrtf(CAT_vec2_mag2(hook_beeline));
 	CAT_vec2 hook_heading = CAT_vec2_div(hook_beeline, hook_distance);
 	float hook_align = CAT_vec2_dot(fish.headings[0], hook_heading);
 
@@ -601,7 +601,7 @@ static void fish_tick()
 	}
 	else if(fish.focus_trigger)
 	{
-		float hook_arena_dist = sqrt(CAT_vec2_dist2((CAT_vec2){120, 160}, hook));
+		float hook_arena_dist = sqrtf(CAT_vec2_dist2((CAT_vec2){120, 160}, hook));
 		if(hook_arena_dist < ARENA_RADIUS && hook_align > 0.7 && hook_distance <= (fish.radii[0] + 8))
 		{
 			fish.nibble_trigger = true;
@@ -609,7 +609,7 @@ static void fish_tick()
 			fish.nibble_time = CAT_rand_float(NIBBLE_WAIT_MIN, NIBBLE_WAIT_MAX);
 		}
 
-		float fish_arena_dist = sqrt(CAT_vec2_dist2((CAT_vec2){120, 160}, fish.positions[0]));
+		float fish_arena_dist = sqrtf(CAT_vec2_dist2((CAT_vec2){120, 160}, fish.positions[0]));
 		if(fish_arena_dist < (ARENA_RADIUS + fish.radii[0]))
 			fish.race_trigger = true;
 		if(fish.race_trigger && fish_arena_dist > (ARENA_RADIUS + fish.radii[0]))
@@ -1071,7 +1071,8 @@ static void render_MS_catch()
 		CAT_draw_sprite(&study_a_button_sprite, 0, 120, bar.center.y - 48);
 	}
 	CAT_set_text_colour(CAT_RED);
-	CAT_draw_textf(120-8*2+4, bar.center.y - 26, "%.1f%%", bar.progress * 100);
+
+	CAT_draw_textf(120-8*2+4, bar.center.y - 26, "%d%%", (int)(bar.progress * 100));
 }
 
 static CAT_RGB888 fail_colour;
@@ -1173,17 +1174,16 @@ static enum {
 	SUMMARY_PAGE_MAX
 } summary_page = FISH;
 
-static int wave_buffer[240];
+static int8_t wave_buffer[48];
 static int wave_phase = 0;
 
 static void init_wave_buffer()
 {
-	for(int x = 0; x < 240; x++)
+	for(int x = 0; x < 48; x++)
 	{
-		wave_buffer[x] = round(
-		20.0f / 3.0f * sin(M_PI * x / 20.0f + 2.2f) +
-		sin(2.0f * M_PI * x / 20.0f + 2.2f) +
-		100.0f);
+		wave_buffer[x] = roundf(
+		20.0f / 3.0f * sinf(M_PI * x / 20.0f + 2.2f) +
+		sinf(2.0f * M_PI * x / 20.0f + 2.2f));
 	}
 
 	wave_phase = 0;
@@ -1236,7 +1236,7 @@ static void render_wave_buffer()
 	{
 		int i = (x - wave_phase + 240) % 240;
 
-		int y_f = 320 - (wave_buffer[i]);
+		int y_f = 320 - (wave_buffer[i % 48] + 100);
 		y_f -= CAT_LCD_FRAMEBUFFER_OFFSET;
 		if(y_f < 0)
 			y_f = 0;
@@ -1309,19 +1309,19 @@ static void render_MS_summary()
 			cursor_y += 8;
 
 			CAT_set_text_colour(CAT_WHITE);
-			CAT_draw_textf(12, cursor_y, "Length: %0.0f cm", fish.length * 100);
+			CAT_draw_textf(12, cursor_y, "Length: %d cm", (int)(fish.length * 100));
 			cursor_y += 16;
 			render_score_line(12, cursor_y, CAT_LCD_SCREEN_W * 0.75, fish.length, fish.type->min_length, fish.type->max_length);
 			cursor_y += 12;
 
 			CAT_set_text_colour(CAT_WHITE);
-			CAT_draw_textf(12, cursor_y, "Lustre: %0.2f", fish.lustre);
+			CAT_draw_textf(12, cursor_y, "Lustre: " CAT_FLOAT_FMT, CAT_FMT_FLOAT(fish.lustre));
 			cursor_y += 16;
 			render_score_line(12, cursor_y, CAT_LCD_SCREEN_W * 0.75, fish.lustre, fish.type->min_lustre, fish.type->max_lustre);
 			cursor_y += 12;
 
 			CAT_set_text_colour(CAT_WHITE);
-			CAT_draw_textf(12, cursor_y, "Wisdom: %0.2f", fish.wisdom);
+			CAT_draw_textf(12, cursor_y, "Wisdom: " CAT_FLOAT_FMT, CAT_FMT_FLOAT(fish.wisdom));
 			cursor_y += 16;
 			render_score_line(12, cursor_y, CAT_LCD_SCREEN_W * 0.75, fish.wisdom, fish.type->min_wisdom, fish.type->max_wisdom);
 		}

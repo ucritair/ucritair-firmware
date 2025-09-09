@@ -20,7 +20,7 @@ float inv_lerp(float t, float a, float b)
 
 int quantize(float t, float range, int steps)
 {
-	return clamp(round((t / range) * (float) (steps - 1)), 0, steps - 1);
+	return clamp(roundf((t / range) * (float) (steps - 1)), 0, steps - 1);
 }
 
 
@@ -85,7 +85,7 @@ float CAT_vec2_mag2(CAT_vec2 a)
 
 CAT_vec2 CAT_vec2_unit(CAT_vec2 a)
 {
-	float inv_mag = 1.0f/sqrt(a.x*a.x + a.y*a.y);
+	float inv_mag = 1.0f/sqrtf(a.x*a.x + a.y*a.y);
 	return (CAT_vec2) {a.x*inv_mag, a.y*inv_mag};
 }
 
@@ -98,8 +98,8 @@ CAT_vec2 CAT_vec2_rotate(CAT_vec2 a, float t)
 {
 	return (CAT_vec2)
 	{
-		cos(t) * a.x - sin(t) * a.y,
-		sin(t) * a.x + cos(t) * a.y
+		cosf(t) * a.x - sinf(t) * a.y,
+		sinf(t) * a.x + cosf(t) * a.y
 	};
 }
 
@@ -228,7 +228,7 @@ CAT_vec4 CAT_vec4_sub(CAT_vec4 u, CAT_vec4 v)
 
 CAT_vec4 CAT_vec4_normalize(CAT_vec4 v)
 {
-	float len = sqrt(v.x * v.x + v.y * v.y + v.z * v.z + v.w * v.w);
+	float len = sqrtf(v.x * v.x + v.y * v.y + v.z * v.z + v.w * v.w);
 	float s = 1.0f / len;
 	return (CAT_vec4) {v.x * s, v.y * s, v.z * s, v.w * s};
 }
@@ -255,23 +255,23 @@ CAT_mat4 CAT_rotmat(float x, float y, float z)
 	CAT_mat4 X =
 	{
 		1, 0, 0, 0,
-		0, cos(x), -sin(x), 0,
-		0, sin(x), cos(x), 0,
+		0, cosf(x), -sinf(x), 0,
+		0, sinf(x), cosf(x), 0,
 		0, 0, 0, 1
 	};
 
 	CAT_mat4 Y =
 	{
-		cos(y), 0, sin(y), 0,
+		cosf(y), 0, sinf(y), 0,
 		0, 1, 0, 0,
-		-sin(y), 0, cos(y), 0,
+		-sinf(y), 0, cosf(y), 0,
 		0, 0, 0, 1
 	};
 
 	CAT_mat4 Z =
 	{
-		cos(z), -sin(z), 0, 0,
-		sin(z), cos(z), 0, 0,
+		cosf(z), -sinf(z), 0, 0,
+		sinf(z), cosf(z), 0, 0,
 		0, 0, 1, 0,
 		0, 0, 0, 1
 	};

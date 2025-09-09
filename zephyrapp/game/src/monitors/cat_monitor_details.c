@@ -105,7 +105,7 @@ int draw_typical(int cursor_y, int aqm)
 	int cursor_x = 12;
 	cursor_x = draw_title(cursor_x, cursor_y, CAT_AQ_get_title_string(aqm));
 	uint16_t c = CAT_AQ_get_grade_colour(CAT_AQ_live_score_normalized(aqm));
-	cursor_x = draw_value(cursor_x, cursor_y, c, "%.0f", CAT_AQ_live_score_raw(aqm));
+	cursor_x = draw_value(cursor_x, cursor_y, c, "%d", (int) CAT_AQ_live_score_raw(aqm));
 	cursor_x = draw_unit(cursor_x, cursor_y, CAT_AQ_get_unit_string(aqm));
 	cursor_y = draw_delta(cursor_x, cursor_y, aqm);
 	return cursor_y;
@@ -119,10 +119,10 @@ void CAT_monitor_render_details()
 
 	cursor_y = draw_typical(cursor_y, CAT_AQM_CO2);
 
-	float rebreathed = ((((double) readings.sunrise.ppm_filtered_compensated)-420.)/38000.);
+	float rebreathed = (((readings.sunrise.ppm_filtered_compensated)-420.)/38000.);
 	int cursor_x = 12;
 	uint16_t c = CAT_AQ_get_grade_colour(1.0f-rebreathed);
-	cursor_x = draw_value(cursor_x, cursor_y, c, "%.0f%%", rebreathed * 100);
+	cursor_x = draw_value(cursor_x, cursor_y, c, "%d%%", (int)(rebreathed * 100));
 	cursor_x = draw_title(cursor_x, cursor_y, "rebreathed");
 	cursor_y = draw_delta(cursor_x, cursor_y, CAT_AQM_CO2);
 
