@@ -7,6 +7,7 @@
 #include "cat_monitor_graphics_utils.h"
 #include "cat_monitor_ach.h"
 #include <inttypes.h>
+#include <time.h>
 
 #define MAX_SAMPLE_COUNT CAT_LCD_SCREEN_W
 
@@ -78,16 +79,18 @@ static int16_t make_value(CAT_log_cell* cell, int view)
 	}
 }
 
+static uint64_t diff;
+
 static void load_graph_data()
 {
 	seek_direction = CAT_datecmp(&start_date, &start_date_last);
 	start_date_last = start_date;
 
-	CAT_datetime start_date = start_date;
-	start_date.hour = 0;
-	start_date.minute = 0;
-	start_date.second = 0;
-	uint64_t start_time = CAT_make_timestamp(&start_date);
+	struct tm start_tm = {0};
+	start_tm.tm_year = start_date.year;
+	start_tm.tm_mon = start_date.month-1;
+	start_tm.tm_mday = start_date.day;
+	uint64_t start_time = timegm(&start_tm) + 60129542144;
 	
 	CAT_log_cell cell;
 	if(seek_bookmark == -1)
@@ -263,35 +266,11 @@ void CAT_monitor_graph_draw(int x, int y, int h)
 	if(mode == MODE_LOADING)
 	{
 		center_textf(window_x + sample_count/2, window_y + window_h/2, 3, CAT_GRAPH_FG, "Loading");
-		//CAT_set_text_colour(CAT_WHITE);
 		return;
 	}
 	else if(last_valid_idx <= 0)
 	{
 		center_textf(window_x + sample_count/2, window_y + window_h/2, 3, CAT_RED, "N/A");
-
-		int cursor_y = 0;
-		for(int i = 0; i < 12; i++)
-			cursor_y = CAT_draw_text(0, cursor_y, "\n");
-
-		CAT_set_text_colour(CAT_CRISIS_YELLOW);
-		cursor_y = CAT_draw_textf(0, cursor_y, "start date %d %d %d\n", start_date.year, start_date.month, start_date.day);
-
-		uint64_t start_time = CAT_make_timestamp(&start_date);
-		CAT_set_text_colour(CAT_CRISIS_YELLOW);
-		cursor_y = CAT_draw_textf(0, cursor_y, "start time: %"PRIu64"\n", start_time);
-		
-		CAT_datetime start_date_prime;
-		CAT_make_datetime(start_time, &start_date_prime);
-		CAT_set_text_colour(CAT_CRISIS_YELLOW);
-		cursor_y = CAT_draw_textf(0, cursor_y, "(%d %d %d)\n", start_date_prime.year, start_date_prime.month, start_date_prime.day);
-
-		CAT_log_cell first_cell;
-		CAT_read_first_calendar_cell(&first_cell);
-		CAT_datetime first_date;
-		CAT_make_datetime(first_cell.timestamp, &first_date);
-		CAT_set_text_colour(CAT_CRISIS_YELLOW);
-		cursor_y = CAT_draw_textf(0, cursor_y, "first date: %d %d %d\n", first_date.year, first_date.month, first_date.day);
 		return;
 	}
 

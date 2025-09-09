@@ -471,6 +471,11 @@ float CAT_get_delta_time_s()
 	return simulator.delta_time_s;
 }
 
+uint64_t CAT_get_RTC_offset()
+{
+	return 0;
+}
+
 uint64_t CAT_get_RTC_now()
 {
 	time_t t = time(NULL);

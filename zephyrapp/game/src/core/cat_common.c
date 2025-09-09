@@ -350,7 +350,7 @@ uint64_t CAT_make_timestamp(CAT_datetime* datetime)
 	t.tm_hour = datetime->hour;
 	t.tm_min = datetime->minute;
 	t.tm_sec = datetime->second;
-	return timegm(&t);
+	return timegm(&t) + CAT_get_RTC_offset();
 }
 
 
