@@ -859,6 +859,8 @@ void MS_feed_arrange(CAT_FSM_signal signal)
 		break;
 
 	case CAT_FSM_SIGNAL_EXIT:
+		CAT_timed_switch_reset(&show_feedback_timer);
+		CAT_timed_switch_reset(&show_guides_timer);
 		break;
 	}
 }

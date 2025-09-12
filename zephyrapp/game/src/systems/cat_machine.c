@@ -173,3 +173,9 @@ void CAT_timed_switch_tick(CAT_timed_switcher* s)
 		s->timer += CAT_get_delta_time_s();
 	}
 }
+
+void CAT_timed_switch_reset(CAT_timed_switcher* s)
+{
+	CAT_switch_set(s->switcher, false);
+	s->timer = 0;
+}

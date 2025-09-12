@@ -80,6 +80,7 @@ typedef struct
 void CAT_timed_switch_raise(CAT_timed_switcher* s);
 float CAT_timed_switch_t(CAT_timed_switcher* s);
 void CAT_timed_switch_tick(CAT_timed_switcher* s);
+void CAT_timed_switch_reset(CAT_timed_switcher* s);
 
 
 
