@@ -1,4 +1,4 @@
-#include "cat_actions.h"
+#include "cat_play.h"
 
 #include "cat_render.h"
 #include "cat_input.h"
@@ -706,7 +706,9 @@ static void MS_fish(CAT_FSM_signal signal)
 			{
 				if(CAT_input_touching())
 				{
-					hook = CAT_iv2v(CAT_input_cursor());
+					int x, y;
+					CAT_input_cursor(&x, &y);
+					hook = (CAT_vec2) {x, y};
 				}
 				else
 				{
@@ -1004,13 +1006,13 @@ static void MS_catch(CAT_FSM_signal signal)
 			}
 			else if(CAT_input_held(CAT_BUTTON_A, 0))
 			{
-				float time = input.time[CAT_BUTTON_A];
+				float time = CAT_input_since(CAT_BUTTON_A);
 				float rise = 0.75f + CAT_ease_in_cubic(time);
 				bar.cursor += rise * CAT_get_delta_time_s();
 			}
 			else
 			{
-				float time = input.since[CAT_BUTTON_A];
+				float time = CAT_input_since(CAT_BUTTON_A);
 				float fall = 0.25f + CAT_ease_in_cubic(time) * 3.0f;
 				bar.cursor -= fall * CAT_get_delta_time_s();
 			}

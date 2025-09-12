@@ -22,7 +22,7 @@ static struct
 {
 	uint8_t xs[SNAKE_MAX_LENGTH];
 	uint8_t ys[SNAKE_MAX_LENGTH];
-	uint8_t length;
+	uint16_t length;
 
 	int ldx;
 	int ldy;

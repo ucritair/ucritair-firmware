@@ -105,6 +105,7 @@ void CAT_gui_item_grid_add_tab(const char* title, CAT_item_proc focus_proc, CAT_
 int CAT_gui_item_grid_get_tab();
 
 void CAT_gui_item_grid_cell(int item_id);
+void CAT_gui_item_grid_highlight();
 bool CAT_gui_item_grid_is_open();
 
 

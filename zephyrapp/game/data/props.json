@@ -131,8 +131,8 @@
                         3
                     ],
                     "direction": [
-                        1,
-                        0
+                        0,
+                        1
                     ],
                     "proc": "interact_proc_statue"
                 }

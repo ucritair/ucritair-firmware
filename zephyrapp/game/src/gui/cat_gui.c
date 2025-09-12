@@ -867,6 +867,10 @@ static bool item_grid_handle_exit = false;
 
 static int item_grid_pool_backing[CAT_ITEM_TABLE_CAPACITY];
 static CAT_int_list item_grid_pool;
+static struct item_grid_datum
+{
+	bool highlight;
+} item_grid_data[CAT_ITEM_TABLE_CAPACITY];
 static int item_grid_selector;
 
 static int item_grid_confirmed = false;
@@ -945,6 +949,16 @@ void CAT_gui_item_grid_cell(int item_id)
 	if(item_id < 0 || item_id >= item_table.length)
 		return;
 	CAT_ilist_push(&item_grid_pool, item_id);
+	int idx = item_grid_pool.length-1;
+	item_grid_data[idx] = (struct item_grid_datum)
+	{
+		.highlight = false
+	};
+}
+
+void CAT_gui_item_grid_highlight()
+{
+	item_grid_data[item_grid_pool.length-1].highlight = true;
 }
 
 void CAT_gui_item_grid_io()
@@ -1042,7 +1056,9 @@ void CAT_gui_item_grid()
 		{
 			for (int col = 0; col < ITEM_GRID_COLS && idx < idx_limit; col++)
 			{
-				CAT_draw_sprite(&ui_item_frame_bg_sprite, 0, x, y);
+				const CAT_sprite* bg = item_grid_data[idx].highlight ?
+				&ui_item_frame_bg_spec_sprite : &ui_item_frame_bg_sprite;
+				CAT_draw_sprite(bg, 0, x, y);
 
 				CAT_item* item = CAT_get_item(item_grid_pool.data[idx]);
 				float aspect = item->sprite->height / (float) item->sprite->width;

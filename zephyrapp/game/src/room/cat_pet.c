@@ -360,7 +360,7 @@ float react_timer = 0;
 
 void CAT_pet_react()
 {
-	if(CAT_input_drag(pet.pos.x, pet.pos.y-16, 16) && !CAT_anim_is_in(&AM_mood, &AS_react))
+	if(CAT_input_drag_circle(pet.pos.x, pet.pos.y-16, 16) && !CAT_anim_is_in(&AM_mood, &AS_react))
 		CAT_anim_transition(&AM_mood, &AS_react);
 
 	if(CAT_anim_is_in(&AM_mood, &AS_react))

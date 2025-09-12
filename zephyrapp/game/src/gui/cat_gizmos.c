@@ -189,3 +189,58 @@ void CAT_draw_delta_arrow(int x, int y, bool up, uint16_t c)
 	CAT_lineberry(x, y0, x+8, y1, c);
 	CAT_lineberry(x+8, y1, x+16, y0, c);
 }
+
+void CAT_draw_arrow_slider(int x0, int y0, int x1, int y1, float t, uint16_t c)
+{
+	int r = 4;
+	int d = r*2;
+
+	CAT_circberry(x0, y0, r, c);
+	CAT_circberry(x1, y1, r, c);
+
+	float dx = x1-x0;
+	float dy = y1-y0;
+	float l = sqrt(dx*dx + dy*dy);
+	dx /= l;
+	dy /= l;
+	
+	CAT_lineberry
+	(
+		x0+dx*r, y0+dy*r,
+		x1-dx*r, y1-dy*r,
+		c
+	);
+
+	float dxn = -dy;
+	float dyn = dx;
+	
+	int cx = x0 + dx*r + dx*(l-d)*t;
+	int cy = y0 + dy*r + dy*(l-d)*t;
+
+	int ax = cx;
+	int ay = cy;
+	ax -= dx * r;
+	ay -= dy * r;
+	ax += dxn * r;
+	ay += dyn * r;
+	int bx = ax - (dxn*d);
+	int by = ay - (dyn*d);
+
+	CAT_lineberry(ax, ay, cx, cy, c);
+	CAT_lineberry(bx, by, cx, cy, c);
+}
+
+void CAT_draw_empty_sfx(int x0, int y0, int a, int b, uint16_t c)
+{
+	int parts = 32;
+	float arc = 2 * M_PI / parts;
+
+	for(int i = 0; i < parts; i++)
+	{
+		float t = arc * i;
+		int x = x0 + a * CAT_cos(t);
+		int y = y0 + b * CAT_sin(t);
+		CAT_vec2 N = CAT_vec2_rotate((CAT_vec2){1, 0}, t);
+		CAT_lineberry(x, y, x + N.x * 4, y + N.y * 4, c);
+	}
+}

@@ -250,6 +250,9 @@ extern const CAT_sprite eink_update_machine_sprite;
 extern const CAT_sprite eink_update_clipboard_sprite;
 extern const CAT_sprite eink_update_pen_sprite;
 extern const CAT_sprite ui_aq_notice_icons;
+extern const CAT_sprite ui_item_frame_bg_spec_sprite;
+extern const CAT_sprite ui_feed_select_sprite;
+extern const CAT_sprite ui_feed_submit_sprite;
 
 extern const CAT_sprite* sprite_list[];
-#define CAT_SPRITE_LIST_LENGTH 246
+#define CAT_SPRITE_LIST_LENGTH 249

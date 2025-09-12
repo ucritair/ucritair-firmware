@@ -52,5 +52,35 @@ void CAT_set_render_callback(CAT_render_callback callback);
 CAT_render_callback CAT_get_render_callback();
 
 
+//////////////////////////////////////////////////////////////////////////
+// SWITCH
+
+typedef struct
+{
+	bool current;
+	bool last;
+} CAT_switcher;
+
+#define CAT_SWITCHER_INIT(value) (CAT_switcher) {.current = value, .last = value}
+
+void CAT_switch_set(CAT_switcher* s, bool value);
+bool CAT_switch_get(CAT_switcher* s);
+bool CAT_switch_flipped(CAT_switcher* s);
+void CAT_switch_tick(CAT_switcher* s);
+
+typedef struct
+{
+	CAT_switcher* switcher;
+	float timeout;
+	float timer;
+} CAT_timed_switcher;
+
+#define CAT_TIMED_SWITCHER_INIT(_switcher, _timeout) (CAT_timed_switcher) {.switcher = _switcher, .timeout = _timeout, .timer = 0}
+
+void CAT_timed_switch_raise(CAT_timed_switcher* s);
+float CAT_timed_switch_t(CAT_timed_switcher* s);
+void CAT_timed_switch_tick(CAT_timed_switcher* s);
+
+
 
 

@@ -241,8 +241,8 @@
                     {
                         "prop": "statue_prop",
                         "position": [
-                            -13,
-                            -1
+                            -13.0,
+                            -1.0
                         ],
                         "variant": -1
                     },

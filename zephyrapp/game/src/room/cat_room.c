@@ -8,7 +8,7 @@
 #include "cat_gui.h"
 #include <math.h>
 #include "cat_menu.h"
-#include "cat_actions.h"
+#include "cat_play.h"
 #include "cat_deco.h"
 #include "cat_arcade.h"
 #include "theme_assets.h"
@@ -24,6 +24,8 @@
 #include "cat_world.h"
 #include "cat_crafting.h"
 #include "cat_effects.h"
+#include "cat_study.h"
+#include "cat_feed.h"
 
 //////////////////////////////////////////////////////////////////////////
 // THEME
@@ -527,7 +529,7 @@ void pickup_input()
 		{
 			int x = pickup_list.data[i].x1;
 			int y = pickup_list.data[i].y1;
-			if(CAT_input_drag(x+8, y-8, 16))
+			if(CAT_input_drag_circle(x+8, y-8, 16))
 			{
 				CAT_room_consume_pickup(i);
 				i -= 1;
@@ -889,8 +891,12 @@ void CAT_room_draw_gui()
 		CAT_WHITE
 	);
 
-	if(input.touch.pressure)
-		CAT_circberry(input.touch.x, input.touch.y, 16, CAT_WHITE);
+	if(CAT_input_touching())
+	{
+		int tx, ty;
+		CAT_input_cursor(&tx, &ty);
+		CAT_circberry(tx, ty, 16, CAT_WHITE);
+	}
 }
 
 void CAT_render_room()

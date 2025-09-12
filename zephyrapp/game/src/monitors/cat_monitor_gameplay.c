@@ -258,7 +258,7 @@ void CAT_monitor_MS_gameplay(CAT_FSM_signal signal)
 			else
 				exit_progress -= CAT_get_delta_time_s() * 1.5f;
 			exit_progress = clamp(exit_progress, 0, 1);
-			if(exit_progress >= 1.0f && input.time[CAT_BUTTON_A] >= 1.25f)
+			if(exit_progress >= 1.0f && CAT_input_time(CAT_BUTTON_A) >= 1.25f)
 			{
 				CAT_monitor_exit();
 			}

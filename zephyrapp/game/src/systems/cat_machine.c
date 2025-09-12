@@ -116,3 +116,60 @@ CAT_render_callback CAT_get_render_callback()
 {
 	return render_callback;
 }
+
+
+//////////////////////////////////////////////////////////////////////////
+// SWITCH
+
+void CAT_switch_set(CAT_switcher* s, bool value)
+{
+	s->current = value;
+}
+
+bool CAT_switch_get(CAT_switcher* s)
+{
+	return s->current;
+}
+
+bool CAT_switch_flipped(CAT_switcher* s)
+{
+	return s->current != s->last;
+}
+
+void CAT_switch_tick(CAT_switcher* s)
+{
+	s->last = s->current;
+}
+
+
+void CAT_timed_switch_raise(CAT_timed_switcher* s)
+{
+	if(!CAT_switch_get(s->switcher))
+	{
+		CAT_switch_set(s->switcher, true);
+		s->timer = 0;
+	}
+}
+
+float CAT_timed_switch_t(CAT_timed_switcher* s)
+{
+	if(!CAT_switch_get(s->switcher))
+		return 0;
+	return s->timer / s->timeout;
+}
+
+void CAT_timed_switch_tick(CAT_timed_switcher* s)
+{
+	if(!CAT_switch_get(s->switcher))
+		return;
+
+	if(s->timer >= s->timeout)
+	{
+		CAT_switch_set(s->switcher, false);
+		s->timer = 0;
+	}
+	else
+	{
+		s->timer += CAT_get_delta_time_s();
+	}
+}

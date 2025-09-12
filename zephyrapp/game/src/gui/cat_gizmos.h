@@ -23,3 +23,6 @@ void CAT_draw_page_markers(int y, int pages, int page, uint16_t c);
 void CAT_draw_page_alert(int y, int pages, int page, uint16_t c);
 void CAT_draw_subpage_markers(int y, int pages, int page, uint16_t c);
 void CAT_draw_delta_arrow(int x, int y, bool up, uint16_t c);
+
+void CAT_draw_arrow_slider(int x0, int y0, int x1, int y1, float t, uint16_t c);
+void CAT_draw_empty_sfx(int x0, int y0, int a, int b, uint16_t c);

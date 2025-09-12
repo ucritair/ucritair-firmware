@@ -52,8 +52,8 @@ const CAT_prop statue_prop = {
 	.triggers = (struct trigger[]) {
 		{
 			.aabb = {1,2,2,3,},
-			.tx = 1,
-			.ty = 0,
+			.tx = 0,
+			.ty = 1,
 			.proc = interact_proc_statue,
 		},
 	},

@@ -802,8 +802,8 @@ const CAT_scene test_scene = {
 				},
 				{
 					.prop = &statue_prop,
-					.position_x = -13,
-					.position_y = -1,
+					.position_x = -13.0,
+					.position_y = -1.0,
 					.variant = -1,
 				},
 				{

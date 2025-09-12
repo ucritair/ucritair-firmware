@@ -6,6 +6,20 @@
 #include "sprite_assets.h"
 #include "cat_main.h"
 
+CAT_button basic_spell[10] =
+{
+	CAT_BUTTON_UP,
+	CAT_BUTTON_UP,
+	CAT_BUTTON_DOWN,
+	CAT_BUTTON_DOWN,
+	CAT_BUTTON_LEFT,
+	CAT_BUTTON_RIGHT,
+	CAT_BUTTON_LEFT,
+	CAT_BUTTON_RIGHT,
+	CAT_BUTTON_B,
+	CAT_BUTTON_A
+};
+
 void CAT_MS_magic(CAT_FSM_signal signal)
 {
 	switch (signal)
@@ -38,12 +52,12 @@ void CAT_render_magic()
 	CAT_gui_text("or hold [B] to exit");
 	
 	CAT_gui_div("INCANTATION");
-	int i = (input.buffer_head+9) % 10;
+	int i = (CAT_input_buffer_head()+9) % 10;
 	int steps = 0;
 	while(steps < 10)
 	{
-		if(input.buffer[i] != CAT_BUTTON_LAST)
-			CAT_gui_image(&icon_input_sprite, input.buffer[i]);
+		if(CAT_input_buffer_get(i) != CAT_BUTTON_LAST)
+			CAT_gui_image(&icon_input_sprite, CAT_input_buffer_get(i));
 		i -= 1;
 		if(i < 0)
 			i = 9;

@@ -14,6 +14,9 @@
 #define M_E 2.71828182845904523536028747135266250f
 #endif
 
+#define CAT_RAD2DEG (180.0f / M_PI)
+#define CAT_DEG2RAD (M_PI / 180.0f)
+
 #ifndef max
 #define max(a, b) ((b) > (a) ? (b) : (a))
 #endif
@@ -34,8 +37,9 @@
 #define wrap(v, l) (((v) + (l)) % (l))
 #endif
 
-#define CAT_RAD2DEG (180.0f / M_PI)
-#define CAT_DEG2RAD (M_PI / 180.0f)
+#define CAT_sin sinf
+#define CAT_cos cosf
+#define CAT_atan atan2f
 
 float lerp(float a, float b, float t);
 float inv_lerp(float t, float a, float b);

@@ -18,7 +18,7 @@
 #include "cat_machine.h"
 #include "cat_room.h"
 #include "cat_pet.h"
-#include "cat_actions.h"
+#include "cat_play.h"
 #include "cat_menu.h"
 #include "cat_arcade.h"
 #include "cat_deco.h"
@@ -98,7 +98,7 @@ void CAT_tick_logic()
 	(
 		(CAT_is_charging() &&
 		(now - last_eink_time) >= EINK_UPDATE_PERIOD &&
-		CAT_input_time_since_last() >= EINK_UPDATE_PERIOD) ||
+		CAT_input_downtime() >= EINK_UPDATE_PERIOD) ||
 		(!first_eink_update_complete && CAT_AQ_sensors_initialized())
 	)
 	{

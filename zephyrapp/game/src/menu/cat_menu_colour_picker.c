@@ -76,7 +76,7 @@ void CAT_MS_colour_picker(CAT_FSM_signal signal)
 
 			if(CAT_input_touching())
 			{
-				cursor = (CAT_ivec2) {input.touch.x, input.touch.y};
+				CAT_input_cursor(&cursor.x, &cursor.y);
 			}
 			else
 			{

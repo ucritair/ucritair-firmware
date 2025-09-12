@@ -2493,6 +2493,26 @@
             "height": 16,
             "loop": false,
             "reverse": false
+        },
+        {
+            "id": 246,
+            "name": "ui_item_frame_bg_spec_sprite",
+            "path": "ui/shop/item_spl.png",
+            "frames": 1,
+            "width": 64,
+            "height": 64,
+            "loop": false,
+            "reverse": false
+        },
+        {
+            "id": 247,
+            "name": "ui_feed_select_sprite",
+            "path": "ui/shop/feed_select.png",
+            "frames": 1,
+            "width": 32,
+            "height": 32,
+            "loop": false,
+            "reverse": false
         }
     ]
 }

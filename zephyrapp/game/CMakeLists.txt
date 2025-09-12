@@ -146,9 +146,9 @@ target_sources(app PRIVATE
 	src/cowtools/cat_structures.c
 	src/cowtools/cat_math.c
 
-	src/caring/cat_actions.c
-	src/caring/cat_feed.c
+	src/caring/cat_play.c
 	src/caring/cat_study.c
+	src/feeding/cat_feed.c
 
 	src/arcade/cat_arcade.c
 	src/arcade/cat_arcade_snake.c
@@ -228,6 +228,7 @@ target_include_directories(app PRIVATE src/room)
 target_include_directories(app PRIVATE src/world)
 target_include_directories(app PRIVATE src/procs)
 target_include_directories(app PRIVATE src/crafting)
+target_include_directories(app PRIVATE src/feeding)
 
 target_include_directories(app PRIVATE sounds/)
 target_include_directories(app PRIVATE meshes/)
