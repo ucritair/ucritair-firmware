@@ -141,31 +141,42 @@ void CAT_switch_tick(CAT_switcher* s)
 	s->last = s->current;
 }
 
-
 void CAT_timed_switch_raise(CAT_timed_switcher* s)
 {
-	if(!CAT_switch_get(s->switcher))
+	if(!CAT_switch_get(&s->switcher))
 	{
-		CAT_switch_set(s->switcher, true);
+		CAT_switch_set(&s->switcher, true);
 		s->timer = 0;
 	}
 }
 
+bool CAT_timed_switch_get(CAT_timed_switcher* s)
+{
+	return CAT_switch_get(&s->switcher);
+}
+
+bool CAT_timed_switch_flipped(CAT_timed_switcher* s)
+{
+	return CAT_switch_flipped(&s->switcher);
+}
+
 float CAT_timed_switch_t(CAT_timed_switcher* s)
 {
-	if(!CAT_switch_get(s->switcher))
+	if(!CAT_switch_get(&s->switcher))
 		return 0;
 	return s->timer / s->timeout;
 }
 
 void CAT_timed_switch_tick(CAT_timed_switcher* s)
 {
-	if(!CAT_switch_get(s->switcher))
+	CAT_switch_tick(&s->switcher);
+
+	if(!CAT_switch_get(&s->switcher))
 		return;
 
 	if(s->timer >= s->timeout)
 	{
-		CAT_switch_set(s->switcher, false);
+		CAT_switch_set(&s->switcher, false);
 		s->timer = 0;
 	}
 	else
@@ -176,6 +187,6 @@ void CAT_timed_switch_tick(CAT_timed_switcher* s)
 
 void CAT_timed_switch_reset(CAT_timed_switcher* s)
 {
-	CAT_switch_set(s->switcher, false);
+	CAT_switch_set(&s->switcher, false);
 	s->timer = 0;
 }

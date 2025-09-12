@@ -70,14 +70,16 @@ void CAT_switch_tick(CAT_switcher* s);
 
 typedef struct
 {
-	CAT_switcher* switcher;
+	CAT_switcher switcher;
 	float timeout;
 	float timer;
 } CAT_timed_switcher;
 
-#define CAT_TIMED_SWITCHER_INIT(_switcher, _timeout) (CAT_timed_switcher) {.switcher = _switcher, .timeout = _timeout, .timer = 0}
+#define CAT_TIMED_SWITCHER_INIT(_timeout) (CAT_timed_switcher) {.switcher = CAT_SWITCHER_INIT(false), .timeout = _timeout, .timer = 0}
 
 void CAT_timed_switch_raise(CAT_timed_switcher* s);
+bool CAT_timed_switch_get(CAT_timed_switcher* s);
+bool CAT_timed_switch_flipped(CAT_timed_switcher* s);
 float CAT_timed_switch_t(CAT_timed_switcher* s);
 void CAT_timed_switch_tick(CAT_timed_switcher* s);
 void CAT_timed_switch_reset(CAT_timed_switcher* s);

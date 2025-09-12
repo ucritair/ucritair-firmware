@@ -2513,6 +2513,16 @@
             "height": 32,
             "loop": false,
             "reverse": false
+        },
+        {
+            "id": 248,
+            "name": "ui_feed_submit_sprite",
+            "path": "ui/shop/feed_submit.png",
+            "frames": 1,
+            "width": 32,
+            "height": 32,
+            "loop": false,
+            "reverse": false
         }
     ]
 }
