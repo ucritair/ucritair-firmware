@@ -61,7 +61,7 @@ typedef struct
 	bool last;
 } CAT_switcher;
 
-#define CAT_SWITCHER_INIT(value) (CAT_switcher) {.current = value, .last = value}
+#define CAT_SWITCHER_INIT(value) {.current = value, .last = value}
 
 void CAT_switch_set(CAT_switcher* s, bool value);
 bool CAT_switch_get(CAT_switcher* s);
@@ -75,7 +75,7 @@ typedef struct
 	float timer;
 } CAT_timed_switcher;
 
-#define CAT_TIMED_SWITCHER_INIT(_timeout) (CAT_timed_switcher) {.switcher = CAT_SWITCHER_INIT(false), .timeout = _timeout, .timer = 0}
+#define CAT_TIMED_SWITCHER_INIT(_timeout) {.switcher = CAT_SWITCHER_INIT(false), .timeout = _timeout, .timer = 0}
 
 void CAT_timed_switch_raise(CAT_timed_switcher* s);
 bool CAT_timed_switch_get(CAT_timed_switcher* s);

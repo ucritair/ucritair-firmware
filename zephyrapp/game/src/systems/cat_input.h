@@ -15,9 +15,8 @@ typedef enum CAT_button
     CAT_BUTTON_LAST
 } CAT_button;
 
-void CAT_input_init();
-void CAT_input_tick();
-void CAT_input_clear();
+#define CAT_BUTTON_BIT(button) (1 << button)
+#define CAT_TOUCH_BIT CAT_BUTTON_BIT(CAT_BUTTON_LAST)
 
 bool CAT_input_down(int button);
 bool CAT_input_held(int button, float t);
@@ -28,7 +27,6 @@ bool CAT_input_pulse(int button);
 int CAT_input_frames(int button);
 float CAT_input_time(int button);
 float CAT_input_since(int button);
-int CAT_input_downtime();
 
 bool CAT_input_touching();
 bool CAT_input_touch_down();
@@ -51,3 +49,8 @@ int CAT_input_buffer_get(int idx);
 void CAT_input_raise_barrier(int mask);
 bool CAT_input_poll_barrier();
 void CAT_input_lower_barrier();
+
+void CAT_input_init();
+void CAT_input_tick();
+void CAT_input_clear();
+int CAT_input_downtime();

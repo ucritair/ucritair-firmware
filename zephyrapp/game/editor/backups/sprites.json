@@ -2523,6 +2523,16 @@
             "height": 32,
             "loop": false,
             "reverse": false
+        },
+        {
+            "id": 249,
+            "name": "ui_touch_prompt",
+            "path": "ui/touch_icon.png",
+            "frames": 2,
+            "width": 64,
+            "height": 64,
+            "loop": true,
+            "reverse": false
         }
     ]
 }

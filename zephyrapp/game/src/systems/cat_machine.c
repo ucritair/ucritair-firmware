@@ -27,26 +27,26 @@ void CAT_FSM_tick(CAT_FSM* machine)
 }
 
 CAT_FSM_state next = NULL;
-CAT_FSM_state machine_stack[64];
-int machine_depth = 0;
+CAT_FSM_state pushdown[64];
+int pushdown_depth = 0;
 
 static void push(CAT_FSM_state s)
 {
-	machine_stack[machine_depth] = s;
-	machine_depth += 1;
+	pushdown[pushdown_depth] = s;
+	pushdown_depth += 1;
 }
 
 static CAT_FSM_state pop()
 {
-	machine_depth -= 1;
-	return machine_stack[machine_depth];
+	pushdown_depth -= 1;
+	return pushdown[pushdown_depth];
 }
 
 static CAT_FSM_state peek()
 {
-	if(machine_depth < 1)
+	if(pushdown_depth < 1)
 		return NULL;
-	return machine_stack[machine_depth-1];
+	return pushdown[pushdown_depth-1];
 }
 
 void complete_transition(CAT_FSM_state state)
@@ -60,11 +60,11 @@ void complete_transition(CAT_FSM_state state)
 	}
 
 	bool loop_back = false;
-	for(int i = 0; i < machine_depth; i++)
+	for(int i = 0; i < pushdown_depth; i++)
 	{
-		if(machine_stack[i] == state)
+		if(pushdown[i] == state)
 		{
-			machine_depth = i+1;
+			pushdown_depth = i+1;
 			loop_back = true;
 			break;
 		}
@@ -93,7 +93,7 @@ void CAT_pushdown_tick()
 
 void CAT_pushdown_back()
 {
-	if(machine_depth > 1)
+	if(pushdown_depth > 1)
 	{
 		pop();
 		CAT_pushdown_transition(peek());

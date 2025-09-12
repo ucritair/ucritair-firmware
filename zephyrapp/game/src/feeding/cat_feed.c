@@ -17,13 +17,13 @@
 #include "cat_room.h"
 #include "cat_gizmos.h"
 
-static void MS_feed_arrange(CAT_FSM_signal signal);
+static void MS_arrange(CAT_FSM_signal signal);
 static void render_arrange();
-static void MS_feed_select(CAT_FSM_signal signal);
+static void MS_select(CAT_FSM_signal signal);
 static void render_select();
-static void MS_feed_inspect(CAT_FSM_signal signal);
+static void MS_inspect(CAT_FSM_signal signal);
 static void render_inspect();
-static void MS_feed_summary(CAT_FSM_signal signal);
+static void MS_summary(CAT_FSM_signal signal);
 static void render_summary();
 
 #define FOOD_SCALE 2
@@ -732,7 +732,7 @@ bool needs_guides()
 
 void select_button_proc()
 {
-	CAT_pushdown_transition(MS_feed_select);
+	CAT_pushdown_transition(MS_select);
 }
 
 void submit_button_proc()
@@ -764,98 +764,101 @@ struct button
 int button_idx = 0;
 bool click_consumed;
 
-void MS_feed_arrange(CAT_FSM_signal signal)
+static void MS_arrange(CAT_FSM_signal signal)
 {
 	switch (signal)
 	{
-	case CAT_FSM_SIGNAL_ENTER:
-		CAT_set_render_callback(render_arrange);
-		pick_idx = -1;
-		CAT_timed_switch_reset(&feedback_switch);
-		CAT_timed_switch_reset(&guides_switch);
-		break;
-
-	case CAT_FSM_SIGNAL_TICK:
-		if (CAT_gui_popup_is_open())
+		case CAT_FSM_SIGNAL_ENTER:
+			CAT_set_render_callback(render_arrange);
+			pick_idx = -1;
+			CAT_timed_switch_reset(&feedback_switch);
+			CAT_timed_switch_reset(&guides_switch);
 			break;
-		if (CAT_gui_consume_popup())
-		{
-			CAT_pushdown_transition(MS_feed_summary);
-			break;
-		}
 
-		if (CAT_input_pressed(CAT_BUTTON_B))
-			CAT_pushdown_transition(CAT_MS_room);
-
-		click_consumed = false;
-
-		if(CAT_input_pressed(CAT_BUTTON_LEFT))
-			button_idx = max(button_idx-1, 0);
-		if(CAT_input_pressed(CAT_BUTTON_RIGHT))
-			button_idx = min(button_idx+1, BUTTON_COUNT-1);
-		for(int i = 0; i < BUTTON_COUNT; i++)
-		{
-			struct button b = buttons[i];
-			int w = b.x1-b.x0;
-			int h = b.y1-b.y0;
-			if(CAT_input_touch_rect(b.x0, b.y0, w, h))
+		case CAT_FSM_SIGNAL_TICK:
+			if (CAT_gui_popup_is_open())
+				break;
+			if (CAT_gui_consume_popup())
 			{
-				if(button_idx == i)
-					buttons[button_idx].proc();
-				else
-					button_idx = i;
-				click_consumed = true;
+				CAT_pushdown_transition(MS_summary);
+				break;
 			}
-		}
-		if (CAT_input_pressed(CAT_BUTTON_A))
-			buttons[button_idx].proc();
 
-		if(CAT_input_touch_down() && !click_consumed)
-		{
-			if(needs_guides())
-				CAT_timed_switch_raise(&guides_switch);
-			else if(CAT_input_touch_rect(85, 240, 64, 64))
-				CAT_timed_switch_raise(&feedback_switch);
-			
-			pick_idx = get_touched_food_idx();
-			if(pick_idx != -1)
+			if(CAT_input_poll_barrier())
+				return;
+
+			if (CAT_input_pressed(CAT_BUTTON_B))
+				CAT_pushdown_transition(CAT_MS_room);
+
+			click_consumed = false;
+
+			if(CAT_input_pressed(CAT_BUTTON_LEFT))
+				button_idx = max(button_idx-1, 0);
+			if(CAT_input_pressed(CAT_BUTTON_RIGHT))
+				button_idx = min(button_idx+1, BUTTON_COUNT-1);
+			for(int i = 0; i < BUTTON_COUNT; i++)
 			{
-				food_object temp = food_list[0];
-				food_list[0] = food_list[pick_idx];
-				food_list[pick_idx] = temp;
-				pick_idx = 0;
+				struct button b = buttons[i];
+				int w = b.x1-b.x0;
+				int h = b.y1-b.y0;
+				if(CAT_input_touch_rect(b.x0, b.y0, w, h))
+				{
+					if(button_idx == i)
+						buttons[button_idx].proc();
+					else
+						button_idx = i;
+					click_consumed = true;
+				}
+			}
+			if (CAT_input_pressed(CAT_BUTTON_A))
+				buttons[button_idx].proc();
 
+			if (CAT_input_touch_down() && !click_consumed)
+			{
+				if(needs_guides())
+					CAT_timed_switch_raise(&guides_switch);
+				else if(CAT_input_touch_rect(85, 240, 64, 64))
+					CAT_timed_switch_raise(&feedback_switch);
+				
+				pick_idx = get_touched_food_idx();
+				if(pick_idx != -1)
+				{
+					food_object temp = food_list[0];
+					food_list[0] = food_list[pick_idx];
+					food_list[pick_idx] = temp;
+					pick_idx = 0;
+
+					int tx, ty;
+					CAT_input_cursor(&tx, &ty);
+					pick_delta = (CAT_ivec2){
+						food_list[0].position.x - tx,
+						food_list[0].position.y - ty,
+					};
+				}
+			}
+			else if (CAT_input_touch_up())
+			{
+				refresh_food_states();
+				refresh_scores();
+				pick_idx = -1;
+			}
+			else if (pick_idx != -1)
+			{
 				int tx, ty;
 				CAT_input_cursor(&tx, &ty);
-				pick_delta = (CAT_ivec2){
-					food_list[0].position.x - tx,
-					food_list[0].position.y - ty,
+				food_list[pick_idx].position = (CAT_ivec2)
+				{
+					tx + pick_delta.x,
+					ty + pick_delta.y
 				};
 			}
-		}
-		else if (CAT_input_touch_up())
-		{
-			refresh_food_states();
-			refresh_scores();
-			pick_idx = -1;
-		}
-		else if (pick_idx != -1)
-		{
-			int tx, ty;
-			CAT_input_cursor(&tx, &ty);
-			food_list[pick_idx].position = (CAT_ivec2)
-			{
-				tx + pick_delta.x,
-				ty + pick_delta.y
-			};
-		}
 
-		CAT_timed_switch_tick(&feedback_switch);
-		CAT_timed_switch_tick(&guides_switch);
-		break;
+			CAT_timed_switch_tick(&feedback_switch);
+			CAT_timed_switch_tick(&guides_switch);
+			break;
 
-	case CAT_FSM_SIGNAL_EXIT:
-		break;
+		case CAT_FSM_SIGNAL_EXIT:
+			break;
 	}
 }
 
@@ -924,8 +927,47 @@ static void draw_feedback()
 	CAT_draw_sprite_raw(sprite, 0, x, y);
 }
 
+#define SPLASH_X 12
+#define SPLASH_Y 12
+
 static void render_arrange()
 {
+	if(CAT_input_poll_barrier())
+	{
+		CAT_frameberry(CAT_BLACK);
+		
+		int cursor_y = SPLASH_Y;
+
+		CAT_set_text_colour(CAT_WHITE);
+		CAT_set_text_scale(2);
+		cursor_y = CAT_draw_text(SPLASH_X, cursor_y, "CULINAIRE\n");
+
+		cursor_y += 12;
+		
+		CAT_set_text_colour(CAT_WHITE);
+		CAT_set_text_mask(SPLASH_X, -1, CAT_LCD_SCREEN_W-SPLASH_X, -1);
+		CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
+		cursor_y = CAT_draw_text(SPLASH_X, cursor_y, "Select foods and arrange them into a delicious and nutritious meal for your pet.\n");
+		cursor_y += 12;
+		CAT_set_text_colour(CAT_WHITE);
+		CAT_set_text_mask(SPLASH_X, -1, CAT_LCD_SCREEN_W-SPLASH_X, -1);
+		CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
+		cursor_y = CAT_draw_text(SPLASH_X, cursor_y, "This game uses the touch screen in addition to button inputs.\n");
+
+		cursor_y += 32;
+
+		CAT_set_sprite_flags(CAT_DRAW_FLAG_CENTER_X);
+		CAT_draw_sprite(&ui_touch_prompt, -1, CAT_LCD_SCREEN_W/2, cursor_y);
+
+		cursor_y += 72;
+		CAT_set_text_colour(CAT_WHITE);
+		CAT_set_text_mask(SPLASH_X, -1, CAT_LCD_SCREEN_W-SPLASH_X, -1);
+		CAT_set_text_flags(CAT_TEXT_FLAG_WRAP | CAT_TEXT_FLAG_CENTER);
+		cursor_y = CAT_draw_text(CAT_LCD_SCREEN_W/2, cursor_y, "Tap to begin!\n");
+
+		return;
+	}
+
 	for(int y = 64; y < 320; y+=16)
 	{
 		for(int x = 0; x < 240; x+=16)
@@ -1092,7 +1134,7 @@ static void select_proc(int item_id)
 		food_despawn(list_idx);
 }
 
-static void MS_feed_select(CAT_FSM_signal signal)
+static void MS_select(CAT_FSM_signal signal)
 {
 	switch (signal)
 	{
@@ -1103,7 +1145,7 @@ static void MS_feed_select(CAT_FSM_signal signal)
 
 		case CAT_FSM_SIGNAL_TICK:
 			if (CAT_input_pressed(CAT_BUTTON_B) || CAT_input_pressed(CAT_BUTTON_SELECT))
-				CAT_pushdown_transition(MS_feed_arrange);
+				CAT_pushdown_transition(MS_arrange);
 
 			CAT_gui_item_grid_add_tab("Food", NULL, select_proc);
 			CAT_gui_begin_item_grid();
@@ -1151,7 +1193,7 @@ static const char *role_strings[] =
 	"VICE"
 };
 
-static void MS_feed_inspect(CAT_FSM_signal signal)
+static void MS_inspect(CAT_FSM_signal signal)
 {
 	switch (signal)
 	{
@@ -1161,9 +1203,9 @@ static void MS_feed_inspect(CAT_FSM_signal signal)
 
 	case CAT_FSM_SIGNAL_TICK:
 		if (CAT_input_pressed(CAT_BUTTON_B))
-			CAT_pushdown_transition(MS_feed_select);
+			CAT_pushdown_transition(MS_select);
 		else if (CAT_input_pressed(CAT_BUTTON_SELECT))
-			CAT_pushdown_transition(MS_feed_arrange);
+			CAT_pushdown_transition(MS_arrange);
 
 		if (CAT_input_pressed(CAT_BUTTON_RIGHT))
 			inspect_idx += 1;
@@ -1222,7 +1264,7 @@ static const int xp_rewards[] =
 
 static int xp_reward;
 
-static void MS_feed_summary(CAT_FSM_signal signal)
+static void MS_summary(CAT_FSM_signal signal)
 {
 	switch (signal)
 	{
@@ -1406,23 +1448,25 @@ void CAT_MS_feed(CAT_FSM_signal signal)
 {
 	switch (signal)
 	{
-	case CAT_FSM_SIGNAL_ENTER:
-	{
-		init_spawn_rects();
-		init_item_id_pool();
-		init_food_list();
-		refresh_food_states();
-		init_scores();
-		init_registration_errors();
-		refresh_scores();
-	}
-	break;
+		case CAT_FSM_SIGNAL_ENTER:
+		{
+			init_spawn_rects();
+			init_item_id_pool();
+			init_food_list();
+			refresh_food_states();
+			init_scores();
+			init_registration_errors();
+			refresh_scores();
 
-	case CAT_FSM_SIGNAL_TICK:
-		CAT_pushdown_transition(MS_feed_arrange);
+			CAT_input_raise_barrier(CAT_TOUCH_BIT);
+		}
 		break;
 
-	case CAT_FSM_SIGNAL_EXIT:
-		break;
+		case CAT_FSM_SIGNAL_TICK:
+			CAT_pushdown_transition(MS_arrange);
+			break;
+
+		case CAT_FSM_SIGNAL_EXIT:
+			break;
 	}
 }
