@@ -742,7 +742,7 @@ void submit_button_proc()
 
 struct button
 {
-	CAT_sprite* sprite;
+	const CAT_sprite* sprite;
 	int x0, y0, x1, y1;
 	void (*proc)();
 } buttons[] = 
@@ -930,41 +930,46 @@ static void draw_feedback()
 #define SPLASH_X 12
 #define SPLASH_Y 12
 
+static void draw_barrier()
+{
+	CAT_frameberry(CAT_BLACK);
+		
+	int cursor_y = SPLASH_Y;
+
+	CAT_set_text_colour(CAT_VIGOUR_ORANGE);
+	CAT_set_text_scale(2);
+	cursor_y = CAT_draw_text(SPLASH_X, cursor_y, "CULINAIRE\n");
+
+	cursor_y += 12;
+	
+	CAT_set_text_colour(CAT_WHITE);
+	CAT_set_text_mask(SPLASH_X, -1, CAT_LCD_SCREEN_W-SPLASH_X, -1);
+	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
+	cursor_y = CAT_draw_text(SPLASH_X, cursor_y, "Select foods and arrange them into a delicious and nutritious meal for your pet.\n");
+	cursor_y += 12;
+	CAT_set_text_colour(CAT_WHITE);
+	CAT_set_text_mask(SPLASH_X, -1, CAT_LCD_SCREEN_W-SPLASH_X, -1);
+	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
+	cursor_y = CAT_draw_text(SPLASH_X, cursor_y, "This game uses the touch screen in addition to button inputs.\n");
+
+	cursor_y += 32;
+
+	CAT_set_sprite_colour(CAT_VIGOUR_ORANGE);
+	CAT_set_sprite_flags(CAT_DRAW_FLAG_CENTER_X);
+	CAT_draw_sprite(&ui_touch_prompt, -1, CAT_LCD_SCREEN_W/2, cursor_y);
+
+	cursor_y += 72;
+	CAT_set_text_colour(CAT_WHITE);
+	CAT_set_text_mask(SPLASH_X, -1, CAT_LCD_SCREEN_W-SPLASH_X, -1);
+	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP | CAT_TEXT_FLAG_CENTER);
+	cursor_y = CAT_draw_text(CAT_LCD_SCREEN_W/2, cursor_y, "Tap to begin!\n");
+}
+
 static void render_arrange()
 {
 	if(CAT_input_poll_barrier())
 	{
-		CAT_frameberry(CAT_BLACK);
-		
-		int cursor_y = SPLASH_Y;
-
-		CAT_set_text_colour(CAT_WHITE);
-		CAT_set_text_scale(2);
-		cursor_y = CAT_draw_text(SPLASH_X, cursor_y, "CULINAIRE\n");
-
-		cursor_y += 12;
-		
-		CAT_set_text_colour(CAT_WHITE);
-		CAT_set_text_mask(SPLASH_X, -1, CAT_LCD_SCREEN_W-SPLASH_X, -1);
-		CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
-		cursor_y = CAT_draw_text(SPLASH_X, cursor_y, "Select foods and arrange them into a delicious and nutritious meal for your pet.\n");
-		cursor_y += 12;
-		CAT_set_text_colour(CAT_WHITE);
-		CAT_set_text_mask(SPLASH_X, -1, CAT_LCD_SCREEN_W-SPLASH_X, -1);
-		CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
-		cursor_y = CAT_draw_text(SPLASH_X, cursor_y, "This game uses the touch screen in addition to button inputs.\n");
-
-		cursor_y += 32;
-
-		CAT_set_sprite_flags(CAT_DRAW_FLAG_CENTER_X);
-		CAT_draw_sprite(&ui_touch_prompt, -1, CAT_LCD_SCREEN_W/2, cursor_y);
-
-		cursor_y += 72;
-		CAT_set_text_colour(CAT_WHITE);
-		CAT_set_text_mask(SPLASH_X, -1, CAT_LCD_SCREEN_W-SPLASH_X, -1);
-		CAT_set_text_flags(CAT_TEXT_FLAG_WRAP | CAT_TEXT_FLAG_CENTER);
-		cursor_y = CAT_draw_text(CAT_LCD_SCREEN_W/2, cursor_y, "Tap to begin!\n");
-
+		draw_barrier();
 		return;
 	}
 
