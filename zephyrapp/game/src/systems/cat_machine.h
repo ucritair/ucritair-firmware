@@ -50,6 +50,7 @@ CAT_FSM_state CAT_pushdown_peek();
 typedef void (*CAT_render_callback)(void);
 void CAT_set_render_callback(CAT_render_callback callback);
 CAT_render_callback CAT_get_render_callback();
+void CAT_flip_render_callback();
 
 
 //////////////////////////////////////////////////////////////////////////

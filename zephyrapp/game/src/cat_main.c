@@ -83,6 +83,7 @@ void CAT_tick_logic()
 	CAT_AQ_crisis_tick();
 
 	CAT_animator_tick();
+	CAT_flip_render_callback();
 
 	CAT_room_tick();
 	CAT_pet_tick();

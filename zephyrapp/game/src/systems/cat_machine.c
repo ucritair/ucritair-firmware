@@ -11,19 +11,20 @@
 
 void CAT_FSM_transition(CAT_FSM* machine, CAT_FSM_state state)
 {
-	if(machine == NULL || state == NULL)
+	if(machine == NULL)
 		return;
 
 	if(machine->state != NULL)
 		(*machine->state)(CAT_FSM_SIGNAL_EXIT);
-
 	machine->state = state;
-	(*machine->state)(CAT_FSM_SIGNAL_ENTER);
+	if(machine->state != NULL)
+		(*machine->state)(CAT_FSM_SIGNAL_ENTER);
 }
 
 void CAT_FSM_tick(CAT_FSM* machine)
 {
-	(*machine->state)(CAT_FSM_SIGNAL_TICK);
+	if(machine->state != NULL)
+		(*machine->state)(CAT_FSM_SIGNAL_TICK);
 }
 
 CAT_FSM_state next = NULL;
@@ -105,16 +106,26 @@ CAT_FSM_state CAT_pushdown_peek()
 	return peek();
 }
 
-CAT_render_callback render_callback;
+static CAT_render_callback render_callback[2] =
+{
+	NULL, NULL
+};
 
 void CAT_set_render_callback(CAT_render_callback callback)
 {
-	render_callback = callback;
+	render_callback[1] = callback;
 }
 
 CAT_render_callback CAT_get_render_callback()
 {
-	return render_callback;
+	return render_callback[0];
+}
+
+void CAT_flip_render_callback()
+{
+	if(render_callback[1] != NULL)
+		render_callback[0] = render_callback[1];
+	render_callback[1] = NULL;
 }
 
 

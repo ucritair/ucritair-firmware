@@ -25,6 +25,11 @@ static void MS_inspect(CAT_FSM_signal signal);
 static void render_inspect();
 static void MS_summary(CAT_FSM_signal signal);
 static void render_summary();
+static CAT_FSM fsm =
+{
+	.state = NULL
+};
+
 
 #define FOOD_SCALE 2
 #define FOOD_COLLISION_R 16
@@ -732,7 +737,7 @@ bool needs_guides()
 
 void select_button_proc()
 {
-	CAT_pushdown_transition(MS_select);
+	CAT_FSM_transition(&fsm, MS_select);
 }
 
 void submit_button_proc()
@@ -780,15 +785,12 @@ static void MS_arrange(CAT_FSM_signal signal)
 				break;
 			if (CAT_gui_consume_popup())
 			{
-				CAT_pushdown_transition(MS_summary);
+				CAT_FSM_transition(&fsm, MS_summary);
 				break;
 			}
 
 			if(CAT_input_poll_barrier())
 				return;
-
-			if (CAT_input_pressed(CAT_BUTTON_B))
-				CAT_pushdown_transition(CAT_MS_room);
 
 			click_consumed = false;
 
@@ -1150,7 +1152,7 @@ static void MS_select(CAT_FSM_signal signal)
 
 		case CAT_FSM_SIGNAL_TICK:
 			if (CAT_input_pressed(CAT_BUTTON_B) || CAT_input_pressed(CAT_BUTTON_SELECT))
-				CAT_pushdown_transition(MS_arrange);
+				CAT_FSM_transition(&fsm, MS_arrange);
 
 			CAT_gui_item_grid_add_tab("Food", NULL, select_proc);
 			CAT_gui_begin_item_grid();
@@ -1208,9 +1210,9 @@ static void MS_inspect(CAT_FSM_signal signal)
 
 	case CAT_FSM_SIGNAL_TICK:
 		if (CAT_input_pressed(CAT_BUTTON_B))
-			CAT_pushdown_transition(MS_select);
+			CAT_FSM_transition(&fsm, MS_select);
 		else if (CAT_input_pressed(CAT_BUTTON_SELECT))
-			CAT_pushdown_transition(MS_arrange);
+			CAT_FSM_transition(&fsm, MS_arrange);
 
 		if (CAT_input_pressed(CAT_BUTTON_RIGHT))
 			inspect_idx += 1;
@@ -1273,26 +1275,26 @@ static void MS_summary(CAT_FSM_signal signal)
 {
 	switch (signal)
 	{
-	case CAT_FSM_SIGNAL_ENTER:
-		CAT_set_render_callback(render_summary);
-		summary_page = PERFORMANCE;
-		xp_reward = CAT_rand_int(xp_rewards[score_object.grade*2+0], xp_rewards[score_object.grade*2+1]);
-		break;
+		case CAT_FSM_SIGNAL_ENTER:
+			CAT_set_render_callback(render_summary);
+			summary_page = PERFORMANCE;
+			xp_reward = CAT_rand_int(xp_rewards[score_object.grade*2+0], xp_rewards[score_object.grade*2+1]);
+			break;
 
-	case CAT_FSM_SIGNAL_TICK:
-		if (CAT_input_pressed(CAT_BUTTON_A) || CAT_input_pressed(CAT_BUTTON_B))
-			CAT_pushdown_transition(CAT_MS_room);
+		case CAT_FSM_SIGNAL_TICK:
+			if (CAT_input_pressed(CAT_BUTTON_A) || CAT_input_pressed(CAT_BUTTON_B))
+				CAT_FSM_transition(&fsm, NULL);
 
-		// enum = (enum + ENUM_MAX) % ENUM_MAX doesn't work on embedded
-		int summary_page_proxy = summary_page;
-		if (CAT_input_pressed(CAT_BUTTON_RIGHT))
-			summary_page_proxy += 1;
-		if (CAT_input_pressed(CAT_BUTTON_LEFT))
-			summary_page_proxy -= 1;
-		summary_page = (summary_page_proxy + SUMMARY_PAGE_MAX) % SUMMARY_PAGE_MAX;
-		break;
+			// enum = (enum + ENUM_MAX) % ENUM_MAX doesn't work on embedded
+			int summary_page_proxy = summary_page;
+			if (CAT_input_pressed(CAT_BUTTON_RIGHT))
+				summary_page_proxy += 1;
+			if (CAT_input_pressed(CAT_BUTTON_LEFT))
+				summary_page_proxy -= 1;
+			summary_page = (summary_page_proxy + SUMMARY_PAGE_MAX) % SUMMARY_PAGE_MAX;
+			break;
 
-	case CAT_FSM_SIGNAL_EXIT:
+		case CAT_FSM_SIGNAL_EXIT:
 			for (int i = 0; i < food_count; i++)
 			{
 				if (food_list[i].active)
@@ -1300,7 +1302,7 @@ static void MS_summary(CAT_FSM_signal signal)
 			}
 			CAT_pet_change_vigour(score_object.grade);
 			CAT_pet_change_XP(xp_reward);
-		break;
+			break;
 	}
 }
 
@@ -1464,11 +1466,14 @@ void CAT_MS_feed(CAT_FSM_signal signal)
 			refresh_scores();
 
 			CAT_input_raise_barrier(CAT_TOUCH_BIT);
+			CAT_FSM_transition(&fsm, MS_arrange);
 		}
 		break;
 
 		case CAT_FSM_SIGNAL_TICK:
-			CAT_pushdown_transition(MS_arrange);
+			CAT_FSM_tick(&fsm);
+			if(fsm.state == NULL)
+				CAT_pushdown_back();
 			break;
 
 		case CAT_FSM_SIGNAL_EXIT:
