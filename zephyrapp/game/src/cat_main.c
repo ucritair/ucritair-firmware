@@ -83,7 +83,6 @@ void CAT_tick_logic()
 	CAT_AQ_crisis_tick();
 
 	CAT_animator_tick();
-	CAT_flip_render_callback();
 
 	CAT_room_tick();
 	CAT_pet_tick();
@@ -172,6 +171,9 @@ void CAT_tick_render()
 		CAT_draw_eink_refresh_notice();
 		first_eink_update_complete = true;
 	}
+
+	if(CAT_is_last_render_cycle())
+		CAT_flip_render_callback();
 }
 
 #ifdef CAT_DESKTOP
