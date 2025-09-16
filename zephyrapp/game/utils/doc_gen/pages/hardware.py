@@ -27,7 +27,7 @@ def build(here, html: HTMLWriter):
 	html.text("Some but not all gameplay takes advantage of touch support. There is typically a non-touch way to perform any action that can be performed with touches.");
 	html.end_text_block();
 
-	html.heading(3, "A Note on Display Orientation and the IMU");
+	html.heading(3, "Display Orientation and the IMU");
 	html.start_text_block();
 	html.text("The device has an on-board IMU for detecting orientation.");
 	html.text("When the device's orientation is determined to be right-side-up or upside-down, the LCD and E-Ink are reoriented to match.");
@@ -55,17 +55,17 @@ def build(here, html: HTMLWriter):
 	html.text("The D-pad is the main set of inputs for in-game navigation.");
 	html.text("As such, most navigation is 4-directional.");
 	html.end_text_block();
-	
-	html.heading(3, "A Note on Special Input Combinations");
-	html.start_text_block();
-	html.line("Select + Start + Down while system is asleep: enter DFU mode.");
-	html.line("Select + Start + Up: enter debug menu.");
-	html.end_text_block();
 
 	html.heading(2, "USB-C Port");
 	html.start_text_block();
 	html.text("Connecting the uCritAir to a power source via the USB-C port will refill its battery.");
 	html.text("New builds of the system software are flashed to the uCritAir over the USB-C port.");
+	html.end_text_block();
+
+	html.heading(2, "Some Special Input Combinations");
+	html.start_text_block();
+	html.line("Select + Start + Down while system is asleep: enter DFU mode.");
+	html.line("Select + Start + Up: open debug menu.");
 	html.end_text_block();
 
 
