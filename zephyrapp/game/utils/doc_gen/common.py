@@ -4,7 +4,7 @@ from html_writer import HTMLWriter;
 import pages;
 
 def navigator(html: HTMLWriter, node):
-	html.start_list();
+	html.begin_list();
 	for child in node.children:
 		if child.in_path.name == "index.py":
 			continue;

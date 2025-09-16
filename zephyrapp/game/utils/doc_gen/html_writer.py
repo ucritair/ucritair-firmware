@@ -71,7 +71,7 @@ class HTMLWriter:
 	def newline(self):
 		self.one_token("br");
 	
-	def start_text_block(self,):
+	def begin_text_block(self,):
 		self.open_tag("div", data_text_block=True);
 
 	def text(self, s, mode=HTMLMode.DEFAULT, **kwargs):
@@ -90,7 +90,7 @@ class HTMLWriter:
 		self.close_tag();
 		self.in_text_block = False;
 	
-	def start_table(self, columns):
+	def begin_table(self, columns):
 		self.open_tag("table");
 
 		num_cols = len(columns);
@@ -128,13 +128,13 @@ class HTMLWriter:
 			case HTMLMode.INLINE:
 				return f"<img src={path} {self._make_args(kwargs)}>";
 
-	def start_div(self):
+	def begin_div(self):
 		self.open_tag("div");
 
 	def end_div(self):
 		self.close_tag();
 
-	def start_list(self):
+	def begin_list(self):
 		self.open_tag("ul");
 	
 	def list_item(self, item):
@@ -143,7 +143,7 @@ class HTMLWriter:
 	def end_list(self):
 		self.close_tag();
 
-	def start_same_line(self):
+	def begin_same_line(self):
 		self.open_tag("div", id="container", style="white-space:nowrap");
 	
 	def end_same_line(self):

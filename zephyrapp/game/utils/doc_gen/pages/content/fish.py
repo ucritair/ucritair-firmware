@@ -14,14 +14,14 @@ def build(here, html: HTMLWriter):
 	json_entries.sort(key=lambda j: j['display_name']);
 
 	common.title(html, "Fish");
-	html.start_text_block();
+	html.begin_text_block();
 	html.text(f"There are {len(json_entries)} fish in-game.");
 	html.text("Fish belong to tiers. Higher tier fish are more rare and harder to catch.");
 	html.text("Once caught, fish can be sold.");
 	html.end_text_block();
 	html.newline();
 
-	html.start_table(["Display Name", "Asset Name", "Tier", "Proverb"]);
+	html.begin_table(["Display Name", "Asset Name", "Tier", "Proverb"]);
 	for item in json_entries:
 		html.table_row([
 			item["display_name"],

@@ -9,5 +9,5 @@ def build(here, html: HTMLWriter):
 	common.index_banner(html);
 	common.title(html, here.title);
 
-	html.start_text_block();
+	html.begin_text_block();
 	html.end_text_block();

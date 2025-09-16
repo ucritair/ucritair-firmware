@@ -11,7 +11,7 @@ def build(here, html: HTMLWriter):
 	common.title(html, here.title);
 
 	html.heading(2, "Metrics");
-	html.start_text_block();
+	html.begin_text_block();
 	html.text("The uCritAir is aware of a wide range of air quality metrics:");
 	html.text("CO2, PM 1.0-10.0, PN 0.5-10.0, NOx index, VOC index, temperature, relative humidity, and pressure.");
 	html.text("All metrics are tracked live, and many of them are permanently logged.");
@@ -19,7 +19,7 @@ def build(here, html: HTMLWriter):
 	html.end_text_block();
 
 	html.heading(2, "Air Quality and Gameplay");
-	html.start_text_block();
+	html.begin_text_block();
 	html.text("Changes in real-life air quality impact the uCritAir's gameplay.");
 	html.text("Both good and bad quality passively influences the game's world, and can have active effects on your critter.");
 	html.text("If air quality reaches a critical low point, a corresponding crisis will occur in-game.");
