@@ -33,7 +33,7 @@ void CAT_MS_debug(CAT_FSM_signal signal)
 			break;
 		case CAT_FSM_SIGNAL_TICK:
 			if(CAT_input_pressed(CAT_BUTTON_B) || CAT_input_pressed(CAT_BUTTON_START))
-				CAT_pushdown_back();
+				CAT_pushdown_pop();
 
 			if(CAT_input_pulse(CAT_BUTTON_LEFT))
 				page -= 1;
@@ -99,7 +99,6 @@ void CAT_render_debug()
 			CAT_gui_textf("Since Stat: %llus/%ds\n", now-pet_timing.last_stat_time, CAT_STAT_TICK_PERIOD);
 
 			CAT_gui_textf("Slept: %llus\n", CAT_get_slept_s());
-			CAT_gui_textf("E-Ink: %llus/%ds\n", now-last_eink_time, EINK_UPDATE_PERIOD);
 		break;
 
 		case DECO:

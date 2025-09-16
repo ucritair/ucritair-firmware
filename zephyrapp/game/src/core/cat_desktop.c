@@ -666,19 +666,14 @@ CAT_IMU_values imu_values =
 	.z = 0
 };
 
-void CAT_IMU_export_raw(CAT_IMU_values* out)
+void CAT_IMU_get_raw(CAT_IMU_values* out)
 {
 	memcpy(out, &imu_values, sizeof(imu_values));
 }
 
-void CAT_IMU_export_normalized(CAT_IMU_values* out)
+void CAT_IMU_get_normalized(CAT_IMU_values* out)
 {
 	memcpy(out, &imu_values, sizeof(imu_values));
-}
-
-void CAT_IMU_tick()
-{
-	return;
 }
 
 

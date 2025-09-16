@@ -3,38 +3,28 @@
 #include "cat_procs.h"
 
 const CAT_dialogue_profile dialogue_profile_reed = {
-	.entries = (const CAT_dialogue_profile_entry[]) {
+	.entries = (struct dialogue_profile_entry[]) {
 		{
 			.node = &dialogue_reed_default,
-			.is_active_proc = NULL,
 			.weight = 0,
 		},
 		{
 			.node = &dialogue_reed_question_fish,
-			.is_active_proc = NULL,
 			.weight = 0,
 		},
 	},
 	.entry_count = 2,
-	
-	.mandatory_node = NULL,
-	.opener_probability = 0.0,
 };
 const CAT_dialogue_profile dialogue_profile_bird_statue = {
-	.entries = (const CAT_dialogue_profile_entry[]) {
+	.entries = (struct dialogue_profile_entry[]) {
 		{
-			.node = &dialogue_statue_default,
-			.is_active_proc = NULL,
+			.node = &dialogue_statue_chirp,
 			.weight = 1,
 		},
 		{
-			.node = &dialogue_statue_chirp,
-			.is_active_proc = NULL,
+			.node = &dialogue_statue_default,
 			.weight = 32,
 		},
 	},
 	.entry_count = 2,
-	
-	.mandatory_node = NULL,
-	.opener_probability = 0.0,
 };

@@ -42,10 +42,12 @@ typedef struct
 void CAT_FSM_transition(CAT_FSM* machine, CAT_FSM_state state);
 void CAT_FSM_tick(CAT_FSM* machine);
 
-void CAT_pushdown_transition(CAT_FSM_state state);
+void CAT_pushdown_rebase(CAT_FSM_state state);
+void CAT_pushdown_push(CAT_FSM_state state);
+void CAT_pushdown_pop();
 void CAT_pushdown_tick();
-void CAT_pushdown_back();
 CAT_FSM_state CAT_pushdown_peek();
+CAT_FSM_state CAT_pushdown_last();
 
 typedef void (*CAT_render_callback)(void);
 void CAT_set_render_callback(CAT_render_callback callback);

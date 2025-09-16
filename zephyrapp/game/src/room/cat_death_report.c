@@ -26,7 +26,7 @@ void CAT_MS_death_report(CAT_FSM_signal signal)
 			if(exit_progress >= 1.0f && CAT_input_time(CAT_BUTTON_A) >= 1.25f)
 			{
 				CAT_pet_dismiss_death_report();
-				CAT_pushdown_transition(CAT_MS_room);
+				CAT_pushdown_rebase(CAT_MS_room);
 			}
 		break;
 

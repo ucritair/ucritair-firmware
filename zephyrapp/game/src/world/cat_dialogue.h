@@ -33,20 +33,14 @@ const char* CAT_get_dialogue_response(int idx);
 void CAT_dialogue_io();
 void CAT_render_dialogue();
 
-typedef struct 
-{
-	const CAT_dialogue_node* node;
-	bool (*is_active_proc) ();
-	uint8_t weight;
-} CAT_dialogue_profile_entry;
-
 typedef struct
 {
-	const CAT_dialogue_profile_entry* entries;
+	struct dialogue_profile_entry
+	{
+		const CAT_dialogue_node* node;
+		uint8_t weight;
+	}* entries;
 	uint8_t entry_count;
-
-	const CAT_dialogue_node* mandatory_node;
-	float opener_probability;
 } CAT_dialogue_profile;
 
 void CAT_activate_dialogue_profile(const CAT_dialogue_profile* profile);

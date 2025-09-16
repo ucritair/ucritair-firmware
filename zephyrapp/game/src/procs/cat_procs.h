@@ -1,10 +1,14 @@
 #pragma once
 
-void interact_proc_reed();
+#include "cat_scene.h"
 
-void interact_proc_reed_house();
-void interact_proc_statue();
-void interact_proc_market();
-void interact_proc_arcade();
+void interact_proc_reed(CAT_prop_instance* prop);
 
-void proc_coc_innerworld();
+void interact_proc_reed_house(CAT_prop_instance* prop);
+void interact_proc_statue(CAT_prop_instance* prop);
+void interact_proc_market(CAT_prop_instance* prop);
+void interact_proc_arcade(CAT_prop_instance* prop);
+
+void proc_use_scrungus(CAT_prop_instance* prop);
+
+void proc_coc_innerworld(CAT_prop_instance* prop);

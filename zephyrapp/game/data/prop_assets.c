@@ -22,7 +22,7 @@ const CAT_prop reed_prop = {
 			.aabb = {0,1,2,2,},
 			.tx = 0,
 			.ty = 1,
-			.proc = interact_proc_reed,
+			.proc = proc_use_scrungus,
 		},
 	},
 	.trigger_count = 1,

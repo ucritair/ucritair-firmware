@@ -50,6 +50,10 @@ int quantize(float t, float range, int steps);
 // RANDOM
 
 void CAT_rand_seed();
+float CAT_rand_uniform();
+int CAT_rand_die(int N);
+int CAT_rand_coin(float p);
+
 int CAT_rand_int(int a, int b);
 float CAT_rand_float(float a, float b);
 bool CAT_rand_chance(int N);
@@ -161,6 +165,15 @@ typedef enum
 void CAT_CSCLIP_set_rect(int x0, int y0, int x1, int y1);
 int CAT_CSCLIP_get_flags(int x, int y);
 bool CAT_CSCLIP(int* x0, int* y0, int* x1, int* y1);
+
+
+//////////////////////////////////////////////////////////////////////////
+// WEIGHTED RANDOM SELECTION
+
+void CAT_WRS_begin();
+void CAT_WRS_add(int idx, uint8_t weight);
+void CAT_WRS_end();
+int CAT_WRS_select();
 
 
 //////////////////////////////////////////////////////////////////////////

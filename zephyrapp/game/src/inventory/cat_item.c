@@ -21,6 +21,18 @@ CAT_item* CAT_get_item(int item_id)
 	return &item_table.data[item_id];
 }
 
+int CAT_item_pool_select(CAT_item_pool* pool)
+{
+	CAT_WRS_begin();
+	for(int i = 0; i < pool->entry_count; i++)
+	{
+		CAT_WRS_add(i, pool->entries[i].weight);
+	}
+	CAT_WRS_end();
+	int idx = CAT_WRS_select();
+	return pool->entries[idx].item_id;
+}
+
 
 //////////////////////////////////////////////////////////////////////////
 // BAG
@@ -121,7 +133,7 @@ void CAT_MS_inspector(CAT_FSM_signal signal)
 		case CAT_FSM_SIGNAL_TICK:
 		{
 			if(CAT_input_pressed(CAT_BUTTON_B))
-				CAT_pushdown_back();
+				CAT_pushdown_pop();
 			break;
 		}
 		case CAT_FSM_SIGNAL_EXIT:
@@ -182,7 +194,7 @@ void CAT_render_inspector()
 static void inspect_proc(int item_id)
 {
 	CAT_bind_inspector(item_id);
-	CAT_pushdown_transition(CAT_MS_inspector);
+	CAT_pushdown_push(CAT_MS_inspector);
 }
 
 void CAT_MS_inventory(CAT_FSM_signal signal)

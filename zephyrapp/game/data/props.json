@@ -74,7 +74,7 @@
                         2,
                         2
                     ],
-                    "proc": "interact_proc_reed",
+                    "proc": "proc_use_scrungus",
                     "direction": [
                         0,
                         1

@@ -67,7 +67,7 @@ void CAT_MS_time(CAT_FSM_signal signal)
 		case CAT_FSM_SIGNAL_TICK:
 		{
 			if(CAT_input_pressed(CAT_BUTTON_B))
-				CAT_pushdown_back();
+				CAT_pushdown_pop();
 
 			if (CAT_input_pulse(CAT_BUTTON_LEFT))
 				time_edit_time_selector--;

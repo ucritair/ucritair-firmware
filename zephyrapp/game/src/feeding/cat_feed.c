@@ -1473,7 +1473,7 @@ void CAT_MS_feed(CAT_FSM_signal signal)
 		case CAT_FSM_SIGNAL_TICK:
 			CAT_FSM_tick(&fsm);
 			if(fsm.state == NULL)
-				CAT_pushdown_back();
+				CAT_pushdown_pop();
 			break;
 
 		case CAT_FSM_SIGNAL_EXIT:

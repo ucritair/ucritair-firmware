@@ -72,7 +72,7 @@ void CAT_MS_hedron(CAT_FSM_signal signal)
 			break;
 		case CAT_FSM_SIGNAL_TICK:
 			if(CAT_input_pressed(CAT_BUTTON_B) || CAT_input_pressed(CAT_BUTTON_START))
-				CAT_pushdown_back();
+				CAT_pushdown_pop();
 
 			theta_h += CAT_get_delta_time_s();
 			if(theta_h >= 6.28318530718f)

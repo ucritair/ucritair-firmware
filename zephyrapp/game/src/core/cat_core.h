@@ -78,7 +78,10 @@ void CAT_eink_update();
 
 void CAT_set_eink_update_flag(bool flag);
 bool CAT_eink_needs_update();
+void CAT_eink_update();
 
+void CAT_eink_logic();
+void CAT_eink_render();
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // SCREEN MANAGEMENT
@@ -95,6 +98,8 @@ CAT_screen_orientation CAT_get_screen_orientation();
 void CAT_poll_screen_flip();
 bool CAT_should_flip_screen();
 void CAT_flip_screen();
+
+void CAT_orientation_tick();
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -482,9 +487,8 @@ typedef union
 	float data[3];
 } CAT_IMU_values;
 
-void CAT_IMU_export_raw(CAT_IMU_values* out);
-void CAT_IMU_export_normalized(CAT_IMU_values* out);
-void CAT_IMU_tick();
+void CAT_IMU_get_raw(CAT_IMU_values* out);
+void CAT_IMU_get_normalized(CAT_IMU_values* out);
 bool CAT_IMU_is_upside_down();
 
 

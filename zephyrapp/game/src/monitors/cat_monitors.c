@@ -104,19 +104,19 @@ static void render_monitor()
 void CAT_monitor_advance()
 {
 	page = (page+1) % CAT_MONITOR_PAGE_COUNT;
-	CAT_pushdown_transition(routines[page].state);
+	CAT_pushdown_rebase(routines[page].state);
 }
 
 void CAT_monitor_retreat()
 {
 	page = (page-1+CAT_MONITOR_PAGE_COUNT) % CAT_MONITOR_PAGE_COUNT;
-	CAT_pushdown_transition(routines[page].state);
+	CAT_pushdown_rebase(routines[page].state);
 }
 
 void CAT_monitor_seek(int target)
 {
 	page = clamp(target, CAT_MONITOR_PAGE_SUMMARY, CAT_MONITOR_PAGE_COUNT-1);
-	CAT_pushdown_transition(routines[page].state);
+	CAT_pushdown_rebase(routines[page].state);
 }
 
 int CAT_monitor_tell()
@@ -127,9 +127,9 @@ int CAT_monitor_tell()
 void CAT_monitor_exit()
 {
 	if(CAT_AQ_is_crisis_report_posted())
-		CAT_pushdown_transition(CAT_MS_crisis_report);
+		CAT_pushdown_rebase(CAT_MS_crisis_report);
 	else
-		CAT_pushdown_transition(CAT_MS_room);
+		CAT_pushdown_rebase(CAT_MS_room);
 }
 
 void CAT_monitor_dismiss()
@@ -147,7 +147,7 @@ void CAT_MS_monitor(CAT_FSM_signal signal)
 		break;
 
 		case CAT_FSM_SIGNAL_TICK:
-			CAT_pushdown_transition(routines[page].state);
+			CAT_pushdown_rebase(routines[page].state);
 		break;
 
 		case CAT_FSM_SIGNAL_EXIT:

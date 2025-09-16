@@ -241,7 +241,7 @@ void CAT_MS_mines(CAT_FSM_signal signal)
 						CAT_gui_open_popup("Quit Sweep?\n\nProgress will not be saved!\n\n");
 				else if(CAT_gui_consume_popup())
 				{
-					CAT_pushdown_back();
+					CAT_pushdown_pop();
 					break;
 				}
 				if(CAT_gui_popup_is_open())
@@ -327,7 +327,7 @@ void CAT_MS_mines(CAT_FSM_signal signal)
 					{
 						if(state == WIN)
 							CAT_inventory_add(prop_mine_item, 1);
-						CAT_pushdown_back();
+						CAT_pushdown_pop();
 					}
 				}
 				break;

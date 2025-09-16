@@ -263,7 +263,7 @@ void menu_touch()
 void menu_imu()
 {
 	CAT_IMU_values imu;
-	CAT_IMU_export_raw(&imu);
+	CAT_IMU_get_raw(&imu);
 
 	text("~~IMU MENU~~");
 	textf("X: " CAT_FLOAT_FMT " Y: " CAT_FLOAT_FMT " Z: " CAT_FLOAT_FMT,  CAT_FMT_FLOAT(imu.x),  CAT_FMT_FLOAT(imu.y),  CAT_FMT_FLOAT(imu.z));

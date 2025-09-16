@@ -32,6 +32,8 @@ void CAT_platform_tick()
 	uint64_t now = k_uptime_get();
 	delta_t = ((float)(now - last_uptime))/1000.;
 	last_uptime = now;
+
+	imu_update();
 }
 
 void CAT_platform_cleanup()
@@ -319,19 +321,14 @@ CAT_AQ_score_block* CAT_AQ_score_buffer_get(int idx)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // IMU
 
-void CAT_IMU_export_raw(CAT_IMU_values* out)
+void CAT_IMU_get_raw(CAT_IMU_values* out)
 {
 	memcpy(out, &imu_raw, sizeof(imu_raw));
 }
 
-void CAT_IMU_export_normalized(CAT_IMU_values* out)
+void CAT_IMU_get_normalized(CAT_IMU_values* out)
 {
 	memcpy(out, &imu_normalized, sizeof(imu_normalized));
-}
-
-void CAT_IMU_tick()
-{
-	imu_update();
 }
 
 

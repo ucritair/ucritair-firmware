@@ -556,7 +556,7 @@ void MS_game_over(CAT_FSM_signal signal)
 
 		case CAT_FSM_SIGNAL_TICK:
 			if(CAT_input_pressed(CAT_BUTTON_A) || CAT_input_pressed(CAT_BUTTON_B) || CAT_input_pressed(CAT_BUTTON_START))
-				CAT_pushdown_transition(CAT_MS_room);
+				CAT_pushdown_rebase(CAT_MS_room);
 		break;
 
 		case CAT_FSM_SIGNAL_EXIT:
@@ -595,7 +595,7 @@ void CAT_MS_foursquares(CAT_FSM_signal signal)
 				CAT_gui_open_popup("Quit Foursquares?\n\nProgress will not\nbe saved!\n");
 			else if(CAT_gui_consume_popup())
 			{
-				CAT_pushdown_back();
+				CAT_pushdown_pop();
 				break;
 			}
 			if(CAT_gui_popup_is_open())
@@ -664,7 +664,7 @@ void CAT_MS_foursquares(CAT_FSM_signal signal)
 							(CAT_ivec2) {CAT_rand_int(0, CAT_FOURSQUARES_GRID_WIDTH-collider_x_off), 0}
 						);
 						if(is_blocked_out())
-							CAT_pushdown_transition(MS_game_over);
+							CAT_pushdown_rebase(MS_game_over);
 					}
 					reset_buffers();
 				}		

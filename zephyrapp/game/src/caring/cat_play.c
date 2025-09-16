@@ -46,7 +46,7 @@ void CAT_MS_play(CAT_FSM_signal signal)
 				CAT_gui_item_grid_cell(toy_laser_pointer_item);
 			}
 			else if(toy_id == toy_laser_pointer_item)
-				CAT_pushdown_transition(CAT_MS_laser);
+				CAT_pushdown_push(CAT_MS_laser);
 			break;
 		}
 		case CAT_FSM_SIGNAL_EXIT:
@@ -92,7 +92,8 @@ void CAT_MS_laser(CAT_FSM_signal signal)
 			break;
 		case CAT_FSM_SIGNAL_TICK:
 			if (CAT_input_pressed(CAT_BUTTON_B))
-				CAT_pushdown_transition(CAT_MS_room);
+				CAT_pushdown_rebase(CAT_MS_room);
+				
 			if (CAT_input_touching())
 			{
 				CAT_touch touch;

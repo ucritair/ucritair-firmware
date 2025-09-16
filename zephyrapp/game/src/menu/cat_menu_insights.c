@@ -22,9 +22,7 @@ void CAT_MS_insights(CAT_FSM_signal signal)
 		case CAT_FSM_SIGNAL_TICK:
 		{
 			if(CAT_input_pressed(CAT_BUTTON_B))
-				CAT_pushdown_transition(CAT_MS_menu);
-			if(CAT_input_pressed(CAT_BUTTON_START))
-				CAT_pushdown_transition(CAT_MS_room);
+				CAT_pushdown_pop();
 			break;
 		}
 		case CAT_FSM_SIGNAL_EXIT:

@@ -475,7 +475,7 @@ void screen_button_input()
 		mode_selector -= 1;
 	mode_selector = (mode_selector + MODE_BUTTON_COUNT) % MODE_BUTTON_COUNT;
 	if(CAT_input_pressed(CAT_BUTTON_A))
-		CAT_pushdown_transition(button_modes[mode_selector]);
+		CAT_pushdown_push(button_modes[mode_selector]);
 	
 	for(int i = 0; i < MODE_BUTTON_COUNT; i++)
 	{
@@ -487,7 +487,7 @@ void screen_button_input()
 		))
 		{
 			if(i == mode_selector)
-				CAT_pushdown_transition(button_modes[mode_selector]);
+				CAT_pushdown_push(button_modes[mode_selector]);
 			mode_selector = i;
 		}
 	}
@@ -496,9 +496,9 @@ void screen_button_input()
 void prop_button_input()
 {
 	if(CAT_input_touch_rect(VENDING_MACHINE_X, VENDING_MACHINE_Y, VENDING_MACHINE_W, VENDING_MACHINE_H))
-		CAT_pushdown_transition(CAT_MS_shop);
+		CAT_pushdown_push(CAT_MS_shop);
 	else if(CAT_input_touch_rect(ARCADE_X, ARCADE_Y, ARCADE_W, ARCADE_H))
-		CAT_pushdown_transition(CAT_MS_arcade);
+		CAT_pushdown_push(CAT_MS_arcade);
 	else if(CAT_input_touch_rect
 	(
 		theme->window_rect.min.x+4,
@@ -507,7 +507,7 @@ void prop_button_input()
 		theme->window_rect.max.y-theme->window_rect.min.y-8
 	))
 	{
-		CAT_pushdown_transition(CAT_MS_monitor);
+		CAT_pushdown_rebase(CAT_MS_monitor);
 	}
 
 	int touched_prop = CAT_room_touch_query();
@@ -516,7 +516,7 @@ void prop_button_input()
 		int touched_item = prop_list.data[touched_prop].prop;
 		if(touched_item == prop_crafter_item)
 		{
-			CAT_pushdown_transition(CAT_MS_crafting);
+			CAT_pushdown_push(CAT_MS_crafting);
 		}
 	}
 }
@@ -557,17 +557,17 @@ void CAT_MS_room(CAT_FSM_signal signal)
 
 			if(CAT_AQ_is_crisis_report_posted())
 			{
-				CAT_pushdown_transition(CAT_MS_crisis_report);
+				CAT_pushdown_push(CAT_MS_crisis_report);
 				return;
 			}
 			if(CAT_pet_is_death_report_posted())
 			{
-				CAT_pushdown_transition(CAT_MS_death_report);
+				CAT_pushdown_push(CAT_MS_death_report);
 				return;
 			}
 				
 			if(CAT_input_pressed(CAT_BUTTON_START))
-				CAT_pushdown_transition(CAT_MS_menu);
+				CAT_pushdown_push(CAT_MS_menu);
 
 			if(CAT_pet_is_dead())
 			{

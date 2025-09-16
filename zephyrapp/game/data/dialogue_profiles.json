@@ -10,20 +10,11 @@
                         "node": {
                             "type": "dialogue"
                         },
-                        "is_active_proc": {
-                            "type": "proc"
-                        },
                         "weight": {
                             "type": "int"
                         }
                     }
                 ]
-            },
-            "mandatory_node": {
-                "type": "dialogue"
-            },
-            "opener_probability": {
-                "type": "float"
             }
         }
     },
@@ -33,34 +24,26 @@
             "entries": [
                 {
                     "node": "reed_default",
-                    "is_active_proc": "",
                     "weight": 0
                 },
                 {
                     "node": "reed_question_fish",
-                    "is_active_proc": "",
                     "weight": 0
                 }
-            ],
-            "mandatory_node": "##",
-            "opener_probability": 0.0
+            ]
         },
         {
             "name": "dialogue_profile_bird_statue",
             "entries": [
                 {
                     "node": "statue_default",
-                    "is_active_proc": "",
                     "weight": 1
                 },
                 {
                     "node": "statue_chirp",
-                    "is_active_proc": "",
                     "weight": 32
                 }
-            ],
-            "mandatory_node": "##",
-            "opener_probability": 0.0
+            ]
         }
     ]
 }

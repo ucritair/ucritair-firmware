@@ -32,21 +32,37 @@ void CAT_rand_seed()
 	srand(CAT_get_RTC_now());
 }
 
+float CAT_rand_uniform()
+{
+	return rand() / (float) RAND_MAX;
+}
+
+int CAT_rand_die(int N)
+{
+	return CAT_rand_uniform() * N;
+}
+
+int CAT_rand_coin(float p)
+{
+	return CAT_rand_uniform() < p;
+}
+
 int CAT_rand_int(int a, int b)
 {
-	return a + rand() / (RAND_MAX / (b - a + 1) + 1);
+	int width = b-a+1;
+	return a + (rand() % width);
 }
 
 float CAT_rand_float(float a, float b)
 {
-	float scale = rand() / (float) RAND_MAX;
+	float scale = CAT_rand_uniform();
 	return a + scale * (b-a);
 }
 
 bool CAT_rand_chance(int N)
 {
 	float thresh = 1.0f / (float) N;
-	return CAT_rand_float(0.0, 1.0f) <= thresh;
+	return CAT_rand_uniform() < thresh;
 }
 
 
@@ -383,6 +399,64 @@ bool CAT_CSCLIP(int* x0, int* y0, int* x1, int* y1)
 	}
 
 	return accept;
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+// WEIGHTED RANDOM SELECTION
+
+struct WRS_entry
+{
+	int idx;
+	uint8_t weight;
+} wrs_entries[256];
+int wrs_count = 0;
+unsigned weight_sum = 0;
+
+void CAT_WRS_begin()
+{
+	wrs_count = 0;
+	weight_sum = 0;
+}
+
+void CAT_WRS_add(int idx, uint8_t weight)
+{
+	if(wrs_count >= 256)
+		return;
+	wrs_entries[wrs_count] = (struct WRS_entry)
+	{
+		.idx = idx,
+		.weight = weight_sum + weight
+	};
+	weight_sum += weight;
+	wrs_count += 1;
+}
+
+int WRS_swap(int i, int j)
+{
+	struct WRS_entry temp = wrs_entries[i];
+	wrs_entries[i] = wrs_entries[j];
+	wrs_entries[j] = temp;
+}
+
+void CAT_WRS_end()
+{
+	for(int i = 0; i < wrs_count; i++)
+	{
+		int j = CAT_rand_die(wrs_count);
+		WRS_swap(i, j);
+	}
+}
+
+int CAT_WRS_select()
+{
+	unsigned key = CAT_rand_int(0, weight_sum);
+	for(int i = 0; i < wrs_count; i++)
+	{
+		if(wrs_entries[i].weight >= key)
+			return wrs_entries[i].idx;
+	}
+	return -1;
 }
 
 

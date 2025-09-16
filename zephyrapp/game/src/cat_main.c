@@ -42,9 +42,6 @@
 #pragma GCC diagnostic ignored "-Wunknown-pragmas"
 #endif
 
-uint64_t last_eink_time;
-bool first_eink_update_complete = false;
-
 void CAT_init()
 {
 	CAT_platform_init();
@@ -59,9 +56,9 @@ void CAT_init()
 	CAT_force_load();
 
 	if(CAT_check_config_flags(CAT_CONFIG_FLAG_AQ_FIRST))
-		CAT_pushdown_transition(CAT_MS_monitor);
+		CAT_pushdown_rebase(CAT_MS_monitor);
 	else
-		CAT_pushdown_transition(CAT_MS_room);
+		CAT_pushdown_rebase(CAT_MS_room);
 
 	if(CAT_AQ_sensors_initialized())
 		CAT_set_eink_update_flag(true);
@@ -77,43 +74,19 @@ void CAT_tick_logic()
 		
 	CAT_platform_tick();
 	CAT_input_tick();
-	CAT_IMU_tick();
 
 	CAT_AQ_tick();
 	CAT_AQ_crisis_tick();
 
 	CAT_animator_tick();
-
 	CAT_room_tick();
 	CAT_pet_tick();
 	
 	CAT_pushdown_tick();
 
-	CAT_effects_tick();
 	CAT_gui_io();
-
-	uint64_t now = CAT_get_RTC_now();
-
-	if
-	(
-		(CAT_is_charging() &&
-		(now - last_eink_time) >= EINK_UPDATE_PERIOD &&
-		CAT_input_downtime() >= EINK_UPDATE_PERIOD) ||
-		(!first_eink_update_complete && CAT_AQ_sensors_initialized())
-	)
-	{
-		CAT_set_eink_update_flag(true);
-	}
-
-	if(!CAT_get_persist_flag(CAT_PERSIST_FLAG_MANUAL_ORIENT))
-	{
-		CAT_poll_screen_flip();
-		if(CAT_should_flip_screen())
-		{
-			CAT_flip_screen();
-			CAT_set_eink_update_flag(true);
-		}
-	}
+	CAT_effects_tick();
+	CAT_eink_logic();
 }
 
 void CAT_draw_eink_refresh_notice()
@@ -167,10 +140,7 @@ void CAT_tick_render()
 	CAT_gui_render();
 
 	if(CAT_eink_needs_update())
-	{
 		CAT_draw_eink_refresh_notice();
-		first_eink_update_complete = true;
-	}
 
 	if(CAT_is_last_render_cycle())
 		CAT_flip_render_callback();
@@ -186,7 +156,7 @@ int main(int argc, char** argv)
 	while (CAT_get_battery_pct() > 0)
 	{
 		CAT_tick_logic();
-		
+
 		for(int render_cycle = 0; render_cycle < CAT_LCD_FRAMEBUFFER_SEGMENTS; render_cycle++)
 		{
 			CAT_set_render_cycle(render_cycle);
@@ -195,12 +165,7 @@ int main(int argc, char** argv)
 			CAT_LCD_flip();
 		}
 
-		if(CAT_eink_needs_update())
-		{
-			CAT_set_eink_update_flag(false);
-			CAT_eink_update();
-			last_eink_time = CAT_get_RTC_now();
-		}
+		CAT_eink_render();
 
 		// 1 / FPS * 1_000_000 yields microseconds between framebuffer updates at fixed FPS
 		usleep((1.0f / 14.0f) * 1000000);

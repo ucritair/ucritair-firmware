@@ -118,6 +118,18 @@ typedef struct
 	uint16_t count;
 } CAT_item_bundle;
 
+typedef struct
+{
+	struct item_pool_entry
+	{
+		int item_id;
+		uint8_t weight;
+	}* entries;
+	uint8_t entry_count;
+} CAT_item_pool;
+
+int CAT_item_pool_select(CAT_item_pool* pool);
+
 
 //////////////////////////////////////////////////////////////////////////
 // BAG

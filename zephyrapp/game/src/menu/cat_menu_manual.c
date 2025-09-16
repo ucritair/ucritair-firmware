@@ -63,9 +63,9 @@ void CAT_MS_manual(CAT_FSM_signal signal)
 		case CAT_FSM_SIGNAL_TICK:
 		{
 			if(CAT_input_pressed(CAT_BUTTON_B))
-				CAT_pushdown_back();
+				CAT_pushdown_pop();
 			if(CAT_input_pressed(CAT_BUTTON_START))
-				CAT_pushdown_transition(CAT_MS_room);
+				CAT_pushdown_rebase(CAT_MS_room);
 
 			if(CAT_input_pulse(CAT_BUTTON_LEFT))
 			{

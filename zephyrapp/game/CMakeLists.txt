@@ -190,7 +190,6 @@ target_sources(app PRIVATE
 
 	src/world/cat_world.c
 	src/world/cat_dialogue.c
-	src/world/cat_combat.c
 	src/world/cat_scene.c
 
 	src/procs/cat_procs.c

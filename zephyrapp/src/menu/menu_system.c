@@ -42,12 +42,12 @@ typedef void (*menu_t)();
 
 void menu_t_back()
 {
-	CAT_pushdown_back();
+	CAT_pushdown_pop();
 }
 
 void menu_t_go_time()
 {
-	CAT_pushdown_transition(CAT_MS_time);
+	CAT_pushdown_push(CAT_MS_time);
 }
 
 void menu_t_go_co2()
@@ -164,7 +164,7 @@ void CAT_MS_system_menu(CAT_FSM_signal signal)
 			{
 				if (!co2_calibrating)
 				{
-					CAT_pushdown_back();
+					CAT_pushdown_pop();
 				}
 				else
 				{
@@ -252,8 +252,7 @@ void CAT_render_system_menu()
 		{
 			CAT_gui_text("Done. Thanks for waiting...\nHave some cigarettes as a\nreward: ");
 			CAT_gui_image(&cigarette_sprite, 0);
-			CAT_pushdown_back(); //Go back so we dont recal by mistake
-			CAT_pushdown_back(); //Go back so we dont recal by mistake
+			CAT_pushdown_pop(); //Go back so we dont recal by mistake
 		}
 	}
 }

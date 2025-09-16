@@ -139,7 +139,7 @@ void CAT_MS_snake(CAT_FSM_signal signal)
 						CAT_gui_open_popup("Quit Snack?\n\nProgress will not be saved!\n\n");
 				else if(CAT_gui_consume_popup())
 				{
-					CAT_pushdown_back();
+					CAT_pushdown_pop();
 					break;
 				}
 				if(CAT_gui_popup_is_open())
@@ -222,7 +222,7 @@ void CAT_MS_snake(CAT_FSM_signal signal)
 				}
 
 				if(CAT_input_pressed(CAT_BUTTON_A) || CAT_input_pressed(CAT_BUTTON_B) || CAT_input_pressed(CAT_BUTTON_START))
-					CAT_pushdown_back();
+					CAT_pushdown_pop();
 			}
 			break;
 		}

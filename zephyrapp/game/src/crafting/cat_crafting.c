@@ -272,7 +272,7 @@ void CAT_MS_crafting(CAT_FSM_signal signal)
 					if(CAT_input_pressed(CAT_BUTTON_B))
 					{
 						if(inputs[selector].item == NULL_ITEM)
-							CAT_pushdown_back();
+							CAT_pushdown_pop();
 						else
 							inputs[selector].item = NULL_ITEM;
 					}

@@ -7,7 +7,6 @@
 #include "cat_room.h"
 #include "cat_dialogue.h"
 #include "dialogue_assets.h"
-#include "cat_combat.h"
 #include "cat_scene.h"
 #include "scene_assets.h"
 #include "cat_menu.h"
@@ -62,20 +61,6 @@ void CAT_world_get_position(int* x, int* y)
 {
 	*x = player_x;
 	*y = player_y;
-}
-
-void player_init()
-{
-	player_x = 0;
-	player_y = 0;
-
-	player_direction = SOUTH;
-	player_dx = 0;
-	player_dy = 0;
-	player_x_slide = 0;
-	player_y_slide = 0;
-
-	step_frame_counter = 0;
 }
 
 void player_get_aabb(int* x0, int* y0, int* x1, int* y1)
@@ -228,10 +213,16 @@ void player_interaction_logic()
 	{
 		if(facing_interactable())
 		{
-			const CAT_prop* prop = test_scene.layers[interactable->layer].props[interactable->prop].prop;
-			void (*proc)() = prop->triggers[interactable->trigger].proc;
-			if (proc != NULL)
-				proc();
+			CAT_prop_instance* instance = &test_scene.layers[interactable->layer].props[interactable->prop];
+			if(instance == NULL)
+				return;
+			const CAT_prop* prop = instance->prop;
+			if(prop == NULL)
+				return;
+			void (*proc)(CAT_prop_instance*) = prop->triggers[interactable->trigger].proc;
+			if(proc == NULL)
+				return;
+			proc(instance);
 		}
 	}
 }
@@ -262,7 +253,6 @@ void CAT_MS_world(CAT_FSM_signal signal)
 		case CAT_FSM_SIGNAL_ENTER:
 		{
 			CAT_set_render_callback(CAT_render_world);
-			player_init();
 		}
 		break;
 
@@ -275,11 +265,9 @@ void CAT_MS_world(CAT_FSM_signal signal)
 			}
 
 			tick_player();
-			CAT_tick_enemies();
-			CAT_tick_attacks();
 
 			if(CAT_input_pressed(CAT_BUTTON_START))
-				CAT_pushdown_transition(CAT_MS_menu);
+				CAT_pushdown_push(CAT_MS_menu);
 		}
 		break;
 
@@ -350,7 +338,9 @@ void CAT_render_world()
 		struct layer* layer = &test_scene.layers[i];
 		for(int j = 0; j < layer->prop_count; j++)
 		{
-			struct prop* prop = &layer->props[j];
+			CAT_prop_instance* prop = &layer->props[j];
+			if(prop->disabled)
+				continue;
 
 			const CAT_sprite* sprite = prop->prop->sprite;
 			if(!CAT_rect_rect_intersecting(

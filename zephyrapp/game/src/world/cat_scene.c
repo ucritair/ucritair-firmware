@@ -6,7 +6,7 @@
 void CAT_scene_get_position(const CAT_scene* scene, CAT_scene_index* index, CAT_scene_point out)
 {
 	struct layer* layer = &scene->layers[index->layer];
-	struct prop* prop = &layer->props[index->prop];
+	CAT_prop_instance* prop = &layer->props[index->prop];
 	out[0] = prop->position_x;
 	out[1] = prop->position_y;
 }
@@ -22,7 +22,7 @@ bool CAT_scene_get_AABB(const CAT_scene* scene, CAT_scene_index* index, CAT_scen
 	{
 		return false;
 	}
-	struct prop* prop = &layer->props[index->prop];
+	CAT_prop_instance* prop = &layer->props[index->prop];
 
 	switch(index->leaf)
 	{
@@ -61,7 +61,7 @@ void CAT_scene_get_direction(const CAT_scene* scene, CAT_scene_index* index, CAT
 	if(index->leaf != TRIGGER)
 		return;
 	struct layer* layer = &scene->layers[index->layer];
-	struct prop* prop = &layer->props[index->prop];
+	CAT_prop_instance* prop = &layer->props[index->prop];
 	out[0] = prop->prop->triggers[index->trigger].tx;
 	out[1] = prop->prop->triggers[index->trigger].ty;
 }
@@ -78,7 +78,7 @@ bool CAT_scene_get_prop_asset(const CAT_scene* scene, CAT_scene_index* index, co
 		return false;
 	}
 
-	struct prop* prop = &layer->props[index->prop];
+	CAT_prop_instance* prop = &layer->props[index->prop];
 	*out = prop->prop;
 	return true;
 }
@@ -115,7 +115,9 @@ CAT_scene_index* CAT_detect_collisions(const CAT_scene* scene, int x0, int y0, i
 		struct layer* layer = &scene->layers[i];
 		for(int j = 0; j < layer->prop_count; j++)
 		{
-			struct prop* prop = &layer->props[j];
+			CAT_prop_instance* prop = &layer->props[j];
+			if(prop->disabled)
+				continue;
 
 			for(int k = 0; k < prop->prop->blocker_count; k++)
 			{

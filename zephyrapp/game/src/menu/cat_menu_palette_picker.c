@@ -27,7 +27,7 @@ void CAT_MS_palette_picker(CAT_FSM_signal signal)
 			break;
 		case CAT_FSM_SIGNAL_TICK:
 			if(CAT_input_pressed(CAT_BUTTON_START))
-				CAT_pushdown_back();
+				CAT_pushdown_pop();
 
 			switch(mode)
 			{

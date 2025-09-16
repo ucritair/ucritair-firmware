@@ -88,7 +88,7 @@ void CAT_MS_checkout(CAT_FSM_signal signal)
 		case CAT_FSM_SIGNAL_TICK:
 		{
 			if(CAT_input_pressed(CAT_BUTTON_B))
-				CAT_pushdown_back();
+				CAT_pushdown_pop();
 
 			if(CAT_input_pulse(CAT_BUTTON_LEFT))
 				purchase_qty -= 1;
@@ -236,7 +236,7 @@ void CAT_MS_sale(CAT_FSM_signal signal)
 		case CAT_FSM_SIGNAL_TICK:
 		{
 			if(CAT_input_pressed(CAT_BUTTON_B))
-				CAT_pushdown_back();
+				CAT_pushdown_pop();
 
 			if(CAT_inventory_count(sale_id) > 0)
 			{
@@ -356,13 +356,13 @@ void CAT_render_sale()
 static void buy_proc(int item_id)
 {
 	CAT_bind_checkout(item_id);
-	CAT_pushdown_transition(CAT_MS_checkout);
+	CAT_pushdown_push(CAT_MS_checkout);
 }
 
 static void sell_proc(int item_id)
 {
 	CAT_bind_sale(item_id);
-	CAT_pushdown_transition(CAT_MS_sale);
+	CAT_pushdown_push(CAT_MS_sale);
 }
 
 void CAT_MS_shop(CAT_FSM_signal signal)

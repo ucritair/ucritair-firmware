@@ -67,7 +67,7 @@ void CAT_MS_colour_picker(CAT_FSM_signal signal)
 			break;
 		case CAT_FSM_SIGNAL_TICK:
 			if(CAT_input_pressed(CAT_BUTTON_START))
-				CAT_pushdown_back();
+				CAT_pushdown_pop();
 
 			if(CAT_input_held(CAT_BUTTON_A, 0))
 				V += 4;

@@ -27,83 +27,101 @@ void CAT_FSM_tick(CAT_FSM* machine)
 		(*machine->state)(CAT_FSM_SIGNAL_TICK);
 }
 
-CAT_FSM_state next = NULL;
-CAT_FSM_state pushdown[64];
-int pushdown_depth = 0;
+static CAT_FSM_state pushdown_memory[64];
+static int pushdown_depth = 0;
+#define MAX_PUSHDOWN_DEPTH (sizeof(pushdown_memory)/sizeof(pushdown_memory[0]))
+
+static CAT_FSM_state transition_target;
+static enum {NONE, REBASE, PUSH, POP} transition_mode;
 
 static void push(CAT_FSM_state s)
 {
-	pushdown[pushdown_depth] = s;
+	pushdown_memory[pushdown_depth] = s;
 	pushdown_depth += 1;
 }
 
 static CAT_FSM_state pop()
 {
 	pushdown_depth -= 1;
-	return pushdown[pushdown_depth];
+	return pushdown_memory[pushdown_depth];
 }
 
 static CAT_FSM_state peek()
 {
-	if(pushdown_depth < 1)
+	if(pushdown_depth == 0)
 		return NULL;
-	return pushdown[pushdown_depth-1];
+	return pushdown_memory[pushdown_depth-1];
 }
 
-void complete_transition(CAT_FSM_state state)
+void pushdown_transition()
 {
-	if(state == NULL)
-		return;
-
-	if(peek() != NULL)
+	if(transition_mode == POP)
 	{
-		(peek())(CAT_FSM_SIGNAL_EXIT);
+		if(pushdown_depth <= 0)
+			return;
+
+		if(peek() != NULL)
+			peek()(CAT_FSM_SIGNAL_EXIT);
+		pop();
+		if(peek() != NULL)
+			peek()(CAT_FSM_SIGNAL_ENTER);
+	}
+	else
+	{
+		if(transition_target == NULL)
+			return;
+		if(pushdown_depth == MAX_PUSHDOWN_DEPTH)
+			transition_mode = REBASE;
+		
+		if(peek() != NULL)
+			peek()(CAT_FSM_SIGNAL_EXIT);
+		if(transition_mode == REBASE)
+			pushdown_depth = 0;
+		push(transition_target);
+		if(peek() != NULL)
+			peek()(CAT_FSM_SIGNAL_ENTER);
 	}
 
-	bool loop_back = false;
-	for(int i = 0; i < pushdown_depth; i++)
-	{
-		if(pushdown[i] == state)
-		{
-			pushdown_depth = i+1;
-			loop_back = true;
-			break;
-		}
-	}
-	if(!loop_back)
-		push(state);
-
-	(peek())(CAT_FSM_SIGNAL_ENTER);
+	transition_mode = NONE;
 }
 
-void CAT_pushdown_transition(CAT_FSM_state state)
+void CAT_pushdown_rebase(CAT_FSM_state state)
 {
-	next = state;
+	transition_target = state;
+	transition_mode = REBASE;
+}
+
+void CAT_pushdown_push(CAT_FSM_state state)
+{
+	transition_target = state;
+	transition_mode = PUSH;
+}
+
+void CAT_pushdown_pop()
+{
+	transition_target = NULL;
+	transition_mode = POP;
 }
 
 void CAT_pushdown_tick()
 {
-	if(next != NULL)
-	{
-		complete_transition(next);
-		next = NULL;
-	}
+	if(transition_mode != NONE)
+		pushdown_transition();
+	CAT_printf("%d\n", pushdown_depth);
 	if(peek() != NULL)
-		(peek())(CAT_FSM_SIGNAL_TICK);
-}
-
-void CAT_pushdown_back()
-{
-	if(pushdown_depth > 1)
-	{
-		pop();
-		CAT_pushdown_transition(peek());
-	}
+		peek()(CAT_FSM_SIGNAL_TICK);
 }
 
 CAT_FSM_state CAT_pushdown_peek()
 {
 	return peek();
+}
+
+CAT_FSM_state CAT_pushdown_last()
+{
+	if(pushdown_depth > 1)
+		return pushdown_memory[pushdown_depth-2];
+	return NULL;
 }
 
 static CAT_render_callback render_callback[2] =

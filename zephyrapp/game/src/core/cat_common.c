@@ -9,6 +9,7 @@
 #include <time.h>
 #include "item_assets.h"
 #include "cat_gui.h"
+#include "cat_input.h"
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -36,7 +37,10 @@ int* CAT_LCD_brightness_pointer()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // EINK SCREEN
 
+#define EINK_UPDATE_PERIOD CAT_MINUTE_SECONDS
+
 static bool eink_needs_update = false;
+static uint64_t eink_update_timestamp = 0;
 
 void CAT_set_eink_update_flag(bool flag)
 {
@@ -46,6 +50,32 @@ void CAT_set_eink_update_flag(bool flag)
 bool CAT_eink_needs_update()
 {
 	return eink_needs_update;
+}
+
+void CAT_eink_logic()
+{
+	uint64_t now = CAT_get_RTC_now();
+
+	if
+	(
+		((CAT_is_charging() &&
+		(now - eink_update_timestamp) >= EINK_UPDATE_PERIOD &&
+		CAT_input_downtime() >= EINK_UPDATE_PERIOD) ||
+		(eink_update_timestamp == 0 && CAT_AQ_sensors_initialized()))
+	)
+	{
+		CAT_set_eink_update_flag(true);
+	}
+}
+
+void CAT_eink_render()
+{
+	if(CAT_eink_needs_update())
+	{
+		CAT_set_eink_update_flag(false);
+		CAT_eink_update();
+		eink_update_timestamp = CAT_get_RTC_now();
+	}
 }
 
 
@@ -111,6 +141,19 @@ void CAT_flip_screen()
 	screen_orientation = !screen_orientation;
 	for(int i = 0; i < FLIP_BUFFER_SIZE; i++)
 		flip_buffer[i] = false;
+}
+
+void CAT_orientation_tick()
+{
+	if(!CAT_get_persist_flag(CAT_PERSIST_FLAG_MANUAL_ORIENT))
+	{
+		CAT_poll_screen_flip();
+		if(CAT_should_flip_screen())
+		{
+			CAT_flip_screen();
+			CAT_set_eink_update_flag(true);
+		}
+	}
 }
 
 
@@ -257,7 +300,7 @@ void CAT_AQ_update_moving_scores()
 bool CAT_IMU_is_upside_down()
 {
 	CAT_IMU_values imu;
-	CAT_IMU_export_normalized(&imu);
+	CAT_IMU_get_normalized(&imu);
 	if(fabs(imu.x) > 0.2 || fabs(imu.z) > 0.2)
 		return false;
 	if(screen_orientation == CAT_SCREEN_ORIENTATION_UP)
