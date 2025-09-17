@@ -10,7 +10,7 @@ def build(here, html: HTMLWriter):
 	common.title(html, here.title);
 
 	html.text("Feeding your pet nutritious and delicious meals is the main way to restore its vigour and one way to gain XP. " \
-	"To launch the feeding minigame, press the screen button that has a table setting on it. " \
+	"To launch the feeding minigame, press the screen button with a table setting on it. " \
 	"Once the minigame is launched, tapping around the feeding area will show you some visual hints.");
 
 	html.text("At a basic level, feeding consists of selecting food items from your inventory and arranging them into a meal on your critter's meal tray. " \
