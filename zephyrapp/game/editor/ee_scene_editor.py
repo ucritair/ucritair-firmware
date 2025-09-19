@@ -228,12 +228,10 @@ class SceneEditor:
 			if InputManager.is_held(glfw.MOUSE_BUTTON_LEFT):
 				aabb = PropHelper.get_canvas_aabb(self, self.selection);
 				x0, y0, x1, y1 = aabb;
-				sdx, sdy = self.selection_delta;
-				x0, y0 = x0 + sdx, y0 + sdy;
-
 				cx, cy = self.canvas_io.cursor;
 				cdx, cdy = cx - x0, cy - y0;
-				self.selection["position"] = self.canvas_grid.transform_point((x0+cdx, y0+cdy));
+				sdx, sdy = self.selection_delta;
+				self.selection["position"] = self.canvas_grid.transform_point((x0-sdx+cdx, y0-sdy+cdy));
 	
 		if InputManager.is_held(glfw.KEY_LEFT_SUPER) and InputManager.is_pressed(glfw.KEY_C):
 			self.copy_prop(self.highlight);

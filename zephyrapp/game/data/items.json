@@ -2654,6 +2654,45 @@
             "can_buy": false,
             "can_sell": false,
             "icon": "item_icon_key_sprite"
+        },
+        {
+            "type": "key",
+            "name": "ingr_wood",
+            "display_name": "Wood",
+            "tier": 0,
+            "sprite": "world_node_wood_sprite",
+            "text": "",
+            "price": 0,
+            "can_buy": false,
+            "can_sell": false,
+            "id": 117,
+            "icon": "item_icon_key_sprite"
+        },
+        {
+            "type": "key",
+            "name": "ingr_stone",
+            "display_name": "Stone",
+            "tier": 0,
+            "sprite": "world_node_stone_sprite",
+            "text": "",
+            "price": 0,
+            "can_buy": false,
+            "can_sell": false,
+            "id": 118,
+            "icon": "item_icon_key_sprite"
+        },
+        {
+            "type": "key",
+            "name": "ingr_fibre",
+            "display_name": "Raw Fibres",
+            "tier": 0,
+            "sprite": "world_node_grass_sprite",
+            "text": "",
+            "price": 0,
+            "can_buy": false,
+            "can_sell": false,
+            "id": 119,
+            "icon": "item_icon_key_sprite"
         }
     ]
 }

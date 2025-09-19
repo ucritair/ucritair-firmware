@@ -197,10 +197,14 @@ bool facing_interactable()
 	CAT_scene_vector direction;
 	CAT_scene_get_direction(&test_scene, interactable, direction);
 
-	if(player_dx != 0 && player_dx != -direction[0])
-		return false;
-	if(player_dy != 0 && player_dy != -direction[1])
-		return false;
+	if(direction[0] != 0 || direction[1] != 0)
+	{
+		if(player_dx != 0 && player_dx != -direction[0])
+			return false;
+		if(player_dy != 0 && player_dy != -direction[1])
+			return false;
+	}
+	
 	return true;
 }
 

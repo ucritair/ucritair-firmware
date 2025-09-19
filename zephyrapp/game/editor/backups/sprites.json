@@ -2533,6 +2533,36 @@
             "height": 64,
             "loop": true,
             "reverse": false
+        },
+        {
+            "id": 250,
+            "name": "world_node_stone_sprite",
+            "path": "testing/node_stone.png",
+            "frames": 1,
+            "width": 16,
+            "height": 16,
+            "loop": false,
+            "reverse": false
+        },
+        {
+            "id": 251,
+            "name": "world_node_grass_sprite",
+            "path": "testing/node_grass.png",
+            "frames": 1,
+            "width": 16,
+            "height": 16,
+            "loop": false,
+            "reverse": false
+        },
+        {
+            "id": 252,
+            "name": "world_node_wood_sprite",
+            "path": "testing/node_wood.png",
+            "frames": 1,
+            "width": 16,
+            "height": 32,
+            "loop": false,
+            "reverse": false
         }
     ]
 }

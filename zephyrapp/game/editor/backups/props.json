@@ -307,12 +307,89 @@
                 [
                     0,
                     0,
-                    16,
-                    16
+                    1,
+                    1
                 ]
             ],
             "triggers": [],
             "sprite": "floor_grass_tile_sprite",
+            "palette": true
+        },
+        {
+            "name": "node_stone_prop",
+            "blockers": [
+                [
+                    0,
+                    0,
+                    1,
+                    1
+                ]
+            ],
+            "triggers": [
+                {
+                    "aabb": [
+                        0,
+                        0,
+                        1,
+                        1
+                    ],
+                    "direction": [
+                        0,
+                        0
+                    ],
+                    "proc": "proc_collect_resource"
+                }
+            ],
+            "sprite": "world_node_stone_sprite",
+            "palette": true
+        },
+        {
+            "name": "node_grass_prop",
+            "blockers": [],
+            "triggers": [
+                {
+                    "aabb": [
+                        0,
+                        0,
+                        1,
+                        1
+                    ],
+                    "direction": [
+                        0,
+                        0
+                    ],
+                    "proc": "proc_collect_resource"
+                }
+            ],
+            "sprite": "world_node_grass_sprite",
+            "palette": true
+        },
+        {
+            "name": "node_wood_prop",
+            "blockers": [
+                [
+                    0.0,
+                    1.0,
+                    1.0,
+                    2.0
+                ]
+            ],
+            "triggers": [
+                {
+                    "aabb": [
+                        0,
+                        1.0,
+                        1,
+                        2.0
+                    ],
+                    "direction": [
+                        0,
+                        0
+                    ],
+                    "proc": "proc_collect_resource"
+                }
+            ],
+            "sprite": "world_node_wood_sprite",
             "palette": true
         }
     ]

@@ -8,6 +8,7 @@
 #include "cat_machine.h"
 #include "cat_room.h"
 #include "dialogue_profile_assets.h"
+#include "prop_assets.h"
 
 void interact_proc_reed(CAT_prop_instance* prop)
 {
@@ -56,9 +57,14 @@ CAT_item_pool item_pool = (CAT_item_pool)
 	.entry_count = 3,
 };
 
-void proc_use_scrungus(CAT_prop_instance* prop)
+void proc_collect_resource(CAT_prop_instance* prop)
 {
-	CAT_inventory_add(CAT_item_pool_select(&item_pool), 1);
+	if(prop->prop == &node_grass_prop)
+		CAT_inventory_add(ingr_fibre_item, 1);
+	if(prop->prop == &node_stone_prop)
+		CAT_inventory_add(ingr_stone_item, 1);
+	if(prop->prop == &node_wood_prop)
+		CAT_inventory_add(ingr_wood_item, 1);
 	prop->disabled = true;
 }
 

@@ -117,3 +117,6 @@
 #define save_migrate_mark_item 114
 #define save_reset_mark_item 115
 #define save_extend_mark_item 116
+#define ingr_wood_item 117
+#define ingr_stone_item 118
+#define ingr_fibre_item 119

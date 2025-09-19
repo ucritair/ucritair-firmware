@@ -9,8 +9,9 @@ from ee_cowtools import *;
 ## PROC REGISTRY
 
 def _parse_c_signatures(text):
-	statements = re.findall(r"void\s*([A-z_]+)\s*\(\);", text);
-	return statements;
+	signatures = re.findall(r"void\s*([A-z_]+)\s*\(CAT_prop_instance\s*\*\s+([A-z_]+)\);", text);
+	proc_names = [proc for proc, arg in signatures];
+	return proc_names;
 
 class ProcRegistry:
 	def __init__(self, path):

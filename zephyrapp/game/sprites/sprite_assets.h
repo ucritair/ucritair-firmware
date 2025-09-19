@@ -254,6 +254,9 @@ extern const CAT_sprite ui_item_frame_bg_spec_sprite;
 extern const CAT_sprite ui_feed_select_sprite;
 extern const CAT_sprite ui_feed_submit_sprite;
 extern const CAT_sprite ui_touch_prompt;
+extern const CAT_sprite world_node_stone_sprite;
+extern const CAT_sprite world_node_grass_sprite;
+extern const CAT_sprite world_node_wood_sprite;
 
 extern const CAT_sprite* sprite_list[];
-#define CAT_SPRITE_LIST_LENGTH 250
+#define CAT_SPRITE_LIST_LENGTH 253
