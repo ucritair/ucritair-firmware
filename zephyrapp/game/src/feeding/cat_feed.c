@@ -791,7 +791,11 @@ static void MS_arrange(CAT_FSM_signal signal)
 			}
 
 			if(CAT_input_poll_barrier())
+			{
+				if(CAT_input_dismissal())
+					CAT_pushdown_pop();
 				return;
+			}
 
 			click_consumed = false;
 
@@ -799,6 +803,13 @@ static void MS_arrange(CAT_FSM_signal signal)
 				button_idx = max(button_idx-1, 0);
 			if(CAT_input_pressed(CAT_BUTTON_RIGHT))
 				button_idx = min(button_idx+1, BUTTON_COUNT-1);
+			if(CAT_input_pressed(CAT_BUTTON_B))
+			{
+				if(button_idx == 1)
+					buttons[button_idx].proc();
+				else
+					button_idx = 1;
+			}
 			for(int i = 0; i < BUTTON_COUNT; i++)
 			{
 				struct button b = buttons[i];
