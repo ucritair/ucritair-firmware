@@ -52,7 +52,7 @@ bool CAT_eink_needs_update()
 	return eink_needs_update;
 }
 
-void CAT_eink_logic()
+void CAT_eink_tick()
 {
 	uint64_t now = CAT_get_RTC_now();
 

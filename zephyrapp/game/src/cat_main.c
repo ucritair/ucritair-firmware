@@ -84,9 +84,9 @@ void CAT_tick_logic()
 	
 	CAT_pushdown_tick();
 
-	CAT_gui_io();
+	CAT_gui_tick();
 	CAT_effects_tick();
-	CAT_eink_logic();
+	CAT_eink_tick();
 }
 
 void CAT_draw_eink_refresh_notice()
@@ -120,6 +120,9 @@ void CAT_draw_eink_refresh_notice()
 
 void CAT_tick_render()
 {
+	if(CAT_is_first_render_cycle())
+		CAT_flip_render_callback();
+
 	CAT_render_callback render_callback = CAT_get_render_callback();
 	if(render_callback != NULL)
 	{
@@ -141,9 +144,6 @@ void CAT_tick_render()
 
 	if(CAT_eink_needs_update())
 		CAT_draw_eink_refresh_notice();
-
-	if(CAT_is_last_render_cycle())
-		CAT_flip_render_callback();
 }
 
 #ifdef CAT_DESKTOP

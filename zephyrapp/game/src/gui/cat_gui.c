@@ -259,7 +259,7 @@ bool CAT_gui_keyboard_is_open()
 	return keyboard.open;
 }
 
-void CAT_gui_keyboard_io()
+void CAT_gui_keyboard_logic()
 {
 	if(CAT_input_pressed(CAT_BUTTON_B))
 		gui_close_keyboard();
@@ -393,7 +393,7 @@ bool CAT_gui_popup_is_open()
 	return popup.open;
 }
 
-void CAT_gui_popup_io()
+void CAT_gui_popup_logic()
 {
 	if(CAT_input_pressed(CAT_BUTTON_LEFT))
 		popup.selector = 1;
@@ -497,17 +497,18 @@ typedef struct menu_node
 	};
 	
 	int16_t parent;
-	uint16_t children[32];
+	uint8_t children[32];
 	uint8_t child_count;
 	int8_t selector;
 } menu_node;
 
-static menu_node menu_table[512];
+static menu_node menu_table[256];
 #define MENU_TABLE_SIZE (sizeof(menu_table) / sizeof(menu_table[0]))
 static uint16_t menu_stack[24];
 #define MENU_STACK_SIZE (sizeof(menu_stack) / sizeof(menu_stack[0]))
 static uint8_t menu_stack_length = 0;
 static int menu_root = -1;
+static bool menu_reset = false;
 
 uint16_t register_menu_node(const char* title, CAT_gui_menu_type type)
 {
@@ -619,15 +620,10 @@ void CAT_gui_begin_menu_context()
 		menu_table[i].clicked = false;
 		menu_table[i].parent = -1;
 		menu_table[i].child_count = 0;
+		if(menu_reset)
+			menu_table[i].selector = 0;
 	}
-}
-
-void CAT_gui_reset_menu_context()
-{
-	for(int i = 0; i < MENU_TABLE_SIZE; i++)
-	{
-		menu_table[i].selector = 0;
-	}
+	menu_reset = false;
 }
 
 bool CAT_gui_begin_menu(const char* title)
@@ -722,7 +718,7 @@ void CAT_gui_end_menu()
 	pop_menu_node();
 }
 
-void CAT_gui_menu_io()
+void CAT_gui_menu_logic()
 {
 	menu_node* head = get_global_head();
 	
@@ -759,6 +755,7 @@ void CAT_gui_menu_io()
 	{
 		if(head->parent == -1)
 		{
+			menu_reset = true;
 			CAT_pushdown_pop();
 		}
 		else
@@ -866,6 +863,7 @@ void CAT_gui_printf(uint16_t colour, const char* fmt, ...)
 
 static bool item_grid_status = false;
 static bool item_grid_handle_exit = false;
+static bool item_grid_reset = false;
 
 static int item_grid_pool_backing[CAT_ITEM_TABLE_CAPACITY];
 static CAT_int_list item_grid_pool;
@@ -873,7 +871,7 @@ static struct item_grid_datum
 {
 	bool highlight;
 } item_grid_data[CAT_ITEM_TABLE_CAPACITY];
-static int item_grid_selector;
+static int item_grid_selector = 0;
 
 static int item_grid_confirmed = false;
 static int item_grid_confirm_frame = 0;
@@ -883,7 +881,7 @@ enum
 	GRID,
 	NAV
 };
-static int item_grid_focus;
+static int item_grid_focus = GRID;
 
 typedef struct
 {
@@ -892,8 +890,8 @@ typedef struct
 	CAT_item_proc confirm_proc;
 } item_grid_tab;
 static item_grid_tab item_grid_tab_list[8];
-int item_grid_tab_count;
-int item_grid_tab_idx;
+int item_grid_tab_count = 0;
+int item_grid_tab_idx = 0;
 
 int item_grid_get_page()
 {
@@ -910,15 +908,20 @@ void CAT_gui_begin_item_grid_context(bool handle_exit)
 	item_grid_status = false;
 
 	CAT_ilist(&item_grid_pool, item_grid_pool_backing, CAT_ITEM_TABLE_CAPACITY);
-	//item_grid_selector = 0;
 	item_grid_confirmed = false;
 	item_grid_confirm_frame = 0;
 
 	item_grid_focus = GRID;
 	item_grid_tab_count = 0;
-	//item_grid_tab_idx = 0;
 
 	item_grid_handle_exit = handle_exit;
+
+	if(item_grid_reset)
+	{
+		item_grid_tab_idx = 0;
+		item_grid_selector = 0;
+	}
+	item_grid_reset = false;
 }
 
 void CAT_gui_begin_item_grid()
@@ -963,7 +966,7 @@ void CAT_gui_item_grid_highlight()
 	item_grid_data[item_grid_pool.length-1].highlight = true;
 }
 
-void CAT_gui_item_grid_io()
+void CAT_gui_item_grid_logic()
 {
 	switch (item_grid_focus)
 	{
@@ -1018,8 +1021,7 @@ void CAT_gui_item_grid_io()
 
 			if(CAT_input_pressed(CAT_BUTTON_B) && item_grid_handle_exit)
 			{
-				item_grid_tab_idx = 0;
-				item_grid_selector = 0;
+				item_grid_reset = true;
 				CAT_pushdown_pop();
 			}
 		}
@@ -1160,7 +1162,7 @@ void CAT_gui_dismiss_dialogue()
 	dialogue_open = false;
 }
 
-void CAT_gui_dialogue_io()
+void CAT_gui_dialogue_logic()
 {
 	if((CAT_get_RTC_now() - dialogue_timestamp) > dialogue_duration)
 		dialogue_open = false;
@@ -1181,19 +1183,19 @@ void CAT_gui_dialogue()
 //////////////////////////////////////////////////////////////////////////
 // FINALIZATION
 
-void CAT_gui_io()
+void CAT_gui_tick()
 {
 	if(CAT_gui_popup_is_open())
-		CAT_gui_popup_io();
+		CAT_gui_popup_logic();
 	else if(CAT_gui_keyboard_is_open())
-		CAT_gui_keyboard_io();
+		CAT_gui_keyboard_logic();
 	else if(CAT_gui_item_grid_is_open())
-		CAT_gui_item_grid_io();
+		CAT_gui_item_grid_logic();
 	else if(CAT_gui_menu_is_open())
-		CAT_gui_menu_io();
+		CAT_gui_menu_logic();
 
 	if(CAT_gui_dialogue_is_open())
-		CAT_gui_dialogue_io();
+		CAT_gui_dialogue_logic();
 }
 
 void CAT_gui_render()

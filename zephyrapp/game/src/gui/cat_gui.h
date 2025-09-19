@@ -77,14 +77,15 @@ typedef enum
 } CAT_gui_toggle_style;
 
 void CAT_gui_begin_menu_context();
-void CAT_gui_reset_menu_context();
+
 bool CAT_gui_begin_menu(const char* title);
+void CAT_gui_end_menu();
 bool CAT_gui_menu_is_open();
+
 bool CAT_gui_menu_item(const char* title);
 bool CAT_gui_menu_toggle(const char* title, bool toggle, CAT_gui_toggle_style style);
 bool CAT_gui_menu_ticker(const char* title, int* ticker, int min, int max);
 bool CAT_gui_menu_text(const char* fmt, ...);
-void CAT_gui_end_menu();
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -120,7 +121,7 @@ void CAT_gui_dismiss_dialogue();
 //////////////////////////////////////////////////////////////////////////
 // FINALIZATION
 
-void CAT_gui_io();
+void CAT_gui_tick();
 void CAT_gui_render();
 
 

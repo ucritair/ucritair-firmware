@@ -38,6 +38,8 @@ typedef void (*CAT_FSM_state)(CAT_FSM_signal);
 typedef struct
 {
 	CAT_FSM_state state;
+	CAT_FSM_state next;
+	bool dirty;
 } CAT_FSM;
 void CAT_FSM_transition(CAT_FSM* machine, CAT_FSM_state state);
 void CAT_FSM_tick(CAT_FSM* machine);

@@ -80,7 +80,7 @@ void CAT_set_eink_update_flag(bool flag);
 bool CAT_eink_needs_update();
 void CAT_eink_update();
 
-void CAT_eink_logic();
+void CAT_eink_tick();
 void CAT_eink_render();
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

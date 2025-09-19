@@ -27,9 +27,10 @@ static void MS_summary(CAT_FSM_signal signal);
 static void render_summary();
 static CAT_FSM fsm =
 {
-	.state = NULL
+	.state = NULL,
+	.next = NULL,
+	.dirty = false
 };
-
 
 #define FOOD_SCALE 2
 #define FOOD_COLLISION_R 16
@@ -1204,25 +1205,25 @@ static void MS_inspect(CAT_FSM_signal signal)
 {
 	switch (signal)
 	{
-	case CAT_FSM_SIGNAL_ENTER:
-		CAT_set_render_callback(render_inspect);
-		break;
+		case CAT_FSM_SIGNAL_ENTER:
+			CAT_set_render_callback(render_inspect);
+			break;
 
-	case CAT_FSM_SIGNAL_TICK:
-		if (CAT_input_pressed(CAT_BUTTON_B))
-			CAT_FSM_transition(&fsm, MS_select);
-		else if (CAT_input_pressed(CAT_BUTTON_SELECT))
-			CAT_FSM_transition(&fsm, MS_arrange);
+		case CAT_FSM_SIGNAL_TICK:
+			if (CAT_input_pressed(CAT_BUTTON_B))
+				CAT_FSM_transition(&fsm, MS_select);
+			else if (CAT_input_pressed(CAT_BUTTON_SELECT))
+				CAT_FSM_transition(&fsm, MS_arrange);
 
-		if (CAT_input_pressed(CAT_BUTTON_RIGHT))
-			inspect_idx += 1;
-		if (CAT_input_pressed(CAT_BUTTON_LEFT))
-			inspect_idx -= 1;
-		inspect_idx = (inspect_idx + food_pool.length) % food_pool.length;
-		break;
+			if (CAT_input_pressed(CAT_BUTTON_RIGHT))
+				inspect_idx += 1;
+			if (CAT_input_pressed(CAT_BUTTON_LEFT))
+				inspect_idx -= 1;
+			inspect_idx = (inspect_idx + food_pool.length) % food_pool.length;
+			break;
 
-	case CAT_FSM_SIGNAL_EXIT:
-		break;
+		case CAT_FSM_SIGNAL_EXIT:
+			break;
 	}
 }
 

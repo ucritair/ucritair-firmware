@@ -9,20 +9,38 @@
 //////////////////////////////////////////////////////////////////////////
 // MACHINE
 
-void CAT_FSM_transition(CAT_FSM* machine, CAT_FSM_state state)
+void FSM_transition(CAT_FSM* machine)
 {
 	if(machine == NULL)
 		return;
 
 	if(machine->state != NULL)
 		(*machine->state)(CAT_FSM_SIGNAL_EXIT);
-	machine->state = state;
+	machine->state = machine->next;
+	machine->next = NULL;
+	machine->dirty = false;
 	if(machine->state != NULL)
 		(*machine->state)(CAT_FSM_SIGNAL_ENTER);
 }
 
+void CAT_FSM_transition(CAT_FSM* machine, CAT_FSM_state state)
+{
+	/*if(machine == NULL)
+		return;
+
+	if(machine->state != NULL)
+		(*machine->state)(CAT_FSM_SIGNAL_EXIT);
+	machine->state = state;
+	if(machine->state != NULL)
+		(*machine->state)(CAT_FSM_SIGNAL_ENTER);*/
+	machine->next = state;
+	machine->dirty = true;
+}
+
 void CAT_FSM_tick(CAT_FSM* machine)
 {
+	if(machine->dirty)
+		FSM_transition(machine);
 	if(machine->state != NULL)
 		(*machine->state)(CAT_FSM_SIGNAL_TICK);
 }
@@ -107,7 +125,6 @@ void CAT_pushdown_tick()
 {
 	if(transition_mode != NONE)
 		pushdown_transition();
-	CAT_printf("%d\n", pushdown_depth);
 	if(peek() != NULL)
 		peek()(CAT_FSM_SIGNAL_TICK);
 }
