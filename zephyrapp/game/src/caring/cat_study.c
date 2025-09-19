@@ -93,6 +93,12 @@ static void MS_succeed(CAT_FSM_signal signal);
 static void render_MS_succeed();
 static void MS_summary(CAT_FSM_signal signal);
 static void render_MS_summary();
+static CAT_FSM fsm =
+{
+	.state = NULL,
+	.next = NULL,
+	.dirty = false
+};
 
 typedef struct
 {
@@ -278,7 +284,7 @@ static void MS_cast(CAT_FSM_signal signal)
 		case CAT_FSM_SIGNAL_TICK:
 		{
 			if(CAT_input_pressed(CAT_BUTTON_B))
-				CAT_pushdown_rebase(CAT_MS_room);
+				CAT_FSM_transition(&fsm, NULL);
 
 			if(CAT_input_pressed(CAT_BUTTON_A))
 			{
@@ -321,7 +327,7 @@ static void MS_cast(CAT_FSM_signal signal)
 			{
 				black_out_t += CAT_get_delta_time_s();
 				if(black_out_t >= BLACK_OUT_DURATION)
-					CAT_pushdown_rebase(MS_fish);
+					CAT_FSM_transition(&fsm, MS_fish);
 			}
 
 			rings_tick();
@@ -613,7 +619,7 @@ static void fish_tick()
 		if(fish_arena_dist < (ARENA_RADIUS + fish.radii[0]))
 			fish.race_trigger = true;
 		if(fish.race_trigger && fish_arena_dist > (ARENA_RADIUS + fish.radii[0]))
-			CAT_pushdown_rebase(MS_fail);
+			CAT_FSM_transition(&fsm, MS_fail);
 		fish_integrate_heading(fish.focus_heading, FOCUSED_SPEED);
 	}
 	else
@@ -660,7 +666,7 @@ static bool quit_popup()
 		CAT_gui_open_popup("Quit fishing?\nYou will lose this\ncatch!\n");
 	if (CAT_gui_consume_popup())
 	{
-		CAT_pushdown_rebase(CAT_MS_room);
+		CAT_pushdown_pop();
 		return true;
 	}
 
@@ -694,14 +700,6 @@ static void MS_fish(CAT_FSM_signal signal)
 			if(quit_popup())
 				break;
 
-			if(CAT_check_config_flags(CAT_CONFIG_FLAG_DEVELOPER))
-			{
-				if(CAT_input_pressed(CAT_BUTTON_SELECT))
-				{
-					CAT_pushdown_rebase(MS_summary);
-				}
-			}
-
 			if(!fish.nibble_trigger)
 			{
 				if(CAT_input_touching())
@@ -730,13 +728,13 @@ static void MS_fish(CAT_FSM_signal signal)
 				if(CAT_input_pressed(CAT_BUTTON_A))
 				{
 					if(fish.vuln_trigger)
-						CAT_pushdown_rebase(MS_catch);
+						CAT_FSM_transition(&fsm, MS_catch);
 					else
-						CAT_pushdown_rebase(MS_fail);
+						CAT_FSM_transition(&fsm, MS_fail);
 				}
 
 				if(fish.bite_trigger && fish.bite_timer >= 1.0f)
-					CAT_pushdown_rebase(MS_fail);	
+					CAT_FSM_transition(&fsm, MS_fail);
 			}
 
 			if(fish.focus_trigger)
@@ -1030,9 +1028,9 @@ static void MS_catch(CAT_FSM_signal signal)
 			}	
 
 			if(bar.progress >= 1)	
-				CAT_pushdown_rebase(MS_succeed);
+				CAT_FSM_transition(&fsm, MS_succeed);
 			else if(bar.progress <= 0)
-				CAT_pushdown_rebase(MS_fail);
+				CAT_FSM_transition(&fsm, MS_fail);
 
 			bar_jitter = (CAT_ivec2)
 			{
@@ -1099,7 +1097,7 @@ static void MS_fail(CAT_FSM_signal signal)
 			fail_colour = CAT_RGB24_lerp(CAT_RGB24(255,0,0), CAT_RGB24(0,0,0), progress);
 			progress += CAT_get_delta_time_s();
 			if(progress >= 1)
-				CAT_pushdown_rebase(CAT_MS_room);
+				CAT_FSM_transition(&fsm, NULL);
 		}
 		break;
 
@@ -1154,7 +1152,7 @@ static void MS_succeed(CAT_FSM_signal signal)
 
 			succeed_colour = CAT_RGB24_lerp(CAT_RGB24(255,0,0), CAT_RGB24(255,255,255), clamp(progress / 3.0f, 0, 1));
 			if(progress >= 3.0f)
-				CAT_pushdown_rebase(MS_summary);
+				CAT_FSM_transition(&fsm, MS_summary);
 			progress += CAT_get_delta_time_s();
 		break;
 
@@ -1206,7 +1204,7 @@ static void MS_summary(CAT_FSM_signal signal)
 			if(CAT_input_released(CAT_BUTTON_A))
 			{
 				if(summary_page == PERFORMANCE)
-					CAT_pushdown_rebase(CAT_MS_room);
+					CAT_FSM_transition(&fsm, NULL);
 			}
 
 			// enum = (enum + ENUM_MAX) % ENUM_MAX doesn't work on embedded
@@ -1385,11 +1383,14 @@ void CAT_MS_study(CAT_FSM_signal signal)
 	switch (signal)
 	{
 		case CAT_FSM_SIGNAL_ENTER:
+			CAT_FSM_transition(&fsm, MS_cast);
 		break;
 
 		case CAT_FSM_SIGNAL_TICK:
 		{
-			CAT_pushdown_rebase(MS_cast);
+			CAT_FSM_tick(&fsm);
+			if(fsm.state == NULL)
+				CAT_pushdown_pop();
 		}
 		break;
 
