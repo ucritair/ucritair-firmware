@@ -2673,7 +2673,7 @@
             "name": "ingr_stone",
             "display_name": "Stone",
             "tier": 0,
-            "sprite": "world_node_wood_sprite",
+            "sprite": "world_node_stone_sprite",
             "text": "",
             "price": 0,
             "can_buy": false,
