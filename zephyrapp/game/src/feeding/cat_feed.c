@@ -1048,9 +1048,7 @@ static void render_arrange()
 
 			if (food_list[i].active)
 			{
-				CAT_RGB888 red = CAT_RGB24(255, 0, 0);
-				CAT_RGB888 green = CAT_RGB24(0, 255, 0);
-				uint16_t evenness_colour = CAT_RGB24216(CAT_RGB24_lerp(red, green, score_object.evenness));
+				uint16_t evenness_colour = CAT_colour_lerp(CAT_RED, CAT_GREEN, score_object.evenness);
 
 				CAT_lineberry(food_list[i].position.x, food_list[i].position.y, active_food_centroid.x, active_food_centroid.y, evenness_colour);
 

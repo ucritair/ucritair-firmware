@@ -654,24 +654,16 @@ static uint16_t sky_colours[] =
 	RGB8882565(238, 188, 116),
 	RGB8882565(196, 202, 186),
 	RGB8882565(142, 169, 164),
+	RGB8882565(49, 71, 93),
 };
+#define SKY_COLOUR_COUNT (sizeof(sky_colours)/sizeof(sky_colours[0]))
 
 uint16_t get_sky_colour()
 {
 	int seconds = datetime.hour * CAT_HOUR_SECONDS + datetime.minute * CAT_MINUTE_SECONDS + datetime.second;
 	float progress = seconds / (float) CAT_DAY_SECONDS;
-	float window_size = 1.0f / 24.0f;
-
-	int steps = sizeof(sky_colours)/sizeof(sky_colours[0]);
-	int idx_a = (int)(progress * steps);
-	int idx_b = (idx_a + 1 + steps) % steps;
-	float partial_progress = (progress - (idx_a / (float) steps)) / (1.0f / steps);
 	
-	uint16_t colour_a = sky_colours[idx_a];
-	uint16_t colour_b = sky_colours[idx_b];
-	uint16_t colour_c = CAT_RGB24216(CAT_RGB24_lerp(CAT_RGB16224(colour_a), CAT_RGB16224(colour_b), partial_progress));
-
-	return colour_c;
+	return CAT_colour_curve(sky_colours, SKY_COLOUR_COUNT, progress);
 }
 
 void CAT_room_draw_statics()
@@ -680,8 +672,6 @@ void CAT_room_draw_statics()
 	int window_x = theme->window_rect.min.x;
 	int window_width = theme->window_rect.max.x-theme->window_rect.min.x;
 	int window_height = theme->window_rect.max.y-theme->window_rect.min.y;
-	int window_columns = window_width/8;
-	int sky_row_off = datetime.hour * (480 - window_height) / 23;
 
 	if(theme->tile_wall)
 	{
@@ -694,22 +684,12 @@ void CAT_room_draw_statics()
 			}
 		}
 
-		for(int i = 0; i < window_columns; i++)
-		{
-			/*CAT_set_sprite_mask(window_x+4, window_y+4, window_x+window_width-4, window_y+window_height-4);
-			CAT_draw_sprite_raw(&sky_gradient_sprite, 0, window_x + i * 8, window_y - sky_row_off);*/
-			CAT_fillberry(window_x+4, window_y+4, window_width-8, window_height-8, get_sky_colour());
-		}
+		CAT_fillberry(window_x+4, window_y+4, window_width-8, window_height-8, get_sky_colour());
 		CAT_draw_sprite_raw(&window_sprite, 0, window_x, window_y);
 	}
 	else
 	{
-		for(int i = 0; i < window_columns; i++)
-		{
-			/*CAT_set_sprite_mask(window_x, window_y, window_x+window_width, window_y+window_height);
-			CAT_draw_sprite_raw(&sky_gradient_sprite, 0, window_x + i * 8, window_y - sky_row_off);*/
-			CAT_fillberry(window_x, window_y, window_width, window_height, get_sky_colour());
-		}
+		CAT_fillberry(window_x, window_y, window_width, window_height, get_sky_colour());
 		CAT_draw_background(theme->wall_tiles, 0, 0);
 	}
 

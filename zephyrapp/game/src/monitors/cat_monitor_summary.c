@@ -34,14 +34,12 @@ void CAT_monitor_render_summary()
 
 	float score = CAT_AQ_live_score_normalized(CAT_AQM_AGGREGATE);
 	uint16_t colour = CAT_AQ_get_grade_colour(score);
-	//CAT_discberry(120, cursor_y, SCORE_R, colour);
 	CAT_circberry(120, cursor_y, SCORE_R, colour);
-	CAT_circberry(120, cursor_y, SCORE_R+4, colour);
 	const char* grade = CAT_AQ_get_grade_string(score);
 	cursor_y = center_textf(120 + ((strlen(grade) == 1) ? 0 : 4), cursor_y, 3, colour, "%s", grade);
 	cursor_y += 24;
 
-	cursor_y = center_textf(120, cursor_y, 1, CAT_WHITE, "\4CritAQ Score");
+	cursor_y = center_textf(120, cursor_y, 1, CAT_WHITE, "\4CritAQ Grade");
 	cursor_y += 44;
 
 	for(int i = 0; i < CAT_AQM_AGGREGATE; i++)

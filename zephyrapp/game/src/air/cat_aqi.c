@@ -282,17 +282,13 @@ const char* CAT_AQ_get_grade_string(float score)
 
 uint16_t CAT_AQ_get_grade_colour(float score)
 {
-	uint16_t colours[] =
+	static uint16_t colours[] = 
 	{
-		CAT_GRADE_COLOUR_F,
-		CAT_GRADE_COLOUR_D,
-		CAT_GRADE_COLOUR_C,
-		CAT_GRADE_COLOUR_B,
-		CAT_GRADE_COLOUR_A,
+		CAT_GRADE_COLOUR_BAD,
+		CAT_GRADE_COLOUR_MID,
+		CAT_GRADE_COLOUR_GOOD
 	};
-
-	int idx = quantize(score, 1, sizeof(colours)/sizeof(colours[0]));
-	return colours[idx];
+	return CAT_colour_curve(colours, 3, score);
 }
 
 static int good_delta_signs[] =

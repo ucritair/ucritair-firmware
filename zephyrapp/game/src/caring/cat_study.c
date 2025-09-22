@@ -26,8 +26,6 @@
 #define ARENA_RADIUS 48
 #define ARENA_FADE_DURATION 1.0f
 
-#define FADE(a, b, t) CAT_RGB24216(CAT_RGB24_lerp(CAT_RGB16224(a), CAT_RGB16224(b), t))
-
 // Lower lull, higher difficulty
 static const float bar_lull_ranges[] =
 {
@@ -767,7 +765,7 @@ static void render_MS_fish()
 	CAT_frameberry(CAT_BLACK);
 
 	if(fish.focus_trigger)
-		CAT_circberry(120, 160, ARENA_RADIUS, FADE(CAT_BLACK, 0x6800, arena_fade_timer/ARENA_FADE_DURATION));
+		CAT_circberry(120, 160, ARENA_RADIUS, CAT_colour_lerp(CAT_BLACK, 0x6800, arena_fade_timer/ARENA_FADE_DURATION));
 		
 	render_fish(CAT_RED);
 	render_rings();
@@ -1075,7 +1073,7 @@ static void render_MS_catch()
 	CAT_draw_textf(120-8*2+4, bar.center.y - 26, "%d%%", (int)(bar.progress * 100));
 }
 
-static CAT_RGB888 fail_colour;
+static uint16_t fail_colour;
 
 static void MS_fail(CAT_FSM_signal signal)
 {
@@ -1094,7 +1092,7 @@ static void MS_fail(CAT_FSM_signal signal)
 			fish_integrate_heading(fish.headings[0], EXIT_SPEED);
 			fish_pbd_default();
 
-			fail_colour = CAT_RGB24_lerp(CAT_RGB24(255,0,0), CAT_RGB24(0,0,0), progress);
+			fail_colour = CAT_colour_lerp(CAT_RED, CAT_BLACK, progress);
 			progress += CAT_get_delta_time_s();
 			if(progress >= 1)
 				CAT_FSM_transition(&fsm, NULL);
@@ -1109,7 +1107,7 @@ static void MS_fail(CAT_FSM_signal signal)
 static void render_MS_fail()
 {
 	CAT_frameberry(CAT_BLACK);
-	render_fish(CAT_RGB24216(fail_colour));
+	render_fish(fail_colour);
 
 	if(fish.bite_trigger)
 	{
@@ -1131,7 +1129,7 @@ static void render_MS_fail()
 	}
 }
 
-static CAT_RGB888 succeed_colour;
+static uint16_t succeed_colour;
 
 static void MS_succeed(CAT_FSM_signal signal)
 {
@@ -1150,7 +1148,7 @@ static void MS_succeed(CAT_FSM_signal signal)
 		case CAT_FSM_SIGNAL_TICK:
 			rings_tick();
 
-			succeed_colour = CAT_RGB24_lerp(CAT_RGB24(255,0,0), CAT_RGB24(255,255,255), clamp(progress / 3.0f, 0, 1));
+			succeed_colour = CAT_colour_lerp(CAT_RED, CAT_WHITE, clamp(progress / 3.0f, 0, 1));
 			if(progress >= 3.0f)
 				CAT_FSM_transition(&fsm, MS_summary);
 			progress += CAT_get_delta_time_s();
@@ -1164,7 +1162,7 @@ static void MS_succeed(CAT_FSM_signal signal)
 static void render_MS_succeed()
 {
 	CAT_frameberry(CAT_BLACK);
-	render_fish(CAT_RGB24216(succeed_colour));
+	render_fish(succeed_colour);
 	render_rings();
 }
 
