@@ -336,7 +336,7 @@ void CAT_render_crafting()
 				
 				int count = inputs[i].count;
 				int width = CAT_GLYPH_WIDTH * ((count > 9) ? 2 : 1);
-				CAT_set_text_colour(CAT_LIGHT_GREY);
+				CAT_set_text_colour(CAT_192_GREY);
 				CAT_draw_textf(x + CELL_SIZE-width-2, y+CELL_SIZE-CAT_GLYPH_HEIGHT-3, "%d", count);
 			}
 
@@ -380,7 +380,7 @@ void CAT_render_crafting()
 		(
 			select_x - 1, select_y - 1,
 			select_x + CELL_SIZE + 1, select_y + CELL_SIZE + 1,
-			CAT_LIGHT_GREY
+			CAT_192_GREY
 		);
 		CAT_draw_corner_box
 		(

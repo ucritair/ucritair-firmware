@@ -7,6 +7,7 @@
 #include "cat_input.h"
 #include <math.h>
 #include "cat_monitor_graphics_utils.h"
+#include "cat_monitor_utils.h"
 #include <stdio.h>
 #include <time.h>
 #include "cat_monitor_graph.h"
@@ -19,7 +20,6 @@ enum
 	GRAPH
 };
 static int page = GATE;
-static float focus_progress = 0;
 
 static enum
 {
@@ -235,53 +235,6 @@ void render_calendar()
     }
 }
 
-void gate_logic()
-{
-	if(CAT_input_dismissal())
-		CAT_monitor_dismiss();
-	if(CAT_input_pressed(CAT_BUTTON_LEFT))
-		CAT_monitor_retreat();
-	if(CAT_input_pressed(CAT_BUTTON_RIGHT))
-		CAT_monitor_advance();
-
-	if(!CAT_AQ_logs_initialized())
-		return;
-
-	if(CAT_input_held(CAT_BUTTON_A, 0))
-		focus_progress += CAT_get_delta_time_s();
-	if(CAT_input_released(CAT_BUTTON_A))
-		focus_progress = 0;
-	focus_progress = clamp(focus_progress, 0, 1);
-	if(focus_progress >= 1)
-	{
-		focus_progress = 0;
-		page = CALENDAR;
-		section = CELLS;
-	}
-}
-
-void render_gate()
-{
-	int cursor_y = center_textf(120, 60, 2, CAT_WHITE, "Calendar");
-	cursor_y = underline(120, cursor_y, 2, CAT_WHITE, "Calendar");
-
-	if(!CAT_AQ_logs_initialized())
-	{
-		center_textf(120, 160, CAT_input_held(CAT_BUTTON_A, 0) ? 3 : 2, CAT_WHITE, "No Logs");
-	}
-	else
-	{
-		CAT_annulusberry(120, 200, 64, 56, CAT_WHITE, CAT_ease_inout_sine(focus_progress), 0.25);
-		CAT_circberry(120, 200, 56, CAT_WHITE);
-		CAT_circberry(120, 200, 64, CAT_WHITE);
-
-		CAT_set_text_flags(CAT_TEXT_FLAG_CENTER);
-		CAT_set_text_colour(CAT_WHITE);
-		CAT_set_text_scale(3);
-		CAT_draw_text(120, 200-18, "A");
-	}		
-}
-
 void CAT_monitor_calendar_enter(CAT_datetime date)
 {
 	CAT_monitor_graph_enter(date);
@@ -311,8 +264,9 @@ void CAT_monitor_MS_calendar(CAT_FSM_signal signal)
 				target = today;
 				page = GATE;
 			}
-			
 			section = CELLS;
+
+			CAT_monitor_gate_init("Calendar");
 		}
 		break;
 
@@ -321,7 +275,7 @@ void CAT_monitor_MS_calendar(CAT_FSM_signal signal)
 			switch (page)
 			{
 				case GATE:
-					gate_logic();
+					CAT_monitor_gate_logic();
 				break;
 
 				case CALENDAR:
@@ -338,7 +292,6 @@ void CAT_monitor_MS_calendar(CAT_FSM_signal signal)
 		break;
 
 		case CAT_FSM_SIGNAL_EXIT:
-			focus_progress = 0;
 		break;
 	}
 }
@@ -347,7 +300,7 @@ void CAT_monitor_render_calendar()
 	switch (page)
 	{
 		case GATE:
-			render_gate();
+			CAT_monitor_gate_render();
 		break;
 
 		case CALENDAR:

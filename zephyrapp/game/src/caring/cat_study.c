@@ -12,6 +12,7 @@
 #include "item_assets.h"
 #include "cat_pet.h"
 #include "cat_item.h"
+#include "cat_gizmos.h"
 
 #define SCREEN_DIAG 400
 #define BLACK_OUT_DURATION 1.0f
@@ -1170,7 +1171,8 @@ static enum {
 	FISH,
 	PERFORMANCE,
 	SUMMARY_PAGE_MAX
-} summary_page = FISH;
+};
+int summary_page = FISH;
 
 static int8_t wave_buffer[48];
 static int wave_phase = 0;
@@ -1187,6 +1189,8 @@ static void init_wave_buffer()
 	wave_phase = 0;
 }
 
+static float exit_progress = 0;
+
 static void MS_summary(CAT_FSM_signal signal)
 {
 	switch (signal)
@@ -1195,23 +1199,33 @@ static void MS_summary(CAT_FSM_signal signal)
 			CAT_set_render_callback(render_MS_summary);
 			summary_page = FISH;
 			init_wave_buffer();
+			exit_progress = 0;
 		break;
 
 		case CAT_FSM_SIGNAL_TICK:
 		{
-			if(CAT_input_released(CAT_BUTTON_A))
+			if(CAT_input_down(CAT_BUTTON_A))
 			{
 				if(summary_page == PERFORMANCE)
-					CAT_FSM_transition(&fsm, NULL);
+					exit_progress += CAT_get_delta_time_s();
 			}
+			else if(CAT_input_released(CAT_BUTTON_A))
+			{
+				if(exit_progress >= 1)
+					CAT_FSM_transition(&fsm, NULL);
+				else
+					exit_progress = 0;
+			}
+			exit_progress = clamp(exit_progress, 0, 1);
 
-			// enum = (enum + ENUM_MAX) % ENUM_MAX doesn't work on embedded
-			int summary_page_proxy = summary_page;
+			int page_delta = 0;
 			if (CAT_input_pressed(CAT_BUTTON_RIGHT))
-				summary_page_proxy += 1;
+				page_delta = 1;
 			if (CAT_input_pressed(CAT_BUTTON_LEFT))
-				summary_page_proxy -= 1;
-			summary_page = (summary_page_proxy + SUMMARY_PAGE_MAX) % SUMMARY_PAGE_MAX;
+				page_delta = -1;
+			if(page_delta != 0)
+				exit_progress = 0;
+			summary_page = (summary_page+page_delta+SUMMARY_PAGE_MAX) % SUMMARY_PAGE_MAX;
 
 			wave_phase = (wave_phase + 1) % 240;
 		}
@@ -1248,36 +1262,15 @@ static void render_wave_buffer()
 
 static void render_score_line(int x, int y, int w, float t, float a, float b)
 {
-	int start_x = x;
-	int mid_x = x + w * inv_lerp(t, a, b);
-	int end_x = x + w;
-	CAT_lineberry(start_x, y, mid_x, y, CAT_WHITE);
-	CAT_lineberry(mid_x, y, end_x, y, CAT_RED);
+	t = inv_lerp(t, a, b);
+	CAT_draw_score_line(x, y, w, t, 0, CAT_WHITE, CAT_RED, CAT_BLACK);
 }
 
 static void render_plus_line(int x, int y, int w, float min, float base, float plus, float max)
 {
-	int overshoot = (base+plus) - max;
-	if(overshoot > 0)
-		plus -= overshoot;
-
-	int start_x = x;
-	int base_x = x + w * inv_lerp(base, min, max);
-	int plus_x = x + w * inv_lerp(base+plus, min, max);
-	int end_x = x + w;
-	CAT_lineberry(start_x, y, base_x, y, CAT_WHITE);
-	CAT_lineberry(base_x, y, plus_x, y, CAT_GREEN);
-	CAT_lineberry(plus_x, y, end_x, y, CAT_GREY);
-}
-
-static void render_page_markers(int x, int y)
-{
-	int start_x = x - ((16 + 2) * SUMMARY_PAGE_MAX) / 2;
-	for(int i = 0; i < SUMMARY_PAGE_MAX; i++)
-	{
-		int x = start_x + i * (16 + 2);
-		CAT_draw_sprite(&ui_radio_button_diamond_sprite, summary_page == i, x, y);
-	}
+	float t = inv_lerp(base, min, max);
+	float dt = inv_lerp(plus-base, min, max);
+	CAT_draw_score_line(x, y, w, 0.5, 0.25, CAT_64_GREY, CAT_WHITE, CAT_160_GREY);
 }
 
 static void render_MS_summary()
@@ -1292,7 +1285,7 @@ static void render_MS_summary()
 			CAT_draw_mesh2d(fish.type->mesh, 0, 208, CAT_WHITE);
 			
 			int cursor_y = 4;
-			render_page_markers(120, cursor_y);
+			CAT_draw_page_markers(cursor_y, 2, summary_page, CAT_WHITE);
 			cursor_y += 24;
 			
 			CAT_set_text_colour(CAT_WHITE);
@@ -1315,20 +1308,20 @@ static void render_MS_summary()
 			CAT_set_text_colour(CAT_WHITE);
 			CAT_draw_textf(12, cursor_y, "Lustre: " CAT_FLOAT_FMT, CAT_FMT_FLOAT(fish.lustre));
 			cursor_y += 16;
-			render_score_line(12, cursor_y, CAT_LCD_SCREEN_W * 0.75, fish.lustre, fish.type->min_lustre, fish.type->max_lustre);
+			render_score_line(12, cursor_y, CAT_LCD_SCREEN_W * 0.75, fish.lustre, 0, 1);
 			cursor_y += 12;
 
 			CAT_set_text_colour(CAT_WHITE);
 			CAT_draw_textf(12, cursor_y, "Wisdom: " CAT_FLOAT_FMT, CAT_FMT_FLOAT(fish.wisdom));
 			cursor_y += 16;
-			render_score_line(12, cursor_y, CAT_LCD_SCREEN_W * 0.75, fish.wisdom, fish.type->min_wisdom, fish.type->max_wisdom);
+			render_score_line(12, cursor_y, CAT_LCD_SCREEN_W * 0.75, fish.wisdom, 0, 1);
 		}
 		break;
 
 		case PERFORMANCE:
 		{
 			int cursor_y = 4;
-			render_page_markers(120, cursor_y);
+			CAT_draw_page_markers(cursor_y, 2, summary_page, CAT_WHITE);
 			cursor_y += 24;
 
 			CAT_set_text_colour(CAT_WHITE);
@@ -1360,14 +1353,7 @@ static void render_MS_summary()
 			render_plus_line(12, cursor_y, CAT_LCD_SCREEN_W * 0.75, 0, pet.xp, xp_reward, level_cutoffs[pet.level]);
 			cursor_y += 16;
 
-			CAT_set_sprite_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
-			CAT_set_sprite_scale(2);
-			if(CAT_input_held(CAT_BUTTON_A, 0))
-			{
-				CAT_set_sprite_colour(CAT_RED);
-				CAT_set_sprite_scale(3);
-			}
-			CAT_draw_sprite(&study_a_button_sprite, 0, 120, 260);
+			CAT_draw_lock(120, cursor_y+40, 36, exit_progress, CAT_WHITE);
 		}
 		break;
 

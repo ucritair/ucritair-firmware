@@ -2,6 +2,7 @@
 
 #include "cat_curves.h"
 #include "sprite_assets.h"
+#include "cat_gui.h"
 
 void CAT_draw_regular_polygon(int n, int x, int y, int r, float t, uint16_t c)
 {
@@ -144,6 +145,19 @@ void CAT_draw_dot_grid(int x, int y, int w, int h, int s, uint16_t c)
 	}
 }
 
+void CAT_draw_score_line(int x, int y, int w, float t, float dt, uint16_t c, uint16_t ct, uint16_t cd)
+{
+	int x1 = x + roundf(w * t);
+	int x2 = x + roundf(w * (t+dt));
+	int x3 = x + w;
+
+	CAT_lineberry(x, y, x1, y, ct);
+	if(x2 != x1)
+		CAT_lineberry(x1, y, x2, y, cd);
+	if(x3 != x1)
+		CAT_lineberry(x2, y, x3, y, c);
+}
+
 #define PAGE_MARKER_SIZE 16
 #define PAGE_MARKER_PADDING 2
 
@@ -243,4 +257,63 @@ void CAT_draw_empty_sfx(int x0, int y0, int a, int b, uint16_t c)
 		CAT_vec2 N = CAT_vec2_rotate((CAT_vec2){1, 0}, t);
 		CAT_lineberry(x, y, x + N.x * 4, y + N.y * 4, c);
 	}
+}
+
+
+void CAT_draw_lock(int x, int y, int r, float t, uint16_t c)
+{
+	int deltas[10] =
+	{
+		0, -1,
+		1, 0,
+		0, 1,
+		-1, 0,
+		0, -1
+	};
+
+	t = clamp(t, 0, 1);
+	int idx = t*4;
+	float frac = (t*4)-idx;
+
+	CAT_set_text_colour(c);
+	int glyph_scale = max(CAT_sqrt((r*r)/2)/CAT_GLYPH_HEIGHT, 1);
+	CAT_set_text_scale(glyph_scale);
+	CAT_draw_text(x-glyph_scale*CAT_GLYPH_WIDTH/2, y-glyph_scale*CAT_GLYPH_HEIGHT/2, "A");
+
+	float scale = r * 0.75f;
+	for(int i = 0; i < 4; i++)
+	{
+		int dx0 = deltas[i*2+0] * scale;
+		int dy0 = deltas[i*2+1] * scale;
+		int dx1 = deltas[i*2+2] * scale;
+		int dy1 = deltas[i*2+3] * scale;
+		CAT_lineberry(x+dx0, y+dy0, x+dx1, y+dy1, c);
+	}
+
+	if(t <= 0)
+		return;
+
+	scale = t >= 1 ? r * 1.25f : r;
+	for(int i = 0; i < idx; i++)
+	{
+		int dx0 = deltas[i*2+0] * scale;
+		int dy0 = deltas[i*2+1] * scale;
+		int dx1 = deltas[i*2+2] * scale;
+		int dy1 = deltas[i*2+3] * scale;
+		CAT_lineberry(x+dx0, y+dy0, x+dx1, y+dy1, c);
+	}
+
+	int dx0 = deltas[idx*2+0] * scale;
+	int dy0 = deltas[idx*2+1] * scale;
+	int dx1 = deltas[idx*2+2] * scale;
+	int dy1 = deltas[idx*2+3] * scale;
+	int x0 = x+dx0;
+	int y0 = y+dy0;
+	int x1 = x+dx1;
+	int y1 = y+dy1;
+	float dx = x1-x0;
+	float dy = y1-y0;
+	x1 = x0 + dx * frac;
+	y1 = y0 + dy * frac;
+	CAT_lineberry(x0, y0, x1, y1, c);
 }
