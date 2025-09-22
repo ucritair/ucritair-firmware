@@ -1,7 +1,7 @@
 #pragma once
 
-#define RGB8882565(r, g, b) ((((r) & 0b11111000) << 8) | (((g) & 0b11111100) << 3) | ((b) >> 3))
-#define RGB5652BGR565(c) (((c) >> 8) | (((c) & 0xff) << 8))
+#define CAT_RGB8882565(r, g, b) ((((r) & 0b11111000) << 8) | (((g) & 0b11111100) << 3) | ((b) >> 3))
+#define CAT_RGB5652BGR565(c) (((c) >> 8) | (((c) & 0xff) << 8))
 
 static void CAT_RGB5652888(uint16_t c, uint8_t* r, uint8_t* g, uint8_t* b)
 {
@@ -29,7 +29,7 @@ static uint16_t CAT_colour_lerp(uint16_t c0, uint16_t c1, float t)
 	uint8_t g = (1.0f-t) * (float) g0 + t * (float) g1;
 	uint8_t b = (1.0f-t) * (float) b0 + t * (float) b1;
 
-	return RGB8882565(r, g, b);
+	return CAT_RGB8882565(r, g, b);
 }
 
 static uint16_t CAT_colour_curve(uint16_t* points, uint8_t length, float t)
@@ -50,23 +50,23 @@ static uint16_t CAT_colour_curve(uint16_t* points, uint8_t length, float t)
 #define CAT_GREEN 0b0000011111100000
 #define CAT_BLUE 0b0000000000011111
 #define CAT_GREY 0x8410
-#define CAT_LIGHT_GREY RGB8882565(192, 192, 192)
+#define CAT_LIGHT_GREY CAT_RGB8882565(192, 192, 192)
 
 #define CAT_PAPER_CREAM 0xEF39
-#define CAT_SKY_BLUE RGB8882565(35, 157, 235)
+#define CAT_SKY_BLUE CAT_RGB8882565(35, 157, 235)
 #define CAT_GRASS_GREEN 36144
 
 #define CAT_CRISIS_RED 0xea01
 #define CAT_CRISIS_YELLOW 0xfd45
 #define CAT_CRISIS_GREEN 0x5d6d
 
-#define CAT_VIGOUR_ORANGE RGB8882565(223, 64, 47)
-#define CAT_FOCUS_BLUE RGB8882565(102, 181, 179)
-#define CAT_SPIRIT_PURPLE RGB8882565(129, 91, 152)
+#define CAT_VIGOUR_ORANGE CAT_RGB8882565(223, 64, 47)
+#define CAT_FOCUS_BLUE CAT_RGB8882565(102, 181, 179)
+#define CAT_SPIRIT_PURPLE CAT_RGB8882565(129, 91, 152)
 
 #define CAT_GRADE_COLOUR_BAD 0xf8e3
 #define CAT_GRADE_COLOUR_MID 0x9abd
 #define CAT_GRADE_COLOUR_GOOD CAT_SKY_BLUE
 
-#define CAT_GRAPH_BG RGB8882565(32, 32, 32)
-#define CAT_GRAPH_FG RGB8882565(192, 192, 192)
+#define CAT_GRAPH_BG CAT_RGB8882565(32, 32, 32)
+#define CAT_GRAPH_FG CAT_RGB8882565(192, 192, 192)

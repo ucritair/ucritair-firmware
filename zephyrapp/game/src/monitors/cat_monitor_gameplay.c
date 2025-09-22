@@ -187,7 +187,7 @@ void draw_all_clear()
 	CAT_draw_textf(MARGIN, cursor_y, ">>>>>>>>>>>>>>>>>>>>>>>>>>>");
 	cursor_y += 22;
 
-	CAT_draw_gizmo_primitive(CAT_GIZMO_PRIMITIVE_HEX, 120, cursor_y + 64, 64, 0, CAT_CRISIS_GREEN);
+	CAT_draw_regular_polygon(6, 120, cursor_y + 64, 64, 0, CAT_CRISIS_GREEN);
 
 	CAT_set_text_mask(MARGIN, -1, CAT_LCD_SCREEN_W-MARGIN, -1);
 	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);

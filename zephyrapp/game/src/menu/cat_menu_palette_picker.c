@@ -80,7 +80,7 @@ void CAT_MS_palette_picker(CAT_FSM_signal signal)
 
 void CAT_render_palette_picker()
 {
-	CAT_frameberry(RGB8882565(palette[PALETTE_SIZE][0], palette[PALETTE_SIZE][1], palette[PALETTE_SIZE][2]));
+	CAT_frameberry(CAT_RGB8882565(palette[PALETTE_SIZE][0], palette[PALETTE_SIZE][1], palette[PALETTE_SIZE][2]));
 
 	switch(mode)
 	{
@@ -88,7 +88,7 @@ void CAT_render_palette_picker()
 		{
 			for(int i = 0; i < PALETTE_SIZE; i++)
 			{
-				uint16_t c = RGB8882565(palette[i][0], palette[i][1], palette[i][2]);
+				uint16_t c = CAT_RGB8882565(palette[i][0], palette[i][1], palette[i][2]);
 				CAT_fillberry(X0, Y0 + BOX_SIZE*i, BOX_SIZE, BOX_SIZE, c);
 			}
 			CAT_strokeberry(X0, Y0 + BOX_SIZE*colour_idx, BOX_SIZE, BOX_SIZE, CAT_WHITE);

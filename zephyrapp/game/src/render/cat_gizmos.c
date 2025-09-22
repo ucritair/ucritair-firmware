@@ -3,29 +3,78 @@
 #include "cat_curves.h"
 #include "sprite_assets.h"
 
+void CAT_draw_regular_polygon(int n, int x, int y, int r, float t, uint16_t c)
+{
+	t *= 2 * M_PI;
+	float dt = 2 * M_PI / (float) n;
+	int x0, y0, x1, y1;
+	x0 = r*cosf(t);
+	y0 = r*sinf(t);
+	t += dt;
+	for(int i = 1; i <= n; i++)
+	{
+		x1 = r*cosf(t);
+		y1 = r*sinf(t);
+		CAT_lineberry(x+x0, y+y0, x+x1, y+y1, c);
+		x0 = x1;
+		y0 = y1;
+		t += dt;
+	}
+}
+
+void CAT_draw_arrow(int x, int y, int w, int h, CAT_orientation d, uint16_t c)
+{	
+	int ox = x;
+	int oy = y;
+	int dx = w/2;
+	int dy = h;
+
+	switch (d)
+	{
+		case CAT_ORIENTATION_EAST:
+			CAT_lineberry(ox, oy-dx, ox+dy, oy, c);
+			CAT_lineberry(ox, oy+dx, ox+dy, oy, c);
+		break;
+		case CAT_ORIENTATION_NORTH:
+			CAT_lineberry(ox-dx, oy, ox, oy-dy, c);
+			CAT_lineberry(ox+dx, oy, ox, oy-dy, c);
+		break;
+		case CAT_ORIENTATION_WEST:
+			CAT_lineberry(ox, oy-dx, ox-dy, oy, c);
+			CAT_lineberry(ox, oy+dx, ox-dy, oy, c);
+		break;
+		case CAT_ORIENTATION_SOUTH:
+			CAT_lineberry(ox-dx, oy, ox, oy+dy, c);
+			CAT_lineberry(ox+dx, oy, ox, oy+dy, c);
+		break;	
+	}
+}
+
+void CAT_draw_cross(int x, int y, int w, int h, uint16_t c)
+{
+	int lx = x-w/2;
+	int rx = x+w/2;
+	int ty = y-h/2;
+	int by = y+h/2;
+	CAT_lineberry(lx, y, rx, y, c);
+	CAT_lineberry(x, ty, x, by, c);
+}
+
 void CAT_draw_arrows(int x, int y, int size, int dist, uint16_t c)
 {
 	dist /= 2;
 	int anchor_l = x - dist - size;
 	int anchor_r = x + dist + size;
-	CAT_lineberry(anchor_l, y, anchor_l + size, y + size, c);
-	CAT_lineberry(anchor_l, y, anchor_l + size, y - size, c);
-	CAT_lineberry(anchor_r, y, anchor_r - size, y + size, c);
-	CAT_lineberry(anchor_r, y, anchor_r - size, y - size, c);
-}
-
-void draw_cross(int x, int y, int r, uint16_t c)
-{
-	CAT_lineberry(x-r, y, x+r, y, c);
-	CAT_lineberry(x, y-r, x, y+r, c);
+	CAT_draw_arrow(anchor_l, y, size*2, size, CAT_ORIENTATION_WEST, c);
+	CAT_draw_arrow(anchor_r, y, size*2, size, CAT_ORIENTATION_EAST, c);
 }
 
 void CAT_draw_cross_box(int x0, int y0, int x1, int y1, uint16_t c)
 {
-	draw_cross(x0, y0, 4, c);
-	draw_cross(x1, y0, 4, c);
-	draw_cross(x1, y1, 4, c);
-	draw_cross(x0, y1, 4, c);
+	CAT_draw_cross(x0, y0, 4, 4, c);
+	CAT_draw_cross(x1, y0, 4, 4, c);
+	CAT_draw_cross(x1, y1, 4, 4, c);
+	CAT_draw_cross(x0, y1, 4, 4, c);
 }
 
 void draw_corner(int x, int y, int xr, int yr, uint16_t c)
@@ -90,49 +139,8 @@ void CAT_draw_dot_grid(int x, int y, int w, int h, int s, uint16_t c)
 	{
 		for(int xw = xi; xw < xf; xw += s)
 		{
-			draw_cross(xw, yw, 1, c);
+			CAT_draw_cross(xw, yw, 1, 1, c);
 		}
-	}
-}
-
-void CAT_draw_regular_polygon(int n, int x, int y, int r, float t, uint16_t c)
-{
-	t *= 2 * M_PI;
-	float dt = 2 * M_PI / (float) n;
-	int x0, y0, x1, y1;
-	x0 = r*cosf(t);
-	y0 = r*sinf(t);
-	t += dt;
-	for(int i = 1; i <= n; i++)
-	{
-		x1 = r*cosf(t);
-		y1 = r*sinf(t);
-		CAT_lineberry(x+x0, y+y0, x+x1, y+y1, c);
-		x0 = x1;
-		y0 = y1;
-		t += dt;
-	}
-}
-
-void CAT_draw_gizmo_primitive(CAT_gizmo_primitive primitive, int x, int y, int r, float t, uint16_t c)
-{
-	switch (primitive)
-	{
-		case CAT_GIZMO_PRIMITIVE_RING:
-			CAT_circberry(x, y, r, c);
-		break;
-
-		case CAT_GIZMO_PRIMITIVE_TRI:	
-			CAT_draw_regular_polygon(3, x, y, r, t, c);
-		break;
-
-		case CAT_GIZMO_PRIMITIVE_BOX:
-			CAT_draw_regular_polygon(4, x, y, r, t, c);
-		break;
-
-		case CAT_GIZMO_PRIMITIVE_HEX:
-			CAT_draw_regular_polygon(6, x, y, r, t, c);
-		break;
 	}
 }
 
@@ -144,7 +152,7 @@ void CAT_draw_page_markers(int y, int pages, int page, uint16_t c)
 	int x0 = (CAT_LCD_SCREEN_W - ((PAGE_MARKER_SIZE + PAGE_MARKER_PADDING) * pages)) / 2;
 	for(int i = 0; i < pages; i++)
 	{
-		int x = x0 + i * PAGE_MARKER_SIZE + PAGE_MARKER_PADDING;
+		int x = x0 + i * (PAGE_MARKER_SIZE + PAGE_MARKER_PADDING);
 		CAT_set_sprite_colour(c);
 		CAT_draw_sprite(&ui_radio_button_diamond_sprite, page == i, x, y);
 	}
@@ -160,7 +168,7 @@ void CAT_draw_page_alert(int y, int pages, int page, uint16_t c)
 	{
 		CAT_set_sprite_colour(c);
 		CAT_draw_sprite(&ui_radio_button_diamond_sprite, 1, x, y);
-		CAT_draw_gizmo_primitive(CAT_GIZMO_PRIMITIVE_BOX, x+8, y+8, 16, 0.25f, CAT_RED);
+		CAT_draw_regular_polygon(4, x+8, y+8, 16, 0.25f, CAT_RED);
 	}
 }
 
@@ -180,14 +188,6 @@ void CAT_draw_subpage_markers(int y, int pages, int page, uint16_t c)
 			CAT_circberry(x, y, SUBPAGE_MARKER_R, CAT_WHITE);
 		x += 2 * SUBPAGE_MARKER_R + SUBPAGE_MARKER_PADDING;
 	}
-}
-
-void CAT_draw_delta_arrow(int x, int y, bool up, uint16_t c)
-{
-	int y0 = up ? y-12 : y;
-	int y1 = up ? y : y-12;
-	CAT_lineberry(x, y0, x+8, y1, c);
-	CAT_lineberry(x+8, y1, x+16, y0, c);
 }
 
 void CAT_draw_arrow_slider(int x0, int y0, int x1, int y1, float t, uint16_t c)

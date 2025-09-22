@@ -44,9 +44,9 @@ static bool should_fast_forward = false;
 #define GRID_X GRID_MARGIN
 #define GRID_CELL_R (((CAT_LCD_SCREEN_W - (GRID_MARGIN * 2) - (GRID_SPACING * (GRID_COLS-1))) / GRID_COLS) / 2)
 
-#define CELL_GREY RGB8882565(164, 164, 164)
-#define CELL_PLACEHOLDER RGB8882565(64, 64, 64)    // outside this month (faint ring, no number)
-#define CELL_DISABLED    RGB8882565(120, 120, 120) // in-month but outside [earliest..today]
+#define CELL_GREY CAT_RGB8882565(164, 164, 164)
+#define CELL_PLACEHOLDER CAT_RGB8882565(64, 64, 64)    // outside this month (faint ring, no number)
+#define CELL_DISABLED    CAT_RGB8882565(120, 120, 120) // in-month but outside [earliest..today]
 
 void calendar_logic()
 {

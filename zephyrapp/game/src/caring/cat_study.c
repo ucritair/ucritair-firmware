@@ -1228,7 +1228,7 @@ static void MS_summary(CAT_FSM_signal signal)
 static void render_wave_buffer()
 {
 	uint16_t* framebuffer = CAT_LCD_get_framebuffer();
-	uint16_t c = ADAPT_DESKTOP_COLOUR(0x4cb5);
+	uint16_t c = CAT_ADAPT_DESKTOP_COLOUR(0x4cb5);
 
 	for(int x = 0; x < 240; x++)
 	{

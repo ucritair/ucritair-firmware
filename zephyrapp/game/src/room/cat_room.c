@@ -648,13 +648,13 @@ void CAT_MS_room(CAT_FSM_signal signal)
 
 static uint16_t sky_colours[] =
 {
-	RGB8882565(49, 71, 93),
-	RGB8882565(76, 100, 130),
-	RGB8882565(186, 106, 108),
-	RGB8882565(238, 188, 116),
-	RGB8882565(196, 202, 186),
-	RGB8882565(142, 169, 164),
-	RGB8882565(49, 71, 93),
+	CAT_RGB8882565(49, 71, 93),
+	CAT_RGB8882565(76, 100, 130),
+	CAT_RGB8882565(186, 106, 108),
+	CAT_RGB8882565(238, 188, 116),
+	CAT_RGB8882565(196, 202, 186),
+	CAT_RGB8882565(142, 169, 164),
+	CAT_RGB8882565(49, 71, 93),
 };
 #define SKY_COLOUR_COUNT (sizeof(sky_colours)/sizeof(sky_colours[0]))
 
@@ -741,13 +741,13 @@ void CAT_room_draw_statics()
 		for(int i = 0; i < 3; i++)
 		{
 			float base_t = CAT_get_uptime_ms() / 1000.0f / 6.28;
-			CAT_draw_gizmo_primitive(CAT_GIZMO_PRIMITIVE_HEX, alarm_x, alarm_y, 24 + i * 4 + 4 * sinf(base_t * 6.28 * 4), base_t - i * 0.15f, CAT_RED);
+			CAT_draw_regular_polygon(6, alarm_x, alarm_y, 24 + i * 4 + 4 * sinf(base_t * 6.28 * 4), base_t - i * 0.15f, CAT_RED);
 		}
 	}
 	else
 	{
 		float base_t = CAT_get_uptime_ms() / 1000.0f / 6.28;
-		CAT_draw_gizmo_primitive(CAT_GIZMO_PRIMITIVE_HEX, alarm_x, alarm_y, 24, base_t * 0.15f, CAT_SKY_BLUE);
+		CAT_draw_regular_polygon(6, alarm_x, alarm_y, 24, base_t * 0.15f, CAT_SKY_BLUE);
 	}
 }
 

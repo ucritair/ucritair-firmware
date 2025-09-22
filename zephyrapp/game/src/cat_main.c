@@ -107,7 +107,7 @@ void CAT_draw_eink_refresh_notice()
 	CAT_draw_sprite_raw(&eink_update_pen_sprite, 0, 16*3+8, CAT_LCD_SCREEN_H/2-4);
 	CAT_draw_sprite_raw(&eink_update_clipboard_sprite, 0, 16*4-4, CAT_LCD_SCREEN_H/2+12);
 
-	CAT_fillberry(0, CAT_LCD_SCREEN_H-48, CAT_LCD_SCREEN_W, 48, RGB8882565(105, 79, 98));
+	CAT_fillberry(0, CAT_LCD_SCREEN_H-48, CAT_LCD_SCREEN_W, 48, CAT_RGB8882565(105, 79, 98));
 
 	CAT_set_text_colour(CAT_WHITE);
 	CAT_draw_text(8, 8, "UPDATING E-INK DISPLAY...");

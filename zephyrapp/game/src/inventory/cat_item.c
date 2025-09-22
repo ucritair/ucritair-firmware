@@ -143,7 +143,7 @@ void CAT_MS_inspector(CAT_FSM_signal signal)
 	}
 }
 
-#define INSPECTOR_BG_COLOUR RGB8882565(142, 171, 174)
+#define INSPECTOR_BG_COLOUR CAT_RGB8882565(142, 171, 174)
 #define INSPECTOR_MARGIN 8
 
 void CAT_render_inspector()

@@ -271,7 +271,7 @@ void CAT_render_deco()
 {
 	CAT_room_draw_statics();
 	CAT_draw_corner_box(CAT_ROOM_X, CAT_ROOM_Y, CAT_ROOM_MAX_X, CAT_ROOM_MAX_Y, CAT_WHITE);
-	CAT_draw_dot_grid(CAT_ROOM_X, CAT_ROOM_Y, CAT_ROOM_GRID_W, CAT_ROOM_GRID_H, CAT_TILE_SIZE, RGB8882565(200,200,200));
+	CAT_draw_dot_grid(CAT_ROOM_X, CAT_ROOM_Y, CAT_ROOM_GRID_W, CAT_ROOM_GRID_H, CAT_TILE_SIZE, CAT_RGB8882565(200,200,200));
 
 	if (CAT_get_render_cycle() == 0)
 		CAT_draw_queue_clear();

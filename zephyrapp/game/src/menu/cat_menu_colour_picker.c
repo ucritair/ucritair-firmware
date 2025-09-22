@@ -112,13 +112,13 @@ void CAT_render_colour_picker()
 			uint8_t S = ((uint16_t) x * 255) / CAT_LCD_SCREEN_W;
 			uint8_t R, G, B;
 			HSV2RGB(H, S, V, &R, &G, &B);
-			uint16_t colour = RGB8882565(R, G, B);
+			uint16_t colour = CAT_RGB8882565(R, G, B);
 			CAT_pixberry(x, y, colour);
 		}
 	}
 
 	uint8_t highlight_value = V < 128 ? 255 : 0;
-	uint16_t highlight_colour = RGB8882565(highlight_value, highlight_value, highlight_value);
+	uint16_t highlight_colour = CAT_RGB8882565(highlight_value, highlight_value, highlight_value);
 	CAT_strokeberry(cursor.x-2, cursor.y-2, 5, 5, highlight_colour);
 
 	if(show_details)
@@ -127,7 +127,7 @@ void CAT_render_colour_picker()
 		uint8_t S = ((uint16_t) cursor.x * 255) / CAT_LCD_SCREEN_W;	
 		uint8_t R, G, B;
 		HSV2RGB(H, S, V, &R, &G, &B);
-		uint16_t colour = RGB8882565(R, G, B);
+		uint16_t colour = CAT_RGB8882565(R, G, B);
 
 		CAT_gui_panel((CAT_ivec2) {2, 6}, (CAT_ivec2) {11, 8});
 		CAT_strokeberry(2 * 16, 6 * 16, 11 * 16, 8 * 16, 0x0000);

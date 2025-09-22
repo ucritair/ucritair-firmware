@@ -859,7 +859,7 @@ void CAT_gui_printf(uint16_t colour, const char* fmt, ...)
 #define ITEM_GRID_SELECT_TIME 1
 #define ITEM_GRID_BG_COLOUR 0xbdb4
 #define ITEM_GRID_NAV_COLOUR ITEM_GRID_BG_COLOUR
-#define ITEM_GRID_ACTION_COLOUR RGB8882565(255 - 0, 255 - 141, 255 - 141)
+#define ITEM_GRID_ACTION_COLOUR CAT_RGB8882565(255 - 0, 255 - 141, 255 - 141)
 
 static bool item_grid_status = false;
 static bool item_grid_handle_exit = false;

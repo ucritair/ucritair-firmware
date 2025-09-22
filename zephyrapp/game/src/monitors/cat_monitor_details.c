@@ -94,8 +94,8 @@ int draw_delta(int x, int y, int aqm)
 	{
 		int good_sign = CAT_AQ_get_good_delta_sign(aqm);
 		int sign = sgn(delta);
-		uint16_t c = sign == good_sign ? CAT_CRISIS_GREEN : CAT_CRISIS_RED;
-		CAT_draw_delta_arrow(x, y-4, sign != 1, c);
+		uint16_t c = sign == good_sign ? CAT_GRADE_COLOUR_GOOD : CAT_GRADE_COLOUR_BAD;
+		CAT_draw_arrow(x, y-4, 12, 12, sign == 1 ? CAT_ORIENTATION_NORTH : CAT_ORIENTATION_SOUTH, c);
 	}	
 	return y + CAT_GLYPH_HEIGHT*2 + 6;
 }

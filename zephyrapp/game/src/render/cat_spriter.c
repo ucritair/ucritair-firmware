@@ -26,7 +26,7 @@ void CAT_set_sprite_flags(uint64_t flags)
 
 void CAT_set_sprite_colour(uint16_t colour)
 {
-	draw_colour = ADAPT_DESKTOP_COLOUR(colour);
+	draw_colour = CAT_ADAPT_DESKTOP_COLOUR(colour);
 	sprite_overrides |= CAT_SPRITE_OVERRIDE_COLOUR;
 }
 
@@ -147,7 +147,7 @@ void CAT_draw_sprite(const CAT_sprite* sprite, int frame_idx, int x, int y)
 			if(sprite_overrides & CAT_SPRITE_OVERRIDE_COLOUR)
 				c = draw_colour;
 			else
-				c = ADAPT_EMBEDDED_COLOUR(c);
+				c = CAT_ADAPT_EMBEDDED_COLOUR(c);
 			run_remainder = run_length;
 	
 			while(run_remainder > 0)
@@ -214,7 +214,7 @@ void CAT_draw_sprite(const CAT_sprite* sprite, int frame_idx, int x, int y)
 			if(sprite_overrides & CAT_SPRITE_OVERRIDE_COLOUR)
 				c = draw_colour;
 			else
-				c = ADAPT_EMBEDDED_COLOUR(c);
+				c = CAT_ADAPT_EMBEDDED_COLOUR(c);
 			run_remainder = run_length;
 			
 			while(run_remainder > 0)
@@ -299,7 +299,7 @@ void CAT_draw_sprite_raw(const CAT_sprite* sprite, int frame_idx, int x, int y)
 		if(sprite_overrides & CAT_SPRITE_OVERRIDE_COLOUR)
 			c = draw_colour;
 		else
-			c = ADAPT_EMBEDDED_COLOUR(c);
+			c = CAT_ADAPT_EMBEDDED_COLOUR(c);
 		
 		while(run_remainder > 0 && dy < h)
 		{
@@ -370,7 +370,7 @@ void CAT_draw_background(const CAT_sprite* sprite, int frame_idx, int y)
 			continue;
 		}
 
-		c = ADAPT_EMBEDDED_COLOUR(c);
+		c = CAT_ADAPT_EMBEDDED_COLOUR(c);
 		
 		while(run_remainder > 0 && dy < h)
 		{
@@ -410,7 +410,7 @@ void CAT_draw_tile(const CAT_sprite* sprite, int frame_idx, int x, int y)
 	{
 		uint8_t token = frame[run_idx++];
 		uint8_t c_idx = token == 0xff ? frame[run_idx++] : token;
-		uint16_t c = ADAPT_EMBEDDED_COLOUR(sprite->colour_table[c_idx]);
+		uint16_t c = CAT_ADAPT_EMBEDDED_COLOUR(sprite->colour_table[c_idx]);
 		uint8_t run_length = token == 0xff ? frame[run_idx++] : 1;
 		uint8_t run_remainder = run_length;
 
@@ -466,7 +466,7 @@ void CAT_draw_tile_alpha(const CAT_sprite* sprite, int frame_idx, int x, int y)
 			px_idx += (run_rows * pitch) + run_length;
 			continue;
 		}
-		c = ADAPT_EMBEDDED_COLOUR(c);
+		c = CAT_ADAPT_EMBEDDED_COLOUR(c);
 
 		while(run_remainder > 0)
 		{

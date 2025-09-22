@@ -1097,7 +1097,7 @@ static void render_arrange()
 	
 	if (CAT_timed_switch_get(&feedback_switch))
 	{
-		CAT_set_sprite_colour(RGB8882565(64, 64, 64));
+		CAT_set_sprite_colour(CAT_RGB8882565(64, 64, 64));
 		CAT_draw_sprite_raw(&pet_feed_back_sprite, -1, 120, 320);
 		draw_feedback();
 	}
@@ -1238,7 +1238,7 @@ static void MS_inspect(CAT_FSM_signal signal)
 
 static void render_inspect()
 {
-	CAT_frameberry(RGB8882565(142, 171, 174));
+	CAT_frameberry(CAT_RGB8882565(142, 171, 174));
 
 	CAT_item *inspectee = CAT_get_item(food_pool.data[inspect_idx]);
 	if (inspectee == NULL)
@@ -1408,9 +1408,9 @@ static void render_summary()
 		break;
 	}
 
-	CAT_set_sprite_colour(RGB8882565(64, 64, 64));
+	CAT_set_sprite_colour(CAT_RGB8882565(64, 64, 64));
 	CAT_draw_sprite(&ui_left_arrow_sprite, -1, 8, 12);
-	CAT_set_sprite_colour(RGB8882565(64, 64, 64));
+	CAT_set_sprite_colour(CAT_RGB8882565(64, 64, 64));
 	CAT_draw_sprite(&ui_right_arrow_sprite, -1, 240 - 13 - 8, 12);
 	int title_len = strlen(title);
 	int title_x = (CAT_LCD_SCREEN_W - 1 - title_len * 16) / 2;

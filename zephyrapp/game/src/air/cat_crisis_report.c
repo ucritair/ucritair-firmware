@@ -444,7 +444,7 @@ void draw_outcomes_page()
 			grade >= CAT_AQ_CRISIS_RESPONSE_GRADE_ADEQUATE ? CAT_CRISIS_GREEN :
 			grade >= CAT_AQ_CRISIS_RESPONSE_GRADE_INADEQUATE ? CAT_CRISIS_YELLOW :
 			CAT_CRISIS_RED;
-			CAT_draw_gizmo_primitive(CAT_GIZMO_PRIMITIVE_HEX, (box_x0+box_x1)/2, (box_y0+box_y1)/2, 64, 0, CAT_WHITE);
+			CAT_draw_regular_polygon(6, (box_x0+box_x1)/2, (box_y0+box_y1)/2, 64, 0, CAT_WHITE);
 
 			int damage = CAT_AQ_get_crisis_lifespan_damage();
 			CAT_set_text_flags(CAT_TEXT_FLAG_CENTER);
@@ -462,7 +462,7 @@ void draw_outcomes_page()
 		}
 		else
 		{
-			CAT_draw_gizmo_primitive(CAT_GIZMO_PRIMITIVE_HEX, (box_x0+box_x1)/2, (box_y0+box_y1)/2, 64, -0.11f, CAT_WHITE);
+			CAT_draw_regular_polygon(6, (box_x0+box_x1)/2, (box_y0+box_y1)/2, 64, -0.11f, CAT_WHITE);
 
 			CAT_set_text_flags(CAT_TEXT_FLAG_CENTER);
 			CAT_set_text_colour(CAT_WHITE);
