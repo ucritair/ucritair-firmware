@@ -75,6 +75,6 @@ void CAT_monitor_gate_render()
 		return;
 	int cursor_y = center_textf(120, 60, 2, CAT_WHITE, gate_title);
 	cursor_y = underline(120, cursor_y, 2, CAT_WHITE, gate_title);
-	CAT_draw_lock(120, 200, 64, CAT_ease_inout_sine(gate_progress), CAT_WHITE);
+	CAT_draw_lock(120, 200, 64, gate_progress, CAT_WHITE);
 }
 

@@ -87,7 +87,10 @@ void calendar_logic()
     else // --- CELLS ---
     {
 		if(CAT_input_pressed(CAT_BUTTON_B))
+		{
+			CAT_monitor_gate_lock();
         	page = GATE;
+		}
 
         int was = target.day;
         int delta = 0;
@@ -276,6 +279,8 @@ void CAT_monitor_MS_calendar(CAT_FSM_signal signal)
 			{
 				case GATE:
 					CAT_monitor_gate_logic();
+					if(!CAT_monitor_gate_is_locked())
+						page = CALENDAR;
 				break;
 
 				case CALENDAR:
@@ -295,6 +300,7 @@ void CAT_monitor_MS_calendar(CAT_FSM_signal signal)
 		break;
 	}
 }
+
 void CAT_monitor_render_calendar()
 {	
 	switch (page)
