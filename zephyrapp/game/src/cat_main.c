@@ -86,7 +86,8 @@ void CAT_tick_logic()
 
 	CAT_gui_tick();
 	CAT_effects_tick();
-	CAT_eink_tick();
+	CAT_eink_flag_tick();
+	CAT_orientation_tick();
 }
 
 void CAT_draw_eink_refresh_notice()
@@ -165,7 +166,7 @@ int main(int argc, char** argv)
 			CAT_LCD_flip();
 		}
 
-		CAT_eink_render();
+		CAT_eink_update_tick();
 
 		// 1 / FPS * 1_000_000 yields microseconds between framebuffer updates at fixed FPS
 		usleep((1.0f / 14.0f) * 1000000);

@@ -326,7 +326,12 @@ void lcd_render_diag()
 			// 	hack_after_blit-hack_before_blit, hack_cyc_after_data_write-hack_cyc_before_data_write, end_ms-start_ms);
 		}
 
-		CAT_eink_render();
+		if(CAT_eink_needs_update())
+		{
+			CAT_set_eink_update_flag(false);
+			epaper_render_test();
+			CAT_eink_set_time();
+		}
 
 		if ((k_uptime_get() - last_flash_log) > (sensor_wakeup_rate*1000) && is_ready_for_aqi_logging())
 		{

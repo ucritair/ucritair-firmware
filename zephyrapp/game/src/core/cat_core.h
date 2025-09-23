@@ -74,14 +74,14 @@ int* CAT_LCD_brightness_pointer();
 
 void CAT_eink_post(uint8_t* buffer);
 bool CAT_eink_is_posted();
-void CAT_eink_update();
 
 void CAT_set_eink_update_flag(bool flag);
 bool CAT_eink_needs_update();
 void CAT_eink_update();
 
-void CAT_eink_tick();
-void CAT_eink_render();
+void CAT_eink_flag_tick();
+bool CAT_eink_update_tick();
+void CAT_eink_set_time();
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // SCREEN MANAGEMENT
@@ -122,6 +122,7 @@ typedef struct CAT_sound
 
 void CAT_sound_power(bool value);
 void CAT_play_sound(CAT_sound* sound);
+void CAT_beep();
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

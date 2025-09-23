@@ -410,6 +410,11 @@ void CAT_play_sound(CAT_sound* sound)
 	CAT_printf("[CALL] CAT_play_sound\n");
 }
 
+void CAT_beep()
+{
+	system("osascript -e 'beep'");
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // INPUT

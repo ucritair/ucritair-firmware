@@ -968,7 +968,7 @@ static void draw_barrier()
 
 	CAT_set_sprite_colour(CAT_VIGOUR_ORANGE);
 	CAT_set_sprite_flags(CAT_DRAW_FLAG_CENTER_X);
-	CAT_draw_sprite(&ui_touch_prompt, -1, CAT_LCD_SCREEN_W/2, cursor_y);
+	CAT_draw_sprite(&ui_touch_prompt, CAT_pulse(0.25f), CAT_LCD_SCREEN_W/2, cursor_y);
 
 	cursor_y += 72;
 	CAT_set_text_colour(CAT_WHITE);

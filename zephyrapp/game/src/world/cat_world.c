@@ -118,8 +118,8 @@ void player_motion_input()
 				if(!newer || is_walking())
 					continue;
 				player_direction = i;
-				player_dx = movement_deltas[i][0];
-				player_dy = movement_deltas[i][1];
+				player_dx = movement_deltas[i][0]*2;
+				player_dy = movement_deltas[i][1]*2;
 				frames = frames_candidate;
 				return;
 			}
@@ -165,7 +165,6 @@ void player_motion_logic()
 	}
 }
 	
-
 static CAT_scene_index* collisions;
 static int collision_count = 0;
 
@@ -290,6 +289,7 @@ static void position_eye()
 {
 	eye_x = player_x * CAT_TILE_SIZE + CAT_TILE_SIZE/2;
 	eye_y = player_y * CAT_TILE_SIZE + CAT_TILE_SIZE/2;
+
 	if(is_walking())
 	{
 		eye_x += (CAT_TILE_SIZE - player_x_slide) * player_dx;

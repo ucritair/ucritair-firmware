@@ -175,7 +175,7 @@ void CAT_draw_page_markers(int y, int pages, int page, uint16_t c)
 void CAT_draw_page_alert(int y, int pages, int page, uint16_t c)
 {
 	int x0 = (CAT_LCD_SCREEN_W - ((PAGE_MARKER_SIZE + PAGE_MARKER_PADDING) * pages)) / 2;
-	int x = x0 + page * PAGE_MARKER_SIZE + PAGE_MARKER_PADDING;
+	int x = x0 + page * (PAGE_MARKER_SIZE + PAGE_MARKER_PADDING);
 	CAT_set_sprite_colour(c);
 	CAT_draw_sprite(&ui_radio_button_diamond_sprite, 0, x, y);
 	if(CAT_pulse(0.25f))

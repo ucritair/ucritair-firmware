@@ -52,7 +52,7 @@ bool CAT_eink_needs_update()
 	return eink_needs_update;
 }
 
-void CAT_eink_tick()
+void CAT_eink_flag_tick()
 {
 	uint64_t now = CAT_get_RTC_now();
 
@@ -68,14 +68,19 @@ void CAT_eink_tick()
 	}
 }
 
-void CAT_eink_render()
+bool CAT_eink_update_tick()
 {
-	if(CAT_eink_needs_update())
-	{
-		CAT_set_eink_update_flag(false);
-		CAT_eink_update();
-		eink_update_timestamp = CAT_get_RTC_now();
-	}
+	if(!CAT_eink_needs_update())
+		return false;
+	CAT_set_eink_update_flag(false);
+	CAT_eink_update();
+	eink_update_timestamp = CAT_get_RTC_now();
+	return true;
+}
+
+void CAT_eink_set_time()
+{
+	eink_update_timestamp = CAT_get_RTC_now();
 }
 
 

@@ -139,6 +139,11 @@ void CAT_play_sound(CAT_sound* sound)
 	// soundPlay(sound->samples, sound->size, SoundReplaceCurrent);
 }
 
+void CAT_beep()
+{
+	test_speaker();
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // INPUT
 
