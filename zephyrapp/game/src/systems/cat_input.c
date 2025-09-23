@@ -191,7 +191,7 @@ void CAT_input_lower_barrier()
 	barrier_up = false;
 }
 
-static uint64_t timestamp = 0;
+static float downtime = 0;
 
 void CAT_input_init()
 {
@@ -205,7 +205,7 @@ void CAT_input_init()
 		frames[i] = 0;
 		dirty[i] = false;
 	}
-	timestamp = 0;
+	downtime = 0;
 
 	touch.x = 0;
 	touch.y = 0;
@@ -329,8 +329,9 @@ void CAT_input_tick()
 	tick_buffer();
 	tick_barrier();
 
+	downtime += CAT_get_delta_time_s();
 	if(CAT_get_buttons() > 0)
-		timestamp = CAT_get_RTC_now();
+		downtime = 0;
 }
 
 void CAT_input_clear()
@@ -344,7 +345,7 @@ void CAT_input_clear()
 	touch_dirty = true;
 }
 
-int CAT_input_downtime()
+float CAT_input_downtime()
 {
-	return CAT_get_RTC_now() - timestamp;
+	return downtime;
 }

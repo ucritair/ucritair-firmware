@@ -110,7 +110,6 @@ PERSIST_RAM uint8_t framebuffer_fast_update_count;
 
 void epaper_render_test()
 {
-
 	int batt_pct = CAT_get_battery_pct();
 
     // Low battery paths first — do no extra work.

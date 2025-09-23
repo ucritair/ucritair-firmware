@@ -124,14 +124,7 @@ void CAT_render_debug()
 			CAT_gui_title(true, "INPUT");
 			CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
 
-			CAT_gui_text("Mask: ");
-			uint16_t input_mask = CAT_get_buttons();
-			for(int i = 0; i < CAT_BUTTON_LAST; i++)
-			{
-				bool state = (input_mask & (1 << i)) > 0;
-				CAT_gui_textf("%d", state);
-			}
-			CAT_gui_line_break();
+			CAT_gui_textf("Downtime: %d\n", (int) CAT_input_downtime());
 		}
 		break;
 

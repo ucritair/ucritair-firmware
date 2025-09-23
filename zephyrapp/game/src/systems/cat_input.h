@@ -53,4 +53,4 @@ void CAT_input_lower_barrier();
 void CAT_input_init();
 void CAT_input_tick();
 void CAT_input_clear();
-int CAT_input_downtime();
+float CAT_input_downtime();
