@@ -24618,54 +24618,6 @@ const CAT_sprite pet_play_a_sprite =
 	.reverse = false,
 };
 
-const CAT_sprite pet_play_b_sprite =
-{
-	.id = 127,
-	.colour_table = sprite_127_colour_table,
-	.frames = sprite_127_frames,
-	.frame_count = 6,
-	.width = 64,
-	.height = 48,
-	.loop = true,
-	.reverse = false,
-};
-
-const CAT_sprite pet_play_c_sprite =
-{
-	.id = 128,
-	.colour_table = sprite_128_colour_table,
-	.frames = sprite_128_frames,
-	.frame_count = 6,
-	.width = 64,
-	.height = 48,
-	.loop = true,
-	.reverse = false,
-};
-
-const CAT_sprite pet_play_sprite_2_sprite =
-{
-	.id = 129,
-	.colour_table = sprite_127_colour_table,
-	.frames = sprite_127_frames,
-	.frame_count = 6,
-	.width = 64,
-	.height = 48,
-	.loop = true,
-	.reverse = false,
-};
-
-const CAT_sprite pet_play_sprite_3_sprite =
-{
-	.id = 130,
-	.colour_table = sprite_128_colour_table,
-	.frames = sprite_128_frames,
-	.frame_count = 6,
-	.width = 64,
-	.height = 48,
-	.loop = true,
-	.reverse = false,
-};
-
 const CAT_sprite pet_pounce_sprite =
 {
 	.id = 131,
@@ -26020,10 +25972,6 @@ const CAT_sprite* sprite_list[] =
 	&pet_idle_low_vig_sprite,
 	&pet_idle_sprite,
 	&pet_play_a_sprite,
-	&pet_play_b_sprite,
-	&pet_play_c_sprite,
-	&pet_play_sprite_2_sprite,
-	&pet_play_sprite_3_sprite,
 	&pet_pounce_sprite,
 	&pet_spi_up_sprite,
 	&pet_study_in_sprite,

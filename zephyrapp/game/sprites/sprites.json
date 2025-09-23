@@ -1042,7 +1042,7 @@
         {
             "id": 99,
             "name": "pet_crit_foc_in_sprite",
-            "path": "pet/unicorn_tipped_a.png",
+            "path": "pet/unicorn/tipped/transition.png",
             "frames": 6,
             "width": 64,
             "height": 48,
@@ -1052,7 +1052,7 @@
         {
             "id": 100,
             "name": "pet_crit_foc_out_sprite",
-            "path": "pet/unicorn_tipped_a.png",
+            "path": "pet/unicorn/tipped/transition.png",
             "frames": 6,
             "width": 64,
             "height": 48,
@@ -1062,7 +1062,7 @@
         {
             "id": 101,
             "name": "pet_crit_foc_sprite",
-            "path": "pet/unicorn_tipped.png",
+            "path": "pet/unicorn/tipped/idle.png",
             "frames": 1,
             "width": 64,
             "height": 48,
@@ -1072,7 +1072,7 @@
         {
             "id": 102,
             "name": "pet_crit_spi_in_sprite",
-            "path": "pet/unicorn_block_a.png",
+            "path": "pet/unicorn/block/transition.png",
             "frames": 15,
             "width": 64,
             "height": 48,
@@ -1082,7 +1082,7 @@
         {
             "id": 103,
             "name": "pet_crit_spi_out_sprite",
-            "path": "pet/unicorn_block_a.png",
+            "path": "pet/unicorn/block/transition.png",
             "frames": 15,
             "width": 64,
             "height": 48,
@@ -1092,7 +1092,7 @@
         {
             "id": 104,
             "name": "pet_crit_spi_sprite",
-            "path": "pet/unicorn_block_blink_static.png",
+            "path": "pet/unicorn/block/idle.png",
             "frames": 1,
             "width": 64,
             "height": 48,
@@ -1102,7 +1102,7 @@
         {
             "id": 105,
             "name": "pet_crit_vig_in_sprite",
-            "path": "pet/unicorn_melt_a.png",
+            "path": "pet/unicorn/melt/transition.png",
             "frames": 8,
             "width": 64,
             "height": 48,
@@ -1112,7 +1112,7 @@
         {
             "id": 106,
             "name": "pet_crit_vig_out_sprite",
-            "path": "pet/unicorn_melt_a.png",
+            "path": "pet/unicorn/melt/transition.png",
             "frames": 8,
             "width": 64,
             "height": 48,
@@ -1122,7 +1122,7 @@
         {
             "id": 107,
             "name": "pet_crit_vig_sprite",
-            "path": "pet/unicorn_melt.png",
+            "path": "pet/unicorn/melt/idle.png",
             "frames": 1,
             "width": 64,
             "height": 48,
@@ -1132,7 +1132,7 @@
         {
             "id": 108,
             "name": "pet_eat_in_sprite",
-            "path": "pet/unicorn_eat_lower_a.png",
+            "path": "pet/unicorn/eat/transition.png",
             "frames": 7,
             "width": 64,
             "height": 48,
@@ -1142,7 +1142,7 @@
         {
             "id": 109,
             "name": "pet_eat_out_sprite",
-            "path": "pet/unicorn_eat_lower_a.png",
+            "path": "pet/unicorn/eat/transition.png",
             "frames": 7,
             "width": 64,
             "height": 48,
@@ -1152,7 +1152,7 @@
         {
             "id": 110,
             "name": "pet_eat_sprite",
-            "path": "pet/unicorn_eat_chew_a.png",
+            "path": "pet/unicorn/eat/idle.png",
             "frames": 2,
             "width": 64,
             "height": 48,
@@ -1212,7 +1212,7 @@
         {
             "id": 116,
             "name": "pet_foc_up_sprite",
-            "path": "pet/unicorn_stat_focus_up_a.png",
+            "path": "pet/unicorn/stat/focus",
             "frames": 13,
             "width": 64,
             "height": 48,
@@ -1222,7 +1222,7 @@
         {
             "id": 117,
             "name": "pet_high_vig_in_sprite",
-            "path": "pet/unicorn_wing_a.png",
+            "path": "pet/unicorn/wing/transition.png",
             "frames": 13,
             "width": 64,
             "height": 48,
@@ -1232,7 +1232,7 @@
         {
             "id": 118,
             "name": "pet_high_vig_out_sprite",
-            "path": "pet/unicorn_wing_a.png",
+            "path": "pet/unicorn/wing/transition.png",
             "frames": 13,
             "width": 64,
             "height": 48,
@@ -1242,7 +1242,7 @@
         {
             "id": 119,
             "name": "pet_idle_high_foc_sprite",
-            "path": "pet/unicorn_glow_idle_a.png",
+            "path": "pet/unicorn/glow/idle.png",
             "frames": 4,
             "width": 64,
             "height": 48,
@@ -1252,7 +1252,7 @@
         {
             "id": 120,
             "name": "pet_idle_high_spi_sprite",
-            "path": "pet/unicorn_shimmer_idle_a.png",
+            "path": "pet/unicorn/simmer/idle.png",
             "frames": 4,
             "width": 64,
             "height": 48,
@@ -1262,7 +1262,7 @@
         {
             "id": 121,
             "name": "pet_idle_high_vig_sprite",
-            "path": "pet/unicorn_wing_idle_a.png",
+            "path": "pet/unicorn/wing/idle.png",
             "frames": 4,
             "width": 64,
             "height": 48,
@@ -1272,7 +1272,7 @@
         {
             "id": 122,
             "name": "pet_idle_low_foc_sprite",
-            "path": "pet/unicorn_messy_stink_a.png",
+            "path": "pet/unicorn/messy/stinky.png",
             "frames": 8,
             "width": 64,
             "height": 48,
@@ -1282,7 +1282,7 @@
         {
             "id": 123,
             "name": "pet_idle_low_spi_sprite",
-            "path": "pet/unicorn_sad_idle_a.png",
+            "path": "pet/unicorn/sad/idle.png",
             "frames": 4,
             "width": 64,
             "height": 48,
@@ -1292,7 +1292,7 @@
         {
             "id": 124,
             "name": "pet_idle_low_vig_sprite",
-            "path": "pet/unicorn_tired_a.png",
+            "path": "pet/unicorn/tired/idle.png",
             "frames": 4,
             "width": 64,
             "height": 48,
@@ -1302,7 +1302,7 @@
         {
             "id": 125,
             "name": "pet_idle_sprite",
-            "path": "pet/unicorn_idle_complex_a.png",
+            "path": "pet/unicorn/default/idle.png",
             "frames": 4,
             "width": 64,
             "height": 48,
@@ -1312,47 +1312,7 @@
         {
             "id": 126,
             "name": "pet_play_a_sprite",
-            "path": "pet/unicorn_play_knead_a.png",
-            "frames": 6,
-            "width": 64,
-            "height": 48,
-            "loop": true,
-            "reverse": false
-        },
-        {
-            "id": 127,
-            "name": "pet_play_b_sprite",
-            "path": "pet/unicorn_play_b_a.png",
-            "frames": 6,
-            "width": 64,
-            "height": 48,
-            "loop": true,
-            "reverse": false
-        },
-        {
-            "id": 128,
-            "name": "pet_play_c_sprite",
-            "path": "pet/unicorn_play_c_a.png",
-            "frames": 6,
-            "width": 64,
-            "height": 48,
-            "loop": true,
-            "reverse": false
-        },
-        {
-            "id": 129,
-            "name": "pet_play_sprite_2_sprite",
-            "path": "pet/unicorn_play_b_a.png",
-            "frames": 6,
-            "width": 64,
-            "height": 48,
-            "loop": true,
-            "reverse": false
-        },
-        {
-            "id": 130,
-            "name": "pet_play_sprite_3_sprite",
-            "path": "pet/unicorn_play_c_a.png",
+            "path": "pet/unicorn/play/knead.png",
             "frames": 6,
             "width": 64,
             "height": 48,
@@ -1362,7 +1322,7 @@
         {
             "id": 131,
             "name": "pet_pounce_sprite",
-            "path": "pet/unicorn_pounce_a.png",
+            "path": "pet/unicorn/play/pounce.png",
             "frames": 10,
             "width": 128,
             "height": 48,
@@ -1372,7 +1332,7 @@
         {
             "id": 132,
             "name": "pet_spi_up_sprite",
-            "path": "pet/unicorn_stat_spirit_up_a.png",
+            "path": "pet/unicorn/stat/spirit.png",
             "frames": 13,
             "width": 64,
             "height": 48,
@@ -1382,7 +1342,7 @@
         {
             "id": 133,
             "name": "pet_study_in_sprite",
-            "path": "pet/unicorn_read_sit_a.png",
+            "path": "pet/unicorn/read/transition.png",
             "frames": 6,
             "width": 64,
             "height": 48,
@@ -1392,7 +1352,7 @@
         {
             "id": 134,
             "name": "pet_study_out_sprite",
-            "path": "pet/unicorn_read_sit_a.png",
+            "path": "pet/unicorn/read/transition.png",
             "frames": 6,
             "width": 64,
             "height": 48,
@@ -1402,7 +1362,7 @@
         {
             "id": 135,
             "name": "pet_study_sprite",
-            "path": "pet/unicorn_read_sit.png",
+            "path": "pet/unicorn/read/idle.png",
             "frames": 1,
             "width": 64,
             "height": 48,
@@ -1412,7 +1372,7 @@
         {
             "id": 136,
             "name": "pet_vig_up_sprite",
-            "path": "pet/unicorn_stat_vigor_up_a.png",
+            "path": "pet/unicorn/stat/vigor.png",
             "frames": 13,
             "width": 64,
             "height": 48,
@@ -1422,7 +1382,7 @@
         {
             "id": 137,
             "name": "pet_walk_high_foc_sprite",
-            "path": "pet/unicorn_glow_walk_a.png",
+            "path": "pet/unicorn/glow/walk.png",
             "frames": 4,
             "width": 64,
             "height": 48,
@@ -1432,7 +1392,7 @@
         {
             "id": 138,
             "name": "pet_walk_high_spi_sprite",
-            "path": "pet/unicorn_shimmer_walk_a.png",
+            "path": "pet/unicorn/shimmer/walk.png",
             "frames": 4,
             "width": 64,
             "height": 48,
@@ -1442,7 +1402,7 @@
         {
             "id": 139,
             "name": "pet_walk_high_vig_sprite",
-            "path": "pet/unicorn_wing_walk_a.png",
+            "path": "pet/unicorn/wing/walk.png",
             "frames": 4,
             "width": 64,
             "height": 48,
@@ -1452,7 +1412,7 @@
         {
             "id": 140,
             "name": "pet_walk_low_foc_sprite",
-            "path": "pet/unicorn_messy_walk_complex_a.png",
+            "path": "pet/unicorn/messy/walk.png",
             "frames": 4,
             "width": 64,
             "height": 48,
@@ -1462,7 +1422,7 @@
         {
             "id": 141,
             "name": "pet_walk_low_spi_sprite",
-            "path": "pet/unicorn_sad_walk_a.png",
+            "path": "pet/unicorn/sad/walk.png",
             "frames": 4,
             "width": 64,
             "height": 48,
@@ -1472,7 +1432,7 @@
         {
             "id": 142,
             "name": "pet_walk_low_vig_sprite",
-            "path": "pet/unicorn_tired_walk_a.png",
+            "path": "pet/unicorn/tired/walk.png",
             "frames": 4,
             "width": 64,
             "height": 48,
@@ -1482,7 +1442,7 @@
         {
             "id": 143,
             "name": "pet_walk_sprite",
-            "path": "pet/unicorn_default_walk_complex_a.png",
+            "path": "pet/unicorn/default/walk.png",
             "frames": 4,
             "width": 64,
             "height": 48,
@@ -2342,7 +2302,7 @@
         {
             "id": 229,
             "name": "grave_egg_sprite",
-            "path": "pet/unicorn_egg.png",
+            "path": "pet/unicorn/egg.png",
             "frames": 1,
             "width": 64,
             "height": 80,
