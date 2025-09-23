@@ -310,7 +310,7 @@ void tick_barrier()
 {
 	for(int i = 0; i < CAT_BUTTON_LAST; i++)
 	{
-		if(mask[i])
+		if(mask[i] && !last[i])
 			barrier_mask &= ~(1 << i);
 	}
 	if(CAT_input_touching())
