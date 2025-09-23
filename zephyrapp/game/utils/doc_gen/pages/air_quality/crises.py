@@ -11,6 +11,8 @@ def build(here, html: HTMLWriter):
 	common.index_banner(html);
 	common.title(html, here.title);
 
+	common.gallery(html, ["/images/dashboard/crisis.png", "/images/apartment/crisis_report.png"]);
+
 	html.begin_text_block();
 	html.text("Crises occur when the uCritAir detects that air quality has reached critical badness in some way.");
 	html.text("There are various crisis types and severity levels that correspond to different air quality metrics and the points at which they become worrisome.");

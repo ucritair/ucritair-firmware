@@ -30,7 +30,7 @@ def gallery(html: HTMLWriter, images):
 	html.open_tag("div", _class="image_row");
 	for image in images:
 		html.open_tag("div", _class="image_column");
-		html.one_tag("img", src=image, style="width:100%");
+		html.one_tag("img", src=image, style="height:100%; max-height:4in");
 		html.close_tag();
 	html.close_tag();
 

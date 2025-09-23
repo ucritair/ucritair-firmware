@@ -12,6 +12,7 @@ def build(here, html: HTMLWriter):
 	common.title(html, here.title);
 
 	html.heading(3, "Live Summary");
+	common.gallery(html, ["/images/dashboard/summary.png"]);
 	html.begin_text_block();
 	html.text("The largest element on this page is the player's aggregate air quality grade.");
 	html.text("It reflects the overall air quality at the moment.");
@@ -20,6 +21,7 @@ def build(here, html: HTMLWriter):
 	html.end_text_block();
 
 	html.heading(3, "Live Details");
+	common.gallery(html, ["/images/dashboard/details.png"]);
 	html.begin_text_block();
 	html.text("Here, real measurements with units can be viewed for all main air quality metrics.");
 	html.text("Measurement text is coloured to represent relative badness.");
@@ -27,6 +29,7 @@ def build(here, html: HTMLWriter):
 	html.end_text_block();
 
 	html.heading(3, "Weekly Performance");
+	common.gallery(html, ["/images/dashboard/sparklines.png"]);
 	html.begin_text_block();
 	html.text("The sparklines on this page reach seven days into the past from present day.");
 	html.text("The plotted values correspond to grades, with grade goodness increasing along the Y axis.");
@@ -35,6 +38,7 @@ def build(here, html: HTMLWriter):
 	html.end_text_block();
 
 	html.heading(3, "Calendar");
+	common.gallery(html, ["/images/dashboard/calendar.png"]);
 	html.begin_text_block();
 	html.text("The calendar page, once opened, begins with date selection.");
 	html.text("When a date is selected, a graph of that date's logged air quality data is made available.");
@@ -51,11 +55,13 @@ def build(here, html: HTMLWriter):
 	html.end_text_block();
 
 	html.heading(3, "Clock");
+	common.gallery(html, ["/images/dashboard/clock.png"]);
 	html.begin_text_block();
 	html.text("Nothing more and nothing less than a clock.");
 	html.end_text_block();
 
 	html.heading(3, "Crisis Dashboard");
+	common.gallery(html, ["/images/dashboard/crisis_all_clear.png", "/images/dashboard/crisis.png"]);
 	html.begin_text_block();
 	html.text("This page must be passed through to get to the apartment or, in the case of a crisis, the crisis report.");
 	html.text("In the case that a crisis occurs, this page will be highlighted and will give an overview of the crisis' nature.");

@@ -8,7 +8,7 @@ import common;
 def build(here, html: HTMLWriter):
 	common.title(html, "Hardware");
 	
-	common.banner(html, "/images/hardware.webp", 0.75);
+	common.gallery(html, ["/images/case.png", "/images/hardware.webp", ]);
 
 	html.heading(1, "Top-to-Bottom");
 
