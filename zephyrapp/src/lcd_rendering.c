@@ -329,7 +329,7 @@ void lcd_render_diag()
 		if(CAT_eink_needs_update())
 		{
 			CAT_set_eink_update_flag(false);
-			epaper_render_test();
+			CAT_eink_update();
 			CAT_eink_set_time();
 		}
 
