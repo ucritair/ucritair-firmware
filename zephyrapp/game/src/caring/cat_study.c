@@ -285,6 +285,13 @@ static void MS_cast(CAT_FSM_signal signal)
 			if(CAT_input_pressed(CAT_BUTTON_B))
 				CAT_FSM_transition(&fsm, NULL);
 
+			if(CAT_input_poll_barrier())
+			{
+				if(CAT_input_dismissal())
+					CAT_pushdown_pop();
+				return;
+			}
+
 			if(CAT_input_pressed(CAT_BUTTON_A))
 			{
 				if(!pole.committed)
@@ -338,9 +345,62 @@ static void MS_cast(CAT_FSM_signal signal)
 	}
 }
 
-static void render_MS_cast()
+#define SPLASH_X 12
+#define SPLASH_Y 12
+
+static void draw_barrier()
 {
 	CAT_frameberry(CAT_BLACK);
+		
+	int cursor_y = SPLASH_Y;
+
+	CAT_set_text_colour(CAT_FOCUS_BLUE);
+	CAT_set_text_scale(2);
+	cursor_y = CAT_draw_text(SPLASH_X, cursor_y, "PECHE DU JOUR\n");
+
+	cursor_y += 12;
+	
+	CAT_set_text_colour(CAT_WHITE);
+	CAT_set_text_mask(SPLASH_X, -1, CAT_LCD_SCREEN_W-SPLASH_X, -1);
+	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
+	cursor_y = CAT_draw_text
+	(
+		SPLASH_X, cursor_y,
+		"Cast a line on the red mark. "
+		"Then, draw the fish to you.\n"
+		"Wait for a bite before reeling it in.\n"
+	);
+	cursor_y += 12;
+
+	CAT_set_text_colour(CAT_WHITE);
+	CAT_set_text_mask(SPLASH_X, -1, CAT_LCD_SCREEN_W-SPLASH_X, -1);
+	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
+	cursor_y = CAT_draw_text(SPLASH_X, cursor_y, "This game uses button inputs.\n");
+
+	cursor_y += 32;
+
+	CAT_set_sprite_colour(CAT_FOCUS_BLUE);
+	CAT_set_sprite_flags(CAT_DRAW_FLAG_CENTER_X);
+	CAT_set_sprite_scale(2);
+	CAT_draw_sprite(&ui_buttons_prompt, -1, CAT_LCD_SCREEN_W/2, cursor_y);
+
+	cursor_y += 72;
+	CAT_set_text_colour(CAT_WHITE);
+	CAT_set_text_mask(SPLASH_X, -1, CAT_LCD_SCREEN_W-SPLASH_X, -1);
+	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP | CAT_TEXT_FLAG_CENTER);
+	cursor_y = CAT_draw_text(CAT_LCD_SCREEN_W/2, cursor_y, "Press [A] to begin!\n");
+}
+
+static void render_MS_cast()
+{
+	if(CAT_input_poll_barrier())
+	{
+		draw_barrier();
+		return;
+	}
+
+	CAT_frameberry(CAT_BLACK);
+
 	render_pole();
 	render_rings();
 
@@ -1367,6 +1427,7 @@ void CAT_MS_study(CAT_FSM_signal signal)
 	switch (signal)
 	{
 		case CAT_FSM_SIGNAL_ENTER:
+			CAT_input_raise_barrier(CAT_BUTTON_BIT(CAT_BUTTON_A));
 			CAT_FSM_transition(&fsm, MS_cast);
 		break;
 
@@ -1379,6 +1440,7 @@ void CAT_MS_study(CAT_FSM_signal signal)
 		break;
 
 		case CAT_FSM_SIGNAL_EXIT:
+			CAT_input_lower_barrier();
 		break;
 	}
 }

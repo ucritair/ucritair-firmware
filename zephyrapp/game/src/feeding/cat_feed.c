@@ -1414,6 +1414,7 @@ void CAT_MS_feed(CAT_FSM_signal signal)
 			break;
 
 		case CAT_FSM_SIGNAL_EXIT:
+			CAT_input_lower_barrier();
 			break;
 	}
 }
