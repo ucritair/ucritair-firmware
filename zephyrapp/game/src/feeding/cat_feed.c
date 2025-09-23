@@ -21,8 +21,6 @@ static void MS_arrange(CAT_FSM_signal signal);
 static void render_arrange();
 static void MS_select(CAT_FSM_signal signal);
 static void render_select();
-static void MS_inspect(CAT_FSM_signal signal);
-static void render_inspect();
 static void MS_summary(CAT_FSM_signal signal);
 static void render_summary();
 static CAT_FSM fsm =
@@ -1186,77 +1184,6 @@ static void MS_select(CAT_FSM_signal signal)
 static void render_select()
 {
 	return;
-}
-
-static int inspect_idx = -1;
-
-static const char *group_strings[] =
-{
-	"VEG / FRUIT",
-	"STARCH",
-	"MEAT",
-	"DAIRY",
-	"MISCELLANY"
-};
-
-static const char *role_strings[] =
-{
-	"STAPLE",
-	"MAIN",
-	"SIDE",
-	"SOUP",
-	"DRINK",
-	"TREAT",
-	"VICE"
-};
-
-static void MS_inspect(CAT_FSM_signal signal)
-{
-	switch (signal)
-	{
-		case CAT_FSM_SIGNAL_ENTER:
-			CAT_set_render_callback(render_inspect);
-			break;
-
-		case CAT_FSM_SIGNAL_TICK:
-			if (CAT_input_pressed(CAT_BUTTON_B))
-				CAT_FSM_transition(&fsm, MS_select);
-			else if (CAT_input_pressed(CAT_BUTTON_SELECT))
-				CAT_FSM_transition(&fsm, MS_arrange);
-
-			if (CAT_input_pressed(CAT_BUTTON_RIGHT))
-				inspect_idx += 1;
-			if (CAT_input_pressed(CAT_BUTTON_LEFT))
-				inspect_idx -= 1;
-			inspect_idx = (inspect_idx + food_pool.length) % food_pool.length;
-			break;
-
-		case CAT_FSM_SIGNAL_EXIT:
-			break;
-	}
-}
-
-static void render_inspect()
-{
-	CAT_frameberry(CAT_RGB8882565(142, 171, 174));
-
-	CAT_item *inspectee = CAT_get_item(food_pool.data[inspect_idx]);
-	if (inspectee == NULL)
-		return;
-
-	CAT_set_text_scale(2);
-	CAT_set_text_colour(CAT_WHITE);
-	CAT_draw_text(8, 8, inspectee->name);
-	CAT_set_text_colour(CAT_WHITE);
-	CAT_draw_textf(8, 8 + 28, "Group: %s", group_strings[inspectee->food_group]);
-	CAT_set_text_colour(CAT_WHITE);
-	CAT_draw_textf(8, 8 + 28 + 16, "Role: %s", role_strings[inspectee->food_role]);
-	CAT_set_text_colour(CAT_WHITE);
-	CAT_draw_text(8, 8 + 28 + 16 + 16, inspectee->text);
-
-	CAT_set_sprite_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
-	CAT_set_sprite_scale(6);
-	CAT_draw_sprite(inspectee->sprite, 0, 120, 160);
 }
 
 static enum {
