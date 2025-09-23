@@ -94,7 +94,7 @@ bool sprite_read_px(struct epaper_image_asset* src, int x, int y)
 
 void blit_image(uint8_t* target, struct epaper_image_asset* src, int x, int y)
 {
-	LOG_INF("Blit x=%d y=%d w=%d h=%d", x, y, src->w, src->h);
+	//LOG_INF("Blit x=%d y=%d w=%d h=%d", x, y, src->w, src->h);
 	for (int dx = 0; dx < src->w; dx++)
 	{
 		for (int dy = 0; dy < src->h; dy++)
@@ -199,14 +199,14 @@ void epaper_render_test()
 	pc_set_mode(false);
 	if (is_first_init || framebuffer_fast_update_count > 50)
 	{
-		LOG_DBG("Opted to global update, is_first_init=%d, framebuffer_fast_update_count=%d", is_first_init, framebuffer_fast_update_count);
+		//LOG_DBG("Opted to global update, is_first_init=%d, framebuffer_fast_update_count=%d", is_first_init, framebuffer_fast_update_count);
 		is_first_init = false;
 		cmd_turn_on_and_write(epaper_framebuffer);
 		framebuffer_fast_update_count = 0;
 	}
 	else
 	{
-		LOG_DBG("Opted to fast update, framebuffer_fast_update_count=%d", framebuffer_fast_update_count);
+		//LOG_DBG("Opted to fast update, framebuffer_fast_update_count=%d", framebuffer_fast_update_count);
 		cmd_turn_on_and_write_fast(old_epaper_framebuffer, epaper_framebuffer);
 		framebuffer_fast_update_count++;
 	}

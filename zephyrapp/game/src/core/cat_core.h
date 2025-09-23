@@ -81,7 +81,6 @@ void CAT_eink_update();
 
 void CAT_eink_flag_tick();
 bool CAT_eink_update_tick();
-void CAT_eink_set_time();
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // SCREEN MANAGEMENT

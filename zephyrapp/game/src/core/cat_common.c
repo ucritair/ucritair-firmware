@@ -78,11 +78,6 @@ bool CAT_eink_update_tick()
 	return true;
 }
 
-void CAT_eink_set_time()
-{
-	eink_update_timestamp = CAT_get_RTC_now();
-}
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // SCREEN MANAGEMENT
