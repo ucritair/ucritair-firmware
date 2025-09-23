@@ -18,17 +18,17 @@ static int page = INTRO;
 
 static float exit_progress = 0;
 
-void CAT_MS_crisis_report(CAT_machine_signal signal)
+void CAT_MS_crisis_report(CAT_FSM_signal signal)
 {
 	switch (signal)
 	{
-		case CAT_MACHINE_SIGNAL_ENTER:
+		case CAT_FSM_SIGNAL_ENTER:
 			CAT_set_render_callback(CAT_render_crisis_report);
 			page = INTRO;
 			exit_progress = 0;
 		break;
 
-		case CAT_MACHINE_SIGNAL_TICK:
+		case CAT_FSM_SIGNAL_TICK:
 			if(CAT_input_dismissal())
 				page = OUTCOMES;
 				
@@ -45,15 +45,15 @@ void CAT_MS_crisis_report(CAT_machine_signal signal)
 				else
 					exit_progress -= CAT_get_delta_time_s() * 1.5f;
 				exit_progress = clamp(exit_progress, 0, 1);
-				if(exit_progress >= 1.0f && input.time[CAT_BUTTON_A] >= 1.25f)
+				if(exit_progress >= 1.0f && CAT_input_time(CAT_BUTTON_A) >= 1.25f)
 				{
 					CAT_AQ_dismiss_crisis_report();
-					CAT_machine_transition(CAT_MS_room);
+					CAT_pushdown_rebase(CAT_MS_room);
 				}
 			}
 		break;
 
-		case CAT_MACHINE_SIGNAL_EXIT:
+		case CAT_FSM_SIGNAL_EXIT:
 		break;
 	}
 }
@@ -444,7 +444,7 @@ void draw_outcomes_page()
 			grade >= CAT_AQ_CRISIS_RESPONSE_GRADE_ADEQUATE ? CAT_CRISIS_GREEN :
 			grade >= CAT_AQ_CRISIS_RESPONSE_GRADE_INADEQUATE ? CAT_CRISIS_YELLOW :
 			CAT_CRISIS_RED;
-			CAT_draw_gizmo_primitive(CAT_GIZMO_PRIMITIVE_HEX, (box_x0+box_x1)/2, (box_y0+box_y1)/2, 64, 0, CAT_WHITE);
+			CAT_draw_regular_polygon(6, (box_x0+box_x1)/2, (box_y0+box_y1)/2, 64, 0, CAT_WHITE);
 
 			int damage = CAT_AQ_get_crisis_lifespan_damage();
 			CAT_set_text_flags(CAT_TEXT_FLAG_CENTER);
@@ -462,7 +462,7 @@ void draw_outcomes_page()
 		}
 		else
 		{
-			CAT_draw_gizmo_primitive(CAT_GIZMO_PRIMITIVE_HEX, (box_x0+box_x1)/2, (box_y0+box_y1)/2, 64, -0.11f, CAT_WHITE);
+			CAT_draw_regular_polygon(6, (box_x0+box_x1)/2, (box_y0+box_y1)/2, 64, -0.11f, CAT_WHITE);
 
 			CAT_set_text_flags(CAT_TEXT_FLAG_CENTER);
 			CAT_set_text_colour(CAT_WHITE);

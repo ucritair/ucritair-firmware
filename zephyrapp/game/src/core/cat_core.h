@@ -74,11 +74,13 @@ int* CAT_LCD_brightness_pointer();
 
 void CAT_eink_post(uint8_t* buffer);
 bool CAT_eink_is_posted();
-void CAT_eink_update();
 
 void CAT_set_eink_update_flag(bool flag);
 bool CAT_eink_needs_update();
+void CAT_eink_update();
 
+void CAT_eink_flag_tick();
+bool CAT_eink_update_tick();
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // SCREEN MANAGEMENT
@@ -95,6 +97,8 @@ CAT_screen_orientation CAT_get_screen_orientation();
 void CAT_poll_screen_flip();
 bool CAT_should_flip_screen();
 void CAT_flip_screen();
+
+void CAT_orientation_tick();
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -117,6 +121,7 @@ typedef struct CAT_sound
 
 void CAT_sound_power(bool value);
 void CAT_play_sound(CAT_sound* sound);
+void CAT_beep();
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -140,6 +145,7 @@ void CAT_get_touch(CAT_touch* touch);
 uint64_t CAT_get_slept_s();
 uint64_t CAT_get_uptime_ms();
 float CAT_get_delta_time_s();
+uint64_t CAT_get_RTC_offset();
 uint64_t CAT_get_RTC_now();
 
 typedef union CAT_datetime
@@ -233,7 +239,8 @@ typedef enum
 	CAT_CONFIG_FLAG_USE_FAHRENHEIT = (1 << 1),
 	CAT_CONFIG_FLAG_AQ_FIRST = (1 << 2),
 	CAT_CONFIG_FLAG_MIGRATED = (1 << 3),
-	CAT_CONFIG_FLAG_PAUSE_CARE = (1 << 4)
+	CAT_CONFIG_FLAG_PAUSE_CARE = (1 << 4),
+	CAT_CONFIG_FLAG_KALI_YUGA = (1 << 5)
 } CAT_config_flag;
 
 typedef enum
@@ -480,9 +487,8 @@ typedef union
 	float data[3];
 } CAT_IMU_values;
 
-void CAT_IMU_export_raw(CAT_IMU_values* out);
-void CAT_IMU_export_normalized(CAT_IMU_values* out);
-void CAT_IMU_tick();
+void CAT_IMU_get_raw(CAT_IMU_values* out);
+void CAT_IMU_get_normalized(CAT_IMU_values* out);
 bool CAT_IMU_is_upside_down();
 
 
@@ -517,12 +523,13 @@ typedef enum
 	CAT_PERSIST_FLAG_MANUAL_ORIENT = (1 << 1)
 } CAT_persist_flag;
 
-volatile uint8_t* CAT_AQ_crisis_state_persist();
-volatile uint8_t* CAT_pet_timing_state_persist();
+uint8_t* CAT_AQ_crisis_state_persist();
+uint8_t* CAT_pet_timing_state_persist();
 bool CAT_was_persist_wiped();
 
 uint64_t CAT_get_persist_flags();
 void CAT_set_persist_flags(uint64_t flags);
+
 bool CAT_get_persist_flag(uint64_t flags);
 void CAT_raise_persist_flag(uint64_t flags);
 void CAT_lower_persist_flag(uint64_t flags);

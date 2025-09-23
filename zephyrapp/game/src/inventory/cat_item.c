@@ -14,20 +14,23 @@
 //////////////////////////////////////////////////////////////////////////
 // ITEM TABLE
 
-CAT_item* CAT_item_get(int item_id)
+CAT_item* CAT_get_item(int item_id)
 {
 	if(item_id < 0 || item_id >= item_table.length)
 		return NULL;
 	return &item_table.data[item_id];
 }
 
-void CAT_filter_item_table(CAT_item_filter filter, CAT_int_list* list)
+int CAT_item_pool_select(CAT_item_pool* pool)
 {
-	for(int i = 0; i < item_table.length; i++)
+	CAT_WRS_begin();
+	for(int i = 0; i < pool->entry_count; i++)
 	{
-		if(filter == NULL || filter(i))
-			CAT_ilist_push(list, i);
+		CAT_WRS_add(i, pool->entries[i].weight);
 	}
+	CAT_WRS_end();
+	int idx = CAT_WRS_select();
+	return pool->entries[idx].item_id;
 }
 
 
@@ -118,34 +121,34 @@ void CAT_bind_inspector(int item_id)
 	inspect_id = item_id;
 }
 
-void CAT_MS_inspector(CAT_machine_signal signal)
+void CAT_MS_inspector(CAT_FSM_signal signal)
 {
 	switch(signal)
 	{
-		case CAT_MACHINE_SIGNAL_ENTER:
+		case CAT_FSM_SIGNAL_ENTER:
 		{
 			CAT_set_render_callback(CAT_render_inspector);
 			break;
 		}
-		case CAT_MACHINE_SIGNAL_TICK:
+		case CAT_FSM_SIGNAL_TICK:
 		{
 			if(CAT_input_pressed(CAT_BUTTON_B))
-				CAT_machine_back();
+				CAT_pushdown_pop();
 			break;
 		}
-		case CAT_MACHINE_SIGNAL_EXIT:
+		case CAT_FSM_SIGNAL_EXIT:
 		{
 			break;
 		}
 	}
 }
 
-#define INSPECTOR_BG_COLOUR RGB8882565(142, 171, 174)
+#define INSPECTOR_BG_COLOUR CAT_RGB8882565(142, 171, 174)
 #define INSPECTOR_MARGIN 8
 
 void CAT_render_inspector()
 {
-	CAT_item* item = CAT_item_get(inspect_id);
+	CAT_item* item = CAT_get_item(inspect_id);
 
 	CAT_frameberry(INSPECTOR_BG_COLOUR);
 
@@ -191,20 +194,20 @@ void CAT_render_inspector()
 static void inspect_proc(int item_id)
 {
 	CAT_bind_inspector(item_id);
-	CAT_machine_transition(CAT_MS_inspector);
+	CAT_pushdown_push(CAT_MS_inspector);
 }
 
-void CAT_MS_inventory(CAT_machine_signal signal)
+void CAT_MS_inventory(CAT_FSM_signal signal)
 {
 	switch(signal)
 	{
-		case CAT_MACHINE_SIGNAL_ENTER:
+		case CAT_FSM_SIGNAL_ENTER:
 		{
 			CAT_set_render_callback(CAT_render_inventory);
 			CAT_gui_begin_item_grid_context(true);
 			break;
 		}
-		case CAT_MACHINE_SIGNAL_TICK:
+		case CAT_FSM_SIGNAL_TICK:
 		{	
 			CAT_gui_begin_item_grid();
 			for(int i = 0; i < NUM_TABS; i++)
@@ -221,7 +224,7 @@ void CAT_MS_inventory(CAT_machine_signal signal)
 			break;
 		}
 
-		case CAT_MACHINE_SIGNAL_EXIT:
+		case CAT_FSM_SIGNAL_EXIT:
 		break;
 	}
 }

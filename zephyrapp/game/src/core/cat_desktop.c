@@ -410,6 +410,11 @@ void CAT_play_sound(CAT_sound* sound)
 	CAT_printf("[CALL] CAT_play_sound\n");
 }
 
+void CAT_beep()
+{
+	system("osascript -e 'beep'");
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // INPUT
@@ -469,6 +474,11 @@ uint64_t CAT_get_uptime_ms()
 float CAT_get_delta_time_s()
 {
 	return simulator.delta_time_s;
+}
+
+uint64_t CAT_get_RTC_offset()
+{
+	return 0;
 }
 
 uint64_t CAT_get_RTC_now()
@@ -661,19 +671,14 @@ CAT_IMU_values imu_values =
 	.z = 0
 };
 
-void CAT_IMU_export_raw(CAT_IMU_values* out)
+void CAT_IMU_get_raw(CAT_IMU_values* out)
 {
 	memcpy(out, &imu_values, sizeof(imu_values));
 }
 
-void CAT_IMU_export_normalized(CAT_IMU_values* out)
+void CAT_IMU_get_normalized(CAT_IMU_values* out)
 {
 	memcpy(out, &imu_values, sizeof(imu_values));
-}
-
-void CAT_IMU_tick()
-{
-	return;
 }
 
 
@@ -713,14 +718,14 @@ uint8_t* generate_persist(const char* path, size_t size, int* fd)
 	return mem;
 }
 
-volatile uint8_t* CAT_AQ_crisis_state_persist()
+uint8_t* CAT_AQ_crisis_state_persist()
 {
 	if(AQ_crisis_state_fd == -1)
 		AQ_crisis_state_mmap = generate_persist("persist/AQ_crisis_state.dat", sizeof(CAT_AQ_crisis_state), &AQ_crisis_state_fd);
 	return AQ_crisis_state_mmap;
 }
 
-volatile uint8_t* CAT_pet_timing_state_persist()
+uint8_t* CAT_pet_timing_state_persist()
 {
 	if(pet_timing_state_fd == -1)
 		pet_timing_state_mmap = generate_persist("persist/pet_timing_state.dat", sizeof(CAT_pet_timing_state), &pet_timing_state_fd);

@@ -18,7 +18,7 @@
 #include "cat_machine.h"
 #include "cat_room.h"
 #include "cat_pet.h"
-#include "cat_actions.h"
+#include "cat_play.h"
 #include "cat_menu.h"
 #include "cat_arcade.h"
 #include "cat_deco.h"
@@ -30,21 +30,17 @@
 #include "sprite_assets.h"
 #include "item_assets.h"
 #include "cat_colours.h"
+#include "cat_effects.h"
 
 #ifdef CAT_EMBEDDED
 #include "menu_time.h"
-#include "menu_aqi.h"
 #include "menu_system.h"
-#include "menu_graph.h"
 #endif
 
 #ifdef __GNUC__
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunknown-pragmas"
 #endif
-
-uint64_t last_eink_time;
-bool first_eink_update_complete = false;
 
 void CAT_init()
 {
@@ -60,9 +56,9 @@ void CAT_init()
 	CAT_force_load();
 
 	if(CAT_check_config_flags(CAT_CONFIG_FLAG_AQ_FIRST))
-		CAT_machine_transition(CAT_MS_monitor);
+		CAT_pushdown_rebase(CAT_MS_monitor);
 	else
-		CAT_machine_transition(CAT_MS_room);
+		CAT_pushdown_rebase(CAT_MS_room);
 
 	if(CAT_AQ_sensors_initialized())
 		CAT_set_eink_update_flag(true);
@@ -78,42 +74,20 @@ void CAT_tick_logic()
 		
 	CAT_platform_tick();
 	CAT_input_tick();
-	CAT_IMU_tick();
 
 	CAT_AQ_tick();
 	CAT_AQ_crisis_tick();
 
 	CAT_animator_tick();
-
 	CAT_room_tick();
 	CAT_pet_tick();
 	
-	CAT_machine_tick();
+	CAT_pushdown_tick();
 
-	CAT_gui_io();
-
-	uint64_t now = CAT_get_RTC_now();
-
-	if
-	(
-		(CAT_is_charging() &&
-		(now - last_eink_time) >= EINK_UPDATE_PERIOD &&
-		CAT_input_time_since_last() >= EINK_UPDATE_PERIOD) ||
-		(!first_eink_update_complete && CAT_AQ_sensors_initialized())
-	)
-	{
-		CAT_set_eink_update_flag(true);
-	}
-
-	if(!CAT_get_persist_flag(CAT_PERSIST_FLAG_MANUAL_ORIENT))
-	{
-		CAT_poll_screen_flip();
-		if(CAT_should_flip_screen())
-		{
-			CAT_flip_screen();
-			CAT_set_eink_update_flag(true);
-		}
-	}
+	CAT_gui_tick();
+	CAT_effects_tick();
+	CAT_eink_flag_tick();
+	CAT_orientation_tick();
 }
 
 void CAT_draw_eink_refresh_notice()
@@ -134,7 +108,7 @@ void CAT_draw_eink_refresh_notice()
 	CAT_draw_sprite_raw(&eink_update_pen_sprite, 0, 16*3+8, CAT_LCD_SCREEN_H/2-4);
 	CAT_draw_sprite_raw(&eink_update_clipboard_sprite, 0, 16*4-4, CAT_LCD_SCREEN_H/2+12);
 
-	CAT_fillberry(0, CAT_LCD_SCREEN_H-48, CAT_LCD_SCREEN_W, 48, RGB8882565(105, 79, 98));
+	CAT_fillberry(0, CAT_LCD_SCREEN_H-48, CAT_LCD_SCREEN_W, 48, CAT_RGB8882565(105, 79, 98));
 
 	CAT_set_text_colour(CAT_WHITE);
 	CAT_draw_text(8, 8, "UPDATING E-INK DISPLAY...");
@@ -147,6 +121,9 @@ void CAT_draw_eink_refresh_notice()
 
 void CAT_tick_render()
 {
+	if(CAT_is_first_render_cycle())
+		CAT_flip_render_callback();
+
 	CAT_render_callback render_callback = CAT_get_render_callback();
 	if(render_callback != NULL)
 	{
@@ -163,13 +140,11 @@ void CAT_tick_render()
 		CAT_draw_sprite(&null_sprite, 0, 120, 160);
 	}
 
+	CAT_effects_render();
 	CAT_gui_render();
 
 	if(CAT_eink_needs_update())
-	{
 		CAT_draw_eink_refresh_notice();
-		first_eink_update_complete = true;
-	}
 }
 
 #ifdef CAT_DESKTOP
@@ -182,7 +157,7 @@ int main(int argc, char** argv)
 	while (CAT_get_battery_pct() > 0)
 	{
 		CAT_tick_logic();
-		
+
 		for(int render_cycle = 0; render_cycle < CAT_LCD_FRAMEBUFFER_SEGMENTS; render_cycle++)
 		{
 			CAT_set_render_cycle(render_cycle);
@@ -191,12 +166,7 @@ int main(int argc, char** argv)
 			CAT_LCD_flip();
 		}
 
-		if(CAT_eink_needs_update())
-		{
-			CAT_set_eink_update_flag(false);
-			CAT_eink_update();
-			last_eink_time = CAT_get_RTC_now();
-		}
+		CAT_eink_update_tick();
 
 		// 1 / FPS * 1_000_000 yields microseconds between framebuffer updates at fixed FPS
 		usleep((1.0f / 14.0f) * 1000000);

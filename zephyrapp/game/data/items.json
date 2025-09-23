@@ -652,7 +652,7 @@
         },
         {
             "type": "prop",
-            "name": "prop_eth_farm",
+            "name": "prop_crafter",
             "display_name": "Defunct Crafting Station",
             "sprite": "prop_crafter_sprite",
             "text": "Though dormant now, it is clearly a fine machine. Nothing made so well can be useless for long.",
@@ -2653,6 +2653,45 @@
             "id": 116,
             "can_buy": false,
             "can_sell": false,
+            "icon": "item_icon_key_sprite"
+        },
+        {
+            "type": "key",
+            "name": "ingr_wood",
+            "display_name": "Wood",
+            "tier": 0,
+            "sprite": "world_node_wood_sprite",
+            "text": "",
+            "price": 0,
+            "can_buy": false,
+            "can_sell": false,
+            "id": 117,
+            "icon": "item_icon_key_sprite"
+        },
+        {
+            "type": "key",
+            "name": "ingr_stone",
+            "display_name": "Stone",
+            "tier": 0,
+            "sprite": "world_node_stone_sprite",
+            "text": "",
+            "price": 0,
+            "can_buy": false,
+            "can_sell": false,
+            "id": 118,
+            "icon": "item_icon_key_sprite"
+        },
+        {
+            "type": "key",
+            "name": "ingr_fibre",
+            "display_name": "Raw Fibres",
+            "tier": 0,
+            "sprite": "world_node_grass_sprite",
+            "text": "",
+            "price": 0,
+            "can_buy": false,
+            "can_sell": false,
+            "id": 119,
             "icon": "item_icon_key_sprite"
         }
     ]

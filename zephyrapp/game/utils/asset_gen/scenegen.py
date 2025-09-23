@@ -23,7 +23,6 @@ for instance in trp.instances:
 	trp.swrite(".tiles = (struct tile[]) {\n");
 	trp.source_indent();
 	for tile in instance["background"]["tiles"]:
-		print(tile);
 		trp.swrite("{\n");
 		trp.source_indent();
 		trp.swrite(f".x = {int(tile["position"][0])},\n");
@@ -43,7 +42,7 @@ for instance in trp.instances:
 		trp.swrite("{\n");
 		trp.source_indent();
 
-		trp.swrite(".props = (struct prop[]) {\n");
+		trp.swrite(".props = (CAT_prop_instance[]) {\n");
 		trp.source_indent();
 		for prop in layer:
 			trp.swrite("{\n");
@@ -53,6 +52,7 @@ for instance in trp.instances:
 			trp.swrite(f".position_x = {prop["position"][0]},\n");
 			trp.swrite(f".position_y = {prop["position"][1]},\n");
 			trp.swrite(f".variant = {prop["variant"]},\n");
+			trp.swrite(f".disabled = false,\n");
 
 			trp.source_unindent();
 			trp.swrite("},\n");

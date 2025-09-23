@@ -243,3 +243,13 @@ int CAT_draw_textf(int x, int y, const char* fmt, ...)
 
 	return CAT_draw_text(x, y, draw_textf_buffer);
 }
+
+const char* CAT_fmt_float(float f)
+{
+	static char buf[64];
+	int whole = (int) f;
+	float frac = f - whole;
+	unsigned fracu = (unsigned) (frac * 100);
+	snprintf(buf, sizeof(buf), "%d.%2.2u", whole, fracu);
+	return buf;
+}

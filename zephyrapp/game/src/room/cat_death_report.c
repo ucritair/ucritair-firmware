@@ -8,29 +8,29 @@
 
 static float exit_progress = 0;
 
-void CAT_MS_death_report(CAT_machine_signal signal)
+void CAT_MS_death_report(CAT_FSM_signal signal)
 {
 	switch (signal)
 	{
-		case CAT_MACHINE_SIGNAL_ENTER:
+		case CAT_FSM_SIGNAL_ENTER:
 			CAT_set_render_callback(CAT_render_death_report);
 			exit_progress = 0;
 		break;
 
-		case CAT_MACHINE_SIGNAL_TICK:
+		case CAT_FSM_SIGNAL_TICK:
 			if(CAT_input_held(CAT_BUTTON_A, 0))
 				exit_progress += CAT_get_delta_time_s();
 			else
 				exit_progress -= CAT_get_delta_time_s() * 1.5f;
 			exit_progress = clamp(exit_progress, 0, 1);
-			if(exit_progress >= 1.0f && input.time[CAT_BUTTON_A] >= 1.25f)
+			if(exit_progress >= 1.0f && CAT_input_time(CAT_BUTTON_A) >= 1.25f)
 			{
 				CAT_pet_dismiss_death_report();
-				CAT_machine_transition(CAT_MS_room);
+				CAT_pushdown_rebase(CAT_MS_room);
 			}
 		break;
 
-		case CAT_MACHINE_SIGNAL_EXIT:
+		case CAT_FSM_SIGNAL_EXIT:
 		break;
 	}
 }

@@ -6,7 +6,10 @@ typedef int16_t CAT_scene_vector[2];
 typedef CAT_scene_vector CAT_scene_point;
 typedef int16_t CAT_scene_AABB[4];
 
-typedef struct
+typedef struct CAT_prop CAT_prop;
+typedef struct CAT_prop_instance CAT_prop_instance;
+
+struct CAT_prop
 {
 	const CAT_sprite* sprite;
 	bool palette;
@@ -18,10 +21,18 @@ typedef struct
 	{
 		int8_t aabb[4];
 		int8_t tx, ty;
-		void (*proc) ();
+		void (*proc) (CAT_prop_instance*);
 	}* triggers;
 	uint8_t trigger_count;
-} CAT_prop;
+};
+
+struct CAT_prop_instance
+{
+	const CAT_prop* prop;
+	int8_t position_x, position_y;
+	int8_t variant;
+	bool disabled;
+};
 
 typedef struct
 {
@@ -42,12 +53,7 @@ typedef struct
 
 	struct layer
 	{
-		struct prop
-		{
-			const CAT_prop* prop;
-			int8_t position_x, position_y;
-			int8_t variant;
-		}* props;
+		CAT_prop_instance* props;
 		uint16_t prop_count;
 	}* layers;
 	uint8_t layer_count;

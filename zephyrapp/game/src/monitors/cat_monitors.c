@@ -8,11 +8,9 @@
 #include "sprite_assets.h"
 #include "cat_monitor_graphics_utils.h"
 
-static int page = CAT_MONITOR_PAGE_SUMMARY;
-
 static struct
 {
-	CAT_machine_state state;
+	CAT_FSM_state state;
 	CAT_render_callback render;
 } routines[CAT_MONITOR_PAGE_COUNT] =
 {
@@ -51,6 +49,14 @@ static struct
 		.state = CAT_monitor_MS_gameplay,
 		.render = CAT_monitor_render_gameplay
 	},
+};
+static int page = CAT_MONITOR_PAGE_SUMMARY;
+
+static CAT_FSM fsm =
+{
+	.state = NULL,
+	.next = NULL,
+	.dirty = false
 };
 
 static void draw_uninit_warning()
@@ -104,19 +110,19 @@ static void render_monitor()
 void CAT_monitor_advance()
 {
 	page = (page+1) % CAT_MONITOR_PAGE_COUNT;
-	CAT_machine_transition(routines[page].state);
+	CAT_FSM_transition(&fsm, routines[page].state);
 }
 
 void CAT_monitor_retreat()
 {
 	page = (page-1+CAT_MONITOR_PAGE_COUNT) % CAT_MONITOR_PAGE_COUNT;
-	CAT_machine_transition(routines[page].state);
+	CAT_FSM_transition(&fsm, routines[page].state);
 }
 
 void CAT_monitor_seek(int target)
 {
 	page = clamp(target, CAT_MONITOR_PAGE_SUMMARY, CAT_MONITOR_PAGE_COUNT-1);
-	CAT_machine_transition(routines[page].state);
+	CAT_FSM_transition(&fsm, routines[page].state);
 }
 
 int CAT_monitor_tell()
@@ -127,9 +133,9 @@ int CAT_monitor_tell()
 void CAT_monitor_exit()
 {
 	if(CAT_AQ_is_crisis_report_posted())
-		CAT_machine_transition(CAT_MS_crisis_report);
+		CAT_pushdown_rebase(CAT_MS_crisis_report);
 	else
-		CAT_machine_transition(CAT_MS_room);
+		CAT_pushdown_rebase(CAT_MS_room);
 }
 
 void CAT_monitor_dismiss()
@@ -137,20 +143,20 @@ void CAT_monitor_dismiss()
 	CAT_monitor_seek(CAT_MONITOR_PAGE_GAMEPLAY);
 }
 
-void CAT_MS_monitor(CAT_machine_signal signal)
+void CAT_MS_monitor(CAT_FSM_signal signal)
 {
 	switch (signal)
 	{
-		case CAT_MACHINE_SIGNAL_ENTER:
+		case CAT_FSM_SIGNAL_ENTER:
 			CAT_set_render_callback(render_monitor);
-			page = CAT_MONITOR_PAGE_SUMMARY;
+			CAT_monitor_seek(CAT_MONITOR_PAGE_SUMMARY);
 		break;
 
-		case CAT_MACHINE_SIGNAL_TICK:
-			CAT_machine_transition(routines[page].state);
+		case CAT_FSM_SIGNAL_TICK:
+			CAT_FSM_tick(&fsm);
 		break;
 
-		case CAT_MACHINE_SIGNAL_EXIT:
+		case CAT_FSM_SIGNAL_EXIT:
 		break;
 	}
 }

@@ -10,3 +10,6 @@
 
 void init_epaper_enough_for_it_to_calm_the_fuck_down();
 void pc_set_mode(bool lcd);
+
+void cmd_turn_on_and_write(uint8_t* image);
+void cmd_turn_on_and_write_fast(uint8_t* old, uint8_t* image);

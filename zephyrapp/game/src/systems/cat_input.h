@@ -15,54 +15,42 @@ typedef enum CAT_button
     CAT_BUTTON_LAST
 } CAT_button;
 
-typedef struct CAT_input
-{
-	bool mask[CAT_BUTTON_LAST];
-	bool last[CAT_BUTTON_LAST];
-	float time[CAT_BUTTON_LAST];
-	float since[CAT_BUTTON_LAST];
-	float pulse[CAT_BUTTON_LAST];
-	int frames[CAT_BUTTON_LAST];
-	bool dirty[CAT_BUTTON_LAST];
+#define CAT_BUTTON_BIT(button) (1 << button)
+#define CAT_TOUCH_BIT CAT_BUTTON_BIT(CAT_BUTTON_LAST)
 
-	CAT_touch touch;
-	CAT_touch touch_last;
-	float touch_time;
-
-	CAT_button buffer[10];
-	int buffer_head;
-} CAT_input;
-extern CAT_input input;
-
-void CAT_input_init();
-void CAT_input_tick();
-void CAT_input_clear();
-void CAT_input_swallow(int button);
-
+bool CAT_input_down(int button);
+bool CAT_input_held(int button, float t);
 bool CAT_input_pressed(int button);
 bool CAT_input_released(int button);
-bool CAT_input_held(int button, float t);
 bool CAT_input_pulse(int button);
-float CAT_input_time(int button);
+
 int CAT_input_frames(int button);
-
-bool CAT_input_dismissal();
-
-bool CAT_input_drag(int x, int y, float r);
-bool CAT_input_touch(int x, int y, float r);
-bool CAT_input_touch_rect(int x, int y, int w, int h);
+float CAT_input_time(int button);
+float CAT_input_since(int button);
 
 bool CAT_input_touching();
 bool CAT_input_touch_down();
 bool CAT_input_touch_up();
 
-CAT_ivec2 CAT_input_cursor();
-bool CAT_input_cursor_in_rect(int x, int y, int w, int h);
-bool CAT_input_cursor_in_circle(int x, int y, int r);
+void CAT_input_cursor(int* x, int* y);
+bool CAT_input_drag_circle(int x, int y, int r);
+bool CAT_input_touch_circle(int x, int y, int r);
+bool CAT_input_touch_rect(int x, int y, int w, int h);
+
+float CAT_input_touch_time();
+
+bool CAT_input_dismissal();
 
 void CAT_input_buffer_clear();
 bool CAT_input_spell(CAT_button* spell);
+int CAT_input_buffer_head();
+int CAT_input_buffer_get(int idx);
 
-float CAT_input_time_since_last();
+void CAT_input_raise_barrier(int mask);
+bool CAT_input_poll_barrier();
+void CAT_input_lower_barrier();
 
-extern CAT_button basic_spell[10];
+void CAT_input_init();
+void CAT_input_tick();
+void CAT_input_clear();
+float CAT_input_downtime();

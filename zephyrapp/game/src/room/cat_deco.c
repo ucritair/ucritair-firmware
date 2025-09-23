@@ -38,7 +38,7 @@ static void get_hold_rect(int* x0, int* y0, int* x1, int* y1)
 {
 	if(hold_id != -1)
 	{
-		CAT_item* item = CAT_item_get(hold_id);
+		CAT_item* item = CAT_get_item(hold_id);
 		*x0 = cursor_x;
 		*y0 = cursor_y;
 		*x1 = cursor_x + item->prop_shape.x;
@@ -59,11 +59,11 @@ static bool can_stack_held()
 {
 	if(hold_id != -1 && hover_idx != -1 && props->data[hover_idx].child == -1)
 	{
-		CAT_item* hold_item = CAT_item_get(hold_id);
+		CAT_item* hold_item = CAT_get_item(hold_id);
 		int hold_x0, hold_y0, hold_x1, hold_y1;
 		get_hold_rect(&hold_x0, &hold_y0, &hold_x1, &hold_y1);
 		
-		CAT_item* hover_item = CAT_item_get(props->data[hover_idx].prop);
+		CAT_item* hover_item = CAT_get_item(props->data[hover_idx].prop);
 		int hover_x0, hover_y0, hover_x1, hover_y1;
 		get_hold_rect(&hover_x0, &hover_y0, &hover_x1, &hover_y1);
 
@@ -87,11 +87,11 @@ static void select_proc(int item_id)
 	selecting = false;
 }
 
-void CAT_MS_deco(CAT_machine_signal signal)
+void CAT_MS_deco(CAT_FSM_signal signal)
 {
 	switch(signal)
 	{
-		case CAT_MACHINE_SIGNAL_ENTER:
+		case CAT_FSM_SIGNAL_ENTER:
 		{
 			CAT_set_render_callback(CAT_render_deco);
 			CAT_pet_settle();
@@ -107,7 +107,7 @@ void CAT_MS_deco(CAT_machine_signal signal)
 			CAT_gui_begin_item_grid_context(false);
 			break;
 		}
-		case CAT_MACHINE_SIGNAL_TICK:
+		case CAT_FSM_SIGNAL_TICK:
 		{
 			if(selecting)
 			{
@@ -131,7 +131,7 @@ void CAT_MS_deco(CAT_machine_signal signal)
 			else
 			{	
 				if(CAT_input_pressed(CAT_BUTTON_B) && hold_id == -1)
-					CAT_machine_back();
+					CAT_pushdown_pop();
 			
 				if(CAT_input_pressed(CAT_BUTTON_SELECT))
 				{
@@ -153,7 +153,7 @@ void CAT_MS_deco(CAT_machine_signal signal)
 				int col_y = 1;
 				if(hold_id != -1)
 				{
-					CAT_item* item = CAT_item_get(hold_id);
+					CAT_item* item = CAT_get_item(hold_id);
 					col_w = item->prop_shape.x;
 					col_y = item->prop_shape.y;
 				}
@@ -258,7 +258,7 @@ void CAT_MS_deco(CAT_machine_signal signal)
 
 			break;
 		}
-		case CAT_MACHINE_SIGNAL_EXIT:
+		case CAT_FSM_SIGNAL_EXIT:
 		{
 			hold_id = -1;
 			hover_idx = -1;
@@ -271,7 +271,7 @@ void CAT_render_deco()
 {
 	CAT_room_draw_statics();
 	CAT_draw_corner_box(CAT_ROOM_X, CAT_ROOM_Y, CAT_ROOM_MAX_X, CAT_ROOM_MAX_Y, CAT_WHITE);
-	CAT_draw_dot_grid(CAT_ROOM_X, CAT_ROOM_Y, CAT_ROOM_GRID_W, CAT_ROOM_GRID_H, CAT_TILE_SIZE, RGB8882565(200,200,200));
+	CAT_draw_dot_grid(CAT_ROOM_X, CAT_ROOM_Y, CAT_ROOM_GRID_W, CAT_ROOM_GRID_H, CAT_TILE_SIZE, CAT_RGB8882565(200,200,200));
 
 	if (CAT_get_render_cycle() == 0)
 		CAT_draw_queue_clear();
@@ -297,7 +297,7 @@ void CAT_render_deco()
 				}
 			}
 
-			CAT_item* item = CAT_item_get(hold_id);
+			CAT_item* item = CAT_get_item(hold_id);
 			int prop_height = (y1-y0) * CAT_TILE_SIZE;
 			CAT_room_cell2point(cursor_x, cursor_y, &draw_x, &draw_y);
 			CAT_draw_queue_add(item->sprite, 0, 2, draw_x, draw_y+prop_height, CAT_DRAW_FLAG_BOTTOM);

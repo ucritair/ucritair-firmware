@@ -104,13 +104,15 @@ CAT_pickup_list* CAT_room_get_pickups();
 int CAT_room_spawn_pickup(CAT_pickup pickup);
 void CAT_room_consume_pickup(int idx);
 
+int CAT_room_touch_query();
+
 
 //////////////////////////////////////////////////////////////////////////
 // ROOM
 
 void CAT_room_init();
 void CAT_room_tick();
-void CAT_MS_room(CAT_machine_signal signal);
+void CAT_MS_room(CAT_FSM_signal signal);
 
 void CAT_room_draw_statics();
 void CAT_room_draw_props();

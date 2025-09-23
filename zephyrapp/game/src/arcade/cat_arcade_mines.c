@@ -18,7 +18,7 @@ typedef struct grid_cell
 {
 	int x;
 	int y;
-	int idx;
+	uint16_t idx;
 
 	bool mine;
 	bool seen;
@@ -48,10 +48,10 @@ static bool is_cell_clean(int x, int y)
 		return false;
 	return !cell->visited && !cell->seen;
 }
-static int idx_queue[GRID_SIZE];
+static uint16_t idx_queue[GRID_SIZE];
 static int idx_queue_length = 0;
 
-static void idx_enqueue(int idx)
+static void idx_enqueue(uint16_t idx)
 {
 	if(idx_queue_length >= GRID_SIZE)
 		return;
@@ -60,12 +60,12 @@ static void idx_enqueue(int idx)
 	idx_queue_length += 1;
 }
 
-static int idx_dequeue()
+static uint16_t idx_dequeue()
 {
 	if(idx_queue_length <= 0)
 		return -1;
 
-	int idx = idx_queue[0];
+	uint16_t idx = idx_queue[0];
 	idx_queue_length -= 1;
 	for(int i = 0; i < idx_queue_length; i++)
 	{
@@ -107,7 +107,7 @@ void init_grid()
 	{
 		for(int x = 0; x < GRID_WIDTH; x++)
 		{
-			int idx = y * GRID_WIDTH + x;
+			uint16_t idx = y * GRID_WIDTH + x;
 			grid[idx] = (grid_cell)
 			{
 				.x = x,
@@ -128,7 +128,7 @@ void init_grid()
 	}
 
 	idx_queue_length = 0;
-	for(int i = 0; i < GRID_SIZE; i++)
+	for(uint16_t i = 0; i < GRID_SIZE; i++)
 		idx_enqueue(i);
 	for(int i = 0; i < idx_queue_length; i++)
 	{
@@ -168,7 +168,7 @@ void flood_reveal(int x, int y)
 			{
 				if(dx == 0 && dy == 0)
 					continue;
-				int nidx = (c->y+dy) * CAT_ROOM_GRID_W + (c->x+dx);
+				uint16_t nidx = (c->y+dy) * CAT_ROOM_GRID_W + (c->x+dx);
 				if(is_cell_clean(c->x+dx, c->y+dy))
 				{
 					grid[nidx].visited = true;
@@ -214,11 +214,11 @@ void shuffle_about(int x, int y)
 	}
 }
 
-void CAT_MS_mines(CAT_machine_signal signal)
+void CAT_MS_mines(CAT_FSM_signal signal)
 {
 	switch(signal)
 	{
-		case CAT_MACHINE_SIGNAL_ENTER:
+		case CAT_FSM_SIGNAL_ENTER:
 		{		
 			CAT_set_render_callback(CAT_render_mines);
 
@@ -233,7 +233,7 @@ void CAT_MS_mines(CAT_machine_signal signal)
 			reveal_complete = false;
 			break;
 		}
-		case CAT_MACHINE_SIGNAL_TICK:
+		case CAT_FSM_SIGNAL_TICK:
 		{	
 			if(state == PLAY)
 			{
@@ -241,7 +241,7 @@ void CAT_MS_mines(CAT_machine_signal signal)
 						CAT_gui_open_popup("Quit Sweep?\n\nProgress will not be saved!\n\n");
 				else if(CAT_gui_consume_popup())
 				{
-					CAT_machine_back();
+					CAT_pushdown_pop();
 					break;
 				}
 				if(CAT_gui_popup_is_open())
@@ -306,7 +306,7 @@ void CAT_MS_mines(CAT_machine_signal signal)
 			{
 				if(!reveal_complete)
 				{
-					if(CAT_input_dismissal())
+					if(CAT_input_dismissal() || CAT_input_pressed(CAT_BUTTON_A))
 						reveal_complete = true;
 
 					for(int i = last_revealed; i < GRID_SIZE; i++)
@@ -323,11 +323,11 @@ void CAT_MS_mines(CAT_machine_signal signal)
 				}
 				else
 				{
-					if(CAT_input_dismissal())
+					if(CAT_input_dismissal() || CAT_input_pressed(CAT_BUTTON_A))
 					{
 						if(state == WIN)
 							CAT_inventory_add(prop_mine_item, 1);
-						CAT_machine_back();
+						CAT_pushdown_pop();
 					}
 				}
 				break;
@@ -335,7 +335,7 @@ void CAT_MS_mines(CAT_machine_signal signal)
 
 			break;
 		}
-		case CAT_MACHINE_SIGNAL_EXIT:
+		case CAT_FSM_SIGNAL_EXIT:
 		{
 			break;
 		}

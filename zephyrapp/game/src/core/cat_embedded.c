@@ -32,6 +32,8 @@ void CAT_platform_tick()
 	uint64_t now = k_uptime_get();
 	delta_t = ((float)(now - last_uptime))/1000.;
 	last_uptime = now;
+
+	imu_update();
 }
 
 void CAT_platform_cleanup()
@@ -137,6 +139,11 @@ void CAT_play_sound(CAT_sound* sound)
 	// soundPlay(sound->samples, sound->size, SoundReplaceCurrent);
 }
 
+void CAT_beep()
+{
+	test_speaker();
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // INPUT
 
@@ -169,6 +176,11 @@ uint64_t CAT_get_uptime_ms()
 float CAT_get_delta_time_s()
 {
 	return delta_t;
+}
+
+uint64_t CAT_get_RTC_offset()
+{
+	return rtc_offset / 8;
 }
 
 uint64_t CAT_get_RTC_now()
@@ -314,19 +326,14 @@ CAT_AQ_score_block* CAT_AQ_score_buffer_get(int idx)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // IMU
 
-void CAT_IMU_export_raw(CAT_IMU_values* out)
+void CAT_IMU_get_raw(CAT_IMU_values* out)
 {
 	memcpy(out, &imu_raw, sizeof(imu_raw));
 }
 
-void CAT_IMU_export_normalized(CAT_IMU_values* out)
+void CAT_IMU_get_normalized(CAT_IMU_values* out)
 {
 	memcpy(out, &imu_normalized, sizeof(imu_normalized));
-}
-
-void CAT_IMU_tick()
-{
-	imu_update();
 }
 
 
@@ -337,28 +344,26 @@ void CAT_IMU_tick()
 #include <zephyr/logging/log_ctrl.h>
 LOG_MODULE_REGISTER(cat_embedded, LOG_LEVEL_DBG);
 
-char debug_print_buffer[512];
-
 void CAT_printf(const char* fmt, ...)
 {
-	va_list args;
+	/*va_list args;
 	va_start(args, fmt);
 	int printed = vsnprintf(debug_print_buffer, sizeof(debug_print_buffer), fmt, args);
 	va_end(args);
 	if(debug_print_buffer[printed-1] == '\n')
 		debug_print_buffer[printed-1] = '\0';
-	LOG_DBG("%s", debug_print_buffer);
+	LOG_DBG("%s", debug_print_buffer);*/
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // PERSISTENCE
 
-volatile uint8_t* CAT_AQ_crisis_state_persist()
+uint8_t* CAT_AQ_crisis_state_persist()
 {
 	return &aq_crisis_state;
 }
 
-volatile uint8_t* CAT_pet_timing_state_persist()
+uint8_t* CAT_pet_timing_state_persist()
 {
 	return &pet_timing_state;
 }

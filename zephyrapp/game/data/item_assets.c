@@ -1652,6 +1652,33 @@ CAT_item_table item_table =
 			.can_buy = false,
 			.can_sell = false,
 		},
+		{
+			.type = CAT_ITEM_TYPE_KEY,
+			.name = "Wood",
+			.sprite = &world_node_wood_sprite,
+			.price = 0,
+			.text = "",
+			.can_buy = false,
+			.can_sell = false,
+		},
+		{
+			.type = CAT_ITEM_TYPE_KEY,
+			.name = "Stone",
+			.sprite = &world_node_stone_sprite,
+			.price = 0,
+			.text = "",
+			.can_buy = false,
+			.can_sell = false,
+		},
+		{
+			.type = CAT_ITEM_TYPE_KEY,
+			.name = "Raw Fibres",
+			.sprite = &world_node_grass_sprite,
+			.price = 0,
+			.text = "",
+			.can_buy = false,
+			.can_sell = false,
+		},
 	},
-	.length = 117
+	.length = 120
 };

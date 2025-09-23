@@ -11,69 +11,15 @@
 #ifdef CAT_DESKTOP
 #define CAT_LCD_FRAMEBUFFER_OFFSET (CAT_get_render_cycle() * CAT_LCD_FRAMEBUFFER_H)
 
-#define ADAPT_DESKTOP_COLOUR(c) c
-#define ADAPT_EMBEDDED_COLOUR(c) RGB5652BGR565(c)
+#define CAT_ADAPT_DESKTOP_COLOUR(c) c
+#define CAT_ADAPT_EMBEDDED_COLOUR(c) CAT_RGB5652BGR565(c)
 #else
 #include "lcd_driver.h"
 #define CAT_LCD_FRAMEBUFFER_OFFSET framebuffer_offset_h
 
-#define ADAPT_DESKTOP_COLOUR(c) RGB5652BGR565(c)
-#define ADAPT_EMBEDDED_COLOUR(c) c
+#define CAT_ADAPT_DESKTOP_COLOUR(c) CAT_RGB5652BGR565(c)
+#define CAT_ADAPT_EMBEDDED_COLOUR(c) c
 #endif
-
-//////////////////////////////////////////////////////////////////////////
-// COLOUR
-
-typedef union
-{
-	struct
-	{
-		uint8_t r;
-		uint8_t g;
-		uint8_t b;
-	};
-
-	uint8_t channels[3];
-} CAT_RGB888;
-
-static inline CAT_RGB888 CAT_RGB24(uint8_t r, uint8_t g, uint8_t b)
-{
-	return (CAT_RGB888)
-	{
-		.r = r,
-		.g = g,
-		.b = b
-	};
-}
-
-static inline CAT_RGB888 CAT_RGB24_lerp(CAT_RGB888 a, CAT_RGB888 b, float t)
-{
-	return (CAT_RGB888)
-	{
-		.r = (1.0f-t) * (float) a.r + t * (float) b.r,
-		.g = (1.0f-t) * (float) a.g + t * (float) b.g,
-		.b = (1.0f-t) * (float) a.b + t * (float) b.b
-	};
-}
-
-static inline uint16_t CAT_RGB24216(CAT_RGB888 c)
-{
-	return 
-	((c.r & 0b11111000) << 8) |
-	((c.g & 0b11111100) << 3) |
-	(c.b >> 3);
-}
-
-static inline CAT_RGB888 CAT_RGB16224(uint16_t c)
-{
-	uint8_t r8 = (c & 0b1111100000000000) >> 11;
-	uint8_t g8 = (c & 0b0000011111100000) >> 5;
-	uint8_t b8 = c & 0b0000000000011111;
-	uint16_t r16 = clamp(255 * r8 / 31, 0, 255);
-	uint16_t g16 = clamp(255 * g8 / 63, 0, 255);
-	uint16_t b16 = clamp(255 * b8 / 31, 0, 255);
-	return CAT_RGB24(r16, g16, b16);
-}
 
 
 //////////////////////////////////////////////////////////////////////////

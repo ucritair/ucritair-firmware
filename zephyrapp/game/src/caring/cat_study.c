@@ -1,4 +1,4 @@
-#include "cat_actions.h"
+#include "cat_play.h"
 
 #include "cat_render.h"
 #include "cat_input.h"
@@ -12,6 +12,7 @@
 #include "item_assets.h"
 #include "cat_pet.h"
 #include "cat_item.h"
+#include "cat_gizmos.h"
 
 #define SCREEN_DIAG 400
 #define BLACK_OUT_DURATION 1.0f
@@ -25,8 +26,6 @@
 #define EXIT_SPEED 128
 #define ARENA_RADIUS 48
 #define ARENA_FADE_DURATION 1.0f
-
-#define FADE(a, b, t) CAT_RGB24216(CAT_RGB24_lerp(CAT_RGB16224(a), CAT_RGB16224(b), t))
 
 // Lower lull, higher difficulty
 static const float bar_lull_ranges[] =
@@ -81,18 +80,24 @@ static const int xp_rewards[] =
 	20, 30 
 };
 
-static void MS_cast(CAT_machine_signal signal);
+static void MS_cast(CAT_FSM_signal signal);
 static void render_MS_cast();
-static void MS_fish(CAT_machine_signal signal);
+static void MS_fish(CAT_FSM_signal signal);
 static void render_MS_fish();
-static void MS_catch(CAT_machine_signal signal);
+static void MS_catch(CAT_FSM_signal signal);
 static void render_MS_catch();
-static void MS_fail(CAT_machine_signal signal);
+static void MS_fail(CAT_FSM_signal signal);
 static void render_MS_fail();
-static void MS_succeed(CAT_machine_signal signal);
+static void MS_succeed(CAT_FSM_signal signal);
 static void render_MS_succeed();
-static void MS_summary(CAT_machine_signal signal);
+static void MS_summary(CAT_FSM_signal signal);
 static void render_MS_summary();
+static CAT_FSM fsm =
+{
+	.state = NULL,
+	.next = NULL,
+	.dirty = false
+};
 
 typedef struct
 {
@@ -256,11 +261,11 @@ static int cast_grade;
 static bool blacking_out = false;
 static float black_out_t = 0.0f;
 
-static void MS_cast(CAT_machine_signal signal)
+static void MS_cast(CAT_FSM_signal signal)
 {
 	switch (signal)
 	{
-		case CAT_MACHINE_SIGNAL_ENTER:
+		case CAT_FSM_SIGNAL_ENTER:
 		{
 			CAT_set_render_callback(render_MS_cast);
 			init_rings();
@@ -275,10 +280,17 @@ static void MS_cast(CAT_machine_signal signal)
 		}
 		break;
 
-		case CAT_MACHINE_SIGNAL_TICK:
+		case CAT_FSM_SIGNAL_TICK:
 		{
 			if(CAT_input_pressed(CAT_BUTTON_B))
-				CAT_machine_transition(CAT_MS_room);
+				CAT_FSM_transition(&fsm, NULL);
+
+			if(CAT_input_poll_barrier())
+			{
+				if(CAT_input_dismissal())
+					CAT_pushdown_pop();
+				return;
+			}
 
 			if(CAT_input_pressed(CAT_BUTTON_A))
 			{
@@ -321,21 +333,74 @@ static void MS_cast(CAT_machine_signal signal)
 			{
 				black_out_t += CAT_get_delta_time_s();
 				if(black_out_t >= BLACK_OUT_DURATION)
-					CAT_machine_transition(MS_fish);
+					CAT_FSM_transition(&fsm, MS_fish);
 			}
 
 			rings_tick();
 		}
 		break;
 
-		case CAT_MACHINE_SIGNAL_EXIT:
+		case CAT_FSM_SIGNAL_EXIT:
 		break;
 	}
 }
 
-static void render_MS_cast()
+#define SPLASH_X 12
+#define SPLASH_Y 12
+
+static void draw_barrier()
 {
 	CAT_frameberry(CAT_BLACK);
+		
+	int cursor_y = SPLASH_Y;
+
+	CAT_set_text_colour(CAT_FOCUS_BLUE);
+	CAT_set_text_scale(2);
+	cursor_y = CAT_draw_text(SPLASH_X, cursor_y, "PECHE DU JOUR\n");
+
+	cursor_y += 12;
+	
+	CAT_set_text_colour(CAT_WHITE);
+	CAT_set_text_mask(SPLASH_X, -1, CAT_LCD_SCREEN_W-SPLASH_X, -1);
+	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
+	cursor_y = CAT_draw_text
+	(
+		SPLASH_X, cursor_y,
+		"Cast a line on the red mark. "
+		"Then, draw the fish to you.\n"
+		"Wait for a bite before reeling it in.\n"
+	);
+	cursor_y += 12;
+
+	CAT_set_text_colour(CAT_WHITE);
+	CAT_set_text_mask(SPLASH_X, -1, CAT_LCD_SCREEN_W-SPLASH_X, -1);
+	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
+	cursor_y = CAT_draw_text(SPLASH_X, cursor_y, "This game uses button inputs.\n");
+
+	cursor_y += 32;
+
+	CAT_set_sprite_colour(CAT_FOCUS_BLUE);
+	CAT_set_sprite_flags(CAT_DRAW_FLAG_CENTER_X);
+	CAT_set_sprite_scale(2);
+	CAT_draw_sprite(&ui_buttons_prompt, CAT_pulse(0.25f), CAT_LCD_SCREEN_W/2, cursor_y);
+
+	cursor_y += 72;
+	CAT_set_text_colour(CAT_WHITE);
+	CAT_set_text_mask(SPLASH_X, -1, CAT_LCD_SCREEN_W-SPLASH_X, -1);
+	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP | CAT_TEXT_FLAG_CENTER);
+	cursor_y = CAT_draw_text(CAT_LCD_SCREEN_W/2, cursor_y, "Press [A] to begin!\n");
+}
+
+static void render_MS_cast()
+{
+	if(CAT_input_poll_barrier())
+	{
+		draw_barrier();
+		return;
+	}
+
+	CAT_frameberry(CAT_BLACK);
+
 	render_pole();
 	render_rings();
 
@@ -476,7 +541,7 @@ static void fish_pbd_waggle()
 	for(int i = 1; i < 3; i++)
 	{
 		CAT_vec2 heading = fish.headings[i-1];
-		float amplitude = 0.5f * sin(CAT_get_uptime_ms() / 1000.0f + (2-i));
+		float amplitude = 0.5f * sinf(CAT_get_uptime_ms() / 1000.0f + (2-i));
 		heading = CAT_vec2_rotate(heading, amplitude);
 		float interspace = fish.radii[i-1] + fish.radii[0] / 2 + fish.radii[i];
 		CAT_vec2 position = CAT_vec2_add(fish.positions[i-1], CAT_vec2_mul(heading, -interspace));
@@ -504,8 +569,8 @@ static CAT_vec2 fish_ellipse_position(float t)
 	t = t * 2 * M_PI;
 	return (CAT_vec2)
 	{
-		(120 - ELLIPSE_MARGIN) * cos(t) + 120,
-		(160 - ELLIPSE_MARGIN) * sin(t) + 160
+		(120 - ELLIPSE_MARGIN) * cosf(t) + 120,
+		(160 - ELLIPSE_MARGIN) * sinf(t) + 160
 	};
 }
 
@@ -514,8 +579,8 @@ static CAT_vec2 fish_ellipse_heading(float t)
 	t = t * 2 * M_PI;
 	return CAT_vec2_unit((CAT_vec2) 
 	{
-		-(120 - ELLIPSE_MARGIN) * sin(t),
-		(160 - ELLIPSE_MARGIN) * cos(t)
+		-(120 - ELLIPSE_MARGIN) * sinf(t),
+		(160 - ELLIPSE_MARGIN) * cosf(t)
 	});
 }
 
@@ -563,7 +628,7 @@ static void nibble_burst(int n)
 static void fish_tick()
 {
 	CAT_vec2 hook_beeline = CAT_vec2_sub(hook, fish.positions[0]);
-	float hook_distance = sqrt(CAT_vec2_mag2(hook_beeline));
+	float hook_distance = sqrtf(CAT_vec2_mag2(hook_beeline));
 	CAT_vec2 hook_heading = CAT_vec2_div(hook_beeline, hook_distance);
 	float hook_align = CAT_vec2_dot(fish.headings[0], hook_heading);
 
@@ -601,7 +666,7 @@ static void fish_tick()
 	}
 	else if(fish.focus_trigger)
 	{
-		float hook_arena_dist = sqrt(CAT_vec2_dist2((CAT_vec2){120, 160}, hook));
+		float hook_arena_dist = sqrtf(CAT_vec2_dist2((CAT_vec2){120, 160}, hook));
 		if(hook_arena_dist < ARENA_RADIUS && hook_align > 0.7 && hook_distance <= (fish.radii[0] + 8))
 		{
 			fish.nibble_trigger = true;
@@ -609,11 +674,11 @@ static void fish_tick()
 			fish.nibble_time = CAT_rand_float(NIBBLE_WAIT_MIN, NIBBLE_WAIT_MAX);
 		}
 
-		float fish_arena_dist = sqrt(CAT_vec2_dist2((CAT_vec2){120, 160}, fish.positions[0]));
+		float fish_arena_dist = sqrtf(CAT_vec2_dist2((CAT_vec2){120, 160}, fish.positions[0]));
 		if(fish_arena_dist < (ARENA_RADIUS + fish.radii[0]))
 			fish.race_trigger = true;
 		if(fish.race_trigger && fish_arena_dist > (ARENA_RADIUS + fish.radii[0]))
-			CAT_machine_transition(MS_fail);
+			CAT_FSM_transition(&fsm, MS_fail);
 		fish_integrate_heading(fish.focus_heading, FOCUSED_SPEED);
 	}
 	else
@@ -660,18 +725,18 @@ static bool quit_popup()
 		CAT_gui_open_popup("Quit fishing?\nYou will lose this\ncatch!\n");
 	if (CAT_gui_consume_popup())
 	{
-		CAT_machine_transition(CAT_MS_room);
+		CAT_pushdown_pop();
 		return true;
 	}
 
 	return false;
 }
 
-static void MS_fish(CAT_machine_signal signal)
+static void MS_fish(CAT_FSM_signal signal)
 {
 	switch (signal)
 	{
-		case CAT_MACHINE_SIGNAL_ENTER:
+		case CAT_FSM_SIGNAL_ENTER:
 		{
 			CAT_set_render_callback(render_MS_fish);
 			init_rings();
@@ -689,24 +754,18 @@ static void MS_fish(CAT_machine_signal signal)
 		}
 		break;
 
-		case CAT_MACHINE_SIGNAL_TICK:
+		case CAT_FSM_SIGNAL_TICK:
 		{
 			if(quit_popup())
 				break;
-
-			if(CAT_check_config_flags(CAT_CONFIG_FLAG_DEVELOPER))
-			{
-				if(CAT_input_pressed(CAT_BUTTON_SELECT))
-				{
-					CAT_machine_transition(MS_summary);
-				}
-			}
 
 			if(!fish.nibble_trigger)
 			{
 				if(CAT_input_touching())
 				{
-					hook = CAT_iv2v(CAT_input_cursor());
+					int x, y;
+					CAT_input_cursor(&x, &y);
+					hook = (CAT_vec2) {x, y};
 				}
 				else
 				{
@@ -728,13 +787,13 @@ static void MS_fish(CAT_machine_signal signal)
 				if(CAT_input_pressed(CAT_BUTTON_A))
 				{
 					if(fish.vuln_trigger)
-						CAT_machine_transition(MS_catch);
+						CAT_FSM_transition(&fsm, MS_catch);
 					else
-						CAT_machine_transition(MS_fail);
+						CAT_FSM_transition(&fsm, MS_fail);
 				}
 
 				if(fish.bite_trigger && fish.bite_timer >= 1.0f)
-					CAT_machine_transition(MS_fail);	
+					CAT_FSM_transition(&fsm, MS_fail);
 			}
 
 			if(fish.focus_trigger)
@@ -757,7 +816,7 @@ static void MS_fish(CAT_machine_signal signal)
 		}
 		break;
 
-		case CAT_MACHINE_SIGNAL_EXIT:
+		case CAT_FSM_SIGNAL_EXIT:
 		break;
 	}
 }
@@ -767,7 +826,7 @@ static void render_MS_fish()
 	CAT_frameberry(CAT_BLACK);
 
 	if(fish.focus_trigger)
-		CAT_circberry(120, 160, ARENA_RADIUS, FADE(CAT_BLACK, 0x6800, arena_fade_timer/ARENA_FADE_DURATION));
+		CAT_circberry(120, 160, ARENA_RADIUS, CAT_colour_lerp(CAT_BLACK, 0x6800, arena_fade_timer/ARENA_FADE_DURATION));
 		
 	render_fish(CAT_RED);
 	render_rings();
@@ -979,11 +1038,11 @@ static void render_bar()
 static float struggle_timer;
 static float struggle_wait;
 
-static void MS_catch(CAT_machine_signal signal)
+static void MS_catch(CAT_FSM_signal signal)
 {
 	switch (signal)
 	{
-		case CAT_MACHINE_SIGNAL_ENTER:
+		case CAT_FSM_SIGNAL_ENTER:
 			CAT_set_render_callback(render_MS_catch);
 			init_bar((CAT_ivec2){120, 300}, 200);
 
@@ -993,7 +1052,7 @@ static void MS_catch(CAT_machine_signal signal)
 			struggle_wait = CAT_rand_float(1.0f, 3.0f);
 		break;
 
-		case CAT_MACHINE_SIGNAL_TICK:
+		case CAT_FSM_SIGNAL_TICK:
 		{
 			if(quit_popup())
 				break;
@@ -1004,13 +1063,13 @@ static void MS_catch(CAT_machine_signal signal)
 			}
 			else if(CAT_input_held(CAT_BUTTON_A, 0))
 			{
-				float time = input.time[CAT_BUTTON_A];
+				float time = CAT_input_since(CAT_BUTTON_A);
 				float rise = 0.75f + CAT_ease_in_cubic(time);
 				bar.cursor += rise * CAT_get_delta_time_s();
 			}
 			else
 			{
-				float time = input.since[CAT_BUTTON_A];
+				float time = CAT_input_since(CAT_BUTTON_A);
 				float fall = 0.25f + CAT_ease_in_cubic(time) * 3.0f;
 				bar.cursor -= fall * CAT_get_delta_time_s();
 			}
@@ -1028,9 +1087,9 @@ static void MS_catch(CAT_machine_signal signal)
 			}	
 
 			if(bar.progress >= 1)	
-				CAT_machine_transition(MS_succeed);
+				CAT_FSM_transition(&fsm, MS_succeed);
 			else if(bar.progress <= 0)
-				CAT_machine_transition(MS_fail);
+				CAT_FSM_transition(&fsm, MS_fail);
 
 			bar_jitter = (CAT_ivec2)
 			{
@@ -1052,7 +1111,7 @@ static void MS_catch(CAT_machine_signal signal)
 		}
 		break;
 
-		case CAT_MACHINE_SIGNAL_EXIT:
+		case CAT_FSM_SIGNAL_EXIT:
 		break;
 	}
 }
@@ -1071,36 +1130,37 @@ static void render_MS_catch()
 		CAT_draw_sprite(&study_a_button_sprite, 0, 120, bar.center.y - 48);
 	}
 	CAT_set_text_colour(CAT_RED);
-	CAT_draw_textf(120-8*2+4, bar.center.y - 26, "%.1f%%", bar.progress * 100);
+
+	CAT_draw_textf(120-8*2+4, bar.center.y - 26, "%d%%", (int)(bar.progress * 100));
 }
 
-static CAT_RGB888 fail_colour;
+static uint16_t fail_colour;
 
-static void MS_fail(CAT_machine_signal signal)
+static void MS_fail(CAT_FSM_signal signal)
 {
 	static float progress;
 
 	switch (signal)
 	{
-		case CAT_MACHINE_SIGNAL_ENTER:
+		case CAT_FSM_SIGNAL_ENTER:
 			CAT_set_render_callback(render_MS_fail);
 			init_rings();
 			progress = 0;
 		break;
 
-		case CAT_MACHINE_SIGNAL_TICK:
+		case CAT_FSM_SIGNAL_TICK:
 		{
 			fish_integrate_heading(fish.headings[0], EXIT_SPEED);
 			fish_pbd_default();
 
-			fail_colour = CAT_RGB24_lerp(CAT_RGB24(255,0,0), CAT_RGB24(0,0,0), progress);
+			fail_colour = CAT_colour_lerp(CAT_RED, CAT_BLACK, progress);
 			progress += CAT_get_delta_time_s();
 			if(progress >= 1)
-				CAT_machine_transition(CAT_MS_room);
+				CAT_FSM_transition(&fsm, NULL);
 		}
 		break;
 
-		case CAT_MACHINE_SIGNAL_EXIT:
+		case CAT_FSM_SIGNAL_EXIT:
 		break;
 	}
 }
@@ -1108,7 +1168,7 @@ static void MS_fail(CAT_machine_signal signal)
 static void render_MS_fail()
 {
 	CAT_frameberry(CAT_BLACK);
-	render_fish(CAT_RGB24216(fail_colour));
+	render_fish(fail_colour);
 
 	if(fish.bite_trigger)
 	{
@@ -1130,15 +1190,15 @@ static void render_MS_fail()
 	}
 }
 
-static CAT_RGB888 succeed_colour;
+static uint16_t succeed_colour;
 
-static void MS_succeed(CAT_machine_signal signal)
+static void MS_succeed(CAT_FSM_signal signal)
 {
 	static float progress;
 
 	switch (signal)
 	{
-		case CAT_MACHINE_SIGNAL_ENTER:
+		case CAT_FSM_SIGNAL_ENTER:
 			CAT_set_render_callback(render_MS_succeed);
 			init_rings();
 			int ring_idx = spawn_ring(fish.positions[0], 400, 64);
@@ -1146,16 +1206,16 @@ static void MS_succeed(CAT_machine_signal signal)
 			progress = 0;
 		break;
 
-		case CAT_MACHINE_SIGNAL_TICK:
+		case CAT_FSM_SIGNAL_TICK:
 			rings_tick();
 
-			succeed_colour = CAT_RGB24_lerp(CAT_RGB24(255,0,0), CAT_RGB24(255,255,255), clamp(progress / 3.0f, 0, 1));
+			succeed_colour = CAT_colour_lerp(CAT_RED, CAT_WHITE, clamp(progress / 3.0f, 0, 1));
 			if(progress >= 3.0f)
-				CAT_machine_transition(MS_summary);
+				CAT_FSM_transition(&fsm, MS_summary);
 			progress += CAT_get_delta_time_s();
 		break;
 
-		case CAT_MACHINE_SIGNAL_EXIT:
+		case CAT_FSM_SIGNAL_EXIT:
 		break;
 	}
 }
@@ -1163,7 +1223,7 @@ static void MS_succeed(CAT_machine_signal signal)
 static void render_MS_succeed()
 {
 	CAT_frameberry(CAT_BLACK);
-	render_fish(CAT_RGB24216(succeed_colour));
+	render_fish(succeed_colour);
 	render_rings();
 }
 
@@ -1171,55 +1231,67 @@ static enum {
 	FISH,
 	PERFORMANCE,
 	SUMMARY_PAGE_MAX
-} summary_page = FISH;
+};
+int summary_page = FISH;
 
-static int wave_buffer[240];
+static int8_t wave_buffer[48];
 static int wave_phase = 0;
 
 static void init_wave_buffer()
 {
-	for(int x = 0; x < 240; x++)
+	for(int x = 0; x < 48; x++)
 	{
-		wave_buffer[x] = round(
-		20.0f / 3.0f * sin(M_PI * x / 20.0f + 2.2f) +
-		sin(2.0f * M_PI * x / 20.0f + 2.2f) +
-		100.0f);
+		wave_buffer[x] = roundf(
+		20.0f / 3.0f * sinf(M_PI * x / 20.0f + 2.2f) +
+		sinf(2.0f * M_PI * x / 20.0f + 2.2f));
 	}
 
 	wave_phase = 0;
 }
 
-static void MS_summary(CAT_machine_signal signal)
+static float exit_progress = 0;
+
+static void MS_summary(CAT_FSM_signal signal)
 {
 	switch (signal)
 	{
-		case CAT_MACHINE_SIGNAL_ENTER:
+		case CAT_FSM_SIGNAL_ENTER:
 			CAT_set_render_callback(render_MS_summary);
 			summary_page = FISH;
 			init_wave_buffer();
+			exit_progress = 0;
 		break;
 
-		case CAT_MACHINE_SIGNAL_TICK:
+		case CAT_FSM_SIGNAL_TICK:
 		{
-			if(CAT_input_released(CAT_BUTTON_A))
+			if(CAT_input_down(CAT_BUTTON_A))
 			{
 				if(summary_page == PERFORMANCE)
-					CAT_machine_transition(CAT_MS_room);
+					exit_progress += CAT_get_delta_time_s();
 			}
+			else if(CAT_input_released(CAT_BUTTON_A))
+			{
+				if(exit_progress >= 1)
+					CAT_FSM_transition(&fsm, NULL);
+				else
+					exit_progress = 0;
+			}
+			exit_progress = clamp(exit_progress, 0, 1);
 
-			// enum = (enum + ENUM_MAX) % ENUM_MAX doesn't work on embedded
-			int summary_page_proxy = summary_page;
+			int page_delta = 0;
 			if (CAT_input_pressed(CAT_BUTTON_RIGHT))
-				summary_page_proxy += 1;
+				page_delta = 1;
 			if (CAT_input_pressed(CAT_BUTTON_LEFT))
-				summary_page_proxy -= 1;
-			summary_page = (summary_page_proxy + SUMMARY_PAGE_MAX) % SUMMARY_PAGE_MAX;
+				page_delta = -1;
+			if(page_delta != 0)
+				exit_progress = 0;
+			summary_page = (summary_page+page_delta+SUMMARY_PAGE_MAX) % SUMMARY_PAGE_MAX;
 
 			wave_phase = (wave_phase + 1) % 240;
 		}
 		break;
 
-		case CAT_MACHINE_SIGNAL_EXIT:
+		case CAT_FSM_SIGNAL_EXIT:
 			CAT_inventory_add(item_rewards[fish.grade], 1);
 			CAT_pet_change_focus(focus_reward);
 			CAT_pet_change_XP(xp_reward);
@@ -1230,13 +1302,13 @@ static void MS_summary(CAT_machine_signal signal)
 static void render_wave_buffer()
 {
 	uint16_t* framebuffer = CAT_LCD_get_framebuffer();
-	uint16_t c = ADAPT_DESKTOP_COLOUR(0x4cb5);
+	uint16_t c = CAT_ADAPT_DESKTOP_COLOUR(0x4cb5);
 
 	for(int x = 0; x < 240; x++)
 	{
 		int i = (x - wave_phase + 240) % 240;
 
-		int y_f = 320 - (wave_buffer[i]);
+		int y_f = 320 - (wave_buffer[i % 48] + 100);
 		y_f -= CAT_LCD_FRAMEBUFFER_OFFSET;
 		if(y_f < 0)
 			y_f = 0;
@@ -1250,36 +1322,15 @@ static void render_wave_buffer()
 
 static void render_score_line(int x, int y, int w, float t, float a, float b)
 {
-	int start_x = x;
-	int mid_x = x + w * inv_lerp(t, a, b);
-	int end_x = x + w;
-	CAT_lineberry(start_x, y, mid_x, y, CAT_WHITE);
-	CAT_lineberry(mid_x, y, end_x, y, CAT_RED);
+	t = inv_lerp(t, a, b);
+	CAT_draw_score_line(x, y, w, t, 0, CAT_WHITE, CAT_RED, CAT_BLACK);
 }
 
 static void render_plus_line(int x, int y, int w, float min, float base, float plus, float max)
 {
-	int overshoot = (base+plus) - max;
-	if(overshoot > 0)
-		plus -= overshoot;
-
-	int start_x = x;
-	int base_x = x + w * inv_lerp(base, min, max);
-	int plus_x = x + w * inv_lerp(base+plus, min, max);
-	int end_x = x + w;
-	CAT_lineberry(start_x, y, base_x, y, CAT_WHITE);
-	CAT_lineberry(base_x, y, plus_x, y, CAT_GREEN);
-	CAT_lineberry(plus_x, y, end_x, y, CAT_GREY);
-}
-
-static void render_page_markers(int x, int y)
-{
-	int start_x = x - ((16 + 2) * SUMMARY_PAGE_MAX) / 2;
-	for(int i = 0; i < SUMMARY_PAGE_MAX; i++)
-	{
-		int x = start_x + i * (16 + 2);
-		CAT_draw_sprite(&ui_radio_button_diamond_sprite, summary_page == i, x, y);
-	}
+	float t = inv_lerp(base, min, max);
+	float dt = inv_lerp(plus-base, min, max);
+	CAT_draw_score_line(x, y, w, 0.5, 0.25, CAT_64_GREY, CAT_WHITE, CAT_160_GREY);
 }
 
 static void render_MS_summary()
@@ -1294,7 +1345,7 @@ static void render_MS_summary()
 			CAT_draw_mesh2d(fish.type->mesh, 0, 208, CAT_WHITE);
 			
 			int cursor_y = 4;
-			render_page_markers(120, cursor_y);
+			CAT_draw_page_markers(cursor_y, 2, summary_page, CAT_WHITE);
 			cursor_y += 24;
 			
 			CAT_set_text_colour(CAT_WHITE);
@@ -1309,28 +1360,28 @@ static void render_MS_summary()
 			cursor_y += 8;
 
 			CAT_set_text_colour(CAT_WHITE);
-			CAT_draw_textf(12, cursor_y, "Length: %0.0f cm", fish.length * 100);
+			CAT_draw_textf(12, cursor_y, "Length: %d cm", (int)(fish.length * 100));
 			cursor_y += 16;
 			render_score_line(12, cursor_y, CAT_LCD_SCREEN_W * 0.75, fish.length, fish.type->min_length, fish.type->max_length);
 			cursor_y += 12;
 
 			CAT_set_text_colour(CAT_WHITE);
-			CAT_draw_textf(12, cursor_y, "Lustre: %0.2f", fish.lustre);
+			CAT_draw_textf(12, cursor_y, "Lustre: " CAT_FLOAT_FMT, CAT_FMT_FLOAT(fish.lustre));
 			cursor_y += 16;
-			render_score_line(12, cursor_y, CAT_LCD_SCREEN_W * 0.75, fish.lustre, fish.type->min_lustre, fish.type->max_lustre);
+			render_score_line(12, cursor_y, CAT_LCD_SCREEN_W * 0.75, fish.lustre, 0, 1);
 			cursor_y += 12;
 
 			CAT_set_text_colour(CAT_WHITE);
-			CAT_draw_textf(12, cursor_y, "Wisdom: %0.2f", fish.wisdom);
+			CAT_draw_textf(12, cursor_y, "Wisdom: " CAT_FLOAT_FMT, CAT_FMT_FLOAT(fish.wisdom));
 			cursor_y += 16;
-			render_score_line(12, cursor_y, CAT_LCD_SCREEN_W * 0.75, fish.wisdom, fish.type->min_wisdom, fish.type->max_wisdom);
+			render_score_line(12, cursor_y, CAT_LCD_SCREEN_W * 0.75, fish.wisdom, 0, 1);
 		}
 		break;
 
 		case PERFORMANCE:
 		{
 			int cursor_y = 4;
-			render_page_markers(120, cursor_y);
+			CAT_draw_page_markers(cursor_y, 2, summary_page, CAT_WHITE);
 			cursor_y += 24;
 
 			CAT_set_text_colour(CAT_WHITE);
@@ -1362,14 +1413,7 @@ static void render_MS_summary()
 			render_plus_line(12, cursor_y, CAT_LCD_SCREEN_W * 0.75, 0, pet.xp, xp_reward, level_cutoffs[pet.level]);
 			cursor_y += 16;
 
-			CAT_set_sprite_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
-			CAT_set_sprite_scale(2);
-			if(CAT_input_held(CAT_BUTTON_A, 0))
-			{
-				CAT_set_sprite_colour(CAT_RED);
-				CAT_set_sprite_scale(3);
-			}
-			CAT_draw_sprite(&study_a_button_sprite, 0, 120, 260);
+			CAT_draw_lock(120, cursor_y+40, 36, exit_progress, CAT_WHITE);
 		}
 		break;
 
@@ -1378,20 +1422,25 @@ static void render_MS_summary()
 	}
 }
 
-void CAT_MS_study(CAT_machine_signal signal)
+void CAT_MS_study(CAT_FSM_signal signal)
 {
 	switch (signal)
 	{
-		case CAT_MACHINE_SIGNAL_ENTER:
+		case CAT_FSM_SIGNAL_ENTER:
+			CAT_input_raise_barrier(CAT_BUTTON_BIT(CAT_BUTTON_A));
+			CAT_FSM_transition(&fsm, MS_cast);
 		break;
 
-		case CAT_MACHINE_SIGNAL_TICK:
+		case CAT_FSM_SIGNAL_TICK:
 		{
-			CAT_machine_transition(MS_cast);
+			CAT_FSM_tick(&fsm);
+			if(fsm.state == NULL)
+				CAT_pushdown_pop();
 		}
 		break;
 
-		case CAT_MACHINE_SIGNAL_EXIT:
+		case CAT_FSM_SIGNAL_EXIT:
+			CAT_input_lower_barrier();
 		break;
 	}
 }

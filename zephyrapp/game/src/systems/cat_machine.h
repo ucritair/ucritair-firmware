@@ -6,19 +6,19 @@
 // MACHINE
 
 /* PROTOTYPE
-void CAT_MS_example(CAT_machine_signal signal)
+void CAT_MS_example(CAT_FSM_signal signal)
 {
 	switch(signal)
 	{
-		case CAT_MACHINE_SIGNAL_ENTER:
+		case CAT_FSM_SIGNAL_ENTER:
 		{
 			break;
 		}
-		case CAT_MACHINE_SIGNAL_TICK:
+		case CAT_FSM_SIGNAL_TICK:
 		{
 			break;
 		}
-		case CAT_MACHINE_SIGNAL_EXIT:
+		case CAT_FSM_SIGNAL_EXIT:
 		{
 			break;
 		}
@@ -26,22 +26,69 @@ void CAT_MS_example(CAT_machine_signal signal)
 }
 */
 
-typedef enum CAT_machine_signal
+typedef enum
 {
-	CAT_MACHINE_SIGNAL_ENTER,
-	CAT_MACHINE_SIGNAL_TICK,
-	CAT_MACHINE_SIGNAL_EXIT
-} CAT_machine_signal;
+	CAT_FSM_SIGNAL_ENTER,
+	CAT_FSM_SIGNAL_TICK,
+	CAT_FSM_SIGNAL_EXIT
+} CAT_FSM_signal;
 
-typedef void (*CAT_machine_state)(CAT_machine_signal);
+typedef void (*CAT_FSM_state)(CAT_FSM_signal);
+
+typedef struct
+{
+	CAT_FSM_state state;
+	CAT_FSM_state next;
+	bool dirty;
+} CAT_FSM;
+void CAT_FSM_transition(CAT_FSM* machine, CAT_FSM_state state);
+void CAT_FSM_tick(CAT_FSM* machine);
+
+void CAT_pushdown_rebase(CAT_FSM_state state);
+void CAT_pushdown_push(CAT_FSM_state state);
+void CAT_pushdown_pop();
+void CAT_pushdown_tick();
+CAT_FSM_state CAT_pushdown_peek();
+CAT_FSM_state CAT_pushdown_last();
+
 typedef void (*CAT_render_callback)(void);
-
-void CAT_machine_transition(CAT_machine_state state);
-void CAT_machine_tick();
-void CAT_machine_back();
-CAT_machine_state CAT_get_machine_state();
-
 void CAT_set_render_callback(CAT_render_callback callback);
 CAT_render_callback CAT_get_render_callback();
+void CAT_flip_render_callback();
+
+
+//////////////////////////////////////////////////////////////////////////
+// SWITCH
+
+typedef struct
+{
+	bool current;
+	bool last;
+} CAT_switcher;
+
+#define CAT_SWITCHER_INIT(value) {.current = value, .last = value}
+
+void CAT_switch_set(CAT_switcher* s, bool value);
+bool CAT_switch_get(CAT_switcher* s);
+bool CAT_switch_flipped(CAT_switcher* s);
+void CAT_switch_tick(CAT_switcher* s);
+
+typedef struct
+{
+	CAT_switcher switcher;
+	float timeout;
+	float timer;
+} CAT_timed_switcher;
+
+#define CAT_TIMED_SWITCHER_INIT(_timeout) {.switcher = CAT_SWITCHER_INIT(false), .timeout = _timeout, .timer = 0}
+
+void CAT_timed_switch_raise(CAT_timed_switcher* s);
+bool CAT_timed_switch_get(CAT_timed_switcher* s);
+bool CAT_timed_switch_flipped(CAT_timed_switcher* s);
+float CAT_timed_switch_t(CAT_timed_switcher* s);
+void CAT_timed_switch_tick(CAT_timed_switcher* s);
+void CAT_timed_switch_reset(CAT_timed_switcher* s);
+
+
 
 

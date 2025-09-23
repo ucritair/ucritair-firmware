@@ -16,11 +16,11 @@ CAT_mat4 S;
 
 float theta_h;
 
-void CAT_MS_hedron(CAT_machine_signal signal)
+void CAT_MS_hedron(CAT_FSM_signal signal)
 {
 	switch (signal)
 	{
-		case CAT_MACHINE_SIGNAL_ENTER:
+		case CAT_FSM_SIGNAL_ENTER:
 			CAT_set_render_callback(CAT_render_hedron);
 
 			mesh = &hedron_mesh;
@@ -47,7 +47,7 @@ void CAT_MS_hedron(CAT_machine_signal signal)
 			float n = 0.01f;
 			float f = 100.0f;
 			float hfov = 1.57079632679 * 0.5f;
-			float width = 2 * n * tan(hfov / 2);
+			float width = 2 * n * tanf(hfov / 2);
 			float asp = ((float) CAT_LCD_SCREEN_W / (float) CAT_LCD_SCREEN_H);
 			float height = width / asp;
 			P = (CAT_mat4)
@@ -70,15 +70,15 @@ void CAT_MS_hedron(CAT_machine_signal signal)
 
 			theta_h = 0;
 			break;
-		case CAT_MACHINE_SIGNAL_TICK:
+		case CAT_FSM_SIGNAL_TICK:
 			if(CAT_input_pressed(CAT_BUTTON_B) || CAT_input_pressed(CAT_BUTTON_START))
-				CAT_machine_back();
+				CAT_pushdown_pop();
 
 			theta_h += CAT_get_delta_time_s();
 			if(theta_h >= 6.28318530718f)
 				theta_h = 0;
 			break;
-		case CAT_MACHINE_SIGNAL_EXIT:
+		case CAT_FSM_SIGNAL_EXIT:
 			break;
 	}
 }

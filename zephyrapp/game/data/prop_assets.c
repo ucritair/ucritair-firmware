@@ -52,8 +52,8 @@ const CAT_prop statue_prop = {
 	.triggers = (struct trigger[]) {
 		{
 			.aabb = {1,2,2,3,},
-			.tx = 1,
-			.ty = 0,
+			.tx = 0,
+			.ty = 1,
 			.proc = interact_proc_statue,
 		},
 	},
@@ -173,10 +173,57 @@ const CAT_prop track_prop = {
 const CAT_prop fence_prop = {
 	.sprite = &floor_grass_tile_sprite,
 	.blockers = (int8_t*[]) {
-		(int8_t[]) {0,0,16,16,},
+		(int8_t[]) {0,0,1,1,},
 	},
 	.blocker_count = 1,
 	.triggers = (struct trigger[]) {
 	},
 	.trigger_count = 0,
+};
+const CAT_prop node_stone_prop = {
+	.sprite = &world_node_stone_sprite,
+	.blockers = (int8_t*[]) {
+		(int8_t[]) {0,0,1,1,},
+	},
+	.blocker_count = 1,
+	.triggers = (struct trigger[]) {
+		{
+			.aabb = {0,0,1,1,},
+			.tx = 0,
+			.ty = 0,
+			.proc = proc_collect_resource,
+		},
+	},
+	.trigger_count = 1,
+};
+const CAT_prop node_grass_prop = {
+	.sprite = &world_node_grass_sprite,
+	.blockers = (int8_t*[]) {
+	},
+	.blocker_count = 0,
+	.triggers = (struct trigger[]) {
+		{
+			.aabb = {0,0,1,1,},
+			.tx = 0,
+			.ty = 0,
+			.proc = proc_collect_resource,
+		},
+	},
+	.trigger_count = 1,
+};
+const CAT_prop node_wood_prop = {
+	.sprite = &world_node_wood_sprite,
+	.blockers = (int8_t*[]) {
+		(int8_t[]) {0,1,1,2,},
+	},
+	.blocker_count = 1,
+	.triggers = (struct trigger[]) {
+		{
+			.aabb = {0,1.0,1,2.0,},
+			.tx = 0,
+			.ty = 0,
+			.proc = proc_collect_resource,
+		},
+	},
+	.trigger_count = 1,
 };

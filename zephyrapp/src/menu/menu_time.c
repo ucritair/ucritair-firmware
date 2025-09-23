@@ -55,19 +55,19 @@ const struct {const int len; const int pad; int* edit; enum which which;} edits[
 
 int time_edit_time_selector = 0;
 
-void CAT_MS_time(CAT_machine_signal signal)
+void CAT_MS_time(CAT_FSM_signal signal)
 {
 	switch(signal)
 	{
-		case CAT_MACHINE_SIGNAL_ENTER:
+		case CAT_FSM_SIGNAL_ENTER:
 		{
 			CAT_set_render_callback(CAT_render_time);
 			break;
 		}
-		case CAT_MACHINE_SIGNAL_TICK:
+		case CAT_FSM_SIGNAL_TICK:
 		{
 			if(CAT_input_pressed(CAT_BUTTON_B))
-				CAT_machine_back();
+				CAT_pushdown_pop();
 
 			if (CAT_input_pulse(CAT_BUTTON_LEFT))
 				time_edit_time_selector--;
@@ -124,7 +124,7 @@ void CAT_MS_time(CAT_machine_signal signal)
 
 			break;
 		}
-		case CAT_MACHINE_SIGNAL_EXIT:
+		case CAT_FSM_SIGNAL_EXIT:
 			break;
 	}
 }

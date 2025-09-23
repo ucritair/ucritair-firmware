@@ -6,8 +6,9 @@
 #include "item_assets.h"
 #include "cat_curves.h"
 #include "cat_gizmos.h"
+#include <stdio.h>
 
-#define INSPECTOR_BG_COLOUR RGB8882565(142, 171, 174)
+#define INSPECTOR_BG_COLOUR CAT_RGB8882565(142, 171, 174)
 #define INSPECTOR_MARGIN 8
 
 static bool buy_filter(int item_id)
@@ -64,31 +65,34 @@ static struct
 static int checkout_id = -1;
 static int purchase_qty = 1;
 
-static float purchase_progress = 0;
-static bool purchase_lock = false;
-
 void CAT_bind_checkout(int item_id)
 {
 	checkout_id = item_id;
 	purchase_qty = 1;
-
-	purchase_progress = 0;
-	purchase_lock = false;
 }
 
-void CAT_MS_checkout(CAT_machine_signal signal)
+void CAT_MS_checkout(CAT_FSM_signal signal)
 {
 	switch(signal)
 	{
-		case CAT_MACHINE_SIGNAL_ENTER:
+		case CAT_FSM_SIGNAL_ENTER:
 		{
 			CAT_set_render_callback(CAT_render_checkout);
 			break;
 		}
-		case CAT_MACHINE_SIGNAL_TICK:
+		case CAT_FSM_SIGNAL_TICK:
 		{
+			if(CAT_gui_popup_is_open())
+				return;
+			if(CAT_gui_consume_popup())
+			{
+				CAT_inventory_add(checkout_id, purchase_qty);
+				CAT_inventory_remove(coin_item, item_table.data[checkout_id].price * purchase_qty);
+				purchase_qty = 1;
+			}
+
 			if(CAT_input_pressed(CAT_BUTTON_B))
-				CAT_machine_back();
+				CAT_pushdown_pop();
 
 			if(CAT_input_pulse(CAT_BUTTON_LEFT))
 				purchase_qty -= 1;
@@ -105,35 +109,15 @@ void CAT_MS_checkout(CAT_machine_signal signal)
 				purchase_qty = clamp(purchase_qty, 1, max_qty);
 			}
 
-			if(CAT_input_held(CAT_BUTTON_A, 0) && purchase_qty > 0)
+			if(CAT_input_pressed(CAT_BUTTON_A) && purchase_qty > 0)
 			{
-				if(CAT_input_pressed(CAT_BUTTON_A))
-					purchase_progress += 0.1f;
-
-				purchase_progress += CAT_get_delta_time_s();	
-				purchase_progress = clamp(purchase_progress, 0, 1);
-
-				if(!purchase_lock)
-				{	
-					if(purchase_progress >= 0.9f)
-						purchase_lock = true;
-				}
+				static char buf[128];
+				snprintf(buf, 128, "Purchase %d of %s?", purchase_qty, item_table.data[checkout_id].name);
+				CAT_gui_open_popup(buf);
 			}
-			else if(CAT_input_released(CAT_BUTTON_A))
-			{
-				if(purchase_lock)
-				{
-					CAT_inventory_add(checkout_id, purchase_qty);
-					CAT_inventory_remove(coin_item, item_table.data[checkout_id].price * purchase_qty);
-				}
-
-				purchase_progress = 0;
-				purchase_lock = false;	
-			}
-
 			break;
 		}
-		case CAT_MACHINE_SIGNAL_EXIT:
+		case CAT_FSM_SIGNAL_EXIT:
 		{
 			break;
 		}
@@ -144,7 +128,7 @@ void CAT_MS_checkout(CAT_machine_signal signal)
 
 void CAT_render_checkout()
 {
-	CAT_item* item = CAT_item_get(checkout_id);
+	CAT_item* item = CAT_get_item(checkout_id);
 
 	CAT_frameberry(INSPECTOR_BG_COLOUR);
 
@@ -178,27 +162,26 @@ void CAT_render_checkout()
 	CAT_draw_sprite(item->sprite, 0, 120, cursor_y + box_h/2);
 	CAT_strokeberry(INSPECTOR_MARGIN, cursor_y, CAT_LCD_SCREEN_W-INSPECTOR_MARGIN * 2, box_h, CAT_WHITE);
 	cursor_y += box_h;
-	if(!purchase_lock || CAT_pulse(0.25f))
-	{
-		CAT_set_text_colour(purchase_lock ? CHECKOUT_GOLD_COLOUR: CAT_WHITE);
-		CAT_draw_textf(INSPECTOR_MARGIN, cursor_y + 2, "BUYING %d", purchase_qty);
-	}
 
 	cursor_y += 32;
 
 	if(purchase_qty > 0)
 	{
-		uint16_t colour = purchase_lock ? CHECKOUT_GOLD_COLOUR : CAT_WHITE;
+		int box = (CAT_GLYPH_WIDTH*4)+16;
+		CAT_strokeberry(120-box/2, cursor_y-box/4, box, box, CAT_WHITE);
 
 		CAT_set_text_scale(2);
-		CAT_set_text_colour(colour);
+		CAT_set_text_colour(CAT_WHITE);
 		CAT_set_text_flags(CAT_TEXT_FLAG_CENTER);
 		cursor_y = CAT_draw_textf(120, cursor_y, "%d", purchase_qty);
 
-		int size = 24;
-		float progress = CAT_ease_out_quart(purchase_progress);
-		int dist = 24 + progress * 40;
-		CAT_draw_arrows(120, cursor_y + 12, size, dist, colour);
+		CAT_set_text_colour(CAT_WHITE);
+		CAT_set_text_scale(2);
+		CAT_set_text_flags(CAT_TEXT_FLAG_CENTER);
+		CAT_draw_textf(120, cursor_y-CAT_GLYPH_HEIGHT/2+2, "-    +");
+
+		CAT_draw_arrows(120, cursor_y+CAT_GLYPH_HEIGHT+1, 12, 80, CAT_WHITE);
+		CAT_draw_arrows(120, cursor_y+CAT_GLYPH_HEIGHT+1, 12, 72, CAT_WHITE);
 	}
 	else
 	{
@@ -212,31 +195,34 @@ void CAT_render_checkout()
 static int sale_id = -1;
 static int sale_qty = 1;
 
-static float sale_progress = 0;
-static bool sale_lock = false;
-
 void CAT_bind_sale(int item_id)
 {
 	sale_id = item_id;
 	sale_qty = 1;
-
-	sale_progress = 0;
-	sale_lock = false;
 }
 
-void CAT_MS_sale(CAT_machine_signal signal)
+void CAT_MS_sale(CAT_FSM_signal signal)
 {
 	switch(signal)
 	{
-		case CAT_MACHINE_SIGNAL_ENTER:
+		case CAT_FSM_SIGNAL_ENTER:
 		{
 			CAT_set_render_callback(CAT_render_sale);
 			break;
 		}
-		case CAT_MACHINE_SIGNAL_TICK:
+		case CAT_FSM_SIGNAL_TICK:
 		{
+			if(CAT_gui_popup_is_open())
+				return;
+			if(CAT_gui_consume_popup())
+			{
+				CAT_inventory_remove(sale_id, sale_qty);
+				CAT_inventory_add(coin_item, item_table.data[sale_id].price * sale_qty);
+				sale_qty = 1;
+			}
+
 			if(CAT_input_pressed(CAT_BUTTON_B))
-				CAT_machine_back();
+				CAT_pushdown_pop();
 
 			if(CAT_inventory_count(sale_id) > 0)
 			{
@@ -251,35 +237,16 @@ void CAT_MS_sale(CAT_machine_signal signal)
 				sale_qty = 0;
 			}
 
-			if(CAT_input_held(CAT_BUTTON_A, 0))
+			if(CAT_input_pressed(CAT_BUTTON_A) && sale_qty > 0)
 			{
-				if(CAT_input_pressed(CAT_BUTTON_A))
-					sale_progress += 0.1f;
-
-				sale_progress += CAT_get_delta_time_s();	
-				sale_progress = clamp(sale_progress, 0, 1);
-
-				if(!sale_lock)
-				{	
-					if(sale_progress >= 0.9f)
-						sale_lock = true;
-				}
-			}
-			else if(CAT_input_released(CAT_BUTTON_A))
-			{
-				if(sale_lock)
-				{
-					CAT_inventory_remove(sale_id, sale_qty);
-					CAT_inventory_add(coin_item, item_table.data[sale_id].price * sale_qty);
-				}
-
-				sale_progress = 0;
-				sale_lock = false;	
+				static char buf[128];
+				snprintf(buf, 128, "Sell %d of %s?", sale_qty, item_table.data[sale_id].name);
+				CAT_gui_open_popup(buf);
 			}
 
 			break;
 		}
-		case CAT_MACHINE_SIGNAL_EXIT:
+		case CAT_FSM_SIGNAL_EXIT:
 		{
 			break;
 		}
@@ -288,7 +255,7 @@ void CAT_MS_sale(CAT_machine_signal signal)
 
 void CAT_render_sale()
 {
-	CAT_item* item = CAT_item_get(sale_id);
+	CAT_item* item = CAT_get_item(sale_id);
 
 	CAT_frameberry(INSPECTOR_BG_COLOUR);
 
@@ -322,27 +289,26 @@ void CAT_render_sale()
 	CAT_draw_sprite(item->sprite, 0, 120, cursor_y + box_h/2);
 	CAT_strokeberry(INSPECTOR_MARGIN, cursor_y, CAT_LCD_SCREEN_W-INSPECTOR_MARGIN * 2, box_h, CAT_WHITE);
 	cursor_y += box_h;
-	if(!sale_lock || CAT_pulse(0.5f))
-	{
-		CAT_set_text_colour(sale_lock ? CHECKOUT_GOLD_COLOUR : CAT_WHITE);
-		CAT_draw_textf(INSPECTOR_MARGIN, cursor_y + 2, "SELLING %d", sale_qty);
-	}
 
 	cursor_y += 32;
 
 	if(sale_qty > 0)
 	{
-		uint16_t colour = sale_lock ? CHECKOUT_GOLD_COLOUR : CAT_WHITE;
+		int box = (CAT_GLYPH_WIDTH*4)+16;
+		CAT_strokeberry(120-box/2, cursor_y-box/4, box, box, CAT_WHITE);
 
 		CAT_set_text_scale(2);
-		CAT_set_text_colour(colour);
+		CAT_set_text_colour(CAT_WHITE);
 		CAT_set_text_flags(CAT_TEXT_FLAG_CENTER);
 		cursor_y = CAT_draw_textf(120, cursor_y, "%d", sale_qty);
 
-		int size = 24;
-		float progress = CAT_ease_out_quart(sale_progress);
-		int dist = 24 + progress * 40;
-		CAT_draw_arrows(120, cursor_y + 12, size, dist, colour);
+		CAT_set_text_colour(CAT_WHITE);
+		CAT_set_text_scale(2);
+		CAT_set_text_flags(CAT_TEXT_FLAG_CENTER);
+		CAT_draw_textf(120, cursor_y-CAT_GLYPH_HEIGHT/2+2, "-    +");
+
+		CAT_draw_arrows(120, cursor_y+CAT_GLYPH_HEIGHT+1, 12, 80, CAT_WHITE);
+		CAT_draw_arrows(120, cursor_y+CAT_GLYPH_HEIGHT+1, 12, 72, CAT_WHITE);
 	}
 	else
 	{
@@ -356,26 +322,26 @@ void CAT_render_sale()
 static void buy_proc(int item_id)
 {
 	CAT_bind_checkout(item_id);
-	CAT_machine_transition(CAT_MS_checkout);
+	CAT_pushdown_push(CAT_MS_checkout);
 }
 
 static void sell_proc(int item_id)
 {
 	CAT_bind_sale(item_id);
-	CAT_machine_transition(CAT_MS_sale);
+	CAT_pushdown_push(CAT_MS_sale);
 }
 
-void CAT_MS_shop(CAT_machine_signal signal)
+void CAT_MS_shop(CAT_FSM_signal signal)
 {
 	switch(signal)
 	{
-		case CAT_MACHINE_SIGNAL_ENTER:
+		case CAT_FSM_SIGNAL_ENTER:
 		{
 			CAT_set_render_callback(CAT_render_shop);
 			CAT_gui_begin_item_grid_context(true);
 			break;
 		}
-		case CAT_MACHINE_SIGNAL_TICK:
+		case CAT_FSM_SIGNAL_TICK:
 		{			
 			CAT_gui_begin_item_grid();
 			for(int i = 0; i < NUM_TABS; i++)
@@ -390,7 +356,7 @@ void CAT_MS_shop(CAT_machine_signal signal)
 			break;
 		}
 
-		case CAT_MACHINE_SIGNAL_EXIT:
+		case CAT_FSM_SIGNAL_EXIT:
 		break;
 	}
 }

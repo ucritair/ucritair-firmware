@@ -22,7 +22,7 @@ static struct
 {
 	uint8_t xs[SNAKE_MAX_LENGTH];
 	uint8_t ys[SNAKE_MAX_LENGTH];
-	uint8_t length;
+	uint16_t length;
 
 	int ldx;
 	int ldy;
@@ -116,11 +116,11 @@ food_spawn_success:
 	food_sprites[CAT_rand_int(0, num_food_sprites-1)];
 }
 
-void CAT_MS_snake(CAT_machine_signal signal)
+void CAT_MS_snake(CAT_FSM_signal signal)
 {
 	switch(signal)
 	{
-		case CAT_MACHINE_SIGNAL_ENTER:
+		case CAT_FSM_SIGNAL_ENTER:
 		{
 			CAT_set_render_callback(CAT_render_snake);
 			snake_init();
@@ -131,7 +131,7 @@ void CAT_MS_snake(CAT_machine_signal signal)
 			eat_tracker = 0;
 			break;
 		}
-		case CAT_MACHINE_SIGNAL_TICK:
+		case CAT_FSM_SIGNAL_TICK:
 		{
 			if(!snake.dead)
 			{
@@ -139,7 +139,7 @@ void CAT_MS_snake(CAT_machine_signal signal)
 						CAT_gui_open_popup("Quit Snack?\n\nProgress will not be saved!\n\n");
 				else if(CAT_gui_consume_popup())
 				{
-					CAT_machine_back();
+					CAT_pushdown_pop();
 					break;
 				}
 				if(CAT_gui_popup_is_open())
@@ -222,11 +222,11 @@ void CAT_MS_snake(CAT_machine_signal signal)
 				}
 
 				if(CAT_input_pressed(CAT_BUTTON_A) || CAT_input_pressed(CAT_BUTTON_B) || CAT_input_pressed(CAT_BUTTON_START))
-					CAT_machine_back();
+					CAT_pushdown_pop();
 			}
 			break;
 		}
-		case CAT_MACHINE_SIGNAL_EXIT:
+		case CAT_FSM_SIGNAL_EXIT:
 		{
 			break;
 		}
@@ -240,7 +240,8 @@ void CAT_render_snake()
 {
 	if(!snake.dead)
 	{
-		CAT_frameberry(RGB8882565(122, 146, 57));
+		CAT_frameberry(CAT_GRASS_GREEN);
+
 		for(int y = 0; y < 20; y += 2)
 		{
 			CAT_draw_tile(&floor_grass_tile_sprite, 17, grasses[y/2]*16, y*16);

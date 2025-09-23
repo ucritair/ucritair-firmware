@@ -51,9 +51,9 @@ float CAT_wet_bulb_temp(float air_degc)
 	float T_d = air_degc;
 	float rh = readings.sen5x.humidity_rhpct;
 	float T_w =
-	T_d * atan(0.151977 * pow(rh + 8.313659, 0.5f)) +
-	atan(T_d + rh) - atan(rh - 1.676331) +
-	(0.00391838 * pow(rh, 1.5f)) * atan(0.023101 * rh) -
+	T_d * atanf(0.151977 * powf(rh + 8.313659, 0.5f)) +
+	atanf(T_d + rh) - atanf(rh - 1.676331) +
+	(0.00391838 * powf(rh, 1.5f)) * atanf(0.023101 * rh) -
 	4.686035;
 	float T_g = T_d;
 	return 0.7 * T_w + 0.1 * T_d + 0.2 * T_g;
@@ -282,17 +282,13 @@ const char* CAT_AQ_get_grade_string(float score)
 
 uint16_t CAT_AQ_get_grade_colour(float score)
 {
-	uint16_t colours[] =
+	static uint16_t colours[] = 
 	{
-		CAT_GRADE_COLOUR_F,
-		CAT_GRADE_COLOUR_D,
-		CAT_GRADE_COLOUR_C,
-		CAT_GRADE_COLOUR_B,
-		CAT_GRADE_COLOUR_A,
+		CAT_GRADE_COLOUR_BAD,
+		CAT_GRADE_COLOUR_MID,
+		CAT_GRADE_COLOUR_GOOD
 	};
-
-	int idx = quantize(score, 1, sizeof(colours)/sizeof(colours[0]));
-	return colours[idx];
+	return CAT_colour_curve(colours, 3, score);
 }
 
 static int good_delta_signs[] =

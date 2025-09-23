@@ -30,6 +30,7 @@ else()
 	target_compile_definitions(app PRIVATE CAT_EMBEDDED=1)
 	target_compile_definitions(app PRIVATE CAT_DEBUG=1)
 	
+	target_compile_options(app PRIVATE -fsingle-precision-constant)
 	target_sources(app PRIVATE src/core/cat_embedded.c)
 endif()
 
@@ -131,6 +132,8 @@ target_sources(app PRIVATE
 	src/render/cat_draw_queue.c
 	src/render/cat_animation.c
 	src/render/cat_poly.c
+	src/render/cat_effects.c
+	src/render/cat_gizmos.c
 
 	src/menu/cat_menu.c
 	src/menu/cat_menu_insights.c
@@ -144,9 +147,9 @@ target_sources(app PRIVATE
 	src/cowtools/cat_structures.c
 	src/cowtools/cat_math.c
 
-	src/caring/cat_actions.c
-	src/caring/cat_feed.c
+	src/caring/cat_play.c
 	src/caring/cat_study.c
+	src/feeding/cat_feed.c
 
 	src/arcade/cat_arcade.c
 	src/arcade/cat_arcade_snake.c
@@ -170,7 +173,6 @@ target_sources(app PRIVATE
 	src/gui/cat_gui.c
 	src/gui/cat_text.c
 	src/gui/cat_graph.c
-	src/gui/cat_gizmos.c
 
 	src/air/cat_aqi.c
 	src/air/cat_crisis.c
@@ -188,10 +190,11 @@ target_sources(app PRIVATE
 
 	src/world/cat_world.c
 	src/world/cat_dialogue.c
-	src/world/cat_combat.c
 	src/world/cat_scene.c
 
 	src/procs/cat_procs.c
+
+	src/crafting/cat_crafting.c
 
 	sounds/sound_assets.c
 	meshes/mesh_assets.c
@@ -223,6 +226,8 @@ target_include_directories(app PRIVATE src/systems)
 target_include_directories(app PRIVATE src/room)
 target_include_directories(app PRIVATE src/world)
 target_include_directories(app PRIVATE src/procs)
+target_include_directories(app PRIVATE src/crafting)
+target_include_directories(app PRIVATE src/feeding)
 
 target_include_directories(app PRIVATE sounds/)
 target_include_directories(app PRIVATE meshes/)

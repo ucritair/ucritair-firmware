@@ -10,7 +10,7 @@
 // CATs when they eat a frameberry
 void CAT_frameberry(uint16_t c)
 {
-	c = ADAPT_DESKTOP_COLOUR(c);
+	c = CAT_ADAPT_DESKTOP_COLOUR(c);
 	uint32_t c32 = (c << 16) | c;
 	uint32_t* px = CAT_LCD_get_framebuffer();
 	for(int i = 0; i < 19200; i++)
@@ -20,7 +20,7 @@ void CAT_frameberry(uint16_t c)
 // CATs when they eat a lineberry
 void CAT_lineberry(int xi, int yi, int xf, int yf, uint16_t c)
 {
-	c = ADAPT_DESKTOP_COLOUR(c);
+	c = CAT_ADAPT_DESKTOP_COLOUR(c);
 	uint16_t* framebuffer = CAT_LCD_get_framebuffer();
 
 	// if the line is steep, transpose its start and end points
@@ -99,7 +99,7 @@ void CAT_lineberry(int xi, int yi, int xf, int yf, uint16_t c)
 // CATs when they eat a fillberry
 void CAT_fillberry(int xi, int yi, int w, int h, uint16_t c)
 {
-	c = ADAPT_DESKTOP_COLOUR(c);
+	c = CAT_ADAPT_DESKTOP_COLOUR(c);
 	uint16_t* framebuffer = CAT_LCD_get_framebuffer();
 
 	int xf = clamp(xi + w, 0, CAT_LCD_FRAMEBUFFER_W);
@@ -120,7 +120,7 @@ void CAT_fillberry(int xi, int yi, int w, int h, uint16_t c)
 // CATs when they eat a strokeberry
 void CAT_strokeberry(int xi, int yi, int w, int h, uint16_t c)
 {
-	c = ADAPT_DESKTOP_COLOUR(c);
+	c = CAT_ADAPT_DESKTOP_COLOUR(c);
 	uint16_t* framebuffer = CAT_LCD_get_framebuffer();
 
 	int xf = xi + w;
@@ -171,7 +171,7 @@ void CAT_pixberry(int x, int y, uint16_t c)
 	if(y < 0 || y >= CAT_LCD_FRAMEBUFFER_H)
 		return;
 
-	c = ADAPT_DESKTOP_COLOUR(c);
+	c = CAT_ADAPT_DESKTOP_COLOUR(c);
 	uint16_t* framebuffer = CAT_LCD_get_framebuffer();
 	framebuffer[y * CAT_LCD_FRAMEBUFFER_W + x] = c;
 }
@@ -232,7 +232,7 @@ void CAT_circberry(int x, int y, int r, uint16_t c)
 // CATs when they eat a discberry
 void CAT_discberry(int x, int y, int r, uint16_t c)
 {
-	c = ADAPT_DESKTOP_COLOUR(c);
+	c = CAT_ADAPT_DESKTOP_COLOUR(c);
 	uint16_t* framebuffer = CAT_LCD_get_framebuffer();
 
 	y -= CAT_LCD_FRAMEBUFFER_OFFSET;
@@ -264,7 +264,7 @@ void CAT_discberry(int x, int y, int r, uint16_t c)
 // CATs when they eat an annulusberry
 void CAT_annulusberry(int x, int y, int R, int r, uint16_t c, float t, float shift)
 {
-	c = ADAPT_DESKTOP_COLOUR(c);
+	c = CAT_ADAPT_DESKTOP_COLOUR(c);
 	uint16_t* framebuffer = CAT_LCD_get_framebuffer();
 
 	y -= CAT_LCD_FRAMEBUFFER_OFFSET;
@@ -276,9 +276,8 @@ void CAT_annulusberry(int x, int y, int R, int r, uint16_t c, float t, float shi
 	t *= 2 * M_PI;
 	shift *= 2 * M_PI;
 
-	float cos_s, sin_s;
-	cos_s = cos(shift);
-	sin_s = sin(shift);
+	float cos_s = cosf(shift);
+	float sin_s = sinf(shift);
 
 	for(int dy = -R; dy <= R; dy++)
 	{

@@ -98,7 +98,7 @@ const char* CAT_AQ_crisis_response_grade_string(int grade);
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // REPORT
 
-void CAT_MS_crisis_report(CAT_machine_signal signal);
+void CAT_MS_crisis_report(CAT_FSM_signal signal);
 void CAT_render_crisis_report();
 
 

@@ -17,4 +17,7 @@ extern const CAT_prop trash_prop;
 extern const CAT_prop bench_prop;
 extern const CAT_prop track_prop;
 extern const CAT_prop fence_prop;
+extern const CAT_prop node_stone_prop;
+extern const CAT_prop node_grass_prop;
+extern const CAT_prop node_wood_prop;
 

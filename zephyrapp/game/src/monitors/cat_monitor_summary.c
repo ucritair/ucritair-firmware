@@ -34,14 +34,12 @@ void CAT_monitor_render_summary()
 
 	float score = CAT_AQ_live_score_normalized(CAT_AQM_AGGREGATE);
 	uint16_t colour = CAT_AQ_get_grade_colour(score);
-	//CAT_discberry(120, cursor_y, SCORE_R, colour);
 	CAT_circberry(120, cursor_y, SCORE_R, colour);
-	CAT_circberry(120, cursor_y, SCORE_R+4, colour);
 	const char* grade = CAT_AQ_get_grade_string(score);
 	cursor_y = center_textf(120 + ((strlen(grade) == 1) ? 0 : 4), cursor_y, 3, colour, "%s", grade);
 	cursor_y += 24;
 
-	cursor_y = center_textf(120, cursor_y, 1, CAT_WHITE, "\4CritAQ Score");
+	cursor_y = center_textf(120, cursor_y, 1, CAT_WHITE, "\4CritAQ Grade");
 	cursor_y += 44;
 
 	for(int i = 0; i < CAT_AQM_AGGREGATE; i++)
@@ -60,20 +58,20 @@ void CAT_monitor_render_summary()
 		CAT_draw_text(x - (strlen(grade) == 1 ? 4 : 6), y-6, CAT_AQ_get_grade_string(score));
 
 		if(i == CAT_AQM_TEMP)
-			center_textf(x, y - 20 - DOT_MARGIN, 1, CAT_WHITE, "%.0f", CAT_AQ_map_celsius(CAT_AQ_live_score_raw(i)));
+			center_textf(x, y - 20 - DOT_MARGIN, 1, CAT_WHITE, "%d", (int)(CAT_AQ_map_celsius(CAT_AQ_live_score_raw(i))));
 		else
-			center_textf(x, y - 20 - DOT_MARGIN, 1, CAT_WHITE, "%.0f", CAT_AQ_live_score_raw(i));
+			center_textf(x, y - 20 - DOT_MARGIN, 1, CAT_WHITE, "%d", (int)(CAT_AQ_live_score_raw(i)));
 	}
 }
 
-void CAT_monitor_MS_summary(CAT_machine_signal signal)
+void CAT_monitor_MS_summary(CAT_FSM_signal signal)
 {
 	switch (signal)
 	{
-		case CAT_MACHINE_SIGNAL_ENTER:
+		case CAT_FSM_SIGNAL_ENTER:
 		break;
 
-		case CAT_MACHINE_SIGNAL_TICK:
+		case CAT_FSM_SIGNAL_TICK:
 			if(CAT_input_dismissal())
 				CAT_monitor_dismiss();
 			if(CAT_input_pressed(CAT_BUTTON_LEFT))
@@ -83,7 +81,7 @@ void CAT_monitor_MS_summary(CAT_machine_signal signal)
 
 		break;
 
-		case CAT_MACHINE_SIGNAL_EXIT:
+		case CAT_FSM_SIGNAL_EXIT:
 		break;
 	}
 }

@@ -187,7 +187,7 @@ void draw_all_clear()
 	CAT_draw_textf(MARGIN, cursor_y, ">>>>>>>>>>>>>>>>>>>>>>>>>>>");
 	cursor_y += 22;
 
-	CAT_draw_gizmo_primitive(CAT_GIZMO_PRIMITIVE_HEX, 120, cursor_y + 64, 64, 0, CAT_CRISIS_GREEN);
+	CAT_draw_regular_polygon(6, 120, cursor_y + 64, 64, 0, CAT_CRISIS_GREEN);
 
 	CAT_set_text_mask(MARGIN, -1, CAT_LCD_SCREEN_W-MARGIN, -1);
 	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
@@ -239,15 +239,15 @@ void CAT_monitor_render_gameplay()
 	}
 }
 
-void CAT_monitor_MS_gameplay(CAT_machine_signal signal)
+void CAT_monitor_MS_gameplay(CAT_FSM_signal signal)
 {
 	switch (signal)
 	{
-		case CAT_MACHINE_SIGNAL_ENTER:
+		case CAT_FSM_SIGNAL_ENTER:
 			exit_progress = 0;
 		break;
 
-		case CAT_MACHINE_SIGNAL_TICK:
+		case CAT_FSM_SIGNAL_TICK:
 			if(CAT_input_pressed(CAT_BUTTON_LEFT))
 				CAT_monitor_retreat();
 			if(CAT_input_pressed(CAT_BUTTON_RIGHT))
@@ -258,13 +258,13 @@ void CAT_monitor_MS_gameplay(CAT_machine_signal signal)
 			else
 				exit_progress -= CAT_get_delta_time_s() * 1.5f;
 			exit_progress = clamp(exit_progress, 0, 1);
-			if(exit_progress >= 1.0f && input.time[CAT_BUTTON_A] >= 1.25f)
+			if(exit_progress >= 1.0f && CAT_input_time(CAT_BUTTON_A) >= 1.25f)
 			{
 				CAT_monitor_exit();
 			}
 		break;
 
-		case CAT_MACHINE_SIGNAL_EXIT:
+		case CAT_FSM_SIGNAL_EXIT:
 		break;
 	}
 }

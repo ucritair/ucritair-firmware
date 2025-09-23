@@ -973,7 +973,7 @@ class Mesh2DEditor:
 			v1 += delta;
 
 	def write_mesh(self):
-		polyline = [(v0, v1) for [v0, v1] in self.polyline];
+		polyline = [((int(v0.x), int(v0.y)), (int(v1.x), int(v1.y))) for [v0, v1] in self.polyline];
 		polyline = list(set(polyline));
 		flat_polyline = [];
 		for p in polyline:
@@ -989,7 +989,7 @@ class Mesh2DEditor:
 			flat_edges.append(vert_map[v]);
 		flat_verts = [];
 		for v in vert_map.keys():
-			flat_verts += [int(v.x), int(v.y)];
+			flat_verts += [v[0], v[1]];
 		
 		self.mesh['verts'] = flat_verts.copy();
 		self.mesh['vert_count'] = len(flat_verts) // 2;

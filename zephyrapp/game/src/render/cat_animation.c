@@ -5,7 +5,7 @@
 //////////////////////////////////////////////////////////////////////////
 // ANIMATOR
 
-static int frame_indices[CAT_SPRITE_LIST_LENGTH];
+static uint8_t frame_indices[CAT_SPRITE_LIST_LENGTH];
 static int frame_counter = 0;
 static bool cycle_complete[CAT_SPRITE_LIST_LENGTH];
 #define CAT_ANIMATOR_FRAME_PERIOD 1

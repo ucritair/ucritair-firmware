@@ -94,7 +94,7 @@ bool sprite_read_px(struct epaper_image_asset* src, int x, int y)
 
 void blit_image(uint8_t* target, struct epaper_image_asset* src, int x, int y)
 {
-	LOG_INF("Blit x=%d y=%d w=%d h=%d", x, y, src->w, src->h);
+	//LOG_INF("Blit x=%d y=%d w=%d h=%d", x, y, src->w, src->h);
 	for (int dx = 0; dx < src->w; dx++)
 	{
 		for (int dy = 0; dy < src->h; dy++)
@@ -110,7 +110,6 @@ PERSIST_RAM uint8_t framebuffer_fast_update_count;
 
 void epaper_render_test()
 {
-
 	int batt_pct = CAT_get_battery_pct();
 
     // Low battery paths first — do no extra work.
@@ -174,21 +173,21 @@ void epaper_render_test()
 	blit_image(epaper_framebuffer, selected_unicorn, 0, 0);
 	blit_image(epaper_framebuffer, selected_cloud, 0, selected_unicorn->h);
 
-	fwrite_str(128, 20, 2, "%.0f", (double) readings.sunrise.ppm_filtered_compensated);
+	fwrite_str(128, 20, 2, "%d", (int) readings.sunrise.ppm_filtered_compensated);
 	fwrite_str(EPD_IMAGE_W-(8*3), 20, 1, "ppm\nCO2");
-	fwrite_str(128, 40, 2, "%.1f", (double) readings.sen5x.pm2_5);
+	fwrite_str(128, 40, 2, "%d", (int) readings.sen5x.pm2_5);
 	fwrite_str(EPD_IMAGE_W-(8*5), 40, 1, "ug/m3\nPM2.5");
 
 	if (readings.sen5x.nox_index && readings.sen5x.voc_index)
 	{
-		fwrite_str(128, 60, 1, "%.0f NOX / %.0f VOC", (double) readings.sen5x.nox_index, (double) readings.sen5x.voc_index);
+		fwrite_str(128, 60, 1, "%d NOX / %d VOC", (int) readings.sen5x.nox_index, (int) readings.sen5x.voc_index);
 	}
 	
-	double deg_c = readings.sen5x.temp_degC;
-	double deg_mapped = CAT_AQ_map_celsius(deg_c);
-	fwrite_str(128, 70, 1, "%.0f %s / %.0f%% RH", deg_mapped, CAT_AQ_get_temperature_unit_string(), (double) readings.sen5x.humidity_rhpct);
-	fwrite_str(128, 80, 1, "%.1f%% rebreathed", ((((double) readings.sunrise.ppm_filtered_compensated)-420.)/38000.)*100.);
-	fwrite_str(128, 90, 1, "uCritAQI %.1f%%", score);
+	float deg_c = readings.sen5x.temp_degC;
+	float deg_mapped = CAT_AQ_map_celsius(deg_c);
+	fwrite_str(128, 70, 1, "%d %s / %d%% RH", (int) deg_mapped, CAT_AQ_get_temperature_unit_string(), (int) readings.sen5x.humidity_rhpct);
+	fwrite_str(128, 80, 1, "%d%% rebreathed", (int) ((((readings.sunrise.ppm_filtered_compensated)-420.)/38000.)*100.));
+	fwrite_str(128, 90, 1, "uCritAQI %d%%", (int) score);
 	fwrite_str(128, 100, 1, "at %2d:%02d:%02d", t.tm_hour, t.tm_min, t.tm_sec);
 	fwrite_str(128, 110, 1, "%d%% battery", get_battery_pct());
 
@@ -199,14 +198,14 @@ void epaper_render_test()
 	pc_set_mode(false);
 	if (is_first_init || framebuffer_fast_update_count > 50)
 	{
-		LOG_DBG("Opted to global update, is_first_init=%d, framebuffer_fast_update_count=%d", is_first_init, framebuffer_fast_update_count);
+		//LOG_DBG("Opted to global update, is_first_init=%d, framebuffer_fast_update_count=%d", is_first_init, framebuffer_fast_update_count);
 		is_first_init = false;
 		cmd_turn_on_and_write(epaper_framebuffer);
 		framebuffer_fast_update_count = 0;
 	}
 	else
 	{
-		LOG_DBG("Opted to fast update, framebuffer_fast_update_count=%d", framebuffer_fast_update_count);
+		//LOG_DBG("Opted to fast update, framebuffer_fast_update_count=%d", framebuffer_fast_update_count);
 		cmd_turn_on_and_write_fast(old_epaper_framebuffer, epaper_framebuffer);
 		framebuffer_fast_update_count++;
 	}

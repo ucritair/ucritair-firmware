@@ -66,21 +66,21 @@ void CAT_monitor_render_sparklines()
 
 	cursor_y = SPARKLINE_MAX_Y + 8;
 	CAT_set_text_colour(CAT_WHITE);
-	cursor_y = CAT_draw_textf(SPARKLINE_X, cursor_y, "Max score: %s \1 %.0f/100\n", CAT_AQ_get_grade_string(max_score), max_score*100)+8;
+	cursor_y = CAT_draw_textf(SPARKLINE_X, cursor_y, "Max score: %s \1 %d/100\n", CAT_AQ_get_grade_string(max_score), (int)(max_score*100))+8;
 	CAT_set_text_colour(CAT_WHITE);
-	cursor_y = CAT_draw_textf(SPARKLINE_X, cursor_y, "  Mean score: %s \1 %.0f/100\n", CAT_AQ_get_grade_string(mean_score), mean_score*100)+8;
+	cursor_y = CAT_draw_textf(SPARKLINE_X, cursor_y, "  Mean score: %s \1 %d/100\n", CAT_AQ_get_grade_string(mean_score), (int)(mean_score*100))+8;
 	CAT_set_text_colour(CAT_WHITE);
-	cursor_y = CAT_draw_textf(SPARKLINE_X, cursor_y, "    Min score: %s \1 %.0f/100\n", CAT_AQ_get_grade_string(min_score), min_score*100)+8;
+	cursor_y = CAT_draw_textf(SPARKLINE_X, cursor_y, "    Min score: %s \1 %d/100\n", CAT_AQ_get_grade_string(min_score), (int)(min_score*100))+8;
 }
 
-void CAT_monitor_MS_sparklines(CAT_machine_signal signal)
+void CAT_monitor_MS_sparklines(CAT_FSM_signal signal)
 {
 	switch (signal)
 	{
-		case CAT_MACHINE_SIGNAL_ENTER:
+		case CAT_FSM_SIGNAL_ENTER:
 		break;
 
-		case CAT_MACHINE_SIGNAL_TICK:
+		case CAT_FSM_SIGNAL_TICK:
 			if(CAT_input_dismissal())
 				CAT_monitor_dismiss();
 			if(CAT_input_pressed(CAT_BUTTON_LEFT))
@@ -92,7 +92,7 @@ void CAT_monitor_MS_sparklines(CAT_machine_signal signal)
 				view = (view+1) % CAT_AQM_COUNT;
 		break;
 
-		case CAT_MACHINE_SIGNAL_EXIT:
+		case CAT_FSM_SIGNAL_EXIT:
 		break;
 	}
 }

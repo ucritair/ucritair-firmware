@@ -17,7 +17,7 @@
 static uint16_t __attribute__((aligned(4))) mBuffer[BUFFER_SIZE] = {};
 static uint8_t mPlayingSecondHalf = 0;	
 
-static const uint8_t *mSoundDataNow, *mSoundDataEnd;
+static const uint8_t *mSoundDatanfow, *mSoundDataEnd;
 
 static void soundPrvScaleData(uint16_t *dst, const int16_t *src, uint32_t numItems)
 {
@@ -55,9 +55,9 @@ static bool soundPrvProduceSamples(uint16_t *dst, uint32_t nsamples)
 		}
 		else {
 
-			if (mSoundDataNow < mSoundDataEnd) {
+			if (mSoundDatanfow < mSoundDataEnd) {
 
-				decodedDataAvail = sbcDecode(decodedData, &mSoundDataNow);
+				decodedDataAvail = sbcDecode(decodedData, &mSoundDatanfow);
 			}
 			else {
 
@@ -118,7 +118,7 @@ static void soundPrvStart(const uint8_t *data, uint32_t len)		//assumes sound is
 
 	sbcDecInit();
 
-	mSoundDataNow = data;
+	mSoundDatanfow = data;
 	mSoundDataEnd = data + len;
 	mPlayingSecondHalf = 0;
 

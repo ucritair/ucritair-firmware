@@ -2493,6 +2493,76 @@
             "height": 16,
             "loop": false,
             "reverse": false
+        },
+        {
+            "id": 246,
+            "name": "ui_item_frame_bg_spec_sprite",
+            "path": "ui/shop/item_spl.png",
+            "frames": 1,
+            "width": 64,
+            "height": 64,
+            "loop": false,
+            "reverse": false
+        },
+        {
+            "id": 247,
+            "name": "ui_feed_select_sprite",
+            "path": "ui/shop/feed_select.png",
+            "frames": 1,
+            "width": 32,
+            "height": 32,
+            "loop": false,
+            "reverse": false
+        },
+        {
+            "id": 248,
+            "name": "ui_feed_submit_sprite",
+            "path": "ui/shop/feed_submit.png",
+            "frames": 1,
+            "width": 32,
+            "height": 32,
+            "loop": false,
+            "reverse": false
+        },
+        {
+            "id": 249,
+            "name": "ui_touch_prompt",
+            "path": "ui/touch_icon.png",
+            "frames": 2,
+            "width": 64,
+            "height": 64,
+            "loop": true,
+            "reverse": false
+        },
+        {
+            "id": 250,
+            "name": "world_node_stone_sprite",
+            "path": "testing/node_stone.png",
+            "frames": 1,
+            "width": 16,
+            "height": 16,
+            "loop": false,
+            "reverse": false
+        },
+        {
+            "id": 251,
+            "name": "world_node_grass_sprite",
+            "path": "testing/node_grass.png",
+            "frames": 1,
+            "width": 16,
+            "height": 16,
+            "loop": false,
+            "reverse": false
+        },
+        {
+            "id": 252,
+            "name": "world_node_wood_sprite",
+            "path": "testing/node_wood.png",
+            "frames": 1,
+            "width": 16,
+            "height": 32,
+            "loop": false,
+            "reverse": false
         }
     ]
 }

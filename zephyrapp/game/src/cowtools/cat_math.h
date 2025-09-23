@@ -7,12 +7,15 @@
 // BASICS
 
 #ifndef M_PI
-#define M_PI 3.14159265358979323846264338327950288
+#define M_PI 3.14159265358979323846264338327950288f
 #endif
 
 #ifndef M_E
-#define M_E 2.71828182845904523536028747135266250
+#define M_E 2.71828182845904523536028747135266250f
 #endif
+
+#define CAT_RAD2DEG (180.0f / M_PI)
+#define CAT_DEG2RAD (M_PI / 180.0f)
 
 #ifndef max
 #define max(a, b) ((b) > (a) ? (b) : (a))
@@ -34,8 +37,10 @@
 #define wrap(v, l) (((v) + (l)) % (l))
 #endif
 
-#define CAT_RAD2DEG (180.0 / M_PI)
-#define CAT_DEG2RAD (M_PI / 180.0)
+#define CAT_sin sinf
+#define CAT_cos cosf
+#define CAT_atan atan2f
+#define CAT_sqrt sqrtf
 
 float lerp(float a, float b, float t);
 float inv_lerp(float t, float a, float b);
@@ -46,6 +51,10 @@ int quantize(float t, float range, int steps);
 // RANDOM
 
 void CAT_rand_seed();
+float CAT_rand_uniform();
+int CAT_rand_die(int N);
+int CAT_rand_coin(float p);
+
 int CAT_rand_int(int a, int b);
 float CAT_rand_float(float a, float b);
 bool CAT_rand_chance(int N);
@@ -157,6 +166,15 @@ typedef enum
 void CAT_CSCLIP_set_rect(int x0, int y0, int x1, int y1);
 int CAT_CSCLIP_get_flags(int x, int y);
 bool CAT_CSCLIP(int* x0, int* y0, int* x1, int* y1);
+
+
+//////////////////////////////////////////////////////////////////////////
+// WEIGHTED RANDOM SELECTION
+
+void CAT_WRS_begin();
+void CAT_WRS_add(int idx, uint8_t weight);
+void CAT_WRS_end();
+int CAT_WRS_select();
 
 
 //////////////////////////////////////////////////////////////////////////

@@ -77,14 +77,15 @@ typedef enum
 } CAT_gui_toggle_style;
 
 void CAT_gui_begin_menu_context();
-void CAT_gui_reset_menu_context();
+
 bool CAT_gui_begin_menu(const char* title);
+void CAT_gui_end_menu();
 bool CAT_gui_menu_is_open();
+
 bool CAT_gui_menu_item(const char* title);
 bool CAT_gui_menu_toggle(const char* title, bool toggle, CAT_gui_toggle_style style);
 bool CAT_gui_menu_ticker(const char* title, int* ticker, int min, int max);
 bool CAT_gui_menu_text(const char* fmt, ...);
-void CAT_gui_end_menu();
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -105,6 +106,7 @@ void CAT_gui_item_grid_add_tab(const char* title, CAT_item_proc focus_proc, CAT_
 int CAT_gui_item_grid_get_tab();
 
 void CAT_gui_item_grid_cell(int item_id);
+void CAT_gui_item_grid_highlight();
 bool CAT_gui_item_grid_is_open();
 
 
@@ -119,7 +121,7 @@ void CAT_gui_dismiss_dialogue();
 //////////////////////////////////////////////////////////////////////////
 // FINALIZATION
 
-void CAT_gui_io();
+void CAT_gui_tick();
 void CAT_gui_render();
 
 
@@ -156,4 +158,10 @@ void CAT_set_text_mask(int x0, int y0, int x1, int y1);
 
 int CAT_draw_text(int x, int y, const char* text);
 int CAT_draw_textf(int x, int y, const char* fmt, ...);
+
+/*#define CAT_FLOAT_FMT "%d.%2.2u"
+#define CAT_FMT_FLOAT(f) (int) (f), ((unsigned)(100 * ((f) - (int) (f))) % 100)*/
+const char* CAT_fmt_float(float f);
+#define CAT_FLOAT_FMT "%s"
+#define CAT_FMT_FLOAT(f) CAT_fmt_float(f)
 

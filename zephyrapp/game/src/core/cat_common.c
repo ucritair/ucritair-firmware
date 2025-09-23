@@ -8,6 +8,8 @@
 #include <stdio.h>
 #include <time.h>
 #include "item_assets.h"
+#include "cat_gui.h"
+#include "cat_input.h"
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -35,7 +37,10 @@ int* CAT_LCD_brightness_pointer()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // EINK SCREEN
 
+#define EINK_UPDATE_PERIOD CAT_MINUTE_SECONDS
+
 static bool eink_needs_update = false;
+static uint64_t eink_update_timestamp = 0;
 
 void CAT_set_eink_update_flag(bool flag)
 {
@@ -45,6 +50,32 @@ void CAT_set_eink_update_flag(bool flag)
 bool CAT_eink_needs_update()
 {
 	return eink_needs_update;
+}
+
+void CAT_eink_flag_tick()
+{
+	uint64_t now = CAT_get_RTC_now();
+
+	if
+	(
+		((CAT_is_charging() &&
+		(now - eink_update_timestamp) >= EINK_UPDATE_PERIOD &&
+		CAT_input_downtime() >= EINK_UPDATE_PERIOD) ||
+		(eink_update_timestamp == 0 && CAT_AQ_sensors_initialized()))
+	)
+	{
+		CAT_set_eink_update_flag(true);
+	}
+}
+
+bool CAT_eink_update_tick()
+{
+	if(!CAT_eink_needs_update())
+		return false;
+	CAT_set_eink_update_flag(false);
+	CAT_eink_update();
+	eink_update_timestamp = CAT_get_RTC_now();
+	return true;
 }
 
 
@@ -110,6 +141,19 @@ void CAT_flip_screen()
 	screen_orientation = !screen_orientation;
 	for(int i = 0; i < FLIP_BUFFER_SIZE; i++)
 		flip_buffer[i] = false;
+}
+
+void CAT_orientation_tick()
+{
+	if(!CAT_get_persist_flag(CAT_PERSIST_FLAG_MANUAL_ORIENT))
+	{
+		CAT_poll_screen_flip();
+		if(CAT_should_flip_screen())
+		{
+			CAT_flip_screen();
+			CAT_set_eink_update_flag(true);
+		}
+	}
 }
 
 
@@ -207,7 +251,7 @@ const char* CAT_AQ_get_temperature_unit_string()
 
 int float2int(float f, int scale_factor)
 {
-	return round(f * scale_factor);
+	return roundf(f * scale_factor);
 }
 
 float int2float(int i, float scale_factor)
@@ -247,12 +291,6 @@ void CAT_AQ_update_moving_scores()
 		block->aggregate = float2int(CAT_AQ_aggregate_score(), 1);	
 	}
 	block->sample_count += 1;
-
-	CAT_printf("[MOVING AVERAGES]\n");
-	CAT_printf("CO2: %f NOX: %f\n", int2float(block->CO2, 1), int2float(block->NOX, 1));
-	CAT_printf("VOC: %f PM2_5: %f\n", int2float(block->VOC, 1), int2float(block->PM2_5, 100));
-	CAT_printf("temp: %f RH: %f\n", int2float(block->temp, 1000), int2float(block->rh, 100));
-	CAT_printf("aggregate: %f count: %d\n", int2float(block->aggregate, 1), block->sample_count);		
 }
 
 
@@ -262,7 +300,7 @@ void CAT_AQ_update_moving_scores()
 bool CAT_IMU_is_upside_down()
 {
 	CAT_IMU_values imu;
-	CAT_IMU_export_normalized(&imu);
+	CAT_IMU_get_normalized(&imu);
 	if(fabs(imu.x) > 0.2 || fabs(imu.z) > 0.2)
 		return false;
 	if(screen_orientation == CAT_SCREEN_ORIENTATION_UP)
@@ -336,7 +374,7 @@ int CAT_timecmp(CAT_datetime* a, CAT_datetime* b)
 
 void CAT_make_datetime(uint64_t timestamp, CAT_datetime* datetime)
 {
-	struct tm t;
+	struct tm t = {0};
 	gmtime_r(&timestamp, &t);
 	datetime->year = t.tm_year;
 	datetime->month = t.tm_mon+1;
@@ -348,14 +386,14 @@ void CAT_make_datetime(uint64_t timestamp, CAT_datetime* datetime)
 
 uint64_t CAT_make_timestamp(CAT_datetime* datetime)
 {
-	struct tm t;
+	struct tm t = {0};
 	t.tm_year = datetime->year;
 	t.tm_mon = datetime->month-1;
 	t.tm_mday = datetime->day;
 	t.tm_hour = datetime->hour;
 	t.tm_min = datetime->minute;
 	t.tm_sec = datetime->second;
-	return timegm(&t);
+	return timegm(&t) + CAT_get_RTC_offset();
 }
 
 

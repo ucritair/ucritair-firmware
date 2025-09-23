@@ -9,6 +9,13 @@ LOG_MODULE_REGISTER(lcd_rendering, LOG_LEVEL_DBG);
 #include "touch.h"
 #include "rtc.h"
 #include "batt.h"
+#include "flash.h"
+#include "sensor_hal.h"
+#include "ble.h"
+#include "imu.h"
+#include "power_control.h"
+#include "epaper_rendering.h"
+#include "debugmenu.h"
 
 #include "cat_pet.h"
 #include "cat_item.h"
@@ -17,8 +24,9 @@ LOG_MODULE_REGISTER(lcd_rendering, LOG_LEVEL_DBG);
 #include "cat_aqi.h"
 #include "item_assets.h"
 #include "cat_pet.h"
-
+#include "cat_room.h"
 #include "menu_system.h"
+
 
 extern char font8x8_basic[128][8];
 
@@ -318,12 +326,7 @@ void lcd_render_diag()
 			// 	hack_after_blit-hack_before_blit, hack_cyc_after_data_write-hack_cyc_before_data_write, end_ms-start_ms);
 		}
 
-		if(CAT_eink_needs_update())
-		{
-			CAT_set_eink_update_flag(false);
-			CAT_eink_update();
-			last_eink_time = CAT_get_RTC_now();
-		}
+		CAT_eink_update_tick();
 
 		if ((k_uptime_get() - last_flash_log) > (sensor_wakeup_rate*1000) && is_ready_for_aqi_logging())
 		{

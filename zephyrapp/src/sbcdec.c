@@ -152,7 +152,7 @@ static void __attribute__((naked)) synth(OUTSAMPLE* dst, const INSAMPLE* src, FI
 		"	ldr		r1, =%0						\n\t"	//costab
 		"	movs	r3, #16						\n\t"
 		"1:										\n\t"
-		"	ldmia	r1!, {r4-r7}				\n\t"	//cos words
+		"	ldmia	r1!, {r4-r7}				\n\t"	//cosf words
 		"	smuad	r10, r4, r8					\n\t"
 		"	smlad	r10, r5, r9, r10			\n\t"
 		"	smlad	r10, r6, r12, r10			\n\t"

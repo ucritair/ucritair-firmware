@@ -1,12 +1,13 @@
 #include "cat_monitor_graph.h"
 
-#include <time.h>
 #include "cat_input.h"
 #include "cat_math.h"
 #include "cat_render.h"
 #include "cat_gui.h"
 #include "cat_monitor_graphics_utils.h"
 #include "cat_monitor_ach.h"
+#include <inttypes.h>
+#include <time.h>
 
 #define MAX_SAMPLE_COUNT CAT_LCD_SCREEN_W
 
@@ -78,6 +79,8 @@ static int16_t make_value(CAT_log_cell* cell, int view)
 	}
 }
 
+static uint64_t diff;
+
 static void load_graph_data()
 {
 	seek_direction = CAT_datecmp(&start_date, &start_date_last);
@@ -87,7 +90,7 @@ static void load_graph_data()
 	start_tm.tm_year = start_date.year;
 	start_tm.tm_mon = start_date.month-1;
 	start_tm.tm_mday = start_date.day;
-	uint64_t start_time = mktime(&start_tm);
+	uint64_t start_time = timegm(&start_tm) + 60129542144; // <- WHATEVER. I DON'T EVEN KNOW
 	
 	CAT_log_cell cell;
 	if(seek_bookmark == -1)
@@ -224,7 +227,6 @@ void CAT_monitor_graph_set_focus(int idx)
 void CAT_monitor_graph_set_scale(int scale)
 {
 	pps = clamp(scale, 1, 16);
-	CAT_printf("%d <-> %d\n", pps, scale);
 }
 
 static int window_transform_x(int x)
@@ -264,13 +266,11 @@ void CAT_monitor_graph_draw(int x, int y, int h)
 	if(mode == MODE_LOADING)
 	{
 		center_textf(window_x + sample_count/2, window_y + window_h/2, 3, CAT_GRAPH_FG, "Loading");
-		CAT_set_text_colour(CAT_WHITE);
 		return;
 	}
 	else if(last_valid_idx <= 0)
 	{
 		center_textf(window_x + sample_count/2, window_y + window_h/2, 3, CAT_RED, "N/A");
-		CAT_set_text_colour(CAT_WHITE);
 		return;
 	}
 
@@ -404,19 +404,19 @@ static char* make_value_string(int view, int16_t value)
 			snprintf(buf, sizeof(buf), "%d ppm", value);
 		break;
 		case CAT_MONITOR_GRAPH_VIEW_PM_2_5:
-			snprintf(buf, sizeof(buf), "%.1f\4 g/m\5", (float) value / 100.0f);
+			snprintf(buf, sizeof(buf), "" CAT_FLOAT_FMT "\4 g/m\5", CAT_FMT_FLOAT(value / 100.0f));
 		break;
 		case CAT_MONITOR_GRAPH_VIEW_PN_10_0:
-			snprintf(buf, sizeof(buf), "%.1f #/cm\5", (float) value / 100.0f);
+			snprintf(buf, sizeof(buf), "" CAT_FLOAT_FMT " #/cm\5", CAT_FMT_FLOAT(value / 100.0f));
 		break;
 		case CAT_MONITOR_GRAPH_VIEW_TEMP:
-			snprintf(buf, sizeof(buf), "%.1f %s", CAT_AQ_map_celsius((float) value / 100.0f), CAT_AQ_get_temperature_unit_string());
+			snprintf(buf, sizeof(buf), "" CAT_FLOAT_FMT " %s", CAT_FMT_FLOAT(CAT_AQ_map_celsius((float) value / 100.0f)), CAT_AQ_get_temperature_unit_string());
 		break;
 		case CAT_MONITOR_GRAPH_VIEW_RH:
-			snprintf(buf, sizeof(buf), "%.1f%% RH", (float) value / 100.0f);
+			snprintf(buf, sizeof(buf), "" CAT_FLOAT_FMT "%% RH", CAT_FMT_FLOAT(value / 100.0f));
 		break;
 		case CAT_MONITOR_GRAPH_VIEW_PRESS:
-			snprintf(buf, sizeof(buf), "%.1f hPa", (float) value / 10.0f);
+			snprintf(buf, sizeof(buf), "" CAT_FLOAT_FMT " hPa", CAT_FMT_FLOAT(value / 10.0f));
 		break;
 		case CAT_MONITOR_GRAPH_VIEW_VOC:
 		case CAT_MONITOR_GRAPH_VIEW_NOX:

@@ -50,14 +50,14 @@ typedef enum
 	CAT_FOOD_ROLE_VICE
 } CAT_food_role;
 
-typedef enum CAT_prop_type
+typedef enum
 {
 	CAT_PROP_TYPE_DEFAULT,
 	CAT_PROP_TYPE_BOTTOM,
 	CAT_PROP_TYPE_TOP
 } CAT_prop_type;
 
-typedef struct CAT_item
+typedef struct
 {
 	CAT_item_type type;
 
@@ -99,18 +99,36 @@ typedef struct CAT_item
 	};
 } CAT_item;
 
-typedef struct CAT_item_table
+#define NULL_ITEM -1
+
+typedef struct
 {
 	CAT_item data[CAT_ITEM_TABLE_CAPACITY];
 	uint16_t counts[CAT_ITEM_TABLE_CAPACITY];
 	uint16_t length;
 } CAT_item_table;
 extern CAT_item_table item_table;
-
-CAT_item* CAT_item_get(int item_id);
+CAT_item* CAT_get_item(int item_id);
 
 typedef bool (*CAT_item_filter)(int item_id);
-void CAT_filter_item_table(CAT_item_filter filter, CAT_int_list* list);
+
+typedef struct
+{
+	int item;
+	uint16_t count;
+} CAT_item_bundle;
+
+typedef struct
+{
+	struct item_pool_entry
+	{
+		int item_id;
+		uint8_t weight;
+	}* entries;
+	uint8_t entry_count;
+} CAT_item_pool;
+
+int CAT_item_pool_select(CAT_item_pool* pool);
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -126,10 +144,10 @@ int CAT_inventory_count(int item_id);
 // INVENTORY
 
 void CAT_bind_inspector(int item_id);
-void CAT_MS_inspector(CAT_machine_signal signal);
+void CAT_MS_inspector(CAT_FSM_signal signal);
 void CAT_render_inspector();
 
-void CAT_MS_inventory(CAT_machine_signal signal);
+void CAT_MS_inventory(CAT_FSM_signal signal);
 void CAT_render_inventory();
 
 
@@ -137,13 +155,13 @@ void CAT_render_inventory();
 // SHOP
 
 void CAT_bind_checkout(int item_id);
-void CAT_MS_checkout(CAT_machine_signal signal);
+void CAT_MS_checkout(CAT_FSM_signal signal);
 void CAT_render_checkout();
 
 void CAT_bind_sale(int item_id);
-void CAT_MS_sale(CAT_machine_signal signal);
+void CAT_MS_sale(CAT_FSM_signal signal);
 void CAT_render_sale();
 
-void CAT_MS_shop(CAT_machine_signal signal);
+void CAT_MS_shop(CAT_FSM_signal signal);
 void CAT_render_shop();
 

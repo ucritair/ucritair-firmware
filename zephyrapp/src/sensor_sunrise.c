@@ -279,7 +279,7 @@ int update_pressure_sunrise(float hPa)
 {
     int16_t raw = (int16_t)(hPa * 10.0f + 0.5f);
     CHK(Write_BarometricAirPressure(raw));  /* macro swaps on write   */
-    LOG_DBG("Pressure %.1f hPa pushed to Sunrise", hPa);
+    // LOG_DBG("Pressure %.1f hPa pushed to Sunrise", hPa);
     return 0;
 }
 

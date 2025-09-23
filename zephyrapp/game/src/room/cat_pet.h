@@ -24,8 +24,8 @@ typedef struct __attribute__((__packed__))
 	uint8_t times_milked_since_producing;
 	uint8_t milks_produced_today;
 } CAT_pet_timing_state;
-void CAT_pet_export_timing_state(volatile CAT_pet_timing_state* out);
-void CAT_pet_import_timing_state(volatile CAT_pet_timing_state* in);
+void CAT_pet_export_timing_state(CAT_pet_timing_state* out);
+void CAT_pet_import_timing_state(CAT_pet_timing_state* in);
 
 typedef struct CAT_pet
 {
@@ -72,5 +72,5 @@ void CAT_pet_post_death_report();
 void CAT_pet_dismiss_death_report();
 bool CAT_pet_needs_death_report();
 bool CAT_pet_is_death_report_posted();
-void CAT_MS_death_report(CAT_machine_signal signal);
+void CAT_MS_death_report(CAT_FSM_signal signal);
 void CAT_render_death_report();

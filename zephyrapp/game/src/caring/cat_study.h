@@ -20,4 +20,4 @@ typedef struct
 	const CAT_mesh2d* mesh;
 } CAT_fish;
 
-void CAT_MS_study(CAT_machine_signal signal);
+void CAT_MS_study(CAT_FSM_signal signal);

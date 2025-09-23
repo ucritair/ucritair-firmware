@@ -44,11 +44,11 @@ int credit_indices[NUM_CREDITS] =
 	0,1,2,3,4,5,6,7,8,9,10,11,12,13,14
 };
 
-void CAT_MS_manual(CAT_machine_signal signal)
+void CAT_MS_manual(CAT_FSM_signal signal)
 {
 	switch(signal)
 	{
-		case CAT_MACHINE_SIGNAL_ENTER:
+		case CAT_FSM_SIGNAL_ENTER:
 		{
 			CAT_set_render_callback(CAT_render_manual);
 			for(int i = 0; i < NUM_CREDITS; i++)
@@ -60,12 +60,12 @@ void CAT_MS_manual(CAT_machine_signal signal)
 			}
 			break;
 		}
-		case CAT_MACHINE_SIGNAL_TICK:
+		case CAT_FSM_SIGNAL_TICK:
 		{
 			if(CAT_input_pressed(CAT_BUTTON_B))
-				CAT_machine_back();
+				CAT_pushdown_pop();
 			if(CAT_input_pressed(CAT_BUTTON_START))
-				CAT_machine_transition(CAT_MS_room);
+				CAT_pushdown_rebase(CAT_MS_room);
 
 			if(CAT_input_pulse(CAT_BUTTON_LEFT))
 			{
@@ -82,7 +82,7 @@ void CAT_MS_manual(CAT_machine_signal signal)
 			}	
 			break;
 		}
-		case CAT_MACHINE_SIGNAL_EXIT:
+		case CAT_FSM_SIGNAL_EXIT:
 			break;
 	}
 }
