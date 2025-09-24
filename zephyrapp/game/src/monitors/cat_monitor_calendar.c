@@ -269,7 +269,7 @@ void CAT_monitor_MS_calendar(CAT_FSM_signal signal)
 			}
 			section = CELLS;
 
-			CAT_monitor_gate_init("Calendar");
+			CAT_monitor_gate_lock();
 		}
 		break;
 
@@ -278,6 +278,12 @@ void CAT_monitor_MS_calendar(CAT_FSM_signal signal)
 			switch (page)
 			{
 				case GATE:
+					if(CAT_input_dismissal())
+						CAT_monitor_dismiss();
+					if(CAT_input_pressed(CAT_BUTTON_LEFT))
+						CAT_monitor_retreat();
+					if(CAT_input_pressed(CAT_BUTTON_RIGHT))
+						CAT_monitor_advance();
 					CAT_monitor_gate_logic();
 					if(!CAT_monitor_gate_is_locked())
 						page = CALENDAR;
@@ -306,7 +312,7 @@ void CAT_monitor_render_calendar()
 	switch (page)
 	{
 		case GATE:
-			CAT_monitor_gate_render();
+			CAT_monitor_gate_draw("Calendar");
 		break;
 
 		case CALENDAR:

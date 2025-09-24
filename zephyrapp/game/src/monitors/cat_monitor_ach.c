@@ -234,7 +234,7 @@ enum mode
 	MODE_INVALID,
 	MODE_OUTCOME,
 };
-static int mode = MODE_OUTCOME;
+static int mode = MODE_GATE;
 
 static CAT_datetime target;
 static int target_part = CAT_DATE_PART_DAY;
@@ -309,8 +309,6 @@ void CAT_monitor_MS_ACH(CAT_FSM_signal signal)
 	{
 		case CAT_FSM_SIGNAL_ENTER:
 		{
-			CAT_monitor_gate_init("ACH Viewer");
-
 			if(should_fast_forward)
 			{
 				load_view(CAT_MONITOR_GRAPH_VIEW_CO2);
@@ -321,6 +319,8 @@ void CAT_monitor_MS_ACH(CAT_FSM_signal signal)
 				mode = MODE_GATE;
 				view = CAT_MONITOR_GRAPH_VIEW_PN_10_0;
 			}
+
+			CAT_monitor_gate_lock();
 		}
 		break;
 
@@ -332,6 +332,12 @@ void CAT_monitor_MS_ACH(CAT_FSM_signal signal)
 			{
 				case MODE_GATE:
 				{
+					if(CAT_input_dismissal())
+						CAT_monitor_dismiss();
+					if(CAT_input_pressed(CAT_BUTTON_LEFT))
+						CAT_monitor_retreat();
+					if(CAT_input_pressed(CAT_BUTTON_RIGHT))
+						CAT_monitor_advance();
 					CAT_monitor_gate_logic();
 					if(!CAT_monitor_gate_is_locked())
 					{
@@ -487,7 +493,7 @@ void CAT_monitor_render_ACH()
 {	
 	if(mode == MODE_GATE)
 	{
-		CAT_monitor_gate_render();
+		CAT_monitor_gate_draw("ACH Viewer");
 	}
 	else if(mode == MODE_DATE_SELECT)
 	{

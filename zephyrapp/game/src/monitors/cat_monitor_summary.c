@@ -78,7 +78,6 @@ void CAT_monitor_MS_summary(CAT_FSM_signal signal)
 				CAT_monitor_retreat();
 			if(CAT_input_pressed(CAT_BUTTON_RIGHT))
 				CAT_monitor_advance();
-
 		break;
 
 		case CAT_FSM_SIGNAL_EXIT:
