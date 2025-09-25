@@ -79,10 +79,90 @@
             "layers": [
                 [
                     {
+                        "prop": "node_grass_prop",
+                        "position": [
+                            -10.0,
+                            -22.0
+                        ],
+                        "variant": -1
+                    },
+                    {
+                        "prop": "node_grass_prop",
+                        "position": [
+                            -8.0,
+                            -22.0
+                        ],
+                        "variant": -1
+                    },
+                    {
+                        "prop": "node_grass_prop",
+                        "position": [
+                            -9.0,
+                            -21.0
+                        ],
+                        "variant": -1
+                    },
+                    {
+                        "prop": "node_stone_prop",
+                        "position": [
+                            21.0,
+                            -21.0
+                        ],
+                        "variant": -1
+                    },
+                    {
+                        "prop": "node_stone_prop",
+                        "position": [
+                            4.0,
+                            -18.0
+                        ],
+                        "variant": -1
+                    },
+                    {
+                        "prop": "node_wood_prop",
+                        "position": [
+                            -19.0,
+                            -16.0
+                        ],
+                        "variant": -1
+                    },
+                    {
+                        "prop": "node_wood_prop",
+                        "position": [
+                            -21.0,
+                            -15.0
+                        ],
+                        "variant": -1
+                    },
+                    {
                         "prop": "bldg_sm_prop",
                         "position": [
                             7,
                             -18
+                        ],
+                        "variant": -1
+                    },
+                    {
+                        "prop": "node_wood_prop",
+                        "position": [
+                            -17.0,
+                            -15.0
+                        ],
+                        "variant": -1
+                    },
+                    {
+                        "prop": "node_stone_prop",
+                        "position": [
+                            -19.0,
+                            -14.0
+                        ],
+                        "variant": -1
+                    },
+                    {
+                        "prop": "node_grass_prop",
+                        "position": [
+                            16.0,
+                            -14.0
                         ],
                         "variant": -1
                     },
@@ -99,6 +179,14 @@
                         "position": [
                             -1,
                             -17
+                        ],
+                        "variant": -1
+                    },
+                    {
+                        "prop": "node_wood_prop",
+                        "position": [
+                            -19.0,
+                            -13.0
                         ],
                         "variant": -1
                     },
@@ -135,6 +223,14 @@
                         "variant": -1
                     },
                     {
+                        "prop": "node_grass_prop",
+                        "position": [
+                            5.0,
+                            -11.0
+                        ],
+                        "variant": -1
+                    },
+                    {
                         "prop": "market_prop",
                         "position": [
                             -4,
@@ -163,6 +259,46 @@
                         "position": [
                             -8,
                             -12
+                        ],
+                        "variant": -1
+                    },
+                    {
+                        "prop": "node_grass_prop",
+                        "position": [
+                            -21.0,
+                            -10.0
+                        ],
+                        "variant": -1
+                    },
+                    {
+                        "prop": "node_grass_prop",
+                        "position": [
+                            -6.0,
+                            -9.0
+                        ],
+                        "variant": -1
+                    },
+                    {
+                        "prop": "node_stone_prop",
+                        "position": [
+                            6.0,
+                            -8.0
+                        ],
+                        "variant": -1
+                    },
+                    {
+                        "prop": "node_grass_prop",
+                        "position": [
+                            9.0,
+                            -5.0
+                        ],
+                        "variant": -1
+                    },
+                    {
+                        "prop": "node_grass_prop",
+                        "position": [
+                            -18.0,
+                            -5.0
                         ],
                         "variant": -1
                     },
@@ -207,6 +343,22 @@
                         "variant": -1
                     },
                     {
+                        "prop": "node_grass_prop",
+                        "position": [
+                            6.0,
+                            -1.0
+                        ],
+                        "variant": -1
+                    },
+                    {
+                        "prop": "node_wood_prop",
+                        "position": [
+                            -8.0,
+                            -2.0
+                        ],
+                        "variant": -1
+                    },
+                    {
                         "prop": "bench_prop",
                         "position": [
                             -10.0,
@@ -239,10 +391,34 @@
                         "variant": 1
                     },
                     {
+                        "prop": "node_stone_prop",
+                        "position": [
+                            -13.0,
+                            0.0
+                        ],
+                        "variant": -1
+                    },
+                    {
                         "prop": "statue_prop",
                         "position": [
                             -13.0,
                             -1.0
+                        ],
+                        "variant": -1
+                    },
+                    {
+                        "prop": "node_grass_prop",
+                        "position": [
+                            15.0,
+                            2.0
+                        ],
+                        "variant": -1
+                    },
+                    {
+                        "prop": "node_wood_prop",
+                        "position": [
+                            -8.0,
+                            1.0
                         ],
                         "variant": -1
                     },
@@ -279,26 +455,90 @@
                         "variant": 2
                     },
                     {
-                        "prop": "node_wood_prop",
-                        "position": [
-                            1.0,
-                            1.0
-                        ],
-                        "variant": -1
-                    },
-                    {
                         "prop": "node_stone_prop",
                         "position": [
-                            2.0,
-                            4.0
+                            1.0,
+                            2.0
                         ],
                         "variant": -1
                     },
                     {
                         "prop": "node_grass_prop",
                         "position": [
-                            1.0,
-                            6.0
+                            -5.0,
+                            2.0
+                        ],
+                        "variant": -1
+                    },
+                    {
+                        "prop": "node_grass_prop",
+                        "position": [
+                            14.0,
+                            10.0
+                        ],
+                        "variant": -1
+                    },
+                    {
+                        "prop": "node_wood_prop",
+                        "position": [
+                            -20.0,
+                            10.0
+                        ],
+                        "variant": -1
+                    },
+                    {
+                        "prop": "node_stone_prop",
+                        "position": [
+                            -18.0,
+                            11.0
+                        ],
+                        "variant": -1
+                    },
+                    {
+                        "prop": "node_wood_prop",
+                        "position": [
+                            -2.0,
+                            11.0
+                        ],
+                        "variant": -1
+                    },
+                    {
+                        "prop": "node_grass_prop",
+                        "position": [
+                            -17.0,
+                            13.0
+                        ],
+                        "variant": -1
+                    },
+                    {
+                        "prop": "node_wood_prop",
+                        "position": [
+                            0.0,
+                            16.0
+                        ],
+                        "variant": -1
+                    },
+                    {
+                        "prop": "node_grass_prop",
+                        "position": [
+                            16.0,
+                            18.0
+                        ],
+                        "variant": -1
+                    },
+                    {
+                        "prop": "node_grass_prop",
+                        "position": [
+                            -3.0,
+                            19.0
+                        ],
+                        "variant": -1
+                    },
+                    {
+                        "prop": "node_stone_prop",
+                        "position": [
+                            -2.0,
+                            23.0
                         ],
                         "variant": -1
                     }

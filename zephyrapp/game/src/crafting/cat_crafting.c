@@ -173,8 +173,23 @@ static void equivalent_exchange()
 	output = NULL_ITEM;
 }
 
-#define RECIPE_COUNT 0
-static const CAT_recipe* recipe_list[] = {};
+static const CAT_recipe wood_chair_recipe =
+{
+	.inputs = 
+	{
+		ingr_wood_item, NULL_ITEM, NULL_ITEM,
+		ingr_wood_item, ingr_wood_item, ingr_wood_item,
+		ingr_wood_item, NULL_ITEM, ingr_wood_item
+	},
+	.output = prop_chair_mahogany_item,
+	.flags = CAT_RECIPE_FLAG_NONE
+};
+
+static const CAT_recipe* recipe_list[] =
+{
+	&wood_chair_recipe
+};
+#define RECIPE_COUNT (sizeof(recipe_list)/sizeof(recipe_list[0]))
 
 void CAT_MS_crafting(CAT_FSM_signal signal)
 {

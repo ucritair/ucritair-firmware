@@ -311,6 +311,11 @@ void CAT_pet_tick()
 	remainder = time_since % CAT_LIFE_TICK_PERIOD;
 	timing_state.last_life_time = now - remainder;
 	apply_life_ticks(ticks);
+
+	if(time_since > CAT_DAY_SECONDS)
+	{
+		CAT_inventory_add(ingr_time_item, 1);
+	}
 	
 	if(CAT_pet_needs_death_report())
 	{
