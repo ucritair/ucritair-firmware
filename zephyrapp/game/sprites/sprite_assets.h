@@ -254,6 +254,17 @@ extern const CAT_sprite world_node_stone_sprite;
 extern const CAT_sprite world_node_grass_sprite;
 extern const CAT_sprite world_node_wood_sprite;
 extern const CAT_sprite ui_buttons_prompt;
+extern const CAT_sprite ingr_wood_sprite;
+extern const CAT_sprite ingr_fibre_sprite;
+extern const CAT_sprite ingr_stone_sprite;
+extern const CAT_sprite ingr_ink_sprite;
+extern const CAT_sprite ingr_water_sprite;
+extern const CAT_sprite ingr_aether_sprite;
+extern const CAT_sprite ingr_miasma_sprite;
+extern const CAT_sprite ingr_seeds_sprite;
+extern const CAT_sprite ingr_oil_sprite;
+extern const CAT_sprite ingr_clay_sprite;
+extern const CAT_sprite ingr_time_sprite;
 
 extern const CAT_sprite* sprite_list[];
-#define CAT_SPRITE_LIST_LENGTH 250
+#define CAT_SPRITE_LIST_LENGTH 261

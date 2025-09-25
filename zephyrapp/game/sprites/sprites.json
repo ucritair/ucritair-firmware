@@ -2497,7 +2497,7 @@
         {
             "id": 246,
             "name": "world_node_stone_sprite",
-            "path": "testing/node_stone.png",
+            "path": "gameplay/overworld/tile/stone.png",
             "frames": 1,
             "width": 16,
             "height": 16,
@@ -2507,7 +2507,7 @@
         {
             "id": 247,
             "name": "world_node_grass_sprite",
-            "path": "testing/node_grass.png",
+            "path": "gameplay/overworld/tile/grass.png",
             "frames": 1,
             "width": 16,
             "height": 16,
@@ -2517,7 +2517,7 @@
         {
             "id": 248,
             "name": "world_node_wood_sprite",
-            "path": "testing/node_wood.png",
+            "path": "gameplay/overworld/tile/tree-1.png",
             "frames": 1,
             "width": 16,
             "height": 32,
@@ -2532,6 +2532,116 @@
             "width": 32,
             "height": 32,
             "loop": true,
+            "reverse": false
+        },
+        {
+            "id": 250,
+            "name": "ingr_wood_sprite",
+            "path": "ingredient/wood.png",
+            "frames": 1,
+            "width": 32,
+            "height": 32,
+            "loop": false,
+            "reverse": false
+        },
+        {
+            "id": 251,
+            "name": "ingr_fibre_sprite",
+            "path": "ingredient/fiber.png",
+            "frames": 1,
+            "width": 32,
+            "height": 32,
+            "loop": false,
+            "reverse": false
+        },
+        {
+            "id": 252,
+            "name": "ingr_stone_sprite",
+            "path": "ingredient/stone.png",
+            "frames": 1,
+            "width": 32,
+            "height": 32,
+            "loop": false,
+            "reverse": false
+        },
+        {
+            "id": 253,
+            "name": "ingr_ink_sprite",
+            "path": "ingredient/ink.png",
+            "frames": 1,
+            "width": 32,
+            "height": 32,
+            "loop": false,
+            "reverse": false
+        },
+        {
+            "id": 254,
+            "name": "ingr_water_sprite",
+            "path": "ingredient/water.png",
+            "frames": 1,
+            "width": 32,
+            "height": 32,
+            "loop": false,
+            "reverse": false
+        },
+        {
+            "id": 255,
+            "name": "ingr_aether_sprite",
+            "path": "ingredient/aether.png",
+            "frames": 1,
+            "width": 32,
+            "height": 32,
+            "loop": false,
+            "reverse": false
+        },
+        {
+            "id": 256,
+            "name": "ingr_miasma_sprite",
+            "path": "ingredient/miasma.png",
+            "frames": 1,
+            "width": 32,
+            "height": 32,
+            "loop": false,
+            "reverse": false
+        },
+        {
+            "id": 257,
+            "name": "ingr_seeds_sprite",
+            "path": "ingredient/seeds.png",
+            "frames": 1,
+            "width": 32,
+            "height": 32,
+            "loop": false,
+            "reverse": false
+        },
+        {
+            "id": 258,
+            "name": "ingr_oil_sprite",
+            "path": "ingredient/oil.png",
+            "frames": 1,
+            "width": 32,
+            "height": 32,
+            "loop": false,
+            "reverse": false
+        },
+        {
+            "id": 259,
+            "name": "ingr_clay_sprite",
+            "path": "ingredient/clay.png",
+            "frames": 1,
+            "width": 32,
+            "height": 32,
+            "loop": false,
+            "reverse": false
+        },
+        {
+            "id": 260,
+            "name": "ingr_time_sprite",
+            "path": "ingredient/time.png",
+            "frames": 1,
+            "width": 32,
+            "height": 32,
+            "loop": false,
             "reverse": false
         }
     ]

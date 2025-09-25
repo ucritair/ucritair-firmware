@@ -120,3 +120,11 @@
 #define ingr_wood_item 117
 #define ingr_stone_item 118
 #define ingr_fibre_item 119
+#define ingr_clay_item 120
+#define ingr_seeds_item 121
+#define ingr_oil_item 122
+#define ingr_ink_item 123
+#define ingr_water_item 124
+#define ingr_time_item 125
+#define ingr_aether_item 126
+#define ingr_miasma_item 127
