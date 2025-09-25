@@ -87,7 +87,10 @@ void CAT_tick_logic()
 	CAT_gui_tick();
 	CAT_effects_tick();
 	CAT_eink_flag_tick();
-	//CAT_orientation_tick();
+
+	// Temporary hack
+	CAT_raise_persist_flag(CAT_PERSIST_FLAG_MANUAL_ORIENT);
+	CAT_orientation_tick();
 }
 
 void CAT_draw_eink_refresh_notice()
