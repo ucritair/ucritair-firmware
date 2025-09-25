@@ -205,7 +205,7 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 							CAT_set_eink_update_flag(true);
 						}
 
-						if(CAT_gui_menu_toggle("AUTO-FLIP SCREEN", !CAT_get_persist_flag(CAT_PERSIST_FLAG_MANUAL_ORIENT), CAT_GUI_TOGGLE_STYLE_CHECKBOX))
+						/*if(CAT_gui_menu_toggle("AUTO-FLIP SCREEN", !CAT_get_persist_flag(CAT_PERSIST_FLAG_MANUAL_ORIENT), CAT_GUI_TOGGLE_STYLE_CHECKBOX))
 						{
 							if(CAT_get_persist_flag(CAT_PERSIST_FLAG_MANUAL_ORIENT))
 								CAT_lower_persist_flag(CAT_PERSIST_FLAG_MANUAL_ORIENT);
@@ -220,7 +220,7 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 								CAT_flip_screen();
 								CAT_set_eink_update_flag(true);
 							}
-						}
+						}*/
 						CAT_gui_end_menu();
 					}
 					if(CAT_gui_begin_menu("AIR QUALITY"))
