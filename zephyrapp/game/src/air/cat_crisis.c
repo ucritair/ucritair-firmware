@@ -267,17 +267,14 @@ void CAT_AQ_crisis_tick()
 			if(type != CAT_AQ_CRISIS_TYPE_NONE && severity != CAT_AQ_CRISIS_SEVERITY_NONE)
 			{
 				uint64_t time_since_last_crisis = CAT_get_RTC_now() - crisis.end_timestamp;
-				uint16_t threshold = CAT_MINUTE_SECONDS * 30;
+				uint16_t threshold = CAT_HOUR_SECONDS;
 
-				// Crises of different types can occur one after the other within 30 minutes
-				// Most crises of the same type can occur once per hour
-				// Therm crises can only occur once every 2 hours
 				if(type == crisis.type)
 				{
 					if(type == CAT_AQ_CRISIS_TYPE_TEMP_RH)
-						threshold = CAT_HOUR_SECONDS * 2;
+						threshold = CAT_HOUR_SECONDS * 4;
 					else
-						threshold = CAT_HOUR_SECONDS;
+						threshold = CAT_HOUR_SECONDS * 2;
 				}
 
 				if(time_since_last_crisis >= threshold)
