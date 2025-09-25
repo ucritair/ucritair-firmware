@@ -82,9 +82,9 @@ bool CAT_eink_update_tick()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // SCREEN MANAGEMENT
 
-static CAT_screen_orientation screen_orientation = CAT_SCREEN_ORIENTATION_UP;
+static uint8_t screen_orientation = CAT_SCREEN_ORIENTATION_UP;
 
-void CAT_set_screen_orientation(CAT_screen_orientation orientation)
+void CAT_set_screen_orientation(int orientation)
 {
 	screen_orientation = orientation;
 }

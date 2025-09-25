@@ -91,7 +91,7 @@ typedef enum
 	CAT_SCREEN_ORIENTATION_DOWN
 } CAT_screen_orientation;
 
-void CAT_set_screen_orientation(CAT_screen_orientation orientation);
+void CAT_set_screen_orientation(int orientation);
 CAT_screen_orientation CAT_get_screen_orientation();
 
 void CAT_poll_screen_flip();

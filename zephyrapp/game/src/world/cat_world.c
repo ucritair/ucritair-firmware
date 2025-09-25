@@ -11,6 +11,7 @@
 #include "scene_assets.h"
 #include "cat_menu.h"
 #include "prop_assets.h"
+#include <stdint.h>
 
 //////////////////////////////////////////////////////////////////////////
 // PLAYER
@@ -20,6 +21,9 @@
 #define PLAYER_W 1
 #define PLAYER_H 1
 #define WALK_FRAME_PERIOD 2
+#define WALK_SPEED 4
+#define RUN_SPEED 8
+#define SPRINT_SPEED 16
 
 static int player_x = 0;
 static int player_y = 0;
@@ -50,6 +54,7 @@ static int player_dx = 0;
 static int player_dy = 0;
 static int player_x_slide = 0;
 static int player_y_slide = 0;
+static bool player_running = false;
 
 static int player_step_frame = 0;
 static int step_frame_counter = 0;
@@ -118,8 +123,8 @@ void player_motion_input()
 				if(!newer || is_walking())
 					continue;
 				player_direction = i;
-				player_dx = movement_deltas[i][0]*2;
-				player_dy = movement_deltas[i][1]*2;
+				player_dx = movement_deltas[i][0];
+				player_dy = movement_deltas[i][1];
 				frames = frames_candidate;
 				return;
 			}
@@ -151,15 +156,17 @@ void player_motion_input()
 
 void player_motion_logic()
 {
+	uint8_t speed = player_running ? RUN_SPEED : WALK_SPEED;
+
 	if(player_x_slide > 0)
 	{
-		player_x_slide = max(player_x_slide-4, 0);
+		player_x_slide = max(player_x_slide-speed, 0);
 		if(player_x_slide == 0)
 			player_x += player_dx;
 	}
 	if(player_y_slide > 0)
 	{
-		player_y_slide = max(player_y_slide-4, 0);
+		player_y_slide = max(player_y_slide-speed, 0);
 		if(player_y_slide == 0)
 			player_y += player_dy;
 	}
@@ -228,6 +235,8 @@ void player_interaction_logic()
 			proc(instance);
 		}
 	}
+
+	player_running = CAT_input_down(CAT_BUTTON_B);
 }
 
 void tick_player()

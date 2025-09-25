@@ -291,7 +291,7 @@ void lcd_render_diag()
 					{
 						int y_flip = LCD_FRAMEBUFFER_H - y - 1;
 						int x_flip = LCD_FRAMEBUFFER_W - x - 1;
-						int temp = lcd_framebuffer[y_flip * LCD_FRAMEBUFFER_W + x_flip];
+						uint16_t temp = lcd_framebuffer[y_flip * LCD_FRAMEBUFFER_W + x_flip];
 						lcd_framebuffer[y_flip * LCD_FRAMEBUFFER_W + x_flip] = lcd_framebuffer[y * LCD_FRAMEBUFFER_W + x];
 						lcd_framebuffer[y * LCD_FRAMEBUFFER_W + x] = temp;
 					}
@@ -306,7 +306,8 @@ void lcd_render_diag()
 
 			if (step != (LCD_FRAMEBUFFER_SEGMENTS-1))
 			{
-				while (!write_done) {
+				while (!write_done)
+				{
 					lockmask |= (1<<step);
 					k_usleep(250);
 				}
