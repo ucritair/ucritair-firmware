@@ -140,7 +140,10 @@ void CAT_monitor_exit()
 
 void CAT_monitor_dismiss()
 {
-	CAT_monitor_seek(CAT_MONITOR_PAGE_GAMEPLAY);
+	if(CAT_AQ_is_crisis_ongoing())
+		CAT_monitor_seek(CAT_MONITOR_PAGE_GAMEPLAY);
+	else
+		CAT_pushdown_rebase(CAT_MS_room);
 }
 
 void CAT_MS_monitor(CAT_FSM_signal signal)

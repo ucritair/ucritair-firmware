@@ -72,8 +72,8 @@ bool CAT_eink_update_tick()
 {
 	if(!CAT_eink_needs_update())
 		return false;
-	CAT_set_eink_update_flag(false);
 	CAT_eink_update();
+	CAT_set_eink_update_flag(false);
 	eink_update_timestamp = CAT_get_RTC_now();
 	return true;
 }
@@ -141,6 +141,7 @@ void CAT_flip_screen()
 	screen_orientation = !screen_orientation;
 	for(int i = 0; i < FLIP_BUFFER_SIZE; i++)
 		flip_buffer[i] = false;
+	CAT_set_eink_update_flag(true);
 }
 
 void CAT_orientation_tick()
@@ -149,10 +150,7 @@ void CAT_orientation_tick()
 	{
 		CAT_poll_screen_flip();
 		if(CAT_should_flip_screen())
-		{
 			CAT_flip_screen();
-			CAT_set_eink_update_flag(true);
-		}
 	}
 }
 

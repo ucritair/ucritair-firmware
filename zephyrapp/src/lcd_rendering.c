@@ -137,7 +137,7 @@ void lcd_render_diag()
 
 		ble_update();
 
-		guy_is_wearing_mask = item_table.counts[mask_item] > 0;
+		guy_is_wearing_mask = CAT_inventory_count(mask_item) > 0;
 		if (CAT_room_prop_lookup(prop_purifier_item) != -1 && CAT_room_prop_lookup(prop_uv_lamp_item) != -1)
 		{
 			guy_happiness = 2;
@@ -152,7 +152,6 @@ void lcd_render_diag()
 		}
 
 		memcpy(guy_name, pet.name, sizeof(guy_name));
-		
 		guy_level = pet.level;
 
 		touch_update();
@@ -167,20 +166,20 @@ void lcd_render_diag()
 			in_debug_menu = true;
 		}
 
-		int now = k_uptime_get();
-		last_frame_time = now - last_ms;
-		last_ms = now;
+		int now_ms = k_uptime_get();
+		last_frame_time = now_ms - last_ms;
+		last_ms = now_ms;
 
 		screen_brightness = CAT_LCD_get_brightness();
 		led_brightness = CAT_LED_get_brightness();
 
 		if (current_buttons || touch_pressure || co2_calibrating || (charging_last_frame != is_charging))
 		{
-			last_button_pressed = now;
+			last_button_pressed = now_ms;
 			set_backlight(screen_brightness);
 		}
 
-		int time_since_buttons = now - last_button_pressed;
+		int time_since_buttons = now_ms - last_button_pressed;
 
 		if (time_since_buttons > sleep_after_seconds*1000)
 		{
@@ -207,16 +206,16 @@ void lcd_render_diag()
 		//////////////////////////////////////////////////////////
 		// AQ SPARKLINE STORE
 
-		uint64_t current_second = CAT_get_RTC_now();
-		uint64_t time_since = current_second - aq_last_moving_score_time;
+		uint64_t now = CAT_get_RTC_now();
+		uint64_t time_since = now - aq_last_moving_score_time;
 
 		if(time_since > 5 && CAT_AQ_sensors_initialized())
 		{
 			CAT_AQ_update_moving_scores();
-			aq_last_moving_score_time = current_second;
+			aq_last_moving_score_time = now;
 		}
 		
-		time_since = current_second - aq_last_buffered_score_time;
+		time_since = now - aq_last_buffered_score_time;
 		if(time_since > CAT_AQ_SPARKLINE_SAMPLE_PERIOD && CAT_AQ_sensors_initialized())
 		{
 			if(is_first_init)
@@ -225,7 +224,7 @@ void lcd_render_diag()
 			}
 
 			CAT_AQ_score_buffer_push(CAT_AQ_get_moving_scores());
-			aq_last_buffered_score_time = current_second;
+			aq_last_buffered_score_time = now;
 		}
 
 		//////////////////////////////////////////////////////////
@@ -327,6 +326,12 @@ void lcd_render_diag()
 		}
 
 		CAT_eink_update_tick();
+
+		int battery = CAT_get_battery_pct();
+		if (battery == 0)
+       		CAT_shutdown();
+		else if(battery <= 10)
+			epaper_render_protected_off();
 
 		if ((k_uptime_get() - last_flash_log) > (sensor_wakeup_rate*1000) && is_ready_for_aqi_logging())
 		{

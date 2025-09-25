@@ -110,23 +110,10 @@ PERSIST_RAM uint8_t framebuffer_fast_update_count;
 
 void epaper_render_test()
 {
-	int batt_pct = CAT_get_battery_pct();
-
-    // Low battery paths first — do no extra work.
-    if (batt_pct == 0) {
-        epaper_render_protected_off();
-        CAT_shutdown();
-        return;
-    } else if (batt_pct <= 10) {
-        epaper_render_protected_off();
-        return;
-    }
+	char buf[256] = {0};
+	#define fwrite_str(x, y, s, str, ...) snprintf(buf, sizeof(buf), str, ##__VA_ARGS__); write_str(epaper_framebuffer, x, y, s, buf);
 
 	memset(epaper_framebuffer, 0, sizeof(epaper_framebuffer));
-
-	char buf[256] = {0};
-
-	#define fwrite_str(x, y, s, str, ...) snprintf(buf, sizeof(buf), str, ##__VA_ARGS__); write_str(epaper_framebuffer, x, y, s, buf);
 
 	struct tm t;
 	time_t now = get_current_rtc_time();
@@ -193,19 +180,15 @@ void epaper_render_test()
 
 	fwrite_str(0, EPD_IMAGE_H-8, 1, " %s LV%d", guy_name, guy_level+1);
 
-	imu_update();
-
 	pc_set_mode(false);
 	if (is_first_init || framebuffer_fast_update_count > 50)
 	{
-		//LOG_DBG("Opted to global update, is_first_init=%d, framebuffer_fast_update_count=%d", is_first_init, framebuffer_fast_update_count);
-		is_first_init = false;
 		cmd_turn_on_and_write(epaper_framebuffer);
+		is_first_init = false;
 		framebuffer_fast_update_count = 0;
 	}
 	else
 	{
-		//LOG_DBG("Opted to fast update, framebuffer_fast_update_count=%d", framebuffer_fast_update_count);
 		cmd_turn_on_and_write_fast(old_epaper_framebuffer, epaper_framebuffer);
 		framebuffer_fast_update_count++;
 	}
@@ -217,6 +200,7 @@ void epaper_render_test()
 void epaper_render_protected_off()
 {
 	memset(epaper_framebuffer, 0, sizeof(epaper_framebuffer));
+
 	blit_image(epaper_framebuffer, &epaper_image_protected, 0, 0);
 
 	write_str(epaper_framebuffer, 128, 52, 1, "Device is");

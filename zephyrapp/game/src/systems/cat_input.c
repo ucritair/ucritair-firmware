@@ -223,24 +223,10 @@ void CAT_input_init()
 	buffer_head = 0;
 }
 
-uint16_t swap_mask_bits(uint16_t mask, int a_idx, int b_idx)
-{
-	uint16_t x = ((mask >> a_idx) ^ (mask >> b_idx)) & 1;
-	return ((x << a_idx) | (x << b_idx)) ^ mask;
-}
-
 void tick_buttons()
 {
 	const float dt = CAT_get_delta_time_s();
-
 	uint16_t raw = CAT_get_buttons();
-	if(CAT_get_screen_orientation() == CAT_SCREEN_ORIENTATION_DOWN)
-	{
-		raw = swap_mask_bits(raw, CAT_BUTTON_UP, CAT_BUTTON_DOWN);
-		raw = swap_mask_bits(raw, CAT_BUTTON_LEFT, CAT_BUTTON_RIGHT);
-		raw = swap_mask_bits(raw, CAT_BUTTON_A, CAT_BUTTON_B);
-		raw = swap_mask_bits(raw, CAT_BUTTON_START, CAT_BUTTON_SELECT);
-	}
 	
 	for(int i = 0; i < CAT_BUTTON_LAST; i++)
 	{
