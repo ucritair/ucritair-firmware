@@ -2563,6 +2563,16 @@
             "height": 32,
             "loop": false,
             "reverse": false
+        },
+        {
+            "id": 253,
+            "name": "ui_buttons_prompt",
+            "path": "ui/buttons_icon.png",
+            "frames": 2,
+            "width": 32,
+            "height": 32,
+            "loop": true,
+            "reverse": false
         }
     ]
 }

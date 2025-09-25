@@ -54,7 +54,6 @@ void lcd_blit(int x, int y, int w, int h, uint16_t* buffer)
 	};
 
 	hack_before_blit = k_cycle_get_32();
-	
 	display_write(display_dev, x, y, &desc, buffer);
 	hack_after_blit = k_cycle_get_32();
 }

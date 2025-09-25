@@ -16,7 +16,7 @@ static bool focused = false;
 static bool selecting = false;
 static bool collecting = false;
 
-bool incl_excl_pass(const CAT_recipe* recipe, CAT_item_bundle* inputs)
+static bool incl_excl_pass(const CAT_recipe* recipe, CAT_item_bundle* inputs)
 {
 	int recipe_count = 0;
 	for(int i = 0; i < 9; i++)
@@ -47,7 +47,7 @@ bool incl_excl_pass(const CAT_recipe* recipe, CAT_item_bundle* inputs)
 	return true;
 }
 
-void get_bounding_box
+static void get_bounding_box
 (
 	CAT_recipe* recipe,
 	CAT_item_bundle* inputs,
@@ -76,7 +76,7 @@ void get_bounding_box
 	}
 }
 
-bool shape_pass(const CAT_recipe* recipe, CAT_item_bundle* inputs)
+static bool shape_pass(const CAT_recipe* recipe, CAT_item_bundle* inputs)
 {
 	int r0_r, c0_r, r1_r, c1_r;
 	get_bounding_box(recipe, NULL, &r0_r, &c0_r, &r1_r, &c1_r);
@@ -112,7 +112,7 @@ bool shape_pass(const CAT_recipe* recipe, CAT_item_bundle* inputs)
 	return true;
 }
 
-bool recipe_validate(const CAT_recipe* recipe, CAT_item_bundle* inputs)
+static bool recipe_validate(const CAT_recipe* recipe, CAT_item_bundle* inputs)
 {
 	if(!incl_excl_pass(recipe, inputs))
 		return false;
@@ -121,7 +121,7 @@ bool recipe_validate(const CAT_recipe* recipe, CAT_item_bundle* inputs)
 	return true;
 }
 
-int get_total(int item_id)
+static int get_total(int item_id)
 {
 	int total = 0;
 	for(int i = 0; i < 9; i++)
@@ -129,7 +129,7 @@ int get_total(int item_id)
 	return total;
 }
 
-bool increase_count(int idx)
+static bool increase_count(int idx)
 {
 	int item = inputs[idx].item;
 	int total = get_total(item);
@@ -141,7 +141,7 @@ bool increase_count(int idx)
 	return false;
 }
 
-bool decrease_count(int idx)
+static bool decrease_count(int idx)
 {
 	if(inputs[idx].count > 1)
 	{
@@ -151,7 +151,7 @@ bool decrease_count(int idx)
 	return false;
 }
 
-void select_proc(int item_id)
+static void select_proc(int item_id)
 {
 	inputs[selector] = (CAT_item_bundle)
 	{
@@ -161,11 +161,11 @@ void select_proc(int item_id)
 	selecting = false;
 }
 
-void equivalent_exchange(const CAT_recipe* recipe)
+static void equivalent_exchange()
 {
 	for(int i = 0; i < 9; i++)
 	{
-		int item_id = recipe->inputs[i];
+		int item_id = inputs[i].item;
 		inputs[i].count -= 1;
 		CAT_inventory_remove(item_id, 1);
 	}
@@ -173,7 +173,8 @@ void equivalent_exchange(const CAT_recipe* recipe)
 	output = NULL_ITEM;
 }
 
-CAT_recipe recipe;
+#define RECIPE_COUNT 0
+static const CAT_recipe* recipe_list[] = {};
 
 void CAT_MS_crafting(CAT_FSM_signal signal)
 {
@@ -192,23 +193,7 @@ void CAT_MS_crafting(CAT_FSM_signal signal)
 					.count = 0
 				};
 			}
-
-			for(int r = 0; r < 3; r++)
-			{
-				for(int c = 0; c < 3; c++)
-				{
-					int i = r * 3 + c;
-					if(i != 4)
-					{
-						recipe.inputs[i] = coin_item;
-					}
-					else
-					{
-						recipe.inputs[r * 3 + c] = -1;
-					}
-				}
-			}
-			recipe.output = food_salmon_item;
+			output = NULL_ITEM;
 		}
 		break;
 
@@ -247,8 +232,8 @@ void CAT_MS_crafting(CAT_FSM_signal signal)
 				{
 					if(CAT_input_pressed(CAT_BUTTON_DOWN) || CAT_input_pressed(CAT_BUTTON_B))
 						collecting = false;
-					if(CAT_input_pressed(CAT_BUTTON_A))
-						equivalent_exchange(&recipe);
+					if(CAT_input_pressed(CAT_BUTTON_A) && output != NULL_ITEM)
+						equivalent_exchange();
 				}
 				else
 				{
@@ -287,10 +272,15 @@ void CAT_MS_crafting(CAT_FSM_signal signal)
 				if(inputs[i].count <= 0)
 					inputs[i].item = NULL_ITEM;
 			}
-			if(recipe_validate(&recipe, inputs))
-				output = recipe.output;
-			else
-				output = NULL_ITEM;
+
+			output = NULL_ITEM;
+			for(int i = 0; i < RECIPE_COUNT; i++)
+			{
+				if(recipe_validate(recipe_list[i], inputs))
+				{
+					output = recipe_list[i]->output;
+				}
+			}
 		}
 		break;
 
