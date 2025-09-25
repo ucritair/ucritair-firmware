@@ -131,6 +131,8 @@ void player_motion_input()
 		}
 	}
 
+	player_running = CAT_input_down(CAT_BUTTON_B);
+
 	if(frames == 1)
 	{
 		if(player_direction != direction_last)
@@ -235,8 +237,6 @@ void player_interaction_logic()
 			proc(instance);
 		}
 	}
-
-	player_running = CAT_input_down(CAT_BUTTON_B);
 }
 
 void tick_player()
