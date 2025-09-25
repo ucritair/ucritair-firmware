@@ -130,10 +130,6 @@ extern const CAT_sprite pet_idle_low_spi_sprite;
 extern const CAT_sprite pet_idle_low_vig_sprite;
 extern const CAT_sprite pet_idle_sprite;
 extern const CAT_sprite pet_play_a_sprite;
-extern const CAT_sprite pet_play_b_sprite;
-extern const CAT_sprite pet_play_c_sprite;
-extern const CAT_sprite pet_play_sprite_2_sprite;
-extern const CAT_sprite pet_play_sprite_3_sprite;
 extern const CAT_sprite pet_pounce_sprite;
 extern const CAT_sprite pet_spi_up_sprite;
 extern const CAT_sprite pet_study_in_sprite;
@@ -260,4 +256,4 @@ extern const CAT_sprite world_node_wood_sprite;
 extern const CAT_sprite ui_buttons_prompt;
 
 extern const CAT_sprite* sprite_list[];
-#define CAT_SPRITE_LIST_LENGTH 254
+#define CAT_SPRITE_LIST_LENGTH 250

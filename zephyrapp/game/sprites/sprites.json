@@ -1017,7 +1017,7 @@
         {
             "id": 98,
             "name": "pet_crit_foc_in_sprite",
-            "path": "pet/unicorn_tipped_a.png",
+            "path": "pet/canary/tipped/transition.png",
             "frames": 6,
             "width": 64,
             "height": 48,
@@ -1027,7 +1027,7 @@
         {
             "id": 99,
             "name": "pet_crit_foc_out_sprite",
-            "path": "pet/unicorn_tipped_a.png",
+            "path": "pet/canary/tipped/transition.png",
             "frames": 6,
             "width": 64,
             "height": 48,
@@ -1037,7 +1037,7 @@
         {
             "id": 100,
             "name": "pet_crit_foc_sprite",
-            "path": "pet/unicorn_tipped.png",
+            "path": "pet/canary/tipped/idle.png",
             "frames": 1,
             "width": 64,
             "height": 48,
@@ -1047,7 +1047,7 @@
         {
             "id": 101,
             "name": "pet_crit_spi_in_sprite",
-            "path": "pet/unicorn_block_a.png",
+            "path": "pet/canary/block/transition.png",
             "frames": 15,
             "width": 64,
             "height": 48,
@@ -1057,7 +1057,7 @@
         {
             "id": 102,
             "name": "pet_crit_spi_out_sprite",
-            "path": "pet/unicorn_block_a.png",
+            "path": "pet/canary/block/transition.png",
             "frames": 15,
             "width": 64,
             "height": 48,
@@ -1067,7 +1067,7 @@
         {
             "id": 103,
             "name": "pet_crit_spi_sprite",
-            "path": "pet/unicorn_block_blink_static.png",
+            "path": "pet/canary/block/idle.png",
             "frames": 1,
             "width": 64,
             "height": 48,
@@ -1077,7 +1077,7 @@
         {
             "id": 104,
             "name": "pet_crit_vig_in_sprite",
-            "path": "pet/unicorn_melt_a.png",
+            "path": "pet/canary/melt/transition.png",
             "frames": 8,
             "width": 64,
             "height": 48,
@@ -1087,7 +1087,7 @@
         {
             "id": 105,
             "name": "pet_crit_vig_out_sprite",
-            "path": "pet/unicorn_melt_a.png",
+            "path": "pet/canary/melt/transition.png",
             "frames": 8,
             "width": 64,
             "height": 48,
@@ -1097,7 +1097,7 @@
         {
             "id": 106,
             "name": "pet_crit_vig_sprite",
-            "path": "pet/unicorn_melt.png",
+            "path": "pet/canary/melt/idle.png",
             "frames": 1,
             "width": 64,
             "height": 48,
@@ -1107,7 +1107,7 @@
         {
             "id": 107,
             "name": "pet_eat_in_sprite",
-            "path": "pet/unicorn_eat_lower_a.png",
+            "path": "pet/canary/eat/transition.png",
             "frames": 7,
             "width": 64,
             "height": 48,
@@ -1117,7 +1117,7 @@
         {
             "id": 108,
             "name": "pet_eat_out_sprite",
-            "path": "pet/unicorn_eat_lower_a.png",
+            "path": "pet/canary/eat/transition.png",
             "frames": 7,
             "width": 64,
             "height": 48,
@@ -1127,7 +1127,7 @@
         {
             "id": 109,
             "name": "pet_eat_sprite",
-            "path": "pet/unicorn_eat_chew_a.png",
+            "path": "pet/canary/eat/idle.png",
             "frames": 2,
             "width": 64,
             "height": 48,
@@ -1137,7 +1137,7 @@
         {
             "id": 110,
             "name": "pet_feed_back_sprite",
-            "path": "minigame/munch_unicorn_back_a.png",
+            "path": "minigame/munch_canary_back_a.png",
             "frames": 4,
             "width": 128,
             "height": 96,
@@ -1147,7 +1147,7 @@
         {
             "id": 111,
             "name": "pet_feed_bad_sprite",
-            "path": "minigame/munch_unicorn_side_sad.png",
+            "path": "minigame/munch_canary_side_sad.png",
             "frames": 1,
             "width": 96,
             "height": 112,
@@ -1157,7 +1157,7 @@
         {
             "id": 112,
             "name": "pet_feed_good_sprite",
-            "path": "minigame/munch_unicorn_side_happy.png",
+            "path": "minigame/munch_canary_side_happy.png",
             "frames": 1,
             "width": 96,
             "height": 112,
@@ -1167,7 +1167,7 @@
         {
             "id": 113,
             "name": "pet_feed_neutral_sprite",
-            "path": "minigame/munch_unicorn_side.png",
+            "path": "minigame/munch_canary_side_blank.png",
             "frames": 1,
             "width": 96,
             "height": 112,
@@ -1177,7 +1177,7 @@
         {
             "id": 114,
             "name": "pet_feed_very_bad_sprite",
-            "path": "minigame/munch_unicorn_side_mad.png",
+            "path": "minigame/munch_canary_side_mad.png",
             "frames": 1,
             "width": 96,
             "height": 112,
@@ -1187,7 +1187,7 @@
         {
             "id": 115,
             "name": "pet_foc_up_sprite",
-            "path": "pet/unicorn_stat_focus_up_a.png",
+            "path": "pet/canary/stat/focus.png",
             "frames": 13,
             "width": 64,
             "height": 48,
@@ -1197,7 +1197,7 @@
         {
             "id": 116,
             "name": "pet_high_vig_in_sprite",
-            "path": "pet/unicorn_wing_a.png",
+            "path": "pet/unicorn/wing/transition.png",
             "frames": 13,
             "width": 64,
             "height": 48,
@@ -1207,7 +1207,7 @@
         {
             "id": 117,
             "name": "pet_high_vig_out_sprite",
-            "path": "pet/unicorn_wing_a.png",
+            "path": "pet/unicorn/wing/transition.png",
             "frames": 13,
             "width": 64,
             "height": 48,
@@ -1217,7 +1217,7 @@
         {
             "id": 118,
             "name": "pet_idle_high_foc_sprite",
-            "path": "pet/unicorn_glow_idle_a.png",
+            "path": "pet/canary/glow/idle.png",
             "frames": 4,
             "width": 64,
             "height": 48,
@@ -1227,7 +1227,7 @@
         {
             "id": 119,
             "name": "pet_idle_high_spi_sprite",
-            "path": "pet/unicorn_shimmer_idle_a.png",
+            "path": "pet/canary/shimmer/idle.png",
             "frames": 4,
             "width": 64,
             "height": 48,
@@ -1237,7 +1237,7 @@
         {
             "id": 120,
             "name": "pet_idle_high_vig_sprite",
-            "path": "pet/unicorn_wing_idle_a.png",
+            "path": "pet/canary/wing/idle.png",
             "frames": 4,
             "width": 64,
             "height": 48,
@@ -1247,7 +1247,7 @@
         {
             "id": 121,
             "name": "pet_idle_low_foc_sprite",
-            "path": "pet/unicorn_messy_stink_a.png",
+            "path": "pet/canary/messy/stinky.png",
             "frames": 8,
             "width": 64,
             "height": 48,
@@ -1257,7 +1257,7 @@
         {
             "id": 122,
             "name": "pet_idle_low_spi_sprite",
-            "path": "pet/unicorn_sad_idle_a.png",
+            "path": "pet/canary/default/idle.png",
             "frames": 4,
             "width": 64,
             "height": 48,
@@ -1267,7 +1267,7 @@
         {
             "id": 123,
             "name": "pet_idle_low_vig_sprite",
-            "path": "pet/unicorn_tired_a.png",
+            "path": "pet/canary/tired/idle.png",
             "frames": 4,
             "width": 64,
             "height": 48,
@@ -1277,7 +1277,7 @@
         {
             "id": 124,
             "name": "pet_idle_sprite",
-            "path": "pet/unicorn_idle_complex_a.png",
+            "path": "pet/canary/default/idle.png",
             "frames": 4,
             "width": 64,
             "height": 48,
@@ -1287,7 +1287,7 @@
         {
             "id": 125,
             "name": "pet_play_a_sprite",
-            "path": "pet/unicorn_play_knead_a.png",
+            "path": "pet/canary/play/knead.png",
             "frames": 6,
             "width": 64,
             "height": 48,
@@ -1296,48 +1296,8 @@
         },
         {
             "id": 126,
-            "name": "pet_play_b_sprite",
-            "path": "pet/unicorn_play_b_a.png",
-            "frames": 6,
-            "width": 64,
-            "height": 48,
-            "loop": true,
-            "reverse": false
-        },
-        {
-            "id": 127,
-            "name": "pet_play_c_sprite",
-            "path": "pet/unicorn_play_c_a.png",
-            "frames": 6,
-            "width": 64,
-            "height": 48,
-            "loop": true,
-            "reverse": false
-        },
-        {
-            "id": 128,
-            "name": "pet_play_sprite_2_sprite",
-            "path": "pet/unicorn_play_b_a.png",
-            "frames": 6,
-            "width": 64,
-            "height": 48,
-            "loop": true,
-            "reverse": false
-        },
-        {
-            "id": 129,
-            "name": "pet_play_sprite_3_sprite",
-            "path": "pet/unicorn_play_c_a.png",
-            "frames": 6,
-            "width": 64,
-            "height": 48,
-            "loop": true,
-            "reverse": false
-        },
-        {
-            "id": 130,
             "name": "pet_pounce_sprite",
-            "path": "pet/unicorn_pounce_a.png",
+            "path": "pet/canary/play/pounce.png",
             "frames": 10,
             "width": 128,
             "height": 48,
@@ -1345,9 +1305,49 @@
             "reverse": false
         },
         {
-            "id": 131,
+            "id": 127,
             "name": "pet_spi_up_sprite",
-            "path": "pet/unicorn_stat_spirit_up_a.png",
+            "path": "pet/canary/stat/spirit.png",
+            "frames": 13,
+            "width": 64,
+            "height": 48,
+            "loop": true,
+            "reverse": false
+        },
+        {
+            "id": 128,
+            "name": "pet_study_in_sprite",
+            "path": "pet/canary/read/transition.png",
+            "frames": 6,
+            "width": 64,
+            "height": 48,
+            "loop": false,
+            "reverse": false
+        },
+        {
+            "id": 129,
+            "name": "pet_study_out_sprite",
+            "path": "pet/canary/read/transition.png",
+            "frames": 6,
+            "width": 64,
+            "height": 48,
+            "loop": false,
+            "reverse": true
+        },
+        {
+            "id": 130,
+            "name": "pet_study_sprite",
+            "path": "pet/canary/read/idle.png",
+            "frames": 1,
+            "width": 64,
+            "height": 48,
+            "loop": true,
+            "reverse": false
+        },
+        {
+            "id": 131,
+            "name": "pet_vig_up_sprite",
+            "path": "pet/canary/stat/vigor.png",
             "frames": 13,
             "width": 64,
             "height": 48,
@@ -1356,29 +1356,29 @@
         },
         {
             "id": 132,
-            "name": "pet_study_in_sprite",
-            "path": "pet/unicorn_read_sit_a.png",
-            "frames": 6,
+            "name": "pet_walk_high_foc_sprite",
+            "path": "pet/canary/glow/walk.png",
+            "frames": 4,
             "width": 64,
             "height": 48,
-            "loop": false,
+            "loop": true,
             "reverse": false
         },
         {
             "id": 133,
-            "name": "pet_study_out_sprite",
-            "path": "pet/unicorn_read_sit_a.png",
-            "frames": 6,
+            "name": "pet_walk_high_spi_sprite",
+            "path": "pet/canary/shimmer/walk.png",
+            "frames": 4,
             "width": 64,
             "height": 48,
-            "loop": false,
-            "reverse": true
+            "loop": true,
+            "reverse": false
         },
         {
             "id": 134,
-            "name": "pet_study_sprite",
-            "path": "pet/unicorn_read_sit.png",
-            "frames": 1,
+            "name": "pet_walk_high_vig_sprite",
+            "path": "pet/canary/wing/walk.png",
+            "frames": 4,
             "width": 64,
             "height": 48,
             "loop": true,
@@ -1386,9 +1386,9 @@
         },
         {
             "id": 135,
-            "name": "pet_vig_up_sprite",
-            "path": "pet/unicorn_stat_vigor_up_a.png",
-            "frames": 13,
+            "name": "pet_walk_low_foc_sprite",
+            "path": "pet/canary/messy/walk.png",
+            "frames": 4,
             "width": 64,
             "height": 48,
             "loop": true,
@@ -1396,8 +1396,8 @@
         },
         {
             "id": 136,
-            "name": "pet_walk_high_foc_sprite",
-            "path": "pet/unicorn_glow_walk_a.png",
+            "name": "pet_walk_low_spi_sprite",
+            "path": "pet/canary/sad/walk.png",
             "frames": 4,
             "width": 64,
             "height": 48,
@@ -1406,8 +1406,8 @@
         },
         {
             "id": 137,
-            "name": "pet_walk_high_spi_sprite",
-            "path": "pet/unicorn_shimmer_walk_a.png",
+            "name": "pet_walk_low_vig_sprite",
+            "path": "pet/canary/tired/walk.png",
             "frames": 4,
             "width": 64,
             "height": 48,
@@ -1416,8 +1416,8 @@
         },
         {
             "id": 138,
-            "name": "pet_walk_high_vig_sprite",
-            "path": "pet/unicorn_wing_walk_a.png",
+            "name": "pet_walk_sprite",
+            "path": "pet/canary/default/walk.png",
             "frames": 4,
             "width": 64,
             "height": 48,
@@ -1426,46 +1426,6 @@
         },
         {
             "id": 139,
-            "name": "pet_walk_low_foc_sprite",
-            "path": "pet/unicorn_messy_walk_complex_a.png",
-            "frames": 4,
-            "width": 64,
-            "height": 48,
-            "loop": true,
-            "reverse": false
-        },
-        {
-            "id": 140,
-            "name": "pet_walk_low_spi_sprite",
-            "path": "pet/unicorn_sad_walk_a.png",
-            "frames": 4,
-            "width": 64,
-            "height": 48,
-            "loop": true,
-            "reverse": false
-        },
-        {
-            "id": 141,
-            "name": "pet_walk_low_vig_sprite",
-            "path": "pet/unicorn_tired_walk_a.png",
-            "frames": 4,
-            "width": 64,
-            "height": 48,
-            "loop": true,
-            "reverse": false
-        },
-        {
-            "id": 142,
-            "name": "pet_walk_sprite",
-            "path": "pet/unicorn_default_walk_complex_a.png",
-            "frames": 4,
-            "width": 64,
-            "height": 48,
-            "loop": true,
-            "reverse": false
-        },
-        {
-            "id": 143,
             "name": "pill_foc_sprite",
             "path": "food/seed_focus_sm.png",
             "frames": 1,
@@ -1475,7 +1435,7 @@
             "reverse": false
         },
         {
-            "id": 144,
+            "id": 140,
             "name": "pill_spi_sprite",
             "path": "food/seed_spirit_sm.png",
             "frames": 1,
@@ -1485,7 +1445,7 @@
             "reverse": false
         },
         {
-            "id": 145,
+            "id": 141,
             "name": "pill_vig_sprite",
             "path": "food/seed_vigor_sm.png",
             "frames": 1,
@@ -1495,7 +1455,7 @@
             "reverse": false
         },
         {
-            "id": 146,
+            "id": 142,
             "name": "pixel_sprite",
             "path": "prop/pixel.png",
             "frames": 1,
@@ -1505,7 +1465,7 @@
             "reverse": false
         },
         {
-            "id": 147,
+            "id": 143,
             "name": "plant_corn_sprite",
             "path": "prop/plant_lg_corn.png",
             "frames": 1,
@@ -1515,7 +1475,7 @@
             "reverse": false
         },
         {
-            "id": 148,
+            "id": 144,
             "name": "plant_daisy_sprite",
             "path": "prop/plant_lg_sapling_daisy.png",
             "frames": 1,
@@ -1525,7 +1485,7 @@
             "reverse": false
         },
         {
-            "id": 149,
+            "id": 145,
             "name": "plant_lilac_sprite",
             "path": "prop/plant_lg_sapling_lilac.png",
             "frames": 1,
@@ -1535,7 +1495,7 @@
             "reverse": false
         },
         {
-            "id": 150,
+            "id": 146,
             "name": "plant_maroon_sprite",
             "path": "prop/plant_lg_sapling_maroon.png",
             "frames": 1,
@@ -1545,7 +1505,7 @@
             "reverse": false
         },
         {
-            "id": 151,
+            "id": 147,
             "name": "plant_plain_sprite",
             "path": "prop/plant_lg_sapling_blank.png",
             "frames": 1,
@@ -1555,7 +1515,7 @@
             "reverse": false
         },
         {
-            "id": 152,
+            "id": 148,
             "name": "poster_zk_sprite",
             "path": "prop/poster_md_zk.png",
             "frames": 1,
@@ -1565,7 +1525,7 @@
             "reverse": false
         },
         {
-            "id": 153,
+            "id": 149,
             "name": "prop_mine_sprite",
             "path": "prop/prop_mine_a.png",
             "frames": 4,
@@ -1575,7 +1535,7 @@
             "reverse": false
         },
         {
-            "id": 154,
+            "id": 150,
             "name": "purifier_sprite",
             "path": "gameplay/purifier_eth_a.png",
             "frames": 8,
@@ -1585,7 +1545,7 @@
             "reverse": false
         },
         {
-            "id": 155,
+            "id": 151,
             "name": "ramen_sprite",
             "path": "food/ramen.png",
             "frames": 1,
@@ -1595,7 +1555,7 @@
             "reverse": false
         },
         {
-            "id": 156,
+            "id": 152,
             "name": "red_curry_sprite",
             "path": "food/curry_red.png",
             "frames": 1,
@@ -1605,7 +1565,7 @@
             "reverse": false
         },
         {
-            "id": 157,
+            "id": 153,
             "name": "salad_sprite",
             "path": "food/salad.png",
             "frames": 1,
@@ -1615,7 +1575,7 @@
             "reverse": false
         },
         {
-            "id": 158,
+            "id": 154,
             "name": "salmon_sprite",
             "path": "food/salmon.png",
             "frames": 1,
@@ -1625,7 +1585,7 @@
             "reverse": false
         },
         {
-            "id": 159,
+            "id": 155,
             "name": "sausage_sprite",
             "path": "food/sausage.png",
             "frames": 1,
@@ -1635,7 +1595,7 @@
             "reverse": false
         },
         {
-            "id": 160,
+            "id": 156,
             "name": "snake_body_sprite",
             "path": "minigame/snake_cat_body.png",
             "frames": 4,
@@ -1645,7 +1605,7 @@
             "reverse": false
         },
         {
-            "id": 161,
+            "id": 157,
             "name": "snake_corner_sprite",
             "path": "minigame/snake_cat_corner.png",
             "frames": 4,
@@ -1655,7 +1615,7 @@
             "reverse": false
         },
         {
-            "id": 162,
+            "id": 158,
             "name": "snake_head_sprite",
             "path": "minigame/snake_cat_head_default.png",
             "frames": 4,
@@ -1665,7 +1625,7 @@
             "reverse": false
         },
         {
-            "id": 163,
+            "id": 159,
             "name": "snake_tail_sprite",
             "path": "minigame/snake_tail.png",
             "frames": 4,
@@ -1675,7 +1635,7 @@
             "reverse": false
         },
         {
-            "id": 164,
+            "id": 160,
             "name": "soda_sprite",
             "path": "food/soda.png",
             "frames": 1,
@@ -1685,7 +1645,7 @@
             "reverse": false
         },
         {
-            "id": 165,
+            "id": 161,
             "name": "soup_sprite",
             "path": "food/soup.png",
             "frames": 1,
@@ -1695,7 +1655,7 @@
             "reverse": false
         },
         {
-            "id": 166,
+            "id": 162,
             "name": "stool_gold_sprite",
             "path": "prop/stool_gold.png",
             "frames": 1,
@@ -1705,7 +1665,7 @@
             "reverse": false
         },
         {
-            "id": 167,
+            "id": 163,
             "name": "stool_plastic_sprite",
             "path": "prop/stool_plastic.png",
             "frames": 1,
@@ -1715,7 +1675,7 @@
             "reverse": false
         },
         {
-            "id": 168,
+            "id": 164,
             "name": "stool_stone_sprite",
             "path": "prop/stool_stone.png",
             "frames": 1,
@@ -1725,7 +1685,7 @@
             "reverse": false
         },
         {
-            "id": 169,
+            "id": 165,
             "name": "stool_wood_sprite",
             "path": "prop/stool_wood.png",
             "frames": 1,
@@ -1735,7 +1695,7 @@
             "reverse": false
         },
         {
-            "id": 170,
+            "id": 166,
             "name": "strange_meal_sprite",
             "path": "food/strange_meal.png",
             "frames": 1,
@@ -1745,7 +1705,7 @@
             "reverse": false
         },
         {
-            "id": 171,
+            "id": 167,
             "name": "study_a_button_sprite",
             "path": "minigame/fishing/a_button.png",
             "frames": 1,
@@ -1755,7 +1715,7 @@
             "reverse": false
         },
         {
-            "id": 172,
+            "id": 168,
             "name": "succulent_sprite",
             "path": "prop/plant_md_stem.png",
             "frames": 2,
@@ -1765,7 +1725,7 @@
             "reverse": false
         },
         {
-            "id": 173,
+            "id": 169,
             "name": "table_mahogany_sprite",
             "path": "temp/table_mahogany_hack.png",
             "frames": 1,
@@ -1775,7 +1735,7 @@
             "reverse": false
         },
         {
-            "id": 174,
+            "id": 170,
             "name": "table_plastic_alt_sprite",
             "path": "temp/table_plastic_hack.png",
             "frames": 1,
@@ -1785,7 +1745,7 @@
             "reverse": false
         },
         {
-            "id": 175,
+            "id": 171,
             "name": "table_plastic_sprite",
             "path": "temp/table_plastic_thin_hack.png",
             "frames": 1,
@@ -1795,7 +1755,7 @@
             "reverse": false
         },
         {
-            "id": 176,
+            "id": 172,
             "name": "table_sm_mahogany_sprite",
             "path": "prop/table_square_mahogany.png",
             "frames": 1,
@@ -1805,7 +1765,7 @@
             "reverse": false
         },
         {
-            "id": 177,
+            "id": 173,
             "name": "table_sm_plastic_alt_sprite",
             "path": "prop/table_square_plastic_alt.png",
             "frames": 1,
@@ -1815,7 +1775,7 @@
             "reverse": false
         },
         {
-            "id": 178,
+            "id": 174,
             "name": "table_sm_plastic_sprite",
             "path": "prop/table_square_plastic.png",
             "frames": 1,
@@ -1825,7 +1785,7 @@
             "reverse": false
         },
         {
-            "id": 179,
+            "id": 175,
             "name": "table_sm_walnut_alt_sprite",
             "path": "prop/table_square_walnut_alt.png",
             "frames": 1,
@@ -1835,7 +1795,7 @@
             "reverse": false
         },
         {
-            "id": 180,
+            "id": 176,
             "name": "table_sm_walnut_sprite",
             "path": "prop/table_square_walnut.png",
             "frames": 1,
@@ -1845,7 +1805,7 @@
             "reverse": false
         },
         {
-            "id": 181,
+            "id": 177,
             "name": "table_walnut_sprite",
             "path": "temp/table_walnut_hack.png",
             "frames": 1,
@@ -1855,7 +1815,7 @@
             "reverse": false
         },
         {
-            "id": 182,
+            "id": 178,
             "name": "tea_cup_empty_sprite",
             "path": "food/tea_cup_empty.png",
             "frames": 1,
@@ -1865,7 +1825,7 @@
             "reverse": false
         },
         {
-            "id": 183,
+            "id": 179,
             "name": "tea_cup_sprite",
             "path": "food/tea_cup_full.png",
             "frames": 1,
@@ -1875,7 +1835,7 @@
             "reverse": false
         },
         {
-            "id": 184,
+            "id": 180,
             "name": "tile_hl_add_sprite",
             "path": "ui/tile_hl_add.png",
             "frames": 1,
@@ -1885,7 +1845,7 @@
             "reverse": false
         },
         {
-            "id": 185,
+            "id": 181,
             "name": "tile_hl_flip_sprite",
             "path": "ui/tile_hl_flip.png",
             "frames": 1,
@@ -1895,7 +1855,7 @@
             "reverse": false
         },
         {
-            "id": 186,
+            "id": 182,
             "name": "tile_hl_rm_sprite",
             "path": "ui/tile_hl_rm.png",
             "frames": 1,
@@ -1905,7 +1865,7 @@
             "reverse": false
         },
         {
-            "id": 187,
+            "id": 183,
             "name": "tile_hl_sprite",
             "path": "ui/tile_hl.png",
             "frames": 1,
@@ -1915,7 +1875,7 @@
             "reverse": false
         },
         {
-            "id": 188,
+            "id": 184,
             "name": "tile_mark_flip_sprite",
             "path": "ui/tile_mark_flip.png",
             "frames": 1,
@@ -1925,7 +1885,7 @@
             "reverse": false
         },
         {
-            "id": 189,
+            "id": 185,
             "name": "tile_mark_rm_sprite",
             "path": "ui/tile_mark_rm.png",
             "frames": 1,
@@ -1935,7 +1895,7 @@
             "reverse": false
         },
         {
-            "id": 190,
+            "id": 186,
             "name": "toy_baseball_sprite",
             "path": "toy/baseball.png",
             "frames": 1,
@@ -1945,7 +1905,7 @@
             "reverse": false
         },
         {
-            "id": 191,
+            "id": 187,
             "name": "toy_basketball_sprite",
             "path": "toy/basketball.png",
             "frames": 1,
@@ -1955,7 +1915,7 @@
             "reverse": false
         },
         {
-            "id": 192,
+            "id": 188,
             "name": "toy_duck_sprite",
             "path": "toy/duck.png",
             "frames": 1,
@@ -1965,7 +1925,7 @@
             "reverse": false
         },
         {
-            "id": 193,
+            "id": 189,
             "name": "toy_golf_sprite",
             "path": "toy/golf.png",
             "frames": 1,
@@ -1975,7 +1935,7 @@
             "reverse": false
         },
         {
-            "id": 194,
+            "id": 190,
             "name": "toy_puzzle_sprite",
             "path": "toy/puzzle.png",
             "frames": 1,
@@ -1985,7 +1945,7 @@
             "reverse": false
         },
         {
-            "id": 195,
+            "id": 191,
             "name": "tuna_sprite",
             "path": "food/tuna.png",
             "frames": 1,
@@ -1995,7 +1955,7 @@
             "reverse": false
         },
         {
-            "id": 196,
+            "id": 192,
             "name": "ui_down_arrow_sprite",
             "path": "ui/shop/down_a.png",
             "frames": 2,
@@ -2005,7 +1965,7 @@
             "reverse": false
         },
         {
-            "id": 197,
+            "id": 193,
             "name": "ui_feed_stamp_base_sprite",
             "path": "minigame/stamp_base.png",
             "frames": 2,
@@ -2015,7 +1975,7 @@
             "reverse": false
         },
         {
-            "id": 198,
+            "id": 194,
             "name": "ui_feed_stamp_glyphs_sprite",
             "path": "minigame/stamp_glyphs.png",
             "frames": 4,
@@ -2025,7 +1985,7 @@
             "reverse": false
         },
         {
-            "id": 199,
+            "id": 195,
             "name": "ui_item_frame_bg_sprite",
             "path": "ui/shop/item_reg.png",
             "frames": 1,
@@ -2035,7 +1995,7 @@
             "reverse": false
         },
         {
-            "id": 200,
+            "id": 196,
             "name": "ui_item_frame_fg_sprite",
             "path": "ui/shop/item_select.png",
             "frames": 1,
@@ -2045,7 +2005,7 @@
             "reverse": false
         },
         {
-            "id": 201,
+            "id": 197,
             "name": "ui_left_arrow_sprite",
             "path": "ui/shop/left_a.png",
             "frames": 2,
@@ -2055,7 +2015,7 @@
             "reverse": false
         },
         {
-            "id": 202,
+            "id": 198,
             "name": "ui_radio_button_diamond_sprite",
             "path": "ui/radio_button_diamond.png",
             "frames": 2,
@@ -2065,7 +2025,7 @@
             "reverse": false
         },
         {
-            "id": 203,
+            "id": 199,
             "name": "ui_right_arrow_sprite",
             "path": "ui/shop/right_a.png",
             "frames": 2,
@@ -2075,7 +2035,7 @@
             "reverse": false
         },
         {
-            "id": 204,
+            "id": 200,
             "name": "uv_sprite",
             "path": "gameplay/uv_alt_a.png",
             "frames": 2,
@@ -2085,7 +2045,7 @@
             "reverse": false
         },
         {
-            "id": 205,
+            "id": 201,
             "name": "vase_gold_sprite",
             "path": "prop/vase_gold.png",
             "frames": 1,
@@ -2095,7 +2055,7 @@
             "reverse": false
         },
         {
-            "id": 206,
+            "id": 202,
             "name": "vase_grey_sprite",
             "path": "prop/vase_grey.png",
             "frames": 1,
@@ -2105,7 +2065,7 @@
             "reverse": false
         },
         {
-            "id": 207,
+            "id": 203,
             "name": "vase_mahogany_sprite",
             "path": "prop/vase_mahogany.png",
             "frames": 1,
@@ -2115,7 +2075,7 @@
             "reverse": false
         },
         {
-            "id": 208,
+            "id": 204,
             "name": "vase_stone_sprite",
             "path": "prop/vase_stone.png",
             "frames": 1,
@@ -2125,7 +2085,7 @@
             "reverse": false
         },
         {
-            "id": 209,
+            "id": 205,
             "name": "vase_walnut_sprite",
             "path": "prop/vase_walnut.png",
             "frames": 1,
@@ -2135,7 +2095,7 @@
             "reverse": false
         },
         {
-            "id": 210,
+            "id": 206,
             "name": "vending_sprite",
             "path": "gameplay/vending_idle_a.png",
             "frames": 7,
@@ -2145,7 +2105,7 @@
             "reverse": false
         },
         {
-            "id": 211,
+            "id": 207,
             "name": "wall_base_tile_sprite",
             "path": "themes/wall/wall_basic.png",
             "frames": 3,
@@ -2155,7 +2115,7 @@
             "reverse": false
         },
         {
-            "id": 212,
+            "id": 208,
             "name": "wall_roof_sprite",
             "path": "themes/wall/temp/wall_roof.png",
             "frames": 1,
@@ -2165,7 +2125,7 @@
             "reverse": false
         },
         {
-            "id": 213,
+            "id": 209,
             "name": "wall_sky_tile_sprite",
             "path": "themes/wall/wall_sky.png",
             "frames": 7,
@@ -2175,7 +2135,7 @@
             "reverse": false
         },
         {
-            "id": 214,
+            "id": 210,
             "name": "sky_gradient_sprite",
             "path": "themes/window/wdw_gradient_small.png",
             "frames": 1,
@@ -2185,7 +2145,7 @@
             "reverse": false
         },
         {
-            "id": 215,
+            "id": 211,
             "name": "window_sprite",
             "path": "themes/window/wdw_lg_transparent.png",
             "frames": 1,
@@ -2195,7 +2155,7 @@
             "reverse": false
         },
         {
-            "id": 216,
+            "id": 212,
             "name": "portal_orange_sprite",
             "path": "prop/portal_orange_a.png",
             "frames": 4,
@@ -2205,7 +2165,7 @@
             "reverse": false
         },
         {
-            "id": 217,
+            "id": 213,
             "name": "portal_blue_sprite",
             "path": "prop/portal_blue_a.png",
             "frames": 4,
@@ -2215,7 +2175,7 @@
             "reverse": false
         },
         {
-            "id": 218,
+            "id": 214,
             "name": "fishing_bobber_idle_sprite",
             "path": "minigame/fishing/bobber_idle_a.png",
             "frames": 2,
@@ -2225,7 +2185,7 @@
             "reverse": false
         },
         {
-            "id": 219,
+            "id": 215,
             "name": "fishing_bobber_set_sprite",
             "path": "minigame/fishing/bobber_set_a.png",
             "frames": 10,
@@ -2235,7 +2195,7 @@
             "reverse": false
         },
         {
-            "id": 220,
+            "id": 216,
             "name": "fishing_bobber_bite_sprite",
             "path": "minigame/fishing/bobber_click_a.png",
             "frames": 9,
@@ -2245,7 +2205,7 @@
             "reverse": false
         },
         {
-            "id": 221,
+            "id": 217,
             "name": "xen_crystal_sprite",
             "path": "prop/crystal_md_xen.png",
             "frames": 1,
@@ -2255,7 +2215,7 @@
             "reverse": false
         },
         {
-            "id": 222,
+            "id": 218,
             "name": "fish_tier_1_icon",
             "path": "ui/monitors/icon_fish_tier_1.png",
             "frames": 1,
@@ -2265,7 +2225,7 @@
             "reverse": false
         },
         {
-            "id": 223,
+            "id": 219,
             "name": "fish_tier_2_icon",
             "path": "ui/monitors/icon_fish_tier_2.png",
             "frames": 1,
@@ -2275,7 +2235,7 @@
             "reverse": false
         },
         {
-            "id": 224,
+            "id": 220,
             "name": "fish_tier_3_icon",
             "path": "ui/monitors/icon_fish_tier_3.png",
             "frames": 1,
@@ -2285,7 +2245,7 @@
             "reverse": false
         },
         {
-            "id": 225,
+            "id": 221,
             "name": "prop_hoopy_sprite",
             "path": "prop/hoopy_the_hoop_a.png",
             "frames": 9,
@@ -2295,9 +2255,9 @@
             "reverse": false
         },
         {
-            "id": 226,
+            "id": 222,
             "name": "grave_egg_sprite",
-            "path": "pet/unicorn_egg.png",
+            "path": "pet/unicorn/egg.png",
             "frames": 1,
             "width": 64,
             "height": 80,
@@ -2305,7 +2265,7 @@
             "reverse": false
         },
         {
-            "id": 227,
+            "id": 223,
             "name": "ui_radio_button_circle_sprite",
             "path": "ui/radio_button_circle.png",
             "frames": 2,
@@ -2315,7 +2275,7 @@
             "reverse": false
         },
         {
-            "id": 228,
+            "id": 224,
             "name": "ui_checkbox_sprite",
             "path": "ui/checkbox.png",
             "frames": 2,
@@ -2325,9 +2285,9 @@
             "reverse": false
         },
         {
-            "id": 229,
+            "id": 225,
             "name": "world_walk_sprite",
-            "path": "gameplay/overworld/unicorn_a1.png",
+            "path": "gameplay/overworld/canary_a1.png",
             "frames": 8,
             "width": 32,
             "height": 32,
@@ -2335,7 +2295,7 @@
             "reverse": false
         },
         {
-            "id": 230,
+            "id": 226,
             "name": "world_reed_sprite",
             "path": "gameplay/overworld/npc/reed_a1.png",
             "frames": 2,
@@ -2345,7 +2305,7 @@
             "reverse": false
         },
         {
-            "id": 231,
+            "id": 227,
             "name": "world_reed_house_sprite",
             "path": "gameplay/overworld/reed.png",
             "frames": 1,
@@ -2355,7 +2315,7 @@
             "reverse": false
         },
         {
-            "id": 232,
+            "id": 228,
             "name": "world_arcade_sprite",
             "path": "gameplay/overworld/arcade.png",
             "frames": 1,
@@ -2365,7 +2325,7 @@
             "reverse": false
         },
         {
-            "id": 233,
+            "id": 229,
             "name": "world_depot_sprite",
             "path": "gameplay/overworld/building_depot.png",
             "frames": 1,
@@ -2375,7 +2335,7 @@
             "reverse": false
         },
         {
-            "id": 234,
+            "id": 230,
             "name": "world_dumpster_sprite",
             "path": "gameplay/overworld/dumpster.png",
             "frames": 1,
@@ -2385,7 +2345,7 @@
             "reverse": false
         },
         {
-            "id": 235,
+            "id": 231,
             "name": "world_market_sprite",
             "path": "gameplay/overworld/market.png",
             "frames": 1,
@@ -2395,7 +2355,7 @@
             "reverse": false
         },
         {
-            "id": 236,
+            "id": 232,
             "name": "world_statue_sprite",
             "path": "gameplay/overworld/statue.png",
             "frames": 1,
@@ -2405,7 +2365,7 @@
             "reverse": false
         },
         {
-            "id": 237,
+            "id": 233,
             "name": "world_trash_sprite",
             "path": "gameplay/overworld/trash.png",
             "frames": 1,
@@ -2415,7 +2375,7 @@
             "reverse": false
         },
         {
-            "id": 238,
+            "id": 234,
             "name": "world_bldg_sm_sprite",
             "path": "gameplay/overworld/building_sm.png",
             "frames": 1,
@@ -2425,7 +2385,7 @@
             "reverse": false
         },
         {
-            "id": 239,
+            "id": 235,
             "name": "world_bldg_md_sprite",
             "path": "gameplay/overworld/building_md.png",
             "frames": 1,
@@ -2435,7 +2395,7 @@
             "reverse": false
         },
         {
-            "id": 240,
+            "id": 236,
             "name": "world_bldg_lg_sprite",
             "path": "gameplay/overworld/building_lg.png",
             "frames": 1,
@@ -2445,7 +2405,7 @@
             "reverse": false
         },
         {
-            "id": 241,
+            "id": 237,
             "name": "world_bench_tile_sprite",
             "path": "gameplay/overworld/bench_tile.png",
             "frames": 4,
@@ -2455,7 +2415,7 @@
             "reverse": false
         },
         {
-            "id": 242,
+            "id": 238,
             "name": "eink_update_machine_sprite",
             "path": "screen/measuring_machine.png",
             "frames": 1,
@@ -2465,7 +2425,7 @@
             "reverse": false
         },
         {
-            "id": 243,
+            "id": 239,
             "name": "eink_update_clipboard_sprite",
             "path": "screen/measuring_clipboard.png",
             "frames": 1,
@@ -2475,7 +2435,7 @@
             "reverse": false
         },
         {
-            "id": 244,
+            "id": 240,
             "name": "eink_update_pen_sprite",
             "path": "screen/measuring_pen.png",
             "frames": 1,
@@ -2485,7 +2445,7 @@
             "reverse": false
         },
         {
-            "id": 245,
+            "id": 241,
             "name": "ui_aq_notice_icons",
             "path": "ui/aq_notice_icons.png",
             "frames": 2,
@@ -2495,7 +2455,7 @@
             "reverse": false
         },
         {
-            "id": 246,
+            "id": 242,
             "name": "ui_item_frame_bg_spec_sprite",
             "path": "ui/shop/item_spl.png",
             "frames": 1,
@@ -2505,7 +2465,7 @@
             "reverse": false
         },
         {
-            "id": 247,
+            "id": 243,
             "name": "ui_feed_select_sprite",
             "path": "ui/shop/feed_select.png",
             "frames": 1,
@@ -2515,7 +2475,7 @@
             "reverse": false
         },
         {
-            "id": 248,
+            "id": 244,
             "name": "ui_feed_submit_sprite",
             "path": "ui/shop/feed_submit.png",
             "frames": 1,
@@ -2525,7 +2485,7 @@
             "reverse": false
         },
         {
-            "id": 249,
+            "id": 245,
             "name": "ui_touch_prompt",
             "path": "ui/touch_icon.png",
             "frames": 2,
@@ -2535,7 +2495,7 @@
             "reverse": false
         },
         {
-            "id": 250,
+            "id": 246,
             "name": "world_node_stone_sprite",
             "path": "testing/node_stone.png",
             "frames": 1,
@@ -2545,7 +2505,7 @@
             "reverse": false
         },
         {
-            "id": 251,
+            "id": 247,
             "name": "world_node_grass_sprite",
             "path": "testing/node_grass.png",
             "frames": 1,
@@ -2555,7 +2515,7 @@
             "reverse": false
         },
         {
-            "id": 252,
+            "id": 248,
             "name": "world_node_wood_sprite",
             "path": "testing/node_wood.png",
             "frames": 1,
@@ -2565,7 +2525,7 @@
             "reverse": false
         },
         {
-            "id": 253,
+            "id": 249,
             "name": "ui_buttons_prompt",
             "path": "ui/buttons_icon.png",
             "frames": 2,
