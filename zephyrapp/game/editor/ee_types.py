@@ -56,6 +56,22 @@ class Enum(Type):
 	def __repr__(self):
 		return f"Enum({", ".join(self.values)})";
 
+class Flags(Type):
+	def __init__(self, expression):
+		parse_regex = r"flags|\(|,|\s|\)";
+		values = re.split(parse_regex, expression);
+		values = [v for v in values if len(v) > 0];
+		self.values = values;
+	def prototype(self) -> str:
+		return self.values[0];
+	def validate(self, value) -> bool:
+		for v in value:
+			if not v in self.values:
+				return False;
+		return True;
+	def __repr__(self):
+		return f"Flags({", ".join(self.values)})";
+
 class File(Type):
 	def __init__(self, pattern):
 		self.pattern = pattern;
@@ -256,6 +272,8 @@ class Typist:
 
 			if re.match(r"enum\(([A-z]+)+(\,+\s*[A-z]+)*\)", expr):
 				return Enum(expr);
+			if re.match(r"flags\(([A-z]+)+(\,+\s*[A-z]+)*\)", expr):
+				return Flags(expr);
 
 			if re.match(r"\*.[A-z]+", expr):
 				return File(expr);
