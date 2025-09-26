@@ -1,0 +1,23 @@
+{
+    "recipe": {
+        "type": {
+            "name": {
+                "type": "string"
+            },
+            "inputs": {
+                "type": [
+                    "item"
+                ],
+                "attributes": [
+                    {
+                        "fixed-length": 9
+                    }
+                ]
+            },
+            "output": {
+                "type": "item"
+            }
+        }
+    },
+    "instances": []
+}
