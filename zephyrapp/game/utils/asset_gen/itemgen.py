@@ -63,7 +63,7 @@ if(max_id > 255):
 null_item = {
 	"type" : "key",
 	"display_name" : "Ketsuban",
-	"sprite" : "&null_sprite",
+	"sprite" : "null_sprite",
 	"price" : 0,
 	"text" : "",
 	"can_buy" : False,
@@ -95,8 +95,11 @@ source.write("{\n");
 source.write("\t.data =\n");
 source.write("\t{\n");
 
-for item in item_table:
-	source.write(f"\t\t[{item["id"]}] = {{\n");
+for (idx, item) in enumerate(item_table):
+	if "id" in item:
+		source.write(f"\t\t[{item["id"]}] = {{\n");
+	else:
+		source.write(f"\t\t[{idx}] = {{\n");
 	source.write(f"\t\t\t.type = {item_type_enum_map[item['type']]},\n");
 	source.write(f"\t\t\t.name = \"{item['display_name']}\",\n");
 	source.write(f"\t\t\t.sprite = &{item['sprite']},\n");
