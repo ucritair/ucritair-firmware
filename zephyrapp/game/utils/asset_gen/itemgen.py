@@ -80,7 +80,7 @@ for i in missing_ids:
 header = open("data/item_assets.h", "w");
 header.write("#pragma once\n");
 header.write("\n");
-for item in enumerate(json_entries):
+for item in json_entries:
 	header.write(f"#define {item['name']}_item {item["id"]}\n");
 header.close();
 
