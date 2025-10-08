@@ -1,22 +1,84 @@
 {
-	"recipe": {
-		"type": {
-			"name" : {
-				"type": "string"
-			},
-			"inputs": {
-				"type": ["item"],
-				"attributes": [
-					{
-						"fixed-length": 9
-					}
-				]
-			},
-			"output": {
-				"type": "item"
-			}
-		}
-	},
-	"instances": [
-	]
+    "recipe": {
+        "type": {
+            "name": {
+                "type": "string"
+            },
+            "inputs": {
+                "type": [
+                    "item"
+                ],
+                "attributes": [
+                    {
+                        "fixed-length": 9
+                    }
+                ]
+            },
+            "output": {
+                "type": "item"
+            }
+        }
+    },
+    "instances": [
+        {
+            "name": "wooden_chair",
+            "inputs": [
+                "ingr_wood",
+                "",
+                "",
+                "ingr_wood",
+                "ingr_wood",
+                "ingr_wood",
+                "ingr_wood",
+                "",
+                "ingr_wood"
+            ],
+            "output": "prop_chair_mahogany"
+        },
+        {
+            "name": "clay_bowl",
+            "inputs": [
+                "",
+                "",
+                "",
+                "ingr_clay",
+                "",
+                "ingr_clay",
+                "",
+                "ingr_clay",
+                ""
+            ],
+            "output": "prop_bowl_stone"
+        },
+        {
+            "name": "clay_vase",
+            "inputs": [
+                "ingr_clay",
+                "",
+                "ingr_clay",
+                "ingr_clay",
+                "",
+                "ingr_clay",
+                "",
+                "ingr_clay",
+                ""
+            ],
+            "output": "prop_vase_stone"
+        },
+        {
+            "name": "wooden_table",
+            "inputs": [
+                "ingr_wood",
+                "",
+                "",
+                "ingr_wood",
+                "ingr_wood",
+                "ingr_wood",
+                "ingr_wood",
+                "",
+                "ingr_wood"
+            ],
+            "output": "prop_table_mahogany"
+        }
+    ]
 }

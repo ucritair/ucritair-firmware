@@ -27,6 +27,7 @@ from ee_input import InputManager;
 from ee_prop_editor import PropEditor;
 from ee_procs import ProcExplorer;
 from ee_dialogue import DialogueGraph;
+from ee_recipes import RecipeEditor;
 
 #########################################################
 ## CONTEXT
@@ -1441,6 +1442,8 @@ while not glfw.window_should_close(handle):
 				SceneEditor();
 			if imgui.menu_item_simple("Dialogue Graph"):
 				DialogueGraph();
+			if imgui.menu_item_simple("Recipe Editor"):
+				RecipeEditor();
 			imgui.end_menu();
 		imgui.end_main_menu_bar();
 	
@@ -1468,6 +1471,8 @@ while not glfw.window_should_close(handle):
 	if PropEditor._ != None:
 		PropEditor.render();
 	DialogueGraph.render();
+	RecipeEditor.render();
+	
 
 	imgui.end();
 

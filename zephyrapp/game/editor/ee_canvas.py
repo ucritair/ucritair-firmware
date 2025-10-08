@@ -80,9 +80,10 @@ class CanvasIO:
 		self.cursor = None;
 	
 	def tick(self):
-		cursor = InputManager.get_imgui_cursor() - self.canvas.position;
-		cursor = cursor.x / self.canvas.scale, cursor.y / self.canvas.scale;
-		self.cursor = cursor;
+		if not self.canvas.position is None:
+			cursor = InputManager.get_imgui_cursor() - self.canvas.position;
+			cursor = cursor.x / self.canvas.scale, cursor.y / self.canvas.scale;
+			self.cursor = cursor;
 
 	def get_cursor(self):
 		return self.cursor;
@@ -125,3 +126,9 @@ class CanvasGrid:
 			self.canvas.draw_line(0, y, self.canvas.width, y, colour);
 		for x in range(self.size, self.canvas.width, self.size):
 			self.canvas.draw_line(x, 0, x, self.canvas.height, colour);
+
+	def draw_cell(self, point, colour):
+		point = self.untransform_point(point);
+		x0, y0 = point;
+		x1, y1 = x0 + self.size, y0 + self.size;
+		self.canvas.draw_aabb((x0, y0, x1, y1), colour);

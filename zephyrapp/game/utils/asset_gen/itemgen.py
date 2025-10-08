@@ -4,6 +4,7 @@ import sys;
 import json;
 import os;
 import pathlib as pl;
+from collections import OrderedDict;
 
 item_type_enum_map = {
 	"key" : "CAT_ITEM_TYPE_KEY",
@@ -48,59 +49,39 @@ json_entries = json_data['instances'];
 tool_types = ['food", "book", "toy'];
 prop_types = ['prop", "bottom", "top'];
 
-def ensure_key(obj, key, default):
-	if not key in obj.keys():
-		obj[key] = default;
-	return obj[key];
-
-for (idx, item) in enumerate(json_entries):
-	ensure_key(item, "type", "key");
-	ensure_key(item, "name", "item");
-	ensure_key(item, "display_name", "Item");
-	ensure_key(item, "sprite", "none_24x24.png");
-	ensure_key(item, "icon", "item_icon_key_sprite");
-	ensure_key(item, "text", "");
-	ensure_key(item, "price", 0);
-	ensure_key(item, "can_buy", False);
-	ensure_key(item, "can_sell", False);
-	if item["type"] == "tool":
-		tool_data = ensure_key(item, "tool_data", {});
-		ensure_key(tool_data, "type", "food");
-		ensure_key(tool_data, "cursor", item['sprite']);
-		ensure_key(tool_data, "dv", 0);
-		ensure_key(tool_data, "df", 0);
-		ensure_key(tool_data, "ds", 0);
-		if tool_data["type"] == "food":
-			food_data = ensure_key(tool_data, "food_data", {});
-			ensure_key(food_data, "food_group", "veg");
-			ensure_key(food_data, "food_role", "staple");
-	elif item['type'] == "prop":
-		prop_data = ensure_key(item, "prop_data", {});
-		ensure_key(prop_data, "type", "default");
-		ensure_key(prop_data, "shape", [1, 1]);
-		ensure_key(prop_data, "animate", True);
-		ensure_key(prop_data, "child_dy", 0);
-
 json_file.seek(0);
 json_file.truncate();
 json_file.write(json.dumps(json_data, indent=4));
 json_file.close();
 
-json_entries.sort(key = lambda i: i["id"]);
-for i in range(len(json_entries)-1):
-	a = json_entries[i];
-	b = json_entries[i+1];
-	if b["id"]-a["id"] != 1:
-		print(f"[WARNING] Gap between item IDs {a["id"]} and {b["id"]}!");
-if max([j["id"] for j in json_entries]) >= 256:
-	print("[ERROR] Item ID exceeding 255 found. Aborting!");
+item_ids = [x["id"] for x in json_entries];
+max_id = max(item_ids);
+if(max_id > 255):
+	print("[ERROR] Max ID exceeds 255. Aborting");
 	exit();
+
+null_item = {
+	"type" : "key",
+	"display_name" : "Ketsuban",
+	"sprite" : "&null_sprite",
+	"price" : 0,
+	"text" : "",
+	"can_buy" : False,
+	"can_sell" : False
+};
+item_table = [null_item for i in range(max_id+1)];
+for item in json_entries:
+	item_table[item["id"]] = item;
+
+missing_ids = [i for i in range(max_id+1) if i not in item_ids];
+for i in missing_ids:
+	print(f"[WARNING] Missing ID {i}");
 	
 header = open("data/item_assets.h", "w");
 header.write("#pragma once\n");
 header.write("\n");
-for (idx, item) in enumerate(json_entries):
-	header.write(f"#define {item['name']}_item {idx}\n");
+for item in enumerate(json_entries):
+	header.write(f"#define {item['name']}_item {item["id"]}\n");
 header.close();
 
 source = open("data/item_assets.c", "w");
@@ -113,8 +94,9 @@ source.write("CAT_item_table item_table =\n");
 source.write("{\n");
 source.write("\t.data =\n");
 source.write("\t{\n");
-for (idx, item) in enumerate(json_entries):
-	source.write("\t\t{\n");
+
+for item in item_table:
+	source.write(f"\t\t[{item["id"]}] = {{\n");
 	source.write(f"\t\t\t.type = {item_type_enum_map[item['type']]},\n");
 	source.write(f"\t\t\t.name = \"{item['display_name']}\",\n");
 	source.write(f"\t\t\t.sprite = &{item['sprite']},\n");

@@ -96,8 +96,10 @@ class Asset(Type):
 class List(Type):
 	def __init__(self, T):
 		self.T = T;
-	def prototype(self) -> list:
-		if isinstance(self.T, List):
+	def prototype(self, fixed_length=False) -> list:
+		if fixed_length != False:
+			return [self.T.prototype() for i in range(fixed_length)];
+		elif isinstance(self.T, List):
 			return [self.T.prototype()];
 		else:
 			return [];
@@ -118,7 +120,7 @@ class Object(Type):
 	def prototype(self) -> dict:
 		instance = {};
 		for element in self.elements:
-			instance[element.name] = element.T.prototype();
+			instance[element.name] = element.prototype();
 		return instance;
 
 	def validate(self, value) -> bool:
@@ -134,7 +136,7 @@ class Object(Type):
 
 		inclusion_pass = True;
 		for element in self.elements:
-			inclusion_pass &= element.name in value and element.T.validate(value[element.name]);
+			inclusion_pass &= element.name in value and element.validate(value[element.name]);
 		if not inclusion_pass:
 			return False;
 
@@ -168,13 +170,19 @@ class Element:
 
 	def prototype(self, inner=False):
 		T = self.T;
+
 		if inner:
 			while isinstance(T, List):
 				T = T.T;
 		else:
-			fixed_length = self.get_attribute("fixed-length");
-			if fixed_length != False:
-				return [T.T.prototype() for i in range(fixed_length)];
+			default_value = self.get_attribute("default-value");
+			if default_value != False:
+				return default_value;
+		
+			if isinstance(T, List):
+				fixed_length = self.get_attribute("fixed-length");
+				return T.prototype(fixed_length);
+	
 		return T.prototype();
 
 	def validate(self, value) -> bool:
