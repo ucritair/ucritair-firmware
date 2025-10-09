@@ -122,21 +122,21 @@ void epaper_render_test()
 	struct epaper_image_asset* selected_unicorn = &epaper_image_unicorn_default;
 	struct epaper_image_asset* selected_cloud = &epaper_image_cloud_default;
 
-	if(CAT_get_persist_flag(CAT_PERSIST_FLAG_BATTERY_ALERT))
+	if(persist_flags & CAT_PERSIST_CONFIG_FLAG_BATTERY_ALERT)
 	{	
 		selected_unicorn = &epaper_image_unicorn_low_battery;
 	}
-	else if (guy_is_wearing_mask)
+	else if (pet_mask)
 	{
 		selected_unicorn = &epaper_image_unicorn_mask;
 	}
 	else
 	{
-		if (guy_happiness == 2)
+		if (pet_mood == 2)
 		{
 			selected_unicorn = &epaper_image_unicorn_happy;
 		}
-		else if (guy_happiness == 0)
+		else if (pet_mood == 0)
 		{
 			selected_unicorn = &epaper_image_unicorn_sad;
 		}
@@ -178,13 +178,13 @@ void epaper_render_test()
 	fwrite_str(128, 100, 1, "at %2d:%02d:%02d", t.tm_hour, t.tm_min, t.tm_sec);
 	fwrite_str(128, 110, 1, "%d%% battery", get_battery_pct());
 
-	fwrite_str(0, EPD_IMAGE_H-8, 1, " %s LV%d", guy_name, guy_level+1);
+	fwrite_str(0, EPD_IMAGE_H-8, 1, " %s LV%d", pet_name, pet_level+1);
 
 	pc_set_mode(false);
-	if (is_first_init || framebuffer_fast_update_count > 50)
+	if (is_persist_fresh || framebuffer_fast_update_count > 50)
 	{
 		cmd_turn_on_and_write(epaper_framebuffer);
-		is_first_init = false;
+		is_persist_fresh = false;
 		framebuffer_fast_update_count = 0;
 	}
 	else
@@ -217,6 +217,6 @@ void epaper_render_protected_off()
 	pc_set_mode(true);
 
 	memcpy(old_epaper_framebuffer, epaper_framebuffer, sizeof(epaper_framebuffer));
-    is_first_init = true;
+    is_persist_fresh = true;
     framebuffer_fast_update_count = 0;
 }

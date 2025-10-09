@@ -10,6 +10,7 @@
 #include "cat_aqi.h"
 #include "sprite_assets.h"
 #include "cat_crisis.h"
+#include "cat_persist.h"
 
 static enum
 {
@@ -70,11 +71,11 @@ void CAT_render_debug()
 			CAT_gui_text("EMBEDDED\n");
 #endif
 
-			if(CAT_check_config_flags(CAT_CONFIG_FLAG_DEVELOPER))
+			if(CAT_check_config_flags(CAT_SAVE_CONFIG_FLAG_DEVELOPER))
 				CAT_gui_text("DEVELOPER MODE\n");
-			if(CAT_check_config_flags(CAT_CONFIG_FLAG_MIGRATED))
+			if(CAT_check_config_flags(CAT_SAVE_CONFIG_FLAG_MIGRATED))
 				CAT_gui_text("MIGRATED SAVE\n");
-			if(CAT_was_persist_wiped())
+			if(is_persist_fresh)
 				CAT_gui_text("PERSIST RESET\n");
 		break;
 		
@@ -153,13 +154,8 @@ void CAT_render_debug()
 			CAT_gui_title(true, "PERSIST");
 			CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
 
-			CAT_AQ_crisis_state crisis;
-			CAT_pet_timing_state timing;
-			memcpy(&crisis, CAT_AQ_crisis_state_persist(), sizeof(crisis));
-			memcpy(&timing, CAT_pet_timing_state_persist(), sizeof(timing));
-
 			CAT_datetime life;
-			CAT_make_datetime(timing.last_life_time, &life);
+			CAT_make_datetime(pet_timing_state.last_life_time, &life);
 			CAT_gui_textf("Life: %d %d %d\n", life.year, life.month, life.day);
 		}
 		break;

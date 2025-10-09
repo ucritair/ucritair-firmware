@@ -26,6 +26,7 @@
 #include "cat_effects.h"
 #include "cat_study.h"
 #include "cat_feed.h"
+#include "cat_persist.h"
 
 //////////////////////////////////////////////////////////////////////////
 // THEME
@@ -723,7 +724,7 @@ void CAT_room_draw_statics()
 		CAT_set_sprite_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
 		CAT_draw_sprite_raw(&icon_charging_sprite, 0, battery_x, battery_y);
 	}
-	else if(CAT_get_persist_flag(CAT_PERSIST_FLAG_BATTERY_ALERT))
+	else if(persist_flags & CAT_PERSIST_CONFIG_FLAG_BATTERY_ALERT)
 	{
 		if(CAT_pulse(0.25f))
 		{

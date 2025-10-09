@@ -31,6 +31,7 @@
 #include "item_assets.h"
 #include "cat_colours.h"
 #include "cat_effects.h"
+#include "cat_persist.h"
 
 #ifdef CAT_EMBEDDED
 #include "menu_time.h"
@@ -55,7 +56,7 @@ void CAT_init()
 
 	CAT_force_load();
 
-	if(CAT_check_config_flags(CAT_CONFIG_FLAG_AQ_FIRST))
+	if(CAT_check_config_flags(CAT_SAVE_CONFIG_FLAG_AQ_FIRST))
 		CAT_pushdown_rebase(CAT_MS_monitor);
 	else
 		CAT_pushdown_rebase(CAT_MS_room);
@@ -89,7 +90,7 @@ void CAT_tick_logic()
 	CAT_eink_flag_tick();
 
 	// Temporary hack
-	CAT_raise_persist_flag(CAT_PERSIST_FLAG_MANUAL_ORIENT);
+	persist_flags |= CAT_PERSIST_CONFIG_FLAG_MANUAL_ORIENT;
 	CAT_orientation_tick();
 }
 

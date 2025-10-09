@@ -91,15 +91,15 @@ void CAT_MS_time(CAT_FSM_signal signal)
 					break;
 
 				case WAKEUP:
-					sensor_wakeup_rate = local_wakeup.hours*60*60 + local_wakeup.mins*60 + local_wakeup.secs;
-					sensor_wakeup_rate = clamp(sensor_wakeup_rate, 15, 60*60*16);
+					sensor_wakeup_period = local_wakeup.hours*60*60 + local_wakeup.mins*60 + local_wakeup.secs;
+					sensor_wakeup_period = clamp(sensor_wakeup_period, 15, 60*60*16);
 					break;
 
 				case NOX:
-					if (nox_every_n_samples != local_nox_every)
-						nox_every_n_samples_counter = 0;
+					if (nox_sample_period != local_nox_every)
+						nox_sample_counter = 0;
 
-					nox_every_n_samples = local_nox_every;
+					nox_sample_period = local_nox_every;
 					break;
 
 				case DIM:
@@ -166,7 +166,7 @@ void CAT_render_time()
 
 	local_wakeup.hours = 0;
 	local_wakeup.mins = 0;
-	local_wakeup.secs = sensor_wakeup_rate;
+	local_wakeup.secs = sensor_wakeup_period;
 
 	while (local_wakeup.secs >= (60*60))
 	{
@@ -191,7 +191,7 @@ void CAT_render_time()
 	CAT_gui_line_break();
 	// CAT_gui_line_break();
 
-	local_nox_every = nox_every_n_samples;
+	local_nox_every = nox_sample_period;
 
 	bool nox_selected = edits[time_edit_time_selector].which == NOX;
 	CAT_gui_textf("Sample NOX+VOC every %s%d%s\n", nox_selected?">":"", local_nox_every, nox_selected?"<":"");
@@ -202,7 +202,7 @@ void CAT_render_time()
 
 
 	// +15 is approximate time to get a fix and log
-	int hrs = get_hours_of_logging_at_rate(sensor_wakeup_rate+15);
+	int hrs = get_hours_of_logging_at_rate(sensor_wakeup_period+15);
 	int days = hrs/24;
 	hrs %= 24;
 	CAT_gui_textf("Space for %dd %dh\nlogging left at this rate", days, hrs);

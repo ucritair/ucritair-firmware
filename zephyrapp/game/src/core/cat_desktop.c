@@ -17,6 +17,7 @@
 #include <sys/mman.h>
 #include "cat_pet.h"
 #include "cat_crisis.h"
+#include "cat_persist.h"
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -322,7 +323,7 @@ void CAT_LCD_post()
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, simulator.tex_id);
 	glProgramUniform1i(simulator.prog_id, simulator.tex_loc, 0);
-	glProgramUniform1i(simulator.prog_id, simulator.brightness_loc, CAT_LCD_get_brightness());
+	glProgramUniform1i(simulator.prog_id, simulator.brightness_loc, screen_brightness);
 
 	glBindVertexArray(simulator.vao_id);
 	glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -386,7 +387,7 @@ uint8_t LEDs[6][3];
 
 void CAT_set_LEDs(uint8_t r, uint8_t g, uint8_t b)
 {
-	float power = CAT_LED_get_brightness() / 100.0f;
+	float power = led_brightness / 100.0f;
 
 	for(int i = 0; i < 6; i++)
 	{
@@ -616,52 +617,6 @@ void CAT_factory_reset()
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// AIR QUALITY
-
-static CAT_AQ_score_block aq_moving_scores =
-{
-	.CO2 = 450,
-	.VOC = 1,
-	.NOX = 100,
-	.PM2_5 = 9 * 100,
-	.temp = 23 * 1000,
-	.rh = 40 * 100,
-	.aggregate = 75,
-	.sample_count = 0
-};
-
-static CAT_AQ_score_block aq_score_buffer[7];
-static int aq_score_head = 0;
-
-CAT_AQ_score_block* CAT_AQ_get_moving_scores()
-{
-	return &aq_moving_scores;
-}
-
-void CAT_AQ_score_buffer_reset()
-{
-	for(int i = 0; i < 7; i++)
-	{
-		memcpy(&aq_score_buffer[i], &aq_moving_scores, sizeof(CAT_AQ_score_block));
-	}
-	aq_score_head = 0;
-}
-
-void CAT_AQ_score_buffer_push(CAT_AQ_score_block* in)
-{
-	CAT_AQ_score_block* block = &aq_score_buffer[aq_score_head];
-	memcpy(block, in, sizeof(CAT_AQ_score_block));
-	aq_score_head = (aq_score_head+1) % 7;
-}
-
-CAT_AQ_score_block* CAT_AQ_score_buffer_get(int idx)
-{
-	idx = (aq_score_head+idx) % 7;
-	return &aq_score_buffer[idx];
-}
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
 // IMU
 
 CAT_IMU_values imu_values =
@@ -696,80 +651,26 @@ void CAT_printf(const char* fmt, ...)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // PERSISTENCE
 
-static int AQ_crisis_state_fd = -1;
-static uint8_t* AQ_crisis_state_mmap = NULL;
-static int pet_timing_state_fd = -1;
-static uint8_t* pet_timing_state_mmap = NULL;
-static int persist_flags_fd = -1;
-static uint64_t* persist_flags_mmap = NULL;
-
-uint8_t* generate_persist(const char* path, size_t size, int* fd)
-{
-	*fd = open(path, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
-	size_t file_size = lseek(*fd, 0, SEEK_END);
-	if(file_size < size)
-	{
-		lseek(*fd, 0, SEEK_SET);
-		uint8_t* zeroes = malloc(size);
-		write(*fd, zeroes, size);
-	}
-	uint8_t* mem = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, *fd, 0);
-	close(*fd);
-	return mem;
-}
-
-uint8_t* CAT_AQ_crisis_state_persist()
-{
-	if(AQ_crisis_state_fd == -1)
-		AQ_crisis_state_mmap = generate_persist("persist/AQ_crisis_state.dat", sizeof(CAT_AQ_crisis_state), &AQ_crisis_state_fd);
-	return AQ_crisis_state_mmap;
-}
-
-uint8_t* CAT_pet_timing_state_persist()
-{
-	if(pet_timing_state_fd == -1)
-		pet_timing_state_mmap = generate_persist("persist/pet_timing_state.dat", sizeof(CAT_pet_timing_state), &pet_timing_state_fd);
-	return pet_timing_state_mmap;
-}
-
-bool CAT_was_persist_wiped()
-{
-	return false;
-}
-
-void load_persist_flags()
-{
-	if(persist_flags_fd == -1)
-		persist_flags_mmap = (uint64_t*) generate_persist("persist/persist_flags.dat", sizeof(uint64_t), &persist_flags_fd);
-}
-
-uint64_t CAT_get_persist_flags()
-{
-	load_persist_flags();
-	return *persist_flags_mmap;
-}
-
-void CAT_set_persist_flags(uint64_t flags)
-{
-	load_persist_flags();
-	*persist_flags_mmap = flags;
-}
-
-bool CAT_get_persist_flag(uint64_t flags)
-{
-	load_persist_flags();
-	return *persist_flags_mmap & flags;
-}
-
-void CAT_raise_persist_flag(uint64_t flags)
-{
-	load_persist_flags();
-	*persist_flags_mmap |= flags;
-}
-
-void CAT_lower_persist_flag(uint64_t flags)
-{
-	load_persist_flags();
-	*persist_flags_mmap &= ~flags;
-}
-
+volatile uint64_t rtc_offset;
+volatile uint16_t sensor_wakeup_period;
+volatile uint8_t nox_sample_period;
+volatile uint8_t nox_sample_counter;
+volatile uint8_t wakeup_is_from_timer;
+volatile uint64_t sleep_timestamp;
+volatile uint8_t pet_mood;
+volatile uint8_t pet_mask;
+volatile char pet_name[64];
+volatile uint16_t pet_level;
+volatile uint8_t screen_brightness;
+volatile uint8_t led_brightness;
+volatile uint16_t dim_after_seconds;
+volatile uint16_t sleep_after_seconds;
+volatile CAT_AQ_score_block aq_moving_scores;
+volatile uint64_t aq_last_moving_score_time;
+volatile CAT_AQ_score_block aq_score_buffer[7];
+volatile uint8_t aq_score_head;
+volatile uint64_t aq_last_buffered_score_time;
+volatile CAT_AQ_crisis_state aq_crisis_state;
+volatile CAT_pet_timing_state pet_timing_state;
+volatile uint64_t persist_flags;
+bool is_persist_fresh;

@@ -19,6 +19,7 @@
 #include "item_assets.h"
 #include "cat_world.h"
 #include "cat_effects.h"
+#include "cat_persist.h"
 
 #ifdef CAT_EMBEDDED
 #include "menu_system.h"
@@ -62,7 +63,7 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 					
 				if(CAT_gui_menu_item("MAGIC"))
 					CAT_pushdown_push(CAT_MS_magic);
-				if(CAT_check_config_flags(CAT_CONFIG_FLAG_DEVELOPER))
+				if(CAT_check_config_flags(CAT_SAVE_CONFIG_FLAG_DEVELOPER))
 				{
 					if(CAT_gui_begin_menu("DEVELOPER"))
 					{
@@ -151,22 +152,22 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 					{
 						if(CAT_gui_begin_menu("LAUNCH MODE"))
 						{
-							if(CAT_gui_menu_toggle("GAME FIRST", !CAT_check_config_flags(CAT_CONFIG_FLAG_AQ_FIRST), CAT_GUI_TOGGLE_STYLE_RADIO_BUTTON))
+							if(CAT_gui_menu_toggle("GAME FIRST", !CAT_check_config_flags(CAT_SAVE_CONFIG_FLAG_AQ_FIRST), CAT_GUI_TOGGLE_STYLE_RADIO_BUTTON))
 							{
-								CAT_lower_config_flags(CAT_CONFIG_FLAG_AQ_FIRST);
+								CAT_lower_config_flags(CAT_SAVE_CONFIG_FLAG_AQ_FIRST);
 							}
-							if(CAT_gui_menu_toggle("DASHBOARD FIRST", CAT_check_config_flags(CAT_CONFIG_FLAG_AQ_FIRST), CAT_GUI_TOGGLE_STYLE_RADIO_BUTTON))
+							if(CAT_gui_menu_toggle("DASHBOARD FIRST", CAT_check_config_flags(CAT_SAVE_CONFIG_FLAG_AQ_FIRST), CAT_GUI_TOGGLE_STYLE_RADIO_BUTTON))
 							{
-								CAT_raise_config_flags(CAT_CONFIG_FLAG_AQ_FIRST);
+								CAT_raise_config_flags(CAT_SAVE_CONFIG_FLAG_AQ_FIRST);
 							}
 							CAT_gui_end_menu();
 						}
-						if(CAT_gui_menu_toggle("PAUSE CRITTER CARE", CAT_check_config_flags(CAT_CONFIG_FLAG_PAUSE_CARE), CAT_GUI_TOGGLE_STYLE_CHECKBOX))
+						if(CAT_gui_menu_toggle("PAUSE CRITTER CARE", CAT_check_config_flags(CAT_SAVE_CONFIG_FLAG_PAUSE_CARE), CAT_GUI_TOGGLE_STYLE_CHECKBOX))
 						{
-							if(CAT_check_config_flags(CAT_CONFIG_FLAG_PAUSE_CARE))
-								CAT_lower_config_flags(CAT_CONFIG_FLAG_PAUSE_CARE);
+							if(CAT_check_config_flags(CAT_SAVE_CONFIG_FLAG_PAUSE_CARE))
+								CAT_lower_config_flags(CAT_SAVE_CONFIG_FLAG_PAUSE_CARE);
 							else
-								CAT_raise_config_flags(CAT_CONFIG_FLAG_PAUSE_CARE);
+								CAT_raise_config_flags(CAT_SAVE_CONFIG_FLAG_PAUSE_CARE);
 						}
 
 						CAT_gui_end_menu();
@@ -191,14 +192,13 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 					}
 					if(CAT_gui_begin_menu("DISPLAY"))
 					{
-						CAT_gui_menu_ticker("LCD BRIGHTNESS", CAT_LCD_brightness_pointer(), CAT_LCD_MIN_BRIGHTNESS, CAT_LCD_MAX_BRIGHTNESS);
-
+						screen_brightness = CAT_gui_menu_ticker("LCD BRIGHTNESS", screen_brightness, CAT_LCD_MIN_BRIGHTNESS, CAT_LCD_MAX_BRIGHTNESS);
 						if(CAT_gui_menu_item("RESET LCD BRIGHTNESS"))
-							CAT_LCD_set_brightness(CAT_LCD_MAX_BRIGHTNESS);
+							screen_brightness = CAT_LCD_MAX_BRIGHTNESS;
 						
-						CAT_gui_menu_ticker("LED BRIGHTNESS", CAT_LED_brightness_pointer(), 0, 100);
+						led_brightness = CAT_gui_menu_ticker("LED BRIGHTNESS", led_brightness, 0, 100);
 						if(CAT_gui_menu_item("RESET LED BRIGHTNESS"))
-							CAT_LED_set_brightness(100);
+							led_brightness = 100;
 
 						if(CAT_gui_menu_item("REFRESH EINK"))
 						{
@@ -245,7 +245,7 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 					{
 						if(CAT_gui_menu_item("RESET CONFIG FLAGS"))
 						{
-							CAT_set_config_flags(CAT_CONFIG_FLAG_NONE);
+							CAT_set_config_flags(CAT_SAVE_CONFIG_FLAG_NONE);
 						}
 							
 						if(CAT_gui_menu_item("RESET SAVE"))

@@ -116,7 +116,7 @@ void power_off(int for_ms, bool protected_sleeping)
 
 	if (cat_game_running)
 	{
-		went_to_sleep_at = get_current_rtc_time();
+		sleep_timestamp = get_current_rtc_time();
 		CAT_force_save();
 	}
 	

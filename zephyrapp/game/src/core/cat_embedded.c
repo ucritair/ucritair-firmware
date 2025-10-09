@@ -276,7 +276,7 @@ bool CAT_is_charging()
 
 void CAT_sleep()
 {
-	power_off(sensor_wakeup_rate*1000, false);
+	power_off(sensor_wakeup_period*1000, false);
 }
 
 void CAT_shutdown()
@@ -292,36 +292,6 @@ void CAT_factory_reset()
 	power_off(0, false);
 }
 
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// AIR QUALITY
-
-CAT_AQ_score_block* CAT_AQ_get_moving_scores()
-{
-	return &aq_moving_scores;
-}
-
-void CAT_AQ_score_buffer_reset()
-{
-	for(int i = 0; i < 7; i++)
-	{
-		memcpy(&aq_score_buffer[i], &aq_moving_scores, sizeof(CAT_AQ_score_block));
-	}
-	aq_score_head = 0;
-}
-
-void CAT_AQ_score_buffer_push(CAT_AQ_score_block* in)
-{
-	CAT_AQ_score_block* block = &aq_score_buffer[aq_score_head];
-	memcpy(block, in, sizeof(CAT_AQ_score_block));
-	aq_score_head = (aq_score_head+1) % 7;
-}
-
-CAT_AQ_score_block* CAT_AQ_score_buffer_get(int idx)
-{
-	idx = (aq_score_head+idx) % 7;
-	return &aq_score_buffer[idx];
-}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // IMU
@@ -353,48 +323,4 @@ void CAT_printf(const char* fmt, ...)
 	if(debug_print_buffer[printed-1] == '\n')
 		debug_print_buffer[printed-1] = '\0';
 	LOG_DBG("%s", debug_print_buffer);*/
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// PERSISTENCE
-
-uint8_t* CAT_AQ_crisis_state_persist()
-{
-	return &aq_crisis_state;
-}
-
-uint8_t* CAT_pet_timing_state_persist()
-{
-	return &pet_timing_state;
-}
-
-bool CAT_was_persist_wiped()
-{
-	return is_first_init;
-}
-
-
-uint64_t CAT_get_persist_flags()
-{
-	return persist_flags;
-}
-
-void CAT_set_persist_flags(uint64_t flags)
-{
-	persist_flags = flags;
-}
-
-bool CAT_get_persist_flag(uint64_t flags)
-{
-	return persist_flags & flags;
-}
-
-void CAT_raise_persist_flag(uint64_t flags)
-{
-	persist_flags |= flags;
-}
-
-void CAT_lower_persist_flag(uint64_t flags)
-{
-	persist_flags &= ~flags;
 }

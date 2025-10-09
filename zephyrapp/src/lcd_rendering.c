@@ -104,7 +104,7 @@ void lcd_render_diag()
 	int last_flash_log = 0;
 
 #ifndef MINIMIZE_GAME_FOOTPRINT
-	slept_s = get_current_rtc_time() - went_to_sleep_at;
+	slept_s = get_current_rtc_time() - sleep_timestamp;
 	if (slept_s < 0) slept_s = 0;
 
 	LOG_INF("about to CAT_init(slept=%d)", slept_s);
@@ -123,9 +123,6 @@ void lcd_render_diag()
 
 	bool charging_last_frame = false;
 
-	CAT_LCD_set_brightness(screen_brightness);
-	CAT_LED_set_brightness(led_brightness);
-
 	while (1)
 	{
 #ifndef MINIMIZE_GAME_FOOTPRINT
@@ -137,22 +134,22 @@ void lcd_render_diag()
 
 		ble_update();
 
-		guy_is_wearing_mask = CAT_inventory_count(mask_item) > 0;
+		pet_mask = CAT_inventory_count(mask_item) > 0;
 		if (CAT_room_prop_lookup(prop_purifier_item) != -1 && CAT_room_prop_lookup(prop_uv_lamp_item) != -1)
 		{
-			guy_happiness = 2;
+			pet_mood = 2;
 		}
 		else if ((pet.vigour + pet.focus + pet.spirit) < (6 * 3))
 		{
-			guy_happiness = 0;
+			pet_mood = 0;
 		}
 		else
 		{
-			guy_happiness = 1;
+			pet_mood = 1;
 		}
 
-		memcpy(guy_name, pet.name, sizeof(guy_name));
-		guy_level = pet.level;
+		memcpy(pet_name, pet.name, sizeof(pet_name));
+		pet_level = pet.level;
 
 		touch_update();
 		imu_update();
@@ -170,9 +167,6 @@ void lcd_render_diag()
 		last_frame_time = now_ms - last_ms;
 		last_ms = now_ms;
 
-		screen_brightness = CAT_LCD_get_brightness();
-		led_brightness = CAT_LED_get_brightness();
-
 		if (current_buttons || touch_pressure || co2_calibrating || (charging_last_frame != is_charging))
 		{
 			last_button_pressed = now_ms;
@@ -188,7 +182,7 @@ void lcd_render_diag()
 				LOG_INF("Sleeping");
 				// TODO: Save game
 				epaper_render_test();
-				power_off(sensor_wakeup_rate*1000, false);
+				power_off(sensor_wakeup_period*1000, false);
 			}
 			else
 			{
@@ -218,7 +212,7 @@ void lcd_render_diag()
 		time_since = now - aq_last_buffered_score_time;
 		if(time_since > CAT_AQ_SPARKLINE_SAMPLE_PERIOD && CAT_AQ_sensors_initialized())
 		{
-			if(is_first_init)
+			if(is_persist_fresh)
 			{
 				CAT_AQ_score_buffer_reset();
 			}
@@ -231,9 +225,9 @@ void lcd_render_diag()
 		// MISC. UPDATES
 
 		if(CAT_get_battery_pct() <= CAT_CRITICAL_BATTERY_PCT)
-			CAT_raise_persist_flag(CAT_PERSIST_FLAG_BATTERY_ALERT);
+			persist_flags |= CAT_PERSIST_CONFIG_FLAG_BATTERY_ALERT;
 		else if(CAT_get_battery_pct() >= CAT_SAFE_BATTERY_PCT)
-			CAT_lower_persist_flag(CAT_PERSIST_FLAG_BATTERY_ALERT);
+			persist_flags &= ~CAT_PERSIST_CONFIG_FLAG_BATTERY_ALERT;
 
 		int lockmask = 0;
 
@@ -334,7 +328,7 @@ void lcd_render_diag()
 		else if(battery <= 10)
 			epaper_render_protected_off();
 
-		if ((k_uptime_get() - last_flash_log) > (sensor_wakeup_rate*1000) && is_ready_for_aqi_logging())
+		if ((k_uptime_get() - last_flash_log) > (sensor_wakeup_period*1000) && is_ready_for_aqi_logging())
 		{
 			populate_next_log_cell();
 			last_flash_log = k_uptime_get();

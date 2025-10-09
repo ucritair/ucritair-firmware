@@ -34,7 +34,7 @@ void CAT_MS_magic(CAT_FSM_signal signal)
 
 			if(CAT_input_spell(basic_spell))
 			{
-				CAT_raise_config_flags(CAT_CONFIG_FLAG_DEVELOPER);
+				CAT_raise_config_flags(CAT_SAVE_CONFIG_FLAG_DEVELOPER);
 				CAT_pushdown_push(CAT_MS_hedron);
 			}		
 			break;

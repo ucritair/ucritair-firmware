@@ -72,22 +72,20 @@ PERSIST_RAM uint64_t rtc_offset;
 PERSIST_RAM uint32_t rtc_init_check;
 
 // seconds between sample
-PERSIST_RAM uint16_t sensor_wakeup_rate;
-PERSIST_RAM uint8_t nox_every_n_samples;
-PERSIST_RAM uint8_t nox_every_n_samples_counter;
+PERSIST_RAM uint16_t sensor_wakeup_period;
+PERSIST_RAM uint8_t nox_sample_period;
+PERSIST_RAM uint8_t nox_sample_counter;
 
 // true if we woke to sample
 PERSIST_RAM uint8_t wakeup_is_from_timer;
+PERSIST_RAM uint64_t sleep_timestamp;
 
-PERSIST_RAM uint64_t went_to_sleep_at;
-
-PERSIST_RAM uint8_t guy_happiness;
-PERSIST_RAM bool guy_is_wearing_mask;
-PERSIST_RAM char guy_name[64];
-PERSIST_RAM uint16_t guy_level;
+PERSIST_RAM uint8_t pet_mood;
+PERSIST_RAM uint8_t pet_mask;
+PERSIST_RAM char pet_name[64];
+PERSIST_RAM uint16_t pet_level;
 
 PERSIST_RAM uint8_t screen_brightness;
-
 PERSIST_RAM uint16_t dim_after_seconds;
 PERSIST_RAM uint16_t sleep_after_seconds;
 
@@ -118,9 +116,7 @@ PERSIST_RAM uint8_t led_brightness;
 
 #define RTC_INIT_CHECK_MAGIC 0xb8870011
 
-bool is_first_init = false;
-
-_Static_assert(sizeof(time_t) == sizeof(uint64_t));
+bool is_persist_fresh = false;
 
 time_t get_current_rtc_time()
 {
@@ -163,23 +159,23 @@ void check_rtc_init()
 {
 	if (rtc_init_check != RTC_INIT_CHECK_MAGIC)
 	{
-		is_first_init = true;
+		is_persist_fresh = true;
 		rtc_init_check = RTC_INIT_CHECK_MAGIC;
 
-		sensor_wakeup_rate = 3*60;
-		nox_every_n_samples = 0;
-		nox_every_n_samples_counter = 0;
+		sensor_wakeup_period = 3*60;
+		nox_sample_period = 0;
+		nox_sample_counter = 0;
 		wakeup_is_from_timer = false;
 		zero_rtc_counter();
-		went_to_sleep_at = get_current_rtc_time();
+		sleep_timestamp = get_current_rtc_time();
 
-		guy_happiness = 1;
-		guy_is_wearing_mask = false;
-		guy_level = 0;
+		pet_mood = 1;
+		pet_mask = false;
+		pet_level = 0;
 		const char* name_str = CAT_DEFAULT_PET_NAME;
 		for(int i = 0; name_str[i] < 5; i++)
-			guy_name[i] = name_str[i];
-		guy_name[5] = '\0';
+			pet_name[i] = name_str[i];
+		pet_name[5] = '\0';
 
 		screen_brightness = BACKLIGHT_FULL;
 		dim_after_seconds = 45;
@@ -228,13 +224,13 @@ void update_rtc()
 
 void continue_rtc_from_log()
 {
-	if (!is_first_init) return;
+	if (!is_persist_fresh) return;
 	if (next_log_cell_nr <= 0) return;
 
 	CAT_log_cell cell;
 	flash_get_cell_by_nr(next_log_cell_nr-1, &cell);
 	set_rtc_counter_raw(cell.timestamp);
-	went_to_sleep_at = get_current_rtc_time() - 10;
+	sleep_timestamp = get_current_rtc_time() - 10;
 }
 
 char* month_names[12] = {

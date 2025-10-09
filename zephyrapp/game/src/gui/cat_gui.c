@@ -485,9 +485,10 @@ typedef struct menu_node
 		
 		struct
 		{
-			int* ticker;
+			int value;
 			int min;
 			int max;
+			bool changed;
 		} ticker_data;
 
 		struct
@@ -678,19 +679,26 @@ bool CAT_gui_menu_toggle(const char* title, bool toggle, CAT_gui_toggle_style st
 	return consume_click(idx);
 }
 
-bool CAT_gui_menu_ticker(const char* title, int* ticker, int min, int max)
+int CAT_gui_menu_ticker(const char* title, int value, int min, int max)
 {	
 	int idx = find_menu_node(title);
-	if(idx == -1)
+	bool first_call = idx == -1;
+	if(first_call)
 		idx = register_menu_node(title, CAT_GUI_MENU_TYPE_TICKER);
 	menu_add_child(idx);
 	menu_node* node = &menu_table[idx];
 
-	node->ticker_data.ticker = ticker;
+	if(first_call || node->ticker_data.value != value && !node->ticker_data.changed)
+		node->ticker_data.value = value;
 	node->ticker_data.min = min;
 	node->ticker_data.max = max;
 
-	return consume_click(idx);
+	if(node->ticker_data.changed)
+	{
+		node->ticker_data.changed = false;
+		return node->ticker_data.value;
+	}
+	return value;
 }
 
 bool CAT_gui_menu_text(const char* fmt, ...)
@@ -733,15 +741,22 @@ void CAT_gui_menu_logic()
 	{
 		case CAT_GUI_MENU_TYPE_TICKER:
 		{
-			int* ticker = selected->ticker_data.ticker;
 			if(CAT_input_pulse(CAT_BUTTON_LEFT))
-				*ticker -= 1;
+			{
+				selected->ticker_data.value -= 1;
+				selected->ticker_data.changed = true;
+			}
 			if(CAT_input_pulse(CAT_BUTTON_RIGHT))
-				*ticker += 1;
-			if(*ticker < selected->ticker_data.min)
-				*ticker = selected->ticker_data.max;
-			if(*ticker > selected->ticker_data.max)
-				*ticker = selected->ticker_data.min;
+			{
+				selected->ticker_data.value += 1;
+				selected->ticker_data.changed = true;
+			}
+			selected->ticker_data.value = clamp
+			(
+				selected->ticker_data.value,
+				selected->ticker_data.min,
+				selected->ticker_data.max
+			);
 		}
 		break;
 
@@ -794,7 +809,7 @@ void CAT_gui_menu()
 				CAT_gui_text(" ");
 			break;
 			case CAT_GUI_MENU_TYPE_TICKER:
-				CAT_gui_textf("< %d > ", *(int*)(child->ticker_data.ticker));
+				CAT_gui_textf("< %d > ", child->ticker_data.value);
 			break;
 			default:
 			break;

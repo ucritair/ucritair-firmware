@@ -64,10 +64,6 @@ int CAT_get_render_cycle();
 bool CAT_is_first_render_cycle();
 bool CAT_is_last_render_cycle();
 
-uint8_t CAT_LCD_get_brightness();
-void CAT_LCD_set_brightness(uint8_t percent);
-int* CAT_LCD_brightness_pointer();
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // EINK SCREEN
@@ -105,9 +101,6 @@ void CAT_orientation_tick();
 // LEDs
 
 void CAT_set_LEDs(uint8_t r, uint8_t g, uint8_t b);
-void CAT_LED_set_brightness(uint8_t percent);
-uint8_t CAT_LED_get_brightness();
-int* CAT_LED_brightness_pointer();
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -234,14 +227,14 @@ typedef struct __attribute__((__packed__))
 
 typedef enum
 {
-	CAT_CONFIG_FLAG_NONE = 0,
-	CAT_CONFIG_FLAG_DEVELOPER = (1 << 0),
-	CAT_CONFIG_FLAG_USE_FAHRENHEIT = (1 << 1),
-	CAT_CONFIG_FLAG_AQ_FIRST = (1 << 2),
-	CAT_CONFIG_FLAG_MIGRATED = (1 << 3),
-	CAT_CONFIG_FLAG_PAUSE_CARE = (1 << 4),
-	CAT_CONFIG_FLAG_KALI_YUGA = (1 << 5)
-} CAT_config_flag;
+	CAT_SAVE_CONFIG_FLAG_NONE = 0,
+	CAT_SAVE_CONFIG_FLAG_DEVELOPER = (1 << 0),
+	CAT_SAVE_CONFIG_FLAG_USE_FAHRENHEIT = (1 << 1),
+	CAT_SAVE_CONFIG_FLAG_AQ_FIRST = (1 << 2),
+	CAT_SAVE_CONFIG_FLAG_MIGRATED = (1 << 3),
+	CAT_SAVE_CONFIG_FLAG_PAUSE_CARE = (1 << 4),
+	CAT_SAVE_CONFIG_FLAG_KALI_YUGA = (1 << 5)
+} CAT_save_config_flag;
 
 typedef enum
 {
@@ -516,20 +509,3 @@ static inline void CAT_bonus_set(uint32_t value)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // PERSISTENCE
-
-typedef enum
-{
-	CAT_PERSIST_FLAG_BATTERY_ALERT = (1 << 0),
-	CAT_PERSIST_FLAG_MANUAL_ORIENT = (1 << 1)
-} CAT_persist_flag;
-
-uint8_t* CAT_AQ_crisis_state_persist();
-uint8_t* CAT_pet_timing_state_persist();
-bool CAT_was_persist_wiped();
-
-uint64_t CAT_get_persist_flags();
-void CAT_set_persist_flags(uint64_t flags);
-
-bool CAT_get_persist_flag(uint64_t flags);
-void CAT_raise_persist_flag(uint64_t flags);
-void CAT_lower_persist_flag(uint64_t flags);

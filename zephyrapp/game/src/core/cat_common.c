@@ -10,28 +10,7 @@
 #include "item_assets.h"
 #include "cat_gui.h"
 #include "cat_input.h"
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// LCD
-
-// THIS IS AN INT BECAUSE IT MAY BE ACCESSED VIA AN INT POINTER AND LEAVING IT AS A UINT8 CAUSES MEMORY OVERWRITE ISSUES
-static int lcd_brightness = CAT_LCD_MAX_BRIGHTNESS;
-
-void CAT_LCD_set_brightness(uint8_t percent)
-{
-	lcd_brightness = clamp(percent, CAT_LCD_MIN_BRIGHTNESS, CAT_LCD_MAX_BRIGHTNESS);
-}
-
-uint8_t CAT_LCD_get_brightness()
-{
-	return lcd_brightness;
-}
-
-int* CAT_LCD_brightness_pointer()
-{
-	return &lcd_brightness;
-}
+#include "cat_persist.h"
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -146,36 +125,13 @@ void CAT_flip_screen()
 
 void CAT_orientation_tick()
 {
-	if(!CAT_get_persist_flag(CAT_PERSIST_FLAG_MANUAL_ORIENT))
+	if(!(persist_flags & CAT_PERSIST_CONFIG_FLAG_MANUAL_ORIENT))
 	{
 		CAT_poll_screen_flip();
 		if(CAT_should_flip_screen())
 			CAT_flip_screen();
 	}
 }
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// LEDs
-
-// THIS IS AN INT BECAUSE IT MAY BE ACCESSED VIA AN INT POINTER AND LEAVING IT AS A UINT8 CAUSES MEMORY OVERWRITE ISSUES
-static int led_brightness = 100;
-
-void CAT_LED_set_brightness(uint8_t percent)
-{
-	led_brightness = clamp(percent, 0, 100);
-}
-
-uint8_t CAT_LED_get_brightness()
-{
-	return led_brightness;
-}
-
-int* CAT_LED_brightness_pointer()
-{
-	return &led_brightness;
-}
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // AIR QUALITY
@@ -289,6 +245,33 @@ void CAT_AQ_update_moving_scores()
 		block->aggregate = float2int(CAT_AQ_aggregate_score(), 1);	
 	}
 	block->sample_count += 1;
+}
+
+CAT_AQ_score_block* CAT_AQ_get_moving_scores()
+{
+	return &aq_moving_scores;
+}
+
+void CAT_AQ_score_buffer_reset()
+{
+	for(int i = 0; i < 7; i++)
+	{
+		memcpy(&aq_score_buffer[i], &aq_moving_scores, sizeof(CAT_AQ_score_block));
+	}
+	aq_score_head = 0;
+}
+
+void CAT_AQ_score_buffer_push(CAT_AQ_score_block* in)
+{
+	CAT_AQ_score_block* block = &aq_score_buffer[aq_score_head];
+	memcpy(block, in, sizeof(CAT_AQ_score_block));
+	aq_score_head = (aq_score_head+1) % 7;
+}
+
+CAT_AQ_score_block* CAT_AQ_score_buffer_get(int idx)
+{
+	idx = (aq_score_head+idx) % 7;
+	return &aq_score_buffer[idx];
 }
 
 
@@ -444,7 +427,7 @@ void CAT_initialize_save_sector(CAT_save* save, CAT_save_sector sector)
 		case CAT_SAVE_SECTOR_CONFIG:
 			save->config.header.label = CAT_SAVE_SECTOR_CONFIG;
 			save->config.header.size = sizeof(save->config);
-			save->config.flags = CAT_CONFIG_FLAG_NONE;
+			save->config.flags = CAT_SAVE_CONFIG_FLAG_NONE;
 			save->config.theme = 0;
 			break;
 
@@ -585,11 +568,11 @@ void CAT_migrate_legacy_save(void* save)
 
 	new->highscores.snake = migration_buffer.snake_high_score;
 
-	new->config.flags = CAT_CONFIG_FLAG_NONE;
+	new->config.flags = CAT_SAVE_CONFIG_FLAG_NONE;
 	if(migration_buffer.save_flags & 1)
-		new->config.flags |= CAT_CONFIG_FLAG_DEVELOPER;
+		new->config.flags |= CAT_SAVE_CONFIG_FLAG_DEVELOPER;
 	if(migration_buffer.temperature_unit == CAT_TEMPERATURE_UNIT_DEGREES_FAHRENHEIT)
-		new->config.flags |= CAT_CONFIG_FLAG_USE_FAHRENHEIT;
+		new->config.flags |= CAT_SAVE_CONFIG_FLAG_USE_FAHRENHEIT;
 	new->config.theme = migration_buffer.theme;
 }
 
@@ -619,7 +602,7 @@ void CAT_extend_save(CAT_save* save)
 	}
 }
 
-static uint64_t config_flags = CAT_CONFIG_FLAG_NONE;
+static uint64_t config_flags = CAT_SAVE_CONFIG_FLAG_NONE;
 
 uint64_t CAT_get_config_flags()
 {
@@ -681,4 +664,3 @@ void CAT_print_timestamp(const char* title, uint64_t t)
 	CAT_make_datetime(t, &dt);
 	CAT_print_datetime(title, &dt);
 }
-

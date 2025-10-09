@@ -84,7 +84,7 @@ bool CAT_gui_menu_is_open();
 
 bool CAT_gui_menu_item(const char* title);
 bool CAT_gui_menu_toggle(const char* title, bool toggle, CAT_gui_toggle_style style);
-bool CAT_gui_menu_ticker(const char* title, int* ticker, int min, int max);
+int CAT_gui_menu_ticker(const char* title, int value, int min, int max);
 bool CAT_gui_menu_text(const char* fmt, ...);
 
 

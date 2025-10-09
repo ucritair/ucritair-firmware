@@ -88,7 +88,7 @@ int main(void)
 	test_flash();
 	continue_rtc_from_log();
 
-	if(CAT_was_persist_wiped())
+	if(is_persist_fresh)
 	{
 		pet_timing_state.last_life_time = CAT_get_RTC_now();
 		pet_timing_state.last_stat_time = CAT_get_RTC_now();
@@ -102,7 +102,7 @@ int main(void)
 		set_first_led((struct led_rgb){.g=1});
 		k_msleep(50);
 
-		bool trying_to_take_nox_reading = nox_every_n_samples != 0 && (nox_every_n_samples_counter == (nox_every_n_samples-1));
+		bool trying_to_take_nox_reading = nox_sample_period != 0 && (nox_sample_counter == (nox_sample_period-1));
 
 		int cycle = 1;
 #define CYCLE_TIME 20
@@ -151,10 +151,10 @@ int main(void)
 
 			if (are_ready)
 			{
-				nox_every_n_samples_counter++;
-				if (nox_every_n_samples == nox_every_n_samples_counter)
+				nox_sample_counter++;
+				if (nox_sample_period == nox_sample_counter)
 				{
-					nox_every_n_samples_counter = 0;
+					nox_sample_counter = 0;
 				}
 
 				LOG_INF("readings ready");
@@ -165,14 +165,14 @@ int main(void)
 				epaper_render_test();
 				LOG_INF("power off");
 				k_msleep(20);
-				power_off(sensor_wakeup_rate*1000, false);
+				power_off(sensor_wakeup_period*1000, false);
 			}
 
 			if (cycle > (120000/CYCLE_TIME))
 			{
 				// give up and try again later
 				LOG_INF("Giving up and power off");
-				power_off(sensor_wakeup_rate*1000, false);
+				power_off(sensor_wakeup_period*1000, false);
 			}
 		}
 	}

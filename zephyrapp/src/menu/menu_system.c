@@ -59,7 +59,7 @@ void menu_t_go_co2()
 
 void menu_t_sleep()
 {
-	power_off(sensor_wakeup_rate*1000, false);
+	power_off(sensor_wakeup_period*1000, false);
 }
 
 void menu_t_power_off()
