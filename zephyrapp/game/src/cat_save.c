@@ -54,10 +54,6 @@ void CAT_force_save()
 	save->highscores.mine = 0;
 	save->highscores.foursquares = 0;
 
-	if(CAT_AQ_get_temperature_unit() == CAT_TEMPERATURE_UNIT_DEGREES_FAHRENHEIT)
-		CAT_raise_config_flags(CAT_SAVE_CONFIG_FLAG_USE_FAHRENHEIT);
-	else
-		CAT_lower_config_flags(CAT_SAVE_CONFIG_FLAG_USE_FAHRENHEIT);
 	save->config.flags = CAT_get_config_flags();
 
 	for(int i = 0; i < THEME_COUNT; i++)
@@ -167,7 +163,6 @@ void CAT_force_load()
 		{
 			CAT_printf("Save requires migration...\n");
 			CAT_migrate_legacy_save(save);
-			CAT_raise_config_flags(CAT_SAVE_CONFIG_FLAG_MIGRATED);
 			CAT_inventory_add(save_migrate_mark_item, 1);
 			CAT_printf("Save migrated!\n");
 		}
@@ -255,10 +250,6 @@ void CAT_force_load()
 	snake_high_score = save->highscores.snake;
 
 	CAT_set_config_flags(save->config.flags);
-	if(save->config.flags & CAT_SAVE_CONFIG_FLAG_USE_FAHRENHEIT)
-		CAT_AQ_set_temperature_unit(CAT_TEMPERATURE_UNIT_DEGREES_FAHRENHEIT);
-	else
-		CAT_AQ_set_temperature_unit(CAT_TEMPERATURE_UNIT_DEGREES_CELSIUS);
 	if(save->config.theme < THEME_COUNT)
 		CAT_room_set_theme(themes_list[save->config.theme]);
 

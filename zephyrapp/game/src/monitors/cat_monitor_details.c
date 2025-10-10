@@ -105,7 +105,10 @@ int draw_typical(int cursor_y, int aqm)
 	int cursor_x = 12;
 	cursor_x = draw_title(cursor_x, cursor_y, CAT_AQ_get_title_string(aqm));
 	uint16_t c = CAT_AQ_get_grade_colour(CAT_AQ_live_score_normalized(aqm));
-	cursor_x = draw_value(cursor_x, cursor_y, c, "%d", (int) CAT_AQ_live_score_raw(aqm));
+	if(aqm == CAT_AQM_TEMP)
+		cursor_x = draw_value(cursor_x, cursor_y, c, "%d", (int) CAT_AQ_map_celsius(CAT_AQ_live_score_raw(aqm)));
+	else
+		cursor_x = draw_value(cursor_x, cursor_y, c, "%d", (int) CAT_AQ_live_score_raw(aqm));
 	cursor_x = draw_unit(cursor_x, cursor_y, CAT_AQ_get_unit_string(aqm));
 	cursor_y = draw_delta(cursor_x, cursor_y, aqm);
 	return cursor_y;

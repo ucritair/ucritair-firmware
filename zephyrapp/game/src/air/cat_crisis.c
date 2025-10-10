@@ -8,6 +8,7 @@
 #include "cat_room.h"
 #include "cat_pet.h"
 #include <math.h>
+#include "cat_persist.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // CRISIS
@@ -200,7 +201,7 @@ void CAT_AQ_stop_crisis(CAT_AQ_crisis_response_type response_type)
 	response_ratio < 2.0f ? CAT_AQ_CRISIS_RESPONSE_GRADE_INADEQUATE :
 	CAT_AQ_CRISIS_RESPONSE_GRADE_DISASTROUS;
 
-	if(!CAT_check_config_flags(CAT_SAVE_CONFIG_FLAG_PAUSE_CARE))
+	if(!(persist_flags & CAT_PERSIST_CONFIG_FLAG_PAUSE_CARE))
 	{
 		if
 		(

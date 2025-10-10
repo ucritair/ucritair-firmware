@@ -4,6 +4,7 @@
 #include <math.h>
 #include "cat_curves.h"
 #include "cat_render.h"
+#include "cat_persist.h"
 
 /**
  * @brief Performs linear interpolation to calculate the score for a parameter.
@@ -396,6 +397,13 @@ float CAT_AQ_live_score_delta(int aqm)
 void CAT_AQ_tick()
 {
 	CAT_AQ_store_live_scores();
+
+	CAT_AQ_set_temperature_unit
+	(
+		persist_flags & CAT_PERSIST_CONFIG_FLAG_USE_FAHRENHEIT ?
+		CAT_TEMPERATURE_UNIT_DEGREES_FAHRENHEIT :
+		CAT_TEMPERATURE_UNIT_DEGREES_CELSIUS
+	);
 }
 
 float CAT_AQ_block_score_raw(CAT_AQ_score_block* block, int aqm)

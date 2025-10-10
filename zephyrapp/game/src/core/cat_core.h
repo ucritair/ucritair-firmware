@@ -229,11 +229,7 @@ typedef enum
 {
 	CAT_SAVE_CONFIG_FLAG_NONE = 0,
 	CAT_SAVE_CONFIG_FLAG_DEVELOPER = (1 << 0),
-	CAT_SAVE_CONFIG_FLAG_USE_FAHRENHEIT = (1 << 1),
-	CAT_SAVE_CONFIG_FLAG_AQ_FIRST = (1 << 2),
-	CAT_SAVE_CONFIG_FLAG_MIGRATED = (1 << 3),
-	CAT_SAVE_CONFIG_FLAG_PAUSE_CARE = (1 << 4),
-	CAT_SAVE_CONFIG_FLAG_KALI_YUGA = (1 << 5)
+	CAT_SAVE_CONFIG_FLAG_KALI_YUGA = (1 << 1)
 } CAT_save_config_flag;
 
 typedef enum
@@ -505,7 +501,3 @@ static inline void CAT_bonus_set(uint32_t value)
 {
 	;
 }
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// PERSISTENCE

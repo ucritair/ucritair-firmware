@@ -56,7 +56,7 @@ void CAT_init()
 
 	CAT_force_load();
 
-	if(CAT_check_config_flags(CAT_SAVE_CONFIG_FLAG_AQ_FIRST))
+	if(persist_flags & CAT_PERSIST_CONFIG_FLAG_AQ_FIRST)
 		CAT_pushdown_rebase(CAT_MS_monitor);
 	else
 		CAT_pushdown_rebase(CAT_MS_room);

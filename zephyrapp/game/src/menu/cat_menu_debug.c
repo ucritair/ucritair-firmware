@@ -73,8 +73,6 @@ void CAT_render_debug()
 
 			if(CAT_check_config_flags(CAT_SAVE_CONFIG_FLAG_DEVELOPER))
 				CAT_gui_text("DEVELOPER MODE\n");
-			if(CAT_check_config_flags(CAT_SAVE_CONFIG_FLAG_MIGRATED))
-				CAT_gui_text("MIGRATED SAVE\n");
 			if(is_persist_fresh)
 				CAT_gui_text("PERSIST RESET\n");
 		break;

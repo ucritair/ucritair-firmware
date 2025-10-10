@@ -152,22 +152,18 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 					{
 						if(CAT_gui_begin_menu("LAUNCH MODE"))
 						{
-							if(CAT_gui_menu_toggle("GAME FIRST", !CAT_check_config_flags(CAT_SAVE_CONFIG_FLAG_AQ_FIRST), CAT_GUI_TOGGLE_STYLE_RADIO_BUTTON))
-							{
-								CAT_lower_config_flags(CAT_SAVE_CONFIG_FLAG_AQ_FIRST);
-							}
-							if(CAT_gui_menu_toggle("DASHBOARD FIRST", CAT_check_config_flags(CAT_SAVE_CONFIG_FLAG_AQ_FIRST), CAT_GUI_TOGGLE_STYLE_RADIO_BUTTON))
-							{
-								CAT_raise_config_flags(CAT_SAVE_CONFIG_FLAG_AQ_FIRST);
-							}
+							if(CAT_gui_menu_toggle("GAME FIRST", !(persist_flags & CAT_PERSIST_CONFIG_FLAG_AQ_FIRST), CAT_GUI_TOGGLE_STYLE_RADIO_BUTTON))
+								persist_flags |= CAT_PERSIST_CONFIG_FLAG_AQ_FIRST;
+							if(CAT_gui_menu_toggle("DASHBOARD FIRST", persist_flags & CAT_PERSIST_CONFIG_FLAG_AQ_FIRST, CAT_GUI_TOGGLE_STYLE_RADIO_BUTTON))
+								persist_flags &= ~CAT_PERSIST_CONFIG_FLAG_AQ_FIRST;
 							CAT_gui_end_menu();
 						}
-						if(CAT_gui_menu_toggle("PAUSE CRITTER CARE", CAT_check_config_flags(CAT_SAVE_CONFIG_FLAG_PAUSE_CARE), CAT_GUI_TOGGLE_STYLE_CHECKBOX))
+						if(CAT_gui_menu_toggle("PAUSE CRITTER CARE", persist_flags & CAT_PERSIST_CONFIG_FLAG_PAUSE_CARE, CAT_GUI_TOGGLE_STYLE_CHECKBOX))
 						{
-							if(CAT_check_config_flags(CAT_SAVE_CONFIG_FLAG_PAUSE_CARE))
-								CAT_lower_config_flags(CAT_SAVE_CONFIG_FLAG_PAUSE_CARE);
+							if(persist_flags & CAT_PERSIST_CONFIG_FLAG_PAUSE_CARE)
+								persist_flags &= ~CAT_PERSIST_CONFIG_FLAG_PAUSE_CARE;
 							else
-								CAT_raise_config_flags(CAT_SAVE_CONFIG_FLAG_PAUSE_CARE);
+								persist_flags |= CAT_PERSIST_CONFIG_FLAG_PAUSE_CARE;
 						}
 
 						CAT_gui_end_menu();
@@ -227,10 +223,10 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 					{
 						if(CAT_gui_begin_menu("TEMPERATURE UNIT"))
 						{
-							if(CAT_gui_menu_toggle("CELSIUS", CAT_AQ_get_temperature_unit() == CAT_TEMPERATURE_UNIT_DEGREES_CELSIUS, CAT_GUI_TOGGLE_STYLE_RADIO_BUTTON))
-								CAT_AQ_set_temperature_unit(CAT_TEMPERATURE_UNIT_DEGREES_CELSIUS);
-							if(CAT_gui_menu_toggle("FAHRENHEIT", CAT_AQ_get_temperature_unit() == CAT_TEMPERATURE_UNIT_DEGREES_FAHRENHEIT, CAT_GUI_TOGGLE_STYLE_RADIO_BUTTON))
-								CAT_AQ_set_temperature_unit(CAT_TEMPERATURE_UNIT_DEGREES_FAHRENHEIT);
+							if(CAT_gui_menu_toggle("CELSIUS", !(persist_flags & CAT_PERSIST_CONFIG_FLAG_USE_FAHRENHEIT), CAT_GUI_TOGGLE_STYLE_RADIO_BUTTON))
+								persist_flags &= ~CAT_PERSIST_CONFIG_FLAG_USE_FAHRENHEIT;
+							if(CAT_gui_menu_toggle("FAHRENHEIT", persist_flags & CAT_PERSIST_CONFIG_FLAG_USE_FAHRENHEIT, CAT_GUI_TOGGLE_STYLE_RADIO_BUTTON))
+								persist_flags |= CAT_PERSIST_CONFIG_FLAG_USE_FAHRENHEIT;
 							CAT_gui_end_menu();
 						}
 						CAT_gui_end_menu();

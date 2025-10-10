@@ -12,6 +12,7 @@
 #include <string.h>
 #include "cat_aqi.h"
 #include "sprite_assets.h"
+#include "cat_persist.h"
 #include "item_assets.h"
 
 static CAT_pet_timing_state timing_state = {0};
@@ -242,7 +243,7 @@ void apply_life_ticks(int ticks)
 {
 	if(CAT_pet_is_dead())
 		return;
-	if(CAT_check_config_flags(CAT_SAVE_CONFIG_FLAG_PAUSE_CARE))
+	if(persist_flags & CAT_PERSIST_CONFIG_FLAG_PAUSE_CARE)
 		return;
 
 	pet.lifetime += ticks;
@@ -260,7 +261,7 @@ void apply_stat_ticks(int ticks)
 {
 	if(CAT_pet_is_dead())
 		return;
-	if(CAT_check_config_flags(CAT_SAVE_CONFIG_FLAG_PAUSE_CARE))
+	if(persist_flags & CAT_PERSIST_CONFIG_FLAG_PAUSE_CARE)
 		return;
 
 	for(int i = 0; i < ticks; i++)
