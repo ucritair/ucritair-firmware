@@ -132,7 +132,10 @@ void lcd_init()
 		}
 		return;
 	}
-	// lcd_flip();
+
+	memset(lcd_framebuffer, 0, sizeof(uint16_t) * LCD_FRAMEBUFFER_W * LCD_FRAMEBUFFER_H);
+	for(int i = 0; i < LCD_FRAMEBUFFER_SEGMENTS; i++)
+		lcd_flip(lcd_framebuffer, i * LCD_FRAMEBUFFER_H);
 
 	LOG_DBG("Disable blanking...");
 
