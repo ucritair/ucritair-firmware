@@ -153,9 +153,9 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 						if(CAT_gui_begin_menu("LAUNCH MODE"))
 						{
 							if(CAT_gui_menu_toggle("GAME FIRST", !(persist_flags & CAT_PERSIST_CONFIG_FLAG_AQ_FIRST), CAT_GUI_TOGGLE_STYLE_RADIO_BUTTON))
-								persist_flags |= CAT_PERSIST_CONFIG_FLAG_AQ_FIRST;
-							if(CAT_gui_menu_toggle("DASHBOARD FIRST", persist_flags & CAT_PERSIST_CONFIG_FLAG_AQ_FIRST, CAT_GUI_TOGGLE_STYLE_RADIO_BUTTON))
 								persist_flags &= ~CAT_PERSIST_CONFIG_FLAG_AQ_FIRST;
+							if(CAT_gui_menu_toggle("DASHBOARD FIRST", persist_flags & CAT_PERSIST_CONFIG_FLAG_AQ_FIRST, CAT_GUI_TOGGLE_STYLE_RADIO_BUTTON))
+								persist_flags |= CAT_PERSIST_CONFIG_FLAG_AQ_FIRST;
 							CAT_gui_end_menu();
 						}
 						if(CAT_gui_menu_toggle("PAUSE CRITTER CARE", persist_flags & CAT_PERSIST_CONFIG_FLAG_PAUSE_CARE, CAT_GUI_TOGGLE_STYLE_CHECKBOX))
