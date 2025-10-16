@@ -120,7 +120,7 @@ void CAT_flip_screen()
 	screen_orientation = !screen_orientation;
 	for(int i = 0; i < FLIP_BUFFER_SIZE; i++)
 		flip_buffer[i] = false;
-	// CAT_set_eink_update_flag(true);
+	CAT_set_eink_update_flag(true);
 }
 
 void CAT_orientation_tick()

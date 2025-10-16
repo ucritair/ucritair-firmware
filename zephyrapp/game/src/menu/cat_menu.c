@@ -217,6 +217,7 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 								CAT_set_eink_update_flag(true);
 							}
 						}*/
+					
 						CAT_gui_end_menu();
 					}
 					if(CAT_gui_begin_menu("AIR QUALITY"))
