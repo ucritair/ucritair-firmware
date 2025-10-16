@@ -175,6 +175,13 @@ bool CAT_AQ_sensors_initialized()
 	readings.sen5x.pm2_5 > 0);
 }
 
+bool CAT_AQ_NOX_VOC_initialized()
+{
+	return
+	readings.sen5x.nox_index > 0 &&
+	readings.sen5x.voc_index > 0;
+}
+
 static CAT_temperature_unit temperature_unit = CAT_TEMPERATURE_UNIT_DEGREES_CELSIUS;
 
 CAT_temperature_unit CAT_AQ_get_temperature_unit()
@@ -213,65 +220,62 @@ float int2float(int i, float scale_factor)
 	return i / scale_factor;
 }
 
-int move_average(int x_bar, int samples, float x, float scale_factor)
+int move_average(int x_bar, float x, float scale_factor)
 {
 	float x_bar_f = int2float(x_bar, scale_factor);
-	//x_bar_f = x_bar_f + (x - x_bar_f) / (float) samples;
-	x_bar_f = x_bar_f + (x - x_bar_f) / 7;
+	float n = aq_moving_score_samples+1;
+	float old_weight = (n-1) / n;
+	float new_weight = 1.0f / n;
+	x_bar_f = x_bar_f * old_weight + x * new_weight;
 	return float2int(x_bar_f, scale_factor);
+}
+
+bool CAT_AQ_moving_scores_initialized()
+{
+	return aq_moving_score_time > 0;
 }
 
 void CAT_AQ_update_moving_scores()
 {
-	CAT_AQ_score_block* block = CAT_AQ_get_moving_scores();
-	if(block->sample_count > 0)
-	{
-		block->CO2 = move_average(block->CO2, block->sample_count, readings.sunrise.ppm_filtered_uncompensated, 1);
-		block->NOX = move_average(block->NOX, block->sample_count, readings.sen5x.nox_index, 1);
-		block->VOC = move_average(block->VOC, block->sample_count, readings.sen5x.voc_index, 1);
-		block->PM2_5 = move_average(block->PM2_5, block->sample_count, readings.sen5x.pm2_5, 100);
-		block->temp = move_average(block->temp, block->sample_count, CAT_canonical_temp(), 1000);
-		block->rh = move_average(block->rh, block->sample_count, readings.sen5x.humidity_rhpct, 100);
-		block->aggregate = move_average(block->aggregate, block->sample_count, CAT_AQ_aggregate_score(), 1);
-	}
-	else
-	{
-		block->CO2 = float2int(readings.sunrise.ppm_filtered_uncompensated, 1);
-		block->NOX = float2int(readings.sen5x.nox_index, 1);
-		block->VOC = float2int(readings.sen5x.voc_index, 1);
-		block->PM2_5 = float2int(readings.sen5x.pm2_5, 100);
-		block->temp = float2int(CAT_canonical_temp(), 1000);
-		block->rh = float2int(readings.sen5x.humidity_rhpct, 100);
-		block->aggregate = float2int(CAT_AQ_aggregate_score(), 1);	
-	}
-	block->sample_count += 1;
+	CAT_AQ_score_block* block = &aq_moving_scores;
+	block->CO2 = move_average(block->CO2, readings.sunrise.ppm_filtered_uncompensated, 1);
+	block->NOX = move_average(block->NOX, readings.sen5x.nox_index, 1);
+	block->VOC = move_average(block->VOC, readings.sen5x.voc_index, 1);
+	block->PM2_5 = move_average(block->PM2_5, readings.sen5x.pm2_5, 100);
+	block->temp = move_average(block->temp, CAT_canonical_temp(), 1000);
+	block->rh = move_average(block->rh, readings.sen5x.humidity_rhpct, 100);
+	block->aggregate = move_average(block->aggregate, CAT_AQ_aggregate_score(), 1);
+	
+	aq_moving_score_samples += 1;
+	aq_moving_score_time = CAT_get_RTC_now();
 }
 
-CAT_AQ_score_block* CAT_AQ_get_moving_scores()
+bool CAT_AQ_weekly_scores_initialized()
 {
-	return &aq_moving_scores;
+	return aq_weekly_score_time > 0;
 }
 
-void CAT_AQ_score_buffer_reset()
+void CAT_AQ_push_weekly_scores(CAT_AQ_score_block* in)
 {
-	for(int i = 0; i < 7; i++)
+	if(aq_weekly_score_time == 0)
 	{
-		memcpy(&aq_score_buffer[i], &aq_moving_scores, sizeof(CAT_AQ_score_block));
+		for(int i = 0; i < 7; i++)
+			memcpy(&aq_weekly_scores[i], &aq_moving_scores, sizeof(CAT_AQ_score_block));
+		aq_weekly_score_head = 0;
 	}
-	aq_score_head = 0;
-}
 
-void CAT_AQ_score_buffer_push(CAT_AQ_score_block* in)
-{
-	CAT_AQ_score_block* block = &aq_score_buffer[aq_score_head];
+	CAT_AQ_score_block* block = &aq_weekly_scores[aq_weekly_score_head];
 	memcpy(block, in, sizeof(CAT_AQ_score_block));
-	aq_score_head = (aq_score_head+1) % 7;
+
+	aq_weekly_score_head = (aq_weekly_score_head+1) % 7;
+	aq_weekly_score_time = CAT_get_RTC_now();
+	aq_moving_score_samples = 0;
 }
 
-CAT_AQ_score_block* CAT_AQ_score_buffer_get(int idx)
+CAT_AQ_score_block* CAT_AQ_get_weekly_scores(int idx)
 {
-	idx = (aq_score_head+idx) % 7;
-	return &aq_score_buffer[idx];
+	idx = (aq_weekly_score_head+idx) % 7;
+	return &aq_weekly_scores[idx];
 }
 
 

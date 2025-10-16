@@ -153,9 +153,7 @@ void CAT_tick_render()
 
 #ifdef CAT_DESKTOP
 int main(int argc, char** argv)
-{
-	CAT_AQ_score_buffer_reset();
-	
+{	
 	CAT_init();
 	
 	while (CAT_get_battery_pct() > 0)

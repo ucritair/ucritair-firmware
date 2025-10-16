@@ -647,30 +647,3 @@ void CAT_printf(const char* fmt, ...)
 	vdprintf(STDOUT_FILENO, fmt, args);
 	va_end(args);
 }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// PERSISTENCE
-
-volatile uint64_t rtc_offset;
-volatile uint16_t sensor_wakeup_period;
-volatile uint8_t nox_sample_period;
-volatile uint8_t nox_sample_counter;
-volatile uint8_t wakeup_is_from_timer;
-volatile uint64_t sleep_timestamp;
-volatile uint8_t pet_mood;
-volatile uint8_t pet_mask;
-volatile char pet_name[64];
-volatile uint16_t pet_level;
-volatile uint8_t screen_brightness;
-volatile uint8_t led_brightness;
-volatile uint16_t dim_after_seconds;
-volatile uint16_t sleep_after_seconds;
-volatile CAT_AQ_score_block aq_moving_scores;
-volatile uint64_t aq_last_moving_score_time;
-volatile CAT_AQ_score_block aq_score_buffer[7];
-volatile uint8_t aq_score_head;
-volatile uint64_t aq_last_buffered_score_time;
-volatile CAT_AQ_crisis_state aq_crisis_state;
-volatile CAT_pet_timing_state pet_timing_state;
-volatile uint64_t persist_flags;
-bool is_persist_fresh;

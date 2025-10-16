@@ -227,6 +227,12 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 								persist_flags &= ~CAT_PERSIST_CONFIG_FLAG_USE_FAHRENHEIT;
 							if(CAT_gui_menu_toggle("FAHRENHEIT", persist_flags & CAT_PERSIST_CONFIG_FLAG_USE_FAHRENHEIT, CAT_GUI_TOGGLE_STYLE_RADIO_BUTTON))
 								persist_flags |= CAT_PERSIST_CONFIG_FLAG_USE_FAHRENHEIT;
+							CAT_AQ_set_temperature_unit
+							(
+								persist_flags & CAT_PERSIST_CONFIG_FLAG_USE_FAHRENHEIT ?
+								CAT_TEMPERATURE_UNIT_DEGREES_FAHRENHEIT :
+								CAT_TEMPERATURE_UNIT_DEGREES_CELSIUS
+							);
 							CAT_gui_end_menu();
 						}
 						CAT_gui_end_menu();

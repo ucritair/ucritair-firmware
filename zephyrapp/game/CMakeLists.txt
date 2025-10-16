@@ -209,6 +209,7 @@ target_sources(app PRIVATE
 	data/dialogue_profile_assets.c
 
 	src/cat_save.c
+	src/cat_persist.c
 	src/cat_main.c)
 
 target_include_directories(app PRIVATE src/)

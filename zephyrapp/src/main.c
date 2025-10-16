@@ -88,13 +88,6 @@ int main(void)
 	test_flash();
 	continue_rtc_from_log();
 
-	if(is_persist_fresh)
-	{
-		pet_timing_state.last_life_time = CAT_get_RTC_now();
-		pet_timing_state.last_stat_time = CAT_get_RTC_now();
-		pet_timing_state.last_milk_time = CAT_get_RTC_now();	
-	}
-
 	if (wakeup_is_from_timer)
 	{
 		LOG_DBG("Booted from timer");

@@ -25,6 +25,4 @@ void set_rtc_counter(struct tm* t);
 void set_rtc_counter_raw(uint64_t t);
 void configure_rtc_timer3(int for_ms);
 
-#define PERSIST_RAM __attribute__((__section__(".endmap_presist_region"))) volatile
-
 extern char* month_names[12];

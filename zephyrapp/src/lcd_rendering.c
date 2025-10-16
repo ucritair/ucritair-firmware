@@ -198,30 +198,6 @@ void lcd_render_diag()
 		charging_last_frame = is_charging;
 
 		//////////////////////////////////////////////////////////
-		// AQ SPARKLINE STORE
-
-		uint64_t now = CAT_get_RTC_now();
-		uint64_t time_since = now - aq_last_moving_score_time;
-
-		if(time_since > 5 && CAT_AQ_sensors_initialized())
-		{
-			CAT_AQ_update_moving_scores();
-			aq_last_moving_score_time = now;
-		}
-		
-		time_since = now - aq_last_buffered_score_time;
-		if(time_since > CAT_AQ_SPARKLINE_SAMPLE_PERIOD && CAT_AQ_sensors_initialized())
-		{
-			if(is_persist_fresh)
-			{
-				CAT_AQ_score_buffer_reset();
-			}
-
-			CAT_AQ_score_buffer_push(CAT_AQ_get_moving_scores());
-			aq_last_buffered_score_time = now;
-		}
-
-		//////////////////////////////////////////////////////////
 		// MISC. UPDATES
 
 		if(CAT_get_battery_pct() <= CAT_CRITICAL_BATTERY_PCT)

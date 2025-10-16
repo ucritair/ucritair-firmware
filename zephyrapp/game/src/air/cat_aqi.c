@@ -313,40 +313,36 @@ float raw_scores_last[CAT_AQM_COUNT];
 float normalized_scores[CAT_AQM_COUNT];
 float deltas[CAT_AQM_COUNT];
 
-void store_fallback()
-{
-	if(!CAT_AQ_logs_initialized())
-		return;
-
-	CAT_log_cell last_cell;
-	CAT_read_log_cell_at_idx(CAT_get_log_cell_count()-1, &last_cell);
-
-	memset(deltas, 0, sizeof(deltas));
-
-	raw_scores[CAT_AQM_CO2] = last_cell.co2_ppmx1 * 1.0f;
-	raw_scores[CAT_AQM_PM2_5] = last_cell.pm_ugmx100[1] / 100.0f;
-	raw_scores[CAT_AQM_VOC] = last_cell.voc_index;
-	raw_scores[CAT_AQM_NOX] = last_cell.nox_index;
-	raw_scores[CAT_AQM_TEMP] = last_cell.temp_Cx1000 / 1000.0f;
-	raw_scores[CAT_AQM_RH] = last_cell.rh_pctx100 / 100.0f;
-
-	float iaq = CAT_IAQ_score
-	(
-		raw_scores[CAT_AQM_TEMP],
-		raw_scores[CAT_AQM_RH],
-		raw_scores[CAT_AQM_CO2],
-		raw_scores[CAT_AQM_PM2_5],
-		raw_scores[CAT_AQM_NOX],
-		raw_scores[CAT_AQM_VOC]
-	);
-	raw_scores[CAT_AQM_AGGREGATE] = ((5.0f - iaq) / 5.0f) * 100.0f;
-}
-
 void CAT_AQ_store_live_scores()
 {
 	if(!CAT_AQ_sensors_initialized())
 	{
-		store_fallback();
+		if(CAT_AQ_logs_initialized())
+		{
+			CAT_log_cell last_cell;
+			CAT_read_log_cell_at_idx(CAT_get_log_cell_count()-1, &last_cell);
+
+			raw_scores[CAT_AQM_CO2] = last_cell.co2_ppmx1 * 1.0f;
+			raw_scores[CAT_AQM_PM2_5] = last_cell.pm_ugmx100[1] / 100.0f;
+			raw_scores[CAT_AQM_VOC] = last_cell.voc_index;
+			raw_scores[CAT_AQM_NOX] = last_cell.nox_index;
+			raw_scores[CAT_AQM_TEMP] = last_cell.temp_Cx1000 / 1000.0f;
+			raw_scores[CAT_AQM_RH] = last_cell.rh_pctx100 / 100.0f;
+
+			float iaq = CAT_IAQ_score
+			(
+				raw_scores[CAT_AQM_TEMP],
+				raw_scores[CAT_AQM_RH],
+				raw_scores[CAT_AQM_CO2],
+				raw_scores[CAT_AQM_PM2_5],
+				raw_scores[CAT_AQM_NOX],
+				raw_scores[CAT_AQM_VOC]
+			);
+			raw_scores[CAT_AQM_AGGREGATE] = ((5.0f - iaq) / 5.0f) * 100.0f;
+
+			for(int i = 0; i < CAT_AQM_COUNT; i++)
+				raw_scores_last[i] = raw_scores[i];
+		}
 	}
 	else
 	{
@@ -359,13 +355,13 @@ void CAT_AQ_store_live_scores()
 		raw_scores[CAT_AQM_TEMP] = CAT_canonical_temp();
 		raw_scores[CAT_AQM_RH] = readings.sen5x.humidity_rhpct;
 		raw_scores[CAT_AQM_AGGREGATE] = CAT_AQ_aggregate_score();
+	}
 
-		for(int i = 0; i <= CAT_AQM_AGGREGATE; i++)
-		{
-			float delta = raw_scores[i] - raw_scores_last[i];
-			if(delta != 0)
-				deltas[i] = delta;
-		}
+	for(int i = 0; i <= CAT_AQM_AGGREGATE; i++)
+	{
+		float delta = raw_scores[i] - raw_scores_last[i];
+		if(delta != 0)
+			deltas[i] = delta;
 	}
 
 	normalized_scores[CAT_AQM_CO2] = CAT_CO2_score(raw_scores[CAT_AQM_CO2]);
@@ -392,18 +388,6 @@ float CAT_AQ_live_score_normalized(int aqm)
 float CAT_AQ_live_score_delta(int aqm)
 {
 	return deltas[aqm];
-}
-
-void CAT_AQ_tick()
-{
-	CAT_AQ_store_live_scores();
-
-	CAT_AQ_set_temperature_unit
-	(
-		persist_flags & CAT_PERSIST_CONFIG_FLAG_USE_FAHRENHEIT ?
-		CAT_TEMPERATURE_UNIT_DEGREES_FAHRENHEIT :
-		CAT_TEMPERATURE_UNIT_DEGREES_CELSIUS
-	);
 }
 
 float CAT_AQ_block_score_raw(CAT_AQ_score_block* block, int aqm)
@@ -434,4 +418,19 @@ float CAT_AQ_block_score_normalized(CAT_AQ_score_block* block, int aqm)
 		case CAT_AQM_AGGREGATE: return block->aggregate / 100.0f;
 		default: return 0;
 	}
+}
+
+void CAT_AQ_tick()
+{
+	uint64_t now = CAT_get_RTC_now();
+
+	CAT_AQ_store_live_scores();
+
+	uint64_t time_since = now - aq_moving_score_time;
+	if(time_since > CAT_AQ_MOVING_SAMPLE_PERIOD && CAT_AQ_sensors_initialized())
+		CAT_AQ_update_moving_scores();
+	
+	time_since = now - aq_weekly_score_time;
+	if(time_since > CAT_AQ_SPARKLINE_SAMPLE_PERIOD && CAT_AQ_sensors_initialized())
+		CAT_AQ_push_weekly_scores(&aq_moving_scores);
 }

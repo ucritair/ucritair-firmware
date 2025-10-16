@@ -12,6 +12,7 @@ LOG_MODULE_REGISTER(rtc, LOG_LEVEL_DBG);
 #include "flash.h"
 #include "lcd_driver.h"
 #include "power_control.h"
+#include "cat_persist.h"
 
 #include <hal/nrf_gpio.h>
 #include <soc/nrfx_coredep.h>
@@ -62,61 +63,7 @@ void configure_rtc_timer3(int for_ms)
 	nrfx_rtc_cc_set(&rtc_inst, 3, nrf_rtc_counter_get(HW_RTC_CHOSEN) + (for_ms/125), true);
 }
 
-//////////////////////////////////////////////////////////
-// BEGIN PERSIST RAM
-
-// epoch time seconds of RTC=0
-PERSIST_RAM uint64_t rtc_offset;
-
-// 0xdeadbeef if retained ram is valid
-PERSIST_RAM uint32_t rtc_init_check;
-
-// seconds between sample
-PERSIST_RAM uint16_t sensor_wakeup_period;
-PERSIST_RAM uint8_t nox_sample_period;
-PERSIST_RAM uint8_t nox_sample_counter;
-
-// true if we woke to sample
-PERSIST_RAM uint8_t wakeup_is_from_timer;
-PERSIST_RAM uint64_t sleep_timestamp;
-
-PERSIST_RAM uint8_t pet_mood;
-PERSIST_RAM uint8_t pet_mask;
-PERSIST_RAM char pet_name[64];
-PERSIST_RAM uint16_t pet_level;
-
-PERSIST_RAM uint8_t screen_brightness;
-PERSIST_RAM uint16_t dim_after_seconds;
-PERSIST_RAM uint16_t sleep_after_seconds;
-
-//////////////////////////////////////////////////////////
-// AQ SPARKLINE STORE
-
-PERSIST_RAM CAT_AQ_score_block aq_moving_scores;
-PERSIST_RAM uint64_t aq_last_moving_score_time;
-
-PERSIST_RAM CAT_AQ_score_block aq_score_buffer[7];
-PERSIST_RAM uint8_t aq_score_head;
-PERSIST_RAM uint64_t aq_last_buffered_score_time;
-
-//////////////////////////////////////////////////////////
-// MISC. STATE CHUNKS
-
-PERSIST_RAM CAT_AQ_crisis_state aq_crisis_state;
-PERSIST_RAM CAT_pet_timing_state pet_timing_state;
-PERSIST_RAM uint64_t persist_flags;
-
-//////////////////////////////////////////////////////////
-// LED BRIGHTNESS
-
-PERSIST_RAM uint8_t led_brightness;
-
-// END PERSIST RAM
-//////////////////////////////////////////////////////////
-
 #define RTC_INIT_CHECK_MAGIC 0xb8870011
-
-bool is_persist_fresh = false;
 
 time_t get_current_rtc_time()
 {
@@ -178,29 +125,38 @@ void check_rtc_init()
 		pet_name[5] = '\0';
 
 		screen_brightness = BACKLIGHT_FULL;
+		led_brightness = 100;
 		dim_after_seconds = 45;
 		sleep_after_seconds = 120;
 
 		//////////////////////////////////////////////////////////
 		// AQ SPARKLINE STORE
 		
-		aq_moving_scores = (CAT_AQ_score_block) {0};
-		aq_last_moving_score_time = 0;
-
-		aq_score_head = 0;
-		aq_last_buffered_score_time = 0;
+		aq_moving_score_time = 0;
+		aq_moving_score_samples = 0;
+		aq_weekly_score_time = 0;
 
 		//////////////////////////////////////////////////////////
 		// MISC. STATE CHUNKS
 
-		aq_crisis_state = (CAT_AQ_crisis_state) {0};
-		pet_timing_state = (CAT_pet_timing_state) {0};
-		persist_flags = 0;
+		aq_crisis_state = (CAT_AQ_crisis_state)
+		{
+			.type = CAT_AQ_CRISIS_TYPE_NONE,
+			.severity = CAT_AQ_CRISIS_SEVERITY_NONE,
+			.start_timestamp = 0,
+			.end_timestamp = 0
+		};
 
-		//////////////////////////////////////////////////////////
-		// LED BRIGHTNESS
+		pet_timing_state = (CAT_pet_timing_state)
+		{
+			.last_life_time = CAT_get_RTC_now(),
+			.last_milk_time = CAT_get_RTC_now(),
+			.last_stat_time = CAT_get_RTC_now(),
+			.milks_produced_today = 0,
+			.times_milked_since_producing = 0
+		};
 
-		led_brightness = 100;
+		persist_flags = CAT_PERSIST_CONFIG_FLAG_NONE;
 	}
 }
 

@@ -429,6 +429,7 @@ extern CAT_AQ_readings readings;
 
 bool CAT_AQ_logs_initialized();
 bool CAT_AQ_sensors_initialized();
+bool CAT_AQ_NOX_VOC_initialized();
 
 typedef enum
 {
@@ -450,15 +451,14 @@ typedef struct __attribute__((__packed__))
 	int32_t temp; // degC x1000
 	uint16_t rh; // % x100
 	uint8_t aggregate; // score x1
-	uint64_t sample_count;
 } CAT_AQ_score_block;
 
-CAT_AQ_score_block* CAT_AQ_get_moving_scores();
+bool CAT_AQ_moving_scores_initialized();
 void CAT_AQ_update_moving_scores();
 
-void CAT_AQ_score_buffer_reset();
-void CAT_AQ_score_buffer_push(CAT_AQ_score_block* in);
-CAT_AQ_score_block* CAT_AQ_score_buffer_get(int idx);
+bool CAT_AQ_weekly_scores_initialized();
+void CAT_AQ_push_weekly_scores(CAT_AQ_score_block* in);
+CAT_AQ_score_block* CAT_AQ_get_weekly_scores(int idx);
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

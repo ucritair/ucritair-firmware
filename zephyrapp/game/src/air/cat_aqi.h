@@ -5,7 +5,8 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // CONSTANTS
 
-#define CAT_AQ_SPARKLINE_SAMPLE_PERIOD (10)
+#define CAT_AQ_MOVING_SAMPLE_PERIOD 5
+#define CAT_AQ_SPARKLINE_SAMPLE_PERIOD CAT_DAY_SECONDS
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -45,7 +46,7 @@ float CAT_AQ_live_score_raw(int aqm);
 float CAT_AQ_live_score_normalized(int aqm);
 float CAT_AQ_live_score_delta(int aqm);
 
-void CAT_AQ_tick();
-
 float CAT_AQ_block_score_raw(CAT_AQ_score_block* block, int aqm);
 float CAT_AQ_block_score_normalized(CAT_AQ_score_block* block, int aqm);
+
+void CAT_AQ_tick();
