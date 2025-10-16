@@ -589,14 +589,17 @@ int CAT_get_log_cell_count()
 
 int CAT_get_battery_pct()
 {
-	if(glfwWindowShouldClose(simulator.window))
-		return 0;
 	return 100;
 }
 
 bool CAT_is_charging()
 {
 	return true;
+}
+
+bool CAT_is_on()
+{
+	return !glfwWindowShouldClose(simulator.window);
 }
 
 void CAT_sleep()

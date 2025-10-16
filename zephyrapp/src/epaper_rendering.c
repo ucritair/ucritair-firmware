@@ -195,6 +195,8 @@ void epaper_render_test()
 	pc_set_mode(true);
 
 	memcpy(old_epaper_framebuffer, epaper_framebuffer, sizeof(epaper_framebuffer));
+
+	CAT_set_debug_number(CAT_get_debug_number()+1);
 }
 
 void epaper_render_protected_off()

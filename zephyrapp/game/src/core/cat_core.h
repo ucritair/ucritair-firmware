@@ -72,11 +72,11 @@ void CAT_eink_post(uint8_t* buffer);
 bool CAT_eink_is_posted();
 
 void CAT_set_eink_update_flag(bool flag);
-bool CAT_eink_needs_update();
+bool CAT_poll_eink_update_flag();
 void CAT_eink_update();
 
-void CAT_eink_flag_tick();
-bool CAT_eink_update_tick();
+bool CAT_eink_should_update();
+void CAT_eink_execute_update();
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // SCREEN MANAGEMENT
@@ -394,6 +394,7 @@ int CAT_get_log_cell_count();
 
 int CAT_get_battery_pct();
 bool CAT_is_charging();
+bool CAT_is_on();
 
 void CAT_sleep();
 void CAT_shutdown();
@@ -487,6 +488,8 @@ bool CAT_IMU_is_upside_down();
 void CAT_printf(const char* fmt, ...);
 void CAT_print_datetime(const char* title, CAT_datetime* t);
 void CAT_print_timestamp(const char* title, uint64_t t);
+int CAT_get_debug_number();
+void CAT_set_debug_number(int x);
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -18,43 +18,35 @@
 
 #define EINK_UPDATE_PERIOD CAT_MINUTE_SECONDS
 
-static bool eink_needs_update = false;
+static bool eink_dirty = false;
 static uint64_t eink_update_timestamp = 0;
 
 void CAT_set_eink_update_flag(bool flag)
 {
-	eink_needs_update = flag;
+	eink_dirty = flag;
 }
 
-bool CAT_eink_needs_update()
+bool CAT_poll_eink_update_flag()
 {
-	return eink_needs_update;
+	return eink_dirty;
 }
 
-void CAT_eink_flag_tick()
+bool CAT_eink_should_update()
 {
 	uint64_t now = CAT_get_RTC_now();
 
-	if
-	(
-		((CAT_is_charging() &&
-		(now - eink_update_timestamp) >= EINK_UPDATE_PERIOD &&
-		CAT_input_downtime() >= EINK_UPDATE_PERIOD) ||
-		(eink_update_timestamp == 0 && CAT_AQ_sensors_initialized()))
-	)
-	{
-		CAT_set_eink_update_flag(true);
-	}
+	return 
+	((CAT_is_charging() &&
+	(now - eink_update_timestamp) >= EINK_UPDATE_PERIOD &&
+	CAT_input_downtime() >= EINK_UPDATE_PERIOD) ||
+	(eink_update_timestamp == 0 && CAT_AQ_sensors_initialized()));
 }
 
-bool CAT_eink_update_tick()
+void CAT_eink_execute_update()
 {
-	if(!CAT_eink_needs_update())
-		return false;
 	CAT_eink_update();
 	CAT_set_eink_update_flag(false);
 	eink_update_timestamp = CAT_get_RTC_now();
-	return true;
 }
 
 
@@ -125,12 +117,11 @@ void CAT_flip_screen()
 
 void CAT_orientation_tick()
 {
-	if(!(persist_flags & CAT_PERSIST_CONFIG_FLAG_MANUAL_ORIENT))
-	{
-		CAT_poll_screen_flip();
-		if(CAT_should_flip_screen())
-			CAT_flip_screen();
-	}
+	if(persist_flags & CAT_PERSIST_CONFIG_FLAG_MANUAL_ORIENT)
+		return;
+	CAT_poll_screen_flip();
+	if(CAT_should_flip_screen())
+		CAT_flip_screen();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -667,4 +658,15 @@ void CAT_print_timestamp(const char* title, uint64_t t)
 	CAT_datetime dt;
 	CAT_make_datetime(t, &dt);
 	CAT_print_datetime(title, &dt);
+}
+
+static int debug_number = 0;
+int CAT_get_debug_number()
+{
+	return debug_number;
+}
+
+void CAT_set_debug_number(int x)
+{
+	debug_number = x;
 }

@@ -274,6 +274,11 @@ bool CAT_is_charging()
 	return get_is_charging();
 }
 
+bool CAT_is_on()
+{
+	return true;
+}
+
 void CAT_sleep()
 {
 	power_off(sensor_wakeup_period*1000, false);
