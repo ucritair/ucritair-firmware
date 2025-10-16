@@ -198,8 +198,7 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 
 						if(CAT_gui_menu_item("REFRESH EINK"))
 						{
-							//CAT_set_eink_update_flag(true);
-							CAT_eink_execute_update();
+							CAT_set_eink_update_flag(true);
 						}
 
 						/*if(CAT_gui_menu_toggle("AUTO-FLIP SCREEN", !CAT_get_persist_flag(CAT_PERSIST_FLAG_MANUAL_ORIENT), CAT_GUI_TOGGLE_STYLE_CHECKBOX))
