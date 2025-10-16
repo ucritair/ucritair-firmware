@@ -87,10 +87,12 @@ void CAT_tick_logic()
 
 	CAT_gui_tick();
 	CAT_effects_tick();
-	CAT_eink_flag_tick();
 
 	persist_flags |= CAT_PERSIST_CONFIG_FLAG_MANUAL_ORIENT;
 	CAT_orientation_tick();
+
+	if(CAT_eink_should_update())
+		CAT_set_eink_update_flag(true);
 }
 
 void CAT_draw_eink_refresh_notice()
@@ -146,7 +148,7 @@ void CAT_tick_render()
 	CAT_effects_render();
 	CAT_gui_render();
 
-	if(CAT_eink_needs_update())
+	if(CAT_poll_eink_update_flag())
 		CAT_draw_eink_refresh_notice();
 }
 
@@ -155,7 +157,7 @@ int main(int argc, char** argv)
 {	
 	CAT_init();
 	
-	while (CAT_get_battery_pct() > 0)
+	while (CAT_is_on())
 	{
 		CAT_tick_logic();
 
@@ -167,7 +169,11 @@ int main(int argc, char** argv)
 			CAT_LCD_flip();
 		}
 
-		CAT_eink_update_tick();
+		if(CAT_poll_eink_update_flag())
+			CAT_eink_execute_update();
+
+		if(CAT_get_battery_pct() == 0)
+			CAT_shutdown();
 
 		// 1 / FPS * 1_000_000 yields microseconds between framebuffer updates at fixed FPS
 		usleep((1.0f / 14.0f) * 1000000);

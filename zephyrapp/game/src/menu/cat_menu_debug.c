@@ -75,6 +75,8 @@ void CAT_render_debug()
 				CAT_gui_text("DEVELOPER MODE\n");
 			if(is_persist_fresh)
 				CAT_gui_text("PERSIST RESET\n");
+
+			CAT_gui_textf("DEBUG NUMBER: %d\n", CAT_get_debug_number());
 		break;
 		
 		case TIME:

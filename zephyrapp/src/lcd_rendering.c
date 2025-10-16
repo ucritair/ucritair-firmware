@@ -296,7 +296,8 @@ void lcd_render_diag()
 			// 	hack_after_blit-hack_before_blit, hack_cyc_after_data_write-hack_cyc_before_data_write, end_ms-start_ms);
 		}
 
-		CAT_eink_update_tick();
+		if(CAT_poll_eink_update_flag())
+			CAT_eink_execute_update();
 
 		int battery = CAT_get_battery_pct();
 		if (battery == 0)
