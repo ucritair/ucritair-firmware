@@ -118,8 +118,6 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 
 						if(CAT_gui_menu_item("COLOUR PICKER"))
 							CAT_pushdown_push(CAT_MS_colour_picker);
-						if(CAT_gui_menu_item("PALETTE PICKER"))
-							CAT_pushdown_push(CAT_MS_palette_picker);
 						
 						if(CAT_gui_begin_menu("AQ CONTROL PANEL"))
 						{
@@ -142,6 +140,9 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 								readings.sen5x.temp_degC = 23;
 							CAT_gui_end_menu();
 						}
+
+						if(CAT_gui_menu_item("LOW POWER E-INK"))
+								CAT_eink_low_power();
 							
 						CAT_gui_end_menu();
 					}				
@@ -201,22 +202,26 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 							CAT_set_eink_update_flag(true);
 						}
 
-						/*if(CAT_gui_menu_toggle("AUTO-FLIP SCREEN", !CAT_get_persist_flag(CAT_PERSIST_FLAG_MANUAL_ORIENT), CAT_GUI_TOGGLE_STYLE_CHECKBOX))
+						if(CAT_gui_menu_toggle("AUTO-FLIP SCREEN", !(persist_flags & CAT_PERSIST_CONFIG_FLAG_MANUAL_ORIENT), CAT_GUI_TOGGLE_STYLE_CHECKBOX))
 						{
-							if(CAT_get_persist_flag(CAT_PERSIST_FLAG_MANUAL_ORIENT))
-								CAT_lower_persist_flag(CAT_PERSIST_FLAG_MANUAL_ORIENT);
+							if(persist_flags & CAT_PERSIST_CONFIG_FLAG_MANUAL_ORIENT)
+							{
+								persist_flags &= ~CAT_PERSIST_CONFIG_FLAG_MANUAL_ORIENT;
+							}
 							else
-								CAT_raise_persist_flag(CAT_PERSIST_FLAG_MANUAL_ORIENT);
-						}
+							{
+								persist_flags |= CAT_PERSIST_CONFIG_FLAG_MANUAL_ORIENT;
+							}
+						}	
 
-						if(CAT_get_persist_flag(CAT_PERSIST_FLAG_MANUAL_ORIENT))
+						if(persist_flags & CAT_PERSIST_CONFIG_FLAG_MANUAL_ORIENT)
 						{
 							if(CAT_gui_menu_item("FLIP SCREEN"))
 							{
 								CAT_flip_screen();
 								CAT_set_eink_update_flag(true);
 							}
-						}*/
+						}
 					
 						CAT_gui_end_menu();
 					}

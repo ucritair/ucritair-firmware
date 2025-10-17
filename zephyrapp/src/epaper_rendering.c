@@ -195,8 +195,6 @@ void epaper_render_test()
 	pc_set_mode(true);
 
 	memcpy(old_epaper_framebuffer, epaper_framebuffer, sizeof(epaper_framebuffer));
-
-	CAT_set_debug_number(CAT_get_debug_number()+1);
 }
 
 void epaper_render_protected_off()
@@ -216,9 +214,9 @@ void epaper_render_protected_off()
 
 	pc_set_mode(false);
 	cmd_turn_on_and_write(epaper_framebuffer);
+	is_persist_fresh = true;
+    framebuffer_fast_update_count = 0;
 	pc_set_mode(true);
 
 	memcpy(old_epaper_framebuffer, epaper_framebuffer, sizeof(epaper_framebuffer));
-    is_persist_fresh = true;
-    framebuffer_fast_update_count = 0;
 }

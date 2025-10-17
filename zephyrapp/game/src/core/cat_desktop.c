@@ -379,6 +379,12 @@ void CAT_eink_update()
 	sleep(1);
 }
 
+void CAT_eink_low_power()
+{
+	CAT_printf("[CALL] CAT_eink_low_power\n");
+	sleep(1);
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // LEDs

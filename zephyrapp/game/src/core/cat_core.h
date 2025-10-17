@@ -77,6 +77,7 @@ void CAT_eink_update();
 
 bool CAT_eink_should_update();
 void CAT_eink_execute_update();
+void CAT_eink_low_power();
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // SCREEN MANAGEMENT

@@ -88,7 +88,6 @@ void CAT_tick_logic()
 	CAT_gui_tick();
 	CAT_effects_tick();
 
-	persist_flags |= CAT_PERSIST_CONFIG_FLAG_MANUAL_ORIENT;
 	CAT_orientation_tick();
 
 	if(CAT_eink_should_update())

@@ -33,6 +33,3 @@ void CAT_render_debug();
 
 void CAT_MS_colour_picker(CAT_FSM_signal signal);
 void CAT_render_colour_picker();
-
-void CAT_MS_palette_picker(CAT_FSM_signal signal);
-void CAT_render_palette_picker();
