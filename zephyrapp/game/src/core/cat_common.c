@@ -1,6 +1,5 @@
 #include "cat_core.h"
 
-#include "cat_aqi.h"
 #include <math.h>
 #include "cat_structures.h"
 #include "cat_version.h"

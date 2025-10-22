@@ -14,10 +14,20 @@ def parse_signatures(text):
 		table.append(row);
 	return table;
 
-def generate_header():
+def generate_dot_h():
 	text = "#pragma once\n" \
 	"#ifdef CAT_DESKTOP\n" \
 	"\n" \
+	"void CAT_write_persist_archive(int fd);\n" \
+	"void CAT_read_persist_archive(int fd);\n" \
+	"\n" \
+	"#endif";
+	return text;
+
+def generate_header():
+	text = "#ifdef CAT_DESKTOP\n" \
+	"\n" \
+	"#include \"cat_persist_archive.h\"\n" \
 	"#include \"cat_persist.h\"\n" \
 	"#include <unistd.h>\n" \
 	"\n";
@@ -62,8 +72,10 @@ def generate_footer():
 	"\n";
 	return text;
 
-src = "";
+with open("src/cat_persist_archive.h", "w") as file:
+	file.write(generate_dot_h());
 
+src = "";
 with open("src/cat_persist.h") as file:
 	table = parse_signatures(file.read());
 	src += generate_header();
@@ -71,6 +83,5 @@ with open("src/cat_persist.h") as file:
 	src += generate_write(table);
 	src += generate_read(table);
 	src += generate_footer();
-
-with open("src/cat_persist_archive.h", "w") as file:
+with open("src/cat_persist_archive.c", "w") as file:
 	file.write(src);

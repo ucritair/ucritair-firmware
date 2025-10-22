@@ -7,6 +7,7 @@
 #include "cat_aqi.h"
 #include "cat_monitor_graphics_utils.h"
 #include "cat_graph.h"
+#include "cat_persist.h"
 
 #define TITLE_X 120
 #define TITLE_Y 64
@@ -55,6 +56,8 @@ void CAT_monitor_render_sparklines()
 	}
 	mean_score /= 7.0f;
 
+	bool ready = !is_persist_fresh || CAT_AQ_sensors_initialized();
+
 	CAT_graph_reset();
 	CAT_graph_set_background(CAT_GRAPH_BG);
 	CAT_graph_set_foreground(CAT_GRAPH_FG);
@@ -62,15 +65,23 @@ void CAT_monitor_render_sparklines()
 	CAT_graph_set_viewport(0, -0.25, 1, 1.25);
 	CAT_graph_set_point_size(3);
 	CAT_graph_set_point_fill(true);
-	CAT_graph_draw(samples, colours, 7);
+	CAT_graph_draw(samples, colours, ready ? 7 : 0);
 
 	cursor_y = SPARKLINE_MAX_Y + 8;
-	CAT_set_text_colour(CAT_WHITE);
-	cursor_y = CAT_draw_textf(SPARKLINE_X, cursor_y, "Max score: %s \1 %d/100\n", CAT_AQ_get_grade_string(max_score), (int)(max_score*100))+8;
-	CAT_set_text_colour(CAT_WHITE);
-	cursor_y = CAT_draw_textf(SPARKLINE_X, cursor_y, "  Mean score: %s \1 %d/100\n", CAT_AQ_get_grade_string(mean_score), (int)(mean_score*100))+8;
-	CAT_set_text_colour(CAT_WHITE);
-	cursor_y = CAT_draw_textf(SPARKLINE_X, cursor_y, "    Min score: %s \1 %d/100\n", CAT_AQ_get_grade_string(min_score), (int)(min_score*100))+8;
+	if(ready)
+	{
+		CAT_set_text_colour(CAT_WHITE);
+		cursor_y = CAT_draw_textf(SPARKLINE_X, cursor_y, "Max score: %s \1 %d/100\n", CAT_AQ_get_grade_string(max_score), (int)(max_score*100))+8;
+		CAT_set_text_colour(CAT_WHITE);
+		cursor_y = CAT_draw_textf(SPARKLINE_X, cursor_y, "  Mean score: %s \1 %d/100\n", CAT_AQ_get_grade_string(mean_score), (int)(mean_score*100))+8;
+		CAT_set_text_colour(CAT_WHITE);
+		cursor_y = CAT_draw_textf(SPARKLINE_X, cursor_y, "    Min score: %s \1 %d/100\n", CAT_AQ_get_grade_string(min_score), (int)(min_score*100))+8;
+	}
+	else
+	{
+		CAT_set_text_colour(CAT_WHITE);
+		cursor_y = CAT_draw_textf(SPARKLINE_X, cursor_y, "Please wait for sensors\nto come online.\n");
+	}
 }
 
 void CAT_monitor_MS_sparklines(CAT_FSM_signal signal)
