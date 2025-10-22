@@ -487,8 +487,6 @@ bool CAT_IMU_is_upside_down();
 // DEBUG
 
 void CAT_printf(const char* fmt, ...);
-void CAT_print_datetime(const char* title, CAT_datetime* t);
-void CAT_print_timestamp(const char* title, uint64_t t);
 int CAT_get_debug_number();
 void CAT_set_debug_number(int x);
 

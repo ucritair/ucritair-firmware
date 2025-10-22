@@ -324,13 +324,15 @@ void CAT_IMU_get_normalized(CAT_IMU_values* out)
 #include <zephyr/logging/log_ctrl.h>
 LOG_MODULE_REGISTER(cat_embedded, LOG_LEVEL_DBG);
 
+static char debug_print_buffer[128];
+
 void CAT_printf(const char* fmt, ...)
 {
-	/*va_list args;
+	va_list args;
 	va_start(args, fmt);
 	int printed = vsnprintf(debug_print_buffer, sizeof(debug_print_buffer), fmt, args);
 	va_end(args);
 	if(debug_print_buffer[printed-1] == '\n')
 		debug_print_buffer[printed-1] = '\0';
-	LOG_DBG("%s", debug_print_buffer);*/
+	LOG_DBG("%s", debug_print_buffer);
 }

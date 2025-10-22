@@ -613,8 +613,13 @@ void CAT_sleep()
 	glfwSetWindowShouldClose(simulator.window, true);
 }
 
+//#include "cat_persist_archive.h"
+
 void CAT_shutdown()
 {
+	/*int fd = open("persist.dat", O_RDWR | O_CREAT | O_TRUNC, S_IRWXU);
+	CAT_write_persist_archive(fd);
+	close(fd);*/
 	glfwSetWindowShouldClose(simulator.window, true);
 }
 
