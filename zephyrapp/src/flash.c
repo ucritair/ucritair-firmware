@@ -8,6 +8,7 @@ LOG_MODULE_REGISTER(cat_flash, LOG_LEVEL_DBG);
 #include "rtc.h"
 #include "flash.h"
 #include "sdcard.h"
+#include "cat_time.h"
 
 #define SECTOR_SIZE 4096
 

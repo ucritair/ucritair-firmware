@@ -68,16 +68,6 @@ void calendar_logic()
             target.month -= 1;
         if(CAT_input_pulse(CAT_BUTTON_RIGHT))
             target.month += 1;
-        if(target.month < 1)
-        {
-            target.year -= 1;
-            target.month = 12;
-        }
-        if(target.month > 12)
-        {
-            target.year += 1;
-            target.month = 1;
-        }
 
 		CAT_set_date_clip_min(earliest);
 		CAT_set_date_clip_max(today);

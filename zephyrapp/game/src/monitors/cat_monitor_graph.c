@@ -349,13 +349,17 @@ void CAT_monitor_graph_logic()
 				dx += 1;
 			if(CAT_input_held(CAT_BUTTON_RIGHT, 1))
 				dx += 3;
-			if(focus_idx+dx < 0)
+			if(focus_idx+dx < first_valid_idx)
 			{
 				CAT_datetime yesterday = start_date;
 				yesterday.day -= 1;
-				yesterday.hour = 0;
-				yesterday.minute = 0;
-				CAT_monitor_graph_load_date(yesterday);
+				CAT_monitor_graph_load_date(CAT_normalize_date(yesterday));
+			}
+			else if(focus_idx+dx > last_valid_idx)
+			{
+				CAT_datetime tomorrow = start_date;
+				tomorrow.day += 1;
+				CAT_monitor_graph_load_date(CAT_normalize_date(tomorrow));	
 			}
 			CAT_monitor_graph_set_focus(focus_idx+dx);
 

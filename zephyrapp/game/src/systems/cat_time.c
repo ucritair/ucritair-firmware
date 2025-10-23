@@ -20,47 +20,25 @@ void CAT_get_datetime(CAT_datetime* datetime)
 
 int CAT_datecmp(CAT_datetime* a, CAT_datetime* b)
 {
-	if(a->year > b->year)
-		return 1;
-	if(a->year < b->year)
-		return -1;
-	if(a->month > b->month)
-		return 1;
-	if(a->month < b->month)
-		return -1;
-	if(a->day > b->day)
-		return 1;
-	if(a->day < b->day)
-		return -1;
+	for(int i = CAT_DATE_PART_YEAR; i <= CAT_DATE_PART_DAY; i++)
+	{
+		int pa = a->data[i];
+		int pb = b->data[i];
+		if(pa != pb)
+			return CAT_sgn(pa - pb);
+	}
 	return 0;
 }
 
 int CAT_timecmp(CAT_datetime* a, CAT_datetime* b)
 {
-	if(a->year > b->year)
-		return 1;
-	if(a->year < b->year)
-		return -1;
-	if(a->month > b->month)
-		return 1;
-	if(a->month < b->month)
-		return -1;
-	if(a->day > b->day)
-		return 1;
-	if(a->day < b->day)
-		return -1;
-	if(a->hour > b->hour)
-		return 1;
-	if(a->hour < b->hour)
-		return -1;
-	if(a->minute > b->minute)
-		return 1;
-	if(a->minute < b->minute)
-		return -1;
-	if(a->second > b->second)
-		return 1;
-	if(a->second < b->second)
-		return -1;
+	for(int i = CAT_DATE_PART_YEAR; i < CAT_DATE_PART_COUNT; i++)
+	{
+		int pa = a->data[i];
+		int pb = b->data[i];
+		if(pa != pb)
+			return CAT_sgn(pa - pb);
+	}
 	return 0;
 }
 
@@ -90,8 +68,21 @@ uint64_t CAT_make_timestamp(CAT_datetime* datetime)
 
 CAT_datetime CAT_normalize_date(CAT_datetime date)
 {
-	uint64_t t = CAT_make_timestamp(&date);
-	CAT_make_datetime(t, &date);
+	struct tm tm = {0};
+	tm.tm_year = date.year-1900;
+	tm.tm_mon = date.month-1;
+	tm.tm_mday = date.day;
+	tm.tm_hour = date.hour;
+	tm.tm_min = date.minute;
+	tm.tm_sec = date.second;
+	uint64_t t = timegm(&tm);
+	gmtime_r(&t, &tm);
+	date.year = tm.tm_year+1900;
+	date.month = tm.tm_mon+1;
+	date.day = tm.tm_mday;
+	date.hour = tm.tm_hour;
+	date.minute = tm.tm_min;
+	date.second = tm.tm_sec;
 	return date;
 }
 
