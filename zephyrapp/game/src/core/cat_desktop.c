@@ -23,6 +23,8 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
+#include "cat_persist_archive.h"
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // PLATFORM
 
@@ -193,6 +195,13 @@ void CAT_platform_init()
 	}
 	simulator.uptime_s = glfwGetTime();
 	simulator.delta_time_s = 0;
+
+	fd = open("persist.dat", O_RDONLY);
+	if(fd != -1)
+	{
+		CAT_read_persist_archive(fd);
+		close(fd);
+	}
 }
 
 #define SCREEN_CAPTURE_ROWS (CAT_LCD_SCREEN_H*RETINA_SCALE*WINDOW_SCALE)
@@ -271,6 +280,10 @@ void CAT_platform_cleanup()
 	time(&now);
 	int fd = open("sleep.dat", O_WRONLY | O_CREAT | O_TRUNC,  S_IRUSR | S_IWUSR);
 	write(fd, &now, sizeof(now));
+	close(fd);
+
+	fd = open("persist.dat", O_RDWR | O_CREAT | O_TRUNC, S_IRWXU);
+	CAT_write_persist_archive(fd);
 	close(fd);
 }
 
@@ -614,13 +627,8 @@ void CAT_sleep()
 	glfwSetWindowShouldClose(simulator.window, true);
 }
 
-//#include "cat_persist_archive.h"
-
 void CAT_shutdown()
 {
-	/*int fd = open("persist.dat", O_RDWR | O_CREAT | O_TRUNC, S_IRWXU);
-	CAT_write_persist_archive(fd);
-	close(fd);*/
 	glfwSetWindowShouldClose(simulator.window, true);
 }
 

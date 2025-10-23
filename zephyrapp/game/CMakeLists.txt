@@ -23,7 +23,7 @@ if(NOT TARGET app)
 	
 	set(CMAKE_BUILD_TYPE Debug)
 	target_compile_options(app PRIVATE -Wall -g)
-	target_sources(app PRIVATE src/core/cat_desktop.c)
+	target_sources(app PRIVATE src/core/cat_desktop.c src/cat_persist_archive.c)
 else()
 	message(WARNING "Building for embedded")
 
