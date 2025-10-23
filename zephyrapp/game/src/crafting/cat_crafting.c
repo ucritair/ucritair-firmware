@@ -7,6 +7,7 @@
 #include "item_assets.h"
 #include "sprite_assets.h"
 #include "mesh2d_assets.h"
+#include "cat_curves.h"
 
 static CAT_item_bundle inputs[9];
 static int output = -1;
@@ -199,6 +200,7 @@ void CAT_MS_crafting(CAT_FSM_signal signal)
 		{
 			CAT_set_render_callback(CAT_render_crafting);
 			CAT_gui_begin_item_grid_context(false);
+			CAT_input_raise_barrier(CAT_BUTTON_BIT(CAT_BUTTON_A));
 
 			for(int i = 0; i < 9; i++)
 			{
@@ -320,8 +322,61 @@ void CAT_MS_crafting(CAT_FSM_signal signal)
 #define OUTPUT_X (CENTER_X-(CELL_SIZE/2))
 #define OUTPUT_Y (GRID_Y - (CELL_SIZE + 16))
 
+
+#define SPLASH_X 12
+#define SPLASH_Y 12
+
+static void draw_barrier()
+{
+	CAT_frameberry(CAT_BLACK);
+		
+	int cursor_y = SPLASH_Y;
+
+	CAT_set_text_colour(CAT_CRISIS_GREEN);
+	CAT_set_text_scale(2);
+	cursor_y = CAT_draw_text(SPLASH_X, cursor_y, "CRAFTING\n");
+
+	cursor_y += 12;
+	
+	CAT_set_text_colour(CAT_WHITE);
+	CAT_set_text_mask(SPLASH_X, -1, CAT_LCD_SCREEN_W-SPLASH_X, -1);
+	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
+	cursor_y = CAT_draw_text
+	(
+		SPLASH_X, cursor_y,
+		"Place items in the grid. "
+		"If the items match a crafting recipe, "
+		"the resulting item will appear above.\n"
+	);
+	cursor_y += 12;
+
+	CAT_set_text_colour(CAT_WHITE);
+	CAT_set_text_mask(SPLASH_X, -1, CAT_LCD_SCREEN_W-SPLASH_X, -1);
+	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
+	cursor_y = CAT_draw_text(SPLASH_X, cursor_y, "This game uses button inputs.\n");
+
+	cursor_y += 32;
+
+	CAT_set_sprite_colour(CAT_CRISIS_GREEN);
+	CAT_set_sprite_flags(CAT_DRAW_FLAG_CENTER_X);
+	CAT_set_sprite_scale(2);
+	CAT_draw_sprite(&ui_buttons_prompt, CAT_pulse(0.25f), CAT_LCD_SCREEN_W/2, cursor_y);
+
+	cursor_y += 72;
+	CAT_set_text_colour(CAT_WHITE);
+	CAT_set_text_mask(SPLASH_X, -1, CAT_LCD_SCREEN_W-SPLASH_X, -1);
+	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP | CAT_TEXT_FLAG_CENTER);
+	cursor_y = CAT_draw_text(CAT_LCD_SCREEN_W/2, cursor_y, "Press [A] to begin!\n");
+}
+
 void CAT_render_crafting()
 {
+	if(CAT_input_poll_barrier())
+	{
+		draw_barrier();
+		return;
+	}
+	
 	CAT_frameberry(CAT_BLACK);
 
 	int y = GRID_Y-1;
