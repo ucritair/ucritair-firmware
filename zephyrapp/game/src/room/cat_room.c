@@ -27,6 +27,7 @@
 #include "cat_study.h"
 #include "cat_feed.h"
 #include "cat_persist.h"
+#include "cat_time.h"
 
 //////////////////////////////////////////////////////////////////////////
 // THEME
@@ -160,7 +161,7 @@ void CAT_room_nearest_free_cell(int x, int y, int* x_out, int* y_out)
 	*x_out = -1;
 	*y_out = -1;
 
-	int half_span = max(CAT_ROOM_GRID_H, CAT_ROOM_GRID_W)/2;
+	int half_span = CAT_max(CAT_ROOM_GRID_H, CAT_ROOM_GRID_W)/2;
 	static int snew[4][2];
 
 	for(int d = 0; d < half_span; d++)
@@ -349,7 +350,7 @@ int CAT_room_alter_prop(int idx)
 		return -1;
 
 	int variations = item->sprite->frame_count;
-	prop_list.data[idx].override = wrap(prop_list.data[idx].override+1, variations);
+	prop_list.data[idx].override = CAT_wrap(prop_list.data[idx].override+1, variations);
 	return prop_list.data[idx].override;
 }
 
@@ -801,7 +802,7 @@ void CAT_room_draw_pickups()
 		int x1 = pickup_list.data[i].x1;
 		int y1 = pickup_list.data[i].y1;
 
-		float t = min(pickup_list.data[i].timer / PICKUP_AIR_TIME, 1.0f);
+		float t = CAT_min(pickup_list.data[i].timer / PICKUP_AIR_TIME, 1.0f);
 		float x = lerp(x0, x1, t);
 		if(y0 > y1)
 			t = 1.0f - t;

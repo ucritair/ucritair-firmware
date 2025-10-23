@@ -162,13 +162,13 @@ void player_motion_logic()
 
 	if(player_x_slide > 0)
 	{
-		player_x_slide = max(player_x_slide-speed, 0);
+		player_x_slide = CAT_max(player_x_slide-speed, 0);
 		if(player_x_slide == 0)
 			player_x += player_dx;
 	}
 	if(player_y_slide > 0)
 	{
-		player_y_slide = max(player_y_slide-speed, 0);
+		player_y_slide = CAT_max(player_y_slide-speed, 0);
 		if(player_y_slide == 0)
 			player_y += player_dy;
 	}

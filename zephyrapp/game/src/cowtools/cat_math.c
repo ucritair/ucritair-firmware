@@ -20,7 +20,7 @@ float inv_lerp(float t, float a, float b)
 
 int quantize(float t, float range, int steps)
 {
-	return clamp(roundf((t / range) * (float) (steps - 1)), 0, steps - 1);
+	return CAT_clamp(roundf((t / range) * (float) (steps - 1)), 0, steps - 1);
 }
 
 
@@ -199,8 +199,8 @@ CAT_rect CAT_rect_overlap(CAT_rect a, CAT_rect b)
 {
 	return (CAT_rect)
 	{
-		{ max(a.min.x, b.min.x), max(a.min.y, b.min.y) },
-		{ min(a.max.x, b.max.x), min(a.max.y, b.max.y) }
+		{ CAT_max(a.min.x, b.min.x), CAT_max(a.min.y, b.min.y) },
+		{ CAT_min(a.max.x, b.max.x), CAT_min(a.max.y, b.max.y) }
 	};
 }
 

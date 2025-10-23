@@ -18,6 +18,7 @@
 #include "cat_pet.h"
 #include "cat_crisis.h"
 #include "cat_persist.h"
+#include "cat_time.h"
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>

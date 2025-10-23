@@ -153,7 +153,7 @@ void CAT_MS_system_menu(CAT_FSM_signal signal)
 				system_menu_selector -= 1;
 			if(CAT_input_pulse(CAT_BUTTON_DOWN))
 				system_menu_selector += 1;
-			system_menu_selector = clamp(system_menu_selector, 0, NUM_MENU_ITEMS-1);
+			system_menu_selector = CAT_clamp(system_menu_selector, 0, NUM_MENU_ITEMS-1);
 
 			if(CAT_input_pressed(CAT_BUTTON_A))
 			{

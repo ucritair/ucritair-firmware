@@ -2,6 +2,7 @@
 
 #include <stdint.h>
 #include "cat_core.h"
+#include "cat_time.h"
 
 typedef enum
 {

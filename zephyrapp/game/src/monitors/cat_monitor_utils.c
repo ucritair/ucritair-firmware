@@ -33,7 +33,7 @@ void CAT_monitor_gate_logic()
 		else
 			gate_progress = 0;
 	}
-	gate_progress = clamp(gate_progress, 0, 1.001f);
+	gate_progress = CAT_clamp(gate_progress, 0, 1.001f);
 }
 
 void CAT_monitor_gate_draw(const char* title)

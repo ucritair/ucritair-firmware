@@ -5,7 +5,6 @@
 #include "cat_version.h"
 #include <stdarg.h>
 #include <stdio.h>
-#include <time.h>
 #include "item_assets.h"
 #include "cat_gui.h"
 #include "cat_input.h"
@@ -84,7 +83,7 @@ void CAT_poll_screen_flip()
 	}
 	
 	flip_buffer[flip_buffer_head] = flip;
-	flip_buffer_head = wrap(flip_buffer_head+1, FLIP_BUFFER_SIZE);
+	flip_buffer_head = CAT_wrap(flip_buffer_head+1, FLIP_BUFFER_SIZE);
 }
 
 bool CAT_should_flip_screen()
@@ -95,7 +94,7 @@ bool CAT_should_flip_screen()
 	int jerks = 0;
 	while(steps < FLIP_BUFFER_SIZE-1)
 	{
-		int a = idx; int b = wrap(idx+1, FLIP_BUFFER_SIZE);
+		int a = idx; int b = CAT_wrap(idx+1, FLIP_BUFFER_SIZE);
 		if(flip_buffer[a])
 			flips++;
 		if(flip_buffer[b] != flip_buffer[a])
@@ -285,94 +284,6 @@ bool CAT_IMU_is_upside_down()
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// TIME
-
-void CAT_get_datetime(CAT_datetime* datetime)
-{
-	time_t now = CAT_get_RTC_now();
-	struct tm local;
-	gmtime_r(&now, &local);
-	
-	datetime->year = local.tm_year;
-	datetime->month = local.tm_mon+1;
-	datetime->day = local.tm_mday;
-	datetime->hour = local.tm_hour;
-	datetime->minute = local.tm_min;
-	datetime->second = local.tm_sec;	
-}
-
-int CAT_datecmp(CAT_datetime* a, CAT_datetime* b)
-{
-	if(a->year > b->year)
-		return 1;
-	if(a->year < b->year)
-		return -1;
-	if(a->month > b->month)
-		return 1;
-	if(a->month < b->month)
-		return -1;
-	if(a->day > b->day)
-		return 1;
-	if(a->day < b->day)
-		return -1;
-	return 0;
-}
-
-int CAT_timecmp(CAT_datetime* a, CAT_datetime* b)
-{
-	if(a->year > b->year)
-		return 1;
-	if(a->year < b->year)
-		return -1;
-	if(a->month > b->month)
-		return 1;
-	if(a->month < b->month)
-		return -1;
-	if(a->day > b->day)
-		return 1;
-	if(a->day < b->day)
-		return -1;
-	if(a->hour > b->hour)
-		return 1;
-	if(a->hour < b->hour)
-		return -1;
-	if(a->minute > b->minute)
-		return 1;
-	if(a->minute < b->minute)
-		return -1;
-	if(a->second > b->second)
-		return 1;
-	if(a->second < b->second)
-		return -1;
-	return 0;
-}
-
-void CAT_make_datetime(uint64_t timestamp, CAT_datetime* datetime)
-{
-	struct tm t = {0};
-	gmtime_r(&timestamp, &t);
-	datetime->year = t.tm_year;
-	datetime->month = t.tm_mon+1;
-	datetime->day = t.tm_mday;
-	datetime->hour = t.tm_hour;
-	datetime->minute = t.tm_min;
-	datetime->second = t.tm_sec;
-}
-
-uint64_t CAT_make_timestamp(CAT_datetime* datetime)
-{
-	struct tm t = {0};
-	t.tm_year = datetime->year;
-	t.tm_mon = datetime->month-1;
-	t.tm_mday = datetime->day;
-	t.tm_hour = datetime->hour;
-	t.tm_min = datetime->minute;
-	t.tm_sec = datetime->second;
-	return timegm(&t) + CAT_get_RTC_offset();
-}
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
 // SAVE
 
 #define ZERO_STATIC_BUFFER(x) (memset(x, 0, sizeof(x)))
@@ -537,7 +448,7 @@ void CAT_migrate_legacy_save(void* save)
 
 	strncpy(new->pet.name, migration_buffer.name, 24);
 	new->pet.lifespan = 30;
-	new->pet.lifetime = min(15, migration_buffer.lifetime);
+	new->pet.lifetime = CAT_min(15, migration_buffer.lifetime);
 	new->pet.incarnations = 1;
 	new->pet.level = migration_buffer.level;
 	new->pet.xp = migration_buffer.xp;

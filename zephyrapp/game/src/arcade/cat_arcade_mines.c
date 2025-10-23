@@ -255,8 +255,8 @@ void CAT_MS_mines(CAT_FSM_signal signal)
 					cursor.y += 1;
 				if(CAT_input_pulse(CAT_BUTTON_LEFT))
 					cursor.x -= 1;
-				cursor.x = clamp(cursor.x, 0, GRID_WIDTH-1);
-				cursor.y = clamp(cursor.y, 0, GRID_HEIGHT-1);
+				cursor.x = CAT_clamp(cursor.x, 0, GRID_WIDTH-1);
+				cursor.y = CAT_clamp(cursor.y, 0, GRID_HEIGHT-1);
 				grid_cell* cell = get_cell(cursor.x, cursor.y);
 
 				if(CAT_input_pressed(CAT_BUTTON_A) && !cell->flagged)

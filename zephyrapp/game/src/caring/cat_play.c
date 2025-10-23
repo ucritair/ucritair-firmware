@@ -99,8 +99,8 @@ void CAT_MS_laser(CAT_FSM_signal signal)
 				CAT_touch touch;
 				CAT_get_touch(&touch);
 
-				laser_pos.x = clamp(touch.x, CAT_ROOM_X, CAT_ROOM_MAX_X);
-				laser_pos.y = clamp(touch.y, CAT_ROOM_Y, CAT_ROOM_MAX_Y);
+				laser_pos.x = CAT_clamp(touch.x, CAT_ROOM_X, CAT_ROOM_MAX_X);
+				laser_pos.y = CAT_clamp(touch.y, CAT_ROOM_Y, CAT_ROOM_MAX_Y);
 
 				play_timer = 0;
 				laser_dir = (CAT_vec2){0, 0};
@@ -119,8 +119,8 @@ void CAT_MS_laser(CAT_FSM_signal signal)
 
 			laser_pos = CAT_vec2_add(
 			laser_pos, CAT_vec2_mul(laser_dir, laser_speed * CAT_get_delta_time_s()));
-			laser_pos.x = clamp(laser_pos.x, CAT_ROOM_X, CAT_ROOM_MAX_X);
-			laser_pos.y = clamp(laser_pos.y, CAT_ROOM_Y, CAT_ROOM_MAX_Y);
+			laser_pos.x = CAT_clamp(laser_pos.x, CAT_ROOM_X, CAT_ROOM_MAX_X);
+			laser_pos.y = CAT_clamp(laser_pos.y, CAT_ROOM_Y, CAT_ROOM_MAX_Y);
 			laser_dir = (CAT_vec2){0, 0};
 
 			switch (laser_state)

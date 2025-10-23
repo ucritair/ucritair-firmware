@@ -142,28 +142,6 @@ float CAT_get_delta_time_s();
 uint64_t CAT_get_RTC_offset();
 uint64_t CAT_get_RTC_now();
 
-typedef union CAT_datetime
-{
-	struct
-	{
-		int
-		year, // [0, INF)
-		month, // [1, 12]
-		day, // [1, 31]
-		hour, // [0, 24)
-		minute, // [0, 60)
-		second; // [0, 60)
-	};
-	
-   	int data[6];
-} CAT_datetime;
-
-void CAT_get_datetime(CAT_datetime* datetime);
-int CAT_datecmp(CAT_datetime* a, CAT_datetime* b);
-int CAT_timecmp(CAT_datetime* a, CAT_datetime* b);
-void CAT_make_datetime(uint64_t timestamp, CAT_datetime* datetime);
-uint64_t CAT_make_timestamp(CAT_datetime* datetime);
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // MEMORY

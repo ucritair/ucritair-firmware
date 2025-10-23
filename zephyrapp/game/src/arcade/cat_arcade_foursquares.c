@@ -465,8 +465,8 @@ void perform_reckoning()
 
 		if(full_row)
 		{
-			clear_start = min(clear_start, y);
-			clear_end = max(clear_end, y);
+			clear_start = CAT_min(clear_start, y);
+			clear_end = CAT_max(clear_end, y);
 		}
 	}
 

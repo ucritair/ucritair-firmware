@@ -104,9 +104,9 @@ void CAT_MS_checkout(CAT_FSM_signal signal)
 				purchase_qty = 0;
 			else
 			{
-				int max_qty = min(purchasable, 99);
-				max_qty = min(max_qty, UINT16_MAX-item_table.counts[checkout_id]);
-				purchase_qty = clamp(purchase_qty, 1, max_qty);
+				int max_qty = CAT_min(purchasable, 99);
+				max_qty = CAT_min(max_qty, UINT16_MAX-item_table.counts[checkout_id]);
+				purchase_qty = CAT_clamp(purchase_qty, 1, max_qty);
 			}
 
 			if(CAT_input_pressed(CAT_BUTTON_A) && purchase_qty > 0)
@@ -230,7 +230,7 @@ void CAT_MS_sale(CAT_FSM_signal signal)
 					sale_qty -= 1;
 				if(CAT_input_pulse(CAT_BUTTON_RIGHT))
 					sale_qty += 1;
-				sale_qty = clamp(sale_qty, 1, CAT_inventory_count(sale_id));
+				sale_qty = CAT_clamp(sale_qty, 1, CAT_inventory_count(sale_id));
 			}
 			else
 			{

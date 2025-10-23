@@ -17,25 +17,11 @@
 #define CAT_RAD2DEG (180.0f / M_PI)
 #define CAT_DEG2RAD (M_PI / 180.0f)
 
-#ifndef max
-#define max(a, b) ((b) > (a) ? (b) : (a))
-#endif
-
-#ifndef min
-#define min(a, b) ((b) < (a) ? (b) : (a))
-#endif
-
-#ifndef clamp
-#define clamp(v, a, b) ((v) < (a) ? (a) : ((v) > (b) ? (b) : (v)))
-#endif
-
-#ifndef sgn
-#define sgn(a) ((a) == 0 ? 0 : (a) > 0 ? 1 : -1)
-#endif
-
-#ifndef wrap
-#define wrap(v, l) (((v) + (l)) % (l))
-#endif
+#define CAT_max(a, b) ((b) > (a) ? (b) : (a))
+#define CAT_min(a, b) ((b) < (a) ? (b) : (a))
+#define CAT_clamp(v, a, b) ((v) < (a) ? (a) : ((v) > (b) ? (b) : (v)))
+#define CAT_sgn(a) ((a) == 0 ? 0 : (a) > 0 ? 1 : -1)
+#define CAT_wrap(v, l) (((v) + (l)) % (l))
 
 #define CAT_sin sinf
 #define CAT_cos cosf

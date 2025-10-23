@@ -102,11 +102,11 @@ void CAT_fillberry(int xi, int yi, int w, int h, uint16_t c)
 	c = CAT_ADAPT_DESKTOP_COLOUR(c);
 	uint16_t* framebuffer = CAT_LCD_get_framebuffer();
 
-	int xf = clamp(xi + w, 0, CAT_LCD_FRAMEBUFFER_W);
-	xi = clamp(xi, 0, CAT_LCD_FRAMEBUFFER_W);
+	int xf = CAT_clamp(xi + w, 0, CAT_LCD_FRAMEBUFFER_W);
+	xi = CAT_clamp(xi, 0, CAT_LCD_FRAMEBUFFER_W);
 	yi -= CAT_LCD_FRAMEBUFFER_OFFSET;
-	int yf = clamp(yi + h, 0, CAT_LCD_FRAMEBUFFER_H);
-	yi = clamp(yi, 0, CAT_LCD_FRAMEBUFFER_H);
+	int yf = CAT_clamp(yi + h, 0, CAT_LCD_FRAMEBUFFER_H);
+	yi = CAT_clamp(yi, 0, CAT_LCD_FRAMEBUFFER_H);
 
 	for(int y = yi; y < yf; y++)
 	{

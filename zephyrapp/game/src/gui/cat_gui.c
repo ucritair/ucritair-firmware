@@ -269,7 +269,7 @@ void CAT_gui_keyboard_logic()
 		keyboard.row_idx -= 1;
 	if(CAT_input_pulse(CAT_BUTTON_DOWN))
 		keyboard.row_idx += 1;
-	keyboard.row_idx = clamp(keyboard.row_idx, 0, 4);
+	keyboard.row_idx = CAT_clamp(keyboard.row_idx, 0, 4);
 
 	if(keyboard.row_idx >= 4)
 	{
@@ -289,7 +289,7 @@ void CAT_gui_keyboard_logic()
 		keyboard.glyph_idx += 1;
 	if(CAT_input_pulse(CAT_BUTTON_LEFT))
 		keyboard.glyph_idx -= 1;
-	keyboard.glyph_idx = clamp(keyboard.glyph_idx, 0, strlen(row)-1);
+	keyboard.glyph_idx = CAT_clamp(keyboard.glyph_idx, 0, strlen(row)-1);
 
 	if(CAT_input_pressed(CAT_BUTTON_A))
 	{
@@ -751,7 +751,7 @@ void CAT_gui_menu_logic()
 				selected->ticker_data.value += 1;
 				selected->ticker_data.changed = true;
 			}
-			selected->ticker_data.value = clamp
+			selected->ticker_data.value = CAT_clamp
 			(
 				selected->ticker_data.value,
 				selected->ticker_data.min,
@@ -993,7 +993,7 @@ void CAT_gui_item_grid_logic()
 					tab_delta += -1;
 				if(CAT_input_pressed(CAT_BUTTON_RIGHT))
 					tab_delta += 1;
-				item_grid_tab_idx = wrap(item_grid_tab_idx+tab_delta, item_grid_tab_count);
+				item_grid_tab_idx = CAT_wrap(item_grid_tab_idx+tab_delta, item_grid_tab_count);
 				if(tab_delta != 0)
 					item_grid_selector = 0;
 
@@ -1020,7 +1020,7 @@ void CAT_gui_item_grid_logic()
 				}
 				if(CAT_input_pulse(CAT_BUTTON_DOWN))
 					delta += ITEM_GRID_COLS;
-				item_grid_selector = clamp(item_grid_selector+delta, 0, item_grid_pool.length-1);
+				item_grid_selector = CAT_clamp(item_grid_selector+delta, 0, item_grid_pool.length-1);
 
 				if(CAT_input_pressed(CAT_BUTTON_A))
 					item_grid_confirmed = true;
@@ -1067,7 +1067,7 @@ void CAT_gui_item_grid()
 	int x = ITEM_GRID_X;
 	int y = ITEM_GRID_Y;
 	int idx = item_grid_get_page();
-	int idx_limit = min(item_grid_get_page() + ITEM_GRID_CELLS, item_grid_pool.length);
+	int idx_limit = CAT_min(item_grid_get_page() + ITEM_GRID_CELLS, item_grid_pool.length);
 
 	while (idx < idx_limit)
 	{
@@ -1081,7 +1081,7 @@ void CAT_gui_item_grid()
 
 				CAT_item* item = CAT_get_item(item_grid_pool.data[idx]);
 				float aspect = item->sprite->height / (float) item->sprite->width;
-				int major_axis = max(item->sprite->width, item->sprite->height);
+				int major_axis = CAT_max(item->sprite->width, item->sprite->height);
 
 				int draw_y = y + ITEM_GRID_CELL_SIZE/2;
 				if(aspect <= 1.25f)

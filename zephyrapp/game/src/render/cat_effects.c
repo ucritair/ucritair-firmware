@@ -30,9 +30,9 @@ bool CAT_effect_poll_aperture_blackout()
 
 void tick_aperture_blackout()
 {
-	float dt = min(CAT_get_delta_time_s(), 0.07);
+	float dt = CAT_min(CAT_get_delta_time_s(), 0.07);
 	timer += dt;
-	timer = min(timer, duration);
+	timer = CAT_min(timer, duration);
 }
 
 void render_aperture_blackout()

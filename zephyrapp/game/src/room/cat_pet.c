@@ -198,12 +198,12 @@ void CAT_pet_change_XP(int delta)
 		return;
 
 	pet.xp += delta;
-	pet.xp = clamp(pet.xp + delta, 0, level_cutoffs[CAT_NUM_LEVELS-1]);
+	pet.xp = CAT_clamp(pet.xp + delta, 0, level_cutoffs[CAT_NUM_LEVELS-1]);
 
 	int cutoff = level_cutoffs[pet.level];
 	if(pet.xp >= cutoff)
 	{
-		pet.level = min(pet.level+1, CAT_NUM_LEVELS-1);
+		pet.level = CAT_min(pet.level+1, CAT_NUM_LEVELS-1);
 		pet.xp -= cutoff;
 	}
 }
@@ -213,7 +213,7 @@ void CAT_pet_change_vigour(int delta)
 	if(CAT_pet_is_dead())
 		return;
 
-	pet.vigour = clamp(pet.vigour+delta, 0, 12);
+	pet.vigour = CAT_clamp(pet.vigour+delta, 0, 12);
 }
 
 void CAT_pet_change_focus(int delta)
@@ -221,7 +221,7 @@ void CAT_pet_change_focus(int delta)
 	if(CAT_pet_is_dead())
 		return;
 
-	pet.focus = clamp(pet.focus+delta, 0, 12);
+	pet.focus = CAT_clamp(pet.focus+delta, 0, 12);
 }
 
 void CAT_pet_change_spirit(int delta)
@@ -229,7 +229,7 @@ void CAT_pet_change_spirit(int delta)
 	if(CAT_pet_is_dead())
 		return;
 
-	pet.spirit = clamp(pet.spirit+delta, 0, 12);
+	pet.spirit = CAT_clamp(pet.spirit+delta, 0, 12);
 }
 
 static CAT_vec2 destination = {120, 200};
@@ -293,9 +293,9 @@ void CAT_pet_tick()
 	}
 	last_time = now;
 	// HANDLE BACKWARD TIME TRAVEL
-	timing_state.last_stat_time = min(now, timing_state.last_stat_time);
-	timing_state.last_life_time = min(now, timing_state.last_life_time);
-	timing_state.last_milk_time = min(now, timing_state.last_milk_time);
+	timing_state.last_stat_time = CAT_min(now, timing_state.last_stat_time);
+	timing_state.last_life_time = CAT_min(now, timing_state.last_life_time);
+	timing_state.last_milk_time = CAT_min(now, timing_state.last_milk_time);
 
 	uint64_t time_since;
 	uint16_t ticks;

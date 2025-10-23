@@ -443,7 +443,7 @@ static float score_variety()
 		add_note("Highly varied", GOOD);
 	}
 
-	return clamp(points / point_total, 0, 1);
+	return CAT_clamp(points / point_total, 0, 1);
 }
 
 static float score_propriety()
@@ -542,7 +542,7 @@ static float score_propriety()
 		add_note("Impressive restraint", GOOD);
 	}
 
-	return clamp(points / point_total, 0, 1.0f);
+	return CAT_clamp(points / point_total, 0, 1.0f);
 }
 
 static float score_ichiju_sansai()
@@ -697,7 +697,7 @@ static void refresh_scores()
 		 score_object.spacing +
 		 score_object.evenness) /
 		6.5f;
-	score_object.aggregate = clamp(score_object.aggregate, 0, 1.0f);
+	score_object.aggregate = CAT_clamp(score_object.aggregate, 0, 1.0f);
 	score_object.aggregate = CAT_ease_in_sine(score_object.aggregate);
 
 	score_object.grade = roundf(score_object.aggregate * 6.0f);
@@ -798,9 +798,9 @@ static void MS_arrange(CAT_FSM_signal signal)
 			click_consumed = false;
 
 			if(CAT_input_pressed(CAT_BUTTON_LEFT))
-				button_idx = max(button_idx-1, 0);
+				button_idx = CAT_max(button_idx-1, 0);
 			if(CAT_input_pressed(CAT_BUTTON_RIGHT))
-				button_idx = min(button_idx+1, BUTTON_COUNT-1);
+				button_idx = CAT_min(button_idx+1, BUTTON_COUNT-1);
 			if(CAT_input_pressed(CAT_BUTTON_B))
 			{
 				if(button_idx == 1)

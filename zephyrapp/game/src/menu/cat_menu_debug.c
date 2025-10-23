@@ -11,6 +11,7 @@
 #include "sprite_assets.h"
 #include "cat_crisis.h"
 #include "cat_persist.h"
+#include "cat_time.h"
 
 static enum
 {
@@ -40,7 +41,7 @@ void CAT_MS_debug(CAT_FSM_signal signal)
 				page -= 1;
 			if(CAT_input_pulse(CAT_BUTTON_RIGHT))
 				page += 1;
-			page = wrap(page, LAST);
+			page = CAT_wrap(page, LAST);
 
 			break;
 		case CAT_FSM_SIGNAL_EXIT:

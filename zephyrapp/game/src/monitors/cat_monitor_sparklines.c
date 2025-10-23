@@ -49,8 +49,8 @@ void CAT_monitor_render_sparklines()
 		samples[i] = score;
 		colours[i] = CAT_AQ_get_grade_colour(score);
 
-		min_score = min(min_score, score);
-		max_score = max(max_score, score);
+		min_score = CAT_min(min_score, score);
+		max_score = CAT_max(max_score, score);
 		mean_score += score;
 		last_score = score;
 	}

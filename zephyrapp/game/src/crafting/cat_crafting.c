@@ -67,10 +67,10 @@ static void get_bounding_box
 			int item_id = (recipe == NULL) ? inputs[i].item : recipe->inputs[i];
 			if(item_id != NULL_ITEM)
 			{
-				*r0_out = min(max(*r0_out, 0), r);
-				*c0_out = min(max(*c0_out, 0), c);
-				*r1_out = max(max(*r1_out, 0), r);
-				*c1_out = max(max(*c1_out, 0), c);
+				*r0_out = CAT_min(CAT_max(*r0_out, 0), r);
+				*c0_out = CAT_min(CAT_max(*c0_out, 0), c);
+				*r1_out = CAT_max(CAT_max(*r1_out, 0), r);
+				*c1_out = CAT_max(CAT_max(*c1_out, 0), c);
 			}
 		}
 	}
@@ -260,7 +260,7 @@ void CAT_MS_crafting(CAT_FSM_signal signal)
 						selector -= 1;
 					if(CAT_input_pressed(CAT_BUTTON_RIGHT) && (selector % 3) != 2)
 						selector += 1;
-					selector = clamp(selector, 0, 8);
+					selector = CAT_clamp(selector, 0, 8);
 
 					if(CAT_input_pressed(CAT_BUTTON_A))
 					{

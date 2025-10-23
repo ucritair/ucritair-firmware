@@ -187,10 +187,10 @@ int CAT_draw_text(int x, int y, const char* text)
 	int mask_y0 = mask.min.y == -1 ? 0 : mask.min.y;
 	int mask_x1 = mask.max.x == -1 ? CAT_LCD_SCREEN_W : mask.max.x;
 	int mask_y1 = mask.max.y == -1 ? CAT_LCD_SCREEN_H : mask.max.y;
-	mask_x0 = max(mask_x0, 0);
-	mask_y0 = max(mask_y0, 0);
-	mask_x1 = min(mask_x1, CAT_LCD_SCREEN_W);
-	mask_y1 = min(mask_y1, CAT_LCD_SCREEN_H);
+	mask_x0 = CAT_max(mask_x0, 0);
+	mask_y0 = CAT_max(mask_y0, 0);
+	mask_x1 = CAT_min(mask_x1, CAT_LCD_SCREEN_W);
+	mask_y1 = CAT_min(mask_y1, CAT_LCD_SCREEN_H);
 
 	bool wrap = flags & CAT_TEXT_FLAG_WRAP;
 	if(wrap)

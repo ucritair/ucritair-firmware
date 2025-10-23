@@ -225,14 +225,14 @@ CAT_save* CAT_start_save()
 // then call with the CAT_save* to finish saving
 void CAT_finish_save(CAT_save*)
 {
-	flash_save_tomas_save((uint8_t*) epaper_framebuffer, max(sizeof(CAT_save), sizeof(CAT_save_legacy)));
+	flash_save_tomas_save((uint8_t*) epaper_framebuffer, CAT_max(sizeof(CAT_save), sizeof(CAT_save_legacy)));
 }
 
 // Call to start loading, then load from the returned CAT_save*
 CAT_save* CAT_start_load()
 {
 	// NEED ENOUGH SPACE TO LOAD AND MIGRATE A LEGACY SAVE
-	flash_load_tomas_save((uint8_t*) epaper_framebuffer, max(sizeof(CAT_save), sizeof(CAT_save_legacy)));
+	flash_load_tomas_save((uint8_t*) epaper_framebuffer, CAT_max(sizeof(CAT_save), sizeof(CAT_save_legacy)));
 	return (CAT_save*) epaper_framebuffer;
 }
 
