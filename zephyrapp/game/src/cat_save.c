@@ -50,9 +50,10 @@ void CAT_force_save()
 		save->deco.children[i] = item->child + 1;
 	}
 
-	save->highscores.snake = snake_high_score;
-	save->highscores.mine = 0;
-	save->highscores.foursquares = 0;
+	save->highscores.snake = snake_highscore;
+	save->highscores.mines = mines_highscore;
+	save->highscores.foursquares = foursquares_highscore;
+	save->highscores.stroop = stroop_highscore;
 
 	save->config.flags = CAT_get_config_flags();
 
@@ -247,7 +248,10 @@ void CAT_force_load()
 		}
 	}
 
-	snake_high_score = save->highscores.snake;
+	snake_highscore = save->highscores.snake;
+	mines_highscore = save->highscores.mines;
+	foursquares_highscore = save->highscores.foursquares;
+	stroop_highscore = save->highscores.stroop;
 
 	CAT_set_config_flags(save->config.flags);
 	if(save->config.theme < THEME_COUNT)

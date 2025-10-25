@@ -275,8 +275,9 @@ typedef struct __attribute__((__packed__))
 	{
 		CAT_save_sector_header header;
 		uint16_t snake;
-		uint16_t mine;
+		uint16_t mines;
 		uint16_t foursquares;
+		uint16_t stroop;
 	} highscores;
 
 	// SECTOR : CONFIG

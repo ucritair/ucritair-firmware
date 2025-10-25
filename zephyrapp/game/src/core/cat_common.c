@@ -325,7 +325,7 @@ void CAT_initialize_save_sector(CAT_save* save, CAT_save_sector sector)
 			save->highscores.header.label = CAT_SAVE_SECTOR_HIGHSCORES;
 			save->highscores.header.size = sizeof(save->highscores);
 			save->highscores.snake = 0;
-			save->highscores.mine = 0;
+			save->highscores.mines = 0;
 			save->highscores.foursquares = 0;
 			break;
 

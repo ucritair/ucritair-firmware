@@ -14,7 +14,6 @@
 #define SNAKE_MAX_LENGTH (GRID_WIDTH * GRID_HEIGHT)
 #define SNAKE_TICK_PERIOD 3
 
-int snake_high_score = 0;
 static int score = 0;
 static bool is_high_score = false;
 
@@ -215,9 +214,9 @@ void CAT_MS_snake(CAT_FSM_signal signal)
 			}
 			else
 			{
-				if(score > snake_high_score)
+				if(score > snake_highscore)
 				{
-					snake_high_score = score;
+					snake_highscore = score;
 					is_high_score = true;
 				}
 
@@ -330,7 +329,7 @@ void CAT_render_snake()
 			"SCORE: %d\n"
 			"HIGH SCORE: %d\n"
 			, score,
-			snake_high_score
+			snake_highscore
 		);
 
 		if(is_high_score)

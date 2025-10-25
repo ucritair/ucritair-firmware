@@ -5,6 +5,7 @@
 #include "cat_math.h"
 #include "cat_gui.h"
 #include "cat_room.h"
+#include "cat_curves.h"
 
 #define CAT_FOURSQUARES_TILE_SIZE 16
 #define CAT_FOURSQUARES_GRID_WIDTH (CAT_LCD_SCREEN_W / CAT_FOURSQUARES_TILE_SIZE)
@@ -537,8 +538,21 @@ void render_game_over()
 	cursor_y += 16;
 	CAT_set_text_scale(2);
 	CAT_set_text_colour(CAT_WHITE);
-	CAT_draw_textf(12, cursor_y, "%d POINTS!", score);
-	cursor_y += 52;
+	cursor_y = CAT_draw_textf(12, cursor_y, "%d POINTS!\n", score);
+	CAT_set_text_colour(CAT_WHITE);
+	cursor_y = CAT_draw_textf(12, cursor_y, "High score: %d\n", foursquares_highscore);
+	cursor_y += 8;
+
+	if(score > stroop_highscore || CAT_pulse(1.0f))
+	{
+		CAT_set_text_colour(CAT_GREEN);
+		cursor_y = CAT_draw_textf(12, cursor_y, "NEW HIGH SCORE!\n", score);
+	}
+	else
+	{
+		cursor_y += CAT_TEXT_LINE_HEIGHT;
+	}
+	cursor_y += 24;
 
 	CAT_set_text_colour(CAT_RED);
 	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
@@ -673,6 +687,7 @@ void CAT_MS_foursquares(CAT_FSM_signal signal)
 		}
 
 		case CAT_FSM_SIGNAL_EXIT:
+			foursquares_highscore = CAT_max(foursquares_highscore, score);
 		break;
 	}
 }

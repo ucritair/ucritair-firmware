@@ -154,6 +154,7 @@ target_sources(app PRIVATE
 	src/arcade/cat_arcade_snake.c
 	src/arcade/cat_arcade_mines.c
 	src/arcade/cat_arcade_foursquares.c
+	src/arcade/cat_stroop.c
 
 	src/monitors/cat_monitors.c
 	src/monitors/cat_monitor_summary.c

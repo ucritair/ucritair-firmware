@@ -761,24 +761,16 @@ static void MS_fish(CAT_FSM_signal signal)
 
 			if(!fish.nibble_trigger)
 			{
-				if(CAT_input_touching())
-				{
-					int x, y;
-					CAT_input_cursor(&x, &y);
-					hook = (CAT_vec2) {x, y};
-				}
-				else
-				{
-					float speed = 96 * CAT_get_delta_time_s();
-					if(CAT_input_held(CAT_BUTTON_UP, 0))
-						hook.y -= speed;
-					if(CAT_input_held(CAT_BUTTON_DOWN, 0))
-						hook.y += speed;
-					if(CAT_input_held(CAT_BUTTON_LEFT, 0))
-						hook.x -= speed;
-					if(CAT_input_held(CAT_BUTTON_RIGHT, 0))
-						hook.x += speed;
-				}
+				float speed = 96 * CAT_get_delta_time_s();
+				if(CAT_input_held(CAT_BUTTON_UP, 0))
+					hook.y -= speed;
+				if(CAT_input_held(CAT_BUTTON_DOWN, 0))
+					hook.y += speed;
+				if(CAT_input_held(CAT_BUTTON_LEFT, 0))
+					hook.x -= speed;
+				if(CAT_input_held(CAT_BUTTON_RIGHT, 0))
+					hook.x += speed;
+					
 				hook.x = CAT_clamp(hook.x, 0, CAT_LCD_SCREEN_W-1);
 				hook.y = CAT_clamp(hook.y, 0, CAT_LCD_SCREEN_H-1);
 			}

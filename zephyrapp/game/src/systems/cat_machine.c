@@ -167,72 +167,72 @@ void CAT_flip_render_callback()
 //////////////////////////////////////////////////////////////////////////
 // SWITCH
 
-void CAT_switch_set(CAT_switcher* s, bool value)
+void CAT_latch_set(CAT_latch* s, bool value)
 {
 	s->current = value;
 }
 
-bool CAT_switch_get(CAT_switcher* s)
+bool CAT_latch_get(CAT_latch* s)
 {
 	return s->current;
 }
 
-bool CAT_switch_flipped(CAT_switcher* s)
+bool CAT_latch_flipped(CAT_latch* s)
 {
 	return s->current != s->last;
 }
 
-void CAT_switch_tick(CAT_switcher* s)
+void CAT_latch_tick(CAT_latch* s)
 {
 	s->last = s->current;
 }
 
-void CAT_timed_switch_raise(CAT_timed_switcher* s)
+void CAT_timed_latch_raise(CAT_timed_latch* s)
 {
-	if(!CAT_switch_get(&s->switcher))
+	if(!CAT_latch_get(&s->latch))
 	{
-		CAT_switch_set(&s->switcher, true);
+		CAT_latch_set(&s->latch, true);
 		s->timer = 0;
 	}
 }
 
-bool CAT_timed_switch_get(CAT_timed_switcher* s)
+bool CAT_timed_latch_get(CAT_timed_latch* s)
 {
-	return CAT_switch_get(&s->switcher);
+	return CAT_latch_get(&s->latch);
 }
 
-bool CAT_timed_switch_flipped(CAT_timed_switcher* s)
+bool CAT_timed_latch_flipped(CAT_timed_latch* s)
 {
-	return CAT_switch_flipped(&s->switcher);
+	return CAT_latch_flipped(&s->latch);
 }
 
-float CAT_timed_switch_t(CAT_timed_switcher* s)
+void CAT_timed_latch_reset(CAT_timed_latch* s)
 {
-	if(!CAT_switch_get(&s->switcher))
+	CAT_latch_set(&s->latch, false);
+	s->timer = 0;
+}
+
+float CAT_timed_latch_t(CAT_timed_latch* s)
+{
+	if(!CAT_latch_get(&s->latch))
 		return 0;
 	return s->timer / s->timeout;
 }
 
-void CAT_timed_switch_tick(CAT_timed_switcher* s)
+void CAT_timed_latch_tick(CAT_timed_latch* s)
 {
-	CAT_switch_tick(&s->switcher);
+	CAT_latch_tick(&s->latch);
 
-	if(!CAT_switch_get(&s->switcher))
+	if(!CAT_latch_get(&s->latch))
 		return;
 
 	if(s->timer >= s->timeout)
 	{
-		CAT_switch_set(&s->switcher, false);
+		CAT_latch_set(&s->latch, false);
 		s->timer = 0;
 	}
 	else
 	{
 		s->timer += CAT_get_delta_time_s();
 	}
-}
-
-void CAT_timed_switch_reset(CAT_timed_switcher* s)
-{
-	CAT_switch_set(&s->switcher, false);
-	s->timer = 0;
 }

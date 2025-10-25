@@ -83,6 +83,9 @@ static int unseen = 0;
 static int last_revealed = 0;
 static bool reveal_complete = false;
 
+static int tbv = 0;
+static int score = 0;
+
 void toggle_mine(int x, int y, bool value)
 {
 	grid_cell* cell = get_cell(x, y);
@@ -214,6 +217,61 @@ void shuffle_about(int x, int y)
 	}
 }
 
+void flood_tbv(int x, int y)
+{
+	idx_queue_length = 0;
+	idx_enqueue(y * GRID_WIDTH + x);
+	
+	while(idx_queue_length > 0)
+	{		
+		grid_cell* c = &grid[idx_dequeue()];
+		c->visited = true;
+
+		for(int dy = -1; dy <= 1; dy++)
+		{
+			for(int dx = -1; dx <= 1; dx++)
+			{
+				if(dx == 0 && dy == 0)
+					continue;
+				int xp = c->x+dx;
+				int yp = c->y+dy;
+				if(xp < 0 || xp >= GRID_WIDTH || yp < 0 || yp >= GRID_HEIGHT)
+					continue;
+
+				uint16_t nidx = yp * CAT_ROOM_GRID_W + xp;
+				if(!grid[nidx].visited && !grid[nidx].mine)
+					idx_enqueue(nidx);
+			}
+		}
+	}
+}
+
+int calculate_tbv()
+{
+	tbv = 0;
+	for(int i = 0; i < GRID_SIZE; i++)
+		grid[i].visited = false;
+
+	for(int y = 0; y < GRID_HEIGHT; y++)
+	{
+		for(int x = 0; x < GRID_WIDTH; x++)
+		{
+			int idx = y * GRID_WIDTH + x;
+			if(!grid[idx].mine && !grid[idx].visited)
+			{
+				tbv += 1;
+				flood_tbv(x, y);
+			}
+		}
+	}
+	for(int i = 0; i < GRID_SIZE; i++)
+	{
+		if(!grid[i].mine && !grid[i].visited)
+			tbv += 1;
+		grid[i].visited = false;
+	}
+}
+
 void CAT_MS_mines(CAT_FSM_signal signal)
 {
 	switch(signal)
@@ -231,6 +289,10 @@ void CAT_MS_mines(CAT_FSM_signal signal)
 
 			last_revealed = -1;
 			reveal_complete = false;
+
+			tbv = 0;
+			score = 0;
+			calculate_tbv();
 			break;
 		}
 		case CAT_FSM_SIGNAL_TICK:
@@ -274,6 +336,7 @@ void CAT_MS_mines(CAT_FSM_signal signal)
 						if(cell->mine)
 						{
 							state = LOSE;
+							score = ((GRID_SIZE-unseen) / (float) GRID_SIZE) * 100.0f;
 							break;
 						}
 
@@ -290,6 +353,7 @@ void CAT_MS_mines(CAT_FSM_signal signal)
 						if(unseen == MINE_COUNT)
 						{
 							state = WIN;
+							score = (tbv / (float) clicks) * 100;
 						}
 					}				
 				}
@@ -337,6 +401,8 @@ void CAT_MS_mines(CAT_FSM_signal signal)
 		}
 		case CAT_FSM_SIGNAL_EXIT:
 		{
+			if(score > mines_highscore)
+				mines_highscore = score;
 			break;
 		}
 	}
@@ -404,12 +470,26 @@ void CAT_render_mines()
 			CAT_gui_line_break();
 			CAT_gui_image(&prop_mine_sprite, 0);
 			CAT_gui_text(" +1");
+
+			CAT_gui_line_break();
+			CAT_gui_line_break();
+			CAT_gui_textf("Score: %d\n", score);
+			CAT_gui_textf("High score: %d\n", mines_highscore);
+			if(score > mines_highscore)
+				CAT_gui_textf("NEW HIGH SCORE!\n");
 		}
 		else
 		{
 			CAT_gui_panel((CAT_ivec2) {1, 1}, (CAT_ivec2) {13, 18});
 			CAT_gui_set_flag(CAT_GUI_FLAG_WRAPPED);
 			CAT_gui_text("Kaboom!\n\nYour exploration has come to an explosive end.\n\nPress A or B to return from whence you came.");
-		}	
+
+			CAT_gui_line_break();
+			CAT_gui_line_break();
+			CAT_gui_textf("Score: %d\n", score);
+			CAT_gui_textf("High score: %d\n", mines_highscore);
+			if(score > mines_highscore)
+				CAT_gui_textf("NEW HIGH SCORE!\n");
+		}
 	}
 }

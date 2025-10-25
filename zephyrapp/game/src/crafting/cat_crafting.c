@@ -303,7 +303,7 @@ void CAT_MS_crafting(CAT_FSM_signal signal)
 
 		case CAT_FSM_SIGNAL_EXIT:
 		{
-
+			CAT_input_lower_barrier();
 		}
 		break;
 	}

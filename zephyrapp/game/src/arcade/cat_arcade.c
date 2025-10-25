@@ -11,6 +11,11 @@
 #include "cat_aqi.h"
 #include "sprite_assets.h"
 
+int snake_highscore = 0;
+int mines_highscore = 0;
+int foursquares_highscore = 0;
+int stroop_highscore = 0;
+
 //////////////////////////////////////////////////////////////////////////
 // MACHINE
 
@@ -33,6 +38,8 @@ void CAT_MS_arcade(CAT_FSM_signal signal)
 					CAT_pushdown_push(CAT_MS_mines);
 				if(CAT_gui_menu_item("FOURSQUARES"))
 					CAT_pushdown_push(CAT_MS_foursquares);
+				/*if(CAT_gui_menu_item("STROOP"))
+					CAT_pushdown_push(CAT_MS_stroop);*/
 				CAT_gui_end_menu();
 			}
 		}
