@@ -72,6 +72,7 @@ void CAT_draw_tile_alpha(const CAT_sprite* sprite, int frame_idx, int x, int y);
 //////////////////////////////////////////////////////////////////////////
 // THE BERRIER
 
+void CAT_rowberry(int y0, int y1, uint16_t c);
 void CAT_frameberry(uint16_t c);
 void CAT_lineberry(int xi, int yi, int xf, int yf, uint16_t c);
 void CAT_fillberry(int xi, int yi, int w, int h, uint16_t c);

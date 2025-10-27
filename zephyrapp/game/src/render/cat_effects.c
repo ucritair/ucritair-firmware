@@ -45,10 +45,19 @@ void render_aperture_blackout()
 	int r = 200 * t;
 	int r2 = r * r;
 
-	for(int y = 0; y < CAT_LCD_SCREEN_H; y++)
+	int x0 = CAT_LCD_SCREEN_W/2-r;
+	int y0 = CAT_LCD_SCREEN_H/2-r;
+	int x1 = CAT_LCD_SCREEN_W/2+r;
+	int y1 = CAT_LCD_SCREEN_H/2+r;
+	CAT_rowberry(0, y0, CAT_BLACK);
+	CAT_rowberry(y1, CAT_LCD_SCREEN_H, CAT_BLACK);
+	CAT_fillberry(0, y0, x0, y1-y0, CAT_BLACK);
+	CAT_fillberry(x1, y0, CAT_LCD_SCREEN_W-x1, y1-y0, CAT_BLACK);
+
+	for(int y = y0; y < y1; y++)
 	{
 		int dy = y - CAT_LCD_SCREEN_H/2;
-		for(int x = 0; x < CAT_LCD_SCREEN_W; x++)
+		for(int x = x0; x < x1; x++)
 		{
 			int dx = x - CAT_LCD_SCREEN_W/2;
 			int d2 = dy*dy + dx*dx;

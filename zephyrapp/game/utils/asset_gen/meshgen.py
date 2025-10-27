@@ -55,7 +55,7 @@ for mesh in json_entries:
 		source.write("\t},\n");
 		source.write(f"\t.n_verts = {len(vs)},\n");
 
-		source.write("\t.faces = (uint8_t[])\n");
+		source.write("\t.faces = (uint16_t[])\n");
 		source.write("\t{\n");
 		for (idx, f) in enumerate(fs):
 			source.write(f"\t\t{f[0]}, {f[1]}, {f[2]}");
