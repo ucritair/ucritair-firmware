@@ -475,6 +475,11 @@ static int mode_selector = 0;
 #define VENDING_MACHINE_W 56
 #define VENDING_MACHINE_H 96
 
+#define ALERT_BUTTON_X ARCADE_X
+#define ALERT_BUTTON_Y (ARCADE_Y - 38)
+#define ALERT_BUTTON_W ui_button_alert.width
+#define ALERT_BUTTON_H ui_button_alert.height
+
 void screen_button_input()
 {
 	if(CAT_input_pressed(CAT_BUTTON_RIGHT))
@@ -498,6 +503,18 @@ void screen_button_input()
 				CAT_pushdown_push(button_modes[mode_selector]);
 			mode_selector = i;
 		}
+	}
+
+	if(
+		(CAT_AQ_is_crisis_ongoing() || CAT_AQ_is_crisis_report_posted()) &&
+		CAT_input_touch_rect
+		(
+			ALERT_BUTTON_X, ALERT_BUTTON_Y,
+			ALERT_BUTTON_W, ALERT_BUTTON_H
+		)
+	)
+	{
+		CAT_pushdown_push(CAT_MS_crisis_report);
 	}
 }
 
@@ -568,11 +585,6 @@ void CAT_MS_room(CAT_FSM_signal signal)
 		{
 			CAT_get_datetime(&datetime);
 
-			if(CAT_AQ_is_crisis_report_posted())
-			{
-				CAT_pushdown_push(CAT_MS_crisis_report);
-				return;
-			}
 			if(CAT_pet_is_death_report_posted())
 			{
 				CAT_pushdown_push(CAT_MS_death_report);
@@ -868,12 +880,11 @@ void CAT_room_draw_gui()
 
 	for(int i = 0; i < sizeof(button_sprites)/sizeof(button_sprites[0]); i++)
 	{
-		CAT_draw_queue_add
+		CAT_draw_sprite_raw
 		(
-			button_sprites[i], 0, GUI_LAYER,
+			button_sprites[i], 0,
 			MODE_BUTTONS_X + (MODE_BUTTON_SIZE + MODE_BUTTON_PAD) * i,
-			MODE_BUTTONS_Y,
-			CAT_DRAW_FLAG_NONE
+			MODE_BUTTONS_Y
 		);
 	}
 	CAT_strokeberry
@@ -883,6 +894,25 @@ void CAT_room_draw_gui()
 		MODE_BUTTON_SIZE+1, MODE_BUTTON_SIZE+1,
 		CAT_WHITE
 	);
+
+	if(CAT_AQ_is_crisis_ongoing() || CAT_AQ_is_crisis_report_posted())
+	{
+		CAT_draw_sprite_raw
+		(
+			&ui_button_alert, 0,
+			ALERT_BUTTON_X, ALERT_BUTTON_Y
+		);
+
+		if(CAT_AQ_is_crisis_report_posted() && CAT_pulse(0.5f))
+		{
+			CAT_strokeberry
+			(
+				ALERT_BUTTON_X, ALERT_BUTTON_Y,
+				ALERT_BUTTON_W+1, ALERT_BUTTON_H+1,
+				CAT_CRISIS_RED
+			);
+		}
+	}
 
 	if(CAT_input_touching())
 	{

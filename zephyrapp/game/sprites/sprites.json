@@ -2643,6 +2643,16 @@
             "height": 32,
             "loop": false,
             "reverse": false
+        },
+        {
+            "id": 261,
+            "name": "ui_button_alert",
+            "path": "ui/revised/alert_button.png",
+            "frames": 1,
+            "width": 32,
+            "height": 32,
+            "loop": true,
+            "reverse": false
         }
     ]
 }

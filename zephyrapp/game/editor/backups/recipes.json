@@ -21,17 +21,17 @@
     },
     "instances": [
         {
-            "name": "wooden_chair",
+            "name": "wood_chair",
             "inputs": [
+                "",
+                "",
+                "",
                 "ingr_wood",
                 "",
                 "",
                 "ingr_wood",
                 "ingr_wood",
-                "ingr_wood",
-                "ingr_wood",
-                "",
-                "ingr_wood"
+                ""
             ],
             "output": "prop_chair_mahogany"
         },
@@ -66,9 +66,24 @@
             "output": "prop_vase_stone"
         },
         {
-            "name": "wooden_table",
+            "name": "wood_table",
             "inputs": [
                 "ingr_wood",
+                "ingr_wood",
+                "ingr_wood",
+                "ingr_wood",
+                "ingr_wood",
+                "ingr_wood",
+                "ingr_wood",
+                "",
+                "ingr_wood"
+            ],
+            "output": "prop_table_walnut"
+        },
+        {
+            "name": "wood_table_sm",
+            "inputs": [
+                "",
                 "",
                 "",
                 "ingr_wood",
@@ -78,7 +93,22 @@
                 "",
                 "ingr_wood"
             ],
-            "output": "prop_table_mahogany"
+            "output": "prop_table_sm_walnut"
+        },
+        {
+            "name": "wood_vase",
+            "inputs": [
+                "ingr_wood",
+                "",
+                "ingr_wood",
+                "ingr_wood",
+                "",
+                "ingr_wood",
+                "",
+                "ingr_wood",
+                ""
+            ],
+            "output": "prop_vase_mahogany"
         }
     ]
 }
