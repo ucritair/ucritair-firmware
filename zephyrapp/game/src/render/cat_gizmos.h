@@ -22,3 +22,6 @@ void CAT_draw_arrow_slider(int x0, int y0, int x1, int y1, float t, uint16_t c);
 void CAT_draw_empty_sfx(int x0, int y0, int a, int b, uint16_t c);
 
 void CAT_draw_lock(int x, int y, int r, float t, uint16_t c);
+
+void CAT_draw_dpad(int x, int y, float r, int mask, uint16_t cf, uint16_t cb);
+void CAT_draw_checkmark(int x, int y, int wh, uint16_t c);

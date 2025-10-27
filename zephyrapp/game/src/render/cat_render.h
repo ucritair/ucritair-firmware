@@ -151,37 +151,6 @@ void CAT_draw_queue_submit();
 
 
 //////////////////////////////////////////////////////////////////////////
-// MESHES AND POLYLINES
-
-typedef struct
-{
-	float* verts;
-	int n_verts;
-	uint8_t* faces;
-	int n_faces;
-} CAT_mesh;
-
-typedef struct
-{
-	uint8_t* verts;
-	uint16_t vert_count;
-	uint16_t* edges;
-	uint16_t edge_count;
-} CAT_mesh2d;
-
-void CAT_draw_mesh2d(const CAT_mesh2d* mesh, int x, int y, uint16_t c);
-
-typedef enum
-{
-	CAT_POLY_MODE_LINES,
-	CAT_POLY_MODE_LINE_STRIP,
-	CAT_POLY_MODE_LINE_LOOP
-} CAT_poly_mode;
-
-void CAT_draw_polyline(int x, int y, int16_t* poly, int count, uint16_t c, CAT_poly_mode mode);
-
-
-//////////////////////////////////////////////////////////////////////////
 // DECLARATIONS
 
 extern CAT_anim_state AS_idle;

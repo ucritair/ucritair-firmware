@@ -56,7 +56,10 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 				else if(CAT_pushdown_last() == &CAT_MS_world)
 				{
 					if(CAT_gui_menu_item("GO HOME"))
+					{
+						CAT_room_intro();
 						CAT_pushdown_rebase(CAT_MS_room);
+					}
 				}
 				if(CAT_gui_menu_item("DASHBOARD"))
 					CAT_pushdown_rebase(CAT_MS_monitor);				

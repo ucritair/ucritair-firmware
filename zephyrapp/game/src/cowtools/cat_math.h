@@ -2,6 +2,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <math.h>
 
 //////////////////////////////////////////////////////////////////////////
 // BASICS
@@ -22,6 +23,7 @@
 #define CAT_clamp(v, a, b) ((v) < (a) ? (a) : ((v) > (b) ? (b) : (v)))
 #define CAT_sgn(a) ((a) == 0 ? 0 : (a) > 0 ? 1 : -1)
 #define CAT_wrap(v, l) (((v) + (l)) % (l))
+#define CAT_abs(x) ((x) < 0 ? -(x) : (x))
 
 #define CAT_sin sinf
 #define CAT_cos cosf

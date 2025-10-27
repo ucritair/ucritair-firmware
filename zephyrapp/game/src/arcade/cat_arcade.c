@@ -38,8 +38,8 @@ void CAT_MS_arcade(CAT_FSM_signal signal)
 					CAT_pushdown_push(CAT_MS_mines);
 				if(CAT_gui_menu_item("FOURSQUARES"))
 					CAT_pushdown_push(CAT_MS_foursquares);
-				/*if(CAT_gui_menu_item("STROOP"))
-					CAT_pushdown_push(CAT_MS_stroop);*/
+				if(CAT_gui_menu_item("STROOP"))
+					CAT_pushdown_push(CAT_MS_stroop);
 				CAT_gui_end_menu();
 			}
 		}

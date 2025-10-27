@@ -185,7 +185,7 @@ static struct
 	bool committed;
 	float error;
 
-	int16_t vertices[10*2];
+	float vertices[10*2];
 } pole;
 
 static void init_pole(CAT_ivec2 center, int length)
@@ -237,13 +237,9 @@ static CAT_ivec2 point_on_pole(float t)
 
 static void render_pole()
 {
-	CAT_draw_polyline
-	(
-		pole.center.x, pole.center.y,
-		pole.vertices, 10,
-		CAT_WHITE,
-		CAT_POLY_MODE_LINES
-	);
+	CAT_poly_clear_transformation();
+	CAT_poly_set_translation(pole.center.x, pole.center.y);
+	CAT_poly_draw(pole.vertices, 10, CAT_WHITE);
 
 	CAT_ivec2 target = point_on_pole(pole.target);
 	CAT_ivec2 guess = point_on_pole(pole.guess);
@@ -898,7 +894,7 @@ static struct
 
 	CAT_ivec2 center;
 	int length;
-	int16_t vertices[10*2];
+	float vertices[10*2];
 } bar;
 
 static void bar_retarget(bool hard)
@@ -1001,13 +997,9 @@ static CAT_ivec2 bar_jitter;
 
 static void render_bar()
 {
-	CAT_draw_polyline
-	(
-		bar.center.x, bar.center.y,
-		bar.vertices, 10,
-		CAT_WHITE,
-		CAT_POLY_MODE_LINES
-	);
+	CAT_poly_clear_transformation();
+	CAT_poly_set_translation(bar.center.x, bar.center.y);
+	CAT_poly_draw(bar.vertices, 10, CAT_WHITE);
 
 	CAT_ivec2 target = point_on_bar(bar.target);
 	target = CAT_ivec2_add(target, bar_jitter);

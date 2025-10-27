@@ -244,6 +244,16 @@ int CAT_draw_textf(int x, int y, const char* fmt, ...)
 	return CAT_draw_text(x, y, draw_textf_buffer);
 }
 
+void CAT_draw_character(int x, int y, int scale, char g, uint16_t c)
+{
+	CAT_set_sprite_scale(scale);
+	CAT_set_sprite_colour(c);
+	CAT_set_sprite_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
+	if(g & 32)
+		y -= 2;
+	CAT_draw_sprite(&glyph_sprite, g, x, y);
+}
+
 const char* CAT_fmt_float(float f)
 {
 	static char buf[64];

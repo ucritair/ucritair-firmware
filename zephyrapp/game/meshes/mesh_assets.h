@@ -1,5 +1,5 @@
 #pragma once
 
-#include "cat_render.h"
+#include "cat_poly.h"
 
 extern CAT_mesh hedron_mesh;

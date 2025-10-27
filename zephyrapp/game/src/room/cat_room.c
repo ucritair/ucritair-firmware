@@ -423,6 +423,7 @@ int CAT_room_touch_query()
 // ROOM
 
 static CAT_datetime datetime;
+static bool first_entry = true;
 
 void CAT_room_init()
 {
@@ -441,6 +442,11 @@ void CAT_room_tick()
 		if(pickup_list.data[i].timer < PICKUP_AIR_TIME)
 			pickup_list.data[i].timer += CAT_get_delta_time_s();
 	}
+}
+
+void CAT_room_intro()
+{
+	first_entry = true;
 }
 
 static CAT_FSM_state button_modes[5] =
@@ -550,6 +556,12 @@ void CAT_MS_room(CAT_FSM_signal signal)
 			CAT_pet_settle();
 			CAT_animator_reset(&prop_hoopy_sprite);
 			CAT_gui_dismiss_dialogue();
+
+			if(first_entry)
+			{
+				CAT_effect_start_aperture_blackout(1.0f, 1.0f);
+				first_entry = false;
+			}
 			break;
 		}
 		case CAT_FSM_SIGNAL_TICK:

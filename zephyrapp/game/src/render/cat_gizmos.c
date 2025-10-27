@@ -3,6 +3,7 @@
 #include "cat_curves.h"
 #include "sprite_assets.h"
 #include "cat_gui.h"
+#include "cat_input.h"
 
 void CAT_draw_regular_polygon(int n, int x, int y, int r, float t, uint16_t c)
 {
@@ -316,4 +317,63 @@ void CAT_draw_lock(int x, int y, int r, float t, uint16_t c)
 	x1 = x0 + dx * frac;
 	y1 = y0 + dy * frac;
 	CAT_lineberry(x0, y0, x1, y1, c);
+}
+
+void CAT_draw_dpad(int x, int y, float R, int mask, uint16_t cf, uint16_t cb)
+{
+	static int bits[] =
+	{
+		CAT_BUTTON_BIT(CAT_BUTTON_RIGHT),
+		CAT_BUTTON_BIT(CAT_BUTTON_UP),
+		CAT_BUTTON_BIT(CAT_BUTTON_LEFT),
+		CAT_BUTTON_BIT(CAT_BUTTON_DOWN),
+	};
+
+	float hypot = CAT_sqrt(2)*R;
+	float max_r = hypot/2;
+	float min_r = CAT_min(max_r, 8);
+	float ideal_r = hypot/3;
+	float r = CAT_clamp(ideal_r, min_r, max_r);
+
+	CAT_circberry(x+R, y, r, cf);
+	CAT_circberry(x, y-R, r, cf);
+	CAT_circberry(x-R, y, r, cf);
+	CAT_circberry(x, y+R, r, cf);
+
+	int aw = CAT_max(r, 0);
+	int ah = aw/2;
+	int ar = ah/4;
+
+	if(mask & CAT_BUTTON_BIT(CAT_BUTTON_RIGHT))
+	{
+		CAT_discberry(x+R, y, r, cf);
+		CAT_draw_arrow(x+R-ar, y, aw, ah, CAT_ORIENTATION_EAST, cb);
+	}
+	if(mask & CAT_BUTTON_BIT(CAT_BUTTON_UP))
+	{
+		CAT_discberry(x, y-R, r, cf);
+		CAT_draw_arrow(x, y-R+ar, aw, ah, CAT_ORIENTATION_NORTH, cb);
+	}
+	if(mask & CAT_BUTTON_BIT(CAT_BUTTON_LEFT))
+	{
+		CAT_discberry(x-R, y, r, cf);
+		CAT_draw_arrow(x-R+ar, y, aw, ah, CAT_ORIENTATION_WEST, cb);
+	}
+	if(mask & CAT_BUTTON_BIT(CAT_BUTTON_DOWN))
+	{
+		CAT_discberry(x, y+R, r, cf);
+		CAT_draw_arrow(x, y+R-ar, aw, ah, CAT_ORIENTATION_SOUTH, cb);
+	}
+}
+
+void CAT_draw_checkmark(int x, int y, int wh, uint16_t c)
+{
+	int x0 = x-wh/2;
+	int y0 = y+wh/4;
+	int x1 = x-wh/4;
+	int y1 = y+wh/2;
+	int x2 = x+wh/2;
+	int y2 = y-wh/4;
+	CAT_lineberry(x0, y0, x1, y1, c);
+	CAT_lineberry(x1, y1, x2, y2, c);
 }
