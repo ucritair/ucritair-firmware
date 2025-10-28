@@ -319,7 +319,7 @@ void CAT_draw_lock(int x, int y, int r, float t, uint16_t c)
 	CAT_lineberry(x0, y0, x1, y1, c);
 }
 
-void CAT_draw_dpad(int x, int y, float R, int mask, uint16_t cf, uint16_t cb)
+void CAT_draw_dpad(int x, int y, int R, int mask, uint16_t cf, uint16_t cb)
 {
 	static int bits[] =
 	{
@@ -329,11 +329,11 @@ void CAT_draw_dpad(int x, int y, float R, int mask, uint16_t cf, uint16_t cb)
 		CAT_BUTTON_BIT(CAT_BUTTON_DOWN),
 	};
 
-	float hypot = CAT_sqrt(2)*R;
-	float max_r = hypot/2;
-	float min_r = CAT_min(max_r, 8);
-	float ideal_r = hypot/3;
-	float r = CAT_clamp(ideal_r, min_r, max_r);
+	int hypot = CAT_sqrt(2)*R;
+	int max_r = hypot/2;
+	int min_r = CAT_min(max_r, 8);
+	int ideal_r = hypot/3;
+	int r = CAT_clamp(ideal_r, min_r, max_r);
 
 	CAT_circberry(x+R, y, r, cf);
 	CAT_circberry(x, y-R, r, cf);
@@ -366,14 +366,29 @@ void CAT_draw_dpad(int x, int y, float R, int mask, uint16_t cf, uint16_t cb)
 	}
 }
 
-void CAT_draw_checkmark(int x, int y, int wh, uint16_t c)
+void CAT_draw_star(int x, int y, int r, uint16_t c)
 {
-	int x0 = x-wh/2;
-	int y0 = y+wh/4;
-	int x1 = x-wh/4;
-	int y1 = y+wh/2;
-	int x2 = x+wh/2;
-	int y2 = y-wh/4;
-	CAT_lineberry(x0, y0, x1, y1, c);
-	CAT_lineberry(x1, y1, x2, y2, c);
+	int r0 = r/2;
+	int r1 = r;
+
+	float dt = 2 * M_PI / (float) 10;
+	float t = M_PI/2 - dt;
+	int x0, y0, x1, y1;
+
+	x0 = r*CAT_cos(t);
+	y0 = r*CAT_sin(t);
+	t += dt;
+
+	for(int i = 1; i <= 10; i++)
+	{
+		float rp = !(i & 1) ? r1 : r0;
+			
+		x1 = rp*CAT_cos(t);
+		y1 = rp*CAT_sin(t);
+		CAT_lineberry(x+x0, y+y0, x+x1, y+y1, c);
+
+		x0 = x1;
+		y0 = y1;
+		t += dt;
+	}
 }

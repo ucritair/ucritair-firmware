@@ -10,6 +10,7 @@
 #include "cat_concepts.h"
 #include "cat_poly.h"
 #include "cat_gizmos.h"
+#include "cat_aqi.h"
 
 static void draw_tutorial();
 static void MS_tutorial(CAT_FSM_signal);
@@ -25,22 +26,44 @@ static enum
 	PHASE_ARROWS,
 	PHASE_ARROWS_OPPOSITE,
 	PHASE_ARROWS_INCONGRUENT,
+	PHASE_WORDS,
+	PHASE_WORDS_COLOUR,
+	PHASE_WORDS_WORD,
 	PHASE_COUNT
 };
-static int phase = PHASE_ARROWS;
+static int phase;
 static int perfects[PHASE_COUNT];
 static float times[PHASE_COUNT];
 
 static int arrow_direction;
 static int arrow_position;
-static bool arrow_request;
-static int arrow_count = 0;
-static int arrow_pool[4];
-static bool arrow_missed = false;
+
+static const char* words[] =
+{
+	"RED",
+	"GREEN",
+	"BLUE",
+	"YELLOW"
+};
+
+static uint16_t word_colours[] =
+{
+	CAT_RED,
+	CAT_GREEN,
+	CAT_BLUE,
+	CAT_CRISIS_YELLOW,
+};
+
+static int word;
+static int word_colour;
+static int word_direction;
+
+static bool challenge_request;
+static int challenge_count = 0;
+static bool challenge_missed = false;
 
 static CAT_timed_latch error_latch = CAT_TIMED_LATCH_INIT(1.0f);
 static CAT_timed_latch finish_latch = CAT_TIMED_LATCH_INIT(0.25f);
-static CAT_timed_latch distraction_latch = CAT_TIMED_LATCH_INIT(2.0f);
 
 static int key_map[] =
 {
@@ -84,34 +107,42 @@ static float arrow_mesh[] =
 	1.0f, 0.0f
 };
 
-#define ARROWS_PER_PHASE 8
+#define CHALLENGES_PER_PHASE 8
+
+void shuffle(int* arr, int n)
+{
+	for(int i = 0; i < n; i++)
+	{
+		int j = CAT_rand_int(0, n-1);
+		int temp = arr[i];
+		arr[i] = arr[j];
+		arr[j] = temp;
+	}
+}
 
 static void phase_transition(int _phase)
 {
 	if(_phase == PHASE_COUNT)
 		CAT_pushdown_pop();
 	phase = _phase;
-	arrow_count = 0;
+	challenge_count = 0;
 	perfects[phase] = 0;
 	times[phase] = 0;
+	challenge_request = true;
 	CAT_FSM_transition(&fsm, MS_tutorial);
 }
 
 static void generate_arrow()
 {
-	int arrow_idx = arrow_count % 4;
+	static int arrow_pool[4];
+
+	int arrow_idx = challenge_count % 4;
 
 	if(arrow_idx == 0)
 	{
 		for(int i = 0; i < 4; i++)
 			arrow_pool[i] = i;
-		for(int i = 0; i < 4; i++)
-		{
-			int j = CAT_rand_int(0, 3);
-			int temp = arrow_pool[i];
-			arrow_pool[i] = arrow_pool[j];
-			arrow_pool[j] = temp;
-		}
+		shuffle(arrow_pool, 4);
 	}
 
 	arrow_direction = arrow_pool[arrow_idx];
@@ -121,10 +152,27 @@ static void generate_arrow()
 		arrow_position += 2;
 		arrow_position %= 4;
 	}
+}
 
-	arrow_count += 1;
-	arrow_request = false;
-	arrow_missed = false;
+static void generate_word()
+{
+	static int word_pool[4];
+
+	int idx = challenge_count % 4;
+
+	if(idx == 0)
+	{
+		for(int i = 0; i < 4; i++)
+			word_pool[i] = i;
+		shuffle(word_pool, 4);
+	}
+
+	word = word_pool[idx];
+	if(phase > PHASE_WORDS)
+		word_colour = word_pool[(idx+CAT_rand_int(1, 3))%4];
+	else
+		word_colour = word;
+	word_direction = -1;
 }
 
 static void MS_gameplay(CAT_FSM_signal signal)
@@ -142,51 +190,56 @@ static void MS_gameplay(CAT_FSM_signal signal)
 			times[phase] += CAT_get_delta_time_s();
 			CAT_timed_latch_tick(&error_latch);
 			CAT_timed_latch_tick(&finish_latch);
-			CAT_timed_latch_tick(&distraction_latch);
 
 			if(CAT_timed_latch_get(&error_latch))
 				return;
 			if(CAT_timed_latch_get(&finish_latch))
 				return;
 
-			if(!CAT_timed_latch_get(&distraction_latch))
+			if(challenge_request)
 			{
-				if(CAT_rand_chance(2))
-					CAT_timed_latch_raise(&distraction_latch);
-			}
+				if(phase >= PHASE_WORDS)
+					generate_word();
+				else
+					generate_arrow();
+				challenge_count += 1;
+				challenge_request = false;
+				challenge_missed = false;
 
-			if(arrow_request)
-			{
-				generate_arrow();
-				if(arrow_count == ARROWS_PER_PHASE)
+				if(challenge_count > CHALLENGES_PER_PHASE)
 				{
 					if(phase == PHASE_COUNT-1)
 						CAT_FSM_transition(&fsm, MS_performance);
 					else
 						phase_transition(phase+1);
-				}					
+				}			
 			}
 
 			for(int i = 0; i < 4; i++)
 			{
 				if(CAT_input_pressed(key_map[i]))
 				{
-					if
-					(
-						(phase != PHASE_ARROWS_OPPOSITE && i == arrow_direction) ||
-						(phase == PHASE_ARROWS_OPPOSITE && i == (arrow_direction+2)%4)
-					)
+					bool correct = 
+					((phase == PHASE_ARROWS || phase == PHASE_ARROWS_INCONGRUENT) && i == arrow_direction) ||
+					(phase == PHASE_ARROWS_OPPOSITE && i == (arrow_direction+2)%4) ||
+					(phase == PHASE_WORDS && i == word) ||
+					(phase == PHASE_WORDS_COLOUR && i == word_colour) ||
+					(phase == PHASE_WORDS_WORD && i == word);
+					
+					if(correct)
 					{
-						if(!arrow_missed)
+						if(!challenge_missed)
 							perfects[phase] += 1;
-						arrow_request = true;
+						challenge_request = true;
 						CAT_timed_latch_raise(&finish_latch);
 					}
 					else
 					{
-						arrow_missed = true;
+						challenge_missed = true;
 						CAT_timed_latch_raise(&error_latch);
 					}
+
+					word_direction = i;
 				}
 			}
  		}
@@ -202,8 +255,16 @@ static void MS_gameplay(CAT_FSM_signal signal)
 #define CENTER_R 24
 #define ARROW_R 64
 
-static void draw_arrow(int x, int y)
+static void draw_arrow()
 {
+	CAT_draw_regular_polygon(4, CAT_LCD_SCREEN_W/2, CAT_LCD_SCREEN_H/2, CAT_LCD_SCREEN_W/2, 0.25f, CAT_GREY);
+
+	if(phase == PHASE_ARROWS_INCONGRUENT)
+	{
+		CAT_circberry(CAT_LCD_SCREEN_W/2, CAT_LCD_SCREEN_H/2, CENTER_R, CAT_160_GREY);
+		CAT_draw_regular_polygon(4, CAT_LCD_SCREEN_W/2, CAT_LCD_SCREEN_H/2, CENTER_R, 0.25f, CAT_GREY);
+	}
+
 	CAT_poly_clear_transformation();
 	float t = CAT_timed_latch_get(&finish_latch) ?
 	CAT_timed_latch_t(&finish_latch) * 4.0f : 0;
@@ -222,9 +283,48 @@ static void draw_arrow(int x, int y)
 		dx += dxdy[arrow_position*2+0] * ARROW_R;
 		dy += dxdy[arrow_position*2+1] * ARROW_R;
 	}
-	CAT_poly_set_translation(x+dx, y+dy);
+	CAT_poly_set_translation(CENTER_X+dx, CENTER_Y+dy);
 	
 	CAT_poly_draw(arrow_mesh, CAT_POLY_VERTEX_COUNT(arrow_mesh), CAT_WHITE);
+}
+
+#define CARD_W (3*CAT_LCD_SCREEN_W/4)
+#define CARD_H CARD_W
+#define CARD_X (CENTER_X-CARD_W/2)
+#define CARD_Y (CENTER_Y-CARD_H/2)
+
+static void draw_word()
+{
+	CAT_set_text_flags(CAT_TEXT_FLAG_CENTER | CAT_TEXT_FLAG_VERTICAL);
+	CAT_set_text_colour(word_colours[0]);
+	CAT_draw_text(CARD_X + CARD_W + 7, CARD_Y + CARD_H/2, words[0]);
+
+	CAT_set_text_flags(CAT_TEXT_FLAG_CENTER);
+	CAT_set_text_colour(word_colours[1]);
+	CAT_draw_text(CARD_X + CARD_W/2, CARD_Y - 24, words[1]);
+
+	CAT_set_text_flags(CAT_TEXT_FLAG_CENTER | CAT_TEXT_FLAG_VERTICAL);
+	CAT_set_text_colour(word_colours[2]);
+	CAT_draw_text(CARD_X - 20, CARD_Y + CARD_H/2, words[2]);
+
+	CAT_set_text_flags(CAT_TEXT_FLAG_CENTER);
+	CAT_set_text_colour(word_colours[3]);
+	CAT_draw_text(CARD_X + CARD_W/2, CARD_Y + CARD_H + 12, words[3]);
+
+	float t = CAT_timed_latch_get(&finish_latch) ?
+	CAT_timed_latch_t(&finish_latch) * 4.0f : 0;
+
+	int dx = dxdy[word_direction*2+0] * t * 128;
+	int dy = dxdy[word_direction*2+1] * t * 128;
+	
+	CAT_fillberry(CARD_X+dx, CARD_Y+dy, CARD_W+1, CARD_H+1, CAT_BLACK);
+	CAT_strokeberry(CARD_X+dx, CARD_Y+dy, CARD_W+1, CARD_H+1, CAT_GREY);
+	CAT_strokeberry(CARD_X+dx, CARD_Y+dy, CARD_W, CARD_H, CAT_WHITE);
+	
+	CAT_set_text_flags(CAT_TEXT_FLAG_CENTER);
+	CAT_set_text_scale(2);
+	CAT_set_text_colour(word_colours[word_colour]);
+	CAT_draw_text(CARD_X+dx+CARD_W/2, CARD_Y+dy+CARD_H/2-CAT_GLYPH_HEIGHT, words[word]);
 }
 
 static void draw_error()
@@ -235,28 +335,18 @@ static void draw_error()
 	float r = lerp(-M_PI/3, 0, t);
 	CAT_poly_set_scale(s, s);
 	CAT_poly_set_translation(CAT_LCD_SCREEN_W/2, CAT_LCD_SCREEN_H/2);
-	CAT_poly_set_rotation(r);
+	CAT_poly_set_rotation(r); 
 	CAT_poly_draw(x_mesh, CAT_POLY_VERTEX_COUNT(x_mesh), CAT_RED);
-}
-
-static void draw_distraction()
-{
-
 }
 
 static void draw_gameplay()
 {
 	CAT_frameberry(CAT_BLACK);
 
-	CAT_draw_regular_polygon(4, CAT_LCD_SCREEN_W/2, CAT_LCD_SCREEN_H/2, CAT_LCD_SCREEN_W/2, 0.25f, CAT_GREY);
-
-	if(phase == PHASE_ARROWS_INCONGRUENT)
-	{
-		CAT_circberry(CAT_LCD_SCREEN_W/2, CAT_LCD_SCREEN_H/2, CENTER_R, CAT_160_GREY);
-		CAT_draw_regular_polygon(4, CAT_LCD_SCREEN_W/2, CAT_LCD_SCREEN_H/2, CENTER_R, 0.25f, CAT_GREY);
-	}
-
-	draw_arrow(CENTER_X, CENTER_Y);
+	if(phase >= PHASE_WORDS)
+		draw_word();
+	else
+		draw_arrow(CENTER_X, CENTER_Y);
 
 	if(CAT_timed_latch_get(&error_latch))
 		draw_error();
@@ -284,22 +374,68 @@ static void MS_tutorial(CAT_FSM_signal signal)
 static void draw_tutorial_diagram(int y)
 {
 	bool pulse = CAT_pulse(0.5f);
-
 	int x = CAT_LCD_SCREEN_W/2;
+	y -= 16;
 
-	CAT_poly_clear_transformation();
-	CAT_poly_set_scale(32, 32);
-	CAT_poly_set_translation(x, y);
-	CAT_poly_draw(arrow_mesh, CAT_POLY_VERTEX_COUNT(arrow_mesh), pulse ? CAT_WHITE : CAT_GREY);
-	y += 52;
+	if(phase >= PHASE_WORDS)
+	{
+		static const char* text_a[3] =
+		{
+			"RED",
+			"BLUE",
+			"RED"
+		};
+		static const char* text_b[3] = 
+		{
+			"RED",
+			"RED",
+			"RED"
+		};
+		static uint16_t colour_a[3] =
+		{
+			CAT_RED,
+			CAT_RED,
+			CAT_BLUE,
+		};
+		static uint16_t colour_b[3] =
+		{
+			CAT_RED,
+			CAT_RED,
+			CAT_RED
+		};
 
-	CAT_draw_dpad
-	(
-		x, y, 24,
-		pulse ? (phase == PHASE_ARROWS_OPPOSITE ? CAT_LEFT_BIT : CAT_RIGHT_BIT) : 0,
-		CAT_WHITE, CAT_BLACK
-	);
-	y += 52;
+		int idx = phase-PHASE_WORDS;
+		int cursor_x = x-CAT_TEXT_W("RED = BLUE", 1)/2;
+		CAT_set_text_colour(colour_a[idx]);
+		cursor_x = CAT_draw_text(cursor_x, y, text_a[idx]);
+		CAT_set_text_colour(CAT_WHITE);
+		cursor_x = CAT_draw_text(cursor_x, y, " = ");
+		CAT_set_text_colour(colour_b[idx]);
+		cursor_x = CAT_draw_text(cursor_x, y, text_b[idx]);
+		y += CAT_TEXT_LINE_HEIGHT * 4;
+
+		CAT_draw_dpad
+		(
+			x, y, 24,
+			pulse ? CAT_RIGHT_BIT : 0,
+			CAT_WHITE, CAT_BLACK
+		);
+	}
+	else
+	{
+		CAT_poly_clear_transformation();
+		CAT_poly_set_scale(32, 32);
+		CAT_poly_set_translation(x, y);
+		CAT_poly_draw(arrow_mesh, CAT_POLY_VERTEX_COUNT(arrow_mesh), pulse ? CAT_WHITE : CAT_GREY);
+		y += 52;
+
+		CAT_draw_dpad
+		(
+			x, y, 24,
+			pulse ? (phase == PHASE_ARROWS_OPPOSITE ? CAT_LEFT_BIT : CAT_RIGHT_BIT) : 0,
+			CAT_WHITE, CAT_BLACK
+		);
+	}
 }
 
 static void draw_tutorial()
@@ -327,6 +463,18 @@ static void draw_tutorial()
 		break;
 		case PHASE_ARROWS_INCONGRUENT:
 			cursor_y = CAT_draw_text(12, cursor_y, "Press the D-pad button corresponding to the arrow's direction, NOT its position.\n");
+		break;
+		case PHASE_WORDS:
+			cursor_y = CAT_draw_text(12, cursor_y, "Press the D-pad button corresponding to the COLOUR of the text at the box's center.\n");
+		break;
+		case PHASE_WORDS_COLOUR:
+			cursor_y = CAT_draw_text(12, cursor_y, "Press the D-pad button corresponding to the COLOUR of the text at the box's center.\n");
+		break;
+		case PHASE_WORDS_WORD:
+			cursor_y = CAT_draw_text(12, cursor_y, "Press the D-pad button corresponding to the MEANING of the text at the box's center.\n");
+		break;
+		default:
+			cursor_y = CAT_draw_text(12, cursor_y, "Hello, world!\n");
 		break;
 	}
 	cursor_y += 32;
@@ -365,23 +513,71 @@ static void draw_performance()
 	CAT_frameberry(CAT_BLACK);
 
 	int cursor_y = 12;
-	CAT_draw_page_markers(cursor_y, PHASE_COUNT, phase, CAT_WHITE);
-	cursor_y += 24;
+	CAT_set_text_colour(CAT_WHITE);
+	CAT_set_text_scale(2);
+	cursor_y = CAT_draw_text(12, cursor_y, "PERFORMANCE\n");
+	cursor_y += CAT_TEXT_LINE_HEIGHT;
 
+	int total = PHASE_COUNT * CHALLENGES_PER_PHASE;
+	int total_perfect = 0;
+	for(int i = 0; i < PHASE_COUNT; i++)
+		total_perfect += perfects[i];
+	float min_time = __FLT_MAX__;
+	float max_time = -min_time;
+	float total_time = 0;
 	for(int i = 0; i < PHASE_COUNT; i++)
 	{
-		CAT_set_text_colour(CAT_WHITE);
-		cursor_y = CAT_draw_textf
-		(
-			12, cursor_y,
-			"PHASE %d:\n"
-			"  Correct: %d/%d\n"
-			"  Time: "CAT_FLOAT_FMT"\n"
-			"\n",
-			i+1,
-			perfects[i], ARROWS_PER_PHASE, CAT_FMT_FLOAT(times[i])
-		);
+		float t = times[i];
+		if(t == 0)
+			continue;
+		min_time = CAT_min(min_time, t);
+		max_time = CAT_max(max_time, t);
+		total_time += t;
 	}
+	float ratio = max_time / min_time;
+	
+	CAT_set_text_mask(12, -1, CAT_LCD_SCREEN_W-12, -1);
+	CAT_set_text_colour(CAT_WHITE);
+	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
+	cursor_y = CAT_draw_textf
+	(
+		12, cursor_y,
+		"You processed %d/%d stimuli correctly over "CAT_FLOAT_FMT" seconds. "
+		"Your slowest time was "CAT_FLOAT_FMT"x worse than your fastest."
+		"\n",
+		total_perfect, total, CAT_FMT_FLOAT(total_time),
+		CAT_FMT_FLOAT(ratio)
+	);
+	cursor_y += CAT_TEXT_LINE_HEIGHT;
+
+	float co2 = CAT_AQ_live_score_raw(CAT_AQM_CO2);
+	float pm25 = CAT_AQ_live_score_raw(CAT_AQM_PM2_5);
+	CAT_set_text_mask(12, -1, CAT_LCD_SCREEN_W-12, -1);
+	CAT_set_text_colour(CAT_WHITE);
+	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
+	cursor_y = CAT_draw_textf
+	(
+		12, cursor_y,
+		"CO2 and PM 2.5 may impact your performance. "
+		"CO2 is currently at "CAT_FLOAT_FMT" PPM and PM 2.5 is currently at "CAT_FLOAT_FMT" PPM."
+		"\n",
+		CAT_FMT_FLOAT(co2), CAT_FMT_FLOAT(pm25)
+	);
+	cursor_y += 40;
+
+	int stars = 3;
+	if(total - total_perfect >= 4)
+		stars -= 1;
+	if(ratio >= 1.25f)
+		stars -= 1;
+	for(int i = 0; i < 3; i++)
+	{
+		CAT_draw_star(12+ 24 + i * (48 + 8), cursor_y, 24, i < stars ? CAT_CRISIS_YELLOW : CAT_64_GREY);
+	}
+	cursor_y += 32;
+
+	CAT_set_text_colour(CAT_WHITE);
+	cursor_y = CAT_draw_textf(12, cursor_y, "%d star performance!\n", stars);
 }
 
 void CAT_MS_stroop(CAT_FSM_signal signal)

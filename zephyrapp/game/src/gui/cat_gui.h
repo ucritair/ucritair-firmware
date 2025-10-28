@@ -149,6 +149,7 @@ typedef enum
 	CAT_TEXT_FLAG_NONE = 0,
 	CAT_TEXT_FLAG_WRAP = (1 << 0),
 	CAT_TEXT_FLAG_CENTER = (1 << 1), 
+	CAT_TEXT_FLAG_VERTICAL = (1 << 2)
 } CAT_text_flag;
 
 void CAT_set_text_flags(int flags);
@@ -158,11 +159,12 @@ void CAT_set_text_mask(int x0, int y0, int x1, int y1);
 
 int CAT_draw_text(int x, int y, const char* text);
 int CAT_draw_textf(int x, int y, const char* fmt, ...);
-void CAT_draw_character(int x, int y, int scale, char g, uint16_t c);
 
-/*#define CAT_FLOAT_FMT "%d.%2.2u"
-#define CAT_FMT_FLOAT(f) (int) (f), ((unsigned)(100 * ((f) - (int) (f))) % 100)*/
 const char* CAT_fmt_float(float f);
-#define CAT_FLOAT_FMT "%s"
-#define CAT_FMT_FLOAT(f) CAT_fmt_float(f)
+#define CAT_FLOAT_FMT "%d.%2.2u"
+#define CAT_FMT_FLOAT(f) (int) (f), ((unsigned)(100 * ((f) - (int) (f))) % 100)
+/*#define CAT_FLOAT_FMT "%s"
+#define CAT_FMT_FLOAT(f) CAT_fmt_float(f)*/
+
+#define CAT_TEXT_W(str, scale) (strlen(str) * CAT_GLYPH_WIDTH * (scale))
 

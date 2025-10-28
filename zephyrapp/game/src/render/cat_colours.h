@@ -76,3 +76,6 @@ static uint16_t CAT_colour_curve(uint16_t* points, uint8_t length, float t)
 
 #define CAT_GRAPH_BG CAT_RGB8882565(32, 32, 32)
 #define CAT_GRAPH_FG CAT_RGB8882565(192, 192, 192)
+
+#define CAT_STROOP_PURPLE
+#define CAT_STROOP_YELLOW

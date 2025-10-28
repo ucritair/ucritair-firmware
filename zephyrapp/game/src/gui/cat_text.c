@@ -176,6 +176,41 @@ int get_centered_x(int x, const char* text, int glyph_idx, int scale)
 	}
 }
 
+void CAT_draw_text_vertical(int x, int y, int scale, bool centered, uint16_t c, char* text)
+{
+	int gw = CAT_GLYPH_WIDTH * scale;
+	int gh = CAT_GLYPH_HEIGHT * scale;
+	int strh = strlen(text) * gh;
+	if(centered)
+	{
+		x += gw/2;
+		y -= strh/2;
+	}
+
+	const char* glyph_ptr = text; int glyph_idx = 0;
+	int cursor_x = x;
+	int cursor_y = y;
+
+	while (*glyph_ptr != '\0')
+	{
+		if(*glyph_ptr == '\n')
+		{
+			cursor_x += gw;
+			cursor_y = y;
+			glyph_ptr++; glyph_idx++;
+			continue;
+		}
+
+		CAT_set_sprite_colour(c);
+		CAT_set_sprite_scale(scale);
+		CAT_draw_sprite(&glyph_sprite, *glyph_ptr, cursor_x, cursor_y);
+		cursor_y += gh;
+		glyph_ptr++; glyph_idx++;
+		if(*glyph_ptr & 64)
+			cursor_y += 2;
+	}
+}
+
 int CAT_draw_text(int x, int y, const char* text)
 {
 	int flags = consume_text_flags();
@@ -199,9 +234,16 @@ int CAT_draw_text(int x, int y, const char* text)
 		break_count = 0;
 	bool center = flags & CAT_TEXT_FLAG_CENTER;
 
+	if(flags & CAT_TEXT_FLAG_VERTICAL)
+	{
+		CAT_draw_text_vertical(x, y, scale, center, colour, text);
+		return y;
+	}
+
 	const char* glyph_ptr = text; int glyph_idx = 0;
 	int cursor_x = center ? get_centered_x(x, text, glyph_idx, scale) : x;
 	int cursor_y = y;
+	bool broke = false;
 
 	while (*glyph_ptr != '\0')
 	{
@@ -210,6 +252,7 @@ int CAT_draw_text(int x, int y, const char* text)
 			cursor_x = center ? get_centered_x(x, text, glyph_idx+1, scale) : x;
 			cursor_y += (CAT_GLYPH_HEIGHT + 2) * scale;
 			glyph_ptr++; glyph_idx++;
+			broke = true;
 			continue;
 		}
 		else if(wrap)
@@ -218,6 +261,7 @@ int CAT_draw_text(int x, int y, const char* text)
 			{
 				cursor_x = center ? get_centered_x(x, text, glyph_idx+1, scale) : x;
 				cursor_y += (CAT_GLYPH_HEIGHT + 2) * scale;
+				broke = true;
 			}
 		}
 
@@ -229,7 +273,7 @@ int CAT_draw_text(int x, int y, const char* text)
 		glyph_ptr++; glyph_idx++;
 	}
 
-	return cursor_y;
+	return broke ? cursor_y : cursor_x;
 }
 
 static char draw_textf_buffer[512];
@@ -244,22 +288,17 @@ int CAT_draw_textf(int x, int y, const char* fmt, ...)
 	return CAT_draw_text(x, y, draw_textf_buffer);
 }
 
-void CAT_draw_character(int x, int y, int scale, char g, uint16_t c)
-{
-	CAT_set_sprite_scale(scale);
-	CAT_set_sprite_colour(c);
-	CAT_set_sprite_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
-	if(g & 32)
-		y -= 2;
-	CAT_draw_sprite(&glyph_sprite, g, x, y);
-}
-
 const char* CAT_fmt_float(float f)
 {
-	static char buf[64];
+	static char buf[128];
+	static int ptr = 0;
+
+	if(CAT_is_first_render_cycle())
+		ptr = 0;
+
 	int whole = (int) f;
 	float frac = f - whole;
 	unsigned fracu = (unsigned) (frac * 100);
-	snprintf(buf, sizeof(buf), "%d.%2.2u", whole, fracu);
-	return buf;
+	ptr += snprintf(buf+ptr, sizeof(buf)-ptr, "%d.%2.2u", whole, fracu);
+	return buf+ptr;
 }

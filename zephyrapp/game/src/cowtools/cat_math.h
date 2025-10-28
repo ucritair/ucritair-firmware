@@ -29,6 +29,7 @@
 #define CAT_cos cosf
 #define CAT_atan atan2f
 #define CAT_sqrt sqrtf
+#define CAT_round roundf
 
 float lerp(float a, float b, float t);
 float inv_lerp(float t, float a, float b);
