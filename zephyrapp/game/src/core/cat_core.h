@@ -350,14 +350,16 @@ typedef struct __attribute__((__packed__))
 
 	uint16_t co2_uncomp_ppmx1;
 
-	uint8_t pad[20];
+	uint8_t cog_perf_x1; // [0, 100]
+
+	uint8_t pad[19];
 } CAT_log_cell;
 
 typedef enum
 {
 	CAT_LOG_CELL_FLAG_HAS_TEMP_RH_PARTICLES = (1 << 0),
 	CAT_LOG_CELL_FLAG_HAS_CO2 = (1 << 1),
-	CAT_LOG_CELL_FLAG_HAS_GAME_SCORE = (1 << 2)
+	CAT_LOG_CELL_FLAG_HAS_COG_PERF = (1 << 2)
 } CAT_log_cell_flag;
 
 void CAT_read_log_cell_at_idx(int idx, CAT_log_cell* out);
@@ -365,6 +367,7 @@ int CAT_read_log_cell_before_time(int bookmark, uint64_t time, CAT_log_cell* out
 int CAT_read_log_cell_after_time(int bookmark, uint64_t time, CAT_log_cell* out);
 int CAT_read_first_calendar_cell(CAT_log_cell* cell);
 int CAT_get_log_cell_count();
+void CAT_force_log_cell_write();
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -483,3 +486,8 @@ static inline void CAT_bonus_set(uint32_t value)
 {
 	;
 }
+
+void CAT_cache_cognitive_performance(int score);
+int CAT_get_cached_cognitive_performance();
+void CAT_invalidate_cognitive_performance();
+int CAT_load_cognitive_performance();

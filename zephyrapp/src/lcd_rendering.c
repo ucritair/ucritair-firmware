@@ -305,7 +305,7 @@ void lcd_render_diag()
 		else if(battery <= 10)
 			epaper_render_protected_off();
 
-		if ((k_uptime_get() - last_flash_log) > (sensor_wakeup_period*1000) && is_ready_for_aqi_logging())
+		if((k_uptime_get() - last_flash_log) > (sensor_wakeup_period*1000) && is_ready_for_aqi_logging())
 		{
 			populate_next_log_cell();
 			last_flash_log = k_uptime_get();

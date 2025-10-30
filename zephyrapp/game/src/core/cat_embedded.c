@@ -260,6 +260,11 @@ int CAT_get_log_cell_count()
 	return next_log_cell_nr;
 }
 
+void CAT_force_log_cell_write()
+{
+	populate_next_log_cell();
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // POWER

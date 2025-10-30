@@ -82,6 +82,9 @@ void CAT_monitor_render_sparklines()
 		CAT_set_text_colour(CAT_WHITE);
 		cursor_y = CAT_draw_textf(SPARKLINE_X, cursor_y, "Please wait for sensors\nto come online.\n");
 	}
+
+	CAT_set_text_colour(CAT_96_GREY);
+	cursor_y = CAT_draw_textf(SPARKLINE_X, CAT_LCD_SCREEN_H-16, "Tap graph to change metric");
 }
 
 void CAT_monitor_MS_sparklines(CAT_FSM_signal signal)

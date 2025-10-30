@@ -576,3 +576,56 @@ void CAT_set_debug_number(int x)
 {
 	debug_number = x;
 }
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// BONUS
+
+static int cog_perf = -1;
+
+void CAT_cache_cognitive_performance(int score)
+{
+	cog_perf = CAT_clamp(score, -1, 100);
+}
+
+int CAT_get_cached_cognitive_performance()
+{
+	return cog_perf;
+}
+
+void CAT_invalidate_cognitive_performance()
+{
+	cog_perf = -1;
+}
+
+int CAT_load_cognitive_performance()
+{
+	int result = -1;
+
+	if(CAT_AQ_logs_initialized())
+	{
+		int idx = CAT_get_log_cell_count()-1;
+		CAT_log_cell cell;
+		uint64_t start_time = CAT_get_RTC_now();
+		while(idx > 0)
+		{
+			// CAT_printf("IDX: %d", idx);
+			CAT_read_log_cell_at_idx(idx, &cell);
+			uint64_t now = CAT_get_RTC_now();
+			if((now - cell.timestamp) > CAT_DAY_SECONDS || (now - start_time) > 2)
+			{
+				// CAT_printf("WENT TOO FAR\n");
+				break;
+			}
+			else if(cell.flags & CAT_LOG_CELL_FLAG_HAS_COG_PERF)
+			{
+				// CAT_printf("FOUND %d\n", (int) cell.cog_perf_x1);
+				result = cell.cog_perf_x1;
+				break;
+			}
+			idx--;
+		}
+	}
+
+	return result;
+}

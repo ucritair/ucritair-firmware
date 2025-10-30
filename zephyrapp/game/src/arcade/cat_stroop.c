@@ -489,12 +489,63 @@ static void draw_tutorial()
 	cursor_y = CAT_draw_text(CAT_LCD_SCREEN_W/2, cursor_y, "Press the indicated D-pad button to continue!\n");
 }
 
+static int total_challenges = 0;
+static int total_perfect = 0;
+static float total_time = 0;
+static float time_ratio = 0;
+static int stars = 0;
+static float co2 = 0;
+static float pm25 = 0;
+static int last_cog_perf = -1;
+
 static void MS_performance(CAT_FSM_signal signal)
 {
 	switch (signal)
 	{
 		case CAT_FSM_SIGNAL_ENTER:
+		{
 			CAT_set_render_callback(draw_performance);
+			
+			total_challenges = PHASE_COUNT * CHALLENGES_PER_PHASE;
+			total_perfect = 0;
+			for(int i = 0; i < PHASE_COUNT; i++)
+				total_perfect += perfects[i];
+			float min_time = __FLT_MAX__;
+			float max_time = -min_time;
+			total_time = 0;
+			for(int i = 0; i < PHASE_COUNT; i++)
+			{
+				float t = times[i];
+				if(t == 0)
+					continue;
+				min_time = CAT_min(min_time, t);
+				max_time = CAT_max(max_time, t);
+				total_time += t;
+			}
+			time_ratio = max_time / min_time;
+
+			co2 = cached_co2 < 0 ? CAT_AQ_live_score_raw(CAT_AQM_CO2) : cached_co2;
+			pm25 = CAT_AQ_live_score_raw(CAT_AQM_PM2_5);
+
+			stars = 3;
+			if(total_perfect < total_challenges/2 || total_time > PHASE_COUNT * CAT_MINUTE_SECONDS)
+			{
+				stars = 0;
+			}
+			else
+			{
+				if(total_challenges - total_perfect >= 4)
+					stars -= 1;
+				if(time_ratio >= 2.0f)
+					stars -= 1;
+			}
+
+			last_cog_perf = CAT_get_cached_cognitive_performance();
+			if(last_cog_perf == -1)
+				last_cog_perf = CAT_load_cognitive_performance();
+			CAT_cache_cognitive_performance((total_perfect / (float) total_challenges) * 100);
+			CAT_force_log_cell_write();
+		}
 		break;
 
 		case CAT_FSM_SIGNAL_TICK:
@@ -521,24 +572,6 @@ static void draw_performance()
 	CAT_set_text_scale(2);
 	cursor_y = CAT_draw_text(12, cursor_y, "PERFORMANCE\n");
 	cursor_y += CAT_TEXT_LINE_HEIGHT;
-
-	int total = PHASE_COUNT * CHALLENGES_PER_PHASE;
-	int total_perfect = 0;
-	for(int i = 0; i < PHASE_COUNT; i++)
-		total_perfect += perfects[i];
-	float min_time = __FLT_MAX__;
-	float max_time = -min_time;
-	float total_time = 0;
-	for(int i = 0; i < PHASE_COUNT; i++)
-	{
-		float t = times[i];
-		if(t == 0)
-			continue;
-		min_time = CAT_min(min_time, t);
-		max_time = CAT_max(max_time, t);
-		total_time += t;
-	}
-	float ratio = max_time / min_time;
 	
 	CAT_set_text_mask(12, -1, CAT_LCD_SCREEN_W-12, -1);
 	CAT_set_text_colour(CAT_WHITE);
@@ -548,14 +581,46 @@ static void draw_performance()
 		12, cursor_y,
 		"You processed %d/%d stimuli correctly over "CAT_FLOAT_FMT" seconds. "
 		"Your slowest time was "CAT_FLOAT_FMT"x worse than your fastest."
-		"\n",
-		total_perfect, total, CAT_FMT_FLOAT(total_time),
-		CAT_FMT_FLOAT(ratio)
+		"\n\n",
+		total_perfect, total_challenges, CAT_FMT_FLOAT(total_time),
+		CAT_FMT_FLOAT(time_ratio)
 	);
-	cursor_y += CAT_TEXT_LINE_HEIGHT;
+	
+	if(last_cog_perf != -1)
+	{
+		CAT_set_text_mask(12, -1, CAT_LCD_SCREEN_W-12, -1);
+		CAT_set_text_colour(CAT_WHITE);
+		CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
+		cursor_y = CAT_draw_textf
+		(
+			12, cursor_y,
+			"Your cognitive score is %d, compared to a previous score of %d\n",
+			CAT_get_cached_cognitive_performance(), last_cog_perf
+		);
+	}
+	else
+	{	
+		CAT_set_text_mask(12, -1, CAT_LCD_SCREEN_W-12, -1);
+		CAT_set_text_colour(CAT_WHITE);
+		CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
+		cursor_y = CAT_draw_textf(12, cursor_y, "Your cognitive score is now %d!\n", CAT_get_cached_cognitive_performance());
+	}
+	cursor_y += 32;
 
-	float co2 = cached_co2 < 0 ? CAT_AQ_live_score_raw(CAT_AQM_CO2) : cached_co2;
-	float pm25 = CAT_AQ_live_score_raw(CAT_AQM_PM2_5);
+	for(int i = 0; i < 3; i++)
+	{
+		CAT_draw_star(12+ 24 + i * (48 + 8), cursor_y, 24, i < stars ? CAT_CRISIS_YELLOW : CAT_64_GREY);
+	}
+	cursor_y += 32;
+
+	/*const char* star_text =
+	stars >= 3 ? "A perfect 3 stars!" :
+	stars >= 2 ? "2 stars isn't bad!" :
+	stars >= 1 ? "1 disappointing star." :
+	"No stars? No good!";
+	CAT_set_text_colour(CAT_WHITE);
+	cursor_y = CAT_draw_textf(12, cursor_y, "%s\n", star_text);*/
+
 	CAT_set_text_mask(12, -1, CAT_LCD_SCREEN_W-12, -1);
 	CAT_set_text_colour(CAT_WHITE);
 	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
@@ -568,35 +633,6 @@ static void draw_performance()
 		(int) co2, CAT_AQ_get_unit_string(CAT_AQM_CO2),
 		CAT_FMT_FLOAT(pm25), CAT_AQ_get_unit_string(CAT_AQM_PM2_5)
 	);
-	cursor_y += 40;
-
-	int stars = 3;
-	if(total_perfect < total/2 || total_time > PHASE_COUNT * CAT_MINUTE_SECONDS)
-	{
-		stars = 0;
-	}
-	else
-	{
-		if(total - total_perfect >= 4)
-			stars -= 1;
-		if(ratio >= 2.0f)
-			stars -= 1;
-	}
-	
-	for(int i = 0; i < 3; i++)
-	{
-		CAT_draw_star(12+ 24 + i * (48 + 8), cursor_y, 24, i < stars ? CAT_CRISIS_YELLOW : CAT_64_GREY);
-	}
-	cursor_y += 32;
-
-	CAT_set_text_colour(CAT_WHITE);
-	const char* star_text =
-	stars >= 3 ? "A perfect 3 stars!\n" :
-	stars >= 2 ? "2 stars isn't bad!\n" :
-	stars >= 1 ? "1 disappointing star.\n" :
-	"No stars? No good!\n";
-
-	cursor_y = CAT_draw_text(12, cursor_y, star_text);
 }
 
 void CAT_MS_stroop(CAT_FSM_signal signal)

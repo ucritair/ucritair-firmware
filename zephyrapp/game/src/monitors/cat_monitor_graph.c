@@ -485,6 +485,9 @@ void CAT_monitor_graph_render()
 			CAT_set_text_scale(1);
 			CAT_draw_textf(window_x, WINDOW_Y1+4, "INVALID\n");
 		}
+
+		CAT_set_text_colour(CAT_96_GREY);
+		CAT_draw_textf(WINDOW_X0, CAT_LCD_SCREEN_H-14, "Tap graph to change metric");
 	}
 }
 
