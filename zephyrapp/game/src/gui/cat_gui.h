@@ -54,7 +54,13 @@ bool CAT_gui_keyboard_is_open();
 //////////////////////////////////////////////////////////////////////////
 // POPUP
 
-void CAT_gui_open_popup(const char* msg);
+static enum
+{
+	CAT_POPUP_STYLE_YES_NO,
+	CAT_POPUP_STYLE_OK
+} CAT_popup_style;
+
+void CAT_gui_open_popup(const char* text, int style);
 bool CAT_gui_popup_is_open();
 bool CAT_gui_consume_popup();
 
@@ -167,4 +173,3 @@ const char* CAT_fmt_float(float f);
 #define CAT_FMT_FLOAT(f) CAT_fmt_float(f)*/
 
 #define CAT_TEXT_W(str, scale) (strlen(str) * CAT_GLYPH_WIDTH * (scale))
-

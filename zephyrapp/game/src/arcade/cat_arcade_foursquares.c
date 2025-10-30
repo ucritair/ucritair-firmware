@@ -606,7 +606,7 @@ void CAT_MS_foursquares(CAT_FSM_signal signal)
 		case CAT_FSM_SIGNAL_TICK:
 		{
 			if(CAT_input_pressed(CAT_BUTTON_START) || CAT_input_held(CAT_BUTTON_B, 0.5f))
-				CAT_gui_open_popup("Quit Foursquares?\n\nProgress will not\nbe saved!\n");
+				CAT_gui_open_popup("Quit Foursquares?\n\nProgress will not\nbe saved!\n", CAT_POPUP_STYLE_YES_NO);
 			else if(CAT_gui_consume_popup())
 			{
 				CAT_pushdown_pop();

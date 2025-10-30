@@ -43,6 +43,7 @@ typedef struct
 } CAT_FSM;
 void CAT_FSM_transition(CAT_FSM* machine, CAT_FSM_state state);
 void CAT_FSM_tick(CAT_FSM* machine);
+bool CAT_FSM_transition_event();
 
 void CAT_pushdown_rebase(CAT_FSM_state state);
 void CAT_pushdown_push(CAT_FSM_state state);

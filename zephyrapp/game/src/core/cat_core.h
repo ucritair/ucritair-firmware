@@ -71,13 +71,13 @@ bool CAT_is_last_render_cycle();
 void CAT_eink_post(uint8_t* buffer);
 bool CAT_eink_is_posted();
 
+bool CAT_eink_is_boot_update();
 void CAT_set_eink_update_flag(bool flag);
 bool CAT_poll_eink_update_flag();
 void CAT_eink_update();
 
 bool CAT_eink_should_update();
 void CAT_eink_execute_update();
-void CAT_eink_low_power();
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // SCREEN MANAGEMENT
@@ -355,8 +355,9 @@ typedef struct __attribute__((__packed__))
 
 typedef enum
 {
-	CAT_LOG_CELL_FLAG_HAS_TEMP_RH_PARTICLES = 1,
-	CAT_LOG_CELL_FLAG_HAS_CO2 = 2
+	CAT_LOG_CELL_FLAG_HAS_TEMP_RH_PARTICLES = (1 << 0),
+	CAT_LOG_CELL_FLAG_HAS_CO2 = (1 << 1),
+	CAT_LOG_CELL_FLAG_HAS_GAME_SCORE = (1 << 2)
 } CAT_log_cell_flag;
 
 void CAT_read_log_cell_at_idx(int idx, CAT_log_cell* out);

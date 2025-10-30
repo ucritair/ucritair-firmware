@@ -25,14 +25,6 @@ void FSM_transition(CAT_FSM* machine)
 
 void CAT_FSM_transition(CAT_FSM* machine, CAT_FSM_state state)
 {
-	/*if(machine == NULL)
-		return;
-
-	if(machine->state != NULL)
-		(*machine->state)(CAT_FSM_SIGNAL_EXIT);
-	machine->state = state;
-	if(machine->state != NULL)
-		(*machine->state)(CAT_FSM_SIGNAL_ENTER);*/
 	machine->next = state;
 	machine->dirty = true;
 }

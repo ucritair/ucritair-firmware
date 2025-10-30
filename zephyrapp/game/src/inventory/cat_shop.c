@@ -113,7 +113,7 @@ void CAT_MS_checkout(CAT_FSM_signal signal)
 			{
 				static char buf[128];
 				snprintf(buf, 128, "Purchase %d of %s?", purchase_qty, item_table.data[checkout_id].name);
-				CAT_gui_open_popup(buf);
+				CAT_gui_open_popup(buf, CAT_POPUP_STYLE_YES_NO);
 			}
 			break;
 		}
@@ -241,7 +241,7 @@ void CAT_MS_sale(CAT_FSM_signal signal)
 			{
 				static char buf[128];
 				snprintf(buf, 128, "Sell %d of %s?", sale_qty, item_table.data[sale_id].name);
-				CAT_gui_open_popup(buf);
+				CAT_gui_open_popup(buf, CAT_POPUP_STYLE_YES_NO);
 			}
 
 			break;

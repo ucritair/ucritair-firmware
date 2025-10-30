@@ -2653,6 +2653,26 @@
             "height": 32,
             "loop": true,
             "reverse": false
+        },
+        {
+            "id": 262,
+            "name": "ui_vxcon_logo",
+            "path": "ui/vxrl_buddy.png",
+            "frames": 1,
+            "width": 128,
+            "height": 158,
+            "loop": false,
+            "reverse": false
+        },
+        {
+            "id": 263,
+            "name": "ui_vxcon_text",
+            "path": "ui/vxrl_text.png",
+            "frames": 1,
+            "width": 135,
+            "height": 34,
+            "loop": false,
+            "reverse": false
         }
     ]
 }

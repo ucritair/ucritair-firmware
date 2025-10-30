@@ -143,9 +143,6 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 								readings.sen5x.temp_degC = 23;
 							CAT_gui_end_menu();
 						}
-
-						if(CAT_gui_menu_item("LOW POWER E-INK"))
-								CAT_eink_low_power();
 							
 						CAT_gui_end_menu();
 					}				
@@ -260,7 +257,7 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 						}
 							
 						if(CAT_gui_menu_item("RESET SAVE"))
-							CAT_gui_open_popup("Are you sure? This will delete all game data!\n");
+							CAT_gui_open_popup("Are you sure? This will delete all game data!\n", CAT_POPUP_STYLE_YES_NO);
 						if(CAT_gui_consume_popup())
 							CAT_factory_reset();
 
@@ -276,7 +273,7 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 						CAT_sleep();
 
 					if(CAT_gui_menu_item("PROTECTED OFF"))
-						CAT_gui_open_popup("The device must be powered on via the reset button! This will clear important settings. Proceed?\n");
+						CAT_gui_open_popup("The device must be powered on via the reset button! This will clear important settings. Proceed?\n", CAT_POPUP_STYLE_YES_NO);
 					if(CAT_gui_consume_popup())
 						CAT_shutdown();
 					

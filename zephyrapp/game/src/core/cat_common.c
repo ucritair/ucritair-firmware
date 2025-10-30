@@ -16,8 +16,14 @@
 
 #define EINK_UPDATE_PERIOD CAT_MINUTE_SECONDS
 
+static bool eink_boot_update = true;
 static bool eink_dirty = false;
 static uint64_t eink_update_timestamp = 0;
+
+bool CAT_eink_is_boot_update()
+{
+	return eink_boot_update;
+}
 
 void CAT_set_eink_update_flag(bool flag)
 {
@@ -32,8 +38,8 @@ bool CAT_poll_eink_update_flag()
 bool CAT_eink_should_update()
 {
 	uint64_t now = CAT_get_RTC_now();
-
 	return 
+	eink_boot_update ||
 	((CAT_is_charging() &&
 	(now - eink_update_timestamp) >= EINK_UPDATE_PERIOD &&
 	CAT_input_downtime() >= EINK_UPDATE_PERIOD) ||
@@ -44,7 +50,11 @@ void CAT_eink_execute_update()
 {
 	CAT_eink_update();
 	CAT_set_eink_update_flag(false);
-	eink_update_timestamp = CAT_get_RTC_now();
+
+	if(eink_boot_update)
+		eink_boot_update = false;
+	else
+		eink_update_timestamp = CAT_get_RTC_now();
 }
 
 

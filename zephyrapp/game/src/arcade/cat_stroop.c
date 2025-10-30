@@ -59,7 +59,7 @@ static int word_colour;
 static int word_direction;
 
 static bool challenge_request;
-static int challenge_count = 0;
+static int challenges_complete = 0;
 static bool challenge_missed = false;
 
 static CAT_timed_latch error_latch = CAT_TIMED_LATCH_INIT(1.0f);
@@ -109,6 +109,16 @@ static float arrow_mesh[] =
 
 #define CHALLENGES_PER_PHASE 8
 
+void change_phase(int _phase)
+{
+	phase = _phase;
+	challenges_complete = 0;
+	perfects[phase] = 0;
+	times[phase] = 0;
+	challenge_request = true;
+	CAT_FSM_transition(&fsm, MS_tutorial);
+}
+
 void shuffle(int* arr, int n)
 {
 	for(int i = 0; i < n; i++)
@@ -120,23 +130,11 @@ void shuffle(int* arr, int n)
 	}
 }
 
-static void phase_transition(int _phase)
-{
-	if(_phase == PHASE_COUNT)
-		CAT_pushdown_pop();
-	phase = _phase;
-	challenge_count = 0;
-	perfects[phase] = 0;
-	times[phase] = 0;
-	challenge_request = true;
-	CAT_FSM_transition(&fsm, MS_tutorial);
-}
-
 static void generate_arrow()
 {
 	static int arrow_pool[4];
 
-	int arrow_idx = challenge_count % 4;
+	int arrow_idx = challenges_complete % 4;
 
 	if(arrow_idx == 0)
 	{
@@ -158,7 +156,7 @@ static void generate_word()
 {
 	static int word_pool[4];
 
-	int idx = challenge_count % 4;
+	int idx = challenges_complete % 4;
 
 	if(idx == 0)
 	{
@@ -182,6 +180,7 @@ static void MS_gameplay(CAT_FSM_signal signal)
 		case CAT_FSM_SIGNAL_ENTER:
 		{
 			CAT_set_render_callback(draw_gameplay);
+			//phase_transition_complete = true;
 		}
 		break;
 
@@ -195,6 +194,20 @@ static void MS_gameplay(CAT_FSM_signal signal)
 				return;
 			if(CAT_timed_latch_get(&finish_latch))
 				return;
+			else if(CAT_timed_latch_flipped(&finish_latch))
+			{
+				challenges_complete += 1;
+				if(challenges_complete < CHALLENGES_PER_PHASE)
+					challenge_request = true;
+				else
+				{
+					if(phase >= PHASE_COUNT-1)
+						CAT_FSM_transition(&fsm, MS_performance);
+					else
+						change_phase(phase+1);
+					return;
+				}
+			}
 
 			if(challenge_request)
 			{
@@ -202,19 +215,10 @@ static void MS_gameplay(CAT_FSM_signal signal)
 					generate_word();
 				else
 					generate_arrow();
-				challenge_count += 1;
 				challenge_request = false;
-				challenge_missed = false;
-
-				if(challenge_count > CHALLENGES_PER_PHASE)
-				{
-					if(phase == PHASE_COUNT-1)
-						CAT_FSM_transition(&fsm, MS_performance);
-					else
-						phase_transition(phase+1);
-				}			
+				challenge_missed = false;			
 			}
-
+			
 			for(int i = 0; i < 4; i++)
 			{
 				if(CAT_input_pressed(key_map[i]))
@@ -230,7 +234,6 @@ static void MS_gameplay(CAT_FSM_signal signal)
 					{
 						if(!challenge_missed)
 							perfects[phase] += 1;
-						challenge_request = true;
 						CAT_timed_latch_raise(&finish_latch);
 					}
 					else
@@ -257,13 +260,11 @@ static void MS_gameplay(CAT_FSM_signal signal)
 
 static void draw_arrow()
 {
-	CAT_draw_regular_polygon(4, CAT_LCD_SCREEN_W/2, CAT_LCD_SCREEN_H/2, CAT_LCD_SCREEN_W/2, 0.25f, CAT_GREY);
-
+	float dt = CAT_get_uptime_ms() / 48000.0f;
+	CAT_draw_regular_polygon(4, CAT_LCD_SCREEN_W/2, CAT_LCD_SCREEN_H/2, CAT_LCD_SCREEN_W/2, dt, CAT_64_GREY);
+	CAT_draw_regular_polygon(4, CAT_LCD_SCREEN_W/2, CAT_LCD_SCREEN_H/2, CAT_LCD_SCREEN_W/2, 0.25f, CAT_96_GREY);
 	if(phase == PHASE_ARROWS_INCONGRUENT)
-	{
-		CAT_circberry(CAT_LCD_SCREEN_W/2, CAT_LCD_SCREEN_H/2, CENTER_R, CAT_160_GREY);
-		CAT_draw_regular_polygon(4, CAT_LCD_SCREEN_W/2, CAT_LCD_SCREEN_H/2, CENTER_R, 0.25f, CAT_GREY);
-	}
+		CAT_draw_regular_polygon(4, CAT_LCD_SCREEN_W/2, CAT_LCD_SCREEN_H/2, CENTER_R, -dt, CAT_GREY);
 
 	CAT_poly_clear_transformation();
 	float t = CAT_timed_latch_get(&finish_latch) ?
@@ -343,6 +344,9 @@ static void draw_gameplay()
 {
 	CAT_frameberry(CAT_BLACK);
 
+	if(fsm.dirty)
+		return;
+
 	if(phase >= PHASE_WORDS)
 		draw_word();
 	else
@@ -363,7 +367,7 @@ static void MS_tutorial(CAT_FSM_signal signal)
 		case CAT_FSM_SIGNAL_TICK:
 			int button = phase == PHASE_ARROWS_OPPOSITE ? CAT_BUTTON_LEFT : CAT_BUTTON_RIGHT;
 			if(CAT_input_pressed(button))
-				CAT_FSM_transition(&fsm, MS_gameplay);	
+				CAT_FSM_transition(&fsm, MS_gameplay);
 		break;
 
 		case CAT_FSM_SIGNAL_EXIT:
@@ -379,44 +383,36 @@ static void draw_tutorial_diagram(int y)
 
 	if(phase >= PHASE_WORDS)
 	{
-		static const char* text_a[3] =
+		int cursor_y = y;
+
+		const char* text[] =
 		{
-			"RED",
-			"BLUE",
-			"RED"
+			"<c%d>RED</c> \11 <c%d>RED</c>\n<c%d>BLUE</c> \11 <c%d>BLUE</c>\n",
+			"<c%d>BLUE</c> \11 <c%d>RED</c>\n<c%d>RED</c> \11 <c%d>BLUE</c>\n",
+			"<c%d>RED</c> \11 <c%d>RED</c>\n<c%d>BLUE</c> \11 <c%d>BLUE</c>\n",
 		};
-		static const char* text_b[3] = 
+		const uint16_t colours[] =
 		{
-			"RED",
-			"RED",
-			"RED"
-		};
-		static uint16_t colour_a[3] =
-		{
-			CAT_RED,
-			CAT_RED,
-			CAT_BLUE,
-		};
-		static uint16_t colour_b[3] =
-		{
-			CAT_RED,
-			CAT_RED,
-			CAT_RED
+			CAT_RED, CAT_RED, CAT_BLUE, CAT_BLUE,
+			CAT_RED, CAT_RED, CAT_BLUE, CAT_BLUE,
+			CAT_BLUE, CAT_RED, CAT_RED, CAT_BLUE
 		};
 
 		int idx = phase-PHASE_WORDS;
-		int cursor_x = x-CAT_TEXT_W("RED = BLUE", 1)/2;
-		CAT_set_text_colour(colour_a[idx]);
-		cursor_x = CAT_draw_text(cursor_x, y, text_a[idx]);
+		CAT_set_text_flags(CAT_TEXT_FLAG_CENTER);
 		CAT_set_text_colour(CAT_WHITE);
-		cursor_x = CAT_draw_text(cursor_x, y, " = ");
-		CAT_set_text_colour(colour_b[idx]);
-		cursor_x = CAT_draw_text(cursor_x, y, text_b[idx]);
-		y += CAT_TEXT_LINE_HEIGHT * 4;
+		cursor_y = CAT_draw_textf
+		(
+			120, cursor_y,
+			text[idx],
+			colours[idx*4+0], colours[idx*4+1],
+			colours[idx*4+2], colours[idx*4+3]
+		);
+		cursor_y += CAT_TEXT_LINE_HEIGHT * 3;
 
 		CAT_draw_dpad
 		(
-			x, y, 24,
+			x, cursor_y, 20,
 			pulse ? CAT_RIGHT_BIT : 0,
 			CAT_WHITE, CAT_BLACK
 		);
@@ -441,6 +437,9 @@ static void draw_tutorial_diagram(int y)
 static void draw_tutorial()
 {
 	CAT_frameberry(CAT_BLACK);
+
+	if(fsm.dirty)
+		return;
 
 	int cursor_y = 12;
 	CAT_draw_page_markers(cursor_y, PHASE_COUNT, phase, CAT_WHITE);
@@ -499,7 +498,7 @@ static void MS_performance(CAT_FSM_signal signal)
 		case CAT_FSM_SIGNAL_TICK:
 		{	
 			if(CAT_input_pressed(CAT_BUTTON_A) || CAT_input_dismissal())
-				phase_transition(phase+1);
+				CAT_FSM_transition(&fsm, NULL);
 		}			
 		break;
 
@@ -511,6 +510,9 @@ static void MS_performance(CAT_FSM_signal signal)
 static void draw_performance()
 {
 	CAT_frameberry(CAT_BLACK);
+
+	if(fsm.dirty)
+		return;
 
 	int cursor_y = 12;
 	CAT_set_text_colour(CAT_WHITE);
@@ -559,17 +561,26 @@ static void draw_performance()
 	(
 		12, cursor_y,
 		"CO2 and PM 2.5 may impact your performance. "
-		"CO2 is currently at "CAT_FLOAT_FMT" PPM and PM 2.5 is currently at "CAT_FLOAT_FMT" PPM."
+		"CO2 is currently at %d %s and PM 2.5 is currently at "CAT_FLOAT_FMT" %s."
 		"\n",
-		CAT_FMT_FLOAT(co2), CAT_FMT_FLOAT(pm25)
+		(int) co2, CAT_AQ_get_unit_string(CAT_AQM_CO2),
+		CAT_FMT_FLOAT(pm25), CAT_AQ_get_unit_string(CAT_AQM_PM2_5)
 	);
 	cursor_y += 40;
 
 	int stars = 3;
-	if(total - total_perfect >= 4)
-		stars -= 1;
-	if(ratio >= 1.25f)
-		stars -= 1;
+	if(total_perfect < total/2 || total_time > PHASE_COUNT * CAT_MINUTE_SECONDS)
+	{
+		stars = 0;
+	}
+	else
+	{
+		if(total - total_perfect >= 4)
+			stars -= 1;
+		if(ratio >= 1.25f)
+			stars -= 1;
+	}
+	
 	for(int i = 0; i < 3; i++)
 	{
 		CAT_draw_star(12+ 24 + i * (48 + 8), cursor_y, 24, i < stars ? CAT_CRISIS_YELLOW : CAT_64_GREY);
@@ -577,7 +588,13 @@ static void draw_performance()
 	cursor_y += 32;
 
 	CAT_set_text_colour(CAT_WHITE);
-	cursor_y = CAT_draw_textf(12, cursor_y, "%d star performance!\n", stars);
+	const char* star_text =
+	stars >= 3 ? "A perfect 3 stars!\n" :
+	stars >= 2 ? "2 stars isn't bad!\n" :
+	stars >= 1 ? "1 disappointing star.\n" :
+	"No stars? No good!\n";
+
+	cursor_y = CAT_draw_text(12, cursor_y, star_text);
 }
 
 void CAT_MS_stroop(CAT_FSM_signal signal)
@@ -585,11 +602,20 @@ void CAT_MS_stroop(CAT_FSM_signal signal)
 	switch (signal)
 	{
 		case CAT_FSM_SIGNAL_ENTER:
-			phase_transition(PHASE_ARROWS);
+			CAT_set_render_callback(CAT_render_stroop);
+			change_phase(PHASE_ARROWS);
 		break;
 
 		case CAT_FSM_SIGNAL_TICK:
 		{
+			if(CAT_gui_popup_is_open())
+				return;
+			if(CAT_gui_consume_popup())
+				CAT_pushdown_pop();
+			
+			if(CAT_input_pressed(CAT_BUTTON_B))
+				CAT_gui_open_popup("Quit this Stroop test?", CAT_POPUP_STYLE_YES_NO);
+
 			CAT_FSM_tick(&fsm);
 			if(fsm.state == NULL)
 				CAT_pushdown_pop();
@@ -603,5 +629,5 @@ void CAT_MS_stroop(CAT_FSM_signal signal)
 
 void CAT_render_stroop()
 {
-	
+	CAT_frameberry(CAT_BLACK);
 }

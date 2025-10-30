@@ -718,7 +718,7 @@ static bool quit_popup()
 		return true;
 
 	if (CAT_input_pressed(CAT_BUTTON_B))
-		CAT_gui_open_popup("Quit fishing?\nYou will lose this\ncatch!\n");
+		CAT_gui_open_popup("Quit fishing?\nYou will lose this\ncatch!\n", CAT_POPUP_STYLE_YES_NO);
 	if (CAT_gui_consume_popup())
 	{
 		CAT_pushdown_pop();

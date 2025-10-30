@@ -101,7 +101,8 @@ void draw_ongoing_crisis()
 	(
 		EXIT_BAR_X-EXIT_BAR_W/2,
 		EXIT_BAR_Y-EXIT_BAR_H/2-16,
-		"[A] TO CRISIS REPORT >>>>>>"
+		"[A] TO %s >>>>>>",
+		CAT_AQ_is_crisis_report_posted() ? "CRISIS REPORT" : "APARTMENT"
 	);
 	CAT_draw_progress_bar(EXIT_BAR_X, EXIT_BAR_Y, EXIT_BAR_W, EXIT_BAR_H, CAT_CRISIS_YELLOW, CAT_CRISIS_GREEN, exit_progress);
 }

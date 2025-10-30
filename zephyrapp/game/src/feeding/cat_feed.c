@@ -741,7 +741,7 @@ void select_button_proc()
 
 void submit_button_proc()
 {
-	CAT_gui_open_popup("Submit this meal?\nFood items on table\nwill be consumed!\n");
+	CAT_gui_open_popup("Submit this meal?\nFood items on table\nwill be consumed!\n", CAT_POPUP_STYLE_YES_NO);
 }
 
 struct button

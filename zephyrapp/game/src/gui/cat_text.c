@@ -34,7 +34,32 @@ int lnvlen(const char* txt, int idx)
 	for(; txt[right] != '\n' && txt[right] != '\0'; right++);
 	if(txt[right] == ' ')
 		right -= 1;
-	return right - left;
+
+	bool inside = false;
+	int hidden = 0;
+	for(int i = left; i < right; i++)
+	{
+		if(!inside)
+		{
+			if(!strncmp(txt+i, "<c", 2))
+			{
+				inside = true;
+				hidden += 1;
+			}
+			if(!strncmp(txt+i, "</c>", 4))
+			{
+				hidden += 4;
+				i += 5;
+			}
+		}
+		else
+		{
+			hidden += 1;
+			if(!strncmp(txt+i, ">", 1))
+				inside = false;
+		}
+	}
+	return right - left - hidden;
 }
 
 void CAT_break_list_init(const char* txt, int line_width, int scale)
@@ -233,6 +258,7 @@ int CAT_draw_text(int x, int y, const char* text)
 	else
 		break_count = 0;
 	bool center = flags & CAT_TEXT_FLAG_CENTER;
+	uint16_t colour_backup = colour;
 
 	if(flags & CAT_TEXT_FLAG_VERTICAL)
 	{
@@ -243,16 +269,31 @@ int CAT_draw_text(int x, int y, const char* text)
 	const char* glyph_ptr = text; int glyph_idx = 0;
 	int cursor_x = center ? get_centered_x(x, text, glyph_idx, scale) : x;
 	int cursor_y = y;
-	bool broke = false;
 
 	while (*glyph_ptr != '\0')
 	{
+		if(!strncmp(glyph_ptr, "<c", 2))
+		{	
+			colour = atoi(glyph_ptr+2);
+			char* end = strchr(glyph_ptr, '>')+1;
+			int jump = end-glyph_ptr;
+			glyph_ptr += jump; glyph_idx += jump;
+			continue;
+		}
+		if(!strncmp(glyph_ptr, "</c>", 4))
+		{
+			colour = colour_backup;
+			char* end = strchr(glyph_ptr, '>')+1;
+			int jump = end-glyph_ptr;
+			glyph_ptr += jump; glyph_idx += jump;
+			continue;
+		}
+
 		if(*glyph_ptr == '\n')
 		{
 			cursor_x = center ? get_centered_x(x, text, glyph_idx+1, scale) : x;
 			cursor_y += (CAT_GLYPH_HEIGHT + 2) * scale;
 			glyph_ptr++; glyph_idx++;
-			broke = true;
 			continue;
 		}
 		else if(wrap)
@@ -261,7 +302,6 @@ int CAT_draw_text(int x, int y, const char* text)
 			{
 				cursor_x = center ? get_centered_x(x, text, glyph_idx+1, scale) : x;
 				cursor_y += (CAT_GLYPH_HEIGHT + 2) * scale;
-				broke = true;
 			}
 		}
 
@@ -273,7 +313,7 @@ int CAT_draw_text(int x, int y, const char* text)
 		glyph_ptr++; glyph_idx++;
 	}
 
-	return broke ? cursor_y : cursor_x;
+	return cursor_y;
 }
 
 static char draw_textf_buffer[512];
