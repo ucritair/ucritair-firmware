@@ -19,6 +19,7 @@
 static bool eink_boot_update = true;
 static bool eink_dirty = false;
 static uint64_t eink_update_timestamp = 0;
+static bool eink_full_update = true;
 
 bool CAT_eink_is_boot_update()
 {

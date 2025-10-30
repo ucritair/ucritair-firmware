@@ -109,6 +109,8 @@ static float arrow_mesh[] =
 
 #define CHALLENGES_PER_PHASE 8
 
+static float cached_co2 = -1;
+
 void change_phase(int _phase)
 {
 	phase = _phase;
@@ -552,7 +554,7 @@ static void draw_performance()
 	);
 	cursor_y += CAT_TEXT_LINE_HEIGHT;
 
-	float co2 = CAT_AQ_live_score_raw(CAT_AQM_CO2);
+	float co2 = cached_co2 < 0 ? CAT_AQ_live_score_raw(CAT_AQM_CO2) : cached_co2;
 	float pm25 = CAT_AQ_live_score_raw(CAT_AQM_PM2_5);
 	CAT_set_text_mask(12, -1, CAT_LCD_SCREEN_W-12, -1);
 	CAT_set_text_colour(CAT_WHITE);
@@ -560,8 +562,8 @@ static void draw_performance()
 	cursor_y = CAT_draw_textf
 	(
 		12, cursor_y,
-		"CO2 and PM 2.5 may impact your performance. "
-		"CO2 is currently at %d %s and PM 2.5 is currently at "CAT_FLOAT_FMT" %s."
+		"Air quality may impact your performance. "
+		"Recent CO2 is %d %s and current PM 2.5 is "CAT_FLOAT_FMT" %s."
 		"\n",
 		(int) co2, CAT_AQ_get_unit_string(CAT_AQM_CO2),
 		CAT_FMT_FLOAT(pm25), CAT_AQ_get_unit_string(CAT_AQM_PM2_5)
@@ -577,7 +579,7 @@ static void draw_performance()
 	{
 		if(total - total_perfect >= 4)
 			stars -= 1;
-		if(ratio >= 1.25f)
+		if(ratio >= 2.0f)
 			stars -= 1;
 	}
 	
@@ -603,6 +605,28 @@ void CAT_MS_stroop(CAT_FSM_signal signal)
 	{
 		case CAT_FSM_SIGNAL_ENTER:
 			CAT_set_render_callback(CAT_render_stroop);
+
+			cached_co2 = -1;
+			if(CAT_AQ_logs_initialized())
+			{
+				uint64_t half_before = CAT_get_RTC_now() - CAT_HOUR_SECONDS/2;
+				CAT_log_cell cell;
+				int idx = CAT_read_log_cell_before_time(-1, half_before, &cell);
+				int count = 0;
+				if(idx < 3)
+					cached_co2 = -1;
+				else
+				{
+					for(int i = idx+1; i < CAT_get_log_cell_count()-1; i++)
+					{
+						cached_co2 += cell.co2_ppmx1;
+						CAT_read_log_cell_at_idx(i, &cell);
+						count++;
+					}
+				}
+				cached_co2 /= count;
+			}
+
 			change_phase(PHASE_ARROWS);
 		break;
 

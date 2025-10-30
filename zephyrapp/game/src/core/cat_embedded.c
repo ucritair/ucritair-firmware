@@ -154,9 +154,9 @@ uint16_t CAT_get_buttons()
 
 void CAT_get_touch(CAT_touch* touch)
 {
-	touch->x = touch_mapped_x;
-	touch->y = touch_mapped_y;
-	touch->pressure = touch_pressure;
+	touch->x = CAT_clamp(0, touch_mapped_x, CAT_LCD_SCREEN_W-1);
+	touch->y = CAT_clamp(0, touch_mapped_y, CAT_LCD_SCREEN_H-1);
+	touch->pressure = CAT_clamp(0, touch_pressure, 3999);
 }
 
 

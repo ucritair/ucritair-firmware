@@ -219,7 +219,7 @@ void draw_all_clear()
 	(
 		EXIT_BAR_X-EXIT_BAR_W/2,
 		EXIT_BAR_Y-EXIT_BAR_H/2-16,
-		"[A] TO INNERWORLD >>>>>>"
+		"[A] TO APARTMENT >>>>>>"
 	);
 	CAT_draw_progress_bar(EXIT_BAR_X, EXIT_BAR_Y, EXIT_BAR_W, EXIT_BAR_H, CAT_CRISIS_YELLOW, CAT_CRISIS_GREEN, exit_progress);
 }

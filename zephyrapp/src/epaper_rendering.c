@@ -12,6 +12,7 @@
 #include "cat_version.h"
 #include "cat_core.h"
 #include "cat_aqi.h"
+#include "cat_gui.h"
 
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(epaper_rendering, LOG_LEVEL_DBG);
@@ -164,11 +165,13 @@ void epaper_render_test()
 	{
 		fwrite_str(128, 20, 2, "%d", (int) readings.sunrise.ppm_filtered_compensated);
 		fwrite_str(EPD_IMAGE_W-(8*3), 20, 1, "ppm\nCO2");
-		fwrite_str(128, 40, 2, "%d", (int) readings.sen5x.pm2_5);
+		fwrite_str(128, 40, 2, CAT_FLOAT_FMT, CAT_FMT_FLOAT(readings.sen5x.pm2_5));
 		fwrite_str(EPD_IMAGE_W-(8*5), 40, 1, "ug/m3\nPM2.5");
 
-		if (CAT_AQ_NOX_VOC_initialized())
+		if (CAT_AQ_NOX_VOC_initialized()) // NEEDS THE BRACKETS ?!
+		{
 			fwrite_str(128, 60, 1, "%d NOX / %d VOC", (int) readings.sen5x.nox_index, (int) readings.sen5x.voc_index);
+		}
 		
 		float deg_c = readings.sen5x.temp_degC;
 		float deg_mapped = CAT_AQ_map_celsius(deg_c);

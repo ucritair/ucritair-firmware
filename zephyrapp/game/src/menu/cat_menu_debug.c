@@ -128,6 +128,14 @@ void CAT_render_debug()
 			CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
 
 			CAT_gui_textf("Downtime: %d\n", (int) CAT_input_downtime());
+
+			CAT_gui_textf("Touching: %s\n", CAT_input_touching() ? "Y" : "N");
+			if(CAT_input_touching())
+			{
+				int x, y;
+				CAT_input_cursor(&x, &y);
+				CAT_gui_textf("(%d, %d)\n", x, y);
+			}
 		}
 		break;
 
