@@ -123,6 +123,8 @@ void CAT_load_turnkey()
 	#ifdef CAT_PRIORITIZE_AQ
 	persist_flags |= CAT_PERSIST_CONFIG_FLAG_AQ_FIRST | CAT_PERSIST_CONFIG_FLAG_PAUSE_CARE;
 	#endif
+
+	CAT_erase_log_cells();
 }
 
 void CAT_force_load()

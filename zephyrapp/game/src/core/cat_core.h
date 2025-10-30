@@ -368,6 +368,7 @@ int CAT_read_log_cell_after_time(int bookmark, uint64_t time, CAT_log_cell* out)
 int CAT_read_first_calendar_cell(CAT_log_cell* cell);
 int CAT_get_log_cell_count();
 void CAT_force_log_cell_write();
+void CAT_erase_log_cells();
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

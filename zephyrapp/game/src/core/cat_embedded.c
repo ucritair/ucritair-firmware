@@ -265,6 +265,11 @@ void CAT_force_log_cell_write()
 	populate_next_log_cell();
 }
 
+void CAT_erase_log_cells()
+{
+	flash_erase_all_cells();
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // POWER
