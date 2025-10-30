@@ -497,6 +497,7 @@ static int stars = 0;
 static float co2 = 0;
 static float pm25 = 0;
 static int last_cog_perf = -1;
+static float temp = 0;
 
 static void MS_performance(CAT_FSM_signal signal)
 {
@@ -526,6 +527,7 @@ static void MS_performance(CAT_FSM_signal signal)
 
 			co2 = cached_co2 < 0 ? CAT_AQ_live_score_raw(CAT_AQM_CO2) : cached_co2;
 			pm25 = CAT_AQ_live_score_raw(CAT_AQM_PM2_5);
+			temp = CAT_AQ_live_score_raw(CAT_AQM_TEMP);
 
 			stars = 3;
 			if(total_perfect < total_challenges/2 || total_time > PHASE_COUNT * CAT_MINUTE_SECONDS)
@@ -579,8 +581,8 @@ static void draw_performance()
 	cursor_y = CAT_draw_textf
 	(
 		12, cursor_y,
-		"You processed %d/%d stimuli correctly over "CAT_FLOAT_FMT" seconds. "
-		"Your slowest time was "CAT_FLOAT_FMT"x worse than your fastest."
+		"You did %d/%d tasks right in "CAT_FLOAT_FMT" seconds. "
+		"Your worst time was "CAT_FLOAT_FMT"x worse than your best."
 		"\n\n",
 		total_perfect, total_challenges, CAT_FMT_FLOAT(total_time),
 		CAT_FMT_FLOAT(time_ratio)
@@ -627,11 +629,13 @@ static void draw_performance()
 	cursor_y = CAT_draw_textf
 	(
 		12, cursor_y,
-		"Air quality may impact your performance. "
-		"Recent CO2 is %d %s and current PM 2.5 is "CAT_FLOAT_FMT" %s."
+		"Air quality can affect performance. "
+		"Recent CO2 is %d %s, current PM 2.5 is "CAT_FLOAT_FMT" %s, "
+		"and the temperature is %d %s."
 		"\n",
 		(int) co2, CAT_AQ_get_unit_string(CAT_AQM_CO2),
-		CAT_FMT_FLOAT(pm25), CAT_AQ_get_unit_string(CAT_AQM_PM2_5)
+		CAT_FMT_FLOAT(pm25), CAT_AQ_get_unit_string(CAT_AQM_PM2_5),
+		(int) CAT_AQ_map_celsius(temp), CAT_AQ_get_unit_string(CAT_AQM_TEMP)
 	);
 }
 
