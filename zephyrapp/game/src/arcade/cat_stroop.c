@@ -645,10 +645,14 @@ void CAT_MS_stroop(CAT_FSM_signal signal)
 			cached_co2 = -1;
 			if(CAT_AQ_logs_initialized())
 			{
-				uint64_t half_before = CAT_get_RTC_now() - CAT_HOUR_SECONDS/2;
+				uint64_t now = CAT_get_RTC_now();
+				uint64_t picked_up = now - (CAT_get_uptime_ms() / 1000);
+				uint64_t half_before = picked_up - CAT_HOUR_SECONDS/2;
+
 				CAT_log_cell cell;
 				int idx = CAT_read_log_cell_before_time(-1, half_before, &cell);
 				int count = 0;
+
 				if(idx < 3)
 					cached_co2 = -1;
 				else
@@ -656,8 +660,11 @@ void CAT_MS_stroop(CAT_FSM_signal signal)
 					for(int i = idx+1; i < CAT_get_log_cell_count()-1; i++)
 					{
 						cached_co2 += cell.co2_ppmx1;
-						CAT_read_log_cell_at_idx(i, &cell);
 						count++;
+
+						CAT_read_log_cell_at_idx(i, &cell);
+						if(cell.timestamp > picked_up)
+							break;
 					}
 				}
 				cached_co2 /= count;
