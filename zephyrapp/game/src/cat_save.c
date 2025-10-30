@@ -9,6 +9,7 @@
 #include "cat_arcade.h"
 #include "theme_assets.h"
 #include "cat_crisis.h"
+#include "cat_persist.h"
 
 void CAT_force_save()
 {	
@@ -118,6 +119,10 @@ void CAT_load_turnkey()
 	CAT_room_place_prop(13, 7, prop_table_sm_plastic_item);
 	CAT_room_stack_prop(CAT_room_get_props()->length-1, prop_coffeemaker_item);
 	CAT_room_place_prop(0, 9, prop_plant_daisy_item);
+
+	#ifdef CAT_PRIORITIZE_AQ
+	persist_flags |= CAT_PERSIST_CONFIG_FLAG_AQ_FIRST | CAT_PERSIST_CONFIG_FLAG_PAUSE_CARE;
+	#endif
 }
 
 void CAT_force_load()

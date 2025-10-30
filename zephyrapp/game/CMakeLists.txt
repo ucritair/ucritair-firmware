@@ -27,8 +27,14 @@ if(NOT TARGET app)
 else()
 	message(WARNING "Building for embedded")
 
+	option(CAT_PRIORITIZE_AQ "AQ_FIRST" OFF)
+
 	target_compile_definitions(app PRIVATE CAT_EMBEDDED=1)
 	target_compile_definitions(app PRIVATE CAT_DEBUG=1)
+	if(CAT_PRIORITIZE_AQ)
+		target_compile_definitions(app PRIVATE CAT_PRIORITIZE_AQ=1)
+		message(WARNING "Prioritizing AQ!")
+	endif()
 	
 	target_compile_options(app PRIVATE -fsingle-precision-constant)
 	target_sources(app PRIVATE src/core/cat_embedded.c)
