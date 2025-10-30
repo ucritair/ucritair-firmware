@@ -646,7 +646,9 @@ void CAT_MS_stroop(CAT_FSM_signal signal)
 			if(CAT_AQ_logs_initialized())
 			{
 				uint64_t now = CAT_get_RTC_now();
-				uint64_t picked_up = now - (CAT_get_uptime_ms() / 1000);
+				int awake = CAT_get_uptime_ms() / 1000;
+				awake = CAT_min(awake, CAT_MINUTE_SECONDS * 15);
+				uint64_t picked_up = now - awake;
 				uint64_t half_before = picked_up - CAT_HOUR_SECONDS/2;
 
 				CAT_log_cell cell;
