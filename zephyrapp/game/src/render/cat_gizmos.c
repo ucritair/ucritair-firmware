@@ -3,6 +3,7 @@
 #include "cat_curves.h"
 #include "sprite_assets.h"
 #include "cat_gui.h"
+#include "cat_input.h"
 
 void CAT_draw_regular_polygon(int n, int x, int y, int r, float t, uint16_t c)
 {
@@ -271,12 +272,12 @@ void CAT_draw_lock(int x, int y, int r, float t, uint16_t c)
 		0, -1
 	};
 
-	t = clamp(t, 0, 1);
+	t = CAT_clamp(t, 0, 1);
 	int idx = t*4;
 	float frac = (t*4)-idx;
 
 	CAT_set_text_colour(c);
-	int glyph_scale = max(CAT_sqrt((r*r)/2)/CAT_GLYPH_HEIGHT, 1);
+	int glyph_scale = CAT_max(CAT_sqrt((r*r)/2)/CAT_GLYPH_HEIGHT, 1);
 	CAT_set_text_scale(glyph_scale);
 	CAT_draw_text(x-glyph_scale*CAT_GLYPH_WIDTH/2, y-glyph_scale*CAT_GLYPH_HEIGHT/2, "A");
 
@@ -316,4 +317,78 @@ void CAT_draw_lock(int x, int y, int r, float t, uint16_t c)
 	x1 = x0 + dx * frac;
 	y1 = y0 + dy * frac;
 	CAT_lineberry(x0, y0, x1, y1, c);
+}
+
+void CAT_draw_dpad(int x, int y, int R, int mask, uint16_t cf, uint16_t cb)
+{
+	static int bits[] =
+	{
+		CAT_BUTTON_BIT(CAT_BUTTON_RIGHT),
+		CAT_BUTTON_BIT(CAT_BUTTON_UP),
+		CAT_BUTTON_BIT(CAT_BUTTON_LEFT),
+		CAT_BUTTON_BIT(CAT_BUTTON_DOWN),
+	};
+
+	int hypot = CAT_sqrt(2)*R;
+	int max_r = hypot/2;
+	int min_r = CAT_min(max_r, 8);
+	int ideal_r = hypot/3;
+	int r = CAT_clamp(ideal_r, min_r, max_r);
+
+	CAT_circberry(x+R, y, r, cf);
+	CAT_circberry(x, y-R, r, cf);
+	CAT_circberry(x-R, y, r, cf);
+	CAT_circberry(x, y+R, r, cf);
+
+	int aw = CAT_max(r, 0);
+	int ah = aw/2;
+	int ar = ah/4;
+
+	if(mask & CAT_BUTTON_BIT(CAT_BUTTON_RIGHT))
+	{
+		CAT_discberry(x+R, y, r, cf);
+		CAT_draw_arrow(x+R-ar, y, aw, ah, CAT_ORIENTATION_EAST, cb);
+	}
+	if(mask & CAT_BUTTON_BIT(CAT_BUTTON_UP))
+	{
+		CAT_discberry(x, y-R, r, cf);
+		CAT_draw_arrow(x, y-R+ar, aw, ah, CAT_ORIENTATION_NORTH, cb);
+	}
+	if(mask & CAT_BUTTON_BIT(CAT_BUTTON_LEFT))
+	{
+		CAT_discberry(x-R, y, r, cf);
+		CAT_draw_arrow(x-R+ar, y, aw, ah, CAT_ORIENTATION_WEST, cb);
+	}
+	if(mask & CAT_BUTTON_BIT(CAT_BUTTON_DOWN))
+	{
+		CAT_discberry(x, y+R, r, cf);
+		CAT_draw_arrow(x, y+R-ar, aw, ah, CAT_ORIENTATION_SOUTH, cb);
+	}
+}
+
+void CAT_draw_star(int x, int y, int r, uint16_t c)
+{
+	int r0 = r/2;
+	int r1 = r;
+
+	float dt = 2 * M_PI / (float) 10;
+	float t = M_PI/2 - dt;
+	int x0, y0, x1, y1;
+
+	x0 = r*CAT_cos(t);
+	y0 = r*CAT_sin(t);
+	t += dt;
+
+	for(int i = 1; i <= 10; i++)
+	{
+		float rp = !(i & 1) ? r1 : r0;
+			
+		x1 = rp*CAT_cos(t);
+		y1 = rp*CAT_sin(t);
+		CAT_lineberry(x+x0, y+y0, x+x1, y+y1, c);
+
+		x0 = x1;
+		y0 = y1;
+		t += dt;
+	}
 }

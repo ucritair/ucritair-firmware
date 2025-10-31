@@ -1473,7 +1473,6 @@ while not glfw.window_should_close(handle):
 	DialogueGraph.render();
 	RecipeEditor.render();
 	
-
 	imgui.end();
 
 	imgui.render();

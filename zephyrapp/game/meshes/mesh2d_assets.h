@@ -2,7 +2,7 @@
 
 #define MESH2D_COUNT 16
 
-#include "cat_render.h"
+#include "cat_poly.h"
 
 extern const CAT_mesh2d horse_mackerel_mesh2d;
 extern const CAT_mesh2d crucian_carp_mesh2d;

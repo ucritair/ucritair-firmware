@@ -12,6 +12,7 @@
 #include "cat_version.h"
 #include "cat_core.h"
 #include "cat_aqi.h"
+#include "cat_gui.h"
 
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(epaper_rendering, LOG_LEVEL_DBG);
@@ -160,23 +161,30 @@ void epaper_render_test()
 	blit_image(epaper_framebuffer, selected_unicorn, 0, 0);
 	blit_image(epaper_framebuffer, selected_cloud, 0, selected_unicorn->h);
 
-	fwrite_str(128, 20, 2, "%d", (int) readings.sunrise.ppm_filtered_compensated);
-	fwrite_str(EPD_IMAGE_W-(8*3), 20, 1, "ppm\nCO2");
-	fwrite_str(128, 40, 2, "%d", (int) readings.sen5x.pm2_5);
-	fwrite_str(EPD_IMAGE_W-(8*5), 40, 1, "ug/m3\nPM2.5");
-
-	if (readings.sen5x.nox_index && readings.sen5x.voc_index)
+	if(CAT_AQ_sensors_initialized())
 	{
-		fwrite_str(128, 60, 1, "%d NOX / %d VOC", (int) readings.sen5x.nox_index, (int) readings.sen5x.voc_index);
+		fwrite_str(128, 20, 2, "%d", (int) readings.sunrise.ppm_filtered_compensated);
+		fwrite_str(EPD_IMAGE_W-(8*3), 20, 1, "ppm\nCO2");
+		fwrite_str(128, 40, 2, CAT_FLOAT_FMT, CAT_FMT_FLOAT(readings.sen5x.pm2_5));
+		fwrite_str(EPD_IMAGE_W-(8*5), 40, 1, "ug/m3\nPM2.5");
+
+		if (CAT_AQ_NOX_VOC_initialized()) // NEEDS THE BRACKETS ?!
+		{
+			fwrite_str(128, 60, 1, "%d NOX / %d VOC", (int) readings.sen5x.nox_index, (int) readings.sen5x.voc_index);
+		}
+		
+		float deg_c = readings.sen5x.temp_degC;
+		float deg_mapped = CAT_AQ_map_celsius(deg_c);
+		fwrite_str(128, 70, 1, "%d %s / %d%% RH", (int) deg_mapped, CAT_AQ_get_temperature_unit_string(), (int) readings.sen5x.humidity_rhpct);
+		fwrite_str(128, 80, 1, "%d%% rebreathed", (int) ((((readings.sunrise.ppm_filtered_compensated)-420.)/38000.)*100.));
+		fwrite_str(128, 90, 1, "uCritAQI %d%%", (int) score);
+		fwrite_str(128, 100, 1, "at %2d:%02d:%02d", t.tm_hour, t.tm_min, t.tm_sec);
+		fwrite_str(128, 110, 1, "%d%% battery", get_battery_pct());
 	}
-	
-	float deg_c = readings.sen5x.temp_degC;
-	float deg_mapped = CAT_AQ_map_celsius(deg_c);
-	fwrite_str(128, 70, 1, "%d %s / %d%% RH", (int) deg_mapped, CAT_AQ_get_temperature_unit_string(), (int) readings.sen5x.humidity_rhpct);
-	fwrite_str(128, 80, 1, "%d%% rebreathed", (int) ((((readings.sunrise.ppm_filtered_compensated)-420.)/38000.)*100.));
-	fwrite_str(128, 90, 1, "uCritAQI %d%%", (int) score);
-	fwrite_str(128, 100, 1, "at %2d:%02d:%02d", t.tm_hour, t.tm_min, t.tm_sec);
-	fwrite_str(128, 110, 1, "%d%% battery", get_battery_pct());
+	else
+	{
+		fwrite_str(128, 64, 1, "Waiting for\nsensors...");
+	}
 
 	fwrite_str(0, EPD_IMAGE_H-8, 1, " %s LV%d", pet_name, pet_level+1);
 

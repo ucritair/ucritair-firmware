@@ -132,12 +132,12 @@ void CAT_draw_credits()
 	
 	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
 
+	int cursor_y = CAT_TILE_SIZE * 3;
 	for(int i = 0; i < NUM_CREDITS; i++)
 	{
-		if((i&1)==1)
-			CAT_gui_text("\t");
-		CAT_gui_text(credits[credit_indices[i]]);
-		CAT_gui_line_break();
+		CAT_set_text_flags(CAT_TEXT_FLAG_CENTER);
+		cursor_y = CAT_draw_text(120, cursor_y, credits[credit_indices[i]]);
+		cursor_y += CAT_TEXT_LINE_HEIGHT;
 	}
 }
 

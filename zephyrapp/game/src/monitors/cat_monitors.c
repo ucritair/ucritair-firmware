@@ -121,7 +121,7 @@ void CAT_monitor_retreat()
 
 void CAT_monitor_seek(int target)
 {
-	page = clamp(target, CAT_MONITOR_PAGE_SUMMARY, CAT_MONITOR_PAGE_COUNT-1);
+	page = CAT_clamp(target, CAT_MONITOR_PAGE_SUMMARY, CAT_MONITOR_PAGE_COUNT-1);
 	CAT_FSM_transition(&fsm, routines[page].state);
 }
 

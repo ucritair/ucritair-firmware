@@ -185,7 +185,7 @@ static struct
 	bool committed;
 	float error;
 
-	int16_t vertices[10*2];
+	float vertices[10*2];
 } pole;
 
 static void init_pole(CAT_ivec2 center, int length)
@@ -237,13 +237,9 @@ static CAT_ivec2 point_on_pole(float t)
 
 static void render_pole()
 {
-	CAT_draw_polyline
-	(
-		pole.center.x, pole.center.y,
-		pole.vertices, 10,
-		CAT_WHITE,
-		CAT_POLY_MODE_LINES
-	);
+	CAT_poly_clear_transformation();
+	CAT_poly_set_translation(pole.center.x, pole.center.y);
+	CAT_poly_draw(pole.vertices, 10, CAT_WHITE);
 
 	CAT_ivec2 target = point_on_pole(pole.target);
 	CAT_ivec2 guess = point_on_pole(pole.guess);
@@ -722,7 +718,7 @@ static bool quit_popup()
 		return true;
 
 	if (CAT_input_pressed(CAT_BUTTON_B))
-		CAT_gui_open_popup("Quit fishing?\nYou will lose this\ncatch!\n");
+		CAT_gui_open_popup("Quit fishing?\nYou will lose this\ncatch!\n", CAT_POPUP_STYLE_YES_NO);
 	if (CAT_gui_consume_popup())
 	{
 		CAT_pushdown_pop();
@@ -761,26 +757,18 @@ static void MS_fish(CAT_FSM_signal signal)
 
 			if(!fish.nibble_trigger)
 			{
-				if(CAT_input_touching())
-				{
-					int x, y;
-					CAT_input_cursor(&x, &y);
-					hook = (CAT_vec2) {x, y};
-				}
-				else
-				{
-					float speed = 96 * CAT_get_delta_time_s();
-					if(CAT_input_held(CAT_BUTTON_UP, 0))
-						hook.y -= speed;
-					if(CAT_input_held(CAT_BUTTON_DOWN, 0))
-						hook.y += speed;
-					if(CAT_input_held(CAT_BUTTON_LEFT, 0))
-						hook.x -= speed;
-					if(CAT_input_held(CAT_BUTTON_RIGHT, 0))
-						hook.x += speed;
-				}
-				hook.x = clamp(hook.x, 0, CAT_LCD_SCREEN_W-1);
-				hook.y = clamp(hook.y, 0, CAT_LCD_SCREEN_H-1);
+				float speed = 96 * CAT_get_delta_time_s();
+				if(CAT_input_held(CAT_BUTTON_UP, 0))
+					hook.y -= speed;
+				if(CAT_input_held(CAT_BUTTON_DOWN, 0))
+					hook.y += speed;
+				if(CAT_input_held(CAT_BUTTON_LEFT, 0))
+					hook.x -= speed;
+				if(CAT_input_held(CAT_BUTTON_RIGHT, 0))
+					hook.x += speed;
+					
+				hook.x = CAT_clamp(hook.x, 0, CAT_LCD_SCREEN_W-1);
+				hook.y = CAT_clamp(hook.y, 0, CAT_LCD_SCREEN_H-1);
 			}
 			else
 			{
@@ -802,7 +790,7 @@ static void MS_fish(CAT_FSM_signal signal)
 					arena_fade_timer -= CAT_get_delta_time_s();
 				else
 					arena_fade_timer += CAT_get_delta_time_s();
-				arena_fade_timer = clamp(arena_fade_timer, 0, ARENA_FADE_DURATION);
+				arena_fade_timer = CAT_clamp(arena_fade_timer, 0, ARENA_FADE_DURATION);
 			}
 
 			hook_jitter = (CAT_ivec2)
@@ -906,7 +894,7 @@ static struct
 
 	CAT_ivec2 center;
 	int length;
-	int16_t vertices[10*2];
+	float vertices[10*2];
 } bar;
 
 static void bar_retarget(bool hard)
@@ -927,9 +915,9 @@ static void bar_retarget(bool hard)
 	bar.margin_next = CAT_rand_float(min_margin, max_margin);
 	float ideal_jump = CAT_rand_float(min_jump, max_jump);
 	ideal_jump *= CAT_rand_int(0, 1) ? 1 : -1;
-	float candidate = clamp(bar.target + ideal_jump, bar.margin_next, 1-bar.margin_next);
+	float candidate = CAT_clamp(bar.target + ideal_jump, bar.margin_next, 1-bar.margin_next);
 	if(fabs(candidate - bar.target) < min_jump)
-		bar.target_next = clamp(bar.target - ideal_jump, bar.margin_next, 1-bar.margin_next);
+		bar.target_next = CAT_clamp(bar.target - ideal_jump, bar.margin_next, 1-bar.margin_next);
 	else
 		bar.target_next = candidate;
 
@@ -991,9 +979,9 @@ static void bar_tick()
 		bar.slider += CAT_get_delta_time_s();
 	}
 
-	bar.target = clamp(bar.target, 0, 1);
-	bar.cursor = clamp(bar.cursor, 0, 1);
-	bar.progress = clamp(bar.progress, 0, 1);
+	bar.target = CAT_clamp(bar.target, 0, 1);
+	bar.cursor = CAT_clamp(bar.cursor, 0, 1);
+	bar.progress = CAT_clamp(bar.progress, 0, 1);
 }
 
 static CAT_ivec2 point_on_bar(float t)
@@ -1009,13 +997,9 @@ static CAT_ivec2 bar_jitter;
 
 static void render_bar()
 {
-	CAT_draw_polyline
-	(
-		bar.center.x, bar.center.y,
-		bar.vertices, 10,
-		CAT_WHITE,
-		CAT_POLY_MODE_LINES
-	);
+	CAT_poly_clear_transformation();
+	CAT_poly_set_translation(bar.center.x, bar.center.y);
+	CAT_poly_draw(bar.vertices, 10, CAT_WHITE);
 
 	CAT_ivec2 target = point_on_bar(bar.target);
 	target = CAT_ivec2_add(target, bar_jitter);
@@ -1209,7 +1193,7 @@ static void MS_succeed(CAT_FSM_signal signal)
 		case CAT_FSM_SIGNAL_TICK:
 			rings_tick();
 
-			succeed_colour = CAT_colour_lerp(CAT_RED, CAT_WHITE, clamp(progress / 3.0f, 0, 1));
+			succeed_colour = CAT_colour_lerp(CAT_RED, CAT_WHITE, CAT_clamp(progress / 3.0f, 0, 1));
 			if(progress >= 3.0f)
 				CAT_FSM_transition(&fsm, MS_summary);
 			progress += CAT_get_delta_time_s();
@@ -1276,7 +1260,7 @@ static void MS_summary(CAT_FSM_signal signal)
 				else
 					exit_progress = 0;
 			}
-			exit_progress = clamp(exit_progress, 0, 1);
+			exit_progress = CAT_clamp(exit_progress, 0, 1);
 
 			int page_delta = 0;
 			if (CAT_input_pressed(CAT_BUTTON_RIGHT))

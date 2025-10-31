@@ -97,8 +97,8 @@ void CAT_graph_draw(float* values, uint16_t* colours, uint16_t count)
 		for (int i = 0; i < count; i++)
 		{
 			float val = values[i];
-			vp_y0 = min(vp_y0, val);
-			vp_y1 = max(vp_y1, val);
+			vp_y0 = CAT_min(vp_y0, val);
+			vp_y1 = CAT_max(vp_y1, val);
 		}
 	}
 	float range = (vp_y1-vp_y0);
@@ -107,7 +107,7 @@ void CAT_graph_draw(float* values, uint16_t* colours, uint16_t count)
 	float mid_y = (wdw_y0+wdw_y1)/2;
 	float y_scale = range > 0 ? -wdw_h / range : 0;
 	float x_scale = wdw_w / (float) (count-1);
-	x_scale = max(x_scale, 1);
+	x_scale = CAT_max(x_scale, 1);
 
 	CAT_CSCLIP_set_rect(wdw_x0, wdw_y0-1, wdw_x1, wdw_y1+1);
 	float x0 = wdw_x0;

@@ -8,6 +8,7 @@
 #include "cat_monitor_ach.h"
 #include <inttypes.h>
 #include <time.h>
+#include "cat_time.h"
 
 #define MAX_SAMPLE_COUNT CAT_LCD_SCREEN_W
 
@@ -42,7 +43,7 @@ static int focus_idx;
 
 void CAT_monitor_graph_set_view(int _view)
 {
-	view = wrap(_view, CAT_MONITOR_GRAPH_VIEW_MAX);
+	view = CAT_wrap(_view, CAT_MONITOR_GRAPH_VIEW_MAX);
 }
 
 void CAT_monitor_graph_set_sample_count(int _sample_count)
@@ -221,12 +222,12 @@ static int center_y = 0;
 
 void CAT_monitor_graph_set_focus(int idx)
 {
-	focus_idx = clamp(idx, first_valid_idx, last_valid_idx);
+	focus_idx = CAT_clamp(idx, first_valid_idx, last_valid_idx);
 }
 
 void CAT_monitor_graph_set_scale(int scale)
 {
-	pps = clamp(scale, 1, 16);
+	pps = CAT_clamp(scale, 1, 16);
 }
 
 static int window_transform_x(int x)
@@ -275,7 +276,7 @@ void CAT_monitor_graph_draw(int x, int y, int h)
 	}
 
 	int scaled_halfwidth = (sample_count/2) / pps;
-	center_x = clamp(focus_idx, scaled_halfwidth, sample_count-scaled_halfwidth);
+	center_x = CAT_clamp(focus_idx, scaled_halfwidth, sample_count-scaled_halfwidth);
 	if(pps > 1)
 		center_y = values[focus_idx];
 	else
@@ -348,6 +349,18 @@ void CAT_monitor_graph_logic()
 				dx += 1;
 			if(CAT_input_held(CAT_BUTTON_RIGHT, 1))
 				dx += 3;
+			if(focus_idx+dx < first_valid_idx)
+			{
+				CAT_datetime yesterday = start_date;
+				yesterday.day -= 1;
+				CAT_monitor_graph_load_date(CAT_normalize_date(yesterday));
+			}
+			else if(focus_idx+dx > last_valid_idx)
+			{
+				CAT_datetime tomorrow = start_date;
+				tomorrow.day += 1;
+				CAT_monitor_graph_load_date(CAT_normalize_date(tomorrow));	
+			}
 			CAT_monitor_graph_set_focus(focus_idx+dx);
 
 			if(CAT_input_pressed(CAT_BUTTON_A))
@@ -472,6 +485,9 @@ void CAT_monitor_graph_render()
 			CAT_set_text_scale(1);
 			CAT_draw_textf(window_x, WINDOW_Y1+4, "INVALID\n");
 		}
+
+		CAT_set_text_colour(CAT_96_GREY);
+		CAT_draw_textf(WINDOW_X0, CAT_LCD_SCREEN_H-14, "Tap graph to change metric");
 	}
 }
 

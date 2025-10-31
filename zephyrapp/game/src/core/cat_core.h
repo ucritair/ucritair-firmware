@@ -5,6 +5,7 @@
 #include "cat_math.h"
 #include <stdlib.h>
 #include <string.h>
+#include "cat_time.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // MISCELLANY
@@ -71,13 +72,13 @@ bool CAT_is_last_render_cycle();
 void CAT_eink_post(uint8_t* buffer);
 bool CAT_eink_is_posted();
 
+bool CAT_eink_is_boot_update();
 void CAT_set_eink_update_flag(bool flag);
 bool CAT_poll_eink_update_flag();
 void CAT_eink_update();
 
 bool CAT_eink_should_update();
 void CAT_eink_execute_update();
-void CAT_eink_low_power();
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // SCREEN MANAGEMENT
@@ -141,28 +142,7 @@ uint64_t CAT_get_uptime_ms();
 float CAT_get_delta_time_s();
 uint64_t CAT_get_RTC_offset();
 uint64_t CAT_get_RTC_now();
-
-typedef union CAT_datetime
-{
-	struct
-	{
-		int
-		year, // [0, INF)
-		month, // [1, 12]
-		day, // [1, 31]
-		hour, // [0, 24)
-		minute, // [0, 60)
-		second; // [0, 60)
-	};
-	
-   	int data[6];
-} CAT_datetime;
-
-void CAT_get_datetime(CAT_datetime* datetime);
-int CAT_datecmp(CAT_datetime* a, CAT_datetime* b);
-int CAT_timecmp(CAT_datetime* a, CAT_datetime* b);
-void CAT_make_datetime(uint64_t timestamp, CAT_datetime* datetime);
-uint64_t CAT_make_timestamp(CAT_datetime* datetime);
+void CAT_set_date(CAT_datetime date);
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -297,8 +277,9 @@ typedef struct __attribute__((__packed__))
 	{
 		CAT_save_sector_header header;
 		uint16_t snake;
-		uint16_t mine;
+		uint16_t mines;
 		uint16_t foursquares;
+		uint16_t stroop;
 	} highscores;
 
 	// SECTOR : CONFIG
@@ -371,13 +352,16 @@ typedef struct __attribute__((__packed__))
 
 	uint16_t co2_uncomp_ppmx1;
 
-	uint8_t pad[20];
+	uint8_t cog_perf_x1; // [0, 100]
+
+	uint8_t pad[19];
 } CAT_log_cell;
 
 typedef enum
 {
-	CAT_LOG_CELL_FLAG_HAS_TEMP_RH_PARTICLES = 1,
-	CAT_LOG_CELL_FLAG_HAS_CO2 = 2
+	CAT_LOG_CELL_FLAG_HAS_TEMP_RH_PARTICLES = (1 << 0),
+	CAT_LOG_CELL_FLAG_HAS_CO2 = (1 << 1),
+	CAT_LOG_CELL_FLAG_HAS_COG_PERF = (1 << 2)
 } CAT_log_cell_flag;
 
 void CAT_read_log_cell_at_idx(int idx, CAT_log_cell* out);
@@ -385,6 +369,8 @@ int CAT_read_log_cell_before_time(int bookmark, uint64_t time, CAT_log_cell* out
 int CAT_read_log_cell_after_time(int bookmark, uint64_t time, CAT_log_cell* out);
 int CAT_read_first_calendar_cell(CAT_log_cell* cell);
 int CAT_get_log_cell_count();
+void CAT_force_log_cell_write();
+void CAT_erase_log_cells();
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -503,3 +489,8 @@ static inline void CAT_bonus_set(uint32_t value)
 {
 	;
 }
+
+void CAT_cache_cognitive_performance(int score);
+int CAT_get_cached_cognitive_performance();
+void CAT_invalidate_cognitive_performance();
+int CAT_load_cognitive_performance();

@@ -89,8 +89,8 @@ void CAT_MS_colour_picker(CAT_FSM_signal signal)
 				if(CAT_input_held(CAT_BUTTON_DOWN, 0))
 					cursor.y += 4;
 			}	
-			cursor.x = clamp(cursor.x, 0, CAT_LCD_SCREEN_W-1);
-			cursor.y = clamp(cursor.y, 0, CAT_LCD_SCREEN_H-1);
+			cursor.x = CAT_clamp(cursor.x, 0, CAT_LCD_SCREEN_W-1);
+			cursor.y = CAT_clamp(cursor.y, 0, CAT_LCD_SCREEN_H-1);
 
 			if(CAT_input_pressed(CAT_BUTTON_SELECT))
 				show_details = !show_details;			

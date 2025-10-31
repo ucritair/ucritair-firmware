@@ -2,6 +2,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <math.h>
 
 //////////////////////////////////////////////////////////////////////////
 // BASICS
@@ -17,30 +18,18 @@
 #define CAT_RAD2DEG (180.0f / M_PI)
 #define CAT_DEG2RAD (M_PI / 180.0f)
 
-#ifndef max
-#define max(a, b) ((b) > (a) ? (b) : (a))
-#endif
-
-#ifndef min
-#define min(a, b) ((b) < (a) ? (b) : (a))
-#endif
-
-#ifndef clamp
-#define clamp(v, a, b) ((v) < (a) ? (a) : ((v) > (b) ? (b) : (v)))
-#endif
-
-#ifndef sgn
-#define sgn(a) ((a) == 0 ? 0 : (a) > 0 ? 1 : -1)
-#endif
-
-#ifndef wrap
-#define wrap(v, l) (((v) + (l)) % (l))
-#endif
+#define CAT_max(a, b) ((b) > (a) ? (b) : (a))
+#define CAT_min(a, b) ((b) < (a) ? (b) : (a))
+#define CAT_clamp(v, a, b) ((v) < (a) ? (a) : ((v) > (b) ? (b) : (v)))
+#define CAT_sgn(a) ((a) == 0 ? 0 : (a) > 0 ? 1 : -1)
+#define CAT_wrap(v, l) (((v) + (l)) % (l))
+#define CAT_abs(x) ((x) < 0 ? -(x) : (x))
 
 #define CAT_sin sinf
 #define CAT_cos cosf
 #define CAT_atan atan2f
 #define CAT_sqrt sqrtf
+#define CAT_round roundf
 
 float lerp(float a, float b, float t);
 float inv_lerp(float t, float a, float b);

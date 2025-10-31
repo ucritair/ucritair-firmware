@@ -22,7 +22,7 @@ void CAT_MS_death_report(CAT_FSM_signal signal)
 				exit_progress += CAT_get_delta_time_s();
 			else
 				exit_progress -= CAT_get_delta_time_s() * 1.5f;
-			exit_progress = clamp(exit_progress, 0, 1);
+			exit_progress = CAT_clamp(exit_progress, 0, 1);
 			if(exit_progress >= 1.0f && CAT_input_time(CAT_BUTTON_A) >= 1.25f)
 			{
 				CAT_pet_dismiss_death_report();

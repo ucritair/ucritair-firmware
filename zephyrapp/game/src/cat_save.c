@@ -9,6 +9,7 @@
 #include "cat_arcade.h"
 #include "theme_assets.h"
 #include "cat_crisis.h"
+#include "cat_persist.h"
 
 void CAT_force_save()
 {	
@@ -50,9 +51,10 @@ void CAT_force_save()
 		save->deco.children[i] = item->child + 1;
 	}
 
-	save->highscores.snake = snake_high_score;
-	save->highscores.mine = 0;
-	save->highscores.foursquares = 0;
+	save->highscores.snake = snake_highscore;
+	save->highscores.mines = mines_highscore;
+	save->highscores.foursquares = foursquares_highscore;
+	save->highscores.stroop = stroop_highscore;
 
 	save->config.flags = CAT_get_config_flags();
 
@@ -117,6 +119,18 @@ void CAT_load_turnkey()
 	CAT_room_place_prop(13, 7, prop_table_sm_plastic_item);
 	CAT_room_stack_prop(CAT_room_get_props()->length-1, prop_coffeemaker_item);
 	CAT_room_place_prop(0, 9, prop_plant_daisy_item);
+
+	#ifdef CAT_PRIORITIZE_AQ
+	persist_flags |= CAT_PERSIST_CONFIG_FLAG_AQ_FIRST | CAT_PERSIST_CONFIG_FLAG_PAUSE_CARE;
+	#endif
+	CAT_datetime zero_day =
+	{
+		.year = 2025,
+		.month = 11,
+		.day = 8
+	};
+	CAT_set_date(zero_day);
+	CAT_erase_log_cells();
 }
 
 void CAT_force_load()
@@ -182,7 +196,7 @@ void CAT_force_load()
 
 	if(save->pet.lifespan <= 30)
 		pet.lifespan = save->pet.lifespan;
-	pet.lifetime = min(save->pet.lifetime, 31);
+	pet.lifetime = CAT_min(save->pet.lifetime, 31);
 	if(save->pet.incarnations <= UINT16_MAX)
 		pet.incarnations = save->pet.incarnations;
 
@@ -247,7 +261,10 @@ void CAT_force_load()
 		}
 	}
 
-	snake_high_score = save->highscores.snake;
+	snake_highscore = save->highscores.snake;
+	mines_highscore = save->highscores.mines;
+	foursquares_highscore = save->highscores.foursquares;
+	stroop_highscore = save->highscores.stroop;
 
 	CAT_set_config_flags(save->config.flags);
 	if(save->config.theme < THEME_COUNT)

@@ -68,21 +68,10 @@ void calendar_logic()
             target.month -= 1;
         if(CAT_input_pulse(CAT_BUTTON_RIGHT))
             target.month += 1;
-        if(target.month < 1)
-        {
-            target.year -= 1;
-            target.month = 12;
-        }
-        if(target.month > 12)
-        {
-            target.year += 1;
-            target.month = 1;
-        }
 
-        // keep all three parts valid after month/year changes
-        target.year  = CAT_clamp_date_part(CAT_DATE_PART_YEAR,  target.year, target.month, target.day);
-        target.month = CAT_clamp_date_part(CAT_DATE_PART_MONTH, target.year, target.month, target.day);
-        target.day   = CAT_clamp_date_part(CAT_DATE_PART_DAY,   target.year, target.month, target.day);    
+		CAT_set_date_clip_min(earliest);
+		CAT_set_date_clip_max(today);
+		target = CAT_clip_date(target);    
     }
     else // --- CELLS ---
     {
@@ -102,7 +91,7 @@ void calendar_logic()
         int min_day = (target.year == earliest.year && target.month == earliest.month) ? earliest.day : 1;
         int max_day = (target.year == today.year    && target.month == today.month)    ? today.day    : dim;
 
-        // horizontal moves (will be clamped after)
+        // horizontal moves (will be CAT_clamped after)
         if(CAT_input_pulse(CAT_BUTTON_LEFT)) delta -= 1;
         if(CAT_input_pulse(CAT_BUTTON_RIGHT)) delta += 1;
 		if(CAT_input_pulse(CAT_BUTTON_UP)) delta -= 7;
@@ -130,9 +119,11 @@ void calendar_logic()
 			delta = max_delta;
 		}
 
-        // apply movement and clamp to the valid [min_day..max_day] for this month
+        // apply movement and CAT_clamp to the valid [min_day..max_day] for this month
         target.day += delta;
-        target.day = CAT_clamp_date_part(CAT_DATE_PART_DAY, target.year, target.month, target.day);
+       	CAT_set_date_clip_min(earliest);
+		CAT_set_date_clip_max(today);
+		target = CAT_clip_date(target);
 
         if(CAT_input_pressed(CAT_BUTTON_A))
         {
@@ -252,10 +243,13 @@ void CAT_monitor_MS_calendar(CAT_FSM_signal signal)
 	{
 		case CAT_FSM_SIGNAL_ENTER:
 		{
-			CAT_log_cell first;
-			CAT_read_first_calendar_cell(&first);
-			CAT_make_datetime(first.timestamp, &earliest);
 			CAT_get_datetime(&today);
+			CAT_log_cell first;
+			int first_idx = CAT_read_first_calendar_cell(&first);
+			if(first_idx >= 0)
+				CAT_make_datetime(first.timestamp, &earliest);
+			else
+				earliest = today;
 
 			if(should_fast_forward)
 			{

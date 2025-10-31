@@ -185,7 +185,7 @@ void CAT_list_init(CAT_list* list, void* backing, uint16_t backing_size, uint8_t
 {
 	list->backing = backing;
 	list->backing_size = backing_size;
-	list->item_size = min(item_size, LIST_MAX_ITEM_SIZE);
+	list->item_size = CAT_min(item_size, LIST_MAX_ITEM_SIZE);
 	
 	list->item_capacity = list->backing_size/list->item_size;
 	list->item_count = 0;

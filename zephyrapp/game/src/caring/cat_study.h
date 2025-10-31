@@ -3,6 +3,7 @@
 #include "cat_machine.h"
 #include <stdint.h>
 #include "cat_render.h"
+#include "cat_poly.h"
 
 typedef struct
 {

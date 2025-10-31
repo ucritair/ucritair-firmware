@@ -15,6 +15,7 @@
 #include "lcd_driver.h"
 #include "lcd_rendering.h"
 #include "imu.h"
+#include <zephyr/sys/timeutil.h>
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // CORE
@@ -113,11 +114,6 @@ void CAT_eink_update()
 	epaper_render_test();
 }
 
-void CAT_eink_low_power()
-{
-	epaper_render_protected_off();
-}
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // LEDs
@@ -159,9 +155,9 @@ uint16_t CAT_get_buttons()
 
 void CAT_get_touch(CAT_touch* touch)
 {
-	touch->x = touch_mapped_x;
-	touch->y = touch_mapped_y;
-	touch->pressure = touch_pressure;
+	touch->x = CAT_clamp(0, touch_mapped_x, CAT_LCD_SCREEN_W-1);
+	touch->y = CAT_clamp(0, touch_mapped_y, CAT_LCD_SCREEN_H-1);
+	touch->pressure = CAT_clamp(0, touch_pressure, 3999);
 }
 
 
@@ -191,6 +187,17 @@ uint64_t CAT_get_RTC_offset()
 uint64_t CAT_get_RTC_now()
 {
 	return get_current_rtc_time();
+}
+
+void CAT_set_date(CAT_datetime date)
+{
+	struct tm t = {
+		.tm_year = date.year - TIME_UTILS_BASE_YEAR + (2024 - 124),
+		// WHAT THE FUCK is going on here. I don't care.
+		.tm_mon = date.month-1,
+		.tm_mday = date.day
+	};
+	set_rtc_counter(&t);
 }
 
 
@@ -225,14 +232,14 @@ CAT_save* CAT_start_save()
 // then call with the CAT_save* to finish saving
 void CAT_finish_save(CAT_save*)
 {
-	flash_save_tomas_save((uint8_t*) epaper_framebuffer, max(sizeof(CAT_save), sizeof(CAT_save_legacy)));
+	flash_save_tomas_save((uint8_t*) epaper_framebuffer, CAT_max(sizeof(CAT_save), sizeof(CAT_save_legacy)));
 }
 
 // Call to start loading, then load from the returned CAT_save*
 CAT_save* CAT_start_load()
 {
 	// NEED ENOUGH SPACE TO LOAD AND MIGRATE A LEGACY SAVE
-	flash_load_tomas_save((uint8_t*) epaper_framebuffer, max(sizeof(CAT_save), sizeof(CAT_save_legacy)));
+	flash_load_tomas_save((uint8_t*) epaper_framebuffer, CAT_max(sizeof(CAT_save), sizeof(CAT_save_legacy)));
 	return (CAT_save*) epaper_framebuffer;
 }
 
@@ -263,6 +270,16 @@ int CAT_read_first_calendar_cell(CAT_log_cell* cell)
 int CAT_get_log_cell_count()
 {
 	return next_log_cell_nr;
+}
+
+void CAT_force_log_cell_write()
+{
+	populate_next_log_cell();
+}
+
+void CAT_erase_log_cells()
+{
+	flash_erase_all_cells();
 }
 
 

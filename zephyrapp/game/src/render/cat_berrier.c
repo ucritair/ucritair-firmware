@@ -7,6 +7,24 @@
 //////////////////////////////////////////////////////////////////////////
 // THE BERRIER
 
+void CAT_rowberry(int y0, int y1, uint16_t c)
+{
+	y0 -= CAT_LCD_FRAMEBUFFER_OFFSET;
+	if(y0 < 0 || y0 >= CAT_LCD_FRAMEBUFFER_H)
+		return;
+	y1 -= CAT_LCD_FRAMEBUFFER_OFFSET;
+	y1 = CAT_min(y1, CAT_LCD_FRAMEBUFFER_H);
+
+	c = CAT_ADAPT_DESKTOP_COLOUR(c);
+	int i0 = y0 * 120;
+	int i1 = y1 * 120;
+	
+	uint32_t c32 = (c << 16) | c;
+	uint32_t* px = &((uint32_t*) CAT_LCD_get_framebuffer())[i0];
+	for(int i = i0; i < i1 && i < 19200; i++)
+		*(px++) = c32;
+}
+
 // CATs when they eat a frameberry
 void CAT_frameberry(uint16_t c)
 {
@@ -102,11 +120,11 @@ void CAT_fillberry(int xi, int yi, int w, int h, uint16_t c)
 	c = CAT_ADAPT_DESKTOP_COLOUR(c);
 	uint16_t* framebuffer = CAT_LCD_get_framebuffer();
 
-	int xf = clamp(xi + w, 0, CAT_LCD_FRAMEBUFFER_W);
-	xi = clamp(xi, 0, CAT_LCD_FRAMEBUFFER_W);
+	int xf = CAT_clamp(xi + w, 0, CAT_LCD_FRAMEBUFFER_W);
+	xi = CAT_clamp(xi, 0, CAT_LCD_FRAMEBUFFER_W);
 	yi -= CAT_LCD_FRAMEBUFFER_OFFSET;
-	int yf = clamp(yi + h, 0, CAT_LCD_FRAMEBUFFER_H);
-	yi = clamp(yi, 0, CAT_LCD_FRAMEBUFFER_H);
+	int yf = CAT_clamp(yi + h, 0, CAT_LCD_FRAMEBUFFER_H);
+	yi = CAT_clamp(yi, 0, CAT_LCD_FRAMEBUFFER_H);
 
 	for(int y = yi; y < yf; y++)
 	{

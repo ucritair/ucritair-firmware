@@ -11,6 +11,7 @@
 #include "sprite_assets.h"
 #include "cat_crisis.h"
 #include "cat_persist.h"
+#include "cat_time.h"
 
 static enum
 {
@@ -40,7 +41,7 @@ void CAT_MS_debug(CAT_FSM_signal signal)
 				page -= 1;
 			if(CAT_input_pulse(CAT_BUTTON_RIGHT))
 				page += 1;
-			page = wrap(page, LAST);
+			page = CAT_wrap(page, LAST);
 
 			break;
 		case CAT_FSM_SIGNAL_EXIT:
@@ -83,23 +84,24 @@ void CAT_render_debug()
 			CAT_gui_title(true, "TIME");
 			CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
 
-			uint64_t now = CAT_get_RTC_now();
-			CAT_datetime datetime;
-			CAT_make_datetime(now, &datetime);
-			CAT_gui_textf("%.2d/%.2d/%.4d %.2d:%.2d:%.2d\n", datetime.month, datetime.day, datetime.year, datetime.hour, datetime.minute, datetime.second);
+			CAT_datetime today;
+			CAT_get_datetime(&today);
+			CAT_gui_textf("%.2d/%.2d/%.4d %.2d:%.2d:%.2d\n", today.month, today.day, today.year, today.hour, today.minute, today.second);
 
 			CAT_pet_timing_state pet_timing;
 			CAT_pet_export_timing_state(&pet_timing);
 			
-			CAT_make_datetime(pet_timing.last_life_time, &datetime);
-			CAT_gui_textf("Life: %d/%d/%d %d:%d:%d\n", datetime.year, datetime.month, datetime.day, datetime.hour, datetime.minute, datetime.second);
-			CAT_make_datetime(pet_timing.last_stat_time, &datetime);
-			CAT_gui_textf("Stat: %d/%d/%d %d:%d:%d\n", datetime.year, datetime.month, datetime.day, datetime.hour, datetime.minute, datetime.second);
+			CAT_make_datetime(pet_timing.last_life_time, &today);
+			CAT_gui_textf("Life: %d/%d/%d %d:%d:%d\n", today.year, today.month, today.day, today.hour, today.minute, today.second);
+			CAT_make_datetime(pet_timing.last_stat_time, &today);
+			CAT_gui_textf("Stat: %d/%d/%d %d:%d:%d\n", today.year, today.month, today.day, today.hour, today.minute, today.second);
 
+			uint64_t now = CAT_get_RTC_now();
 			CAT_gui_textf("Since Life: %llus/%ds\n", now-pet_timing.last_life_time, CAT_LIFE_TICK_PERIOD);
 			CAT_gui_textf("Since Stat: %llus/%ds\n", now-pet_timing.last_stat_time, CAT_STAT_TICK_PERIOD);
 
 			CAT_gui_textf("Slept: %llus\n", CAT_get_slept_s());
+
 		break;
 
 		case DECO:
@@ -126,6 +128,14 @@ void CAT_render_debug()
 			CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
 
 			CAT_gui_textf("Downtime: %d\n", (int) CAT_input_downtime());
+
+			CAT_gui_textf("Touching: %s\n", CAT_input_touching() ? "Y" : "N");
+			if(CAT_input_touching())
+			{
+				int x, y;
+				CAT_input_cursor(&x, &y);
+				CAT_gui_textf("(%d, %d)\n", x, y);
+			}
 		}
 		break;
 

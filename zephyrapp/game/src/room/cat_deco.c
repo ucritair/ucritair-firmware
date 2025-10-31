@@ -158,8 +158,8 @@ void CAT_MS_deco(CAT_FSM_signal signal)
 					col_y = item->prop_shape.y;
 				}
 
-				cursor_x = clamp(cursor_x, 0, CAT_ROOM_GRID_W-col_w);
-				cursor_y = clamp(cursor_y, 0, CAT_ROOM_GRID_H-col_y);
+				cursor_x = CAT_clamp(cursor_x, 0, CAT_ROOM_GRID_W-col_w);
+				cursor_y = CAT_clamp(cursor_y, 0, CAT_ROOM_GRID_H-col_y);
 
 				hover_idx = CAT_room_cell_lookup(cursor_x, cursor_y);
 			}

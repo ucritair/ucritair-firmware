@@ -73,7 +73,7 @@ void CAT_MS_time(CAT_FSM_signal signal)
 				time_edit_time_selector--;
 			if (CAT_input_pulse(CAT_BUTTON_RIGHT))
 				time_edit_time_selector++;
-			time_edit_time_selector = clamp(time_edit_time_selector, 0, NUM_EDITS-1);
+			time_edit_time_selector = CAT_clamp(time_edit_time_selector, 0, NUM_EDITS-1);
 
 			int up = CAT_input_pulse(CAT_BUTTON_UP);
 			int dn = CAT_input_pulse(CAT_BUTTON_DOWN);
@@ -92,7 +92,7 @@ void CAT_MS_time(CAT_FSM_signal signal)
 
 				case WAKEUP:
 					sensor_wakeup_period = local_wakeup.hours*60*60 + local_wakeup.mins*60 + local_wakeup.secs;
-					sensor_wakeup_period = clamp(sensor_wakeup_period, 15, 60*60*16);
+					sensor_wakeup_period = CAT_clamp(sensor_wakeup_period, 15, 60*60*16);
 					break;
 
 				case NOX:
@@ -104,7 +104,7 @@ void CAT_MS_time(CAT_FSM_signal signal)
 
 				case DIM:
 					dim_after_seconds = local_dim_after.mins*60 + local_dim_after.secs;
-					dim_after_seconds = clamp(dim_after_seconds, 10, 60*10);
+					dim_after_seconds = CAT_clamp(dim_after_seconds, 10, 60*10);
 
 					if (sleep_after_seconds < dim_after_seconds)
 						sleep_after_seconds = dim_after_seconds + 1;
@@ -113,7 +113,7 @@ void CAT_MS_time(CAT_FSM_signal signal)
 
 				case SLEEP:
 					sleep_after_seconds = local_sleep_after.mins*60 + local_sleep_after.secs;
-					sleep_after_seconds = clamp(sleep_after_seconds, 10, 60*10);
+					sleep_after_seconds = CAT_clamp(sleep_after_seconds, 10, 60*10);
 
 					if (sleep_after_seconds < dim_after_seconds)
 						dim_after_seconds = sleep_after_seconds - 1;

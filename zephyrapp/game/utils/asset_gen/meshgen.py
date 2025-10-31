@@ -18,7 +18,7 @@ header_path = os.path.join("meshes", "mesh_assets.h");
 header = open(header_path, "w");
 header.write("#pragma once\n");
 header.write("\n");
-header.write("#include \"cat_render.h\"\n");
+header.write("#include \"cat_poly.h\"\n");
 header.write("\n");
 for mesh in json_entries:
 	header.write(f"extern CAT_mesh {mesh['name']}_mesh;\n");
@@ -55,7 +55,7 @@ for mesh in json_entries:
 		source.write("\t},\n");
 		source.write(f"\t.n_verts = {len(vs)},\n");
 
-		source.write("\t.faces = (uint8_t[])\n");
+		source.write("\t.faces = (uint16_t[])\n");
 		source.write("\t{\n");
 		for (idx, f) in enumerate(fs):
 			source.write(f"\t\t{f[0]}, {f[1]}, {f[2]}");
@@ -82,7 +82,7 @@ header.write("#pragma once\n");
 header.write("\n");
 header.write(f"#define MESH2D_COUNT {len(json_entries)}\n");
 header.write("\n");
-header.write("#include \"cat_render.h\"\n");
+header.write("#include \"cat_poly.h\"\n");
 header.write("\n");
 for (idx, mesh2d) in enumerate(json_entries):
 	header.write(f"extern const CAT_mesh2d {mesh2d['name']}_mesh2d;\n");
@@ -91,7 +91,7 @@ header.write("extern const CAT_mesh2d* mesh2d_list[];\n");
 header.close();
 
 def write_verts(f, verts, count):
-	f.write("\t.verts = (uint8_t[])\n");
+	f.write("\t.verts = (uint16_t[])\n");
 	f.write("\t{\n");
 	i = 0;
 	while i < count:

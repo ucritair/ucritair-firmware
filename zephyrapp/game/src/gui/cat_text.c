@@ -34,7 +34,32 @@ int lnvlen(const char* txt, int idx)
 	for(; txt[right] != '\n' && txt[right] != '\0'; right++);
 	if(txt[right] == ' ')
 		right -= 1;
-	return right - left;
+
+	bool inside = false;
+	int hidden = 0;
+	for(int i = left; i < right; i++)
+	{
+		if(!inside)
+		{
+			if(!strncmp(txt+i, "<c", 2))
+			{
+				inside = true;
+				hidden += 1;
+			}
+			if(!strncmp(txt+i, "</c>", 4))
+			{
+				hidden += 4;
+				i += 5;
+			}
+		}
+		else
+		{
+			hidden += 1;
+			if(!strncmp(txt+i, ">", 1))
+				inside = false;
+		}
+	}
+	return right - left - hidden;
 }
 
 void CAT_break_list_init(const char* txt, int line_width, int scale)
@@ -176,6 +201,41 @@ int get_centered_x(int x, const char* text, int glyph_idx, int scale)
 	}
 }
 
+void CAT_draw_text_vertical(int x, int y, int scale, bool centered, uint16_t c, char* text)
+{
+	int gw = CAT_GLYPH_WIDTH * scale;
+	int gh = CAT_GLYPH_HEIGHT * scale;
+	int strh = strlen(text) * gh;
+	if(centered)
+	{
+		x += gw/2;
+		y -= strh/2;
+	}
+
+	const char* glyph_ptr = text; int glyph_idx = 0;
+	int cursor_x = x;
+	int cursor_y = y;
+
+	while (*glyph_ptr != '\0')
+	{
+		if(*glyph_ptr == '\n')
+		{
+			cursor_x += gw;
+			cursor_y = y;
+			glyph_ptr++; glyph_idx++;
+			continue;
+		}
+
+		CAT_set_sprite_colour(c);
+		CAT_set_sprite_scale(scale);
+		CAT_draw_sprite(&glyph_sprite, *glyph_ptr, cursor_x, cursor_y);
+		cursor_y += gh;
+		glyph_ptr++; glyph_idx++;
+		if(*glyph_ptr & 64)
+			cursor_y += 2;
+	}
+}
+
 int CAT_draw_text(int x, int y, const char* text)
 {
 	int flags = consume_text_flags();
@@ -187,10 +247,10 @@ int CAT_draw_text(int x, int y, const char* text)
 	int mask_y0 = mask.min.y == -1 ? 0 : mask.min.y;
 	int mask_x1 = mask.max.x == -1 ? CAT_LCD_SCREEN_W : mask.max.x;
 	int mask_y1 = mask.max.y == -1 ? CAT_LCD_SCREEN_H : mask.max.y;
-	mask_x0 = max(mask_x0, 0);
-	mask_y0 = max(mask_y0, 0);
-	mask_x1 = min(mask_x1, CAT_LCD_SCREEN_W);
-	mask_y1 = min(mask_y1, CAT_LCD_SCREEN_H);
+	mask_x0 = CAT_max(mask_x0, 0);
+	mask_y0 = CAT_max(mask_y0, 0);
+	mask_x1 = CAT_min(mask_x1, CAT_LCD_SCREEN_W);
+	mask_y1 = CAT_min(mask_y1, CAT_LCD_SCREEN_H);
 
 	bool wrap = flags & CAT_TEXT_FLAG_WRAP;
 	if(wrap)
@@ -198,6 +258,13 @@ int CAT_draw_text(int x, int y, const char* text)
 	else
 		break_count = 0;
 	bool center = flags & CAT_TEXT_FLAG_CENTER;
+	uint16_t colour_backup = colour;
+
+	if(flags & CAT_TEXT_FLAG_VERTICAL)
+	{
+		CAT_draw_text_vertical(x, y, scale, center, colour, text);
+		return y;
+	}
 
 	const char* glyph_ptr = text; int glyph_idx = 0;
 	int cursor_x = center ? get_centered_x(x, text, glyph_idx, scale) : x;
@@ -205,6 +272,23 @@ int CAT_draw_text(int x, int y, const char* text)
 
 	while (*glyph_ptr != '\0')
 	{
+		if(!strncmp(glyph_ptr, "<c", 2))
+		{	
+			colour = atoi(glyph_ptr+2);
+			char* end = strchr(glyph_ptr, '>')+1;
+			int jump = end-glyph_ptr;
+			glyph_ptr += jump; glyph_idx += jump;
+			continue;
+		}
+		if(!strncmp(glyph_ptr, "</c>", 4))
+		{
+			colour = colour_backup;
+			char* end = strchr(glyph_ptr, '>')+1;
+			int jump = end-glyph_ptr;
+			glyph_ptr += jump; glyph_idx += jump;
+			continue;
+		}
+
 		if(*glyph_ptr == '\n')
 		{
 			cursor_x = center ? get_centered_x(x, text, glyph_idx+1, scale) : x;
@@ -246,10 +330,15 @@ int CAT_draw_textf(int x, int y, const char* fmt, ...)
 
 const char* CAT_fmt_float(float f)
 {
-	static char buf[64];
+	static char buf[128];
+	static int ptr = 0;
+
+	if(CAT_is_first_render_cycle())
+		ptr = 0;
+
 	int whole = (int) f;
 	float frac = f - whole;
 	unsigned fracu = (unsigned) (frac * 100);
-	snprintf(buf, sizeof(buf), "%d.%2.2u", whole, fracu);
-	return buf;
+	ptr += snprintf(buf+ptr, sizeof(buf)-ptr, "%d.%2.2u", whole, fracu);
+	return buf+ptr;
 }

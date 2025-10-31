@@ -1,6 +1,7 @@
 #include "cat_monitors.h"
 
 #include <stdint.h>
+#include "cat_time.h"
 
 void CAT_monitor_ACH_set_view(int view);
 void CAT_monitor_ACH_set_data(int16_t* values, uint64_t* timestamps, int32_t* indices, int first_idx, int last_idx);

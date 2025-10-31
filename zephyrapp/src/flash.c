@@ -8,6 +8,7 @@ LOG_MODULE_REGISTER(cat_flash, LOG_LEVEL_DBG);
 #include "rtc.h"
 #include "flash.h"
 #include "sdcard.h"
+#include "cat_time.h"
 
 #define SECTOR_SIZE 4096
 
@@ -300,6 +301,13 @@ void populate_log_cell(CAT_log_cell* cell)
 
 	cell->voc_index = readings.sen5x.voc_index * 1; //x1
 	cell->nox_index = readings.sen5x.nox_index * 1; //x1
+
+	int cog_perf = CAT_get_cached_cognitive_performance();
+	if(cog_perf != -1)
+	{
+		cell->cog_perf_x1 = CAT_clamp(cog_perf, 0, 100);
+		cell->flags |= CAT_LOG_CELL_FLAG_HAS_COG_PERF;
+	}
 }
 
 void populate_next_log_cell()

@@ -43,6 +43,7 @@ typedef struct
 } CAT_FSM;
 void CAT_FSM_transition(CAT_FSM* machine, CAT_FSM_state state);
 void CAT_FSM_tick(CAT_FSM* machine);
+bool CAT_FSM_transition_event();
 
 void CAT_pushdown_rebase(CAT_FSM_state state);
 void CAT_pushdown_push(CAT_FSM_state state);
@@ -64,31 +65,27 @@ typedef struct
 {
 	bool current;
 	bool last;
-} CAT_switcher;
+} CAT_latch;
 
-#define CAT_SWITCHER_INIT(value) {.current = value, .last = value}
+#define CAT_LATCH_INIT(value) {.current = value, .last = value}
 
-void CAT_switch_set(CAT_switcher* s, bool value);
-bool CAT_switch_get(CAT_switcher* s);
-bool CAT_switch_flipped(CAT_switcher* s);
-void CAT_switch_tick(CAT_switcher* s);
+void CAT_latch_set(CAT_latch* s, bool value);
+bool CAT_latch_get(CAT_latch* s);
+bool CAT_latch_flipped(CAT_latch* s);
+void CAT_latch_tick(CAT_latch* s);
 
 typedef struct
 {
-	CAT_switcher switcher;
+	CAT_latch latch;
 	float timeout;
 	float timer;
-} CAT_timed_switcher;
+} CAT_timed_latch;
 
-#define CAT_TIMED_SWITCHER_INIT(_timeout) {.switcher = CAT_SWITCHER_INIT(false), .timeout = _timeout, .timer = 0}
+#define CAT_TIMED_LATCH_INIT(_timeout) {.latch = CAT_LATCH_INIT(false), .timeout = _timeout, .timer = 0}
 
-void CAT_timed_switch_raise(CAT_timed_switcher* s);
-bool CAT_timed_switch_get(CAT_timed_switcher* s);
-bool CAT_timed_switch_flipped(CAT_timed_switcher* s);
-float CAT_timed_switch_t(CAT_timed_switcher* s);
-void CAT_timed_switch_tick(CAT_timed_switcher* s);
-void CAT_timed_switch_reset(CAT_timed_switcher* s);
-
-
-
-
+void CAT_timed_latch_raise(CAT_timed_latch* s);
+bool CAT_timed_latch_get(CAT_timed_latch* s);
+bool CAT_timed_latch_flipped(CAT_timed_latch* s);
+void CAT_timed_latch_reset(CAT_timed_latch* s);
+float CAT_timed_latch_t(CAT_timed_latch* s);
+void CAT_timed_latch_tick(CAT_timed_latch* s);

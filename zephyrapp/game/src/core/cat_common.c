@@ -5,7 +5,6 @@
 #include "cat_version.h"
 #include <stdarg.h>
 #include <stdio.h>
-#include <time.h>
 #include "item_assets.h"
 #include "cat_gui.h"
 #include "cat_input.h"
@@ -17,8 +16,15 @@
 
 #define EINK_UPDATE_PERIOD CAT_MINUTE_SECONDS
 
+static bool eink_boot_update = true;
 static bool eink_dirty = false;
 static uint64_t eink_update_timestamp = 0;
+static bool eink_full_update = true;
+
+bool CAT_eink_is_boot_update()
+{
+	return eink_boot_update;
+}
 
 void CAT_set_eink_update_flag(bool flag)
 {
@@ -33,8 +39,8 @@ bool CAT_poll_eink_update_flag()
 bool CAT_eink_should_update()
 {
 	uint64_t now = CAT_get_RTC_now();
-
 	return 
+	eink_boot_update ||
 	((CAT_is_charging() &&
 	(now - eink_update_timestamp) >= EINK_UPDATE_PERIOD &&
 	CAT_input_downtime() >= EINK_UPDATE_PERIOD) ||
@@ -45,7 +51,11 @@ void CAT_eink_execute_update()
 {
 	CAT_eink_update();
 	CAT_set_eink_update_flag(false);
-	eink_update_timestamp = CAT_get_RTC_now();
+
+	if(eink_boot_update)
+		eink_boot_update = false;
+	else
+		eink_update_timestamp = CAT_get_RTC_now();
 }
 
 
@@ -84,7 +94,7 @@ void CAT_poll_screen_flip()
 	}
 	
 	flip_buffer[flip_buffer_head] = flip;
-	flip_buffer_head = wrap(flip_buffer_head+1, FLIP_BUFFER_SIZE);
+	flip_buffer_head = CAT_wrap(flip_buffer_head+1, FLIP_BUFFER_SIZE);
 }
 
 bool CAT_should_flip_screen()
@@ -95,7 +105,7 @@ bool CAT_should_flip_screen()
 	int jerks = 0;
 	while(steps < FLIP_BUFFER_SIZE-1)
 	{
-		int a = idx; int b = wrap(idx+1, FLIP_BUFFER_SIZE);
+		int a = idx; int b = CAT_wrap(idx+1, FLIP_BUFFER_SIZE);
 		if(flip_buffer[a])
 			flips++;
 		if(flip_buffer[b] != flip_buffer[a])
@@ -285,94 +295,6 @@ bool CAT_IMU_is_upside_down()
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// TIME
-
-void CAT_get_datetime(CAT_datetime* datetime)
-{
-	time_t now = CAT_get_RTC_now();
-	struct tm local;
-	gmtime_r(&now, &local);
-	
-	datetime->year = local.tm_year;
-	datetime->month = local.tm_mon+1;
-	datetime->day = local.tm_mday;
-	datetime->hour = local.tm_hour;
-	datetime->minute = local.tm_min;
-	datetime->second = local.tm_sec;	
-}
-
-int CAT_datecmp(CAT_datetime* a, CAT_datetime* b)
-{
-	if(a->year > b->year)
-		return 1;
-	if(a->year < b->year)
-		return -1;
-	if(a->month > b->month)
-		return 1;
-	if(a->month < b->month)
-		return -1;
-	if(a->day > b->day)
-		return 1;
-	if(a->day < b->day)
-		return -1;
-	return 0;
-}
-
-int CAT_timecmp(CAT_datetime* a, CAT_datetime* b)
-{
-	if(a->year > b->year)
-		return 1;
-	if(a->year < b->year)
-		return -1;
-	if(a->month > b->month)
-		return 1;
-	if(a->month < b->month)
-		return -1;
-	if(a->day > b->day)
-		return 1;
-	if(a->day < b->day)
-		return -1;
-	if(a->hour > b->hour)
-		return 1;
-	if(a->hour < b->hour)
-		return -1;
-	if(a->minute > b->minute)
-		return 1;
-	if(a->minute < b->minute)
-		return -1;
-	if(a->second > b->second)
-		return 1;
-	if(a->second < b->second)
-		return -1;
-	return 0;
-}
-
-void CAT_make_datetime(uint64_t timestamp, CAT_datetime* datetime)
-{
-	struct tm t = {0};
-	gmtime_r(&timestamp, &t);
-	datetime->year = t.tm_year;
-	datetime->month = t.tm_mon+1;
-	datetime->day = t.tm_mday;
-	datetime->hour = t.tm_hour;
-	datetime->minute = t.tm_min;
-	datetime->second = t.tm_sec;
-}
-
-uint64_t CAT_make_timestamp(CAT_datetime* datetime)
-{
-	struct tm t = {0};
-	t.tm_year = datetime->year;
-	t.tm_mon = datetime->month-1;
-	t.tm_mday = datetime->day;
-	t.tm_hour = datetime->hour;
-	t.tm_min = datetime->minute;
-	t.tm_sec = datetime->second;
-	return timegm(&t) + CAT_get_RTC_offset();
-}
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
 // SAVE
 
 #define ZERO_STATIC_BUFFER(x) (memset(x, 0, sizeof(x)))
@@ -414,7 +336,7 @@ void CAT_initialize_save_sector(CAT_save* save, CAT_save_sector sector)
 			save->highscores.header.label = CAT_SAVE_SECTOR_HIGHSCORES;
 			save->highscores.header.size = sizeof(save->highscores);
 			save->highscores.snake = 0;
-			save->highscores.mine = 0;
+			save->highscores.mines = 0;
 			save->highscores.foursquares = 0;
 			break;
 
@@ -537,7 +459,7 @@ void CAT_migrate_legacy_save(void* save)
 
 	strncpy(new->pet.name, migration_buffer.name, 24);
 	new->pet.lifespan = 30;
-	new->pet.lifetime = min(15, migration_buffer.lifetime);
+	new->pet.lifetime = CAT_min(15, migration_buffer.lifetime);
 	new->pet.incarnations = 1;
 	new->pet.level = migration_buffer.level;
 	new->pet.xp = migration_buffer.xp;
@@ -653,4 +575,57 @@ int CAT_get_debug_number()
 void CAT_set_debug_number(int x)
 {
 	debug_number = x;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// BONUS
+
+static int cog_perf = -1;
+
+void CAT_cache_cognitive_performance(int score)
+{
+	cog_perf = CAT_clamp(score, -1, 100);
+}
+
+int CAT_get_cached_cognitive_performance()
+{
+	return cog_perf;
+}
+
+void CAT_invalidate_cognitive_performance()
+{
+	cog_perf = -1;
+}
+
+int CAT_load_cognitive_performance()
+{
+	int result = -1;
+
+	if(CAT_AQ_logs_initialized())
+	{
+		int idx = CAT_get_log_cell_count()-1;
+		CAT_log_cell cell;
+		uint64_t start_time = CAT_get_RTC_now();
+		while(idx > 0)
+		{
+			// CAT_printf("IDX: %d", idx);
+			CAT_read_log_cell_at_idx(idx, &cell);
+			uint64_t now = CAT_get_RTC_now();
+			if((now - cell.timestamp) > CAT_DAY_SECONDS || (now - start_time) > 2)
+			{
+				// CAT_printf("WENT TOO FAR\n");
+				break;
+			}
+			else if(cell.flags & CAT_LOG_CELL_FLAG_HAS_COG_PERF)
+			{
+				// CAT_printf("FOUND %d\n", (int) cell.cog_perf_x1);
+				result = cell.cog_perf_x1;
+				break;
+			}
+			idx--;
+		}
+	}
+
+	return result;
 }

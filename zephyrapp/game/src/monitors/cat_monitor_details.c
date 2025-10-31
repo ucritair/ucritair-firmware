@@ -93,7 +93,7 @@ int draw_delta(int x, int y, int aqm)
 	if(delta != 0)
 	{
 		int good_sign = CAT_AQ_get_good_delta_sign(aqm);
-		int sign = sgn(delta);
+		int sign = CAT_sgn(delta);
 		uint16_t c = sign == good_sign ? CAT_GRADE_COLOUR_GOOD : CAT_GRADE_COLOUR_BAD;
 		CAT_draw_arrow(x, y-4, 12, 12, sign == 1 ? CAT_ORIENTATION_NORTH : CAT_ORIENTATION_SOUTH, c);
 	}	

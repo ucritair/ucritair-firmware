@@ -95,10 +95,10 @@ void CAT_draw_sprite(const CAT_sprite* sprite, int frame_idx, int x, int y)
 	if(x_f < 0)
 		goto draw_sprite_exit;	
 	
-	draw_mask_x0 = max(draw_mask_x0, 0);
-	draw_mask_y0 = max(draw_mask_y0-CAT_LCD_FRAMEBUFFER_OFFSET, 0);
-	draw_mask_x1 = min(draw_mask_x1, CAT_LCD_FRAMEBUFFER_W);
-	draw_mask_y1 = min(draw_mask_y1-CAT_LCD_FRAMEBUFFER_OFFSET, CAT_LCD_FRAMEBUFFER_H);
+	draw_mask_x0 = CAT_max(draw_mask_x0, 0);
+	draw_mask_y0 = CAT_max(draw_mask_y0-CAT_LCD_FRAMEBUFFER_OFFSET, 0);
+	draw_mask_x1 = CAT_min(draw_mask_x1, CAT_LCD_FRAMEBUFFER_W);
+	draw_mask_y1 = CAT_min(draw_mask_y1-CAT_LCD_FRAMEBUFFER_OFFSET, CAT_LCD_FRAMEBUFFER_H);
 
 	const uint8_t* frame = sprite->frames[frame_idx];
 	uint16_t run_idx = 0;
@@ -267,7 +267,7 @@ void CAT_draw_sprite_raw(const CAT_sprite* sprite, int frame_idx, int x, int y)
 		goto draw_sprite_raw_exit;
 	
 	uint16_t clipped_rows = y < draw_mask_y0 ? draw_mask_y0-y : 0;
-	h = min(h, min(CAT_LCD_FRAMEBUFFER_H, draw_mask_y1)-y);
+	h = CAT_min(h, CAT_min(CAT_LCD_FRAMEBUFFER_H, draw_mask_y1)-y);
 	if(h <= clipped_rows)
 		goto draw_sprite_raw_exit;
 	uint16_t pitch = CAT_LCD_FRAMEBUFFER_W-w;
@@ -345,8 +345,8 @@ void CAT_draw_background(const CAT_sprite* sprite, int frame_idx, int y)
 
 	uint16_t w = sprite->width;
 	uint16_t h = sprite->height;
-	uint16_t clipped_rows = max(-y, 0);
-	h = min(h, CAT_LCD_FRAMEBUFFER_H-y);
+	uint16_t clipped_rows = CAT_max(-y, 0);
+	h = CAT_min(h, CAT_LCD_FRAMEBUFFER_H-y);
 	if(h <= clipped_rows)
 		return;
 	uint16_t pitch = CAT_LCD_FRAMEBUFFER_W-w;

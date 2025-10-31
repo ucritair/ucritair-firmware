@@ -24,7 +24,11 @@ if [[ $1 == "--embedded" ]]; then
 	fi
 
 	cd ../build
-	make -j8
+	if [ $2 == "--aq-first" ]; then
+		make -j8 CFLAGS="-DAQ_FIRST=ON"
+	else
+		make -j8
+	fi
 	west sign --tool imgtool
 	cd ../game
 else

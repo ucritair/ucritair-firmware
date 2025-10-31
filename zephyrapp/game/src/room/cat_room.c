@@ -27,6 +27,7 @@
 #include "cat_study.h"
 #include "cat_feed.h"
 #include "cat_persist.h"
+#include "cat_time.h"
 
 //////////////////////////////////////////////////////////////////////////
 // THEME
@@ -160,7 +161,7 @@ void CAT_room_nearest_free_cell(int x, int y, int* x_out, int* y_out)
 	*x_out = -1;
 	*y_out = -1;
 
-	int half_span = max(CAT_ROOM_GRID_H, CAT_ROOM_GRID_W)/2;
+	int half_span = CAT_max(CAT_ROOM_GRID_H, CAT_ROOM_GRID_W)/2;
 	static int snew[4][2];
 
 	for(int d = 0; d < half_span; d++)
@@ -349,7 +350,7 @@ int CAT_room_alter_prop(int idx)
 		return -1;
 
 	int variations = item->sprite->frame_count;
-	prop_list.data[idx].override = wrap(prop_list.data[idx].override+1, variations);
+	prop_list.data[idx].override = CAT_wrap(prop_list.data[idx].override+1, variations);
 	return prop_list.data[idx].override;
 }
 
@@ -422,6 +423,7 @@ int CAT_room_touch_query()
 // ROOM
 
 static CAT_datetime datetime;
+static bool first_entry = true;
 
 void CAT_room_init()
 {
@@ -440,6 +442,11 @@ void CAT_room_tick()
 		if(pickup_list.data[i].timer < PICKUP_AIR_TIME)
 			pickup_list.data[i].timer += CAT_get_delta_time_s();
 	}
+}
+
+void CAT_room_intro()
+{
+	first_entry = true;
 }
 
 static CAT_FSM_state button_modes[5] =
@@ -468,6 +475,11 @@ static int mode_selector = 0;
 #define VENDING_MACHINE_W 56
 #define VENDING_MACHINE_H 96
 
+#define ALERT_BUTTON_X ARCADE_X
+#define ALERT_BUTTON_Y (ARCADE_Y - 38)
+#define ALERT_BUTTON_W ui_button_alert.width
+#define ALERT_BUTTON_H ui_button_alert.height
+
 void screen_button_input()
 {
 	if(CAT_input_pressed(CAT_BUTTON_RIGHT))
@@ -491,6 +503,18 @@ void screen_button_input()
 				CAT_pushdown_push(button_modes[mode_selector]);
 			mode_selector = i;
 		}
+	}
+
+	if(
+		(CAT_AQ_is_crisis_ongoing() || CAT_AQ_is_crisis_report_posted()) &&
+		CAT_input_touch_rect
+		(
+			ALERT_BUTTON_X, ALERT_BUTTON_Y,
+			ALERT_BUTTON_W, ALERT_BUTTON_H
+		)
+	)
+	{
+		CAT_pushdown_push(CAT_MS_crisis_report);
 	}
 }
 
@@ -549,17 +573,18 @@ void CAT_MS_room(CAT_FSM_signal signal)
 			CAT_pet_settle();
 			CAT_animator_reset(&prop_hoopy_sprite);
 			CAT_gui_dismiss_dialogue();
+
+			if(first_entry)
+			{
+				CAT_effect_start_aperture_blackout(1.0f, 1.0f);
+				first_entry = false;
+			}
 			break;
 		}
 		case CAT_FSM_SIGNAL_TICK:
 		{
 			CAT_get_datetime(&datetime);
 
-			if(CAT_AQ_is_crisis_report_posted())
-			{
-				CAT_pushdown_push(CAT_MS_crisis_report);
-				return;
-			}
 			if(CAT_pet_is_death_report_posted())
 			{
 				CAT_pushdown_push(CAT_MS_death_report);
@@ -801,7 +826,7 @@ void CAT_room_draw_pickups()
 		int x1 = pickup_list.data[i].x1;
 		int y1 = pickup_list.data[i].y1;
 
-		float t = min(pickup_list.data[i].timer / PICKUP_AIR_TIME, 1.0f);
+		float t = CAT_min(pickup_list.data[i].timer / PICKUP_AIR_TIME, 1.0f);
 		float x = lerp(x0, x1, t);
 		if(y0 > y1)
 			t = 1.0f - t;
@@ -855,12 +880,11 @@ void CAT_room_draw_gui()
 
 	for(int i = 0; i < sizeof(button_sprites)/sizeof(button_sprites[0]); i++)
 	{
-		CAT_draw_queue_add
+		CAT_draw_sprite_raw
 		(
-			button_sprites[i], 0, GUI_LAYER,
+			button_sprites[i], 0,
 			MODE_BUTTONS_X + (MODE_BUTTON_SIZE + MODE_BUTTON_PAD) * i,
-			MODE_BUTTONS_Y,
-			CAT_DRAW_FLAG_NONE
+			MODE_BUTTONS_Y
 		);
 	}
 	CAT_strokeberry
@@ -870,6 +894,25 @@ void CAT_room_draw_gui()
 		MODE_BUTTON_SIZE+1, MODE_BUTTON_SIZE+1,
 		CAT_WHITE
 	);
+
+	if(CAT_AQ_is_crisis_ongoing() || CAT_AQ_is_crisis_report_posted())
+	{
+		CAT_draw_sprite_raw
+		(
+			&ui_button_alert, 0,
+			ALERT_BUTTON_X, ALERT_BUTTON_Y
+		);
+
+		if(CAT_AQ_is_crisis_report_posted() && CAT_pulse(0.5f))
+		{
+			CAT_strokeberry
+			(
+				ALERT_BUTTON_X, ALERT_BUTTON_Y,
+				ALERT_BUTTON_W+1, ALERT_BUTTON_H+1,
+				CAT_CRISIS_RED
+			);
+		}
+	}
 
 	if(CAT_input_touching())
 	{

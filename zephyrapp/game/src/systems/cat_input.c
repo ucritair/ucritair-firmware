@@ -33,7 +33,7 @@ bool CAT_input_released(int button)
 
 bool CAT_input_pulse(int button)
 {
-	float pulse_time = max(0.15, 2 * CAT_get_delta_time_s() + 0.005f);
+	float pulse_time = CAT_max(0.15, 2 * CAT_get_delta_time_s() + 0.005f);
 	if(mask[button])
 	{
 		if(time[button] < pulse_time)
@@ -222,7 +222,6 @@ void CAT_input_init()
 		buffer[i] = CAT_BUTTON_LAST;
 	buffer_head = 0;
 }
-
 
 uint16_t swap_mask_bits(uint16_t mask, int a_idx, int b_idx)
 {

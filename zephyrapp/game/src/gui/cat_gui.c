@@ -269,7 +269,7 @@ void CAT_gui_keyboard_logic()
 		keyboard.row_idx -= 1;
 	if(CAT_input_pulse(CAT_BUTTON_DOWN))
 		keyboard.row_idx += 1;
-	keyboard.row_idx = clamp(keyboard.row_idx, 0, 4);
+	keyboard.row_idx = CAT_clamp(keyboard.row_idx, 0, 4);
 
 	if(keyboard.row_idx >= 4)
 	{
@@ -289,7 +289,7 @@ void CAT_gui_keyboard_logic()
 		keyboard.glyph_idx += 1;
 	if(CAT_input_pulse(CAT_BUTTON_LEFT))
 		keyboard.glyph_idx -= 1;
-	keyboard.glyph_idx = clamp(keyboard.glyph_idx, 0, strlen(row)-1);
+	keyboard.glyph_idx = CAT_clamp(keyboard.glyph_idx, 0, strlen(row)-1);
 
 	if(CAT_input_pressed(CAT_BUTTON_A))
 	{
@@ -364,51 +364,51 @@ void CAT_gui_keyboard()
 //////////////////////////////////////////////////////////////////////////
 // POPUP
 
-struct
-{
-	const char* msg;
-	bool result;
-	uint8_t selector;
-	bool open;
-} popup =
-{
-	NULL,
-	false,
-	0,
-	false
-};
+static const char* popup_text;
+static int popup_style;
+static int popup_selector;
+static bool popup_result;
+static bool popup_open = false;
 
-void CAT_gui_open_popup(const char* msg)
+void CAT_gui_open_popup(const char* text, int style)
 {	
-	popup.msg = msg;
-	popup.result = false;
-	popup.selector = 0;
-	popup.open = true;
-	
+	popup_text = text;
+	popup_style = style;
+	popup_selector = 0;
+	popup_result = false;
+	popup_open = true;
+
 	CAT_input_clear();
 }
 
 bool CAT_gui_popup_is_open()
 {
-	return popup.open;
+	return popup_open;
 }
 
 void CAT_gui_popup_logic()
 {
-	if(CAT_input_pressed(CAT_BUTTON_LEFT))
-		popup.selector = 1;
-	if(CAT_input_pressed(CAT_BUTTON_RIGHT))
-		popup.selector = 0;
+	if(popup_style == CAT_POPUP_STYLE_YES_NO)
+	{
+		if(CAT_input_pressed(CAT_BUTTON_LEFT))
+			popup_selector = 0;
+		if(CAT_input_pressed(CAT_BUTTON_RIGHT))
+			popup_selector = 1;
+	}
 
 	if(CAT_input_pressed(CAT_BUTTON_A))
 	{
-		popup.result = popup.selector;
-		popup.open = false;
+		popup_result = popup_selector == 0;
+		popup_open = false;
 	}
-	if(CAT_input_pressed(CAT_BUTTON_START) || CAT_input_pressed(CAT_BUTTON_B))
+
+	if(popup_style == CAT_POPUP_STYLE_YES_NO)
 	{
-		popup.result = false;
-		popup.open = false;
+		if(CAT_input_pressed(CAT_BUTTON_START) || CAT_input_pressed(CAT_BUTTON_B))
+		{
+			popup_result = false;
+			popup_open = false;
+		}
 	}
 }
 
@@ -430,40 +430,32 @@ void CAT_gui_popup()
 	
 	CAT_set_text_mask(POPUP_X+POPUP_MARGIN, -1, POPUP_X+POPUP_W-POPUP_MARGIN, -1);
 	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
-	CAT_draw_text(POPUP_X+POPUP_MARGIN, POPUP_Y+POPUP_MARGIN, popup.msg);
+	CAT_draw_text(POPUP_X+POPUP_MARGIN, POPUP_Y+POPUP_MARGIN, popup_text);
+
+	const char* responses =
+	popup_style == CAT_POPUP_STYLE_YES_NO ?
+	(popup_selector == 0 ? "[YES]   NO \n" : " YES   [NO]\n") :
+	"[OKAY]";
+
 	CAT_draw_text
 	(
 		POPUP_X+POPUP_MARGIN, POPUP_Y+POPUP_H-POPUP_MARGIN-CAT_GLYPH_HEIGHT,
-		popup.selector ? "[YES]  NO " : " YES  [NO]"
+		responses
 	);
 }
 
 bool CAT_gui_consume_popup()
 {
-	if(popup.open)
+	if(popup_open)
 		return false;
-	bool result = popup.result;
-	popup.result = false;
+	bool result = popup_result;
+	popup_result = false;
 	return result;
 }
 
 
 //////////////////////////////////////////////////////////////////////////
 // MENU
-
-unsigned long hash(const char* s)
-{
-	unsigned long h = 0;
-	while (*s != '\0')
-	{
-		h = (h << 4) + *(s++);
-		unsigned long g = h & 0xF0000000L;
-		if (g != 0)
-			h ^= g >> 24;
-		h &= ~g;
-	}
-	return h;
-}
 
 typedef struct menu_node
 {
@@ -513,7 +505,7 @@ static bool menu_reset = false;
 
 uint16_t register_menu_node(const char* title, CAT_gui_menu_type type)
 {
-	uint16_t idx = hash(title) % MENU_TABLE_SIZE;
+	uint16_t idx = CAT_hash_string(title) % MENU_TABLE_SIZE;
 	while (menu_table[idx].live)
 		idx++;
 
@@ -541,7 +533,7 @@ uint16_t register_menu_node(const char* title, CAT_gui_menu_type type)
 
 int find_menu_node(const char* title)
 {
-	uint16_t idx = hash(title) % MENU_TABLE_SIZE;
+	uint16_t idx = CAT_hash_string(title) % MENU_TABLE_SIZE;
 	while (menu_table[idx].live)
 	{
 		if (strcmp(menu_table[idx].title, title) == 0)
@@ -751,7 +743,7 @@ void CAT_gui_menu_logic()
 				selected->ticker_data.value += 1;
 				selected->ticker_data.changed = true;
 			}
-			selected->ticker_data.value = clamp
+			selected->ticker_data.value = CAT_clamp
 			(
 				selected->ticker_data.value,
 				selected->ticker_data.min,
@@ -993,7 +985,7 @@ void CAT_gui_item_grid_logic()
 					tab_delta += -1;
 				if(CAT_input_pressed(CAT_BUTTON_RIGHT))
 					tab_delta += 1;
-				item_grid_tab_idx = wrap(item_grid_tab_idx+tab_delta, item_grid_tab_count);
+				item_grid_tab_idx = CAT_wrap(item_grid_tab_idx+tab_delta, item_grid_tab_count);
 				if(tab_delta != 0)
 					item_grid_selector = 0;
 
@@ -1020,7 +1012,7 @@ void CAT_gui_item_grid_logic()
 				}
 				if(CAT_input_pulse(CAT_BUTTON_DOWN))
 					delta += ITEM_GRID_COLS;
-				item_grid_selector = clamp(item_grid_selector+delta, 0, item_grid_pool.length-1);
+				item_grid_selector = CAT_clamp(item_grid_selector+delta, 0, item_grid_pool.length-1);
 
 				if(CAT_input_pressed(CAT_BUTTON_A))
 					item_grid_confirmed = true;
@@ -1067,7 +1059,7 @@ void CAT_gui_item_grid()
 	int x = ITEM_GRID_X;
 	int y = ITEM_GRID_Y;
 	int idx = item_grid_get_page();
-	int idx_limit = min(item_grid_get_page() + ITEM_GRID_CELLS, item_grid_pool.length);
+	int idx_limit = CAT_min(item_grid_get_page() + ITEM_GRID_CELLS, item_grid_pool.length);
 
 	while (idx < idx_limit)
 	{
@@ -1081,7 +1073,7 @@ void CAT_gui_item_grid()
 
 				CAT_item* item = CAT_get_item(item_grid_pool.data[idx]);
 				float aspect = item->sprite->height / (float) item->sprite->width;
-				int major_axis = max(item->sprite->width, item->sprite->height);
+				int major_axis = CAT_max(item->sprite->width, item->sprite->height);
 
 				int draw_y = y + ITEM_GRID_CELL_SIZE/2;
 				if(aspect <= 1.25f)

@@ -17,7 +17,7 @@ CAT_mesh hedron_mesh =
 		0.0f, 2.50259f, 0.0f
 	},
 	.n_verts = 11,
-	.faces = (uint8_t[])
+	.faces = (uint16_t[])
 	{
 		4, 0, 3,
 		2, 4, 1,

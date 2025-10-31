@@ -60,9 +60,6 @@ void CAT_init()
 		CAT_pushdown_rebase(CAT_MS_monitor);
 	else
 		CAT_pushdown_rebase(CAT_MS_room);
-
-	if(CAT_AQ_sensors_initialized())
-		CAT_set_eink_update_flag(true);
 }
 
 void CAT_tick_logic()
@@ -123,6 +120,16 @@ void CAT_draw_eink_refresh_notice()
 	CAT_draw_text(CAT_LCD_SCREEN_W/2, CAT_LCD_SCREEN_H-36, "PLEASE WAIT");
 }
 
+
+void CAT_draw_splash()
+{
+	CAT_frameberry(CAT_WHITE);
+	CAT_set_sprite_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
+	CAT_draw_sprite_raw(&ui_vxcon_logo, 0, CAT_LCD_SCREEN_W/2, CAT_LCD_SCREEN_H/2-32);
+	CAT_set_sprite_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
+	CAT_draw_sprite_raw(&ui_vxcon_text, 0, CAT_LCD_SCREEN_W/2, CAT_LCD_SCREEN_H/2+72);
+}
+
 void CAT_tick_render()
 {
 	if(CAT_is_first_render_cycle())
@@ -144,11 +151,16 @@ void CAT_tick_render()
 		CAT_draw_sprite(&null_sprite, 0, 120, 160);
 	}
 
-	CAT_effects_render();
 	CAT_gui_render();
+	CAT_effects_render();
 
 	if(CAT_poll_eink_update_flag())
-		CAT_draw_eink_refresh_notice();
+	{
+		if(CAT_eink_is_boot_update())
+			CAT_draw_splash();
+		else
+			CAT_draw_eink_refresh_notice();
+	}
 }
 
 #ifdef CAT_DESKTOP

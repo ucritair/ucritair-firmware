@@ -171,8 +171,8 @@ void CAT_monitor_ACH_auto_cursors()
 
 void CAT_monitor_ACH_set_cursors(int _start, int _end)
 {
-	start = clamp(_start, first_idx, last_idx);
-	end = clamp(_end, start, last_idx);
+	start = CAT_clamp(_start, first_idx, last_idx);
+	end = CAT_clamp(_end, start, last_idx);
 }
 
 void CAT_monitor_ACH_get_cursors(int* _start, int* _end)
@@ -300,7 +300,7 @@ int move_cursor(int cursor, int l, int r)
 		dx += 1;
 	if(CAT_input_held(CAT_BUTTON_RIGHT, 1))
 		dx += 3;
-	return clamp(cursor+dx, l, r);
+	return CAT_clamp(cursor+dx, l, r);
 }
 
 void CAT_monitor_MS_ACH(CAT_FSM_signal signal)
@@ -353,15 +353,19 @@ void CAT_monitor_MS_ACH(CAT_FSM_signal signal)
 						target_part -= 1;
 					if(CAT_input_pressed(CAT_BUTTON_RIGHT))
 						target_part += 1;
-					target_part = wrap(target_part, 3);
+					target_part = CAT_wrap(target_part, 3);
 
 					if(CAT_input_pressed(CAT_BUTTON_UP))
 						target.data[target_part] -= 1;
 					if(CAT_input_pressed(CAT_BUTTON_DOWN))
 						target.data[target_part] += 1;
-					target.data[CAT_DATE_PART_YEAR] = CAT_clamp_date_part(CAT_DATE_PART_YEAR, target.year, target.month, target.day);
-					target.data[CAT_DATE_PART_MONTH] = CAT_clamp_date_part(CAT_DATE_PART_MONTH, target.year, target.month, target.day);
-					target.data[CAT_DATE_PART_DAY] = CAT_clamp_date_part(CAT_DATE_PART_DAY, target.year, target.month, target.day);
+					
+					CAT_datetime earliest, now;
+					CAT_get_first_date(&earliest);
+					CAT_get_datetime(&now);
+					CAT_set_date_clip_min(earliest);
+					CAT_set_date_clip_max(now);
+					target = CAT_clip_date(target);
 
 					if(CAT_input_pressed(CAT_BUTTON_B))
 						back();

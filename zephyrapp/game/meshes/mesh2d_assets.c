@@ -2,7 +2,7 @@
 
 const CAT_mesh2d horse_mackerel_mesh2d =
 {
-	.verts = (uint8_t[])
+	.verts = (uint16_t[])
 	{
 		16, 78,
 		8, 70,
@@ -78,7 +78,7 @@ const CAT_mesh2d horse_mackerel_mesh2d =
 
 const CAT_mesh2d crucian_carp_mesh2d =
 {
-	.verts = (uint8_t[])
+	.verts = (uint16_t[])
 	{
 		188, 76,
 		184, 80,
@@ -258,7 +258,7 @@ const CAT_mesh2d crucian_carp_mesh2d =
 
 const CAT_mesh2d sardine_mesh2d =
 {
-	.verts = (uint8_t[])
+	.verts = (uint16_t[])
 	{
 		56, 76,
 		40, 72,
@@ -389,7 +389,7 @@ const CAT_mesh2d sardine_mesh2d =
 
 const CAT_mesh2d cod_mesh2d =
 {
-	.verts = (uint8_t[])
+	.verts = (uint16_t[])
 	{
 		112, 94,
 		120, 98,
@@ -593,7 +593,7 @@ const CAT_mesh2d cod_mesh2d =
 
 const CAT_mesh2d herring_mesh2d =
 {
-	.verts = (uint8_t[])
+	.verts = (uint16_t[])
 	{
 		88, 64,
 		92, 64,
@@ -746,7 +746,7 @@ const CAT_mesh2d herring_mesh2d =
 
 const CAT_mesh2d tilapia_mesh2d =
 {
-	.verts = (uint8_t[])
+	.verts = (uint16_t[])
 	{
 		92, 96,
 		84, 96,
@@ -1016,7 +1016,7 @@ const CAT_mesh2d tilapia_mesh2d =
 
 const CAT_mesh2d crawfish_mesh2d =
 {
-	.verts = (uint8_t[])
+	.verts = (uint16_t[])
 	{
 		108, 106,
 		108, 110,
@@ -1427,7 +1427,7 @@ const CAT_mesh2d crawfish_mesh2d =
 
 const CAT_mesh2d eel_mesh2d =
 {
-	.verts = (uint8_t[])
+	.verts = (uint16_t[])
 	{
 		28, 28,
 		20, 32,
@@ -1796,7 +1796,7 @@ const CAT_mesh2d eel_mesh2d =
 
 const CAT_mesh2d catfish_mesh2d =
 {
-	.verts = (uint8_t[])
+	.verts = (uint16_t[])
 	{
 		20, 82,
 		24, 86,
@@ -2052,7 +2052,7 @@ const CAT_mesh2d catfish_mesh2d =
 
 const CAT_mesh2d salmon_mesh2d =
 {
-	.verts = (uint8_t[])
+	.verts = (uint16_t[])
 	{
 		160, 48,
 		164, 52,
@@ -2321,7 +2321,7 @@ const CAT_mesh2d salmon_mesh2d =
 
 const CAT_mesh2d gindara_mesh2d =
 {
-	.verts = (uint8_t[])
+	.verts = (uint16_t[])
 	{
 		224, 48,
 		204, 64,
@@ -2531,7 +2531,7 @@ const CAT_mesh2d gindara_mesh2d =
 
 const CAT_mesh2d ruby_trout_mesh2d =
 {
-	.verts = (uint8_t[])
+	.verts = (uint16_t[])
 	{
 		104, 36,
 		104, 40,
@@ -2754,7 +2754,7 @@ const CAT_mesh2d ruby_trout_mesh2d =
 
 const CAT_mesh2d skipjack_tuna_mesh2d =
 {
-	.verts = (uint8_t[])
+	.verts = (uint16_t[])
 	{
 		51, 95,
 		107, 99,
@@ -2967,7 +2967,7 @@ const CAT_mesh2d skipjack_tuna_mesh2d =
 
 const CAT_mesh2d yellowtail_mesh2d =
 {
-	.verts = (uint8_t[])
+	.verts = (uint16_t[])
 	{
 		83, 103,
 		75, 99,
@@ -3164,7 +3164,7 @@ const CAT_mesh2d yellowtail_mesh2d =
 
 const CAT_mesh2d coelecanth_mesh2d =
 {
-	.verts = (uint8_t[])
+	.verts = (uint16_t[])
 	{
 		63, 83,
 		67, 83,
@@ -3496,7 +3496,7 @@ const CAT_mesh2d coelecanth_mesh2d =
 
 const CAT_mesh2d myaurr_guy_mesh2d =
 {
-	.verts = (uint8_t[])
+	.verts = (uint16_t[])
 	{
 		200, 20,
 		208, 20,

@@ -56,7 +56,10 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 				else if(CAT_pushdown_last() == &CAT_MS_world)
 				{
 					if(CAT_gui_menu_item("GO HOME"))
+					{
+						CAT_room_intro();
 						CAT_pushdown_rebase(CAT_MS_room);
+					}
 				}
 				if(CAT_gui_menu_item("DASHBOARD"))
 					CAT_pushdown_rebase(CAT_MS_monitor);				
@@ -72,77 +75,13 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 							
 						if(CAT_gui_begin_menu("CHEATS"))
 						{
-							if(CAT_gui_menu_item("1000 COINS"))
-								CAT_inventory_add(coin_item, 1000);
-							if(CAT_gui_menu_item("BASE STATS"))
-							{
-								pet.vigour = 9;
-								pet.focus = 9;
-								pet.spirit = 9;
-							}
-							if(CAT_gui_menu_item("MAX STATS"))
-							{
-								pet.vigour = 12;
-								pet.focus = 12;
-								pet.spirit = 12;
-							}
-							if(CAT_gui_menu_item("CRIT STATS"))
-							{
-								pet.vigour = 3;
-								pet.focus = 3;
-								pet.spirit = 3;
-							}
-							if(CAT_gui_menu_item("NULL STATS"))
-							{
-								pet.vigour = 0;
-								pet.focus = 0;
-								pet.spirit = 0;
-							}
-							if(CAT_gui_menu_item("KILL PET"))
-							{
-								pet.lifetime = 255;
-							}
-							if(CAT_gui_menu_item("EVERY ITEM"))
-							{
-								for(int item_id = 0; item_id < item_table.length; item_id++)
-								{
-									CAT_inventory_add(item_id, 1);
-								}
-							}
 							if(CAT_gui_menu_item("TURNKEY APARTMENT"))
-							{
 								CAT_set_load_flags(CAT_LOAD_FLAG_DIRTY | CAT_LOAD_FLAG_TURNKEY);
-							}
 							CAT_gui_end_menu();
 						}
 
 						if(CAT_gui_menu_item("COLOUR PICKER"))
 							CAT_pushdown_push(CAT_MS_colour_picker);
-						
-						if(CAT_gui_begin_menu("AQ CONTROL PANEL"))
-						{
-							if(CAT_gui_menu_item("EXTREME CO2"))
-								readings.sunrise.ppm_filtered_compensated = 5000;
-							if(CAT_gui_menu_item("MODERATE CO2"))
-								readings.sunrise.ppm_filtered_compensated = 2000;
-							if(CAT_gui_menu_item("MILD CO2"))
-								readings.sunrise.ppm_filtered_compensated = 1000;
-							if(CAT_gui_menu_item("NORMAL CO2"))
-								readings.sunrise.ppm_filtered_compensated = 450;
-
-							if(CAT_gui_menu_item("EXTREME TEMP"))
-								readings.sen5x.temp_degC = 43;
-							if(CAT_gui_menu_item("MODERATE TEMP"))
-								readings.sen5x.temp_degC = 33;
-							if(CAT_gui_menu_item("MILD TEMP"))
-								readings.sen5x.temp_degC = 28;
-							if(CAT_gui_menu_item("NORMAL TEMP"))
-								readings.sen5x.temp_degC = 23;
-							CAT_gui_end_menu();
-						}
-
-						if(CAT_gui_menu_item("LOW POWER E-INK"))
-								CAT_eink_low_power();
 							
 						CAT_gui_end_menu();
 					}				
@@ -257,7 +196,7 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 						}
 							
 						if(CAT_gui_menu_item("RESET SAVE"))
-							CAT_gui_open_popup("Are you sure? This will delete all game data!\n");
+							CAT_gui_open_popup("Are you sure? This will delete all game data!\n", CAT_POPUP_STYLE_YES_NO);
 						if(CAT_gui_consume_popup())
 							CAT_factory_reset();
 
@@ -273,7 +212,7 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 						CAT_sleep();
 
 					if(CAT_gui_menu_item("PROTECTED OFF"))
-						CAT_gui_open_popup("The device must be powered on via the reset button! This will clear important settings. Proceed?\n");
+						CAT_gui_open_popup("The device must be powered on via the reset button! This will clear important settings. Proceed?\n", CAT_POPUP_STYLE_YES_NO);
 					if(CAT_gui_consume_popup())
 						CAT_shutdown();
 					

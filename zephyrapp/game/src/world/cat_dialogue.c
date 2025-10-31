@@ -22,7 +22,7 @@ void CAT_change_dialogue_response(int dir)
 	if(current == NULL)
 		return;
 
-	edge_idx = wrap(edge_idx+dir, current->edge_count);
+	edge_idx = CAT_wrap(edge_idx+dir, current->edge_count);
 }
 
 void CAT_progress_dialogue()
@@ -127,7 +127,7 @@ void CAT_render_dialogue()
 	{
 		for(int i = 0; i < CAT_get_dialogue_response_count(); i++)
 		{
-			max_response_len = max(max_response_len, strlen(CAT_get_dialogue_response(i)));
+			max_response_len = CAT_max(max_response_len, strlen(CAT_get_dialogue_response(i)));
 		}
 	}
 	int text_start_x = BOX_X + BOX_MARGIN;
