@@ -1,10 +1,31 @@
-#include "cat_aqi.h"
+#include "cat_air.h"
 
 #include <stdio.h>
 #include <math.h>
 #include "cat_curves.h"
 #include "cat_render.h"
 #include "cat_persist.h"
+
+float CAT_canonical_temp()
+{
+    return (readings.sen5x.temp_degC) ; // This is now correct and no adjustments are needed Leaving here for compatibility 
+}
+
+// Formula for WBGT from https://en.wikipedia.org/wiki/Wet-bulb_globe_temperature
+// Approximation of T_w parameter from https://journals.ametsoc.org/view/journals/apme/50/11/jamc-d-11-0143.1.xml
+// Lacking an on-board measurement for T_g parameter, we assume black globe temperature is roughly equal to dry air temperature
+float CAT_wet_bulb_temp(float air_degc)
+{
+	float T_d = air_degc;
+	float rh = readings.sen5x.humidity_rhpct;
+	float T_w =
+	T_d * atanf(0.151977 * powf(rh + 8.313659, 0.5f)) +
+	atanf(T_d + rh) - atanf(rh - 1.676331) +
+	(0.00391838 * powf(rh, 1.5f)) * atanf(0.023101 * rh) -
+	4.686035;
+	float T_g = T_d;
+	return 0.7 * T_w + 0.1 * T_d + 0.2 * T_g;
+}
 
 /**
  * @brief Performs linear interpolation to calculate the score for a parameter.
@@ -39,27 +60,6 @@ float interpolate(float value, const float *breakpoints, const float *scores, in
     return 0.0f;
 }
 
-float CAT_canonical_temp()
-{
-    return (readings.sen5x.temp_degC) ; // This is now correct and no adjustments are needed Leaving here for compatibility 
-}
-
-// Formula for WBGT from https://en.wikipedia.org/wiki/Wet-bulb_globe_temperature
-// Approximation of T_w parameter from https://journals.ametsoc.org/view/journals/apme/50/11/jamc-d-11-0143.1.xml
-// Lacking an on-board measurement for T_g parameter, we assume black globe temperature is roughly equal to dry air temperature
-float CAT_wet_bulb_temp(float air_degc)
-{
-	float T_d = air_degc;
-	float rh = readings.sen5x.humidity_rhpct;
-	float T_w =
-	T_d * atanf(0.151977 * powf(rh + 8.313659, 0.5f)) +
-	atanf(T_d + rh) - atanf(rh - 1.676331) +
-	(0.00391838 * powf(rh, 1.5f)) * atanf(0.023101 * rh) -
-	4.686035;
-	float T_g = T_d;
-	return 0.7 * T_w + 0.1 * T_d + 0.2 * T_g;
-}
-
 /**
  * @brief Calculates the temperature score based on the temperature value.
  *
@@ -80,7 +80,7 @@ float CAT_temp_score(float temperature) {
  * @param humidity Relative Humidity in %.
  * @return The humidity score.
  */
-float CAT_rh_score(float humidity) {
+float CAT_RH_score(float humidity) {
     // Relative Humidity (%) breakpoints and scores
     const float humidityBreakpoints[] = { 0.0f, 14.0f, 23.0f, 30.0f, 40.0f, 50.0f, 60.0f, 65.0f, 80.0f, 85.0f };
     const float humidityScores[]      = { 5.0f, 5.0f, 4.0f,   3.0f,  1.0f, 0.0f,  1.0f,  3.0f,  4.0f, 5.0f };
@@ -158,7 +158,7 @@ float CAT_VOC_score(float voc) {
 float CAT_IAQ_score(float temperature, float humidity, float co2, float pm25, float nox, float voc) {
     // Calculate individual scores
     float tempScore = CAT_temp_score(temperature);
-    float humidityScore = CAT_rh_score(humidity);
+    float humidityScore = CAT_RH_score(humidity);
     float co2Score = CAT_CO2_score(co2);
     float pm25Score = CAT_PM2_5_score(pm25);
     float noxScore = CAT_NOX_score(nox);
@@ -369,7 +369,7 @@ void CAT_AQ_store_live_scores()
 	normalized_scores[CAT_AQM_VOC] = CAT_VOC_score(raw_scores[CAT_AQM_VOC]);
 	normalized_scores[CAT_AQM_NOX] = CAT_NOX_score(raw_scores[CAT_AQM_NOX]);
 	normalized_scores[CAT_AQM_TEMP] = CAT_temp_score(raw_scores[CAT_AQM_TEMP]);
-	normalized_scores[CAT_AQM_RH] = CAT_rh_score(raw_scores[CAT_AQM_RH]);
+	normalized_scores[CAT_AQM_RH] = CAT_RH_score(raw_scores[CAT_AQM_RH]);
 	for(int i = 0; i < CAT_AQM_AGGREGATE; i++)
 		normalized_scores[i] = inv_lerp(normalized_scores[i], 5, 0);
 	normalized_scores[CAT_AQM_AGGREGATE] = raw_scores[CAT_AQM_AGGREGATE] / 100.0f;	
@@ -414,7 +414,7 @@ float CAT_AQ_block_score_normalized(CAT_AQ_score_block* block, int aqm)
 		case CAT_AQM_NOX: return inv_lerp(CAT_NOX_score(block->NOX), 5, 0);
 		case CAT_AQM_VOC: return inv_lerp(CAT_VOC_score(block->VOC), 5, 0);
 		case CAT_AQM_TEMP: return inv_lerp(CAT_temp_score(block->temp / 1000.0f), 5, 0);
-		case CAT_AQM_RH : return inv_lerp(CAT_rh_score(block->rh / 100.0f), 5, 0);
+		case CAT_AQM_RH : return inv_lerp(CAT_RH_score(block->rh / 100.0f), 5, 0);
 		case CAT_AQM_AGGREGATE: return block->aggregate / 100.0f;
 		default: return 0;
 	}

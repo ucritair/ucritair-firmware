@@ -11,7 +11,7 @@
 #include "cat_item.h"
 #include "cat_version.h"
 #include "cat_core.h"
-#include "cat_aqi.h"
+#include "cat_air.h"
 #include "cat_gui.h"
 
 #include <zephyr/logging/log.h>

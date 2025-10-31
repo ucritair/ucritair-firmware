@@ -8,7 +8,7 @@
 #include "cat_render.h"
 #include "cat_item.h"
 #include <stdio.h>
-#include "cat_aqi.h"
+#include "cat_air.h"
 #include "sprite_assets.h"
 
 int snake_highscore = 0;

@@ -21,7 +21,7 @@ LOG_MODULE_REGISTER(lcd_rendering, LOG_LEVEL_DBG);
 #include "cat_item.h"
 #include "cat_item.h"
 #include "cat_core.h"
-#include "cat_aqi.h"
+#include "cat_air.h"
 #include "item_assets.h"
 #include "cat_pet.h"
 #include "cat_room.h"

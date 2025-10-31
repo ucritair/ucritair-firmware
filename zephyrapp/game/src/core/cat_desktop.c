@@ -13,7 +13,7 @@
 #include <stdarg.h>
 #include "cat_main.h"
 #include "cat_math.h"
-#include "cat_aqi.h"
+#include "cat_air.h"
 #include <sys/mman.h>
 #include "cat_pet.h"
 #include "cat_crisis.h"

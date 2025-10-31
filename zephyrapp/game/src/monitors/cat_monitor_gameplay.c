@@ -5,7 +5,7 @@
 #include "cat_room.h"
 #include "cat_input.h"
 #include "cat_core.h"
-#include "cat_aqi.h"
+#include "cat_air.h"
 #include "mesh2d_assets.h"
 #include "sprite_assets.h"
 #include "cat_crisis.h"

@@ -7,7 +7,7 @@
 #include "cat_pet.h"
 #include "cat_render.h"
 #include <string.h>
-#include "cat_aqi.h"
+#include "cat_air.h"
 #include "sprite_assets.h"
 #include "item_assets.h"
 #include "cat_gizmos.h"

@@ -5,7 +5,7 @@
 #include "cat_room.h"
 #include "cat_input.h"
 #include "cat_core.h"
-#include "cat_aqi.h"
+#include "cat_air.h"
 #include <stdarg.h>
 #include <stdio.h>
 #include <math.h>

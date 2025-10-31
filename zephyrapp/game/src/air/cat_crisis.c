@@ -1,7 +1,7 @@
 #include "cat_crisis.h"
 
 #include "cat_core.h"
-#include "cat_aqi.h"
+#include "cat_air.h"
 #include "cat_render.h"
 #include "cat_item.h"
 #include "item_assets.h"

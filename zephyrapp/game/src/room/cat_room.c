@@ -12,7 +12,7 @@
 #include "cat_deco.h"
 #include "cat_arcade.h"
 #include "theme_assets.h"
-#include "cat_aqi.h"
+#include "cat_air.h"
 #include "sprite_assets.h"
 #include "item_assets.h"
 #include "cat_crisis.h"

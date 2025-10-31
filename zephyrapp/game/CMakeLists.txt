@@ -180,7 +180,7 @@ target_sources(app PRIVATE
 	src/gui/cat_text.c
 	src/gui/cat_graph.c
 
-	src/air/cat_aqi.c
+	src/air/cat_air.c
 	src/air/cat_crisis.c
 	src/air/cat_crisis_report.c
 

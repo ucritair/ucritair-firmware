@@ -3,25 +3,10 @@
 #include "cat_core.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// CONSTANTS
+// CONSTANTS AND TYPES
 
 #define CAT_AQ_MOVING_SAMPLE_PERIOD 5
 #define CAT_AQ_SPARKLINE_SAMPLE_PERIOD CAT_DAY_SECONDS
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// SCORING
-
-float CAT_CO2_score(float co2);
-float CAT_VOC_score(float voc);
-float CAT_NOX_score(float nox);
-float CAT_PM2_5_score(float pm25);
-float CAT_canonical_temp();
-float CAT_wet_bulb_temp(float air_degc);
-float CAT_temp_score(float temp);
-float CAT_rh_score(float rh);
-float CAT_IAQ_score(float co2, float voc, float nox, float pm25, float temp, float rh);
-float CAT_AQ_aggregate_score();
 
 typedef enum
 {
@@ -34,6 +19,22 @@ typedef enum
 	CAT_AQM_AGGREGATE,
 	CAT_AQM_COUNT,
 } CAT_AQM;
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// SCORING
+
+float CAT_canonical_temp();
+float CAT_wet_bulb_temp(float air_degc);
+
+float CAT_CO2_score(float co2);
+float CAT_VOC_score(float voc);
+float CAT_NOX_score(float nox);
+float CAT_PM2_5_score(float pm25);
+float CAT_temp_score(float temp);
+float CAT_RH_score(float rh);
+float CAT_IAQ_score(float co2, float voc, float nox, float pm25, float temp, float rh);
+float CAT_AQ_aggregate_score();
 
 const char* CAT_AQ_get_title_string(int aqm);
 const char* CAT_AQ_get_unit_string(int aqm);
