@@ -11,10 +11,7 @@ if legacy:
 
 def flash_proc(serial, serial_list):
 	print(f"Flashing game to {serial}...");
-	if legacy:
-		os.popen(f"sudo dfu-util --serial={serial} --download legacy.signed.bin --reset").read();
-	else:
-		os.popen(f"sudo dfu-util --serial={serial} --download ../build/zephyr/zephyr.signed.bin --reset").read();
+	os.popen(f"sudo dfu-util --serial={serial} --download ../build/zephyr/zephyr.signed.bin --reset").read();
 	serial_list.remove(serial);
 	print("Done!");
 

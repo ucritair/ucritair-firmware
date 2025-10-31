@@ -243,10 +243,13 @@ void CAT_monitor_MS_calendar(CAT_FSM_signal signal)
 	{
 		case CAT_FSM_SIGNAL_ENTER:
 		{
-			CAT_log_cell first;
-			CAT_read_first_calendar_cell(&first);
-			CAT_make_datetime(first.timestamp, &earliest);
 			CAT_get_datetime(&today);
+			CAT_log_cell first;
+			int first_idx = CAT_read_first_calendar_cell(&first);
+			if(first_idx >= 0)
+				CAT_make_datetime(first.timestamp, &earliest);
+			else
+				earliest = today;
 
 			if(should_fast_forward)
 			{

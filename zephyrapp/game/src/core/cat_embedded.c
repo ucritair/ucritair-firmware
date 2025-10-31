@@ -15,6 +15,7 @@
 #include "lcd_driver.h"
 #include "lcd_rendering.h"
 #include "imu.h"
+#include <zephyr/sys/timeutil.h>
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // CORE
@@ -186,6 +187,17 @@ uint64_t CAT_get_RTC_offset()
 uint64_t CAT_get_RTC_now()
 {
 	return get_current_rtc_time();
+}
+
+void CAT_set_date(CAT_datetime date)
+{
+	struct tm t = {
+		.tm_year = date.year - TIME_UTILS_BASE_YEAR + (2024 - 124),
+		// WHAT THE FUCK is going on here. I don't care.
+		.tm_mon = date.month-1,
+		.tm_mday = date.day
+	};
+	set_rtc_counter(&t);
 }
 
 

@@ -123,7 +123,13 @@ void CAT_load_turnkey()
 	#ifdef CAT_PRIORITIZE_AQ
 	persist_flags |= CAT_PERSIST_CONFIG_FLAG_AQ_FIRST | CAT_PERSIST_CONFIG_FLAG_PAUSE_CARE;
 	#endif
-
+	CAT_datetime zero_day =
+	{
+		.year = 2025,
+		.month = 11,
+		.day = 8
+	};
+	CAT_set_date(zero_day);
 	CAT_erase_log_cells();
 }
 

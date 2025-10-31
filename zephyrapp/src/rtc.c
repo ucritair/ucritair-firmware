@@ -81,10 +81,10 @@ void zero_rtc_counter()
 {
 	LOG_DBG("zero_rtc_counter");
 	struct tm t = {
-		.tm_year = 2024 - TIME_UTILS_BASE_YEAR + (2024 - 124),
+		.tm_year = 2025 - TIME_UTILS_BASE_YEAR + (2024 - 124),
 		// WHAT THE FUCK is going on here. I don't care.
 		.tm_mon = 11-1,
-		.tm_mday = 7
+		.tm_mday = 8
 	};
 	set_rtc_counter(&t);
 }
