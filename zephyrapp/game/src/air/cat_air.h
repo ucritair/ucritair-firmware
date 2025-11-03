@@ -20,12 +20,38 @@ typedef enum
 	CAT_AQM_COUNT,
 } CAT_AQM;
 
+typedef enum
+{
+	CAT_TEMPERATURE_UNIT_DEGREES_CELSIUS,
+	CAT_TEMPERATURE_UNIT_DEGREES_FAHRENHEIT
+} CAT_temperature_unit;
+
+typedef struct __attribute__((__packed__))
+{
+	uint16_t CO2; // ppm x1
+	uint8_t VOC; // index x1
+	uint8_t NOX; // index x1
+	uint16_t PM2_5; // ug/m3 x100
+	int32_t temp; // degC x1000
+	uint16_t rh; // % x100
+	uint8_t aggregate; // score x1
+} CAT_AQ_score_block;
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// SCORING
+// TEMPERATURE
+
+CAT_temperature_unit CAT_AQ_get_temperature_unit();
+void CAT_AQ_set_temperature_unit(CAT_temperature_unit unit);
+float CAT_AQ_map_celsius(float temp);
+const char* CAT_AQ_get_temperature_unit_string();
 
 float CAT_canonical_temp();
 float CAT_wet_bulb_temp(float air_degc);
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// SCORING
 
 float CAT_CO2_score(float co2);
 float CAT_VOC_score(float voc);
@@ -36,18 +62,32 @@ float CAT_RH_score(float rh);
 float CAT_IAQ_score(float co2, float voc, float nox, float pm25, float temp, float rh);
 float CAT_AQ_aggregate_score();
 
-const char* CAT_AQ_get_title_string(int aqm);
-const char* CAT_AQ_get_unit_string(int aqm);
-const char* CAT_AQ_get_grade_string(float score);
-uint16_t CAT_AQ_get_grade_colour(float score);
-int CAT_AQ_get_good_delta_sign(int aqm);
 
-void CAT_AQ_store_live_scores();
-float CAT_AQ_live_score_raw(int aqm);
-float CAT_AQ_live_score_normalized(int aqm);
-float CAT_AQ_live_score_delta(int aqm);
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// AQM INFO
 
-float CAT_AQ_block_score_raw(CAT_AQ_score_block* block, int aqm);
-float CAT_AQ_block_score_normalized(CAT_AQ_score_block* block, int aqm);
+const char* CAT_AQ_title_string(int aqm);
+const char* CAT_AQ_unit_string(int aqm);
+const char* CAT_AQ_grade_string(float score);
+uint16_t CAT_AQ_grade_colour(float score);
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// READINGS
+
+void CAT_AQ_poll_readings();
+float CAT_AQ_value(int aqm);
+float CAT_AQ_score(int aqm);
+float CAT_AQ_delta(int aqm);
+
+float CAT_AQ_block_value(CAT_AQ_score_block* block, int aqm);
+float CAT_AQ_block_score(CAT_AQ_score_block* block, int aqm);
+
+bool CAT_AQ_moving_scores_initialized();
+void CAT_AQ_update_moving_scores();
+
+bool CAT_AQ_weekly_scores_initialized();
+void CAT_AQ_push_weekly_scores(CAT_AQ_score_block* in);
+CAT_AQ_score_block* CAT_AQ_get_weekly_scores(int idx);
 
 void CAT_AQ_tick();

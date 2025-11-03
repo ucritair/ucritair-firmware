@@ -369,6 +369,7 @@ int CAT_read_log_cell_before_time(int bookmark, uint64_t time, CAT_log_cell* out
 int CAT_read_log_cell_after_time(int bookmark, uint64_t time, CAT_log_cell* out);
 int CAT_read_first_calendar_cell(CAT_log_cell* cell);
 int CAT_get_log_cell_count();
+bool CAT_logs_initialized();
 void CAT_force_log_cell_write();
 void CAT_erase_log_cells();
 
@@ -415,38 +416,8 @@ typedef struct
 } CAT_AQ_readings;
 extern CAT_AQ_readings readings;
 
-bool CAT_AQ_logs_initialized();
 bool CAT_AQ_sensors_initialized();
 bool CAT_AQ_NOX_VOC_initialized();
-
-typedef enum
-{
-	CAT_TEMPERATURE_UNIT_DEGREES_CELSIUS,
-	CAT_TEMPERATURE_UNIT_DEGREES_FAHRENHEIT
-} CAT_temperature_unit;
-
-CAT_temperature_unit CAT_AQ_get_temperature_unit();
-void CAT_AQ_set_temperature_unit(CAT_temperature_unit unit);
-float CAT_AQ_map_celsius(float temp);
-const char* CAT_AQ_get_temperature_unit_string();
-
-typedef struct __attribute__((__packed__))
-{
-	uint16_t CO2; // ppm x1
-	uint8_t VOC; // index x1
-	uint8_t NOX; // index x1
-	uint16_t PM2_5; // ug/m3 x100
-	int32_t temp; // degC x1000
-	uint16_t rh; // % x100
-	uint8_t aggregate; // score x1
-} CAT_AQ_score_block;
-
-bool CAT_AQ_moving_scores_initialized();
-void CAT_AQ_update_moving_scores();
-
-bool CAT_AQ_weekly_scores_initialized();
-void CAT_AQ_push_weekly_scores(CAT_AQ_score_block* in);
-CAT_AQ_score_block* CAT_AQ_get_weekly_scores(int idx);
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -478,7 +449,7 @@ void CAT_set_debug_number(int x);
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// BONUS
+// COMMS
 
 static inline uint32_t CAT_bonus_get()
 {

@@ -144,7 +144,7 @@ void CAT_render_debug()
 			CAT_gui_title(true, "AQI");
 			CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
 
-			if(CAT_AQ_logs_initialized())
+			if(CAT_logs_initialized())
 				CAT_gui_textf("Logs initialized (%d)\n", CAT_get_log_cell_count());
 			if(CAT_AQ_sensors_initialized())
 				CAT_gui_text("Sensors initialized\n");

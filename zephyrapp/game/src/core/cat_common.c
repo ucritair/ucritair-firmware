@@ -161,11 +161,6 @@ CAT_AQ_readings readings =
 {0};
 #endif
 
-bool CAT_AQ_logs_initialized()
-{
-	return CAT_get_log_cell_count() >= 1;
-}
-
 bool CAT_AQ_sensors_initialized()
 {
 	return
@@ -180,102 +175,6 @@ bool CAT_AQ_NOX_VOC_initialized()
 	return
 	readings.sen5x.nox_index > 0 &&
 	readings.sen5x.voc_index > 0;
-}
-
-static CAT_temperature_unit temperature_unit = CAT_TEMPERATURE_UNIT_DEGREES_CELSIUS;
-
-CAT_temperature_unit CAT_AQ_get_temperature_unit()
-{
-	return temperature_unit;
-}
-
-void CAT_AQ_set_temperature_unit(CAT_temperature_unit unit)
-{
-	temperature_unit = unit;
-}
-
-float CAT_AQ_map_celsius(float temp)
-{
-	return
-	temperature_unit == CAT_TEMPERATURE_UNIT_DEGREES_CELSIUS ?
-	temp :
-	temp * (9.0f / 5.0f) + 32;
-}
-
-const char* CAT_AQ_get_temperature_unit_string()
-{
-	return
-	temperature_unit == CAT_TEMPERATURE_UNIT_DEGREES_CELSIUS ?
-	"\3C" :
-	"\3F";
-}
-
-int float2int(float f, int scale_factor)
-{
-	return roundf(f * scale_factor);
-}
-
-float int2float(int i, float scale_factor)
-{
-	return i / scale_factor;
-}
-
-int move_average(int x_bar, float x, float scale_factor)
-{
-	float x_bar_f = int2float(x_bar, scale_factor);
-	float n = aq_moving_score_samples+1;
-	float old_weight = (n-1) / n;
-	float new_weight = 1.0f / n;
-	x_bar_f = x_bar_f * old_weight + x * new_weight;
-	return float2int(x_bar_f, scale_factor);
-}
-
-bool CAT_AQ_moving_scores_initialized()
-{
-	return aq_moving_score_time > 0;
-}
-
-void CAT_AQ_update_moving_scores()
-{
-	CAT_AQ_score_block* block = &aq_moving_scores;
-	block->CO2 = move_average(block->CO2, readings.sunrise.ppm_filtered_uncompensated, 1);
-	block->NOX = move_average(block->NOX, readings.sen5x.nox_index, 1);
-	block->VOC = move_average(block->VOC, readings.sen5x.voc_index, 1);
-	block->PM2_5 = move_average(block->PM2_5, readings.sen5x.pm2_5, 100);
-	block->temp = move_average(block->temp, CAT_canonical_temp(), 1000);
-	block->rh = move_average(block->rh, readings.sen5x.humidity_rhpct, 100);
-	block->aggregate = move_average(block->aggregate, CAT_AQ_aggregate_score(), 1);
-	
-	aq_moving_score_samples += 1;
-	aq_moving_score_time = CAT_get_RTC_now();
-}
-
-bool CAT_AQ_weekly_scores_initialized()
-{
-	return aq_weekly_score_time > 0;
-}
-
-void CAT_AQ_push_weekly_scores(CAT_AQ_score_block* in)
-{
-	if(aq_weekly_score_time == 0)
-	{
-		for(int i = 0; i < 7; i++)
-			memcpy(&aq_weekly_scores[i], &aq_moving_scores, sizeof(CAT_AQ_score_block));
-		aq_weekly_score_head = 0;
-	}
-
-	CAT_AQ_score_block* block = &aq_weekly_scores[aq_weekly_score_head];
-	memcpy(block, in, sizeof(CAT_AQ_score_block));
-
-	aq_weekly_score_head = (aq_weekly_score_head+1) % 7;
-	aq_weekly_score_time = CAT_get_RTC_now();
-	aq_moving_score_samples = 0;
-}
-
-CAT_AQ_score_block* CAT_AQ_get_weekly_scores(int idx)
-{
-	idx = (aq_weekly_score_head+idx) % 7;
-	return &aq_weekly_scores[idx];
 }
 
 
@@ -564,6 +463,15 @@ bool CAT_check_load_flags(uint64_t flags)
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// LOGS
+
+bool CAT_logs_initialized()
+{
+	return CAT_get_log_cell_count() >= 1;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // DEBUG
 
 static int debug_number = 0;
@@ -602,7 +510,7 @@ int CAT_load_cognitive_performance()
 {
 	int result = -1;
 
-	if(CAT_AQ_logs_initialized())
+	if(CAT_logs_initialized())
 	{
 		int idx = CAT_get_log_cell_count()-1;
 		CAT_log_cell cell;

@@ -96,7 +96,7 @@ static void render_monitor()
 	(
 		(page == CAT_MONITOR_PAGE_SUMMARY ||
 		page == CAT_MONITOR_PAGE_DETAILS) &&
-		!CAT_AQ_sensors_initialized() && !CAT_AQ_logs_initialized()
+		!CAT_AQ_sensors_initialized() && !CAT_logs_initialized()
 	)
 	{
 		draw_uninit_warning();

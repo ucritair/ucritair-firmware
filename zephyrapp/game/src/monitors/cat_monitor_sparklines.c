@@ -8,6 +8,7 @@
 #include "cat_monitor_graphics_utils.h"
 #include "cat_graph.h"
 #include "cat_persist.h"
+#include "cat_colours.h"
 
 #define TITLE_X 120
 #define TITLE_Y 64
@@ -21,9 +22,6 @@
 #define SPARKLINE_MAX_Y (SPARKLINE_Y + SPARKLINE_HEIGHT - 1)
 #define SPARKLINE_LABEL_X (SPARKLINE_MAX_X + SPARKLINE_PAD)
 
-#define SPARKLINE_BG_COLOUR 0xe7bf
-#define SPARKLINE_FG_COLOUR 0x6b11
-
 static int view = CAT_AQM_AGGREGATE;
 static float samples[7];
 static uint16_t colours[7];
@@ -32,7 +30,7 @@ void CAT_monitor_render_sparklines()
 {
 	CAT_draw_subpage_markers(32, CAT_AQM_COUNT, view, CAT_WHITE);
 
-	const char* title = CAT_AQ_get_title_string(view);
+	const char* title = CAT_AQ_title_string(view);
 	int cursor_y = center_textf(TITLE_X, TITLE_Y, 2, CAT_WHITE, title) + 2;
 	cursor_y = center_textf(TITLE_X, cursor_y, 1, CAT_WHITE, "Weekly Performance");
 
@@ -43,11 +41,11 @@ void CAT_monitor_render_sparklines()
 	for(int i = 0; i < 7; i++)
 	{
 		CAT_AQ_score_block* block = CAT_AQ_get_weekly_scores(i);
-		float score = CAT_AQ_block_score_normalized(block, view);
+		float score = CAT_AQ_block_score(block, view);
 		if(fabs(score) <= __FLT_EPSILON__)
 			score = 0;
 		samples[i] = score;
-		colours[i] = CAT_AQ_get_grade_colour(score);
+		colours[i] = CAT_AQ_grade_colour(score);
 
 		min_score = CAT_min(min_score, score);
 		max_score = CAT_max(max_score, score);
@@ -71,11 +69,11 @@ void CAT_monitor_render_sparklines()
 	if(ready)
 	{
 		CAT_set_text_colour(CAT_WHITE);
-		cursor_y = CAT_draw_textf(SPARKLINE_X, cursor_y, "Max score: %s \1 %d/100\n", CAT_AQ_get_grade_string(max_score), (int)(max_score*100))+8;
+		cursor_y = CAT_draw_textf(SPARKLINE_X, cursor_y, "Max score: %s \1 %d/100\n", CAT_AQ_grade_string(max_score), (int)(max_score*100))+8;
 		CAT_set_text_colour(CAT_WHITE);
-		cursor_y = CAT_draw_textf(SPARKLINE_X, cursor_y, "  Mean score: %s \1 %d/100\n", CAT_AQ_get_grade_string(mean_score), (int)(mean_score*100))+8;
+		cursor_y = CAT_draw_textf(SPARKLINE_X, cursor_y, "  Mean score: %s \1 %d/100\n", CAT_AQ_grade_string(mean_score), (int)(mean_score*100))+8;
 		CAT_set_text_colour(CAT_WHITE);
-		cursor_y = CAT_draw_textf(SPARKLINE_X, cursor_y, "    Min score: %s \1 %d/100\n", CAT_AQ_get_grade_string(min_score), (int)(min_score*100))+8;
+		cursor_y = CAT_draw_textf(SPARKLINE_X, cursor_y, "    Min score: %s \1 %d/100\n", CAT_AQ_grade_string(min_score), (int)(min_score*100))+8;
 	}
 	else
 	{

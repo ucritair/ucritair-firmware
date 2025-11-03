@@ -13,6 +13,7 @@
 #include "cat_core.h"
 #include "cat_air.h"
 #include "cat_gui.h"
+#include "sprite_assets.h"
 
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(epaper_rendering, LOG_LEVEL_DBG);
@@ -84,7 +85,7 @@ void write_str(uint8_t* image, int x, int y, int scale, char* str)
 	}
 }
 
-bool sprite_read_px(struct epaper_image_asset* src, int x, int y)
+bool sprite_read_px(CAT_tinysprite* src, int x, int y)
 {
 	int pxcount = (y * src->stride) + x;
 	int bytecount = pxcount >> 3;
@@ -93,12 +94,12 @@ bool sprite_read_px(struct epaper_image_asset* src, int x, int y)
 	return (src->bytes[bytecount] >> (7-bitcount)) & 1;
 }
 
-void blit_image(uint8_t* target, struct epaper_image_asset* src, int x, int y)
+void blit_image(uint8_t* target, CAT_tinysprite* src, int x, int y)
 {
 	//LOG_INF("Blit x=%d y=%d w=%d h=%d", x, y, src->w, src->h);
-	for (int dx = 0; dx < src->w; dx++)
+	for (int dx = 0; dx < src->width; dx++)
 	{
-		for (int dy = 0; dy < src->h; dy++)
+		for (int dy = 0; dy < src->height; dy++)
 		{
 			write_px(target, x+dx, y+dy, sprite_read_px(src, dx, dy));
 		}
@@ -120,26 +121,26 @@ void epaper_render_test()
 	time_t now = get_current_rtc_time();
 	gmtime_r(&now, &t);
 
-	struct epaper_image_asset* selected_unicorn = &epaper_image_unicorn_default;
-	struct epaper_image_asset* selected_cloud = &epaper_image_cloud_default;
+	CAT_tinysprite* selected_unicorn = &tnyspr_unicorn_default;
+	CAT_tinysprite* selected_cloud = &tnyspr_cloud_default;
 
 	if(persist_flags & CAT_PERSIST_CONFIG_FLAG_BATTERY_ALERT)
 	{	
-		selected_unicorn = &epaper_image_unicorn_low_battery;
+		selected_unicorn = &tnyspr_unicorn_low_battery;
 	}
 	else if (pet_mask)
 	{
-		selected_unicorn = &epaper_image_unicorn_mask;
+		selected_unicorn = &tnyspr_unicorn_mask;
 	}
 	else
 	{
 		if (pet_mood == 2)
 		{
-			selected_unicorn = &epaper_image_unicorn_happy;
+			selected_unicorn = &tnyspr_unicorn_happy;
 		}
 		else if (pet_mood == 0)
 		{
-			selected_unicorn = &epaper_image_unicorn_sad;
+			selected_unicorn = &tnyspr_unicorn_sad;
 		}
 	}
 
@@ -147,19 +148,19 @@ void epaper_render_test()
 
 	if (score < 25)
 	{
-		selected_cloud = &epaper_image_cloud_smoke;
+		selected_cloud = &tnyspr_cloud_smoke;
 	}
 	else if (score < 50)
 	{
-		selected_cloud = &epaper_image_cloud_sad;
+		selected_cloud = &tnyspr_cloud_sad;
 	}
 	else if (score > 75)
 	{
-		selected_cloud = &epaper_image_cloud_happy;
+		selected_cloud = &tnyspr_cloud_happy;
 	}
 
 	blit_image(epaper_framebuffer, selected_unicorn, 0, 0);
-	blit_image(epaper_framebuffer, selected_cloud, 0, selected_unicorn->h);
+	blit_image(epaper_framebuffer, selected_cloud, 0, selected_unicorn->height);
 
 	if(CAT_AQ_sensors_initialized())
 	{
@@ -209,7 +210,7 @@ void epaper_render_protected_off()
 {
 	memset(epaper_framebuffer, 0, sizeof(epaper_framebuffer));
 
-	blit_image(epaper_framebuffer, &epaper_image_protected, 0, 0);
+	blit_image(epaper_framebuffer, &tnyspr_protected, 0, 0);
 
 	write_str(epaper_framebuffer, 128, 52, 1, "Device is");
 	write_str(epaper_framebuffer, 132, 62, 1, "protected-off");

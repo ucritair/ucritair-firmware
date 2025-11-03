@@ -525,9 +525,9 @@ static void MS_performance(CAT_FSM_signal signal)
 			}
 			time_ratio = max_time / min_time;
 
-			co2 = cached_co2 < 0 ? CAT_AQ_live_score_raw(CAT_AQM_CO2) : cached_co2;
-			pm25 = CAT_AQ_live_score_raw(CAT_AQM_PM2_5);
-			temp = CAT_AQ_live_score_raw(CAT_AQM_TEMP);
+			co2 = cached_co2 < 0 ? CAT_AQ_value(CAT_AQM_CO2) : cached_co2;
+			pm25 = CAT_AQ_value(CAT_AQM_PM2_5);
+			temp = CAT_AQ_value(CAT_AQM_TEMP);
 
 			stars = 3;
 			if(total_perfect < total_challenges/2 || total_time > PHASE_COUNT * CAT_MINUTE_SECONDS)
@@ -633,9 +633,9 @@ static void draw_performance()
 		"Recent CO2 is %d %s, current PM 2.5 is "CAT_FLOAT_FMT" %s, "
 		"and the temperature is %d %s."
 		"\n",
-		(int) co2, CAT_AQ_get_unit_string(CAT_AQM_CO2),
-		CAT_FMT_FLOAT(pm25), CAT_AQ_get_unit_string(CAT_AQM_PM2_5),
-		(int) CAT_AQ_map_celsius(temp), CAT_AQ_get_unit_string(CAT_AQM_TEMP)
+		(int) co2, CAT_AQ_unit_string(CAT_AQM_CO2),
+		CAT_FMT_FLOAT(pm25), CAT_AQ_unit_string(CAT_AQM_PM2_5),
+		(int) CAT_AQ_map_celsius(temp), CAT_AQ_unit_string(CAT_AQM_TEMP)
 	);
 }
 
@@ -647,7 +647,7 @@ void CAT_MS_stroop(CAT_FSM_signal signal)
 			CAT_set_render_callback(CAT_render_stroop);
 
 			cached_co2 = -1;
-			if(CAT_AQ_logs_initialized())
+			if(CAT_logs_initialized())
 			{
 				uint64_t now = CAT_get_RTC_now();
 				int awake = CAT_get_uptime_ms() / 1000;

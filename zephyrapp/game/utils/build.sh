@@ -24,7 +24,7 @@ if [[ $1 == "--embedded" ]]; then
 	fi
 
 	cd ../build
-	if [ $2 == "--aq-first" ]; then
+	if [[ $2 == "--aq-first" ]]; then
 		make -j8 CFLAGS="-DAQ_FIRST=ON"
 	else
 		make -j8

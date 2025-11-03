@@ -36,7 +36,6 @@ else()
 		message(WARNING "Prioritizing AQ!")
 	endif()
 	
-	target_compile_options(app PRIVATE -fsingle-precision-constant)
 	target_sources(app PRIVATE src/core/cat_embedded.c)
 endif()
 
@@ -140,6 +139,7 @@ target_sources(app PRIVATE
 	src/render/cat_poly.c
 	src/render/cat_effects.c
 	src/render/cat_gizmos.c
+	src/render/cat_colours.c
 
 	src/menu/cat_menu.c
 	src/menu/cat_menu_insights.c

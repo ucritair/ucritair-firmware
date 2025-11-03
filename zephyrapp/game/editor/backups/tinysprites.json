@@ -1,0 +1,40 @@
+{
+    "tinysprite": {
+        "type": {
+            "name": {
+                "type": "string"
+            },
+            "path": {
+                "type": "*.png"
+            },
+            "width": {
+                "type": "int",
+                "attributes": [
+                    "read-only"
+                ]
+            },
+            "height": {
+                "type": "int",
+                "attributes": [
+                    "read-only"
+                ]
+            },
+            "stride": {
+                "type": "int",
+                "attributes": [
+                    "read-only"
+                ]
+            }
+        }
+    },
+    "code": "tnyspr",
+    "instances": [
+        {
+            "name": "unicorn_default",
+            "path": "eink/unicorn_default.png",
+            "width": 112,
+            "height": 73,
+            "stride": 112
+        }
+    ]
+}

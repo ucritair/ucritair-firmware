@@ -48,11 +48,11 @@ int draw_sparkline(int x, int y, int aqm)
 		for(int i = 0; i < 7; i++)
 		{
 			CAT_AQ_score_block* block = CAT_AQ_get_weekly_scores(i);
-			float score = CAT_AQ_block_score_normalized(block, aqm);
+			float score = CAT_AQ_block_score(block, aqm);
 			if(fabs(score) <= __FLT_EPSILON__)
 				score = 0;
 			samples[i] = 1.0f-score;
-			colours[i] = CAT_AQ_get_grade_colour(score);
+			colours[i] = CAT_AQ_grade_colour(score);
 		}
 		CAT_graph_set_background(CAT_TRANSPARENT);
 		CAT_graph_set_foreground(CAT_WHITE);
@@ -68,7 +68,7 @@ int draw_sparkline(int x, int y, int aqm)
 
 int draw_notice(int x, int y, int aqm)
 {
-	float score = CAT_AQ_live_score_normalized(aqm);
+	float score = CAT_AQ_score(aqm);
 	if(score >= 0.9)
 	{
 		CAT_set_sprite_colour(CAT_GREEN);
@@ -89,10 +89,10 @@ int draw_delta(int x, int y, int aqm)
 {
 	x = CAT_LCD_SCREEN_W - 36;
 
-	float delta = CAT_AQ_live_score_delta(aqm);
+	float delta = CAT_AQ_delta(aqm);
 	if(delta != 0)
 	{
-		int good_sign = CAT_AQ_get_good_delta_sign(aqm);
+		int good_sign = aqm == CAT_AQM_AGGREGATE ? 1 : -1;
 		int sign = CAT_sgn(delta);
 		uint16_t c = sign == good_sign ? CAT_GRADE_COLOUR_GOOD : CAT_GRADE_COLOUR_BAD;
 		CAT_draw_arrow(x, y-4, 12, 12, sign == 1 ? CAT_ORIENTATION_NORTH : CAT_ORIENTATION_SOUTH, c);
@@ -103,13 +103,13 @@ int draw_delta(int x, int y, int aqm)
 int draw_typical(int cursor_y, int aqm)
 {
 	int cursor_x = 12;
-	cursor_x = draw_title(cursor_x, cursor_y, CAT_AQ_get_title_string(aqm));
-	uint16_t c = CAT_AQ_get_grade_colour(CAT_AQ_live_score_normalized(aqm));
+	cursor_x = draw_title(cursor_x, cursor_y, CAT_AQ_title_string(aqm));
+	uint16_t c = CAT_AQ_grade_colour(CAT_AQ_score(aqm));
 	if(aqm == CAT_AQM_TEMP)
-		cursor_x = draw_value(cursor_x, cursor_y, c, "%d", (int) CAT_AQ_map_celsius(CAT_AQ_live_score_raw(aqm)));
+		cursor_x = draw_value(cursor_x, cursor_y, c, "%d", (int) CAT_AQ_map_celsius(CAT_AQ_value(aqm)));
 	else
-		cursor_x = draw_value(cursor_x, cursor_y, c, "%d", (int) CAT_AQ_live_score_raw(aqm));
-	cursor_x = draw_unit(cursor_x, cursor_y, CAT_AQ_get_unit_string(aqm));
+		cursor_x = draw_value(cursor_x, cursor_y, c, "%d", (int) CAT_AQ_value(aqm));
+	cursor_x = draw_unit(cursor_x, cursor_y, CAT_AQ_unit_string(aqm));
 	cursor_y = draw_delta(cursor_x, cursor_y, aqm);
 	return cursor_y;
 }
@@ -124,7 +124,7 @@ void CAT_monitor_render_details()
 
 	float rebreathed = (((readings.sunrise.ppm_filtered_compensated)-420.)/38000.);
 	int cursor_x = 12;
-	uint16_t c = CAT_AQ_get_grade_colour(1.0f-rebreathed);
+	uint16_t c = CAT_AQ_grade_colour(1.0f-rebreathed);
 	cursor_x = draw_value(cursor_x, cursor_y, c, "%d%%", (int)(rebreathed * 100));
 	cursor_x = draw_title(cursor_x, cursor_y, "rebreathed");
 	cursor_y = draw_delta(cursor_x, cursor_y, CAT_AQM_CO2);

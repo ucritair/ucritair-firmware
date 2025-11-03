@@ -32,10 +32,10 @@ void CAT_monitor_render_summary()
 	cursor_y = underline(120, cursor_y, 1, CAT_WHITE, "Summary");
 	cursor_y += 48;
 
-	float score = CAT_AQ_live_score_normalized(CAT_AQM_AGGREGATE);
-	uint16_t colour = CAT_AQ_get_grade_colour(score);
+	float score = CAT_AQ_score(CAT_AQM_AGGREGATE);
+	uint16_t colour = CAT_AQ_grade_colour(score);
 	CAT_circberry(120, cursor_y, SCORE_R, colour);
-	const char* grade = CAT_AQ_get_grade_string(score);
+	const char* grade = CAT_AQ_grade_string(score);
 	cursor_y = center_textf(120 + ((strlen(grade) == 1) ? 0 : 4), cursor_y, 3, colour, "%s", grade);
 	cursor_y += 24;
 
@@ -44,23 +44,23 @@ void CAT_monitor_render_summary()
 
 	for(int i = 0; i < CAT_AQM_AGGREGATE; i++)
 	{
-		score = CAT_AQ_live_score_normalized(i);
-		colour = CAT_AQ_get_grade_colour(score);
+		score = CAT_AQ_score(i);
+		colour = CAT_AQ_grade_colour(score);
 
 		int x = BAR_MARGIN + (DOT_D + DOT_MARGIN) * i + DOT_D/2;
 		int y = cursor_y + DOT_D/2;
 		
-		vert_text(x, cursor_y+DOT_D+DOT_MARGIN, CAT_WHITE, CAT_AQ_get_title_string(i));
+		vert_text(x, cursor_y+DOT_D+DOT_MARGIN, CAT_WHITE, CAT_AQ_title_string(i));
 
 		CAT_circberry(x, y, DOT_D/2, colour);
 		CAT_set_text_colour(colour);
-		grade = CAT_AQ_get_grade_string(score);
-		CAT_draw_text(x - (strlen(grade) == 1 ? 4 : 6), y-6, CAT_AQ_get_grade_string(score));
+		grade = CAT_AQ_grade_string(score);
+		CAT_draw_text(x - (strlen(grade) == 1 ? 4 : 6), y-6, CAT_AQ_grade_string(score));
 
 		if(i == CAT_AQM_TEMP)
-			center_textf(x, y - 20 - DOT_MARGIN, 1, CAT_WHITE, "%d", (int) (CAT_AQ_map_celsius(CAT_AQ_live_score_raw(i))));
+			center_textf(x, y - 20 - DOT_MARGIN, 1, CAT_WHITE, "%d", (int) (CAT_AQ_map_celsius(CAT_AQ_value(i))));
 		else
-			center_textf(x, y - 20 - DOT_MARGIN, 1, CAT_WHITE, "%d", (int) (CAT_AQ_live_score_raw(i)));
+			center_textf(x, y - 20 - DOT_MARGIN, 1, CAT_WHITE, "%d", (int) (CAT_AQ_value(i)));
 	}
 }
 
