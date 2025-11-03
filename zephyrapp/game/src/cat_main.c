@@ -32,6 +32,7 @@
 #include "cat_colours.h"
 #include "cat_effects.h"
 #include "cat_persist.h"
+#include "cat_spriter.h"
 
 #ifdef CAT_EMBEDDED
 #include "menu_time.h"
@@ -123,11 +124,14 @@ void CAT_draw_eink_refresh_notice()
 
 void CAT_draw_splash()
 {
-	CAT_frameberry(CAT_WHITE);
+	/*CAT_frameberry(CAT_WHITE);
 	CAT_set_sprite_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
 	CAT_draw_sprite_raw(&ui_vxcon_logo, 0, CAT_LCD_SCREEN_W/2, CAT_LCD_SCREEN_H/2-32);
 	CAT_set_sprite_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
-	CAT_draw_sprite_raw(&ui_vxcon_text, 0, CAT_LCD_SCREEN_W/2, CAT_LCD_SCREEN_H/2+72);
+	CAT_draw_sprite_raw(&ui_vxcon_text, 0, CAT_LCD_SCREEN_W/2, CAT_LCD_SCREEN_H/2+72);*/
+
+	CAT_frameberry(CAT_BLACK);
+	CAT_draw_tinysprite(0, 0, &tnyspr_ucrit_splash, CAT_WHITE, CAT_BLACK);
 }
 
 void CAT_tick_render()

@@ -282,4 +282,5 @@ extern const CAT_tinysprite tnyspr_cloud_happy;
 extern const CAT_tinysprite tnyspr_cloud_sad;
 extern const CAT_tinysprite tnyspr_cloud_smoke;
 extern const CAT_tinysprite tnyspr_protected;
+extern const CAT_tinysprite tnyspr_ucrit_splash;
 

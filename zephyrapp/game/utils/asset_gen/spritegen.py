@@ -7,6 +7,7 @@ from dataclasses import dataclass
 import json
 from PIL import Image;
 from pathlib import Path;
+import math;
 
 json_file = open("sprites/sprites.json", "r+");
 json_data = json.load(json_file);
@@ -82,8 +83,10 @@ def OLV_write_epaper_sprites(fd):
 					px = texture[x, y];
 				except IndexError:
 					px = (255, 255, 255, 0);
-				px = int(px[:3] == (0, 0, 0) and px[3] != 0);
-				pixels.append(px);
+				lum = math.sqrt(px[0]*px[0] + px[1]*px[1] + px[2]*px[2]);
+				alph = px[3];
+				filled = lum < 128 and alph >= 128;
+				pixels.append(int(filled));
 
 		words = [];
 		while pixels:

@@ -98,6 +98,13 @@
             "width": 248,
             "height": 128,
             "stride": 248
+        },
+        {
+            "name": "ucrit_splash",
+            "path": "ui/ucrit_splash.png",
+            "width": 240,
+            "height": 320,
+            "stride": 240
         }
     ]
 }

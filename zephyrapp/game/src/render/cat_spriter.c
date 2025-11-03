@@ -501,7 +501,7 @@ void CAT_draw_tinysprite(int x, int y, const CAT_tinysprite* sprite, uint16_t fg
 		for(int dx = 0; dx < sprite->width; dx++)
 		{
 			bool px = tinysprite_read(sprite, dx, dy);
-			uint16_t c = px ? fg : bg;
+			uint16_t c = px ? fg : bg;	
 			if(c != CAT_TRANSPARENT)
 				CAT_pixberry(x+dx, y+dy, c);
 		}

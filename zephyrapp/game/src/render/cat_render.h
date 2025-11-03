@@ -41,7 +41,7 @@ typedef struct
 
 typedef struct
 {
-	uint8_t width, height, stride;
+	uint16_t width, height, stride;
 	uint8_t bytes[];
 } CAT_tinysprite;
 
