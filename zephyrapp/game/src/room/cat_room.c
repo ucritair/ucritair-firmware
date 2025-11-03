@@ -12,7 +12,7 @@
 #include "cat_deco.h"
 #include "cat_arcade.h"
 #include "theme_assets.h"
-#include "cat_aqi.h"
+#include "cat_air.h"
 #include "sprite_assets.h"
 #include "item_assets.h"
 #include "cat_crisis.h"
@@ -28,6 +28,7 @@
 #include "cat_feed.h"
 #include "cat_persist.h"
 #include "cat_time.h"
+#include "cat_spriter.h"
 
 //////////////////////////////////////////////////////////////////////////
 // THEME
@@ -631,15 +632,15 @@ void CAT_MS_room(CAT_FSM_signal signal)
 
 					if(CAT_AQ_aggregate_score() > 80)
 						CAT_enable_notice_type(CAT_NOTICE_TYPE_AQ_GOOD);
-					if(CAT_AQ_live_score_normalized(CAT_AQM_CO2) < 0.5)
+					if(CAT_AQ_score(CAT_AQM_CO2) < 0.5)
 						CAT_enable_notice_type(CAT_NOTICE_TYPE_CO2_BAD);
-					if(CAT_AQ_live_score_normalized(CAT_AQM_PM2_5) < 0.5)
+					if(CAT_AQ_score(CAT_AQM_PM2_5) < 0.5)
 						CAT_enable_notice_type(CAT_NOTICE_TYPE_PM_BAD);
-					if(CAT_AQ_live_score_normalized(CAT_AQM_NOX) < 0.5 || CAT_AQ_live_score_normalized(CAT_AQM_VOC) < 0.5)
+					if(CAT_AQ_score(CAT_AQM_NOX) < 0.5 || CAT_AQ_score(CAT_AQM_VOC) < 0.5)
 						CAT_enable_notice_type(CAT_NOTICE_TYPE_NOX_VOC_BAD);
-					if(CAT_AQ_live_score_normalized(CAT_AQM_TEMP) < 0.5)
+					if(CAT_AQ_score(CAT_AQM_TEMP) < 0.5)
 						CAT_enable_notice_type(CAT_NOTICE_TYPE_TEMP_BAD);
-					if(CAT_AQ_live_score_normalized(CAT_AQM_RH) < 0.5)
+					if(CAT_AQ_score(CAT_AQM_RH) < 0.5)
 						CAT_enable_notice_type(CAT_NOTICE_TYPE_RH_BAD);
 
 					if(datetime.hour >= 4 && datetime.hour < 11)

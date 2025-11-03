@@ -3,7 +3,7 @@
 #include "cat_core.h"
 #include "cat_render.h"
 #include "cat_gui.h"
-#include "cat_aqi.h"
+#include "cat_air.h"
 #include "cat_input.h"
 #include <math.h>
 #include "cat_monitor_graphics_utils.h"

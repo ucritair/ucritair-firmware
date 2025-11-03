@@ -41,6 +41,8 @@ target_sources(app PRIVATE
 	src/menu/menu_system.c
 )
 
+target_compile_options(app PRIVATE -fsingle-precision-constant -fno-strict-aliasing)
+
 target_include_directories(app PRIVATE src/ src/menu/)
 
 if(MINIMIZE_GAME_FOOTPRINT)

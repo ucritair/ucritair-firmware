@@ -8,10 +8,10 @@ fi
 source $ZEPHYR_BASE/../venv/bin/activate
 
 pip3 install --upgrade pip
-pip3 install pygame
 pip3 install pillow
 pip3 install PyOpenGL
 pip3 install glfw
 pip3 install imgui-bundle
 pip3 install playsound3
 pip3 install numpy
+pip3 install qrcode

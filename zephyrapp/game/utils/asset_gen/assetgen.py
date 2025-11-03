@@ -2,32 +2,6 @@ import json;
 from pathlib import Path;
 import copy;
 
-class Database:
-	def __init__(self):
-		self.bank = {};
-
-	def add_document(self, path):
-		path = Path(path);
-		file = open(path, "r");
-
-		data = json.load(file);
-		keys = data.keys();
-		type = next(k for k in keys if k != "instances");
-		instances = data["instances"];
-
-		self.bank[type] = {};
-		for instance in instances:
-			self.bank[type][instance["name"]] = instance;
-
-	def _search(self, node, path):
-		if path == []:
-			return node;
-		return self._search(node[path[0]], path[1:]);
-		
-	def search(self, path):
-		path = path.split("/");
-		return self._search(self.bank, path);
-
 class Triptych:
 	def __init__(self, path):
 		path = Path(path);
@@ -40,6 +14,7 @@ class Triptych:
 		self.type_name = next(k for k in json_data.keys() if k != "instances");
 		self.instances = copy.deepcopy(json_data["instances"]);
 		self.ctype_name = f"CAT_{self.type_name}";
+		self.code = json_data["code"] if "code" in json_data else None;
 		
 		self.header_path = self.parent_dir/Path(f"{self.type_name}_assets.h");
 		self.header_file = open(self.header_path, "w");
@@ -62,7 +37,8 @@ class Triptych:
 			self.hwrite(f"#include {dependency}\n");
 		self.hwrite();
 		for instance in self.instances:
-			self.hwrite(f"extern const {self.ctype_name} {instance["name"]};\n");
+			code_prefix = f"{self.code}_" if self.code != None else "";
+			self.hwrite(f"extern const {self.ctype_name} {code_prefix}{instance["name"]};\n");
 		self.hwrite();
 	
 	def swrite(self, string="\n", no_indent=False):

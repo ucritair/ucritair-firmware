@@ -1,7 +1,7 @@
 #pragma once
 
 #include <stdint.h>
-#include "cat_aqi.h"
+#include "cat_air.h"
 #include "cat_crisis.h"
 #include "cat_pet.h"
 

@@ -6,10 +6,6 @@ trp = assetgen.Triptych("data/scenes.json");
 trp.header_intro(["\"cat_scene.h\""]);
 trp.source_intro(["\"prop_assets.h\"", "\"cat_render.h\"", "\"sprite_assets.h\""]);
 
-bank = assetgen.Database();
-bank.add_document("data/props.json");
-bank.add_document("sprites/sprites.json");
-
 for instance in trp.instances:
 	trp.begin_asset_def(instance);
 

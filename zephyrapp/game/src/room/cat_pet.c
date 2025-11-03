@@ -10,7 +10,7 @@
 #include "cat_input.h"
 #include "cat_gui.h"
 #include <string.h>
-#include "cat_aqi.h"
+#include "cat_air.h"
 #include "sprite_assets.h"
 #include "cat_persist.h"
 #include "item_assets.h"

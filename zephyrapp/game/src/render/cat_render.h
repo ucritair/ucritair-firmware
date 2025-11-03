@@ -39,6 +39,12 @@ typedef struct
 	bool reverse;
 } CAT_sprite;
 
+typedef struct
+{
+	uint16_t width, height, stride;
+	uint8_t bytes[];
+} CAT_tinysprite;
+
 typedef enum
 {
 	CAT_DRAW_FLAG_NONE = 0,

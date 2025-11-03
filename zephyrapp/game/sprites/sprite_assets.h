@@ -271,3 +271,16 @@ extern const CAT_sprite ui_vxcon_text;
 
 extern const CAT_sprite* sprite_list[];
 #define CAT_SPRITE_LIST_LENGTH 264
+
+extern const CAT_tinysprite tnyspr_unicorn_default;
+extern const CAT_tinysprite tnyspr_unicorn_happy;
+extern const CAT_tinysprite tnyspr_unicorn_mask;
+extern const CAT_tinysprite tnyspr_unicorn_sad;
+extern const CAT_tinysprite tnyspr_unicorn_low_battery;
+extern const CAT_tinysprite tnyspr_cloud_default;
+extern const CAT_tinysprite tnyspr_cloud_happy;
+extern const CAT_tinysprite tnyspr_cloud_sad;
+extern const CAT_tinysprite tnyspr_cloud_smoke;
+extern const CAT_tinysprite tnyspr_protected;
+extern const CAT_tinysprite tnyspr_ucrit_splash;
+

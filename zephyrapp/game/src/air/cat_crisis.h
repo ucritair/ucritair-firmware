@@ -1,8 +1,8 @@
 #pragma once
 
-#include "stdbool.h"
+#include <stdbool.h>
 #include "cat_machine.h"
-#include "stdint.h"
+#include <stdint.h>
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // CRISIS

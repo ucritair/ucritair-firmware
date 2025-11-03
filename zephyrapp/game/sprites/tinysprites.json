@@ -1,0 +1,110 @@
+{
+    "tinysprite": {
+        "type": {
+            "name": {
+                "type": "string"
+            },
+            "path": {
+                "type": "*.png"
+            },
+            "width": {
+                "type": "int",
+                "attributes": [
+                    "read-only"
+                ]
+            },
+            "height": {
+                "type": "int",
+                "attributes": [
+                    "read-only"
+                ]
+            },
+            "stride": {
+                "type": "int",
+                "attributes": [
+                    "read-only"
+                ]
+            }
+        }
+    },
+    "code": "tnyspr",
+    "instances": [
+        {
+            "name": "unicorn_default",
+            "path": "eink/unicorn_default.png",
+            "width": 112,
+            "height": 73,
+            "stride": 112
+        },
+        {
+            "name": "unicorn_happy",
+            "path": "eink/unicorn_happy.png",
+            "width": 112,
+            "height": 73,
+            "stride": 112
+        },
+        {
+            "name": "unicorn_mask",
+            "path": "eink/unicorn_mask.png",
+            "width": 112,
+            "height": 73,
+            "stride": 112
+        },
+        {
+            "name": "unicorn_sad",
+            "path": "eink/unicorn_sad.png",
+            "width": 112,
+            "height": 73,
+            "stride": 112
+        },
+        {
+            "name": "unicorn_low_battery",
+            "path": "eink/unicorn_low_battery.png",
+            "width": 112,
+            "height": 73,
+            "stride": 112
+        },
+        {
+            "name": "cloud_default",
+            "path": "eink/cloud_default.png",
+            "width": 112,
+            "height": 50,
+            "stride": 112
+        },
+        {
+            "name": "cloud_happy",
+            "path": "eink/cloud_happy.png",
+            "width": 112,
+            "height": 50,
+            "stride": 112
+        },
+        {
+            "name": "cloud_sad",
+            "path": "eink/cloud_sad.png",
+            "width": 112,
+            "height": 50,
+            "stride": 112
+        },
+        {
+            "name": "cloud_smoke",
+            "path": "eink/cloud_smoke.png",
+            "width": 112,
+            "height": 50,
+            "stride": 112
+        },
+        {
+            "name": "protected",
+            "path": "eink/protected.png",
+            "width": 248,
+            "height": 128,
+            "stride": 248
+        },
+        {
+            "name": "ucrit_splash",
+            "path": "ui/ucrit_splash.png",
+            "width": 240,
+            "height": 320,
+            "stride": 240
+        }
+    ]
+}

@@ -3,19 +3,16 @@
 import os
 import os.path
 import sys
-import pygame
 from dataclasses import dataclass
 import json
 from PIL import Image;
 from pathlib import Path;
-
-pygame.init()
+import math;
 
 json_file = open("sprites/sprites.json", "r+");
 json_data = json.load(json_file);
-json_entries = json_data['instances'];
-
-for (i, sprite) in enumerate(json_entries):
+sprite_objects = json_data['instances'];
+for (i, sprite) in enumerate(sprite_objects):
 	# Ensure correct JSON
 	sprite['id'] = i;
 	sprite['frames'] = max(sprite['frames'], 1);
@@ -23,7 +20,21 @@ for (i, sprite) in enumerate(json_entries):
 	sprite['width'] = image.size[0];
 	sprite['height'] = image.size[1] // sprite['frames'];
 	image.close();
+json_file.seek(0);
+json_file.truncate();
+json_file.write(json.dumps(json_data, indent=4));
+json_file.close();
 
+json_file = open("sprites/tinysprites.json", "r+");
+json_data = json.load(json_file);
+tinysprite_objects = json_data['instances'];
+for (i, sprite) in enumerate(tinysprite_objects):
+	# Ensure correct JSON
+	image = Image.open(os.path.join("sprites", sprite['path']));
+	sprite['width'] = image.size[0];
+	sprite['height'] = image.size[1];
+	sprite['stride'] = image.size[0] + (image.size[0] % 8);
+	image.close();
 json_file.seek(0);
 json_file.truncate();
 json_file.write(json.dumps(json_data, indent=4));
@@ -36,160 +47,64 @@ with open("sprites/sprite_assets.h", "w") as fd:
 	fd.write("#include \"cat_render.h\"\n");
 	fd.write("#include \"cat_core.h\"\n");
 	fd.write("\n");
-	for (i, sprite) in enumerate(json_entries):
+
+	for (i, sprite) in enumerate(sprite_objects):
 		fd.write(f"extern const CAT_sprite {sprite['name']};\n");
 	fd.write("\n");
 	fd.write(f"extern const CAT_sprite* sprite_list[];\n");
-	fd.write(f"#define CAT_SPRITE_LIST_LENGTH {len(json_entries)}\n");
+	fd.write(f"#define CAT_SPRITE_LIST_LENGTH {len(sprite_objects)}\n");
+	fd.write("\n");
 
-def OLV_hex4(x):
-	h = hex(x)[2:]
-	h = (4-len(h))*'0' + h
-	return '0x' + h
-
-def OLV_hex2(x):
-	h = hex(x)[2:]
-	h = (2-len(h))*'0' + h
-	return '0x' + h
-
-def OLV_get_px(image, x, y):
-	r, g, b, a = image.get_at((x, y))
-	r = int(r * (1<<5) / (1<<8))
-	g = int(g * (1<<6) / (1<<8))
-	b = int(b * (1<<5) / (1<<8))
-
-	assert r < (1<<5)
-	assert g < (1<<6)
-	assert b < (1<<5)
-
-	word = r << (5+6) | g << 5 | b
-
-	assert word < (1<<16)
-
-	if "--noswap" not in sys.argv:
-		hi = word >> 8
-		lo = word & 0xff
-		word = (lo << 8) | hi
-
-	assert word != 0xdead
-
-	if a != 255:
-		word = 0xdead
-
-	return word
-
-rleword = 0xff
-
-def OLV_rledecode(data, width):
-	out = []
-
-	while data:
-		word = data.pop(0)
-		# print(hex4(word))
-		if word == rleword:
-			repeated = data.pop(0)
-			count = data.pop(0)
-			while count:
-				out.append(repeated)
-				count -= 1
-		else:
-			out.append(word)
-
-	return out
-
-def OLV_rleencode(data, width):
-	output = []
-	rleword = 0xff
-
-	last = None
-	run = 0
-
-	in_len = len(data)
-	in_bak = data[:]
-
-	data.append(None)
-
-	while data:
-		item = data.pop(0)
-
-		# print(item, last, run)
-
-		if item == rleword:
-			item = 0x00
-			print("!!")
-
-		if item == last:
-			run += 1
-
-			if run == 255:
-				output.extend([rleword, last, run])
-				run = 0
-		else:
-			if run < 4:
-				output.extend([last]*run)
-			else:
-				output.extend([rleword, last, run])
-
-			last = item
-			run = 1
-
-	assert OLV_rledecode(output[:], width) == in_bak
-
-	return output
+	for (i, sprite) in enumerate(tinysprite_objects):
+		fd.write(f"extern const CAT_tinysprite tnyspr_{sprite['name']};\n");
+	fd.write("\n");
 
 def OLV_write_epaper_sprites(fd):
-	fd.write("#ifdef CAT_EMBEDDED\n");
-	fd.write("\n")
-	einksize = 0
-	if '--noswap' not in sys.argv:
-		fd.write('#include "../../src/epaper_rendering.h"\n')
-		fd.write("\n")
-		eink_folder = Path("sprites/eink");
-		for path in eink_folder.iterdir():
-			if path.suffix != ".png":
-				continue;
+	einksize = 0;
 
-			texture = pygame.image.load(path);
-			width, height = texture.get_size();
-			padded_width = width + (width % 8);
-			compatible = (padded_width*height)%8 == 0;
-			if not compatible:
-				print(f"[ERROR] {path} not compatible!");
-				continue;
+	for sprite in tinysprite_objects:
+		texture = Image.open(os.path.join("sprites", sprite["path"])).convert("RGBA");
+		width, height = texture.width, texture.height;
+		padded_width = width + (width % 8);
+		compatible = (padded_width*height)%8 == 0;
+		if not compatible:
+			print(f"[ERROR] {path} not compatible!");
+			continue;
 
-			fd.write('struct epaper_image_asset epaper_image_'+path.stem+" = {\n");
-			fd.write(f'\t.w = {width}, .h = {height}, .stride = {padded_width},\n')
-			fd.write(f'\t.bytes = {{\n\t\t')
+		fd.write(f"const CAT_tinysprite tnyspr_{sprite['name']} = {{\n");
+		fd.write(f'\t.width = {width}, .height = {height}, .stride = {padded_width},\n');
+		fd.write(f'\t.bytes = {{\n\t\t');
 
-			pixels = []
-			for y in range(height):
-				for x in range(padded_width):
-					try:
-						px = texture.get_at((x, y))
-					except IndexError:
-						px = (255, 255, 255, 0)
-					# assert px[:3] in ((0, 0, 0), (255, 255, 255)), str(px)
-					px = int(px[:3] == (0, 0, 0) and px[3] != 0)
-					pixels.append(px)
+		texture = texture.load();
+		pixels = [];
+		for y in range(height):
+			for x in range(padded_width):
+				try:
+					px = texture[x, y];
+				except IndexError:
+					px = (255, 255, 255, 0);
+				lum = math.sqrt(px[0]*px[0] + px[1]*px[1] + px[2]*px[2]);
+				alph = px[3];
+				filled = lum < 128 and alph >= 128;
+				pixels.append(int(filled));
 
-			words = []
-			while pixels:
-				w = 0
-				for i in range(8):
-					w |= pixels.pop(0) << (7-i)
-				words.append(w)
+		words = [];
+		while pixels:
+			w = 0;
+			for i in range(8):
+				w |= pixels.pop(0) << (7-i);
+			words.append(w);
 
-			assert len(words) == (padded_width*height)//8
+		assert len(words) == (padded_width*height)//8;
 
-			einksize += len(words)+2
+		einksize += len(words)+2;
 
-			for i, w in enumerate(words):
-				fd.write(f'{OLV_hex2(w)}, ')
-				if (i%16 == 0) and (i != 0):
-					fd.write('\n\t\t')
+		for i, w in enumerate(words):
+			fd.write(f'{hex(w)}, ');
+			if (i%16 == 0) and (i != 0):
+				fd.write('\n\t\t');
 
-			fd.write('\n\t}\n};\n');
-	fd.write("#endif\n");
+		fd.write('\n\t}\n};\n');
 	fd.write("\n");
 
 def TOS_RGBA88882RGB565(c):
@@ -250,12 +165,10 @@ with open("sprites/sprite_assets.c", 'w') as fd:
 	fd.write("#include \"sprite_assets.h\"\n");
 	fd.write('\n');
 
-	OLV_write_epaper_sprites(fd);
-
 	path_map = {};
 	compression_ratio = 0;
 
-	for (i, sprite) in enumerate(json_entries):
+	for (i, sprite) in enumerate(sprite_objects):
 		path = sprite['path'];
 		if path in path_map:
 			continue;
@@ -308,7 +221,7 @@ with open("sprites/sprite_assets.c", 'w') as fd:
 		path_map[path] = i;
 		compression_ratio += raw_size / compressed_size;
 	
-	for (i, sprite) in enumerate(json_entries):
+	for (i, sprite) in enumerate(sprite_objects):
 		fd.write(f"const CAT_sprite {sprite['name']} =\n");
 		fd.write("{\n");
 		fd.write(f"\t.id = {sprite['id']},\n");
@@ -328,9 +241,11 @@ with open("sprites/sprite_assets.c", 'w') as fd:
 	
 	fd.write("const CAT_sprite* sprite_list[] =\n");
 	fd.write("{\n");
-	for (i, sprite) in enumerate(json_entries):
+	for (i, sprite) in enumerate(sprite_objects):
 		fd.write(f"\t&{sprite['name']},\n");
 	fd.write("};\n");
 	fd.write("\n");
+
+	OLV_write_epaper_sprites(fd);
 
 	print(f"Mean compression ratio: {compression_ratio / len(path_map):.2f}");

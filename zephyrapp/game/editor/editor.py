@@ -28,6 +28,7 @@ from ee_prop_editor import PropEditor;
 from ee_procs import ProcExplorer;
 from ee_dialogue import DialogueGraph;
 from ee_recipes import RecipeEditor;
+from ee_qrgen import QREncoder;
 
 #########################################################
 ## CONTEXT
@@ -1444,6 +1445,8 @@ while not glfw.window_should_close(handle):
 				DialogueGraph();
 			if imgui.menu_item_simple("Recipe Editor"):
 				RecipeEditor();
+			if imgui.menu_item_simple("QR Encoder"):
+				QREncoder();
 			imgui.end_menu();
 		imgui.end_main_menu_bar();
 	
@@ -1472,6 +1475,7 @@ while not glfw.window_should_close(handle):
 		PropEditor.render();
 	DialogueGraph.render();
 	RecipeEditor.render();
+	QREncoder.render();
 	
 	imgui.end();
 

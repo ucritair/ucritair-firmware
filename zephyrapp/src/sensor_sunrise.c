@@ -246,7 +246,7 @@ static void sunrise_dump_debug(void)
                 es.low_internal_regulator_voltage, es.measurement_timeout, es.abnormal_signal_level,
                 es.scale_factor_error);
     }   
-    return 0; 
+    return 0;
 }
 
 int sunrise_read(void)
