@@ -484,3 +484,26 @@ void CAT_draw_tile_alpha(const CAT_sprite* sprite, int frame_idx, int x, int y)
 		}
 	}
 }
+
+bool tinysprite_read(const CAT_tinysprite* sprite, int x, int y)
+{
+	int px_idx = (y * sprite->stride) + x;
+	int byte_idx = px_idx >> 3;
+	int bit_idx = px_idx & 0b111;
+	uint8_t byte = sprite->bytes[byte_idx];
+	return (byte >> (7-bit_idx)) & 1;
+}
+
+void CAT_draw_tinysprite(int x, int y, const CAT_tinysprite* sprite, uint16_t fg, uint16_t bg)
+{
+	for(int dy = 0; dy < sprite->height; dy++)
+	{
+		for(int dx = 0; dx < sprite->width; dx++)
+		{
+			bool px = tinysprite_read(sprite, dx, dy);
+			uint16_t c = px ? fg : bg;
+			if(c != CAT_TRANSPARENT)
+				CAT_pixberry(x+dx, y+dy, c);
+		}
+	}
+}
