@@ -485,8 +485,12 @@ void CAT_draw_tile_alpha(const CAT_sprite* sprite, int frame_idx, int x, int y)
 	}
 }
 
-bool tinysprite_read(const CAT_tinysprite* sprite, int x, int y)
+bool CAT_tinysprite_read(const CAT_tinysprite* sprite, int x, int y)
 {
+	if(x < 0 || x >= sprite->width)
+		return false;
+	if(y < 0 || y >= sprite->height)
+		return false;
 	int px_idx = (y * sprite->stride) + x;
 	int byte_idx = px_idx >> 3;
 	int bit_idx = px_idx & 0b111;
@@ -500,10 +504,30 @@ void CAT_draw_tinysprite(int x, int y, const CAT_tinysprite* sprite, uint16_t fg
 	{
 		for(int dx = 0; dx < sprite->width; dx++)
 		{
-			bool px = tinysprite_read(sprite, dx, dy);
+			bool px = CAT_tinysprite_read(sprite, dx, dy);
 			uint16_t c = px ? fg : bg;	
 			if(c != CAT_TRANSPARENT)
 				CAT_pixberry(x+dx, y+dy, c);
 		}
 	}
+}
+
+void CAT_draw_tinyglyph(int x, int y, char g, uint16_t c)
+{
+	for(int dy = 0; dy < 8; dy++)
+	{
+		for(int dx = 0; dx < 8; dx++)
+		{
+			bool px = CAT_tinysprite_read(&tnyspr_glyphs, dx, g * 8 + dy);
+			if(px)
+				CAT_pixberry(x+dx, y+dy, c);
+		}
+	}
+}
+
+void CAT_draw_tinystring(int x, int y, const char* s, uint16_t c)
+{
+	int n = strlen(s);
+	for(int i = 0; i < n; i++)
+		CAT_draw_tinyglyph(x + i * 8, y, s[i], c);
 }

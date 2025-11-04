@@ -61,7 +61,7 @@ static void selectable(char* text, menu_op_t op, void* arg)
 			op(arg);
 		}
 	}
-	window_y += 8;
+	window_y += 9;
 	curr_idx += 1;
 }
 

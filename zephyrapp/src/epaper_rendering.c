@@ -14,6 +14,7 @@
 #include "cat_air.h"
 #include "cat_gui.h"
 #include "sprite_assets.h"
+#include "cat_spriter.h"
 
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(epaper_rendering, LOG_LEVEL_DBG);
@@ -47,15 +48,14 @@ void write_px(uint8_t* image, int o_x, int o_y, bool val)
 	}
 }
 
-#include "font8x8_basic.h"
-
 void write_char(uint8_t* image, int x, int y, int scale, char c)
 {
 	for (int bx = 0; bx < 8; bx++)
 	{
 		for (int by = 0; by < 8; by++)
 		{
-			if (font8x8_basic[(int) c][by] & (1<<bx))
+			bool px = CAT_tinysprite_read(&tnyspr_glyphs, bx, c * 8 + by);
+			if (px)
 			{
 				for (int sx = 0; sx < scale; sx++)
 				{
@@ -187,7 +187,7 @@ void epaper_render_test()
 		fwrite_str(128, 64, 1, "Waiting for\nsensors...");
 	}
 
-	fwrite_str(0, EPD_IMAGE_H-8, 1, " %s LV%d", pet_name, pet_level+1);
+	fwrite_str(0, EPD_IMAGE_H-10, 1, " %s LV%d", pet_name, pet_level+1);
 
 	pc_set_mode(false);
 	if (is_persist_fresh || framebuffer_fast_update_count > 50)

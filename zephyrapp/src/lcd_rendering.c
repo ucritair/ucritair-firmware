@@ -26,9 +26,8 @@ LOG_MODULE_REGISTER(lcd_rendering, LOG_LEVEL_DBG);
 #include "cat_pet.h"
 #include "cat_room.h"
 #include "menu_system.h"
-
-
-extern char font8x8_basic[128][8];
+#include "cat_spriter.h"
+#include "sprite_assets.h"
 
 void lcd_write_char(uint16_t color, int x, int y, char c)
 {
@@ -38,7 +37,8 @@ void lcd_write_char(uint16_t color, int x, int y, char c)
 	{
 		for (int by = 0; by < 8; by++)
 		{
-			if (font8x8_basic[(int)c][by] & (1<<bx))
+			bool px = CAT_tinysprite_read(&tnyspr_glyphs, bx, c * 8 + by);
+			if (px)
 			{
 				const int scale = 1;
 
@@ -70,7 +70,7 @@ void lcd_write_str(uint16_t color, int x, int y, char* str)
 		if ((*str) == '\n')
 		{
 			x = ox;
-			y += 8;
+			y += 9;
 		}
 		str++;
 	}

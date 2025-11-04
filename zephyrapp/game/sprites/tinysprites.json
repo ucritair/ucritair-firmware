@@ -31,28 +31,28 @@
     "instances": [
         {
             "name": "unicorn_default",
-            "path": "eink/unicorn_default.png",
+            "path": "eink/canary_default.png",
             "width": 112,
             "height": 73,
             "stride": 112
         },
         {
             "name": "unicorn_happy",
-            "path": "eink/unicorn_happy.png",
+            "path": "eink/canary_happy.png",
             "width": 112,
             "height": 73,
             "stride": 112
         },
         {
             "name": "unicorn_mask",
-            "path": "eink/unicorn_mask.png",
+            "path": "eink/canary_mask.png",
             "width": 112,
             "height": 73,
             "stride": 112
         },
         {
             "name": "unicorn_sad",
-            "path": "eink/unicorn_sad.png",
+            "path": "eink/canary_sad.png",
             "width": 112,
             "height": 73,
             "stride": 112
@@ -66,28 +66,28 @@
         },
         {
             "name": "cloud_default",
-            "path": "eink/cloud_default.png",
+            "path": "eink/tree_default.png",
             "width": 112,
             "height": 50,
             "stride": 112
         },
         {
             "name": "cloud_happy",
-            "path": "eink/cloud_happy.png",
+            "path": "eink/tree_happy.png",
             "width": 112,
             "height": 50,
             "stride": 112
         },
         {
             "name": "cloud_sad",
-            "path": "eink/cloud_sad.png",
+            "path": "eink/tree_sad.png",
             "width": 112,
             "height": 50,
             "stride": 112
         },
         {
             "name": "cloud_smoke",
-            "path": "eink/cloud_smoke.png",
+            "path": "eink/tree_smoke.png",
             "width": 112,
             "height": 50,
             "stride": 112
@@ -105,6 +105,13 @@
             "width": 240,
             "height": 320,
             "stride": 240
+        },
+        {
+            "name": "glyphs",
+            "path": "ui/tinyglyphs.png",
+            "width": 8,
+            "height": 1024,
+            "stride": 8
         }
     ]
 }
