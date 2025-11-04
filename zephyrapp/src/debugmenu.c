@@ -45,7 +45,7 @@ extern bool in_debug_menu, show_fps;
 static void textc(char* text, uint16_t color)
 {
 	lcd_write_str(color, 0, window_y, text);
-	window_y += 8;
+	window_y += 9;
 }
 
 #define text(x) textc(x, 0xffff);
@@ -210,7 +210,7 @@ void menu_post()
 
 	for (int off_x = -8; off_x <= 8; off_x += 8)
 	{
-		for (int off_y = -8; off_y <= 8; off_y += 8)
+		for (int off_y = -8; off_y <= 8; off_y += 9)
 		{
 			lcd_write_char(0xff00, touch_mapped_x+off_x-16, touch_mapped_y+off_y-16, 'X');
 		}

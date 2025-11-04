@@ -74,12 +74,15 @@ void write_str(uint8_t* image, int x, int y, int scale, char* str)
 	int ox = x;
 	while (*str)
 	{
-		write_char(image, x, y, scale, *str);
-		x += 8*scale;
 		if ((*str) == '\n')
 		{
 			x = ox;
 			y += 8*scale;
+		}
+		else
+		{
+			write_char(image, x, y, scale, *str);
+			x += 8*scale;
 		}
 		str++;
 	}
