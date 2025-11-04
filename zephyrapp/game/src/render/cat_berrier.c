@@ -250,32 +250,44 @@ void CAT_circberry(int x, int y, int r, uint16_t c)
 // CATs when they eat a discberry
 void CAT_discberry(int x, int y, int r, uint16_t c)
 {
-	c = CAT_ADAPT_DESKTOP_COLOUR(c);
-	uint16_t* framebuffer = CAT_LCD_get_framebuffer();
-
-	y -= CAT_LCD_FRAMEBUFFER_OFFSET;
-	int yi = y - r;
-	int yf = y + r;
-	if (yi > CAT_LCD_FRAMEBUFFER_H || yf < 0)
+	int min_x = x-r;
+	int max_x = x+r;
+	int min_y = y-r - CAT_LCD_FRAMEBUFFER_OFFSET;
+	int max_y = y+r - CAT_LCD_FRAMEBUFFER_OFFSET;
+	if(min_x >= CAT_LCD_FRAMEBUFFER_W)
+		return;
+	if(max_x < 0)
+		return;
+	if(min_y >= CAT_LCD_FRAMEBUFFER_H)
+		return;
+	if(max_y < 0)
 		return;
 
-	for(int dy = -r; dy <= r; dy++)
+	int f = 1 - r;
+	int ddfx = 0;
+	int ddfy = -2 * r;
+	int dx = 0;
+	int dy = r;
+
+	CAT_lineberry(x-r, y, x+r, y, c);
+
+	while(dx < dy)
 	{
-		int y_w = y + dy;
-		if(y_w < 0 || y_w >= CAT_LCD_FRAMEBUFFER_H)
-			continue;
-
-		for(int dx = -r; dx <= r; dx++)
+		if(f >= 0)
 		{
-			int x_w = x + dx;
-			if(x_w < 0 || x_w >= CAT_LCD_FRAMEBUFFER_W)
-				continue;
-
-			int L = dx*dx+dy*dy;
-			int R = r*r;
-			if(L <= R)
-				framebuffer[y_w * CAT_LCD_FRAMEBUFFER_W + x_w] = c;
+			dy--;
+			ddfy += 2;
+			f += ddfy;
 		}
+
+		dx++;
+		ddfx += 2;
+		f += ddfx + 1;
+
+		CAT_lineberry(x - dx, y + dy, x + dx, y + dy, c);
+        CAT_lineberry(x - dx, y - dy, x + dx, y - dy, c);
+        CAT_lineberry(x - dy, y + dx, x + dy, y + dx, c);
+        CAT_lineberry(x - dy, y - dx, x + dy, y - dx, c);
 	}
 }
 

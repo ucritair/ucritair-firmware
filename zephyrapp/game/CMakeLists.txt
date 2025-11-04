@@ -202,6 +202,8 @@ target_sources(app PRIVATE
 
 	src/crafting/cat_crafting.c
 
+	src/comms/cat_chat.c
+
 	sounds/sound_assets.c
 	meshes/mesh_assets.c
 	meshes/mesh2d_assets.c
