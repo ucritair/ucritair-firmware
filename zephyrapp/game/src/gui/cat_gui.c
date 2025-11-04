@@ -206,158 +206,213 @@ static const char** typecases[] =
 	}
 };
 
-static struct 
-{
-	bool open;
-	char* target;
+static char* keyb_target = NULL;
+static char keyb_buffer[CAT_TEXT_INPUT_MAX_LENGTH];
+static int keyb_cursor;
+static enum {KEYB_KEYS, KEYB_BUTTONS} keyb_section;
 
-	char buffer[32];
-	int cursor;
-	
-	bool show_cursor;
-	float cursor_timer;
+static int keyb_case;
+static int keyb_row;
+static int keyb_glyph;
 
-	int case_idx;
-	int row_idx;
-	int glyph_idx;
-} keyboard = 
+static void keyb_save_proc()
 {
-	.open = false,
-	.target = NULL,
-	.cursor = 0,
-	.show_cursor = true,
-	.cursor_timer = 0.0f,
-	.case_idx = 0,
-	.row_idx = 0,
-	.glyph_idx = 0
+	strncpy(keyb_target, keyb_buffer, CAT_TEXT_INPUT_MAX_LENGTH);
+	keyb_target = NULL;
+}
+
+static void keyb_quit_proc()
+{
+	keyb_target = NULL;
+}
+
+static struct
+{
+	const char* title;
+	void (*proc)();
+} keyb_buttons[] =
+{
+	{
+		.title = "SAVE",
+		.proc = keyb_save_proc
+	},
+	{
+		.title = "CANCEL",
+		.proc = keyb_quit_proc
+	}
 };
+#define KEYB_BUTTON_COUNT (sizeof(keyb_buttons)/sizeof(keyb_buttons[0]))
+static int keyb_button;
+
+static bool keyb_show_cursor;
+static int keyb_cursor_frame;
 
 void CAT_gui_open_keyboard(char* target)
 {
-	if(keyboard.open)
+	if(keyb_target != NULL)
 		return;
 
-	keyboard.open = true;
-	keyboard.target = target;
+	keyb_target = target;
+
 	int length = strlen(target);
-	strncpy(keyboard.buffer, target, 32);
-	keyboard.cursor = length;
-	keyboard.case_idx = 0;
-	keyboard.row_idx = 0;
-	keyboard.glyph_idx = 0;
+	strncpy(keyb_buffer, target, CAT_TEXT_INPUT_MAX_LENGTH);
+	keyb_cursor = length;
+	keyb_section = KEYB_KEYS;
+
+	keyb_case = 0;
+	keyb_row = 0;
+	keyb_glyph = 0;
+
+	keyb_button = 0;
+
+	keyb_show_cursor = true;
+	keyb_cursor_frame = 0;
 
 	CAT_input_clear();
 }
 
-static void gui_close_keyboard()
-{
-	keyboard.open = false;
-}
-
 bool CAT_gui_keyboard_is_open()
 {
-	return keyboard.open;
+	return keyb_target != NULL;
 }
 
 void CAT_gui_keyboard_logic()
 {
-	if(CAT_input_pressed(CAT_BUTTON_B))
-		gui_close_keyboard();
-	
-	const char** typecase = typecases[keyboard.case_idx];
-	if(CAT_input_pulse(CAT_BUTTON_UP))
-		keyboard.row_idx -= 1;
-	if(CAT_input_pulse(CAT_BUTTON_DOWN))
-		keyboard.row_idx += 1;
-	keyboard.row_idx = CAT_clamp(keyboard.row_idx, 0, 4);
-
-	if(keyboard.row_idx >= 4)
+	if(keyb_section == KEYB_KEYS)
 	{
+		const char** typecase = typecases[keyb_case];
+
+		if(CAT_input_pulse(CAT_BUTTON_UP))
+			keyb_row -= 1;
+		if(CAT_input_pulse(CAT_BUTTON_DOWN))
+		{
+			if(keyb_row >= 3)
+				keyb_section = KEYB_BUTTONS;
+			else
+				keyb_row += 1;
+		}
+		keyb_row = CAT_clamp(keyb_row, 0, 3);
+		const char* row = typecase[keyb_row];
+
+		if(CAT_input_pulse(CAT_BUTTON_RIGHT))
+			keyb_glyph += 1;
+		if(CAT_input_pulse(CAT_BUTTON_LEFT))
+			keyb_glyph -= 1;
+		keyb_glyph = CAT_clamp(keyb_glyph, 0, strlen(row)-1);
+		char glyph = row[keyb_glyph];
+
 		if(CAT_input_pressed(CAT_BUTTON_A))
 		{
-			if(keyboard.target != NULL)
+			switch (glyph)
 			{
-				strcpy(keyboard.target, keyboard.buffer);
-			}
-			gui_close_keyboard();
+				case 6:
+				{
+					keyb_cursor = CAT_max(keyb_cursor-1, 0);
+					keyb_show_cursor = true;
+					keyb_cursor_frame = 0;
+				}
+				break;
+
+				case 8:
+				{
+					keyb_case = (keyb_case+1)%2;
+				}
+				break;
+
+				default:
+				{
+					if(keyb_cursor < CAT_TEXT_INPUT_MAX_LENGTH-1)
+					{
+						glyph = (glyph == '_') ? ' ' : glyph;
+						keyb_buffer[keyb_cursor] = glyph;
+						keyb_cursor += 1;
+					}
+				}
+				break;
+			}	
 		}
-		return;
-	}
-
-	const char* row = typecase[keyboard.row_idx];
-	if(CAT_input_pulse(CAT_BUTTON_RIGHT))
-		keyboard.glyph_idx += 1;
-	if(CAT_input_pulse(CAT_BUTTON_LEFT))
-		keyboard.glyph_idx -= 1;
-	keyboard.glyph_idx = CAT_clamp(keyboard.glyph_idx, 0, strlen(row)-1);
-
-	if(CAT_input_pressed(CAT_BUTTON_A))
-	{
-		char glyph = row[keyboard.glyph_idx];
-		if(glyph == 6)
+		else if(CAT_input_pressed(CAT_BUTTON_B))
 		{
-			if(keyboard.cursor > 0)
-			{
-				keyboard.cursor -= 1;
-				keyboard.show_cursor = true;
-				keyboard.cursor_timer = 0;
-			}
+			keyb_cursor = CAT_max(keyb_cursor-1, 0);
+			keyb_show_cursor = true;
+			keyb_cursor_frame = 0;
 		}
-		else if(glyph == 8)
-			keyboard.case_idx = !keyboard.case_idx;
-		else 
+		else if(CAT_input_pressed(CAT_BUTTON_SELECT))
 		{
-			glyph = (glyph == '_') ? ' ' : glyph;
-			if(keyboard.cursor < CAT_TEXT_INPUT_MAX_LENGTH)
-			{
-				keyboard.buffer[keyboard.cursor] = glyph;
-				keyboard.cursor += 1;
-			}
+			keyb_case = (keyb_case+1)%2;
 		}
-		keyboard.buffer[keyboard.cursor] = '\0';
-	}
 
-	keyboard.cursor_timer += CAT_get_delta_time_s();
-	if(keyboard.cursor_timer >= 0.5f)
+		keyb_buffer[keyb_cursor] = '\0';
+	}
+	else if(keyb_section == KEYB_BUTTONS)
 	{
-		keyboard.cursor_timer = 0.0f;
-		keyboard.show_cursor = !keyboard.show_cursor;
+		if(CAT_input_pressed(CAT_BUTTON_UP))
+			keyb_section = KEYB_KEYS;
+
+		if(CAT_input_pressed(CAT_BUTTON_LEFT))
+			keyb_button -= 1;
+		if(CAT_input_pressed(CAT_BUTTON_RIGHT))
+			keyb_button += 1;
+		keyb_button = CAT_wrap(keyb_button, KEYB_BUTTON_COUNT);
+
+		if(CAT_input_pressed(CAT_BUTTON_A) || CAT_input_pressed(CAT_BUTTON_B))
+			keyb_buttons[keyb_button].proc();
+	}
+	
+	keyb_cursor_frame += 1;
+	if(keyb_cursor_frame >= 4)
+	{
+		keyb_show_cursor = !keyb_show_cursor;
+		keyb_cursor_frame = 0;
 	}
 }
 
+#define KEYB_Y0 (CAT_LCD_SCREEN_H/2)
+#define KEYB_Y1 (CAT_LCD_SCREEN_H-1)
+#define KEYB_PAD 4
+
 void CAT_gui_keyboard()
-{	
-	CAT_gui_panel((CAT_ivec2){0, 10}, (CAT_ivec2){15, 10});
-	CAT_lineberry(0, 160, CAT_LCD_SCREEN_W, 160, 0x0000);
-	CAT_gui_text(keyboard.buffer);
-	if(keyboard.show_cursor)
-		CAT_gui_text("|");
-	gui.cursor.y -= 4;
-	CAT_gui_div("");
+{
+	CAT_rowberry(KEYB_Y0, KEYB_Y1, CAT_WHITE);
+	CAT_lineberry(0, KEYB_Y0, CAT_LCD_SCREEN_W, KEYB_Y0, CAT_BLACK);
+	int cursor_y = KEYB_Y0 + KEYB_PAD;
 
-	int x_w = gui.margin * 2;
-	int y_w = gui.cursor.y;
+	CAT_draw_textf(KEYB_PAD, cursor_y, "%s%s", keyb_buffer, keyb_show_cursor ? "|" : "");
+	cursor_y += CAT_GLYPH_HEIGHT + KEYB_PAD;
 
-	const char** typecase = typecases[keyboard.case_idx];
+	CAT_lineberry(0, cursor_y, CAT_LCD_SCREEN_W, cursor_y, CAT_BLACK);
+	cursor_y += KEYB_PAD*2;
+
+	int cursor_x = KEYB_PAD * 2;
+	const char** typecase = typecases[keyb_case];
 	for(int i = 0; i < 4; i++)
 	{
 		const char* row = typecase[i];
 		for(int j = 0; j < strlen(row); j++)
 		{
 			char glyph = row[j];
-			CAT_draw_sprite(&glyph_sprite, glyph, x_w + 2, y_w + 3);
-			if(i == keyboard.row_idx && j == keyboard.glyph_idx)
-				CAT_strokeberry(x_w, y_w, CAT_GLYPH_WIDTH + 4, CAT_GLYPH_HEIGHT + 6, 0);
-			x_w += CAT_GLYPH_WIDTH + 8;
+			CAT_draw_sprite(&glyph_sprite, glyph, cursor_x + 2, cursor_y + 3);
+			if(i == keyb_row && j == keyb_glyph && keyb_section == KEYB_KEYS)
+				CAT_strokeberry(cursor_x, cursor_y, CAT_GLYPH_WIDTH + 4, CAT_GLYPH_HEIGHT + 6, 0);
+			cursor_x += CAT_GLYPH_WIDTH + 8;
 		}
-		y_w += CAT_GLYPH_HEIGHT + 8;
-		x_w = gui.margin * 2;
+		cursor_y += CAT_GLYPH_HEIGHT + 8;
+		cursor_x = gui.margin * 2;
 	}
-	
-	gui.cursor = (CAT_ivec2){x_w, y_w + 2};
-	CAT_gui_text("SAVE");
-	if(keyboard.row_idx >= 4)
-		CAT_strokeberry(x_w - 2, y_w, 4 * CAT_GLYPH_WIDTH + 4, CAT_GLYPH_HEIGHT + 4, 0x0000);
+	cursor_y += KEYB_PAD;
+
+	for(int i = 0; i < KEYB_BUTTON_COUNT; i++)
+	{
+		int x = cursor_x - KEYB_PAD/2;
+		int y = cursor_y - KEYB_PAD/2;
+		int w = strlen(keyb_buttons[i].title) * CAT_GLYPH_WIDTH + KEYB_PAD;
+		int h = CAT_GLYPH_HEIGHT + KEYB_PAD;
+
+		CAT_draw_text(cursor_x, cursor_y, keyb_buttons[i].title);
+		if(keyb_section == KEYB_BUTTONS && keyb_button == i)
+			CAT_strokeberry(x, y, w, h, CAT_BLACK);
+		cursor_x += w + KEYB_PAD;
+	}
 }
 
 
@@ -680,7 +735,7 @@ int CAT_gui_menu_ticker(const char* title, int value, int min, int max)
 	menu_add_child(idx);
 	menu_node* node = &menu_table[idx];
 
-	if(first_call || node->ticker_data.value != value && !node->ticker_data.changed)
+	if(first_call || (node->ticker_data.value != value && !node->ticker_data.changed))
 		node->ticker_data.value = value;
 	node->ticker_data.min = min;
 	node->ticker_data.max = max;
