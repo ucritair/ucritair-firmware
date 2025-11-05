@@ -10,5 +10,7 @@ typedef struct
 	uint64_t timestamp;
 } CAT_chat_msg;
 
+void CAT_send_chat_msg(char* sender, char* text);
+
 void CAT_MS_chat(CAT_FSM_signal signal);
 void CAT_draw_chat();

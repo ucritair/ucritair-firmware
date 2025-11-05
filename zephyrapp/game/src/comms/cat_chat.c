@@ -31,60 +31,53 @@ static CAT_chat_msg* fetch_msg(int idx)
 	return &in[CAT_wrap(in_rhead+idx, IN_CAPACITY)];
 }
 
+static CAT_chat_msg out;
+
+void CAT_send_chat_msg(char* sender, char* text)
+{
+	out.timestamp = CAT_get_RTC_now();
+	strncpy(out.sender, sender, sizeof(out.sender));
+	strncpy(out.text, text, sizeof(out.text));
+	push_msg(&out);
+}
+
 
 //////////////////////////////////////////////////////////////////////////
 // OUTBOX
 
-static CAT_chat_msg out;
-
-static bool is_out_ready()
-{
-	return out.text != NULL && strlen(out.text) > 0;
-}
-
-static void push_out()
-{
-	strncpy(out.sender, "Me", sizeof(out.sender));
-	out.timestamp = CAT_get_RTC_now();
-	push_msg(&out);
-	memset(&out, 0, sizeof(CAT_chat_msg));
-}
+static char user_buffer[128];
 
 
 //////////////////////////////////////////////////////////////////////////
-// SYSTEM PROCESS
+// SYSTEM
 
-static CAT_chat_msg sysout;
-static CAT_timed_latch sysout_latch = CAT_TIMED_LATCH_INIT(CAT_MINUTE_SECONDS*5);
+static char sys_buffer[128];
+
+static CAT_timed_latch sys_latch = CAT_TIMED_LATCH_INIT(5);
 
 static void sysout_init()
 {
-	strncpy(sysout.sender, "SYSTEM", sizeof(sysout.sender));
-	strncpy(sysout.text, "\0", sizeof(sysout.text));
-	sysout.timestamp = CAT_get_RTC_now();
-
-	CAT_timed_latch_reset(&sysout_latch);
-	CAT_timed_latch_raise(&sysout_latch);
+	CAT_timed_latch_reset(&sys_latch);
+	CAT_timed_latch_raise(&sys_latch);
 }
 
 static void sysout_tick()
 {
-	CAT_timed_latch_tick(&sysout_latch);
+	CAT_timed_latch_tick(&sys_latch);
 
-	if(!CAT_timed_latch_get(&sysout_latch) && CAT_timed_latch_flipped(&sysout_latch))
+	if(!CAT_timed_latch_get(&sys_latch) && CAT_timed_latch_flipped(&sys_latch))
 	{
-		sysout.timestamp = CAT_get_RTC_now();
 		CAT_datetime datetime;
-		CAT_make_datetime(sysout.timestamp, &datetime);
+		CAT_get_datetime(&datetime);
 		snprintf
 		(
-			sysout.text, sizeof(sysout.text),
+			sys_buffer, sizeof(sys_buffer),
 			"%.2d/%.2d/%.4d %.2d:%.2d:%.2d",
 			datetime.day, datetime.month, datetime.year,
 			datetime.hour, datetime.minute, datetime.second
 		);
-		push_msg(&sysout);
-		CAT_timed_latch_raise(&sysout_latch);
+		CAT_send_chat_msg("SYSTEM", sys_buffer);
+		CAT_timed_latch_raise(&sys_latch);
 	}
 }
 
@@ -114,11 +107,14 @@ void CAT_MS_chat(CAT_FSM_signal signal)
 			}
 			else
 			{
-				if(is_out_ready())
-					push_out();
+				if(strlen(user_buffer) > 0)
+				{
+					CAT_send_chat_msg("Me", user_buffer);
+					user_buffer[0] = '\0';
+				}
 
 				if(CAT_input_pressed(CAT_BUTTON_A))
-					CAT_gui_open_keyboard(&out.text);
+					CAT_gui_open_keyboard(user_buffer);
 
 				if(CAT_input_pressed(CAT_BUTTON_B))
 					CAT_gui_open_popup("Quit chat?", CAT_POPUP_STYLE_YES_NO);
