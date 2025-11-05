@@ -7,10 +7,10 @@
 #include "cat_curves.h"
 #include "cat_colours.h"
 #include "cat_input.h"
-#include "cat_concepts.h"
 #include "cat_poly.h"
 #include "cat_gizmos.h"
 #include "cat_air.h"
+#include "cat_math.h"
 
 static void draw_tutorial();
 static void MS_tutorial(CAT_FSM_signal);

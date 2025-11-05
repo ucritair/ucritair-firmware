@@ -1,7 +1,7 @@
 #pragma once
 
 #include <stdint.h>
-#include "cat_concepts.h"
+#include "cat_math.h"
 
 void CAT_draw_regular_polygon(int n, int x, int y, int r, float t, uint16_t c);
 void CAT_draw_arrow(int x, int y, int w, int h, CAT_orientation d, uint16_t c);

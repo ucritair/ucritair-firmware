@@ -6,6 +6,127 @@
 #include "cat_input.h"
 #include "math.h"
 
+typedef struct CAT_mat4
+{
+	float data[16];
+} CAT_mat4;
+
+typedef struct CAT_vec4
+{
+	float x;
+	float y;
+	float z;
+	float w;
+} CAT_vec4;
+
+CAT_vec4 CAT_matvec_mul(CAT_mat4 M, CAT_vec4 v);
+void CAT_perspdiv(CAT_vec4* v);
+CAT_vec4 CAT_vec4_cross(CAT_vec4 u, CAT_vec4 v);
+float CAT_vec4_dot(CAT_vec4 u, CAT_vec4 v);
+CAT_vec4 CAT_vec4_sub(CAT_vec4 u, CAT_vec4 v);
+CAT_vec4 CAT_vec4_normalize(CAT_vec4 v);
+CAT_mat4 CAT_matmul(CAT_mat4 A, CAT_mat4 B);
+CAT_mat4 CAT_rotmat(float x, float y, float z);
+bool CAT_is_clipped(CAT_vec4 v);
+
+CAT_vec4 CAT_matvec_mul(CAT_mat4 M, CAT_vec4 v)
+{
+	return (CAT_vec4)
+	{
+		M.data[0] * v.x + M.data[1] * v.y + M.data[2] * v.z + M.data[3] * v.w,
+		M.data[4] * v.x + M.data[5] * v.y + M.data[6] * v.z + M.data[7] * v.w,
+		M.data[8] * v.x + M.data[9] * v.y + M.data[10] * v.z + M.data[11] * v.w,
+		M.data[12] * v.x + M.data[13] * v.y + M.data[14] * v.z + M.data[15] * v.w
+	};
+}
+
+void CAT_perspdiv(CAT_vec4* v)
+{
+	v->x /= v->w;
+	v->y /= v->w;
+	v->z /= v->w;
+	v->w /= v->w;
+}
+
+CAT_vec4 CAT_vec4_cross(CAT_vec4 u, CAT_vec4 v)
+{
+	return (CAT_vec4) {u.y * v.z - u.z * v.y, u.z * v.x - u.x * v.z, u.x * v.y - u.y * v.x, 0.0f};
+}
+
+float CAT_vec4_dot(CAT_vec4 u, CAT_vec4 v)
+{
+	return u.x * v.x + u.y * v.y + u.z * v.z + u.w * v.w;
+}
+
+CAT_vec4 CAT_vec4_sub(CAT_vec4 u, CAT_vec4 v)
+{
+	return (CAT_vec4) {u.x - v.x, u.y - v.y, u.z - v.z, u.w - v.w};
+}
+
+CAT_vec4 CAT_vec4_normalize(CAT_vec4 v)
+{
+	float len = sqrtf(v.x * v.x + v.y * v.y + v.z * v.z + v.w * v.w);
+	float s = 1.0f / len;
+	return (CAT_vec4) {v.x * s, v.y * s, v.z * s, v.w * s};
+}
+
+CAT_mat4 CAT_matmul(CAT_mat4 A, CAT_mat4 B)
+{
+	CAT_mat4 C;
+	for(int i = 0; i < 4; i++)
+	{
+		for(int j = 0; j < 4; j++)
+		{
+			C.data[i * 4 + j] =
+			A.data[i * 4 + 0] * B.data[0 * 4 + j] +
+			A.data[i * 4 + 1] * B.data[1 * 4 + j] +
+			A.data[i * 4 + 2] * B.data[2 * 4 + j] +
+			A.data[i * 4 + 3] * B.data[3 * 4 + j];
+		}
+	}
+	return C;
+}
+
+CAT_mat4 CAT_rotmat(float x, float y, float z)
+{
+	CAT_mat4 X =
+	{
+		1, 0, 0, 0,
+		0, cosf(x), -sinf(x), 0,
+		0, sinf(x), cosf(x), 0,
+		0, 0, 0, 1
+	};
+
+	CAT_mat4 Y =
+	{
+		cosf(y), 0, sinf(y), 0,
+		0, 1, 0, 0,
+		-sinf(y), 0, cosf(y), 0,
+		0, 0, 0, 1
+	};
+
+	CAT_mat4 Z =
+	{
+		cosf(z), -sinf(z), 0, 0,
+		sinf(z), cosf(z), 0, 0,
+		0, 0, 1, 0,
+		0, 0, 0, 1
+	};
+
+	return CAT_matmul(Z, CAT_matmul(Y, X));
+}
+
+bool CAT_is_clipped(CAT_vec4 v)
+{
+	if(v.x < -v.w || v.x > v.w)
+		return true;
+	if(v.y < -v.w || v.y > v.w)
+		return true;
+	if(v.z < 0 || v.z > v.w)
+		return true;
+	return false;
+}
+
 CAT_mesh* mesh;
 
 CAT_vec4 eye;

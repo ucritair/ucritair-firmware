@@ -37,26 +37,6 @@ void interact_proc_arcade(CAT_prop_instance* prop)
 	CAT_enter_dialogue(&dialogue_arcade_default);
 }
 
-CAT_item_pool item_pool = (CAT_item_pool)
-{
-	.entries = (struct item_pool_entry[])
-	{
-		{
-			.item_id = fish_grade_0_item,
-			.weight = 1
-		},
-		{
-			.item_id = fish_grade_1_item,
-			.weight = 2
-		},
-		{
-			.item_id = fish_grade_2_item,
-			.weight = 3
-		},
-	},
-	.entry_count = 3,
-};
-
 void proc_collect_resource(CAT_prop_instance* prop)
 {
 	if(prop->prop == &node_grass_prop)

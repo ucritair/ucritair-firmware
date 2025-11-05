@@ -39,6 +39,14 @@ float lerp(float a, float b, float t);
 float inv_lerp(float t, float a, float b);
 int quantize(float t, float range, int steps);
 
+typedef enum
+{
+	CAT_ORIENTATION_EAST,
+	CAT_ORIENTATION_NORTH,
+	CAT_ORIENTATION_WEST,
+	CAT_ORIENTATION_SOUTH
+} CAT_orientation;
+
 
 //////////////////////////////////////////////////////////////////////////
 // RANDOM
@@ -97,33 +105,6 @@ static inline CAT_vec2 CAT_iv2v(CAT_ivec2 a)
 {
 	return (CAT_vec2) {a.x, a.y};
 }
-
-
-//////////////////////////////////////////////////////////////////////////
-// POLYGON RENDERING
-
-typedef struct CAT_mat4
-{
-	float data[16];
-} CAT_mat4;
-
-typedef struct CAT_vec4
-{
-	float x;
-	float y;
-	float z;
-	float w;
-} CAT_vec4;
-
-CAT_vec4 CAT_matvec_mul(CAT_mat4 M, CAT_vec4 v);
-void CAT_perspdiv(CAT_vec4* v);
-CAT_vec4 CAT_vec4_cross(CAT_vec4 u, CAT_vec4 v);
-float CAT_vec4_dot(CAT_vec4 u, CAT_vec4 v);
-CAT_vec4 CAT_vec4_sub(CAT_vec4 u, CAT_vec4 v);
-CAT_vec4 CAT_vec4_normalize(CAT_vec4 v);
-CAT_mat4 CAT_matmul(CAT_mat4 A, CAT_mat4 B);
-CAT_mat4 CAT_rotmat(float x, float y, float z);
-bool CAT_is_clipped(CAT_vec4 v);
 
 
 //////////////////////////////////////////////////////////////////////////
