@@ -32,6 +32,7 @@ LOG_MODULE_REGISTER(sample, LOG_LEVEL_INF);
 #include "rtc.h"
 #include "buttons.h"
 #include "batt.h"
+#include "rp2350_ipc.h"
 
 int main(void)
 {
@@ -87,6 +88,20 @@ int main(void)
 
 	test_flash();
 	continue_rtc_from_log();
+
+	// Initialize RP2350 IPC
+	LOG_INF("Initializing RP2350 IPC...");
+	rp2350_ipc_init();
+	k_msleep(100); // Give RP2350 time to boot
+
+	// Query firmware version
+	uint8_t fw_major, fw_minor;
+	uint16_t fw_patch;
+	if (rp2350_query_firmware_version(&fw_major, &fw_minor, &fw_patch, 5000)) {
+		LOG_INF("RP2350 Firmware: v%u.%u.%u", fw_major, fw_minor, fw_patch);
+	} else {
+		LOG_ERR("Failed to query RP2350 firmware version");
+	}
 
 	if (wakeup_is_from_timer)
 	{
