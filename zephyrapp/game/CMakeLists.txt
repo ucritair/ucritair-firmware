@@ -237,6 +237,7 @@ target_include_directories(app PRIVATE src/world)
 target_include_directories(app PRIVATE src/procs)
 target_include_directories(app PRIVATE src/crafting)
 target_include_directories(app PRIVATE src/feeding)
+target_include_directories(app PRIVATE src/comms)
 
 target_include_directories(app PRIVATE sounds/)
 target_include_directories(app PRIVATE meshes/)

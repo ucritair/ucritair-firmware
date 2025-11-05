@@ -20,6 +20,7 @@
 #include "cat_world.h"
 #include "cat_effects.h"
 #include "cat_persist.h"
+#include "cat_chat.h"
 
 #ifdef CAT_EMBEDDED
 #include "menu_system.h"
@@ -66,6 +67,7 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 					
 				if(CAT_gui_menu_item("MAGIC"))
 					CAT_pushdown_push(CAT_MS_magic);
+
 				if(CAT_check_config_flags(CAT_SAVE_CONFIG_FLAG_DEVELOPER))
 				{
 					if(CAT_gui_begin_menu("DEVELOPER"))
@@ -86,6 +88,10 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 						CAT_gui_end_menu();
 					}				
 				}
+
+				if(CAT_gui_menu_item("CHAT"))
+					CAT_pushdown_push(CAT_MS_chat);
+
 				if(CAT_gui_begin_menu("SETTINGS"))
 				{
 					if(CAT_gui_begin_menu("GAMEPLAY"))
