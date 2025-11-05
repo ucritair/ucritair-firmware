@@ -193,12 +193,14 @@ void CAT_gui_title(bool tabs, const char* fmt, ...)
 static const char** typecases[] = 
 {
 	(const char*[]) {
+		"-+*/(),.?!:",
 		"0123456789\x06",
 		"QWERTYUIOP",
 		"ASDFGHJKL",
 		"ZXCVBNM_\x08"
 	},
 	(const char*[]) {
+		"-+*/(),.?!:",
 		"0123456789\x06",
 		"qwertyuiop",
 		"asdfghjkl",
@@ -286,12 +288,12 @@ void CAT_gui_keyboard_logic()
 			keyb_row -= 1;
 		if(CAT_input_pulse(CAT_BUTTON_DOWN))
 		{
-			if(keyb_row >= 3)
+			if(keyb_row >= 4)
 				keyb_section = KEYB_BUTTONS;
 			else
 				keyb_row += 1;
 		}
-		keyb_row = CAT_clamp(keyb_row, 0, 3);
+		keyb_row = CAT_clamp(keyb_row, 0, 4);
 		const char* row = typecase[keyb_row];
 
 		if(CAT_input_pulse(CAT_BUTTON_RIGHT))
@@ -333,9 +335,17 @@ void CAT_gui_keyboard_logic()
 		}
 		else if(CAT_input_pressed(CAT_BUTTON_B))
 		{
-			keyb_cursor = CAT_max(keyb_cursor-1, 0);
-			keyb_show_cursor = true;
-			keyb_cursor_frame = 0;
+			if(strlen(keyb_buffer) > 0)
+			{
+				keyb_cursor = CAT_max(keyb_cursor-1, 0);
+				keyb_show_cursor = true;
+				keyb_cursor_frame = 0;
+			}
+			else
+			{
+				keyb_button = 1;
+				keyb_section = KEYB_BUTTONS;	
+			}
 		}
 		else if(CAT_input_pressed(CAT_BUTTON_SELECT))
 		{
@@ -385,7 +395,7 @@ void CAT_gui_keyboard()
 
 	int cursor_x = KEYB_PAD * 2;
 	const char** typecase = typecases[keyb_case];
-	for(int i = 0; i < 4; i++)
+	for(int i = 0; i < 5; i++)
 	{
 		const char* row = typecase[i];
 		for(int j = 0; j < strlen(row); j++)
@@ -397,7 +407,7 @@ void CAT_gui_keyboard()
 			cursor_x += CAT_GLYPH_WIDTH + 8;
 		}
 		cursor_y += CAT_GLYPH_HEIGHT + 8;
-		cursor_x = gui.margin * 2;
+		cursor_x = KEYB_PAD * 2;
 	}
 	cursor_y += KEYB_PAD;
 

@@ -81,7 +81,7 @@ typedef struct
 	float timer;
 } CAT_timed_latch;
 
-#define CAT_TIMED_LATCH_INIT(_timeout) {.latch = CAT_LATCH_INIT(false), .timeout = _timeout, .timer = 0}
+#define CAT_TIMED_LATCH_INIT(_timeout) {.latch = CAT_LATCH_INIT(false), .timeout = (_timeout), .timer = 0}
 
 void CAT_timed_latch_raise(CAT_timed_latch* s);
 bool CAT_timed_latch_get(CAT_timed_latch* s);
