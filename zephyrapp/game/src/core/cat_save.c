@@ -1,15 +1,12 @@
-#include "cat_main.h"
+#include "cat_save.h"
 
-#include "cat_core.h"
-#include <string.h>
 #include "cat_pet.h"
 #include "cat_room.h"
-#include "item_assets.h"
-#include "cat_item.h"
 #include "cat_arcade.h"
+#include "cat_item.h"
+
 #include "theme_assets.h"
-#include "cat_crisis.h"
-#include "cat_persist.h"
+#include "item_assets.h"
 
 void CAT_force_save()
 {	

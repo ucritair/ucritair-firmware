@@ -12,6 +12,7 @@
 #include "cat_crisis.h"
 #include "cat_persist.h"
 #include "cat_time.h"
+#include "cat_save.h"
 
 static enum
 {

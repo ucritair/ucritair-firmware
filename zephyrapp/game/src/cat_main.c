@@ -33,6 +33,7 @@
 #include "cat_effects.h"
 #include "cat_persist.h"
 #include "cat_spriter.h"
+#include "cat_save.h"
 
 #ifdef CAT_EMBEDDED
 #include "menu_time.h"

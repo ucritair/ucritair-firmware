@@ -244,18 +244,29 @@ static float get_spawn_rect_fill(int rect_idx)
 	int overlap_a = 0;
 	for (int i = 0; i < food_count; i++)
 	{
-		CAT_rect food_rect = CAT_rect_center(
-			food_list[i].position.x, food_list[i].position.y,
-			FOOD_COLLISION_W, FOOD_COLLISION_H);
-		CAT_rect overlap = CAT_rect_overlap(spawn_rect, food_rect);
-		int w = overlap.max.x - overlap.min.x;
-		int h = overlap.max.y - overlap.min.y;
+		int x = food_list[i].position.x;
+		int y = food_list[i].position.y;
+		int x0 = x - FOOD_COLLISION_W/2;
+		int y0 = y - FOOD_COLLISION_H/2;
+		int x1 = x + FOOD_COLLISION_W/2;
+		int y1 = y + FOOD_COLLISION_H/2;
+		CAT_rect food_rect = {x0, y0, x1, y1};
+		
+		int ox0, oy0, ox1, oy1;
+		CAT_rect_overlap
+		(
+			spawn_rect.min.x, spawn_rect.min.y, spawn_rect.max.x, spawn_rect.max.y,
+			food_rect.min.x, food_rect.min.y, food_rect.max.x, food_rect.max.y,
+			&ox0, &oy0, &ox1, &oy1
+		);
+		int w = ox1 - ox0;
+		int h = oy1 - oy0;
 		w = w > 0 ? w : 0;
 		h = h > 0 ? h : 0;
 		overlap_a += w * h;
 	}
 
-	return (float)overlap_a / (float)spawn_a;
+	return (float) overlap_a / (float) spawn_a;
 }
 
 static CAT_ivec2 get_spawn_position()
@@ -1044,9 +1055,15 @@ static void render_arrange()
 
 	for (int i = food_count - 1; i >= 0; i--)
 	{
-		CAT_item *food = food_lookup(i);
+		CAT_item* food = food_lookup(i);
 		CAT_ivec2 food_pos = food_list[i].position;
-		CAT_rect food_rect = CAT_rect_center(food_pos.x, food_pos.y, FOOD_COLLISION_W, FOOD_COLLISION_H);
+		CAT_rect food_rect = 
+		{
+			food_pos.x-FOOD_COLLISION_W/2,
+			food_pos.y-FOOD_COLLISION_H/2,
+			food_pos.x+FOOD_COLLISION_W/2,
+			food_pos.y+FOOD_COLLISION_H/2
+		};
 		CAT_set_sprite_scale(2);
 		CAT_set_sprite_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_BOTTOM);
 		CAT_draw_sprite(food->sprite, 0, food_pos.x, food_rect.max.y);

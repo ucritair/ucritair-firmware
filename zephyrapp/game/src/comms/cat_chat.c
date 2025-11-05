@@ -53,7 +53,7 @@ static char user_buffer[128];
 
 static char sys_buffer[128];
 
-static CAT_timed_latch sys_latch = CAT_TIMED_LATCH_INIT(5);
+static CAT_timed_latch sys_latch = CAT_TIMED_LATCH_INIT(CAT_MINUTE_SECONDS);
 
 static void sysout_init()
 {

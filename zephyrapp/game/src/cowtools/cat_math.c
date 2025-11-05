@@ -37,16 +37,6 @@ float CAT_rand_uniform()
 	return rand() / (float) RAND_MAX;
 }
 
-int CAT_rand_die(int N)
-{
-	return CAT_rand_uniform() * N;
-}
-
-int CAT_rand_coin(float p)
-{
-	return CAT_rand_uniform() < p;
-}
-
 int CAT_rand_int(int a, int b)
 {
 	int width = b-a+1;
@@ -156,52 +146,6 @@ int CAT_ivec2_mag2(CAT_ivec2 a)
 float CAT_ivec2_dist2(CAT_ivec2 a, CAT_ivec2 b)
 {
 	return CAT_ivec2_mag2(CAT_ivec2_sub(b, a));
-}
-
-
-//////////////////////////////////////////////////////////////////////////
-// COLLISION
-
-CAT_rect CAT_rect_place(CAT_ivec2 start, CAT_ivec2 shape)
-{
-	return (CAT_rect) {start, CAT_ivec2_add(start, shape)};
-}
-
-bool CAT_rect_overlaps(CAT_rect a, CAT_rect b)
-{
-	if(a.min.x >= b.max.x || a.max.x <= b.min.x)
-		return false;
-	if(a.min.y >= b.max.y || a.max.y <= b.min.y)
-		return false;
-	return true;
-}
-
-bool CAT_rect_contains(CAT_rect a, CAT_rect b)
-{
-	if(b.min.x < a.min.x || b.max.x > a.max.x)
-		return false;
-	if(b.min.y < a.min.y || b.max.y > a.max.y)
-		return false;
-	return true;
-}
-
-CAT_rect CAT_rect_center(int x, int y, int w, int h)
-{
-	CAT_rect rect;
-	rect.min.x = x - w/2;
-	rect.min.y = y - h/2;
-	rect.max.x = x + w/2;
-	rect.max.y = y + h/2;
-	return rect;
-}
-
-CAT_rect CAT_rect_overlap(CAT_rect a, CAT_rect b)
-{
-	return (CAT_rect)
-	{
-		{ CAT_max(a.min.x, b.min.x), CAT_max(a.min.y, b.min.y) },
-		{ CAT_min(a.max.x, b.max.x), CAT_min(a.max.y, b.max.y) }
-	};
 }
 
 
@@ -443,7 +387,7 @@ void CAT_WRS_end()
 {
 	for(int i = 0; i < wrs_count; i++)
 	{
-		int j = CAT_rand_die(wrs_count);
+		int j = CAT_rand_int(0, wrs_count-1);
 		WRS_swap(i, j);
 	}
 }
@@ -499,12 +443,15 @@ bool CAT_rect_point_touching(int x0, int y0, int x1, int y1, int x, int y)
 	return true;
 }
 
-int CAT_i2_dot(int ax, int ay, int bx, int by)
+void CAT_rect_overlap
+(
+	int x00, int y00, int x01, int y01,
+	int x10, int y10, int x11, int y11,
+	int* x0_out, int* y0_out, int* x1_out, int* y1_out
+)
 {
-	return ax*bx + ay*by;
-}
-
-int CAT_i2_cross(int ax, int ay, int bx, int by)
-{
-	return ax*by - ay*bx;
+	*x0_out = CAT_max(x00, x10);
+	*y0_out = CAT_max(y00, y10);
+	*x1_out = CAT_min(x01, x11);
+	*y1_out = CAT_min(y01, y11);
 }

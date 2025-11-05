@@ -23,7 +23,7 @@ if(NOT TARGET app)
 	
 	set(CMAKE_BUILD_TYPE Debug)
 	target_compile_options(app PRIVATE -Wall -g)
-	target_sources(app PRIVATE src/core/cat_desktop.c src/cat_persist_archive.c)
+	target_sources(app PRIVATE src/core/cat_desktop.c src/core/cat_persist_archive.c)
 else()
 	message(WARNING "Building for embedded")
 
@@ -131,6 +131,8 @@ add_custom_command(
 
 target_sources(app PRIVATE
 	src/core/cat_common.c
+	src/core/cat_save.c
+	src/core/cat_persist.c
 
 	src/render/cat_berrier.c
 	src/render/cat_spriter.c
@@ -216,8 +218,6 @@ target_sources(app PRIVATE
 	data/scene_assets.c
 	data/dialogue_profile_assets.c
 
-	src/cat_save.c
-	src/cat_persist.c
 	src/cat_main.c)
 
 target_include_directories(app PRIVATE src/)

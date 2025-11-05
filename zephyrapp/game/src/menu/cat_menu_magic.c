@@ -5,6 +5,7 @@
 #include "cat_arcade.h"
 #include "sprite_assets.h"
 #include "cat_main.h"
+#include "cat_save.h"
 
 CAT_button basic_spell[10] =
 {

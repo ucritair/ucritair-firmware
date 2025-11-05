@@ -7,11 +7,12 @@ if [ -z ${ZEPHYR_BASE} ]; then
 fi
 source $ZEPHYR_BASE/../venv/bin/activate
 
-pip3 install --upgrade pip
-pip3 install pillow
-pip3 install PyOpenGL
-pip3 install glfw
-pip3 install imgui-bundle
-pip3 install playsound3
-pip3 install numpy
-pip3 install qrcode
+pip install --upgrade pip
+pip install pillow
+pip install PyOpenGL
+pip install glfw
+pip install imgui-bundle
+pip install playsound3
+pip install numpy
+pip install qrcode
+pip install protobuf grpcio-tools
