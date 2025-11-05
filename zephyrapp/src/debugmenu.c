@@ -19,6 +19,7 @@
 #include "rtc.h"
 #include "batt.h"
 #include "cat_gui.h"
+#include "cat_save.h"
 
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(debugmenu, LOG_LEVEL_DBG);

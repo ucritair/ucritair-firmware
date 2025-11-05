@@ -1,49 +1,19 @@
 #include "cat_main.h"
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <stdint.h>
-#include <math.h>
-#include <time.h>
-#include <unistd.h>
-#include <sys/fcntl.h>
-#include <stddef.h>
-
 #include "cat_core.h"
-#include "cat_render.h"
-#include "cat_math.h"
-#include "cat_item.h"
-#include "cat_gui.h"
-#include "cat_input.h"
-#include "cat_machine.h"
-#include "cat_room.h"
-#include "cat_pet.h"
-#include "cat_play.h"
-#include "cat_menu.h"
-#include "cat_arcade.h"
-#include "cat_deco.h"
-#include "cat_air.h"
-#include "cat_monitors.h"
-#include "cat_crisis.h"
-#include "cat_version.h"
-#include "theme_assets.h"
-#include "sprite_assets.h"
-#include "item_assets.h"
-#include "cat_colours.h"
-#include "cat_effects.h"
-#include "cat_persist.h"
-#include "cat_spriter.h"
 #include "cat_save.h"
+#include "cat_render.h"
+#include "cat_air.h"
+#include "cat_persist.h"
+#include "cat_room.h"
+#include "cat_monitors.h"
+#include "cat_gui.h"
+#include "cat_effects.h"
+#include "cat_spriter.h"
+#include "cat_pet.h"
+#include "cat_input.h"
 
-#ifdef CAT_EMBEDDED
-#include "menu_time.h"
-#include "menu_system.h"
-#endif
-
-#ifdef __GNUC__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunknown-pragmas"
-#endif
+#include "sprite_assets.h"
 
 void CAT_init()
 {
@@ -169,6 +139,8 @@ void CAT_tick_render()
 }
 
 #ifdef CAT_DESKTOP
+#include <unistd.h>
+
 int main(int argc, char** argv)
 {	
 	CAT_init();
