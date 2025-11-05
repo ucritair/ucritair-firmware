@@ -32,6 +32,7 @@ LOG_MODULE_REGISTER(sample, LOG_LEVEL_INF);
 #include "rtc.h"
 #include "buttons.h"
 #include "batt.h"
+#include "rp2350_ipc.h"
 
 int main(void)
 {
@@ -68,6 +69,55 @@ int main(void)
 
 	set_5v0(true);
 	set_leds(true);
+
+	// Initialize RP2350 IPC
+	LOG_INF("Initializing RP2350 IPC...\n");
+	rp2350_ipc_init();
+	k_msleep(10000); // Give RP2350 time to boot
+
+	// Query firmware version
+	uint8_t fw_major, fw_minor;
+	uint16_t fw_patch;
+	if (rp2350_query_firmware_version(&fw_major, &fw_minor, &fw_patch, 5000)) {
+		LOG_INF("RP2350 Firmware: v%u.%u.%u\n", fw_major, fw_minor, fw_patch);
+	} else {
+		LOG_ERR("Failed to query RP2350 firmware version\n");
+	}
+
+//	// Test reboot to bootloader
+//	k_msleep(2000); // Wait 2 seconds before rebooting
+//	printk("\n--- Testing RP2350 reboot to bootloader ---\n");
+//	if (rp2350_reboot_to_bootloader(2000)) {
+//		printk("Success! RP2350 should now appear as USB mass storage device.\n");
+//	} else {
+//		printk("Failed to reboot RP2350 to bootloader\n");
+//	}
+
+	// Test WiFi scan
+	LOG_INF("Requesting WiFi scan from RP2350 (may take 10-20 seconds)...\n");
+	msg_payload_wifi_scan_response_t scan_results;
+	if (rp2350_wifi_scan(&scan_results, 30000)) {
+		LOG_INF("WiFi scan successful! Found %d unique APs:\n", scan_results.count);
+		for (int i = 0; i < scan_results.count; i++) {
+			const char *auth_str[] = {"Open", "WEP", "WPA", "WPA2", "WPA/WPA2"};
+			LOG_INF("  [%d] %s [%02X:%02X:%02X:%02X:%02X:%02X] RSSI: %d dBm, Ch: %d, Auth: %s\n",
+			        i + 1,
+			        scan_results.aps[i].ssid,
+			        scan_results.aps[i].bssid[0], scan_results.aps[i].bssid[1],
+			        scan_results.aps[i].bssid[2], scan_results.aps[i].bssid[3],
+			        scan_results.aps[i].bssid[4], scan_results.aps[i].bssid[5],
+			        scan_results.aps[i].rssi,
+			        scan_results.aps[i].channel,
+			        auth_str[scan_results.aps[i].auth_mode]);
+		}
+	} else {
+		LOG_ERR("WiFi scan failed or timed out\n");
+	}
+
+	LOG_INF("\n=== WiFi scan test complete. Halting. ===\n");
+	while (1) {
+		k_msleep(100000);
+	}
 
 	sensor_init();
 	imu_init();
