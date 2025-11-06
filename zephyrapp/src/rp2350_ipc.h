@@ -19,7 +19,7 @@
 typedef enum {
     MSG_TYPE_PROTOCOL_VERSION_QUERY = 0x00,
     MSG_TYPE_SENSOR_DATA = 0x70,
-    MSG_TYPE_SET_WIFI_CREDENTIALS = 0x51,
+    MSG_TYPE_WIFI_CONNECT = 0x51,
     MSG_TYPE_FIRMWARE_VERSION_QUERY = 0x5F,
     MSG_TYPE_WIFI_SCAN_REQUEST = 0x52,
     MSG_TYPE_REBOOT_TO_BOOTLOADER = 0x53,
@@ -29,7 +29,7 @@ typedef enum {
 typedef enum {
     MSG_TYPE_PROTOCOL_VERSION_RESPONSE = 0x00,
     MSG_TYPE_SENSOR_DATA_ACK = 0x70,
-    MSG_TYPE_SET_WIFI_CREDENTIALS_ACK = 0x51,
+    MSG_TYPE_WIFI_CONNECT_ACK = 0x51,
     MSG_TYPE_FIRMWARE_VERSION_RESPONSE = 0x5F,
     MSG_TYPE_WIFI_SCAN_RESPONSE = 0x52,
     MSG_TYPE_REBOOT_TO_BOOTLOADER_ACK = 0x53,
@@ -47,14 +47,22 @@ typedef struct __attribute__((__packed__)) {
     uint32_t sensor_value;
 } msg_payload_sensor_data_t;
 
-// Payload for setting WiFi credentials
+// Payload for WiFi connect
 #define MAX_SSID_LEN 32
 #define MAX_PASSWORD_LEN 64
+
+// WiFi auth modes (matches wifi_ap_record_t auth_mode)
+#define WIFI_AUTH_OPEN          0
+#define WIFI_AUTH_WEP           1
+#define WIFI_AUTH_WPA           2
+#define WIFI_AUTH_WPA2          3
+#define WIFI_AUTH_WPA_WPA2      4
 
 typedef struct __attribute__((__packed__)) {
     char ssid[MAX_SSID_LEN];
     char password[MAX_PASSWORD_LEN];
-} msg_payload_set_wifi_credentials_t;
+    uint8_t auth_mode;  // See WIFI_AUTH_* constants above
+} msg_payload_wifi_connect_t;
 
 // Payload for WiFi scan results
 #define MAX_SCAN_RESULTS 10
@@ -100,13 +108,14 @@ bool rp2350_query_firmware_version(uint8_t *major, uint8_t *minor, uint16_t *pat
 bool rp2350_query_protocol_version(uint8_t *major, uint8_t *minor, uint16_t *patch, uint32_t timeout_ms);
 
 /**
- * Send WiFi credentials to RP2350
+ * Connect RP2350 to WiFi network
  * @param ssid WiFi SSID (max 32 chars)
  * @param password WiFi password (max 64 chars)
+ * @param auth_mode WiFi security type (see WIFI_AUTH_* constants)
  * @param timeout_ms Timeout in milliseconds
- * @return true if ACK received, false if timeout
+ * @return true if connection successful, false if timeout or failed
  */
-bool rp2350_set_wifi_credentials(const char *ssid, const char *password, uint32_t timeout_ms);
+bool rp2350_wifi_connect(const char *ssid, const char *password, uint8_t auth_mode, uint32_t timeout_ms);
 
 /**
  * Send sensor data to RP2350

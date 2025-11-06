@@ -242,15 +242,16 @@ bool rp2350_query_protocol_version(uint8_t *major, uint8_t *minor, uint16_t *pat
     return false;
 }
 
-bool rp2350_set_wifi_credentials(const char *ssid, const char *password, uint32_t timeout_ms)
+bool rp2350_wifi_connect(const char *ssid, const char *password, uint8_t auth_mode, uint32_t timeout_ms)
 {
     if (!tf || !ssid || !password) {
         return false;
     }
 
-    msg_payload_set_wifi_credentials_t payload = {0};
+    msg_payload_wifi_connect_t payload = {0};
     strncpy(payload.ssid, ssid, MAX_SSID_LEN);
     strncpy(payload.password, password, MAX_PASSWORD_LEN);
+    payload.auth_mode = auth_mode;
 
     // Reset response state
     response_state.waiting = true;
@@ -258,25 +259,26 @@ bool rp2350_set_wifi_credentials(const char *ssid, const char *password, uint32_
     response_state.timeout_abs = k_uptime_get() + timeout_ms;
     response_state.debug_count = 0;
 
-    // Send credentials
-    LOG_INF("Sending WiFi credentials...");
-    if (!TF_QuerySimple(tf, MSG_TYPE_SET_WIFI_CREDENTIALS, (const uint8_t *)&payload, sizeof(payload), ack_listener, NULL, 0)) {
-        LOG_ERR("Failed to send WiFi credentials");
+    // Send WiFi connect request
+    printk("Sending WiFi connect request (SSID: %s, Auth: %u)...\n", ssid, auth_mode);
+    if (!TF_QuerySimple(tf, MSG_TYPE_WIFI_CONNECT, (const uint8_t *)&payload, sizeof(payload), ack_listener, NULL, 0)) {
+        LOG_ERR("Failed to send WiFi connect request");
         response_state.waiting = false;
         return false;
     }
 
-    // Wait for ACK with processing
+    // Wait for ACK with processing (WiFi connection can take 30+ seconds)
     while (response_state.waiting) {
         rp2350_ipc_process();
-        k_msleep(10);
+        k_msleep(100);
     }
 
     if (response_state.received) {
-        LOG_INF("WiFi credentials ACK received");
+        printk("WiFi connection successful!\n");
         return true;
     }
 
+    printk("WiFi connection failed or timed out\n");
     return false;
 }
 

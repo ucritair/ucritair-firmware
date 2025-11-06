@@ -114,7 +114,16 @@ int main(void)
 		LOG_ERR("WiFi scan failed or timed out\n");
 	}
 
-	LOG_INF("\n=== WiFi scan test complete. Halting. ===\n");
+	// Test WiFi connection
+	LOG_INF("\n--- Testing WiFi Connection ---\n");
+	LOG_INF("Connecting to 'Zaviyar-Home-2G' with WPA2...\n");
+	if (rp2350_wifi_connect("Zaviyar-Home-2G", "ZaviyarWasim", WIFI_AUTH_WPA2, 45000)) {
+		LOG_INF("Successfully connected to WiFi!\n");
+	} else {
+		LOG_ERR("Failed to connect to WiFi\n");
+	}
+
+	LOG_INF("\n=== All tests complete. Halting. ===\n");
 	while (1) {
 		k_msleep(100000);
 	}
