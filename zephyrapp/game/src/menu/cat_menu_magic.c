@@ -46,19 +46,33 @@ void CAT_MS_magic(CAT_FSM_signal signal)
 
 void CAT_render_magic()
 {
-	CAT_gui_title(false, "MAGIC");
+	CAT_frameberry(CAT_WHITE);
 
-	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18}); 
-	CAT_gui_text("Enter an incantation,\n");
-	CAT_gui_text("or hold [B] to exit");
+	int cursor_x = 12;
+	int cursor_y = 12;
+
+	cursor_y = CAT_draw_text(cursor_x, cursor_y, "MAGIC\n");
+	cursor_y += 6;
+	CAT_rowberry(cursor_y, cursor_y+1, CAT_BLACK);
+	cursor_y += 6;
+
+	CAT_set_text_mask(12, -1, CAT_LCD_SCREEN_W-12, -1);
+	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
+	cursor_y = CAT_draw_text(cursor_x, cursor_y, "Enter an incantation, or hold [B] to exit.\n");
+	cursor_y += 6;
+	CAT_rowberry(cursor_y, cursor_y+1, CAT_BLACK);
+	cursor_y += 6;
 	
-	CAT_gui_div("INCANTATION");
 	int i = (CAT_input_buffer_head()+9) % 10;
 	int steps = 0;
 	while(steps < 10)
 	{
 		if(CAT_input_buffer_get(i) != CAT_BUTTON_LAST)
-			CAT_gui_image(&icon_input_sprite, CAT_input_buffer_get(i));
+		{
+			CAT_draw_sprite_raw(&icon_input_sprite, CAT_input_buffer_get(i), cursor_x, cursor_y);
+			cursor_x += icon_input_sprite.width + 6;
+		}
+
 		i -= 1;
 		if(i < 0)
 			i = 9;

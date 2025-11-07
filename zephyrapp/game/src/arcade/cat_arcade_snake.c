@@ -306,7 +306,7 @@ void CAT_render_snake()
 	}
 	else
 	{
-		CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 20});
+		CAT_frameberry(CAT_WHITE);
 		
 		for(int x = 0; x < 15; x++)
 		{
@@ -319,22 +319,21 @@ void CAT_render_snake()
 			CAT_draw_tile_alpha(&snake_head_sprite, 1, 14 * CAT_TILE_SIZE, y * CAT_TILE_SIZE);
 		}
 
-		CAT_gui_panel((CAT_ivec2) {1, 1}, (CAT_ivec2) {13, 18});
-		CAT_gui_set_flag(CAT_GUI_FLAG_WRAPPED);
-		CAT_gui_textf
+		int pad = CAT_TILE_SIZE + 4;
+		CAT_set_text_mask(pad, -1, CAT_LCD_SCREEN_W-pad, -1);
+		CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
+		int cursor_y = pad;
+		cursor_y = CAT_draw_textf
 		(
-			"Rest in peace,\nSnack Cat.\n\n"
-			"Your long journey has\ncome to a tragic end.\n\n"
-			"Press A or B to return from whence you came.\n\n"
+			pad, cursor_y,
+			"Rest in peace, Snack Cat. "
+			"Your long journey has come to a tragic end. "
+			"Press A or B to return from whence you came.\n"
 			"SCORE: %d\n"
 			"HIGH SCORE: %d\n"
-			, score,
-			snake_highscore
+			"%s",
+			score, snake_highscore,
+			is_high_score ? "New high score!" : ""
 		);
-
-		if(is_high_score)
-		{
-			CAT_gui_text("New high score!");
-		}
 	}
 }
