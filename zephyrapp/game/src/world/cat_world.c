@@ -12,6 +12,7 @@
 #include "cat_menu.h"
 #include "prop_assets.h"
 #include <stdint.h>
+#include "cat_effects.h"
 
 //////////////////////////////////////////////////////////////////////////
 // PLAYER
@@ -258,6 +259,13 @@ int player_get_walk_frame()
 	}
 }
 
+static bool show_intro = true;
+
+void CAT_show_world_intro()
+{
+	show_intro = true;
+}
+
 void CAT_MS_world(CAT_FSM_signal signal)
 {
 	switch(signal)
@@ -265,6 +273,11 @@ void CAT_MS_world(CAT_FSM_signal signal)
 		case CAT_FSM_SIGNAL_ENTER:
 		{
 			CAT_set_render_callback(CAT_render_world);
+			if(show_intro)
+			{
+				CAT_effect_start_aperture_blackout(1.0f, 1.0f);
+				show_intro = false;
+			}
 		}
 		break;
 

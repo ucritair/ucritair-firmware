@@ -616,7 +616,7 @@ void CAT_MS_room(CAT_FSM_signal signal)
 			else if(arcade_open)
 			{
 				if(!CAT_gui_menu_is_open())
-					CAT_gui_override_exit(arcade_exit_proc);
+					CAT_gui_menu_override_exit(arcade_exit_proc);
 				if(CAT_gui_begin_menu("ARCADE"))
 				{
 					if(CAT_gui_menu_item("SNACK"))

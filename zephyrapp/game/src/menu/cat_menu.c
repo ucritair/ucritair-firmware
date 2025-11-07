@@ -68,7 +68,10 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 				if(CAT_pushdown_last() == &CAT_MS_room)
 				{
 					if(CAT_gui_menu_item("EXPLORE"))
+					{
+						CAT_show_world_intro();
 						CAT_pushdown_rebase(CAT_MS_world);
+					}
 				}
 				else if(CAT_pushdown_last() == &CAT_MS_world)
 				{

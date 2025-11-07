@@ -20,6 +20,28 @@
 //////////////////////////////////////////////////////////////////////////
 // BASICS (DEPRECATED)
 
+typedef enum CAT_gui_flag
+{
+	CAT_GUI_FLAG_NONE = 0,
+	CAT_GUI_FLAG_BORDERED = (1 << 0),
+	CAT_GUI_FLAG_TIGHT = (1 << 1),
+	CAT_GUI_FLAG_WRAPPED = (1 << 2),
+} CAT_gui_flag;
+
+typedef struct CAT_gui
+{
+	CAT_gui_flag flags;
+
+	CAT_ivec2 start;
+	CAT_ivec2 shape;
+	CAT_ivec2 cursor;
+
+	int margin;
+	int pad;
+	int channel_height;
+} CAT_gui;
+extern CAT_gui gui;
+
 CAT_gui gui =
 {
 	.flags = CAT_GUI_FLAG_NONE,
@@ -569,7 +591,7 @@ static int menu_root = -1;
 static bool menu_reset = false;
 static void (*menu_exit_proc)() = NULL;
 
-void CAT_gui_override_exit(void (*exit_proc)())
+void CAT_gui_menu_override_exit(void (*exit_proc)())
 {
 	menu_exit_proc = exit_proc;
 }
@@ -681,6 +703,7 @@ bool CAT_gui_begin_menu(const char* title)
 {
 	if(menu_reset)
 	{
+		CAT_printf("Resetting menu!\n");
 		for(int i = 0; i < MENU_TABLE_SIZE; i++)
 		{
 			menu_table[i].clicked = false;
@@ -701,6 +724,7 @@ bool CAT_gui_begin_menu(const char* title)
 	{
 		menu_root = idx;
 		menu_table[idx].clicked = true;
+		menu_table[idx].parent = -1;
 		push_menu_node(idx);
 	}
 	else
@@ -709,7 +733,7 @@ bool CAT_gui_begin_menu(const char* title)
 		if(menu_table[idx].clicked)
 			push_menu_node(idx);
 	}
-		
+	
 	return menu_table[idx].clicked;
 }
 
@@ -840,7 +864,9 @@ void CAT_gui_menu_logic()
 				menu_exit_proc();
 		}
 		else
+		{
 			head->clicked = false;
+		}
 	}
 }
 
@@ -892,29 +918,6 @@ void CAT_gui_menu()
 		menu_stack_length = 0;
 		menu_root = -1;
 	}
-}
-
-
-//////////////////////////////////////////////////////////////////////////
-// PRINTING
-
-static int printf_cursor_y = 0;
-
-void CAT_gui_printf(uint16_t colour, const char* fmt, ...)
-{	
-	va_list args;
-	va_start(args, fmt);
-	char text[128];
-	vsnprintf(text, 128, fmt, args);
-	va_end(args);
-	
-	int modified_y = printf_cursor_y - CAT_LCD_FRAMEBUFFER_OFFSET;
-	if(modified_y < 0 || modified_y >= CAT_LCD_FRAMEBUFFER_H)
-		return;
-
-	CAT_set_text_colour(colour);
-	CAT_draw_text(0, printf_cursor_y, text);
-	printf_cursor_y += CAT_GLYPH_HEIGHT + 2;
 }
 
 
@@ -1292,7 +1295,4 @@ void CAT_gui_render()
 		CAT_gui_popup();
 	if(CAT_gui_dialogue_is_open())
 		CAT_gui_dialogue();	
-	
-	if(CAT_is_last_render_cycle())
-		printf_cursor_y = 0;
 }

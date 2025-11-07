@@ -1131,17 +1131,6 @@ static void render_arrange()
 	{
 		CAT_draw_sprite_raw(&pet_feed_back_sprite, -1, 120, 320);
 	}
-
-	if (show_debug_text)
-	{
-		CAT_gui_printf(CAT_WHITE, "variety: " CAT_FLOAT_FMT, CAT_FMT_FLOAT(score_object.variety));
-		CAT_gui_printf(CAT_WHITE, "propriety: " CAT_FLOAT_FMT, CAT_FMT_FLOAT(score_object.propriety));
-		CAT_gui_printf(CAT_WHITE, "ichisan: " CAT_FLOAT_FMT, CAT_FMT_FLOAT(score_object.ichiju_sansai));
-		CAT_gui_printf(CAT_WHITE, "spacing: " CAT_FLOAT_FMT, CAT_FMT_FLOAT(score_object.spacing));
-		CAT_gui_printf(CAT_WHITE, "evenness: " CAT_FLOAT_FMT, CAT_FMT_FLOAT(score_object.evenness));
-		CAT_gui_printf(CAT_WHITE, "aggregate: " CAT_FLOAT_FMT, CAT_FMT_FLOAT(score_object.aggregate));
-		CAT_gui_printf(CAT_WHITE, "level: %d", score_object.grade);
-	}
 }
 
 static void select_proc(int item_id)

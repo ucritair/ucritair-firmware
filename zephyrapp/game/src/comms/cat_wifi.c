@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdio.h>
+#include "cat_input.h"
 
 #define MAX_SSID_LEN 32
 #define MAX_SCAN_RESULTS 10
@@ -74,15 +75,21 @@ void poll_network_list()
 }
 
 static int network_idx = -1;
+static char password[MAX_SSID_LEN];
 
-void CAT_MS_wifi(CAT_FSM_signal signal)
+void MS_select_network(CAT_FSM_signal signal);
+void MS_enter_password(CAT_FSM_signal signal);
+void MS_connect(CAT_FSM_signal signal);
+CAT_FSM fsm;
+
+void MS_select_network(CAT_FSM_signal signal)
 {
 	switch(signal)
 	{
 		case CAT_FSM_SIGNAL_ENTER:
 		{
-			CAT_set_render_callback(CAT_draw_wifi);
 			poll_network_list();
+			network_idx = -1;
 		}
 		break;
 
@@ -92,10 +99,105 @@ void CAT_MS_wifi(CAT_FSM_signal signal)
 			{
 				for(int i = 0; i < scan_results.count; i++)
 				{
-					CAT_gui_menu_item(scan_results.aps[i].ssid);
+					if(CAT_gui_menu_item(scan_results.aps[i].ssid))
+					{
+						network_idx = i;
+						CAT_FSM_transition(&fsm, MS_enter_password);
+					}
 				}
 				CAT_gui_end_menu();
 			}
+		}
+		break;
+
+		case CAT_FSM_SIGNAL_EXIT:
+		{
+			
+		}
+		break;
+	}
+}
+
+void MS_enter_password(CAT_FSM_signal signal)
+{
+	switch(signal)
+	{
+		case CAT_FSM_SIGNAL_ENTER:
+		{
+			password[0] = '\0';
+			CAT_gui_open_keyboard(password);
+		}
+		break;
+
+		case CAT_FSM_SIGNAL_TICK:
+		{
+			if(!CAT_gui_keyboard_is_open())
+			{
+				if(strlen(password) == 0)
+					CAT_FSM_transition(&fsm, MS_select_network);
+				else
+					CAT_FSM_transition(&fsm, MS_connect);
+			}
+		}
+		break;
+
+		case CAT_FSM_SIGNAL_EXIT:
+		{
+			
+		}
+		break;
+	}
+}
+
+void MS_connect(CAT_FSM_signal signal)
+{
+	static bool connected = false;
+
+	switch(signal)
+	{
+		case CAT_FSM_SIGNAL_ENTER:
+		{
+			connected = rp2350_wifi_connect
+			(
+				scan_results.aps[network_idx].ssid,
+				password,
+				scan_results.aps[network_idx].auth_mode,
+				10
+			);
+		}
+		break;
+
+		case CAT_FSM_SIGNAL_TICK:
+		{
+			if(CAT_input_pressed(CAT_BUTTON_A) || CAT_input_pressed(CAT_BUTTON_B))
+				CAT_FSM_transition(&fsm, NULL);
+		}
+		break;
+
+		case CAT_FSM_SIGNAL_EXIT:
+		{
+			
+		}
+		break;
+	}
+}
+
+void CAT_MS_wifi(CAT_FSM_signal signal)
+{
+	switch(signal)
+	{
+		case CAT_FSM_SIGNAL_ENTER:
+		{
+			CAT_set_render_callback(CAT_draw_wifi);
+			CAT_FSM_transition(&fsm, MS_select_network);
+		}
+		break;
+
+		case CAT_FSM_SIGNAL_TICK:
+		{
+			CAT_FSM_tick(&fsm);
+			if(fsm.state == NULL)
+				CAT_pushdown_pop();
 		}
 		break;
 
@@ -109,5 +211,21 @@ void CAT_MS_wifi(CAT_FSM_signal signal)
 
 void CAT_draw_wifi()
 {
-	
+	if(fsm.state == MS_enter_password)
+	{
+		CAT_frameberry(CAT_WHITE);
+		CAT_draw_textf
+		(
+			12, 12,
+			"SSID: %s\n"
+			"Password: %s\n",
+			scan_results.aps[network_idx].ssid,
+			password
+		);
+	}
+	else if(fsm.state == MS_connect)
+	{
+		CAT_frameberry(CAT_WHITE);
+		CAT_draw_text(12, 12, "Connecting...\n");
+	}
 }

@@ -12,16 +12,21 @@ void CAT_MS_example(CAT_FSM_signal signal)
 	{
 		case CAT_FSM_SIGNAL_ENTER:
 		{
-			break;
+			
 		}
+		break;
+
 		case CAT_FSM_SIGNAL_TICK:
 		{
-			break;
+			
 		}
+		break;
+
 		case CAT_FSM_SIGNAL_EXIT:
 		{
-			break;
+			
 		}
+		break;
 	}
 }
 */

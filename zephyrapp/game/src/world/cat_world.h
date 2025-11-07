@@ -15,6 +15,8 @@ void CAT_world_get_position(int* x, int* y);
 //////////////////////////////////////////////////////////////////////////
 // WORLD
 
+void CAT_show_world_intro();
 void CAT_MS_world(CAT_FSM_signal signal);
 void CAT_render_world();
+
 
