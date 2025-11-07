@@ -12,7 +12,7 @@
 #include "cat_air.h"
 #include "cat_math.h"
 
-#define CHALLENGES_PER_PHASE 1
+#define CHALLENGES_PER_PHASE 8
 
 static void draw_tutorial();
 static void MS_tutorial(CAT_FSM_signal);
