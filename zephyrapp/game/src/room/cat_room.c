@@ -528,11 +528,7 @@ static void arcade_exit_proc()
 void prop_button_input()
 {
 	if(CAT_input_touch_rect(ARCADE_X, ARCADE_Y, ARCADE_W, ARCADE_H))
-	{
-		arcade_open = true;
-		CAT_gui_begin_menu_context();
-		CAT_gui_override_exit(arcade_exit_proc);
-	}
+		arcade_open = true;	
 
 	if(CAT_input_touch_rect(VENDING_MACHINE_X, VENDING_MACHINE_Y, VENDING_MACHINE_W, VENDING_MACHINE_H))
 		CAT_pushdown_push(CAT_MS_shop);
@@ -619,6 +615,8 @@ void CAT_MS_room(CAT_FSM_signal signal)
 			}
 			else if(arcade_open)
 			{
+				if(!CAT_gui_menu_is_open())
+					CAT_gui_override_exit(arcade_exit_proc);
 				if(CAT_gui_begin_menu("ARCADE"))
 				{
 					if(CAT_gui_menu_item("SNACK"))

@@ -569,20 +569,6 @@ static int menu_root = -1;
 static bool menu_reset = false;
 static void (*menu_exit_proc)() = NULL;
 
-void CAT_gui_begin_menu_context()
-{
-	for(int i = 0; i < MENU_TABLE_SIZE; i++)
-	{
-		menu_table[i].clicked = false;
-		menu_table[i].parent = -1;
-		menu_table[i].child_count = 0;
-		if(menu_reset)
-			menu_table[i].selector = 0;
-	}
-	menu_reset = false;
-	menu_exit_proc = NULL;
-}
-
 void CAT_gui_override_exit(void (*exit_proc)())
 {
 	menu_exit_proc = exit_proc;
@@ -693,6 +679,19 @@ bool consume_click(uint16_t table_idx)
 
 bool CAT_gui_begin_menu(const char* title)
 {
+	if(menu_reset)
+	{
+		for(int i = 0; i < MENU_TABLE_SIZE; i++)
+		{
+			menu_table[i].clicked = false;
+			menu_table[i].parent = -1;
+			menu_table[i].child_count = 0;
+			menu_table[i].selector = 0;
+		}
+		menu_reset = false;
+		menu_exit_proc = NULL;
+	}
+
 	int idx = find_menu_node(title);
 	if(idx == -1)
 		idx = register_menu_node(title, CAT_GUI_MENU_TYPE_DEFAULT);

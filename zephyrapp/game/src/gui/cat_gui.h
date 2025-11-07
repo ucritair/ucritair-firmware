@@ -82,7 +82,6 @@ typedef enum
 	CAT_GUI_TOGGLE_STYLE_RADIO_BUTTON
 } CAT_gui_toggle_style;
 
-void CAT_gui_begin_menu_context();
 void CAT_gui_override_exit(void (*exit_proc)());
 
 bool CAT_gui_begin_menu(const char* title);
