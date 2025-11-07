@@ -528,24 +528,10 @@ static void arcade_exit_proc()
 void prop_button_input()
 {
 	if(CAT_input_touch_rect(ARCADE_X, ARCADE_Y, ARCADE_W, ARCADE_H))
-		arcade_open = true;
-	if(arcade_open)
 	{
+		arcade_open = true;
 		CAT_gui_begin_menu_context();
 		CAT_gui_override_exit(arcade_exit_proc);
-		if(CAT_gui_begin_menu("ARCADE"))
-		{
-			if(CAT_gui_menu_item("SNACK"))
-				CAT_pushdown_push(CAT_MS_snake);
-			if(CAT_gui_menu_item("SWEEP"))
-				CAT_pushdown_push(CAT_MS_mines);
-			if(CAT_gui_menu_item("FOURSQUARES"))
-				CAT_pushdown_push(CAT_MS_foursquares);
-			if(CAT_gui_menu_item("STROOP"))
-				CAT_pushdown_push(CAT_MS_stroop);
-			CAT_gui_end_menu();
-		}
-		return;
 	}
 
 	if(CAT_input_touch_rect(VENDING_MACHINE_X, VENDING_MACHINE_Y, VENDING_MACHINE_W, VENDING_MACHINE_H))
@@ -630,6 +616,21 @@ void CAT_MS_room(CAT_FSM_signal signal)
 
 				prop_button_input();
 				pickup_input();
+			}
+			else if(arcade_open)
+			{
+				if(CAT_gui_begin_menu("ARCADE"))
+				{
+					if(CAT_gui_menu_item("SNACK"))
+						CAT_pushdown_push(CAT_MS_snake);
+					if(CAT_gui_menu_item("SWEEP"))
+						CAT_pushdown_push(CAT_MS_mines);
+					if(CAT_gui_menu_item("FOURSQUARES"))
+						CAT_pushdown_push(CAT_MS_foursquares);
+					if(CAT_gui_menu_item("STROOP"))
+						CAT_pushdown_push(CAT_MS_stroop);
+					CAT_gui_end_menu();
+				}
 			}
 			else
 			{
