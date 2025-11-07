@@ -543,7 +543,7 @@ void render_game_over()
 	cursor_y = CAT_draw_textf(12, cursor_y, "High score: %d\n", foursquares_highscore);
 	cursor_y += 8;
 
-	if(score > stroop_highscore || CAT_pulse(1.0f))
+	if(score > foursquares_highscore || CAT_pulse(1.0f))
 	{
 		CAT_set_text_colour(CAT_GREEN);
 		cursor_y = CAT_draw_textf(12, cursor_y, "NEW HIGH SCORE!\n", score);

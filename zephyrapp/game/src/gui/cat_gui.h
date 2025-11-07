@@ -6,7 +6,7 @@
 
 
 //////////////////////////////////////////////////////////////////////////
-// BASICS
+// BASICS (DEPRECATED)
 
 typedef enum CAT_gui_flag
 {
@@ -83,6 +83,7 @@ typedef enum
 } CAT_gui_toggle_style;
 
 void CAT_gui_begin_menu_context();
+void CAT_gui_override_exit(void (*exit_proc)());
 
 bool CAT_gui_begin_menu(const char* title);
 void CAT_gui_end_menu();

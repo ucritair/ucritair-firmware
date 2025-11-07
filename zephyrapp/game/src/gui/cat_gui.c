@@ -18,7 +18,7 @@
 #include "cat_curves.h"
 
 //////////////////////////////////////////////////////////////////////////
-// BASICS
+// BASICS (DEPRECATED)
 
 CAT_gui gui =
 {
@@ -567,6 +567,26 @@ static uint16_t menu_stack[24];
 static uint8_t menu_stack_length = 0;
 static int menu_root = -1;
 static bool menu_reset = false;
+static void (*menu_exit_proc)() = NULL;
+
+void CAT_gui_begin_menu_context()
+{
+	for(int i = 0; i < MENU_TABLE_SIZE; i++)
+	{
+		menu_table[i].clicked = false;
+		menu_table[i].parent = -1;
+		menu_table[i].child_count = 0;
+		if(menu_reset)
+			menu_table[i].selector = 0;
+	}
+	menu_reset = false;
+	menu_exit_proc = NULL;
+}
+
+void CAT_gui_override_exit(void (*exit_proc)())
+{
+	menu_exit_proc = exit_proc;
+}
 
 uint16_t register_menu_node(const char* title, CAT_gui_menu_type type)
 {
@@ -669,19 +689,6 @@ bool consume_click(uint16_t table_idx)
 	bool value = node->clicked;
 	node->clicked = false;
 	return value;
-}
-
-void CAT_gui_begin_menu_context()
-{
-	for(int i = 0; i < MENU_TABLE_SIZE; i++)
-	{
-		menu_table[i].clicked = false;
-		menu_table[i].parent = -1;
-		menu_table[i].child_count = 0;
-		if(menu_reset)
-			menu_table[i].selector = 0;
-	}
-	menu_reset = false;
 }
 
 bool CAT_gui_begin_menu(const char* title)
@@ -828,7 +835,10 @@ void CAT_gui_menu_logic()
 		if(head->parent == -1)
 		{
 			menu_reset = true;
-			CAT_pushdown_pop();
+			if(menu_exit_proc == NULL)
+				CAT_pushdown_pop();
+			else
+				menu_exit_proc();
 		}
 		else
 			head->clicked = false;

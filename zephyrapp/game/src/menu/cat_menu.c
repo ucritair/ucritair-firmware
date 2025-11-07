@@ -32,9 +32,12 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 	switch(signal)
 	{
 		case CAT_FSM_SIGNAL_ENTER:
+		{
 			CAT_set_render_callback(CAT_render_menu);
 			CAT_gui_begin_menu_context();
-			break;
+		}
+		break;
+		
 		case CAT_FSM_SIGNAL_TICK:
 		{
 			if(CAT_input_pressed(CAT_BUTTON_START))
@@ -48,8 +51,20 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 					CAT_pushdown_push(CAT_MS_inventory);
 				if(CAT_gui_menu_item("VENDING MACHINE"))
 					CAT_pushdown_push(CAT_MS_shop);
-				if(CAT_gui_menu_item("ARCADE"))
-					CAT_pushdown_push(CAT_MS_arcade);
+
+				if(CAT_gui_begin_menu("ARCADE"))
+				{
+					if(CAT_gui_menu_item("SNACK"))
+						CAT_pushdown_push(CAT_MS_snake);
+					if(CAT_gui_menu_item("SWEEP"))
+						CAT_pushdown_push(CAT_MS_mines);
+					if(CAT_gui_menu_item("FOURSQUARES"))
+						CAT_pushdown_push(CAT_MS_foursquares);
+					if(CAT_gui_menu_item("STROOP"))
+						CAT_pushdown_push(CAT_MS_stroop);
+					CAT_gui_end_menu();
+				}
+
 				if(CAT_pushdown_last() == &CAT_MS_room)
 				{
 					if(CAT_gui_menu_item("EXPLORE"))
@@ -63,6 +78,7 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 						CAT_pushdown_rebase(CAT_MS_room);
 					}
 				}
+
 				if(CAT_gui_menu_item("DASHBOARD"))
 					CAT_pushdown_rebase(CAT_MS_monitor);				
 					
@@ -115,12 +131,12 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 
 						CAT_gui_end_menu();
 					}
+
 					if(CAT_gui_begin_menu("COSMETICS"))
 					{
 						if(CAT_gui_menu_item("PET NAME"))
-						{
 							CAT_gui_open_keyboard(pet.name);
-						}
+
 						if(CAT_gui_begin_menu("ROOM THEME"))
 						{
 							for(int i = 0; i < THEME_COUNT; i++)
@@ -133,6 +149,7 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 						}
 						CAT_gui_end_menu();
 					}
+
 					if(CAT_gui_begin_menu("DISPLAY"))
 					{
 						screen_brightness = CAT_gui_menu_ticker("LCD BRIGHTNESS", screen_brightness, CAT_LCD_MIN_BRIGHTNESS, CAT_LCD_MAX_BRIGHTNESS);

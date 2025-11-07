@@ -3,21 +3,24 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-typedef struct
+typedef struct CAT_dialogue_node CAT_dialogue_node;
+typedef struct CAT_dialogue_edge CAT_dialogue_edge;
+
+struct CAT_dialogue_edge
 {
 	const char* text;
-	const struct CAT_dialogue_node* node;
+	const CAT_dialogue_node* node;
 	void (*proc) ();
-} CAT_dialogue_edge;
+};
 
-typedef struct
+struct CAT_dialogue_node
 {
 	const char** lines;
 	int8_t line_count;
 
 	const CAT_dialogue_edge* edges;
 	int8_t edge_count;
-} CAT_dialogue_node;
+};
 
 void CAT_enter_dialogue(const CAT_dialogue_node* node);
 void CAT_change_dialogue_response(int dir);

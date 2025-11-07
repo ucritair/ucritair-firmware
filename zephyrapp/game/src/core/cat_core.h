@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "cat_time.h"
+#include "cat_leaderboard.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // MISCELLANY
@@ -155,6 +156,10 @@ void CAT_free(void* ptr);
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // LOGS
 
+#ifdef CAT_EMBEDDED
+_Static_assert(sizeof(float) == sizeof(uint32_t));
+#endif
+
 typedef struct __attribute__((__packed__))
 {
 	uint8_t flags;
@@ -172,11 +177,15 @@ typedef struct __attribute__((__packed__))
 	uint8_t voc_index, nox_index; //x1
 
 	uint16_t co2_uncomp_ppmx1;
+	
+	CAT_stroop_data stroop_data;
 
-	uint8_t cog_perf_x1; // [0, 100]
-
-	uint8_t pad[19];
+	uint8_t pad[11];
 } CAT_log_cell;
+
+#ifdef CAT_EMBEDDED
+_Static_assert(sizeof(CAT_log_cell) == 64);
+#endif
 
 typedef enum
 {
@@ -281,8 +290,3 @@ static inline void CAT_bonus_set(uint32_t value)
 {
 	;
 }
-
-void CAT_cache_cognitive_performance(int score);
-int CAT_get_cached_cognitive_performance();
-void CAT_invalidate_cognitive_performance();
-int CAT_load_cognitive_performance();

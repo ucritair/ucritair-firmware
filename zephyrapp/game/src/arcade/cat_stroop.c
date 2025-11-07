@@ -12,6 +12,8 @@
 #include "cat_air.h"
 #include "cat_math.h"
 
+#define CHALLENGES_PER_PHASE 1
+
 static void draw_tutorial();
 static void MS_tutorial(CAT_FSM_signal);
 static void draw_gameplay();
@@ -31,9 +33,13 @@ static enum
 	PHASE_WORDS_WORD,
 	PHASE_COUNT
 };
+
+#define TOTAL_CHALLENGES (PHASE_COUNT * CHALLENGES_PER_PHASE)
+
 static int phase;
-static int perfects[PHASE_COUNT];
-static float times[PHASE_COUNT];
+static float response_time[PHASE_COUNT][CHALLENGES_PER_PHASE];
+static bool incongruent[PHASE_COUNT][CHALLENGES_PER_PHASE];
+static bool errored[PHASE_COUNT][CHALLENGES_PER_PHASE];
 
 static int arrow_direction;
 static int arrow_position;
@@ -59,8 +65,7 @@ static int word_colour;
 static int word_direction;
 
 static bool challenge_request;
-static int challenges_complete = 0;
-static bool challenge_missed = false;
+static int challenge_idx = 0;
 
 static CAT_timed_latch error_latch = CAT_TIMED_LATCH_INIT(1.0f);
 static CAT_timed_latch finish_latch = CAT_TIMED_LATCH_INIT(0.25f);
@@ -107,16 +112,20 @@ static float arrow_mesh[] =
 	1.0f, 0.0f
 };
 
-#define CHALLENGES_PER_PHASE 8
-
 static float cached_co2 = -1;
 
 void change_phase(int _phase)
 {
 	phase = _phase;
-	challenges_complete = 0;
-	perfects[phase] = 0;
-	times[phase] = 0;
+	challenge_idx = 0;
+
+	for(int i = 0; i < CHALLENGES_PER_PHASE; i++)
+	{
+		response_time[phase][i] = 0;
+		incongruent[phase][i] = false;
+		errored[phase][i] = false;
+	}
+
 	challenge_request = true;
 	CAT_FSM_transition(&fsm, MS_tutorial);
 }
@@ -136,7 +145,7 @@ static void generate_arrow()
 {
 	static int arrow_pool[4];
 
-	int arrow_idx = challenges_complete % 4;
+	int arrow_idx = challenge_idx % 4;
 
 	if(arrow_idx == 0)
 	{
@@ -151,6 +160,8 @@ static void generate_arrow()
 	{
 		arrow_position += 2;
 		arrow_position %= 4;
+		if(arrow_position != arrow_direction)
+			incongruent[phase][challenge_idx] = true;
 	}
 }
 
@@ -158,7 +169,7 @@ static void generate_word()
 {
 	static int word_pool[4];
 
-	int idx = challenges_complete % 4;
+	int idx = challenge_idx % 4;
 
 	if(idx == 0)
 	{
@@ -169,7 +180,11 @@ static void generate_word()
 
 	word = word_pool[idx];
 	if(phase > PHASE_WORDS)
+	{
 		word_colour = word_pool[(idx+CAT_rand_int(1, 3))%4];
+		if(word_colour != word)
+			incongruent[phase][challenge_idx] = true;
+	}
 	else
 		word_colour = word;
 	word_direction = -1;
@@ -182,13 +197,13 @@ static void MS_gameplay(CAT_FSM_signal signal)
 		case CAT_FSM_SIGNAL_ENTER:
 		{
 			CAT_set_render_callback(draw_gameplay);
-			//phase_transition_complete = true;
 		}
 		break;
 
 		case CAT_FSM_SIGNAL_TICK:
 		{			
-			times[phase] += CAT_get_delta_time_s();
+			response_time[phase][challenge_idx] += CAT_get_delta_time_s();
+
 			CAT_timed_latch_tick(&error_latch);
 			CAT_timed_latch_tick(&finish_latch);
 
@@ -198,8 +213,8 @@ static void MS_gameplay(CAT_FSM_signal signal)
 				return;
 			else if(CAT_timed_latch_flipped(&finish_latch))
 			{
-				challenges_complete += 1;
-				if(challenges_complete < CHALLENGES_PER_PHASE)
+				challenge_idx += 1;
+				if(challenge_idx < CHALLENGES_PER_PHASE)
 					challenge_request = true;
 				else
 				{
@@ -217,8 +232,7 @@ static void MS_gameplay(CAT_FSM_signal signal)
 					generate_word();
 				else
 					generate_arrow();
-				challenge_request = false;
-				challenge_missed = false;			
+				challenge_request = false;	
 			}
 			
 			for(int i = 0; i < 4; i++)
@@ -234,13 +248,11 @@ static void MS_gameplay(CAT_FSM_signal signal)
 					
 					if(correct)
 					{
-						if(!challenge_missed)
-							perfects[phase] += 1;
 						CAT_timed_latch_raise(&finish_latch);
 					}
 					else
 					{
-						challenge_missed = true;
+						errored[phase][challenge_idx] = true;
 						CAT_timed_latch_raise(&error_latch);
 					}
 
@@ -489,15 +501,12 @@ static void draw_tutorial()
 	cursor_y = CAT_draw_text(CAT_LCD_SCREEN_W/2, cursor_y, "Press the indicated D-pad button to continue!\n");
 }
 
-static int total_challenges = 0;
-static int total_perfect = 0;
-static float total_time = 0;
-static float time_ratio = 0;
-static int stars = 0;
 static float co2 = 0;
 static float pm25 = 0;
-static int last_cog_perf = -1;
 static float temp = 0;
+
+static int perfect = 0;
+static int stars = 0;
 
 static void MS_performance(CAT_FSM_signal signal)
 {
@@ -506,52 +515,50 @@ static void MS_performance(CAT_FSM_signal signal)
 		case CAT_FSM_SIGNAL_ENTER:
 		{
 			CAT_set_render_callback(draw_performance);
-			
-			total_challenges = PHASE_COUNT * CHALLENGES_PER_PHASE;
-			total_perfect = 0;
-			for(int i = 0; i < PHASE_COUNT; i++)
-				total_perfect += perfects[i];
-			float min_time = __FLT_MAX__;
-			float max_time = -min_time;
-			total_time = 0;
-			for(int i = 0; i < PHASE_COUNT; i++)
-			{
-				float t = times[i];
-				if(t == 0)
-					continue;
-				min_time = CAT_min(min_time, t);
-				max_time = CAT_max(max_time, t);
-				total_time += t;
-			}
-			time_ratio = max_time / min_time;
 
 			co2 = cached_co2 < 0 ? CAT_AQ_value(CAT_AQM_CO2) : cached_co2;
 			pm25 = CAT_AQ_value(CAT_AQM_PM2_5);
 			temp = CAT_AQ_value(CAT_AQM_TEMP);
+			
+			int incong_challenges = 0;
+			float total_time = 0;
 
-			stars = 3;
-			if(total_perfect < total_challenges/2 || total_time > PHASE_COUNT * CAT_MINUTE_SECONDS)
+			stroop_data.mean_time_cong = 0;
+			stroop_data.mean_time_incong = 0;
+			stroop_data.throughput = 0;
+			
+			perfect = 0;
+			stars = 0;
+			
+			for(int i = 0; i < PHASE_COUNT; i++)
 			{
-				stars = 0;
-			}
-			else
-			{
-				if(total_challenges - total_perfect >= 4)
-					stars -= 1;
-				if(time_ratio >= 2.0f)
-					stars -= 1;
-			}
+				for(int j = 0; j < CHALLENGES_PER_PHASE; j++)
+				{
+					if(incongruent[i][j])
+					{
+						incong_challenges += 1;
+						stroop_data.mean_time_incong += response_time[i][j];
+					}
+					else
+						stroop_data.mean_time_cong += response_time[i][j];
+					total_time += response_time[i][j];
 
-			last_cog_perf = CAT_get_cached_cognitive_performance();
-			if(last_cog_perf == -1)
-				last_cog_perf = CAT_load_cognitive_performance();
-			CAT_cache_cognitive_performance((total_perfect / (float) total_challenges) * 100);
-			CAT_force_log_cell_write();
+					if(!errored[i][j])
+						perfect += 1;
+				}
+			}
+			stroop_data.mean_time_cong /= (TOTAL_CHALLENGES - incong_challenges);
+			stroop_data.mean_time_incong /= incong_challenges;
+			stroop_data.throughput = (TOTAL_CHALLENGES / total_time) * 60.0f;
+			stroop_data_valid = true;
+			
+			float grade = perfect / (float) TOTAL_CHALLENGES;
+			stars = (int)(grade >= 0.5f) + (int)(grade >= 0.85f) + (int)((stroop_data.mean_time_incong/stroop_data.mean_time_cong) <= 1.25f);
 		}
 		break;
 
 		case CAT_FSM_SIGNAL_TICK:
-		{	
+		{
 			if(CAT_input_pressed(CAT_BUTTON_A) || CAT_input_dismissal())
 				CAT_FSM_transition(&fsm, NULL);
 		}			
@@ -574,54 +581,36 @@ static void draw_performance()
 	CAT_set_text_scale(2);
 	cursor_y = CAT_draw_text(12, cursor_y, "PERFORMANCE\n");
 	cursor_y += CAT_TEXT_LINE_HEIGHT;
-	
+
+	float ratio = stroop_data.mean_time_incong / stroop_data.mean_time_cong;
 	CAT_set_text_mask(12, -1, CAT_LCD_SCREEN_W-12, -1);
 	CAT_set_text_colour(CAT_WHITE);
 	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
 	cursor_y = CAT_draw_textf
 	(
 		12, cursor_y,
-		"You did %d/%d tasks right in "CAT_FLOAT_FMT" seconds. "
-		"Your worst time was "CAT_FLOAT_FMT"x worse than your best."
+		"%d/%d tasks performed perfectly. "
+		"Tricky tasks solved "CAT_FLOAT_FMT"x as %s as typical tasks. "
+		"Overall cognitive performence rated"
 		"\n\n",
-		total_perfect, total_challenges, CAT_FMT_FLOAT(total_time),
-		CAT_FMT_FLOAT(time_ratio)
+		perfect, TOTAL_CHALLENGES,
+		CAT_FMT_FLOAT(ratio > 1.0f ? ratio : 1.0f/ratio), ratio > 1.0f ? "slow" : "fast"
 	);
-	
-	if(last_cog_perf != -1)
-	{
-		CAT_set_text_mask(12, -1, CAT_LCD_SCREEN_W-12, -1);
-		CAT_set_text_colour(CAT_WHITE);
-		CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
-		cursor_y = CAT_draw_textf
-		(
-			12, cursor_y,
-			"Your cognitive score is %d, compared to a previous score of %d\n",
-			CAT_get_cached_cognitive_performance(), last_cog_perf
-		);
-	}
-	else
-	{	
-		CAT_set_text_mask(12, -1, CAT_LCD_SCREEN_W-12, -1);
-		CAT_set_text_colour(CAT_WHITE);
-		CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
-		cursor_y = CAT_draw_textf(12, cursor_y, "Your cognitive score is now %d!\n", CAT_get_cached_cognitive_performance());
-	}
-	cursor_y += 32;
 
+	CAT_set_text_colour(CAT_CRISIS_YELLOW);
+	CAT_set_text_scale(2);
+	cursor_y = CAT_draw_textf
+	(
+		12, cursor_y,
+		"%d %s\n",
+		stars, stars == 1 ? "STAR" : "STARS"
+	);
+	cursor_y += 32;
 	for(int i = 0; i < 3; i++)
 	{
 		CAT_draw_star(12+ 24 + i * (48 + 8), cursor_y, 24, i < stars ? CAT_CRISIS_YELLOW : CAT_64_GREY);
 	}
 	cursor_y += 32;
-
-	/*const char* star_text =
-	stars >= 3 ? "A perfect 3 stars!" :
-	stars >= 2 ? "2 stars isn't bad!" :
-	stars >= 1 ? "1 disappointing star." :
-	"No stars? No good!";
-	CAT_set_text_colour(CAT_WHITE);
-	cursor_y = CAT_draw_textf(12, cursor_y, "%s\n", star_text);*/
 
 	CAT_set_text_mask(12, -1, CAT_LCD_SCREEN_W-12, -1);
 	CAT_set_text_colour(CAT_WHITE);
@@ -639,43 +628,46 @@ static void draw_performance()
 	);
 }
 
+static void load_co2()
+{
+	cached_co2 = -1;
+	if(CAT_logs_initialized())
+	{
+		uint64_t now = CAT_get_RTC_now();
+		int awake = CAT_get_uptime_ms() / 1000;
+		awake = CAT_min(awake, CAT_MINUTE_SECONDS * 15);
+		uint64_t picked_up = now - awake;
+		uint64_t half_before = picked_up - CAT_HOUR_SECONDS/2;
+
+		CAT_log_cell cell;
+		int idx = CAT_read_log_cell_before_time(-1, half_before, &cell);
+		int count = 0;
+
+		if(idx < 3)
+			cached_co2 = -1;
+		else
+		{
+			for(int i = idx+1; i < CAT_get_log_cell_count()-1; i++)
+			{
+				cached_co2 += cell.co2_ppmx1;
+				count++;
+
+				CAT_read_log_cell_at_idx(i, &cell);
+				if(cell.timestamp > picked_up)
+					break;
+			}
+		}
+		cached_co2 /= count;
+	}
+}
+
 void CAT_MS_stroop(CAT_FSM_signal signal)
 {
 	switch (signal)
 	{
 		case CAT_FSM_SIGNAL_ENTER:
 			CAT_set_render_callback(CAT_render_stroop);
-
-			cached_co2 = -1;
-			if(CAT_logs_initialized())
-			{
-				uint64_t now = CAT_get_RTC_now();
-				int awake = CAT_get_uptime_ms() / 1000;
-				awake = CAT_min(awake, CAT_MINUTE_SECONDS * 15);
-				uint64_t picked_up = now - awake;
-				uint64_t half_before = picked_up - CAT_HOUR_SECONDS/2;
-
-				CAT_log_cell cell;
-				int idx = CAT_read_log_cell_before_time(-1, half_before, &cell);
-				int count = 0;
-
-				if(idx < 3)
-					cached_co2 = -1;
-				else
-				{
-					for(int i = idx+1; i < CAT_get_log_cell_count()-1; i++)
-					{
-						cached_co2 += cell.co2_ppmx1;
-						count++;
-
-						CAT_read_log_cell_at_idx(i, &cell);
-						if(cell.timestamp > picked_up)
-							break;
-					}
-				}
-				cached_co2 /= count;
-			}
-
+			load_co2();
 			change_phase(PHASE_ARROWS);
 		break;
 

@@ -558,7 +558,7 @@ CAT_save* CAT_start_load()
 
 CAT_log_cell log_cell =
 {
-	.flags = CAT_LOG_CELL_FLAG_HAS_CO2 | CAT_LOG_CELL_FLAG_HAS_TEMP_RH_PARTICLES | CAT_LOG_CELL_FLAG_HAS_COG_PERF,
+	.flags = CAT_LOG_CELL_FLAG_HAS_CO2 | CAT_LOG_CELL_FLAG_HAS_TEMP_RH_PARTICLES,
 
 	.timestamp = 61686489600,
 	.temp_Cx1000 = 22700,
@@ -573,8 +573,6 @@ CAT_log_cell log_cell =
 	.nox_index = 1,
 
 	.co2_uncomp_ppmx1 = 644,
-
-	.cog_perf_x1 = 50
 };
 
 void CAT_read_log_cell_at_idx(int idx, CAT_log_cell* out)

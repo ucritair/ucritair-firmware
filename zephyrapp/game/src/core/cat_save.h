@@ -125,7 +125,6 @@ typedef struct __attribute__((__packed__))
 		uint16_t snake;
 		uint16_t mines;
 		uint16_t foursquares;
-		uint16_t stroop;
 	} highscores;
 
 	// SECTOR : CONFIG

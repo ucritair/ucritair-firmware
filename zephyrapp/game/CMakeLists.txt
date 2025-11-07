@@ -158,11 +158,11 @@ target_sources(app PRIVATE
 	src/caring/cat_study.c
 	src/caring/cat_feed.c
 
-	src/arcade/cat_arcade.c
 	src/arcade/cat_arcade_snake.c
 	src/arcade/cat_arcade_mines.c
 	src/arcade/cat_arcade_foursquares.c
 	src/arcade/cat_stroop.c
+	src/arcade/cat_leaderboard.c
 
 	src/monitors/cat_monitors.c
 	src/monitors/cat_monitor_summary.c
@@ -199,8 +199,7 @@ target_sources(app PRIVATE
 	src/world/cat_world.c
 	src/world/cat_dialogue.c
 	src/world/cat_scene.c
-
-	src/procs/cat_procs.c
+	src/world/cat_procs.c
 
 	src/crafting/cat_crafting.c
 
@@ -234,7 +233,6 @@ target_include_directories(app PRIVATE src/air)
 target_include_directories(app PRIVATE src/systems)
 target_include_directories(app PRIVATE src/room)
 target_include_directories(app PRIVATE src/world)
-target_include_directories(app PRIVATE src/procs)
 target_include_directories(app PRIVATE src/crafting)
 target_include_directories(app PRIVATE src/comms)
 

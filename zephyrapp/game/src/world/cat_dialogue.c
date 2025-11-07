@@ -34,7 +34,7 @@ void CAT_progress_dialogue()
 	{
 		if(edge_idx < current->edge_count)
 		{
-			CAT_dialogue_edge* edge = &current->edges[edge_idx];
+			const CAT_dialogue_edge* edge = &current->edges[edge_idx];
 			if(edge->proc != NULL)
 				edge->proc();
 			if(edge->node != NULL)
