@@ -205,12 +205,19 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 						}
 						CAT_gui_end_menu();
 					}
+
+					if(CAT_gui_menu_item("WI-FI"))
+					{
+						
+					}
+
 					if(CAT_gui_menu_item("SYSTEM"))
 					{
 #ifdef CAT_EMBEDDED
 						CAT_pushdown_push(CAT_MS_system_menu);
 #endif
 					}
+
 					if(CAT_gui_begin_menu("DANGER ZONE"))
 					{
 						if(CAT_gui_menu_item("RESET CONFIG FLAGS"))
