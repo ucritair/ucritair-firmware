@@ -58,7 +58,8 @@ static void draw_page(const char* title)
 
 	CAT_frameberry(CAT_WHITE);
 	cursor_y = CAT_draw_textf(cursor_x, cursor_y, "%s\n", title);
-	CAT_rowberry(cursor_y+PAD/2, cursor_y+PAD/2+1, CAT_BLACK);
+	cursor_y += PAD;
+	CAT_rowberry(cursor_y, cursor_y+1, CAT_BLACK);
 	cursor_y += PAD;
 }
 

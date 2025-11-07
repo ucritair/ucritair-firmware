@@ -54,7 +54,7 @@ bool CAT_gui_keyboard_is_open();
 //////////////////////////////////////////////////////////////////////////
 // POPUP
 
-static enum
+typedef enum
 {
 	CAT_POPUP_STYLE_YES_NO,
 	CAT_POPUP_STYLE_OK

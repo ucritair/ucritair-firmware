@@ -22,6 +22,7 @@
 #include "cat_persist.h"
 #include "cat_chat.h"
 #include "cat_save.h"
+#include "cat_wifi.h"
 
 #ifdef CAT_EMBEDDED
 #include "menu_system.h"
@@ -207,9 +208,7 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 					}
 
 					if(CAT_gui_menu_item("WI-FI"))
-					{
-						
-					}
+						CAT_pushdown_push(CAT_MS_wifi);
 
 					if(CAT_gui_menu_item("SYSTEM"))
 					{
