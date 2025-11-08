@@ -19,16 +19,20 @@
 typedef enum {
     MSG_TYPE_PROTOCOL_VERSION_QUERY = 0x00,
     MSG_TYPE_SENSOR_DATA = 0x70,
-    MSG_TYPE_SET_WIFI_CREDENTIALS = 0x51,
+    MSG_TYPE_WIFI_CONNECT = 0x51,
     MSG_TYPE_FIRMWARE_VERSION_QUERY = 0x5F,
+    MSG_TYPE_WIFI_SCAN_REQUEST = 0x52,
+    MSG_TYPE_REBOOT_TO_BOOTLOADER = 0x53,
 } host_to_device_msg_type_t;
 
 // Sent from Device to Host
 typedef enum {
     MSG_TYPE_PROTOCOL_VERSION_RESPONSE = 0x00,
     MSG_TYPE_SENSOR_DATA_ACK = 0x70,
-    MSG_TYPE_SET_WIFI_CREDENTIALS_ACK = 0x51,
+    MSG_TYPE_WIFI_CONNECT_ACK = 0x51,
     MSG_TYPE_FIRMWARE_VERSION_RESPONSE = 0x5F,
+    MSG_TYPE_WIFI_SCAN_RESPONSE = 0x52,
+    MSG_TYPE_REBOOT_TO_BOOTLOADER_ACK = 0x53,
 } device_to_host_msg_type_t;
 
 // --- Message Payloads ---
@@ -43,14 +47,38 @@ typedef struct __attribute__((__packed__)) {
     uint32_t sensor_value;
 } msg_payload_sensor_data_t;
 
-// Payload for setting WiFi credentials
+// Payload for WiFi connect
 #define MAX_SSID_LEN 32
 #define MAX_PASSWORD_LEN 64
+
+// WiFi auth modes (matches wifi_ap_record_t auth_mode)
+#define WIFI_AUTH_OPEN          0
+#define WIFI_AUTH_WEP           1
+#define WIFI_AUTH_WPA           2
+#define WIFI_AUTH_WPA2          3
+#define WIFI_AUTH_WPA_WPA2      4
 
 typedef struct __attribute__((__packed__)) {
     char ssid[MAX_SSID_LEN];
     char password[MAX_PASSWORD_LEN];
-} msg_payload_set_wifi_credentials_t;
+    uint8_t auth_mode;  // See WIFI_AUTH_* constants above
+} msg_payload_wifi_connect_t;
+
+// Payload for WiFi scan results
+#define MAX_SCAN_RESULTS 10
+
+typedef struct __attribute__((__packed__)) {
+    char ssid[MAX_SSID_LEN];
+    uint8_t bssid[6];
+    int8_t rssi;           // Signal strength in dBm
+    uint8_t channel;
+    uint8_t auth_mode;     // 0=Open, 1=WEP, 2=WPA, 3=WPA2, 4=WPA/WPA2
+} wifi_ap_record_t;
+
+typedef struct __attribute__((__packed__)) {
+    uint8_t count;         // Number of APs found (up to MAX_SCAN_RESULTS)
+    wifi_ap_record_t aps[MAX_SCAN_RESULTS];
+} msg_payload_wifi_scan_response_t;
 
 // --- API Functions ---
 
@@ -80,13 +108,14 @@ bool rp2350_query_firmware_version(uint8_t *major, uint8_t *minor, uint16_t *pat
 bool rp2350_query_protocol_version(uint8_t *major, uint8_t *minor, uint16_t *patch, uint32_t timeout_ms);
 
 /**
- * Send WiFi credentials to RP2350
+ * Connect RP2350 to WiFi network
  * @param ssid WiFi SSID (max 32 chars)
  * @param password WiFi password (max 64 chars)
+ * @param auth_mode WiFi security type (see WIFI_AUTH_* constants)
  * @param timeout_ms Timeout in milliseconds
- * @return true if ACK received, false if timeout
+ * @return true if connection successful, false if timeout or failed
  */
-bool rp2350_set_wifi_credentials(const char *ssid, const char *password, uint32_t timeout_ms);
+bool rp2350_wifi_connect(const char *ssid, const char *password, uint8_t auth_mode, uint32_t timeout_ms);
 
 /**
  * Send sensor data to RP2350
@@ -95,6 +124,21 @@ bool rp2350_set_wifi_credentials(const char *ssid, const char *password, uint32_
  * @return true if ACK received, false if timeout
  */
 bool rp2350_send_sensor_data(uint32_t sensor_value, uint32_t timeout_ms);
+
+/**
+ * Request WiFi scan from RP2350
+ * @param results Pointer to store scan results
+ * @param timeout_ms Timeout in milliseconds
+ * @return true if successful, false if timeout
+ */
+bool rp2350_wifi_scan(msg_payload_wifi_scan_response_t *results, uint32_t timeout_ms);
+
+/**
+ * Reboot RP2350 into USB bootloader mode for firmware updates
+ * @param timeout_ms Timeout in milliseconds
+ * @return true if ACK received (RP2350 will reboot after ACK), false if timeout
+ */
+bool rp2350_reboot_to_bootloader(uint32_t timeout_ms);
 
 /**
  * Process incoming UART data (call periodically)

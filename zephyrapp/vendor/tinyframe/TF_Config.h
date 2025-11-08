@@ -53,7 +53,7 @@ typedef uint8_t TF_COUNT;
 #define TF_MAX_PAYLOAD_RX 1024
 // Size of the sending buffer. Larger payloads will be split to pieces and sent
 // in multiple calls to the write function. This can be lowered to reduce RAM usage.
-#define TF_SENDBUF_LEN    128
+#define TF_SENDBUF_LEN    1024
 
 // --- Listener counts - determine sizes of the static slot tables ---
 
