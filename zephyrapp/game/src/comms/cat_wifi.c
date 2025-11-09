@@ -39,8 +39,7 @@ void poll_network_list()
 
 static wifi_ap_record_t network;
 static char password[MAX_SSID_LEN];
-static enum {CONNECT_ATTEMPT, CONNECT_SUCCESS, CONNECT_FAILURE};
-int connection_status = CONNECT_ATTEMPT;
+static enum {CONNECT_NONE, CONNECT_ATTEMPT, CONNECT_SUCCESS, CONNECT_FAILURE} connection_status = CONNECT_NONE;
 
 void MS_select_network(CAT_FSM_signal signal);
 void MS_enter_password(CAT_FSM_signal signal);
@@ -65,7 +64,7 @@ void MS_select_network(CAT_FSM_signal signal)
 				{
 					if(strlen(scan_results.aps[i].ssid) == 0)
 						continue;
-					if(strcmp(scan_results.aps[i].ssid, network.ssid) == 0)
+					if(strcmp(scan_results.aps[i].ssid, network.ssid) == 0 && connection_status == CONNECT_SUCCESS)
 					{
 						CAT_gui_menu_toggle(network.ssid, true, CAT_GUI_TOGGLE_STYLE_RADIO_BUTTON);
 						continue;
@@ -126,13 +125,17 @@ void MS_connect(CAT_FSM_signal signal)
 	{
 		case CAT_FSM_SIGNAL_ENTER:
 		{
-			connection_status = CONNECT_ATTEMPT;
+			
 		}
 		break;
 
 		case CAT_FSM_SIGNAL_TICK:
 		{
-			if(connection_status == CONNECT_ATTEMPT)
+			if(connection_status == CONNECT_NONE)
+			{
+				connection_status = CONNECT_ATTEMPT;
+			}
+			else if(connection_status == CONNECT_ATTEMPT)
 			{
 				connection_status =
 				rp2350_wifi_connect
