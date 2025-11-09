@@ -114,7 +114,7 @@ void CAT_MS_chat(CAT_FSM_signal signal)
 				}
 
 				if(CAT_input_pressed(CAT_BUTTON_A))
-					CAT_gui_open_keyboard(user_buffer);
+					CAT_gui_open_keyboard(user_buffer, sizeof(user_buffer));
 
 				if(CAT_input_pressed(CAT_BUTTON_B))
 					CAT_gui_open_popup("Quit chat?", CAT_POPUP_STYLE_YES_NO);

@@ -9,7 +9,7 @@ if [ ! -f build/makefile ]; then
 fi
 
 cd build
-make
+make -j8
 cd ..
 
 # EMBEDDED
@@ -27,7 +27,7 @@ if [[ $1 == "--embedded" ]]; then
 	if [[ $2 == "--aq-first" ]]; then
 		make -j8 CFLAGS="-DAQ_FIRST=ON"
 	else
-		make
+		make -j8
 	fi
 	cd ../game
 else

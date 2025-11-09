@@ -231,8 +231,9 @@ static const char** typecases[] =
 };
 
 static char* keyb_target = NULL;
-static char keyb_buffer[CAT_TEXT_INPUT_MAX_LENGTH];
+static char keyb_buffer[64];
 static int keyb_cursor;
+static size_t keyb_max_size;
 static enum {KEYB_KEYS, KEYB_BUTTONS} keyb_section;
 
 static int keyb_case;
@@ -241,7 +242,7 @@ static int keyb_glyph;
 
 static void keyb_save_proc()
 {
-	strncpy(keyb_target, keyb_buffer, CAT_TEXT_INPUT_MAX_LENGTH);
+	strncpy(keyb_target, keyb_buffer, keyb_max_size);
 	keyb_target = NULL;
 }
 
@@ -271,7 +272,7 @@ static int keyb_button;
 static bool keyb_show_cursor;
 static int keyb_cursor_frame;
 
-void CAT_gui_open_keyboard(char* target)
+void CAT_gui_open_keyboard(char* target, size_t max_size)
 {
 	if(keyb_target != NULL)
 		return;
@@ -279,8 +280,9 @@ void CAT_gui_open_keyboard(char* target)
 	keyb_target = target;
 
 	int length = strlen(target);
-	strncpy(keyb_buffer, target, CAT_TEXT_INPUT_MAX_LENGTH);
+	strncpy(keyb_buffer, target, max_size);
 	keyb_cursor = length;
+	keyb_max_size = max_size;
 	keyb_section = KEYB_KEYS;
 
 	keyb_case = 0;
@@ -345,7 +347,7 @@ void CAT_gui_keyboard_logic()
 
 				default:
 				{
-					if(keyb_cursor < CAT_TEXT_INPUT_MAX_LENGTH-1)
+					if(keyb_cursor < keyb_max_size-1)
 					{
 						glyph = (glyph == '_') ? ' ' : glyph;
 						keyb_buffer[keyb_cursor] = glyph;
@@ -747,6 +749,10 @@ bool CAT_gui_menu_item(const char* title)
 	int idx = find_menu_node(title);
 	if(idx == -1)
 		idx = register_menu_node(title, CAT_GUI_MENU_TYPE_DEFAULT);
+
+	if(menu_table[idx].type != CAT_GUI_MENU_TYPE_DEFAULT)
+		menu_table[idx].type = CAT_GUI_MENU_TYPE_DEFAULT;
+
 	menu_add_child(idx);
 
 	return consume_click(idx);
@@ -759,6 +765,9 @@ bool CAT_gui_menu_toggle(const char* title, bool toggle, CAT_gui_toggle_style st
 		idx = register_menu_node(title, CAT_GUI_MENU_TYPE_TOGGLE);
 	menu_add_child(idx);
 	menu_node* node = &menu_table[idx];
+
+	if(node->type != CAT_GUI_MENU_TYPE_TOGGLE)
+		node->type = CAT_GUI_MENU_TYPE_TOGGLE;
 
 	node->toggle_data.toggle = toggle;
 	node->toggle_data.style = style;
@@ -774,6 +783,9 @@ int CAT_gui_menu_ticker(const char* title, int value, int min, int max)
 		idx = register_menu_node(title, CAT_GUI_MENU_TYPE_TICKER);
 	menu_add_child(idx);
 	menu_node* node = &menu_table[idx];
+
+	if(node->type != CAT_GUI_MENU_TYPE_TICKER)
+		node->type = CAT_GUI_MENU_TYPE_TICKER;
 
 	if(first_call || (node->ticker_data.value != value && !node->ticker_data.changed))
 		node->ticker_data.value = value;
@@ -893,16 +905,22 @@ void CAT_gui_menu()
 		switch (child->type)
 		{
 			case CAT_GUI_MENU_TYPE_TOGGLE:
+			{
 				CAT_set_sprite_colour(CAT_BLACK);
 				const CAT_sprite* sprite =
 				child->toggle_data.style == CAT_GUI_TOGGLE_STYLE_CHECKBOX ?
 				&ui_checkbox_sprite : &ui_radio_button_circle_sprite;
 				CAT_gui_image(sprite, child->toggle_data.toggle);
 				CAT_gui_text(" ");
+			}
 			break;
+
 			case CAT_GUI_MENU_TYPE_TICKER:
+			{
 				CAT_gui_textf("< %d > ", child->ticker_data.value);
+			}
 			break;
+
 			default:
 			break;
 		}

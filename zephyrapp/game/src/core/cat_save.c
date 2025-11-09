@@ -187,7 +187,7 @@ void CAT_force_load()
 
 	CAT_printf("Loading...\n");
 
-	if(strlen(save->pet.name) <= CAT_TEXT_INPUT_MAX_LENGTH)
+	if(strlen(save->pet.name) <= sizeof(pet.name))
 		strncpy(pet.name, save->pet.name, sizeof(pet.name));
 
 	if(save->pet.lifespan <= 30)

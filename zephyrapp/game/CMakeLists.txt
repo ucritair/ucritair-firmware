@@ -23,7 +23,12 @@ if(NOT TARGET app)
 	
 	set(CMAKE_BUILD_TYPE Debug)
 	target_compile_options(app PRIVATE -Wall -g)
-	target_sources(app PRIVATE src/core/cat_desktop.c src/core/cat_persist_archive.c)
+	target_sources(app PRIVATE
+		src/core/cat_persist_archive.c
+		src/comms/cat_wifi_desktop.c
+		src/core/cat_desktop.c)
+
+	target_include_directories(app PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/../../src/)
 else()
 	message(WARNING "Building for embedded")
 

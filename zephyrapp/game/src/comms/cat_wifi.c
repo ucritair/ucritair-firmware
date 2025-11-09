@@ -5,44 +5,7 @@
 #include <string.h>
 #include <stdio.h>
 #include "cat_input.h"
-
-#define MAX_SSID_LEN 32
-#define MAX_SCAN_RESULTS 10
-
-typedef struct __attribute__((__packed__))
-{
-    char ssid[MAX_SSID_LEN];
-    uint8_t bssid[6];
-    int8_t rssi;           // Signal strength in dBm
-    uint8_t channel;
-    uint8_t auth_mode;     // 0=Open, 1=WEP, 2=WPA, 3=WPA2, 4=WPA/WPA2
-} wifi_ap_record_t;
-
-typedef struct __attribute__((__packed__))
-{
-    uint8_t count;         // Number of APs found (up to MAX_SCAN_RESULTS)
-    wifi_ap_record_t aps[MAX_SCAN_RESULTS];
-} msg_payload_wifi_scan_response_t;
-
-static bool rp2350_wifi_scan(msg_payload_wifi_scan_response_t *results, uint32_t timeout_ms)
-{
-	results->count = 3;
-	for(int i = 0; i < results->count; i++)
-	{
-		wifi_ap_record_t* record = &results->aps[i];
-		snprintf(record->ssid, sizeof(record->ssid), "Network %d", i);
-		memset(record->bssid, 0, sizeof(record->bssid));
-		record->rssi = i;
-		record->channel = i;
-		record->auth_mode = 3;
-	}
-	return true;
-}
-
-static bool rp2350_wifi_connect(const char *ssid, const char *password, uint8_t auth_mode, uint32_t timeout_ms)
-{
-	return true;
-}
+#include "rp2350_ipc.h"
 
 static msg_payload_wifi_scan_response_t scan_results;
 
@@ -74,8 +37,10 @@ void poll_network_list()
 	}
 }
 
-static int network_idx = -1;
+static wifi_ap_record_t network;
 static char password[MAX_SSID_LEN];
+static enum {CONNECT_ATTEMPT, CONNECT_SUCCESS, CONNECT_FAILURE};
+int connection_status = CONNECT_ATTEMPT;
 
 void MS_select_network(CAT_FSM_signal signal);
 void MS_enter_password(CAT_FSM_signal signal);
@@ -89,7 +54,6 @@ void MS_select_network(CAT_FSM_signal signal)
 		case CAT_FSM_SIGNAL_ENTER:
 		{
 			poll_network_list();
-			network_idx = -1;
 		}
 		break;
 
@@ -99,9 +63,16 @@ void MS_select_network(CAT_FSM_signal signal)
 			{
 				for(int i = 0; i < scan_results.count; i++)
 				{
+					if(strlen(scan_results.aps[i].ssid) == 0)
+						continue;
+					if(strcmp(scan_results.aps[i].ssid, network.ssid) == 0)
+					{
+						CAT_gui_menu_toggle(network.ssid, true, CAT_GUI_TOGGLE_STYLE_RADIO_BUTTON);
+						continue;
+					}
 					if(CAT_gui_menu_item(scan_results.aps[i].ssid))
 					{
-						network_idx = i;
+						network = scan_results.aps[i];
 						CAT_FSM_transition(&fsm, MS_enter_password);
 					}
 				}
@@ -125,7 +96,7 @@ void MS_enter_password(CAT_FSM_signal signal)
 		case CAT_FSM_SIGNAL_ENTER:
 		{
 			password[0] = '\0';
-			CAT_gui_open_keyboard(password);
+			CAT_gui_open_keyboard(password, MAX_PASSWORD_LEN);
 		}
 		break;
 
@@ -151,26 +122,32 @@ void MS_enter_password(CAT_FSM_signal signal)
 
 void MS_connect(CAT_FSM_signal signal)
 {
-	static bool connected = false;
-
 	switch(signal)
 	{
 		case CAT_FSM_SIGNAL_ENTER:
 		{
-			connected = rp2350_wifi_connect
-			(
-				scan_results.aps[network_idx].ssid,
-				password,
-				scan_results.aps[network_idx].auth_mode,
-				10
-			);
+			connection_status = CONNECT_ATTEMPT;
 		}
 		break;
 
 		case CAT_FSM_SIGNAL_TICK:
 		{
-			if(CAT_input_pressed(CAT_BUTTON_A) || CAT_input_pressed(CAT_BUTTON_B))
-				CAT_FSM_transition(&fsm, NULL);
+			if(connection_status == CONNECT_ATTEMPT)
+			{
+				connection_status =
+				rp2350_wifi_connect
+				(
+					network.ssid,
+					password,
+					network.auth_mode,
+					CAT_MINUTE_SECONDS * 1000
+				) ? CONNECT_SUCCESS : CONNECT_FAILURE;
+			}
+			else
+			{
+				if(CAT_input_pressed(CAT_BUTTON_A) || CAT_input_pressed(CAT_BUTTON_B))
+					CAT_FSM_transition(&fsm, NULL);
+			}
 		}
 		break;
 
@@ -214,18 +191,37 @@ void CAT_draw_wifi()
 	if(fsm.state == MS_enter_password)
 	{
 		CAT_frameberry(CAT_WHITE);
+		CAT_set_text_mask(12, -1, CAT_LCD_SCREEN_W-12, -1);
+		CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
 		CAT_draw_textf
 		(
 			12, 12,
-			"SSID: %s\n"
-			"Password: %s\n",
-			scan_results.aps[network_idx].ssid,
-			password
+			"Please enter password for network %s\n",
+			network.ssid
 		);
 	}
 	else if(fsm.state == MS_connect)
 	{
 		CAT_frameberry(CAT_WHITE);
-		CAT_draw_text(12, 12, "Connecting...\n");
+		if(connection_status == CONNECT_ATTEMPT)
+			CAT_draw_text(12, 12, "Connection in progress...\n");
+		else if(connection_status == CONNECT_SUCCESS)
+			CAT_draw_text(12, 12, "Connection succeeded!\n");
+		else
+			CAT_draw_text(12, 12, "Connection failed!\n");
 	}
+	else
+	{
+		CAT_frameberry(CAT_WHITE);
+	}
+}
+
+bool CAT_is_on_wifi()
+{
+	return connection_status == CONNECT_SUCCESS;
+}
+
+char* CAT_get_wifi_SSID()
+{
+	return network.ssid;
 }

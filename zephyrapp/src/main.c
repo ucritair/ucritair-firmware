@@ -84,19 +84,19 @@ int main(void)
 		LOG_ERR("Failed to query RP2350 firmware version\n");
 	}
 
-//	// Test reboot to bootloader
-//	k_msleep(2000); // Wait 2 seconds before rebooting
-//	printk("\n--- Testing RP2350 reboot to bootloader ---\n");
-//	if (rp2350_reboot_to_bootloader(2000)) {
-//		printk("Success! RP2350 should now appear as USB mass storage device.\n");
-//	} else {
-//		printk("Failed to reboot RP2350 to bootloader\n");
-//	}
+	// Test reboot to bootloader
+	/*k_msleep(2000); // Wait 2 seconds before rebooting
+	printk("\n--- Testing RP2350 reboot to bootloader ---\n");
+	if (rp2350_reboot_to_bootloader(2000)) {
+		printk("Success! RP2350 should now appear as USB mass storage device.\n");
+	} else {
+		printk("Failed to reboot RP2350 to bootloader\n");
+	}*/
 
 	// Test WiFi scan
-	LOG_INF("Requesting WiFi scan from RP2350 (may take 10-20 seconds)...\n");
+	/*LOG_INF("Requesting WiFi scan from RP2350 (may take 10-20 seconds)...\n");
 	msg_payload_wifi_scan_response_t scan_results;
-	if (rp2350_wifi_scan(&scan_results, 30000)) {
+	if (rp2350_wifi_scan(&scan_results, 30000)){
 		LOG_INF("WiFi scan successful! Found %d unique APs:\n", scan_results.count);
 		for (int i = 0; i < scan_results.count; i++) {
 			const char *auth_str[] = {"Open", "WEP", "WPA", "WPA2", "WPA/WPA2"};
@@ -123,7 +123,7 @@ int main(void)
 		LOG_ERR("Failed to connect to WiFi\n");
 	}
 
-	/*LOG_INF("\n=== All tests complete. Halting. ===\n");
+	LOG_INF("\n=== All tests complete. Halting. ===\n");
 	while (1) {
 		k_msleep(100000);
 	}*/
@@ -146,20 +146,6 @@ int main(void)
 
 	test_flash();
 	continue_rtc_from_log();
-
-	// Initialize RP2350 IPC
-	LOG_INF("Initializing RP2350 IPC...");
-	rp2350_ipc_init();
-	k_msleep(100); // Give RP2350 time to boot
-
-	// Query firmware version
-	uint8_t fw_major, fw_minor;
-	uint16_t fw_patch;
-	if (rp2350_query_firmware_version(&fw_major, &fw_minor, &fw_patch, 5000)) {
-		LOG_INF("RP2350 Firmware: v%u.%u.%u", fw_major, fw_minor, fw_patch);
-	} else {
-		LOG_ERR("Failed to query RP2350 firmware version");
-	}
 
 	if (wakeup_is_from_timer)
 	{

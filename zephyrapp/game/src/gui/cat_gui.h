@@ -8,7 +8,7 @@
 //////////////////////////////////////////////////////////////////////////
 // KEYBOARD
 
-void CAT_gui_open_keyboard(char* target);
+void CAT_gui_open_keyboard(char* target, size_t max_size);
 bool CAT_gui_keyboard_is_open();
 
 

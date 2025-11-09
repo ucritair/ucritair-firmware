@@ -23,6 +23,7 @@
 #include "cat_chat.h"
 #include "cat_save.h"
 #include "cat_wifi.h"
+#include "rp2350_ipc.h"
 
 #ifdef CAT_EMBEDDED
 #include "menu_system.h"
@@ -94,16 +95,20 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 					{
 						if(CAT_gui_menu_item("INFO"))
 							CAT_pushdown_push(CAT_MS_debug);
-							
-						if(CAT_gui_begin_menu("CHEATS"))
-						{
-							if(CAT_gui_menu_item("TURNKEY APARTMENT"))
-								CAT_set_load_flags(CAT_LOAD_FLAG_DIRTY | CAT_LOAD_FLAG_TURNKEY);
-							CAT_gui_end_menu();
-						}
 
 						if(CAT_gui_menu_item("COLOUR PICKER"))
 							CAT_pushdown_push(CAT_MS_colour_picker);
+						
+						if(CAT_gui_menu_item("RP2350 BOOTLOADER"))
+						{
+							// Test reboot to bootloader
+							CAT_printf("\n--- Testing RP2350 reboot to bootloader ---\n");
+							if (rp2350_reboot_to_bootloader(2000)) {
+								CAT_printf("Success! RP2350 should now appear as USB mass storage device.\n");
+							} else {
+								CAT_printf("Failed to reboot RP2350 to bootloader\n");
+							}
+						}
 							
 						CAT_gui_end_menu();
 					}				
@@ -138,7 +143,7 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 					if(CAT_gui_begin_menu("COSMETICS"))
 					{
 						if(CAT_gui_menu_item("PET NAME"))
-							CAT_gui_open_keyboard(pet.name);
+							CAT_gui_open_keyboard(pet.name, sizeof(pet.name));
 
 						if(CAT_gui_begin_menu("ROOM THEME"))
 						{
