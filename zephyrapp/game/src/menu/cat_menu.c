@@ -110,6 +110,9 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 								CAT_printf("Failed to reboot RP2350 to bootloader\n");
 							}
 						}
+
+						if(CAT_gui_menu_item("WIFI RECONNECT"))
+							CAT_wifi_autoconnect();
 							
 						CAT_gui_end_menu();
 					}				

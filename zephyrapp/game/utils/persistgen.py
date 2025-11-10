@@ -3,7 +3,7 @@
 import re;
 
 def parse_signatures(text):
-	raw = re.findall(r"extern volatile\s*([A-z0-9_]+)\s*([a-zA-Z_0-9]+)(\[[0-9]+\])?;", text);
+	raw = re.findall(r"extern volatile\s*([a-zA-Z_0-9]+)\s*([a-zA-Z_0-9]+)(\[[a-zA-Z_0-9]+\])?;", text);
 	table = [];
 	for t, n, q in raw:
 		row = {};
@@ -72,16 +72,16 @@ def generate_footer():
 	"\n";
 	return text;
 
-with open("src/cat_persist_archive.h", "w") as file:
+with open("src/core/cat_persist_archive.h", "w") as file:
 	file.write(generate_dot_h());
 
 src = "";
-with open("src/cat_persist.h") as file:
+with open("src/core/cat_persist.h") as file:
 	table = parse_signatures(file.read());
 	src += generate_header();
 	src += generate_struct(table);
 	src += generate_write(table);
 	src += generate_read(table);
 	src += generate_footer();
-with open("src/cat_persist_archive.c", "w") as file:
+with open("src/core/cat_persist_archive.c", "w") as file:
 	file.write(src);
