@@ -13,6 +13,7 @@
 #include "cat_persist.h"
 #include "cat_time.h"
 #include "cat_save.h"
+#include "cat_wifi.h"
 
 enum
 {
@@ -20,6 +21,7 @@ enum
 	TIME,
 	AQI,
 	LOGS,
+	NETWORK,
 	LAST
 };
 static int page = SYSTEM;
@@ -166,6 +168,25 @@ void CAT_render_debug()
 				"(%.4d/%.2d/%.2d)\n",
 				cell_time.year, cell_time.month, cell_time.day
 			);
+		}
+		break;
+
+		case NETWORK:
+		{
+			draw_page("< NETWORK >");
+
+			if(CAT_is_wifi_connected())
+			{
+				CAT_set_text_mask(PAD, -1, CAT_LCD_SCREEN_W-12, -1);
+				CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
+				cursor_y = CAT_draw_textf(cursor_x, cursor_y, "Connected to WiFi network %s\n", CAT_get_wifi_SSID());
+			}
+			else
+			{
+				CAT_set_text_mask(PAD, -1, CAT_LCD_SCREEN_W-12, -1);
+				CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
+				cursor_y = CAT_draw_textf(cursor_x, cursor_y, "Device is not connected to WiFi\n");
+			}
 		}
 		break;
 

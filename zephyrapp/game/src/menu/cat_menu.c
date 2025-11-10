@@ -36,6 +36,7 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 		case CAT_FSM_SIGNAL_ENTER:
 		{
 			CAT_set_render_callback(CAT_render_menu);
+			CAT_gui_menu_force_reset();
 		}
 		break;
 		
@@ -261,6 +262,8 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 		}
 
 		case CAT_FSM_SIGNAL_EXIT:
+		{
+		}
 		break;
 	}
 }

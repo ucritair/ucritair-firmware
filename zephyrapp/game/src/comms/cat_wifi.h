@@ -6,5 +6,5 @@
 void CAT_MS_wifi(CAT_FSM_signal signal);
 void CAT_draw_wifi();
 
-bool CAT_is_on_wifi();
+bool CAT_is_wifi_connected();
 char* CAT_get_wifi_SSID();

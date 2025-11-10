@@ -183,8 +183,8 @@ void CAT_gui_textf(const char* fmt, ...)
 {
 	va_list args;
 	va_start(args, fmt);
-	char text[512];
-	vsnprintf(text, 512, fmt, args);
+	char text[256];
+	vsnprintf(text, 256, fmt, args);
 	va_end(args);
 
 	CAT_gui_text(text);
@@ -197,12 +197,14 @@ void CAT_gui_title(bool tabs, const char* fmt, ...)
 	
 	if(tabs)
 		CAT_gui_text("< ");
+
 	va_list args;
 	va_start(args, fmt);
 	char text[32];
 	vsnprintf(text, 32, fmt, args);
 	va_end(args);
 	CAT_gui_text(text);
+
 	if(tabs)
 		CAT_gui_text(" >");
 	CAT_gui_text(" ");
@@ -550,14 +552,12 @@ typedef struct menu_node
 {
 	bool live;
 
-	const char* title;
+	char title[32];
 	bool clicked;
 	
 	CAT_gui_menu_type type;
 	union 
 	{
-		struct {} default_data;
-
 		struct
 		{
 			bool toggle;
@@ -571,15 +571,10 @@ typedef struct menu_node
 			int max;
 			bool changed;
 		} ticker_data;
-
-		struct
-		{
-			char text[32];
-		} text_data;
 	};
 	
 	int16_t parent;
-	uint8_t children[32];
+	uint8_t children[16];
 	uint8_t child_count;
 	int8_t selector;
 } menu_node;
@@ -598,6 +593,11 @@ void CAT_gui_menu_override_exit(void (*exit_proc)())
 	menu_exit_proc = exit_proc;
 }
 
+void CAT_gui_menu_force_reset()
+{
+	menu_reset = true;
+}
+
 uint16_t register_menu_node(const char* title, CAT_gui_menu_type type)
 {
 	uint16_t idx = CAT_hash_string(title) % MENU_TABLE_SIZE;
@@ -613,16 +613,16 @@ uint16_t register_menu_node(const char* title, CAT_gui_menu_type type)
 	menu_table[idx] = (menu_node)
 	{
 		.live = true,
-		.title = title,
 		.clicked = false,
 
 		.type = type,
-		.default_data = {},
 
 		.parent = -1,
 		.child_count = 0,
 		.selector = 0
 	};
+	strncpy(menu_table[idx].title, title, sizeof(menu_table[idx].title));
+
 	return idx;
 }
 
@@ -631,7 +631,7 @@ int find_menu_node(const char* title)
 	uint16_t idx = CAT_hash_string(title) % MENU_TABLE_SIZE;
 	while (menu_table[idx].live)
 	{
-		if (strcmp(menu_table[idx].title, title) == 0)
+		if (strncmp(menu_table[idx].title, title, sizeof(menu_table[idx].title)) == 0)
 			return idx;
 		idx++;
 	}
@@ -663,6 +663,8 @@ menu_node* get_local_head()
 
 menu_node* get_global_head()
 {
+	if(menu_root == -1)
+		return NULL;
 	menu_node* ptr = &menu_table[menu_root];
 	for(int i = 0; i < ptr->child_count; i++)
 	{
@@ -705,9 +707,9 @@ bool CAT_gui_begin_menu(const char* title)
 {
 	if(menu_reset)
 	{
-		CAT_printf("Resetting menu!\n");
 		for(int i = 0; i < MENU_TABLE_SIZE; i++)
 		{
+			menu_table[i].live = false;
 			menu_table[i].clicked = false;
 			menu_table[i].parent = -1;
 			menu_table[i].child_count = 0;
@@ -737,6 +739,11 @@ bool CAT_gui_begin_menu(const char* title)
 	}
 	
 	return menu_table[idx].clicked;
+}
+
+void CAT_gui_end_menu()
+{
+	pop_menu_node();	
 }
 
 bool CAT_gui_menu_is_open()
@@ -798,31 +805,6 @@ int CAT_gui_menu_ticker(const char* title, int value, int min, int max)
 		return node->ticker_data.value;
 	}
 	return value;
-}
-
-bool CAT_gui_menu_text(const char* fmt, ...)
-{
-	char temp[32];
-	va_list args;
-	va_start(args, fmt);
-	vsnprintf(temp, 32, fmt, args);
-	va_end(args);
-
-	int idx = find_menu_node(temp);
-	if(idx == -1)
-		idx = register_menu_node(temp, CAT_GUI_MENU_TYPE_TEXT);
-	menu_add_child(idx);
-	menu_node* node = &menu_table[idx];
-
-	strcpy(node->text_data.text, temp);
-	node->title = node->text_data.text;
-
-	return consume_click(idx);
-}
-
-void CAT_gui_end_menu()
-{
-	pop_menu_node();
 }
 
 void CAT_gui_menu_logic()
@@ -898,9 +880,7 @@ void CAT_gui_menu()
 	{
 		menu_node* child = &menu_table[head->children[i]];
 
-		if(child->type != CAT_GUI_MENU_TYPE_TEXT)
-			CAT_gui_textf("\1 ");
-		CAT_gui_textf("%s ", child->title);
+		CAT_gui_textf("\1 %s ", child->title);
 
 		switch (child->type)
 		{
