@@ -13,6 +13,6 @@ typedef enum
 void CAT_MS_wifi(CAT_FSM_signal signal);
 void CAT_draw_wifi();
 
-void CAT_wifi_autoconnect();
+void CAT_wifi_autoconnect(int timeout_ms);
 bool CAT_is_wifi_connected();
 char* CAT_get_wifi_SSID();

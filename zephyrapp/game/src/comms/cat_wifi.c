@@ -263,7 +263,7 @@ void CAT_draw_wifi()
 	}
 }
 
-void CAT_wifi_autoconnect()
+void CAT_wifi_autoconnect(int timeout_ms)
 {
 	if(wifi_status == CAT_WIFI_CONNECTION_SUCCESS)
 	{
@@ -273,7 +273,7 @@ void CAT_wifi_autoconnect()
 			wifi_details.ssid,
 			wifi_password,
 			wifi_details.auth_mode,
-			CAT_MINUTE_SECONDS * 15
+			timeout_ms
 		) ? CAT_WIFI_CONNECTION_SUCCESS : CAT_WIFI_CONNECTION_FAILURE;
 	}
 }

@@ -102,17 +102,15 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 						
 						if(CAT_gui_menu_item("RP2350 BOOTLOADER"))
 						{
-							// Test reboot to bootloader
-							CAT_printf("\n--- Testing RP2350 reboot to bootloader ---\n");
 							if (rp2350_reboot_to_bootloader(2000)) {
-								CAT_printf("Success! RP2350 should now appear as USB mass storage device.\n");
+								CAT_printf("Rebooted RP2350 to bootloader\n");
 							} else {
 								CAT_printf("Failed to reboot RP2350 to bootloader\n");
 							}
 						}
 
-						if(CAT_gui_menu_item("WIFI RECONNECT"))
-							CAT_wifi_autoconnect();
+						if(CAT_gui_menu_item("RECONNECT WIFI"))
+							CAT_wifi_autoconnect(10000);
 							
 						CAT_gui_end_menu();
 					}				

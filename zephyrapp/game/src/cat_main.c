@@ -12,6 +12,7 @@
 #include "cat_spriter.h"
 #include "cat_pet.h"
 #include "cat_input.h"
+#include "cat_wifi.h"
 
 #include "sprite_assets.h"
 
@@ -27,6 +28,8 @@ void CAT_init()
 	CAT_room_init();
 
 	CAT_force_load();
+
+	CAT_wifi_autoconnect(1000);
 
 	if(persist_flags & CAT_PERSIST_CONFIG_FLAG_AQ_FIRST)
 		CAT_pushdown_rebase(CAT_MS_monitor);
