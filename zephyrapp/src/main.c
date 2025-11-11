@@ -33,9 +33,46 @@ LOG_MODULE_REGISTER(sample, LOG_LEVEL_INF);
 #include "buttons.h"
 #include "batt.h"
 #include "rp2350_ipc.h"
+#include "msht.h"
+
+#include "mt_test.h"
+
+// memory monitoring
+//
+// System heap
+extern struct sys_heap _system_heap;
+
+
+#define PMSTAT \
+ret = k_thread_stack_space_get(current_thread, &free_stack); \
+if (ret < 0) { \
+        printk("Failed to get stack stats\r\n"); \
+} else { \
+        printk("Stack | Free: %u bytes\r\n", free_stack); \
+}
+
+/*
+\
+ret = sys_heap_runtime_stats_get(&_system_heap, &heap_stats);\
+if (ret < 0) { \
+        printk("Failed to get heap stats\r\n"); \
+} else { \
+        printk("Heap  | Free: %u bytes, Allocated: %u bytes\r\n", \
+        heap_stats.free_bytes, \
+        heap_stats.allocated_bytes);\
+} \
+*/
+
+
 
 int main(void)
 {
+	// more memory monitoring
+	int ret;
+	struct sys_memory_stats heap_stats;
+	struct k_thread *current_thread = k_current_get();
+	size_t free_stack;
+
 	// while (1) {
 	// 	k_msleep(1000);
 	// }
@@ -48,7 +85,7 @@ int main(void)
 	set_3v3(true);
 
 	usb_enable(NULL);
-
+PMSTAT
 	const struct device* dev = DEVICE_DT_GET(DT_CHOSEN(zephyr_shell_uart));
 	uint32_t dtr = 0;
 	while ((!dtr) && (k_uptime_get() < 1500)) {
@@ -69,6 +106,61 @@ int main(void)
 
 	set_5v0(true);
 	set_leds(true);
+
+
+// ---- MESHTASTIC BRINGUP DEBUG ----
+PMSTAT
+	msht_init();
+PMSTAT
+
+
+	/*
+	while (1) {
+		msht_w("[HENLO SERIAL FRIENDO!]\n");
+		k_msleep(1000);
+	}
+	*/
+
+	printk("the modem is eeby, let it take a bit to wake up...\r");
+	k_msleep(12000);
+	printk("ok.\n");
+
+	// clear any protobufs we received on init
+	if ( msht_status() )
+	{
+		msht_process(NULL);
+	}
+#if 0	
+PMSTAT
+	uint8_t tst_buf[] = {0x94,0xc3,0x00,0x06,0x18,0xa6,0xbe,0xb2,0xa3,0x0b};
+
+	printk("SEND IT! %u\r\n", sizeof(tst_buf));
+
+	msht_w(tst_buf, sizeof(tst_buf));
+
+PMSTAT
+#endif
+
+
+	mt_send_text("HENLO WURLD! I'M A CAT! nya~! I LIEK 2 PLAY GA3MS AND BREATHE FEWSH AIR! OwO :3\n", BROADCAST_ADDR, 0);
+
+	printk("TEST SENT!\r\n");
+	
+	k_msleep(1000);
+
+	mt_send_text("/me slliiides into ur DMs... ^_^\n", 0x0c6db855, 0);	
+
+	// speeeeeen
+	while (1) {
+		if ( msht_status() )
+		{
+			msht_process(msht_test_callback);
+		}
+
+		k_msleep(100);
+	}
+
+// ---- NOTHING EXECD BELOW ----
 
 	// Initialize RP2350 IPC
 	LOG_INF("Initializing RP2350 IPC...\n");
