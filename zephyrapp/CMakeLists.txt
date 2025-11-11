@@ -26,6 +26,7 @@ target_sources(app PRIVATE
 	src/power_control.c
 	src/rgb_leds.c
 	src/rp2350_ipc.c
+	src/msht.c
 	src/rtc.c
 	src/sound.c
 	src/sbcdec.c
