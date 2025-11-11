@@ -35,6 +35,8 @@ LOG_MODULE_REGISTER(sample, LOG_LEVEL_INF);
 #include "rp2350_ipc.h"
 #include "msht.h"
 
+#include "mt_test.h"
+
 // memory monitoring
 //
 // System heap
@@ -128,7 +130,7 @@ PMSTAT
 	{
 		msht_process(NULL);
 	}
-	
+#if 0	
 PMSTAT
 	uint8_t tst_buf[] = {0x94,0xc3,0x00,0x06,0x18,0xa6,0xbe,0xb2,0xa3,0x0b};
 
@@ -137,8 +139,17 @@ PMSTAT
 	msht_w(tst_buf, sizeof(tst_buf));
 
 PMSTAT
+#endif
 
+
+	mt_send_text("HENLO WURLD! I'M A CAT! nya~! I LIEK 2 PLAY GA3MS AND BREATHE FEWSH AIR! OwO :3\n", BROADCAST_ADDR, 0);
+
+	printk("TEST SENT!\r\n");
 	
+	k_msleep(1000);
+
+	mt_send_text("/me slliiides into ur DMs... ^_^\n", 0x0c6db855, 0);	
+
 	// speeeeeen
 	while (1) {
 		if ( msht_status() )

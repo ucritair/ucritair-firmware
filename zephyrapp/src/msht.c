@@ -208,7 +208,7 @@ int msht_process( RX_CB_FN_PTR meowback )
 					f_rstate = 1;
 
 					// pbuf_len is an invalid size!
-					printk("msht_process(): pbuf_len invalid! %u\r\n", pbuf_len);
+					LOG_ERR("msht_process(): pbuf_len invalid! %u\r\n", pbuf_len);
 				}
 
 				got_header = 1;
@@ -216,7 +216,7 @@ int msht_process( RX_CB_FN_PTR meowback )
 			else
 			{
 				// SHOULD NEVER REACH HERE
-				printk("OMGWTFBBQ?!\r\n");
+				LOG_ERR("OMGWTFBBQ?!\r\n");
 			}
 
 		}
@@ -231,7 +231,7 @@ int msht_process( RX_CB_FN_PTR meowback )
 
 			if ( pbuf_gotten > MSHT_RX_SIZE )
 			{
-				printk("OVER SIZE????!\r\n");
+				LOG_DBG("OVER SIZE????!\r\n");
 				f_rstate = 1;
 			}
 			else
@@ -244,7 +244,7 @@ int msht_process( RX_CB_FN_PTR meowback )
 			// complete frame!
 			if ( pbuf_gotten == pbuf_len )
 			{
-				printk("complete frame! %u bytes\r\n", pbuf_len);
+				//printk("complete frame! %u bytes\r\n", pbuf_len);
 
 				if ( meowback != NULL )
 				{
@@ -318,25 +318,4 @@ void msht_init(void)
     printk("%s(): init complete complete\n", __FUNCTION__);
 }
 
-#if 0
-void msht_process(void)
-{
-
-    // Check for timeout (UART data is now handled by interrupt)
-    if (response_state.waiting && k_uptime_get() >= response_state.timeout_abs) {
-    	printk("Response timeout\n");
-    	printk("Total bytes received: %d (expected ~420 for WiFi scan)\n", response_state.debug_count);
-    	// Print first 50 bytes for debugging
-    	int print_count = (response_state.debug_count < 50) ? response_state.debug_count : 50;
-    	for (int i = 0; i < print_count; i++) {
-    		printk("  [%d]: 0x%02X\n", i, response_state.debug_buf[i]);
-    	}
-    	if (response_state.debug_count > 50) {
-    		printk("  ... (%d more bytes)\n", response_state.debug_count - 50);
-    	}
-        response_state.waiting = false;
-        response_state.received = false;
-    }
-}
-#endif
 
