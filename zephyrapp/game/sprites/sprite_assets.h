@@ -284,4 +284,5 @@ extern const CAT_tinysprite tnyspr_cloud_smoke;
 extern const CAT_tinysprite tnyspr_protected;
 extern const CAT_tinysprite tnyspr_ucrit_splash;
 extern const CAT_tinysprite tnyspr_glyphs;
+extern const CAT_tinysprite tnyspr_chat_splash;
 

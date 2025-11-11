@@ -1,9 +1,12 @@
 #include "cat_chat.h"
 
-#include "cat_render.h"
-#include "cat_gui.h"
 #include "cat_input.h"
 #include "stdio.h"
+#include "cat_render.h"
+#include "cat_gui.h"
+#include "cat_spriter.h"
+#include "sprite_assets.h"
+#include "cat_colours.h"
 
 //////////////////////////////////////////////////////////////////////////
 // INBOX
@@ -53,7 +56,7 @@ static char user_buffer[128];
 
 static char sys_buffer[128];
 
-static CAT_timed_latch sys_latch = CAT_TIMED_LATCH_INIT(CAT_MINUTE_SECONDS);
+static CAT_timed_latch sys_latch = CAT_TIMED_LATCH_INIT(5);
 
 static void sysout_init()
 {
@@ -126,23 +129,50 @@ void CAT_MS_chat(CAT_FSM_signal signal)
 	}
 }
 
+#define MSG_PAD_X 2
+#define MSG_PAD_Y 4
+#define MSG_W (CAT_LCD_SCREEN_W)
+#define MSG_H (CAT_GLYPH_HEIGHT+MSG_PAD_Y*2)
+
+int draw_message(int y, int i)
+{
+	CAT_chat_msg* msg = fetch_msg(i);
+	bool change_sender = i > 0 && strcmp(fetch_msg(i-1)->sender, msg->sender) != 0;
+
+	CAT_fillberry(0, y, MSG_W, MSG_H, CAT_MSG_BG);
+
+	CAT_lineberry(0, y, 4, y, CAT_MSG_RIM);
+	CAT_lineberry(0, y, 0, y+4, CAT_MSG_RIM);
+	CAT_lineberry(MSG_W-1-4, y+MSG_H-1, MSG_W-1, y+MSG_H-1, CAT_MSG_RIM);
+	CAT_lineberry(MSG_W-1, y+MSG_H-1, MSG_W-1, y+MSG_H-1-4, CAT_MSG_RIM);
+
+	CAT_draw_textf(MSG_PAD_X, y+MSG_PAD_Y, "%s: %s", msg->sender, msg->text);
+
+	if(change_sender)
+		CAT_lineberry(64, y, MSG_W-1-64, y, CAT_224_GREY);
+
+	return y + MSG_H;
+}
+
 void CAT_draw_chat()
 {
 	CAT_frameberry(CAT_WHITE);
 
-	int box_y1 = in_length * CAT_TEXT_LINE_HEIGHT;
+	CAT_draw_tinysprite
+	(
+		(CAT_LCD_SCREEN_W-tnyspr_chat_splash.width)/2,
+		(CAT_LCD_SCREEN_H-tnyspr_chat_splash.height)/2,
+		&tnyspr_chat_splash, CAT_BLACK, CAT_WHITE
+	);
+
+	int box_y1 = in_length * MSG_H;
 	int keyboard_y0 = CAT_gui_keyboard_is_open() ? CAT_LCD_SCREEN_H/2 : CAT_LCD_SCREEN_H;
 	int overlap = CAT_max(box_y1 - keyboard_y0, 0);
 
-	int cursor_x = 0;
 	int cursor_y = -overlap;
 
 	for(int i = 0; i < in_length; i++)
 	{
-		CAT_chat_msg* msg = fetch_msg(i);
-		if(cursor_y + CAT_TEXT_LINE_HEIGHT > 0)
-			CAT_draw_textf(cursor_x, cursor_y, "%s: %s", msg->sender, msg->text);
-		cursor_y += CAT_TEXT_LINE_HEIGHT;
-		cursor_x = 0;
+		cursor_y = draw_message(cursor_y, i);
 	}
 }

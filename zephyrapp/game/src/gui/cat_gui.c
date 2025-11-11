@@ -233,7 +233,7 @@ static const char** typecases[] =
 };
 
 static char* keyb_target = NULL;
-static char keyb_buffer[64];
+static char keyb_buffer[128];
 static int keyb_cursor;
 static size_t keyb_max_size;
 static enum {KEYB_KEYS, KEYB_BUTTONS} keyb_section;
@@ -282,7 +282,7 @@ void CAT_gui_open_keyboard(char* target, size_t max_size)
 	keyb_target = target;
 
 	int length = strlen(target);
-	strncpy(keyb_buffer, target, max_size);
+	strncpy(keyb_buffer, target, sizeof(keyb_buffer));
 	keyb_cursor = length;
 	keyb_max_size = max_size;
 	keyb_section = KEYB_KEYS;

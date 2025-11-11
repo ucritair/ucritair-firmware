@@ -105,6 +105,13 @@
             "width": 240,
             "height": 320,
             "stride": 240
+        },
+        {
+            "name": "glyphs",
+            "path": "ui/tinyglyphs.png",
+            "width": 8,
+            "height": 1024,
+            "stride": 8
         }
     ]
 }
