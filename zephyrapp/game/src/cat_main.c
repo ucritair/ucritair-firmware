@@ -13,14 +13,16 @@
 #include "cat_pet.h"
 #include "cat_input.h"
 #include "cat_wifi.h"
+#include "msht.h"
+#include "cat_chat.h"
 
 #include "sprite_assets.h"
 
 void CAT_init()
 {
 	CAT_platform_init();
+	
 	CAT_input_init();
-
 	CAT_rand_seed();
 	CAT_animator_init();
 

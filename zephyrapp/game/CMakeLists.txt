@@ -26,6 +26,7 @@ if(NOT TARGET app)
 	target_sources(app PRIVATE
 		src/core/cat_persist_archive.c
 		src/comms/cat_wifi_desktop.c
+		src/comms/cat_chat_desktop.c
 		src/core/cat_desktop.c)
 
 	target_include_directories(app PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/../../src/)

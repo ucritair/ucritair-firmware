@@ -14,3 +14,5 @@ void CAT_send_chat_msg(char* sender, char* text);
 
 void CAT_MS_chat(CAT_FSM_signal signal);
 void CAT_draw_chat();
+
+void CAT_chat_rcv_meowback(char* frame, uint16_t frame_size);

@@ -34,6 +34,7 @@ LOG_MODULE_REGISTER(sample, LOG_LEVEL_INF);
 #include "batt.h"
 #include "rp2350_ipc.h"
 #include "msht.h"
+#include "cat_chat.h"
 
 #include "mt_test.h"
 
@@ -142,13 +143,9 @@ PMSTAT
 #endif
 
 
-	mt_send_text("HENLO WURLD! I'M A CAT! nya~! I LIEK 2 PLAY GA3MS AND BREATHE FEWSH AIR! OwO :3\n", BROADCAST_ADDR, 0);
-
-	printk("TEST SENT!\r\n");
-	
+	mt_send_text("Hello, world! (public)\n", BROADCAST_ADDR, 0);
 	k_msleep(1000);
-
-	mt_send_text("/me slliiides into ur DMs... ^_^\n", 0x0c6db855, 0);	
+	mt_send_text("Hello, world! (direct)\n", 0x49f38538, 0);	
 
 	// speeeeeen
 	while (1) {

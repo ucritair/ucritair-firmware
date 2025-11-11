@@ -7,6 +7,8 @@
 #include "cat_spriter.h"
 #include "sprite_assets.h"
 #include "cat_colours.h"
+#include "msht.h"
+#include "mt_test.h"
 
 //////////////////////////////////////////////////////////////////////////
 // INBOX
@@ -175,4 +177,19 @@ void CAT_draw_chat()
 	{
 		cursor_y = draw_message(cursor_y, i);
 	}
+}
+
+#define HEADER_SIZE 18
+#define FOOTER_SIZE 3
+#define PAYLOAD_SIZE(x) (x - HEADER_SIZE - FOOTER_SIZE)
+
+void CAT_chat_rcv_meowback(char* frame, uint16_t frame_size)
+{
+	uint8_t* header = (uint8_t*) frame;
+	uint8_t* payload = header + HEADER_SIZE;
+	size_t payload_size = PAYLOAD_SIZE(frame_size);
+	uint8_t* footer = payload + payload_size;
+	CAT_printf("[!] %s\n", payload);
+
+	CAT_send_chat_msg("?", payload);
 }
