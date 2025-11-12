@@ -30,6 +30,7 @@ if(NOT TARGET app)
 		src/core/cat_desktop.c)
 
 	target_include_directories(app PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/../../src/)
+	target_include_directories(app PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/../../src/protobufs/)
 else()
 	message(WARNING "Building for embedded")
 
@@ -223,6 +224,33 @@ target_sources(app PRIVATE
 	data/prop_assets.c
 	data/scene_assets.c
 	data/dialogue_profile_assets.c
+
+	${CMAKE_CURRENT_BINARY_DIR}/../../src/protobufs/pb_common.c
+	${CMAKE_CURRENT_BINARY_DIR}/../../src/protobufs/pb_decode.c
+	${CMAKE_CURRENT_BINARY_DIR}/../../src/protobufs/pb_encode.c
+	${CMAKE_CURRENT_BINARY_DIR}/../../src/protobufs/meshtastic/
+	${CMAKE_CURRENT_BINARY_DIR}/../../src/protobufs/meshtastic/admin.pb.c
+	${CMAKE_CURRENT_BINARY_DIR}/../../src/protobufs/meshtastic/apponly.pb.c
+	${CMAKE_CURRENT_BINARY_DIR}/../../src/protobufs/meshtastic/atak.pb.c
+	${CMAKE_CURRENT_BINARY_DIR}/../../src/protobufs/meshtastic/cannedmessages.pb.c
+	${CMAKE_CURRENT_BINARY_DIR}/../../src/protobufs/meshtastic/channel.pb.c
+	${CMAKE_CURRENT_BINARY_DIR}/../../src/protobufs/meshtastic/clientonly.pb.c
+	${CMAKE_CURRENT_BINARY_DIR}/../../src/protobufs/meshtastic/config.pb.c
+	${CMAKE_CURRENT_BINARY_DIR}/../../src/protobufs/meshtastic/connection_status.pb.c
+	${CMAKE_CURRENT_BINARY_DIR}/../../src/protobufs/meshtastic/device_ui.pb.c
+	${CMAKE_CURRENT_BINARY_DIR}/../../src/protobufs/meshtastic/interdevice.pb.c
+	${CMAKE_CURRENT_BINARY_DIR}/../../src/protobufs/meshtastic/localonly.pb.c
+	${CMAKE_CURRENT_BINARY_DIR}/../../src/protobufs/meshtastic/mesh.pb.c
+	${CMAKE_CURRENT_BINARY_DIR}/../../src/protobufs/meshtastic/module_config.pb.c
+	${CMAKE_CURRENT_BINARY_DIR}/../../src/protobufs/meshtastic/mqtt.pb.c
+	${CMAKE_CURRENT_BINARY_DIR}/../../src/protobufs/meshtastic/paxcount.pb.c
+	${CMAKE_CURRENT_BINARY_DIR}/../../src/protobufs/meshtastic/portnums.pb.c
+	${CMAKE_CURRENT_BINARY_DIR}/../../src/protobufs/meshtastic/powermon.pb.c
+	${CMAKE_CURRENT_BINARY_DIR}/../../src/protobufs/meshtastic/remote_hardware.pb.c
+	${CMAKE_CURRENT_BINARY_DIR}/../../src/protobufs/meshtastic/rtttl.pb.c
+	${CMAKE_CURRENT_BINARY_DIR}/../../src/protobufs/meshtastic/storeforward.pb.c
+	${CMAKE_CURRENT_BINARY_DIR}/../../src/protobufs/meshtastic/telemetry.pb.c
+	${CMAKE_CURRENT_BINARY_DIR}/../../src/protobufs/meshtastic/xmodem.pb.c
 
 	src/cat_main.c)
 

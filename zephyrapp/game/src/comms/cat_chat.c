@@ -7,8 +7,12 @@
 #include "cat_spriter.h"
 #include "sprite_assets.h"
 #include "cat_colours.h"
+
 #include "msht.h"
 #include "mt_test.h"
+#include "meshtastic/mesh.pb.h"
+#include "pb_encode.h"
+#include "pb_decode.h"
 
 //////////////////////////////////////////////////////////////////////////
 // INBOX
@@ -183,13 +187,27 @@ void CAT_draw_chat()
 #define FOOTER_SIZE 3
 #define PAYLOAD_SIZE(x) (x - HEADER_SIZE - FOOTER_SIZE)
 
+uint8_t rcv_buf[512];
+
 void CAT_chat_rcv_meowback(char* frame, uint16_t frame_size)
 {
-	uint8_t* header = (uint8_t*) frame;
-	uint8_t* payload = header + HEADER_SIZE;
-	size_t payload_size = PAYLOAD_SIZE(frame_size);
-	uint8_t* footer = payload + payload_size;
-	CAT_printf("[!] %s\n", payload);
+	memcpy(rcv_buf, frame, frame_size);
 
-	CAT_send_chat_msg("?", payload);
+	CAT_printf("[BEGIN RAW FRAME]\n");
+	int row_size = 32;
+	int i = 0;
+	for(i = 0; i < frame_size; i++)
+	{
+		CAT_printf("%x ", frame[i]);
+		if(i > 0 && i % row_size == 0 || i == frame_size-1)
+			CAT_printf("\n");
+	}
+	CAT_printf("[END RAW FRAME]\n");
+
+	pb_ostream_t stream = pb_ostream_from_buffer(rcv_buf, sizeof(rcv_buf));
+	meshtastic_FromRadio from_radio = meshtastic_FromRadio_init_default;
+	bool status = pb_decode(&stream, meshtastic_FromRadio_fields, &from_radio);
+	
+	meshtastic_Data_payload_t payload = from_radio.packet.decoded.payload;
+	CAT_printf("(%d) [%d] %s\n", status, from_radio.id, payload.bytes);
 }
