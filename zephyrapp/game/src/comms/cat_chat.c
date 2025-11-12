@@ -62,7 +62,7 @@ static char user_buffer[128];
 
 static char sys_buffer[128];
 
-static CAT_timed_latch sys_latch = CAT_TIMED_LATCH_INIT(5);
+static CAT_timed_latch sys_latch = CAT_TIMED_LATCH_INIT(CAT_MINUTE_SECONDS);
 
 static void sysout_init()
 {
@@ -193,7 +193,7 @@ void CAT_chat_rcv_meowback(char* frame, uint16_t frame_size)
 {
 	memcpy(rcv_buf, frame, frame_size);
 
-	CAT_printf("[BEGIN RAW FRAME]\n");
+	CAT_printf("[BEGIN RAW LORA FRAME]\n");
 	int row_size = 32;
 	int i = 0;
 	for(i = 0; i < frame_size; i++)
@@ -202,12 +202,16 @@ void CAT_chat_rcv_meowback(char* frame, uint16_t frame_size)
 		if(i > 0 && i % row_size == 0 || i == frame_size-1)
 			CAT_printf("\n");
 	}
-	CAT_printf("[END RAW FRAME]\n");
+	CAT_printf("[END RAW LORA FRAME]\n\n");
 
 	pb_ostream_t stream = pb_ostream_from_buffer(rcv_buf, sizeof(rcv_buf));
 	meshtastic_FromRadio from_radio = meshtastic_FromRadio_init_default;
 	bool status = pb_decode(&stream, meshtastic_FromRadio_fields, &from_radio);
-	
-	meshtastic_Data_payload_t payload = from_radio.packet.decoded.payload;
-	CAT_printf("(%d) [%d] %s\n", status, from_radio.id, payload.bytes);
+
+	if(status)
+	{
+		meshtastic_Data_payload_t payload = from_radio.packet.decoded.payload;
+		CAT_printf("[%d] %s\n", from_radio.id, payload.bytes);
+		CAT_send_chat_msg("?", payload.bytes);
+	}
 }

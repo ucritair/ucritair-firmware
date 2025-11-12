@@ -15,7 +15,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // EINK SCREEN
 
-#define EINK_UPDATE_PERIOD (CAT_MINUTE_SECONDS * 5)
+#define EINK_UPDATE_PERIOD (CAT_MINUTE_SECONDS * 2)
 
 static bool eink_boot_update = true;
 static bool eink_dirty = false;
