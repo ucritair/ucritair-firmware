@@ -111,6 +111,15 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 
 						if(CAT_gui_menu_item("RECONNECT WIFI"))
 							CAT_wifi_autoconnect(10000);
+						
+						if(CAT_gui_menu_item("AUTHENTICATE ZKP"))
+						{
+							int timeout = CAT_MINUTE_SECONDS * 15 * 1000;
+							CAT_printf("[WARNING] BEGINNING ZKP AUTHENTICATION WITH TIMEOUT OF %d SECONDS!\n");
+							msg_payload_zkp_authenticate_response_t response;
+							bool result = rp2350_zkp_authenticate(&response, timeout);
+							CAT_printf("RESULT OF ZKP AUTHENTICATION: %s\n", response.success ? "SUCCESS" : "FAILURE");
+						}
 							
 						CAT_gui_end_menu();
 					}				

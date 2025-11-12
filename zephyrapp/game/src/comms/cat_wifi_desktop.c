@@ -53,6 +53,12 @@ bool rp2350_reboot_to_bootloader(uint32_t timeout_ms)
 	return true;
 }
 
+bool rp2350_zkp_authenticate(msg_payload_zkp_authenticate_response_t *response, uint32_t timeout_ms)
+{
+	response->success = false;
+	return false;
+}
+
 void rp2350_ipc_process(void)
 {
 	return;
