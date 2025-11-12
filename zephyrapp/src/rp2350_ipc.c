@@ -14,6 +14,9 @@ static const struct device *uart0_dev = DEVICE_DT_GET(DT_NODELABEL(uart0));
 // TinyFrame instance
 static TinyFrame *tf = NULL;
 
+// Message queue for deferred status printing (avoid printk from ISR)
+K_MSGQ_DEFINE(zkp_status_queue, sizeof(msg_payload_zkp_auth_status_t), 20, 4);
+
 // Response tracking
 static struct {
     bool waiting;
@@ -23,6 +26,7 @@ static struct {
     uint8_t debug_buf[512];  // Increased for WiFi scan debugging
     int debug_count;
     msg_payload_wifi_scan_response_t *scan_results;
+    msg_payload_zkp_authenticate_response_t *zkp_response;
 } response_state = {0};
 
 // UART interrupt handler
@@ -123,6 +127,59 @@ static TF_Result wifi_scan_listener(TinyFrame *tf_instance, TF_Msg *msg)
     return TF_STAY;
 }
 
+/**
+ * ZKP authentication status listener (for unsolicited status updates)
+ * This is registered as a TYPE listener to catch MSG_TYPE_ZKP_AUTH_STATUS messages
+ * NOTE: Called from ISR context, so we queue the message for deferred printing
+ */
+static TF_Result zkp_status_listener(TinyFrame *tf_instance, TF_Msg *msg)
+{
+    if (msg->len == sizeof(msg_payload_zkp_auth_status_t)) {
+        msg_payload_zkp_auth_status_t status;
+        memcpy(&status, msg->data, sizeof(status));
+
+        // Queue the message for processing in thread context (avoid printk from ISR)
+        k_msgq_put(&zkp_status_queue, &status, K_NO_WAIT);
+    }
+    return TF_STAY;
+}
+
+/**
+ * ZKP authentication response listener (for final authentication result)
+ */
+static TF_Result zkp_auth_listener(TinyFrame *tf_instance, TF_Msg *msg)
+{
+    // Filter out status updates (130 bytes) - only process final response (545 bytes)
+    if (msg->len == sizeof(msg_payload_zkp_auth_status_t)) {
+        // This is a status update, not the final response - ignore
+        // (it will be handled by zkp_status_listener)
+        return TF_STAY;
+    }
+
+    if (msg->len == sizeof(msg_payload_zkp_authenticate_response_t)) {
+        msg_payload_zkp_authenticate_response_t *payload = (msg_payload_zkp_authenticate_response_t *)msg->data;
+
+        if (response_state.zkp_response) {
+            memcpy(response_state.zkp_response, payload, sizeof(msg_payload_zkp_authenticate_response_t));
+        }
+
+        response_state.received = true;
+        response_state.waiting = false;
+
+        if (payload->success) {
+            printk("\n*** ZKP AUTHENTICATION SUCCESSFUL ***\n");
+            printk("Access Token: %.32s...\n", payload->access_token);
+            printk("Expires at:   %s\n", payload->expires_at);
+        } else {
+            printk("\n*** ZKP AUTHENTICATION FAILED ***\n");
+        }
+    } else {
+        printk("Invalid ZKP auth response length: %u (expected %u)\n",
+               msg->len, sizeof(msg_payload_zkp_authenticate_response_t));
+    }
+    return TF_STAY;
+}
+
 // --- Public API ---
 
 void rp2350_ipc_init(void)
@@ -139,6 +196,9 @@ void rp2350_ipc_init(void)
         return;
     }
 
+    // Register type listener for unsolicited ZKP status messages
+    TF_AddTypeListener(tf, MSG_TYPE_ZKP_AUTH_STATUS, zkp_status_listener);
+
     // Configure UART interrupt
     uart_irq_callback_user_data_set(uart0_dev, uart_isr_handler, NULL);
     uart_irq_rx_enable(uart0_dev);
@@ -148,6 +208,34 @@ void rp2350_ipc_process(void)
 {
     if (!tf) {
         return;
+    }
+
+    // Process any queued ZKP status messages
+    msg_payload_zkp_auth_status_t status;
+    while (k_msgq_get(&zkp_status_queue, &status, K_NO_WAIT) == 0) {
+        // Stage names for display
+        const char *stage_names[] = {
+            "Unknown",   // 0
+            "Nonce",     // 1
+            "Parent",    // 2
+            "Witness",   // 3
+            "Proof",     // 4
+            "Verify"     // 5
+        };
+        const char *stage_name = (status.stage <= 5) ? stage_names[status.stage] : "Unknown";
+
+        // Color-coded prefix based on progress
+        const char *prefix;
+        if (status.progress == 0 && strstr(status.message, "failed") == NULL) {
+            prefix = "⏳";  // Starting
+        } else if (status.progress == 100) {
+            prefix = "✓";   // Complete
+        } else {
+            prefix = "◐";   // In progress
+        }
+
+        printk("%s [Stage %u: %s] %3u%% - %s\n",
+               prefix, status.stage, stage_name, status.progress, status.message);
     }
 
     // Check for timeout (UART data is now handled by interrupt)
@@ -394,5 +482,88 @@ bool rp2350_reboot_to_bootloader(uint32_t timeout_ms)
     }
 
     return false;
+}
+
+bool rp2350_zkp_authenticate(msg_payload_zkp_authenticate_response_t *response, uint32_t timeout_ms)
+{
+    if (!tf || !response) {
+        return false;
+    }
+
+    // Clear response buffer
+    memset(response, 0, sizeof(msg_payload_zkp_authenticate_response_t));
+
+    // Reset response state
+    response_state.waiting = true;
+    response_state.received = false;
+    response_state.timeout_abs = k_uptime_get() + timeout_ms;
+    response_state.debug_count = 0;
+    response_state.zkp_response = response;
+
+    // Print header
+    printk("\n");
+    printk("========================================\n");
+    printk("ZKP AUTHENTICATION\n");
+    printk("========================================\n");
+    printk("Sending authentication request to RP2350...\n");
+    printk("This will take approximately 10-15 minutes.\n");
+    printk("\n");
+    printk("Status updates:\n");
+    printk("----------------------------------------\n");
+
+    // Send ZKP authentication request (empty payload)
+    if (!TF_QuerySimple(tf, MSG_TYPE_ZKP_AUTHENTICATE, NULL, 0, zkp_auth_listener, NULL, 0)) {
+        LOG_ERR("Failed to send ZKP authentication request");
+        response_state.waiting = false;
+        response_state.zkp_response = NULL;
+        return false;
+    }
+
+    // Wait for response with processing
+    // Status updates will be dequeued and printed by rp2350_ipc_process()
+    int64_t start_time = k_uptime_get();
+    int64_t last_heartbeat = 0;
+    while (response_state.waiting) {
+        rp2350_ipc_process();  // This drains the ZKP status message queue
+        k_msleep(50);  // Check every 50ms for responsive status updates
+
+        // Print periodic heartbeat every 60 seconds if no response
+        int64_t elapsed = k_uptime_get() - start_time;
+        if (elapsed - last_heartbeat >= 60000) {
+            printk("[INFO] Still waiting for authentication... (%lld seconds elapsed)\n", elapsed / 1000);
+            last_heartbeat = elapsed;
+        }
+    }
+
+    response_state.zkp_response = NULL;
+
+    int64_t total_time = k_uptime_get() - start_time;
+
+    printk("\n");
+    if (response_state.received && response->success) {
+        printk("========================================\n");
+        printk("AUTHENTICATION SUCCESSFUL\n");
+        printk("========================================\n");
+        printk("Time taken: %lld seconds (%.1f minutes)\n", total_time / 1000, (float)total_time / 60000.0f);
+        printk("========================================\n");
+        printk("\n");
+        return true;
+    } else if (response_state.received && !response->success) {
+        printk("========================================\n");
+        printk("AUTHENTICATION FAILED\n");
+        printk("========================================\n");
+        printk("Time taken: %lld seconds\n", total_time / 1000);
+        printk("========================================\n");
+        printk("\n");
+        return false;
+    } else {
+        printk("========================================\n");
+        printk("AUTHENTICATION TIMEOUT\n");
+        printk("========================================\n");
+        printk("No response after %lld seconds\n", total_time / 1000);
+        printk("========================================\n");
+        printk("\n");
+        return false;
+    }
 }
 

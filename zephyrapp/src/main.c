@@ -119,6 +119,20 @@ int main(void)
 	LOG_INF("Connecting to 'Zaviyar-Home-2G' with WPA2...\n");
 	if (rp2350_wifi_connect("Zaviyar-Home-2G", "ZaviyarWasim", WIFI_AUTH_WPA2, 45000)) {
 		LOG_INF("Successfully connected to WiFi!\n");
+
+		// WiFi is now connected - perform ZKP authentication
+		LOG_INF("\n--- Starting ZKP Authentication ---\n");
+		msg_payload_zkp_authenticate_response_t auth_response;
+
+		// Call ZKP authentication with 15 minute timeout (900000 ms)
+		if (rp2350_zkp_authenticate(&auth_response, 900000)) {
+			LOG_INF("ZKP Authentication successful!\n");
+			LOG_INF("Access Token: %.64s...\n", auth_response.access_token);
+			LOG_INF("Expires at: %s\n", auth_response.expires_at);
+			// TODO: Use auth_response.access_token for authenticated API calls
+		} else {
+			LOG_ERR("ZKP Authentication failed\n");
+		}
 	} else {
 		LOG_ERR("Failed to connect to WiFi\n");
 	}
