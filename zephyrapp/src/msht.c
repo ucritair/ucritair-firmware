@@ -1,14 +1,13 @@
-#include "msht.h"
-
 #include <zephyr/kernel.h>
 #include <zephyr/device.h>
 #include <zephyr/drivers/uart.h>
 #include <zephyr/logging/log.h>
-#include <zephyr/net_buf.h>
+//#include <zephyr/net_buf.h>
 #include <zephyr/sys/ring_buffer.h>
 
 #include <string.h>
 
+#include "msht.h"
 
 
 #define MSHT_RX_COUNT 2
@@ -16,7 +15,7 @@
 
 
 // buffer pool for received frames
-NET_BUF_POOL_DEFINE(rx_frame, MSHT_RX_COUNT, MSHT_RX_SIZE, 0, NULL);
+//NET_BUF_POOL_DEFINE(rx_frame, MSHT_RX_COUNT, MSHT_RX_SIZE, 0, NULL);
 
 
 
@@ -28,10 +27,10 @@ static const struct device *uart3_dev = DEVICE_DT_GET(DT_NODELABEL(uart3));
 
 
 // RX ring buffer for ISR
-static uint8_t rxrb_buf[MSHT_RX_SIZE] = {0};
+static uint8_t rxrb_buf[(MSHT_RX_SIZE+4) * 10] = {0};
 static struct ring_buf rxrb;
 
-static volatile uint16_t G_UART3_BYTES = 0;
+//static volatile uint16_t G_UART3_BYTES = 0;
 
 // UART interrupt handler
 static void uart3_isr_handler(const struct device *dev, void *user_data)
@@ -58,7 +57,7 @@ static void uart3_isr_handler(const struct device *dev, void *user_data)
         }
 
         if (bytes_read > 0) {
-	    G_UART3_BYTES++;
+	    //G_UART3_BYTES++;
             LOG_DBG("UART3 ISR: Read %d bytes", bytes_read);
         }
     }
@@ -68,7 +67,7 @@ static void uart3_isr_handler(const struct device *dev, void *user_data)
 // returns the number of bytes available
 int msht_status ( void )
 {
-	return G_UART3_BYTES;
+	return !ring_buf_is_empty(&rxrb);
 }
 
 
@@ -78,7 +77,7 @@ void msht_test_callback ( char *frame, uint16_t frame_sz )
 {
 	int i = 0;
 
-	printk("%s(): %u byte frame: ", __FUNCTION__);
+	printk("%s(): %u byte frame: ", __FUNCTION__, frame_sz);
 
 	printk("< ");
 
@@ -116,6 +115,11 @@ void msht_test_callback ( char *frame, uint16_t frame_sz )
  * 
  */
 
+
+// first set in msht_init(), can be changed after that if needed
+volatile uint32_t msht_process_timeout_ms;
+
+
 #define MSHT_MAGIC0 0x94
 #define MSHT_MAGIC1 0xC3
 
@@ -131,8 +135,6 @@ int msht_process( RX_CB_FN_PTR meowback )
 
 	// FIXME: turn this mess into an actual state machine...
 	
-	// FIXME: add a timeout for truncated reads !!!
-
 
 	// flag to reset state
 	uint8_t f_rstate = 0;
@@ -151,12 +153,15 @@ int msht_process( RX_CB_FN_PTR meowback )
 
 	static uint8_t buf[MSHT_RX_SIZE+4] = {0};
 	static uint16_t buf_idx = 0;
+
+	static uint64_t timeout_abs = 0;
 	// ------------------
 	
 
 	while (ring_buf_get(&rxrb, &c, 1) > 0) {
 
-		G_UART3_BYTES--;
+		//G_UART3_BYTES--;
+
 
 		if ( !got_header )
 		{
@@ -166,6 +171,9 @@ int msht_process( RX_CB_FN_PTR meowback )
 			{
 				if ( c == MSHT_MAGIC0 )
 				{
+					// began processing a fame, set the timeout
+					timeout_abs = k_uptime_get() + msht_process_timeout_ms;
+
 					// found MAGIC0!
 					found_magic0 = 1;
 				}
@@ -231,7 +239,7 @@ int msht_process( RX_CB_FN_PTR meowback )
 
 			if ( pbuf_gotten > MSHT_RX_SIZE )
 			{
-				LOG_DBG("OVER SIZE????!\r\n");
+				LOG_DBG("OVER SIZE!?\r\n");
 				f_rstate = 1;
 			}
 			else
@@ -244,7 +252,7 @@ int msht_process( RX_CB_FN_PTR meowback )
 			// complete frame!
 			if ( pbuf_gotten == pbuf_len )
 			{
-				//printk("complete frame! %u bytes\r\n", pbuf_len);
+				printk("complete frame! %u bytes\r\n", pbuf_len);
 
 				if ( meowback != NULL )
 				{
@@ -255,6 +263,16 @@ int msht_process( RX_CB_FN_PTR meowback )
 				// got all the bytes of the frame, reset to find the next frame
 				f_rstate = 1;
 			}
+		}
+
+		uint64_t timenow = k_uptime_get();
+
+		if ( timeout_abs && timenow >= timeout_abs )
+		{
+			LOG_ERR("msht_process timeout %u > %u ! %u %u %u %u %u %u %u", timenow - timeout_abs, msht_process_timeout_ms, found_magic0, found_magic1, got_len0, pbuf_len, got_header, pbuf_gotten, buf_idx);
+
+			// timeout reached
+			f_rstate = 1;
 		}
 
 
@@ -273,6 +291,7 @@ int msht_process( RX_CB_FN_PTR meowback )
 
 			memset(buf, 0, sizeof(buf));
 			buf_idx = 0;
+			timeout_abs = 0;
 		}
 	}
 
@@ -316,6 +335,8 @@ void msht_init(void)
     ring_buf_init(&rxrb, sizeof(rxrb_buf), rxrb_buf); 
 
     printk("%s(): init complete complete\n", __FUNCTION__);
+
+    msht_process_timeout_ms = 500;
 }
 
 
