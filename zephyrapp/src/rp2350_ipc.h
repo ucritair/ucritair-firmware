@@ -23,6 +23,7 @@ typedef enum {
     MSG_TYPE_FIRMWARE_VERSION_QUERY = 0x5F,
     MSG_TYPE_WIFI_SCAN_REQUEST = 0x52,
     MSG_TYPE_REBOOT_TO_BOOTLOADER = 0x53,
+    MSG_TYPE_ZKP_AUTHENTICATE = 0x54,
 } host_to_device_msg_type_t;
 
 // Sent from Device to Host
@@ -33,6 +34,8 @@ typedef enum {
     MSG_TYPE_FIRMWARE_VERSION_RESPONSE = 0x5F,
     MSG_TYPE_WIFI_SCAN_RESPONSE = 0x52,
     MSG_TYPE_REBOOT_TO_BOOTLOADER_ACK = 0x53,
+    MSG_TYPE_ZKP_AUTHENTICATE_RESPONSE = 0x54,
+    MSG_TYPE_ZKP_AUTH_STATUS = 0x55,  // Unsolicited status updates during auth
 } device_to_host_msg_type_t;
 
 // --- Message Payloads ---
@@ -79,6 +82,38 @@ typedef struct __attribute__((__packed__)) {
     uint8_t count;         // Number of APs found (up to MAX_SCAN_RESULTS)
     wifi_ap_record_t aps[MAX_SCAN_RESULTS];
 } msg_payload_wifi_scan_response_t;
+
+// Payload for ZKP authentication request
+// Empty payload - device uses hardcoded secret and server hostname
+typedef struct __attribute__((__packed__)) {
+    // No fields - command is stateless
+} msg_payload_zkp_authenticate_request_t;
+
+// Payload for ZKP authentication response
+#define MAX_ACCESS_TOKEN_LEN 512
+#define MAX_TIMESTAMP_LEN 32
+
+typedef struct __attribute__((__packed__)) {
+    uint8_t success;       // 1 if authentication successful, 0 if failed
+    char access_token[MAX_ACCESS_TOKEN_LEN];
+    char expires_at[MAX_TIMESTAMP_LEN];
+} msg_payload_zkp_authenticate_response_t;
+
+// Payload for ZKP authentication status updates (unsolicited)
+#define MAX_STATUS_MESSAGE_LEN 128
+
+// Stage definitions
+#define ZKP_STAGE_NONCE 1
+#define ZKP_STAGE_PARENT 2
+#define ZKP_STAGE_WITNESS 3
+#define ZKP_STAGE_PROOF 4
+#define ZKP_STAGE_VERIFY 5
+
+typedef struct __attribute__((__packed__)) {
+    uint8_t stage;         // Current stage (1=nonce, 2=parent, 3=witness, 4=proof, 5=verify)
+    uint8_t progress;      // Progress percentage (0-100)
+    char message[MAX_STATUS_MESSAGE_LEN];  // Human-readable status message
+} msg_payload_zkp_auth_status_t;
 
 // --- API Functions ---
 
@@ -139,6 +174,19 @@ bool rp2350_wifi_scan(msg_payload_wifi_scan_response_t *results, uint32_t timeou
  * @return true if ACK received (RP2350 will reboot after ACK), false if timeout
  */
 bool rp2350_reboot_to_bootloader(uint32_t timeout_ms);
+
+/**
+ * Perform ZKP authentication with server
+ * This is a long-running operation (~10 minutes) that will:
+ * 1. Send authentication request to RP2350
+ * 2. Receive unsolicited status updates (printed to console)
+ * 3. Wait for final authentication response
+ *
+ * @param response Pointer to store authentication response
+ * @param timeout_ms Timeout in milliseconds (should be ~15 minutes = 900000ms)
+ * @return true if authentication successful, false if failed or timeout
+ */
+bool rp2350_zkp_authenticate(msg_payload_zkp_authenticate_response_t *response, uint32_t timeout_ms);
 
 /**
  * Process incoming UART data (call periodically)
