@@ -17,3 +17,4 @@ pip install playsound3
 pip install numpy
 pip install qrcode
 pip install meshtastic
+pip install protobuf grpcio-tools

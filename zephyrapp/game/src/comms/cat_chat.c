@@ -183,16 +183,15 @@ void CAT_draw_chat()
 	}
 }
 
-#define HEADER_SIZE 18
-#define FOOTER_SIZE 3
-#define PAYLOAD_SIZE(x) (x - HEADER_SIZE - FOOTER_SIZE)
-
 uint8_t rcv_buf[512];
+
+const char test_payload[] =
+{
+
+};
 
 void CAT_chat_rcv_meowback(char* frame, uint16_t frame_size)
 {
-	memcpy(rcv_buf, frame, frame_size);
-
 	CAT_printf("[BEGIN RAW LORA FRAME]\n");
 	int row_size = 32;
 	int i = 0;
@@ -204,14 +203,14 @@ void CAT_chat_rcv_meowback(char* frame, uint16_t frame_size)
 	}
 	CAT_printf("[END RAW LORA FRAME]\n\n");
 
-	pb_ostream_t stream = pb_ostream_from_buffer(rcv_buf, sizeof(rcv_buf));
+	memcpy(rcv_buf, frame, frame_size);
+	pb_istream_t stream = pb_istream_from_buffer(rcv_buf, frame_size);
 	meshtastic_FromRadio from_radio = meshtastic_FromRadio_init_default;
 	bool status = pb_decode(&stream, meshtastic_FromRadio_fields, &from_radio);
 
 	if(status)
 	{
 		meshtastic_Data_payload_t payload = from_radio.packet.decoded.payload;
-		CAT_printf("[%d] %s\n", from_radio.id, payload.bytes);
-		CAT_send_chat_msg("?", payload.bytes);
+		CAT_printf("Payload size: %zu\n", payload.size);
 	}
 }
