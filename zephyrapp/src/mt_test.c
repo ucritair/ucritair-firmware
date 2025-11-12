@@ -107,3 +107,46 @@ int mt_send_text ( const char * text, uint32_t dest, uint8_t channel_index )
 	return _mt_send_toRadio(toRadio);
 }
 
+
+
+void mt_test_handle_packet_callback ( char *frame, uint16_t frame_sz )
+{
+	int status;
+
+	pb_istream_t stream = pb_istream_from_buffer(frame, frame_sz);
+
+	meshtastic_FromRadio fromRadio = meshtastic_FromRadio_init_zero;
+	status = pb_decode(&stream, meshtastic_FromRadio_fields, &fromRadio);
+
+	/*
+	// Be prepared to request a node report to re-establish flow after an MT reboot
+	meshtastic_ToRadio toRadio = meshtastic_ToRadio_init_default;
+	toRadio.which_payload_variant = meshtastic_ToRadio_want_config_id_tag;
+	toRadio.want_config_id = SPECIAL_NONCE;
+	*/
+
+	if (!status)
+	{
+		printk("Decoding failed");
+		return;
+	}
+
+	printk("got fromRadio.which_payload_variant: %u\r\n", fromRadio.which_payload_variant);
+
+	switch ( fromRadio.which_payload_variant )
+	{
+		case meshtastic_FromRadio_packet_tag:
+			if ( fromRadio.packet.which_payload_variant == meshtastic_MeshPacket_decoded_tag )
+			{
+				if ( fromRadio.packet.decoded.portnum == meshtastic_PortNum_TEXT_MESSAGE_APP )
+				{
+					//text_message_callback(meshPacket->from, meshPacket->to, meshPacket->channel, (const char*)meshPacket->decoded.payload.bytes);
+					printk("TEXT_MESSAGE_APP: from: 0x%02X to: 0x%02X chan: %u msg: '%s'\r\n", fromRadio.packet.from, fromRadio.packet.to, fromRadio.packet.channel, fromRadio.packet.decoded.payload.bytes);
+				}
+			}
+
+	}
+
+	return;
+}
+

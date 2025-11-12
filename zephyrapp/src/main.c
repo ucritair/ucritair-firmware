@@ -135,7 +135,7 @@ PMSTAT
 		if ( msht_status() )
 		{
 			//printk("stuff in buf\r\n");
-			msht_process(CAT_chat_rcv_meowback);
+			msht_process(mt_test_handle_packet_callback);
 		}
 
 		//printk("eeb\r\n");
