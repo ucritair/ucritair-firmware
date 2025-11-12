@@ -122,7 +122,9 @@ PMSTAT
 	*/
 
 	printk("the modem is eeby, let it take a bit to wake up...\r");
-	k_msleep(12000);
+	// FIXME: do an async wake up in the main loop, wait for ~6 seconds after enabling the 5v PSU
+	// also check to see if this time can be made any lower
+	k_msleep(6000);
 	printk("ok.\n");
 
 	// clear any protobufs we received on init
@@ -130,8 +132,10 @@ PMSTAT
 	{
 		msht_process(NULL);
 	}
-#if 0	
+#if 1
 PMSTAT
+	// sending this causes the modem to start sending us frames
+	// replace this with the actual correct start up handshake
 	uint8_t tst_buf[] = {0x94,0xc3,0x00,0x06,0x18,0xa6,0xbe,0xb2,0xa3,0x0b};
 
 	printk("SEND IT! %u\r\n", sizeof(tst_buf));
@@ -142,21 +146,24 @@ PMSTAT
 #endif
 
 
-	mt_send_text("HENLO WURLD! I'M A CAT! nya~! I LIEK 2 PLAY GA3MS AND BREATHE FEWSH AIR! OwO :3\n", BROADCAST_ADDR, 0);
+	mt_send_text("less obnoxious test message\n", BROADCAST_ADDR, 0);
 
 	printk("TEST SENT!\r\n");
 	
 	k_msleep(1000);
 
-	mt_send_text("/me slliiides into ur DMs... ^_^\n", 0x0c6db855, 0);	
+	mt_send_text("DM test message\n", 0x0c6db855, 0);	
 
+	printk("after TXs, begin waiting for incoming frames!\r\n");
 	// speeeeeen
 	while (1) {
 		if ( msht_status() )
 		{
+			//printk("stuff in buf\r\n");
 			msht_process(msht_test_callback);
 		}
 
+		//printk("eeb\r\n");
 		k_msleep(100);
 	}
 

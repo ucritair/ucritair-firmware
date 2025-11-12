@@ -24,7 +24,11 @@ void msht_test_callback ( char *frame, uint16_t frame_sz );
 
 // receive buffer callback function pointer type
 typedef void (*RX_CB_FN_PTR)(char*,uint16_t);
-                                        
+
+
+// processing timeout
+extern volatile uint32_t msht_process_timeout_ms;
+
 // process the ring buffer for meshtastic protobuf frames
 // when we complete a frame, exec a callback with a pointer to the buffer, and it's length
 int msht_process( RX_CB_FN_PTR meowback );
