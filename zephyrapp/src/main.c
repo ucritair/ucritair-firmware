@@ -160,7 +160,7 @@ PMSTAT
 		if ( msht_status() )
 		{
 			//printk("stuff in buf\r\n");
-			msht_process(msht_test_callback);
+			msht_process(mt_test_handle_packet_callback);
 		}
 
 		//printk("eeb\r\n");
