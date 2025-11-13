@@ -129,15 +129,48 @@ int main(void)
 			LOG_INF("ZKP Authentication successful!\n");
 			LOG_INF("Access Token: %.64s...\n", auth_response.access_token);
 			LOG_INF("Expires at: %s\n", auth_response.expires_at);
-			// TODO: Use auth_response.access_token for authenticated API calls
 		} else {
 			LOG_ERR("ZKP Authentication failed\n");
+		}
+
+		// Start periodic sensor data transmission
+		LOG_INF("\n--- Starting Periodic Sensor Data Transmission ---\n");
+		LOG_INF("Sending sensor data every 30 seconds...\n");
+
+		uint32_t sensor_cycle = 0;
+		while (1) {
+			sensor_cycle++;
+
+			// Create 5 sensor values (0-255 range for 8-bit TFHE)
+			// In real application, replace with actual sensor readings
+			uint32_t sensor_values[5];
+			sensor_values[0] = (sensor_cycle * 1) % 256;   // Simulated sensor 0
+			sensor_values[1] = (sensor_cycle * 2) % 256;   // Simulated sensor 1
+			sensor_values[2] = (sensor_cycle * 3) % 256;   // Simulated sensor 2
+			sensor_values[3] = (sensor_cycle * 4) % 256;   // Simulated sensor 3
+			sensor_values[4] = (sensor_cycle * 5) % 256;   // Simulated sensor 4
+
+			printk("\n[Cycle %u] Sending sensor data: [%u, %u, %u, %u, %u]\n",
+			       sensor_cycle, sensor_values[0], sensor_values[1],
+			       sensor_values[2], sensor_values[3], sensor_values[4]);
+			printk("(RP2350 will encrypt with TFHE and send to cloud)\n");
+
+			// Send to RP2350 (120s timeout for TFHE encryption + cloud upload)
+			if (rp2350_send_sensor_data_array(sensor_values, 5, 120000)) {
+				printk("✓ Sensor data sent successfully\n");
+			} else {
+				printk("✗ Failed to send sensor data (timeout or error)\n");
+			}
+
+			// Wait 30 seconds before next transmission
+			printk("Waiting 30 seconds before next cycle...\n");
+			k_sleep(K_SECONDS(30));
 		}
 	} else {
 		LOG_ERR("Failed to connect to WiFi\n");
 	}
 
-	LOG_INF("\n=== All tests complete. Halting. ===\n");
+	LOG_INF("\n=== Halting (should not reach here) ===\n");
 	while (1) {
 		k_msleep(100000);
 	}

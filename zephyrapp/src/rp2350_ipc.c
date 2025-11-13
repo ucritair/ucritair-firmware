@@ -91,7 +91,7 @@ static TF_Result version_listener(TinyFrame *tf_instance, TF_Msg *msg)
     } else {
     	printk("Invalid version response length: %u\n", msg->len);
     }
-    return TF_STAY;
+    return TF_CLOSE;  // Remove listener after handling response
 }
 
 /**
@@ -102,7 +102,7 @@ static TF_Result ack_listener(TinyFrame *tf_instance, TF_Msg *msg)
     response_state.received = true;
     response_state.waiting = false;
     printk("ACK received\n");
-    return TF_STAY;
+    return TF_CLOSE;  // Remove listener after handling response
 }
 
 /**
@@ -124,7 +124,7 @@ static TF_Result wifi_scan_listener(TinyFrame *tf_instance, TF_Msg *msg)
         printk("Invalid WiFi scan response length: %u (expected %u)\n",
                msg->len, sizeof(msg_payload_wifi_scan_response_t));
     }
-    return TF_STAY;
+    return TF_CLOSE;  // Remove listener after handling response
 }
 
 /**
@@ -153,7 +153,7 @@ static TF_Result zkp_auth_listener(TinyFrame *tf_instance, TF_Msg *msg)
     if (msg->len == sizeof(msg_payload_zkp_auth_status_t)) {
         // This is a status update, not the final response - ignore
         // (it will be handled by zkp_status_listener)
-        return TF_STAY;
+        return TF_STAY;  // Keep listening for the actual response
     }
 
     if (msg->len == sizeof(msg_payload_zkp_authenticate_response_t)) {
@@ -173,11 +173,12 @@ static TF_Result zkp_auth_listener(TinyFrame *tf_instance, TF_Msg *msg)
         } else {
             printk("\n*** ZKP AUTHENTICATION FAILED ***\n");
         }
+        return TF_CLOSE;  // Close after receiving final response
     } else {
         printk("Invalid ZKP auth response length: %u (expected %u)\n",
                msg->len, sizeof(msg_payload_zkp_authenticate_response_t));
     }
-    return TF_STAY;
+    return TF_CLOSE;  // Close on error
 }
 
 // --- Public API ---
@@ -372,13 +373,21 @@ bool rp2350_wifi_connect(const char *ssid, const char *password, uint8_t auth_mo
 
 bool rp2350_send_sensor_data(uint32_t sensor_value, uint32_t timeout_ms)
 {
-    if (!tf) {
+    // Legacy function - convert single value to array
+    uint32_t sensor_values[NUM_SENSORS] = {sensor_value, 0, 0, 0, 0};
+    return rp2350_send_sensor_data_array(sensor_values, NUM_SENSORS, timeout_ms);
+}
+
+bool rp2350_send_sensor_data_array(uint32_t *sensor_values, uint8_t num_sensors, uint32_t timeout_ms)
+{
+    if (!tf || !sensor_values || num_sensors != NUM_SENSORS) {
         return false;
     }
 
-    msg_payload_sensor_data_t payload = {
-        .sensor_value = sensor_value
-    };
+    msg_payload_sensor_data_t payload;
+    for (int i = 0; i < NUM_SENSORS; i++) {
+        payload.sensor_values[i] = sensor_values[i];
+    }
 
     // Reset response state
     response_state.waiting = true;
@@ -387,7 +396,11 @@ bool rp2350_send_sensor_data(uint32_t sensor_value, uint32_t timeout_ms)
     response_state.debug_count = 0;
 
     // Send sensor data
-    LOG_DBG("Sending sensor data: %u", sensor_value);
+    printk("Sending sensor data: [%u, %u, %u, %u, %u]\n",
+           payload.sensor_values[0], payload.sensor_values[1],
+           payload.sensor_values[2], payload.sensor_values[3],
+           payload.sensor_values[4]);
+
     if (!TF_QuerySimple(tf, MSG_TYPE_SENSOR_DATA, (const uint8_t *)&payload, sizeof(payload), ack_listener, NULL, 0)) {
         LOG_ERR("Failed to send sensor data");
         response_state.waiting = false;
@@ -395,13 +408,25 @@ bool rp2350_send_sensor_data(uint32_t sensor_value, uint32_t timeout_ms)
     }
 
     // Wait for ACK with processing
+    // This will take a long time due to TFHE encryption (~60s) + cloud upload
+    int64_t start_time = k_uptime_get();
+    int64_t last_update = start_time;
+
     while (response_state.waiting) {
         rp2350_ipc_process();
-        k_msleep(10);
+        k_msleep(100);
+
+        // Print progress every 10 seconds
+        int64_t elapsed = k_uptime_get() - start_time;
+        if (elapsed - (last_update - start_time) >= 10000) {
+            printk("  ... still waiting for ACK (%lld seconds elapsed)\n", elapsed / 1000);
+            last_update = k_uptime_get();
+        }
     }
 
     if (response_state.received) {
-        LOG_DBG("Sensor data ACK received");
+        int64_t total_time = k_uptime_get() - start_time;
+        printk("Sensor data ACK received (%lld seconds)\n", total_time / 1000);
         return true;
     }
 

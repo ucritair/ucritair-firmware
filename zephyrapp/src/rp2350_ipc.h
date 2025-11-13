@@ -46,8 +46,10 @@ typedef struct __attribute__((__packed__)) {
 } msg_payload_version_response_t;
 
 // Payload for sensor data
+#define NUM_SENSORS 5
+
 typedef struct __attribute__((__packed__)) {
-    uint32_t sensor_value;
+    uint32_t sensor_values[NUM_SENSORS];  // Array of 5 sensor values
 } msg_payload_sensor_data_t;
 
 // Payload for WiFi connect
@@ -153,12 +155,21 @@ bool rp2350_query_protocol_version(uint8_t *major, uint8_t *minor, uint16_t *pat
 bool rp2350_wifi_connect(const char *ssid, const char *password, uint8_t auth_mode, uint32_t timeout_ms);
 
 /**
- * Send sensor data to RP2350
+ * Send sensor data to RP2350 (single value - legacy)
  * @param sensor_value Sensor value to send
  * @param timeout_ms Timeout in milliseconds
  * @return true if ACK received, false if timeout
  */
 bool rp2350_send_sensor_data(uint32_t sensor_value, uint32_t timeout_ms);
+
+/**
+ * Send sensor data array to RP2350 (5 values for TFHE encryption)
+ * @param sensor_values Array of 5 sensor values (0-255 each)
+ * @param num_sensors Number of sensors (must be 5)
+ * @param timeout_ms Timeout in milliseconds (recommend 120000ms for TFHE encryption)
+ * @return true if ACK received, false if timeout
+ */
+bool rp2350_send_sensor_data_array(uint32_t *sensor_values, uint8_t num_sensors, uint32_t timeout_ms);
 
 /**
  * Request WiFi scan from RP2350
