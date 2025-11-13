@@ -109,8 +109,8 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 					}				
 				}
 
-				if(CAT_gui_menu_item("CHAT"))
-					CAT_pushdown_push(CAT_MS_chat);
+				/*if(CAT_gui_menu_item("CHAT"))
+					CAT_pushdown_push(CAT_MS_chat);*/
 
 				if(CAT_gui_begin_menu("SETTINGS"))
 				{
@@ -210,8 +210,8 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 						CAT_gui_end_menu();
 					}
 
-					if(CAT_gui_menu_item("WI-FI"))
-						CAT_pushdown_push(CAT_MS_wifi);
+					/*if(CAT_gui_menu_item("WI-FI"))
+						CAT_pushdown_push(CAT_MS_wifi);*/
 
 					if(CAT_gui_menu_item("SYSTEM"))
 					{
