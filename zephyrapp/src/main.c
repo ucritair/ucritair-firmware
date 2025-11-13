@@ -124,7 +124,7 @@ PMSTAT
 	printk("the modem is eeby, let it take a bit to wake up...\r");
 	// FIXME: do an async wake up in the main loop, wait for ~6 seconds after enabling the 5v PSU
 	// also check to see if this time can be made any lower
-	k_msleep(6000);
+	k_msleep(12000);
 	printk("ok.\n");
 
 	// clear any protobufs we received on init
@@ -144,15 +144,21 @@ PMSTAT
 
 PMSTAT
 #endif
+	k_msleep(500);
 
+	char txtbuf[101] = {0};
 
-	mt_send_text("less obnoxious test message\n", BROADCAST_ADDR, 0);
+      
+	snprintf(txtbuf, sizeof(txtbuf), "Test Broadcast msg. uptime: %lld\n", k_uptime_get());
+
+	mt_send_text(txtbuf, BROADCAST_ADDR, 0);
 
 	printk("TEST SENT!\r\n");
 	
 	k_msleep(1000);
 
-	mt_send_text("DM test message\n", 0x0c6db855, 0);	
+	snprintf(txtbuf, sizeof(txtbuf), "Test Direct msg. uptime: %lld\n", k_uptime_get());
+	mt_send_text(txtbuf, 0x0c6db855, 0);	
 
 	printk("after TXs, begin waiting for incoming frames!\r\n");
 	// speeeeeen

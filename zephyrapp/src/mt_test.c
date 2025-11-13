@@ -16,7 +16,7 @@ LOG_MODULE_REGISTER(MTTEST, LOG_LEVEL_INF);
 
 #include "mt_test.h"
 
-
+#include <zephyr/random/random.h>
 
 
 // pulled from https://github.com/meshtastic/Meshtastic-arduino/tree/master/src/
@@ -87,7 +87,8 @@ int mt_send_text ( const char * text, uint32_t dest, uint8_t channel_index )
 {
 	meshtastic_MeshPacket meshPacket = meshtastic_MeshPacket_init_default;
 	meshPacket.which_payload_variant = meshtastic_MeshPacket_decoded_tag;
-	meshPacket.id = random(0x7FFFFFFF);
+	//meshPacket.id = random(0x7FFFFFFF);
+	meshPacket.id = sys_rand32_get();
 	meshPacket.decoded.portnum = meshtastic_PortNum_TEXT_MESSAGE_APP;
 	meshPacket.to = dest;
 	meshPacket.channel = channel_index;
