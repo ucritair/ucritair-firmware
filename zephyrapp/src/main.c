@@ -34,9 +34,6 @@ LOG_MODULE_REGISTER(sample, LOG_LEVEL_INF);
 #include "batt.h"
 #include "rp2350_ipc.h"
 
-#include "cat_radio.h"
-#include "cat_chat.h"
-
 int main(void)
 {
 	init_power_control();
@@ -68,20 +65,6 @@ int main(void)
 
 	set_5v0(true);
 	set_leds(true);
-
-	CAT_radio_init();
-	CAT_msleep(12000);
-	CAT_radio_clear_buffer();
-	CAT_radio_start_modem();
-	CAT_msleep(500);
-	CAT_radio_TX("uCritAir coming online!\n", CAT_RADIO_BROADCAST_ADDR, 0);
-	CAT_msleep(1000);
-
-	while(1)
-	{
-		CAT_radio_poll_RX(CAT_chat_rcv_meowback);
-		CAT_msleep(100);
-	}
 
 #if CAT_WIFI_ENABLED
 	// Initialize RP2350 IPC

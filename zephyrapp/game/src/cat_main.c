@@ -28,8 +28,6 @@ void CAT_init()
 	CAT_radio_clear_buffer();
 	CAT_radio_start_modem();
 	CAT_msleep(500);
-	CAT_radio_TX("uCritAir coming online!\n", CAT_RADIO_BROADCAST_ADDR, 0);
-	CAT_msleep(1000);
 	
 	CAT_input_init();
 	CAT_rand_seed();
@@ -58,7 +56,7 @@ void CAT_tick_logic()
 		
 	CAT_platform_tick();
 	CAT_input_tick();
-	CAT_radio_poll_RX(CAT_chat_rcv_meowback);
+	CAT_radio_poll_RX(CAT_chat_RX_meowback);
 	// 100ms
 
 	CAT_AQ_tick();

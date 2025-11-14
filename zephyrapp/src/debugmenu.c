@@ -199,7 +199,7 @@ void menu_post()
 	selectable("Main Menu", goto_menu, menu_root);
 	selectable("Do nothing (test A)", NULL, NULL);
 	selectable("Protected Power Off", menu_power_off_protected, NULL);
-	selectable("Developer mode", turnkey, NULL);
+	selectable("Developer mode", developer, NULL);
 	selectable("Turnkey", turnkey, NULL);
 	selectable("Back to game", exit_debug_menu, NULL);
 

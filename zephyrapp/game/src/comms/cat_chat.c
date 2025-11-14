@@ -7,12 +7,13 @@
 #include "cat_spriter.h"
 #include "sprite_assets.h"
 #include "cat_colours.h"
+#include "cat_radio.h"
 
-#include "msht.h"
-#include "mt_test.h"
+#if CAT_RADIO_ENABLED
 #include "meshtastic/mesh.pb.h"
 #include "pb_encode.h"
 #include "pb_decode.h"
+#endif
 
 #define MODULE_NAME "CAT_chat"
 #define MODULE_PREFIX "["MODULE_NAME"] "
@@ -45,7 +46,7 @@ static CAT_chat_msg* fetch_msg(int idx)
 
 static CAT_chat_msg out;
 
-void CAT_send_chat_msg(char* sender, char* text)
+void CAT_chat_log_msg(char* sender, char* text)
 {
 	out.timestamp = CAT_get_RTC_now();
 	strncpy(out.sender, sender, sizeof(out.sender));
@@ -65,7 +66,7 @@ static char user_buffer[128];
 
 static char sys_buffer[128];
 
-static CAT_timed_latch sys_latch = CAT_TIMED_LATCH_INIT(CAT_MINUTE_SECONDS);
+static CAT_timed_latch sys_latch = CAT_TIMED_LATCH_INIT(CAT_MINUTE_SECONDS * 5);
 
 static void sysout_init()
 {
@@ -88,10 +89,14 @@ static void sysout_tick()
 			datetime.day, datetime.month, datetime.year,
 			datetime.hour, datetime.minute, datetime.second
 		);
-		CAT_send_chat_msg("SYSTEM", sys_buffer);
+		CAT_chat_log_msg("SYSTEM", sys_buffer);
 		CAT_timed_latch_raise(&sys_latch);
 	}
 }
+
+
+//////////////////////////////////////////////////////////////////////////
+// MAIN
 
 void CAT_MS_chat(CAT_FSM_signal signal)
 {
@@ -121,7 +126,7 @@ void CAT_MS_chat(CAT_FSM_signal signal)
 			{
 				if(strlen(user_buffer) > 0)
 				{
-					CAT_send_chat_msg("Me", user_buffer);
+					CAT_chat_TX(user_buffer, CAT_RADIO_BROADCAST_ADDR, 0);
 					user_buffer[0] = '\0';
 				}
 
@@ -186,9 +191,18 @@ void CAT_draw_chat()
 	}
 }
 
-void CAT_chat_rcv_meowback(char* frame, uint16_t frame_size)
+void CAT_chat_TX(const char* text, uint32_t address, uint8_t channel)
 {
-#ifdef CAT_RADIO_ENABLED
+	CAT_chat_log_msg("Me", text);
+#if CAT_RADIO_ENABLED
+	CAT_radio_TX(text, address, channel);
+	CAT_msleep(500);
+#endif
+}
+
+void CAT_chat_RX_meowback(char* frame, uint16_t frame_size)
+{
+#if CAT_RADIO_ENABLED
 	pb_istream_t stream = pb_istream_from_buffer(frame, frame_size);
 	meshtastic_FromRadio from_radio = meshtastic_FromRadio_init_zero;
 	bool status = pb_decode(&stream, meshtastic_FromRadio_fields, &from_radio);
@@ -208,7 +222,7 @@ void CAT_chat_rcv_meowback(char* frame, uint16_t frame_size)
 			{
 				if (from_radio.packet.decoded.portnum == meshtastic_PortNum_TEXT_MESSAGE_APP)
 				{
-					CAT_send_chat_msg("?", from_radio.packet.decoded.payload.bytes);
+					CAT_chat_log_msg("?", from_radio.packet.decoded.payload.bytes);
 
 					CAT_printf
 					(
