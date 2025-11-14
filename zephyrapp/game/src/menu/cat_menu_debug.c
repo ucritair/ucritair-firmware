@@ -83,9 +83,20 @@ void CAT_render_debug()
 			
 #if defined(CAT_DESKTOP)
 			cursor_y = CAT_draw_text(cursor_x, cursor_y, "[Desktop]\n");
-#elif defined(CAT_EMBEDDED)
+#endif
+#if defined(CAT_EMBEDDED)
 			cursor_y = CAT_draw_text(cursor_x, cursor_y, "[Embedded]\n");
 #endif
+#if CAT_PRIORITIZE_AQ
+			cursor_y = CAT_draw_text(cursor_x, cursor_y, "[AQ First]\n");
+#endif
+#if CAT_RADIO_ENABLED
+			cursor_y = CAT_draw_text(cursor_x, cursor_y, "[Radio Enabled]\n");
+#endif
+#if CAT_WIFI_ENABLED
+			cursor_y = CAT_draw_text(cursor_x, cursor_y, "[WiFi Enabled]\n");
+#endif
+
 
 			if(CAT_check_config_flags(CAT_SAVE_CONFIG_FLAG_DEVELOPER))
 				cursor_y = CAT_draw_text(cursor_x, cursor_y, "[Developer mode]\n");

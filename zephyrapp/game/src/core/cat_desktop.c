@@ -632,6 +632,11 @@ bool CAT_is_on()
 	return !glfwWindowShouldClose(simulator.window);
 }
 
+void CAT_msleep(int ms)
+{
+	usleep(ms * 1000);
+}
+
 void CAT_sleep()
 {
 	glfwSetWindowShouldClose(simulator.window, true);

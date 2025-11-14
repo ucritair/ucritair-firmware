@@ -14,6 +14,9 @@
 #include "pb_encode.h"
 #include "pb_decode.h"
 
+#define MODULE_NAME "CAT_chat"
+#define MODULE_PREFIX "["MODULE_NAME"] "
+
 //////////////////////////////////////////////////////////////////////////
 // INBOX
 
@@ -183,34 +186,52 @@ void CAT_draw_chat()
 	}
 }
 
-uint8_t rcv_buf[512];
-
-const char test_payload[] =
-{
-
-};
-
 void CAT_chat_rcv_meowback(char* frame, uint16_t frame_size)
 {
-	CAT_printf("[BEGIN RAW LORA FRAME]\n");
-	int row_size = 32;
-	int i = 0;
-	for(i = 0; i < frame_size; i++)
-	{
-		CAT_printf("%x ", frame[i]);
-		if(i > 0 && i % row_size == 0 || i == frame_size-1)
-			CAT_printf("\n");
-	}
-	CAT_printf("[END RAW LORA FRAME]\n\n");
-
-	memcpy(rcv_buf, frame, frame_size);
-	pb_istream_t stream = pb_istream_from_buffer(rcv_buf, frame_size);
-	meshtastic_FromRadio from_radio = meshtastic_FromRadio_init_default;
+#ifdef CAT_RADIO_ENABLED
+	pb_istream_t stream = pb_istream_from_buffer(frame, frame_size);
+	meshtastic_FromRadio from_radio = meshtastic_FromRadio_init_zero;
 	bool status = pb_decode(&stream, meshtastic_FromRadio_fields, &from_radio);
 
-	if(status)
+	if (!status)
 	{
-		meshtastic_Data_payload_t payload = from_radio.packet.decoded.payload;
-		CAT_printf("Payload size: %zu\n", payload.size);
+		CAT_printf(MODULE_PREFIX "Failed to decode message");
+		return;
 	}
+	CAT_printf(MODULE_PREFIX "Received payload variant %d\n", from_radio.which_payload_variant);
+
+	switch (from_radio.which_payload_variant)
+	{
+		case meshtastic_FromRadio_packet_tag:
+		{
+			if (from_radio.packet.which_payload_variant == meshtastic_MeshPacket_decoded_tag)
+			{
+				if (from_radio.packet.decoded.portnum == meshtastic_PortNum_TEXT_MESSAGE_APP)
+				{
+					CAT_send_chat_msg("?", from_radio.packet.decoded.payload.bytes);
+
+					CAT_printf
+					(
+						MODULE_PREFIX "Received text message:\n"
+						"From: 0x%02X\n"
+						"To: 0x%02X\n"
+						"Channel: 0x%02X\n"
+						"Message: %s\n",
+						from_radio.packet.from,
+						from_radio.packet.to,
+						from_radio.packet.channel,
+						from_radio.packet.decoded.payload.bytes
+					);
+				}
+			}
+		};
+
+		default:
+		{
+		}
+		break;
+	}
+#else
+	CAT_printf(MODULE_PREFIX "Received %d byte frame\n", frame_size);
+#endif
 }

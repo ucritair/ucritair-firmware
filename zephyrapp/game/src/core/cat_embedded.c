@@ -302,6 +302,11 @@ bool CAT_is_on()
 	return true;
 }
 
+void CAT_msleep(int ms)
+{
+	k_msleep(ms);
+}
+
 void CAT_sleep()
 {
 	power_off(sensor_wakeup_period*1000, false);

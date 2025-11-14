@@ -263,18 +263,34 @@ void CAT_draw_wifi()
 	}
 }
 
+bool CAT_wifi_connect(const char* ssid, const char* password, int auth_mode, int timeout_ms)
+{
+	CAT_printf
+	(
+		"[CAT_wifi_connect] attempting connection to network:\n"
+		"SSID: %s\n"
+		"Auth mode: %d\n"
+		"Timeout: %d ms\n",
+		ssid, auth_mode, timeout_ms
+	);
+	bool result = rp2350_wifi_connect
+	(
+		ssid,
+		password,
+		auth_mode,
+		timeout_ms
+	);
+	CAT_printf("[CAT_wifi_connect] connection %s!\n", result ? "succeeded" : "failed");
+
+	return result;
+}
+
 void CAT_wifi_autoconnect(int timeout_ms)
 {
 	if(wifi_status == CAT_WIFI_CONNECTION_SUCCESS)
 	{
-		wifi_status =
-		rp2350_wifi_connect
-		(
-			wifi_details.ssid,
-			wifi_password,
-			wifi_details.auth_mode,
-			timeout_ms
-		) ? CAT_WIFI_CONNECTION_SUCCESS : CAT_WIFI_CONNECTION_FAILURE;
+		bool result = CAT_wifi_connect(wifi_details.ssid, wifi_password, wifi_details.auth_mode, timeout_ms);
+		wifi_status = result ? CAT_WIFI_CONNECTION_SUCCESS : CAT_WIFI_CONNECTION_FAILURE;
 	}
 }
 

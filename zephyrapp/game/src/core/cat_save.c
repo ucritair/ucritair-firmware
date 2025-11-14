@@ -4,6 +4,7 @@
 #include "cat_room.h"
 #include "cat_arcade.h"
 #include "cat_item.h"
+#include "cat_persist.h"
 
 #include "theme_assets.h"
 #include "item_assets.h"
@@ -116,7 +117,7 @@ void CAT_load_turnkey()
 	CAT_room_stack_prop(CAT_room_get_props()->length-1, prop_coffeemaker_item);
 	CAT_room_place_prop(0, 9, prop_plant_daisy_item);
 
-	#ifdef CAT_PRIORITIZE_AQ
+	#if CAT_PRIORITIZE_AQ
 	persist_flags |= CAT_PERSIST_CONFIG_FLAG_AQ_FIRST | CAT_PERSIST_CONFIG_FLAG_PAUSE_CARE;
 	#endif
 	CAT_datetime zero_day =
