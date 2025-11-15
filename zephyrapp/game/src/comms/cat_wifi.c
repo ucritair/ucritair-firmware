@@ -8,6 +8,76 @@
 #include "rp2350_ipc.h"
 #include "cat_persist.h"
 
+#define MODULE_NAME "CAT_wifi"
+#define MODULE_PREFIX "["MODULE_NAME"] "
+
+bool CAT_wifi_init()
+{
+	CAT_printf(MODULE_PREFIX "Initializing\n");
+
+#if CAT_WIFI_ENABLED
+	rp2350_ipc_init();
+	CAT_msleep(10000);
+
+	uint8_t fw_major, fw_minor;
+	uint16_t fw_patch;
+	if(rp2350_query_firmware_version(&fw_major, &fw_minor, &fw_patch, 5000))
+	{
+		CAT_printf("RP2350 Firmware: v%u.%u.%u\n", fw_major, fw_minor, fw_patch);
+		return true;
+	}
+#endif
+
+	CAT_printf("Initialization failed\n");	
+	return false;
+}
+
+bool CAT_wifi_connect(const char* ssid, const char* password, uint8_t auth_mode, uint32_t timeout_ms)
+{
+	CAT_printf
+	(
+		MODULE_PREFIX
+		"Connecting to network:\n"
+		"SSID: %s\n"
+		"Auth mode: %d\n"
+		"Timeout: %d ms\n",
+		ssid, auth_mode, timeout_ms
+	);
+	bool result = false;
+
+#if CAT_WIFI_ENABLED
+	result = rp2350_wifi_connect
+	(
+		ssid,
+		password,
+		auth_mode,
+		timeout_ms
+	);
+#endif
+
+	CAT_printf(MODULE_PREFIX "Connection %s!\n", result ? "succeeded" : "failed");
+	return result;
+}
+
+void CAT_wifi_autoconnect(int timeout_ms)
+{
+	if(wifi_status == CAT_WIFI_CONNECTION_SUCCESS)
+	{
+		bool result = CAT_wifi_connect(wifi_details.ssid, wifi_password, wifi_details.auth_mode, timeout_ms);
+		wifi_status = result ? CAT_WIFI_CONNECTION_SUCCESS : CAT_WIFI_CONNECTION_FAILURE;
+	}
+}
+
+bool CAT_is_wifi_connected()
+{
+	return wifi_status == CAT_WIFI_CONNECTION_SUCCESS;
+}
+
+char* CAT_get_wifi_SSID()
+{
+	return wifi_details.ssid;
+}
+
 static msg_payload_wifi_scan_response_t scan_results;
 
 void print_network_details(wifi_ap_record_t details)
@@ -261,45 +331,4 @@ void CAT_draw_wifi()
 		else
 			CAT_draw_text(12, 12, "Connection failed!\n");
 	}
-}
-
-bool CAT_wifi_connect(const char* ssid, const char* password, int auth_mode, int timeout_ms)
-{
-	CAT_printf
-	(
-		"[CAT_wifi_connect] attempting connection to network:\n"
-		"SSID: %s\n"
-		"Auth mode: %d\n"
-		"Timeout: %d ms\n",
-		ssid, auth_mode, timeout_ms
-	);
-	bool result = rp2350_wifi_connect
-	(
-		ssid,
-		password,
-		auth_mode,
-		timeout_ms
-	);
-	CAT_printf("[CAT_wifi_connect] connection %s!\n", result ? "succeeded" : "failed");
-
-	return result;
-}
-
-void CAT_wifi_autoconnect(int timeout_ms)
-{
-	if(wifi_status == CAT_WIFI_CONNECTION_SUCCESS)
-	{
-		bool result = CAT_wifi_connect(wifi_details.ssid, wifi_password, wifi_details.auth_mode, timeout_ms);
-		wifi_status = result ? CAT_WIFI_CONNECTION_SUCCESS : CAT_WIFI_CONNECTION_FAILURE;
-	}
-}
-
-bool CAT_is_wifi_connected()
-{
-	return wifi_status == CAT_WIFI_CONNECTION_SUCCESS;
-}
-
-char* CAT_get_wifi_SSID()
-{
-	return wifi_details.ssid;
 }
