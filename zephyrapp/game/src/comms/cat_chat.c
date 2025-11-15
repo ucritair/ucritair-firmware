@@ -106,6 +106,8 @@ static uint32_t destination = CAT_RADIO_BROADCAST_ADDR;
 static CAT_timed_latch splash_latch = CAT_TIMED_LATCH_INIT(1.0f);
 static CAT_timed_latch notif_latch = CAT_TIMED_LATCH_INIT(0.5f);
 static int notif_frames = 0;
+static bool viewing_message = false;
+static CAT_chat_msg view_buffer;
 
 void CAT_MS_chat(CAT_FSM_signal signal)
 {
@@ -121,11 +123,6 @@ void CAT_MS_chat(CAT_FSM_signal signal)
 
 		case CAT_FSM_SIGNAL_TICK:
 		{
-			if(CAT_gui_popup_is_open())
-				return;
-			if(CAT_gui_consume_popup())
-				CAT_pushdown_pop();
-
 			if(CAT_timed_latch_get(&splash_latch))
 			{
 				if(CAT_input_pressed(CAT_BUTTON_A))
@@ -136,16 +133,20 @@ void CAT_MS_chat(CAT_FSM_signal signal)
 				CAT_timed_latch_tick(&splash_latch);
 				return;
 			}
+
 			if(CAT_timed_latch_get(&notif_latch))
 			{
 				notif_frames++;
 				CAT_timed_latch_tick(&notif_latch);
 			}
 
+			if(CAT_gui_popup_is_open())
+				return;
+			if(CAT_gui_consume_popup())
+				CAT_pushdown_pop();
+			
 			if(CAT_gui_keyboard_is_open())
-			{
-				
-			}
+				return;
 			else
 			{
 				if(strlen(user_buffer) > 0)
@@ -153,38 +154,54 @@ void CAT_MS_chat(CAT_FSM_signal signal)
 					CAT_chat_TX(user_buffer, CAT_RADIO_BROADCAST_ADDR, 0);
 					user_buffer[0] = '\0';
 				}
-
-				if(CAT_input_pressed(CAT_BUTTON_UP))
-					in_selector = CAT_max(in_selector-1, 0);
-				if(CAT_input_pressed(CAT_BUTTON_DOWN))
-				{
-					if(in_selector >= in_length-1)
-						CAT_gui_open_keyboard(user_buffer, sizeof(user_buffer));
-					else
-						in_selector = CAT_min(in_selector+1, in_length-1);
-				}
-
-				if(CAT_input_pressed(CAT_BUTTON_RIGHT))
-				{
-					int last_destination = destination;
-
-					if(in_length == 0)
-						destination = CAT_RADIO_BROADCAST_ADDR;
-					else if(in[in_selector].from == NODE_ADDRESS_ME || in[in_selector].to == NODE_ADDRESS_ANY)
-						destination = CAT_RADIO_BROADCAST_ADDR;
-					else
-						destination = in[in_selector].from;
-					
-					if(destination != last_destination)
-					{
-						CAT_timed_latch_raise(&notif_latch);
-						notif_frames = 0;
-					}
-				}
-
-				if(CAT_input_pressed(CAT_BUTTON_B))
-					CAT_gui_open_popup("Quit chat?", CAT_POPUP_STYLE_YES_NO);
 			}
+
+			if(viewing_message)
+			{	
+				if(CAT_input_pressed(CAT_BUTTON_B))
+					viewing_message = false;
+				return;
+			}
+
+			if(CAT_input_pressed(CAT_BUTTON_UP))
+				in_selector = CAT_max(in_selector-1, 0);
+			if(CAT_input_pressed(CAT_BUTTON_DOWN))
+			{
+				if(in_selector >= in_length-1)
+					CAT_gui_open_keyboard(user_buffer, sizeof(user_buffer));
+				else
+					in_selector = CAT_min(in_selector+1, in_length-1);
+			}
+
+			if(CAT_input_pressed(CAT_BUTTON_RIGHT))
+			{
+				int last_destination = destination;
+
+				if(in_length == 0)
+					destination = CAT_RADIO_BROADCAST_ADDR;
+				else if(in[in_selector].from == NODE_ADDRESS_ME || in[in_selector].to == NODE_ADDRESS_ANY)
+					destination = CAT_RADIO_BROADCAST_ADDR;
+				else
+					destination = in[in_selector].from;
+				
+				if(destination != last_destination)
+				{
+					CAT_timed_latch_raise(&notif_latch);
+					notif_frames = 0;
+				}
+			}
+
+			if(CAT_input_pressed(CAT_BUTTON_A))
+			{
+				if(in_length > 0)
+				{
+					memcpy(&view_buffer, &in[in_selector], sizeof(view_buffer));
+					viewing_message = true;
+				}
+			}
+
+			if(CAT_input_pressed(CAT_BUTTON_B))
+				CAT_gui_open_popup("Quit chat?", CAT_POPUP_STYLE_YES_NO);
 		}
 		break;
 		
@@ -224,14 +241,17 @@ int draw_message(int y, int i)
 		sender_name,
 		msg->text
 	);
+	size_t whole_len = strlen(line);
 
-	size_t len = strlen(line);
-	int right_pad = MSG_PAD_X + selected ? ui_chat_actions.width : 0;
-	size_t max_len = CAT_LINE_CAPACITY(MSG_PAD_X, right_pad, CAT_GLYPH_WIDTH);
-	if(max_len - len <= 0)
+	int left_pad = MSG_PAD_X;
+	int right_pad = MSG_PAD_X + (selected ? (ui_chat_actions.width + CAT_GLYPH_WIDTH/2) : 0);
+	size_t max_len = CAT_LINE_CAPACITY(left_pad, right_pad, CAT_GLYPH_WIDTH);
+	if(whole_len >= max_len)
 	{
-		for(int i = len-1; i >= 0 && i > len-4; i--)
-			line[i] = '.';
+		for(int j = whole_len-1; j > max_len-1; j--)
+			line[j] = ' ';
+		for(int j = max_len-1; j >= max_len-3; j--)
+			line[j] = '.';
 	}
 
 	CAT_fillberry(0, y, MSG_W, MSG_H, CAT_MSG_BG);
@@ -241,8 +261,9 @@ int draw_message(int y, int i)
 	CAT_draw_text(MSG_PAD_X, y+MSG_PAD_Y, line);
 	if(selected)
 	{
+		CAT_set_sprite_colour(CAT_64_GREY);
 		CAT_draw_sprite(&ui_chat_actions, 0, MSG_W-MSG_PAD_X-ui_chat_actions.width, y+MSG_PAD_Y);
-		CAT_strokeberry(0, y, MSG_W, MSG_H, CAT_colour_lerp(CAT_BLACK, CAT_WHITE, CAT_wave(0.5f)));
+		CAT_strokeberry(0, y, MSG_W, MSG_H, CAT_colour_lerp(CAT_64_GREY, CAT_WHITE, CAT_wave(0.5f)));
 	}
 
 	return y + MSG_H;
@@ -253,6 +274,7 @@ int draw_message(int y, int i)
 void CAT_draw_chat()
 {
 	// Splash
+
 	if(CAT_timed_latch_get(&splash_latch))
 	{
 		CAT_frameberry(CAT_WHITE);
@@ -262,6 +284,34 @@ void CAT_draw_chat()
 			(CAT_LCD_SCREEN_H-tnyspr_chat_splash.height)/2,
 			&tnyspr_chat_splash, CAT_BLACK, CAT_WHITE
 		);
+		return;
+	}
+
+	// View
+
+	if(viewing_message)
+	{
+		CAT_frameberry(CAT_WHITE);
+		CAT_strokeberry(0, 0, CAT_LCD_SCREEN_W, CAT_LCD_SCREEN_H, CAT_192_GREY);
+
+		int cursor_y = 12;
+		int cursor_x = 12;
+		
+		if(view_buffer.from == NODE_ADDRESS_ME)
+			cursor_y = CAT_draw_textf(cursor_x, cursor_y, "From: Me\n");
+		else
+			cursor_y = CAT_draw_textf(cursor_x, cursor_y, "From: 0x%.8x\n", view_buffer.from);
+		if(view_buffer.to == CAT_RADIO_BROADCAST_ADDR)
+		cursor_y = CAT_draw_textf(cursor_x, cursor_y, "To: %s\n\n", view_buffer.to == CAT_RADIO_BROADCAST_ADDR ? "Everyone" : "Me");
+		CAT_rowberry(cursor_y, cursor_y+1, CAT_192_GREY);
+
+		CAT_set_text_mask(12, -1, CAT_LCD_SCREEN_W-12, -1);
+		CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
+		cursor_y = CAT_draw_textf(12, cursor_y, "\n%s\n\n", view_buffer.text);
+
+		cursor_x = CAT_draw_button(cursor_x, cursor_y, CAT_BUTTON_B, CAT_64_GREY);
+		CAT_set_text_colour(CAT_64_GREY);
+		CAT_draw_text(cursor_x, cursor_y, " to close message");
 		return;
 	}
 
