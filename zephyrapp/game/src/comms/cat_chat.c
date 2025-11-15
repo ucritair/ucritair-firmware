@@ -151,7 +151,7 @@ void CAT_MS_chat(CAT_FSM_signal signal)
 			{
 				if(strlen(user_buffer) > 0)
 				{
-					CAT_chat_TX(user_buffer, CAT_RADIO_BROADCAST_ADDR, 0);
+					CAT_chat_TX(user_buffer, destination, 0);
 					user_buffer[0] = '\0';
 				}
 			}
@@ -179,11 +179,21 @@ void CAT_MS_chat(CAT_FSM_signal signal)
 
 				if(in_length == 0)
 					destination = CAT_RADIO_BROADCAST_ADDR;
-				else if(in[in_selector].from == NODE_ADDRESS_ME || in[in_selector].to == NODE_ADDRESS_ANY)
+				else if(in[in_selector].from == NODE_ADDRESS_ME)
 					destination = CAT_RADIO_BROADCAST_ADDR;
 				else
 					destination = in[in_selector].from;
 				
+				if(destination != last_destination)
+				{
+					CAT_timed_latch_raise(&notif_latch);
+					notif_frames = 0;
+				}
+			}
+			if(CAT_input_pressed(CAT_BUTTON_SELECT))
+			{
+				int last_destination = destination;
+				destination = CAT_RADIO_BROADCAST_ADDR;
 				if(destination != last_destination)
 				{
 					CAT_timed_latch_raise(&notif_latch);
@@ -354,7 +364,15 @@ void CAT_draw_chat()
 		{
 			cursor_x = CAT_draw_button(cursor_x, cursor_y, CAT_BUTTON_DOWN, CAT_160_GREY);
 			CAT_set_text_colour(CAT_160_GREY);
-			CAT_draw_text(cursor_x, cursor_y, " to compose a new message");
+			cursor_y = CAT_draw_text(cursor_x, cursor_y, " to compose a new message\n");
+			cursor_x = MSG_PAD_X;
+			
+			if(destination != CAT_RADIO_BROADCAST_ADDR)
+			{	
+				cursor_x = CAT_draw_button(cursor_x, cursor_y, CAT_BUTTON_SELECT, CAT_160_GREY);
+				CAT_set_text_colour(CAT_160_GREY);
+				cursor_y = CAT_draw_text(cursor_x, cursor_y, " to broadcast publicly\n");
+			}
 		}
 	}
 }
