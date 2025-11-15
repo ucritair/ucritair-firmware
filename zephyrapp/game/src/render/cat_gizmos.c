@@ -394,7 +394,7 @@ void CAT_draw_star(int x, int y, int r, uint16_t c)
 	}
 }
 
-void CAT_draw_button(int x, int y, int button, uint16_t c)
+int CAT_draw_button(int x, int y, int button, uint16_t c)
 {
 	static uint8_t pad = 2;
 
@@ -403,38 +403,38 @@ void CAT_draw_button(int x, int y, int button, uint16_t c)
 		case CAT_BUTTON_A:
 			CAT_draw_tinyglyph(x+pad, y+pad, 'A', c);
 			CAT_strokeberry(x, y, 8+pad*2, 8+pad*2, c);
-		break;
+			return x+8+pad*2;
 		case CAT_BUTTON_B:
 			CAT_draw_tinyglyph(x+pad, y+pad, 'B', c);
 			CAT_strokeberry(x, y, 8+pad*2, 8+pad*2, c);
-		break;
+			return x+8+pad*2;
 
 		case CAT_BUTTON_RIGHT:
 			CAT_draw_tinyglyph(x+pad, y+pad, '\6', c);
 			CAT_strokeberry(x, y, 8+pad*2, 8+pad*2, c);
-		break;
+			return x+8+pad*2;
 		case CAT_BUTTON_UP:
 			CAT_draw_tinyglyph(x+pad, y+pad, '\7', c);
 			CAT_strokeberry(x, y, 8+pad*2, 8+pad*2, c);
-		break;
+			return x+8+pad*2;
 		case CAT_BUTTON_LEFT:
 			CAT_draw_tinyglyph(x+pad, y+pad, '\10', c);
 			CAT_strokeberry(x, y, 8+pad*2, 8+pad*2, c);
-		break;
+			return x+8+pad*2;
 		case CAT_BUTTON_DOWN:
 			CAT_draw_tinyglyph(x+pad, y+pad, '\11', c);
 			CAT_strokeberry(x, y, 8+pad*2, 8+pad*2, c);
-		break;
+			return x+8+pad*2;
 
 		case CAT_BUTTON_START:
 			CAT_draw_tinystring(x+pad, y+pad, "STRT", c);
 			CAT_strokeberry(x, y, 8*4+pad*2, 8+pad*2, c);
-		break;
+			return x+8*4+pad*2;
 		case CAT_BUTTON_SELECT:
 			CAT_draw_tinystring(x+pad, y+pad, "SLCT", c);
 			CAT_strokeberry(x, y, 8*4+pad*2, 8+pad*2, c);
-		break;
+			return x+8*4+pad*2;
 
-		default: break;
+		default: return 0;
 	}
 }

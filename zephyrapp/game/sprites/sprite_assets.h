@@ -265,7 +265,7 @@ extern const CAT_sprite ingr_oil_sprite;
 extern const CAT_sprite ingr_clay_sprite;
 extern const CAT_sprite ingr_time_sprite;
 extern const CAT_sprite ui_button_alert;
-extern const CAT_sprite ui_down_arrow_simple;
+extern const CAT_sprite ui_chat_actions;
 
 extern const CAT_sprite* sprite_list[];
 #define CAT_SPRITE_LIST_LENGTH 262

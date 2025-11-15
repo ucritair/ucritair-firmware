@@ -408,7 +408,7 @@ void CAT_gui_keyboard_logic()
 void CAT_gui_keyboard()
 {
 	CAT_rowberry(KEYB_Y0, KEYB_Y1, CAT_WHITE);
-	CAT_lineberry(0, KEYB_Y0, CAT_LCD_SCREEN_W, KEYB_Y0, CAT_GREY);
+	CAT_lineberry(0, KEYB_Y0, CAT_LCD_SCREEN_W, KEYB_Y0, CAT_192_GREY);
 	int cursor_y = KEYB_Y0 + KEYB_PAD;
 
 	int line = CAT_LINE_CAPACITY(KEYB_PAD, KEYB_PAD+CAT_GLYPH_WIDTH, CAT_GLYPH_WIDTH);
@@ -416,7 +416,7 @@ void CAT_gui_keyboard()
 	CAT_draw_textf(KEYB_PAD - overshoot * CAT_GLYPH_WIDTH, cursor_y, "%s%s", keyb_buffer, keyb_show_cursor ? "|" : "");
 	cursor_y += CAT_GLYPH_HEIGHT + KEYB_PAD;
 
-	CAT_lineberry(0, cursor_y, CAT_LCD_SCREEN_W, cursor_y, CAT_GREY);
+	CAT_lineberry(0, cursor_y, CAT_LCD_SCREEN_W, cursor_y, CAT_192_GREY);
 	cursor_y += KEYB_PAD*2;
 
 	int cursor_x = KEYB_PAD * 2;

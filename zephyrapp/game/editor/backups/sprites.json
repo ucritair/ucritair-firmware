@@ -2646,11 +2646,11 @@
         },
         {
             "id": 261,
-            "name": "ui_down_arrow_simple.png",
+            "name": "ui_down_arrow_simple",
             "path": "ui/down_arrow.png",
             "frames": 1,
-            "width": 32,
-            "height": 32,
+            "width": 24,
+            "height": 24,
             "loop": false,
             "reverse": false
         }
