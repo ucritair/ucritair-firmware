@@ -25,3 +25,5 @@ void CAT_draw_lock(int x, int y, int r, float t, uint16_t c);
 
 void CAT_draw_dpad(int x, int y, int r, int mask, uint16_t cf, uint16_t cb);
 void CAT_draw_star(int x, int y, int r, uint16_t c);
+
+void CAT_draw_button(int x, int y, int button, uint16_t c);

@@ -946,6 +946,16 @@ void CAT_room_draw_gui()
 		CAT_input_cursor(&tx, &ty);
 		CAT_circberry(tx, ty, 16, CAT_WHITE);
 	}
+
+	int x = 2;
+	for(int i = 0; i < CAT_BUTTON_LAST; i++)
+	{
+		CAT_draw_button(x, 2, i, CAT_BLACK);
+		if(i == CAT_BUTTON_START || i == CAT_BUTTON_SELECT)
+			x += 4 + 8*4 + 2;
+		else
+			x += 4 + 8 + 2;
+	}
 }
 
 void CAT_render_room()

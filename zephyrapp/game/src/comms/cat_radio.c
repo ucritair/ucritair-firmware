@@ -21,6 +21,7 @@ void CAT_radio_init()
 #ifdef CAT_RADIO_ENABLED
 	CAT_printf(MODULE_PREFIX "(This is a radio-enabled build)\n");
 	msht_init();
+	CAT_msleep(12000);
 #endif
 }
 
@@ -39,6 +40,7 @@ void CAT_radio_start_modem()
 #ifdef CAT_RADIO_ENABLED
 	uint8_t start_cmd[] = {0x94,0xc3,0x00,0x06,0x18,0xa6,0xbe,0xb2,0xa3,0x0b};
 	msht_w(start_cmd, sizeof(start_cmd));
+	CAT_msleep(500);
 #endif
 }
 

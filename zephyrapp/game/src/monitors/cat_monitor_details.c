@@ -66,25 +66,6 @@ int draw_sparkline(int x, int y, int aqm)
 	return y + CAT_GLYPH_HEIGHT*2 + 6;
 }
 
-int draw_notice(int x, int y, int aqm)
-{
-	float score = CAT_AQ_score(aqm);
-	if(score >= 0.9)
-	{
-		CAT_set_sprite_colour(CAT_GREEN);
-		CAT_set_sprite_flags(CAT_DRAW_FLAG_BOTTOM);
-		CAT_draw_sprite(&ui_aq_notice_icons, 0, x, y);
-	}
-	else if(score <= 0.6)
-	{
-		CAT_set_sprite_colour(CAT_RED);
-		CAT_set_sprite_flags(CAT_DRAW_FLAG_BOTTOM);
-		CAT_draw_sprite(&ui_aq_notice_icons, 1, x, y);
-	}
-
-	return y + CAT_GLYPH_HEIGHT*2 + 6;
-}
-
 int draw_delta(int x, int y, int aqm)
 {
 	x = CAT_LCD_SCREEN_W - 36;

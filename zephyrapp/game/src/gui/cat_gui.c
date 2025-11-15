@@ -217,20 +217,19 @@ void CAT_gui_title(bool tabs, const char* fmt, ...)
 static const char** typecases[] = 
 {
 	(const char*[]) {
-		"-+*/(),.?!:",
-		"0123456789\x06",
-		"QWERTYUIOP",
-		"ASDFGHJKL",
-		"ZXCVBNM_\x08"
+		"1234567890\x06",
+		"qwertyuiop_",
+		"asdfghjkl:'",
+		"zxcvbnm ,.\x08"
 	},
 	(const char*[]) {
-		"-+*/(),.?!:",
-		"0123456789\x06",
-		"qwertyuiop",
-		"asdfghjkl",
-		"zxcvbnm_\x08"
-	}
+		"!?$%()+-*/\x06",
+		"QWERTYUIOP_",
+		"ASDFGHJKL;\"",
+		"ZXCVBNM ,.\x08"
+	},
 };
+#define TYPECASE_ROWS 4
 
 static char* keyb_target = NULL;
 static char keyb_buffer[128];
@@ -314,12 +313,12 @@ void CAT_gui_keyboard_logic()
 			keyb_row -= 1;
 		if(CAT_input_pulse(CAT_BUTTON_DOWN))
 		{
-			if(keyb_row >= 4)
+			if(keyb_row >= TYPECASE_ROWS-1)
 				keyb_section = KEYB_BUTTONS;
 			else
 				keyb_row += 1;
 		}
-		keyb_row = CAT_clamp(keyb_row, 0, 4);
+		keyb_row = CAT_clamp(keyb_row, 0, TYPECASE_ROWS-1);
 		const char* row = typecase[keyb_row];
 
 		if(CAT_input_pulse(CAT_BUTTON_RIGHT))
@@ -351,7 +350,6 @@ void CAT_gui_keyboard_logic()
 				{
 					if(keyb_cursor < keyb_max_size-1)
 					{
-						glyph = (glyph == '_') ? ' ' : glyph;
 						keyb_buffer[keyb_cursor] = glyph;
 						keyb_cursor += 1;
 					}
@@ -410,26 +408,31 @@ void CAT_gui_keyboard_logic()
 void CAT_gui_keyboard()
 {
 	CAT_rowberry(KEYB_Y0, KEYB_Y1, CAT_WHITE);
-	CAT_lineberry(0, KEYB_Y0, CAT_LCD_SCREEN_W, KEYB_Y0, CAT_BLACK);
+	CAT_lineberry(0, KEYB_Y0, CAT_LCD_SCREEN_W, KEYB_Y0, CAT_GREY);
 	int cursor_y = KEYB_Y0 + KEYB_PAD;
 
-	CAT_draw_textf(KEYB_PAD, cursor_y, "%s%s", keyb_buffer, keyb_show_cursor ? "|" : "");
+	int line = CAT_LINE_CAPACITY(KEYB_PAD, KEYB_PAD+CAT_GLYPH_WIDTH, CAT_GLYPH_WIDTH);
+	int overshoot = CAT_max((int) strlen(keyb_buffer) - line, 0);
+	CAT_draw_textf(KEYB_PAD - overshoot * CAT_GLYPH_WIDTH, cursor_y, "%s%s", keyb_buffer, keyb_show_cursor ? "|" : "");
 	cursor_y += CAT_GLYPH_HEIGHT + KEYB_PAD;
 
-	CAT_lineberry(0, cursor_y, CAT_LCD_SCREEN_W, cursor_y, CAT_BLACK);
+	CAT_lineberry(0, cursor_y, CAT_LCD_SCREEN_W, cursor_y, CAT_GREY);
 	cursor_y += KEYB_PAD*2;
 
 	int cursor_x = KEYB_PAD * 2;
 	const char** typecase = typecases[keyb_case];
-	for(int i = 0; i < 5; i++)
+	for(int i = 0; i < TYPECASE_ROWS; i++)
 	{
 		const char* row = typecase[i];
 		for(int j = 0; j < strlen(row); j++)
 		{
 			char glyph = row[j];
 			CAT_draw_sprite(&glyph_sprite, glyph, cursor_x + 2, cursor_y + 3);
-			if(i == keyb_row && j == keyb_glyph && keyb_section == KEYB_KEYS)
-				CAT_strokeberry(cursor_x, cursor_y, CAT_GLYPH_WIDTH + 4, CAT_GLYPH_HEIGHT + 6, 0);
+
+			uint16_t outline_c = i == keyb_row && j == keyb_glyph && keyb_section == KEYB_KEYS ?
+			CAT_BLACK : CAT_192_GREY;
+			CAT_strokeberry(cursor_x, cursor_y, CAT_GLYPH_WIDTH + 4, CAT_GLYPH_HEIGHT + 6, outline_c);
+
 			cursor_x += CAT_GLYPH_WIDTH + 8;
 		}
 		cursor_y += CAT_GLYPH_HEIGHT + 8;
@@ -439,14 +442,17 @@ void CAT_gui_keyboard()
 
 	for(int i = 0; i < KEYB_BUTTON_COUNT; i++)
 	{
-		int x = cursor_x - KEYB_PAD/2;
-		int y = cursor_y - KEYB_PAD/2;
+		int x = cursor_x;
+		int y = cursor_y;
 		int w = strlen(keyb_buttons[i].title) * CAT_GLYPH_WIDTH + KEYB_PAD;
 		int h = CAT_GLYPH_HEIGHT + KEYB_PAD;
 
-		CAT_draw_text(cursor_x, cursor_y, keyb_buttons[i].title);
-		if(keyb_section == KEYB_BUTTONS && keyb_button == i)
-			CAT_strokeberry(x, y, w, h, CAT_BLACK);
+		CAT_draw_text(cursor_x+KEYB_PAD/2, cursor_y+KEYB_PAD/2, keyb_buttons[i].title);
+
+		uint16_t outline_c = keyb_section == KEYB_BUTTONS && keyb_button == i ?
+		CAT_BLACK : CAT_192_GREY;
+		CAT_strokeberry(x, y, w, h, outline_c);
+
 		cursor_x += w + KEYB_PAD;
 	}
 }

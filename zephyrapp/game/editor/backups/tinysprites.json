@@ -112,6 +112,13 @@
             "width": 8,
             "height": 1024,
             "stride": 8
+        },
+        {
+            "name": "chat_splash",
+            "path": "eink/chat_splash.png",
+            "width": 192,
+            "height": 192,
+            "stride": 192
         }
     ]
 }

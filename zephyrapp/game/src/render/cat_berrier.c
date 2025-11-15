@@ -10,9 +10,13 @@
 void CAT_rowberry(int y0, int y1, uint16_t c)
 {
 	y0 -= CAT_LCD_FRAMEBUFFER_OFFSET;
-	if(y0 < 0 || y0 >= CAT_LCD_FRAMEBUFFER_H)
+	if(y0 >= CAT_LCD_FRAMEBUFFER_H)
 		return;
+	y0 = CAT_max(y0, 0);
+
 	y1 -= CAT_LCD_FRAMEBUFFER_OFFSET;
+	if(y1 <= 0)
+		return;
 	y1 = CAT_min(y1, CAT_LCD_FRAMEBUFFER_H);
 
 	c = CAT_ADAPT_DESKTOP_COLOUR(c);

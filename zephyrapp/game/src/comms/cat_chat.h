@@ -3,14 +3,25 @@
 #include "cat_machine.h"
 #include <stdint.h>
 
+#define CAT_CHAT_MAX_MSG_LEN 64
+#define CAT_CHAT_MAX_NAME_LEN 16
+
 typedef struct
 {
-	char sender[16];
-	char text[128];
+	uint32_t address;
+	char name[16];
+} CAT_chat_node;
+
+typedef struct
+{
+	uint32_t from;
+	uint32_t to;
+	uint8_t channel;
+	char text[CAT_CHAT_MAX_MSG_LEN];
 	uint64_t timestamp;
 } CAT_chat_msg;
 
-void CAT_chat_log_msg(char* sender, char* text);
+void CAT_chat_log_msg(uint32_t from, uint32_t to, uint8_t channel, char* text);
 
 void CAT_MS_chat(CAT_FSM_signal signal);
 void CAT_draw_chat();

@@ -196,3 +196,11 @@ static inline bool CAT_pulse(float period)
 	int t = CAT_get_uptime_ms();
 	return t % (2*T) < T;
 }
+
+static inline float CAT_wave(float freq)
+{
+	float t = CAT_get_uptime_ms() / 1000.0f;
+	t *= 2*M_PI*freq;
+	return 0.5f * (CAT_sin(t) + 1.0f);
+}
+

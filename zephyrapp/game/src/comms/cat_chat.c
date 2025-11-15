@@ -8,6 +8,7 @@
 #include "sprite_assets.h"
 #include "cat_colours.h"
 #include "cat_radio.h"
+#include "cat_curves.h"
 
 #if CAT_RADIO_ENABLED
 #include "meshtastic/mesh.pb.h"
@@ -19,6 +20,39 @@
 #define MODULE_PREFIX "["MODULE_NAME"] "
 
 //////////////////////////////////////////////////////////////////////////
+// NODE LIST
+
+static CAT_chat_node nodes[64];
+#define NODES_CAPACITY (sizeof(nodes)/sizeof(CAT_chat_node))
+static uint8_t node_count = 0;
+#define NODE_ADDRESS_ME 0
+#define NODE_ADDRESS_ANY CAT_RADIO_BROADCAST_ADDR
+
+static int register_node(uint32_t address, const char* name)
+{
+	if(node_count >= NODES_CAPACITY)
+		return -1;
+	int i = 0;
+	while(i < node_count && nodes[i].address != address)
+		i++;
+	nodes[i].address = address;
+	strncpy(nodes[i].name, name, sizeof(nodes[i].name));
+	if(i >= node_count)
+		node_count = i+1;
+	return i;
+}
+
+static int find_node(uint32_t address)
+{
+	for(int i = 0; i < node_count; i++)
+	{
+		if(nodes[i].address == address)
+			return i;
+	}
+	return -1;
+}
+
+//////////////////////////////////////////////////////////////////////////
 // INBOX
 
 static CAT_chat_msg in[22];
@@ -26,6 +60,7 @@ static CAT_chat_msg in[22];
 static uint8_t in_whead = 0;
 static uint8_t in_rhead = 0;
 static uint8_t in_length = 0;
+static int in_selector = 0;
 
 static void push_msg(CAT_chat_msg* msg)
 {
@@ -44,12 +79,13 @@ static CAT_chat_msg* fetch_msg(int idx)
 	return &in[CAT_wrap(in_rhead+idx, IN_CAPACITY)];
 }
 
-static CAT_chat_msg out;
-
-void CAT_chat_log_msg(char* sender, char* text)
+void CAT_chat_log_msg(uint32_t from, uint32_t to, uint8_t channel, char* text)
 {
+	static CAT_chat_msg out;
+	out.from = from;
+	out.to = to;
+	out.channel = channel;
 	out.timestamp = CAT_get_RTC_now();
-	strncpy(out.sender, sender, sizeof(out.sender));
 	strncpy(out.text, text, sizeof(out.text));
 	push_msg(&out);
 }
@@ -58,45 +94,13 @@ void CAT_chat_log_msg(char* sender, char* text)
 //////////////////////////////////////////////////////////////////////////
 // OUTBOX
 
-static char user_buffer[128];
-
-
-//////////////////////////////////////////////////////////////////////////
-// SYSTEM
-
-static char sys_buffer[128];
-
-static CAT_timed_latch sys_latch = CAT_TIMED_LATCH_INIT(CAT_MINUTE_SECONDS * 5);
-
-static void sysout_init()
-{
-	CAT_timed_latch_reset(&sys_latch);
-	CAT_timed_latch_raise(&sys_latch);
-}
-
-static void sysout_tick()
-{
-	CAT_timed_latch_tick(&sys_latch);
-
-	if(!CAT_timed_latch_get(&sys_latch) && CAT_timed_latch_flipped(&sys_latch))
-	{
-		CAT_datetime datetime;
-		CAT_get_datetime(&datetime);
-		snprintf
-		(
-			sys_buffer, sizeof(sys_buffer),
-			"%.2d/%.2d/%.4d %.2d:%.2d:%.2d",
-			datetime.day, datetime.month, datetime.year,
-			datetime.hour, datetime.minute, datetime.second
-		);
-		CAT_chat_log_msg("SYSTEM", sys_buffer);
-		CAT_timed_latch_raise(&sys_latch);
-	}
-}
+static char user_buffer[CAT_CHAT_MAX_MSG_LEN];
 
 
 //////////////////////////////////////////////////////////////////////////
 // MAIN
+
+static CAT_timed_latch splash_latch = CAT_TIMED_LATCH_INIT(1.0f);
 
 void CAT_MS_chat(CAT_FSM_signal signal)
 {
@@ -105,18 +109,27 @@ void CAT_MS_chat(CAT_FSM_signal signal)
 		case CAT_FSM_SIGNAL_ENTER:
 		{
 			CAT_set_render_callback(CAT_draw_chat);
-			sysout_init();
+			CAT_timed_latch_reset(&splash_latch);
+			CAT_timed_latch_raise(&splash_latch);
 		}
 		break;
 
 		case CAT_FSM_SIGNAL_TICK:
 		{
-			sysout_tick();
-
 			if(CAT_gui_popup_is_open())
 				return;
 			if(CAT_gui_consume_popup())
 				CAT_pushdown_pop();
+			
+			if(CAT_timed_latch_get(&splash_latch))
+			{
+				if(CAT_input_pressed(CAT_BUTTON_A))
+				{
+					CAT_timed_latch_reset(&splash_latch);
+					CAT_input_clear();
+				}
+				CAT_timed_latch_tick(&splash_latch);
+			}
 
 			if(CAT_gui_keyboard_is_open())
 			{
@@ -130,12 +143,19 @@ void CAT_MS_chat(CAT_FSM_signal signal)
 					user_buffer[0] = '\0';
 				}
 
-				if(CAT_input_pressed(CAT_BUTTON_A))
-					CAT_gui_open_keyboard(user_buffer, sizeof(user_buffer));
+				if(CAT_input_pressed(CAT_BUTTON_UP))
+					in_selector = CAT_max(in_selector-1, 0);
+				if(CAT_input_pressed(CAT_BUTTON_DOWN))
+				{
+					if(in_selector >= in_length-1)
+						CAT_gui_open_keyboard(user_buffer, sizeof(user_buffer));
+					else
+						in_selector = CAT_min(in_selector+1, in_length-1);
+				}
 
 				if(CAT_input_pressed(CAT_BUTTON_B))
 					CAT_gui_open_popup("Quit chat?", CAT_POPUP_STYLE_YES_NO);
-			}		
+			}
 		}
 		break;
 		
@@ -151,7 +171,30 @@ void CAT_MS_chat(CAT_FSM_signal signal)
 int draw_message(int y, int i)
 {
 	CAT_chat_msg* msg = fetch_msg(i);
-	bool change_sender = i > 0 && strcmp(fetch_msg(i-1)->sender, msg->sender) != 0;
+	int sender_idx = find_node(msg->from);
+	CAT_chat_node* sender = sender_idx == -1 ? NULL : &nodes[sender_idx];
+	bool change_sender = i > 0 && fetch_msg(i-1)->from != msg->from;
+	const char* sender_name =
+	sender != NULL ? sender->name :
+	msg->from == NODE_ADDRESS_ME ? "Me" :
+	"?";
+
+	char line[30];
+	snprintf
+	(
+		line, sizeof(line),
+		"%s%s: %s",
+		msg->to == NODE_ADDRESS_ANY ? "" : "[DM] ",
+		sender_name,
+		msg->text
+	);
+	size_t len = strlen(line);
+	size_t max_len = CAT_LINE_CAPACITY(MSG_PAD_X, MSG_PAD_X, CAT_GLYPH_WIDTH);
+	if(max_len - len <= 0)
+	{
+		for(int i = len-1; i >= 0 && i > len-4; i--)
+			line[i] = '.';
+	}
 
 	CAT_fillberry(0, y, MSG_W, MSG_H, CAT_MSG_BG);
 
@@ -160,7 +203,12 @@ int draw_message(int y, int i)
 	CAT_lineberry(MSG_W-1-4, y+MSG_H-1, MSG_W-1, y+MSG_H-1, CAT_MSG_RIM);
 	CAT_lineberry(MSG_W-1, y+MSG_H-1, MSG_W-1, y+MSG_H-1-4, CAT_MSG_RIM);
 
-	CAT_draw_textf(MSG_PAD_X, y+MSG_PAD_Y, "%s: %s", msg->sender, msg->text);
+	if(i == in_selector)
+	{
+		CAT_strokeberry(0, y, MSG_W, MSG_H, CAT_colour_lerp(CAT_BLACK, CAT_WHITE, CAT_wave(0.5f)));
+	}
+
+	CAT_draw_text(MSG_PAD_X, y+MSG_PAD_Y, line);
 
 	if(change_sender)
 		CAT_lineberry(64, y, MSG_W-1-64, y, CAT_224_GREY);
@@ -170,21 +218,26 @@ int draw_message(int y, int i)
 
 void CAT_draw_chat()
 {
-	CAT_frameberry(CAT_WHITE);
-
-	CAT_draw_tinysprite
-	(
-		(CAT_LCD_SCREEN_W-tnyspr_chat_splash.width)/2,
-		(CAT_LCD_SCREEN_H-tnyspr_chat_splash.height)/2,
-		&tnyspr_chat_splash, CAT_BLACK, CAT_WHITE
-	);
+	if(CAT_timed_latch_get(&splash_latch))
+	{
+		CAT_frameberry(CAT_WHITE);
+		CAT_draw_tinysprite
+		(
+			(CAT_LCD_SCREEN_W-tnyspr_chat_splash.width)/2,
+			(CAT_LCD_SCREEN_H-tnyspr_chat_splash.height)/2,
+			&tnyspr_chat_splash, CAT_BLACK, CAT_WHITE
+		);
+		return;
+	}
 
 	int box_y1 = in_length * MSG_H;
 	int keyboard_y0 = CAT_gui_keyboard_is_open() ? CAT_LCD_SCREEN_H/2 : CAT_LCD_SCREEN_H;
 	int overlap = CAT_max(box_y1 - keyboard_y0, 0);
 
-	int cursor_y = -overlap;
+	if(box_y1 < keyboard_y0)
+		CAT_rowberry(box_y1, CAT_LCD_SCREEN_H, CAT_WHITE);
 
+	int cursor_y = -overlap;
 	for(int i = 0; i < in_length; i++)
 	{
 		cursor_y = draw_message(cursor_y, i);
@@ -193,7 +246,7 @@ void CAT_draw_chat()
 
 void CAT_chat_TX(const char* text, uint32_t address, uint8_t channel)
 {
-	CAT_chat_log_msg("Me", text);
+	CAT_chat_log_msg(NODE_ADDRESS_ME, address, channel, text);
 #if CAT_RADIO_ENABLED
 	CAT_radio_TX(text, address, channel);
 	CAT_msleep(500);
@@ -222,7 +275,15 @@ void CAT_chat_RX_meowback(char* frame, uint16_t frame_size)
 			{
 				if (from_radio.packet.decoded.portnum == meshtastic_PortNum_TEXT_MESSAGE_APP)
 				{
-					CAT_chat_log_msg("?", from_radio.packet.decoded.payload.bytes);
+					meshtastic_MeshPacket packet = from_radio.packet;
+
+					CAT_chat_log_msg
+					(
+						packet.from,
+						packet.to,
+						packet.channel,
+						packet.decoded.payload.bytes
+					);
 
 					CAT_printf
 					(
@@ -231,10 +292,32 @@ void CAT_chat_RX_meowback(char* frame, uint16_t frame_size)
 						"To: 0x%02X\n"
 						"Channel: 0x%02X\n"
 						"Message: %s\n",
-						from_radio.packet.from,
-						from_radio.packet.to,
-						from_radio.packet.channel,
-						from_radio.packet.decoded.payload.bytes
+						packet.from,
+						packet.to,
+						packet.channel,
+						packet.decoded.payload.bytes
+					);
+				}
+				else if (from_radio.packet.decoded.portnum == meshtastic_PortNum_NODEINFO_APP)
+				{
+					meshtastic_NodeInfo info = from_radio.node_info;
+
+					if(info.has_user)
+					{
+						register_node(info.num, info.user.short_name);
+					}
+
+					CAT_printf
+					(
+						MODULE_PREFIX "Received node info:\n"
+						"Number: 0x%02X\n"
+						"Has User: %d\n"
+						"Long Name: %.40s\n"
+						"Short Name: %.5s\n",
+						info.num,
+						info.has_user,
+						info.has_user ? info.user.long_name : "N/A",
+						info.has_user ? info.user.short_name : "N/A"
 					);
 				}
 			}

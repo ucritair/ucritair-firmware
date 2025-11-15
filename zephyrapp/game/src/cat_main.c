@@ -24,10 +24,8 @@ void CAT_init()
 	CAT_platform_init();
 
 	CAT_radio_init();
-	CAT_msleep(12000);
 	CAT_radio_clear_buffer();
 	CAT_radio_start_modem();
-	CAT_msleep(500);
 	
 	CAT_input_init();
 	CAT_rand_seed();

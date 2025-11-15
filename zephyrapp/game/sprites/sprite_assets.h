@@ -245,7 +245,6 @@ extern const CAT_sprite world_bench_tile_sprite;
 extern const CAT_sprite eink_update_machine_sprite;
 extern const CAT_sprite eink_update_clipboard_sprite;
 extern const CAT_sprite eink_update_pen_sprite;
-extern const CAT_sprite ui_aq_notice_icons;
 extern const CAT_sprite ui_item_frame_bg_spec_sprite;
 extern const CAT_sprite ui_feed_select_sprite;
 extern const CAT_sprite ui_feed_submit_sprite;
@@ -266,11 +265,10 @@ extern const CAT_sprite ingr_oil_sprite;
 extern const CAT_sprite ingr_clay_sprite;
 extern const CAT_sprite ingr_time_sprite;
 extern const CAT_sprite ui_button_alert;
-extern const CAT_sprite ui_vxcon_logo;
-extern const CAT_sprite ui_vxcon_text;
+extern const CAT_sprite ui_down_arrow_simple;
 
 extern const CAT_sprite* sprite_list[];
-#define CAT_SPRITE_LIST_LENGTH 264
+#define CAT_SPRITE_LIST_LENGTH 262
 
 extern const CAT_tinysprite tnyspr_unicorn_default;
 extern const CAT_tinysprite tnyspr_unicorn_happy;

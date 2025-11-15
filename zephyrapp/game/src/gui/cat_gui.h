@@ -123,3 +123,4 @@ size_t CAT_get_drawn_strlen();
 
 #define CAT_FLOAT_FMT "%d.%2.2u"
 #define CAT_FMT_FLOAT(f) (int) (f), ((unsigned)(100 * ((f) - (int) (f))) % 100)
+#define CAT_LINE_CAPACITY(l, r, w) ((CAT_LCD_SCREEN_W - (l + r))/w)

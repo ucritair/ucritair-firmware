@@ -4,6 +4,7 @@
 #include "sprite_assets.h"
 #include "cat_gui.h"
 #include "cat_input.h"
+#include "cat_spriter.h"
 
 void CAT_draw_regular_polygon(int n, int x, int y, int r, float t, uint16_t c)
 {
@@ -390,5 +391,50 @@ void CAT_draw_star(int x, int y, int r, uint16_t c)
 		x0 = x1;
 		y0 = y1;
 		t += dt;
+	}
+}
+
+void CAT_draw_button(int x, int y, int button, uint16_t c)
+{
+	static uint8_t pad = 2;
+
+	switch (button)
+	{
+		case CAT_BUTTON_A:
+			CAT_draw_tinyglyph(x+pad, y+pad, 'A', c);
+			CAT_strokeberry(x, y, 8+pad*2, 8+pad*2, c);
+		break;
+		case CAT_BUTTON_B:
+			CAT_draw_tinyglyph(x+pad, y+pad, 'B', c);
+			CAT_strokeberry(x, y, 8+pad*2, 8+pad*2, c);
+		break;
+
+		case CAT_BUTTON_RIGHT:
+			CAT_draw_tinyglyph(x+pad, y+pad, '\6', c);
+			CAT_strokeberry(x, y, 8+pad*2, 8+pad*2, c);
+		break;
+		case CAT_BUTTON_UP:
+			CAT_draw_tinyglyph(x+pad, y+pad, '\7', c);
+			CAT_strokeberry(x, y, 8+pad*2, 8+pad*2, c);
+		break;
+		case CAT_BUTTON_LEFT:
+			CAT_draw_tinyglyph(x+pad, y+pad, '\10', c);
+			CAT_strokeberry(x, y, 8+pad*2, 8+pad*2, c);
+		break;
+		case CAT_BUTTON_DOWN:
+			CAT_draw_tinyglyph(x+pad, y+pad, '\11', c);
+			CAT_strokeberry(x, y, 8+pad*2, 8+pad*2, c);
+		break;
+
+		case CAT_BUTTON_START:
+			CAT_draw_tinystring(x+pad, y+pad, "STRT", c);
+			CAT_strokeberry(x, y, 8*4+pad*2, 8+pad*2, c);
+		break;
+		case CAT_BUTTON_SELECT:
+			CAT_draw_tinystring(x+pad, y+pad, "SLCT", c);
+			CAT_strokeberry(x, y, 8*4+pad*2, 8+pad*2, c);
+		break;
+
+		default: break;
 	}
 }
