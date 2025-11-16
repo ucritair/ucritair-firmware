@@ -226,7 +226,7 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 								uint32_t stroop_u32 = CAT_f2u32
 								(
 									((stroop_data.mean_time_cong + stroop_data.mean_time_incong) * 0.5f +
-									stroop_data.throughput)
+									(60.0f / stroop_data.throughput))
 									* 0.5f
 								);
 
