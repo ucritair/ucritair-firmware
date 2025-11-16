@@ -62,14 +62,14 @@ static uint16_t word_colours[] =
 
 static int word;
 static int word_colour;
-static int word_direction;
+static int input_direction;
 
 static bool challenge_request;
 static int challenge_idx = 0;
 
 static CAT_timed_latch error_latch = CAT_TIMED_LATCH_INIT(1.0f);
 static CAT_timed_latch finish_latch = CAT_TIMED_LATCH_INIT(0.25f);
-static CAT_timed_latch question_latch = CAT_TIMED_LATCH_INIT(3.0f);
+static CAT_timed_latch countdown_latch = CAT_TIMED_LATCH_INIT(3.0f);
 
 static int key_map[] =
 {
@@ -188,7 +188,6 @@ static void generate_word()
 	}
 	else
 		word_colour = word;
-	word_direction = -1;
 }
 
 static void MS_gameplay(CAT_FSM_signal signal)
@@ -206,17 +205,19 @@ static void MS_gameplay(CAT_FSM_signal signal)
 			response_time[phase][challenge_idx] += CAT_get_delta_time_s();
 
 			CAT_timed_latch_tick(&error_latch);
-			CAT_timed_latch_tick(&finish_latch);
-
 			if(CAT_timed_latch_get(&error_latch))
 				return;
+
+			CAT_timed_latch_tick(&finish_latch);
 			if(CAT_timed_latch_get(&finish_latch))
 				return;
 			else if(CAT_timed_latch_flipped(&finish_latch))
 			{
 				challenge_idx += 1;
 				if(challenge_idx < CHALLENGES_PER_PHASE)
+				{
 					challenge_request = true;
+				}
 				else
 				{
 					if(phase >= PHASE_COUNT-1)
@@ -233,32 +234,49 @@ static void MS_gameplay(CAT_FSM_signal signal)
 					generate_word();
 				else
 					generate_arrow();
-				challenge_request = false;	
+				challenge_request = false;
+
+				CAT_timed_latch_reset(&countdown_latch);
+				CAT_timed_latch_raise(&countdown_latch);
 			}
-			
+
+			input_direction = -1;
 			for(int i = 0; i < 4; i++)
 			{
 				if(CAT_input_pressed(key_map[i]))
 				{
-					bool correct = 
-					((phase == PHASE_ARROWS || phase == PHASE_ARROWS_INCONGRUENT) && i == arrow_direction) ||
-					(phase == PHASE_ARROWS_OPPOSITE && i == (arrow_direction+2)%4) ||
-					(phase == PHASE_WORDS && i == word) ||
-					(phase == PHASE_WORDS_COLOUR && i == word_colour) ||
-					(phase == PHASE_WORDS_WORD && i == word);
-					
-					if(correct)
-					{
-						CAT_timed_latch_raise(&finish_latch);
-					}
-					else
-					{
-						errored[phase][challenge_idx] = true;
-						CAT_timed_latch_raise(&error_latch);
-					}
-
-					word_direction = i;
+					input_direction = i;
+					break;
 				}
+			}	
+			bool response = input_direction != -1;
+
+			bool correct =
+			((phase == PHASE_ARROWS || phase == PHASE_ARROWS_INCONGRUENT) && input_direction == arrow_direction) ||
+			(phase == PHASE_ARROWS_OPPOSITE && input_direction == (arrow_direction+2)%4) ||
+			(phase == PHASE_WORDS && input_direction == word) ||
+			(phase == PHASE_WORDS_COLOUR && input_direction == word_colour) ||
+			(phase == PHASE_WORDS_WORD && input_direction == word);
+
+			CAT_timed_latch_tick(&countdown_latch);
+			bool timeout =
+			CAT_timed_latch_flipped(&countdown_latch) &&
+			!CAT_timed_latch_get(&countdown_latch);
+
+			if(response)
+			{
+				if(correct)
+					CAT_timed_latch_raise(&finish_latch);
+				else
+				{
+					errored[phase][challenge_idx] = true;
+					CAT_timed_latch_raise(&error_latch);
+				}
+			}
+			if(timeout)
+			{
+				CAT_timed_latch_raise(&error_latch);
+				CAT_timed_latch_raise(&finish_latch);
 			}
  		}
 		break;
@@ -330,8 +348,8 @@ static void draw_word()
 	float t = CAT_timed_latch_get(&finish_latch) ?
 	CAT_timed_latch_t(&finish_latch) * 4.0f : 0;
 
-	int dx = dxdy[word_direction*2+0] * t * 128;
-	int dy = dxdy[word_direction*2+1] * t * 128;
+	int dx = dxdy[input_direction*2+0] * t * 128;
+	int dy = dxdy[input_direction*2+1] * t * 128;
 	
 	CAT_fillberry(CARD_X+dx, CARD_Y+dy, CARD_W+1, CARD_H+1, CAT_BLACK);
 	CAT_strokeberry(CARD_X+dx, CARD_Y+dy, CARD_W+1, CARD_H+1, CAT_GREY);
@@ -355,6 +373,11 @@ static void draw_error()
 	CAT_poly_draw(x_mesh, CAT_POLY_VERTEX_COUNT(x_mesh), CAT_RED);
 }
 
+static void draw_countdown()
+{
+	CAT_draw_progress_bar(CAT_LCD_SCREEN_W/2, 12, CAT_LCD_SCREEN_W-24, 12, CAT_WHITE, CAT_WHITE, 1.0f-CAT_timed_latch_t(&countdown_latch));
+}
+
 static void draw_gameplay()
 {
 	CAT_frameberry(CAT_BLACK);
@@ -367,6 +390,9 @@ static void draw_gameplay()
 	else
 		draw_arrow(CENTER_X, CENTER_Y);
 
+	if(!CAT_timed_latch_get(&error_latch) && !CAT_timed_latch_get(&finish_latch))
+		draw_countdown();
+	
 	if(CAT_timed_latch_get(&error_latch))
 		draw_error();
 }

@@ -106,10 +106,7 @@ void CAT_draw_progress_bar(int x, int y, int w, int h, uint16_t co, uint16_t ci,
 {
 	CAT_strokeberry(x-w/2, y-h/2, w, h, co);
 	if(t > 0)
-	{
-		t = CAT_ease_inout_sine(t);
 		CAT_fillberry(x-w/2+2, y-h/2+2, (w-4)*t, h-4, ci);
-	}
 }
 
 void CAT_draw_hexagon(int x, int y, int r, uint16_t c, float p)
