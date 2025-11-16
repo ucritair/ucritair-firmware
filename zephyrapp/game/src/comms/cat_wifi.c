@@ -5,11 +5,20 @@
 #include <string.h>
 #include <stdio.h>
 #include "cat_input.h"
-#include "rp2350_ipc.h"
 #include "cat_persist.h"
 
 #define MODULE_NAME "CAT_wifi"
 #define MODULE_PREFIX "["MODULE_NAME"] "
+
+bool CAT_wifi_bootloader(uint32_t timeout_ms)
+{
+	bool result = false;
+#if CAT_WIFI_ENABLED
+	CAT_printf(MODULE_PREFIX "Putting RP2350 into bootloader mode\n");
+	result = rp2350_reboot_to_bootloader(timeout_ms);
+#endif
+	return result;
+}
 
 bool CAT_wifi_init()
 {
@@ -32,6 +41,17 @@ bool CAT_wifi_init()
 	return false;
 }
 
+bool CAT_wifi_scan(msg_payload_wifi_scan_response_t *results, uint32_t timeout_ms)
+{
+	bool result = false;
+	results->count = 0;
+#if CAT_WIFI_ENABLED
+	CAT_printf(MODULE_PREFIX "Scanning for networks\n");
+	result = rp2350_wifi_scan(results, timeout_ms);
+#endif
+	return result;
+}
+
 bool CAT_wifi_connect(const char* ssid, const char* password, uint8_t auth_mode, uint32_t timeout_ms)
 {
 	CAT_printf
@@ -43,8 +63,8 @@ bool CAT_wifi_connect(const char* ssid, const char* password, uint8_t auth_mode,
 		"Timeout: %d ms\n",
 		ssid, auth_mode, timeout_ms
 	);
-	bool result = false;
 
+	bool result = false;
 #if CAT_WIFI_ENABLED
 	result = rp2350_wifi_connect
 	(
@@ -54,18 +74,41 @@ bool CAT_wifi_connect(const char* ssid, const char* password, uint8_t auth_mode,
 		timeout_ms
 	);
 #endif
-
 	CAT_printf(MODULE_PREFIX "Connection %s!\n", result ? "succeeded" : "failed");
 	return result;
 }
 
-void CAT_wifi_autoconnect(int timeout_ms)
+bool CAT_wifi_autoconnect(int timeout_ms)
 {
+	bool result = false;
 	if(wifi_status == CAT_WIFI_CONNECTION_SUCCESS)
 	{
-		bool result = CAT_wifi_connect(wifi_details.ssid, wifi_password, wifi_details.auth_mode, timeout_ms);
+		result = CAT_wifi_connect(wifi_details.ssid, wifi_password, wifi_details.auth_mode, timeout_ms);
 		wifi_status = result ? CAT_WIFI_CONNECTION_SUCCESS : CAT_WIFI_CONNECTION_FAILURE;
 	}
+	return result;
+}
+
+static bool auth_flag = false;
+bool CAT_wifi_ZKP_authenticate(msg_payload_zkp_authenticate_response_t *response, uint32_t timeout_ms)
+{
+	bool result = false;
+#if CAT_WIFI_ENABLED
+	CAT_printf(MODULE_PREFIX "Starting ZKP authentication phase\n");
+	result = rp2350_zkp_authenticate(response, timeout_ms);
+#endif
+	auth_flag = result;
+	return result;
+}
+
+bool CAT_wifi_send_data(uint32_t *data, uint8_t count, uint32_t timeout_ms)
+{
+	bool result = false;
+#if CAT_WIFI_ENABLED
+	CAT_printf(MODULE_PREFIX "Sending %d data to the RP2350\n", count);
+	result = rp2350_send_sensor_data_array(data, count, timeout_ms);
+#endif
+	return result;
 }
 
 bool CAT_is_wifi_connected()
@@ -76,6 +119,11 @@ bool CAT_is_wifi_connected()
 char* CAT_get_wifi_SSID()
 {
 	return wifi_details.ssid;
+}
+
+bool CAT_wifi_is_ZKP_authenticated()
+{
+	return auth_flag;
 }
 
 static msg_payload_wifi_scan_response_t scan_results;
@@ -98,7 +146,7 @@ void print_network_details(wifi_ap_record_t details)
 
 void poll_network_list()
 {
-	if (rp2350_wifi_scan(&scan_results, 30000))
+	if (CAT_wifi_scan(&scan_results, 30000))
 	{
 		CAT_printf("WiFi scan successful! Found %d unique APs:\n", scan_results.count);
 		for (int i = 0; i < scan_results.count; i++)
@@ -223,7 +271,7 @@ void MS_connect_attempt(CAT_FSM_signal signal)
 			}
 
 			attempt_status =
-			rp2350_wifi_connect
+			CAT_wifi_connect
 			(
 				network.ssid,
 				password,

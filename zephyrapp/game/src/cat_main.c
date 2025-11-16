@@ -23,6 +23,9 @@ void CAT_init()
 {
 	CAT_platform_init();
 
+	CAT_wifi_init();
+	CAT_wifi_autoconnect(1000);
+
 	CAT_radio_init();
 	CAT_radio_clear_buffer();
 	CAT_radio_start_modem();
@@ -35,8 +38,6 @@ void CAT_init()
 	CAT_room_init();
 
 	CAT_force_load();
-
-	CAT_wifi_autoconnect(1000);
 
 	if(persist_flags & CAT_PERSIST_CONFIG_FLAG_AQ_FIRST)
 		CAT_pushdown_rebase(CAT_MS_monitor);
@@ -54,8 +55,8 @@ void CAT_tick_logic()
 		
 	CAT_platform_tick();
 	CAT_input_tick();
+
 	CAT_radio_poll_RX(CAT_chat_RX_meowback);
-	// 100ms
 
 	CAT_AQ_tick();
 	CAT_AQ_crisis_tick();

@@ -85,7 +85,7 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 				}
 
 				if(CAT_gui_menu_item("DASHBOARD"))
-					CAT_pushdown_rebase(CAT_MS_monitor);				
+					CAT_pushdown_rebase(CAT_MS_monitor);			
 					
 				if(CAT_gui_menu_item("MAGIC"))
 					CAT_pushdown_push(CAT_MS_magic);
@@ -102,25 +102,12 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 						
 						if(CAT_gui_menu_item("RP2350 BOOTLOADER"))
 						{
-							if (rp2350_reboot_to_bootloader(2000)) {
+							if (CAT_wifi_bootloader(2000)) {
 								CAT_printf("Rebooted RP2350 to bootloader\n");
 							} else {
 								CAT_printf("Failed to reboot RP2350 to bootloader\n");
 							}
-						}
-
-						if(CAT_gui_menu_item("RECONNECT WIFI"))
-							CAT_wifi_autoconnect(10000);
-						
-						if(CAT_gui_menu_item("AUTHENTICATE ZKP"))
-						{
-							int timeout = CAT_MINUTE_SECONDS * 15 * 1000;
-							CAT_printf("[WARNING] BEGINNING ZKP AUTHENTICATION WITH TIMEOUT OF %d SECONDS!\n");
-							msg_payload_zkp_authenticate_response_t response;
-							bool result = rp2350_zkp_authenticate(&response, timeout);
-							CAT_printf("RESULT OF ZKP AUTHENTICATION: %s\n", response.success ? "SUCCESS" : "FAILURE");
-						}
-							
+						}	
 						CAT_gui_end_menu();
 					}				
 				}
@@ -134,14 +121,11 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 				{
 					if(CAT_gui_begin_menu("GAMEPLAY"))
 					{
-						if(CAT_gui_begin_menu("LAUNCH MODE"))
-						{
-							if(CAT_gui_menu_toggle("GAME FIRST", !(persist_flags & CAT_PERSIST_CONFIG_FLAG_AQ_FIRST), CAT_GUI_TOGGLE_STYLE_RADIO_BUTTON))
-								persist_flags &= ~CAT_PERSIST_CONFIG_FLAG_AQ_FIRST;
-							if(CAT_gui_menu_toggle("DASHBOARD FIRST", persist_flags & CAT_PERSIST_CONFIG_FLAG_AQ_FIRST, CAT_GUI_TOGGLE_STYLE_RADIO_BUTTON))
-								persist_flags |= CAT_PERSIST_CONFIG_FLAG_AQ_FIRST;
-							CAT_gui_end_menu();
-						}
+						if(CAT_gui_menu_toggle("GAME FIRST", !(persist_flags & CAT_PERSIST_CONFIG_FLAG_AQ_FIRST), CAT_GUI_TOGGLE_STYLE_RADIO_BUTTON))
+							persist_flags &= ~CAT_PERSIST_CONFIG_FLAG_AQ_FIRST;
+						if(CAT_gui_menu_toggle("DASHBOARD FIRST", persist_flags & CAT_PERSIST_CONFIG_FLAG_AQ_FIRST, CAT_GUI_TOGGLE_STYLE_RADIO_BUTTON))
+							persist_flags |= CAT_PERSIST_CONFIG_FLAG_AQ_FIRST;
+
 						if(CAT_gui_menu_toggle("PAUSE CRITTER CARE", persist_flags & CAT_PERSIST_CONFIG_FLAG_PAUSE_CARE, CAT_GUI_TOGGLE_STYLE_CHECKBOX))
 						{
 							if(persist_flags & CAT_PERSIST_CONFIG_FLAG_PAUSE_CARE)
@@ -149,7 +133,6 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 							else
 								persist_flags |= CAT_PERSIST_CONFIG_FLAG_PAUSE_CARE;
 						}
-
 						CAT_gui_end_menu();
 					}
 
@@ -182,9 +165,7 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 							led_brightness = 100;
 
 						if(CAT_gui_menu_item("REFRESH EINK"))
-						{
 							CAT_set_eink_update_flag(true);
-						}
 
 						if(CAT_gui_menu_toggle("AUTO-FLIP SCREEN", !(persist_flags & CAT_PERSIST_CONFIG_FLAG_MANUAL_ORIENT), CAT_GUI_TOGGLE_STYLE_CHECKBOX))
 						{
@@ -209,28 +190,60 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 					
 						CAT_gui_end_menu();
 					}
-					if(CAT_gui_begin_menu("AIR QUALITY"))
+
+					if(CAT_gui_begin_menu("TEMPERATURE UNIT"))
 					{
-						if(CAT_gui_begin_menu("TEMPERATURE UNIT"))
-						{
-							if(CAT_gui_menu_toggle("CELSIUS", !(persist_flags & CAT_PERSIST_CONFIG_FLAG_USE_FAHRENHEIT), CAT_GUI_TOGGLE_STYLE_RADIO_BUTTON))
-								persist_flags &= ~CAT_PERSIST_CONFIG_FLAG_USE_FAHRENHEIT;
-							if(CAT_gui_menu_toggle("FAHRENHEIT", persist_flags & CAT_PERSIST_CONFIG_FLAG_USE_FAHRENHEIT, CAT_GUI_TOGGLE_STYLE_RADIO_BUTTON))
-								persist_flags |= CAT_PERSIST_CONFIG_FLAG_USE_FAHRENHEIT;
-							CAT_AQ_set_temperature_unit
-							(
-								persist_flags & CAT_PERSIST_CONFIG_FLAG_USE_FAHRENHEIT ?
-								CAT_TEMPERATURE_UNIT_DEGREES_FAHRENHEIT :
-								CAT_TEMPERATURE_UNIT_DEGREES_CELSIUS
-							);
-							CAT_gui_end_menu();
-						}
+						if(CAT_gui_menu_toggle("CELSIUS", !(persist_flags & CAT_PERSIST_CONFIG_FLAG_USE_FAHRENHEIT), CAT_GUI_TOGGLE_STYLE_RADIO_BUTTON))
+							persist_flags &= ~CAT_PERSIST_CONFIG_FLAG_USE_FAHRENHEIT;
+						if(CAT_gui_menu_toggle("FAHRENHEIT", persist_flags & CAT_PERSIST_CONFIG_FLAG_USE_FAHRENHEIT, CAT_GUI_TOGGLE_STYLE_RADIO_BUTTON))
+							persist_flags |= CAT_PERSIST_CONFIG_FLAG_USE_FAHRENHEIT;
+						CAT_AQ_set_temperature_unit
+						(
+							persist_flags & CAT_PERSIST_CONFIG_FLAG_USE_FAHRENHEIT ?
+							CAT_TEMPERATURE_UNIT_DEGREES_FAHRENHEIT :
+							CAT_TEMPERATURE_UNIT_DEGREES_CELSIUS
+						);
 						CAT_gui_end_menu();
 					}
 
 #if CAT_WIFI_ENABLED
-					if(CAT_gui_menu_item("WI-FI"))
-						CAT_pushdown_push(CAT_MS_wifi);
+					if(CAT_gui_begin_menu("NETWORK"))
+					{
+						if(CAT_gui_menu_item("CONNECT"))
+							CAT_pushdown_push(CAT_MS_wifi);
+						if(CAT_is_wifi_connected())
+						{
+							if(CAT_gui_menu_item("AUTHENTICATE DEVICE"))
+							{
+								msg_payload_zkp_authenticate_response_t response;
+								CAT_wifi_ZKP_authenticate(&response, CAT_MINUTE_SECONDS * 10 * 1000);
+							}
+						}
+						if(CAT_wifi_is_ZKP_authenticated())
+						{
+							if(CAT_gui_menu_item("UPLOAD LATEST DATA"))
+							{
+								uint32_t stroop_u32 = CAT_f2u32
+								(
+									((stroop_data.mean_time_cong + stroop_data.mean_time_incong) * 0.5f +
+									stroop_data.throughput)
+									* 0.5f
+								);
+
+								uint32_t data[CAT_WIFI_DATUM_COUNT] = 
+								{
+									(uint32_t) CAT_get_RTC_now(),
+									(uint32_t) readings.sen5x.pm2_5,
+									(uint32_t) readings.sunrise.ppm_filtered_uncompensated,
+									(uint32_t) CAT_canonical_temp(),
+									stroop_u32
+								};
+
+								CAT_wifi_send_data(data, CAT_WIFI_DATUM_COUNT, 120000);
+							}
+						}
+						CAT_gui_end_menu();
+					}
 #endif
 
 #ifdef CAT_EMBEDDED
@@ -239,12 +252,7 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 #endif
 
 					if(CAT_gui_begin_menu("DANGER ZONE"))
-					{
-						if(CAT_gui_menu_item("RESET CONFIG FLAGS"))
-						{
-							CAT_set_config_flags(CAT_SAVE_CONFIG_FLAG_NONE);
-						}
-							
+					{						
 						if(CAT_gui_menu_item("RESET SAVE"))
 							CAT_gui_open_popup("Are you sure? This will delete all game data!\n", CAT_POPUP_STYLE_YES_NO);
 						if(CAT_gui_consume_popup())
@@ -254,8 +262,10 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 					}
 					CAT_gui_end_menu();
 				}
+
 				if(CAT_gui_menu_item("ABOUT"))
 					CAT_pushdown_push(CAT_MS_manual);
+					
 				if(CAT_gui_begin_menu("POWER"))
 				{
 					if(CAT_gui_menu_item("SLEEP"))
@@ -265,6 +275,14 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 						CAT_gui_open_popup("The device must be powered on via the reset button! This will clear important settings. Proceed?\n", CAT_POPUP_STYLE_YES_NO);
 					if(CAT_gui_consume_popup())
 						CAT_shutdown();
+
+					if(CAT_gui_menu_toggle("ALWAYS AWAKE", persist_flags & CAT_PERSIST_CONFIG_FLAG_ETERNAL_WAKE, CAT_GUI_TOGGLE_STYLE_CHECKBOX))
+					{
+						if(persist_flags & CAT_PERSIST_CONFIG_FLAG_ETERNAL_WAKE)
+							persist_flags &= ~CAT_PERSIST_CONFIG_FLAG_ETERNAL_WAKE;
+						else
+							persist_flags |= CAT_PERSIST_CONFIG_FLAG_ETERNAL_WAKE;
+					}
 					
 					CAT_gui_end_menu();
 				}

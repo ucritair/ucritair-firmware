@@ -175,7 +175,7 @@ void lcd_render_diag()
 
 		int time_since_buttons = now_ms - last_button_pressed;
 
-		if (time_since_buttons > sleep_after_seconds*1000)
+		if (time_since_buttons > sleep_after_seconds*1000 && !(persist_flags & CAT_PERSIST_CONFIG_FLAG_ETERNAL_WAKE))
 		{
 			if (!is_charging)
 			{
@@ -190,7 +190,7 @@ void lcd_render_diag()
 				// set_backlight(MAX(10, screen_brightness>>2));
 			}
 		}
-		else if (time_since_buttons > dim_after_seconds*1000)
+		else if (time_since_buttons > dim_after_seconds*1000 && !(persist_flags & CAT_PERSIST_CONFIG_FLAG_ETERNAL_WAKE))
 		{
 			set_backlight(MAX(10, screen_brightness>>1));
 		}

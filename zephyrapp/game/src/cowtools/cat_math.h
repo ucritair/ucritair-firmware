@@ -38,6 +38,7 @@
 float lerp(float a, float b, float t);
 float inv_lerp(float t, float a, float b);
 int quantize(float t, float range, int steps);
+uint32_t CAT_f2u32(float f);
 
 typedef enum
 {

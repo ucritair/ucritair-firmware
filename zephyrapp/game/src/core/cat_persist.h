@@ -22,6 +22,7 @@ typedef enum
 	CAT_PERSIST_CONFIG_FLAG_USE_FAHRENHEIT = (1 << 2),
 	CAT_PERSIST_CONFIG_FLAG_AQ_FIRST = (1 << 3),
 	CAT_PERSIST_CONFIG_FLAG_PAUSE_CARE = (1 << 4),
+	CAT_PERSIST_CONFIG_FLAG_ETERNAL_WAKE = (1 << 5)
 } CAT_persist_config_flag;
 
 extern volatile uint64_t rtc_offset;
