@@ -90,7 +90,7 @@ bool CAT_wifi_autoconnect(int timeout_ms)
 }
 
 static bool auth_flag = false;
-bool CAT_wifi_ZKP_authenticate(msg_payload_zkp_authenticate_response_t *response, uint32_t timeout_ms)
+bool CAT_wifi_ZK_authenticate(msg_payload_zkp_authenticate_response_t *response, uint32_t timeout_ms)
 {
 	bool result = false;
 #if CAT_WIFI_ENABLED
@@ -121,7 +121,7 @@ char* CAT_get_wifi_SSID()
 	return wifi_details.ssid;
 }
 
-bool CAT_wifi_is_ZKP_authenticated()
+bool CAT_wifi_is_ZK_authenticated()
 {
 	return auth_flag;
 }

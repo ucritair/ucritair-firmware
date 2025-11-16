@@ -551,6 +551,7 @@ static void MS_performance(CAT_FSM_signal signal)
 			stroop_data.mean_time_incong /= incong_challenges;
 			stroop_data.throughput = (TOTAL_CHALLENGES / total_time) * 60.0f;
 			stroop_data_valid = true;
+			stroop_data_sent = false;
 			
 			float grade = perfect / (float) TOTAL_CHALLENGES;
 			stars = (int)(grade >= 0.5f) + (int)(grade >= 0.85f) + (int)((stroop_data.mean_time_incong/stroop_data.mean_time_cong) <= 1.25f);

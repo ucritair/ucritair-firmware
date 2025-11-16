@@ -216,10 +216,10 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 							if(CAT_gui_menu_item("AUTHENTICATE DEVICE"))
 							{
 								msg_payload_zkp_authenticate_response_t response;
-								CAT_wifi_ZKP_authenticate(&response, CAT_MINUTE_SECONDS * 10 * 1000);
+								CAT_wifi_ZK_authenticate(&response, CAT_MINUTE_SECONDS * 10 * 1000);
 							}
 						}
-						if(CAT_wifi_is_ZKP_authenticated())
+						if(CAT_wifi_is_ZK_authenticated())
 						{
 							if(CAT_gui_menu_item("UPLOAD LATEST DATA"))
 							{
@@ -232,11 +232,12 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 
 								uint32_t data[CAT_WIFI_DATUM_COUNT] = 
 								{
-									(uint32_t) CAT_get_RTC_now(),
-									(uint32_t) readings.sen5x.pm2_5,
-									(uint32_t) readings.sunrise.ppm_filtered_uncompensated,
-									(uint32_t) CAT_canonical_temp(),
-									stroop_u32
+									CAT_ZK_timestamp(),
+									CAT_ZK_CO2(),
+									CAT_ZK_PM2_5(),
+									CAT_ZK_temp(),
+									CAT_ZK_stroop(),
+									CAT_ZK_survey()
 								};
 
 								CAT_wifi_send_data(data, CAT_WIFI_DATUM_COUNT, 120000);

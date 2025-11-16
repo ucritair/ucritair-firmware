@@ -38,7 +38,7 @@ static const char* credits[] =
 	"Tasha Schneider",
 	"Tomas Stegemann",
 	"Bilal",
-	"Griffon",
+	"Monochroma",
 	"V",
 	"Justin"
 };
