@@ -2,7 +2,13 @@
 
 #include <stdint.h>
 
-uint8_t CAT_ZKP_make_co2_byte();
-uint8_t CAT_ZKP_make_pm2_5_byte();
-uint8_t CAT_ZKP_make_stroop_time_byte();
-uint8_t CAT_ZKP_make_stroop_throughput_byte();
+// PPM CO2 mapped from f32 to 8 bits of u32
+uint32_t CAT_ZK_CO2();
+// UG/M3 PM 2.5 mapped from f32 to 8 bits of u32
+uint32_t CAT_ZK_PM2_5();
+// Degrees celsius mapped from f32 to 8 bits of u32
+uint32_t CAT_ZK_temp();
+// % Correct mapped from f32 to 8 bits of u32
+uint32_t CAT_ZK_stroop();
+// Survey information as 8 bits of u32
+uint32_t CAT_ZK_survey();

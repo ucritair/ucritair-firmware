@@ -69,6 +69,7 @@ static int challenge_idx = 0;
 
 static CAT_timed_latch error_latch = CAT_TIMED_LATCH_INIT(1.0f);
 static CAT_timed_latch finish_latch = CAT_TIMED_LATCH_INIT(0.25f);
+static CAT_timed_latch question_latch = CAT_TIMED_LATCH_INIT(3.0f);
 
 static int key_map[] =
 {
@@ -551,7 +552,6 @@ static void MS_performance(CAT_FSM_signal signal)
 			stroop_data.mean_time_incong /= incong_challenges;
 			stroop_data.throughput = (TOTAL_CHALLENGES / total_time) * 60.0f;
 			stroop_data_valid = true;
-			stroop_data_sent = false;
 			
 			float grade = perfect / (float) TOTAL_CHALLENGES;
 			stars = (int)(grade >= 0.5f) + (int)(grade >= 0.85f) + (int)((stroop_data.mean_time_incong/stroop_data.mean_time_cong) <= 1.25f);

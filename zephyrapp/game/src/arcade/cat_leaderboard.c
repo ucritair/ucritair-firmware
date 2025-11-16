@@ -21,6 +21,7 @@ uint32_t CAT_ZK_timestamp()
 
 uint32_t CAT_ZK_CO2()
 {
+	
 	return CAT_f2u32(readings.sunrise.ppm_filtered_uncompensated);
 }
 

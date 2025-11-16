@@ -6,7 +6,7 @@
 #include "rp2350_ipc.h"
 
 #define CAT_WIFI_TRANSMISSION_PERIOD 30
-#define CAT_WIFI_DATUM_COUNT 6
+#define CAT_WIFI_DATUM_COUNT 5
 
 typedef enum
 {

@@ -23,7 +23,7 @@
 #include "cat_chat.h"
 #include "cat_save.h"
 #include "cat_wifi.h"
-#include "rp2350_ipc.h"
+#include "cat_crypto.h"
 
 #ifdef CAT_EMBEDDED
 #include "menu_system.h"
@@ -232,7 +232,6 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 
 								uint32_t data[CAT_WIFI_DATUM_COUNT] = 
 								{
-									CAT_ZK_timestamp(),
 									CAT_ZK_CO2(),
 									CAT_ZK_PM2_5(),
 									CAT_ZK_temp(),
