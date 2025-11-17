@@ -17,6 +17,21 @@
 
 #define CHALLENGES_PER_PHASE 8
 
+enum
+{
+	PHASE_ARROWS,
+	PHASE_ARROWS_OPPOSITE,
+	PHASE_ARROWS_INCONGRUENT,
+	PHASE_WORDS,
+	PHASE_WORDS_COLOUR,
+	PHASE_WORDS_WORD,
+	PHASE_COUNT
+};
+
+#define TOTAL_CHALLENGES (PHASE_COUNT * CHALLENGES_PER_PHASE)
+
+#define SURVEY_COUNT 2
+
 static void MS_survey(CAT_FSM_signal);
 static void draw_survey();
 static void draw_tutorial();
@@ -28,12 +43,13 @@ static void MS_performance(CAT_FSM_signal);
 static void MS_upload(CAT_FSM_signal);
 static void draw_upload();
 
-#define SURVEY_COUNT 2
+static void load_co2();
+static void change_phase(int _phase);
 
 static const char* survey_questions[SURVEY_COUNT] =
 {
-	"Question 1",
-	"Question 2"
+	"Overall Question",
+	"Depression Question"
 };
 
 static const char** survey_answers[SURVEY_COUNT] =
@@ -52,7 +68,7 @@ static const char** survey_answers[SURVEY_COUNT] =
 		"2 - A little",
 		"3 - Some",
 		"4 - A lot",
-		"5 - Almost all the time"
+		"5 - Almost always"
 	}
 };
 
@@ -60,8 +76,10 @@ static int survey_idx = 0;
 
 static void survey_set_answer(int idx, int score)
 {
-	uint8_t mask = CAT_clamp(score, 0, 15);
-	mask <<= idx * 4;
+	uint8_t mask = 0b1111 << ((SURVEY_COUNT-1-idx) * 4);
+	survey_field &= mask;
+	mask = CAT_clamp(score, 0, 15);
+	mask <<= (idx*4);
 	survey_field |= mask;
 }
 
@@ -102,7 +120,16 @@ static void MS_survey(CAT_FSM_signal signal)
 					)
 					{
 						survey_set_answer(survey_idx, i);
-						survey_idx = CAT_wrap(survey_idx, 2);
+					}
+				}
+				if(CAT_gui_menu_item("CONTINUE"))
+				{
+					if(survey_idx < SURVEY_COUNT-1)
+						survey_idx += 1;
+					else
+					{
+						load_co2();
+						change_phase(PHASE_ARROWS);
 					}
 				}
 				CAT_gui_end_menu();
@@ -112,7 +139,7 @@ static void MS_survey(CAT_FSM_signal signal)
 
 		case CAT_FSM_SIGNAL_EXIT:
 		{
-
+			
 		}
 		break;
 	}
@@ -124,19 +151,6 @@ static void draw_survey()
 }
 
 static CAT_FSM fsm = {};
-
-enum
-{
-	PHASE_ARROWS,
-	PHASE_ARROWS_OPPOSITE,
-	PHASE_ARROWS_INCONGRUENT,
-	PHASE_WORDS,
-	PHASE_WORDS_COLOUR,
-	PHASE_WORDS_WORD,
-	PHASE_COUNT
-};
-
-#define TOTAL_CHALLENGES (PHASE_COUNT * CHALLENGES_PER_PHASE)
 
 static int phase;
 static float response_time[PHASE_COUNT][CHALLENGES_PER_PHASE];
@@ -217,7 +231,7 @@ static float arrow_mesh[] =
 
 static float cached_co2 = -1;
 
-void change_phase(int _phase)
+static void change_phase(int _phase)
 {
 	phase = _phase;
 	challenge_idx = 0;
@@ -233,7 +247,7 @@ void change_phase(int _phase)
 	CAT_FSM_transition(&fsm, MS_tutorial);
 }
 
-void shuffle(int* arr, int n)
+static void shuffle(int* arr, int n)
 {
 	for(int i = 0; i < n; i++)
 	{
@@ -684,9 +698,9 @@ static void MS_performance(CAT_FSM_signal signal)
 			stroop_data.mean_time_incong /= incong_challenges;
 			stroop_data.throughput = (TOTAL_CHALLENGES / total_time) * 60.0f;
 			stroop_data_valid = true;
+			stroop_correctness = perfect / (float) TOTAL_CHALLENGES;
 			
-			float grade = perfect / (float) TOTAL_CHALLENGES;
-			stars = (int)(grade >= 0.5f) + (int)(grade >= 0.85f) + (int)((stroop_data.mean_time_incong/stroop_data.mean_time_cong) <= 1.25f);
+			stars = (int)(stroop_correctness >= 0.5f) + (int)(stroop_correctness >= 0.85f) + (int)((stroop_data.mean_time_incong/stroop_data.mean_time_cong) <= 1.25f);
 		}
 		break;
 
@@ -809,8 +823,16 @@ static void draw_upload()
 {
 	CAT_frameberry(CAT_BLACK);
 
-	CAT_set_text_colour(CAT_WHITE);
-	CAT_draw_text(12, 12, "Uploading...");
+	if(!upload_complete)
+	{
+		CAT_set_text_colour(CAT_WHITE);
+		CAT_draw_text(12, 12, "Uploading...");
+	}
+	else
+	{
+		CAT_set_text_colour(CAT_WHITE);
+		CAT_draw_text(12, 12, "Upload complete!");
+	}
 }
 
 static void load_co2()
@@ -853,8 +875,6 @@ void CAT_MS_stroop(CAT_FSM_signal signal)
 		case CAT_FSM_SIGNAL_ENTER:
 			CAT_set_render_callback(CAT_render_stroop);
 			CAT_FSM_transition(&fsm, MS_survey);
-			/*load_co2();
-			change_phase(PHASE_ARROWS);*/
 		break;
 
 		case CAT_FSM_SIGNAL_TICK:
