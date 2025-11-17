@@ -718,7 +718,7 @@ static void MS_performance(CAT_FSM_signal signal)
 			stroop_data_valid = true;
 			stroop_correctness = perfect / (float) TOTAL_CHALLENGES;
 			
-			stars = (int)(stroop_correctness >= 0.5f) + (int)(stroop_correctness >= 0.85f) + (int)((stroop_data.mean_time_incong/stroop_data.mean_time_cong) <= 1.25f);
+			stars = (int)(stroop_correctness >= 0.5f) + (int)(stroop_correctness >= 0.91f) + (int)((stroop_data.mean_time_incong/stroop_data.mean_time_cong) <= 1.5f);
 		}
 		break;
 
