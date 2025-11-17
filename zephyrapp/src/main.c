@@ -36,7 +36,11 @@ LOG_MODULE_REGISTER(sample, LOG_LEVEL_INF);
 #include "msht.h"
 
 #include "mt_test.h"
+#include <zephyr/random/random.h>
 
+
+
+#if 0
 // memory monitoring
 //
 // System heap
@@ -50,6 +54,9 @@ if (ret < 0) { \
 } else { \
         printk("Stack | Free: %u bytes\r\n", free_stack); \
 }
+#else
+ #define PMSTAT //
+#endif
 
 /*
 \
@@ -128,6 +135,7 @@ PMSTAT
 	printk("ok.\n");
 
 	// clear any protobufs we received on init
+	// FIXME: we can process these, most of these are likely the radio's config state and neighbor info
 	if ( msht_status() )
 	{
 		msht_process(NULL);
@@ -146,9 +154,16 @@ PMSTAT
 #endif
 	k_msleep(500);
 
+
+
+	// send an AdminMessage to configure the new channels on the radio
+	mt_config_add_channels();
+	
+
+
 	char txtbuf[101] = {0};
 
-      
+#if 0
 	snprintf(txtbuf, sizeof(txtbuf), "Test Broadcast msg. uptime: %lld\n", k_uptime_get());
 
 	mt_send_text(txtbuf, BROADCAST_ADDR, 0);
@@ -161,12 +176,39 @@ PMSTAT
 	mt_send_text(txtbuf, 0x0c6db855, 0);	
 
 	printk("after TXs, begin waiting for incoming frames!\r\n");
+#endif
+
+#define TX_INTERVAL 30000
+	uint64_t then = k_uptime_get();
+
 	// speeeeeen
 	while (1) {
 		if ( msht_status() )
 		{
 			//printk("stuff in buf\r\n");
 			msht_process(mt_test_handle_packet_callback);
+		}
+
+		if ( k_uptime_get() >= then + TX_INTERVAL)
+		{
+			snprintf(txtbuf, sizeof(txtbuf), "[PERIODIC BROADCAST] uptime: %lld Lucky Number: %u\n", k_uptime_get(), sys_rand8_get());
+			mt_send_text(txtbuf, BROADCAST_ADDR, 0);
+
+
+/*			snprintf(txtbuf, sizeof(txtbuf), "[PERIODIC DIRECT] uptime: %lld Lucky Number: %u\n", k_uptime_get(), sys_rand8_get());
+			mt_send_text(txtbuf, 0x0c6db855, 0);	
+*/
+
+
+			// side channels
+			snprintf(txtbuf, sizeof(txtbuf), "[PERIODIC CHANNEL 1] uptime: %lld Lucky Number: %u\n", k_uptime_get(), sys_rand8_get());
+			mt_send_text(txtbuf, BROADCAST_ADDR, 1);
+
+			snprintf(txtbuf, sizeof(txtbuf), "[PERIODIC CHANNEL 2] uptime: %lld Lucky Number: %u\n", k_uptime_get(), sys_rand8_get());
+			mt_send_text(txtbuf, BROADCAST_ADDR, 2);
+			
+
+			then = k_uptime_get();
 		}
 
 		//printk("eeb\r\n");
