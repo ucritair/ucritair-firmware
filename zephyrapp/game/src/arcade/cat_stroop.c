@@ -387,7 +387,7 @@ static void MS_gameplay(CAT_FSM_signal signal)
 				{
 					errored[phase][challenge_idx] = true;
 					CAT_timed_latch_raise(&error_latch);
-					countdown_latch.timer = CAT_max(countdown_latch.timer, countdown_latch.timeout * 0.75f);
+					CAT_timed_latch_raise(&finish_latch);
 				}
 			}
 			if(timeout)
@@ -736,7 +736,7 @@ static void draw_performance()
 	cursor_y = CAT_draw_textf
 	(
 		12, cursor_y,
-		"%d/%d tasks performed perfectly. "
+		"%d/%d tasks performed correctly. "
 		"Tricky tasks solved "CAT_FLOAT_FMT"x as %s as typical tasks. "
 		"Overall cognitive performence rated"
 		"\n\n",
@@ -775,23 +775,43 @@ static void draw_performance()
 	);
 }
 
-static bool upload_complete = false;
+static enum {AUTHENTICATING, UPLOADING, UPLOAD_COMPLETE, UPLOAD_FAILURE} upload_stage = AUTHENTICATING;
 
 static void MS_upload(CAT_FSM_signal signal)
 {
+	static bool wait = true;
+
 	switch (signal)
 	{
 		case CAT_FSM_SIGNAL_ENTER:
 		{
 			CAT_set_render_callback(draw_upload);
-			upload_complete = false;
+			upload_stage = AUTHENTICATING;
+			wait = true;
 		}
 		break;
 
 		case CAT_FSM_SIGNAL_TICK:
 		{
-			if(!upload_complete)
+			if(wait)
 			{
+				wait = false;
+				return;
+			}
+
+			if(upload_stage == AUTHENTICATING)
+			{
+				bool status = true;
+				if(!CAT_wifi_is_ZK_authenticated())
+				{
+					msg_payload_zkp_authenticate_response_t response;
+					status = CAT_wifi_ZK_authenticate(&response, CAT_MINUTE_SECONDS * 2 * 1000);
+				}
+				upload_stage = status ? UPLOADING : UPLOAD_FAILURE;
+			}
+			else if(upload_stage == UPLOADING)
+			{
+				bool status = true;
 				uint32_t data[CAT_WIFI_DATUM_COUNT] = 
 				{
 					CAT_ZK_CO2(),
@@ -800,8 +820,8 @@ static void MS_upload(CAT_FSM_signal signal)
 					CAT_ZK_stroop(),
 					CAT_ZK_survey()
 				};
-				CAT_wifi_send_data(data, CAT_WIFI_DATUM_COUNT, 120000);
-				upload_complete = true;
+				status = CAT_wifi_send_data(data, CAT_WIFI_DATUM_COUNT, 120000);
+				upload_stage = status ? UPLOAD_COMPLETE : UPLOAD_FAILURE;
 			}
 			else
 			{
@@ -823,15 +843,35 @@ static void draw_upload()
 {
 	CAT_frameberry(CAT_BLACK);
 
-	if(!upload_complete)
+	switch (upload_stage)
 	{
-		CAT_set_text_colour(CAT_WHITE);
-		CAT_draw_text(12, 12, "Uploading...");
-	}
-	else
-	{
-		CAT_set_text_colour(CAT_WHITE);
-		CAT_draw_text(12, 12, "Upload complete!");
+		case AUTHENTICATING:
+		{
+			CAT_set_text_colour(CAT_WHITE);
+			CAT_draw_text(12, 12, "Authenticating...");
+		}
+		break;
+
+		case UPLOADING:
+		{
+			CAT_set_text_colour(CAT_WHITE);
+			CAT_draw_text(12, 12, "Uploading...");
+		}
+		break;
+
+		case UPLOAD_COMPLETE:
+		{
+			CAT_set_text_colour(CAT_WHITE);
+			CAT_draw_text(12, 12, "Upload complete!");
+		}
+		break;
+
+		case UPLOAD_FAILURE:
+		{
+			CAT_set_text_colour(CAT_WHITE);
+			CAT_draw_text(12, 12, "Something went wrong!");
+		}
+		break;
 	}
 }
 

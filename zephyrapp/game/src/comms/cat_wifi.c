@@ -10,6 +10,8 @@
 #define MODULE_NAME "CAT_wifi"
 #define MODULE_PREFIX "["MODULE_NAME"] "
 
+static bool auth_success = false;
+
 bool CAT_wifi_bootloader(uint32_t timeout_ms)
 {
 	bool result = false;
@@ -23,6 +25,8 @@ bool CAT_wifi_bootloader(uint32_t timeout_ms)
 bool CAT_wifi_init()
 {
 	CAT_printf(MODULE_PREFIX "Initializing\n");
+
+	auth_success = false;
 
 #if CAT_WIFI_ENABLED
 	rp2350_ipc_init();
@@ -89,7 +93,6 @@ bool CAT_wifi_autoconnect(int timeout_ms)
 	return result;
 }
 
-static bool auth_flag = false;
 bool CAT_wifi_ZK_authenticate(msg_payload_zkp_authenticate_response_t *response, uint32_t timeout_ms)
 {
 	bool result = false;
@@ -97,7 +100,7 @@ bool CAT_wifi_ZK_authenticate(msg_payload_zkp_authenticate_response_t *response,
 	CAT_printf(MODULE_PREFIX "Starting ZKP authentication phase\n");
 	result = rp2350_zkp_authenticate(response, timeout_ms);
 #endif
-	auth_flag = result;
+	auth_success = result;
 	return result;
 }
 
@@ -123,7 +126,7 @@ char* CAT_get_wifi_SSID()
 
 bool CAT_wifi_is_ZK_authenticated()
 {
-	return auth_flag;
+	return auth_success;
 }
 
 static msg_payload_wifi_scan_response_t scan_results;
