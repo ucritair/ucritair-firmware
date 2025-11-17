@@ -593,6 +593,7 @@ static uint8_t menu_stack_length = 0;
 static int menu_root = -1;
 static bool menu_reset = false;
 static void (*menu_exit_proc)() = NULL;
+static bool menu_wrap = true;
 
 void CAT_gui_menu_override_exit(void (*exit_proc)())
 {
@@ -602,6 +603,11 @@ void CAT_gui_menu_override_exit(void (*exit_proc)())
 void CAT_gui_menu_force_reset()
 {
 	menu_reset = true;
+}
+
+void CAT_gui_menu_disable_wrap()
+{
+	menu_wrap = false;
 }
 
 uint16_t register_menu_node(const char* title, CAT_gui_menu_type type)
@@ -723,6 +729,7 @@ bool CAT_gui_begin_menu(const char* title)
 		}
 		menu_reset = false;
 		menu_exit_proc = NULL;
+		menu_wrap = true;
 	}
 
 	int idx = find_menu_node(title);
@@ -834,7 +841,10 @@ void CAT_gui_menu_logic()
 		head->selector -= 1;
 	if(CAT_input_pressed(CAT_BUTTON_DOWN))
 		head->selector += 1;
-	head->selector = CAT_clamp(head->selector, 0, head->child_count-1);
+	if(menu_wrap)
+		head->selector = CAT_wrap(head->selector, head->child_count);
+	else
+		head->selector = CAT_clamp(head->selector, 0, head->child_count-1);
 
 	while
 	(

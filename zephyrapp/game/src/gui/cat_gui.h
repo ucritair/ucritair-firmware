@@ -45,6 +45,7 @@ typedef enum
 
 void CAT_gui_menu_override_exit(void (*exit_proc)());
 void CAT_gui_menu_force_reset();
+void CAT_gui_menu_disable_wrap();
 
 bool CAT_gui_begin_menu(const char* title);
 void CAT_gui_end_menu();

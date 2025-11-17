@@ -104,6 +104,7 @@ static void MS_survey(CAT_FSM_signal signal)
 
 		case CAT_FSM_SIGNAL_TICK:
 		{
+			CAT_gui_menu_disable_wrap();
 			if(CAT_gui_begin_menu("SURVEY"))
 			{
 				if(survey_idx == 0)
