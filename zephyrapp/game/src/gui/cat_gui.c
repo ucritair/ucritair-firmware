@@ -828,12 +828,23 @@ void CAT_gui_menu_text(const char* title)
 void CAT_gui_menu_logic()
 {
 	menu_node* head = get_global_head();
-	
+
+	int selector_last = head->selector;
 	if(CAT_input_pressed(CAT_BUTTON_UP))
 		head->selector -= 1;
 	if(CAT_input_pressed(CAT_BUTTON_DOWN))
 		head->selector += 1;
-	head->selector = (head->selector + head->child_count) % head->child_count;
+	head->selector = CAT_clamp(head->selector, 0, head->child_count-1);
+
+	while
+	(
+		menu_table[head->children[head->selector]].type == CAT_GUI_MENU_TYPE_TEXT &&
+		head->selector < head->child_count
+	)
+	{
+		head->selector += 1;
+	}
+
 	menu_node* selected = &menu_table[head->children[head->selector]];
 
 	switch (selected->type)

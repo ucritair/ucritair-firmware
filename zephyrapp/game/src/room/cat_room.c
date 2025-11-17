@@ -528,10 +528,18 @@ static void arcade_exit_proc()
 void prop_button_input()
 {
 	if(CAT_input_touch_rect(ARCADE_X, ARCADE_Y, ARCADE_W, ARCADE_H))
-		arcade_open = true;	
+	{
+		arcade_open = true;
+		return;
+	}
+	if(arcade_open)
+		return;
 
 	if(CAT_input_touch_rect(VENDING_MACHINE_X, VENDING_MACHINE_Y, VENDING_MACHINE_W, VENDING_MACHINE_H))
+	{
 		CAT_pushdown_push(CAT_MS_shop);
+		return;
+	}
 
 	if(CAT_input_touch_rect
 	(
@@ -542,6 +550,7 @@ void prop_button_input()
 	))
 	{
 		CAT_pushdown_rebase(CAT_MS_monitor);
+		return;
 	}
 
 	int touched_prop = CAT_room_touch_query();

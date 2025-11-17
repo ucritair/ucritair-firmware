@@ -48,8 +48,8 @@ static void change_phase(int _phase);
 
 static const char* survey_questions[SURVEY_COUNT] =
 {
-	"Overall Question",
-	"Depression Question"
+	"In the past 7 days,\nhow would you rate your overall\nmental or emotional health?",
+	"In the past 7 days,\nhow much have stress, mood,\nor worries made it harder to do\nwhat you needed or wanted to do?"
 };
 
 static const char** survey_answers[SURVEY_COUNT] =
@@ -106,7 +106,21 @@ static void MS_survey(CAT_FSM_signal signal)
 		{
 			if(CAT_gui_begin_menu("SURVEY"))
 			{
-				CAT_gui_menu_text(survey_questions[survey_idx]);
+				if(survey_idx == 0)
+				{
+					CAT_gui_menu_text("In the past 7 days, how");
+					CAT_gui_menu_text("would you rate your overall");
+					CAT_gui_menu_text("mental or emotional health?\n");
+				}
+				else if(survey_idx == 1)
+				{
+					CAT_gui_menu_text("In the past 7 days, how much");
+					CAT_gui_menu_text("have stress, mood, or");
+					CAT_gui_menu_text("worries made it harder to do");
+					CAT_gui_menu_text("what you needed or wanted");
+					CAT_gui_menu_text("to do?\n");
+				}
+
 				for(int i = 0; i < 5; i++)
 				{
 					if
@@ -125,10 +139,12 @@ static void MS_survey(CAT_FSM_signal signal)
 				if(CAT_gui_menu_item("CONTINUE"))
 				{
 					if(survey_idx < SURVEY_COUNT-1)
+					{
 						survey_idx += 1;
+						CAT_gui_menu_force_reset();
+					}
 					else
 					{
-						load_co2();
 						change_phase(PHASE_ARROWS);
 					}
 				}
@@ -147,7 +163,8 @@ static void MS_survey(CAT_FSM_signal signal)
 
 static void draw_survey()
 {
-
+	if(!CAT_gui_menu_is_open())
+		CAT_frameberry(CAT_WHITE);
 }
 
 static CAT_FSM fsm = {};
@@ -786,7 +803,7 @@ static void MS_upload(CAT_FSM_signal signal)
 		case CAT_FSM_SIGNAL_ENTER:
 		{
 			CAT_set_render_callback(draw_upload);
-			upload_stage = AUTHENTICATING;
+			upload_stage = CAT_wifi_is_ZK_authenticated() ? UPLOADING : AUTHENTICATING;
 			wait = true;
 		}
 		break;
@@ -801,17 +818,12 @@ static void MS_upload(CAT_FSM_signal signal)
 
 			if(upload_stage == AUTHENTICATING)
 			{
-				bool status = true;
-				if(!CAT_wifi_is_ZK_authenticated())
-				{
-					msg_payload_zkp_authenticate_response_t response;
-					status = CAT_wifi_ZK_authenticate(&response, CAT_MINUTE_SECONDS * 2 * 1000);
-				}
+				msg_payload_zkp_authenticate_response_t response;
+				bool status = CAT_wifi_ZK_authenticate(&response, CAT_MINUTE_SECONDS * 2 * 1000);
 				upload_stage = status ? UPLOADING : UPLOAD_FAILURE;
 			}
 			else if(upload_stage == UPLOADING)
 			{
-				bool status = true;
 				uint32_t data[CAT_WIFI_DATUM_COUNT] = 
 				{
 					CAT_ZK_CO2(),
@@ -820,7 +832,7 @@ static void MS_upload(CAT_FSM_signal signal)
 					CAT_ZK_stroop(),
 					CAT_ZK_survey()
 				};
-				status = CAT_wifi_send_data(data, CAT_WIFI_DATUM_COUNT, 120000);
+				bool status = CAT_wifi_send_data(data, CAT_WIFI_DATUM_COUNT, 120000);
 				upload_stage = status ? UPLOAD_COMPLETE : UPLOAD_FAILURE;
 			}
 			else
@@ -839,6 +851,45 @@ static void MS_upload(CAT_FSM_signal signal)
 	}
 }
 
+#define MARGIN 12
+
+static void draw_upload_stage(const char* title, const char* description, const char* outro)
+{
+	int cursor_y = 44;
+
+	CAT_set_text_mask(MARGIN, -1, CAT_LCD_SCREEN_W-MARGIN, -1);
+	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
+	CAT_set_text_scale(2);
+	CAT_set_text_colour(CAT_WHITE);
+	cursor_y = CAT_draw_textf(MARGIN, cursor_y, "%s\n", title);
+	cursor_y += 8;
+
+	CAT_set_text_colour(CAT_GREY);
+	CAT_draw_textf(MARGIN, cursor_y, ">>>>>>>>>>>>>>>>>>>>>>>>>>>");
+	cursor_y += 22;
+
+	CAT_set_text_colour(CAT_192_GREY);
+	CAT_set_text_mask(MARGIN, -1, CAT_LCD_SCREEN_W-MARGIN, -1);
+	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
+	CAT_set_text_scale(2);
+	cursor_y = CAT_draw_textf
+	(
+		MARGIN,
+		cursor_y,
+		"%s\n",
+		description
+	);
+	cursor_y += 8;
+
+	CAT_set_text_colour(CAT_GREY);
+	CAT_draw_textf
+	(
+		MARGIN, cursor_y,
+		"%s >>>>>>",
+		outro
+	);
+}
+
 static void draw_upload()
 {
 	CAT_frameberry(CAT_BLACK);
@@ -847,29 +898,29 @@ static void draw_upload()
 	{
 		case AUTHENTICATING:
 		{
-			CAT_set_text_colour(CAT_WHITE);
-			CAT_draw_text(12, 12, "Authenticating...");
+			CAT_draw_page_markers(12, 3, 0, CAT_WHITE);
+			draw_upload_stage("AUTH", "Generating and verifying a ZK proof.", "PLEASE WAIT");
 		}
 		break;
 
 		case UPLOADING:
 		{
-			CAT_set_text_colour(CAT_WHITE);
-			CAT_draw_text(12, 12, "Uploading...");
+			CAT_draw_page_markers(12, 3, 1, CAT_WHITE);
+			draw_upload_stage("UPLOADING", "Encrypting and sending your data.", "PLEASE WAIT");
 		}
 		break;
 
 		case UPLOAD_COMPLETE:
 		{
-			CAT_set_text_colour(CAT_WHITE);
-			CAT_draw_text(12, 12, "Upload complete!");
+			CAT_draw_page_markers(12, 3, 2, CAT_WHITE);
+			draw_upload_stage("UPLOAD COMPLETE", "Your data was successfully uploaded!", "[A] TO EXIT");
 		}
 		break;
 
 		case UPLOAD_FAILURE:
 		{
-			CAT_set_text_colour(CAT_WHITE);
-			CAT_draw_text(12, 12, "Something went wrong!");
+			CAT_draw_page_markers(12, 3, 2, CAT_WHITE);
+			draw_upload_stage("FAILURE", "Something went wrong. Please try again.", "[A] TO EXIT");
 		}
 		break;
 	}
@@ -914,6 +965,7 @@ void CAT_MS_stroop(CAT_FSM_signal signal)
 	{
 		case CAT_FSM_SIGNAL_ENTER:
 			CAT_set_render_callback(CAT_render_stroop);
+			load_co2();
 			CAT_FSM_transition(&fsm, MS_survey);
 		break;
 
