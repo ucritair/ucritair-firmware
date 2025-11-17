@@ -813,6 +813,18 @@ int CAT_gui_menu_ticker(const char* title, int value, int min, int max)
 	return value;
 }
 
+void CAT_gui_menu_text(const char* title)
+{
+	int idx = find_menu_node(title);
+	if(idx == -1)
+		idx = register_menu_node(title, CAT_GUI_MENU_TYPE_TEXT);
+
+	if(menu_table[idx].type != CAT_GUI_MENU_TYPE_TEXT)
+		menu_table[idx].type = CAT_GUI_MENU_TYPE_TEXT;
+
+	menu_add_child(idx);
+}
+
 void CAT_gui_menu_logic()
 {
 	menu_node* head = get_global_head();
@@ -886,7 +898,10 @@ void CAT_gui_menu()
 	{
 		menu_node* child = &menu_table[head->children[i]];
 
-		CAT_gui_textf("\1 %s ", child->title);
+		if(child->type == CAT_GUI_MENU_TYPE_TEXT)
+			CAT_gui_textf("%s ", child->title);
+		else
+			CAT_gui_textf("\1 %s ", child->title);
 
 		switch (child->type)
 		{

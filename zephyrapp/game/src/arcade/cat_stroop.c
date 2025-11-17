@@ -11,19 +11,121 @@
 #include "cat_gizmos.h"
 #include "cat_air.h"
 #include "cat_math.h"
+#include "cat_wifi.h"
+#include "cat_leaderboard.h"
+#include "cat_crypto.h"
 
 #define CHALLENGES_PER_PHASE 8
 
+static void MS_survey(CAT_FSM_signal);
+static void draw_survey();
 static void draw_tutorial();
 static void MS_tutorial(CAT_FSM_signal);
 static void draw_gameplay();
 static void MS_gameplay(CAT_FSM_signal);
 static void draw_performance();
 static void MS_performance(CAT_FSM_signal);
+static void MS_upload(CAT_FSM_signal);
+static void draw_upload();
+
+#define SURVEY_COUNT 2
+
+static const char* survey_questions[SURVEY_COUNT] =
+{
+	"Question 1",
+	"Question 2"
+};
+
+static const char** survey_answers[SURVEY_COUNT] =
+{
+	(const char*[])
+	{
+		"1 - Poor",
+		"2 - Fair",
+		"3 - Okay",
+		"4 - Good",
+		"5 - Excellent"
+	},
+	(const char*[])
+	{
+		"1 - Not at all",
+		"2 - A little",
+		"3 - Some",
+		"4 - A lot",
+		"5 - Almost all the time"
+	}
+};
+
+static int survey_idx = 0;
+
+static void survey_set_answer(int idx, int score)
+{
+	uint8_t mask = CAT_clamp(score, 0, 15);
+	mask <<= idx * 4;
+	survey_field |= mask;
+}
+
+static int survey_get_answer(int idx)
+{
+	uint8_t mask = survey_field & (0b1111 << (idx*4));
+	return mask >> (idx*4);
+}
+
+static void MS_survey(CAT_FSM_signal signal)
+{
+	switch (signal)
+	{
+		case CAT_FSM_SIGNAL_ENTER:
+		{
+			CAT_set_render_callback(draw_survey);
+			survey_field = 0;
+			survey_idx = 0;
+			CAT_gui_menu_force_reset();
+		}
+		break;
+
+		case CAT_FSM_SIGNAL_TICK:
+		{
+			if(CAT_gui_begin_menu("SURVEY"))
+			{
+				CAT_gui_menu_text(survey_questions[survey_idx]);
+				for(int i = 0; i < 5; i++)
+				{
+					if
+					(
+						CAT_gui_menu_toggle
+						(
+							survey_answers[survey_idx][i],
+							survey_get_answer(survey_idx) == i,
+							CAT_GUI_TOGGLE_STYLE_RADIO_BUTTON
+						)
+					)
+					{
+						survey_set_answer(survey_idx, i);
+						survey_idx = CAT_wrap(survey_idx, 2);
+					}
+				}
+				CAT_gui_end_menu();
+			}
+		}
+		break;
+
+		case CAT_FSM_SIGNAL_EXIT:
+		{
+
+		}
+		break;
+	}
+}
+
+static void draw_survey()
+{
+
+}
 
 static CAT_FSM fsm = {};
 
-static enum
+enum
 {
 	PHASE_ARROWS,
 	PHASE_ARROWS_OPPOSITE,
@@ -69,7 +171,7 @@ static int challenge_idx = 0;
 
 static CAT_timed_latch error_latch = CAT_TIMED_LATCH_INIT(1.0f);
 static CAT_timed_latch finish_latch = CAT_TIMED_LATCH_INIT(0.25f);
-static CAT_timed_latch countdown_latch = CAT_TIMED_LATCH_INIT(3.0f);
+static CAT_timed_latch countdown_latch = CAT_TIMED_LATCH_INIT(1.5f);
 
 static int key_map[] =
 {
@@ -271,10 +373,12 @@ static void MS_gameplay(CAT_FSM_signal signal)
 				{
 					errored[phase][challenge_idx] = true;
 					CAT_timed_latch_raise(&error_latch);
+					countdown_latch.timer = CAT_max(countdown_latch.timer, countdown_latch.timeout * 0.75f);
 				}
 			}
 			if(timeout)
 			{
+				errored[phase][challenge_idx] = true;
 				CAT_timed_latch_raise(&error_latch);
 				CAT_timed_latch_raise(&finish_latch);
 			}
@@ -388,7 +492,7 @@ static void draw_gameplay()
 	if(phase >= PHASE_WORDS)
 		draw_word();
 	else
-		draw_arrow(CENTER_X, CENTER_Y);
+		draw_arrow();
 
 	if(!CAT_timed_latch_get(&error_latch) && !CAT_timed_latch_get(&finish_latch))
 		draw_countdown();
@@ -406,9 +510,11 @@ static void MS_tutorial(CAT_FSM_signal signal)
 		break;
 
 		case CAT_FSM_SIGNAL_TICK:
-			int button = phase == PHASE_ARROWS_OPPOSITE ? CAT_BUTTON_LEFT : CAT_BUTTON_RIGHT;
+		{
+			int button = (phase == PHASE_ARROWS_OPPOSITE) ? CAT_BUTTON_LEFT : CAT_BUTTON_RIGHT;
 			if(CAT_input_pressed(button))
 				CAT_FSM_transition(&fsm, MS_gameplay);
+		}
 		break;
 
 		case CAT_FSM_SIGNAL_EXIT:
@@ -587,7 +693,7 @@ static void MS_performance(CAT_FSM_signal signal)
 		case CAT_FSM_SIGNAL_TICK:
 		{
 			if(CAT_input_pressed(CAT_BUTTON_A) || CAT_input_dismissal())
-				CAT_FSM_transition(&fsm, NULL);
+				CAT_FSM_transition(&fsm, MS_upload);
 		}			
 		break;
 
@@ -655,6 +761,58 @@ static void draw_performance()
 	);
 }
 
+static bool upload_complete = false;
+
+static void MS_upload(CAT_FSM_signal signal)
+{
+	switch (signal)
+	{
+		case CAT_FSM_SIGNAL_ENTER:
+		{
+			CAT_set_render_callback(draw_upload);
+			upload_complete = false;
+		}
+		break;
+
+		case CAT_FSM_SIGNAL_TICK:
+		{
+			if(!upload_complete)
+			{
+				uint32_t data[CAT_WIFI_DATUM_COUNT] = 
+				{
+					CAT_ZK_CO2(),
+					CAT_ZK_PM2_5(),
+					CAT_ZK_temp(),
+					CAT_ZK_stroop(),
+					CAT_ZK_survey()
+				};
+				CAT_wifi_send_data(data, CAT_WIFI_DATUM_COUNT, 120000);
+				upload_complete = true;
+			}
+			else
+			{
+				if(CAT_input_pressed(CAT_BUTTON_A) || CAT_input_dismissal())
+					CAT_FSM_transition(&fsm, NULL);
+			}
+		}			
+		break;
+
+		case CAT_FSM_SIGNAL_EXIT:
+		{
+
+		}
+		break;
+	}
+}
+
+static void draw_upload()
+{
+	CAT_frameberry(CAT_BLACK);
+
+	CAT_set_text_colour(CAT_WHITE);
+	CAT_draw_text(12, 12, "Uploading...");
+}
+
 static void load_co2()
 {
 	cached_co2 = -1;
@@ -694,8 +852,9 @@ void CAT_MS_stroop(CAT_FSM_signal signal)
 	{
 		case CAT_FSM_SIGNAL_ENTER:
 			CAT_set_render_callback(CAT_render_stroop);
-			load_co2();
-			change_phase(PHASE_ARROWS);
+			CAT_FSM_transition(&fsm, MS_survey);
+			/*load_co2();
+			change_phase(PHASE_ARROWS);*/
 		break;
 
 		case CAT_FSM_SIGNAL_TICK:

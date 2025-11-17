@@ -12,7 +12,7 @@ CAT_stroop_data stroop_data = {0};
 bool stroop_data_valid = false;
 float stroop_correctness = 0;
 
-uint8_t survey_mask;
+uint8_t survey_field;
 
 uint32_t CAT_ZK_timestamp()
 {
@@ -42,6 +42,6 @@ uint32_t CAT_ZK_stroop()
 
 uint32_t CAT_ZK_survey()
 {
-	return survey_mask;
+	return survey_field;
 }
 

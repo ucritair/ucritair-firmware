@@ -33,7 +33,8 @@ typedef enum
 {
 	CAT_GUI_MENU_TYPE_DEFAULT,
 	CAT_GUI_MENU_TYPE_TOGGLE,
-	CAT_GUI_MENU_TYPE_TICKER
+	CAT_GUI_MENU_TYPE_TICKER,
+	CAT_GUI_MENU_TYPE_TEXT
 } CAT_gui_menu_type;
 
 typedef enum
@@ -52,6 +53,7 @@ bool CAT_gui_menu_is_open();
 bool CAT_gui_menu_item(const char* title);
 bool CAT_gui_menu_toggle(const char* title, bool toggle, CAT_gui_toggle_style style);
 int CAT_gui_menu_ticker(const char* title, int value, int min, int max);
+void CAT_gui_menu_text(const char* title);
 
 
 //////////////////////////////////////////////////////////////////////////

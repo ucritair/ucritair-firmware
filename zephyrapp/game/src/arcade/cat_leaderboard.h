@@ -18,4 +18,4 @@ extern CAT_stroop_data stroop_data;
 extern bool stroop_data_valid;
 extern float stroop_correctness;
 
-extern uint8_t survey_mask;
+extern uint8_t survey_field;

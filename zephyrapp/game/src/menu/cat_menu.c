@@ -223,13 +223,6 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 						{
 							if(CAT_gui_menu_item("UPLOAD LATEST DATA"))
 							{
-								uint32_t stroop_u32 = CAT_f2u32
-								(
-									((stroop_data.mean_time_cong + stroop_data.mean_time_incong) * 0.5f +
-									(60.0f / stroop_data.throughput))
-									* 0.5f
-								);
-
 								uint32_t data[CAT_WIFI_DATUM_COUNT] = 
 								{
 									CAT_ZK_CO2(),
@@ -238,7 +231,6 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 									CAT_ZK_stroop(),
 									CAT_ZK_survey()
 								};
-
 								CAT_wifi_send_data(data, CAT_WIFI_DATUM_COUNT, 120000);
 							}
 						}

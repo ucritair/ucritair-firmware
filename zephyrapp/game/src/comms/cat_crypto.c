@@ -35,5 +35,5 @@ uint32_t CAT_ZK_stroop()
 
 uint32_t CAT_ZK_survey()
 {
-	return survey_mask;
+	return survey_field;
 }
