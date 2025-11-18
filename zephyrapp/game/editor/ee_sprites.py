@@ -86,6 +86,8 @@ class SpriteBank:
 				SpriteBank._update(name, path, frames);
 			else:
 				SpriteBank.update();
+		if name not in SpriteBank.mapping:
+			return SpriteBank.mapping["null.png"];
 		return SpriteBank.mapping[name];
 
 class SpritePreview:

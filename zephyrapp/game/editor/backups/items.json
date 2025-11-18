@@ -2669,6 +2669,18 @@
             "can_buy": false,
             "can_sell": false,
             "id": 127
+        },
+        {
+            "type": "key",
+            "name": "ingr_bone",
+            "display_name": "Bone",
+            "tier": 0,
+            "sprite": "ingr_miasma_sprite",
+            "text": "",
+            "price": 0,
+            "can_buy": false,
+            "can_sell": false,
+            "id": 128
         }
     ]
 }

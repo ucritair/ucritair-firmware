@@ -242,6 +242,6 @@ with open("sprites/sprite_assets.c", 'w') as fd:
 	fd.write("};\n");
 	fd.write("\n");
 
-	OLV_write_epaper_sprites(fd);
+	TOS_write_epaper_sprites(fd);
 
 	print(f"Mean compression ratio: {compression_ratio / len(path_map):.2f}");

@@ -266,9 +266,21 @@ extern const CAT_sprite ingr_clay_sprite;
 extern const CAT_sprite ingr_time_sprite;
 extern const CAT_sprite ui_button_alert;
 extern const CAT_sprite ui_chat_actions;
+extern const CAT_sprite npc_guanaco_sprite;
+extern const CAT_sprite npc_luz_sprite;
+extern const CAT_sprite ingr_bone_sprite;
+extern const CAT_sprite ingr_ceramic_sprite;
+extern const CAT_sprite ingr_charcoal_sprite;
+extern const CAT_sprite ingr_cloth_sprite;
+extern const CAT_sprite ingr_glass_sprite;
+extern const CAT_sprite ingr_leather_sprite;
+extern const CAT_sprite ingr_paper_sprite;
+extern const CAT_sprite ingr_salt_sprite;
+extern const CAT_sprite ingr_sand_sprite;
+extern const CAT_sprite ingr_sugar_sprite;
 
 extern const CAT_sprite* sprite_list[];
-#define CAT_SPRITE_LIST_LENGTH 262
+#define CAT_SPRITE_LIST_LENGTH 274
 
 extern const CAT_tinysprite tnyspr_unicorn_default;
 extern const CAT_tinysprite tnyspr_unicorn_happy;

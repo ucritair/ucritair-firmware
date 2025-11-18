@@ -2653,6 +2653,126 @@
             "height": 12,
             "loop": false,
             "reverse": false
+        },
+        {
+            "id": 262,
+            "name": "npc_guanaco_sprite",
+            "path": "gameplay/overworld/npc/guanaco.png",
+            "frames": 2,
+            "width": 32,
+            "height": 32,
+            "loop": true,
+            "reverse": false
+        },
+        {
+            "id": 263,
+            "name": "npc_luz_sprite",
+            "path": "gameplay/overworld/npc/luz.png",
+            "frames": 2,
+            "width": 32,
+            "height": 32,
+            "loop": true,
+            "reverse": false
+        },
+        {
+            "id": 264,
+            "name": "ingr_bone_sprite",
+            "path": "ingredient/bone.png",
+            "frames": 1,
+            "width": 32,
+            "height": 32,
+            "loop": false,
+            "reverse": false
+        },
+        {
+            "id": 265,
+            "name": "ingr_ceramic_sprite",
+            "path": "ingredient/ceramic.png",
+            "frames": 1,
+            "width": 32,
+            "height": 32,
+            "loop": false,
+            "reverse": false
+        },
+        {
+            "id": 266,
+            "name": "ingr_charcoal_sprite",
+            "path": "ingredient/charcoal.png",
+            "frames": 1,
+            "width": 32,
+            "height": 32,
+            "loop": false,
+            "reverse": false
+        },
+        {
+            "id": 267,
+            "name": "ingr_cloth_sprite",
+            "path": "ingredient/cloth.png",
+            "frames": 1,
+            "width": 32,
+            "height": 32,
+            "loop": false,
+            "reverse": false
+        },
+        {
+            "id": 268,
+            "name": "ingr_glass_sprite",
+            "path": "ingredient/glass.png",
+            "frames": 1,
+            "width": 32,
+            "height": 32,
+            "loop": false,
+            "reverse": false
+        },
+        {
+            "id": 269,
+            "name": "ingr_leather_sprite",
+            "path": "ingredient/leather.png",
+            "frames": 1,
+            "width": 32,
+            "height": 32,
+            "loop": false,
+            "reverse": false
+        },
+        {
+            "id": 270,
+            "name": "ingr_paper_sprite",
+            "path": "ingredient/paper.png",
+            "frames": 1,
+            "width": 32,
+            "height": 32,
+            "loop": false,
+            "reverse": false
+        },
+        {
+            "id": 271,
+            "name": "ingr_salt_sprite",
+            "path": "ingredient/salt.png",
+            "frames": 1,
+            "width": 32,
+            "height": 32,
+            "loop": false,
+            "reverse": false
+        },
+        {
+            "id": 272,
+            "name": "ingr_sand_sprite",
+            "path": "ingredient/sand.png",
+            "frames": 1,
+            "width": 32,
+            "height": 32,
+            "loop": false,
+            "reverse": false
+        },
+        {
+            "id": 273,
+            "name": "ingr_sugar_sprite",
+            "path": "ingredient/sugar.png",
+            "frames": 1,
+            "width": 32,
+            "height": 32,
+            "loop": false,
+            "reverse": false
         }
     ]
 }
