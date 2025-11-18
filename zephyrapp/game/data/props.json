@@ -60,10 +60,10 @@
             "name": "reed_prop",
             "blockers": [
                 [
-                    0,
-                    1,
-                    2,
-                    2
+                    0.0,
+                    1.0,
+                    2.0,
+                    2.0
                 ]
             ],
             "triggers": [
@@ -71,7 +71,7 @@
                     "aabb": [
                         0,
                         1,
-                        2,
+                        2.0,
                         2
                     ],
                     "proc": "interact_proc_reed",

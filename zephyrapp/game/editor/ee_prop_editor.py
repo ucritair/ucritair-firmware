@@ -12,10 +12,6 @@ from ee_procs import ProcExplorer;
 #########################################################
 ## PROP EDITOR
 
-class EditMode(Enum):
-	BLOCKERS=0,
-	TRIGGERS=1
-
 class PropEditor:
 	_ = None;
 
@@ -45,30 +41,14 @@ class PropEditor:
 	
 		self.prop = None;
 		
-		self.edit_mode = EditMode.BLOCKERS;
 		self.editee = None;
-		self.edit_context = None;
+		self.edit_context = {};
 	
 		self.show_sprite = True;
 		self.show_aabb = False;
+		self.show_blockers = True;
+		self.show_triggers = True;
 		self.variant = 0;
-	
-	def gui_editee_selector(self):
-		if self.prop == None:
-			return;
-
-		candidates = [];
-		match self.edit_mode:
-			case EditMode.BLOCKERS:
-				candidates = self.prop["blockers"];
-			case EditMode.TRIGGERS:
-				candidates = [t["aabb"] for t in self.prop["triggers"]];
-		
-		self.editee = imgui_selector(
-			id(self.editee),
-			candidates, self.editee,
-			lambda x: str(candidates.index(x)) if x in candidates else "None"
-		);
 	
 	def gui_addition_panel(self):
 		trash = [];
@@ -107,33 +87,45 @@ class PropEditor:
 		for key, idx in trash:
 			del self.prop[key][idx];
 	
+	def get_near_edge_idx(self, aabb):
+		aabb = self.canvas_grid.untransform_aabb(aabb);
+		point = self.canvas_io.cursor;
+		for i in range(4):
+			if abs(point[i % 2] - aabb[i]) <= 1:
+				return i;
+		return -1;
+	
+	def find_editee(self):
+		self.editee = None;
+		self.edit_context = {};
+
+		candidates = [];
+		if self.show_blockers:
+			candidates += self.prop["blockers"];
+		if self.show_triggers:
+			candidates +=  [t["aabb"] for t in self.prop["triggers"]];
+	
+		for candidate in candidates:
+			edge = self.get_near_edge_idx(candidate);
+			print(edge);
+			if edge != -1:
+				self.editee = candidate;
+				self.edit_context["edge_idx"] = edge;
+	
 	def is_editing(self):
-		return self.editee != None and self.edit_context != None;
+		return self.editee != None and self.edit_context != {};
 	
 	def canvas_aabb_edit_io(self):
-		if self.prop == None:
-			return;
-		if self.editee == None:
-			return;
-	
-		aabb = self.canvas_grid.untransform_aabb(self.editee);
+		edge_idx = self.edit_context["edge_idx"];
+		delta = self.canvas_io.cursor[edge_idx % 2] - self.canvas_grid.untransform_aabb(self.editee)[edge_idx];
+		delta //= self.tile_size;
 
-		if InputManager.is_pressed(glfw.MOUSE_BUTTON_LEFT) and not self.is_editing():	
-			for i in range(4):
-				if abs(self.canvas_io.cursor[i % 2] - aabb[i]) <= 1:
-					self.edit_context = {"edge_idx" : i};
-					break;
-		if self.is_editing():
-			edge_idx = self.edit_context["edge_idx"];
-			delta = self.canvas_io.cursor[edge_idx % 2] - self.canvas_grid.untransform_aabb(self.editee)[edge_idx];
-			delta //= self.tile_size;
+		self.editee[edge_idx] += delta;
+		self.editee[2] = max(self.editee[2], self.editee[0]);
+		self.editee[3] = max(self.editee[3], self.editee[1]);
 
-			self.editee[edge_idx] += delta;
-			self.editee[2] = max(self.editee[2], self.editee[0]);
-			self.editee[3] = max(self.editee[3], self.editee[1]);
-
-			if InputManager.is_released(glfw.MOUSE_BUTTON_LEFT):
-				self.edit_context = None;
+		if InputManager.is_released(glfw.MOUSE_BUTTON_LEFT):
+			self.edit_context = {};
 
 	def canvas_draw_prop(self, show_sprite=True, show_aabb=False, show_blockers=False, show_triggers=False):
 		if self.prop == None:
@@ -177,25 +169,32 @@ class PropEditor:
 			_, self.open = imgui.begin(f"Prop Editor", self.open, flags=self.window_flags);
 
 			self.prop = imgui_asset_selector(id(self.prop), "prop", self.prop);
-			self.edit_mode = imgui_enum_selector(id(self.edit_mode), EditMode, self.edit_mode);
-			self.gui_editee_selector();
 
 			self.canvas.clear((128, 128, 128));
 			self.canvas_grid.draw_lines((64, 64, 64));
 			self.canvas_draw_prop(
 				show_sprite=self.show_sprite,
 				show_aabb=self.show_aabb,
-				show_blockers=self.edit_mode == EditMode.BLOCKERS and self.editee != None,
-				show_triggers=self.edit_mode == EditMode.TRIGGERS and self.editee != None
+				show_blockers=self.show_blockers,
+				show_triggers=self.show_triggers
 			);
 			self.canvas.render();
 
 			self.canvas_io.tick();
-			self.canvas_aabb_edit_io();
+
+			if self.prop != None:
+				if InputManager.is_pressed(glfw.MOUSE_BUTTON_LEFT) and not self.is_editing():	
+					self.find_editee();
+				if self.is_editing():
+					self.canvas_aabb_edit_io();
 
 			_, self.show_sprite = imgui.checkbox("Show sprite", self.show_sprite);
 			imgui.same_line();
 			_, self.show_aabb = imgui.checkbox("Show AABB", self.show_aabb);
+			imgui.same_line();
+			_, self.show_blockers = imgui.checkbox("Show Blockers", self.show_blockers);
+			imgui.same_line();
+			_, self.show_triggers = imgui.checkbox("Show Triggers", self.show_triggers);
 
 			if self.prop != None and self.prop["palette"]:
 				_, self.variant = imgui.slider_int("Variant", self.variant, 0, SpriteBank.get(self.prop["sprite"]).frame_count-1);

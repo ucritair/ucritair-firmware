@@ -19,7 +19,7 @@ const CAT_prop reed_prop = {
 	.blocker_count = 1,
 	.triggers = (struct trigger[]) {
 		{
-			.aabb = {0,1,2,2,},
+			.aabb = {0,1,2.0,2,},
 			.tx = 0,
 			.ty = 1,
 			.proc = interact_proc_reed,
