@@ -982,111 +982,6 @@ class Mesh2DEditor:
 
 
 #########################################################
-## ITEM REFORMER
-
-class ItemReform:
-	def __init__(self, name, filt, path, values):
-		self.name = name;
-		self.filt = filt;
-		self.path = path;
-		self.values = values;
-	
-	def __path_assign(object, path, value):
-		match path:
-			case []:
-				return;
-			case [token]:
-				object[token] = value;
-			case head, *tail:
-				ItemReform.__path_assign(object[head], tail, value);
-
-	def apply(self, items):
-		operands = filter(self.filt, items);
-		for operand in operands:
-			ItemReform.__path_assign(operand, self.path, self.values[operand["tier"]]);
-
-class ItemReformer:
-	_ = None;
-
-	def __init__(self):
-		if ItemReformer._ != None:
-			return None;
-		ItemReformer._ = self;
-
-		self.canvas = Canvas(240, 128);
-		self.size = (640, 480);
-		self.scale = 240 / self.canvas.height;
-		window_flag_list = [
-			imgui.WindowFlags_.no_saved_settings,
-			imgui.WindowFlags_.no_collapse,
-		];
-		self.window_flags = foldl(lambda a, b : a | b, 0, window_flag_list);
-		self.open = True;
-		
-		self.items = AssetManager.get_assets("item");
-		self.reforms = [
-			ItemReform (
-				"Food Prices",
-				lambda i: i["type"] == "tool" and i["tool_data"]["type"] == "food",
-				["price"],
-				[tier*3 for tier in range(4)]
-			),
-			ItemReform (
-				"Book and Toy Prices",
-				lambda i: i["type"] == "tool" and (i["tool_data"]["type"] == "book" or i["tool_data"]["type"] == "toy"),
-				["price"],
-				[tier*7 for tier in range(4)]
-			),
-			ItemReform (
-				"Food Power",
-				lambda i: i["type"] == "tool" and i["tool_data"]["type"] == "food",
-				["tool_data", "dv"],
-				[tier for tier in range(4)]
-			),
-			ItemReform (
-				"Book Power",
-				lambda i: i["type"] == "tool" and i["tool_data"]["type"] == "book",
-				["tool_data", "df"],
-				[tier for tier in range(4)]
-			),
-			ItemReform (
-				"Toy Power",
-				lambda i: i["type"] == "tool" and i["tool_data"]["type"] == "toy",
-				["tool_data", "ds"],
-				[tier for tier in range(4)]
-			),
-		];
-
-	def render():
-		if ItemReformer._ == None:
-			return;
-		self = ItemReformer._;
-
-		if self.open:
-			imgui.set_next_window_size(self.size);
-			_, self.open = imgui.begin(f"Item Reformer", self.open, flags=self.window_flags);
-
-			for reform in self.reforms:
-				imgui.push_id(str(id(reform)));
-				if imgui.collapsing_header(reform.name):
-					for tier in range(1, 4):
-						imgui.push_id(str(tier));
-						imgui.text(f"Tier {"I"*tier}:");
-						imgui.same_line();
-						_, reform.values[tier] = imgui.input_int("", reform.values[tier]);
-						imgui.pop_id();
-					if imgui.button("Apply"):
-						reform.apply(self.items);
-				imgui.pop_id();
-
-			self.size = imgui.get_window_size();
-			imgui.end();
-		
-		if not self.open:
-			ItemReformer._ = None;
-
-
-#########################################################
 ## DIALOGUE EDITOR
 
 class DialogueEditor:
@@ -1273,15 +1168,13 @@ while not glfw.window_should_close(handle):
 				ThemeEditor();	
 			if imgui.menu_item_simple("Mesh2D Editor"):
 				Mesh2DEditor();
-			if imgui.menu_item_simple("Item Reformer"):
-				ItemReformer();	
-			if imgui.menu_item_simple("Dialogue Editor"):
-				DialogueEditor();
 			if imgui.menu_item_simple("Prop Editor"):
 				PropEditor();
 			if imgui.menu_item_simple("Scene Editor"):
 				SceneEditor();
-			if imgui.menu_item_simple("Dialogue Graph"):
+			if imgui.menu_item_simple("Dialogue Node Editor"):
+				DialogueEditor();
+			if imgui.menu_item_simple("Dialogue Graph Editor"):
 				DialogueGraph();
 			if imgui.menu_item_simple("Recipe Editor"):
 				RecipeEditor();
@@ -1305,8 +1198,6 @@ while not glfw.window_should_close(handle):
 		ThemeEditor.render();
 	if Mesh2DEditor._ != None:
 		Mesh2DEditor.render();
-	if ItemReformer._ != None:
-		ItemReformer.render();
 	if DialogueEditor._ != None:
 		DialogueEditor.render();
 	if SceneEditor._ != None:
