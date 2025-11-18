@@ -46,12 +46,6 @@ static void draw_upload();
 static void load_co2();
 static void change_phase(int _phase);
 
-static const char* survey_questions[SURVEY_COUNT] =
-{
-	"In the past 7 days,\nhow would you rate your overall\nmental or emotional health?",
-	"In the past 7 days,\nhow much have stress, mood,\nor worries made it harder to do\nwhat you needed or wanted to do?"
-};
-
 static const char** survey_answers[SURVEY_COUNT] =
 {
 	(const char*[])
