@@ -43,6 +43,8 @@ static void MS_performance(CAT_FSM_signal);
 static void MS_upload(CAT_FSM_signal);
 static void draw_upload();
 
+static CAT_FSM fsm = {};
+
 static void load_co2();
 static void change_phase(int _phase);
 
@@ -70,6 +72,7 @@ static int survey_idx = 0;
 
 static void survey_set_answer(int idx, int score)
 {
+	score = 4 - score;
 	uint8_t mask = ~(0b1111 << (idx*4));
 	survey_field &= mask;
 	mask = CAT_clamp(score, 0, 15);
@@ -80,7 +83,7 @@ static void survey_set_answer(int idx, int score)
 static int survey_get_answer(int idx)
 {
 	uint8_t mask = survey_field & (0b1111 << (idx*4));
-	return mask >> (idx*4);
+	return 4 - (mask >> (idx*4));
 }
 
 static void MS_survey(CAT_FSM_signal signal)
@@ -91,6 +94,8 @@ static void MS_survey(CAT_FSM_signal signal)
 		{
 			CAT_set_render_callback(draw_survey);
 			survey_field = 0;
+			for(int i = 0; i < SURVEY_COUNT; i++)
+				survey_set_answer(i, 0);
 			survey_idx = 0;
 			CAT_gui_menu_force_reset();
 		}
@@ -140,7 +145,7 @@ static void MS_survey(CAT_FSM_signal signal)
 					}
 					else
 					{
-						change_phase(PHASE_ARROWS);
+						CAT_FSM_transition(&fsm, MS_upload);
 					}
 				}
 				CAT_gui_end_menu();
@@ -161,8 +166,6 @@ static void draw_survey()
 	if(!CAT_gui_menu_is_open())
 		CAT_frameberry(CAT_WHITE);
 }
-
-static CAT_FSM fsm = {};
 
 static int phase;
 static float response_time[PHASE_COUNT][CHALLENGES_PER_PHASE];
@@ -719,7 +722,7 @@ static void MS_performance(CAT_FSM_signal signal)
 		case CAT_FSM_SIGNAL_TICK:
 		{
 			if(CAT_input_pressed(CAT_BUTTON_A) || CAT_input_dismissal())
-				CAT_FSM_transition(&fsm, MS_upload);
+				CAT_FSM_transition(&fsm, MS_survey);
 		}			
 		break;
 
@@ -901,7 +904,7 @@ static void draw_upload()
 		case UPLOADING:
 		{
 			CAT_draw_page_markers(12, 3, 1, CAT_WHITE);
-			draw_upload_stage("UPLOADING", "Encrypting and sending your data.", "PLEASE WAIT");
+			draw_upload_stage("UPLOADING", "TFHE encrypting and sending your data.", "PLEASE WAIT");
 		}
 		break;
 
@@ -961,6 +964,7 @@ void CAT_MS_stroop(CAT_FSM_signal signal)
 		case CAT_FSM_SIGNAL_ENTER:
 			CAT_set_render_callback(CAT_render_stroop);
 			load_co2();
+			//change_phase(PHASE_ARROWS);
 			CAT_FSM_transition(&fsm, MS_survey);
 		break;
 
