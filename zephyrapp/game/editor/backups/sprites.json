@@ -2646,11 +2646,11 @@
         },
         {
             "id": 261,
-            "name": "ui_down_arrow_simple",
-            "path": "ui/down_arrow.png",
+            "name": "ui_chat_actions",
+            "path": "ui/chat_actions.png",
             "frames": 1,
-            "width": 24,
-            "height": 24,
+            "width": 54,
+            "height": 12,
             "loop": false,
             "reverse": false
         }
