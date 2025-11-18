@@ -220,6 +220,7 @@ target_sources(app PRIVATE
 	src/comms/cat_chat.c
 	src/comms/cat_wifi.c
 	src/comms/cat_radio.c
+	src/comms/cat_crypto.c
 
 	sounds/sound_assets.c
 	meshes/mesh_assets.c

@@ -70,7 +70,7 @@ static int survey_idx = 0;
 
 static void survey_set_answer(int idx, int score)
 {
-	uint8_t mask = 0b1111 << ((SURVEY_COUNT-1-idx) * 4);
+	uint8_t mask = ~(0b1111 << (idx*4));
 	survey_field &= mask;
 	mask = CAT_clamp(score, 0, 15);
 	mask <<= (idx*4);

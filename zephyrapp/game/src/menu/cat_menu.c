@@ -206,7 +206,7 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 						CAT_gui_end_menu();
 					}
 
-#if CAT_WIFI_ENABLED
+#if CAT_WIFI_ENABLED | defined(CAT_DESKTOP)
 					if(CAT_gui_begin_menu("NETWORK"))
 					{
 						if(CAT_gui_menu_item("CONNECT"))
