@@ -22,7 +22,7 @@ from ee_canvas import Canvas;
 from ee_assets import *;
 
 from ee_scene_editor import SceneEditor;
-from ee_sprites import SpriteBank;
+from ee_sprites import SpriteBank, SpritePreview;
 from ee_input import InputManager;
 from ee_prop_editor import PropEditor;
 from ee_procs import ProcExplorer;
@@ -79,7 +79,6 @@ time = glfw.get_time();
 delta_time = 0;
 
 AssetManager.initialize(["sprites", "sounds", "meshes", "data"]);
-SpriteBank.initialize();
 InputManager.initialize(handle, impl);
 
 #########################################################
@@ -187,10 +186,13 @@ class SpriteExplorer:
 			imgui.set_next_window_size(self.size);
 			_, self.open = imgui.begin(f"Sprite Explorer", self.open, flags=self.window_flags);
 			for item in listings:
-				Preview.thumbnail("sprite", item);
+				imgui.begin_group();
+				SpritePreview.draw_thumbnail(item, 48);
+				imgui.same_line();
 				if imgui.menu_item_simple(item):
 					SpriteExplorer.result = item;
 					SpriteExplorer._ = None;
+				imgui.end_group();
 			self.size = imgui.get_window_size();
 			imgui.end();
 		if not self.open:
@@ -200,171 +202,6 @@ class SpriteExplorer:
 		ready, result = SpriteExplorer.result != None, SpriteExplorer.result;
 		SpriteExplorer.result = None;
 		return ready, result;
-
-#########################################################
-## ASSET PREVIEWER
-
-class PreviewSprite:
-	def __invert_black(self, image):
-		pixels = image.load();
-		result = Image.new(self.image.mode, self.image.size);
-
-		all_black = True;
-		inversion = [];
-		for y in range(self.image.height):
-			for x in range(self.image.width):
-				p = pixels[x, y];
-				if p[3] >= 128:
-					all_black &= (p[0] == 0 and p[1] == 0 and p[2] == 0);
-					if not all_black:
-						return image;
-					inversion.append((255, 255, 255, p[3]));
-				else:
-					inversion.append(p);
-
-		result.putdata(inversion);
-		return result;
-		
-	def __transpose_frames(self, image):
-		pixels = image.load();
-		if self.frame_count > 1:
-			frame_h = image.height // self.frame_count;
-			transpose = [];
-			for y in range(frame_h):
-				for f in range(self.frame_count):
-					for x in range(image.width):
-						transpose.append(pixels[x, y + f * frame_h]);
-			result = Image.new(image.mode, (image.width * self.frame_count, frame_h));
-			result.putdata(transpose);
-			return result;
-		else:
-			return image;
-	
-	def __make_frame(self, frame):
-		pixels = self.image.load();
-
-		frame_h = self.height // self.frame_count;
-		frame_y = frame_h * frame;
-		frame = [];
-		for dy in range(0, frame_h):
-			for dx in range(0, self.width):
-				frame.append(pixels[dx, dy+frame_y]);
-
-		result = Image.new(self.image.mode, (self.width, frame_h));
-		result.putdata(frame);
-		return result;
-
-	def __init__(self, sprite):
-		path = Path(os.path.join("sprites", sprite["path"]));
-		self.image = Image.open(path);
-		self.width = self.image.width;
-		self.height = self.image.height;
-		self.frame_count = max(sprite["frames"], 1);
-		self.frame_width = self.width;
-		self.frame_height = self.height // self.frame_count;
-		self.frame_images = [self.__make_frame(i) for i in range(self.frame_count)];
-		self.frame_textures = [make_texture(f.tobytes(), f.width, f.height) for f in self.frame_images];
-		self.preview_image = self.image;
-		self.preview_image = self.__invert_black(self.preview_image);
-		self.preview_image = self.__transpose_frames(self.preview_image);
-		self.preview_texture = make_texture(self.preview_image.tobytes(), self.preview_image.width, self.preview_image.height);
-
-class PreviewSound:
-	def __init__(self, sound):
-		path = os.path.join("sounds", sound["path"]);
-		clip = wave.open(path, "r");
-		meta = clip.getparams();
-
-		n_channels = meta.nchannels;
-		n_frames = meta.nframes;
-		width = meta.sampwidth;
-
-		buffer = bytearray(clip.readframes(n_frames));
-		samples = np.ndarray((n_frames * n_channels,), dtype=np.int32);
-
-		for i in range(len(samples)):
-			start = i * width;
-			end = start + width;
-			samples[i] = int.from_bytes(buffer[start:end], "little", signed=True);
-			
-		frames = np.ndarray((n_channels, n_frames), dtype=np.float32);
-		for i in range(len(frames)):
-			frames[i] = samples[i::n_channels];
-		
-		self.frames = frames;
-		self.meta = meta;
-		self.path = path;
-
-class PreviewBank:
-	def __init__(self):
-		self.entries = {};
-		for asset_type in AssetManager.types():
-			self.entries[asset_type] = {};
-	
-	def init(self, asset_type, name):
-		try:
-			asset = AssetManager.search(asset_type, name);
-			match asset_type:
-				case "sprite":
-					self.entries[asset_type][name] = PreviewSprite(asset);
-				case "sound":
-					self.entries[asset_type][name] = PreviewSound(asset);
-				case _:
-					self.entries[asset_type][name] = None;
-		except:
-			self.entries[asset_type][name] = None;
-		return self.entries[asset_type][name];
-	
-	def get(self, asset_type, name):
-		if not name in self.entries[asset_type]:
-			self.init(asset_type, name);
-		return self.entries[asset_type][name];
-		
-preview_bank = PreviewBank();
-for asset_type in AssetManager.types():
-	for asset in AssetManager.get_assets(asset_type):
-		preview_bank.init(asset_type, asset["name"]);
-
-class Preview:	
-	def render_sprite(name):
-		sprite = preview_bank.get("sprite", name);
-		if sprite != None:
-			if imgui.button(f"!##{name}"):
-				preview_bank.init("sprite", name);
-			imgui.same_line();
-			imgui.image(sprite.preview_texture, (sprite.preview_image.width * 2, sprite.preview_image.height * 2));
-
-	def thumbnail_sprite(name):
-		sprite = preview_bank.get("sprite", name);
-		if sprite != None:
-			imgui.image(sprite.frame_textures[0], (48, 48));
-			imgui.same_line();
-	
-	def render_sound(name):
-		sound = preview_bank.get("sound", name);
-		if sound != None:
-			if imgui.button(f"!##{name}"):
-				preview_bank.init("sound", name);
-			imgui.same_line();
-			for i in range(sound.frames.shape[0]):
-				half_range = (1 << ((sound.meta.sampwidth*8)-1)) - 1;
-				plot_min = -half_range;
-				plot_max = half_range;
-				plot_width = window_width//2;
-				plot_height = window_height//10;
-				imgui.plot_lines(f"####{id(sound.frames[i])}", sound.frames[i], scale_min=plot_min, scale_max=plot_max, graph_size=(plot_width, plot_height));
-			if imgui.button(f"Play##{name}"):
-				playsound(sound.path, block=False);
-	
-	def render(asset_type, name):
-		if asset_type == "sprite":
-			Preview.render_sprite(name);
-		elif asset_type == "sound":
-			Preview.render_sound(name);
-
-	def thumbnail(asset_type, name):
-		if asset_type == "sprite":
-			Preview.thumbnail_sprite(name);
 
 
 #########################################################
@@ -381,7 +218,7 @@ class DocumentRenderer:
 			imgui.push_id(identifier);
 			if imgui.tree_node(title):
 				if AssetManager.active_document.type == "sprite":
-					Preview.render("sprite", node["name"]);
+					SpritePreview.draw(node["name"]);
 				for e in T.elements:
 					if e.name in node:
 						if not e.get_attribute("read-only"):
@@ -405,7 +242,9 @@ class DocumentRenderer:
 			return node;
 		
 		elif isinstance(T, ee_types.Asset):
-			Preview.render(T.name, node);
+			match T.name:
+				case "sprite":
+					SpritePreview.draw(node);
 
 			imgui.text(title);
 			imgui.same_line();
@@ -450,9 +289,6 @@ class DocumentRenderer:
 						return result;
 		
 		elif isinstance(T, ee_types.File):
-			if T.pattern == "*.png":
-				Preview.render("sprite", node);
-			
 			imgui.text(title);
 			imgui.same_line();
 
@@ -544,7 +380,7 @@ class DecorationViewer:
 		self.parent_prop = self.props[0];
 		self.child_prop = self.parent_prop;
 
-	def __draw_prop(self, x, y, prop):
+	def _draw_prop(self, x, y, prop):
 		shape = prop["prop_data"]["shape"];
 		tlx = x - (shape[0] * 16) // 2;
 		tly = y - (shape[1] * 16);
@@ -554,7 +390,7 @@ class DecorationViewer:
 				self.canvas.draw_rect_old(tlx + sx * 16, tly + sy * 16, 16, 16, (255, 0, 0));
 
 		self.canvas.draw_flags = Canvas.DrawFlags.CENTER_X | Canvas.DrawFlags.BOTTOM;
-		sprite = preview_bank.get("sprite", prop["sprite"]);
+		sprite = SpriteBank.get(prop["sprite"]);
 		self.canvas.draw_image(x, y, sprite.frame_images[0]);
 		
 	def render():
@@ -569,13 +405,13 @@ class DecorationViewer:
 			self.canvas.clear((128, 128, 128));
 			draw_x = self.canvas.width/2;
 			draw_y = self.canvas.height*0.75;
-			self.__draw_prop(draw_x, draw_y, self.parent_prop);
+			self._draw_prop(draw_x, draw_y, self.parent_prop);
 			if self.parent_prop["prop_data"]["type"] == "bottom" and self.child_prop["prop_data"]["type"] == "top":
 				parent_shape = self.parent_prop["prop_data"]["shape"];
 				child_x = (parent_shape[0] // 2) * 16;
 				child_y = parent_shape[1] * 16;
 				off_y = self.child_prop["prop_data"]["child_dy"];
-				self.__draw_prop(draw_x, draw_y - child_y - off_y, self.child_prop);
+				self._draw_prop(draw_x, draw_y - child_y - off_y, self.child_prop);
 			self.canvas.render();
 
 			if imgui.begin_combo(f"Parent", self.parent_prop["name"]):
@@ -646,7 +482,7 @@ class AnimationViewer:
 			_, self.open = imgui.begin(f"Animation Viewer", self.open, flags=self.window_flags);
 
 			sprite = self.sprites[self.sprite_idx];
-			preview = preview_bank.get("sprite", sprite["name"]);
+			preview = SpriteBank.get(sprite["name"]);
 
 			self.canvas.clear((128, 128, 128));
 			draw_x = self.canvas.width/2;
@@ -654,7 +490,7 @@ class AnimationViewer:
 			self.canvas.draw_flags = Canvas.DrawFlags.CENTER_X | Canvas.DrawFlags.CENTER_Y;
 			self.canvas.draw_image(draw_x, draw_y, preview.frame_images[self.frame]);
 			if self.show_AABB:
-				self.canvas.draw_rect_old(draw_x, draw_y, preview.width, preview.height/preview.frame_count, (255, 0, 0));
+				self.canvas.draw_rect_old(draw_x, draw_y, preview.frame_width, preview.frame_height, (255, 0, 0));
 			self.canvas.render();
 
 			if preview.frame_count > 1:	
@@ -740,12 +576,12 @@ class ThemeEditor:
 				imgui.end_combo();
 			
 			if not self.theme['tile_wall']:
-				sprite = preview_bank.get("sprite", self.theme["wall_tiles"]);
+				sprite = SpriteBank.get(self.theme["wall_tiles"]);
 				self.wall_canvas = Canvas(sprite.width, sprite.height);
 			elif self.wall_canvas.height != 96:
 				self.wall_canvas = Canvas(240, 96);
 			if not self.theme['tile_floor']:
-				sprite = preview_bank.get("sprite", self.theme["floor_tiles"]);
+				sprite = SpriteBank.get(self.theme["floor_tiles"]);
 				self.floor_canvas = Canvas(sprite.width, sprite.height);
 			elif self.floor_canvas.height != 224:
 				self.floor_canvas = Canvas(240, 224);
@@ -765,7 +601,7 @@ class ThemeEditor:
 				self.wall_canvas.clear((128, 128, 128));
 				for y in range(6):
 					for x in range(15):
-						tile = preview_bank.get("sprite", self.theme["wall_tiles"]);
+						tile = SpriteBank.get(self.theme["wall_tiles"]);
 						tile_frame = self.theme["wall_map"][y * 15 + x];
 						if tile_frame >= tile.frame_count:
 							tile_frame = tile.frame_count-1;
@@ -791,7 +627,7 @@ class ThemeEditor:
 
 				self.wall_canvas.render();
 
-				wall_tiles = preview_bank.get("sprite", self.theme["wall_tiles"]);
+				wall_tiles = SpriteBank.get(self.theme["wall_tiles"]);
 				per_line = 0;
 				for (idx, frame) in enumerate(wall_tiles.frame_textures):
 					tint = (0.5, 0.5, 0.5, 1) if idx == self.wall_brush else (1, 1, 1, 1);
@@ -806,7 +642,7 @@ class ThemeEditor:
 			else:
 				self.wall_canvas.clear((128, 128, 128));
 
-				sprite = preview_bank.get("sprite", self.theme["wall_tiles"]);
+				sprite = SpriteBank.get(self.theme["wall_tiles"]);
 				self.wall_canvas.draw_image(0, 0, sprite.frame_images[0]);
 
 				window_rect = self.theme['window_rect']
@@ -827,7 +663,7 @@ class ThemeEditor:
 				self.floor_canvas.clear((128, 128, 128));
 				for y in range(14):
 					for x in range(15):
-						tile = preview_bank.get("sprite", self.theme["floor_tiles"]);
+						tile = SpriteBank.get(self.theme["floor_tiles"]);
 						tile_frame = self.theme["floor_map"][y * 15 + x];
 						if tile_frame >= tile.frame_count:
 							tile_frame = tile.frame_count-1;
@@ -849,7 +685,7 @@ class ThemeEditor:
 
 				self.floor_canvas.render();
 
-				floor_tiles = preview_bank.get("sprite", self.theme["floor_tiles"]);
+				floor_tiles = SpriteBank.get(self.theme["floor_tiles"]);
 				per_line = 0;
 				for (idx, frame) in enumerate(floor_tiles.frame_textures):
 					tint = (0.5, 0.5, 0.5, 1) if idx == self.floor_brush else (1, 1, 1, 1);
@@ -1143,111 +979,6 @@ class Mesh2DEditor:
 
 
 #########################################################
-## ITEM REFORMER
-
-class ItemReform:
-	def __init__(self, name, filt, path, values):
-		self.name = name;
-		self.filt = filt;
-		self.path = path;
-		self.values = values;
-	
-	def __path_assign(object, path, value):
-		match path:
-			case []:
-				return;
-			case [token]:
-				object[token] = value;
-			case head, *tail:
-				ItemReform.__path_assign(object[head], tail, value);
-
-	def apply(self, items):
-		operands = filter(self.filt, items);
-		for operand in operands:
-			ItemReform.__path_assign(operand, self.path, self.values[operand["tier"]]);
-
-class ItemReformer:
-	_ = None;
-
-	def __init__(self):
-		if ItemReformer._ != None:
-			return None;
-		ItemReformer._ = self;
-
-		self.canvas = Canvas(240, 128);
-		self.size = (640, 480);
-		self.scale = 240 / self.canvas.height;
-		window_flag_list = [
-			imgui.WindowFlags_.no_saved_settings,
-			imgui.WindowFlags_.no_collapse,
-		];
-		self.window_flags = foldl(lambda a, b : a | b, 0, window_flag_list);
-		self.open = True;
-		
-		self.items = AssetManager.get_assets("item");
-		self.reforms = [
-			ItemReform (
-				"Food Prices",
-				lambda i: i["type"] == "tool" and i["tool_data"]["type"] == "food",
-				["price"],
-				[tier*3 for tier in range(4)]
-			),
-			ItemReform (
-				"Book and Toy Prices",
-				lambda i: i["type"] == "tool" and (i["tool_data"]["type"] == "book" or i["tool_data"]["type"] == "toy"),
-				["price"],
-				[tier*7 for tier in range(4)]
-			),
-			ItemReform (
-				"Food Power",
-				lambda i: i["type"] == "tool" and i["tool_data"]["type"] == "food",
-				["tool_data", "dv"],
-				[tier for tier in range(4)]
-			),
-			ItemReform (
-				"Book Power",
-				lambda i: i["type"] == "tool" and i["tool_data"]["type"] == "book",
-				["tool_data", "df"],
-				[tier for tier in range(4)]
-			),
-			ItemReform (
-				"Toy Power",
-				lambda i: i["type"] == "tool" and i["tool_data"]["type"] == "toy",
-				["tool_data", "ds"],
-				[tier for tier in range(4)]
-			),
-		];
-
-	def render():
-		if ItemReformer._ == None:
-			return;
-		self = ItemReformer._;
-
-		if self.open:
-			imgui.set_next_window_size(self.size);
-			_, self.open = imgui.begin(f"Item Reformer", self.open, flags=self.window_flags);
-
-			for reform in self.reforms:
-				imgui.push_id(str(id(reform)));
-				if imgui.collapsing_header(reform.name):
-					for tier in range(1, 4):
-						imgui.push_id(str(tier));
-						imgui.text(f"Tier {"I"*tier}:");
-						imgui.same_line();
-						_, reform.values[tier] = imgui.input_int("", reform.values[tier]);
-						imgui.pop_id();
-					if imgui.button("Apply"):
-						reform.apply(self.items);
-				imgui.pop_id();
-
-			self.size = imgui.get_window_size();
-			imgui.end();
-		
-		if not self.open:
-			ItemReformer._ = None;
-
-
-#########################################################
 ## DIALOGUE EDITOR
 
 class DialogueEditor:
@@ -1375,7 +1106,8 @@ while not glfw.window_should_close(handle):
 
 	glfw.poll_events();
 	impl.process_inputs();
-
+	
+	SpriteBank.update();
 	InputManager.update();
 
 	if InputManager.is_held(glfw.KEY_LEFT_SUPER) and InputManager.is_pressed(glfw.KEY_S):
@@ -1433,15 +1165,13 @@ while not glfw.window_should_close(handle):
 				ThemeEditor();	
 			if imgui.menu_item_simple("Mesh2D Editor"):
 				Mesh2DEditor();
-			if imgui.menu_item_simple("Item Reformer"):
-				ItemReformer();	
-			if imgui.menu_item_simple("Dialogue Editor"):
-				DialogueEditor();
 			if imgui.menu_item_simple("Prop Editor"):
 				PropEditor();
 			if imgui.menu_item_simple("Scene Editor"):
 				SceneEditor();
-			if imgui.menu_item_simple("Dialogue Graph"):
+			if imgui.menu_item_simple("Dialogue Node Editor"):
+				DialogueEditor();
+			if imgui.menu_item_simple("Dialogue Graph Editor"):
 				DialogueGraph();
 			if imgui.menu_item_simple("Recipe Editor"):
 				RecipeEditor();
@@ -1465,8 +1195,6 @@ while not glfw.window_should_close(handle):
 		ThemeEditor.render();
 	if Mesh2DEditor._ != None:
 		Mesh2DEditor.render();
-	if ItemReformer._ != None:
-		ItemReformer.render();
 	if DialogueEditor._ != None:
 		DialogueEditor.render();
 	if SceneEditor._ != None:
