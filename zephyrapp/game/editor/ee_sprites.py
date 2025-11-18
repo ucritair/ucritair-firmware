@@ -9,7 +9,7 @@ def _is_image_black(img):
 	for y in range(img.height):
 		for x in range(img.width):
 			p = pixels[x, y];
-			if p[3] >= 128 and p[0] > 16 and p[1] > 16 and p[2] > 16:
+			if p[3] >= 128 and p[0] > 16 or p[1] > 16 or p[2] > 16:
 				return False;
 	return True;
 
@@ -58,26 +58,39 @@ class EditorSprite:
 class SpriteBank:
 	mapping = {};
 
+	def _update(name, path, frames):
+		real_path = AssetManager.get_document("sprite").directory / path;
+		editor_sprite = EditorSprite(real_path, frames);
+		SpriteBank.mapping[name] = editor_sprite;
+		SpriteBank.mapping[path] = editor_sprite;
+	
 	def update():
 		sprites = AssetManager.get_assets("sprite") + AssetManager.get_assets("tinysprite");
+
 		for sprite in sprites:
+
 			name = sprite["name"];
 			asset_path = sprite["path"];
 			real_path = AssetManager.get_document("sprite").directory / asset_path;
 			frames = sprite["frames"] if "frames" in sprite else 1;
+
 			if name not in SpriteBank.mapping or frames != SpriteBank.mapping[name].frame_count or real_path != SpriteBank.mapping[name].path:
-				editor_sprite = EditorSprite(real_path, frames);
-				SpriteBank.mapping[name] = editor_sprite;
-				SpriteBank.mapping[asset_path] = editor_sprite;
+				if Path.is_file(real_path):
+					SpriteBank._update(name, asset_path, frames);
+				else:
+					SpriteBank._update(name, "null.png", 1);
 	
-	def get(name):
+	def get(name, path=None, frames=None):
 		if not name in SpriteBank.mapping:
-			SpriteBank.update();
+			if path != None and frames != None:
+				SpriteBank._update(name, path, frames);
+			else:
+				SpriteBank.update();
 		return SpriteBank.mapping[name];
 
 class SpritePreview:
-	def draw(name):
-		sprite = SpriteBank.get(name);
+	def draw(name, path=None, frames=None):
+		sprite = SpriteBank.get(name, path, frames);
 		imgui.image(sprite.preview_texture, (sprite.preview_width * 2, sprite.preview_height * 2));
 
 	def draw_thumbnail(name, size):

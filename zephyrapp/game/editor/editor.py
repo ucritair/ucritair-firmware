@@ -289,9 +289,6 @@ class DocumentRenderer:
 						return result;
 		
 		elif isinstance(T, ee_types.File):
-			if T.pattern == "*.png":
-				SpritePreview.draw(node);
-			
 			imgui.text(title);
 			imgui.same_line();
 
