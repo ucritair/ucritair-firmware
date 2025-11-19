@@ -29,15 +29,18 @@ static uint8_t node_count = 0;
 #define NODE_ADDRESS_ME 0
 #define NODE_ADDRESS_ANY CAT_RADIO_BROADCAST_ADDR
 
-static int register_node(uint32_t address, const char* name)
+static int register_node(uint32_t address, const char* short_name, const char* long_name)
 {
 	if(node_count >= NODES_CAPACITY)
 		return -1;
 	int i = 0;
 	while(i < node_count && nodes[i].address != address)
 		i++;
+
 	nodes[i].address = address;
-	strncpy(nodes[i].name, name, sizeof(nodes[i].name));
+	strncpy(nodes[i].long_name, long_name, sizeof(nodes[i].long_name));
+	strncpy(nodes[i].short_name, short_name, sizeof(nodes[i].short_name));
+
 	if(i >= node_count)
 		node_count = i+1;
 	return i;
@@ -236,7 +239,7 @@ int draw_message(int y, int i)
 	CAT_chat_node* sender = sender_idx == -1 ? NULL : &nodes[sender_idx];
 	bool change_sender = i > 0 && fetch_msg(i-1)->from != msg->from;
 	const char* sender_name =
-	sender != NULL ? sender->name :
+	sender != NULL ? sender->short_name :
 	msg->from == NODE_ADDRESS_ME ? "Me" :
 	"?";
 
@@ -418,7 +421,7 @@ void CAT_chat_RX_meowback(char* frame, uint16_t frame_size)
 						packet.decoded.payload.bytes
 					);
 
-					register_node(packet.from, "?");
+					register_node(packet.from, "????", "???? ????");
 
 					CAT_printf
 					(
@@ -433,30 +436,32 @@ void CAT_chat_RX_meowback(char* frame, uint16_t frame_size)
 						packet.decoded.payload.bytes
 					);
 				}
-				else if (from_radio.packet.decoded.portnum == meshtastic_PortNum_NODEINFO_APP)
-				{
-					meshtastic_NodeInfo info = from_radio.node_info;
-
-					if(info.has_user)
-					{
-						register_node(info.num, info.user.short_name);
-					}
-
-					CAT_printf
-					(
-						MODULE_PREFIX "Received node info:\n"
-						"Number: 0x%02X\n"
-						"Has User: %d\n"
-						"Long Name: %.40s\n"
-						"Short Name: %.5s\n",
-						info.num,
-						info.has_user,
-						info.has_user ? info.user.long_name : "N/A",
-						info.has_user ? info.user.short_name : "N/A"
-					);
-				}
 			}
 		};
+
+		case meshtastic_FromRadio_node_info_tag:
+		{
+			meshtastic_NodeInfo info = from_radio.node_info;
+
+			if(from_radio.node_info.has_user)
+			{
+				register_node(info.num, info.user.short_name, info.user.long_name);
+			}
+
+			CAT_printf
+			(
+				MODULE_PREFIX "Received node info:\n"
+				"Number: 0x%02X\n"
+				"Has User: %d\n"
+				"Long Name: %.40s\n"
+				"Short Name: %.5s\n",
+				info.num,
+				info.has_user,
+				info.has_user ? info.user.long_name : "N/A",
+				info.has_user ? info.user.short_name : "N/A"
+			);
+		}
+		break;
 
 		default:
 		{

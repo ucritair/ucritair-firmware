@@ -30,6 +30,7 @@ void CAT_init()
 	CAT_radio_init();
 	CAT_radio_clear_buffer();
 	CAT_radio_start_modem();
+	CAT_radio_add_chanels();
 	
 	CAT_input_init();
 	CAT_rand_seed();

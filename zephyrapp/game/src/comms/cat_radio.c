@@ -44,6 +44,26 @@ void CAT_radio_start_modem()
 #endif
 }
 
+int CAT_radio_config_channel(uint8_t idx, const char* name, const uint8_t* psk, uint8_t psk_len)
+{
+	CAT_printf(MODULE_PREFIX "Configuring secondary channel\n");
+	int result = 0;
+#ifdef CAT_RADIO_ENABLED
+	result = mt_config_secondary_chan(idx, name, psk, psk_len);
+#endif
+	return result;
+}
+
+int CAT_radio_add_chanels()
+{
+	CAT_printf(MODULE_PREFIX "Adding channels\n");
+	int result = 0;
+#ifdef CAT_RADIO_ENABLED
+	result = mt_config_add_channels();
+#endif
+	return result;
+}
+
 void CAT_radio_TX(const char* text, uint32_t address, uint8_t channel)
 {
 	size_t n = strlen(text);
