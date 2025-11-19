@@ -21,6 +21,19 @@
 #define MODULE_PREFIX "["MODULE_NAME"] "
 
 //////////////////////////////////////////////////////////////////////////
+// MISC
+
+static bool is_null_terminated(char* str, size_t n)
+{
+	for(int i = 0; i < n; i++)
+	{
+		if(str[i] == '\0')
+			return true;
+	}
+	return false;
+}
+
+//////////////////////////////////////////////////////////////////////////
 // NODE LIST
 
 static CAT_chat_node nodes[64];
@@ -29,7 +42,7 @@ static uint8_t node_count = 0;
 #define NODE_ADDRESS_ME 0
 #define NODE_ADDRESS_ANY CAT_RADIO_BROADCAST_ADDR
 
-static int register_node(uint32_t address, const char* short_name, const char* long_name)
+static int register_node(uint32_t address, char* long_name, char* short_name)
 {
 	if(node_count >= NODES_CAPACITY)
 		return -1;
@@ -38,8 +51,13 @@ static int register_node(uint32_t address, const char* short_name, const char* l
 		i++;
 
 	nodes[i].address = address;
-	strncpy(nodes[i].long_name, long_name, sizeof(nodes[i].long_name));
-	strncpy(nodes[i].short_name, short_name, sizeof(nodes[i].short_name));
+	nodes[i].long_name[0] = '\0';
+	nodes[i].short_name[0] = '\0';
+
+	if(is_null_terminated(long_name, 40))
+		strncpy(nodes[i].long_name, long_name, 40);
+	if(is_null_terminated(long_name, 5))
+		strncpy(nodes[i].short_name, short_name, 5);
 
 	if(i >= node_count)
 		node_count = i+1;
@@ -65,6 +83,9 @@ static uint8_t in_whead = 0;
 static uint8_t in_rhead = 0;
 static uint8_t in_length = 0;
 static int in_selector = 0;
+
+#define IN_RIDX(idx) (CAT_wrap(in_rhead+(idx), IN_CAPACITY))
+#define IN_WIDX(idx) (CAT_wrap(in_whead+(idx), IN_CAPACITY))
 
 static void push_msg(CAT_chat_msg* msg)
 {
@@ -175,6 +196,7 @@ void CAT_MS_chat(CAT_FSM_signal signal)
 				else
 					in_selector = CAT_min(in_selector+1, in_length-1);
 			}
+			int selected_idx = IN_RIDX(in_selector);
 
 			if(CAT_input_pressed(CAT_BUTTON_RIGHT))
 			{
@@ -182,10 +204,10 @@ void CAT_MS_chat(CAT_FSM_signal signal)
 
 				if(in_length == 0)
 					destination = CAT_RADIO_BROADCAST_ADDR;
-				else if(in[in_selector].from == NODE_ADDRESS_ME)
+				else if(in[selected_idx].from == NODE_ADDRESS_ME)
 					destination = CAT_RADIO_BROADCAST_ADDR;
 				else
-					destination = in[in_selector].from;
+					destination = in[selected_idx].from;
 				
 				if(destination != last_destination)
 				{
@@ -208,7 +230,7 @@ void CAT_MS_chat(CAT_FSM_signal signal)
 			{
 				if(in_length > 0)
 				{
-					memcpy(&view_buffer, &in[in_selector], sizeof(view_buffer));
+					memcpy(&view_buffer, &in[selected_idx], sizeof(view_buffer));
 					viewing_message = true;
 				}
 			}
@@ -237,19 +259,19 @@ int draw_message(int y, int i)
 	CAT_chat_msg* msg = fetch_msg(i);
 	int sender_idx = find_node(msg->from);
 	CAT_chat_node* sender = sender_idx == -1 ? NULL : &nodes[sender_idx];
-	bool change_sender = i > 0 && fetch_msg(i-1)->from != msg->from;
 	const char* sender_name =
-	sender != NULL ? sender->short_name :
 	msg->from == NODE_ADDRESS_ME ? "Me" :
+	sender != NULL && strlen(sender->short_name) > 0 ? sender->short_name :
+	sender != NULL && strlen(sender->long_name) > 0 ? sender->long_name :
 	"?";
-
+	bool change_sender = i > 0 && fetch_msg(i-1)->from != msg->from;
 	bool selected = in_length > 0 && in_selector == i;
 
 	char line[30];
 	snprintf
 	(
 		line, sizeof(line),
-		"%s%s: %s",
+		"%s%.4s: %s",
 		msg->to == NODE_ADDRESS_ANY ? "" : "[DM] ",
 		sender_name,
 		msg->text
@@ -310,12 +332,28 @@ void CAT_draw_chat()
 		int cursor_y = 12;
 		int cursor_x = 12;
 		
+		int sender_idx = find_node(view_buffer.from);
+		CAT_chat_node* sender = sender_idx == -1 ? NULL : &nodes[sender_idx];
 		if(view_buffer.from == NODE_ADDRESS_ME)
 			cursor_y = CAT_draw_textf(cursor_x, cursor_y, "From: Me\n");
+		else if(sender != NULL)
+		{
+			if(strlen(sender->long_name) > 0)
+				cursor_y = CAT_draw_textf(cursor_x, cursor_y, "From: %.40s\n", sender->long_name);
+			else if(strlen(sender->short_name) > 0)
+				cursor_y = CAT_draw_textf(cursor_x, cursor_y, "From: %.5s\n", sender->short_name);
+			else
+				cursor_y = CAT_draw_textf(cursor_x, cursor_y, "From: 0x%.8x\n", view_buffer.from);	
+		}
 		else
+		{
 			cursor_y = CAT_draw_textf(cursor_x, cursor_y, "From: 0x%.8x\n", view_buffer.from);
-		if(view_buffer.to == CAT_RADIO_BROADCAST_ADDR)
-		cursor_y = CAT_draw_textf(cursor_x, cursor_y, "To: %s\n\n", view_buffer.to == CAT_RADIO_BROADCAST_ADDR ? "Everyone" : "Me");
+		}
+			
+		if(view_buffer.from != NODE_ADDRESS_ME)
+			cursor_y = CAT_draw_textf(cursor_x, cursor_y, "To: %s\n\n", view_buffer.to == CAT_RADIO_BROADCAST_ADDR ? "Everyone" : "Me");
+		else
+			cursor_y += 4;
 		CAT_rowberry(cursor_y, cursor_y+1, CAT_192_GREY);
 
 		CAT_set_text_mask(12, -1, CAT_LCD_SCREEN_W-12, -1);
@@ -421,8 +459,6 @@ void CAT_chat_RX_meowback(char* frame, uint16_t frame_size)
 						packet.decoded.payload.bytes
 					);
 
-					register_node(packet.from, "????", "???? ????");
-
 					CAT_printf
 					(
 						MODULE_PREFIX "Received text message:\n"
@@ -437,7 +473,8 @@ void CAT_chat_RX_meowback(char* frame, uint16_t frame_size)
 					);
 				}
 			}
-		};
+		}
+		break;
 
 		case meshtastic_FromRadio_node_info_tag:
 		{
@@ -445,21 +482,19 @@ void CAT_chat_RX_meowback(char* frame, uint16_t frame_size)
 
 			if(from_radio.node_info.has_user)
 			{
-				register_node(info.num, info.user.short_name, info.user.long_name);
-			}
+				register_node(info.num, info.user.long_name, info.user.short_name);
 
-			CAT_printf
-			(
-				MODULE_PREFIX "Received node info:\n"
-				"Number: 0x%02X\n"
-				"Has User: %d\n"
-				"Long Name: %.40s\n"
-				"Short Name: %.5s\n",
-				info.num,
-				info.has_user,
-				info.has_user ? info.user.long_name : "N/A",
-				info.has_user ? info.user.short_name : "N/A"
-			);
+				CAT_printf
+				(
+					MODULE_PREFIX "Received user info:\n"
+					"Number: 0x%02X\n"
+					"Long Name: %.40s\n"
+					"Short Name: %.5s\n",
+					info.num,
+					is_null_terminated(info.user.long_name, 40) ? info.user.long_name : "N/A",
+					is_null_terminated(info.user.short_name, 5) ? info.user.short_name : "N/A"
+				);
+			}
 		}
 		break;
 

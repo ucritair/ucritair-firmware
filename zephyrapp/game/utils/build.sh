@@ -2,31 +2,35 @@ embedded=false
 aq_first=false
 radio=false
 wifi=false
-clean=true
+clean=false
 OPTIONS=""
 
 for var in "$@"
 do
 	if [ $var == "--embedded" ]; then
-		echo "[BUILD] Targeting embedded"
 		embedded=true
 	fi
 	if [ $var == "--aq-first" ]; then
-		echo "[BUILD] Prioritizing AQ"
 		aq_first=true
 		OPTIONS="${OPTIONS} -DAQ_FIRST=ON"
 	fi
 	if [ $var == "--radio" ]; then
-		echo "[BUILD] Enabling radio"
 		radio=true
 		OPTIONS="${OPTIONS} -DRADIO=ON"
 	fi
 	if [ $var == "--wifi" ]; then
-		echo "[BUILD] Enabling WiFi"
 		wifi=true
 		OPTIONS="${OPTIONS} -DWIFI=ON"
 	fi
+	if [ $var == "--clean" ]; then
+		clean=true
+	fi
 done
+
+if $clean; then
+	trash ../build
+	trash build
+fi
 
 # DESKTOP
 if [ ! -d build ]; then

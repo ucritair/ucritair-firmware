@@ -299,11 +299,8 @@ void lcd_render_diag()
 		if(CAT_poll_eink_update_flag())
 			CAT_eink_execute_update();
 
-		int battery = CAT_get_battery_pct();
-		if (battery == 0)
+		if (CAT_get_battery_pct() == 0)
        		CAT_shutdown();
-		else if(battery <= 10)
-			epaper_render_protected_off();
 
 		if((k_uptime_get() - last_flash_log) > (sensor_wakeup_period*1000) && is_ready_for_aqi_logging())
 		{

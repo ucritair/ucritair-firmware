@@ -112,7 +112,10 @@ bool CAT_eink_is_posted()
 
 void CAT_eink_update()
 {
-	epaper_render_test();
+	if(CAT_get_battery_pct() > 10)
+		epaper_render_test();
+	else
+		epaper_render_protected_off();
 }
 
 
