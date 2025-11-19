@@ -9,6 +9,7 @@
 typedef struct
 {
 	uint32_t address;
+	char hex_name[5];
 	char long_name[40];
 	char short_name[5];
 } CAT_chat_node;

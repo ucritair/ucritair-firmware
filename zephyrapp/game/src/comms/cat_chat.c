@@ -51,9 +51,11 @@ static int register_node(uint32_t address, char* long_name, char* short_name)
 		i++;
 
 	nodes[i].address = address;
+	nodes[i].hex_name[0] = '\0';
 	nodes[i].long_name[0] = '\0';
 	nodes[i].short_name[0] = '\0';
 
+	snprintf(nodes[i].hex_name, 5, "%.4x", nodes[i].address & 0x0000FFFF);
 	if(is_null_terminated(long_name, 40))
 		strncpy(nodes[i].long_name, long_name, 40);
 	if(is_null_terminated(long_name, 5))
@@ -263,6 +265,7 @@ int draw_message(int y, int i)
 	msg->from == NODE_ADDRESS_ME ? "Me" :
 	sender != NULL && strlen(sender->short_name) > 0 ? sender->short_name :
 	sender != NULL && strlen(sender->long_name) > 0 ? sender->long_name :
+	sender != NULL && strlen(sender->hex_name) > 0 ? sender->hex_name :
 	"?";
 	bool change_sender = i > 0 && fetch_msg(i-1)->from != msg->from;
 	bool selected = in_length > 0 && in_selector == i;
@@ -458,6 +461,8 @@ void CAT_chat_RX_meowback(char* frame, uint16_t frame_size)
 						packet.channel,
 						packet.decoded.payload.bytes
 					);
+
+					register_node(packet.from, "", "");
 
 					CAT_printf
 					(
