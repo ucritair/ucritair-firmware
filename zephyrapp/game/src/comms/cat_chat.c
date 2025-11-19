@@ -469,7 +469,7 @@ void CAT_chat_RX_meowback(char* frame, uint16_t frame_size)
 						MODULE_PREFIX "Received text message:\n"
 						"From: 0x%02X\n"
 						"To: 0x%02X\n"
-						"Channel: 0x%02X\n"
+						"Channel: %d\n"
 						"Message: %s\n",
 						packet.from,
 						packet.to,

@@ -3,6 +3,7 @@
 #include <stddef.h>
 #include <string.h>
 #include "cat_core.h"
+#include <stdio.h>
 
 #ifdef CAT_RADIO_ENABLED
 #include "msht.h"
@@ -78,5 +79,22 @@ void CAT_radio_poll_RX(CAT_radio_RX_callback meowback)
 #ifdef CAT_RADIO_ENABLED
 	if(msht_status())
 		msht_process(meowback);
+#endif
+}
+
+void CAT_radio_telemetry_TX()
+{
+	static char buffer[512];
+	CAT_printf(MODULE_PREFIX "TXing telemetry data\n");
+#ifdef CAT_RADIO_ENABLED
+	snprintf
+	(
+		buffer, sizeof(buffer),
+		"Reporting: %0.1f PPM CO2, %0.1f \4g/m\5 PM 2.5, %0.1f \4g/m\5 PM 10.0",
+		readings.sunrise.ppm_filtered_uncompensated,
+		readings.sen5x.pm2_5,
+		readings.sen5x.pm10_0
+	);
+	mt_send_text(buffer, CAT_RADIO_BROADCAST_ADDR, CAT_RADIO_TELEMETRY_CHANNEL);
 #endif
 }

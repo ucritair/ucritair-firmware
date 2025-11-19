@@ -187,7 +187,7 @@ int mt_config_secondary_chan ( uint8_t idx, const char *name, const uint8_t *psk
 	pb_ostream_t admin_stream = pb_ostream_from_buffer(admin_payload, sizeof(admin_payload));
 	if (!pb_encode(&admin_stream, meshtastic_AdminMessage_fields, &admin_msg)) {
 		LOG_ERR("pb_encode error! PB_GET_ERROR: %s", PB_GET_ERROR(&admin_stream));
-		return 0; 
+		return 0;
 	}
 
 
@@ -226,6 +226,17 @@ int mt_config_secondary_chan ( uint8_t idx, const char *name, const uint8_t *psk
 // FIXME: add feedback for error handling
 //
 // configure channels 1 and 2 for the event
+
+void print_psk(char* psk)
+{
+	uint64_t upper = 0;
+	uint64_t lower = 0;
+	for(int i = 0; i < 8; i++)
+	{
+		uint8_t byte = psk[i];
+
+	}
+}
 
 int mt_config_add_channels ( void )
 {

@@ -24,6 +24,7 @@
 #include "cat_save.h"
 #include "cat_wifi.h"
 #include "cat_crypto.h"
+#include "cat_radio.h"
 
 #ifdef CAT_EMBEDDED
 #include "menu_system.h"
@@ -100,6 +101,7 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 						if(CAT_gui_menu_item("COLOUR PICKER"))
 							CAT_pushdown_push(CAT_MS_colour_picker);
 						
+#if CAT_WIFI_ENABLED					
 						if(CAT_gui_menu_item("RP2350 BOOTLOADER"))
 						{
 							if (CAT_wifi_bootloader(2000)) {
@@ -107,7 +109,32 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 							} else {
 								CAT_printf("Failed to reboot RP2350 to bootloader\n");
 							}
-						}	
+						}
+
+						/*if(CAT_gui_menu_item("DEVCONNECT WIFI"))
+						{
+							for(int i = 0; i <= 4; i++)
+							{
+								CAT_printf("Attempting auth mode %d\n", i);
+								wifi_status =
+								CAT_wifi_connect("Bring Argentina", "onchain25", i, 10000) ?
+								CAT_WIFI_CONNECTION_SUCCESS : CAT_WIFI_CONNECTION_FAILURE;
+								if(wifi_status == CAT_WIFI_CONNECTION_SUCCESS)
+									break;
+							}
+						}*/
+#endif
+
+#if CAT_RADIO_ENABLED
+						if(CAT_AQ_sensors_initialized())
+						{
+							if(CAT_gui_menu_item("BROADCAST AQ"))
+							{
+								CAT_radio_telemetry_TX();
+							}
+						}
+#endif
+
 						CAT_gui_end_menu();
 					}				
 				}
