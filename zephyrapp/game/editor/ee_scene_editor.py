@@ -4,11 +4,44 @@ import glfw;
 from ee_cowtools import *;
 from ee_canvas import Canvas, CanvasGrid, CanvasIO;
 from ee_assets import *;
-from ee_sprites import SpriteBank, EditorSprite;
+from ee_sprites import SpriteBank, EditorSprite, SpritePreview;
 from ee_input import InputManager;
 
 #########################################################
 ## SCENE EDITOR
+
+class PropGrid:
+	def __init__(self):
+		self.size = (512, 512);
+		window_flag_list = [
+			imgui.WindowFlags_.no_saved_settings,
+			imgui.WindowFlags_.no_collapse,
+		];
+		self.window_flags = foldl(lambda a, b : a | b, 0, window_flag_list);
+		self.open = True;
+	
+	def io(self):
+		pass;
+	
+	def draw(self):
+		props = AssetManager.get_assets("prop");
+		row_size = 4;
+
+		imgui.set_next_window_size(self.size);
+		_, self.open = imgui.begin("Prop Grid", self.open, flags=self.window_flags);
+		if self.open:
+			for i in range(len(props)):
+				imgui.begin_group();
+				SpritePreview.draw_thumbnail(props[i]["sprite"], self.size[0]/row_size);
+				imgui.text(props[i]["name"]);
+				imgui.end_group();
+				imgui.same_line();
+
+				if i > 0 and i % row_size == 0 or i == len(props)-1:
+					imgui.new_line();
+			
+			self.size = imgui.get_window_size();
+			imgui.end();
 
 class SpawnHelper:
 	def spawn_layer():
@@ -240,7 +273,7 @@ class SceneEditor:
 				self.paste_prop(self.active_layer, self.canvas_grid.transform_point(self.canvas_io.cursor));
 	
 		if InputManager.is_pressed(glfw.KEY_F):
-			self.floor_painter = BackgroundPainter(self);
+			self.floor_painter = PropGrid();
 	
 	def gui_draw_prop(self, prop):
 		imgui.set_next_item_open(prop == self.highlight);
@@ -420,7 +453,7 @@ class SceneEditor:
 			imgui.end();
 		
 			if self.floor_painter != None:
-				self.floor_painter.render();
+				self.floor_painter.draw();
 		
 		if not self.open:
 			SceneEditor._ = None;
