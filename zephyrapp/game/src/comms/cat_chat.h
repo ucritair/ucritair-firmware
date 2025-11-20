@@ -23,7 +23,7 @@ typedef struct
 	uint64_t timestamp;
 } CAT_chat_msg;
 
-void CAT_chat_log_msg(uint32_t from, uint32_t to, uint8_t channel, char* text);
+void CAT_chat_log_msg(uint32_t from, uint32_t to, uint8_t channel, const char* text);
 
 void CAT_MS_chat(CAT_FSM_signal signal);
 void CAT_draw_chat();

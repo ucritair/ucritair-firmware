@@ -60,7 +60,16 @@ if $embedded ; then
 	cd ../build
 	make -j8
 	cd ../game
-else
+
+	if $wifi; then
+		cp ../build/zephyr/zephyr.signed.bin utils/build_cache/wifi.bin
+	elif $radio; then
+		cp ../build/zephyr/zephyr.signed.bin utils/build_cache/radio.bin
+	fi
+	cp ../build/zephyr/zephyr.signed.bin utils/build_cache/game.bin
+fi
+
+if [ ! $embedded ]  ; then
 	build/app
 fi
 

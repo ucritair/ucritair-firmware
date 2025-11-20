@@ -111,19 +111,31 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 							}
 						}
 
-						/*if(CAT_gui_menu_item("DEVCONNECT WIFI"))
+						if(CAT_is_wifi_connected())
 						{
-							for(int i = 0; i <= 4; i++)
+							if(CAT_gui_menu_item("AUTHENTICATE DEVICE"))
 							{
-								CAT_printf("Attempting auth mode %d\n", i);
-								wifi_status =
-								CAT_wifi_connect("Bring Argentina", "onchain25", i, 10000) ?
-								CAT_WIFI_CONNECTION_SUCCESS : CAT_WIFI_CONNECTION_FAILURE;
-								if(wifi_status == CAT_WIFI_CONNECTION_SUCCESS)
-									break;
+								msg_payload_zkp_authenticate_response_t response;
+								CAT_wifi_ZK_authenticate(&response, CAT_MINUTE_SECONDS * 10 * 1000);
 							}
-						}*/
-#endif
+						}
+
+						if(CAT_wifi_is_ZK_authenticated() && CAT_AQ_sensors_initialized())
+						{
+							if(CAT_gui_menu_item("UPLOAD LATEST DATA"))
+							{
+								uint32_t data[CAT_WIFI_DATUM_COUNT] = 
+								{
+									CAT_ZK_CO2(),
+									CAT_ZK_PM2_5(),
+									CAT_ZK_temp(),
+									CAT_ZK_stroop(),
+									CAT_ZK_survey()
+								};
+								CAT_wifi_send_data(data, CAT_WIFI_DATUM_COUNT, 120000);
+							}
+						}
+#endif						
 
 #if CAT_RADIO_ENABLED
 						if(CAT_AQ_sensors_initialized())
@@ -234,35 +246,8 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 					}
 
 #if CAT_WIFI_ENABLED | defined(CAT_DESKTOP)
-					if(CAT_gui_begin_menu("NETWORK"))
-					{
-						if(CAT_gui_menu_item("CONNECT"))
-							CAT_pushdown_push(CAT_MS_wifi);
-						if(CAT_is_wifi_connected())
-						{
-							if(CAT_gui_menu_item("AUTHENTICATE DEVICE"))
-							{
-								msg_payload_zkp_authenticate_response_t response;
-								CAT_wifi_ZK_authenticate(&response, CAT_MINUTE_SECONDS * 10 * 1000);
-							}
-						}
-						if(CAT_wifi_is_ZK_authenticated())
-						{
-							if(CAT_gui_menu_item("UPLOAD LATEST DATA"))
-							{
-								uint32_t data[CAT_WIFI_DATUM_COUNT] = 
-								{
-									CAT_ZK_CO2(),
-									CAT_ZK_PM2_5(),
-									CAT_ZK_temp(),
-									CAT_ZK_stroop(),
-									CAT_ZK_survey()
-								};
-								CAT_wifi_send_data(data, CAT_WIFI_DATUM_COUNT, 120000);
-							}
-						}
-						CAT_gui_end_menu();
-					}
+					if(CAT_gui_menu_item("NETWORK"))
+						CAT_pushdown_push(CAT_MS_wifi);
 #endif
 
 #ifdef CAT_EMBEDDED
@@ -295,13 +280,13 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 					if(CAT_gui_consume_popup())
 						CAT_shutdown();
 
-					if(CAT_gui_menu_toggle("ALWAYS AWAKE", persist_flags & CAT_PERSIST_CONFIG_FLAG_ETERNAL_WAKE, CAT_GUI_TOGGLE_STYLE_CHECKBOX))
+					/*if(CAT_gui_menu_toggle("ALWAYS AWAKE", persist_flags & CAT_PERSIST_CONFIG_FLAG_ETERNAL_WAKE, CAT_GUI_TOGGLE_STYLE_CHECKBOX))
 					{
 						if(persist_flags & CAT_PERSIST_CONFIG_FLAG_ETERNAL_WAKE)
 							persist_flags &= ~CAT_PERSIST_CONFIG_FLAG_ETERNAL_WAKE;
 						else
 							persist_flags |= CAT_PERSIST_CONFIG_FLAG_ETERNAL_WAKE;
-					}
+					}*/
 					
 					CAT_gui_end_menu();
 				}

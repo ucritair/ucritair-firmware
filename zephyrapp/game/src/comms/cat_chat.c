@@ -107,7 +107,7 @@ static CAT_chat_msg* fetch_msg(int idx)
 	return &in[CAT_wrap(in_rhead+idx, IN_CAPACITY)];
 }
 
-void CAT_chat_log_msg(uint32_t from, uint32_t to, uint8_t channel, char* text)
+void CAT_chat_log_msg(uint32_t from, uint32_t to, uint8_t channel, const char* text)
 {
 	static CAT_chat_msg out;
 	out.from = from;
@@ -454,13 +454,16 @@ void CAT_chat_RX_meowback(char* frame, uint16_t frame_size)
 				{
 					meshtastic_MeshPacket packet = from_radio.packet;
 
-					CAT_chat_log_msg
-					(
-						packet.from,
-						packet.to,
-						packet.channel,
-						packet.decoded.payload.bytes
-					);
+					if(packet.channel == 0)
+					{
+						CAT_chat_log_msg
+						(
+							packet.from,
+							packet.to,
+							packet.channel,
+							packet.decoded.payload.bytes
+						);
+					}
 
 					register_node(packet.from, "", "");
 
