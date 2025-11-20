@@ -3,8 +3,8 @@
 #include <stdint.h>
 
 #define CAT_RADIO_BROADCAST_ADDR 0xFFFFFFFF
-#define CAT_RADIO_TELEMETRY_PERIOD (CAT_MINUTE_SECONDS * 15)
-#define CAT_RADIO_TELEMETRY_CHANNEL 0
+#define CAT_RADIO_TELEMETRY_PERIOD (CAT_MINUTE_SECONDS * 5)
+#define CAT_RADIO_TELEMETRY_CHANNEL 2
 
 void CAT_radio_init();
 void CAT_radio_clear_buffer();
