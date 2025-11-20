@@ -722,7 +722,14 @@ static void MS_performance(CAT_FSM_signal signal)
 		case CAT_FSM_SIGNAL_TICK:
 		{
 			if(CAT_input_pressed(CAT_BUTTON_A) || CAT_input_dismissal())
+			{
+#if CAT_WIFI_ENABLED | defined(CAT_DESKTOP)
 				CAT_FSM_transition(&fsm, MS_survey);
+#else
+				CAT_FSM_transition(&fsm, NULL);
+#endif
+			}
+				
 		}			
 		break;
 

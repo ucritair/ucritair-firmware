@@ -100,6 +100,14 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 
 						if(CAT_gui_menu_item("COLOUR PICKER"))
 							CAT_pushdown_push(CAT_MS_colour_picker);
+
+						if(CAT_gui_menu_toggle("ALWAYS AWAKE", persist_flags & CAT_PERSIST_CONFIG_FLAG_ETERNAL_WAKE, CAT_GUI_TOGGLE_STYLE_CHECKBOX))
+						{
+							if(persist_flags & CAT_PERSIST_CONFIG_FLAG_ETERNAL_WAKE)
+								persist_flags &= ~CAT_PERSIST_CONFIG_FLAG_ETERNAL_WAKE;
+							else
+								persist_flags |= CAT_PERSIST_CONFIG_FLAG_ETERNAL_WAKE;
+						}
 						
 #if CAT_WIFI_ENABLED					
 						if(CAT_gui_menu_item("RP2350 BOOTLOADER"))
@@ -279,14 +287,6 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 						CAT_gui_open_popup("The device must be powered on via the reset button! This will clear important settings. Proceed?\n", CAT_POPUP_STYLE_YES_NO);
 					if(CAT_gui_consume_popup())
 						CAT_shutdown();
-
-					/*if(CAT_gui_menu_toggle("ALWAYS AWAKE", persist_flags & CAT_PERSIST_CONFIG_FLAG_ETERNAL_WAKE, CAT_GUI_TOGGLE_STYLE_CHECKBOX))
-					{
-						if(persist_flags & CAT_PERSIST_CONFIG_FLAG_ETERNAL_WAKE)
-							persist_flags &= ~CAT_PERSIST_CONFIG_FLAG_ETERNAL_WAKE;
-						else
-							persist_flags |= CAT_PERSIST_CONFIG_FLAG_ETERNAL_WAKE;
-					}*/
 					
 					CAT_gui_end_menu();
 				}

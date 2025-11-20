@@ -85,7 +85,7 @@ void CAT_radio_poll_RX(CAT_radio_RX_callback meowback)
 void CAT_radio_telemetry_TX()
 {
 	static char buffer[512];
-	CAT_printf(MODULE_PREFIX "TXing telemetry data\n");
+	CAT_printf(MODULE_PREFIX "TXing telemetry data on channel %d\n", CAT_RADIO_TELEMETRY_CHANNEL);
 #ifdef CAT_RADIO_ENABLED
 	snprintf
 	(
@@ -96,5 +96,6 @@ void CAT_radio_telemetry_TX()
 		readings.sen5x.pm10_0
 	);
 	mt_send_text(buffer, CAT_RADIO_BROADCAST_ADDR, CAT_RADIO_TELEMETRY_CHANNEL);
+	CAT_msleep(100);
 #endif
 }

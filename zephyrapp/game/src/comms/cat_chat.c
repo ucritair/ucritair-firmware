@@ -430,6 +430,34 @@ void CAT_chat_TX(const char* text, uint32_t address, uint8_t channel)
 #endif
 }
 
+static const char* const which_payload_variant_name[] =
+{
+	NULL,
+	"meshtastic_FromRadio_id_tag",
+	"meshtastic_FromRadio_packet_tag",
+	"meshtastic_FromRadio_my_info_tag",
+	"meshtastic_FromRadio_node_info_tag",
+	"meshtastic_FromRadio_config_tag",
+	"meshtastic_FromRadio_log_record_tag",
+	"meshtastic_FromRadio_config_complete_id_tag",
+	"meshtastic_FromRadio_rebooted_tag",
+	"meshtastic_FromRadio_moduleConfig_tag",
+	"meshtastic_FromRadio_channel_tag",
+	"meshtastic_FromRadio_queueStatus_tag",
+	"meshtastic_FromRadio_xmodemPacket_tag",
+	"meshtastic_FromRadio_metadata_tag",
+	"meshtastic_FromRadio_mqttClientProxyMessage_tag",
+	"meshtastic_FromRadio_fileInfo_tag",
+	"meshtastic_FromRadio_clientNotification_tag",
+	"meshtastic_FromRadio_deviceuiConfig_tag"
+};
+static const char* get_payload_name(int payload_variant)
+{
+	if(payload_variant <= 0 || payload_variant >= 18)
+		return "N/A";
+	return which_payload_variant_name[payload_variant];
+}
+
 void CAT_chat_RX_meowback(char* frame, uint16_t frame_size)
 {
 #if CAT_RADIO_ENABLED
@@ -442,7 +470,17 @@ void CAT_chat_RX_meowback(char* frame, uint16_t frame_size)
 		CAT_printf(MODULE_PREFIX "Failed to decode message");
 		return;
 	}
-	CAT_printf(MODULE_PREFIX "Received payload variant %d\n", from_radio.which_payload_variant);
+
+	CAT_printf
+	(
+		MODULE_PREFIX "Decoded message:\n"
+		"Message variant: %s\n"
+		"Portnum: %d\n"
+		"Channel: %d\n",
+		get_payload_name(from_radio.which_payload_variant),
+		from_radio.packet.decoded.portnum,
+		from_radio.packet.channel
+	);
 
 	switch (from_radio.which_payload_variant)
 	{
@@ -450,36 +488,50 @@ void CAT_chat_RX_meowback(char* frame, uint16_t frame_size)
 		{
 			if (from_radio.packet.which_payload_variant == meshtastic_MeshPacket_decoded_tag)
 			{
-				if (from_radio.packet.decoded.portnum == meshtastic_PortNum_TEXT_MESSAGE_APP)
+				switch(from_radio.packet.decoded.portnum)
 				{
-					meshtastic_MeshPacket packet = from_radio.packet;
-
-					if(packet.channel == 0)
+					case meshtastic_PortNum_TEXT_MESSAGE_APP:
 					{
-						CAT_chat_log_msg
+						meshtastic_MeshPacket packet = from_radio.packet;
+
+						if(packet.channel == 0)
+						{
+							CAT_chat_log_msg
+							(
+								packet.from,
+								packet.to,
+								packet.channel,
+								packet.decoded.payload.bytes
+							);
+						}
+
+						register_node(packet.from, "", "");
+
+						CAT_printf
 						(
+							MODULE_PREFIX "Received text message:\n"
+							"From: 0x%02X\n"
+							"To: 0x%02X\n"
+							"Channel: %d\n"
+							"Message: %s\n",
 							packet.from,
 							packet.to,
 							packet.channel,
 							packet.decoded.payload.bytes
 						);
 					}
+					break;
 
-					register_node(packet.from, "", "");
-
-					CAT_printf
-					(
-						MODULE_PREFIX "Received text message:\n"
-						"From: 0x%02X\n"
-						"To: 0x%02X\n"
-						"Channel: %d\n"
-						"Message: %s\n",
-						packet.from,
-						packet.to,
-						packet.channel,
-						packet.decoded.payload.bytes
-					);
+					case meshtastic_PortNum_TELEMETRY_APP:
+					{
+						CAT_printf(MODULE_PREFIX "Received telemetry payload\n");
+					}
+					break;
 				}
+			}
+			else
+			{
+				CAT_printf(MODULE_PREFIX "Message payload is encrypted\n");
 			}
 		}
 		break;

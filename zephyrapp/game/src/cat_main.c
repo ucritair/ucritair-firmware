@@ -20,7 +20,7 @@
 
 #include "sprite_assets.h"
 
-static uint64_t telemetry_tx_timestamp = 0;
+// static uint64_t telemetry_tx_timestamp = 0;
 
 void CAT_init()
 {
@@ -33,7 +33,9 @@ void CAT_init()
 	CAT_radio_clear_buffer();
 	CAT_radio_start_modem();
 	CAT_radio_add_chanels();
-	telemetry_tx_timestamp = CAT_get_RTC_now() - CAT_rand_int(0, CAT_MINUTE_SECONDS * 10);
+
+	/*if(telemetry_tx_timestamp == 0)
+		telemetry_tx_timestamp = CAT_get_RTC_now() - CAT_rand_int(0, CAT_RADIO_TELEMETRY_PERIOD * 0.75f);*/
 	
 	CAT_input_init();
 	CAT_rand_seed();
@@ -66,12 +68,11 @@ void CAT_tick_logic()
 	CAT_AQ_tick();
 	CAT_AQ_crisis_tick();
 
-	if(CAT_AQ_sensors_initialized() && (CAT_get_RTC_now() - telemetry_tx_timestamp) > CAT_RADIO_TELEMETRY_PERIOD)
+	/*if(CAT_AQ_sensors_initialized() && (CAT_get_RTC_now() - telemetry_tx_timestamp) > CAT_RADIO_TELEMETRY_PERIOD)
 	{
 		CAT_radio_telemetry_TX();
-		CAT_msleep(100);
 		telemetry_tx_timestamp = CAT_get_RTC_now();
-	}
+	}*/
 
 	CAT_animator_tick();
 	CAT_room_tick();
@@ -116,7 +117,6 @@ void CAT_draw_eink_refresh_notice()
 	CAT_set_text_colour(CAT_WHITE);
 	CAT_draw_text(CAT_LCD_SCREEN_W/2, CAT_LCD_SCREEN_H-36, "PLEASE WAIT");
 }
-
 
 void CAT_draw_splash()
 {

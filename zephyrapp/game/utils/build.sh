@@ -63,13 +63,19 @@ if $embedded ; then
 
 	if $wifi; then
 		cp ../build/zephyr/zephyr.signed.bin utils/build_cache/wifi.bin
+		echo "[BUILD] Cached WiFi build"
 	elif $radio; then
 		cp ../build/zephyr/zephyr.signed.bin utils/build_cache/radio.bin
+		echo "[BUILD] Cached radio build"
+	else
+		cp ../build/zephyr/zephyr.signed.bin utils/build_cache/standard.bin
+		echo "[BUILD] Cached standard build"
 	fi
-	cp ../build/zephyr/zephyr.signed.bin utils/build_cache/game.bin
+	cp ../build/zephyr/zephyr.signed.bin utils/build_cache/latest.bin
+	echo "[BUILD] Cached latest build"
 fi
 
-if [ ! $embedded ]  ; then
+if ! $embedded; then
 	build/app
 fi
 

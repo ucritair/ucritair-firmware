@@ -5,25 +5,27 @@ import os;
 import pathlib as pl;
 import multiprocessing as mp;
 
-args = sys.argv[1:];
-wifi = "--wifi" in args;
-radio = "--radio" in args;
-
-image = "utils/build_cache/game.bin"
-if wifi:
-	image = "utils/build_cache/wifi.bin"
-elif radio:
-	image = "utils/build_cache/radio.bin"
-
-print(f"Using image: {image}");
-
-def flash_proc(serial, serial_list):
-	print(f"Flashing game to {serial}...");
+def flash_proc(image, serial, serial_list):
+	print(f"Flashing {image} to {serial}...");
 	os.popen(f"sudo dfu-util --serial={serial} --download {image} --reset").read();
 	serial_list.remove(serial);
 	print("Done!");
 
 if __name__ == '__main__':
+
+	args = sys.argv[1:];
+	wifi = "--wifi" in args;
+	radio = "--radio" in args;
+	standard = "--standard" in args;
+
+	image = "utils/build_cache/latest.bin"
+	if wifi:
+		image = "utils/build_cache/wifi.bin"
+	elif radio:
+		image = "utils/build_cache/radio.bin"
+	elif standard:
+		image = "utils/build_cache/standard.bin"
+
 	try:
 		mp.freeze_support();
 
@@ -47,7 +49,7 @@ if __name__ == '__main__':
 				if not serial in serial_list:
 					print(f"Discovered {serial}");
 					serial_list.append(serial);
-					proc = mp.Process(target=flash_proc, args=(serial, serial_list));
+					proc = mp.Process(target=flash_proc, args=(image, serial, serial_list));
 					proc.start();
 					proc_list.append(proc);
 	
