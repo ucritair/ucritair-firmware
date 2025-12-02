@@ -30,6 +30,7 @@ done
 if $clean; then
 	trash ../build
 	trash build
+	trash utils/build_cache
 fi
 
 # DESKTOP
@@ -40,6 +41,9 @@ if [ ! -f build/makefile ]; then
 	cd build
 	cmake ..
 	cd ..
+fi
+if [ ! -d utils/build_cache ]; then
+	mkdir utils/build_cache
 fi
 
 cd build
