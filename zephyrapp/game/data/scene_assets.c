@@ -709,6 +709,13 @@ const CAT_scene test_scene = {
 					.disabled = false,
 				},
 				{
+					.prop = &luz_prop,
+					.position_x = -20.0,
+					.position_y = -21.0,
+					.variant = -1,
+					.disabled = false,
+				},
+				{
 					.prop = &node_stone_prop,
 					.position_x = 4.0,
 					.position_y = -18.0,
@@ -1024,6 +1031,13 @@ const CAT_scene test_scene = {
 					.disabled = false,
 				},
 				{
+					.prop = &guanaco_prop,
+					.position_x = 5.0,
+					.position_y = 7.0,
+					.variant = -1,
+					.disabled = false,
+				},
+				{
 					.prop = &node_grass_prop,
 					.position_x = 14.0,
 					.position_y = 10.0,
@@ -1087,7 +1101,7 @@ const CAT_scene test_scene = {
 					.disabled = false,
 				},
 			},
-			.prop_count = 58,
+			.prop_count = 60,
 		},
 	},
 	.layer_count = 1,

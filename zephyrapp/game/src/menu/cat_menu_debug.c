@@ -12,19 +12,19 @@
 #include "cat_crisis.h"
 #include "cat_persist.h"
 #include "cat_time.h"
+#include "cat_save.h"
+#include "cat_wifi.h"
 
-static enum
+enum
 {
 	SYSTEM,
 	TIME,
-	DECO,
-	INPUT,
 	AQI,
-	PERSIST,
 	LOGS,
+	NETWORK,
 	LAST
 };
-int page = SYSTEM;
+static int page = SYSTEM;
 
 void CAT_MS_debug(CAT_FSM_signal signal)
 {
@@ -49,150 +49,161 @@ void CAT_MS_debug(CAT_FSM_signal signal)
 	}
 }
 
+#define PAD 8
+static int cursor_x = PAD;
+static int cursor_y = PAD;
+
+static void draw_page(const char* title)
+{
+	cursor_x = PAD;
+	cursor_y = PAD;
+
+	CAT_frameberry(CAT_WHITE);
+	cursor_y = CAT_draw_textf(cursor_x, cursor_y, "%s\n", title);
+	cursor_y += PAD;
+	CAT_rowberry(cursor_y, cursor_y+1, CAT_BLACK);
+	cursor_y += PAD;
+}
+
 void CAT_render_debug()
 {
 	switch(page)
 	{
 		case SYSTEM:
-			CAT_gui_title(true, "SYSTEM");
-			CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
-			
-			CAT_gui_textf
+		{
+			draw_page("< SYSTEM >");
+
+			cursor_y = CAT_draw_textf
 			(
+				cursor_x, cursor_y,
 				"Game v%d.%d.%d.%d\n",
 				CAT_VERSION_MAJOR, CAT_VERSION_MINOR,
 				CAT_VERSION_PATCH, CAT_VERSION_PUSH
 			);
 			
-#define TOSTRING_INNER(x) #x
-#define TOSTRING(x) TOSTRING_INNER(x)
 #if defined(CAT_DESKTOP)
-			CAT_gui_text("DESKTOP\n");
-#elif defined(CAT_EMBEDDED)
-			CAT_gui_text("EMBEDDED\n");
+			cursor_y = CAT_draw_text(cursor_x, cursor_y, "[Desktop]\n");
+#endif
+#if defined(CAT_EMBEDDED)
+			cursor_y = CAT_draw_text(cursor_x, cursor_y, "[Embedded]\n");
+#endif
+#if CAT_PRIORITIZE_AQ
+			cursor_y = CAT_draw_text(cursor_x, cursor_y, "[AQ First]\n");
+#endif
+#if CAT_RADIO_ENABLED
+			cursor_y = CAT_draw_text(cursor_x, cursor_y, "[Radio Enabled]\n");
+#endif
+#if CAT_WIFI_ENABLED
+			cursor_y = CAT_draw_text(cursor_x, cursor_y, "[WiFi Enabled]\n");
 #endif
 
-			if(CAT_check_config_flags(CAT_SAVE_CONFIG_FLAG_DEVELOPER))
-				CAT_gui_text("DEVELOPER MODE\n");
-			if(is_persist_fresh)
-				CAT_gui_text("PERSIST RESET\n");
 
-			CAT_gui_textf("DEBUG NUMBER: %d\n", CAT_get_debug_number());
+			if(CAT_check_config_flags(CAT_SAVE_CONFIG_FLAG_DEVELOPER))
+				cursor_y = CAT_draw_text(cursor_x, cursor_y, "[Developer mode]\n");
+
+			cursor_y = CAT_draw_textf(cursor_x, cursor_y, "Debug number: %d\n", CAT_get_debug_number());
+		}
 		break;
 		
 		case TIME:
-			CAT_gui_title(true, "TIME");
-			CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
+		{
+			draw_page("< TIME >");
 
 			CAT_datetime today;
 			CAT_get_datetime(&today);
-			CAT_gui_textf("%.2d/%.2d/%.4d %.2d:%.2d:%.2d\n", today.month, today.day, today.year, today.hour, today.minute, today.second);
+			cursor_y = CAT_draw_textf
+			(
+				cursor_x, cursor_y,
+				"%.2d/%.2d/%.4d %.2d:%.2d:%.2d\n",
+				today.month, today.day, today.year, today.hour, today.minute, today.second
+			);
 
-			CAT_pet_timing_state pet_timing;
-			CAT_pet_export_timing_state(&pet_timing);
-			
-			CAT_make_datetime(pet_timing.last_life_time, &today);
-			CAT_gui_textf("Life: %d/%d/%d %d:%d:%d\n", today.year, today.month, today.day, today.hour, today.minute, today.second);
-			CAT_make_datetime(pet_timing.last_stat_time, &today);
-			CAT_gui_textf("Stat: %d/%d/%d %d:%d:%d\n", today.year, today.month, today.day, today.hour, today.minute, today.second);
+			CAT_make_datetime(pet_timing_state.last_life_time, &today);
+			cursor_y = CAT_draw_textf
+			(
+				cursor_x, cursor_y,
+				"Life: %d/%d/%d %d:%d:%d\n",
+				today.year, today.month, today.day, today.hour, today.minute, today.second
+			);
+			CAT_make_datetime(pet_timing_state.last_stat_time, &today);
+			cursor_y = CAT_draw_textf
+			(
+				cursor_x, cursor_y,
+				"Stat: %d/%d/%d %d:%d:%d\n",
+				today.year, today.month, today.day, today.hour, today.minute, today.second
+			);
 
 			uint64_t now = CAT_get_RTC_now();
-			CAT_gui_textf("Since Life: %llus/%ds\n", now-pet_timing.last_life_time, CAT_LIFE_TICK_PERIOD);
-			CAT_gui_textf("Since Stat: %llus/%ds\n", now-pet_timing.last_stat_time, CAT_STAT_TICK_PERIOD);
+			cursor_y = CAT_draw_textf(cursor_x, cursor_y, "Since Life: %llus/%ds\n", now-pet_timing_state.last_life_time, CAT_LIFE_TICK_PERIOD);
+			cursor_y = CAT_draw_textf(cursor_x, cursor_y, "Since Stat: %llus/%ds\n", now-pet_timing_state.last_stat_time, CAT_STAT_TICK_PERIOD);
 
-			CAT_gui_textf("Slept: %llus\n", CAT_get_slept_s());
-
-		break;
-
-		case DECO:
-			CAT_gui_title(true, "DECO");
-			CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
-			for(int y = 0; y < CAT_ROOM_GRID_H; y++)
-			{
-				for(int x = 0; x < CAT_ROOM_GRID_W; x++)
-				{
-					if(CAT_room_is_cell_free(x, y))
-						CAT_strokeberry(gui.cursor.x, gui.cursor.y, 8, 8, CAT_BLACK);
-					else
-						CAT_fillberry(gui.cursor.x, gui.cursor.y, 8, 8, CAT_BLACK);
-					gui.cursor.x += 8;
-				}
-				gui.cursor.x = gui.margin;
-				gui.cursor.y += 8;
-			}
-		break;
-
-		case INPUT:
-		{
-			CAT_gui_title(true, "INPUT");
-			CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
-
-			CAT_gui_textf("Downtime: %d\n", (int) CAT_input_downtime());
-
-			CAT_gui_textf("Touching: %s\n", CAT_input_touching() ? "Y" : "N");
-			if(CAT_input_touching())
-			{
-				int x, y;
-				CAT_input_cursor(&x, &y);
-				CAT_gui_textf("(%d, %d)\n", x, y);
-			}
+			cursor_y = CAT_draw_textf(cursor_x, cursor_y, "Slept: %llus\n", CAT_get_slept_s());
 		}
 		break;
 
 		case AQI:
 		{
-			CAT_gui_title(true, "AQI");
-			CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
+			draw_page("< AIR QUALITY >");
 
-			if(CAT_logs_initialized())
-				CAT_gui_textf("Logs initialized (%d)\n", CAT_get_log_cell_count());
 			if(CAT_AQ_sensors_initialized())
-				CAT_gui_text("Sensors initialized\n");
+				cursor_y = CAT_draw_text(cursor_x, cursor_y, "Sensors initialized\n");
 
-			CAT_gui_textf("RH: " CAT_FLOAT_FMT "\n", CAT_FMT_FLOAT(readings.sen5x.humidity_rhpct));
-			CAT_gui_textf("CO2: " CAT_FLOAT_FMT "\n", CAT_FMT_FLOAT(readings.sunrise.ppm_filtered_compensated));
-			CAT_gui_textf("PM: " CAT_FLOAT_FMT "\n", CAT_FMT_FLOAT(readings.sen5x.pm2_5));
-			CAT_gui_textf("NOX: " CAT_FLOAT_FMT "\n", CAT_FMT_FLOAT(readings.sen5x.nox_index));
-			CAT_gui_textf("VOC: " CAT_FLOAT_FMT "\n", CAT_FMT_FLOAT(readings.sen5x.voc_index));
-			CAT_gui_textf("TMP: " CAT_FLOAT_FMT "%s\n", CAT_FMT_FLOAT(CAT_AQ_map_celsius(readings.lps22hh.temp)), CAT_AQ_get_temperature_unit_string());
-			CAT_gui_textf("AQI: " CAT_FLOAT_FMT "\n", CAT_FMT_FLOAT(CAT_AQ_aggregate_score()));
-		}
-		break;
-
-		case PERSIST:
-		{
-			CAT_gui_title(true, "PERSIST");
-			CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
-
-			CAT_datetime life;
-			CAT_make_datetime(pet_timing_state.last_life_time, &life);
-			CAT_gui_textf("Life: %d %d %d\n", life.year, life.month, life.day);
+			cursor_y = CAT_draw_textf(cursor_x, cursor_y, "RH: " CAT_FLOAT_FMT "\n", CAT_FMT_FLOAT(readings.sen5x.humidity_rhpct));
+			cursor_y = CAT_draw_textf(cursor_x, cursor_y, "CO2: " CAT_FLOAT_FMT "\n", CAT_FMT_FLOAT(readings.sunrise.ppm_filtered_compensated));
+			cursor_y = CAT_draw_textf(cursor_x, cursor_y, "PM: " CAT_FLOAT_FMT "\n", CAT_FMT_FLOAT(readings.sen5x.pm2_5));
+			cursor_y = CAT_draw_textf(cursor_x, cursor_y, "NOX: " CAT_FLOAT_FMT "\n", CAT_FMT_FLOAT(readings.sen5x.nox_index));
+			cursor_y = CAT_draw_textf(cursor_x, cursor_y, "VOC: " CAT_FLOAT_FMT "\n", CAT_FMT_FLOAT(readings.sen5x.voc_index));
+			cursor_y = CAT_draw_textf(cursor_x, cursor_y, "TMP: " CAT_FLOAT_FMT "%s\n", CAT_FMT_FLOAT(CAT_AQ_map_celsius(readings.lps22hh.temp)), CAT_AQ_get_temperature_unit_string());
+			cursor_y = CAT_draw_textf(cursor_x, cursor_y, "AQI: " CAT_FLOAT_FMT "\n", CAT_FMT_FLOAT(CAT_AQ_aggregate_score()));
 		}
 		break;
 
 		case LOGS:
 		{
-			CAT_gui_title(true, "LOGS");
-			CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
+			draw_page("< LOGS >");
 
-			CAT_gui_textf("Next log index: %d\n", CAT_get_log_cell_count());
+			if(CAT_AQ_sensors_initialized())
+				cursor_y = CAT_draw_text(cursor_x, cursor_y, "Logs initialized\n");
+
+			cursor_y = CAT_draw_textf(cursor_x, cursor_y, "Log count: %d\n", CAT_get_log_cell_count());
 			
 			CAT_log_cell cell;
 			int cell_idx = CAT_read_first_calendar_cell(&cell);
-			CAT_gui_textf("First valid log index: %d\n", cell_idx);
+			cursor_y = CAT_draw_textf(cursor_x, cursor_y, "Earliest log: %d\n", cell_idx);
+
 			CAT_datetime cell_time;
 			CAT_make_datetime(cell.timestamp, &cell_time);
-			CAT_gui_textf("(%.4d/%.2d/%.2d)\n", cell_time.year, cell_time.month, cell_time.day);
-			CAT_gui_textf("%d %d %d %d\n", cell.temp_Cx1000/1000, cell.co2_ppmx1, cell.voc_index, cell.nox_index);
+			cursor_y = CAT_draw_textf
+			(
+				cursor_x, cursor_y,
+				"(%.4d/%.2d/%.2d)\n",
+				cell_time.year, cell_time.month, cell_time.day
+			);
+		}
+		break;
+
+		case NETWORK:
+		{
+			draw_page("< NETWORK >");
+
+			if(CAT_is_wifi_connected())
+			{
+				CAT_set_text_mask(PAD, -1, CAT_LCD_SCREEN_W-12, -1);
+				CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
+				cursor_y = CAT_draw_textf(cursor_x, cursor_y, "Connected to WiFi network %s\n", CAT_get_wifi_SSID());
+			}
+			else
+			{
+				CAT_set_text_mask(PAD, -1, CAT_LCD_SCREEN_W-12, -1);
+				CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
+				cursor_y = CAT_draw_textf(cursor_x, cursor_y, "Device is not connected to WiFi\n");
+			}
 		}
 		break;
 
 		default:
 		{
-			CAT_gui_title(true, "LAST");
-			CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
-			CAT_gui_set_flag(CAT_GUI_FLAG_WRAPPED);
-			CAT_gui_text("You shouldn't be here");
+			draw_page("INVALID");
 			break;
 		}
 	}	

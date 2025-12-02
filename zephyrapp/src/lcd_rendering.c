@@ -26,9 +26,8 @@ LOG_MODULE_REGISTER(lcd_rendering, LOG_LEVEL_DBG);
 #include "cat_pet.h"
 #include "cat_room.h"
 #include "menu_system.h"
-
-
-extern char font8x8_basic[128][8];
+#include "cat_spriter.h"
+#include "sprite_assets.h"
 
 void lcd_write_char(uint16_t color, int x, int y, char c)
 {
@@ -38,7 +37,8 @@ void lcd_write_char(uint16_t color, int x, int y, char c)
 	{
 		for (int by = 0; by < 8; by++)
 		{
-			if (font8x8_basic[(int)c][by] & (1<<bx))
+			bool px = CAT_tinysprite_read(&tnyspr_glyphs, bx, c * 8 + by);
+			if (px)
 			{
 				const int scale = 1;
 
@@ -70,7 +70,7 @@ void lcd_write_str(uint16_t color, int x, int y, char* str)
 		if ((*str) == '\n')
 		{
 			x = ox;
-			y += 8;
+			y += 9;
 		}
 		str++;
 	}
@@ -175,7 +175,7 @@ void lcd_render_diag()
 
 		int time_since_buttons = now_ms - last_button_pressed;
 
-		if (time_since_buttons > sleep_after_seconds*1000)
+		if (time_since_buttons > sleep_after_seconds*1000 && !(persist_flags & CAT_PERSIST_CONFIG_FLAG_ETERNAL_WAKE))
 		{
 			if (!is_charging)
 			{
@@ -190,7 +190,7 @@ void lcd_render_diag()
 				// set_backlight(MAX(10, screen_brightness>>2));
 			}
 		}
-		else if (time_since_buttons > dim_after_seconds*1000)
+		else if (time_since_buttons > dim_after_seconds*1000 && !(persist_flags & CAT_PERSIST_CONFIG_FLAG_ETERNAL_WAKE))
 		{
 			set_backlight(MAX(10, screen_brightness>>1));
 		}
@@ -299,11 +299,8 @@ void lcd_render_diag()
 		if(CAT_poll_eink_update_flag())
 			CAT_eink_execute_update();
 
-		int battery = CAT_get_battery_pct();
-		if (battery == 0)
+		if (CAT_get_battery_pct() == 0)
        		CAT_shutdown();
-		else if(battery <= 10)
-			epaper_render_protected_off();
 
 		if((k_uptime_get() - last_flash_log) > (sensor_wakeup_period*1000) && is_ready_for_aqi_logging())
 		{

@@ -86,7 +86,6 @@ void CAT_strokeberry(int xi, int yi, int w, int h, uint16_t c);
 void CAT_pixberry(int x, int y, uint16_t c);
 void CAT_circberry(int x, int y, int r, uint16_t c);
 void CAT_discberry(int x, int y, int r, uint16_t c);
-void CAT_annulusberry(int x, int y, int R, int r, uint16_t c, float t, float shift);
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -133,13 +132,13 @@ bool CAT_anim_is_ending(CAT_anim_machine* machine);
 
 #define CAT_DRAW_QUEUE_MAX_LENGTH 256
 
-enum CAT_sprite_layers
+typedef enum 
 {
 	BG_LAYER,
 	STATICS_LAYER,
 	PROPS_LAYER,
 	GUI_LAYER
-};
+} CAT_draw_layers;
 
 typedef struct CAT_draw_job
 {

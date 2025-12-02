@@ -316,16 +316,22 @@ int CAT_draw_text(int x, int y, const char* text)
 	return cursor_y;
 }
 
-static char draw_textf_buffer[512];
+static size_t last_strlen = 0;
 
 int CAT_draw_textf(int x, int y, const char* fmt, ...)
 {
+	static char buffer[512];
 	va_list args;
 	va_start(args, fmt);
-	vsnprintf(draw_textf_buffer, sizeof(draw_textf_buffer), fmt, args);
+	vsnprintf(buffer, sizeof(buffer), fmt, args);
 	va_end(args);
+	last_strlen = strlen(buffer);
+	return CAT_draw_text(x, y, buffer);
+}
 
-	return CAT_draw_text(x, y, draw_textf_buffer);
+size_t CAT_get_drawn_strlen()
+{
+	return last_strlen;
 }
 
 const char* CAT_fmt_float(float f)

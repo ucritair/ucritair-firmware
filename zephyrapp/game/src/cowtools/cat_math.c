@@ -23,6 +23,13 @@ int quantize(float t, float range, int steps)
 	return CAT_clamp(roundf((t / range) * (float) (steps - 1)), 0, steps - 1);
 }
 
+uint32_t CAT_f2u32(float f)
+{
+	uint32_t u;
+	memcpy(&u, &f, sizeof(u));
+	return u;
+}
+
 
 //////////////////////////////////////////////////////////////////////////
 // RANDOM
@@ -35,16 +42,6 @@ void CAT_rand_seed()
 float CAT_rand_uniform()
 {
 	return rand() / (float) RAND_MAX;
-}
-
-int CAT_rand_die(int N)
-{
-	return CAT_rand_uniform() * N;
-}
-
-int CAT_rand_coin(float p)
-{
-	return CAT_rand_uniform() < p;
 }
 
 int CAT_rand_int(int a, int b)
@@ -156,154 +153,6 @@ int CAT_ivec2_mag2(CAT_ivec2 a)
 float CAT_ivec2_dist2(CAT_ivec2 a, CAT_ivec2 b)
 {
 	return CAT_ivec2_mag2(CAT_ivec2_sub(b, a));
-}
-
-
-//////////////////////////////////////////////////////////////////////////
-// COLLISION
-
-CAT_rect CAT_rect_place(CAT_ivec2 start, CAT_ivec2 shape)
-{
-	return (CAT_rect) {start, CAT_ivec2_add(start, shape)};
-}
-
-bool CAT_rect_overlaps(CAT_rect a, CAT_rect b)
-{
-	if(a.min.x >= b.max.x || a.max.x <= b.min.x)
-		return false;
-	if(a.min.y >= b.max.y || a.max.y <= b.min.y)
-		return false;
-	return true;
-}
-
-bool CAT_rect_contains(CAT_rect a, CAT_rect b)
-{
-	if(b.min.x < a.min.x || b.max.x > a.max.x)
-		return false;
-	if(b.min.y < a.min.y || b.max.y > a.max.y)
-		return false;
-	return true;
-}
-
-CAT_rect CAT_rect_center(int x, int y, int w, int h)
-{
-	CAT_rect rect;
-	rect.min.x = x - w/2;
-	rect.min.y = y - h/2;
-	rect.max.x = x + w/2;
-	rect.max.y = y + h/2;
-	return rect;
-}
-
-CAT_rect CAT_rect_overlap(CAT_rect a, CAT_rect b)
-{
-	return (CAT_rect)
-	{
-		{ CAT_max(a.min.x, b.min.x), CAT_max(a.min.y, b.min.y) },
-		{ CAT_min(a.max.x, b.max.x), CAT_min(a.max.y, b.max.y) }
-	};
-}
-
-
-//////////////////////////////////////////////////////////////////////////
-// POLYGON RENDERING
-
-CAT_vec4 CAT_matvec_mul(CAT_mat4 M, CAT_vec4 v)
-{
-	return (CAT_vec4)
-	{
-		M.data[0] * v.x + M.data[1] * v.y + M.data[2] * v.z + M.data[3] * v.w,
-		M.data[4] * v.x + M.data[5] * v.y + M.data[6] * v.z + M.data[7] * v.w,
-		M.data[8] * v.x + M.data[9] * v.y + M.data[10] * v.z + M.data[11] * v.w,
-		M.data[12] * v.x + M.data[13] * v.y + M.data[14] * v.z + M.data[15] * v.w
-	};
-}
-
-void CAT_perspdiv(CAT_vec4* v)
-{
-	v->x /= v->w;
-	v->y /= v->w;
-	v->z /= v->w;
-	v->w /= v->w;
-}
-
-CAT_vec4 CAT_vec4_cross(CAT_vec4 u, CAT_vec4 v)
-{
-	return (CAT_vec4) {u.y * v.z - u.z * v.y, u.z * v.x - u.x * v.z, u.x * v.y - u.y * v.x, 0.0f};
-}
-
-float CAT_vec4_dot(CAT_vec4 u, CAT_vec4 v)
-{
-	return u.x * v.x + u.y * v.y + u.z * v.z + u.w * v.w;
-}
-
-CAT_vec4 CAT_vec4_sub(CAT_vec4 u, CAT_vec4 v)
-{
-	return (CAT_vec4) {u.x - v.x, u.y - v.y, u.z - v.z, u.w - v.w};
-}
-
-CAT_vec4 CAT_vec4_normalize(CAT_vec4 v)
-{
-	float len = sqrtf(v.x * v.x + v.y * v.y + v.z * v.z + v.w * v.w);
-	float s = 1.0f / len;
-	return (CAT_vec4) {v.x * s, v.y * s, v.z * s, v.w * s};
-}
-
-CAT_mat4 CAT_matmul(CAT_mat4 A, CAT_mat4 B)
-{
-	CAT_mat4 C;
-	for(int i = 0; i < 4; i++)
-	{
-		for(int j = 0; j < 4; j++)
-		{
-			C.data[i * 4 + j] =
-			A.data[i * 4 + 0] * B.data[0 * 4 + j] +
-			A.data[i * 4 + 1] * B.data[1 * 4 + j] +
-			A.data[i * 4 + 2] * B.data[2 * 4 + j] +
-			A.data[i * 4 + 3] * B.data[3 * 4 + j];
-		}
-	}
-	return C;
-}
-
-CAT_mat4 CAT_rotmat(float x, float y, float z)
-{
-	CAT_mat4 X =
-	{
-		1, 0, 0, 0,
-		0, cosf(x), -sinf(x), 0,
-		0, sinf(x), cosf(x), 0,
-		0, 0, 0, 1
-	};
-
-	CAT_mat4 Y =
-	{
-		cosf(y), 0, sinf(y), 0,
-		0, 1, 0, 0,
-		-sinf(y), 0, cosf(y), 0,
-		0, 0, 0, 1
-	};
-
-	CAT_mat4 Z =
-	{
-		cosf(z), -sinf(z), 0, 0,
-		sinf(z), cosf(z), 0, 0,
-		0, 0, 1, 0,
-		0, 0, 0, 1
-	};
-
-	return CAT_matmul(Z, CAT_matmul(Y, X));
-}
-
-bool CAT_is_clipped(CAT_vec4 v)
-{
-	if(v.x < -v.w || v.x > v.w)
-		return true;
-	if(v.y < -v.w || v.y > v.w)
-		return true;
-	if(v.z < 0 || v.z > v.w)
-		return true;
-	return false;
 }
 
 
@@ -443,7 +292,7 @@ void CAT_WRS_end()
 {
 	for(int i = 0; i < wrs_count; i++)
 	{
-		int j = CAT_rand_die(wrs_count);
+		int j = CAT_rand_int(0, wrs_count-1);
 		WRS_swap(i, j);
 	}
 }
@@ -499,12 +348,15 @@ bool CAT_rect_point_touching(int x0, int y0, int x1, int y1, int x, int y)
 	return true;
 }
 
-int CAT_i2_dot(int ax, int ay, int bx, int by)
+void CAT_rect_overlap
+(
+	int x00, int y00, int x01, int y01,
+	int x10, int y10, int x11, int y11,
+	int* x0_out, int* y0_out, int* x1_out, int* y1_out
+)
 {
-	return ax*bx + ay*by;
-}
-
-int CAT_i2_cross(int ax, int ay, int bx, int by)
-{
-	return ax*by - ay*bx;
+	*x0_out = CAT_max(x00, x10);
+	*y0_out = CAT_max(y00, y10);
+	*x1_out = CAT_min(x01, x11);
+	*y1_out = CAT_min(y01, y11);
 }

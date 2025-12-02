@@ -129,122 +129,109 @@ void CAT_MS_time(CAT_FSM_signal signal)
 	}
 }
 
+#define PAD 8
+static int cursor_x = PAD;
+static int cursor_y = PAD;
+
+static void draw_page(const char* title)
+{
+	cursor_x = PAD;
+	cursor_y = PAD;
+
+	CAT_frameberry(CAT_WHITE);
+	cursor_y = CAT_draw_textf(cursor_x, cursor_y, "%s\n", title);
+	cursor_y += PAD;
+	CAT_rowberry(cursor_y, cursor_y+1, CAT_BLACK);
+	cursor_y += PAD;
+}
+
 void do_edit_clock_field(enum which which)
 {
 	for (int i = 0; i < NUM_EDITS; i++)
 	{
 		if (edits[i].which != which) continue;
-
 		bool editing = i == time_edit_time_selector;
-		CAT_gui_textf("%.*s%*s", edits[i].len, editing?"^^^^":"    ", edits[i].pad, "");
+		CAT_draw_textf(cursor_x, cursor_y, "%.*s%*s", edits[i].len, editing?"^^^^":"    ", edits[i].pad, "");
+		cursor_x += CAT_get_drawn_strlen() * CAT_GLYPH_WIDTH;
 	}
+	cursor_y += CAT_TEXT_LINE_HEIGHT;
+	cursor_x = PAD;
 }
 
 void CAT_render_time()
 {
-	CAT_gui_title(false, "SET TIME");
-	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
+	draw_page("SET TIME");
 	
 	time_t now = get_current_rtc_time();
-
 	gmtime_r(&now, &local);
 
 	// LOG_DBG("at gmtime_r now=%lld; year=%d", now, local.tm_year);
 	
-	CAT_gui_textf("%s ", month_names[local.tm_mon]);
-	CAT_gui_textf("%2d ", local.tm_mday);
-	CAT_gui_textf("%4d, ", local.tm_year);
-	CAT_gui_textf("%2d:", local.tm_hour);
-	CAT_gui_textf("%02d:", local.tm_min);
-	CAT_gui_textf("%02d", local.tm_sec);
-	CAT_gui_line_break();
-
+	cursor_y = CAT_draw_textf
+	(
+		cursor_x, cursor_y,
+		"%s %2d %4d, %02d:%02d:%02d\n",
+		month_names[local.tm_mon], local.tm_mday, local.tm_year, local.tm_hour, local.tm_min, local.tm_sec
+	);
 	do_edit_clock_field(RTC);
-
-	CAT_gui_line_break();
-	// CAT_gui_line_break();
 
 	local_wakeup.hours = 0;
 	local_wakeup.mins = 0;
 	local_wakeup.secs = sensor_wakeup_period;
-
 	while (local_wakeup.secs >= (60*60))
 	{
 		local_wakeup.hours++;
 		local_wakeup.secs -= 60*60;
 	}
-
 	while (local_wakeup.secs >= 60)
 	{
 		local_wakeup.mins++;
 		local_wakeup.secs -= 60;
 	}
 
-	CAT_gui_textf("Sample Rate:\n");
-	CAT_gui_textf("%2dh ", local_wakeup.hours);
-	CAT_gui_textf("%02dm ", local_wakeup.mins);
-	CAT_gui_textf("%02ds", local_wakeup.secs);
-	CAT_gui_line_break();
-
+	cursor_y = CAT_draw_textf
+	(
+		cursor_x, cursor_y,
+		"Sample Rate:\n%02dh %02dm %02ds\n",
+		local_wakeup.hours, local_wakeup.mins, local_wakeup.secs
+	);
 	do_edit_clock_field(WAKEUP);
 
-	CAT_gui_line_break();
-	// CAT_gui_line_break();
-
 	local_nox_every = nox_sample_period;
-
 	bool nox_selected = edits[time_edit_time_selector].which == NOX;
-	CAT_gui_textf("Sample NOX+VOC every %s%d%s\n", nox_selected?">":"", local_nox_every, nox_selected?"<":"");
-	CAT_gui_textf("samples. %s", local_nox_every!=0?"(Extra batt use)":"(Disabled)");
-
-	CAT_gui_line_break();
-	CAT_gui_line_break();
-
+	cursor_y = CAT_draw_textf
+	(
+		cursor_x, cursor_y,
+		"Sample NOX+VOC every %s%d%s\nsamples. %s\n",
+		nox_selected?">":"", local_nox_every, nox_selected?"<":"",
+		local_nox_every!=0?"(Extra batt use)":"(Disabled)"
+	);
 
 	// +15 is approximate time to get a fix and log
 	int hrs = get_hours_of_logging_at_rate(sensor_wakeup_period+15);
 	int days = hrs/24;
 	hrs %= 24;
-	CAT_gui_textf("Space for %dd %dh\nlogging left at this rate", days, hrs);
-
-	CAT_gui_line_break();
-	CAT_gui_line_break();
+	cursor_y = CAT_draw_textf(cursor_x, cursor_y, "Space for %dd %dh\nlogging left at this rate\n\n", days, hrs);
 
 	local_dim_after.mins = 0;
 	local_dim_after.secs = dim_after_seconds;
-
 	while (local_dim_after.secs >= 60)
 	{
 		local_dim_after.mins++;
 		local_dim_after.secs -= 60;
 	}
 
-	CAT_gui_textf("Dim Screen After:\n");
-	CAT_gui_textf("%02dm ", local_dim_after.mins);
-	CAT_gui_textf("%02ds", local_dim_after.secs);
-	CAT_gui_line_break();
-
+	cursor_y = CAT_draw_textf(cursor_x, cursor_y, "Dim screen after:\n%02dm %02ds\n", local_dim_after.mins, local_dim_after.secs);
 	do_edit_clock_field(DIM);
-
-	CAT_gui_line_break();
-	// CAT_gui_line_break();
 
 	local_sleep_after.mins = 0;
 	local_sleep_after.secs = sleep_after_seconds;
-
 	while (local_sleep_after.secs >= 60)
 	{
 		local_sleep_after.mins++;
 		local_sleep_after.secs -= 60;
 	}
 
-	CAT_gui_textf("Sleep After:\n");
-	CAT_gui_textf("%02dm ", local_sleep_after.mins);
-	CAT_gui_textf("%02ds", local_sleep_after.secs);
-	CAT_gui_line_break();
-
+	cursor_y = CAT_draw_textf(cursor_x, cursor_y, "Sleep after:\n%02dm %02ds\n", local_sleep_after.mins, local_sleep_after.secs);
 	do_edit_clock_field(SLEEP);
-
-	CAT_gui_line_break();
-	// CAT_gui_line_break();
 }

@@ -30,10 +30,23 @@
 #define CAT_atan atan2f
 #define CAT_sqrt sqrtf
 #define CAT_round roundf
+#define CAT_pow powf
+
+#define CAT_lerp(a, b, t) ((1.0f-(t))*(a)+(t)*(b))
+#define CAT_inv_lerp(x, a, b) (((x)-(a))/((b)-(a)))
 
 float lerp(float a, float b, float t);
 float inv_lerp(float t, float a, float b);
 int quantize(float t, float range, int steps);
+uint32_t CAT_f2u32(float f);
+
+typedef enum
+{
+	CAT_ORIENTATION_EAST,
+	CAT_ORIENTATION_NORTH,
+	CAT_ORIENTATION_WEST,
+	CAT_ORIENTATION_SOUTH
+} CAT_orientation;
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -41,8 +54,6 @@ int quantize(float t, float range, int steps);
 
 void CAT_rand_seed();
 float CAT_rand_uniform();
-int CAT_rand_die(int N);
-int CAT_rand_coin(float p);
 
 int CAT_rand_int(int a, int b);
 float CAT_rand_float(float a, float b);
@@ -98,49 +109,6 @@ static inline CAT_vec2 CAT_iv2v(CAT_ivec2 a)
 
 
 //////////////////////////////////////////////////////////////////////////
-// COLLISION
-
-typedef struct CAT_rect
-{
-	CAT_ivec2 min;
-	CAT_ivec2 max;
-} CAT_rect;
-
-CAT_rect CAT_rect_place(CAT_ivec2 start, CAT_ivec2 shape);
-bool CAT_rect_overlaps(CAT_rect a, CAT_rect b);
-bool CAT_rect_contains(CAT_rect a, CAT_rect b);
-CAT_rect CAT_rect_center(int x, int y, int w, int h);
-CAT_rect CAT_rect_overlap(CAT_rect a, CAT_rect b);
-
-
-//////////////////////////////////////////////////////////////////////////
-// POLYGON RENDERING
-
-typedef struct CAT_mat4
-{
-	float data[16];
-} CAT_mat4;
-
-typedef struct CAT_vec4
-{
-	float x;
-	float y;
-	float z;
-	float w;
-} CAT_vec4;
-
-CAT_vec4 CAT_matvec_mul(CAT_mat4 M, CAT_vec4 v);
-void CAT_perspdiv(CAT_vec4* v);
-CAT_vec4 CAT_vec4_cross(CAT_vec4 u, CAT_vec4 v);
-float CAT_vec4_dot(CAT_vec4 u, CAT_vec4 v);
-CAT_vec4 CAT_vec4_sub(CAT_vec4 u, CAT_vec4 v);
-CAT_vec4 CAT_vec4_normalize(CAT_vec4 v);
-CAT_mat4 CAT_matmul(CAT_mat4 A, CAT_mat4 B);
-CAT_mat4 CAT_rotmat(float x, float y, float z);
-bool CAT_is_clipped(CAT_vec4 v);
-
-
-//////////////////////////////////////////////////////////////////////////
 // COHEN-SUTHERLAND CLIPPING
 
 typedef enum
@@ -167,12 +135,25 @@ int CAT_WRS_select();
 
 
 //////////////////////////////////////////////////////////////////////////
-// STRUCT-FREE
+// COLLISION
 
 bool CAT_rect_contains_rect(int x00, int y00, int x01, int y01, int x10, int y10, int x11, int y11);
 bool CAT_rect_rect_touching(int x00, int y00, int x01, int y01, int x10, int y10, int x11, int y11);
 bool CAT_rect_rect_intersecting(int x00, int y00, int x01, int y01, int x10, int y10, int x11, int y11);
 bool CAT_rect_point_touching(int x0, int y0, int x1, int y1, int x, int y);
+void CAT_rect_overlap
+(
+	int x00, int y00, int x01, int y01,
+	int x10, int y10, int x11, int y11,
+	int* x0_out, int* y0_out, int* x1_out, int* y1_out
+);
 
-int CAT_i2_dot(int ax, int ay, int bx, int by);
-int CAT_i2_cross(int ax, int ay, int bx, int by);
+
+//////////////////////////////////////////////////////////////////////////
+// LEGACY
+
+typedef struct CAT_rect
+{
+	CAT_ivec2 min;
+	CAT_ivec2 max;
+} CAT_rect;

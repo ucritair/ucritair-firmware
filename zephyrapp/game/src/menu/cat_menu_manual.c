@@ -12,14 +12,15 @@
 #include "cat_main.h"
 #include "sprite_assets.h"
 
-static enum
+enum
 {
 	ABOUT,
 	CREDITS,
 	LAST
-} page = ABOUT;
+};
+static int page = ABOUT;
 
-const char* credits[] =
+static const char* credits[] =
 {
 	"Aurora Aldrich",
 	"Campbell",
@@ -36,13 +37,13 @@ const char* credits[] =
 	"Rebecca Rehm",
 	"Tasha Schneider",
 	"Tomas Stegemann",
+	"Bilal",
+	"Monochroma",
+	"V",
+	"Justin"
 };
 #define NUM_CREDITS (sizeof(credits) / sizeof(credits[0]))
-
-int credit_indices[NUM_CREDITS] =
-{
-	0,1,2,3,4,5,6,7,8,9,10,11,12,13,14
-};
+static int credit_indices[NUM_CREDITS];
 
 void CAT_MS_manual(CAT_FSM_signal signal)
 {
@@ -51,6 +52,8 @@ void CAT_MS_manual(CAT_FSM_signal signal)
 		case CAT_FSM_SIGNAL_ENTER:
 		{
 			CAT_set_render_callback(CAT_render_manual);
+			for(int i = 0; i < NUM_CREDITS; i++)
+				credit_indices[i] = i;
 			for(int i = 0; i < NUM_CREDITS; i++)
 			{
 				int j = CAT_rand_int(0, NUM_CREDITS-1);
@@ -87,52 +90,52 @@ void CAT_MS_manual(CAT_FSM_signal signal)
 	}
 }
 
+#define PAD 8
+static int cursor_x = PAD;
+static int cursor_y = PAD;
+
+static void draw_page(const char* title)
+{
+	cursor_x = PAD;
+	cursor_y = PAD;
+
+	CAT_frameberry(CAT_WHITE);
+	cursor_y = CAT_draw_textf(cursor_x, cursor_y, "%s\n", title);
+	cursor_y += PAD;
+	CAT_rowberry(cursor_y, cursor_y+1, CAT_BLACK);
+	cursor_y += PAD;
+}
+
 void CAT_draw_about()
 {
-	CAT_gui_title
-	(
-		true,
-		"ABOUT"
-	);
+	draw_page("< ABOUT >");
 
-	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
-
-	gui.cursor.x += 24;
-	CAT_gui_image(&icon_ee_sprite, 0);
-	CAT_gui_line_break();
-	CAT_gui_line_break();
+	CAT_draw_sprite_raw(&icon_ee_sprite, 0, cursor_x, cursor_y);
+	cursor_y += icon_ee_sprite.height + PAD;
 	
-	CAT_gui_textf
+	cursor_y = CAT_draw_textf
 	(
+		cursor_x, cursor_y,
 		"CAT v%d.%d.%d.%d\n"
 		"by Entropic Engineering.\n"
 		"\n"
-		,CAT_VERSION_MAJOR,
-		CAT_VERSION_MINOR,
-		CAT_VERSION_PATCH,
-		CAT_VERSION_PUSH
-	);
-	CAT_gui_text
-	(
 		"Powered by grants from\n"
 		"Balvi and Kanro.\n"
 		"\n"
 		"Visit uCritter.com/air\n"
-		"for more information."
+		"for more information.",
+		CAT_VERSION_MAJOR,
+		CAT_VERSION_MINOR,
+		CAT_VERSION_PATCH,
+		CAT_VERSION_PUSH
 	);
 }
 
 void CAT_draw_credits()
 {
-	CAT_gui_title
-	(
-		true,
-		"CREDITS"
-	);
-	
-	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
+	draw_page("< CREDITS >");
 
-	int cursor_y = CAT_TILE_SIZE * 3;
+	int cursor_y = CAT_TILE_SIZE * 2 + 4;
 	for(int i = 0; i < NUM_CREDITS; i++)
 	{
 		CAT_set_text_flags(CAT_TEXT_FLAG_CENTER);
@@ -157,10 +160,7 @@ void CAT_render_manual()
 		}
 		default:
 		{
-			CAT_gui_title(true, "LAST");
-			CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
-			CAT_gui_set_flag(CAT_GUI_FLAG_WRAPPED);
-			CAT_gui_text("You shouldn't be here");
+			draw_page("INVALID");
 			break;
 		}
 	}

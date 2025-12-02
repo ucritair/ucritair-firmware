@@ -3,11 +3,10 @@ cmake_minimum_required(VERSION 3.20.0)
 project(app)
 
 if(NOT TARGET app)
-	message(WARNING "Building for desktop!")
 	add_executable(app)
 
+	message(WARNING "Building for desktop")
 	target_compile_definitions(app PRIVATE CAT_DESKTOP=1)
-	target_compile_definitions(app PRIVATE CAT_DEBUG=1)
 	if(APPLE)
 		target_compile_definitions(app PRIVATE CAT_MACOS=1)
 	endif()
@@ -23,17 +22,32 @@ if(NOT TARGET app)
 	
 	set(CMAKE_BUILD_TYPE Debug)
 	target_compile_options(app PRIVATE -Wall -g)
-	target_sources(app PRIVATE src/core/cat_desktop.c src/cat_persist_archive.c)
+
+	target_sources(app PRIVATE
+		src/core/cat_persist_archive.c
+		src/core/cat_desktop.c)
+
+	target_include_directories(app PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/../../src/)
+	target_include_directories(app PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/../../src/protobufs/)
 else()
 	message(WARNING "Building for embedded")
-
-	option(CAT_PRIORITIZE_AQ "AQ_FIRST" OFF)
-
 	target_compile_definitions(app PRIVATE CAT_EMBEDDED=1)
-	target_compile_definitions(app PRIVATE CAT_DEBUG=1)
-	if(CAT_PRIORITIZE_AQ)
+
+	option(AQ_FIRST "AQ_FIRST" OFF)
+	option(WIFI "WIFI" OFF)
+	option(RADIO "RADIO" OFF)
+
+	if(AQ_FIRST)
 		target_compile_definitions(app PRIVATE CAT_PRIORITIZE_AQ=1)
-		message(WARNING "Prioritizing AQ!")
+		message(WARNING "Prioritizing AQ")
+	endif()
+	if(WIFI)
+		target_compile_definitions(app PRIVATE CAT_WIFI_ENABLED=1)
+		message(WARNING "Enabling WiFi")
+	endif()
+	if(RADIO)
+		target_compile_definitions(app PRIVATE CAT_RADIO_ENABLED=1)
+		message(WARNING "Enabling radio")
 	endif()
 	
 	target_sources(app PRIVATE src/core/cat_embedded.c)
@@ -131,6 +145,8 @@ add_custom_command(
 
 target_sources(app PRIVATE
 	src/core/cat_common.c
+	src/core/cat_save.c
+	src/core/cat_persist.c
 
 	src/render/cat_berrier.c
 	src/render/cat_spriter.c
@@ -154,13 +170,13 @@ target_sources(app PRIVATE
 
 	src/caring/cat_play.c
 	src/caring/cat_study.c
-	src/feeding/cat_feed.c
+	src/caring/cat_feed.c
 
-	src/arcade/cat_arcade.c
 	src/arcade/cat_arcade_snake.c
 	src/arcade/cat_arcade_mines.c
 	src/arcade/cat_arcade_foursquares.c
 	src/arcade/cat_stroop.c
+	src/arcade/cat_leaderboard.c
 
 	src/monitors/cat_monitors.c
 	src/monitors/cat_monitor_summary.c
@@ -197,10 +213,14 @@ target_sources(app PRIVATE
 	src/world/cat_world.c
 	src/world/cat_dialogue.c
 	src/world/cat_scene.c
-
-	src/procs/cat_procs.c
+	src/world/cat_procs.c
 
 	src/crafting/cat_crafting.c
+
+	src/comms/cat_chat.c
+	src/comms/cat_wifi.c
+	src/comms/cat_radio.c
+	src/comms/cat_crypto.c
 
 	sounds/sound_assets.c
 	meshes/mesh_assets.c
@@ -214,8 +234,6 @@ target_sources(app PRIVATE
 	data/scene_assets.c
 	data/dialogue_profile_assets.c
 
-	src/cat_save.c
-	src/cat_persist.c
 	src/cat_main.c)
 
 target_include_directories(app PRIVATE src/)
@@ -232,9 +250,8 @@ target_include_directories(app PRIVATE src/air)
 target_include_directories(app PRIVATE src/systems)
 target_include_directories(app PRIVATE src/room)
 target_include_directories(app PRIVATE src/world)
-target_include_directories(app PRIVATE src/procs)
 target_include_directories(app PRIVATE src/crafting)
-target_include_directories(app PRIVATE src/feeding)
+target_include_directories(app PRIVATE src/comms)
 
 target_include_directories(app PRIVATE sounds/)
 target_include_directories(app PRIVATE meshes/)

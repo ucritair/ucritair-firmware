@@ -127,6 +127,7 @@ class AssetManager:
 	
 	def types():
 		return [document.type for document in AssetManager.documents];
+
 	def has_type(name):
 		return name in [document.type for document in AssetManager.documents];
 
@@ -135,6 +136,7 @@ class AssetManager:
 
 	def get_assets(asset_type):
 		return next(document.instances for document in AssetManager.documents if document.type == asset_type);
+
 	def search(asset_type, asset_name):
 		try:
 			return next(asset for asset in AssetManager.get_assets(asset_type) if asset["name"] == asset_name);

@@ -2,17 +2,6 @@
 
 #include "cat_machine.h"
 
-typedef struct CAT_menu_node
-{
-	const char* title;
-
-	void (*proc)(void);
-	CAT_FSM_state state;
-
-	int selector;
-	struct CAT_menu_node* children[];
-} CAT_menu_node;
-
 void CAT_MS_menu(CAT_FSM_signal signal);
 void CAT_render_menu();
 

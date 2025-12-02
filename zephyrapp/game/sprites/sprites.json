@@ -2446,16 +2446,6 @@
         },
         {
             "id": 241,
-            "name": "ui_aq_notice_icons",
-            "path": "ui/aq_notice_icons.png",
-            "frames": 2,
-            "width": 16,
-            "height": 16,
-            "loop": false,
-            "reverse": false
-        },
-        {
-            "id": 242,
             "name": "ui_item_frame_bg_spec_sprite",
             "path": "ui/shop/item_spl.png",
             "frames": 1,
@@ -2465,7 +2455,7 @@
             "reverse": false
         },
         {
-            "id": 243,
+            "id": 242,
             "name": "ui_feed_select_sprite",
             "path": "ui/shop/feed_select.png",
             "frames": 1,
@@ -2475,7 +2465,7 @@
             "reverse": false
         },
         {
-            "id": 244,
+            "id": 243,
             "name": "ui_feed_submit_sprite",
             "path": "ui/shop/feed_submit.png",
             "frames": 1,
@@ -2485,7 +2475,7 @@
             "reverse": false
         },
         {
-            "id": 245,
+            "id": 244,
             "name": "ui_touch_prompt",
             "path": "ui/touch_icon.png",
             "frames": 2,
@@ -2495,7 +2485,7 @@
             "reverse": false
         },
         {
-            "id": 246,
+            "id": 245,
             "name": "world_node_stone_sprite",
             "path": "gameplay/overworld/tile/stone.png",
             "frames": 1,
@@ -2505,7 +2495,7 @@
             "reverse": false
         },
         {
-            "id": 247,
+            "id": 246,
             "name": "world_node_grass_sprite",
             "path": "gameplay/overworld/tile/grass.png",
             "frames": 1,
@@ -2515,7 +2505,7 @@
             "reverse": false
         },
         {
-            "id": 248,
+            "id": 247,
             "name": "world_node_wood_sprite",
             "path": "gameplay/overworld/tile/tree-1.png",
             "frames": 1,
@@ -2525,7 +2515,7 @@
             "reverse": false
         },
         {
-            "id": 249,
+            "id": 248,
             "name": "ui_buttons_prompt",
             "path": "ui/buttons_icon.png",
             "frames": 2,
@@ -2535,7 +2525,7 @@
             "reverse": false
         },
         {
-            "id": 250,
+            "id": 249,
             "name": "ingr_wood_sprite",
             "path": "ingredient/wood.png",
             "frames": 1,
@@ -2545,7 +2535,7 @@
             "reverse": false
         },
         {
-            "id": 251,
+            "id": 250,
             "name": "ingr_fibre_sprite",
             "path": "ingredient/fiber.png",
             "frames": 1,
@@ -2555,7 +2545,7 @@
             "reverse": false
         },
         {
-            "id": 252,
+            "id": 251,
             "name": "ingr_stone_sprite",
             "path": "ingredient/stone.png",
             "frames": 1,
@@ -2565,7 +2555,7 @@
             "reverse": false
         },
         {
-            "id": 253,
+            "id": 252,
             "name": "ingr_ink_sprite",
             "path": "ingredient/ink.png",
             "frames": 1,
@@ -2575,7 +2565,7 @@
             "reverse": false
         },
         {
-            "id": 254,
+            "id": 253,
             "name": "ingr_water_sprite",
             "path": "ingredient/water.png",
             "frames": 1,
@@ -2585,7 +2575,7 @@
             "reverse": false
         },
         {
-            "id": 255,
+            "id": 254,
             "name": "ingr_aether_sprite",
             "path": "ingredient/aether.png",
             "frames": 1,
@@ -2595,7 +2585,7 @@
             "reverse": false
         },
         {
-            "id": 256,
+            "id": 255,
             "name": "ingr_miasma_sprite",
             "path": "ingredient/miasma.png",
             "frames": 1,
@@ -2605,7 +2595,7 @@
             "reverse": false
         },
         {
-            "id": 257,
+            "id": 256,
             "name": "ingr_seeds_sprite",
             "path": "ingredient/seeds.png",
             "frames": 1,
@@ -2615,7 +2605,7 @@
             "reverse": false
         },
         {
-            "id": 258,
+            "id": 257,
             "name": "ingr_oil_sprite",
             "path": "ingredient/oil.png",
             "frames": 1,
@@ -2625,7 +2615,7 @@
             "reverse": false
         },
         {
-            "id": 259,
+            "id": 258,
             "name": "ingr_clay_sprite",
             "path": "ingredient/clay.png",
             "frames": 1,
@@ -2635,7 +2625,7 @@
             "reverse": false
         },
         {
-            "id": 260,
+            "id": 259,
             "name": "ingr_time_sprite",
             "path": "ingredient/time.png",
             "frames": 1,
@@ -2645,7 +2635,7 @@
             "reverse": false
         },
         {
-            "id": 261,
+            "id": 260,
             "name": "ui_button_alert",
             "path": "ui/revised/alert_button.png",
             "frames": 1,
@@ -2655,22 +2645,132 @@
             "reverse": false
         },
         {
-            "id": 262,
-            "name": "ui_vxcon_logo",
-            "path": "ui/vxrl_buddy.png",
+            "id": 261,
+            "name": "ui_chat_actions",
+            "path": "ui/chat_actions.png",
             "frames": 1,
-            "width": 128,
-            "height": 158,
+            "width": 54,
+            "height": 12,
             "loop": false,
             "reverse": false
         },
         {
+            "id": 262,
+            "name": "npc_guanaco_sprite",
+            "path": "gameplay/overworld/npc/guanaco.png",
+            "frames": 2,
+            "width": 32,
+            "height": 32,
+            "loop": true,
+            "reverse": false
+        },
+        {
             "id": 263,
-            "name": "ui_vxcon_text",
-            "path": "ui/vxrl_text.png",
+            "name": "npc_luz_sprite",
+            "path": "gameplay/overworld/npc/luz.png",
+            "frames": 2,
+            "width": 32,
+            "height": 32,
+            "loop": true,
+            "reverse": false
+        },
+        {
+            "id": 264,
+            "name": "ingr_bone_sprite",
+            "path": "ingredient/bone.png",
             "frames": 1,
-            "width": 135,
-            "height": 34,
+            "width": 32,
+            "height": 32,
+            "loop": false,
+            "reverse": false
+        },
+        {
+            "id": 265,
+            "name": "ingr_ceramic_sprite",
+            "path": "ingredient/ceramic.png",
+            "frames": 1,
+            "width": 32,
+            "height": 32,
+            "loop": false,
+            "reverse": false
+        },
+        {
+            "id": 266,
+            "name": "ingr_charcoal_sprite",
+            "path": "ingredient/charcoal.png",
+            "frames": 1,
+            "width": 32,
+            "height": 32,
+            "loop": false,
+            "reverse": false
+        },
+        {
+            "id": 267,
+            "name": "ingr_cloth_sprite",
+            "path": "ingredient/cloth.png",
+            "frames": 1,
+            "width": 32,
+            "height": 32,
+            "loop": false,
+            "reverse": false
+        },
+        {
+            "id": 268,
+            "name": "ingr_glass_sprite",
+            "path": "ingredient/glass.png",
+            "frames": 1,
+            "width": 32,
+            "height": 32,
+            "loop": false,
+            "reverse": false
+        },
+        {
+            "id": 269,
+            "name": "ingr_leather_sprite",
+            "path": "ingredient/leather.png",
+            "frames": 1,
+            "width": 32,
+            "height": 32,
+            "loop": false,
+            "reverse": false
+        },
+        {
+            "id": 270,
+            "name": "ingr_paper_sprite",
+            "path": "ingredient/paper.png",
+            "frames": 1,
+            "width": 32,
+            "height": 32,
+            "loop": false,
+            "reverse": false
+        },
+        {
+            "id": 271,
+            "name": "ingr_salt_sprite",
+            "path": "ingredient/salt.png",
+            "frames": 1,
+            "width": 32,
+            "height": 32,
+            "loop": false,
+            "reverse": false
+        },
+        {
+            "id": 272,
+            "name": "ingr_sand_sprite",
+            "path": "ingredient/sand.png",
+            "frames": 1,
+            "width": 32,
+            "height": 32,
+            "loop": false,
+            "reverse": false
+        },
+        {
+            "id": 273,
+            "name": "ingr_sugar_sprite",
+            "path": "ingredient/sugar.png",
+            "frames": 1,
+            "width": 32,
+            "height": 32,
             "loop": false,
             "reverse": false
         }

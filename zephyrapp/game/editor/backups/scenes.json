@@ -111,6 +111,14 @@
                         "variant": -1
                     },
                     {
+                        "prop": "luz_prop",
+                        "position": [
+                            -20.0,
+                            -21.0
+                        ],
+                        "variant": -1
+                    },
+                    {
                         "prop": "node_stone_prop",
                         "position": [
                             4.0,
@@ -467,6 +475,14 @@
                         "position": [
                             -5.0,
                             2.0
+                        ],
+                        "variant": -1
+                    },
+                    {
+                        "prop": "guanaco_prop",
+                        "position": [
+                            5.0,
+                            7.0
                         ],
                         "variant": -1
                     },

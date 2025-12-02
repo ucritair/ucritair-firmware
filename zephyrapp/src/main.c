@@ -32,13 +32,10 @@ LOG_MODULE_REGISTER(sample, LOG_LEVEL_INF);
 #include "rtc.h"
 #include "buttons.h"
 #include "batt.h"
+#include "rp2350_ipc.h"
 
 int main(void)
 {
-	// while (1) {
-	// 	k_msleep(1000);
-	// }
-
 	init_power_control();
 	check_rtc_init();
 	init_adc();

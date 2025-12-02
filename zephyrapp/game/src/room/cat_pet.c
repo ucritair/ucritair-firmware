@@ -15,16 +15,6 @@
 #include "cat_persist.h"
 #include "item_assets.h"
 
-static CAT_pet_timing_state timing_state = {0};
-void CAT_pet_export_timing_state(CAT_pet_timing_state* out)
-{
-	memcpy(out, &timing_state, sizeof(CAT_pet_timing_state));
-}
-void CAT_pet_import_timing_state(CAT_pet_timing_state* in)
-{
-	memcpy(&timing_state, in, sizeof(CAT_pet_timing_state));
-}
-
 CAT_pet pet;
 CAT_anim_machine AM_pet =
 {
@@ -49,7 +39,7 @@ bool is_critical()
 
 void CAT_pet_init()
 {	
-	timing_state = (CAT_pet_timing_state)
+	pet_timing_state = (CAT_pet_timing_state)
 	{
 		.last_life_time = CAT_get_RTC_now(),
 		.last_milk_time = CAT_get_RTC_now(),
@@ -253,7 +243,7 @@ void apply_life_ticks(int ticks)
 		int xp_delta = roundf(((pet.vigour + pet.focus + pet.spirit) / 3.0f) * 50.0f);
 		CAT_pet_change_XP(xp_delta);
 
-		timing_state.times_milked_since_producing = 0;
+		pet_timing_state.times_milked_since_producing = 0;
 	}
 }
 
@@ -287,30 +277,30 @@ void CAT_pet_tick()
 	if(last_time >  0 && (now - last_time) >= CAT_MINUTE_SECONDS)
 	{
 		uint64_t jump = now - last_time;
-		timing_state.last_stat_time += jump;
-		timing_state.last_life_time += jump;
-		timing_state.last_milk_time += jump;
+		pet_timing_state.last_stat_time += jump;
+		pet_timing_state.last_life_time += jump;
+		pet_timing_state.last_milk_time += jump;
 	}
 	last_time = now;
 	// HANDLE BACKWARD TIME TRAVEL
-	timing_state.last_stat_time = CAT_min(now, timing_state.last_stat_time);
-	timing_state.last_life_time = CAT_min(now, timing_state.last_life_time);
-	timing_state.last_milk_time = CAT_min(now, timing_state.last_milk_time);
+	pet_timing_state.last_stat_time = CAT_min(now, pet_timing_state.last_stat_time);
+	pet_timing_state.last_life_time = CAT_min(now, pet_timing_state.last_life_time);
+	pet_timing_state.last_milk_time = CAT_min(now, pet_timing_state.last_milk_time);
 
 	uint64_t time_since;
 	uint16_t ticks;
 	uint32_t remainder;
 
-	time_since = now - timing_state.last_stat_time;
+	time_since = now - pet_timing_state.last_stat_time;
 	ticks = time_since / CAT_STAT_TICK_PERIOD;
 	remainder = time_since % CAT_STAT_TICK_PERIOD;
-	timing_state.last_stat_time = now - remainder;
+	pet_timing_state.last_stat_time = now - remainder;
 	apply_stat_ticks(ticks);
 
-	time_since = now - timing_state.last_life_time;
+	time_since = now - pet_timing_state.last_life_time;
 	ticks = time_since / CAT_LIFE_TICK_PERIOD;
 	remainder = time_since % CAT_LIFE_TICK_PERIOD;
-	timing_state.last_life_time = now - remainder;
+	pet_timing_state.last_life_time = now - remainder;
 	apply_life_ticks(ticks);
 
 	if(time_since > CAT_DAY_SECONDS)
@@ -374,13 +364,13 @@ void CAT_pet_react()
 		if(react_timer >= REACT_DURATION)
 		{
 			uint64_t now = CAT_get_RTC_now();
-			uint32_t time_since = now - timing_state.last_milk_time;
+			uint32_t time_since = now - pet_timing_state.last_milk_time;
 
-			if(time_since >= CAT_PET_MILK_COOLDOWN && timing_state.milks_produced_today < 3)
+			if(time_since >= CAT_PET_MILK_COOLDOWN && pet_timing_state.milks_produced_today < 3)
 			{
-				timing_state.times_milked_since_producing += 1;
+				pet_timing_state.times_milked_since_producing += 1;
 
-				if(timing_state.times_milked_since_producing >= 5)
+				if(pet_timing_state.times_milked_since_producing >= 5)
 				{
 					int x, y;
 					CAT_room_random_free_cell(&x, &y);
@@ -400,11 +390,11 @@ void CAT_pet_react()
 						}
 					);
 
-					timing_state.milks_produced_today += 1;
-					timing_state.times_milked_since_producing = 0;
+					pet_timing_state.milks_produced_today += 1;
+					pet_timing_state.times_milked_since_producing = 0;
 				}
 
-				timing_state.last_milk_time = now;
+				pet_timing_state.last_milk_time = now;
 			}
 
 			CAT_anim_kill(&AM_mood);

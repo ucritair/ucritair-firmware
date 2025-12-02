@@ -1,7 +1,7 @@
 #pragma once
 
 #include <stdint.h>
-#include "cat_concepts.h"
+#include "cat_math.h"
 
 void CAT_draw_regular_polygon(int n, int x, int y, int r, float t, uint16_t c);
 void CAT_draw_arrow(int x, int y, int w, int h, CAT_orientation d, uint16_t c);
@@ -25,3 +25,5 @@ void CAT_draw_lock(int x, int y, int r, float t, uint16_t c);
 
 void CAT_draw_dpad(int x, int y, int r, int mask, uint16_t cf, uint16_t cb);
 void CAT_draw_star(int x, int y, int r, uint16_t c);
+
+int CAT_draw_button(int x, int y, int button, uint16_t c);

@@ -23,8 +23,10 @@ target_sources(app PRIVATE
 	src/lcd_rendering.c
 	src/main.c
 	src/misc.c
+	src/msht.c
 	src/power_control.c
 	src/rgb_leds.c
+	src/rp2350_ipc.c
 	src/rtc.c
 	src/sound.c
 	src/sbcdec.c
@@ -37,13 +39,50 @@ target_sources(app PRIVATE
 	src/touch.c
 	src/wlan.c
 
+	#src/protobufs/nanopb.pb.c
+	src/protobufs/pb_common.c
+	src/protobufs/pb_decode.c
+	src/protobufs/pb_encode.c
+
+	src/protobufs/meshtastic/
+	src/protobufs/meshtastic/admin.pb.c
+	src/protobufs/meshtastic/apponly.pb.c
+	src/protobufs/meshtastic/atak.pb.c
+	src/protobufs/meshtastic/cannedmessages.pb.c
+	src/protobufs/meshtastic/channel.pb.c
+	src/protobufs/meshtastic/clientonly.pb.c
+	src/protobufs/meshtastic/config.pb.c
+	src/protobufs/meshtastic/connection_status.pb.c
+	#src/protobufs/meshtastic/deviceonly.pb.c
+	src/protobufs/meshtastic/device_ui.pb.c
+	src/protobufs/meshtastic/interdevice.pb.c
+	src/protobufs/meshtastic/localonly.pb.c
+	src/protobufs/meshtastic/mesh.pb.c
+	src/protobufs/meshtastic/module_config.pb.c
+	src/protobufs/meshtastic/mqtt.pb.c
+	src/protobufs/meshtastic/paxcount.pb.c
+	src/protobufs/meshtastic/portnums.pb.c
+	src/protobufs/meshtastic/powermon.pb.c
+	src/protobufs/meshtastic/remote_hardware.pb.c
+	src/protobufs/meshtastic/rtttl.pb.c
+	src/protobufs/meshtastic/storeforward.pb.c
+	src/protobufs/meshtastic/telemetry.pb.c
+	src/protobufs/meshtastic/xmodem.pb.c
+
+	src/mt_test.c
+
+
 	src/menu/menu_time.c
 	src/menu/menu_system.c
 )
 
-target_compile_options(app PRIVATE -fsingle-precision-constant -fno-strict-aliasing)
+target_compile_options(app PRIVATE -fsingle-precision-constant)
 
-target_include_directories(app PRIVATE src/ src/menu/)
+target_include_directories(app PRIVATE 
+	src/ 
+	src/menu/
+	src/protobufs/
+)
 
 if(MINIMIZE_GAME_FOOTPRINT)
 	message(WARNING "Not building in the actual game")

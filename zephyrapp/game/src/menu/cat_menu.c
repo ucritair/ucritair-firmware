@@ -20,6 +20,11 @@
 #include "cat_world.h"
 #include "cat_effects.h"
 #include "cat_persist.h"
+#include "cat_chat.h"
+#include "cat_save.h"
+#include "cat_wifi.h"
+#include "cat_crypto.h"
+#include "cat_radio.h"
 
 #ifdef CAT_EMBEDDED
 #include "menu_system.h"
@@ -30,9 +35,12 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 	switch(signal)
 	{
 		case CAT_FSM_SIGNAL_ENTER:
+		{
 			CAT_set_render_callback(CAT_render_menu);
-			CAT_gui_begin_menu_context();
-			break;
+			CAT_gui_menu_force_reset();
+		}
+		break;
+		
 		case CAT_FSM_SIGNAL_TICK:
 		{
 			if(CAT_input_pressed(CAT_BUTTON_START))
@@ -46,12 +54,27 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 					CAT_pushdown_push(CAT_MS_inventory);
 				if(CAT_gui_menu_item("VENDING MACHINE"))
 					CAT_pushdown_push(CAT_MS_shop);
-				if(CAT_gui_menu_item("ARCADE"))
-					CAT_pushdown_push(CAT_MS_arcade);
+
+				if(CAT_gui_begin_menu("ARCADE"))
+				{
+					if(CAT_gui_menu_item("SNACK"))
+						CAT_pushdown_push(CAT_MS_snake);
+					if(CAT_gui_menu_item("SWEEP"))
+						CAT_pushdown_push(CAT_MS_mines);
+					if(CAT_gui_menu_item("FOURSQUARES"))
+						CAT_pushdown_push(CAT_MS_foursquares);
+					if(CAT_gui_menu_item("STROOP"))
+						CAT_pushdown_push(CAT_MS_stroop);
+					CAT_gui_end_menu();
+				}
+
 				if(CAT_pushdown_last() == &CAT_MS_room)
 				{
 					if(CAT_gui_menu_item("EXPLORE"))
+					{
+						CAT_show_world_intro();
 						CAT_pushdown_rebase(CAT_MS_world);
+					}
 				}
 				else if(CAT_pushdown_last() == &CAT_MS_world)
 				{
@@ -61,43 +84,95 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 						CAT_pushdown_rebase(CAT_MS_room);
 					}
 				}
+
 				if(CAT_gui_menu_item("DASHBOARD"))
-					CAT_pushdown_rebase(CAT_MS_monitor);				
+					CAT_pushdown_rebase(CAT_MS_monitor);			
 					
 				if(CAT_gui_menu_item("MAGIC"))
 					CAT_pushdown_push(CAT_MS_magic);
+
 				if(CAT_check_config_flags(CAT_SAVE_CONFIG_FLAG_DEVELOPER))
 				{
 					if(CAT_gui_begin_menu("DEVELOPER"))
 					{
 						if(CAT_gui_menu_item("INFO"))
 							CAT_pushdown_push(CAT_MS_debug);
-							
-						if(CAT_gui_begin_menu("CHEATS"))
-						{
-							if(CAT_gui_menu_item("TURNKEY APARTMENT"))
-								CAT_set_load_flags(CAT_LOAD_FLAG_DIRTY | CAT_LOAD_FLAG_TURNKEY);
-							CAT_gui_end_menu();
-						}
 
 						if(CAT_gui_menu_item("COLOUR PICKER"))
 							CAT_pushdown_push(CAT_MS_colour_picker);
-							
+
+						if(CAT_gui_menu_toggle("ALWAYS AWAKE", persist_flags & CAT_PERSIST_CONFIG_FLAG_ETERNAL_WAKE, CAT_GUI_TOGGLE_STYLE_CHECKBOX))
+						{
+							if(persist_flags & CAT_PERSIST_CONFIG_FLAG_ETERNAL_WAKE)
+								persist_flags &= ~CAT_PERSIST_CONFIG_FLAG_ETERNAL_WAKE;
+							else
+								persist_flags |= CAT_PERSIST_CONFIG_FLAG_ETERNAL_WAKE;
+						}
+						
+#if CAT_WIFI_ENABLED					
+						if(CAT_gui_menu_item("RP2350 BOOTLOADER"))
+						{
+							if (CAT_wifi_bootloader(2000)) {
+								CAT_printf("Rebooted RP2350 to bootloader\n");
+							} else {
+								CAT_printf("Failed to reboot RP2350 to bootloader\n");
+							}
+						}
+
+						if(CAT_is_wifi_connected())
+						{
+							if(CAT_gui_menu_item("AUTHENTICATE DEVICE"))
+							{
+								msg_payload_zkp_authenticate_response_t response;
+								CAT_wifi_ZK_authenticate(&response, CAT_MINUTE_SECONDS * 10 * 1000);
+							}
+						}
+
+						if(CAT_wifi_is_ZK_authenticated() && CAT_AQ_sensors_initialized())
+						{
+							if(CAT_gui_menu_item("UPLOAD LATEST DATA"))
+							{
+								uint32_t data[CAT_WIFI_DATUM_COUNT] = 
+								{
+									CAT_ZK_CO2(),
+									CAT_ZK_PM2_5(),
+									CAT_ZK_temp(),
+									CAT_ZK_stroop(),
+									CAT_ZK_survey()
+								};
+								CAT_wifi_send_data(data, CAT_WIFI_DATUM_COUNT, 120000);
+							}
+						}
+#endif						
+
+#if CAT_RADIO_ENABLED
+						if(CAT_AQ_sensors_initialized())
+						{
+							if(CAT_gui_menu_item("BROADCAST AQ"))
+							{
+								CAT_radio_telemetry_TX();
+							}
+						}
+#endif
+
 						CAT_gui_end_menu();
 					}				
 				}
+
+#if CAT_RADIO_ENABLED | defined(CAT_DESKTOP)
+				if(CAT_gui_menu_item("CHAT"))
+					CAT_pushdown_push(CAT_MS_chat);
+#endif
+
 				if(CAT_gui_begin_menu("SETTINGS"))
 				{
 					if(CAT_gui_begin_menu("GAMEPLAY"))
 					{
-						if(CAT_gui_begin_menu("LAUNCH MODE"))
-						{
-							if(CAT_gui_menu_toggle("GAME FIRST", !(persist_flags & CAT_PERSIST_CONFIG_FLAG_AQ_FIRST), CAT_GUI_TOGGLE_STYLE_RADIO_BUTTON))
-								persist_flags &= ~CAT_PERSIST_CONFIG_FLAG_AQ_FIRST;
-							if(CAT_gui_menu_toggle("DASHBOARD FIRST", persist_flags & CAT_PERSIST_CONFIG_FLAG_AQ_FIRST, CAT_GUI_TOGGLE_STYLE_RADIO_BUTTON))
-								persist_flags |= CAT_PERSIST_CONFIG_FLAG_AQ_FIRST;
-							CAT_gui_end_menu();
-						}
+						if(CAT_gui_menu_toggle("GAME FIRST", !(persist_flags & CAT_PERSIST_CONFIG_FLAG_AQ_FIRST), CAT_GUI_TOGGLE_STYLE_RADIO_BUTTON))
+							persist_flags &= ~CAT_PERSIST_CONFIG_FLAG_AQ_FIRST;
+						if(CAT_gui_menu_toggle("DASHBOARD FIRST", persist_flags & CAT_PERSIST_CONFIG_FLAG_AQ_FIRST, CAT_GUI_TOGGLE_STYLE_RADIO_BUTTON))
+							persist_flags |= CAT_PERSIST_CONFIG_FLAG_AQ_FIRST;
+
 						if(CAT_gui_menu_toggle("PAUSE CRITTER CARE", persist_flags & CAT_PERSIST_CONFIG_FLAG_PAUSE_CARE, CAT_GUI_TOGGLE_STYLE_CHECKBOX))
 						{
 							if(persist_flags & CAT_PERSIST_CONFIG_FLAG_PAUSE_CARE)
@@ -105,15 +180,14 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 							else
 								persist_flags |= CAT_PERSIST_CONFIG_FLAG_PAUSE_CARE;
 						}
-
 						CAT_gui_end_menu();
 					}
+
 					if(CAT_gui_begin_menu("COSMETICS"))
 					{
 						if(CAT_gui_menu_item("PET NAME"))
-						{
-							CAT_gui_open_keyboard(pet.name);
-						}
+							CAT_gui_open_keyboard(pet.name, sizeof(pet.name));
+
 						if(CAT_gui_begin_menu("ROOM THEME"))
 						{
 							for(int i = 0; i < THEME_COUNT; i++)
@@ -126,6 +200,7 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 						}
 						CAT_gui_end_menu();
 					}
+
 					if(CAT_gui_begin_menu("DISPLAY"))
 					{
 						screen_brightness = CAT_gui_menu_ticker("LCD BRIGHTNESS", screen_brightness, CAT_LCD_MIN_BRIGHTNESS, CAT_LCD_MAX_BRIGHTNESS);
@@ -137,9 +212,7 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 							led_brightness = 100;
 
 						if(CAT_gui_menu_item("REFRESH EINK"))
-						{
 							CAT_set_eink_update_flag(true);
-						}
 
 						if(CAT_gui_menu_toggle("AUTO-FLIP SCREEN", !(persist_flags & CAT_PERSIST_CONFIG_FLAG_MANUAL_ORIENT), CAT_GUI_TOGGLE_STYLE_CHECKBOX))
 						{
@@ -164,37 +237,34 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 					
 						CAT_gui_end_menu();
 					}
-					if(CAT_gui_begin_menu("AIR QUALITY"))
+
+					if(CAT_gui_begin_menu("TEMPERATURE UNIT"))
 					{
-						if(CAT_gui_begin_menu("TEMPERATURE UNIT"))
-						{
-							if(CAT_gui_menu_toggle("CELSIUS", !(persist_flags & CAT_PERSIST_CONFIG_FLAG_USE_FAHRENHEIT), CAT_GUI_TOGGLE_STYLE_RADIO_BUTTON))
-								persist_flags &= ~CAT_PERSIST_CONFIG_FLAG_USE_FAHRENHEIT;
-							if(CAT_gui_menu_toggle("FAHRENHEIT", persist_flags & CAT_PERSIST_CONFIG_FLAG_USE_FAHRENHEIT, CAT_GUI_TOGGLE_STYLE_RADIO_BUTTON))
-								persist_flags |= CAT_PERSIST_CONFIG_FLAG_USE_FAHRENHEIT;
-							CAT_AQ_set_temperature_unit
-							(
-								persist_flags & CAT_PERSIST_CONFIG_FLAG_USE_FAHRENHEIT ?
-								CAT_TEMPERATURE_UNIT_DEGREES_FAHRENHEIT :
-								CAT_TEMPERATURE_UNIT_DEGREES_CELSIUS
-							);
-							CAT_gui_end_menu();
-						}
+						if(CAT_gui_menu_toggle("CELSIUS", !(persist_flags & CAT_PERSIST_CONFIG_FLAG_USE_FAHRENHEIT), CAT_GUI_TOGGLE_STYLE_RADIO_BUTTON))
+							persist_flags &= ~CAT_PERSIST_CONFIG_FLAG_USE_FAHRENHEIT;
+						if(CAT_gui_menu_toggle("FAHRENHEIT", persist_flags & CAT_PERSIST_CONFIG_FLAG_USE_FAHRENHEIT, CAT_GUI_TOGGLE_STYLE_RADIO_BUTTON))
+							persist_flags |= CAT_PERSIST_CONFIG_FLAG_USE_FAHRENHEIT;
+						CAT_AQ_set_temperature_unit
+						(
+							persist_flags & CAT_PERSIST_CONFIG_FLAG_USE_FAHRENHEIT ?
+							CAT_TEMPERATURE_UNIT_DEGREES_FAHRENHEIT :
+							CAT_TEMPERATURE_UNIT_DEGREES_CELSIUS
+						);
 						CAT_gui_end_menu();
 					}
-					if(CAT_gui_menu_item("SYSTEM"))
-					{
+
+#if CAT_WIFI_ENABLED | defined(CAT_DESKTOP)
+					if(CAT_gui_menu_item("NETWORK"))
+						CAT_pushdown_push(CAT_MS_wifi);
+#endif
+
 #ifdef CAT_EMBEDDED
+					if(CAT_gui_menu_item("SYSTEM"))
 						CAT_pushdown_push(CAT_MS_system_menu);
 #endif
-					}
+
 					if(CAT_gui_begin_menu("DANGER ZONE"))
-					{
-						if(CAT_gui_menu_item("RESET CONFIG FLAGS"))
-						{
-							CAT_set_config_flags(CAT_SAVE_CONFIG_FLAG_NONE);
-						}
-							
+					{						
 						if(CAT_gui_menu_item("RESET SAVE"))
 							CAT_gui_open_popup("Are you sure? This will delete all game data!\n", CAT_POPUP_STYLE_YES_NO);
 						if(CAT_gui_consume_popup())
@@ -204,8 +274,10 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 					}
 					CAT_gui_end_menu();
 				}
+
 				if(CAT_gui_menu_item("ABOUT"))
 					CAT_pushdown_push(CAT_MS_manual);
+					
 				if(CAT_gui_begin_menu("POWER"))
 				{
 					if(CAT_gui_menu_item("SLEEP"))
@@ -224,6 +296,8 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 		}
 
 		case CAT_FSM_SIGNAL_EXIT:
+		{
+		}
 		break;
 	}
 }

@@ -19,6 +19,7 @@
 #include "rtc.h"
 #include "batt.h"
 #include "cat_gui.h"
+#include "cat_save.h"
 
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(debugmenu, LOG_LEVEL_DBG);
@@ -45,7 +46,7 @@ extern bool in_debug_menu, show_fps;
 static void textc(char* text, uint16_t color)
 {
 	lcd_write_str(color, 0, window_y, text);
-	window_y += 8;
+	window_y += 9;
 }
 
 #define text(x) textc(x, 0xffff);
@@ -61,7 +62,7 @@ static void selectable(char* text, menu_op_t op, void* arg)
 			op(arg);
 		}
 	}
-	window_y += 8;
+	window_y += 9;
 	curr_idx += 1;
 }
 
@@ -150,6 +151,11 @@ void menu_power_off_protected(void* arg)
 	power_off(0, true);
 }
 
+void developer(void* arg)
+{
+	CAT_raise_config_flags(CAT_SAVE_CONFIG_FLAG_DEVELOPER);
+}
+
 void turnkey(void* arg)
 {
 	CAT_set_load_flags(CAT_LOAD_FLAG_DIRTY | CAT_LOAD_FLAG_TURNKEY);
@@ -193,7 +199,9 @@ void menu_post()
 	selectable("Main Menu", goto_menu, menu_root);
 	selectable("Do nothing (test A)", NULL, NULL);
 	selectable("Protected Power Off", menu_power_off_protected, NULL);
+	selectable("Developer mode", developer, NULL);
 	selectable("Turnkey", turnkey, NULL);
+	selectable("Back to game", exit_debug_menu, NULL);
 
 	seen_buttons |= current_buttons;
 
@@ -210,7 +218,7 @@ void menu_post()
 
 	for (int off_x = -8; off_x <= 8; off_x += 8)
 	{
-		for (int off_y = -8; off_y <= 8; off_y += 8)
+		for (int off_y = -8; off_y <= 8; off_y += 9)
 		{
 			lcd_write_char(0xff00, touch_mapped_x+off_x-16, touch_mapped_y+off_y-16, 'X');
 		}

@@ -1,3 +1,38 @@
+embedded=false
+aq_first=false
+radio=false
+wifi=false
+clean=false
+OPTIONS=""
+
+for var in "$@"
+do
+	if [ $var == "--embedded" ]; then
+		embedded=true
+	fi
+	if [ $var == "--aq-first" ]; then
+		aq_first=true
+		OPTIONS="${OPTIONS} -DAQ_FIRST=ON"
+	fi
+	if [ $var == "--radio" ]; then
+		radio=true
+		OPTIONS="${OPTIONS} -DRADIO=ON"
+	fi
+	if [ $var == "--wifi" ]; then
+		wifi=true
+		OPTIONS="${OPTIONS} -DWIFI=ON"
+	fi
+	if [ $var == "--clean" ]; then
+		clean=true
+	fi
+done
+
+if $clean; then
+	trash ../build
+	trash build
+	trash utils/build_cache
+fi
+
 # DESKTOP
 if [ ! -d build ]; then
 	mkdir build
@@ -7,35 +42,44 @@ if [ ! -f build/makefile ]; then
 	cmake ..
 	cd ..
 fi
+if [ ! -d utils/build_cache ]; then
+	mkdir utils/build_cache
+fi
 
 cd build
 make -j8
 cd ..
 
 # EMBEDDED
-if [[ $1 == "--embedded" ]]; then
+if $embedded ; then
 	if [ ! -d ../build ]; then
 		mkdir ../build
 	fi
 	if [ ! -f ../build/makefile ]; then
 		cd ../build
-		cmake .. -DBOARD=cat5340/nrf5340/cpuapp
+		cmake .. -DBOARD=cat5340/nrf5340/cpuapp $OPTIONS
 		cd ../game
 	fi
 
 	cd ../build
-	if [[ $2 == "--aq-first" ]]; then
-		make -j8 CFLAGS="-DAQ_FIRST=ON"
-	else
-		make -j8
-	fi
-	west sign --tool imgtool
+	make -j8
 	cd ../game
-else
-	if [[ $1 == "--clean" ]]; then
-		trash *.dat
-		trash persist/*.dat
+
+	if $wifi; then
+		cp ../build/zephyr/zephyr.signed.bin utils/build_cache/wifi.bin
+		echo "[BUILD] Cached WiFi build"
+	elif $radio; then
+		cp ../build/zephyr/zephyr.signed.bin utils/build_cache/radio.bin
+		echo "[BUILD] Cached radio build"
+	else
+		cp ../build/zephyr/zephyr.signed.bin utils/build_cache/standard.bin
+		echo "[BUILD] Cached standard build"
 	fi
+	cp ../build/zephyr/zephyr.signed.bin utils/build_cache/latest.bin
+	echo "[BUILD] Cached latest build"
+fi
+
+if ! $embedded; then
 	build/app
 fi
 

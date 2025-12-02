@@ -50,7 +50,7 @@ static bool incl_excl_pass(const CAT_recipe* recipe, CAT_item_bundle* inputs)
 
 static void get_bounding_box
 (
-	CAT_recipe* recipe,
+	const CAT_recipe* recipe,
 	CAT_item_bundle* inputs,
 	int* r0_out, int* c0_out, int* r1_out, int* c1_out
 )

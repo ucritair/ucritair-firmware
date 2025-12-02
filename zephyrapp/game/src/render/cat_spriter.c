@@ -58,17 +58,9 @@ static inline bool rect_clip(int x0, int y0, int x1, int y1, int x, int y)
 void CAT_draw_sprite(const CAT_sprite* sprite, int frame_idx, int x, int y)
 {
 	if(sprite == NULL)
-	{
-		CAT_printf("[WARNING] CAT_draw_sprite: null sprite\n");
 		sprite = &null_sprite;
-	}
-
 	frame_idx = frame_idx == -1 ? CAT_animator_get_frame(sprite) : frame_idx;
-	if(frame_idx < 0 || frame_idx >= sprite->frame_count)
-	{
-		CAT_printf("[WARNING] CAT_draw_sprite: frame index %d out of bounds\n", frame_idx);
-		frame_idx = sprite->frame_count-1;
-	}
+	frame_idx = CAT_clamp(frame_idx, 0, sprite->frame_count-1);
 
 	uint16_t* framebuffer = CAT_LCD_get_framebuffer();
 
@@ -248,8 +240,12 @@ draw_sprite_exit:
 
 void CAT_draw_sprite_raw(const CAT_sprite* sprite, int frame_idx, int x, int y)
 {
-	uint16_t* framebuffer = CAT_LCD_get_framebuffer();
+	if(sprite == NULL)
+		sprite = &null_sprite;
 	frame_idx = frame_idx == -1 ? CAT_animator_get_frame(sprite) : frame_idx;
+	frame_idx = CAT_clamp(frame_idx, 0, sprite->frame_count-1);
+
+	uint16_t* framebuffer = CAT_LCD_get_framebuffer();
 
 	uint16_t w = sprite->width;
 	uint16_t h = sprite->height;
@@ -331,6 +327,11 @@ draw_sprite_raw_exit:
 
 void CAT_draw_background(const CAT_sprite* sprite, int frame_idx, int y)
 {
+	if(sprite == NULL)
+		sprite = &null_sprite;
+	frame_idx = frame_idx == -1 ? CAT_animator_get_frame(sprite) : frame_idx;
+	frame_idx = CAT_clamp(frame_idx, 0, sprite->frame_count-1);
+
 	uint16_t* framebuffer = CAT_LCD_get_framebuffer();
 
 	y -= CAT_LCD_FRAMEBUFFER_OFFSET;
@@ -392,6 +393,11 @@ void CAT_draw_background(const CAT_sprite* sprite, int frame_idx, int y)
 
 void CAT_draw_tile(const CAT_sprite* sprite, int frame_idx, int x, int y)
 {
+	if(sprite == NULL)
+		sprite = &null_sprite;
+	frame_idx = frame_idx == -1 ? CAT_animator_get_frame(sprite) : frame_idx;
+	frame_idx = CAT_clamp(frame_idx, 0, sprite->frame_count-1);
+
 	uint16_t* framebuffer = CAT_LCD_get_framebuffer();
 	
 	y -= CAT_LCD_FRAMEBUFFER_OFFSET;
@@ -433,6 +439,11 @@ void CAT_draw_tile(const CAT_sprite* sprite, int frame_idx, int x, int y)
 
 void CAT_draw_tile_alpha(const CAT_sprite* sprite, int frame_idx, int x, int y)
 {
+	if(sprite == NULL)
+		sprite = &null_sprite;
+	frame_idx = frame_idx == -1 ? CAT_animator_get_frame(sprite) : frame_idx;
+	frame_idx = CAT_clamp(frame_idx, 0, sprite->frame_count-1);
+
 	uint16_t* framebuffer = CAT_LCD_get_framebuffer();
 	
 	y -= CAT_LCD_FRAMEBUFFER_OFFSET;
@@ -485,8 +496,14 @@ void CAT_draw_tile_alpha(const CAT_sprite* sprite, int frame_idx, int x, int y)
 	}
 }
 
-bool tinysprite_read(const CAT_tinysprite* sprite, int x, int y)
+bool CAT_tinysprite_read(const CAT_tinysprite* sprite, int x, int y)
 {
+	if(sprite == NULL)
+		return false;
+	if(x < 0 || x >= sprite->width)
+		return false;
+	if(y < 0 || y >= sprite->height)
+		return false;
 	int px_idx = (y * sprite->stride) + x;
 	int byte_idx = px_idx >> 3;
 	int bit_idx = px_idx & 0b111;
@@ -496,14 +513,37 @@ bool tinysprite_read(const CAT_tinysprite* sprite, int x, int y)
 
 void CAT_draw_tinysprite(int x, int y, const CAT_tinysprite* sprite, uint16_t fg, uint16_t bg)
 {
+	if(sprite == NULL)
+		return;
 	for(int dy = 0; dy < sprite->height; dy++)
 	{
 		for(int dx = 0; dx < sprite->width; dx++)
 		{
-			bool px = tinysprite_read(sprite, dx, dy);
+			bool px = CAT_tinysprite_read(sprite, dx, dy);
 			uint16_t c = px ? fg : bg;	
 			if(c != CAT_TRANSPARENT)
 				CAT_pixberry(x+dx, y+dy, c);
 		}
 	}
+}
+
+void CAT_draw_tinyglyph(int x, int y, char g, uint16_t c)
+{
+	g = CAT_clamp(g, 0, 127);
+	for(int dy = 0; dy < 8; dy++)
+	{
+		for(int dx = 0; dx < 8; dx++)
+		{
+			bool px = CAT_tinysprite_read(&tnyspr_glyphs, dx, g * 8 + dy);
+			if(px)
+				CAT_pixberry(x+dx, y+dy, c);
+		}
+	}
+}
+
+void CAT_draw_tinystring(int x, int y, const char* s, uint16_t c)
+{
+	int n = strlen(s);
+	for(int i = 0; i < n; i++)
+		CAT_draw_tinyglyph(x + i * 8, y, s[i], c);
 }

@@ -132,7 +132,6 @@
 
 / {
 	chosen {
-		zephyr,wifi = &wlan0;
 		xxx,sdhcd0 = &sdhc0;
 		xxx,mmc = &mmc;
 	};
@@ -147,38 +146,6 @@
 
 &arduino_spi {
 	status = "okay";
-
-	nrf70: nrf7002-spi@0 {
-		compatible = "nordic,nrf7002-spi";
-		zephyr,deferred-init;
-		status = "okay";
-		reg = <0>;
-		spi-max-frequency = <DT_FREQ_M(8)>; // originally 8
-
-		iovdd-ctrl-gpios = <&gpio0 11 (GPIO_ACTIVE_LOW)>;
-		bucken-gpios = <&gpio0 21 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>;
-		host-irq-gpios = <&gpio0 20 GPIO_ACTIVE_HIGH>;
-		status0-gpios = <&gpio0 30 GPIO_ACTIVE_HIGH>;
-		req-gpios = <&gpio0 28 GPIO_ACTIVE_HIGH>;
-		grant-gpios = <&gpio0 24 (GPIO_PULL_DOWN | GPIO_ACTIVE_LOW)>;
-		// swctrl1-gpios = <0>;
-		// srrf-switch-gpios = <0>;
-
-		wifi-max-tx-pwr-2g-dsss = <21>;
-		wifi-max-tx-pwr-2g-mcs0 = <16>;
-		wifi-max-tx-pwr-2g-mcs7 = <16>;
-
-		wlan0: wlan0 {
-			compatible = "nordic,wlan";
-		};
-
-		wifi-max-tx-pwr-5g-low-mcs0 = <13>;
-		wifi-max-tx-pwr-5g-low-mcs7 = <13>;
-		wifi-max-tx-pwr-5g-mid-mcs0 = <13>;
-		wifi-max-tx-pwr-5g-mid-mcs7 = <13>;
-		wifi-max-tx-pwr-5g-high-mcs0 = <12>;
-		wifi-max-tx-pwr-5g-high-mcs7 = <12>;
-	};
 
 	w25q128: w25q128@1 {
         compatible = "winbond,w25q128", "jedec,spi-nor";
@@ -204,9 +171,55 @@
     };
 };
 
-
 &uart0 {
-	status = "disabled";
+    status = "okay";
+    current-speed = <115200>;
+    pinctrl-0 = <&uart0_default>;
+    pinctrl-1 = <&uart0_sleep>;
+    pinctrl-names = "default", "sleep";
+};
+
+&pinctrl {
+    uart0_default: uart0_default {
+        group1 {
+            psels = <NRF_PSEL(UART_TX, 0, 21)>,
+                    <NRF_PSEL(UART_RX, 0, 18)>;
+        };
+    };
+
+    uart0_sleep: uart0_sleep {
+        group1 {
+            psels = <NRF_PSEL(UART_TX, 0, 21)>,
+                    <NRF_PSEL(UART_RX, 0, 18)>;
+            low-power-enable;
+        };
+    };
+};
+
+&uart3 {
+    status = "okay";
+    #current-speed = <38400>;
+    current-speed = <115200>;
+    pinctrl-0 = <&uart3_default>;
+    pinctrl-1 = <&uart3_sleep>;
+    pinctrl-names = "default", "sleep";
+};
+
+&pinctrl {
+    uart3_default: uart3_default {
+        group1 {
+            psels = <NRF_PSEL(UART_TX, 0, 28)>,
+                    <NRF_PSEL(UART_RX, 0, 24)>;
+        };
+    };
+
+    uart3_sleep: uart3_sleep {
+        group1 {
+            psels = <NRF_PSEL(UART_TX, 0, 28)>,
+                    <NRF_PSEL(UART_RX, 0, 24)>;
+            low-power-enable;
+        };
+    };
 };
 
 #include <zephyr/dt-bindings/led/led.h>
