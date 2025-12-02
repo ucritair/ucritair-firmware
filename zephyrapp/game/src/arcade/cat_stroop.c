@@ -11,19 +11,13 @@
 #include "cat_gizmos.h"
 #include "cat_air.h"
 #include "cat_math.h"
+#include "cat_wifi.h"
+#include "cat_leaderboard.h"
+#include "cat_crypto.h"
 
 #define CHALLENGES_PER_PHASE 8
 
-static void draw_tutorial();
-static void MS_tutorial(CAT_FSM_signal);
-static void draw_gameplay();
-static void MS_gameplay(CAT_FSM_signal);
-static void draw_performance();
-static void MS_performance(CAT_FSM_signal);
-
-static CAT_FSM fsm = {};
-
-static enum
+enum
 {
 	PHASE_ARROWS,
 	PHASE_ARROWS_OPPOSITE,
@@ -35,6 +29,143 @@ static enum
 };
 
 #define TOTAL_CHALLENGES (PHASE_COUNT * CHALLENGES_PER_PHASE)
+
+#define SURVEY_COUNT 2
+
+static void MS_survey(CAT_FSM_signal);
+static void draw_survey();
+static void draw_tutorial();
+static void MS_tutorial(CAT_FSM_signal);
+static void draw_gameplay();
+static void MS_gameplay(CAT_FSM_signal);
+static void draw_performance();
+static void MS_performance(CAT_FSM_signal);
+static void MS_upload(CAT_FSM_signal);
+static void draw_upload();
+
+static CAT_FSM fsm = {};
+
+static void load_co2();
+static void change_phase(int _phase);
+
+static const char** survey_answers[SURVEY_COUNT] =
+{
+	(const char*[])
+	{
+		"1 - Poor",
+		"2 - Fair",
+		"3 - Okay",
+		"4 - Good",
+		"5 - Excellent"
+	},
+	(const char*[])
+	{
+		"1 - Not at all",
+		"2 - A little",
+		"3 - Some",
+		"4 - A lot",
+		"5 - Almost always"
+	}
+};
+
+static int survey_idx = 0;
+
+static void survey_set_answer(int idx, int score)
+{
+	score = 4 - score;
+	uint8_t mask = ~(0b1111 << (idx*4));
+	survey_field &= mask;
+	mask = CAT_clamp(score, 0, 15);
+	mask <<= (idx*4);
+	survey_field |= mask;
+}
+
+static int survey_get_answer(int idx)
+{
+	uint8_t mask = survey_field & (0b1111 << (idx*4));
+	return 4 - (mask >> (idx*4));
+}
+
+static void MS_survey(CAT_FSM_signal signal)
+{
+	switch (signal)
+	{
+		case CAT_FSM_SIGNAL_ENTER:
+		{
+			CAT_set_render_callback(draw_survey);
+			survey_field = 0;
+			for(int i = 0; i < SURVEY_COUNT; i++)
+				survey_set_answer(i, 0);
+			survey_idx = 0;
+			CAT_gui_menu_force_reset();
+		}
+		break;
+
+		case CAT_FSM_SIGNAL_TICK:
+		{
+			CAT_gui_menu_disable_wrap();
+			if(CAT_gui_begin_menu("SURVEY"))
+			{
+				if(survey_idx == 0)
+				{
+					CAT_gui_menu_text("In the past 7 days, how");
+					CAT_gui_menu_text("would you rate your overall");
+					CAT_gui_menu_text("mental or emotional health?\n");
+				}
+				else if(survey_idx == 1)
+				{
+					CAT_gui_menu_text("In the past 7 days, how much");
+					CAT_gui_menu_text("have stress, mood, or");
+					CAT_gui_menu_text("worries made it harder to do");
+					CAT_gui_menu_text("what you needed or wanted");
+					CAT_gui_menu_text("to do?\n");
+				}
+
+				for(int i = 0; i < 5; i++)
+				{
+					if
+					(
+						CAT_gui_menu_toggle
+						(
+							survey_answers[survey_idx][i],
+							survey_get_answer(survey_idx) == i,
+							CAT_GUI_TOGGLE_STYLE_RADIO_BUTTON
+						)
+					)
+					{
+						survey_set_answer(survey_idx, i);
+					}
+				}
+				if(CAT_gui_menu_item("CONTINUE"))
+				{
+					if(survey_idx < SURVEY_COUNT-1)
+					{
+						survey_idx += 1;
+						CAT_gui_menu_force_reset();
+					}
+					else
+					{
+						CAT_FSM_transition(&fsm, MS_upload);
+					}
+				}
+				CAT_gui_end_menu();
+			}
+		}
+		break;
+
+		case CAT_FSM_SIGNAL_EXIT:
+		{
+			
+		}
+		break;
+	}
+}
+
+static void draw_survey()
+{
+	if(!CAT_gui_menu_is_open())
+		CAT_frameberry(CAT_WHITE);
+}
 
 static int phase;
 static float response_time[PHASE_COUNT][CHALLENGES_PER_PHASE];
@@ -62,13 +193,14 @@ static uint16_t word_colours[] =
 
 static int word;
 static int word_colour;
-static int word_direction;
+static int input_direction;
 
 static bool challenge_request;
 static int challenge_idx = 0;
 
 static CAT_timed_latch error_latch = CAT_TIMED_LATCH_INIT(1.0f);
 static CAT_timed_latch finish_latch = CAT_TIMED_LATCH_INIT(0.25f);
+static CAT_timed_latch countdown_latch = CAT_TIMED_LATCH_INIT(1.5f);
 
 static int key_map[] =
 {
@@ -114,7 +246,7 @@ static float arrow_mesh[] =
 
 static float cached_co2 = -1;
 
-void change_phase(int _phase)
+static void change_phase(int _phase)
 {
 	phase = _phase;
 	challenge_idx = 0;
@@ -130,7 +262,7 @@ void change_phase(int _phase)
 	CAT_FSM_transition(&fsm, MS_tutorial);
 }
 
-void shuffle(int* arr, int n)
+static void shuffle(int* arr, int n)
 {
 	for(int i = 0; i < n; i++)
 	{
@@ -187,7 +319,6 @@ static void generate_word()
 	}
 	else
 		word_colour = word;
-	word_direction = -1;
 }
 
 static void MS_gameplay(CAT_FSM_signal signal)
@@ -205,17 +336,19 @@ static void MS_gameplay(CAT_FSM_signal signal)
 			response_time[phase][challenge_idx] += CAT_get_delta_time_s();
 
 			CAT_timed_latch_tick(&error_latch);
-			CAT_timed_latch_tick(&finish_latch);
-
 			if(CAT_timed_latch_get(&error_latch))
 				return;
+
+			CAT_timed_latch_tick(&finish_latch);
 			if(CAT_timed_latch_get(&finish_latch))
 				return;
 			else if(CAT_timed_latch_flipped(&finish_latch))
 			{
 				challenge_idx += 1;
 				if(challenge_idx < CHALLENGES_PER_PHASE)
+				{
 					challenge_request = true;
+				}
 				else
 				{
 					if(phase >= PHASE_COUNT-1)
@@ -232,32 +365,51 @@ static void MS_gameplay(CAT_FSM_signal signal)
 					generate_word();
 				else
 					generate_arrow();
-				challenge_request = false;	
+				challenge_request = false;
+
+				CAT_timed_latch_reset(&countdown_latch);
+				CAT_timed_latch_raise(&countdown_latch);
 			}
-			
+
+			input_direction = -1;
 			for(int i = 0; i < 4; i++)
 			{
 				if(CAT_input_pressed(key_map[i]))
 				{
-					bool correct = 
-					((phase == PHASE_ARROWS || phase == PHASE_ARROWS_INCONGRUENT) && i == arrow_direction) ||
-					(phase == PHASE_ARROWS_OPPOSITE && i == (arrow_direction+2)%4) ||
-					(phase == PHASE_WORDS && i == word) ||
-					(phase == PHASE_WORDS_COLOUR && i == word_colour) ||
-					(phase == PHASE_WORDS_WORD && i == word);
-					
-					if(correct)
-					{
-						CAT_timed_latch_raise(&finish_latch);
-					}
-					else
-					{
-						errored[phase][challenge_idx] = true;
-						CAT_timed_latch_raise(&error_latch);
-					}
-
-					word_direction = i;
+					input_direction = i;
+					break;
 				}
+			}	
+			bool response = input_direction != -1;
+
+			bool correct =
+			((phase == PHASE_ARROWS || phase == PHASE_ARROWS_INCONGRUENT) && input_direction == arrow_direction) ||
+			(phase == PHASE_ARROWS_OPPOSITE && input_direction == (arrow_direction+2)%4) ||
+			(phase == PHASE_WORDS && input_direction == word) ||
+			(phase == PHASE_WORDS_COLOUR && input_direction == word_colour) ||
+			(phase == PHASE_WORDS_WORD && input_direction == word);
+
+			CAT_timed_latch_tick(&countdown_latch);
+			bool timeout =
+			CAT_timed_latch_flipped(&countdown_latch) &&
+			!CAT_timed_latch_get(&countdown_latch);
+
+			if(response)
+			{
+				if(correct)
+					CAT_timed_latch_raise(&finish_latch);
+				else
+				{
+					errored[phase][challenge_idx] = true;
+					CAT_timed_latch_raise(&error_latch);
+					CAT_timed_latch_raise(&finish_latch);
+				}
+			}
+			if(timeout)
+			{
+				errored[phase][challenge_idx] = true;
+				CAT_timed_latch_raise(&error_latch);
+				CAT_timed_latch_raise(&finish_latch);
 			}
  		}
 		break;
@@ -329,8 +481,8 @@ static void draw_word()
 	float t = CAT_timed_latch_get(&finish_latch) ?
 	CAT_timed_latch_t(&finish_latch) * 4.0f : 0;
 
-	int dx = dxdy[word_direction*2+0] * t * 128;
-	int dy = dxdy[word_direction*2+1] * t * 128;
+	int dx = dxdy[input_direction*2+0] * t * 128;
+	int dy = dxdy[input_direction*2+1] * t * 128;
 	
 	CAT_fillberry(CARD_X+dx, CARD_Y+dy, CARD_W+1, CARD_H+1, CAT_BLACK);
 	CAT_strokeberry(CARD_X+dx, CARD_Y+dy, CARD_W+1, CARD_H+1, CAT_GREY);
@@ -354,6 +506,11 @@ static void draw_error()
 	CAT_poly_draw(x_mesh, CAT_POLY_VERTEX_COUNT(x_mesh), CAT_RED);
 }
 
+static void draw_countdown()
+{
+	CAT_draw_progress_bar(CAT_LCD_SCREEN_W/2, 12, CAT_LCD_SCREEN_W-24, 12, CAT_WHITE, CAT_WHITE, 1.0f-CAT_timed_latch_t(&countdown_latch));
+}
+
 static void draw_gameplay()
 {
 	CAT_frameberry(CAT_BLACK);
@@ -364,8 +521,11 @@ static void draw_gameplay()
 	if(phase >= PHASE_WORDS)
 		draw_word();
 	else
-		draw_arrow(CENTER_X, CENTER_Y);
+		draw_arrow();
 
+	if(!CAT_timed_latch_get(&error_latch) && !CAT_timed_latch_get(&finish_latch))
+		draw_countdown();
+	
 	if(CAT_timed_latch_get(&error_latch))
 		draw_error();
 }
@@ -379,9 +539,11 @@ static void MS_tutorial(CAT_FSM_signal signal)
 		break;
 
 		case CAT_FSM_SIGNAL_TICK:
-			int button = phase == PHASE_ARROWS_OPPOSITE ? CAT_BUTTON_LEFT : CAT_BUTTON_RIGHT;
+		{
+			int button = (phase == PHASE_ARROWS_OPPOSITE) ? CAT_BUTTON_LEFT : CAT_BUTTON_RIGHT;
 			if(CAT_input_pressed(button))
 				CAT_FSM_transition(&fsm, MS_gameplay);
+		}
 		break;
 
 		case CAT_FSM_SIGNAL_EXIT:
@@ -551,16 +713,23 @@ static void MS_performance(CAT_FSM_signal signal)
 			stroop_data.mean_time_incong /= incong_challenges;
 			stroop_data.throughput = (TOTAL_CHALLENGES / total_time) * 60.0f;
 			stroop_data_valid = true;
+			stroop_correctness = perfect / (float) TOTAL_CHALLENGES;
 			
-			float grade = perfect / (float) TOTAL_CHALLENGES;
-			stars = (int)(grade >= 0.5f) + (int)(grade >= 0.85f) + (int)((stroop_data.mean_time_incong/stroop_data.mean_time_cong) <= 1.25f);
+			stars = (int)(stroop_correctness >= 0.5f) + (int)(stroop_correctness >= 0.91f) + (int)((stroop_data.mean_time_incong/stroop_data.mean_time_cong) <= 1.5f);
 		}
 		break;
 
 		case CAT_FSM_SIGNAL_TICK:
 		{
 			if(CAT_input_pressed(CAT_BUTTON_A) || CAT_input_dismissal())
+			{
+#if CAT_WIFI_ENABLED | defined(CAT_DESKTOP)
+				CAT_FSM_transition(&fsm, MS_survey);
+#else
 				CAT_FSM_transition(&fsm, NULL);
+#endif
+			}
+				
 		}			
 		break;
 
@@ -589,7 +758,7 @@ static void draw_performance()
 	cursor_y = CAT_draw_textf
 	(
 		12, cursor_y,
-		"%d/%d tasks performed perfectly. "
+		"%d/%d tasks performed correctly. "
 		"Tricky tasks solved "CAT_FLOAT_FMT"x as %s as typical tasks. "
 		"Overall cognitive performence rated"
 		"\n\n",
@@ -626,6 +795,140 @@ static void draw_performance()
 		CAT_FMT_FLOAT(pm25), CAT_AQ_unit_string(CAT_AQM_PM2_5),
 		(int) CAT_AQ_map_celsius(temp), CAT_AQ_unit_string(CAT_AQM_TEMP)
 	);
+}
+
+static enum {AUTHENTICATING, UPLOADING, UPLOAD_COMPLETE, UPLOAD_FAILURE} upload_stage = AUTHENTICATING;
+
+static void MS_upload(CAT_FSM_signal signal)
+{
+	static bool wait = true;
+
+	switch (signal)
+	{
+		case CAT_FSM_SIGNAL_ENTER:
+		{
+			CAT_set_render_callback(draw_upload);
+			upload_stage = CAT_wifi_is_ZK_authenticated() ? UPLOADING : AUTHENTICATING;
+			wait = true;
+		}
+		break;
+
+		case CAT_FSM_SIGNAL_TICK:
+		{
+			if(wait)
+			{
+				wait = false;
+				return;
+			}
+
+			if(upload_stage == AUTHENTICATING)
+			{
+				msg_payload_zkp_authenticate_response_t response;
+				bool status = CAT_wifi_ZK_authenticate(&response, CAT_MINUTE_SECONDS * 2 * 1000);
+				upload_stage = status ? UPLOADING : UPLOAD_FAILURE;
+			}
+			else if(upload_stage == UPLOADING)
+			{
+				uint32_t data[CAT_WIFI_DATUM_COUNT] = 
+				{
+					CAT_ZK_CO2(),
+					CAT_ZK_PM2_5(),
+					CAT_ZK_temp(),
+					CAT_ZK_stroop(),
+					CAT_ZK_survey()
+				};
+				bool status = CAT_wifi_send_data(data, CAT_WIFI_DATUM_COUNT, 120000);
+				upload_stage = status ? UPLOAD_COMPLETE : UPLOAD_FAILURE;
+			}
+			else
+			{
+				if(CAT_input_pressed(CAT_BUTTON_A) || CAT_input_dismissal())
+					CAT_FSM_transition(&fsm, NULL);
+			}
+		}			
+		break;
+
+		case CAT_FSM_SIGNAL_EXIT:
+		{
+
+		}
+		break;
+	}
+}
+
+#define MARGIN 12
+
+static void draw_upload_stage(const char* title, const char* description, const char* outro)
+{
+	int cursor_y = 44;
+
+	CAT_set_text_mask(MARGIN, -1, CAT_LCD_SCREEN_W-MARGIN, -1);
+	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
+	CAT_set_text_scale(2);
+	CAT_set_text_colour(CAT_WHITE);
+	cursor_y = CAT_draw_textf(MARGIN, cursor_y, "%s\n", title);
+	cursor_y += 8;
+
+	CAT_set_text_colour(CAT_GREY);
+	CAT_draw_textf(MARGIN, cursor_y, ">>>>>>>>>>>>>>>>>>>>>>>>>>>");
+	cursor_y += 22;
+
+	CAT_set_text_colour(CAT_192_GREY);
+	CAT_set_text_mask(MARGIN, -1, CAT_LCD_SCREEN_W-MARGIN, -1);
+	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
+	CAT_set_text_scale(2);
+	cursor_y = CAT_draw_textf
+	(
+		MARGIN,
+		cursor_y,
+		"%s\n",
+		description
+	);
+	cursor_y += 8;
+
+	CAT_set_text_colour(CAT_GREY);
+	CAT_draw_textf
+	(
+		MARGIN, cursor_y,
+		"%s >>>>>>",
+		outro
+	);
+}
+
+static void draw_upload()
+{
+	CAT_frameberry(CAT_BLACK);
+
+	switch (upload_stage)
+	{
+		case AUTHENTICATING:
+		{
+			CAT_draw_page_markers(12, 3, 0, CAT_WHITE);
+			draw_upload_stage("AUTH", "Generating and verifying a ZK proof.", "PLEASE WAIT");
+		}
+		break;
+
+		case UPLOADING:
+		{
+			CAT_draw_page_markers(12, 3, 1, CAT_WHITE);
+			draw_upload_stage("UPLOADING", "TFHE encrypting and sending your data.", "PLEASE WAIT");
+		}
+		break;
+
+		case UPLOAD_COMPLETE:
+		{
+			CAT_draw_page_markers(12, 3, 2, CAT_WHITE);
+			draw_upload_stage("UPLOAD COMPLETE", "Your data was successfully uploaded!", "[A] TO EXIT");
+		}
+		break;
+
+		case UPLOAD_FAILURE:
+		{
+			CAT_draw_page_markers(12, 3, 2, CAT_WHITE);
+			draw_upload_stage("FAILURE", "Something went wrong. Please try again.", "[A] TO EXIT");
+		}
+		break;
+	}
 }
 
 static void load_co2()

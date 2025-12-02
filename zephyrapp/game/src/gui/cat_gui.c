@@ -183,8 +183,8 @@ void CAT_gui_textf(const char* fmt, ...)
 {
 	va_list args;
 	va_start(args, fmt);
-	char text[512];
-	vsnprintf(text, 512, fmt, args);
+	char text[256];
+	vsnprintf(text, 256, fmt, args);
 	va_end(args);
 
 	CAT_gui_text(text);
@@ -197,12 +197,14 @@ void CAT_gui_title(bool tabs, const char* fmt, ...)
 	
 	if(tabs)
 		CAT_gui_text("< ");
+
 	va_list args;
 	va_start(args, fmt);
 	char text[32];
 	vsnprintf(text, 32, fmt, args);
 	va_end(args);
 	CAT_gui_text(text);
+
 	if(tabs)
 		CAT_gui_text(" >");
 	CAT_gui_text(" ");
@@ -215,24 +217,24 @@ void CAT_gui_title(bool tabs, const char* fmt, ...)
 static const char** typecases[] = 
 {
 	(const char*[]) {
-		"-+*/(),.?!:",
-		"0123456789\x06",
-		"QWERTYUIOP",
-		"ASDFGHJKL",
-		"ZXCVBNM_\x08"
+		"1234567890\x06",
+		"qwertyuiop_",
+		"asdfghjkl:'",
+		"zxcvbnm ,.\x08"
 	},
 	(const char*[]) {
-		"-+*/(),.?!:",
-		"0123456789\x06",
-		"qwertyuiop",
-		"asdfghjkl",
-		"zxcvbnm_\x08"
-	}
+		"!?$%()+-*/\x06",
+		"QWERTYUIOP_",
+		"ASDFGHJKL;\"",
+		"ZXCVBNM ,.\x08"
+	},
 };
+#define TYPECASE_ROWS 4
 
 static char* keyb_target = NULL;
-static char keyb_buffer[CAT_TEXT_INPUT_MAX_LENGTH];
+static char keyb_buffer[128];
 static int keyb_cursor;
+static size_t keyb_max_size;
 static enum {KEYB_KEYS, KEYB_BUTTONS} keyb_section;
 
 static int keyb_case;
@@ -241,7 +243,7 @@ static int keyb_glyph;
 
 static void keyb_save_proc()
 {
-	strncpy(keyb_target, keyb_buffer, CAT_TEXT_INPUT_MAX_LENGTH);
+	strncpy(keyb_target, keyb_buffer, keyb_max_size);
 	keyb_target = NULL;
 }
 
@@ -271,7 +273,7 @@ static int keyb_button;
 static bool keyb_show_cursor;
 static int keyb_cursor_frame;
 
-void CAT_gui_open_keyboard(char* target)
+void CAT_gui_open_keyboard(char* target, size_t max_size)
 {
 	if(keyb_target != NULL)
 		return;
@@ -279,8 +281,9 @@ void CAT_gui_open_keyboard(char* target)
 	keyb_target = target;
 
 	int length = strlen(target);
-	strncpy(keyb_buffer, target, CAT_TEXT_INPUT_MAX_LENGTH);
+	strncpy(keyb_buffer, target, sizeof(keyb_buffer));
 	keyb_cursor = length;
+	keyb_max_size = max_size;
 	keyb_section = KEYB_KEYS;
 
 	keyb_case = 0;
@@ -310,12 +313,12 @@ void CAT_gui_keyboard_logic()
 			keyb_row -= 1;
 		if(CAT_input_pulse(CAT_BUTTON_DOWN))
 		{
-			if(keyb_row >= 4)
+			if(keyb_row >= TYPECASE_ROWS-1)
 				keyb_section = KEYB_BUTTONS;
 			else
 				keyb_row += 1;
 		}
-		keyb_row = CAT_clamp(keyb_row, 0, 4);
+		keyb_row = CAT_clamp(keyb_row, 0, TYPECASE_ROWS-1);
 		const char* row = typecase[keyb_row];
 
 		if(CAT_input_pulse(CAT_BUTTON_RIGHT))
@@ -345,9 +348,8 @@ void CAT_gui_keyboard_logic()
 
 				default:
 				{
-					if(keyb_cursor < CAT_TEXT_INPUT_MAX_LENGTH-1)
+					if(keyb_cursor < keyb_max_size-1)
 					{
-						glyph = (glyph == '_') ? ' ' : glyph;
 						keyb_buffer[keyb_cursor] = glyph;
 						keyb_cursor += 1;
 					}
@@ -406,26 +408,31 @@ void CAT_gui_keyboard_logic()
 void CAT_gui_keyboard()
 {
 	CAT_rowberry(KEYB_Y0, KEYB_Y1, CAT_WHITE);
-	CAT_lineberry(0, KEYB_Y0, CAT_LCD_SCREEN_W, KEYB_Y0, CAT_BLACK);
+	CAT_lineberry(0, KEYB_Y0, CAT_LCD_SCREEN_W, KEYB_Y0, CAT_192_GREY);
 	int cursor_y = KEYB_Y0 + KEYB_PAD;
 
-	CAT_draw_textf(KEYB_PAD, cursor_y, "%s%s", keyb_buffer, keyb_show_cursor ? "|" : "");
+	int line = CAT_LINE_CAPACITY(KEYB_PAD, KEYB_PAD+CAT_GLYPH_WIDTH, CAT_GLYPH_WIDTH);
+	int overshoot = CAT_max((int) strlen(keyb_buffer) - line, 0);
+	CAT_draw_textf(KEYB_PAD - overshoot * CAT_GLYPH_WIDTH, cursor_y, "%s%s", keyb_buffer, keyb_show_cursor ? "|" : "");
 	cursor_y += CAT_GLYPH_HEIGHT + KEYB_PAD;
 
-	CAT_lineberry(0, cursor_y, CAT_LCD_SCREEN_W, cursor_y, CAT_BLACK);
+	CAT_lineberry(0, cursor_y, CAT_LCD_SCREEN_W, cursor_y, CAT_192_GREY);
 	cursor_y += KEYB_PAD*2;
 
 	int cursor_x = KEYB_PAD * 2;
 	const char** typecase = typecases[keyb_case];
-	for(int i = 0; i < 5; i++)
+	for(int i = 0; i < TYPECASE_ROWS; i++)
 	{
 		const char* row = typecase[i];
 		for(int j = 0; j < strlen(row); j++)
 		{
 			char glyph = row[j];
 			CAT_draw_sprite(&glyph_sprite, glyph, cursor_x + 2, cursor_y + 3);
-			if(i == keyb_row && j == keyb_glyph && keyb_section == KEYB_KEYS)
-				CAT_strokeberry(cursor_x, cursor_y, CAT_GLYPH_WIDTH + 4, CAT_GLYPH_HEIGHT + 6, 0);
+
+			uint16_t outline_c = i == keyb_row && j == keyb_glyph && keyb_section == KEYB_KEYS ?
+			CAT_BLACK : CAT_192_GREY;
+			CAT_strokeberry(cursor_x, cursor_y, CAT_GLYPH_WIDTH + 4, CAT_GLYPH_HEIGHT + 6, outline_c);
+
 			cursor_x += CAT_GLYPH_WIDTH + 8;
 		}
 		cursor_y += CAT_GLYPH_HEIGHT + 8;
@@ -435,14 +442,17 @@ void CAT_gui_keyboard()
 
 	for(int i = 0; i < KEYB_BUTTON_COUNT; i++)
 	{
-		int x = cursor_x - KEYB_PAD/2;
-		int y = cursor_y - KEYB_PAD/2;
+		int x = cursor_x;
+		int y = cursor_y;
 		int w = strlen(keyb_buttons[i].title) * CAT_GLYPH_WIDTH + KEYB_PAD;
 		int h = CAT_GLYPH_HEIGHT + KEYB_PAD;
 
-		CAT_draw_text(cursor_x, cursor_y, keyb_buttons[i].title);
-		if(keyb_section == KEYB_BUTTONS && keyb_button == i)
-			CAT_strokeberry(x, y, w, h, CAT_BLACK);
+		CAT_draw_text(cursor_x+KEYB_PAD/2, cursor_y+KEYB_PAD/2, keyb_buttons[i].title);
+
+		uint16_t outline_c = keyb_section == KEYB_BUTTONS && keyb_button == i ?
+		CAT_BLACK : CAT_192_GREY;
+		CAT_strokeberry(x, y, w, h, outline_c);
+
 		cursor_x += w + KEYB_PAD;
 	}
 }
@@ -548,14 +558,12 @@ typedef struct menu_node
 {
 	bool live;
 
-	const char* title;
+	char title[32];
 	bool clicked;
 	
 	CAT_gui_menu_type type;
 	union 
 	{
-		struct {} default_data;
-
 		struct
 		{
 			bool toggle;
@@ -569,15 +577,10 @@ typedef struct menu_node
 			int max;
 			bool changed;
 		} ticker_data;
-
-		struct
-		{
-			char text[32];
-		} text_data;
 	};
 	
 	int16_t parent;
-	uint8_t children[32];
+	uint8_t children[16];
 	uint8_t child_count;
 	int8_t selector;
 } menu_node;
@@ -590,10 +593,21 @@ static uint8_t menu_stack_length = 0;
 static int menu_root = -1;
 static bool menu_reset = false;
 static void (*menu_exit_proc)() = NULL;
+static bool menu_wrap = true;
 
 void CAT_gui_menu_override_exit(void (*exit_proc)())
 {
 	menu_exit_proc = exit_proc;
+}
+
+void CAT_gui_menu_force_reset()
+{
+	menu_reset = true;
+}
+
+void CAT_gui_menu_disable_wrap()
+{
+	menu_wrap = false;
 }
 
 uint16_t register_menu_node(const char* title, CAT_gui_menu_type type)
@@ -611,16 +625,16 @@ uint16_t register_menu_node(const char* title, CAT_gui_menu_type type)
 	menu_table[idx] = (menu_node)
 	{
 		.live = true,
-		.title = title,
 		.clicked = false,
 
 		.type = type,
-		.default_data = {},
 
 		.parent = -1,
 		.child_count = 0,
 		.selector = 0
 	};
+	strncpy(menu_table[idx].title, title, sizeof(menu_table[idx].title));
+
 	return idx;
 }
 
@@ -629,7 +643,7 @@ int find_menu_node(const char* title)
 	uint16_t idx = CAT_hash_string(title) % MENU_TABLE_SIZE;
 	while (menu_table[idx].live)
 	{
-		if (strcmp(menu_table[idx].title, title) == 0)
+		if (strncmp(menu_table[idx].title, title, sizeof(menu_table[idx].title)) == 0)
 			return idx;
 		idx++;
 	}
@@ -661,6 +675,8 @@ menu_node* get_local_head()
 
 menu_node* get_global_head()
 {
+	if(menu_root == -1)
+		return NULL;
 	menu_node* ptr = &menu_table[menu_root];
 	for(int i = 0; i < ptr->child_count; i++)
 	{
@@ -703,9 +719,9 @@ bool CAT_gui_begin_menu(const char* title)
 {
 	if(menu_reset)
 	{
-		CAT_printf("Resetting menu!\n");
 		for(int i = 0; i < MENU_TABLE_SIZE; i++)
 		{
+			menu_table[i].live = false;
 			menu_table[i].clicked = false;
 			menu_table[i].parent = -1;
 			menu_table[i].child_count = 0;
@@ -713,6 +729,7 @@ bool CAT_gui_begin_menu(const char* title)
 		}
 		menu_reset = false;
 		menu_exit_proc = NULL;
+		menu_wrap = true;
 	}
 
 	int idx = find_menu_node(title);
@@ -737,6 +754,11 @@ bool CAT_gui_begin_menu(const char* title)
 	return menu_table[idx].clicked;
 }
 
+void CAT_gui_end_menu()
+{
+	pop_menu_node();	
+}
+
 bool CAT_gui_menu_is_open()
 {
 	return menu_root != -1;
@@ -747,6 +769,10 @@ bool CAT_gui_menu_item(const char* title)
 	int idx = find_menu_node(title);
 	if(idx == -1)
 		idx = register_menu_node(title, CAT_GUI_MENU_TYPE_DEFAULT);
+
+	if(menu_table[idx].type != CAT_GUI_MENU_TYPE_DEFAULT)
+		menu_table[idx].type = CAT_GUI_MENU_TYPE_DEFAULT;
+
 	menu_add_child(idx);
 
 	return consume_click(idx);
@@ -759,6 +785,9 @@ bool CAT_gui_menu_toggle(const char* title, bool toggle, CAT_gui_toggle_style st
 		idx = register_menu_node(title, CAT_GUI_MENU_TYPE_TOGGLE);
 	menu_add_child(idx);
 	menu_node* node = &menu_table[idx];
+
+	if(node->type != CAT_GUI_MENU_TYPE_TOGGLE)
+		node->type = CAT_GUI_MENU_TYPE_TOGGLE;
 
 	node->toggle_data.toggle = toggle;
 	node->toggle_data.style = style;
@@ -775,6 +804,9 @@ int CAT_gui_menu_ticker(const char* title, int value, int min, int max)
 	menu_add_child(idx);
 	menu_node* node = &menu_table[idx];
 
+	if(node->type != CAT_GUI_MENU_TYPE_TICKER)
+		node->type = CAT_GUI_MENU_TYPE_TICKER;
+
 	if(first_call || (node->ticker_data.value != value && !node->ticker_data.changed))
 		node->ticker_data.value = value;
 	node->ticker_data.min = min;
@@ -788,40 +820,41 @@ int CAT_gui_menu_ticker(const char* title, int value, int min, int max)
 	return value;
 }
 
-bool CAT_gui_menu_text(const char* fmt, ...)
+void CAT_gui_menu_text(const char* title)
 {
-	char temp[32];
-	va_list args;
-	va_start(args, fmt);
-	vsnprintf(temp, 32, fmt, args);
-	va_end(args);
-
-	int idx = find_menu_node(temp);
+	int idx = find_menu_node(title);
 	if(idx == -1)
-		idx = register_menu_node(temp, CAT_GUI_MENU_TYPE_TEXT);
+		idx = register_menu_node(title, CAT_GUI_MENU_TYPE_TEXT);
+
+	if(menu_table[idx].type != CAT_GUI_MENU_TYPE_TEXT)
+		menu_table[idx].type = CAT_GUI_MENU_TYPE_TEXT;
+
 	menu_add_child(idx);
-	menu_node* node = &menu_table[idx];
-
-	strcpy(node->text_data.text, temp);
-	node->title = node->text_data.text;
-
-	return consume_click(idx);
-}
-
-void CAT_gui_end_menu()
-{
-	pop_menu_node();
 }
 
 void CAT_gui_menu_logic()
 {
 	menu_node* head = get_global_head();
-	
+
+	int selector_last = head->selector;
 	if(CAT_input_pressed(CAT_BUTTON_UP))
 		head->selector -= 1;
 	if(CAT_input_pressed(CAT_BUTTON_DOWN))
 		head->selector += 1;
-	head->selector = (head->selector + head->child_count) % head->child_count;
+	if(menu_wrap)
+		head->selector = CAT_wrap(head->selector, head->child_count);
+	else
+		head->selector = CAT_clamp(head->selector, 0, head->child_count-1);
+
+	while
+	(
+		menu_table[head->children[head->selector]].type == CAT_GUI_MENU_TYPE_TEXT &&
+		head->selector < head->child_count
+	)
+	{
+		head->selector += 1;
+	}
+
 	menu_node* selected = &menu_table[head->children[head->selector]];
 
 	switch (selected->type)
@@ -886,23 +919,30 @@ void CAT_gui_menu()
 	{
 		menu_node* child = &menu_table[head->children[i]];
 
-		if(child->type != CAT_GUI_MENU_TYPE_TEXT)
-			CAT_gui_textf("\1 ");
-		CAT_gui_textf("%s ", child->title);
+		if(child->type == CAT_GUI_MENU_TYPE_TEXT)
+			CAT_gui_textf("%s ", child->title);
+		else
+			CAT_gui_textf("\1 %s ", child->title);
 
 		switch (child->type)
 		{
 			case CAT_GUI_MENU_TYPE_TOGGLE:
+			{
 				CAT_set_sprite_colour(CAT_BLACK);
 				const CAT_sprite* sprite =
 				child->toggle_data.style == CAT_GUI_TOGGLE_STYLE_CHECKBOX ?
 				&ui_checkbox_sprite : &ui_radio_button_circle_sprite;
 				CAT_gui_image(sprite, child->toggle_data.toggle);
 				CAT_gui_text(" ");
+			}
 			break;
+
 			case CAT_GUI_MENU_TYPE_TICKER:
+			{
 				CAT_gui_textf("< %d > ", child->ticker_data.value);
+			}
 			break;
+
 			default:
 			break;
 		}

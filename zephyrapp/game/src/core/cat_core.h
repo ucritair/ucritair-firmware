@@ -34,8 +34,6 @@
 
 #define CAT_DEFAULT_PET_NAME "Aura"
 
-#define CAT_TEXT_INPUT_MAX_LENGTH 24
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // PLATFORM
@@ -214,6 +212,7 @@ int CAT_get_battery_pct();
 bool CAT_is_charging();
 bool CAT_is_on();
 
+void CAT_msleep(int ms);
 void CAT_sleep();
 void CAT_shutdown();
 void CAT_factory_reset();

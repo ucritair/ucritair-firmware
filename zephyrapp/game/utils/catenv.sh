@@ -8,6 +8,7 @@ fi
 source $ZEPHYR_BASE/../venv/bin/activate
 
 pip install --upgrade pip
+
 pip install pillow
 pip install PyOpenGL
 pip install glfw
@@ -15,4 +16,5 @@ pip install imgui-bundle
 pip install playsound3
 pip install numpy
 pip install qrcode
+pip install meshtastic
 pip install protobuf grpcio-tools

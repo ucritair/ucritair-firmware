@@ -128,3 +128,13 @@
 #define ingr_time_item 125
 #define ingr_aether_item 126
 #define ingr_miasma_item 127
+#define ingr_bone_item 128
+#define ingr_ceramic_item 129
+#define ingr_charcoal_item 130
+#define ingr_cloth_item 131
+#define ingr_glass_item 132
+#define ingr_leather_item 133
+#define ingr_paper_item 134
+#define ingr_salt_item 135
+#define ingr_sugar_item 136
+#define ingr_sand_item 137

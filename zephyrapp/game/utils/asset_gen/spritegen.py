@@ -59,9 +59,7 @@ with open("sprites/sprite_assets.h", "w") as fd:
 		fd.write(f"extern const CAT_tinysprite tnyspr_{sprite['name']};\n");
 	fd.write("\n");
 
-def OLV_write_epaper_sprites(fd):
-	einksize = 0;
-
+def TOS_write_epaper_sprites(fd):
 	for sprite in tinysprite_objects:
 		texture = Image.open(os.path.join("sprites", sprite["path"])).convert("RGBA");
 		width, height = texture.width, texture.height;
@@ -96,8 +94,6 @@ def OLV_write_epaper_sprites(fd):
 			words.append(w);
 
 		assert len(words) == (padded_width*height)//8;
-
-		einksize += len(words)+2;
 
 		for i, w in enumerate(words):
 			fd.write(f'{hex(w)}, ');
@@ -246,6 +242,6 @@ with open("sprites/sprite_assets.c", 'w') as fd:
 	fd.write("};\n");
 	fd.write("\n");
 
-	OLV_write_epaper_sprites(fd);
+	TOS_write_epaper_sprites(fd);
 
 	print(f"Mean compression ratio: {compression_ratio / len(path_map):.2f}");

@@ -13,6 +13,7 @@ LOG_MODULE_REGISTER(rtc, LOG_LEVEL_DBG);
 #include "lcd_driver.h"
 #include "power_control.h"
 #include "cat_persist.h"
+#include "cat_wifi.h"
 
 #include <hal/nrf_gpio.h>
 #include <soc/nrfx_coredep.h>
@@ -63,8 +64,6 @@ void configure_rtc_timer3(int for_ms)
 	nrfx_rtc_cc_set(&rtc_inst, 3, nrf_rtc_counter_get(HW_RTC_CHOSEN) + (for_ms/125), true);
 }
 
-#define RTC_INIT_CHECK_MAGIC 0xb8870011
-
 time_t get_current_rtc_time()
 {
 	return ((uint64_t) nrf_rtc_counter_get(HW_RTC_CHOSEN) + rtc_offset) / 8;
@@ -104,10 +103,10 @@ void snapshot_rtc_for_reboot()
 
 void check_rtc_init()
 {
-	if (rtc_init_check != RTC_INIT_CHECK_MAGIC)
+	if (rtc_init_check != CAT_RTC_MAGIC_NUMBER)
 	{
 		is_persist_fresh = true;
-		rtc_init_check = RTC_INIT_CHECK_MAGIC;
+		rtc_init_check = CAT_RTC_MAGIC_NUMBER;
 
 		sensor_wakeup_period = 3*60;
 		nox_sample_period = 0;
@@ -155,6 +154,10 @@ void check_rtc_init()
 			.milks_produced_today = 0,
 			.times_milked_since_producing = 0
 		};
+
+		wifi_details.ssid[0] = '\0';
+		wifi_password[0] = '\0';
+		wifi_status = CAT_WIFI_CONNECTION_NONE;
 
 		persist_flags = CAT_PERSIST_CONFIG_FLAG_NONE;
 	}

@@ -862,6 +862,12 @@ static void MS_arrange(CAT_FSM_signal signal)
 						food_list[0].position.y - ty,
 					};
 				}
+
+				for(int i = 0; i < food_count; i++)
+				{
+					food_list[i].position.x = CAT_clamp(food_list[i].position.x, FOOD_COLLISION_R, CAT_LCD_SCREEN_W-FOOD_COLLISION_R);
+					food_list[i].position.y = CAT_clamp(food_list[i].position.y, FOOD_COLLISION_R, CAT_LCD_SCREEN_H-FOOD_COLLISION_R);
+				}
 			}
 			else if (CAT_input_touch_up())
 			{

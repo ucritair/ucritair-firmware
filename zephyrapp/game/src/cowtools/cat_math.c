@@ -23,6 +23,13 @@ int quantize(float t, float range, int steps)
 	return CAT_clamp(roundf((t / range) * (float) (steps - 1)), 0, steps - 1);
 }
 
+uint32_t CAT_f2u32(float f)
+{
+	uint32_t u;
+	memcpy(&u, &f, sizeof(u));
+	return u;
+}
+
 
 //////////////////////////////////////////////////////////////////////////
 // RANDOM

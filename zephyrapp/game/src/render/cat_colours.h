@@ -23,6 +23,7 @@ uint16_t CAT_colour_curve(uint16_t* points, uint8_t length, float t);
 #define CAT_128_GREY CAT_RGB8882565(128, 128, 128)
 #define CAT_160_GREY CAT_RGB8882565(160, 160, 160)
 #define CAT_192_GREY CAT_RGB8882565(192, 192, 192)
+#define CAT_224_GREY CAT_RGB8882565(224, 224, 224)
 
 #define CAT_PAPER_CREAM 0xEF39
 #define CAT_SKY_BLUE CAT_RGB8882565(35, 157, 235)
@@ -48,3 +49,7 @@ uint16_t CAT_colour_curve(uint16_t* points, uint8_t length, float t);
 
 #define SPARKLINE_BG_COLOUR 0xe7bf
 #define SPARKLINE_FG_COLOUR 0x6b11
+
+#define CAT_MSG_BG CAT_WHITE
+#define CAT_MSG_RIM CAT_192_GREY
+#define CAT_MSG_FG CAT_BLACK

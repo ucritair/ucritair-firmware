@@ -8,7 +8,7 @@
 //////////////////////////////////////////////////////////////////////////
 // KEYBOARD
 
-void CAT_gui_open_keyboard(char* target);
+void CAT_gui_open_keyboard(char* target, size_t max_size);
 bool CAT_gui_keyboard_is_open();
 
 
@@ -44,6 +44,8 @@ typedef enum
 } CAT_gui_toggle_style;
 
 void CAT_gui_menu_override_exit(void (*exit_proc)());
+void CAT_gui_menu_force_reset();
+void CAT_gui_menu_disable_wrap();
 
 bool CAT_gui_begin_menu(const char* title);
 void CAT_gui_end_menu();
@@ -52,7 +54,7 @@ bool CAT_gui_menu_is_open();
 bool CAT_gui_menu_item(const char* title);
 bool CAT_gui_menu_toggle(const char* title, bool toggle, CAT_gui_toggle_style style);
 int CAT_gui_menu_ticker(const char* title, int value, int min, int max);
-bool CAT_gui_menu_text(const char* fmt, ...);
+void CAT_gui_menu_text(const char* title);
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -124,3 +126,4 @@ size_t CAT_get_drawn_strlen();
 
 #define CAT_FLOAT_FMT "%d.%2.2u"
 #define CAT_FMT_FLOAT(f) (int) (f), ((unsigned)(100 * ((f) - (int) (f))) % 100)
+#define CAT_LINE_CAPACITY(l, r, w) ((CAT_LCD_SCREEN_W - (l + r))/w)

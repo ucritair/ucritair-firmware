@@ -29,6 +29,9 @@ typedef struct
 	uint64_t aq_weekly_score_time;
 	CAT_AQ_crisis_state aq_crisis_state;
 	CAT_pet_timing_state pet_timing_state;
+	wifi_ap_record_t wifi_details;
+	char wifi_password[MAX_PASSWORD_LEN];
+	uint8_t wifi_status;
 	uint64_t persist_flags;
 } CAT_persist_archive;
 
@@ -58,6 +61,9 @@ void CAT_write_persist_archive(int fd)
 	archive.aq_weekly_score_time = aq_weekly_score_time;
 	archive.aq_crisis_state = aq_crisis_state;
 	archive.pet_timing_state = pet_timing_state;
+	archive.wifi_details = wifi_details;
+	memcpy(archive.wifi_password, wifi_password, sizeof(archive.wifi_password));
+	archive.wifi_status = wifi_status;
 	archive.persist_flags = persist_flags;
 	write(fd, &archive, sizeof(archive));
 }
@@ -89,6 +95,9 @@ void CAT_read_persist_archive(int fd)
 	aq_weekly_score_time = archive.aq_weekly_score_time;
 	aq_crisis_state = archive.aq_crisis_state;
 	pet_timing_state = archive.pet_timing_state;
+	wifi_details = archive.wifi_details;
+	memcpy(wifi_password, archive.wifi_password, sizeof(wifi_password));
+	wifi_status = archive.wifi_status;
 	persist_flags = archive.persist_flags;
 }
 

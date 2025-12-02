@@ -40,6 +40,9 @@ PERSIST_RAM uint64_t aq_weekly_score_time;
 
 PERSIST_RAM CAT_AQ_crisis_state aq_crisis_state;
 PERSIST_RAM CAT_pet_timing_state pet_timing_state;
+PERSIST_RAM wifi_ap_record_t wifi_details;
+PERSIST_RAM char wifi_password[MAX_PASSWORD_LEN];
+PERSIST_RAM uint8_t wifi_status;
 PERSIST_RAM uint64_t persist_flags;
 
 //////////////////////////////////////////////////////////

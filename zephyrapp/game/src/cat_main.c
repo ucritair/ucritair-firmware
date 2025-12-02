@@ -12,14 +12,32 @@
 #include "cat_spriter.h"
 #include "cat_pet.h"
 #include "cat_input.h"
+#include "cat_wifi.h"
+#include "msht.h"
+#include "cat_chat.h"
+#include "cat_radio.h"
+#include "cat_crypto.h"
 
 #include "sprite_assets.h"
+
+// static uint64_t telemetry_tx_timestamp = 0;
 
 void CAT_init()
 {
 	CAT_platform_init();
-	CAT_input_init();
 
+	CAT_wifi_init();
+	CAT_wifi_autoconnect(1000);
+
+	CAT_radio_init();
+	CAT_radio_clear_buffer();
+	CAT_radio_start_modem();
+	CAT_radio_add_chanels();
+
+	/*if(telemetry_tx_timestamp == 0)
+		telemetry_tx_timestamp = CAT_get_RTC_now() - CAT_rand_int(0, CAT_RADIO_TELEMETRY_PERIOD * 0.75f);*/
+	
+	CAT_input_init();
 	CAT_rand_seed();
 	CAT_animator_init();
 
@@ -45,8 +63,16 @@ void CAT_tick_logic()
 	CAT_platform_tick();
 	CAT_input_tick();
 
+	CAT_radio_poll_RX(CAT_chat_RX_meowback);
+
 	CAT_AQ_tick();
 	CAT_AQ_crisis_tick();
+
+	/*if(CAT_AQ_sensors_initialized() && (CAT_get_RTC_now() - telemetry_tx_timestamp) > CAT_RADIO_TELEMETRY_PERIOD)
+	{
+		CAT_radio_telemetry_TX();
+		telemetry_tx_timestamp = CAT_get_RTC_now();
+	}*/
 
 	CAT_animator_tick();
 	CAT_room_tick();
@@ -92,15 +118,8 @@ void CAT_draw_eink_refresh_notice()
 	CAT_draw_text(CAT_LCD_SCREEN_W/2, CAT_LCD_SCREEN_H-36, "PLEASE WAIT");
 }
 
-
 void CAT_draw_splash()
 {
-	/*CAT_frameberry(CAT_WHITE);
-	CAT_set_sprite_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
-	CAT_draw_sprite_raw(&ui_vxcon_logo, 0, CAT_LCD_SCREEN_W/2, CAT_LCD_SCREEN_H/2-32);
-	CAT_set_sprite_flags(CAT_DRAW_FLAG_CENTER_X | CAT_DRAW_FLAG_CENTER_Y);
-	CAT_draw_sprite_raw(&ui_vxcon_text, 0, CAT_LCD_SCREEN_W/2, CAT_LCD_SCREEN_H/2+72);*/
-
 	CAT_frameberry(CAT_BLACK);
 	CAT_draw_tinysprite(0, 0, &tnyspr_ucrit_splash, CAT_WHITE, CAT_BLACK);
 }

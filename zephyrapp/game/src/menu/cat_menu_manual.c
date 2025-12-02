@@ -20,7 +20,7 @@ enum
 };
 static int page = ABOUT;
 
-const char* credits[] =
+static const char* credits[] =
 {
 	"Aurora Aldrich",
 	"Campbell",
@@ -37,13 +37,13 @@ const char* credits[] =
 	"Rebecca Rehm",
 	"Tasha Schneider",
 	"Tomas Stegemann",
+	"Bilal",
+	"Monochroma",
+	"V",
+	"Justin"
 };
 #define NUM_CREDITS (sizeof(credits) / sizeof(credits[0]))
-
-int credit_indices[NUM_CREDITS] =
-{
-	0,1,2,3,4,5,6,7,8,9,10,11,12,13,14
-};
+static int credit_indices[NUM_CREDITS];
 
 void CAT_MS_manual(CAT_FSM_signal signal)
 {
@@ -52,6 +52,8 @@ void CAT_MS_manual(CAT_FSM_signal signal)
 		case CAT_FSM_SIGNAL_ENTER:
 		{
 			CAT_set_render_callback(CAT_render_manual);
+			for(int i = 0; i < NUM_CREDITS; i++)
+				credit_indices[i] = i;
 			for(int i = 0; i < NUM_CREDITS; i++)
 			{
 				int j = CAT_rand_int(0, NUM_CREDITS-1);
@@ -133,7 +135,7 @@ void CAT_draw_credits()
 {
 	draw_page("< CREDITS >");
 
-	int cursor_y = CAT_TILE_SIZE * 3;
+	int cursor_y = CAT_TILE_SIZE * 2 + 4;
 	for(int i = 0; i < NUM_CREDITS; i++)
 	{
 		CAT_set_text_flags(CAT_TEXT_FLAG_CENTER);

@@ -245,7 +245,6 @@ extern const CAT_sprite world_bench_tile_sprite;
 extern const CAT_sprite eink_update_machine_sprite;
 extern const CAT_sprite eink_update_clipboard_sprite;
 extern const CAT_sprite eink_update_pen_sprite;
-extern const CAT_sprite ui_aq_notice_icons;
 extern const CAT_sprite ui_item_frame_bg_spec_sprite;
 extern const CAT_sprite ui_feed_select_sprite;
 extern const CAT_sprite ui_feed_submit_sprite;
@@ -266,11 +265,22 @@ extern const CAT_sprite ingr_oil_sprite;
 extern const CAT_sprite ingr_clay_sprite;
 extern const CAT_sprite ingr_time_sprite;
 extern const CAT_sprite ui_button_alert;
-extern const CAT_sprite ui_vxcon_logo;
-extern const CAT_sprite ui_vxcon_text;
+extern const CAT_sprite ui_chat_actions;
+extern const CAT_sprite npc_guanaco_sprite;
+extern const CAT_sprite npc_luz_sprite;
+extern const CAT_sprite ingr_bone_sprite;
+extern const CAT_sprite ingr_ceramic_sprite;
+extern const CAT_sprite ingr_charcoal_sprite;
+extern const CAT_sprite ingr_cloth_sprite;
+extern const CAT_sprite ingr_glass_sprite;
+extern const CAT_sprite ingr_leather_sprite;
+extern const CAT_sprite ingr_paper_sprite;
+extern const CAT_sprite ingr_salt_sprite;
+extern const CAT_sprite ingr_sand_sprite;
+extern const CAT_sprite ingr_sugar_sprite;
 
 extern const CAT_sprite* sprite_list[];
-#define CAT_SPRITE_LIST_LENGTH 264
+#define CAT_SPRITE_LIST_LENGTH 274
 
 extern const CAT_tinysprite tnyspr_unicorn_default;
 extern const CAT_tinysprite tnyspr_unicorn_happy;
@@ -284,4 +294,5 @@ extern const CAT_tinysprite tnyspr_cloud_smoke;
 extern const CAT_tinysprite tnyspr_protected;
 extern const CAT_tinysprite tnyspr_ucrit_splash;
 extern const CAT_tinysprite tnyspr_glyphs;
+extern const CAT_tinysprite tnyspr_chat_splash;
 

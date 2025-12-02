@@ -175,7 +175,7 @@ void lcd_render_diag()
 
 		int time_since_buttons = now_ms - last_button_pressed;
 
-		if (time_since_buttons > sleep_after_seconds*1000)
+		if (time_since_buttons > sleep_after_seconds*1000 && !(persist_flags & CAT_PERSIST_CONFIG_FLAG_ETERNAL_WAKE))
 		{
 			if (!is_charging)
 			{
@@ -190,7 +190,7 @@ void lcd_render_diag()
 				// set_backlight(MAX(10, screen_brightness>>2));
 			}
 		}
-		else if (time_since_buttons > dim_after_seconds*1000)
+		else if (time_since_buttons > dim_after_seconds*1000 && !(persist_flags & CAT_PERSIST_CONFIG_FLAG_ETERNAL_WAKE))
 		{
 			set_backlight(MAX(10, screen_brightness>>1));
 		}
@@ -299,11 +299,8 @@ void lcd_render_diag()
 		if(CAT_poll_eink_update_flag())
 			CAT_eink_execute_update();
 
-		int battery = CAT_get_battery_pct();
-		if (battery == 0)
+		if (CAT_get_battery_pct() == 0)
        		CAT_shutdown();
-		else if(battery <= 10)
-			epaper_render_protected_off();
 
 		if((k_uptime_get() - last_flash_log) > (sensor_wakeup_period*1000) && is_ready_for_aqi_logging())
 		{
