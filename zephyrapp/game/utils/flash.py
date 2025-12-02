@@ -37,7 +37,7 @@ if __name__ == '__main__':
 			dfu_output = os.popen("dfu-util --list").read();
 			dfu_tokens = dfu_output.split();
 			dfu_tokens = [t for t in dfu_tokens if "serial=" in t];
-
+			
 			def strip_serial(token):
 				token = token.split("=")[1];
 				token = token.replace("\"", "");
