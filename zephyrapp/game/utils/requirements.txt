@@ -1,0 +1,11 @@
+pip
+pillow
+PyOpenGL
+glfw
+imgui-bundle
+playsound3
+numpy
+qrcode
+meshtastic
+protobuf
+grpcio-tools
