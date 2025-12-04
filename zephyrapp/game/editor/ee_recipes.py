@@ -8,20 +8,7 @@ from ee_sprites import SpriteBank, EditorSprite;
 from ee_input import InputManager;
 
 class RecipeEditor:
-	_ = None;
-
-	def __init__(self):
-		if RecipeEditor._ != None:
-			return None;
-		RecipeEditor._ = self;
-
-		self.size = (720, 720);
-		window_flag_list = [
-			imgui.WindowFlags_.no_saved_settings,
-			imgui.WindowFlags_.no_collapse,
-		];
-		self.window_flags = foldl(lambda a, b : a | b, 0, window_flag_list);
-		
+	def __init__(self):	
 		self.cell_size = 48
 		self.canvas_size = (self.cell_size * 3, self.cell_size * 3);
 		self.canvas = Canvas(self.canvas_size[0], self.canvas_size[1], 2);
@@ -110,15 +97,8 @@ class RecipeEditor:
 			if self.copy_buffer != None:
 				self.recipe["inputs"][self.input_idx] = self.copy_buffer;
 	
-	def render():
-		self = RecipeEditor._;
-		if self == None:
-			return;
-	
+	def draw(self):
 		self.canvas_io.tick();
-
-		imgui.set_next_window_size(self.size);
-		_, open = imgui.begin(f"Recipe Editor", self != None, flags=self.window_flags);
 
 		imgui.begin_group();
 		self.draw_input_grid();
@@ -132,8 +112,4 @@ class RecipeEditor:
 		self.draw_output_box();
 		self.draw_input_gui();
 		imgui.end_group();
-
-		imgui.end();
-		if not open:
-			RecipeEditor._ = None;
 			

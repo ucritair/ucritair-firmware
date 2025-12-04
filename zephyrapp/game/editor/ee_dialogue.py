@@ -2,6 +2,7 @@ from imgui_bundle import imgui, imgui_node_editor as imnodes;
 from ee_assets import AssetManager;
 from ee_cowtools import *;
 from typing import TypeVar, Generic, Type;
+from ee_procs import ProcExplorer;
 
 #########################################################
 ## DIALOGUE GRAPH
@@ -156,20 +157,7 @@ def make_verdant(first_tree):
 	return forest;
 
 class DialogueGraph:
-	_ = None;
-
 	def __init__(self):
-		if DialogueGraph._ != None:
-			return None;
-		DialogueGraph._ = self;
-
-		self.size = (1280, 720);
-		window_flag_list = [
-			imgui.WindowFlags_.no_saved_settings,
-			imgui.WindowFlags_.no_collapse,
-		];
-		self.window_flags = foldl(lambda a, b : a | b, 0, window_flag_list);
-
 		self.context = imnodes.create_editor();
 
 		self.node_bank = AssetManager.get_assets("dialogue");
@@ -181,21 +169,11 @@ class DialogueGraph:
 	def __del__(self):
 		imnodes.destroy_editor(self.context);
 
-	def live():
-		return DialogueGraph._ != None;
-
-	def render():
-		self = DialogueGraph._;
-		if self == None:
-			return;
-	
+	def draw(self):
 		GenID.reset_frame_ids();
 		
-		imgui.set_next_window_size(self.size);
-		_, open = imgui.begin("Dialogue Graph", self != None, flags=self.window_flags);
-		
 		imgui.begin_group();
-		imgui.set_next_item_width(self.size[0]/8);
+		imgui.set_next_item_width(160);
 		if imgui.begin_combo(f"##{id(self.node_buffer)}", self.node_buffer["name"] if self.node_buffer != None else ""):
 			for asset in self.node_bank:
 				selected = self.node_buffer != None and asset == self.node_buffer;
@@ -265,8 +243,70 @@ class DialogueGraph:
 
 		imnodes.end();
 
-		self.size = imgui.get_window_size();
-		imgui.end();
 
-		if not open:
-			DialogueGraph._ = None;
+#########################################################
+## DIALOGUE EDITOR
+
+class DialogueEditor:
+	def __init__(self):		
+		self.nodes = AssetManager.get_assets("dialogue");
+		self.node = None;
+		self.trash = [];
+	
+	def node_selector(self):
+		if imgui.begin_combo(f"Dialogue", self.node["name"] if not self.node is None else "None"):
+			for node in self.nodes:
+				selected = node == self.node;
+				if imgui.selectable(node["name"], selected)[0]:
+					self.node = node;
+				if selected:
+					imgui.set_item_default_focus();
+			imgui.end_combo();
+
+	def draw(self):
+		for key, idx in self.trash:
+			del self.node[key][idx];
+		self.trash = [];
+
+		self.node_selector();
+
+		if self.node != None:
+			if imgui.collapsing_header("Lines"):
+				for idx in range(len(self.node["lines"])):
+					_, self.node["lines"][idx] = imgui.input_text(str(idx), self.node["lines"][idx]);
+					imgui.same_line();
+					if imgui.button(f"Delete##line{idx}"):
+						self.trash.append(("lines", idx));
+				if imgui.button("New##line"):
+					self.node["lines"].append("Hello, world!");
+
+			if imgui.collapsing_header("Edges"):
+				for (idx, edge) in enumerate(self.node["edges"]):
+					imgui.push_id(idx);
+					if imgui.tree_node(f"{edge["text"]}####{idx}"):
+						_, edge["text"] = imgui.input_text("Text", edge["text"]);
+						if imgui.begin_combo("Node", edge["node"]):
+							for node in self.nodes:
+								selected = node["name"] == edge["node"];
+								if imgui.selectable(node["name"], selected)[0]:
+									edge["node"] = node["name"];
+								if selected:
+									imgui.set_item_default_focus();
+							imgui.end_combo();
+						
+						imgui.text(f"proc");
+						imgui.same_line();
+						_, edge["proc"] = imgui.input_text("##", str(edge["proc"]));
+						imgui.same_line();
+						if imgui.button("..."):
+							ProcExplorer("src/world");
+						if ProcExplorer.live():
+							edge["proc"] = ProcExplorer.render(edge["proc"]);
+
+						imgui.tree_pop();
+					imgui.pop_id();
+					if imgui.button(f"Delete##edge{idx}"):
+						self.trash.append(("edges", idx));
+				if imgui.button("New##edge"):
+					new = AssetManager.get_document("dialogue").type_helper.prototype("/edges", True);
+					self.node["edges"].append(new);

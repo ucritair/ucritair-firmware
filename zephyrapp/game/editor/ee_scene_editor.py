@@ -134,21 +134,7 @@ class BackgroundPainter:
 
 
 class SceneEditor:
-	_ = None;
-
 	def __init__(self):
-		if SceneEditor._ != None:
-			return None;
-		SceneEditor._ = self;
-
-		self.size = (1280, 720);
-		window_flag_list = [
-			imgui.WindowFlags_.no_saved_settings,
-			imgui.WindowFlags_.no_collapse,
-		];
-		self.window_flags = foldl(lambda a, b : a | b, 0, window_flag_list);
-		self.open = True;
-
 		self.canvas_size = (1024, 1024);
 		self.tile_size = 16;
 		self.canvas = Canvas(self.canvas_size[0], self.canvas_size[1]);
@@ -395,65 +381,51 @@ class SceneEditor:
 		aabb = self.canvas_grid.untransform_aabb(self.scene["bounds"]);
 		self.canvas.draw_aabb(aabb, (255, 0, 0));
 
-	def render():
-		if SceneEditor._ == None:
-			return;
-		self = SceneEditor._;
+	def draw(self):
+		self.hygiene_pass();
 
-		if self.open:
-			self.hygiene_pass();
-
-			imgui.set_next_window_size(self.size);
-			_, self.open = imgui.begin(f"Scene Canvas", self.open, flags=self.window_flags);
-
-			if self.is_scene_loaded():
-				if self.floor_painter != None:
-					self.floor_painter.io();
-				else:
-					self.selection_io();
-
-				imgui.begin_group();
-
-				self.canvas_draw_background();
-				if self.show_axes:
-					self.canvas_draw_axes();
-				
-				self.canvas_draw_layers();
-				self.canvas_draw_selection();
-
-				if self.show_bounds:
-					self.canvas_draw_bounds();
-				if self.show_viewport:
-					self.canvas_draw_viewport();
-
-				# Cursor IO has to come right before canvas draw
-				self.canvas.render();
-				self.canvas_io.tick();
-				self.cursor_io(imgui.get_cursor_screen_pos());
-			
-				_, self.show_axes = imgui.checkbox("Show axes", self.show_axes);
-				imgui.same_line();
-				_, self.show_viewport = imgui.checkbox("Show viewport", self.show_viewport);
-				imgui.same_line();
-				_, self.show_gizmos = imgui.checkbox("Show gizmos", self.show_gizmos);
-				imgui.same_line();
-				_, self.show_bounds = imgui.checkbox("Show bounds", self.show_bounds);
-			
-				imgui.end_group();
-				imgui.same_line();
-				imgui.begin_group();
-			
-				self.gui_draw_scene();
-			
-				imgui.end_group();
-			else:
-				self.scene = imgui_asset_selector(id(self.scene), "scene", self.scene);
-			
-			self.size = imgui.get_window_size();
-			imgui.end();
-		
+		if self.is_scene_loaded():
 			if self.floor_painter != None:
-				self.floor_painter.draw();
+				self.floor_painter.io();
+			else:
+				self.selection_io();
+
+			imgui.begin_group();
+
+			self.canvas_draw_background();
+			if self.show_axes:
+				self.canvas_draw_axes();
+			
+			self.canvas_draw_layers();
+			self.canvas_draw_selection();
+
+			if self.show_bounds:
+				self.canvas_draw_bounds();
+			if self.show_viewport:
+				self.canvas_draw_viewport();
+
+			# Cursor IO has to come right before canvas draw
+			self.canvas.render();
+			self.canvas_io.tick();
+			self.cursor_io(imgui.get_cursor_screen_pos());
 		
-		if not self.open:
-			SceneEditor._ = None;
+			_, self.show_axes = imgui.checkbox("Show axes", self.show_axes);
+			imgui.same_line();
+			_, self.show_viewport = imgui.checkbox("Show viewport", self.show_viewport);
+			imgui.same_line();
+			_, self.show_gizmos = imgui.checkbox("Show gizmos", self.show_gizmos);
+			imgui.same_line();
+			_, self.show_bounds = imgui.checkbox("Show bounds", self.show_bounds);
+		
+			imgui.end_group();
+			imgui.same_line();
+			imgui.begin_group();
+		
+			self.gui_draw_scene();
+		
+			imgui.end_group();
+		else:
+			self.scene = imgui_asset_selector(id(self.scene), "scene", self.scene);
+			
+		if self.floor_painter != None:
+			self.floor_painter.draw();

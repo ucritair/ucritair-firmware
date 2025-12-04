@@ -9,25 +9,8 @@ from ee_sprites import SpriteBank;
 from ee_input import InputManager;
 from ee_procs import ProcExplorer;
 
-#########################################################
-## PROP EDITOR
-
 class PropEditor:
-	_ = None;
-
 	def __init__(self):
-		if PropEditor._ != None:
-			return None;
-		PropEditor._ = self;
-
-		self.window_size = (680, 680);
-		window_flag_list = [
-			imgui.WindowFlags_.no_saved_settings,
-			imgui.WindowFlags_.no_collapse,
-		];
-		self.window_flags = foldl(lambda a, b : a | b, 0, window_flag_list);
-		self.open = True;
-
 		self.canvas_size = (256, 256);
 		self.tile_size = 16;
 
@@ -107,7 +90,6 @@ class PropEditor:
 	
 		for candidate in candidates:
 			edge = self.get_near_edge_idx(candidate);
-			print(edge);
 			if edge != -1:
 				self.editee = candidate;
 				self.edit_context["edge_idx"] = edge;
@@ -159,50 +141,36 @@ class PropEditor:
 				tx, ty = trigger["direction"];
 				self.canvas.draw_line(cx, cy, cx+tx*self.tile_size, cy+ty*self.tile_size, (0, 255, 0));
 
-	def render():
-		if PropEditor._ == None:
-			return;
-		self = PropEditor._;
+	def draw(self):
+		self.prop = imgui_asset_selector(id(self.prop), "prop", self.prop);
 
-		if self.open:
-			imgui.set_next_window_size(self.window_size);
-			_, self.open = imgui.begin(f"Prop Editor", self.open, flags=self.window_flags);
+		self.canvas.clear((128, 128, 128));
+		self.canvas_grid.draw_lines((64, 64, 64));
+		self.canvas_draw_prop(
+			show_sprite=self.show_sprite,
+			show_aabb=self.show_aabb,
+			show_blockers=self.show_blockers,
+			show_triggers=self.show_triggers
+		);
+		self.canvas.render();
 
-			self.prop = imgui_asset_selector(id(self.prop), "prop", self.prop);
+		self.canvas_io.tick();
 
-			self.canvas.clear((128, 128, 128));
-			self.canvas_grid.draw_lines((64, 64, 64));
-			self.canvas_draw_prop(
-				show_sprite=self.show_sprite,
-				show_aabb=self.show_aabb,
-				show_blockers=self.show_blockers,
-				show_triggers=self.show_triggers
-			);
-			self.canvas.render();
+		if self.prop != None:
+			if InputManager.is_pressed(glfw.MOUSE_BUTTON_LEFT) and not self.is_editing():	
+				self.find_editee();
+			if self.is_editing():
+				self.canvas_aabb_edit_io();
 
-			self.canvas_io.tick();
+		_, self.show_sprite = imgui.checkbox("Show sprite", self.show_sprite);
+		imgui.same_line();
+		_, self.show_aabb = imgui.checkbox("Show AABB", self.show_aabb);
+		imgui.same_line();
+		_, self.show_blockers = imgui.checkbox("Show Blockers", self.show_blockers);
+		imgui.same_line();
+		_, self.show_triggers = imgui.checkbox("Show Triggers", self.show_triggers);
 
-			if self.prop != None:
-				if InputManager.is_pressed(glfw.MOUSE_BUTTON_LEFT) and not self.is_editing():	
-					self.find_editee();
-				if self.is_editing():
-					self.canvas_aabb_edit_io();
+		if self.prop != None and self.prop["palette"]:
+			_, self.variant = imgui.slider_int("Variant", self.variant, 0, SpriteBank.get(self.prop["sprite"]).frame_count-1);
 
-			_, self.show_sprite = imgui.checkbox("Show sprite", self.show_sprite);
-			imgui.same_line();
-			_, self.show_aabb = imgui.checkbox("Show AABB", self.show_aabb);
-			imgui.same_line();
-			_, self.show_blockers = imgui.checkbox("Show Blockers", self.show_blockers);
-			imgui.same_line();
-			_, self.show_triggers = imgui.checkbox("Show Triggers", self.show_triggers);
-
-			if self.prop != None and self.prop["palette"]:
-				_, self.variant = imgui.slider_int("Variant", self.variant, 0, SpriteBank.get(self.prop["sprite"]).frame_count-1);
-
-			self.gui_addition_panel();
-			
-			self.window_size = imgui.get_window_size();
-			imgui.end();
-		
-		if not self.open:
-			PropEditor._ = None;
+		self.gui_addition_panel();
