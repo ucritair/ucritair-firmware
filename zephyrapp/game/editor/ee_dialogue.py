@@ -2,7 +2,6 @@ from imgui_bundle import imgui, imgui_node_editor as imnodes;
 from ee_assets import AssetManager;
 from ee_cowtools import *;
 from typing import TypeVar, Generic, Type;
-from ee_procs import ProcExplorer;
 
 #########################################################
 ## DIALOGUE GRAPH
@@ -298,10 +297,6 @@ class DialogueEditor:
 						imgui.same_line();
 						_, edge["proc"] = imgui.input_text("##", str(edge["proc"]));
 						imgui.same_line();
-						if imgui.button("..."):
-							ProcExplorer("src/world");
-						if ProcExplorer.live():
-							edge["proc"] = ProcExplorer.render(edge["proc"]);
 
 						imgui.tree_pop();
 					imgui.pop_id();
