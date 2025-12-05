@@ -2,47 +2,47 @@
 
 import assetgen;
 
-trp = assetgen.Triptych("data/props.json");
+triptych = assetgen.Triptych(
+	"data/props.json",
+	"data/prop_assets.h",
+	"data/prop_assets.c"
+);
+data = triptych.json_data;
+hdr = triptych.header_writer;
+src = triptych.source_writer;
 
-trp.header_intro(["\"cat_scene.h\""]);
-trp.source_intro(["\"sprite_assets.h\"", "\"cat_procs.h\""]);
+hdr.write_header(["\"cat_scene.h\""]);
+src.write_header(["\"sprite_assets.h\"", "\"cat_procs.h\""]);
 
-for instance in trp.instances:
-	trp.begin_asset_def(instance);
+for instance in data.instances:
+	src.start_body(instance["name"]);
+	src.variable("sprite", f"&{instance["sprite"]}");
 
-	trp.swrite(f".sprite = &{instance["sprite"]},\n");
-
-	trp.swrite(".blockers = (int8_t*[]) {\n");
-	trp.source_indent();
+	src.start_block("blockers", "int8_t*[]");
 	for blocker in instance["blockers"]:
-		trp.swrite("(int8_t[]) {");
+		src.start_block(type="int8_t[]");
 		for element in blocker:
-			trp.swrite(f"{int(element)},", no_indent=True);
-		trp.swrite("},\n", no_indent=True);
-	trp.source_unindent();
-	trp.swrite("},\n");
-	trp.swrite(f".blocker_count = {len(instance["blockers"])},\n");
+			src.literal(int(element));
+		src.end_block();
+	src.end_block();
+	src.variable("blocker_count", len(instance["blockers"]));
 
-	trp.swrite(".triggers = (struct trigger[]) {\n");
-	trp.source_indent();
+	src.start_block("triggers", "struct trigger[]");
 	for trigger in instance["triggers"]:
-		trp.swrite("{\n");
-		trp.source_indent();
-
-		trp.swrite(".aabb = {");
+		src.start_block();
+		
+		src.start_block("aabb");
 		for element in trigger["aabb"]:
-			trp.swrite(f"{element},", no_indent=True);
-		trp.swrite("},\n", no_indent=True);
+			src.literal(int(element));
+		src.end_block();
 
-		trp.swrite(f".tx = {trigger["direction"][0]},\n");
-		trp.swrite(f".ty = {trigger["direction"][1]},\n");
+		src.variable("tx", int(trigger["direction"][0]));
+		src.variable("ty", int(trigger["direction"][1]));
 
-		trp.swrite(f".proc = {trigger["proc"] if trigger["proc"] != "" else "NULL"},\n");
+		src.variable("proc", trigger["proc"] if trigger["proc"] != "" else "NULL");
 
-		trp.source_unindent();
-		trp.swrite("},\n");
-	trp.source_unindent();
-	trp.swrite("},\n");
-	trp.swrite(f".trigger_count = {len(instance["triggers"])},\n");
+		src.end_block();
+	src.end_block();
+	src.variable("trigger_count", len(instance["triggers"]));
 
-	trp.end_asset_def();
+	src.end_body();

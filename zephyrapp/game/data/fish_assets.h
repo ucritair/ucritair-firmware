@@ -1,24 +1,24 @@
 #pragma once
 
-#define FISH_COUNT 16
+#include "cat_study.h"
 
-#include "caring/cat_study.h"
+extern const CAT_fish fish_mackerel;
+extern const CAT_fish fish_crucian_carp;
+extern const CAT_fish fish_sardine;
+extern const CAT_fish fish_cod;
+extern const CAT_fish fish_herring;
+extern const CAT_fish fish_tilapia;
+extern const CAT_fish fish_crawfish;
+extern const CAT_fish fish_catfish;
+extern const CAT_fish fish_eel;
+extern const CAT_fish fish_salmon;
+extern const CAT_fish fish_gindara;
+extern const CAT_fish fish_ruby_trout;
+extern const CAT_fish fish_skipjack_tuna;
+extern const CAT_fish fish_yellowtail;
+extern const CAT_fish fish_coelecanth;
+extern const CAT_fish fish_myaurr;
 
-extern const CAT_fish mackerel_fish;
-extern const CAT_fish crucian_carp_fish;
-extern const CAT_fish sardine_fish;
-extern const CAT_fish cod_fish;
-extern const CAT_fish herring_fish;
-extern const CAT_fish tilapia_fish;
-extern const CAT_fish crawfish_fish;
-extern const CAT_fish catfish_fish;
-extern const CAT_fish eel_fish;
-extern const CAT_fish salmon_fish;
-extern const CAT_fish gindara_fish;
-extern const CAT_fish ruby_trout_fish;
-extern const CAT_fish skipjack_tuna_fish;
-extern const CAT_fish yellowtail_fish;
-extern const CAT_fish coelecanth_fish;
-extern const CAT_fish myaurr_fish;
+extern const CAT_fish* CAT_fish_list[];
+#define CAT_FISH_COUNT 16
 
-extern const CAT_fish* fish_list[];

@@ -33,7 +33,7 @@
 //////////////////////////////////////////////////////////////////////////
 // THEME
 
-static const CAT_room_theme* theme = &basic_theme;
+static const CAT_room_theme* theme = &theme_basic;
 
 void CAT_room_set_theme(const CAT_room_theme* _theme)
 {
@@ -428,7 +428,7 @@ static bool first_entry = true;
 
 void CAT_room_init()
 {
-	theme = &basic_theme;
+	theme = &theme_basic;
 	init_grid();
 	prop_list.length = 0;
 	pickup_list.length = 0;

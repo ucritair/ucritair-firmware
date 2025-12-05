@@ -25,7 +25,6 @@ const CAT_dialogue_node dialogue_reed_default =
 	},
 	.edge_count = 2,
 };
-
 const CAT_dialogue_node dialogue_reed_house =
 {
 	.lines = (const char*[])
@@ -39,7 +38,6 @@ const CAT_dialogue_node dialogue_reed_house =
 	},
 	.edge_count = 0,
 };
-
 const CAT_dialogue_node dialogue_statue_default =
 {
 	.lines = (const char*[])
@@ -63,7 +61,6 @@ const CAT_dialogue_node dialogue_statue_default =
 	},
 	.edge_count = 2,
 };
-
 const CAT_dialogue_node dialogue_statue_chirp =
 {
 	.lines = (const char*[])
@@ -76,7 +73,6 @@ const CAT_dialogue_node dialogue_statue_chirp =
 	},
 	.edge_count = 0,
 };
-
 const CAT_dialogue_node dialogue_ellipsis =
 {
 	.lines = (const char*[])
@@ -89,7 +85,6 @@ const CAT_dialogue_node dialogue_ellipsis =
 	},
 	.edge_count = 0,
 };
-
 const CAT_dialogue_node dialogue_reed_admonish_no_food =
 {
 	.lines = (const char*[])
@@ -104,7 +99,6 @@ const CAT_dialogue_node dialogue_reed_admonish_no_food =
 	},
 	.edge_count = 0,
 };
-
 const CAT_dialogue_node dialogue_reed_congratulate_food =
 {
 	.lines = (const char*[])
@@ -119,7 +113,6 @@ const CAT_dialogue_node dialogue_reed_congratulate_food =
 	},
 	.edge_count = 0,
 };
-
 const CAT_dialogue_node dialogue_reed_question_fish =
 {
 	.lines = (const char*[])
@@ -149,7 +142,6 @@ const CAT_dialogue_node dialogue_reed_question_fish =
 	},
 	.edge_count = 3,
 };
-
 const CAT_dialogue_node dialogue_admonish_1 =
 {
 	.lines = (const char*[])
@@ -162,7 +154,6 @@ const CAT_dialogue_node dialogue_admonish_1 =
 	},
 	.edge_count = 0,
 };
-
 const CAT_dialogue_node dialogue_reed_congratulate_fish =
 {
 	.lines = (const char*[])
@@ -177,7 +168,6 @@ const CAT_dialogue_node dialogue_reed_congratulate_fish =
 	},
 	.edge_count = 0,
 };
-
 const CAT_dialogue_node dialogue_reed_amused_fish =
 {
 	.lines = (const char*[])
@@ -191,7 +181,6 @@ const CAT_dialogue_node dialogue_reed_amused_fish =
 	},
 	.edge_count = 0,
 };
-
 const CAT_dialogue_node dialogue_market_default =
 {
 	.lines = (const char*[])
@@ -206,7 +195,6 @@ const CAT_dialogue_node dialogue_market_default =
 	},
 	.edge_count = 0,
 };
-
 const CAT_dialogue_node dialogue_arcade_default =
 {
 	.lines = (const char*[])
@@ -220,5 +208,3 @@ const CAT_dialogue_node dialogue_arcade_default =
 	},
 	.edge_count = 0,
 };
-
-

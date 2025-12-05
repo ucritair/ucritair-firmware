@@ -1,11 +1,11 @@
 #pragma once
 
-#define THEME_COUNT 3
-
 #include "cat_room.h"
 
-extern const CAT_room_theme basic_theme;
-extern const CAT_room_theme grass_theme;
-extern const CAT_room_theme roof_theme;
+extern const CAT_room_theme theme_basic;
+extern const CAT_room_theme theme_grass;
+extern const CAT_room_theme theme_roof;
 
-extern const CAT_room_theme* themes_list[];
+extern const CAT_room_theme* CAT_room_theme_list[];
+#define CAT_ROOM_THEME_COUNT 3
+

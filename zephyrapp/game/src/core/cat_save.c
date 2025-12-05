@@ -55,9 +55,9 @@ void CAT_force_save()
 
 	save->config.flags = CAT_get_config_flags();
 
-	for(int i = 0; i < THEME_COUNT; i++)
+	for(int i = 0; i < CAT_ROOM_THEME_COUNT; i++)
 	{
-		if(themes_list[i] == CAT_room_get_theme())
+		if(CAT_room_theme_list[i] == CAT_room_get_theme())
 		{
 			save->config.theme = i;
 		}
@@ -263,8 +263,8 @@ void CAT_force_load()
 	foursquares_highscore = save->highscores.foursquares;
 
 	CAT_set_config_flags(save->config.flags);
-	if(save->config.theme < THEME_COUNT)
-		CAT_room_set_theme(themes_list[save->config.theme]);
+	if(save->config.theme < CAT_ROOM_THEME_COUNT)
+		CAT_room_set_theme(CAT_room_theme_list[save->config.theme]);
 
 	CAT_printf("Load complete!\n");
 }

@@ -425,7 +425,7 @@ static void render_MS_cast()
 
 static CAT_vec2 hook;
 
-static int fish_pool_backing[FISH_COUNT*3];
+static int fish_pool_backing[CAT_FISH_COUNT*3];
 static CAT_int_list fish_pool;
 
 static struct
@@ -461,10 +461,10 @@ static int xp_reward;
 
 static void init_fish(CAT_vec2 lead_position, CAT_vec2 lead_heading, float lead_radius)
 {
-	CAT_ilist(&fish_pool, fish_pool_backing, FISH_COUNT*3);
-	for(int i = 0; i < FISH_COUNT; i++)
+	CAT_ilist(&fish_pool, fish_pool_backing, CAT_FISH_COUNT*3);
+	for(int i = 0; i < CAT_FISH_COUNT; i++)
 	{
-		const CAT_fish* fish_type = fish_list[i];
+		const CAT_fish* fish_type = CAT_fish_list[i];
 		if(fish_type->grade_constraint <= cast_grade)
 		{
 			for(int j = 0; j <= cast_grade; j++)
@@ -473,7 +473,7 @@ static void init_fish(CAT_vec2 lead_position, CAT_vec2 lead_heading, float lead_
 	}
 	CAT_ilist_shuffle(&fish_pool);
 	int choice = fish_pool.data[CAT_rand_int(0, fish_pool.length-1)];
-	fish.type = fish_list[choice];
+	fish.type = CAT_fish_list[choice];
 	fish.grade = CAT_rand_int(fish.type->grade_constraint, cast_grade);
 	if(cast_grade == 2)
 	{

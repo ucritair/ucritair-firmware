@@ -26,6 +26,7 @@
             }
         }
     },
+	"code" : "dialogue",
     "instances": [
         {
             "name": "reed_default",

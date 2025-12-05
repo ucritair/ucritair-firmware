@@ -42,6 +42,7 @@
             }
         }
     },
+	"code" : "theme",
     "instances": [
         {
             "name": "basic",

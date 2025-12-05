@@ -1,7 +1,5 @@
 #pragma once
 
-#define DIALOGUE_COUNT 13
-
 #include "cat_dialogue.h"
 #include <stddef.h>
 
@@ -18,3 +16,4 @@ extern const CAT_dialogue_node dialogue_reed_congratulate_fish;
 extern const CAT_dialogue_node dialogue_reed_amused_fish;
 extern const CAT_dialogue_node dialogue_market_default;
 extern const CAT_dialogue_node dialogue_arcade_default;
+

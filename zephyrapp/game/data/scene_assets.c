@@ -1,14 +1,16 @@
-#include "scene_assets.h"
 #include "prop_assets.h"
 #include "cat_render.h"
 #include "sprite_assets.h"
 
-const CAT_scene test_scene = {
+const CAT_scene test_scene =
+{
 	.bounds = {-24, -24, 24, 24},
-	.background = {
+	.background = 
+	{
 		.colour = 36144,
 		.palette = &floor_grass_tile_sprite,
-		.tiles = (struct tile[]) {
+		.tiles = (struct tile[])
+		{
 			{
 				.x = -11,
 				.y = 0,
@@ -677,9 +679,11 @@ const CAT_scene test_scene = {
 		},
 		.tile_count = 133,
 	},
-	.layers = (struct layer[]) {
+	.layers = (struct layer[])
+	{
 		{
-			.props = (CAT_prop_instance[]) {
+			.props = (CAT_prop_instance[])
+			{
 				{
 					.prop = &node_grass_prop,
 					.position_x = -10.0,

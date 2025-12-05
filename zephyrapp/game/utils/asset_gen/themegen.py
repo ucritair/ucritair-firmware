@@ -1,84 +1,61 @@
 #!/usr/bin/env python3
 
-import sys;
-import json;
-import os;
-import pathlib as pl;
+import assetgen;
 
-json_file = open("data/themes.json", "r");
-json_data = json.load(json_file);
-json_entries = json_data['instances'];
-json_file.close();
+triptych = assetgen.Triptych(
+	"data/themes.json",
+	"data/theme_assets.h",
+	"data/theme_assets.c"
+);
+data = triptych.json_data;
+data.ctype_name = "CAT_room_theme";
+hdr = triptych.header_writer;
+src = triptych.source_writer;
 
-for entry in json_entries:
-	if not entry['tile_wall']:
-		entry['wall_map'] = [];
-	if not entry['tile_floor']:
-		entry['floor_map'] = [];
+hdr.write_header(["\"cat_room.h\""]);
+hdr.write_list();
+src.write_header(["\"theme_assets.h\"", "\"sprite_assets.h\""]);
 
-header = open("data/theme_assets.h", "w");
-header.write("#pragma once\n");
-header.write("\n");
-header.write(f"#define THEME_COUNT {len(json_entries)}\n");
-header.write("\n");
-header.write("#include \"cat_room.h\"\n");
-header.write("\n");
-for (idx, theme) in enumerate(json_entries):
-	header.write(f"extern const CAT_room_theme {theme['name']}_theme;\n");
-header.write("\n");
-header.write("extern const CAT_room_theme* themes_list[];\n");
-header.close();
+for instance in data.instances:
+	src.start_body(instance["name"]);
+	src.variable("name", f"\"{instance['display_name']}\"");
 
-def write_map(f, m, w, h):
-	if len(m) != w * h:
-		f.write("\t{0},\n");
-		return;
-	f.write("\t{\n");
-	for y in range(h):
-		f.write("\t\t");
-		for x in range(w):
-			idx = y * w + x;
-			f.write(f"{m[idx]},");
-		f.write("\n");
-	f.write("\t},\n")
+	src.variable("wall_tiles", f"&{instance['wall_tiles']}");
+	src.variable("tile_wall", str(instance['tile_wall']).lower());
+	src.start_block("wall_map", "uint8_t[]");
+	if len(instance["wall_map"]) == 6*15:
+		for y in range(6):
+			for x in range(15):
+				idx = y * 15 + x;
+				src.literal(int(instance["wall_map"][idx]));
+	else:
+		src.literal(0);
+	src.end_block();
+	src.write();
 
-def write_rect(f, r):
-	f.write("\t{\n");
-	f.write(f"\t\t.min = {{{r[0]}, {r[1]}}},\n");
-	f.write(f"\t\t.max = {{{r[0]+r[2]}, {r[1]+r[3]}}},\n");
-	f.write("\t},\n");
+	src.start_block("window_rect");
+	src.variable("min", f"{{{instance["window_rect"][0]}, {instance["window_rect"][1]}}}");
+	src.variable("max", f"{{{instance["window_rect"][0]+instance["window_rect"][2]}, {instance["window_rect"][1]+instance["window_rect"][3]}}}");
+	src.end_block();
+	src.write();
 
-source = open("data/theme_assets.c", "w");
-source.write("#include \"theme_assets.h\"\n");
-source.write("\n");
-source.write("#include \"sprite_assets.h\"\n");
-source.write("\n");
-for (idx, theme) in enumerate(json_entries):
-	source.write(f"const CAT_room_theme {theme['name']}_theme =\n");
-	source.write("{\n");
+	src.variable("floor_tiles", f"&{instance['floor_tiles']}");
+	src.variable("tile_floor", str(instance['tile_floor']).lower());
+	src.start_block("floor_map", "uint8_t[]");
+	if len(instance["floor_map"]) == 14*15:
+		for y in range(14):
+			for x in range(15):
+				idx = y * 15 + x;
+				src.literal(int(instance["floor_map"][idx]));
+	else:
+		src.literal(0);
+	src.end_block();
+	src.write();
 
-	source.write(f"\t.name = \"{theme['display_name']}\",\n");
-	source.write(f"\t.wall_tiles = &{theme['wall_tiles']},\n");
-	source.write(f"\t.tile_wall = {str(theme['tile_wall']).lower()},\n");
-	source.write(f"\t.wall_map = (uint8_t[])\n");
-	write_map(source, theme['wall_map'], 15, 6);
-	source.write(f"\t.window_rect = (CAT_rect)\n");
-	write_rect(source, theme['window_rect']);
+	src.end_body();
+src.write();
 
-	source.write(f"\t.floor_tiles = &{theme['floor_tiles']},\n");
-	source.write(f"\t.tile_floor = {str(theme['tile_floor']).lower()},\n");
-	source.write(f"\t.floor_map = (uint8_t[])\n");
-	write_map(source, theme['floor_map'], 15, 14);
-
-	source.write("};\n");
-	source.write("\n");
-source.write("\n");
-source.write("const CAT_room_theme* themes_list[] =\n");
-source.write("{\n");
-for (idx, theme) in enumerate(json_entries):
-	source.write(f"\t&{theme['name']}_theme,\n");
-source.write("};\n");
-source.close();
+src.write_list();
 
 
 

@@ -2,64 +2,66 @@
 
 import assetgen;
 
-trp = assetgen.Triptych("data/scenes.json");
-trp.header_intro(["\"cat_scene.h\""]);
-trp.source_intro(["\"prop_assets.h\"", "\"cat_render.h\"", "\"sprite_assets.h\""]);
+def TOS_RGBA88882RGB565(c):
+	if len(c) == 4 and c[3] < 128:
+		return 0xdead;
+	r = int((c[0] / 255) * 31);
+	g = int((c[1] / 255) * 63);
+	b = int((c[2] / 255) * 31);
+	return (r << 11) | (g << 5) | b;
 
-for instance in trp.instances:
-	trp.begin_asset_def(instance);
+triptych = assetgen.Triptych(
+	"data/scenes.json",
+	"data/scene_assets.h",
+	"data/scene_assets.c"
+);
+data = triptych.json_data;
+hdr = triptych.header_writer;
+src = triptych.source_writer;
+
+hdr.write_header(["\"cat_scene.h\""]);
+src.write_header(["\"prop_assets.h\"", "\"cat_render.h\"", "\"sprite_assets.h\""]);
+
+for instance in data.instances:
+	src.start_body(instance["name"]);
 
 	x0, y0, x1, y1 = instance["bounds"];
-	trp.swrite(f".bounds = {{{x0}, {y0}, {x1}, {y1}}},\n");
+	src.variable("bounds", f"{{{x0}, {y0}, {x1}, {y1}}}");
 
-	trp.swrite(".background = {\n");
-	trp.source_indent();
-	trp.swrite(f".colour = {assetgen.TOS_RGBA88882RGB565(instance["background"]["colour"])},\n");
-	trp.swrite(f".palette = &{instance["background"]["palette"]},\n");
-	trp.swrite(".tiles = (struct tile[]) {\n");
-	trp.source_indent();
+	src.start_block("background");
+
+	src.variable("colour", TOS_RGBA88882RGB565(instance["background"]["colour"]));
+	src.variable("palette", f"&{instance["background"]["palette"]}");
+	
+	src.start_block("tiles", "struct tile[]");
 	for tile in instance["background"]["tiles"]:
-		trp.swrite("{\n");
-		trp.source_indent();
-		trp.swrite(f".x = {int(tile["position"][0])},\n");
-		trp.swrite(f".y = {int(tile["position"][1])},\n");
-		trp.swrite(f".frame = {int(tile["frame"])},\n");
-		trp.source_unindent();
-		trp.swrite("},\n");
-	trp.source_unindent();
-	trp.swrite("},\n");
-	trp.swrite(f".tile_count = {len(instance["background"]["tiles"])},\n");
-	trp.source_unindent();
-	trp.swrite("},\n");
+		src.start_block();
+		src.variable("x", int(tile["position"][0]));
+		src.variable("y", int(tile["position"][1]));
+		src.variable("frame", int(tile["frame"]));
+		src.end_block();
+	src.end_block();
+	src.variable("tile_count", len(instance["background"]["tiles"]));
 
-	trp.swrite(".layers = (struct layer[]) {\n");
-	trp.source_indent();
+	src.end_block();
+	src.start_block("layers", "struct layer[]");
 	for layer in instance["layers"]:
-		trp.swrite("{\n");
-		trp.source_indent();
-
-		trp.swrite(".props = (CAT_prop_instance[]) {\n");
-		trp.source_indent();
+		src.start_block();
+		
+		src.start_block("props", "CAT_prop_instance[]");
 		for prop in layer:
-			trp.swrite("{\n");
-			trp.source_indent();
+			src.start_block();
+			src.variable("prop", f"&{prop["prop"]}");
+			src.variable("position_x", prop["position"][0]);
+			src.variable("position_y", prop["position"][1]);
+			src.variable("variant", prop["variant"]);
+			src.variable("disabled", "false");
+			src.end_block();
+		src.end_block();
+		src.variable("prop_count", len(layer));
 
-			trp.swrite(f".prop = &{prop["prop"]},\n");
-			trp.swrite(f".position_x = {prop["position"][0]},\n");
-			trp.swrite(f".position_y = {prop["position"][1]},\n");
-			trp.swrite(f".variant = {prop["variant"]},\n");
-			trp.swrite(f".disabled = false,\n");
+		src.end_block();
+	src.end_block();
+	src.variable("layer_count", len(instance["layers"]));
 
-			trp.source_unindent();
-			trp.swrite("},\n");
-		trp.source_unindent();
-		trp.swrite("},\n");
-		trp.swrite(f".prop_count = {len(layer)},\n");
-
-		trp.source_unindent();
-		trp.swrite("},\n");
-	trp.source_unindent();
-	trp.swrite("},\n");
-	trp.swrite(f".layer_count = {len(instance["layers"])},\n");
-
-	trp.end_asset_def();
+	src.end_body();
