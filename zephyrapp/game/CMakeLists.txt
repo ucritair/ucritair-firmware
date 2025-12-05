@@ -23,10 +23,10 @@ if(NOT TARGET app)
 	set(CMAKE_BUILD_TYPE Debug)
 	target_compile_options(app PRIVATE -Wall -g)
 
-	target_sources(app PRIVATE
-		src/core/cat_persist_archive.c
-		src/core/cat_desktop.c)
-
+	file(
+		GLOB exclude_src
+		src/core/cat_embedded.c
+	)
 	target_include_directories(app PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/../../src/)
 	target_include_directories(app PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/../../src/protobufs/)
 else()
@@ -50,10 +50,15 @@ else()
 		message(WARNING "Enabling radio")
 	endif()
 	
-	target_sources(app PRIVATE src/core/cat_embedded.c)
+	file(
+		GLOB exclude_src
+		src/core/cat_desktop.c
+		src/core/cat_persist_archive.c
+	)
 endif()
 
 function(ASSET_GEN TYPE_NAME GEN_SCRIPT SRC_DATA)
+	target_sources(app PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/../assets/${TYPE_NAME}_assets.c)
 	add_custom_command(
 		OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/../assets/${TYPE_NAME}_assets.h ${CMAKE_CURRENT_BINARY_DIR}/../assets/${TYPE_NAME}_assets.c
 		WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../
@@ -75,114 +80,19 @@ ASSET_GEN(dialogue_profile utils/asset_gen/dialogueprofilegen.py data/dialogue_p
 ASSET_GEN(prop utils/asset_gen/propgen.py data/props.json)
 ASSET_GEN(scene utils/asset_gen/scenegen.py data/scenes.json)
 
-target_sources(app PRIVATE
-	src/core/cat_common.c
-	src/core/cat_save.c
-	src/core/cat_persist.c
+file(
+	GLOB game_src
+	src/*.c
+	src/**/*.c
+)
+list(REMOVE_ITEM game_src ${exclude_src})
+target_sources(app PRIVATE ${game_src} ${asset_src})
 
-	src/render/cat_berrier.c
-	src/render/cat_spriter.c
-	src/render/cat_draw_queue.c
-	src/render/cat_animation.c
-	src/render/cat_poly.c
-	src/render/cat_effects.c
-	src/render/cat_gizmos.c
-	src/render/cat_colours.c
-
-	src/menu/cat_menu.c
-	src/menu/cat_menu_insights.c
-	src/menu/cat_menu_manual.c
-	src/menu/cat_menu_magic.c
-	src/menu/cat_menu_hedron.c
-	src/menu/cat_menu_debug.c
-	src/menu/cat_menu_colour_picker.c
-
-	src/cowtools/cat_structures.c
-	src/cowtools/cat_math.c
-
-	src/caring/cat_play.c
-	src/caring/cat_study.c
-	src/caring/cat_feed.c
-
-	src/arcade/cat_arcade_snake.c
-	src/arcade/cat_arcade_mines.c
-	src/arcade/cat_arcade_foursquares.c
-	src/arcade/cat_stroop.c
-	src/arcade/cat_leaderboard.c
-
-	src/monitors/cat_monitors.c
-	src/monitors/cat_monitor_summary.c
-	src/monitors/cat_monitor_details.c
-	src/monitors/cat_monitor_sparklines.c
-	src/monitors/cat_monitor_calendar.c
-	src/monitors/cat_monitor_gameplay.c
-	src/monitors/cat_monitor_clock.c
-	src/monitors/cat_monitor_graph.c
-	src/monitors/cat_monitor_ach.c
-	src/monitors/cat_monitor_utils.c
-
-	src/inventory/cat_item.c
-	src/inventory/cat_shop.c
-
-	src/gui/cat_gui.c
-	src/gui/cat_text.c
-	src/gui/cat_graph.c
-
-	src/air/cat_air.c
-	src/air/cat_crisis.c
-	src/air/cat_crisis_report.c
-
-	src/systems/cat_input.c
-	src/systems/cat_machine.c
-	src/systems/cat_time.c
-
-	src/room/cat_deco.c
-	src/room/cat_room.c
-	src/room/cat_pet.c
-	src/room/cat_death_report.c
-	src/room/cat_notices.c
-
-	src/world/cat_world.c
-	src/world/cat_dialogue.c
-	src/world/cat_scene.c
-	src/world/cat_procs.c
-
-	src/crafting/cat_crafting.c
-
-	src/comms/cat_chat.c
-	src/comms/cat_wifi.c
-	src/comms/cat_radio.c
-	src/comms/cat_crypto.c
-
-	assets/mesh_assets.c
-	assets/mesh2d_assets.c
-	assets/sprite_assets.c
-	assets/item_assets.c
-	assets/theme_assets.c
-	assets/fish_assets.c
-	assets/dialogue_assets.c
-	assets/prop_assets.c
-	assets/scene_assets.c
-	assets/dialogue_profile_assets.c
-	assets/tinysprite_assets.c
-
-	src/cat_main.c)
-
-target_include_directories(app PRIVATE src/)
-target_include_directories(app PRIVATE src/core)
-target_include_directories(app PRIVATE src/render)
-target_include_directories(app PRIVATE src/menu)
-target_include_directories(app PRIVATE src/arcade)
-target_include_directories(app PRIVATE src/monitors)
-target_include_directories(app PRIVATE src/gui)
-target_include_directories(app PRIVATE src/cowtools)
-target_include_directories(app PRIVATE src/inventory)
-target_include_directories(app PRIVATE src/caring)
-target_include_directories(app PRIVATE src/air)
-target_include_directories(app PRIVATE src/systems)
-target_include_directories(app PRIVATE src/room)
-target_include_directories(app PRIVATE src/world)
-target_include_directories(app PRIVATE src/crafting)
-target_include_directories(app PRIVATE src/comms)
-
-target_include_directories(app PRIVATE assets/)
+file(
+	GLOB game_include
+	src
+	src/**
+)
+message("${game_include}")
+target_include_directories(app PRIVATE ${game_include})
+target_include_directories(app PRIVATE assets)

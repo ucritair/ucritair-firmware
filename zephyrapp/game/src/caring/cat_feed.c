@@ -7,9 +7,9 @@
 #include "item_assets.h"
 #include "cat_item.h"
 #include "cat_item.h"
-#include "cowtools/cat_structures.h"
+#include "cat_structures.h"
 #include "cat_gui.h"
-#include "cowtools/cat_curves.h"
+#include "cat_curves.h"
 #include "cat_pet.h"
 #include <stdarg.h>
 #include <stdio.h>

@@ -4,9 +4,9 @@
 #include "cat_input.h"
 #include "cat_room.h"
 #include <math.h>
-#include "cowtools/cat_curves.h"
+#include "cat_curves.h"
 #include "sprite_assets.h"
-#include "cowtools/cat_structures.h"
+#include "cat_structures.h"
 #include "fish_assets.h"
 #include "cat_gui.h"
 #include "item_assets.h"
