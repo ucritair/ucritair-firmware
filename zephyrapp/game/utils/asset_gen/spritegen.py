@@ -1,107 +1,8 @@
 #!/usr/bin/env python3
 
-import os
-import os.path
-import sys
-from dataclasses import dataclass
-import json
-from PIL import Image;
+import assetgen;
 from pathlib import Path;
-import math;
-
-json_file = open("sprites/sprites.json", "r+");
-json_data = json.load(json_file);
-sprite_objects = json_data['instances'];
-for (i, sprite) in enumerate(sprite_objects):
-	# Ensure correct JSON
-	sprite['id'] = i;
-	sprite['frames'] = max(sprite['frames'], 1);
-	image = Image.open(os.path.join("sprites", sprite['path']));
-	sprite['width'] = image.size[0];
-	sprite['height'] = image.size[1] // sprite['frames'];
-	image.close();
-json_file.seek(0);
-json_file.truncate();
-json_file.write(json.dumps(json_data, indent=4));
-json_file.close();
-
-json_file = open("sprites/tinysprites.json", "r+");
-json_data = json.load(json_file);
-tinysprite_objects = json_data['instances'];
-for (i, sprite) in enumerate(tinysprite_objects):
-	# Ensure correct JSON
-	image = Image.open(os.path.join("sprites", sprite['path']));
-	sprite['width'] = image.size[0];
-	sprite['height'] = image.size[1];
-	sprite['stride'] = image.size[0] + (image.size[0] % 8);
-	image.close();
-json_file.seek(0);
-json_file.truncate();
-json_file.write(json.dumps(json_data, indent=4));
-json_file.close();
-
-with open("sprites/sprite_assets.h", "w") as fd:
-	fd.write("#pragma once\n");
-	fd.write("\n")
-	fd.write("#include <stdint.h>\n");
-	fd.write("#include \"cat_render.h\"\n");
-	fd.write("#include \"cat_core.h\"\n");
-	fd.write("\n");
-
-	for (i, sprite) in enumerate(sprite_objects):
-		fd.write(f"extern const CAT_sprite {sprite['name']};\n");
-	fd.write("\n");
-	fd.write(f"extern const CAT_sprite* sprite_list[];\n");
-	fd.write(f"#define CAT_SPRITE_LIST_LENGTH {len(sprite_objects)}\n");
-	fd.write("\n");
-
-	for (i, sprite) in enumerate(tinysprite_objects):
-		fd.write(f"extern const CAT_tinysprite tnyspr_{sprite['name']};\n");
-	fd.write("\n");
-
-def TOS_write_epaper_sprites(fd):
-	for sprite in tinysprite_objects:
-		texture = Image.open(os.path.join("sprites", sprite["path"])).convert("RGBA");
-		width, height = texture.width, texture.height;
-		padded_width = width + (width % 8);
-		compatible = (padded_width*height)%8 == 0;
-		if not compatible:
-			print(f"[ERROR] {path} not compatible!");
-			continue;
-
-		fd.write(f"const CAT_tinysprite tnyspr_{sprite['name']} = {{\n");
-		fd.write(f'\t.width = {width}, .height = {height}, .stride = {padded_width},\n');
-		fd.write(f'\t.bytes = {{\n\t\t');
-
-		texture = texture.load();
-		pixels = [];
-		for y in range(height):
-			for x in range(padded_width):
-				try:
-					px = texture[x, y];
-				except IndexError:
-					px = (255, 255, 255, 0);
-				lum = math.sqrt(px[0]*px[0] + px[1]*px[1] + px[2]*px[2]);
-				alph = px[3];
-				filled = lum < 128 and alph >= 128;
-				pixels.append(int(filled));
-
-		words = [];
-		while pixels:
-			w = 0;
-			for i in range(8):
-				w |= pixels.pop(0) << (7-i);
-			words.append(w);
-
-		assert len(words) == (padded_width*height)//8;
-
-		for i, w in enumerate(words):
-			fd.write(f'{hex(w)}, ');
-			if (i%16 == 0) and (i != 0):
-				fd.write('\n\t\t');
-
-		fd.write('\n\t}\n};\n');
-	fd.write("\n");
+from PIL import Image;
 
 def TOS_RGBA88882RGB565(c):
 	if len(c) == 4 and c[3] < 128:
@@ -157,91 +58,100 @@ def TOS_rl_encode(image):
 	assert(TOS_rl_decode(stream) == pixels);
 	return stream;
 
-with open("sprites/sprite_assets.c", 'w') as fd:
-	fd.write("#include \"sprite_assets.h\"\n");
-	fd.write('\n');
+triptych = assetgen.Triptych(
+	"sprites/sprites.json",
+	"sprites/sprite_assets.h",
+	"sprites/sprite_assets.c"
+);
+data = triptych.json_data;
+hdr = triptych.header_writer;
+src = triptych.source_writer;
 
-	path_map = {};
-	compression_ratio = 0;
+for (i, sprite) in enumerate(data.instances):
+	sprite['id'] = i;
+	sprite['frames'] = max(sprite['frames'], 1);
+	image = Image.open(Path("sprites")/sprite['path']);
+	sprite['width'] = image.size[0];
+	sprite['height'] = image.size[1] // sprite['frames'];
+	image.close();
 
-	for (i, sprite) in enumerate(sprite_objects):
-		path = sprite['path'];
-		if path in path_map:
-			continue;
-		frame_count = sprite['frames'];
+hdr.write_header(["<stdint.h>", "\"cat_render.h\"", "\"cat_core.h\""]);
+hdr.write_list();
+src.write_header(["\"sprite_assets.h\""]);
 
-		image = Image.open(os.path.join("sprites", path)).convert("P");
-		raw_size = image.size[0] * image.size[1] * 2;
+path_map = {};
+compression_ratio = 0;
 
-		colour_table = TOS_tabulate_colour(image);
-		fd.write(f"const uint16_t sprite_{i}_colour_table[] = \n");
-		fd.write("{\n");
-		for c in colour_table:
-			if c != 0xdead:
-				c = TOS_reverse_endianness(c);
-			fd.write(f"\t{hex(c)},\n");
-		fd.write("};\n");
-		fd.write("\n");
+for (i, sprite) in enumerate(data.instances):
+	path = sprite['path'];
+	if path in path_map:
+		continue;
 
-		frame_width = image.size[0];
-		frame_height = image.size[1] // frame_count;
-		compressed_size = 0;
-		for j in range(frame_count):
-			l = 0;
-			r = frame_width;
-			t = frame_height * j;
-			b = t + frame_height;
-			frame = image.crop((l, t, r, b));
-			stream = TOS_rl_encode(frame);
-			tokens = TOS_rl_tokenize(stream);	
+	image = Image.open(Path("sprites")/path).convert("P");
+	raw_size = image.size[0] * image.size[1] * 2;
+	colour_table = TOS_tabulate_colour(image);
 
-			fd.write(f"const uint8_t sprite_{i}_frame_{j}[] = \n");
-			fd.write("{\n\t");
-			for (k, token) in enumerate(tokens):
-				if k > 0 and k % 32 == 0:
-					fd.write("\n\t");
-				fd.write(f"{hex(token)},");
-				if k == len(tokens)-1:
-					fd.write("\n");
-			compressed_size += len(tokens);
-			fd.write("};\n");
-			fd.write("\n");
+	src.write(f"const uint16_t sprite_{i}_colour_table[] =");
+	src.start_body();
+	for c in colour_table:
+		if c != 0xdead:
+			c = TOS_reverse_endianness(c);
+		src.literal(c);
+	src.end_body();
 
-		fd.write(f"const uint8_t* sprite_{i}_frames[] = \n");
-		fd.write("{\n");
-		for j in range(frame_count):
-			fd.write(f"\tsprite_{i}_frame_{j},\n");
-		fd.write("};\n");
-		fd.write("\n");
+	frame_count = sprite['frames'];
+	frame_width = image.size[0];
+	frame_height = image.size[1] // frame_count;
+	compressed_size = 0;
 
-		path_map[path] = i;
-		compression_ratio += raw_size / compressed_size;
-	
-	for (i, sprite) in enumerate(sprite_objects):
-		fd.write(f"const CAT_sprite {sprite['name']} =\n");
-		fd.write("{\n");
-		fd.write(f"\t.id = {sprite['id']},\n");
+	for j in range(frame_count):
+		l = 0;
+		r = frame_width;
+		t = frame_height * j;
+		b = t + frame_height;
+		frame = image.crop((l, t, r, b));
+		stream = TOS_rl_encode(frame);
+		tokens = TOS_rl_tokenize(stream);	
 
-		data_idx = path_map[sprite['path']];
-		fd.write(f"\t.colour_table = sprite_{data_idx}_colour_table,\n");
-		fd.write(f"\t.frames = sprite_{data_idx}_frames,\n");
+		src.write(f"const uint8_t sprite_{i}_frame_{j}[] =");
+		src.start_body();
+		src.write(end="");
+		for (k, token) in enumerate(tokens):
+			if k > 0 and k % 32 == 0:
+				src.write();
+				src.write(end="");
+			src.write(str(hex(token)), end=", ", ignore_indent=True);
+			if k == len(tokens)-1:
+				src.write();
+		compressed_size += len(tokens);
+		src.end_body();
 
-		fd.write(f"\t.frame_count = {sprite['frames']},\n");
-		fd.write(f"\t.width = {sprite['width']},\n");
-		fd.write(f"\t.height = {sprite['height']},\n");
-		fd.write(f"\t.loop = {str(sprite['loop']).lower()},\n");
-		fd.write(f"\t.reverse = {str(sprite['reverse']).lower()},\n");
-		fd.write("};\n");
-		fd.write("\n");
-	fd.write("\n");
-	
-	fd.write("const CAT_sprite* sprite_list[] =\n");
-	fd.write("{\n");
-	for (i, sprite) in enumerate(sprite_objects):
-		fd.write(f"\t&{sprite['name']},\n");
-	fd.write("};\n");
-	fd.write("\n");
+	src.write(f"const uint8_t* sprite_{i}_frames[] =");
+	src.start_body();
+	for j in range(frame_count):
+		src.literal(f"sprite_{i}_frame_{j}");
+	src.end_body();
 
-	TOS_write_epaper_sprites(fd);
+	path_map[path] = i;
+	compression_ratio += raw_size / compressed_size;
 
-	print(f"Mean compression ratio: {compression_ratio / len(path_map):.2f}");
+for (i, sprite) in enumerate(data.instances):
+	src.start_body(sprite["name"]);
+	src.variable("id", sprite["id"]);
+
+	data_idx = path_map[sprite['path']];
+	src.variable("colour_table", f"sprite_{data_idx}_colour_table");
+	src.variable("frames", f"sprite_{data_idx}_frames");
+
+	src.variable("frame_count", sprite["frames"]);
+	src.variable("width", sprite["width"]);
+	src.variable("height", sprite["height"]);
+	src.variable("loop", str(sprite["loop"]).lower());
+	src.variable("reverse", str(sprite["reverse"]).lower());
+
+	src.end_body();
+src.write();
+
+src.write_list();
+
+print(f"Mean compression ratio: {compression_ratio / len(path_map):.2f}");

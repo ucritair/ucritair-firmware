@@ -19,8 +19,7 @@
 #include "cat_crypto.h"
 
 #include "sprite_assets.h"
-
-// static uint64_t telemetry_tx_timestamp = 0;
+#include "tinysprite_assets.h"
 
 void CAT_init()
 {

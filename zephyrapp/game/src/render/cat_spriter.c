@@ -4,6 +4,7 @@
 #include <math.h>
 #include <cat_math.h>
 #include "cat_core.h"
+#include "tinysprite_assets.h"
 
 //////////////////////////////////////////////////////////////////////////
 // SPRITER

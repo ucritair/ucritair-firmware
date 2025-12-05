@@ -10,6 +10,7 @@
 #include "cat_radio.h"
 #include "cat_curves.h"
 #include "cat_gizmos.h"
+#include "tinysprite_assets.h"
 
 #if CAT_RADIO_ENABLED
 #include "meshtastic/mesh.pb.h"

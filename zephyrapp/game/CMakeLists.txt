@@ -78,6 +78,14 @@ add_custom_command(
 )
 
 add_custom_command(
+	OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/../sprites/tinysprite_assets.h ${CMAKE_CURRENT_BINARY_DIR}/../sprites/tinysprite_assets.c
+	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../
+	COMMAND ${CMAKE_CURRENT_BINARY_DIR}/../utils/asset_gen/tinyspritegen.py
+	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../utils/asset_gen/tinyspritegen.py
+	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../sprites/tinysprites.json
+)
+
+add_custom_command(
 	OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/../data/item_assets.h ${CMAKE_CURRENT_BINARY_DIR}/../data/item_assets.c
 	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../
 	COMMAND ${CMAKE_CURRENT_BINARY_DIR}/../utils/asset_gen/itemgen.py
@@ -231,6 +239,7 @@ target_sources(app PRIVATE
 	data/prop_assets.c
 	data/scene_assets.c
 	data/dialogue_profile_assets.c
+	sprites/tinysprite_assets.c
 
 	src/cat_main.c)
 

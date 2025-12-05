@@ -45,8 +45,9 @@ class AssetSourceWriter:
 	def _write_indent(self):
 		self.file.write("\t" * self.indent);
 	
-	def write(self, string="", end="\n"):
-		self._write_indent();
+	def write(self, string="", end="\n", ignore_indent=False):
+		if not ignore_indent:
+			self._write_indent();
 		self.file.write(string+end);
 	
 	def write_header(self, dependencies=[]):
@@ -54,11 +55,12 @@ class AssetSourceWriter:
 			self.write(f"#include {dependency}");
 		self.write();
 	
-	def start_body(self, name, type=None):
+	def start_body(self, name=None, type=None):
 		if type == None:
 			type = self.data.ctype_name;
-		code_prefix = f"{self.data.code}_" if self.data.code != None else "";
-		self.write(f"const {type} {code_prefix}{name} =");
+		if name != None and len(name) > 0:
+			code_prefix = f"{self.data.code}_" if self.data.code != None else "";
+			self.write(f"const {type} {code_prefix}{name} =");
 		self.write("{");
 		self.indent += 1;
 	

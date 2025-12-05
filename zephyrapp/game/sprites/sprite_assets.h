@@ -279,20 +279,6 @@ extern const CAT_sprite ingr_salt_sprite;
 extern const CAT_sprite ingr_sand_sprite;
 extern const CAT_sprite ingr_sugar_sprite;
 
-extern const CAT_sprite* sprite_list[];
-#define CAT_SPRITE_LIST_LENGTH 274
-
-extern const CAT_tinysprite tnyspr_unicorn_default;
-extern const CAT_tinysprite tnyspr_unicorn_happy;
-extern const CAT_tinysprite tnyspr_unicorn_mask;
-extern const CAT_tinysprite tnyspr_unicorn_sad;
-extern const CAT_tinysprite tnyspr_unicorn_low_battery;
-extern const CAT_tinysprite tnyspr_cloud_default;
-extern const CAT_tinysprite tnyspr_cloud_happy;
-extern const CAT_tinysprite tnyspr_cloud_sad;
-extern const CAT_tinysprite tnyspr_cloud_smoke;
-extern const CAT_tinysprite tnyspr_protected;
-extern const CAT_tinysprite tnyspr_ucrit_splash;
-extern const CAT_tinysprite tnyspr_glyphs;
-extern const CAT_tinysprite tnyspr_chat_splash;
+extern const CAT_sprite* CAT_sprite_list[];
+#define CAT_SPRITE_COUNT 274
 
