@@ -9,6 +9,7 @@
             }
         }
     },
+	"code" : "mesh",
     "instances": [
         {
             "name": "hedron",

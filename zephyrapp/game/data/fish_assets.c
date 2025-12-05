@@ -14,7 +14,7 @@ const CAT_fish fish_mackerel =
 	.min_wisdom = 0.10000000149011612,
 	.max_wisdom = 0.30000001192092896,
 	
-	.mesh = &sardine_mesh2d,
+	.mesh = &mesh2d_sardine,
 };
 const CAT_fish fish_crucian_carp =
 {
@@ -29,7 +29,7 @@ const CAT_fish fish_crucian_carp =
 	.min_wisdom = 0.10000000149011612,
 	.max_wisdom = 0.30000001192092896,
 	
-	.mesh = &crucian_carp_mesh2d,
+	.mesh = &mesh2d_crucian_carp,
 };
 const CAT_fish fish_sardine =
 {
@@ -44,7 +44,7 @@ const CAT_fish fish_sardine =
 	.min_wisdom = 0.10000000149011612,
 	.max_wisdom = 0.30000001192092896,
 	
-	.mesh = &sardine_mesh2d,
+	.mesh = &mesh2d_sardine,
 };
 const CAT_fish fish_cod =
 {
@@ -59,7 +59,7 @@ const CAT_fish fish_cod =
 	.min_wisdom = 0.10000000149011612,
 	.max_wisdom = 0.30000001192092896,
 	
-	.mesh = &cod_mesh2d,
+	.mesh = &mesh2d_cod,
 };
 const CAT_fish fish_herring =
 {
@@ -74,7 +74,7 @@ const CAT_fish fish_herring =
 	.min_wisdom = 0.10000000149011612,
 	.max_wisdom = 0.30000001192092896,
 	
-	.mesh = &herring_mesh2d,
+	.mesh = &mesh2d_herring,
 };
 const CAT_fish fish_tilapia =
 {
@@ -89,7 +89,7 @@ const CAT_fish fish_tilapia =
 	.min_wisdom = 0.10000000149011612,
 	.max_wisdom = 0.30000001192092896,
 	
-	.mesh = &tilapia_mesh2d,
+	.mesh = &mesh2d_tilapia,
 };
 const CAT_fish fish_crawfish =
 {
@@ -104,7 +104,7 @@ const CAT_fish fish_crawfish =
 	.min_wisdom = 0.10000000149011612,
 	.max_wisdom = 0.30000001192092896,
 	
-	.mesh = &crawfish_mesh2d,
+	.mesh = &mesh2d_crawfish,
 };
 const CAT_fish fish_catfish =
 {
@@ -119,7 +119,7 @@ const CAT_fish fish_catfish =
 	.min_wisdom = 0.10000000149011612,
 	.max_wisdom = 0.30000001192092896,
 	
-	.mesh = &catfish_mesh2d,
+	.mesh = &mesh2d_catfish,
 };
 const CAT_fish fish_eel =
 {
@@ -134,7 +134,7 @@ const CAT_fish fish_eel =
 	.min_wisdom = 0.10000000149011612,
 	.max_wisdom = 0.30000001192092896,
 	
-	.mesh = &eel_mesh2d,
+	.mesh = &mesh2d_eel,
 };
 const CAT_fish fish_salmon =
 {
@@ -149,7 +149,7 @@ const CAT_fish fish_salmon =
 	.min_wisdom = 0.10000000149011612,
 	.max_wisdom = 0.30000001192092896,
 	
-	.mesh = &salmon_mesh2d,
+	.mesh = &mesh2d_salmon,
 };
 const CAT_fish fish_gindara =
 {
@@ -164,7 +164,7 @@ const CAT_fish fish_gindara =
 	.min_wisdom = 0.10000000149011612,
 	.max_wisdom = 0.30000001192092896,
 	
-	.mesh = &gindara_mesh2d,
+	.mesh = &mesh2d_gindara,
 };
 const CAT_fish fish_ruby_trout =
 {
@@ -179,7 +179,7 @@ const CAT_fish fish_ruby_trout =
 	.min_wisdom = 0.10000000149011612,
 	.max_wisdom = 0.30000001192092896,
 	
-	.mesh = &ruby_trout_mesh2d,
+	.mesh = &mesh2d_ruby_trout,
 };
 const CAT_fish fish_skipjack_tuna =
 {
@@ -194,7 +194,7 @@ const CAT_fish fish_skipjack_tuna =
 	.min_wisdom = 0.10000000149011612,
 	.max_wisdom = 0.30000001192092896,
 	
-	.mesh = &skipjack_tuna_mesh2d,
+	.mesh = &mesh2d_skipjack_tuna,
 };
 const CAT_fish fish_yellowtail =
 {
@@ -209,7 +209,7 @@ const CAT_fish fish_yellowtail =
 	.min_wisdom = 0.10000000149011612,
 	.max_wisdom = 0.30000001192092896,
 	
-	.mesh = &yellowtail_mesh2d,
+	.mesh = &mesh2d_yellowtail,
 };
 const CAT_fish fish_coelecanth =
 {
@@ -224,7 +224,7 @@ const CAT_fish fish_coelecanth =
 	.min_wisdom = 0.10000000149011612,
 	.max_wisdom = 0.30000001192092896,
 	
-	.mesh = &coelecanth_mesh2d,
+	.mesh = &mesh2d_coelecanth,
 };
 const CAT_fish fish_myaurr =
 {
@@ -239,7 +239,7 @@ const CAT_fish fish_myaurr =
 	.min_wisdom = 0.800000011920929,
 	.max_wisdom = 1.0,
 	
-	.mesh = &myaurr_guy_mesh2d,
+	.mesh = &mesh2d_myaurr_guy,
 };
 
 const CAT_fish* CAT_fish_list[] =

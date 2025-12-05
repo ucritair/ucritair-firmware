@@ -1,6 +1,6 @@
 #include "mesh_assets.h"
 
-CAT_mesh hedron_mesh =
+const CAT_mesh mesh_hedron =
 {
 	.verts = (float[])
 	{
@@ -14,7 +14,7 @@ CAT_mesh hedron_mesh =
 		1.536239f, -0.035328f, 0.0f,
 		-1.536239f, -0.035328f, 0.0f,
 		0.0f, 0.281265f, 0.707107f,
-		0.0f, 2.50259f, 0.0f
+		0.0f, 2.50259f, 0.0f,
 	},
 	.n_verts = 11,
 	.faces = (uint16_t[])
@@ -32,8 +32,7 @@ CAT_mesh hedron_mesh =
 		8, 5, 6,
 		7, 5, 10,
 		9, 7, 10,
-		8, 9, 10
+		8, 9, 10,
 	},
 	.n_faces = 14,
 };
-

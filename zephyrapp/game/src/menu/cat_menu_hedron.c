@@ -127,7 +127,7 @@ bool CAT_is_clipped(CAT_vec4 v)
 	return false;
 }
 
-CAT_mesh* mesh;
+const CAT_mesh* mesh;
 
 CAT_vec4 eye;
 CAT_mat4 V;
@@ -144,7 +144,7 @@ void CAT_MS_hedron(CAT_FSM_signal signal)
 		case CAT_FSM_SIGNAL_ENTER:
 			CAT_set_render_callback(CAT_render_hedron);
 
-			mesh = &hedron_mesh;
+			mesh = &mesh_hedron;
 
 			eye = (CAT_vec4) {0, 0, 6, 1.0f};
 			CAT_vec4 up = (CAT_vec4) {0, 1, 0, 0};

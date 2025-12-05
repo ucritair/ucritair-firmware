@@ -28,7 +28,7 @@ for instance in data.instances:
 	src.variable("min_wisdom", instance['min_wisdom']);
 	src.variable("max_wisdom", instance['max_wisdom']);
 	src.write();
-	src.variable("mesh", f"&{instance['mesh']}_mesh2d");
+	src.variable("mesh", f"&mesh2d_{instance['mesh']}");
 	src.end_body();
 src.write();
 

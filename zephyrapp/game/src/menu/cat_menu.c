@@ -14,7 +14,6 @@
 #include <string.h>
 #include "cat_main.h"
 #include "theme_assets.h"
-#include "sound_assets.h"
 #include "cat_monitors.h"
 #include "item_assets.h"
 #include "cat_world.h"

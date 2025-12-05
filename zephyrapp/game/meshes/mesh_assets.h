@@ -2,4 +2,5 @@
 
 #include "cat_poly.h"
 
-extern CAT_mesh hedron_mesh;
+extern const CAT_mesh mesh_hedron;
+

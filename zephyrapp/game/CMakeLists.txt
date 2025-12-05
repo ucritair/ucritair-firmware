@@ -55,7 +55,6 @@ endif()
 
 add_custom_command(
 	OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/../meshes/mesh_assets.h ${CMAKE_CURRENT_BINARY_DIR}/../meshes/mesh_assets.c
-	OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/../meshes/mesh2d_assets.h ${CMAKE_CURRENT_BINARY_DIR}/../meshes/mesh2d_assets.c
 	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../
 	COMMAND ${CMAKE_CURRENT_BINARY_DIR}/../utils/asset_gen/meshgen.py
 	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../utils/asset_gen/meshgen.py
@@ -63,11 +62,11 @@ add_custom_command(
 )
 
 add_custom_command(
-	OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/../sounds/sound_assets.h ${CMAKE_CURRENT_BINARY_DIR}/../sounds/sound_assets.c
+	OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/../meshes/mesh2d_assets.h ${CMAKE_CURRENT_BINARY_DIR}/../meshes/mesh2d_assets.c
 	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../
-	COMMAND ${CMAKE_CURRENT_BINARY_DIR}/../utils/asset_gen/soundgen.py
-	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../utils/asset_gen/soundgen.py
-	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../sounds/sounds.json
+	COMMAND ${CMAKE_CURRENT_BINARY_DIR}/../utils/asset_gen/mesh2dgen.py
+	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../utils/asset_gen/mesh2dgen.py
+	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../meshes/mesh2ds.json
 )
 
 add_custom_command(
@@ -222,7 +221,6 @@ target_sources(app PRIVATE
 	src/comms/cat_radio.c
 	src/comms/cat_crypto.c
 
-	sounds/sound_assets.c
 	meshes/mesh_assets.c
 	meshes/mesh2d_assets.c
 	sprites/sprite_assets.c
@@ -253,7 +251,6 @@ target_include_directories(app PRIVATE src/world)
 target_include_directories(app PRIVATE src/crafting)
 target_include_directories(app PRIVATE src/comms)
 
-target_include_directories(app PRIVATE sounds/)
 target_include_directories(app PRIVATE meshes/)
 target_include_directories(app PRIVATE sprites/)
 target_include_directories(app PRIVATE data/)
