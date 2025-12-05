@@ -5,8 +5,8 @@ from pathlib import Path;
 
 triptych = assetgen.Triptych(
 	"meshes/meshes.json",
-	"meshes/mesh_assets.h",
-	"meshes/mesh_assets.c"
+	"assets/mesh_assets.h",
+	"assets/mesh_assets.c"
 );
 data = triptych.json_data;
 hdr = triptych.header_writer;

@@ -14,6 +14,7 @@
 #include "cat_air.h"
 #include "cat_gui.h"
 #include "sprite_assets.h"
+#include "tinysprite_assets.h"
 #include "cat_spriter.h"
 
 #include <zephyr/logging/log.h>

@@ -16,8 +16,8 @@ def transform_proc_name(s):
 
 triptych = assetgen.Triptych(
 	"data/dialogue_profiles.json",
-	"data/dialogue_profile_assets.h",
-	"data/dialogue_profile_assets.c"
+	"assets/dialogue_profile_assets.h",
+	"assets/dialogue_profile_assets.c"
 );
 data = triptych.json_data;
 hdr = triptych.header_writer;

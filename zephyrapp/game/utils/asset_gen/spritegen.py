@@ -60,8 +60,8 @@ def TOS_rl_encode(image):
 
 triptych = assetgen.Triptych(
 	"sprites/sprites.json",
-	"sprites/sprite_assets.h",
-	"sprites/sprite_assets.c"
+	"assets/sprite_assets.h",
+	"assets/sprite_assets.c"
 );
 data = triptych.json_data;
 hdr = triptych.header_writer;

@@ -28,6 +28,7 @@ LOG_MODULE_REGISTER(lcd_rendering, LOG_LEVEL_DBG);
 #include "menu_system.h"
 #include "cat_spriter.h"
 #include "sprite_assets.h"
+#include "tinysprite_assets.h"
 
 void lcd_write_char(uint16_t color, int x, int y, char c)
 {

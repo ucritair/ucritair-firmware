@@ -44,8 +44,8 @@ prop_types = ['prop", "bottom", "top'];
 
 triptych = assetgen.Triptych(
 	"data/items.json",
-	"data/item_assets.h",
-	"data/item_assets.c"
+	"assets/item_assets.h",
+	"assets/item_assets.c"
 );
 data = triptych.json_data;
 hdr = triptych.header_writer;

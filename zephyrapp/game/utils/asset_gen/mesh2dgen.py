@@ -4,8 +4,8 @@ import assetgen;
 
 triptych = assetgen.Triptych(
 	"meshes/mesh2ds.json",
-	"meshes/mesh2d_assets.h",
-	"meshes/mesh2d_assets.c"
+	"assets/mesh2d_assets.h",
+	"assets/mesh2d_assets.c"
 );
 data = triptych.json_data;
 hdr = triptych.header_writer;

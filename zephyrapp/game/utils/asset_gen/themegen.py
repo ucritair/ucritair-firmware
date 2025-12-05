@@ -4,8 +4,8 @@ import assetgen;
 
 triptych = assetgen.Triptych(
 	"data/themes.json",
-	"data/theme_assets.h",
-	"data/theme_assets.c"
+	"assets/theme_assets.h",
+	"assets/theme_assets.c"
 );
 data = triptych.json_data;
 data.ctype_name = "CAT_room_theme";

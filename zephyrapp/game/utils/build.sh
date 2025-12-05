@@ -31,19 +31,27 @@ if $clean; then
 	trash ../build
 	trash build
 	trash utils/build_cache
+	trash assets
 fi
 
 # DESKTOP
+
+# INIT DIRS
 if [ ! -d build ]; then
 	mkdir build
 fi
+if [ ! -d utils/build_cache ]; then
+	mkdir utils/build_cache
+fi
+if [ ! -d assets ]; then
+	mkdir assets
+fi
+
+# INIT FILES
 if [ ! -f build/makefile ]; then
 	cd build
 	cmake ..
 	cd ..
-fi
-if [ ! -d utils/build_cache ]; then
-	mkdir utils/build_cache
 fi
 
 cd build

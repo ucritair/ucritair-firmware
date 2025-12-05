@@ -12,8 +12,8 @@ def TOS_RGBA88882RGB565(c):
 
 triptych = assetgen.Triptych(
 	"data/scenes.json",
-	"data/scene_assets.h",
-	"data/scene_assets.c"
+	"assets/scene_assets.h",
+	"assets/scene_assets.c"
 );
 data = triptych.json_data;
 hdr = triptych.header_writer;

@@ -4,8 +4,8 @@ import assetgen;
 
 triptych = assetgen.Triptych(
 	"data/dialogue.json",
-	"data/dialogue_assets.h",
-	"data/dialogue_assets.c"
+	"assets/dialogue_assets.h",
+	"assets/dialogue_assets.c"
 );
 data = triptych.json_data;
 data.ctype_name = "CAT_dialogue_node";

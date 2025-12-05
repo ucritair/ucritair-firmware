@@ -53,102 +53,27 @@ else()
 	target_sources(app PRIVATE src/core/cat_embedded.c)
 endif()
 
-add_custom_command(
-	OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/../meshes/mesh_assets.h ${CMAKE_CURRENT_BINARY_DIR}/../meshes/mesh_assets.c
-	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../
-	COMMAND ${CMAKE_CURRENT_BINARY_DIR}/../utils/asset_gen/meshgen.py
-	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../utils/asset_gen/meshgen.py
-	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../meshes/meshes.json
-)
+function(ASSET_GEN TYPE_NAME GEN_SCRIPT SRC_DATA)
+	add_custom_command(
+		OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/../assets/${TYPE_NAME}_assets.h ${CMAKE_CURRENT_BINARY_DIR}/../assets/${TYPE_NAME}_assets.c
+		WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../
+		COMMAND ${CMAKE_CURRENT_BINARY_DIR}/../${GEN_SCRIPT}
+		DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../${GEN_SCRIPT}
+		DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../${SRC_DATA}
+	)
+endfunction()
 
-add_custom_command(
-	OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/../meshes/mesh2d_assets.h ${CMAKE_CURRENT_BINARY_DIR}/../meshes/mesh2d_assets.c
-	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../
-	COMMAND ${CMAKE_CURRENT_BINARY_DIR}/../utils/asset_gen/mesh2dgen.py
-	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../utils/asset_gen/mesh2dgen.py
-	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../meshes/mesh2ds.json
-)
-
-add_custom_command(
-	OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/../sprites/sprite_assets.h ${CMAKE_CURRENT_BINARY_DIR}/../sprites/sprite_assets.c
-	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../
-	COMMAND ${CMAKE_CURRENT_BINARY_DIR}/../utils/asset_gen/spritegen.py
-	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../utils/asset_gen/spritegen.py
-	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../sprites/sprites.json
-)
-
-add_custom_command(
-	OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/../sprites/tinysprite_assets.h ${CMAKE_CURRENT_BINARY_DIR}/../sprites/tinysprite_assets.c
-	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../
-	COMMAND ${CMAKE_CURRENT_BINARY_DIR}/../utils/asset_gen/tinyspritegen.py
-	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../utils/asset_gen/tinyspritegen.py
-	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../sprites/tinysprites.json
-)
-
-add_custom_command(
-	OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/../data/item_assets.h ${CMAKE_CURRENT_BINARY_DIR}/../data/item_assets.c
-	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../
-	COMMAND ${CMAKE_CURRENT_BINARY_DIR}/../utils/asset_gen/itemgen.py
-	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../utils/asset_gen/itemgen.py
-	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../data/items.json
-)
-
-add_custom_command(
-	OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/../data/theme_assets.h ${CMAKE_CURRENT_BINARY_DIR}/../data/theme_assets.c
-	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../
-	COMMAND ${CMAKE_CURRENT_BINARY_DIR}/../utils/asset_gen/themegen.py
-	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../utils/asset_gen/themegen.py
-	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../data/themes.json
-)
-
-add_custom_command(
-	OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/../data/fish_assets.h ${CMAKE_CURRENT_BINARY_DIR}/../data/fish_assets.c
-	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../
-	COMMAND ${CMAKE_CURRENT_BINARY_DIR}/../utils/asset_gen/fishgen.py
-	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../utils/asset_gen/fishgen.py
-	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../data/fish.json
-)
-
-add_custom_command(
-	OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/../data/dialogue_assets.h ${CMAKE_CURRENT_BINARY_DIR}/../data/dialogue_assets.c
-	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../
-	COMMAND ${CMAKE_CURRENT_BINARY_DIR}/../utils/asset_gen/dialoguegen.py
-	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../utils/asset_gen/dialoguegen.py
-	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../data/dialogue.json
-)
-
-add_custom_command(
-	OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/../data/prop_assets.h ${CMAKE_CURRENT_BINARY_DIR}/../data/prop_assets.c
-	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../
-	COMMAND ${CMAKE_CURRENT_BINARY_DIR}/../utils/asset_gen/propgen.py
-	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../utils/asset_gen/propgen.py
-	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../data/props.json
-)
-
-add_custom_command(
-	OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/../data/scene_assets.h ${CMAKE_CURRENT_BINARY_DIR}/../data/scene_assets.c
-	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../
-	COMMAND ${CMAKE_CURRENT_BINARY_DIR}/../utils/asset_gen/scenegen.py
-	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../utils/asset_gen/scenegen.py
-	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../data/scenes.json
-	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../data/props.json
-)
-
-add_custom_command(
-	OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/../data/dialogue_assets.h ${CMAKE_CURRENT_BINARY_DIR}/../data/dialogue_assets.c
-	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../
-	COMMAND ${CMAKE_CURRENT_BINARY_DIR}/../utils/asset_gen/dialoguegen.py
-	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../utils/asset_gen/dialoguegen.py
-	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../data/dialogue.json
-)
-
-add_custom_command(
-	OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/../data/dialogue_profile_assets.h ${CMAKE_CURRENT_BINARY_DIR}/../data/dialogue_profile_assets.c
-	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../
-	COMMAND ${CMAKE_CURRENT_BINARY_DIR}/../utils/asset_gen/dialogueprofilegen.py
-	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../utils/asset_gen/dialogueprofilegen.py
-	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../data/dialogue_profiles.json
-)
+ASSET_GEN(mesh utils/asset_gen/meshgen.py meshes/meshes.json)
+ASSET_GEN(mesh2d utils/asset_gen/mesh2dgen.py meshes/mesh2ds.json)
+ASSET_GEN(sprite utils/asset_gen/spritegen.py sprites/sprites.json)
+ASSET_GEN(tinysprite utils/asset_gen/tinyspritegen.py sprites/tinysprites.json)
+ASSET_GEN(item utils/asset_gen/itemgen.py data/items.json)
+ASSET_GEN(theme utils/asset_gen/themegen.py data/themes.json)
+ASSET_GEN(fish utils/asset_gen/fishgen.py data/fish.json)
+ASSET_GEN(dialogue utils/asset_gen/dialoguegen.py data/dialogue.json)
+ASSET_GEN(dialogue_profile utils/asset_gen/dialogueprofilegen.py data/dialogue_profiles.json)
+ASSET_GEN(prop utils/asset_gen/propgen.py data/props.json)
+ASSET_GEN(scene utils/asset_gen/scenegen.py data/scenes.json)
 
 target_sources(app PRIVATE
 	src/core/cat_common.c
@@ -229,17 +154,17 @@ target_sources(app PRIVATE
 	src/comms/cat_radio.c
 	src/comms/cat_crypto.c
 
-	meshes/mesh_assets.c
-	meshes/mesh2d_assets.c
-	sprites/sprite_assets.c
-	data/item_assets.c
-	data/theme_assets.c
-	data/fish_assets.c
-	data/dialogue_assets.c
-	data/prop_assets.c
-	data/scene_assets.c
-	data/dialogue_profile_assets.c
-	sprites/tinysprite_assets.c
+	assets/mesh_assets.c
+	assets/mesh2d_assets.c
+	assets/sprite_assets.c
+	assets/item_assets.c
+	assets/theme_assets.c
+	assets/fish_assets.c
+	assets/dialogue_assets.c
+	assets/prop_assets.c
+	assets/scene_assets.c
+	assets/dialogue_profile_assets.c
+	assets/tinysprite_assets.c
 
 	src/cat_main.c)
 
@@ -260,6 +185,4 @@ target_include_directories(app PRIVATE src/world)
 target_include_directories(app PRIVATE src/crafting)
 target_include_directories(app PRIVATE src/comms)
 
-target_include_directories(app PRIVATE meshes/)
-target_include_directories(app PRIVATE sprites/)
-target_include_directories(app PRIVATE data/)
+target_include_directories(app PRIVATE assets/)

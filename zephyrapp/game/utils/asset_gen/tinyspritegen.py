@@ -7,8 +7,8 @@ import math;
 
 triptych = assetgen.Triptych(
 	"sprites/tinysprites.json",
-	"sprites/tinysprite_assets.h",
-	"sprites/tinysprite_assets.c"
+	"assets/tinysprite_assets.h",
+	"assets/tinysprite_assets.c"
 );
 data = triptych.json_data;
 hdr = triptych.header_writer;
