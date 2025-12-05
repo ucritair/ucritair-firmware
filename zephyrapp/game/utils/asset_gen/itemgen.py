@@ -1,10 +1,6 @@
 #!/usr/bin/env python3
 
-import sys;
-import json;
-import os;
-import pathlib as pl;
-from collections import OrderedDict;
+import assetgen;
 
 item_type_enum_map = {
 	"key" : "CAT_ITEM_TYPE_KEY",
@@ -42,19 +38,20 @@ prop_type_enum_map = {
 	"top" : "CAT_PROP_TYPE_TOP"
 };
 
-json_file = open("data/items.json", "r+");
-json_data = json.load(json_file);
-json_entries = json_data['instances'];
 
 tool_types = ['food", "book", "toy'];
 prop_types = ['prop", "bottom", "top'];
 
-json_file.seek(0);
-json_file.truncate();
-json_file.write(json.dumps(json_data, indent=4));
-json_file.close();
+triptych = assetgen.Triptych(
+	"data/items.json",
+	"data/item_assets.h",
+	"data/item_assets.c"
+);
+data = triptych.json_data;
+hdr = triptych.header_writer;
+src = triptych.source_writer;
 
-item_ids = [x["id"] for x in json_entries];
+item_ids = [x["id"] for x in data.instances];
 max_id = max(item_ids);
 if(max_id > 255):
 	print("[ERROR] Max ID exceeds 255. Aborting");
@@ -70,63 +67,61 @@ null_item = {
 	"can_sell" : False
 };
 item_table = [null_item for i in range(max_id+1)];
-for item in json_entries:
+for item in data.instances:
 	item_table[item["id"]] = item;
 
 missing_ids = [i for i in range(max_id+1) if i not in item_ids];
 for i in missing_ids:
 	print(f"[WARNING] Missing ID {i}");
-	
-header = open("data/item_assets.h", "w");
-header.write("#pragma once\n");
-header.write("\n");
-for item in json_entries:
-	header.write(f"#define {item['name']}_item {item["id"]}\n");
-header.close();
 
-source = open("data/item_assets.c", "w");
-source.write("#include \"item_assets.h\"\n");
-source.write("\n");
-source.write("#include \"cat_item.h\"\n");
-source.write("#include \"sprite_assets.h\"\n");
-source.write("\n");
-source.write("CAT_item_table item_table =\n");
-source.write("{\n");
-source.write("\t.data =\n");
-source.write("\t{\n");
+hdr.write("#pragma once");
+hdr.write();
+for instance in item_table:
+	hdr.write(f"#define {instance['name']}_item {instance["id"]}");
 
-for (idx, item) in enumerate(item_table):
-	if "id" in item:
-		source.write(f"\t\t[{item["id"]}] = {{\n");
-	else:
-		source.write(f"\t\t[{idx}] = {{\n");
-	source.write(f"\t\t\t.type = {item_type_enum_map[item['type']]},\n");
-	source.write(f"\t\t\t.name = \"{item['display_name']}\",\n");
-	source.write(f"\t\t\t.sprite = &{item['sprite']},\n");
-	source.write(f"\t\t\t.price = {item['price']},\n");
-	source.write(f"\t\t\t.text = \"{item['text']}\",\n");
-	source.write(f"\t\t\t.can_buy = {str(item['can_buy']).lower()},\n");
-	source.write(f"\t\t\t.can_sell = {str(item['can_sell']).lower()},\n");
+src.write_header(["\"cat_item.h\"", "\"item_assets.h\"", "\"sprite_assets.h\""]);
+src.write("CAT_item_table item_table =");
+src.write("{");
+
+src.start_block("data");
+for id in item_ids:
+	item = item_table[id];
+
+	src.write(f"[{id}] = (const CAT_item)");
+	src.start_block();
+
+	src.variable("type", item_type_enum_map[item['type']]);
+	src.variable("name", f"\"{item['display_name']}\"");
+	src.variable("sprite", f"&{item['sprite']}");
+	src.variable("price", item['price']);
+	src.variable("text", f"\"{item['text']}\"");
+	src.variable("can_buy", str(item['can_buy']).lower());
+	src.variable("can_sell", str(item['can_sell']).lower());
+
 	if item['type'] == "tool":
-		source.write(f"\t\t\t.tool_type = {tool_type_enum_map[item['tool_data']['type']]},\n");
-		source.write(f"\t\t\t.tool_cursor = &{item['tool_data']['cursor'] if len(item['tool_data']['cursor']) else item['sprite']},\n");
-		source.write(f"\t\t\t.tool_dv = {item['tool_data']['dv']},\n");
-		source.write(f"\t\t\t.tool_df = {item['tool_data']['df']},\n");
-		source.write(f"\t\t\t.tool_ds = {item['tool_data']['ds']},\n");
+		src.write();
+		src.variable("tool_type", tool_type_enum_map[item['tool_data']['type']]);
+		src.variable("tool_cursor", f"&{item['tool_data']['cursor'] if len(item['tool_data']['cursor']) else item['sprite']}");
+		src.variable("tool_dv", item['tool_data']['dv']);
+		src.variable("tool_df", item['tool_data']['df']);
+		src.variable("tool_ds", item['tool_data']['ds']);
 		if(item['tool_data']['type'] == "food"):
-			source.write("\n");
-			source.write(f"\t\t\t.food_group = {food_group_enum_map[item['tool_data']['food_data']['food_group']]},\n");
-			source.write(f"\t\t\t.food_role = {food_role_enum_map[item['tool_data']['food_data']['food_role']]},\n");
+			src.write();
+			src.variable("food_group", food_group_enum_map[item['tool_data']['food_data']['food_group']]);
+			src.variable("food_role", food_role_enum_map[item['tool_data']['food_data']['food_role']]);
+
 	elif item['type'] == "prop":
-		source.write(f"\t\t\t.prop_type = {prop_type_enum_map[item['prop_data']['type']]},\n");
-		source.write(f"\t\t\t.prop_shape = {{{item['prop_data']['shape'][0]}, {item['prop_data']['shape'][1]}}},\n");
-		source.write(f"\t\t\t.prop_animated = {str(item['prop_data']['animate']).lower()},\n");
-		source.write(f"\t\t\t.prop_child_dy = {item['prop_data']['child_dy']},\n");
-	source.write("\t\t},\n");
-source.write("\t},\n");
-source.write(f"\t.length = {len(json_entries)}\n");
-source.write("};\n");
-source.close();
+		src.write();
+		src.variable("prop_type", prop_type_enum_map[item['prop_data']['type']]);
+		src.variable("prop_shape", f"{{{item['prop_data']['shape'][0]}, {item['prop_data']['shape'][1]}}}");
+		src.variable("prop_animated", str(item['prop_data']['animate']).lower());
+		src.variable("prop_child_dy", item['prop_data']['child_dy']);
+
+	src.end_block();
+src.end_block();
+src.variable("length", len(data.instances));
+
+src.write("};");
 
 
 
