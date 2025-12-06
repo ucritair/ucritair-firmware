@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.20.0)
 
 project(app)
 
+set(GAME_DIR ${CMAKE_CURRENT_BINARY_DIR}/..)
+
 if(NOT TARGET app)
 	add_executable(app)
 
@@ -24,11 +26,11 @@ if(NOT TARGET app)
 	target_compile_options(app PRIVATE -Wall -g)
 
 	file(
-		GLOB exclude_src
+		GLOB EXCLUDE_SRC
 		src/core/cat_embedded.c
 	)
-	target_include_directories(app PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/../../src/)
-	target_include_directories(app PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/../../src/protobufs/)
+	target_include_directories(app PRIVATE ${GAME_DIR}/../src/)
+	target_include_directories(app PRIVATE ${GAME_DIR}/../src/protobufs/)
 else()
 	message(WARNING "Building for embedded")
 	target_compile_definitions(app PRIVATE CAT_EMBEDDED=1)
@@ -51,48 +53,48 @@ else()
 	endif()
 	
 	file(
-		GLOB exclude_src
+		GLOB EXCLUDE_SRC
 		src/core/cat_desktop.c
 		src/core/cat_persist_archive.c
 	)
 endif()
 
-function(ASSET_GEN TYPE_NAME GEN_SCRIPT SRC_DATA)
-	target_sources(app PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/../assets/${TYPE_NAME}_assets.c)
+function(asset_gen TYPE_NAME GEN_SCRIPT SRC_DATA)
+	target_sources(app PRIVATE ${GAME_DIR}/assets/${TYPE_NAME}_assets.c)
 	add_custom_command(
-		OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/../assets/${TYPE_NAME}_assets.h ${CMAKE_CURRENT_BINARY_DIR}/../assets/${TYPE_NAME}_assets.c
-		WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../
-		COMMAND ${CMAKE_CURRENT_BINARY_DIR}/../${GEN_SCRIPT}
-		DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../${GEN_SCRIPT}
-		DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../${SRC_DATA}
+		OUTPUT ${GAME_DIR}/assets/${TYPE_NAME}_assets.h ${GAME_DIR}/assets/${TYPE_NAME}_assets.c
+		WORKING_DIRECTORY ${GAME_DIR}/
+		COMMAND ${GAME_DIR}/${GEN_SCRIPT}
+		DEPENDS ${GAME_DIR}/${GEN_SCRIPT}
+		DEPENDS ${GAME_DIR}/${SRC_DATA}
 	)
 endfunction()
 
-ASSET_GEN(mesh utils/asset_gen/meshgen.py meshes/meshes.json)
-ASSET_GEN(mesh2d utils/asset_gen/mesh2dgen.py meshes/mesh2ds.json)
-ASSET_GEN(sprite utils/asset_gen/spritegen.py sprites/sprites.json)
-ASSET_GEN(tinysprite utils/asset_gen/tinyspritegen.py sprites/tinysprites.json)
-ASSET_GEN(item utils/asset_gen/itemgen.py data/items.json)
-ASSET_GEN(theme utils/asset_gen/themegen.py data/themes.json)
-ASSET_GEN(fish utils/asset_gen/fishgen.py data/fish.json)
-ASSET_GEN(dialogue utils/asset_gen/dialoguegen.py data/dialogue.json)
-ASSET_GEN(dialogue_profile utils/asset_gen/dialogueprofilegen.py data/dialogue_profiles.json)
-ASSET_GEN(prop utils/asset_gen/propgen.py data/props.json)
-ASSET_GEN(scene utils/asset_gen/scenegen.py data/scenes.json)
+asset_gen(mesh generators/meshgen.py meshes/meshes.json)
+asset_gen(mesh2d generators/mesh2dgen.py meshes/mesh2ds.json)
+asset_gen(sprite generators/spritegen.py sprites/sprites.json)
+asset_gen(tinysprite generators/tinyspritegen.py sprites/tinysprites.json)
+asset_gen(item generators/itemgen.py data/items.json)
+asset_gen(theme generators/themegen.py data/themes.json)
+asset_gen(fish generators/fishgen.py data/fish.json)
+asset_gen(dialogue generators/dialoguegen.py data/dialogue.json)
+asset_gen(dialogue_profile generators/dialogueprofilegen.py data/dialogue_profiles.json)
+asset_gen(prop generators/propgen.py data/props.json)
+asset_gen(scene generators/scenegen.py data/scenes.json)
 
 file(
-	GLOB game_src
+	GLOB GAME_SRC
 	src/*.c
 	src/**/*.c
 )
-list(REMOVE_ITEM game_src ${exclude_src})
-target_sources(app PRIVATE ${game_src} ${asset_src})
+list(REMOVE_ITEM GAME_SRC ${EXCLUDE_SRC})
+target_sources(app PRIVATE ${GAME_SRC})
 
 file(
-	GLOB game_include
+	GLOB GAME_INCLUDE
 	src
 	src/**
 )
 message("${game_include}")
-target_include_directories(app PRIVATE ${game_include})
+target_include_directories(app PRIVATE ${GAME_INCLUDE})
 target_include_directories(app PRIVATE assets)
