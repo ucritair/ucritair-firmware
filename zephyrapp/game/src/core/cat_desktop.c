@@ -205,12 +205,42 @@ void CAT_platform_init()
 	}
 }
 
+void CAT_platform_tick()
+{
+	glfwPollEvents();
+
+	simulator.delta_time_s = glfwGetTime() - simulator.uptime_s;
+	simulator.uptime_s = glfwGetTime();
+
+	if(glfwGetKey(simulator.window, GLFW_KEY_ENTER))
+		CAT_platform_capture_frame();
+}
+
+void CAT_platform_cleanup()
+{
+	glDeleteShader(simulator.prog_id);
+	glDeleteTextures(1, &simulator.tex_id);
+	glDeleteBuffers(1, &simulator.vbo_id);
+	glDeleteVertexArrays(1, &simulator.vao_id);
+
+	time_t now;
+	time(&now);
+	int fd = open("sleep.dat", O_WRONLY | O_CREAT | O_TRUNC,  S_IRUSR | S_IWUSR);
+	write(fd, &now, sizeof(now));
+	close(fd);
+
+	fd = open("persist.dat", O_RDWR | O_CREAT | O_TRUNC, S_IRWXU);
+	CAT_write_persist_archive(fd);
+	close(fd);
+}
+
 #define SCREEN_CAPTURE_ROWS (CAT_LCD_SCREEN_H*RETINA_SCALE*WINDOW_SCALE)
 #define SCREEN_CAPTURE_COLS (CAT_LCD_SCREEN_W*RETINA_SCALE*WINDOW_SCALE)
 #define SCREEN_CAPTURE_ROW_SIZE (SCREEN_CAPTURE_COLS*3)
 #define SCREEN_CAPTURE_SIZE (SCREEN_CAPTURE_ROWS * SCREEN_CAPTURE_ROW_SIZE)
-uint8_t screen_capture[2][SCREEN_CAPTURE_SIZE];
-int screen_capture_buffer_idx = 0;
+static uint8_t screen_capture[2][SCREEN_CAPTURE_SIZE];
+static int screen_capture_buffer_idx = 0;
+static bool request_screen_capture = false;
 
 void flip_screen_capture()
 {
@@ -239,53 +269,27 @@ void write_screen_capture(const char* path)
 	fclose(file);
 }
 
-void CAT_platform_tick()
+void CAT_platform_capture_frame()
 {
-	glfwPollEvents();
-
-	simulator.delta_time_s = glfwGetTime() - simulator.uptime_s;
-	simulator.uptime_s = glfwGetTime();
-
-	if(glfwGetKey(simulator.window, GLFW_KEY_ENTER))
-	{
-		glReadPixels
-		(
-			0, 0,
-			SCREEN_CAPTURE_COLS, SCREEN_CAPTURE_ROWS,
-			GL_RGB, GL_UNSIGNED_BYTE,
-			screen_capture[screen_capture_buffer_idx]
-		);
-		flip_screen_capture();
-		
-		CAT_datetime t;
-		CAT_get_datetime(&t);
-		char path[strlen("capture/####_##_##_##_##_##.ppm")+1];
-		snprintf
-		(
-			path, sizeof(path),
-			"capture/%.4d_%.2d_%.2d_%.2d_%.2d_%.2d.ppm",
-			t.year, t.month, t.day, t.hour, t.minute, t.second
-		);
-		write_screen_capture(path);
-	}
-}
-
-void CAT_platform_cleanup()
-{
-	glDeleteShader(simulator.prog_id);
-	glDeleteTextures(1, &simulator.tex_id);
-	glDeleteBuffers(1, &simulator.vbo_id);
-	glDeleteVertexArrays(1, &simulator.vao_id);
-
-	time_t now;
-	time(&now);
-	int fd = open("sleep.dat", O_WRONLY | O_CREAT | O_TRUNC,  S_IRUSR | S_IWUSR);
-	write(fd, &now, sizeof(now));
-	close(fd);
-
-	fd = open("persist.dat", O_RDWR | O_CREAT | O_TRUNC, S_IRWXU);
-	CAT_write_persist_archive(fd);
-	close(fd);
+	glReadPixels
+	(
+		0, 0,
+		SCREEN_CAPTURE_COLS, SCREEN_CAPTURE_ROWS,
+		GL_RGB, GL_UNSIGNED_BYTE,
+		screen_capture[screen_capture_buffer_idx]
+	);
+	flip_screen_capture();
+	
+	CAT_datetime t;
+	CAT_get_datetime(&t);
+	char path[strlen("capture/####_##_##_##_##_##.ppm")+1];
+	snprintf
+	(
+		path, sizeof(path),
+		"capture/%.4d_%.2d_%.2d_%.2d_%.2d_%.2d.ppm",
+		t.year, t.month, t.day, t.hour, t.minute, t.second
+	);
+	write_screen_capture(path);
 }
 
 

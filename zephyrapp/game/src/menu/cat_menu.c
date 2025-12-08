@@ -107,6 +107,9 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 							else
 								persist_flags |= CAT_PERSIST_CONFIG_FLAG_ETERNAL_WAKE;
 						}
+
+						if(CAT_gui_menu_item("TURNKEY"))
+							CAT_set_load_flags(CAT_LOAD_FLAG_DIRTY | CAT_LOAD_FLAG_TURNKEY);
 						
 #if CAT_WIFI_ENABLED					
 						if(CAT_gui_menu_item("RP2350 BOOTLOADER"))

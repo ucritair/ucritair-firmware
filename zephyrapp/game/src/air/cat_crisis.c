@@ -217,7 +217,7 @@ void CAT_AQ_stop_crisis(CAT_AQ_crisis_response_type response_type)
 		crisis.response_grade <= CAT_AQ_CRISIS_RESPONSE_GRADE_INADEQUATE ? 1 :
 		0;
 
-		pet.lifespan -= crisis.lifespan_damage;
+		CAT_pet_change_lifespan(-crisis.lifespan_damage);
 	}
 }
 

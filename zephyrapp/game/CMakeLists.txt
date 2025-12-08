@@ -2,7 +2,8 @@ cmake_minimum_required(VERSION 3.20.0)
 
 project(app)
 
-set(GAME_DIR ${CMAKE_CURRENT_BINARY_DIR}/..)
+set(ZEPHYRAPP_DIR ${CMAKE_CURRENT_BINARY_DIR}/../..)
+set(GAME_DIR ${ZEPHYRAPP_DIR}/game)
 
 if(NOT TARGET app)
 	add_executable(app)
@@ -29,8 +30,8 @@ if(NOT TARGET app)
 		GLOB EXCLUDE_SRC
 		src/core/cat_embedded.c
 	)
-	target_include_directories(app PRIVATE ${GAME_DIR}/../src/)
-	target_include_directories(app PRIVATE ${GAME_DIR}/../src/protobufs/)
+	target_include_directories(app PRIVATE ${ZEPHYRAPP_DIR}/src/)
+	target_include_directories(app PRIVATE ${ZEPHYRAPP_DIR}/src/protobufs/)
 else()
 	message(WARNING "Building for embedded")
 	target_compile_definitions(app PRIVATE CAT_EMBEDDED=1)
@@ -61,6 +62,7 @@ endif()
 
 function(asset_gen TYPE_NAME GEN_SCRIPT SRC_DATA)
 	target_sources(app PRIVATE ${GAME_DIR}/assets/${TYPE_NAME}_assets.c)
+	message(Adding ${GAME_DIR}/assets/${TYPE_NAME}_assets.c)
 	add_custom_command(
 		OUTPUT ${GAME_DIR}/assets/${TYPE_NAME}_assets.h ${GAME_DIR}/assets/${TYPE_NAME}_assets.c
 		WORKING_DIRECTORY ${GAME_DIR}/
@@ -95,6 +97,5 @@ file(
 	src
 	src/**
 )
-message("${game_include}")
 target_include_directories(app PRIVATE ${GAME_INCLUDE})
 target_include_directories(app PRIVATE assets)

@@ -172,8 +172,8 @@ int main(int argc, char** argv)
 			CAT_set_render_cycle(render_cycle);
 			CAT_tick_render();
 			CAT_LCD_post();
-			CAT_LCD_flip();
 		}
+		CAT_LCD_flip();
 
 		if(CAT_poll_eink_update_flag())
 			CAT_eink_execute_update();
