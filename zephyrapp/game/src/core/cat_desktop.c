@@ -20,6 +20,7 @@
 #include "cat_persist.h"
 #include "cat_time.h"
 #include "cat_save.h"
+#include "cat_curves.h"
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -560,40 +561,84 @@ CAT_save* CAT_start_load()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // LOGS
 
-CAT_log_cell log_cell =
+#define LOG_PERIOD (CAT_MINUTE_SECONDS * 3)
+#define LOG_COUNT (CAT_DAY_SECONDS / LOG_PERIOD + 1)
+static CAT_log_cell logs[LOG_COUNT];
+static bool logs_initialized = false;
+
+void init_logs()
 {
-	.flags = CAT_LOG_CELL_FLAG_HAS_CO2 | CAT_LOG_CELL_FLAG_HAS_TEMP_RH_PARTICLES,
+	CAT_datetime today;
+	CAT_get_datetime(&today);
+	today.hour = 0;
+	today.minute = 0;
+	today.second = 0;
+	uint64_t timestamp = CAT_make_timestamp(&today);
 
-	.timestamp = 61686489600,
-	.temp_Cx1000 = 22700,
-	.pressure_hPax10 = 9760,
+	for(int i = 1; i < LOG_COUNT; i++)
+	{
+		float t = i / (float) LOG_COUNT;
 
-	.rh_pctx100 = 4800,
-	.co2_ppmx1 = 644,
-	.pm_ugmx100 = {100, 110, 110, 110},
-	.pn_ugmx100 = {650, 720, 720, 720, 720},
+		logs[i] = (CAT_log_cell)
+		{
+			.flags = CAT_LOG_CELL_FLAG_HAS_CO2 | CAT_LOG_CELL_FLAG_HAS_TEMP_RH_PARTICLES,
 
-	.voc_index = 105,
-	.nox_index = 1,
+			.timestamp = timestamp,
+			.temp_Cx1000 = CAT_sinterp(20000, 22700, t),
+			.pressure_hPax10 = 9760,
 
-	.co2_uncomp_ppmx1 = 644,
-};
+			.rh_pctx100 = 4600,
+			.co2_ppmx1 = CAT_sinterp(500, 800, t),
+			.pm_ugmx100 = {100, 110, 110, 110},
+			.pn_ugmx100 = {650, 720, 720, 720, 720},
+
+			.voc_index = 105,
+			.nox_index = 1,
+
+			.co2_uncomp_ppmx1 = 644,
+		};
+		timestamp += LOG_PERIOD;
+	}
+}
 
 void CAT_read_log_cell_at_idx(int idx, CAT_log_cell* out)
 {
-	memcpy(out, &log_cell, sizeof(CAT_log_cell));
+	if(!logs_initialized)
+	{
+		init_logs();
+		logs_initialized = true;
+	}
+	memcpy(out, &logs[idx], sizeof(CAT_log_cell));
 }
 
 int CAT_read_log_cell_before_time(int base_idx, uint64_t time, CAT_log_cell* out)
 {
-	CAT_read_log_cell_at_idx(1, out);
-	return 1;
+	if(base_idx == -1 || base_idx >= LOG_COUNT)
+		base_idx = 1;
+	for(int i = base_idx; i < LOG_COUNT; i++)
+	{
+		if(logs[i].timestamp <= time)
+		{
+			CAT_read_log_cell_at_idx(i, out);
+			return i;
+		}
+	}
+	return -1;
 }
 
 int CAT_read_log_cell_after_time(int base_idx, uint64_t time, CAT_log_cell* out)
 {
-	CAT_read_log_cell_at_idx(1, out);
-	return 1;
+	if(base_idx == -1 || base_idx >= LOG_COUNT)
+		base_idx = 1;
+	for(int i = base_idx; i < LOG_COUNT; i++)
+	{
+		if(logs[i].timestamp >= time)
+		{
+			CAT_read_log_cell_at_idx(i, out);
+			return i;
+		}
+	}
+	return -1;
 }
 
 int CAT_read_first_calendar_cell(CAT_log_cell* cell)
@@ -604,7 +649,7 @@ int CAT_read_first_calendar_cell(CAT_log_cell* cell)
 
 int CAT_get_log_cell_count()
 {
-	return 1;
+	return LOG_COUNT;
 }
 
 void CAT_force_log_cell_write()

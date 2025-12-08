@@ -91,7 +91,7 @@ static void load_graph_data()
 	start_tm.tm_year = start_date.year;
 	start_tm.tm_mon = start_date.month-1;
 	start_tm.tm_mday = start_date.day;
-	uint64_t start_time = timegm(&start_tm) + 60129542144; // <- WHATEVER. I DON'T EVEN KNOW
+	uint64_t start_time = timegm(&start_tm) + SPOOKY_TIME_CONSTANT; // <- WHATEVER. I DON'T EVEN KNOW
 	
 	CAT_log_cell cell;
 	if(seek_bookmark == -1)
@@ -487,7 +487,7 @@ void CAT_monitor_graph_render()
 		}
 
 		CAT_set_text_colour(CAT_96_GREY);
-		CAT_draw_textf(WINDOW_X0, CAT_LCD_SCREEN_H-14, "Tap graph to change metric");
+		CAT_draw_textf(WINDOW_X0, CAT_LCD_SCREEN_H-32, "A/B to control zoom\nTap graph to change metric");
 	}
 }
 

@@ -2,6 +2,7 @@
 
 #include "cat_core.h"
 #include "cat_render.h"
+#include "cat_input.h"
 
 static float duration = 0;
 static float direction = 0;
@@ -35,7 +36,7 @@ void tick_aperture_blackout()
 	timer = CAT_min(timer, duration);
 }
 
-void render_aperture_blackout()
+void draw_aperture_blackout()
 {
 	if(!CAT_effect_poll_aperture_blackout())
 		return;
@@ -67,6 +68,17 @@ void render_aperture_blackout()
 	}
 }
 
+void draw_touch_cursor()
+{
+	if(CAT_input_touching())
+	{
+		int tx, ty;
+		CAT_input_cursor(&tx, &ty);
+		CAT_circberry(tx, ty, 16, CAT_WHITE);
+		CAT_discberry(tx, ty, 4, CAT_WHITE);
+	}
+}
+
 void CAT_effects_tick()
 {
 	tick_aperture_blackout();
@@ -74,5 +86,6 @@ void CAT_effects_tick()
 
 void CAT_effects_render()
 {
-	render_aperture_blackout();
+	draw_touch_cursor();
+	draw_aperture_blackout();
 }

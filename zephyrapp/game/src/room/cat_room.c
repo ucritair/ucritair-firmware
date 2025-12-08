@@ -948,13 +948,6 @@ void CAT_room_draw_gui()
 			);
 		}
 	}
-
-	if(CAT_input_touching())
-	{
-		int tx, ty;
-		CAT_input_cursor(&tx, &ty);
-		CAT_circberry(tx, ty, 16, CAT_WHITE);
-	}
 }
 
 void CAT_render_room()

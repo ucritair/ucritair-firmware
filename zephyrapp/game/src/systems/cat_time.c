@@ -178,3 +178,26 @@ void CAT_get_first_date(CAT_datetime* datetime)
 	CAT_read_first_calendar_cell(&first);
 	CAT_make_datetime(first.timestamp, datetime);
 }
+
+void CAT_print_datetime(CAT_datetime datetime)
+{
+	CAT_printf
+	(
+		"%.2d/%.2d/%.4d %.2d:%.2d:%.2d\n",
+		datetime.month, datetime.day, datetime.year,
+		datetime.hour, datetime.minute, datetime.second
+	);
+}
+
+void CAT_print_timestamp(uint64_t timestamp)
+{
+	CAT_datetime datetime;
+	CAT_make_datetime(timestamp, &datetime);
+	CAT_printf
+	(
+		"[%llu] %.2d/%.2d/%.4d %.2d:%.2d:%.2d\n",
+		timestamp,
+		datetime.month, datetime.day, datetime.year,
+		datetime.hour, datetime.minute, datetime.second
+	);
+}

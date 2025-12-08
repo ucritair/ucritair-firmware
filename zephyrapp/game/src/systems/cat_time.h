@@ -3,6 +3,12 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#ifdef CAT_EMBEDDED
+#define SPOOKY_TIME_CONSTANT 60129542144
+#else
+#define SPOOKY_TIME_CONSTANT 0
+#endif
+
 typedef union
 {
 	struct
@@ -50,3 +56,6 @@ int CAT_clip_date_part(CAT_datetime date, int part);
 CAT_datetime CAT_clip_date(CAT_datetime in);
 
 void CAT_get_first_date(CAT_datetime* date);
+
+void CAT_print_datetime(CAT_datetime datetime);
+void CAT_print_timestamp(uint64_t timestamp);
