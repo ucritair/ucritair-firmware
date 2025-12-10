@@ -21,8 +21,8 @@
 #define CAT_LCD_SCREEN_W 240
 #define CAT_LCD_SCREEN_H 320
 
-#define EINK_SCREEN_W 212
-#define EINK_SCREEN_H 104
+#define CAT_EINK_SCREEN_W 212
+#define CAT_EINK_SCREEN_H 104
 
 #define CAT_TILE_SIZE 16
 #define CAT_GLYPH_WIDTH 8
@@ -69,8 +69,12 @@ bool CAT_is_last_render_cycle();
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // EINK SCREEN
 
-void CAT_eink_post(uint8_t* buffer);
-bool CAT_eink_is_posted();
+#define CAT_EINK_PIXEL_COUNT (CAT_EINK_SCREEN_W*CAT_EINK_SCREEN_H)
+#define CAT_EINK_FRAMEBUFFER_SIZE (CAT_EINK_PIXEL_COUNT/8)
+
+#define EINK_UPDATE_PERIOD (CAT_MINUTE_SECONDS * 2)
+
+uint8_t* CAT_eink_get_framebuffer();
 
 bool CAT_eink_is_boot_update();
 void CAT_set_eink_update_flag(bool flag);

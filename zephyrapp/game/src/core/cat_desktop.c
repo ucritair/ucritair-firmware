@@ -37,27 +37,33 @@
 #define RETINA_SCALE 1
 #endif
 
-struct
+static const float screen_geometry[12] =
 {
-    GLFWwindow* window;
-    GLuint vao_id;
-    GLuint vbo_id;
-    GLuint tex_id;
-    GLuint prog_id;
-    GLuint tex_loc;
+	-1.0f, -1.0f,
+	1.0f, -1.0f,
+	1.0f, 1.0f,
+	1.0f, 1.0f,
+	-1.0f, 1.0f,
+	-1.0f, -1.0f
+};
+
+typedef struct
+{
+	GLFWwindow* window;
+	int width;
+	int height;
+	const char* name;
+
+	GLuint vao_id;
+	GLuint vbo_id;
+	GLuint tex_id;
+	GLuint prog_id;
+
+	GLuint tex_loc;
 	GLuint brightness_loc;
+} CAT_sim_screen;
 
-	uint64_t slept_s;
-    float uptime_s;
-    float delta_time_s;
-} simulator = {0};
-
-void GLFW_error_callback(int error, const char* msg)
-{
-	CAT_printf("GLFW error %d: %s\n", error, msg);
-}
-
-void CAT_shader_init(char* vert_src, char* frag_src)
+GLuint CAT_shader_init(char* vert_src, char* frag_src)
 {
 	int status;
 	char log[512];
@@ -82,86 +88,60 @@ void CAT_shader_init(char* vert_src, char* frag_src)
 		CAT_printf("While compiling fragment shader:\n%s\n", log);
 	}
 
-	simulator.prog_id = glCreateProgram();
-	glAttachShader(simulator.prog_id, vert_id);
-	glAttachShader(simulator.prog_id, frag_id);
-	glLinkProgram(simulator.prog_id);
-	glGetProgramiv(simulator.prog_id, GL_LINK_STATUS, &status);
+	GLuint prog_id = glCreateProgram();
+	glAttachShader(prog_id, vert_id);
+	glAttachShader(prog_id, frag_id);
+	glLinkProgram(prog_id);
+	glGetProgramiv(prog_id, GL_LINK_STATUS, &status);
 	if(status != GL_TRUE)
 	{
-		glGetShaderInfoLog(simulator.prog_id, 512, NULL, log);
+		glGetShaderInfoLog(prog_id, 512, NULL, log);
 		CAT_printf("While linking shader program:\n%s\n", log);
 	}
 	glDeleteShader(vert_id);
 	glDeleteShader(frag_id);
+
+	return prog_id;
 }
 
-void CAT_platform_init()
+void CAT_sim_screen_init(CAT_sim_screen* screen, int width, int height, const char* name)
 {
-	char cwd_buf[128];
-	getcwd(cwd_buf, sizeof(cwd_buf));
-	CAT_printf("[%s]\n", cwd_buf);
-	
-	CAT_printf
-	(
-		"Starting CAT v%d.%d.%d.%d...\n",
-		CAT_VERSION_MAJOR, CAT_VERSION_MINOR,
-		CAT_VERSION_PATCH, CAT_VERSION_PUSH
-	);
-
-	glfwSetErrorCallback(GLFW_error_callback);
-	
-	if(!glfwInit())
-	{
-		CAT_printf("Failed to initialize GLFW\n");
-	}
-	
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
-	simulator.window = glfwCreateWindow(CAT_LCD_SCREEN_W*WINDOW_SCALE, CAT_LCD_SCREEN_H*WINDOW_SCALE, "μCritAir", NULL, NULL);
-	if(simulator.window == NULL)
+	screen->window = glfwCreateWindow(width*WINDOW_SCALE, height*WINDOW_SCALE, name, NULL, NULL);
+	screen->width = width;
+	screen->height = height;
+	screen->name = name;
+	if(screen->window == NULL)
 	{
 		CAT_printf("Failed to create window\n");
 	}
 
-	glfwMakeContextCurrent(simulator.window);
-	CAT_printf("Renderer: %s\n", glGetString(GL_RENDERER));
-	CAT_printf("GL version: %s\n", glGetString(GL_VERSION));
-	CAT_printf("SL version: %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
-	CAT_printf("Initializing GLEW\n");
+	glfwMakeContextCurrent(screen->window);
 	glewExperimental = GL_TRUE;
 	if(glewInit() != GLEW_OK)
 	{
 		CAT_printf("Failed to initialize GLEW\n");
 	}
 
-	float geometry[12] =
-	{
-		-1.0f, -1.0f,
-		1.0f, -1.0f,
-		1.0f, 1.0f,
-		1.0f, 1.0f,
-		-1.0f, 1.0f,
-		-1.0f, -1.0f
-	};
-	glGenVertexArrays(1, &simulator.vao_id);
-	glBindVertexArray(simulator.vao_id);
+	glGenVertexArrays(1, &screen->vao_id);
+	glBindVertexArray(screen->vao_id);
 	glEnableVertexAttribArray(0);
-	glGenBuffers(1, &simulator.vbo_id);
-	glBindBuffer(GL_ARRAY_BUFFER, simulator.vbo_id);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(geometry), geometry, GL_STATIC_DRAW); 
+	glGenBuffers(1, &screen->vbo_id);
+	glBindBuffer(GL_ARRAY_BUFFER, screen->vbo_id);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(screen_geometry), screen_geometry, GL_STATIC_DRAW); 
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2*sizeof(float), 0);
 
-	glGenTextures(1, &simulator.tex_id);
-	glBindTexture(GL_TEXTURE_2D, simulator.tex_id);
+	glGenTextures(1, &screen->tex_id);
+	glBindTexture(GL_TEXTURE_2D, screen->tex_id);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, CAT_LCD_SCREEN_W, CAT_LCD_SCREEN_H, 0, GL_RGB, GL_UNSIGNED_SHORT_5_6_5, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_SHORT_5_6_5, NULL);
 	glGenerateMipmap(GL_TEXTURE_2D);
 
 	FILE* vert_file = fopen("shaders/cat.vert", "r");
@@ -180,10 +160,65 @@ void CAT_platform_init()
 	frag_src[frag_len] = '\0';
 	fread(frag_src, 1, frag_len, frag_file);
 	fclose(frag_file);
-	CAT_shader_init(vert_src, frag_src);
+	screen->prog_id = CAT_shader_init(vert_src, frag_src);
 
-	simulator.tex_loc = glGetUniformLocation(simulator.prog_id, "tex");
-	simulator.brightness_loc = glGetUniformLocation(simulator.prog_id, "brightness");
+	screen->tex_loc = glGetUniformLocation(screen->prog_id, "tex");
+	screen->brightness_loc = glGetUniformLocation(screen->prog_id, "brightness");
+}
+
+void CAT_sim_screen_destroy(CAT_sim_screen* screen)
+{
+	glDeleteShader(screen->prog_id);
+	glDeleteTextures(1, &screen->tex_id);
+	glDeleteBuffers(1, &screen->vbo_id);
+	glDeleteVertexArrays(1, &screen->vao_id);
+
+	glfwDestroyWindow(screen->window);
+}
+
+void CAT_sim_bind_screen(CAT_sim_screen* screen)
+{
+	glfwMakeContextCurrent(screen->window);
+}
+
+void GLFW_error_callback(int error, const char* msg)
+{
+	CAT_printf("GLFW error %d: %s\n", error, msg);
+}
+
+static CAT_sim_screen lcd;
+static CAT_sim_screen eink;
+static uint64_t slept_s;
+static float uptime_s;
+static float delta_time_s;
+
+void CAT_platform_init()
+{
+	char cwd_buf[128];
+	getcwd(cwd_buf, sizeof(cwd_buf));
+	CAT_printf("[%s]\n", cwd_buf);
+	
+	CAT_printf
+	(
+		"Starting CAT v%d.%d.%d.%d...\n",
+		CAT_VERSION_MAJOR, CAT_VERSION_MINOR,
+		CAT_VERSION_PATCH, CAT_VERSION_PUSH
+	);
+
+	glfwSetErrorCallback(GLFW_error_callback);
+	if(!glfwInit())
+	{
+		CAT_printf("Failed to initialize GLFW\n");
+	}
+
+	CAT_sim_screen_init(&lcd, CAT_LCD_SCREEN_W, CAT_LCD_SCREEN_H, "µCritAir (LCD)");
+	CAT_sim_screen_init(&eink, CAT_EINK_SCREEN_W, CAT_EINK_SCREEN_H, "µCritAir (e-Ink)");
+	
+	CAT_sim_bind_screen(&lcd);
+	CAT_printf("Renderer: %s\n", glGetString(GL_RENDERER));
+	CAT_printf("GL version: %s\n", glGetString(GL_VERSION));
+	CAT_printf("SL version: %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
+	CAT_printf("Initializing GLEW\n");
 	
 	time_t sleep_time;
 	int fd = open("sleep.dat", O_RDONLY);
@@ -193,10 +228,10 @@ void CAT_platform_init()
 		close(fd);
 		time_t now;
 		time(&now);
-		simulator.slept_s = difftime(now, sleep_time);
+		slept_s = difftime(now, sleep_time);
 	}
-	simulator.uptime_s = glfwGetTime();
-	simulator.delta_time_s = 0;
+	uptime_s = glfwGetTime();
+	delta_time_s = 0;
 
 	fd = open("persist.dat", O_RDONLY);
 	if(fd != -1)
@@ -210,19 +245,19 @@ void CAT_platform_tick()
 {
 	glfwPollEvents();
 
-	simulator.delta_time_s = glfwGetTime() - simulator.uptime_s;
-	simulator.uptime_s = glfwGetTime();
+	delta_time_s = glfwGetTime() - uptime_s;
+	uptime_s = glfwGetTime();
 
-	if(glfwGetKey(simulator.window, GLFW_KEY_ENTER))
+	if(glfwGetKey(lcd.window, GLFW_KEY_ENTER))
 		CAT_platform_capture_frame();
 }
 
 void CAT_platform_cleanup()
 {
-	glDeleteShader(simulator.prog_id);
-	glDeleteTextures(1, &simulator.tex_id);
-	glDeleteBuffers(1, &simulator.vbo_id);
-	glDeleteVertexArrays(1, &simulator.vao_id);
+	CAT_sim_screen_destroy(&lcd);
+	CAT_sim_screen_destroy(&eink);
+	
+	glfwTerminate();
 
 	time_t now;
 	time(&now);
@@ -326,7 +361,9 @@ void CAT_LCD_post()
 		}
 	}
 
-	glBindTexture(GL_TEXTURE_2D, simulator.tex_id);
+	CAT_sim_bind_screen(&lcd);
+
+	glBindTexture(GL_TEXTURE_2D, lcd.tex_id);
 	glTexSubImage2D
 	(
 		GL_TEXTURE_2D, 0,
@@ -339,19 +376,19 @@ void CAT_LCD_post()
 	glClearColor(0, 0, 0, 1);
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	glUseProgram(simulator.prog_id);
+	glUseProgram(lcd.prog_id);
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, simulator.tex_id);
-	glProgramUniform1i(simulator.prog_id, simulator.tex_loc, 0);
-	glProgramUniform1i(simulator.prog_id, simulator.brightness_loc, screen_brightness);
+	glBindTexture(GL_TEXTURE_2D, lcd.tex_id);
+	glProgramUniform1i(lcd.prog_id, lcd.tex_loc, 0);
+	glProgramUniform1i(lcd.prog_id, lcd.brightness_loc, screen_brightness);
 
-	glBindVertexArray(simulator.vao_id);
+	glBindVertexArray(lcd.vao_id);
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 }
 
 void CAT_LCD_flip()
 {
-	glfwSwapBuffers(simulator.window);
+	glfwSwapBuffers(lcd.window);
 }
 
 bool CAT_LCD_is_posted()
@@ -383,20 +420,73 @@ bool CAT_is_last_render_cycle()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // EINK SCREEN
 
-void CAT_eink_post(uint8_t* buffer)
+static uint8_t eink_framebuffer[CAT_EINK_FRAMEBUFFER_SIZE] = {};
+static uint16_t eink_framebuffer_565[CAT_EINK_PIXEL_COUNT] = {};
+
+uint8_t* CAT_eink_get_framebuffer()
 {
-	return;
+	return eink_framebuffer;
 }
 
-bool CAT_eink_is_posted()
+bool read_eink_fb(int _x, int _y)
 {
-	return true;
+	int x = _y;
+	int y = CAT_EINK_SCREEN_W - 1 - _x;
+
+	if (x >= CAT_EINK_SCREEN_H || y >= CAT_EINK_SCREEN_W) return false;
+
+	int px_idx = (y * CAT_EINK_SCREEN_H) + x;
+	int byte_idx = px_idx >> 3; // For every byte idx, 8 pixel idxs
+	int bit_idx = px_idx & 0b111; // The lower 3 bits of the pixel idx encode one of the 8 possible bit idxs
+
+	return eink_framebuffer[byte_idx] & (1 << (7-bit_idx));
+}
+
+void transform_eink_fb()
+{
+	for(int y = 0; y < CAT_EINK_SCREEN_H; y++)
+	{
+		for(int x = 0; x < CAT_EINK_SCREEN_W; x++)
+		{
+			bool px = read_eink_fb(x, y);
+			eink_framebuffer_565[y * CAT_EINK_SCREEN_W + x] = px ? CAT_BLACK : CAT_WHITE;
+		}
+	}
 }
 
 void CAT_eink_update()
 {
 	CAT_printf("[CALL] CAT_eink_update\n");
-	sleep(1);
+	CAT_msleep(500);
+
+	CAT_sim_bind_screen(&eink);
+
+	transform_eink_fb();
+	glBindTexture(GL_TEXTURE_2D, eink.tex_id);
+	glTexSubImage2D
+	(
+		GL_TEXTURE_2D, 0,
+		0, 0,
+		CAT_EINK_SCREEN_W, CAT_EINK_SCREEN_H,
+		GL_RGB, GL_UNSIGNED_SHORT_5_6_5,
+		eink_framebuffer_565
+	);
+
+	glClearColor(1, 0, 0, 1);
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	glUseProgram(eink.prog_id);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, eink.tex_id);
+	glProgramUniform1i(eink.prog_id, eink.tex_loc, 0);
+	glProgramUniform1i(eink.prog_id, eink.brightness_loc, 75);
+
+	glBindVertexArray(eink.vao_id);
+	glDrawArrays(GL_TRIANGLES, 0, 6);
+
+	glfwSwapBuffers(eink.window);
+
+	memset(eink_framebuffer, 0, sizeof(eink_framebuffer));
 }
 
 
@@ -459,7 +549,7 @@ uint16_t CAT_get_buttons()
 	for(int i = 0; i < NUM_BUTTONS; i++)
 	{
 		int key = input_map[i];
-		if(glfwGetKey(simulator.window, key))
+		if(glfwGetKey(lcd.window, key))
 		{
 			mask |= 1 << i;
 		}
@@ -470,12 +560,12 @@ uint16_t CAT_get_buttons()
 void CAT_get_touch(CAT_touch* touch)
 {
 	double x, y;
-	glfwGetCursorPos(simulator.window, &x, &y);
+	glfwGetCursorPos(lcd.window, &x, &y);
 	x /= WINDOW_SCALE;
 	y /= WINDOW_SCALE;
 	touch->x = x;
 	touch->y = y;
-	touch->pressure = glfwGetMouseButton(simulator.window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS;
+	touch->pressure = glfwGetMouseButton(lcd.window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS;
 }
 
 
@@ -484,17 +574,17 @@ void CAT_get_touch(CAT_touch* touch)
 
 uint64_t CAT_get_slept_s()
 {
-	return simulator.slept_s;
+	return slept_s;
 }
 
 uint64_t CAT_get_uptime_ms()
 {
-	return simulator.uptime_s * 1000;
+	return uptime_s * 1000;
 }
 
 float CAT_get_delta_time_s()
 {
-	return simulator.delta_time_s;
+	return delta_time_s;
 }
 
 uint64_t CAT_get_RTC_offset()
@@ -678,7 +768,7 @@ bool CAT_is_charging()
 
 bool CAT_is_on()
 {
-	return !glfwWindowShouldClose(simulator.window);
+	return !glfwWindowShouldClose(lcd.window);
 }
 
 void CAT_msleep(int ms)
@@ -688,12 +778,12 @@ void CAT_msleep(int ms)
 
 void CAT_sleep()
 {
-	glfwSetWindowShouldClose(simulator.window, true);
+	glfwSetWindowShouldClose(lcd.window, true);
 }
 
 void CAT_shutdown()
 {
-	glfwSetWindowShouldClose(simulator.window, true);
+	glfwSetWindowShouldClose(lcd.window, true);
 }
 
 void CAT_factory_reset()
