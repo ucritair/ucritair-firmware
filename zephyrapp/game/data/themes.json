@@ -42,7 +42,7 @@
             }
         }
     },
-	"code" : "theme",
+    "code": "theme",
     "instances": [
         {
             "name": "basic",

@@ -10,6 +10,8 @@
 #include "cat_input.h"
 #include "cat_persist.h"
 #include "cat_save.h"
+#include "tinysprite_assets.h"
+#include "cat_spriter.h"
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -33,6 +35,97 @@ void CAT_set_eink_update_flag(bool flag)
 bool CAT_poll_eink_update_flag()
 {
 	return eink_dirty;
+}
+
+void CAT_eink_draw_default()
+{
+	char buf[256] = {0};
+	#define fwrite_str(x, y, s, str, ...) snprintf(buf, sizeof(buf), str, ##__VA_ARGS__); CAT_eink_draw_string(x, y, s, buf);
+
+	CAT_datetime now;
+	CAT_get_datetime(&now);
+
+	CAT_tinysprite* selected_unicorn = &tnyspr_unicorn_default;
+	CAT_tinysprite* selected_cloud = &tnyspr_cloud_default;
+
+	if(persist_flags & CAT_PERSIST_CONFIG_FLAG_BATTERY_ALERT)
+	{	
+		selected_unicorn = &tnyspr_unicorn_low_battery;
+	}
+	else if (pet_mask)
+	{
+		selected_unicorn = &tnyspr_unicorn_mask;
+	}
+	else
+	{
+		if (pet_mood == 2)
+		{
+			selected_unicorn = &tnyspr_unicorn_happy;
+		}
+		else if (pet_mood == 0)
+		{
+			selected_unicorn = &tnyspr_unicorn_sad;
+		}
+	}
+
+	float score = CAT_AQ_aggregate_score();
+
+	if (score < 25)
+	{
+		selected_cloud = &tnyspr_cloud_smoke;
+	}
+	else if (score < 50)
+	{
+		selected_cloud = &tnyspr_cloud_sad;
+	}
+	else if (score > 75)
+	{
+		selected_cloud = &tnyspr_cloud_happy;
+	}
+
+	CAT_eink_draw_sprite(0, 0, selected_unicorn);
+	CAT_eink_draw_sprite(0, selected_unicorn->height, selected_cloud);
+
+	if(CAT_AQ_sensors_initialized())
+	{
+		fwrite_str(128, 20, 2, "%d", (int) readings.sunrise.ppm_filtered_compensated);
+		fwrite_str(CAT_EINK_SCREEN_W-(8*3), 20, 1, "ppm\nCO2");
+		fwrite_str(128, 40, 2, CAT_FLOAT_FMT, CAT_FMT_FLOAT(readings.sen5x.pm2_5));
+		fwrite_str(CAT_EINK_SCREEN_W-(8*5), 40, 1, "ug/m3\nPM2.5");
+
+		if (CAT_AQ_NOX_VOC_initialized()) // NEEDS THE BRACKETS ?!
+		{
+			fwrite_str(128, 60, 1, "%d NOX / %d VOC", (int) readings.sen5x.nox_index, (int) readings.sen5x.voc_index);
+		}
+		
+		float deg_c = readings.sen5x.temp_degC;
+		float deg_mapped = CAT_AQ_map_celsius(deg_c);
+		fwrite_str(128, 70, 1, "%d %s / %d%% RH", (int) deg_mapped, CAT_AQ_get_temperature_unit_string(), (int) readings.sen5x.humidity_rhpct);
+		fwrite_str(128, 80, 1, "%d%% rebreathed", (int) ((((readings.sunrise.ppm_filtered_compensated)-420.)/38000.)*100.));
+		fwrite_str(128, 90, 1, "uCritAQI %d%%", (int) score);
+		fwrite_str(128, 100, 1, "at %2d:%02d:%02d", now.hour, now.minute, now.second);
+		fwrite_str(128, 110, 1, "%d%% battery", CAT_get_battery_pct());
+	}
+	else
+	{
+		fwrite_str(128, 64, 1, "Waiting for\nsensors...");
+	}
+
+	fwrite_str(0, CAT_EINK_SCREEN_H-10, 1, " %s LV%d", pet_name, pet_level+1);
+}
+
+void CAT_eink_draw_power_off()
+{
+	CAT_eink_draw_sprite(0, 0, &tnyspr_protected);
+
+	CAT_eink_draw_string(128, 52, 1, "Device is");
+	CAT_eink_draw_string(132, 62, 1, "protected-off");
+
+	CAT_eink_draw_string(160, 81, 1, "Press RESET");
+	CAT_eink_draw_string(158, 91, 1, "to power on");
+
+	CAT_eink_draw_string(146, 109, 1, "Please charge");
+	CAT_eink_draw_string(142, 119, 1, "device!");
 }
 
 bool CAT_eink_should_update()

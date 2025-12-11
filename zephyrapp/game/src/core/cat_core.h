@@ -21,8 +21,8 @@
 #define CAT_LCD_SCREEN_W 240
 #define CAT_LCD_SCREEN_H 320
 
-#define CAT_EINK_SCREEN_W 212
-#define CAT_EINK_SCREEN_H 104
+#define CAT_EINK_SCREEN_W 248
+#define CAT_EINK_SCREEN_H 128
 
 #define CAT_TILE_SIZE 16
 #define CAT_GLYPH_WIDTH 8
@@ -79,6 +79,9 @@ uint8_t* CAT_eink_get_framebuffer();
 bool CAT_eink_is_boot_update();
 void CAT_set_eink_update_flag(bool flag);
 bool CAT_poll_eink_update_flag();
+
+void CAT_eink_draw_default();
+void CAT_eink_draw_power_off();
 void CAT_eink_update();
 
 bool CAT_eink_should_update();

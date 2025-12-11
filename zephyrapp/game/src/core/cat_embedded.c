@@ -105,22 +105,53 @@ bool CAT_is_last_render_cycle()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // EINK SCREEN
 
-void CAT_eink_post(uint8_t* buffer)
-{
-	return;
-}
+PERSIST_RAM uint8_t epaper_framebuffer[EPD_IMAGE_BYTES];
+PERSIST_RAM uint8_t old_epaper_framebuffer[EPD_IMAGE_BYTES];
+PERSIST_RAM uint8_t framebuffer_fast_update_count;
 
-bool CAT_eink_is_posted()
+uint8_t* CAT_eink_get_framebuffer()
 {
-	return true;
+	return epaper_framebuffer;
 }
 
 void CAT_eink_update()
 {
 	if(CAT_get_battery_pct() > 10)
-		epaper_render_test();
+	{
+		memset(epaper_framebuffer, 0, sizeof(epaper_framebuffer));
+
+		CAT_eink_draw_default();
+
+		pc_set_mode(false);
+		if (is_persist_fresh || framebuffer_fast_update_count > 50)
+		{
+			cmd_turn_on_and_write(epaper_framebuffer);
+			is_persist_fresh = false;
+			framebuffer_fast_update_count = 0;
+		}
+		else
+		{
+			cmd_turn_on_and_write_fast(old_epaper_framebuffer, epaper_framebuffer);
+			framebuffer_fast_update_count++;
+		}
+		pc_set_mode(true);
+
+		memcpy(old_epaper_framebuffer, epaper_framebuffer, sizeof(epaper_framebuffer));
+	}
 	else
-		epaper_render_protected_off();
+	{
+		memset(epaper_framebuffer, 0, sizeof(epaper_framebuffer));
+
+		CAT_eink_draw_power_off();
+
+		pc_set_mode(false);
+		cmd_turn_on_and_write(epaper_framebuffer);
+		is_persist_fresh = true;
+		framebuffer_fast_update_count = 0;
+		pc_set_mode(true);
+
+		memcpy(old_epaper_framebuffer, epaper_framebuffer, sizeof(epaper_framebuffer));
+	}
 }
 
 

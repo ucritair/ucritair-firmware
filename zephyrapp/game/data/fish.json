@@ -39,7 +39,7 @@
             }
         }
     },
-	"code" : "fish",
+    "code": "fish",
     "instances": [
         {
             "name": "mackerel",

@@ -212,7 +212,7 @@ void CAT_platform_init()
 	}
 
 	CAT_sim_screen_init(&lcd, CAT_LCD_SCREEN_W, CAT_LCD_SCREEN_H, "µCritAir (LCD)");
-	CAT_sim_screen_init(&eink, CAT_EINK_SCREEN_W, CAT_EINK_SCREEN_H, "µCritAir (e-Ink)");
+	CAT_sim_screen_init(&eink, CAT_EINK_SCREEN_W, CAT_EINK_SCREEN_H, "µCritAir (ePaper)");
 	
 	CAT_sim_bind_screen(&lcd);
 	CAT_printf("Renderer: %s\n", glGetString(GL_RENDERER));
@@ -458,6 +458,8 @@ void CAT_eink_update()
 {
 	CAT_printf("[CALL] CAT_eink_update\n");
 	CAT_msleep(500);
+
+	CAT_eink_draw_default();
 
 	CAT_sim_bind_screen(&eink);
 

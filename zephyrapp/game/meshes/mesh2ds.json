@@ -28,7 +28,7 @@
             }
         }
     },
-	"code" : "mesh2d",
+    "code": "mesh2d",
     "instances": [
         {
             "name": "horse_mackerel",

@@ -562,15 +562,15 @@ void CAT_eink_write_pixel(int _x, int _y, bool value)
 {
 	if (CAT_get_screen_orientation() == CAT_SCREEN_ORIENTATION_DOWN)
 	{
-		_y = CAT_EINK_SCREEN_H - _y;
-		_x = CAT_EINK_SCREEN_W - _x;
+		_y = CAT_EINK_SCREEN_H - 1 - _y;
+		_x = CAT_EINK_SCREEN_W - 1 - _x;
 	}
 
 	// The perceptual top-left of the e-ink is actually the top-right
 	int x = _y;
-	int y = CAT_EINK_SCREEN_W - _x;
+	int y = CAT_EINK_SCREEN_W - 1 - _x;
 
-	if (x > CAT_EINK_SCREEN_H || y > CAT_EINK_SCREEN_W) return;
+	if (x >= CAT_EINK_SCREEN_H || y >= CAT_EINK_SCREEN_W) return;
 
 	int px_idx = (y * CAT_EINK_SCREEN_H) + x;
 	int byte_idx = px_idx >> 3; // For every byte idx, 8 pixel idxs
@@ -585,7 +585,7 @@ void CAT_eink_write_pixel(int _x, int _y, bool value)
 		fb[byte_idx] &= ~(1 << (7-bit_idx));
 }
 
-void CAT_eink_draw_tinysprite(int x, int y, const CAT_tinysprite* sprite)
+void CAT_eink_draw_sprite(int x, int y, const CAT_tinysprite* sprite)
 {
 	if(sprite == NULL)
 		return;
@@ -594,27 +594,44 @@ void CAT_eink_draw_tinysprite(int x, int y, const CAT_tinysprite* sprite)
 		for(int dx = 0; dx < sprite->width; dx++)
 		{
 			bool px = CAT_tinysprite_read(sprite, dx, dy);
-			CAT_eink_write_pixel(x+dx, y+dy, px);
+			if(px)
+				CAT_eink_write_pixel(x+dx, y+dy, px);
 		}
 	}
 }
 
-void CAT_eink_draw_tinyglyph(int x, int y, char g)
+void CAT_eink_draw_glyph(int x, int y, int scale, char g)
 {
 	g = CAT_clamp(g, 0, 127);
-	for(int dy = 0; dy < 8; dy++)
+
+	int x_w = x;
+	int y_w = y;
+
+	for(int y_r = 0; y_r < 8; y_r++)
 	{
-		for(int dx = 0; dx < 8; dx++)
+		for(int x_r = 0; x_r < 8; x_r++)
 		{
-			bool px = CAT_tinysprite_read(&tnyspr_glyphs, dx, g * 8 + dy);
-			CAT_eink_write_pixel(x+dx, y+dy, px);
+			bool px = CAT_tinysprite_read(&tnyspr_glyphs, x_r, g * 8 + y_r);
+			if(px)
+			{
+				for(int dy = 0; dy < scale; dy++)
+				{
+					for(int dx = 0; dx < scale; dx++)
+					{
+						CAT_eink_write_pixel(x_w+dx, y_w+dy, px);
+					}
+				}
+			}
+			x_w += scale;
 		}
+		y_w += scale;
+		x_w = x;
 	}
 }
 
-void CAT_eink_draw_tinystring(int x, int y, const char* s)
+void CAT_eink_draw_string(int x, int y, int scale, const char* s)
 {
 	int n = strlen(s);
 	for(int i = 0; i < n; i++)
-		CAT_eink_draw_tinyglyph(x + i * 8, y, s[i]);
+		CAT_eink_draw_glyph(x + i * 8 * scale, y, scale, s[i]);
 }
