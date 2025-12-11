@@ -632,6 +632,20 @@ void CAT_eink_draw_glyph(int x, int y, int scale, char g)
 void CAT_eink_draw_string(int x, int y, int scale, const char* s)
 {
 	int n = strlen(s);
+	int x_w = x;
+	int y_w = y;
 	for(int i = 0; i < n; i++)
-		CAT_eink_draw_glyph(x + i * 8 * scale, y, scale, s[i]);
+	{
+		char glyph = s[i];
+		if(glyph == '\n')
+		{
+			y_w += 9 * scale;
+			x_w = x;
+		}
+		else
+		{
+			CAT_eink_draw_glyph(x_w, y_w, scale, s[i]);
+			x_w += 8 * scale;
+		}
+	}
 }

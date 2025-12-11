@@ -37,8 +37,15 @@ bool CAT_poll_eink_update_flag()
 	return eink_dirty;
 }
 
+void CAT_eink_clear()
+{
+	memset(CAT_eink_get_framebuffer(), 0, CAT_EINK_FRAMEBUFFER_SIZE);
+}
+
 void CAT_eink_draw_default()
 {
+	CAT_eink_clear();
+
 	char buf[256] = {0};
 	#define fwrite_str(x, y, s, str, ...) snprintf(buf, sizeof(buf), str, ##__VA_ARGS__); CAT_eink_draw_string(x, y, s, buf);
 
@@ -116,6 +123,8 @@ void CAT_eink_draw_default()
 
 void CAT_eink_draw_power_off()
 {
+	CAT_eink_clear();
+	
 	CAT_eink_draw_sprite(0, 0, &tnyspr_protected);
 
 	CAT_eink_draw_string(128, 52, 1, "Device is");
@@ -141,7 +150,8 @@ bool CAT_eink_should_update()
 
 void CAT_eink_execute_update()
 {
-	CAT_eink_update();
+	CAT_eink_draw_default();
+	CAT_eink_update(false);
 	CAT_set_eink_update_flag(false);
 
 	if(eink_boot_update)

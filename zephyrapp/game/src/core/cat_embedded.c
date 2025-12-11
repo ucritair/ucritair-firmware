@@ -114,44 +114,26 @@ uint8_t* CAT_eink_get_framebuffer()
 	return epaper_framebuffer;
 }
 
-void CAT_eink_update()
+void CAT_eink_update(bool force_full_write)
 {
-	if(CAT_get_battery_pct() > 10)
+	bool full_write = force_full_write || (is_persist_fresh || framebuffer_fast_update_count > 50);
+
+	pc_set_mode(false);
+	if(full_write)
 	{
-		memset(epaper_framebuffer, 0, sizeof(epaper_framebuffer));
-
-		CAT_eink_draw_default();
-
-		pc_set_mode(false);
-		if (is_persist_fresh || framebuffer_fast_update_count > 50)
-		{
-			cmd_turn_on_and_write(epaper_framebuffer);
-			is_persist_fresh = false;
-			framebuffer_fast_update_count = 0;
-		}
-		else
-		{
-			cmd_turn_on_and_write_fast(old_epaper_framebuffer, epaper_framebuffer);
-			framebuffer_fast_update_count++;
-		}
-		pc_set_mode(true);
-
-		memcpy(old_epaper_framebuffer, epaper_framebuffer, sizeof(epaper_framebuffer));
+		cmd_turn_on_and_write(epaper_framebuffer);
+		is_persist_fresh = false;
+		framebuffer_fast_update_count = 0;
 	}
 	else
 	{
-		memset(epaper_framebuffer, 0, sizeof(epaper_framebuffer));
-
-		CAT_eink_draw_power_off();
-
-		pc_set_mode(false);
-		cmd_turn_on_and_write(epaper_framebuffer);
-		is_persist_fresh = true;
-		framebuffer_fast_update_count = 0;
-		pc_set_mode(true);
-
-		memcpy(old_epaper_framebuffer, epaper_framebuffer, sizeof(epaper_framebuffer));
+		cmd_turn_on_and_write_fast(old_epaper_framebuffer, epaper_framebuffer);
+		framebuffer_fast_update_count++;
 	}
+	pc_set_mode(true);
+
+	memcpy(old_epaper_framebuffer, epaper_framebuffer, sizeof(epaper_framebuffer));
+	memset(epaper_framebuffer, 0, sizeof(epaper_framebuffer));
 }
 
 
@@ -353,7 +335,8 @@ void CAT_sleep()
 
 void CAT_shutdown()
 {
-	epaper_render_protected_off();
+	CAT_eink_draw_power_off();
+	CAT_eink_update(true);
 	power_off(0, true);
 }
 

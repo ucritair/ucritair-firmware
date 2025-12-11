@@ -80,9 +80,10 @@ bool CAT_eink_is_boot_update();
 void CAT_set_eink_update_flag(bool flag);
 bool CAT_poll_eink_update_flag();
 
+void CAT_eink_clear();
 void CAT_eink_draw_default();
 void CAT_eink_draw_power_off();
-void CAT_eink_update();
+void CAT_eink_update(bool force_full_write);
 
 bool CAT_eink_should_update();
 void CAT_eink_execute_update();

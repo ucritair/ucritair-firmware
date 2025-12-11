@@ -182,7 +182,8 @@ void lcd_render_diag()
 			{
 				LOG_INF("Sleeping");
 				// TODO: Save game
-				epaper_render_test();
+				CAT_eink_draw_default();
+				CAT_eink_update(false);
 				power_off(sensor_wakeup_period*1000, false);
 			}
 			else

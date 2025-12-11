@@ -16,7 +16,6 @@ target_sources(app PRIVATE
 	src/debugmenu.c
 	src/display_pinctrl.c
 	src/epaper_driver.c
-	src/epaper_rendering.c
 	src/flash.c
 	src/imu.c
 	src/lcd_driver.c

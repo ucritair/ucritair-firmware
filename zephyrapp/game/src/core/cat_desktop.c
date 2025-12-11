@@ -454,7 +454,7 @@ void transform_eink_fb()
 	}
 }
 
-void CAT_eink_update()
+void CAT_eink_update(bool force_full_write)
 {
 	CAT_printf("[CALL] CAT_eink_update\n");
 	CAT_msleep(500);
