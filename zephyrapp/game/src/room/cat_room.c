@@ -908,6 +908,8 @@ static const CAT_sprite* button_sprites[] =
 	&icon_menu_sprite
 };
 
+#include "cat_text.h"
+
 void CAT_room_draw_gui()
 {
 	if(CAT_pet_is_dead())
@@ -948,6 +950,16 @@ void CAT_room_draw_gui()
 			);
 		}
 	}
+
+	CAT_frameberry(CAT_WHITE);
+	CAT_draw_textf2
+	(
+		12, 12,
+		"The quick brown <c><%d>fox</c> "
+		"jumps over the lazy <c><%d>%s\nHello, world!</c>"
+		,
+		CAT_RED, CAT_BLUE, "DOG"
+	);
 }
 
 void CAT_render_room()
