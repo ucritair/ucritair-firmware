@@ -210,10 +210,10 @@ static void buffer_breaks(int glyph_width, int line_width)
 			last_pause = parse_idx;
 		if(!get_skip_info(parse_idx))
 			slack -= glyph_width;
-		if(slack <= 0)
+		if(slack <= 0 || raw_buffer[parse_idx] == '\n')
 		{
 			buffer_break(last_pause);
-			slack = line_width - (parse_idx-last_pause);
+			slack = line_width - (parse_idx-last_pause) * glyph_width;
 		}
 		parse_idx++;
 	}
@@ -223,7 +223,62 @@ static void buffer_breaks(int glyph_width, int line_width)
 //////////////////////////////////////////////////////////////////////////
 // DRAWING
 
-static void draw_text(int x, int y)
+static int get_max_line_width(int scale)
+{
+	int idx = 0;
+	int length = 0;
+	int max_length = 0;
+	while(raw_buffer[idx] != '\0')
+	{
+		if(!get_skip_info(idx))
+			length++;
+		if(raw_buffer[idx] == '\n' || get_break(idx))
+		{
+			max_length = CAT_max(max_length, length);
+			length = 0;
+		}
+		idx++;
+	}
+	return CAT_max(max_length, length) * CAT_GLYPH_WIDTH * scale;
+}
+
+static int get_line_width_at(int idx, int scale)
+{
+	int length = 0;
+	while
+	(
+		raw_buffer[idx] != '\0' &&
+		raw_buffer[idx] != '\n' &&
+		!get_break(idx)
+	)
+	{
+		if(!get_skip_info(idx))
+			length++;
+		idx++;
+	}
+	return length * CAT_GLYPH_WIDTH * scale;
+}
+
+static int get_line_start(int idx, int scale, int x0, int x1, int alignment)
+{
+	int width = get_line_width_at(idx, scale);
+	switch (alignment)
+	{
+		case CAT_TEXT_ALIGNMENT_LEFT: return x0;
+		case CAT_TEXT_ALIGNMENT_CENTER: return (x0+x1) / 2 - width / 2;
+		case CAT_TEXT_ALIGNMENT_RIGHT: return x1 - width;
+		default: return x0;
+	}
+}
+
+static void draw_text
+(
+	int x, int y,
+	int x0, int y0,
+	int x1, int y1,
+	int alignment,
+	int scale, uint16_t colour
+)
 {
 	measure_raw_buffer();
 	clear_skip_bufffer();
@@ -231,50 +286,129 @@ static void draw_text(int x, int y)
 	clear_colour_bufffer();
 
 	buffer_colours();
-	buffer_breaks(CAT_GLYPH_WIDTH, CAT_LCD_FRAMEBUFFER_W-x);
 
-	const char* glyph_ptr = raw_buffer; int glyph_idx = 0;
-	int cursor_x = x;
+	bool boxed = x0 != x1;
+	if(!boxed)
+	{
+		x0 = x;
+		x1 = x + get_max_line_width(scale);
+		y0 = y;
+		y1 = CAT_INT_MAX;
+	}
+	buffer_breaks(CAT_GLYPH_WIDTH * scale, x1-x0);
+	
+	int idx = 0;
+	int cursor_x = get_line_start(idx, scale, x0, x1, alignment);
 	int cursor_y = y;
 
-	while (*glyph_ptr != '\0')
+	while (raw_buffer[idx] != '\0')
 	{
-		if(get_skip_info(glyph_idx))
+		if(get_skip_info(idx))
 		{
-			glyph_ptr++; glyph_idx++;
+			idx++;
 			continue;
 		}
-		if(*glyph_ptr == '\n' || get_break(glyph_idx))
+		if(raw_buffer[idx] == '\n' || get_break(idx))
 		{
-			cursor_x = x;
-			cursor_y += 14;
-			glyph_ptr++; glyph_idx++;
+			cursor_y += (CAT_GLYPH_HEIGHT + CAT_LEADING) * scale;
+			idx++;
+			cursor_x = get_line_start(idx, scale, x0, x1, alignment);
 			continue;
 		}
 
-		struct colour_info* colour_info = get_colour_info(glyph_idx);
+		struct colour_info* colour_info = get_colour_info(idx);
 		if(colour_info)
 			CAT_set_sprite_colour(colour_info->colour);
 		else
-			CAT_set_sprite_colour(CAT_BLACK);
+			CAT_set_sprite_colour(colour);
 		
-		CAT_draw_sprite(&glyph_sprite, *glyph_ptr, cursor_x, cursor_y);
-		cursor_x += 8;
-		glyph_ptr++; glyph_idx++;
+		CAT_set_sprite_scale(scale);
+		CAT_draw_sprite(&glyph_sprite, raw_buffer[idx], cursor_x, cursor_y);
+		cursor_x += CAT_GLYPH_WIDTH * scale;
+		idx++;
 	}
 }
 
-void CAT_draw_text2(int x, int y, const char* text)
-{
-	strncpy(raw_buffer, text, sizeof(raw_buffer));
-	draw_text(x, y);
-}
-
-void CAT_draw_textf2(int x, int y, const char* fmt, ...)
+void CAT_draw_text2(int x, int y, int scale, uint16_t colour, const char* fmt, ...)
 {
 	va_list args;
 	va_start(args, fmt);
 	vsnprintf(raw_buffer, sizeof(raw_buffer), fmt, args);
 	va_end(args);
-	draw_text(x, y);
+	draw_text
+	(
+		x, y,
+		x, y, CAT_LCD_SCREEN_W-x, CAT_LCD_SCREEN_H-y,
+		CAT_TEXT_ALIGNMENT_CENTER,
+		scale, colour
+	);
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+// TEXT BOX
+
+static int text_box_x0 = 0;
+static int text_box_y0 = 0;
+static int text_box_x1 = CAT_LCD_SCREEN_W;
+static int text_box_y1 = CAT_LCD_SCREEN_H;
+static int text_box_alignment = CAT_TEXT_ALIGNMENT_LEFT;
+
+static int text_box_x = 0;
+static int text_box_y = 0;
+
+void CAT_reset_text_box()
+{
+	text_box_x0 = 0;
+	text_box_y0 = 0;
+	text_box_x1 = CAT_LCD_SCREEN_W;
+	text_box_y1 = CAT_LCD_SCREEN_H;
+	text_box_alignment = CAT_TEXT_ALIGNMENT_LEFT;
+	text_box_x = 0;
+	text_box_y = 0;
+}
+
+void CAT_set_text_box(int x0, int y0, int x1, int y1)
+{
+	text_box_x0 = x0;
+	text_box_y0 = y0;
+	text_box_x1 = x1;
+	text_box_y1 = y1;
+}
+
+void CAT_set_text_box_alignment(int alignment)
+{
+	text_box_alignment = alignment;
+}
+
+int CAT_get_text_box_cursor_x()
+{
+	return text_box_x;
+}
+
+int CAT_get_text_box_cursor_y()
+{
+	return text_box_y;
+}
+
+void CAT_set_text_box_cursor_x(int x)
+{
+	text_box_x = x;
+}
+
+void CAT_set_text_box_cursor_y(int y)
+{
+	text_box_y = 0;
+}
+
+void CAT_text_box_draw(int scale, uint16_t colour, const char* fmt, ...)
+{
+	draw_text
+	(
+		text_box_x, text_box_y,
+		text_box_x0, text_box_y0,
+		text_box_x1, text_box_y1,
+		scale, text_box_alignment,
+		colour
+	);
 }

@@ -17,6 +17,8 @@
 
 #define CAT_RAD2DEG (180.0f / M_PI)
 #define CAT_DEG2RAD (M_PI / 180.0f)
+#define CAT_INT_MAX (INT32_MAX)
+#define CAT_FLT_MAX (__FLT_MAX__)
 
 #define CAT_max(a, b) ((b) > (a) ? (b) : (a))
 #define CAT_min(a, b) ((b) < (a) ? (b) : (a))
