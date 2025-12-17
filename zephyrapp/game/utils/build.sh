@@ -30,7 +30,7 @@ done
 if $clean; then
 	trash ../build
 	trash build
-	trash utils/build_cache
+	trash utils/cache
 	trash assets
 fi
 
@@ -40,8 +40,8 @@ fi
 if [ ! -d build ]; then
 	mkdir build
 fi
-if [ ! -d utils/build_cache ]; then
-	mkdir utils/build_cache
+if [ ! -d utils/cache ]; then
+	mkdir utils/cache
 fi
 if [ ! -d assets ]; then
 	mkdir assets
@@ -74,16 +74,16 @@ if $embedded ; then
 	cd ../game
 
 	if $wifi; then
-		cp ../build/zephyr/zephyr.signed.bin utils/build_cache/wifi.bin
+		cp ../build/zephyr/zephyr.signed.bin utils/cache/wifi.bin
 		echo "[BUILD] Cached WiFi build"
 	elif $radio; then
-		cp ../build/zephyr/zephyr.signed.bin utils/build_cache/radio.bin
+		cp ../build/zephyr/zephyr.signed.bin utils/cache/radio.bin
 		echo "[BUILD] Cached radio build"
 	else
-		cp ../build/zephyr/zephyr.signed.bin utils/build_cache/standard.bin
+		cp ../build/zephyr/zephyr.signed.bin utils/cache/standard.bin
 		echo "[BUILD] Cached standard build"
 	fi
-	cp ../build/zephyr/zephyr.signed.bin utils/build_cache/latest.bin
+	cp ../build/zephyr/zephyr.signed.bin utils/cache/latest.bin
 	echo "[BUILD] Cached latest build"
 fi
 

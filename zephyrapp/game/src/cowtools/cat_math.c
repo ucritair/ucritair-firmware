@@ -281,7 +281,7 @@ void CAT_WRS_add(int idx, uint8_t weight)
 	wrs_count += 1;
 }
 
-int WRS_swap(int i, int j)
+void WRS_swap(int i, int j)
 {
 	struct WRS_entry temp = wrs_entries[i];
 	wrs_entries[i] = wrs_entries[j];
