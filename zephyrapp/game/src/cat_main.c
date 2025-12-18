@@ -17,6 +17,7 @@
 #include "cat_chat.h"
 #include "cat_radio.h"
 #include "cat_crypto.h"
+#include "cat_screen_saver.h"
 
 #include "sprite_assets.h"
 #include "tinysprite_assets.h"
@@ -32,9 +33,6 @@ void CAT_init()
 	CAT_radio_clear_buffer();
 	CAT_radio_start_modem();
 	CAT_radio_add_chanels();
-
-	/*if(telemetry_tx_timestamp == 0)
-		telemetry_tx_timestamp = CAT_get_RTC_now() - CAT_rand_int(0, CAT_RADIO_TELEMETRY_PERIOD * 0.75f);*/
 	
 	CAT_input_init();
 	CAT_rand_seed();
@@ -45,8 +43,14 @@ void CAT_init()
 
 	CAT_force_load();
 
-	if(persist_flags & CAT_PERSIST_CONFIG_FLAG_AQ_FIRST)
+	if(CAT_check_save_flags(CAT_SAVE_CONFIG_FLAG_RESEARCH))
+	{
+		CAT_pushdown_rebase(CAT_MS_screen_saver);
+	}
+	else if(persist_flags & CAT_PERSIST_CONFIG_FLAG_AQ_FIRST)
+	{
 		CAT_pushdown_rebase(CAT_MS_monitor);
+	}
 	else
 		CAT_pushdown_rebase(CAT_MS_room);
 }
@@ -66,12 +70,6 @@ void CAT_tick_logic()
 
 	CAT_AQ_tick();
 	CAT_AQ_crisis_tick();
-
-	/*if(CAT_AQ_sensors_initialized() && (CAT_get_RTC_now() - telemetry_tx_timestamp) > CAT_RADIO_TELEMETRY_PERIOD)
-	{
-		CAT_radio_telemetry_TX();
-		telemetry_tx_timestamp = CAT_get_RTC_now();
-	}*/
 
 	CAT_animator_tick();
 	CAT_room_tick();

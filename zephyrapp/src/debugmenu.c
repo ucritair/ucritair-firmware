@@ -155,12 +155,17 @@ void menu_power_off_protected(void* arg)
 
 void developer(void* arg)
 {
-	CAT_raise_config_flags(CAT_SAVE_CONFIG_FLAG_DEVELOPER);
+	CAT_raise_save_flags(CAT_SAVE_CONFIG_FLAG_DEVELOPER);
 }
 
 void turnkey(void* arg)
 {
 	CAT_set_load_flags(CAT_LOAD_FLAG_DIRTY | CAT_LOAD_FLAG_TURNKEY);
+}
+
+void research(void* arg)
+{
+	CAT_raise_save_flags(CAT_SAVE_CONFIG_FLAG_RESEARCH);
 }
 
 void menu_post()
@@ -203,6 +208,7 @@ void menu_post()
 	selectable("Protected Power Off", menu_power_off_protected, NULL);
 	selectable("Developer mode", developer, NULL);
 	selectable("Turnkey", turnkey, NULL);
+	selectable("Research", research, NULL);
 	selectable("Back to game", exit_debug_menu, NULL);
 
 	seen_buttons |= current_buttons;

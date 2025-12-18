@@ -60,5 +60,8 @@ extern volatile wifi_ap_record_t wifi_details;
 extern volatile char wifi_password[MAX_PASSWORD_LEN];
 extern volatile uint8_t wifi_status;
 
+extern volatile uint64_t sensor_read_timestamp;
+
 extern volatile uint64_t persist_flags;
+
 extern bool is_persist_fresh;

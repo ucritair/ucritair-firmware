@@ -12,6 +12,7 @@
 #include "cat_save.h"
 #include "tinysprite_assets.h"
 #include "cat_spriter.h"
+#include "cat_screen_saver.h"
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -44,6 +45,8 @@ void CAT_eink_clear()
 
 void CAT_eink_draw_default()
 {
+	CAT_printf("That one!\n");
+
 	CAT_eink_clear();
 
 	char buf[256] = {0};
@@ -122,7 +125,7 @@ void CAT_eink_draw_default()
 }
 
 void CAT_eink_draw_power_off()
-{
+{;
 	CAT_eink_clear();
 	
 	CAT_eink_draw_sprite(0, 0, &tnyspr_protected);
@@ -135,6 +138,21 @@ void CAT_eink_draw_power_off()
 
 	CAT_eink_draw_string(146, 109, 1, "Please charge");
 	CAT_eink_draw_string(142, 119, 1, "device!");
+}
+
+void CAT_eink_draw_research()
+{
+	CAT_printf("This one!\n");
+
+	CAT_eink_clear();
+
+	char buf[256] = {0};
+	#define fwrite_str(x, y, s, str, ...) snprintf(buf, sizeof(buf), str, ##__VA_ARGS__); CAT_eink_draw_string(x, y, s, buf);
+
+	CAT_eink_draw_sprite(0, 12, &tnyspr_unicorn_default);
+	CAT_eink_draw_sprite(0, 12+tnyspr_unicorn_default.height, &tnyspr_cloud_default);
+
+	fwrite_str(108, 54, 2, RESEARCH_NAME);
 }
 
 bool CAT_eink_should_update()
@@ -150,7 +168,10 @@ bool CAT_eink_should_update()
 
 void CAT_eink_execute_update()
 {
-	CAT_eink_draw_default();
+	if(CAT_check_save_flags(CAT_SAVE_CONFIG_FLAG_RESEARCH))
+		CAT_eink_draw_research();
+	else
+		CAT_eink_draw_default();
 	CAT_eink_update(false);
 	CAT_set_eink_update_flag(false);
 
@@ -519,31 +540,31 @@ void CAT_extend_save(CAT_save* save)
 	}
 }
 
-static uint64_t config_flags = CAT_SAVE_CONFIG_FLAG_NONE;
+static uint64_t save_flags = CAT_SAVE_CONFIG_FLAG_NONE;
 
-uint64_t CAT_get_config_flags()
+uint64_t CAT_get_save_flags()
 {
-	return config_flags;
+	return save_flags;
 }
 
-void CAT_set_config_flags(uint64_t flags)
+void CAT_set_save_flags(uint64_t flags)
 {
-	config_flags = flags;
+	save_flags = flags;
 }
 
-void CAT_raise_config_flags(uint64_t flags)
+void CAT_raise_save_flags(uint64_t flags)
 {
-	config_flags |= flags; 
+	save_flags |= flags; 
 }
 
-void CAT_lower_config_flags(uint64_t flags)
+void CAT_lower_save_flags(uint64_t flags)
 {
-	config_flags &= ~flags;
+	save_flags &= ~flags;
 }
 
-bool CAT_check_config_flags(uint64_t flags)
+bool CAT_check_save_flags(uint64_t flags)
 {
-	return config_flags & flags;
+	return save_flags & flags;
 }
 
 static uint64_t load_flags = CAT_LOAD_FLAG_NONE;

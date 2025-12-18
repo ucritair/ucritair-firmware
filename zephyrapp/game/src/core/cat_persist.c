@@ -21,11 +21,9 @@ PERSIST_RAM char pet_name[64];
 PERSIST_RAM uint16_t pet_level;
 
 PERSIST_RAM uint8_t screen_brightness;
+PERSIST_RAM uint8_t led_brightness;
 PERSIST_RAM uint16_t dim_after_seconds;
 PERSIST_RAM uint16_t sleep_after_seconds;
-
-//////////////////////////////////////////////////////////
-// AQ SPARKLINE STORE
 
 PERSIST_RAM CAT_AQ_score_block aq_moving_scores;
 PERSIST_RAM uint64_t aq_moving_score_samples;
@@ -35,19 +33,14 @@ PERSIST_RAM CAT_AQ_score_block aq_weekly_scores[7];
 PERSIST_RAM uint8_t aq_weekly_score_head;
 PERSIST_RAM uint64_t aq_weekly_score_time;
 
-//////////////////////////////////////////////////////////
-// MISC. STATE CHUNKS
-
 PERSIST_RAM CAT_AQ_crisis_state aq_crisis_state;
 PERSIST_RAM CAT_pet_timing_state pet_timing_state;
 PERSIST_RAM wifi_ap_record_t wifi_details;
 PERSIST_RAM char wifi_password[MAX_PASSWORD_LEN];
 PERSIST_RAM uint8_t wifi_status;
+
+PERSIST_RAM uint64_t sensor_read_timestamp;
+
 PERSIST_RAM uint64_t persist_flags;
-
-//////////////////////////////////////////////////////////
-// LED BRIGHTNESS
-
-PERSIST_RAM uint8_t led_brightness;
 
 bool is_persist_fresh;

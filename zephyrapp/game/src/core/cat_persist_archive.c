@@ -32,6 +32,7 @@ typedef struct
 	wifi_ap_record_t wifi_details;
 	char wifi_password[MAX_PASSWORD_LEN];
 	uint8_t wifi_status;
+	uint64_t sensor_read_timestamp;
 	uint64_t persist_flags;
 } CAT_persist_archive;
 
@@ -64,6 +65,7 @@ void CAT_write_persist_archive(int fd)
 	archive.wifi_details = wifi_details;
 	memcpy(archive.wifi_password, wifi_password, sizeof(archive.wifi_password));
 	archive.wifi_status = wifi_status;
+	archive.sensor_read_timestamp = sensor_read_timestamp;
 	archive.persist_flags = persist_flags;
 	write(fd, &archive, sizeof(archive));
 }
@@ -98,6 +100,7 @@ void CAT_read_persist_archive(int fd)
 	wifi_details = archive.wifi_details;
 	memcpy(wifi_password, archive.wifi_password, sizeof(wifi_password));
 	wifi_status = archive.wifi_status;
+	sensor_read_timestamp = archive.sensor_read_timestamp;
 	persist_flags = archive.persist_flags;
 }
 

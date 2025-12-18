@@ -1,0 +1,110 @@
+#include "cat_screen_saver.h"
+
+#include "cat_gui.h"
+#include "cat_render.h"
+#include "cat_input.h"
+#include "cat_save.h"
+#include "cat_room.h"
+#include "cat_colours.h"
+#include "cat_persist.h"
+
+static CAT_button spell[] =
+{
+	CAT_BUTTON_UP,
+	CAT_BUTTON_UP,
+	CAT_BUTTON_DOWN,
+	CAT_BUTTON_DOWN,
+	CAT_BUTTON_LEFT,
+	CAT_BUTTON_RIGHT,
+	CAT_BUTTON_LEFT,
+	CAT_BUTTON_RIGHT,
+	CAT_BUTTON_B,
+	CAT_BUTTON_A,
+};
+
+#define MARGIN 12
+
+static CAT_datetime twelve_hour_time(CAT_datetime datetime, char* ampm)
+{
+	if(datetime.hour >= 12)
+	{
+		if(datetime.hour > 12)
+			datetime.hour -= 12;
+		strncpy(ampm, "PM", 2);
+	}
+	else
+	{
+		if(datetime.hour == 0)
+			datetime.hour = 12;
+		strncpy(ampm, "AM", 2);	
+	}
+	return datetime;
+}
+
+static void draw_screen_saver()
+{
+	CAT_timestamp now = CAT_get_RTC_now();
+	CAT_datetime today;
+	CAT_make_datetime(now, &today);
+
+	char ampm[3];
+	CAT_datetime twelve_hour = twelve_hour_time(today, ampm);
+
+	CAT_timestamp since_sample = now - sensor_read_timestamp;
+
+	CAT_frameberry(CAT_GRAPH_BG);
+	int cursor_y = MARGIN;
+
+	CAT_set_text_colour(CAT_GRAPH_FG);
+	CAT_set_text_scale(2);
+	cursor_y = CAT_draw_textf
+	(
+		MARGIN, cursor_y, "%.2d/%.2d/%.4d\n%.2d:%.2d %s\n",
+		today.month, today.day, today.year,
+		twelve_hour.hour, twelve_hour.minute,
+		ampm
+	);
+
+	if(sensor_read_timestamp > 0)
+	{
+		CAT_set_text_colour(CAT_GRAPH_FG);
+		cursor_y = CAT_draw_textf
+		(
+			MARGIN, cursor_y, "Last sample taken\n%d minutes, %d seconds ago.",
+			since_sample / CAT_MINUTE_SECONDS, since_sample % CAT_MINUTE_SECONDS
+		);
+	}
+
+	CAT_set_text_colour(CAT_GRAPH_FG);
+	CAT_set_text_mask(MARGIN, -1, CAT_LCD_SCREEN_W-MARGIN, -1);
+	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
+	cursor_y = CAT_draw_textf
+	(
+		MARGIN, cursor_y, "\nResearch instrument -- Please leave plugged in and do not touch.\n"
+	);
+}
+
+void CAT_MS_screen_saver(CAT_FSM_signal signal)
+{
+	switch (signal)
+	{
+		case CAT_FSM_SIGNAL_ENTER:
+		{
+			CAT_set_render_callback(draw_screen_saver);
+		}
+		break;
+
+		case CAT_FSM_SIGNAL_TICK:
+		{
+			if(CAT_input_spell(spell))
+				CAT_pushdown_rebase(CAT_MS_room);
+		}
+		break;
+
+		case CAT_FSM_SIGNAL_EXIT:
+		{
+			
+		}
+		break;
+	}
+}

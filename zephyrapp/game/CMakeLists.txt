@@ -14,6 +14,8 @@ if(NOT TARGET app)
 		target_compile_definitions(app PRIVATE CAT_MACOS=1)
 	endif()
 
+	set(RESEARCH_NAME "" CACHE STRING "")
+
 	find_package(GLEW REQUIRED)
 	find_package(glfw3 3.3 REQUIRED)
 	find_package(PNG REQUIRED)
@@ -24,7 +26,7 @@ if(NOT TARGET app)
 	endif()
 	
 	set(CMAKE_BUILD_TYPE Debug)
-	target_compile_options(app PRIVATE -Wall -g)
+	target_compile_options(app PRIVATE -Wall -g -DRESEARCH_NAME="${RESEARCH_NAME}")
 
 	file(
 		GLOB EXCLUDE_SRC
@@ -39,6 +41,8 @@ else()
 	option(AQ_FIRST "AQ_FIRST" OFF)
 	option(WIFI "WIFI" OFF)
 	option(RADIO "RADIO" OFF)
+	option(RADIO "RADIO" OFF)
+	set(RESEARCH_NAME "" CACHE STRING "P")
 
 	if(AQ_FIRST)
 		target_compile_definitions(app PRIVATE CAT_PRIORITIZE_AQ=1)
@@ -62,7 +66,6 @@ endif()
 
 function(asset_gen TYPE_NAME GEN_SCRIPT SRC_DATA)
 	target_sources(app PRIVATE ${GAME_DIR}/assets/${TYPE_NAME}_assets.c)
-	message(Adding ${GAME_DIR}/assets/${TYPE_NAME}_assets.c)
 	add_custom_command(
 		OUTPUT ${GAME_DIR}/assets/${TYPE_NAME}_assets.h ${GAME_DIR}/assets/${TYPE_NAME}_assets.c
 		WORKING_DIRECTORY ${GAME_DIR}/

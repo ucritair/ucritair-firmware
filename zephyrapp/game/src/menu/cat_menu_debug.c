@@ -98,7 +98,7 @@ void CAT_render_debug()
 #endif
 
 
-			if(CAT_check_config_flags(CAT_SAVE_CONFIG_FLAG_DEVELOPER))
+			if(CAT_check_save_flags(CAT_SAVE_CONFIG_FLAG_DEVELOPER))
 				cursor_y = CAT_draw_text(cursor_x, cursor_y, "[Developer mode]\n");
 
 			cursor_y = CAT_draw_textf(cursor_x, cursor_y, "Debug number: %d\n", CAT_get_debug_number());

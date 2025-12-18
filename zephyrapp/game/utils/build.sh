@@ -5,26 +5,28 @@ wifi=false
 clean=false
 OPTIONS=""
 
-for var in "$@"
-do
-	if [ $var == "--embedded" ]; then
-		embedded=true
-	fi
-	if [ $var == "--aq-first" ]; then
-		aq_first=true
-		OPTIONS="${OPTIONS} -DAQ_FIRST=ON"
-	fi
-	if [ $var == "--radio" ]; then
-		radio=true
-		OPTIONS="${OPTIONS} -DRADIO=ON"
-	fi
-	if [ $var == "--wifi" ]; then
-		wifi=true
-		OPTIONS="${OPTIONS} -DWIFI=ON"
-	fi
-	if [ $var == "--clean" ]; then
-		clean=true
-	fi
+while true; do
+	case "$1" in
+		--embedded ) embedded=true; shift ;;
+		--aq-first )
+			aq_first=true;
+			OPTIONS="${OPTIONS} -DAQ_FIRST=ON";
+			shift ;;
+		--radio )
+			radio=true;
+			OPTIONS="${OPTIONS} -DRADIO=ON";
+			shift ;;
+		--wifi )
+			wifi=true;
+			OPTIONS="${OPTIONS} -DWIFI=ON";
+			shift ;;
+		--research_name )
+			OPTIONS="${OPTIONS} -DRESEARCH_NAME=$2";
+			shift ;;
+		--clean ) clean=true; shift ;;
+		-- ) shift; break ;;
+		* ) break ;;
+	esac
 done
 
 if $clean; then
@@ -50,7 +52,7 @@ fi
 # INIT FILES
 if [ ! -f build/makefile ]; then
 	cd build
-	cmake ..
+	cmake .. $OPTIONS
 	cd ..
 fi
 

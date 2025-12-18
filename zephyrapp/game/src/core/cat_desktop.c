@@ -459,8 +459,6 @@ void CAT_eink_update(bool force_full_write)
 	CAT_printf("[CALL] CAT_eink_update\n");
 	CAT_msleep(500);
 
-	CAT_eink_draw_default();
-
 	CAT_sim_bind_screen(&eink);
 
 	transform_eink_fb();

@@ -53,7 +53,7 @@ void CAT_force_save()
 	save->highscores.mines = mines_highscore;
 	save->highscores.foursquares = foursquares_highscore;
 
-	save->config.flags = CAT_get_config_flags();
+	save->config.flags = CAT_get_save_flags();
 
 	for(int i = 0; i < CAT_ROOM_THEME_COUNT; i++)
 	{
@@ -262,7 +262,7 @@ void CAT_force_load()
 	mines_highscore = save->highscores.mines;
 	foursquares_highscore = save->highscores.foursquares;
 
-	CAT_set_config_flags(save->config.flags);
+	CAT_set_save_flags(save->config.flags);
 	if(save->config.theme < CAT_ROOM_THEME_COUNT)
 		CAT_room_set_theme(CAT_room_theme_list[save->config.theme]);
 
