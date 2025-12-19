@@ -57,7 +57,7 @@ typedef enum
 	CAT_SAVE_CONFIG_FLAG_NONE = 0,
 	CAT_SAVE_CONFIG_FLAG_DEVELOPER = (1 << 0),
 	CAT_SAVE_CONFIG_FLAG_KALI_YUGA = (1 << 1),
-	CAT_SAVE_CONFIG_FLAG_RESEARCH = (1 << 2),
+	// CAT_SAVE_CONFIG_FLAG_RESEARCH = (1 << 2),
 } CAT_save_config_flag;
 
 typedef enum
@@ -162,6 +162,7 @@ void CAT_set_save_flags(uint64_t flags);
 
 void CAT_raise_save_flags(uint64_t flags);
 void CAT_lower_save_flags(uint64_t flags);
+void CAT_toggle_save_flags(uint64_t flags);
 bool CAT_check_save_flags(uint64_t flags);
 
 typedef enum

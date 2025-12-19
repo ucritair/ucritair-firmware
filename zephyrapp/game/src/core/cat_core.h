@@ -217,6 +217,7 @@ void CAT_erase_log_cells();
 
 #define CAT_CRITICAL_BATTERY_PCT 20
 #define CAT_SAFE_BATTERY_PCT 50
+#define CAT_KILL_BATTERY_PCT 5
 
 int CAT_get_battery_pct();
 bool CAT_is_charging();

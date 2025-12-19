@@ -96,6 +96,9 @@ void CAT_render_debug()
 #if CAT_WIFI_ENABLED
 			cursor_y = CAT_draw_text(cursor_x, cursor_y, "[WiFi Enabled]\n");
 #endif
+#if CAT_RESEARCH_ONLY
+			cursor_y = CAT_draw_text(cursor_x, cursor_y, "[Research-Only]\n");
+#endif
 
 
 			if(CAT_check_save_flags(CAT_SAVE_CONFIG_FLAG_DEVELOPER))

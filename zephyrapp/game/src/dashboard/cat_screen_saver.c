@@ -80,24 +80,35 @@ static void draw_screen_saver()
 	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
 	cursor_y = CAT_draw_textf
 	(
-		MARGIN, cursor_y, "\nResearch instrument -- Please leave plugged in and do not touch.\n"
+		MARGIN, cursor_y, "\nResearch instrument -- please leave plugged in and do not touch.\n"
 	);
+
+	CAT_set_text_colour(CAT_GRAPH_FG);
+	cursor_y = CAT_draw_textf(MARGIN, CAT_LCD_SCREEN_H-MARGIN-CAT_TEXT_LINE_HEIGHT*2, "For more information,\ncontact tretyakova@wisc.edu");
 }
 
 void CAT_MS_screen_saver(CAT_FSM_signal signal)
 {
+	static int exit_level = 0;
+	
 	switch (signal)
 	{
 		case CAT_FSM_SIGNAL_ENTER:
 		{
 			CAT_set_render_callback(draw_screen_saver);
+			exit_level = 0;
 		}
 		break;
 
 		case CAT_FSM_SIGNAL_TICK:
 		{
 			if(CAT_input_spell(spell))
-				CAT_pushdown_rebase(CAT_MS_room);
+			{
+				exit_level++;
+				CAT_input_buffer_clear();
+				if(exit_level == 2)
+					CAT_pushdown_rebase(CAT_MS_room);
+			}
 		}
 		break;
 

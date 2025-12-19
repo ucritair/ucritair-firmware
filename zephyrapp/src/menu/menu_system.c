@@ -68,12 +68,6 @@ void menu_t_power_off()
 	power_off(0, true);
 }
 
-void menu_t_erase_logs()
-{
-	flash_erase_all_cells();
-	system_menu_note = "Done :)";
-}
-
 void menu_t_write_logs()
 {
 	enum sdcard_result res = write_log_to_sdcard();
@@ -102,13 +96,6 @@ void menu_t_update_eink()
 	system_menu_note = "Done :)";
 }
 
-void menu_t_reset()
-{
-	cat_game_running = 0;
-	flash_nuke_tomas_save();
-	power_off(0, false);
-}
-
 void menu_t_bright_down()
 {
 	screen_brightness = MAX(screen_brightness-5, 10);
@@ -126,15 +113,8 @@ struct entry
 } system_entries[] =
 {
 	{"SET CLOCK + LOG RATE", menu_t_go_time},
-	{"ERASE ON-DEVICE LOGS", menu_t_erase_logs},
 	{"WRITE LOGS TO SDCARD", menu_t_write_logs},
 	{"CALIBRATE CO2 SENSOR", menu_t_go_co2},
-//	{"BRIGHTNESS DOWN", menu_t_bright_down},
-//	{"BRIGHTNESS UP", menu_t_bright_up},
-//	{"UPDATE EINK", menu_t_update_eink},
-//	{"RESET GAME", menu_t_reset},
-//	{"POWER OFF", menu_t_power_off},
-//	{"SLEEP", menu_t_sleep},
 	{"BACK", menu_t_back}
 };
 #define NUM_MENU_ITEMS (sizeof(system_entries)/sizeof(system_entries[0]))

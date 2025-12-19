@@ -100,8 +100,8 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 						if(CAT_gui_menu_item("TURNKEY"))
 							CAT_set_load_flags(CAT_LOAD_FLAG_DIRTY | CAT_LOAD_FLAG_TURNKEY);
 
-						if(CAT_gui_menu_item("RESEARCH"))
-							CAT_raise_save_flags(CAT_SAVE_CONFIG_FLAG_RESEARCH);
+						/*if(CAT_gui_menu_toggle("RESEARCH", CAT_check_save_flags(CAT_SAVE_CONFIG_FLAG_RESEARCH), CAT_GUI_TOGGLE_STYLE_CHECKBOX))
+							CAT_toggle_save_flags(CAT_SAVE_CONFIG_FLAG_RESEARCH);*/
 						
 #if CAT_WIFI_ENABLED					
 						if(CAT_gui_menu_item("RP2350 BOOTLOADER"))
@@ -258,12 +258,24 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 #endif
 
 					if(CAT_gui_begin_menu("DANGER ZONE"))
-					{						
+					{	
 						if(CAT_gui_menu_item("RESET SAVE"))
 							CAT_gui_open_popup("Are you sure? This will delete all game data!\n", CAT_POPUP_STYLE_YES_NO);
-						if(CAT_gui_consume_popup())
-							CAT_factory_reset();
 
+						if(CAT_gui_begin_menu("ERASE LOGS"))
+						{
+							if(CAT_gui_menu_item("REALLY ERASE LOGS"))
+								CAT_gui_open_popup("Are you sure? This will delete all of your logged data!\n", CAT_POPUP_STYLE_YES_NO);
+							if(CAT_gui_consume_popup())
+								CAT_erase_log_cells();
+							CAT_gui_end_menu();
+						}
+						else
+						{
+							if(CAT_gui_consume_popup())
+								CAT_factory_reset();
+						}					
+						
 						CAT_gui_end_menu();
 					}
 					CAT_gui_end_menu();

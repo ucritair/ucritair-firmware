@@ -301,7 +301,7 @@ void lcd_render_diag()
 		if(CAT_poll_eink_update_flag())
 			CAT_eink_execute_update();
 
-		if (CAT_get_battery_pct() == 0)
+		if (CAT_get_battery_pct() <= CAT_KILL_BATTERY_PCT)
        		CAT_shutdown();
 
 		if((k_uptime_get() - last_flash_log) > (sensor_wakeup_period*1000) && is_ready_for_aqi_logging())

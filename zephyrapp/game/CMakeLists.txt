@@ -5,6 +5,14 @@ project(app)
 set(ZEPHYRAPP_DIR ${CMAKE_CURRENT_BINARY_DIR}/../..)
 set(GAME_DIR ${ZEPHYRAPP_DIR}/game)
 
+option(AQ_FIRST "AQ_FIRST" OFF)
+option(WIFI "WIFI" OFF)
+option(RADIO "RADIO" OFF)
+option(RADIO "RADIO" OFF)
+
+option(RESEARCH_ONLY "RESEARCH_ONLY" OFF)
+set(RESEARCH_NAME "" CACHE STRING "")
+
 if(NOT TARGET app)
 	add_executable(app)
 
@@ -13,8 +21,6 @@ if(NOT TARGET app)
 	if(APPLE)
 		target_compile_definitions(app PRIVATE CAT_MACOS=1)
 	endif()
-
-	set(RESEARCH_NAME "" CACHE STRING "")
 
 	find_package(GLEW REQUIRED)
 	find_package(glfw3 3.3 REQUIRED)
@@ -26,7 +32,7 @@ if(NOT TARGET app)
 	endif()
 	
 	set(CMAKE_BUILD_TYPE Debug)
-	target_compile_options(app PRIVATE -Wall -g -DRESEARCH_NAME="${RESEARCH_NAME}")
+	target_compile_options(app PRIVATE -Wall -g)
 
 	file(
 		GLOB EXCLUDE_SRC
@@ -37,12 +43,6 @@ if(NOT TARGET app)
 else()
 	message(WARNING "Building for embedded")
 	target_compile_definitions(app PRIVATE CAT_EMBEDDED=1)
-
-	option(AQ_FIRST "AQ_FIRST" OFF)
-	option(WIFI "WIFI" OFF)
-	option(RADIO "RADIO" OFF)
-	option(RADIO "RADIO" OFF)
-	set(RESEARCH_NAME "" CACHE STRING "P")
 
 	if(AQ_FIRST)
 		target_compile_definitions(app PRIVATE CAT_PRIORITIZE_AQ=1)
@@ -62,6 +62,12 @@ else()
 		src/core/cat_desktop.c
 		src/core/cat_persist_archive.c
 	)
+endif()
+
+if(RESEARCH_ONLY)
+	target_compile_definitions(app PRIVATE CAT_RESEARCH_ONLY=1)
+	target_compile_definitions(app PRIVATE CAT_RESEARCH_NAME="${RESEARCH_NAME}")
+	message(WARNING "Building research-only firmware with name ${RESEARCH_NAME}")
 endif()
 
 function(asset_gen TYPE_NAME GEN_SCRIPT SRC_DATA)

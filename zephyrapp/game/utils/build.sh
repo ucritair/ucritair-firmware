@@ -7,7 +7,9 @@ OPTIONS=""
 
 while true; do
 	case "$1" in
-		--embedded ) embedded=true; shift ;;
+		--embedded )
+			embedded=true;
+			shift ;;
 		--aq-first )
 			aq_first=true;
 			OPTIONS="${OPTIONS} -DAQ_FIRST=ON";
@@ -20,10 +22,13 @@ while true; do
 			wifi=true;
 			OPTIONS="${OPTIONS} -DWIFI=ON";
 			shift ;;
-		--research_name )
+		--research-only )
+			OPTIONS="${OPTIONS} -DRESEARCH_ONLY=ON";
 			OPTIONS="${OPTIONS} -DRESEARCH_NAME=$2";
+			shift; shift ;;
+		--clean )
+			clean=true;
 			shift ;;
-		--clean ) clean=true; shift ;;
 		-- ) shift; break ;;
 		* ) break ;;
 	esac
