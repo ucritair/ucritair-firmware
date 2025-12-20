@@ -7,6 +7,7 @@
 #include "cat_room.h"
 #include "cat_colours.h"
 #include "cat_persist.h"
+#include "sprite_assets.h"
 
 static CAT_button spell[] =
 {
@@ -99,6 +100,14 @@ static void draw_screen_saver()
 
 	CAT_set_text_colour(CAT_GRAPH_FG);
 	cursor_y = CAT_draw_textf(MARGIN, CAT_LCD_SCREEN_H-MARGIN-CAT_TEXT_LINE_HEIGHT*2, "For more information,\ncontact tretyakova@wisc.edu");
+
+	CAT_draw_sprite
+	(
+		&ui_battery_12px,
+		quantize(CAT_get_battery_pct(), 100, 5),
+		CAT_LCD_SCREEN_W-6-ui_battery_12px.width,
+		6
+	);
 }
 
 void CAT_MS_screen_saver(CAT_FSM_signal signal)
