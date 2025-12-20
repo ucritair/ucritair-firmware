@@ -292,6 +292,7 @@ void lcd_render_diag()
 		{
 			sensor_read_once();
 			last_sensor_update = k_uptime_get();
+			last_sensor_timestamp = CAT_get_RTC_now();
 
 			// LOG_DBG("cyc_memset=%d, cyc_blit=%d, cyc_printf=%d, cyc_text=%d, cyc_flip=%d (blit=%d, spi=%d), total=%dms",
 			// 	cyc_memset, cyc_blit, cyc_printf, cyc_text, cyc_flip,
@@ -308,6 +309,7 @@ void lcd_render_diag()
 		{
 			populate_next_log_cell();
 			last_flash_log = k_uptime_get();
+			last_log_timestamp = CAT_get_RTC_now();
 		}
 	}
 }

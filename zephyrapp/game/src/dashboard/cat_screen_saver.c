@@ -30,13 +30,13 @@ static CAT_datetime twelve_hour_time(CAT_datetime datetime, char* ampm)
 	{
 		if(datetime.hour > 12)
 			datetime.hour -= 12;
-		strncpy(ampm, "PM", 2);
+		strncpy(ampm, "PM", 3);
 	}
 	else
 	{
 		if(datetime.hour == 0)
 			datetime.hour = 12;
-		strncpy(ampm, "AM", 2);	
+		strncpy(ampm, "AM", 3);	
 	}
 	return datetime;
 }
@@ -49,8 +49,6 @@ static void draw_screen_saver()
 
 	char ampm[3];
 	CAT_datetime twelve_hour = twelve_hour_time(today, ampm);
-
-	CAT_timestamp since_sample = now - sensor_read_timestamp;
 
 	CAT_frameberry(CAT_GRAPH_BG);
 	int cursor_y = MARGIN;
@@ -65,14 +63,30 @@ static void draw_screen_saver()
 		ampm
 	);
 
-	if(sensor_read_timestamp > 0)
+	if(last_sensor_timestamp > 0)
 	{
+		uint32_t since_sample = now - last_sensor_timestamp;
 		CAT_set_text_colour(CAT_GRAPH_FG);
 		cursor_y = CAT_draw_textf
 		(
-			MARGIN, cursor_y, "Last sample taken\n%d minutes, %d seconds ago.",
+			MARGIN, cursor_y, "\nLast sample taken\n%d minutes, %d seconds ago.\n",
 			since_sample / CAT_MINUTE_SECONDS, since_sample % CAT_MINUTE_SECONDS
 		);
+	}
+	if(last_log_timestamp > 0)
+	{
+		uint32_t since_log = now - last_log_timestamp;
+		CAT_set_text_colour(CAT_GRAPH_FG);
+		cursor_y = CAT_draw_textf
+		(
+			MARGIN, cursor_y, "\nLast log made\n%d minutes, %d seconds ago.\n",
+			since_log / CAT_MINUTE_SECONDS, since_log % CAT_MINUTE_SECONDS
+		);
+	}
+	else if(is_persist_fresh)
+	{
+		CAT_set_text_colour(CAT_GRAPH_FG);
+		cursor_y = CAT_draw_textf(MARGIN, cursor_y, "\nWaiting for data...\n");
 	}
 
 	CAT_set_text_colour(CAT_GRAPH_FG);

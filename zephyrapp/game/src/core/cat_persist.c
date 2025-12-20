@@ -39,7 +39,8 @@ PERSIST_RAM wifi_ap_record_t wifi_details;
 PERSIST_RAM char wifi_password[MAX_PASSWORD_LEN];
 PERSIST_RAM uint8_t wifi_status;
 
-PERSIST_RAM uint64_t sensor_read_timestamp;
+PERSIST_RAM uint64_t last_sensor_timestamp;
+PERSIST_RAM uint64_t last_log_timestamp;
 
 PERSIST_RAM uint64_t persist_flags;
 

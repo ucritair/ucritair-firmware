@@ -147,7 +147,8 @@ int main(void)
 					nox_sample_counter = 0;
 				}
 
-				sensor_read_timestamp = CAT_get_RTC_now();
+				last_sensor_timestamp = CAT_get_RTC_now();
+				last_log_timestamp = CAT_get_RTC_now();
 
 				LOG_INF("readings ready");
 				k_msleep(20);
