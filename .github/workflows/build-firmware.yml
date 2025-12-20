@@ -9,7 +9,6 @@ on:
 
 jobs:
   build:
-    # Use the latest Ubuntu runner as requested in your logs 
     runs-on: ubuntu-latest
 
     steps:
@@ -27,24 +26,17 @@ jobs:
           echo "Disk space after cleanup:"
           df -h
 
-      # Checkout code with recursive submodules as seen in logs [cite: 3, 10]
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           submodules: recursive
 
-      # Run the Docker Compose build command exactly as it appears in the logs [cite: 12]
       - name: Build Firmware
         run: docker compose run --rm dev ./utils/build.sh --embedded
 
-      # Upload artifacts (implied by the logs downloading upload-artifact@v4 [cite: 2])
-      # NOTE: verify 'path' matches your build output directory (usually build/zephyr)
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         if: success()
         with:
-          name: firmware-binaries
-          path: |
-            **/build/**/*.hex
-            **/build/**/*.bin
-            **/build/**/*.elf
+          name: signed-firmware
+          path: '**/build/**/zephyr.signed.bin'
