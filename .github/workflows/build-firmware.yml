@@ -45,6 +45,6 @@ jobs:
         with:
           name: firmware-binaries
           path: |
-            build/**/*.hex
-            build/**/*.bin
-            build/**/*.elf
+            **/build/**/*.hex
+            **/build/**/*.bin
+            **/build/**/*.elf
