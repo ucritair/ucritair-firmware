@@ -267,7 +267,7 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 							if(CAT_gui_menu_item("REALLY ERASE LOGS"))
 								CAT_gui_open_popup("Are you sure? This will delete all of your logged data!\n", CAT_POPUP_STYLE_YES_NO);
 							if(CAT_gui_consume_popup())
-								CAT_erase_log_cells();
+								CAT_erase_logs();
 							CAT_gui_end_menu();
 						}
 						else

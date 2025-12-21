@@ -17,6 +17,7 @@
 #include "imu.h"
 #include <zephyr/sys/timeutil.h>
 #include "cat_save.h"
+#include "sdcard.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // CORE
@@ -302,9 +303,25 @@ void CAT_force_log_cell_write()
 	populate_next_log_cell();
 }
 
-void CAT_erase_log_cells()
+void CAT_erase_logs()
 {
 	flash_erase_all_cells();
+}
+
+CAT_SD_write_result CAT_write_logs_to_SD()
+{
+	enum sdcard_result res = write_log_to_sdcard();
+	switch(res)
+	{
+		case OK: return CAT_SD_WRITE_OKAY;
+		case FAIL_INIT: return CAT_SD_WRITE_INIT_FAILED;
+		case FAIL_MOUNT: return CAT_SD_WRITE_MOUNT_FAILED;
+		case FAIL_WRITE: return CAT_SD_WRITE_WRITE_FAILED;
+		case FAIL_MKDIR: return CAT_SD_WRITE_MKDIR_FAILED;
+		case FAIL_CREATE: return CAT_SD_WRITE_CREATE_FAILED;
+		case FAIL_CLOSE: return CAT_SD_WRITE_CLOSE_FAILED;
+		default: return CAT_SD_WRITE_UNKNOWN_FAILURE;
+	}
 }
 
 

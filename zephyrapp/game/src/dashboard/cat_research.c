@@ -165,6 +165,15 @@ void CAT_MS_research_config(CAT_FSM_signal signal)
 				if(CAT_timecmp(&dt_real, &dt_cached) != 0)
 					CAT_set_datetime(dt_real);
 
+				if(CAT_gui_menu_item("WRITE LOGS TO SD"))
+				{
+					CAT_SD_write_result result = CAT_write_logs_to_SD();
+					if(result == CAT_SD_WRITE_OKAY)
+						CAT_gui_open_popup("Write succeeded!", CAT_POPUP_STYLE_OK);
+					else
+						CAT_gui_open_popup("Write failed!", CAT_POPUP_STYLE_OK);
+				}
+
 				if(CAT_gui_menu_item("GO TO GAME"))
 					CAT_pushdown_rebase(CAT_MS_room);
 				if(CAT_gui_menu_item("GO TO SLEEP"))

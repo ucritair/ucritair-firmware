@@ -399,7 +399,7 @@ void CAT_load_turnkey()
 		.day = 8
 	};
 	CAT_set_datetime(zero_day);
-	CAT_erase_log_cells();
+	CAT_erase_logs();
 }
 
 void CAT_force_load()

@@ -202,6 +202,18 @@ typedef enum
 	CAT_LOG_CELL_FLAG_HAS_COG_PERF = (1 << 2)
 } CAT_log_cell_flag;
 
+typedef enum
+{
+	CAT_SD_WRITE_OKAY,
+	CAT_SD_WRITE_INIT_FAILED,
+	CAT_SD_WRITE_MOUNT_FAILED,
+	CAT_SD_WRITE_WRITE_FAILED,
+	CAT_SD_WRITE_MKDIR_FAILED,
+	CAT_SD_WRITE_CREATE_FAILED,
+	CAT_SD_WRITE_CLOSE_FAILED,
+	CAT_SD_WRITE_UNKNOWN_FAILURE
+} CAT_SD_write_result;
+
 void CAT_read_log_cell_at_idx(int idx, CAT_log_cell* out);
 int CAT_read_log_cell_before_time(int bookmark, uint64_t time, CAT_log_cell* out);
 int CAT_read_log_cell_after_time(int bookmark, uint64_t time, CAT_log_cell* out);
@@ -209,7 +221,8 @@ int CAT_read_first_calendar_cell(CAT_log_cell* cell);
 int CAT_get_log_cell_count();
 bool CAT_logs_initialized();
 void CAT_force_log_cell_write();
-void CAT_erase_log_cells();
+void CAT_erase_logs();
+CAT_SD_write_result CAT_write_logs_to_SD();
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

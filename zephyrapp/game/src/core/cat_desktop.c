@@ -747,9 +747,14 @@ void CAT_force_log_cell_write()
 	return;
 }
 
-void CAT_erase_log_cells()
+void CAT_erase_logs()
 {
 	return;
+}
+
+CAT_SD_write_result CAT_write_logs_to_SD()
+{
+	return CAT_SD_WRITE_INIT_FAILED;
 }
 
 
