@@ -601,7 +601,7 @@ uint64_t CAT_get_RTC_now()
 	return timegm(&tm);
 }
 
-void CAT_set_date(CAT_datetime date)
+void CAT_set_datetime(CAT_datetime date)
 {
 	return;
 }

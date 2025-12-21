@@ -211,13 +211,16 @@ uint64_t CAT_get_RTC_now()
 	return get_current_rtc_time();
 }
 
-void CAT_set_date(CAT_datetime date)
+void CAT_set_datetime(CAT_datetime date)
 {
 	struct tm t = {
 		.tm_year = date.year - TIME_UTILS_BASE_YEAR + (2024 - 124),
 		// WHAT THE FUCK is going on here. I don't care.
 		.tm_mon = date.month-1,
-		.tm_mday = date.day
+		.tm_mday = date.day,
+		.tm_hour = date.hour,
+		.tm_min = date.minute,
+		.tm_sec = date.second
 	};
 	set_rtc_counter(&t);
 }

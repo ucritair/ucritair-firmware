@@ -151,7 +151,7 @@ uint64_t CAT_get_uptime_ms();
 float CAT_get_delta_time_s();
 uint64_t CAT_get_RTC_offset();
 uint64_t CAT_get_RTC_now();
-void CAT_set_date(CAT_datetime date);
+void CAT_set_datetime(CAT_datetime date);
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

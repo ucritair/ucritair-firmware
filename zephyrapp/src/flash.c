@@ -326,6 +326,7 @@ void populate_next_log_cell()
 	CAT_log_cell cell;
 	populate_log_cell(&cell);
 	flash_write_cell_by_nr(next_log_cell_nr, &cell);
+	last_log_timestamp = CAT_get_RTC_now();
 
 	next_log_cell_nr++;
 }

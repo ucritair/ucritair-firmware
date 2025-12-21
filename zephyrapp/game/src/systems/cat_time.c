@@ -4,6 +4,10 @@
 #include <cat_core.h>
 #include "cat_math.h"
 
+#ifdef CAT_EMBEDDED
+#include "rtc.h"
+#endif
+
 void CAT_get_datetime(CAT_datetime* datetime)
 {
 	time_t now = CAT_get_RTC_now();

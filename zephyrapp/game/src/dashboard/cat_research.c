@@ -1,4 +1,4 @@
-#include "cat_screen_saver.h"
+#include "cat_research.h"
 
 #include "cat_gui.h"
 #include "cat_render.h"
@@ -8,6 +8,7 @@
 #include "cat_colours.h"
 #include "cat_persist.h"
 #include "sprite_assets.h"
+#include "cat_gui.h"
 
 static CAT_button spell[] =
 {
@@ -42,7 +43,7 @@ static CAT_datetime twelve_hour_time(CAT_datetime datetime, char* ampm)
 	return datetime;
 }
 
-static void draw_screen_saver()
+static void draw_research_screen()
 {
 	CAT_timestamp now = CAT_get_RTC_now();
 	CAT_datetime today;
@@ -110,34 +111,70 @@ static void draw_screen_saver()
 	);
 }
 
-void CAT_MS_screen_saver(CAT_FSM_signal signal)
-{
-	static int exit_level = 0;
-	
+void CAT_MS_research_screen(CAT_FSM_signal signal)
+{	
 	switch (signal)
 	{
 		case CAT_FSM_SIGNAL_ENTER:
 		{
-			CAT_set_render_callback(draw_screen_saver);
-			exit_level = 0;
+			CAT_set_render_callback(draw_research_screen);
 		}
 		break;
 
 		case CAT_FSM_SIGNAL_TICK:
 		{
 			if(CAT_input_spell(spell))
-			{
-				exit_level++;
-				CAT_input_buffer_clear();
-				if(exit_level == 2)
-					CAT_pushdown_rebase(CAT_MS_room);
-			}
+				CAT_pushdown_push(CAT_MS_research_config);
 		}
 		break;
 
 		case CAT_FSM_SIGNAL_EXIT:
 		{
 			
+		}
+		break;
+	}
+}
+
+void CAT_MS_research_config(CAT_FSM_signal signal)
+{
+	CAT_datetime dt_real;
+	CAT_datetime dt_cached;
+
+	switch (signal)
+	{
+		case CAT_FSM_SIGNAL_ENTER:
+		{
+		}
+		break;
+
+		case CAT_FSM_SIGNAL_TICK:
+		{
+			if(CAT_gui_begin_menu("CONFIGURATION"))
+			{
+				CAT_get_datetime(&dt_cached);
+				dt_real = dt_cached;
+
+				dt_real.year = CAT_gui_menu_ticker("YEAR", dt_real.year, 0, 3000);
+				dt_real.month = CAT_gui_menu_ticker("MONTH", dt_real.month, 1, 12);
+				dt_real.day = CAT_gui_menu_ticker("DAY", dt_real.day, 1, 31);
+				dt_real.hour = CAT_gui_menu_ticker("HOUR", dt_real.hour, 0, 23);
+				dt_real.minute = CAT_gui_menu_ticker("MINUTE", dt_real.minute, 0, 59);
+				dt_real.second = CAT_gui_menu_ticker("SECOND", dt_real.second, 0, 59);
+
+				if(CAT_timecmp(&dt_real, &dt_cached) != 0)
+					CAT_set_datetime(dt_real);
+
+				if(CAT_gui_menu_item("GO TO GAME"))
+					CAT_pushdown_rebase(CAT_MS_room);
+				if(CAT_gui_menu_item("GO TO SLEEP"))
+					CAT_sleep();
+			}
+		}
+		break;
+
+		case CAT_FSM_SIGNAL_EXIT:
+		{
 		}
 		break;
 	}

@@ -141,6 +141,7 @@ void CAT_render_debug()
 			cursor_y = CAT_draw_textf(cursor_x, cursor_y, "Since Stat: %llus/%ds\n", now-pet_timing_state.last_stat_time, CAT_STAT_TICK_PERIOD);
 
 			cursor_y = CAT_draw_textf(cursor_x, cursor_y, "Slept: %llus\n", CAT_get_slept_s());
+			cursor_y = CAT_draw_textf(cursor_x, cursor_y, "Since sleep: %llus\n", now-sleep_timestamp);
 		}
 		break;
 

@@ -17,7 +17,7 @@
 #include "cat_chat.h"
 #include "cat_radio.h"
 #include "cat_crypto.h"
-#include "cat_screen_saver.h"
+#include "cat_research.h"
 
 #include "sprite_assets.h"
 #include "tinysprite_assets.h"
@@ -55,7 +55,7 @@ void CAT_init()
 		CAT_pushdown_rebase(CAT_MS_room);*/
 
 #ifdef CAT_RESEARCH_ONLY
-	CAT_pushdown_rebase(CAT_MS_screen_saver);
+	CAT_pushdown_rebase(CAT_MS_research_screen);
 #else
 	if(persist_flags & CAT_PERSIST_CONFIG_FLAG_AQ_FIRST)
 		CAT_pushdown_rebase(CAT_MS_monitor);

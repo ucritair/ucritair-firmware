@@ -2,6 +2,7 @@
 #include <zephyr/drivers/i2c.h>
 
 #include "sensor_hal.h"
+#include "cat_persist.h"
 
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(sensor_hal, SENSOR_LOG_LEVEL);
@@ -37,6 +38,7 @@ void sensor_read_once(void) {
             }
         }
     }
+	last_sensor_timestamp = CAT_get_RTC_now();
 }
 
 

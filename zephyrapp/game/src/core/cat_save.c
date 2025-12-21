@@ -398,7 +398,7 @@ void CAT_load_turnkey()
 		.month = 11,
 		.day = 8
 	};
-	CAT_set_date(zero_day);
+	CAT_set_datetime(zero_day);
 	CAT_erase_log_cells();
 }
 
