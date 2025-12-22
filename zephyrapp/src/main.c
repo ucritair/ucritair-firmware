@@ -149,11 +149,15 @@ int main(void)
 
 				LOG_INF("readings ready");
 				k_msleep(20);
+
+				//if(!(persist_flags & CAT_PERSIST_CONFIG_FLAG_PAUSE_LOGGING))
 				populate_next_log_cell();
+
 				LOG_INF("update eink");
 				k_msleep(20);
 				CAT_eink_draw_default();
 				CAT_eink_update(false);
+
 				LOG_INF("power off");
 				k_msleep(20);
 				power_off(sensor_wakeup_period*1000, false);

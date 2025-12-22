@@ -50,9 +50,9 @@ float CAT_input_touch_time();
 bool CAT_input_dismissal();
 
 void CAT_input_buffer_clear();
-bool CAT_input_spell(CAT_button* spell);
-int CAT_input_buffer_head();
+int CAT_input_buffer_length();
 int CAT_input_buffer_get(int idx);
+bool CAT_input_spell(CAT_button* spell);
 
 void CAT_input_raise_barrier(int mask);
 bool CAT_input_poll_barrier();

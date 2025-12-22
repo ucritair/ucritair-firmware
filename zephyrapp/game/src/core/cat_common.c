@@ -139,10 +139,12 @@ void CAT_eink_draw_power_off()
 	CAT_eink_draw_string(142, 119, 1, "device!");
 }
 
+#ifndef CAT_RESEARCH_NAME
+#define CAT_RESEARCH_NAME "KETSUBAN"
+#endif 
+
 void CAT_eink_draw_research()
 {
-	CAT_printf("This one!\n");
-
 	CAT_eink_clear();
 
 	char buf[256] = {0};

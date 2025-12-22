@@ -9,7 +9,7 @@ LOG_MODULE_REGISTER(cat_flash, LOG_LEVEL_DBG);
 #include "flash.h"
 #include "sdcard.h"
 #include "cat_time.h"
-#include "cat_leaderboard.h"
+#include "cat_persist.h"
 
 #define SECTOR_SIZE 4096
 
@@ -313,15 +313,12 @@ void populate_log_cell(CAT_log_cell* cell)
 void populate_next_log_cell()
 {
 	if (!did_post_flash) return;
+
 	if (next_log_cell_nr == LOG_CELL_NR_UNKOWN)
-	{
 		next_log_cell_nr = flash_get_next_log_cell_nr();
-	}
 
 	if (next_log_cell_nr == LOG_CELL_NR_FULL || next_log_cell_nr > (MAX_LOG_CELL_COUNT - 10))
-	{
 		return;
-	}
 
 	CAT_log_cell cell;
 	populate_log_cell(&cell);

@@ -136,40 +136,39 @@ bool CAT_input_dismissal()
 	CAT_input_pressed(CAT_BUTTON_START);
 }
 
-static uint8_t buffer[10];
-static int buffer_head;
+#define BUFFER_CAPACITY 10
+static uint8_t buffer[BUFFER_CAPACITY];
+static uint8_t buffer_head = 0;
+#define BUFFER_IDX(idx) (CAT_wrap(buffer_head+(idx), BUFFER_CAPACITY))
 
 void CAT_input_buffer_clear()
 {
-	for(int i = 0; i < 10; i++)
-		buffer[i] = CAT_BUTTON_LAST;
 	buffer_head = 0;
+	for(int i = 0; i < BUFFER_CAPACITY; i++)
+		buffer[i] = CAT_BUTTON_LAST;
 }
 
-bool CAT_input_spell(CAT_button* spell)
+static void input_buffer_push(int button)
 {
-	int i = (buffer_head+9) % 10;
-	int steps = 0;
-	while(steps < 10)
-	{
-		if(buffer[i] != spell[9-steps])
-			return false;
-		i -= 1;
-		if(i < 0)
-			i = 9;
-		steps += 1;
-	}
-	return true;
-}
-
-int CAT_input_buffer_head()
-{
-	return buffer_head;
+	buffer[buffer_head] = button;
+	buffer_head = CAT_wrap(buffer_head+1, BUFFER_CAPACITY);
 }
 
 int CAT_input_buffer_get(int idx)
 {
-	return buffer[idx];
+	if(idx < 0 || idx >= BUFFER_CAPACITY)
+		return CAT_BUTTON_LAST;
+	return buffer[BUFFER_IDX(idx)];
+}
+
+bool CAT_input_spell(CAT_button* spell)
+{
+	for(int i = 0; i < BUFFER_CAPACITY; i++)
+	{
+		if(CAT_input_buffer_get(i) != spell[i])
+			return false;
+	}
+	return true;
 }
 
 static uint16_t barrier_mask = 0;
@@ -218,9 +217,7 @@ void CAT_input_init()
 	};
 	touch_time = 0;
 
-	for(int i = 0; i < 10; i++)
-		buffer[i] = CAT_BUTTON_LAST;
-	buffer_head = 0;
+	CAT_input_buffer_clear();
 }
 
 uint16_t swap_mask_bits(uint16_t mask, int a_idx, int b_idx)
@@ -297,10 +294,7 @@ void tick_buffer()
 	{
 		if(mask[i] && !last[i])
 		{
-			buffer[buffer_head] = i;
-			buffer_head += 1;
-			if(buffer_head >= 10)
-				buffer_head = 0;
+			input_buffer_push(i);
 		}
 	}
 }
@@ -342,6 +336,7 @@ void CAT_input_clear()
 	}
 	touch.pressure = 0;
 	touch_dirty = true;
+	CAT_input_buffer_clear();
 }
 
 float CAT_input_downtime()

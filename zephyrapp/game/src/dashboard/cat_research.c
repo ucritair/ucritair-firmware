@@ -99,6 +99,18 @@ static void draw_research_screen()
 		MARGIN, cursor_y, "\nResearch instrument -- please leave plugged in and do not touch.\n"
 	);
 
+	/*if(persist_flags & CAT_PERSIST_CONFIG_FLAG_PAUSE_LOGGING)
+	{
+		CAT_set_text_colour(CAT_GRAPH_FG);
+		CAT_set_text_mask(MARGIN, -1, CAT_LCD_SCREEN_W-MARGIN, -1);
+		CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
+		cursor_y = CAT_draw_textf
+		(
+			MARGIN, cursor_y,
+			"\nLogging is currently disabled. Press A 3 times to enable.\n"
+		);
+	}*/
+
 	CAT_set_text_colour(CAT_GRAPH_FG);
 	cursor_y = CAT_draw_textf(MARGIN, CAT_LCD_SCREEN_H-MARGIN-CAT_TEXT_LINE_HEIGHT*2, "For more information,\ncontact tretyakova@wisc.edu");
 
@@ -125,6 +137,21 @@ void CAT_MS_research_screen(CAT_FSM_signal signal)
 		{
 			if(CAT_input_spell(spell))
 				CAT_pushdown_push(CAT_MS_research_config);
+			
+			/*if(persist_flags & CAT_PERSIST_CONFIG_FLAG_PAUSE_LOGGING)
+			{
+				bool pass = true;
+				for(int i = 7; i < 10; i++)
+				{
+					if(CAT_input_buffer_get(i) != CAT_BUTTON_A)
+					{
+						pass = false;
+						break;
+					}
+				}
+				if(pass)
+					persist_flags &= ~CAT_PERSIST_CONFIG_FLAG_PAUSE_LOGGING;
+			}*/
 		}
 		break;
 

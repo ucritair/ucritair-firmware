@@ -202,7 +202,7 @@ void menu_post()
 	//selectable("Test eInk", menu_test_eink, NULL);
 	//selectable("Main Menu", goto_menu, menu_root);
 	//selectable("Do nothing (test A)", NULL, NULL);
-	selectable("Protected Power Off", menu_power_off_protected, NULL);
+	//selectable("Protected Power Off", menu_power_off_protected, NULL);
 	selectable("Developer Mode", developer, NULL);
 	/*if(CAT_check_save_flags(CAT_SAVE_CONFIG_FLAG_DEVELOPER))
 		selectable("Turnkey", turnkey, NULL);*/
