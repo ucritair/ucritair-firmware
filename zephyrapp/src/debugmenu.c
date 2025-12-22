@@ -20,6 +20,7 @@
 #include "batt.h"
 #include "cat_gui.h"
 #include "cat_save.h"
+#include "cat_input.h"
 
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(debugmenu, LOG_LEVEL_DBG);
@@ -76,6 +77,7 @@ void exit_debug_menu(void* arg)
 {
 	in_debug_menu = false;
 	k_msleep(50);
+	CAT_input_clear();
 }
 
 void menu_test_buzzer(void* arg)
@@ -169,7 +171,7 @@ void menu_post()
 	text("CAT hw0.2 sw??? ~ entropic :3")
 	textf("Uptime: %lldms", k_uptime_get());
 
-	text("");
+	/*text("");
 	uint16_t c = readings.lps22hh.uptime_last_updated==0?POST_RED:POST_GRN;
 	textfc(c, "LPS22HH @ %lldms", readings.lps22hh.uptime_last_updated);
 	textfc(c, "Temp: %dC; Pressure: %d?", (int) readings.lps22hh.temp, (int) readings.lps22hh.pressure);
@@ -182,7 +184,7 @@ void menu_post()
 	text("");
 	c = readings.sen5x.uptime_last_updated==0?POST_RED:POST_GRN;
 	textfc(c, "SEN5x @ %lldms", readings.sen5x.uptime_last_updated);
-	textfc(c, "PM1.0: %d | PM2.5: %d", (int) readings.sen5x.pm1_0, (int) readings.sen5x.pm2_5);
+	textfc(c, "PM1.0: %d | PM2.5: %d", (int) readings.sen5x.pm1_0, (int) readings.sen5x.pm2_5);*/
 
 	text("");
 	textfc(imu_posted?POST_GRN:POST_RED,         "IMU  %s", imu_posted?"OK":"FAIL");
@@ -197,14 +199,14 @@ void menu_post()
 	textfc(did_post_sdcard?POST_GRN:POST_RED,      "SD   %s", did_post_sdcard?"OK":"FAIL/NOTPRESENT");
 
 	text("");
-	selectable("Test eInk", menu_test_eink, NULL);
-	selectable("Main Menu", goto_menu, menu_root);
-	selectable("Do nothing (test A)", NULL, NULL);
+	//selectable("Test eInk", menu_test_eink, NULL);
+	//selectable("Main Menu", goto_menu, menu_root);
+	//selectable("Do nothing (test A)", NULL, NULL);
 	selectable("Protected Power Off", menu_power_off_protected, NULL);
-	selectable("Developer mode", developer, NULL);
+	selectable("Developer Mode", developer, NULL);
 	/*if(CAT_check_save_flags(CAT_SAVE_CONFIG_FLAG_DEVELOPER))
 		selectable("Turnkey", turnkey, NULL);*/
-	selectable("Back to game", exit_debug_menu, NULL);
+	selectable("Exit", exit_debug_menu, NULL);
 
 	seen_buttons |= current_buttons;
 
@@ -399,7 +401,7 @@ void menu_root()
 	textf("VBUS: %d", NRF_USBREGULATOR->USBREGSTATUS & 1);
 
 	text("");
-	selectable("Back to game", exit_debug_menu, NULL);
+	selectable("Exit", exit_debug_menu, NULL);
 }
 
 #define NEWLY_PRESSED(x) (new_buttons & x) && !(last_buttons & x)

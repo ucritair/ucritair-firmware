@@ -10,7 +10,7 @@
 #include "sprite_assets.h"
 #include "cat_gui.h"
 
-static CAT_button config_spell[] =
+static CAT_button spell[] =
 {
 	CAT_BUTTON_UP,
 	CAT_BUTTON_UP,
@@ -22,19 +22,6 @@ static CAT_button config_spell[] =
 	CAT_BUTTON_RIGHT,
 	CAT_BUTTON_B,
 	CAT_BUTTON_A,
-};
-static CAT_button dev_spell[] =
-{
-	CAT_BUTTON_A,
-	CAT_BUTTON_B,
-	CAT_BUTTON_RIGHT,
-	CAT_BUTTON_LEFT,
-	CAT_BUTTON_RIGHT,
-	CAT_BUTTON_LEFT,
-	CAT_BUTTON_DOWN,
-	CAT_BUTTON_DOWN,
-	CAT_BUTTON_UP,
-	CAT_BUTTON_UP,
 };
 
 #define MARGIN 12
@@ -136,9 +123,7 @@ void CAT_MS_research_screen(CAT_FSM_signal signal)
 
 		case CAT_FSM_SIGNAL_TICK:
 		{
-			if(CAT_input_spell(dev_spell))
-				CAT_toggle_save_flags(CAT_SAVE_CONFIG_FLAG_DEVELOPER);
-			if(CAT_input_spell(config_spell))
+			if(CAT_input_spell(spell))
 				CAT_pushdown_push(CAT_MS_research_config);
 		}
 		break;
@@ -153,13 +138,20 @@ void CAT_MS_research_screen(CAT_FSM_signal signal)
 
 void CAT_MS_research_config(CAT_FSM_signal signal)
 {
+	// Date/time
 	CAT_datetime dt_real;
 	CAT_datetime dt_cached;
+
+	// Log rate
+	int lr_mins;
+
+	static char pswrd_buf[32];
 
 	switch (signal)
 	{
 		case CAT_FSM_SIGNAL_ENTER:
 		{
+			pswrd_buf[0] = '\0';
 		}
 		break;
 
@@ -167,7 +159,7 @@ void CAT_MS_research_config(CAT_FSM_signal signal)
 		{
 			if(CAT_gui_begin_menu("DEVELOPER MENU"))
 			{
-				if(CAT_gui_begin_menu("SET TIME"))
+				if(CAT_gui_begin_menu("TIME"))
 				{
 					CAT_get_datetime(&dt_cached);
 					dt_real = dt_cached;
@@ -181,23 +173,27 @@ void CAT_MS_research_config(CAT_FSM_signal signal)
 
 					if(CAT_timecmp(&dt_real, &dt_cached) != 0)
 						CAT_set_datetime(dt_real);
-					
+
 					CAT_gui_end_menu();
 				}
 
-				if(CAT_gui_menu_item("WRITE LOGS TO SD"))
+				if(CAT_gui_begin_menu("LOGS"))
 				{
-					CAT_SD_write_result result = CAT_write_logs_to_SD();
-					if(result == CAT_SD_WRITE_OKAY)
-						CAT_gui_open_popup("Write succeeded!", CAT_POPUP_STYLE_OK);
-					else
-						CAT_gui_open_popup("Write failed!", CAT_POPUP_STYLE_OK);
-				}
+					lr_mins = sensor_wakeup_period / CAT_MINUTE_SECONDS;
+					lr_mins = CAT_gui_menu_ticker("LOG RATE (MINUTES)", lr_mins, 0, 60);
+					sensor_wakeup_period = lr_mins * CAT_MINUTE_SECONDS;
 
-				if(CAT_gui_menu_item("GO TO GAME"))
-					CAT_pushdown_rebase(CAT_MS_room);
-				if(CAT_gui_menu_item("GO TO SLEEP"))
-					CAT_sleep();
+					if(CAT_gui_menu_item("WRITE LOGS TO SD"))
+					{
+						CAT_SD_write_result result = CAT_write_logs_to_SD();
+						if(result == CAT_SD_WRITE_OKAY)
+							CAT_gui_open_popup("Write succeeded!", CAT_POPUP_STYLE_OK);
+						else
+							CAT_gui_open_popup("Write failed!", CAT_POPUP_STYLE_OK);
+					}
+
+					CAT_gui_end_menu();
+				}
 
 				if(CAT_check_save_flags(CAT_SAVE_CONFIG_FLAG_DEVELOPER))
 				{
@@ -226,8 +222,26 @@ void CAT_MS_research_config(CAT_FSM_signal signal)
 							CAT_gui_end_menu();
 						}
 
+						if(CAT_gui_menu_item("EXIT RESEARCH MODE"))
+							CAT_gui_open_keyboard(pswrd_buf, sizeof(pswrd_buf));
+						if(strncmp(pswrd_buf, "UUDDLRLRBA", sizeof(pswrd_buf)) == 0)
+							CAT_pushdown_rebase(CAT_MS_room);
+
 						CAT_gui_end_menu();
 					}
+				}
+				
+				if(CAT_gui_begin_menu("POWER"))
+				{
+					if(CAT_gui_menu_item("SLEEP"))
+						CAT_sleep();
+
+					if(CAT_gui_menu_item("PROTECTED OFF"))
+						CAT_gui_open_popup("The device must be powered on via the reset button! This will clear important settings. Proceed?\n", CAT_POPUP_STYLE_YES_NO);
+					if(CAT_gui_consume_popup())
+						CAT_shutdown();
+					
+					CAT_gui_end_menu();
 				}
 				
 				CAT_gui_end_menu();

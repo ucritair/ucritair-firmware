@@ -43,17 +43,6 @@ void CAT_init()
 
 	CAT_force_load();
 
-	/*if(CAT_check_save_flags(CAT_SAVE_CONFIG_FLAG_RESEARCH))
-	{
-		CAT_pushdown_rebase(CAT_MS_screen_saver);
-	}
-	else if(persist_flags & CAT_PERSIST_CONFIG_FLAG_AQ_FIRST)
-	{
-		CAT_pushdown_rebase(CAT_MS_monitor);
-	}
-	else
-		CAT_pushdown_rebase(CAT_MS_room);*/
-
 #ifdef CAT_RESEARCH_ONLY
 	CAT_pushdown_rebase(CAT_MS_research_screen);
 #else

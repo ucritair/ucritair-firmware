@@ -29,6 +29,10 @@
 #include "menu_system.h"
 #endif
 
+#ifdef CAT_RESEARCH_ONLY
+#include "cat_research.h"
+#endif
+
 void CAT_MS_menu(CAT_FSM_signal signal)
 {
 	switch(signal)
@@ -97,11 +101,13 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 						if(CAT_gui_menu_item("COLOUR PICKER"))
 							CAT_pushdown_push(CAT_MS_colour_picker);
 
-						if(CAT_gui_menu_item("TURNKEY"))
+						if(CAT_gui_menu_item("TURNKEY APARTMENT"))
 							CAT_set_load_flags(CAT_LOAD_FLAG_DIRTY | CAT_LOAD_FLAG_TURNKEY);
 
-						/*if(CAT_gui_menu_toggle("RESEARCH", CAT_check_save_flags(CAT_SAVE_CONFIG_FLAG_RESEARCH), CAT_GUI_TOGGLE_STYLE_CHECKBOX))
-							CAT_toggle_save_flags(CAT_SAVE_CONFIG_FLAG_RESEARCH);*/
+#if CAT_RESEARCH_ONLY
+						if(CAT_gui_menu_item("RESEARCH MODE"))
+							CAT_pushdown_rebase(CAT_MS_research_screen);
+#endif
 						
 #if CAT_WIFI_ENABLED					
 						if(CAT_gui_menu_item("RP2350 BOOTLOADER"))

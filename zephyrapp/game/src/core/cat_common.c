@@ -167,10 +167,6 @@ bool CAT_eink_should_update()
 
 void CAT_eink_execute_update()
 {
-	/*if(CAT_check_save_flags(CAT_SAVE_CONFIG_FLAG_RESEARCH))
-		CAT_eink_draw_research();
-	else
-		CAT_eink_draw_default();*/
 #if CAT_RESEARCH_ONLY
 	CAT_eink_draw_research();
 #else
