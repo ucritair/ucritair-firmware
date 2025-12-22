@@ -202,8 +202,8 @@ void menu_post()
 	selectable("Do nothing (test A)", NULL, NULL);
 	selectable("Protected Power Off", menu_power_off_protected, NULL);
 	selectable("Developer mode", developer, NULL);
-	if(CAT_check_save_flags(CAT_SAVE_CONFIG_FLAG_DEVELOPER))
-		selectable("Turnkey", turnkey, NULL);
+	/*if(CAT_check_save_flags(CAT_SAVE_CONFIG_FLAG_DEVELOPER))
+		selectable("Turnkey", turnkey, NULL);*/
 	selectable("Back to game", exit_debug_menu, NULL);
 
 	seen_buttons |= current_buttons;

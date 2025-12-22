@@ -749,6 +749,7 @@ void CAT_force_log_cell_write()
 
 void CAT_erase_logs()
 {
+	CAT_printf("[CALL] CAT_erase_logs\n");
 	return;
 }
 

@@ -10,7 +10,7 @@
 #include "sprite_assets.h"
 #include "cat_gui.h"
 
-static CAT_button spell[] =
+static CAT_button config_spell[] =
 {
 	CAT_BUTTON_UP,
 	CAT_BUTTON_UP,
@@ -22,6 +22,19 @@ static CAT_button spell[] =
 	CAT_BUTTON_RIGHT,
 	CAT_BUTTON_B,
 	CAT_BUTTON_A,
+};
+static CAT_button dev_spell[] =
+{
+	CAT_BUTTON_A,
+	CAT_BUTTON_B,
+	CAT_BUTTON_RIGHT,
+	CAT_BUTTON_LEFT,
+	CAT_BUTTON_RIGHT,
+	CAT_BUTTON_LEFT,
+	CAT_BUTTON_DOWN,
+	CAT_BUTTON_DOWN,
+	CAT_BUTTON_UP,
+	CAT_BUTTON_UP,
 };
 
 #define MARGIN 12
@@ -123,7 +136,9 @@ void CAT_MS_research_screen(CAT_FSM_signal signal)
 
 		case CAT_FSM_SIGNAL_TICK:
 		{
-			if(CAT_input_spell(spell))
+			if(CAT_input_spell(dev_spell))
+				CAT_toggle_save_flags(CAT_SAVE_CONFIG_FLAG_DEVELOPER);
+			if(CAT_input_spell(config_spell))
 				CAT_pushdown_push(CAT_MS_research_config);
 		}
 		break;
@@ -150,20 +165,25 @@ void CAT_MS_research_config(CAT_FSM_signal signal)
 
 		case CAT_FSM_SIGNAL_TICK:
 		{
-			if(CAT_gui_begin_menu("CONFIGURATION"))
+			if(CAT_gui_begin_menu("DEVELOPER MENU"))
 			{
-				CAT_get_datetime(&dt_cached);
-				dt_real = dt_cached;
+				if(CAT_gui_begin_menu("SET TIME"))
+				{
+					CAT_get_datetime(&dt_cached);
+					dt_real = dt_cached;
 
-				dt_real.year = CAT_gui_menu_ticker("YEAR", dt_real.year, 0, 3000);
-				dt_real.month = CAT_gui_menu_ticker("MONTH", dt_real.month, 1, 12);
-				dt_real.day = CAT_gui_menu_ticker("DAY", dt_real.day, 1, 31);
-				dt_real.hour = CAT_gui_menu_ticker("HOUR", dt_real.hour, 0, 23);
-				dt_real.minute = CAT_gui_menu_ticker("MINUTE", dt_real.minute, 0, 59);
-				dt_real.second = CAT_gui_menu_ticker("SECOND", dt_real.second, 0, 59);
+					dt_real.year = CAT_gui_menu_ticker("YEAR", dt_real.year, 0, 3000);
+					dt_real.month = CAT_gui_menu_ticker("MONTH", dt_real.month, 1, 12);
+					dt_real.day = CAT_gui_menu_ticker("DAY", dt_real.day, 1, 31);
+					dt_real.hour = CAT_gui_menu_ticker("HOUR", dt_real.hour, 0, 23);
+					dt_real.minute = CAT_gui_menu_ticker("MINUTE", dt_real.minute, 0, 59);
+					dt_real.second = CAT_gui_menu_ticker("SECOND", dt_real.second, 0, 59);
 
-				if(CAT_timecmp(&dt_real, &dt_cached) != 0)
-					CAT_set_datetime(dt_real);
+					if(CAT_timecmp(&dt_real, &dt_cached) != 0)
+						CAT_set_datetime(dt_real);
+					
+					CAT_gui_end_menu();
+				}
 
 				if(CAT_gui_menu_item("WRITE LOGS TO SD"))
 				{
@@ -178,6 +198,39 @@ void CAT_MS_research_config(CAT_FSM_signal signal)
 					CAT_pushdown_rebase(CAT_MS_room);
 				if(CAT_gui_menu_item("GO TO SLEEP"))
 					CAT_sleep();
+
+				if(CAT_check_save_flags(CAT_SAVE_CONFIG_FLAG_DEVELOPER))
+				{
+					if(CAT_gui_begin_menu("DANGER ZONE"))
+					{
+						CAT_gui_menu_text("[WARNING]");
+						CAT_gui_menu_text("This page is dangerous.");
+						CAT_gui_menu_text("Go back!");
+						CAT_gui_menu_text("##dz_newline");
+
+						if(CAT_gui_begin_menu("ERASE LOGS"))
+						{
+							CAT_gui_menu_text("Deleting your logs is an");
+							CAT_gui_menu_text("irreversible action.");
+							CAT_gui_menu_text("Be very careful!");
+							CAT_gui_menu_text("##el_newline");
+
+							if(CAT_gui_menu_item("REALLY ERASE LOGS"))
+								CAT_gui_open_popup("This will permanently delete all your logged data. Are you sure you want to proceed?\n", CAT_POPUP_STYLE_YES_NO);
+							if(CAT_gui_consume_popup())
+							{
+								CAT_erase_logs();
+								CAT_gui_open_popup("All logs erased!\n", CAT_POPUP_STYLE_OK);
+							}
+
+							CAT_gui_end_menu();
+						}
+
+						CAT_gui_end_menu();
+					}
+				}
+				
+				CAT_gui_end_menu();
 			}
 		}
 		break;

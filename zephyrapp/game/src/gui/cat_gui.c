@@ -471,7 +471,7 @@ void CAT_gui_open_popup(const char* text, int style)
 {	
 	popup_text = text;
 	popup_style = style;
-	popup_selector = 0;
+	popup_selector = 1;
 	popup_result = false;
 	popup_open = true;
 
@@ -491,22 +491,22 @@ void CAT_gui_popup_logic()
 			popup_selector = 0;
 		if(CAT_input_pressed(CAT_BUTTON_RIGHT))
 			popup_selector = 1;
-	}
-
-	if(CAT_input_pressed(CAT_BUTTON_A))
-	{
 		popup_result = popup_selector == 0;
-		popup_open = false;
-	}
-
-	if(popup_style == CAT_POPUP_STYLE_YES_NO)
-	{
+		
 		if(CAT_input_pressed(CAT_BUTTON_START) || CAT_input_pressed(CAT_BUTTON_B))
 		{
 			popup_result = false;
 			popup_open = false;
 		}
 	}
+	else
+	{
+		popup_selector = 0;
+		popup_result = false;
+	}
+
+	if(CAT_input_pressed(CAT_BUTTON_A))
+		popup_open = false;
 }
 
 #define POPUP_TILE_X 2
@@ -836,7 +836,6 @@ void CAT_gui_menu_logic()
 {
 	menu_node* head = get_global_head();
 
-	int selector_last = head->selector;
 	if(CAT_input_pressed(CAT_BUTTON_UP))
 		head->selector -= 1;
 	if(CAT_input_pressed(CAT_BUTTON_DOWN))
