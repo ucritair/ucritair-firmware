@@ -51,6 +51,12 @@ void CAT_eink_draw_default()
 	char buf[256] = {0};
 	#define fwrite_str(x, y, s, str, ...) snprintf(buf, sizeof(buf), str, ##__VA_ARGS__); CAT_eink_draw_string(x, y, s, buf);
 
+#if CAT_RESEARCH_ONLY
+	CAT_eink_draw_sprite(0, 12, &tnyspr_unicorn_default);
+	CAT_eink_draw_sprite(0, 12+tnyspr_unicorn_default.height, &tnyspr_cloud_default);
+
+	fwrite_str(108, 54, 2, pet_name);
+#else
 	CAT_datetime now;
 	CAT_get_datetime(&now);
 
@@ -121,6 +127,7 @@ void CAT_eink_draw_default()
 	}
 
 	fwrite_str(0, CAT_EINK_SCREEN_H-10, 1, " %s LV%d", pet_name, pet_level+1);
+#endif
 }
 
 void CAT_eink_draw_power_off()
@@ -139,23 +146,6 @@ void CAT_eink_draw_power_off()
 	CAT_eink_draw_string(142, 119, 1, "device!");
 }
 
-#ifndef CAT_RESEARCH_NAME
-#define CAT_RESEARCH_NAME "KETSUBAN"
-#endif 
-
-void CAT_eink_draw_research()
-{
-	CAT_eink_clear();
-
-	char buf[256] = {0};
-	#define fwrite_str(x, y, s, str, ...) snprintf(buf, sizeof(buf), str, ##__VA_ARGS__); CAT_eink_draw_string(x, y, s, buf);
-
-	CAT_eink_draw_sprite(0, 12, &tnyspr_unicorn_default);
-	CAT_eink_draw_sprite(0, 12+tnyspr_unicorn_default.height, &tnyspr_cloud_default);
-
-	fwrite_str(108, 54, 2, CAT_RESEARCH_NAME);
-}
-
 bool CAT_eink_should_update()
 {
 	uint64_t now = CAT_get_RTC_now();
@@ -169,12 +159,7 @@ bool CAT_eink_should_update()
 
 void CAT_eink_execute_update()
 {
-#if CAT_RESEARCH_ONLY
-	CAT_eink_draw_research();
-#else
 	CAT_eink_draw_default();
-#endif
-
 	CAT_eink_update(false);
 	CAT_set_eink_update_flag(false);
 

@@ -12,7 +12,7 @@
 #define PERSIST_RAM __attribute__((__section__(".endmap_presist_region"))) volatile
 #endif
 
-#define CAT_RTC_MAGIC_NUMBER 0xb8870012
+#define CAT_RTC_MAGIC_NUMBER 0xb8870013
 
 typedef enum
 {

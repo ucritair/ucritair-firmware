@@ -21,6 +21,7 @@
 #include "cat_gui.h"
 #include "cat_save.h"
 #include "cat_input.h"
+#include "cat_version.h"
 
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(debugmenu, LOG_LEVEL_DBG);
@@ -157,7 +158,7 @@ void menu_power_off_protected(void* arg)
 
 void developer(void* arg)
 {
-	CAT_raise_save_flags(CAT_SAVE_CONFIG_FLAG_DEVELOPER);
+	CAT_toggle_save_flags(CAT_SAVE_CONFIG_FLAG_DEVELOPER);
 }
 
 void turnkey(void* arg)
@@ -168,7 +169,7 @@ void turnkey(void* arg)
 void menu_post()
 {
 	text("~~POST~~");
-	text("CAT hw0.2 sw??? ~ entropic :3")
+	textf("CAT HW0.2 SW %d.%d.%d.%d", CAT_VERSION_MAJOR, CAT_VERSION_MINOR, CAT_VERSION_PATCH, CAT_VERSION_PUSH);
 	textf("Uptime: %lldms", k_uptime_get());
 
 	/*text("");
@@ -199,13 +200,19 @@ void menu_post()
 	textfc(did_post_sdcard?POST_GRN:POST_RED,      "SD   %s", did_post_sdcard?"OK":"FAIL/NOTPRESENT");
 
 	text("");
-	//selectable("Test eInk", menu_test_eink, NULL);
-	//selectable("Main Menu", goto_menu, menu_root);
-	//selectable("Do nothing (test A)", NULL, NULL);
-	//selectable("Protected Power Off", menu_power_off_protected, NULL);
-	selectable("Developer Mode", developer, NULL);
-	/*if(CAT_check_save_flags(CAT_SAVE_CONFIG_FLAG_DEVELOPER))
-		selectable("Turnkey", turnkey, NULL);*/
+#if !CAT_RESEARCH_ONLY
+	selectable("Test eInk", menu_test_eink, NULL);
+	selectable("Main Menu", goto_menu, menu_root);
+	selectable("Do nothing (test A)", NULL, NULL);
+	selectable("Protected Power Off", menu_power_off_protected, NULL);
+	if(CAT_check_save_flags(CAT_SAVE_CONFIG_FLAG_DEVELOPER))
+		selectable("Turnkey", turnkey, NULL);
+#else
+	if(CAT_check_save_flags(CAT_SAVE_CONFIG_FLAG_DEVELOPER))
+		selectable("Turn Dev Mode Off", developer, NULL);
+	else
+		selectable("Turn Dev Mode On", developer, NULL);
+#endif
 	selectable("Exit", exit_debug_menu, NULL);
 
 	seen_buttons |= current_buttons;

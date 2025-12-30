@@ -24,7 +24,6 @@ while true; do
 			shift ;;
 		--research-only )
 			OPTIONS="${OPTIONS} -DRESEARCH_ONLY=ON";
-			OPTIONS="${OPTIONS} -DRESEARCH_NAME=$2";
 			shift; shift ;;
 		--clean )
 			clean=true;

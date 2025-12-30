@@ -219,8 +219,29 @@ void CAT_MS_research_config(CAT_FSM_signal signal)
 							CAT_gui_open_popup("Write failed!", CAT_POPUP_STYLE_OK);
 					}
 
+					if(CAT_gui_begin_menu("ERASE LOGS"))
+					{
+						CAT_gui_menu_text("Deleting your logs is an");
+						CAT_gui_menu_text("irreversible action.");
+						CAT_gui_menu_text("Be very careful!");
+						CAT_gui_menu_text("##el_newline");
+
+						if(CAT_gui_menu_item("REALLY ERASE LOGS"))
+							CAT_gui_open_popup("This will permanently delete all your logged data. Are you sure you want to proceed?\n", CAT_POPUP_STYLE_YES_NO);
+						if(CAT_gui_consume_popup())
+						{
+							CAT_erase_logs();
+							CAT_gui_open_popup("All logs erased!\n", CAT_POPUP_STYLE_OK);
+						}
+
+						CAT_gui_end_menu();
+					}
+
 					CAT_gui_end_menu();
 				}
+
+				if(CAT_gui_menu_item("NAME"))
+					CAT_gui_open_keyboard(pet.name, sizeof(pet.name));
 
 				if(CAT_check_save_flags(CAT_SAVE_CONFIG_FLAG_DEVELOPER))
 				{
@@ -230,24 +251,6 @@ void CAT_MS_research_config(CAT_FSM_signal signal)
 						CAT_gui_menu_text("This page is dangerous.");
 						CAT_gui_menu_text("Go back!");
 						CAT_gui_menu_text("##dz_newline");
-
-						if(CAT_gui_begin_menu("ERASE LOGS"))
-						{
-							CAT_gui_menu_text("Deleting your logs is an");
-							CAT_gui_menu_text("irreversible action.");
-							CAT_gui_menu_text("Be very careful!");
-							CAT_gui_menu_text("##el_newline");
-
-							if(CAT_gui_menu_item("REALLY ERASE LOGS"))
-								CAT_gui_open_popup("This will permanently delete all your logged data. Are you sure you want to proceed?\n", CAT_POPUP_STYLE_YES_NO);
-							if(CAT_gui_consume_popup())
-							{
-								CAT_erase_logs();
-								CAT_gui_open_popup("All logs erased!\n", CAT_POPUP_STYLE_OK);
-							}
-
-							CAT_gui_end_menu();
-						}
 
 						if(CAT_gui_menu_item("EXIT RESEARCH MODE"))
 							CAT_gui_open_keyboard(pswrd_buf, sizeof(pswrd_buf));

@@ -66,8 +66,6 @@ endif()
 
 if(RESEARCH_ONLY)
 	target_compile_definitions(app PRIVATE CAT_RESEARCH_ONLY=1)
-	target_compile_definitions(app PRIVATE CAT_RESEARCH_NAME="${RESEARCH_NAME}")
-	message(WARNING "Building research-only firmware with name ${RESEARCH_NAME}")
 endif()
 
 function(asset_gen TYPE_NAME GEN_SCRIPT SRC_DATA)
