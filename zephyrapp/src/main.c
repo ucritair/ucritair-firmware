@@ -32,6 +32,7 @@ LOG_MODULE_REGISTER(sample, LOG_LEVEL_INF);
 #include "rtc.h"
 #include "buttons.h"
 #include "batt.h"
+#include "epaper_rendering.h"
 #include "rp2350_ipc.h"
 
 int main(void)
@@ -91,6 +92,14 @@ int main(void)
 
 		set_first_led((struct led_rgb){.g=1});
 		k_msleep(50);
+
+		// Check once at timer-wake start to avoid running sensors on critically low battery.
+		if (get_battery_pct() <= 5)
+		{
+			LOG_INF("Battery low on timer wake");
+			epaper_render_protected_off();
+			power_off(0, true);
+		}
 
 		bool trying_to_take_nox_reading = nox_sample_period != 0 && (nox_sample_counter == (nox_sample_period-1));
 
@@ -155,6 +164,13 @@ int main(void)
 				epaper_render_test();
 				LOG_INF("power off");
 				k_msleep(20);
+				// Guard before sleeping in case battery sagged during this wake.
+				if (get_battery_pct() <= 5)
+				{
+					LOG_INF("Battery low after timer wake work");
+					epaper_render_protected_off();
+					power_off(0, true);
+				}
 				power_off(sensor_wakeup_period*1000, false);
 			}
 
@@ -162,6 +178,13 @@ int main(void)
 			{
 				// give up and try again later
 				LOG_INF("Giving up and power off");
+				// Guard before sleeping in case battery sagged during this wake.
+				if (get_battery_pct() <= 5)
+				{
+					LOG_INF("Battery low after timer wake work");
+					epaper_render_protected_off();
+					power_off(0, true);
+				}
 				power_off(sensor_wakeup_period*1000, false);
 			}
 		}
