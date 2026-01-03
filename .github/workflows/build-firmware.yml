@@ -2,40 +2,63 @@ name: Build Firmware
 
 on:
   push:
-    branches:
-      - main
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
+      # 1. FIX: Reclaim disk space to prevent build failure
+      - name: Free up disk space
+        run: |
+          echo "Disk space before cleanup:"
+          df -h
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /opt/hostedtoolcache/CodeQL
+          sudo docker image prune --all --force
+          echo "Disk space after cleanup:"
+          df -h
+
+      # 2. Checkout
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          submodules: 'recursive'
+          submodules: recursive
 
-      - name: Build firmware as root in container
-        run: |
-          docker compose run --rm dev ./utils/build.sh --embedded
+      # 3. Build
+      - name: Build Firmware
+        run: docker compose run --rm dev ./utils/build.sh --embedded
 
-      - name: Change ownership of build outputs
+      - name: Process and Rename Artifacts
         run: |
-          sudo chown -R $(id -u):$(id -g) zephyrapp/build
+          # 1. Fix ownership (Docker build outputs are often root-owned)
+          sudo chown -R $USER:$USER .
 
-      - name: Prepare file for upload
-        id: prep
-        run: |
+          # 2. Define Naming Variables
           SHORT_SHA=$(git rev-parse --short HEAD)
-          BUILD_DATE=$(date +'%Y-%m-%d-%H-%M')
-          echo "FILENAME=ucritair-firmware_${BUILD_DATE}_${SHORT_SHA}.bin" >> $GITHUB_ENV
-
-      - name: Rename firmware binary
-        run: |
-          mv zephyrapp/build/zephyr/zephyr.signed.bin ${{ env.FILENAME }}
+          DATE=$(date +'%Y-%m-%d')
+          FILENAME="ucritair-firmware-${DATE}-${SHORT_SHA}.bin"
           
-      - name: Upload firmware binary
+          # 3. Create a clean staging directory
+          mkdir -p firmware_output
+
+          # 4. Find the specific signed binary and move/rename it
+          # Using 'find' handles variable paths (e.g. inside zephyrapp/game/build)
+          find . -type f -name "zephyr.signed.bin" -exec cp {} firmware_output/$FILENAME \;
+          
+          echo "Processed binary: firmware_output/$FILENAME"
+          ls -l firmware_output/
+
+      # 5. Upload the processed, uniquely named artifact
+      - name: Upload Signed Firmware
         uses: actions/upload-artifact@v4
+        if: success()
         with:
-          name: ${{ env.FILENAME }}
-          path: ${{ env.FILENAME }}
+          name: signed-firmware
+          path: firmware_output/*.bin
