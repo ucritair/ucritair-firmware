@@ -950,23 +950,6 @@ void CAT_room_draw_gui()
 			);
 		}
 	}
-
-	CAT_frameberry(CAT_WHITE);
-	CAT_draw_text2
-	(
-		12, 12, 1,
-		CAT_BLACK,
-		"I must not <c><%d>fear</c>. "
-		"Fear is the mind-killer. "
-		"Fear is the little death that brings total obliteration. "
-		"I will face my fear. "
-		"I will permit it to pass over me and through me. "
-		"And when it has gone past I will turn the inner eye to see its path.\n"
-		"Where the fear has gone there will be <c><%d>nothing</c>. "
-		"Only I will remain."
-		,
-		CAT_RED, CAT_BLUE
-	);
 }
 
 void CAT_render_room()

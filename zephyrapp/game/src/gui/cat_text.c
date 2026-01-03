@@ -3,6 +3,7 @@
 #include "sprite_assets.h"
 #include <stdarg.h>
 #include <stdio.h>
+#include "cat_text.h"
 
 //////////////////////////////////////////////////////////////////////////
 // WRAPPING
@@ -238,82 +239,41 @@ void CAT_draw_text_vertical(int x, int y, int scale, bool centered, uint16_t c, 
 
 int CAT_draw_text(int x, int y, const char* text)
 {
-	int flags = consume_text_flags();
-	uint16_t colour = consume_text_colour();
 	int scale = consume_text_scale();
-	CAT_rect mask = consume_text_mask();
+	uint16_t colour = consume_text_colour();
 
-	int mask_x0 = mask.min.x == -1 ? 0 : mask.min.x;
-	int mask_y0 = mask.min.y == -1 ? 0 : mask.min.y;
-	int mask_x1 = mask.max.x == -1 ? CAT_LCD_SCREEN_W : mask.max.x;
-	int mask_y1 = mask.max.y == -1 ? CAT_LCD_SCREEN_H : mask.max.y;
-	mask_x0 = CAT_max(mask_x0, 0);
-	mask_y0 = CAT_max(mask_y0, 0);
-	mask_x1 = CAT_min(mask_x1, CAT_LCD_SCREEN_W);
-	mask_y1 = CAT_min(mask_y1, CAT_LCD_SCREEN_H);
-
+	int flags = consume_text_flags();
 	bool wrap = flags & CAT_TEXT_FLAG_WRAP;
-	if(wrap)
-		CAT_break_list_init(text, mask_x1 - mask_x0, scale);
-	else
-		break_count = 0;
 	bool center = flags & CAT_TEXT_FLAG_CENTER;
-	uint16_t colour_backup = colour;
+	bool vertical = flags & CAT_TEXT_FLAG_VERTICAL;
 
-	if(flags & CAT_TEXT_FLAG_VERTICAL)
+	if(vertical)
 	{
 		CAT_draw_text_vertical(x, y, scale, center, colour, text);
 		return y;
 	}
 
-	const char* glyph_ptr = text; int glyph_idx = 0;
-	int cursor_x = center ? get_centered_x(x, text, glyph_idx, scale) : x;
-	int cursor_y = y;
-
-	while (*glyph_ptr != '\0')
+	CAT_rect mask = consume_text_mask();
+	if(center)
 	{
-		if(!strncmp(glyph_ptr, "<c", 2))
-		{	
-			colour = atoi(glyph_ptr+2);
-			char* end = strchr(glyph_ptr, '>')+1;
-			int jump = end-glyph_ptr;
-			glyph_ptr += jump; glyph_idx += jump;
-			continue;
-		}
-		if(!strncmp(glyph_ptr, "</c>", 4))
-		{
-			colour = colour_backup;
-			char* end = strchr(glyph_ptr, '>')+1;
-			int jump = end-glyph_ptr;
-			glyph_ptr += jump; glyph_idx += jump;
-			continue;
-		}
-
-		if(*glyph_ptr == '\n')
-		{
-			cursor_x = center ? get_centered_x(x, text, glyph_idx+1, scale) : x;
-			cursor_y += (CAT_GLYPH_HEIGHT + 2) * scale;
-			glyph_ptr++; glyph_idx++;
-			continue;
-		}
-		else if(wrap)
-		{
-			if(CAT_break_list_lookup(glyph_idx) != -1)
-			{
-				cursor_x = center ? get_centered_x(x, text, glyph_idx+1, scale) : x;
-				cursor_y += (CAT_GLYPH_HEIGHT + 2) * scale;
-			}
-		}
-
-		CAT_set_sprite_colour(colour);
-		CAT_set_sprite_scale(scale);
-		CAT_set_sprite_mask(mask_x0, mask_y0, mask_x1, mask_y1);
-		CAT_draw_sprite(&glyph_sprite, *glyph_ptr, cursor_x, cursor_y);
-		cursor_x += CAT_GLYPH_WIDTH * scale;
-		glyph_ptr++; glyph_idx++;
+		mask.min.x = x-CAT_LCD_SCREEN_W;
+		mask.max.x = x+CAT_LCD_SCREEN_W;
 	}
+	else
+	{
+		mask.min.x = x;
+		if(!wrap)
+			mask.max.x = CAT_INT_MAX;
+	}
+	mask.min.y = y;
+	mask.max.y = y;
 
-	return cursor_y;
+	CAT_reset_text_box();
+	CAT_set_text_box(mask.min.x, mask.min.y, mask.max.x, mask.max.y);
+	CAT_set_text_box_alignment(center ? CAT_TEXT_ALIGNMENT_CENTER : CAT_TEXT_ALIGNMENT_LEFT);
+	CAT_text_box_draw(scale, colour, text);
+
+	return CAT_get_text_box_cursor_y();
 }
 
 static size_t last_strlen = 0;

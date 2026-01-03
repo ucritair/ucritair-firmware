@@ -277,7 +277,8 @@ static void draw_text
 	int x0, int y0,
 	int x1, int y1,
 	int alignment,
-	int scale, uint16_t colour
+	int scale, uint16_t colour,
+	int *x_out, int* y_out
 )
 {
 	measure_raw_buffer();
@@ -287,11 +288,13 @@ static void draw_text
 
 	buffer_colours();
 
-	bool boxed = x0 != x1;
-	if(!boxed)
+	if(x0 == x1)
 	{
 		x0 = x;
-		x1 = x + get_max_line_width(scale);
+		x1 = x0 + get_max_line_width(scale);
+	}
+	if(y0 == y1)
+	{
 		y0 = y;
 		y1 = CAT_INT_MAX;
 	}
@@ -327,6 +330,11 @@ static void draw_text
 		cursor_x += CAT_GLYPH_WIDTH * scale;
 		idx++;
 	}
+
+	if(x_out != NULL)
+		*x_out = cursor_x;
+	if(y_out != NULL)
+		*y_out = cursor_y;
 }
 
 void CAT_draw_text2(int x, int y, int scale, uint16_t colour, const char* fmt, ...)
@@ -335,12 +343,14 @@ void CAT_draw_text2(int x, int y, int scale, uint16_t colour, const char* fmt, .
 	va_start(args, fmt);
 	vsnprintf(raw_buffer, sizeof(raw_buffer), fmt, args);
 	va_end(args);
+
 	draw_text
 	(
 		x, y,
-		x, y, CAT_LCD_SCREEN_W-x, CAT_LCD_SCREEN_H-y,
-		CAT_TEXT_ALIGNMENT_CENTER,
-		scale, colour
+		-1, -1, -1, -1,
+		CAT_TEXT_ALIGNMENT_LEFT,
+		scale, colour,
+		NULL, NULL
 	);
 }
 
@@ -364,6 +374,7 @@ void CAT_reset_text_box()
 	text_box_x1 = CAT_LCD_SCREEN_W;
 	text_box_y1 = CAT_LCD_SCREEN_H;
 	text_box_alignment = CAT_TEXT_ALIGNMENT_LEFT;
+
 	text_box_x = 0;
 	text_box_y = 0;
 }
@@ -372,8 +383,11 @@ void CAT_set_text_box(int x0, int y0, int x1, int y1)
 {
 	text_box_x0 = x0;
 	text_box_y0 = y0;
-	text_box_x1 = x1;
-	text_box_y1 = y1;
+	text_box_x1 = x1 >= x0 ? x1 : x0;
+	text_box_y1 = y1 >= y0 ? y1 : y0;
+
+	text_box_x = x0;
+	text_box_y = y0;
 }
 
 void CAT_set_text_box_alignment(int alignment)
@@ -398,17 +412,23 @@ void CAT_set_text_box_cursor_x(int x)
 
 void CAT_set_text_box_cursor_y(int y)
 {
-	text_box_y = 0;
+	text_box_y = y;
 }
 
 void CAT_text_box_draw(int scale, uint16_t colour, const char* fmt, ...)
 {
+	va_list args;
+	va_start(args, fmt);
+	vsnprintf(raw_buffer, sizeof(raw_buffer), fmt, args);
+	va_end(args);
+
 	draw_text
 	(
 		text_box_x, text_box_y,
 		text_box_x0, text_box_y0,
 		text_box_x1, text_box_y1,
-		scale, text_box_alignment,
-		colour
+		text_box_alignment,
+		scale, colour,
+		&text_box_x, &text_box_y
 	);
 }

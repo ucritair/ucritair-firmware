@@ -17,6 +17,7 @@
 #include "cat_chat.h"
 #include "cat_radio.h"
 #include "cat_crypto.h"
+#include "cat_text.h"
 
 #include "sprite_assets.h"
 #include "tinysprite_assets.h"
