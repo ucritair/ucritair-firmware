@@ -202,41 +202,6 @@ int get_centered_x(int x, const char* text, int glyph_idx, int scale)
 	}
 }
 
-void CAT_draw_text_vertical(int x, int y, int scale, bool centered, uint16_t c, char* text)
-{
-	int gw = CAT_GLYPH_WIDTH * scale;
-	int gh = CAT_GLYPH_HEIGHT * scale;
-	int strh = strlen(text) * gh;
-	if(centered)
-	{
-		x += gw/2;
-		y -= strh/2;
-	}
-
-	const char* glyph_ptr = text; int glyph_idx = 0;
-	int cursor_x = x;
-	int cursor_y = y;
-
-	while (*glyph_ptr != '\0')
-	{
-		if(*glyph_ptr == '\n')
-		{
-			cursor_x += gw;
-			cursor_y = y;
-			glyph_ptr++; glyph_idx++;
-			continue;
-		}
-
-		CAT_set_sprite_colour(c);
-		CAT_set_sprite_scale(scale);
-		CAT_draw_sprite(&glyph_sprite, *glyph_ptr, cursor_x, cursor_y);
-		cursor_y += gh;
-		glyph_ptr++; glyph_idx++;
-		if(*glyph_ptr & 64)
-			cursor_y += 2;
-	}
-}
-
 int CAT_draw_text(int x, int y, const char* text)
 {
 	int scale = consume_text_scale();
@@ -246,12 +211,6 @@ int CAT_draw_text(int x, int y, const char* text)
 	bool wrap = flags & CAT_TEXT_FLAG_WRAP;
 	bool center = flags & CAT_TEXT_FLAG_CENTER;
 	bool vertical = flags & CAT_TEXT_FLAG_VERTICAL;
-
-	if(vertical)
-	{
-		CAT_draw_text_vertical(x, y, scale, center, colour, text);
-		return y;
-	}
 
 	CAT_rect mask = consume_text_mask();
 	if(center)
@@ -270,7 +229,12 @@ int CAT_draw_text(int x, int y, const char* text)
 
 	CAT_reset_text_box();
 	CAT_set_text_box(mask.min.x, mask.min.y, mask.max.x, mask.max.y);
-	CAT_set_text_box_alignment(center ? CAT_TEXT_ALIGNMENT_CENTER : CAT_TEXT_ALIGNMENT_LEFT);
+	if(vertical)
+		CAT_set_text_box_alignment(CAT_TEXT_ALIGNMENT_VERTICAL);
+	else if(center)
+		CAT_set_text_box_alignment(CAT_TEXT_ALIGNMENT_CENTER);
+	else
+		CAT_set_text_box_alignment(CAT_TEXT_ALIGNMENT_LEFT);
 	CAT_text_box_draw(scale, colour, text);
 
 	return CAT_get_text_box_cursor_y();

@@ -271,6 +271,46 @@ static int get_line_start(int idx, int scale, int x0, int x1, int alignment)
 	}
 }
 
+void draw_text_vertical
+(
+	int x, int y,
+	int scale, uint16_t colour
+)
+{
+	int idx = 0;
+	int cursor_y = y;
+	int cursor_x = x;
+
+	while (raw_buffer[idx] != '\0')
+	{
+		if(get_skip_info(idx))
+		{
+			idx++;
+			continue;
+		}
+		if(raw_buffer[idx] == '\n' || get_break(idx))
+		{
+			cursor_x -= CAT_GLYPH_WIDTH * scale;
+			idx++;
+			cursor_y = y;
+			continue;
+		}
+
+		struct colour_info* colour_info = get_colour_info(idx);
+		if(colour_info)
+			CAT_set_sprite_colour(colour_info->colour);
+		else
+			CAT_set_sprite_colour(colour);
+		
+		CAT_set_sprite_scale(scale);
+		CAT_draw_sprite(&glyph_sprite, raw_buffer[idx], cursor_x, cursor_y);
+		cursor_y += CAT_GLYPH_HEIGHT * scale;
+		if(raw_buffer[idx] & 64)
+			cursor_y += CAT_LEADING * scale;
+		idx++;
+	}
+}
+
 static void draw_text
 (
 	int x, int y,
@@ -282,11 +322,18 @@ static void draw_text
 )
 {
 	measure_raw_buffer();
+
 	clear_skip_bufffer();
 	clear_break_bufffer();
 	clear_colour_bufffer();
 
 	buffer_colours();
+
+	if(alignment == CAT_TEXT_ALIGNMENT_VERTICAL)
+	{
+		draw_text_vertical(x, y, scale, colour);
+		return;
+	}
 
 	if(x0 == x1)
 	{

@@ -462,17 +462,17 @@ static void draw_arrow()
 
 static void draw_word()
 {
-	CAT_set_text_flags(CAT_TEXT_FLAG_CENTER | CAT_TEXT_FLAG_VERTICAL);
+	CAT_set_text_flags(CAT_TEXT_FLAG_VERTICAL);
 	CAT_set_text_colour(word_colours[0]);
-	CAT_draw_text(CARD_X + CARD_W + 7, CARD_Y + CARD_H/2, words[0]);
+	CAT_draw_text(CARD_X + CARD_W + 7, CARD_Y + CARD_H/2 - (strlen(words[0]) * CAT_GLYPH_HEIGHT)/2, words[0]);
 
 	CAT_set_text_flags(CAT_TEXT_FLAG_CENTER);
 	CAT_set_text_colour(word_colours[1]);
 	CAT_draw_text(CARD_X + CARD_W/2, CARD_Y - 24, words[1]);
 
-	CAT_set_text_flags(CAT_TEXT_FLAG_CENTER | CAT_TEXT_FLAG_VERTICAL);
+	CAT_set_text_flags(CAT_TEXT_FLAG_VERTICAL);
 	CAT_set_text_colour(word_colours[2]);
-	CAT_draw_text(CARD_X - 20, CARD_Y + CARD_H/2, words[2]);
+	CAT_draw_text(CARD_X - 20, CARD_Y + CARD_H/2 - (strlen(words[2]) * CAT_GLYPH_HEIGHT)/2, words[2]);
 
 	CAT_set_text_flags(CAT_TEXT_FLAG_CENTER);
 	CAT_set_text_colour(word_colours[3]);
@@ -971,7 +971,7 @@ void CAT_MS_stroop(CAT_FSM_signal signal)
 		case CAT_FSM_SIGNAL_ENTER:
 			CAT_set_render_callback(CAT_render_stroop);
 			load_co2();
-			change_phase(PHASE_ARROWS);
+			change_phase(PHASE_WORDS);
 		break;
 
 		case CAT_FSM_SIGNAL_TICK:
