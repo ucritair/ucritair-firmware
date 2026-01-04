@@ -524,47 +524,47 @@ void CAT_monitor_render_ACH()
 
 		if(ach[0] != -1)
 		{
-			CAT_set_text_colour(CAT_WHITE);
-			CAT_set_text_flags(CAT_TEXT_FLAG_CENTER);
-			CAT_set_text_scale(2);
-			cursor_y = CAT_draw_textf(120, cursor_y, "ACH: " CAT_FLOAT_FMT "\n", CAT_FMT_FLOAT(ach[0]));
+			CAT_set_text_colour_depr(CAT_WHITE);
+			CAT_set_text_flags_depr(CAT_TEXT_FLAG_CENTER);
+			CAT_set_text_scale_depr(2);
+			cursor_y = CAT_draw_textf_depr(120, cursor_y, "ACH: " CAT_FLOAT_FMT "\n", CAT_FMT_FLOAT(ach[0]));
 		}
 		if(ach[1] != -1)
 		{
-			CAT_set_text_colour(CAT_WHITE);
-			CAT_set_text_flags(CAT_TEXT_FLAG_CENTER);
-			CAT_set_text_scale(2);
-			cursor_y = CAT_draw_textf(120, cursor_y, "eACH: " CAT_FLOAT_FMT "\n", CAT_FMT_FLOAT(ach[1]));
+			CAT_set_text_colour_depr(CAT_WHITE);
+			CAT_set_text_flags_depr(CAT_TEXT_FLAG_CENTER);
+			CAT_set_text_scale_depr(2);
+			cursor_y = CAT_draw_textf_depr(120, cursor_y, "eACH: " CAT_FLOAT_FMT "\n", CAT_FMT_FLOAT(ach[1]));
 		}
 		if(ach[0] != -1 && ach[1] != -1)
 		{
-			CAT_set_text_colour(CAT_WHITE);
-			CAT_set_text_flags(CAT_TEXT_FLAG_CENTER);
-			CAT_set_text_scale(2);
-			cursor_y = CAT_draw_textf(120, cursor_y, "Total: " CAT_FLOAT_FMT "\n", CAT_FMT_FLOAT(ach[0] + ach[1]));
+			CAT_set_text_colour_depr(CAT_WHITE);
+			CAT_set_text_flags_depr(CAT_TEXT_FLAG_CENTER);
+			CAT_set_text_scale_depr(2);
+			cursor_y = CAT_draw_textf_depr(120, cursor_y, "Total: " CAT_FLOAT_FMT "\n", CAT_FMT_FLOAT(ach[0] + ach[1]));
 		}
 
 		cursor_y = center_textf(120, cursor_y + 20, 1, CAT_WHITE, "Press [A] to return\n");
 	}
 	else if(mode == MODE_INVALID)
 	{
-		CAT_set_text_colour(CAT_WHITE);
-		CAT_set_text_scale(2);
-		int cursor_y = CAT_draw_text(WINDOW_X0, 48, "Error\n");
+		CAT_set_text_colour_depr(CAT_WHITE);
+		CAT_set_text_scale_depr(2);
+		int cursor_y = CAT_draw_text_depr(WINDOW_X0, 48, "Error\n");
 
-		CAT_set_text_colour(CAT_WHITE);
-		CAT_set_text_mask(MARGIN, -1, CAT_LCD_SCREEN_W-MARGIN, -1);
-		CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
-		cursor_y = CAT_draw_text(WINDOW_X0, cursor_y, "\nInsufficient data available for this date.\nPress [A] or [B] to dismiss this page.");
+		CAT_set_text_colour_depr(CAT_WHITE);
+		CAT_set_text_mask_depr(MARGIN, -1, CAT_LCD_SCREEN_W-MARGIN, -1);
+		CAT_set_text_flags_depr(CAT_TEXT_FLAG_WRAP);
+		cursor_y = CAT_draw_text_depr(WINDOW_X0, cursor_y, "\nInsufficient data available for this date.\nPress [A] or [B] to dismiss this page.");
 	}
 	else if(!(mode == MODE_INIT && should_reload))
 	{
 		CAT_draw_subpage_markers(32, 2, view, CAT_WHITE);
 
-		CAT_set_text_colour(CAT_WHITE);
-		CAT_draw_textf(12, WINDOW_Y0-14, "%s", get_title_string(view));
-		CAT_set_text_colour(CAT_WHITE);
-		CAT_draw_textf(WINDOW_X1 - 10 * CAT_GLYPH_WIDTH, WINDOW_Y0-14, "%.2d/%.2d/%.4d", target.month, target.day, target.year);
+		CAT_set_text_colour_depr(CAT_WHITE);
+		CAT_draw_textf_depr(12, WINDOW_Y0-14, "%s", get_title_string(view));
+		CAT_set_text_colour_depr(CAT_WHITE);
+		CAT_draw_textf_depr(WINDOW_X1 - 10 * CAT_GLYPH_WIDTH, WINDOW_Y0-14, "%.2d/%.2d/%.4d", target.month, target.day, target.year);
 
 		CAT_monitor_graph_draw(WINDOW_X0, WINDOW_Y0, WINDOW_Y1-WINDOW_Y0);
 		if(CAT_monitor_graph_did_load_succeed())
@@ -579,19 +579,19 @@ void CAT_monitor_render_ACH()
 			CAT_datetime date;
 			CAT_make_datetime(timestamps[cursor], &date);
 			
-			CAT_set_text_scale(2);
-			CAT_set_text_colour(CAT_WHITE);
-			int cursor_y = CAT_draw_textf(WINDOW_X0, WINDOW_Y1+4, index != -1 ? make_value_string(view, value) : "INVALID\n", value);
-			CAT_set_text_colour(CAT_WHITE);
-			cursor_y = CAT_draw_textf(WINDOW_X0, cursor_y, "at %.2d:%.2d\n", date.hour, date.minute) + 4;
+			CAT_set_text_scale_depr(2);
+			CAT_set_text_colour_depr(CAT_WHITE);
+			int cursor_y = CAT_draw_textf_depr(WINDOW_X0, WINDOW_Y1+4, index != -1 ? make_value_string(view, value) : "INVALID\n", value);
+			CAT_set_text_colour_depr(CAT_WHITE);
+			cursor_y = CAT_draw_textf_depr(WINDOW_X0, cursor_y, "at %.2d:%.2d\n", date.hour, date.minute) + 4;
 
 			if(index != -1)
 			{
-				CAT_set_text_colour(CAT_WHITE);
-				cursor_y = CAT_draw_textf(WINDOW_X0, cursor_y, "Press [A] to confirm %s\n", mode == MODE_START ? "start" : "end");
+				CAT_set_text_colour_depr(CAT_WHITE);
+				cursor_y = CAT_draw_textf_depr(WINDOW_X0, cursor_y, "Press [A] to confirm %s\n", mode == MODE_START ? "start" : "end");
 			}
-			CAT_set_text_colour(CAT_WHITE);
-			cursor_y = CAT_draw_textf(WINDOW_X0, cursor_y, "Press[B] to go back\n");
+			CAT_set_text_colour_depr(CAT_WHITE);
+			cursor_y = CAT_draw_textf_depr(WINDOW_X0, cursor_y, "Press[B] to go back\n");
 		}
 	}
 	else if(mode == MODE_OUTCOME)
@@ -601,24 +601,24 @@ void CAT_monitor_render_ACH()
 
 		if(ach[0] != -1)
 		{
-			CAT_set_text_colour(CAT_WHITE);
-			CAT_set_text_flags(CAT_TEXT_FLAG_CENTER);
-			CAT_set_text_scale(2);
-			cursor_y = CAT_draw_textf(120, cursor_y, "ACH: " CAT_FLOAT_FMT "\n", CAT_FMT_FLOAT(ach[0]));
+			CAT_set_text_colour_depr(CAT_WHITE);
+			CAT_set_text_flags_depr(CAT_TEXT_FLAG_CENTER);
+			CAT_set_text_scale_depr(2);
+			cursor_y = CAT_draw_textf_depr(120, cursor_y, "ACH: " CAT_FLOAT_FMT "\n", CAT_FMT_FLOAT(ach[0]));
 		}
 		if(ach[1] != -1)
 		{
-			CAT_set_text_colour(CAT_WHITE);
-			CAT_set_text_flags(CAT_TEXT_FLAG_CENTER);
-			CAT_set_text_scale(2);
-			cursor_y = CAT_draw_textf(120, cursor_y, "eACH: " CAT_FLOAT_FMT "\n", CAT_FMT_FLOAT(ach[1]));
+			CAT_set_text_colour_depr(CAT_WHITE);
+			CAT_set_text_flags_depr(CAT_TEXT_FLAG_CENTER);
+			CAT_set_text_scale_depr(2);
+			cursor_y = CAT_draw_textf_depr(120, cursor_y, "eACH: " CAT_FLOAT_FMT "\n", CAT_FMT_FLOAT(ach[1]));
 		}
 		if(ach[0] != -1 && ach[1] != -1)
 		{
-			CAT_set_text_colour(CAT_WHITE);
-			CAT_set_text_flags(CAT_TEXT_FLAG_CENTER);
-			CAT_set_text_scale(2);
-			cursor_y = CAT_draw_textf(120, cursor_y, "Total: " CAT_FLOAT_FMT "\n", CAT_FMT_FLOAT(ach[0] + ach[1]));
+			CAT_set_text_colour_depr(CAT_WHITE);
+			CAT_set_text_flags_depr(CAT_TEXT_FLAG_CENTER);
+			CAT_set_text_scale_depr(2);
+			cursor_y = CAT_draw_textf_depr(120, cursor_y, "Total: " CAT_FLOAT_FMT "\n", CAT_FMT_FLOAT(ach[0] + ach[1]));
 		}
 
 		cursor_y = center_textf(120, cursor_y + 20, 1, CAT_WHITE, "Press [A] to calculate\n");

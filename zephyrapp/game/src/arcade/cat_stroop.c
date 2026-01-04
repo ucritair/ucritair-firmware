@@ -462,21 +462,21 @@ static void draw_arrow()
 
 static void draw_word()
 {
-	CAT_set_text_flags(CAT_TEXT_FLAG_VERTICAL);
-	CAT_set_text_colour(word_colours[0]);
-	CAT_draw_text(CARD_X + CARD_W + 7, CARD_Y + CARD_H/2 - (strlen(words[0]) * CAT_GLYPH_HEIGHT)/2, words[0]);
+	CAT_set_text_flags_depr(CAT_TEXT_FLAG_VERTICAL);
+	CAT_set_text_colour_depr(word_colours[0]);
+	CAT_draw_text_depr(CARD_X + CARD_W + 14, CARD_Y + CARD_H/2 - (strlen(words[0]) * CAT_GLYPH_HEIGHT)/2, words[0]);
 
-	CAT_set_text_flags(CAT_TEXT_FLAG_CENTER);
-	CAT_set_text_colour(word_colours[1]);
-	CAT_draw_text(CARD_X + CARD_W/2, CARD_Y - 24, words[1]);
+	CAT_set_text_flags_depr(CAT_TEXT_FLAG_CENTER);
+	CAT_set_text_colour_depr(word_colours[1]);
+	CAT_draw_text_depr(CARD_X + CARD_W/2, CARD_Y - 24, words[1]);
 
-	CAT_set_text_flags(CAT_TEXT_FLAG_VERTICAL);
-	CAT_set_text_colour(word_colours[2]);
-	CAT_draw_text(CARD_X - 20, CARD_Y + CARD_H/2 - (strlen(words[2]) * CAT_GLYPH_HEIGHT)/2, words[2]);
+	CAT_set_text_flags_depr(CAT_TEXT_FLAG_VERTICAL);
+	CAT_set_text_colour_depr(word_colours[2]);
+	CAT_draw_text_depr(CARD_X - 14, CARD_Y + CARD_H/2 - (strlen(words[2]) * CAT_GLYPH_HEIGHT)/2, words[2]);
 
-	CAT_set_text_flags(CAT_TEXT_FLAG_CENTER);
-	CAT_set_text_colour(word_colours[3]);
-	CAT_draw_text(CARD_X + CARD_W/2, CARD_Y + CARD_H + 12, words[3]);
+	CAT_set_text_flags_depr(CAT_TEXT_FLAG_CENTER);
+	CAT_set_text_colour_depr(word_colours[3]);
+	CAT_draw_text_depr(CARD_X + CARD_W/2, CARD_Y + CARD_H + 12, words[3]);
 
 	float t = CAT_timed_latch_get(&finish_latch) ?
 	CAT_timed_latch_t(&finish_latch) * 4.0f : 0;
@@ -488,10 +488,10 @@ static void draw_word()
 	CAT_strokeberry(CARD_X+dx, CARD_Y+dy, CARD_W+1, CARD_H+1, CAT_GREY);
 	CAT_strokeberry(CARD_X+dx, CARD_Y+dy, CARD_W, CARD_H, CAT_WHITE);
 	
-	CAT_set_text_flags(CAT_TEXT_FLAG_CENTER);
-	CAT_set_text_scale(2);
-	CAT_set_text_colour(word_colours[word_colour]);
-	CAT_draw_text(CARD_X+dx+CARD_W/2, CARD_Y+dy+CARD_H/2-CAT_GLYPH_HEIGHT, words[word]);
+	CAT_set_text_flags_depr(CAT_TEXT_FLAG_CENTER);
+	CAT_set_text_scale_depr(2);
+	CAT_set_text_colour_depr(word_colours[word_colour]);
+	CAT_draw_text_depr(CARD_X+dx+CARD_W/2, CARD_Y+dy+CARD_H/2-CAT_GLYPH_HEIGHT, words[word]);
 }
 
 static void draw_error()
@@ -575,9 +575,9 @@ static void draw_tutorial_diagram(int y)
 		};
 
 		int idx = phase-PHASE_WORDS;
-		CAT_set_text_flags(CAT_TEXT_FLAG_CENTER);
-		CAT_set_text_colour(CAT_WHITE);
-		cursor_y = CAT_draw_textf
+		CAT_set_text_flags_depr(CAT_TEXT_FLAG_CENTER);
+		CAT_set_text_colour_depr(CAT_WHITE);
+		cursor_y = CAT_draw_textf_depr
 		(
 			120, cursor_y,
 			text[idx],
@@ -621,35 +621,35 @@ static void draw_tutorial()
 	CAT_draw_page_markers(cursor_y, PHASE_COUNT, phase, CAT_WHITE);
 	cursor_y += 32;
 
-	CAT_set_text_colour(CAT_WHITE);
-	CAT_set_text_scale(2);
-	cursor_y = CAT_draw_textf(12, cursor_y, "PHASE %d\n", phase+1) + 12;
+	CAT_set_text_colour_depr(CAT_WHITE);
+	CAT_set_text_scale_depr(2);
+	cursor_y = CAT_draw_textf_depr(12, cursor_y, "PHASE %d\n", phase+1) + 12;
 
-	CAT_set_text_mask(12, -1, CAT_LCD_SCREEN_W-12, -1);
-	CAT_set_text_colour(CAT_WHITE);
-	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
+	CAT_set_text_mask_depr(12, -1, CAT_LCD_SCREEN_W-12, -1);
+	CAT_set_text_colour_depr(CAT_WHITE);
+	CAT_set_text_flags_depr(CAT_TEXT_FLAG_WRAP);
 	switch (phase)
 	{
 		case PHASE_ARROWS:
-			cursor_y = CAT_draw_text(12, cursor_y, "Press the D-pad button corresponding to the arrow's direction.\n");
+			cursor_y = CAT_draw_text_depr(12, cursor_y, "Press the D-pad button corresponding to the arrow's direction.\n");
 		break;
 		case PHASE_ARROWS_OPPOSITE:
-			cursor_y = CAT_draw_text(12, cursor_y, "Press the D-pad button corresponding to the OPPOSITE of the arrow's direction.\n");
+			cursor_y = CAT_draw_text_depr(12, cursor_y, "Press the D-pad button corresponding to the OPPOSITE of the arrow's direction.\n");
 		break;
 		case PHASE_ARROWS_INCONGRUENT:
-			cursor_y = CAT_draw_text(12, cursor_y, "Press the D-pad button corresponding to the arrow's direction, NOT its position.\n");
+			cursor_y = CAT_draw_text_depr(12, cursor_y, "Press the D-pad button corresponding to the arrow's direction, NOT its position.\n");
 		break;
 		case PHASE_WORDS:
-			cursor_y = CAT_draw_text(12, cursor_y, "Press the D-pad button corresponding to the COLOUR of the text at the box's center.\n");
+			cursor_y = CAT_draw_text_depr(12, cursor_y, "Press the D-pad button corresponding to the COLOUR of the text at the box's center.\n");
 		break;
 		case PHASE_WORDS_COLOUR:
-			cursor_y = CAT_draw_text(12, cursor_y, "Press the D-pad button corresponding to the COLOUR of the text at the box's center.\n");
+			cursor_y = CAT_draw_text_depr(12, cursor_y, "Press the D-pad button corresponding to the COLOUR of the text at the box's center.\n");
 		break;
 		case PHASE_WORDS_WORD:
-			cursor_y = CAT_draw_text(12, cursor_y, "Press the D-pad button corresponding to the MEANING of the text at the box's center.\n");
+			cursor_y = CAT_draw_text_depr(12, cursor_y, "Press the D-pad button corresponding to the MEANING of the text at the box's center.\n");
 		break;
 		default:
-			cursor_y = CAT_draw_text(12, cursor_y, "Hello, world!\n");
+			cursor_y = CAT_draw_text_depr(12, cursor_y, "Hello, world!\n");
 		break;
 	}
 	cursor_y += 32;
@@ -657,10 +657,10 @@ static void draw_tutorial()
 	draw_tutorial_diagram(cursor_y);
 	cursor_y += 100;
 	
-	CAT_set_text_colour(CAT_WHITE);
-	CAT_set_text_mask(12, -1, CAT_LCD_SCREEN_W-12, -1);
-	CAT_set_text_flags(CAT_TEXT_FLAG_CENTER | CAT_TEXT_FLAG_WRAP);
-	cursor_y = CAT_draw_text(CAT_LCD_SCREEN_W/2, cursor_y, "Press the indicated D-pad button to continue!\n");
+	CAT_set_text_colour_depr(CAT_WHITE);
+	CAT_set_text_mask_depr(12, -1, CAT_LCD_SCREEN_W-12, -1);
+	CAT_set_text_flags_depr(CAT_TEXT_FLAG_CENTER | CAT_TEXT_FLAG_WRAP);
+	cursor_y = CAT_draw_text_depr(CAT_LCD_SCREEN_W/2, cursor_y, "Press the indicated D-pad button to continue!\n");
 }
 
 static float co2 = 0;
@@ -746,16 +746,16 @@ static void draw_performance()
 		return;
 
 	int cursor_y = 12;
-	CAT_set_text_colour(CAT_WHITE);
-	CAT_set_text_scale(2);
-	cursor_y = CAT_draw_text(12, cursor_y, "PERFORMANCE\n");
+	CAT_set_text_colour_depr(CAT_WHITE);
+	CAT_set_text_scale_depr(2);
+	cursor_y = CAT_draw_text_depr(12, cursor_y, "PERFORMANCE\n");
 	cursor_y += CAT_TEXT_LINE_HEIGHT;
 
 	float ratio = stroop_data.mean_time_incong / stroop_data.mean_time_cong;
-	CAT_set_text_mask(12, -1, CAT_LCD_SCREEN_W-12, -1);
-	CAT_set_text_colour(CAT_WHITE);
-	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
-	cursor_y = CAT_draw_textf
+	CAT_set_text_mask_depr(12, -1, CAT_LCD_SCREEN_W-12, -1);
+	CAT_set_text_colour_depr(CAT_WHITE);
+	CAT_set_text_flags_depr(CAT_TEXT_FLAG_WRAP);
+	cursor_y = CAT_draw_textf_depr
 	(
 		12, cursor_y,
 		"%d/%d tasks performed correctly. "
@@ -766,9 +766,9 @@ static void draw_performance()
 		CAT_FMT_FLOAT(ratio > 1.0f ? ratio : 1.0f/ratio), ratio > 1.0f ? "slow" : "fast"
 	);
 
-	CAT_set_text_colour(CAT_CRISIS_YELLOW);
-	CAT_set_text_scale(2);
-	cursor_y = CAT_draw_textf
+	CAT_set_text_colour_depr(CAT_CRISIS_YELLOW);
+	CAT_set_text_scale_depr(2);
+	cursor_y = CAT_draw_textf_depr
 	(
 		12, cursor_y,
 		"%d %s\n",
@@ -781,10 +781,10 @@ static void draw_performance()
 	}
 	cursor_y += 32;
 
-	CAT_set_text_mask(12, -1, CAT_LCD_SCREEN_W-12, -1);
-	CAT_set_text_colour(CAT_WHITE);
-	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
-	cursor_y = CAT_draw_textf
+	CAT_set_text_mask_depr(12, -1, CAT_LCD_SCREEN_W-12, -1);
+	CAT_set_text_colour_depr(CAT_WHITE);
+	CAT_set_text_flags_depr(CAT_TEXT_FLAG_WRAP);
+	cursor_y = CAT_draw_textf_depr
 	(
 		12, cursor_y,
 		"Air quality can affect performance. "
@@ -862,22 +862,22 @@ static void draw_upload_stage(const char* title, const char* description, const 
 {
 	int cursor_y = 44;
 
-	CAT_set_text_mask(MARGIN, -1, CAT_LCD_SCREEN_W-MARGIN, -1);
-	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
-	CAT_set_text_scale(2);
-	CAT_set_text_colour(CAT_WHITE);
-	cursor_y = CAT_draw_textf(MARGIN, cursor_y, "%s\n", title);
+	CAT_set_text_mask_depr(MARGIN, -1, CAT_LCD_SCREEN_W-MARGIN, -1);
+	CAT_set_text_flags_depr(CAT_TEXT_FLAG_WRAP);
+	CAT_set_text_scale_depr(2);
+	CAT_set_text_colour_depr(CAT_WHITE);
+	cursor_y = CAT_draw_textf_depr(MARGIN, cursor_y, "%s\n", title);
 	cursor_y += 8;
 
-	CAT_set_text_colour(CAT_GREY);
-	CAT_draw_textf(MARGIN, cursor_y, ">>>>>>>>>>>>>>>>>>>>>>>>>>>");
+	CAT_set_text_colour_depr(CAT_GREY);
+	CAT_draw_textf_depr(MARGIN, cursor_y, ">>>>>>>>>>>>>>>>>>>>>>>>>>>");
 	cursor_y += 22;
 
-	CAT_set_text_colour(CAT_192_GREY);
-	CAT_set_text_mask(MARGIN, -1, CAT_LCD_SCREEN_W-MARGIN, -1);
-	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
-	CAT_set_text_scale(2);
-	cursor_y = CAT_draw_textf
+	CAT_set_text_colour_depr(CAT_192_GREY);
+	CAT_set_text_mask_depr(MARGIN, -1, CAT_LCD_SCREEN_W-MARGIN, -1);
+	CAT_set_text_flags_depr(CAT_TEXT_FLAG_WRAP);
+	CAT_set_text_scale_depr(2);
+	cursor_y = CAT_draw_textf_depr
 	(
 		MARGIN,
 		cursor_y,
@@ -886,8 +886,8 @@ static void draw_upload_stage(const char* title, const char* description, const 
 	);
 	cursor_y += 8;
 
-	CAT_set_text_colour(CAT_GREY);
-	CAT_draw_textf
+	CAT_set_text_colour_depr(CAT_GREY);
+	CAT_draw_textf_depr
 	(
 		MARGIN, cursor_y,
 		"%s >>>>>>",

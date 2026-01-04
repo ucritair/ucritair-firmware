@@ -350,16 +350,16 @@ static void draw_barrier()
 		
 	int cursor_y = SPLASH_Y;
 
-	CAT_set_text_colour(CAT_FOCUS_BLUE);
-	CAT_set_text_scale(2);
-	cursor_y = CAT_draw_text(SPLASH_X, cursor_y, "PECHE DU JOUR\n");
+	CAT_set_text_colour_depr(CAT_FOCUS_BLUE);
+	CAT_set_text_scale_depr(2);
+	cursor_y = CAT_draw_text_depr(SPLASH_X, cursor_y, "PECHE DU JOUR\n");
 
 	cursor_y += 12;
 	
-	CAT_set_text_colour(CAT_WHITE);
-	CAT_set_text_mask(SPLASH_X, -1, CAT_LCD_SCREEN_W-SPLASH_X, -1);
-	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
-	cursor_y = CAT_draw_text
+	CAT_set_text_colour_depr(CAT_WHITE);
+	CAT_set_text_mask_depr(SPLASH_X, -1, CAT_LCD_SCREEN_W-SPLASH_X, -1);
+	CAT_set_text_flags_depr(CAT_TEXT_FLAG_WRAP);
+	cursor_y = CAT_draw_text_depr
 	(
 		SPLASH_X, cursor_y,
 		"Cast a line on the red mark. "
@@ -368,10 +368,10 @@ static void draw_barrier()
 	);
 	cursor_y += 12;
 
-	CAT_set_text_colour(CAT_WHITE);
-	CAT_set_text_mask(SPLASH_X, -1, CAT_LCD_SCREEN_W-SPLASH_X, -1);
-	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
-	cursor_y = CAT_draw_text(SPLASH_X, cursor_y, "This game uses button inputs.\n");
+	CAT_set_text_colour_depr(CAT_WHITE);
+	CAT_set_text_mask_depr(SPLASH_X, -1, CAT_LCD_SCREEN_W-SPLASH_X, -1);
+	CAT_set_text_flags_depr(CAT_TEXT_FLAG_WRAP);
+	cursor_y = CAT_draw_text_depr(SPLASH_X, cursor_y, "This game uses button inputs.\n");
 
 	cursor_y += 32;
 
@@ -381,10 +381,10 @@ static void draw_barrier()
 	CAT_draw_sprite(&ui_buttons_prompt, CAT_pulse(0.25f), CAT_LCD_SCREEN_W/2, cursor_y);
 
 	cursor_y += 72;
-	CAT_set_text_colour(CAT_WHITE);
-	CAT_set_text_mask(SPLASH_X, -1, CAT_LCD_SCREEN_W-SPLASH_X, -1);
-	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP | CAT_TEXT_FLAG_CENTER);
-	cursor_y = CAT_draw_text(CAT_LCD_SCREEN_W/2, cursor_y, "Press [A] to begin!\n");
+	CAT_set_text_colour_depr(CAT_WHITE);
+	CAT_set_text_mask_depr(SPLASH_X, -1, CAT_LCD_SCREEN_W-SPLASH_X, -1);
+	CAT_set_text_flags_depr(CAT_TEXT_FLAG_WRAP | CAT_TEXT_FLAG_CENTER);
+	cursor_y = CAT_draw_text_depr(CAT_LCD_SCREEN_W/2, cursor_y, "Press [A] to begin!\n");
 }
 
 static void render_MS_cast()
@@ -402,24 +402,24 @@ static void render_MS_cast()
 
 	if(!pole.committed)
 	{
-		CAT_set_text_scale(2);
-		CAT_set_text_colour(CAT_WHITE);
-		CAT_draw_text(12, 12, "CAST");
-		CAT_set_text_scale(2);
-		CAT_set_text_colour(CAT_WHITE);
-		CAT_draw_text(12, 12+28, "A");
-		CAT_set_text_scale(2);
-		CAT_set_text_colour(CAT_WHITE);
-		CAT_draw_text(12, 12+28+28, "LINE");
+		CAT_set_text_scale_depr(2);
+		CAT_set_text_colour_depr(CAT_WHITE);
+		CAT_draw_text_depr(12, 12, "CAST");
+		CAT_set_text_scale_depr(2);
+		CAT_set_text_colour_depr(CAT_WHITE);
+		CAT_draw_text_depr(12, 12+28, "A");
+		CAT_set_text_scale_depr(2);
+		CAT_set_text_colour_depr(CAT_WHITE);
+		CAT_draw_text_depr(12, 12+28+28, "LINE");
 	}
 	else if(!blacking_out)
 	{
-		CAT_set_text_scale(2);
-		CAT_set_text_colour(CAT_RED);
-		CAT_draw_text(12, 12, "GO");
-		CAT_set_text_scale(2);
-		CAT_set_text_colour(CAT_RED);
-		CAT_draw_text(12, 12+28, "FISH!");
+		CAT_set_text_scale_depr(2);
+		CAT_set_text_colour_depr(CAT_RED);
+		CAT_draw_text_depr(12, 12, "GO");
+		CAT_set_text_scale_depr(2);
+		CAT_set_text_colour_depr(CAT_RED);
+		CAT_draw_text_depr(12, 12+28, "FISH!");
 	}
 }
 
@@ -823,15 +823,15 @@ static void render_MS_fish()
 	{
 		if(fish.bite_trigger)
 		{
-			CAT_set_text_colour(CAT_RED);
-			CAT_set_text_scale(2);
-			CAT_draw_text(12, 12, "GO!");
+			CAT_set_text_colour_depr(CAT_RED);
+			CAT_set_text_scale_depr(2);
+			CAT_draw_text_depr(12, 12, "GO!");
 		}
 		else
 		{
-			CAT_set_text_colour(CAT_WHITE);
-			CAT_set_text_scale(2);
-			CAT_draw_text(12, 12, "WAIT...");
+			CAT_set_text_colour_depr(CAT_WHITE);
+			CAT_set_text_scale_depr(2);
+			CAT_draw_text_depr(12, 12, "WAIT...");
 		}
 	}
 	else
@@ -842,9 +842,9 @@ static void render_MS_fish()
 			0.5f
 		))
 		{
-			CAT_set_text_scale(2);
-			CAT_set_text_colour(fish.race_trigger ? CAT_RED : CAT_WHITE);
-			CAT_draw_text(12, 12, "INTERCEPT!");
+			CAT_set_text_scale_depr(2);
+			CAT_set_text_colour_depr(fish.race_trigger ? CAT_RED : CAT_WHITE);
+			CAT_draw_text_depr(12, 12, "INTERCEPT!");
 		}
 	}
 
@@ -1113,9 +1113,9 @@ static void render_MS_catch()
 		CAT_set_sprite_colour(CAT_RED);
 		CAT_draw_sprite(&study_a_button_sprite, 0, 120, bar.center.y - 48);
 	}
-	CAT_set_text_colour(CAT_RED);
+	CAT_set_text_colour_depr(CAT_RED);
 
-	CAT_draw_textf(120-8*2+4, bar.center.y - 26, "%d%%", (int)(bar.progress * 100));
+	CAT_draw_textf_depr(120-8*2+4, bar.center.y - 26, "%d%%", (int)(bar.progress * 100));
 }
 
 static uint16_t fail_colour;
@@ -1156,21 +1156,21 @@ static void render_MS_fail()
 
 	if(fish.bite_trigger)
 	{
-		CAT_set_text_colour(CAT_RED);
-		CAT_set_text_scale(2);
-		CAT_draw_text(12, 12, "TOO LATE...");
+		CAT_set_text_colour_depr(CAT_RED);
+		CAT_set_text_scale_depr(2);
+		CAT_draw_text_depr(12, 12, "TOO LATE...");
 	}
 	else if(fish.nibble_trigger)
 	{
-		CAT_set_text_colour(CAT_RED);
-		CAT_set_text_scale(2);
-		CAT_draw_text(12, 12, "TOO EARLY...");
+		CAT_set_text_colour_depr(CAT_RED);
+		CAT_set_text_scale_depr(2);
+		CAT_draw_text_depr(12, 12, "TOO EARLY...");
 	}
 	else
 	{
-		CAT_set_text_colour(CAT_RED);
-		CAT_set_text_scale(2);
-		CAT_draw_text(12, 12, "GOT AWAY...");
+		CAT_set_text_colour_depr(CAT_RED);
+		CAT_set_text_scale_depr(2);
+		CAT_draw_text_depr(12, 12, "GOT AWAY...");
 	}
 }
 
@@ -1332,31 +1332,31 @@ static void render_MS_summary()
 			CAT_draw_page_markers(cursor_y, 2, summary_page, CAT_WHITE);
 			cursor_y += 24;
 			
-			CAT_set_text_colour(CAT_WHITE);
-			CAT_set_text_scale(2);
-			cursor_y = CAT_draw_textf(12, cursor_y, "%s\n", fish.type->name);
+			CAT_set_text_colour_depr(CAT_WHITE);
+			CAT_set_text_scale_depr(2);
+			cursor_y = CAT_draw_textf_depr(12, cursor_y, "%s\n", fish.type->name);
 			cursor_y += 8;
 
-			CAT_set_text_colour(CAT_WHITE);
-			CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
-			CAT_set_text_mask(12, -1, CAT_LCD_SCREEN_W-12, -1);
-			cursor_y = CAT_draw_textf(12, cursor_y, "%s\n", fish.type->proverb);
+			CAT_set_text_colour_depr(CAT_WHITE);
+			CAT_set_text_flags_depr(CAT_TEXT_FLAG_WRAP);
+			CAT_set_text_mask_depr(12, -1, CAT_LCD_SCREEN_W-12, -1);
+			cursor_y = CAT_draw_textf_depr(12, cursor_y, "%s\n", fish.type->proverb);
 			cursor_y += 8;
 
-			CAT_set_text_colour(CAT_WHITE);
-			CAT_draw_textf(12, cursor_y, "Length: %d cm", (int)(fish.length * 100));
+			CAT_set_text_colour_depr(CAT_WHITE);
+			CAT_draw_textf_depr(12, cursor_y, "Length: %d cm", (int)(fish.length * 100));
 			cursor_y += 16;
 			render_score_line(12, cursor_y, CAT_LCD_SCREEN_W * 0.75, fish.length, fish.type->min_length, fish.type->max_length);
 			cursor_y += 12;
 
-			CAT_set_text_colour(CAT_WHITE);
-			CAT_draw_textf(12, cursor_y, "Lustre: " CAT_FLOAT_FMT, CAT_FMT_FLOAT(fish.lustre));
+			CAT_set_text_colour_depr(CAT_WHITE);
+			CAT_draw_textf_depr(12, cursor_y, "Lustre: " CAT_FLOAT_FMT, CAT_FMT_FLOAT(fish.lustre));
 			cursor_y += 16;
 			render_score_line(12, cursor_y, CAT_LCD_SCREEN_W * 0.75, fish.lustre, 0, 1);
 			cursor_y += 12;
 
-			CAT_set_text_colour(CAT_WHITE);
-			CAT_draw_textf(12, cursor_y, "Wisdom: " CAT_FLOAT_FMT, CAT_FMT_FLOAT(fish.wisdom));
+			CAT_set_text_colour_depr(CAT_WHITE);
+			CAT_draw_textf_depr(12, cursor_y, "Wisdom: " CAT_FLOAT_FMT, CAT_FMT_FLOAT(fish.wisdom));
 			cursor_y += 16;
 			render_score_line(12, cursor_y, CAT_LCD_SCREEN_W * 0.75, fish.wisdom, 0, 1);
 		}
@@ -1368,31 +1368,31 @@ static void render_MS_summary()
 			CAT_draw_page_markers(cursor_y, 2, summary_page, CAT_WHITE);
 			cursor_y += 24;
 
-			CAT_set_text_colour(CAT_WHITE);
-			CAT_set_text_scale(2);
-			CAT_draw_text(12, cursor_y, "Performance");
+			CAT_set_text_colour_depr(CAT_WHITE);
+			CAT_set_text_scale_depr(2);
+			CAT_draw_text_depr(12, cursor_y, "Performance");
 			cursor_y += 36;
 
-			CAT_set_text_colour(CAT_WHITE);
-			CAT_draw_textf(12, cursor_y, "Casting skill:");
+			CAT_set_text_colour_depr(CAT_WHITE);
+			CAT_draw_textf_depr(12, cursor_y, "Casting skill:");
 			cursor_y += 20;
 			render_score_line(12, cursor_y, CAT_LCD_SCREEN_W * 0.75, cast_grade+1, 0, 3);
 			cursor_y += 16;
 
-			CAT_set_text_colour(CAT_WHITE);
-			CAT_draw_textf(12, cursor_y, "Fish quality:");
+			CAT_set_text_colour_depr(CAT_WHITE);
+			CAT_draw_textf_depr(12, cursor_y, "Fish quality:");
 			cursor_y += 20;
 			render_score_line(12, cursor_y, CAT_LCD_SCREEN_W * 0.75, fish.grade+1, 0, 3);
 			cursor_y += 32;
 
-			CAT_set_text_colour(CAT_WHITE);
-			CAT_draw_textf(12, cursor_y, "+ Focus: %d", focus_reward);
+			CAT_set_text_colour_depr(CAT_WHITE);
+			CAT_draw_textf_depr(12, cursor_y, "+ Focus: %d", focus_reward);
 			cursor_y += 20;
 			render_plus_line(12, cursor_y, CAT_LCD_SCREEN_W * 0.75, 0, pet.focus, focus_reward, 12);
 			cursor_y += 16;
 
-			CAT_set_text_colour(CAT_WHITE);
-			CAT_draw_textf(12, cursor_y, "+ XP: %d", xp_reward);
+			CAT_set_text_colour_depr(CAT_WHITE);
+			CAT_draw_textf_depr(12, cursor_y, "+ XP: %d", xp_reward);
 			cursor_y += 20;
 			render_plus_line(12, cursor_y, CAT_LCD_SCREEN_W * 0.75, 0, pet.xp, xp_reward, level_cutoffs[pet.level]);
 			cursor_y += 16;

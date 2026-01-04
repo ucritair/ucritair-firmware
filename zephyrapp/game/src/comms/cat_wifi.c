@@ -362,9 +362,9 @@ void CAT_draw_wifi()
 
 	if(fsm.state == MS_enter_password)
 	{
-		CAT_set_text_mask(12, -1, CAT_LCD_SCREEN_W-12, -1);
-		CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
-		CAT_draw_textf
+		CAT_set_text_mask_depr(12, -1, CAT_LCD_SCREEN_W-12, -1);
+		CAT_set_text_flags_depr(CAT_TEXT_FLAG_WRAP);
+		CAT_draw_textf_depr
 		(
 			12, 12,
 			"Please enter password for network %s\n",
@@ -373,13 +373,13 @@ void CAT_draw_wifi()
 	}
 	else if(fsm.state == MS_connect_attempt)
 	{
-		CAT_draw_text(12, 12, "Connection in progress...\n");
+		CAT_draw_text_depr(12, 12, "Connection in progress...\n");
 	}
 	else if(fsm.state == MS_connect_result)
 	{
 		if(attempt_status == CAT_WIFI_CONNECTION_SUCCESS)
-			CAT_draw_text(12, 12, "Connection succeeded!\n");
+			CAT_draw_text_depr(12, 12, "Connection succeeded!\n");
 		else
-			CAT_draw_text(12, 12, "Connection failed!\n");
+			CAT_draw_text_depr(12, 12, "Connection failed!\n");
 	}
 }

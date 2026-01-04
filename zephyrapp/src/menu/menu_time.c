@@ -139,7 +139,7 @@ static void draw_page(const char* title)
 	cursor_y = PAD;
 
 	CAT_frameberry(CAT_WHITE);
-	cursor_y = CAT_draw_textf(cursor_x, cursor_y, "%s\n", title);
+	cursor_y = CAT_draw_textf_depr(cursor_x, cursor_y, "%s\n", title);
 	cursor_y += PAD;
 	CAT_rowberry(cursor_y, cursor_y+1, CAT_BLACK);
 	cursor_y += PAD;
@@ -151,8 +151,8 @@ void do_edit_clock_field(enum which which)
 	{
 		if (edits[i].which != which) continue;
 		bool editing = i == time_edit_time_selector;
-		CAT_draw_textf(cursor_x, cursor_y, "%.*s%*s", edits[i].len, editing?"^^^^":"    ", edits[i].pad, "");
-		cursor_x += CAT_get_drawn_strlen() * CAT_GLYPH_WIDTH;
+		CAT_draw_textf_depr(cursor_x, cursor_y, "%.*s%*s", edits[i].len, editing?"^^^^":"    ", edits[i].pad, "");
+		cursor_x += CAT_get_drawn_strlen_depr() * CAT_GLYPH_WIDTH;
 	}
 	cursor_y += CAT_TEXT_LINE_HEIGHT;
 	cursor_x = PAD;
@@ -167,7 +167,7 @@ void CAT_render_time()
 
 	// LOG_DBG("at gmtime_r now=%lld; year=%d", now, local.tm_year);
 	
-	cursor_y = CAT_draw_textf
+	cursor_y = CAT_draw_textf_depr
 	(
 		cursor_x, cursor_y,
 		"%s %2d %4d, %02d:%02d:%02d\n",
@@ -189,7 +189,7 @@ void CAT_render_time()
 		local_wakeup.secs -= 60;
 	}
 
-	cursor_y = CAT_draw_textf
+	cursor_y = CAT_draw_textf_depr
 	(
 		cursor_x, cursor_y,
 		"Sample Rate:\n%02dh %02dm %02ds\n",
@@ -199,7 +199,7 @@ void CAT_render_time()
 
 	local_nox_every = nox_sample_period;
 	bool nox_selected = edits[time_edit_time_selector].which == NOX;
-	cursor_y = CAT_draw_textf
+	cursor_y = CAT_draw_textf_depr
 	(
 		cursor_x, cursor_y,
 		"Sample NOX+VOC every %s%d%s\nsamples. %s\n",
@@ -211,7 +211,7 @@ void CAT_render_time()
 	int hrs = get_hours_of_logging_at_rate(sensor_wakeup_period+15);
 	int days = hrs/24;
 	hrs %= 24;
-	cursor_y = CAT_draw_textf(cursor_x, cursor_y, "Space for %dd %dh\nlogging left at this rate\n\n", days, hrs);
+	cursor_y = CAT_draw_textf_depr(cursor_x, cursor_y, "Space for %dd %dh\nlogging left at this rate\n\n", days, hrs);
 
 	local_dim_after.mins = 0;
 	local_dim_after.secs = dim_after_seconds;
@@ -221,7 +221,7 @@ void CAT_render_time()
 		local_dim_after.secs -= 60;
 	}
 
-	cursor_y = CAT_draw_textf(cursor_x, cursor_y, "Dim screen after:\n%02dm %02ds\n", local_dim_after.mins, local_dim_after.secs);
+	cursor_y = CAT_draw_textf_depr(cursor_x, cursor_y, "Dim screen after:\n%02dm %02ds\n", local_dim_after.mins, local_dim_after.secs);
 	do_edit_clock_field(DIM);
 
 	local_sleep_after.mins = 0;
@@ -232,6 +232,6 @@ void CAT_render_time()
 		local_sleep_after.secs -= 60;
 	}
 
-	cursor_y = CAT_draw_textf(cursor_x, cursor_y, "Sleep after:\n%02dm %02ds\n", local_sleep_after.mins, local_sleep_after.secs);
+	cursor_y = CAT_draw_textf_depr(cursor_x, cursor_y, "Sleep after:\n%02dm %02ds\n", local_sleep_after.mins, local_sleep_after.secs);
 	do_edit_clock_field(SLEEP);
 }

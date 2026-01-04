@@ -528,25 +528,25 @@ void render_game_over()
 	CAT_frameberry(CAT_BLACK);
 
 	int cursor_y = 12;
-	CAT_set_text_scale(2);
-	CAT_set_text_colour(CAT_WHITE);
-	CAT_draw_text(12, cursor_y, "Game over...");
+	CAT_set_text_scale_depr(2);
+	CAT_set_text_colour_depr(CAT_WHITE);
+	CAT_draw_text_depr(12, cursor_y, "Game over...");
 	cursor_y += 52;
 
-	CAT_set_text_colour(CAT_WHITE);
-	CAT_draw_text(12, cursor_y, "Today's score:");
+	CAT_set_text_colour_depr(CAT_WHITE);
+	CAT_draw_text_depr(12, cursor_y, "Today's score:");
 	cursor_y += 16;
-	CAT_set_text_scale(2);
-	CAT_set_text_colour(CAT_WHITE);
-	cursor_y = CAT_draw_textf(12, cursor_y, "%d POINTS!\n", score);
-	CAT_set_text_colour(CAT_WHITE);
-	cursor_y = CAT_draw_textf(12, cursor_y, "High score: %d\n", foursquares_highscore);
+	CAT_set_text_scale_depr(2);
+	CAT_set_text_colour_depr(CAT_WHITE);
+	cursor_y = CAT_draw_textf_depr(12, cursor_y, "%d POINTS!\n", score);
+	CAT_set_text_colour_depr(CAT_WHITE);
+	cursor_y = CAT_draw_textf_depr(12, cursor_y, "High score: %d\n", foursquares_highscore);
 	cursor_y += 8;
 
 	if(score > foursquares_highscore || CAT_pulse(1.0f))
 	{
-		CAT_set_text_colour(CAT_GREEN);
-		cursor_y = CAT_draw_textf(12, cursor_y, "NEW HIGH SCORE!\n", score);
+		CAT_set_text_colour_depr(CAT_GREEN);
+		cursor_y = CAT_draw_textf_depr(12, cursor_y, "NEW HIGH SCORE!\n", score);
 	}
 	else
 	{
@@ -554,10 +554,10 @@ void render_game_over()
 	}
 	cursor_y += 24;
 
-	CAT_set_text_colour(CAT_RED);
-	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
-	CAT_set_text_mask(12, -1, CAT_LCD_SCREEN_W-12, -1);
-	CAT_draw_text(12, cursor_y, "... for the rectilinear belongs only to Geometry and not to Nature and Life.");
+	CAT_set_text_colour_depr(CAT_RED);
+	CAT_set_text_flags_depr(CAT_TEXT_FLAG_WRAP);
+	CAT_set_text_mask_depr(12, -1, CAT_LCD_SCREEN_W-12, -1);
+	CAT_draw_text_depr(12, cursor_y, "... for the rectilinear belongs only to Geometry and not to Nature and Life.");
 }
 
 void MS_game_over(CAT_FSM_signal signal)

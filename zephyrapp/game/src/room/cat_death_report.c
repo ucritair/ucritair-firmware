@@ -47,26 +47,26 @@ void CAT_render_death_report()
 
 	int cursor_y = 12;
 
-	CAT_set_text_mask(MARGIN, -1, CAT_LCD_SCREEN_W-MARGIN, -1);
-	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
-	CAT_set_text_colour(CAT_CRISIS_RED);
-	CAT_set_text_scale(2);
-	cursor_y = CAT_draw_textf(MARGIN, cursor_y, "DEATH REPORT:\n");
+	CAT_set_text_mask_depr(MARGIN, -1, CAT_LCD_SCREEN_W-MARGIN, -1);
+	CAT_set_text_flags_depr(CAT_TEXT_FLAG_WRAP);
+	CAT_set_text_colour_depr(CAT_CRISIS_RED);
+	CAT_set_text_scale_depr(2);
+	cursor_y = CAT_draw_textf_depr(MARGIN, cursor_y, "DEATH REPORT:\n");
 
-	CAT_set_text_mask(MARGIN, -1, CAT_LCD_SCREEN_W-MARGIN, -1);
-	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
-	CAT_set_text_colour(CAT_CRISIS_YELLOW);
-	cursor_y = CAT_draw_textf(MARGIN, cursor_y, "LIVED: %d DAYS\n", pet.lifespan);
+	CAT_set_text_mask_depr(MARGIN, -1, CAT_LCD_SCREEN_W-MARGIN, -1);
+	CAT_set_text_flags_depr(CAT_TEXT_FLAG_WRAP);
+	CAT_set_text_colour_depr(CAT_CRISIS_YELLOW);
+	cursor_y = CAT_draw_textf_depr(MARGIN, cursor_y, "LIVED: %d DAYS\n", pet.lifespan);
 
-	CAT_set_text_colour(CAT_CRISIS_GREEN);
-	cursor_y = CAT_draw_textf(MARGIN, cursor_y, ">>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+	CAT_set_text_colour_depr(CAT_CRISIS_GREEN);
+	cursor_y = CAT_draw_textf_depr(MARGIN, cursor_y, ">>>>>>>>>>>>>>>>>>>>>>>>>>>>");
 	cursor_y += 28;
 	int box_y = cursor_y-8;
 
-	CAT_set_text_mask(MARGIN+4, -1, CAT_LCD_SCREEN_W-MARGIN-4, -1);
-	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
-	CAT_set_text_colour(CAT_WHITE);
-	cursor_y = CAT_draw_textf
+	CAT_set_text_mask_depr(MARGIN+4, -1, CAT_LCD_SCREEN_W-MARGIN-4, -1);
+	CAT_set_text_flags_depr(CAT_TEXT_FLAG_WRAP);
+	CAT_set_text_colour_depr(CAT_WHITE);
+	cursor_y = CAT_draw_textf_depr
 	(
 		MARGIN+4, cursor_y,
 		"%s has lost the animating flame of life. "
@@ -84,8 +84,8 @@ void CAT_render_death_report()
 		CAT_GREY
 	);
 
-	CAT_set_text_colour(CAT_CRISIS_GREEN);
-	CAT_draw_textf
+	CAT_set_text_colour_depr(CAT_CRISIS_GREEN);
+	CAT_draw_textf_depr
 	(
 		EXIT_BAR_X-EXIT_BAR_W/2,
 		EXIT_BAR_Y-EXIT_BAR_H/2-16,

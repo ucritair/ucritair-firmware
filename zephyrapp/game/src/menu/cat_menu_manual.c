@@ -100,7 +100,7 @@ static void draw_page(const char* title)
 	cursor_y = PAD;
 
 	CAT_frameberry(CAT_WHITE);
-	cursor_y = CAT_draw_textf(cursor_x, cursor_y, "%s\n", title);
+	cursor_y = CAT_draw_textf_depr(cursor_x, cursor_y, "%s\n", title);
 	cursor_y += PAD;
 	CAT_rowberry(cursor_y, cursor_y+1, CAT_BLACK);
 	cursor_y += PAD;
@@ -113,7 +113,7 @@ void CAT_draw_about()
 	CAT_draw_sprite_raw(&icon_ee_sprite, 0, cursor_x, cursor_y);
 	cursor_y += icon_ee_sprite.height + PAD;
 	
-	cursor_y = CAT_draw_textf
+	cursor_y = CAT_draw_textf_depr
 	(
 		cursor_x, cursor_y,
 		"CAT v%d.%d.%d.%d\n"
@@ -138,8 +138,8 @@ void CAT_draw_credits()
 	int cursor_y = CAT_TILE_SIZE * 2 + 4;
 	for(int i = 0; i < NUM_CREDITS; i++)
 	{
-		CAT_set_text_flags(CAT_TEXT_FLAG_CENTER);
-		cursor_y = CAT_draw_text(120, cursor_y, credits[credit_indices[i]]);
+		CAT_set_text_flags_depr(CAT_TEXT_FLAG_CENTER);
+		cursor_y = CAT_draw_text_depr(120, cursor_y, credits[credit_indices[i]]);
 		cursor_y += CAT_TEXT_LINE_HEIGHT;
 	}
 }

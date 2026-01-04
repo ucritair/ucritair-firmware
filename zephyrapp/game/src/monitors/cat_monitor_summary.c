@@ -53,9 +53,9 @@ void CAT_monitor_render_summary()
 		vert_text(x, cursor_y+DOT_D+DOT_MARGIN, CAT_WHITE, CAT_AQ_title_string(i));
 
 		CAT_circberry(x, y, DOT_D/2, colour);
-		CAT_set_text_colour(colour);
+		CAT_set_text_colour_depr(colour);
 		grade = CAT_AQ_grade_string(score);
-		CAT_draw_text(x - (strlen(grade) == 1 ? 4 : 6), y-6, CAT_AQ_grade_string(score));
+		CAT_draw_text_depr(x - (strlen(grade) == 1 ? 4 : 6), y-6, CAT_AQ_grade_string(score));
 
 		if(i == CAT_AQM_TEMP)
 			center_textf(x, y - 20 - DOT_MARGIN, 1, CAT_WHITE, "%d", (int) (CAT_AQ_map_celsius(CAT_AQ_value(i))));
