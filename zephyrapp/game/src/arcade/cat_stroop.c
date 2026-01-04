@@ -971,7 +971,7 @@ void CAT_MS_stroop(CAT_FSM_signal signal)
 		case CAT_FSM_SIGNAL_ENTER:
 			CAT_set_render_callback(CAT_render_stroop);
 			load_co2();
-			change_phase(PHASE_WORDS);
+			change_phase(PHASE_ARROWS);
 		break;
 
 		case CAT_FSM_SIGNAL_TICK:
