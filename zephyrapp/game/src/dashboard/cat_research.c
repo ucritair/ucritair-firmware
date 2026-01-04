@@ -55,9 +55,9 @@ static void draw_research_screen()
 	CAT_frameberry(CAT_GRAPH_BG);
 	int cursor_y = MARGIN;
 
-	CAT_set_text_colour(CAT_GRAPH_FG);
-	CAT_set_text_scale(2);
-	cursor_y = CAT_draw_textf
+	CAT_set_text_colour_depr(CAT_GRAPH_FG);
+	CAT_set_text_scale_depr(2);
+	cursor_y = CAT_draw_textf_depr
 	(
 		MARGIN, cursor_y, "%.2d/%.2d/%.4d\n%.2d:%.2d %s\n",
 		today.month, today.day, today.year,
@@ -68,8 +68,8 @@ static void draw_research_screen()
 	if(last_sensor_timestamp > 0)
 	{
 		uint32_t since_sample = now - last_sensor_timestamp;
-		CAT_set_text_colour(CAT_GRAPH_FG);
-		cursor_y = CAT_draw_textf
+		CAT_set_text_colour_depr(CAT_GRAPH_FG);
+		cursor_y = CAT_draw_textf_depr
 		(
 			MARGIN, cursor_y, "\nLast sample taken\n%d minutes, %d seconds ago.\n",
 			since_sample / CAT_MINUTE_SECONDS, since_sample % CAT_MINUTE_SECONDS
@@ -78,8 +78,8 @@ static void draw_research_screen()
 	if(last_log_timestamp > 0)
 	{
 		uint32_t since_log = now - last_log_timestamp;
-		CAT_set_text_colour(CAT_GRAPH_FG);
-		cursor_y = CAT_draw_textf
+		CAT_set_text_colour_depr(CAT_GRAPH_FG);
+		cursor_y = CAT_draw_textf_depr
 		(
 			MARGIN, cursor_y, "\nLast log made\n%d minutes, %d seconds ago.\n",
 			since_log / CAT_MINUTE_SECONDS, since_log % CAT_MINUTE_SECONDS
@@ -87,32 +87,32 @@ static void draw_research_screen()
 	}
 	else if(is_persist_fresh)
 	{
-		CAT_set_text_colour(CAT_GRAPH_FG);
-		cursor_y = CAT_draw_textf(MARGIN, cursor_y, "\nWaiting for data...\n");
+		CAT_set_text_colour_depr(CAT_GRAPH_FG);
+		cursor_y = CAT_draw_textf_depr(MARGIN, cursor_y, "\nWaiting for data...\n");
 	}
 
-	CAT_set_text_colour(CAT_GRAPH_FG);
-	CAT_set_text_mask(MARGIN, -1, CAT_LCD_SCREEN_W-MARGIN, -1);
-	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
-	cursor_y = CAT_draw_textf
+	CAT_set_text_colour_depr(CAT_GRAPH_FG);
+	CAT_set_text_mask_depr(MARGIN, -1, CAT_LCD_SCREEN_W-MARGIN, -1);
+	CAT_set_text_flags_depr(CAT_TEXT_FLAG_WRAP);
+	cursor_y = CAT_draw_textf_depr
 	(
 		MARGIN, cursor_y, "\nResearch instrument -- please leave plugged in and do not touch.\n"
 	);
 
 	/*if(persist_flags & CAT_PERSIST_CONFIG_FLAG_PAUSE_LOGGING)
 	{
-		CAT_set_text_colour(CAT_GRAPH_FG);
-		CAT_set_text_mask(MARGIN, -1, CAT_LCD_SCREEN_W-MARGIN, -1);
-		CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
-		cursor_y = CAT_draw_textf
+		CAT_set_text_colour_depr(CAT_GRAPH_FG);
+		CAT_set_text_mask_depr(MARGIN, -1, CAT_LCD_SCREEN_W-MARGIN, -1);
+		CAT_set_text_flags_depr(CAT_TEXT_FLAG_WRAP);
+		cursor_y = CAT_draw_textf_depr
 		(
 			MARGIN, cursor_y,
 			"\nLogging is currently disabled. Press A 3 times to enable.\n"
 		);
 	}*/
 
-	CAT_set_text_colour(CAT_GRAPH_FG);
-	cursor_y = CAT_draw_textf(MARGIN, CAT_LCD_SCREEN_H-MARGIN-CAT_TEXT_LINE_HEIGHT*2, "For more information,\ncontact tretyakova@wisc.edu");
+	CAT_set_text_colour_depr(CAT_GRAPH_FG);
+	cursor_y = CAT_draw_textf_depr(MARGIN, CAT_LCD_SCREEN_H-MARGIN-CAT_TEXT_LINE_HEIGHT*2, "For more information,\ncontact tretyakova@wisc.edu");
 
 	CAT_draw_sprite
 	(

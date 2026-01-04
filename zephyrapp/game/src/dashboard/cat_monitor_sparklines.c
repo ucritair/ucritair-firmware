@@ -68,21 +68,21 @@ void CAT_monitor_render_sparklines()
 	cursor_y = SPARKLINE_MAX_Y + 8;
 	if(ready)
 	{
-		CAT_set_text_colour(CAT_WHITE);
-		cursor_y = CAT_draw_textf(SPARKLINE_X, cursor_y, "Max score: %s \1 %d/100\n", CAT_AQ_grade_string(max_score), (int)(max_score*100))+8;
-		CAT_set_text_colour(CAT_WHITE);
-		cursor_y = CAT_draw_textf(SPARKLINE_X, cursor_y, "  Mean score: %s \1 %d/100\n", CAT_AQ_grade_string(mean_score), (int)(mean_score*100))+8;
-		CAT_set_text_colour(CAT_WHITE);
-		cursor_y = CAT_draw_textf(SPARKLINE_X, cursor_y, "    Min score: %s \1 %d/100\n", CAT_AQ_grade_string(min_score), (int)(min_score*100))+8;
+		CAT_set_text_colour_depr(CAT_WHITE);
+		cursor_y = CAT_draw_textf_depr(SPARKLINE_X, cursor_y, "Max score: %s \1 %d/100\n", CAT_AQ_grade_string(max_score), (int)(max_score*100))+8;
+		CAT_set_text_colour_depr(CAT_WHITE);
+		cursor_y = CAT_draw_textf_depr(SPARKLINE_X, cursor_y, "  Mean score: %s \1 %d/100\n", CAT_AQ_grade_string(mean_score), (int)(mean_score*100))+8;
+		CAT_set_text_colour_depr(CAT_WHITE);
+		cursor_y = CAT_draw_textf_depr(SPARKLINE_X, cursor_y, "    Min score: %s \1 %d/100\n", CAT_AQ_grade_string(min_score), (int)(min_score*100))+8;
 	}
 	else
 	{
-		CAT_set_text_colour(CAT_WHITE);
-		cursor_y = CAT_draw_textf(SPARKLINE_X, cursor_y, "Please wait for sensors\nto come online.\n");
+		CAT_set_text_colour_depr(CAT_WHITE);
+		cursor_y = CAT_draw_textf_depr(SPARKLINE_X, cursor_y, "Please wait for sensors\nto come online.\n");
 	}
 
-	CAT_set_text_colour(CAT_96_GREY);
-	cursor_y = CAT_draw_textf(SPARKLINE_X, CAT_LCD_SCREEN_H-16, "Tap graph to change metric");
+	CAT_set_text_colour_depr(CAT_96_GREY);
+	cursor_y = CAT_draw_textf_depr(SPARKLINE_X, CAT_LCD_SCREEN_H-16, "Tap graph to change metric");
 }
 
 void CAT_monitor_MS_sparklines(CAT_FSM_signal signal)

@@ -976,21 +976,21 @@ static void draw_barrier()
 		
 	int cursor_y = SPLASH_Y;
 
-	CAT_set_text_colour(CAT_VIGOUR_ORANGE);
-	CAT_set_text_scale(2);
-	cursor_y = CAT_draw_text(SPLASH_X, cursor_y, "CULINAIRE\n");
+	CAT_set_text_colour_depr(CAT_VIGOUR_ORANGE);
+	CAT_set_text_scale_depr(2);
+	cursor_y = CAT_draw_text_depr(SPLASH_X, cursor_y, "CULINAIRE\n");
 
 	cursor_y += 12;
 	
-	CAT_set_text_colour(CAT_WHITE);
-	CAT_set_text_mask(SPLASH_X, -1, CAT_LCD_SCREEN_W-SPLASH_X, -1);
-	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
-	cursor_y = CAT_draw_text(SPLASH_X, cursor_y, "Select foods and arrange them into a delicious and nutritious meal for your pet.\n");
+	CAT_set_text_colour_depr(CAT_WHITE);
+	CAT_set_text_mask_depr(SPLASH_X, -1, CAT_LCD_SCREEN_W-SPLASH_X, -1);
+	CAT_set_text_flags_depr(CAT_TEXT_FLAG_WRAP);
+	cursor_y = CAT_draw_text_depr(SPLASH_X, cursor_y, "Select foods and arrange them into a delicious and nutritious meal for your pet.\n");
 	cursor_y += 12;
-	CAT_set_text_colour(CAT_WHITE);
-	CAT_set_text_mask(SPLASH_X, -1, CAT_LCD_SCREEN_W-SPLASH_X, -1);
-	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
-	cursor_y = CAT_draw_text(SPLASH_X, cursor_y, "This game uses the touch screen in addition to button inputs.\n");
+	CAT_set_text_colour_depr(CAT_WHITE);
+	CAT_set_text_mask_depr(SPLASH_X, -1, CAT_LCD_SCREEN_W-SPLASH_X, -1);
+	CAT_set_text_flags_depr(CAT_TEXT_FLAG_WRAP);
+	cursor_y = CAT_draw_text_depr(SPLASH_X, cursor_y, "This game uses the touch screen in addition to button inputs.\n");
 
 	cursor_y += 32;
 
@@ -999,10 +999,10 @@ static void draw_barrier()
 	CAT_draw_sprite(&ui_touch_prompt, CAT_pulse(0.25f), CAT_LCD_SCREEN_W/2, cursor_y);
 
 	cursor_y += 72;
-	CAT_set_text_colour(CAT_WHITE);
-	CAT_set_text_mask(SPLASH_X, -1, CAT_LCD_SCREEN_W-SPLASH_X, -1);
-	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP | CAT_TEXT_FLAG_CENTER);
-	cursor_y = CAT_draw_text(CAT_LCD_SCREEN_W/2, cursor_y, "Tap to begin!\n");
+	CAT_set_text_colour_depr(CAT_WHITE);
+	CAT_set_text_mask_depr(SPLASH_X, -1, CAT_LCD_SCREEN_W-SPLASH_X, -1);
+	CAT_set_text_flags_depr(CAT_TEXT_FLAG_WRAP | CAT_TEXT_FLAG_CENTER);
+	cursor_y = CAT_draw_text_depr(CAT_LCD_SCREEN_W/2, cursor_y, "Tap to begin!\n");
 }
 
 static void render_arrange()
@@ -1093,8 +1093,8 @@ static void render_arrange()
 		{
 			if (food_list[i].active)
 			{
-				CAT_set_text_colour(CAT_WHITE);
-				CAT_draw_textf
+				CAT_set_text_colour_depr(CAT_WHITE);
+				CAT_draw_textf_depr
 				(
 					food_list[i].position.x - FOOD_COLLISION_W / 2,
 					food_list[i].position.y - FOOD_COLLISION_H / 2 - 14,
@@ -1364,34 +1364,34 @@ static void render_summary()
 	CAT_draw_sprite(&ui_right_arrow_sprite, -1, 240 - 13 - 8, 12);
 	int title_len = strlen(title);
 	int title_x = (CAT_LCD_SCREEN_W - 1 - title_len * 16) / 2;
-	CAT_set_text_colour(CAT_BLACK);
-	CAT_set_text_scale(2);
-	CAT_draw_text(title_x, 12, title);
+	CAT_set_text_colour_depr(CAT_BLACK);
+	CAT_set_text_scale_depr(2);
+	CAT_draw_text_depr(title_x, 12, title);
 
 	if (summary_page == NOTES)
 	{
 		int cursor_y = 52;
 		for (int i = 0; i < note_count; i++)
 		{
-			CAT_set_text_colour(severity_colours[note_list[i].severity]);
-			CAT_draw_textf(12, cursor_y, "\1 %s", note_list[i].message);
+			CAT_set_text_colour_depr(severity_colours[note_list[i].severity]);
+			CAT_draw_textf_depr(12, cursor_y, "\1 %s", note_list[i].message);
 			cursor_y += 18;
 		}
 		const char *signature = "- Inspector Reed";
-		CAT_draw_text(240 - strlen(signature) * 8 - 12, cursor_y + 6, signature);
+		CAT_draw_text_depr(240 - strlen(signature) * 8 - 12, cursor_y + 6, signature);
 	}
 	else if(summary_page == REWARDS)
 	{
 		int cursor_y = 52;
 
-		CAT_set_text_colour(CAT_BLACK);
-		CAT_draw_textf(12, cursor_y, "+ Vigour: %d", score_object.grade);
+		CAT_set_text_colour_depr(CAT_BLACK);
+		CAT_draw_textf_depr(12, cursor_y, "+ Vigour: %d", score_object.grade);
 		cursor_y += 20;
 		render_plus_line(12, cursor_y, CAT_LCD_SCREEN_W * 0.75, 0, pet.vigour, score_object.grade, 12);
 		cursor_y += 16;
 
-		CAT_set_text_colour(CAT_BLACK);
-		CAT_draw_textf(12, cursor_y, "+ XP: %d", xp_reward);
+		CAT_set_text_colour_depr(CAT_BLACK);
+		CAT_draw_textf_depr(12, cursor_y, "+ XP: %d", xp_reward);
 		cursor_y += 20;
 		render_plus_line(12, cursor_y, CAT_LCD_SCREEN_W * 0.75, 0, pet.xp, xp_reward, level_cutoffs[pet.level]);
 		cursor_y += 16;

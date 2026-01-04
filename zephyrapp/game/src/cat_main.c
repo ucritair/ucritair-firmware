@@ -18,6 +18,7 @@
 #include "cat_radio.h"
 #include "cat_crypto.h"
 #include "cat_research.h"
+#include "cat_text.h"
 
 #include "sprite_assets.h"
 #include "tinysprite_assets.h"
@@ -104,13 +105,13 @@ void CAT_draw_eink_refresh_notice()
 
 	CAT_fillberry(0, CAT_LCD_SCREEN_H-48, CAT_LCD_SCREEN_W, 48, CAT_RGB8882565(105, 79, 98));
 
-	CAT_set_text_colour(CAT_WHITE);
-	CAT_draw_text(8, 8, "UPDATING E-INK DISPLAY...");
+	CAT_set_text_colour_depr(CAT_WHITE);
+	CAT_draw_text_depr(8, 8, "UPDATING E-INK DISPLAY...");
 
-	CAT_set_text_flags(CAT_TEXT_FLAG_CENTER);
-	CAT_set_text_scale(2);
-	CAT_set_text_colour(CAT_WHITE);
-	CAT_draw_text(CAT_LCD_SCREEN_W/2, CAT_LCD_SCREEN_H-36, "PLEASE WAIT");
+	CAT_set_text_flags_depr(CAT_TEXT_FLAG_CENTER);
+	CAT_set_text_scale_depr(2);
+	CAT_set_text_colour_depr(CAT_WHITE);
+	CAT_draw_text_depr(CAT_LCD_SCREEN_W/2, CAT_LCD_SCREEN_H-36, "PLEASE WAIT");
 }
 
 void CAT_draw_splash()

@@ -36,8 +36,8 @@ int draw_stat_pips(int cursor_y, const char* name, uint16_t colour, int value)
 {
 	int cursor_x = MARGIN;
 	int text_width = (strlen(name) + 1) * CAT_GLYPH_WIDTH;
-	CAT_set_text_colour(colour);
-	CAT_draw_textf(MARGIN, cursor_y, name);
+	CAT_set_text_colour_depr(colour);
+	CAT_draw_textf_depr(MARGIN, cursor_y, name);
 	cursor_x += text_width;
 
 	for(int i = 0; i < 12; i++)
@@ -54,23 +54,23 @@ int draw_stat_pips(int cursor_y, const char* name, uint16_t colour, int value)
 
 int draw_pet(int cursor_y)
 {
-	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
-	CAT_set_text_mask(MARGIN, -1, CAT_LCD_SCREEN_W-MARGIN, -1);
-	CAT_set_text_colour(CAT_WHITE);
-	CAT_set_text_scale(2);
-	cursor_y = CAT_draw_textf(MARGIN, cursor_y, "%s\n", pet.name);
+	CAT_set_text_flags_depr(CAT_TEXT_FLAG_WRAP);
+	CAT_set_text_mask_depr(MARGIN, -1, CAT_LCD_SCREEN_W-MARGIN, -1);
+	CAT_set_text_colour_depr(CAT_WHITE);
+	CAT_set_text_scale_depr(2);
+	cursor_y = CAT_draw_textf_depr(MARGIN, cursor_y, "%s\n", pet.name);
 	CAT_lineberry(MARGIN, cursor_y, CAT_LCD_SCREEN_W-MARGIN, cursor_y, CAT_WHITE);
 	cursor_y += 8;
 
-	CAT_set_text_colour(CAT_WHITE);
-	cursor_y = CAT_draw_textf(MARGIN, cursor_y, "LEVEL %d \1 XP %d/%d\n", pet.level+1, pet.xp, level_cutoffs[pet.level]);
+	CAT_set_text_colour_depr(CAT_WHITE);
+	cursor_y = CAT_draw_textf_depr(MARGIN, cursor_y, "LEVEL %d \1 XP %d/%d\n", pet.level+1, pet.xp, level_cutoffs[pet.level]);
 
 	CAT_set_sprite_scale(2);
 	CAT_draw_sprite(AS_idle.tick_sprite, 0, MARGIN, cursor_y);
 	cursor_y += (AS_idle.tick_sprite->height*2) + 4;
 
-	CAT_set_text_colour(CAT_WHITE);
-	cursor_y = CAT_draw_textf(MARGIN, cursor_y, "LIFETIME %d \1 LIFESPAN %d\n", pet.lifetime, pet.lifespan);
+	CAT_set_text_colour_depr(CAT_WHITE);
+	cursor_y = CAT_draw_textf_depr(MARGIN, cursor_y, "LIFETIME %d \1 LIFESPAN %d\n", pet.lifetime, pet.lifespan);
 
 	cursor_y += 8;
 
@@ -83,19 +83,19 @@ int draw_pet(int cursor_y)
 
 int draw_grave_egg(int cursor_y)
 {
-	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
-	CAT_set_text_mask(MARGIN, -1, CAT_LCD_SCREEN_W-MARGIN, -1);
-	CAT_set_text_colour(CAT_WHITE);
-	CAT_set_text_scale(2);
-	cursor_y = CAT_draw_textf(MARGIN, cursor_y, "GRAVE EGG\n");
+	CAT_set_text_flags_depr(CAT_TEXT_FLAG_WRAP);
+	CAT_set_text_mask_depr(MARGIN, -1, CAT_LCD_SCREEN_W-MARGIN, -1);
+	CAT_set_text_colour_depr(CAT_WHITE);
+	CAT_set_text_scale_depr(2);
+	cursor_y = CAT_draw_textf_depr(MARGIN, cursor_y, "GRAVE EGG\n");
 
 	CAT_lineberry(MARGIN, cursor_y, CAT_LCD_SCREEN_W-MARGIN, cursor_y, CAT_WHITE);
 	cursor_y += 8;
 
-	CAT_set_text_colour(CAT_WHITE);
-	CAT_set_text_mask(MARGIN, -1, CAT_LCD_SCREEN_W-MARGIN, -1);
-	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
-	cursor_y = CAT_draw_textf(MARGIN, cursor_y, "UNBOUND FROM LIFE, READY TO BE BORN\n", pet.level+1, pet.xp, level_cutoffs[pet.level]);
+	CAT_set_text_colour_depr(CAT_WHITE);
+	CAT_set_text_mask_depr(MARGIN, -1, CAT_LCD_SCREEN_W-MARGIN, -1);
+	CAT_set_text_flags_depr(CAT_TEXT_FLAG_WRAP);
+	cursor_y = CAT_draw_textf_depr(MARGIN, cursor_y, "UNBOUND FROM LIFE, READY TO BE BORN\n", pet.level+1, pet.xp, level_cutoffs[pet.level]);
 
 	CAT_set_sprite_scale(2);
 	CAT_draw_sprite(&grave_egg_sprite, 0, MARGIN, cursor_y);
@@ -106,8 +106,8 @@ int draw_grave_egg(int cursor_y)
 
 int draw_defenses(int cursor_y)
 {
-	CAT_set_text_colour(CAT_WHITE);
-	cursor_y = CAT_draw_textf(MARGIN, cursor_y, "ACTIVE DEFENSES\n");
+	CAT_set_text_colour_depr(CAT_WHITE);
+	cursor_y = CAT_draw_textf_depr(MARGIN, cursor_y, "ACTIVE DEFENSES\n");
 	CAT_lineberry(MARGIN, cursor_y, CAT_LCD_SCREEN_W-MARGIN, cursor_y, CAT_WHITE);
 	cursor_y += 4;
 

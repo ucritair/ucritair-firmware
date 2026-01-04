@@ -274,10 +274,10 @@ void CAT_draw_lock(int x, int y, int r, float t, uint16_t c)
 	int idx = t*4;
 	float frac = (t*4)-idx;
 
-	CAT_set_text_colour(c);
+	CAT_set_text_colour_depr(c);
 	int glyph_scale = CAT_max(CAT_sqrt((r*r)/2)/CAT_GLYPH_HEIGHT, 1);
-	CAT_set_text_scale(glyph_scale);
-	CAT_draw_text(x-glyph_scale*CAT_GLYPH_WIDTH/2, y-glyph_scale*CAT_GLYPH_HEIGHT/2, "A");
+	CAT_set_text_scale_depr(glyph_scale);
+	CAT_draw_text_depr(x-glyph_scale*CAT_GLYPH_WIDTH/2, y-glyph_scale*CAT_GLYPH_HEIGHT/2, "A");
 
 	float scale = r * 0.75f;
 	for(int i = 0; i < 4; i++)

@@ -172,7 +172,7 @@ static void draw_page(const char* title)
 	cursor_y = PAD;
 
 	CAT_frameberry(CAT_WHITE);
-	cursor_y = CAT_draw_textf(cursor_x, cursor_y, "%s\n", title);
+	cursor_y = CAT_draw_textf_depr(cursor_x, cursor_y, "%s\n", title);
 	cursor_y += PAD;
 	CAT_rowberry(cursor_y, cursor_y+1, CAT_BLACK);
 	cursor_y += PAD;
@@ -186,7 +186,7 @@ void CAT_render_system_menu()
 	{
 		for (int i = 0; i < NUM_MENU_ITEMS; i++)
 		{
-			cursor_y = CAT_draw_textf
+			cursor_y = CAT_draw_textf_depr
 			(
 				cursor_x, cursor_y,
 				"\1 %s %s\n",
@@ -195,20 +195,20 @@ void CAT_render_system_menu()
 		}
 		cursor_y += CAT_TEXT_LINE_HEIGHT;
 
-		cursor_y = CAT_draw_text(cursor_x, cursor_y, system_menu_note);
+		cursor_y = CAT_draw_text_depr(cursor_x, cursor_y, system_menu_note);
 		cursor_y += CAT_TEXT_LINE_HEIGHT;
 
-		cursor_y = CAT_draw_text(cursor_x, cursor_y, "SYS v." SYS_FW_VERSION "\n");
+		cursor_y = CAT_draw_text_depr(cursor_x, cursor_y, "SYS v." SYS_FW_VERSION "\n");
 
-		cursor_y = CAT_draw_textf(cursor_x, cursor_y, "Battery: %3d%%\n", get_battery_pct());
+		cursor_y = CAT_draw_textf_depr(cursor_x, cursor_y, "Battery: %3d%%\n", get_battery_pct());
 	}
 	else
 	{
 		int remaining = CO2_CAL_TIME - ((k_uptime_get_32() - co2_calibration_start_time) / 1000);
 
-		CAT_set_text_mask(PAD, -1, CAT_LCD_SCREEN_W-PAD, -1);
-		CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
-		cursor_y = CAT_draw_text
+		CAT_set_text_mask_depr(PAD, -1, CAT_LCD_SCREEN_W-PAD, -1);
+		CAT_set_text_flags_depr(CAT_TEXT_FLAG_WRAP);
+		cursor_y = CAT_draw_text_depr
 		(
 			cursor_x, cursor_y,
 			"Please go outside and wait while CO2 sensor reading settles before calibration\n"
@@ -218,19 +218,19 @@ void CAT_render_system_menu()
 		{
 			CAT_draw_sprite_raw(&icon_nosmoke_sprite, 0, cursor_x, cursor_y);
 			cursor_y += icon_nosmoke_sprite.height + PAD;
-			cursor_y = CAT_draw_textf(cursor_x, cursor_y, "%2d:%02d remaining...\n", remaining/60, remaining%60);
+			cursor_y = CAT_draw_textf_depr(cursor_x, cursor_y, "%2d:%02d remaining...\n", remaining/60, remaining%60);
 		}
 		else if (remaining > -1)
 		{
 			CAT_draw_sprite_raw(&icon_nosmoke_sprite, 0, cursor_x, cursor_y);
 			cursor_y += icon_nosmoke_sprite.height + PAD;
-			cursor_y = CAT_draw_textf(cursor_x, cursor_y, "Calibrating...\n");
+			cursor_y = CAT_draw_textf_depr(cursor_x, cursor_y, "Calibrating...\n");
 		}
 		else if (remaining > -2)
 		{
 			CAT_draw_sprite_raw(&icon_nosmoke_sprite, 0, cursor_x, cursor_y);
 			cursor_y += icon_nosmoke_sprite.height + PAD;
-			cursor_y = CAT_draw_textf(cursor_x, cursor_y, "Calibrating...\n");		
+			cursor_y = CAT_draw_textf_depr(cursor_x, cursor_y, "Calibrating...\n");		
 			if (!did_co2_cal)
 			{
 				did_co2_cal = true;
@@ -240,9 +240,9 @@ void CAT_render_system_menu()
 		}
 		else
 		{
-			CAT_set_text_mask(PAD, -1, CAT_LCD_SCREEN_W-PAD, -1);
-			CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
-			cursor_y = CAT_draw_text
+			CAT_set_text_mask_depr(PAD, -1, CAT_LCD_SCREEN_W-PAD, -1);
+			CAT_set_text_flags_depr(CAT_TEXT_FLAG_WRAP);
+			cursor_y = CAT_draw_text_depr
 			(
 				cursor_x, cursor_y,
 				"Done. Thanks for waiting... Have some cigarettes as a reward:\n"

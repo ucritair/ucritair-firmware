@@ -413,7 +413,7 @@ void CAT_gui_keyboard()
 
 	int line = CAT_LINE_CAPACITY(KEYB_PAD, KEYB_PAD+CAT_GLYPH_WIDTH, CAT_GLYPH_WIDTH);
 	int overshoot = CAT_max((int) strlen(keyb_buffer) - line, 0);
-	CAT_draw_textf(KEYB_PAD - overshoot * CAT_GLYPH_WIDTH, cursor_y, "%s%s", keyb_buffer, keyb_show_cursor ? "|" : "");
+	CAT_draw_textf_depr(KEYB_PAD - overshoot * CAT_GLYPH_WIDTH, cursor_y, "%s%s", keyb_buffer, keyb_show_cursor ? "|" : "");
 	cursor_y += CAT_GLYPH_HEIGHT + KEYB_PAD;
 
 	CAT_lineberry(0, cursor_y, CAT_LCD_SCREEN_W, cursor_y, CAT_192_GREY);
@@ -447,7 +447,7 @@ void CAT_gui_keyboard()
 		int w = strlen(keyb_buttons[i].title) * CAT_GLYPH_WIDTH + KEYB_PAD;
 		int h = CAT_GLYPH_HEIGHT + KEYB_PAD;
 
-		CAT_draw_text(cursor_x+KEYB_PAD/2, cursor_y+KEYB_PAD/2, keyb_buttons[i].title);
+		CAT_draw_text_depr(cursor_x+KEYB_PAD/2, cursor_y+KEYB_PAD/2, keyb_buttons[i].title);
 
 		uint16_t outline_c = keyb_section == KEYB_BUTTONS && keyb_button == i ?
 		CAT_BLACK : CAT_192_GREY;
@@ -525,16 +525,16 @@ void CAT_gui_popup()
 	CAT_strokeberry(POPUP_X, POPUP_Y, POPUP_W, POPUP_H, CAT_BLACK);
 	CAT_strokeberry(POPUP_X-1, POPUP_Y-1, POPUP_W+2, POPUP_H+2, CAT_GREY);
 	
-	CAT_set_text_mask(POPUP_X+POPUP_MARGIN, -1, POPUP_X+POPUP_W-POPUP_MARGIN, -1);
-	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
-	CAT_draw_text(POPUP_X+POPUP_MARGIN, POPUP_Y+POPUP_MARGIN, popup_text);
+	CAT_set_text_mask_depr(POPUP_X+POPUP_MARGIN, -1, POPUP_X+POPUP_W-POPUP_MARGIN, -1);
+	CAT_set_text_flags_depr(CAT_TEXT_FLAG_WRAP);
+	CAT_draw_text_depr(POPUP_X+POPUP_MARGIN, POPUP_Y+POPUP_MARGIN, popup_text);
 
 	const char* responses =
 	popup_style == CAT_POPUP_STYLE_YES_NO ?
 	(popup_selector == 0 ? "[YES]   NO \n" : " YES   [NO]\n") :
 	"[OKAY]";
 
-	CAT_draw_text
+	CAT_draw_text_depr
 	(
 		POPUP_X+POPUP_MARGIN, POPUP_Y+POPUP_H-POPUP_MARGIN-CAT_GLYPH_HEIGHT,
 		responses
@@ -1163,13 +1163,13 @@ void CAT_gui_item_grid()
 
 	CAT_frameberry(ITEM_GRID_BG_COLOUR);
 
-	CAT_set_text_colour(CAT_WHITE);
-	CAT_set_text_mask(4, 4, CAT_LCD_SCREEN_W-4, 4+26);
+	CAT_set_text_colour_depr(CAT_WHITE);
+	CAT_set_text_mask_depr(4, 4, CAT_LCD_SCREEN_W-4, 4+26);
 	const char* item_name = !item_grid_is_empty() ? item_table.data[item_grid_pool.data[item_grid_selector]].name : "";
 	if(item_grid_tab_count > 1)
-		CAT_draw_textf(4, 8, ">>> %s/%s", tab->title, item_name);
+		CAT_draw_textf_depr(4, 8, ">>> %s/%s", tab->title, item_name);
 	else
-		CAT_draw_textf(4, 8, ">>> %s", item_name);
+		CAT_draw_textf_depr(4, 8, ">>> %s", item_name);
 	CAT_lineberry(4, 26, CAT_LCD_SCREEN_W-4, 26, CAT_WHITE);
 
 	int x = ITEM_GRID_X;
@@ -1225,8 +1225,8 @@ void CAT_gui_item_grid()
 
 	if(item_grid_is_empty())
 	{
-		CAT_set_text_colour(CAT_WHITE);
-		CAT_draw_text(4, y, "There's nothing here...");
+		CAT_set_text_colour_depr(CAT_WHITE);
+		CAT_draw_text_depr(4, y, "There's nothing here...");
 	}
 
 	if (item_grid_get_page() < (item_grid_pool.length-ITEM_GRID_CELLS))
@@ -1238,10 +1238,10 @@ void CAT_gui_item_grid()
 		CAT_lineberry(ITEM_GRID_NAV_X, ITEM_GRID_NAV_Y, ITEM_GRID_NAV_X+ITEM_GRID_NAV_W, ITEM_GRID_NAV_Y, CAT_WHITE);
 		CAT_lineberry(ITEM_GRID_NAV_X, ITEM_GRID_NAV_Y+ITEM_GRID_NAV_H, ITEM_GRID_NAV_X+ITEM_GRID_NAV_W, ITEM_GRID_NAV_Y+ITEM_GRID_NAV_H, CAT_WHITE);
 
-		CAT_set_text_colour(CAT_WHITE);
-		CAT_set_text_scale(2);
-		CAT_set_text_flags(CAT_TEXT_FLAG_CENTER);
-		CAT_draw_text(CAT_LCD_SCREEN_W/2, ITEM_GRID_NAV_Y + ITEM_GRID_NAV_H/2 - 12, tab->title);
+		CAT_set_text_colour_depr(CAT_WHITE);
+		CAT_set_text_scale_depr(2);
+		CAT_set_text_flags_depr(CAT_TEXT_FLAG_CENTER);
+		CAT_draw_text_depr(CAT_LCD_SCREEN_W/2, ITEM_GRID_NAV_Y + ITEM_GRID_NAV_H/2 - 12, tab->title);
 		CAT_draw_arrows(CAT_LCD_SCREEN_W/2, ITEM_GRID_NAV_Y + ITEM_GRID_NAV_H/2, 12, ITEM_GRID_NAV_W - 48, CAT_WHITE);
 		CAT_draw_arrows(CAT_LCD_SCREEN_W/2, ITEM_GRID_NAV_Y + ITEM_GRID_NAV_H/2, 12, ITEM_GRID_NAV_W - 40, CAT_WHITE);
 		CAT_draw_arrows(CAT_LCD_SCREEN_W/2, ITEM_GRID_NAV_Y + ITEM_GRID_NAV_H/2, 12, ITEM_GRID_NAV_W - 32, CAT_WHITE);
@@ -1297,9 +1297,9 @@ void CAT_gui_dialogue()
 	CAT_strokeberry(DIALOGUE_X, DIALOGUE_Y, DIALOGUE_W, DIALOGUE_H, CAT_GREY);
 	CAT_strokeberry(DIALOGUE_X+1, DIALOGUE_Y+1, DIALOGUE_W-2, DIALOGUE_H-2, CAT_GREY);
 	
-	CAT_set_text_mask(DIALOGUE_X+4, -1, DIALOGUE_X+DIALOGUE_W-4, -1);
-	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
-	CAT_draw_text(DIALOGUE_X+4, DIALOGUE_X+4, dialogue_text);
+	CAT_set_text_mask_depr(DIALOGUE_X+4, -1, DIALOGUE_X+DIALOGUE_W-4, -1);
+	CAT_set_text_flags_depr(CAT_TEXT_FLAG_WRAP);
+	CAT_draw_text_depr(DIALOGUE_X+4, DIALOGUE_X+4, dialogue_text);
 }
 
 

@@ -908,6 +908,8 @@ static const CAT_sprite* button_sprites[] =
 	&icon_menu_sprite
 };
 
+#include "cat_text.h"
+
 void CAT_room_draw_gui()
 {
 	if(CAT_pet_is_dead())

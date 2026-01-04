@@ -150,10 +150,10 @@ void render_calendar()
     bool in_logs_window;
 
     /* ---- date line + arrows ---- */
-    CAT_set_text_scale(2);
-    CAT_set_text_colour(CAT_WHITE);
-    CAT_set_text_flags(CAT_TEXT_FLAG_CENTER);
-    CAT_draw_textf(DATE_X, DATE_Y, "%.2d/%.2d/%.4d", target.month, target.day, target.year);
+    CAT_set_text_scale_depr(2);
+    CAT_set_text_colour_depr(CAT_WHITE);
+    CAT_set_text_flags_depr(CAT_TEXT_FLAG_CENTER);
+    CAT_draw_textf_depr(DATE_X, DATE_Y, "%.2d/%.2d/%.4d", target.month, target.day, target.year);
 
     date_width = (int) strlen("##/##/####") * CAT_GLYPH_WIDTH * 2;
     CAT_draw_arrows(DATE_X, DATE_Y + CAT_GLYPH_HEIGHT, CAT_GLYPH_HEIGHT, date_width + 12, CAT_WHITE);

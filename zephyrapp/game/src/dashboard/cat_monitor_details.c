@@ -11,8 +11,8 @@
 
 int draw_title(int x, int y, const char* title)
 {
-	CAT_set_text_colour(CAT_WHITE);
-	CAT_draw_text(x, y-CAT_GLYPH_HEIGHT, title);
+	CAT_set_text_colour_depr(CAT_WHITE);
+	CAT_draw_text_depr(x, y-CAT_GLYPH_HEIGHT, title);
 	return x + strlen(title) * CAT_GLYPH_WIDTH + 8;
 }
 
@@ -23,9 +23,9 @@ int draw_value(int x, int y, uint16_t c, char* fmt, ...)
 	vsnprintf(textf_buf, 32, fmt, args);
 	va_end(args);
 
-	CAT_set_text_scale(2);
-	CAT_set_text_colour(c);
-	CAT_draw_text(x, y-CAT_GLYPH_HEIGHT*2, textf_buf);
+	CAT_set_text_scale_depr(2);
+	CAT_set_text_colour_depr(c);
+	CAT_draw_text_depr(x, y-CAT_GLYPH_HEIGHT*2, textf_buf);
 	return x + strlen(textf_buf) * CAT_GLYPH_WIDTH*2 + 8;
 }
 
@@ -34,8 +34,8 @@ int draw_unit(int x, int y, const char* unit)
 	int l = strlen(unit);
 	if(l == 0)
 		return x;
-	CAT_set_text_colour(CAT_WHITE);
-	CAT_draw_text(x, y-CAT_GLYPH_HEIGHT, unit);
+	CAT_set_text_colour_depr(CAT_WHITE);
+	CAT_draw_text_depr(x, y-CAT_GLYPH_HEIGHT, unit);
 	return x + l * CAT_GLYPH_WIDTH + 12;
 }
 

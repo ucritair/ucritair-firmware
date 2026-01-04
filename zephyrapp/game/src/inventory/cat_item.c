@@ -144,22 +144,22 @@ void CAT_render_inspector()
 		return;
 
 	int cursor_y = INSPECTOR_MARGIN;
-	CAT_set_text_scale(2);
-	CAT_set_text_colour(CAT_WHITE);
-	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
-	CAT_set_text_mask(INSPECTOR_MARGIN, -1, CAT_LCD_SCREEN_W-INSPECTOR_MARGIN, -1);
-	cursor_y = CAT_draw_textf(INSPECTOR_MARGIN, cursor_y, "%s\n", item->name) + 2;
-	CAT_set_text_colour(CAT_WHITE);
-	cursor_y = CAT_draw_textf(INSPECTOR_MARGIN, cursor_y, "x%d\n", CAT_inventory_count(inspect_id));
+	CAT_set_text_scale_depr(2);
+	CAT_set_text_colour_depr(CAT_WHITE);
+	CAT_set_text_flags_depr(CAT_TEXT_FLAG_WRAP);
+	CAT_set_text_mask_depr(INSPECTOR_MARGIN, -1, CAT_LCD_SCREEN_W-INSPECTOR_MARGIN, -1);
+	cursor_y = CAT_draw_textf_depr(INSPECTOR_MARGIN, cursor_y, "%s\n", item->name) + 2;
+	CAT_set_text_colour_depr(CAT_WHITE);
+	cursor_y = CAT_draw_textf_depr(INSPECTOR_MARGIN, cursor_y, "x%d\n", CAT_inventory_count(inspect_id));
 	
 	cursor_y += 6;
 	CAT_lineberry(INSPECTOR_MARGIN, cursor_y, CAT_LCD_SCREEN_W-INSPECTOR_MARGIN, cursor_y, CAT_WHITE);
 	cursor_y += 8;
 
-	CAT_set_text_colour(CAT_WHITE);
-	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
-	CAT_set_text_mask(INSPECTOR_MARGIN, -1, CAT_LCD_SCREEN_W-INSPECTOR_MARGIN, -1);
-	cursor_y = CAT_draw_textf(INSPECTOR_MARGIN, cursor_y, "%s\n", item->text);
+	CAT_set_text_colour_depr(CAT_WHITE);
+	CAT_set_text_flags_depr(CAT_TEXT_FLAG_WRAP);
+	CAT_set_text_mask_depr(INSPECTOR_MARGIN, -1, CAT_LCD_SCREEN_W-INSPECTOR_MARGIN, -1);
+	cursor_y = CAT_draw_textf_depr(INSPECTOR_MARGIN, cursor_y, "%s\n", item->text);
 
 	int free_space = CAT_LCD_SCREEN_H-INSPECTOR_MARGIN-cursor_y;
 	for(int scale = 1; scale <= 6; scale++)
