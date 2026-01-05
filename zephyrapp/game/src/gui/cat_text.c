@@ -351,7 +351,7 @@ static void draw_text
 	buffer_breaks(CAT_GLYPH_WIDTH * scale, x1-x0);
 	
 	int idx = 0;
-	int cursor_x = get_line_start(idx, scale, x0, x1, alignment);
+	int cursor_x = get_line_start(idx, scale, x, x1, alignment);
 	int cursor_y = y;
 
 	while (raw_buffer[idx] != '\0')
@@ -387,7 +387,7 @@ static void draw_text
 		*y_out = cursor_y;
 }
 
-void CAT_draw_text2(int x, int y, int scale, uint16_t colour, const char* fmt, ...)
+void CAT_draw_text(int x, int y, int scale, uint16_t colour, const char* fmt, ...)
 {
 	va_list args;
 	va_start(args, fmt);
@@ -465,6 +465,28 @@ void CAT_set_text_box_cursor_y(int y)
 	text_box_y = y;
 }
 
+void CAT_text_box_shift_cursor(int dx, int dy)
+{
+	text_box_x += dx;
+	text_box_y += dy;
+}
+
+void CAT_text_box_reset_x()
+{
+	text_box_x = text_box_x0;
+}
+
+void CAT_text_box_reset_y()
+{
+	text_box_y = text_box_y0;
+}
+
+void CAT_text_box_newline(int scale)
+{
+	text_box_y += CAT_TEXT_LINE_HEIGHT * scale;
+	text_box_x = text_box_x0;
+}
+
 void CAT_text_box_draw(int scale, uint16_t colour, const char* fmt, ...)
 {
 	va_list args;
@@ -481,6 +503,16 @@ void CAT_text_box_draw(int scale, uint16_t colour, const char* fmt, ...)
 		scale, colour,
 		&text_box_x, &text_box_y
 	);
+}
+
+void CAT_text_box_draw_sprite(const CAT_sprite* sprite, int frame_idx)
+{
+	CAT_draw_sprite
+	(
+		sprite, frame_idx,
+		text_box_x, text_box_y + CAT_GLYPH_HEIGHT/2 - sprite->height/2
+	);
+	text_box_x += sprite->width;
 }
 
 

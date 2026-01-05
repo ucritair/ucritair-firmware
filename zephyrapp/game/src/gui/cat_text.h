@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include "cat_render.h"
 
 #define CAT_TEXT_RAW_BUFFER_CAPACITY 1024
 #define CAT_TEXT_SKIP_BUFFER_CAPACITY 32
@@ -19,7 +20,7 @@ typedef enum
 //////////////////////////////////////////////////////////////////////////
 // DRAWING
 
-void CAT_draw_text2(int x, int y, int scale, uint16_t colour, const char* fmt, ...);
+void CAT_draw_text(int x, int y, int scale, uint16_t colour, const char* fmt, ...);
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -33,6 +34,11 @@ int CAT_get_text_box_cursor_x();
 int CAT_get_text_box_cursor_y();
 void CAT_set_text_box_cursor_x(int x);
 void CAT_set_text_box_cursor_y(int y);
+void CAT_text_box_shift_cursor(int dx, int dy);
+void CAT_text_box_reset_x();
+void CAT_text_box_reset_y();
+void CAT_text_box_newline(int scale);
 
 void CAT_text_box_draw(int scale, uint16_t colour, const char* fmt, ...);
+void CAT_text_box_draw_sprite(const CAT_sprite* sprite, int frame_idx);
 

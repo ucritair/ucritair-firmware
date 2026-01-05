@@ -16,200 +16,7 @@
 #include "cat_gizmos.h"
 #include "cat_core.h"
 #include "cat_curves.h"
-
-//////////////////////////////////////////////////////////////////////////
-// BASICS (DEPRECATED)
-
-typedef enum CAT_gui_flag
-{
-	CAT_GUI_FLAG_NONE = 0,
-	CAT_GUI_FLAG_BORDERED = (1 << 0),
-	CAT_GUI_FLAG_TIGHT = (1 << 1),
-	CAT_GUI_FLAG_WRAPPED = (1 << 2),
-} CAT_gui_flag;
-
-typedef struct CAT_gui
-{
-	CAT_gui_flag flags;
-
-	CAT_ivec2 start;
-	CAT_ivec2 shape;
-	CAT_ivec2 cursor;
-
-	int margin;
-	int pad;
-	int channel_height;
-} CAT_gui;
-extern CAT_gui gui;
-
-CAT_gui gui =
-{
-	.flags = CAT_GUI_FLAG_NONE,
-
-	.start = (CAT_ivec2) {0, 0},
-	.shape = (CAT_ivec2) {0, 0},
-	.cursor = (CAT_ivec2) {0, 0},
-
-	.margin = 8,
-	.pad = 4,
-	.channel_height = 0
-};
-
-void CAT_gui_set_flag(int flag)
-{
-	gui.flags |= flag;
-}
-
-bool CAT_gui_consume_flag(int flag)
-{
-	bool value = gui.flags & flag;
-	gui.flags &= ~flag;
-	return value;
-}
-
-int CAT_gui_clear_flags()
-{
-	int value = gui.flags;
-	gui.flags = CAT_GUI_FLAG_NONE;
-	return value;
-}
-
-void CAT_gui_panel(CAT_ivec2 start, CAT_ivec2 shape)
-{
-	CAT_fillberry(start.x * CAT_TILE_SIZE, start.y * CAT_TILE_SIZE, shape.x * CAT_TILE_SIZE, shape.y * CAT_TILE_SIZE, 0xFFFF);
-	if(CAT_gui_consume_flag(CAT_GUI_FLAG_BORDERED))
-		CAT_strokeberry(start.x * CAT_TILE_SIZE, start.y * CAT_TILE_SIZE, shape.x * CAT_TILE_SIZE, shape.y * CAT_TILE_SIZE, 0x0000);
-
-	gui.start = start;
-	gui.shape = shape;
-	gui.cursor = CAT_ivec2_mul(start, CAT_TILE_SIZE);
-	gui.cursor.y += gui.margin;
-	gui.cursor.x += gui.margin;
-	if(CAT_gui_consume_flag(CAT_GUI_FLAG_TIGHT))
-	{
-		gui.cursor.y -= gui.margin/2;
-		gui.cursor.x -= gui.margin/2;
-	}
-	gui.channel_height = 0;
-}
-
-void gui_open_channel(int height)
-{
-	if(gui.channel_height == 0)
-		gui.cursor.y += height / 2;
-	if(height > gui.channel_height)
-		gui.channel_height = height;
-}
-
-void CAT_gui_line_break()
-{
-	gui.cursor.y +=
-	(gui.channel_height > 0 ?
-	gui.channel_height / 2 :
-	CAT_GLYPH_HEIGHT) +
-	gui.pad;
-	gui.cursor.x = gui.start.x * CAT_TILE_SIZE + gui.margin;
-	gui.channel_height = 0;
-}
-
-void CAT_gui_text(const char* text)
-{
-	bool wrap = CAT_gui_consume_flag(CAT_GUI_FLAG_WRAPPED);
-	int x_lim = (gui.start.x * CAT_TILE_SIZE) + (gui.shape.x) * CAT_TILE_SIZE - CAT_GLYPH_WIDTH - gui.margin;
-	const char* c = text;
-
-	while
-	(
-		*c != '\0' &&
-		!(*c == '#' && *(c+1) == '#')
-	)
-	{
-		if(wrap && gui.cursor.x >= x_lim && !isspace(*(c+1)))
-		{
-			if(!isspace(*c) && !isspace(*(c-1)))
-			{
-				CAT_set_sprite_flags(CAT_DRAW_FLAG_CENTER_Y);
-				CAT_draw_sprite(&glyph_sprite, '-', gui.cursor.x, gui.cursor.y);
-			}
-			CAT_gui_line_break();	
-			if(isspace(*c))
-				c++;
-		}
-
-		if(*c == '\n')
-		{
-			CAT_gui_line_break();
-			c++;
-			continue;
-		}
-
-		gui_open_channel(CAT_GLYPH_HEIGHT);
-		CAT_set_sprite_flags(CAT_DRAW_FLAG_CENTER_Y);
-		CAT_draw_sprite(&glyph_sprite, *c, gui.cursor.x, gui.cursor.y);
-		gui.cursor.x += CAT_GLYPH_WIDTH;
-		c++;
-	}
-}
-
-void CAT_gui_image(const CAT_sprite* sprite, int frame_idx)
-{
-	gui_open_channel(sprite->height);
-
-	gui.cursor.x += gui.pad / 2;
-	CAT_set_sprite_flags(CAT_DRAW_FLAG_CENTER_Y);
-	CAT_draw_sprite(sprite, frame_idx, gui.cursor.x, gui.cursor.y);
-	gui.cursor.x += sprite->width;
-	gui.cursor.x += gui.pad / 2;
-}
-
-void CAT_gui_div(const char* text)
-{
-	CAT_gui_line_break();
-	gui_open_channel(CAT_TILE_SIZE);
-	if(strlen(text) == 0)
-	{
-		CAT_lineberry(0, gui.cursor.y, CAT_LCD_SCREEN_W, gui.cursor.y, 0x0000);
-	}
-	else
-	{
-		CAT_gui_text(text);
-		int start = gui.cursor.x + gui.pad;
-		CAT_lineberry(start, gui.cursor.y, CAT_LCD_SCREEN_W-gui.margin, gui.cursor.y, 0x0000);
-	}
-	CAT_gui_line_break();
-}
-
-void CAT_gui_textf(const char* fmt, ...)
-{
-	va_list args;
-	va_start(args, fmt);
-	char text[256];
-	vsnprintf(text, 256, fmt, args);
-	va_end(args);
-
-	CAT_gui_text(text);
-}
-
-void CAT_gui_title(bool tabs, const char* fmt, ...)
-{
-	CAT_gui_panel((CAT_ivec2) {0, 0}, (CAT_ivec2) {15, 2});
-	CAT_lineberry(0, 31, CAT_LCD_SCREEN_W, 31, 0x0000);
-	
-	if(tabs)
-		CAT_gui_text("< ");
-
-	va_list args;
-	va_start(args, fmt);
-	char text[32];
-	vsnprintf(text, 32, fmt, args);
-	va_end(args);
-	CAT_gui_text(text);
-
-	if(tabs)
-		CAT_gui_text(" >");
-	CAT_gui_text(" ");
-}
-
+#include "cat_text.h"
 
 //////////////////////////////////////////////////////////////////////////
 // KEYBOARD
@@ -521,7 +328,7 @@ void CAT_gui_popup_logic()
 
 void CAT_gui_popup()
 {
-	CAT_gui_panel((CAT_ivec2) {POPUP_TILE_X, POPUP_TILE_Y}, (CAT_ivec2) {POPUP_TILE_W, POPUP_TILE_H});
+	CAT_fillberry(POPUP_X, POPUP_Y, POPUP_W, POPUP_H, CAT_WHITE);
 	CAT_strokeberry(POPUP_X, POPUP_Y, POPUP_W, POPUP_H, CAT_BLACK);
 	CAT_strokeberry(POPUP_X-1, POPUP_Y-1, POPUP_W+2, POPUP_H+2, CAT_GREY);
 	
@@ -902,26 +709,30 @@ void CAT_gui_menu_logic()
 	}
 }
 
+#define MENU_PAD 8
+
 void CAT_gui_menu()
 {
 	menu_node* head = get_global_head();
 
-	CAT_gui_title
-	(
-		false,
-		head->title
-	);
+	CAT_frameberry(CAT_WHITE);
+	
+	CAT_reset_text_box();
+	CAT_set_text_box(MENU_PAD, MENU_PAD, CAT_LCD_SCREEN_W-MENU_PAD, CAT_LCD_SCREEN_H-MENU_PAD);
+	CAT_text_box_draw(1, CAT_BLACK, "%s\n", head->title);
+	CAT_text_box_shift_cursor(0, MENU_PAD);
 
-	CAT_gui_panel((CAT_ivec2) {0, 2}, (CAT_ivec2) {15, 18});
+	CAT_rowberry(CAT_get_text_box_cursor_y(), CAT_get_text_box_cursor_y()+1, CAT_BLACK);
+	CAT_text_box_shift_cursor(0, MENU_PAD);
 
 	for(int i = 0; i < head->child_count; i++)
 	{
 		menu_node* child = &menu_table[head->children[i]];
 
 		if(child->type == CAT_GUI_MENU_TYPE_TEXT)
-			CAT_gui_textf("%s ", child->title);
+			CAT_text_box_draw(1, CAT_BLACK, "%s ", child->title);
 		else
-			CAT_gui_textf("\1 %s ", child->title);
+			CAT_text_box_draw(1, CAT_BLACK, "\1 %s ", child->title);;
 
 		switch (child->type)
 		{
@@ -931,14 +742,14 @@ void CAT_gui_menu()
 				const CAT_sprite* sprite =
 				child->toggle_data.style == CAT_GUI_TOGGLE_STYLE_CHECKBOX ?
 				&ui_checkbox_sprite : &ui_radio_button_circle_sprite;
-				CAT_gui_image(sprite, child->toggle_data.toggle);
-				CAT_gui_text(" ");
+				CAT_text_box_draw_sprite(sprite, child->toggle_data.toggle);
+				CAT_text_box_shift_cursor(4, 0);
 			}
 			break;
 
 			case CAT_GUI_MENU_TYPE_TICKER:
 			{
-				CAT_gui_textf("< %d > ", child->ticker_data.value);
+				CAT_text_box_draw(1, CAT_BLACK, "< %d > ", child->ticker_data.value);
 			}
 			break;
 
@@ -947,9 +758,10 @@ void CAT_gui_menu()
 		}
 
 		if(i == head->selector)
-			CAT_gui_text("<");
-			
-		CAT_gui_line_break();
+			CAT_text_box_draw(1, CAT_BLACK, "<");
+		
+		CAT_text_box_newline(1);
+		CAT_text_box_shift_cursor(0, 4);
 	}
 
 	if(CAT_is_last_render_cycle())

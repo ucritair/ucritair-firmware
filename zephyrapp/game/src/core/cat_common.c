@@ -44,8 +44,6 @@ void CAT_eink_clear()
 
 void CAT_eink_draw_default()
 {
-	CAT_printf("That one!\n");
-
 	CAT_eink_clear();
 
 	char buf[256] = {0};
