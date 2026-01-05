@@ -24,6 +24,7 @@
 #include "cat_wifi.h"
 #include "cat_crypto.h"
 #include "cat_radio.h"
+#include "cat_text.h"
 
 #ifdef CAT_EMBEDDED
 #include "menu_system.h"

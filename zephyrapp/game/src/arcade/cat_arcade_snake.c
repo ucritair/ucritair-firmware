@@ -7,6 +7,7 @@
 #include "cat_gui.h"
 #include "sprite_assets.h"
 #include "item_assets.h"
+#include "cat_text.h"
 
 #define GRID_WIDTH 15
 #define GRID_HEIGHT 20

@@ -9,6 +9,7 @@
 #include "cat_graph.h"
 #include "cat_persist.h"
 #include "cat_colours.h"
+#include "cat_text.h"
 
 #define TITLE_X 120
 #define TITLE_Y 64

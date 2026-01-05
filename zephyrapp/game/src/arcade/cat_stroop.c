@@ -14,6 +14,7 @@
 #include "cat_wifi.h"
 #include "cat_leaderboard.h"
 #include "cat_crypto.h"
+#include "cat_text.h"
 
 #define CHALLENGES_PER_PHASE 8
 

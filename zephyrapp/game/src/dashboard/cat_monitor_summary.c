@@ -13,6 +13,7 @@
 #include "sprite_assets.h"
 #include "cat_monitor_graphics_utils.h"
 #include "cat_crisis.h"
+#include "cat_text.h"
 
 #define TITLE_Y 44
 

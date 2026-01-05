@@ -9,6 +9,7 @@
 #include "cat_persist.h"
 #include "sprite_assets.h"
 #include "cat_gui.h"
+#include "cat_text.h"
 
 static CAT_button spell[] =
 {

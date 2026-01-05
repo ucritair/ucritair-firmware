@@ -13,6 +13,7 @@
 #include "cat_pet.h"
 #include "cat_item.h"
 #include "cat_gizmos.h"
+#include "cat_text.h"
 
 #define SCREEN_DIAG 400
 #define BLACK_OUT_DURATION 1.0f

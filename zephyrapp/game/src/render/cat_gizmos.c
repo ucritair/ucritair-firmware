@@ -5,6 +5,7 @@
 #include "cat_gui.h"
 #include "cat_input.h"
 #include "cat_spriter.h"
+#include "cat_text.h"
 
 void CAT_draw_regular_polygon(int n, int x, int y, int r, float t, uint16_t c)
 {

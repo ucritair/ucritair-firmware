@@ -12,6 +12,7 @@
 #include "cat_crisis.h"
 #include "cat_gizmos.h"
 #include "cat_graph.h"
+#include "cat_text.h"
 
 static char textf_buf[32];
 

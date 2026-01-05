@@ -86,28 +86,3 @@ void CAT_gui_dismiss_dialogue();
 
 void CAT_gui_tick();
 void CAT_gui_render();
-
-
-//////////////////////////////////////////////////////////////////////////
-// TEXT (LEGACY)
-
-typedef enum
-{
-	CAT_TEXT_FLAG_NONE = 0,
-	CAT_TEXT_FLAG_WRAP = (1 << 0),
-	CAT_TEXT_FLAG_CENTER = (1 << 1), 
-	CAT_TEXT_FLAG_VERTICAL = (1 << 2)
-} CAT_text_flag_depr;
-
-void CAT_set_text_flags_depr(int flags);
-void CAT_set_text_colour_depr(uint16_t colour);
-void CAT_set_text_scale_depr(uint8_t scale);
-void CAT_set_text_mask_depr(int x0, int y0, int x1, int y1);
-
-int CAT_draw_text_depr(int x, int y, const char* text);
-int CAT_draw_textf_depr(int x, int y, const char* fmt, ...);
-size_t CAT_get_drawn_strlen_depr();
-
-#define CAT_FLOAT_FMT "%d.%2.2u"
-#define CAT_FMT_FLOAT(f) (int) (f), ((unsigned)(100 * ((f) - (int) (f))) % 100)
-#define CAT_LINE_CAPACITY(l, r, w) ((CAT_LCD_SCREEN_W - (l + r))/w)

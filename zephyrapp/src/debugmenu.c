@@ -22,6 +22,9 @@
 #include "cat_save.h"
 #include "cat_input.h"
 #include "cat_version.h"
+#include "cat_text.h"
+#include "power_control.h"
+#include "sensor_hal.h"
 
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(debugmenu, LOG_LEVEL_DBG);
@@ -151,9 +154,7 @@ uint8_t seen_buttons = 0;
 
 void menu_power_off_protected(void* arg)
 {
-	CAT_eink_draw_power_off();
-	CAT_eink_update(true);
-	power_off(0, true);
+	CAT_shutdown();
 }
 
 void developer(void* arg)

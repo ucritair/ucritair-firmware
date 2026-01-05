@@ -7,6 +7,7 @@
 #include "cat_curves.h"
 #include "cat_gizmos.h"
 #include <stdio.h>
+#include "cat_text.h"
 
 #define INSPECTOR_BG_COLOUR CAT_RGB8882565(142, 171, 174)
 #define INSPECTOR_MARGIN 8

@@ -7,6 +7,7 @@
 #include "cat_room.h"
 #include "cat_pet.h"
 #include "cat_time.h"
+#include "cat_text.h"
 
 static enum
 {

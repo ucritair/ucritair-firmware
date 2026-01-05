@@ -9,6 +9,7 @@
 #include <inttypes.h>
 #include <time.h>
 #include "cat_time.h"
+#include "cat_text.h"
 
 #define MAX_SAMPLE_COUNT CAT_LCD_SCREEN_W
 

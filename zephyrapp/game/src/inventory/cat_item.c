@@ -10,6 +10,7 @@
 #include "cat_curves.h"
 #include "item_assets.h"
 #include "cat_gizmos.h"
+#include "cat_text.h"
 
 //////////////////////////////////////////////////////////////////////////
 // ITEM TABLE

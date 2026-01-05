@@ -6,6 +6,7 @@
 #include "cat_gui.h"
 #include "cat_room.h"
 #include "cat_curves.h"
+#include "cat_text.h"
 
 #define CAT_FOURSQUARES_TILE_SIZE 16
 #define CAT_FOURSQUARES_GRID_WIDTH (CAT_LCD_SCREEN_W / CAT_FOURSQUARES_TILE_SIZE)

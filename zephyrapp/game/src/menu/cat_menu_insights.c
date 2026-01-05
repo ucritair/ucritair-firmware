@@ -11,6 +11,7 @@
 #include "sprite_assets.h"
 #include "item_assets.h"
 #include "cat_gizmos.h"
+#include "cat_text.h"
 
 void CAT_MS_insights(CAT_FSM_signal signal)
 {

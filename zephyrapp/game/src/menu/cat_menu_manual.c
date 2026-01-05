@@ -11,6 +11,7 @@
 #include "cat_pet.h"
 #include "cat_main.h"
 #include "sprite_assets.h"
+#include "cat_text.h"
 
 enum
 {

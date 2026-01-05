@@ -16,6 +16,7 @@
 #include <string.h>
 #include "cat_room.h"
 #include "cat_gizmos.h"
+#include "cat_text.h"
 
 static void MS_arrange(CAT_FSM_signal signal);
 static void render_arrange();

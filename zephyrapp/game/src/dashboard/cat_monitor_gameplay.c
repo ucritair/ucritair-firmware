@@ -12,6 +12,7 @@
 #include "cat_curves.h"
 #include "cat_gizmos.h"
 #include "cat_pet.h"
+#include "cat_text.h"
 
 #define MARGIN 12
 

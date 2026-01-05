@@ -14,6 +14,7 @@
 #include "cat_time.h"
 #include "cat_save.h"
 #include "cat_wifi.h"
+#include "cat_text.h"
 
 enum
 {

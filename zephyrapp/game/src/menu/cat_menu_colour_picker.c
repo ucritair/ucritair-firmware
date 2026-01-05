@@ -4,6 +4,7 @@
 #include "cat_render.h"
 #include "cat_gui.h"
 #include <math.h>
+#include "cat_text.h"
 
 #define CAT_HSV_MAX_HUE (255 * 5)
 

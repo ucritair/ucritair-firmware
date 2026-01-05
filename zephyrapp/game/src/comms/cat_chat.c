@@ -11,6 +11,7 @@
 #include "cat_curves.h"
 #include "cat_gizmos.h"
 #include "tinysprite_assets.h"
+#include "cat_text.h"
 
 #if CAT_RADIO_ENABLED
 #include "meshtastic/mesh.pb.h"

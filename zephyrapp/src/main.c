@@ -34,6 +34,7 @@ LOG_MODULE_REGISTER(sample, LOG_LEVEL_INF);
 #include "batt.h"
 #include "epaper_rendering.h"
 #include "rp2350_ipc.h"
+#include "power_control.h"
 
 int main(void)
 {
