@@ -743,8 +743,10 @@ void CAT_gui_menu()
 				const CAT_sprite* sprite =
 				child->toggle_data.style == CAT_GUI_TOGGLE_STYLE_CHECKBOX ?
 				&ui_checkbox_sprite : &ui_radio_button_circle_sprite;
+				int shift = CAT_GLYPH_HEIGHT/2 - sprite->height/2;
+				CAT_text_box_shift_cursor(0, shift);
 				CAT_text_box_draw_sprite(sprite, child->toggle_data.toggle);
-				CAT_text_box_shift_cursor(4, 0);
+				CAT_text_box_shift_cursor(4, -shift);
 			}
 			break;
 
@@ -1140,14 +1142,14 @@ typedef struct __attribute__((__packed__))
 
 static void CAT_gui_node_text_init(CAT_gui_node_head* head, const char* text)
 {
-	CAT_gui_node_text* node = head;
+	CAT_gui_node_text* node = (CAT_gui_node_text*) head;
 	node->head = CAT_GUI_NODE_HEAD_TEXT;
 	strncpy(node->text, text, sizeof(node->text));
 }
 
 static void CAT_gui_node_image_init(CAT_gui_node_head* head, const CAT_sprite* sprite, int frame_idx)
 {
-	CAT_gui_node_image* node = head;
+	CAT_gui_node_image* node = (CAT_gui_node_image*) head;
 	node->head = CAT_GUI_NODE_HEAD_IMAGE;
 	node->sprite = sprite;
 	node->frame_idx = frame_idx;
@@ -1167,7 +1169,7 @@ CAT_gui_node_head* gui_notif_add_node(int size)
 {
 	if(notif_node_count >= NOTIF_NODES_CAPACITY)
 		return NULL;
-	CAT_gui_node_head* ptr = CAT_balloc(&notif_node_balloc, size);
+	CAT_gui_node_head* ptr = (CAT_gui_node_head*) CAT_balloc(&notif_node_balloc, size);
 	notif_nodes[notif_node_count] = ptr;
 	notif_node_count += 1;
 	return ptr;
@@ -1252,13 +1254,10 @@ void CAT_gui_notif_logic()
 	}
 }
 
-void CAT_gui_notif()
+int gui_notif_y1()
 {
-	CAT_fillberry(NOTIF_X, NOTIF_Y, NOTIF_W, NOTIF_H, CAT_WHITE);
-	CAT_strokeberry(NOTIF_X-1, NOTIF_Y-1, NOTIF_W+2, NOTIF_H+2, CAT_BLACK);
-	CAT_strokeberry(NOTIF_X-2, NOTIF_Y-2, NOTIF_W+4, NOTIF_H+4, CAT_GREY);
+	int y1 = NOTIF_Y;
 
-	CAT_set_text_box(NOTIF_X+4, NOTIF_Y+4, NOTIF_X+NOTIF_W-4, NOTIF_Y+NOTIF_H-4);
 	for(int i = 0; i < notif_node_count; i++)
 	{
 		CAT_gui_node_head* head = notif_nodes[i];
@@ -1266,25 +1265,58 @@ void CAT_gui_notif()
 		{
 			case CAT_GUI_NODE_HEAD_TEXT:
 			{
-				CAT_gui_node_text* node = head;
-				CAT_text_box_draw(1, CAT_BLACK, node->text);
-				CAT_text_box_newline(1);
+				CAT_gui_node_text* node = (CAT_gui_node_text*) head;
+				int w, h;
+				CAT_TXTAN_measure
+				(
+					NOTIF_X, NOTIF_Y, NOTIF_X+NOTIF_W, NOTIF_Y+NOTIF_H,
+					1, node->text,
+					&w, &h
+				);
+				y1 += h;
 			}
 			break;
 
 			case CAT_GUI_NODE_HEAD_IMAGE:
 			{
-				CAT_gui_node_image* node = head;
-				CAT_text_box_draw_sprite(node->sprite, node->frame_idx);
-				CAT_text_box_shift_cursor(0, node->sprite->height);
-				CAT_text_box_reset_x();
+				CAT_gui_node_image* node = (CAT_gui_node_image*) head;
+				y1 += node->sprite->height + CAT_LEADING;
+			}
+			break;
+		}
+	}
+
+	return y1;
+}
+
+void CAT_gui_notif()
+{
+	int y1 = gui_notif_y1() + 8;
+	int h = y1 - NOTIF_Y;
+
+	CAT_fillberry(NOTIF_X, NOTIF_Y, NOTIF_W, h, CAT_WHITE);
+	CAT_strokeberry(NOTIF_X-1, NOTIF_Y-1, NOTIF_W+2, h+2, CAT_BLACK);
+	CAT_strokeberry(NOTIF_X-2, NOTIF_Y-2, NOTIF_W+4, h+4, CAT_GREY);
+
+	CAT_set_text_box(NOTIF_X+4, NOTIF_Y+4, NOTIF_X+NOTIF_W-4, y1-4);
+	for(int i = 0; i < notif_node_count; i++)
+	{
+		CAT_gui_node_head* head = notif_nodes[i];
+		switch (*head)
+		{
+			case CAT_GUI_NODE_HEAD_TEXT:
+			{
+				CAT_gui_node_text* node = (CAT_gui_node_text*) head;
+				CAT_text_box_draw(1, CAT_BLACK, node->text);
 			}
 			break;
 
-			default:
+			case CAT_GUI_NODE_HEAD_IMAGE:
 			{
-				CAT_text_box_draw(1, CAT_BLACK, "Dummy");
-				CAT_text_box_newline(1);
+				CAT_gui_node_image* node = (CAT_gui_node_image*) head;
+				CAT_text_box_draw_sprite(node->sprite, node->frame_idx);
+				CAT_text_box_shift_cursor(0, node->sprite->height + CAT_LEADING);
+				CAT_text_box_reset_x();
 			}
 			break;
 		}

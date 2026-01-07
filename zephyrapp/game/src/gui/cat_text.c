@@ -222,9 +222,9 @@ static void buffer_breaks(int glyph_width, int line_width)
 
 
 //////////////////////////////////////////////////////////////////////////
-// DRAWING
+// ANALYSIS
 
-static int get_max_line_width(int scale)
+int TXTAN_max_line_width(int scale)
 {
 	int idx = 0;
 	int length = 0;
@@ -243,7 +243,7 @@ static int get_max_line_width(int scale)
 	return CAT_max(max_length, length) * CAT_GLYPH_WIDTH * scale;
 }
 
-static int get_line_width_at(int idx, int scale)
+int TXTAN_line_width_at(int scale, int idx)
 {
 	int length = 0;
 	while
@@ -260,9 +260,9 @@ static int get_line_width_at(int idx, int scale)
 	return length * CAT_GLYPH_WIDTH * scale;
 }
 
-static int get_line_start(int idx, int scale, int x0, int x1, int alignment)
+static int TXTAN_line_start_x(int idx, int scale, int x0, int x1, int alignment)
 {
-	int width = get_line_width_at(idx, scale);
+	int width = TXTAN_line_width_at(idx, scale);
 	switch (alignment)
 	{
 		case CAT_TEXT_ALIGNMENT_LEFT: return x0;
@@ -271,6 +271,40 @@ static int get_line_start(int idx, int scale, int x0, int x1, int alignment)
 		default: return x0;
 	}
 }
+
+void CAT_TXTAN_measure
+(
+	int x0, int y0, int x1, int y1,
+	int scale, const char* text,
+	int* w_out, int* h_out
+)
+{
+	strcpy(raw_buffer, text);
+	measure_raw_buffer();
+
+	clear_skip_bufffer();
+	clear_break_bufffer();
+	clear_colour_bufffer();
+
+	buffer_colours();
+	buffer_breaks(CAT_GLYPH_WIDTH * scale, x1-x0);
+	
+	int idx = 0;
+	int lines = 0;
+	while(raw_buffer[idx] != '\0')
+	{
+		if(raw_buffer[idx] == '\n' || get_break(idx))
+			lines++;
+		idx++;
+	}
+
+	*w_out = TXTAN_max_line_width(scale);
+	*h_out = lines * CAT_TEXT_LINE_HEIGHT * scale;
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+// DRAWING
 
 void draw_text_vertical
 (
@@ -341,7 +375,7 @@ static void draw_text
 	if(x0 == x1)
 	{
 		x0 = x;
-		x1 = x0 + get_max_line_width(scale);
+		x1 = x0 + TXTAN_max_line_width(scale);
 	}
 	if(y0 == y1)
 	{
@@ -351,7 +385,7 @@ static void draw_text
 	buffer_breaks(CAT_GLYPH_WIDTH * scale, x1-x0);
 	
 	int idx = 0;
-	int cursor_x = get_line_start(idx, scale, x, x1, alignment);
+	int cursor_x = TXTAN_line_start_x(idx, scale, x, x1, alignment);
 	int cursor_y = y;
 
 	while (raw_buffer[idx] != '\0')
@@ -365,7 +399,7 @@ static void draw_text
 		{
 			cursor_y += (CAT_GLYPH_HEIGHT + CAT_LEADING) * scale;
 			idx++;
-			cursor_x = get_line_start(idx, scale, x0, x1, alignment);
+			cursor_x = TXTAN_line_start_x(idx, scale, x0, x1, alignment);
 			continue;
 		}
 
@@ -507,12 +541,16 @@ void CAT_text_box_draw(int scale, uint16_t colour, const char* fmt, ...)
 
 void CAT_text_box_draw_sprite(const CAT_sprite* sprite, int frame_idx)
 {
-	CAT_draw_sprite
-	(
-		sprite, frame_idx,
-		text_box_x, text_box_y + CAT_GLYPH_HEIGHT/2 - sprite->height/2
-	);
-	text_box_x += sprite->width;
+	CAT_draw_sprite(sprite, frame_idx, text_box_x, text_box_y);
+	if(text_box_x + sprite->width >= text_box_x1)
+	{
+		text_box_y += sprite->height + CAT_LEADING;
+		CAT_text_box_reset_x();
+	}
+	else
+	{
+		text_box_x += sprite->width;
+	}
 }
 
 

@@ -18,6 +18,17 @@ typedef enum
 
 
 //////////////////////////////////////////////////////////////////////////
+// ANALYSIS
+
+void CAT_TXTAN_measure
+(
+	int x0, int y0, int x1, int y1,
+	int scale, const char* text,
+	int* w_out, int* h_out
+);
+
+
+//////////////////////////////////////////////////////////////////////////
 // DRAWING
 
 void CAT_draw_text(int x, int y, int scale, uint16_t colour, const char* fmt, ...);

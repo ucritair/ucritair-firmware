@@ -67,7 +67,7 @@ static void tick_co2_cal()
 	int remaining = CO2_CAL_TIME - elapsed;
 
 	CAT_gui_notif_open();
-	CAT_gui_notif_text("Please go outside and wait while CO2 sensor reading settles before calibration\n");
+	CAT_gui_notif_text("Please go outside and wait while CO2 sensor reading settles before calibration.\n");
 	
 	if(remaining >= 1)
 	{
@@ -77,7 +77,7 @@ static void tick_co2_cal()
 	else if(remaining >= 0)
 	{
 		CAT_gui_notif_image(&icon_nosmoke_sprite, 0);
-		CAT_gui_notif_text("Calibrating...");
+		CAT_gui_notif_text("Calibrating...\n");
 	}
 	else if(remaining >= -1)
 	{
