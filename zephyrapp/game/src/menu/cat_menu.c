@@ -25,6 +25,8 @@
 #include "cat_crypto.h"
 #include "cat_radio.h"
 #include "cat_text.h"
+#include "sprite_assets.h"
+#include "cat_alloc.h"
 
 #ifdef CAT_EMBEDDED
 #include "menu_system.h"
@@ -33,6 +35,75 @@
 #ifdef CAT_RESEARCH_ONLY
 #include "cat_research.h"
 #endif
+
+// Date/time
+static CAT_datetime dt_real;
+static CAT_datetime dt_cached;
+
+// Log rate
+static int lr_mins;
+
+#define CO2_CAL_TIME (CAT_MINUTE_SECONDS * 5)
+static bool co2_cal_status = false;
+static uint64_t co2_cal_time = 0;
+static bool co2_cal_sensor_called = false;
+
+static void start_co2_cal()
+{
+	co2_cal_status = true;
+	co2_cal_time = CAT_get_RTC_now();
+	co2_cal_sensor_called = false;
+}
+
+static void end_co2_cal()
+{
+	CAT_inventory_add(food_cigs_item, 1);
+	co2_cal_status = false;
+}
+
+static void tick_co2_cal()
+{
+	int elapsed = CAT_get_RTC_now() - co2_cal_time;
+	int remaining = CO2_CAL_TIME - elapsed;
+
+	CAT_gui_notif_open();
+	CAT_gui_notif_text("Please go outside and wait while CO2 sensor reading settles before calibration\n");
+	
+	if(remaining >= 1)
+	{
+		CAT_gui_notif_image(&icon_nosmoke_sprite, 0);
+		CAT_gui_notif_text("%02d:%02d remaining...\n", remaining/60, remaining%60);
+	}
+	else if(remaining >= 0)
+	{
+		CAT_gui_notif_image(&icon_nosmoke_sprite, 0);
+		CAT_gui_notif_text("Calibrating...");
+	}
+	else if(remaining >= -1)
+	{
+		if(!co2_cal_sensor_called)
+		{
+			co2_cal_sensor_called = true;
+			CAT_force_sensor_read(CAT_SENSOR_SUNRISE);
+		}
+	}
+	else
+	{
+		CAT_gui_notif_text("Done. Thanks for waiting... Have some cigarettes as a reward:\n");
+		CAT_gui_notif_image(&cigarette_sprite, 0);
+		CAT_gui_notif_text("Press A to exit\n");
+		CAT_gui_notif_close(true, end_co2_cal);
+	}
+
+	if(CAT_input_dismissal())
+	{
+		co2_cal_status = false;
+		CAT_gui_notif_close(false, NULL);
+	}
+}
+
+static uint8_t balloc_buffer[512];
+static CAT_bump_allocator balloc = CAT_BALLOC_INIT(balloc_buffer, sizeof(balloc_buffer));
 
 void CAT_MS_menu(CAT_FSM_signal signal)
 {
@@ -156,6 +227,20 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 						}
 #endif
 
+						if(CAT_gui_menu_item("TEST BALLOC"))
+						{
+							uint8_t* one = CAT_balloc(&balloc, 128);
+							CAT_printf("1 %p, %d bytes used\n", one, balloc.head);
+							one = CAT_balloc(&balloc, 256);
+							CAT_printf("1 %p, %d bytes used\n", one, balloc.head);
+
+							strcpy(one, "Hello, world!\n");
+							CAT_printf(one);
+
+							CAT_bfree(&balloc);
+							CAT_printf("[FREE]\n");
+						}
+
 						CAT_gui_end_menu();
 					}				
 				}
@@ -239,11 +324,11 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 						CAT_gui_end_menu();
 					}
 
-					if(CAT_gui_begin_menu("TEMPERATURE UNIT"))
+					if(CAT_gui_begin_menu("AIR QUALITY"))
 					{
-						if(CAT_gui_menu_toggle("CELSIUS", !(persist_flags & CAT_PERSIST_CONFIG_FLAG_USE_FAHRENHEIT), CAT_GUI_TOGGLE_STYLE_RADIO_BUTTON))
+						if(CAT_gui_menu_toggle("USE CELSIUS", !(persist_flags & CAT_PERSIST_CONFIG_FLAG_USE_FAHRENHEIT), CAT_GUI_TOGGLE_STYLE_RADIO_BUTTON))
 							persist_flags &= ~CAT_PERSIST_CONFIG_FLAG_USE_FAHRENHEIT;
-						if(CAT_gui_menu_toggle("FAHRENHEIT", persist_flags & CAT_PERSIST_CONFIG_FLAG_USE_FAHRENHEIT, CAT_GUI_TOGGLE_STYLE_RADIO_BUTTON))
+						if(CAT_gui_menu_toggle("USE FAHRENHEIT", persist_flags & CAT_PERSIST_CONFIG_FLAG_USE_FAHRENHEIT, CAT_GUI_TOGGLE_STYLE_RADIO_BUTTON))
 							persist_flags |= CAT_PERSIST_CONFIG_FLAG_USE_FAHRENHEIT;
 						CAT_AQ_set_temperature_unit
 						(
@@ -251,6 +336,10 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 							CAT_TEMPERATURE_UNIT_DEGREES_FAHRENHEIT :
 							CAT_TEMPERATURE_UNIT_DEGREES_CELSIUS
 						);
+						
+						if(CAT_gui_menu_item("CALIBRATE CO2"))
+							start_co2_cal();
+
 						CAT_gui_end_menu();
 					}
 
@@ -259,38 +348,78 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 						CAT_pushdown_push(CAT_MS_wifi);
 #endif
 
-#ifdef CAT_EMBEDDED
-					if(CAT_gui_menu_item("SYSTEM"))
-						CAT_pushdown_push(CAT_MS_system_menu);
-#endif
+					if(CAT_gui_begin_menu("TIME"))
+					{
+						CAT_get_datetime(&dt_cached);
+						dt_real = dt_cached;
 
-					if(CAT_gui_begin_menu("DANGER ZONE"))
-					{	
-						if(CAT_gui_menu_item("RESET SAVE"))
-							CAT_gui_open_popup("Are you sure? This will delete all game data!\n", CAT_POPUP_STYLE_YES_NO);
+						dt_real.year = CAT_gui_menu_ticker("YEAR", dt_real.year, 0, 3000);
+						dt_real.month = CAT_gui_menu_ticker("MONTH", dt_real.month, 1, 12);
+						dt_real.day = CAT_gui_menu_ticker("DAY", dt_real.day, 1, 31);
+						dt_real.hour = CAT_gui_menu_ticker("HOUR", dt_real.hour, 0, 23);
+						dt_real.minute = CAT_gui_menu_ticker("MINUTE", dt_real.minute, 0, 59);
+						dt_real.second = CAT_gui_menu_ticker("SECOND", dt_real.second, 0, 59);
+
+						if(CAT_timecmp(&dt_real, &dt_cached) != 0)
+							CAT_set_datetime(dt_real);
+
+						CAT_gui_end_menu();
+					}
+
+					if(CAT_gui_begin_menu("LOGS AND SAVE"))
+					{
+						lr_mins = sensor_wakeup_period / CAT_MINUTE_SECONDS;
+						lr_mins = CAT_gui_menu_ticker("LOG RATE (MINUTES)", lr_mins, 0, 60);
+						sensor_wakeup_period = lr_mins * CAT_MINUTE_SECONDS;
+
+						if(CAT_gui_menu_item("WRITE LOGS TO SD"))
+						{
+							CAT_SD_write_result result = CAT_write_logs_to_SD();
+							if(result == CAT_SD_WRITE_OKAY)
+								CAT_gui_open_popup("Write succeeded!", CAT_POPUP_STYLE_OK);
+							else
+								CAT_gui_open_popup("Write failed!", CAT_POPUP_STYLE_OK);
+						}
 
 						if(CAT_gui_begin_menu("ERASE LOGS"))
 						{
 							CAT_gui_menu_text("Deleting your logs is an");
 							CAT_gui_menu_text("irreversible action.");
 							CAT_gui_menu_text("Be very careful!");
-							CAT_gui_menu_text("##el_newline");
+							CAT_gui_menu_text("");
 
 							if(CAT_gui_menu_item("REALLY ERASE LOGS"))
 								CAT_gui_open_popup("This will permanently delete all your logged data. Are you sure you want to proceed?\n", CAT_POPUP_STYLE_YES_NO);
 							if(CAT_gui_consume_popup())
+							{
 								CAT_erase_logs();
+								CAT_gui_open_popup("All logs erased!\n", CAT_POPUP_STYLE_OK);
+							}
 
 							CAT_gui_end_menu();
 						}
-						else
+
+						if(CAT_gui_begin_menu("ERASE SAVE"))
 						{
+							CAT_gui_menu_text("Deleting your save is an");
+							CAT_gui_menu_text("irreversible action.");
+							CAT_gui_menu_text("Be very careful!");
+							CAT_gui_menu_text("");
+
+							if(CAT_gui_menu_item("REALLY ERASE SAVE"))
+								CAT_gui_open_popup("This will permanently delete all your saved data. Are you sure you want to proceed?\n", CAT_POPUP_STYLE_YES_NO);
 							if(CAT_gui_consume_popup())
-								CAT_factory_reset();
-						}					
-						
+							{
+								CAT_reset_save();
+								CAT_gui_open_popup("Save erased!\n", CAT_POPUP_STYLE_OK);
+							}
+
+							CAT_gui_end_menu();
+						}
+
 						CAT_gui_end_menu();
 					}
+
 					CAT_gui_end_menu();
 				}
 
@@ -311,8 +440,11 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 				}
 				CAT_gui_end_menu();
 			}
-			break;
+			
+			if(co2_cal_status)
+				tick_co2_cal();
 		}
+		break;
 
 		case CAT_FSM_SIGNAL_EXIT:
 		{

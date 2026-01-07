@@ -82,6 +82,16 @@ void CAT_gui_dismiss_dialogue();
 
 
 //////////////////////////////////////////////////////////////////////////
+// NOTIF
+
+bool CAT_gui_notif_is_open();
+void CAT_gui_notif_open();
+void CAT_gui_notif_text(const char* fmt, ...);
+void CAT_gui_notif_image(const CAT_sprite* sprite, int frame_idx);
+void CAT_gui_notif_close(bool await_input, void(*callback)(void));
+
+
+//////////////////////////////////////////////////////////////////////////
 // FINALIZATION
 
 void CAT_gui_tick();

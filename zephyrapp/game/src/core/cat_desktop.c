@@ -792,10 +792,19 @@ void CAT_shutdown()
 	glfwSetWindowShouldClose(lcd.window, true);
 }
 
-void CAT_factory_reset()
+void CAT_reset_save()
 {
 	CAT_set_load_flags(CAT_LOAD_FLAG_DIRTY);
 	CAT_set_load_flags(CAT_LOAD_FLAG_DEFAULT);
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// AIR QUALITY
+
+void CAT_force_sensor_read(int sensor)
+{
+	CAT_printf("[CALL] CAT_force_sensor_read\n");
 }
 
 
@@ -828,5 +837,9 @@ void CAT_printf(const char* fmt, ...)
 	va_list args;
 	va_start(args, fmt);
 	vdprintf(STDOUT_FILENO, fmt, args);
+	char buf[128];
+	vsnprintf(buf, sizeof(buf), fmt, args);
 	va_end(args);
+
+	CAT_debug_log(buf);
 }

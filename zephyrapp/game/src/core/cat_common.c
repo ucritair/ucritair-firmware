@@ -105,7 +105,7 @@ void CAT_eink_draw_default()
 		fwrite_str(128, 20, 2, "%d", (int) readings.sunrise.ppm_filtered_compensated);
 		fwrite_str(CAT_EINK_SCREEN_W-(8*3), 20, 1, "ppm\nCO2");
 		fwrite_str(128, 40, 2, CAT_FLOAT_FMT, CAT_FMT_FLOAT(readings.sen5x.pm2_5));
-		fwrite_str(CAT_EINK_SCREEN_W-(8*5), 40, 1, "ug/m3\nPM2.5");
+		fwrite_str(CAT_EINK_SCREEN_W-(8*5), 40, 1, "\4g/m3\nPM2.5");
 
 		if (CAT_AQ_NOX_VOC_initialized()) // NEEDS THE BRACKETS ?!
 		{
@@ -116,7 +116,7 @@ void CAT_eink_draw_default()
 		float deg_mapped = CAT_AQ_map_celsius(deg_c);
 		fwrite_str(128, 70, 1, "%d %s / %d%% RH", (int) deg_mapped, CAT_AQ_get_temperature_unit_string(), (int) readings.sen5x.humidity_rhpct);
 		fwrite_str(128, 80, 1, "%d%% rebreathed", (int) ((((readings.sunrise.ppm_filtered_compensated)-420.)/38000.)*100.));
-		fwrite_str(128, 90, 1, "uCritAQI %d%%", (int) score);
+		fwrite_str(128, 90, 1, "\4CritAQI %d%%", (int) score);
 		fwrite_str(128, 100, 1, "at %2d:%02d:%02d", now.hour, now.minute, now.second);
 		fwrite_str(128, 110, 1, "%d%% battery", CAT_get_battery_pct());
 	}
@@ -315,13 +315,32 @@ bool CAT_logs_initialized()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // DEBUG
 
-static int debug_number = 0;
-int CAT_get_debug_number()
+#define DEBUG_LOG_LENGTH 1023
+static char debug_log[DEBUG_LOG_LENGTH+1] = {0};
+static int debug_log_head = 0;
+static char debug_line_buf[128];
+
+void CAT_debug_log(const char* fmt, ...)
 {
-	return debug_number;
+	va_list args;
+	va_start(args, fmt);
+	vsnprintf(debug_line_buf, sizeof(debug_line_buf), fmt, args);
+	va_end(args);
+
+	size_t l = strlen(debug_line_buf);
+	int remaining = DEBUG_LOG_LENGTH - debug_log_head;
+	if(l > remaining)
+	{
+		int needed = l - remaining;
+		memmove(debug_log, debug_log+needed, debug_log_head);
+		debug_log_head -= needed;	
+	}
+
+	strcpy(debug_log+debug_log_head, debug_line_buf);
+	debug_log_head += l;
 }
 
-void CAT_set_debug_number(int x)
+char* CAT_debug_log_ptr()
 {
-	debug_number = x;
+	return debug_log;
 }

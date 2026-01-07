@@ -241,7 +241,7 @@ bool CAT_is_on();
 void CAT_msleep(int ms);
 void CAT_sleep();
 void CAT_shutdown();
-void CAT_factory_reset();
+void CAT_reset_save();
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -274,6 +274,13 @@ extern CAT_AQ_readings readings;
 bool CAT_AQ_sensors_initialized();
 bool CAT_AQ_NOX_VOC_initialized();
 
+typedef enum
+{
+	CAT_SENSOR_SUNRISE
+} CAT_sensor;
+
+void CAT_force_sensor_read(int sensor);
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // IMU
@@ -299,8 +306,8 @@ bool CAT_IMU_is_upside_down();
 // DEBUG
 
 void CAT_printf(const char* fmt, ...);
-int CAT_get_debug_number();
-void CAT_set_debug_number(int x);
+void CAT_debug_log(const char* fmt, ...);
+char* CAT_debug_log_ptr();
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

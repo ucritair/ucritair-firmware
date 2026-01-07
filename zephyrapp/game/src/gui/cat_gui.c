@@ -17,6 +17,7 @@
 #include "cat_core.h"
 #include "cat_curves.h"
 #include "cat_text.h"
+#include "cat_alloc.h"
 
 //////////////////////////////////////////////////////////////////////////
 // KEYBOARD
@@ -1116,11 +1117,189 @@ void CAT_gui_dialogue()
 
 
 //////////////////////////////////////////////////////////////////////////
+// NOTIF
+
+typedef enum
+{
+	CAT_GUI_NODE_HEAD_TEXT,
+	CAT_GUI_NODE_HEAD_IMAGE
+} CAT_gui_node_head;
+
+typedef struct __attribute__((__packed__))
+{
+	CAT_gui_node_head head;
+	char text[128];
+} CAT_gui_node_text;
+
+typedef struct __attribute__((__packed__))
+{
+	CAT_gui_node_head head;
+	const CAT_sprite* sprite;
+	int frame_idx;
+} CAT_gui_node_image;
+
+static void CAT_gui_node_text_init(CAT_gui_node_head* head, const char* text)
+{
+	CAT_gui_node_text* node = head;
+	node->head = CAT_GUI_NODE_HEAD_TEXT;
+	strncpy(node->text, text, sizeof(node->text));
+}
+
+static void CAT_gui_node_image_init(CAT_gui_node_head* head, const CAT_sprite* sprite, int frame_idx)
+{
+	CAT_gui_node_image* node = head;
+	node->head = CAT_GUI_NODE_HEAD_IMAGE;
+	node->sprite = sprite;
+	node->frame_idx = frame_idx;
+}
+
+#define NOTIF_NODES_CAPACITY 16
+
+static uint8_t notif_node_buffer[NOTIF_NODES_CAPACITY * sizeof(CAT_gui_node_text)];
+static CAT_bump_allocator notif_node_balloc = CAT_BALLOC_INIT(notif_node_buffer, sizeof(notif_node_buffer));
+
+static CAT_gui_node_head* notif_nodes[NOTIF_NODES_CAPACITY];
+static int notif_node_count = 0;
+
+static void(*notif_callback)(void) = NULL;
+
+CAT_gui_node_head* gui_notif_add_node(int size)
+{
+	if(notif_node_count >= NOTIF_NODES_CAPACITY)
+		return NULL;
+	CAT_gui_node_head* ptr = CAT_balloc(&notif_node_balloc, size);
+	notif_nodes[notif_node_count] = ptr;
+	notif_node_count += 1;
+	return ptr;
+}
+
+static enum
+{
+	NOTIF_STATUS_CLOSED,
+	NOTIF_STATUS_OPEN,
+	NOTIF_STATUS_AWAIT,
+	NOTIF_STATUS_SHOULD_CLOSE
+} notif_status = NOTIF_STATUS_CLOSED;
+
+bool CAT_gui_notif_is_open()
+{
+	return notif_status != NOTIF_STATUS_CLOSED;
+}
+
+void CAT_gui_notif_open()
+{
+	CAT_bfree(&notif_node_balloc);
+
+	notif_status = NOTIF_STATUS_OPEN;
+	notif_node_count = 0;
+}
+
+void CAT_gui_notif_text(const char* fmt, ...)
+{
+	if(notif_status == NOTIF_STATUS_CLOSED)
+		return;
+
+	static char buffer[128];
+	va_list args;
+	va_start(args, fmt);
+	vsnprintf(buffer, sizeof(buffer), fmt, args);
+	va_end(args);
+
+	CAT_gui_node_head* head = gui_notif_add_node(sizeof(CAT_gui_node_text));
+	CAT_gui_node_text_init(head, buffer);
+}
+
+void CAT_gui_notif_image(const CAT_sprite* sprite, int frame_idx)
+{
+	if(notif_status == NOTIF_STATUS_CLOSED)
+		return;
+
+	CAT_gui_node_head* head = gui_notif_add_node(sizeof(CAT_gui_node_image));
+	CAT_gui_node_image_init(head, sprite, frame_idx);
+}
+
+void CAT_gui_notif_close(bool await_input, void(*callback)(void))
+{
+	if(notif_status == NOTIF_STATUS_CLOSED)
+		return;
+
+	notif_callback = callback;
+
+	if(await_input)
+		notif_status = NOTIF_STATUS_AWAIT;
+	else
+		notif_status = NOTIF_STATUS_SHOULD_CLOSE;
+}
+
+#define NOTIF_X 20
+#define NOTIF_Y NOTIF_X
+#define NOTIF_W (CAT_LCD_SCREEN_W-(NOTIF_X*2))
+#define NOTIF_H (CAT_LCD_SCREEN_H-(NOTIF_Y*2))
+
+void CAT_gui_notif_logic()
+{
+	if(notif_status == NOTIF_STATUS_AWAIT)
+	{
+		if(CAT_input_pressed(CAT_BUTTON_A) || CAT_input_dismissal())
+			notif_status = NOTIF_STATUS_SHOULD_CLOSE;
+	}
+
+	if(notif_status == NOTIF_STATUS_SHOULD_CLOSE)
+	{
+		if(notif_callback != NULL)
+			notif_callback();
+		notif_status = NOTIF_STATUS_CLOSED;
+	}
+}
+
+void CAT_gui_notif()
+{
+	CAT_fillberry(NOTIF_X, NOTIF_Y, NOTIF_W, NOTIF_H, CAT_WHITE);
+	CAT_strokeberry(NOTIF_X-1, NOTIF_Y-1, NOTIF_W+2, NOTIF_H+2, CAT_BLACK);
+	CAT_strokeberry(NOTIF_X-2, NOTIF_Y-2, NOTIF_W+4, NOTIF_H+4, CAT_GREY);
+
+	CAT_set_text_box(NOTIF_X+4, NOTIF_Y+4, NOTIF_X+NOTIF_W-4, NOTIF_Y+NOTIF_H-4);
+	for(int i = 0; i < notif_node_count; i++)
+	{
+		CAT_gui_node_head* head = notif_nodes[i];
+		switch (*head)
+		{
+			case CAT_GUI_NODE_HEAD_TEXT:
+			{
+				CAT_gui_node_text* node = head;
+				CAT_text_box_draw(1, CAT_BLACK, node->text);
+				CAT_text_box_newline(1);
+			}
+			break;
+
+			case CAT_GUI_NODE_HEAD_IMAGE:
+			{
+				CAT_gui_node_image* node = head;
+				CAT_text_box_draw_sprite(node->sprite, node->frame_idx);
+				CAT_text_box_shift_cursor(0, node->sprite->height);
+				CAT_text_box_reset_x();
+			}
+			break;
+
+			default:
+			{
+				CAT_text_box_draw(1, CAT_BLACK, "Dummy");
+				CAT_text_box_newline(1);
+			}
+			break;
+		}
+	};
+}
+
+
+//////////////////////////////////////////////////////////////////////////
 // FINALIZATION
 
 void CAT_gui_tick()
 {
-	if(CAT_gui_popup_is_open())
+	if(CAT_gui_notif_is_open())
+		CAT_gui_notif_logic();
+	else if(CAT_gui_popup_is_open())
 		CAT_gui_popup_logic();
 	else if(CAT_gui_keyboard_is_open())
 		CAT_gui_keyboard_logic();
@@ -1146,4 +1325,6 @@ void CAT_gui_render()
 		CAT_gui_popup();
 	if(CAT_gui_dialogue_is_open())
 		CAT_gui_dialogue();	
+	if(CAT_gui_notif_is_open())
+		CAT_gui_notif();
 }

@@ -225,7 +225,7 @@ void CAT_MS_research_config(CAT_FSM_signal signal)
 						CAT_gui_menu_text("Deleting your logs is an");
 						CAT_gui_menu_text("irreversible action.");
 						CAT_gui_menu_text("Be very careful!");
-						CAT_gui_menu_text("##el_newline");
+						CAT_gui_menu_text("");
 
 						if(CAT_gui_menu_item("REALLY ERASE LOGS"))
 							CAT_gui_open_popup("This will permanently delete all your logged data. Are you sure you want to proceed?\n", CAT_POPUP_STYLE_YES_NO);
@@ -251,7 +251,7 @@ void CAT_MS_research_config(CAT_FSM_signal signal)
 						CAT_gui_menu_text("[WARNING]");
 						CAT_gui_menu_text("This page is dangerous.");
 						CAT_gui_menu_text("Go back!");
-						CAT_gui_menu_text("##dz_newline");
+						CAT_gui_menu_text("");
 
 						if(CAT_gui_menu_item("EXIT RESEARCH MODE"))
 							CAT_gui_open_keyboard(pswrd_buf, sizeof(pswrd_buf));

@@ -18,6 +18,7 @@
 #include <zephyr/sys/timeutil.h>
 #include "cat_save.h"
 #include "sdcard.h"
+#include "sensor_hal.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // CORE
@@ -360,11 +361,29 @@ void CAT_shutdown()
 	power_off(0, true);
 }
 
-void CAT_factory_reset()
+void CAT_reset_save()
 {
 	cat_game_running = 0;
 	flash_nuke_tomas_save();
 	power_off(0, false);
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// AIR QUALITY
+
+void CAT_force_sensor_read(int sensor)
+{
+	switch(sensor)
+	{
+		case CAT_SENSOR_SUNRISE:
+		{
+			force_abc_sunrise();
+		}
+		break;
+
+		default: break;
+	}
 }
 
 
@@ -398,4 +417,6 @@ void CAT_printf(const char* fmt, ...)
 	int printed = vsnprintf(debug_print_buffer, sizeof(debug_print_buffer), fmt, args);
 	va_end(args);
 	printk("%s", debug_print_buffer);
+
+	CAT_debug_log(debug_print_buffer);
 }
