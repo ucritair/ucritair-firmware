@@ -102,9 +102,6 @@ static void tick_co2_cal()
 	}
 }
 
-static uint8_t balloc_buffer[512];
-static CAT_bump_allocator balloc = CAT_BALLOC_INIT(balloc_buffer, sizeof(balloc_buffer));
-
 void CAT_MS_menu(CAT_FSM_signal signal)
 {
 	switch(signal)
@@ -227,20 +224,6 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 						}
 #endif
 
-						if(CAT_gui_menu_item("TEST BALLOC"))
-						{
-							uint8_t* one = CAT_balloc(&balloc, 128);
-							CAT_printf("1 %p, %d bytes used\n", one, balloc.head);
-							one = CAT_balloc(&balloc, 256);
-							CAT_printf("1 %p, %d bytes used\n", one, balloc.head);
-
-							strcpy(one, "Hello, world!\n");
-							CAT_printf(one);
-
-							CAT_bfree(&balloc);
-							CAT_printf("[FREE]\n");
-						}
-
 						CAT_gui_end_menu();
 					}				
 				}
@@ -252,6 +235,43 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 
 				if(CAT_gui_begin_menu("SETTINGS"))
 				{
+					if(CAT_gui_begin_menu("TIME"))
+					{
+						CAT_get_datetime(&dt_cached);
+						dt_real = dt_cached;
+
+						dt_real.year = CAT_gui_menu_ticker("YEAR", dt_real.year, 0, 3000);
+						dt_real.month = CAT_gui_menu_ticker("MONTH", dt_real.month, 1, 12);
+						dt_real.day = CAT_gui_menu_ticker("DAY", dt_real.day, 1, 31);
+						dt_real.hour = CAT_gui_menu_ticker("HOUR", dt_real.hour, 0, 23);
+						dt_real.minute = CAT_gui_menu_ticker("MINUTE", dt_real.minute, 0, 59);
+						dt_real.second = CAT_gui_menu_ticker("SECOND", dt_real.second, 0, 59);
+
+						if(CAT_timecmp(&dt_real, &dt_cached) != 0)
+							CAT_set_datetime(dt_real);
+
+						CAT_gui_end_menu();
+					}
+
+					if(CAT_gui_begin_menu("AIR QUALITY"))
+					{
+						if(CAT_gui_menu_toggle("USE CELSIUS", !(persist_flags & CAT_PERSIST_CONFIG_FLAG_USE_FAHRENHEIT), CAT_GUI_TOGGLE_STYLE_RADIO_BUTTON))
+							persist_flags &= ~CAT_PERSIST_CONFIG_FLAG_USE_FAHRENHEIT;
+						if(CAT_gui_menu_toggle("USE FAHRENHEIT", persist_flags & CAT_PERSIST_CONFIG_FLAG_USE_FAHRENHEIT, CAT_GUI_TOGGLE_STYLE_RADIO_BUTTON))
+							persist_flags |= CAT_PERSIST_CONFIG_FLAG_USE_FAHRENHEIT;
+						CAT_AQ_set_temperature_unit
+						(
+							persist_flags & CAT_PERSIST_CONFIG_FLAG_USE_FAHRENHEIT ?
+							CAT_TEMPERATURE_UNIT_DEGREES_FAHRENHEIT :
+							CAT_TEMPERATURE_UNIT_DEGREES_CELSIUS
+						);
+						
+						if(CAT_gui_menu_item("CALIBRATE CO2"))
+							start_co2_cal();
+
+						CAT_gui_end_menu();
+					}
+
 					if(CAT_gui_begin_menu("GAMEPLAY"))
 					{
 						if(CAT_gui_menu_toggle("GAME FIRST", !(persist_flags & CAT_PERSIST_CONFIG_FLAG_AQ_FIRST), CAT_GUI_TOGGLE_STYLE_RADIO_BUTTON))
@@ -265,24 +285,6 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 								persist_flags &= ~CAT_PERSIST_CONFIG_FLAG_PAUSE_CARE;
 							else
 								persist_flags |= CAT_PERSIST_CONFIG_FLAG_PAUSE_CARE;
-						}
-						CAT_gui_end_menu();
-					}
-
-					if(CAT_gui_begin_menu("COSMETICS"))
-					{
-						if(CAT_gui_menu_item("PET NAME"))
-							CAT_gui_open_keyboard(pet.name, sizeof(pet.name));
-
-						if(CAT_gui_begin_menu("ROOM THEME"))
-						{
-							for(int i = 0; i < CAT_ROOM_THEME_COUNT; i++)
-							{		
-								bool this_theme = CAT_room_get_theme() == CAT_room_theme_list[i];
-								if(CAT_gui_menu_toggle(CAT_room_theme_list[i]->name, this_theme, CAT_GUI_TOGGLE_STYLE_RADIO_BUTTON))
-									CAT_room_set_theme(CAT_room_theme_list[i]);
-							}
-							CAT_gui_end_menu();
 						}
 						CAT_gui_end_menu();
 					}
@@ -324,45 +326,26 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 						CAT_gui_end_menu();
 					}
 
-					if(CAT_gui_begin_menu("AIR QUALITY"))
-					{
-						if(CAT_gui_menu_toggle("USE CELSIUS", !(persist_flags & CAT_PERSIST_CONFIG_FLAG_USE_FAHRENHEIT), CAT_GUI_TOGGLE_STYLE_RADIO_BUTTON))
-							persist_flags &= ~CAT_PERSIST_CONFIG_FLAG_USE_FAHRENHEIT;
-						if(CAT_gui_menu_toggle("USE FAHRENHEIT", persist_flags & CAT_PERSIST_CONFIG_FLAG_USE_FAHRENHEIT, CAT_GUI_TOGGLE_STYLE_RADIO_BUTTON))
-							persist_flags |= CAT_PERSIST_CONFIG_FLAG_USE_FAHRENHEIT;
-						CAT_AQ_set_temperature_unit
-						(
-							persist_flags & CAT_PERSIST_CONFIG_FLAG_USE_FAHRENHEIT ?
-							CAT_TEMPERATURE_UNIT_DEGREES_FAHRENHEIT :
-							CAT_TEMPERATURE_UNIT_DEGREES_CELSIUS
-						);
-						
-						if(CAT_gui_menu_item("CALIBRATE CO2"))
-							start_co2_cal();
-
-						CAT_gui_end_menu();
-					}
-
 #if CAT_WIFI_ENABLED | defined(CAT_DESKTOP)
 					if(CAT_gui_menu_item("NETWORK"))
 						CAT_pushdown_push(CAT_MS_wifi);
 #endif
 
-					if(CAT_gui_begin_menu("TIME"))
+					if(CAT_gui_begin_menu("COSMETICS"))
 					{
-						CAT_get_datetime(&dt_cached);
-						dt_real = dt_cached;
+						if(CAT_gui_menu_item("PET NAME"))
+							CAT_gui_open_keyboard(pet.name, sizeof(pet.name));
 
-						dt_real.year = CAT_gui_menu_ticker("YEAR", dt_real.year, 0, 3000);
-						dt_real.month = CAT_gui_menu_ticker("MONTH", dt_real.month, 1, 12);
-						dt_real.day = CAT_gui_menu_ticker("DAY", dt_real.day, 1, 31);
-						dt_real.hour = CAT_gui_menu_ticker("HOUR", dt_real.hour, 0, 23);
-						dt_real.minute = CAT_gui_menu_ticker("MINUTE", dt_real.minute, 0, 59);
-						dt_real.second = CAT_gui_menu_ticker("SECOND", dt_real.second, 0, 59);
-
-						if(CAT_timecmp(&dt_real, &dt_cached) != 0)
-							CAT_set_datetime(dt_real);
-
+						if(CAT_gui_begin_menu("ROOM THEME"))
+						{
+							for(int i = 0; i < CAT_ROOM_THEME_COUNT; i++)
+							{		
+								bool this_theme = CAT_room_get_theme() == CAT_room_theme_list[i];
+								if(CAT_gui_menu_toggle(CAT_room_theme_list[i]->name, this_theme, CAT_GUI_TOGGLE_STYLE_RADIO_BUTTON))
+									CAT_room_set_theme(CAT_room_theme_list[i]);
+							}
+							CAT_gui_end_menu();
+						}
 						CAT_gui_end_menu();
 					}
 
