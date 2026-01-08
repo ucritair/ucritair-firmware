@@ -262,7 +262,7 @@ int TXTAN_line_width_at(int scale, int idx)
 
 static int TXTAN_line_start_x(int idx, int scale, int x0, int x1, int alignment)
 {
-	int width = TXTAN_line_width_at(idx, scale);
+	int width = TXTAN_line_width_at(scale, idx);
 	switch (alignment)
 	{
 		case CAT_TEXT_ALIGNMENT_LEFT: return x0;
@@ -297,6 +297,8 @@ void CAT_TXTAN_measure
 			lines++;
 		idx++;
 	}
+	if(raw_buffer_length > 0 && raw_buffer[raw_buffer_length-1] != '\n')
+		lines++;
 
 	*w_out = TXTAN_max_line_width(scale);
 	*h_out = lines * CAT_TEXT_LINE_HEIGHT * scale;
@@ -451,17 +453,7 @@ static int text_box_alignment = CAT_TEXT_ALIGNMENT_LEFT;
 static int text_box_x = 0;
 static int text_box_y = 0;
 
-void CAT_reset_text_box()
-{
-	text_box_x0 = 0;
-	text_box_y0 = 0;
-	text_box_x1 = CAT_LCD_SCREEN_W;
-	text_box_y1 = CAT_LCD_SCREEN_H;
-	text_box_alignment = CAT_TEXT_ALIGNMENT_LEFT;
-
-	text_box_x = 0;
-	text_box_y = 0;
-}
+static int text_box_last_drawn_w = 0;
 
 void CAT_set_text_box(int x0, int y0, int x1, int y1)
 {
@@ -469,9 +461,12 @@ void CAT_set_text_box(int x0, int y0, int x1, int y1)
 	text_box_y0 = y0;
 	text_box_x1 = x1 >= x0 ? x1 : x0;
 	text_box_y1 = y1 >= y0 ? y1 : y0;
+	text_box_alignment = CAT_TEXT_ALIGNMENT_LEFT;
 
 	text_box_x = x0;
 	text_box_y = y0;
+
+	text_box_last_drawn_w = 0;
 }
 
 void CAT_set_text_box_alignment(int alignment)
@@ -537,20 +532,6 @@ void CAT_text_box_draw(int scale, uint16_t colour, const char* fmt, ...)
 		scale, colour,
 		&text_box_x, &text_box_y
 	);
-}
-
-void CAT_text_box_draw_sprite(const CAT_sprite* sprite, int frame_idx)
-{
-	CAT_draw_sprite(sprite, frame_idx, text_box_x, text_box_y);
-	if(text_box_x + sprite->width >= text_box_x1)
-	{
-		text_box_y += sprite->height + CAT_LEADING;
-		CAT_text_box_reset_x();
-	}
-	else
-	{
-		text_box_x += sprite->width;
-	}
 }
 
 
@@ -635,7 +616,6 @@ int CAT_draw_text_depr(int x, int y, const char* text)
 	mask.min.y = y;
 	mask.max.y = y;
 
-	CAT_reset_text_box();
 	CAT_set_text_box(mask.min.x, mask.min.y, mask.max.x, mask.max.y);
 	if(vertical)
 		CAT_set_text_box_alignment(CAT_TEXT_ALIGNMENT_VERTICAL);

@@ -718,7 +718,6 @@ void CAT_gui_menu()
 
 	CAT_frameberry(CAT_WHITE);
 	
-	CAT_reset_text_box();
 	CAT_set_text_box(MENU_PAD, MENU_PAD, CAT_LCD_SCREEN_W-MENU_PAD, CAT_LCD_SCREEN_H-MENU_PAD);
 	CAT_text_box_draw(1, CAT_BLACK, "%s\n", head->title);
 	CAT_text_box_shift_cursor(0, MENU_PAD);
@@ -744,9 +743,13 @@ void CAT_gui_menu()
 				child->toggle_data.style == CAT_GUI_TOGGLE_STYLE_CHECKBOX ?
 				&ui_checkbox_sprite : &ui_radio_button_circle_sprite;
 				int shift = CAT_GLYPH_HEIGHT/2 - sprite->height/2;
-				CAT_text_box_shift_cursor(0, shift);
-				CAT_text_box_draw_sprite(sprite, child->toggle_data.toggle);
-				CAT_text_box_shift_cursor(4, -shift);
+				CAT_draw_sprite
+				(
+					sprite, child->toggle_data.toggle,
+					CAT_get_text_box_cursor_x(),
+					CAT_get_text_box_cursor_y() + CAT_GLYPH_HEIGHT/2 - sprite->height/2
+				);
+				CAT_text_box_shift_cursor(sprite->width + 4, 0);
 			}
 			break;
 
@@ -1308,15 +1311,20 @@ void CAT_gui_notif()
 			{
 				CAT_gui_node_text* node = (CAT_gui_node_text*) head;
 				CAT_text_box_draw(1, CAT_BLACK, node->text);
+				CAT_text_box_newline(1);
 			}
 			break;
 
 			case CAT_GUI_NODE_HEAD_IMAGE:
 			{
 				CAT_gui_node_image* node = (CAT_gui_node_image*) head;
-				CAT_text_box_draw_sprite(node->sprite, node->frame_idx);
+				CAT_draw_sprite
+				(
+					node->sprite, node->frame_idx,
+					CAT_get_text_box_cursor_x(),
+					CAT_get_text_box_cursor_y()
+				);
 				CAT_text_box_shift_cursor(0, node->sprite->height + CAT_LEADING);
-				CAT_text_box_reset_x();
 			}
 			break;
 		}

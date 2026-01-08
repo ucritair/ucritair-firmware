@@ -43,7 +43,7 @@ static CAT_datetime dt_cached;
 // Log rate
 static int lr_mins;
 
-#define CO2_CAL_TIME (CAT_MINUTE_SECONDS * 5)
+#define CO2_CAL_TIME 5
 static bool co2_cal_status = false;
 static uint64_t co2_cal_time = 0;
 static bool co2_cal_sensor_called = false;
@@ -67,20 +67,24 @@ static void tick_co2_cal()
 	int remaining = CO2_CAL_TIME - elapsed;
 
 	CAT_gui_notif_open();
-	CAT_gui_notif_text("Please go outside and wait while CO2 sensor reading settles before calibration.\n");
 	
 	if(remaining >= 1)
 	{
+		CAT_gui_notif_text("Please go outside and wait while CO2 sensor reading settles before calibration.");
 		CAT_gui_notif_image(&icon_nosmoke_sprite, 0);
-		CAT_gui_notif_text("%02d:%02d remaining...\n", remaining/60, remaining%60);
+		CAT_gui_notif_text("%02d:%02d remaining...", remaining/60, remaining%60);
 	}
 	else if(remaining >= 0)
 	{
+		CAT_gui_notif_text("Please go outside and wait while CO2 sensor reading settles before calibration.");
 		CAT_gui_notif_image(&icon_nosmoke_sprite, 0);
-		CAT_gui_notif_text("Calibrating...\n");
+		CAT_gui_notif_text("Calibrating...");
 	}
 	else if(remaining >= -1)
 	{
+		CAT_gui_notif_text("Please go outside and wait while CO2 sensor reading settles before calibration.");
+		CAT_gui_notif_image(&icon_nosmoke_sprite, 0);
+		CAT_gui_notif_text("Calibrating...");
 		if(!co2_cal_sensor_called)
 		{
 			co2_cal_sensor_called = true;
@@ -89,9 +93,9 @@ static void tick_co2_cal()
 	}
 	else
 	{
-		CAT_gui_notif_text("Done. Thanks for waiting... Have some cigarettes as a reward:\n");
+		CAT_gui_notif_text("Done. Thanks for waiting... Have some cigarettes as a reward:");
 		CAT_gui_notif_image(&cigarette_sprite, 0);
-		CAT_gui_notif_text("Press A to exit\n");
+		CAT_gui_notif_text("Press A to exit");
 		CAT_gui_notif_close(true, end_co2_cal);
 	}
 

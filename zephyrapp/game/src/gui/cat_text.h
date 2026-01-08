@@ -37,7 +37,6 @@ void CAT_draw_text(int x, int y, int scale, uint16_t colour, const char* fmt, ..
 //////////////////////////////////////////////////////////////////////////
 // TEXT BOX
 
-void CAT_reset_text_box();
 void CAT_set_text_box(int x0, int y0, int x1, int y1);
 void CAT_set_text_box_alignment(int alignment);
 
@@ -51,7 +50,6 @@ void CAT_text_box_reset_y();
 void CAT_text_box_newline(int scale);
 
 void CAT_text_box_draw(int scale, uint16_t colour, const char* fmt, ...);
-void CAT_text_box_draw_sprite(const CAT_sprite* sprite, int frame_idx);
 
 
 //////////////////////////////////////////////////////////////////////////
