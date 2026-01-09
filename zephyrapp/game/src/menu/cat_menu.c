@@ -55,10 +55,12 @@ static void start_co2_cal()
 	co2_cal_sensor_called = false;
 }
 
-static void end_co2_cal()
+static void end_co2_cal(void* arg)
 {
-	CAT_inventory_add(food_cigs_item, 1);
+	if(co2_cal_sensor_called)
+		CAT_inventory_add(food_cigs_item, 1);
 	co2_cal_status = false;
+	CAT_gui_notif_close();
 }
 
 static void tick_co2_cal()
@@ -66,25 +68,25 @@ static void tick_co2_cal()
 	int elapsed = CAT_get_RTC_now() - co2_cal_time;
 	int remaining = CO2_CAL_TIME - elapsed;
 
-	CAT_gui_notif_open();
+	CAT_gui_notif_open(20, 20, CAT_LCD_SCREEN_W-20, 20);
 	
 	if(remaining >= 1)
 	{
-		CAT_gui_notif_text("Please go outside and wait while CO2 sensor reading settles before calibration.");
+		CAT_gui_notif_text("Please go outside and wait while CO2 sensor reading settles before calibration.\n");
 		CAT_gui_notif_image(&icon_nosmoke_sprite, 0);
-		CAT_gui_notif_text("%02d:%02d remaining...", remaining/60, remaining%60);
+		CAT_gui_notif_text("\n%02d:%02d remaining...", remaining/60, remaining%60);
 	}
 	else if(remaining >= 0)
 	{
-		CAT_gui_notif_text("Please go outside and wait while CO2 sensor reading settles before calibration.");
+		CAT_gui_notif_text("Please go outside and wait while CO2 sensor reading settles before calibration.\n");
 		CAT_gui_notif_image(&icon_nosmoke_sprite, 0);
-		CAT_gui_notif_text("Calibrating...");
+		CAT_gui_notif_text("\nCalibrating...");
 	}
 	else if(remaining >= -1)
 	{
-		CAT_gui_notif_text("Please go outside and wait while CO2 sensor reading settles before calibration.");
+		CAT_gui_notif_text("Please go outside and wait while CO2 sensor reading settles before calibration.\n");
 		CAT_gui_notif_image(&icon_nosmoke_sprite, 0);
-		CAT_gui_notif_text("Calibrating...");
+		CAT_gui_notif_text("\nCalibrating...");
 		if(!co2_cal_sensor_called)
 		{
 			co2_cal_sensor_called = true;
@@ -93,17 +95,14 @@ static void tick_co2_cal()
 	}
 	else
 	{
-		CAT_gui_notif_text("Done. Thanks for waiting... Have some cigarettes as a reward:");
+		CAT_gui_notif_text("Done. Thanks for waiting... Have some cigarettes as a reward:\n");
 		CAT_gui_notif_image(&cigarette_sprite, 0);
-		CAT_gui_notif_text("Press A to exit");
-		CAT_gui_notif_close(true, end_co2_cal);
+		CAT_gui_notif_text("");
+		CAT_gui_notif_option(end_co2_cal, NULL, "EXIT");
 	}
 
 	if(CAT_input_dismissal())
-	{
-		co2_cal_status = false;
-		CAT_gui_notif_close(false, NULL);
-	}
+		end_co2_cal(NULL);
 }
 
 void CAT_MS_menu(CAT_FSM_signal signal)

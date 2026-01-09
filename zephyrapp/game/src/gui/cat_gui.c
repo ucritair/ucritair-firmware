@@ -738,11 +738,11 @@ void CAT_gui_menu()
 		{
 			case CAT_GUI_MENU_TYPE_TOGGLE:
 			{
-				CAT_set_sprite_colour(CAT_BLACK);
 				const CAT_sprite* sprite =
 				child->toggle_data.style == CAT_GUI_TOGGLE_STYLE_CHECKBOX ?
 				&ui_checkbox_sprite : &ui_radio_button_circle_sprite;
-				int shift = CAT_GLYPH_HEIGHT/2 - sprite->height/2;
+
+				CAT_set_sprite_colour(CAT_BLACK);
 				CAT_draw_sprite
 				(
 					sprite, child->toggle_data.toggle,
@@ -1127,7 +1127,8 @@ void CAT_gui_dialogue()
 typedef enum
 {
 	CAT_GUI_NODE_HEAD_TEXT,
-	CAT_GUI_NODE_HEAD_IMAGE
+	CAT_GUI_NODE_HEAD_IMAGE,
+	CAT_GUI_NODE_HEAD_OPTION
 } CAT_gui_node_head;
 
 typedef struct __attribute__((__packed__))
@@ -1143,11 +1144,20 @@ typedef struct __attribute__((__packed__))
 	int frame_idx;
 } CAT_gui_node_image;
 
+typedef struct __attribute__((__packed__))
+{
+	CAT_gui_node_head head;
+	char text[24];
+	void (*proc)(void*);
+	void* arg;
+} CAT_gui_node_option;
+
 static void CAT_gui_node_text_init(CAT_gui_node_head* head, const char* text)
 {
 	CAT_gui_node_text* node = (CAT_gui_node_text*) head;
 	node->head = CAT_GUI_NODE_HEAD_TEXT;
-	strncpy(node->text, text, sizeof(node->text));
+	if(text != NULL)
+		strcpy(node->text, text);
 }
 
 static void CAT_gui_node_image_init(CAT_gui_node_head* head, const CAT_sprite* sprite, int frame_idx)
@@ -1158,6 +1168,16 @@ static void CAT_gui_node_image_init(CAT_gui_node_head* head, const CAT_sprite* s
 	node->frame_idx = frame_idx;
 }
 
+static void CAT_gui_node_option_init(CAT_gui_node_head* head, const char* text, void (*proc)(void*), void* arg)
+{
+	CAT_gui_node_option* node = (CAT_gui_node_option*) head;
+	node->head = CAT_GUI_NODE_HEAD_OPTION;
+	if(text != NULL)
+		strcpy(node->text, text);
+	node->proc = proc;
+	node->arg = arg;
+}
+
 #define NOTIF_NODES_CAPACITY 16
 
 static uint8_t notif_node_buffer[NOTIF_NODES_CAPACITY * sizeof(CAT_gui_node_text)];
@@ -1166,7 +1186,19 @@ static CAT_bump_allocator notif_node_balloc = CAT_BALLOC_INIT(notif_node_buffer,
 static CAT_gui_node_head* notif_nodes[NOTIF_NODES_CAPACITY];
 static int notif_node_count = 0;
 
-static void(*notif_callback)(void) = NULL;
+static enum
+{
+	NOTIF_STATUS_CLOSED,
+	NOTIF_STATUS_OPEN,
+	NOTIF_STATUS_SHOULD_CLOSE
+} notif_status = NOTIF_STATUS_CLOSED;
+
+static int notif_x0;
+static int notif_y0;
+static int notif_x1;
+static int notif_y1;
+
+static int notif_selector = -1;
 
 CAT_gui_node_head* gui_notif_add_node(int size)
 {
@@ -1178,25 +1210,22 @@ CAT_gui_node_head* gui_notif_add_node(int size)
 	return ptr;
 }
 
-static enum
-{
-	NOTIF_STATUS_CLOSED,
-	NOTIF_STATUS_OPEN,
-	NOTIF_STATUS_AWAIT,
-	NOTIF_STATUS_SHOULD_CLOSE
-} notif_status = NOTIF_STATUS_CLOSED;
-
 bool CAT_gui_notif_is_open()
 {
 	return notif_status != NOTIF_STATUS_CLOSED;
 }
 
-void CAT_gui_notif_open()
+void CAT_gui_notif_open(int x0, int y0, int x1, int y1)
 {
 	CAT_bfree(&notif_node_balloc);
 
 	notif_status = NOTIF_STATUS_OPEN;
 	notif_node_count = 0;
+
+	notif_x0 = x0;
+	notif_y0 = y0;
+	notif_x1 = x1;
+	notif_y1 = y1;
 }
 
 void CAT_gui_notif_text(const char* fmt, ...)
@@ -1204,14 +1233,12 @@ void CAT_gui_notif_text(const char* fmt, ...)
 	if(notif_status == NOTIF_STATUS_CLOSED)
 		return;
 
-	static char buffer[128];
+	CAT_gui_node_head* head = gui_notif_add_node(sizeof(CAT_gui_node_text));
 	va_list args;
 	va_start(args, fmt);
-	vsnprintf(buffer, sizeof(buffer), fmt, args);
+	vsnprintf(((CAT_gui_node_text*) head)->text, 128, fmt, args);
 	va_end(args);
-
-	CAT_gui_node_head* head = gui_notif_add_node(sizeof(CAT_gui_node_text));
-	CAT_gui_node_text_init(head, buffer);
+	CAT_gui_node_text_init(head, NULL);
 }
 
 void CAT_gui_notif_image(const CAT_sprite* sprite, int frame_idx)
@@ -1223,43 +1250,90 @@ void CAT_gui_notif_image(const CAT_sprite* sprite, int frame_idx)
 	CAT_gui_node_image_init(head, sprite, frame_idx);
 }
 
-void CAT_gui_notif_close(bool await_input, void(*callback)(void))
+void CAT_gui_notif_option(void (*proc)(void*), void* arg, const char* fmt, ...)
 {
 	if(notif_status == NOTIF_STATUS_CLOSED)
 		return;
 
-	notif_callback = callback;
-
-	if(await_input)
-		notif_status = NOTIF_STATUS_AWAIT;
-	else
-		notif_status = NOTIF_STATUS_SHOULD_CLOSE;
+	CAT_gui_node_head* head = gui_notif_add_node(sizeof(CAT_gui_node_text));
+	va_list args;
+	va_start(args, fmt);
+	vsnprintf(((CAT_gui_node_option*) head)->text, 24, fmt, args);
+	va_end(args);
+	CAT_gui_node_option_init(head, NULL, proc, NULL);
 }
 
-#define NOTIF_X 20
-#define NOTIF_Y NOTIF_X
-#define NOTIF_W (CAT_LCD_SCREEN_W-(NOTIF_X*2))
-#define NOTIF_H (CAT_LCD_SCREEN_H-(NOTIF_Y*2))
+void CAT_gui_notif_close()
+{
+	if(notif_status == NOTIF_STATUS_CLOSED)
+		return;
+	notif_status = NOTIF_STATUS_SHOULD_CLOSE;
+}
+
+CAT_gui_node_option* notif_get_option(int idx)
+{
+	int option_count = 0;
+	for(int i = 0; i < notif_node_count; i++)
+	{
+		CAT_gui_node_head* head = notif_nodes[i];
+		if(*head == CAT_GUI_NODE_HEAD_OPTION)
+		{
+			if(option_count == idx)
+				return (CAT_gui_node_option*) head;
+			option_count += 1;
+		}
+	}
+	return NULL;
+}
+
+bool notif_is_option_selected(int idx)
+{
+	int option_count = 0;
+	for(int i = 0; i < notif_node_count; i++)
+	{
+		CAT_gui_node_head* head = notif_nodes[i];
+		if(*head == CAT_GUI_NODE_HEAD_OPTION)
+		{
+			if(i == idx && option_count == notif_selector)
+				return true;
+			option_count += 1;
+		}
+	}
+	return false;
+}
 
 void CAT_gui_notif_logic()
 {
-	if(notif_status == NOTIF_STATUS_AWAIT)
+	int option_count = 0;
+	for(int i = 0; i < notif_node_count; i++)
 	{
-		if(CAT_input_pressed(CAT_BUTTON_A) || CAT_input_dismissal())
-			notif_status = NOTIF_STATUS_SHOULD_CLOSE;
+		CAT_gui_node_head* head = notif_nodes[i];
+		if(*head == CAT_GUI_NODE_HEAD_OPTION)
+			option_count += 1;
+	}
+
+	if(CAT_input_pressed(CAT_BUTTON_UP))
+		notif_selector -= 1;
+	if(CAT_input_pressed(CAT_BUTTON_DOWN))
+		notif_selector += 1;
+	if(notif_selector >= option_count)
+		notif_selector = option_count-1;
+	else if(notif_selector < 0 && option_count > 0)
+		notif_selector = 0;
+
+	if(CAT_input_pressed(CAT_BUTTON_A))
+	{
+		CAT_gui_node_option* option = notif_get_option(notif_selector);
+		option->proc(option->arg);
 	}
 
 	if(notif_status == NOTIF_STATUS_SHOULD_CLOSE)
-	{
-		if(notif_callback != NULL)
-			notif_callback();
 		notif_status = NOTIF_STATUS_CLOSED;
-	}
 }
 
-int gui_notif_y1()
+int notif_calculate_y1()
 {
-	int y1 = NOTIF_Y;
+	int y1 = notif_y0;
 
 	for(int i = 0; i < notif_node_count; i++)
 	{
@@ -1272,11 +1346,11 @@ int gui_notif_y1()
 				int w, h;
 				CAT_TXTAN_measure
 				(
-					NOTIF_X, NOTIF_Y, NOTIF_X+NOTIF_W, NOTIF_Y+NOTIF_H,
+					notif_x0, notif_y0, notif_x1, CAT_LCD_SCREEN_H,
 					1, node->text,
 					&w, &h
 				);
-				y1 += h;
+				y1 += h + CAT_TEXT_LINE_HEIGHT;
 			}
 			break;
 
@@ -1284,6 +1358,20 @@ int gui_notif_y1()
 			{
 				CAT_gui_node_image* node = (CAT_gui_node_image*) head;
 				y1 += node->sprite->height + CAT_LEADING;
+			}
+			break;
+
+			case CAT_GUI_NODE_HEAD_OPTION:
+			{
+				CAT_gui_node_option* node = (CAT_gui_node_option*) head;
+				int w, h;
+				CAT_TXTAN_measure
+				(
+					notif_x0, notif_y0, notif_x1, CAT_LCD_SCREEN_H,
+					1, node->text,
+					&w, &h
+				);
+				y1 += h + CAT_TEXT_LINE_HEIGHT;
 			}
 			break;
 		}
@@ -1294,14 +1382,14 @@ int gui_notif_y1()
 
 void CAT_gui_notif()
 {
-	int y1 = gui_notif_y1() + 8;
-	int h = y1 - NOTIF_Y;
+	int y1 = notif_y1 == notif_y0 ? notif_calculate_y1() + 8 : notif_y1;
+	int h = y1 - notif_y0;
 
-	CAT_fillberry(NOTIF_X, NOTIF_Y, NOTIF_W, h, CAT_WHITE);
-	CAT_strokeberry(NOTIF_X-1, NOTIF_Y-1, NOTIF_W+2, h+2, CAT_BLACK);
-	CAT_strokeberry(NOTIF_X-2, NOTIF_Y-2, NOTIF_W+4, h+4, CAT_GREY);
+	CAT_fillberry(notif_x0, notif_y0, notif_x1-notif_x0, h, CAT_WHITE);
+	CAT_strokeberry(notif_x0-1, notif_y0-1, notif_x1-notif_x0+2, h+2, CAT_BLACK);
+	CAT_strokeberry(notif_x0-2, notif_y0-2, notif_x1-notif_x0+4, h+4, CAT_GREY);
 
-	CAT_set_text_box(NOTIF_X+4, NOTIF_Y+4, NOTIF_X+NOTIF_W-4, y1-4);
+	CAT_set_text_box(notif_x0+4, notif_y0+4, notif_x1-4, y1-4);
 	for(int i = 0; i < notif_node_count; i++)
 	{
 		CAT_gui_node_head* head = notif_nodes[i];
@@ -1325,6 +1413,18 @@ void CAT_gui_notif()
 					CAT_get_text_box_cursor_y()
 				);
 				CAT_text_box_shift_cursor(0, node->sprite->height + CAT_LEADING);
+			}
+			break;
+
+			case CAT_GUI_NODE_HEAD_OPTION:
+			{
+				CAT_gui_node_option* node = (CAT_gui_node_option*) head;
+				bool selected = notif_is_option_selected(i);
+				if(selected)
+					CAT_text_box_draw(1, CAT_BLACK, "[%s]", node->text);
+				else
+					CAT_text_box_draw(1, CAT_BLACK, "[%s]", node->text);
+				CAT_text_box_newline(1);
 			}
 			break;
 		}
