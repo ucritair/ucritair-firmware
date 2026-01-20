@@ -4,189 +4,63 @@
 #include "cat_core.h"
 #include "cat_gui.h"
 #include <stdio.h>
+#include "notice_assets.h"
 
-#define NOTICE_COOLDOWN (CAT_MINUTE_SECONDS * 2)
-#define NOTICE_DURATION 2
+static uint64_t mask = 0;
 
-static const char** notice_pool[CAT_NOTICE_TYPE_COUNT] =
+void CAT_set_notice_mask(uint64_t _mask)
 {
-	[CAT_NOTICE_TYPE_AQ_GOOD] = (const char*[])
-	{
-		"A fresh breeze blows",
-		"The critter breathes gently",
-		"There is the faintest scent of flowers on the air",
-		NULL,
-	},
-	[CAT_NOTICE_TYPE_CO2_BAD] = (const char*[])
-	{
-		"The critter look dazed",
-		"The critter takes an uneasy breath",
-		"A stagnant atmosphere hangs",
-		NULL,
-	},
-	[CAT_NOTICE_TYPE_PM_BAD] = (const char*[])
-	{
-		"A thick haze hangs",
-		"The critter wheezes",
-		"The critter's eyes water",
-		NULL,
-	},
-	[CAT_NOTICE_TYPE_NOX_VOC_BAD] = (const char*[])
-	{
-		"A gaseous smell wafts by",
-		"Fumes, perhaps from burning fuel",
-		"The creature sniffs at something chemical",
-		NULL,
-	},
-	[CAT_NOTICE_TYPE_TEMP_BAD] = (const char*[])
-	{
-		"The critter pants rapidly",
-		"A wave of intense heat rolls by",
-		"An egg sizzles on pavement",
-		NULL,
-	},
-	[CAT_NOTICE_TYPE_RH_BAD] = (const char*[])
-	{
-		"Mosquitos swarm the muggy air",
-		"The walls almost feel damp",
-		"The critter wishes it could sweat",
-		NULL,
-	},
-	[CAT_NOTICE_TYPE_STATS_GOOD] = (const char*[])
-	{
-		"The critter flexes, energetic and ready",
-		"The critter is thinking about something intently",
-		"The critter dances playfully",
-		NULL,
-	},
-	[CAT_NOTICE_TYPE_STATS_BAD] = (const char*[])
-	{
-		"The critter's shoulders slump with exhaustion",
-		"The critter is distractedly fidgeting",
-		"The critter sports a sour look",
-		NULL,
-	},
-	[CAT_NOTICE_TYPE_SPRING] = (const char*[])
-	{
-		"Crickets sing a droning song",
-		"A chickadee's call tumbles over itself",
-		"A bluejay's cry pierces the cool air",
-		NULL,
-	},
-	[CAT_NOTICE_TYPE_SUMMER] = (const char*[])
-	{
-		"The calling of cicadas penetrates the stones",
-		"A warm wind cushions you",
-		"Somewhere, waves crash on sand",
-		NULL,
-	},
-	[CAT_NOTICE_TYPE_AUTUMN] = (const char*[])
-	{
-		"Leaves rustle somewhere nearby",
-		"A cool and dry wind blows a twig over stones",
-		"An owl looses a mournful call",
-		NULL,
-	},
-	[CAT_NOTICE_TYPE_WINTER] = (const char*[])
-	{
-		"Snow falls, blanketing the world",
-		"What light remains glitters in the ice",
-		"The smell of spices warms you",
-		NULL,
-	},
-	[CAT_NOTICE_TYPE_MORNING] = (const char*[])
-	{
-		"Sunlight beams in from the world",
-		"The waking city calls out to you",
-		"A train speeds its charges to work",
-		"A rooster crows proudly",
-		NULL,
-	},
-	[CAT_NOTICE_TYPE_DAY] = (const char*[])
-	{
-		"The critter yawns prematurely",
-		"A shop door jingles as it opens",
-		"A freight train's great body slithers past",
-		"A man calls out for a taxi",
-		NULL,
-	},
-	[CAT_NOTICE_TYPE_NIGHT] = (const char*[])
-	{
-		"Jazz wafts in from a dimly lit bar",
-		"The sound of laughter and clinking glass is heard",
-		"A cat meows just once at the moon",
-		"The last train speeds home",
-		NULL,
-	},
-	[CAT_NOTICE_TYPE_DEAD] = (const char*[])
-	{
-		"A grave egg feels no pain",
-		NULL,
-	},
-	[CAT_NOTICE_TYPE_MISCELLANY] = (const char*[])
-	{
-		"A distant bell sounds",
-		"An evil star is shining",
-		"A salamander scurries into flame to be destroyed",
-		"The dead dream that they live",
-		"The vending machine hums softly",
-		"The arcade lets loose a single beep",
-		"A smaller critter scurries across the floor",
-		NULL,
-	},
-};
-
-static uint64_t notice_timestamp;
-
-static int notice_type_list_backing[CAT_NOTICE_TYPE_COUNT];
-static CAT_int_list notice_type_list;
-
-void CAT_clear_notice_types()
-{
-	CAT_ilist(&notice_type_list, notice_type_list_backing, CAT_NOTICE_TYPE_COUNT);
+	mask = _mask;
 }
 
-void CAT_enable_notice_type(int type)
+static const CAT_notice* select_notice()
 {
-	CAT_ilist_push(&notice_type_list, type);
+	int suitable = 0;
+	if(mask == CAT_CONTENT_TAG_NONE)
+		suitable = CAT_NOTICE_COUNT;
+	else
+	{
+		for(int i = 0; i < CAT_NOTICE_COUNT; i++)
+		{
+			if((CAT_notice_list[i].tags & mask) == 0)
+				suitable += 1;
+		}
+	}
+
+	int suitable_count = 0;
+	int suitable_idx = CAT_rand_int(0, suitable-1);
+	for(int i = 0; i < CAT_NOTICE_COUNT; i++)
+	{
+		if((CAT_notice_list[i].tags & mask) == 0)
+		{
+			if(suitable_count == suitable_idx)
+				return &CAT_notice_list[i];
+			suitable_count += 1;
+		}
+	}
+	return NULL;
 }
 
-int CAT_pick_notice_type()
-{
-	if(notice_type_list.length == 0)
-		return CAT_rand_int(0, CAT_NOTICE_TYPE_COUNT-1);
-	int idx = CAT_rand_int(0, notice_type_list.length-1);
-	return notice_type_list.data[idx];
-}
+static CAT_notice* notice = NULL;
+static CAT_gui_handle* handle = NULL;
 
-bool CAT_should_post_notice()
+void CAT_post_notice()
 {
-	int time_since = CAT_get_RTC_now() - notice_timestamp;
-	return time_since >= NOTICE_COOLDOWN;
-}
-
-const char* CAT_pick_notice(int type)
-{
-	if(type == -1)
-		type = CAT_rand_int(CAT_NOTICE_TYPE_AQ_GOOD, CAT_NOTICE_TYPE_COUNT-1);
-	const char** sector = notice_pool[type];
-	int count = 0;
-	while(sector[count++] != NULL);
-	count -= 1;
-	int idx = CAT_rand_int(0, count-1);
-	if(idx < 0)
-		return NULL;
-	return sector[idx];
-}
-
-static char notice_buf[128];
-
-void CAT_post_notice(const char* notice)
-{
+	notice = select_notice();
 	if(notice == NULL)
 		return;
-	CAT_gui_dismiss_dialogue();
-	snprintf(notice_buf, 128, "%s...", notice);
-	CAT_gui_open_dialogue(notice_buf, NOTICE_DURATION);
-	notice_timestamp = CAT_get_RTC_now();
+	handle = CAT_gui_notif_open(4, 4, CAT_LCD_SCREEN_W-4, 4);
+	CAT_gui_notif_text(handle, notice->string);
+}
+
+void CAT_cancel_notice()
+{
+	CAT_gui_notif_close(handle);
+	notice = NULL;
+	handle = NULL;
+}
+
+bool CAT_is_notice_posted()
+{
+	return notice != NULL;
 }

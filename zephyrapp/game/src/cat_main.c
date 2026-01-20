@@ -23,6 +23,75 @@
 #include "sprite_assets.h"
 #include "tinysprite_assets.h"
 
+void CAT_render_dummy()
+{
+	CAT_frameberry(CAT_BLACK);
+
+	CAT_GUI_draw();
+}
+
+void CAT_MS_dummy(CAT_FSM_signal signal)
+{
+	switch(signal)
+	{
+		case CAT_FSM_SIGNAL_ENTER:
+		{
+			CAT_set_render_callback(CAT_render_dummy);
+		}
+		break;
+
+		case CAT_FSM_SIGNAL_TICK:
+		{
+			int margin = 12;
+			int x0 = margin;
+			int y0 = margin;
+			int x1 = CAT_LCD_SCREEN_W-margin;
+			int y1 = CAT_LCD_SCREEN_H-margin;
+			
+			CAT_GUI_new_frame();
+
+			CAT_GUI_push_window("Main");
+			if(CAT_GUI_begin_window("Main", x0, y0, x1, y1))
+			{
+				CAT_GUI_text("Hello, world!");
+				CAT_GUI_text("More text perhaps even\nmultiline");
+
+				CAT_GUI_push_window("Popup 1");
+				x0 += margin; y0 += margin; x1 -= margin; y1 -= margin;
+				if(CAT_GUI_begin_window("Popup 1", x0, y0, x1, y1))
+				{
+					CAT_GUI_text("Popup 1");
+
+					CAT_GUI_push_window("Popup 1");
+					x0 += margin; y0 += margin; x1 -= margin; y1 -= margin;
+					if(CAT_GUI_begin_window("Popup 1", x0, y0, x1, y1))
+					{
+						CAT_GUI_text("Popup 2");
+						if(CAT_GUI_option("EXIT"))
+							CAT_GUI_pop_window();
+						CAT_GUI_end_window();
+					}
+
+					CAT_GUI_end_window();
+				}
+
+				CAT_GUI_text("Delayed text");
+
+				CAT_GUI_end_window();
+			}
+
+			CAT_GUI_IO();
+		}
+		break;
+
+		case CAT_FSM_SIGNAL_EXIT:
+		{
+			
+		}
+		break;
+	}
+}
+
 void CAT_init()
 {
 	CAT_platform_init();
@@ -50,7 +119,7 @@ void CAT_init()
 	if(persist_flags & CAT_PERSIST_CONFIG_FLAG_AQ_FIRST)
 		CAT_pushdown_rebase(CAT_MS_monitor);
 	else
-		CAT_pushdown_rebase(CAT_MS_room);
+		CAT_pushdown_rebase(CAT_MS_dummy);
 #endif
 }
 

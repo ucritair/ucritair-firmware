@@ -90,6 +90,7 @@ asset_gen(dialogue generators/dialoguegen.py data/dialogue.json)
 asset_gen(dialogue_profile generators/dialogueprofilegen.py data/dialogue_profiles.json)
 asset_gen(prop generators/propgen.py data/props.json)
 asset_gen(scene generators/scenegen.py data/scenes.json)
+asset_gen(notice generators/noticegen.py data/notices.json)
 
 file(
 	GLOB GAME_SRC

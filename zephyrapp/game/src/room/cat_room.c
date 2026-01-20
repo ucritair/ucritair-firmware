@@ -29,6 +29,7 @@
 #include "cat_persist.h"
 #include "cat_time.h"
 #include "cat_spriter.h"
+#include "notice_assets.h"
 
 //////////////////////////////////////////////////////////////////////////
 // THEME
@@ -581,6 +582,10 @@ void pickup_input()
 	}
 }
 
+#define NOTICE_PERIOD 10
+#define NOTICE_DURATION 3
+static uint64_t notice_timestamp = 0;
+
 void CAT_MS_room(CAT_FSM_signal signal)
 {
 	switch(signal)
@@ -590,7 +595,6 @@ void CAT_MS_room(CAT_FSM_signal signal)
 			CAT_set_render_callback(CAT_render_room);
 			CAT_pet_settle();
 			CAT_animator_reset(&prop_hoopy_sprite);
-			CAT_gui_dismiss_dialogue();
 
 			if(first_entry)
 			{
@@ -650,58 +654,62 @@ void CAT_MS_room(CAT_FSM_signal signal)
 				CAT_pet_react();
 			}
 
-			if(CAT_should_post_notice())
+			uint64_t now = CAT_get_RTC_now();
+			if(now - notice_timestamp > NOTICE_PERIOD)
 			{
-				CAT_clear_notice_types();
-				CAT_enable_notice_type(CAT_NOTICE_TYPE_MISCELLANY);
+				uint64_t notice_mask = 0;
 
 				if(CAT_pet_is_dead())
-					CAT_enable_notice_type(CAT_NOTICE_TYPE_DEAD);
+					notice_mask |= CAT_CONTENT_TAG_PET_DEAD;
 				else
 				{
 					if(pet.vigour < 6 && pet.focus < 6 && pet.spirit < 6)
-						CAT_enable_notice_type(CAT_NOTICE_TYPE_STATS_BAD);
+						notice_mask |= CAT_CONTENT_TAG_STATS_BAD;
 					else if(pet.vigour > 6 && pet.focus > 6 && pet.spirit > 6)
-						CAT_enable_notice_type(CAT_NOTICE_TYPE_STATS_GOOD);
+						notice_mask |= CAT_CONTENT_TAG_STATS_GOOD;
 
 					if(CAT_AQ_aggregate_score() > 80)
-						CAT_enable_notice_type(CAT_NOTICE_TYPE_AQ_GOOD);
+						notice_mask |= CAT_CONTENT_TAG_AQ_GOOD;
 					if(CAT_AQ_score(CAT_AQM_CO2) < 0.5)
-						CAT_enable_notice_type(CAT_NOTICE_TYPE_CO2_BAD);
+						notice_mask |= CAT_CONTENT_TAG_CO2_BAD;
 					if(CAT_AQ_score(CAT_AQM_PM2_5) < 0.5)
-						CAT_enable_notice_type(CAT_NOTICE_TYPE_PM_BAD);
+						notice_mask |= CAT_CONTENT_TAG_PM_BAD;
 					if(CAT_AQ_score(CAT_AQM_NOX) < 0.5 || CAT_AQ_score(CAT_AQM_VOC) < 0.5)
-						CAT_enable_notice_type(CAT_NOTICE_TYPE_NOX_VOC_BAD);
+						notice_mask |= CAT_CONTENT_TAG_NOX_VOC_BAD;
 					if(CAT_AQ_score(CAT_AQM_TEMP) < 0.5)
-						CAT_enable_notice_type(CAT_NOTICE_TYPE_TEMP_BAD);
+						notice_mask |= CAT_CONTENT_TAG_TEMP_BAD;
 					if(CAT_AQ_score(CAT_AQM_RH) < 0.5)
-						CAT_enable_notice_type(CAT_NOTICE_TYPE_RH_BAD);
+						notice_mask |= CAT_CONTENT_TAG_RH_BAD;
 
 					if(datetime.hour >= 4 && datetime.hour < 11)
-						CAT_enable_notice_type(CAT_NOTICE_TYPE_MORNING);
+						notice_mask |= CAT_CONTENT_TAG_MORNING;
 					else if(datetime.hour >= 11 && datetime.hour < 20)
-						CAT_enable_notice_type(CAT_NOTICE_TYPE_DAY);
+						notice_mask |= CAT_CONTENT_TAG_DAY;
 					else if(datetime.hour >= 20)
-						CAT_enable_notice_type(CAT_NOTICE_TYPE_NIGHT);
+						notice_mask |= CAT_CONTENT_TAG_NIGHT;
 					
 					if(datetime.month <= 3)
-						CAT_enable_notice_type(CAT_NOTICE_TYPE_SPRING);
+						notice_mask |= CAT_CONTENT_TAG_SPRING;
 					else if(datetime.month <= 6)
-						CAT_enable_notice_type(CAT_NOTICE_TYPE_SUMMER);
+						notice_mask |= CAT_CONTENT_TAG_SUMMER;
 					else if(datetime.month <= 9)
-						CAT_enable_notice_type(CAT_NOTICE_TYPE_AUTUMN);
+						notice_mask |= CAT_CONTENT_TAG_AUTUMN;
 					else
-						CAT_enable_notice_type(CAT_NOTICE_TYPE_WINTER);
+						notice_mask |= CAT_CONTENT_TAG_WINTER;
 				}
 
-				const char* notice = CAT_pick_notice(CAT_pick_notice_type());
-				CAT_post_notice(notice);
+				CAT_set_notice_mask(notice_mask);
+				CAT_post_notice();
+				notice_timestamp = now;
+			}
+			if(CAT_is_notice_posted() && now - notice_timestamp > NOTICE_DURATION)
+			{
+				CAT_cancel_notice();
 			}
 			break;
 		}
 		case CAT_FSM_SIGNAL_EXIT:
 		{
-			CAT_gui_dismiss_dialogue();
 			break;
 		}
 	}

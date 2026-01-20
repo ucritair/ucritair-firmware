@@ -1,33 +1,15 @@
 #pragma once
 
+#include <stdint.h>
 #include <stdbool.h>
 
-typedef enum
+typedef struct
 {
-	CAT_NOTICE_TYPE_AQ_GOOD,
-	CAT_NOTICE_TYPE_CO2_BAD,
-	CAT_NOTICE_TYPE_PM_BAD,
-	CAT_NOTICE_TYPE_NOX_VOC_BAD,
-	CAT_NOTICE_TYPE_TEMP_BAD,
-	CAT_NOTICE_TYPE_RH_BAD,
-	CAT_NOTICE_TYPE_STATS_GOOD,
-	CAT_NOTICE_TYPE_STATS_BAD,
-	CAT_NOTICE_TYPE_SPRING,
-	CAT_NOTICE_TYPE_SUMMER,
-	CAT_NOTICE_TYPE_AUTUMN,
-	CAT_NOTICE_TYPE_WINTER, 
-	CAT_NOTICE_TYPE_MORNING,
-	CAT_NOTICE_TYPE_DAY,
-	CAT_NOTICE_TYPE_NIGHT,
-	CAT_NOTICE_TYPE_DEAD,
-	CAT_NOTICE_TYPE_MISCELLANY,
-	CAT_NOTICE_TYPE_COUNT,
-} CAT_notice_type;
+	const char* string;
+	uint64_t tags;
+} CAT_notice;
 
-void CAT_clear_notice_types();
-void CAT_enable_notice_type(int type);
-int CAT_pick_notice_type();
-
-bool CAT_should_post_notice();
-const char* CAT_pick_notice(int type);
-void CAT_post_notice(const char* notice);
+void CAT_set_notice_mask(uint64_t mask);
+void CAT_post_notice();
+void CAT_cancel_notice();
+bool CAT_is_notice_posted();
