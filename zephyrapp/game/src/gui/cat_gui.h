@@ -74,22 +74,6 @@ bool CAT_gui_item_grid_is_open();
 
 
 //////////////////////////////////////////////////////////////////////////
-// NOTIF
-
-typedef void* CAT_gui_handle;
-
-CAT_gui_handle CAT_gui_notif_open(int x0, int y0, int x1, int y1);
-bool CAT_gui_notif_is_open(CAT_gui_handle handle);
-void CAT_gui_notif_set_block(CAT_gui_handle handle, bool value);
-void CAT_gui_notif_close(CAT_gui_handle handle);
-
-void CAT_gui_notif_clear(CAT_gui_handle handle);
-void CAT_gui_notif_text(CAT_gui_handle handle, const char* fmt, ...);
-void CAT_gui_notif_image(CAT_gui_handle handle, const CAT_sprite* sprite, int frame_idx);
-void CAT_gui_notif_option(CAT_gui_handle handle, void (*proc)(void*), void* arg, const char* fmt, ...);
-
-
-//////////////////////////////////////////////////////////////////////////
 // IT'S ABOUT TO GET WEIRD IN HERE
 
 void CAT_GUI_new_frame();
@@ -101,7 +85,9 @@ void CAT_GUI_end_window();
 
 void CAT_GUI_text(const char* text);
 bool CAT_GUI_option(const char* text);
+void CAT_GUI_image(const CAT_sprite* sprite, int frame_idx);
 
+bool CAT_GUI_is_active();
 void CAT_GUI_IO();
 void CAT_GUI_draw();
 

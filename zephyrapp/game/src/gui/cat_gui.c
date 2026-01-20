@@ -1073,407 +1073,6 @@ void CAT_gui_item_grid()
 
 
 //////////////////////////////////////////////////////////////////////////
-// NOTIF
-
-typedef enum
-{
-	CAT_GUI_NODE_HEAD_TEXT,
-	CAT_GUI_NODE_HEAD_IMAGE,
-	CAT_GUI_NODE_HEAD_OPTION
-} CAT_gui_node_head;
-
-typedef struct __attribute__((__packed__))
-{
-	CAT_gui_node_head head;
-	char text[128];
-} CAT_gui_node_text;
-
-typedef struct __attribute__((__packed__))
-{
-	CAT_gui_node_head head;
-	const CAT_sprite* sprite;
-	int frame_idx;
-} CAT_gui_node_image;
-
-typedef struct __attribute__((__packed__))
-{
-	CAT_gui_node_head head;
-	char text[24];
-	void (*proc)(void*);
-	void* arg;
-} CAT_gui_node_option;
-
-static void CAT_gui_node_text_init(CAT_gui_node_head* head, const char* text)
-{
-	CAT_gui_node_text* node = (CAT_gui_node_text*) head;
-	node->head = CAT_GUI_NODE_HEAD_TEXT;
-	if(text != NULL)
-		strcpy(node->text, text);
-}
-
-static void CAT_gui_node_image_init(CAT_gui_node_head* head, const CAT_sprite* sprite, int frame_idx)
-{
-	CAT_gui_node_image* node = (CAT_gui_node_image*) head;
-	node->head = CAT_GUI_NODE_HEAD_IMAGE;
-	node->sprite = sprite;
-	node->frame_idx = frame_idx;
-}
-
-static void CAT_gui_node_option_init(CAT_gui_node_head* head, const char* text, void (*proc)(void*), void* arg)
-{
-	CAT_gui_node_option* node = (CAT_gui_node_option*) head;
-	node->head = CAT_GUI_NODE_HEAD_OPTION;
-	if(text != NULL)
-		strcpy(node->text, text);
-	node->proc = proc;
-	node->arg = arg;
-}
-
-#define NOTIF_NODE_CAPACITY 8
-
-typedef struct
-{
-	int id;
-	enum {
-		NOTIF_STATUS_CLOSED,
-		NOTIF_STATUS_OPEN,
-		NOTIF_STATUS_SHOULD_CLOSE
-	} status;
-	bool block;
-
-	int x0;
-	int y0;
-	int x1;
-	int y1;
-
-	uint8_t node_arena[NOTIF_NODE_CAPACITY * sizeof(CAT_gui_node_text)];
-	CAT_bump_allocator node_balloc;
-	CAT_gui_node_head* nodes[NOTIF_NODE_CAPACITY];
-	int node_count;
-	int selector;
-} notif_window;
-
-#define NOTIF_WINDOW_CAPACITY 4
-static notif_window notif_windows[NOTIF_WINDOW_CAPACITY];
-static int notif_window_count = 0;
-
-#define NOTIF_HANDLE_VALID(window) (window != NULL && window->status != NOTIF_STATUS_CLOSED)
-
-CAT_gui_node_head* gui_notif_add_node(notif_window* window, int size)
-{
-	if(window->node_count >= NOTIF_NODE_CAPACITY)
-		return NULL;
-
-	CAT_gui_node_head* ptr = (CAT_gui_node_head*) CAT_balloc(&window->node_balloc, size);
-	window->nodes[window->node_count] = ptr;
-	window->node_count += 1;
-	return ptr;
-}
-
-CAT_gui_handle CAT_gui_notif_open(int x0, int y0, int x1, int y1)
-{
-	if(notif_window_count >= NOTIF_WINDOW_CAPACITY)
-		return NULL;
-	notif_window* window = NULL;
-	for(int i = 0; i < NOTIF_NODE_CAPACITY; i++)
-	{
-		if(notif_windows[i].status == NOTIF_STATUS_CLOSED)
-		{
-			window = &notif_windows[i];
-			window->id = i;
-			notif_window_count += 1;
-			break;
-		}
-	}
-
-	window->status = NOTIF_STATUS_OPEN;
-	window->block = false;
-
-	window->x0 = x0;
-	window->y0 = y0;
-	window->x1 = x1;
-	window->y1 = y1;
-
-	window->node_balloc = CAT_BALLOC_INIT(window->node_arena, sizeof(window->node_arena));
-	window->node_count = 0;
-	window->selector = 0;
-
-	return (CAT_gui_handle) window;
-}
-
-bool CAT_gui_notif_is_open(CAT_gui_handle handle)
-{
-	notif_window* window = (notif_window*) handle;
-	return NOTIF_HANDLE_VALID(window);
-}
-
-void CAT_gui_notif_set_block(CAT_gui_handle handle, bool value)
-{
-	notif_window* window = (notif_window*) handle;
-	if(!NOTIF_HANDLE_VALID(window))
-		return;
-
-	window->block = value;
-}
-
-void CAT_gui_notif_close(CAT_gui_handle handle)
-{
-	notif_window* window = (notif_window*) handle;
-	if(!NOTIF_HANDLE_VALID(window))
-		return;
-
-	window->status = NOTIF_STATUS_SHOULD_CLOSE;
-}
-
-void CAT_gui_notif_clear(CAT_gui_handle handle)
-{
-	notif_window* window = (notif_window*) handle;
-	if(!NOTIF_HANDLE_VALID(window))
-		return;
-
-	CAT_bfree(&window->node_balloc);
-	window->node_count = 0;
-	window->selector = 0;
-}
-
-void CAT_gui_notif_text(CAT_gui_handle handle, const char* fmt, ...)
-{
-	notif_window* window = (notif_window*) handle;
-	if(!NOTIF_HANDLE_VALID(window))
-		return;
-
-	CAT_gui_node_head* head = gui_notif_add_node(window, sizeof(CAT_gui_node_text));
-	va_list args;
-	va_start(args, fmt);
-	vsnprintf(((CAT_gui_node_text*) head)->text, 128, fmt, args);
-	va_end(args);
-	CAT_gui_node_text_init(head, NULL);
-}
-
-void CAT_gui_notif_image(CAT_gui_handle handle, const CAT_sprite* sprite, int frame_idx)
-{
-	notif_window* window = (notif_window*) handle;
-	if(!NOTIF_HANDLE_VALID(window))
-		return;
-
-	CAT_gui_node_head* head = gui_notif_add_node(window, sizeof(CAT_gui_node_image));
-	CAT_gui_node_image_init(head, sprite, frame_idx);
-}
-
-void CAT_gui_notif_option(CAT_gui_handle handle, void (*proc)(void*), void* arg, const char* fmt, ...)
-{
-	notif_window* window = (notif_window*) handle;
-	if(!NOTIF_HANDLE_VALID(window))
-		return;
-
-	CAT_gui_node_head* head = gui_notif_add_node(window, sizeof(CAT_gui_node_text));
-	va_list args;
-	va_start(args, fmt);
-	vsnprintf(((CAT_gui_node_option*) head)->text, 24, fmt, args);
-	va_end(args);
-	CAT_gui_node_option_init(head, NULL, proc, NULL);
-}
-
-CAT_gui_node_option* notif_get_option(notif_window* window, int idx)
-{
-	if(!NOTIF_HANDLE_VALID(window))
-		return NULL;
-
-	int option_count = 0;
-	for(int i = 0; i < window->node_count; i++)
-	{
-		CAT_gui_node_head* head = window->nodes[i];
-		if(*head == CAT_GUI_NODE_HEAD_OPTION)
-		{
-			if(option_count == idx)
-				return (CAT_gui_node_option*) head;
-			option_count += 1;
-		}
-	}
-	return NULL;
-}
-
-bool notif_is_option_selected(notif_window* window, int idx)
-{
-	if(!NOTIF_HANDLE_VALID(window))
-		return false;
-
-	int option_count = 0;
-	for(int i = 0; i < window->node_count; i++)
-	{
-		CAT_gui_node_head* head = window->nodes[i];
-		if(*head == CAT_GUI_NODE_HEAD_OPTION)
-		{
-			if(i == idx && option_count == window->selector)
-				return true;
-			option_count += 1;
-		}
-	}
-	return false;
-}
-
-void notif_logic(notif_window* window)
-{
-	if(!NOTIF_HANDLE_VALID(window))
-		return;
-
-	int option_count = 0;
-	for(int i = 0; i < window->node_count; i++)
-	{
-		CAT_gui_node_head* head = window->nodes[i];
-		if(*head == CAT_GUI_NODE_HEAD_OPTION)
-			option_count += 1;
-	}
-
-	if(CAT_input_pressed(CAT_BUTTON_UP))
-		window->selector -= 1;
-	if(CAT_input_pressed(CAT_BUTTON_DOWN))
-		window->selector += 1;
-	if(window->selector >= option_count)
-		window->selector = option_count-1;
-	else if(window->selector < 0 && option_count > 0)
-		window->selector = 0;
-
-	if(CAT_input_pressed(CAT_BUTTON_A))
-	{
-		CAT_gui_node_option* option = notif_get_option(window, window->selector);
-		if(option != NULL && option->proc != NULL)
-			option->proc(option->arg);
-	}
-
-	if(window->status == NOTIF_STATUS_SHOULD_CLOSE)
-	{
-		window->status = NOTIF_STATUS_CLOSED;
-		notif_window_count -= 1;
-	}
-}
-
-void CAT_gui_notif_logic()
-{
-	for(int i = 0; i < notif_window_count; i++)
-	{
-		notif_window* window = &notif_windows[i];
-		if(NOTIF_HANDLE_VALID(window))
-		{
-			notif_logic(window);
-			if(window->block)
-				return;
-		}
-	}
-}
-
-int notif_calculate_y1(notif_window* window)
-{
-	int y1 = window->y0;
-
-	for(int i = 0; i < window->node_count; i++)
-	{
-		CAT_gui_node_head* head = window->nodes[i];
-		switch (*head)
-		{
-			case CAT_GUI_NODE_HEAD_TEXT:
-			{
-				CAT_gui_node_text* node = (CAT_gui_node_text*) head;
-				int w, h;
-				CAT_TXTAN_measure
-				(
-					window->x0, window->y0, window->x1, CAT_LCD_SCREEN_H,
-					1, node->text,
-					&w, &h
-				);
-				y1 += h + CAT_TEXT_LINE_HEIGHT;
-			}
-			break;
-
-			case CAT_GUI_NODE_HEAD_IMAGE:
-			{
-				CAT_gui_node_image* node = (CAT_gui_node_image*) head;
-				y1 += node->sprite->height + CAT_LEADING;
-			}
-			break;
-
-			case CAT_GUI_NODE_HEAD_OPTION:
-			{
-				CAT_gui_node_option* node = (CAT_gui_node_option*) head;
-				int w, h;
-				CAT_TXTAN_measure
-				(
-					window->x0, window->y0, window->x1, CAT_LCD_SCREEN_H,
-					1, node->text,
-					&w, &h
-				);
-				y1 += h + CAT_TEXT_LINE_HEIGHT;
-			}
-			break;
-		}
-	}
-
-	return y1;
-}
-
-void notif_draw(notif_window* window)
-{
-	int y1 = window->y1 == window->y0 ? notif_calculate_y1(window) + 8 : window->y1;
-	int h = y1 - window->y0;
-
-	CAT_fillberry(window->x0, window->y0, window->x1-window->x0, h, CAT_WHITE);
-	CAT_strokeberry(window->x0-1, window->y0-1, window->x1-window->x0+2, h+2, CAT_BLACK);
-	CAT_strokeberry(window->x0-2, window->y0-2, window->x1-window->x0+4, h+4, CAT_GREY);
-
-	CAT_set_text_box(window->x0+4, window->y0+4, window->x1-4, y1-4);
-	for(int i = 0; i < window->node_count; i++)
-	{
-		CAT_gui_node_head* head = window->nodes[i];
-		switch (*head)
-		{
-			case CAT_GUI_NODE_HEAD_TEXT:
-			{
-				CAT_gui_node_text* node = (CAT_gui_node_text*) head;
-				CAT_text_box_draw(1, CAT_BLACK, node->text);
-				CAT_text_box_newline(1);
-			}
-			break;
-
-			case CAT_GUI_NODE_HEAD_IMAGE:
-			{
-				CAT_gui_node_image* node = (CAT_gui_node_image*) head;
-				CAT_draw_sprite
-				(
-					node->sprite, node->frame_idx,
-					CAT_get_text_box_cursor_x(),
-					CAT_get_text_box_cursor_y()
-				);
-				CAT_text_box_shift_cursor(0, node->sprite->height + CAT_LEADING);
-			}
-			break;
-
-			case CAT_GUI_NODE_HEAD_OPTION:
-			{
-				CAT_gui_node_option* node = (CAT_gui_node_option*) head;
-				bool selected = notif_is_option_selected(window, i);
-				if(selected)
-					CAT_text_box_draw(1, CAT_BLACK, "[%s]", node->text);
-				else
-					CAT_text_box_draw(1, CAT_BLACK, "[%s]", node->text);
-				CAT_text_box_newline(1);
-			}
-			break;
-		}
-	};
-}
-
-void CAT_gui_notif()
-{
-	for(int i = 0; i < notif_window_count; i++)
-	{
-		notif_window* window = &notif_windows[i];
-		if(window->status != NOTIF_STATUS_CLOSED)
-			notif_draw(window);
-	}
-}
-
-
-//////////////////////////////////////////////////////////////////////////
 // IT'S ABOUT TO GET WEIRD IN HERE
 
 #define CAT_CRC32_IMPL
@@ -1492,7 +1091,8 @@ struct GUI_node
 	{
 		GUI_NODE_TYPE_WINDOW,
 		GUI_NODE_TYPE_TEXT,
-		GUI_NODE_TYPE_OPTION
+		GUI_NODE_TYPE_OPTION,
+		GUI_NODE_TYPE_IMAGE
 	} type;
 	bool alive;
 
@@ -1518,6 +1118,12 @@ struct GUI_node
 			char text[32];
 			bool trigger;
 		} option;
+
+		struct // : IMAGE
+		{
+			const CAT_sprite* sprite;
+			int frame_idx;
+		};
 	};
 };
 
@@ -1603,8 +1209,7 @@ static GUI_ID GUI_ID_stack_pop(GUI_ID_stack* stack)
 	if(stack->count <= 0)
 		return GUI_ID_NULL;
 	stack->count -= 1;
-	GUI_ID back = stack->data[stack->count];
-	return back;
+	return stack->data[stack->count];
 }
 
 static GUI_ID GUI_ID_stack_get(GUI_ID_stack* stack, int idx)
@@ -1616,8 +1221,8 @@ static GUI_ID GUI_ID_stack_get(GUI_ID_stack* stack, int idx)
 	return stack->data[idx];
 }
 
-static GUI_ID_stack transient_stack;
-static GUI_ID_stack persistent_stack;
+static GUI_ID_stack transient_stack = {.count = 0};
+static GUI_ID_stack persistent_stack = {.count = 0};
 
 void CAT_GUI_open_window(const char* text)
 {
@@ -1625,6 +1230,9 @@ void CAT_GUI_open_window(const char* text)
 	GUI_ID id = CAT_CRC32_hash(text, parent);
 
 	GUI_node* node = GUI_pool_register(id, true);
+	if(node == NULL)
+		return;
+
 	memset(node, 0, sizeof(GUI_node));
 	node->parent = parent;
 	node->id = id;
@@ -1636,13 +1244,17 @@ void CAT_GUI_close_current_window()
 {
 	GUI_ID head_id = GUI_ID_stack_pop(&persistent_stack);
 	GUI_node* head = GUI_pool_get(head_id);
+	if(head == NULL)
+		return;
 	head->open = false;
+	CAT_input_clear();
 }
 
 bool CAT_GUI_begin_window(const char* text, int x0, int y0, int x1, int y1)
 {	
 	GUI_ID parent = GUI_ID_stack_get(&transient_stack, -1);
 	GUI_ID id = CAT_CRC32_hash(text, parent);
+
 	GUI_node* node = GUI_pool_get(id);
 	if(node == NULL)
 		return false;
@@ -1669,8 +1281,13 @@ void CAT_GUI_text(const char* text)
 {
 	GUI_ID parent_id = GUI_ID_stack_get(&transient_stack, -1);
 	GUI_node* parent_node = GUI_pool_get(parent_id);
+	if(parent_node == NULL)
+		return;
 
 	GUI_node* node = GUI_pool_register(GUI_ID_NULL, false);
+	if(node == NULL)
+		return;
+
 	memset(node, 0, sizeof(GUI_node));
 	node->parent = parent_id;
 	node->type = GUI_NODE_TYPE_TEXT,
@@ -1683,6 +1300,8 @@ bool CAT_GUI_option(const char* text)
 {
 	GUI_ID parent_id = GUI_ID_stack_get(&transient_stack, -1);
 	GUI_node* parent_node = GUI_pool_get(parent_id);
+	if(parent_node == NULL)
+		return false;
 
 	GUI_ID id = CAT_CRC32_hash(text, parent_id);
 	GUI_node* node = GUI_pool_get(id);
@@ -1693,6 +1312,8 @@ bool CAT_GUI_option(const char* text)
 	else
 	{
 		node = GUI_pool_register(id, true);	
+		if(node == NULL)
+			return false;
 		memset(node, 0, sizeof(GUI_node));
 	}
 
@@ -1704,6 +1325,26 @@ bool CAT_GUI_option(const char* text)
 	
 	GUI_node_add_child(parent_node, node);
 	return result;
+}
+
+void CAT_GUI_image(const CAT_sprite* sprite, int frame_idx)
+{
+	GUI_ID parent_id = GUI_ID_stack_get(&transient_stack, -1);
+	GUI_node* parent_node = GUI_pool_get(parent_id);
+	if(parent_node == NULL)
+		return;
+
+	GUI_node* node = GUI_pool_register(GUI_ID_NULL, false);
+	if(node == NULL)
+		return;
+
+	memset(node, 0, sizeof(GUI_node));
+	node->parent = parent_id;
+	node->type = GUI_NODE_TYPE_IMAGE;
+	node->sprite = sprite;
+	node->frame_idx = frame_idx;
+
+	GUI_node_add_child(parent_node, node);
 }
 
 void CAT_GUI_new_frame()
@@ -1739,6 +1380,11 @@ static GUI_node* GUI_get_selectable(GUI_node* node, int idx)
 	return NULL;
 }
 
+bool CAT_GUI_is_active()
+{
+	return persistent_stack.count > 0;
+}
+
 void CAT_GUI_IO()
 {
 	for(int i = 0; i < persistent_stack.count; i++)
@@ -1751,7 +1397,9 @@ void CAT_GUI_IO()
 
 	GUI_ID head_id = GUI_ID_stack_get(&persistent_stack, -1);
 	GUI_node* head = GUI_pool_get(head_id);
-
+	if(head == NULL)
+		return;
+	
 	int selectable_count = GUI_count_selectables(head);
 	if(selectable_count > 0)
 	{
@@ -1775,10 +1423,10 @@ void CAT_GUI_IO()
 void GUI_draw_window(GUI_node* node)
 {
 	CAT_fillberry(node->x0, node->y0, node->x1-node->x0, node->y1-node->y0, CAT_WHITE);
-	CAT_lineberry(node->x0-1, node->y0-1, node->x0-1, node->y1+1, CAT_GREY);
-	CAT_lineberry(node->x0-1, node->y0-1, node->x1+1, node->y0-1, CAT_GREY);
-	CAT_lineberry(node->x1+1, node->y0, node->x1+1, node->y1+1, CAT_BLACK);
-	CAT_lineberry(node->x0, node->y1+1, node->x1, node->y1+1, CAT_BLACK);
+	CAT_lineberry(node->x0-1, node->y0-1, node->x0-1, node->y1, CAT_GREY);
+	CAT_lineberry(node->x0-1, node->y0-1, node->x1, node->y0-1, CAT_GREY);
+	CAT_lineberry(node->x1, node->y0, node->x1, node->y1, CAT_BLACK);
+	CAT_lineberry(node->x0, node->y1, node->x1, node->y1, CAT_BLACK);
 	CAT_set_text_box
 	(
 		node->x0+4, node->y0+4,
@@ -1845,7 +1493,11 @@ void CAT_GUI_draw()
 
 void CAT_gui_tick()
 {
-	CAT_gui_notif_logic();
+	if(CAT_GUI_is_active())
+	{
+		CAT_GUI_IO();
+		return;
+	}
 	
 	if(CAT_gui_popup_is_open())
 	{
@@ -1883,5 +1535,6 @@ void CAT_gui_render()
 		CAT_gui_keyboard();
 	if(CAT_gui_popup_is_open())
 		CAT_gui_popup();
-	CAT_gui_notif();
+	
+	CAT_GUI_draw();
 }

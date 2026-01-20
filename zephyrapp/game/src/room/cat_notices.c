@@ -42,22 +42,17 @@ static const CAT_notice* select_notice()
 }
 
 static CAT_notice* notice = NULL;
-static CAT_gui_handle* handle = NULL;
 
 void CAT_post_notice()
 {
 	notice = select_notice();
 	if(notice == NULL)
 		return;
-	handle = CAT_gui_notif_open(4, 4, CAT_LCD_SCREEN_W-4, 4);
-	CAT_gui_notif_text(handle, notice->string);
 }
 
 void CAT_cancel_notice()
 {
-	CAT_gui_notif_close(handle);
 	notice = NULL;
-	handle = NULL;
 }
 
 bool CAT_is_notice_posted()

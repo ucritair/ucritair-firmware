@@ -32,6 +32,8 @@ void CAT_render_dummy()
 
 void CAT_MS_dummy(CAT_FSM_signal signal)
 {
+	static bool tripwire = false;
+
 	switch(signal)
 	{
 		case CAT_FSM_SIGNAL_ENTER:
@@ -47,43 +49,21 @@ void CAT_MS_dummy(CAT_FSM_signal signal)
 			int y0 = margin;
 			int x1 = CAT_LCD_SCREEN_W-margin;
 			int y1 = CAT_LCD_SCREEN_H-margin;
-			
-			CAT_GUI_new_frame();
 
-			CAT_GUI_open_window("Main");
+			if(!tripwire)
+			{
+				CAT_GUI_open_window("Main");
+				tripwire = true;
+			}
+
 			if(CAT_GUI_begin_window("Main", x0, y0, x1, y1))
 			{
 				CAT_GUI_text("Hello, world!");
 				CAT_GUI_text("This is the base window.");
-
-				if(CAT_GUI_option("OPEN POPUP"))
-					CAT_GUI_open_window("Popup 1");
-
-				x0 += margin; y0 += margin; x1 -= margin; y1 -= margin;
-				if(CAT_GUI_begin_window("Popup 1", x0, y0, x1, y1))
-				{
-					CAT_GUI_text("This is the first popup.");
-					if(CAT_GUI_option("OPEN POPUP"))
-						CAT_GUI_open_window("Popup 2");
-					if(CAT_GUI_option("EXIT"))
-						CAT_GUI_close_current_window();
-
-					x0 += margin; y0 += margin; x1 -= margin; y1 -= margin;
-					if(CAT_GUI_begin_window("Popup 2", x0, y0, x1, y1))
-					{
-						CAT_GUI_text("This is the second popup.");
-						if(CAT_GUI_option("EXIT"))
-							CAT_GUI_close_current_window();
-						CAT_GUI_end_window();
-					}
-
-					CAT_GUI_end_window();
-				}
-
+				if(CAT_GUI_option("EXIT"))
+					CAT_GUI_close_current_window();
 				CAT_GUI_end_window();
 			}
-
-			CAT_GUI_IO();
 		}
 		break;
 
@@ -122,7 +102,7 @@ void CAT_init()
 	if(persist_flags & CAT_PERSIST_CONFIG_FLAG_AQ_FIRST)
 		CAT_pushdown_rebase(CAT_MS_monitor);
 	else
-		CAT_pushdown_rebase(CAT_MS_dummy);
+		CAT_pushdown_rebase(CAT_MS_room);
 #endif
 }
 
@@ -136,6 +116,7 @@ void CAT_tick_logic()
 		
 	CAT_platform_tick();
 	CAT_input_tick();
+	CAT_GUI_new_frame();
 
 	CAT_radio_poll_RX(CAT_chat_RX_meowback);
 

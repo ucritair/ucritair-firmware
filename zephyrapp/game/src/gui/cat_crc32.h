@@ -30,7 +30,7 @@ uint32_t CAT_CRC32_hash(const char* string, uint32_t seed)
 	const uint8_t* data = (const uint8_t*) string;
 
 	uint8_t c;
-	while(c = *data++)
+	while((c = *data++))
 	{
 		if(c == '#' && data[0] == '#' && data[1] == '#')
 		{
