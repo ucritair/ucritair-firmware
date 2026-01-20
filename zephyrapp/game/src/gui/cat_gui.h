@@ -94,8 +94,8 @@ void CAT_gui_notif_option(CAT_gui_handle handle, void (*proc)(void*), void* arg,
 
 void CAT_GUI_new_frame();
 
-void CAT_GUI_push_window(const char* text);
-void CAT_GUI_pop_window();
+void CAT_GUI_open_window(const char* text);
+void CAT_GUI_close_current_window();
 bool CAT_GUI_begin_window(const char* text, int x0, int y0, int x1, int y1);
 void CAT_GUI_end_window();
 

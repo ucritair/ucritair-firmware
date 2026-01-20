@@ -1494,7 +1494,7 @@ struct GUI_node
 		GUI_NODE_TYPE_TEXT,
 		GUI_NODE_TYPE_OPTION
 	} type;
-	bool hot;
+	bool alive;
 
 	// PAYLOAD
 	union
@@ -1505,6 +1505,7 @@ struct GUI_node
 			GUI_node* children[32];
 			int child_count;
 			int selector;
+			bool open;
 		};
 
 		struct // : TEXT
@@ -1536,8 +1537,12 @@ static void GUI_pool_free_transient()
 {
 	for(int i = 0; i < GUI_POOL_CAPACITY; i++)
 	{
-		if(GUI_pool[i].id == GUI_ID_NULL)
+		if(!GUI_pool[i].alive)
+		{
 			GUI_pool[i].parent = GUI_ID_NULL;
+			GUI_pool[i].id = GUI_ID_NULL;
+		}
+		GUI_pool[i].alive = false;
 	}
 }
 
@@ -1561,15 +1566,13 @@ static GUI_node* GUI_pool_get_free()
 	return NULL;
 }
 
-static GUI_node* GUI_pool_register(GUI_node* node, bool persistent)
+static GUI_node* GUI_pool_register(GUI_ID id, bool persistent)
 {
 	GUI_node* destination = NULL;
 	if(persistent)
-		destination = GUI_pool_get(node->id);
+		destination = GUI_pool_get(id);
 	if(destination == NULL)
 		destination = GUI_pool_get_free();
-	if(destination != NULL)
-		memcpy(destination, node, sizeof(GUI_node));
 	return destination;
 }
 
@@ -1616,39 +1619,44 @@ static GUI_ID GUI_ID_stack_get(GUI_ID_stack* stack, int idx)
 static GUI_ID_stack transient_stack;
 static GUI_ID_stack persistent_stack;
 
-void CAT_GUI_push_window(const char* text)
+void CAT_GUI_open_window(const char* text)
 {
 	GUI_ID parent = GUI_ID_stack_get(&transient_stack, -1);
 	GUI_ID id = CAT_CRC32_hash(text, parent);
-	GUI_ID_stack_push(&transient_stack, id);
-	GUI_ID_stack_push(&persistent_stack, id);
+
+	GUI_node* node = GUI_pool_register(id, true);
+	memset(node, 0, sizeof(GUI_node));
+	node->parent = parent;
+	node->id = id;
+	node->type = GUI_NODE_TYPE_WINDOW;
+	node->open = true;
 }
 
-void CAT_GUI_pop_window()
+void CAT_GUI_close_current_window()
 {
-	GUI_ID_stack_pop(&persistent_stack);
+	GUI_ID head_id = GUI_ID_stack_pop(&persistent_stack);
+	GUI_node* head = GUI_pool_get(head_id);
+	head->open = false;
 }
 
 bool CAT_GUI_begin_window(const char* text, int x0, int y0, int x1, int y1)
-{
-	GUI_ID parent = GUI_ID_stack_get(&transient_stack, -2);
+{	
+	GUI_ID parent = GUI_ID_stack_get(&transient_stack, -1);
 	GUI_ID id = CAT_CRC32_hash(text, parent);
-	if(GUI_ID_stack_get(&transient_stack, -1) != id)
+	GUI_node* node = GUI_pool_get(id);
+	if(node == NULL)
 		return false;
-	GUI_node values =
-	{
-		.parent = parent,
-		.id = id,
-		.type = GUI_NODE_TYPE_WINDOW,
+	if(!node->open)
+		return false;
 
-		.x0 = x0,
-		.y0 = y0,
-		.x1 = x1,
-		.y1 = y1,
+	node->x0 = x0;
+	node->y0 = y0;
+	node->x1 = x1;
+	node->y1 = y1;
+	node->child_count = 0;
 
-		.child_count = 0
-	};
-	GUI_node* node = GUI_pool_register(&values, true);
+	GUI_ID_stack_push(&transient_stack, id);
+	GUI_ID_stack_push(&persistent_stack, id);
 	return true;
 }
 
@@ -1662,13 +1670,12 @@ void CAT_GUI_text(const char* text)
 	GUI_ID parent_id = GUI_ID_stack_get(&transient_stack, -1);
 	GUI_node* parent_node = GUI_pool_get(parent_id);
 
-	GUI_node values =
-	{
-		.parent = parent_id,
-		.type = GUI_NODE_TYPE_TEXT,
-	};
-	strcpy(values.text, text);
-	GUI_node* node = GUI_pool_register(&values, false);
+	GUI_node* node = GUI_pool_register(GUI_ID_NULL, false);
+	memset(node, 0, sizeof(GUI_node));
+	node->parent = parent_id;
+	node->type = GUI_NODE_TYPE_TEXT,
+	strcpy(node->text, text);
+
 	GUI_node_add_child(parent_node, node);
 }
 
@@ -1678,22 +1685,24 @@ bool CAT_GUI_option(const char* text)
 	GUI_node* parent_node = GUI_pool_get(parent_id);
 
 	GUI_ID id = CAT_CRC32_hash(text, parent_id);
-	GUI_node* existing = GUI_pool_get(id);
-
+	GUI_node* node = GUI_pool_get(id);
+	
 	bool result = false;
-	if(existing != NULL)
-		result = existing->option.trigger;
-
-	GUI_node values =
+	if(node != NULL)
+		result = node->option.trigger;
+	else
 	{
-		.parent = parent_id,
-		.id = id,
-		.type = GUI_NODE_TYPE_OPTION,
-	};
-	strcpy(values.option.text, text);
-	GUI_node* node = GUI_pool_register(&values, true);
-	GUI_node_add_child(parent_node, node);
+		node = GUI_pool_register(id, true);	
+		memset(node, 0, sizeof(GUI_node));
+	}
 
+	node->parent = parent_id;
+	node->id = id;
+	node->type = GUI_NODE_TYPE_OPTION;
+	strcpy(node->option.text, text);
+	node->option.trigger = false;
+	
+	GUI_node_add_child(parent_node, node);
 	return result;
 }
 
@@ -1734,20 +1743,10 @@ void CAT_GUI_IO()
 {
 	for(int i = 0; i < persistent_stack.count; i++)
 	{
-		GUI_ID id = persistent_stack.data[i];
-		GUI_node* node = GUI_pool_get(id);
-		node->hot = true;
-
+		GUI_node* node = GUI_pool_get(persistent_stack.data[i]);
+		node->alive = true;
 		for(int j = 0; j < node->child_count; j++)
-		{
-			GUI_node* child = node->children[j];
-			child->hot = true;
-		}		
-	}
-	for(int i = 0; i < GUI_POOL_CAPACITY; i++)
-	{
-		if(!GUI_pool[i].hot)
-			GUI_pool[i].parent = GUI_ID_NULL;
+			node->children[j]->alive = true;
 	}
 
 	GUI_ID head_id = GUI_ID_stack_get(&persistent_stack, -1);
@@ -1796,7 +1795,7 @@ void GUI_draw_text(GUI_node* node)
 void GUI_draw_option(GUI_node* node, bool selected)
 {
 	if(selected)
-		CAT_text_box_draw(1, CAT_BLACK, "\1 [%s]", node->option.text);
+		CAT_text_box_draw(1, CAT_BLACK, "\1 %s <", node->option.text);
 	else
 		CAT_text_box_draw(1, CAT_BLACK, "\1 %s", node->option.text);
 	CAT_text_box_newline(1);

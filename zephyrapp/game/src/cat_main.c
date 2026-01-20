@@ -50,32 +50,35 @@ void CAT_MS_dummy(CAT_FSM_signal signal)
 			
 			CAT_GUI_new_frame();
 
-			CAT_GUI_push_window("Main");
+			CAT_GUI_open_window("Main");
 			if(CAT_GUI_begin_window("Main", x0, y0, x1, y1))
 			{
 				CAT_GUI_text("Hello, world!");
-				CAT_GUI_text("More text perhaps even\nmultiline");
+				CAT_GUI_text("This is the base window.");
 
-				CAT_GUI_push_window("Popup 1");
+				if(CAT_GUI_option("OPEN POPUP"))
+					CAT_GUI_open_window("Popup 1");
+
 				x0 += margin; y0 += margin; x1 -= margin; y1 -= margin;
 				if(CAT_GUI_begin_window("Popup 1", x0, y0, x1, y1))
 				{
-					CAT_GUI_text("Popup 1");
+					CAT_GUI_text("This is the first popup.");
+					if(CAT_GUI_option("OPEN POPUP"))
+						CAT_GUI_open_window("Popup 2");
+					if(CAT_GUI_option("EXIT"))
+						CAT_GUI_close_current_window();
 
-					CAT_GUI_push_window("Popup 1");
 					x0 += margin; y0 += margin; x1 -= margin; y1 -= margin;
-					if(CAT_GUI_begin_window("Popup 1", x0, y0, x1, y1))
+					if(CAT_GUI_begin_window("Popup 2", x0, y0, x1, y1))
 					{
-						CAT_GUI_text("Popup 2");
+						CAT_GUI_text("This is the second popup.");
 						if(CAT_GUI_option("EXIT"))
-							CAT_GUI_pop_window();
+							CAT_GUI_close_current_window();
 						CAT_GUI_end_window();
 					}
 
 					CAT_GUI_end_window();
 				}
-
-				CAT_GUI_text("Delayed text");
 
 				CAT_GUI_end_window();
 			}
