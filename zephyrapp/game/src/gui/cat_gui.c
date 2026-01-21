@@ -268,99 +268,6 @@ void CAT_gui_keyboard()
 
 
 //////////////////////////////////////////////////////////////////////////
-// POPUP
-
-static const char* popup_text;
-static int popup_style;
-static int popup_selector;
-static bool popup_result;
-static bool popup_open = false;
-
-void CAT_gui_open_popup(const char* text, int style)
-{	
-	popup_text = text;
-	popup_style = style;
-	popup_selector = 1;
-	popup_result = false;
-	popup_open = true;
-
-	CAT_input_clear();
-}
-
-bool CAT_gui_popup_is_open()
-{
-	return popup_open;
-}
-
-void CAT_gui_popup_logic()
-{
-	if(popup_style == CAT_POPUP_STYLE_YES_NO)
-	{
-		if(CAT_input_pressed(CAT_BUTTON_LEFT))
-			popup_selector = 0;
-		if(CAT_input_pressed(CAT_BUTTON_RIGHT))
-			popup_selector = 1;
-		popup_result = popup_selector == 0;
-		
-		if(CAT_input_pressed(CAT_BUTTON_START) || CAT_input_pressed(CAT_BUTTON_B))
-		{
-			popup_result = false;
-			popup_open = false;
-		}
-	}
-	else
-	{
-		popup_selector = 0;
-		popup_result = false;
-	}
-
-	if(CAT_input_pressed(CAT_BUTTON_A))
-		popup_open = false;
-}
-
-#define POPUP_TILE_X 2
-#define POPUP_TILE_Y 6
-#define POPUP_TILE_W 11
-#define POPUP_TILE_H 8
-#define POPUP_X (POPUP_TILE_X * CAT_TILE_SIZE)
-#define POPUP_Y (POPUP_TILE_Y * CAT_TILE_SIZE)
-#define POPUP_W (POPUP_TILE_W * CAT_TILE_SIZE)
-#define POPUP_H (POPUP_TILE_H * CAT_TILE_SIZE)
-#define POPUP_MARGIN 8
-
-void CAT_gui_popup()
-{
-	CAT_fillberry(POPUP_X, POPUP_Y, POPUP_W, POPUP_H, CAT_WHITE);
-	CAT_strokeberry(POPUP_X, POPUP_Y, POPUP_W, POPUP_H, CAT_BLACK);
-	CAT_strokeberry(POPUP_X-1, POPUP_Y-1, POPUP_W+2, POPUP_H+2, CAT_GREY);
-	
-	CAT_set_text_mask_depr(POPUP_X+POPUP_MARGIN, -1, POPUP_X+POPUP_W-POPUP_MARGIN, -1);
-	CAT_set_text_flags_depr(CAT_TEXT_FLAG_WRAP);
-	CAT_draw_text_depr(POPUP_X+POPUP_MARGIN, POPUP_Y+POPUP_MARGIN, popup_text);
-
-	const char* responses =
-	popup_style == CAT_POPUP_STYLE_YES_NO ?
-	(popup_selector == 0 ? "[YES]   NO \n" : " YES   [NO]\n") :
-	"[OKAY]";
-
-	CAT_draw_text_depr
-	(
-		POPUP_X+POPUP_MARGIN, POPUP_Y+POPUP_H-POPUP_MARGIN-CAT_GLYPH_HEIGHT,
-		responses
-	);
-}
-
-bool CAT_gui_consume_popup()
-{
-	if(popup_open)
-		return false;
-	bool result = popup_result;
-	popup_result = false;
-	return result;
-}
-
-
-//////////////////////////////////////////////////////////////////////////
 // MENU
 
 typedef struct menu_node
@@ -1103,7 +1010,7 @@ struct GUI_node
 		struct // : WINDOW
 		{
 			int x0, y0, x1, y1;
-			GUI_node* children[32];
+			GUI_node* children[16];
 			int child_count;
 			int selector;
 			bool open;
@@ -1144,7 +1051,8 @@ static void GUI_pool_free_transient()
 {
 	for(int i = 0; i < GUI_POOL_CAPACITY; i++)
 	{
-		if(!GUI_pool[i].alive)
+		bool waiting_window = GUI_pool[i].type == GUI_NODE_TYPE_WINDOW && GUI_pool[i].open;
+		if(!GUI_pool[i].alive && !waiting_window)
 		{
 			GUI_pool[i].parent = GUI_ID_NULL;
 			GUI_pool[i].id = GUI_ID_NULL;
@@ -1157,6 +1065,7 @@ static GUI_node* GUI_pool_get(GUI_ID id)
 {
 	for(int i = 0; i < GUI_POOL_CAPACITY; i++)
 	{
+		if(GUI_pool[i].id != GUI_ID_NULL)
 		if(GUI_pool[i].id == id)
 			return &GUI_pool[i];
 	}
@@ -1227,7 +1136,7 @@ static GUI_ID_stack persistent_stack = {.count = 0};
 
 void CAT_GUI_open_window(const char* text)
 {
-	GUI_ID parent = GUI_ID_stack_get(&transient_stack, -1);
+	GUI_ID parent = GUI_ID_NULL; // GUI_ID_stack_get(&transient_stack, -1);
 	GUI_ID id = CAT_CRC32_hash(text, parent);
 
 	GUI_node* node = GUI_pool_register(id, true);
@@ -1245,15 +1154,17 @@ void CAT_GUI_close_current_window()
 {
 	GUI_ID head_id = GUI_ID_stack_pop(&persistent_stack);
 	GUI_node* head = GUI_pool_get(head_id);
+
 	if(head == NULL)
 		return;
 	head->open = false;
+
 	CAT_input_clear();
 }
 
 bool CAT_GUI_begin_window(const char* text, int x0, int y0, int x1, int y1)
 {	
-	GUI_ID parent = GUI_ID_stack_get(&transient_stack, -1);
+	GUI_ID parent = GUI_ID_NULL; // GUI_ID_stack_get(&transient_stack, -1);
 	GUI_ID id = CAT_CRC32_hash(text, parent);
 
 	GUI_node* node = GUI_pool_get(id);
@@ -1518,12 +1429,6 @@ void CAT_gui_tick()
 		CAT_GUI_IO();
 		return;
 	}
-	
-	if(CAT_gui_popup_is_open())
-	{
-		CAT_gui_popup_logic();
-		return;
-	}
 
 	if(CAT_gui_keyboard_is_open())
 	{
@@ -1553,8 +1458,6 @@ void CAT_gui_render()
 
 	if(CAT_gui_keyboard_is_open())
 		CAT_gui_keyboard();
-	if(CAT_gui_popup_is_open())
-		CAT_gui_popup();
 	
 	CAT_GUI_draw();
 }

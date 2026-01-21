@@ -13,20 +13,6 @@ bool CAT_gui_keyboard_is_open();
 
 
 //////////////////////////////////////////////////////////////////////////
-// POPUP
-
-typedef enum
-{
-	CAT_POPUP_STYLE_YES_NO,
-	CAT_POPUP_STYLE_OK
-} CAT_popup_style;
-
-void CAT_gui_open_popup(const char* text, int style);
-bool CAT_gui_popup_is_open();
-bool CAT_gui_consume_popup();
-
-
-//////////////////////////////////////////////////////////////////////////
 // MENU
 
 typedef enum

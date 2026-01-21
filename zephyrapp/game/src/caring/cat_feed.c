@@ -753,7 +753,7 @@ void select_button_proc()
 
 void submit_button_proc()
 {
-	CAT_gui_open_popup("Submit this meal?\nFood items on table\nwill be consumed!\n", CAT_POPUP_STYLE_YES_NO);
+	CAT_GUI_open_window("submit");
 }
 
 struct button
@@ -795,18 +795,24 @@ static void MS_arrange(CAT_FSM_signal signal)
 
 		case CAT_FSM_SIGNAL_TICK:
 		{
-			if (CAT_gui_popup_is_open())
-				break;
-			if (CAT_gui_consume_popup())
-			{
-				CAT_FSM_transition(&fsm, MS_summary);
-				break;
-			}
-
 			if(CAT_input_poll_barrier())
 			{
 				if(CAT_input_dismissal())
 					CAT_pushdown_pop();
+				return;
+			}
+
+			if(CAT_GUI_begin_window("submit", 12, CAT_LCD_SCREEN_H/4, CAT_LCD_SCREEN_W-12, 3*CAT_LCD_SCREEN_H/4))
+			{
+				CAT_GUI_text("Submit this meal?\nFood items on table\nwill be consumed!\n");
+				if(CAT_GUI_option("YES"))
+				{
+					CAT_FSM_transition(&fsm, MS_summary);
+					CAT_GUI_close_current_window();
+				}
+				if(CAT_GUI_option("NO"))
+					CAT_GUI_close_current_window();
+				CAT_GUI_end_window();
 				return;
 			}
 

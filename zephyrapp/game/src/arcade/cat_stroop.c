@@ -979,13 +979,21 @@ void CAT_MS_stroop(CAT_FSM_signal signal)
 
 		case CAT_FSM_SIGNAL_TICK:
 		{
-			if(CAT_gui_popup_is_open())
+			if(CAT_GUI_begin_window("exit", 12, CAT_LCD_SCREEN_H/4, CAT_LCD_SCREEN_W-12, 3*CAT_LCD_SCREEN_H/4))
+			{
+				CAT_GUI_text("Quit this Stroop test?\n");
+				if(CAT_GUI_option("YES"))
+				{
+					CAT_pushdown_pop();
+					CAT_GUI_close_current_window();
+				}
+				if(CAT_GUI_option("NO"))
+					CAT_GUI_close_current_window();
+				CAT_GUI_end_window();
 				return;
-			if(CAT_gui_consume_popup())
-				CAT_pushdown_pop();
-			
+			}
 			if(CAT_input_pressed(CAT_BUTTON_B))
-				CAT_gui_open_popup("Quit this Stroop test?", CAT_POPUP_STYLE_YES_NO);
+				CAT_GUI_open_window("exit");
 
 			CAT_FSM_tick(&fsm);
 			if(fsm.state == NULL)

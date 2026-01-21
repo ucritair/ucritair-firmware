@@ -369,45 +369,69 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 						{
 							CAT_SD_write_result result = CAT_write_logs_to_SD();
 							if(result == CAT_SD_WRITE_OKAY)
-								CAT_gui_open_popup("Write succeeded!", CAT_POPUP_STYLE_OK);
+								CAT_GUI_open_window("sd_write_success");
 							else
-								CAT_gui_open_popup("Write failed!", CAT_POPUP_STYLE_OK);
+								CAT_GUI_open_window("sd_write_failure");
+						}
+						if(CAT_GUI_begin_window("sd_write_success", 12, CAT_LCD_SCREEN_H/4, CAT_LCD_SCREEN_W-12, 2*CAT_LCD_SCREEN_H/4))
+						{
+							CAT_GUI_text("Write succeeded!\n");
+							if(CAT_GUI_option("OKAY"))
+								CAT_GUI_close_current_window();
+							CAT_GUI_end_window();
+						}
+						if(CAT_GUI_begin_window("sd_write_failure", 12, CAT_LCD_SCREEN_H/4, CAT_LCD_SCREEN_W-12, 2*CAT_LCD_SCREEN_H/4))
+						{
+							CAT_GUI_text("Write failed!\nPlease ensure that an SD card is inserted.\n");
+							if(CAT_GUI_option("OKAY"))
+								CAT_GUI_close_current_window();
+							CAT_GUI_end_window();
 						}
 
-						if(CAT_gui_begin_menu("ERASE LOGS"))
+						if(CAT_gui_menu_item("ERASE LOGS"))
+							CAT_GUI_open_window("erase_logs_warn");
+						if(CAT_GUI_begin_window("erase_logs_warn", 12, CAT_LCD_SCREEN_H/4, CAT_LCD_SCREEN_W-12, 3*CAT_LCD_SCREEN_H/4))
 						{
-							CAT_gui_menu_text("Deleting your logs is an");
-							CAT_gui_menu_text("irreversible action.");
-							CAT_gui_menu_text("Be very careful!");
-							CAT_gui_menu_text("");
-
-							if(CAT_gui_menu_item("REALLY ERASE LOGS"))
-								CAT_gui_open_popup("This will permanently delete all your logged data. Are you sure you want to proceed?\n", CAT_POPUP_STYLE_YES_NO);
-							if(CAT_gui_consume_popup())
+							CAT_GUI_text("Deleting your logs is an irreversible action. Are you completely sure that you want to proceed?\n");
+							if(CAT_GUI_option("GO BACK"))
+								CAT_GUI_close_current_window();
+							if(CAT_GUI_option("ERASE LOGS"))
 							{
 								CAT_erase_logs();
-								CAT_gui_open_popup("All logs erased!\n", CAT_POPUP_STYLE_OK);
+								CAT_GUI_open_window("erase_logs_done");
+								CAT_GUI_close_current_window();
 							}
-
-							CAT_gui_end_menu();
+							CAT_GUI_end_window();
+						}
+						if(CAT_GUI_begin_window("erase_logs_done", 12, CAT_LCD_SCREEN_H/4, CAT_LCD_SCREEN_W-12, 2*CAT_LCD_SCREEN_H/4))
+						{
+							CAT_GUI_text("All logs erased!\n");
+							if(CAT_GUI_option("OKAY"))
+								CAT_GUI_close_current_window();
+							CAT_GUI_end_window();
 						}
 
-						if(CAT_gui_begin_menu("ERASE SAVE"))
+						if(CAT_gui_menu_item("ERASE SAVE"))
+							CAT_GUI_open_window("erase_save_warn");
+						if(CAT_GUI_begin_window("erase_save_warn", 12, CAT_LCD_SCREEN_H/4, CAT_LCD_SCREEN_W-12, 3*CAT_LCD_SCREEN_H/4))
 						{
-							CAT_gui_menu_text("Deleting your save is an");
-							CAT_gui_menu_text("irreversible action.");
-							CAT_gui_menu_text("Be very careful!");
-							CAT_gui_menu_text("");
-
-							if(CAT_gui_menu_item("REALLY ERASE SAVE"))
-								CAT_gui_open_popup("This will permanently delete all your saved data. Are you sure you want to proceed?\n", CAT_POPUP_STYLE_YES_NO);
-							if(CAT_gui_consume_popup())
+							CAT_GUI_text("Resetting your save is an irreversible action. Are you completely sure that you want to proceed?\n");
+							if(CAT_GUI_option("GO BACK"))
+								CAT_GUI_close_current_window();
+							if(CAT_GUI_option("ERASE SAVE"))
 							{
 								CAT_reset_save();
-								CAT_gui_open_popup("Save erased!\n", CAT_POPUP_STYLE_OK);
+								CAT_GUI_open_window("erase_save_done");
+								CAT_GUI_close_current_window();
 							}
-
-							CAT_gui_end_menu();
+							CAT_GUI_end_window();
+						}
+						if(CAT_GUI_begin_window("erase_save_done", 12, CAT_LCD_SCREEN_H/4, CAT_LCD_SCREEN_W-12, 2*CAT_LCD_SCREEN_H/4))
+						{
+							CAT_GUI_text("Save reset!");
+							if(CAT_GUI_option("OKAY"))
+								CAT_GUI_close_current_window();
+							CAT_GUI_end_window();
 						}
 
 						CAT_gui_end_menu();
@@ -425,9 +449,17 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 						CAT_sleep();
 
 					if(CAT_gui_menu_item("PROTECTED OFF"))
-						CAT_gui_open_popup("The device must be powered on via the reset button! This will clear important settings. Proceed?\n", CAT_POPUP_STYLE_YES_NO);
-					if(CAT_gui_consume_popup())
-						CAT_shutdown();
+						CAT_GUI_open_window("protected_off_warn");
+					if(CAT_GUI_begin_window("protected_off_warn", 12, CAT_LCD_SCREEN_H/4, CAT_LCD_SCREEN_W-12, 3*CAT_LCD_SCREEN_H/4))
+					{
+						CAT_GUI_text("After entering protected off mode, the device must be powered on via the reset button.");
+						CAT_GUI_text("This will clear important settings. Are you sure you want to proceed?\n");
+						if(CAT_GUI_option("GO BACK"))
+							CAT_GUI_close_current_window();
+						if(CAT_GUI_option("PROTECTED OFF"))
+							CAT_shutdown();
+						CAT_GUI_end_window();
+					}
 					
 					CAT_gui_end_menu();
 				}
