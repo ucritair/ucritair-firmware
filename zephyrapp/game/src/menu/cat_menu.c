@@ -43,7 +43,11 @@ static CAT_datetime dt_cached;
 // Log rate
 static int lr_mins;
 
+#ifdef CAT_DESKTOP
 #define CO2_CAL_TIME 5
+#else
+#define CO2_CAL_TIME (CAT_MINUTE_SECONDS/**5*/)
+#endif
 static bool co2_cal_status = false;
 static uint64_t co2_cal_time = 0;
 static bool co2_cal_sensor_called = false;
@@ -75,8 +79,7 @@ static void tick_co2_cal()
 		{
 			CAT_GUI_text("Please go outside and wait while CO2 sensor reading settles before calibration.\n");
 			CAT_GUI_image(&icon_nosmoke_sprite, 0);
-			//CAT_GUI_text("\n%02d:%02d remaining...", remaining/60, remaining%60);
-			CAT_GUI_text("DUMMY remaining...");
+			CAT_GUI_text("\n%02d:%02d remaining...", remaining/60, remaining%60);
 		}
 		else if(remaining >= 0)
 		{

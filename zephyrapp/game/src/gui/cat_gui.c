@@ -18,6 +18,7 @@
 #include "cat_curves.h"
 #include "cat_text.h"
 #include "cat_alloc.h"
+#include <stdarg.h>
 
 //////////////////////////////////////////////////////////////////////////
 // KEYBOARD
@@ -1277,7 +1278,7 @@ void CAT_GUI_end_window()
 	GUI_ID_stack_pop(&transient_stack);
 }
 
-void CAT_GUI_text(const char* text)
+void CAT_GUI_text(const char* fmt, ...)
 {
 	GUI_ID parent_id = GUI_ID_stack_get(&transient_stack, -1);
 	GUI_node* parent_node = GUI_pool_get(parent_id);
@@ -1290,8 +1291,11 @@ void CAT_GUI_text(const char* text)
 
 	memset(node, 0, sizeof(GUI_node));
 	node->parent = parent_id;
-	node->type = GUI_NODE_TYPE_TEXT,
-	strcpy(node->text, text);
+	node->type = GUI_NODE_TYPE_TEXT;
+	va_list args;
+	va_start(args, fmt);
+	vsnprintf(node->text, sizeof(node->text), fmt, args);
+	va_end(args);
 
 	GUI_node_add_child(parent_node, node);
 }
@@ -1449,6 +1453,16 @@ void GUI_draw_option(GUI_node* node, bool selected)
 	CAT_text_box_newline(1);
 }
 
+void GUI_draw_image(GUI_node* node)
+{
+	int x = CAT_get_text_box_cursor_x();
+	int y = CAT_get_text_box_cursor_y();
+	CAT_draw_sprite(node->sprite, node->frame_idx, x, y);
+	CAT_text_box_shift_cursor(0, node->sprite->height);
+	CAT_text_box_reset_x();
+	CAT_text_box_newline(1);
+}
+
 void CAT_GUI_draw()
 {
 	for(int i = 0; i < persistent_stack.count; i++)
@@ -1473,6 +1487,12 @@ void CAT_GUI_draw()
 				{
 					GUI_draw_option(child, selectable_idx == node->selector);
 					selectable_idx += 1;
+				}
+				break;
+
+				case GUI_NODE_TYPE_IMAGE:
+				{
+					GUI_draw_image(child);
 				}
 				break;
 

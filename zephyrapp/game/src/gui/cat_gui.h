@@ -83,7 +83,7 @@ void CAT_GUI_close_current_window();
 bool CAT_GUI_begin_window(const char* text, int x0, int y0, int x1, int y1);
 void CAT_GUI_end_window();
 
-void CAT_GUI_text(const char* text);
+void CAT_GUI_text(const char* fmt, ...);
 bool CAT_GUI_option(const char* text);
 void CAT_GUI_image(const CAT_sprite* sprite, int frame_idx);
 
