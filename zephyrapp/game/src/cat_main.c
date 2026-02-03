@@ -60,6 +60,8 @@ void CAT_MS_dummy(CAT_FSM_signal signal)
 			{
 				CAT_GUI_text("Hello, world!");
 				CAT_GUI_text("This is the base window.");
+				if(CAT_GUI_option("SAY HELLO"))
+					CAT_printf("Hello, world!\n");
 				if(CAT_GUI_option("EXIT"))
 					CAT_GUI_close_current_window();
 				CAT_GUI_end_window();
@@ -117,21 +119,17 @@ void CAT_tick_logic()
 	CAT_platform_tick();
 	CAT_input_tick();
 	CAT_GUI_new_frame();
-
 	CAT_radio_poll_RX(CAT_chat_RX_meowback);
-
 	CAT_AQ_tick();
 	CAT_AQ_crisis_tick();
-
 	CAT_animator_tick();
+	
 	CAT_room_tick();
 	CAT_pet_tick();
-	
 	CAT_pushdown_tick();
 
 	CAT_gui_tick();
 	CAT_effects_tick();
-
 	CAT_orientation_tick();
 
 	if(CAT_eink_should_update())

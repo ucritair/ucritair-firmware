@@ -98,13 +98,11 @@ static void MS_survey(CAT_FSM_signal signal)
 			for(int i = 0; i < SURVEY_COUNT; i++)
 				survey_set_answer(i, 0);
 			survey_idx = 0;
-			CAT_gui_menu_force_reset();
 		}
 		break;
 
 		case CAT_FSM_SIGNAL_TICK:
 		{
-			CAT_gui_menu_disable_wrap();
 			if(CAT_gui_begin_menu("SURVEY"))
 			{
 				if(survey_idx == 0)
@@ -142,7 +140,6 @@ static void MS_survey(CAT_FSM_signal signal)
 					if(survey_idx < SURVEY_COUNT-1)
 					{
 						survey_idx += 1;
-						CAT_gui_menu_force_reset();
 					}
 					else
 					{
@@ -973,7 +970,8 @@ void CAT_MS_stroop(CAT_FSM_signal signal)
 		{
 			CAT_set_render_callback(CAT_render_stroop);
 			load_co2();
-			change_phase(PHASE_WORDS);
+			//change_phase(PHASE_WORDS);
+			CAT_FSM_transition(&fsm, MS_survey);
 		}
 		break;
 

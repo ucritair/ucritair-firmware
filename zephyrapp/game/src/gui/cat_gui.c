@@ -268,425 +268,6 @@ void CAT_gui_keyboard()
 
 
 //////////////////////////////////////////////////////////////////////////
-// MENU
-
-typedef struct menu_node
-{
-	bool live;
-
-	char title[32];
-	bool clicked;
-	
-	CAT_gui_menu_type type;
-	union 
-	{
-		struct
-		{
-			bool toggle;
-			int style;
-		} toggle_data;
-		
-		struct
-		{
-			int value;
-			int min;
-			int max;
-			bool changed;
-		} ticker_data;
-	};
-	
-	int16_t parent;
-	uint8_t children[16];
-	uint8_t child_count;
-	int8_t selector;
-} menu_node;
-
-static menu_node menu_table[256];
-#define MENU_TABLE_SIZE (sizeof(menu_table) / sizeof(menu_table[0]))
-static uint16_t menu_stack[24];
-#define MENU_STACK_SIZE (sizeof(menu_stack) / sizeof(menu_stack[0]))
-static uint8_t menu_stack_length = 0;
-static int menu_root = -1;
-static bool menu_reset = false;
-static void (*menu_exit_proc)() = NULL;
-static bool menu_wrap = true;
-
-void CAT_gui_menu_override_exit(void (*exit_proc)())
-{
-	menu_exit_proc = exit_proc;
-}
-
-void CAT_gui_menu_force_reset()
-{
-	menu_reset = true;
-}
-
-void CAT_gui_menu_disable_wrap()
-{
-	menu_wrap = false;
-}
-
-uint16_t register_menu_node(const char* title, CAT_gui_menu_type type)
-{
-	uint16_t idx = CAT_hash_string(title) % MENU_TABLE_SIZE;
-	while (menu_table[idx].live)
-		idx++;
-
-	if(idx < 0 || idx >= MENU_TABLE_SIZE)
-	{
-		CAT_printf("[ERROR] Menu node index %d is invalid", idx);
-		return UINT16_MAX;
-	}
-
-	menu_table[idx] = (menu_node)
-	{
-		.live = true,
-		.clicked = false,
-
-		.type = type,
-
-		.parent = -1,
-		.child_count = 0,
-		.selector = 0
-	};
-	strncpy(menu_table[idx].title, title, sizeof(menu_table[idx].title));
-
-	return idx;
-}
-
-int find_menu_node(const char* title)
-{
-	uint16_t idx = CAT_hash_string(title) % MENU_TABLE_SIZE;
-	while (menu_table[idx].live)
-	{
-		if (strncmp(menu_table[idx].title, title, sizeof(menu_table[idx].title)) == 0)
-			return idx;
-		idx++;
-	}
-	return -1;
-}
-
-void push_menu_node(uint16_t table_idx)
-{
-	if(menu_stack_length >= MENU_STACK_SIZE)
-	{
-		CAT_printf("[ERROR] Attempted to add to full menu stack!\n");
-		return;
-	}
-
-	menu_stack[menu_stack_length] = table_idx;
-	menu_stack_length += 1;
-}
-
-uint16_t pop_menu_node()
-{
-	menu_stack_length -= 1;
-	return menu_stack[menu_stack_length];
-}
-
-menu_node* get_local_head()
-{
-	return &menu_table[menu_stack[menu_stack_length-1]];
-}
-
-menu_node* get_global_head()
-{
-	if(menu_root == -1)
-		return NULL;
-	menu_node* ptr = &menu_table[menu_root];
-	for(int i = 0; i < ptr->child_count; i++)
-	{
-		menu_node* child = &menu_table[ptr->children[i]];
-		if(child->clicked && child->child_count > 0)
-		{
-			ptr = child;
-			i = -1;
-			continue;
-		}
-	}
-	return ptr;
-}
-
-uint8_t menu_add_child(uint16_t table_idx)
-{
-	menu_node* head = get_local_head();
-	uint8_t child_idx = head->child_count;
-	if(child_idx >= 32)
-	{
-		CAT_printf("[ERROR] Attempted to add child to full menu node!\n");
-		return 255;
-	}
-
-	head->children[child_idx] = table_idx;
-	head->child_count += 1;
-	menu_table[table_idx].parent = menu_stack[menu_stack_length-1];
-	return child_idx;
-}
-
-bool consume_click(uint16_t table_idx)
-{
-	menu_node* node = &menu_table[table_idx];
-	bool value = node->clicked;
-	node->clicked = false;
-	return value;
-}
-
-bool CAT_gui_begin_menu(const char* title)
-{
-	if(menu_reset)
-	{
-		for(int i = 0; i < MENU_TABLE_SIZE; i++)
-		{
-			menu_table[i].live = false;
-			menu_table[i].clicked = false;
-			menu_table[i].parent = -1;
-			menu_table[i].child_count = 0;
-			menu_table[i].selector = 0;
-		}
-		menu_reset = false;
-		menu_exit_proc = NULL;
-		menu_wrap = true;
-	}
-
-	int idx = find_menu_node(title);
-	if(idx == -1)
-		idx = register_menu_node(title, CAT_GUI_MENU_TYPE_DEFAULT);
-	menu_table[idx].child_count = 0;
-
-	if (!CAT_gui_menu_is_open())
-	{
-		menu_root = idx;
-		menu_table[idx].clicked = true;
-		menu_table[idx].parent = -1;
-		push_menu_node(idx);
-	}
-	else
-	{
-		menu_add_child(idx);
-		if(menu_table[idx].clicked)
-			push_menu_node(idx);
-	}
-	
-	return menu_table[idx].clicked;
-}
-
-void CAT_gui_end_menu()
-{
-	pop_menu_node();	
-}
-
-bool CAT_gui_menu_is_open()
-{
-	return menu_root != -1;
-}
-
-bool CAT_gui_menu_item(const char* title)
-{
-	int idx = find_menu_node(title);
-	if(idx == -1)
-		idx = register_menu_node(title, CAT_GUI_MENU_TYPE_DEFAULT);
-
-	if(menu_table[idx].type != CAT_GUI_MENU_TYPE_DEFAULT)
-		menu_table[idx].type = CAT_GUI_MENU_TYPE_DEFAULT;
-
-	menu_add_child(idx);
-
-	return consume_click(idx);
-}
-
-bool CAT_gui_menu_toggle(const char* title, bool toggle, CAT_gui_toggle_style style)
-{	
-	int idx = find_menu_node(title);
-	if(idx == -1)
-		idx = register_menu_node(title, CAT_GUI_MENU_TYPE_TOGGLE);
-	menu_add_child(idx);
-	menu_node* node = &menu_table[idx];
-
-	if(node->type != CAT_GUI_MENU_TYPE_TOGGLE)
-		node->type = CAT_GUI_MENU_TYPE_TOGGLE;
-
-	node->toggle_data.toggle = toggle;
-	node->toggle_data.style = style;
-
-	return consume_click(idx);
-}
-
-int CAT_gui_menu_ticker(const char* title, int value, int min, int max)
-{	
-	int idx = find_menu_node(title);
-	bool first_call = idx == -1;
-	if(first_call)
-		idx = register_menu_node(title, CAT_GUI_MENU_TYPE_TICKER);
-	menu_add_child(idx);
-	menu_node* node = &menu_table[idx];
-
-	if(node->type != CAT_GUI_MENU_TYPE_TICKER)
-		node->type = CAT_GUI_MENU_TYPE_TICKER;
-
-	if(first_call || (node->ticker_data.value != value && !node->ticker_data.changed))
-		node->ticker_data.value = value;
-	node->ticker_data.min = min;
-	node->ticker_data.max = max;
-
-	if(node->ticker_data.changed)
-	{
-		node->ticker_data.changed = false;
-		return node->ticker_data.value;
-	}
-	return value;
-}
-
-void CAT_gui_menu_text(const char* title)
-{
-	int idx = find_menu_node(title);
-	if(idx == -1)
-		idx = register_menu_node(title, CAT_GUI_MENU_TYPE_TEXT);
-
-	if(menu_table[idx].type != CAT_GUI_MENU_TYPE_TEXT)
-		menu_table[idx].type = CAT_GUI_MENU_TYPE_TEXT;
-
-	menu_add_child(idx);
-}
-
-void CAT_gui_menu_logic()
-{
-	menu_node* head = get_global_head();
-
-	if(CAT_input_pressed(CAT_BUTTON_UP))
-		head->selector -= 1;
-	if(CAT_input_pressed(CAT_BUTTON_DOWN))
-		head->selector += 1;
-	if(menu_wrap)
-		head->selector = CAT_wrap(head->selector, head->child_count);
-	else
-		head->selector = CAT_clamp(head->selector, 0, head->child_count-1);
-
-	while
-	(
-		menu_table[head->children[head->selector]].type == CAT_GUI_MENU_TYPE_TEXT &&
-		head->selector < head->child_count
-	)
-	{
-		head->selector += 1;
-	}
-
-	menu_node* selected = &menu_table[head->children[head->selector]];
-
-	switch (selected->type)
-	{
-		case CAT_GUI_MENU_TYPE_TICKER:
-		{
-			if(CAT_input_pulse(CAT_BUTTON_LEFT))
-			{
-				selected->ticker_data.value -= 1;
-				selected->ticker_data.changed = true;
-			}
-			if(CAT_input_pulse(CAT_BUTTON_RIGHT))
-			{
-				selected->ticker_data.value += 1;
-				selected->ticker_data.changed = true;
-			}
-			selected->ticker_data.value = CAT_clamp
-			(
-				selected->ticker_data.value,
-				selected->ticker_data.min,
-				selected->ticker_data.max
-			);
-		}
-		break;
-
-		default:
-		break;
-	}
-
-	if(CAT_input_pressed(CAT_BUTTON_A))
-		selected->clicked = true;
-	if(CAT_input_pressed(CAT_BUTTON_B))
-	{
-		if(head->parent == -1)
-		{
-			menu_reset = true;
-			if(menu_exit_proc == NULL)
-				CAT_pushdown_pop();
-			else
-				menu_exit_proc();
-		}
-		else
-		{
-			head->clicked = false;
-		}
-	}
-}
-
-#define MENU_PAD 8
-
-void CAT_gui_menu()
-{
-	menu_node* head = get_global_head();
-
-	CAT_frameberry(CAT_WHITE);
-	
-	CAT_set_text_box(MENU_PAD, MENU_PAD, CAT_LCD_SCREEN_W-MENU_PAD, CAT_LCD_SCREEN_H-MENU_PAD);
-	CAT_text_box_draw(1, CAT_BLACK, "%s\n", head->title);
-	CAT_text_box_shift_cursor(0, MENU_PAD);
-
-	CAT_rowberry(CAT_get_text_box_cursor_y(), CAT_get_text_box_cursor_y()+1, CAT_BLACK);
-	CAT_text_box_shift_cursor(0, MENU_PAD);
-
-	for(int i = 0; i < head->child_count; i++)
-	{
-		menu_node* child = &menu_table[head->children[i]];
-
-		if(child->type == CAT_GUI_MENU_TYPE_TEXT)
-			CAT_text_box_draw(1, CAT_BLACK, "%s ", child->title);
-		else
-			CAT_text_box_draw(1, CAT_BLACK, "\1 %s ", child->title);;
-
-		switch (child->type)
-		{
-			case CAT_GUI_MENU_TYPE_TOGGLE:
-			{
-				const CAT_sprite* sprite =
-				child->toggle_data.style == CAT_GUI_TOGGLE_STYLE_CHECKBOX ?
-				&ui_checkbox_sprite : &ui_radio_button_circle_sprite;
-
-				CAT_set_sprite_colour(CAT_BLACK);
-				CAT_draw_sprite
-				(
-					sprite, child->toggle_data.toggle,
-					CAT_get_text_box_cursor_x(),
-					CAT_get_text_box_cursor_y() + CAT_GLYPH_HEIGHT/2 - sprite->height/2
-				);
-				CAT_text_box_shift_cursor(sprite->width + 4, 0);
-			}
-			break;
-
-			case CAT_GUI_MENU_TYPE_TICKER:
-			{
-				CAT_text_box_draw(1, CAT_BLACK, "< %d > ", child->ticker_data.value);
-			}
-			break;
-
-			default:
-			break;
-		}
-
-		if(i == head->selector)
-			CAT_text_box_draw(1, CAT_BLACK, "<");
-		
-		CAT_text_box_newline(1);
-		CAT_text_box_shift_cursor(0, 4);
-	}
-
-	if(CAT_is_last_render_cycle())
-	{
-		menu_stack_length = 0;
-		menu_root = -1;
-	}
-}
-
-
-//////////////////////////////////////////////////////////////////////////
 // ITEM GRID
 
 #define ITEM_GRID_MARGIN 12
@@ -981,7 +562,7 @@ void CAT_gui_item_grid()
 
 
 //////////////////////////////////////////////////////////////////////////
-// IT'S ABOUT TO GET WEIRD IN HERE
+// NEW FRAMEWORK
 
 #define CAT_CRC32_IMPL
 #include "cat_crc32.h"
@@ -1000,7 +581,10 @@ struct GUI_node
 		GUI_NODE_TYPE_WINDOW,
 		GUI_NODE_TYPE_TEXT,
 		GUI_NODE_TYPE_OPTION,
-		GUI_NODE_TYPE_IMAGE
+		GUI_NODE_TYPE_IMAGE,
+		GUI_NODE_TYPE_TITLE,
+		GUI_NODE_TYPE_TOGGLE,
+		GUI_NODE_TYPE_TICKER
 	} type;
 	bool alive;
 
@@ -1013,7 +597,7 @@ struct GUI_node
 			GUI_node* children[16];
 			int child_count;
 			int selector;
-			bool open;
+			enum {WINDOW_SHOULD_CLOSE, WINDOW_SHOULD_OPEN, WINDOW_OPEN} status;
 		};
 
 		struct // : TEXT
@@ -1032,6 +616,21 @@ struct GUI_node
 			const CAT_sprite* sprite;
 			int frame_idx;
 		};
+
+		struct // : TOGGLE
+		{
+			char text[32];
+			bool trigger;
+			bool cached_value;
+			int style;
+		} toggle;
+
+		struct // : TICKER
+		{
+			char text[32];
+			int delta;
+			int cached_value;
+		} ticker;
 	};
 };
 
@@ -1047,17 +646,34 @@ void GUI_node_add_child(GUI_node* node, GUI_node* child)
 #define GUI_POOL_CAPACITY 256
 static GUI_node GUI_pool[GUI_POOL_CAPACITY] = {0};
 
-static void GUI_pool_free_transient()
+static void GUI_free_node(GUI_node* node)
+{
+	node->parent = GUI_ID_NULL;
+	node->id = GUI_ID_NULL;
+}
+
+static void GUI_pool_free()
 {
 	for(int i = 0; i < GUI_POOL_CAPACITY; i++)
-	{
-		bool waiting_window = GUI_pool[i].type == GUI_NODE_TYPE_WINDOW && GUI_pool[i].open;
-		if(!GUI_pool[i].alive && !waiting_window)
+	{			
+		switch (GUI_pool[i].type)
 		{
-			GUI_pool[i].parent = GUI_ID_NULL;
-			GUI_pool[i].id = GUI_ID_NULL;
+			case GUI_NODE_TYPE_WINDOW:
+			{
+				if(GUI_pool[i].status == WINDOW_SHOULD_CLOSE)
+					GUI_free_node(&GUI_pool[i]);
+				GUI_pool[i].alive = false;
+			}
+			break;
+		
+			default:
+			{
+				if(!GUI_pool[i].alive)
+					GUI_free_node(&GUI_pool[i]);
+				GUI_pool[i].alive = false;
+			}
+			break;
 		}
-		GUI_pool[i].alive = false;
 	}
 }
 
@@ -1110,8 +726,11 @@ static void GUI_ID_stack_push(GUI_ID_stack* stack, GUI_ID id)
 	if(stack->count >= CAT_GUI_ID_STACK_CAPACITY)
 		return;
 	int idx = stack->count;
-	stack->data[idx] = id;
-	stack->count += 1;
+	if(stack->data[idx-1] != id)
+	{
+		stack->data[idx] = id;
+		stack->count += 1;
+	}
 }
 
 static GUI_ID GUI_ID_stack_pop(GUI_ID_stack* stack)
@@ -1131,8 +750,8 @@ static GUI_ID GUI_ID_stack_get(GUI_ID_stack* stack, int idx)
 	return stack->data[idx];
 }
 
-static GUI_ID_stack transient_stack = {.count = 0};
-static GUI_ID_stack persistent_stack = {.count = 0};
+static GUI_ID_stack transient_stack = {0};
+static GUI_ID_stack persistent_stack = {0};
 
 void CAT_GUI_open_window(const char* text)
 {
@@ -1147,7 +766,7 @@ void CAT_GUI_open_window(const char* text)
 	node->parent = parent;
 	node->id = id;
 	node->type = GUI_NODE_TYPE_WINDOW;
-	node->open = true;
+	node->status = WINDOW_SHOULD_OPEN;
 }
 
 void CAT_GUI_close_current_window()
@@ -1157,7 +776,7 @@ void CAT_GUI_close_current_window()
 
 	if(head == NULL)
 		return;
-	head->open = false;
+	head->status = WINDOW_SHOULD_CLOSE;
 
 	CAT_input_clear();
 }
@@ -1170,7 +789,7 @@ bool CAT_GUI_begin_window(const char* text, int x0, int y0, int x1, int y1)
 	GUI_node* node = GUI_pool_get(id);
 	if(node == NULL)
 		return false;
-	if(!node->open)
+	if(node->status == WINDOW_SHOULD_CLOSE)
 		return false;
 
 	node->x0 = x0;
@@ -1178,6 +797,7 @@ bool CAT_GUI_begin_window(const char* text, int x0, int y0, int x1, int y1)
 	node->x1 = x1;
 	node->y1 = y1;
 	node->child_count = 0;
+	node->status = WINDOW_OPEN;
 
 	GUI_ID_stack_push(&transient_stack, id);
 	GUI_ID_stack_push(&persistent_stack, id);
@@ -1188,6 +808,13 @@ void CAT_GUI_end_window()
 {
 	GUI_ID_stack_pop(&transient_stack);
 }
+
+#define GUI_FMTCPY(buf, fmt) { \
+	va_list args; \
+	va_start(args, fmt); \
+	vsnprintf(buf, sizeof(buf), fmt, args); \
+	va_end(args); \
+} \
 
 void CAT_GUI_text(const char* fmt, ...)
 {
@@ -1203,10 +830,7 @@ void CAT_GUI_text(const char* fmt, ...)
 	memset(node, 0, sizeof(GUI_node));
 	node->parent = parent_id;
 	node->type = GUI_NODE_TYPE_TEXT;
-	va_list args;
-	va_start(args, fmt);
-	vsnprintf(node->text, sizeof(node->text), fmt, args);
-	va_end(args);
+	GUI_FMTCPY(node->text, fmt);
 
 	GUI_node_add_child(parent_node, node);
 }
@@ -1262,11 +886,109 @@ void CAT_GUI_image(const CAT_sprite* sprite, int frame_idx)
 	GUI_node_add_child(parent_node, node);
 }
 
+void CAT_GUI_title(const char* fmt, ...)
+{
+	GUI_ID parent_id = GUI_ID_stack_get(&transient_stack, -1);
+	GUI_node* parent_node = GUI_pool_get(parent_id);
+	if(parent_node == NULL)
+		return;
+
+	GUI_node* node = GUI_pool_register(GUI_ID_NULL, false);
+	if(node == NULL)
+		return;
+
+	memset(node, 0, sizeof(GUI_node));
+	node->parent = parent_id;
+	node->type = GUI_NODE_TYPE_TITLE;
+	GUI_FMTCPY(node->text, fmt);
+
+	GUI_node_add_child(parent_node, node);
+}
+
+bool CAT_GUI_toggle(const char* text, bool value, int style)
+{
+	GUI_ID parent_id = GUI_ID_stack_get(&transient_stack, -1);
+	GUI_node* parent_node = GUI_pool_get(parent_id);
+	if(parent_node == NULL)
+		return false;
+
+	GUI_ID id = CAT_CRC32_hash(text, parent_id);
+	GUI_node* node = GUI_pool_get(id);
+	
+	bool result = value;
+	if(node != NULL && node->toggle.trigger)
+	{
+		result = !result;
+	}
+	else
+	{
+		node = GUI_pool_register(id, true);	
+		if(node == NULL)
+			return result;
+		memset(node, 0, sizeof(GUI_node));
+	}
+
+	node->parent = parent_id;
+	node->id = id;
+	node->type = GUI_NODE_TYPE_TOGGLE;
+	strcpy(node->toggle.text, text);
+	if(!node->toggle.trigger)
+		node->toggle.cached_value = result;
+	node->toggle.trigger = false;
+	node->toggle.style = style;
+	
+	GUI_node_add_child(parent_node, node);
+	return result;
+}
+
+int CAT_GUI_ticker(const char* text, int value, int min, int max)
+{
+	GUI_ID parent_id = GUI_ID_stack_get(&transient_stack, -1);
+	GUI_node* parent_node = GUI_pool_get(parent_id);
+	if(parent_node == NULL)
+		return false;
+
+	GUI_ID id = CAT_CRC32_hash(text, parent_id);
+	GUI_node* node = GUI_pool_get(id);
+
+	int result = value;
+	if(node == NULL)
+	{
+		node = GUI_pool_register(id, true);	
+		if(node == NULL)
+			return result;
+		memset(node, 0, sizeof(GUI_node));
+	}
+	result += node->ticker.delta;
+	result = CAT_clamp(result, min, max);
+
+	node->parent = parent_id;
+	node->id = id;
+	node->type = GUI_NODE_TYPE_TICKER;
+	strcpy(node->ticker.text, text);
+	node->ticker.delta = 0;
+	node->ticker.cached_value = result;
+	
+	GUI_node_add_child(parent_node, node);
+	return result;
+}
+
 void CAT_GUI_new_frame()
 {
-	GUI_pool_free_transient();
+	GUI_pool_free();
 	GUI_ID_stack_clear(&transient_stack);
 	GUI_ID_stack_clear(&persistent_stack);
+}
+
+static int GUI_is_selectable(GUI_node* node)
+{
+	if(node->type == GUI_NODE_TYPE_OPTION)
+		return true;
+	if(node->type == GUI_NODE_TYPE_TOGGLE)
+		return true;
+	if(node->type == GUI_NODE_TYPE_TICKER)
+		return true;
+	return false;
 }
 
 static int GUI_count_selectables(GUI_node* node)
@@ -1274,7 +996,7 @@ static int GUI_count_selectables(GUI_node* node)
 	int selectable_count = 0;
 	for(int i = 0; i < node->child_count; i++)
 	{
-		if(node->children[i]->type == GUI_NODE_TYPE_OPTION)
+		if(GUI_is_selectable(node->children[i]))
 			selectable_count += 1;
 	}
 	return selectable_count;
@@ -1285,7 +1007,7 @@ static GUI_node* GUI_get_selectable(GUI_node* node, int idx)
 	int selectable_count = 0;
 	for(int i = 0; i < node->child_count; i++)
 	{
-		if(node->children[i]->type == GUI_NODE_TYPE_OPTION)
+		if(GUI_is_selectable(node->children[i]))
 		{
 			if(selectable_count == idx)
 				return node->children[i];
@@ -1295,9 +1017,22 @@ static GUI_node* GUI_get_selectable(GUI_node* node, int idx)
 	return NULL;
 }
 
-bool CAT_GUI_is_active()
+bool CAT_GUI_is_window_open(const char* text)
 {
-	return persistent_stack.count > 0;
+	// Is any window open
+	if(text == NULL)
+		return persistent_stack.count > 0;
+
+	GUI_ID id = CAT_CRC32_hash(text, GUI_ID_NULL);
+	GUI_node* node = GUI_pool_get(id);
+	if(node == NULL)
+		return false;
+	return node->status != WINDOW_SHOULD_CLOSE;
+}
+
+int CAT_GUI_window_count()
+{
+	return persistent_stack.count;
 }
 
 void CAT_GUI_IO()
@@ -1324,11 +1059,43 @@ void CAT_GUI_IO()
 			head->selector += 1;
 		head->selector = CAT_clamp(head->selector, 0, selectable_count-1);
 
-		if(CAT_input_pressed(CAT_BUTTON_A))
+		GUI_node* selected = GUI_get_selectable(head, head->selector);
+		if(selected != NULL)
 		{
-			GUI_node* selected = GUI_get_selectable(head, head->selector);
-			if(selected != NULL)
-				selected->option.trigger = true;
+			switch(selected->type)
+			{
+				case GUI_NODE_TYPE_OPTION:
+				{
+					if(CAT_input_pressed(CAT_BUTTON_A))
+						selected->option.trigger = true;
+					selectable_count += 1;
+				}
+				break;
+
+				case GUI_NODE_TYPE_TOGGLE:
+				{
+					if(CAT_input_pressed(CAT_BUTTON_A))
+						selected->toggle.trigger = true;
+					selectable_count += 1;
+				}
+				break;
+
+				case GUI_NODE_TYPE_TICKER:
+				{
+					if(CAT_input_pressed(CAT_BUTTON_LEFT))
+						selected->ticker.delta -= 1;
+					if(CAT_input_pressed(CAT_BUTTON_RIGHT))
+						selected->ticker.delta += 1;
+					selectable_count += 1;
+				}
+				break;
+
+				default:
+				{
+					
+				}
+				break;
+			}
 		}
 	}
 	else
@@ -1374,6 +1141,41 @@ void GUI_draw_image(GUI_node* node)
 	CAT_text_box_newline(1);
 }
 
+void GUI_draw_title(GUI_node* node)
+{
+	int x = CAT_get_text_box_cursor_x();
+	int y = CAT_get_text_box_cursor_y();
+	CAT_text_box_draw(1, CAT_BLACK, node->text);
+	CAT_text_box_newline(1);
+	CAT_text_box_shift_cursor(0, 2);
+
+	y = CAT_get_text_box_cursor_y();
+	CAT_rowberry(y, y+1, CAT_BLACK);
+	CAT_text_box_shift_cursor(0, 6);	
+}
+
+void GUI_draw_toggle(GUI_node* node, bool selected)
+{
+	CAT_text_box_draw(1, CAT_BLACK, "\1 %s ", node->toggle.text);
+	const CAT_sprite* sprite = node->toggle.style == CAT_GUI_TOGGLE_STYLE_CHECKBOX ? &ui_checkbox_sprite : &ui_radio_button_circle_sprite;
+	int x = CAT_get_text_box_cursor_x();
+	int y = CAT_get_text_box_cursor_y();
+	int shift = (sprite->height - CAT_GLYPH_HEIGHT)/2;
+	CAT_set_sprite_colour(CAT_BLACK);
+	CAT_draw_sprite(sprite, node->toggle.cached_value, x, y-shift);
+	CAT_text_box_shift_cursor(sprite->width + 4, 0);
+	if(selected)
+		CAT_text_box_draw(1, CAT_BLACK, "<");
+	CAT_text_box_shift_cursor(0, shift+2);
+	CAT_text_box_newline(1);
+}
+
+void GUI_draw_ticker(GUI_node* node, bool selected)
+{
+	CAT_text_box_draw(1, CAT_BLACK, "\1 %s <%d> %s", node->ticker.text, node->ticker.cached_value, selected ? "<" : "");
+	CAT_text_box_newline(1);
+}
+
 void CAT_GUI_draw()
 {
 	for(int i = 0; i < persistent_stack.count; i++)
@@ -1381,6 +1183,13 @@ void CAT_GUI_draw()
 		GUI_ID id = persistent_stack.data[i];
 		GUI_node* node = GUI_pool_get(id);
 		GUI_draw_window(node);
+
+		for(int j = 0; j < node->child_count; j++)
+		{
+			GUI_node* child = node->children[j];
+			if(child->type == GUI_NODE_TYPE_TITLE)
+				GUI_draw_title(child);
+		}
 
 		int selectable_idx = 0;
 		for(int j = 0; j < node->child_count; j++)
@@ -1407,10 +1216,22 @@ void CAT_GUI_draw()
 				}
 				break;
 
+				case GUI_NODE_TYPE_TOGGLE:
+				{
+					GUI_draw_toggle(child, selectable_idx == node->selector);
+					selectable_idx += 1;
+				}
+				break;
+
+				case GUI_NODE_TYPE_TICKER:
+				{
+					GUI_draw_ticker(child, selectable_idx == node->selector);
+					selectable_idx += 1;
+				}
+				break;
+
 				default:
 				{
-					CAT_text_box_draw(1, CAT_BLACK, "<UNKNOWN>");
-					CAT_text_box_newline(1);
 				}
 				break;
 			}
@@ -1420,44 +1241,89 @@ void CAT_GUI_draw()
 
 
 //////////////////////////////////////////////////////////////////////////
+// MENU
+
+static bool menu_exit_flag = false;
+
+bool CAT_gui_begin_menu(const char* title)
+{
+	bool clicked = CAT_GUI_option(title);
+	if(!CAT_GUI_is_window_open(title))
+	{
+		if(!CAT_GUI_is_window_open(NULL) || clicked)
+			CAT_GUI_open_window(title);
+	}
+
+	bool open = CAT_GUI_begin_window(title, 0, 0, CAT_LCD_SCREEN_W, CAT_LCD_SCREEN_H);
+	if(open)
+	{
+		CAT_GUI_title(title);
+	}
+
+	return open;
+}
+
+void CAT_gui_end_menu()
+{
+	CAT_GUI_end_window();
+}
+
+bool CAT_gui_menu_item(const char* title)
+{
+	return CAT_GUI_option(title);
+}
+
+bool CAT_gui_menu_toggle(const char* title, bool toggle, CAT_gui_toggle_style style)
+{
+	return CAT_GUI_toggle(title, toggle, style);
+}
+
+int CAT_gui_menu_ticker(const char* title, int value, int min, int max)
+{
+	return CAT_GUI_ticker(title, value, min, max);
+}
+
+void CAT_gui_menu_text(const char* title)
+{
+	CAT_GUI_text(title);
+}
+
+bool CAT_gui_menu_is_open()
+{
+	CAT_GUI_is_window_open(NULL);
+}
+
+void CAT_gui_menu_logic()
+{
+	if(CAT_input_pressed(CAT_BUTTON_B))
+	{
+		if(persistent_stack.count > 1)
+			CAT_GUI_close_current_window();
+	}
+}
+
+
+//////////////////////////////////////////////////////////////////////////
 // FINALIZATION
 
 void CAT_gui_tick()
 {
-	if(CAT_GUI_is_active())
-	{
-		CAT_GUI_IO();
-		return;
-	}
-
 	if(CAT_gui_keyboard_is_open())
-	{
 		CAT_gui_keyboard_logic();
-		return;
-	}
-
-	if(CAT_gui_item_grid_is_open())
+	else
 	{
-		CAT_gui_item_grid_logic();
-		return;
-	}
-
-	if(CAT_gui_menu_is_open())
-	{
+		if(CAT_gui_item_grid_is_open())
+			CAT_gui_item_grid_logic();
 		CAT_gui_menu_logic();
-		return;
-	}
+		CAT_GUI_IO();
+	}	
 }
 
 void CAT_gui_render()
 {
-	if(CAT_gui_menu_is_open())
-		CAT_gui_menu();
-	else if(CAT_gui_item_grid_is_open())
+	if(CAT_gui_item_grid_is_open())
 		CAT_gui_item_grid();
-
+	CAT_GUI_draw();
 	if(CAT_gui_keyboard_is_open())
 		CAT_gui_keyboard();
-	
-	CAT_GUI_draw();
 }

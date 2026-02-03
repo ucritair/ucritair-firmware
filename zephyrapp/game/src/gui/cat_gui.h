@@ -29,18 +29,15 @@ typedef enum
 	CAT_GUI_TOGGLE_STYLE_RADIO_BUTTON
 } CAT_gui_toggle_style;
 
-void CAT_gui_menu_override_exit(void (*exit_proc)());
-void CAT_gui_menu_force_reset();
-void CAT_gui_menu_disable_wrap();
-
 bool CAT_gui_begin_menu(const char* title);
 void CAT_gui_end_menu();
-bool CAT_gui_menu_is_open();
 
 bool CAT_gui_menu_item(const char* title);
 bool CAT_gui_menu_toggle(const char* title, bool toggle, CAT_gui_toggle_style style);
 int CAT_gui_menu_ticker(const char* title, int value, int min, int max);
 void CAT_gui_menu_text(const char* title);
+
+bool CAT_gui_menu_is_open();
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -72,8 +69,13 @@ void CAT_GUI_end_window();
 void CAT_GUI_text(const char* fmt, ...);
 bool CAT_GUI_option(const char* text);
 void CAT_GUI_image(const CAT_sprite* sprite, int frame_idx);
+void CAT_GUI_title(const char* fmt, ...);
+bool CAT_GUI_toggle(const char* text, bool value, int style);
+int CAT_GUI_ticker(const char* text, int value, int min, int max);
 
-bool CAT_GUI_is_active();
+bool CAT_GUI_is_window_open(const char* text);
+int CAT_GUI_window_count();
+
 void CAT_GUI_IO();
 void CAT_GUI_draw();
 

@@ -119,15 +119,11 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 		case CAT_FSM_SIGNAL_ENTER:
 		{
 			CAT_set_render_callback(CAT_render_menu);
-			CAT_gui_menu_force_reset();
 		}
 		break;
 		
 		case CAT_FSM_SIGNAL_TICK:
 		{
-			if(CAT_input_pressed(CAT_BUTTON_START))
-				CAT_pushdown_pop();
-
 			if(CAT_gui_begin_menu("MENU"))
 			{
 				if(CAT_gui_menu_item("INSIGHTS"))
@@ -269,6 +265,7 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 							persist_flags &= ~CAT_PERSIST_CONFIG_FLAG_USE_FAHRENHEIT;
 						if(CAT_gui_menu_toggle("USE FAHRENHEIT", persist_flags & CAT_PERSIST_CONFIG_FLAG_USE_FAHRENHEIT, CAT_GUI_TOGGLE_STYLE_RADIO_BUTTON))
 							persist_flags |= CAT_PERSIST_CONFIG_FLAG_USE_FAHRENHEIT;
+
 						CAT_AQ_set_temperature_unit
 						(
 							persist_flags & CAT_PERSIST_CONFIG_FLAG_USE_FAHRENHEIT ?
@@ -290,12 +287,9 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 							persist_flags |= CAT_PERSIST_CONFIG_FLAG_AQ_FIRST;
 
 						if(CAT_gui_menu_toggle("PAUSE CRITTER CARE", persist_flags & CAT_PERSIST_CONFIG_FLAG_PAUSE_CARE, CAT_GUI_TOGGLE_STYLE_CHECKBOX))
-						{
-							if(persist_flags & CAT_PERSIST_CONFIG_FLAG_PAUSE_CARE)
-								persist_flags &= ~CAT_PERSIST_CONFIG_FLAG_PAUSE_CARE;
-							else
-								persist_flags |= CAT_PERSIST_CONFIG_FLAG_PAUSE_CARE;
-						}
+							persist_flags |= CAT_PERSIST_CONFIG_FLAG_PAUSE_CARE;
+						else
+							persist_flags &= ~CAT_PERSIST_CONFIG_FLAG_PAUSE_CARE;
 						CAT_gui_end_menu();
 					}
 
@@ -313,16 +307,9 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 							CAT_set_eink_update_flag(true);
 
 						if(CAT_gui_menu_toggle("AUTO-FLIP SCREEN", !(persist_flags & CAT_PERSIST_CONFIG_FLAG_MANUAL_ORIENT), CAT_GUI_TOGGLE_STYLE_CHECKBOX))
-						{
-							if(persist_flags & CAT_PERSIST_CONFIG_FLAG_MANUAL_ORIENT)
-							{
-								persist_flags &= ~CAT_PERSIST_CONFIG_FLAG_MANUAL_ORIENT;
-							}
-							else
-							{
-								persist_flags |= CAT_PERSIST_CONFIG_FLAG_MANUAL_ORIENT;
-							}
-						}	
+							persist_flags &= ~CAT_PERSIST_CONFIG_FLAG_MANUAL_ORIENT;
+						else
+							persist_flags |= CAT_PERSIST_CONFIG_FLAG_MANUAL_ORIENT;
 
 						if(persist_flags & CAT_PERSIST_CONFIG_FLAG_MANUAL_ORIENT)
 						{
@@ -465,7 +452,12 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 				}
 				CAT_gui_end_menu();
 			}
-			
+
+			if(CAT_GUI_window_count() == 1)
+			{
+				if(CAT_input_pressed(CAT_BUTTON_B))
+					CAT_pushdown_pop();
+			}
 			if(co2_cal_status)
 				tick_co2_cal();
 		}
@@ -480,5 +472,4 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 
 void CAT_render_menu()
 {
-	// Replaced by GUI render pass
 }

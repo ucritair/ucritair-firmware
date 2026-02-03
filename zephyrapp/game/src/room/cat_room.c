@@ -521,10 +521,6 @@ void screen_button_input()
 }
 
 static bool arcade_open = false;
-static void arcade_exit_proc()
-{
-	arcade_open = false;
-}
 
 void prop_button_input()
 {
@@ -628,8 +624,6 @@ void CAT_MS_room(CAT_FSM_signal signal)
 			}
 			else if(arcade_open)
 			{
-				if(!CAT_gui_menu_is_open())
-					CAT_gui_menu_override_exit(arcade_exit_proc);
 				if(CAT_gui_begin_menu("ARCADE"))
 				{
 					if(CAT_gui_menu_item("SNACK"))
@@ -641,6 +635,12 @@ void CAT_MS_room(CAT_FSM_signal signal)
 					if(CAT_gui_menu_item("STROOP"))
 						CAT_pushdown_push(CAT_MS_stroop);
 					CAT_gui_end_menu();
+
+					if(CAT_input_pressed(CAT_BUTTON_B))
+					{
+						CAT_GUI_close_current_window();
+						arcade_open = false;
+					}
 				}
 			}
 			else
