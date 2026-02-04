@@ -4,6 +4,7 @@
 #include <math.h>
 #include <cat_math.h>
 #include "cat_core.h"
+#include "tinysprite_assets.h"
 
 //////////////////////////////////////////////////////////////////////////
 // SPRITER
@@ -496,6 +497,12 @@ void CAT_draw_tile_alpha(const CAT_sprite* sprite, int frame_idx, int x, int y)
 	}
 }
 
+/////////////////////////////////////////////////////////////////////
+// TINYSPRITER
+
+//////////////////////
+// LCD
+
 bool CAT_tinysprite_read(const CAT_tinysprite* sprite, int x, int y)
 {
 	if(sprite == NULL)
@@ -546,4 +553,99 @@ void CAT_draw_tinystring(int x, int y, const char* s, uint16_t c)
 	int n = strlen(s);
 	for(int i = 0; i < n; i++)
 		CAT_draw_tinyglyph(x + i * 8, y, s[i], c);
+}
+
+//////////////////////
+// EINK
+
+void CAT_eink_write_pixel(int _x, int _y, bool value)
+{
+	if (CAT_get_screen_orientation() == CAT_SCREEN_ORIENTATION_DOWN)
+	{
+		_y = CAT_EINK_SCREEN_H - 1 - _y;
+		_x = CAT_EINK_SCREEN_W - 1 - _x;
+	}
+
+	// The perceptual top-left of the e-ink is actually the top-right
+	int x = _y;
+	int y = CAT_EINK_SCREEN_W - 1 - _x;
+
+	if (x >= CAT_EINK_SCREEN_H || y >= CAT_EINK_SCREEN_W) return;
+
+	int px_idx = (y * CAT_EINK_SCREEN_H) + x;
+	int byte_idx = px_idx >> 3; // For every byte idx, 8 pixel idxs
+	int bit_idx = px_idx & 0b111; // The lower 3 bits of the pixel idx encode one of the 8 possible bit idxs
+
+	if (byte_idx >= CAT_EINK_FRAMEBUFFER_SIZE) return;
+
+	uint8_t* fb = CAT_eink_get_framebuffer();
+	if (value)
+		fb[byte_idx] |= 1 << (7-bit_idx);
+	else
+		fb[byte_idx] &= ~(1 << (7-bit_idx));
+}
+
+void CAT_eink_draw_sprite(int x, int y, const CAT_tinysprite* sprite)
+{
+	if(sprite == NULL)
+		return;
+	for(int dy = 0; dy < sprite->height; dy++)
+	{
+		for(int dx = 0; dx < sprite->width; dx++)
+		{
+			bool px = CAT_tinysprite_read(sprite, dx, dy);
+			if(px)
+				CAT_eink_write_pixel(x+dx, y+dy, px);
+		}
+	}
+}
+
+void CAT_eink_draw_glyph(int x, int y, int scale, char g)
+{
+	g = CAT_clamp(g, 0, 127);
+
+	int x_w = x;
+	int y_w = y;
+
+	for(int y_r = 0; y_r < 8; y_r++)
+	{
+		for(int x_r = 0; x_r < 8; x_r++)
+		{
+			bool px = CAT_tinysprite_read(&tnyspr_glyphs, x_r, g * 8 + y_r);
+			if(px)
+			{
+				for(int dy = 0; dy < scale; dy++)
+				{
+					for(int dx = 0; dx < scale; dx++)
+					{
+						CAT_eink_write_pixel(x_w+dx, y_w+dy, px);
+					}
+				}
+			}
+			x_w += scale;
+		}
+		y_w += scale;
+		x_w = x;
+	}
+}
+
+void CAT_eink_draw_string(int x, int y, int scale, const char* s)
+{
+	int n = strlen(s);
+	int x_w = x;
+	int y_w = y;
+	for(int i = 0; i < n; i++)
+	{
+		char glyph = s[i];
+		if(glyph == '\n')
+		{
+			y_w += 9 * scale;
+			x_w = x;
+		}
+		else
+		{
+			CAT_eink_draw_glyph(x_w, y_w, scale, s[i]);
+			x_w += 8 * scale;
+		}
+	}
 }

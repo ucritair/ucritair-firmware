@@ -91,7 +91,7 @@ static void load_graph_data()
 	start_tm.tm_year = start_date.year;
 	start_tm.tm_mon = start_date.month-1;
 	start_tm.tm_mday = start_date.day;
-	uint64_t start_time = timegm(&start_tm) + 60129542144; // <- WHATEVER. I DON'T EVEN KNOW
+	uint64_t start_time = timegm(&start_tm) + SPOOKY_TIME_CONSTANT; // <- WHATEVER. I DON'T EVEN KNOW
 	
 	CAT_log_cell cell;
 	if(seek_bookmark == -1)
@@ -446,10 +446,10 @@ void CAT_monitor_graph_render()
 {
 	CAT_draw_subpage_markers(32, CAT_MONITOR_GRAPH_VIEW_MAX, view, CAT_WHITE);
 
-	CAT_set_text_colour(CAT_WHITE);
-	CAT_draw_textf(12, WINDOW_Y0-14, "%s", get_title_string(view));
-	CAT_set_text_colour(CAT_WHITE);
-	CAT_draw_textf(WINDOW_X1 - 10 * CAT_GLYPH_WIDTH, WINDOW_Y0-14, "%.2d/%.2d/%.4d", start_date.month, start_date.day, start_date.year);
+	CAT_set_text_colour_depr(CAT_WHITE);
+	CAT_draw_textf_depr(12, WINDOW_Y0-14, "%s", get_title_string(view));
+	CAT_set_text_colour_depr(CAT_WHITE);
+	CAT_draw_textf_depr(WINDOW_X1 - 10 * CAT_GLYPH_WIDTH, WINDOW_Y0-14, "%.2d/%.2d/%.4d", start_date.month, start_date.day, start_date.year);
 
 	CAT_monitor_graph_draw(WINDOW_X0, WINDOW_Y0, WINDOW_Y1-WINDOW_Y0);
 
@@ -463,31 +463,31 @@ void CAT_monitor_graph_render()
 			CAT_datetime cursor_date;
 			CAT_make_datetime(timestamps[focus_idx], &cursor_date);
 
-			CAT_set_text_colour(CAT_WHITE);
-			CAT_draw_textf(WINDOW_X1-CAT_GLYPH_WIDTH*3, WINDOW_Y1 + 4, "%.2dx", pps);
+			CAT_set_text_colour_depr(CAT_WHITE);
+			CAT_draw_textf_depr(WINDOW_X1-CAT_GLYPH_WIDTH*3, WINDOW_Y1 + 4, "%.2dx", pps);
 			
-			CAT_set_text_colour(CAT_WHITE);
-			CAT_set_text_scale(2);
-			CAT_draw_textf(window_x, WINDOW_Y1+4, "%s", make_value_string(view, cursor_value));
+			CAT_set_text_colour_depr(CAT_WHITE);
+			CAT_set_text_scale_depr(2);
+			CAT_draw_textf_depr(window_x, WINDOW_Y1+4, "%s", make_value_string(view, cursor_value));
 
-			CAT_set_text_colour(CAT_WHITE);
-			CAT_draw_textf(window_x, WINDOW_Y1+4+28, "at %.2d:%.2d on %.2d/%.2d/%.4d", cursor_date.hour, cursor_date.minute, cursor_date.month, cursor_date.day, cursor_date.year);
+			CAT_set_text_colour_depr(CAT_WHITE);
+			CAT_draw_textf_depr(window_x, WINDOW_Y1+4+28, "at %.2d:%.2d on %.2d/%.2d/%.4d", cursor_date.hour, cursor_date.minute, cursor_date.month, cursor_date.day, cursor_date.year);
 			
 			if(view == CAT_MONITOR_GRAPH_VIEW_CO2 || view == CAT_MONITOR_GRAPH_VIEW_PN_10_0)
 			{
-				CAT_set_text_colour(CAT_WHITE);
-				CAT_draw_textf(window_x, WINDOW_Y1+4+28+28, "[SELECT] to go to\nACH calculator\n");
+				CAT_set_text_colour_depr(CAT_WHITE);
+				CAT_draw_textf_depr(window_x, WINDOW_Y1+4+28+28, "[SELECT] to go to\nACH calculator\n");
 			}
 		}
 		else
 		{
-			CAT_set_text_colour(CAT_WHITE);
-			CAT_set_text_scale(1);
-			CAT_draw_textf(window_x, WINDOW_Y1+4, "INVALID\n");
+			CAT_set_text_colour_depr(CAT_WHITE);
+			CAT_set_text_scale_depr(1);
+			CAT_draw_textf_depr(window_x, WINDOW_Y1+4, "INVALID\n");
 		}
 
-		CAT_set_text_colour(CAT_96_GREY);
-		CAT_draw_textf(WINDOW_X0, CAT_LCD_SCREEN_H-14, "Tap graph to change metric");
+		CAT_set_text_colour_depr(CAT_96_GREY);
+		CAT_draw_textf_depr(WINDOW_X0, CAT_LCD_SCREEN_H-32, "A/B to control zoom\nTap graph to change metric");
 	}
 }
 

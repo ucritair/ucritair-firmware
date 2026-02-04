@@ -332,16 +332,16 @@ static void draw_barrier()
 		
 	int cursor_y = SPLASH_Y;
 
-	CAT_set_text_colour(CAT_CRISIS_GREEN);
-	CAT_set_text_scale(2);
-	cursor_y = CAT_draw_text(SPLASH_X, cursor_y, "CRAFTING\n");
+	CAT_set_text_colour_depr(CAT_CRISIS_GREEN);
+	CAT_set_text_scale_depr(2);
+	cursor_y = CAT_draw_text_depr(SPLASH_X, cursor_y, "CRAFTING\n");
 
 	cursor_y += 12;
 	
-	CAT_set_text_colour(CAT_WHITE);
-	CAT_set_text_mask(SPLASH_X, -1, CAT_LCD_SCREEN_W-SPLASH_X, -1);
-	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
-	cursor_y = CAT_draw_text
+	CAT_set_text_colour_depr(CAT_WHITE);
+	CAT_set_text_mask_depr(SPLASH_X, -1, CAT_LCD_SCREEN_W-SPLASH_X, -1);
+	CAT_set_text_flags_depr(CAT_TEXT_FLAG_WRAP);
+	cursor_y = CAT_draw_text_depr
 	(
 		SPLASH_X, cursor_y,
 		"Place items in the grid. "
@@ -350,10 +350,10 @@ static void draw_barrier()
 	);
 	cursor_y += 12;
 
-	CAT_set_text_colour(CAT_WHITE);
-	CAT_set_text_mask(SPLASH_X, -1, CAT_LCD_SCREEN_W-SPLASH_X, -1);
-	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
-	cursor_y = CAT_draw_text(SPLASH_X, cursor_y, "This game uses button inputs.\n");
+	CAT_set_text_colour_depr(CAT_WHITE);
+	CAT_set_text_mask_depr(SPLASH_X, -1, CAT_LCD_SCREEN_W-SPLASH_X, -1);
+	CAT_set_text_flags_depr(CAT_TEXT_FLAG_WRAP);
+	cursor_y = CAT_draw_text_depr(SPLASH_X, cursor_y, "This game uses button inputs.\n");
 
 	cursor_y += 32;
 
@@ -363,10 +363,10 @@ static void draw_barrier()
 	CAT_draw_sprite(&ui_buttons_prompt, CAT_pulse(0.25f), CAT_LCD_SCREEN_W/2, cursor_y);
 
 	cursor_y += 72;
-	CAT_set_text_colour(CAT_WHITE);
-	CAT_set_text_mask(SPLASH_X, -1, CAT_LCD_SCREEN_W-SPLASH_X, -1);
-	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP | CAT_TEXT_FLAG_CENTER);
-	cursor_y = CAT_draw_text(CAT_LCD_SCREEN_W/2, cursor_y, "Press [A] to begin!\n");
+	CAT_set_text_colour_depr(CAT_WHITE);
+	CAT_set_text_mask_depr(SPLASH_X, -1, CAT_LCD_SCREEN_W-SPLASH_X, -1);
+	CAT_set_text_flags_depr(CAT_TEXT_FLAG_WRAP | CAT_TEXT_FLAG_CENTER);
+	cursor_y = CAT_draw_text_depr(CAT_LCD_SCREEN_W/2, cursor_y, "Press [A] to begin!\n");
 }
 
 void CAT_render_crafting()
@@ -396,8 +396,8 @@ void CAT_render_crafting()
 				
 				int count = inputs[i].count;
 				int width = CAT_GLYPH_WIDTH * ((count > 9) ? 2 : 1);
-				CAT_set_text_colour(CAT_192_GREY);
-				CAT_draw_textf(x + CELL_SIZE-width-2, y+CELL_SIZE-CAT_GLYPH_HEIGHT-3, "%d", count);
+				CAT_set_text_colour_depr(CAT_192_GREY);
+				CAT_draw_textf_depr(x + CELL_SIZE-width-2, y+CELL_SIZE-CAT_GLYPH_HEIGHT-3, "%d", count);
 			}
 
 			x += CELL_SIZE;

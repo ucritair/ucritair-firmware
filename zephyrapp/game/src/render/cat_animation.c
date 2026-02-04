@@ -5,14 +5,14 @@
 //////////////////////////////////////////////////////////////////////////
 // ANIMATOR
 
-static uint8_t frame_indices[CAT_SPRITE_LIST_LENGTH];
+static uint8_t frame_indices[CAT_SPRITE_COUNT];
 static int frame_counter = 0;
-static bool cycle_complete[CAT_SPRITE_LIST_LENGTH];
+static bool cycle_complete[CAT_SPRITE_COUNT];
 #define CAT_ANIMATOR_FRAME_PERIOD 1
 
 void CAT_animator_init()
 {
-	for(int i = 0; i < CAT_SPRITE_LIST_LENGTH; i++)
+	for(int i = 0; i < CAT_SPRITE_COUNT; i++)
 	{
 		frame_indices[i] = 0;
 		cycle_complete[i] = false;
@@ -21,15 +21,15 @@ void CAT_animator_init()
 
 void CAT_animator_tick()
 {
-	for(int i = 0; i < CAT_SPRITE_LIST_LENGTH; i++)
+	for(int i = 0; i < CAT_SPRITE_COUNT; i++)
 		cycle_complete[i] = false;
 
 	if(frame_counter == CAT_ANIMATOR_FRAME_PERIOD)
 	{
 		frame_counter = 0;
-		for(int i = 0; i < CAT_SPRITE_LIST_LENGTH; i++)
+		for(int i = 0; i < CAT_SPRITE_COUNT; i++)
 		{
-			const CAT_sprite* sprite = sprite_list[i];
+			const CAT_sprite* sprite = CAT_sprite_list[i];
 			if(frame_indices[i] < sprite->frame_count-1)
 			{
 				frame_indices[i] += 1;

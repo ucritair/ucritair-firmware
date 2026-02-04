@@ -28,9 +28,9 @@ static int center_textf(int x, int y, int scale, uint16_t c, const char* fmt, ..
 	int text_height = CAT_GLYPH_HEIGHT * scale;
 	int center_y = y - text_height / 2;
 
-	CAT_set_text_scale(scale);
-	CAT_set_text_colour(c);
-	CAT_draw_text(left_x, center_y, textf_buf);
+	CAT_set_text_scale_depr(scale);
+	CAT_set_text_colour_depr(c);
+	CAT_draw_text_depr(left_x, center_y, textf_buf);
 
 	return y + text_height;
 }

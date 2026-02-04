@@ -136,15 +136,15 @@ void CAT_render_checkout()
 		return;
 
 	int cursor_y = INSPECTOR_MARGIN;
-	CAT_set_text_scale(2);
-	CAT_set_text_colour(CAT_WHITE);
-	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
-	CAT_set_text_mask(INSPECTOR_MARGIN, -1, CAT_LCD_SCREEN_W-INSPECTOR_MARGIN, -1);
-	cursor_y = CAT_draw_textf(INSPECTOR_MARGIN, cursor_y, "%s\n", item->name) + 2;
-	CAT_set_text_colour(CAT_WHITE);
-	cursor_y = CAT_draw_textf(INSPECTOR_MARGIN, cursor_y, "$%d / x%d owned", item->price, item_table.counts[checkout_id]);
-	CAT_set_text_colour(CHECKOUT_GOLD_COLOUR);
-	cursor_y = CAT_draw_textf(CAT_LCD_SCREEN_W-INSPECTOR_MARGIN-CAT_GLYPH_WIDTH*7, cursor_y, "$%.6d\n", CAT_inventory_count(coin_item));
+	CAT_set_text_scale_depr(2);
+	CAT_set_text_colour_depr(CAT_WHITE);
+	CAT_set_text_flags_depr(CAT_TEXT_FLAG_WRAP);
+	CAT_set_text_mask_depr(INSPECTOR_MARGIN, -1, CAT_LCD_SCREEN_W-INSPECTOR_MARGIN, -1);
+	cursor_y = CAT_draw_textf_depr(INSPECTOR_MARGIN, cursor_y, "%s\n", item->name) + 2;
+	CAT_set_text_colour_depr(CAT_WHITE);
+	cursor_y = CAT_draw_textf_depr(INSPECTOR_MARGIN, cursor_y, "$%d / x%d owned", item->price, item_table.counts[checkout_id]);
+	CAT_set_text_colour_depr(CHECKOUT_GOLD_COLOUR);
+	cursor_y = CAT_draw_textf_depr(CAT_LCD_SCREEN_W-INSPECTOR_MARGIN-CAT_GLYPH_WIDTH*7, cursor_y, "$%.6d\n", CAT_inventory_count(coin_item));
 	cursor_y += 6;
 
 	int box_h = CAT_LCD_SCREEN_H-INSPECTOR_MARGIN-84-cursor_y;
@@ -170,25 +170,25 @@ void CAT_render_checkout()
 		int box = (CAT_GLYPH_WIDTH*4)+16;
 		CAT_strokeberry(120-box/2, cursor_y-box/4, box, box, CAT_WHITE);
 
-		CAT_set_text_scale(2);
-		CAT_set_text_colour(CAT_WHITE);
-		CAT_set_text_flags(CAT_TEXT_FLAG_CENTER);
-		cursor_y = CAT_draw_textf(120, cursor_y, "%d", purchase_qty);
+		CAT_set_text_scale_depr(2);
+		CAT_set_text_colour_depr(CAT_WHITE);
+		CAT_set_text_flags_depr(CAT_TEXT_FLAG_CENTER);
+		cursor_y = CAT_draw_textf_depr(120, cursor_y, "%d", purchase_qty);
 
-		CAT_set_text_colour(CAT_WHITE);
-		CAT_set_text_scale(2);
-		CAT_set_text_flags(CAT_TEXT_FLAG_CENTER);
-		CAT_draw_textf(120, cursor_y-CAT_GLYPH_HEIGHT/2+2, "-    +");
+		CAT_set_text_colour_depr(CAT_WHITE);
+		CAT_set_text_scale_depr(2);
+		CAT_set_text_flags_depr(CAT_TEXT_FLAG_CENTER);
+		CAT_draw_textf_depr(120, cursor_y-CAT_GLYPH_HEIGHT/2+2, "-    +");
 
 		CAT_draw_arrows(120, cursor_y+CAT_GLYPH_HEIGHT+1, 12, 80, CAT_WHITE);
 		CAT_draw_arrows(120, cursor_y+CAT_GLYPH_HEIGHT+1, 12, 72, CAT_WHITE);
 	}
 	else
 	{
-		CAT_set_text_scale(2);
-		CAT_set_text_colour(CAT_WHITE);
-		CAT_set_text_flags(CAT_TEXT_FLAG_CENTER | CAT_TEXT_FLAG_WRAP);
-		cursor_y = CAT_draw_text(120, cursor_y-8, "Insufficient funds!");
+		CAT_set_text_scale_depr(2);
+		CAT_set_text_colour_depr(CAT_WHITE);
+		CAT_set_text_flags_depr(CAT_TEXT_FLAG_CENTER | CAT_TEXT_FLAG_WRAP);
+		cursor_y = CAT_draw_text_depr(120, cursor_y-8, "Insufficient funds!");
 	}
 }
 
@@ -263,15 +263,15 @@ void CAT_render_sale()
 		return;
 
 	int cursor_y = INSPECTOR_MARGIN;
-	CAT_set_text_scale(2);
-	CAT_set_text_colour(CAT_WHITE);
-	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
-	CAT_set_text_mask(INSPECTOR_MARGIN, -1, CAT_LCD_SCREEN_W-INSPECTOR_MARGIN, -1);
-	cursor_y = CAT_draw_textf(INSPECTOR_MARGIN, cursor_y, "%s\n", item->name) + 2;
-	CAT_set_text_colour(CAT_WHITE);
-	cursor_y = CAT_draw_textf(INSPECTOR_MARGIN, cursor_y, "$%d / x%d owned", item->price, item_table.counts[sale_id]);
-	CAT_set_text_colour(CHECKOUT_GOLD_COLOUR);
-	cursor_y = CAT_draw_textf(CAT_LCD_SCREEN_W-INSPECTOR_MARGIN-CAT_GLYPH_WIDTH*7, cursor_y, "$%.5d\n", CAT_inventory_count(coin_item));
+	CAT_set_text_scale_depr(2);
+	CAT_set_text_colour_depr(CAT_WHITE);
+	CAT_set_text_flags_depr(CAT_TEXT_FLAG_WRAP);
+	CAT_set_text_mask_depr(INSPECTOR_MARGIN, -1, CAT_LCD_SCREEN_W-INSPECTOR_MARGIN, -1);
+	cursor_y = CAT_draw_textf_depr(INSPECTOR_MARGIN, cursor_y, "%s\n", item->name) + 2;
+	CAT_set_text_colour_depr(CAT_WHITE);
+	cursor_y = CAT_draw_textf_depr(INSPECTOR_MARGIN, cursor_y, "$%d / x%d owned", item->price, item_table.counts[sale_id]);
+	CAT_set_text_colour_depr(CHECKOUT_GOLD_COLOUR);
+	cursor_y = CAT_draw_textf_depr(CAT_LCD_SCREEN_W-INSPECTOR_MARGIN-CAT_GLYPH_WIDTH*7, cursor_y, "$%.5d\n", CAT_inventory_count(coin_item));
 	cursor_y += 6;
 
 	int box_h = CAT_LCD_SCREEN_H-INSPECTOR_MARGIN-84-cursor_y;
@@ -297,25 +297,25 @@ void CAT_render_sale()
 		int box = (CAT_GLYPH_WIDTH*4)+16;
 		CAT_strokeberry(120-box/2, cursor_y-box/4, box, box, CAT_WHITE);
 
-		CAT_set_text_scale(2);
-		CAT_set_text_colour(CAT_WHITE);
-		CAT_set_text_flags(CAT_TEXT_FLAG_CENTER);
-		cursor_y = CAT_draw_textf(120, cursor_y, "%d", sale_qty);
+		CAT_set_text_scale_depr(2);
+		CAT_set_text_colour_depr(CAT_WHITE);
+		CAT_set_text_flags_depr(CAT_TEXT_FLAG_CENTER);
+		cursor_y = CAT_draw_textf_depr(120, cursor_y, "%d", sale_qty);
 
-		CAT_set_text_colour(CAT_WHITE);
-		CAT_set_text_scale(2);
-		CAT_set_text_flags(CAT_TEXT_FLAG_CENTER);
-		CAT_draw_textf(120, cursor_y-CAT_GLYPH_HEIGHT/2+2, "-    +");
+		CAT_set_text_colour_depr(CAT_WHITE);
+		CAT_set_text_scale_depr(2);
+		CAT_set_text_flags_depr(CAT_TEXT_FLAG_CENTER);
+		CAT_draw_textf_depr(120, cursor_y-CAT_GLYPH_HEIGHT/2+2, "-    +");
 
 		CAT_draw_arrows(120, cursor_y+CAT_GLYPH_HEIGHT+1, 12, 80, CAT_WHITE);
 		CAT_draw_arrows(120, cursor_y+CAT_GLYPH_HEIGHT+1, 12, 72, CAT_WHITE);
 	}
 	else
 	{
-		CAT_set_text_scale(2);
-		CAT_set_text_colour(CAT_WHITE);
-		CAT_set_text_flags(CAT_TEXT_FLAG_CENTER | CAT_TEXT_FLAG_WRAP);
-		cursor_y = CAT_draw_text(120, cursor_y-8, "Insufficient stock!");
+		CAT_set_text_scale_depr(2);
+		CAT_set_text_colour_depr(CAT_WHITE);
+		CAT_set_text_flags_depr(CAT_TEXT_FLAG_CENTER | CAT_TEXT_FLAG_WRAP);
+		cursor_y = CAT_draw_text_depr(120, cursor_y-8, "Insufficient stock!");
 	}
 }
 

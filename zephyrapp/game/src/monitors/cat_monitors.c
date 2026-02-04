@@ -61,13 +61,13 @@ static CAT_FSM fsm =
 
 static void draw_uninit_warning()
 {
-	CAT_set_text_colour(CAT_WHITE);
-	CAT_set_text_scale(2);
-	CAT_draw_text(12, 30, "Please wait...");
-	CAT_set_text_colour(CAT_WHITE);
-	CAT_set_text_mask(12, -1, CAT_LCD_SCREEN_W-12, -1);
-	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
-	CAT_draw_text(12, 64, "Air quality sensors are coming online.");
+	CAT_set_text_colour_depr(CAT_WHITE);
+	CAT_set_text_scale_depr(2);
+	CAT_draw_text_depr(12, 30, "Please wait...");
+	CAT_set_text_colour_depr(CAT_WHITE);
+	CAT_set_text_mask_depr(12, -1, CAT_LCD_SCREEN_W-12, -1);
+	CAT_set_text_flags_depr(CAT_TEXT_FLAG_WRAP);
+	CAT_draw_text_depr(12, 64, "Air quality sensors are coming online.");
 }
 
 #define PAGE_MARKER_Y 8

@@ -43,6 +43,11 @@ void CAT_platform_cleanup()
 	return;
 }
 
+void CAT_platform_capture_frame()
+{
+	return;
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // LCD SCREEN
@@ -100,22 +105,38 @@ bool CAT_is_last_render_cycle()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // EINK SCREEN
 
-void CAT_eink_post(uint8_t* buffer)
+PERSIST_RAM uint8_t epaper_framebuffer[EPD_IMAGE_BYTES];
+PERSIST_RAM uint8_t old_epaper_framebuffer[EPD_IMAGE_BYTES];
+PERSIST_RAM uint8_t framebuffer_fast_update_count;
+
+uint8_t* CAT_eink_get_framebuffer()
 {
-	return;
+	return epaper_framebuffer;
 }
 
-bool CAT_eink_is_posted()
+void CAT_eink_update(bool force_full_write)
 {
-	return true;
-}
+	if(CAT_get_battery_pct() < 5)
+		return;
+		
+	bool full_write = force_full_write || (is_persist_fresh || framebuffer_fast_update_count > 50);
 
-void CAT_eink_update()
-{
-	if(CAT_get_battery_pct() > 5)
-		epaper_render_test();
+	pc_set_mode(false);
+	if(full_write)
+	{
+		cmd_turn_on_and_write(epaper_framebuffer);
+		is_persist_fresh = false;
+		framebuffer_fast_update_count = 0;
+	}
 	else
-		CAT_shutdown();
+	{
+		cmd_turn_on_and_write_fast(old_epaper_framebuffer, epaper_framebuffer);
+		framebuffer_fast_update_count++;
+	}
+	pc_set_mode(true);
+
+	memcpy(old_epaper_framebuffer, epaper_framebuffer, sizeof(epaper_framebuffer));
+	memset(epaper_framebuffer, 0, sizeof(epaper_framebuffer));
 }
 
 
@@ -317,7 +338,8 @@ void CAT_sleep()
 
 void CAT_shutdown()
 {
-	epaper_render_protected_off();
+	CAT_eink_draw_power_off();
+	CAT_eink_update(true);
 	power_off(0, true);
 }
 

@@ -204,3 +204,12 @@ static inline float CAT_wave(float freq)
 	return 0.5f * (CAT_sin(t) + 1.0f);
 }
 
+
+//////////////////////////////////////////////////////////////////////////
+// OTHER
+
+static inline float CAT_sinterp(float a, float b, float t)
+{
+	return a + (b-a) * 0.5 * (CAT_sin(2*M_PI*(0.5f*t - 0.25)) + 1);
+}
+

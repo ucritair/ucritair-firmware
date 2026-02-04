@@ -10,6 +10,7 @@
 #include "cat_radio.h"
 #include "cat_curves.h"
 #include "cat_gizmos.h"
+#include "tinysprite_assets.h"
 
 #if CAT_RADIO_ENABLED
 #include "meshtastic/mesh.pb.h"
@@ -296,7 +297,7 @@ int draw_message(int y, int i)
 	if(change_sender)
 		CAT_lineberry(64, y, MSG_W-1-64, y, CAT_224_GREY);
 
-	CAT_draw_text(MSG_PAD_X, y+MSG_PAD_Y, line);
+	CAT_draw_text_depr(MSG_PAD_X, y+MSG_PAD_Y, line);
 	if(selected)
 	{
 		CAT_set_sprite_colour(CAT_64_GREY);
@@ -338,34 +339,34 @@ void CAT_draw_chat()
 		int sender_idx = find_node(view_buffer.from);
 		CAT_chat_node* sender = sender_idx == -1 ? NULL : &nodes[sender_idx];
 		if(view_buffer.from == NODE_ADDRESS_ME)
-			cursor_y = CAT_draw_textf(cursor_x, cursor_y, "From: Me\n");
+			cursor_y = CAT_draw_textf_depr(cursor_x, cursor_y, "From: Me\n");
 		else if(sender != NULL)
 		{
 			if(strlen(sender->long_name) > 0)
-				cursor_y = CAT_draw_textf(cursor_x, cursor_y, "From: %.40s\n", sender->long_name);
+				cursor_y = CAT_draw_textf_depr(cursor_x, cursor_y, "From: %.40s\n", sender->long_name);
 			else if(strlen(sender->short_name) > 0)
-				cursor_y = CAT_draw_textf(cursor_x, cursor_y, "From: %.5s\n", sender->short_name);
+				cursor_y = CAT_draw_textf_depr(cursor_x, cursor_y, "From: %.5s\n", sender->short_name);
 			else
-				cursor_y = CAT_draw_textf(cursor_x, cursor_y, "From: 0x%.8x\n", view_buffer.from);	
+				cursor_y = CAT_draw_textf_depr(cursor_x, cursor_y, "From: 0x%.8x\n", view_buffer.from);	
 		}
 		else
 		{
-			cursor_y = CAT_draw_textf(cursor_x, cursor_y, "From: 0x%.8x\n", view_buffer.from);
+			cursor_y = CAT_draw_textf_depr(cursor_x, cursor_y, "From: 0x%.8x\n", view_buffer.from);
 		}
 			
 		if(view_buffer.from != NODE_ADDRESS_ME)
-			cursor_y = CAT_draw_textf(cursor_x, cursor_y, "To: %s\n\n", view_buffer.to == CAT_RADIO_BROADCAST_ADDR ? "Everyone" : "Me");
+			cursor_y = CAT_draw_textf_depr(cursor_x, cursor_y, "To: %s\n\n", view_buffer.to == CAT_RADIO_BROADCAST_ADDR ? "Everyone" : "Me");
 		else
 			cursor_y += 4;
 		CAT_rowberry(cursor_y, cursor_y+1, CAT_192_GREY);
 
-		CAT_set_text_mask(12, -1, CAT_LCD_SCREEN_W-12, -1);
-		CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
-		cursor_y = CAT_draw_textf(12, cursor_y, "\n%s\n\n", view_buffer.text);
+		CAT_set_text_mask_depr(12, -1, CAT_LCD_SCREEN_W-12, -1);
+		CAT_set_text_flags_depr(CAT_TEXT_FLAG_WRAP);
+		cursor_y = CAT_draw_textf_depr(12, cursor_y, "\n%s\n\n", view_buffer.text);
 
 		cursor_x = CAT_draw_button(cursor_x, cursor_y, CAT_BUTTON_B, CAT_64_GREY);
-		CAT_set_text_colour(CAT_64_GREY);
-		CAT_draw_text(cursor_x, cursor_y, " to close message");
+		CAT_set_text_colour_depr(CAT_64_GREY);
+		CAT_draw_text_depr(cursor_x, cursor_y, " to close message");
 		return;
 	}
 
@@ -390,11 +391,11 @@ void CAT_draw_chat()
 	int cursor_x = MSG_PAD_X;
 	if(!CAT_timed_latch_get(&notif_latch) || notif_frames % 2 == 0)
 	{
-		CAT_set_text_colour(CAT_GREY);
+		CAT_set_text_colour_depr(CAT_GREY);
 		if(destination == CAT_RADIO_BROADCAST_ADDR)
-			CAT_draw_textf(cursor_x, cursor_y, "Broadcasting publicly!");
+			CAT_draw_textf_depr(cursor_x, cursor_y, "Broadcasting publicly!");
 		else
-			CAT_draw_textf(cursor_x, cursor_y, "Direct messaging 0x%.8x", destination);
+			CAT_draw_textf_depr(cursor_x, cursor_y, "Direct messaging 0x%.8x", destination);
 	}
 	CAT_rowberry(MSG_H-1, MSG_H, CAT_192_GREY);
 
@@ -407,15 +408,15 @@ void CAT_draw_chat()
 		if(in_selector >= in_length-1)
 		{
 			cursor_x = CAT_draw_button(cursor_x, cursor_y, CAT_BUTTON_DOWN, CAT_160_GREY);
-			CAT_set_text_colour(CAT_160_GREY);
-			cursor_y = CAT_draw_text(cursor_x, cursor_y, " to compose a new message\n");
+			CAT_set_text_colour_depr(CAT_160_GREY);
+			cursor_y = CAT_draw_text_depr(cursor_x, cursor_y, " to compose a new message\n");
 			cursor_x = MSG_PAD_X;
 			
 			if(destination != CAT_RADIO_BROADCAST_ADDR)
 			{	
 				cursor_x = CAT_draw_button(cursor_x, cursor_y, CAT_BUTTON_SELECT, CAT_160_GREY);
-				CAT_set_text_colour(CAT_160_GREY);
-				cursor_y = CAT_draw_text(cursor_x, cursor_y, " to broadcast publicly\n");
+				CAT_set_text_colour_depr(CAT_160_GREY);
+				cursor_y = CAT_draw_text_depr(cursor_x, cursor_y, " to broadcast publicly\n");
 			}
 		}
 	}

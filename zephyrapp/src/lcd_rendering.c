@@ -28,6 +28,7 @@ LOG_MODULE_REGISTER(lcd_rendering, LOG_LEVEL_DBG);
 #include "menu_system.h"
 #include "cat_spriter.h"
 #include "sprite_assets.h"
+#include "tinysprite_assets.h"
 
 void lcd_write_char(uint16_t color, int x, int y, char c)
 {
@@ -181,7 +182,8 @@ void lcd_render_diag()
 			{
 				LOG_INF("Sleeping");
 				// TODO: Save game
-				epaper_render_test();
+				CAT_eink_draw_default();
+				CAT_eink_update(false);
 				power_off(sensor_wakeup_period*1000, false);
 			}
 			else

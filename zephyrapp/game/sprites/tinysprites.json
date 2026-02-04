@@ -119,6 +119,13 @@
             "width": 192,
             "height": 192,
             "stride": 192
+        },
+        {
+            "name": "test_card",
+            "path": "eink/epaper_test_card.png",
+            "width": 0,
+            "height": 0,
+            "stride": 0
         }
     ]
 }

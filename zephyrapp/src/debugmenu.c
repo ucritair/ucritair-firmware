@@ -85,7 +85,8 @@ void menu_test_buzzer(void* arg)
 
 void menu_test_eink(void* arg)
 {
-	epaper_render_test();
+	CAT_eink_draw_default();
+	CAT_eink_update(false);
 }
 
 void menu_force_sunrise_abc(void* arg)
@@ -147,7 +148,8 @@ uint8_t seen_buttons = 0;
 
 void menu_power_off_protected(void* arg)
 {
-	epaper_render_protected_off();
+	CAT_eink_draw_power_off();
+	CAT_eink_update(true);
 	power_off(0, true);
 }
 

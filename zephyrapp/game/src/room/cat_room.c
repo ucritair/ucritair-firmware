@@ -33,7 +33,7 @@
 //////////////////////////////////////////////////////////////////////////
 // THEME
 
-static const CAT_room_theme* theme = &basic_theme;
+static const CAT_room_theme* theme = &theme_basic;
 
 void CAT_room_set_theme(const CAT_room_theme* _theme)
 {
@@ -428,7 +428,7 @@ static bool first_entry = true;
 
 void CAT_room_init()
 {
-	theme = &basic_theme;
+	theme = &theme_basic;
 	init_grid();
 	prop_list.length = 0;
 	pickup_list.length = 0;
@@ -908,6 +908,8 @@ static const CAT_sprite* button_sprites[] =
 	&icon_menu_sprite
 };
 
+#include "cat_text.h"
+
 void CAT_room_draw_gui()
 {
 	if(CAT_pet_is_dead())
@@ -947,13 +949,6 @@ void CAT_room_draw_gui()
 				CAT_CRISIS_RED
 			);
 		}
-	}
-
-	if(CAT_input_touching())
-	{
-		int tx, ty;
-		CAT_input_cursor(&tx, &ty);
-		CAT_circberry(tx, ty, 16, CAT_WHITE);
 	}
 }
 

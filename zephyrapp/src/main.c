@@ -161,7 +161,8 @@ int main(void)
 				populate_next_log_cell();
 				LOG_INF("update eink");
 				k_msleep(20);
-				epaper_render_test();
+				CAT_eink_draw_default();
+				CAT_eink_update(false);
 				LOG_INF("power off");
 				k_msleep(20);
 				// Guard before sleeping in case battery sagged during this wake.

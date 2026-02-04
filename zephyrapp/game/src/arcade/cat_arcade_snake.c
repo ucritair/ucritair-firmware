@@ -6,7 +6,6 @@
 #include "cat_item.h"
 #include "cat_gui.h"
 #include "sprite_assets.h"
-#include "sound_assets.h"
 #include "item_assets.h"
 
 #define GRID_WIDTH 15
@@ -320,10 +319,10 @@ void CAT_render_snake()
 		}
 
 		int pad = CAT_TILE_SIZE + 4;
-		CAT_set_text_mask(pad, -1, CAT_LCD_SCREEN_W-pad, -1);
-		CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
+		CAT_set_text_mask_depr(pad, -1, CAT_LCD_SCREEN_W-pad, -1);
+		CAT_set_text_flags_depr(CAT_TEXT_FLAG_WRAP);
 		int cursor_y = pad;
-		cursor_y = CAT_draw_textf
+		cursor_y = CAT_draw_textf_depr
 		(
 			pad, cursor_y,
 			"Rest in peace, Snack Cat. "

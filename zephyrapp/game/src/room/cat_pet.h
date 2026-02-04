@@ -61,6 +61,7 @@ void CAT_pet_change_XP(int delta);
 void CAT_pet_change_vigour(int delta);
 void CAT_pet_change_focus(int delta);
 void CAT_pet_change_spirit(int delta);
+void CAT_pet_change_lifespan(int delta);
 
 void CAT_pet_tick();
 

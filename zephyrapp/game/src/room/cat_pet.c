@@ -222,6 +222,14 @@ void CAT_pet_change_spirit(int delta)
 	pet.spirit = CAT_clamp(pet.spirit+delta, 0, 12);
 }
 
+void CAT_pet_change_lifespan(int delta)
+{
+	if(CAT_pet_is_dead())
+		return;
+
+	pet.lifespan = CAT_clamp(pet.lifespan+delta, 0, 30);
+}
+
 static CAT_vec2 destination = {120, 200};
 
 void milk_proc()
@@ -262,9 +270,8 @@ void apply_stat_ticks(int ticks)
 
 		if(pet.vigour <= 0 || pet.focus <= 0 || pet.spirit <= 0)
 		{
-			int xp_delta = roundf(level_cutoffs[pet.level] * 0.1f);
-			CAT_pet_change_XP(xp_delta);
-		}			
+			CAT_pet_change_lifespan(-1);
+		}
 	}
 }
 

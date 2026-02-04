@@ -51,14 +51,14 @@ void CAT_render_magic()
 	int cursor_x = 12;
 	int cursor_y = 12;
 
-	cursor_y = CAT_draw_text(cursor_x, cursor_y, "MAGIC\n");
+	cursor_y = CAT_draw_text_depr(cursor_x, cursor_y, "MAGIC\n");
 	cursor_y += 6;
 	CAT_rowberry(cursor_y, cursor_y+1, CAT_BLACK);
 	cursor_y += 6;
 
-	CAT_set_text_mask(12, -1, CAT_LCD_SCREEN_W-12, -1);
-	CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
-	cursor_y = CAT_draw_text(cursor_x, cursor_y, "Enter an incantation, or hold [B] to exit.\n");
+	CAT_set_text_mask_depr(12, -1, CAT_LCD_SCREEN_W-12, -1);
+	CAT_set_text_flags_depr(CAT_TEXT_FLAG_WRAP);
+	cursor_y = CAT_draw_text_depr(cursor_x, cursor_y, "Enter an incantation, or hold [B] to exit.\n");
 	cursor_y += 6;
 	CAT_rowberry(cursor_y, cursor_y+1, CAT_BLACK);
 	cursor_y += 6;

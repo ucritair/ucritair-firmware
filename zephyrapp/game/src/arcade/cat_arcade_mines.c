@@ -6,7 +6,6 @@
 #include "cat_item.h"
 #include "cat_gui.h"
 #include "sprite_assets.h"
-#include "sound_assets.h"
 #include "item_assets.h"
 
 #define GRID_WIDTH 15
@@ -464,18 +463,18 @@ void CAT_render_mines()
 		if(state == WIN)
 		{
 			int pad = CAT_TILE_SIZE + 4;
-			CAT_set_text_mask(pad, -1, CAT_LCD_SCREEN_W-pad, -1);
-			CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
+			CAT_set_text_mask_depr(pad, -1, CAT_LCD_SCREEN_W-pad, -1);
+			CAT_set_text_flags_depr(CAT_TEXT_FLAG_WRAP);
 			int cursor_y = pad;
-			cursor_y = CAT_draw_text(pad, cursor_y, "All clear! The fields are safe. For your diligent work, you've earned a commemorative prop. Find it in your bag!\n\n");
+			cursor_y = CAT_draw_text_depr(pad, cursor_y, "All clear! The fields are safe. For your diligent work, you've earned a commemorative prop. Find it in your bag!\n\n");
 
 			CAT_draw_sprite(&prop_mine_sprite, 0, pad, cursor_y);
 			cursor_y += prop_mine_sprite.height / 2;
-			CAT_draw_text(pad + prop_mine_sprite.width, cursor_y, "+1");
+			CAT_draw_text_depr(pad + prop_mine_sprite.width, cursor_y, "+1");
 			cursor_y += prop_mine_sprite.height / 2;
 			cursor_y += 24;
 
-			cursor_y = CAT_draw_textf
+			cursor_y = CAT_draw_textf_depr
 			(
 				pad, cursor_y,
 				"Score: %d\n"
@@ -483,17 +482,17 @@ void CAT_render_mines()
 				score, mines_highscore
 			);
 			if(score > mines_highscore)
-				cursor_y = CAT_draw_textf(pad, cursor_y, "NEW HIGH SCORE!\n");
+				cursor_y = CAT_draw_textf_depr(pad, cursor_y, "NEW HIGH SCORE!\n");
 		}
 		else
 		{			
 			int pad = CAT_TILE_SIZE + 4;
-			CAT_set_text_mask(pad, -1, CAT_LCD_SCREEN_W-pad, -1);
-			CAT_set_text_flags(CAT_TEXT_FLAG_WRAP);
+			CAT_set_text_mask_depr(pad, -1, CAT_LCD_SCREEN_W-pad, -1);
+			CAT_set_text_flags_depr(CAT_TEXT_FLAG_WRAP);
 			int cursor_y = pad;
-			cursor_y = CAT_draw_text(pad, cursor_y, "Kaboom!\nYour exploration has come to an explosive end. Press A or B to return from whence you came.\n\n");
+			cursor_y = CAT_draw_text_depr(pad, cursor_y, "Kaboom!\nYour exploration has come to an explosive end. Press A or B to return from whence you came.\n\n");
 
-			cursor_y = CAT_draw_textf
+			cursor_y = CAT_draw_textf_depr
 			(
 				pad, cursor_y,
 				"Score: %d\n"
@@ -501,7 +500,7 @@ void CAT_render_mines()
 				score, mines_highscore
 			);
 			if(score > mines_highscore)
-				cursor_y = CAT_draw_textf(pad, cursor_y, "NEW HIGH SCORE!\n");
+				cursor_y = CAT_draw_textf_depr(pad, cursor_y, "NEW HIGH SCORE!\n");
 		}
 	}
 }

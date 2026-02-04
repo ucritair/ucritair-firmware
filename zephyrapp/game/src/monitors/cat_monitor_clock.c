@@ -39,8 +39,8 @@ void CAT_monitor_render_clock()
 	CAT_set_sprite_flags(CAT_DRAW_FLAG_BOTTOM);
 	CAT_draw_sprite(&monitor_clouds_sprite, 0, 0, 320);
 	
-	CAT_set_text_colour(CAT_WHITE);
-	CAT_draw_textf(8, 30, "%.2i:%.2i:%.2is", now.hour, now.minute, now.second);
+	CAT_set_text_colour_depr(CAT_WHITE);
+	CAT_draw_textf_depr(8, 30, "%.2i:%.2i:%.2is", now.hour, now.minute, now.second);
 
 	CAT_circberry(CLOCK_X, CLOCK_Y, CLOCK_RADIUS, CAT_WHITE);
 	CAT_circberry(CLOCK_X, CLOCK_Y, CLOCK_RADIUS+4, CAT_WHITE);

@@ -14,7 +14,6 @@
 #include <string.h>
 #include "cat_main.h"
 #include "theme_assets.h"
-#include "sound_assets.h"
 #include "cat_monitors.h"
 #include "item_assets.h"
 #include "cat_world.h"
@@ -108,6 +107,9 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 							else
 								persist_flags |= CAT_PERSIST_CONFIG_FLAG_ETERNAL_WAKE;
 						}
+
+						if(CAT_gui_menu_item("TURNKEY"))
+							CAT_set_load_flags(CAT_LOAD_FLAG_DIRTY | CAT_LOAD_FLAG_TURNKEY);
 						
 #if CAT_WIFI_ENABLED					
 						if(CAT_gui_menu_item("RP2350 BOOTLOADER"))
@@ -190,11 +192,11 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 
 						if(CAT_gui_begin_menu("ROOM THEME"))
 						{
-							for(int i = 0; i < THEME_COUNT; i++)
+							for(int i = 0; i < CAT_ROOM_THEME_COUNT; i++)
 							{		
-								bool this_theme = CAT_room_get_theme() == themes_list[i];
-								if(CAT_gui_menu_toggle(themes_list[i]->name, this_theme, CAT_GUI_TOGGLE_STYLE_RADIO_BUTTON))
-									CAT_room_set_theme(themes_list[i]);
+								bool this_theme = CAT_room_get_theme() == CAT_room_theme_list[i];
+								if(CAT_gui_menu_toggle(CAT_room_theme_list[i]->name, this_theme, CAT_GUI_TOGGLE_STYLE_RADIO_BUTTON))
+									CAT_room_set_theme(CAT_room_theme_list[i]);
 							}
 							CAT_gui_end_menu();
 						}

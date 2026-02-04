@@ -130,7 +130,7 @@ void CAT_render_colour_picker()
 		uint16_t colour = CAT_RGB8882565(R, G, B);
 
 		CAT_fillberry(32, 96, 160, 160, CAT_WHITE);
-		int cursor_y = CAT_draw_textf(32 + 8, 96 + 8, "HSV: %d %d %d\nRGB: %d %d %d\n565: %#x\n\n", H, S, V, R, G, B, colour);
+		int cursor_y = CAT_draw_textf_depr(32 + 8, 96 + 8, "HSV: %d %d %d\nRGB: %d %d %d\n565: %#x\n\n", H, S, V, R, G, B, colour);
 		CAT_fillberry(32 + 8, cursor_y, 80, 80, colour);
 	}
 }
