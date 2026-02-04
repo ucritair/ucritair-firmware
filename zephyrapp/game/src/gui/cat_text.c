@@ -602,19 +602,24 @@ int CAT_draw_text_depr(int x, int y, const char* text)
 	bool vertical = flags & CAT_TEXT_FLAG_VERTICAL;
 
 	CAT_rect mask = consume_text_mask();
-	if(center)
+	if(mask.min.x == mask.max.x)
 	{
-		mask.min.x = x-CAT_LCD_SCREEN_W;
-		mask.max.x = x+CAT_LCD_SCREEN_W;
+		if(center)
+		{
+			mask.min.x = 0;
+			mask.max.x = CAT_LCD_SCREEN_W;
+		}
+		else
+		{
+			mask.min.x = x;
+			mask.max.x = wrap ? CAT_LCD_SCREEN_W : CAT_INT_MAX;
+		}
 	}
-	else
+	if(mask.min.y == mask.max.y)
 	{
-		mask.min.x = x;
-		if(!wrap)
-			mask.max.x = CAT_INT_MAX;
+		mask.min.y = y;
+		mask.max.y = CAT_INT_MAX;
 	}
-	mask.min.y = y;
-	mask.max.y = y;
 
 	CAT_set_text_box(mask.min.x, mask.min.y, mask.max.x, mask.max.y);
 	if(vertical)
