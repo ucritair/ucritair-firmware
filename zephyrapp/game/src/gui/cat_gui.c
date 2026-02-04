@@ -1057,7 +1057,7 @@ void CAT_GUI_IO()
 			head->selector -= 1;
 		if(CAT_input_pressed(CAT_BUTTON_DOWN))
 			head->selector += 1;
-		head->selector = CAT_clamp(head->selector, 0, selectable_count-1);
+		head->selector = CAT_wrap(head->selector, selectable_count);
 
 		GUI_node* selected = GUI_get_selectable(head, head->selector);
 		if(selected != NULL)
