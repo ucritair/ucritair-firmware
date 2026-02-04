@@ -153,7 +153,7 @@ uint64_t CAT_get_uptime_ms();
 float CAT_get_delta_time_s();
 uint64_t CAT_get_RTC_offset();
 uint64_t CAT_get_RTC_now();
-void CAT_set_date(CAT_datetime date);
+void CAT_set_datetime(CAT_datetime date);
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -204,6 +204,18 @@ typedef enum
 	CAT_LOG_CELL_FLAG_HAS_COG_PERF = (1 << 2)
 } CAT_log_cell_flag;
 
+typedef enum
+{
+	CAT_SD_WRITE_OKAY,
+	CAT_SD_WRITE_INIT_FAILED,
+	CAT_SD_WRITE_MOUNT_FAILED,
+	CAT_SD_WRITE_WRITE_FAILED,
+	CAT_SD_WRITE_MKDIR_FAILED,
+	CAT_SD_WRITE_CREATE_FAILED,
+	CAT_SD_WRITE_CLOSE_FAILED,
+	CAT_SD_WRITE_UNKNOWN_FAILURE
+} CAT_SD_write_result;
+
 void CAT_read_log_cell_at_idx(int idx, CAT_log_cell* out);
 int CAT_read_log_cell_before_time(int bookmark, uint64_t time, CAT_log_cell* out);
 int CAT_read_log_cell_after_time(int bookmark, uint64_t time, CAT_log_cell* out);
@@ -211,7 +223,8 @@ int CAT_read_first_calendar_cell(CAT_log_cell* cell);
 int CAT_get_log_cell_count();
 bool CAT_logs_initialized();
 void CAT_force_log_cell_write();
-void CAT_erase_log_cells();
+void CAT_erase_logs();
+CAT_SD_write_result CAT_write_logs_to_SD();
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -219,6 +232,7 @@ void CAT_erase_log_cells();
 
 #define CAT_CRITICAL_BATTERY_PCT 20
 #define CAT_SAFE_BATTERY_PCT 50
+#define CAT_KILL_BATTERY_PCT 5
 
 int CAT_get_battery_pct();
 bool CAT_is_charging();
@@ -227,7 +241,7 @@ bool CAT_is_on();
 void CAT_msleep(int ms);
 void CAT_sleep();
 void CAT_shutdown();
-void CAT_factory_reset();
+void CAT_reset_save();
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -260,6 +274,13 @@ extern CAT_AQ_readings readings;
 bool CAT_AQ_sensors_initialized();
 bool CAT_AQ_NOX_VOC_initialized();
 
+typedef enum
+{
+	CAT_SENSOR_SUNRISE
+} CAT_sensor;
+
+void CAT_force_sensor_read(int sensor);
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // IMU
@@ -285,8 +306,8 @@ bool CAT_IMU_is_upside_down();
 // DEBUG
 
 void CAT_printf(const char* fmt, ...);
-int CAT_get_debug_number();
-void CAT_set_debug_number(int x);
+void CAT_debug_log(const char* fmt, ...);
+char* CAT_debug_log_ptr();
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

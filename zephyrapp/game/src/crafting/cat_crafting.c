@@ -8,6 +8,7 @@
 #include "sprite_assets.h"
 #include "mesh2d_assets.h"
 #include "cat_curves.h"
+#include "cat_text.h"
 
 static CAT_item_bundle inputs[9];
 static int output = -1;

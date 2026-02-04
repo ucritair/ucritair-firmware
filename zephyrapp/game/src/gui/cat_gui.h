@@ -13,20 +13,6 @@ bool CAT_gui_keyboard_is_open();
 
 
 //////////////////////////////////////////////////////////////////////////
-// POPUP
-
-typedef enum
-{
-	CAT_POPUP_STYLE_YES_NO,
-	CAT_POPUP_STYLE_OK
-} CAT_popup_style;
-
-void CAT_gui_open_popup(const char* text, int style);
-bool CAT_gui_popup_is_open();
-bool CAT_gui_consume_popup();
-
-
-//////////////////////////////////////////////////////////////////////////
 // MENU
 
 typedef enum
@@ -43,18 +29,15 @@ typedef enum
 	CAT_GUI_TOGGLE_STYLE_RADIO_BUTTON
 } CAT_gui_toggle_style;
 
-void CAT_gui_menu_override_exit(void (*exit_proc)());
-void CAT_gui_menu_force_reset();
-void CAT_gui_menu_disable_wrap();
-
 bool CAT_gui_begin_menu(const char* title);
 void CAT_gui_end_menu();
-bool CAT_gui_menu_is_open();
 
 bool CAT_gui_menu_item(const char* title);
 bool CAT_gui_menu_toggle(const char* title, bool toggle, CAT_gui_toggle_style style);
 int CAT_gui_menu_ticker(const char* title, int value, int min, int max);
 void CAT_gui_menu_text(const char* title);
+
+bool CAT_gui_menu_is_open();
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -74,11 +57,27 @@ bool CAT_gui_item_grid_is_open();
 
 
 //////////////////////////////////////////////////////////////////////////
-// DIALOGUE BOX
+// IT'S ABOUT TO GET WEIRD IN HERE
 
-void CAT_gui_open_dialogue(const char* text, int duration);
-bool CAT_gui_dialogue_is_open();
-void CAT_gui_dismiss_dialogue();
+void CAT_GUI_new_frame();
+
+void CAT_GUI_open_window(const char* text);
+void CAT_GUI_close_current_window();
+bool CAT_GUI_begin_window(const char* text, int x0, int y0, int x1, int y1);
+void CAT_GUI_end_window();
+
+void CAT_GUI_text(const char* fmt, ...);
+bool CAT_GUI_option(const char* text);
+void CAT_GUI_image(const CAT_sprite* sprite, int frame_idx);
+void CAT_GUI_title(const char* fmt, ...);
+bool CAT_GUI_toggle(const char* text, bool value, int style);
+int CAT_GUI_ticker(const char* text, int value, int min, int max);
+
+bool CAT_GUI_is_window_open(const char* text);
+int CAT_GUI_window_count();
+
+void CAT_GUI_IO();
+void CAT_GUI_draw();
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -86,28 +85,3 @@ void CAT_gui_dismiss_dialogue();
 
 void CAT_gui_tick();
 void CAT_gui_render();
-
-
-//////////////////////////////////////////////////////////////////////////
-// TEXT (LEGACY)
-
-typedef enum
-{
-	CAT_TEXT_FLAG_NONE = 0,
-	CAT_TEXT_FLAG_WRAP = (1 << 0),
-	CAT_TEXT_FLAG_CENTER = (1 << 1), 
-	CAT_TEXT_FLAG_VERTICAL = (1 << 2)
-} CAT_text_flag_depr;
-
-void CAT_set_text_flags_depr(int flags);
-void CAT_set_text_colour_depr(uint16_t colour);
-void CAT_set_text_scale_depr(uint8_t scale);
-void CAT_set_text_mask_depr(int x0, int y0, int x1, int y1);
-
-int CAT_draw_text_depr(int x, int y, const char* text);
-int CAT_draw_textf_depr(int x, int y, const char* fmt, ...);
-size_t CAT_get_drawn_strlen_depr();
-
-#define CAT_FLOAT_FMT "%d.%2.2u"
-#define CAT_FMT_FLOAT(f) (int) (f), ((unsigned)(100 * ((f) - (int) (f))) % 100)
-#define CAT_LINE_CAPACITY(l, r, w) ((CAT_LCD_SCREEN_W - (l + r))/w)

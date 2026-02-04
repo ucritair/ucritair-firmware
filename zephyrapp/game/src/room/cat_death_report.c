@@ -5,6 +5,7 @@
 #include "cat_render.h"
 #include "cat_gui.h"
 #include "cat_gizmos.h"
+#include "cat_text.h"
 
 static float exit_progress = 0;
 

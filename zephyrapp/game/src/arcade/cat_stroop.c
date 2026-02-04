@@ -14,6 +14,7 @@
 #include "cat_wifi.h"
 #include "cat_leaderboard.h"
 #include "cat_crypto.h"
+#include "cat_text.h"
 
 #define CHALLENGES_PER_PHASE 8
 
@@ -97,13 +98,11 @@ static void MS_survey(CAT_FSM_signal signal)
 			for(int i = 0; i < SURVEY_COUNT; i++)
 				survey_set_answer(i, 0);
 			survey_idx = 0;
-			CAT_gui_menu_force_reset();
 		}
 		break;
 
 		case CAT_FSM_SIGNAL_TICK:
 		{
-			CAT_gui_menu_disable_wrap();
 			if(CAT_gui_begin_menu("SURVEY"))
 			{
 				if(survey_idx == 0)
@@ -141,7 +140,6 @@ static void MS_survey(CAT_FSM_signal signal)
 					if(survey_idx < SURVEY_COUNT-1)
 					{
 						survey_idx += 1;
-						CAT_gui_menu_force_reset();
 					}
 					else
 					{
@@ -969,20 +967,31 @@ void CAT_MS_stroop(CAT_FSM_signal signal)
 	switch (signal)
 	{
 		case CAT_FSM_SIGNAL_ENTER:
+		{
 			CAT_set_render_callback(CAT_render_stroop);
 			load_co2();
-			change_phase(PHASE_WORDS);
+			//change_phase(PHASE_WORDS);
+			CAT_FSM_transition(&fsm, MS_survey);
+		}
 		break;
 
 		case CAT_FSM_SIGNAL_TICK:
 		{
-			if(CAT_gui_popup_is_open())
+			if(CAT_GUI_begin_window("exit", 12, CAT_LCD_SCREEN_H/4, CAT_LCD_SCREEN_W-12, 3*CAT_LCD_SCREEN_H/4))
+			{
+				CAT_GUI_text("Quit this Stroop test?\n");
+				if(CAT_GUI_option("YES"))
+				{
+					CAT_pushdown_pop();
+					CAT_GUI_close_current_window();
+				}
+				if(CAT_GUI_option("NO"))
+					CAT_GUI_close_current_window();
+				CAT_GUI_end_window();
 				return;
-			if(CAT_gui_consume_popup())
-				CAT_pushdown_pop();
-			
+			}
 			if(CAT_input_pressed(CAT_BUTTON_B))
-				CAT_gui_open_popup("Quit this Stroop test?", CAT_POPUP_STYLE_YES_NO);
+				CAT_GUI_open_window("exit");
 
 			CAT_FSM_tick(&fsm);
 			if(fsm.state == NULL)

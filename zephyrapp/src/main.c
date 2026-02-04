@@ -34,6 +34,7 @@ LOG_MODULE_REGISTER(sample, LOG_LEVEL_INF);
 #include "batt.h"
 #include "epaper_rendering.h"
 #include "rp2350_ipc.h"
+#include "power_control.h"
 
 int main(void)
 {
@@ -97,8 +98,9 @@ int main(void)
 		if (get_battery_pct() <= 5)
 		{
 			LOG_INF("Battery low on timer wake");
-			epaper_render_protected_off();
-			power_off(0, true);
+			CAT_eink_draw_power_off();
+			CAT_eink_update(true);
+			CAT_shutdown();
 		}
 
 		bool trying_to_take_nox_reading = nox_sample_period != 0 && (nox_sample_counter == (nox_sample_period-1));
@@ -158,21 +160,26 @@ int main(void)
 
 				LOG_INF("readings ready");
 				k_msleep(20);
+
+				//if(!(persist_flags & CAT_PERSIST_CONFIG_FLAG_PAUSE_LOGGING))
 				populate_next_log_cell();
+
 				LOG_INF("update eink");
 				k_msleep(20);
 				CAT_eink_draw_default();
 				CAT_eink_update(false);
+
 				LOG_INF("power off");
 				k_msleep(20);
 				// Guard before sleeping in case battery sagged during this wake.
 				if (get_battery_pct() <= 5)
 				{
 					LOG_INF("Battery low after timer wake work");
-					epaper_render_protected_off();
-					power_off(0, true);
+					CAT_eink_draw_power_off();
+					CAT_eink_update(true);
+					CAT_shutdown();
 				}
-				power_off(sensor_wakeup_period*1000, false);
+				CAT_sleep();
 			}
 
 			if (cycle > (120000/CYCLE_TIME))
@@ -183,10 +190,11 @@ int main(void)
 				if (get_battery_pct() <= 5)
 				{
 					LOG_INF("Battery low after timer wake work");
-					epaper_render_protected_off();
-					power_off(0, true);
+					CAT_eink_draw_power_off();
+					CAT_eink_update(true);
+					CAT_shutdown();
 				}
-				power_off(sensor_wakeup_period*1000, false);
+				CAT_sleep();
 			}
 		}
 	}

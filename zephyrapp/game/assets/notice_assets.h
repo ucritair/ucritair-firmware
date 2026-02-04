@@ -1,0 +1,27 @@
+#pragma once
+
+#include "cat_notices.h"
+
+typedef enum
+{
+	CAT_CONTENT_TAG_NONE = 0,
+	CAT_CONTENT_TAG_AQ_GOOD = (1 << 0),
+	CAT_CONTENT_TAG_CO2_BAD = (1 << 1),
+	CAT_CONTENT_TAG_PM_BAD = (1 << 2),
+	CAT_CONTENT_TAG_NOX_VOC_BAD = (1 << 3),
+	CAT_CONTENT_TAG_TEMP_BAD = (1 << 4),
+	CAT_CONTENT_TAG_RH_BAD = (1 << 5),
+	CAT_CONTENT_TAG_STATS_GOOD = (1 << 6),
+	CAT_CONTENT_TAG_STATS_BAD = (1 << 7),
+	CAT_CONTENT_TAG_SPRING = (1 << 8),
+	CAT_CONTENT_TAG_SUMMER = (1 << 9),
+	CAT_CONTENT_TAG_AUTUMN = (1 << 10),
+	CAT_CONTENT_TAG_WINTER = (1 << 11),
+	CAT_CONTENT_TAG_MORNING = (1 << 12),
+	CAT_CONTENT_TAG_DAY = (1 << 13),
+	CAT_CONTENT_TAG_NIGHT = (1 << 14),
+	CAT_CONTENT_TAG_PET_DEAD = (1 << 15),
+} CAT_content_tag;
+
+extern const CAT_notice CAT_notice_list[];
+#define CAT_NOTICE_COUNT 56

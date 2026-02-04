@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include "cat_input.h"
 #include "cat_persist.h"
+#include "cat_text.h"
 
 #define MODULE_NAME "CAT_wifi"
 #define MODULE_PREFIX "["MODULE_NAME"] "

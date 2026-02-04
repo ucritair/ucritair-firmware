@@ -6,6 +6,7 @@
 #include <stdarg.h>
 #include "cat_air.h"
 #include "cat_monitor_graphics_utils.h"
+#include "cat_text.h"
 
 #define TITLE_Y 44
 

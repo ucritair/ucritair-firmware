@@ -13,6 +13,7 @@
 #include "cat_pet.h"
 #include "cat_item.h"
 #include "cat_gizmos.h"
+#include "cat_text.h"
 
 #define SCREEN_DIAG 400
 #define BLACK_OUT_DURATION 1.0f
@@ -714,17 +715,21 @@ static CAT_ivec2 hook_jitter;
 
 static bool quit_popup()
 {
-	if (CAT_gui_popup_is_open())
-		return true;
-
-	if (CAT_input_pressed(CAT_BUTTON_B))
-		CAT_gui_open_popup("Quit fishing?\nYou will lose this\ncatch!\n", CAT_POPUP_STYLE_YES_NO);
-	if (CAT_gui_consume_popup())
+	if(CAT_GUI_begin_window("exit", 12, CAT_LCD_SCREEN_H/4, CAT_LCD_SCREEN_W-12, 3*CAT_LCD_SCREEN_H/4))
 	{
-		CAT_pushdown_pop();
+		CAT_GUI_text("Quit fishing?\nYou will lose this catch!\n");
+		if(CAT_GUI_option("YES"))
+		{
+			CAT_pushdown_pop();
+			CAT_GUI_close_current_window();
+		}
+		if(CAT_GUI_option("NO"))
+			CAT_GUI_close_current_window();
+		CAT_GUI_end_window();
 		return true;
 	}
-
+	if (CAT_input_pressed(CAT_BUTTON_B))
+		CAT_GUI_open_window("exit");
 	return false;
 }
 
@@ -754,7 +759,7 @@ static void MS_fish(CAT_FSM_signal signal)
 		{
 			if(quit_popup())
 				break;
-
+				
 			if(!fish.nibble_trigger)
 			{
 				float speed = 96 * CAT_get_delta_time_s();

@@ -10,6 +10,7 @@
 #include "sprite_assets.h"
 #include "cat_gizmos.h"
 #include "cat_time.h"
+#include "cat_text.h"
 
 #define M_PI_6 0.52359877559
 

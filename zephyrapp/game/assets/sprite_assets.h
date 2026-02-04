@@ -278,7 +278,8 @@ extern const CAT_sprite ingr_paper_sprite;
 extern const CAT_sprite ingr_salt_sprite;
 extern const CAT_sprite ingr_sand_sprite;
 extern const CAT_sprite ingr_sugar_sprite;
+extern const CAT_sprite ui_battery_12px;
 
 extern const CAT_sprite* CAT_sprite_list[];
-#define CAT_SPRITE_COUNT 274
+#define CAT_SPRITE_COUNT 275
 

@@ -5,32 +5,38 @@ wifi=false
 clean=false
 OPTIONS=""
 
-for var in "$@"
-do
-	if [ $var == "--embedded" ]; then
-		embedded=true
-	fi
-	if [ $var == "--aq-first" ]; then
-		aq_first=true
-		OPTIONS="${OPTIONS} -DAQ_FIRST=ON"
-	fi
-	if [ $var == "--radio" ]; then
-		radio=true
-		OPTIONS="${OPTIONS} -DRADIO=ON"
-	fi
-	if [ $var == "--wifi" ]; then
-		wifi=true
-		OPTIONS="${OPTIONS} -DWIFI=ON"
-	fi
-	if [ $var == "--clean" ]; then
-		clean=true
-	fi
+while true; do
+	case "$1" in
+		--embedded )
+			embedded=true;
+			shift ;;
+		--aq-first )
+			aq_first=true;
+			OPTIONS="${OPTIONS} -DAQ_FIRST=ON";
+			shift ;;
+		--radio )
+			radio=true;
+			OPTIONS="${OPTIONS} -DRADIO=ON";
+			shift ;;
+		--wifi )
+			wifi=true;
+			OPTIONS="${OPTIONS} -DWIFI=ON";
+			shift ;;
+		--research-only )
+			OPTIONS="${OPTIONS} -DRESEARCH_ONLY=ON";
+			shift; shift ;;
+		--clean )
+			clean=true;
+			shift ;;
+		-- ) shift; break ;;
+		* ) break ;;
+	esac
 done
 
 if $clean; then
 	trash ../build
 	trash build
-	trash utils/build_cache
+	trash utils/cache
 	trash assets
 fi
 
@@ -40,8 +46,8 @@ fi
 if [ ! -d build ]; then
 	mkdir build
 fi
-if [ ! -d utils/build_cache ]; then
-	mkdir utils/build_cache
+if [ ! -d utils/cache ]; then
+	mkdir utils/cache
 fi
 if [ ! -d assets ]; then
 	mkdir assets
@@ -50,7 +56,7 @@ fi
 # INIT FILES
 if [ ! -f build/makefile ]; then
 	cd build
-	cmake ..
+	cmake .. $OPTIONS
 	cd ..
 fi
 
@@ -74,16 +80,16 @@ if $embedded ; then
 	cd ../game
 
 	if $wifi; then
-		cp ../build/zephyr/zephyr.signed.bin utils/build_cache/wifi.bin
+		cp ../build/zephyr/zephyr.signed.bin utils/cache/wifi.bin
 		echo "[BUILD] Cached WiFi build"
 	elif $radio; then
-		cp ../build/zephyr/zephyr.signed.bin utils/build_cache/radio.bin
+		cp ../build/zephyr/zephyr.signed.bin utils/cache/radio.bin
 		echo "[BUILD] Cached radio build"
 	else
-		cp ../build/zephyr/zephyr.signed.bin utils/build_cache/standard.bin
+		cp ../build/zephyr/zephyr.signed.bin utils/cache/standard.bin
 		echo "[BUILD] Cached standard build"
 	fi
-	cp ../build/zephyr/zephyr.signed.bin utils/build_cache/latest.bin
+	cp ../build/zephyr/zephyr.signed.bin utils/cache/latest.bin
 	echo "[BUILD] Cached latest build"
 fi
 

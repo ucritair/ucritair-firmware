@@ -17,10 +17,65 @@
 #include "cat_chat.h"
 #include "cat_radio.h"
 #include "cat_crypto.h"
+#include "cat_research.h"
 #include "cat_text.h"
 
 #include "sprite_assets.h"
 #include "tinysprite_assets.h"
+
+void CAT_render_dummy()
+{
+	CAT_frameberry(CAT_BLACK);
+
+	CAT_GUI_draw();
+}
+
+void CAT_MS_dummy(CAT_FSM_signal signal)
+{
+	static bool tripwire = false;
+
+	switch(signal)
+	{
+		case CAT_FSM_SIGNAL_ENTER:
+		{
+			CAT_set_render_callback(CAT_render_dummy);
+		}
+		break;
+
+		case CAT_FSM_SIGNAL_TICK:
+		{
+			int margin = 12;
+			int x0 = margin;
+			int y0 = margin;
+			int x1 = CAT_LCD_SCREEN_W-margin;
+			int y1 = CAT_LCD_SCREEN_H-margin;
+
+			if(!tripwire)
+			{
+				CAT_GUI_open_window("Main");
+				tripwire = true;
+			}
+
+			if(CAT_GUI_begin_window("Main", x0, y0, x1, y1))
+			{
+				CAT_GUI_text("Hello, world!");
+				CAT_GUI_text("This is the base window.");
+				if(CAT_GUI_option("SAY HELLO"))
+					CAT_printf("Hello, world!\n");
+				if(CAT_GUI_option("EXIT"))
+					CAT_GUI_close_current_window();
+				CAT_GUI_end_window();
+			}
+		}
+		break;
+
+		case CAT_FSM_SIGNAL_EXIT:
+		{
+			
+		}
+		break;
+	}
+}
 
 void CAT_init()
 {
@@ -33,9 +88,6 @@ void CAT_init()
 	CAT_radio_clear_buffer();
 	CAT_radio_start_modem();
 	CAT_radio_add_chanels();
-
-	/*if(telemetry_tx_timestamp == 0)
-		telemetry_tx_timestamp = CAT_get_RTC_now() - CAT_rand_int(0, CAT_RADIO_TELEMETRY_PERIOD * 0.75f);*/
 	
 	CAT_input_init();
 	CAT_rand_seed();
@@ -46,10 +98,14 @@ void CAT_init()
 
 	CAT_force_load();
 
+#ifdef CAT_RESEARCH_ONLY
+	CAT_pushdown_rebase(CAT_MS_research_screen);
+#else
 	if(persist_flags & CAT_PERSIST_CONFIG_FLAG_AQ_FIRST)
 		CAT_pushdown_rebase(CAT_MS_monitor);
 	else
 		CAT_pushdown_rebase(CAT_MS_room);
+#endif
 }
 
 void CAT_tick_logic()
@@ -62,27 +118,18 @@ void CAT_tick_logic()
 		
 	CAT_platform_tick();
 	CAT_input_tick();
-
+	CAT_GUI_new_frame();
 	CAT_radio_poll_RX(CAT_chat_RX_meowback);
-
 	CAT_AQ_tick();
 	CAT_AQ_crisis_tick();
-
-	/*if(CAT_AQ_sensors_initialized() && (CAT_get_RTC_now() - telemetry_tx_timestamp) > CAT_RADIO_TELEMETRY_PERIOD)
-	{
-		CAT_radio_telemetry_TX();
-		telemetry_tx_timestamp = CAT_get_RTC_now();
-	}*/
-
 	CAT_animator_tick();
+	
 	CAT_room_tick();
 	CAT_pet_tick();
-	
 	CAT_pushdown_tick();
 
 	CAT_gui_tick();
 	CAT_effects_tick();
-
 	CAT_orientation_tick();
 
 	if(CAT_eink_should_update())

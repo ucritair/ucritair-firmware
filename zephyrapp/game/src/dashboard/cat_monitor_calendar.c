@@ -12,6 +12,7 @@
 #include <time.h>
 #include "cat_monitor_graph.h"
 #include "cat_time.h"
+#include "cat_text.h"
 
 enum
 {

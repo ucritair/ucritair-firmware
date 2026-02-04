@@ -159,7 +159,14 @@ void check_rtc_init()
 		wifi_password[0] = '\0';
 		wifi_status = CAT_WIFI_CONNECTION_NONE;
 
+		last_sensor_timestamp = 0;
+		last_log_timestamp = 0;
+
 		persist_flags = CAT_PERSIST_CONFIG_FLAG_NONE;
+
+/*#if CAT_RESEARCH_ONLY
+		CAT_PERSIST_CONFIG_FLAG_PAUSE_LOGGING;
+#endif*/
 	}
 }
 

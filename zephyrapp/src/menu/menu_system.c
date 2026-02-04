@@ -8,7 +8,7 @@
 #include "cat_version.h"
 #include "cat_menu.h"
 #include "cat_item.h"
-#include "cat_item.h"
+#include "cat_text.h"
 
 #include "misc.h"
 #include "menu_time.h"
@@ -22,6 +22,7 @@
 #include "batt.h"
 #include "sprite_assets.h"
 #include "item_assets.h"
+#include "sensor_hal.h"
 
 #include <zephyr/kernel.h>
 
@@ -57,23 +58,6 @@ void menu_t_go_co2()
 	co2_calibration_start_time = k_uptime_get_32();
 }
 
-void menu_t_sleep()
-{
-	power_off(sensor_wakeup_period*1000, false);
-}
-
-void menu_t_power_off()
-{
-	epaper_render_protected_off();
-	power_off(0, true);
-}
-
-void menu_t_erase_logs()
-{
-	flash_erase_all_cells();
-	system_menu_note = "Done :)";
-}
-
 void menu_t_write_logs()
 {
 	enum sdcard_result res = write_log_to_sdcard();
@@ -96,29 +80,6 @@ void menu_t_write_logs()
  		system_menu_note = "Unknown error saving";
 }
 
-void menu_t_update_eink()
-{
-	epaper_render_test();
-	system_menu_note = "Done :)";
-}
-
-void menu_t_reset()
-{
-	cat_game_running = 0;
-	flash_nuke_tomas_save();
-	power_off(0, false);
-}
-
-void menu_t_bright_down()
-{
-	screen_brightness = MAX(screen_brightness-5, 10);
-}
-
-void menu_t_bright_up()
-{
-	screen_brightness = MIN(screen_brightness+5, BACKLIGHT_FULL);
-}
-
 struct entry
 {
 	const char* title;
@@ -126,15 +87,8 @@ struct entry
 } system_entries[] =
 {
 	{"SET CLOCK + LOG RATE", menu_t_go_time},
-	{"ERASE ON-DEVICE LOGS", menu_t_erase_logs},
 	{"WRITE LOGS TO SDCARD", menu_t_write_logs},
 	{"CALIBRATE CO2 SENSOR", menu_t_go_co2},
-//	{"BRIGHTNESS DOWN", menu_t_bright_down},
-//	{"BRIGHTNESS UP", menu_t_bright_up},
-//	{"UPDATE EINK", menu_t_update_eink},
-//	{"RESET GAME", menu_t_reset},
-//	{"POWER OFF", menu_t_power_off},
-//	{"SLEEP", menu_t_sleep},
 	{"BACK", menu_t_back}
 };
 #define NUM_MENU_ITEMS (sizeof(system_entries)/sizeof(system_entries[0]))

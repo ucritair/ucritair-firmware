@@ -18,13 +18,13 @@ if __name__ == '__main__':
 	radio = "--radio" in args;
 	standard = "--standard" in args;
 
-	image = "utils/build_cache/latest.bin"
+	image = "utils/cache/latest.bin"
 	if wifi:
-		image = "utils/build_cache/wifi.bin"
+		image = "utils/cache/wifi.bin"
 	elif radio:
-		image = "utils/build_cache/radio.bin"
+		image = "utils/cache/radio.bin"
 	elif standard:
-		image = "utils/build_cache/standard.bin"
+		image = "utils/cache/standard.bin"
 
 	try:
 		mp.freeze_support();

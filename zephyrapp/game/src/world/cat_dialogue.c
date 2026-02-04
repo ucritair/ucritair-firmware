@@ -5,6 +5,7 @@
 #include "cat_render.h"
 #include "cat_gui.h"
 #include "cat_input.h"
+#include "cat_text.h"
 
 static const CAT_dialogue_node* current = NULL;
 static uint8_t line_idx = 0;

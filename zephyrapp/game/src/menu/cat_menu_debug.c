@@ -14,10 +14,13 @@
 #include "cat_time.h"
 #include "cat_save.h"
 #include "cat_wifi.h"
+#include "cat_text.h"
+#include "cat_spriter.h"
 
 enum
 {
 	SYSTEM,
+	LOG,
 	TIME,
 	AQI,
 	LOGS,
@@ -96,12 +99,48 @@ void CAT_render_debug()
 #if CAT_WIFI_ENABLED
 			cursor_y = CAT_draw_text_depr(cursor_x, cursor_y, "[WiFi Enabled]\n");
 #endif
+#if CAT_RESEARCH_ONLY
+			cursor_y = CAT_draw_text_depr(cursor_x, cursor_y, "[Research-Only]\n");
+#endif
 
 
-			if(CAT_check_config_flags(CAT_SAVE_CONFIG_FLAG_DEVELOPER))
+			if(CAT_check_save_flags(CAT_SAVE_CONFIG_FLAG_DEVELOPER))
 				cursor_y = CAT_draw_text_depr(cursor_x, cursor_y, "[Developer mode]\n");
+		}
+		break;
 
-			cursor_y = CAT_draw_textf_depr(cursor_x, cursor_y, "Debug number: %d\n", CAT_get_debug_number());
+		case LOG:
+		{
+			CAT_frameberry(CAT_BLACK);
+			int cursor_x = 0;
+			int cursor_y = 0;
+
+			char* ptr = CAT_debug_log_ptr();
+			int lines = 0;
+			while(*ptr != '\0')
+			{
+				if(*ptr == '\n')
+					lines += 1;
+				ptr++;
+			}
+
+			ptr = CAT_debug_log_ptr();
+			while(*ptr != '\0')
+			{
+				if(*ptr == '\n')
+				{
+					cursor_y += 9;
+					cursor_x = 0;
+				}
+				else
+				{
+					int shift = CAT_min(CAT_LCD_SCREEN_H - (lines*9), 0);
+					int scrolled_y = cursor_y + shift;
+					CAT_draw_tinyglyph(cursor_x, scrolled_y, *ptr, CAT_WHITE);
+					cursor_x += 8;
+				}
+				ptr++;
+			}
 		}
 		break;
 		

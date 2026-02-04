@@ -11,7 +11,7 @@ LOG_MODULE_REGISTER(sdcard, LOG_LEVEL_DBG);
 #include "sdcard.h"
 #include "rtc.h"
 #include "flash.h"
-#include "cat_gui.h"
+#include "cat_text.h"
 
 /*
  *  Note the fatfs library is able to mount only strings inside _VOLUME_STRS

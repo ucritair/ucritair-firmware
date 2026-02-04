@@ -2773,6 +2773,16 @@
             "height": 32,
             "loop": false,
             "reverse": false
+        },
+        {
+            "id": 274,
+            "name": "ui_battery_12px",
+            "path": "ui/battery_indicator_12px.png",
+            "frames": 5,
+            "width": 32,
+            "height": 32,
+            "loop": false,
+            "reverse": false
         }
     ]
 }

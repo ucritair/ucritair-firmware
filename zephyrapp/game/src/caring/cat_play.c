@@ -37,12 +37,6 @@ void CAT_MS_play(CAT_FSM_signal signal)
 			{
 				CAT_gui_begin_item_grid();
 				CAT_gui_item_grid_add_tab("Toys", NULL, select_toy);
-				/*for(int i = 0; i < item_table.length; i++)
-				{
-					CAT_item* item = CAT_get_item(i);
-					if(item->type == CAT_ITEM_TYPE_TOOL && item->tool_type == CAT_TOOL_TYPE_TOY)
-						CAT_gui_item_grid_cell(i);
-				}*/
 				CAT_gui_item_grid_cell(toy_laser_pointer_item);
 			}
 			else if(toy_id == toy_laser_pointer_item)

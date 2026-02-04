@@ -1,0 +1,324 @@
+[
+    {
+        "string": "A fresh breeze blows",
+        "tags": [
+            "AQ_GOOD"
+        ]
+    },
+    {
+        "string": "The critter breathes gently",
+        "tags": [
+            "AQ_GOOD"
+        ]
+    },
+    {
+        "string": "There is the faintest scent of flowers on the air",
+        "tags": [
+            "AQ_GOOD"
+        ]
+    },
+    {
+        "string": "The critter look dazed",
+        "tags": [
+            "CO2_BAD"
+        ]
+    },
+    {
+        "string": "The critter takes an uneasy breath",
+        "tags": [
+            "CO2_BAD"
+        ]
+    },
+    {
+        "string": "A stagnant atmosphere hangs",
+        "tags": [
+            "CO2_BAD"
+        ]
+    },
+    {
+        "string": "A thick haze hangs",
+        "tags": [
+            "PM_BAD"
+        ]
+    },
+    {
+        "string": "The critter wheezes",
+        "tags": [
+            "PM_BAD"
+        ]
+    },
+    {
+        "string": "The critter's eyes water",
+        "tags": [
+            "PM_BAD"
+        ]
+    },
+    {
+        "string": "A gaseous smell wafts by",
+        "tags": [
+            "NOX_VOC_BAD"
+        ]
+    },
+    {
+        "string": "Fumes, perhaps from burning fuel",
+        "tags": [
+            "NOX_VOC_BAD"
+        ]
+    },
+    {
+        "string": "The creature sniffs at something chemical",
+        "tags": [
+            "NOX_VOC_BAD"
+        ]
+    },
+    {
+        "string": "The critter pants rapidly",
+        "tags": [
+            "TEMP_BAD"
+        ]
+    },
+    {
+        "string": "A wave of intense heat rolls by",
+        "tags": [
+            "TEMP_BAD"
+        ]
+    },
+    {
+        "string": "An egg sizzles on pavement",
+        "tags": [
+            "TEMP_BAD"
+        ]
+    },
+    {
+        "string": "Mosquitos swarm the muggy air",
+        "tags": [
+            "RH_BAD"
+        ]
+    },
+    {
+        "string": "The walls almost feel damp",
+        "tags": [
+            "RH_BAD"
+        ]
+    },
+    {
+        "string": "The critter wishes it could sweat",
+        "tags": [
+            "RH_BAD"
+        ]
+    },
+    {
+        "string": "The critter flexes, energetic and ready",
+        "tags": [
+            "STATS_GOOD"
+        ]
+    },
+    {
+        "string": "The critter is thinking about something intently",
+        "tags": [
+            "STATS_GOOD"
+        ]
+    },
+    {
+        "string": "The critter dances playfully",
+        "tags": [
+            "STATS_GOOD"
+        ]
+    },
+    {
+        "string": "The critter's shoulders slump with exhaustion",
+        "tags": [
+            "STATS_BAD"
+        ]
+    },
+    {
+        "string": "The critter is distractedly fidgeting",
+        "tags": [
+            "STATS_BAD"
+        ]
+    },
+    {
+        "string": "The critter sports a sour look",
+        "tags": [
+            "STATS_BAD"
+        ]
+    },
+    {
+        "string": "Crickets sing a droning song",
+        "tags": [
+            "SPRING"
+        ]
+    },
+    {
+        "string": "A chickadee's call tumbles over itself",
+        "tags": [
+            "SPRING"
+        ]
+    },
+    {
+        "string": "A bluejay's cry pierces the cool air",
+        "tags": [
+            "SPRING"
+        ]
+    },
+    {
+        "string": "The calling of cicadas penetrates the stones",
+        "tags": [
+            "SUMMER"
+        ]
+    },
+    {
+        "string": "A warm wind cushions you",
+        "tags": [
+            "SUMMER"
+        ]
+    },
+    {
+        "string": "Somewhere, waves crash on sand",
+        "tags": [
+            "SUMMER"
+        ]
+    },
+    {
+        "string": "Leaves rustle somewhere nearby",
+        "tags": [
+            "AUTUMN"
+        ]
+    },
+    {
+        "string": "A cool and dry wind blows a twig over stones",
+        "tags": [
+            "AUTUMN"
+        ]
+    },
+    {
+        "string": "An owl looses a mournful call",
+        "tags": [
+            "AUTUMN"
+        ]
+    },
+    {
+        "string": "Snow falls, blanketing the world",
+        "tags": [
+            "WINTER"
+        ]
+    },
+    {
+        "string": "What light remains glitters in the ice",
+        "tags": [
+            "WINTER"
+        ]
+    },
+    {
+        "string": "The smell of spices warms you",
+        "tags": [
+            "WINTER"
+        ]
+    },
+    {
+        "string": "Sunlight beams in from the world",
+        "tags": [
+            "MORNING"
+        ]
+    },
+    {
+        "string": "The waking city calls out to you",
+        "tags": [
+            "MORNING"
+        ]
+    },
+    {
+        "string": "A train speeds its charges to work",
+        "tags": [
+            "MORNING"
+        ]
+    },
+    {
+        "string": "A rooster crows proudly",
+        "tags": [
+            "MORNING"
+        ]
+    },
+    {
+        "string": "The critter yawns prematurely",
+        "tags": [
+            "DAY"
+        ]
+    },
+    {
+        "string": "A shop door jingles as it opens",
+        "tags": [
+            "DAY"
+        ]
+    },
+    {
+        "string": "A freight train's great body slithers past",
+        "tags": [
+            "DAY"
+        ]
+    },
+    {
+        "string": "A man calls out for a taxi",
+        "tags": [
+            "DAY"
+        ]
+    },
+    {
+        "string": "Jazz wafts in from a dimly lit bar",
+        "tags": [
+            "NIGHT"
+        ]
+    },
+    {
+        "string": "The sound of laughter and clinking glass is heard",
+        "tags": [
+            "NIGHT"
+        ]
+    },
+    {
+        "string": "A cat meows just once at the moon",
+        "tags": [
+            "NIGHT"
+        ]
+    },
+    {
+        "string": "The last train speeds home",
+        "tags": [
+            "NIGHT"
+        ]
+    },
+    {
+        "string": "A grave egg feels no pain",
+        "tags": [
+            "PET_DEAD"
+        ]
+    },
+    {
+        "string": "A distant bell sounds",
+        "tags": []
+    },
+    {
+        "string": "An evil star is shining",
+        "tags": []
+    },
+    {
+        "string": "A salamander scurries into flame to be destroyed",
+        "tags": []
+    },
+    {
+        "string": "The dead dream that they live",
+        "tags": []
+    },
+    {
+        "string": "The vending machine hums softly",
+        "tags": []
+    },
+    {
+        "string": "The arcade lets loose a single beep",
+        "tags": []
+    },
+    {
+        "string": "A smaller critter scurries across the floor",
+        "tags": []
+    }
+]

@@ -36,8 +36,11 @@ typedef enum
 	CAT_DATE_PART_COUNT
 } CAT_date_part;
 
+typedef uint64_t CAT_timestamp;
+
 #define NULL_DATE (CAT_datetime) {0, 0, 0, 0, 0, 0};
 
+void CAT_set_datetime(CAT_datetime datetime);
 void CAT_get_datetime(CAT_datetime* datetime);
 int CAT_datecmp(CAT_datetime* a, CAT_datetime* b);
 int CAT_timecmp(CAT_datetime* a, CAT_datetime* b);

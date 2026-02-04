@@ -17,6 +17,8 @@
 #include "imu.h"
 #include <zephyr/sys/timeutil.h>
 #include "cat_save.h"
+#include "sdcard.h"
+#include "sensor_hal.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // CORE
@@ -214,13 +216,16 @@ uint64_t CAT_get_RTC_now()
 	return get_current_rtc_time();
 }
 
-void CAT_set_date(CAT_datetime date)
+void CAT_set_datetime(CAT_datetime date)
 {
 	struct tm t = {
 		.tm_year = date.year - TIME_UTILS_BASE_YEAR + (2024 - 124),
 		// WHAT THE FUCK is going on here. I don't care.
 		.tm_mon = date.month-1,
-		.tm_mday = date.day
+		.tm_mday = date.day,
+		.tm_hour = date.hour,
+		.tm_min = date.minute,
+		.tm_sec = date.second
 	};
 	set_rtc_counter(&t);
 }
@@ -302,9 +307,25 @@ void CAT_force_log_cell_write()
 	populate_next_log_cell();
 }
 
-void CAT_erase_log_cells()
+void CAT_erase_logs()
 {
 	flash_erase_all_cells();
+}
+
+CAT_SD_write_result CAT_write_logs_to_SD()
+{
+	enum sdcard_result res = write_log_to_sdcard();
+	switch(res)
+	{
+		case OK: return CAT_SD_WRITE_OKAY;
+		case FAIL_INIT: return CAT_SD_WRITE_INIT_FAILED;
+		case FAIL_MOUNT: return CAT_SD_WRITE_MOUNT_FAILED;
+		case FAIL_WRITE: return CAT_SD_WRITE_WRITE_FAILED;
+		case FAIL_MKDIR: return CAT_SD_WRITE_MKDIR_FAILED;
+		case FAIL_CREATE: return CAT_SD_WRITE_CREATE_FAILED;
+		case FAIL_CLOSE: return CAT_SD_WRITE_CLOSE_FAILED;
+		default: return CAT_SD_WRITE_UNKNOWN_FAILURE;
+	}
 }
 
 
@@ -343,11 +364,29 @@ void CAT_shutdown()
 	power_off(0, true);
 }
 
-void CAT_factory_reset()
+void CAT_reset_save()
 {
 	cat_game_running = 0;
 	flash_nuke_tomas_save();
 	power_off(0, false);
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// AIR QUALITY
+
+void CAT_force_sensor_read(int sensor)
+{
+	switch(sensor)
+	{
+		case CAT_SENSOR_SUNRISE:
+		{
+			force_abc_sunrise();
+		}
+		break;
+
+		default: break;
+	}
 }
 
 
@@ -381,4 +420,6 @@ void CAT_printf(const char* fmt, ...)
 	int printed = vsnprintf(debug_print_buffer, sizeof(debug_print_buffer), fmt, args);
 	va_end(args);
 	printk("%s", debug_print_buffer);
+
+	CAT_debug_log(debug_print_buffer);
 }

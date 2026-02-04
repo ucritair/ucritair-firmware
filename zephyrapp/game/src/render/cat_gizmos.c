@@ -5,6 +5,7 @@
 #include "cat_gui.h"
 #include "cat_input.h"
 #include "cat_spriter.h"
+#include "cat_text.h"
 
 void CAT_draw_regular_polygon(int n, int x, int y, int r, float t, uint16_t c)
 {
@@ -319,14 +320,6 @@ void CAT_draw_lock(int x, int y, int r, float t, uint16_t c)
 
 void CAT_draw_dpad(int x, int y, int R, int mask, uint16_t cf, uint16_t cb)
 {
-	static int bits[] =
-	{
-		CAT_BUTTON_BIT(CAT_BUTTON_RIGHT),
-		CAT_BUTTON_BIT(CAT_BUTTON_UP),
-		CAT_BUTTON_BIT(CAT_BUTTON_LEFT),
-		CAT_BUTTON_BIT(CAT_BUTTON_DOWN),
-	};
-
 	int hypot = CAT_sqrt(2)*R;
 	int max_r = hypot/2;
 	int min_r = CAT_min(max_r, 8);

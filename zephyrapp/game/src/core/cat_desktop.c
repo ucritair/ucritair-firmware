@@ -459,8 +459,6 @@ void CAT_eink_update(bool force_full_write)
 	CAT_printf("[CALL] CAT_eink_update\n");
 	CAT_msleep(500);
 
-	CAT_eink_draw_default();
-
 	CAT_sim_bind_screen(&eink);
 
 	transform_eink_fb();
@@ -603,7 +601,7 @@ uint64_t CAT_get_RTC_now()
 	return timegm(&tm);
 }
 
-void CAT_set_date(CAT_datetime date)
+void CAT_set_datetime(CAT_datetime date)
 {
 	return;
 }
@@ -749,9 +747,15 @@ void CAT_force_log_cell_write()
 	return;
 }
 
-void CAT_erase_log_cells()
+void CAT_erase_logs()
 {
+	CAT_printf("[CALL] CAT_erase_logs\n");
 	return;
+}
+
+CAT_SD_write_result CAT_write_logs_to_SD()
+{
+	return CAT_SD_WRITE_INIT_FAILED;
 }
 
 
@@ -788,10 +792,19 @@ void CAT_shutdown()
 	glfwSetWindowShouldClose(lcd.window, true);
 }
 
-void CAT_factory_reset()
+void CAT_reset_save()
 {
 	CAT_set_load_flags(CAT_LOAD_FLAG_DIRTY);
 	CAT_set_load_flags(CAT_LOAD_FLAG_DEFAULT);
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// AIR QUALITY
+
+void CAT_force_sensor_read(int sensor)
+{
+	CAT_printf("[CALL] CAT_force_sensor_read\n");
 }
 
 
@@ -824,5 +837,9 @@ void CAT_printf(const char* fmt, ...)
 	va_list args;
 	va_start(args, fmt);
 	vdprintf(STDOUT_FILENO, fmt, args);
+	char buf[128];
+	vsnprintf(buf, sizeof(buf), fmt, args);
 	va_end(args);
+
+	CAT_debug_log(buf);
 }

@@ -11,12 +11,6 @@ void CAT_render_insights();
 void CAT_MS_manual(CAT_FSM_signal signal);
 void CAT_render_manual();
 
-void CAT_MS_magic(CAT_FSM_signal signal);
-void CAT_render_magic();
-
-void CAT_MS_hedron(CAT_FSM_signal signal);
-void CAT_render_hedron();
-
 void CAT_MS_debug(CAT_FSM_signal signal);
 void CAT_render_debug();
 

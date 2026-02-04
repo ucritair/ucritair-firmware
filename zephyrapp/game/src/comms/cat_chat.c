@@ -11,6 +11,7 @@
 #include "cat_curves.h"
 #include "cat_gizmos.h"
 #include "tinysprite_assets.h"
+#include "cat_text.h"
 
 #if CAT_RADIO_ENABLED
 #include "meshtastic/mesh.pb.h"
@@ -167,10 +168,19 @@ void CAT_MS_chat(CAT_FSM_signal signal)
 				CAT_timed_latch_tick(&notif_latch);
 			}
 
-			if(CAT_gui_popup_is_open())
+			if(CAT_GUI_begin_window("exit", 12, CAT_LCD_SCREEN_H/4, CAT_LCD_SCREEN_W-12, 3*CAT_LCD_SCREEN_H/4))
+			{
+				CAT_GUI_text("End this chat session?\n");
+				if(CAT_GUI_option("YES"))
+				{
+					CAT_pushdown_pop();
+					CAT_GUI_close_current_window();
+				}
+				if(CAT_GUI_option("NO"))
+					CAT_GUI_close_current_window();
+				CAT_GUI_end_window();
 				return;
-			if(CAT_gui_consume_popup())
-				CAT_pushdown_pop();
+			}
 			
 			if(CAT_gui_keyboard_is_open())
 				return;
@@ -239,7 +249,7 @@ void CAT_MS_chat(CAT_FSM_signal signal)
 			}
 
 			if(CAT_input_pressed(CAT_BUTTON_B))
-				CAT_gui_open_popup("Quit chat?", CAT_POPUP_STYLE_YES_NO);
+				CAT_GUI_open_window("exit");
 		}
 		break;
 		

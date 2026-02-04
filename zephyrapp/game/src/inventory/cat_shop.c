@@ -7,6 +7,7 @@
 #include "cat_curves.h"
 #include "cat_gizmos.h"
 #include <stdio.h>
+#include "cat_text.h"
 
 #define INSPECTOR_BG_COLOUR CAT_RGB8882565(142, 171, 174)
 #define INSPECTOR_MARGIN 8
@@ -82,41 +83,50 @@ void CAT_MS_checkout(CAT_FSM_signal signal)
 		}
 		case CAT_FSM_SIGNAL_TICK:
 		{
-			if(CAT_gui_popup_is_open())
-				return;
-			if(CAT_gui_consume_popup())
+			if(CAT_GUI_begin_window("buy_confirm", 12, CAT_LCD_SCREEN_H/4, CAT_LCD_SCREEN_W-12, 3*CAT_LCD_SCREEN_H/4))
 			{
-				CAT_inventory_add(checkout_id, purchase_qty);
-				CAT_inventory_remove(coin_item, item_table.data[checkout_id].price * purchase_qty);
-				purchase_qty = 1;
+				CAT_GUI_text("Purchase %d of %s?", purchase_qty, item_table.data[checkout_id].name);
+
+				if(CAT_GUI_option("YES"))
+				{
+					CAT_inventory_add(checkout_id, purchase_qty);
+					CAT_inventory_remove(coin_item, item_table.data[checkout_id].price * purchase_qty);
+					purchase_qty = 1;
+					CAT_GUI_close_current_window();
+				}
+				if(CAT_GUI_option("NO"))
+				{
+					CAT_GUI_close_current_window();
+				}
+
+				CAT_GUI_end_window();
 			}
-
-			if(CAT_input_pressed(CAT_BUTTON_B))
-				CAT_pushdown_pop();
-
-			if(CAT_input_pulse(CAT_BUTTON_LEFT))
-				purchase_qty -= 1;
-			if(CAT_input_pulse(CAT_BUTTON_RIGHT))
-				purchase_qty += 1;
-			
-			int purchasable = CAT_inventory_count(coin_item) / item_table.data[checkout_id].price;
-			if(purchasable <= 0)
-				purchase_qty = 0;
 			else
 			{
-				int max_qty = CAT_min(purchasable, 99);
-				max_qty = CAT_min(max_qty, UINT16_MAX-item_table.counts[checkout_id]);
-				purchase_qty = CAT_clamp(purchase_qty, 1, max_qty);
-			}
+				if(CAT_input_pressed(CAT_BUTTON_B))
+					CAT_pushdown_pop();
 
-			if(CAT_input_pressed(CAT_BUTTON_A) && purchase_qty > 0)
-			{
-				static char buf[128];
-				snprintf(buf, 128, "Purchase %d of %s?", purchase_qty, item_table.data[checkout_id].name);
-				CAT_gui_open_popup(buf, CAT_POPUP_STYLE_YES_NO);
+				if(CAT_input_pulse(CAT_BUTTON_LEFT))
+					purchase_qty -= 1;
+				if(CAT_input_pulse(CAT_BUTTON_RIGHT))
+					purchase_qty += 1;
+				
+				int purchasable = CAT_inventory_count(coin_item) / item_table.data[checkout_id].price;
+				if(purchasable <= 0)
+					purchase_qty = 0;
+				else
+				{
+					int max_qty = CAT_min(purchasable, 99);
+					max_qty = CAT_min(max_qty, UINT16_MAX-item_table.counts[checkout_id]);
+					purchase_qty = CAT_clamp(purchase_qty, 1, max_qty);
+				}
+
+				if(CAT_input_pressed(CAT_BUTTON_A) && purchase_qty > 0)
+					CAT_GUI_open_window("buy_confirm");
 			}
-			break;
 		}
+		break;
+
 		case CAT_FSM_SIGNAL_EXIT:
 		{
 			break;
@@ -212,40 +222,48 @@ void CAT_MS_sale(CAT_FSM_signal signal)
 		}
 		case CAT_FSM_SIGNAL_TICK:
 		{
-			if(CAT_gui_popup_is_open())
-				return;
-			if(CAT_gui_consume_popup())
+			if(CAT_GUI_begin_window("sell_confirm", 12, CAT_LCD_SCREEN_H/4, CAT_LCD_SCREEN_W-12, 3*CAT_LCD_SCREEN_H/4))
 			{
-				CAT_inventory_remove(sale_id, sale_qty);
-				CAT_inventory_add(coin_item, item_table.data[sale_id].price * sale_qty);
-				sale_qty = 1;
+				CAT_GUI_text("Sell %d of %s?", sale_qty, item_table.data[sale_id].name);
+
+				if(CAT_GUI_option("YES"))
+				{
+					CAT_inventory_remove(sale_id, sale_qty);
+					CAT_inventory_add(coin_item, item_table.data[sale_id].price * sale_qty);
+					sale_qty = 1;
+					CAT_GUI_close_current_window();
+				}
+				if(CAT_GUI_option("NO"))
+				{
+					CAT_GUI_close_current_window();
+				}
+
+				CAT_GUI_end_window();
 			}
-
-			if(CAT_input_pressed(CAT_BUTTON_B))
-				CAT_pushdown_pop();
-
-			if(CAT_inventory_count(sale_id) > 0)
 			{
-				if(CAT_input_pulse(CAT_BUTTON_LEFT))
-					sale_qty -= 1;
-				if(CAT_input_pulse(CAT_BUTTON_RIGHT))
-					sale_qty += 1;
-				sale_qty = CAT_clamp(sale_qty, 1, CAT_inventory_count(sale_id));
-			}
-			else
-			{
-				sale_qty = 0;
-			}
 
-			if(CAT_input_pressed(CAT_BUTTON_A) && sale_qty > 0)
-			{
-				static char buf[128];
-				snprintf(buf, 128, "Sell %d of %s?", sale_qty, item_table.data[sale_id].name);
-				CAT_gui_open_popup(buf, CAT_POPUP_STYLE_YES_NO);
-			}
+				if(CAT_input_pressed(CAT_BUTTON_B))
+					CAT_pushdown_pop();
 
-			break;
+				if(CAT_inventory_count(sale_id) > 0)
+				{
+					if(CAT_input_pulse(CAT_BUTTON_LEFT))
+						sale_qty -= 1;
+					if(CAT_input_pulse(CAT_BUTTON_RIGHT))
+						sale_qty += 1;
+					sale_qty = CAT_clamp(sale_qty, 1, CAT_inventory_count(sale_id));
+				}
+				else
+				{
+					sale_qty = 0;
+				}
+
+				if(CAT_input_pressed(CAT_BUTTON_A) && purchase_qty > 0)
+					CAT_GUI_open_window("sell_confirm");
+			}	
 		}
+		break;
+
 		case CAT_FSM_SIGNAL_EXIT:
 		{
 			break;

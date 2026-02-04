@@ -5,6 +5,14 @@ project(app)
 set(ZEPHYRAPP_DIR ${CMAKE_CURRENT_BINARY_DIR}/../..)
 set(GAME_DIR ${ZEPHYRAPP_DIR}/game)
 
+option(AQ_FIRST "AQ_FIRST" OFF)
+option(WIFI "WIFI" OFF)
+option(RADIO "RADIO" OFF)
+option(RADIO "RADIO" OFF)
+
+option(RESEARCH_ONLY "RESEARCH_ONLY" OFF)
+set(RESEARCH_NAME "" CACHE STRING "")
+
 if(NOT TARGET app)
 	add_executable(app)
 
@@ -36,10 +44,6 @@ else()
 	message(WARNING "Building for embedded")
 	target_compile_definitions(app PRIVATE CAT_EMBEDDED=1)
 
-	option(AQ_FIRST "AQ_FIRST" OFF)
-	option(WIFI "WIFI" OFF)
-	option(RADIO "RADIO" OFF)
-
 	if(AQ_FIRST)
 		target_compile_definitions(app PRIVATE CAT_PRIORITIZE_AQ=1)
 		message(WARNING "Prioritizing AQ")
@@ -60,9 +64,12 @@ else()
 	)
 endif()
 
+if(RESEARCH_ONLY)
+	target_compile_definitions(app PRIVATE CAT_RESEARCH_ONLY=1)
+endif()
+
 function(asset_gen TYPE_NAME GEN_SCRIPT SRC_DATA)
 	target_sources(app PRIVATE ${GAME_DIR}/assets/${TYPE_NAME}_assets.c)
-	message(Adding ${GAME_DIR}/assets/${TYPE_NAME}_assets.c)
 	add_custom_command(
 		OUTPUT ${GAME_DIR}/assets/${TYPE_NAME}_assets.h ${GAME_DIR}/assets/${TYPE_NAME}_assets.c
 		WORKING_DIRECTORY ${GAME_DIR}/
@@ -83,6 +90,7 @@ asset_gen(dialogue generators/dialoguegen.py data/dialogue.json)
 asset_gen(dialogue_profile generators/dialogueprofilegen.py data/dialogue_profiles.json)
 asset_gen(prop generators/propgen.py data/props.json)
 asset_gen(scene generators/scenegen.py data/scenes.json)
+asset_gen(notice generators/noticegen.py data/notices.json)
 
 file(
 	GLOB GAME_SRC

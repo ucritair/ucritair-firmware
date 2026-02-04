@@ -10,6 +10,7 @@
 #include "cat_monitor_utils.h"
 #include "cat_time.h"
 #include "cat_monitor_calendar.h"
+#include "cat_text.h"
 
 static int view;
 static int16_t* values;
