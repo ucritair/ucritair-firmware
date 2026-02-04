@@ -90,6 +90,8 @@ if $embedded ; then
 		echo "[BUILD] Cached standard build"
 	fi
 	cp ../build/zephyr/zephyr.signed.bin utils/cache/latest.bin
+	version=$(utils/version.py tell | sed 's/Version//g; s/[[:space:]]//g; s/\./\_/g' /dev/stdin)
+	cp ../build/zephyr/zephyr.signed.bin utils/cache/$version.bin
 	echo "[BUILD] Cached latest build"
 fi
 
