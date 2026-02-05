@@ -2,4 +2,4 @@ build/
 *.dat
 imgui.ini
 NodeEditor.json
-utils/build_cache
+utils/cache
