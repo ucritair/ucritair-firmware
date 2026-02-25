@@ -201,6 +201,10 @@ void menu_post()
 	textfc(did_post_sdcard?POST_GRN:POST_RED,      "SD   %s", did_post_sdcard?"OK":"FAIL/NOTPRESENT");
 
 	text("");
+	if(CAT_check_save_flags(CAT_SAVE_CONFIG_FLAG_DEVELOPER))
+		selectable("Turn Dev Mode Off", developer, NULL);
+	else
+		selectable("Turn Dev Mode On", developer, NULL);
 #if !CAT_RESEARCH_ONLY
 	selectable("Test eInk", menu_test_eink, NULL);
 	selectable("Main Menu", goto_menu, menu_root);
@@ -208,11 +212,6 @@ void menu_post()
 	selectable("Protected Power Off", menu_power_off_protected, NULL);
 	if(CAT_check_save_flags(CAT_SAVE_CONFIG_FLAG_DEVELOPER))
 		selectable("Turnkey", turnkey, NULL);
-#else
-	if(CAT_check_save_flags(CAT_SAVE_CONFIG_FLAG_DEVELOPER))
-		selectable("Turn Dev Mode Off", developer, NULL);
-	else
-		selectable("Turn Dev Mode On", developer, NULL);
 #endif
 	selectable("Exit", exit_debug_menu, NULL);
 
