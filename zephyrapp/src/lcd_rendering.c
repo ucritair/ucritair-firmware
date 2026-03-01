@@ -17,6 +17,37 @@ LOG_MODULE_REGISTER(lcd_rendering, LOG_LEVEL_DBG);
 #include "epaper_rendering.h"
 #include "debugmenu.h"
 
+#include <zephyr/drivers/uart.h>
+#include <zephyr/sys/reboot.h>
+#include <hal/nrf_power.h>
+
+/* USB serial DFU trigger: polls console UART for the 4-byte DFU magic.
+ * When received, sets GPREGRET and reboots into MCUboot DFU mode.
+ * This lets the flash script trigger DFU over USB without BLE. */
+static void usb_dfu_poll(void)
+{
+	static const uint8_t magic[] = {0xCA, 0x7D, 0xF0, 0x01};
+	static uint8_t pos = 0;
+	const struct device *dev = DEVICE_DT_GET(DT_CHOSEN(zephyr_console));
+
+	if (!device_is_ready(dev))
+		return;
+
+	uint8_t c;
+	while (uart_poll_in(dev, &c) == 0) {
+		if (c == magic[pos]) {
+			pos++;
+			if (pos == sizeof(magic)) {
+				printk("USB_DFU: entering bootloader\n");
+				nrf_power_gpregret_set(NRF_POWER, 0, 0xB1);
+				sys_reboot(SYS_REBOOT_WARM);
+			}
+		} else {
+			pos = (c == magic[0]) ? 1 : 0;
+		}
+	}
+}
+
 #include "cat_pet.h"
 #include "cat_item.h"
 #include "cat_item.h"
@@ -135,6 +166,7 @@ void lcd_render_diag()
 #endif
 
 		ble_update();
+		usb_dfu_poll();
 
 		pet_mask = CAT_inventory_count(mask_item) > 0;
 		if (CAT_room_prop_lookup(prop_purifier_item) != -1 && CAT_room_prop_lookup(prop_uv_lamp_item) != -1)
