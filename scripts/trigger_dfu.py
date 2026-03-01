@@ -31,7 +31,7 @@ async def main(args):
     if device is None:
         print("Service UUID not in advertisement, trying by name...")
         device = await BleakScanner.find_device_by_filter(
-            lambda d, adv: d.name and "ucritair" in d.name.lower(),
+            lambda d, adv: d.name and "ucrit" in d.name.lower(),
             timeout=args.timeout,
         )
     if device is None:

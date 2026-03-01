@@ -212,11 +212,12 @@ The device broadcasts [BTHome v2](https://bthome.io/) sensor data in its adverti
 
 | Sensor | BTHome Object ID | Format |
 |--------|-----------------|--------|
+| Battery | `0x01` | uint8, % |
 | Temperature | `0x02` | sint16, factor 0.01°C |
 | Humidity | `0x03` | uint16, factor 0.01% |
-| CO2 | `0x12` | uint16, ppm |
 | PM2.5 | `0x0D` | uint16, µg/m³ |
 | PM10 | `0x0E` | uint16, µg/m³ |
+| CO2 | `0x12` | uint16, ppm |
 
 **Behavior**:
 - While awake: connectable advertising with BTHome data, refreshed every ~5s

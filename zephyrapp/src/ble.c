@@ -56,12 +56,13 @@
 static uint8_t bthome_svc_data[20] = {
 	BTHOME_UUID16_LO, BTHOME_UUID16_HI,
 	BTHOME_DEVICE_INFO,
-	BTHOME_OBJ_BATTERY,     0,
-	BTHOME_OBJ_TEMPERATURE, 0, 0,
-	BTHOME_OBJ_HUMIDITY,    0, 0,
-	BTHOME_OBJ_CO2,         0, 0,
-	BTHOME_OBJ_PM25,        0, 0,
-	BTHOME_OBJ_PM10,        0, 0,
+	/* BTHome v2 requires object IDs in ascending order */
+	BTHOME_OBJ_BATTERY,     0,         /* 0x01 */
+	BTHOME_OBJ_TEMPERATURE, 0, 0,     /* 0x02 */
+	BTHOME_OBJ_HUMIDITY,    0, 0,     /* 0x03 */
+	BTHOME_OBJ_PM25,        0, 0,     /* 0x0D */
+	BTHOME_OBJ_PM10,        0, 0,     /* 0x0E */
+	BTHOME_OBJ_CO2,         0, 0,     /* 0x12 */
 };
 
 bool ble_connected = false;
@@ -361,23 +362,18 @@ void update_bthome_adv_data(void)
 	uint16_t pm25 = (uint16_t)(readings.sen5x.pm2_5);
 	uint16_t pm10 = (uint16_t)(readings.sen5x.pm10_0);
 
-	/* Battery (uint8) */
-	bthome_svc_data[4] = batt;
-	/* Temperature (sint16 LE) */
-	bthome_svc_data[6] = (uint8_t)(temp & 0xFF);
+	/* Indices must match bthome_svc_data layout (ascending obj ID order) */
+	bthome_svc_data[4] = batt;                              /* [4]    battery  0x01 */
+	bthome_svc_data[6] = (uint8_t)(temp & 0xFF);            /* [6:7]  temp     0x02 */
 	bthome_svc_data[7] = (uint8_t)((temp >> 8) & 0xFF);
-	/* Humidity (uint16 LE) */
-	bthome_svc_data[9] = (uint8_t)(hum & 0xFF);
+	bthome_svc_data[9] = (uint8_t)(hum & 0xFF);             /* [9:10] humidity 0x03 */
 	bthome_svc_data[10] = (uint8_t)((hum >> 8) & 0xFF);
-	/* CO2 (uint16 LE) */
-	bthome_svc_data[12] = (uint8_t)(co2 & 0xFF);
-	bthome_svc_data[13] = (uint8_t)((co2 >> 8) & 0xFF);
-	/* PM2.5 (uint16 LE) */
-	bthome_svc_data[15] = (uint8_t)(pm25 & 0xFF);
-	bthome_svc_data[16] = (uint8_t)((pm25 >> 8) & 0xFF);
-	/* PM10 (uint16 LE) */
-	bthome_svc_data[18] = (uint8_t)(pm10 & 0xFF);
-	bthome_svc_data[19] = (uint8_t)((pm10 >> 8) & 0xFF);
+	bthome_svc_data[12] = (uint8_t)(pm25 & 0xFF);           /* [12:13] PM2.5   0x0D */
+	bthome_svc_data[13] = (uint8_t)((pm25 >> 8) & 0xFF);
+	bthome_svc_data[15] = (uint8_t)(pm10 & 0xFF);           /* [15:16] PM10    0x0E */
+	bthome_svc_data[16] = (uint8_t)((pm10 >> 8) & 0xFF);
+	bthome_svc_data[18] = (uint8_t)(co2 & 0xFF);            /* [18:19] CO2     0x12 */
+	bthome_svc_data[19] = (uint8_t)((co2 >> 8) & 0xFF);
 }
 
 /* ── Device config characteristic (0x0015) ──────────────────── */
@@ -385,10 +381,9 @@ struct __attribute__((__packed__)) ble_device_config {
 	uint16_t sensor_wakeup_period;
 	uint16_t sleep_after_seconds;
 	uint16_t dim_after_seconds;
-	uint16_t persist_flags;
 	uint8_t  nox_sample_period;
 	uint8_t  screen_brightness;
-	uint8_t  reserved[6];
+	uint64_t persist_flags;         /* matches cat_persist.h uint64_t */
 };
 
 static ssize_t read_config(struct bt_conn *conn, const struct bt_gatt_attr *attr,
@@ -399,9 +394,9 @@ static ssize_t read_config(struct bt_conn *conn, const struct bt_gatt_attr *attr
 		.sensor_wakeup_period = sensor_wakeup_period,
 		.sleep_after_seconds = sleep_after_seconds,
 		.dim_after_seconds = dim_after_seconds,
-		.persist_flags = persist_flags,
 		.nox_sample_period = nox_sample_period,
 		.screen_brightness = screen_brightness,
+		.persist_flags = persist_flags,
 	};
 	return bt_gatt_attr_read(conn, attr, buf, len, offset, &cfg, sizeof(cfg));
 }
@@ -652,12 +647,13 @@ static struct bt_data ad[] = {
 		      (CONFIG_BT_DEVICE_APPEARANCE >> 8) & 0xff),
 };
 
-/* Scan response: Name + service UUIDs */
+/* Scan response: Name + service UUIDs (7 + 6 + 18 = 31 bytes, exactly at limit) */
 static const struct bt_data sd[] = {
 	BT_DATA(BT_DATA_NAME_COMPLETE, CONFIG_BT_DEVICE_NAME, sizeof(CONFIG_BT_DEVICE_NAME) - 1),
 	BT_DATA_BYTES(BT_DATA_UUID16_ALL,
 		      BT_UUID_16_ENCODE(BT_UUID_ESS_VAL),
 		      BT_UUID_16_ENCODE(BT_UUID_BAS_VAL)),
+	BT_DATA_BYTES(BT_DATA_UUID128_ALL, BT_UUID_CUSTOM_SERVICE_VAL),
 };
 
 /* Timer-wake BLE broadcast: briefly advertise BTHome data for HA */
