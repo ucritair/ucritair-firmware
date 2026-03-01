@@ -9,6 +9,9 @@ services:
     volumes:
       - .:/ucritair-firmware
 
+    # Use the repo's entrypoint (the baked-in image has the old catenv.sh reference)
+    entrypoint: /ucritair-firmware/Dockerfile/entrypoint.sh
+
     # This sets the default directory when you enter the container
     working_dir: /ucritair-firmware/zephyrapp/game
 
