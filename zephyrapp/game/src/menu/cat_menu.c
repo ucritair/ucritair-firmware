@@ -230,6 +230,48 @@ void CAT_MS_menu(CAT_FSM_signal signal)
 						}
 #endif
 
+						if(CAT_gui_menu_item("ENTER DFU"))
+							CAT_GUI_open_window("enter_dfu_warn");
+						if(CAT_GUI_begin_window("enter_dfu_warn", 12, CAT_LCD_SCREEN_H/4, CAT_LCD_SCREEN_W-12, 3*CAT_LCD_SCREEN_H/4))
+						{
+							CAT_GUI_text("Device will reboot into DFU mode. Connect via USB to flash firmware.\n");
+							if(CAT_GUI_option("GO BACK"))
+								CAT_GUI_close_current_window();
+							if(CAT_GUI_option("ENTER DFU"))
+							{
+								CAT_force_save();
+								CAT_enter_dfu();
+							}
+							CAT_GUI_end_window();
+						}
+
+						if(CAT_bootloader_image_included() && CAT_gui_menu_item("UPDATE BOOTLOADER"))
+							CAT_GUI_open_window("update_bl_warn");
+						if(CAT_GUI_begin_window("update_bl_warn", 12, CAT_LCD_SCREEN_H/4, CAT_LCD_SCREEN_W-12, 3*CAT_LCD_SCREEN_H/4))
+						{
+							CAT_GUI_text("This will overwrite the bootloader. Ensure USB power is connected. If this fails, the device will be bricked.\n");
+							if(CAT_GUI_option("GO BACK"))
+								CAT_GUI_close_current_window();
+							if(CAT_GUI_option("UPDATE BOOTLOADER"))
+							{
+								CAT_force_save();
+								int rc = CAT_update_bootloader();
+								if (rc != 0)
+								{
+									CAT_GUI_close_current_window();
+									CAT_GUI_open_window("bl_update_fail");
+								}
+							}
+							CAT_GUI_end_window();
+						}
+						if(CAT_GUI_begin_window("bl_update_fail", 12, CAT_LCD_SCREEN_H/4, CAT_LCD_SCREEN_W-12, 3*CAT_LCD_SCREEN_H/4))
+						{
+							CAT_GUI_text("Bootloader update FAILED. Device was not modified or may need recovery via USB DFU.\n");
+							if(CAT_GUI_option("OK"))
+								CAT_GUI_close_current_window();
+							CAT_GUI_end_window();
+						}
+
 						CAT_gui_end_menu();
 					}				
 				}

@@ -31,6 +31,7 @@
 #include "lcd_rendering.h"
 #include "item_assets.h"
 #include "cat_pet.h"
+#include "bl_update.h"
 
 #define VND_UUID_PFX(x) BT_UUID_128_ENCODE(0xfc7d4395, 0x1019, 0x49c4, 0xa91b, (0x7491ecc4ull<<16) | (unsigned long long)x)
 
@@ -268,6 +269,49 @@ static ssize_t write_name(struct bt_conn *conn, const struct bt_gatt_attr *attr,
 	return len;
 }
 
+/* DFU control: write 4-byte magic [0xCA, 0x7D, 0xF0, 0x01] to enter DFU */
+static const uint8_t dfu_magic[] = {0xCA, 0x7D, 0xF0, 0x01};
+
+static ssize_t write_dfu_control(struct bt_conn *conn, const struct bt_gatt_attr *attr,
+			 const void *buf, uint16_t len, uint16_t offset,
+			 uint8_t flags)
+{
+	if (len != sizeof(dfu_magic) || offset != 0)
+		return BT_GATT_ERR(BT_ATT_ERR_INVALID_ATTRIBUTE_LEN);
+
+	if (memcmp(buf, dfu_magic, sizeof(dfu_magic)) == 0)
+	{
+		printk("BLE: DFU requested, entering bootloader...\n");
+		bl_enter_dfu();
+	}
+
+	return len;
+}
+
+/* BL update control: write 4-byte magic [0xCA, 0x7D, 0xB0, 0x07] to flash bootloader */
+static const uint8_t bl_update_magic[] = {0xCA, 0x7D, 0xB0, 0x07};
+
+static ssize_t write_bl_update(struct bt_conn *conn, const struct bt_gatt_attr *attr,
+			 const void *buf, uint16_t len, uint16_t offset,
+			 uint8_t flags)
+{
+	if (len != sizeof(bl_update_magic) || offset != 0)
+		return BT_GATT_ERR(BT_ATT_ERR_INVALID_ATTRIBUTE_LEN);
+
+	if (memcmp(buf, bl_update_magic, sizeof(bl_update_magic)) == 0)
+	{
+		if (!bl_image_included())
+		{
+			printk("BLE: Bootloader image not included in this build\n");
+			return BT_GATT_ERR(BT_ATT_ERR_WRITE_NOT_PERMITTED);
+		}
+		printk("BLE: Bootloader update requested...\n");
+		bl_update_flash(); /* will reboot on success */
+	}
+
+	return len;
+}
+
 /* Vendor Primary Service Declaration */
 BT_GATT_SERVICE_DEFINE(vnd_svc,
 	BT_GATT_PRIMARY_SERVICE(BT_UUID_DECLARE_128(BT_UUID_CUSTOM_SERVICE_VAL)),
@@ -312,6 +356,14 @@ BT_GATT_SERVICE_DEFINE(vnd_svc,
 		BT_GATT_CHRC_READ|BT_GATT_CHRC_WRITE, BT_GATT_PERM_READ|BT_GATT_PERM_WRITE,
 		read_name, write_name, NULL),
 	// player attributes and age
+	BT_GATT_CHARACTERISTIC(
+		BT_UUID_DECLARE_128(VND_UUID_PFX(0x0009)),
+		BT_GATT_CHRC_WRITE, BT_GATT_PERM_WRITE,
+		NULL, write_dfu_control, NULL),
+	BT_GATT_CHARACTERISTIC(
+		BT_UUID_DECLARE_128(VND_UUID_PFX(0x000A)),
+		BT_GATT_CHRC_WRITE, BT_GATT_PERM_WRITE,
+		NULL, write_bl_update, NULL),
 );
 
 static ssize_t ess_read_float_u16_x100(
@@ -409,26 +461,13 @@ static void connected(struct bt_conn *conn, uint8_t err)
 static void disconnected(struct bt_conn *conn, uint8_t reason)
 {
 	printk("Disconnected, reason 0x%02x %s\n", reason, bt_hci_err_to_str(reason));
+
+	int err = bt_le_adv_start(BT_LE_ADV_CONN_FAST_1, ad, ARRAY_SIZE(ad), sd, ARRAY_SIZE(sd));
+	if (err) {
+		printk("Advertising failed to restart (err %d)\n", err);
+	}
 }
 
-static void scan_cb(const bt_addr_le_t *addr, int8_t rssi, uint8_t adv_type, struct net_buf_simple *buf)
-{
-	//TODO
-	// printk("Scan: type=%02x addr=%02x:%02x:%02x:%02x:%02x:%02x adv_type=%02x rssi=%d data len=%u\n",
-	// 	addr->type,
-	// 	addr->a.val[0],
-	// 	addr->a.val[1],
-	// 	addr->a.val[2],
-	// 	addr->a.val[3],
-	// 	addr->a.val[4],
-	// 	addr->a.val[5],
-	// 	adv_type, rssi, buf->len);
-	// printk("      data");
-	// for (uint16_t i = 0; i < buf->len; i++) {
-	// 	printk(" %02x", buf->data[i]);
-	// }
-	// printk("\n");
-}
 
 BT_CONN_CB_DEFINE(conn_callbacks) = {
 	.connected = connected,
@@ -437,12 +476,6 @@ BT_CONN_CB_DEFINE(conn_callbacks) = {
 
 static void bt_ready(void)
 {
-	struct bt_le_scan_param scan_param = {
-		.type     = BT_LE_SCAN_TYPE_PASSIVE,
-		.options  = BT_LE_SCAN_OPT_FILTER_DUPLICATE,
-		.interval = 0x0300,
-		.window   = 0x0300,
-	};
 	int err;
 
 	printk("Bluetooth initialized\n");
@@ -458,14 +491,6 @@ static void bt_ready(void)
 	}
 
 	printk("Advertising successfully started\n");
-
-	err = bt_le_scan_start(&scan_param, scan_cb);
-	if (err) {
-		printk("Scanning failed to start (err %d)\n", err);
-		return;
-	}
-
-	printk("Scanning successfully started\n");
 }
 
 static void auth_passkey_display(struct bt_conn *conn, unsigned int passkey)

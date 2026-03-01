@@ -150,3 +150,17 @@ Then inside the container:
 ```
 
 * **Flash from Host:** Exit the container and run `dfu-util` as above.
+
+---
+
+## Firmware Update (BLE + USB DFU)
+
+See **[docs/firmware-update.md](docs/firmware-update.md)** for the complete firmware update guide, including:
+
+- **BLE-triggered DFU** — no buttons required (`scripts/trigger_dfu.py`)
+- **Manual DFU** — button combo fallback (SELECT+START+DOWN + RESET)
+- **One-time bootloader update** — migrating from old bootloader to GPREGRET-enabled bootloader
+
+## Bootloader
+
+See **[mcuboot/README.md](mcuboot/README.md)** for bootloader build instructions, partition layout, and customization details.

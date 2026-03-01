@@ -1,8 +1,8 @@
 diff --git a/boot/zephyr/io.c b/boot/zephyr/io.c
-index 309f1ab9..f420eae4 100644
+index 309f1ab9..7aee82b6 100644
 --- a/boot/zephyr/io.c
 +++ b/boot/zephyr/io.c
-@@ -101,76 +101,246 @@ void io_led_set(int value)
+@@ -101,76 +101,258 @@ void io_led_set(int value)
  #if defined(CONFIG_BOOT_SERIAL_ENTRANCE_GPIO) || defined(CONFIG_BOOT_USB_DFU_GPIO) || \
      defined(CONFIG_BOOT_FIRMWARE_LOADER_ENTRANCE_GPIO)
  
@@ -15,8 +15,16 @@ index 309f1ab9..f420eae4 100644
 -#endif
 +#include <zephyr/kernel.h>
 +#include <zephyr/drivers/gpio.h>
++#include <hal/nrf_power.h>
  
 -#define BUTTON_0_NODE DT_ALIAS(mcuboot_button0)
++#define DFU_MAGIC_VALUE 0xB1
+ 
+-#if DT_NODE_EXISTS(BUTTON_0_NODE) && DT_NODE_HAS_PROP(BUTTON_0_NODE, gpios)
+-static const struct gpio_dt_spec button0 = GPIO_DT_SPEC_GET(BUTTON_0_NODE, gpios);
+-#else
+-#error "Serial recovery/USB DFU button must be declared in device tree as 'mcuboot_button0'"
+-#endif
 +#define N_ROWS 4
 +static const struct gpio_dt_spec btn_rows[N_ROWS] =
 +{
@@ -33,18 +41,13 @@ index 309f1ab9..f420eae4 100644
 +    {.port = DEVICE_DT_GET(DT_NODELABEL(gpio1)), .pin=14, .dt_flags=GPIO_ACTIVE_HIGH},
 +};
  
--#if DT_NODE_EXISTS(BUTTON_0_NODE) && DT_NODE_HAS_PROP(BUTTON_0_NODE, gpios)
--static const struct gpio_dt_spec button0 = GPIO_DT_SPEC_GET(BUTTON_0_NODE, gpios);
--#else
--#error "Serial recovery/USB DFU button must be declared in device tree as 'mcuboot_button0'"
--#endif
+-bool io_detect_pin(void)
 +static const struct gpio_dt_spec reg_3v3_dt = {.port = DEVICE_DT_GET(DT_NODELABEL(gpio0)), .pin=5, .dt_flags=GPIO_ACTIVE_HIGH};
 +static const struct gpio_dt_spec en_7002 = {.port = DEVICE_DT_GET(DT_NODELABEL(gpio0)), .pin=11, .dt_flags=GPIO_ACTIVE_HIGH};
 +static const struct gpio_dt_spec buck_7002 = {.port = DEVICE_DT_GET(DT_NODELABEL(gpio0)), .pin=21, .dt_flags=GPIO_ACTIVE_HIGH};
 +static const struct gpio_dt_spec reg_5v = {.port = DEVICE_DT_GET(DT_NODELABEL(gpio1)), .pin=4, .dt_flags=GPIO_ACTIVE_HIGH};
 +static const struct gpio_dt_spec epd_reset = {.port = DEVICE_DT_GET(DT_NODELABEL(gpio1)), .pin=5, .dt_flags=GPIO_ACTIVE_HIGH};
- 
--bool io_detect_pin(void)
++
 +void init_buttons()
  {
 -    int rc;
@@ -190,6 +193,15 @@ index 309f1ab9..f420eae4 100644
 +
 +bool io_detect_pin()
 +{
++    // Check if application requested DFU via GPREGRET retention register
++    uint8_t gpregret = nrf_power_gpregret_get(NRF_POWER, 0);
++    if (gpregret == DFU_MAGIC_VALUE)
++    {
++        nrf_power_gpregret_set(NRF_POWER, 0, 0);
++        return true;
++    }
++
++    // Check physical button combo: SELECT+START+DOWN
 +    init_buttons();
 +
 +    k_msleep(25);

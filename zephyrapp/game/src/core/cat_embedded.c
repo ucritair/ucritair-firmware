@@ -19,6 +19,7 @@
 #include "cat_save.h"
 #include "sdcard.h"
 #include "sensor_hal.h"
+#include "bl_update.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // CORE
@@ -369,6 +370,21 @@ void CAT_reset_save()
 	cat_game_running = 0;
 	flash_nuke_tomas_save();
 	power_off(0, false);
+}
+
+void CAT_enter_dfu()
+{
+	bl_enter_dfu();
+}
+
+int CAT_update_bootloader()
+{
+	return bl_update_flash();
+}
+
+bool CAT_bootloader_image_included()
+{
+	return bl_image_included();
 }
 
 

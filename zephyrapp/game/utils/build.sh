@@ -25,6 +25,9 @@ while true; do
 		--research-only )
 			OPTIONS="${OPTIONS} -DRESEARCH_ONLY=ON";
 			shift; shift ;;
+		--bootloader )
+			OPTIONS="${OPTIONS} -DINCLUDE_BOOTLOADER_IMAGE=ON";
+			shift ;;
 		--clean )
 			clean=true;
 			shift ;;

@@ -242,6 +242,9 @@ void CAT_msleep(int ms);
 void CAT_sleep();
 void CAT_shutdown();
 void CAT_reset_save();
+void CAT_enter_dfu();
+int CAT_update_bootloader();
+bool CAT_bootloader_image_included();
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

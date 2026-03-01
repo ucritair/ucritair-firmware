@@ -798,6 +798,22 @@ void CAT_reset_save()
 	CAT_set_load_flags(CAT_LOAD_FLAG_DEFAULT);
 }
 
+void CAT_enter_dfu()
+{
+	CAT_printf("[CALL] CAT_enter_dfu (no-op on desktop)\n");
+}
+
+int CAT_update_bootloader()
+{
+	CAT_printf("[CALL] CAT_update_bootloader (no-op on desktop)\n");
+	return -1;
+}
+
+bool CAT_bootloader_image_included()
+{
+	return false;
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // AIR QUALITY

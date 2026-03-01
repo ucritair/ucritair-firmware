@@ -37,6 +37,7 @@ target_sources(app PRIVATE
 	src/sound.c
 	src/touch.c
 	src/wlan.c
+	src/bl_update.c
 
 	#src/protobufs/nanopb.pb.c
 	src/protobufs/pb_common.c
@@ -86,6 +87,10 @@ target_include_directories(app PRIVATE
 if(MINIMIZE_GAME_FOOTPRINT)
 	message(WARNING "Not building in the actual game")
 	target_compile_definitions(app PRIVATE MINIMIZE_GAME_FOOTPRINT=1)
+endif()
+
+if(INCLUDE_BOOTLOADER_IMAGE)
+	target_compile_definitions(app PRIVATE BL_IMAGE_INCLUDED=1)
 endif()
 
 zephyr_linker_sources(SECTIONS persistant.ld)
