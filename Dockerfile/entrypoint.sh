@@ -16,7 +16,7 @@ source /zephyrproject/zephyr/zephyr-env.sh
 
 # Source the project-specific environment script
 echo "Sourcing project environment script..."
-source /ucritair-firmware/zephyrapp/game/utils/catenv.sh
+source /ucritair-firmware/zephyrapp/game/utils/environment.sh
 cd /ucritair-firmware/zephyrapp/game
 
 echo "--- Environment ready ---"
