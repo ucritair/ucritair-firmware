@@ -2,6 +2,7 @@ int ble_main(void);
 void ble_update();
 void ble_notify_sensors(void);
 void ble_refresh_adv(void);
+void ble_print_addr(void);
 void update_bthome_adv_data(void);
 void ble_broadcast_bthome(void);
 

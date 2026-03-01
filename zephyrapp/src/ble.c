@@ -805,6 +805,16 @@ int ble_main(void)
 		vnd_svc.attrs, vnd_svc.attr_count,
 		BT_UUID_DECLARE_128(VND_UUID_PFX(0x0006)));
 
+	/* Print BLE address so serial-connected tools can identify this device */
+	bt_addr_le_t addrs[CONFIG_BT_ID_MAX];
+	size_t id_count = CONFIG_BT_ID_MAX;
+	bt_id_get(addrs, &id_count);
+	if (id_count > 0) {
+		char addr_str[BT_ADDR_LE_STR_LEN];
+		bt_addr_le_to_str(&addrs[0], addr_str, sizeof(addr_str));
+		printk("BLE_ADDR: %s\n", addr_str);
+	}
+
 	ble_ok = true;
 
 	return 0;
@@ -863,6 +873,21 @@ void ble_notify_sensors(void)
 
 	__fp16 pm25_val = (__fp16)(readings.sen5x.pm2_5);
 	bt_gatt_notify(NULL, &attr_ess_svc[15], &pm25_val, sizeof(pm25_val));
+}
+
+void ble_print_addr(void)
+{
+	if (!ble_ok)
+		return;
+
+	bt_addr_le_t addrs[CONFIG_BT_ID_MAX];
+	size_t id_count = CONFIG_BT_ID_MAX;
+	bt_id_get(addrs, &id_count);
+	if (id_count > 0) {
+		char addr_str[BT_ADDR_LE_STR_LEN];
+		bt_addr_le_to_str(&addrs[0], addr_str, sizeof(addr_str));
+		printk("BLE_ADDR: %s\n", addr_str);
+	}
 }
 
 void ble_refresh_adv(void)

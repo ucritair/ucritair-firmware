@@ -182,6 +182,7 @@ void lcd_render_diag()
 			last_ble_adv_refresh = now_ms;
 			ble_refresh_adv();
 			ble_notify_sensors();
+			ble_print_addr();
 		}
 
 		int time_since_buttons = now_ms - last_button_pressed;
