@@ -38,32 +38,39 @@ LOG_MODULE_REGISTER(sample, LOG_LEVEL_INF);
 
 int main(void)
 {
+	/* ── Phase 1: Minimal HW setup (fast, no delays) ── */
 	init_power_control();
 	check_rtc_init();
 	init_adc();
+	NRF_CLOCK_S->HFCLKCTRL = (CLOCK_HFCLKCTRL_HCLK_Div1 << CLOCK_HFCLKCTRL_HCLK_Pos); // 128MHz
+	init_buttons();
 
-	// LOG_INF("~Test speaker~");
-	set_3v3(true);
+	/* ── Phase 2: Immediate user feedback ── */
+	test_speaker();
+	lcd_init();
 
-	usb_enable(NULL);
+	/* Show splash text while the rest of init proceeds */
+	{
+		const char *msg = "Waking up...";
+		int msg_len = 12;
+		int text_x = (LCD_IMAGE_W - msg_len * 8) / 2;
+		int text_y = (LCD_IMAGE_H - 8) / 2;
 
-	const struct device* dev = DEVICE_DT_GET(DT_CHOSEN(zephyr_shell_uart));
-	uint32_t dtr = 0;
-	while ((!dtr) && (k_uptime_get() < 1500)) {
-		uart_line_ctrl_get(dev, UART_LINE_CTRL_DTR, &dtr);
-		LOG_INF("Waiting for DTR...");
-		k_sleep(K_MSEC(1000));
+		for (int seg = 0; seg < LCD_FRAMEBUFFER_SEGMENTS; seg++)
+		{
+			framebuffer_offset_h = LCD_FRAMEBUFFER_H * seg;
+			memset(lcd_framebuffer, 0, sizeof(uint16_t) * LCD_FRAMEBUFFER_PIXELS);
+			lcd_write_str(0xFFFF, text_x, text_y, (char *)msg);
+			lcd_flip(lcd_framebuffer, framebuffer_offset_h);
+		}
+		framebuffer_offset_h = 0;
 	}
 
-	LOG_INF("CAT Application Started");
-	LOG_PANIC();
+	/* ── Phase 3: Remaining init (user sees splash) ── */
+	set_3v3(true);
+	usb_enable(NULL);
 
 	init_epaper_enough_for_it_to_calm_the_fuck_down();
-
-	NRF_CLOCK_S->HFCLKCTRL = (CLOCK_HFCLKCTRL_HCLK_Div1 << CLOCK_HFCLKCTRL_HCLK_Pos); // 128MHz
-	// Annoyingly need to do this even in low power because the LED timing depends on it
-
-	init_buttons();
 
 	set_5v0(true);
 	set_leds(true);
@@ -199,8 +206,6 @@ int main(void)
 		}
 	}
 
-	test_speaker();
-
 	ble_main();
 
 	const struct device *sdhc_dev = DEVICE_DT_GET(DT_CHOSEN(xxx_sdhcd0));
@@ -232,6 +237,5 @@ int main(void)
 	LOG_ERR("Wifi compiled out");
 #endif
 
-	lcd_init();
 	lcd_render_diag();
 }

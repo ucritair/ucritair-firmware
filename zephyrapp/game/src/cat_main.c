@@ -82,7 +82,6 @@ void CAT_init()
 	CAT_platform_init();
 
 	CAT_wifi_init();
-	CAT_wifi_autoconnect(1000);
 
 	CAT_radio_init();
 	CAT_radio_clear_buffer();
