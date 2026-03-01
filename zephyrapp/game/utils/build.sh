@@ -37,10 +37,11 @@ while true; do
 done
 
 if $clean; then
-	trash ../build
-	trash build
-	trash utils/cache
-	trash assets
+	if command -v trash &> /dev/null; then
+		trash ../build build utils/cache assets 2>/dev/null || true
+	else
+		rm -rf ../build build utils/cache assets
+	fi
 fi
 
 # DESKTOP

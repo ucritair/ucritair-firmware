@@ -31,7 +31,7 @@ jobs:
 
       # ── Build 1: Standard firmware ──
       - name: Build Standard Firmware
-        run: docker compose run --rm dev ./utils/build.sh --aq-first --embedded
+        run: docker compose run --rm dev ./utils/build.sh --clean --aq-first --embedded
 
       - name: Save Standard Firmware
         run: |
@@ -44,10 +44,8 @@ jobs:
           ls -la firmware_output/
 
       # ── Build 2: Bootloader update firmware (one-time bootloader update image) ──
-      # Removes the embedded build dir to force cmake reconfiguration with --bootloader.
-      # The desktop build dir is left as-is (harmless no-op rebuild).
       - name: Build Bootloader Update Firmware
-        run: docker compose run --rm dev bash -c "rm -rf ../build && ./utils/build.sh --aq-first --embedded --bootloader"
+        run: docker compose run --rm dev ./utils/build.sh --clean --aq-first --embedded --bootloader
 
       - name: Save Bootloader Update Firmware
         run: |
