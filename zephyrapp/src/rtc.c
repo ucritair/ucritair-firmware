@@ -1,4 +1,5 @@
 #include <zephyr/init.h>
+#include <zephyr/kernel.h>
 #include <hal/nrf_rtc.h>
 #include <nrfx_rtc.h>
 
@@ -46,7 +47,10 @@ static int board_cat_init_rtc(void)
     nrfx_rtc_init(&rtc_inst, &config, &rtc_irq_handler);
     nrfx_rtc_tick_enable(&rtc_inst, true);
 
-    nrfx_coredep_delay_us(84156); // As of July 17, 2025
+    // Calibrated delay: boot takes ~577ms from snapshot to here,
+    // 5 ticks = 625ms compensation, delay fills the 48ms gap.
+    // Measured via 50-reboot BLE external calibration: ±7ms/reboot accuracy.
+    nrfx_coredep_delay_us(48439);
 
     nrf_rtc_task_trigger(HW_RTC_CHOSEN, NRF_RTC_TASK_STOP);
     nrf_rtc_task_trigger(HW_RTC_CHOSEN, NRF_RTC_TASK_CLEAR);
@@ -54,6 +58,11 @@ static int board_cat_init_rtc(void)
     nrf_rtc_task_trigger(HW_RTC_CHOSEN, NRF_RTC_TASK_START);
 
     return 0;
+}
+
+void print_rtc_boot_timing(void)
+{
+    printk("BOOT_TIMING: k_uptime=%lld ms\n", k_uptime_get());
 }
 
 SYS_INIT(board_cat_init_rtc, PRE_KERNEL_1,
@@ -98,8 +107,13 @@ void snapshot_rtc_for_reboot()
 	// wait to synchronize to tick
 	int c = nrf_rtc_counter_get(HW_RTC_CHOSEN);
 	while (nrf_rtc_counter_get(HW_RTC_CHOSEN) == c) {}
-	rtc_offset = rtc_offset + (uint64_t) nrf_rtc_counter_get(HW_RTC_CHOSEN) + 16; // as of SEA-1 we are 1.8945s - so 16 ticks (2.0) forward and then 105.5ms delay to get on time
-} 
+
+	// Save total ticks at this instant (tick-level precision, survives reboot)
+	uint32_t counter_now = nrf_rtc_counter_get(HW_RTC_CHOSEN);
+	cal_pre_reboot_ticks = rtc_offset + (uint64_t)counter_now;
+
+	rtc_offset = rtc_offset + (uint64_t)counter_now + 5; // 5 ticks = 625ms forward at 8Hz (calibrated: base_boot≈577ms + 48ms delay)
+}
 
 void check_rtc_init()
 {
@@ -130,7 +144,7 @@ void check_rtc_init()
 
 		//////////////////////////////////////////////////////////
 		// AQ SPARKLINE STORE
-		
+
 		aq_moving_score_time = 0;
 		aq_moving_score_samples = 0;
 		aq_weekly_score_time = 0;
@@ -163,6 +177,9 @@ void check_rtc_init()
 		last_log_timestamp = 0;
 
 		persist_flags = CAT_PERSIST_CONFIG_FLAG_NONE;
+
+		cal_pre_reboot_ticks = 0;
+		cal_reboot_count = 0;
 
 /*#if CAT_RESEARCH_ONLY
 		CAT_PERSIST_CONFIG_FLAG_PAUSE_LOGGING;

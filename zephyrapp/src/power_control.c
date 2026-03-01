@@ -290,6 +290,7 @@ void power_off(int for_ms, bool protected_sleeping)
 void power_off_reboot()
 {
 	snapshot_rtc_for_reboot();
+	cal_reboot_count++;
 	nrf_gpio_pin_clear(NRF_GPIO_PIN_MAP(0, 2));
 	sys_reboot(SYS_REBOOT_WARM);
 }

@@ -32,6 +32,39 @@
 #include "item_assets.h"
 #include "cat_pet.h"
 #include "bl_update.h"
+#include "batt.h"
+#include "cat_persist.h"
+#include "power_control.h"
+
+/* ── BTHome v2 ──────────────────────────────────────────────── */
+#define BTHOME_UUID16_LO 0xD2
+#define BTHOME_UUID16_HI 0xFC
+#define BTHOME_DEVICE_INFO 0x40 /* v2, no encryption */
+
+/* BTHome v2 object IDs */
+#define BTHOME_OBJ_TEMPERATURE 0x02 /* sint16, factor 0.01 °C */
+#define BTHOME_OBJ_HUMIDITY    0x03 /* uint16, factor 0.01 %  */
+#define BTHOME_OBJ_CO2         0x12 /* uint16, ppm            */
+#define BTHOME_OBJ_PM25        0x0D /* uint16, µg/m³          */
+#define BTHOME_OBJ_PM10        0x0E /* uint16, µg/m³          */
+#define BTHOME_OBJ_BATTERY     0x01 /* uint8, %               */
+
+/*
+ * Mutable buffer: [UUID16-LE][device_info][obj,val16]×5 + [obj,val8]×1
+ * Total: 2 + 1 + 5×3 + 1×2 = 20 bytes
+ */
+static uint8_t bthome_svc_data[20] = {
+	BTHOME_UUID16_LO, BTHOME_UUID16_HI,
+	BTHOME_DEVICE_INFO,
+	BTHOME_OBJ_BATTERY,     0,
+	BTHOME_OBJ_TEMPERATURE, 0, 0,
+	BTHOME_OBJ_HUMIDITY,    0, 0,
+	BTHOME_OBJ_CO2,         0, 0,
+	BTHOME_OBJ_PM25,        0, 0,
+	BTHOME_OBJ_PM10,        0, 0,
+};
+
+bool ble_connected = false;
 
 #define VND_UUID_PFX(x) BT_UUID_128_ENCODE(0xfc7d4395, 0x1019, 0x49c4, 0xa91b, (0x7491ecc4ull<<16) | (unsigned long long)x)
 
@@ -269,8 +302,9 @@ static ssize_t write_name(struct bt_conn *conn, const struct bt_gatt_attr *attr,
 	return len;
 }
 
-/* DFU control: write 4-byte magic [0xCA, 0x7D, 0xF0, 0x01] to enter DFU */
+/* DFU control: write 4-byte magic to enter DFU or trigger reboot */
 static const uint8_t dfu_magic[] = {0xCA, 0x7D, 0xF0, 0x01};
+static const uint8_t reboot_magic[] = {0xCA, 0x7D, 0xBE, 0x01}; /* CA7D BE01 = "cat reboot" */
 
 static ssize_t write_dfu_control(struct bt_conn *conn, const struct bt_gatt_attr *attr,
 			 const void *buf, uint16_t len, uint16_t offset,
@@ -283,6 +317,11 @@ static ssize_t write_dfu_control(struct bt_conn *conn, const struct bt_gatt_attr
 	{
 		printk("BLE: DFU requested, entering bootloader...\n");
 		bl_enter_dfu();
+	}
+	else if (memcmp(buf, reboot_magic, sizeof(reboot_magic)) == 0)
+	{
+		printk("BLE: Warm reboot requested (power_off_reboot)...\n");
+		power_off_reboot();
 	}
 
 	return len;
@@ -310,6 +349,159 @@ static ssize_t write_bl_update(struct bt_conn *conn, const struct bt_gatt_attr *
 	}
 
 	return len;
+}
+
+/* ── BTHome advertising data update ──────────────────────────── */
+void update_bthome_adv_data(void)
+{
+	uint8_t batt = (uint8_t)get_battery_pct();
+	int16_t temp = (int16_t)(readings.lps22hh.temp * 100);
+	uint16_t hum = (uint16_t)(readings.sen5x.humidity_rhpct * 100);
+	uint16_t co2 = (uint16_t)(readings.sunrise.ppm_filtered_compensated);
+	uint16_t pm25 = (uint16_t)(readings.sen5x.pm2_5);
+	uint16_t pm10 = (uint16_t)(readings.sen5x.pm10_0);
+
+	/* Battery (uint8) */
+	bthome_svc_data[4] = batt;
+	/* Temperature (sint16 LE) */
+	bthome_svc_data[6] = (uint8_t)(temp & 0xFF);
+	bthome_svc_data[7] = (uint8_t)((temp >> 8) & 0xFF);
+	/* Humidity (uint16 LE) */
+	bthome_svc_data[9] = (uint8_t)(hum & 0xFF);
+	bthome_svc_data[10] = (uint8_t)((hum >> 8) & 0xFF);
+	/* CO2 (uint16 LE) */
+	bthome_svc_data[12] = (uint8_t)(co2 & 0xFF);
+	bthome_svc_data[13] = (uint8_t)((co2 >> 8) & 0xFF);
+	/* PM2.5 (uint16 LE) */
+	bthome_svc_data[15] = (uint8_t)(pm25 & 0xFF);
+	bthome_svc_data[16] = (uint8_t)((pm25 >> 8) & 0xFF);
+	/* PM10 (uint16 LE) */
+	bthome_svc_data[18] = (uint8_t)(pm10 & 0xFF);
+	bthome_svc_data[19] = (uint8_t)((pm10 >> 8) & 0xFF);
+}
+
+/* ── Device config characteristic (0x0015) ──────────────────── */
+struct __attribute__((__packed__)) ble_device_config {
+	uint16_t sensor_wakeup_period;
+	uint16_t sleep_after_seconds;
+	uint16_t dim_after_seconds;
+	uint16_t persist_flags;
+	uint8_t  nox_sample_period;
+	uint8_t  screen_brightness;
+	uint8_t  reserved[6];
+};
+
+static ssize_t read_config(struct bt_conn *conn, const struct bt_gatt_attr *attr,
+			void *buf, uint16_t len, uint16_t offset)
+{
+	lcd_keep_awake();
+	struct ble_device_config cfg = {
+		.sensor_wakeup_period = sensor_wakeup_period,
+		.sleep_after_seconds = sleep_after_seconds,
+		.dim_after_seconds = dim_after_seconds,
+		.persist_flags = persist_flags,
+		.nox_sample_period = nox_sample_period,
+		.screen_brightness = screen_brightness,
+	};
+	return bt_gatt_attr_read(conn, attr, buf, len, offset, &cfg, sizeof(cfg));
+}
+
+static ssize_t write_config(struct bt_conn *conn, const struct bt_gatt_attr *attr,
+			 const void *buf, uint16_t len, uint16_t offset,
+			 uint8_t flags)
+{
+	struct ble_device_config cfg;
+
+	if (offset != 0)
+		return BT_GATT_ERR(BT_ATT_ERR_INVALID_OFFSET);
+	if (len != sizeof(cfg))
+		return BT_GATT_ERR(BT_ATT_ERR_INVALID_ATTRIBUTE_LEN);
+
+	memcpy(&cfg, buf, sizeof(cfg));
+
+	sensor_wakeup_period = cfg.sensor_wakeup_period;
+	sleep_after_seconds = cfg.sleep_after_seconds;
+	dim_after_seconds = cfg.dim_after_seconds;
+	persist_flags = cfg.persist_flags;
+	nox_sample_period = cfg.nox_sample_period;
+	screen_brightness = cfg.screen_brightness;
+
+	lcd_keep_awake();
+	return len;
+}
+
+/* ── Log stream characteristic (0x0006) ─────────────────────── */
+static uint32_t log_stream_start = 0;
+static uint32_t log_stream_count = 0;
+static uint32_t log_stream_cursor = 0;
+static bool log_stream_active = false;
+
+static void log_stream_work_handler(struct k_work *work);
+static K_WORK_DELAYABLE_DEFINE(log_stream_work, log_stream_work_handler);
+
+static ssize_t write_log_stream(struct bt_conn *conn, const struct bt_gatt_attr *attr,
+			 const void *buf, uint16_t len, uint16_t offset,
+			 uint8_t flags)
+{
+	if (offset != 0)
+		return BT_GATT_ERR(BT_ATT_ERR_INVALID_OFFSET);
+	if (len != 8)
+		return BT_GATT_ERR(BT_ATT_ERR_INVALID_ATTRIBUTE_LEN);
+
+	memcpy(&log_stream_start, buf, 4);
+	memcpy(&log_stream_count, (uint8_t *)buf + 4, 4);
+
+	log_stream_cursor = log_stream_start;
+	log_stream_active = true;
+
+	printk("Log stream: start=%u count=%u\n", log_stream_start, log_stream_count);
+	lcd_keep_awake();
+
+	k_work_schedule(&log_stream_work, K_MSEC(10));
+	return len;
+}
+
+/* Resolved in ble_main() after service registration */
+static const struct bt_gatt_attr *log_stream_notify_attr = NULL;
+
+static void log_stream_work_handler(struct k_work *work)
+{
+	if (!log_stream_active || !ble_ok || !log_stream_notify_attr)
+		return;
+
+	uint32_t cells_sent = log_stream_cursor - log_stream_start;
+	if (cells_sent >= log_stream_count)
+	{
+		/* Send end marker */
+		struct __attribute__((__packed__)) {
+			uint32_t cell_nr;
+		} end_marker = { .cell_nr = 0xFFFFFFFF };
+
+		bt_gatt_notify(NULL, log_stream_notify_attr,
+			       &end_marker, sizeof(end_marker));
+		log_stream_active = false;
+		return;
+	}
+
+	struct __attribute__((__packed__)) {
+		uint32_t cell_nr;
+		CAT_log_cell cell;
+	} pkt;
+
+	pkt.cell_nr = log_stream_cursor;
+	flash_get_cell_by_nr(log_stream_cursor, &pkt.cell);
+
+	int err = bt_gatt_notify(NULL, log_stream_notify_attr,
+				 &pkt, sizeof(pkt) - sizeof(pkt.cell.pad));
+	if (err) {
+		/* BLE buffer full, retry later */
+		k_work_schedule(&log_stream_work, K_MSEC(50));
+		return;
+	}
+
+	log_stream_cursor++;
+	lcd_keep_awake();
+	k_work_schedule(&log_stream_work, K_MSEC(10));
 }
 
 /* Vendor Primary Service Declaration */
@@ -364,6 +556,19 @@ BT_GATT_SERVICE_DEFINE(vnd_svc,
 		BT_UUID_DECLARE_128(VND_UUID_PFX(0x000A)),
 		BT_GATT_CHRC_WRITE, BT_GATT_PERM_WRITE,
 		NULL, write_bl_update, NULL),
+	/* Log stream: write {start_cell, count} to begin streaming via notify */
+	BT_GATT_CHARACTERISTIC(
+		BT_UUID_DECLARE_128(VND_UUID_PFX(0x0006)),
+		BT_GATT_CHRC_WRITE | BT_GATT_CHRC_NOTIFY,
+		BT_GATT_PERM_WRITE,
+		NULL, write_log_stream, NULL),
+	BT_GATT_CCC(NULL, BT_GATT_PERM_READ | BT_GATT_PERM_WRITE),
+	/* Device config: sensor_wakeup_period, sleep/dim, flags, etc. */
+	BT_GATT_CHARACTERISTIC(
+		BT_UUID_DECLARE_128(VND_UUID_PFX(0x0015)),
+		BT_GATT_CHRC_READ | BT_GATT_CHRC_WRITE,
+		BT_GATT_PERM_READ | BT_GATT_PERM_WRITE,
+		read_config, write_config, NULL),
 );
 
 static ssize_t ess_read_float_u16_x100(
@@ -404,41 +609,81 @@ static ssize_t ess_read_float_fp16_x1(
 
 BT_GATT_SERVICE_DEFINE(ess_svc,
 	BT_GATT_PRIMARY_SERVICE(BT_UUID_ESS),
+	/* Temperature — NOTIFY */
 	BT_GATT_CHARACTERISTIC(BT_UUID_TEMPERATURE,
-        BT_GATT_CHRC_READ, BT_GATT_PERM_READ,
+        BT_GATT_CHRC_READ | BT_GATT_CHRC_NOTIFY, BT_GATT_PERM_READ,
         ess_read_float_u16_x100, NULL, &readings.lps22hh.temp),
+	BT_GATT_CCC(NULL, BT_GATT_PERM_READ | BT_GATT_PERM_WRITE),
+	/* Pressure */
 	BT_GATT_CHARACTERISTIC(BT_UUID_PRESSURE,
         BT_GATT_CHRC_READ, BT_GATT_PERM_READ,
         ess_read_float_u32_x1000, NULL, &readings.lps22hh.pressure),
+	/* Humidity — NOTIFY */
 	BT_GATT_CHARACTERISTIC(BT_UUID_HUMIDITY,
-        BT_GATT_CHRC_READ, BT_GATT_PERM_READ,
+        BT_GATT_CHRC_READ | BT_GATT_CHRC_NOTIFY, BT_GATT_PERM_READ,
         ess_read_float_u16_x100, NULL, &readings.sen5x.humidity_rhpct),
+	BT_GATT_CCC(NULL, BT_GATT_PERM_READ | BT_GATT_PERM_WRITE),
+	/* CO2 — NOTIFY */
 	BT_GATT_CHARACTERISTIC(BT_UUID_GATT_CO2CONC,
-        BT_GATT_CHRC_READ, BT_GATT_PERM_READ,
+        BT_GATT_CHRC_READ | BT_GATT_CHRC_NOTIFY, BT_GATT_PERM_READ,
         ess_read_float_u16_x1, NULL, &readings.sunrise.ppm_filtered_compensated),
+	BT_GATT_CCC(NULL, BT_GATT_PERM_READ | BT_GATT_PERM_WRITE),
+	/* PM1.0 */
 	BT_GATT_CHARACTERISTIC(BT_UUID_GATT_PM1CONC,
         BT_GATT_CHRC_READ, BT_GATT_PERM_READ,
         ess_read_float_fp16_x1, NULL, &readings.sen5x.pm1_0),
+	/* PM2.5 — NOTIFY */
 	BT_GATT_CHARACTERISTIC(BT_UUID_GATT_PM25CONC,
-        BT_GATT_CHRC_READ, BT_GATT_PERM_READ,
+        BT_GATT_CHRC_READ | BT_GATT_CHRC_NOTIFY, BT_GATT_PERM_READ,
         ess_read_float_fp16_x1, NULL, &readings.sen5x.pm2_5),
+	BT_GATT_CCC(NULL, BT_GATT_PERM_READ | BT_GATT_PERM_WRITE),
+	/* PM10 */
 	BT_GATT_CHARACTERISTIC(BT_UUID_GATT_PM10CONC,
         BT_GATT_CHRC_READ, BT_GATT_PERM_READ,
         ess_read_float_fp16_x1, NULL, &readings.sen5x.pm10_0),
 );
 
-static const struct bt_data ad[] = {
+/* AD packet: Flags + BTHome service data + Appearance */
+static struct bt_data ad[] = {
 	BT_DATA_BYTES(BT_DATA_FLAGS, (BT_LE_AD_GENERAL | BT_LE_AD_NO_BREDR)),
-	BT_DATA_BYTES(BT_DATA_GAP_APPEARANCE, (CONFIG_BT_DEVICE_APPEARANCE >> 0) & 0xff, (CONFIG_BT_DEVICE_APPEARANCE >> 8) & 0xff),
+	BT_DATA(BT_DATA_SVC_DATA16, bthome_svc_data, sizeof(bthome_svc_data)),
+	BT_DATA_BYTES(BT_DATA_GAP_APPEARANCE,
+		      (CONFIG_BT_DEVICE_APPEARANCE >> 0) & 0xff,
+		      (CONFIG_BT_DEVICE_APPEARANCE >> 8) & 0xff),
+};
+
+/* Scan response: Name + service UUIDs */
+static const struct bt_data sd[] = {
+	BT_DATA(BT_DATA_NAME_COMPLETE, CONFIG_BT_DEVICE_NAME, sizeof(CONFIG_BT_DEVICE_NAME) - 1),
 	BT_DATA_BYTES(BT_DATA_UUID16_ALL,
 		      BT_UUID_16_ENCODE(BT_UUID_ESS_VAL),
 		      BT_UUID_16_ENCODE(BT_UUID_BAS_VAL)),
-	BT_DATA_BYTES(BT_DATA_UUID128_ALL, BT_UUID_CUSTOM_SERVICE_VAL),
 };
 
-static const struct bt_data sd[] = {
-	BT_DATA(BT_DATA_NAME_COMPLETE, CONFIG_BT_DEVICE_NAME, sizeof(CONFIG_BT_DEVICE_NAME) - 1),
-};
+/* Timer-wake BLE broadcast: briefly advertise BTHome data for HA */
+void ble_broadcast_bthome(void)
+{
+	int err = bt_enable(NULL);
+	if (err) {
+		printk("bt_enable for broadcast failed: %d\n", err);
+		return;
+	}
+
+	update_bthome_adv_data();
+
+	/* Non-connectable advertising — just broadcast sensor data */
+	err = bt_le_adv_start(BT_LE_ADV_NCONN, ad, ARRAY_SIZE(ad), sd, ARRAY_SIZE(sd));
+	if (err) {
+		printk("BTHome broadcast adv start failed: %d\n", err);
+		bt_disable();
+		return;
+	}
+
+	k_msleep(3000); /* Advertise for 3 seconds */
+
+	bt_le_adv_stop();
+	bt_disable();
+}
 
 void mtu_updated(struct bt_conn *conn, uint16_t tx, uint16_t rx)
 {
@@ -451,6 +696,7 @@ static struct bt_gatt_cb gatt_callbacks = {
 
 static void adv_restart_work_handler(struct k_work *work)
 {
+	update_bthome_adv_data();
 	int err = bt_le_adv_start(BT_LE_ADV_CONN_FAST_1, ad, ARRAY_SIZE(ad), sd, ARRAY_SIZE(sd));
 	if (err) {
 		printk("Advertising failed to restart (err %d)\n", err);
@@ -467,12 +713,16 @@ static void connected(struct bt_conn *conn, uint8_t err)
 		printk("Connection failed, err 0x%02x %s\n", err, bt_hci_err_to_str(err));
 	} else {
 		printk("Connected\n");
+		ble_connected = true;
+		lcd_keep_awake();
 	}
 }
 
 static void disconnected(struct bt_conn *conn, uint8_t reason)
 {
 	printk("Disconnected, reason 0x%02x %s\n", reason, bt_hci_err_to_str(reason));
+	ble_connected = false;
+	log_stream_active = false;
 	k_work_submit(&adv_restart_work);
 }
 
@@ -491,6 +741,8 @@ static void bt_ready(void)
 	if (IS_ENABLED(CONFIG_SETTINGS)) {
 		settings_load();
 	}
+
+	update_bthome_adv_data();
 
 	err = bt_le_adv_start(BT_LE_ADV_CONN_FAST_1, ad, ARRAY_SIZE(ad), sd, ARRAY_SIZE(sd));
 	if (err) {
@@ -552,6 +804,11 @@ int ble_main(void)
 	bt_gatt_cb_register(&gatt_callbacks);
 	bt_conn_auth_cb_register(&auth_cb_display);
 
+	/* Resolve log stream notify attribute by UUID */
+	log_stream_notify_attr = bt_gatt_find_by_uuid(
+		vnd_svc.attrs, vnd_svc.attr_count,
+		BT_UUID_DECLARE_128(VND_UUID_PFX(0x0006)));
+
 	ble_ok = true;
 
 	return 0;
@@ -570,4 +827,53 @@ void ble_update()
 		flash_get_cell_by_nr(cell_selector, &current_ble_cell.cell);
 		current_ble_cell.defacto_cell_nr = cell_selector;
 	}
+}
+
+/*
+ * ESS attrs layout (with CCC on temp, humidity, CO2, PM2.5):
+ * [0]  primary service
+ * [1]  char decl: temperature
+ * [2]  char value: temperature  ← notify
+ * [3]  CCC
+ * [4]  char decl: pressure
+ * [5]  char value: pressure
+ * [6]  char decl: humidity
+ * [7]  char value: humidity     ← notify
+ * [8]  CCC
+ * [9]  char decl: CO2
+ * [10] char value: CO2          ← notify
+ * [11] CCC
+ * [12] char decl: PM1.0
+ * [13] char value: PM1.0
+ * [14] char decl: PM2.5
+ * [15] char value: PM2.5        ← notify
+ * [16] CCC
+ * [17] char decl: PM10
+ * [18] char value: PM10
+ */
+void ble_notify_sensors(void)
+{
+	if (!ble_ok)
+		return;
+
+	int16_t temp_val = (int16_t)(readings.lps22hh.temp * 100);
+	bt_gatt_notify(NULL, &attr_ess_svc[2], &temp_val, sizeof(temp_val));
+
+	int16_t hum_val = (int16_t)(readings.sen5x.humidity_rhpct * 100);
+	bt_gatt_notify(NULL, &attr_ess_svc[7], &hum_val, sizeof(hum_val));
+
+	int16_t co2_val = (int16_t)(readings.sunrise.ppm_filtered_compensated);
+	bt_gatt_notify(NULL, &attr_ess_svc[10], &co2_val, sizeof(co2_val));
+
+	__fp16 pm25_val = (__fp16)(readings.sen5x.pm2_5);
+	bt_gatt_notify(NULL, &attr_ess_svc[15], &pm25_val, sizeof(pm25_val));
+}
+
+void ble_refresh_adv(void)
+{
+	if (!ble_ok || ble_connected)
+		return;
+
+	update_bthome_adv_data();
+	bt_le_adv_update_data(ad, ARRAY_SIZE(ad), sd, ARRAY_SIZE(sd));
 }

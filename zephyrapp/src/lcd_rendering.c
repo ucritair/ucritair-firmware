@@ -103,6 +103,7 @@ void lcd_render_diag()
 {
 	int last_sensor_update = 0;
 	int last_flash_log = 0;
+	int last_ble_adv_refresh = 0;
 
 #ifndef MINIMIZE_GAME_FOOTPRINT
 	slept_s = get_current_rtc_time() - sleep_timestamp;
@@ -168,10 +169,19 @@ void lcd_render_diag()
 		last_frame_time = now_ms - last_ms;
 		last_ms = now_ms;
 
-		if (current_buttons || touch_pressure || co2_calibrating || (charging_last_frame != is_charging))
+		if (current_buttons || touch_pressure || co2_calibrating || (charging_last_frame != is_charging) || ble_connected)
 		{
 			last_button_pressed = now_ms;
-			set_backlight(screen_brightness);
+			if (!ble_connected || current_buttons || touch_pressure)
+				set_backlight(screen_brightness);
+		}
+
+		/* Refresh BTHome advertising data + send sensor notifications (~5s) */
+		if ((now_ms - last_ble_adv_refresh) > 5000)
+		{
+			last_ble_adv_refresh = now_ms;
+			ble_refresh_adv();
+			ble_notify_sensors();
 		}
 
 		int time_since_buttons = now_ms - last_button_pressed;

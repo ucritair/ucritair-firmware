@@ -66,4 +66,7 @@ extern volatile uint64_t last_log_timestamp;
 
 extern volatile uint64_t persist_flags;
 
+extern volatile uint64_t cal_pre_reboot_ticks;
+extern volatile uint32_t cal_reboot_count;
+
 extern bool is_persist_fresh;

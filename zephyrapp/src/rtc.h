@@ -24,5 +24,6 @@ void update_rtc();
 void set_rtc_counter(struct tm* t);
 void set_rtc_counter_raw(uint64_t t);
 void configure_rtc_timer3(int for_ms);
+void print_rtc_boot_timing(void);
 
 extern char* month_names[12];

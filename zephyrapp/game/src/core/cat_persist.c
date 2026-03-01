@@ -44,4 +44,8 @@ PERSIST_RAM uint64_t last_log_timestamp;
 
 PERSIST_RAM uint64_t persist_flags;
 
+/* Boot delay calibration: stores pre-reboot RTC ticks for comparison */
+PERSIST_RAM uint64_t cal_pre_reboot_ticks;  /* total RTC ticks at snapshot */
+PERSIST_RAM uint32_t cal_reboot_count;       /* number of calibration reboots done */
+
 bool is_persist_fresh;

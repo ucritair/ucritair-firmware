@@ -38,6 +38,8 @@ LOG_MODULE_REGISTER(sample, LOG_LEVEL_INF);
 
 int main(void)
 {
+	print_rtc_boot_timing();
+
 	/* ── Phase 1: Minimal HW setup (fast, no delays) ── */
 	init_power_control();
 	check_rtc_init();
@@ -170,6 +172,9 @@ int main(void)
 
 				//if(!(persist_flags & CAT_PERSIST_CONFIG_FLAG_PAUSE_LOGGING))
 				populate_next_log_cell();
+
+				/* Briefly advertise BTHome sensor data for HA */
+				ble_broadcast_bthome();
 
 				LOG_INF("update eink");
 				k_msleep(20);
