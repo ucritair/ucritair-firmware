@@ -182,6 +182,8 @@ Full characteristic UUID format: `fc7d4395-1019-49c4-a91b-7491ecc4XXXX`
 | `0x0009` | Warm Reboot | W | `CA 7D BE 01` | Triggers warm reboot (preserves RTC, no DFU) |
 | `0x000A` | BL Update | W | `CA 7D B0 07` | Triggers bootloader self-update |
 | `0x0010` | Stats | R | - | Pet stats (vigour/focus/spirit/age) |
+| `0x0011` | Items Owned | R | - | Owned items bitmap |
+| `0x0012` | Items Placed | R | - | Placed items bitmap |
 | `0x0013` | Bonus | R/W | - | Bonus value |
 | `0x0014` | Pet Name | R/W | - | Pet name string |
 | `0x0015` | Device Config | R/W | - | Device configuration (sensor period, sleep/dim timeouts, brightness, flags) |
@@ -195,12 +197,12 @@ Standard BLE Environmental Sensing characteristics with NOTIFY support:
 | Temperature | `0x2A6E` | R+N | sint16, 0.01°C resolution |
 | Humidity | `0x2A6F` | R+N | uint16, 0.01% resolution |
 | CO2 | `0x2B8C` | R+N | uint16, ppm |
-| PM2.5 | `0x2BD6` | R+N | uint16, µg/m³ |
+| PM2.5 | `0x2BD6` | R+N | fp16 (IEEE 754 binary16), µg/m³ |
 | Pressure | `0x2A6D` | R | uint32, 0.1 Pa resolution |
-| PM1.0 | `0x2BD5` | R | uint16, µg/m³ |
-| PM10 | `0x2BD7` | R | uint16, µg/m³ |
+| PM1.0 | `0x2BD5` | R | fp16 (IEEE 754 binary16), µg/m³ |
+| PM10 | `0x2BD7` | R | fp16 (IEEE 754 binary16), µg/m³ |
 
-Subscribe to notifications (enable CCC descriptor) for real-time sensor updates (~2s interval while device is awake).
+Subscribe to notifications (enable CCC descriptor) for real-time sensor updates (~5s interval while device is awake).
 
 ### BTHome v2 Advertising (Home Assistant)
 

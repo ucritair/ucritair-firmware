@@ -47,30 +47,34 @@ int main(void)
 	NRF_CLOCK_S->HFCLKCTRL = (CLOCK_HFCLKCTRL_HCLK_Div1 << CLOCK_HFCLKCTRL_HCLK_Pos); // 128MHz
 	init_buttons();
 
-	/* ── Phase 2: Immediate user feedback ── */
-	test_speaker();
-	lcd_init();
-
-	/* Show splash text while the rest of init proceeds */
+	/* ── Phase 2: Immediate user feedback (skip for silent timer-wake) ── */
+	if (!wakeup_is_from_timer)
 	{
-		const char *msg = "Waking up...";
-		int msg_len = 12;
-		int text_x = (LCD_IMAGE_W - msg_len * 8) / 2;
-		int text_y = (LCD_IMAGE_H - 8) / 2;
+		test_speaker();
+		lcd_init();
 
-		for (int seg = 0; seg < LCD_FRAMEBUFFER_SEGMENTS; seg++)
+		/* Show splash text while the rest of init proceeds */
 		{
-			framebuffer_offset_h = LCD_FRAMEBUFFER_H * seg;
-			memset(lcd_framebuffer, 0, sizeof(uint16_t) * LCD_FRAMEBUFFER_PIXELS);
-			lcd_write_str(0xFFFF, text_x, text_y, (char *)msg);
-			lcd_flip(lcd_framebuffer, framebuffer_offset_h);
+			const char *msg = "Waking up...";
+			int msg_len = 12;
+			int text_x = (LCD_IMAGE_W - msg_len * 8) / 2;
+			int text_y = (LCD_IMAGE_H - 8) / 2;
+
+			for (int seg = 0; seg < LCD_FRAMEBUFFER_SEGMENTS; seg++)
+			{
+				framebuffer_offset_h = LCD_FRAMEBUFFER_H * seg;
+				memset(lcd_framebuffer, 0, sizeof(uint16_t) * LCD_FRAMEBUFFER_PIXELS);
+				lcd_write_str(0xFFFF, text_x, text_y, (char *)msg);
+				lcd_flip(lcd_framebuffer, framebuffer_offset_h);
+			}
+			framebuffer_offset_h = 0;
 		}
-		framebuffer_offset_h = 0;
+
+		usb_enable(NULL);
 	}
 
-	/* ── Phase 3: Remaining init (user sees splash) ── */
+	/* ── Phase 3: Remaining init ── */
 	set_3v3(true);
-	usb_enable(NULL);
 
 	init_epaper_enough_for_it_to_calm_the_fuck_down();
 
@@ -137,9 +141,9 @@ int main(void)
 
 			if (current_buttons)
 			{
-				// snapshot_rtc_for_reboot();
-				// wakeup_is_from_timer = false;
-				// sys_reboot(SYS_REBOOT_WARM);
+				/* Button pressed during timer-wake — init LCD for game mode */
+				lcd_init();
+				usb_enable(NULL);
 				break;
 			}
 
