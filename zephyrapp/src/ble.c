@@ -449,6 +449,18 @@ static struct bt_gatt_cb gatt_callbacks = {
 	.att_mtu_updated = mtu_updated
 };
 
+static void adv_restart_work_handler(struct k_work *work)
+{
+	int err = bt_le_adv_start(BT_LE_ADV_CONN_FAST_1, ad, ARRAY_SIZE(ad), sd, ARRAY_SIZE(sd));
+	if (err) {
+		printk("Advertising failed to restart (err %d)\n", err);
+	} else {
+		printk("Advertising restarted\n");
+	}
+}
+
+static K_WORK_DEFINE(adv_restart_work, adv_restart_work_handler);
+
 static void connected(struct bt_conn *conn, uint8_t err)
 {
 	if (err) {
@@ -461,11 +473,7 @@ static void connected(struct bt_conn *conn, uint8_t err)
 static void disconnected(struct bt_conn *conn, uint8_t reason)
 {
 	printk("Disconnected, reason 0x%02x %s\n", reason, bt_hci_err_to_str(reason));
-
-	int err = bt_le_adv_start(BT_LE_ADV_CONN_FAST_1, ad, ARRAY_SIZE(ad), sd, ARRAY_SIZE(sd));
-	if (err) {
-		printk("Advertising failed to restart (err %d)\n", err);
-	}
+	k_work_submit(&adv_restart_work);
 }
 
 
