@@ -177,11 +177,53 @@ Full characteristic UUID format: `fc7d4395-1019-49c4-a91b-7491ecc4XXXX`
 | `0x0003` | Cell Count | R | - | Log cell count |
 | `0x0004` | Cell Selector | R/W | - | Select log cell to read |
 | `0x0005` | Cell Data | R | - | Read selected log cell data |
+| `0x0006` | Log Stream | W+N | - | Bulk log download via notifications (write `{start_cell: u32, count: u32}`, receive cells as notifications, end marker `0xFFFFFFFF`) |
 | `0x0009` | DFU Control | W | `CA 7D F0 01` | Triggers DFU mode (GPREGRET reboot) |
+| `0x0009` | Warm Reboot | W | `CA 7D BE 01` | Triggers warm reboot (preserves RTC, no DFU) |
 | `0x000A` | BL Update | W | `CA 7D B0 07` | Triggers bootloader self-update |
 | `0x0010` | Stats | R | - | Pet stats (vigour/focus/spirit/age) |
 | `0x0013` | Bonus | R/W | - | Bonus value |
 | `0x0014` | Pet Name | R/W | - | Pet name string |
+| `0x0015` | Device Config | R/W | - | Device configuration (sensor period, sleep/dim timeouts, brightness, flags) |
+
+### ESS Service (0x181A) — Environmental Sensing
+
+Standard BLE Environmental Sensing characteristics with NOTIFY support:
+
+| Characteristic | UUID | Access | Description |
+|----------------|------|--------|-------------|
+| Temperature | `0x2A6E` | R+N | sint16, 0.01°C resolution |
+| Humidity | `0x2A6F` | R+N | uint16, 0.01% resolution |
+| CO2 | `0x2B8C` | R+N | uint16, ppm |
+| PM2.5 | `0x2BD6` | R+N | uint16, µg/m³ |
+| Pressure | `0x2A6D` | R | uint32, 0.1 Pa resolution |
+| PM1.0 | `0x2BD5` | R | uint16, µg/m³ |
+| PM10 | `0x2BD7` | R | uint16, µg/m³ |
+
+Subscribe to notifications (enable CCC descriptor) for real-time sensor updates (~2s interval while device is awake).
+
+### BTHome v2 Advertising (Home Assistant)
+
+The device broadcasts [BTHome v2](https://bthome.io/) sensor data in its advertising packets for passive integration with Home Assistant — no pairing required.
+
+**Service UUID**: `0xFCD2`
+
+**Advertised sensors**:
+
+| Sensor | BTHome Object ID | Format |
+|--------|-----------------|--------|
+| Temperature | `0x02` | sint16, factor 0.01°C |
+| Humidity | `0x03` | uint16, factor 0.01% |
+| CO2 | `0x12` | uint16, ppm |
+| PM2.5 | `0x0D` | uint16, µg/m³ |
+| PM10 | `0x0E` | uint16, µg/m³ |
+
+**Behavior**:
+- While awake: connectable advertising with BTHome data, refreshed every ~5s
+- During timer-wake (sensor logging): 3-second non-connectable BTHome broadcast after each sensor reading
+- While sleeping: no advertising (device is in deep sleep between sensor cycles)
+
+Home Assistant auto-discovers the device via BTHome integration.
 
 ### Key Constants
 
@@ -199,7 +241,7 @@ Full characteristic UUID format: `fc7d4395-1019-49c4-a91b-7491ecc4XXXX`
 
 - Ensure device is powered on and running app firmware (not already in bootloader mode)
 - Check Bluetooth is enabled on your computer
-- The script scans by service UUID first, then falls back to scanning by name ("ucritair")
+- The script scans by service UUID first, then falls back to scanning by name ("ucrit")
 - Try increasing the timeout: `python3 scripts/trigger_dfu.py --timeout 30`
 
 ### `dfu-util`: No DFU capable USB device available
