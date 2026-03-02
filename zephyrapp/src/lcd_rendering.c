@@ -21,15 +21,17 @@ LOG_MODULE_REGISTER(lcd_rendering, LOG_LEVEL_DBG);
 #include <zephyr/sys/reboot.h>
 #include <hal/nrf_power.h>
 
-/* USB serial command handler: polls console UART for 4-byte magic sequences.
- * Supports two commands (shared CA 7D prefix):
- *   CA 7D F0 01 — enter MCUboot DFU mode (GPREGRET + warm reboot)
- *   CA 7D BE 01 — warm reboot (preserves RTC, no DFU)
- * This lets scripts trigger DFU/reboot over USB without BLE. */
+/* USB serial command handler: polls console UART for magic sequences.
+ * Supports three commands (shared CA 7D prefix):
+ *   CA 7D F0 01             — enter MCUboot DFU mode (GPREGRET + warm reboot)
+ *   CA 7D BE 01             — warm reboot (preserves RTC, no DFU)
+ *   CA 7D 54 04 [u32 LE]    — set RTC time (4-byte Unix timestamp payload)
+ * This lets scripts trigger DFU/reboot/time-set over USB without BLE. */
 static void usb_dfu_poll(void)
 {
-	static uint8_t buf[4];
+	static uint8_t buf[8];
 	static uint8_t pos = 0;
+	static uint8_t need = 4;
 	static const uint8_t prefix[] = {0xCA, 0x7D};
 	const struct device *dev = DEVICE_DT_GET(DT_CHOSEN(zephyr_console));
 
@@ -45,6 +47,7 @@ static void usb_dfu_poll(void)
 			if (c != prefix[pos - 1]) {
 				pos = (c == prefix[0]) ? 1 : 0;
 				if (pos == 1) buf[0] = c;
+				need = 4;
 			}
 			continue;
 		}
@@ -52,16 +55,37 @@ static void usb_dfu_poll(void)
 		if (pos < 4)
 			continue;
 
-		/* Got 4 bytes — dispatch */
-		if (buf[2] == 0xF0 && buf[3] == 0x01) {
-			printk("USB_CMD: entering bootloader\n");
-			nrf_power_gpregret_set(NRF_POWER, 0, 0xB1);
-			sys_reboot(SYS_REBOOT_WARM);
-		} else if (buf[2] == 0xBE && buf[3] == 0x01) {
-			printk("USB_CMD: warm reboot\n");
-			power_off_reboot();
+		/* Got 4-byte header — dispatch or extend */
+		if (pos == 4) {
+			if (buf[2] == 0xF0 && buf[3] == 0x01) {
+				printk("USB_CMD: entering bootloader\n");
+				nrf_power_gpregret_set(NRF_POWER, 0, 0xB1);
+				sys_reboot(SYS_REBOOT_WARM);
+			} else if (buf[2] == 0xBE && buf[3] == 0x01) {
+				printk("USB_CMD: warm reboot\n");
+				power_off_reboot();
+			} else if (buf[2] == 0x54 && buf[3] == 0x04) {
+				need = 8; /* SET_TIME: 4 more bytes */
+				continue;
+			}
+			pos = 0;
+			need = 4;
+			continue;
+		}
+
+		/* Accumulate payload */
+		if (pos < need)
+			continue;
+
+		/* SET_TIME: 4-byte LE uint32 Unix timestamp */
+		if (buf[2] == 0x54 && buf[3] == 0x04) {
+			uint32_t t;
+			memcpy(&t, &buf[4], sizeof(t));
+			set_rtc_counter_raw(EPOCH_TIME_TO_RTC_TIME(t));
+			printk("USB_CMD: set time to %u\n", t);
 		}
 		pos = 0;
+		need = 4;
 	}
 }
 

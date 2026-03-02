@@ -157,8 +157,9 @@ Then inside the container:
 
 See **[docs/firmware-update.md](docs/firmware-update.md)** for the complete firmware update guide, including:
 
-- **Automated flash** — `scripts/flash.py` handles trigger + flash + verify in one command
-- **USB serial DFU trigger** — `scripts/trigger_dfu.py` sends magic bytes over USB serial
+- **New device setup** — `scripts/device_init.sh` handles full first-time init (bootloader + firmware + BLE smoke test)
+- **Automated flash** — `scripts/flash.py` handles trigger + flash + verify + time set in one command
+- **USB serial commands** — `scripts/trigger_dfu.py` for DFU trigger, reboot, or time set
 - **Manual DFU** — button combo fallback (SELECT+START+DOWN + RESET)
 - **One-time bootloader update** — migrating from old bootloader to GPREGRET-enabled bootloader
 

@@ -33,6 +33,31 @@
 
 ---
 
+## New Device Setup
+
+For brand new devices (or devices that need a bootloader upgrade), use the one-time init script:
+
+```bash
+cd cat_software
+./scripts/device_init.sh
+```
+
+The device must be connected via USB-C and in DFU mode (hold SELECT+START+DOWN, press RESET).
+
+The script will:
+1. Check prerequisites (dfu-util, python3, pyserial, bleak)
+2. Build firmware with embedded bootloader image
+3. Flash via dfu-util and set the clock
+4. Pause for you to run **Settings > DEVELOPER > UPDATE BOOTLOADER** on the device
+5. Build and flash standard production firmware via `flash.py` (tests the new bootloader)
+6. Run a BLE smoke test (GATT characteristics, ESS sensors, BTHome v2 advertising)
+
+After this one-time setup, use Method 1 below for all future firmware updates.
+
+Use `--skip-ble` to skip the BLE smoke test if `bleak` is not installed.
+
+---
+
 ## Method 1: Automated Flash (Recommended)
 
 Uses `flash.py` which handles the entire flow: trigger DFU via USB serial, wait for MCUboot, flash, and verify boot.
@@ -70,6 +95,7 @@ The script will:
 - Wait for MCUboot USB DFU to enumerate
 - Flash the firmware with dfu-util
 - Verify the device boots successfully
+- Set the device clock to the host's current time
 
 ---
 
@@ -154,6 +180,7 @@ The firmware polls the USB CDC ACM serial port for 4-byte magic sequences:
 |---------|-------------|--------|
 | Enter DFU | `CA 7D F0 01` | Sets GPREGRET=0xB1, warm reboot into MCUboot DFU |
 | Warm Reboot | `CA 7D BE 01` | Warm reboot (preserves RTC, no DFU) |
+| Set Time | `CA 7D 54 04` + 4-byte LE uint32 | Sets RTC to Unix timestamp (seconds since epoch) |
 
 These are used by `flash.py`, `trigger_dfu.py`, and `timing_test.py`.
 

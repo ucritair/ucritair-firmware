@@ -4,10 +4,10 @@ Flash firmware to a uCrit device via USB serial + DFU.
 
 Flow:
   1. Find device serial port
-  2. Send 4-byte magic over serial to trigger MCUboot DFU mode
-  3. Wait for MCUboot USB DFU to enumerate
-  4. Flash with dfu-util
-  5. Verify boot via serial
+  2. Send magic bytes over serial to trigger MCUboot DFU mode
+  3. Wait for MCUboot USB DFU to enumerate and flash with dfu-util
+  4. Verify boot via serial
+  5. Set device clock to host time
 
 Requires: pip install pyserial
 Also requires: dfu-util (brew install dfu-util / apt install dfu-util)
@@ -19,16 +19,20 @@ Usage:
 """
 
 import argparse
+import calendar
 import glob
 import os
 import re
 import shutil
+import struct
 import subprocess
 import sys
 import time
+from datetime import datetime
 
 
 DFU_MAGIC = bytes([0xCA, 0x7D, 0xF0, 0x01])
+SET_TIME_HEADER = bytes([0xCA, 0x7D, 0x54, 0x04])
 
 
 def find_serial_port():
@@ -150,6 +154,29 @@ def wait_for_boot(port_hint=None, timeout=15):
     return None
 
 
+def set_device_time(port):
+    """Set device RTC to current local time via USB serial.
+
+    The device has no timezone support — it displays the raw timestamp
+    directly. We send local time as a 'fake UTC' timestamp so the
+    device shows the correct local time.
+    """
+    import serial
+
+    now = calendar.timegm(time.localtime())
+    msg = SET_TIME_HEADER + struct.pack("<I", now)
+    try:
+        ser = serial.Serial(port, 115200, timeout=1)
+        time.sleep(0.5)
+        ser.write(msg)
+        ser.flush()
+        time.sleep(0.1)
+        ser.close()
+        return datetime.now().strftime("%Y-%m-%d %H:%M:%S %Z")
+    except Exception:
+        return None
+
+
 def main():
     parser = argparse.ArgumentParser(description="Flash firmware to uCrit via USB serial + DFU")
     parser.add_argument("firmware", help="Path to firmware .bin file")
@@ -169,7 +196,7 @@ def main():
     print(f"Firmware: {fw_name} ({fw_size:,} bytes)")
 
     # Step 1: Find serial port
-    print("\n[1/4] Finding device...")
+    print("\n[1/5] Finding device...")
     serial_port = args.port or find_serial_port()
     if not serial_port:
         print("  ERROR: No serial port found. Is the device connected via USB?")
@@ -177,14 +204,14 @@ def main():
     print(f"  Serial port: {serial_port}")
 
     # Step 2: Trigger DFU via serial magic bytes
-    print("\n[2/4] Triggering DFU via USB serial...")
+    print("\n[2/5] Triggering DFU via USB serial...")
     if not trigger_dfu_via_serial(serial_port):
         print("ERROR: Could not send DFU trigger")
         sys.exit(1)
     print("  DFU magic sent!")
 
     # Step 3: Wait for MCUboot USB DFU and flash
-    print("\n[3/4] Flashing...")
+    print("\n[3/5] Flashing...")
     print("  Waiting for MCUboot USB DFU...")
     for i in range(20):
         time.sleep(1)
@@ -204,15 +231,28 @@ def main():
 
     # Step 4: Verify boot
     if args.skip_verify:
-        print("\n[4/4] Skipped verification")
+        print("\n[4/5] Skipped verification")
     else:
-        print("\n[4/4] Verifying boot...")
+        print("\n[4/5] Verifying boot...")
         time.sleep(3)
         boot_ms = wait_for_boot(port_hint=args.port)
         if boot_ms is not None:
             print(f"  Booted OK! (k_uptime={boot_ms} ms)")
         else:
             print("  Could not verify (device may still have booted OK)")
+
+    # Step 5: Set device time
+    print("\n[5/5] Setting device time...")
+    time.sleep(1)
+    time_port = args.port or find_serial_port()
+    if time_port:
+        iso = set_device_time(time_port)
+        if iso:
+            print(f"  Time set to {iso}")
+        else:
+            print("  Could not set time (device may need manual time sync)")
+    else:
+        print("  No serial port — skipping time set")
 
     print(f"\nDone! Flashed {fw_name}")
 
