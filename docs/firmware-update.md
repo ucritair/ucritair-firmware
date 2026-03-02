@@ -3,12 +3,12 @@
 ## Architecture Overview
 
 ```
-+------------------+       BLE write        +------------------+
-| Computer/Phone   | ---------------------> | Cat Device (App) |
-| trigger_dfu.py   |  char 0x0009           | ble.c            |
-+------------------+  [CA 7D F0 01]         +--------+---------+
++------------------+       USB serial        +------------------+
+| Computer         | ---------------------> | Cat Device (App) |
+| trigger_dfu.py   |  [CA 7D F0 01]         | lcd_rendering.c  |
+| or flash.py      |  via CDC ACM           | usb_dfu_poll()   |
++------------------+                        +--------+---------+
                                                      |
-                                               bl_enter_dfu()
                                                GPREGRET = 0xB1
                                                warm reboot
                                                      |
@@ -33,16 +33,15 @@
 
 ---
 
-## Method 1: BLE-Triggered DFU (No Buttons Required)
+## Method 1: Automated Flash (Recommended)
 
-This is the primary update method. Requires the updated bootloader with GPREGRET support.
+Uses `flash.py` which handles the entire flow: trigger DFU via USB serial, wait for MCUboot, flash, and verify boot.
 
 ### Prerequisites
 
-- Python 3.8+ with `bleak`: `pip install bleak`
-- `dfu-util` installed (see main README for platform-specific setup)
+- Python 3.8+ with `pyserial`: `pip install pyserial`
+- `dfu-util` installed (`brew install dfu-util` / `apt install dfu-util`)
 - Device powered on and running application firmware
-- Bluetooth enabled on computer
 - USB cable connected between device and computer
 
 ### Steps
@@ -54,57 +53,74 @@ This is the primary update method. Requires the updated bootloader with GPREGRET
 docker compose run --rm dev
 ./utils/build.sh --embedded
 
-# Or locally with west:
-west build -p always -b cat5340/nrf5340/cpuapp ...
+# Or locally:
+cd zephyrapp/game
+./utils/build.sh --embedded --aq-first
 ```
 
-2. Trigger DFU mode over BLE:
+2. Flash:
+
+```bash
+python3 scripts/flash.py zephyrapp/game/utils/cache/latest.bin
+```
+
+The script will:
+- Find the USB serial port
+- Send the DFU magic bytes to trigger MCUboot
+- Wait for MCUboot USB DFU to enumerate
+- Flash the firmware with dfu-util
+- Verify the device boots successfully
+
+---
+
+## Method 2: Manual Steps
+
+### Trigger DFU mode via USB serial
 
 ```bash
 python3 scripts/trigger_dfu.py
 ```
 
-The device LCD will show "CAT BOOTLOADER MODE". The script will report "disconnected" which is expected (the device rebooted).
+The device reboots into MCUboot and the LCD shows "CAT BOOTLOADER MODE".
 
-3. Flash via USB:
+### Flash via USB
 
 ```bash
-dfu-util --download zephyrapp/build/zephyr/zephyr.signed.bin --reset
+# Wait a few seconds for USB DFU to enumerate
+dfu-util --alt 0 --download zephyrapp/build/zephyr/zephyr.signed.bin --reset
 ```
 
-The device reboots into the new firmware automatically.
-
-### One-liner (trigger + wait + flash)
+### One-liner
 
 ```bash
-python3 scripts/trigger_dfu.py && sleep 3 && dfu-util --download zephyrapp/build/zephyr/zephyr.signed.bin --reset
+python3 scripts/trigger_dfu.py && sleep 3 && dfu-util --alt 0 --download zephyrapp/game/utils/cache/latest.bin --reset
 ```
 
 ---
 
-## Method 2: Manual DFU (Button Combo Fallback)
+## Method 3: Manual DFU (Button Combo Fallback)
 
-Works with any bootloader version. No BLE or Python required.
+Works without any scripts. No Python required.
 
 1. Hold **SELECT + START + DOWN** buttons simultaneously
-2. While holding the buttons, press **RESET** (may need a paperclip)
+2. While holding the buttons, press **RESET**
 3. LCD shows "CAT BOOTLOADER MODE"
 4. Flash via USB:
 
 ```bash
-dfu-util --download zephyrapp/build/zephyr/zephyr.signed.bin --reset
+dfu-util --alt 0 --download zephyrapp/build/zephyr/zephyr.signed.bin --reset
 ```
 
 ---
 
-## Method 3: One-Time Bootloader Update
+## Method 4: One-Time Bootloader Update
 
-Devices with the original bootloader (no GPREGRET support) need a one-time bootloader update. After this update, BLE-triggered DFU (Method 1) works permanently.
+Devices with the original bootloader (no GPREGRET support) need a one-time bootloader update. After this, the USB serial DFU trigger works permanently.
 
 ### When is this needed?
 
 - The device has never had its bootloader updated
-- BLE DFU trigger causes the device to just reboot back to the app (old bootloader ignores GPREGRET)
+- DFU trigger causes the device to just reboot back to the app (old bootloader ignores GPREGRET)
 
 ### Steps
 
@@ -114,38 +130,32 @@ Devices with the original bootloader (no GPREGRET support) need a one-time bootl
 ./utils/build.sh --embedded --bootloader
 ```
 
-The `--bootloader` flag includes the ~53 KB bootloader binary in the firmware image. This is only needed for this one-time update.
-
-2. Flash this firmware via the **old method** (button combo, Method 2). This is the last time the button combo is needed.
+2. Flash this firmware via the **button combo** (Method 3). This is the last time the button combo is needed.
 
 3. On the device, navigate to: **Settings > DEVELOPER > UPDATE BOOTLOADER**
-
-   Or trigger remotely via BLE:
-
-```bash
-python3 scripts/trigger_dfu.py --bl-update
-```
 
 4. The device will:
    - Check battery level (must be >= 20%)
    - Copy the embedded bootloader image to RAM
    - Erase the boot partition
-   - Write the new bootloader from RAM
+   - Write the new bootloader
    - Read-back verify (up to 3 retry attempts)
    - Reboot with the new bootloader
 
-5. After the update succeeds, all future firmware builds can use the normal `--embedded` flag without `--bootloader`. The embedded bootloader image is no longer needed.
+5. After the update succeeds, all future builds can use the standard `--embedded` flag. The `--bootloader` flag is no longer needed.
 
-### Subsequent firmware updates
+---
 
-After the one-time bootloader update, the standard workflow is:
+## USB Serial Commands
 
-```bash
-./utils/build.sh --embedded          # no --bootloader needed
-python3 scripts/trigger_dfu.py       # BLE trigger
-sleep 3
-dfu-util --download zephyrapp/build/zephyr/zephyr.signed.bin --reset
-```
+The firmware polls the USB CDC ACM serial port for 4-byte magic sequences:
+
+| Command | Magic Bytes | Effect |
+|---------|-------------|--------|
+| Enter DFU | `CA 7D F0 01` | Sets GPREGRET=0xB1, warm reboot into MCUboot DFU |
+| Warm Reboot | `CA 7D BE 01` | Warm reboot (preserves RTC, no DFU) |
+
+These are used by `flash.py`, `trigger_dfu.py`, and `timing_test.py`.
 
 ---
 
@@ -170,23 +180,20 @@ xxd -i mcuboot/build/zephyr/zephyr.bin > zephyrapp/src/bootloader_image_data.inc
 
 Full characteristic UUID format: `fc7d4395-1019-49c4-a91b-7491ecc4XXXX`
 
-| Char (XXXX) | Name | Access | Magic Bytes | Description |
-|-------------|------|--------|-------------|-------------|
-| `0x0001` | Device Name | R/W | - | Device identifier string |
-| `0x0002` | Time | R/W | - | Unix timestamp (uint32) |
-| `0x0003` | Cell Count | R | - | Log cell count |
-| `0x0004` | Cell Selector | R/W | - | Select log cell to read |
-| `0x0005` | Cell Data | R | - | Read selected log cell data |
-| `0x0006` | Log Stream | W+N | - | Bulk log download via notifications (write `{start_cell: u32, count: u32}`, receive cells as notifications, end marker `0xFFFFFFFF`) |
-| `0x0009` | DFU Control | W | `CA 7D F0 01` | Triggers DFU mode (GPREGRET reboot) |
-| `0x0009` | Warm Reboot | W | `CA 7D BE 01` | Triggers warm reboot (preserves RTC, no DFU) |
-| `0x000A` | BL Update | W | `CA 7D B0 07` | Triggers bootloader self-update |
-| `0x0010` | Stats | R | - | Pet stats (vigour/focus/spirit/age) |
-| `0x0011` | Items Owned | R | - | Owned items bitmap |
-| `0x0012` | Items Placed | R | - | Placed items bitmap |
-| `0x0013` | Bonus | R/W | - | Bonus value |
-| `0x0014` | Pet Name | R/W | - | Pet name string |
-| `0x0015` | Device Config | R/W | - | Device configuration (sensor period, sleep/dim timeouts, brightness, flags) |
+| Char (XXXX) | Name | Access | Description |
+|-------------|------|--------|-------------|
+| `0x0001` | Device Name | R/W | Device identifier string |
+| `0x0002` | Time | R/W | Unix timestamp (uint32) |
+| `0x0003` | Cell Count | R | Log cell count |
+| `0x0004` | Cell Selector | R/W | Select log cell to read |
+| `0x0005` | Cell Data | R | Read selected log cell data |
+| `0x0006` | Log Stream | W+N | Bulk log download via notifications (write `{start_cell: u32, count: u32}`, receive cells as notifications, end marker `0xFFFFFFFF`) |
+| `0x0010` | Stats | R | Pet stats (vigour/focus/spirit/age) |
+| `0x0011` | Items Owned | R | Owned items bitmap |
+| `0x0012` | Items Placed | R | Placed items bitmap |
+| `0x0013` | Bonus | R/W | Bonus value |
+| `0x0014` | Pet Name | R/W | Pet name string |
+| `0x0015` | Device Config | R/W | Device configuration (sensor period, sleep/dim timeouts, brightness, flags) |
 
 ### ESS Service (0x181A) — Environmental Sensing
 
@@ -240,25 +247,23 @@ Home Assistant auto-discovers the device via BTHome integration.
 
 ## Troubleshooting
 
-### `trigger_dfu.py`: Device not found
+### `flash.py` / `trigger_dfu.py`: No serial port found
 
-- Ensure device is powered on and running app firmware (not already in bootloader mode)
-- Check Bluetooth is enabled on your computer
-- The script scans by service UUID first, then falls back to scanning by name ("ucrit")
-- Try increasing the timeout: `python3 scripts/trigger_dfu.py --timeout 30`
+- Ensure the device is powered on and connected via USB
+- Check that a serial port appears: `ls /dev/tty.usbmodem*` (macOS) or `ls /dev/ttyACM*` (Linux)
+- Specify the port manually: `--port /dev/ttyACM0`
 
 ### `dfu-util`: No DFU capable USB device available
 
-- Ensure a USB cable is connected (BLE trigger only puts the device in DFU mode; actual flashing is over USB)
 - Wait 3-5 seconds after triggering DFU for USB enumeration
 - On **Windows**: run Zadig to install WinUSB driver for the `MCUBOOT` device
 - On **Linux**: check udev rules (see main README.md)
 - Verify with `dfu-util -l` that the device appears (VID:PID `2FE3:0100`)
 
-### BLE DFU trigger causes device to just reboot normally
+### DFU trigger causes device to just reboot normally
 
 - The bootloader does not have GPREGRET support (old bootloader)
-- Follow "Method 3: One-Time Bootloader Update" to install the new bootloader
+- Follow "Method 4: One-Time Bootloader Update" to install the new bootloader
 
 ### "UPDATE BOOTLOADER" not shown in developer menu
 
@@ -270,7 +275,6 @@ Home Assistant auto-discovers the device via BTHome integration.
 - Check battery level is above 20%
 - Ensure USB power is connected for stable supply
 - The update retries up to 3 times automatically
-- If all attempts fail, the device may still boot if the old bootloader was partially preserved
 - Worst case: use J-Link/nrfjprog to reflash the bootloader via SWD
 
 ### Device stuck in bootloader mode

@@ -21,13 +21,16 @@ LOG_MODULE_REGISTER(lcd_rendering, LOG_LEVEL_DBG);
 #include <zephyr/sys/reboot.h>
 #include <hal/nrf_power.h>
 
-/* USB serial DFU trigger: polls console UART for the 4-byte DFU magic.
- * When received, sets GPREGRET and reboots into MCUboot DFU mode.
- * This lets the flash script trigger DFU over USB without BLE. */
+/* USB serial command handler: polls console UART for 4-byte magic sequences.
+ * Supports two commands (shared CA 7D prefix):
+ *   CA 7D F0 01 — enter MCUboot DFU mode (GPREGRET + warm reboot)
+ *   CA 7D BE 01 — warm reboot (preserves RTC, no DFU)
+ * This lets scripts trigger DFU/reboot over USB without BLE. */
 static void usb_dfu_poll(void)
 {
-	static const uint8_t magic[] = {0xCA, 0x7D, 0xF0, 0x01};
+	static uint8_t buf[4];
 	static uint8_t pos = 0;
+	static const uint8_t prefix[] = {0xCA, 0x7D};
 	const struct device *dev = DEVICE_DT_GET(DT_CHOSEN(zephyr_console));
 
 	if (!device_is_ready(dev))
@@ -35,16 +38,30 @@ static void usb_dfu_poll(void)
 
 	uint8_t c;
 	while (uart_poll_in(dev, &c) == 0) {
-		if (c == magic[pos]) {
-			pos++;
-			if (pos == sizeof(magic)) {
-				printk("USB_DFU: entering bootloader\n");
-				nrf_power_gpregret_set(NRF_POWER, 0, 0xB1);
-				sys_reboot(SYS_REBOOT_WARM);
+		buf[pos++] = c;
+
+		/* Check prefix as bytes arrive */
+		if (pos <= sizeof(prefix)) {
+			if (c != prefix[pos - 1]) {
+				pos = (c == prefix[0]) ? 1 : 0;
+				if (pos == 1) buf[0] = c;
 			}
-		} else {
-			pos = (c == magic[0]) ? 1 : 0;
+			continue;
 		}
+
+		if (pos < 4)
+			continue;
+
+		/* Got 4 bytes — dispatch */
+		if (buf[2] == 0xF0 && buf[3] == 0x01) {
+			printk("USB_CMD: entering bootloader\n");
+			nrf_power_gpregret_set(NRF_POWER, 0, 0xB1);
+			sys_reboot(SYS_REBOOT_WARM);
+		} else if (buf[2] == 0xBE && buf[3] == 0x01) {
+			printk("USB_CMD: warm reboot\n");
+			power_off_reboot();
+		}
+		pos = 0;
 	}
 }
 

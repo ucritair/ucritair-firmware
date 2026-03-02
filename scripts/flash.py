@@ -22,6 +22,7 @@ import argparse
 import glob
 import os
 import re
+import shutil
 import subprocess
 import sys
 import time
@@ -45,6 +46,7 @@ def trigger_dfu_via_serial(port):
 
     try:
         ser = serial.Serial(port, 115200, timeout=1)
+        time.sleep(0.5)
         ser.write(DFU_MAGIC)
         ser.flush()
         time.sleep(0.1)
@@ -158,7 +160,7 @@ def main():
     if not os.path.isfile(args.firmware):
         print(f"ERROR: File not found: {args.firmware}")
         sys.exit(1)
-    if not subprocess.run(["which", "dfu-util"], capture_output=True).returncode == 0:
+    if not shutil.which("dfu-util"):
         print("ERROR: dfu-util not found (brew install dfu-util)")
         sys.exit(1)
 

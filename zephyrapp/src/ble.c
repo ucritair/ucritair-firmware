@@ -31,10 +31,8 @@
 #include "lcd_rendering.h"
 #include "item_assets.h"
 #include "cat_pet.h"
-#include "bl_update.h"
 #include "batt.h"
 #include "cat_persist.h"
-#include "power_control.h"
 
 /* ── BTHome v2 ──────────────────────────────────────────────── */
 #define BTHOME_UUID16_LO 0xD2
@@ -303,55 +301,6 @@ static ssize_t write_name(struct bt_conn *conn, const struct bt_gatt_attr *attr,
 	return len;
 }
 
-/* DFU control: write 4-byte magic to enter DFU or trigger reboot */
-static const uint8_t dfu_magic[] = {0xCA, 0x7D, 0xF0, 0x01};
-static const uint8_t reboot_magic[] = {0xCA, 0x7D, 0xBE, 0x01}; /* CA7D BE01 = "cat reboot" */
-
-static ssize_t write_dfu_control(struct bt_conn *conn, const struct bt_gatt_attr *attr,
-			 const void *buf, uint16_t len, uint16_t offset,
-			 uint8_t flags)
-{
-	if (len != sizeof(dfu_magic) || offset != 0)
-		return BT_GATT_ERR(BT_ATT_ERR_INVALID_ATTRIBUTE_LEN);
-
-	if (memcmp(buf, dfu_magic, sizeof(dfu_magic)) == 0)
-	{
-		printk("BLE: DFU requested, entering bootloader...\n");
-		bl_enter_dfu();
-	}
-	else if (memcmp(buf, reboot_magic, sizeof(reboot_magic)) == 0)
-	{
-		printk("BLE: Warm reboot requested (power_off_reboot)...\n");
-		power_off_reboot();
-	}
-
-	return len;
-}
-
-/* BL update control: write 4-byte magic [0xCA, 0x7D, 0xB0, 0x07] to flash bootloader */
-static const uint8_t bl_update_magic[] = {0xCA, 0x7D, 0xB0, 0x07};
-
-static ssize_t write_bl_update(struct bt_conn *conn, const struct bt_gatt_attr *attr,
-			 const void *buf, uint16_t len, uint16_t offset,
-			 uint8_t flags)
-{
-	if (len != sizeof(bl_update_magic) || offset != 0)
-		return BT_GATT_ERR(BT_ATT_ERR_INVALID_ATTRIBUTE_LEN);
-
-	if (memcmp(buf, bl_update_magic, sizeof(bl_update_magic)) == 0)
-	{
-		if (!bl_image_included())
-		{
-			printk("BLE: Bootloader image not included in this build\n");
-			return BT_GATT_ERR(BT_ATT_ERR_WRITE_NOT_PERMITTED);
-		}
-		printk("BLE: Bootloader update requested...\n");
-		bl_update_flash(); /* will reboot on success */
-	}
-
-	return len;
-}
-
 /* ── BTHome advertising data update ──────────────────────────── */
 void update_bthome_adv_data(void)
 {
@@ -542,15 +491,6 @@ BT_GATT_SERVICE_DEFINE(vnd_svc,
 		BT_UUID_DECLARE_128(VND_UUID_PFX(0x0014)),
 		BT_GATT_CHRC_READ|BT_GATT_CHRC_WRITE, BT_GATT_PERM_READ|BT_GATT_PERM_WRITE,
 		read_name, write_name, NULL),
-	// player attributes and age
-	BT_GATT_CHARACTERISTIC(
-		BT_UUID_DECLARE_128(VND_UUID_PFX(0x0009)),
-		BT_GATT_CHRC_WRITE, BT_GATT_PERM_WRITE,
-		NULL, write_dfu_control, NULL),
-	BT_GATT_CHARACTERISTIC(
-		BT_UUID_DECLARE_128(VND_UUID_PFX(0x000A)),
-		BT_GATT_CHRC_WRITE, BT_GATT_PERM_WRITE,
-		NULL, write_bl_update, NULL),
 	/* Log stream: write {start_cell, count} to begin streaming via notify */
 	BT_GATT_CHARACTERISTIC(
 		BT_UUID_DECLARE_128(VND_UUID_PFX(0x0006)),

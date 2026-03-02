@@ -153,11 +153,12 @@ Then inside the container:
 
 ---
 
-## Firmware Update (BLE + USB DFU)
+## Firmware Update (USB DFU)
 
 See **[docs/firmware-update.md](docs/firmware-update.md)** for the complete firmware update guide, including:
 
-- **BLE-triggered DFU** — no buttons required (`scripts/trigger_dfu.py`)
+- **Automated flash** — `scripts/flash.py` handles trigger + flash + verify in one command
+- **USB serial DFU trigger** — `scripts/trigger_dfu.py` sends magic bytes over USB serial
 - **Manual DFU** — button combo fallback (SELECT+START+DOWN + RESET)
 - **One-time bootloader update** — migrating from old bootloader to GPREGRET-enabled bootloader
 
