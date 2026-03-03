@@ -65,6 +65,16 @@ static uint8_t bthome_svc_data[20] = {
 
 bool ble_connected = false;
 
+/* Dedicated work queue for BLE notifications.
+ * bt_gatt_notify() can block for seconds on a dead link (waiting for TX
+ * credits during BLE supervision timeout). Running notifications on a
+ * separate work queue prevents this from blocking the system work queue
+ * (which Zephyr needs for connection cleanup) or the main game thread. */
+#define BLE_NOTIFY_STACK_SIZE 1024
+#define BLE_NOTIFY_PRIORITY 5
+static K_THREAD_STACK_DEFINE(ble_notify_stack, BLE_NOTIFY_STACK_SIZE);
+static struct k_work_q ble_notify_wq;
+
 #define VND_UUID_PFX(x) BT_UUID_128_ENCODE(0xfc7d4395, 0x1019, 0x49c4, 0xa91b, (0x7491ecc4ull<<16) | (unsigned long long)x)
 
 /* Custom Service Variables */
@@ -74,7 +84,8 @@ bool ble_connected = false;
 
 bool ble_ok = false;
 
-static uint8_t vnd_value[VND_MAX_LEN + 1] = { 'u', 'c', 'r', 'i', 't', 'r'};
+static uint8_t vnd_value[VND_MAX_LEN + 1];
+static char device_id[7]; /* 6-char base-36 ID + NUL */
 
 static ssize_t read_vnd(struct bt_conn *conn, const struct bt_gatt_attr *attr,
 			void *buf, uint16_t len, uint16_t offset)
@@ -401,7 +412,7 @@ static ssize_t write_log_stream(struct bt_conn *conn, const struct bt_gatt_attr 
 	printk("Log stream: start=%u count=%u\n", log_stream_start, log_stream_count);
 	lcd_keep_awake();
 
-	k_work_schedule(&log_stream_work, K_MSEC(10));
+	k_work_schedule_for_queue(&ble_notify_wq, &log_stream_work, K_MSEC(10));
 	return len;
 }
 
@@ -410,7 +421,7 @@ static const struct bt_gatt_attr *log_stream_notify_attr = NULL;
 
 static void log_stream_work_handler(struct k_work *work)
 {
-	if (!log_stream_active || !ble_ok || !log_stream_notify_attr)
+	if (!log_stream_active || !ble_ok || !ble_connected || !log_stream_notify_attr)
 		return;
 
 	uint32_t cells_sent = log_stream_cursor - log_stream_start;
@@ -439,13 +450,13 @@ static void log_stream_work_handler(struct k_work *work)
 				 &pkt, sizeof(pkt) - sizeof(pkt.cell.pad));
 	if (err) {
 		/* BLE buffer full, retry later */
-		k_work_schedule(&log_stream_work, K_MSEC(50));
+		k_work_schedule_for_queue(&ble_notify_wq, &log_stream_work, K_MSEC(50));
 		return;
 	}
 
 	log_stream_cursor++;
 	lcd_keep_awake();
-	k_work_schedule(&log_stream_work, K_MSEC(10));
+	k_work_schedule_for_queue(&ble_notify_wq, &log_stream_work, K_MSEC(10));
 }
 
 /* Vendor Primary Service Declaration */
@@ -630,6 +641,9 @@ static struct bt_gatt_cb gatt_callbacks = {
 	.att_mtu_updated = mtu_updated
 };
 
+static void sensor_notify_work_handler(struct k_work *work);
+static K_WORK_DEFINE(sensor_notify_work, sensor_notify_work_handler);
+
 static void adv_restart_work_handler(struct k_work *work)
 {
 	update_bthome_adv_data();
@@ -659,6 +673,11 @@ static void disconnected(struct bt_conn *conn, uint8_t reason)
 	printk("Disconnected, reason 0x%02x %s\n", reason, bt_hci_err_to_str(reason));
 	ble_connected = false;
 	log_stream_active = false;
+	k_work_cancel_delayable(&log_stream_work);
+	k_work_cancel(&sensor_notify_work);
+	log_stream_cursor = 0;
+	log_stream_start = 0;
+	log_stream_count = 0;
 	k_work_submit(&adv_restart_work);
 }
 
@@ -730,6 +749,11 @@ int ble_main(void)
 {
 	int err;
 
+	k_work_queue_init(&ble_notify_wq);
+	k_work_queue_start(&ble_notify_wq, ble_notify_stack,
+			   K_THREAD_STACK_SIZEOF(ble_notify_stack),
+			   BLE_NOTIFY_PRIORITY, NULL);
+
 	err = bt_enable(NULL);
 	if (err) {
 		printk("Bluetooth init failed (err %d)\n", err);
@@ -745,7 +769,7 @@ int ble_main(void)
 		vnd_svc.attrs, vnd_svc.attr_count,
 		BT_UUID_DECLARE_128(VND_UUID_PFX(0x0006)));
 
-	/* Print BLE address so serial-connected tools can identify this device */
+	/* Derive unique device ID from BLE identity address (FICR-based) */
 	bt_addr_le_t addrs[CONFIG_BT_ID_MAX];
 	size_t id_count = CONFIG_BT_ID_MAX;
 	bt_id_get(addrs, &id_count);
@@ -753,6 +777,32 @@ int ble_main(void)
 		char addr_str[BT_ADDR_LE_STR_LEN];
 		bt_addr_le_to_str(&addrs[0], addr_str, sizeof(addr_str));
 		printk("BLE_ADDR: %s\n", addr_str);
+
+		/* FNV-1a hash of 6-byte address -> 32 bits */
+		const uint8_t *a = addrs[0].a.val;
+		uint32_t h = 2166136261u;
+		for (int i = 0; i < 6; i++) {
+			h ^= a[i];
+			h *= 16777619u;
+		}
+
+		/* Encode as 6 base-36 chars (A-Z 0-9, ~31 bits) */
+		static const char b36[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+		for (int i = 0; i < 6; i++) {
+			device_id[i] = b36[h % 36];
+			h /= 36;
+		}
+		device_id[6] = '\0';
+
+		/* Set GAP device name (visible when connected/paired) */
+		char name[VND_MAX_LEN + 1];
+		snprintf(name, sizeof(name), "uCrit-%s", device_id);
+		bt_set_name(name);
+
+		/* Populate device name characteristic (0x0001) */
+		memcpy(vnd_value, name, strlen(name) + 1);
+
+		printk("Device ID: %s (name: %s)\n", device_id, name);
 	}
 
 	ble_ok = true;
@@ -797,22 +847,33 @@ void ble_update()
  * [17] char decl: PM10
  * [18] char value: PM10
  */
-void ble_notify_sensors(void)
+static void sensor_notify_work_handler(struct k_work *work)
 {
-	if (!ble_ok)
+	if (!ble_ok || !ble_connected)
 		return;
 
 	int16_t temp_val = (int16_t)(readings.lps22hh.temp * 100);
 	bt_gatt_notify(NULL, &attr_ess_svc[2], &temp_val, sizeof(temp_val));
 
+	if (!ble_connected) return;
 	int16_t hum_val = (int16_t)(readings.sen5x.humidity_rhpct * 100);
 	bt_gatt_notify(NULL, &attr_ess_svc[7], &hum_val, sizeof(hum_val));
 
+	if (!ble_connected) return;
 	int16_t co2_val = (int16_t)(readings.sunrise.ppm_filtered_compensated);
 	bt_gatt_notify(NULL, &attr_ess_svc[10], &co2_val, sizeof(co2_val));
 
+	if (!ble_connected) return;
 	__fp16 pm25_val = (__fp16)(readings.sen5x.pm2_5);
 	bt_gatt_notify(NULL, &attr_ess_svc[15], &pm25_val, sizeof(pm25_val));
+}
+
+void ble_notify_sensors(void)
+{
+	if (!ble_ok || !ble_connected)
+		return;
+
+	k_work_submit_to_queue(&ble_notify_wq, &sensor_notify_work);
 }
 
 void ble_print_addr(void)

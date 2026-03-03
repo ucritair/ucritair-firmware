@@ -8,3 +8,4 @@ void ble_broadcast_bthome(void);
 
 extern bool ble_ok;
 extern bool ble_connected;
+extern char device_id[7]; /* 6-char base-36 unique device ID */
