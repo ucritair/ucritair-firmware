@@ -1,0 +1,627 @@
+#!/usr/bin/env zsh
+# catrelease — Firmware release pipeline for uCritAir
+#
+# Usage:
+#   catrelease build [--standard] [--bootloader] [--all] [--docker]
+#   catrelease version [--show] [--bump major|minor|patch|push]
+#   catrelease deploy [--webdfu] [--no-push]
+#   catrelease tag [--push]
+#   catrelease release [--no-push] [--docker]
+#
+set -euo pipefail
+
+# ── Paths ──────────────────────────────────────────────────────────
+CAT_SOFTWARE_DIR="${CAT_SOFTWARE_DIR:-$HOME/Code/cat_software}"
+WEBDFU_DIR="${WEBDFU_DIR:-$HOME/Code/ucritair-webdfu}"
+ZEPHYR_PROJECT_DIR="${ZEPHYR_PROJECT_DIR:-$HOME/Code/zephyrproject/zephyr}"
+
+ZEPHYR_APP_DIR="${CAT_SOFTWARE_DIR}/zephyrapp"
+ZEPHYR_GAME_DIR="${ZEPHYR_APP_DIR}/game"
+RELEASE_DIR="${CAT_SOFTWARE_DIR}/release"
+
+VERSION_HEADER="${ZEPHYR_GAME_DIR}/src/core/cat_version.h"
+VERSION_PY="${ZEPHYR_GAME_DIR}/utils/version.py"
+BUILD_SH="${ZEPHYR_GAME_DIR}/utils/build.sh"
+ENVIRONMENT_SH="${ZEPHYR_GAME_DIR}/utils/environment.sh"
+
+VERSION_MD_FILE="${WEBDFU_DIR}/VERSION.MD"
+CHANGELOG_MD_FILE="${WEBDFU_DIR}/CHANGELOG.MD"
+SOURCE_REPO_NAME="ucritair-firmware"
+SOURCE_COMMIT_MARKER="*Based on ${SOURCE_REPO_NAME} commit:"
+
+# ── Output helpers ─────────────────────────────────────────────────
+info()    { print -P "%F{blue}→%f $1" }
+ok()      { print -P "%F{green}✓%f $1" }
+warn()    { print -P "%F{yellow}⚠%f $1" }
+err()     { print -P "%F{red}✗%f $1" >&2 }
+die()     { err "$1"; exit 1 }
+heading() { print -P "\n%F{cyan}━━ $1 ━━%f" }
+
+# ── Version helpers ────────────────────────────────────────────────
+get_version_components() {
+    [[ -f "$VERSION_HEADER" ]] || die "Version header not found: $VERSION_HEADER"
+    local major minor patch push
+    major=$(grep '#define CAT_VERSION_MAJOR' "$VERSION_HEADER" | awk '{print $3}')
+    minor=$(grep '#define CAT_VERSION_MINOR' "$VERSION_HEADER" | awk '{print $3}')
+    patch=$(grep '#define CAT_VERSION_PATCH' "$VERSION_HEADER" | awk '{print $3}')
+    push=$(grep '#define CAT_VERSION_PUSH'  "$VERSION_HEADER" | awk '{print $3}')
+    [[ -n "$major" && -n "$minor" && -n "$patch" && -n "$push" ]] \
+        || die "Could not parse version from $VERSION_HEADER"
+    echo "$major $minor $patch $push"
+}
+
+get_version_string() {
+    local parts=($(get_version_components))
+    echo "v${parts[1]}-${parts[2]}-${parts[3]}-${parts[4]}"
+}
+
+get_version_tag() {
+    local parts=($(get_version_components))
+    echo "v${parts[1]}.${parts[2]}.${parts[3]}.${parts[4]}"
+}
+
+get_version_dotted() {
+    local parts=($(get_version_components))
+    echo "${parts[1]}.${parts[2]}.${parts[3]}.${parts[4]}"
+}
+
+get_commit_short() {
+    git -C "$CAT_SOFTWARE_DIR" rev-parse --short=7 HEAD
+}
+
+get_commit_full() {
+    git -C "$CAT_SOFTWARE_DIR" rev-parse HEAD
+}
+
+# ── Validation helpers ─────────────────────────────────────────────
+validate_binary() {
+    local path="$1" label="$2"
+    [[ -f "$path" ]] || die "$label binary not found: $path"
+    local size
+    size=$(/usr/bin/wc -c < "$path")
+    size=${size// /}  # trim whitespace using zsh parameter expansion
+    if [[ -z "$size" ]] || (( size < 500000 )); then
+        die "$label binary suspiciously small: ${size:-0} bytes (expected >500KB)"
+    fi
+    if (( size > 1500000 )); then
+        die "$label binary suspiciously large: ${size} bytes (expected <1.5MB)"
+    fi
+    ok "$label binary OK: $(( size / 1024 ))KB ($path)"
+}
+
+require_clean_repo() {
+    local dir="$1" name="$2"
+    if ! git -C "$dir" diff --quiet 2>/dev/null || ! git -C "$dir" diff --staged --quiet 2>/dev/null; then
+        die "$name repo has uncommitted changes. Commit or stash first."
+    fi
+    local untracked=$(git -C "$dir" ls-files --others --exclude-standard 2>/dev/null | head -5)
+    if [[ -n "$untracked" ]]; then
+        warn "$name repo has untracked files (continuing anyway):"
+        echo "$untracked" | sed 's/^/  /'
+    fi
+}
+
+require_on_main() {
+    local dir="$1" name="$2"
+    local branch=$(git -C "$dir" branch --show-current 2>/dev/null)
+    [[ "$branch" == "main" ]] || die "$name repo is on branch '$branch', expected 'main'"
+}
+
+# ── Build helpers ──────────────────────────────────────────────────
+source_zephyr_env() {
+    info "Sourcing Zephyr environment..."
+    if [[ ! -f "${ZEPHYR_PROJECT_DIR}/zephyr-env.sh" ]]; then
+        die "Zephyr env not found at ${ZEPHYR_PROJECT_DIR}/zephyr-env.sh"
+    fi
+    source "${ZEPHYR_PROJECT_DIR}/zephyr-env.sh"
+    # environment.sh uses relative paths (utils/requirements.txt), must be in game dir
+    (cd "${ZEPHYR_GAME_DIR}" && source "${ENVIRONMENT_SH}")
+    # Re-activate venv in current shell (subshell above doesn't propagate)
+    source "$ZEPHYR_BASE/../venv/bin/activate"
+    ok "Environment sourced"
+}
+
+do_build() {
+    local label="$1" variant="$2" use_docker="$3"
+    local -a build_flags=(--clean --aq-first --embedded)
+    if [[ "$variant" == "bootloader" ]]; then
+        build_flags+=(--bootloader)
+    fi
+
+    heading "Building $label firmware"
+    info "Flags: ${build_flags[*]}"
+
+    if [[ "$use_docker" == "true" ]]; then
+        info "Using Docker..."
+        (cd "$CAT_SOFTWARE_DIR" && docker compose run --rm dev ./utils/build.sh "${build_flags[@]}")
+        # Docker changes file ownership
+        sudo chown -R $(whoami) "$ZEPHYR_APP_DIR/build" "$ZEPHYR_GAME_DIR/build" \
+            "$ZEPHYR_GAME_DIR/utils/cache" "$ZEPHYR_GAME_DIR/assets" 2>/dev/null || true
+    else
+        (cd "$ZEPHYR_GAME_DIR" && "$BUILD_SH" "${build_flags[@]}")
+    fi
+
+    local source_bin="${ZEPHYR_APP_DIR}/build/zephyr/zephyr.signed.bin"
+    [[ -f "$source_bin" ]] || die "$label build failed: $source_bin not found"
+
+    local dest_bin
+    if [[ "$variant" == "bootloader" ]]; then
+        dest_bin="${RELEASE_DIR}/bl-update.signed.bin"
+    else
+        dest_bin="${RELEASE_DIR}/standard.signed.bin"
+    fi
+    cp "$source_bin" "$dest_bin"
+    validate_binary "$dest_bin" "$label"
+}
+
+# ── Changelog generation ──────────────────────────────────────────
+generate_changelog() {
+    local version_str="$1"
+    local commit_full="$2"
+    local commit_short="$3"
+    local build_timestamp=$(date +"%Y-%m-%d %H:%M:%S %Z")
+
+    # Find previous source commit from existing VERSION.MD
+    local previous_hash=""
+    local old_version_content=""
+    if [[ -f "$VERSION_MD_FILE" ]]; then
+        old_version_content=$(cat "$VERSION_MD_FILE")
+        local marker_line=$(echo "$old_version_content" | grep "$SOURCE_COMMIT_MARKER" | tail -n 1)
+        if [[ -n "$marker_line" ]]; then
+            local potential_hash=$(echo "$marker_line" | awk '{print $NF}')
+            if [[ "$potential_hash" =~ ^[a-f0-9]{7,}$ ]] && \
+               git -C "$CAT_SOFTWARE_DIR" cat-file -e "${potential_hash}^{commit}" 2>/dev/null; then
+                previous_hash="$potential_hash"
+                info "Previous deploy commit: ${previous_hash}"
+            fi
+        fi
+    fi
+
+    # Generate changelog content
+    local log_format="* %h %s"
+    local changelog_content
+    if [[ -n "$previous_hash" ]]; then
+        changelog_content=$(git -C "$CAT_SOFTWARE_DIR" log --pretty=format:"$log_format" "${previous_hash}..HEAD" || true)
+        if [[ -z "$changelog_content" ]]; then
+            changelog_content="* No new commits since previous deploy (${previous_hash:0:7})"
+        fi
+    else
+        changelog_content=$(git -C "$CAT_SOFTWARE_DIR" log -1 --pretty=format:"$log_format" HEAD)
+    fi
+
+    # Write new VERSION.MD
+    cat > "$VERSION_MD_FILE" <<EOF
+# Version ${version_str}
+
+**Source Commit:** \`${commit_short}\` (Based on \`${commit_full}\` in \`${SOURCE_REPO_NAME}\`)
+**Build Date:** ${build_timestamp}
+
+## Changes
+
+${changelog_content}
+
+---
+${SOURCE_COMMIT_MARKER} ${commit_full}
+EOF
+    ok "VERSION.MD generated"
+
+    # Update CHANGELOG.MD
+    if [[ -n "$old_version_content" ]]; then
+        local separator=$'\n\n---\n\n'
+        if [[ -f "$CHANGELOG_MD_FILE" ]]; then
+            local temp_changelog="${WEBDFU_DIR}/CHANGELOG.temp"
+            printf '%s%s' "$old_version_content" "$separator" | cat - "$CHANGELOG_MD_FILE" > "$temp_changelog"
+            mv "$temp_changelog" "$CHANGELOG_MD_FILE"
+        else
+            printf '# Changelog\n\nAll previous version details are recorded below, newest first.\n\n%s' "$old_version_content" > "$CHANGELOG_MD_FILE"
+        fi
+        ok "CHANGELOG.MD updated"
+    else
+        info "No previous VERSION.MD — skipping CHANGELOG.MD"
+    fi
+
+    # Return changelog content for use in release notes
+    echo "$changelog_content"
+}
+
+# ══════════════════════════════════════════════════════════════════
+# SUBCOMMANDS
+# ══════════════════════════════════════════════════════════════════
+
+cmd_build() {
+    local build_standard=false
+    local build_bootloader=false
+    local use_docker=false
+
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            --standard)   build_standard=true; shift ;;
+            --bootloader) build_bootloader=true; shift ;;
+            --all)        build_standard=true; build_bootloader=true; shift ;;
+            --docker)     use_docker=true; shift ;;
+            *) die "Unknown build flag: $1" ;;
+        esac
+    done
+
+    # Default to standard only
+    if ! $build_standard && ! $build_bootloader; then
+        build_standard=true
+    fi
+
+    heading "Pre-flight checks"
+    require_on_main "$CAT_SOFTWARE_DIR" "Firmware"
+
+    # Set up release directory
+    mkdir -p "$RELEASE_DIR"
+
+    # Source environment (unless using Docker)
+    if [[ "$use_docker" != "true" ]]; then
+        source_zephyr_env
+    fi
+
+    # Build standard
+    if $build_standard; then
+        do_build "Standard" "standard" "$use_docker"
+    fi
+
+    # Build bootloader
+    if $build_bootloader; then
+        do_build "Bootloader-Update" "bootloader" "$use_docker"
+    fi
+
+    # Summary
+    heading "Build Summary"
+    local version=$(get_version_string)
+    local commit=$(get_commit_short)
+    info "Version: $version"
+    info "Commit:  $commit"
+    if $build_standard; then
+        local std_size=$(/usr/bin/wc -c < "${RELEASE_DIR}/standard.signed.bin")
+        std_size=${std_size// /}
+        info "Standard:    $(( std_size / 1024 ))KB"
+    fi
+    if $build_bootloader; then
+        local bl_size=$(/usr/bin/wc -c < "${RELEASE_DIR}/bl-update.signed.bin")
+        bl_size=${bl_size// /}
+        info "Bootloader:  $(( bl_size / 1024 ))KB"
+    fi
+    ok "Build complete"
+}
+
+cmd_version() {
+    local show=false
+    local bump=""
+
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            --show) show=true; shift ;;
+            --bump)
+                [[ $# -ge 2 ]] || die "--bump requires an argument: major|minor|patch|push"
+                bump="$2"; shift 2 ;;
+            *) die "Unknown version flag: $1" ;;
+        esac
+    done
+
+    # Default to show
+    if [[ -z "$bump" ]]; then show=true; fi
+
+    if $show && [[ -z "$bump" ]]; then
+        local version=$(get_version_dotted)
+        local tag=$(get_version_tag)
+        local str=$(get_version_string)
+        info "Current version: $version"
+        info "Tag format:      $tag"
+        info "Deploy format:   $str"
+        return
+    fi
+
+    if [[ -n "$bump" ]]; then
+        case "$bump" in
+            major|minor|patch|push) ;;
+            *) die "Invalid bump target: $bump (expected major|minor|patch|push)" ;;
+        esac
+
+        local before=$(get_version_dotted)
+        info "Before: $before"
+
+        (cd "$ZEPHYR_GAME_DIR" && python3 "$VERSION_PY" "$bump") > /dev/null
+        local after=$(get_version_dotted)
+        ok "After:  $after"
+    fi
+}
+
+cmd_deploy() {
+    local do_push=true
+    local do_webdfu=true
+
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            --webdfu)   do_webdfu=true; shift ;;
+            --no-push)  do_push=false; shift ;;
+            *) die "Unknown deploy flag: $1" ;;
+        esac
+    done
+
+    heading "Pre-flight checks"
+
+    # Verify built binaries exist
+    local std_bin="${RELEASE_DIR}/standard.signed.bin"
+    local bl_bin="${RELEASE_DIR}/bl-update.signed.bin"
+    [[ -f "$std_bin" ]] || die "Standard binary not found. Run 'catrelease build --all' first."
+    [[ -f "$bl_bin" ]] || die "Bootloader binary not found. Run 'catrelease build --all' first."
+    validate_binary "$std_bin" "Standard"
+    validate_binary "$bl_bin" "Bootloader"
+
+    # Extract info
+    local version_str=$(get_version_string)
+    local version_tag=$(get_version_tag)
+    local commit_full=$(get_commit_full)
+    local commit_short=$(get_commit_short)
+    local date_simple=$(date +"%Y%m%d")
+    local git_date_tag="${commit_short}-${date_simple}"
+
+    heading "Deploying $version_str to webdfu"
+
+    # Copy firmware to webdfu
+    cp "$std_bin" "${WEBDFU_DIR}/zephyr.signed.bin"
+    ok "Copied standard firmware → zephyr.signed.bin"
+    cp "$bl_bin" "${WEBDFU_DIR}/zephyr-bl-update.signed.bin"
+    ok "Copied bootloader firmware → zephyr-bl-update.signed.bin"
+
+    # Create versioned archive in release/
+    local archive_name="uCritAir-${version_str}-${git_date_tag}.bin"
+    cp "$std_bin" "${RELEASE_DIR}/${archive_name}"
+    ok "Versioned archive: release/${archive_name}"
+
+    # Generate changelog and VERSION.MD
+    heading "Generating version info"
+    local changelog=$(generate_changelog "$version_str" "$commit_full" "$commit_short")
+
+    # Commit to webdfu
+    heading "Committing to webdfu"
+    cd "$WEBDFU_DIR"
+
+    if ! git rev-parse --is-inside-work-tree > /dev/null 2>&1; then
+        die "${WEBDFU_DIR} is not a git repository"
+    fi
+
+    git add zephyr.signed.bin zephyr-bl-update.signed.bin VERSION.MD CHANGELOG.MD \
+        index.html app.js dfu-util.js pupdate-styles.css 2>/dev/null || true
+    # Also stage any other modified tracked files
+    git add -u
+
+    if git diff --staged --quiet; then
+        warn "No changes to commit in webdfu"
+    else
+        local commit_msg="Deploy ${version_str} (${commit_short})"
+        git commit -m "$commit_msg"
+        ok "Committed: $commit_msg"
+
+        if $do_push; then
+            info "Pushing to origin..."
+            git push origin
+            ok "Pushed to webdfu origin"
+        else
+            info "Skipping push (--no-push)"
+        fi
+    fi
+
+    ok "Deploy complete"
+}
+
+cmd_tag() {
+    local do_push=false
+
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            --push) do_push=true; shift ;;
+            *) die "Unknown tag flag: $1" ;;
+        esac
+    done
+
+    local tag=$(get_version_tag)
+    local version=$(get_version_dotted)
+    local commit=$(get_commit_short)
+
+    heading "Tagging $tag"
+
+    cd "$CAT_SOFTWARE_DIR"
+
+    # Check if tag already exists
+    if git tag -l "$tag" | grep -q "$tag"; then
+        die "Tag $tag already exists. Bump version first with 'catrelease version --bump push'"
+    fi
+
+    # Create annotated tag
+    git tag -a "$tag" -m "Release $version (${commit})"
+    ok "Created tag: $tag"
+
+    if $do_push; then
+        # Push to both remotes
+        for remote in origin publish; do
+            if git remote get-url "$remote" >/dev/null 2>&1; then
+                info "Pushing tag to $remote..."
+                git push "$remote" "$tag"
+                ok "Pushed $tag to $remote"
+            else
+                warn "Remote '$remote' not configured, skipping"
+            fi
+        done
+    else
+        info "Tag created locally. Push with: git push origin $tag && git push publish $tag"
+    fi
+}
+
+cmd_release() {
+    local use_docker=false
+    local do_push=true
+
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            --docker)   use_docker=true; shift ;;
+            --no-push)  do_push=false; shift ;;
+            *) die "Unknown release flag: $1" ;;
+        esac
+    done
+
+    heading "Full Release Pipeline"
+
+    # Pre-flight
+    heading "Pre-flight checks"
+    require_clean_repo "$CAT_SOFTWARE_DIR" "Firmware"
+    require_on_main "$CAT_SOFTWARE_DIR" "Firmware"
+
+    # Check tools
+    command -v gh >/dev/null 2>&1 || die "gh CLI not found (brew install gh)"
+    gh auth status >/dev/null 2>&1 || die "gh not authenticated (run: gh auth login)"
+
+    local version_str=$(get_version_string)
+    local version_tag=$(get_version_tag)
+    info "Version: $version_str"
+    info "Tag:     $version_tag"
+    info "Commit:  $(get_commit_short)"
+
+    # Confirm
+    print -P "\n%F{yellow}This will:%f"
+    echo "  1. Build standard + bootloader firmware"
+    echo "  2. Deploy to webdfu repo (update.ucritter.com)"
+    echo "  3. Create git tag $version_tag"
+    echo "  4. Create GitHub release on ucritair/ucritair-firmware"
+    if $do_push; then
+        echo "  5. Push all changes"
+    fi
+    print -P "\n%F{yellow}Continue? [y/N]%f"
+    read -r confirm
+    [[ "$confirm" =~ ^[Yy] ]] || { info "Aborted."; exit 0; }
+
+    # Build
+    local docker_flag=""
+    if $use_docker; then docker_flag="--docker"; fi
+    cmd_build --all $docker_flag
+
+    # Deploy
+    local push_flag=""
+    if ! $do_push; then push_flag="--no-push"; fi
+    cmd_deploy $push_flag
+
+    # Tag
+    if $do_push; then
+        cmd_tag --push
+    else
+        cmd_tag
+    fi
+
+    # GitHub Release
+    if $do_push; then
+        heading "Creating GitHub Release"
+        local std_bin="${RELEASE_DIR}/standard.signed.bin"
+        local bl_bin="${RELEASE_DIR}/bl-update.signed.bin"
+        local release_notes_file=$(mktemp)
+
+        # Build release notes
+        cat > "$release_notes_file" <<EOF
+## Firmware ${version_str}
+
+### Downloads
+- **Standard firmware** — for regular updates
+- **Bootloader update firmware** — only flash this if instructed (includes MCUboot update)
+
+### Changes
+$(git -C "$CAT_SOFTWARE_DIR" log --pretty=format:"* %h %s" "$(git -C "$CAT_SOFTWARE_DIR" describe --tags --abbrev=0 HEAD~1 2>/dev/null || echo HEAD~10)..HEAD" 2>/dev/null || echo "* Initial release")
+
+### Update Instructions
+Flash via [update.ucritter.com](https://update.ucritter.com) or use \`dfu-util\`:
+\`\`\`
+dfu-util --alt 0 --download ucrit-firmware-${version_str}.bin --reset
+\`\`\`
+EOF
+
+        # Rename binaries for release
+        local std_release="${RELEASE_DIR}/ucrit-firmware-${version_str}.bin"
+        local bl_release="${RELEASE_DIR}/ucrit-bootloader-update-${version_str}.bin"
+        cp "$std_bin" "$std_release"
+        cp "$bl_bin" "$bl_release"
+
+        # Create release
+        if gh release view "$version_tag" --repo ucritair/ucritair-firmware >/dev/null 2>&1; then
+            warn "GitHub release $version_tag already exists, skipping"
+        else
+            gh release create "$version_tag" \
+                "$std_release" \
+                "$bl_release" \
+                --repo ucritair/ucritair-firmware \
+                --title "Firmware ${version_str}" \
+                --notes-file "$release_notes_file"
+            ok "GitHub release created: $version_tag"
+        fi
+
+        rm -f "$release_notes_file"
+    fi
+
+    # Summary
+    heading "Release Complete!"
+    ok "Version:  $(get_version_dotted)"
+    ok "Tag:      $version_tag"
+    ok "Commit:   $(get_commit_short)"
+    if $do_push; then
+        ok "WebDFU:   https://update.ucritter.com"
+        ok "Release:  https://github.com/ucritair/ucritair-firmware/releases/tag/$version_tag"
+    fi
+    echo ""
+}
+
+# ── Usage ──────────────────────────────────────────────────────────
+usage() {
+    cat <<'EOF'
+catrelease — Firmware release pipeline for uCritAir
+
+USAGE:
+  catrelease <command> [options]
+
+COMMANDS:
+  build     Build firmware variants
+              --standard    Build standard firmware only (default)
+              --bootloader  Build bootloader-update firmware only
+              --all         Build both variants
+              --docker      Use Docker instead of local Zephyr env
+
+  version   Manage firmware version
+              --show        Show current version (default)
+              --bump <lvl>  Increment version (major|minor|patch|push)
+
+  deploy    Deploy firmware to webdfu repo
+              --webdfu      Deploy to webdfu (default)
+              --no-push     Commit but don't push
+
+  tag       Create git tag in firmware repo
+              --push        Push tag to origin + publish remotes
+
+  release   Full pipeline: build → deploy → tag → GitHub release
+              --docker      Use Docker builds
+              --no-push     Don't push (dry run)
+
+EXAMPLES:
+  catrelease version --show           # Show current version
+  catrelease version --bump push      # Bump push number
+  catrelease build --all              # Build both firmware variants
+  catrelease deploy --no-push         # Deploy without pushing
+  catrelease release                  # Full release pipeline
+  catrelease release --docker         # Full release using Docker
+
+ENVIRONMENT:
+  CAT_SOFTWARE_DIR    Firmware repo path     (default: ~/Code/cat_software)
+  WEBDFU_DIR          WebDFU repo path       (default: ~/Code/ucritair-webdfu)
+  ZEPHYR_PROJECT_DIR  Zephyr SDK path        (default: ~/Code/zephyrproject/zephyr)
+EOF
+}
+
+# ── Main dispatch ──────────────────────────────────────────────────
+case "${1:-help}" in
+    build)   shift; cmd_build "$@" ;;
+    version) shift; cmd_version "$@" ;;
+    deploy)  shift; cmd_deploy "$@" ;;
+    tag)     shift; cmd_tag "$@" ;;
+    release) shift; cmd_release "$@" ;;
+    help|-h|--help) usage ;;
+    *) die "Unknown command: $1. Run 'catrelease help' for usage." ;;
+esac
