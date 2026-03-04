@@ -167,7 +167,6 @@ uint64_t last_dump = 0;
 
 void lcd_keep_awake()
 {
-	LOG_DBG("lcd_keep_awake()");
 	last_button_pressed = k_uptime_get();
 }
 

@@ -65,15 +65,12 @@ static uint8_t bthome_svc_data[20] = {
 
 bool ble_connected = false;
 
-/* Dedicated work queue for BLE notifications.
- * bt_gatt_notify() can block for seconds on a dead link (waiting for TX
- * credits during BLE supervision timeout). Running notifications on a
- * separate work queue prevents this from blocking the system work queue
- * (which Zephyr needs for connection cleanup) or the main game thread. */
-#define BLE_NOTIFY_STACK_SIZE 1024
-#define BLE_NOTIFY_PRIORITY 5
-static K_THREAD_STACK_DEFINE(ble_notify_stack, BLE_NOTIFY_STACK_SIZE);
-static struct k_work_q ble_notify_wq;
+/* Active connection reference (refcounted). Protected by notify_lock so
+ * worker threads can atomically read + ref before disconnect can free it.
+ * Using a tracked reference avoids bt_gatt_notify(NULL, ...) which
+ * iterates all connections — including zombie ones mid-teardown. */
+static struct bt_conn *notify_conn;
+static struct k_spinlock notify_lock;
 
 #define VND_UUID_PFX(x) BT_UUID_128_ENCODE(0xfc7d4395, 0x1019, 0x49c4, 0xa91b, (0x7491ecc4ull<<16) | (unsigned long long)x)
 
@@ -306,6 +303,9 @@ static ssize_t write_name(struct bt_conn *conn, const struct bt_gatt_attr *attr,
 			 const void *buf, uint16_t len, uint16_t offset,
 			 uint8_t flags)
 {
+	if (offset + len > sizeof(pet.name))
+		return BT_GATT_ERR(BT_ATT_ERR_INVALID_OFFSET);
+
 	memcpy(pet.name+offset, buf, len);
 
 	lcd_keep_awake();
@@ -409,10 +409,9 @@ static ssize_t write_log_stream(struct bt_conn *conn, const struct bt_gatt_attr 
 	log_stream_cursor = log_stream_start;
 	log_stream_active = true;
 
-	printk("Log stream: start=%u count=%u\n", log_stream_start, log_stream_count);
 	lcd_keep_awake();
 
-	k_work_schedule_for_queue(&ble_notify_wq, &log_stream_work, K_MSEC(10));
+	k_work_schedule(&log_stream_work, K_MSEC(10));
 	return len;
 }
 
@@ -421,8 +420,21 @@ static const struct bt_gatt_attr *log_stream_notify_attr = NULL;
 
 static void log_stream_work_handler(struct k_work *work)
 {
-	if (!log_stream_active || !ble_ok || !ble_connected || !log_stream_notify_attr)
-		return;
+	/* pkt is static to reduce stack pressure — this handler is
+	 * single-threaded (system work queue) so no reentrancy risk. */
+	static struct __attribute__((__packed__)) {
+		uint32_t cell_nr;
+		CAT_log_cell cell;
+	} pkt;
+
+	k_spinlock_key_t key = k_spin_lock(&notify_lock);
+	struct bt_conn *conn = notify_conn;
+	if (conn) bt_conn_ref(conn);
+	k_spin_unlock(&notify_lock, key);
+
+	if (!conn || !log_stream_active || !ble_ok || !log_stream_notify_attr) {
+		goto out;
+	}
 
 	uint32_t cells_sent = log_stream_cursor - log_stream_start;
 	if (cells_sent >= log_stream_count)
@@ -432,31 +444,47 @@ static void log_stream_work_handler(struct k_work *work)
 			uint32_t cell_nr;
 		} end_marker = { .cell_nr = 0xFFFFFFFF };
 
-		bt_gatt_notify(NULL, log_stream_notify_attr,
-			       &end_marker, sizeof(end_marker));
+		int err = bt_gatt_notify(conn, log_stream_notify_attr,
+					 &end_marker, sizeof(end_marker));
+		if (err == -ENOMEM) {
+			bt_conn_unref(conn);
+			k_work_schedule(&log_stream_work, K_MSEC(50));
+			return;
+		}
 		log_stream_active = false;
-		return;
+		goto out;
 	}
-
-	struct __attribute__((__packed__)) {
-		uint32_t cell_nr;
-		CAT_log_cell cell;
-	} pkt;
 
 	pkt.cell_nr = log_stream_cursor;
 	flash_get_cell_by_nr(log_stream_cursor, &pkt.cell);
 
-	int err = bt_gatt_notify(NULL, log_stream_notify_attr,
+	/* Bail out if disconnect fired during flash read */
+	if (!ble_connected) {
+		log_stream_active = false;
+		bt_conn_unref(conn);
+		return;
+	}
+
+	int err = bt_gatt_notify(conn, log_stream_notify_attr,
 				 &pkt, sizeof(pkt) - sizeof(pkt.cell.pad));
 	if (err) {
-		/* BLE buffer full, retry later */
-		k_work_schedule_for_queue(&ble_notify_wq, &log_stream_work, K_MSEC(50));
+		bt_conn_unref(conn);
+		if (err == -ENOMEM) {
+			k_work_schedule(&log_stream_work, K_MSEC(50));
+		} else {
+			log_stream_active = false;
+		}
 		return;
 	}
 
 	log_stream_cursor++;
 	lcd_keep_awake();
-	k_work_schedule_for_queue(&ble_notify_wq, &log_stream_work, K_MSEC(10));
+	bt_conn_unref(conn);
+	k_work_schedule(&log_stream_work, K_MSEC(10));
+	return;
+
+out:
+	if (conn) bt_conn_unref(conn);
 }
 
 /* Vendor Primary Service Declaration */
@@ -647,12 +675,7 @@ static K_WORK_DEFINE(sensor_notify_work, sensor_notify_work_handler);
 static void adv_restart_work_handler(struct k_work *work)
 {
 	update_bthome_adv_data();
-	int err = bt_le_adv_start(BT_LE_ADV_CONN_FAST_1, ad, ARRAY_SIZE(ad), sd, ARRAY_SIZE(sd));
-	if (err) {
-		printk("Advertising failed to restart (err %d)\n", err);
-	} else {
-		printk("Advertising restarted\n");
-	}
+	bt_le_adv_start(BT_LE_ADV_CONN_FAST_1, ad, ARRAY_SIZE(ad), sd, ARRAY_SIZE(sd));
 }
 
 static K_WORK_DEFINE(adv_restart_work, adv_restart_work_handler);
@@ -663,18 +686,37 @@ static void connected(struct bt_conn *conn, uint8_t err)
 		printk("Connection failed, err 0x%02x %s\n", err, bt_hci_err_to_str(err));
 	} else {
 		printk("Connected\n");
+		k_spinlock_key_t key = k_spin_lock(&notify_lock);
+		struct bt_conn *old = notify_conn;
+		notify_conn = bt_conn_ref(conn);
 		ble_connected = true;
+		k_spin_unlock(&notify_lock, key);
+		if (old) {
+			bt_conn_unref(old);
+		}
 		lcd_keep_awake();
 	}
 }
 
 static void disconnected(struct bt_conn *conn, uint8_t reason)
 {
-	printk("Disconnected, reason 0x%02x %s\n", reason, bt_hci_err_to_str(reason));
+	printk("Disconnected (reason 0x%02x)\n", reason);
+
+	/* Clear under lock so workers can't grab a ref between our
+	 * NULL-write and unref (which would be a use-after-free). */
+	k_spinlock_key_t key = k_spin_lock(&notify_lock);
+	struct bt_conn *old = notify_conn;
+	notify_conn = NULL;
 	ble_connected = false;
+	k_spin_unlock(&notify_lock, key);
+
+	if (old) {
+		bt_conn_unref(old);
+	}
+
+	/* Workers self-terminate: they check notify_conn == NULL under
+	 * spinlock at the top of each iteration and exit cleanly. */
 	log_stream_active = false;
-	k_work_cancel_delayable(&log_stream_work);
-	k_work_cancel(&sensor_notify_work);
 	log_stream_cursor = 0;
 	log_stream_start = 0;
 	log_stream_count = 0;
@@ -748,11 +790,6 @@ static void bas_notify(void)
 int ble_main(void)
 {
 	int err;
-
-	k_work_queue_init(&ble_notify_wq);
-	k_work_queue_start(&ble_notify_wq, ble_notify_stack,
-			   K_THREAD_STACK_SIZEOF(ble_notify_stack),
-			   BLE_NOTIFY_PRIORITY, NULL);
 
 	err = bt_enable(NULL);
 	if (err) {
@@ -849,23 +886,35 @@ void ble_update()
  */
 static void sensor_notify_work_handler(struct k_work *work)
 {
-	if (!ble_ok || !ble_connected)
+	k_spinlock_key_t key = k_spin_lock(&notify_lock);
+	struct bt_conn *conn = notify_conn;
+	if (conn) bt_conn_ref(conn);
+	k_spin_unlock(&notify_lock, key);
+
+	if (!conn || !ble_ok) {
+		if (conn) bt_conn_unref(conn);
 		return;
+	}
+
+	int err;
 
 	int16_t temp_val = (int16_t)(readings.lps22hh.temp * 100);
-	bt_gatt_notify(NULL, &attr_ess_svc[2], &temp_val, sizeof(temp_val));
+	err = bt_gatt_notify(conn, &attr_ess_svc[2], &temp_val, sizeof(temp_val));
+	if (err) goto done;
 
-	if (!ble_connected) return;
 	int16_t hum_val = (int16_t)(readings.sen5x.humidity_rhpct * 100);
-	bt_gatt_notify(NULL, &attr_ess_svc[7], &hum_val, sizeof(hum_val));
+	err = bt_gatt_notify(conn, &attr_ess_svc[7], &hum_val, sizeof(hum_val));
+	if (err) goto done;
 
-	if (!ble_connected) return;
 	int16_t co2_val = (int16_t)(readings.sunrise.ppm_filtered_compensated);
-	bt_gatt_notify(NULL, &attr_ess_svc[10], &co2_val, sizeof(co2_val));
+	err = bt_gatt_notify(conn, &attr_ess_svc[10], &co2_val, sizeof(co2_val));
+	if (err) goto done;
 
-	if (!ble_connected) return;
 	__fp16 pm25_val = (__fp16)(readings.sen5x.pm2_5);
-	bt_gatt_notify(NULL, &attr_ess_svc[15], &pm25_val, sizeof(pm25_val));
+	err = bt_gatt_notify(conn, &attr_ess_svc[15], &pm25_val, sizeof(pm25_val));
+	if (err) goto done;
+done:
+	bt_conn_unref(conn);
 }
 
 void ble_notify_sensors(void)
@@ -873,7 +922,7 @@ void ble_notify_sensors(void)
 	if (!ble_ok || !ble_connected)
 		return;
 
-	k_work_submit_to_queue(&ble_notify_wq, &sensor_notify_work);
+	k_work_submit(&sensor_notify_work);
 }
 
 void ble_print_addr(void)
