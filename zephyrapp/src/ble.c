@@ -12,6 +12,7 @@
 #include <errno.h>
 #include <zephyr/sys/printk.h>
 #include <zephyr/sys/byteorder.h>
+#include <zephyr/sys/util.h>
 #include <zephyr/kernel.h>
 
 #include <zephyr/settings/settings.h>
@@ -82,7 +83,8 @@ static struct k_spinlock notify_lock;
 bool ble_ok = false;
 
 static uint8_t vnd_value[VND_MAX_LEN + 1];
-static char device_id[7]; /* 6-char base-36 ID + NUL */
+char device_id[7]; /* 6-char base-36 ID + NUL */
+static char adv_name[VND_MAX_LEN + 1] = CONFIG_BT_DEVICE_NAME;
 
 static ssize_t read_vnd(struct bt_conn *conn, const struct bt_gatt_attr *attr,
 			void *buf, uint16_t len, uint16_t offset)
@@ -626,14 +628,100 @@ static struct bt_data ad[] = {
 		      (CONFIG_BT_DEVICE_APPEARANCE >> 8) & 0xff),
 };
 
-/* Scan response: Name + service UUIDs (7 + 6 + 18 = 31 bytes, exactly at limit) */
-static const struct bt_data sd[] = {
-	BT_DATA(BT_DATA_NAME_COMPLETE, CONFIG_BT_DEVICE_NAME, sizeof(CONFIG_BT_DEVICE_NAME) - 1),
+/* Scan response: runtime name + 16-bit service UUIDs. We drop the custom
+ * 128-bit UUID here so the full per-device name still fits in the legacy
+ * 31-byte payload. */
+static struct bt_data sd[] = {
+	BT_DATA(BT_DATA_NAME_COMPLETE, adv_name, sizeof(CONFIG_BT_DEVICE_NAME) - 1),
 	BT_DATA_BYTES(BT_DATA_UUID16_ALL,
 		      BT_UUID_16_ENCODE(BT_UUID_ESS_VAL),
 		      BT_UUID_16_ENCODE(BT_UUID_BAS_VAL)),
-	BT_DATA_BYTES(BT_DATA_UUID128_ALL, BT_UUID_CUSTOM_SERVICE_VAL),
 };
+
+#define BLE_LEGACY_ADV_MAX_PAYLOAD_LEN 31
+#define BLE_AD_ELEM_LEN(_data_len) (1 + 1 + (_data_len))
+#define BLE_FLAGS_DATA_LEN 1
+#define BLE_APPEARANCE_DATA_LEN 2
+#define BLE_UUID16_LIST_DATA_LEN 4
+#define UCRIT_NAME_PREFIX_LEN 6
+#define DEVICE_ID_LEN 6
+
+enum {
+	BLE_BTHOME_ADV_PAYLOAD_LEN =
+		BLE_AD_ELEM_LEN(BLE_FLAGS_DATA_LEN) +
+		BLE_AD_ELEM_LEN(sizeof(bthome_svc_data)) +
+		BLE_AD_ELEM_LEN(BLE_APPEARANCE_DATA_LEN),
+	BLE_SCAN_RSP_MAX_PAYLOAD_LEN =
+		BLE_AD_ELEM_LEN(UCRIT_NAME_PREFIX_LEN + DEVICE_ID_LEN) +
+		BLE_AD_ELEM_LEN(BLE_UUID16_LIST_DATA_LEN),
+};
+
+BUILD_ASSERT(UCRIT_NAME_PREFIX_LEN + DEVICE_ID_LEN <= VND_MAX_LEN,
+	     "uCrit BLE name exceeds adv_name buffer");
+BUILD_ASSERT(BLE_BTHOME_ADV_PAYLOAD_LEN <= BLE_LEGACY_ADV_MAX_PAYLOAD_LEN,
+	     "BTHome advertising payload exceeds legacy 31-byte limit");
+BUILD_ASSERT(BLE_SCAN_RSP_MAX_PAYLOAD_LEN <= BLE_LEGACY_ADV_MAX_PAYLOAD_LEN,
+	     "BLE scan response exceeds legacy 31-byte limit");
+
+#define BT_LE_ADV_CONN_FAST_1_IDENTITY \
+	BT_LE_ADV_PARAM(BT_LE_ADV_OPT_CONN | BT_LE_ADV_OPT_USE_IDENTITY, \
+			BT_GAP_ADV_FAST_INT_MIN_1, \
+			BT_GAP_ADV_FAST_INT_MAX_1, NULL)
+
+static void ble_prepare_identity(bool log_identity)
+{
+	bt_addr_le_t addrs[CONFIG_BT_ID_MAX];
+	size_t id_count = CONFIG_BT_ID_MAX;
+
+	bt_id_get(addrs, &id_count);
+	if (id_count == 0) {
+		return;
+	}
+
+	if (log_identity) {
+		char addr_str[BT_ADDR_LE_STR_LEN];
+		bt_addr_le_to_str(&addrs[0], addr_str, sizeof(addr_str));
+		printk("BLE_ADDR: %s\n", addr_str);
+	}
+
+	/* FNV-1a hash of 6-byte address -> 32 bits */
+	const uint8_t *a = addrs[0].a.val;
+	uint32_t h = 2166136261u;
+	static const char b36[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+	for (int i = 0; i < 6; i++) {
+		h ^= a[i];
+		h *= 16777619u;
+	}
+
+	/* Encode as 6 base-36 chars (A-Z 0-9, ~31 bits) */
+	for (int i = 0; i < 6; i++) {
+		device_id[i] = b36[h % 36];
+		h /= 36;
+	}
+	device_id[6] = '\0';
+
+	snprintf(adv_name, sizeof(adv_name), "uCrit-%s", device_id);
+	sd[0].data_len = strlen(adv_name);
+
+	if (bt_set_name(adv_name)) {
+		printk("Failed to set BLE name to %s\n", adv_name);
+	}
+
+	/* Populate device name characteristic (0x0001) */
+	memcpy(vnd_value, adv_name, strlen(adv_name) + 1);
+
+	if (log_identity) {
+		printk("Device ID: %s (name: %s)\n", device_id, adv_name);
+	}
+}
+
+static int start_connectable_advertising(void)
+{
+	update_bthome_adv_data();
+	return bt_le_adv_start(BT_LE_ADV_CONN_FAST_1_IDENTITY,
+			       ad, ARRAY_SIZE(ad), sd, ARRAY_SIZE(sd));
+}
 
 /* Timer-wake BLE broadcast: briefly advertise BTHome data for HA */
 void ble_broadcast_bthome(void)
@@ -644,10 +732,13 @@ void ble_broadcast_bthome(void)
 		return;
 	}
 
+	ble_prepare_identity(false);
 	update_bthome_adv_data();
 
-	/* Non-connectable advertising — just broadcast sensor data */
-	err = bt_le_adv_start(BT_LE_ADV_NCONN, ad, ARRAY_SIZE(ad), sd, ARRAY_SIZE(sd));
+	/* Use the stable identity address so Home Assistant keeps mapping this
+	 * short timer-wake broadcast to the same device. */
+	err = bt_le_adv_start(BT_LE_ADV_NCONN_IDENTITY,
+			      ad, ARRAY_SIZE(ad), sd, ARRAY_SIZE(sd));
 	if (err) {
 		printk("BTHome broadcast adv start failed: %d\n", err);
 		bt_disable();
@@ -674,8 +765,7 @@ static K_WORK_DEFINE(sensor_notify_work, sensor_notify_work_handler);
 
 static void adv_restart_work_handler(struct k_work *work)
 {
-	update_bthome_adv_data();
-	bt_le_adv_start(BT_LE_ADV_CONN_FAST_1, ad, ARRAY_SIZE(ad), sd, ARRAY_SIZE(sd));
+	start_connectable_advertising();
 }
 
 static K_WORK_DEFINE(adv_restart_work, adv_restart_work_handler);
@@ -729,27 +819,6 @@ BT_CONN_CB_DEFINE(conn_callbacks) = {
 	.disconnected = disconnected,
 };
 
-static void bt_ready(void)
-{
-	int err;
-
-	printk("Bluetooth initialized\n");
-
-	if (IS_ENABLED(CONFIG_SETTINGS)) {
-		settings_load();
-	}
-
-	update_bthome_adv_data();
-
-	err = bt_le_adv_start(BT_LE_ADV_CONN_FAST_1, ad, ARRAY_SIZE(ad), sd, ARRAY_SIZE(sd));
-	if (err) {
-		printk("Advertising failed to start (err %d)\n", err);
-		return;
-	}
-
-	printk("Advertising successfully started\n");
-}
-
 static void auth_passkey_display(struct bt_conn *conn, unsigned int passkey)
 {
 	char addr[BT_ADDR_LE_STR_LEN];
@@ -797,7 +866,12 @@ int ble_main(void)
 		return 0;
 	}
 
-	bt_ready();
+	printk("Bluetooth initialized\n");
+
+	if (IS_ENABLED(CONFIG_SETTINGS)) {
+		settings_load();
+	}
+
 	bt_gatt_cb_register(&gatt_callbacks);
 	bt_conn_auth_cb_register(&auth_cb_display);
 
@@ -806,41 +880,15 @@ int ble_main(void)
 		vnd_svc.attrs, vnd_svc.attr_count,
 		BT_UUID_DECLARE_128(VND_UUID_PFX(0x0006)));
 
-	/* Derive unique device ID from BLE identity address (FICR-based) */
-	bt_addr_le_t addrs[CONFIG_BT_ID_MAX];
-	size_t id_count = CONFIG_BT_ID_MAX;
-	bt_id_get(addrs, &id_count);
-	if (id_count > 0) {
-		char addr_str[BT_ADDR_LE_STR_LEN];
-		bt_addr_le_to_str(&addrs[0], addr_str, sizeof(addr_str));
-		printk("BLE_ADDR: %s\n", addr_str);
+	ble_prepare_identity(true);
 
-		/* FNV-1a hash of 6-byte address -> 32 bits */
-		const uint8_t *a = addrs[0].a.val;
-		uint32_t h = 2166136261u;
-		for (int i = 0; i < 6; i++) {
-			h ^= a[i];
-			h *= 16777619u;
-		}
-
-		/* Encode as 6 base-36 chars (A-Z 0-9, ~31 bits) */
-		static const char b36[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-		for (int i = 0; i < 6; i++) {
-			device_id[i] = b36[h % 36];
-			h /= 36;
-		}
-		device_id[6] = '\0';
-
-		/* Set GAP device name (visible when connected/paired) */
-		char name[VND_MAX_LEN + 1];
-		snprintf(name, sizeof(name), "uCrit-%s", device_id);
-		bt_set_name(name);
-
-		/* Populate device name characteristic (0x0001) */
-		memcpy(vnd_value, name, strlen(name) + 1);
-
-		printk("Device ID: %s (name: %s)\n", device_id, name);
+	err = start_connectable_advertising();
+	if (err) {
+		printk("Advertising failed to start (err %d)\n", err);
+		return 0;
 	}
+
+	printk("Advertising successfully started\n");
 
 	ble_ok = true;
 
